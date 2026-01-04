@@ -2,7 +2,7 @@ unit Setup.SecurityFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -23,8 +23,8 @@ function GrantPermissionOnKey(const RegView: TRegView; const RootKey: HKEY;
 implementation
 
 uses
-  PathFunc, SetupLdrAndSetup.Messages, SetupLdrAndSetup.InstFunc, Setup.LoggingFunc,
-  Setup.RedirFunc, Setup.Helper;
+  PathFunc, SetupLdrAndSetup.Messages, SetupLdrAndSetup.InstFunc,
+  Setup.InstFunc, Setup.LoggingFunc, Setup.RedirFunc, Setup.Helper;
 
 function InternalGrantPermission(const ObjectType: DWORD; const ObjectName: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer;
@@ -195,7 +195,7 @@ var
   ObjName: String;
   ErrorCode: DWORD;
 begin
-  case UInt32(RootKey) of
+  case RegRootKeyToUInt32(RootKey) of
     UInt32(HKEY_CLASSES_ROOT): ObjName := 'CLASSES_ROOT';
     UInt32(HKEY_CURRENT_USER): ObjName := 'CURRENT_USER';
     UInt32(HKEY_LOCAL_MACHINE): ObjName := 'MACHINE';

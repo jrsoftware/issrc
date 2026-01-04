@@ -2,7 +2,7 @@ unit Setup.InstFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -102,6 +102,7 @@ function MakePendingFileRenameOperationsChecksum: TSHA256Digest;
 function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;
 procedure RaiseOleError(const FunctionName: String; const ResultCode: HRESULT);
 procedure RefreshEnvironment;
+function RegRootKeyToUInt32(const RootKey: HKEY): UInt32;
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
 function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
 procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);
@@ -146,10 +147,27 @@ begin
     [FunctionName, IntToHexStr8(ResultCode), Win32ErrorString(DWORD(ResultCode))]));
 end;
 
+function RegRootKeyToUInt32(const RootKey: HKEY): UInt32;
+{ Returns RootKey casted to UInt32 if it appears to be a predefined HKEY_*
+  value: $800000xx or $FFFFFFFF800000xx. Otherwise, returns 0.
+  HKEY_* constants are supposed to be zero-extended, but in Delphi (12.1) they
+  are erroneously sign-extended. Windows accepts both, so we do as well.
+  But we do not allow anything other than 0 or $FFFFFFFF in the upper 32 bits,
+  regardless of whether Windows allows it. }
+begin
+  const KeyShifted = RootKey shr 8;
+  if (KeyShifted = $800000)
+     {$IFDEF WIN64} or (KeyShifted = $FFFFFFFF800000) {$ENDIF} then
+    Result := UInt32(RootKey)
+  else
+    Result := 0;
+end;
+
 function GetRegRootKeyName(const RootKey: HKEY): String;
 begin
-  case UInt32(RootKey) of
-    UInt32(HKEY_AUTO): InternalError('GetRegRootKeyName called for HKEY_AUTO');
+  if UInt32(RootKey) = UInt32(HKEY_AUTO) then
+    InternalError('GetRegRootKeyName called for HKEY_AUTO');
+  case RegRootKeyToUInt32(RootKey) of
     UInt32(HKEY_CLASSES_ROOT): Result := 'HKEY_CLASSES_ROOT';
     UInt32(HKEY_CURRENT_USER): Result := 'HKEY_CURRENT_USER';
     UInt32(HKEY_LOCAL_MACHINE): Result := 'HKEY_LOCAL_MACHINE';
@@ -159,7 +177,7 @@ begin
     UInt32(HKEY_DYN_DATA): Result := 'HKEY_DYN_DATA';
   else
     { unknown - shouldn't get here }
-    Result := Format('[%x]', [UInt32(RootKey)]);
+    Result := Format('[%x]', [RootKey]);
   end;
 end;
 

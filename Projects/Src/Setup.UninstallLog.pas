@@ -2,7 +2,7 @@ unit Setup.UninstallLog;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -427,12 +427,13 @@ procedure TUninstallLog.AddReg(const Typ: TUninstallRecTyp;
 begin
   { If RootKey isn't a predefined key, or has unrecognized garbage in the
     high byte (which we use for our own purposes), reject it }
-  if RootKey shr 24 <> $80 then
+  const RootKeyUInt32 = RegRootKeyToUInt32(RootKey);
+  if RootKeyUInt32 = 0 then
     Exit;
 
   { ExtraData in a utReg* entry consists of a root key value (HKEY_*)
     OR'ed with flag bits in the high byte }
-  var ExtraData := Integer(UInt32(RootKey));
+  var ExtraData := Integer(RootKeyUInt32);
   if RegView in RegViews64Bit then
     ExtraData := ExtraData or utReg_64BitKey;
   Add(Typ, Data, ExtraData);
