@@ -332,16 +332,18 @@ end;
 
 procedure InitializeWizard();
 var
-  Left, LeftInc, Top, TopInc: Integer;
+  Left, Top, TopInc: Integer;
 begin
+  WizardForm.WelcomeLabel2.AdjustHeight;
+
+  Top := WizardForm.WelcomeLabel2.Top + WizardForm.WelcomeLabel2.Height + ScaleY(8);
   Left := WizardForm.WelcomeLabel2.Left;
-  LeftInc := WizardForm.CancelButton.Width + ScaleX(8);
+
   TopInc := WizardForm.CancelButton.Height + ScaleY(8);
-  Top := WizardForm.WelcomeLabel2.Top + WizardForm.WelcomeLabel2.Height - 4*TopInc;
 
   CreateButton(Left, Top, '&SQLDMO...', @SQLDMOButtonOnClick);
   Top := Top + TopInc;
-  CreateButton(Left + LeftInc, Top, '&Firewall...', @FirewallButtonOnClick);
+  CreateButton(Left, Top, '&Firewall...', @FirewallButtonOnClick);
   Top := Top + TopInc;
   CreateButton(Left, Top, '&IIS...', @IISButtonOnClick);
   Top := Top + TopInc;
