@@ -4247,21 +4247,19 @@ end;
 
 procedure InitIsWin64AndProcessorArchitectureAndMachineTypesSupportedBySystem;
 const
-  PROCESSOR_ARCHITECTURE_ARM64 = 12;
   IMAGE_FILE_MACHINE_ARM64 = $AA64;
   IMAGE_FILE_MACHINE_ARMNT = $01C4;
   UserEnabled = $1;
+  PROCESSOR_ARCHITECTURE_ARM64 = 12;
 var
-  KernelModule: HMODULE;
 {$IFNDEF WIN64}
   IsWow64ProcessFunc: function(hProcess: THandle; var Wow64Process: BOOL): BOOL; stdcall;
 {$ENDIF}
   IsWow64Process2Func: function(hProcess: THandle; var pProcessMachine, pNativeMachine: USHORT): BOOL; stdcall;
   GetMachineTypeAttributesFunc: function(Machine: USHORT; var MachineTypeAttributes: Integer): HRESULT; stdcall;
   IsWow64GuestMachineSupportedFunc: function(WowGuestMachine: USHORT; var MachineIsSupported: BOOL): HRESULT; stdcall;
-  SysInfo: TSystemInfo;
 begin
-  KernelModule := GetModuleHandle(kernel32);
+  const KernelModule = GetModuleHandle(kernel32);
 
   { 64-bit build:
     IsWin64 is a constant and always True. We do still need to get the
@@ -4310,6 +4308,7 @@ begin
       IsWin64 := True;
     {$ENDIF}
 
+    var SysInfo: TSystemInfo;
     GetNativeSystemInfo(SysInfo);
     case SysInfo.wProcessorArchitecture of
       PROCESSOR_ARCHITECTURE_INTEL: ProcessorArchitecture := paX86;

@@ -180,6 +180,7 @@ type
     CompressionStartTick: DWORD;
 
     CachedUserDocsDir: String;
+    CachedIsArm64: Boolean;
 
     procedure AddStatus(const S: String; const Warning: Boolean = False);
     procedure AddStatusFmt(const Msg: String; const Args: array of const;
@@ -224,9 +225,7 @@ type
       var ParamValues: array of TParamValue);
     function FindLangEntryIndexByName(const AName: String; const Pre: Boolean): Integer;
     function FindSignToolIndexByName(const AName: String): Integer;
-    {$IFNDEF WIN64}
     function GetLZMAExeFilename(const Allow64Bit: Boolean): String;
-    {$ENDIF}
     procedure InitBzipDLL;
     procedure InitPreLangData(const APreLangData: TPreLangData);
     procedure InitLanguageEntry(var ALanguageEntry: TSetupLanguageEntry);
@@ -400,6 +399,47 @@ end;
 { TSetupCompiler }
 
 constructor TSetupCompiler.Create(AOwner: TComponent);
+
+  {$IFDEF WIN64}
+  
+  function IsArm64: Boolean;
+  const
+    IMAGE_FILE_MACHINE_ARM64 = $AA64;
+    {$IFNDEF CPUX64}
+    PROCESSOR_ARCHITECTURE_ARM64 = 12;
+    {$ENDIF}
+  var
+    IsWow64Process2Func: function(hProcess: THandle; var pProcessMachine, pNativeMachine: USHORT): BOOL; stdcall;
+  begin
+    const KernelModule = GetModuleHandle(kernel32);
+
+    IsWow64Process2Func := GetProcAddress(KernelModule, 'IsWow64Process2');
+    var ProcessMachine, NativeMachine: USHORT;
+    if Assigned(IsWow64Process2Func) and
+       IsWow64Process2Func(GetCurrentProcess, ProcessMachine, NativeMachine) then
+      Exit(NativeMachine = IMAGE_FILE_MACHINE_ARM64);
+
+    { When running with x64 emulatuon on ARM64, GetNativeSystemInfo will just lie to us, so only
+      call if not x64 (which currently is impossible) }
+    {$IFNDEF CPUX64}
+    var SysInfo: TSystemInfo;
+    GetNativeSystemInfo(SysInfo);
+    if SysInfo.wProcessorArchitecture = PROCESSOR_ARCHITECTURE_ARM64 then
+      Exit(True);
+    {$ENDIF}
+
+    Result := False;
+  end;
+  
+  {$ELSE}
+  
+  function IsArm64: Boolean;
+  begin
+    Result := False;
+  end;
+  
+  {$ENDIF}
+
 begin
   inherited Create;
   ScriptFiles := TStringList.Create;
@@ -446,6 +486,7 @@ begin
   CodeCompiler.OnUsedVariable := CodeCompilerOnUsedVariable;
   CodeCompiler.OnError := CodeCompilerOnError;
   CodeCompiler.OnWarning := CodeCompilerOnWarning;
+  CachedIsArm64 := IsArm64;
 end;
 
 destructor TSetupCompiler.Destroy;
@@ -623,8 +664,24 @@ procedure TSetupCompiler.InitLZMADLL;
 begin
   if LZMAInitialized then
     Exit;
-  const DllName = {$IFDEF WIN64} 'islzma-x64.dll' {$ELSE} 'islzma.dll' {$ENDIF};
-  const Filename = CompilerDir + DllName;
+  var Filename: String;
+  {$IFDEF WIN64}
+  var DllName: String;
+  if CachedIsArm64 then begin
+    { We can use an Arm64CE DLL from our x64 EXE, for better performance }
+    DllName := 'islzma-Arm64CE.dll';
+    const Arm64Filename = CompilerDir + DllName;
+    if NewFileExists(Arm64Filename) then { Allow it to be deleted, for easy performace comparison }
+      Filename := Arm64Filename;
+  end;
+  if FileName = '' then begin
+    DllName := 'islzma-x64.dll';
+    Filename := CompilerDir + DllName;
+  end;
+  {$ELSE}
+  const DllName = 'islzma.dll';
+  Filename := CompilerDir + DllName;
+  {$ENDIF};
   const M = LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
   if not LZMAInitCompressFunctions(M) then
     AbortCompile('Failed to get address of functions in ' + DllName);
@@ -671,7 +728,17 @@ begin
   Result := LineNumber;
 end;
 
-{$IFNDEF WIN64}
+{$IFDEF WIN64}
+
+function TSetupCompiler.GetLZMAExeFilename(const Allow64Bit: Boolean): String;
+begin
+  if Allow64Bit and CachedIsArm64 then
+    Result := CompilerDir + 'islzma64-Arm64.exe'
+  else
+    Result := '';
+end;
+
+{$ELSE}
 
 function TSetupCompiler.GetLZMAExeFilename(const Allow64Bit: Boolean): String;
 const
@@ -2895,12 +2962,7 @@ begin
       end;
     ssDisablePrecompiledFileVerifications: begin
       DisablePrecompiledFileVerifications := StrToPrecompiledFiles(Value);
-      {$IFNDEF WIN64}
       CompressProps.WorkerProcessCheckTrust := not (pfIslzma in DisablePrecompiledFileVerifications);
-      {$ELSE}
-      if pfIslzma in DisablePrecompiledFileVerifications then
-        WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName + '=islzma']));
-      {$ENDIF}
     end;
     ssDisableProgramGroupPage: begin
         if CompareText(Value, 'auto') = 0 then
@@ -3040,16 +3102,16 @@ begin
         CompressProps.NumFastBytes := StrToIntRange(Value, 5, 273);
       end;
     ssLZMAUseSeparateProcess: begin
-        {$IFNDEF WIN64}
-        if CompareText(Value, 'x86') = 0 then
-          CompressProps.WorkerProcessFilename := GetLZMAExeFilename(False)
-        else if StrToBool(Value) then
-          CompressProps.WorkerProcessFilename := GetLZMAExeFilename(True)
-        else
+        if CompareText(Value, 'x86') = 0 then begin
+          CompressProps.WorkerProcessFilename := GetLZMAExeFilename(False);
+          if CompressProps.WorkerProcessFilename = '' then
+            Invalid;
+        end else if StrToBool(Value) then begin
+          CompressProps.WorkerProcessFilename := GetLZMAExeFilename(True);
+          if CompressProps.WorkerProcessFilename = '' then
+            Invalid;
+        end else
           CompressProps.WorkerProcessFilename := '';
-        {$ELSE}
-        WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
-        {$ENDIF}
       end;
     ssMergeDuplicateFiles: begin
         DontMergeDuplicateFiles := not StrToBool(Value);
@@ -7465,12 +7527,10 @@ var
     HdrChecksum, ErrorCode: DWORD;
     ISSigAvailableKeys: TArrayOfECDSAKey;
   begin
-    {$IFNDEF WIN64}
     if (SetupHeader.CompressMethod in [cmLZMA, cmLZMA2]) and
        (CompressProps.WorkerProcessFilename <> '') then
       AddStatus(Format('   Using separate process for LZMA compression (%s)',
         [PathExtractName(CompressProps.WorkerProcessFilename)]));
-    {$ENDIF}
 
     if TimeStampsInUTC then
       GetSystemTime(CurrentTime)
@@ -8097,10 +8157,8 @@ begin
       if ActiveProcessorGroupCount > 1 then
         CompressProps.NumThreadGroups := ActiveProcessorGroupCount;
     end;
-    {$IFNDEF WIN64}
     CompressProps.WorkerProcessCheckTrust := True;
     CompressProps.WorkerProcessOnCheckedTrust := OnCheckedTrust;
-    {$ENDIF}
     SetupArchitecture := sa32bit;
     TerminalServicesAware := True;
     DEPCompatible := True;
