@@ -235,7 +235,7 @@ Source: "MyProg.exe"; DestDir: "{app}"
 
 <p>If the filename is not fully qualified, the compiler will look for it in the same directory as the file containing the <tt>#include</tt> directive. The filename may be prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 
-<p>A <a name="preproc"><tt>#preproc</tt></a> directive is supported, which specifies whether to use the built-in preprocessor which only supports the above <tt>#include</tt> directive or to use Inno Setup Preprocessor (ISPP) which supports many more directives. The syntax is:</p>
+<p>A <a name="preproc"><tt>#preproc</tt></a> directive is supported, which specifies whether to use the built-in preprocessor which only supports the above <tt>#include</tt> directive or to use Inno Setup Preprocessor (ISPP) which supports many more directives. Must be placed on the first line of the file. The syntax is:</p>
 <precode>
 #preproc builtin
 #preproc ispp

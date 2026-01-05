@@ -81,8 +81,8 @@ var
     'procedure Exclude(var S: Set; I: Ordinal);',
     'function SizeOf(var X): LongInt;',
     { Special: keywords instead of functions in ROPS but are presented and documented as functions by us }
-    'function Chr(B: Byte): Char;',
-    'function Ord(C: Char): Byte;',
+    'function Chr(X: Word): Char;',
+    'function Ord(X: Ordinal): UInt64;',
     'procedure Exit;'
   ];
 

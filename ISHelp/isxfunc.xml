@@ -877,13 +877,13 @@ begin
     <subcategory>
       <function>
         <name>Chr</name>
-        <prototype>function Chr(B: Byte): Char;</prototype>
+        <prototype>function Chr(X: Word): Char;</prototype>
         <description><p>Returns the character with the specified ordinal value.</p></description>
       </function>
       <function>
         <name>Ord</name>
-        <prototype>function Ord(C: Char): Byte;</prototype>
-        <description><p>Returns the ordinal value of the specified character.</p></description>
+        <prototype>function Ord(X: Ordinal): UInt64;</prototype>
+        <description><p>Returns the ordinal value of the specified character, integer or enumeration value.</p></description>
       </function>
       <function>
         <name>Copy</name>
