@@ -2,7 +2,7 @@ unit Compression.SevenZipDecoder;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -22,8 +22,7 @@ type
 
 procedure SevenZipError(const ExceptMessage: String; const LogMessage: String = '');
 
-procedure Extract7ZipArchiveRedir(const DisableFsRedir: Boolean;
-  const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
+procedure Extract7ZipArchive(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
 
 implementation
@@ -32,11 +31,10 @@ uses
   Windows, Forms,
   PathFunc, UnsignedFunc,
   Shared.SetupMessageIDs, Shared.CommonFunc, SetupLdrAndSetup.Messages,
-  Setup.RedirFunc, Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
+  Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
 
 type
   TSevenZipDecodeState = record
-    DisableFsRedir: Boolean;
     ExpandedArchiveFileName, ExpandedDestDir: String;
     LogBuffer: AnsiString;
     ExtractedArchiveName: String;
@@ -68,7 +66,7 @@ function {$IFNDEF WIN64} __CreateDirectoryW {$ELSE} _CreateDirectoryW {$ENDIF}(
 begin
   var ExpandedDir: String;
   if ValidateAndCombinePath(State.ExpandedDestDir, lpPathName, ExpandedDir) then
-    Result := CreateDirectoryRedir(State.DisableFsRedir, ExpandedDir, lpSecurityAttributes)
+    Result := CreateDirectory(PChar(ExpandedDir), lpSecurityAttributes)
   else begin
     Result := False;
     SetLastError(ERROR_ACCESS_DENIED);
@@ -101,8 +99,7 @@ begin
       (PathCompare(ExpandedFileName, State.ExpandedArchiveFileName) = 0)) or
      ((dwDesiredAccess = GENERIC_WRITE) and
       ValidateAndCombinePath(State.ExpandedDestDir, lpFileName, ExpandedFileName)) then
-    Result := CreateFileRedir(State.DisableFsRedir, ExpandedFileName,
-      dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+    Result := CreateFile(PChar(ExpandedFileName), dwDesiredAccess, dwShareMode, lpSecurityAttributes,
       dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile)
   else begin
     Result := INVALID_HANDLE_VALUE;
@@ -138,7 +135,7 @@ begin
   { See above }
   var ExpandedFileName: String;
   if ValidateAndCombinePath(State.ExpandedDestDir, lpFileName, ExpandedFileName) then
-    Result := GetFileAttributesRedir(State.DisableFsRedir, ExpandedFileName)
+    Result := GetFileAttributes(PChar(ExpandedFileName))
   else begin
     Result := INVALID_FILE_ATTRIBUTES;
     SetLastError(ERROR_ACCESS_DENIED);
@@ -151,7 +148,7 @@ begin
   { See above }
   var ExpandedFileName: String;
   if ValidateAndCombinePath(State.ExpandedDestDir, lpFileName, ExpandedFileName) then
-    Result := SetFileAttributesRedir(State.DisableFsRedir, ExpandedFileName, dwFileAttributes)
+    Result := SetFileAttributes(PChar(ExpandedFileName), dwFileAttributes)
   else begin
     Result := False;
     SetLastError(ERROR_ACCESS_DENIED);
@@ -335,8 +332,7 @@ begin
   raise ESevenZipError.Create(ExceptMessage);
 end;
 
-procedure Extract7ZipArchiveRedir(const DisableFsRedir: Boolean;
-  const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
+procedure Extract7ZipArchive(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
 
   procedure BadResultError(const Res: Integer);
@@ -375,10 +371,9 @@ begin
   LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName,
     RemoveBackslashUnlessRoot(DestDir), SYesNo[FullPaths]]);
 
-  if not ForceDirectories(DisableFsRedir, DestDir) then
+  if not ForceDirectories(False, DestDir) then
     SevenZipError(FmtSetupMessage1(msgErrorCreatingDir, DestDir), 'Failed to create destination directory');
 
-  State.DisableFsRedir := DisableFsRedir;
   State.ExpandedArchiveFileName := PathExpand(ArchiveFileName);
   State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
   State.LogBuffer := '';

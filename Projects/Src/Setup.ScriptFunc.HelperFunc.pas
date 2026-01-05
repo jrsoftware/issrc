@@ -2,7 +2,7 @@ unit Setup.ScriptFunc.HelperFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -74,8 +74,8 @@ procedure CrackCodeRootKey(CodeRootKey: UInt32; var RegView: TRegView;
   var RootKey: HKEY);
 function GetSubkeyOrValueNames(const RegView: TRegView; const RootKey: HKEY;
   const SubKeyName: String; const Stack: TPSStack; const ItemNo: Longint; const Subkey: Boolean): Boolean;
-function GetMD5OfFile(const DisableFsRedir: Boolean; const Filename: String): TMD5Digest;
-function GetSHA1OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA1Digest;
+function GetMD5OfFile(const Filename: String): TMD5Digest;
+function GetSHA1OfFile(const Filename: String): TSHA1Digest;
 function GetMD5OfAnsiString(const S: AnsiString): TMD5Digest;
 function GetMD5OfUnicodeString(const S: UnicodeString): TMD5Digest;
 function GetSHA1OfAnsiString(const S: AnsiString): TSHA1Digest;
@@ -85,8 +85,7 @@ procedure ExecAndLogOutputLog(const S: String; const Error, FirstLine: Boolean; 
 procedure ExecAndLogOutputLogCustom(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
 function CustomMessage(const MsgName: String): String;
 function NewExtractRelativePath(BaseName, DestName: string): string;
-function NewFileSearch(const DisableFsRedir: Boolean;
-  const Name, DirList: String): String;
+function NewFileSearch(const Name, DirList: String): String;
 function GetExceptionMessage(const Caller: TPSExec): String;
 function GetCodePreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
 function SetCodePreviousData(const PreviousDataKey: HKEY; const ValueName, ValueData: String): Boolean;
@@ -104,7 +103,7 @@ implementation
 uses
   Forms, SysUtils, Graphics,
   uPSUtils, PathFunc, ASMInline, PSStackHelper, UnsignedFunc,
-  Setup.MainFunc, Setup.RedirFunc, Setup.InstFunc,
+  Setup.MainFunc, Setup.InstFunc,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Shared.Struct,
   Shared.SetupTypes, Shared.SetupSteps, Setup.LoggingFunc, Setup.SetupForm;
 
@@ -213,7 +212,7 @@ var
   FindHandle: THandle;
   FindData: TWin32FindData;
 begin
-  FindHandle := FindFirstFileRedir(ScriptFuncDisableFsRedir, FileName, FindData);
+  FindHandle := FindFirstFile(PChar(FileName), FindData);
   if FindHandle <> INVALID_HANDLE_VALUE then begin
     FindRec.FindHandle := FindHandle;
     FindDataToFindRec(FindData, FindRec);
@@ -328,7 +327,7 @@ begin
   Result := True;
 end;
 
-function GetMD5OfFile(const DisableFsRedir: Boolean; const Filename: String): TMD5Digest;
+function GetMD5OfFile(const Filename: String): TMD5Digest;
 { Gets MD5 sum of the file Filename. An exception will be raised upon
   failure. }
 var
@@ -336,7 +335,7 @@ var
 begin
   var Context: TMD5Context;
   MD5Init(Context);
-  var F := TFileRedir.Create(DisableFsRedir, Filename, fdOpenExisting, faRead, fsReadWrite);
+  var F := TFile.Create(Filename, fdOpenExisting, faRead, fsReadWrite);
   try
     while True do begin
       var NumRead := F.Read(Buf, SizeOf(Buf));
@@ -350,7 +349,7 @@ begin
   Result := MD5Final(Context);
 end;
 
-function GetSHA1OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA1Digest;
+function GetSHA1OfFile(const Filename: String): TSHA1Digest;
 { Gets SHA-1 sum of the file Filename. An exception will be raised upon
   failure. }
 var
@@ -358,7 +357,7 @@ var
 begin
   var Context: TSHA1Context;
   SHA1Init(Context);
-  var F := TFileRedir.Create(DisableFsRedir, Filename, fdOpenExisting, faRead, fsReadWrite);
+  var F := TFile.Create(Filename, fdOpenExisting, faRead, fsReadWrite);
   try
     while True do begin
       var NumRead := F.Read(Buf, SizeOf(Buf));
@@ -482,15 +481,14 @@ end;
   - it uses NewFileExistsRedir instead of FileExists
   - it doesn't search the current directory unless it's told to
   - it always returns a fully-qualified path }
-function NewFileSearch(const DisableFsRedir: Boolean;
-  const Name, DirList: String): String;
+function NewFileSearch(const Name, DirList: String): String;
 var
   I, P, L: Integer;
 begin
   { If Name is absolute, drive-relative, or root-relative, don't search DirList }
   if PathDrivePartLengthEx(Name, True) <> 0 then begin
     Result := PathExpand(Name);
-    if NewFileExistsRedir(DisableFsRedir, Result) then
+    if NewFileExists(Result) then
       Exit;
   end
   else begin
@@ -505,7 +503,7 @@ begin
       while (P <= L) and (DirList[P] <> ';') do
         Inc(P, PathCharLength(DirList, P));
       Result := PathExpand(PathCombine(Copy(DirList, I, P - I), Name));
-      if NewFileExistsRedir(DisableFsRedir, Result) then
+      if NewFileExists(Result) then
         Exit;
     end;
   end;
@@ -552,7 +550,7 @@ var
   N: Cardinal;
 begin
   try
-    F := TFileRedir.Create(ScriptFuncDisableFsRedir, FileName, fdOpenExisting, faRead, Sharing);
+    F := TFile.Create(FileName, fdOpenExisting, faRead, Sharing);
     try
       N := F.CappedSize;
       SetLength(S, N);
@@ -573,7 +571,7 @@ var
   F: TTextFileReader;
 begin
   try
-    F := TTextFileReaderRedir.Create(ScriptFuncDisableFsRedir, FileName, fdOpenExisting, faRead, Sharing);
+    F := TTextFileReader.Create(FileName, fdOpenExisting, faRead, Sharing);
     try
       var ArrayBuilder := Stack.InitArrayBuilder(ItemNo);
       while not F.Eof do
@@ -594,9 +592,9 @@ var
 begin
   try
     if Append then
-      F := TFileRedir.Create(ScriptFuncDisableFsRedir, FileName, fdOpenAlways, faWrite, fsNone)
+      F := TFile.Create(FileName, fdOpenAlways, faWrite, fsNone)
     else
-      F := TFileRedir.Create(ScriptFuncDisableFsRedir, FileName, fdCreateAlways, faWrite, fsNone);
+      F := TFile.Create(FileName, fdCreateAlways, faWrite, fsNone);
     try
       F.SeekToEnd;
       F.WriteAnsiString(S);
@@ -617,9 +615,9 @@ var
 begin
   try
     if Append then
-      F := TTextFileWriterRedir.Create(ScriptFuncDisableFsRedir, FileName, fdOpenAlways, faWrite, fsNone)
+      F := TTextFileWriter.Create(FileName, fdOpenAlways, faWrite, fsNone)
     else
-      F := TTextFileWriterRedir.Create(ScriptFuncDisableFsRedir, FileName, fdCreateAlways, faWrite, fsNone);
+      F := TTextFileWriter.Create(FileName, fdCreateAlways, faWrite, fsNone);
     try
       if UTF8 and UTF8WithoutBOM then
         F.UTF8WithoutBOM := UTF8WithoutBOM;

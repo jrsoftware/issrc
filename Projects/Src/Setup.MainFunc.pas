@@ -143,7 +143,7 @@ var
     NeedPassword, NeedSerial, NeedsRestart, RestartSystem, IsWinDark, IsDarkInstallMode,
     IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress,
     CustomWizardBackground: Boolean;
-  InstallDefaultDisableFsRedir, ScriptFuncDisableFsRedir: Boolean;
+  InstallDefaultDisableFsRedir: Boolean;
   InstallDefaultRegView: TRegView = rvDefault;
   HasCustomType, HasComponents, HasTasks: Boolean;
   ProcessorArchitecture: TSetupProcessorArchitecture = paUnknown;
@@ -2777,7 +2777,6 @@ procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
 begin
   Is64BitInstallMode := A64BitInstallMode;
   InstallDefaultDisableFsRedir := A64BitInstallMode;
-  ScriptFuncDisableFsRedir := A64BitInstallMode;
   if A64BitInstallMode then
     InstallDefaultRegView := rv64Bit
   else

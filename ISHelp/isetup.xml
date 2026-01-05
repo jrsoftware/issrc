@@ -3329,22 +3329,6 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <li>The System32 path returned by the <tt>{sys}</tt> constant does not always map to the 64-bit System directory. When Setup/Uninstall is running in 64-bit install mode, it maps to the 64-bit System directory when used in the [Dirs], [Files], [InstallDelete], [Run], [UninstallDelete], and [UninstallRun] sections because Setup temporarily disables <extlink href="http://msdn.microsoft.com/en-us/library/aa384187.aspx">WOW64 file system redirection</extlink> when files/directories are accessed by those sections. Elsewhere, System32 and <tt>{sys}</tt> map to the 32-bit System directory, as is normal in a 32-bit process.</li>
 
-<li>
-<p>In the [Code] section, when Setup/Uninstall is running in 64-bit install mode, functions that access files disable WOW64 file system redirection (unless overridden by a call to <link topic="isxfunc_EnableFsRedirection">EnableFsRedirection</link>). However, there are exceptions, listed below. These functions never disable file system redirection, meaning you cannot pass them (or get back) the name of a file located in the 64-bit System directory:</p>
-<table>
-<tr><td><tt>*Ini*</tt></td><td>(all of the functions that manipulate .INI files)</td></tr>
-<tr><td><tt>BrowseForFolder</tt></td></tr>
-<tr><td><tt>CreateShellLink</tt></td></tr>
-<tr><td><tt>GetOpenFileName</tt></td></tr>
-<tr><td><tt>LoadDLL</tt></td><td>(see following point)</td></tr>
-<tr><td><tt>ModifyPifFile</tt></td></tr>
-<tr><td><tt>SetCurrentDir</tt></td></tr>
-<tr><td><tt>ShellExec</tt></td><td>(use <tt>Exec</tt> instead)</td></tr>
-<tr><td><tt>UnregisterFont</tt></td></tr>
-</table>
-<p>Additionally, no VCL classes are capable of disabling file system redirection. For example, you cannot call the <tt>LoadFromFile</tt> method of <tt>TBitmap</tt> to load a bitmap file from the 64-bit System directory.</p>
-</li>
-
 </ul>
 
 </body>

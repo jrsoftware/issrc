@@ -1784,6 +1784,14 @@ end;</pre></example>
         <name>ApplyPathRedirRulesForCurrentProcess</name>
         <prototype>function ApplyPathRedirRulesForCurrentProcess(const A64Bit: Boolean; const APath: String): String;</prototype>
         <description><p>Calls <link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link> function with the current process as the target process.</p></description>
+        <example><p>The following example demonstrates how to launch an executable located in the 64-bit System directory from a 32-bit installer. (Note: In a 64-bit installer, it isn't necessary to call ApplyPathRedirRulesForCurrentProcess.)</p>
+<pre>var
+  ResultCode: Integer;
+begin
+  if IsWin64 then
+    Exec(ApplyPathRedirRulesForCurrentProcess(True, ExpandConstant('{cmd}')),
+      '', '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode);
+end;</pre></example>
       </function>
       <function>
         <name>ApplyPathRedirRules</name>
@@ -1803,34 +1811,8 @@ end;</pre></example>
       <function>
         <name>EnableFsRedirection</name>
         <prototype>function EnableFsRedirection(const Enable: Boolean): Boolean;</prototype>
-        <description><p>Controls whether built-in support functions that access files disable WOW64 file system redirection (with <link topic="64bitlimitations">some exceptions</link>). Specify True in the Enable parameter to leave redirection enabled when those functions are called; specify False to disable it. Returns the previous redirection state (True if redirection was enabled).</p>
-<p>If False is passed in the Enable parameter and the user isn't running a supported 64-bit version of Windows, an exception will be raised. To avoid the exception, call <link topic="isxfunc_IsWin64">IsWin64</link> first.</p></description>
-        <remarks><p>After you've performed the operation that required changing the redirection state, be sure to restore the previous state. Always use a <tt>try..finally</tt> language construct to ensure that the previous state is restored even if an exception occurs. See below for an example.</p>
-<p>By default, file system redirection is enabled in <link topic="32vs64bitinstalls">32-bit install mode</link>, and disabled in 64-bit install mode.</p>
-<p>This function has no effect on calls to functions in external DLLs. When invoking external functions, file system redirection is always left enabled.</p>
-<p>It is legal to call this function with True in the Enable parameter if the user isn't running a 64-bit version of Windows. In such a case, the call has no effect.</p></remarks>
-        <example><p>The following example demonstrates how to launch an executable located in the 64-bit System directory. (Note: In <link topic="32vs64bitinstalls">64-bit install mode</link>, it isn't necessary to call EnableFsRedirection because file system redirection is already disabled by default.)</p>
-<pre>var
-  OldState: Boolean;
-  ResultCode: Integer;
-begin
-  // First verify that the user is running a supported 64-bit version
-  // of Windows, because calling EnableFsRedirection(False) will
-  // raise an exception otherwise.
-  if IsWin64 then
-  begin
-    // Turn off redirection, so that cmd.exe from the 64-bit System
-    // directory is launched.
-    OldState := EnableFsRedirection(False);
-    try
-      Exec(ExpandConstant('{cmd}'), '', '', SW_SHOWNORMAL,
-        ewWaitUntilTerminated, ResultCode);
-    finally
-      // Restore the previous redirection state.
-      EnableFsRedirection(OldState);
-    end;
-  end;
-end;</pre></example>
+        <description><p>Function removed in 7.0.</p></description>
+        <remarks><p>Use <tt>{sysnative}</tt>, or a <link topic="64bit">64-bit installer</link>, or support function <link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link> instead.</p></remarks>
       </function>
     </subcategory>
   </category>
@@ -1849,7 +1831,7 @@ end;</pre></example>
 <p>Do not include quotes in the Filename parameter; the function will add them automatically.</p>
 <p>The WorkingDir parameter can be an empty string, in which case it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process. If no pathname was specified in Filename, a default directory will be used.</p>
 <p>If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass <tt>'>'</tt> in the Filename parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
-<p>By default, when Setup/Uninstall is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, this function disables WOW64 file system redirection when calling CreateProcess. It is possible to override this by calling <link topic="isxfunc_EnableFsRedirection">EnableFsRedirection</link>.</p>
+<p>To execute a 64-bit System32 binary from a 32-bit installer, use <tt>{sysnative}</tt> or <link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link> to rewrite the path. In a 64-bit installer the rewrite is not needed.</p>
 <p>Can't be used to execute Setup itself until the installation has started.</p>
 <p><i>Note: compared to ISPP's Exec the ShowCmd and Wait parameters are swapped!</i></p></remarks>
         <example><pre>var

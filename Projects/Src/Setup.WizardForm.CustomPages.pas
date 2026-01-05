@@ -2,7 +2,7 @@ unit Setup.WizardForm.CustomPages;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -1286,9 +1286,9 @@ begin
     for var A in FArchives do begin
       { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before extraction since we already process messages ourselves }
       if SetupHeader.SevenZipLibraryName <> '' then
-        ExtractArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress)
+        ExtractArchive(A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress)
       else
-        Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress);
+        Extract7ZipArchive(A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress);
     end;
   except
     on E: EAbort do

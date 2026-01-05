@@ -24,7 +24,7 @@ uses
   uPSUtils, PathFunc, ISSigFunc, ECDSA, BrowseFunc, MD5, SHA1, SHA256, BitmapButton, BitmapImage,
   PSStackHelper, UnsignedFunc,
   Shared.Struct, Setup.WizardForm.CustomPages, Setup.MainFunc, Shared.CommonFunc.Vcl,
-  Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.InstFunc, Setup.RedirFunc,
+  Shared.CommonFunc, Shared.FileClass, SetupLdrAndSetup.InstFunc,
   Setup.DownloadFileFunc, Setup.ExtractFileFunc, Setup.ISSigVerifyFunc, Setup.InstFunc, Setup.InstFunc.Ole,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.NewDiskForm,
   Setup.WizardForm, Shared.VerInfoFunc, Shared.SetupTypes,
@@ -354,15 +354,15 @@ var
   begin
     RegisterScriptFunc('FILEEXISTS', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetBool(PStart, NewFileExistsRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
+      Stack.SetBool(PStart, NewFileExists(Stack.GetString(PStart-1)));
     end);
     RegisterScriptFunc('DIREXISTS', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetBool(PStart, DirExistsRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
+      Stack.SetBool(PStart, DirExists(Stack.GetString(PStart-1)));
     end);
     RegisterScriptFunc('FILEORDIREXISTS', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetBool(PStart, FileOrDirExistsRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
+      Stack.SetBool(PStart, FileOrDirExists(Stack.GetString(PStart-1)));
     end);
     RegisterScriptFunc('GETINISTRING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -436,7 +436,7 @@ var
     end);
     RegisterScriptFunc('GETSHORTNAME', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetString(PStart, GetShortNameRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
+      Stack.SetString(PStart, GetShortName(Stack.GetString(PStart-1)));
     end);
     RegisterScriptFunc('GETWINDIR', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -478,8 +478,7 @@ var
     begin
       var ExistingFilename := Stack.GetString(PStart-1);
       if not IsProtectedSrcExe(ExistingFilename) then
-        Stack.SetBool(PStart, CopyFileRedir(ScriptFuncDisableFsRedir,
-          ExistingFilename, Stack.GetString(PStart-2), Stack.GetBool(PStart-3)))
+        Stack.SetBool(PStart, CopyFile(PChar(ExistingFilename), PChar(Stack.GetString(PStart-2)), Stack.GetBool(PStart-3)))
       else
         Stack.SetBool(PStart, False);
     end);
@@ -765,7 +764,7 @@ var
     end);
     RegisterScriptFunc('SETNTFSCOMPRESSION', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetBool(PStart, SetNTFSCompressionRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetBool(PStart-2)));
+      Stack.SetBool(PStart, SetNTFSCompression(Stack.GetString(PStart-1), Stack.GetBool(PStart-2)));
     end);
     RegisterScriptFunc('ISWILDCARD', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -941,15 +940,15 @@ var
     end);
     RegisterScriptFunc('DELAYDELETEFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      DelayDeleteFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetInt(PStart-1), 250, 250);
+      DelayDeleteFile(False, Stack.GetString(PStart), Stack.GetInt(PStart-1), 250, 250);
     end);
     RegisterScriptFunc('DELTREE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetBool(PStart, DelTree(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetBool(PStart-2), Stack.GetBool(PStart-3), Stack.GetBool(PStart-4), False, nil, nil, nil));
+      Stack.SetBool(PStart, DelTree(False, Stack.GetString(PStart-1), Stack.GetBool(PStart-2), Stack.GetBool(PStart-3), Stack.GetBool(PStart-4), False, nil, nil, nil));
     end);
     RegisterScriptFunc('GENERATEUNIQUENAME', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetString(PStart, GenerateUniqueName(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
+      Stack.SetString(PStart, GenerateUniqueName(False, Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
     end);
     RegisterScriptFunc('GETCOMPUTERNAMESTRING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -957,7 +956,7 @@ var
     end);
     RegisterScriptFunc('GETMD5OFFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetString(PStart, MD5DigestToString(GetMD5OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
+      Stack.SetString(PStart, MD5DigestToString(GetMD5OfFile(Stack.GetString(PStart-1))));
     end);
     RegisterScriptFunc('GETMD5OFSTRING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -969,7 +968,7 @@ var
     end);
     RegisterScriptFunc('GETSHA1OFFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetString(PStart, SHA1DigestToString(GetSHA1OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
+      Stack.SetString(PStart, SHA1DigestToString(GetSHA1OfFile(Stack.GetString(PStart-1))));
     end);
     RegisterScriptFunc('GETSHA1OFSTRING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -981,7 +980,7 @@ var
     end);
     RegisterScriptFunc('GETSHA256OFFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1))));
+      Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfFile(False, Stack.GetString(PStart-1))));
     end);
     RegisterScriptFunc('GETSHA256OFSTREAM', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -998,7 +997,7 @@ var
     RegisterScriptFunc('GETSPACEONDISK', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var FreeBytes, TotalBytes: Int64;
-      if GetSpaceOnDisk(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
+      if GetSpaceOnDisk(False, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
         if Stack.GetBool(PStart-2) then begin
           FreeBytes := FreeBytes div (1024*1024);
           TotalBytes := TotalBytes div (1024*1024);
@@ -1018,7 +1017,7 @@ var
     RegisterScriptFunc('GETSPACEONDISK64', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var FreeBytes, TotalBytes: Int64;
-      if GetSpaceOnDisk(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
+      if GetSpaceOnDisk(False, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
         Stack.SetInt64(PStart-2, FreeBytes);
         Stack.SetInt64(PStart-3, TotalBytes);
         Stack.SetBool(PStart, True);
@@ -1067,7 +1066,7 @@ var
           var ResultCode: DWORD;
           try
             Stack.SetBool(PStart, InstExecEx(RunAsOriginalUser,
-              ScriptFuncDisableFsRedir, Filename, Stack.GetString(PStart-2),
+              False, Filename, Stack.GetString(PStart-2),
               Stack.GetString(PStart-3), ExecWait,
               Stack.GetInt(PStart-4), ProcessMessagesProc, OutputReader, ResultCode));
           finally
@@ -1115,7 +1114,7 @@ var
     end);
     RegisterScriptFunc('ISPROTECTEDSYSTEMFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetBool(PStart, IsProtectedSystemFile(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
+      Stack.SetBool(PStart, IsProtectedSystemFile(False, Stack.GetString(PStart-1)));
     end);
     RegisterScriptFunc('MAKEPENDINGFILERENAMEOPERATIONSCHECKSUM', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -1144,11 +1143,11 @@ var
     end);
     RegisterScriptFunc('RESTARTREPLACE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      RestartReplace(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1));
+      RestartReplace(False, Stack.GetString(PStart), Stack.GetString(PStart-1));
     end);
     RegisterScriptFunc('FORCEDIRECTORIES', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetBool(PStart, ForceDirectories(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
+      Stack.SetBool(PStart, ForceDirectories(False, Stack.GetString(PStart-1)));
     end);
   end;
 
@@ -1338,7 +1337,7 @@ var
     RegisterScriptFunc('FILESIZE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       try
-        var F := TFileRedir.Create(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
+        var F := TFile.Create(Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
         try
           Stack.SetInt(PStart-2, Integer(F.CappedSize)); { Even though CappedSize returns Cardinal, it's capped at High(Int32) }
           Stack.SetBool(PStart, True);
@@ -1352,7 +1351,7 @@ var
     RegisterScriptFunc('FILESIZE64', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       try
-        var F := TFileRedir.Create(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
+        var F := TFile.Create(Stack.GetString(PStart-1), fdOpenExisting, faRead, fsReadWrite);
         try
           Stack.SetInt64(PStart-2, F.Size);
           Stack.SetBool(PStart, True);
@@ -1413,27 +1412,27 @@ var
     end);
     RegisterScriptFunc('FILESEARCH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetString(PStart, NewFileSearch(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
+      Stack.SetString(PStart, NewFileSearch(Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
     end);
     RegisterScriptFunc('RENAMEFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var OldName := Stack.GetString(PStart-1);
       if not IsProtectedSrcExe(OldName) then
-        Stack.SetBool(PStart, MoveFileRedir(ScriptFuncDisableFsRedir, OldName, Stack.GetString(PStart-2)))
+        Stack.SetBool(PStart, MoveFile(PChar(OldName), PChar(Stack.GetString(PStart-2))))
       else
         Stack.SetBool(PStart, False);
     end);
     RegisterScriptFunc('DELETEFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetBool(PStart, DeleteFileRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
+      Stack.SetBool(PStart, Windows.DeleteFile(PChar(Stack.GetString(PStart-1))));
     end);
     RegisterScriptFunc('CREATEDIR', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetBool(PStart, CreateDirectoryRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
+      Stack.SetBool(PStart, CreateDirectory(PChar(Stack.GetString(PStart-1)), nil));
     end);
     RegisterScriptFunc('REMOVEDIR', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetBool(PStart, RemoveDirectoryRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1)));
+      Stack.SetBool(PStart, RemoveDirectory(PChar(Stack.GetString(PStart-1))));
     end);
     RegisterScriptFunc('COMPARESTR', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -1479,7 +1478,7 @@ var
     RegisterScriptFunc('GETVERSIONNUMBERS', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var VersionNumbers: TFileVersionNumbers;
-      if GetVersionNumbersRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), VersionNumbers) then begin
+      if GetVersionNumbers(Stack.GetString(PStart-1), VersionNumbers) then begin
         Stack.SetUInt(PStart-2, VersionNumbers.MS);
         Stack.SetUInt(PStart-3, VersionNumbers.LS);
         Stack.SetBool(PStart, True);
@@ -1489,7 +1488,7 @@ var
     RegisterScriptFunc('GETVERSIONCOMPONENTS', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var VersionNumbers: TFileVersionNumbers;
-      if GetVersionNumbersRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), VersionNumbers) then begin
+      if GetVersionNumbers(Stack.GetString(PStart-1), VersionNumbers) then begin
         Stack.SetUInt(PStart-2, VersionNumbers.MS shr 16);
         Stack.SetUInt(PStart-3, VersionNumbers.MS and $FFFF);
         Stack.SetUInt(PStart-4, VersionNumbers.LS shr 16);
@@ -1501,7 +1500,7 @@ var
     RegisterScriptFunc('GETVERSIONNUMBERSSTRING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var VersionNumbers: TFileVersionNumbers;
-      if GetVersionNumbersRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), VersionNumbers) then begin
+      if GetVersionNumbers(Stack.GetString(PStart-1), VersionNumbers) then begin
         Stack.SetString(PStart-2, Format('%u.%u.%u.%u', [VersionNumbers.MS shr 16,
           VersionNumbers.MS and $FFFF, VersionNumbers.LS shr 16, VersionNumbers.LS and $FFFF]));
         Stack.SetBool(PStart, True);
@@ -1511,7 +1510,7 @@ var
     RegisterScriptFunc('GETPACKEDVERSION', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var VersionNumbers: TFileVersionNumbers;
-      if GetVersionNumbersRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart-1), VersionNumbers) then begin
+      if GetVersionNumbers(Stack.GetString(PStart-1), VersionNumbers) then begin
         Stack.SetInt64(PStart-2, VersionNumbersToInt64(VersionNumbers));
         Stack.SetBool(PStart, True);
       end else
@@ -1855,17 +1854,6 @@ var
     begin
       Stack.SetBool(PStart, SaveStringsToFile(Stack.GetString(PStart-1), Stack, PStart-2, Stack.GetBool(PStart-3), True, True));
     end);
-    RegisterScriptFunc('ENABLEFSREDIRECTION', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetBool(PStart, not ScriptFuncDisableFsRedir);
-      if Stack.GetBool(PStart-1) then
-        ScriptFuncDisableFsRedir := False
-      else begin
-        if not IsWin64 then
-          InternalError('Cannot disable FS redirection on this version of Windows');
-        ScriptFuncDisableFsRedir := True;
-      end;
-    end);
     RegisterScriptFunc('GETUNINSTALLPROGRESSFORM', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetClass(PStart, GetUninstallProgressForm);
@@ -1921,10 +1909,10 @@ var
       try
         try
           if SetupHeader.SevenZipLibraryName <> '' then
-            ExtractArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1),
+            ExtractArchive(Stack.GetString(PStart), Stack.GetString(PStart-1),
               Password, Stack.GetBool(FullDirsItemNo), Throttler.OnExtractionProgress)
           else
-            Extract7ZipArchiveRedir(ScriptFuncDisableFsRedir, Stack.GetString(PStart), Stack.GetString(PStart-1),
+            Extract7ZipArchive(Stack.GetString(PStart), Stack.GetString(PStart-1),
               Password, Stack.GetBool(FullDirsItemNo), Throttler.OnExtractionProgress);
         except
           on E: EAbort do

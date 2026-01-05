@@ -2,7 +2,7 @@ unit Compression.SevenZipDLLDecoder;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -23,8 +23,7 @@ procedure SevenZipDLLDeInit;
 
 procedure MapArchiveExtensions(const DestExt, SourceExt: String);
 
-procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
-  const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean;
+procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String; const FullPaths: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
 
 { These functions work similar to Windows' FindFirstFile, FindNextFile, and
@@ -162,7 +161,6 @@ type
         procedure SetAttrib(const AAttrib: DWORD);
       end;
     var
-      FDisableFsRedir: Boolean;
       FExpandedDestDir: String;
       FFullPaths: Boolean;
       FExtractedArchiveName: String;
@@ -179,7 +177,7 @@ type
     procedure HandleProgress; override;
   public
     constructor Create(const InArchive: IInArchive; const numItems: UInt32;
-      const DisableFsRedir: Boolean; const ArchiveFileName, DestDir, Password: String;
+      const ArchiveFileName, DestDir, Password: String;
       const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
     destructor Destroy; override;
   end;
@@ -698,12 +696,10 @@ begin
 end;
 
 constructor TArchiveExtractAllCallback.Create(const InArchive: IInArchive;
-  const numItems: UInt32; const DisableFsRedir: Boolean;
-  const ArchiveFileName, DestDir, Password: String;
+  const numItems: UInt32; const ArchiveFileName, DestDir, Password: String;
   const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
 begin
   inherited Create(InArchive, numItems, Password);
-  FDisableFsRedir := DisableFsRedir;
   FExpandedDestDir := AddBackslash(PathExpand(DestDir));
   FFullPaths := FullPaths;
   FExtractedArchiveName := PathExtractName(ArchiveFileName);
@@ -740,7 +736,7 @@ begin
           NewCurrent.Path := Path + '\';
           if not ValidateAndCombinePath(FExpandedDestDir, Path, NewCurrent.ExpandedPath) then
             OleError(E_ACCESSDENIED);
-          ForceDirectories(FDisableFsRedir, NewCurrent.ExpandedPath);
+          ForceDirectories(False, NewCurrent.ExpandedPath);
         end;
         outStream := nil;
       end else begin
@@ -756,12 +752,12 @@ begin
         NewCurrent.Path := Path;
         if not ValidateAndCombinePath(FExpandedDestDir, Path, NewCurrent.ExpandedPath) then
           OleError(E_ACCESSDENIED);
-        ForceDirectories(FDisableFsRedir, PathExtractPath(NewCurrent.ExpandedPath));
-        const ExistingFileAttr = GetFileAttributesRedir(FDisableFsRedir, NewCurrent.ExpandedPath);
+        ForceDirectories(False, PathExtractPath(NewCurrent.ExpandedPath));
+        const ExistingFileAttr = GetFileAttributes(PChar(NewCurrent.ExpandedPath));
         if (ExistingFileAttr <> INVALID_FILE_ATTRIBUTES) and
            (ExistingFileAttr and FILE_ATTRIBUTE_READONLY <> 0) then
-          SetFileAttributesRedir(FDisableFsRedir, NewCurrent.ExpandedPath, ExistingFileAttr and not FILE_ATTRIBUTE_READONLY);
-        const DestF = TFileRedir.Create(FDisableFsRedir, NewCurrent.ExpandedPath, fdCreateAlways, faWrite, fsNone);
+          SetFileAttributes(PChar(NewCurrent.ExpandedPath), ExistingFileAttr and not FILE_ATTRIBUTE_READONLY);
+        const DestF = TFile.Create(NewCurrent.ExpandedPath, fdCreateAlways, faWrite, fsNone);
         try
           var BytesLeft: UInt64;
           if GetProperty(FInArchive, index, kpidSize, BytesLeft) then begin
@@ -813,7 +809,7 @@ begin
             @FCurrent.CTime, nil, @FCurrent.MTime);
         FCurrent.outStream := nil; { Like 7zMain.c close the file before setting attributes - note that 7-Zip has cleared its own reference as well already }
         if (FCurrent.ExpandedPath <> '') and FCurrent.HasAttrib then
-          SetFileAttributesRedir(FDisableFsRedir, FCurrent.ExpandedPath, FCurrent.Attrib);
+          SetFileAttributes(PChar(FCurrent.ExpandedPath), FCurrent.Attrib);
       end;
     finally
       FCurrent.outStream := nil;
@@ -1070,10 +1066,9 @@ begin
   end;
 end;
 
-{ ExtractArchiveRedir }
+{ ExtractArchive }
 
-procedure ExtractArchiveRedir(const DisableFsRedir: Boolean;
-  const ArchiveFilename, DestDir, Password: String;
+procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String;
   const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
 begin
   LogArchiveExtractionModeOnce;
@@ -1092,12 +1087,12 @@ begin
 
   { Open }
   var numItems: UInt32;
-  const InArchive = OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password,
+  const InArchive = OpenArchiveRedir(False, ArchiveFilename, Password,
     clsid, numItems);
 
   { Extract }
   const ExtractCallback: IArchiveExtractCallback =
-    TArchiveExtractAllCallback.Create(InArchive, numItems, DisableFsRedir,
+    TArchiveExtractAllCallback.Create(InArchive, numItems,
       ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
   (ExtractCallback as TArchiveExtractAllCallback).Extract;
 
