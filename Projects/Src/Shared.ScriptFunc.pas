@@ -2,7 +2,7 @@ unit Shared.ScriptFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -580,7 +580,9 @@ initialization
     'function Trunc(const E: Extended): Int64;',
     'function MulDiv(const Number, Numerator, Denominator: Integer): Integer;',
     'function StrToColor(const S: String): TColor;',
-    'function RPos(const SubStr, S: String): Integer;'
+    'function RPos(const SubStr, S: String): Integer;',
+    'function ApplyPathRedirRulesForCurrentProcess(const A64Bit: Boolean; const APath: String): String;',
+    'function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String; const ATargetProcess64Bit: Boolean): String;'
   ];
 
   {$IFDEF ISIDEPROJ}

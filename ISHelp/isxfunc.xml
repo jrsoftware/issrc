@@ -2,7 +2,7 @@
 <isxhelp version="1.0">
 <copyright>
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 </copyright>
@@ -1780,6 +1780,26 @@ end;</pre></example>
       </function>
     </subcategory>
     <subcategory>
+      <function>
+        <name>ApplyPathRedirRulesForCurrentProcess</name>
+        <prototype>function ApplyPathRedirRulesForCurrentProcess(const A64Bit: Boolean; const APath: String): String;</prototype>
+        <description><p>Calls <link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link> function with the current process as the target process.</p></description>
+      </function>
+      <function>
+        <name>ApplyPathRedirRules</name>
+        <prototype>function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String; const ATargetProcess64Bit: Boolean): String;</prototype>
+        <description><p>Rewrites paths containing System32 to achieve the same effect as disabling/enabling WOW64 file system redirection, without actually changing the redirection state. Additionally, rewrites paths containing Sysnative for 64-bit target processes to ensure access to 64-bit System32.</p>
+<p>Before rewriting, the path is expanded using <link topic="isxfunc_ExpandFileName">ExpandFileName</link>.</p>
+<p>Does not rewrite paths that do not contain System32 or Sysnative. Also does not rewrite when the system is running a 32-bit version of Windows.</p>
+<p>Path expansion always occurs.</p></description>
+        <remarks><p>Does not rewrite for certain combinations, such as 64-bit System32 for a 64-bit target process, because no rewriting (or redirection) is needed for the target process to access the intended path. The following table lists all combinations for which rewriting has an effect, and the result:</p>
+        <table><tr><td>A64Bit</td><td>APath</td><td>ATargetProcess64Bit</td><td>Result</td><td>Explanation</td></tr>
+<tr><td>True</td><td>System32</td><td>False</td><td>Sysnative</td><td>The 32-bit target process needs to use the Sysnative alias to access 64-bit system files.</td></tr>
+<tr><td>False</td><td>System32</td><td>True</td><td>SysWOW64</td><td>The 64-bit target process needs to use SysWOW64 to access 32-bit system files.</td></tr>
+<tr><td>Any value</td><td>Sysnative</td><td>True</td><td>System32</td><td>The 64-bit target process needs to use System32 instead of the Sysnative alias to access 64-bit system files, because the Sysnative alias only works for 32-bit processes.</td></tr>
+</table></remarks>
+        <seealso><p><link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link></p></seealso>
+      </function>
       <function>
         <name>EnableFsRedirection</name>
         <prototype>function EnableFsRedirection(const Enable: Boolean): Boolean;</prototype>
