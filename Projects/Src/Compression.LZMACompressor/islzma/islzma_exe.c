@@ -1,6 +1,6 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -26,9 +26,15 @@
 typedef BYTE Byte;
 typedef LONG Longint;
 typedef ULONG LongWord;
-typedef LongWord THandle32;
-
-#define THandle32ToHandle(h) ULongToHandle(h)
+#ifdef _M_ARM64
+//ARM64: host is expected to be 64-bit
+typedef HANDLE THostHandle;
+#define HostHandleToHandle(h) (h)
+#else
+//x86 & x64: host is expected to be 32-bit
+typedef LongWord THostHandle;
+#define HostHandleToHandle(h) ULongToHandle(h)
+#endif
 
 struct TLZMACompressorRingBuffer {
 	volatile Longint Count;   // updated by reader and writer using InterlockedExchangeAdd only
@@ -38,13 +44,13 @@ struct TLZMACompressorRingBuffer {
 };
 
 struct TLZMACompressorSharedEvents {
-	THandle32 TerminateWorkerEvent;
-	THandle32 StartEncodeEvent;
-	THandle32 EndWaitOnInputEvent;
-	THandle32 EndWaitOnOutputEvent;
-	THandle32 WorkerWaitingOnInputEvent;
-	THandle32 WorkerWaitingOnOutputEvent;
-	THandle32 WorkerEncodeFinishedEvent;
+	THostHandle TerminateWorkerEvent;
+	THostHandle StartEncodeEvent;
+	THostHandle EndWaitOnInputEvent;
+	THostHandle EndWaitOnOutputEvent;
+	THostHandle WorkerWaitingOnInputEvent;
+	THostHandle WorkerWaitingOnOutputEvent;
+	THostHandle WorkerEncodeFinishedEvent;
 };
 
 struct TLZMACompressorSharedData {
@@ -57,12 +63,12 @@ struct TLZMACompressorSharedData {
 
 struct TLZMACompressorProcessData {
 	LongWord StructSize;
-	THandle32 ParentProcess;
+	THostHandle ParentProcess;
 	BOOL LZMA2;
 	struct LZMAEncoderProps EncoderProps;
 	struct TLZMACompressorSharedEvents Events;
 	LongWord SharedDataStructSize;
-	THandle32 SharedDataMapping;
+	THostHandle SharedDataMapping;
 };
 
 static struct TLZMACompressorProcessData ProcessData;
@@ -138,11 +144,11 @@ static HRESULT WakeMainAndWaitUntil(HANDLE AWakeEvent, HANDLE AWaitEvent)
 	HANDLE H[3];
 
 	if (!SetEvent(AWakeEvent)) {
-		SetEvent(THandle32ToHandle(FEvents->TerminateWorkerEvent));
+		SetEvent(HostHandleToHandle(FEvents->TerminateWorkerEvent));
 		return E_FAIL;
 	}
-	H[0] = THandle32ToHandle(FEvents->TerminateWorkerEvent);
-	H[1] = THandle32ToHandle(ProcessData.ParentProcess);
+	H[0] = HostHandleToHandle(FEvents->TerminateWorkerEvent);
+	H[1] = HostHandleToHandle(ProcessData.ParentProcess);
 	H[2] = AWaitEvent;
 	switch (WaitForMultipleObjects(3, H, FALSE, INFINITE)) {
 		case WAIT_OBJECT_0 + 0:
@@ -151,7 +157,7 @@ static HRESULT WakeMainAndWaitUntil(HANDLE AWakeEvent, HANDLE AWaitEvent)
 		case WAIT_OBJECT_0 + 2:
 			return S_OK;
 		default:
-			SetEvent(THandle32ToHandle(FEvents->TerminateWorkerEvent));
+			SetEvent(HostHandleToHandle(FEvents->TerminateWorkerEvent));
 			return E_FAIL;
 	}
 }
@@ -160,8 +166,8 @@ static HRESULT CheckTerminateWorkerEvent(void)
 {
 	HANDLE H[2];
 
-	H[0] = THandle32ToHandle(FEvents->TerminateWorkerEvent);
-	H[1] = THandle32ToHandle(ProcessData.ParentProcess);
+	H[0] = HostHandleToHandle(FEvents->TerminateWorkerEvent);
+	H[1] = HostHandleToHandle(ProcessData.ParentProcess);
 	switch (WaitForMultipleObjects(2, H, FALSE, 0)) {
 		case WAIT_OBJECT_0 + 0:
 		case WAIT_OBJECT_0 + 1:
@@ -169,7 +175,7 @@ static HRESULT CheckTerminateWorkerEvent(void)
 		case WAIT_TIMEOUT:
 			return S_OK;
 		default:
-			SetEvent(THandle32ToHandle(FEvents->TerminateWorkerEvent));
+			SetEvent(HostHandleToHandle(FEvents->TerminateWorkerEvent));
 			return E_FAIL;
 	}
 }
@@ -204,16 +210,16 @@ static HRESULT FillBuffer(const BOOL AWrite, void *Data, size_t Size,
 			if (AWrite) {
 				/* Output buffer full; wait for the main thread to flush it */
 				Result = WakeMainAndWaitUntil(
-					THandle32ToHandle(FEvents->WorkerWaitingOnOutputEvent),
-					THandle32ToHandle(FEvents->EndWaitOnOutputEvent));
+					HostHandleToHandle(FEvents->WorkerWaitingOnOutputEvent),
+					HostHandleToHandle(FEvents->EndWaitOnOutputEvent));
 				if (Result != S_OK) {
 					return Result;
 				}
 			} else {
 				/* Input buffer empty; wait for the main thread to fill it */
 				Result = WakeMainAndWaitUntil(
-					THandle32ToHandle(FEvents->WorkerWaitingOnInputEvent),
-					THandle32ToHandle(FEvents->EndWaitOnInputEvent));
+					HostHandleToHandle(FEvents->WorkerWaitingOnInputEvent),
+					HostHandleToHandle(FEvents->EndWaitOnInputEvent));
 				if (Result != S_OK) {
 					return Result;
 				}
@@ -328,13 +334,13 @@ static int BeginEncode(void)
 	}
 
 	// WorkerThreadProc:
-	H[0] = THandle32ToHandle(FEvents->TerminateWorkerEvent);
-	H[1] = THandle32ToHandle(ProcessData.ParentProcess);
-	H[2] = THandle32ToHandle(FEvents->StartEncodeEvent);
+	H[0] = HostHandleToHandle(FEvents->TerminateWorkerEvent);
+	H[1] = HostHandleToHandle(ProcessData.ParentProcess);
+	H[2] = HostHandleToHandle(FEvents->StartEncodeEvent);
 	while (WaitForMultipleObjects(3, H, FALSE, INFINITE) == WAIT_OBJECT_0 + 2) {
 		FShared->EncodeResult = LZMA_Encode(FLZMAHandle, &InStream, &OutStream,
 			&CompressProgress);
-		if (!SetEvent(THandle32ToHandle(FEvents->WorkerEncodeFinishedEvent))) {
+		if (!SetEvent(HostHandleToHandle(FEvents->WorkerEncodeFinishedEvent))) {
 			break;
 		}
 	}
@@ -346,10 +352,6 @@ static int BeginEncode(void)
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	LPWSTR lpCmdLine, int nCmdShow)
 {
-	int Version;
-	THandle32 ProcessDataMapping;
-	struct TLZMACompressorProcessData *ProcessDataView;
-
 	if (__argc < 3) {
 		MessageBox(NULL, TEXT("This program is used internally by ")
 			TEXT("the Inno Setup Compiler for LZMA compression. ")
@@ -357,22 +359,26 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 			TEXT("LZMA Compression Helper"), MB_OK | MB_ICONINFORMATION);
 		return MAKELONG(0, 1);
 	}
+	int Version;
 	if (!StrToIntEx(__wargv[1], STIF_DEFAULT, &Version) ||
 			Version != ISLZMA_EXE_VERSION) {
 		return MAKELONG(0, 2);
 	}
-	if (!StrToIntEx(__wargv[2], STIF_SUPPORT_HEX, &ProcessDataMapping)) {
+	LONGLONG ProcessDataMappingValue;
+	if (!StrToInt64Ex(__wargv[2], STIF_SUPPORT_HEX, &ProcessDataMappingValue)) {
 		return MAKELONG(0, 3);
 	}
-
-	ProcessDataView = MapViewOfFile(THandle32ToHandle(ProcessDataMapping),
-		FILE_MAP_READ, 0, 0, sizeof(ProcessData));
+	THostHandle ProcessDataMapping = (THostHandle)(ULONGLONG)ProcessDataMappingValue;
+	
+	struct TLZMACompressorProcessData *ProcessDataView =
+		MapViewOfFile(HostHandleToHandle(ProcessDataMapping),
+			FILE_MAP_READ, 0, 0, sizeof(ProcessData));
 	if (!ProcessDataView) {
 		return MAKELONG(GetLastError(), 4);
 	}
 	ProcessData = *ProcessDataView;
 	UnmapViewOfFile(ProcessDataView);
-	CloseHandle(THandle32ToHandle(ProcessDataMapping));
+	CloseHandle(HostHandleToHandle(ProcessDataMapping));
 
 	if (ProcessData.StructSize != sizeof(ProcessData)) {
 		return MAKELONG(0, 5);
@@ -383,7 +389,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
 	FEvents = &ProcessData.Events;
 
-	FShared = MapViewOfFile(THandle32ToHandle(ProcessData.SharedDataMapping),
+	FShared = MapViewOfFile(HostHandleToHandle(ProcessData.SharedDataMapping),
 		FILE_MAP_WRITE, 0, 0, sizeof(*FShared));
 	if (!FShared) {
 		return MAKELONG(GetLastError(), 7);
