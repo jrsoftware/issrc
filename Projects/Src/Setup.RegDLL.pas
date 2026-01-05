@@ -2,7 +2,7 @@ unit Setup.RegDLL;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -20,8 +20,11 @@ procedure RegisterServer(const AUnregister: Boolean; const AIs64Bit: Boolean;
 implementation
 
 uses
-  SysUtils, Forms, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, Setup.InstFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs,
-  Setup.LoggingFunc, Setup.RedirFunc, Setup.MainFunc;
+  SysUtils, Forms,
+  PathFunc,
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.SetupMessageIDs,
+  SetupLdrAndSetup.Messages,
+  Setup.InstFunc, Setup.LoggingFunc, Setup.MainFunc, Setup.PathRedir;
 
 function WaitForAndCloseProcessHandle(var AProcessHandle: THandle): DWORD;
 var
@@ -51,7 +54,7 @@ var
   ProcessInfo: TProcessInformation;
   ExitCode: DWORD;
 begin
-  SysDir := GetSystemDir;
+  SysDir := PathConvertSuperToNormal(ApplyPathRedirRules(AIs64Bit, GetSystemDir));
   CmdLine := '"' + AddBackslash(SysDir) + 'regsvr32.exe"';
   if AUnregister then
     CmdLine := CmdLine + ' /u';
@@ -63,7 +66,7 @@ begin
 
   FillChar(StartupInfo, SizeOf(StartupInfo), 0);
   StartupInfo.cb := SizeOf(StartupInfo);
-  if not CreateProcessRedir(AIs64Bit, nil, PChar(CmdLine), nil, nil, False,
+  if not CreateProcess(nil, PChar(CmdLine), nil, nil, False,
      CREATE_DEFAULT_ERROR_MODE, nil, PChar(SysDir), StartupInfo,
      ProcessInfo) then
     Win32ErrorMsg('CreateProcess');

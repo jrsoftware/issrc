@@ -2,7 +2,7 @@ unit Setup.Install;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -1892,7 +1892,8 @@ begin
           FN := ExpandConst(Filename);
           if ioUseAppPaths in Options then
             FN := ExpandAppPath(FN);
-          if not(ioCreateOnlyIfFileExists in Options) or NewFileExistsRedir(IsWin64, FN) then begin
+          if not(ioCreateOnlyIfFileExists in Options) or
+             NewFileExists(PathConvertSuperToNormal(ApplyPathRedirRules(IsWin64, FN))) then begin
             if ioHasAppUserModelToastActivatorCLSID in Options then
               TACLSID := @AppUserModelToastActivatorCLSID
             else
