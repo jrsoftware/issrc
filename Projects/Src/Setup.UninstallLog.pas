@@ -104,10 +104,12 @@ const
   utDecrementSharedCount_64BitKey = 1;
 
 type
+  TUninstallRecExtraData = type UInt32;
+
   PUninstallRec = ^TUninstallRec;
   TUninstallRec = record
     Prev, Next: PUninstallRec;
-    ExtraData: Longint;
+    ExtraData: TUninstallRecExtraData;
     DataSize: Cardinal;
     Typ: TUninstallRecTyp;
     Data: array[0..$6FFFFFFF] of Byte;  { *must* be last field }
@@ -130,7 +132,8 @@ type
     FList, FLastList: PUninstallRec;
     FCount: Integer;
     class function AllocRec(const Typ: TUninstallRecTyp;
-      const ExtraData: Longint; const DataSize: Cardinal): PUninstallRec;
+      const ExtraData: TUninstallRecExtraData;
+      const DataSize: Cardinal): PUninstallRec; static;
     function Delete(const Rec: PUninstallRec): PUninstallRec;
     procedure InternalAdd(const NewRec: PUninstallRec);
   protected
@@ -146,7 +149,7 @@ type
     constructor Create;
     destructor Destroy; override;
     procedure Add(const Typ: TUninstallRecTyp; const Data: array of String;
-      const ExtraData: Longint);
+      const ExtraData: TUninstallRecExtraData);
     procedure AddReg(const Typ: TUninstallRecTyp; const RegView: TRegView;
       const RootKey: HKEY; const Data: array of String);
     function CanAppend(const Filename: String;
@@ -157,7 +160,7 @@ type
     class function ExtractRecData(const Rec: PUninstallRec;
       var Data: array of String): Integer;
     function ExtractLatestRecData(const Typ: TUninstallRecTyp;
-      const ExtraData: Longint; var Data: array of String): Boolean;
+      const ExtraData: TUninstallRecExtraData; var Data: array of String): Boolean;
     procedure Load(const F: TFile; const Filename: String);
     function PerformUninstall(const CallFromUninstaller: Boolean;
       const DeleteUninstallDataFilesProc: TDeleteUninstallDataFilesProc): Boolean;
@@ -203,7 +206,7 @@ type
   end;
   TUninstallFileRec = packed record
     Typ: TUninstallRecTyp;
-    ExtraData: Integer;
+    ExtraData: TUninstallRecExtraData;
     DataSize: Cardinal;
   end;
 
@@ -334,8 +337,8 @@ begin
     Result := True;
 end;
 
-procedure CrackRegExtraData(const ExtraData: Longint; var RegView: TRegView;
-  var RootKey: HKEY);
+procedure CrackRegExtraData(const ExtraData: TUninstallRecExtraData;
+  var RegView: TRegView; var RootKey: HKEY);
 begin
   if ExtraData and utReg_64BitKey <> 0 then
     RegView := rv64Bit
@@ -359,7 +362,8 @@ begin
 end;
 
 class function TUninstallLog.AllocRec(const Typ: TUninstallRecTyp;
-  const ExtraData: Longint; const DataSize: Cardinal): PUninstallRec;
+  const ExtraData: TUninstallRecExtraData;
+  const DataSize: Cardinal): PUninstallRec;
 { Allocates a new PUninstallRec, but does not add it to the list. Returns nil
   if the value of the DataSize parameter is out of range. }
 begin
@@ -391,7 +395,7 @@ begin
 end;
 
 procedure TUninstallLog.Add(const Typ: TUninstallRecTyp; const Data: array of String;
-  const ExtraData: Longint);
+  const ExtraData: TUninstallRecExtraData);
 var
   L: Integer;
   S, X: AnsiString;
@@ -433,7 +437,7 @@ begin
 
   { ExtraData in a utReg* entry consists of a root key value (HKEY_*)
     OR'ed with flag bits in the high byte }
-  var ExtraData := Integer(RootKeyUInt32);
+  var ExtraData: TUninstallRecExtraData := RootKeyUInt32;
   if RegView in RegViews64Bit then
     ExtraData := ExtraData or utReg_64BitKey;
   Add(Typ, Data, ExtraData);
@@ -538,7 +542,7 @@ begin
 end;
 
 function TUninstallLog.ExtractLatestRecData(const Typ: TUninstallRecTyp;
- const ExtraData: Longint; var Data: array of String): Boolean;
+  const ExtraData: TUninstallRecExtraData; var Data: array of String): Boolean;
 var
   CurRec: PUninstallRec;
 begin

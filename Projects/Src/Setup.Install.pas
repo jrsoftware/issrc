@@ -73,7 +73,7 @@ begin
   { Record [Code] even if empty to 'overwrite' old versions }
   UninstLog.Add(utCompiledCode, [PackCompiledCodeTextIntoString(SetupHeader.CompiledCodeText),
     LeadBytesStr, ExpandedApp, ExpandedGroup, WizardGroupValue,
-    ExpandConst('{language}'), CustomMessagesStr], SetupBinVersion {$IFDEF WIN64} or Integer($80000000) {$ENDIF});
+    ExpandConst('{language}'), CustomMessagesStr], SetupBinVersion {$IFDEF WIN64} or $80000000 {$ENDIF});
 end;
 
 procedure RegisterUninstallInfo(const UninstLog: TUninstallLog; const UninstallRegKeyBaseName: String;
@@ -380,7 +380,6 @@ function MakeDir(const UninstLog: TUninstallLog; const DisableFsRedir: Boolean; 
   specified; it won't work properly. }
 var
   ErrorCode: DWORD;
-  UninstFlags: Longint;
 begin
   Result := False;
   Dir := RemoveBackslashUnlessRoot(PathExpand(Dir));
@@ -410,7 +409,7 @@ begin
     DeleteDirsAfterInstallList.AddObject(Dir, Pointer(Ord(DisableFsRedir)))
   else begin
     if not(mdNoUninstall in Flags) then begin
-      UninstFlags := utDeleteDirOrFiles_IsDir;
+      var UninstFlags: TUninstallRecExtraData := utDeleteDirOrFiles_IsDir;
       if DisableFsRedir then
         UninstFlags := UninstFlags or utDeleteDirOrFiles_DisableFsRedir;
       if mdNotifyChange in Flags then
@@ -683,7 +682,7 @@ var
   CurFileVersionInfo, ExistingVersionInfo: TFileVersionNumbers;
   CurFileDateValid, ExistingFileDateValid: Boolean;
   IsProtectedFile, AllowTimeStampComparison: Boolean;
-  DeleteFlags: Longint;
+  DeleteFlags: TUninstallRecExtraData;
   CurFileDate, ExistingFileDate: TFileTime;
   RegisterRec: PRegisterFilesListRec;
   DestF, SourceF: TFile;
@@ -2504,7 +2503,7 @@ end;
 
 procedure RecordUninstallDeleteEntries(const UninstLog: TUninstallLog);
 const
-  DefFlags: array[TSetupDeleteType] of Longint = (
+  DefFlags: array[TSetupDeleteType] of TUninstallRecExtraData = (
     utDeleteDirOrFiles_Extra or utDeleteDirOrFiles_DeleteFiles,
     utDeleteDirOrFiles_Extra or utDeleteDirOrFiles_DeleteFiles or
       utDeleteDirOrFiles_DeleteSubdirsAlso,
@@ -2537,7 +2536,7 @@ begin
        RunEntry.Tasks, RunEntry.Languages, RunEntry.Check) then begin
       DebugNotifyEntry(seUninstallRun, I);
       NotifyBeforeInstallEntry(RunEntry.BeforeInstall);
-      var Flags := 0;
+      var Flags: TUninstallRecExtraData := 0;
       case RunEntry.Wait of
         rwNoWait: Flags := Flags or utRun_NoWait;
         rwWaitUntilIdle: Flags := Flags or utRun_WaitUntilIdle;
