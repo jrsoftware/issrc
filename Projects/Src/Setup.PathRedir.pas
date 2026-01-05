@@ -9,6 +9,10 @@ unit Setup.PathRedir;
   The ApplyPathRedirRules function rewrites paths containing System32,
   SysWOW64, and Sysnative to achieve the same effect as disabling/enabling
   WOW64 file system redirection.
+
+  Before rewriting, the path is expanded and converted to a super
+  (extended-length) path.
+
   Used only by the Setup project.
 }
 
