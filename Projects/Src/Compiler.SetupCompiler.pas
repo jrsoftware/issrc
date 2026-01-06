@@ -419,7 +419,7 @@ constructor TSetupCompiler.Create(AOwner: TComponent);
        IsWow64Process2Func(GetCurrentProcess, ProcessMachine, NativeMachine) then
       Exit(NativeMachine = IMAGE_FILE_MACHINE_ARM64);
 
-    { When running with x64 emulatuon on ARM64, GetNativeSystemInfo will just lie to us, so only
+    { When running with x64 emulation on ARM64, GetNativeSystemInfo will just lie to us, so only
       call if not x64 (which currently is impossible) }
     {$IFNDEF CPUX64}
     var SysInfo: TSystemInfo;
@@ -668,8 +668,8 @@ begin
   {$IFDEF WIN64}
   var DllName: String;
   if CachedIsArm64 then begin
-    { We can use an Arm64CE DLL from our x64 EXE, for better performance }
-    DllName := 'islzma-Arm64CE.dll';
+    { We can use an Arm64EC DLL from our x64 EXE, for better performance }
+    DllName := 'islzma-Arm64EC.dll';
     const Arm64Filename = CompilerDir + DllName;
     if NewFileExists(Arm64Filename) then { Allow it to be deleted, for easy performace comparison }
       Filename := Arm64Filename;
