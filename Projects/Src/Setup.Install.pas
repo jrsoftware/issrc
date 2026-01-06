@@ -373,26 +373,27 @@ type
   TMakeDirFlags = set of (mdNoUninstall, mdAlwaysUninstall, mdDeleteAfterInstall,
     mdNotifyChange);
 
-function MakeDir(const UninstLog: TUninstallLog; const DisableFsRedir: Boolean; Dir: String;
+function MakeDir(const UninstLog: TUninstallLog; Dir: String;
   const Flags: TMakeDirFlags): Boolean;
-{ Returns True if a new directory was created.
-  Note: If DisableFsRedir is True, the mdNotifyChange flag should not be
-  specified; it won't work properly. }
+{ Returns True if a new directory was created. }
 var
   ErrorCode: DWORD;
 begin
   Result := False;
   Dir := RemoveBackslashUnlessRoot(PathExpand(Dir));
-  if PathExtractName(Dir) = '' then  { reached root? }
+  { If we're at the root of a drive or network share, then there's nothing to
+    do. (PathExtractName doesn't understand "\\?\UNC\server\share" to be a
+    root path, so that's the reason for the PathConvertSuperToNormal call.) }
+  if PathExtractName(PathConvertSuperToNormal(Dir)) = '' then
     Exit;
-  if DirExistsRedir(DisableFsRedir, Dir) then begin
+  if DirExists(Dir) then begin
     if not(mdAlwaysUninstall in Flags) then
       Exit;
   end
   else begin
-    MakeDir(UninstLog, DisableFsRedir, PathExtractDir(Dir), Flags - [mdAlwaysUninstall]);
+    MakeDir(UninstLog, PathExtractDir(Dir), Flags - [mdAlwaysUninstall]);
     LogFmt('Creating directory: %s', [Dir]);
-    if not CreateDirectoryRedir(DisableFsRedir, Dir) then begin
+    if not CreateDirectory(PChar(Dir), nil) then begin
       ErrorCode := GetLastError;
       raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
         [FmtSetupMessage1(msgErrorCreatingDir, Dir), IntToStr(ErrorCode),
@@ -406,11 +407,11 @@ begin
     end;
   end;
   if mdDeleteAfterInstall in Flags then
-    DeleteDirsAfterInstallList.AddObject(Dir, Pointer(Ord(DisableFsRedir)))
+    DeleteDirsAfterInstallList.Add(Dir)
   else begin
     if not(mdNoUninstall in Flags) then begin
       var UninstFlags: TUninstallRecExtraData := utDeleteDirOrFiles_IsDir;
-      if DisableFsRedir then
+      if IsCurrentProcess64Bit then
         UninstFlags := UninstFlags or utDeleteDirOrFiles_DisableFsRedir;
       if mdNotifyChange in Flags then
         UninstFlags := UninstFlags or utDeleteDirOrFiles_CallChangeNotify;
@@ -457,7 +458,7 @@ var
   N: String;
 begin
   { Create main application directory }
-  MakeDir(UninstLog, InstallDefaultDisableFsRedir, WizardDirValue, []);
+  MakeDir(UninstLog, ApplyPathRedirRules(InstallDefaultDisableFsRedir, WizardDirValue), []);
 
   { Create the rest of the directories, if any }
   for var CurDirNumber := 0 to Entries[seDir].Count-1 do
@@ -470,7 +471,8 @@ begin
         if doDeleteAfterInstall in Options then Include(Flags, mdDeleteAfterInstall);
         if doUninsAlwaysUninstall in Options then Include(Flags, mdAlwaysUninstall);
         N := RemoveBackslashUnlessRoot(PathExpand(ExpandConst(DirName)));
-        MakeDir(UninstLog, InstallDefaultDisableFsRedir, N, Flags);
+        const RedirDir = ApplyPathRedirRules(InstallDefaultDisableFsRedir, N);
+        MakeDir(UninstLog, RedirDir, Flags);
         AddAttributesToFile(InstallDefaultDisableFsRedir, N, Attribs);
         ApplyPermissions(InstallDefaultDisableFsRedir, N, PermissionsEntry);
         if (doSetNTFSCompression in Options) or (doUnsetNTFSCompression in Options) then
@@ -1048,7 +1050,7 @@ Retry:
       Flags := [];
       if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
       if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
-      MakeDir(UninstLog, DisableFsRedir, PathExtractDir(TempFile), Flags);
+      MakeDir(UninstLog, ApplyPathRedirRules(DisableFsRedir, PathExtractDir(TempFile)), Flags);
       DestF := TFileRedir.Create(DisableFsRedir, TempFile, fdCreateAlways, faReadWrite, fsNone);
       try
         TempFileLeftOver := True;
@@ -1484,7 +1486,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
         var Flags: TMakeDirFlags := [];
         if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
         if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
-        MakeDir(UninstLog, DisableFsRedir, DestName, Flags);
+        MakeDir(UninstLog, ApplyPathRedirRules(DisableFsRedir, DestName), Flags);
         Result := True;
       end;
     end;
@@ -1581,7 +1583,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
               var Flags: TMakeDirFlags := [];
               if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
               if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
-              MakeDir(UninstLog, DisableFsRedir, DestDir + FindData.cFileName, Flags);
+              MakeDir(UninstLog, ApplyPathRedirRules(DisableFsRedir, DestDir + FindData.cFileName), Flags);
               Result := True;
             end;
           until not ArchiveFindNextFile(H, FindData);
@@ -1798,7 +1800,7 @@ procedure CreateIcons(const UninstLog: TUninstallLog);
       ProbableFilename := LinkFilename;
     LogFmt('Dest filename: %s', [ProbableFilename]);
     SetFilenameLabelText(ProbableFilename, True);
-    MakeDir(UninstLog, False, PathExtractDir(ProbableFilename), Flags);
+    MakeDir(UninstLog, PathExtractDir(ProbableFilename), Flags);
 
     { Delete any old files first }
     DeleteFile(LinkFilename);
@@ -1959,7 +1961,7 @@ begin
           if IniDir <> '' then begin
             while True do begin
               try
-                MakeDir(UninstLog, False, IniDir, []);
+                MakeDir(UninstLog, IniDir, []);
                 Break;
               except
                 if AbortRetryIgnoreTaskDialogMsgBox(
@@ -2632,7 +2634,7 @@ begin
     when using a 64-bit Uninstall key) }
   const BaseDir = ReplaceSystemDirWithSysWow64(PathExpand(ExpandConst(SetupHeader.UninstallFilesDir)));
   LogFmt('Directory for uninstall files: %s', [BaseDir]);
-  MakeDir(UninstLog, False, BaseDir, []);
+  MakeDir(UninstLog, BaseDir, []);
 
   FillChar(ExistingFiles, SizeOf(ExistingFiles), 0);  { set all to False }
   FindFiles(BaseDir, ExistingFiles);

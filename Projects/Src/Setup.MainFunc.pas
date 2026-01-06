@@ -4024,8 +4024,7 @@ begin
       DeleteFilesAfterInstallList[I]);
   DeleteFilesAfterInstallList.Clear;
   for var I := DeleteDirsAfterInstallList.Count-1 downto 0 do
-    RemoveDirectoryRedir(DeleteDirsAfterInstallList.Objects[I] <> nil,
-      DeleteDirsAfterInstallList[I]);
+    RemoveDirectory(PChar(DeleteDirsAfterInstallList[I]));
   DeleteDirsAfterInstallList.Clear;
 
   for var I := 0 to Length(ISSigAvailableKeys)-1 do
