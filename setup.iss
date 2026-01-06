@@ -145,7 +145,10 @@ Source: "files\isbzip{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion is
 Source: "files\isbzip{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\islzma{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\islzma{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-#ifndef x64
+#ifdef x64
+Source: "files\islzma-Arm64EC.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
+Source: "files\islzma-Arm64EC.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
+#else
 Source: "files\islzma32.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\islzma32.exe.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\islzma64.exe"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch

@@ -620,11 +620,61 @@ begin
 end;
 
 procedure TSetupCompiler.InitLZMADLL;
+
+  {$IFDEF WIN64}
+  
+  function IsArm64: Boolean;
+  const
+    IMAGE_FILE_MACHINE_ARM64 = $AA64;
+    {$IFNDEF CPUX64}
+    PROCESSOR_ARCHITECTURE_ARM64 = 12;
+    {$ENDIF}
+  var
+    IsWow64Process2Func: function(hProcess: THandle; var pProcessMachine, pNativeMachine: USHORT): BOOL; stdcall;
+  begin
+    const KernelModule = GetModuleHandle(kernel32);
+
+    IsWow64Process2Func := GetProcAddress(KernelModule, 'IsWow64Process2');
+    var ProcessMachine, NativeMachine: USHORT;
+    if Assigned(IsWow64Process2Func) and
+       IsWow64Process2Func(GetCurrentProcess, ProcessMachine, NativeMachine) then
+      Exit(NativeMachine = IMAGE_FILE_MACHINE_ARM64);
+
+    { When running with x64 emulation on ARM64, GetNativeSystemInfo will just lie to us, so only
+      call if not x64 (which currently is impossible) }
+    {$IFNDEF CPUX64}
+    var SysInfo: TSystemInfo;
+    GetNativeSystemInfo(SysInfo);
+    if SysInfo.wProcessorArchitecture = PROCESSOR_ARCHITECTURE_ARM64 then
+      Exit(True);
+    {$ENDIF}
+
+    Result := False;
+  end;
+  
+  {$ENDIF}
+
 begin
   if LZMAInitialized then
     Exit;
-  const DllName = {$IFDEF WIN64} 'islzma-x64.dll' {$ELSE} 'islzma.dll' {$ENDIF};
-  const Filename = CompilerDir + DllName;
+  var Filename: String;
+  {$IFDEF WIN64}
+  var DllName: String;
+  if IsArm64 then begin
+    { We can use an Arm64EC DLL from our x64 EXE, for better performance }
+    DllName := 'islzma-Arm64EC.dll';
+    const Arm64Filename = CompilerDir + DllName;
+    if NewFileExists(Arm64Filename) then { Allow it to be deleted, for easy performace comparison }
+      Filename := Arm64Filename;
+  end;
+  if FileName = '' then begin
+    DllName := 'islzma-x64.dll';
+    Filename := CompilerDir + DllName;
+  end;
+  {$ELSE}
+  const DllName = 'islzma.dll';
+  Filename := CompilerDir + DllName;
+  {$ENDIF};
   const M = LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
   if not LZMAInitCompressFunctions(M) then
     AbortCompile('Failed to get address of functions in ' + DllName);
