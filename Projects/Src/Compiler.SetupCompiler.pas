@@ -19,6 +19,13 @@ unit Compiler.SetupCompiler;
 { For debugging purposes, remove the 'x' to have it simulate file-in-use errors
   while outputting Setup }
 
+{x$DEFINE SUPPORTLZMAEXE}
+{ For debugging purposes, remove the 'x' to allow LZMAUseSeparateProcess in a 64-bit build }
+
+{$IFNDEF WIN64}
+  {$DEFINE SUPPORTLZMAEXE}
+{$ENDIF}
+
 interface
 
 uses
@@ -224,7 +231,7 @@ type
       var ParamValues: array of TParamValue);
     function FindLangEntryIndexByName(const AName: String; const Pre: Boolean): Integer;
     function FindSignToolIndexByName(const AName: String): Integer;
-    {$IFNDEF WIN64}
+    {$IFDEF SUPPORTLZMAEXE}
     function GetLZMAExeFilename(const Allow64Bit: Boolean): String;
     {$ENDIF}
     procedure InitBzipDLL;
@@ -721,7 +728,7 @@ begin
   Result := LineNumber;
 end;
 
-{$IFNDEF WIN64}
+{$IFDEF SUPPORTLZMAEXE}
 
 function TSetupCompiler.GetLZMAExeFilename(const Allow64Bit: Boolean): String;
 const
@@ -2945,7 +2952,7 @@ begin
       end;
     ssDisablePrecompiledFileVerifications: begin
       DisablePrecompiledFileVerifications := StrToPrecompiledFiles(Value);
-      {$IFNDEF WIN64}
+      {$IFDEF SUPPORTLZMAEXE}
       CompressProps.WorkerProcessCheckTrust := not (pfIslzma in DisablePrecompiledFileVerifications);
       {$ELSE}
       if pfIslzma in DisablePrecompiledFileVerifications then
@@ -3090,7 +3097,7 @@ begin
         CompressProps.NumFastBytes := StrToIntRange(Value, 5, 273);
       end;
     ssLZMAUseSeparateProcess: begin
-        {$IFNDEF WIN64}
+        {$IFDEF SUPPORTLZMAEXE}
         if CompareText(Value, 'x86') = 0 then
           CompressProps.WorkerProcessFilename := GetLZMAExeFilename(False)
         else if StrToBool(Value) then
@@ -7515,7 +7522,7 @@ var
     HdrChecksum, ErrorCode: DWORD;
     ISSigAvailableKeys: TArrayOfECDSAKey;
   begin
-    {$IFNDEF WIN64}
+    {$IFDEF SUPPORTLZMAEXE}
     if (SetupHeader.CompressMethod in [cmLZMA, cmLZMA2]) and
        (CompressProps.WorkerProcessFilename <> '') then
       AddStatus(Format('   Using separate process for LZMA compression (%s)',
@@ -8147,7 +8154,7 @@ begin
       if ActiveProcessorGroupCount > 1 then
         CompressProps.NumThreadGroups := ActiveProcessorGroupCount;
     end;
-    {$IFNDEF WIN64}
+    {$IFDEF SUPPORTLZMAEXE}
     CompressProps.WorkerProcessCheckTrust := True;
     CompressProps.WorkerProcessOnCheckedTrust := OnCheckedTrust;
     {$ENDIF}

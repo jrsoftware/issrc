@@ -2,7 +2,7 @@ unit Compression.LZMACompressor;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -41,11 +41,9 @@ type
     NumFastBytes: Integer;
     NumThreads: Integer;
     NumThreadGroups: Integer;
-    {$IFNDEF WIN64}
     WorkerProcessCheckTrust: Boolean;
     WorkerProcessOnCheckedTrust: TProc<Boolean>;
     WorkerProcessFilename: String;
-    {$ENDIF}
     constructor Create;
   end;
 
@@ -67,15 +65,19 @@ type
     ReaderOffset: Integer;  { accessed only by reader thread }
     Buf: array[0..$FFFFF] of Byte;
   end;
+  { Using 32-bit handles to ensure islzma.exe doesn't depend on our bitness. This is safe
+    because 64-bit versions of Windows use 32-bit handles for interoperability. See
+    https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication }
+  TLZMAHandle32 = type UInt32;
   PLZMACompressorSharedEvents = ^TLZMACompressorSharedEvents;
   TLZMACompressorSharedEvents = record
-    TerminateWorkerEvent: THandle;
-    StartEncodeEvent: THandle;
-    EndWaitOnInputEvent: THandle;
-    EndWaitOnOutputEvent: THandle;
-    WorkerWaitingOnInputEvent: THandle;
-    WorkerWaitingOnOutputEvent: THandle;
-    WorkerEncodeFinishedEvent: THandle;
+    TerminateWorkerEvent: TLZMAHandle32;
+    StartEncodeEvent: TLZMAHandle32;
+    EndWaitOnInputEvent: TLZMAHandle32;
+    EndWaitOnOutputEvent: TLZMAHandle32;
+    WorkerWaitingOnInputEvent: TLZMAHandle32;
+    WorkerWaitingOnOutputEvent: TLZMAHandle32;
+    WorkerEncodeFinishedEvent: TLZMAHandle32;
   end;
   PLZMACompressorSharedData = ^TLZMACompressorSharedData;
   TLZMACompressorSharedData = record
@@ -88,12 +90,12 @@ type
   PLZMACompressorProcessData = ^TLZMACompressorProcessData;
   TLZMACompressorProcessData = record
     StructSize: Cardinal;
-    ParentProcess: THandle;
+    ParentProcess: TLZMAHandle32;
     LZMA2: BOOL;
     EncoderProps: TLZMAEncoderProps;
     Events: TLZMACompressorSharedEvents;
     SharedDataStructSize: Cardinal;
-    SharedDataMapping: THandle;
+    SharedDataMapping: TLZMAHandle32;
   end;
 
   TLZMACompressor = class(TCustomCompressor)
@@ -291,9 +293,9 @@ begin
     Result := False;
 end;
 
-function LZMACreateEvent(const ManualReset: BOOL): THandle;
+function LZMACreateEvent(const ManualReset: BOOL): TLZMAHandle32;
 begin
-  Result := CreateEvent(nil, ManualReset, False, nil);
+  Result := TLZMAHandle32(CreateEvent(nil, ManualReset, False, nil));
   if Result = 0 then
     LZMAWin32Error('CreateEvent');
 end;
@@ -725,17 +727,19 @@ procedure TLZMAWorkerProcess.SetProps(const LZMA2: Boolean;
   end;
 
   procedure DupeHandle(const SourceHandle: THandle; const DestProcess: THandle;
-    var DestHandle: THandle; const DesiredAccess: DWORD);
+    var DestHandle: TLZMAHandle32; const DesiredAccess: DWORD); overload;
   begin
+    var NativeDestHandle: THandle;
     if not DuplicateHandle(GetCurrentProcess, SourceHandle, DestProcess,
-       @DestHandle, DesiredAccess, False, 0) then
+       @NativeDestHandle, DesiredAccess, False, 0) then
       LZMAWin32Error('DuplicateHandle');
+    DestHandle := TLZMAHandle32(NativeDestHandle);
   end;
 
   procedure DupeEventHandles(const Src: TLZMACompressorSharedEvents;
     const Process: THandle; var Dest: TLZMACompressorSharedEvents);
 
-    procedure DupeEvent(const SourceHandle: THandle; var DestHandle: THandle);
+    procedure DupeEvent(const SourceHandle: TLZMAHandle32; var DestHandle: TLZMAHandle32);
     begin
       DupeHandle(SourceHandle, Process, DestHandle, SYNCHRONIZE or
         EVENT_MODIFY_STATE);
@@ -904,11 +908,9 @@ begin
   EncProps.NumFastBytes := numFastBytes[CompressionLevel];
   EncProps.NumThreads := -1;
 
-  {$IFNDEF WIN64}
   var WorkerProcessCheckTrust := False;
   var WorkerProcessOnCheckedTrust: TProc<Boolean> := nil;
   var WorkerProcessFilename := '';
-  {$ENDIF}
 
   if ACompressorProps is TLZMACompressorProps then begin
     Props := (ACompressorProps as TLZMACompressorProps);
@@ -926,16 +928,13 @@ begin
     if Props.NumThreads <> 0 then
       EncProps.NumThreads := Props.NumThreads;
     EncProps.NumThreadGroups := Props.NumThreadGroups;
-    {$IFNDEF WIN64}
     WorkerProcessCheckTrust := Props.WorkerProcessCheckTrust;
     WorkerProcessOnCheckedTrust := Props.WorkerProcessOnCheckedTrust;
     WorkerProcessFilename := Props.WorkerProcessFilename;
-    {$ENDIF}
   end;
 
   EncProps.NumHashBytes := numHashBytes[EncProps.BTMode = 1];
 
-  {$IFNDEF WIN64}
   if WorkerProcessFilename <> '' then begin
     const LZMAWorker = TLZMAWorkerProcess.Create(@FEvents);
     FWorker := LZMAWorker;
@@ -943,7 +942,7 @@ begin
     LZMAWorker.OnCheckedTrust := WorkerProcessOnCheckedTrust;
     LZMAWorker.ExeFilename := WorkerProcessFilename;
   end
-  else {$ENDIF} begin
+  else begin
     if not LZMADLLInitialized then
       LZMAInternalError('LZMA DLL functions not initialized');
     FWorker := TLZMAWorkerThread.Create(@FEvents);
