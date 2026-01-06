@@ -191,47 +191,8 @@ function Is64BitPEImage(const Filename: String): Boolean;
 implementation
 
 uses
-  ShLwApi,
   PathFunc, UnsignedFunc,
   Shared.FileClass;
-
-{ Avoid including Variants (via ActiveX and ShlObj) in SetupLdr (SetupLdr uses CmnFunc2), saving 26 KB. }
-
-const
-  shell32 = 'shell32.dll';
-
-type
-  PSHItemID = ^TSHItemID;
-  _SHITEMID = record
-    cb: Word;                         { Size of the ID (including cb itself) }
-    abID: array[0..0] of Byte;        { The item ID (variable length) }
-  end;
-  TSHItemID = _SHITEMID;
-  SHITEMID = _SHITEMID;
-
-  PItemIDList = ^TItemIDList;
-  _ITEMIDLIST = record
-     mkid: TSHItemID;
-   end;
-  TItemIDList = _ITEMIDLIST;
-  ITEMIDLIST = _ITEMIDLIST;
-
-  IMalloc = interface(IUnknown)
-    ['{00000002-0000-0000-C000-000000000046}']
-    function Alloc(cb: Longint): Pointer; stdcall;
-    function Realloc(pv: Pointer; cb: Longint): Pointer; stdcall;
-    procedure Free(pv: Pointer); stdcall;
-    function GetSize(pv: Pointer): Longint; stdcall;
-    function DidAlloc(pv: Pointer): Integer; stdcall;
-    procedure HeapMinimize; stdcall;
-  end;
-
-function SHGetMalloc(var ppMalloc: IMalloc): HResult; stdcall; external shell32 name 'SHGetMalloc';
-function SHGetSpecialFolderLocation(hwndOwner: HWND; nFolder: Integer;
-  var ppidl: PItemIDList): HResult; stdcall; external shell32 name 'SHGetSpecialFolderLocation';
-function SHGetPathFromIDList(pidl: PItemIDList; pszPath: PChar): BOOL; stdcall;
-  external shell32 name 'SHGetPathFromIDListW';
-
 
 function InternalGetFileAttr(const Name: String): DWORD;
 begin
@@ -1092,21 +1053,21 @@ begin
     Result := ERROR_DIR_NOT_EMPTY;
 end;
 
+function SHGetFolderPath_shell32(hwnd: HWND; csidl: Integer; hToken: THandle;
+  dwFlags: DWORD; pszPath: LPWSTR): HResult; stdcall;
+  external 'shell32.dll' name 'SHGetFolderPathW';
+
 function GetShellFolderPath(const FolderID: Integer): String;
+const
+  SHGFP_TYPE_CURRENT = 0;
 var
-  pidl: PItemIDList;
-  Buffer: array[0..MAX_PATH-1] of Char;
-  Malloc: IMalloc;
+  Buf: array[0..MAX_PATH-1] of Char;
 begin
-  Result := '';
-  if FAILED(SHGetMalloc(Malloc)) then
-    Malloc := nil;
-  if SUCCEEDED(SHGetSpecialFolderLocation(0, FolderID, pidl)) then begin
-    if SHGetPathFromIDList(pidl, Buffer) then
-      Result := Buffer;
-    if Assigned(Malloc) then
-      Malloc.Free(pidl);
-  end;
+  const Res = SHGetFolderPath_shell32(0, FolderID, 0, SHGFP_TYPE_CURRENT, Buf);
+  if Res = S_OK then
+    Result := Buf
+  else
+    Result := '';
 end;
 
 function GetCurrentUserSid: String;
