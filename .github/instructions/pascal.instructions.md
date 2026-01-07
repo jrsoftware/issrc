@@ -24,4 +24,5 @@ applyTo: "**/*.pas, **/*.dpr, **/*.inc"
 - Code must be compatible with Windows 7 and later.
 - Do not suggest applying coding conventions to unchanged code.
 - Do not suggest changing an inline constant to an inline variable.
-- Do not nitpick, especially not about readability or subjective matters.
+- Do not nitpick, especially not about readability or subjective matters. This includes:
+  - Comment style or presence of comments.
