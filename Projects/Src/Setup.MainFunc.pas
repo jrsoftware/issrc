@@ -171,9 +171,6 @@ var
   IsWin64: Boolean;
 {$ENDIF}
 
-const
-  IsCurrentProcess64Bit = {$IFDEF WIN64} True {$ELSE} False {$ENDIF};
-
 procedure CodeRunnerOnLog(const S: String);
 procedure CodeRunnerOnLogFmt(const S: String; const Args: array of const);
 function CodeRunnerOnDebug(const Position: Cardinal;

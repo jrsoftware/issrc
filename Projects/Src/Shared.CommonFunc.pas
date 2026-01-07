@@ -97,6 +97,8 @@ type
   TFileOperationFailedProc = reference to procedure(const LastError: Cardinal; var TryOnceMore: Boolean);
 
 const
+  IsCurrentProcess64Bit = {$IFDEF WIN64} True {$ELSE} False {$ENDIF};
+
   RegViews64Bit = [{$IFDEF WIN64} rvDefault, {$ENDIF} rv64Bit];
 
 function NewFileExists(const Name: String): Boolean;
