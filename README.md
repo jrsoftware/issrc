@@ -148,7 +148,7 @@ displays the "This will install..." and /HELP message boxes.
 
 **ISSigTool** - This is a command-line utility which can be used to sign and verify
 any of your files. ISIDE, ISCC, and ISCmplr use these signatures to verify the
-authenticity of a number of DLL, E32 and EXE files before loading them. Note: this
+authenticity of a number of DLL, E32, E64, and EXE files before loading them. Note: this
 utility does not replace Microsoft's signtool.exe in any way and is in fact not
 related to Authenticode Code Signing at all.
 
@@ -197,8 +197,7 @@ Source code tips
   uninst000.msg as setup.dat and setup.msg to the [Projects\Bin] directory in your
   issrc path. Then open the Setup project and set the command line parameters to
   `/UNINSTMODE /KEEPEXEDATMSG "/SECONDPHASE=<your issrc path\Projects\Bin\Setup.exe"` and start
-  debugging. Note: each time setup.dat and setup.msg will be deleted if you
-  allow the uninstaller to complete so make sure to keep copies.
+  debugging.
 
 - All of the forms in the Setup project have Scaled set to False. This is
   because they dynamically scale themselves at run-time by calling a function

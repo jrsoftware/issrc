@@ -671,7 +671,7 @@ begin
     { We can use an Arm64EC DLL from our x64 EXE, for better performance }
     DllName := 'islzma-Arm64EC.dll';
     const Arm64Filename = CompilerDir + DllName;
-    if NewFileExists(Arm64Filename) then { Allow it to be deleted, for easy performace comparison }
+    if NewFileExists(Arm64Filename) then { Allow it to be deleted, for easy performance comparison }
       Filename := Arm64Filename;
   end;
   if FileName = '' then begin
