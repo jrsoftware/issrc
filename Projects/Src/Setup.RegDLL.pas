@@ -24,7 +24,8 @@ uses
   PathFunc,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.SetupMessageIDs,
   SetupLdrAndSetup.Messages,
-  Setup.InstFunc, Setup.LoggingFunc, Setup.MainFunc, Setup.PathRedir;
+  Setup.InstFunc, Setup.LoggingFunc, Setup.MainFunc, Setup.PathRedir,
+  Setup.RedirFunc;
 
 function WaitForAndCloseProcessHandle(var AProcessHandle: THandle): DWORD;
 var
@@ -54,7 +55,11 @@ var
   ProcessInfo: TProcessInformation;
   ExitCode: DWORD;
 begin
-  SysDir := PathConvertSuperToNormal(ApplyPathRedirRules(AIs64Bit, GetSystemDir));
+  { Choose between SysWOW64 and System32 depending on AIs64Bit.
+    On 32-bit Setup, we disable WOW64 file system redirection instead of using
+    Sysnative due to the problems described in ProcessRunEntry's comments. }
+  SysDir := ApplyPathRedirRules(AIs64Bit, GetSystemDir, [rfNormalPath],
+    tpNativeBit);
   CmdLine := '"' + AddBackslash(SysDir) + 'regsvr32.exe"';
   if AUnregister then
     CmdLine := CmdLine + ' /u';
@@ -66,7 +71,7 @@ begin
 
   FillChar(StartupInfo, SizeOf(StartupInfo), 0);
   StartupInfo.cb := SizeOf(StartupInfo);
-  if not CreateProcess(nil, PChar(CmdLine), nil, nil, False,
+  if not CreateProcessRedir(IsWin64, nil, PChar(CmdLine), nil, nil, False,
      CREATE_DEFAULT_ERROR_MODE, nil, PChar(SysDir), StartupInfo,
      ProcessInfo) then
     Win32ErrorMsg('CreateProcess');

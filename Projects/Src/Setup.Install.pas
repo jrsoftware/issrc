@@ -1895,7 +1895,7 @@ begin
           if ioUseAppPaths in Options then
             FN := ExpandAppPath(FN);
           if not(ioCreateOnlyIfFileExists in Options) or
-             NewFileExists(PathConvertSuperToNormal(ApplyPathRedirRules(IsWin64, FN))) then begin
+             NewFileExists(ApplyPathRedirRules(IsWin64, FN)) then begin
             if ioHasAppUserModelToastActivatorCLSID in Options then
               TACLSID := @AppUserModelToastActivatorCLSID
             else
