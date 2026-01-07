@@ -2,7 +2,7 @@ unit Setup.MainFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -4132,12 +4132,12 @@ begin
     TargetProcess := tpNativeBit;
 
   if PathIsRooted(AFilename) then
-    AFilename := PathConvertSuperToNormal(ApplyPathRedirRules(
-      RunEntry64Bit, AFilename, TargetProcess));
+    AFilename := ApplyPathRedirRules(RunEntry64Bit, AFilename,
+      [rfNormalPath], TargetProcess);
 
   if AWorkingDir <> '' then
-    AWorkingDir := PathConvertSuperToNormal(ApplyPathRedirRules(
-      RunEntry64Bit, AWorkingDir, TargetProcess));
+    AWorkingDir := ApplyPathRedirRules(RunEntry64Bit, AWorkingDir,
+      [rfNormalPath], TargetProcess);
 end;
 
 procedure ProcessRunEntry(const RunEntry: PSetupRunEntry);

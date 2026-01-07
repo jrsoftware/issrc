@@ -2016,7 +2016,8 @@ var
         else
           TargetProcess := tp32Bit;
       end;
-      Stack.SetString(PStart, PathConvertSuperToNormal(ApplyPathRedirRules(Stack.GetBool(PStart-1), Stack.GetString(PStart-2), TargetProcess)));
+      Stack.SetString(PStart, ApplyPathRedirRules(Stack.GetBool(PStart-1),
+        Stack.GetString(PStart-2), [rfNormalPath], TargetProcess));
     end);
   end;
 

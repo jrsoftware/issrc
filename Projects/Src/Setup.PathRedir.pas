@@ -2,7 +2,7 @@ unit Setup.PathRedir;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -11,7 +11,9 @@ unit Setup.PathRedir;
   WOW64 file system redirection.
 
   Before rewriting, the path is expanded and converted to a super
-  (extended-length) path.
+  (extended-length) path. If the rfNormalPath flag is specified, the path is
+  converted back to a normal path if possible (even if a super path was
+  passed to the function).
 
   Used only by the Setup project.
 }
@@ -22,9 +24,11 @@ uses
   Windows, SysUtils;
 
 type
+  TPathRedirFlags = set of (rfNormalPath);
   TPathRedirTargetProcess = (tpCurrent, tpNativeBit, tp32Bit);
 
 function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String;
+  const AFlags: TPathRedirFlags = [];
   const ATargetProcess: TPathRedirTargetProcess = tpCurrent): String;
 procedure InitializePathRedir(const AWindows64Bit: Boolean;
   const ASystem32Path, ASysWow64Path, ASysNativePath: String);
@@ -44,6 +48,7 @@ type
     constructor Create(const AWindows64Bit: Boolean;
       const ASystem32Path, ASysWow64Path, ASysNativePath: String);
     function ApplyRules(const A64Bit: Boolean; const APath: String;
+      const AFlags: TPathRedirFlags;
       const ATargetProcess: TPathRedirTargetProcess): String;
   end;
 
@@ -64,6 +69,7 @@ begin
 end;
 
 function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String;
+  const AFlags: TPathRedirFlags = [];
   const ATargetProcess: TPathRedirTargetProcess = tpCurrent): String;
 begin
   while True do begin
@@ -77,7 +83,7 @@ begin
   try
     if PathRedirInstance = nil then
       InternalError('PathRedir: Not initialized');
-    Result := PathRedirInstance.ApplyRules(A64Bit, APath, ATargetProcess);
+    Result := PathRedirInstance.ApplyRules(A64Bit, APath, AFlags, ATargetProcess);
   finally
     MemoryBarrier;
     AtomicDecrement(PathRedirActiveUseCount);
@@ -139,6 +145,7 @@ begin
 end;
 
 function TPathRedir.ApplyRules(const A64Bit: Boolean; const APath: String;
+  const AFlags: TPathRedirFlags;
   const ATargetProcess: TPathRedirTargetProcess): String;
 
   procedure SubstitutePath(var Path: String; const FromDir, ToDir: String);
@@ -197,7 +204,14 @@ begin
       InternalError('PathRedir: A64Bit=True but not running 64-bit Windows');
   end;
 
-  Result := NewPath;
+  if rfNormalPath in AFlags then
+    NewPath := PathConvertSuperToNormal(NewPath);
+
+  { Save memory: Return reference to passed-in string if no changes were made }
+  if NewPath = APath then
+    Result := APath
+  else
+    Result := NewPath;
 end;
 
 initialization
