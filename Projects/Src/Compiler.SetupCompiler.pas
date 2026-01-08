@@ -7650,7 +7650,7 @@ var
     CallIdleProc;
   end;
 
-  procedure CopyFileOrAbort(const SourceFile, DestFile: String;
+  procedure CopyFileOrAbortWithRetries(const SourceFile, DestFile: String;
     const CheckTrust: Boolean; const CheckFileTrustOptions: TCheckFileTrustOptions;
     const OnCheckedTrust: TProc<Boolean>);
   begin
@@ -7666,11 +7666,17 @@ var
     if Assigned(OnCheckedTrust) then
       OnCheckedTrust(CheckTrust);
 
-      if not CopyFile(PChar(SourceFile), PChar(DestFile), False) then begin
-        var ErrorCode := GetLastError;
-        AbortCompileFmt(SCompilerCopyError3b, [SourceFile, DestFile,
-          ErrorCode, Win32ErrorString(ErrorCode)]);
-      end;
+    WithRetries(False, DestFile,
+      procedure
+      begin
+        if not CopyFile(PChar(SourceFile), PChar(DestFile), False) then begin
+          var ErrorCode := GetLastError;
+          const E = EFileError.CreateFmt(SCompilerCopyError3b, [SourceFile, DestFile,
+            ErrorCode, Win32ErrorString(ErrorCode)]);
+          E.ErrorCode := ErrorCode;
+          raise E;
+        end;
+      end);
   end;
 
   function InternalSignSetupMemoryFileWithRetries(const Filename: String;
@@ -7835,7 +7841,7 @@ var
       EFilename := CompilerDir + EBasename;
 
       ConvertFilename := OutputDir + OutputBaseFilename + EExt + '.tmp';
-      CopyFileOrAbort(EFilename, ConvertFilename, not(EPf in DisablePrecompiledFileVerifications),
+      CopyFileOrAbortWithRetries(EFilename, ConvertFilename, not(EPf in DisablePrecompiledFileVerifications),
         [cftoTrustAllOnDebug], OnCheckedTrust);
       { If there was a read-only attribute, remove it }
       SetFileAttributes(PChar(ConvertFilename), FILE_ATTRIBUTE_ARCHIVE);
@@ -8779,7 +8785,7 @@ begin
             EExt := '.e32'
           else
             EExt := '.e64';
-          CopyFileOrAbort(CompilerDir + 'SetupLdr' + EExt, ExeFilename, not(pfSetupLdr in DisablePrecompiledFileVerifications),
+          CopyFileOrAbortWithRetries(CompilerDir + 'SetupLdr' + EExt, ExeFilename, not(pfSetupLdr in DisablePrecompiledFileVerifications),
             [cftoTrustAllOnDebug], OnCheckedTrust);
           { If there was a read-only attribute, remove it }
           SetFileAttributes(PChar(ExeFilename), FILE_ATTRIBUTE_ARCHIVE);
