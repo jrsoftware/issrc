@@ -674,7 +674,7 @@ begin
     if NewFileExists(Arm64Filename) then { Allow it to be deleted, for easy performance comparison }
       Filename := Arm64Filename;
   end;
-  if FileName = '' then begin
+  if Filename = '' then begin
     DllName := 'islzma-x64.dll';
     Filename := CompilerDir + DllName;
   end;
