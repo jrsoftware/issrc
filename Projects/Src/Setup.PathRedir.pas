@@ -25,7 +25,8 @@ uses
 
 type
   TPathRedirFlags = set of (rfNormalPath);
-  TPathRedirTargetProcess = (tpCurrent, tpNativeBit, tp32Bit);
+  TPathRedirTargetProcess = (tpCurrent, tpNativeBit, tp32Bit,
+    tp32BitPreferSystem32);
 
 function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String;
   const AFlags: TPathRedirFlags = [];
@@ -184,13 +185,17 @@ begin
       (ATargetProcess = tpNativeBit);
 
     if A64Bit then begin
-      { System32 -> Sysnative: When path is 64-bit and process is 32-bit. }
+      { It's a 64-bit path (i.e., System32 means 64-bit system directory).
+        System32 -> Sysnative: When target process is 32-bit. }
       if not TargetProcess64Bit then
         SubstitutePath(NewPath, FSystem32Path, FSysNativePath);
     end else begin
-      { System32 -> SysWOW64: When path is 32-bit and process is 64-bit.
-        In the future, this may be done for 32-bit processes as well. }
-      if TargetProcess64Bit then
+      { It's a 32-bit path (i.e., System32 means 32-bit system directory).
+        SysWOW64 -> System32: In special tp32BitPreferSystem32 case only.
+        System32 -> SysWOW64: Otherwise. }
+      if ATargetProcess = tp32BitPreferSystem32 then
+        SubstitutePath(NewPath, FSysWow64Path, FSystem32Path)
+      else
         SubstitutePath(NewPath, FSystem32Path, FSysWow64Path);
     end;
 
