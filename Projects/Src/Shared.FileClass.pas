@@ -141,7 +141,7 @@ type
   private
     FErrorCode: DWORD;
   public
-    property ErrorCode: DWORD read FErrorCode;
+    property ErrorCode: DWORD read FErrorCode write FErrorCode;
   end;
 
 implementation
@@ -167,17 +167,14 @@ begin
 end;
 
 class procedure TCustomFile.RaiseError(ErrorCode: DWORD);
-var
-  S: String;
-  E: EFileError;
 begin
-  S := Win32ErrorString(ErrorCode);
+  var S := Win32ErrorString(ErrorCode);
   if S = '' then begin
     { In case there was no text for the error code. Shouldn't get here under
       normal circumstances. }
     S := Format(SGenericIOError, [ErrorCode]);
   end;
-  E := EFileError.Create(S);
+  const E = EFileError.Create(S);
   E.FErrorCode := ErrorCode;
   raise E;
 end;
