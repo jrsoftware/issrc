@@ -8440,11 +8440,11 @@ begin
     end else if SetupHeader.WizardBackColorDynamicDark = clWindow then
       SetupHeader.WizardBackColorDynamicDark := clNone;
     if (SetupHeader.WizardBackColor <> clNone) or (SetupHeader.WizardBackColorDynamicDark <> clNone) then begin
-      if WizardStyleSpecial = '' then begin
+      if (WizardStyleSpecial = '') and (WizardStyleFile = '') then begin
         WizardStyleSpecial := 'windows11';
-        SetupHeader.WizardLightControlStyling := wcsOnlyRequired;
+        SetupHeader.WizardLightControlStyling := wcsOnlyRequired; { 'excludelightcontrols' }
         if SetupDirectiveLines[ssWizardBackImageFile] <> 0 then
-          Include(SetupHeader.Options, shWizardBevelsHidden);
+          Include(SetupHeader.Options, shWizardBevelsHidden); { 'hidebevels' }
       end;
     end;
     if WizardStyleSpecial <> '' then begin
