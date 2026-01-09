@@ -51,7 +51,6 @@ function FileOrDirExistsRedir(const DisableFsRedir: Boolean; const Filename: Str
 function FindFirstFileRedir(const DisableFsRedir: Boolean; const Filename: String;
   var FindData: TWin32FindData): THandle;
 function GetFileAttributesRedir(const DisableFsRedir: Boolean; const Filename: String): DWORD;
-function GetShortNameRedir(const DisableFsRedir: Boolean; const Filename: String): String;
 function GetVersionNumbersRedir(const DisableFsRedir: Boolean; const Filename: String;
   var VersionNumbers: TFileVersionNumbers): Boolean;
 function IsDirectoryAndNotReparsePointRedir(const DisableFsRedir: Boolean;
@@ -346,21 +345,6 @@ begin
     RestoreFsRedirection(PrevState);
   end;
   SetLastError(ErrorCode);
-end;
-
-function GetShortNameRedir(const DisableFsRedir: Boolean; const Filename: String): String;
-var
-  PrevState: TPreviousFsRedirectionState;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := Filename;
-    Exit;
-  end;
-  try
-    Result := GetShortName(Filename);
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
 end;
 
 function GetVersionNumbersRedir(const DisableFsRedir: Boolean; const Filename: String;

@@ -122,7 +122,6 @@ function NewParamCount: Integer;
 function NewParamStr(Index: Integer): string;
 function AddQuotes(const S: String): String;
 function RemoveQuotes(const S: String): String;
-function GetShortName(const LongName: String): String;
 function GetWinDir: String;
 function GetSystemWinDir: String;
 function GetSystemDir: String;
@@ -657,22 +656,6 @@ begin
     else
       Inc(I);
   end;
-end;
-
-function GetShortName(const LongName: String): String;
-{ Gets the short version of the specified long filename. If the file does not
-  exist, or some other error occurs, it returns LongName. }
-var
-  Res: DWORD;
-begin
-  SetLength(Result, MAX_PATH);
-  repeat
-    Res := GetShortPathName(PChar(LongName), PChar(Result), ULength(Result));
-    if Res = 0 then begin
-      Result := LongName;
-      Break;
-    end;
-  until AdjustLength(Result, Res);
 end;
 
 function GetWinDir: String;

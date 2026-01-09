@@ -96,6 +96,7 @@ function LoadStringsFromFile(const FileName: String; const Stack: TPSStack;
 function SaveStringToFile(const FileName: String; const S: AnsiString; Append: Boolean): Boolean;
 function SaveStringsToFile(const FileName: String; const Stack: TPSStack;
   const ItemNo: Longint; Append, UTF8, UTF8WithoutBOM: Boolean): Boolean;
+function GetShortName(const LongName: String): String;
 function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): NativeInt;
 
 implementation
@@ -638,6 +639,23 @@ begin
     Result := False;
   end;
 end;
+
+function GetShortName(const LongName: String): String;
+{ Gets the short version of the specified long filename. If the file does not
+  exist, or some other error occurs, it returns LongName. }
+var
+  Res: DWORD;
+begin
+  SetLength(Result, MAX_PATH);
+  repeat
+    Res := GetShortPathName(PChar(LongName), PChar(Result), ULength(Result));
+    if Res = 0 then begin
+      Result := LongName;
+      Break;
+    end;
+  until AdjustLength(Result, Res);
+end;
+
 
 var
   ASMInliners: array of Pointer;
