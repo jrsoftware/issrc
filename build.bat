@@ -63,6 +63,7 @@ echo Compiling ISetup*.chm done
 pause
 
 call :build x86
+if errorlevel 1 goto failed
 
 echo Cleaning output of previous build
 del Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\Setup.e64 Files\SetupCustomStyle.e32 Files\SetupCustomStyle.e64 Files\SetupLdr.e32 Files\SetupLdr.e64
@@ -71,6 +72,7 @@ del Files\ISIDE.exe Files\ISCC.exe Files\ISSigTool.exe
 if errorlevel 1 goto failed
 
 call :build x64
+if errorlevel 1 goto failed
 
 echo All done!
 pause
@@ -83,38 +85,37 @@ exit /b 1
 
 :build
 call .\compile.bat %~1
-if errorlevel 1 goto failed
+if errorlevel 1 exit /b 1
 echo Compiling %~1 Inno Setup done
 
 if exist .\setup-presign.bat (
   echo - Presigning
   call .\setup-presign.bat Files\ISCC.exe Files\ISCmplr.dll Files\ISPP.dll
-  if errorlevel 1 goto failed
+  if errorlevel 1 exit /b 1
   echo Presign done
 ) 
 
 rem  Sign using user's private key - also see compile.bat
 call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\Setup.e64 Files\SetupCustomStyle.e32 Files\SetupCustomStyle.e64 Files\SetupLdr.e32 Files\SetupLdr.e64
-if errorlevel 1 goto failed
+if errorlevel 1 exit /b 1
 echo ISSigTool sign %~1 done
 
-:setup
 echo - %~1 Setup.exe
 if exist .\setup-sign.bat (
   call .\setup-sign.bat /D%~1
 ) else (
   files\iscc setup.iss /D%~1
 )
-if errorlevel 1 goto failed
+if errorlevel 1 exit /b 1
 echo - Renaming %~1 files
 cd output
-if errorlevel 1 goto failed
+if errorlevel 1 exit /b 1
 move /y mysetup.exe innosetup-%VER%-%~1.exe
-if errorlevel 1 goto failed
+if errorlevel 1 exit /b 1
 cd ..
-if errorlevel 1 goto failed
+if errorlevel 1 exit /b 1
 echo Creating %~1 Inno Setup installer done
 call .\issig.bat sign output\innosetup-%VER%-%~1.exe
-if errorlevel 1 goto failed
+if errorlevel 1 exit /b 1
 
 exit /b
