@@ -434,19 +434,15 @@ end;
 procedure CreateDirs(const UninstLog: TUninstallLog);
 { Creates the application's directories }
 
-  procedure ApplyPermissions(const DisableFsRedir: Boolean;
-    const Filename: String; const PermsEntry: Integer);
+  procedure ApplyPermissions(const Filename: String;
+    const PermsEntry: Integer);
   var
     P: PSetupPermissionEntry;
   begin
     if PermsEntry <> -1 then begin
       LogFmt('Setting permissions on directory: %s', [Filename]);
-      const RedirFilename = ApplyPathRedirRules(DisableFsRedir, Filename);
-      if RedirFilename <> Filename then
-        LogFmt(#$2514#$2500' Redirected path: %s', [RedirFilename]);
-
       P := Entries[sePermission][PermsEntry];
-      if not GrantPermissionOnFile(False, RedirFilename,
+      if not GrantPermissionOnFile(False, Filename,
          TGrantPermissionEntry(Pointer(P.Permissions)^),
          Length(P.Permissions) div SizeOf(TGrantPermissionEntry)) then
         LogFmt('Failed to set permissions on directory (%d).', [GetLastError]);
@@ -455,7 +451,6 @@ procedure CreateDirs(const UninstLog: TUninstallLog);
 
 var
   Flags: TMakeDirFlags;
-  N: String;
 begin
   { Create main application directory }
   MakeDir(UninstLog, ApplyPathRedirRules(InstallDefaultDisableFsRedir, WizardDirValue), []);
@@ -470,13 +465,13 @@ begin
         if doUninsNeverUninstall in Options then Include(Flags, mdNoUninstall);
         if doDeleteAfterInstall in Options then Include(Flags, mdDeleteAfterInstall);
         if doUninsAlwaysUninstall in Options then Include(Flags, mdAlwaysUninstall);
-        N := RemoveBackslashUnlessRoot(PathExpand(ExpandConst(DirName)));
-        const RedirDir = ApplyPathRedirRules(InstallDefaultDisableFsRedir, N);
-        MakeDir(UninstLog, RedirDir, Flags);
-        AddAttributesToFile(InstallDefaultDisableFsRedir, N, Attribs);
-        ApplyPermissions(InstallDefaultDisableFsRedir, N, PermissionsEntry);
+        const Path = RemoveBackslashUnlessRoot(ApplyPathRedirRules(
+          InstallDefaultDisableFsRedir, ExpandConst(DirName)));
+        MakeDir(UninstLog, Path, Flags);
+        AddAttributesToFile(False, Path, Attribs);
+        ApplyPermissions(Path, PermissionsEntry);
         if (doSetNTFSCompression in Options) or (doUnsetNTFSCompression in Options) then
-          ApplyNTFSCompression(InstallDefaultDisableFsRedir, N, True, doSetNTFSCompression in Options);
+          ApplyNTFSCompression(False, Path, True, doSetNTFSCompression in Options);
         NotifyAfterInstallEntry(AfterInstall);
       end;
     end;
