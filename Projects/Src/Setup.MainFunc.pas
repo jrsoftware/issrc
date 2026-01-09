@@ -4131,6 +4131,10 @@ begin
   if RunEntry64Bit then
     TargetProcess := tpNativeBit;
 
+  { rfNormalPath is used below because the process to run might have problems
+    with super paths. Additionally, ProcessRunEntry may use ShellExecuteEx
+    to run the process, which does not support super paths. }
+
   if PathIsRooted(AFilename) then
     AFilename := ApplyPathRedirRules(RunEntry64Bit, AFilename,
       [rfNormalPath], TargetProcess);

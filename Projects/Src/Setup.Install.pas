@@ -383,7 +383,8 @@ begin
   Dir := RemoveBackslashUnlessRoot(PathExpand(Dir));
   { If we're at the root of a drive or network share, then there's nothing to
     do. (PathExtractName doesn't understand "\\?\UNC\server\share" to be a
-    root path, so that's the reason for the PathConvertSuperToNormal call.) }
+    root path which would could the recursion to stop too late, so that's the
+    reason for the PathConvertSuperToNormal call.) }
   if PathExtractName(PathConvertSuperToNormal(Dir)) = '' then
     Exit;
   if DirExists(Dir) then begin
@@ -2621,7 +2622,14 @@ begin
     that 64-bit processes like Add/Remove Programs and Explorer know that the
     uninstaller EXE is in the 32-bit system directory.
     On 64-bit Setup, however, this leaves System32 as-is, so 32-bit processes
-    may be unable to access the uninstaller EXE. }
+    may be unable to access the uninstaller EXE.
+
+    Also, rfNormalPath is used because UninstallFilesDir is used as the basis
+    for the uninstallexe constant, which is written to the Uninstall key and
+    can also be used in [Icons] shortcuts. It is not known whether
+    Add/Remove Programs or Explorer support super paths, but because
+    UninstallFilesDir would never exceed MAX_PATH, using rfNormalPath has no
+    downsides. }
   const BaseDir = ApplyPathRedirRules(IsCurrentProcess64Bit,
     ExpandConst(SetupHeader.UninstallFilesDir), [rfNormalPath]);
   LogFmt('Directory for uninstall files: %s', [BaseDir]);

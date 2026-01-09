@@ -603,7 +603,14 @@ begin
     { This function takes a current-process-bit path, but SfcIsFileProtected
       wants a native-bit path.
       For example, in a 32-bit process, SfcIsFileProtected returns True for
-      "SysWOW64\msvbvm60.dll", but False for "System32\msvbvm60.dll". }
+      "SysWOW64\msvbvm60.dll", but False for "System32\msvbvm60.dll".
+
+      Also, rfNormalPath is used because it is not known whether SfcIsProtectedFile
+      supports super paths. It does on Windows 11 25H2, but this might not
+      have always been the case. Another concern is that SfcIsProtectedFile
+      seems to check whether the supplied filename exists in a list. This is
+      very different from APIs like CreateFile, which actually open the specified
+      file and definitely do support super paths. }
     const NativeFilename = ApplyPathRedirRules(IsCurrentProcess64Bit, Filename,
       [rfNormalPath], tpNativeBit);
     Result := SfcIsFileProtectedFunc(0, PChar(NativeFilename));

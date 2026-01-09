@@ -2,7 +2,7 @@ unit PathFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -13,6 +13,14 @@ unit PathFunc;
   default, and use a locale-independent "ordinal" comparison, which is important
   when comparing filenames/paths. Despite the "Path" prefix, however, the
   functions can be used to compare any kind of text, not just filenames/paths.
+
+  These functions may be called for super paths as well, as long as you know the
+  path is not a root directory. This is because the functions do not understand
+  '\\?\UNC\server\share' to be a root path. Instead, they consider '\\?\UNC' to
+  be the drive, and '"server\share' to be subdirectories. For example,
+  PathExtractDir('\\?\UNC\server\share\Filename.txt') works, but calling
+  PathExtractDir a second time on the result does not. It strips off 'share' when
+  it should not.
 }
 
 interface
