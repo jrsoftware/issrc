@@ -5,6 +5,7 @@ applyTo: "**/*.pas, **/*.dpr, **/*.inc"
 - Always use inline variables instead of pre-declaring them at the start of the function.
 - Prefer inline constants over inline variables, even for run-time values and not just for compile-time constants.
   Inline constants use `=` as the assignment operator instead of `:=`. Examples:
+  Inline constants which are an object can still have their properties modified.
   const MaxCount = MinCount * 2;
   const ExpandedFilename = PathExpand(Filenames[I]);
 - Do not use with statements.
@@ -16,6 +17,7 @@ applyTo: "**/*.pas, **/*.dpr, **/*.inc"
 - Use two spaces for indentation, not tabs.
 - Mark read-only parameters as const.
 - Use Windows units first, then RTL/VCL units, then Components units, then Shared units, then project specific units.
+- Using variable name Res as a shortcut for Result is allowed.
 # Code review guidelines for Pascal source files
 - All errors must be checked. Installers should be reliable above all.
 - Be alert for `out` parameters initializing to zero/empty upon function entry, unlike `var` parameters.
