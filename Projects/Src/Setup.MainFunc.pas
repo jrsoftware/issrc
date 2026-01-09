@@ -4016,9 +4016,8 @@ begin
     FreeAndNil(CodeRunner);
   end;
 
-  for var I := 0 to DeleteFilesAfterInstallList.Count-1 do
-    DeleteFileRedir(DeleteFilesAfterInstallList.Objects[I] <> nil,
-      DeleteFilesAfterInstallList[I]);
+  for var Filename in DeleteFilesAfterInstallList do
+    Windows.DeleteFile(PChar(Filename));
   DeleteFilesAfterInstallList.Clear;
   for var I := DeleteDirsAfterInstallList.Count-1 downto 0 do
     RemoveDirectory(PChar(DeleteDirsAfterInstallList[I]));

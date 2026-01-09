@@ -2,7 +2,7 @@ unit Setup.RedirFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -42,7 +42,6 @@ function CreateProcessRedir(const DisableFsRedir: Boolean;
   var lpProcessInformation: TProcessInformation): BOOL;
 function DeleteFileRedir(const DisableFsRedir: Boolean; const Filename: String): BOOL;
 function DirExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
-function FileOrDirExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
 function FindFirstFileRedir(const DisableFsRedir: Boolean; const Filename: String;
   var FindData: TWin32FindData): THandle;
 function GetFileAttributesRedir(const DisableFsRedir: Boolean; const Filename: String): DWORD;
@@ -50,15 +49,12 @@ function GetVersionNumbersRedir(const DisableFsRedir: Boolean; const Filename: S
   var VersionNumbers: TFileVersionNumbers): Boolean;
 function IsDirectoryAndNotReparsePointRedir(const DisableFsRedir: Boolean;
   const Name: String): Boolean;
-function MoveFileRedir(const DisableFsRedir: Boolean;
-  const ExistingFilename, NewFilename: String): BOOL;
 function MoveFileExRedir(const DisableFsRedir: Boolean;
   const ExistingFilename, NewFilename: String; const Flags: DWORD): BOOL;
 function NewFileExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
 function RemoveDirectoryRedir(const DisableFsRedir: Boolean; const Filename: String): BOOL;
 function SetFileAttributesRedir(const DisableFsRedir: Boolean; const Filename: String;
   const Attrib: DWORD): BOOL;
-function SetNTFSCompressionRedir(const DisableFsRedir: Boolean; const FileOrDir: String; Compress: Boolean): Boolean;
 
 type
   TFileRedir = class(TFile)
@@ -221,24 +217,6 @@ begin
   SetLastError(ErrorCode);
 end;
 
-function FileOrDirExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := FileOrDirExists(Filename);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
 function FindFirstFileRedir(const DisableFsRedir: Boolean; const Filename: String;
   var FindData: TWin32FindData): THandle;
 var
@@ -306,25 +284,6 @@ begin
   finally
     RestoreFsRedirection(PrevState);
   end;
-end;
-
-function MoveFileRedir(const DisableFsRedir: Boolean;
-  const ExistingFilename, NewFilename: String): BOOL;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := MoveFile(PChar(ExistingFilename), PChar(NewFilename));
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
 end;
 
 function MoveFileExRedir(const DisableFsRedir: Boolean;
@@ -399,24 +358,6 @@ begin
   end;
   try
     Result := SetFileAttributes(PChar(Filename), Attrib);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
-function SetNTFSCompressionRedir(const DisableFsRedir: Boolean; const FileOrDir: String; Compress: Boolean): Boolean;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := SetNTFSCompression(FileOrDir, Compress);
     ErrorCode := GetLastError;
   finally
     RestoreFsRedirection(PrevState);

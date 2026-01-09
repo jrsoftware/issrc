@@ -2,7 +2,7 @@ unit Setup.Install.HelperFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -44,8 +44,7 @@ procedure JustProcessEventsProc64(const Bytes, Param: Int64);
 function AbortRetryIgnoreTaskDialogMsgBox(const Text: String;
   const RetryIgnoreAbortButtonLabels: array of String): Boolean;
 function FileTimeToStr(const AFileTime: TFileTime): String;
-function TryToGetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String;
-  var Sum: TSHA256Digest): Boolean;
+function TryToGetSHA256OfFile(const Filename: String; var Sum: TSHA256Digest): Boolean;
 procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
   [ref] const Verification: TSetupFileVerification; const ISSigSourceFilename: String;
   const AExpectedSize: Int64);
@@ -278,12 +277,11 @@ begin
     Result := '(invalid)';
 end;
 
-function TryToGetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String;
-  var Sum: TSHA256Digest): Boolean;
+function TryToGetSHA256OfFile(const Filename: String; var Sum: TSHA256Digest): Boolean;
 { Like GetSHA256OfFile but traps exceptions locally. Returns True if successful. }
 begin
   try
-    Sum := GetSHA256OfFile(DisableFsRedir, Filename);
+    Sum := GetSHA256OfFile(Filename);
     Result := True;
   except
     Result := False;
@@ -346,16 +344,20 @@ begin
 end;
 
 function ShortenOrExpandFontFilename(const Filename: String): String;
-{ Expands Filename, except if it's in the Fonts directory, in which case it
-  removes the path }
+{ Removes the path from Filename if it's in the Fonts directory.
+  Filename should be a super path. }
 var
   FontDir: String;
 begin
-  Result := PathExpand(Filename);
-  FontDir := GetShellFolder(False, sfFonts);
-  if FontDir <> '' then
-    if PathCompare(PathExtractDir(Result), FontDir) = 0 then
+  Result := Filename;
+  FontDir :=  GetShellFolder(False, sfFonts);
+  if FontDir <> '' then begin
+    { Filename is a super path and FontDir is not. So using
+      PathConvertSuperToNormal because PathSame does not consider
+      a super path and its normal form to be the same. }
+    if PathSame(PathExtractDir(PathConvertSuperToNormal(Filename)), FontDir) then
       Result := PathExtractName(Result);
+  end;
 end;
 
 function GetLocalTimeAsStr: String;

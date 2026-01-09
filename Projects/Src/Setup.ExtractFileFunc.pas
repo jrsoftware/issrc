@@ -2,7 +2,7 @@ unit Setup.ExtractFileFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -20,7 +20,7 @@ uses
   Windows, SysUtils,
   PathFunc,
   Shared.CommonFunc, Shared.FileClass, Shared.Struct,
-  Setup.RedirFunc, Setup.InstFunc, Setup.FileExtractor, Setup.LoggingFunc, Setup.MainFunc;
+  Setup.InstFunc, Setup.FileExtractor, Setup.LoggingFunc, Setup.MainFunc;
 
 procedure InternalExtractTemporaryFile(const DestName: String;
   const CurFile: PSetupFileEntry; const CurFileLocation: PSetupFileLocationEntry;
@@ -59,7 +59,7 @@ begin
     DeleteFile(DestFile);
     raise;
   end;
-  AddAttributesToFile(False, DestFile, CurFile^.Attribs);
+  AddAttributesToFile(DestFile, CurFile^.Attribs);
 end;
 
 procedure ExtractTemporaryFile(const BaseName: String);

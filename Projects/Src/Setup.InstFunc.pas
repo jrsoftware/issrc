@@ -72,9 +72,8 @@ function DelTree(const DisableFsRedir: Boolean; const Path: String;
 procedure EnumFileReplaceOperationsFilenames(const EnumFunc: TEnumFROFilenamesProc;
   Param: Pointer);
 function GetComputerNameString: String;
-function GetFileDateTime(const DisableFsRedir: Boolean; const Filename: String;
-  var DateTime: TFileTime): Boolean;
-function GetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA256Digest; overload;
+function GetFileDateTime(const Filename: String; var DateTime: TFileTime): Boolean;
+function GetSHA256OfFile(const Filename: String): TSHA256Digest; overload;
 function GetSHA256OfFile(const F: TFile): TSHA256Digest; overload;
 function GetSHA256OfAnsiString(const S: AnsiString): TSHA256Digest;
 function GetSHA256OfUnicodeString(const S: UnicodeString): TSHA256Digest;
@@ -105,11 +104,11 @@ function RegRootKeyToUInt32(const RootKey: HKEY): UInt32;
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
 function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
 procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);
-procedure RestartReplace(const DisableFsRedir: Boolean; TempFile, DestFile: String);
+procedure RestartReplace(const A64Bit: Boolean; TempFile, DestFile: String);
 procedure Win32ErrorMsg(const FunctionName: String);
 procedure Win32ErrorMsgEx(const FunctionName: String; const ErrorCode: DWORD);
 function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
-procedure AddAttributesToFile(const DisableFsRedir: Boolean; const Filename: String; Attribs: Integer);
+procedure AddAttributesToFile(const Filename: String; Attribs: Integer);
 
 implementation
 
@@ -243,7 +242,7 @@ begin
   Result := Path;
 end;
 
-procedure RestartReplace(const DisableFsRedir: Boolean; TempFile, DestFile: String);
+procedure RestartReplace(const A64Bit: Boolean; TempFile, DestFile: String);
 { Renames TempFile to DestFile the next time Windows is started. If DestFile
   already existed, it will be overwritten. If DestFile is '' then TempFile
   will be deleted.. }
@@ -252,7 +251,7 @@ begin
   if DestFile <> '' then
     DestFile := PathExpand(DestFile);
 
-  if not DisableFsRedir then begin
+  if not A64Bit then begin
     { Work around WOW64 bug present in the IA64 and x64 editions of Windows
       XP (3790) and Server 2003 prior to SP1 RC2: MoveFileEx writes filenames
       to the registry verbatim without mapping system32->syswow64. }
@@ -260,7 +259,7 @@ begin
     if DestFile <> '' then
       DestFile := ReplaceSystemDirWithSysWow64(DestFile);
   end;
-  if not MoveFileExRedir(DisableFsRedir, TempFile, DestFile,
+  if not MoveFileEx(PChar(TempFile), PChar(DestFile),
      MOVEFILE_DELAY_UNTIL_REBOOT or MOVEFILE_REPLACE_EXISTING) then
     Win32ErrorMsg('MoveFileEx');
 end;
@@ -390,8 +389,22 @@ var
   K: HKEY;
   Disp, Size, CurType, NewType: DWORD;
   CountStr: String;
-  FilenameP: PChar;
 begin
+  { The SharedDLLs key needs normal paths, with a specific bitness,
+    and in the case of 32-bit files, non-SysWOW64 paths. }
+
+  var TargetProcess: TPathRedirTargetProcess;
+  if RegView = rv64Bit then
+    TargetProcess := tpNativeBit
+  else begin
+    if RegView <> rv32Bit then
+      InternalError('Invalid RegView value');
+    TargetProcess := tp32BitPreferSystem32
+  end;
+
+  const SharedFile = ApplyPathRedirRules(IsCurrentProcess64Bit,
+    Filename, [rfNormalPath], TargetProcess);
+
   const ErrorCode = Cardinal(RegCreateKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0, nil,
     REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE, nil, K, @Disp));
   if ErrorCode <> ERROR_SUCCESS then
@@ -399,20 +412,20 @@ begin
         [GetRegRootKeyName(HKEY_LOCAL_MACHINE), SharedDLLsKey]) + SNewLine2 +
       FmtSetupMessage(msgErrorFunctionFailedWithMessage,
         ['RegCreateKeyEx', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
-  FilenameP := PChar(Filename);
+  const SharedFileP = PChar(SharedFile);
   var Count := 0;
   NewType := REG_DWORD;
   try
-    if RegQueryValueEx(K, FilenameP, nil, @CurType, nil, @Size) = ERROR_SUCCESS then
+    if RegQueryValueEx(K, SharedFileP, nil, @CurType, nil, @Size) = ERROR_SUCCESS then
       case CurType of
         REG_SZ:
-          if RegQueryStringValue(K, FilenameP, CountStr) then begin
+          if RegQueryStringValue(K, SharedFileP, CountStr) then begin
             Count := StrToInt(CountStr);
             NewType := REG_SZ;
           end;
         REG_BINARY: begin
             if (Size >= 1) and (Size <= 4) then begin
-              if RegQueryValueEx(K, FilenameP, nil, nil, PByte(@Count), @Size) <> ERROR_SUCCESS then
+              if RegQueryValueEx(K, SharedFileP, nil, nil, PByte(@Count), @Size) <> ERROR_SUCCESS then
                 { ^ relies on the high 3 bytes of Count being initialized to 0 }
                 Abort;
               NewType := REG_BINARY;
@@ -420,7 +433,7 @@ begin
           end;
         REG_DWORD: begin
             Size := SizeOf(DWORD);
-            if RegQueryValueEx(K, FilenameP, nil, nil, PByte(@Count), @Size) <> ERROR_SUCCESS then
+            if RegQueryValueEx(K, SharedFileP, nil, nil, PByte(@Count), @Size) <> ERROR_SUCCESS then
               Abort;
           end;
       end;
@@ -435,10 +448,10 @@ begin
   case NewType of
     REG_SZ: begin
         CountStr := IntToStr(Count);
-        RegSetValueEx(K, FilenameP, 0, NewType, PChar(CountStr), (ULength(CountStr)+1)*SizeOf(CountStr[1]));
+        RegSetValueEx(K, SharedFileP, 0, NewType, PChar(CountStr), (ULength(CountStr)+1)*SizeOf(CountStr[1]));
       end;
     REG_BINARY, REG_DWORD:
-      RegSetValueEx(K, FilenameP, 0, NewType, @Count, SizeOf(Count));
+      RegSetValueEx(K, SharedFileP, 0, NewType, @Count, SizeOf(Count));
   end;
   RegCloseKey(K);
 end;
@@ -520,13 +533,12 @@ begin
   end;
 end;
 
-function GetFileDateTime(const DisableFsRedir: Boolean; const Filename: String;
-  var DateTime: TFileTime): Boolean;
+function GetFileDateTime(const Filename: String; var DateTime: TFileTime): Boolean;
 var
   Handle: THandle;
   FindData: TWin32FindData;
 begin
-  Handle := FindFirstFileRedir(DisableFsRedir, Filename, FindData);
+  Handle := FindFirstFile(PChar(Filename), FindData);
   if Handle <> INVALID_HANDLE_VALUE then begin
     Windows.FindClose(Handle);
     if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
@@ -540,11 +552,11 @@ begin
   DateTime.dwHighDateTime := 0;
 end;
 
-function GetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA256Digest;
+function GetSHA256OfFile(const Filename: String): TSHA256Digest;
 { Gets SHA-256 sum as a string of the file Filename. An exception will be raised upon
   failure. }
 begin
-  const F = TFileRedir.Create(DisableFsRedir, Filename, fdOpenExisting, faRead, fsReadWrite);
+  const F = TFile.Create(Filename, fdOpenExisting, faRead, fsReadWrite);
   try
     Result := GetSHA256OfFile(F);
   finally
@@ -1044,15 +1056,14 @@ begin
       CreateDirectoryRedir(DisableFsRedir, Dir);
 end;
 
-procedure AddAttributesToFile(const DisableFsRedir: Boolean;
-  const Filename: String; Attribs: Integer);
+procedure AddAttributesToFile(const Filename: String; Attribs: Integer);
 var
   ExistingAttr: DWORD;
 begin
   if Attribs <> 0 then begin
-    ExistingAttr := GetFileAttributesRedir(DisableFsRedir, Filename);
+    ExistingAttr := GetFileAttributes(PChar(Filename));
     if ExistingAttr <> INVALID_FILE_ATTRIBUTES then
-      SetFileAttributesRedir(DisableFsRedir, Filename,
+      SetFileAttributes(PChar(Filename),
         (ExistingAttr and not FILE_ATTRIBUTE_NORMAL) or DWORD(Attribs));
   end;
 end;
