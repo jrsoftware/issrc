@@ -2,7 +2,7 @@ unit SetupLdrAndSetup.InstFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -49,7 +49,7 @@ function GenerateUniqueName({$IFDEF SETUPPROJ}const DisableFsRedir: Boolean;{$EN
 implementation
 
 uses
-  PathFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs{$IFDEF SETUPPROJ}, Setup.RedirFunc{$ENDIF};
+  PathFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs{$IFDEF SETUPPROJ}, Setup.RedirFunc, Setup.PathRedir {$ENDIF};
 
 function ConvertStringSecurityDescriptorToSecurityDescriptorW(
   StringSecurityDescriptor: PWideChar;
@@ -161,6 +161,11 @@ const
   FiveDigitsRange = 36 * 36 * 36 * 36 * 36;
 begin
   Path := AddBackslash(Path);
+  {$IFDEF SETUPPROJ}
+  const TestPath = ApplyPathRedirRules(DisableFsRedir, Path);
+  {$ELSE}
+  const TestPath = Path;
+  {$ENDIF}
   var Filename: String;
   var AttemptNumber := 0;
   repeat
@@ -173,12 +178,12 @@ begin
       raise Exception.Create(FmtSetupMessage1(msgErrorTooManyFilesInDir,
         RemoveBackslashUnlessRoot(Path)));
 
-    Filename := Path + 'is-' +
+    Filename := 'is-' +
       UIntToBase36Str(TStrongRandom.GenerateUInt32Range(FiveDigitsRange), 5) +
       UIntToBase36Str(TStrongRandom.GenerateUInt32Range(FiveDigitsRange), 5) +
       Extension;
-  until not {$IFDEF SETUPPROJ}FileOrDirExistsRedir(DisableFsRedir, Filename){$ELSE}FileOrDirExists(Filename){$ENDIF};
-  Result := Filename;
+  until not FileOrDirExists(TestPath + Filename);
+  Result := Path + Filename;
 end;
 
 function CreateTempDir(const Extension: String;

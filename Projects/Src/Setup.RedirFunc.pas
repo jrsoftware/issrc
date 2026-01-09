@@ -2,7 +2,7 @@ unit Setup.RedirFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -42,7 +42,6 @@ function CreateProcessRedir(const DisableFsRedir: Boolean;
   var lpProcessInformation: TProcessInformation): BOOL;
 function DeleteFileRedir(const DisableFsRedir: Boolean; const Filename: String): BOOL;
 function DirExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
-function FileOrDirExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
 function FindFirstFileRedir(const DisableFsRedir: Boolean; const Filename: String;
   var FindData: TWin32FindData): THandle;
 function GetFileAttributesRedir(const DisableFsRedir: Boolean; const Filename: String): DWORD;
@@ -214,24 +213,6 @@ begin
   end;
   try
     Result := DirExists(Filename);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
-function FileOrDirExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := FileOrDirExists(Filename);
     ErrorCode := GetLastError;
   finally
     RestoreFsRedirection(PrevState);
