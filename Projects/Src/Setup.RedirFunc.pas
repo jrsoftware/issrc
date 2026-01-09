@@ -31,8 +31,6 @@ function DisableFsRedirectionIf(const Disable: Boolean;
   var PreviousState: TPreviousFsRedirectionState): Boolean;
 procedure RestoreFsRedirection(const PreviousState: TPreviousFsRedirectionState);
 
-function CreateDirectoryRedir(const DisableFsRedir: Boolean; const Filename: String;
-  const SecurityAttributes: PSecurityAttributes = nil): BOOL;
 function CreateProcessRedir(const DisableFsRedir: Boolean;
   const lpApplicationName: PChar; const lpCommandLine: PChar;
   const lpProcessAttributes, lpThreadAttributes: PSecurityAttributes;
@@ -41,12 +39,9 @@ function CreateProcessRedir(const DisableFsRedir: Boolean;
   const lpStartupInfo: TStartupInfo;
   var lpProcessInformation: TProcessInformation): BOOL;
 function DeleteFileRedir(const DisableFsRedir: Boolean; const Filename: String): BOOL;
-function DirExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
 function FindFirstFileRedir(const DisableFsRedir: Boolean; const Filename: String;
   var FindData: TWin32FindData): THandle;
 function GetFileAttributesRedir(const DisableFsRedir: Boolean; const Filename: String): DWORD;
-function GetVersionNumbersRedir(const DisableFsRedir: Boolean; const Filename: String;
-  var VersionNumbers: TFileVersionNumbers): Boolean;
 function IsDirectoryAndNotReparsePointRedir(const DisableFsRedir: Boolean;
   const Name: String): Boolean;
 function MoveFileExRedir(const DisableFsRedir: Boolean;
@@ -135,25 +130,6 @@ end;
 
 { *Redir functions }
 
-function CreateDirectoryRedir(const DisableFsRedir: Boolean; const Filename: String;
-  const SecurityAttributes: PSecurityAttributes): BOOL;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := CreateDirectory(PChar(Filename), SecurityAttributes);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
 function CreateProcessRedir(const DisableFsRedir: Boolean;
   const lpApplicationName: PChar; const lpCommandLine: PChar;
   const lpProcessAttributes, lpThreadAttributes: PSecurityAttributes;
@@ -199,24 +175,6 @@ begin
   SetLastError(ErrorCode);
 end;
 
-function DirExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := DirExists(Filename);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
 function FindFirstFileRedir(const DisableFsRedir: Boolean; const Filename: String;
   var FindData: TWin32FindData): THandle;
 var
@@ -252,22 +210,6 @@ begin
     RestoreFsRedirection(PrevState);
   end;
   SetLastError(ErrorCode);
-end;
-
-function GetVersionNumbersRedir(const DisableFsRedir: Boolean; const Filename: String;
-  var VersionNumbers: TFileVersionNumbers): Boolean;
-var
-  PrevState: TPreviousFsRedirectionState;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := GetVersionNumbers(Filename, VersionNumbers);
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
 end;
 
 function IsDirectoryAndNotReparsePointRedir(const DisableFsRedir: Boolean;

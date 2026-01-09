@@ -824,8 +824,8 @@ Retry:
             CurFileVersionInfo.LS := CurFileLocation^.FileVersionLS;
           end
           else
-            CurFileVersionInfoValid := GetVersionNumbersRedir(DisableFsRedir,
-                PathExpand(AExternalSourceFile), CurFileVersionInfo);
+            CurFileVersionInfoValid := GetVersionNumbers(
+                ApplyPathRedirRules(DisableFsRedir, AExternalSourceFile), CurFileVersionInfo);
           if CurFileVersionInfoValid then
             LogFmt('Version of our file: %u.%u.%u.%u',
               [LongRec(CurFileVersionInfo.MS).Hi, LongRec(CurFileVersionInfo.MS).Lo,

@@ -433,7 +433,7 @@ begin
     DelayDeleteFile(DestFile, 13, 50, 250);
     DidJustDeleteDestFile := True;
   end else
-    ForceDirectories(False, PathExtractPath(DestFile));
+    ForceDirectories(PathExtractPath(DestFile));
 
   { Create temporary file }
   TempFile := GenerateUniqueName(PathExtractPath(DestFile), '.tmp');

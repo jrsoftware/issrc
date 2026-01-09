@@ -107,7 +107,7 @@ procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont
 procedure RestartReplace(const A64Bit: Boolean; TempFile, DestFile: String);
 procedure Win32ErrorMsg(const FunctionName: String);
 procedure Win32ErrorMsgEx(const FunctionName: String; const ErrorCode: DWORD);
-function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
+function ForceDirectories(Dir: String): Boolean;
 procedure AddAttributesToFile(const Filename: String; Attribs: Integer);
 
 implementation
@@ -1046,14 +1046,21 @@ begin
     LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, @MsgResult);
 end;
 
-function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
+function ForceDirectories(Dir: String): Boolean;
 begin
   Dir := RemoveBackslashUnlessRoot(Dir);
-  if (PathExtractPath(Dir) = Dir) or DirExistsRedir(DisableFsRedir, Dir) then
-    Result := True
-  else
-    Result := ForceDirectories(DisableFsRedir, PathExtractPath(Dir)) and
-      CreateDirectoryRedir(DisableFsRedir, Dir);
+  if DirExists(Dir) then
+    Exit(True);
+
+  { PathExtractPath doesn't understand "\\?\UNC\server\share" to be a
+    root path which would cause the recursion to stop too late, so that's the
+    reason for the PathConvertSuperToNormal call. }
+  const NormalDir = PathConvertSuperToNormal(Dir);
+  if PathExtractPath(NormalDir) = NormalDir then
+    Exit(True);
+
+  Result := ForceDirectories(PathExtractPath(Dir)) and
+    CreateDirectory(PChar(Dir), nil);
 end;
 
 procedure AddAttributesToFile(const Filename: String; Attribs: Integer);

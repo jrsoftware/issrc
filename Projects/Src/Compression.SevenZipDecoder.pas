@@ -371,7 +371,7 @@ begin
   LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName,
     RemoveBackslashUnlessRoot(DestDir), SYesNo[FullPaths]]);
 
-  if not ForceDirectories(False, DestDir) then
+  if not ForceDirectories(DestDir) then
     SevenZipError(FmtSetupMessage1(msgErrorCreatingDir, DestDir), 'Failed to create destination directory');
 
   State.ExpandedArchiveFileName := PathExpand(ArchiveFileName);

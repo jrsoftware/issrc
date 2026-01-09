@@ -1147,7 +1147,7 @@ var
     end);
     RegisterScriptFunc('FORCEDIRECTORIES', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetBool(PStart, ForceDirectories(False, Stack.GetString(PStart-1)));
+      Stack.SetBool(PStart, ForceDirectories(Stack.GetString(PStart-1)));
     end);
   end;
 

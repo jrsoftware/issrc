@@ -37,7 +37,7 @@ begin
   { Does not disable FS redirection, like everything else working on the temp dir }
 
   if CreateDirs then
-    ForceDirectories(False, PathExtractPath(DestFile));
+    ForceDirectories(PathExtractPath(DestFile));
   DestF := TFile.Create(DestFile, fdCreateAlways, faWrite, fsNone);
   try
     try
