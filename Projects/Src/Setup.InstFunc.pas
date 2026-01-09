@@ -470,6 +470,19 @@ var
 begin
   Result := False;
 
+  var TargetProcess: TPathRedirTargetProcess;
+  if RegView = rv64Bit then
+    TargetProcess := tpNativeBit
+  else begin
+    if RegView <> rv32Bit then
+      InternalError('Invalid RegView value');
+    TargetProcess := tp32BitPreferSystem32;
+  end;
+
+  const SharedFile = ApplyPathRedirRules(IsCurrentProcess64Bit,
+    Filename, [rfNormalPath], TargetProcess);
+  const SharedFileP = PChar(SharedFile);
+
   const ErrorCode = Cardinal(RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0,
     KEY_QUERY_VALUE or KEY_SET_VALUE, K));
   if ErrorCode = ERROR_FILE_NOT_FOUND then
@@ -480,7 +493,7 @@ begin
       FmtSetupMessage(msgErrorFunctionFailedWithMessage,
         ['RegOpenKeyEx', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
   try
-    if RegQueryValueEx(K, PChar(Filename), nil, @CurType, nil, @Size) <> ERROR_SUCCESS then
+    if RegQueryValueEx(K, SharedFileP, nil, @CurType, nil, @Size) <> ERROR_SUCCESS then
       Exit;
 
     CountRead := False;
@@ -488,20 +501,20 @@ begin
     try
       case CurType of
         REG_SZ:
-          if RegQueryStringValue(K, PChar(Filename), CountStr) then begin
+          if RegQueryStringValue(K, SharedFileP, CountStr) then begin
             Count := StrToInt(CountStr);
             CountRead := True;
           end;
         REG_BINARY: begin
             if (Size >= 1) and (Size <= 4) then begin
-              if RegQueryValueEx(K, PChar(Filename), nil, nil, PByte(@Count), @Size) = ERROR_SUCCESS then
+              if RegQueryValueEx(K, SharedFileP, nil, nil, PByte(@Count), @Size) = ERROR_SUCCESS then
                 { ^ relies on the high 3 bytes of Count being initialized to 0 }
                 CountRead := True;
             end;
           end;
         REG_DWORD: begin
             Size := SizeOf(DWORD);
-            if RegQueryValueEx(K, PChar(Filename), nil, nil, PByte(@Count), @Size) = ERROR_SUCCESS then
+            if RegQueryValueEx(K, SharedFileP, nil, nil, PByte(@Count), @Size) = ERROR_SUCCESS then
               CountRead := True;
           end;
       end;
@@ -516,16 +529,16 @@ begin
     Dec(Count);
     if Count <= 0 then begin
       Result := True;
-      RegDeleteValue(K, PChar(Filename));
+      RegDeleteValue(K, SharedFileP);
     end
     else begin
       case CurType of
         REG_SZ: begin
             CountStr := IntToStr(Count);
-            RegSetValueEx(K, PChar(Filename), 0, REG_SZ, PChar(CountStr), (ULength(CountStr)+1)*SizeOf(Char));
+            RegSetValueEx(K, SharedFileP, 0, REG_SZ, PChar(CountStr), (ULength(CountStr)+1)*SizeOf(Char));
           end;
         REG_BINARY, REG_DWORD:
-          RegSetValueEx(K, PChar(Filename), 0, CurType, @Count, SizeOf(Count));
+          RegSetValueEx(K, SharedFileP, 0, CurType, @Count, SizeOf(Count));
       end;
     end;
   finally
