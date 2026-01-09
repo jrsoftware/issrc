@@ -48,7 +48,7 @@ function TryToGetSHA256OfFile(const Filename: String; var Sum: TSHA256Digest): B
 procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
   [ref] const Verification: TSetupFileVerification; const ISSigSourceFilename: String;
   const AExpectedSize: Int64);
-function ShortenOrExpandFontFilename(const Filename: String): String;
+function ShortenFontFilename(const Filename: String): String;
 function GetLocalTimeAsStr: String;
 procedure PackCustomMessagesIntoString(var S: String);
 function PackCompiledCodeTextIntoString(const CompiledCodeText: AnsiString): String;
@@ -343,7 +343,7 @@ begin
   SetProgress(MaxProgress);
 end;
 
-function ShortenOrExpandFontFilename(const Filename: String): String;
+function ShortenFontFilename(const Filename: String): String;
 { Removes the path from Filename if it's in the Fonts directory.
   Filename should be a super path. }
 var

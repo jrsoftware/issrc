@@ -1131,7 +1131,7 @@ Retry:
         of the file being unlocked/closed before we replace it. }
       if CurFile^.InstallFontName <> '' then begin
         LastOperation := '';
-        FontFilename := ShortenOrExpandFontFilename(DestFile);
+        FontFilename := ShortenFontFilename(DestFile);
         if DestFileExistedBefore then
           RemoveFontResource(PChar(FontFilename));
       end;
