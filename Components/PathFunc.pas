@@ -21,6 +21,9 @@ unit PathFunc;
   PathExtractDir('\\?\UNC\server\share\Filename.txt') works, but calling
   PathExtractDir a second time on the result does not. It strips off 'share' when
   it should not.
+
+  Note: PathSame and Path(Str)Compare do not consider a super path and its normal
+  form to be the same.
 }
 
 interface
