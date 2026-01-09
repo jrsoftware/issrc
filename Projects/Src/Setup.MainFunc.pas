@@ -4243,10 +4243,10 @@ end;
 
 procedure InitIsWin64AndProcessorArchitectureAndMachineTypesSupportedBySystem;
 const
+  PROCESSOR_ARCHITECTURE_ARM64 = 12;
   IMAGE_FILE_MACHINE_ARM64 = $AA64;
   IMAGE_FILE_MACHINE_ARMNT = $01C4;
   UserEnabled = $1;
-  PROCESSOR_ARCHITECTURE_ARM64 = 12;
 var
 {$IFNDEF WIN64}
   IsWow64ProcessFunc: function(hProcess: THandle; var Wow64Process: BOOL): BOOL; stdcall;
