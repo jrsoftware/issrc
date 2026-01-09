@@ -96,8 +96,7 @@ function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
 procedure InternalError(const Id: String);
 procedure InternalErrorFmt(const S: String; const Args: array of const);
 function IsDirEmpty(const DisableFsRedir: Boolean; const Dir: String): Boolean;
-function IsProtectedSystemFile(const DisableFsRedir: Boolean;
-  const Filename: String): Boolean;
+function IsProtectedSystemFile(const Filename: String): Boolean;
 function MakePendingFileRenameOperationsChecksum: TSHA256Digest;
 function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;
 procedure RaiseOleError(const FunctionName: String; const ResultCode: HRESULT);
@@ -118,7 +117,8 @@ uses
   Messages, ShellApi, Classes, RegStr, Math,
   PathFunc, UnsignedFunc,
   Shared.SetupTypes, Shared.SetupMessageIDs,
-  SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, Setup.RedirFunc;
+  SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, Setup.PathRedir,
+  Setup.RedirFunc;
 
 procedure InternalError(const Id: String);
 begin
@@ -584,29 +584,29 @@ var
   SFCInitialized: Boolean;
   SfcIsFileProtectedFunc: function(RpcHandle: THandle; ProtFileName: PWideChar): BOOL; stdcall;
 
-function IsProtectedSystemFile(const DisableFsRedir: Boolean;
-  const Filename: String): Boolean;
+function IsProtectedSystemFile(const Filename: String): Boolean;
 { Returns True if the specified file is protected by Windows File Protection
   (and therefore can't be replaced). }
-var
-  M: HMODULE;
-  FN: String;
 begin
   if not SFCInitialized then begin
-    M := SafeLoadLibrary(PChar(AddBackslash(GetSystemDir) + 'sfc.dll'),
-      SEM_NOOPENFILEERRORBOX);
-    if M <> 0 then
-      SfcIsFileProtectedFunc := GetProcAddress(M, 'SfcIsFileProtected');
+    const M = SafeLoadLibrary(PChar(AddBackslash(GetSystemDir) + 'sfc.dll'));
+    if M <> 0 then begin
+      const P = GetProcAddress(M, PAnsiChar('SfcIsFileProtected'));
+      MemoryBarrier;
+      AtomicCmpExchange(@SfcIsFileProtectedFunc, P, nil);
+    end;
+    MemoryBarrier;
     SFCInitialized := True;
   end;
+  MemoryBarrier;
   if Assigned(SfcIsFileProtectedFunc) then begin
-    { The function only accepts fully qualified paths. Also, as of
-      IA-64 2003 SP1 and x64 XP, it does not respect file system redirection,
-      so a call to ReplaceSystemDirWithSysWow64 is needed. }
-    FN := PathExpand(Filename);
-    if not DisableFsRedir then
-      FN := ReplaceSystemDirWithSysWow64(FN);
-    Result := SfcIsFileProtectedFunc(0, PChar(FN));
+    { This function takes a current-process-bit path, but SfcIsFileProtected
+      wants a native-bit path.
+      For example, in a 32-bit process, SfcIsFileProtected returns True for
+      "SysWOW64\msvbvm60.dll", but False for "System32\msvbvm60.dll". }
+    const NativeFilename = ApplyPathRedirRules(IsCurrentProcess64Bit, Filename,
+      [rfNormalPath], tpNativeBit);
+    Result := SfcIsFileProtectedFunc(0, PChar(NativeFilename));
   end
   else
     Result := False; { Should never happen }

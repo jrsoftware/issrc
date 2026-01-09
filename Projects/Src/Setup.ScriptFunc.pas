@@ -1114,7 +1114,7 @@ var
     end);
     RegisterScriptFunc('ISPROTECTEDSYSTEMFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetBool(PStart, IsProtectedSystemFile(False, Stack.GetString(PStart-1)));
+      Stack.SetBool(PStart, IsProtectedSystemFile(Stack.GetString(PStart-1)));
     end);
     RegisterScriptFunc('MAKEPENDINGFILERENAMEOPERATIONSCHECKSUM', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin

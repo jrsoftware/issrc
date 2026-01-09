@@ -756,7 +756,7 @@ Retry:
       end;
 
       { See if it's a protected system file.  }
-      if IsProtectedSystemFile(DisableFsRedir, DestFile) then begin
+      if IsProtectedSystemFile(ApplyPathRedirRules(DisableFsRedir, DestFile)) then begin
         Log('Dest file is protected by Windows File Protection.');
         IsProtectedFile := (CurFile^.FileType = ftUserFile);
       end else
