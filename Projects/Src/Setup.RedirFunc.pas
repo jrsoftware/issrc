@@ -31,9 +31,6 @@ function DisableFsRedirectionIf(const Disable: Boolean;
   var PreviousState: TPreviousFsRedirectionState): Boolean;
 procedure RestoreFsRedirection(const PreviousState: TPreviousFsRedirectionState);
 
-function CreateFileRedir(const DisableFsRedir: Boolean; const FileName: String;
-  const DesiredAccess, ShareMode: DWORD; const SecurityAttributes: PSecurityAttributes;
-  const CreationDisposition, FlagsAndAttributes: DWORD; TemplateFile: THandle): THandle;
 function CreateDirectoryRedir(const DisableFsRedir: Boolean; const Filename: String;
   const SecurityAttributes: PSecurityAttributes = nil): BOOL;
 function CreateProcessRedir(const DisableFsRedir: Boolean;
@@ -43,8 +40,6 @@ function CreateProcessRedir(const DisableFsRedir: Boolean;
   const lpEnvironment: Pointer; const lpCurrentDirectory: PChar;
   const lpStartupInfo: TStartupInfo;
   var lpProcessInformation: TProcessInformation): BOOL;
-function CopyFileRedir(const DisableFsRedir: Boolean;
-  const ExistingFilename, NewFilename: String; const FailIfExists: BOOL): BOOL;
 function DeleteFileRedir(const DisableFsRedir: Boolean; const Filename: String): BOOL;
 function DirExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
 function FileOrDirExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
@@ -67,32 +62,6 @@ function SetNTFSCompressionRedir(const DisableFsRedir: Boolean; const FileOrDir:
 
 type
   TFileRedir = class(TFile)
-  private
-    FDisableFsRedir: Boolean;
-  protected
-    function CreateHandle(const AFilename: String;
-      ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
-      ASharing: TFileSharing): THandle; override;
-  public
-    constructor Create(const DisableFsRedir: Boolean; const AFilename: String;
-      ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
-      ASharing: TFileSharing);
-  end;
-
-  TTextFileReaderRedir = class(TTextFileReader)
-  private
-    FDisableFsRedir: Boolean;
-  protected
-    function CreateHandle(const AFilename: String;
-      ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
-      ASharing: TFileSharing): THandle; override;
-  public
-    constructor Create(const DisableFsRedir: Boolean; const AFilename: String;
-      ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
-      ASharing: TFileSharing);
-  end;
-
-  TTextFileWriterRedir = class(TTextFileWriter)
   private
     FDisableFsRedir: Boolean;
   protected
@@ -170,27 +139,6 @@ end;
 
 { *Redir functions }
 
-function CreateFileRedir(const DisableFsRedir: Boolean; const FileName: String;
-  const DesiredAccess, ShareMode: DWORD; const SecurityAttributes: PSecurityAttributes;
-  const CreationDisposition, FlagsAndAttributes: DWORD; TemplateFile: THandle): THandle;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := INVALID_HANDLE_VALUE;
-    Exit;
-  end;
-  try
-    Result := CreateFile(PChar(Filename), DesiredAccess, ShareMode, SecurityAttributes,
-      CreationDisposition, FlagsAndAttributes, TemplateFile);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
 function CreateDirectoryRedir(const DisableFsRedir: Boolean; const Filename: String;
   const SecurityAttributes: PSecurityAttributes): BOOL;
 var
@@ -230,25 +178,6 @@ begin
       lpProcessAttributes, lpThreadAttributes,
       bInheritHandles, dwCreationFlags, lpEnvironment,
       lpCurrentDirectory, lpStartupInfo, lpProcessInformation);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
-function CopyFileRedir(const DisableFsRedir: Boolean;
-  const ExistingFilename, NewFilename: String; const FailIfExists: BOOL): BOOL;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := CopyFile(PChar(ExistingFilename), PChar(NewFilename), FailIfExists);
     ErrorCode := GetLastError;
   finally
     RestoreFsRedirection(PrevState);
@@ -506,68 +435,6 @@ begin
 end;
 
 function TFileRedir.CreateHandle(const AFilename: String;
-  ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
-  ASharing: TFileSharing): THandle;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(FDisableFsRedir, PrevState) then begin
-    Result := INVALID_HANDLE_VALUE;
-    Exit;
-  end;
-  try
-    Result := inherited CreateHandle(AFilename, ACreateDisposition, AAccess,
-      ASharing);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
-{ TTextFileReaderRedir }
-
-constructor TTextFileReaderRedir.Create(const DisableFsRedir: Boolean; const AFilename: String;
-  ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
-  ASharing: TFileSharing);
-begin
-  FDisableFsRedir := DisableFsRedir; 
-  inherited Create(AFilename, ACreateDisposition, AAccess, ASharing);
-end;
-
-function TTextFileReaderRedir.CreateHandle(const AFilename: String;
-  ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
-  ASharing: TFileSharing): THandle;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(FDisableFsRedir, PrevState) then begin
-    Result := INVALID_HANDLE_VALUE;
-    Exit;
-  end;
-  try
-    Result := inherited CreateHandle(AFilename, ACreateDisposition, AAccess,
-      ASharing);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
-{ TTextFileWriterRedir }
-
-constructor TTextFileWriterRedir.Create(const DisableFsRedir: Boolean; const AFilename: String;
-  ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
-  ASharing: TFileSharing);
-begin
-  FDisableFsRedir := DisableFsRedir; 
-  inherited Create(AFilename, ACreateDisposition, AAccess, ASharing);
-end;
-
-function TTextFileWriterRedir.CreateHandle(const AFilename: String;
   ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
   ASharing: TFileSharing): THandle;
 var
