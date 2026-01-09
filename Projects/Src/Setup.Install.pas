@@ -1648,7 +1648,7 @@ begin
           if CurFile^.FileType = ftUninstExe then begin
             { This is the file entry for the uninstaller program }
             SourceWildcard := NewParamStr(0);
-            DisableFsRedir := False;
+            DisableFsRedir := IsCurrentProcess64Bit;
           end
           else
             SourceWildcard := ExpandConst(CurFile^.SourceFilename);
@@ -2620,19 +2620,15 @@ procedure GenerateUninstallInfoFilename(const UninstLog: TUninstallLog;
 var
   ExistingFiles: array[0..999] of Boolean;
 begin
-  { Note: We never disable FS redirection when writing to UninstallFilesDir.
-    If someone sets UninstallFilesDir to "sys", we can't place a 32-bit
-    uninstaller in the 64-bit system directory, because it wouldn't see its
-    .dat file -- it would try to open 'windows\system32\unins???.dat' but
-    fail because system32 maps to syswow64 by default.
-    Not to mention, 32-bit EXEs really have no business being in the 64-bit
-    system directory, and vice versa. Might result in undefined behavior? }
-
-  { Because we don't disable FS redirection, we have to change any system32
-    to syswow64, otherwise Add/Remove Programs would look for the
-    UninstallString executable in the 64-bit system directory (at least
-    when using a 64-bit Uninstall key) }
-  const BaseDir = ReplaceSystemDirWithSysWow64(PathExpand(ExpandConst(SetupHeader.UninstallFilesDir)));
+  { For consistency with IS<=6.x, in case someone sets UninstallFilesDir to
+    "sys" (not recommended), we run the path through ApplyPathRedirRules to
+    change System32 to SysWOW64 when running on 32-bit Setup. This ensures
+    that 64-bit processes like Add/Remove Programs and Explorer know that the
+    uninstaller EXE is in the 32-bit system directory.
+    On 64-bit Setup, however, this leaves System32 as-is, so 32-bit processes
+    may be unable to access the uninstaller EXE. }
+  const BaseDir = ApplyPathRedirRules(IsCurrentProcess64Bit,
+    ExpandConst(SetupHeader.UninstallFilesDir), [rfNormalPath]);
   LogFmt('Directory for uninstall files: %s', [BaseDir]);
   MakeDir(UninstLog, BaseDir, []);
 
