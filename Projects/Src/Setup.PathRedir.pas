@@ -14,7 +14,7 @@ unit Setup.PathRedir;
   (extended-length) path. If the rfNormalPath flag is specified, the path is
   converted back to a normal path if possible (even if a super path was
   passed to the function). Use rfNormalPath only in cases where a super
-  path is known to not work roperly.
+  path is known to not work properly.
 
   Used only by the Setup project.
 }

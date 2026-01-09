@@ -383,7 +383,7 @@ begin
   Dir := RemoveBackslashUnlessRoot(PathExpand(Dir));
   { If we're at the root of a drive or network share, then there's nothing to
     do. (PathExtractName doesn't understand "\\?\UNC\server\share" to be a
-    root path which would could the recursion to stop too late, so that's the
+    root path which would cause the recursion to stop too late, so that's the
     reason for the PathConvertSuperToNormal call.) }
   if PathExtractName(PathConvertSuperToNormal(Dir)) = '' then
     Exit;
