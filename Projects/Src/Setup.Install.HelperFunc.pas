@@ -352,10 +352,10 @@ begin
   Result := Filename;
   FontDir :=  GetShellFolder(False, sfFonts);
   if FontDir <> '' then begin
-    { Filename is a super path but FontDir is not. So using
+    { Filename/Result is a super path but FontDir is not. So using
       PathConvertSuperToNormal because PathSame does not consider
       a super path and its normal form to be the same. }
-    if PathSame(PathExtractDir(PathConvertSuperToNormal(Filename)), FontDir) then
+    if PathSame(PathExtractDir(PathConvertSuperToNormal(Result)), FontDir) then
       Result := PathExtractName(Result);
   end;
 end;

@@ -16,7 +16,7 @@ unit Setup.RedirFunc;
 interface
 
 uses
-  Windows, SysUtils, Shared.FileClass, Shared.VerInfoFunc;
+  Windows, SysUtils, Shared.FileClass;
 
 type
   TPreviousFsRedirectionState = record
