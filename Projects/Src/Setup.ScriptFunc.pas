@@ -2017,7 +2017,11 @@ var
           TargetProcess := tp32Bit;
       end;
       Stack.SetString(PStart, ApplyPathRedirRules(Stack.GetBool(PStart-1),
-        Stack.GetString(PStart-2), [rfNormalPath], TargetProcess));
+        Stack.GetString(PStart-2), [], TargetProcess));
+    end);
+    RegisterScriptFunc('PathConvertSuperToNormal', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, PathConvertSuperToNormal(Stack.GetString(PStart-1)));
     end);
   end;
 
