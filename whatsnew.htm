@@ -156,7 +156,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Using support function <tt>ExtractFileDir</tt> no longer triggers a warning about <tt>RemoveBackslash</tt>.</li>
   </ul>
   </li>
-  <li>The various options for <tt>[Setup]</tt> section directive <tt>DisablePrecompiledFileVerifications</tt> have had their <tt>dll</tt>/<tt>e32</tt>/<tt>exe</tt> postfixes removed. Options <tt>setupldre32</tt> and <tt>setuplde64</tt> have been merged into a single <tt>setupldr</tt> option.</li>
+  <li>The various options for <tt>[Setup]</tt> section directive <tt>DisablePrecompiledFileVerifications</tt> have had their <tt>dll</tt>/<tt>e32</tt>/<tt>exe</tt> postfixes removed. Options <tt>setupldre32</tt> and <tt>setupldre64</tt> have been merged into a single <tt>setupldr</tt> option.</li>
   <li><i>Experimental</i>: Added support for using a 64-bit version of the "Setup Loader" program by setting existing <tt>[Setup]</tt> section directive <tt>UseSetupLdr</tt> to <tt>x64</tt>.<br/>
       Using <tt>x64</tt> does not mean that Setup itself will also be 64-bit: Setup itself is currently always built as a 32-bit x86 binary.<br/>
       Using <tt>x64</tt> anyway has several benefits: your installer initially presents itself as a native 64-bit executable, and the 64-bit loader has high-entropy ASLR enabled. Additionally, it can help satisfy policy or third-party requirements that mandate 64-bit installers, even while the main Setup program is still 32-bit.<br/>
