@@ -250,7 +250,6 @@ begin
                                  { ^ avoid splitting a double-byte character }
         if PathCompare(Copy(NormalPath, 1, L), SysDir) = 0 then begin
           Result := SysNativeDir + Copy(NormalPath, L, Maxint);
-          PathConvertNormalToSuper(Result);
           if not PathConvertNormalToSuper(Result) then
             InternalError('ReplaceSystemDirWithSysNative: PathConvertNormalToSuper failed');
           Exit;
@@ -278,7 +277,15 @@ begin
     if DestFile <> '' then
       DestFile := ReplaceSystemDirWithSysWow64(DestFile);
   end;
-  if not MoveFileEx(PChar(TempFile), PChar(DestFile),
+
+  { This is required because of MOVEFILE_DELAY_UNTIL_REBOOT }
+  var DestFileP: PChar;
+  if DestFile = '' then
+    DestFileP := nil
+  else
+    DestFileP := PChar(DestFile);
+
+  if not MoveFileEx(PChar(TempFile), DestFileP,
      MOVEFILE_DELAY_UNTIL_REBOOT or MOVEFILE_REPLACE_EXISTING) then
     Win32ErrorMsg('MoveFileEx');
 end;
@@ -1081,16 +1088,16 @@ begin
 end;
 
 function ForceDirectories(Dir: String): Boolean;
+{ Returns True if a new directory was created, or if the directory already
+  existed. Also see MakeDir for similar code (but different return value). }
 begin
   Dir := RemoveBackslashUnlessRoot(Dir);
-  if DirExists(Dir) then
-    Exit(True);
 
-  { PathExtractPath doesn't understand "\\?\UNC\server\share" to be a
-    root path which would cause the recursion to stop too late, so that's the
-    reason for the PathConvertSuperToNormal call. }
-  const NormalDir = PathConvertSuperToNormal(Dir);
-  if PathExtractPath(NormalDir) = NormalDir then
+  { See MakeDir for the reason for the PathConvertSuperToNormal call. This
+    use of PathConvertSuperToNormal does not introduce a limitation. }
+  if PathExtractName(PathConvertSuperToNormal(Dir)) = '' then
+    Exit(True);
+  if DirExists(Dir) then
     Exit(True);
 
   Result := ForceDirectories(PathExtractPath(Dir)) and

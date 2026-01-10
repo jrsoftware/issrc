@@ -375,7 +375,8 @@ type
 
 function MakeDir(const UninstLog: TUninstallLog; Dir: String;
   const Flags: TMakeDirFlags): Boolean;
-{ Returns True if a new directory was created. }
+{ Returns True if a new directory was created. Also see ForceDirectories
+  for similar code (but different return value). }
 var
   ErrorCode: DWORD;
 begin
@@ -1015,23 +1016,15 @@ Retry:
 
       { Locate source file }
       SourceFile := AExternalSourceFile; { Empty string if not external }
-      if DisableFsRedir = InstallDefaultDisableFsRedir then begin
-        { If the file is compressed in the setup package, has the same file
-          already been copied somewhere else? If so, just make a duplicate of
-          that file instead of extracting it over again. }
-        if (SourceFile = '') and (FileLocationFilenames <> nil) and
-           (FileLocationFilenames[CurFile^.LocationEntry] <> '') and
-           NewFileExists(FileLocationFilenames[CurFile^.LocationEntry]) then
-          SourceFile := FileLocationFilenames[CurFile^.LocationEntry];
-        AllowFileToBeDuplicated := (SourceFile = '');
-      end
-      else begin
-        { This file uses a non-default FS redirection setting. Files in
-          FileLocationFilenames are assumed to have been installed with the
-          default FS redirection setting, so we can't use a file in
-          FileLocationFilenames as the source, or put this file there. }
-        AllowFileToBeDuplicated := False;
-      end;
+
+      { If the file is compressed in the setup package, has the same file
+        already been copied somewhere else? If so, just make a duplicate of
+        that file instead of extracting it over again. }
+      if (SourceFile = '') and (FileLocationFilenames <> nil) and
+         (FileLocationFilenames[CurFile^.LocationEntry] <> '') and
+         NewFileExists(FileLocationFilenames[CurFile^.LocationEntry]) then
+        SourceFile := FileLocationFilenames[CurFile^.LocationEntry];
+      AllowFileToBeDuplicated := (SourceFile = '');
 
       { Download or extract or copy the file to a temporary file. Create the destination
         file's directory if it didn't already exist. }
