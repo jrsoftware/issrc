@@ -581,7 +581,8 @@ initialization
     'function StrToColor(const S: String): TColor;',
     'function RPos(const SubStr, S: String): Integer;',
     'function ApplyPathRedirRulesForCurrentProcess(const A64Bit: Boolean; const APath: String): String;',
-    'function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String; const ATargetProcess64Bit: Boolean): String;'
+    'function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String; const ATargetProcess64Bit: Boolean): String;',
+    'function PathConvertSuperToNormal(const Filename: String): String;'
   ];
 
   {$IFDEF ISIDEPROJ}
