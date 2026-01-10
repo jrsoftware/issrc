@@ -477,6 +477,8 @@ var
 begin
   Result := False;
 
+  { See IncrementSharedCount }
+
   var TargetProcess: TPathRedirTargetProcess;
   if RegView = rv64Bit then
     TargetProcess := tpNativeBit

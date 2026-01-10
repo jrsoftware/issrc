@@ -384,7 +384,8 @@ begin
   { If we're at the root of a drive or network share, then there's nothing to
     do. (PathExtractName doesn't understand "\\?\UNC\server\share" to be a
     root path which would cause the recursion to stop too late, so that's the
-    reason for the PathConvertSuperToNormal call.) }
+    reason for the PathConvertSuperToNormal call. This use of
+    PathConvertSuperToNormal does not introduce a limitation.) }
   if PathExtractName(PathConvertSuperToNormal(Dir)) = '' then
     Exit;
   if DirExists(Dir) then begin
@@ -2625,8 +2626,8 @@ begin
     for the uninstallexe constant, which is written to the Uninstall key and
     can also be used in [Icons] shortcuts. It is not known whether
     Add/Remove Programs or Explorer support super paths, but because
-    UninstallFilesDir would never exceed MAX_PATH, using rfNormalPath has no
-    downsides. }
+    UninstallFilesDir would usually not exceed MAX_PATH, using rfNormalPath
+    does not introduce a limitation in practice. }
   const BaseDir = ApplyPathRedirRules(IsCurrentProcess64Bit,
     ExpandConst(SetupHeader.UninstallFilesDir), [rfNormalPath]);
   LogFmt('Directory for uninstall files: %s', [BaseDir]);
