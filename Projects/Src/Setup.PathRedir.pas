@@ -92,31 +92,6 @@ begin
   end;
 end;
 
-function ConvertToSuperPath(var Path: String): Boolean;
-begin
-  if Length(Path) >= 3 then begin
-    if PathStartsWith(Path, '\\?\') then
-      Exit(True);
-
-    if PathStartsWith(Path, '\\.\') then begin
-      Path[3] := '?';
-      Exit(True);
-    end;
-
-    if CharInSet(UpCase(Path[1]), ['A'..'Z']) and
-       (Path[2] = ':') and (Path[3] = '\') then begin
-      Insert('\\?\', Path, 1);
-      Exit(True);
-    end;
-
-    if (Path[1] = '\') and (Path[2] = '\') then begin
-      Path := '\\?\UNC\' + Copy(Path, 3, Maxint);
-      Exit(True);
-    end;
-  end;
-  Result := False;
-end;
-
 { TPathRedir }
 
 constructor TPathRedir.Create(const AWindows64Bit: Boolean;
@@ -176,8 +151,8 @@ begin
   var NewPath: String;
   if not PathExpand(APath, NewPath) then
     InternalError('PathRedir: PathExpand failed');
-  if not ConvertToSuperPath(NewPath) then
-    InternalError('PathRedir: ConvertToSuperPath failed');
+  if not PathConvertNormalToSuper(NewPath) then
+    InternalError('PathRedir: PathConvertNormalToSuper failed');
 
   if FWindows64Bit then begin
     { Running on 64-bit Windows }

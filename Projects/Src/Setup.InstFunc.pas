@@ -183,8 +183,9 @@ end;
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
 { If the user is running 64-bit Windows and Path begins with
   'x:\windows\system32' it replaces it with 'x:\windows\syswow64', like the
-  file system redirector would do, and also makes it a normal
-  path. Otherwise, Path is returned unchanged. }
+  file system redirector would do, and also makes it a super
+  path if it wasn't already. Otherwise, Path is returned
+  unchanged. }
 var
   SysWow64Dir, SysDir: String;
   L: Integer;
@@ -194,7 +195,9 @@ begin
     SysDir := GetSystemDir;
 
     { Path could be a super path but SysDir is not. So using
-      PathConvertSuperToNormal otherwise no match is found. }
+      PathConvertSuperToNormal otherwise no match is found.
+      This use of PathConvertSuperToNormal does not introduce
+      a limitation. }
     const NormalPath = PathConvertSuperToNormal(Path);
 
     { x:\windows\system32 -> x:\windows\syswow64
@@ -205,8 +208,12 @@ begin
     if (Length(NormalPath) = L) or
        ((Length(NormalPath) > L) and not PathCharIsTrailByte(NormalPath, L+1)) then begin
                                { ^ avoid splitting a double-byte character }
-      if PathCompare(Copy(NormalPath, 1, L), SysDir) = 0 then
-        Exit(SysWow64Dir + Copy(NormalPath, L+1, Maxint));
+      if PathCompare(Copy(NormalPath, 1, L), SysDir) = 0 then begin
+        Result := SysWow64Dir + Copy(NormalPath, L+1, Maxint);
+        if not PathConvertNormalToSuper(Result) then
+          InternalError('ReplaceSystemDirWithSysWow64: PathConvertNormalToSuper failed');
+        Exit;
+      end;
     end;
   end;
   Result := Path;
@@ -215,8 +222,8 @@ end;
 function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
 { If Path begins with 'x:\windows\system32\' it replaces it with
   'x:\windows\sysnative\' and if Path equals 'x:\windows\system32'
-  it replaces it with 'x:\windows\sysnative', and also makes it a normal
-  path. Otherwise, Path is returned unchanged. }
+  it replaces it with 'x:\windows\sysnative', and also makes it a
+  super path if it wasn't already. Otherwise, Path is returned unchanged. }
 var
   SysNativeDir, SysDir: String;
   L: Integer;
@@ -226,7 +233,9 @@ begin
     SysDir := GetSystemDir;
 
     { Path could be a super path but SysDir is not. So using
-      PathConvertSuperToNormal otherwise no match is found. }
+      PathConvertSuperToNormal otherwise no match is found.
+      This use of PathConvertSuperToNormal does not introduce
+      a limitation. }
     const NormalPath = PathConvertSuperToNormal(Path);
 
     if PathCompare(NormalPath, SysDir) = 0 then begin
@@ -241,8 +250,13 @@ begin
       if (Length(NormalPath) = L) or
          ((Length(NormalPath) > L) and not PathCharIsTrailByte(NormalPath, L+1)) then begin
                                  { ^ avoid splitting a double-byte character }
-        if PathCompare(Copy(NormalPath, 1, L), SysDir) = 0 then
-          Exit(SysNativeDir + Copy(NormalPath, L, Maxint));
+        if PathCompare(Copy(NormalPath, 1, L), SysDir) = 0 then begin
+          Result := SysNativeDir + Copy(NormalPath, L, Maxint);
+          PathConvertNormalToSuper(Result);
+          if not PathConvertNormalToSuper(Result) then
+            InternalError('ReplaceSystemDirWithSysNative: PathConvertNormalToSuper failed');
+          Exit;
+        end;
       end;
     end;
   end;
