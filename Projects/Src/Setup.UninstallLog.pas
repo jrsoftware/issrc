@@ -282,7 +282,7 @@ begin
       to the registry verbatim without mapping system32->syswow64. }
     Dir := ReplaceSystemDirWithSysWow64(Dir);
   end;
-  if not MoveFileEx(PChar(Dir), '', MOVEFILE_DELAY_UNTIL_REBOOT) then
+  if not MoveFileEx(PChar(Dir), nil, MOVEFILE_DELAY_UNTIL_REBOOT) then
     LogFmt('MoveFileEx failed (%d).', [GetLastError]);
 end;
 
