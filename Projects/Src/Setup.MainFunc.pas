@@ -1637,14 +1637,13 @@ begin
   end;
 end;
 
-function TempDeleteFileProc(const DisableFsRedir: Boolean;
-  const FileName: String; const Param: Pointer): Boolean;
+function TempDeleteFileProc(const A64Bit: Boolean; const FileName: String; const Param: Pointer): Boolean;
 var
   Elapsed: DWORD;
 label Retry;
 begin
 Retry:
-  Result := DeleteFileRedir(DisableFsRedir, FileName);
+  Result := Windows.DeleteFile(PChar(FileName));
   if not Result and
      (GetLastError <> ERROR_FILE_NOT_FOUND) and
      (GetLastError <> ERROR_PATH_NOT_FOUND) then begin
@@ -1923,7 +1922,7 @@ type
   TEnumFilesProc = function(const DisableFsRedir: Boolean; const Filename: String;
     const Param: Pointer): Boolean;
 
-function DummyDeleteDirProc(const DisableFsRedir: Boolean; const Filename: String;
+function DummyDeleteDirProc(const A64Bit: Boolean; const Filename: String;
     const Param: Pointer): Boolean;
 begin
   { We don't actually want to delete the dir, so just return success. }
@@ -2096,15 +2095,16 @@ begin
     for var I := 0 to Entries[seInstallDelete].Count-1 do
       with PSetupDeleteEntry(Entries[seInstallDelete][I])^ do
         if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
+          const Path = ApplyPathRedirRules(InstallDefaultDisableFsRedir, ExpandConst(Name));
           case DeleteType of
             dfFiles, dfFilesAndOrSubdirs:
-              if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, True,
+              if not DelTree(InstallDefaultDisableFsRedir, Path, False, True, DeleteType = dfFilesAndOrSubdirs, True,
                  DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
               end;
             dfDirIfEmpty:
-              if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), True, False, False, True,
+              if not DelTree(InstallDefaultDisableFsRedir, Path, True, False, False, True,
                  DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;

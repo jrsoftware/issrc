@@ -182,7 +182,7 @@ uses
   UnsignedFunc,
   PathFunc, Shared.Struct, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.InstFunc,
   Setup.InstFunc.Ole, Setup.RedirFunc, Compression.Base,
-  Setup.LoggingFunc, Setup.RegDLL, Setup.Helper, Setup.DotNetFunc;
+  Setup.LoggingFunc, Setup.RegDLL, Setup.Helper, Setup.DotNetFunc, Setup.PathRedir;
 
 type
   { Note: TUninstallLogHeader should stay <= 512 bytes in size, so that it
@@ -273,32 +273,32 @@ begin
   Result := False;
 end;
 
-procedure LoggedRestartDeleteDir(const DisableFsRedir: Boolean; Dir: String);
+procedure LoggedRestartDeleteDir(const A64Bit: Boolean; Dir: String);
 begin
   Dir := PathExpand(Dir);
-  if not DisableFsRedir then begin
+  if not A64Bit then begin
     { Work around WOW64 bug present in the IA64 and x64 editions of Windows
       XP (3790) and Server 2003 prior to SP1 RC2: MoveFileEx writes filenames
       to the registry verbatim without mapping system32->syswow64. }
     Dir := ReplaceSystemDirWithSysWow64(Dir);
   end;
-  if not MoveFileExRedir(DisableFsRedir, Dir, '', MOVEFILE_DELAY_UNTIL_REBOOT) then
+  if not MoveFileEx(PChar(Dir), '', MOVEFILE_DELAY_UNTIL_REBOOT) then
     LogFmt('MoveFileEx failed (%d).', [GetLastError]);
 end;
 
 const
-  drFalse = '0';
-  drTrue = '1';
+  dd32 = '0';
+  dd64 = '1';
 
-function LoggedDeleteDir(const DisableFsRedir: Boolean; const DirName: String;
+function LoggedDeleteDir(const A64Bit: Boolean; const DirName: String;
   const DirsNotRemoved, RestartDeleteDirList: TSimpleStringList): Boolean;
 const
   FILE_ATTRIBUTE_REPARSE_POINT = $00000400;
-  DirsNotRemovedPrefix: array[Boolean] of Char = (drFalse, drTrue);
+  DirsNotRemovedPrefix: array[Boolean] of Char = (dd32, dd64);
 var
   Attribs, LastError: DWORD;
 begin
-  Attribs := GetFileAttributesRedir(DisableFsRedir, DirName);
+  Attribs := GetFileAttributes(PChar(DirName));
   { Does the directory exist? }
   if (Attribs <> INVALID_FILE_ATTRIBUTES) and
      (Attribs and FILE_ATTRIBUTE_DIRECTORY <> 0) then begin
@@ -306,8 +306,8 @@ begin
     { If the directory has the read-only attribute, strip it first }
     if Attribs and FILE_ATTRIBUTE_READONLY <> 0 then begin
       if (Attribs and FILE_ATTRIBUTE_REPARSE_POINT <> 0) or
-         IsDirEmpty(DisableFsRedir, DirName) then begin
-        if SetFileAttributesRedir(DisableFsRedir, DirName, Attribs and not FILE_ATTRIBUTE_READONLY) then
+         IsDirEmpty(DirName) then begin
+        if SetFileAttributes(PChar(DirName), Attribs and not FILE_ATTRIBUTE_READONLY) then
           Log('Stripped read-only attribute.')
         else
           Log('Failed to strip read-only attribute.');
@@ -316,18 +316,18 @@ begin
         Log('Not stripping read-only attribute because the directory ' +
           'does not appear to be empty.');
     end;
-    Result := RemoveDirectoryRedir(DisableFsRedir, DirName);
+    Result := RemoveDirectory(PChar(DirName));
     if not Result then begin
       LastError := GetLastError;
       if Assigned(DirsNotRemoved) then begin
         LogFmt('Failed to delete directory (%d). Will retry later.', [LastError]);
-        DirsNotRemoved.AddIfDoesntExist(DirsNotRemovedPrefix[DisableFsRedir] + DirName);
+        DirsNotRemoved.AddIfDoesntExist(DirsNotRemovedPrefix[A64Bit] + DirName);
       end
       else if Assigned(RestartDeleteDirList) and
          ListContainsPathOrSubdir(RestartDeleteDirList, DirName) then begin
         LogFmt('Failed to delete directory (%d). Will delete on restart (if empty).',
           [LastError]);
-        LoggedRestartDeleteDir(DisableFsRedir, DirName);
+        LoggedRestartDeleteDir(A64Bit, DirName);
       end
       else
         LogFmt('Failed to delete directory (%d).', [LastError]);
@@ -477,17 +477,15 @@ type
     DirsNotRemoved: TSimpleStringList;
   end;
 
-function LoggedDeleteDirProc(const DisableFsRedir: Boolean; const DirName: String;
-  const Param: Pointer): Boolean;
+function LoggedDeleteDirProc(const A64Bit: Boolean; const DirName: String; const Param: Pointer): Boolean;
 begin
-  Result := LoggedDeleteDir(DisableFsRedir, DirName, PDeleteDirData(Param)^.DirsNotRemoved, nil);
+  Result := LoggedDeleteDir(A64Bit, DirName, PDeleteDirData(Param)^.DirsNotRemoved, nil);
 end;
 
-function LoggedDeleteFileProc(const DisableFsRedir: Boolean; const FileName: String;
-  const Param: Pointer): Boolean;
+function LoggedDeleteFileProc(const A64Bit: Boolean; const FileName: String; const Param: Pointer): Boolean;
 begin
   LogFmt('Deleting file: %s', [FileName]);
-  Result := DeleteFileRedir(DisableFsRedir, FileName);
+  Result := Windows.DeleteFile(PChar(FileName));
   if not Result then
     LogFmt('Failed to delete the file; it may be in use (%d).', [GetLastError]);
 end;
@@ -732,18 +730,14 @@ var
   end;
 
   procedure LoggedProcessDirsNotRemoved;
-  var
-    I: Integer;
-    S: String;
-    DisableFsRedir: Boolean;
   begin
-    for I := 0 to DeleteDirData.DirsNotRemoved.Count-1 do begin
-      S := DeleteDirData.DirsNotRemoved[I];
-      { The first character specifies the DisableFsRedir value
+    for var I := 0 to DeleteDirData.DirsNotRemoved.Count-1 do begin
+      var S := DeleteDirData.DirsNotRemoved[I];
+      { The first character specifies the A64Bit value
         (e.g. '0C:\Program Files\My Program') }
-      DisableFsRedir := (S[1] = drTrue);
+      const A64Bit = (S[1] = dd64);
       System.Delete(S, 1, 1);
-      LoggedDeleteDir(DisableFsRedir, S, nil, RestartDeleteDirList[DisableFsRedir]);
+      LoggedDeleteDir(A64Bit, S, nil, RestartDeleteDirList[A64Bit]);
     end;
   end;
   
@@ -994,8 +988,9 @@ begin
             end;
           utDeleteDirOrFiles:
             if (CallFromUninstaller or (CurRec^.ExtraData and utDeleteDirOrFiles_Extra = 0)) then begin
-              if DelTree(CurRec^.ExtraData and utDeleteDirOrFiles_DisableFsRedir <> 0,
-                 CurRecData[0], CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0,
+              const DisableFsRedir = CurRec^.ExtraData and utDeleteDirOrFiles_DisableFsRedir <> 0;
+              const Path = ApplyPathRedirRules(DisableFsRedir, CurRecData[0]);
+              if DelTree(DisableFsRedir, Path, CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteFiles <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteSubdirsAlso <> 0,
                  False, LoggedDeleteDirProc, LoggedDeleteFileProc, @DeleteDirData) then begin

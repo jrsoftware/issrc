@@ -36,10 +36,8 @@ type
     property Items[Index: Integer]: String read Get; default;
   end;
 
-  TDeleteDirProc = function(const DisableFsRedir: Boolean; const DirName: String;
-    const Param: Pointer): Boolean;
-  TDeleteFileProc = function(const DisableFsRedir: Boolean; const FileName: String;
-    const Param: Pointer): Boolean;
+  TDeleteDirProc = function(const A64Bit: Boolean; const DirName: String; const Param: Pointer): Boolean;
+  TDeleteFileProc = function(const A64Bit: Boolean; const FileName: String; const Param: Pointer): Boolean;
 
   TEnumFROFilenamesProc = procedure(const Filename: String; Param: Pointer);
 
@@ -65,7 +63,7 @@ type
 function CheckForMutexes(const Mutexes: String): Boolean;
 procedure CreateMutexes(const Mutexes: String);
 function DecrementSharedCount(const RegView: TRegView; const Filename: String): Boolean;
-function DelTree(const DisableFsRedir: Boolean; const Path: String;
+function DelTree(const A64Bit: Boolean; const Path: String;
   const IsDir, DeleteFiles, DeleteSubdirsAlso, BreakOnError: Boolean;
   const DeleteDirProc: TDeleteDirProc; const DeleteFileProc: TDeleteFileProc;
   const Param: Pointer): Boolean;
@@ -94,7 +92,7 @@ function InstShellExec(const Verb, Filename, Params: String; WorkingDir: String;
   const ProcessMessagesProc: TProcedure; var ResultCode: DWORD): Boolean;
 procedure InternalError(const Id: String);
 procedure InternalErrorFmt(const S: String; const Args: array of const);
-function IsDirEmpty(const DisableFsRedir: Boolean; const Dir: String): Boolean;
+function IsDirEmpty(const Dir: String): Boolean;
 function IsProtectedSystemFile(const Filename: String): Boolean;
 function MakePendingFileRenameOperationsChecksum: TSHA256Digest;
 function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;
@@ -285,7 +283,7 @@ begin
     Win32ErrorMsg('MoveFileEx');
 end;
 
-function DelTree(const DisableFsRedir: Boolean; const Path: String;
+function DelTree(const A64Bit: Boolean; const Path: String;
   const IsDir, DeleteFiles, DeleteSubdirsAlso, BreakOnError: Boolean;
   const DeleteDirProc: TDeleteDirProc; const DeleteFileProc: TDeleteFileProc;
   const Param: Pointer): Boolean;
@@ -302,7 +300,7 @@ var
 begin
   Result := True;
   if DeleteFiles and
-     (not IsDir or IsDirectoryAndNotReparsePointRedir(DisableFsRedir, Path)) then begin
+     (not IsDir or IsDirectoryAndNotReparsePoint(Path)) then begin
     if IsDir then begin
       BasePath := AddBackslash(Path);
       FindSpec := BasePath + '*';
@@ -311,7 +309,7 @@ begin
       BasePath := PathExtractPath(Path);
       FindSpec := Path;
     end;
-    H := FindFirstFileRedir(DisableFsRedir, FindSpec, FindData);
+    H := FindFirstFile(PChar(FindSpec), FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       try
         repeat
@@ -321,22 +319,22 @@ begin
               { Strip the read-only attribute if this is a file, or if it's a
                 directory and we're deleting subdirectories also }
               if (FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0) or DeleteSubdirsAlso then
-                SetFileAttributesRedir(DisableFsRedir, BasePath + S,
+                SetFileAttributes(PChar(BasePath + S),
                   FindData.dwFileAttributes and not FILE_ATTRIBUTE_READONLY);
             end;
             if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
               if Assigned(DeleteFileProc) then begin
-                if not DeleteFileProc(DisableFsRedir, BasePath + S, Param) then
+                if not DeleteFileProc(A64Bit, BasePath + S, Param) then
                   Result := False;
               end
               else begin
-                if not DeleteFileRedir(DisableFsRedir, BasePath + S) then
+                if not Windows.DeleteFile(PChar(BasePath + S)) then
                   Result := False;
               end;
             end
             else begin
               if DeleteSubdirsAlso then
-                if not DelTree(DisableFsRedir, BasePath + S, True, True, True, BreakOnError,
+                if not DelTree(A64Bit, BasePath + S, True, True, True, BreakOnError,
                    DeleteDirProc, DeleteFileProc, Param) then
                   Result := False;
             end;
@@ -349,17 +347,17 @@ begin
   end;
   if (not BreakOnError or Result) and IsDir then begin
     if Assigned(DeleteDirProc) then begin
-      if not DeleteDirProc(DisableFsRedir, Path, Param) then
+      if not DeleteDirProc(A64Bit, Path, Param) then
         Result := False;
     end
     else begin
-      if not RemoveDirectoryRedir(DisableFsRedir, Path) then
+      if not RemoveDirectory(PChar(Path)) then
         Result := False;
     end;
   end;
 end;
 
-function IsDirEmpty(const DisableFsRedir: Boolean; const Dir: String): Boolean;
+function IsDirEmpty(const Dir: String): Boolean;
 { Returns True if Dir contains no files or subdirectories.
   Note: If Dir does not exist or lacks list permission, False will be
   returned. }
@@ -367,7 +365,7 @@ var
   H: THandle;
   FindData: TWin32FindData;
 begin
-  H := FindFirstFileRedir(DisableFsRedir, AddBackslash(Dir) + '*', FindData);
+  H := FindFirstFile(PChar(AddBackslash(Dir) + '*'), FindData);
   if H <> INVALID_HANDLE_VALUE then begin
     try
       Result := True;
