@@ -2508,6 +2508,8 @@ begin
         var Flags := DefFlags[DeleteType];
         if InstallDefaultDisableFsRedir then
           Flags := Flags or utDeleteDirOrFiles_DisableFsRedir;
+        { No need to call ApplyPathRedirRules because Uninstall will do that
+          at uninstall time anyway, and we're not accessing the path here }
         UninstLog.Add(utDeleteDirOrFiles, [ExpandConst(Name)], Flags);
         NotifyAfterInstallEntry(AfterInstall);
       end;
