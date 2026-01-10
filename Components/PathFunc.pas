@@ -17,7 +17,7 @@ unit PathFunc;
   These functions may be called for super paths as well, as long as you know the
   path is not a root directory. This is because the functions do not understand
   '\\?\UNC\server\share' to be a root path. Instead, they consider '\\?\UNC' to
-  be the drive, and '"server\share' to be subdirectories. For example,
+  be the drive, and 'server\share' to be subdirectories. For example,
   PathExtractDir('\\?\UNC\server\share\Filename.txt') works, but calling
   PathExtractDir a second time on the result does not. It strips off 'share' when
   it should not.

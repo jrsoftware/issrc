@@ -419,7 +419,7 @@ begin
     TargetProcess := tpNativeBit
   else begin
     if RegView <> rv32Bit then
-      InternalError('Invalid RegView value');
+      InternalError('IncrementSharedCount: Invalid RegView value');
     TargetProcess := tp32BitPreferSystem32
   end;
 
@@ -498,7 +498,7 @@ begin
     TargetProcess := tpNativeBit
   else begin
     if RegView <> rv32Bit then
-      InternalError('Invalid RegView value');
+      InternalError('DecrementSharedCount: Invalid RegView value');
     TargetProcess := tp32BitPreferSystem32;
   end;
 
