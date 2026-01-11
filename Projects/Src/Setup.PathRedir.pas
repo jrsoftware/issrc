@@ -168,7 +168,15 @@ begin
     end else begin
       { It's a 32-bit path (i.e., System32 means 32-bit system directory).
         SysWOW64 -> System32: In special tp32BitPreferSystem32 case only.
-        System32 -> SysWOW64: Otherwise. }
+        System32 -> SysWOW64: Otherwise.
+        If you're wondering why it does the latter not only for a 64-bit
+        target process but also for a 32-bit target process:
+        - GenerateUninstallInfoFilename makes use of this rewrite, see its
+          comments.
+        - It also helps 32-bit target processes avoid some exceptions that
+          apply to System32 but not to SysWOW64. For example: certain
+          System32 subdirectories are exempt from redirection. This is not
+          the case for SysWOW64. }
       if ATargetProcess = tp32BitPreferSystem32 then
         SubstitutePath(NewPath, FSysWow64Path, FSystem32Path)
       else
