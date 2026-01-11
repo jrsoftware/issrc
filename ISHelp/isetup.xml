@@ -442,6 +442,7 @@ For example: If you used <tt>{sys}\CTL3D32.DLL</tt> on an entry and the system's
 <dt><b><a name="sysnative">{sysnative}</a></b></dt>
 <dd>
 <p>On 64-bit Windows, the directory containing 64-bit system files. On 32-bit Windows, the directory containing 32-bit system files.</p>
+<p><tt>{sysnative}</tt> is not accessible to <link topic="64bit">64-bit installers</link> or any other 64-bit applications, so use its value only to, for example, pass it to a 32-bit application.</p>
 </dd>
 
 <dt><b><a name="syswow64">{syswow64}</a></b></dt>
@@ -3009,6 +3010,7 @@ Name: bosskey; KeyFile: "boss.ispublickey"
       Example script <i>CodeDll.iss</i> demonstrates how to support both 32-bit and 64-bit installers from a single script.</li>
   </ul>
 </li>
+<li><tt>{sysnative}</tt> is not accessible to 64-bit installers or any other 64-bit applications, so use its value only to, for example, pass it to a 32-bit application.</li>
 </ul>
 
 <p><b>64-bit Compiler IDE and ISCC:</b></p>
