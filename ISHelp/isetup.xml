@@ -3005,9 +3005,9 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <li>64-bit Pascal Scripting notes:
   <ul>
   <li>In 32-bit installers, type <tt>Extended</tt> is 10 bytes, while in 64-bit installers it is 8 bytes and just an alias for type <tt>Double</tt>.</li>
-  <li>In 32-bit installers, types <tt>NativeInt</tt> and <tt>NativeUInt</tt> are 4 bytes, while in 64-bit installers they are 8 bytes. The same is true for all types derived from them, such as <tt>HWND</tt>.</li>
-  <li>You cannot load 32-bit DLLs in 64-bit installers because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). However, you can always launch both 32-bit and 64-bit EXEs using the <tt>Exec</tt> function or the [Run] section.<br/>
+  <li>In 32-bit installers, types <tt>NativeInt</tt> and <tt>NativeUInt</tt> are 4 bytes, while in 64-bit installers they are 8 bytes. The same is true for all types derived from them, such as <tt>HWND</tt>.<br/>
       Example script <i>CodeDll.iss</i> demonstrates how to support both 32-bit and 64-bit installers from a single script.</li>
+  <li>You cannot load 32-bit DLLs in 64-bit installers because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). However, you can always launch both 32-bit and 64-bit EXEs using the <tt>Exec</tt> function or the [Run] section.</li>
   </ul>
 </li>
 <li><tt>{sysnative}</tt> is not accessible to 64-bit installers or any other 64-bit applications, so use its value only to, for example, pass it to a 32-bit application.</li>
