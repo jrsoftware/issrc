@@ -1811,7 +1811,8 @@ end;</pre></example>
         <table><tr><td>A64Bit</td><td>APath</td><td>ATargetProcess64Bit</td><td>Result</td><td>Explanation</td></tr>
 <tr><td>True</td><td>System32</td><td>False</td><td>Sysnative</td><td>The 32-bit target process needs to use the Sysnative alias to access 64-bit system files.</td></tr>
 <tr><td>False</td><td>System32</td><td>True</td><td>SysWOW64</td><td>The 64-bit target process needs to use SysWOW64 to access 32-bit system files.</td></tr>
-<tr><td>Any value</td><td>Sysnative</td><td>True</td><td>System32</td><td>The 64-bit target process needs to use System32 instead of the Sysnative alias to access 64-bit system files, because the Sysnative alias only works for 32-bit processes.</td></tr>
+<tr><td>False</td><td>System32</td><td>False</td><td>SysWOW64</td><td>Helps the 32-bit target process avoid some exceptions that apply to System32 but not to SysWOW64.</td></tr>
+<tr><td>Any value</td><td>Sysnative</td><td>True</td><td>System32</td><td>The 64-bit target process needs to use System32 instead of the Sysnative alias to access 64-bit system files, because the Sysnative alias is only accessible to 32-bit processes.</td></tr>
 </table></remarks>
         <seealso><p><link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link><br/>
 <link topic="isxfunc_PathConvertSuperToNormal">PathConvertSuperToNormal</link></p></seealso>
@@ -1820,7 +1821,8 @@ end;</pre></example>
         <name>EnableFsRedirection</name>
         <prototype>function EnableFsRedirection(const Enable: Boolean): Boolean;</prototype>
         <description><p>Function removed in 7.0.</p></description>
-        <remarks><p>Use <tt>{sysnative}</tt>, or a <link topic="64bit">64-bit installer</link>, or support function <link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link> instead.</p></remarks>
+        <remarks><p>Use support function <link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link> instead, or a <link topic="64bit">64-bit installer</link>.</p>
+<p><link topic="64bit">32-bit installers</link> can also use <tt>{sysnative}</tt> instead.</p></remarks>
       </function>
     </subcategory>
   </category>
