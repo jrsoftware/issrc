@@ -222,7 +222,7 @@ ErrorProgress=Ongeldige vordering: %1 of %2
 ErrorFileSize=Ongeldige leer grootte: %1 verwag, %2 gevind
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
-ExtractionLabel=Onttrek leers...
+ExtractingLabel=Onttrek leers...
 ButtonStopExtraction=&Staak onttrekking
 StopExtraction=Is jy seker jy wil die onttrekking staak?
 ErrorExtractionAborted=Ontrekking laat vaar
