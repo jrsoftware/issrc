@@ -824,6 +824,16 @@ var
     begin
       Stack.SetBool(PStart, PathEndsWith(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3)));
     end);
+    RegisterScriptFunc('PathConvertNormalToSuper', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      var SuperFilename: String;
+      Stack.SetBool(PStart, PathConvertNormalToSuper(Stack.GetString(PStart-1), SuperFilename, Stack.GetBool(PStart-3)));
+      Stack.SetString(PStart-2, SuperFilename);
+    end);
+    RegisterScriptFunc('PathConvertSuperToNormal', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, PathConvertSuperToNormal(Stack.GetString(PStart-1)));
+    end);
     RegisterScriptFunc('CHARLENGTH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetInt(PStart, PathCharLength(Stack.GetString(PStart-1), Stack.GetInt(PStart-2)));
@@ -1038,21 +1048,29 @@ var
       else
         IncrementSharedCount(rv32Bit, Stack.GetString(PStart-1), Stack.GetBool(PStart-2));
     end);
-    RegisterScriptFunc(['Exec', 'ExecAsOriginalUser', 'ExecAndLogOutput', 'ExecAndCaptureOutput'], procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    RegisterScriptFunc(['Exec', 'ExecAndLogOutput', 'ExecAndCaptureOutput',
+      'ExecWithNativeSysDir', 'ExecAndLogOutputWithNativeSysDir', 'ExecAndCaptureOutputWithNativeSysDir',
+      'ExecAsOriginalUser'], procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      var RunAsOriginalUser := OrgName = 'ExecAsOriginalUser';
+      const RunAsOriginalUser = OrgName = 'ExecAsOriginalUser';
       if IsUninstaller and RunAsOriginalUser then
         NoUninstallFuncError(OrgName);
+
+      const S = String(OrgName);
+      const LogOutput = S.Contains('LogOutput');
+      const CaptureOutput = S.Contains('CaptureOutput');
+      const WithNativeSysDir = S.Contains('WithNativeSysDir');
+
       var Method: TMethod; { Must stay alive until OutputReader is freed }
       var OutputReader: TCreateProcessOutputReader := nil;
       try
-        if OrgName = 'ExecAndLogOutput' then begin
+        if LogOutput then begin
           Method := Stack.GetProc(PStart-7, Caller);
           if Method.Code <> nil then
             OutputReader := TCreateProcessOutputReader.Create(ExecAndLogOutputLogCustom, NativeInt(@Method))
           else if GetLogActive then
             OutputReader := TCreateProcessOutputReader.Create(ExecAndLogOutputLog, 0);
-        end else if OrgName = 'ExecAndCaptureOutput' then
+        end else if CaptureOutput then
           OutputReader := TCreateProcessOutputReader.Create(ExecAndLogOutputLog, 0, omCapture);
         var ExecWait := TExecWait(Stack.GetInt(PStart-5));
         if (OutputReader <> nil) and (ExecWait <> ewWaitUntilTerminated) then
@@ -1066,14 +1084,14 @@ var
           var ResultCode: DWORD;
           try
             Stack.SetBool(PStart, InstExecEx(RunAsOriginalUser,
-              False, Filename, Stack.GetString(PStart-2),
+              IsWin64 and WithNativeSysDir, Filename, Stack.GetString(PStart-2),
               Stack.GetString(PStart-3), ExecWait,
               Stack.GetInt(PStart-4), ProcessMessagesProc, OutputReader, ResultCode));
           finally
             WindowDisabler.Free;
           end;
           Stack.SetInt(PStart-6, Integer(ResultCode));
-          if OrgName = 'ExecAndCaptureOutput' then begin
+          if CaptureOutput then begin
             { Set the three TExecOutput fields }
             Stack.SetArray(PStart-7, OutputReader.CaptureOutList, 0);
             Stack.SetArray(PStart-7, OutputReader.CaptureErrList, 1);
@@ -2018,10 +2036,6 @@ var
       end;
       Stack.SetString(PStart, ApplyPathRedirRules(Stack.GetBool(PStart-1),
         Stack.GetString(PStart-2), [], TargetProcess));
-    end);
-    RegisterScriptFunc('PathConvertSuperToNormal', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetString(PStart, PathConvertSuperToNormal(Stack.GetString(PStart-1)));
     end);
   end;
 

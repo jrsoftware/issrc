@@ -207,8 +207,8 @@ begin
        ((Length(NormalPath) > L) and not PathCharIsTrailByte(NormalPath, L+1)) then begin
                                { ^ avoid splitting a double-byte character }
       if PathCompare(Copy(NormalPath, 1, L), SysDir) = 0 then begin
-        Result := SysWow64Dir + Copy(NormalPath, L+1, Maxint);
-        if not PathConvertNormalToSuper(Result) then
+        const NewNormalPath = SysWow64Dir + Copy(NormalPath, L+1, MaxInt);
+        if not PathConvertNormalToSuper(NewNormalPath, Result, False) then
           InternalError('ReplaceSystemDirWithSysWow64: PathConvertNormalToSuper failed');
         Exit;
       end;
@@ -249,8 +249,8 @@ begin
          ((Length(NormalPath) > L) and not PathCharIsTrailByte(NormalPath, L+1)) then begin
                                  { ^ avoid splitting a double-byte character }
         if PathCompare(Copy(NormalPath, 1, L), SysDir) = 0 then begin
-          Result := SysNativeDir + Copy(NormalPath, L, Maxint);
-          if not PathConvertNormalToSuper(Result) then
+          const NewNormalPath = SysNativeDir + Copy(NormalPath, L, MaxInt);
+          if not PathConvertNormalToSuper(NewNormalPath, Result, False) then
             InternalError('ReplaceSystemDirWithSysNative: PathConvertNormalToSuper failed');
           Exit;
         end;
@@ -1093,9 +1093,7 @@ function ForceDirectories(Dir: String): Boolean;
 begin
   Dir := RemoveBackslashUnlessRoot(Dir);
 
-  { See MakeDir for the reason for the PathConvertSuperToNormal call. This
-    use of PathConvertSuperToNormal does not introduce a limitation. }
-  if PathExtractName(PathConvertSuperToNormal(Dir)) = '' then
+  if PathExtractName(Dir) = '' then
     Exit(True);
   if DirExists(Dir) then
     Exit(True);

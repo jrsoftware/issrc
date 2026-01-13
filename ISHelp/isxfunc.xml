@@ -1170,6 +1170,7 @@ end;
         <name>PathHasInvalidCharacters</name>
         <prototype>function PathHasInvalidCharacters(const S: String; const AllowDriveLetterColon: Boolean): Boolean;</prototype>
         <description><p>Returns True if the specified string contains characters that are never allowed in paths, or characters and path components that are accepted by the system but might present a security problem (such as '..' and sometimes ':'). Set AllowDriveLetterColon to True when the first character may be a drive letter followed by a colon.</p></description>
+        <remarks><p>Extended-length paths that start with a "\\?\" prefix are rejected because the '?' is treated as an invalid character.</p></remarks>
       </function>
       <function>
         <name>PathIsRooted</name>
@@ -1186,6 +1187,7 @@ end;
         <name>PathSame</name>
         <prototype>function PathSame(const S1, S2: String): Boolean;</prototype>
         <description><p>Returns True if the specified strings (typically filenames) are equal. Uses a locale-independent "ordinal" comparison, which is important when comparing filenames/paths. Ignores case.</p></description>
+        <remarks><p>Does not consider an extended-length path and its normal version to be the same.</p></remarks>
       </function>
       <function>
         <name>PathStartsWith</name>
@@ -1259,11 +1261,19 @@ end;</pre></example>
         <description><p>Returns a string containing a fully qualified path name for the file passed in the FileName. A fully qualified path name includes the drive portion of the filename in the UNC format '\\&lt;servername&gt;\&lt;sharename&gt;' if the drive letter is mapped to a network resource instead of a local drive and any directory and subdirectories in addition to the file name and extension.</p></description>
       </function>
       <function>
+        <name>PathConvertNormalToSuper</name>
+        <prototype>function PathConvertNormalToSuper(const Filename: String; out SuperFilename: String; const Expand: Boolean): Boolean;</prototype>
+        <description><p>Converts a normal path to an extended-length path (also known as a super path). Set Expand to True unless you are sure that Filename is already an absolute (non-relative) path. Returns True if successful, False otherwise. Does not fail if the specified path already is an extended-length path.</p></description>
+        <seealso><p><link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link><br/>
+<link topic="isxfunc_PathConvertSuperToNormal">PathConvertSuperToNormal</link></p></seealso>
+      </function>
+      <function>
         <name>PathConvertSuperToNormal</name>
         <prototype>function PathConvertSuperToNormal(const FileName: String): String;</prototype>
         <description><p>Converts an extended-length path (also known as a super path) to a normal path.</p></description>
         <remarks><p>Only use this function in cases where an extended-length path is known to not work properly.</p></remarks>
-        <seealso><p><link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link></p></seealso>
+        <seealso><p><link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link><br/>
+<link topic="isxfunc_PathConvertNormalToSuper">PathConvertNormalToSuper</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -1791,14 +1801,6 @@ end;</pre></example>
         <name>ApplyPathRedirRulesForCurrentProcess</name>
         <prototype>function ApplyPathRedirRulesForCurrentProcess(const A64Bit: Boolean; const APath: String): String;</prototype>
         <description><p>Calls <link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link> function with the current process as the target process.</p></description>
-        <example><p>The following example demonstrates how to launch an executable located in the 64-bit System directory from a 32-bit installer. (Note: In a 64-bit installer, it isn't necessary to call ApplyPathRedirRulesForCurrentProcess.)</p>
-<pre>var
-  ResultCode: Integer;
-begin
-  if IsWin64 then
-    Exec(ApplyPathRedirRulesForCurrentProcess(True, ExpandConstant('{cmd}')),
-      '', '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode);
-end;</pre></example>
       </function>
       <function>
         <name>ApplyPathRedirRules</name>
@@ -1822,7 +1824,8 @@ end;</pre></example>
         <prototype>function EnableFsRedirection(const Enable: Boolean): Boolean;</prototype>
         <description><p>Function removed in 7.0.</p></description>
         <remarks><p>Use support function <link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link> instead, or a <link topic="64bit">64-bit installer</link>.</p>
-<p><link topic="64bit">32-bit installers</link> can also use <tt>{sysnative}</tt> instead.</p></remarks>
+<p><link topic="64bit">32-bit installers</link> can also use <tt>{sysnative}</tt> instead.</p>
+<p>Use support functions <link topic="isxfunc_ExecWithNativeSysDir">ExecWithNativeSysDir</link>, <link topic="isxfunc_ExecAndLogOutputWithNativeSysDir">ExecAndLogOutputWithNativeSysDir</link>, or <link topic="isxfunc_ExecAndCaptureOutputWithNativeSysDir">ExecAndCaptureOutputWithNativeSysDir</link> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p></remarks>
       </function>
     </subcategory>
   </category>
@@ -1859,7 +1862,8 @@ begin
 end;</pre></example>
         <seealso><p><link topic="isxfunc_ExecAndCaptureOutput">ExecAndCaptureOutput</link><br />
 <link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link><br />
-<link topic="isxfunc_ExecAsOriginalUser">ExecAsOriginalUser</link></p></seealso>
+<link topic="isxfunc_ExecAsOriginalUser">ExecAsOriginalUser</link><br/>
+<link topic="isxfunc_ExecWithNativeSysDir">ExecWithNativeSysDir</link></p></seealso>
       </function>
       <function>
         <name>ExecAsOriginalUser</name>
@@ -1895,6 +1899,26 @@ end;</pre></example>
         <remarks><p>This function is not supported at uninstall time.</p>
 <p>In very unusual failure cases (e.g. if the initial Setup process died unexpectedly), it is possible for this function to raise an exception instead of just returning False.</p>
 <p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>ExecWithNativeSysDir</name>
+        <prototype>function ExecWithNativeSysDir(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer): Boolean;</prototype>
+        <description><p>Use this function instead of <link topic="isxfunc_Exec">Exec</link> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
+<p>This function avoids the problem that <tt>Exec</tt> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
+        <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <tt>Exec</tt>.</p></remarks>
+        <example><pre>var
+  ResultCode: Integer;
+begin
+  if IsWin64 then begin
+    { This starts 32-bit cmd.exe in a 32-bit installer, and 64-bit cmd.exe in a 64-bit installer }
+    Exec(ExpandConstant('{cmd}'), '', '', SW_SHOWNORMAL, ewNoWait, ResultCode);
+    { This starts 64-bit cmd.exe in both a 32-bit installer and a 64-bit installer }
+    ExecWithNativeSysDir(ExpandConstant('{cmd}'), '', '', SW_SHOWNORMAL, ewNoWait, ResultCode);
+    { WRONG: This would also start 64-bit cmd.exe in a 32-bit installer, but it would use the Sysnative alias, which 64-bit cmd.exe cannot access } 
+    // Exec(ApplyPathRedirRulesForCurrentProcess(True, ExpandConstant('{cmd}')), '', '', SW_SHOWNORMAL, ewNoWait, ResultCode);
+  end;</pre></example>
       </function>
     </subcategory>
     <subcategory>
@@ -2158,7 +2182,7 @@ end;</pre></example>
       <function>
         <name>SetNTFSCompression</name>
         <prototype>function SetNTFSCompression(const FileOrDir: String; Compress: Boolean): Boolean;</prototype>
-        <description><p>Changes the NTFS compression state of a file or directory. Returns True if successful.</p></description>
+        <description><p>Changes the NTFS compression state of a file or directory. Returns True if successful, False otherwise.</p></description>
         <remarks><p>If a directory is specified, the compression state of any files present in the directory will not be changed.</p></remarks>
       </function>
     </subcategory>
@@ -3297,6 +3321,8 @@ end;</pre></example>
         <seealso><p><link topic="isxfunc_Log">Log</link><br/>
 <link topic="isxfunc_Format">Format</link></p></seealso>
       </function>
+    </subcategory>
+    <subcategory>
       <function>
         <name>ExecAndCaptureOutput</name>
         <prototype>function ExecAndCaptureOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; var Output: TExecOutput): Boolean;</prototype>
@@ -3332,7 +3358,8 @@ begin
   end;
 end;</pre></example>
         <seealso><p><link topic="isxfunc_Exec">Exec</link><br />
-<link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link></p></seealso>
+<link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link><br/>
+<link topic="isxfunc_ExecAndCaptureOutputWithNativeSysDir">ExecAndCaptureOutputWithNativeSysDir</link></p></seealso>
       </function>
       <function>
         <name>ExecAndLogOutput</name>
@@ -3371,7 +3398,24 @@ begin
   Result := Line;
 end;</pre></example>
         <seealso><p><link topic="isxfunc_Exec">Exec</link><br />
-<link topic="isxfunc_ExecAndCaptureOutput">ExecAndCaptureOutput</link></p></seealso>
+<link topic="isxfunc_ExecAndCaptureOutput">ExecAndCaptureOutput</link><br/>
+<link topic="isxfunc_ExecAndLogOutputWithNativeSysDir">ExecAndLogOutputWithNativeSysDir</link></p></seealso>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>ExecAndCaptureOutputWithNativeSysDir</name>
+        <prototype>function ExecAndCaptureOutputWithNativeSysDir(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; var Output: TExecOutput): Boolean;</prototype>
+        <description><p>Use this function instead of <link topic="isxfunc_ExecAndCaptureOutput">ExecAndCaptureOutput</link> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
+<p>This function avoids the problem that <tt>ExecAndCaptureOutput</tt> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
+        <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <tt>ExecAndCaptureOutput</tt>.</p></remarks>
+      </function>
+      <function>
+        <name>ExecAndLogOutputWithNativeSysDir</name>
+        <prototype>function ExecAndLogOutputWithNativeSysDir(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; const OnLog: TOnLog): Boolean;</prototype>
+        <description><p>Use this function instead of <link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
+<p>This function avoids the problem that <tt>ExecAndLogOutput</tt> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
+        <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <tt>ExecAndLogOutput</tt>.</p></remarks>
       </function>
     </subcategory>
   </category>

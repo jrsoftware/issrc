@@ -383,11 +383,8 @@ begin
   Result := False;
   Dir := RemoveBackslashUnlessRoot(PathExpand(Dir));
   { If we're at the root of a drive or network share, then there's nothing to
-    do. (PathExtractName doesn't understand "\\?\UNC\server\share" to be a
-    root path which would cause the recursion to stop too late, so that's the
-    reason for the PathConvertSuperToNormal call. This use of
-    PathConvertSuperToNormal does not introduce a limitation.) }
-  if PathExtractName(PathConvertSuperToNormal(Dir)) = '' then
+    do. }
+  if PathExtractName(Dir) = '' then
     Exit;
   if DirExists(Dir) then begin
     if not(mdAlwaysUninstall in Flags) then

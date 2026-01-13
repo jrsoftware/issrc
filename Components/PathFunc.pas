@@ -14,16 +14,12 @@ unit PathFunc;
   when comparing filenames/paths. Despite the "Path" prefix, however, the
   functions can be used to compare any kind of text, not just filenames/paths.
 
-  These functions may be called for super paths as well, as long as you know the
-  path is not a root directory. This is because the functions do not understand
-  '\\?\UNC\server\share' to be a root path. Instead, they consider '\\?\UNC' to
-  be the drive, and 'server\share' to be subdirectories. For example,
-  PathExtractDir('\\?\UNC\server\share\Filename.txt') works, but calling
-  PathExtractDir a second time on the result does not. It strips off 'share' when
-  it should not.
+  About super paths (extended-length paths):
 
-  Note: PathSame and Path(Str)Compare do not consider a super path and its normal
-  form to be the same.
+  PathHasInvalidCharacters considers all super paths as invalid.
+
+  PathSame and Path(Str)Compare do not consider a super path and its normal
+  version to be the same.
 }
 
 interface
@@ -31,12 +27,14 @@ interface
 function AddBackslash(const S: String): String;
 function PathChangeExt(const Filename, Extension: String): String;
 function PathCharCompare(const S1, S2: PChar): Boolean;
+function PathCharIsDriveLetter(const C: Char): Boolean;
 function PathCharIsSlash(const C: Char): Boolean;
 function PathCharIsTrailByte(const S: String; const Index: Integer): Boolean;
 function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
 function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): Integer;
-function PathConvertNormalToSuper(var Filename: String): Boolean;
+function PathConvertNormalToSuper(const Filename: String; out SuperFilename: String;
+  const Expand: Boolean): Boolean;
 function PathConvertSuperToNormal(const Filename: String): String;
 function PathDrivePartLength(const Filename: String): Integer;
 function PathDrivePartLengthEx(const Filename: String;
@@ -102,6 +100,11 @@ function PathCharLength(const S: String; const Index: Integer): Integer;
 { Returns the length in characters of the character at Index in S. }
 begin
   Result := 1;
+end;
+
+function PathCharIsDriveLetter(const C: Char): Boolean;
+begin
+  Result := CharInSet(C, ['A'..'Z', 'a'..'z']);
 end;
 
 function PathCharIsSlash(const C: Char): Boolean;
@@ -189,31 +192,38 @@ begin
     IgnoreCase);
 end;
 
-function PathConvertNormalToSuper(var Filename: String): Boolean;
+function PathConvertNormalToSuper(const Filename: String; out SuperFilename: String;
+  const Expand: Boolean): Boolean;
+{ Does not fail if the specified path already is an extended-length path. }
 begin
-  if Length(Filename) >= 3 then begin
-    if PathStartsWith(Filename, '\\?\') then
+  if Expand then begin
+    if not PathExpand(Filename, SuperFilename) then
+      Exit(False);
+  end else
+    SuperFilename := Filename;
+
+  if Length(SuperFilename) >= 3 then begin
+    if PathStartsWith(SuperFilename, '\\?\') then
       Exit(True);
 
-    if PathStartsWith(Filename, '\\.\') then begin
-      Filename[3] := '?';
+    if PathStartsWith(SuperFilename, '\\.\') then begin
+      SuperFilename[3] := '?';
       Exit(True);
     end;
 
-    if CharInSet(UpCase(Filename[1]), ['A'..'Z']) and
-       (Filename[2] = ':') and (Filename[3] = '\') then begin
-      Insert('\\?\', Filename, 1);
+    if PathCharIsDriveLetter(SuperFilename[1]) and
+       (SuperFilename[2] = ':') and (SuperFilename[3] = '\') then begin
+      Insert('\\?\', SuperFilename, 1);
       Exit(True);
     end;
 
-    if (Filename[1] = '\') and (Filename[2] = '\') then begin
-      Filename := '\\?\UNC\' + Copy(Filename, 3, Maxint);
+    if (SuperFilename[1] = '\') and (SuperFilename[2] = '\') then begin
+      SuperFilename := '\\?\UNC\' + Copy(SuperFilename, 3, Maxint);
       Exit(True);
     end;
   end;
   Result := False;
 end;
-
 
 function PathConvertSuperToNormal(const Filename: String): String;
 { Attempts to convert a "\\?\"-prefixed path to normal form, and returns the
@@ -275,23 +285,63 @@ function PathDrivePartLengthEx(const Filename: String;
     '\file'               -> 1  ('\')
 }
 var
-  Len, I, C: Integer;
+  Len, I: Integer;
 begin
   Len := Length(Filename);
 
-  { \\server\share }
+  { Standard UNC path:
+      \\server\share
+    Super/device-namespace drives:
+      \\?\C:
+      \\.\C:
+      \\?\C:\   (trailing slash kept when IncludeSignificantSlash is True)
+      \\.\C:\
+    Super/device-namespace UNC paths (4 components):
+      \\?\UNC\server\share
+      \\.\UNC\server\share }
   if (Len >= 2) and PathCharIsSlash(Filename[1]) and PathCharIsSlash(Filename[2]) then begin
-    I := 3;
-    C := 0;
+    { For consistency with the behavior of Windows' GetFullPathName function,
+      we don't collapse 3 leading slashes into 2. Instead, a leading "\\\" is
+      treated like "\\<empty computer name>\".
+      PathNormalizeSlashes works the same way. }
+    var FirstComponentIsNamespace := False;
+    var SecondComponentIsDrive := False;
+    var MaxComponents := 2;
+    var CurComponent := 0;
+    var ComponentStartIndex := 3;
+    I := ComponentStartIndex;
     while I <= Len do begin
       if PathCharIsSlash(Filename[I]) then begin
-        Inc(C);
-        if C >= 2 then
+        const ComponentLen = I - ComponentStartIndex;
+        case CurComponent of
+          0: begin
+               if (ComponentLen = 1) and
+                  CharInSet(Filename[ComponentStartIndex], ['?', '.']) then
+                 FirstComponentIsNamespace := True;
+             end;
+          1: if FirstComponentIsNamespace then begin
+               if ComponentLen = 2 then begin
+                 if PathCharIsDriveLetter(Filename[ComponentStartIndex]) and
+                    (Filename[ComponentStartIndex+1] = ':') then
+                   SecondComponentIsDrive := True;
+               end
+               else if ComponentLen = 3 then begin
+                 if PathHasSubstringAt(Filename, 'UNC', ComponentStartIndex - Low(Filename)) then
+                   Inc(MaxComponents, 2);
+               end;
+             end;
+        end;
+        Inc(CurComponent);
+        if CurComponent >= MaxComponents then begin
+          if SecondComponentIsDrive and IncludeSignificantSlash then
+            Inc(I);
           Break;
+        end;
         repeat
           Inc(I);
           { And skip any additional consecutive slashes: }
         until (I > Len) or not PathCharIsSlash(Filename[I]);
+        ComponentStartIndex := I;
       end
       else
         Inc(I, PathCharLength(Filename, I));

@@ -183,9 +183,6 @@ end;
 procedure Start;
 begin
   try
-    {$IFDEF DEBUG}
-    ReportMemoryLeaksOnShutdown := True;
-    {$ENDIF}
     SetErrorMode(SEM_FAILCRITICALERRORS);
     DisableWindowGhosting;
     Application.HookMainWindow(TDummyClass.AntiShutdownHook);
