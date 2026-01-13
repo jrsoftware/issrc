@@ -2424,7 +2424,7 @@ procedure RegisterFiles(const RegisterFilesList: TList);
     end;
   end;
 
-  procedure RegisterSvr(const Is64Bit: Boolean; const Filename: String;
+  procedure RegisterServerWithRetries(const Is64Bit: Boolean; const Filename: String;
     const NoErrorMessages: Boolean);
   var
     NeedToRetry: Boolean;
@@ -2449,7 +2449,7 @@ procedure RegisterFiles(const RegisterFilesList: TList);
     until not NeedToRetry;
   end;
 
-  procedure RegisterTLib(const Is64Bit: Boolean; const Filename: String;
+  procedure RegisterTypeLibraryWithRetries(const Is64Bit: Boolean; const Filename: String;
     const NoErrorMessages: Boolean);
   var
     NeedToRetry: Boolean;
@@ -2482,9 +2482,9 @@ begin
     for var I := 0 to RegisterFilesList.Count-1 do begin
       with PRegisterFilesListRec(RegisterFilesList[I])^ do
         if not TypeLib then
-          RegisterSvr(Is64Bit, Filename, NoErrorMessages)
+          RegisterServerWithRetries(Is64Bit, Filename, NoErrorMessages)
         else
-          RegisterTLib(Is64Bit, Filename, NoErrorMessages);
+          RegisterTypeLibraryWithRetries(Is64Bit, Filename, NoErrorMessages);
     end
   else begin
     { When a restart is needed, all "regserver" & "regtypelib" files will get
