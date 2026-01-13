@@ -1095,9 +1095,7 @@ function ForceDirectories(Dir: String): Boolean;
 begin
   Dir := RemoveBackslashUnlessRoot(Dir);
 
-  { See MakeDir for the reason for the PathConvertSuperToNormal call. This
-    use of PathConvertSuperToNormal does not introduce a limitation. }
-  if PathExtractName(PathConvertSuperToNormal(Dir)) = '' then
+  if PathExtractName(Dir) = '' then
     Exit(True);
   if DirExists(Dir) then
     Exit(True);
