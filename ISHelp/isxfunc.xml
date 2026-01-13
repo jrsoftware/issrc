@@ -1261,11 +1261,19 @@ end;</pre></example>
         <description><p>Returns a string containing a fully qualified path name for the file passed in the FileName. A fully qualified path name includes the drive portion of the filename in the UNC format '\\&lt;servername&gt;\&lt;sharename&gt;' if the drive letter is mapped to a network resource instead of a local drive and any directory and subdirectories in addition to the file name and extension.</p></description>
       </function>
       <function>
+        <name>PathConvertNormalToSuper</name>
+        <prototype>function PathConvertNormalToSuper(const Filename: String; out SuperFilename: String; const Expand: Boolean): Boolean;</prototype>
+        <description><p>Converts a normal path to an extended-length path (also known as a super path). Set Expand to True unless you are sure that Filename is already an absolute (non-relative) path. Returns True if successful, False otherwise. Does not fail if the specified path already is an extended-length path.</p></description>
+        <seealso><p><link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link><br/>
+<link topic="isxfunc_PathConvertSuperToNormal">PathConvertSuperToNormal</link></p></seealso>
+      </function>
+      <function>
         <name>PathConvertSuperToNormal</name>
         <prototype>function PathConvertSuperToNormal(const FileName: String): String;</prototype>
         <description><p>Converts an extended-length path (also known as a super path) to a normal path.</p></description>
         <remarks><p>Only use this function in cases where an extended-length path is known to not work properly.</p></remarks>
-        <seealso><p><link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link></p></seealso>
+        <seealso><p><link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link><br/>
+<link topic="isxfunc_PathConvertNormalToSuper">PathConvertNormalToSuper</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -2174,7 +2182,7 @@ end;</pre></example>
       <function>
         <name>SetNTFSCompression</name>
         <prototype>function SetNTFSCompression(const FileOrDir: String; Compress: Boolean): Boolean;</prototype>
-        <description><p>Changes the NTFS compression state of a file or directory. Returns True if successful.</p></description>
+        <description><p>Changes the NTFS compression state of a file or directory. Returns True if successful, False otherwise.</p></description>
         <remarks><p>If a directory is specified, the compression state of any files present in the directory will not be changed.</p></remarks>
       </function>
     </subcategory>

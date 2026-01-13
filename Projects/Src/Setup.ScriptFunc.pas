@@ -824,6 +824,16 @@ var
     begin
       Stack.SetBool(PStart, PathEndsWith(Stack.GetString(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3)));
     end);
+    RegisterScriptFunc('PathConvertNormalToSuper', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      var SuperFilename: String;
+      Stack.SetBool(PStart, PathConvertNormalToSuper(Stack.GetString(PStart-1), SuperFilename, Stack.GetBool(PStart-3)));
+      Stack.SetString(PStart-2, SuperFilename);
+    end);
+    RegisterScriptFunc('PathConvertSuperToNormal', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+    begin
+      Stack.SetString(PStart, PathConvertSuperToNormal(Stack.GetString(PStart-1)));
+    end);
     RegisterScriptFunc('CHARLENGTH', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       Stack.SetInt(PStart, PathCharLength(Stack.GetString(PStart-1), Stack.GetInt(PStart-2)));
@@ -2026,10 +2036,6 @@ var
       end;
       Stack.SetString(PStart, ApplyPathRedirRules(Stack.GetBool(PStart-1),
         Stack.GetString(PStart-2), [], TargetProcess));
-    end);
-    RegisterScriptFunc('PathConvertSuperToNormal', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin
-      Stack.SetString(PStart, PathConvertSuperToNormal(Stack.GetString(PStart-1)));
     end);
   end;
 
