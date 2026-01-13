@@ -1154,7 +1154,6 @@ end;
         <name>RemoveBackslashUnlessRoot</name>
         <prototype>function RemoveBackslashUnlessRoot(const S: String): String;</prototype>
         <description><p>Returns the specified string with any trailing slashes/backslashes removed, unless the string specifies the root directory of a drive (e.g. "C:\" or "\"), in which case it leaves 1 slash.</p></description>
-        <remarks><p>Does not recognize extended-length root paths that start with a "\\?\" prefix (for example, "\\?\C:\" or "\\?\UNC\server\share\"); on those paths it will strip the trailing backslash.</p></remarks>
       </function>
       <function>
         <name>RemoveBackslash</name>
@@ -1221,27 +1220,23 @@ end;
         <name>ExtractFileDir</name>
         <prototype>function ExtractFileDir(const FileName: String): String;</prototype>
         <description><p>Extracts the drive and directory parts of the given file name, excluding a trailing backslash (unless it is a root directory). The resulting string is empty if FileName contains no drive and directory parts.</p></description>
-        <remarks><p>Does not support extended-length root paths that start with a "\\?\" prefix (for example, "\\?\C:\" or "\\?\UNC\server\share"); using it on those roots can strip the share or the trailing backslash.</p></remarks>
         <seealso><p><link topic="isxfunc_ExtractFilePath">ExtractFilePath</link></p></seealso>
       </function>
       <function>
         <name>ExtractFilePath</name>
         <prototype>function ExtractFilePath(const FileName: String): String;</prototype>
         <description><p>Extracts the drive and directory parts of the given file name, including a trailing backslash. The resulting string is the leftmost characters of FileName, up to and including the colon or backslash that separates the path information from the name and extension. The resulting string is empty if FileName contains no drive and directory parts.</p></description>
-        <remarks><p>Does not support extended-length root paths that start with a "\\?\" prefix (for example, "\\?\C:\" or "\\?\UNC\server\share"); on those roots it can remove the share or the trailing backslash.</p></remarks>
         <seealso><p><link topic="isxfunc_ExtractFileDir">ExtractFileDir</link></p></seealso>
       </function>
       <function>
         <name>ExtractFileName</name>
         <prototype>function ExtractFileName(const FileName: String): String;</prototype>
         <description><p>Extracts the name and extension parts of the given file name. The resulting string is the rightmost characters of FileName, starting with the first character after the colon or backslash that separates the path information from the name and extension. The resulting string is equal to FileName if FileName contains no drive and directory parts.</p></description>
-        <remarks><p>Does not support extended-length root paths that start with a "\\?\" prefix (for example, "\\?\C:\" or "\\?\UNC\server\share"); on those roots it can treat the server/share portion as a file name.</p></remarks>
       </function>
       <function>
         <name>ExtractFileDrive</name>
         <prototype>function ExtractFileDrive(const FileName: String): String;</prototype>
         <description><p>Returns a string containing the 'drive' portion of a fully qualified path name for the file passed in the FileName. For file names with drive letters, the resulting string is in the form '&lt;drive&gt;:'. For file names with a UNC path the resulting string is in the form '\\&lt;servername&gt;\&lt;sharename&gt;'. If the given path contains neither style of path prefix, the result is an empty string.</p></description>
-        <remarks><p>Does not support extended-length root paths that start with a "\\?\" prefix (for example, "\\?\C:\" or "\\?\UNC\server\share"); the drive portion of those paths is parsed incorrectly.</p></remarks>
       </function>
       <function>
         <name>ExtractRelativePath</name>
