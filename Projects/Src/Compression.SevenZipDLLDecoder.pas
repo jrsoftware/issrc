@@ -177,7 +177,7 @@ type
     procedure HandleProgress; override;
   public
     constructor Create(const InArchive: IInArchive; const numItems: UInt32;
-      const ArchiveFileName, DestDir, Password: String;
+      const ArchiveFileName, ExpandedDestDir, Password: String;
       const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
     destructor Destroy; override;
   end;
@@ -696,11 +696,11 @@ begin
 end;
 
 constructor TArchiveExtractAllCallback.Create(const InArchive: IInArchive;
-  const numItems: UInt32; const ArchiveFileName, DestDir, Password: String;
+  const numItems: UInt32; const ArchiveFileName, ExpandedDestDir, Password: String;
   const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);
 begin
   inherited Create(InArchive, numItems, Password);
-  FExpandedDestDir := AddBackslash(PathExpand(DestDir));
+  FExpandedDestDir := AddBackslash(ExpandedDestDir);
   FFullPaths := FullPaths;
   FExtractedArchiveName := PathExtractName(ArchiveFileName);
   FOnExtractionProgress := OnExtractionProgress;
@@ -1091,9 +1091,12 @@ begin
     clsid, numItems);
 
   { Extract }
+  var ExpandedDestDir: String;
+  if not PathConvertNormalToSuper(DestDir, ExpandedDestDir, True) then
+    InternalError('ExtractArchive: PathConvertNormalToSuper failed');
   const ExtractCallback: IArchiveExtractCallback =
     TArchiveExtractAllCallback.Create(InArchive, numItems,
-      ArchiveFilename, DestDir, Password, FullPaths, OnExtractionProgress);
+      ArchiveFilename, ExpandedDestDir, Password, FullPaths, OnExtractionProgress);
   (ExtractCallback as TArchiveExtractAllCallback).Extract;
 
   Log('Everything is Ok'); { Just like 7zMain.c }
@@ -1174,8 +1177,12 @@ begin
   { Open }
   var State := Default(TArchiveFindState);
   State.InArchive := OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password, clsid, State.numItems);
-  if DestDir <> '' then
-    State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
+  if DestDir <> '' then begin
+    var ExpandedDestDir: String;
+    if not PathConvertNormalToSuper(DestDir, ExpandedDestDir, True) then
+      InternalError('ArchiveFindFirstFile: PathConvertNormalToSuper failed');
+    State.ExpandedDestDir := AddBackslash(ExpandedDestDir);
+  end;
   State.ExtractedArchiveName := PathExtractName(ArchiveFilename);
   State.Password := Password;
   State.RecurseSubDirs := RecurseSubDirs;
