@@ -14,7 +14,7 @@ interface
 uses
   Windows, SysUtils, Shared.CommonFunc, Shared.Struct;
 
-function GrantPermissionOnFile(const DisableFsRedir: Boolean; Filename: String;
+function GrantPermissionOnFile(const Is64Bit: Boolean; Filename: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer): Boolean;
 function GrantPermissionOnKey(const RegView: TRegView; const RootKey: HKEY;
   const Subkey: String; const Entries: TGrantPermissionEntry;
@@ -131,14 +131,14 @@ begin
   end;
 end;
 
-function GrantPermission(const Use64BitHelper: Boolean; const ObjectType: DWORD;
+function GrantPermission(const Is64Bit: Boolean; const ObjectType: DWORD;
   const ObjectName: String; const Entries: TGrantPermissionEntry;
   const EntryCount: Integer; const Inheritance: DWORD): DWORD;
 { Invokes either the internal GrantPermission function or the one inside the
   64-bit helper, depending on the setting of Use64BitHelper }
 begin
   try
-    if Use64BitHelper then
+    if Is64Bit then
       Result := HelperGrantPermission(ObjectType, ObjectName, Entries,
         EntryCount, Inheritance)
     else
