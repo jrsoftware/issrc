@@ -60,7 +60,7 @@ begin
     Sysnative due to the problems described in ProcessRunEntry's comments.
 
     Also, rfNormalPath is used because the process to run might have problems
-    with super paths }
+    with super paths. }
 
   SysDir := ApplyPathRedirRules(AIs64Bit, GetSystemDir, [rfNormalPath],
     tpNativeBit);
