@@ -33,6 +33,7 @@ function PathCharIsTrailByte(const S: String; const Index: Integer): Boolean;
 function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
 function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): Integer;
+function PathConvertNormalToSuper(var Filename: String): Boolean;
 function PathConvertSuperToNormal(const Filename: String): String;
 function PathDrivePartLength(const Filename: String): Integer;
 function PathDrivePartLengthEx(const Filename: String;
@@ -189,6 +190,32 @@ begin
   Result := PathStrCompare(PChar(S1), Length(S1), PChar(S2), Length(S2),
     IgnoreCase);
 end;
+
+function PathConvertNormalToSuper(var Filename: String): Boolean;
+begin
+  if Length(Filename) >= 3 then begin
+    if PathStartsWith(Filename, '\\?\') then
+      Exit(True);
+
+    if PathStartsWith(Filename, '\\.\') then begin
+      Filename[3] := '?';
+      Exit(True);
+    end;
+
+    if CharInSet(UpCase(Filename[1]), ['A'..'Z']) and
+       (Filename[2] = ':') and (Filename[3] = '\') then begin
+      Insert('\\?\', Filename, 1);
+      Exit(True);
+    end;
+
+    if (Filename[1] = '\') and (Filename[2] = '\') then begin
+      Filename := '\\?\UNC\' + Copy(Filename, 3, Maxint);
+      Exit(True);
+    end;
+  end;
+  Result := False;
+end;
+
 
 function PathConvertSuperToNormal(const Filename: String): String;
 { Attempts to convert a "\\?\"-prefixed path to normal form, and returns the
