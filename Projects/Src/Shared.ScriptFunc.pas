@@ -328,6 +328,8 @@ initialization
     'function PathSame(const S1, S2: String): Boolean;',
     'function PathStartsWith(const S, AStartsWith: String; const IgnoreCase: Boolean): Boolean;',
     'function PathEndsWith(const S, AEndsWith: String; const IgnoreCase: Boolean): Boolean;',
+    'function PathConvertNormalToSuper(const Filename: String; out SuperFilename: String; const Expand: Boolean): Boolean;',
+    'function PathConvertSuperToNormal(const Filename: String): String;',
     { All in PathFunc but with a different name }
     'function CharLength(const S: String; const Index: Integer): Integer;',
     'function ExpandFileName(const FileName: String): String;',
@@ -584,8 +586,7 @@ initialization
     'function StrToColor(const S: String): TColor;',
     'function RPos(const SubStr, S: String): Integer;',
     'function ApplyPathRedirRulesForCurrentProcess(const A64Bit: Boolean; const APath: String): String;',
-    'function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String; const ATargetProcess64Bit: Boolean): String;',
-    'function PathConvertSuperToNormal(const Filename: String): String;'
+    'function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String; const ATargetProcess64Bit: Boolean): String;'
   ];
 
   {$IFDEF ISIDEPROJ}

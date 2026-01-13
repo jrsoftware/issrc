@@ -33,7 +33,8 @@ function PathCharIsTrailByte(const S: String; const Index: Integer): Boolean;
 function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
 function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): Integer;
-function PathConvertNormalToSuper(var Filename: String): Boolean;
+function PathConvertNormalToSuper(const Filename: String; out SuperFilename: String;
+  const Expand: Boolean): Boolean;
 function PathConvertSuperToNormal(const Filename: String): String;
 function PathDrivePartLength(const Filename: String): Integer;
 function PathDrivePartLengthEx(const Filename: String;
@@ -191,31 +192,38 @@ begin
     IgnoreCase);
 end;
 
-function PathConvertNormalToSuper(var Filename: String): Boolean;
+function PathConvertNormalToSuper(const Filename: String; out SuperFilename: String;
+  const Expand: Boolean): Boolean;
+{ Does not fail if the specified path already is an extended-length path. }
 begin
-  if Length(Filename) >= 3 then begin
-    if PathStartsWith(Filename, '\\?\') then
+  if Expand then begin
+    if not PathExpand(Filename, SuperFilename) then
+      Exit(False);
+  end else
+    SuperFilename := Filename;
+
+  if Length(SuperFilename) >= 3 then begin
+    if PathStartsWith(SuperFilename, '\\?\') then
       Exit(True);
 
-    if PathStartsWith(Filename, '\\.\') then begin
-      Filename[3] := '?';
+    if PathStartsWith(SuperFilename, '\\.\') then begin
+      SuperFilename[3] := '?';
       Exit(True);
     end;
 
-    if CharInSet(UpCase(Filename[1]), ['A'..'Z']) and
-       (Filename[2] = ':') and (Filename[3] = '\') then begin
-      Insert('\\?\', Filename, 1);
+    if PathCharIsDriveLetter(SuperFilename[1]) and
+       (SuperFilename[2] = ':') and (SuperFilename[3] = '\') then begin
+      Insert('\\?\', SuperFilename, 1);
       Exit(True);
     end;
 
-    if (Filename[1] = '\') and (Filename[2] = '\') then begin
-      Filename := '\\?\UNC\' + Copy(Filename, 3, Maxint);
+    if (SuperFilename[1] = '\') and (SuperFilename[2] = '\') then begin
+      SuperFilename := '\\?\UNC\' + Copy(SuperFilename, 3, Maxint);
       Exit(True);
     end;
   end;
   Result := False;
 end;
-
 
 function PathConvertSuperToNormal(const Filename: String): String;
 { Attempts to convert a "\\?\"-prefixed path to normal form, and returns the
