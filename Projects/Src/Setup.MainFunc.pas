@@ -1657,7 +1657,7 @@ begin
   end;
 end;
 
-function TempDeleteFileProc(const A64Bit: Boolean; const FileName: String; const Param: Pointer): Boolean;
+function TempDeleteFileProc(const AIgnored: Boolean; const FileName: String; const Param: Pointer): Boolean;
 var
   Elapsed: DWORD;
 label Retry;
@@ -1942,7 +1942,7 @@ type
   TEnumFilesProc = function(const DisableFsRedir: Boolean; const Filename: String;
     const Param: Pointer): Boolean;
 
-function DummyDeleteDirProc(const A64Bit: Boolean; const Filename: String;
+function DummyDeleteDirProc(const AIgnored: Boolean; const Filename: String;
     const Param: Pointer): Boolean;
 begin
   { We don't actually want to delete the dir, so just return success. }

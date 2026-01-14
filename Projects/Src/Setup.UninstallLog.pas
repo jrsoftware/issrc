@@ -476,7 +476,7 @@ begin
   Result := LoggedDeleteDir(A64Bit, DirName, PDeleteDirData(Param)^.DirsNotRemoved, nil);
 end;
 
-function LoggedDeleteFileProc(const A64Bit: Boolean; const FileName: String; const Param: Pointer): Boolean;
+function LoggedDeleteFileProc(const AIgnored: Boolean; const FileName: String; const Param: Pointer): Boolean;
 begin
   LogFmt('Deleting file: %s', [FileName]);
   Result := Windows.DeleteFile(PChar(FileName));
