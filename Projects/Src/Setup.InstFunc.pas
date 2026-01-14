@@ -102,7 +102,6 @@ procedure RaiseOleError(const FunctionName: String; const ResultCode: HRESULT);
 procedure RefreshEnvironment;
 function RegRootKeyToUInt32(const RootKey: HKEY): UInt32;
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
-function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
 procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);
 procedure RestartReplace(const ExistingFile, DestFile: String);
 function TryRestartReplace(ExistingFile, DestFile: String;
@@ -215,49 +214,6 @@ begin
         if not PathConvertNormalToSuper(NewNormalPath, Result, False) then
           InternalError('ReplaceSystemDirWithSysWow64: PathConvertNormalToSuper failed');
         Exit;
-      end;
-    end;
-  end;
-  Result := Path;
-end;
-
-function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
-{ If Path begins with 'x:\windows\system32\' it replaces it with
-  'x:\windows\sysnative\' and if Path equals 'x:\windows\system32'
-  it replaces it with 'x:\windows\sysnative', and also makes it a
-  super path if it wasn't already. Otherwise, Path is returned unchanged. }
-var
-  SysNativeDir, SysDir: String;
-  L: Integer;
-begin
-  SysNativeDir := GetSysNativeDir(IsWin64);
-  if SysNativeDir <> '' then begin
-    SysDir := GetSystemDir;
-
-    { Path could be a super path but SysDir is not. So using
-      PathConvertSuperToNormal otherwise no match is found.
-      This use of PathConvertSuperToNormal does not introduce
-      a limitation. }
-    const NormalPath = PathConvertSuperToNormal(Path);
-
-    if PathCompare(NormalPath, SysDir) = 0 then begin
-    { x:\windows\system32 -> x:\windows\sysnative }
-      Result := SysNativeDir;
-      Exit;
-    end else begin
-    { x:\windows\system32\ -> x:\windows\sysnative\
-      x:\windows\system32\filename -> x:\windows\sysnative\filename }
-      SysDir := AddBackslash(SysDir);
-      L := Length(SysDir);
-      if (Length(NormalPath) = L) or
-         ((Length(NormalPath) > L) and not PathCharIsTrailByte(NormalPath, L+1)) then begin
-                                 { ^ avoid splitting a double-byte character }
-        if PathCompare(Copy(NormalPath, 1, L), SysDir) = 0 then begin
-          const NewNormalPath = SysNativeDir + Copy(NormalPath, L, MaxInt);
-          if not PathConvertNormalToSuper(NewNormalPath, Result, False) then
-            InternalError('ReplaceSystemDirWithSysNative: PathConvertNormalToSuper failed');
-          Exit;
-        end;
       end;
     end;
   end;

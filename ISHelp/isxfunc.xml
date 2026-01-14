@@ -217,8 +217,9 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>RegisterExtraCloseApplicationsResource</name>
-        <prototype>function RegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;</prototype>
+        <prototype>function RegisterExtraCloseApplicationsResource(const A64Bit: Boolean; const AFilename: String): Boolean;</prototype>
         <description><p>Register an extra file which Setup should check for being in-use. Call RegisterExtraCloseApplicationsResource inside a RegisterExtraCloseApplicationsResources event function, once per file. Ignores <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link>. Returns True if successful.</p></description>
+        <remarks><p>The A64Bit parameter is used for an automatic call to <link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link>.</p></remarks>
       </function>
       <function>
         <name>RmSessionStarted</name>

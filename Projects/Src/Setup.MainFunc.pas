@@ -225,7 +225,7 @@ procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
 procedure RedirectionGuardConfigure(const AEnable: Boolean);
 function RedirectionGuardEnabled: Boolean;
 function PreviousInstallCompleted(const WizardComponents, WizardTasks: TStringList): Boolean;
-function CodeRegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
+function CodeRegisterExtraCloseApplicationsResource(const A64Bit: Boolean; const AFilename: String): Boolean;
 procedure RegisterResourcesWithRestartManager(const WizardComponents, WizardTasks: TStringList);
 procedure RemoveTempInstallDir;
 procedure SaveInf(const FileName: String);
@@ -2186,7 +2186,7 @@ var
   RegisterFileBatchFilenames: PArrayOfPWideChar;
   RegisterFileFilenamesBatchMax, RegisterFileFilenamesBatchCount: Integer;
 
-function RegisterFile(const DisableFsRedir: Boolean; const AFilename: String;
+function RegisterFile(const AIgnored: Boolean; const AFilename: String;
   const Param: Pointer): Boolean;
 var
   Filename, Text: String;
@@ -2245,13 +2245,6 @@ begin
 
   { Finally: add this file to the batch. }
   if RmSessionStarted and (FileName <> '') then begin
-    { From MSDN: "Installers should not disable file system redirection before calling
-      the Restart Manager API. This means that a 32-bit installer run on 64-bit Windows
-      is unable register a file in the %windir%\system32 directory." This is incorrect,
-      we can register such files by using the Sysnative alias. }
-    if DisableFsRedir then
-      Filename := ReplaceSystemDirWithSysNative(Filename, IsWin64);
-
     if InitLogCloseApplications then
       LogFmt('Found a file to register with RestartManager: %s', [Filename]);
 
@@ -2270,10 +2263,10 @@ end;
 var
   AllowCodeRegisterExtraCloseApplicationsResource: Boolean;
 
-function CodeRegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
+function CodeRegisterExtraCloseApplicationsResource(const A64Bit: Boolean; const AFilename: String): Boolean;
 begin
   if AllowCodeRegisterExtraCloseApplicationsResource then
-    Result := RegisterFile(DisableFsRedir, AFilename, Pointer(False))
+    Result := RegisterFile(False, ApplyPathRedirRules(A64Bit, AFilename), Pointer(False))
   else begin
     InternalError('Cannot call "RegisterExtraCloseApplicationsResource" function at this time');
     Result := False;
