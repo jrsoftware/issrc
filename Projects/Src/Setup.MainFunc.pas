@@ -143,7 +143,7 @@ var
     NeedPassword, NeedSerial, NeedsRestart, RestartSystem, IsWinDark, IsDarkInstallMode,
     IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress,
     CustomWizardBackground: Boolean;
-  InstallDefaultDisableFsRedir: Boolean;
+  InstallDefault64Bit: Boolean;
   InstallDefaultRegView: TRegView = rvDefault;
   HasCustomType, HasComponents, HasTasks: Boolean;
   ProcessorArchitecture: TSetupProcessorArchitecture = paUnknown;
@@ -232,8 +232,8 @@ procedure SaveInf(const FileName: String);
 procedure SaveResourceToTempFile(const ResName, Filename: String);
 procedure SetActiveLanguage(const I: Integer);
 procedure ShellExecuteAsOriginalUser(hWnd: HWND; Operation, FileName, Parameters, Directory: LPWSTR; ShowCmd: Integer); stdcall;
-function ShouldDisableFsRedirForFileEntry(const FileEntry: PSetupFileEntry): Boolean;
-function ShouldDisableFsRedirForRunEntry(const RunEntry: PSetupRunEntry): Boolean;
+function FileEntryIs64Bit(const FileEntry: PSetupFileEntry): Boolean;
+function RunEntryIs64Bit(const RunEntry: PSetupRunEntry): Boolean;
 procedure ProcessRunEntry(const RunEntry: PSetupRunEntry);
 function EvalArchitectureIdentifier(const Name: String): Boolean;
 function EvalDirectiveCheck(const Expression: String): Boolean;
@@ -686,14 +686,26 @@ begin
     Result := ShouldProcessEntry(WizardComponents, WizardTasks, IconEntry.Components, IconEntry.Tasks, IconEntry.Languages, IconEntry.Check);
 end;
 
-function ShouldDisableFsRedirForFileEntry(const FileEntry: PSetupFileEntry): Boolean;
+function FileEntryIs64Bit(const FileEntry: PSetupFileEntry): Boolean;
 begin
-  Result := InstallDefaultDisableFsRedir;
+  Result := InstallDefault64Bit;
   if fo32Bit in FileEntry.Options then
     Result := False;
   if fo64Bit in FileEntry.Options then begin
     if not IsWin64 then
       InternalError('Cannot install files to 64-bit locations on this version of Windows');
+    Result := True;
+  end;
+end;
+
+function RunEntryIs64Bit(const RunEntry: PSetupRunEntry): Boolean;
+begin
+  Result := InstallDefault64Bit;
+  if roRun32Bit in RunEntry.Options then
+    Result := False;
+  if roRun64Bit in RunEntry.Options then begin
+    if not IsWin64 then
+      InternalError('Cannot run files in 64-bit locations on this version of Windows');
     Result := True;
   end;
 end;
@@ -2056,7 +2068,7 @@ begin
       CurFile := PSetupFileEntry(Entries[seFile][I]);
       if (CurFile^.FileType = ftUserFile) and
          ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
-        const Is64Bit = ShouldDisableFsRedirForFileEntry(CurFile);
+        const Is64Bit = FileEntryIs64Bit(CurFile);
         if CurFile^.LocationEntry <> -1 then begin
           { Non-external file }
           if not EnumFilesProc(Is64Bit, ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName)), Param) then begin
@@ -2106,13 +2118,13 @@ begin
         if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
           case DeleteType of
             dfFiles, dfFilesAndOrSubdirs:
-              if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, True,
+              if not DelTree(InstallDefault64Bit, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, True,
                  DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
               end;
             dfDirIfEmpty:
-              if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), True, False, False, True,
+              if not DelTree(InstallDefault64Bit, ExpandConst(Name), True, False, False, True,
                  DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
@@ -2781,7 +2793,7 @@ procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
 { Initializes Is64BitInstallMode and other global variables that depend on it }
 begin
   Is64BitInstallMode := A64BitInstallMode;
-  InstallDefaultDisableFsRedir := A64BitInstallMode;
+  InstallDefault64Bit := A64BitInstallMode;
   if A64BitInstallMode then
     InstallDefaultRegView := rv64Bit
   else
@@ -3883,7 +3895,7 @@ begin
               InternalError('Unexpected download flag');
             try
               LExcludes.DelimitedText := Excludes;
-              const Is64Bit = ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I]));
+              const Is64Bit = FileEntryIs64Bit(PSetupFileEntry(Entries[seFile][I]));
               if foExtractArchive in Options then begin
                 ExternalSize := RecurseExternalArchiveGetSizeOfFiles(
                   Is64Bit, ApplyPathRedirRules(Is64Bit, ExpandConst(SourceFilename)),
@@ -4115,18 +4127,6 @@ begin
   Log(S);
 end;
 
-function ShouldDisableFsRedirForRunEntry(const RunEntry: PSetupRunEntry): Boolean;
-begin
-  Result := InstallDefaultDisableFsRedir;
-  if roRun32Bit in RunEntry.Options then
-    Result := False;
-  if roRun64Bit in RunEntry.Options then begin
-    if not IsWin64 then
-      InternalError('Cannot run files in 64-bit locations on this version of Windows');
-    Result := True;
-  end;
-end;
-
 procedure ApplyRedirToRunEntryPaths(const RunEntry64Bit: Boolean;
   var AFilename, AWorkingDir: String);
 begin
@@ -4184,7 +4184,7 @@ begin
     else
       Log('Type: ShellExec');
 
-    const RunEntry64Bit = ShouldDisableFsRedirForRunEntry(RunEntry);
+    const RunEntry64Bit = RunEntryIs64Bit(RunEntry);
     var ExpandedFilename := ExpandConst(RunEntry.Name);
     const ExpandedParameters = ExpandConst(RunEntry.Parameters);
     var ExpandedWorkingDir := ExpandConst(RunEntry.WorkingDir);

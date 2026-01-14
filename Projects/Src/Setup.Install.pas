@@ -452,7 +452,7 @@ var
   Flags: TMakeDirFlags;
 begin
   { Create main application directory }
-  MakeDir(UninstLog, ApplyPathRedirRules(InstallDefaultDisableFsRedir, WizardDirValue), []);
+  MakeDir(UninstLog, ApplyPathRedirRules(InstallDefault64Bit, WizardDirValue), []);
 
   { Create the rest of the directories, if any }
   for var CurDirNumber := 0 to Entries[seDir].Count-1 do
@@ -465,7 +465,7 @@ begin
         if doDeleteAfterInstall in Options then Include(Flags, mdDeleteAfterInstall);
         if doUninsAlwaysUninstall in Options then Include(Flags, mdAlwaysUninstall);
         const Path = RemoveBackslashUnlessRoot(ApplyPathRedirRules(
-          InstallDefaultDisableFsRedir, ExpandConst(DirName)));
+          InstallDefault64Bit, ExpandConst(DirName)));
         MakeDir(UninstLog, Path, Flags);
         AddAttributesToFile(Path, Attribs);
         ApplyPermissions(Path, PermissionsEntry);
@@ -741,7 +741,7 @@ Retry:
         SetStatusLabelText(SetupMessages[msgStatusExtractFiles], False);
       SetFilenameLabelText(PathConvertSuperToNormal(DestFile), True);
       LogFmt('Dest filename: %s', [DestFile]);
-      if Is64Bit <> InstallDefaultDisableFsRedir then begin
+      if Is64Bit <> InstallDefault64Bit then begin
         if Is64Bit then
           Log('Non-default bitness: 64-bit')
         else
@@ -1611,7 +1611,7 @@ begin
         DebugNotifyEntry(seFile, CurFileNumber);
         NotifyBeforeInstallFileEntry(CurFile);
 
-        var Is64Bit := InstallDefaultDisableFsRedir;
+        var Is64Bit := InstallDefault64Bit;
         if fo32Bit in CurFile^.Options then
           Is64Bit := False;
         if fo64Bit in CurFile^.Options then begin
@@ -2505,7 +2505,7 @@ begin
         DebugNotifyEntry(seUninstallDelete, I);
         NotifyBeforeInstallEntry(BeforeInstall);
         var Flags := DefFlags[DeleteType];
-        if InstallDefaultDisableFsRedir then
+        if InstallDefault64Bit then
           Flags := Flags or utDeleteDirOrFiles_DisableFsRedir;
         UninstLog.Add(utDeleteDirOrFiles, [ExpandConst(Name)], Flags);
         NotifyAfterInstallEntry(AfterInstall);
@@ -2532,7 +2532,7 @@ begin
       if roShellExec in RunEntry.Options then
         Flags := Flags or (utRun_ShellExec or utRun_ShellExecRespectWaitFlags)
       else begin
-        if ShouldDisableFsRedirForRunEntry(RunEntry) then
+        if RunEntryIs64Bit(RunEntry) then
           Flags := Flags or utRun_DisableFsRedir;
       end;
       if roSkipIfDoesntExist in RunEntry.Options then

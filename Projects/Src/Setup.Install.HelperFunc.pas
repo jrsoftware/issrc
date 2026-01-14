@@ -481,10 +481,10 @@ begin
         NotifyBeforeInstallEntry(BeforeInstall);
         case DeleteType of
           dfFiles, dfFilesAndOrSubdirs:
-            DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, False,
+            DelTree(InstallDefault64Bit, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, False,
               nil, nil, nil);
           dfDirIfEmpty:
-            DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), True, False, False, False, nil, nil, nil);
+            DelTree(InstallDefault64Bit, ExpandConst(Name), True, False, False, False, nil, nil, nil);
         end;
         NotifyAfterInstallEntry(AfterInstall);
       end;
