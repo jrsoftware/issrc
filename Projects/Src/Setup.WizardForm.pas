@@ -1921,7 +1921,9 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
               begin
                 if not DownloadedFile.DotISSigEntry then begin { Check for the extra entries which download .issig }
                   const FileEntry: PSetupFileEntry = Entries[seFile][DownloadedFile.Data];
-                  FileEntry.SourceFilename := DestFile;
+                  { Update SourceFilename, ensuring it doesn't become a super path. Also see
+                    NotifyBeforeInstallFileEntry. }
+                  FileEntry.SourceFilename := PathConvertSuperToNormal(DestFile);
                   { Remove Download flag since download has been done, and remove CustomDestName flag
                     since ExtractArchive flag doesn't like that }
                   FileEntry.Options := FileEntry.Options - [foDownload, foCustomDestName];

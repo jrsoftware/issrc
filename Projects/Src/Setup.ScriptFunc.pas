@@ -1161,7 +1161,7 @@ var
     end);
     RegisterScriptFunc('RESTARTREPLACE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      RestartReplace(False, Stack.GetString(PStart), Stack.GetString(PStart-1));
+      RestartReplace(Stack.GetString(PStart), Stack.GetString(PStart-1));
     end);
     RegisterScriptFunc('FORCEDIRECTORIES', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin

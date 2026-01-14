@@ -143,7 +143,7 @@ var
     NeedPassword, NeedSerial, NeedsRestart, RestartSystem, IsWinDark, IsDarkInstallMode,
     IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress,
     CustomWizardBackground: Boolean;
-  InstallDefaultDisableFsRedir: Boolean;
+  InstallDefault64Bit: Boolean;
   InstallDefaultRegView: TRegView = rvDefault;
   HasCustomType, HasComponents, HasTasks: Boolean;
   ProcessorArchitecture: TSetupProcessorArchitecture = paUnknown;
@@ -232,8 +232,8 @@ procedure SaveInf(const FileName: String);
 procedure SaveResourceToTempFile(const ResName, Filename: String);
 procedure SetActiveLanguage(const I: Integer);
 procedure ShellExecuteAsOriginalUser(hWnd: HWND; Operation, FileName, Parameters, Directory: LPWSTR; ShowCmd: Integer); stdcall;
-function ShouldDisableFsRedirForFileEntry(const FileEntry: PSetupFileEntry): Boolean;
-function ShouldDisableFsRedirForRunEntry(const RunEntry: PSetupRunEntry): Boolean;
+function FileEntryIs64Bit(const FileEntry: PSetupFileEntry): Boolean;
+function RunEntryIs64Bit(const RunEntry: PSetupRunEntry): Boolean;
 procedure ProcessRunEntry(const RunEntry: PSetupRunEntry);
 function EvalArchitectureIdentifier(const Name: String): Boolean;
 function EvalDirectiveCheck(const Expression: String): Boolean;
@@ -466,6 +466,12 @@ end;
 
 procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
 begin
+  { DestName and SourceFilename are original values, meaning no
+    ApplyPathRedirRules call has been applied. Therefore,
+    PathConvertSuperToNormal for backward compatibility is not
+    needed. Exception: downloaded archives have updated values,
+    see DownloadArchivesToExtract, but still don't need
+    ApplyPathRedirRules. }
   CheckOrInstallCurrentFilename := FileEntry.DestName;
   CheckOrInstallCurrentSourceFilename := FileEntry.SourceFilename;
   NotifyInstallEntry(FileEntry.BeforeInstall);
@@ -480,6 +486,7 @@ end;
 
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
 begin
+  { Also see NotifyBeforeInstallFileEntry }
   CheckOrInstallCurrentFilename := FileEntry.DestName;
   CheckOrInstallCurrentSourceFilename := FileEntry.SourceFilename;
   NotifyInstallEntry(FileEntry.AfterInstall);
@@ -647,6 +654,7 @@ begin
     Result := False;
     Exit;
   end;
+  { Also see NotifyBeforeInstallFileEntry }
   CheckOrInstallCurrentFilename := FileEntry.DestName;
   CheckOrInstallCurrentSourceFilename := FileEntry.SourceFilename;
   if IgnoreCheck then
@@ -678,14 +686,26 @@ begin
     Result := ShouldProcessEntry(WizardComponents, WizardTasks, IconEntry.Components, IconEntry.Tasks, IconEntry.Languages, IconEntry.Check);
 end;
 
-function ShouldDisableFsRedirForFileEntry(const FileEntry: PSetupFileEntry): Boolean;
+function FileEntryIs64Bit(const FileEntry: PSetupFileEntry): Boolean;
 begin
-  Result := InstallDefaultDisableFsRedir;
+  Result := InstallDefault64Bit;
   if fo32Bit in FileEntry.Options then
     Result := False;
   if fo64Bit in FileEntry.Options then begin
     if not IsWin64 then
       InternalError('Cannot install files to 64-bit locations on this version of Windows');
+    Result := True;
+  end;
+end;
+
+function RunEntryIs64Bit(const RunEntry: PSetupRunEntry): Boolean;
+begin
+  Result := InstallDefault64Bit;
+  if roRun32Bit in RunEntry.Options then
+    Result := False;
+  if roRun64Bit in RunEntry.Options then begin
+    if not IsWin64 then
+      InternalError('Cannot run files in 64-bit locations on this version of Windows');
     Result := True;
   end;
 end;
@@ -1935,7 +1955,7 @@ end;
 function EnumFiles(const EnumFilesProc: TEnumFilesProc;
   const WizardComponents, WizardTasks: TStringList; const Param: Pointer): Boolean;
 
-  function RecurseExternalFiles(const DisableFsRedir: Boolean;
+  function RecurseExternalFiles(const Is64Bit: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
     const SourceIsWildcard: Boolean; const Excludes: TStrings; const CurFile: PSetupFileEntry): Boolean;
   begin
@@ -1944,7 +1964,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
     Result := True;
 
     var FindData: TWin32FindData;
-    var H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
+    var H := FindFirstFile(PChar(SearchBaseDir + SearchSubDir + SearchWildcard), FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       try
         repeat
@@ -1964,7 +1984,8 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
               DestFile := DestFile + SearchSubDir + FindData.cFileName
             else if SearchSubDir <> '' then
               DestFile := PathExtractPath(DestFile) + SearchSubDir + PathExtractName(DestFile);
-            if not EnumFilesProc(DisableFsRedir, DestFile, Param) then begin
+            DestFile := ApplyPathRedirRules(Is64Bit, DestFile);
+            if not EnumFilesProc(Is64Bit, DestFile, Param) then begin
               Result := False;
               Exit;
             end;
@@ -1976,12 +1997,12 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
     end;
 
     if foRecurseSubDirsExternal in CurFile^.Options then begin
-      H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + '*', FindData);
+      H := FindFirstFile(PChar(SearchBaseDir + SearchSubDir + '*'), FindData);
       if H <> INVALID_HANDLE_VALUE then begin
         try
           repeat
             if IsRecurseableDirectory(FindData) then
-              if not RecurseExternalFiles(DisableFsRedir, SearchBaseDir,
+              if not RecurseExternalFiles(Is64Bit, SearchBaseDir,
                  SearchSubDir + FindData.cFileName + '\', SearchWildcard,
                  SourceIsWildcard, Excludes, CurFile) then
                 Exit(False);
@@ -1993,22 +2014,22 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
     end;
   end;
 
-  function RecurseExternalArchiveFiles(const DisableFsRedir: Boolean;
+  function RecurseExternalArchiveFiles(const Is64Bit: Boolean;
     const ArchiveFilename: String; const Excludes: TStrings;
     const CurFile: PSetupFileEntry): Boolean;
   begin
     { See above }
     Result := True;
 
-    if not NewFileExistsRedir(DisableFsRedir, ArchiveFilename) then
+    if not NewFileExists(ArchiveFilename) then
       Exit;
 
     if foCustomDestName in CurFile^.Options then
       InternalError('Unexpected CustomDestName flag');
-    const DestDir = ExpandConst(CurFile^.DestName);
+    const DestDir = ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName));
 
     var FindData: TWin32FindData;
-    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, DestDir,
+    var H := ArchiveFindFirstFile(ArchiveFilename, DestDir,
       ExpandConst(CurFile^.ExtractArchivePassword), foRecurseSubDirsExternal in CurFile^.Options,
       False, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
@@ -2020,7 +2041,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
               Continue;
 
             const DestFile = DestDir + FindData.cFileName;
-            if not EnumFilesProc(DisableFsRedir, DestFile, Param) then
+            if not EnumFilesProc(Is64Bit, DestFile, Param) then
               Exit(False);
           end;
         until not ArchiveFindNextFile(H, FindData);
@@ -2032,7 +2053,6 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
 
 var
   CurFile: PSetupFileEntry;
-  DisableFsRedir: Boolean;
   SourceWildcard: String;
 begin
   Result := True;
@@ -2047,10 +2067,10 @@ begin
       CurFile := PSetupFileEntry(Entries[seFile][I]);
       if (CurFile^.FileType = ftUserFile) and
          ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
-        DisableFsRedir := ShouldDisableFsRedirForFileEntry(CurFile);
+        const Is64Bit = FileEntryIs64Bit(CurFile);
         if CurFile^.LocationEntry <> -1 then begin
           { Non-external file }
-          if not EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName), Param) then begin
+          if not EnumFilesProc(Is64Bit, ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName)), Param) then begin
             Result := False;
             Exit;
           end;
@@ -2064,14 +2084,14 @@ begin
             if not(foCustomDestName in CurFile^.Options) then
               InternalError('Expected CustomDestName flag');
             { CurFile^.DestName now includes a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
-            if not EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName), Param) then
+            if not EnumFilesProc(Is64Bit, ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName)), Param) then
               Exit(False);
           end else begin
-	          SourceWildcard := ExpandConst(CurFile^.SourceFilename);
+	          SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.SourceFilename));
 	          Excludes.DelimitedText := CurFile^.Excludes;
 	          if foExtractArchive in CurFile^.Options then begin
 	            try
-	              if not RecurseExternalArchiveFiles(DisableFsRedir, SourceWildcard,
+	              if not RecurseExternalArchiveFiles(Is64Bit, SourceWildcard,
 	                 Excludes, CurFile) then
 	                Exit(False);
 	            except on E: ESevenZipError do
@@ -2079,7 +2099,7 @@ begin
 	                installation }
 	            end;
 	          end else begin
-	            if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
+	            if not RecurseExternalFiles(Is64Bit, PathExtractPath(SourceWildcard), '',
 	               PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
                 Exit(False);
             end;
@@ -2095,16 +2115,16 @@ begin
     for var I := 0 to Entries[seInstallDelete].Count-1 do
       with PSetupDeleteEntry(Entries[seInstallDelete][I])^ do
         if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
-          const Path = ApplyPathRedirRules(InstallDefaultDisableFsRedir, ExpandConst(Name));
+          const Path = ApplyPathRedirRules(InstallDefault64Bit, ExpandConst(Name));
           case DeleteType of
             dfFiles, dfFilesAndOrSubdirs:
-              if not DelTree(InstallDefaultDisableFsRedir, Path, False, True, DeleteType = dfFilesAndOrSubdirs, True,
+              if not DelTree(InstallDefault64Bit, Path, False, True, DeleteType = dfFilesAndOrSubdirs, True,
                  DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
               end;
             dfDirIfEmpty:
-              if not DelTree(InstallDefaultDisableFsRedir, Path, True, False, False, True,
+              if not DelTree(InstallDefault64Bit, Path, True, False, False, True,
                  DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
@@ -2773,7 +2793,7 @@ procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
 { Initializes Is64BitInstallMode and other global variables that depend on it }
 begin
   Is64BitInstallMode := A64BitInstallMode;
-  InstallDefaultDisableFsRedir := A64BitInstallMode;
+  InstallDefault64Bit := A64BitInstallMode;
   if A64BitInstallMode then
     InstallDefaultRegView := rv64Bit
   else
@@ -3018,7 +3038,7 @@ var
       InstallMode := imSilent;
   end;
 
-  function RecurseExternalGetSizeOfFiles(const DisableFsRedir: Boolean;
+  function RecurseExternalGetSizeOfFiles(const Is64Bit: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
     const SourceIsWildcard: Boolean; const Excludes: TStrings;
     const RecurseSubDirs: Boolean): Int64;
@@ -3028,7 +3048,7 @@ var
     Result := 0;
 
     var FindData: TWin32FindData;
-    var H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
+    var H := FindFirstFile(PChar(SearchBaseDir + SearchSubDir + SearchWildcard), FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       repeat
         if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
@@ -3047,12 +3067,12 @@ var
     end;
 
     if RecurseSubDirs then begin
-      H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + '*', FindData);
+      H := FindFirstFile(PChar(SearchBaseDir + SearchSubDir + '*'), FindData);
       if H <> INVALID_HANDLE_VALUE then begin
         try
           repeat
             if IsRecurseableDirectory(FindData) then begin
-              var I := RecurseExternalGetSizeOfFiles(DisableFsRedir, SearchBaseDir,
+              var I := RecurseExternalGetSizeOfFiles(Is64Bit, SearchBaseDir,
                 SearchSubDir + FindData.cFileName + '\', SearchWildcard,
                 SourceIsWildcard, Excludes, RecurseSubDirs);
               Inc(Result, I);
@@ -3065,18 +3085,18 @@ var
     end;
   end;
 
-  function RecurseExternalArchiveGetSizeOfFiles(const DisableFsRedir: Boolean;
+  function RecurseExternalArchiveGetSizeOfFiles(const Is64Bit: Boolean;
     const ArchiveFilename, Password: String; const Excludes: TStrings;
     const RecurseSubDirs: Boolean): Int64;
   begin
     { See above }
     Result := 0;
 
-    if not NewFileExistsRedir(DisableFsRedir, ArchiveFilename) then
+    if not NewFileExists(ArchiveFilename) then
       Exit;
 
     var FindData: TWin32FindData;
-    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename,
+    var H := ArchiveFindFirstFile(ArchiveFilename,
       AddBackslash(TempInstallDir), { DestDir isn't known yet, pass a placeholder }
       Password, RecurseSubDirs, False, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
@@ -3875,19 +3895,19 @@ begin
               InternalError('Unexpected download flag');
             try
               LExcludes.DelimitedText := Excludes;
+              const Is64Bit = FileEntryIs64Bit(PSetupFileEntry(Entries[seFile][I]));
               if foExtractArchive in Options then begin
                 ExternalSize := RecurseExternalArchiveGetSizeOfFiles(
-                  ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
-                  ExpandConst(SourceFilename), ExpandConst(ExtractArchivePassword), LExcludes,
+                  Is64Bit, ApplyPathRedirRules(Is64Bit, ExpandConst(SourceFilename)),
+                  ExpandConst(ExtractArchivePassword), LExcludes,
                   foRecurseSubDirsExternal in Options);
               end else begin
                 if FileType <> ftUserFile then
                   SourceWildcard := NewParamStr(0)
                 else
-                  SourceWildcard := ExpandConst(SourceFilename);
+                  SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandConst(SourceFilename));
                 ExternalSize := RecurseExternalGetSizeOfFiles(
-                  ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
-                  PathExtractPath(SourceWildcard),
+                  Is64Bit, PathExtractPath(SourceWildcard),
                   '', PathExtractName(SourceWildcard), IsWildcard(SourceWildcard),
                   LExcludes, foRecurseSubDirsExternal in Options);
               end;
@@ -4107,18 +4127,6 @@ begin
   Log(S);
 end;
 
-function ShouldDisableFsRedirForRunEntry(const RunEntry: PSetupRunEntry): Boolean;
-begin
-  Result := InstallDefaultDisableFsRedir;
-  if roRun32Bit in RunEntry.Options then
-    Result := False;
-  if roRun64Bit in RunEntry.Options then begin
-    if not IsWin64 then
-      InternalError('Cannot run files in 64-bit locations on this version of Windows');
-    Result := True;
-  end;
-end;
-
 procedure ApplyRedirToRunEntryPaths(const RunEntry64Bit: Boolean;
   var AFilename, AWorkingDir: String);
 begin
@@ -4176,7 +4184,7 @@ begin
     else
       Log('Type: ShellExec');
 
-    const RunEntry64Bit = ShouldDisableFsRedirForRunEntry(RunEntry);
+    const RunEntry64Bit = RunEntryIs64Bit(RunEntry);
     var ExpandedFilename := ExpandConst(RunEntry.Name);
     const ExpandedParameters = ExpandConst(RunEntry.Parameters);
     var ExpandedWorkingDir := ExpandConst(RunEntry.WorkingDir);

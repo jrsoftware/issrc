@@ -102,7 +102,9 @@ function RegRootKeyToUInt32(const RootKey: HKEY): UInt32;
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
 function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
 procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);
-procedure RestartReplace(const A64Bit: Boolean; TempFile, DestFile: String);
+procedure RestartReplace(const ExistingFile, DestFile: String);
+function TryRestartReplace(ExistingFile, DestFile: String;
+  out ErrorCode: DWORD): Boolean;
 procedure Win32ErrorMsg(const FunctionName: String);
 procedure Win32ErrorMsgEx(const FunctionName: String; const ErrorCode: DWORD);
 function ForceDirectories(Dir: String): Boolean;
@@ -115,7 +117,7 @@ uses
   PathFunc, UnsignedFunc,
   Shared.SetupTypes, Shared.SetupMessageIDs,
   SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, Setup.PathRedir,
-  Setup.RedirFunc;
+  Setup.RedirFunc, Setup.MainFunc;
 
 procedure InternalError(const Id: String);
 begin
@@ -260,34 +262,51 @@ begin
   Result := Path;
 end;
 
-procedure RestartReplace(const A64Bit: Boolean; TempFile, DestFile: String);
-{ Renames TempFile to DestFile the next time Windows is started. If DestFile
-  already existed, it will be overwritten. If DestFile is '' then TempFile
-  will be deleted.. }
+function TryRestartReplace(ExistingFile, DestFile: String;
+  out ErrorCode: DWORD): Boolean;
+{ Renames ExistingFile to DestFile the next time the system boots. If DestFile
+  already exists, it will be replaced. If DestFile is an empty string, then
+  ExistingFile will be deleted. }
 begin
-  TempFile := PathExpand(TempFile);
-  if DestFile <> '' then
-    DestFile := PathExpand(DestFile);
+  { On 32-bit Setup, we have to disable WOW64 FS redirection and pass native
+    paths because MoveFileEx mishandles Sysnative paths.
+    On Windows 11 25H2, when two Sysnative paths are passed while WOW64 FS
+    redirection is enabled, the PendingFileRenameOperations registry value
+    shows Sysnative for the source path (needs to be System32) and SysWOW64
+    for the destination path (clearly wrong). }
 
-  if not A64Bit then begin
-    { Work around WOW64 bug present in the IA64 and x64 editions of Windows
-      XP (3790) and Server 2003 prior to SP1 RC2: MoveFileEx writes filenames
-      to the registry verbatim without mapping system32->syswow64. }
-    TempFile := ReplaceSystemDirWithSysWow64(TempFile);
-    if DestFile <> '' then
-      DestFile := ReplaceSystemDirWithSysWow64(DestFile);
+  var MoveFlags: DWORD := MOVEFILE_DELAY_UNTIL_REBOOT;
+
+  ExistingFile := ApplyPathRedirRules(IsCurrentProcess64Bit, ExistingFile, [],
+    tpNativeBit);
+  if DestFile <> '' then begin
+    DestFile := ApplyPathRedirRules(IsCurrentProcess64Bit, DestFile, [],
+      tpNativeBit);
+    MoveFlags := MoveFlags or MOVEFILE_REPLACE_EXISTING;
   end;
 
-  { This is required because of MOVEFILE_DELAY_UNTIL_REBOOT }
-  var DestFileP: PChar;
-  if DestFile = '' then
-    DestFileP := nil
-  else
-    DestFileP := PChar(DestFile);
+  var PrevState: TPreviousFsRedirectionState;
+  if not DisableFsRedirectionIf(IsWin64, PrevState) then begin
+    Result := False;
+    ErrorCode := GetLastError;
+  end else begin
+    try
+      var DestFileP: PChar := nil;
+      if DestFile <> '' then
+        DestFileP := PChar(DestFile);
+      Result := MoveFileEx(PChar(ExistingFile), DestFileP, MoveFlags);
+      ErrorCode := GetLastError;
+    finally
+      RestoreFsRedirection(PrevState);
+    end;
+  end;
+end;
 
-  if not MoveFileEx(PChar(TempFile), DestFileP,
-     MOVEFILE_DELAY_UNTIL_REBOOT or MOVEFILE_REPLACE_EXISTING) then
-    Win32ErrorMsg('MoveFileEx');
+procedure RestartReplace(const ExistingFile, DestFile: String);
+begin
+  var ErrorCode: DWORD;
+  if not TryRestartReplace(ExistingFile, DestFile, ErrorCode) then
+    Win32ErrorMsgEx('MoveFileEx', ErrorCode);
 end;
 
 function DelTree(const A64Bit: Boolean; const Path: String;
