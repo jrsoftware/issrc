@@ -703,7 +703,7 @@ Retry:
     try
       ReplaceOnRestart := False;
       DeleteFlags := 0;
-      if Is64Bit then
+      if IsCurrentProcess64Bit then
         DeleteFlags := DeleteFlags or utDeleteFile_DisableFsRedir;
       if foRegisterServer in CurFile^.Options then
         DeleteFlags := DeleteFlags or utDeleteFile_RegisteredServer;
