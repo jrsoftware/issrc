@@ -498,7 +498,7 @@ begin
 end;
 
 procedure DoHandleFailedDeleteOrMoveFileTry(const CurFile: PSetupFileEntry;
-  const Is64Bit: Boolean; const Func, TempFile, DestFile: String;
+  const Func, TempFile, DestFile: String;
   const LastError: DWORD; var RetriesLeft: Integer; var LastOperation: String;
   var NeedsRestart, ReplaceOnRestart: Boolean;
   var NextAction: TFileOperationFailingNextAction);
@@ -1145,7 +1145,7 @@ Retry:
           end,
           procedure(const LastError: Cardinal; var RetriesLeft: Integer; var NextAction: TFileOperationFailingNextAction)
           begin
-            DoHandleFailedDeleteOrMoveFileTry(CurFile, Is64Bit, 'DeleteFile', TempFile, DestFile,
+            DoHandleFailedDeleteOrMoveFileTry(CurFile, 'DeleteFile', TempFile, DestFile,
               LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart, NextAction);
           end,
           procedure(const LastError: Cardinal; var TryOnceMore: Boolean)
@@ -1174,7 +1174,7 @@ Retry:
           end,
           procedure(const LastError: Cardinal; var RetriesLeft: Integer; var NextAction: TFileOperationFailingNextAction)
           begin
-            DoHandleFailedDeleteOrMoveFileTry(CurFile, Is64Bit, 'MoveFile', TempFile, DestFile,
+            DoHandleFailedDeleteOrMoveFileTry(CurFile, 'MoveFile', TempFile, DestFile,
               LastError, RetriesLeft, LastOperation, NeedsRestart, ReplaceOnRestart, NextAction);
           end,
           procedure(const LastError: Cardinal; var TryOnceMore: Boolean)
