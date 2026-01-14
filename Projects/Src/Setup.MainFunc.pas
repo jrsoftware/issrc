@@ -466,6 +466,12 @@ end;
 
 procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
 begin
+  { DestName and SourceFilename are original values, meaning no
+    ApplyPathRedirRules call has been applied. Therefore,
+    PathConvertSuperToNormal for backward compatibility is not
+    needed. Exception: downloaded archives have updated values,
+    see DownloadArchivesToExtract, but still don't need
+    ApplyPathRedirRules. }
   CheckOrInstallCurrentFilename := FileEntry.DestName;
   CheckOrInstallCurrentSourceFilename := FileEntry.SourceFilename;
   NotifyInstallEntry(FileEntry.BeforeInstall);
@@ -480,6 +486,7 @@ end;
 
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
 begin
+  { Also see NotifyBeforeInstallFileEntry }
   CheckOrInstallCurrentFilename := FileEntry.DestName;
   CheckOrInstallCurrentSourceFilename := FileEntry.SourceFilename;
   NotifyInstallEntry(FileEntry.AfterInstall);
@@ -647,6 +654,7 @@ begin
     Result := False;
     Exit;
   end;
+  { Also see NotifyBeforeInstallFileEntry }
   CheckOrInstallCurrentFilename := FileEntry.DestName;
   CheckOrInstallCurrentSourceFilename := FileEntry.SourceFilename;
   if IgnoreCheck then

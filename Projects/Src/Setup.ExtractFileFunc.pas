@@ -89,7 +89,7 @@ begin
   EscapedBaseName := EscapeBraces(BaseName);
   for var CurFileNumber := 0 to Entries[seFile].Count-1 do begin
     CurFile := PSetupFileEntry(Entries[seFile][CurFileNumber]);
-    if (CurFile^.LocationEntry <> -1) and (CompareText(PathExtractName(CurFile^.DestName), EscapedBaseName) = 0) then begin
+    if (CurFile^.LocationEntry <> -1) and SameText(PathExtractName(CurFile^.DestName), EscapedBaseName) then begin
       InternalExtractTemporaryFile(BaseName, CurFile, Entries[seFileLocation][CurFile^.LocationEntry], False);
       Exit;
     end;
@@ -112,8 +112,9 @@ begin
     CurFile := PSetupFileEntry(Entries[seFile][CurFileNumber]);
     if CurFile^.LocationEntry <> -1 then begin
       { Use ExpandConstEx2 to unescape any braces not in an embedded constant,
-        while leaving constants unexpanded }
-      DestName := ExpandConstEx2(CurFile^.DestName, [''], False);
+        while leaving constants unexpanded. Use PathConvertSuperToNormal to
+        ensure no match with ? from "\\?\". Does not introduce a limitation. }
+      DestName := PathConvertSuperToNormal(ExpandConstEx2(CurFile^.DestName, [''], False));
       if WildcardMatch(PChar(PathLowercase(DestName)), PChar(LowerPattern)) then begin
         Delete(DestName, 1, PathDrivePartLengthEx(DestName, True)); { Remove any drive part }
         if Pos('{tmp}\', DestName) = 1 then
