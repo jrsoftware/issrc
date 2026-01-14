@@ -273,17 +273,11 @@ begin
   Result := False;
 end;
 
-procedure LoggedRestartDeleteDir(const DisableFsRedir: Boolean; Dir: String);
+procedure LoggedRestartDeleteDir(const Dir: String);
 begin
-  Dir := PathExpand(Dir);
-  if not DisableFsRedir then begin
-    { Work around WOW64 bug present in the IA64 and x64 editions of Windows
-      XP (3790) and Server 2003 prior to SP1 RC2: MoveFileEx writes filenames
-      to the registry verbatim without mapping system32->syswow64. }
-    Dir := ReplaceSystemDirWithSysWow64(Dir);
-  end;
-  if not MoveFileExRedir(DisableFsRedir, Dir, '', MOVEFILE_DELAY_UNTIL_REBOOT) then
-    LogFmt('MoveFileEx failed (%d).', [GetLastError]);
+  var ErrorCode: DWORD;
+  if not TryRestartReplace(Dir, '', ErrorCode) then
+    LogWithErrorCode('MoveFileEx failed.', ErrorCode);
 end;
 
 const
@@ -327,7 +321,7 @@ begin
          ListContainsPathOrSubdir(RestartDeleteDirList, DirName) then begin
         LogFmt('Failed to delete directory (%d). Will delete on restart (if empty).',
           [LastError]);
-        LoggedRestartDeleteDir(DisableFsRedir, DirName);
+        LoggedRestartDeleteDir(DirName);
       end
       else
         LogFmt('Failed to delete directory (%d).', [LastError]);
@@ -636,7 +630,7 @@ var
           LogFmt('The file appears to be in use (%d). Will delete on restart.',
             [LastError]);
           try
-            RestartReplace(DisableFsRedir, Filename, '');
+            RestartReplace(Filename, '');
             NeedRestart := True;
             { Add the file's directory to the list of directories that should
               be restart-deleted later }

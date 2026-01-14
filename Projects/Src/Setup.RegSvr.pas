@@ -98,9 +98,9 @@ begin
   DeleteOldTempFiles(PathExtractPath(SelfFilename));
   NewFilename := RenameToNonRandomTempName(SelfFilename);
   if NewFilename <> '' then
-    RestartReplace(False, NewFilename, '')
+    RestartReplace(NewFilename, '')
   else
-    RestartReplace(False, SelfFilename, '');
+    RestartReplace(SelfFilename, '');
 end;
 
 procedure RunRegSvr;

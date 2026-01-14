@@ -511,7 +511,7 @@ begin
       'Will replace on restart.', [Func, LastError]);
     LastOperation := SetupMessages[msgErrorRestartReplace];
     NeedsRestart := True;
-    RestartReplace(Is64Bit, TempFile, DestFile);
+    RestartReplace(TempFile, DestFile);
     ReplaceOnRestart := True;
     NextAction := naStopAndSucceed;
   end else if RetriesLeft > 0 then begin
