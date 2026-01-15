@@ -411,8 +411,8 @@ begin
   else begin
     if not(mdNoUninstall in Flags) then begin
       var UninstFlags: TUninstallRecExtraData := utDeleteDirOrFiles_IsDir;
-      if IsCurrentProcess64Bit then
-        UninstFlags := UninstFlags or utDeleteDirOrFiles_DisableFsRedir;
+      if IsCurrentProcess64Bit then { Post-ApplyPathRedirRules we should check IsCurrentProcess64Bit and not the original InstallDefault64Bit }
+        UninstFlags := UninstFlags or utDeleteDirOrFiles_Is64Bit;
       if mdNotifyChange in Flags then
         UninstFlags := UninstFlags or utDeleteDirOrFiles_CallChangeNotify;
       UninstLog.Add(utDeleteDirOrFiles, [Dir], UninstFlags);
@@ -703,8 +703,8 @@ Retry:
     try
       ReplaceOnRestart := False;
       DeleteFlags := 0;
-      if IsCurrentProcess64Bit then
-        DeleteFlags := DeleteFlags or utDeleteFile_DisableFsRedir;
+      if IsCurrentProcess64Bit then { Post-ApplyPathRedirRules we should check IsCurrentProcess64Bit and not Is64Bit }
+        DeleteFlags := DeleteFlags or utDeleteFile_Is64Bit;
       if foRegisterServer in CurFile^.Options then
         DeleteFlags := DeleteFlags or utDeleteFile_RegisteredServer;
       if foRegisterTypeLib in CurFile^.Options then
@@ -2506,7 +2506,7 @@ begin
         NotifyBeforeInstallEntry(BeforeInstall);
         var Flags := DefFlags[DeleteType];
         if InstallDefault64Bit then
-          Flags := Flags or utDeleteDirOrFiles_DisableFsRedir;
+          Flags := Flags or utDeleteDirOrFiles_Is64Bit;
         UninstLog.Add(utDeleteDirOrFiles, [ExpandConst(Name)], Flags);
         NotifyAfterInstallEntry(AfterInstall);
       end;
