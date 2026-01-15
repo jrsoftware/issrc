@@ -950,7 +950,7 @@ procedure EnumFileReplaceOperationsFilenames(const EnumFunc: TEnumFROFilenamesPr
       if StrLComp(P, '\??\', 4) = 0 then begin
         Inc(P, 4);
         if P[0] <> #0 then
-          EnumFunc(P, Param);
+          EnumFunc('\\?\' + P, Param);
       end;
       Inc(P, StrLen(P) + 1);
     end;
