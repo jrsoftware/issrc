@@ -258,7 +258,7 @@ uses
   ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes,
   ChaCha20, ECDSA, ISSigFunc, NewCtrls, PathFunc, UnsignedFunc, FormBackgroundStyleHook, RichEditViewer,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
-  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.PathRedir, Setup.RedirFunc,
+  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.PathRedir,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
   Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
