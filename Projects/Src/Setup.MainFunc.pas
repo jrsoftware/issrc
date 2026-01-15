@@ -2150,7 +2150,12 @@ begin
   Filename := AFilename;
   if not DisableFsRedir then
     Filename := ReplaceSystemDirWithSysWow64(Filename);
-  Filename := PathLowercase(Filename);
+  { Calling PathConvertSuperToNormal because MoveFileEx removes the '\\?\' prefix
+    from a super path before writing it to the registry key, even if the path is
+    truly longer than MAX_PATH. Windows can then still delete this long path on
+    reboot. So our check should exclude the '\\?\' prefix as well. Does not
+    introduce a limitation. }
+  Filename := PathLowercase(PathConvertSuperToNormal(Filename));
   for J := 0 to CheckForFileSL.Count-1 do begin
     if CheckForFileSL[J] = Filename then begin
       LogFmt('Found pending rename or delete that matches one of our files: %s', [Filename]);
