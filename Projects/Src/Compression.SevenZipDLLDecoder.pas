@@ -35,10 +35,8 @@ procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String; const
 type
   TArchiveFindHandle = type NativeUInt;
   TOnExtractToHandleProgress = procedure(const Bytes, Param: Int64);
-function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
-  const ArchiveFilename, DestDir, Password: String;
-  const RecurseSubDirs, ExtractIntent: Boolean;
-  out FindFileData: TWin32FindData): TArchiveFindHandle;
+function ArchiveFindFirstFile(const ArchiveFilename, DestDir, Password: String;
+  const RecurseSubDirs, ExtractIntent: Boolean; out FindFileData: TWin32FindData): TArchiveFindHandle;
 function ArchiveFindNextFile(const FindFile: TArchiveFindHandle; out FindFileData: TWin32FindData): Boolean;
 function ArchiveFindClose(const FindFile: TArchiveFindHandle): Boolean;
 procedure ArchiveFindExtract(const FindFile: TArchiveFindHandle; const DestF: TFile;
@@ -51,7 +49,7 @@ uses
   Compression.SevenZipDLLDecoder.Interfaces, PathFunc,
   Shared.SetupMessageIDs, Shared.CommonFunc,
   SetupLdrAndSetup.Messages,
-  Setup.RedirFunc, Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
+  Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
 
 type
   TInStream = class(TInterfacedObject, IInStream)
@@ -103,14 +101,13 @@ type
 
   TArchiveOpenFileCallback = class(TArchiveOpenCallback, IArchiveOpenVolumeCallback)
   private
-    FDisableFsRedir: Boolean;
     FArchiveFilename: String;
   protected
     { IArchiveOpenVolumeCallback - queried for by 7-Zip on IArchiveOpenCallback }
     function GetProperty(propID: PROPID; var value: OleVariant): HRESULT; stdcall;
     function GetStream(const name: PChar; var inStream: IInStream): HRESULT; stdcall;
   public
-    constructor Create(const DisableFsRedir: Boolean; const ArchiveFilename, Password: String);
+    constructor Create(const ArchiveFilename, Password: String);
   end;
 
   TArchiveExtractBaseCallback = class(TArchiveCallback, IArchiveExtractCallback)
@@ -423,11 +420,9 @@ end;
 
 { TArchiveOpenFileCallback }
 
-constructor TArchiveOpenFileCallback.Create(const DisableFsRedir: Boolean; const ArchiveFilename,
-  Password: String);
+constructor TArchiveOpenFileCallback.Create(const ArchiveFilename, Password: String);
 begin
   inherited Create(Password);
-  FDisableFsRedir := DisableFsRedir;
   FArchiveFilename := ArchiveFilename;
 end;
 
@@ -450,8 +445,8 @@ begin
     S_FALSE or set instream to nil when it tries to open a volume which doesn't exists (like
     archive.7z.003 when there's two volumes only). }
   try
-    if NewFileExistsRedir(FDisableFsRedir, name) then begin
-      const F = TFileRedir.Create(FDisableFsRedir, name, fdOpenExisting, faRead, fsRead);
+    if NewFileExists(name) then begin
+      const F = TFile.Create(name, fdOpenExisting, faRead, fsRead);
       instream := TInStream.Create(F);
     end else
       instream := nil;
@@ -736,7 +731,7 @@ begin
           NewCurrent.Path := Path + '\';
           if not ValidateAndCombinePath(FExpandedDestDir, Path, NewCurrent.ExpandedPath) then
             OleError(E_ACCESSDENIED);
-          ForceDirectories(False, NewCurrent.ExpandedPath);
+          ForceDirectories(NewCurrent.ExpandedPath);
         end;
         outStream := nil;
       end else begin
@@ -752,7 +747,7 @@ begin
         NewCurrent.Path := Path;
         if not ValidateAndCombinePath(FExpandedDestDir, Path, NewCurrent.ExpandedPath) then
           OleError(E_ACCESSDENIED);
-        ForceDirectories(False, PathExtractPath(NewCurrent.ExpandedPath));
+        ForceDirectories(PathExtractPath(NewCurrent.ExpandedPath));
         const ExistingFileAttr = GetFileAttributes(PChar(NewCurrent.ExpandedPath));
         if (ExistingFileAttr <> INVALID_FILE_ATTRIBUTES) and
            (ExistingFileAttr and FILE_ATTRIBUTE_READONLY <> 0) then
@@ -993,8 +988,8 @@ begin
   end;
 end;
 
-function OpenArchiveRedir(const DisableFsRedir: Boolean;
-  const ArchiveFilename, Password: String; const clsid: TGUID; out numItems: UInt32): IInArchive;
+function OpenArchive(const ArchiveFilename, Password: String; const clsid: TGUID;
+  out numItems: UInt32): IInArchive;
 const
   DefaultScanSize: Int64 = 1 shl 23; { From Client7z.cpp }
 begin
@@ -1005,17 +1000,17 @@ begin
   { Open }
   var F: TFile := nil; { Set to nil to silence compiler }
   try
-    F := TFileRedir.Create(DisableFsRedir, ArchiveFilename, fdOpenExisting, faRead, fsRead);
+    F := TFile.Create(ArchiveFilename, fdOpenExisting, faRead, fsRead);
   except
     on E: EFileError do
       SevenZipWin32Error('CreateFile', E.ErrorCode);
   end;
   const InStream: IInStream = TInStream.Create(F); { InStream now owns F }
   var ScanSize := DefaultScanSize;
-  const OpenCallback: IArchiveOpenCallback = TArchiveOpenFileCallback.Create(DisableFsRedir, ArchiveFileName, Password);
+  const OpenCallback: IArchiveOpenCallback = TArchiveOpenFileCallback.Create(ArchiveFileName, Password);
   if Result.Open(InStream, @ScanSize, OpenCallback) <> S_OK then begin
     if clsid = CLSID_HandlerRar then { Try RAR5 instead of RAR4 }
-      Exit(OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password, CLSID_HandlerRar5, numItems))
+      Exit(OpenArchive(ArchiveFilename, Password, CLSID_HandlerRar5, numItems))
     else
       SevenZipError(SetupMessages[msgArchiveIsCorrupted], 'Cannot open file as archive' { Just like Client7z.cpp });
   end;
@@ -1087,7 +1082,7 @@ begin
 
   { Open }
   var numItems: UInt32;
-  const InArchive = OpenArchiveRedir(False, ArchiveFilename, Password,
+  const InArchive = OpenArchive(ArchiveFilename, Password,
     clsid, numItems);
 
   { Extract }
@@ -1161,9 +1156,8 @@ begin
   end;
 end;
 
-function ArchiveFindFirstFileRedir(const DisableFsRedir: Boolean;
-  const ArchiveFilename, DestDir, Password: String; const RecurseSubDirs,
-  ExtractIntent: Boolean; out FindFileData: TWin32FindData): TArchiveFindHandle;
+function ArchiveFindFirstFile(const ArchiveFilename, DestDir, Password: String;
+  const RecurseSubDirs, ExtractIntent: Boolean; out FindFileData: TWin32FindData): TArchiveFindHandle;
 begin
   LogArchiveExtractionModeOnce;
 
@@ -1176,7 +1170,7 @@ begin
 
   { Open }
   var State := Default(TArchiveFindState);
-  State.InArchive := OpenArchiveRedir(DisableFsRedir, ArchiveFilename, Password, clsid, State.numItems);
+  State.InArchive := OpenArchive(ArchiveFilename, Password, clsid, State.numItems);
   if DestDir <> '' then begin
     var ExpandedDestDir: String;
     if not PathConvertNormalToSuper(DestDir, ExpandedDestDir, True) then

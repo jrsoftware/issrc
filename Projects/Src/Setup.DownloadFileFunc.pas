@@ -2,7 +2,7 @@ unit Setup.DownloadFileFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -403,7 +403,7 @@ begin
   var DidJustDeleteDestFile := False;
   if NewFileExists(DestFile) then begin
     if Verification.Typ = fvHash then begin
-      if SHA256DigestsEqual(GetSHA256OfFile(False, DestFile), Verification.Hash) then begin
+      if SHA256DigestsEqual(GetSHA256OfFile(DestFile), Verification.Hash) then begin
         Log('  File already downloaded.');
         Result := 0;
         Exit;
@@ -430,13 +430,13 @@ begin
     end;
 
     SetFileAttributes(PChar(DestFile), GetFileAttributes(PChar(DestFile)) and not FILE_ATTRIBUTE_READONLY);
-    DelayDeleteFile(False, DestFile, 13, 50, 250);
+    DelayDeleteFile(DestFile, 13, 50, 250);
     DidJustDeleteDestFile := True;
   end else
-    ForceDirectories(False, PathExtractPath(DestFile));
+    ForceDirectories(PathExtractPath(DestFile));
 
   { Create temporary file }
-  TempFile := GenerateUniqueName(False, PathExtractPath(DestFile), '.tmp');
+  TempFile := GenerateUniqueName(PathExtractPath(DestFile), '.tmp');
   TempF := TFile.Create(TempFile, fdCreateAlways, faWrite, fsNone);
   TempFileLeftOver := True;
 
@@ -466,7 +466,7 @@ begin
       else
         DoISSigVerify(TempF, nil, DestFile, False, Verification.ISSigAllowedKeys, ExpectedFileHash);
         FreeAndNil(TempF);
-        const FileHash = GetSHA256OfFile(False, TempFile);
+        const FileHash = GetSHA256OfFile(TempFile);
       if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
         VerificationError(veFileHashIncorrect);
       Log(VerificationSuccessfulLogMessage);

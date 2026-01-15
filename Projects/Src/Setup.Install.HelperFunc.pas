@@ -2,7 +2,7 @@ unit Setup.Install.HelperFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -44,12 +44,11 @@ procedure JustProcessEventsProc64(const Bytes, Param: Int64);
 function AbortRetryIgnoreTaskDialogMsgBox(const Text: String;
   const RetryIgnoreAbortButtonLabels: array of String): Boolean;
 function FileTimeToStr(const AFileTime: TFileTime): String;
-function TryToGetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String;
-  var Sum: TSHA256Digest): Boolean;
+function TryToGetSHA256OfFile(const Filename: String; var Sum: TSHA256Digest): Boolean;
 procedure CopySourceFileToDestFile(const SourceF, DestF: TFile;
   [ref] const Verification: TSetupFileVerification; const ISSigSourceFilename: String;
   const AExpectedSize: Int64);
-function ShortenOrExpandFontFilename(const Filename: String): String;
+function ShortenFontFilename(const Filename: String): String;
 function GetLocalTimeAsStr: String;
 procedure PackCustomMessagesIntoString(var S: String);
 function PackCompiledCodeTextIntoString(const CompiledCodeText: AnsiString): String;
@@ -278,12 +277,11 @@ begin
     Result := '(invalid)';
 end;
 
-function TryToGetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String;
-  var Sum: TSHA256Digest): Boolean;
+function TryToGetSHA256OfFile(const Filename: String; var Sum: TSHA256Digest): Boolean;
 { Like GetSHA256OfFile but traps exceptions locally. Returns True if successful. }
 begin
   try
-    Sum := GetSHA256OfFile(DisableFsRedir, Filename);
+    Sum := GetSHA256OfFile(Filename);
     Result := True;
   except
     Result := False;
@@ -345,17 +343,22 @@ begin
   SetProgress(MaxProgress);
 end;
 
-function ShortenOrExpandFontFilename(const Filename: String): String;
-{ Expands Filename, except if it's in the Fonts directory, in which case it
-  removes the path }
+function ShortenFontFilename(const Filename: String): String;
+{ Removes the path from Filename if it's in the Fonts directory.
+  Filename should be a super path. }
 var
   FontDir: String;
 begin
-  Result := PathExpand(Filename);
-  FontDir := GetShellFolder(False, sfFonts);
-  if FontDir <> '' then
-    if PathCompare(PathExtractDir(Result), FontDir) = 0 then
+  Result := Filename;
+  FontDir :=  GetShellFolder(False, sfFonts);
+  if FontDir <> '' then begin
+    { Filename/Result is a super path but FontDir is not. So using
+      PathConvertSuperToNormal because PathSame does not consider
+      a super path and its normal form to be the same. This use of
+      PathConvertSuperToNormal does not introduce a limitation. }
+    if PathSame(PathExtractDir(PathConvertSuperToNormal(Result)), FontDir) then
       Result := PathExtractName(Result);
+  end;
 end;
 
 function GetLocalTimeAsStr: String;
@@ -478,10 +481,10 @@ begin
         NotifyBeforeInstallEntry(BeforeInstall);
         case DeleteType of
           dfFiles, dfFilesAndOrSubdirs:
-            DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, False,
+            DelTree(InstallDefault64Bit, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, False,
               nil, nil, nil);
           dfDirIfEmpty:
-            DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), True, False, False, False, nil, nil, nil);
+            DelTree(InstallDefault64Bit, ExpandConst(Name), True, False, False, False, nil, nil, nil);
         end;
         NotifyAfterInstallEntry(AfterInstall);
       end;

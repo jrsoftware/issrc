@@ -2,7 +2,7 @@ unit Setup.WizardForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -1886,7 +1886,7 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
           InternalError('Expected CustomDestName flag');
         { Prepare }
         const TempDir = AddBackslash(TempInstallDir);
-        const DestDir = GenerateUniqueName(False, TempDir + '_isetup', '.tmp');
+        const DestDir = GenerateUniqueName(TempDir + '_isetup', '.tmp');
         const DestFile = AddBackslash(DestDir) + PathExtractName(FileEntry.DestName);
         const BaseName = Copy(DestFile, Length(TempDir)+1, MaxInt);
         { Add to DownloadPage }
@@ -1921,7 +1921,9 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
               begin
                 if not DownloadedFile.DotISSigEntry then begin { Check for the extra entries which download .issig }
                   const FileEntry: PSetupFileEntry = Entries[seFile][DownloadedFile.Data];
-                  FileEntry.SourceFilename := DestFile;
+                  { Update SourceFilename, ensuring it doesn't become a super path. Also see
+                    NotifyBeforeInstallFileEntry. }
+                  FileEntry.SourceFilename := PathConvertSuperToNormal(DestFile);
                   { Remove Download flag since download has been done, and remove CustomDestName flag
                     since ExtractArchive flag doesn't like that }
                   FileEntry.Options := FileEntry.Options - [foDownload, foCustomDestName];

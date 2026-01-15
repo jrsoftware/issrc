@@ -72,9 +72,8 @@ function DelTree(const DisableFsRedir: Boolean; const Path: String;
 procedure EnumFileReplaceOperationsFilenames(const EnumFunc: TEnumFROFilenamesProc;
   Param: Pointer);
 function GetComputerNameString: String;
-function GetFileDateTime(const DisableFsRedir: Boolean; const Filename: String;
-  var DateTime: TFileTime): Boolean;
-function GetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA256Digest; overload;
+function GetFileDateTime(const Filename: String; var DateTime: TFileTime): Boolean;
+function GetSHA256OfFile(const Filename: String): TSHA256Digest; overload;
 function GetSHA256OfFile(const F: TFile): TSHA256Digest; overload;
 function GetSHA256OfAnsiString(const S: AnsiString): TSHA256Digest;
 function GetSHA256OfUnicodeString(const S: UnicodeString): TSHA256Digest;
@@ -103,13 +102,14 @@ procedure RaiseOleError(const FunctionName: String; const ResultCode: HRESULT);
 procedure RefreshEnvironment;
 function RegRootKeyToUInt32(const RootKey: HKEY): UInt32;
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
-function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
 procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);
-procedure RestartReplace(const DisableFsRedir: Boolean; TempFile, DestFile: String);
+procedure RestartReplace(const ExistingFile, DestFile: String);
+function TryRestartReplace(ExistingFile, DestFile: String;
+  out ErrorCode: DWORD): Boolean;
 procedure Win32ErrorMsg(const FunctionName: String);
 procedure Win32ErrorMsgEx(const FunctionName: String; const ErrorCode: DWORD);
-function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
-procedure AddAttributesToFile(const DisableFsRedir: Boolean; const Filename: String; Attribs: Integer);
+function ForceDirectories(Dir: String): Boolean;
+procedure AddAttributesToFile(const Filename: String; Attribs: Integer);
 
 implementation
 
@@ -118,7 +118,7 @@ uses
   PathFunc, UnsignedFunc,
   Shared.SetupTypes, Shared.SetupMessageIDs,
   SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, Setup.PathRedir,
-  Setup.RedirFunc;
+  Setup.RedirFunc, Setup.MainFunc;
 
 procedure InternalError(const Id: String);
 begin
@@ -184,7 +184,9 @@ end;
 function ReplaceSystemDirWithSysWow64(const Path: String): String;
 { If the user is running 64-bit Windows and Path begins with
   'x:\windows\system32' it replaces it with 'x:\windows\syswow64', like the
-  file system redirector would do. Otherwise, Path is returned unchanged. }
+  file system redirector would do, and also makes it a super
+  path if it wasn't already. Otherwise, Path is returned
+  unchanged. }
 var
   SysWow64Dir, SysDir: String;
   L: Integer;
@@ -192,16 +194,25 @@ begin
   SysWow64Dir := GetSysWow64Dir;
   if SysWow64Dir <> '' then begin
     SysDir := GetSystemDir;
+
+    { Path could be a super path but SysDir is not. So using
+      PathConvertSuperToNormal otherwise no match is found.
+      This use of PathConvertSuperToNormal does not introduce
+      a limitation. }
+    const NormalPath = PathConvertSuperToNormal(Path);
+
     { x:\windows\system32 -> x:\windows\syswow64
       x:\windows\system32\ -> x:\windows\syswow64\
       x:\windows\system32\filename -> x:\windows\syswow64\filename
       x:\windows\system32x -> x:\windows\syswow64x  <- yes, like Windows! }
     L := Length(SysDir);
-    if (Length(Path) = L) or
-       ((Length(Path) > L) and not PathCharIsTrailByte(Path, L+1)) then begin
+    if (Length(NormalPath) = L) or
+       ((Length(NormalPath) > L) and not PathCharIsTrailByte(NormalPath, L+1)) then begin
                                { ^ avoid splitting a double-byte character }
-      if PathCompare(Copy(Path, 1, L), SysDir) = 0 then begin
-        Result := SysWow64Dir + Copy(Path, L+1, Maxint);
+      if PathCompare(Copy(NormalPath, 1, L), SysDir) = 0 then begin
+        const NewNormalPath = SysWow64Dir + Copy(NormalPath, L+1, MaxInt);
+        if not PathConvertNormalToSuper(NewNormalPath, Result, False) then
+          InternalError('ReplaceSystemDirWithSysWow64: PathConvertNormalToSuper failed');
         Exit;
       end;
     end;
@@ -209,60 +220,51 @@ begin
   Result := Path;
 end;
 
-function ReplaceSystemDirWithSysNative(Path: String; const IsWin64: Boolean): String;
-{ If Path begins with 'x:\windows\system32\' it replaces it with
-  'x:\windows\sysnative\' and if Path equals 'x:\windows\system32'
-  it replaces it with 'x:\windows\sysnative'. Otherwise, Path is
-  returned unchanged. }
-var
-  SysNativeDir, SysDir: String;
-  L: Integer;
+function TryRestartReplace(ExistingFile, DestFile: String;
+  out ErrorCode: DWORD): Boolean;
+{ Renames ExistingFile to DestFile the next time the system boots. If DestFile
+  already exists, it will be replaced. If DestFile is an empty string, then
+  ExistingFile will be deleted. }
 begin
-  SysNativeDir := GetSysNativeDir(IsWin64);
-  if SysNativeDir <> '' then begin
-    SysDir := GetSystemDir;
-    if PathCompare(Path, SysDir) = 0 then begin
-    { x:\windows\system32 -> x:\windows\sysnative }
-      Result := SysNativeDir;
-      Exit;
-    end else begin
-    { x:\windows\system32\ -> x:\windows\sysnative\
-      x:\windows\system32\filename -> x:\windows\sysnative\filename }
-      SysDir := AddBackslash(SysDir);
-      L := Length(SysDir);
-      if (Length(Path) = L) or
-         ((Length(Path) > L) and not PathCharIsTrailByte(Path, L+1)) then begin
-                                 { ^ avoid splitting a double-byte character }
-        if PathCompare(Copy(Path, 1, L), SysDir) = 0 then begin
-          Result := SysNativeDir + Copy(Path, L, Maxint);
-          Exit;
-        end;
-      end;
+  { On 32-bit Setup, we have to disable WOW64 FS redirection and pass native
+    paths because MoveFileEx mishandles Sysnative paths.
+    On Windows 11 25H2, when two Sysnative paths are passed while WOW64 FS
+    redirection is enabled, the PendingFileRenameOperations registry value
+    shows Sysnative for the source path (needs to be System32) and SysWOW64
+    for the destination path (clearly wrong). }
+
+  var MoveFlags: DWORD := MOVEFILE_DELAY_UNTIL_REBOOT;
+
+  ExistingFile := ApplyPathRedirRules(IsCurrentProcess64Bit, ExistingFile, [],
+    tpNativeBit);
+  if DestFile <> '' then begin
+    DestFile := ApplyPathRedirRules(IsCurrentProcess64Bit, DestFile, [],
+      tpNativeBit);
+    MoveFlags := MoveFlags or MOVEFILE_REPLACE_EXISTING;
+  end;
+
+  var PrevState: TPreviousFsRedirectionState;
+  if not DisableFsRedirectionIf(IsWin64, PrevState) then begin
+    Result := False;
+    ErrorCode := GetLastError;
+  end else begin
+    try
+      var DestFileP: PChar := nil;
+      if DestFile <> '' then
+        DestFileP := PChar(DestFile);
+      Result := MoveFileEx(PChar(ExistingFile), DestFileP, MoveFlags);
+      ErrorCode := GetLastError;
+    finally
+      RestoreFsRedirection(PrevState);
     end;
   end;
-  Result := Path;
 end;
 
-procedure RestartReplace(const DisableFsRedir: Boolean; TempFile, DestFile: String);
-{ Renames TempFile to DestFile the next time Windows is started. If DestFile
-  already existed, it will be overwritten. If DestFile is '' then TempFile
-  will be deleted.. }
+procedure RestartReplace(const ExistingFile, DestFile: String);
 begin
-  TempFile := PathExpand(TempFile);
-  if DestFile <> '' then
-    DestFile := PathExpand(DestFile);
-
-  if not DisableFsRedir then begin
-    { Work around WOW64 bug present in the IA64 and x64 editions of Windows
-      XP (3790) and Server 2003 prior to SP1 RC2: MoveFileEx writes filenames
-      to the registry verbatim without mapping system32->syswow64. }
-    TempFile := ReplaceSystemDirWithSysWow64(TempFile);
-    if DestFile <> '' then
-      DestFile := ReplaceSystemDirWithSysWow64(DestFile);
-  end;
-  if not MoveFileExRedir(DisableFsRedir, TempFile, DestFile,
-     MOVEFILE_DELAY_UNTIL_REBOOT or MOVEFILE_REPLACE_EXISTING) then
-    Win32ErrorMsg('MoveFileEx');
+  var ErrorCode: DWORD;
+  if not TryRestartReplace(ExistingFile, DestFile, ErrorCode) then
+    Win32ErrorMsgEx('MoveFileEx', ErrorCode);
 end;
 
 function DelTree(const DisableFsRedir: Boolean; const Path: String;
@@ -390,8 +392,22 @@ var
   K: HKEY;
   Disp, Size, CurType, NewType: DWORD;
   CountStr: String;
-  FilenameP: PChar;
 begin
+  { The SharedDLLs key needs normal paths, with a specific bitness,
+    and in the case of 32-bit files, non-SysWOW64 paths. }
+
+  var TargetProcess: TPathRedirTargetProcess;
+  if RegView = rv64Bit then
+    TargetProcess := tpNativeBit
+  else begin
+    if RegView <> rv32Bit then
+      InternalError('IncrementSharedCount: Invalid RegView value');
+    TargetProcess := tp32BitPreferSystem32
+  end;
+
+  const SharedFile = ApplyPathRedirRules(IsCurrentProcess64Bit,
+    Filename, [rfNormalPath], TargetProcess);
+
   const ErrorCode = Cardinal(RegCreateKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0, nil,
     REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE, nil, K, @Disp));
   if ErrorCode <> ERROR_SUCCESS then
@@ -399,20 +415,20 @@ begin
         [GetRegRootKeyName(HKEY_LOCAL_MACHINE), SharedDLLsKey]) + SNewLine2 +
       FmtSetupMessage(msgErrorFunctionFailedWithMessage,
         ['RegCreateKeyEx', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
-  FilenameP := PChar(Filename);
+  const SharedFileP = PChar(SharedFile);
   var Count := 0;
   NewType := REG_DWORD;
   try
-    if RegQueryValueEx(K, FilenameP, nil, @CurType, nil, @Size) = ERROR_SUCCESS then
+    if RegQueryValueEx(K, SharedFileP, nil, @CurType, nil, @Size) = ERROR_SUCCESS then
       case CurType of
         REG_SZ:
-          if RegQueryStringValue(K, FilenameP, CountStr) then begin
+          if RegQueryStringValue(K, SharedFileP, CountStr) then begin
             Count := StrToInt(CountStr);
             NewType := REG_SZ;
           end;
         REG_BINARY: begin
             if (Size >= 1) and (Size <= 4) then begin
-              if RegQueryValueEx(K, FilenameP, nil, nil, PByte(@Count), @Size) <> ERROR_SUCCESS then
+              if RegQueryValueEx(K, SharedFileP, nil, nil, PByte(@Count), @Size) <> ERROR_SUCCESS then
                 { ^ relies on the high 3 bytes of Count being initialized to 0 }
                 Abort;
               NewType := REG_BINARY;
@@ -420,7 +436,7 @@ begin
           end;
         REG_DWORD: begin
             Size := SizeOf(DWORD);
-            if RegQueryValueEx(K, FilenameP, nil, nil, PByte(@Count), @Size) <> ERROR_SUCCESS then
+            if RegQueryValueEx(K, SharedFileP, nil, nil, PByte(@Count), @Size) <> ERROR_SUCCESS then
               Abort;
           end;
       end;
@@ -435,10 +451,10 @@ begin
   case NewType of
     REG_SZ: begin
         CountStr := IntToStr(Count);
-        RegSetValueEx(K, FilenameP, 0, NewType, PChar(CountStr), (ULength(CountStr)+1)*SizeOf(CountStr[1]));
+        RegSetValueEx(K, SharedFileP, 0, NewType, PChar(CountStr), (ULength(CountStr)+1)*SizeOf(CountStr[1]));
       end;
     REG_BINARY, REG_DWORD:
-      RegSetValueEx(K, FilenameP, 0, NewType, @Count, SizeOf(Count));
+      RegSetValueEx(K, SharedFileP, 0, NewType, @Count, SizeOf(Count));
   end;
   RegCloseKey(K);
 end;
@@ -457,6 +473,21 @@ var
 begin
   Result := False;
 
+  { See IncrementSharedCount }
+
+  var TargetProcess: TPathRedirTargetProcess;
+  if RegView = rv64Bit then
+    TargetProcess := tpNativeBit
+  else begin
+    if RegView <> rv32Bit then
+      InternalError('DecrementSharedCount: Invalid RegView value');
+    TargetProcess := tp32BitPreferSystem32;
+  end;
+
+  const SharedFile = ApplyPathRedirRules(IsCurrentProcess64Bit,
+    Filename, [rfNormalPath], TargetProcess);
+  const SharedFileP = PChar(SharedFile);
+
   const ErrorCode = Cardinal(RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0,
     KEY_QUERY_VALUE or KEY_SET_VALUE, K));
   if ErrorCode = ERROR_FILE_NOT_FOUND then
@@ -467,7 +498,7 @@ begin
       FmtSetupMessage(msgErrorFunctionFailedWithMessage,
         ['RegOpenKeyEx', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
   try
-    if RegQueryValueEx(K, PChar(Filename), nil, @CurType, nil, @Size) <> ERROR_SUCCESS then
+    if RegQueryValueEx(K, SharedFileP, nil, @CurType, nil, @Size) <> ERROR_SUCCESS then
       Exit;
 
     CountRead := False;
@@ -475,20 +506,20 @@ begin
     try
       case CurType of
         REG_SZ:
-          if RegQueryStringValue(K, PChar(Filename), CountStr) then begin
+          if RegQueryStringValue(K, SharedFileP, CountStr) then begin
             Count := StrToInt(CountStr);
             CountRead := True;
           end;
         REG_BINARY: begin
             if (Size >= 1) and (Size <= 4) then begin
-              if RegQueryValueEx(K, PChar(Filename), nil, nil, PByte(@Count), @Size) = ERROR_SUCCESS then
+              if RegQueryValueEx(K, SharedFileP, nil, nil, PByte(@Count), @Size) = ERROR_SUCCESS then
                 { ^ relies on the high 3 bytes of Count being initialized to 0 }
                 CountRead := True;
             end;
           end;
         REG_DWORD: begin
             Size := SizeOf(DWORD);
-            if RegQueryValueEx(K, PChar(Filename), nil, nil, PByte(@Count), @Size) = ERROR_SUCCESS then
+            if RegQueryValueEx(K, SharedFileP, nil, nil, PByte(@Count), @Size) = ERROR_SUCCESS then
               CountRead := True;
           end;
       end;
@@ -503,16 +534,16 @@ begin
     Dec(Count);
     if Count <= 0 then begin
       Result := True;
-      RegDeleteValue(K, PChar(Filename));
+      RegDeleteValue(K, SharedFileP);
     end
     else begin
       case CurType of
         REG_SZ: begin
             CountStr := IntToStr(Count);
-            RegSetValueEx(K, PChar(Filename), 0, REG_SZ, PChar(CountStr), (ULength(CountStr)+1)*SizeOf(Char));
+            RegSetValueEx(K, SharedFileP, 0, REG_SZ, PChar(CountStr), (ULength(CountStr)+1)*SizeOf(Char));
           end;
         REG_BINARY, REG_DWORD:
-          RegSetValueEx(K, PChar(Filename), 0, CurType, @Count, SizeOf(Count));
+          RegSetValueEx(K, SharedFileP, 0, CurType, @Count, SizeOf(Count));
       end;
     end;
   finally
@@ -520,13 +551,12 @@ begin
   end;
 end;
 
-function GetFileDateTime(const DisableFsRedir: Boolean; const Filename: String;
-  var DateTime: TFileTime): Boolean;
+function GetFileDateTime(const Filename: String; var DateTime: TFileTime): Boolean;
 var
   Handle: THandle;
   FindData: TWin32FindData;
 begin
-  Handle := FindFirstFileRedir(DisableFsRedir, Filename, FindData);
+  Handle := FindFirstFile(PChar(Filename), FindData);
   if Handle <> INVALID_HANDLE_VALUE then begin
     Windows.FindClose(Handle);
     if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
@@ -540,11 +570,11 @@ begin
   DateTime.dwHighDateTime := 0;
 end;
 
-function GetSHA256OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA256Digest;
+function GetSHA256OfFile(const Filename: String): TSHA256Digest;
 { Gets SHA-256 sum as a string of the file Filename. An exception will be raised upon
   failure. }
 begin
-  const F = TFileRedir.Create(DisableFsRedir, Filename, fdOpenExisting, faRead, fsReadWrite);
+  const F = TFile.Create(Filename, fdOpenExisting, faRead, fsReadWrite);
   try
     Result := GetSHA256OfFile(F);
   finally
@@ -1034,25 +1064,29 @@ begin
     LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, @MsgResult);
 end;
 
-function ForceDirectories(const DisableFsRedir: Boolean; Dir: String): Boolean;
+function ForceDirectories(Dir: String): Boolean;
+{ Returns True if a new directory was created, or if the directory already
+  existed. Also see MakeDir for similar code (but different return value). }
 begin
   Dir := RemoveBackslashUnlessRoot(Dir);
-  if (PathExtractPath(Dir) = Dir) or DirExistsRedir(DisableFsRedir, Dir) then
-    Result := True
-  else
-    Result := ForceDirectories(DisableFsRedir, PathExtractPath(Dir)) and
-      CreateDirectoryRedir(DisableFsRedir, Dir);
+
+  if PathExtractName(Dir) = '' then
+    Exit(True);
+  if DirExists(Dir) then
+    Exit(True);
+
+  Result := ForceDirectories(PathExtractPath(Dir)) and
+    CreateDirectory(PChar(Dir), nil);
 end;
 
-procedure AddAttributesToFile(const DisableFsRedir: Boolean;
-  const Filename: String; Attribs: Integer);
+procedure AddAttributesToFile(const Filename: String; Attribs: Integer);
 var
   ExistingAttr: DWORD;
 begin
   if Attribs <> 0 then begin
-    ExistingAttr := GetFileAttributesRedir(DisableFsRedir, Filename);
+    ExistingAttr := GetFileAttributes(PChar(Filename));
     if ExistingAttr <> INVALID_FILE_ATTRIBUTES then
-      SetFileAttributesRedir(DisableFsRedir, Filename,
+      SetFileAttributes(PChar(Filename),
         (ExistingAttr and not FILE_ATTRIBUTE_NORMAL) or DWORD(Attribs));
   end;
 end;

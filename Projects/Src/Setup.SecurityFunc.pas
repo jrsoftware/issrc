@@ -14,7 +14,7 @@ interface
 uses
   Windows, SysUtils, Shared.CommonFunc, Shared.Struct;
 
-function GrantPermissionOnFile(const DisableFsRedir: Boolean; Filename: String;
+function GrantPermissionOnFile(Filename: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer): Boolean;
 function GrantPermissionOnKey(const RegView: TRegView; const RootKey: HKEY;
   const Subkey: String; const Entries: TGrantPermissionEntry;
@@ -24,7 +24,7 @@ implementation
 
 uses
   PathFunc, SetupLdrAndSetup.Messages, SetupLdrAndSetup.InstFunc,
-  Setup.InstFunc, Setup.LoggingFunc, Setup.RedirFunc, Setup.Helper;
+  Setup.InstFunc, Setup.LoggingFunc, Setup.Helper;
 
 function InternalGrantPermission(const ObjectType: DWORD; const ObjectName: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer;
@@ -157,7 +157,7 @@ const
   OBJECT_INHERIT_ACE    = 1;
   CONTAINER_INHERIT_ACE = 2;
 
-function GrantPermissionOnFile(const DisableFsRedir: Boolean; Filename: String;
+function GrantPermissionOnFile(Filename: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer): Boolean;
 { Grants the specified access to the specified file/directory. Returns True if
   successful. On failure, the thread's last error code is set. }
@@ -166,10 +166,7 @@ const
 var
   Attr, Inheritance, ErrorCode: DWORD;
 begin
-  { Expand filename if needed because the 64-bit helper may not have the same
-    current directory as us }
-  Filename := PathExpand(Filename);
-  Attr := GetFileAttributesRedir(DisableFsRedir, Filename);
+  Attr := GetFileAttributes(PChar(Filename));
   if Attr = INVALID_FILE_ATTRIBUTES then begin
     Result := False;
     Exit;
@@ -178,7 +175,7 @@ begin
     Inheritance := OBJECT_INHERIT_ACE or CONTAINER_INHERIT_ACE
   else
     Inheritance := 0;
-  ErrorCode := GrantPermission(DisableFsRedir, SE_FILE_OBJECT, Filename, Entries,
+  ErrorCode := GrantPermission(False, SE_FILE_OBJECT, Filename, Entries,
     EntryCount, Inheritance);
   SetLastError(ErrorCode);
   Result := (ErrorCode = ERROR_SUCCESS);

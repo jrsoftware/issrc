@@ -2,7 +2,7 @@ unit Setup.Uninstall;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -270,7 +270,7 @@ begin
   end;
   UninstallExitCode := 0;
   if not KeepExeDatMsgFiles then
-    DelayDeleteFile(False, UninstExeFilename, 13, 50, 250);
+    DelayDeleteFile(UninstExeFilename, 13, 50, 250);
   if Debugging then
     DebugNotifyUninstExe('');
   { Pre-Windows 2000 Add/Remove Programs will try to bring itself to the
@@ -455,7 +455,7 @@ begin
     if Wnd <> 0 then
       DestroyWindow(Wnd);
     if ShouldDeleteTempDir then begin
-      DelayDeleteFile(False, TempFile, 13, 50, 250);
+      DelayDeleteFile(TempFile, 13, 50, 250);
       RemoveDirectory(PChar(TempDir));
     end;
   end;

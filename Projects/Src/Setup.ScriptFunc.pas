@@ -950,7 +950,7 @@ var
     end);
     RegisterScriptFunc('DELAYDELETEFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      DelayDeleteFile(False, Stack.GetString(PStart), Stack.GetInt(PStart-1), 250, 250);
+      DelayDeleteFile(Stack.GetString(PStart), Stack.GetInt(PStart-1), 250, 250);
     end);
     RegisterScriptFunc('DELTREE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -958,7 +958,7 @@ var
     end);
     RegisterScriptFunc('GENERATEUNIQUENAME', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetString(PStart, GenerateUniqueName(False, Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
+      Stack.SetString(PStart, GenerateUniqueName(Stack.GetString(PStart-1), Stack.GetString(PStart-2)));
     end);
     RegisterScriptFunc('GETCOMPUTERNAMESTRING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -990,7 +990,7 @@ var
     end);
     RegisterScriptFunc('GETSHA256OFFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfFile(False, Stack.GetString(PStart-1))));
+      Stack.SetString(PStart, SHA256DigestToString(GetSHA256OfFile(Stack.GetString(PStart-1))));
     end);
     RegisterScriptFunc('GETSHA256OFSTREAM', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -1161,11 +1161,11 @@ var
     end);
     RegisterScriptFunc('RESTARTREPLACE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      RestartReplace(False, Stack.GetString(PStart), Stack.GetString(PStart-1));
+      RestartReplace(Stack.GetString(PStart), Stack.GetString(PStart-1));
     end);
     RegisterScriptFunc('FORCEDIRECTORIES', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetBool(PStart, ForceDirectories(False, Stack.GetString(PStart-1)));
+      Stack.SetBool(PStart, ForceDirectories(Stack.GetString(PStart-1)));
     end);
   end;
 
