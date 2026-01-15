@@ -886,7 +886,12 @@ procedure EnumFileReplaceOperationsFilenames(const EnumFunc: TEnumFROFilenamesPr
       if P[0] = '!' then
         { Note: '!' means that MoveFileEx was called with the
           MOVEFILE_REPLACE_EXISTING flag }
-        Inc(P);
+        Inc(P)
+      else if (P[0] = '*') and CharInSet(P[1], ['1', '2']) then
+        { Note: '*1' and '*2' _seem_ to mean
+          - On the source filename, *1 means the file exists, *2 otherwise
+          - On the destination filename, *1 means the path exists, *2 otherwise }
+        Inc(P, 2);
       if StrLComp(P, '\??\', 4) = 0 then begin
         Inc(P, 4);
         if P[0] <> #0 then
