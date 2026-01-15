@@ -89,7 +89,7 @@ const
   utDeleteFile_RemoveReadOnly = 256;
   utDeleteFile_NoSharedFilePrompt = 512;
   utDeleteFile_SharedFileIn64BitKey = 1024;
-  utDeleteFile_DisableFsRedir = 2048;  { also determines whether file was registered as 64-bit }
+  utDeleteFile_Is64Bit = 2048;
   utDeleteFile_GacInstalled = 4096;
   utDeleteFile_PerUserFont = 8192;
   utDeleteDirOrFiles_Extra = 1;
@@ -97,7 +97,7 @@ const
   utDeleteDirOrFiles_DeleteFiles = 4;
   utDeleteDirOrFiles_DeleteSubdirsAlso = 8;
   utDeleteDirOrFiles_CallChangeNotify = 16;
-  utDeleteDirOrFiles_DisableFsRedir = 32;
+  utDeleteDirOrFiles_Is64Bit = 32;
   utIniDeleteSection_OnlyIfEmpty = 1;
   utReg_KeyHandleMask = $80FFFFFF; 
   utReg_64BitKey = $01000000;
@@ -914,7 +914,7 @@ begin
             if not IsSharedFile or
                (SharedCountDidReachZero and
                 (IsTempFile or
-                 not NewFileExistsRedir(CurRec^.ExtraData and utDeleteFile_DisableFsRedir <> 0, CurRecData[0]) or
+                 not NewFileExistsRedir(CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0, CurRecData[0]) or
                  (CurRec^.ExtraData and utDeleteFile_NoSharedFilePrompt <> 0) or
                  ShouldRemoveSharedFile(CurRecData[0]))) then begin
               { The reference count reached zero and the user did not object
@@ -924,11 +924,11 @@ begin
               { Unregister if necessary }
               if not IsTempFile then begin
                 if CurRec^.ExtraData and utDeleteFile_RegisteredServer <> 0 then begin
-                  LoggedUnregisterServer(CurRec^.ExtraData and utDeleteFile_DisableFsRedir <> 0,
+                  LoggedUnregisterServer(CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0,
                     CurRecData[0]);
                 end;
                 if CurRec^.ExtraData and utDeleteFile_RegisteredTypeLib <> 0 then begin
-                  LoggedUnregisterTypeLibrary(CurRec^.ExtraData and utDeleteFile_DisableFsRedir <> 0,
+                  LoggedUnregisterTypeLibrary(CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0,
                     CurRecData[0]);
                 end;
               end;
@@ -982,9 +982,9 @@ begin
             end;
           utDeleteDirOrFiles:
             if (CallFromUninstaller or (CurRec^.ExtraData and utDeleteDirOrFiles_Extra = 0)) then begin
-              const DisableFsRedir = CurRec^.ExtraData and utDeleteDirOrFiles_DisableFsRedir <> 0;
-              const Path = ApplyPathRedirRules(DisableFsRedir, CurRecData[0]);
-              if DelTree(DisableFsRedir, Path, CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0,
+              const Is64Bit = CurRec^.ExtraData and utDeleteDirOrFiles_Is64Bit <> 0;
+              const Path = ApplyPathRedirRules(Is64Bit, CurRecData[0]);
+              if DelTree(Is64Bit, Path, CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteFiles <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteSubdirsAlso <> 0,
                  False, LoggedDeleteDirProc, LoggedDeleteFileProc, @DeleteDirData) then begin
@@ -1003,7 +1003,7 @@ begin
               if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_ExistedBeforeInstall = 0) then begin
                 { Note: We handled utDeleteFile_SharedFile already }
                 if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_Extra = 0) then
-                  if not LoggedFileDelete(Filename, CurRec^.ExtraData and utDeleteFile_DisableFsRedir <> 0,
+                  if not LoggedFileDelete(Filename, CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0,
                      CurRec^.ExtraData and utDeleteFile_CallChangeNotify <> 0,
                      CurRec^.ExtraData and utDeleteFile_RestartDelete <> 0,
                      CurRec^.ExtraData and utDeleteFile_RemoveReadOnly <> 0) then
@@ -1017,7 +1017,7 @@ begin
                     CurRec^.ExtraData and utDeleteFile_SharedFileIn64BitKey <> 0);
                 { Delete file only if it's a temp file }
                 if Filename <> CurRecData[0] then
-                  if not LoggedFileDelete(Filename, CurRec^.ExtraData and utDeleteFile_DisableFsRedir <> 0,
+                  if not LoggedFileDelete(Filename, CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0,
                      CurRec^.ExtraData and utDeleteFile_CallChangeNotify <> 0,
                      CurRec^.ExtraData and utDeleteFile_RestartDelete <> 0,
                      CurRec^.ExtraData and utDeleteFile_RemoveReadOnly <> 0) then
