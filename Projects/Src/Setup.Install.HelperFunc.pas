@@ -350,7 +350,7 @@ var
   FontDir: String;
 begin
   Result := Filename;
-  FontDir :=  GetShellFolder(False, sfFonts);
+  FontDir := GetShellFolder(False, sfFonts);
   if FontDir <> '' then begin
     { Filename/Result is a super path but FontDir is not. So using
       PathConvertSuperToNormal because PathSame does not consider

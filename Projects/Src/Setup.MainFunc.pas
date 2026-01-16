@@ -2088,7 +2088,7 @@ begin
             if not EnumFilesProc(Is64Bit, ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName)), Param) then
               Exit(False);
           end else begin
-	          SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.SourceFilename));
+            SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.SourceFilename));
 	          Excludes.DelimitedText := CurFile^.Excludes;
 	          if foExtractArchive in CurFile^.Options then begin
 	            try
