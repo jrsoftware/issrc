@@ -727,13 +727,10 @@ begin
     to pass to a 32-bit application, or to rewrite Sysnative paths read from
     an uninstall log created by a 32-bit installer. }
   if IsWin64 then
-    { Note: Avoiding GetWinDir here as that might not return the real Windows
-      directory under Terminal Services }
-    Result := PathExpand(AddBackslash(GetSystemDir) + '..\Sysnative') { Do not localize }
+    Result := AddBackslash(GetSystemWinDir) + 'Sysnative' { Do not localize }
   else
     Result := '';
 end;
-
 
 function GetTempDir: String;
 { Returns fully qualified path of the temporary directory, with trailing
