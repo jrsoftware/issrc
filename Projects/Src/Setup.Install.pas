@@ -396,8 +396,8 @@ begin
     if not CreateDirectory(PChar(Dir), nil) then begin
       ErrorCode := GetLastError;
       raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
-        [FmtSetupMessage1(msgErrorCreatingDir, Dir), IntToStr(ErrorCode),
-         Win32ErrorString(ErrorCode)]));
+        [FmtSetupMessage1(msgErrorCreatingDir, PathConvertSuperToNormal(Dir)),
+         IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
     end;
     Result := True;
     if mdNotifyChange in Flags then begin
