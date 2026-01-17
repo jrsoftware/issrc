@@ -2951,7 +2951,7 @@ begin
       I := 4
     else
       I := 3;
-    if (Length(T) < I) or not CharInSet(UpCase(T[1]), ['A'..'Z']) or
+    if (Length(T) < I) or not PathCharIsDriveLetter(T[1]) or
        (T[2] <> ':') or (T[3] <> '\') then begin
       LoggedMsgBox(SetupMessages[msgInvalidPath], '', mbError, MB_OK, True, IDOK);
       Exit;

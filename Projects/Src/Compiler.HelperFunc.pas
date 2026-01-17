@@ -163,7 +163,7 @@ begin
   Result := True;
   L := Length(Filename);
   if ((L >= 1) and (Filename[1] = '\')) or
-     ((L >= 2) and CharInSet(Filename[1], ['A'..'Z', 'a'..'z']) and (Filename[2] = ':')) then
+     ((L >= 2) and PathCharIsDriveLetter(Filename[1]) and (Filename[2] = ':')) then
     Result := False;
 end;
 

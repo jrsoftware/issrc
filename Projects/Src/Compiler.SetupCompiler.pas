@@ -1483,7 +1483,7 @@ var
 begin
   P := PathPos(':', Filename);
   if (P = 0) or
-     ((P = 2) and CharInSet(UpCase(Filename[1]), ['A'..'Z'])) then begin
+     ((P = 2) and PathCharIsDriveLetter(Filename[1])) then begin
     if (Filename = '') or not IsRelativePath(Filename) then
       Result := Filename
     else
