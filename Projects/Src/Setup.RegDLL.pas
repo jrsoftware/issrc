@@ -55,27 +55,33 @@ var
   ProcessInfo: TProcessInformation;
   ExitCode: DWORD;
 begin
-  { Choose between SysWOW64 and System32 depending on AIs64Bit.
+  { For the path to regsvr32.exe, choose between SysWOW64 and System32
+    depending on AIs64Bit.
     On 32-bit Setup, we disable WOW64 file system redirection instead of using
-    Sysnative due to the problems described in ProcessRunEntry's comments.
+    Sysnative due to the problems described in ProcessRunEntry's comments. }
+  SysDir := ApplyPathRedirRules(AIs64Bit, GetSystemDir, [rfNormalPath],
+    tpNativeBit);
 
-    Also, rfNormalPath is used because the process to run might have problems
-    with super paths.
-
+  { The filename needs to be a 64-bit path for 64-bit regsvr32.exe, and a
+    32-bit path for 32-bit regsvr32.exe.
+    tp32BitPreferSystem32 is used because 32-bit DLLs traditionally are
+    registered with a System32 path, not SysWOW64.
+    rfNormalPath is used because registering a DLL with a super path is
+    non-standard (if it even works at all?), and nobody would place a DLL in
+    a path longer than MAX_PATH anyway.
     Also see IncrementSharedCount. }
-
   var TargetProcess: TPathRedirTargetProcess;
   if AIs64Bit then
     TargetProcess := tpNativeBit
   else
     TargetProcess := tp32BitPreferSystem32;
+  const RedirFilename = ApplyPathRedirRules(IsCurrentProcess64Bit, Filename,
+    [rfNormalPath], TargetProcess);
 
-  SysDir := ApplyPathRedirRules(IsCurrentProcess64Bit, GetSystemDir, [rfNormalPath],
-    TargetProcess);
   CmdLine := '"' + AddBackslash(SysDir) + 'regsvr32.exe"';
   if AUnregister then
     CmdLine := CmdLine + ' /u';
-  CmdLine := CmdLine + ' /s "' + Filename + '"';
+  CmdLine := CmdLine + ' /s "' + RedirFilename + '"';
   if AIs64Bit then
     Log('Spawning 64-bit RegSvr32: ' + CmdLine)
   else
