@@ -2143,15 +2143,12 @@ var
 
 function CheckForFile(const DisableFsRedir: Boolean; const AFilename: String;
   const Param: Pointer): Boolean;
-var
-  Filename: String;
-  J: Integer;
 begin
-  Filename := AFilename;
-  if not DisableFsRedir then
-    Filename := ReplaceSystemDirWithSysWow64(Filename);
-  Filename := PathLowercase(Filename);
-  for J := 0 to CheckForFileSL.Count-1 do begin
+  { CheckForFileSL contains native-bit filenames, so AFilename needs to be
+    converted from current-process-bit to native-bit before comparing. }
+  const Filename = PathLowercase(ApplyPathRedirRules(IsCurrentProcess64Bit,
+    AFilename, [], tpNativeBit));
+  for var J := 0 to CheckForFileSL.Count-1 do begin
     if CheckForFileSL[J] = Filename then begin
       LogFmt('Found pending rename or delete that matches one of our files: %s', [Filename]);
       Result := False; { Break the enum, just need to know if any matches }
