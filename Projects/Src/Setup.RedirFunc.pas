@@ -42,12 +42,7 @@ function DeleteFileRedir(const DisableFsRedir: Boolean; const Filename: String):
 function FindFirstFileRedir(const DisableFsRedir: Boolean; const Filename: String;
   var FindData: TWin32FindData): THandle;
 function GetFileAttributesRedir(const DisableFsRedir: Boolean; const Filename: String): DWORD;
-function IsDirectoryAndNotReparsePointRedir(const DisableFsRedir: Boolean;
-  const Name: String): Boolean;
-function MoveFileExRedir(const DisableFsRedir: Boolean;
-  const ExistingFilename, NewFilename: String; const Flags: DWORD): BOOL;
 function NewFileExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
-function RemoveDirectoryRedir(const DisableFsRedir: Boolean; const Filename: String): BOOL;
 function SetFileAttributesRedir(const DisableFsRedir: Boolean; const Filename: String;
   const Attrib: DWORD): BOOL;
 
@@ -212,46 +207,6 @@ begin
   SetLastError(ErrorCode);
 end;
 
-function IsDirectoryAndNotReparsePointRedir(const DisableFsRedir: Boolean;
-  const Name: String): Boolean;
-var
-  PrevState: TPreviousFsRedirectionState;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := IsDirectoryAndNotReparsePoint(Name);
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-end;
-
-function MoveFileExRedir(const DisableFsRedir: Boolean;
-  const ExistingFilename, NewFilename: String; const Flags: DWORD): BOOL;
-var
-  NewFilenameP: PChar;
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if (NewFilename = '') and (Flags and MOVEFILE_DELAY_UNTIL_REBOOT <> 0) then
-    NewFilenameP := nil
-  else
-    NewFilenameP := PChar(NewFilename);
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := MoveFileEx(PChar(ExistingFilename), NewFilenameP, Flags);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
 function NewFileExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
 var
   PrevState: TPreviousFsRedirectionState;
@@ -263,24 +218,6 @@ begin
   end;
   try
     Result := NewFileExists(Filename);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
-function RemoveDirectoryRedir(const DisableFsRedir: Boolean; const Filename: String): BOOL;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := RemoveDirectory(PChar(Filename));
     ErrorCode := GetLastError;
   finally
     RestoreFsRedirection(PrevState);

@@ -70,7 +70,7 @@ uses
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.SetupMessageIDs, Shared.SetupTypes,
   SetupLdrAndSetup.Messages,
   Setup.InstFunc, Setup.ISSigVerifyFunc, Setup.LoggingFunc, Setup.MainFunc, Setup.ScriptRunner,
-  Setup.WizardForm;
+  Setup.WizardForm, Setup.PathRedir;
 
 procedure TSetupUninstallLog.HandleException;
 begin
@@ -479,12 +479,13 @@ begin
       if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
         DebugNotifyEntry(seInstallDelete, I);
         NotifyBeforeInstallEntry(BeforeInstall);
+        const Path = ApplyPathRedirRules(InstallDefault64Bit, ExpandConst(Name));
         case DeleteType of
           dfFiles, dfFilesAndOrSubdirs:
-            DelTree(InstallDefault64Bit, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, False,
+            DelTree(InstallDefault64Bit, Path, False, True, DeleteType = dfFilesAndOrSubdirs, False,
               nil, nil, nil);
           dfDirIfEmpty:
-            DelTree(InstallDefault64Bit, ExpandConst(Name), True, False, False, False, nil, nil, nil);
+            DelTree(InstallDefault64Bit, Path, True, False, False, False, nil, nil, nil);
         end;
         NotifyAfterInstallEntry(AfterInstall);
       end;

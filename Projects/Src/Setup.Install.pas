@@ -448,8 +448,6 @@ procedure CreateDirs(const UninstLog: TUninstallLog);
     end;
   end;
 
-var
-  Flags: TMakeDirFlags;
 begin
   { Create main application directory }
   MakeDir(UninstLog, ApplyPathRedirRules(InstallDefault64Bit, WizardDirValue), []);
@@ -460,12 +458,12 @@ begin
       if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
         DebugNotifyEntry(seDir, CurDirNumber);
         NotifyBeforeInstallEntry(BeforeInstall);
-        Flags := [];
+        const Path = RemoveBackslashUnlessRoot(ApplyPathRedirRules(
+          InstallDefault64Bit, ExpandConst(DirName)));
+        var Flags: TMakeDirFlags := [];
         if doUninsNeverUninstall in Options then Include(Flags, mdNoUninstall);
         if doDeleteAfterInstall in Options then Include(Flags, mdDeleteAfterInstall);
         if doUninsAlwaysUninstall in Options then Include(Flags, mdAlwaysUninstall);
-        const Path = RemoveBackslashUnlessRoot(ApplyPathRedirRules(
-          InstallDefault64Bit, ExpandConst(DirName)));
         MakeDir(UninstLog, Path, Flags);
         AddAttributesToFile(Path, Attribs);
         ApplyPermissions(Path, PermissionsEntry);
@@ -2504,10 +2502,11 @@ begin
       if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
         DebugNotifyEntry(seUninstallDelete, I);
         NotifyBeforeInstallEntry(BeforeInstall);
+        const Path = ApplyPathRedirRules(InstallDefault64Bit, ExpandConst(Name));
         var Flags := DefFlags[DeleteType];
-        if InstallDefault64Bit then
+        if IsCurrentProcess64Bit then { Post-ApplyPathRedirRules we should check IsCurrentProcess64Bit and not the original InstallDefault64Bit }
           Flags := Flags or utDeleteDirOrFiles_Is64Bit;
-        UninstLog.Add(utDeleteDirOrFiles, [ExpandConst(Name)], Flags);
+        UninstLog.Add(utDeleteDirOrFiles, [Path], Flags);
         NotifyAfterInstallEntry(AfterInstall);
       end;
 end;

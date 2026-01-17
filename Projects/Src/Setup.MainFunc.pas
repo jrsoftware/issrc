@@ -258,7 +258,7 @@ uses
   ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes,
   ChaCha20, ECDSA, ISSigFunc, NewCtrls, PathFunc, UnsignedFunc, FormBackgroundStyleHook, RichEditViewer,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
-  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.PathRedir, Setup.RedirFunc,
+  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.PathRedir,
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
   Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
@@ -1657,14 +1657,13 @@ begin
   end;
 end;
 
-function TempDeleteFileProc(const DisableFsRedir: Boolean;
-  const FileName: String; const Param: Pointer): Boolean;
+function TempDeleteFileProc(const AIgnored: Boolean; const FileName: String; const Param: Pointer): Boolean;
 var
   Elapsed: DWORD;
 label Retry;
 begin
 Retry:
-  Result := DeleteFileRedir(DisableFsRedir, FileName);
+  Result := Windows.DeleteFile(PChar(FileName));
   if not Result and
      (GetLastError <> ERROR_FILE_NOT_FOUND) and
      (GetLastError <> ERROR_PATH_NOT_FOUND) then begin
@@ -1943,7 +1942,7 @@ type
   TEnumFilesProc = function(const DisableFsRedir: Boolean; const Filename: String;
     const Param: Pointer): Boolean;
 
-function DummyDeleteDirProc(const DisableFsRedir: Boolean; const Filename: String;
+function DummyDeleteDirProc(const AIgnored: Boolean; const Filename: String;
     const Param: Pointer): Boolean;
 begin
   { We don't actually want to delete the dir, so just return success. }
@@ -2116,15 +2115,16 @@ begin
     for var I := 0 to Entries[seInstallDelete].Count-1 do
       with PSetupDeleteEntry(Entries[seInstallDelete][I])^ do
         if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
+          const Path = ApplyPathRedirRules(InstallDefault64Bit, ExpandConst(Name));
           case DeleteType of
             dfFiles, dfFilesAndOrSubdirs:
-              if not DelTree(InstallDefault64Bit, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, True,
+              if not DelTree(InstallDefault64Bit, Path, False, True, DeleteType = dfFilesAndOrSubdirs, True,
                  DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
               end;
             dfDirIfEmpty:
-              if not DelTree(InstallDefault64Bit, ExpandConst(Name), True, False, False, True,
+              if not DelTree(InstallDefault64Bit, Path, True, False, False, True,
                  DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
