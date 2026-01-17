@@ -699,10 +699,17 @@ var
     else
       LogFmt('Unregistering 32-bit type library: %s', [Filename]);
     try
+      {$IFDEF WIN64}
       if Is64Bit then
-        HelperRegisterTypeLibrary(True, Filename)
+        UnregisterTypeLibrary(Filename)
+      else
+        raise Exception.Create('Cannot unregister 32-bit type libraries on this version of Uninstall');
+      {$ELSE}
+      if Is64Bit then
+        raise Exception.Create('Cannot unregister 64-bit type libraries on this version of Uninstall')
       else
         UnregisterTypeLibrary(Filename);
+      {$ENDIF}
       Log('Unregistration successful.');
     except
       Log('Unregistration failed:' + SNewLine + GetExceptMessage);

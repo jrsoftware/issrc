@@ -2450,10 +2450,17 @@ procedure RegisterFiles(const RegisterFilesList: TList);
         LogFmt('Registering 32-bit type library: %s', [Filename]);
       NeedToRetry := False;
       try
+        {$IFDEF WIN64}
         if Is64Bit then
-          HelperRegisterTypeLibrary(False, Filename)
+          RegisterTypeLibrary(Filename)
+        else
+          InternalError('Cannot register 32-bit type libraries on this version of Setup');
+        {$ELSE}
+        if Is64Bit then
+          InternalError('Cannot register 64-bit type libraries on this version of Setup')
         else
           RegisterTypeLibrary(Filename);
+        {$ENDIF}
         Log('Registration successful.');
       except
         Log('Registration failed:' + SNewLine + GetExceptMessage);

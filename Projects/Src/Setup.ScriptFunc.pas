@@ -1181,18 +1181,26 @@ var
     end);
     RegisterScriptFunc('REGISTERTYPELIBRARY', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
+      {$IFDEF WIN64}
+      if not Stack.GetBool(PStart) then
+        InternalError('Cannot register 32-bit type libraries on this version of Setup');
+      {$ELSE}
       if Stack.GetBool(PStart) then
-        HelperRegisterTypeLibrary(False, Stack.GetString(PStart-1))
-      else
-        RegisterTypeLibrary(Stack.GetString(PStart-1));
+        InternalError('Cannot register 64-bit type libraries on this version of Setup');
+      {$ENDIF}
+      RegisterTypeLibrary(Stack.GetString(PStart-1));
     end);
     RegisterScriptFunc('UNREGISTERTYPELIBRARY', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
+      {$IFDEF WIN64}
+      if not Stack.GetBool(PStart-1) then
+        InternalError('Cannot unregister 32-bit type libraries on this version of Setup');
+      {$ELSE}
+      if Stack.GetBool(PStart-1) then
+        InternalError('Cannot unregister 64-bit type libraries on this version of Setup');
+      {$ENDIF}
       try
-        if Stack.GetBool(PStart-1) then
-          HelperRegisterTypeLibrary(True, Stack.GetString(PStart-2))
-        else
-          UnregisterTypeLibrary(Stack.GetString(PStart-2));
+        UnregisterTypeLibrary(Stack.GetString(PStart-2));
         Stack.SetBool(PStart, True);
       except
         Stack.SetBool(PStart, False);

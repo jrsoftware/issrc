@@ -2,7 +2,7 @@ unit Setup.RegSvr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -167,8 +167,8 @@ begin
                 case L[2] of
                   's': RegisterServer(False, False, RegFilename, NoErrorMessages);
                   'S': RegisterServer(False, True, RegFilename, NoErrorMessages);
-                  't': RegisterTypeLibrary(RegFilename);
-                  'T': HelperRegisterTypeLibrary(False, RegFilename);
+                  {$IFNDEF WIN64} 't': RegisterTypeLibrary(RegFilename); {$ENDIF}
+                  {$IFDEF WIN64} 'T': RegisterTypeLibrary(RegFilename); {$ENDIF}
                 end;
               except
                 { Display the exception message (with a caption of 'Setup' so

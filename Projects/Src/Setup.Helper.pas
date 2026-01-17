@@ -2,7 +2,7 @@ unit Setup.Helper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -21,8 +21,6 @@ function GetHelperResourceName: String;
 function HelperGrantPermission(const AObjectType: DWORD;
   const AObjectName: String; const AEntries: TGrantPermissionEntry;
   const AEntryCount: Integer; const AInheritance: DWORD): DWORD;
-procedure HelperRegisterTypeLibrary(const AUnregister: Boolean;
-  Filename: String);
 procedure SetHelperExeFilename(const Filename: String);
 procedure StopHelper(const DelayAfterStopping: Boolean);
 
@@ -41,7 +39,7 @@ const
   REQUEST_PING = 1;
   REQUEST_GRANT_PERMISSION = 2;
   REQUEST_REGISTER_SERVER = 3;  { no longer used }
-  REQUEST_REGISTER_TYPE_LIBRARY = 4;
+  REQUEST_REGISTER_TYPE_LIBRARY = 4;  { no longer used }
 
 type
   { Must keep in sync with Helper.c }
@@ -53,14 +51,14 @@ type
     Entries: array[0..MaxGrantPermissionEntries-1] of TGrantPermissionEntry;
   end;
   TRequestRegisterServerData = record
-    Unregister: BOOL;
-    FailCriticalErrors: BOOL;
-    Filename: array[0..4095] of WideChar;
-    Directory: array[0..4095] of WideChar;
+    _1: BOOL;
+    _2: BOOL;
+    _3: array[0..4095] of WideChar;
+    _4: array[0..4095] of WideChar;
   end;
   TRequestRegisterTypeLibraryData = record
-    Unregister: BOOL;
-    Filename: array[0..4095] of WideChar;
+    _1: BOOL;
+    _2: array[0..4095] of WideChar;
   end;
 
   TRequestData = record
@@ -70,8 +68,8 @@ type
     case Integer of
       0: (Data: array[0..0] of Byte);
       1: (GrantPermissionData: TRequestGrantPermissionData);
-      2: (RegisterServerData: TRequestRegisterServerData);
-      3: (RegisterTypeLibraryData: TRequestRegisterTypeLibraryData);
+      2: (RegisterServerData: TRequestRegisterServerData);  { no longer used }
+      3: (RegisterTypeLibraryData: TRequestRegisterTypeLibraryData);  { no longer used }
   end;
 
   TResponseData = record
@@ -100,8 +98,6 @@ type
     function GrantPermission(const AObjectType: DWORD;
       const AObjectName: String; const AEntries: TGrantPermissionEntry;
       const AEntryCount: Integer; const AInheritance: DWORD): DWORD;
-    procedure RegisterTypeLibrary(const AUnregister: Boolean;
-      Filename: String);
     procedure Stop(const DelayAfterStopping: Boolean);
   end;
 
@@ -135,12 +131,6 @@ function HelperGrantPermission(const AObjectType: DWORD;
 begin
   Result := HelperMainInstance.GrantPermission(AObjectType, AObjectName,
     AEntries, AEntryCount, AInheritance);
-end;
-
-procedure HelperRegisterTypeLibrary(const AUnregister: Boolean;
-  Filename: String);
-begin
-  HelperMainInstance.RegisterTypeLibrary(AUnregister, Filename);
 end;
 
 procedure FillWideCharBuffer(var Buf: array of WideChar; const S: String);
@@ -420,46 +410,6 @@ begin
   Call(REQUEST_GRANT_PERMISSION, SizeOf(FRequest.GrantPermissionData));
 
   Result := FResponse.ErrorCode;
-end;
-
-procedure THelper.RegisterTypeLibrary(const AUnregister: Boolean;
-  Filename: String);
-{ Registers or unregisters the specified type library inside the helper.
-  Raises an exception on failure. }
-begin
-  Filename := PathExpand(Filename);
-
-  FRequest.RegisterTypeLibraryData.Unregister := AUnregister;
-  FillWideCharBuffer(FRequest.RegisterTypeLibraryData.Filename, Filename);
-
-  { Stop the helper before and after the call to be 100% sure the state of the
-    helper is clean prior to and after registering. Can't trust foreign code. }
-  Stop(False);
-  Call(REQUEST_REGISTER_TYPE_LIBRARY, SizeOf(FRequest.RegisterTypeLibraryData));
-  Stop(False);
-
-  case FResponse.StatusCode of
-    1: begin
-         { The LoadTypeLib call failed }
-         RaiseOleError('LoadTypeLib', HRESULT(FResponse.ErrorCode));
-       end;
-    2: begin
-         { The call to RegisterTypeLib was made; possibly succeeded }
-         if (FResponse.ErrorCode <> S_OK) or AUnregister then
-           RaiseOleError('RegisterTypeLib', HRESULT(FResponse.ErrorCode));
-       end;
-    3: begin
-         { The ITypeLib::GetLibAttr call failed }
-         RaiseOleError('ITypeLib::GetLibAttr', HRESULT(FResponse.ErrorCode));
-       end;
-    4: begin
-         { The call to UnRegisterTypeLib was made; possibly succeeded }
-         if (FResponse.ErrorCode <> S_OK) or not AUnregister then
-           RaiseOleError('UnRegisterTypeLib', HRESULT(FResponse.ErrorCode));
-       end;
-  else
-    InternalError('HelperRegisterTypeLibrary: StatusCode invalid');
-  end;
 end;
 
 initialization
