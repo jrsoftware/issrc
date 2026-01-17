@@ -60,10 +60,18 @@ begin
     Sysnative due to the problems described in ProcessRunEntry's comments.
 
     Also, rfNormalPath is used because the process to run might have problems
-    with super paths. }
+    with super paths.
 
-  SysDir := ApplyPathRedirRules(AIs64Bit, GetSystemDir, [rfNormalPath],
-    tpNativeBit);
+    Also see IncrementSharedCount. }
+
+  var TargetProcess: TPathRedirTargetProcess;
+  if AIs64Bit then
+    TargetProcess := tpNativeBit
+  else
+    TargetProcess := tp32BitPreferSystem32;
+
+  SysDir := ApplyPathRedirRules(IsCurrentProcess64Bit, GetSystemDir, [rfNormalPath],
+    TargetProcess);
   CmdLine := '"' + AddBackslash(SysDir) + 'regsvr32.exe"';
   if AUnregister then
     CmdLine := CmdLine + ' /u';
