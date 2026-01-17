@@ -2141,7 +2141,7 @@ end;
 var
   CheckForFileSL: TStringList;
 
-function CheckForFile(const DisableFsRedir: Boolean; const AFilename: String;
+function CheckForFile(const AIgnored: Boolean; const AFilename: String;
   const Param: Pointer): Boolean;
 begin
   { CheckForFileSL contains native-bit filenames, so AFilename needs to be
