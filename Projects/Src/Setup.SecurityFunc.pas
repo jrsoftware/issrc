@@ -188,10 +188,19 @@ function GrantPermissionOnKey(const RegView: TRegView; const RootKey: HKEY;
   successful. On failure, the thread's last error code is set. }
 const
   SE_REGISTRY_KEY = 4;
-var
-  ObjName: String;
-  ErrorCode: DWORD;
+  SE_REGISTRY_WOW64_32KEY = 12;
+  SE_REGISTRY_WOW64_64KEY = 13;
 begin
+  var ObjType: DWORD := SE_REGISTRY_KEY;
+  case RegView of
+    {$IFDEF WIN64}
+    rv32Bit: ObjType := SE_REGISTRY_WOW64_32KEY;
+    {$ELSE}
+    rv64Bit: ObjType := SE_REGISTRY_WOW64_64KEY;
+    {$ENDIF}
+  end;
+
+  var ObjName: String;
   case RegRootKeyToUInt32(RootKey) of
     UInt32(HKEY_CLASSES_ROOT): ObjName := 'CLASSES_ROOT';
     UInt32(HKEY_CURRENT_USER): ObjName := 'CURRENT_USER';
@@ -204,7 +213,8 @@ begin
     Exit;
   end;
   ObjName := ObjName + '\' + Subkey;
-  ErrorCode := GrantPermission(RegView = rv64Bit, SE_REGISTRY_KEY, ObjName,
+
+  const ErrorCode = GrantPermission(False, ObjType, ObjName,
     Entries, EntryCount, CONTAINER_INHERIT_ACE);
   SetLastError(ErrorCode);
   Result := (ErrorCode = ERROR_SUCCESS);

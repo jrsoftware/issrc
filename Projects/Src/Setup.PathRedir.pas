@@ -100,7 +100,7 @@ constructor TPathRedir.Create(const AWindows64Bit: Boolean;
   procedure CheckAndAssignPath(var OutPath: String; const Dir, Title: String);
   begin
     var TestExpandedPath: String;
-    if (Length(Dir) >= 4) and CharInSet(UpCase(Dir[1]), ['A'..'Z']) and
+    if (Length(Dir) >= 4) and PathCharIsDriveLetter(Dir[1]) and
        (Dir[2] = ':') and (Dir[3] = '\') and
        PathExpand(Dir, TestExpandedPath) and
        PathSame(Dir, TestExpandedPath) and

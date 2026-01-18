@@ -247,7 +247,7 @@ begin
 
   const Len = Length(Filename);
   if (Len >= 6) and PathStartsWith(Filename, '\\?\') and
-     CharInSet(UpCase(Filename[5]), ['A'..'Z']) and
+     PathCharIsDriveLetter(Filename[5]) and
      (Filename[6] = ':') then begin
     { "\\?\C:\" or "\\?\C:\xxx" }
     if (Len >= 7) and (Filename[7] = '\') then
@@ -599,7 +599,7 @@ begin
           { The A-Z check ensures that '.:streamname', ' :streamname', and
             '\:streamname' are disallowed. }
           if not AllowDriveLetterColon or (I <> Low(S)+1) or
-             not CharInSet(S[Low(S)], ['A'..'Z', 'a'..'z']) then
+             not PathCharIsDriveLetter(S[Low(S)]) then
             Exit;
         end;
       '/', '*', '?', '"', '<', '>', '|': Exit;
