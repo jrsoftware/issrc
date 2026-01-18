@@ -1144,14 +1144,14 @@ var
     end);
     RegisterScriptFunc('REGISTERSERVER', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      const Is64Bit = Stack.GetBool(PStart);
-      RegisterServer(False, Is64Bit, ApplyPathRedirRules(Is64Bit, Stack.GetString(PStart-1)), Stack.GetBool(PStart-2));
+      { No ApplyPathRedirRules because RegisterServerUsingRegSvr32 will do that already }
+      RegisterServer(False, Stack.GetBool(PStart), Stack.GetString(PStart-1), Stack.GetBool(PStart-2));
     end);
     RegisterScriptFunc('UNREGISTERSERVER', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       try
-        const Is64Bit = Stack.GetBool(PStart-1);
-        RegisterServer(True, Is64Bit, ApplyPathRedirRules(Is64Bit, Stack.GetString(PStart-2)), Stack.GetBool(PStart-3));
+        { No ApplyPathRedirRules because RegisterServerUsingRegSvr32 will do that already }
+        RegisterServer(True, Stack.GetBool(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3));
         Stack.SetBool(PStart, True);
       except
         Stack.SetBool(PStart, False);
