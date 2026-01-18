@@ -2,7 +2,7 @@ unit Setup.InstFunc.Ole;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -201,15 +201,13 @@ end;
 
 procedure RegisterTypeLibrary(const Filename: String);
 var
-  ExpandedFilename: String;
   OleResult: HRESULT;
   TypeLib: ITypeLib;
 begin
-  ExpandedFilename := PathExpand(Filename);
-  OleResult := LoadTypeLib(PChar(ExpandedFilename), TypeLib);
+  OleResult := LoadTypeLib(PChar(Filename), TypeLib);
   if OleResult <> S_OK then
     RaiseOleError('LoadTypeLib', OleResult);
-  OleResult := RegisterTypeLib(TypeLib, PChar(ExpandedFilename), nil);
+  OleResult := RegisterTypeLib(TypeLib, PChar(Filename), nil);
   if OleResult <> S_OK then
     RaiseOleError('RegisterTypeLib', OleResult);
 end;
@@ -220,7 +218,6 @@ type
     lcid: TLCID; syskind: TSysKind): HResult; stdcall;
 var
   UnRegTlbProc: TUnRegTlbProc;
-  ExpandedFilename: String;
   OleResult: HRESULT;
   TypeLib: ITypeLib;
   LibAttr: PTLibAttr;
@@ -231,8 +228,7 @@ begin
     'UnRegisterTypeLib');
   if @UnRegTlbProc = nil then
     Win32ErrorMsg('GetProcAddress');
-  ExpandedFilename := PathExpand(Filename);
-  OleResult := LoadTypeLib(PChar(ExpandedFilename), TypeLib);
+  OleResult := LoadTypeLib(PChar(Filename), TypeLib);
   if OleResult <> S_OK then
     RaiseOleError('LoadTypeLib', OleResult);
   OleResult := TypeLib.GetLibAttr(LibAttr);

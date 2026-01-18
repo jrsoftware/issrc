@@ -1713,9 +1713,11 @@ ExternalSize: 1_048_576; Flags: external
 <flaglist>
 <flag name="32bit">
 <p>Causes the <tt>{sys}</tt> constant to map to the 32-bit System directory when used in the <tt>Source</tt> and <tt>DestDir</tt> parameters, the <tt>regserver</tt> and <tt>regtypelib</tt> flags to treat the file as 32-bit, and the <tt>sharedfile</tt> flag to update the 32-bit SharedDLLs registry key. This is the default behavior in <link topic="32vs64bitinstalls">32-bit install mode</link>.</p>
+<p>Combining <tt>32bit</tt> and <tt>regtypelib</tt> requires a <link topic="64bit">32-bit installer</link>.</p>
 </flag>
 <flag name="64bit">
 <p>Causes the <tt>{sys}</tt> constant to map to the 64-bit System directory when used in the <tt>Source</tt> and <tt>DestDir</tt> parameters, the <tt>regserver</tt> and <tt>regtypelib</tt> flags to treat the file as 64-bit, and the <tt>sharedfile</tt> flag to update the 64-bit SharedDLLs registry key. This is the default behavior in <link topic="32vs64bitinstalls">64-bit install mode</link>.</p>
+<p>Combining <tt>64bit</tt> and <tt>regtypelib</tt> requires a <link topic="64bit">64-bit installer</link>.</p>
 </flag>
 <flag name="allowunsafefiles">
 <p>Disables the compiler's automatic checking for <link topic="unsafefiles">unsafe files</link>. It is strongly recommended that you DO NOT use this flag, unless you are absolutely sure you know what you're doing.</p>
@@ -1838,6 +1840,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="regtypelib">
 <p>Register the type library (.tlb). The uninstaller will unregister the type library (unless the flag <tt>uninsneveruninstall</tt> is specified). As with the <tt>regserver</tt> flag, when used in combination with <tt>sharedfile</tt>, the file will only be unregistered by the uninstaller when the reference count reaches zero.</p>
 <p>In <link topic="32vs64bitinstalls">64-bit install mode</link> running on an x64-compatible edition of Windows, the type library will be registered inside a 64-bit process. You can override this by specifying the <tt>32bit</tt> flag.</p>
+<p>64-bit type libraries can only be (un)registered by <link topic="64bit">64-bit installers</link>, and 32-bit type libraries only by 32-bit installers.</p>
 <p>See the <i>Remarks</i> at the bottom of this topic for more information.</p>
 </flag>
 <flag name="replacesameversion">
@@ -3010,6 +3013,8 @@ Name: bosskey; KeyFile: "boss.ispublickey"
   <li>You cannot load 32-bit DLLs in 64-bit installers because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). However, you can always launch both 32-bit and 64-bit EXEs using the <tt>Exec</tt> function or the [Run] section.</li>
   </ul>
 </li>
+<li>64-bit type libraries (.tlb) can only be (un)registered by 64-bit installers, and 32-bit type libraries only by 32-bit installers.<br/>
+    Support for (un)registering 64-bit type libraries from a 32-bit installer has been dropped.</li>
 <li><tt>{sysnative}</tt> is not accessible to 64-bit installers or any other 64-bit applications, so use its value only to, for example, pass it to a 32-bit application.</li>
 </ul>
 
@@ -3294,7 +3299,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <li>The <tt>{reg:...}</tt> constant reads the 32-bit view by default.</li>
 <li>The <tt>Reg*</tt> [Code] support functions access the 32-bit view by default.</li>
 <li>The <tt>useapppaths</tt> flag of the [Icons] section reads the "App Paths" key in the 32-bit view of the registry.</li>
-<li>The <tt>regserver</tt> and <tt>regtypelib</tt> flags of the [Files] section load and register files inside a 32-bit process by default.</li>
+<li>The <tt>regserver</tt> and <tt>regtypelib</tt> flags of the [Files] section load and register files inside a 32-bit process by default. Latter requires a <link topic="64bit">32-bit installer</link>.</li>
 <li>The <tt>sharedfile</tt> flag of the [Files] section updates the "SharedDLLs" key in the 32-bit view of the registry by default.</li>
 <li>The Uninstall key is created in the 32-bit view of the registry.</li>
 </ul>
@@ -3311,7 +3316,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <li>The <tt>{reg:...}</tt> constant reads the 64-bit view by default.</li>
 <li>The <tt>Reg*</tt> [Code] support functions access the 64-bit view by default.</li>
 <li>The <tt>useapppaths</tt> flag of the [Icons] section reads the "App Paths" key in the 64-bit view of the registry.</li>
-<li>The <tt>regserver</tt> and <tt>regtypelib</tt> flags of the [Files] section load and register files inside a 64-bit process by default.</li>
+<li>The <tt>regserver</tt> and <tt>regtypelib</tt> flags of the [Files] section load and register files inside a 64-bit process by default. Latter requires a <link topic="64bit">64-bit installer</link>.</li>
 <li>The <tt>sharedfile</tt> flag of the [Files] section updates the "SharedDLLs" key in the 64-bit view of the registry by default.</li>
 <li>The Uninstall key is created in the 64-bit view of the registry.</li>
 </ul>

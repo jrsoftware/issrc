@@ -1144,12 +1144,14 @@ var
     end);
     RegisterScriptFunc('REGISTERSERVER', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      RegisterServer(False, Stack.GetBool(PStart), Stack.GetString(PStart-1), Stack.GetBool(PStart-2));
+      const Is64Bit = Stack.GetBool(PStart);
+      RegisterServer(False, Is64Bit, ApplyPathRedirRules(Is64Bit, Stack.GetString(PStart-1)), Stack.GetBool(PStart-2));
     end);
     RegisterScriptFunc('UNREGISTERSERVER', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       try
-        RegisterServer(True, Stack.GetBool(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3));
+        const Is64Bit = Stack.GetBool(PStart-1);
+        RegisterServer(True, Is64Bit, ApplyPathRedirRules(Is64Bit, Stack.GetString(PStart-2)), Stack.GetBool(PStart-3));
         Stack.SetBool(PStart, True);
       except
         Stack.SetBool(PStart, False);
@@ -1181,26 +1183,28 @@ var
     end);
     RegisterScriptFunc('REGISTERTYPELIBRARY', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
+      const Is64Bit = Stack.GetBool(PStart);
       {$IFDEF WIN64}
-      if not Stack.GetBool(PStart) then
+      if not Is64Bit then
         InternalError('Cannot register 32-bit type libraries on this version of Setup');
       {$ELSE}
-      if Stack.GetBool(PStart) then
+      if Is64Bit then
         InternalError('Cannot register 64-bit type libraries on this version of Setup');
       {$ENDIF}
-      RegisterTypeLibrary(Stack.GetString(PStart-1));
+      RegisterTypeLibrary(ApplyPathRedirRules(Is64Bit, Stack.GetString(PStart-1)));
     end);
     RegisterScriptFunc('UNREGISTERTYPELIBRARY', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
+      const Is64Bit = Stack.GetBool(PStart-1);
       {$IFDEF WIN64}
-      if not Stack.GetBool(PStart-1) then
+      if not Is64Bit then
         InternalError('Cannot unregister 32-bit type libraries on this version of Setup');
       {$ELSE}
-      if Stack.GetBool(PStart-1) then
+      if Is64Bit then
         InternalError('Cannot unregister 64-bit type libraries on this version of Setup');
       {$ENDIF}
       try
-        UnregisterTypeLibrary(Stack.GetString(PStart-2));
+        UnregisterTypeLibrary(ApplyPathRedirRules(Is64Bit, Stack.GetString(PStart-2)));
         Stack.SetBool(PStart, True);
       except
         Stack.SetBool(PStart, False);
