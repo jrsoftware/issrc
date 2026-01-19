@@ -77,7 +77,6 @@
     <contentstopic title="Non Administrative Install Mode" topic="admininstallmode" />
     <contentstopic title="64-bit Install Mode" topic="32vs64bitinstalls" />
     <contentstopic title="64-bit Installation Limitations" topic="64bitlimitations" />
-    <contentstopic title="Extended-length Path Limitations" topic="superpathlimitations" />
     <contentstopic title="Architecture Identifiers" topic="archidentifiers" />
     <contentstopic title="Wizard Pages" topic="wizardpages" />
     <contentstopic title="Installation Order" topic="installorder" />
@@ -3333,26 +3332,6 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <ul>
 
 <li>The System32 path returned by the <tt>{sys}</tt> constant does not always map to the 64-bit System directory. When Setup/Uninstall is running in 64-bit install mode, it maps to the 64-bit System directory when used in the [Dirs], [Files], [InstallDelete], [Run], [UninstallDelete], and [UninstallRun] sections because Setup temporarily disables <extlink href="http://msdn.microsoft.com/en-us/library/aa384187.aspx">WOW64 file system redirection</extlink> when files/directories are accessed by those sections. Elsewhere, System32 and <tt>{sys}</tt> map to the 32-bit System directory, as is normal in a 32-bit process.</li>
-
-</ul>
-
-</body>
-</topic>
-
-
-
-<topic name="superpathlimitations" title="Extended-length Path Limitations">
-<keyword value="Extended-length Path Limitations" />
-<keyword value="Super Path Limitations" />
-<body>
-
-<p>Starting with Inno Setup 7, Setup and Uninstall work with extended-length paths (also known as super paths) throughout, removing <tt>MAX_PATH</tt> limitations.</p>
-
-<p>When using extended-length paths (also known as super paths) in your script, there are some limitations to be aware of:</p>
-
-<ul>
-
-<li>...</li>
 
 </ul>
 
