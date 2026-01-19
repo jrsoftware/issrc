@@ -182,7 +182,7 @@ uses
   UnsignedFunc,
   PathFunc, Shared.Struct, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.InstFunc,
   Setup.InstFunc.Ole, Setup.RedirFunc, Compression.Base,
-  Setup.LoggingFunc, Setup.RegDLL, Setup.Helper, Setup.DotNetFunc, Setup.PathRedir;
+  Setup.LoggingFunc, Setup.RegDLL, Setup.DotNetFunc, Setup.PathRedir;
 
 type
   { Note: TUninstallLogHeader should stay <= 512 bytes in size, so that it

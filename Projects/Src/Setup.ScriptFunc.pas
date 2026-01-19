@@ -28,7 +28,7 @@ uses
   Setup.DownloadFileFunc, Setup.ExtractFileFunc, Setup.ISSigVerifyFunc, Setup.InstFunc, Setup.InstFunc.Ole,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.NewDiskForm,
   Setup.WizardForm, Shared.VerInfoFunc, Shared.SetupTypes,
-  Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
+  Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL,
   Setup.SpawnClient, Setup.DotNetFunc, Setup.MainForm,
   Shared.DotNetVersion, Setup.MsiFunc, Compression.SevenZipDecoder, Compression.SevenZipDLLDecoder,
   Setup.DebugClient, Shared.ScriptFunc, Setup.ScriptFunc.HelperFunc, Setup.PathRedir;

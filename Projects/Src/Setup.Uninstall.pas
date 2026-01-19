@@ -649,8 +649,8 @@ begin
 
     DeleteResidualTempUninstallDirs;
 
-    { Create temporary directory and extract 64-bit helper EXE if necessary }
-    CreateTempInstallDirAndExtract64BitHelper;
+    { Create temporary directory }
+    CreateTempInstallDir;
 
     if CompiledCodeText <> '' then begin
       { Setup some global variables which are accessible to [Code] }

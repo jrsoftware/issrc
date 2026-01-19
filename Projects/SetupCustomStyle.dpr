@@ -69,7 +69,6 @@ uses
   Setup.PathRedir in 'Src\Setup.PathRedir.pas',
   Setup.RedirFunc in 'Src\Setup.RedirFunc.pas',
   Setup.SecurityFunc in 'Src\Setup.SecurityFunc.pas',
-  Setup.Helper in 'Src\Setup.Helper.pas',
   Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',
   Setup.RegDLL in 'Src\Setup.RegDLL.pas',
   Setup.SpawnCommon in 'Src\Setup.SpawnCommon.pas',

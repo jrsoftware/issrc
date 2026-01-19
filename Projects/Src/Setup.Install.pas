@@ -24,7 +24,7 @@ uses
   Compression.Base, Compression.SevenZipDLLDecoder,
   SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, Setup.PathRedir,
   Setup.DebugClient, Setup.DotNetFunc, Setup.DownloadFileFunc, Setup.InstFunc, Setup.InstFunc.Ole,
-  Setup.ISSigVerifyFunc, Setup.FileExtractor, Setup.Install.HelperFunc, Setup.Helper,
+  Setup.ISSigVerifyFunc, Setup.FileExtractor, Setup.Install.HelperFunc,
   Setup.MainFunc, Setup.LoggingFunc, Setup.RegDLL, Setup.SecurityFunc,
   Setup.UninstallLog, Setup.WizardForm;
 
