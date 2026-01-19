@@ -479,7 +479,7 @@ end;
 { Use our own FileSearch function which includes these improvements over
   Delphi's version:
   - it supports MBCS and uses Path* functions
-  - it uses NewFileExistsRedir instead of FileExists
+  - it uses NewFileExists instead of FileExists
   - it doesn't search the current directory unless it's told to
   - it always returns a fully-qualified path }
 function NewFileSearch(const Name, DirList: String): String;

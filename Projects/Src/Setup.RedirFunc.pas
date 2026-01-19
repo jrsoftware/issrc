@@ -16,7 +16,7 @@ unit Setup.RedirFunc;
 interface
 
 uses
-  Windows, SysUtils, Shared.FileClass;
+  Windows;
 
 type
   TPreviousFsRedirectionState = record
@@ -39,31 +39,15 @@ function CreateProcessRedir(const DisableFsRedir: Boolean;
   const lpStartupInfo: TStartupInfo;
   var lpProcessInformation: TProcessInformation): BOOL;
 function DeleteFileRedir(const DisableFsRedir: Boolean; const Filename: String): BOOL;
-function FindFirstFileRedir(const DisableFsRedir: Boolean; const Filename: String;
-  var FindData: TWin32FindData): THandle;
 function GetFileAttributesRedir(const DisableFsRedir: Boolean; const Filename: String): DWORD;
 function NewFileExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
 function SetFileAttributesRedir(const DisableFsRedir: Boolean; const Filename: String;
   const Attrib: DWORD): BOOL;
 
-type
-  TFileRedir = class(TFile)
-  private
-    FDisableFsRedir: Boolean;
-  protected
-    function CreateHandle(const AFilename: String;
-      ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
-      ASharing: TFileSharing): THandle; override;
-  public
-    constructor Create(const DisableFsRedir: Boolean; const AFilename: String;
-      ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
-      ASharing: TFileSharing);
-  end;
-
 implementation
 
 uses
-  Shared.CommonFunc, PathFunc;
+  Shared.CommonFunc;
 
 {$IFNDEF WIN64}
 var
@@ -170,25 +154,6 @@ begin
   SetLastError(ErrorCode);
 end;
 
-function FindFirstFileRedir(const DisableFsRedir: Boolean; const Filename: String;
-  var FindData: TWin32FindData): THandle;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := INVALID_HANDLE_VALUE;
-    Exit;
-  end;
-  try
-    Result := FindFirstFile(PChar(Filename), FindData);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
 function GetFileAttributesRedir(const DisableFsRedir: Boolean; const Filename: String): DWORD;
 var
   PrevState: TPreviousFsRedirectionState;
@@ -244,37 +209,6 @@ begin
   SetLastError(ErrorCode);
 end;
 
-{ TFileRedir }
-
-constructor TFileRedir.Create(const DisableFsRedir: Boolean; const AFilename: String;
-  ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
-  ASharing: TFileSharing);
-begin
-  FDisableFsRedir := DisableFsRedir; 
-  inherited Create(AFilename, ACreateDisposition, AAccess, ASharing);
-end;
-
-function TFileRedir.CreateHandle(const AFilename: String;
-  ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
-  ASharing: TFileSharing): THandle;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(FDisableFsRedir, PrevState) then begin
-    Result := INVALID_HANDLE_VALUE;
-    Exit;
-  end;
-  try
-    Result := inherited CreateHandle(AFilename, ACreateDisposition, AAccess,
-      ASharing);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
 initialization
   {$IFNDEF WIN64}
   Wow64DisableWow64FsRedirectionFunc := GetProcAddress(GetModuleHandle(kernel32),
@@ -284,12 +218,6 @@ initialization
   FsRedirectionFunctionsAvailable := Assigned(Wow64DisableWow64FsRedirectionFunc) and
     Assigned(Wow64RevertWow64FsRedirectionFunc);
   {$ENDIF}
-
-  { For GetVersionNumbersRedir: Pre-load shell32.dll since GetFileVersionInfo
-    and GetFileVersionInfoSize will try to load it when reading version info
-    on 16-bit files. We can't allow the DLL be loaded for the first time while
-    FS redirection is disabled. }
-  SafeLoadLibrary(AddBackslash(GetSystemDir) + 'shell32.dll', SEM_NOOPENFILEERRORBOX);
 
   { FormatMessage might be called with FS redirection disabled, so ensure
     that all the DLLs FormatMessage searches in for messages (e.g. netmsg.dll,
