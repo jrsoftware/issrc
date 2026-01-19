@@ -50,7 +50,6 @@
         <DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
         <DCC_DebugInformation>1</DCC_DebugInformation>
         <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
-        <DCC_UsePackage>VCL30;vclx30;VclSmp30;vcldb30;vcldbx30;$(DCC_UsePackage)</DCC_UsePackage>
         <GenDll>true</GenDll>
         <SanitizedProjectName>MyDll</SanitizedProjectName>
         <DCC_Namespace>System;$(DCC_Namespace)</DCC_Namespace>
