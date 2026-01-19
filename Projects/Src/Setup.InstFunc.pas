@@ -385,7 +385,8 @@ end;
 function ApplySharedDLLPathRedirRules(const RegView: TRegView; const Filename: String): String;
 begin
   { The SharedDLLs key needs normal paths, with a specific bitness,
-    and in the case of 32-bit files, non-SysWOW64 paths. }
+    and in the case of 32-bit files, non-SysWOW64 paths.
+    Also see RegisterServerUsingRegSvr32. }
 
   var TargetProcess: TPathRedirTargetProcess;
   if RegView = rv64Bit then
