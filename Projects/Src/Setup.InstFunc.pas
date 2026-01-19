@@ -382,14 +382,7 @@ begin
   end;
 end;
 
-procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
-  const AlreadyExisted: Boolean);
-const
-  SharedDLLsKey = REGSTR_PATH_SETUP + '\SharedDLLs';  {don't localize}
-var
-  K: HKEY;
-  Disp, Size, CurType, NewType: DWORD;
-  CountStr: String;
+function ApplySharedDLLPathRedirRules(const RegView: TRegView; const Filename: String): String;
 begin
   { The SharedDLLs key needs normal paths, with a specific bitness,
     and in the case of 32-bit files, non-SysWOW64 paths. }
@@ -399,13 +392,23 @@ begin
     TargetProcess := tpNativeBit
   else begin
     if RegView <> rv32Bit then
-      InternalError('IncrementSharedCount: Invalid RegView value');
+      InternalError('ApplySharedDLLPathRedirRules: Invalid RegView value');
     TargetProcess := tp32BitPreferSystem32
   end;
 
-  const SharedFile = ApplyPathRedirRules(IsCurrentProcess64Bit,
+  Result := ApplyPathRedirRules(IsCurrentProcess64Bit,
     Filename, [rfNormalPath], TargetProcess);
+end;
 
+procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
+  const AlreadyExisted: Boolean);
+const
+  SharedDLLsKey = REGSTR_PATH_SETUP + '\SharedDLLs';  {don't localize}
+var
+  K: HKEY;
+  Disp, Size, CurType, NewType: DWORD;
+  CountStr: String;
+begin
   const ErrorCode = Cardinal(RegCreateKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0, nil,
     REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE, nil, K, @Disp));
   if ErrorCode <> ERROR_SUCCESS then
@@ -413,6 +416,8 @@ begin
         [GetRegRootKeyName(HKEY_LOCAL_MACHINE), SharedDLLsKey]) + SNewLine2 +
       FmtSetupMessage(msgErrorFunctionFailedWithMessage,
         ['RegCreateKeyEx', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
+
+  const SharedFile = ApplySharedDLLPathRedirRules(RegView, Filename);
   const SharedFileP = PChar(SharedFile);
   var Count := 0;
   NewType := REG_DWORD;
@@ -471,21 +476,6 @@ var
 begin
   Result := False;
 
-  { See IncrementSharedCount }
-
-  var TargetProcess: TPathRedirTargetProcess;
-  if RegView = rv64Bit then
-    TargetProcess := tpNativeBit
-  else begin
-    if RegView <> rv32Bit then
-      InternalError('DecrementSharedCount: Invalid RegView value');
-    TargetProcess := tp32BitPreferSystem32;
-  end;
-
-  const SharedFile = ApplyPathRedirRules(IsCurrentProcess64Bit,
-    Filename, [rfNormalPath], TargetProcess);
-  const SharedFileP = PChar(SharedFile);
-
   const ErrorCode = Cardinal(RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0,
     KEY_QUERY_VALUE or KEY_SET_VALUE, K));
   if ErrorCode = ERROR_FILE_NOT_FOUND then
@@ -495,6 +485,9 @@ begin
         [GetRegRootKeyName(HKEY_LOCAL_MACHINE), SharedDLLsKey]) + SNewLine2 +
       FmtSetupMessage(msgErrorFunctionFailedWithMessage,
         ['RegOpenKeyEx', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
+
+  const SharedFile = ApplySharedDLLPathRedirRules(RegView, Filename);
+  const SharedFileP = PChar(SharedFile);
   try
     if RegQueryValueEx(K, SharedFileP, nil, @CurType, nil, @Size) <> ERROR_SUCCESS then
       Exit;
