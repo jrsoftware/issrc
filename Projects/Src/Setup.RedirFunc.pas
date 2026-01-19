@@ -26,7 +26,9 @@ type
     {$ENDIF}
   end;
 
+{$IFNDEF WIN64}
 function AreFsRedirectionFunctionsAvailable: Boolean;
+{$ENDIF}
 function DisableFsRedirectionIf(const Disable: Boolean;
   var PreviousState: TPreviousFsRedirectionState): Boolean;
 procedure RestoreFsRedirection(const PreviousState: TPreviousFsRedirectionState);
@@ -54,12 +56,12 @@ var
   Wow64DisableWow64FsRedirectionFunc: function(var OldValue: Pointer): BOOL; stdcall;
   Wow64RevertWow64FsRedirectionFunc: function(OldValue: Pointer): BOOL; stdcall;
   FsRedirectionFunctionsAvailable: Boolean;
-{$ENDIF}
 
 function AreFsRedirectionFunctionsAvailable: Boolean;
 begin
-  Result := {$IFNDEF WIN64} FsRedirectionFunctionsAvailable {$ELSE} False {$ENDIF};
+  Result := FsRedirectionFunctionsAvailable;
 end;
+{$ENDIF}
 
 function DisableFsRedirectionIf(const Disable: Boolean;
   var PreviousState: TPreviousFsRedirectionState): Boolean;
