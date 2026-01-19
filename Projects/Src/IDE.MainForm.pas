@@ -2,7 +2,7 @@
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -3283,8 +3283,6 @@ begin
     'All rights reserved.' + SNewLine2 +
     'Inno Setup home page:' + SNewLine +
     'https://www.innosetup.com/' + SNewLine2 +
-    'RemObjects Pascal Script home page:' + SNewLine +
-    'https://www.remobjects.com/ps' + SNewLine2 +
     'Refer to LICENSE.TXT for conditions of distribution and use.');
   S := S + SNewLine2 + GetLicenseDescription('Registered commercial license:' + SNewLine, SNewLine);
   MsgBox(S, 'About ' + FCompilerVersion.Title, mbInformation, MB_OK);
