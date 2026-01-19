@@ -410,6 +410,8 @@ var
   Disp, Size, CurType, NewType: DWORD;
   CountStr: String;
 begin
+  const SharedFile = ApplySharedDLLPathRedirRules(RegView, Filename);
+
   const ErrorCode = Cardinal(RegCreateKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0, nil,
     REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE, nil, K, @Disp));
   if ErrorCode <> ERROR_SUCCESS then
@@ -418,7 +420,6 @@ begin
       FmtSetupMessage(msgErrorFunctionFailedWithMessage,
         ['RegCreateKeyEx', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
 
-  const SharedFile = ApplySharedDLLPathRedirRules(RegView, Filename);
   const SharedFileP = PChar(SharedFile);
   var Count := 0;
   NewType := REG_DWORD;
@@ -477,6 +478,8 @@ var
 begin
   Result := False;
 
+  const SharedFile = ApplySharedDLLPathRedirRules(RegView, Filename);
+
   const ErrorCode = Cardinal(RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0,
     KEY_QUERY_VALUE or KEY_SET_VALUE, K));
   if ErrorCode = ERROR_FILE_NOT_FOUND then
@@ -487,7 +490,6 @@ begin
       FmtSetupMessage(msgErrorFunctionFailedWithMessage,
         ['RegOpenKeyEx', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
 
-  const SharedFile = ApplySharedDLLPathRedirRules(RegView, Filename);
   const SharedFileP = PChar(SharedFile);
   try
     if RegQueryValueEx(K, SharedFileP, nil, @CurType, nil, @Size) <> ERROR_SUCCESS then
