@@ -1191,7 +1191,8 @@ var
       if Is64Bit then
         InternalError('Cannot register 64-bit type libraries on this version of Setup');
       {$ENDIF}
-      RegisterTypeLibrary(ApplyPathRedirRules(Is64Bit, Stack.GetString(PStart-1)));
+      { No ApplyPathRedirRules because RegisterTypeLibrary will do that already }
+      RegisterTypeLibrary(Stack.GetString(PStart-1));
     end);
     RegisterScriptFunc('UNREGISTERTYPELIBRARY', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -1204,7 +1205,8 @@ var
         InternalError('Cannot unregister 64-bit type libraries on this version of Setup');
       {$ENDIF}
       try
-        UnregisterTypeLibrary(ApplyPathRedirRules(Is64Bit, Stack.GetString(PStart-2)));
+        { No ApplyPathRedirRules because UnregisterTypeLibrary will do that already }
+        UnregisterTypeLibrary(Stack.GetString(PStart-2));
         Stack.SetBool(PStart, True);
       except
         Stack.SetBool(PStart, False);

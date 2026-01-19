@@ -27,7 +27,8 @@ uses
   SysUtils,
   PathFunc,
   Shared.CommonFunc, Shared.SetupMessageIDs,
-  Setup.InstFunc, Setup.MainFunc, SetupLdrAndSetup.Messages;
+  SetupLdrAndSetup.Messages,
+  Setup.InstFunc, Setup.MainFunc, Setup.PathRedir;
 
 procedure AssignWorkingDir(const SL: IShellLink; const WorkingDir: String);
 { Assigns the specified working directory to SL. If WorkingDir is empty then
@@ -199,15 +200,35 @@ begin
   Result := GetResultingFilename(PF, Filename);
 end;
 
-procedure RegisterTypeLibrary(const Filename: String);
-var
-  OleResult: HRESULT;
-  TypeLib: ITypeLib;
+function ApplyTypeLibraryPathRedirRules(const Filename: String): String;
 begin
-  OleResult := LoadTypeLib(PChar(Filename), TypeLib);
+  { On 32-bit pass a System32 path, not SysWOW64, to be safe.
+    rfNormalPath is used because registering a DLL with a super path is
+    non-standard (if it even works at all?), and nobody would place a DLL in
+    a path longer than MAX_PATH anyway.
+    Also see RegisterServerUsingRegSvr32 and ApplySharedDLLPathRedirRules. }
+  var TargetProcess: TPathRedirTargetProcess;
+  if IsCurrentProcess64Bit then begin
+    { Note that this uses tpCurrent, unlike the others, which use tpNative.
+      This is because we do the actual (un)registration in the current
+      process, rather than asking a native process to do it for us. }
+    TargetProcess := tpCurrent
+  end else
+    TargetProcess := tp32BitPreferSystem32;
+ 
+  Result := ApplyPathRedirRules(IsCurrentProcess64Bit,
+    Filename, [rfNormalPath], TargetProcess);
+end;
+
+procedure RegisterTypeLibrary(const Filename: String);
+begin
+  const ExpandedFilename = ApplyTypeLibraryPathRedirRules(Filename);
+
+  var TypeLib: ITypeLib;
+  var OleResult := LoadTypeLib(PChar(ExpandedFilename), TypeLib);
   if OleResult <> S_OK then
     RaiseOleError('LoadTypeLib', OleResult);
-  OleResult := RegisterTypeLib(TypeLib, PChar(Filename), nil);
+  OleResult := RegisterTypeLib(TypeLib, PChar(ExpandedFilename), nil);
   if OleResult <> S_OK then
     RaiseOleError('RegisterTypeLib', OleResult);
 end;
@@ -216,21 +237,22 @@ procedure UnregisterTypeLibrary(const Filename: String);
 type
   TUnRegTlbProc = function(const libID: TGUID; wVerMajor, wVerMinor: Word;
     lcid: TLCID; syskind: TSysKind): HResult; stdcall;
-var
-  UnRegTlbProc: TUnRegTlbProc;
-  OleResult: HRESULT;
-  TypeLib: ITypeLib;
-  LibAttr: PTLibAttr;
 begin
+  const ExpandedFilename = ApplyTypeLibraryPathRedirRules(Filename);
+
   { Dynamically import UnRegisterTypeLib since older OLEAUT32.DLL versions
     don't have this function }
+  var UnRegTlbProc: TUnRegTlbProc;
   @UnRegTlbProc := GetProcAddress(GetModuleHandle('OLEAUT32.DLL'),
     'UnRegisterTypeLib');
   if @UnRegTlbProc = nil then
     Win32ErrorMsg('GetProcAddress');
-  OleResult := LoadTypeLib(PChar(Filename), TypeLib);
+
+  var TypeLib: ITypeLib;
+  var OleResult := LoadTypeLib(PChar(ExpandedFilename), TypeLib);
   if OleResult <> S_OK then
     RaiseOleError('LoadTypeLib', OleResult);
+  var LibAttr: PTLibAttr;
   OleResult := TypeLib.GetLibAttr(LibAttr);
   if OleResult <> S_OK then
     RaiseOleError('ITypeLib::GetLibAttr', OleResult);

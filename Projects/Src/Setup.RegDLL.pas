@@ -69,7 +69,7 @@ begin
     rfNormalPath is used because registering a DLL with a super path is
     non-standard (if it even works at all?), and nobody would place a DLL in
     a path longer than MAX_PATH anyway.
-    Also see ApplySharedDLLPathRedirRules. }
+    Also see ApplySharedDLLPathRedirRules and ApplyTypeLibraryPathRedirRules. }
   var TargetProcess: TPathRedirTargetProcess;
   if AIs64Bit then
     TargetProcess := tpNativeBit
