@@ -200,29 +200,9 @@ begin
   Result := GetResultingFilename(PF, Filename);
 end;
 
-function ApplyTypeLibraryPathRedirRules(const Filename: String): String;
-begin
-  { On 32-bit pass a System32 path, not SysWOW64, to be safe.
-    rfNormalPath is used because registering a DLL with a super path is
-    non-standard (if it even works at all?), and nobody would place a DLL in
-    a path longer than MAX_PATH anyway.
-    Also see RegisterServerUsingRegSvr32 and ApplySharedDLLPathRedirRules. }
-  var TargetProcess: TPathRedirTargetProcess;
-  if IsCurrentProcess64Bit then begin
-    { Note that this uses tpCurrent, unlike the others, which use tpNative.
-      This is because we do the actual (un)registration in the current
-      process, rather than asking a native process to do it for us. }
-    TargetProcess := tpCurrent
-  end else
-    TargetProcess := tp32BitPreferSystem32;
- 
-  Result := ApplyPathRedirRules(IsCurrentProcess64Bit,
-    Filename, [rfNormalPath], TargetProcess);
-end;
-
 procedure RegisterTypeLibrary(const Filename: String);
 begin
-  const ExpandedFilename = ApplyTypeLibraryPathRedirRules(Filename);
+  const ExpandedFilename = ApplyPathRedirRulesForSysCall(IsCurrentProcess64Bit, Filename, False);
 
   var TypeLib: ITypeLib;
   var OleResult := LoadTypeLib(PChar(ExpandedFilename), TypeLib);
@@ -238,7 +218,7 @@ type
   TUnRegTlbProc = function(const libID: TGUID; wVerMajor, wVerMinor: Word;
     lcid: TLCID; syskind: TSysKind): HResult; stdcall;
 begin
-  const ExpandedFilename = ApplyTypeLibraryPathRedirRules(Filename);
+  const ExpandedFilename = ApplyPathRedirRulesForSysCall(IsCurrentProcess64Bit, Filename, False);
 
   { Dynamically import UnRegisterTypeLib since older OLEAUT32.DLL versions
     don't have this function }

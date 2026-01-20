@@ -62,21 +62,7 @@ begin
   SysDir := ApplyPathRedirRules(AIs64Bit, GetSystemDir, [rfNormalPath],
     tpNativeBit);
 
-  { The filename needs to be a 64-bit path for 64-bit regsvr32.exe, and a
-    32-bit path for 32-bit regsvr32.exe.
-    tp32BitPreferSystem32 is used because 32-bit DLLs traditionally are
-    registered with a System32 path, not SysWOW64.
-    rfNormalPath is used because registering a DLL with a super path is
-    non-standard (if it even works at all?), and nobody would place a DLL in
-    a path longer than MAX_PATH anyway.
-    Also see ApplySharedDLLPathRedirRules and ApplyTypeLibraryPathRedirRules. }
-  var TargetProcess: TPathRedirTargetProcess;
-  if AIs64Bit then
-    TargetProcess := tpNativeBit
-  else
-    TargetProcess := tp32BitPreferSystem32;
-  const RedirFilename = ApplyPathRedirRules(IsCurrentProcess64Bit, Filename,
-    [rfNormalPath], TargetProcess);
+  const RedirFilename = ApplyPathRedirRulesForSysCall(AIs64Bit, Filename, True);
 
   CmdLine := '"' + AddBackslash(SysDir) + 'regsvr32.exe"';
   if AUnregister then

@@ -108,6 +108,8 @@ procedure Win32ErrorMsg(const FunctionName: String);
 procedure Win32ErrorMsgEx(const FunctionName: String; const ErrorCode: DWORD);
 function ForceDirectories(Dir: String): Boolean;
 procedure AddAttributesToFile(const Filename: String; Attribs: Integer);
+function ApplyPathRedirRulesForSysCall(const Is64Bit: Boolean; const Filename: String;
+  const SysCallByNativeProcess: Boolean): String;
 
 implementation
 
@@ -382,25 +384,6 @@ begin
   end;
 end;
 
-function ApplySharedDLLPathRedirRules(const RegView: TRegView; const Filename: String): String;
-begin
-  { The SharedDLLs key needs normal paths, with a specific bitness,
-    and in the case of 32-bit files, non-SysWOW64 paths.
-    Also see RegisterServerUsingRegSvr32 and ApplyTypeLibraryPathRedirRules. }
-
-  var TargetProcess: TPathRedirTargetProcess;
-  if RegView = rv64Bit then
-    TargetProcess := tpNativeBit
-  else begin
-    if RegView <> rv32Bit then
-      InternalError('ApplySharedDLLPathRedirRules: Invalid RegView value');
-    TargetProcess := tp32BitPreferSystem32
-  end;
-
-  Result := ApplyPathRedirRules(IsCurrentProcess64Bit,
-    Filename, [rfNormalPath], TargetProcess);
-end;
-
 procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
   const AlreadyExisted: Boolean);
 const
@@ -410,7 +393,9 @@ var
   Disp, Size, CurType, NewType: DWORD;
   CountStr: String;
 begin
-  const SharedFile = ApplySharedDLLPathRedirRules(RegView, Filename);
+  if not (RegView in [rv32Bit, rv64Bit]) then
+    InternalError('IncrementSharedCount: Invalid RegView value');
+  const SharedFile = ApplyPathRedirRulesForSysCall(RegView = rv64Bit, Filename, True);
 
   const ErrorCode = Cardinal(RegCreateKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0, nil,
     REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE, nil, K, @Disp));
@@ -478,7 +463,9 @@ var
 begin
   Result := False;
 
-  const SharedFile = ApplySharedDLLPathRedirRules(RegView, Filename);
+  if not (RegView in [rv32Bit, rv64Bit]) then
+    InternalError('DecrementSharedCount: Invalid RegView value');
+  const SharedFile = ApplyPathRedirRulesForSysCall(RegView = rv64Bit, Filename, True);
 
   const ErrorCode = Cardinal(RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0,
     KEY_QUERY_VALUE or KEY_SET_VALUE, K));
@@ -1088,6 +1075,31 @@ begin
       SetFileAttributes(PChar(Filename),
         (ExistingAttr and not FILE_ATTRIBUTE_NORMAL) or DWORD(Attribs));
   end;
+end;
+
+function ApplyPathRedirRulesForSysCall(const Is64Bit: Boolean; const Filename: String;
+  const SysCallByNativeProcess: Boolean): String;
+{ Applies PathRedir rules in an extra safe way, to be used for certain
+  system calls only, like registering a DLL, or when the current
+  process delegates the actual work to a native process. In the latter
+  case, SysCallByNativeProcess should be set to True.
+  The extra safety entails:
+  - On 32-bit pass a System32 path, not SysWOW64.
+  - Use rfNormalPath because using a super path might be non-standard
+    or might not work at all. Nobody would place a DLL in a path longer
+    than MAX_PATH anyway. }
+begin
+  var TargetProcess: TPathRedirTargetProcess;
+  if Is64Bit then begin
+    if SysCallByNativeProcess then
+      TargetProcess := tpNativeBit
+    else
+      TargetProcess := tpCurrent
+  end else
+    TargetProcess := tp32BitPreferSystem32;
+
+  Result := ApplyPathRedirRules(IsCurrentProcess64Bit,
+    Filename, [rfNormalPath], TargetProcess);
 end;
 
 { TSimpleStringList }
