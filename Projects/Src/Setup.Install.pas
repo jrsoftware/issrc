@@ -1316,14 +1316,13 @@ Retry:
       { Install into GAC (even if the file wasn't replaced) }
       if foGacInstall in CurFile^.Options then begin
         Log('Installing into GAC');
+        var RedirFilename: String;
+        if TempFile <> '' then
+          RedirFilename := ApplyPathRedirRulesForSysCall(Is64Bit, TempFile, False)
+        else
+          RedirFilename := ApplyPathRedirRulesForSysCall(Is64Bit, DestFile, False);
         with TAssemblyCacheInfo.Create(rvDefault) do try
-          { PathConvertSuperToNormal because it is not known where InstallAssembly supports
-            super paths. It might do now (not tested), but this might not have always been
-            the case. }
-          if TempFile <> '' then
-            InstallAssembly(PathConvertSuperToNormal(TempFile))
-          else
-            InstallAssembly(PathConvertSuperToNormal(DestFile));
+          InstallAssembly(RedirFilename);
         finally
           Free;
         end;
