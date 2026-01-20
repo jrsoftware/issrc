@@ -1321,9 +1321,9 @@ Retry:
         Log('Installing into GAC');
         var RedirFilename: String;
         if TempFile <> '' then
-          RedirFilename := ApplyPathRedirRulesForSysCall(Is64Bit, TempFile, False)
+          RedirFilename := ApplyRedirForSystemOperation(Is64Bit, False, TempFile)
         else
-          RedirFilename := ApplyPathRedirRulesForSysCall(Is64Bit, DestFile, False);
+          RedirFilename := ApplyRedirForSystemOperation(Is64Bit, False, DestFile);
         with TAssemblyCacheInfo.Create(rvDefault) do try
           InstallAssembly(RedirFilename);
         finally

@@ -110,8 +110,8 @@ function ForceDirectories(Dir: String): Boolean;
 procedure AddAttributesToFile(const Filename: String; Attribs: Integer);
 procedure ApplyRedirToRunEntryPaths(const RunEntry64Bit: Boolean;
   var AFilename, AWorkingDir: String);
-function ApplyPathRedirRulesForSysCall(const Is64Bit: Boolean; const Filename: String;
-  const SysCallByNativeProcess: Boolean): String;
+function ApplyRedirForSystemOperation(const Is64Bit, IsOperationByNativeProcess: Boolean;
+  const Filename: String): String;
 
 implementation
 
@@ -397,7 +397,7 @@ var
 begin
   if not (RegView in [rv32Bit, rv64Bit]) then
     InternalError('IncrementSharedCount: Invalid RegView value');
-  const RedirFilename = ApplyPathRedirRulesForSysCall(RegView = rv64Bit, Filename, True);
+  const RedirFilename = ApplyRedirForSystemOperation(RegView = rv64Bit, True, Filename);
 
   const ErrorCode = Cardinal(RegCreateKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0, nil,
     REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE, nil, K, @Disp));
@@ -467,7 +467,7 @@ begin
 
   if not (RegView in [rv32Bit, rv64Bit]) then
     InternalError('DecrementSharedCount: Invalid RegView value');
-  const RedirFilename = ApplyPathRedirRulesForSysCall(RegView = rv64Bit, Filename, True);
+  const RedirFilename = ApplyRedirForSystemOperation(RegView = rv64Bit, True, Filename);
 
   const ErrorCode = Cardinal(RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0,
     KEY_QUERY_VALUE or KEY_SET_VALUE, K));
@@ -1102,12 +1102,12 @@ begin
       [rfNormalPath], TargetProcess);
 end;
 
-function ApplyPathRedirRulesForSysCall(const Is64Bit: Boolean; const Filename: String;
-  const SysCallByNativeProcess: Boolean): String;
+function ApplyRedirForSystemOperation(const Is64Bit, IsOperationByNativeProcess: Boolean;
+  const Filename: String): String;
 { Applies PathRedir rules in an extra safe way, to be used for certain
-  system calls only, like registering a DLL, or when the current
-  process delegates the actual work to a native process. In the latter
-  case, SysCallByNativeProcess should be set to True.
+  system operations only, like registering a DLL, or when the current
+  process delegates the actual work to a native system process. In the
+  latter case, IsOperationByNativeProcess should be set to True.
   The extra safety entails:
   - On 32-bit pass a System32 path, not SysWOW64.
   - Use rfNormalPath because using a super path might be non-standard
@@ -1118,7 +1118,7 @@ function ApplyPathRedirRulesForSysCall(const Is64Bit: Boolean; const Filename: S
 begin
   var TargetProcess: TPathRedirTargetProcess;
   if Is64Bit then begin
-    if SysCallByNativeProcess then
+    if IsOperationByNativeProcess then
       TargetProcess := tpNativeBit
     else
       TargetProcess := tpCurrent
