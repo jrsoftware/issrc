@@ -2541,7 +2541,7 @@ begin
         Flags := Flags or (utRun_ShellExec or utRun_ShellExecRespectWaitFlags)
       else begin
         if RunEntryIs64Bit(RunEntry) then
-          Flags := Flags or utRun_DisableFsRedir;
+          Flags := Flags or utRun_Is64Bit;
       end;
       if roSkipIfDoesntExist in RunEntry.Options then
         Flags := Flags or utRun_SkipIfDoesntExist;

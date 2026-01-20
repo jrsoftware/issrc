@@ -4102,30 +4102,6 @@ begin
   Log(S);
 end;
 
-procedure ApplyRedirToRunEntryPaths(const RunEntry64Bit: Boolean;
-  var AFilename, AWorkingDir: String);
-begin
-  { Note: When RunEntry64Bit=True, the resulting paths are always "native-bit
-    target process" paths. They use System32, not Sysnative, so in a 32-bit
-    Setup process they are only usable when FS redirection is disabled. }
-
-  var TargetProcess := tpCurrent;
-  if RunEntry64Bit then
-    TargetProcess := tpNativeBit;
-
-  { rfNormalPath is used below because the process to run might have problems
-    with super paths. Additionally, ProcessRunEntry may use ShellExecuteEx
-    to run the process, which does not support super paths. }
-
-  if PathIsRooted(AFilename) then
-    AFilename := ApplyPathRedirRules(RunEntry64Bit, AFilename,
-      [rfNormalPath], TargetProcess);
-
-  if AWorkingDir <> '' then
-    AWorkingDir := ApplyPathRedirRules(RunEntry64Bit, AWorkingDir,
-      [rfNormalPath], TargetProcess);
-end;
-
 procedure ProcessRunEntry(const RunEntry: PSetupRunEntry);
 begin
   { On 32-bit Setup, when the [Run] entry is 64-bit, we unfortunately cannot
@@ -4165,7 +4141,7 @@ begin
     var ExpandedWorkingDir := ExpandConst(RunEntry.WorkingDir);
 
     const ExpandedFilenameBeforeRedir = ExpandedFilename;
-    if not(roShellExec in RunEntry.Options) then
+    if not(roShellExec in RunEntry.Options) then { ShellExecuteEx does not support super paths }
       ApplyRedirToRunEntryPaths(RunEntry64Bit, ExpandedFilename, ExpandedWorkingDir);
 
     LogFmt('Filename: %s', [ExpandedFilename]);

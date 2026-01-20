@@ -75,7 +75,7 @@ const
   utRun_SkipIfDoesntExist = 32;
   utRun_RunHidden = 64;
   utRun_ShellExecRespectWaitFlags = 128;
-  utRun_DisableFsRedir = 256;
+  utRun_Is64Bit = 256;
   utRun_DontLogParameters = 512;
   utRun_LogOutput = 1024;
   utDeleteFile_ExistedBeforeInstall = 1;
@@ -760,7 +760,7 @@ var
   CurRecDataPChar: array[0..9] of PChar;
   CurRecData: array[0..9] of String;
   ShouldDeleteRec, IsTempFile, IsSharedFile, SharedCountDidReachZero: Boolean;
-  Filename, Section, Key: String;
+  Section, Key: String;
   Subkey, ValueName: PChar;
   P: Integer;
   RegView: TRegView;
@@ -829,22 +829,40 @@ begin
                 ShowCmd := SW_SHOWMAXIMIZED
               else if CurRec^.ExtraData and utRun_RunHidden <> 0 then
                 ShowCmd := SW_HIDE;
-              { Note: This code is similar to code in the ProcessRunEntry
-                function of Main.pas }
+
+              { Note: The following code is similar to code in the ProcessRunEntry
+                function of Setup.MainFunc.pas }
+
+              var &Type: String;
+              if CurRec^.ExtraData and utRun_ShellExec = 0 then
+                &Type := 'Exec'
+              else
+                &Type := 'ShellExec';
+
+              const RunEntry64Bit = CurRec^.ExtraData and utRun_Is64Bit <> 0;
+              var ExpandedFilename := CurRecData[0];
+              const ExpandedParameters = CurRecData[1];
+              var ExpandedWorkingDir := CurRecData[2];
+
+              const ExpandedFilenameBeforeRedir = ExpandedFilename;
+              if CurRec^.ExtraData and utRun_ShellExec = 0 then { ShellExecuteEx does not support super paths }
+                ApplyRedirToRunEntryPaths(RunEntry64Bit, ExpandedFilename, ExpandedWorkingDir);
+
+              LogFmt('Running %s filename: %s', [&Type, ExpandedFilename]);
+              if (CurRec^.ExtraData and utRun_DontLogParameters = 0) and (ExpandedParameters <> '') then
+                LogFmt('Running %s parameters: %s', [&Type, ExpandedParameters]);
+
               if CurRec^.ExtraData and utRun_ShellExec = 0 then begin
-                Log('Running Exec filename: ' + CurRecData[0]);
-                if (CurRec^.ExtraData and utRun_DontLogParameters = 0) and (CurRecData[1] <> '') then
-                  Log('Running Exec parameters: ' + CurRecData[1]);
                 if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
-                   NewFileExistsRedir(CurRec^.ExtraData and utRun_DisableFsRedir <> 0, CurRecData[0]) then begin
+                   NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir)) then begin
                   var OutputReader: TCreateProcessOutputReader := nil;
                   try
                     if GetLogActive and (CurRec^.ExtraData and utRun_LogOutput <> 0) then
                       OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
                     var ErrorCode: DWORD;
-                    if not InstExec(CurRec^.ExtraData and utRun_DisableFsRedir <> 0,
-                       CurRecData[0], CurRecData[1], CurRecData[2], Wait,
-                       ShowCmd, ProcessMessagesProc, OutputReader, ErrorCode) then begin
+                    if not InstExec(RunEntry64Bit and not IsCurrentProcess64Bit,
+                       ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,
+                       Wait, ShowCmd, ProcessMessagesProc, OutputReader, ErrorCode) then begin
                       LogFmt('CreateProcess failed (%d).', [ErrorCode]);
                       Result := False;
                     end
@@ -859,15 +877,13 @@ begin
                   Log('File doesn''t exist. Skipping.');
               end
               else begin
-                Log('Running ShellExec filename: ' + CurRecData[0]);
-                if (CurRec^.ExtraData and utRun_DontLogParameters = 0) and (CurRecData[1] <> '') then
-                  Log('Running ShellExec parameters: ' + CurRecData[1]);
                 if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
-                   FileOrDirExists(CurRecData[0]) then begin
+                   FileOrDirExists(ExpandedFilename) then begin
                   if CurRec^.ExtraData and utRun_ShellExecRespectWaitFlags = 0 then
                     Wait := ewNoWait;
                   var ErrorCode: DWORD;
-                  if not InstShellExec(CurRecData[4], CurRecData[0], CurRecData[1], CurRecData[2],
+                  if not InstShellExec(CurRecData[4],
+                     ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,
                      Wait, ShowCmd, ProcessMessagesProc, ErrorCode) then begin
                     LogFmt('ShellExecuteEx failed (%d).', [ErrorCode]);
                     Result := False;
@@ -1007,7 +1023,7 @@ begin
             end;
           utDeleteFile: begin
               { Note: Some of this code is duplicated in Step 2 }
-              Filename := CurRecData[1];
+              var Filename := CurRecData[1];
               if CallFromUninstaller or (Filename = '') then
                 Filename := CurRecData[0];
               if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_ExistedBeforeInstall = 0) then begin
@@ -1038,13 +1054,13 @@ begin
           utIniDeleteEntry: begin
               Section := CurRecData[1];
               Key := CurRecData[2];
-              Filename := CurRecData[0];
+              const Filename = CurRecData[0];
               LogFmt('Deleting INI entry: %s in section %s in %s', [Key, Section, GetLogIniFilename(Filename)]);
               DeleteIniEntry(Section, Key, Filename);
             end;
           utIniDeleteSection: begin
               Section := CurRecData[1];
-              Filename := CurRecData[0];
+              const Filename = CurRecData[0];
               if (CurRec^.ExtraData and utIniDeleteSection_OnlyIfEmpty = 0) or
                  IsIniSectionEmpty(Section, Filename) then begin
                 LogFmt('Deleting INI section: %s in %s', [Section, GetLogIniFilename(Filename)]);
