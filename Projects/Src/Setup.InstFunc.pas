@@ -395,7 +395,7 @@ var
 begin
   if not (RegView in [rv32Bit, rv64Bit]) then
     InternalError('IncrementSharedCount: Invalid RegView value');
-  const SharedFile = ApplyPathRedirRulesForSysCall(RegView = rv64Bit, Filename, True);
+  const RedirFilename = ApplyPathRedirRulesForSysCall(RegView = rv64Bit, Filename, True);
 
   const ErrorCode = Cardinal(RegCreateKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0, nil,
     REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE, nil, K, @Disp));
@@ -405,7 +405,7 @@ begin
       FmtSetupMessage(msgErrorFunctionFailedWithMessage,
         ['RegCreateKeyEx', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
 
-  const SharedFileP = PChar(SharedFile);
+  const SharedFileP = PChar(RedirFilename);
   var Count := 0;
   NewType := REG_DWORD;
   try
@@ -465,7 +465,7 @@ begin
 
   if not (RegView in [rv32Bit, rv64Bit]) then
     InternalError('DecrementSharedCount: Invalid RegView value');
-  const SharedFile = ApplyPathRedirRulesForSysCall(RegView = rv64Bit, Filename, True);
+  const RedirFilename = ApplyPathRedirRulesForSysCall(RegView = rv64Bit, Filename, True);
 
   const ErrorCode = Cardinal(RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0,
     KEY_QUERY_VALUE or KEY_SET_VALUE, K));
@@ -477,7 +477,7 @@ begin
       FmtSetupMessage(msgErrorFunctionFailedWithMessage,
         ['RegOpenKeyEx', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
 
-  const SharedFileP = PChar(SharedFile);
+  const SharedFileP = PChar(RedirFilename);
   try
     if RegQueryValueEx(K, SharedFileP, nil, @CurType, nil, @Size) <> ERROR_SUCCESS then
       Exit;

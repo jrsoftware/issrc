@@ -202,13 +202,13 @@ end;
 
 procedure RegisterTypeLibrary(const Filename: String);
 begin
-  const ExpandedFilename = ApplyPathRedirRulesForSysCall(IsCurrentProcess64Bit, Filename, False);
+  const RedirFilename = ApplyPathRedirRulesForSysCall(IsCurrentProcess64Bit, Filename, False);
 
   var TypeLib: ITypeLib;
-  var OleResult := LoadTypeLib(PChar(ExpandedFilename), TypeLib);
+  var OleResult := LoadTypeLib(PChar(RedirFilename), TypeLib);
   if OleResult <> S_OK then
     RaiseOleError('LoadTypeLib', OleResult);
-  OleResult := RegisterTypeLib(TypeLib, PChar(ExpandedFilename), nil);
+  OleResult := RegisterTypeLib(TypeLib, PChar(RedirFilename), nil);
   if OleResult <> S_OK then
     RaiseOleError('RegisterTypeLib', OleResult);
 end;
@@ -218,7 +218,7 @@ type
   TUnRegTlbProc = function(const libID: TGUID; wVerMajor, wVerMinor: Word;
     lcid: TLCID; syskind: TSysKind): HResult; stdcall;
 begin
-  const ExpandedFilename = ApplyPathRedirRulesForSysCall(IsCurrentProcess64Bit, Filename, False);
+  const RedirFilename = ApplyPathRedirRulesForSysCall(IsCurrentProcess64Bit, Filename, False);
 
   { Dynamically import UnRegisterTypeLib since older OLEAUT32.DLL versions
     don't have this function }
@@ -229,7 +229,7 @@ begin
     Win32ErrorMsg('GetProcAddress');
 
   var TypeLib: ITypeLib;
-  var OleResult := LoadTypeLib(PChar(ExpandedFilename), TypeLib);
+  var OleResult := LoadTypeLib(PChar(RedirFilename), TypeLib);
   if OleResult <> S_OK then
     RaiseOleError('LoadTypeLib', OleResult);
   var LibAttr: PTLibAttr;
