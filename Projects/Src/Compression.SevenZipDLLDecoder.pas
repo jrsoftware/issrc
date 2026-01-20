@@ -29,7 +29,7 @@ procedure ExtractArchive(const ArchiveFilename, DestDir, Password: String; const
 { These functions work similar to Windows' FindFirstFile, FindNextFile, and
   FindClose with the exception that recursion is built-in and that the
   resulting FindFileData.cFilename contains not just a filename but also the
-  subdir. Also, ArchiveFindFirstFileRedir throws an exception for most errors:
+  subdir. Also, ArchiveFindFirstFile throws an exception for most errors:
   INVALID_HANDLE_VALUE is only used if the archive is ok but no suitable file
   was found. }
 type
@@ -1097,7 +1097,7 @@ begin
   Log('Everything is Ok'); { Just like 7zMain.c }
 end;
 
-{ ArchiveFindFirstFileRedir & co }
+{ ArchiveFindFirstFile & co }
 
 type
   TArchiveFindState = record
