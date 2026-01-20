@@ -703,8 +703,11 @@ Retry:
       DeleteFlags := 0;
       if IsCurrentProcess64Bit then { Post-ApplyPathRedirRules we should check IsCurrentProcess64Bit and not Is64Bit }
         DeleteFlags := DeleteFlags or utDeleteFile_Is64Bit;
-      if foRegisterServer in CurFile^.Options then
+      if foRegisterServer in CurFile^.Options then begin
         DeleteFlags := DeleteFlags or utDeleteFile_RegisteredServer;
+        if IsCurrentProcess64Bit <> Is64Bit then
+          DeleteFlags := DeleteFlags or utDeleteFile_RegisteredWithOppositeBitness;
+      end;
       if foRegisterTypeLib in CurFile^.Options then
         DeleteFlags := DeleteFlags or utDeleteFile_RegisteredTypeLib;
       if foUninsRestartDelete in CurFile^.Options then

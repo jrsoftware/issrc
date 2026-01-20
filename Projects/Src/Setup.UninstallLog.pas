@@ -15,7 +15,7 @@ uses
   Windows, SysUtils, Shared.FileClass, Shared.CommonFunc;
 
 const
-  HighestSupportedHeaderVersion = 1054;
+  HighestSupportedHeaderVersion = 1055;
   { Each time the format of the uninstall log changes, HighestSupportedHeaderVersion
     must be incremented, even if the change seems backward compatible (such as
     adding a new flag, or using one of the Reserved slots). When this happens, the
@@ -92,6 +92,7 @@ const
   utDeleteFile_Is64Bit = 2048;
   utDeleteFile_GacInstalled = 4096;
   utDeleteFile_PerUserFont = 8192;
+  utDeleteFile_RegisteredWithOppositeBitness = 16384;
   utDeleteDirOrFiles_Extra = 1;
   utDeleteDirOrFiles_IsDir = 2;
   utDeleteDirOrFiles_DeleteFiles = 4;
@@ -931,7 +932,9 @@ begin
               { Unregister if necessary }
               if not IsTempFile then begin
                 if CurRec^.ExtraData and utDeleteFile_RegisteredServer <> 0 then begin
-                  LoggedUnregisterServer(CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0,
+                  LoggedUnregisterServer(
+                    (CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0) xor
+                    (CurRec^.ExtraData and utDeleteFile_RegisteredWithOppositeBitness <> 0),
                     CurRecData[0]);
                 end;
                 if CurRec^.ExtraData and utDeleteFile_RegisteredTypeLib <> 0 then begin
