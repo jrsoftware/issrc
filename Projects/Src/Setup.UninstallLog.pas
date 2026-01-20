@@ -837,7 +837,7 @@ begin
               var ExpandedWorkingDir := CurRecData[2];
 
               const ExpandedFilenameBeforeRedir = ExpandedFilename;
-              if CurRec^.ExtraData and utRun_ShellExec = 0 then { ShellExecuteEx does not support super paths }
+              if CurRec^.ExtraData and utRun_ShellExec = 0 then
                 ApplyRedirToRunEntryPaths(RunEntry64Bit, ExpandedFilename, ExpandedWorkingDir);
 
               LogFmt('Running %s filename: %s', [&Type, ExpandedFilename]);

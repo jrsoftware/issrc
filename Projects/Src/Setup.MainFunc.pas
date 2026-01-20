@@ -4156,7 +4156,7 @@ begin
     var ExpandedWorkingDir := ExpandConst(RunEntry.WorkingDir);
 
     const ExpandedFilenameBeforeRedir = ExpandedFilename;
-    if not(roShellExec in RunEntry.Options) then { ShellExecuteEx does not support super paths }
+    if not(roShellExec in RunEntry.Options) then
       ApplyRedirToRunEntryPaths(RunEntry64Bit, ExpandedFilename, ExpandedWorkingDir);
 
     LogFmt('Filename: %s', [ExpandedFilename]);
