@@ -1087,7 +1087,9 @@ function ApplyPathRedirRulesForSysCall(const Is64Bit: Boolean; const Filename: S
   - On 32-bit pass a System32 path, not SysWOW64.
   - Use rfNormalPath because using a super path might be non-standard
     or might not work at all. Nobody would place a DLL in a path longer
-    than MAX_PATH anyway. }
+    than MAX_PATH anyway.
+  Note: Filename must be a current-process-bit path, so a regular
+  ApplyPathRedirRules call must have been done already. }
 begin
   var TargetProcess: TPathRedirTargetProcess;
   if Is64Bit then begin
@@ -1097,7 +1099,9 @@ begin
       TargetProcess := tpCurrent
   end else
     TargetProcess := tp32BitPreferSystem32;
-
+    
+  { Post-ApplyPathRedirRules we should check IsCurrentProcess64Bit and
+    not the original Is64Bit. }
   Result := ApplyPathRedirRules(IsCurrentProcess64Bit,
     Filename, [rfNormalPath], TargetProcess);
 end;
