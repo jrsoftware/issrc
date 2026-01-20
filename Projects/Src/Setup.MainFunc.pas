@@ -4129,8 +4129,7 @@ begin
     TargetProcess := tpNativeBit;
 
   { rfNormalPath is used below because the process to run might have problems
-    with super paths. Additionally, ProcessRunEntry may use ShellExecuteEx
-    to run the process, which does not support super paths. }
+    with super paths }
 
   if PathIsRooted(AFilename) then
     AFilename := ApplyPathRedirRules(RunEntry64Bit, AFilename,
@@ -4180,7 +4179,7 @@ begin
     var ExpandedWorkingDir := ExpandConst(RunEntry.WorkingDir);
 
     const ExpandedFilenameBeforeRedir = ExpandedFilename;
-    if not(roShellExec in RunEntry.Options) then
+    if not(roShellExec in RunEntry.Options) then { ShellExecuteEx does not support super paths }
       ApplyRedirToRunEntryPaths(RunEntry64Bit, ExpandedFilename, ExpandedWorkingDir);
 
     LogFmt('Filename: %s', [ExpandedFilename]);
