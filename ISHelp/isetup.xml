@@ -2785,7 +2785,6 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 <flag name="shellexec">
 <p>This flag is required if <tt>Filename</tt> is not a directly executable file (an .exe or .com file). When this flag is set, <tt>Filename</tt> can be a folder or any registered file type -- including .chm, .doc, and so on. The file will be opened with the application associated with the file type on the user's system, the same way it would be if the user double-clicked the file in Explorer.</p>
 <p>By default, when the <tt>shellexec</tt> flag is used it will not wait until the spawned process terminates. If you need that, you must add the flag <tt>waituntilterminated</tt>. Note that it cannot and will not wait if a new process isn't spawned -- for example, if <tt>Filename</tt> specifies a folder.</p>
-<p>Does not support extended-length paths (also known as super paths).</p>
 </flag>
 <flag name="skipifdoesntexist">
 <p>If this flag is specified in the [Run] section, Setup won't display an error message if <tt>Filename</tt> doesn't exist.</p>
