@@ -281,15 +281,10 @@ begin
     LogWithErrorCode('MoveFileEx failed.', ErrorCode);
 end;
 
-const
-  dd32 = '0';
-  dd64 = '1';
-
-function LoggedDeleteDir(const A64Bit: Boolean; const DirName: String;
+function LoggedDeleteDir(const DirName: String;
   const DirsNotRemoved, RestartDeleteDirList: TSimpleStringList): Boolean;
 const
   FILE_ATTRIBUTE_REPARSE_POINT = $00000400;
-  DirsNotRemovedPrefix: array[Boolean] of Char = (dd32, dd64);
 var
   Attribs, LastError: DWORD;
 begin
@@ -316,7 +311,7 @@ begin
       LastError := GetLastError;
       if Assigned(DirsNotRemoved) then begin
         LogFmt('Failed to delete directory (%d). Will retry later.', [LastError]);
-        DirsNotRemoved.AddIfDoesntExist(DirsNotRemovedPrefix[A64Bit] + DirName);
+        DirsNotRemoved.AddIfDoesntExist(DirName);
       end
       else if Assigned(RestartDeleteDirList) and
          ListContainsPathOrSubdir(RestartDeleteDirList, DirName) then begin
@@ -472,9 +467,9 @@ type
     DirsNotRemoved: TSimpleStringList;
   end;
 
-function LoggedDeleteDirProc(const A64Bit: Boolean; const DirName: String; const Param: Pointer): Boolean;
+function LoggedDeleteDirProc(const AIgnored: Boolean; const DirName: String; const Param: Pointer): Boolean;
 begin
-  Result := LoggedDeleteDir(A64Bit, DirName, PDeleteDirData(Param)^.DirsNotRemoved, nil);
+  Result := LoggedDeleteDir(DirName, PDeleteDirData(Param)^.DirsNotRemoved, nil);
 end;
 
 function LoggedDeleteFileProc(const AIgnored: Boolean; const FileName: String; const Param: Pointer): Boolean;
@@ -587,7 +582,7 @@ function TUninstallLog.PerformUninstall(const CallFromUninstaller: Boolean;
 var
   RefreshFileAssoc: Boolean;
   ChangeNotifyList, RunOnceList: TSimpleStringList;
-  UnregisteredServersList, RestartDeleteDirList: array[Boolean] of TSimpleStringList;
+  UnregisteredServersList, RestartDeleteDirList: TSimpleStringList;
   DeleteDirData: TDeleteDirData;
 
   function LoggedFileDelete(const Filename: String; const DisableFsRedir,
@@ -633,7 +628,7 @@ var
             NeedRestart := True;
             { Add the file's directory to the list of directories that should
               be restart-deleted later }
-            RestartDeleteDirList[DisableFsRedir].AddIfDoesntExist(PathExtractDir(PathExpand(Filename)));
+            RestartDeleteDirList.AddIfDoesntExist(PathExtractDir(Filename));
           except
             Log('Exception message:' + SNewLine + GetExceptMessage);
             Result := False;
@@ -675,14 +670,14 @@ var
   begin
     { Just as an optimization, make sure we aren't unregistering
       the same file again }
-    if UnregisteredServersList[Is64Bit].IndexOf(Filename) = -1 then begin
+    if UnregisteredServersList.IndexOf(Filename) = -1 then begin
       if Is64Bit then
         LogFmt('Unregistering 64-bit DLL/OCX: %s', [Filename])
       else
         LogFmt('Unregistering 32-bit DLL/OCX: %s', [Filename]);
       try
         RegisterServer(True, Is64Bit, Filename, True);
-        UnregisteredServersList[Is64Bit].Add(Filename);
+        UnregisteredServersList.Add(Filename);
         Log('Unregistration successful.');
       except
         Log('Unregistration failed:' + SNewLine + GetExceptMessage);
@@ -733,14 +728,8 @@ var
 
   procedure LoggedProcessDirsNotRemoved;
   begin
-    for var I := 0 to DeleteDirData.DirsNotRemoved.Count-1 do begin
-      var S := DeleteDirData.DirsNotRemoved[I];
-      { The first character specifies the A64Bit value
-        (e.g. '0C:\Program Files\My Program') }
-      const A64Bit = (S[1] = dd64);
-      System.Delete(S, 1, 1);
-      LoggedDeleteDir(A64Bit, S, nil, RestartDeleteDirList[A64Bit]);
-    end;
+    for var I := 0 to DeleteDirData.DirsNotRemoved.Count-1 do
+      LoggedDeleteDir(DeleteDirData.DirsNotRemoved[I], nil, RestartDeleteDirList);
   end;
   
   function GetLogIniFilename(const Filename: String): String;
@@ -789,18 +778,14 @@ begin
 
   RefreshFileAssoc := False;
   RunOnceList := nil;
-  UnregisteredServersList[False] := nil;
-  UnregisteredServersList[True] := nil;
-  RestartDeleteDirList[False] := nil;
-  RestartDeleteDirList[True] := nil;
+  UnregisteredServersList := nil;
+  RestartDeleteDirList := nil;
   DeleteDirData.DirsNotRemoved := nil;
   ChangeNotifyList := TSimpleStringList.Create;
   try
     RunOnceList := TSimpleStringList.Create;
-    UnregisteredServersList[False] := TSimpleStringList.Create;
-    UnregisteredServersList[True] := TSimpleStringList.Create;
-    RestartDeleteDirList[False] := TSimpleStringList.Create;
-    RestartDeleteDirList[True] := TSimpleStringList.Create;
+    UnregisteredServersList := TSimpleStringList.Create;
+    RestartDeleteDirList := TSimpleStringList.Create;
     if Assigned(DeleteUninstallDataFilesProc) then
       DeleteDirData.DirsNotRemoved := TSimpleStringList.Create;
 
@@ -1163,14 +1148,12 @@ begin
     end;
   finally
     DeleteDirData.DirsNotRemoved.Free;
-    RestartDeleteDirList[True].Free;
-    RestartDeleteDirList[False].Free;
+    RestartDeleteDirList.Free;
     for P := 0 to ChangeNotifyList.Count-1 do
       if DirExists(ChangeNotifyList[P]) then
         SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATH or SHCNF_FLUSH,
           PChar(ChangeNotifyList[P]), nil);
-    UnregisteredServersList[True].Free;
-    UnregisteredServersList[False].Free;
+    UnregisteredServersList.Free;
     RunOnceList.Free;
     ChangeNotifyList.Free;
   end;
