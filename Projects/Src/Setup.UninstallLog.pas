@@ -773,15 +773,6 @@ var
     end;
   end;
 
-  function ApplyRedirToUninstallEntry(const CallFromUninstaller, Is64Bit: Boolean;
-    const Filename: String): String;
-  begin
-    if CallFromUninstaller then
-      Result := ApplyPathRedirRules(Is64Bit, Filename)
-    else
-      Result := Filename;
-  end;
-
 begin
   Log('Starting the uninstallation process.');
   SetCurrentDir(GetSystemDir);
@@ -932,13 +923,13 @@ begin
             IsSharedFile := CurRec^.ExtraData and utDeleteFile_SharedFile <> 0;
             if IsSharedFile then begin
               const Is64BitKey = CurRec^.ExtraData and utDeleteFile_SharedFileIn64BitKey <> 0;
-              const Filename = ApplyRedirToUninstallEntry(CallFromUninstaller, Is64BitKey, CurRecData[0]);
+              const Filename = ApplyPathRedirRules(Is64BitKey, CurRecData[0]);
               SharedCountDidReachZero := LoggedDecrementSharedCount(Filename, Is64BitKey);
             end else
               SharedCountDidReachZero := False; //silence compiler
 
             const Is64Bit = CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0;
-            const Filename = ApplyRedirToUninstallEntry(CallFromUninstaller, Is64Bit, CurRecData[0]);
+            const Filename = ApplyPathRedirRules(Is64Bit, CurRecData[0]);
 
             if not IsSharedFile or
                (SharedCountDidReachZero and
@@ -1010,7 +1001,7 @@ begin
           utDeleteDirOrFiles:
             if (CallFromUninstaller or (CurRec^.ExtraData and utDeleteDirOrFiles_Extra = 0)) then begin
               const Is64Bit = CurRec^.ExtraData and utDeleteDirOrFiles_Is64Bit <> 0;
-              const Path = ApplyRedirToUninstallEntry(CallFromUninstaller, Is64Bit, CurRecData[0]);
+              const Path = ApplyPathRedirRules(Is64Bit, CurRecData[0]);
               if DelTree(Is64Bit, Path, CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteFiles <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteSubdirsAlso <> 0,
@@ -1031,7 +1022,7 @@ begin
                 Filename := CurRecData[1]
               else
                 Filename := CurRecData[0];
-              Filename := ApplyRedirToUninstallEntry(CallFromUninstaller, Is64Bit, Filename);
+              Filename := ApplyPathRedirRules(Is64Bit, Filename);
               if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_ExistedBeforeInstall = 0) then begin
                 { Note: We handled utDeleteFile_SharedFile already }
                 if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_Extra = 0) then
@@ -1127,7 +1118,7 @@ begin
             end;
           utDecrementSharedCount: begin
               const Is64BitKey = CurRec^.ExtraData and utDecrementSharedCount_64BitKey <> 0;
-              const Filename = ApplyRedirToUninstallEntry(CallFromUninstaller, Is64BitKey, CurRecData[0]);
+              const Filename = ApplyPathRedirRules(Is64BitKey, CurRecData[0]);
               LoggedDecrementSharedCount(Filename, Is64BitKey);
             end;
           utRefreshFileAssoc:
