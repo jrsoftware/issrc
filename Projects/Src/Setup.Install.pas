@@ -1292,11 +1292,13 @@ Retry:
             CurFile^.StrongAssemblyName], DeleteFlags);
         end
         else begin
+          { See comment in Setup.UninstallLog }
+          const RedirDestFile = ApplyRedirForRegistrationOperation(Is64Bit, DestFile);
           if Is64Bit then
-            UninstLog.Add(utDecrementSharedCount, [DestFile],
+            UninstLog.Add(utDecrementSharedCount, [RedirDestFile],
               utDecrementSharedCount_64BitKey)
           else
-            UninstLog.Add(utDecrementSharedCount, [DestFile], 0);
+            UninstLog.Add(utDecrementSharedCount, [RedirDestFile], 0);
         end;
       end;
 

@@ -1127,9 +1127,13 @@ begin
               end;
             end;
           utDecrementSharedCount: begin
-              const Is64BitKey = CurRec^.ExtraData and utDecrementSharedCount_64BitKey <> 0;
-              const Filename = ApplyPathRedirRules(Is64BitKey, CurRecData[0]);
-              LoggedDecrementSharedCount(Filename, Is64BitKey);
+              { utDeleteFile and utDecrementSharedCount are different: utDeleteFile's
+                CurRecData[0] is current-process-bit compared to utDeleteFile_Is64Bit,
+                but utDecrementSharedCount's is not, because there was and is no
+                utDecrementSharedCount_Is64Bit. Instead, ApplyRedirForRegistrationOperation
+                was used when utDecrementSharedCount was added, see Setup.Install. }
+              LoggedDecrementSharedCount(CurRecData[0],
+                CurRec^.ExtraData and utDecrementSharedCount_64BitKey <> 0);
             end;
           utRefreshFileAssoc:
             RefreshFileAssoc := True;
