@@ -1647,7 +1647,7 @@ begin
   end;
 end;
 
-function TempDeleteFileProc(const AIgnored: Boolean; const FileName: String; const Param: Pointer): Boolean;
+function TempDeleteFileProc(const FileName: String; const Param: Pointer): Boolean;
 var
   Elapsed: DWORD;
 label Retry;
@@ -1924,11 +1924,9 @@ begin
 end;
 
 type
-  TEnumFilesProc = function(const DisableFsRedir: Boolean; const Filename: String;
-    const Param: Pointer): Boolean;
+  TEnumFilesProc = function(const Filename: String; const Param: Pointer): Boolean;
 
-function DummyDeleteDirProc(const AIgnored: Boolean; const Filename: String;
-    const Param: Pointer): Boolean;
+function DummyDeleteDirProc(const Filename: String; const Param: Pointer): Boolean;
 begin
   { We don't actually want to delete the dir, so just return success. }
   Result := True;
@@ -1970,7 +1968,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
             else if SearchSubDir <> '' then
               DestFile := PathExtractPath(DestFile) + SearchSubDir + PathExtractName(DestFile);
             DestFile := ApplyPathRedirRules(Is64Bit, DestFile);
-            if not EnumFilesProc(Is64Bit, DestFile, Param) then begin
+            if not EnumFilesProc(DestFile, Param) then begin
               Result := False;
               Exit;
             end;
@@ -2026,7 +2024,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
               Continue;
 
             const DestFile = DestDir + FindData.cFileName;
-            if not EnumFilesProc(Is64Bit, DestFile, Param) then
+            if not EnumFilesProc(DestFile, Param) then
               Exit(False);
           end;
         until not ArchiveFindNextFile(H, FindData);
@@ -2055,7 +2053,7 @@ begin
         const Is64Bit = FileEntryIs64Bit(CurFile);
         if CurFile^.LocationEntry <> -1 then begin
           { Non-external file }
-          if not EnumFilesProc(Is64Bit, ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName)), Param) then begin
+          if not EnumFilesProc(ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName)), Param) then begin
             Result := False;
             Exit;
           end;
@@ -2069,7 +2067,7 @@ begin
             if not(foCustomDestName in CurFile^.Options) then
               InternalError('Expected CustomDestName flag');
             { CurFile^.DestName now includes a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
-            if not EnumFilesProc(Is64Bit, ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName)), Param) then
+            if not EnumFilesProc(ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName)), Param) then
               Exit(False);
           end else begin
             SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.SourceFilename));
@@ -2126,8 +2124,7 @@ end;
 var
   CheckForFileSL: TStringList;
 
-function CheckForFile(const AIgnored: Boolean; const AFilename: String;
-  const Param: Pointer): Boolean;
+function CheckForFile(const AFilename: String; const Param: Pointer): Boolean;
 begin
   { CheckForFileSL contains native-bit filenames, so AFilename needs to be
     converted from current-process-bit to native-bit before comparing. }
@@ -2168,8 +2165,7 @@ var
   RegisterFileBatchFilenames: PArrayOfPWideChar;
   RegisterFileFilenamesBatchMax, RegisterFileFilenamesBatchCount: Integer;
 
-function RegisterFile(const AIgnored: Boolean; const AFilename: String;
-  const Param: Pointer): Boolean;
+function RegisterFile(const AFilename: String; const Param: Pointer): Boolean;
 var
   Filename, Text: String;
   I, Len: Integer;
@@ -2248,7 +2244,7 @@ var
 function CodeRegisterExtraCloseApplicationsResource(const AFilename: String): Boolean;
 begin
   if AllowCodeRegisterExtraCloseApplicationsResource then
-    Result := RegisterFile(False, AFilename, Pointer(False))
+    Result := RegisterFile(AFilename, Pointer(False))
   else begin
     InternalError('Cannot call "RegisterExtraCloseApplicationsResource" function at this time');
     Result := False;
@@ -2289,7 +2285,7 @@ begin
     end;
     { Don't forget to register leftovers. }
     if RmSessionStarted then
-      RegisterFile(False, '', nil);
+      RegisterFile('', nil);
   finally
     for I := 0 to RegisterFileFilenamesBatchCount-1 do
       FreeMem(RegisterFileBatchFilenames[I]);

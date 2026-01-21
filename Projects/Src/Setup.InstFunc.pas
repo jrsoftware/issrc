@@ -36,8 +36,8 @@ type
     property Items[Index: Integer]: String read Get; default;
   end;
 
-  TDeleteDirProc = function(const A64Bit: Boolean; const DirName: String; const Param: Pointer): Boolean;
-  TDeleteFileProc = function(const A64Bit: Boolean; const FileName: String; const Param: Pointer): Boolean;
+  TDeleteDirProc = function(const DirName: String; const Param: Pointer): Boolean;
+  TDeleteFileProc = function(const FileName: String; const Param: Pointer): Boolean;
 
   TEnumFROFilenamesProc = procedure(const Filename: String; Param: Pointer);
 
@@ -310,7 +310,7 @@ begin
             end;
             if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
               if Assigned(DeleteFileProc) then begin
-                if not DeleteFileProc(A64Bit, BasePath + S, Param) then
+                if not DeleteFileProc(BasePath + S, Param) then
                   Result := False;
               end
               else begin
@@ -333,7 +333,7 @@ begin
   end;
   if (not BreakOnError or Result) and IsDir then begin
     if Assigned(DeleteDirProc) then begin
-      if not DeleteDirProc(A64Bit, Path, Param) then
+      if not DeleteDirProc(Path, Param) then
         Result := False;
     end
     else begin

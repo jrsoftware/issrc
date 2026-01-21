@@ -467,12 +467,12 @@ type
     DirsNotRemoved: TSimpleStringList;
   end;
 
-function LoggedDeleteDirProc(const AIgnored: Boolean; const DirName: String; const Param: Pointer): Boolean;
+function LoggedDeleteDirProc(const DirName: String; const Param: Pointer): Boolean;
 begin
   Result := LoggedDeleteDir(DirName, PDeleteDirData(Param)^.DirsNotRemoved, nil);
 end;
 
-function LoggedDeleteFileProc(const AIgnored: Boolean; const FileName: String; const Param: Pointer): Boolean;
+function LoggedDeleteFileProc(const FileName: String; const Param: Pointer): Boolean;
 begin
   LogFmt('Deleting file: %s', [FileName]);
   Result := Windows.DeleteFile(PChar(FileName));
