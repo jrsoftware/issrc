@@ -2,7 +2,7 @@ unit Setup.InstFunc.Ole;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -27,7 +27,8 @@ uses
   SysUtils,
   PathFunc,
   Shared.CommonFunc, Shared.SetupMessageIDs,
-  Setup.InstFunc, Setup.MainFunc, SetupLdrAndSetup.Messages;
+  SetupLdrAndSetup.Messages,
+  Setup.InstFunc, Setup.MainFunc, Setup.PathRedir;
 
 procedure AssignWorkingDir(const SL: IShellLink; const WorkingDir: String);
 { Assigns the specified working directory to SL. If WorkingDir is empty then
@@ -200,16 +201,14 @@ begin
 end;
 
 procedure RegisterTypeLibrary(const Filename: String);
-var
-  ExpandedFilename: String;
-  OleResult: HRESULT;
-  TypeLib: ITypeLib;
 begin
-  ExpandedFilename := PathExpand(Filename);
-  OleResult := LoadTypeLib(PChar(ExpandedFilename), TypeLib);
+  const RedirFilename = ApplyRedirForRegistrationOperation(IsCurrentProcess64Bit, Filename);
+
+  var TypeLib: ITypeLib;
+  var OleResult := LoadTypeLib(PChar(RedirFilename), TypeLib);
   if OleResult <> S_OK then
     RaiseOleError('LoadTypeLib', OleResult);
-  OleResult := RegisterTypeLib(TypeLib, PChar(ExpandedFilename), nil);
+  OleResult := RegisterTypeLib(TypeLib, PChar(RedirFilename), nil);
   if OleResult <> S_OK then
     RaiseOleError('RegisterTypeLib', OleResult);
 end;
@@ -218,23 +217,22 @@ procedure UnregisterTypeLibrary(const Filename: String);
 type
   TUnRegTlbProc = function(const libID: TGUID; wVerMajor, wVerMinor: Word;
     lcid: TLCID; syskind: TSysKind): HResult; stdcall;
-var
-  UnRegTlbProc: TUnRegTlbProc;
-  ExpandedFilename: String;
-  OleResult: HRESULT;
-  TypeLib: ITypeLib;
-  LibAttr: PTLibAttr;
 begin
+  const RedirFilename = ApplyRedirForRegistrationOperation(IsCurrentProcess64Bit, Filename);
+
   { Dynamically import UnRegisterTypeLib since older OLEAUT32.DLL versions
     don't have this function }
+  var UnRegTlbProc: TUnRegTlbProc;
   @UnRegTlbProc := GetProcAddress(GetModuleHandle('OLEAUT32.DLL'),
     'UnRegisterTypeLib');
   if @UnRegTlbProc = nil then
     Win32ErrorMsg('GetProcAddress');
-  ExpandedFilename := PathExpand(Filename);
-  OleResult := LoadTypeLib(PChar(ExpandedFilename), TypeLib);
+
+  var TypeLib: ITypeLib;
+  var OleResult := LoadTypeLib(PChar(RedirFilename), TypeLib);
   if OleResult <> S_OK then
     RaiseOleError('LoadTypeLib', OleResult);
+  var LibAttr: PTLibAttr;
   OleResult := TypeLib.GetLibAttr(LibAttr);
   if OleResult <> S_OK then
     RaiseOleError('ITypeLib::GetLibAttr', OleResult);

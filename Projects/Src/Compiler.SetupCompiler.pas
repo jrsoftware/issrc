@@ -5756,6 +5756,17 @@ begin
           AbortCompileFmt(SCompilerParamErrorBadCombo2,
             [ParamCommonFlags, '32bit', '64bit']);
 
+        if foRegisterTypeLib in Options then begin
+          { Only checks basic versions of ArchitecturesInstallIn64BitMode, so does not catch
+            all cases of a mismatch. Setup will then throw an internal error instead. }
+          if (SetupArchitecture = sa32bit) and
+             ((fo64Bit in Options) or (SetupHeader.ArchitecturesInstallIn64BitMode = 'x64compatible')) then
+            AbortCompileFmt(SCompilerRegTypeLibArchitectureMismatch, [32, 64])
+          else if (SetupArchitecture = sa64bit) and
+                  ((fo32Bit in Options) or (SetupHeader.ArchitecturesInstallIn64BitMode = '')) then
+            AbortCompileFmt(SCompilerRegTypeLibArchitectureMismatch, [64, 32])
+        end;
+
         if AInstallFontName <> '' then begin
           if not(foFontIsntTrueType in Options) then
             AInstallFontName := AInstallFontName + ' (TrueType)';

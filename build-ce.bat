@@ -1,7 +1,7 @@
 @echo off
 
 rem  Inno Setup
-rem  Copyright (C) 1997-2025 Jordan Russell
+rem  Copyright (C) 1997-2026 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
@@ -41,7 +41,6 @@ if not exist files\issigtool.exe (
 rem  Verify precompiled binaries which are used during compilation
 rem  Note: Other precompiled binaries are verified by Setup.iss
 call .\issig.bat verify --key-file=def01.ispublickey ^
-  Projects\Src\Setup.HelperEXEs.res ^
   Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec-x86.obj ^
   Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec-x64.obj ^
   Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno-x86.obj ^

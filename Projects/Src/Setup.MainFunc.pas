@@ -179,7 +179,7 @@ function CodeRunnerOnDebugIntermediate(const Position: Cardinal;
   var ContinueStepOver: Boolean): Boolean;
 procedure CodeRunnerOnDllImport(var DllName: String; var ForceDelayLoad: Boolean);
 procedure CodeRunnerOnException(const Exception: AnsiString; const Position: Cardinal);
-procedure CreateTempInstallDirAndExtract64BitHelper;
+procedure CreateTempInstallDir;
 procedure DebugNotifyEntry(EntryType: TEntryType; Number: NativeInt);
 procedure DeinitSetup(const AllowCustomSetupExitCode: Boolean);
 procedure DeleteResidualTempUninstallDirs;
@@ -263,7 +263,7 @@ uses
   Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
   Shared.FileClass, Setup.LoggingFunc, StringScanner,
-  SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer,
+  SimpleExpression, Setup.SpawnClient, Setup.SpawnServer,
   Setup.DotNetFunc, Shared.TaskDialogFunc, Setup.MainForm, Compression.SevenZipDecoder,
   Compression.SevenZipDLLDecoder, Setup.SetupForm;
 
@@ -1626,9 +1626,8 @@ begin
     [NumDirsFound, NumDirsChecked, NumFilesDeleted]);
 end;
 
-procedure CreateTempInstallDirAndExtract64BitHelper;
-{ Initializes TempInstallDir and extracts the 64-bit helper into it if needed.
-  This is called by Setup, Uninstall, and RegSvr. }
+procedure CreateTempInstallDir;
+{ Initializes TempInstallDir. This is called by Setup, Uninstall, and RegSvr. }
 begin
   var Protected: Boolean;
   TempInstallDir := CreateTempDir('.tmp', IsAdmin and not Debugging, Protected);
@@ -1645,15 +1644,6 @@ begin
     raise Exception.Create(FmtSetupMessage(msgLastErrorMessage,
       [FmtSetupMessage1(msgErrorCreatingDir, Subdir), IntToStr(ErrorCode),
        Win32ErrorString(ErrorCode)]));
-  end;
-
-  { Extract 64-bit helper EXE, if one is available for the current processor
-    architecture }
-  var ResName := GetHelperResourceName;
-  if ResName <> '' then begin
-    var Filename := Subdir + '\_setup64.tmp';
-    SaveResourceToTempFile(ResName, Filename);
-    SetHelperExeFilename(Filename);
   end;
 end;
 
@@ -1685,13 +1675,8 @@ Retry:
 end;
 
 procedure RemoveTempInstallDir;
-{ Removes TempInstallDir and all its contents. Stops the 64-bit helper first
-  if necessary. }
+{ Removes TempInstallDir and all its contents. }
 begin
-  { Stop 64-bit helper if it's running }
-  StopHelper(False);
-  SetHelperExeFilename('');
-
   if TempInstallDir <> '' then begin
     if Debugging then
       DebugNotifyTempDir('');
@@ -3683,8 +3668,8 @@ begin
   { Init main constants, not depending on shfolder.dll/_shfoldr.dll }
   InitMainNonSHFolderConsts;
 
-  { Create temporary directory and extract 64-bit helper EXE if necessary }
-  CreateTempInstallDirAndExtract64BitHelper;
+  { Create temporary directory }
+  CreateTempInstallDir;
 
   { Load system's "shfolder.dll", and load it }
   LoadSHFolderDLL;
@@ -4053,7 +4038,7 @@ begin
   { Free the shfolder.dll handle }
   UnloadSHFolderDLL;
 
-  { Remove TempInstallDir, stopping the 64-bit helper first if necessary }
+  { Remove TempInstallDir }
   RemoveTempInstallDir;
 
   { An attempt to restart while debugging is most likely an accident;

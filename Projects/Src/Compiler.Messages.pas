@@ -136,6 +136,7 @@ const
   SCompilerArchitectureIdentifierInvalid = 'Architecture identifier "%s" is invalid';
   SCompilerArchitectureIdentifierDeprecatedWarning = 'Architecture identifier "%s" is deprecated. ' +
     'Substituting "%s", but note that "%s" is preferred in most cases. See the "Architecture Identifiers" topic in help file for more information.';
+  SCompilerRegTypeLibArchitectureMismatch = '%d-bit Setup cannot register %d-bit type libraries.';
 
   { Signing }
   SCompilerSignatureNeeded = 'Signed uninstaller mode is enabled. Using ' +

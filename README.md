@@ -230,10 +230,6 @@ by Visual Studio 2022 from the [Projects\Src\Compression.LZMACompressor\islzma] 
 **Files\isscint(-x64).dll** - Compiled by Visual Studio 2022 from Scintilla source
 code in the [isscint] repository.
 
-**Projects\Src\Setup.HelperEXEs\Helper\x64\Release\Helper.exe**, **Projects\Src\Setup.HelperEXEs.res** -
-Compiled by Visual Studio 2005 from the [Projects\Src\Setup.HelperEXEs\Helper] directory and then
-stored in a compiled resource file.
-
 **Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec(-x86|-x64).obj** -
 Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMADecompressor\Lzma2Decode] directory.
 
@@ -347,7 +343,6 @@ any artifacts. It uses workflow **build2.yml**.
 [Components]: <Components>
 [Files]: <Files>
 [Projects\Src\Compression.LZMACompressor\islzma]: <Projects/Src/Compression.LZMACompressor/islzma>
-[Projects\Src\Setup.HelperEXEs\Helper]: <Projects/Src/Setup.HelperEXEs/Helper>
 [Examples\MyDll]: <Examples/MyDll/Delphi>
 [Examples\MyProg]: <Examples/MyProg>
 [Projects\Src]: <Projects/Src>
