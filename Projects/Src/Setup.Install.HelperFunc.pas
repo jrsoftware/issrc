@@ -8,7 +8,7 @@ unit Setup.Install.HelperFunc;
 
   Installation helper functions which don't need install state such as UninstLog and RegisterFileList
 
-  Only to be called by Setup.Install: if you want to reuse any of these functione from another unit
+  Only to be called by Setup.Install: if you want to reuse any of these functions from another unit
   you should move the function so somewhere else, like Setup.InstFunc
 }
 

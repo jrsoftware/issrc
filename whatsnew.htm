@@ -89,6 +89,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <ul>
     <li>Removed support function <tt>EnableFsRedirection</tt>. Use new support function <tt>ApplyPathRedirRulesForCurrentProcess</tt> instead, or a 64-bit installer. 32-bit installers can also use <tt>{sysnative}</tt> instead.<br/>
       Use new support functions <tt>ExecWithNativeSysDir</tt>, <tt>ExecAndLogOutputWithNativeSysDir</tt>, or <tt>ExecAndCaptureOutputWithNativeSysDir</tt> to launch an executable located in the 64-bit System directory from a 32-bit installer.</li>
+    <li>Removed parameter <tt>DisableFsRedir</tt> from support function <tt>RegisterExtraCloseApplicationsResource</tt>. Use <tt>ApplyPathRedirRulesForCurrentProcess</tt> instead to register a 64-bit file from a 32-bit installer, or vice versa.</li>
     <li>Added support functions <tt>ApplyPathRedirRules</tt> and <tt>IsCurrentProcess64Bit</tt>.</li>
     <li>Added types <tt>UInt64</tt>, <tt>NativeInt</tt>, <tt>NativeUInt</tt>, <tt>THandle</tt>, <tt>HWND</tt>, <tt>HDC</tt>, <tt>HBITMAP</tt>, <tt>HFONT</tt>, <tt>HKEY</tt>, <tt>HMODULE</tt>, <tt>LRESULT</tt>, <tt>WPARAM</tt>, and <tt>LPARAM</tt>.</li>
   </ul>

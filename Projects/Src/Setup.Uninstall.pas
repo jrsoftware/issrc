@@ -81,7 +81,7 @@ begin
   else begin
     if not FNoSharedFileDlgs then begin
       { FNoSharedFileDlgs will be set to True if a "...to All" button is clicked }
-      FRemoveSharedFiles := ExecuteRemoveSharedFileDlg(Filename,
+      FRemoveSharedFiles := ExecuteRemoveSharedFileDlg(PathConvertSuperToNormal(Filename),
         FNoSharedFileDlgs);
       LogFmt('Remove shared file %s? User chose %s%s', [Filename, SYesNo[FRemoveSharedFiles], SToAll[FNoSharedFileDlgs]]);
     end;

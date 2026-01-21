@@ -217,8 +217,9 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>RegisterExtraCloseApplicationsResource</name>
-        <prototype>function RegisterExtraCloseApplicationsResource(const A64Bit: Boolean; const AFilename: String): Boolean;</prototype>
-        <description><p>Register an extra file which Setup should check for being in-use. Call RegisterExtraCloseApplicationsResource inside a RegisterExtraCloseApplicationsResources event function, once per file. Ignores <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link>. Returns True if successful.</p></description>
+        <prototype>function RegisterExtraCloseApplicationsResource(const AFilename: String): Boolean;</prototype>
+        <description><p>Registers an extra file which Setup should check for being in-use. Call <tt>RegisterExtraCloseApplicationsResource</tt> inside a <tt>RegisterExtraCloseApplicationsResources</tt> event function, once per file. Ignores <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link>. Returns True if successful.</p></description>
+        <remarks><p>This function used to have a <tt>DisableFsRedir</tt> parameter, which was removed in 7.0. Use <link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link> instead to register a 64-bit file from a <link topic="64bit">32-bit installer</link>, or vice versa.</p></remarks>
       </function>
       <function>
         <name>RmSessionStarted</name>
@@ -2328,8 +2329,7 @@ end;</pre>
       <function>
         <name>RegisterTypeLibrary</name>
         <prototype>procedure RegisterTypeLibrary(const Is64Bit: Boolean; const Filename: String);</prototype>
-        <description><p>Registers the type library (.tlb) with the specified filename. If Is64Bit is True, the type library will be registered in a 64-bit process. Raises an exception if not successful.</p></description>
-        <remarks><p>If Is64Bit is True then a <link topic="64bit">64-bit installer</link> must be used. Otherwise, a 32-bit installer must be used.</p></remarks>
+        <description><p>Registers the type library with the specified filename. If Is64Bit is True, the type library will be registered in a 64-bit process. Raises an exception if not successful.</p></description>
         <example><pre>begin
   // Register stdole2.tlb located in the System directory.
   RegisterTypeLibrary(Is64BitInstallMode, ExpandConstant('{sys}\stdole2.tlb'));
@@ -2339,8 +2339,7 @@ end;</pre>
       <function>
         <name>UnregisterTypeLibrary</name>
         <prototype>function UnregisterTypeLibrary(const Is64Bit: Boolean; const Filename: String): Boolean</prototype>
-        <description><p>Unregisters the type library (.tlb) with the specified filename. If Is64Bit is True, the type library will be unregistered in a 64-bit process. Returns True if successful, False otherwise.</p></description>
-        <remarks><p>If Is64Bit is True then a <link topic="64bit">64-bit installer</link> must be used. Otherwise, a 32-bit installer must be used.</p></remarks>
+        <description><p>Unregisters the type library with the specified filename. If Is64Bit is True, the type library will be unregistered in a 64-bit process. Returns True if successful, False otherwise.</p></description>
       </function>
       <function>
         <name>IncrementSharedCount</name>

@@ -436,7 +436,7 @@ initialization
     'function IsCurrentProcess64Bit: Boolean;',
     'function CustomMessage(const MsgName: String): String;',
     'function RmSessionStarted: Boolean;',
-    'function RegisterExtraCloseApplicationsResource(const A64Bit: Boolean; const AFilename: String): Boolean;',
+    'function RegisterExtraCloseApplicationsResource(const AFilename: String): Boolean;',
     { Actually in Setup.WizardForm }
     'function GetWizardForm: TWizardForm;',
     'function WizardIsComponentSelected(const Components: String): Boolean;',

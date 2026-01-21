@@ -2687,6 +2687,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 
 <param name="Filename" required="yes">
 <p>The program to execute, or file/folder to open. If <tt>Filename</tt> is not an executable (.exe or .com) or batch file (.bat or .cmd), you <i>must</i> use the <tt>shellexec</tt> flag on the entry. This parameter can include constants.</p>
+<p>Any extended-length paths, also known as super paths, are always converted back to normal paths.</p>
 <example>
 <pre>Filename: "{app}\INIT.EXE"</pre>
 </example>
@@ -2708,6 +2709,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 
 <param name="WorkingDir">
 <p>The initial current directory for the program. If this parameter is not specified or is blank, it uses the directory from the <tt>Filename</tt> parameter; if <tt>Filename</tt> does not include a path, it will use a default directory. This parameter can include constants.</p>
+<p>Any extended-length paths, also known as super paths, are always converted back to normal paths.</p>
 <example>
 <pre>WorkingDir: "{app}"</pre>
 </example>
@@ -2788,7 +2790,6 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 <flag name="shellexec">
 <p>This flag is required if <tt>Filename</tt> is not a directly executable file (an .exe or .com file). When this flag is set, <tt>Filename</tt> can be a folder or any registered file type -- including .chm, .doc, and so on. The file will be opened with the application associated with the file type on the user's system, the same way it would be if the user double-clicked the file in Explorer.</p>
 <p>By default, when the <tt>shellexec</tt> flag is used it will not wait until the spawned process terminates. If you need that, you must add the flag <tt>waituntilterminated</tt>. Note that it cannot and will not wait if a new process isn't spawned -- for example, if <tt>Filename</tt> specifies a folder.</p>
-<p>Does not support extended-length paths (also known as super paths).</p>
 </flag>
 <flag name="skipifdoesntexist">
 <p>If this flag is specified in the [Run] section, Setup won't display an error message if <tt>Filename</tt> doesn't exist.</p>

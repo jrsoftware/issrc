@@ -225,7 +225,7 @@ procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
 procedure RedirectionGuardConfigure(const AEnable: Boolean);
 function RedirectionGuardEnabled: Boolean;
 function PreviousInstallCompleted(const WizardComponents, WizardTasks: TStringList): Boolean;
-function CodeRegisterExtraCloseApplicationsResource(const A64Bit: Boolean; const AFilename: String): Boolean;
+function CodeRegisterExtraCloseApplicationsResource(const AFilename: String): Boolean;
 procedure RegisterResourcesWithRestartManager(const WizardComponents, WizardTasks: TStringList);
 procedure RemoveTempInstallDir;
 procedure SaveInf(const FileName: String);
@@ -2245,10 +2245,10 @@ end;
 var
   AllowCodeRegisterExtraCloseApplicationsResource: Boolean;
 
-function CodeRegisterExtraCloseApplicationsResource(const A64Bit: Boolean; const AFilename: String): Boolean;
+function CodeRegisterExtraCloseApplicationsResource(const AFilename: String): Boolean;
 begin
   if AllowCodeRegisterExtraCloseApplicationsResource then
-    Result := RegisterFile(False, ApplyPathRedirRules(A64Bit, AFilename), Pointer(False))
+    Result := RegisterFile(False, AFilename, Pointer(False))
   else begin
     InternalError('Cannot call "RegisterExtraCloseApplicationsResource" function at this time');
     Result := False;
@@ -4141,7 +4141,7 @@ begin
     var ExpandedWorkingDir := ExpandConst(RunEntry.WorkingDir);
 
     const ExpandedFilenameBeforeRedir = ExpandedFilename;
-    if not(roShellExec in RunEntry.Options) then { ShellExecuteEx does not support super paths }
+    if not(roShellExec in RunEntry.Options) then
       ApplyRedirToRunEntryPaths(RunEntry64Bit, ExpandedFilename, ExpandedWorkingDir);
 
     LogFmt('Filename: %s', [ExpandedFilename]);
