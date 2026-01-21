@@ -110,6 +110,8 @@ function ForceDirectories(Dir: String): Boolean;
 procedure AddAttributesToFile(const Filename: String; Attribs: Integer);
 procedure ApplyRedirToRunEntryPaths(const RunEntry64Bit: Boolean;
   var AFilename, AWorkingDir: String);
+function ApplyRedirForRegistrationOperation(const RegisteringAs64BitFile: Boolean;
+  const Filename: String): String;
 
 implementation
 
@@ -384,25 +386,6 @@ begin
   end;
 end;
 
-function ApplySharedDLLPathRedirRules(const RegView: TRegView; const Filename: String): String;
-begin
-  { The SharedDLLs key needs normal paths, with a specific bitness,
-    and in the case of 32-bit files, non-SysWOW64 paths.
-    Also see RegisterServerUsingRegSvr32. }
-
-  var TargetProcess: TPathRedirTargetProcess;
-  if RegView = rv64Bit then
-    TargetProcess := tpNativeBit
-  else begin
-    if RegView <> rv32Bit then
-      InternalError('ApplySharedDLLPathRedirRules: Invalid RegView value');
-    TargetProcess := tp32BitPreferSystem32
-  end;
-
-  Result := ApplyPathRedirRules(IsCurrentProcess64Bit,
-    Filename, [rfNormalPath], TargetProcess);
-end;
-
 procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
   const AlreadyExisted: Boolean);
 const
@@ -412,7 +395,7 @@ var
   Disp, Size, CurType, NewType: DWORD;
   CountStr: String;
 begin
-  const SharedFile = ApplySharedDLLPathRedirRules(RegView, Filename);
+  const RedirFilename = ApplyRedirForRegistrationOperation(RegView in RegViews64Bit, Filename);
 
   const ErrorCode = Cardinal(RegCreateKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0, nil,
     REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE, nil, K, @Disp));
@@ -422,7 +405,7 @@ begin
       FmtSetupMessage(msgErrorFunctionFailedWithMessage,
         ['RegCreateKeyEx', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
 
-  const SharedFileP = PChar(SharedFile);
+  const SharedFileP = PChar(RedirFilename);
   var Count := 0;
   NewType := REG_DWORD;
   try
@@ -480,7 +463,7 @@ var
 begin
   Result := False;
 
-  const SharedFile = ApplySharedDLLPathRedirRules(RegView, Filename);
+  const RedirFilename = ApplyRedirForRegistrationOperation(RegView in RegViews64Bit, Filename);
 
   const ErrorCode = Cardinal(RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0,
     KEY_QUERY_VALUE or KEY_SET_VALUE, K));
@@ -492,7 +475,7 @@ begin
       FmtSetupMessage(msgErrorFunctionFailedWithMessage,
         ['RegOpenKeyEx', IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
 
-  const SharedFileP = PChar(SharedFile);
+  const SharedFileP = PChar(RedirFilename);
   try
     if RegQueryValueEx(K, SharedFileP, nil, @CurType, nil, @Size) <> ERROR_SUCCESS then
       Exit;
@@ -1113,6 +1096,26 @@ begin
   if AWorkingDir <> '' then
     AWorkingDir := ApplyPathRedirRules(RunEntry64Bit, AWorkingDir,
       [rfNormalPath], TargetProcess);
+end;
+
+function ApplyRedirForRegistrationOperation(const RegisteringAs64BitFile: Boolean;
+  const Filename: String): String;
+{ Applies PathRedir rules in an extra safe way, to be used for registering a
+  DLL or type library, or updating its shared count.
+  The extra safety entails:
+  - On 32-bit pass a System32 path, not SysWOW64.
+  - Use rfNormalPath because using a super path is non-standard or might not
+    work at all. Nobody would place a DLL in a path longer than MAX_PATH anyway.
+  Note: Filename must be a current-process-bit path. }
+begin
+  var TargetProcess: TPathRedirTargetProcess;
+  if RegisteringAs64BitFile then
+    TargetProcess := tpNativeBit
+  else
+    TargetProcess := tp32BitPreferSystem32;
+
+  Result := ApplyPathRedirRules(IsCurrentProcess64Bit,
+    Filename, [rfNormalPath], TargetProcess);
 end;
 
 { TSimpleStringList }

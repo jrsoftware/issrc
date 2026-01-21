@@ -12,7 +12,7 @@ unit Setup.SecurityFunc;
 interface
 
 uses
-  Windows, SysUtils, Shared.CommonFunc, Shared.Struct;
+  Windows, Shared.CommonFunc, Shared.Struct;
 
 function GrantPermissionOnFile(Filename: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer): Boolean;
@@ -23,8 +23,8 @@ function GrantPermissionOnKey(const RegView: TRegView; const RootKey: HKEY;
 implementation
 
 uses
-  PathFunc, SetupLdrAndSetup.Messages, SetupLdrAndSetup.InstFunc,
-  Setup.InstFunc, Setup.LoggingFunc, Setup.Helper;
+  SetupLdrAndSetup.Messages,
+  Setup.InstFunc, Setup.LoggingFunc;
 
 function InternalGrantPermission(const ObjectType: DWORD; const ObjectName: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer;
@@ -131,28 +131,6 @@ begin
   end;
 end;
 
-function GrantPermission(const Use64BitHelper: Boolean; const ObjectType: DWORD;
-  const ObjectName: String; const Entries: TGrantPermissionEntry;
-  const EntryCount: Integer; const Inheritance: DWORD): DWORD;
-{ Invokes either the internal GrantPermission function or the one inside the
-  64-bit helper, depending on the setting of Use64BitHelper }
-begin
-  try
-    if Use64BitHelper then
-      Result := HelperGrantPermission(ObjectType, ObjectName, Entries,
-        EntryCount, Inheritance)
-    else
-      Result := InternalGrantPermission(ObjectType, ObjectName, Entries,
-        EntryCount, Inheritance);
-  except
-    { If the helper interface (or even InternalGrantPermission) raises an
-      exception, don't propagate it. Just log it and return an error code, as
-      that's what the caller is expecting on failure. }
-    Log('Exception while setting permissions:' + SNewLine + GetExceptMessage);
-    Result := ERROR_GEN_FAILURE;
-  end;
-end;
-
 const
   OBJECT_INHERIT_ACE    = 1;
   CONTAINER_INHERIT_ACE = 2;
@@ -175,7 +153,7 @@ begin
     Inheritance := OBJECT_INHERIT_ACE or CONTAINER_INHERIT_ACE
   else
     Inheritance := 0;
-  ErrorCode := GrantPermission(False, SE_FILE_OBJECT, Filename, Entries,
+  ErrorCode := InternalGrantPermission(SE_FILE_OBJECT, Filename, Entries,
     EntryCount, Inheritance);
   SetLastError(ErrorCode);
   Result := (ErrorCode = ERROR_SUCCESS);
@@ -214,7 +192,7 @@ begin
   end;
   ObjName := ObjName + '\' + Subkey;
 
-  const ErrorCode = GrantPermission(False, ObjType, ObjName,
+  const ErrorCode = InternalGrantPermission(ObjType, ObjName,
     Entries, EntryCount, CONTAINER_INHERIT_ACE);
   SetLastError(ErrorCode);
   Result := (ErrorCode = ERROR_SUCCESS);

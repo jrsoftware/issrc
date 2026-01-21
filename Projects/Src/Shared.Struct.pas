@@ -2,7 +2,7 @@ unit Shared.Struct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -386,15 +386,15 @@ type
   end;
 
 const
-  MaxGrantPermissionEntries = 32;  { must keep in synch with Helper.c }
+  MaxGrantPermissionEntries = 32;
 type
   { TGrantPermissionEntry is stored inside string fields named 'Permissions' }
-  TGrantPermissionSid = record  { must keep in synch with Helper.c }
+  TGrantPermissionSid = record
     Authority: TSIDIdentifierAuthority;
     SubAuthCount: Byte;
     SubAuth: array[0..1] of DWORD;
   end;
-  TGrantPermissionEntry = record  { must keep in synch with Helper.c }
+  TGrantPermissionEntry = record
     Sid: TGrantPermissionSid;
     AccessMask: DWORD;
   end;

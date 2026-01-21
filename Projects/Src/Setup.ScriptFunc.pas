@@ -28,7 +28,7 @@ uses
   Setup.DownloadFileFunc, Setup.ExtractFileFunc, Setup.ISSigVerifyFunc, Setup.InstFunc, Setup.InstFunc.Ole,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.NewDiskForm,
   Setup.WizardForm, Shared.VerInfoFunc, Shared.SetupTypes,
-  Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL, Setup.Helper,
+  Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL,
   Setup.SpawnClient, Setup.DotNetFunc, Setup.MainForm,
   Shared.DotNetVersion, Setup.MsiFunc, Compression.SevenZipDecoder, Compression.SevenZipDLLDecoder,
   Setup.DebugClient, Shared.ScriptFunc, Setup.ScriptFunc.HelperFunc, Setup.PathRedir;
@@ -1181,18 +1181,28 @@ var
     end);
     RegisterScriptFunc('REGISTERTYPELIBRARY', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      if Stack.GetBool(PStart) then
-        HelperRegisterTypeLibrary(False, Stack.GetString(PStart-1))
-      else
-        RegisterTypeLibrary(Stack.GetString(PStart-1));
+      const Is64Bit = Stack.GetBool(PStart);
+      {$IFDEF WIN64}
+      if not Is64Bit then
+        InternalError('Cannot register 32-bit type libraries on this version of Setup');
+      {$ELSE}
+      if Is64Bit then
+        InternalError('Cannot register 64-bit type libraries on this version of Setup');
+      {$ENDIF}
+      RegisterTypeLibrary(Stack.GetString(PStart-1));
     end);
     RegisterScriptFunc('UNREGISTERTYPELIBRARY', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
+      const Is64Bit = Stack.GetBool(PStart-1);
+      {$IFDEF WIN64}
+      if not Is64Bit then
+        InternalError('Cannot unregister 32-bit type libraries on this version of Setup');
+      {$ELSE}
+      if Is64Bit then
+        InternalError('Cannot unregister 64-bit type libraries on this version of Setup');
+      {$ENDIF}
       try
-        if Stack.GetBool(PStart-1) then
-          HelperRegisterTypeLibrary(True, Stack.GetString(PStart-2))
-        else
-          UnregisterTypeLibrary(Stack.GetString(PStart-2));
+        UnregisterTypeLibrary(Stack.GetString(PStart-2));
         Stack.SetBool(PStart, True);
       except
         Stack.SetBool(PStart, False);

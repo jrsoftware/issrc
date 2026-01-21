@@ -24,7 +24,7 @@ uses
   Compression.Base, Compression.SevenZipDLLDecoder,
   SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, Setup.PathRedir,
   Setup.DebugClient, Setup.DotNetFunc, Setup.DownloadFileFunc, Setup.InstFunc, Setup.InstFunc.Ole,
-  Setup.ISSigVerifyFunc, Setup.FileExtractor, Setup.Install.HelperFunc, Setup.Helper,
+  Setup.ISSigVerifyFunc, Setup.FileExtractor, Setup.Install.HelperFunc,
   Setup.MainFunc, Setup.LoggingFunc, Setup.RegDLL, Setup.SecurityFunc,
   Setup.UninstallLog, Setup.WizardForm;
 
@@ -703,8 +703,11 @@ Retry:
       DeleteFlags := 0;
       if IsCurrentProcess64Bit then { Post-ApplyPathRedirRules we should check IsCurrentProcess64Bit and not Is64Bit }
         DeleteFlags := DeleteFlags or utDeleteFile_Is64Bit;
-      if foRegisterServer in CurFile^.Options then
+      if foRegisterServer in CurFile^.Options then begin
         DeleteFlags := DeleteFlags or utDeleteFile_RegisteredServer;
+        if IsCurrentProcess64Bit <> Is64Bit then
+          DeleteFlags := DeleteFlags or utDeleteFile_RegisteredWithOppositeBitness;
+      end;
       if foRegisterTypeLib in CurFile^.Options then
         DeleteFlags := DeleteFlags or utDeleteFile_RegisteredTypeLib;
       if foUninsRestartDelete in CurFile^.Options then
@@ -2450,10 +2453,17 @@ procedure RegisterFiles(const RegisterFilesList: TList);
         LogFmt('Registering 32-bit type library: %s', [Filename]);
       NeedToRetry := False;
       try
+        {$IFDEF WIN64}
         if Is64Bit then
-          HelperRegisterTypeLibrary(False, Filename)
+          RegisterTypeLibrary(Filename)
+        else
+          InternalError('Cannot register 32-bit type libraries on this version of Setup');
+        {$ELSE}
+        if Is64Bit then
+          InternalError('Cannot register 64-bit type libraries on this version of Setup')
         else
           RegisterTypeLibrary(Filename);
+        {$ENDIF}
         Log('Registration successful.');
       except
         Log('Registration failed:' + SNewLine + GetExceptMessage);
