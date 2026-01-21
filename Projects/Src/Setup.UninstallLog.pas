@@ -608,23 +608,23 @@ var
     if SameText(PathExtractExt(Filename), '.lnk') then
       UnpinShellLink(Filename);
       
-    if NewFileExistsRedir(DisableFsRedir, Filename) then begin
+    if NewFileExists(Filename) then begin
       LogFmt('Deleting file: %s', [FileName]);
       if RemoveReadOnly then begin
-        ExistingAttr := GetFileAttributesRedir(DisableFsRedir, Filename);
+        ExistingAttr := GetFileAttributes(PChar(Filename));
         if (ExistingAttr <> INVALID_FILE_ATTRIBUTES) and
            (ExistingAttr and FILE_ATTRIBUTE_READONLY <> 0) then
-          if SetFileAttributesRedir(DisableFsRedir, Filename,
+          if SetFileAttributes(PChar(Filename),
              ExistingAttr and not FILE_ATTRIBUTE_READONLY) then
             Log('Stripped read-only attribute.')
           else
             Log('Failed to strip read-only attribute.');
       end;
-      if not DeleteFileRedir(DisableFsRedir, Filename) then begin
+      if not Windows.DeleteFile(PChar(Filename)) then begin
         LastError := GetLastError;
         if RestartDelete and CallFromUninstaller and
            ((LastError = ERROR_ACCESS_DENIED) or (LastError = ERROR_SHARING_VIOLATION)) and
-           (GetFileAttributesRedir(DisableFsRedir, Filename) and FILE_ATTRIBUTE_READONLY = 0) then begin
+           (GetFileAttributes(PChar(Filename)) and FILE_ATTRIBUTE_READONLY = 0) then begin
           LogFmt('The file appears to be in use (%d). Will delete on restart.',
             [LastError]);
           try
@@ -751,7 +751,7 @@ var
   CurRec: PUninstallRec;
   CurRecDataPChar: array[0..9] of PChar;
   CurRecData: array[0..9] of String;
-  ShouldDeleteRec, IsTempFile, IsSharedFile, SharedCountDidReachZero: Boolean;
+  ShouldDeleteRec, IsSharedFile, SharedCountDidReachZero: Boolean;
   Section, Key: String;
   Subkey, ValueName: PChar;
   P: Integer;
@@ -771,6 +771,15 @@ var
       else
         CurRecDataPChar[I] := nil;
     end;
+  end;
+
+  function ApplyRedirToUninstallEntry(const CallFromUninstaller, Is64Bit: Boolean;
+    const Filename: String): String;
+  begin
+    if CallFromUninstaller then
+      Result := ApplyPathRedirRules(Is64Bit, Filename)
+    else
+      Result := Filename;
   end;
 
 begin
@@ -917,40 +926,42 @@ begin
           SplitData(CurRec);
           { Note: Some of this code is duplicated in Step 3 }
           if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_ExistedBeforeInstall = 0) then begin
-            IsTempFile := not CallFromUninstaller and (CurRecData[1] <> '');
+            const IsTempFile = not CallFromUninstaller and (CurRecData[1] <> '');
 
             { Decrement shared file count if necessary }
             IsSharedFile := CurRec^.ExtraData and utDeleteFile_SharedFile <> 0;
-            if IsSharedFile then
-              SharedCountDidReachZero := LoggedDecrementSharedCount(CurRecData[0],
-                CurRec^.ExtraData and utDeleteFile_SharedFileIn64BitKey <> 0)
-            else
+            if IsSharedFile then begin
+              const Is64BitKey = CurRec^.ExtraData and utDeleteFile_SharedFileIn64BitKey <> 0;
+              const Filename = ApplyRedirToUninstallEntry(CallFromUninstaller, Is64BitKey, CurRecData[0]);
+              SharedCountDidReachZero := LoggedDecrementSharedCount(Filename, Is64BitKey);
+            end else
               SharedCountDidReachZero := False; //silence compiler
+
+            const Is64Bit = CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0;
+            const Filename = ApplyRedirToUninstallEntry(CallFromUninstaller, Is64Bit, CurRecData[0]);
 
             if not IsSharedFile or
                (SharedCountDidReachZero and
-                (IsTempFile or
-                 not NewFileExistsRedir(CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0, CurRecData[0]) or
+                (IsTempFile or not NewFileExists(Filename) or
                  (CurRec^.ExtraData and utDeleteFile_NoSharedFilePrompt <> 0) or
-                 ShouldRemoveSharedFile(CurRecData[0]))) then begin
+                 ShouldRemoveSharedFile(Filename))) then begin
               { The reference count reached zero and the user did not object
                 to the file being deleted, so don't delete the record; allow
                 the file to be deleted in the next step. }
               ShouldDeleteRec := False;
               { Unregister if necessary }
               if not IsTempFile then begin
-                if CurRec^.ExtraData and utDeleteFile_RegisteredServer <> 0 then begin
-                  LoggedUnregisterServer(CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0,
-                    CurRecData[0]);
-                end;
-                if CurRec^.ExtraData and utDeleteFile_RegisteredTypeLib <> 0 then begin
-                  LoggedUnregisterTypeLibrary(CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0,
-                    CurRecData[0]);
-                end;
+                if CurRec^.ExtraData and utDeleteFile_RegisteredServer <> 0 then
+                  LoggedUnregisterServer(Is64Bit, Filename);
+                if CurRec^.ExtraData and utDeleteFile_RegisteredTypeLib <> 0 then
+                  LoggedUnregisterTypeLibrary(Is64Bit, Filename);
               end;
               if CurRec^.ExtraData and utDeleteFile_IsFont <> 0 then begin
                 LogFmt('Unregistering font: %s', [CurRecData[2]]);
-                UnregisterFont(CurRecData[2], CurRecData[3], CurRec^.ExtraData and utDeleteFile_PerUserFont <> 0);
+                var FontFilename := CurRecData[3];
+                if PathIsRooted(FontFilename) then { Filename may have been shorted by ShortenFontFilename }
+                  FontFilename := ApplyPathRedirRules(Is64Bit, FontFilename);
+                UnregisterFont(CurRecData[2], FontFilename, CurRec^.ExtraData and utDeleteFile_PerUserFont <> 0);
               end;
               if CurRec^.ExtraData and utDeleteFile_GacInstalled <> 0 then
                 LoggedUninstallAssembly(CurRecData[4]);
@@ -999,27 +1010,32 @@ begin
           utDeleteDirOrFiles:
             if (CallFromUninstaller or (CurRec^.ExtraData and utDeleteDirOrFiles_Extra = 0)) then begin
               const Is64Bit = CurRec^.ExtraData and utDeleteDirOrFiles_Is64Bit <> 0;
-              const Path = ApplyPathRedirRules(Is64Bit, CurRecData[0]);
+              const Path = ApplyRedirToUninstallEntry(CallFromUninstaller, Is64Bit, CurRecData[0]);
               if DelTree(Is64Bit, Path, CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteFiles <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteSubdirsAlso <> 0,
                  False, LoggedDeleteDirProc, LoggedDeleteFileProc, @DeleteDirData) then begin
                 if (CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0) and
                    (CurRec^.ExtraData and utDeleteDirOrFiles_CallChangeNotify <> 0) then begin
-                  SHChangeNotify(SHCNE_RMDIR, SHCNF_PATH, CurRecDataPChar[0], nil);
-                  ChangeNotifyList.AddIfDoesntExist(PathExtractDir(CurRecData[0]));
+                  SHChangeNotify(SHCNE_RMDIR, SHCNF_PATH, PChar(Path), nil);
+                  ChangeNotifyList.AddIfDoesntExist(PathExtractDir(Path));
                 end;
               end;
             end;
           utDeleteFile: begin
               { Note: Some of this code is duplicated in Step 2 }
-              var Filename := CurRecData[1];
-              if CallFromUninstaller or (Filename = '') then
+              const Is64Bit = CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0;
+              var Filename: String;
+              const IsTempFile = not CallFromUninstaller and (CurRecData[1] <> '');
+              if IsTempFile then
+                Filename := CurRecData[1]
+              else
                 Filename := CurRecData[0];
+              Filename := ApplyRedirToUninstallEntry(CallFromUninstaller, Is64Bit, Filename);
               if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_ExistedBeforeInstall = 0) then begin
                 { Note: We handled utDeleteFile_SharedFile already }
                 if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_Extra = 0) then
-                  if not LoggedFileDelete(Filename, CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0,
+                  if not LoggedFileDelete(Filename, Is64Bit,
                      CurRec^.ExtraData and utDeleteFile_CallChangeNotify <> 0,
                      CurRec^.ExtraData and utDeleteFile_RestartDelete <> 0,
                      CurRec^.ExtraData and utDeleteFile_RemoveReadOnly <> 0) then
@@ -1029,11 +1045,11 @@ begin
                 { We're running from Setup, and the file existed before
                   installation... }
                 if CurRec^.ExtraData and utDeleteFile_SharedFile <> 0 then
-                  LoggedDecrementSharedCount(CurRecData[0],
+                  LoggedDecrementSharedCount(Filename,
                     CurRec^.ExtraData and utDeleteFile_SharedFileIn64BitKey <> 0);
                 { Delete file only if it's a temp file }
-                if Filename <> CurRecData[0] then
-                  if not LoggedFileDelete(Filename, CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0,
+                if IsTempFile then
+                  if not LoggedFileDelete(Filename, Is64Bit,
                      CurRec^.ExtraData and utDeleteFile_CallChangeNotify <> 0,
                      CurRec^.ExtraData and utDeleteFile_RestartDelete <> 0,
                      CurRec^.ExtraData and utDeleteFile_RemoveReadOnly <> 0) then
@@ -1110,8 +1126,9 @@ begin
               end;
             end;
           utDecrementSharedCount: begin
-              LoggedDecrementSharedCount(CurRecData[0],
-                CurRec^.ExtraData and utDecrementSharedCount_64BitKey <> 0);
+              const Is64BitKey = CurRec^.ExtraData and utDecrementSharedCount_64BitKey <> 0;
+              const Filename = ApplyRedirToUninstallEntry(CallFromUninstaller, Is64BitKey, CurRecData[0]);
+              LoggedDecrementSharedCount(Filename, Is64BitKey);
             end;
           utRefreshFileAssoc:
             RefreshFileAssoc := True;
