@@ -1319,11 +1319,14 @@ Retry:
       { Install into GAC (even if the file wasn't replaced) }
       if foGacInstall in CurFile^.Options then begin
         Log('Installing into GAC');
+        { Use rfNormalPath because using a super path might be non-standard
+          or might not work at all. Nobody would place a DLL in a path longer
+          than MAX_PATH anyway. }
         var RedirFilename: String;
         if TempFile <> '' then
-          RedirFilename := ApplyRedirForSystemOperation(Is64Bit, False, TempFile)
+          RedirFilename := ApplyPathRedirRules(Is64Bit, TempFile, [rfNormalPath])
         else
-          RedirFilename := ApplyRedirForSystemOperation(Is64Bit, False, DestFile);
+          RedirFilename := ApplyPathRedirRules(Is64Bit, DestFile, [rfNormalPath]);
         with TAssemblyCacheInfo.Create(rvDefault) do try
           InstallAssembly(RedirFilename);
         finally

@@ -62,7 +62,7 @@ begin
   SysDir := ApplyPathRedirRules(AIs64Bit, GetSystemDir, [rfNormalPath],
     tpNativeBit);
 
-  const RedirFilename = ApplyRedirForSystemOperation(AIs64Bit, True, Filename);
+  const RedirFilename = ApplyRedirForRegistrationOperation(AIs64Bit, Filename);
 
   CmdLine := '"' + AddBackslash(SysDir) + 'regsvr32.exe"';
   if AUnregister then

@@ -202,7 +202,7 @@ end;
 
 procedure RegisterTypeLibrary(const Filename: String);
 begin
-  const RedirFilename = ApplyRedirForSystemOperation(IsCurrentProcess64Bit, False, Filename);
+  const RedirFilename = ApplyRedirForRegistrationOperation(IsCurrentProcess64Bit, Filename);
 
   var TypeLib: ITypeLib;
   var OleResult := LoadTypeLib(PChar(RedirFilename), TypeLib);
@@ -218,7 +218,7 @@ type
   TUnRegTlbProc = function(const libID: TGUID; wVerMajor, wVerMinor: Word;
     lcid: TLCID; syskind: TSysKind): HResult; stdcall;
 begin
-  const RedirFilename = ApplyRedirForSystemOperation(IsCurrentProcess64Bit, False, Filename);
+  const RedirFilename = ApplyRedirForRegistrationOperation(IsCurrentProcess64Bit, Filename);
 
   { Dynamically import UnRegisterTypeLib since older OLEAUT32.DLL versions
     don't have this function }

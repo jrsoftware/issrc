@@ -110,7 +110,7 @@ function ForceDirectories(Dir: String): Boolean;
 procedure AddAttributesToFile(const Filename: String; Attribs: Integer);
 procedure ApplyRedirToRunEntryPaths(const RunEntry64Bit: Boolean;
   var AFilename, AWorkingDir: String);
-function ApplyRedirForSystemOperation(const Is64Bit, IsOperationByNativeProcess: Boolean;
+function ApplyRedirForRegistrationOperation(const RegisteringAs64BitFile: Boolean;
   const Filename: String): String;
 
 implementation
@@ -395,9 +395,7 @@ var
   Disp, Size, CurType, NewType: DWORD;
   CountStr: String;
 begin
-  if not (RegView in [rv32Bit, rv64Bit]) then
-    InternalError('IncrementSharedCount: Invalid RegView value');
-  const RedirFilename = ApplyRedirForSystemOperation(RegView = rv64Bit, True, Filename);
+  const RedirFilename = ApplyRedirForRegistrationOperation(RegView in RegViews64Bit, Filename);
 
   const ErrorCode = Cardinal(RegCreateKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0, nil,
     REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE, nil, K, @Disp));
@@ -465,9 +463,7 @@ var
 begin
   Result := False;
 
-  if not (RegView in [rv32Bit, rv64Bit]) then
-    InternalError('DecrementSharedCount: Invalid RegView value');
-  const RedirFilename = ApplyRedirForSystemOperation(RegView = rv64Bit, True, Filename);
+  const RedirFilename = ApplyRedirForRegistrationOperation(RegView in RegViews64Bit, Filename);
 
   const ErrorCode = Cardinal(RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0,
     KEY_QUERY_VALUE or KEY_SET_VALUE, K));
@@ -1102,31 +1098,22 @@ begin
       [rfNormalPath], TargetProcess);
 end;
 
-function ApplyRedirForSystemOperation(const Is64Bit, IsOperationByNativeProcess: Boolean;
+function ApplyRedirForRegistrationOperation(const RegisteringAs64BitFile: Boolean;
   const Filename: String): String;
-{ Applies PathRedir rules in an extra safe way, to be used for certain
-  system operations only, like registering a DLL, or when the current
-  process delegates the actual work to a native system process. In the
-  latter case, IsOperationByNativeProcess should be set to True.
+{ Applies PathRedir rules in an extra safe way, to be used for registering a
+  DLL or type library, or updating its shared count.
   The extra safety entails:
   - On 32-bit pass a System32 path, not SysWOW64.
-  - Use rfNormalPath because using a super path might be non-standard
-    or might not work at all. Nobody would place a DLL in a path longer
-    than MAX_PATH anyway.
-  Note: Filename must be a current-process-bit path, so a regular
-  ApplyPathRedirRules call must have been done already. }
+  - Use rfNormalPath because using a super path is non-standard or might not
+    work at all. Nobody would place a DLL in a path longer than MAX_PATH anyway.
+  Note: Filename must be a current-process-bit path. }
 begin
   var TargetProcess: TPathRedirTargetProcess;
-  if Is64Bit then begin
-    if IsOperationByNativeProcess then
-      TargetProcess := tpNativeBit
-    else
-      TargetProcess := tpCurrent
-  end else
+  if RegisteringAs64BitFile then
+    TargetProcess := tpNativeBit
+  else
     TargetProcess := tp32BitPreferSystem32;
-    
-  { Post-ApplyPathRedirRules we should check IsCurrentProcess64Bit and
-    not the original Is64Bit. }
+
   Result := ApplyPathRedirRules(IsCurrentProcess64Bit,
     Filename, [rfNormalPath], TargetProcess);
 end;

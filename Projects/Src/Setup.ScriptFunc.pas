@@ -1144,13 +1144,11 @@ var
     end);
     RegisterScriptFunc('REGISTERSERVER', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      { No ApplyPathRedirRules because RegisterServerUsingRegSvr32 will do that already }
       RegisterServer(False, Stack.GetBool(PStart), Stack.GetString(PStart-1), Stack.GetBool(PStart-2));
     end);
     RegisterScriptFunc('UNREGISTERSERVER', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       try
-        { No ApplyPathRedirRules because RegisterServerUsingRegSvr32 will do that already }
         RegisterServer(True, Stack.GetBool(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3));
         Stack.SetBool(PStart, True);
       except
@@ -1191,7 +1189,6 @@ var
       if Is64Bit then
         InternalError('Cannot register 64-bit type libraries on this version of Setup');
       {$ENDIF}
-      { No ApplyPathRedirRules because RegisterTypeLibrary will do that already }
       RegisterTypeLibrary(Stack.GetString(PStart-1));
     end);
     RegisterScriptFunc('UNREGISTERTYPELIBRARY', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
@@ -1205,7 +1202,6 @@ var
         InternalError('Cannot unregister 64-bit type libraries on this version of Setup');
       {$ENDIF}
       try
-        { No ApplyPathRedirRules because UnregisterTypeLibrary will do that already }
         UnregisterTypeLibrary(Stack.GetString(PStart-2));
         Stack.SetBool(PStart, True);
       except
