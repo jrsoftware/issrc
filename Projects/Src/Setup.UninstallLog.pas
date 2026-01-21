@@ -919,17 +919,16 @@ begin
           if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_ExistedBeforeInstall = 0) then begin
             const IsTempFile = not CallFromUninstaller and (CurRecData[1] <> '');
 
-            { Decrement shared file count if necessary }
-            IsSharedFile := CurRec^.ExtraData and utDeleteFile_SharedFile <> 0;
-            if IsSharedFile then begin
-              const Is64BitKey = CurRec^.ExtraData and utDeleteFile_SharedFileIn64BitKey <> 0;
-              const Filename = ApplyPathRedirRules(Is64BitKey, CurRecData[0]);
-              SharedCountDidReachZero := LoggedDecrementSharedCount(Filename, Is64BitKey);
-            end else
-              SharedCountDidReachZero := False; //silence compiler
-
             const Is64Bit = CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0;
             const Filename = ApplyPathRedirRules(Is64Bit, CurRecData[0]);
+
+            { Decrement shared file count if necessary }
+            IsSharedFile := CurRec^.ExtraData and utDeleteFile_SharedFile <> 0;
+            if IsSharedFile then
+              SharedCountDidReachZero := LoggedDecrementSharedCount(Filename,
+                CurRec^.ExtraData and utDeleteFile_SharedFileIn64BitKey <> 0)
+            else
+              SharedCountDidReachZero := False; //silence compiler
 
             if not IsSharedFile or
                (SharedCountDidReachZero and
