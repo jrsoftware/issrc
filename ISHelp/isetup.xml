@@ -2684,6 +2684,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 
 <param name="Filename" required="yes">
 <p>The program to execute, or file/folder to open. If <tt>Filename</tt> is not an executable (.exe or .com) or batch file (.bat or .cmd), you <i>must</i> use the <tt>shellexec</tt> flag on the entry. This parameter can include constants.</p>
+<p>Any extended-length paths, also known as super paths, are always converted back to normal paths.</p>
 <example>
 <pre>Filename: "{app}\INIT.EXE"</pre>
 </example>
@@ -2705,6 +2706,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 
 <param name="WorkingDir">
 <p>The initial current directory for the program. If this parameter is not specified or is blank, it uses the directory from the <tt>Filename</tt> parameter; if <tt>Filename</tt> does not include a path, it will use a default directory. This parameter can include constants.</p>
+<p>Any extended-length paths, also known as super paths, are always converted back to normal paths.</p>
 <example>
 <pre>WorkingDir: "{app}"</pre>
 </example>
