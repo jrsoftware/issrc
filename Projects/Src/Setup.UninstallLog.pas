@@ -641,10 +641,8 @@ var
       end
       else begin
         { Note: It is assumed that DisableFsRedir will be False when NotifyChange is True }
-        if NotifyChange then begin
-          SHChangeNotify(SHCNE_DELETE, SHCNF_PATH, PChar(Filename), nil);
-          ChangeNotifyList.AddIfDoesntExist(PathExtractDir(Filename));
-        end;
+        if NotifyChange then
+          ShellChangeNotifyPath(SHCNE_DELETE, Filename, False, ChangeNotifyList);
       end;
     end;
   end;
@@ -1003,8 +1001,7 @@ begin
                  False, LoggedDeleteDirProc, LoggedDeleteFileProc, @DeleteDirData) then begin
                 if (CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0) and
                    (CurRec^.ExtraData and utDeleteDirOrFiles_CallChangeNotify <> 0) then begin
-                  SHChangeNotify(SHCNE_RMDIR, SHCNF_PATH, PChar(Path), nil);
-                  ChangeNotifyList.AddIfDoesntExist(PathExtractDir(Path));
+                  ShellChangeNotifyPath(SHCNE_RMDIR, Path, False, ChangeNotifyList);
                 end;
               end;
             end;
@@ -1155,8 +1152,7 @@ begin
     RestartDeleteDirList.Free;
     for P := 0 to ChangeNotifyList.Count-1 do
       if DirExists(ChangeNotifyList[P]) then
-        SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATH or SHCNF_FLUSH,
-          PChar(ChangeNotifyList[P]), nil);
+        ShellChangeNotifyPath(SHCNE_UPDATEDIR, ChangeNotifyList[P], True);
     UnregisteredServersList.Free;
     RunOnceList.Free;
     ChangeNotifyList.Free;

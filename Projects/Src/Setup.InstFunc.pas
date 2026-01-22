@@ -111,11 +111,13 @@ procedure ApplyRedirToRunEntryPaths(const RunEntry64Bit: Boolean;
   var AFilename, AWorkingDir: String);
 function ApplyRedirForRegistrationOperation(const RegisteringAs64BitFile: Boolean;
   const Filename: String): String;
+procedure ShellChangeNotifyPath(const EventId: Integer; const Path: String;
+  const Flush: Boolean; const DirChangeNotifyList: TSimpleStringList = nil);
 
 implementation
 
 uses
-  Messages, ShellApi, Classes, RegStr, Math,
+  Messages, ShellApi, ShlObj, Classes, RegStr, Math,
   PathFunc, UnsignedFunc,
   Shared.SetupTypes, Shared.SetupMessageIDs,
   SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, Setup.PathRedir,
@@ -1076,6 +1078,28 @@ begin
 
   Result := ApplyPathRedirRules(IsCurrentProcess64Bit,
     Filename, [rfNormalPath], TargetProcess);
+end;
+
+procedure ShellChangeNotifyPath(const EventId: Integer; const Path: String;
+  const Flush: Boolean; const DirChangeNotifyList: TSimpleStringList);
+{ Calls SHChangeNotify with SHCNF_PATH only if the normal version of Path is
+  at most MAX_PATH long. If DirChangeNotifyList is assigned, the normalized
+  directory is added to the list (if it fits MAX_PATH and isn't already there).
+  If the path is too long then Flush is ignored, so when batching calls with
+  Flush only on the final one, ensure the final call uses the shortest path. }
+begin
+  const NormalPath = PathConvertSuperToNormal(Path);
+  if Length(NormalPath) <= MAX_PATH then begin
+    var Flags: UINT := SHCNF_PATH;
+    if Flush then
+      Flags := Flags or SHCNF_FLUSH;
+    SHChangeNotify(EventId, Flags, PChar(NormalPath), nil);
+  end;
+  if DirChangeNotifyList <> nil then begin
+    const NormalDir = PathExtractDir(NormalPath);
+    if Length(NormalDir) <= MAX_PATH then
+      DirChangeNotifyList.AddIfDoesntExist(NormalDir);
+  end;
 end;
 
 { TSimpleStringList }

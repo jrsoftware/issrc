@@ -401,9 +401,8 @@ begin
     end;
     Result := True;
     if mdNotifyChange in Flags then begin
-      SHChangeNotify(SHCNE_MKDIR, SHCNF_PATH, PChar(Dir), nil);
-      SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATH or SHCNF_FLUSH,
-        PChar(PathExtractDir(Dir)), nil);
+      ShellChangeNotifyPath(SHCNE_MKDIR, Dir, False);
+      ShellChangeNotifyPath(SHCNE_UPDATEDIR, PathExtractDir(Dir), True);
     end;
   end;
   if mdDeleteAfterInstall in Flags then
@@ -1833,9 +1832,8 @@ procedure CreateIcons(const UninstLog: TUninstallLog);
     CreatedIcon := True;
 
     { Notify shell of the change }
-    SHChangeNotify(SHCNE_CREATE, SHCNF_PATH, PChar(ResultingFilename), nil);
-    SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATH or SHCNF_FLUSH,
-      PChar(PathExtractDir(ResultingFilename)), nil);
+    ShellChangeNotifyPath(SHCNE_CREATE, ResultingFilename, False);
+    ShellChangeNotifyPath(SHCNE_UPDATEDIR, PathExtractDir(ResultingFilename), True);
 
     { Add uninstall log entries }
     if not NeverUninstall then begin
