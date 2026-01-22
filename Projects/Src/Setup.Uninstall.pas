@@ -655,7 +655,7 @@ begin
     if CompiledCodeText <> '' then begin
       { Setup some global variables which are accessible to [Code] }
 
-      InitMainNonSHFolderConsts;
+      InitMainNonSHFolderConstsAndPathRedir;
       LoadSHFolderDLL;
 
       UninstallExeFilename := UninstExeFilename;
