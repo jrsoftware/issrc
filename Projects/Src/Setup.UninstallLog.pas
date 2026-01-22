@@ -1116,9 +1116,13 @@ begin
                 CurRecData[0] is current-process-bit compared to utDeleteFile_Is64Bit,
                 but utDecrementSharedCount's is not, because there was and is no
                 utDecrementSharedCount_Is64Bit. Instead, ApplyRedirForRegistrationOperation
-                was used when utDecrementSharedCount was added, see Setup.Install. }
-              LoggedDecrementSharedCount(CurRecData[0],
-                CurRec^.ExtraData and utDecrementSharedCount_64BitKey <> 0);
+                was used when utDecrementSharedCount was added, see Setup.Install.
+                This means CurRecData[0] is a 64-bit path if utDecrementSharedCount_64BitKey
+                is set, and 32-bit otherwise. We use this to convert it into back
+                a current-process-bit path. }
+              const Is64Bit = CurRec^.ExtraData and utDecrementSharedCount_64BitKey <> 0;
+              const Filename = ApplyPathRedirRules(Is64Bit, CurRecData[0]);
+              LoggedDecrementSharedCount(Filename, Is64Bit);
             end;
           utRefreshFileAssoc:
             RefreshFileAssoc := True;
