@@ -63,7 +63,7 @@ type
 function CheckForMutexes(const Mutexes: String): Boolean;
 procedure CreateMutexes(const Mutexes: String);
 function DecrementSharedCount(const RegView: TRegView; const Filename: String): Boolean;
-function DelTree(const A64Bit: Boolean; const Path: String;
+function DelTree(const Path: String;
   const IsDir, DeleteFiles, DeleteSubdirsAlso, BreakOnError: Boolean;
   const DeleteDirProc: TDeleteDirProc; const DeleteFileProc: TDeleteFileProc;
   const Param: Pointer): Boolean;
@@ -231,7 +231,7 @@ begin
     Win32ErrorMsgEx('MoveFileEx', ErrorCode);
 end;
 
-function DelTree(const A64Bit: Boolean; const Path: String;
+function DelTree(const Path: String;
   const IsDir, DeleteFiles, DeleteSubdirsAlso, BreakOnError: Boolean;
   const DeleteDirProc: TDeleteDirProc; const DeleteFileProc: TDeleteFileProc;
   const Param: Pointer): Boolean;
@@ -282,7 +282,7 @@ begin
             end
             else begin
               if DeleteSubdirsAlso then
-                if not DelTree(A64Bit, BasePath + S, True, True, True, BreakOnError,
+                if not DelTree(BasePath + S, True, True, True, BreakOnError,
                    DeleteDirProc, DeleteFileProc, Param) then
                   Result := False;
             end;

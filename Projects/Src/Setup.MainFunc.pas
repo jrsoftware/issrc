@@ -1680,7 +1680,7 @@ begin
   if TempInstallDir <> '' then begin
     if Debugging then
       DebugNotifyTempDir('');
-    if not DelTree(False, TempInstallDir, True, True, True, False, nil,
+    if not DelTree(TempInstallDir, True, True, True, False, nil,
        TempDeleteFileProc, Pointer(GetTickCount())) then
       Log('Failed to remove temporary directory: ' + TempInstallDir);
   end;
@@ -2101,13 +2101,13 @@ begin
           const Path = ApplyPathRedirRules(InstallDefault64Bit, ExpandConst(Name));
           case DeleteType of
             dfFiles, dfFilesAndOrSubdirs:
-              if not DelTree(InstallDefault64Bit, Path, False, True, DeleteType = dfFilesAndOrSubdirs, True,
+              if not DelTree(Path, False, True, DeleteType = dfFilesAndOrSubdirs, True,
                  DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
               end;
             dfDirIfEmpty:
-              if not DelTree(InstallDefault64Bit, Path, True, False, False, True,
+              if not DelTree(Path, True, False, False, True,
                  DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
