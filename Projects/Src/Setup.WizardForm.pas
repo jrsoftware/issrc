@@ -2505,7 +2505,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
 
     if InstallMode = imNormal then begin
       { Check if there's enough free disk space }
-      if GetSpaceOnNearestMountPoint(False, T, FreeSpace, TotalSpace) then begin
+      if GetSpaceOnNearestMountPoint(T, FreeSpace, TotalSpace) then begin
         if FreeSpace < MinimumSpace then
           { If not, show warning }
           if LoggedMsgBox(FmtSetupMessage(msgDiskSpaceWarning,
@@ -2545,7 +2545,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     Result := False;
 
     if InstallMode = imNormal then begin
-      if GetSpaceOnNearestMountPoint(False, DirEdit.Text, FreeSpace, TotalSpace) then begin
+      if GetSpaceOnNearestMountPoint(DirEdit.Text, FreeSpace, TotalSpace) then begin
         if FreeSpace < CurrentComponentsSpace then
           if LoggedMsgBox(FmtSetupMessage(msgDiskSpaceWarning,
                [IntToKBStr(CurrentComponentsSpace), IntToKBStr(FreeSpace)]),
