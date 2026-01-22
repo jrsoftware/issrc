@@ -3013,7 +3013,7 @@ var
       InstallMode := imSilent;
   end;
 
-  function RecurseExternalGetSizeOfFiles(const Is64Bit: Boolean;
+  function RecurseExternalGetSizeOfFiles(
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
     const SourceIsWildcard: Boolean; const Excludes: TStrings;
     const RecurseSubDirs: Boolean): Int64;
@@ -3047,7 +3047,7 @@ var
         try
           repeat
             if IsRecurseableDirectory(FindData) then begin
-              var I := RecurseExternalGetSizeOfFiles(Is64Bit, SearchBaseDir,
+              var I := RecurseExternalGetSizeOfFiles(SearchBaseDir,
                 SearchSubDir + FindData.cFileName + '\', SearchWildcard,
                 SourceIsWildcard, Excludes, RecurseSubDirs);
               Inc(Result, I);
@@ -3060,7 +3060,7 @@ var
     end;
   end;
 
-  function RecurseExternalArchiveGetSizeOfFiles(const Is64Bit: Boolean;
+  function RecurseExternalArchiveGetSizeOfFiles(
     const ArchiveFilename, Password: String; const Excludes: TStrings;
     const RecurseSubDirs: Boolean): Int64;
   begin
@@ -3874,7 +3874,7 @@ begin
               const Is64Bit = FileEntryIs64Bit(PSetupFileEntry(Entries[seFile][I]));
               if foExtractArchive in Options then begin
                 ExternalSize := RecurseExternalArchiveGetSizeOfFiles(
-                  Is64Bit, ApplyPathRedirRules(Is64Bit, ExpandConst(SourceFilename)),
+                  ApplyPathRedirRules(Is64Bit, ExpandConst(SourceFilename)),
                   ExpandConst(ExtractArchivePassword), LExcludes,
                   foRecurseSubDirsExternal in Options);
               end else begin
@@ -3883,7 +3883,7 @@ begin
                 else
                   SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandConst(SourceFilename));
                 ExternalSize := RecurseExternalGetSizeOfFiles(
-                  Is64Bit, PathExtractPath(SourceWildcard),
+                  PathExtractPath(SourceWildcard),
                   '', PathExtractName(SourceWildcard), IsWildcard(SourceWildcard),
                   LExcludes, foRecurseSubDirsExternal in Options);
               end;
