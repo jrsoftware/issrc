@@ -76,10 +76,10 @@ function GetSHA256OfFile(const F: TFile): TSHA256Digest; overload;
 function GetSHA256OfAnsiString(const S: AnsiString): TSHA256Digest;
 function GetSHA256OfUnicodeString(const S: UnicodeString): TSHA256Digest;
 function GetRegRootKeyName(const RootKey: HKEY): String;
-function GetSpaceOnDisk(const DisableFsRedir: Boolean; const DriveRoot: String;
+function GetSpaceOnDisk(const DriveRoot: String;
   var FreeBytes, TotalBytes: Int64): Boolean;
-function GetSpaceOnNearestMountPoint(const DisableFsRedir: Boolean;
-  const StartDir: String; var FreeBytes, TotalBytes: Int64): Boolean;
+function GetSpaceOnNearestMountPoint(const StartDir: String;
+  var FreeBytes, TotalBytes: Int64): Boolean;
 function GetUserNameString: String;
 procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
   const AlreadyExisted: Boolean);
@@ -929,13 +929,12 @@ begin
     SendNotifyMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
 end;
 
-function GetSpaceOnDisk(const DisableFsRedir: Boolean; const DriveRoot: String;
+function GetSpaceOnDisk(const DriveRoot: String;
   var FreeBytes, TotalBytes: Int64): Boolean;
 var
   GetDiskFreeSpaceExFunc: function(lpDirectoryName: PChar;
     lpFreeBytesAvailable: PLargeInteger; lpTotalNumberOfBytes: PLargeInteger;
     lpTotalNumberOfFreeBytes: PLargeInteger): BOOL; stdcall;
-  PrevState: TPreviousFsRedirectionState;
   SectorsPerCluster, BytesPerSector, FreeClusters, TotalClusters: Cardinal;
 begin
   { NOTE: The docs claim that GetDiskFreeSpace supports UNC paths on
@@ -945,32 +944,24 @@ begin
     if available. }
   GetDiskFreeSpaceExFunc := GetProcAddress(GetModuleHandle(kernel32),
     'GetDiskFreeSpaceExW');
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    if Assigned(@GetDiskFreeSpaceExFunc) then begin
-      Result := GetDiskFreeSpaceExFunc(PChar(AddBackslash(PathExpand(DriveRoot))),
-        @FreeBytes, @TotalBytes, nil);
-    end
-    else begin
-      Result := GetDiskFreeSpace(PChar(AddBackslash(PathExtractDrive(PathExpand(DriveRoot)))),
-        SectorsPerCluster, BytesPerSector, FreeClusters, TotalClusters);
-      if Result then begin
-        { The result of GetDiskFreeSpace does not cap at 2GB, so we must use a
-          64-bit multiply operation to avoid an overflow. }
-        FreeBytes := Int64(BytesPerSector * SectorsPerCluster) * FreeClusters;
-        TotalBytes := Int64(BytesPerSector * SectorsPerCluster) * TotalClusters;
-      end;
+  if Assigned(@GetDiskFreeSpaceExFunc) then begin
+    Result := GetDiskFreeSpaceExFunc(PChar(AddBackslash(PathExpand(DriveRoot))),
+      @FreeBytes, @TotalBytes, nil);
+  end
+  else begin
+    Result := GetDiskFreeSpace(PChar(AddBackslash(PathExtractDrive(PathExpand(DriveRoot)))),
+      SectorsPerCluster, BytesPerSector, FreeClusters, TotalClusters);
+    if Result then begin
+      { The result of GetDiskFreeSpace does not cap at 2GB, so we must use a
+        64-bit multiply operation to avoid an overflow. }
+      FreeBytes := Int64(BytesPerSector * SectorsPerCluster) * FreeClusters;
+      TotalBytes := Int64(BytesPerSector * SectorsPerCluster) * TotalClusters;
     end;
-  finally
-    RestoreFsRedirection(PrevState);
   end;
 end;
 
-function GetSpaceOnNearestMountPoint(const DisableFsRedir: Boolean;
-  const StartDir: String; var FreeBytes, TotalBytes: Int64): Boolean;
+function GetSpaceOnNearestMountPoint(const StartDir: String;
+  var FreeBytes, TotalBytes: Int64): Boolean;
 { Gets the free and total space available on the specified directory. If that
   fails (e.g. if the directory does not exist), then it strips off the last
   component of the path and tries again. This repeats until it reaches the
@@ -983,7 +974,7 @@ begin
   Dir := RemoveBackslashUnlessRoot(StartDir);
   LastLen := 0;
   while Length(Dir) <> LastLen do begin
-    if GetSpaceOnDisk(DisableFsRedir, Dir, FreeBytes, TotalBytes) then begin
+    if GetSpaceOnDisk(Dir, FreeBytes, TotalBytes) then begin
       Result := True;
       Break;
     end;

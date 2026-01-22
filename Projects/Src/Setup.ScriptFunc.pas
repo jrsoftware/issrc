@@ -1007,7 +1007,7 @@ var
     RegisterScriptFunc('GETSPACEONDISK', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var FreeBytes, TotalBytes: Int64;
-      if GetSpaceOnDisk(False, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
+      if GetSpaceOnDisk(Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
         if Stack.GetBool(PStart-2) then begin
           FreeBytes := FreeBytes div (1024*1024);
           TotalBytes := TotalBytes div (1024*1024);
@@ -1027,7 +1027,7 @@ var
     RegisterScriptFunc('GETSPACEONDISK64', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var FreeBytes, TotalBytes: Int64;
-      if GetSpaceOnDisk(False, Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
+      if GetSpaceOnDisk(Stack.GetString(PStart-1), FreeBytes, TotalBytes) then begin
         Stack.SetInt64(PStart-2, FreeBytes);
         Stack.SetInt64(PStart-3, TotalBytes);
         Stack.SetBool(PStart, True);
