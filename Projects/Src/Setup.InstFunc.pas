@@ -99,7 +99,6 @@ function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Bool
 procedure RaiseOleError(const FunctionName: String; const ResultCode: HRESULT);
 procedure RefreshEnvironment;
 function RegRootKeyToUInt32(const RootKey: HKEY): UInt32;
-function ReplaceSystemDirWithSysWow64(const Path: String): String;
 procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);
 procedure RestartReplace(const ExistingFile, DestFile: String);
 function TryRestartReplace(ExistingFile, DestFile: String;
@@ -181,45 +180,6 @@ begin
     { unknown - shouldn't get here }
     Result := Format('[%x]', [RootKey]);
   end;
-end;
-
-function ReplaceSystemDirWithSysWow64(const Path: String): String;
-{ If the user is running 64-bit Windows and Path begins with
-  'x:\windows\system32' it replaces it with 'x:\windows\syswow64', like the
-  file system redirector would do, and also makes it a super
-  path if it wasn't already. Otherwise, Path is returned
-  unchanged. }
-var
-  SysWow64Dir, SysDir: String;
-  L: Integer;
-begin
-  SysWow64Dir := GetSysWow64Dir;
-  if SysWow64Dir <> '' then begin
-    SysDir := GetSystemDir;
-
-    { Path could be a super path but SysDir is not. So using
-      PathConvertSuperToNormal otherwise no match is found.
-      This use of PathConvertSuperToNormal does not introduce
-      a limitation. }
-    const NormalPath = PathConvertSuperToNormal(Path);
-
-    { x:\windows\system32 -> x:\windows\syswow64
-      x:\windows\system32\ -> x:\windows\syswow64\
-      x:\windows\system32\filename -> x:\windows\syswow64\filename
-      x:\windows\system32x -> x:\windows\syswow64x  <- yes, like Windows! }
-    L := Length(SysDir);
-    if (Length(NormalPath) = L) or
-       ((Length(NormalPath) > L) and not PathCharIsTrailByte(NormalPath, L+1)) then begin
-                               { ^ avoid splitting a double-byte character }
-      if PathCompare(Copy(NormalPath, 1, L), SysDir) = 0 then begin
-        const NewNormalPath = SysWow64Dir + Copy(NormalPath, L+1, MaxInt);
-        if not PathConvertNormalToSuper(NewNormalPath, Result, False) then
-          InternalError('ReplaceSystemDirWithSysWow64: PathConvertNormalToSuper failed');
-        Exit;
-      end;
-    end;
-  end;
-  Result := Path;
 end;
 
 function TryRestartReplace(ExistingFile, DestFile: String;

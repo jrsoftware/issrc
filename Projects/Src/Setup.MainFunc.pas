@@ -203,7 +203,7 @@ procedure LogArchiveExtractionModeOnce;
 procedure InitializeCommonVars;
 procedure InitializeSetup;
 procedure InitializeWizard;
-procedure InitMainNonSHFolderConsts;
+procedure InitMainNonSHFolderConstsAndPathRedir;
 function InstallOnThisVersion(const MinVersion: TSetupVersionData;
   const OnlyBelowVersion: TSetupVersionData): TInstallOnThisVersionResult;
 function IsRecurseableDirectory(const FindData: TWin32FindData): Boolean;
@@ -1351,7 +1351,7 @@ begin
     Result := S;
 end;
 
-procedure InitMainNonSHFolderConsts;
+procedure InitMainNonSHFolderConstsAndPathRedir;
 
   function GetPath(const RegView: TRegView; const Name: PChar): String;
   var
@@ -3661,8 +3661,9 @@ begin
       if not IsAdmin then AbortInit(msgAdminPrivilegesRequired);
   end;
 
-  { Init main constants, not depending on shfolder.dll/_shfoldr.dll }
-  InitMainNonSHFolderConsts;
+  { Init main constants, not depending on shfolder.dll/_shfoldr.dll. This also
+    initializes the Setup.PathRedir unit. }
+  InitMainNonSHFolderConstsAndPathRedir;
 
   { Create temporary directory }
   CreateTempInstallDir;
