@@ -585,8 +585,8 @@ var
   UnregisteredServersList, RestartDeleteDirList: TSimpleStringList;
   DeleteDirData: TDeleteDirData;
 
-  function LoggedFileDelete(const Filename: String; const DisableFsRedir,
-    NotifyChange, RestartDelete, RemoveReadOnly: Boolean): Boolean;
+  function LoggedFileDelete(const Filename: String; const NotifyChange,
+    RestartDelete, RemoveReadOnly: Boolean): Boolean;
   var
     ExistingAttr, LastError: DWORD;
   begin
@@ -594,11 +594,11 @@ var
 
     { Automatically delete generated indexes associated with help files }
     if SameText(PathExtractExt(Filename), '.hlp') then begin
-      LoggedFileDelete(PathChangeExt(Filename, '.gid'), DisableFsRedir, False, False, False);
-      LoggedFileDelete(PathChangeExt(Filename, '.fts'), DisableFsRedir, False, False, False);
+      LoggedFileDelete(PathChangeExt(Filename, '.gid'), False, False, False);
+      LoggedFileDelete(PathChangeExt(Filename, '.fts'), False, False, False);
     end
     else if SameText(PathExtractExt(Filename), '.chm') then
-      LoggedFileDelete(PathChangeExt(Filename, '.chw'), DisableFsRedir, False, False, False);
+      LoggedFileDelete(PathChangeExt(Filename, '.chw'), False, False, False);
 
     { Automatically unpin shortcuts }
     if SameText(PathExtractExt(Filename), '.lnk') then
@@ -640,7 +640,6 @@ var
         end;
       end
       else begin
-        { Note: It is assumed that DisableFsRedir will be False when NotifyChange is True }
         if NotifyChange then
           ShellChangeNotifyPath(SHCNE_DELETE, Filename, False, ChangeNotifyList);
       end;
@@ -1018,7 +1017,7 @@ begin
               if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_ExistedBeforeInstall = 0) then begin
                 { Note: We handled utDeleteFile_SharedFile already }
                 if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_Extra = 0) then
-                  if not LoggedFileDelete(Filename, Is64Bit,
+                  if not LoggedFileDelete(Filename,
                      CurRec^.ExtraData and utDeleteFile_CallChangeNotify <> 0,
                      CurRec^.ExtraData and utDeleteFile_RestartDelete <> 0,
                      CurRec^.ExtraData and utDeleteFile_RemoveReadOnly <> 0) then
@@ -1032,7 +1031,7 @@ begin
                     CurRec^.ExtraData and utDeleteFile_SharedFileIn64BitKey <> 0);
                 { Delete file only if it's a temp file }
                 if IsTempFile then
-                  if not LoggedFileDelete(Filename, Is64Bit,
+                  if not LoggedFileDelete(Filename,
                      CurRec^.ExtraData and utDeleteFile_CallChangeNotify <> 0,
                      CurRec^.ExtraData and utDeleteFile_RestartDelete <> 0,
                      CurRec^.ExtraData and utDeleteFile_RemoveReadOnly <> 0) then
