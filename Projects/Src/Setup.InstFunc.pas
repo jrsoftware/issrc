@@ -1080,7 +1080,7 @@ procedure ShellChangeNotifyPath(const EventId: Integer; const Path: String;
   Flush only on the final one, ensure the final call uses the shortest path. }
 begin
   const NormalPath = PathConvertSuperToNormal(Path);
-  if Length(NormalPath) <= MAX_PATH then begin
+  if Length(NormalPath) < MAX_PATH then begin
     var Flags: UINT := SHCNF_PATH;
     if Flush then
       Flags := Flags or SHCNF_FLUSH;
@@ -1088,7 +1088,7 @@ begin
   end;
   if DirChangeNotifyList <> nil then begin
     const NormalDir = PathExtractDir(NormalPath);
-    if Length(NormalDir) <= MAX_PATH then
+    if Length(NormalDir) < MAX_PATH then
       DirChangeNotifyList.AddIfDoesntExist(NormalDir);
   end;
 end;
