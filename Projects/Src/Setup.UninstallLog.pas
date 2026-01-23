@@ -281,15 +281,10 @@ begin
     LogWithErrorCode('MoveFileEx failed.', ErrorCode);
 end;
 
-const
-  dd32 = '0';
-  dd64 = '1';
-
-function LoggedDeleteDir(const A64Bit: Boolean; const DirName: String;
+function LoggedDeleteDir(const DirName: String;
   const DirsNotRemoved, RestartDeleteDirList: TSimpleStringList): Boolean;
 const
   FILE_ATTRIBUTE_REPARSE_POINT = $00000400;
-  DirsNotRemovedPrefix: array[Boolean] of Char = (dd32, dd64);
 var
   Attribs, LastError: DWORD;
 begin
@@ -316,7 +311,7 @@ begin
       LastError := GetLastError;
       if Assigned(DirsNotRemoved) then begin
         LogFmt('Failed to delete directory (%d). Will retry later.', [LastError]);
-        DirsNotRemoved.AddIfDoesntExist(DirsNotRemovedPrefix[A64Bit] + DirName);
+        DirsNotRemoved.AddIfDoesntExist(DirName);
       end
       else if Assigned(RestartDeleteDirList) and
          ListContainsPathOrSubdir(RestartDeleteDirList, DirName) then begin
@@ -472,12 +467,12 @@ type
     DirsNotRemoved: TSimpleStringList;
   end;
 
-function LoggedDeleteDirProc(const A64Bit: Boolean; const DirName: String; const Param: Pointer): Boolean;
+function LoggedDeleteDirProc(const DirName: String; const Param: Pointer): Boolean;
 begin
-  Result := LoggedDeleteDir(A64Bit, DirName, PDeleteDirData(Param)^.DirsNotRemoved, nil);
+  Result := LoggedDeleteDir(DirName, PDeleteDirData(Param)^.DirsNotRemoved, nil);
 end;
 
-function LoggedDeleteFileProc(const AIgnored: Boolean; const FileName: String; const Param: Pointer): Boolean;
+function LoggedDeleteFileProc(const FileName: String; const Param: Pointer): Boolean;
 begin
   LogFmt('Deleting file: %s', [FileName]);
   Result := Windows.DeleteFile(PChar(FileName));
@@ -587,11 +582,11 @@ function TUninstallLog.PerformUninstall(const CallFromUninstaller: Boolean;
 var
   RefreshFileAssoc: Boolean;
   ChangeNotifyList, RunOnceList: TSimpleStringList;
-  UnregisteredServersList, RestartDeleteDirList: array[Boolean] of TSimpleStringList;
+  UnregisteredServersList, RestartDeleteDirList: TSimpleStringList;
   DeleteDirData: TDeleteDirData;
 
-  function LoggedFileDelete(const Filename: String; const DisableFsRedir,
-    NotifyChange, RestartDelete, RemoveReadOnly: Boolean): Boolean;
+  function LoggedFileDelete(const Filename: String; const NotifyChange,
+    RestartDelete, RemoveReadOnly: Boolean): Boolean;
   var
     ExistingAttr, LastError: DWORD;
   begin
@@ -599,33 +594,33 @@ var
 
     { Automatically delete generated indexes associated with help files }
     if SameText(PathExtractExt(Filename), '.hlp') then begin
-      LoggedFileDelete(PathChangeExt(Filename, '.gid'), DisableFsRedir, False, False, False);
-      LoggedFileDelete(PathChangeExt(Filename, '.fts'), DisableFsRedir, False, False, False);
+      LoggedFileDelete(PathChangeExt(Filename, '.gid'), False, False, False);
+      LoggedFileDelete(PathChangeExt(Filename, '.fts'), False, False, False);
     end
     else if SameText(PathExtractExt(Filename), '.chm') then
-      LoggedFileDelete(PathChangeExt(Filename, '.chw'), DisableFsRedir, False, False, False);
+      LoggedFileDelete(PathChangeExt(Filename, '.chw'), False, False, False);
 
     { Automatically unpin shortcuts }
     if SameText(PathExtractExt(Filename), '.lnk') then
       UnpinShellLink(Filename);
       
-    if NewFileExistsRedir(DisableFsRedir, Filename) then begin
+    if NewFileExists(Filename) then begin
       LogFmt('Deleting file: %s', [FileName]);
       if RemoveReadOnly then begin
-        ExistingAttr := GetFileAttributesRedir(DisableFsRedir, Filename);
+        ExistingAttr := GetFileAttributes(PChar(Filename));
         if (ExistingAttr <> INVALID_FILE_ATTRIBUTES) and
            (ExistingAttr and FILE_ATTRIBUTE_READONLY <> 0) then
-          if SetFileAttributesRedir(DisableFsRedir, Filename,
+          if SetFileAttributes(PChar(Filename),
              ExistingAttr and not FILE_ATTRIBUTE_READONLY) then
             Log('Stripped read-only attribute.')
           else
             Log('Failed to strip read-only attribute.');
       end;
-      if not DeleteFileRedir(DisableFsRedir, Filename) then begin
+      if not Windows.DeleteFile(PChar(Filename)) then begin
         LastError := GetLastError;
         if RestartDelete and CallFromUninstaller and
            ((LastError = ERROR_ACCESS_DENIED) or (LastError = ERROR_SHARING_VIOLATION)) and
-           (GetFileAttributesRedir(DisableFsRedir, Filename) and FILE_ATTRIBUTE_READONLY = 0) then begin
+           (GetFileAttributes(PChar(Filename)) and FILE_ATTRIBUTE_READONLY = 0) then begin
           LogFmt('The file appears to be in use (%d). Will delete on restart.',
             [LastError]);
           try
@@ -633,7 +628,7 @@ var
             NeedRestart := True;
             { Add the file's directory to the list of directories that should
               be restart-deleted later }
-            RestartDeleteDirList[DisableFsRedir].AddIfDoesntExist(PathExtractDir(PathExpand(Filename)));
+            RestartDeleteDirList.AddIfDoesntExist(PathExtractDir(Filename));
           except
             Log('Exception message:' + SNewLine + GetExceptMessage);
             Result := False;
@@ -645,11 +640,8 @@ var
         end;
       end
       else begin
-        { Note: It is assumed that DisableFsRedir will be False when NotifyChange is True }
-        if NotifyChange then begin
-          SHChangeNotify(SHCNE_DELETE, SHCNF_PATH, PChar(Filename), nil);
-          ChangeNotifyList.AddIfDoesntExist(PathExtractDir(Filename));
-        end;
+        if NotifyChange then
+          ShellChangeNotifyPath(SHCNE_DELETE, Filename, False, ChangeNotifyList);
       end;
     end;
   end;
@@ -675,14 +667,14 @@ var
   begin
     { Just as an optimization, make sure we aren't unregistering
       the same file again }
-    if UnregisteredServersList[Is64Bit].IndexOf(Filename) = -1 then begin
+    if UnregisteredServersList.IndexOf(Filename) = -1 then begin
       if Is64Bit then
         LogFmt('Unregistering 64-bit DLL/OCX: %s', [Filename])
       else
         LogFmt('Unregistering 32-bit DLL/OCX: %s', [Filename]);
       try
         RegisterServer(True, Is64Bit, Filename, True);
-        UnregisteredServersList[Is64Bit].Add(Filename);
+        UnregisteredServersList.Add(Filename);
         Log('Unregistration successful.');
       except
         Log('Unregistration failed:' + SNewLine + GetExceptMessage);
@@ -733,14 +725,8 @@ var
 
   procedure LoggedProcessDirsNotRemoved;
   begin
-    for var I := 0 to DeleteDirData.DirsNotRemoved.Count-1 do begin
-      var S := DeleteDirData.DirsNotRemoved[I];
-      { The first character specifies the A64Bit value
-        (e.g. '0C:\Program Files\My Program') }
-      const A64Bit = (S[1] = dd64);
-      System.Delete(S, 1, 1);
-      LoggedDeleteDir(A64Bit, S, nil, RestartDeleteDirList[A64Bit]);
-    end;
+    for var I := 0 to DeleteDirData.DirsNotRemoved.Count-1 do
+      LoggedDeleteDir(DeleteDirData.DirsNotRemoved[I], nil, RestartDeleteDirList);
   end;
   
   function GetLogIniFilename(const Filename: String): String;
@@ -759,7 +745,7 @@ var
   CurRec: PUninstallRec;
   CurRecDataPChar: array[0..9] of PChar;
   CurRecData: array[0..9] of String;
-  ShouldDeleteRec, IsTempFile, IsSharedFile, SharedCountDidReachZero: Boolean;
+  ShouldDeleteRec, IsSharedFile, SharedCountDidReachZero: Boolean;
   Section, Key: String;
   Subkey, ValueName: PChar;
   P: Integer;
@@ -789,18 +775,14 @@ begin
 
   RefreshFileAssoc := False;
   RunOnceList := nil;
-  UnregisteredServersList[False] := nil;
-  UnregisteredServersList[True] := nil;
-  RestartDeleteDirList[False] := nil;
-  RestartDeleteDirList[True] := nil;
+  UnregisteredServersList := nil;
+  RestartDeleteDirList := nil;
   DeleteDirData.DirsNotRemoved := nil;
   ChangeNotifyList := TSimpleStringList.Create;
   try
     RunOnceList := TSimpleStringList.Create;
-    UnregisteredServersList[False] := TSimpleStringList.Create;
-    UnregisteredServersList[True] := TSimpleStringList.Create;
-    RestartDeleteDirList[False] := TSimpleStringList.Create;
-    RestartDeleteDirList[True] := TSimpleStringList.Create;
+    UnregisteredServersList := TSimpleStringList.Create;
+    RestartDeleteDirList := TSimpleStringList.Create;
     if Assigned(DeleteUninstallDataFilesProc) then
       DeleteDirData.DirsNotRemoved := TSimpleStringList.Create;
 
@@ -925,22 +907,24 @@ begin
           SplitData(CurRec);
           { Note: Some of this code is duplicated in Step 3 }
           if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_ExistedBeforeInstall = 0) then begin
-            IsTempFile := not CallFromUninstaller and (CurRecData[1] <> '');
+            const IsTempFile = not CallFromUninstaller and (CurRecData[1] <> '');
+
+            const Is64Bit = CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0;
+            const Filename = ApplyPathRedirRules(Is64Bit, CurRecData[0]);
 
             { Decrement shared file count if necessary }
             IsSharedFile := CurRec^.ExtraData and utDeleteFile_SharedFile <> 0;
             if IsSharedFile then
-              SharedCountDidReachZero := LoggedDecrementSharedCount(CurRecData[0],
+              SharedCountDidReachZero := LoggedDecrementSharedCount(Filename,
                 CurRec^.ExtraData and utDeleteFile_SharedFileIn64BitKey <> 0)
             else
               SharedCountDidReachZero := False; //silence compiler
 
             if not IsSharedFile or
                (SharedCountDidReachZero and
-                (IsTempFile or
-                 not NewFileExistsRedir(CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0, CurRecData[0]) or
+                (IsTempFile or not NewFileExists(Filename) or
                  (CurRec^.ExtraData and utDeleteFile_NoSharedFilePrompt <> 0) or
-                 ShouldRemoveSharedFile(CurRecData[0]))) then begin
+                 ShouldRemoveSharedFile(Filename))) then begin
               { The reference count reached zero and the user did not object
                 to the file being deleted, so don't delete the record; allow
                 the file to be deleted in the next step. }
@@ -948,19 +932,19 @@ begin
               { Unregister if necessary }
               if not IsTempFile then begin
                 if CurRec^.ExtraData and utDeleteFile_RegisteredServer <> 0 then begin
-                  LoggedUnregisterServer(
-                    (CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0) xor
-                    (CurRec^.ExtraData and utDeleteFile_RegisteredWithOppositeBitness <> 0),
-                    CurRecData[0]);
+                  const RegisteredWithOppositeBitness =
+                    CurRec^.ExtraData and utDeleteFile_RegisteredWithOppositeBitness <> 0;
+                  LoggedUnregisterServer(Is64Bit xor RegisteredWithOppositeBitness, Filename);
                 end;
-                if CurRec^.ExtraData and utDeleteFile_RegisteredTypeLib <> 0 then begin
-                  LoggedUnregisterTypeLibrary(CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0,
-                    CurRecData[0]);
-                end;
+                if CurRec^.ExtraData and utDeleteFile_RegisteredTypeLib <> 0 then
+                  LoggedUnregisterTypeLibrary(Is64Bit, Filename);
               end;
               if CurRec^.ExtraData and utDeleteFile_IsFont <> 0 then begin
                 LogFmt('Unregistering font: %s', [CurRecData[2]]);
-                UnregisterFont(CurRecData[2], CurRecData[3], CurRec^.ExtraData and utDeleteFile_PerUserFont <> 0);
+                var FontFilename := CurRecData[3];
+                if PathIsRooted(FontFilename) then { Filename may have been shorted by ShortenFontFilename }
+                  FontFilename := ApplyPathRedirRules(Is64Bit, FontFilename);
+                UnregisterFont(CurRecData[2], FontFilename, CurRec^.ExtraData and utDeleteFile_PerUserFont <> 0);
               end;
               if CurRec^.ExtraData and utDeleteFile_GacInstalled <> 0 then
                 LoggedUninstallAssembly(CurRecData[4]);
@@ -1010,26 +994,30 @@ begin
             if (CallFromUninstaller or (CurRec^.ExtraData and utDeleteDirOrFiles_Extra = 0)) then begin
               const Is64Bit = CurRec^.ExtraData and utDeleteDirOrFiles_Is64Bit <> 0;
               const Path = ApplyPathRedirRules(Is64Bit, CurRecData[0]);
-              if DelTree(Is64Bit, Path, CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0,
+              if DelTree(Path, CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteFiles <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteSubdirsAlso <> 0,
                  False, LoggedDeleteDirProc, LoggedDeleteFileProc, @DeleteDirData) then begin
                 if (CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0) and
                    (CurRec^.ExtraData and utDeleteDirOrFiles_CallChangeNotify <> 0) then begin
-                  SHChangeNotify(SHCNE_RMDIR, SHCNF_PATH, CurRecDataPChar[0], nil);
-                  ChangeNotifyList.AddIfDoesntExist(PathExtractDir(CurRecData[0]));
+                  ShellChangeNotifyPath(SHCNE_RMDIR, Path, False, ChangeNotifyList);
                 end;
               end;
             end;
           utDeleteFile: begin
               { Note: Some of this code is duplicated in Step 2 }
-              var Filename := CurRecData[1];
-              if CallFromUninstaller or (Filename = '') then
+              const Is64Bit = CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0;
+              var Filename: String;
+              const IsTempFile = not CallFromUninstaller and (CurRecData[1] <> '');
+              if IsTempFile then
+                Filename := CurRecData[1]
+              else
                 Filename := CurRecData[0];
+              Filename := ApplyPathRedirRules(Is64Bit, Filename);
               if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_ExistedBeforeInstall = 0) then begin
                 { Note: We handled utDeleteFile_SharedFile already }
                 if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_Extra = 0) then
-                  if not LoggedFileDelete(Filename, CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0,
+                  if not LoggedFileDelete(Filename,
                      CurRec^.ExtraData and utDeleteFile_CallChangeNotify <> 0,
                      CurRec^.ExtraData and utDeleteFile_RestartDelete <> 0,
                      CurRec^.ExtraData and utDeleteFile_RemoveReadOnly <> 0) then
@@ -1039,11 +1027,11 @@ begin
                 { We're running from Setup, and the file existed before
                   installation... }
                 if CurRec^.ExtraData and utDeleteFile_SharedFile <> 0 then
-                  LoggedDecrementSharedCount(CurRecData[0],
+                  LoggedDecrementSharedCount(Filename,
                     CurRec^.ExtraData and utDeleteFile_SharedFileIn64BitKey <> 0);
                 { Delete file only if it's a temp file }
-                if Filename <> CurRecData[0] then
-                  if not LoggedFileDelete(Filename, CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0,
+                if IsTempFile then
+                  if not LoggedFileDelete(Filename,
                      CurRec^.ExtraData and utDeleteFile_CallChangeNotify <> 0,
                      CurRec^.ExtraData and utDeleteFile_RestartDelete <> 0,
                      CurRec^.ExtraData and utDeleteFile_RemoveReadOnly <> 0) then
@@ -1120,8 +1108,17 @@ begin
               end;
             end;
           utDecrementSharedCount: begin
-              LoggedDecrementSharedCount(CurRecData[0],
-                CurRec^.ExtraData and utDecrementSharedCount_64BitKey <> 0);
+              { utDeleteFile and utDecrementSharedCount are different: utDeleteFile's
+                CurRecData[0] is current-process-bit compared to utDeleteFile_Is64Bit,
+                but utDecrementSharedCount's is not, because there was and is no
+                utDecrementSharedCount_Is64Bit. Instead, ApplyRedirForRegistrationOperation
+                was used when utDecrementSharedCount was added, see Setup.Install.
+                This means CurRecData[0] is a 64-bit path if utDecrementSharedCount_64BitKey
+                is set, and 32-bit otherwise. We use this to convert it into back
+                a current-process-bit path. }
+              const Is64Bit = CurRec^.ExtraData and utDecrementSharedCount_64BitKey <> 0;
+              const Filename = ApplyPathRedirRules(Is64Bit, CurRecData[0]);
+              LoggedDecrementSharedCount(Filename, Is64Bit);
             end;
           utRefreshFileAssoc:
             RefreshFileAssoc := True;
@@ -1151,14 +1148,11 @@ begin
     end;
   finally
     DeleteDirData.DirsNotRemoved.Free;
-    RestartDeleteDirList[True].Free;
-    RestartDeleteDirList[False].Free;
+    RestartDeleteDirList.Free;
     for P := 0 to ChangeNotifyList.Count-1 do
       if DirExists(ChangeNotifyList[P]) then
-        SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATH or SHCNF_FLUSH,
-          PChar(ChangeNotifyList[P]), nil);
-    UnregisteredServersList[True].Free;
-    UnregisteredServersList[False].Free;
+        ShellChangeNotifyPath(SHCNE_UPDATEDIR, ChangeNotifyList[P], True);
+    UnregisteredServersList.Free;
     RunOnceList.Free;
     ChangeNotifyList.Free;
   end;

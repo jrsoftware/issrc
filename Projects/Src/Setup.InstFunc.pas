@@ -36,8 +36,8 @@ type
     property Items[Index: Integer]: String read Get; default;
   end;
 
-  TDeleteDirProc = function(const A64Bit: Boolean; const DirName: String; const Param: Pointer): Boolean;
-  TDeleteFileProc = function(const A64Bit: Boolean; const FileName: String; const Param: Pointer): Boolean;
+  TDeleteDirProc = function(const DirName: String; const Param: Pointer): Boolean;
+  TDeleteFileProc = function(const FileName: String; const Param: Pointer): Boolean;
 
   TEnumFROFilenamesProc = procedure(const Filename: String; Param: Pointer);
 
@@ -63,7 +63,7 @@ type
 function CheckForMutexes(const Mutexes: String): Boolean;
 procedure CreateMutexes(const Mutexes: String);
 function DecrementSharedCount(const RegView: TRegView; const Filename: String): Boolean;
-function DelTree(const A64Bit: Boolean; const Path: String;
+function DelTree(const Path: String;
   const IsDir, DeleteFiles, DeleteSubdirsAlso, BreakOnError: Boolean;
   const DeleteDirProc: TDeleteDirProc; const DeleteFileProc: TDeleteFileProc;
   const Param: Pointer): Boolean;
@@ -111,11 +111,13 @@ procedure ApplyRedirToRunEntryPaths(const RunEntry64Bit: Boolean;
   var AFilename, AWorkingDir: String);
 function ApplyRedirForRegistrationOperation(const RegisteringAs64BitFile: Boolean;
   const Filename: String): String;
+procedure ShellChangeNotifyPath(const EventId: Integer; const Path: String;
+  const Flush: Boolean; const DirChangeNotifyList: TSimpleStringList = nil);
 
 implementation
 
 uses
-  Messages, ShellApi, Classes, RegStr, Math,
+  Messages, ShellApi, ShlObj, Classes, RegStr, Math,
   PathFunc, UnsignedFunc,
   Shared.SetupTypes, Shared.SetupMessageIDs,
   SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, Setup.PathRedir,
@@ -229,7 +231,7 @@ begin
     Win32ErrorMsgEx('MoveFileEx', ErrorCode);
 end;
 
-function DelTree(const A64Bit: Boolean; const Path: String;
+function DelTree(const Path: String;
   const IsDir, DeleteFiles, DeleteSubdirsAlso, BreakOnError: Boolean;
   const DeleteDirProc: TDeleteDirProc; const DeleteFileProc: TDeleteFileProc;
   const Param: Pointer): Boolean;
@@ -270,7 +272,7 @@ begin
             end;
             if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
               if Assigned(DeleteFileProc) then begin
-                if not DeleteFileProc(A64Bit, BasePath + S, Param) then
+                if not DeleteFileProc(BasePath + S, Param) then
                   Result := False;
               end
               else begin
@@ -280,7 +282,7 @@ begin
             end
             else begin
               if DeleteSubdirsAlso then
-                if not DelTree(A64Bit, BasePath + S, True, True, True, BreakOnError,
+                if not DelTree(BasePath + S, True, True, True, BreakOnError,
                    DeleteDirProc, DeleteFileProc, Param) then
                   Result := False;
             end;
@@ -293,7 +295,7 @@ begin
   end;
   if (not BreakOnError or Result) and IsDir then begin
     if Assigned(DeleteDirProc) then begin
-      if not DeleteDirProc(A64Bit, Path, Param) then
+      if not DeleteDirProc(Path, Param) then
         Result := False;
     end
     else begin
@@ -1067,6 +1069,28 @@ begin
 
   Result := ApplyPathRedirRules(IsCurrentProcess64Bit,
     Filename, [rfNormalPath], TargetProcess);
+end;
+
+procedure ShellChangeNotifyPath(const EventId: Integer; const Path: String;
+  const Flush: Boolean; const DirChangeNotifyList: TSimpleStringList);
+{ Calls SHChangeNotify with SHCNF_PATH only if the normal version of Path is
+  at most MAX_PATH long. If DirChangeNotifyList is assigned, the normalized
+  directory is added to the list (if it fits MAX_PATH and isn't already there).
+  If the path is too long then Flush is ignored, so when batching calls with
+  Flush only on the final one, ensure the final call uses the shortest path. }
+begin
+  const NormalPath = PathConvertSuperToNormal(Path);
+  if Length(NormalPath) <= MAX_PATH then begin
+    var Flags: UINT := SHCNF_PATH;
+    if Flush then
+      Flags := Flags or SHCNF_FLUSH;
+    SHChangeNotify(EventId, Flags, PChar(NormalPath), nil);
+  end;
+  if DirChangeNotifyList <> nil then begin
+    const NormalDir = PathExtractDir(NormalPath);
+    if Length(NormalDir) <= MAX_PATH then
+      DirChangeNotifyList.AddIfDoesntExist(NormalDir);
+  end;
 end;
 
 { TSimpleStringList }

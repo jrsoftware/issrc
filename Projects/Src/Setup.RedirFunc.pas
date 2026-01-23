@@ -40,11 +40,6 @@ function CreateProcessRedir(const DisableFsRedir: Boolean;
   const lpEnvironment: Pointer; const lpCurrentDirectory: PChar;
   const lpStartupInfo: TStartupInfo;
   var lpProcessInformation: TProcessInformation): BOOL;
-function DeleteFileRedir(const DisableFsRedir: Boolean; const Filename: String): BOOL;
-function GetFileAttributesRedir(const DisableFsRedir: Boolean; const Filename: String): DWORD;
-function NewFileExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
-function SetFileAttributesRedir(const DisableFsRedir: Boolean; const Filename: String;
-  const Attrib: DWORD): BOOL;
 
 implementation
 
@@ -149,61 +144,6 @@ begin
   end;
   try
     Result := Windows.DeleteFile(PChar(Filename));
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
-function GetFileAttributesRedir(const DisableFsRedir: Boolean; const Filename: String): DWORD;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := INVALID_FILE_ATTRIBUTES;
-    Exit;
-  end;
-  try
-    Result := GetFileAttributes(PChar(Filename));
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
-function NewFileExistsRedir(const DisableFsRedir: Boolean; const Filename: String): Boolean;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := NewFileExists(Filename);
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
-function SetFileAttributesRedir(const DisableFsRedir: Boolean; const Filename: String;
-  const Attrib: DWORD): BOOL;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := SetFileAttributes(PChar(Filename), Attrib);
     ErrorCode := GetLastError;
   finally
     RestoreFsRedirection(PrevState);
