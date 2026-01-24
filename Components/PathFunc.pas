@@ -233,8 +233,8 @@ function PathConvertSuperToNormal(const Filename: String): String;
   - The path doesn't start with "\\?\" (i.e., it's already in normal form)
   - The prefix isn't followed by a drive letter and colon, or "UNC\".
     ("\\?\GLOBALROOT\" isn't supported.)
-  - The path contains forward slashes or unnecessarily repeated backslashes.
-    This function doesn't support them.
+  - The path contains forward slashes or repeated backslashes (not counting
+    the leading "\\"). Super paths shouldn't have them.
   Examples of conversions:
     \\?\C:               -> C:\
     \\?\C:\              -> C:\
@@ -440,7 +440,30 @@ begin
 end;
 
 function PathExpand(const Filename: String; out ExpandedFilename: String): Boolean;
-{ Like Delphi's ExpandFileName, but does proper error checking. }
+{ This is a wrapper around Windows' GetFullPathName function, which takes a
+  possibly relative path and returns a fully qualified path. Other changes,
+  not documented but believed to be consistent across Windows versions, are
+  made as well:
+  - Forward slashes are changed to backslashes
+  - Repeated slashes are collapsed into one, except for a leading '\\'
+  - Any number of dots and spaces at the end of the path are removed, and
+    a single dot at the end of preceding components may also be removed
+    (see comments in PathHasInvalidChars for details)
+  - Paths with certain device names as the only component, or in some cases
+    as the last component, are changed to '\\.\<device name>', except when the
+    path has the '\\?\' prefix.
+    For example, if the last component is 'NUL', the whole path is changed to
+    '\\.\NUL'.
+  - '\\.' is changed to '\\.\' and '\\?' is changed to '\\?\'
+    (but '\\X' is *not* changed to '\\X\')
+
+  Super paths are supposed to be in canonical form already, absolute with no
+  forward slashes or repeated backslashes. Although they can be passed to
+  GetFullPathName anyway, there's a downside: GetFullPathName removes all
+  trailing dots and spaces from the path. Files should never be *created* with
+  trailing dots or spaces (because they can only be accessed with super
+  paths), but removing them may interfere with opening or deleting such
+  files. }
 var
   Res: Integer;
   FilePart: PChar;
