@@ -914,20 +914,20 @@ begin
 end;
 
 procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);
-var
-  RootKey, K: HKEY;
 begin
+  var RootKey: HKEY;
   if PerUserFont then
     RootKey := HKEY_CURRENT_USER
   else
     RootKey := HKEY_LOCAL_MACHINE;
 
+  var K: HKEY;
   if RegOpenKeyExView(rvDefault, RootKey, 'Software\Microsoft\Windows NT\CurrentVersion\Fonts',
      0, KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
     RegDeleteValue(K, PChar(FontName));
     RegCloseKey(K);
   end;
-  if RemoveFontResource(PChar(FontFilename)) then
+  if RemoveFontResource(PChar(PathConvertSuperToNormal(FontFilename))) then
     SendNotifyMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
 end;
 

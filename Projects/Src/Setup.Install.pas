@@ -542,9 +542,8 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
 
   procedure InstallFont(const Filename, FontName: String;
     const PerUserFont, AddToFontTableNow: Boolean; var WarnedPerUserFonts: Boolean);
-  var
-    RootKey, K: HKEY;
   begin
+    const NormalFilename = PathConvertSuperToNormal(Filename);
     if PerUserFont and not WindowsVersionAtLeast(10, 0, 17134) then begin
       { Per-user fonts require Windows 10 Version 1803 (10.0.17134) or newer. }
       if not WarnedPerUserFonts then begin
@@ -560,14 +559,16 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
         it's safe to disable FS redirection when calling AddFontResource, or
         if it would even work. Users should be installing their fonts to the
         Fonts directory instead of the System directory anyway. }
+      var RootKey: HKEY;
       if PerUserFont then
         RootKey := HKEY_CURRENT_USER
       else
         RootKey := HKEY_LOCAL_MACHINE;
+      var K: HKEY;
       if RegOpenKeyExView(rvDefault, RootKey, 'Software\Microsoft\Windows NT\CurrentVersion\Fonts', 0,
          KEY_SET_VALUE, K) = ERROR_SUCCESS then begin
-        if RegSetValueEx(K, PChar(FontName), 0, REG_SZ, PChar(Filename),
-           (ULength(Filename)+1)*SizeOf(Filename[1])) <> ERROR_SUCCESS then
+          if RegSetValueEx(K, PChar(FontName), 0, REG_SZ, PChar(NormalFilename),
+            (ULength(NormalFilename)+1)*SizeOf(NormalFilename[1])) <> ERROR_SUCCESS then
           Log('Failed to set value in Fonts registry key.');
         RegCloseKey(K);
       end
@@ -578,7 +579,7 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
     if AddToFontTableNow then begin
       repeat
         { Note: AddFontResource doesn't set the thread's last error code }
-        if AddFontResource(PChar(Filename)) <> 0 then begin
+        if AddFontResource(PChar(NormalFilename)) <> 0 then begin
           SendNotifyMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
           Break;
         end;
