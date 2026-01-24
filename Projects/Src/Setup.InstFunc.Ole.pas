@@ -252,13 +252,14 @@ const
 
 { Attempt to unpin a shortcut. Returns True if the shortcut was successfully
   removed from the list of pinned items and/or the taskbar, or if the shortcut
-  was not pinned at all. http://msdn.microsoft.com/en-us/library/bb774817.aspx }
+  was not pinned at all.
+  https://learn.microsoft.com/en-us/windows/win32/api/shobjidl/nf-shobjidl-istartmenupinnedlist-removefromlist }
 function UnpinShellLink(const Filename: String): Boolean;
 var
   ShellItem: IShellItem;
   StartMenuPinnedList: IStartMenuPinnedList;
 begin
-  const ExpandedFilename = PathExpand(Filename);
+  const ExpandedFilename = PathExpand(PathConvertSuperToNormal(Filename));
   if Succeeded(SHCreateItemFromParsingName(PChar(ExpandedFilename), nil, IID_ShellItem, ShellItem)) and
      Succeeded(CoCreateInstance(CLSID_StartMenuPin, nil, CLSCTX_INPROC_SERVER, IID_StartMenuPinnedList, StartMenuPinnedList)) then
     Result := StartMenuPinnedList.RemoveFromList(ShellItem) = S_OK
