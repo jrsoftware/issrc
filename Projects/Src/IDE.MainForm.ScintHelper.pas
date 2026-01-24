@@ -75,15 +75,15 @@ begin
           var OtherLineStart := AMemo.GetPositionFromLine(OtherLine);
           var MaxCharacterCount := AMemo.GetCharacterCount(OtherLineStart, AMemo.GetLineEndPosition(OtherLine));
           var NewCaretCharacterCount := CaretCharacterCount;
-          var NewCaretVirtualSpace := 0;
+          //var NewCaretVirtualSpace := 0;
           var NewAnchorCharacterCount := AnchorCharacterCount;
-          var NewAnchorVirtualSpace := 0;
+          //var NewAnchorVirtualSpace := 0;
           if NewCaretCharacterCount > MaxCharacterCount then begin
-            NewCaretVirtualSpace := NewCaretCharacterCount - MaxCharacterCount;
+            //NewCaretVirtualSpace := NewCaretCharacterCount - MaxCharacterCount;
             NewCaretCharacterCount := MaxCharacterCount;
           end;
           if NewAnchorCharacterCount > MaxCharacterCount then begin
-            NewAnchorVirtualSpace := NewAnchorCharacterCount - MaxCharacterCount;
+            //NewAnchorVirtualSpace := NewAnchorCharacterCount - MaxCharacterCount;
             NewAnchorCharacterCount := MaxCharacterCount;
           end;
           var NewSelection: TScintCaretAndAnchor;
