@@ -465,70 +465,6 @@ begin
   until Length(Path) = Length(Trim(Path));
 end;
 
-function ContainsControlCharacters(const S: String): Boolean;
-{ Returns True if S contains any control characters (#0..#31) }
-var
-  I: Integer;
-begin
-  for I := 1 to Length(S) do
-    if S[I] <= #31 then begin
-      Result := True;
-      Exit;
-    end;
-  Result := False;
-end;
-
-function PathComponentsContainTrailingSpaces(const S: String): Boolean;
-{ Returns True if one or more components of the path contain trailing spaces,
-  which are invalid in Win32. }
-var
-  P: PChar;
-begin
-  P := PChar(S);
-  while P^ <> #0 do begin
-    if (P^ = ' ') and ((P[1] = '\') or (P[1] = #0)) then begin
-      Result := True;
-      Exit;
-    end;
-    P := PathStrNextChar(P);
-  end;
-  Result := False;
-end;
-
-function PathComponentsContainInvalidDots(const S: String): Boolean;
-{ Returns True if one or more components of the path contain only dots,
-  i.e. '.', '..', '...', etc. One or two dots represent relative paths; three
-  or more dots are invalid. }
-var
-  P: PChar;
-  HasDots: Boolean;
-begin
-  P := PChar(S);
-  while P^ <> #0 do begin
-    { Skip over leading spaces; we want ' .' to return True also }
-    while P^ = ' ' do
-      Inc(P);
-    HasDots := False;
-    while P^ = '.' do begin
-      HasDots := True;
-      Inc(P);
-    end;
-    { Skip over trailing spaces; we want '. ' to return True also }
-    while P^ = ' ' do
-      Inc(P);
-    if HasDots and ((P^ = '\') or (P^ = #0)) then begin
-      Result := True;
-      Exit;
-    end;
-    { Skip to next component }
-    while (P^ <> #0) and (P^ <> '\') do
-      P := PathStrNextChar(P);
-    if P^ = '\' then
-      Inc(P);
-  end;
-  Result := False;
-end;
-
 function SpaceString(const S: String): String;
 var
   I: Integer;
@@ -2965,19 +2901,19 @@ begin
     end;
   end;
 
-  { Verify that no path components contain control characters, end in spaces,
-    or consist only of dots }
-  if ContainsControlCharacters(T) or
-     PathComponentsContainTrailingSpaces(T) or
-     PathComponentsContainInvalidDots(T) then begin
-    LoggedMsgBox(SetupMessages[msgInvalidDirName], '', mbError, MB_OK, True, IDOK);
-    Exit;
-  end;
-
-  { Check for invalid characters after 'x:' or '\\' }
+  { Check for invalid characters after 'x:' or '\\'.
+    (PathHasInvalidCharacters, called below, also checks for the same
+    characters, but this check is kept for its more specific error message.) }
   if PathLastDelimiter(BadDirChars, Copy(T, 3, Maxint)) <> 0 then begin
     LoggedMsgBox(FmtSetupMessage1(msgBadDirName32, SpaceString(BadDirChars)), '',
       mbError, MB_OK, True, IDOK);
+    Exit;
+  end;
+
+  { Verify that no path components contain control characters, trailing
+    spaces, or trailing dots (thus not allowing '.' and '..') }
+  if PathHasInvalidCharacters(T, True) then begin
+    LoggedMsgBox(SetupMessages[msgInvalidDirName], '', mbError, MB_OK, True, IDOK);
     Exit;
   end;
 
@@ -3016,14 +2952,6 @@ begin
       Exit;
     end;
 
-    { Verify that no path components contain control characters or end in
-      spaces }
-    if ContainsControlCharacters(T) or
-       PathComponentsContainTrailingSpaces(T) then begin
-      LoggedMsgBox(SetupMessages[msgInvalidGroupName], '', mbError, MB_OK, True, IDOK);
-      Exit;
-    end;
-
     if T = '' then begin
       LoggedMsgBox(SetupMessages[msgMustEnterGroupName], '', mbError, MB_OK, True, IDOK);
       Exit;
@@ -3033,6 +2961,13 @@ begin
     if PathLastDelimiter(BadDirChars, T) <> 0 then begin
       LoggedMsgBox(FmtSetupMessage1(msgBadGroupName, SpaceString(BadDirChars)),
         '', mbError, MB_OK, True, IDOK);
+      Exit;
+    end;
+
+    { Verify that no path components contain control characters, trailing
+      spaces, or trailing dots (thus not allowing '.' and '..') }
+    if PathHasInvalidCharacters(T, False) then begin
+      LoggedMsgBox(SetupMessages[msgInvalidGroupName], '', mbError, MB_OK, True, IDOK);
       Exit;
     end;
   end;
@@ -3076,15 +3011,15 @@ const
   NewFolderBadDirChars = '\' + BadDirChars;
 begin
   NewName := Trim(NewName);
-  if (NewName = '') or PathComponentsContainInvalidDots(NewName) then begin
-    Accept := False;
-    LoggedMsgBox(SetupMessages[msgInvalidDirName], '', mbError, MB_OK, True, IDOK);
-    Exit;
-  end;
   if PathLastDelimiter(NewFolderBadDirChars, NewName) <> 0 then begin
     Accept := False;
     LoggedMsgBox(FmtSetupMessage1(msgBadDirName32, SpaceString(NewFolderBadDirChars)),
       '', mbError, MB_OK, True, IDOK);
+    Exit;
+  end;
+  if (NewName = '') or PathHasInvalidCharacters(NewName, False) then begin
+    Accept := False;
+    LoggedMsgBox(SetupMessages[msgInvalidDirName], '', mbError, MB_OK, True, IDOK);
     Exit;
   end;
 end;
@@ -3095,15 +3030,15 @@ const
   NewFolderBadDirChars = '\' + BadDirChars;
 begin
   NewName := Trim(NewName);
-  if (NewName = '') or PathComponentsContainInvalidDots(NewName) then begin
-    Accept := False;
-    LoggedMsgBox(SetupMessages[msgInvalidGroupName], '', mbError, MB_OK, True, IDOK);
-    Exit;
-  end;
   if PathLastDelimiter(NewFolderBadDirChars, NewName) <> 0 then begin
     Accept := False;
     LoggedMsgBox(FmtSetupMessage1(msgBadGroupName, SpaceString(NewFolderBadDirChars)),
       '', mbError, MB_OK, True, IDOK);
+    Exit;
+  end;
+  if (NewName = '') or PathHasInvalidCharacters(NewName, False) then begin
+    Accept := False;
+    LoggedMsgBox(SetupMessages[msgInvalidGroupName], '', mbError, MB_OK, True, IDOK);
     Exit;
   end;
 end;
