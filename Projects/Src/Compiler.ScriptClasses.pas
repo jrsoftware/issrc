@@ -284,7 +284,10 @@ end;
 procedure RegisterNewCtrls_C(Cl: TPSPascalCompiler);
 begin
   Cl.AddClassN(Cl.FindClass('TEdit'), 'TNewEdit');
-  Cl.AddClassN(Cl.FindClass('TNewEdit'), 'TNewPathEdit');
+  with Cl.AddClassN(Cl.FindClass('TNewEdit'), 'TNewPathEdit') do
+  begin
+    RegisterProperty('AutoCompleteFiles', 'Boolean', iptrw);
+  end;
   Cl.AddClassN(Cl.FindClass('TMemo'), 'TNewMemo');
   Cl.AddClassN(Cl.FindClass('TComboBox'), 'TNewComboBox');
   Cl.AddClassN(Cl.FindClass('TListBox'), 'TNewListBox');
@@ -373,7 +376,7 @@ begin
     RegisterProperty('InstallingPage', 'TNewNotebookPage', iptr);
     RegisterProperty('InfoAfterPage', 'TNewNotebookPage', iptr);
     RegisterProperty('DiskSpaceLabel', 'TNewStaticText', iptr);
-    RegisterProperty('DirEdit', 'TEdit', iptr);
+    RegisterProperty('DirEdit', 'TNewPathEdit', iptr);
     RegisterProperty('GroupEdit', 'TNewEdit', iptr);
     RegisterProperty('NoIconsCheck', 'TNewCheckBox', iptr);
     RegisterProperty('PasswordLabel', 'TNewStaticText', iptr);

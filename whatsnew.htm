@@ -137,10 +137,12 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p>Additionally, the following changes have been made in both editions:</p>
 <ul>
   <li>The Compiler IDE has been renamed from <tt>Compil32.exe</tt> to <tt>ISIDE.exe</tt>.</li>
+  <li>In Setup, edit controls that take paths to directories now exclude names of files from their AutoComplete lists.</li>
   <li>Pascal Scripting:
   <ul>
     <li>Support function <tt>Chr</tt> now correctly accepts ordinal values greater than 255.</li>
     <li>Support function <tt>FloatToStr</tt> no longer outputs unnecessary trailing zeros.</li>
+    <li><tt>TNewPathEdit</tt>: Added new <tt>AutoCompleteFiles</tt> property. If set to <tt>False</tt> (the default value), only directory names are included in the AutoComplete list. If set to <tt>True</tt>, file names are included as well.</li>
   </ul>
   </li>
   <li>Other minor improvements.</li>
