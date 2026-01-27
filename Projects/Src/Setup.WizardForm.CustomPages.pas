@@ -671,6 +671,7 @@ begin
 
   const Edit = TNewPathEdit.Create(Self);
   with Edit do begin
+    AutoCompleteFiles := True;
     Top := FY;
     Width := SurfaceWidth-ButtonWidth-WizardForm.ScalePixelsX(10);
   end;

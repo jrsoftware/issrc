@@ -371,6 +371,7 @@ TNewEdit = class(TEdit)
 end;
 
 TNewPathEdit = class(TNewEdit)
+  property AutoCompleteFiles: Boolean; read write;
 end;
 
 TCustomMemo = class(TCustomEdit)

@@ -177,11 +177,11 @@ var
 
   PascalProperties_Isxclasses: array of AnsiString = [
     'AbortButton', 'AbortedByUser', 'Active', 'ActiveControl', 'ActivePage', 'Align', 'Alignment',
-    'AllowGrayed', 'AlphaFormat', 'Anchors', 'AutoScroll', 'AutoSelect', 'AutoSize', 'BackButton',
-    'BackColor', 'Bevel', 'Bevel1', 'BeveledLabel', 'BevelInner', 'BevelKind', 'BevelOuter',
-    'BevelWidth', 'Bitmap', 'BorderIcons', 'BorderStyle', 'BorderWidth', 'Brush', 'Buttons',
-    'Cancel', 'CancelButton', 'Canvas', 'Caption', 'Center', 'CenterOnShow', 'CharCase',
-    'Checked', 'CheckListBox', 'ClientHeight', 'ClientWidth', 'Color', 'CommandLinkHint',
+    'AllowGrayed', 'AlphaFormat', 'Anchors', 'AutoCompleteFiles', 'AutoScroll', 'AutoSelect',
+    'AutoSize', 'BackButton', 'BackColor', 'Bevel', 'Bevel1', 'BeveledLabel', 'BevelInner',
+    'BevelKind', 'BevelOuter', 'BevelWidth', 'Bitmap', 'BorderIcons', 'BorderStyle', 'BorderWidth',
+    'Brush', 'Buttons', 'Cancel', 'CancelButton', 'Canvas', 'Caption', 'Center', 'CenterOnShow',
+    'CharCase', 'Checked', 'CheckListBox', 'ClientHeight', 'ClientWidth', 'Color', 'CommandLinkHint',
     'CommaText', 'ComponentCount', 'ComponentIndex', 'Components', 'ComponentsDiskSpaceLabel',
     'ComponentsList', 'ComponentState', 'Constraints', 'ControlCount', 'Controls', 'ControlsFlipped',
     'CopyMode', 'Count', 'CurPageID', 'Cursor', 'Default', 'Description', 'DesignInfo',

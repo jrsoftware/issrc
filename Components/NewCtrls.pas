@@ -2,7 +2,7 @@ unit NewCtrls;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -25,10 +25,15 @@ type
   TNewEdit = class(TEdit);
 
   TNewPathEdit = class(TNewEdit)
+  private
+    FAutoCompleteFiles: Boolean;
+    procedure SetAutoCompleteFiles(const Value: Boolean);
   protected
     procedure CreateWnd; override;
   public
     constructor Create(AOwner: TComponent); override;
+  published
+    property AutoCompleteFiles: Boolean read FAutoCompleteFiles write SetAutoCompleteFiles;
   end;
 
   TNewMemo = class(TMemo);
@@ -93,9 +98,26 @@ begin
 end;
 
 procedure TNewPathEdit.CreateWnd;
+const
+  SHACF_FILESYS_DIRS = $00000020;
 begin
   inherited;
-  SHAutoComplete(Handle, SHACF_FILESYSTEM);
+  if not(csDesigning in ComponentState) then begin
+    var Flags: DWORD;
+    if FAutoCompleteFiles then
+      Flags := SHACF_FILESYS_ONLY
+    else
+      Flags := SHACF_FILESYS_DIRS;
+    SHAutoComplete(Handle, Flags);
+  end;
+end;
+
+procedure TNewPathEdit.SetAutoCompleteFiles(const Value: Boolean);
+begin
+  if FAutoCompleteFiles <> Value then begin
+    FAutoCompleteFiles := Value;
+    RecreateWnd;
+  end;
 end;
 
 { TNewButton }
