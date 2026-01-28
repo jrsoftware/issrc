@@ -448,7 +448,7 @@ function PathExpand(const Filename: String; out ExpandedFilename: String): Boole
   - Repeated slashes are collapsed into one, except for a leading '\\'
   - Any number of dots and spaces at the end of the path are removed, and
     a single dot at the end of preceding components may also be removed
-    (see comments in PathHasInvalidChars for details)
+    (see comments in PathHasInvalidCharacters for details)
   - Paths with certain device names as the only component, or in some cases
     as the last component, are changed to '\\.\<device name>', except when the
     path has the '\\?\' prefix.
@@ -456,6 +456,9 @@ function PathExpand(const Filename: String; out ExpandedFilename: String): Boole
     '\\.\NUL'.
   - '\\.' is changed to '\\.\' and '\\?' is changed to '\\?\'
     (but '\\X' is *not* changed to '\\X\')
+
+  Returns True if successful, or False on failure, which is only known to
+  happen when the input or output path exceeds 32K characters.
 
   Super paths are supposed to be in canonical form already, absolute with no
   forward slashes or repeated backslashes. Although they can be passed to
@@ -474,6 +477,13 @@ begin
       would be more than $7FFE characters long (not counting null terminator),
       even if the buffer is much larger than that. }
 
+  { Handle an empty Filename specially, since GetFullPathName fails if passed
+    an empty string. We consider '' -> '' a successful expansion. }
+  if Filename = '' then begin
+    ExpandedFilename := '';
+    Exit(True);
+  end;
+
   var FilePart: PChar;
   const Res = GetFullPathName(PChar(Filename), SizeOf(Buf) div SizeOf(Buf[0]),
     Buf, FilePart);
@@ -491,7 +501,8 @@ end;
 function PathExpand(const Filename: String): String;
 begin
   if not PathExpand(Filename, Result) then
-    Result := Filename;
+    raise Exception.CreateFmt('PathExpand: GetFullPathName failed (length: %d)',
+      [Length(Filename)]);
 end;
 
 function PathExtensionPos(const Filename: String): Integer;
