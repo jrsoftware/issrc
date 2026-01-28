@@ -1254,7 +1254,8 @@ end;</pre></example>
       <function>
         <name>ExpandFileName</name>
         <prototype>function ExpandFileName(const FileName: String): String;</prototype>
-        <description><p>Returns a string containing a fully qualified path name for the file passed in the FileName. A fully qualified path name includes the drive letter and any directory and subdirectories in addition to the file name and extension.</p></description>
+        <description><p>Returns a string containing a fully qualified path name for the file passed in the FileName. A fully qualified path name includes the drive letter and any directory and subdirectories in addition to the file name and extension.</p>
+<p>An exception will be raised upon failure, which is only known to happen when the input or output path exceeds 32K characters.</p></description>
       </function>
       <function>
         <name>ExpandUNCFileName</name>
