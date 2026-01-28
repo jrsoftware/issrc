@@ -74,7 +74,8 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <ul>
     <li>In 32-bit installers, type <tt>Extended</tt> is 10 bytes, while in 64-bit installers it is 8 bytes and just an alias for type <tt>Double</tt>.</li>
     <li>In 32-bit installers, types <tt>NativeInt</tt> and <tt>NativeUInt</tt> are 4 bytes, while in 64-bit installers they are 8 bytes. The same is true for all types derived from them, such as <tt>HWND</tt>.<br/>
-        Example script <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeDll.iss">CodeDll.iss</a></i> demonstrates how to support both 32-bit and 64-bit installers from a single script.</li>
+        Example script <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeDll.iss">CodeDll.iss</a></i> demonstrates how to support both 32-bit and 64-bit installers from a single script.<br/>
+        Please note: Even though types like <tt>HWND</tt> are 8 bytes (64-bit) in 64-bit processes, <a href="https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication">64-bit Windows uses 32-bit handle values for interoperability</a>. When sharing a handle between 32-bit and 64-bit applications, only the lower 32 bits are significant, so it is safe to truncate from 64-bit to 32-bit or sign extend from 32-bit to 64-bit.</li>
     <li>You cannot load 32-bit DLLs in 64-bit installers because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). However, you can always launch both 32-bit and 64-bit EXEs using the <tt>Exec</tt> function or the <tt>[Run]</tt> section.</li>
   </ul>
   </li>
@@ -88,7 +89,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Pascal Scripting:
   <ul>
     <li>Removed support function <tt>EnableFsRedirection</tt>. Use new support function <tt>ApplyPathRedirRulesForCurrentProcess</tt> instead, or a 64-bit installer. 32-bit installers can also use <tt>{sysnative}</tt> instead.<br/>
-      Use new support functions <tt>ExecWithNativeSysDir</tt>, <tt>ExecAndLogOutputWithNativeSysDir</tt>, or <tt>ExecAndCaptureOutputWithNativeSysDir</tt> to launch an executable located in the 64-bit System directory from a 32-bit installer.</li>
+        Use new support functions <tt>ExecWithNativeSysDir</tt>, <tt>ExecAndLogOutputWithNativeSysDir</tt>, or <tt>ExecAndCaptureOutputWithNativeSysDir</tt> to launch an executable located in the 64-bit System directory from a 32-bit installer.</li>
     <li>Removed parameter <tt>DisableFsRedir</tt> from support function <tt>RegisterExtraCloseApplicationsResource</tt>. Use <tt>ApplyPathRedirRulesForCurrentProcess</tt> instead to register a 64-bit file from a 32-bit installer, or vice versa.</li>
     <li>Added support functions <tt>ApplyPathRedirRules</tt> and <tt>IsCurrentProcess64Bit</tt>.</li>
     <li>Added types <tt>UInt64</tt>, <tt>NativeInt</tt>, <tt>NativeUInt</tt>, <tt>THandle</tt>, <tt>HWND</tt>, <tt>HDC</tt>, <tt>HBITMAP</tt>, <tt>HFONT</tt>, <tt>HKEY</tt>, <tt>HMODULE</tt>, <tt>LRESULT</tt>, <tt>WPARAM</tt>, and <tt>LPARAM</tt>.</li>
