@@ -1176,11 +1176,11 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="GetDateTimeString">
 				<title>GetDateTimeString</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetDateTimeString(<b>str</b>, <b>str</b>, <b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetDateTimeString(<b>str</b> DateTimeFormat, <b>str</b>? DateSeparator, <b>str</b>? TimeSeparator)</line></pre>
 				</section>
 				<description>
 					<p>Returns the current date and time as a string using the specified formatting.</p>
-					<p>The first parameter is the format string. The second and third parameters denote the DateSeparator and TimeSeparator parameters explained below.</p>
+					<p>The first parameter is the format string. The second and third parameters are optional and denote the DateSeparator and TimeSeparator parameters explained below.</p>
 					<p>The following format specifiers are supported:</p>
 					<table>
 						<tr><td>d</td><td>Displays the day as a number without a leading zero (1-31).</td></tr>
@@ -1213,25 +1213,31 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#define MyDateTimeString GetDateTimeString('ddddd', '', '')</line>
-						<line>#define MyDateTimeString GetDateTimeString('ddddd tt', '', '')</line>
+						<line>#define MyDateTimeString GetDateTimeString('ddddd')</line>
+						<line>#define MyDateTimeString GetDateTimeString('ddddd tt')</line>
 						<line>#define MyDateTimeString GetDateTimeString('dd/mm/yyyy hh:nn:ss', '-', ':')</line>
 					</pre>
+				</section>
+				<section title="See also">
+					<p><tt><link href="GetFileDateTimeString">GetFileDateTimeString</link></tt></p>
 				</section>
 			</topic>
 			<topic id="GetFileDateTimeString">
 				<title>GetFileDateTimeString</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetFileDateTimeString(<b>str</b>, <b>str</b>, <b>str</b>, <b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetFileDateTimeString(<b>str</b> Filename, <b>str</b> DateTimeFormat, <b>str</b>? DateSeparator, <b>str</b>? TimeSeparator)</line></pre>
 				</section>
 				<description>
 					<p>Returns the date and time of the specified file as a string using the specified formatting.</p>
-					<p>The first parameter is the file name. The second, third and fourth parameters denote the format string, DateSeparator and TimeSeparator parameters as explained in the <link href="GetDateTimeString">GetDateTimeString</link> topic.</p>
+					<p>The first parameter is the file name. The second parameter denotes the format string. The third and fourth parameters are optional and denote the DateSeparator and TimeSeparator parameters as explained in the <link href="GetDateTimeString">GetDateTimeString</link> topic.</p>
 				</description>
 				<section title="Example">
 					<pre>
 						<line>#define MyFileDateTimeString GetFileDateTimeString('myfile.txt', 'dd/mm/yyyy hh:nn:ss', '-', ':');</line>
 					</pre>
+				</section>
+				<section title="See also">
+					<p><tt><link href="GetDateTimeString">GetDateTimeString</link></tt></p>
 				</section>
 			</topic>
 			<topic id="GetMD5OfString">

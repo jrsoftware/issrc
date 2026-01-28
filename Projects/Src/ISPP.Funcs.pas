@@ -1550,15 +1550,17 @@ var
   NewDateSeparatorString, NewTimeSeparatorString: String;
   OldDateSeparator, OldTimeSeparator: Char;
 begin
-  if CheckParams(Params, [evStr, evStr, evStr], 3, Result) then
+  if CheckParams(Params, [evStr, evStr, evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
       OldDateSeparator := FormatSettings.DateSeparator;
       OldTimeSeparator := FormatSettings.TimeSeparator;
       try
-        NewDateSeparatorString := Get(1).AsStr;
-        NewTimeSeparatorString := Get(2).AsStr;
+        if GetCount > 1 then
+          NewDateSeparatorString := Get(1).AsStr;
+        if GetCount > 2 then
+          NewTimeSeparatorString := Get(2).AsStr;
         if NewDateSeparatorString <> '' then
           FormatSettings.DateSeparator := NewDateSeparatorString[1];
         if NewTimeSeparatorString <> '' then
@@ -1585,15 +1587,17 @@ var
   OldDateSeparator, OldTimeSeparator: Char;
   Age: TDateTime;
 begin
-  if CheckParams(Params, [evStr, evStr, evStr, evStr], 4, Result) then
+  if CheckParams(Params, [evStr, evStr, evStr, evStr], 2, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
       OldDateSeparator := FormatSettings.DateSeparator;
       OldTimeSeparator := FormatSettings.TimeSeparator;
       try
-        NewDateSeparatorString := Get(2).AsStr;
-        NewTimeSeparatorString := Get(3).AsStr;
+        if GetCount > 2 then
+          NewDateSeparatorString := Get(2).AsStr;
+        if GetCount > 3 then
+          NewTimeSeparatorString := Get(3).AsStr;
         if NewDateSeparatorString <> '' then
           FormatSettings.DateSeparator := NewDateSeparatorString[1];
         if NewTimeSeparatorString <> '' then
