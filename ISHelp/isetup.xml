@@ -2996,6 +2996,8 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 
 <p>Both the 32-bit and 64-bit editions of Inno Setup 7 can be installed side by side, and they can coexist alongside Inno Setup 6.</p>
 
+<p>Great care has been taken to ensure maximum backward compatibility with Inno Setup 6, and compatibility between 32-bit and 64-bit installers.</p>
+
 <p><b>64-bit Installers:</b></p>
 
 <p>Set <link topic="setup_setuparchitecture">SetupArchitecture</link> to <tt>x64</tt> to build a 64-bit x64 installer instead of a 32-bit x86 installer. This also changes the default values of <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> and <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link> to <tt>x64compatible</tt>, making 64-bit installers default to <link topic="32vs64bitinstalls">64-bit install mode</link>.</p>
