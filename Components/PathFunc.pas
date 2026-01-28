@@ -465,11 +465,17 @@ function PathExpand(const Filename: String; out ExpandedFilename: String): Boole
   paths), but removing them may interfere with opening or deleting such
   files. }
 var
-  Res: Integer;
-  FilePart: PChar;
-  Buf: array[0..4095] of Char;
+  Buf: array[0..$7FFF] of Char;
 begin
-  DWORD(Res) := GetFullPathName(PChar(Filename), SizeOf(Buf) div SizeOf(Buf[0]),
+  { Length limits observed on Windows 11 25H2:
+    - GetFullPathName fails with ERROR_FILENAME_EXCED_RANGE [sic] if lpFileName
+      is more than $7FFE characters long (not counting null terminator).
+    - GetFullPathName fails with ERROR_INVALID_NAME if the resulting path
+      would be more than $7FFE characters long (not counting null terminator),
+      even if the buffer is much larger than that. }
+
+  var FilePart: PChar;
+  const Res = GetFullPathName(PChar(Filename), SizeOf(Buf) div SizeOf(Buf[0]),
     Buf, FilePart);
   Result := (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0]));
   if Result then begin
