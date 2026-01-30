@@ -147,6 +147,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Support function <tt>FloatToStr</tt> no longer outputs unnecessary trailing zeros.</li>
     <li>Using <tt>Exit</tt> within a <tt>try..finally</tt> block now works correctly when the <tt>finally</tt> block contains function calls.</li>
     <li>Multiple statements in the <tt>else</tt> block of a <tt>case</tt> statement now no longer require using <tt>begin</tt>/<tt>end</tt>.</li>
+    <li>It's now possible to specify the <tt>safecall</tt> calling convention in interfaces, simplifying method declarations and eliminating the need to call <tt>OleCheck</tt> manually. See updated <i>CodeAutomation2.iss</i> example script.</li>
   </ul>
   </li>
   <li>Other minor improvements.</li>

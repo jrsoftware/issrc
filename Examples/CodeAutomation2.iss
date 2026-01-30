@@ -31,36 +31,36 @@ type
     procedure Dummy;
     procedure Dummy2;
     procedure Dummy3;
-    function GetDescription(pszName: String; cchMaxName: Integer): HResult;
-    function SetDescription(pszName: String): HResult;
-    function GetWorkingDirectory(pszDir: String; cchMaxPath: Integer): HResult;
-    function SetWorkingDirectory(pszDir: String): HResult;
-    function GetArguments(pszArgs: String; cchMaxPath: Integer): HResult;
-    function SetArguments(pszArgs: String): HResult;
-    function GetHotkey(var pwHotkey: Word): HResult;
-    function SetHotkey(wHotkey: Word): HResult;
-    function GetShowCmd(out piShowCmd: Integer): HResult;
-    function SetShowCmd(iShowCmd: Integer): HResult;
-    function GetIconLocation(pszIconPath: String; cchIconPath: Integer;
-      out piIcon: Integer): HResult;
-    function SetIconLocation(pszIconPath: String; iIcon: Integer): HResult;
-    function SetRelativePath(pszPathRel: String; dwReserved: DWORD): HResult;
-    function Resolve(Wnd: HWND; fFlags: DWORD): HResult;
-    function SetPath(pszFile: String): HResult;
+    procedure GetDescription(pszName: String; cchMaxName: Integer); safecall;
+    procedure SetDescription(pszName: String); safecall;
+    procedure GetWorkingDirectory(pszDir: String; cchMaxPath: Integer); safecall;
+    procedure SetWorkingDirectory(pszDir: String); safecall;
+    procedure GetArguments(pszArgs: String; cchMaxPath: Integer); safecall;
+    procedure SetArguments(pszArgs: String); safecall;
+    function GetHotkey: Word; safecall;
+    procedure SetHotkey(wHotkey: Word); safecall;
+    function GetShowCmd: Integer; safecall;
+    procedure SetShowCmd(iShowCmd: Integer); safecall;
+    procedure GetIconLocation(pszIconPath: String; cchIconPath: Integer;
+      out piIcon: Integer); safecall;
+    procedure SetIconLocation(pszIconPath: String; iIcon: Integer); safecall;
+    procedure SetRelativePath(pszPathRel: String; dwReserved: DWORD); safecall;
+    procedure Resolve(Wnd: HWND; fFlags: DWORD); safecall;
+    procedure SetPath(pszFile: String); safecall;
   end;
 
   IPersist = interface(IUnknown)
     '{0000010C-0000-0000-C000-000000000046}'
-    function GetClassID(var classID: TGUID): HResult;
+    procedure GetClassID(var classID: TGUID); safecall;
   end;
 
   IPersistFile = interface(IPersist)
     '{0000010B-0000-0000-C000-000000000046}'
-    function IsDirty: HResult;
-    function Load(pszFileName: String; dwMode: Longint): HResult;
-    function Save(pszFileName: String; fRemember: BOOL): HResult;
-    function SaveCompleted(pszFileName: String): HResult;
-    function GetCurFile(out pszFileName: String): HResult;
+    procedure IsDirty; safecall;
+    procedure Load(pszFileName: String; dwMode: Longint); safecall;
+    procedure Save(pszFileName: String; fRemember: BOOL); safecall;
+    procedure SaveCompleted(pszFileName: String); safecall;
+    function GetCurFile: String; safecall;
   end;
 
 procedure IShellLinkButtonOnClick(Sender: TObject);
@@ -74,13 +74,13 @@ begin
 
   { Set the shortcut properties }
   SL := IShellLinkW(Obj);
-  OleCheck(SL.SetPath(ExpandConstant('{srcexe}')));
-  OleCheck(SL.SetArguments(''));
-  OleCheck(SL.SetShowCmd(SW_SHOWNORMAL));
+  SL.SetPath(ExpandConstant('{srcexe}'));
+  SL.SetArguments('');
+  SL.SetShowCmd(SW_SHOWNORMAL);
 
   { Save the shortcut }
   PF := IPersistFile(Obj);
-  OleCheck(PF.Save(ExpandConstant('{autodesktop}\CodeAutomation2 Test.lnk'), True));
+  PF.Save(ExpandConstant('{autodesktop}\CodeAutomation2 Test.lnk'), True);
 
   MsgBox('Saved a shortcut named ''CodeAutomation2 Test'' on the desktop.', mbInformation, mb_Ok);
 end;
@@ -96,12 +96,12 @@ const
 type
   ITaskScheduler = interface(IUnknown)
     '{148BD527-A2AB-11CE-B11F-00AA00530503}'
-    function SetTargetComputer(pwszComputer: String): HResult;
-    function GetTargetComputer(out ppwszComputer: String): HResult;
+    procedure SetTargetComputer(pwszComputer: String); safecall;
+    function GetTargetComputer: String; safecall;
     procedure Dummy;
-    function Activate(pwszName: String; var riid: TGUID; out ppUnk: IUnknown): HResult;
-    function Delete(pwszName: String): HResult;
-    function NewWorkItem(pwszTaskName: String; var rclsid: TGUID; var riid: TGUID; out ppUnk: IUnknown): HResult;
+    function Activate(pwszName: String; var riid: TGUID): IUnknown; safecall;
+    procedure Delete(pwszName: String); safecall;
+    function NewWorkItem(pwszTaskName: String; var rclsid: TGUID; var riid: TGUID): IUnknown; safecall;
     procedure Dummy2;
     function IsOfType(pwszName: String; var riid: TGUID): HResult;
   end;
@@ -156,58 +156,58 @@ type
 
   ITaskTrigger = interface(IUnknown)
     '{148BD52B-A2AB-11CE-B11F-00AA00530503}'
-    function SetTrigger(var pTrigger: TTaskTrigger): HResult;
-    function GetTrigger(var pTrigger: TTaskTrigger): HResult;
-    function GetTriggerString(var ppwszTrigger: String): HResult;
+    procedure SetTrigger(var pTrigger: TTaskTrigger); safecall;
+    procedure GetTrigger(var pTrigger: TTaskTrigger); safecall;
+    procedure GetTriggerString(var ppwszTrigger: String); safecall;
   end;
 
   IScheduledWorkItem = interface(IUnknown)
     '{A6B952F0-A4B1-11D0-997D-00AA006887EC}'
-    function CreateTrigger(out piNewTrigger: Word; out ppTrigger: ITaskTrigger): HResult;
-    function DeleteTrigger(iTrigger: Word): HResult;
-    function GetTriggerCount(out pwCount: Word): HResult;
-    function GetTrigger(iTrigger: Word; var ppTrigger: ITaskTrigger): HResult;
-    function GetTriggerString(iTrigger: Word; out ppwszTrigger: String): HResult;
+    function CreateTrigger(out piNewTrigger: Word): ITaskTrigger; safecall;
+    procedure DeleteTrigger(iTrigger: Word); safecall;
+    function GetTriggerCount: Word; safecall;
+    function GetTrigger(iTrigger: Word): ITaskTrigger; safecall;
+    function GetTriggerString(iTrigger: Word): String; safecall;
     procedure Dummy;
     procedure Dummy2;
-    function SetIdleWait(wIdleMinutes: Word; wDeadlineMinutes: Word): HResult;
-    function GetIdleWait(out pwIdleMinutes: Word; out pwDeadlineMinutes: Word): HResult;
-    function Run: HResult;
-    function Terminate: HResult;
-    function EditWorkItem(hParent: HWND; dwReserved: DWORD): HResult;
+    procedure SetIdleWait(wIdleMinutes: Word; wDeadlineMinutes: Word); safecall;
+    procedure GetIdleWait(out pwIdleMinutes: Word; out pwDeadlineMinutes: Word); safecall;
+    procedure Run; safecall;
+    procedure Terminate; safecall;
+    procedure EditWorkItem(hParent: HWND; dwReserved: DWORD); safecall;
     procedure Dummy3;
-    function GetStatus(out phrStatus: HResult): HResult;
-    function GetExitCode(out pdwExitCode: DWORD): HResult;
-    function SetComment(pwszComment: String): HResult;
-    function GetComment(out ppwszComment: String): HResult;
-    function SetCreator(pwszCreator: String): HResult;
-    function GetCreator(out ppwszCreator: String): HResult;
-    function SetWorkItemData(cbData: Word; var rgbData: Byte): HResult;
-    function GetWorkItemData(out pcbData: Word; out prgbData: Byte): HResult;
-    function SetErrorRetryCount(wRetryCount: Word): HResult;
-    function GetErrorRetryCount(out pwRetryCount: Word): HResult;
-    function SetErrorRetryInterval(wRetryInterval: Word): HResult;
-    function GetErrorRetryInterval(out pwRetryInterval: Word): HResult;
-    function SetFlags(dwFlags: DWORD): HResult;
-    function GetFlags(out pdwFlags: DWORD): HResult;
-    function SetAccountInformation(pwszAccountName: String; pwszPassword: String): HResult;
-    function GetAccountInformation(out ppwszAccountName: String): HResult;
+    function GetStatus: HRESULT; safecall;
+    function GetExitCode: DWORD; safecall;
+    procedure SetComment(pwszComment: String); safecall;
+    function GetComment: String; safecall;
+    procedure SetCreator(pwszCreator: String); safecall;
+    function GetCreator: String; safecall;
+    procedure SetWorkItemData(cbData: Word; var rgbData: Byte); safecall;
+    procedure GetWorkItemData(out pcbData: Word; out prgbData: Byte); safecall;
+    procedure SetErrorRetryCount(wRetryCount: Word); safecall;
+    function GetErrorRetryCount: Word; safecall;
+    procedure SetErrorRetryInterval(wRetryInterval: Word); safecall;
+    function GetErrorRetryInterval: Word; safecall;
+    procedure SetFlags(dwFlags: DWORD); safecall;
+    function GetFlags: DWORD; safecall;
+    procedure SetAccountInformation(pwszAccountName: String; pwszPassword: String); safecall;
+    function GetAccountInformation: String; safecall;
   end;
 
   ITask = interface(IScheduledWorkItem)
     '{148BD524-A2AB-11CE-B11F-00AA00530503}'
-    function SetApplicationName(pwszApplicationName: String): HResult;
-    function GetApplicationName(out ppwszApplicationName: String): HResult;
-    function SetParameters(pwszParameters: String): HResult;
-    function GetParameters(out ppwszParameters: String): HResult;
-    function SetWorkingDirectory(pwszWorkingDirectory: String): HResult;
-    function GetWorkingDirectory(out ppwszWorkingDirectory: String): HResult;
-    function SetPriority(dwPriority: DWORD): HResult;
-    function GetPriority(out pdwPriority: DWORD): HResult;
-    function SetTaskFlags(dwFlags: DWORD): HResult;
-    function GetTaskFlags(out pdwFlags: DWORD): HResult;
-    function SetMaxRunTime(dwMaxRunTimeMS: DWORD): HResult;
-    function GetMaxRunTime(out pdwMaxRunTimeMS: DWORD): HResult;
+    procedure SetApplicationName(pwszApplicationName: String); safecall;
+    procedure GetApplicationName(out ppwszApplicationName: String); safecall;
+    procedure SetParameters(pwszParameters: String); safecall;
+    procedure GetParameters(out ppwszParameters: String); safecall;
+    procedure SetWorkingDirectory(pwszWorkingDirectory: String); safecall;
+    procedure GetWorkingDirectory(out ppwszWorkingDirectory: String); safecall;
+    procedure SetPriority(dwPriority: DWORD); safecall;
+    procedure GetPriority(out pdwPriority: DWORD); safecall;
+    procedure SetTaskFlags(dwFlags: DWORD); safecall;
+    procedure GetTaskFlags(out pdwFlags: DWORD); safecall;
+    procedure SetMaxRunTime(dwMaxRunTimeMS: DWORD); safecall;
+    procedure GetMaxRunTime(out pdwMaxRunTimeMS: DWORD); safecall;
   end;
 
 
@@ -230,19 +230,19 @@ begin
   G1 := StringToGuid(CLSID_Task);
   G2 := StringToGuid(IID_Task);
   //This will throw an exception if the task already exists
-  OleCheck(TaskScheduler.NewWorkItem('CodeAutomation2 Test', G1, G2, Obj2));
+  Obj2 := TaskScheduler.NewWorkItem('CodeAutomation2 Test', G1, G2);
 
   { Set the task properties }
   Task := ITask(Obj2);
-  OleCheck(Task.SetComment('CodeAutomation2 Test Comment'));
-  OleCheck(Task.SetApplicationName(ExpandConstant('{srcexe}')));
+  Task.SetComment('CodeAutomation2 Test Comment');
+  Task.SetApplicationName(ExpandConstant('{srcexe}'));
 
   { Set the task account information }
   //Uncomment the following and provide actual user info to get a runnable task
-  //OleCheck(Task.SetAccountInformation('username', 'password'));
+  //Task.SetAccountInformation('username', 'password');
 
   { Create the TaskTrigger COM automation object }
-  OleCheck(Task.CreateTrigger(iNewTrigger, TaskTrigger));
+  TaskTrigger := Task.CreateTrigger(iNewTrigger);
 
   { Set the task trigger properties }
   with TaskTrigger2 do begin
@@ -254,11 +254,11 @@ begin
     TriggerType := TASK_TIME_TRIGGER_DAILY;
     Type_.Daily.DaysInterval := 1;
   end;
-  OleCheck(TaskTrigger.SetTrigger(TaskTrigger2));
+  TaskTrigger.SetTrigger(TaskTrigger2);
 
   { Save the task }
   PF := IPersistFile(Obj2);
-  OleCheck(PF.Save('', True));
+  PF.Save('', True);
 
   MsgBox('Created a daily task named named ''CodeAutomation2 Test''.' + #13#13 + 'Note: Account information not set so the task won''t actually run, uncomment the SetAccountInfo call and provide actual user info to get a runnable task.', mbInformation, mb_Ok);
 end;

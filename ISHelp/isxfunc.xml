@@ -3291,7 +3291,8 @@ end;</pre></example>
       <function>
         <name>OleCheck</name>
         <prototype>procedure OleCheck(Result: HResult);</prototype>
-        <description><p>Use OleCheck to wrap any IUnknown based COM methods you call, so that if that method fails, an exception will be raised.</p></description>
+        <description><p>Use OleCheck to wrap any IUnknown based COM methods you call, so that if that method fails, an exception will be raised.</p>
+<p>OleCheck is called automatically when the method declaration specifies the <tt>safecall</tt> calling convention.</p></description>
         <seealso><p><link topic="scriptautomation" window="main">Using COM Automation objects</link></p></seealso>
       </function>
       <function>

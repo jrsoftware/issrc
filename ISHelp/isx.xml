@@ -697,9 +697,9 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 
 <p>The value returned by <link topic="isxfunc_CreateComObject">CreateComObject</link> can then be used to access the methods of the COM object after casting it to the desired interface. The access is done via 'early binding' which means the desired interface needs to be defined in the script, unlike for IDispatch based COM support.</p>
 
-<p><link topic="isxfunc_StringToGUID">StringToGUID</link> can be used to convert the string representation of a GUID into a 'real' GUID. Use <link topic="isxfunc_OleCheck">OleCheck</link> to check the return values of any method you call.</p>
+<p><link topic="isxfunc_StringToGUID">StringToGUID</link> can be used to convert the string representation of a GUID into a 'real' GUID. Use <link topic="isxfunc_OleCheck">OleCheck</link> to check the return values of any method you call, or specify the <tt>safecall</tt> calling convention instead.</p>
 
-<p>If you copy the interface definition from any existing Delphi source code, remove the brackets around the interface GUID string. Also remove any calling conventions, Inno Setup assumes 'stdcall'. If the interface contains any functions you won't call, you can replace these by dummies to avoid having to define any special types used by them.</p>
+<p>If you copy the interface definition from any existing Delphi source code, remove the brackets around the interface GUID string. Also remove any calling conventions except <tt>safecall</tt>; Inno Setup assumes <tt>stdcall</tt>. If the interface contains any functions you won't call, you can replace these by dummies to avoid having to define any special types used by them.</p>
 
 <p>Open the "CodeAutomation2.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using IUnknown based COM Automation objects.</p>
 
