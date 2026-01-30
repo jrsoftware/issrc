@@ -446,7 +446,7 @@ const
     'goto', 'if', 'in', 'is', 'label', 'mod', 'nil', 'not', 'of', 'or', 'out',
     'procedure', 'program', 'record', 'repeat', 'set', 'shl', 'shr', 'then',
     'to', 'try', 'type', 'until', 'var', 'while', 'with', 'xor', 'delayload',
-    'loadwithalteredsearchpath', 'stdcall', 'cdecl', 'register', 'pascal',
+    'loadwithalteredsearchpath', 'stdcall', 'cdecl', 'register', 'pascal', 'safecall',
     'setuponly', 'uninstallonly', 'event'
   ];
 
