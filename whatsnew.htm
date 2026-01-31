@@ -142,12 +142,13 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <ul>
   <li>The Compiler IDE has been renamed from <tt>Compil32.exe</tt> to <tt>ISIDE.exe</tt>.</li>
   <li>Pascal Scripting:
-  <ul>
+  <ul>  
     <li>Support function <tt>Chr</tt> now correctly accepts ordinal values greater than 255.</li>
     <li>Support function <tt>FloatToStr</tt> no longer outputs unnecessary trailing zeros.</li>
     <li>Using <tt>Exit</tt> within a <tt>try..finally</tt> block now works correctly when the <tt>finally</tt> block contains function calls.</li>
     <li>Multiple statements in the <tt>else</tt> block of a <tt>case</tt> statement now no longer require using <tt>begin</tt>/<tt>end</tt>.</li>
     <li>It's now possible to specify the <tt>safecall</tt> calling convention in interfaces, simplifying method declarations and eliminating the need to call <tt>OleCheck</tt> manually. See updated <i>CodeAutomation2.iss</i> example script.</li>
+    <li>Fixed a runtime type mismatch when assigning between open and dynamic arrays.</li>
   </ul>
   </li>
   <li>Other minor improvements.</li>
