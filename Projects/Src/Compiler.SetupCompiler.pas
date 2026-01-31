@@ -8242,6 +8242,8 @@ begin
         SetupLdrArchitecture := sla64bit;
     end;
     if SetupArchitecture = sa32bit then begin
+      if SetupDirectiveLines[ssArchitecturesAllowed] = 0 then
+        SetupHeader.ArchitecturesAllowed := 'x86compatible';
       { 1.0 GB - lower than the LZMA SDK allows because Setup can't allocate that much memory.
         Same as MaxDictionarySize in Compression.LZMADecompressor.pas. }
       const MaxDictionarySize32 = 1024 shl 20;
