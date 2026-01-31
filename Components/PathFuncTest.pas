@@ -79,6 +79,19 @@ procedure PathFuncRunTests(const AlsoTestJapaneseDBCS: Boolean);
       raise Exception.Create('PathEndsWith test failed');
   end;
 
+  procedure TestPathExpand(const S, ExpectedResult: String;
+    const ExpectedResultFromTwoParamOverload: Boolean);
+  begin
+    if PathExpand(S) <> ExpectedResult then
+      raise Exception.Create('PathExpand test failed');
+
+    var PathExpandResult: String;
+    if PathExpand(S, PathExpandResult) <> ExpectedResultFromTwoParamOverload then
+      raise Exception.Create('PathExpand test failed');
+    if ExpectedResultFromTwoParamOverload and (PathExpandResult <> ExpectedResult) then
+      raise Exception.Create('PathExpand test failed');
+  end;
+
   procedure TestPathExpandAndNormalizeSlashes(const S, ExpectedResult: String);
   begin
     { PathExpand's work is done by Windows' GetFullPathName, while
@@ -307,6 +320,14 @@ begin
   TestPathEndsWith(True, 'TestingAbc', 'zabc', False);
   TestPathEndsWith(True, 'TestingAbc', 'testingABC', True);
   TestPathEndsWith(True, 'TestingAbc', 'xTestingAbc', False);
+
+  TestPathExpand('', '', False);
+  TestPathExpand(' ', '', False);
+  TestPathExpand('   ', '', False);
+  { This odd behavior comes from GetFullPathName. You'd think they would fail
+    like in the above cases. Only testing to see if the behavior changes. }
+  TestPathExpand('...', AddBackslash(GetCurrentDir), True);
+  TestPathExpand('.. ', AddBackslash(GetCurrentDir), True);
 
   TestPathExpandAndNormalizeSlashes('C:\abc\def', 'C:\abc\def');
   TestPathExpandAndNormalizeSlashes('C:\abc\def\', 'C:\abc\def\');

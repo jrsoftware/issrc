@@ -439,16 +439,28 @@ begin
     IgnoreCase);
 end;
 
+function PathIsEmptyOrOnlySpaces(const S: String): Boolean;
+{ Internally used by the PathExpand functions. }
+begin
+  for var I := Low(S) to High(S) do
+    if S[I] <> ' ' then
+      Exit(False);
+
+  Result := True;
+end;
+
 function PathExpand(const Filename: String; out ExpandedFilename: String): Boolean;
 { This is a wrapper around Windows' GetFullPathName function, which takes a
   possibly relative path and returns a fully qualified path. Other changes,
   not documented but believed to be consistent across Windows versions, are
   made as well:
   - Forward slashes are changed to backslashes
-  - Repeated slashes are collapsed into one, except for a leading '\\'
-  - Any number of dots and spaces at the end of the path are removed, and
-    a single dot at the end of preceding components may also be removed
-    (see comments in PathHasInvalidCharacters for details)
+  - Repeated slashes are collapsed into one, except for a leading '\\'.
+    (But there's a quirk: see comments in PathNormalizeSlashes.)
+  - Unless the last (or only) component is '.' or '..' exactly, any number of
+    dots and spaces at the end of the path are removed. Also, a single dot at
+    the end of preceding components may be removed.
+    (See comments in PathHasInvalidCharacters for details.)
   - Paths with certain device names as the only component, or in some cases
     as the last component, are changed to '\\.\<device name>', except when the
     path has the '\\?\' prefix.
@@ -457,8 +469,10 @@ function PathExpand(const Filename: String; out ExpandedFilename: String): Boole
   - '\\.' is changed to '\\.\' and '\\?' is changed to '\\?\'
     (but '\\X' is *not* changed to '\\X\')
 
-  Returns True if successful, or False on failure, which is only known to
-  happen when the input or output path exceeds 32K characters.
+  Returns True if successful, or False on failure.
+  Failure is known to occur in these cases (there could be more):
+  - Filename is an empty string or contains only spaces
+  - Filename or the resulting path exceeds 32K characters
 
   Super paths are supposed to be in canonical form already, absolute with no
   forward slashes or repeated backslashes. Although they can be passed to
@@ -477,12 +491,13 @@ begin
       would be more than $7FFE characters long (not counting null terminator),
       even if the buffer is much larger than that. }
 
-  { Handle an empty Filename specially, since GetFullPathName fails if passed
-    an empty string. We consider '' -> '' a successful expansion. }
-  if Filename = '' then begin
-    ExpandedFilename := '';
-    Exit(True);
-  end;
+  { GetFullPathName fails if passed an empty string or a string with only
+    spaces. Just in case that behavior were to change in the future, we avoid
+    relying on it and do our own check for these cases here.
+    (GetFullPathName does not fail if passed invalid dots like '...' or dots
+    and spaces like '.. '; the result is as if '.\' was passed.) }
+  if PathIsEmptyOrOnlySpaces(Filename) then
+    Exit(False);
 
   var FilePart: PChar;
   const Res = GetFullPathName(PChar(Filename), SizeOf(Buf) div SizeOf(Buf[0]),
@@ -499,7 +514,20 @@ begin
 end;
 
 function PathExpand(const Filename: String): String;
+{ Like the other PathExpand overload, but handles failures internally by
+  either returning an empty string (when Filename is empty or only spaces) or
+  raising an exception (currently the only known case is when Filename or the
+  resulting path exceeds 32K characters). }
 begin
+  { GetFullPathName fails if passed an empty string or a string with only
+    spaces. For backward compatibility with callers that may not be expecting
+    an exception in these cases, we handle both by returning an empty string
+    instead of raising an exception.
+    Delphi's ExpandFileName returns an empty string for any failure.
+    Prior to IS 7, PathExpand returned the original Filename for any failure. }
+  if PathIsEmptyOrOnlySpaces(Filename) then
+    Exit('');
+
   if not PathExpand(Filename, Result) then
     raise Exception.CreateFmt('PathExpand: GetFullPathName failed (length: %d)',
       [Length(Filename)]);
