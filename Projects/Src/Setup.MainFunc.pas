@@ -2200,7 +2200,7 @@ begin
         Exit;
       end;
     end;
-    if PathCompare(Filename, SetupLdrOriginalFilename) = 0 then begin
+    if PathSame(PathConvertSuperToNormal(Filename), SetupLdrOriginalFilename) then begin
       { Don't allow self to be registered but don't return an error. }
       Result := True;
       Exit;
