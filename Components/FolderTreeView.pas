@@ -2,7 +2,7 @@ unit FolderTreeView;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -166,6 +166,36 @@ const
 procedure Register;
 begin
   RegisterComponents('JR', [TFolderTreeView, TStartMenuFolderTreeView]);
+end;
+
+function GetSystemDir: String;
+var
+  Buf: array[0..MAX_PATH-1] of Char;
+begin
+  GetSystemDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
+  Result := StrPas(Buf);
+end;
+
+var
+  LoadedUrlmonDLL: Boolean;
+
+procedure PreloadUrlmonDLL;
+begin
+  { Pre-load urlmon.dll and its dependencies.
+    Without this, on Windows 11 25H2, urlmon.dll + 3 other DLLs are loaded and
+    unloaded on each call to SHGetFileInfo for most folders (those with
+    desktop.ini?). This causes a 10-second delay when opening Setup's Browse
+    dialogs while running under the Delphi debugger. Outside the debugger,
+    there's still a noticeable delay of about half a second, and some
+    sluggishness when scrolling.
+    This was first noticed in 2026-01, but it's not due to any change in our
+    code because the half-second delay also appears in IS 6.2.2 from 2023.
+    I suspect Windows 11 25H2 is to blame; I never saw this on 23H2. }
+
+  if not LoadedUrlmonDLL then begin
+    LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'urlmon.dll'));
+    LoadedUrlmonDLL := True;
+  end;
 end;
 
 function IsListableDirectory(const FindData: TWin32FindData): Boolean;
@@ -372,6 +402,7 @@ begin
   TabStop := True;
   if SystemParametersInfo(SPI_GETICONTITLELOGFONT, SizeOf(LogFont), @LogFont, 0) then
     Font.Handle := CreateFontIndirect(LogFont);
+  PreloadUrlmonDLL;
 end;
 
 procedure TCustomFolderTreeView.CreateParams(var Params: TCreateParams);
@@ -1315,14 +1346,6 @@ begin
 end;
 
 {$ENDIF}
-
-function GetSystemDir: String;
-var
-  Buf: array[0..MAX_PATH-1] of Char;
-begin
-  GetSystemDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
-  Result := StrPas(Buf);
-end;
 
 initialization
   InitThemeLibrary;
