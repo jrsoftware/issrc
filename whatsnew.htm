@@ -142,7 +142,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <ul>
   <li>The Compiler IDE has been renamed from <tt>Compil32.exe</tt> to <tt>ISIDE.exe</tt>.</li>
   <li>Pascal Scripting:
-  <ul>  
+  <ul>
     <li>Support function <tt>Chr</tt> now correctly accepts ordinal values greater than 255.</li>
     <li>Support function <tt>FloatToStr</tt> no longer outputs unnecessary trailing zeros.</li>
     <li>Using <tt>Exit</tt> within a <tt>try..finally</tt> block now works correctly when the <tt>finally</tt> block contains function calls.</li>
@@ -622,7 +622,7 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
     <li>Example section:
       <pre><code class="innosetup"><span class="sec">[Files]</span>
 <span class="key">Source</span>: "MyProg.exe"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
-  <span class="key">ISSigAllowedKeys</span>: "exesigner bosskey"; <span class="key">Flags</span>: issigverify 
+  <span class="key">ISSigAllowedKeys</span>: "exesigner bosskey"; <span class="key">Flags</span>: issigverify
 <span class="key">Source</span>: "MyProg.chm"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
   <span class="key">ISSigAllowedKeys</span>: "docsigner bosskey"; <span class="key">Flags</span>: issigverify
 <span class="key">Source</span>: "<span class="con">{src}</span>\Extra\*.chm"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
@@ -814,7 +814,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
   <li>Added dark mode support to autocompletion lists and also added a minimum width.</li>
   <li>Added new <i>Show whitespace</i> option. Disabled by default.</li>
   <li>Improved brace highlighting.</li>
-  <li>Fixed an issue when the <i>Auto indent mode</i> and <i>Allow cursor to move beyond end of lines</i> options are both enabled.</li>  
+  <li>Fixed an issue when the <i>Auto indent mode</i> and <i>Allow cursor to move beyond end of lines</i> options are both enabled.</li>
 </ul>
 <p>Other Compiler IDE changes:</p>
 <ul>
@@ -903,8 +903,8 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
   <li>Added support for UTF-8 encoded files without a BOM for .iss script files, .isl messages files, <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>,  <tt>InfoAfterFile</tt>, and ISPP's <tt>#file</tt>.</li>
   <li>Compiler IDE changes:
   <ul>
-  <li>New script files are now saved as UTF-8 without a BOM by default, 
-bringing the IDE into line with most other text editors. Existing files 
+  <li>New script files are now saved as UTF-8 without a BOM by default,
+bringing the IDE into line with most other text editors. Existing files
 are still saved as they were until the save encoding is changed manually
  using the <i>Save Encoding</i> submenu of the <i>File</i> menu.</li>
   <li>Added new <i>UTF-8 with BOM</i> menu item to the <i>Save Encoding</i> submenu of the <i>File</i> menu to save new files with a BOM anyway.</li>
@@ -920,10 +920,10 @@ are still saved as they were until the save encoding is changed manually
 </ul>
 <p><span class="head2">Support for Arm64 systems improved, and related enhancements</span></p>
 <ul>
-  <li>Setup now officially supports the installation of x64 apps on 
-Arm64 Windows 11 systems, which are able to run x64 binaries via 
-emulation. To enable your x64 app installers to run properly on Arm64 
-Windows 11, some minor changes may be needed in your scripts. Most 
+  <li>Setup now officially supports the installation of x64 apps on
+Arm64 Windows 11 systems, which are able to run x64 binaries via
+emulation. To enable your x64 app installers to run properly on Arm64
+Windows 11, some minor changes may be needed in your scripts. Most
 importantly:
   <ol>
     <li>In <tt>ArchitecturesAllowed</tt> and <tt>ArchitecturesInstallIn64BitMode</tt>, change any use of <tt>x64</tt> to <tt>x64compatible</tt>.</li>
@@ -932,9 +932,9 @@ importantly:
   </ol>
   <div class="limargins">The key difference between <tt>x64</tt>/<tt>IsX64</tt> and the new <tt>x64compatible</tt>/<tt>IsX64Compatible</tt> is that the latter matches both x64 Windows and Arm64 Windows 11.</div>
   In most cases, <b>you should make the above changes</b>, because otherwise, users on Arm64 systems may not be able to run your installers. For example, an <tt>ArchitecturesAllowed=x64</tt>
- setting will only allow the installer to run on x64 Windows — not on 
-Arm64 Windows 11. Or, if you ship x86 and x64 versions of your app in 
-the same installer, the 32-bit x86 version may be chosen instead of the 
+ setting will only allow the installer to run on x64 Windows — not on
+Arm64 Windows 11. Or, if you ship x86 and x64 versions of your app in
+the same installer, the 32-bit x86 version may be chosen instead of the
 expected x64 version when running on Arm64 Windows 11.</li>
   <li>The <tt>[Setup]</tt> section directives <tt>ArchitecturesAllowed</tt> and <tt>ArchitecturesInstallIn64BitMode</tt> have been enhanced:
   <ul>
@@ -962,9 +962,9 @@ expected x64 version when running on Arm64 Windows 11.</li>
   </ul>
   Note that all of the above remains unsupported on Arm64 Windows 10.
   </li>
-  <li>Setup now logs the machine types supported by the system — that 
-is, what types of EXEs can be executed, either natively or via 
-emulation. For example, when running on an Arm64 Windows 11 system, it 
+  <li>Setup now logs the machine types supported by the system — that
+is, what types of EXEs can be executed, either natively or via
+emulation. For example, when running on an Arm64 Windows 11 system, it
 logs: <tt>Machine types supported by system: x86 x64 Arm32 Arm64</tt>.</li>
   <li>The <tt>OnlyOnTheseArchitectures</tt> message is not used anymore. Instead, the <tt>WindowsVersionNotSupported</tt> message is now shown when Setup is started on an architecture that is not allowed by the <tt>ArchitecturesAllowed</tt> expression. (But please do not remove the message from translation files.)</li>
   <li>Pascal Scripting change: Added new <tt>IsArm32Compatible</tt>, <tt>IsX64Compatible</tt>, <tt>IsX64OS</tt>, <tt>IsX86Compatible</tt>, and <tt>IsX86OS</tt> support functions. The <tt>IsX64</tt> support function still exists but is now deprecated as explained above. Example testing all architecture identifiers:
@@ -993,41 +993,41 @@ end;</pre>
 </ul>
 <p><span class="head2">Support for Windows Vista, Windows Server 2008, and the Itanium architecture removed</span></p>
 <ul>
-  <li><b>OS requirements change:</b> Windows Vista and Windows Server 
-2008 are no longer supported. Windows 7 and Windows Server 2008 R2 are 
+  <li><b>OS requirements change:</b> Windows Vista and Windows Server
+2008 are no longer supported. Windows 7 and Windows Server 2008 R2 are
 now the minimum supported operating systems. <tt>[Setup]</tt> section directive <tt>MinVersion</tt> still defaults to <tt>6.1sp1</tt>, so by default Setup will still not run versions of Windows 7 and Windows Server 2008 R2 which have not been updated.</li>
   <li>The defunct Itanium architecture is no longer supported. The <tt>ia64</tt> architecture identifier has been removed, and Setup will display the <tt>WindowsVersionNotSupported</tt> error message if it's started on an Itanium system.</li>
-  <li>Removed <tt>[Icons]</tt> section flag <tt>foldershortcut</tt> 
-which was already ignored except when running on Windows Vista or 
-Windows Server 2008, as folder shortcuts do not expand properly on the 
+  <li>Removed <tt>[Icons]</tt> section flag <tt>foldershortcut</tt>
+which was already ignored except when running on Windows Vista or
+Windows Server 2008, as folder shortcuts do not expand properly on the
 Start Menu anymore.</li>
 </ul>
 <p><span class="head2">Compiler IDE changes</span></p>
 <ul>
-  <li>Added toolbar buttons and shortcuts to navigate back (Alt+Left) 
-and forward (Alt+Right). Navigating by pressing the mouse X buttons is 
-also supported. A navigation item is added when changing tabs or moving 
-at least 11 lines at once, similar to Visual Studio 2022.<br>Because of 
-this Alt+Right can no longer be used to initiate auto complete, instead 
+  <li>Added toolbar buttons and shortcuts to navigate back (Alt+Left)
+and forward (Alt+Right). Navigating by pressing the mouse X buttons is
+also supported. A navigation item is added when changing tabs or moving
+at least 11 lines at once, similar to Visual Studio 2022.<br>Because of
+this Alt+Right can no longer be used to initiate auto complete, instead
 the existing Ctrl+Space or new Ctrl+I alternative must be used. To still
- be able to also use Alt+Right for this activate Visual Studio-style 
+ be able to also use Alt+Right for this activate Visual Studio-style
 shortcuts, see below.</li>
   <li>Added support for Visual Studio-style shortcuts (like Ctrl+- to navigate back, Ctrl+B to compile and F5 to run) to the <i>Build</i> and <i>Run</i> menus. To activate this use the <i>Options</i> menu item in the <i>Tools</i> menu to set the new <i>Key Map</i> option to <i>Visual Studio</i>.</li>
-  <li>Added multiple selection support (Ctrl+Click or Ctrl+Drag). 
-Typing, backspace, delete, undo, redo, copy, and paste all work with 
-multiple selections added this way or via the pre-existing support for 
+  <li>Added multiple selection support (Ctrl+Click or Ctrl+Drag).
+Typing, backspace, delete, undo, redo, copy, and paste all work with
+multiple selections added this way or via the pre-existing support for
 performing rectangular block selection (Alt+Shift+Arrow or Alt+Drag).</li>
   <li>Added a shortcut to revert multiple selections into a single one or a single selection into an empty one (Esc).</li>
   <li>Added dark mode support to the title bar on Windows 10 Version 2004 and later.
   </li><li>Added dark mode support to the main menu bar on all versions of Windows.
-  </li><li>Added dark mode support to the menus on Windows 10 Version 
-1903 and later up to Windows 11 Version 23H2 which is currently the 
+  </li><li>Added dark mode support to the menus on Windows 10 Version
+1903 and later up to Windows 11 Version 23H2 which is currently the
 latest version of Windows 11.
-  </li><li>Updated the icons used by the editor's gutter, including the 
-automatic use of higher quality versions in a widened gutter on higher 
+  </li><li>Updated the icons used by the editor's gutter, including the
+automatic use of higher quality versions in a widened gutter on higher
 DPI settings.
-  </li><li>Lines with a breakpoint are now displayed as normal lines 
-with syntax highlighting, instead of as white text on a red background. 
+  </li><li>Lines with a breakpoint are now displayed as normal lines
+with syntax highlighting, instead of as white text on a red background.
 The editor's gutter still displays an icon on such lines.</li>
   <li>Breakpoints are now preserved on a per-file basis between sessions.</li>
   <li>Added new <i>Delete All Breakpoints</i> (Shift+Ctrl+F5) menu item to the <i>Run</i> menu.</li>
@@ -1035,20 +1035,20 @@ The editor's gutter still displays an icon on such lines.</li>
   <li>Added new <i>Highlight occurrences of current selection</i> and <i>Highlight occurrences of current word</i> options. The first is enabled by default and the second is disabled by default.</li>
   <li>The <i>Allow cursor to move beyond end of lines</i> option ("virtual space") is now disabled by default, consistent with most other editors.</li>
   <li>When the <i>Allow cursor to move beyond end of lines</i> option is
- enabled, pressing the left arrow key while the cursor is at the start 
-of a line no longer moves the cursor to the end of the previous line 
-unless the Ctrl key is also pressed, just like in Notepad++, Visual 
+ enabled, pressing the left arrow key while the cursor is at the start
+of a line no longer moves the cursor to the end of the previous line
+unless the Ctrl key is also pressed, just like in Notepad++, Visual
 Studio, and RAD Studio.</li>
   <li>The New Script Wizard now offers an option to import a Windows registry .reg file.</li>
   <li>The New Script Wizard now automatically sets <tt>ArchitecturesInstallIn64BitMode</tt> and <tt>ArchitecturesAllowed</tt> to <tt>x64compatible</tt>
- if it detects that the chosen main executable file is 64-bit. The 
-default main executable file is now the 64-bit MyProg-x64.exe example 
+ if it detects that the chosen main executable file is 64-bit. The
+default main executable file is now the 64-bit MyProg-x64.exe example
 executable instead of 32-bit MyProg.exe.</li>
   <li>Added new <i>Generate [Registry] Entries</i> (Shift+Ctrl+R) menu item to the <i>Tools</i> menu to import a Windows registry .reg file as extra entries to the <tt>[Registry]</tt> section at the cursor position, or to a new section.</li>
   <li>Added new <i>Generate [Files] Entries</i> (Shift+Ctrl+I) menu item to the <i>Tools</i> menu to design and insert extra entries to the <tt>[Files]</tt> section at the cursor position, or to a new section.</li>
   <li>The <i>Generate MsgBox/TaskDialogMsgBox Call</i> tool (previously named <i>MsgBox/TaskDialogMsgBox Designer</i>)
- now respects the tab width and tab character settings, indents the 
-generated Pascal script one extra level, and warns if the cursor 
+ now respects the tab width and tab character settings, indents the
+generated Pascal script one extra level, and warns if the cursor
 position is not in the [Code] section.</li>
   <li>Minor theme color tweaks such as a different background color for the selected text.</li>
 </ul>
@@ -1056,21 +1056,21 @@ position is not in the [Code] section.</li>
 <ul>
   <li>Added new <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section flag <tt>logoutput</tt>. Instructs Setup and Uninstall to log the output of the executed program or batch file. Cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags. Has no effect if logging is not enabled.</li>
   <li>Added new <tt>[Setup]</tt> section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
-  <li>Digital signing change: Sign Tool output is now always logged in 
-the Compiler IDE's "Compiler Output" view, making it easier to debug 
-issues. Because of this, sign tools that are console programs will now 
-always run hidden, as their output is being captured and they would 
+  <li>Digital signing change: Sign Tool output is now always logged in
+the Compiler IDE's "Compiler Output" view, making it easier to debug
+issues. Because of this, sign tools that are console programs will now
+always run hidden, as their output is being captured and they would
 display nothing in their window.</li>
-  <li>Pascal Scripting change: Added new <tt>ExecAndLogOutput</tt> 
-support function. Can be used to log the output of the executed program 
-or batch file to Setup and Uninstall's log, or to receive the output 
+  <li>Pascal Scripting change: Added new <tt>ExecAndLogOutput</tt>
+support function. Can be used to log the output of the executed program
+or batch file to Setup and Uninstall's log, or to receive the output
 line by line in your own <tt>[Code]</tt> function, for example to read the first non-empty line from the output as shown in the help file and the new <i>PowerShell.iss</i> example script.</li>
   <li>ISPP changes:
     <ul>
     <li>Output of programs or batch files executed using the <tt>Exec</tt> support function is now always logged in the Compiler IDE's "Compiler Output" view.</li>
-    <li>Added new support function <tt>ExecAndGetFirstLine</tt> to 
-execute a program or batch file and read the first non-empty line from 
-its output which can then be placed or used in the script as shown in 
+    <li>Added new support function <tt>ExecAndGetFirstLine</tt> to
+execute a program or batch file and read the first non-empty line from
+its output which can then be placed or used in the script as shown in
 the new <i>PowerShell.iss</i> example script.</li>
     </ul>
     </li>
@@ -1080,24 +1080,24 @@ the new <i>PowerShell.iss</i> example script.</li>
   <li>Console-mode compiler (ISCC) change: Added support for Unicode output.</li>
   <li>Added new <tt>[Files]</tt> section flag <tt>signcheck</tt>. Instructs the compiler to check the original source files for a digital signature before storing them.</li>
   <li>During startup Setup would always ask Windows to create any missing <tt>{usercf}</tt>, <tt>{userpf}</tt>, and <tt>{usersavedgames}</tt>
- folders. It no longer does until the script asks for the folder. Note 
-that scripts running in administrative install mode should not do this 
+ folders. It no longer does until the script asks for the folder. Note
+that scripts running in administrative install mode should not do this
 because it violates the <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_useduserareaswarning">used user areas warning</a>.</li>
   <li>Changes to further help protect against potential DLL preloading attacks.</li>
   <li>Added support for IIS group users identifiers (<tt>iisiusrs</tt>) for use in <tt>Permissions</tt> parameters.</li>
   <li>ISPP changes:
     <ul>
-    <li>Added support function <tt>AddQuotes</tt> to add a quote 
+    <li>Added support function <tt>AddQuotes</tt> to add a quote
 character to the left and right sides of a string if the string contains
  a space and it didn't have quotes already.</li>
-    <li>Support function <tt>Exec</tt> no longer requires the filename 
-parameter to be quoted if it contains spaces. Additionally it now 
-supports "&gt;" as a filename and now includes special 
+    <li>Support function <tt>Exec</tt> no longer requires the filename
+parameter to be quoted if it contains spaces. Additionally it now
+supports "&gt;" as a filename and now includes special
 platform-independent support for .bat and .cmd files, both just like for
  example the <tt>[Run]</tt> section.</li>
     </ul>
-  </li>  
-  <li>Pascal Scripting changes: 
+  </li>
+  <li>Pascal Scripting changes:
     <ul>
     <li>Added support functions <tt>UTF8Encode</tt> and <tt>UTF8Decode</tt> to encode a Unicode string into a UTF-8 encoded ANSI string and vice versa.</li>
     <li>Added support functions <tt>LoadStringFromLockedFile</tt> and <tt>LoadStringsFromLockedFile</tt> to read strings from a file even if it's already opened for writing by another program.</li>
@@ -1115,8 +1115,8 @@ platform-independent support for .bat and .cmd files, both just like for
   <li>Added official Korean translation.</li>
   <li>Inno Setup is now built using Delphi 11.3 Alexandria instead of Delphi 10.3 Rio.</li>
   <li>Inno Setup's Delphi projects have been recreated as new clean projects and have been added to a <i>Projects\Projects.groupproj</i>
- project group. This makes it a lot easier to get started with working 
-with the Inno Setup source code and making contributions, even with the 
+ project group. This makes it a lot easier to get started with working
+with the Inno Setup source code and making contributions, even with the
 free Delphi Community Edition.</li>
   <li>Minor tweaks and documentation improvements.</li>
 </ul>
