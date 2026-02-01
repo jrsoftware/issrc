@@ -179,8 +179,8 @@ end;
 function IsProtectedSrcExe(const Filename: String): Boolean;
 begin
   if (MainForm = nil) or (MainForm.CurStep < ssInstall) then begin
-    var ExpandedFilename := PathExpand(Filename);
-    Result := PathCompare(ExpandedFilename, SetupLdrOriginalFilename) = 0;
+    var ExpandedFilename := PathExpand(PathConvertSuperToNormal(Filename));
+    Result := PathSame(ExpandedFilename, SetupLdrOriginalFilename);
   end else
     Result := False;
 end;
