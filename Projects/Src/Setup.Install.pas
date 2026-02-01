@@ -374,7 +374,7 @@ type
     mdNotifyChange);
 
 function MakeDir(const UninstLog: TUninstallLog; Dir: String;
-  const Flags: TMakeDirFlags): Boolean;
+  const Flags: TMakeDirFlags = []): Boolean;
 { Returns True if a new directory was created. Also see ForceDirectories
   for similar code (but different return value). }
 var
@@ -449,7 +449,7 @@ procedure CreateDirs(const UninstLog: TUninstallLog);
 
 begin
   { Create main application directory }
-  MakeDir(UninstLog, ApplyPathRedirRules(InstallDefault64Bit, WizardDirValue, tpCurrent), []);
+  MakeDir(UninstLog, ApplyPathRedirRules(InstallDefault64Bit, WizardDirValue, tpCurrent));
 
   { Create the rest of the directories, if any }
   for var CurDirNumber := 0 to Entries[seDir].Count-1 do
@@ -1948,7 +1948,7 @@ begin
           if IniDir <> '' then begin
             while True do begin
               try
-                MakeDir(UninstLog, IniDir, []);
+                MakeDir(UninstLog, IniDir);
                 Break;
               except
                 if AbortRetryIgnoreTaskDialogMsgBox(
@@ -2633,7 +2633,7 @@ begin
   const BaseDir = ApplyPathRedirRules(IsCurrentProcess64Bit,
     ExpandConst(SetupHeader.UninstallFilesDir), tpCurrent, [rfNormalPath]);
   LogFmt('Directory for uninstall files: %s', [BaseDir]);
-  MakeDir(UninstLog, BaseDir, []);
+  MakeDir(UninstLog, BaseDir);
 
   FillChar(ExistingFiles, SizeOf(ExistingFiles), 0);  { set all to False }
   FindFiles(BaseDir, ExistingFiles);
