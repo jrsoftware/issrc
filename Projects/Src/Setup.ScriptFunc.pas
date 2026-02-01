@@ -2045,7 +2045,7 @@ var
           TargetProcess := tp32Bit;
       end;
       Stack.SetString(PStart, ApplyPathRedirRules(Stack.GetBool(PStart-1),
-        Stack.GetString(PStart-2), [], TargetProcess));
+        Stack.GetString(PStart-2), TargetProcess));
     end);
   end;
 

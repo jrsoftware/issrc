@@ -30,8 +30,8 @@ type
     tp32BitPreferSystem32);
 
 function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String;
-  const AFlags: TPathRedirFlags = [];
-  const ATargetProcess: TPathRedirTargetProcess = tpCurrent): String;
+  const ATargetProcess: TPathRedirTargetProcess;
+  const AFlags: TPathRedirFlags = []): String;
 procedure InitializePathRedir(const AWindows64Bit: Boolean;
   const ASystem32Path, ASysWow64Path, ASysNativePath: String);
 
@@ -71,8 +71,8 @@ begin
 end;
 
 function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String;
-  const AFlags: TPathRedirFlags = [];
-  const ATargetProcess: TPathRedirTargetProcess = tpCurrent): String;
+  const ATargetProcess: TPathRedirTargetProcess;
+  const AFlags: TPathRedirFlags = []): String;
 begin
   while True do begin
     const CurCount = PathRedirActiveUseCount;

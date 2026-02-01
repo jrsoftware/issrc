@@ -836,7 +836,7 @@ begin
 
               if CurRec^.ExtraData and utRun_ShellExec = 0 then begin
                 if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
-                   NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir)) then begin
+                   NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent)) then begin
                   var OutputReader: TCreateProcessOutputReader := nil;
                   try
                     if GetLogActive and (CurRec^.ExtraData and utRun_LogOutput <> 0) then
@@ -910,7 +910,7 @@ begin
             const IsTempFile = not CallFromUninstaller and (CurRecData[1] <> '');
 
             const Is64Bit = CurRec^.ExtraData and utDeleteFile_Is64Bit <> 0;
-            const Filename = ApplyPathRedirRules(Is64Bit, CurRecData[0]);
+            const Filename = ApplyPathRedirRules(Is64Bit, CurRecData[0], tpCurrent);
 
             { Decrement shared file count if necessary }
             IsSharedFile := CurRec^.ExtraData and utDeleteFile_SharedFile <> 0;
@@ -943,7 +943,7 @@ begin
                 LogFmt('Unregistering font: %s', [CurRecData[2]]);
                 var FontFilename := CurRecData[3];
                 if PathIsRooted(FontFilename) then { Filename may have been shorted by ShortenFontFilename }
-                  FontFilename := ApplyPathRedirRules(Is64Bit, FontFilename);
+                  FontFilename := ApplyPathRedirRules(Is64Bit, FontFilename, tpCurrent);
                 UnregisterFont(CurRecData[2], FontFilename, CurRec^.ExtraData and utDeleteFile_PerUserFont <> 0);
               end;
               if CurRec^.ExtraData and utDeleteFile_GacInstalled <> 0 then
@@ -993,7 +993,7 @@ begin
           utDeleteDirOrFiles:
             if (CallFromUninstaller or (CurRec^.ExtraData and utDeleteDirOrFiles_Extra = 0)) then begin
               const Is64Bit = CurRec^.ExtraData and utDeleteDirOrFiles_Is64Bit <> 0;
-              const Path = ApplyPathRedirRules(Is64Bit, CurRecData[0]);
+              const Path = ApplyPathRedirRules(Is64Bit, CurRecData[0], tpCurrent);
               if DelTree(Path, CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteFiles <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteSubdirsAlso <> 0,
@@ -1013,7 +1013,7 @@ begin
                 Filename := CurRecData[1]
               else
                 Filename := CurRecData[0];
-              Filename := ApplyPathRedirRules(Is64Bit, Filename);
+              Filename := ApplyPathRedirRules(Is64Bit, Filename, tpCurrent);
               if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_ExistedBeforeInstall = 0) then begin
                 { Note: We handled utDeleteFile_SharedFile already }
                 if CallFromUninstaller or (CurRec^.ExtraData and utDeleteFile_Extra = 0) then
@@ -1117,7 +1117,7 @@ begin
                 is set, and 32-bit otherwise. We use this to convert it into back
                 a current-process-bit path. }
               const Is64Bit = CurRec^.ExtraData and utDecrementSharedCount_64BitKey <> 0;
-              const Filename = ApplyPathRedirRules(Is64Bit, CurRecData[0]);
+              const Filename = ApplyPathRedirRules(Is64Bit, CurRecData[0], tpCurrent);
               LoggedDecrementSharedCount(Filename, Is64Bit);
             end;
           utRefreshFileAssoc:

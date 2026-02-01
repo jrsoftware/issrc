@@ -1967,7 +1967,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
               DestFile := DestFile + SearchSubDir + FindData.cFileName
             else if SearchSubDir <> '' then
               DestFile := PathExtractPath(DestFile) + SearchSubDir + PathExtractName(DestFile);
-            DestFile := ApplyPathRedirRules(Is64Bit, DestFile);
+            DestFile := ApplyPathRedirRules(Is64Bit, DestFile, tpCurrent);
             if not EnumFilesProc(DestFile, Param) then begin
               Result := False;
               Exit;
@@ -2009,7 +2009,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
 
     if foCustomDestName in CurFile^.Options then
       InternalError('Unexpected CustomDestName flag');
-    const DestDir = ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName));
+    const DestDir = ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName), tpCurrent);
 
     var FindData: TWin32FindData;
     var H := ArchiveFindFirstFile(ArchiveFilename, DestDir,
@@ -2053,7 +2053,7 @@ begin
         const Is64Bit = FileEntryIs64Bit(CurFile);
         if CurFile^.LocationEntry <> -1 then begin
           { Non-external file }
-          if not EnumFilesProc(ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName)), Param) then begin
+          if not EnumFilesProc(ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName), tpCurrent), Param) then begin
             Result := False;
             Exit;
           end;
@@ -2067,10 +2067,10 @@ begin
             if not(foCustomDestName in CurFile^.Options) then
               InternalError('Expected CustomDestName flag');
             { CurFile^.DestName now includes a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
-            if not EnumFilesProc(ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName)), Param) then
+            if not EnumFilesProc(ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName), tpCurrent), Param) then
               Exit(False);
           end else begin
-            SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.SourceFilename));
+            SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.SourceFilename), tpCurrent);
 	          Excludes.DelimitedText := CurFile^.Excludes;
 	          if foExtractArchive in CurFile^.Options then begin
 	            try
@@ -2098,7 +2098,7 @@ begin
     for var I := 0 to Entries[seInstallDelete].Count-1 do
       with PSetupDeleteEntry(Entries[seInstallDelete][I])^ do
         if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
-          const Path = ApplyPathRedirRules(InstallDefault64Bit, ExpandConst(Name));
+          const Path = ApplyPathRedirRules(InstallDefault64Bit, ExpandConst(Name), tpCurrent);
           case DeleteType of
             dfFiles, dfFilesAndOrSubdirs:
               if not DelTree(Path, False, True, DeleteType = dfFilesAndOrSubdirs, True,
@@ -2129,7 +2129,7 @@ begin
   { CheckForFileSL contains native-bit filenames, so AFilename needs to be
     converted from current-process-bit to native-bit before comparing. }
   const Filename = PathLowercase(ApplyPathRedirRules(IsCurrentProcess64Bit,
-    AFilename, [], tpNativeBit));
+    AFilename, tpNativeBit));
   for var J := 0 to CheckForFileSL.Count-1 do begin
     if CheckForFileSL[J] = Filename then begin
       LogFmt('Found pending rename or delete that matches one of our files: %s', [Filename]);
@@ -3870,14 +3870,14 @@ begin
               const Is64Bit = FileEntryIs64Bit(PSetupFileEntry(Entries[seFile][I]));
               if foExtractArchive in Options then begin
                 ExternalSize := RecurseExternalArchiveGetSizeOfFiles(
-                  ApplyPathRedirRules(Is64Bit, ExpandConst(SourceFilename)),
+                  ApplyPathRedirRules(Is64Bit, ExpandConst(SourceFilename), tpCurrent),
                   ExpandConst(ExtractArchivePassword), LExcludes,
                   foRecurseSubDirsExternal in Options);
               end else begin
                 if FileType <> ftUserFile then
                   SourceWildcard := NewParamStr(0)
                 else
-                  SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandConst(SourceFilename));
+                  SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandConst(SourceFilename), tpCurrent);
                 ExternalSize := RecurseExternalGetSizeOfFiles(
                   PathExtractPath(SourceWildcard),
                   '', PathExtractName(SourceWildcard), IsWildcard(SourceWildcard),
@@ -4155,7 +4155,7 @@ begin
 
     if not(roShellExec in RunEntry.Options) then begin
       if not(roSkipIfDoesntExist in RunEntry.Options) or
-         NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir)) then begin
+         NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent)) then begin
         var OutputReader: TCreateProcessOutputReader := nil;
         try
           if GetLogActive and (roLogOutput in RunEntry.Options) then

@@ -199,10 +199,10 @@ begin
 
   var MoveFlags: DWORD := MOVEFILE_DELAY_UNTIL_REBOOT;
 
-  ExistingFile := ApplyPathRedirRules(IsCurrentProcess64Bit, ExistingFile, [],
+  ExistingFile := ApplyPathRedirRules(IsCurrentProcess64Bit, ExistingFile,
     tpNativeBit);
   if DestFile <> '' then begin
-    DestFile := ApplyPathRedirRules(IsCurrentProcess64Bit, DestFile, [],
+    DestFile := ApplyPathRedirRules(IsCurrentProcess64Bit, DestFile,
       tpNativeBit);
     MoveFlags := MoveFlags or MOVEFILE_REPLACE_EXISTING;
   end;
@@ -583,7 +583,7 @@ begin
       very different from APIs like CreateFile, which actually open the specified
       file and definitely do support super paths. }
     const NativeFilename = ApplyPathRedirRules(IsCurrentProcess64Bit, Filename,
-      [rfNormalPath], tpNativeBit);
+      tpNativeBit, [rfNormalPath]);
     Result := SfcIsFileProtectedFunc(0, PChar(NativeFilename));
   end
   else
@@ -1044,11 +1044,11 @@ begin
 
   if PathIsRooted(AFilename) then
     AFilename := ApplyPathRedirRules(RunEntry64Bit, AFilename,
-      [rfNormalPath], TargetProcess);
+      TargetProcess, [rfNormalPath]);
 
   if AWorkingDir <> '' then
     AWorkingDir := ApplyPathRedirRules(RunEntry64Bit, AWorkingDir,
-      [rfNormalPath], TargetProcess);
+      TargetProcess, [rfNormalPath]);
 end;
 
 function ApplyRedirForRegistrationOperation(const RegisteringAs64BitFile: Boolean;
@@ -1068,7 +1068,7 @@ begin
     TargetProcess := tp32BitPreferSystem32;
 
   Result := ApplyPathRedirRules(IsCurrentProcess64Bit,
-    Filename, [rfNormalPath], TargetProcess);
+    Filename, TargetProcess, [rfNormalPath]);
 end;
 
 procedure ShellChangeNotifyPath(const EventId: Integer; const Path: String;

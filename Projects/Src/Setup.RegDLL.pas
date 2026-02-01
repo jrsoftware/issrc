@@ -59,8 +59,8 @@ begin
     depending on AIs64Bit.
     On 32-bit Setup, we disable WOW64 file system redirection instead of using
     Sysnative due to the problems described in ProcessRunEntry's comments. }
-  SysDir := ApplyPathRedirRules(AIs64Bit, GetSystemDir, [rfNormalPath],
-    tpNativeBit);
+  SysDir := ApplyPathRedirRules(AIs64Bit, GetSystemDir, tpNativeBit,
+    [rfNormalPath]);
 
   const RedirFilename = ApplyRedirForRegistrationOperation(AIs64Bit, Filename);
 

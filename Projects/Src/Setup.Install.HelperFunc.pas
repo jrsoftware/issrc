@@ -479,7 +479,7 @@ begin
       if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
         DebugNotifyEntry(seInstallDelete, I);
         NotifyBeforeInstallEntry(BeforeInstall);
-        const Path = ApplyPathRedirRules(InstallDefault64Bit, ExpandConst(Name));
+        const Path = ApplyPathRedirRules(InstallDefault64Bit, ExpandConst(Name), tpCurrent);
         case DeleteType of
           dfFiles, dfFilesAndOrSubdirs:
             DelTree(Path, False, True, DeleteType = dfFilesAndOrSubdirs, False,

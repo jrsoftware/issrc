@@ -449,7 +449,7 @@ procedure CreateDirs(const UninstLog: TUninstallLog);
 
 begin
   { Create main application directory }
-  MakeDir(UninstLog, ApplyPathRedirRules(InstallDefault64Bit, WizardDirValue), []);
+  MakeDir(UninstLog, ApplyPathRedirRules(InstallDefault64Bit, WizardDirValue, tpCurrent), []);
 
   { Create the rest of the directories, if any }
   for var CurDirNumber := 0 to Entries[seDir].Count-1 do
@@ -458,7 +458,7 @@ begin
         DebugNotifyEntry(seDir, CurDirNumber);
         NotifyBeforeInstallEntry(BeforeInstall);
         const Path = RemoveBackslashUnlessRoot(ApplyPathRedirRules(
-          InstallDefault64Bit, ExpandConst(DirName)));
+          InstallDefault64Bit, ExpandConst(DirName), tpCurrent));
         var Flags: TMakeDirFlags := [];
         if doUninsNeverUninstall in Options then Include(Flags, mdNoUninstall);
         if doDeleteAfterInstall in Options then Include(Flags, mdDeleteAfterInstall);
@@ -724,7 +724,7 @@ Retry:
           ftUninstExe: DestFile := UninstallExeFilename;
         else
           if ADestFile = '' then
-            DestFile := ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName))
+            DestFile := ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName), tpCurrent)
           else
             DestFile := ADestFile;
         end;
@@ -1422,7 +1422,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
               DestFile := DestFile + SearchSubDir + FileName
             else if SearchSubDir <> '' then
               DestFile := PathExtractPath(DestFile) + SearchSubDir + PathExtractName(DestFile);
-            DestFile := ApplyPathRedirRules(Is64Bit, DestFile);
+            DestFile := ApplyPathRedirRules(Is64Bit, DestFile, tpCurrent);
             var Size := FindDataFileSizeToInt64(FindData);
             if Size > ExpectedBytesLeft then begin
               { Don't allow the progress bar to overflow if the size of the
@@ -1468,7 +1468,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
           DestName := DestName + SearchSubDir
         else
           DestName := PathExtractPath(DestName) + SearchSubDir;
-        DestName := ApplyPathRedirRules(Is64Bit, DestName);
+        DestName := ApplyPathRedirRules(Is64Bit, DestName, tpCurrent);
         var Flags: TMakeDirFlags := [];
         if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
         if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
@@ -1501,7 +1501,7 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
 
     if foCustomDestName in CurFile^.Options then
       InternalError('Unexpected custom DestName');
-    const DestDir = ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName));
+    const DestDir = ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName), tpCurrent);
 
     Log('-- Archive entry --');
 
@@ -1638,7 +1638,7 @@ begin
           end else begin
             SourceWildcard := ExpandConst(CurFile^.SourceFilename);
             if not(foDownload in CurFile^.Options) then
-              SourceWildcard := ApplyPathRedirRules(Is64Bit, SourceWildcard);
+              SourceWildcard := ApplyPathRedirRules(Is64Bit, SourceWildcard, tpCurrent);
           end;
           Excludes.DelimitedText := CurFile^.Excludes;
           var ProgressBefore := CurProgress;
@@ -1655,7 +1655,7 @@ begin
                 InternalError('Expected CustomDestName flag');
               { CurFile^.DestName now includes a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
               ProcessFileEntry(UninstLog, ExpandedAppId, RegisterFilesList,
-                CurFile, Is64Bit, SourceWildcard, ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName)),
+                CurFile, Is64Bit, SourceWildcard, ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName), tpCurrent),
                 nil, ExpectedBytesLeft, ConfirmOverwriteOverwriteAll, PromptIfOlderOverwriteAll,
                 WarnedPerUserFonts, nil,
                 UninstallTempExeFilename, UninstallExeCreated);
@@ -1882,7 +1882,7 @@ begin
           if ioUseAppPaths in Options then
             FN := ExpandAppPath(FN);
           if not(ioCreateOnlyIfFileExists in Options) or
-             NewFileExists(ApplyPathRedirRules(IsWin64, FN)) then begin
+             NewFileExists(ApplyPathRedirRules(IsWin64, FN, tpCurrent)) then begin
             if ioHasAppUserModelToastActivatorCLSID in Options then
               TACLSID := @AppUserModelToastActivatorCLSID
             else
@@ -2513,7 +2513,7 @@ begin
       if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
         DebugNotifyEntry(seUninstallDelete, I);
         NotifyBeforeInstallEntry(BeforeInstall);
-        const Path = ApplyPathRedirRules(InstallDefault64Bit, ExpandConst(Name));
+        const Path = ApplyPathRedirRules(InstallDefault64Bit, ExpandConst(Name), tpCurrent);
         var Flags := DefFlags[DeleteType];
         if IsCurrentProcess64Bit then { Post-ApplyPathRedirRules we should check IsCurrentProcess64Bit and not the original InstallDefault64Bit }
           Flags := Flags or utDeleteDirOrFiles_Is64Bit;
@@ -2631,7 +2631,7 @@ begin
     UninstallFilesDir would usually not exceed MAX_PATH, using rfNormalPath
     does not introduce a limitation in practice. }
   const BaseDir = ApplyPathRedirRules(IsCurrentProcess64Bit,
-    ExpandConst(SetupHeader.UninstallFilesDir), [rfNormalPath]);
+    ExpandConst(SetupHeader.UninstallFilesDir), tpCurrent, [rfNormalPath]);
   LogFmt('Directory for uninstall files: %s', [BaseDir]);
   MakeDir(UninstLog, BaseDir, []);
 
