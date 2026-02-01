@@ -933,33 +933,10 @@ end;
 
 function GetSpaceOnDisk(const DriveRoot: String;
   var FreeBytes, TotalBytes: Int64): Boolean;
-var
-  GetDiskFreeSpaceExFunc: function(lpDirectoryName: PChar;
-    lpFreeBytesAvailable: PLargeInteger; lpTotalNumberOfBytes: PLargeInteger;
-    lpTotalNumberOfFreeBytes: PLargeInteger): BOOL; stdcall;
-  SectorsPerCluster, BytesPerSector, FreeClusters, TotalClusters: Cardinal;
 begin
-  { NOTE: The docs claim that GetDiskFreeSpace supports UNC paths on
-    Windows 95 OSR2 and later. But that does not seem to be the case in my
-    tests; it fails with error 50 on Windows 95 through Me.
-    GetDiskFreeSpaceEx, however, *does* succeed with UNC paths, so use it
-    if available. }
-  GetDiskFreeSpaceExFunc := GetProcAddress(GetModuleHandle(kernel32),
-    'GetDiskFreeSpaceExW');
-  if Assigned(@GetDiskFreeSpaceExFunc) then begin
-    Result := GetDiskFreeSpaceExFunc(PChar(AddBackslash(PathExpand(DriveRoot))),
-      @FreeBytes, @TotalBytes, nil);
-  end
-  else begin
-    Result := GetDiskFreeSpace(PChar(AddBackslash(PathExtractDrive(PathExpand(DriveRoot)))),
-      SectorsPerCluster, BytesPerSector, FreeClusters, TotalClusters);
-    if Result then begin
-      { The result of GetDiskFreeSpace does not cap at 2GB, so we must use a
-        64-bit multiply operation to avoid an overflow. }
-      FreeBytes := Int64(BytesPerSector * SectorsPerCluster) * FreeClusters;
-      TotalBytes := Int64(BytesPerSector * SectorsPerCluster) * TotalClusters;
-    end;
-  end;
+  { "Windows." prefix avoids emulated version in SysUtils }
+  Result := Windows.GetDiskFreeSpaceEx(PChar(AddBackslash(PathExpand(DriveRoot))),
+    FreeBytes, TotalBytes, nil);
 end;
 
 function GetSpaceOnNearestMountPoint(const StartDir: String;
