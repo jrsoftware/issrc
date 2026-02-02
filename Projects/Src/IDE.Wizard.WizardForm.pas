@@ -312,9 +312,7 @@ begin
 
   FLanguages := TStringList.Create;
   FLanguages.Sorted := True;
-  FLanguages.Duplicates := dupIgnore; { Some systems also return .islu files when searching for *.isl }
   AddLanguages('isl');
-  AddLanguages('islu');
   FLanguages.Sorted := False;
   FLanguages.Insert(0, LanguagesDefaultIsl);
 
@@ -1125,17 +1123,34 @@ begin
 
     { Languages }
     if FLanguages.Count > 1 then begin
-      for I := 0 to LanguagesList.Items.Count-1 do begin
-        if LanguagesList.Checked[I] then begin
-          LanguageMessagesFile := FLanguages[Integer(LanguagesList.ItemObject[I])];
-          if LanguageMessagesFile <> LanguagesDefaultIsl then begin
-            LanguageName := LanguagesList.Items[I];
-            LanguageMessagesFile := 'Languages\' + LanguageMessagesFile;
-          end else
-            LanguageName := LanguagesDefaultIslDescription;
-          StringChange(LanguageName, ' ', '');
-          LanguageName := LowerCase(LanguageName);
-          Languages := Languages + 'Name: "' + LanguageName + '"; MessagesFile: "compiler:' + LanguageMessagesFile + '"' + SNewLine;
+      var UsingISPPEmitLanguagesSection: Boolean;
+
+      if ISPPCheck.Checked then begin
+        UsingISPPEmitLanguagesSection := True;
+        for I := 0 to LanguagesList.Items.Count-1 do begin
+          if not LanguagesList.Checked[I] then begin
+            UsingISPPEmitLanguagesSection := False;
+            Break;
+          end;
+        end;
+      end else
+        UsingISPPEmitLanguagesSection := False;
+
+      if UsingISPPEmitLanguagesSection then
+        ISPP := ISPP + '#expr EmitLanguagesSection' + SNewLine
+      else begin
+        for I := 0 to LanguagesList.Items.Count-1 do begin
+          if LanguagesList.Checked[I] then begin
+            LanguageMessagesFile := FLanguages[Integer(LanguagesList.ItemObject[I])];
+            if LanguageMessagesFile <> LanguagesDefaultIsl then begin
+              LanguageName := LanguagesList.Items[I];
+              LanguageMessagesFile := 'Languages\' + LanguageMessagesFile;
+            end else
+              LanguageName := LanguagesDefaultIslDescription;
+            StringChange(LanguageName, ' ', '');
+            LanguageName := LowerCase(LanguageName);
+            Languages := Languages + 'Name: "' + LanguageName + '"; MessagesFile: "compiler:' + LanguageMessagesFile + '"' + SNewLine;
+          end;
         end;
       end;
     end;
