@@ -6180,7 +6180,7 @@ begin
 
     { Name }
     if not IsValidIdentString(Values[paName].Data, False, False) then
-      AbortCompile(SCompilerLanguagesOrISSigKeysBadName);
+      AbortCompileFmt(SCompilerLanguagesOrISSigKeysBadName, [ParamLanguagesName]);
     NewPreLangData.Name := Values[paName].Data;
 
     { MessagesFile }
@@ -6214,7 +6214,7 @@ begin
 
     { Name }
     if not IsValidIdentString(Values[paName].Data, False, False) then
-      AbortCompile(SCompilerLanguagesOrISSigKeysBadName);
+      AbortCompileFmt(SCompilerLanguagesOrISSigKeysBadName, [ParamLanguagesName]);
     NewLanguageEntry.Name := Values[paName].Data;
 
     { MessagesFile }
