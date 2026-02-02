@@ -6503,7 +6503,7 @@ end;
 
 
 const
-  DefaultIsl = {$IFDEF DEBUG} 'compiler:..\..\Files\Default.isl' {$ELSE} 'compiler:Default.isl' {$ENDIF};
+  DefaultIsl = 'compiler:Default.isl';
 
 procedure TSetupCompiler.ReadDefaultMessages;
 var
@@ -8716,6 +8716,12 @@ begin
     { 0. Determine final language code pages }
     AddStatus(SCompilerStatusDeterminingCodePages);
 
+    {$IFDEF DEBUG}
+    const SaveCompilerDir = CompilerDir;
+    CompilerDir := AddBackslash(PathExpand('..\..\Files\'));
+    try
+    {$ENDIF}
+
     { 0.1. Read [Languages] section and [LangOptions] in the .isl files the
       entries reference }
     EnumIniSection(EnumLanguagesPreProc, 'Languages', 0, True, True, '', False, True);
@@ -8731,6 +8737,12 @@ begin
     { 2. Read [Languages] section and the .isl files the entries reference }
     EnumIniSection(EnumLanguagesProc, 'Languages', 0, True, True, '', False, False);
     CallIdleProc;
+
+    {$IFDEF DEBUG}
+    finally
+      CompilerDir := SaveCompilerDir;
+    end;
+    {$ENDIF}
 
     { 3. Read [LangOptions] & [Messages] & [CustomMessages] in the script }
     AddStatus(SCompilerStatusParsingMessages);

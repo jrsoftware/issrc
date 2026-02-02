@@ -39,8 +39,8 @@ SetupArchitecture=x64
 ; DialogFontSize=12
 
 [Languages]
-Name: en; MessagesFile: "..\..\Files\Default.isl"
-Name: nl; MessagesFile: "..\..\Files\Languages\Dutch.isl"
+Name: en; MessagesFile: "compiler:Default.isl"
+Name: nl; MessagesFile: "compiler:Languages\Dutch.isl"
 
 [Files]
 Source: "..\..\Examples\MyProg.exe"; DestDir: "{app}"
