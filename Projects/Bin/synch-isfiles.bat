@@ -18,8 +18,10 @@ copy ..\..\Files\islzma*.exe
 copy ..\..\Files\islzma*.exe.issig
 copy ..\..\Files\WizClassicSmallImage.bmp
 
+rem When DEBUG is defined, these are picked up from ..\..\Files automatically
 if exist Default.isl (del Default.isl)
 if exist ISPPBuiltins.iss (del ISPPBuiltins.iss)
+
 if exist whatsnew.htm (del whatsnew.htm)
 if exist ISetup.chm (del ISetup.chm)
 if exist ISetup-dark.chm (del ISetup-dark.chm)
