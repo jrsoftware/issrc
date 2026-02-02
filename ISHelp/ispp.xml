@@ -1914,6 +1914,24 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<p>Returns non-zero if the specified file is a non-32-bit PE image, zero otherwise.</p>
 				</description>
 			</topic>
+			<topic id="EmitLanguagesSection">
+				<title>EmitLanguagesSection</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>void</b> EmitLanguagesSection</line>
+					</pre>
+				</section>
+				<description>
+					<p>Emits a full <tt>[Languages]</tt> section for all available official languages, including English.</p>
+					<p>After compilation, see tab <i>Preprocessor Output</i> in the Compiler IDE for the full list of available languages, including their generated names.</p>
+					<p>Declared in &builtins;.</p>
+				</description>
+				<section title="Example">
+					<pre>
+						<line>#expr EmitLanguagesSection</line>
+					</pre>
+				</section>
+			</topic>
 		</topic>
     <topic id="macros">
 			<keywords>

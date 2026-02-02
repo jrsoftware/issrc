@@ -309,6 +309,34 @@
   WarnRenamedVersion("GetFileVersion", "GetVersionNumbersString"), \
   GetVersionNumbersString(FileName)
 
+#sub GLS_ProcessFoundLanguagesFile
+  #define Filename FindGetFileName(GLS_FindHandle)
+  #define Name LowerCase(RemoveFileExt(Filename))
+  #define MessagesFile "compiler:Languages\" + Filename
+  #emit "Name: " + Name + "; MessagesFile: " + MessagesFile
+#endsub
+
+#define GLS_FindPathName
+#define GLS_FindHandle
+#define GLS_FindResult
+
+#sub GLS_DoFindFiles
+  #for {GLS_FindHandle = GLS_FindResult = FindFirst(GLS_FindPathName + "*.isl", 0); GLS_FindResult; GLS_FindResult = FindNext(GLS_FindHandle)} GLS_ProcessFoundLanguagesFile
+  #if GLS_FindHandle
+    #expr FindClose(GLS_FindHandle)
+  #endif
+#endsub
+
+#define GLS_FindFiles(str PathName) \
+  GLS_FindPathName = PathName, \
+  GLS_DoFindFiles
+
+#sub EmitLanguagesSection
+  #emit "[Languages]"
+  #emit "Name: english; MessagesFile: compiler:Default.isl"
+  #expr GLS_FindFiles(CompilerPath + "Languages\")
+#endsub
+
 #ifdef DisablePOptP
 # pragma parseroption -p-
 #endif
