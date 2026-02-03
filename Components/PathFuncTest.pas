@@ -2,11 +2,13 @@ unit PathFuncTest;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Test unit for PathFunc
+
+  Runs a self-test if DEBUG is defined
 }
 
 interface
@@ -369,5 +371,10 @@ begin
   TestPathStrFind('abc'+#0+'ABC', 'ABC', False, -1, True);
   TestPathStrFind('abc'+#0+'ABC', 'ABC', False, 4);
 end;
+
+{$IFDEF DEBUG}
+initialization
+  PathFuncRunTests(False);
+{$ENDIF}
 
 end.

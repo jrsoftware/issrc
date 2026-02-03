@@ -237,6 +237,7 @@
         <DCCReference Include="..\Components\UniPs\Source\uPSR_stdctrls.pas"/>
         <DCCReference Include="..\Components\UniPs\Source\uPSRuntime.pas"/>
         <DCCReference Include="..\Components\UniPs\Source\uPSUtils.pas"/>
+        <DCCReference Include="..\Components\PathFuncTest.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
