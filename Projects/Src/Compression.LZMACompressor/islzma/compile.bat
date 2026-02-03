@@ -45,16 +45,13 @@ call "%VSBUILDROOT%\vcvarsall.bat" %vsarch%
 if errorlevel 1 goto exit
 echo.
 
-@REM echo - Compiling LzmaDecodeInno.c
-@REM cl.exe /c /O2 /D_LZMA_OUT_READ /D_LZMA_IN_CB LzmaDecodeInno.c /FoLzmaDecodeInno-%1.obj
-@REM if errorlevel 1 goto failed
-
 set platform=%1
 if "%1"=="x86" set platform=Win32
 if "%1"=="arm64" set platform=Arm64EC
 
-echo - Compiling Islzma
-msbuild islzma.sln /t:Clean;Build /p:Configuration=Release;Platform=%platform%
+echo - Compiling islzma
+msbuild.exe islzma.sln /t:Clean;Build /p:Configuration=Release;Platform=%platform% /nologo
+if errorlevel 1 goto failed
 
 echo Success!
 goto exit
