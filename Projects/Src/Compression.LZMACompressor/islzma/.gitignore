@@ -1,5 +1,7 @@
+compilesettings.bat
 *.user
 islzma/
 islzma_exe/
 Win32/
 x64/
+Arm64EC/
