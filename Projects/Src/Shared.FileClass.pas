@@ -2,7 +2,7 @@ unit Shared.FileClass;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -31,8 +31,8 @@ type
     function GetPosition: Int64; virtual; abstract;
     function GetSize: Int64; virtual; abstract;
   public
-    class procedure RaiseError(ErrorCode: DWORD);
-    class procedure RaiseLastError;
+    class procedure RaiseError(ErrorCode: DWORD); static;
+    class procedure RaiseLastError; static;
     function Read(var Buffer; Count: Cardinal): Cardinal; virtual; abstract;
     procedure ReadBuffer(var Buffer; Count: Cardinal);
     procedure Seek(Offset: Int64); virtual; abstract;

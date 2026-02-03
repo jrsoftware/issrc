@@ -2,7 +2,7 @@ unit Setup.SetupForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -45,7 +45,7 @@ type
     FSetForeground: Boolean;
     FDidDisableChildControlsStylesAsNeeded: Boolean;
     class function ShouldDisableControlStylesAsNeeded: Boolean;
-    class procedure DisableControlStyleAsNeeded(const Ctl: TControl);
+    class procedure DisableControlStyleAsNeeded(const Ctl: TControl); static;
     procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
   protected
@@ -70,7 +70,7 @@ type
     procedure InitializeFont(const KeepSizeX: Boolean = False; const KeepSizeY: Boolean = False);
     class function ScalePixelsX(const OrigBaseUnitX, BaseUnitX, N: Integer): Integer; overload;
     class function ScalePixelsY(const OrigBaseUnitY, BaseUnitY, N: Integer): Integer; overload;
-    class procedure SetCtlParent(const AControl: TControl; const AParent: TWinControl);
+    class procedure SetCtlParent(const AControl: TControl; const AParent: TWinControl); static;
     function ScalePixelsX(const N: Integer): Integer; overload;
     function ScalePixelsY(const N: Integer): Integer; overload;
     procedure SetBackImage(const BackImages: TWizardImages; const Stretch, Center: Boolean; const Opacity: Byte; const Redraw: Boolean); overload;

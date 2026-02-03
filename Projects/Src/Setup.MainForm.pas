@@ -2,7 +2,7 @@ unit Setup.MainForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -25,7 +25,7 @@ type
     function Install: Boolean;
     procedure SetStep(const AStep: TSetupStep; const HandleExceptions: Boolean);
     class procedure ShowException(Sender: TObject; E: Exception);
-    class procedure ShowExceptionMsg(const S: String);
+    class procedure ShowExceptionMsg(const S: String); static;
   end;
 
 var

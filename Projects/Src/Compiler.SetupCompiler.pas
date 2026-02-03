@@ -192,8 +192,8 @@ type
     procedure AddStatusFmt(const Msg: String; const Args: array of const;
       const Warning: Boolean = False);
     procedure OnCheckedTrust(CheckedTrust: Boolean);
-    class procedure AbortCompile(const Msg: String);
-    class procedure AbortCompileParamError(const Msg, ParamName: String);
+    class procedure AbortCompile(const Msg: String); static;
+    class procedure AbortCompileParamError(const Msg, ParamName: String); static;
     function PrependDirName(const Filename, Dir: String): String;
     function PrependSourceDirName(const Filename: String): String;
     procedure DoCallback(const Code: Integer; var Data: TCompilerCallbackData;
@@ -296,7 +296,7 @@ type
     CompilerDir, SourceDir, OriginalSourceDir: String;
     constructor Create(AOwner: TComponent);
     destructor Destroy; override;
-    class procedure AbortCompileFmt(const Msg: String; const Args: array of const);
+    class procedure AbortCompileFmt(const Msg: String; const Args: array of const); static;
     procedure AddBytesCompressedSoFar(const Value: Int64);
     procedure AddPreprocOption(const Value: String);
     procedure AddSignTool(const Name, Command: String);

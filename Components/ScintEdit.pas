@@ -233,8 +233,8 @@ type
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
     class function GetErrorException(const S: String): EScintEditError;
-    class procedure Error(const S: String); overload;
-    class procedure ErrorFmt(const S: String; const Args: array of const);
+    class procedure Error(const S: String); static;
+    class procedure ErrorFmt(const S: String; const Args: array of const); static;
     function GetMainSelection: Integer;
     function GetTarget: TScintRange;
     procedure InitRawString(var S: TScintRawString; const Len: Integer);

@@ -2,7 +2,7 @@ unit Themes;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -112,8 +112,8 @@ type
 
   TCustomStyleEngine = class
     public
-      class procedure RegisterStyleHook(ControlClass: TClass; StyleHookClass: TStyleHookClass);
-      class procedure UnRegisterStyleHook(ControlClass: TClass; StyleHookClass: TStyleHookClass);
+      class procedure RegisterStyleHook(ControlClass: TClass; StyleHookClass: TStyleHookClass); static;
+      class procedure UnRegisterStyleHook(ControlClass: TClass; StyleHookClass: TStyleHookClass); static;
   end;
 
   TThemedElementDetails = TObject;
@@ -147,10 +147,10 @@ type
     class var SystemStyleName: String;
     class var FormBorderStyle: TFormBorderStyle;
     class constructor Create;
-    class procedure SetStyle(Handle: TStyleServicesHandle);
+    class procedure SetStyle(Handle: TStyleServicesHandle); static;
     class function TryLoadFromResource(Instance: HINST; const ResourceName: string;
-      ResourceType: PChar; var Handle: TStyleServicesHandle): Boolean;
-    class function TrySetStyle(const Name: string; ShowErrorDialog: Boolean = True): Boolean;
+      ResourceType: PChar; var Handle: TStyleServicesHandle): Boolean; static;
+    class function TrySetStyle(const Name: string; ShowErrorDialog: Boolean = True): Boolean; static;
   end;
 
   { Override ComCtrls }

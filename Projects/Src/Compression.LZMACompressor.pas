@@ -114,7 +114,7 @@ type
     procedure InitializeProps(const CompressionLevel: Integer;
       const ACompressorProps: TCompressorProps);
     class function IsObjectSignaled(const AObject: THandle): Boolean;
-    class procedure SatisfyWorkerWait(const AWorkerEvent, AMainEvent: THandle);
+    class procedure SatisfyWorkerWait(const AWorkerEvent, AMainEvent: THandle); static;
     procedure SatisfyWorkerWaitOnInput;
     procedure SatisfyWorkerWaitOnOutput;
     procedure StartEncode;
