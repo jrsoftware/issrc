@@ -1237,7 +1237,7 @@ end;
       <function>
         <name>ExtractFileDrive</name>
         <prototype>function ExtractFileDrive(const FileName: String): String;</prototype>
-        <description><p>Returns a string containing the 'drive' portion of a fully qualified path name for the file passed in the FileName. For file names with drive letters, the resulting string is in the form '&lt;drive&gt;:'. For file names with a UNC path the resulting string is in the form '\\&lt;servername&gt;\&lt;sharename&gt;'. If the given path contains neither style of path prefix, the result is an empty string.</p></description>
+        <description><p>Returns a string containing the 'drive' portion of a fully qualified path name for the file passed in FileName. For file names with drive letters, the resulting string is in the form '&lt;drive&gt;:'. For file names with a UNC path the resulting string is in the form '\\&lt;servername&gt;\&lt;sharename&gt;'. If the given path contains neither style of path prefix, the result is an empty string.</p></description>
       </function>
       <function>
         <name>ExtractRelativePath</name>
@@ -1254,13 +1254,14 @@ end;</pre></example>
       <function>
         <name>ExpandFileName</name>
         <prototype>function ExpandFileName(const FileName: String): String;</prototype>
-        <description><p>Returns a string containing a fully qualified path name for the file passed in the FileName. A fully qualified path name includes the drive letter and any directory and subdirectories in addition to the file name and extension.</p>
+        <description><p>Returns a string containing a fully qualified path name for the file passed in FileName. A fully qualified path name includes the drive letter and any directory and subdirectories in addition to the file name and extension.</p>
+<p>An empty string is returned if the input is an empty string or contains only spaces.</p>
 <p>An exception will be raised upon failure, which is only known to happen when the input or output path exceeds 32K characters.</p></description>
       </function>
       <function>
         <name>ExpandUNCFileName</name>
         <prototype>function ExpandUNCFileName(const FileName: String): String;</prototype>
-        <description><p>Returns a string containing a fully qualified path name for the file passed in the FileName. A fully qualified path name includes the drive portion of the filename in the UNC format '\\&lt;servername&gt;\&lt;sharename&gt;' if the drive letter is mapped to a network resource instead of a local drive and any directory and subdirectories in addition to the file name and extension.</p></description>
+        <description><p>Returns a string containing a fully qualified path name for the file passed in FileName. A fully qualified path name includes the drive portion of the filename in the UNC format '\\&lt;servername&gt;\&lt;sharename&gt;' if the drive letter is mapped to a network resource instead of a local drive and any directory and subdirectories in addition to the file name and extension.</p></description>
       </function>
       <function>
         <name>PathConvertNormalToSuper</name>
