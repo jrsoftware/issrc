@@ -216,7 +216,7 @@ object OptionsForm: TOptionsForm
     object AutoIndentCheck: TCheckBox
       Left = 8
       Top = 136
-      Width = 265
+      Width = 130
       Height = 17
       Caption = 'Auto &indent mode'
       TabOrder = 6
@@ -227,7 +227,7 @@ object OptionsForm: TOptionsForm
       Width = 265
       Height = 17
       Caption = 'Show indentation &guides'
-      TabOrder = 7
+      TabOrder = 8
     end
     object Label1: TNewStaticText
       Left = 8
@@ -235,7 +235,7 @@ object OptionsForm: TOptionsForm
       Width = 25
       Height = 14
       Caption = 'Font:'
-      TabOrder = 15
+      TabOrder = 16
     end
     object FontPanel: TPanel
       Left = 72
@@ -245,7 +245,7 @@ object OptionsForm: TOptionsForm
       BevelKind = bkFlat
       BevelOuter = bvNone
       Caption = 'AaBbXxZz'
-      TabOrder = 16
+      TabOrder = 17
     end
     object ChangeFontButton: TButton
       Left = 200
@@ -253,7 +253,7 @@ object OptionsForm: TOptionsForm
       Width = 73
       Height = 23
       Caption = '&Change...'
-      TabOrder = 17
+      TabOrder = 18
       OnClick = ChangeFontButtonClick
     end
     object Label2: TNewStaticText
@@ -263,14 +263,14 @@ object OptionsForm: TOptionsForm
       Height = 14
       Caption = '&Tab Width:'
       FocusControl = TabWidthEdit
-      TabOrder = 18
+      TabOrder = 19
     end
     object TabWidthEdit: TEdit
       Left = 72
       Top = 337
       Width = 41
       Height = 21
-      TabOrder = 19
+      TabOrder = 20
       OnChange = TabWidthEditChange
     end
     object GutterLineNumbersCheck: TCheckBox
@@ -279,7 +279,7 @@ object OptionsForm: TOptionsForm
       Width = 265
       Height = 17
       Caption = 'Show &line numbers in gutter'
-      TabOrder = 8
+      TabOrder = 9
     end
     object Label4: TNewStaticText
       Left = 8
@@ -288,7 +288,7 @@ object OptionsForm: TOptionsForm
       Height = 14
       Caption = 'T&heme:'
       FocusControl = ThemeComboBox
-      TabOrder = 13
+      TabOrder = 14
     end
     object ThemeComboBox: TComboBox
       Left = 72
@@ -296,7 +296,7 @@ object OptionsForm: TOptionsForm
       Width = 201
       Height = 21
       Style = csDropDownList
-      TabOrder = 14
+      TabOrder = 15
     end
     object HighlightSelTextOccurrencesCheck: TCheckBox
       Left = 8
@@ -304,7 +304,7 @@ object OptionsForm: TOptionsForm
       Width = 265
       Height = 17
       Caption = 'Highlight occurrences of current selection'
-      TabOrder = 9
+      TabOrder = 10
     end
     object HighlightWordAtCursorOccurrencesCheck: TCheckBox
       Left = 8
@@ -312,7 +312,7 @@ object OptionsForm: TOptionsForm
       Width = 265
       Height = 17
       Caption = 'Highlight occurrences of current wor&d'
-      TabOrder = 10
+      TabOrder = 11
     end
     object Label5: TNewStaticText
       Left = 8
@@ -321,7 +321,7 @@ object OptionsForm: TOptionsForm
       Height = 14
       Caption = 'Ke&ys:'
       FocusControl = MemoKeyMappingComboBox
-      TabOrder = 11
+      TabOrder = 12
     end
     object MemoKeyMappingComboBox: TComboBox
       Left = 72
@@ -329,7 +329,7 @@ object OptionsForm: TOptionsForm
       Width = 201
       Height = 21
       Style = csDropDownList
-      TabOrder = 12
+      TabOrder = 13
     end
     object ShowWhiteSpaceCheck: TCheckBox
       Left = 120
@@ -337,7 +337,15 @@ object OptionsForm: TOptionsForm
       Width = 120
       Height = 17
       Caption = 'Show whitespace'
-      TabOrder = 20
+      TabOrder = 21
+    end
+    object SmartHomeCheck: TCheckBox
+      Left = 143
+      Top = 136
+      Width = 130
+      Height = 17
+      Caption = 'Smart Home key'
+      TabOrder = 7
     end
   end
   object OKButton: TButton
