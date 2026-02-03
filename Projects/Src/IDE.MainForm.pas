@@ -131,6 +131,7 @@ type
     TabWidth: Integer;
     UseTabCharacter: Boolean;
     ShowWhiteSpace: Boolean;
+    SmartHome: Boolean;
     UseFolding: Boolean;
     FindRegEx: Boolean;
     WordWrap: Boolean;
@@ -855,6 +856,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       FOptions.TabWidth := Ini.ReadInteger('Options', 'TabWidth', 2);
       FOptions.UseTabCharacter := Ini.ReadBool('Options', 'UseTabCharacter', False);
       FOptions.ShowWhiteSpace := Ini.ReadBool('Options', 'ShowWhiteSpace', False);
+      FOptions.SmartHome := Ini.ReadBool('Options', 'SmartHome', True);
       FOptions.UseFolding := Ini.ReadBool('Options', 'UseFolding', True);
       FOptions.FindRegEx := Ini.ReadBool('Options', 'FindRegEx', False);
       FOptions.WordWrap := Ini.ReadBool('Options', 'WordWrap', False);
@@ -2407,6 +2409,7 @@ begin
       SetFakeShortCut(EBraceMatch, FMainMemo.GetComplexCommandShortCut(ccBraceMatch));
     end;
 
+    Memo.SmartHome := FOptions.SmartHome;
     Memo.UseFolding := FOptions.UseFolding;
     Memo.WordWrap := FOptions.WordWrap;
 
@@ -3825,6 +3828,7 @@ begin
     OptionsForm.TabWidthEdit.Text := IntToStr(FOptions.TabWidth);
     OptionsForm.UseTabCharacterCheck.Checked := FOptions.UseTabCharacter;
     OptionsForm.ShowWhiteSpaceCheck.Checked := FOptions.ShowWhiteSpace;
+    OptionsForm.SmartHomeCheck.Checked := FOptions.SmartHome;
     OptionsForm.UseFoldingCheck.Checked := FOptions.UseFolding;
     OptionsForm.AutoIndentCheck.Checked := FOptions.AutoIndent;
     OptionsForm.IndentationGuidesCheck.Checked := FOptions.IndentationGuides;
@@ -3862,6 +3866,7 @@ begin
     FOptions.TabWidth := StrToInt(OptionsForm.TabWidthEdit.Text);
     FOptions.UseTabCharacter := OptionsForm.UseTabCharacterCheck.Checked;
     FOptions.ShowWhiteSpace := OptionsForm.ShowWhiteSpaceCheck.Checked;
+    FOptions.SmartHome := OptionsForm.SmartHomeCheck.Checked;
     FOptions.UseFolding := OptionsForm.UseFoldingCheck.Checked;
     FOptions.AutoIndent := OptionsForm.AutoIndentCheck.Checked;
     FOptions.IndentationGuides := OptionsForm.IndentationGuidesCheck.Checked;
@@ -3915,6 +3920,7 @@ begin
       Ini.WriteInteger('Options', 'TabWidth', FOptions.TabWidth);
       Ini.WriteBool('Options', 'UseTabCharacter', FOptions.UseTabCharacter);
       Ini.WriteBool('Options', 'ShowWhiteSpace', FOptions.ShowWhiteSpace);
+      Ini.WriteBool('Options', 'SmartHome', FOptions.SmartHome);
       Ini.WriteBool('Options', 'UseFolding', FOptions.UseFolding);
       Ini.WriteBool('Options', 'AutoIndent', FOptions.AutoIndent);
       Ini.WriteBool('Options', 'IndentationGuides', FOptions.IndentationGuides);

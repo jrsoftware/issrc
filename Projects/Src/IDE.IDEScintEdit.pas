@@ -75,6 +75,7 @@ type
       TIDEScintComplexCommandsReversed = TDictionary<TIDEScintComplexCommand, TShortCut>;
     var
       FKeyMappingType: TIDEScintKeyMappingType;
+      FSmartHome: Boolean;
       FComplexCommands: TIDEScintComplexCommands;
       FComplexCommandsReversed: TIDEScintComplexCommandsReversed;
       FUseFolding: Boolean;
@@ -87,7 +88,9 @@ type
         Command: TIDEScintComplexCommand; const AlternativeShortCut: Boolean = False);
       procedure SetUseFolding(const Value: Boolean);
       procedure SetKeyMappingType(const Value: TIDEScintKeyMappingType);
+      procedure SetSmartHome(const Value: Boolean);
       procedure UpdateComplexCommands;
+      procedure UpdateSmartHome;
   protected
     procedure CreateWnd; override;
   public
@@ -107,6 +110,7 @@ type
     procedure UpdateThemeColorsAndStyleAttributes;
   published
     property KeyMappingType: TIDEScintKeyMappingType read FKeyMappingType write SetKeyMappingType default kmtDefault;
+    property SmartHome: Boolean read FSmartHome write SetSmartHome default True;
     property UseFolding: Boolean read FUseFolding write SetUseFolding default True;
   end;
 
@@ -183,6 +187,7 @@ begin
   FComplexCommandsReversed := TIDEScintComplexCommandsReversed.Create;
 
   FKeyMappingType := kmtDefault;
+  FSmartHome := True;
   UpdateComplexCommands;
   FUseFolding := True;
 end;
@@ -348,8 +353,29 @@ begin
     Call(SCI_SETMOUSEMAPPING, Ord(FKeyMappingType = kmtVSCode), 0);
     ClearCmdKey('/', [ssCtrl]); { Will be used by ccToggleLinesComment }
     ClearCmdKey('\', [ssCtrl]);
+    if not FSmartHome then { Scintilla defaults to smart home (VCHOME*) }
+      UpdateSmartHome;
     UpdateComplexCommands;
   end;
+end;
+
+procedure TIDEScintEdit.SetSmartHome(const Value: Boolean);
+begin
+  if FSmartHome <> Value then begin
+    FSmartHome := Value;
+    UpdateSmartHome;
+  end;
+end;
+
+procedure TIDEScintEdit.UpdateSmartHome;
+const
+  Commands: array [Boolean] of array [0..2] of TScintCommand =
+    ((SCI_HOME, SCI_HOMEEXTEND, SCI_HOMERECTEXTEND),
+     (SCI_VCHOME, SCI_VCHOMEEXTEND, SCI_VCHOMERECTEXTEND));
+begin
+  AssignCmdKey(SCK_HOME, [], Commands[FSmartHome][0]);
+  AssignCmdKey(SCK_HOME, [ssShift], Commands[FSmartHome][1]);
+  AssignCmdKey(SCK_HOME, GetRectExtendShiftState(True), Commands[FSmartHome][2]);
 end;
 
 procedure TIDEScintEdit.UpdateComplexCommands;
