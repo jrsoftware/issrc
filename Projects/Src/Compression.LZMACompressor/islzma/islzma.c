@@ -6,17 +6,8 @@
 #include <stddef.h>
 #include <windows.h>
 #include "../../../../Components/Lzma2/Alloc.h"
-#include "../../../../Components/Lzma2/LzmaEnc.h"
-#include "../../../../Components/Lzma2/Lzma2Enc.h"
 #include "islzma.h"
 
-// Private definition of a handle; callers of the DLL should use void*
-struct LZMAHandle {
-	int marker;
-	BOOL LZMA2;
-	CLzmaEncHandle encoder1;
-	CLzma2EncHandle encoder2;
-};
 #define LZMA_HANDLE_MARKER 0x3E1A981F
 #define LZMA_HANDLE_VALID(h) ((h) && (h)->marker == LZMA_HANDLE_MARKER)
 
