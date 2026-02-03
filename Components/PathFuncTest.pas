@@ -218,6 +218,17 @@ begin
   Test('\\a\\\b\\\c', 7, 7, 7, 10);
   Test('\\a\\\b\\\c\\\', 7, 7, 11, 14);
 
+  Test('\\?\C:', 6, 6, 6, 6);
+  Test('\\?\C:\', 6, 7, 7, 7);
+  Test('\\?\C:\a', 6, 7, 7, 7);
+  Test('\\?\C:\a\b', 6, 7, 8, 9);
+  Test('\\.\C:', 6, 6, 6, 6);
+  Test('\\.\C:\a', 6, 7, 7, 7);
+  Test('\\?\UNC\server\share', 20, 20, 20, 20);
+  Test('\\?\UNC\server\share\', 20, 20, 20, 21);
+  Test('\\?\UNC\server\share\dir', 20, 20, 20, 21);
+  Test('\\.\UNC\server\share', 20, 20, 20, 20);
+
   if AlsoTestJapaneseDBCS then begin
     Test('\\'+DBChar+DBChar+'\b', 8, 8, 8, 8);
     Test('\\'+DBChar+DBChar+'\b\c', 8, 8, 8, 9);
