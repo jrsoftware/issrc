@@ -1389,7 +1389,7 @@ begin
   if (Key in [VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN, VK_HOME, VK_END]) then begin
     var Memo := Sender as TIDEScintEdit;
      { Make sure we don't break the special rectangular select shortcuts }
-    if Shift * [ssShift, ssAlt, ssCtrl] <> Memo.GetRectExtendShiftState(True) then begin
+    if Shift * [ssShift, ssAlt, ssCtrl] <> Memo.GetRectExtendShiftState then begin
       if Memo.SelectionMode in [ssmRectangular, ssmThinRectangular] then begin
          { Allow left/right/etc. navigation with rectangular selection, see
            https://sourceforge.net/p/scintilla/feature-requests/1275/ and

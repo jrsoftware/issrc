@@ -101,7 +101,7 @@ type
     property Used: Boolean read FUsed write FUsed;
     function GetComplexCommand(const ShortCut: TShortCut): TIDEScintComplexCommand;
     function GetComplexCommandShortCut(const Command: TIDEScintComplexCommand): TShortCut;
-    function GetRectExtendShiftState(const Desired: Boolean): TShiftState;
+    function GetRectExtendShiftState: TShiftState;
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TIDEScintIndicatorNumber);
     procedure UpdateWidthsAndSizes(const IconMarkersWidth,
@@ -326,12 +326,10 @@ begin
   Result := FComplexCommandsReversed[Command];
 end;
 
-function TIDEScintEdit.GetRectExtendShiftState(
-  const Desired: Boolean): TShiftState;
+function TIDEScintEdit.GetRectExtendShiftState: TShiftState;
 begin
   Result := [ssShift, ssAlt];
-  if ((FKeyMappingType = kmtVSCode) and Desired) or
-     ((FKeyMappingType <> kmtVSCode) and not Desired) then
+  if FKeyMappingType = kmtVSCode then
     Include(Result, ssCtrl);
 end;
 
@@ -375,7 +373,7 @@ const
 begin
   AssignCmdKey(SCK_HOME, [], Commands[FSmartHome][0]);
   AssignCmdKey(SCK_HOME, [ssShift], Commands[FSmartHome][1]);
-  AssignCmdKey(SCK_HOME, GetRectExtendShiftState(True), Commands[FSmartHome][2]);
+  AssignCmdKey(SCK_HOME, GetRectExtendShiftState, Commands[FSmartHome][2]);
 end;
 
 procedure TIDEScintEdit.UpdateComplexCommands;
