@@ -160,7 +160,7 @@ begin
       const IdealHeight = TNewButtonStyleHook.GetIdealHeightIfCommandLink(Self, LStyle);
       if IdealHeight <> 0 then begin
         Height := IdealHeight;
-        Exit(Height- OldHeight);
+        Exit(Height - OldHeight);
       end;
     end;
     {$ENDIF}
