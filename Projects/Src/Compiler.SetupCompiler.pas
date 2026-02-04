@@ -8738,16 +8738,16 @@ begin
     EnumIniSection(EnumLanguagesProc, 'Languages', 0, True, True, '', False, False);
     CallIdleProc;
 
+    { 3. Read [LangOptions] & [Messages] & [CustomMessages] in the script }
+    AddStatus(SCompilerStatusParsingMessages);
+    ReadMessagesFromScript;
+    PopulateLanguageEntryData;
+
     {$IFDEF DEBUG}
     finally
       CompilerDir := SaveCompilerDir;
     end;
     {$ENDIF}
-
-    { 3. Read [LangOptions] & [Messages] & [CustomMessages] in the script }
-    AddStatus(SCompilerStatusParsingMessages);
-    ReadMessagesFromScript;
-    PopulateLanguageEntryData;
 
     { 4. Check 'language completeness' of custom message constants }
     CheckCustomMessageDefinitions;
