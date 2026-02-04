@@ -921,7 +921,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       { Debug options }
       FOptions.ShowCaretPosition := Ini.ReadBool('Options', 'ShowCaretPosition', False);
       if FOptions.ShowCaretPosition then begin
-        StatusBar.Panels[spCaretPos].Width := MulDiv(StatusBar.Panels[spCaretPos].Width, 7, 2);
+        StatusBar.Panels[spCaretPos].Width := 4 * StatusBar.Panels[spCaretPos].Width;
         StatusBar.Panels[spCaretPos].Alignment := taLeftJustify;
       end;
 
@@ -4120,8 +4120,11 @@ begin
     FActiveMemo.CaretColumnExpandedForTabs + 1]);
   if FOptions.ShowCaretPosition then begin
     const CaretPos = FActiveMemo.CaretPosition;
+    const Section = FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]);
     const Style = FActiveMemo.GetStyleAtPosition(CaretPos);
-    Text := Format('%s@%d+%d:%s', [Copy(GetEnumName(TypeInfo(TInnoSetupStylerStyle), Style), 3, MaxInt),
+    Text := Format('%s-%s@%d+%d:%s', [
+      Copy(GetEnumName(TypeInfo(TInnoSetupStylerSection), Ord(Section)), 3, MaxInt),
+      Copy(GetEnumName(TypeInfo(TInnoSetupStylerStyle), Style), 3, MaxInt),
       CaretPos, FActiveMemo.CaretVirtualSpace, Text]);
   end;
   StatusBar.Panels[spCaretPos].Text := Text;
