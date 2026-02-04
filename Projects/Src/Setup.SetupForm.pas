@@ -44,7 +44,7 @@ type
     FOrigClientWidthAfterScale, FOrigClientHeightAfterScale: Integer;
     FSetForeground: Boolean;
     FDidDisableChildControlsStylesAsNeeded: Boolean;
-    class function ShouldDisableControlStylesAsNeeded: Boolean;
+    class function ShouldDisableControlStylesAsNeeded: Boolean; static;
     class procedure DisableControlStyleAsNeeded(const Ctl: TControl); static;
     procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
     procedure WMQueryEndSession(var Message: TWMQueryEndSession); message WM_QUERYENDSESSION;
@@ -68,8 +68,8 @@ type
     constructor CreateNew(AOwner: TComponent; Dummy: Integer = 0); override;
     function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
     procedure InitializeFont(const KeepSizeX: Boolean = False; const KeepSizeY: Boolean = False);
-    class function ScalePixelsX(const OrigBaseUnitX, BaseUnitX, N: Integer): Integer; overload;
-    class function ScalePixelsY(const OrigBaseUnitY, BaseUnitY, N: Integer): Integer; overload;
+    class function ScalePixelsX(const OrigBaseUnitX, BaseUnitX, N: Integer): Integer; overload; static;
+    class function ScalePixelsY(const OrigBaseUnitY, BaseUnitY, N: Integer): Integer; overload; static;
     class procedure SetCtlParent(const AControl: TControl; const AParent: TWinControl); static;
     function ScalePixelsX(const N: Integer): Integer; overload;
     function ScalePixelsY(const N: Integer): Integer; overload;

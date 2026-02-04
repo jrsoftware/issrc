@@ -159,15 +159,15 @@ type
     function CheckMutexes: Boolean;
     procedure Clear;
     class function ExtractRecData(const Rec: PUninstallRec;
-      var Data: array of String): Integer;
+      var Data: array of String): Integer; static;
     function ExtractLatestRecData(const Typ: TUninstallRecTyp;
       const ExtraData: TUninstallRecExtraData; var Data: array of String): Boolean;
     procedure Load(const F: TFile; const Filename: String);
     function PerformUninstall(const CallFromUninstaller: Boolean;
       const DeleteUninstallDataFilesProc: TDeleteUninstallDataFilesProc): Boolean;
     class function WriteSafeHeaderString(Dest: PAnsiChar; const Source: String;
-     MaxDestBytes: Cardinal): Cardinal;
-    class function ReadSafeHeaderString(const Source: AnsiString): String;
+     MaxDestBytes: Cardinal): Cardinal; static;
+    class function ReadSafeHeaderString(const Source: AnsiString): String; static;
     procedure Save(const Filename: String;
       const Append, UpdateUninstallLogAppName: Boolean);
     property List: PUninstallRec read FList;

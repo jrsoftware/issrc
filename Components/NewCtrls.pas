@@ -57,8 +57,8 @@ type
   private
     class function DrawOrMeasureCommandLink(const Draw: Boolean;
       const Control: TNewButton; const LStyle: TCustomStyleServices; const FPressed: Boolean;
-      const ACanvas: TCanvas; const AMouseInControl: Boolean): Integer;
-    class function GetIdealHeightIfCommandLink(const Control: TNewButton; const Style: TCustomStyleServices): Integer;
+      const ACanvas: TCanvas; const AMouseInControl: Boolean): Integer; static;
+    class function GetIdealHeightIfCommandLink(const Control: TNewButton; const Style: TCustomStyleServices): Integer; static;
   protected
     procedure DrawButton(ACanvas: TCanvas; AMouseInControl: Boolean); override;
 {$ENDIF}

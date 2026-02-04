@@ -163,8 +163,8 @@ type
     function GetRawSelText: TScintRawString;
     function GetRawText: TScintRawString;
     function GetReadOnly: Boolean;
-    class function GetReplaceTargetMessage(const ReplaceMode: TScintReplaceMode): Cardinal;
-    class function GetSearchFlags(const Options: TScintFindOptions): Integer;
+    class function GetReplaceTargetMessage(const ReplaceMode: TScintReplaceMode): Cardinal; static;
+    class function GetSearchFlags(const Options: TScintFindOptions): Integer; static;
     function GetSelection: TScintRange;
     function GetSelectionAnchorPosition(Selection: Integer): Integer;
     function GetSelectionAnchorVirtualSpace(Selection: Integer): Integer;
@@ -232,7 +232,7 @@ type
     procedure CheckPosRange(const StartPos, EndPos: Integer);
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
-    class function GetErrorException(const S: String): EScintEditError;
+    class function GetErrorException(const S: String): EScintEditError; static;
     class procedure Error(const S: String); static;
     class procedure ErrorFmt(const S: String; const Args: array of const); static;
     function GetMainSelection: Integer;
@@ -326,14 +326,14 @@ type
     function GetWordStartPosition(const Pos: Integer; const OnlyWordChars: Boolean): Integer;
     function IsPositionInViewVertically(const Pos: Integer): Boolean;
     class function KeyCodeAndShiftToKeyDefinition(const KeyCode: TScintKeyCode;
-      Shift: TShiftState): TScintKeyDefinition;
+      Shift: TShiftState): TScintKeyDefinition; static;
     function MainSelTextEquals(const S: String;
       const Options: TScintFindOptions): Boolean;
-    class function KeyToKeyCode(const Key: AnsiChar): TScintKeyCode;
+    class function KeyToKeyCode(const Key: AnsiChar): TScintKeyCode; static;
     procedure PasteFromClipboard;
     function RawMainSelTextEquals(const S: TScintRawString;
       const Options: TScintFindOptions): Boolean;
-    class function RawStringIsBlank(const S: TScintRawString): Boolean;
+    class function RawStringIsBlank(const S: TScintRawString): Boolean; static;
     procedure Redo;
     procedure RemoveAdditionalSelections;
     function ReplaceMainSelText(const S: String;

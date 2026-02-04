@@ -151,11 +151,11 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    class function GetSectionFromLineState(const LineState: TScintLineState): TInnoSetupStylerSection;
-    class function IsCommentOrKeywordStyle(const Style: TScintStyleNumber): Boolean;
-    class function IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean;
-    class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean;
-    class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
+    class function GetSectionFromLineState(const LineState: TScintLineState): TInnoSetupStylerSection; static;
+    class function IsCommentOrKeywordStyle(const Style: TScintStyleNumber): Boolean; static;
+    class function IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean; static;
+    class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean; static;
+    class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean; static;
     function GetScriptFunctionDefinition(const ClassMember: Boolean;
       const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; overload;
     function GetScriptFunctionDefinition(const ClassMember: Boolean;

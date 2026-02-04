@@ -113,7 +113,7 @@ type
     procedure FlushOutputBuffer(const OnlyOptimalSize: Boolean);
     procedure InitializeProps(const CompressionLevel: Integer;
       const ACompressorProps: TCompressorProps);
-    class function IsObjectSignaled(const AObject: THandle): Boolean;
+    class function IsObjectSignaled(const AObject: THandle): Boolean; static;
     class procedure SatisfyWorkerWait(const AWorkerEvent, AMainEvent: THandle); static;
     procedure SatisfyWorkerWaitOnInput;
     procedure SatisfyWorkerWaitOnOutput;

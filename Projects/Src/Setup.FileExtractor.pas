@@ -2,7 +2,7 @@ unit Setup.FileExtractor;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -32,7 +32,7 @@ type
     FCryptKeySet: Boolean;
     FEntered: Integer;
     procedure DecompressBytes(var Buffer; Count: Cardinal);
-    class function FindSliceFilename(const ASlice: Integer): String;
+    class function FindSliceFilename(const ASlice: Integer): String; static;
     procedure OpenSlice(const ASlice: Integer);
     function ReadProc(var Buf; Count: Cardinal): Cardinal;
     procedure SetCryptKey(const Value: TSetupEncryptionKey);
