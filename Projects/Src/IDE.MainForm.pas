@@ -4110,7 +4110,7 @@ begin
     FActiveMemo.CaretColumnExpandedForTabs + 1]);
   if FOptions.ShowCaretPosition then begin
     const CaretPos = FActiveMemo.CaretPosition;
-    const Section = FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]);
+    const Section = FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine], False);
     const Style = FActiveMemo.GetStyleAtPosition(CaretPos);
     Text := Format('%s-%s@%d+%d:%s', [
       Copy(GetEnumName(TypeInfo(TInnoSetupStylerSection), Ord(Section)), 3, MaxInt),
