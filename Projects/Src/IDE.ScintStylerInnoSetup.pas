@@ -2,7 +2,7 @@ unit IDE.ScintStylerInnoSetup;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -43,6 +43,7 @@ type
     scUnknown,         { Inside an unrecognized section }
     scThirdParty,      { Inside a '_' section (reserved for third-party tools) }
     scCode,
+    scCodeBlock,       { Block headers themselves are still associated with scCode }
     scComponents,
     scCustomMessages,
     scDirs,
@@ -125,7 +126,7 @@ type
     function GetEventFunctionsWordList(Procedures: Boolean): AnsiString;
     function GetFlagsWordList(Section: TInnoSetupStylerSection): AnsiString;
     function GetKeywordsWordList(Section: TInnoSetupStylerSection): AnsiString;
-    procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState);
+    procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState; var CodeBlockHeader: Boolean);
     procedure HandleKeyValueSection(const Section: TInnoSetupStylerSection);
     procedure HandleParameterSection(const ValidParameters: array of TScintRawString);
     procedure HandleCompilerDirective(const InlineDirective: Boolean;
@@ -151,7 +152,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    class function GetSectionFromLineState(const LineState: TScintLineState): TInnoSetupStylerSection; static;
+    class function GetSectionFromLineState(const LineState: TScintLineState; const ReturnCodeBlockAsCode: Boolean = True): TInnoSetupStylerSection; static;
     class function IsCommentOrKeywordStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean; static;
@@ -1004,7 +1005,7 @@ begin
     end tags) get level 0 with header flags for section tags. Other lines
     (=lines inside a section) get level 1. }
 
-  var Section := TInnoSetupStyler.GetSectionFromLineState(LineState);
+  var Section := TInnoSetupStyler.GetSectionFromLineState(LineState, False);
   if Section = scNone then begin
     Level := 0;
     Header := False; { Might be set to True via EnableHeaderOnPrevious below when we know about next line }
@@ -1012,8 +1013,12 @@ begin
   end else begin
     Level := 1;
     Header := False;
-    var PreviousSection := TInnoSetupStyler.GetSectionFromLineState(PreviousLineState);
-    EnableHeaderOnPrevious := PreviousSection = scNone;
+    var PreviousSection := TInnoSetupStyler.GetSectionFromLineState(PreviousLineState, False);
+    if Section = scCodeBlock then begin
+      Inc(Level);
+      EnableHeaderOnPrevious := PreviousSection = scCode;
+    end else
+      EnableHeaderOnPrevious := PreviousSection = scNone;
   end;
 end;
 
@@ -1051,9 +1056,11 @@ begin
 end;
 
 class function TInnoSetupStyler.GetSectionFromLineState(
-  const LineState: TScintLineState): TInnoSetupStylerSection;
+  const LineState: TScintLineState; const ReturnCodeBlockAsCode: Boolean = True): TInnoSetupStylerSection;
 begin
   Result := TInnoSetupStylerLineState(LineState).Section;
+  if ReturnCodeBlockAsCode and (Result = scCodeBlock) then
+    Result := scCode;
 end;
 
 function TInnoSetupStyler.GetSetupSectionDirectiveValueIsMultiValue(
@@ -1117,7 +1124,7 @@ begin
   end;
 end;
 
-procedure TInnoSetupStyler.HandleCodeSection(var SpanState: TInnoSetupStylerSpanState);
+procedure TInnoSetupStyler.HandleCodeSection(var SpanState: TInnoSetupStylerSpanState; var CodeBlockHeader: Boolean);
 
   function FinishConsumingBraceComment: Boolean;
   begin
@@ -1158,6 +1165,8 @@ begin
       var S := ConsumeString(PascalIdentChars);
       for var Word in PascalReservedWords do
         if SameRawText(S, Word) then begin
+          if SameRawText(S, 'function') or SameRawText(S, 'procedure') or SameRawText(S, 'type') then
+            CodeBlockHeader := True; { Global 'var' and 'const' blocks are currently not detected }
           CommitStyle(stPascalReservedWord);
           Break;
         end;
@@ -1619,7 +1628,7 @@ end;
 class function TInnoSetupStyler.IsParamSection(
   const Section: TInnoSetupStylerSection): Boolean;
 begin
-  Result := not (Section in [scCustomMessages, scLangOptions, scMessages, scSetup, scCode]);
+  Result := not (Section in [scCustomMessages, scLangOptions, scMessages, scSetup, scCode, scCodeBlock]);
 end;
 
 class function TInnoSetupStyler.IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
@@ -1803,13 +1812,15 @@ begin
 
   PreStyleInlineISPPDirectives;
 
+  const IsCodeSection = Section in [scCode, scCodeBlock];
+
   SkipWhitespace;
-  if (Section <> scCode) and ConsumeChar(';') then begin
+  if not IsCodeSection and ConsumeChar(';') then begin
     ConsumeAllRemaining;
     CommitStyle(stComment);
   end else if CurCharIs('/') and NextCharIs('/') then begin
     ConsumeAllRemaining;
-    CommitStyleSq(stComment, not ISPPInstalled and (Section <> scCode))
+    CommitStyleSq(stComment, not ISPPInstalled and not IsCodeSection)
   end else if ConsumeChar('[') then begin
     SectionEnd := ConsumeChar('/');
     S := ConsumeString(AlphaUnderscoreChars);
@@ -1827,11 +1838,17 @@ begin
     SquigglifyUntilChars([], stDefault);
   end else if CurCharIs('#') then
     HandleCompilerDirective(False, -1, NewLineState.OpenCompilerDirectivesCount)
-  else begin
+  else if IsCodeSection then begin
+    var CodeBlockHeader := False;
+    HandleCodeSection(NewLineState.SpanState, CodeBlockHeader);
+    if CodeBlockHeader then begin
+      Section := scCode;
+      NewLineState.NextLineSection := scCodeBlock;
+    end;
+  end else begin
     case Section of
       scUnknown: ;
       scThirdParty: ;
-      scCode: HandleCodeSection(NewLineState.SpanState);
       scComponents: HandleParameterSection(ComponentsSectionParameters);
       scCustomMessages: HandleKeyValueSection(Section);
       scDirs: HandleParameterSection(DirsSectionParameters);
