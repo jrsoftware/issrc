@@ -909,7 +909,7 @@ constructor TMainForm.Create(AOwner: TComponent);
         CheckUpdatePanelMessage(Ini, 'Purchase.Renew', 0, CurrentDateAsInt, WarnAgainDateAsInt, { Also see UpdateUpdatePanel }
           Msg, BannerOrange, True);
       end else if LicenseState = lsNotLicensed then begin
-        { Ask about current commercial use, once per month }
+        { Ask about current commercial use, once per six months }
         const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
         const AskAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(IncMonth(Date, 6), -1)).ToInteger; { Also see HUnregisterClick }
         CheckUpdatePanelMessage(Ini, 'Purchase', 0, CurrentDateAsInt, AskAgainDateAsInt, { Also see UpdateUpdatePanel and HUnregisterClick }
