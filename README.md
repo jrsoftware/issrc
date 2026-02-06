@@ -216,32 +216,38 @@ Precompiled executables and libraries
 The source code contains several precompiled and code-signed executables and libraries:
 
 **Files\is7z(-x64).dll**, **Files\is7zxa(-x64).dll**, **Files\is7zxr(-x64).dll** - Compiled by
-Visual Studio 2022 from 7-Zip source code in the [is7z] repository.
+Visual Studio 2022 from 7-Zip source code in the [is7z] repository. Used by Setup.
 
 **Files\isbunzip(-x64).dll**, **Files\isbzip(-x64).dll** - Compiled by Visual Studio 2022
-from the bzlib directory in the [iscompress] repository.
+from the bzlib directory in the [iscompress] repository. Used by Setup and ISCmplr respectively.
 
 **Files\isunzlib(-x64).dll**, **Files\iszlib(-x64).dll** - Compiled by Visual Studio 2022
-from the zlib directory in the [iscompress] repository.
+from the zlib directory in the [iscompress] repository. Used by Setup and ISCmplr respectively.
 
 **Files\islzma(-x64|-Arm64EC).dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
 by Visual Studio 2022 from the [Projects\Src\Compression.LZMACompressor\islzma] directory.
+Used by ISCmplr.
 
 **Files\isscint(-x64).dll** - Compiled by Visual Studio 2022 from Scintilla source
-code in the [isscint] repository.
+code in the [isscint] repository. Used by ISIDE.
 
 **Projects\Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec(-x86|-x64).obj** -
-Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMADecompressor\Lzma2Decode] directory.
+Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMADecompressor\Lzma2Decode]
+directory. Used by Setup.
 
 **Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno(-x86|-x64).obj** -
-Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode] directory.
+Compiled by Visual Studio 2022 from the [Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode]
+directory. Used by SetupLdr.
 
 **Projects\Src\Compression.SevenZipDecoder\7zDecode\IS7zDec(-x86|-x64).obj** -
-Compiled by Visual Studio 2022 from the [Projects\Src\Compression.SevenZipDecoder\7zDecode] directory.
+Compiled by Visual Studio 2022 from the [Projects\Src\Compression.SevenZipDecoder\7zDecode]
+directory. Used by Setup.
 
-**Examples\MyDll(-x64).dll** - Compiled by Delphi 12.3 Athens from the [Examples\MyDll\Delphi] directory.
+**Examples\MyDll(-x64).dll** - Compiled by Delphi 12.3 Athens from the [Examples\MyDll\Delphi]
+directory. Example file, not used by any project.
 
-**Examples\MyProg(-x64|-Arm64).exe** - Compiled by Visual Studio 2022 from the [Examples\MyProg] directory.
+**Examples\MyProg(-x64|-Arm64).exe** - Compiled by Visual Studio 2022 from the [Examples\MyProg]
+directory. Example file, not used by any project.
 
 Each precompiled file is accompanied by an .issig signature file, and can be
 verified using Inno Setup Signature Tool and [this public key file].
