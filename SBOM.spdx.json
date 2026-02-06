@@ -1,0 +1,350 @@
+{
+  "spdxVersion": "SPDX-2.3",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "Inno Setup SBOM",
+  "documentNamespace": "https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json",
+  "comment": "Scope: dependencies for Inno Setup projects (some components are optional).",
+  "creationInfo": {
+    "created": "2026-02-06T00:00:00Z",
+    "creators": [
+      "Organization: JRSoftware"
+    ]
+  },
+  "documentDescribes": [
+    "SPDXRef-Setup",
+    "SPDXRef-SetupCustomStyle",
+    "SPDXRef-SetupLdr",
+    "SPDXRef-ISSigTool",
+    "SPDXRef-ISIDE",
+    "SPDXRef-ISCC",
+    "SPDXRef-ISCmplr",
+    "SPDXRef-ISPP"
+  ],
+  "packages": [
+    {
+      "name": "Inno Setup Setup",
+      "SPDXID": "SPDXRef-Setup",
+      "downloadLocation": "https://github.com/jrsoftware/issrc",
+      "filesAnalyzed": false,
+      "licenseConcluded": "InnoSetup",
+      "licenseDeclared": "InnoSetup",
+      "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "Organization: JRSoftware",
+      "versionInfo": "7.0.0-dev"
+    },
+    {
+      "name": "Inno Setup SetupCustomStyle",
+      "SPDXID": "SPDXRef-SetupCustomStyle",
+      "downloadLocation": "https://github.com/jrsoftware/issrc",
+      "filesAnalyzed": false,
+      "licenseConcluded": "InnoSetup",
+      "licenseDeclared": "InnoSetup",
+      "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "Organization: JRSoftware",
+      "versionInfo": "7.0.0-dev"
+    },
+    {
+      "name": "Inno Setup SetupLdr",
+      "SPDXID": "SPDXRef-SetupLdr",
+      "downloadLocation": "https://github.com/jrsoftware/issrc",
+      "filesAnalyzed": false,
+      "licenseConcluded": "InnoSetup",
+      "licenseDeclared": "InnoSetup",
+      "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "Organization: JRSoftware",
+      "versionInfo": "7.0.0-dev"
+    },
+    {
+      "name": "Inno Setup ISSigTool",
+      "SPDXID": "SPDXRef-ISSigTool",
+      "downloadLocation": "https://github.com/jrsoftware/issrc",
+      "filesAnalyzed": false,
+      "licenseConcluded": "InnoSetup",
+      "licenseDeclared": "InnoSetup",
+      "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "Organization: JRSoftware",
+      "versionInfo": "7.0.0-dev"
+    },
+    {
+      "name": "Inno Setup ISIDE",
+      "SPDXID": "SPDXRef-ISIDE",
+      "downloadLocation": "https://github.com/jrsoftware/issrc",
+      "filesAnalyzed": false,
+      "licenseConcluded": "InnoSetup",
+      "licenseDeclared": "InnoSetup",
+      "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "Organization: JRSoftware",
+      "versionInfo": "7.0.0-dev"
+    },
+    {
+      "name": "Inno Setup ISCC",
+      "SPDXID": "SPDXRef-ISCC",
+      "downloadLocation": "https://github.com/jrsoftware/issrc",
+      "filesAnalyzed": false,
+      "licenseConcluded": "InnoSetup",
+      "licenseDeclared": "InnoSetup",
+      "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
+      "primaryPackagePurpose": "APPLICATION",
+      "supplier": "Organization: JRSoftware",
+      "versionInfo": "7.0.0-dev"
+    },
+    {
+      "name": "Inno Setup ISCmplr",
+      "SPDXID": "SPDXRef-ISCmplr",
+      "downloadLocation": "https://github.com/jrsoftware/issrc",
+      "filesAnalyzed": false,
+      "licenseConcluded": "InnoSetup",
+      "licenseDeclared": "InnoSetup",
+      "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
+      "primaryPackagePurpose": "LIBRARY",
+      "supplier": "Organization: JRSoftware",
+      "versionInfo": "7.0.0-dev"
+    },
+    {
+      "name": "Inno Setup ISPP",
+      "SPDXID": "SPDXRef-ISPP",
+      "downloadLocation": "https://github.com/jrsoftware/issrc",
+      "filesAnalyzed": false,
+      "licenseConcluded": "InnoSetup",
+      "licenseDeclared": "InnoSetup",
+      "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
+      "primaryPackagePurpose": "LIBRARY",
+      "supplier": "Organization: JRSoftware",
+      "versionInfo": "7.0.0-dev",
+      "comment": "Optional feature; used by ISCmplr only."
+    },
+    {
+      "name": "RemObjects Pascal Script",
+      "SPDXID": "SPDXRef-RemObjects-Pascal-Script",
+      "downloadLocation": "https://github.com/remobjects/pascalscript/tree/stable",
+      "filesAnalyzed": false,
+      "licenseConcluded": "LicenseRef-RemObjects-Pascal-Script",
+      "licenseDeclared": "LicenseRef-RemObjects-Pascal-Script",
+      "copyrightText": "Copyright (C) 2000-2014 by Carlo Kok and RemObjects Software, LLC",
+      "supplier": "Organization: RemObjects Software, LLC",
+      "versionInfo": "NOASSERTION",
+      "comment": "Optional feature; tracked as a git submodule and required revision is recorded in the Inno Setup repo.",
+      "sourceInfo": "Submodule path Components/UniPs; revision is recorded via .gitmodules and the repo's submodule metadata."
+    },
+    {
+      "name": "LZMA SDK",
+      "SPDXID": "SPDXRef-LZMA-SDK",
+      "downloadLocation": "https://7-zip.org/sdk.html",
+      "filesAnalyzed": false,
+      "licenseConcluded": "LZMA-SDK-9.22",
+      "licenseDeclared": "LZMA-SDK-9.22",
+      "copyrightText": "Public domain",
+      "supplier": "Person: Igor Pavlov",
+      "versionInfo": "25.01"
+    },
+    {
+      "name": "zlib",
+      "SPDXID": "SPDXRef-zlib",
+      "downloadLocation": "https://github.com/jrsoftware/iscompress",
+      "filesAnalyzed": false,
+      "licenseConcluded": "zlib",
+      "licenseDeclared": "zlib",
+      "copyrightText": "Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler",
+      "supplier": "Person: Jean-loup Gailly and Mark Adler",
+      "versionInfo": "1.3.1",
+      "comment": "Optional compression and decompression; used by Setup via iszlib/isunzlib precompiled libraries. License text in Iscompress/zlib/LICENSE."
+    },
+    {
+      "name": "bzip2 (bzlib)",
+      "SPDXID": "SPDXRef-bzip2",
+      "downloadLocation": "https://github.com/jrsoftware/iscompress",
+      "filesAnalyzed": false,
+      "licenseConcluded": "bzip2-1.0.6",
+      "licenseDeclared": "bzip2-1.0.6",
+      "copyrightText": "Copyright (C) 1996-2019 Julian R Seward",
+      "supplier": "Person: Julian R Seward",
+      "versionInfo": "1.0.8",
+      "comment": "Optional compression and decompression; used by Setup via isbzip/isbunzip precompiled libraries. License text in Iscompress/bzlib/LICENSE."
+    },
+    {
+      "name": "7-Zip",
+      "SPDXID": "SPDXRef-7zip",
+      "downloadLocation": "https://github.com/jrsoftware/is7z",
+      "filesAnalyzed": false,
+      "licenseConcluded": "LGPL-2.1-or-later AND LicenseRef-unRAR-restriction AND BSD-3-Clause AND BSD-2-Clause AND LicenseRef-7zip-Public-Domain",
+      "licenseDeclared": "LGPL-2.1-or-later AND LicenseRef-unRAR-restriction AND BSD-3-Clause AND BSD-2-Clause AND LicenseRef-7zip-Public-Domain",
+      "copyrightText": "Copyright (C) 1999-2025 Igor Pavlov",
+      "supplier": "Person: Igor Pavlov",
+      "versionInfo": "25.01",
+      "comment": "Optional decompression; is7z/is7zxa/is7zxr DLLs are compiled from 7-Zip source code (see README.md). License details in Is7z/DOC/License.txt describe LGPL-2.1-or-later with unRAR restriction, plus BSD-3-Clause/BSD-2-Clause and public domain files."
+    },
+    {
+      "name": "Scintilla",
+      "SPDXID": "SPDXRef-Scintilla",
+      "downloadLocation": "https://github.com/jrsoftware/isscint",
+      "filesAnalyzed": false,
+      "licenseConcluded": "LicenseRef-Scintilla",
+      "licenseDeclared": "LicenseRef-Scintilla",
+      "copyrightText": "Copyright 1998-2021 by Neil Hodgson",
+      "supplier": "Person: Neil Hodgson",
+      "versionInfo": "5.5.8",
+      "comment": "Used by ISIDE via isscint DLL. License text in Isscint/License.txt."
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Setup"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-SetupCustomStyle"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-SetupLdr"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-ISSigTool"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-ISIDE"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-ISCC"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-ISCmplr"
+    },
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-ISPP"
+    },
+    {
+      "spdxElementId": "SPDXRef-ISIDE",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Scintilla"
+    },
+    {
+      "spdxElementId": "SPDXRef-ISIDE",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-ISCmplr"
+    },
+    {
+      "spdxElementId": "SPDXRef-ISCC",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-ISCmplr"
+    },
+    {
+      "spdxElementId": "SPDXRef-ISCmplr",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-RemObjects-Pascal-Script"
+    },
+    {
+      "spdxElementId": "SPDXRef-ISCmplr",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-LZMA-SDK"
+    },
+    {
+      "spdxElementId": "SPDXRef-ISCmplr",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-zlib"
+    },
+    {
+      "spdxElementId": "SPDXRef-ISCmplr",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-bzip2"
+    },
+    {
+      "spdxElementId": "SPDXRef-ISCmplr",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-ISPP"
+    },
+    {
+      "spdxElementId": "SPDXRef-SetupLdr",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-LZMA-SDK"
+    },
+    {
+      "spdxElementId": "SPDXRef-Setup",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-RemObjects-Pascal-Script"
+    },
+    {
+      "spdxElementId": "SPDXRef-SetupCustomStyle",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-RemObjects-Pascal-Script"
+    },
+    {
+      "spdxElementId": "SPDXRef-Setup",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-LZMA-SDK"
+    },
+    {
+      "spdxElementId": "SPDXRef-SetupCustomStyle",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-LZMA-SDK"
+    },
+    {
+      "spdxElementId": "SPDXRef-Setup",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-zlib"
+    },
+    {
+      "spdxElementId": "SPDXRef-SetupCustomStyle",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-zlib"
+    },
+    {
+      "spdxElementId": "SPDXRef-Setup",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-bzip2"
+    },
+    {
+      "spdxElementId": "SPDXRef-SetupCustomStyle",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-bzip2"
+    },
+    {
+      "spdxElementId": "SPDXRef-Setup",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-7zip"
+    },
+    {
+      "spdxElementId": "SPDXRef-SetupCustomStyle",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-7zip"
+    }
+  ],
+  "hasExtractedLicensingInfos": [
+    {
+      "licenseId": "LicenseRef-RemObjects-Pascal-Script",
+      "extractedText": "RemObjects Pascal Script\nCreated By Carlo Kok\nck@remobjects.com\n\nCopyright (C) 2000-2014 by Carlo Kok and RemObjects Software, LLC\n\nThis software is provided 'as-is', without any expressed or implied warranty. In no event will the author be held liable for any damages arising from the use of this software.\nPermission is granted to anyone to use this software for any kind of application, and to alter it and redistribute it freely, subject to the following restrictions:\n\n1. The origin of this software must not be misrepresented, you must not claim that you wrote the original software.\n2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.\n3. You must have a visible line in your programs aboutbox or documentation that it is made using RemObjects Pascal Script and where RemObjects Pascal Script can be found.\n4. This notice may not be removed or altered from any source distribution.\n\nIf you have any questions concerning this license contact info@remobjects.com\n\nCarlo Kok, RemObjects Software"
+    },
+    {
+      "licenseId": "LicenseRef-Scintilla",
+      "extractedText": "License for Lexilla, Scintilla, and SciTE\n\nCopyright 1998-2021 by Neil Hodgson <neilh@scintilla.org>\n\nAll Rights Reserved\n\nPermission to use, copy, modify, and distribute this software and its\ndocumentation for any purpose and without fee is hereby granted,\nprovided that the above copyright notice appear in all copies and that\nboth that copyright notice and this permission notice appear in\nsupporting documentation.\n\nNEIL HODGSON DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY\nAND FITNESS, IN NO EVENT SHALL NEIL HODGSON BE LIABLE FOR ANY\nSPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,\nWHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER\nTORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE\nOR PERFORMANCE OF THIS SOFTWARE."
+    },
+    {
+      "licenseId": "LicenseRef-unRAR-restriction",
+      "extractedText": "The decompression engine for RAR archives was developed using source\ncode of unRAR program.\nAll copyrights to original unRAR code are owned by Alexander Roshal.\n\nThe license for original unRAR code has the following restriction:\n\n  The unRAR sources cannot be used to re-create the RAR compression algorithm,\n  which is proprietary. Distribution of modified unRAR sources in separate form\n  or as a part of other software is permitted, provided that it is clearly\n  stated in the documentation and source comments that the code may\n  not be used to develop a RAR (WinRAR) compatible archiver."
+    },
+    {
+      "licenseId": "LicenseRef-7zip-Public-Domain",
+      "extractedText": "Some files are public domain files, if public domain status is stated in the source file."
+    }
+  ]
+}
