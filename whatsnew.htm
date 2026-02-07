@@ -84,6 +84,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>64-bit type libraries (.tlb) can now only be (un)registered by 64-bit installers, and 32-bit type libraries only by 32-bit installers.<br/>
       Support for (un)registering 64-bit type libraries from a 32-bit installer has been dropped.</li>
   <li><tt>{sysnative}</tt> is not accessible to 64-bit installers or any other 64-bit applications, so use its value only to, for example, pass it to a 32-bit application.</li>
+  <li>For the moment, 64-bit installers still require WOW64 to be present, so running on Windows Server Core without WOW64 is not yet supported.</li>
 </ul>
 
 <p>Related changes made in both editions:</p>
