@@ -169,12 +169,12 @@ type
     FSavedFatalException: TObject;
     function CheckTerminateWorkerEvent: HRESULT;
     function FillBuffer(const AWrite: Boolean; const Data: Pointer;
-      Size: Cardinal; var ProcessedSize: Cardinal): HRESULT;
+      Size: NativeUInt; var ProcessedSize: NativeUInt): HRESULT;
     function ProgressMade(const TotalBytesProcessed: UInt64): HRESULT;
-    function Read(var Data; Size: Cardinal; var ProcessedSize: Cardinal): HRESULT;
+    function Read(var Data; Size: NativeUInt; var ProcessedSize: NativeUInt): HRESULT;
     function WakeMainAndWaitUntil(const AWakeEvent, AWaitEvent: THandle): HRESULT;
     procedure WorkerThreadProc;
-    function Write(const Data; Size: Cardinal; var ProcessedSize: Cardinal): HRESULT;
+    function Write(const Data; Size: NativeUInt; var ProcessedSize: NativeUInt): HRESULT;
   public
     constructor Create(const AEvents: PLZMACompressorSharedEvents); override;
     destructor Destroy; override;
@@ -205,12 +205,12 @@ type
 
   PLZMASeqInStream = ^TLZMASeqInStream;
   TLZMASeqInStream = record
-    Read: function(p: PLZMASeqInStream; var buf; var size: Cardinal): TLZMASRes; stdcall;
+    Read: function(p: PLZMASeqInStream; var buf; var size: NativeUInt): TLZMASRes; stdcall;
     Instance: TLZMAWorkerThread;
   end;
   PLZMASeqOutStream = ^TLZMASeqOutStream;
   TLZMASeqOutStream = record
-    Write: function(p: PLZMASeqOutStream; const buf; size: Cardinal): Cardinal; stdcall;
+    Write: function(p: PLZMASeqOutStream; const buf; size: NativeUInt): NativeUInt; stdcall;
     Instance: TLZMAWorkerThread;
   end;
   PLZMACompressProgress = ^TLZMACompressProgress;
@@ -225,7 +225,7 @@ var
   LZMA_Init: function(LZMA2: BOOL; var handle: TLZMACompressorHandle): TLZMASRes;
     stdcall;
   LZMA_SetProps: function(handle: TLZMACompressorHandle;
-    const encProps: TLZMAEncoderProps; encPropsSize: Cardinal): TLZMASRes; stdcall;
+    const encProps: TLZMAEncoderProps; encPropsSize: NativeUInt): TLZMASRes; stdcall;
   LZMA_Encode: function(handle: TLZMACompressorHandle;
     const inStream: TLZMASeqInStream; const outStream: TLZMASeqOutStream;
     const progress: TLZMACompressProgress): TLZMASRes; stdcall;
@@ -301,7 +301,7 @@ begin
 end;
 
 function LZMASeqInStreamReadWrapper(p: PLZMASeqInStream; var buf;
-  var size: Cardinal): TLZMASRes; stdcall;
+  var size: NativeUInt): TLZMASRes; stdcall;
 begin
   if p.Instance.Read(buf, size, size) = S_OK then
     Result := SZ_OK
@@ -310,7 +310,7 @@ begin
 end;
 
 function LZMASeqOutStreamWriteWrapper(p: PLZMASeqOutStream; const buf;
-  size: Cardinal): Cardinal; stdcall;
+  size: NativeUInt): NativeUInt; stdcall;
 begin
   if p.Instance.Write(buf, size, Result) <> S_OK then
     Result := 0;
@@ -584,7 +584,7 @@ begin
 end;
 
 function TLZMAWorkerThread.FillBuffer(const AWrite: Boolean;
-  const Data: Pointer; Size: Cardinal; var ProcessedSize: Cardinal): HRESULT;
+  const Data: Pointer; Size: NativeUInt; var ProcessedSize: NativeUInt): HRESULT;
 { Called from worker thread (or a thread spawned by the worker thread) }
 var
   P: ^Byte;
@@ -636,8 +636,8 @@ begin
   Result := S_OK;
 end;
 
-function TLZMAWorkerThread.Read(var Data; Size: Cardinal;
-  var ProcessedSize: Cardinal): HRESULT;
+function TLZMAWorkerThread.Read(var Data; Size: NativeUInt;
+  var ProcessedSize: NativeUInt): HRESULT;
 { Called from worker thread (or a thread spawned by the worker thread) }
 begin
   { Sanity check: Make sure we're the only thread inside Read }
@@ -649,8 +649,8 @@ begin
   InterlockedExchange(FReadLock, 0);
 end;
 
-function TLZMAWorkerThread.Write(const Data; Size: Cardinal;
-  var ProcessedSize: Cardinal): HRESULT;
+function TLZMAWorkerThread.Write(const Data; Size: NativeUInt;
+  var ProcessedSize: NativeUInt): HRESULT;
 { Called from worker thread (or a thread spawned by the worker thread) }
 begin
   { Sanity check: Make sure we're the only thread inside Write }
