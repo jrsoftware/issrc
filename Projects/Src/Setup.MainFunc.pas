@@ -3632,6 +3632,12 @@ begin
     end;
   end;
 
+  {$IFDEF WIN64}
+  { Check for WOW64, at least until we add safeguards to run safely without it }
+  if not (paX86 in MachineTypesSupportedBySystem) then
+     AbortInit(msgWindowsVersionNotSupported);
+  {$ENDIF}
+
   { Check unsupported Itanium - must be on Windows Server 2008 R2 so remove once
     this becomes unsupported as well and Windows 8 (6.2+) becomes the new minimum }
   var SysInfo: TSystemInfo;
