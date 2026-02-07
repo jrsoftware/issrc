@@ -3,7 +3,7 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "Inno Setup SBOM",
-  "documentNamespace": "https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json",
+  "documentNamespace": "https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json#7.0.0-dev",
   "comment": "Scope: dependencies for Inno Setup projects (some components are optional).",
   "creationInfo": {
     "created": "2026-02-06T00:00:00Z",
@@ -144,6 +144,18 @@
       "versionInfo": "25.01"
     },
     {
+      "name": "LZMA SDK (Size-optimized)",
+      "SPDXID": "SPDXRef-LZMA-SDK-Size",
+      "downloadLocation": "https://github.com/jrsoftware/issrc/tree/main/Projects/Src/Compression.LZMA1SmallDecompressor/LzmaDecode",
+      "filesAnalyzed": false,
+      "licenseConcluded": "LicenseRef-LZMA-SDK-4.40-Size-Exception AND LicenseRef-LZMA-SDK-4.40-Public-Domain",
+      "licenseDeclared": "LicenseRef-LZMA-SDK-4.40-Size-Exception AND LicenseRef-LZMA-SDK-4.40-Public-Domain",
+      "copyrightText": "Copyright (C) 1999-2006 Igor Pavlov",
+      "supplier": "Person: Igor Pavlov",
+      "versionInfo": "4.40",
+      "comment": "Optimized-for-size decoder (LzmaDecodeSize.c, LzmaDecode.h) plus LzmaTypes.h which is public domain."
+    },
+    {
       "name": "zlib",
       "SPDXID": "SPDXRef-zlib",
       "downloadLocation": "https://github.com/jrsoftware/iscompress",
@@ -276,7 +288,7 @@
     {
       "spdxElementId": "SPDXRef-SetupLdr",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-LZMA-SDK"
+      "relatedSpdxElement": "SPDXRef-LZMA-SDK-Size"
     },
     {
       "spdxElementId": "SPDXRef-Setup",
@@ -345,6 +357,14 @@
     {
       "licenseId": "LicenseRef-7zip-Public-Domain",
       "extractedText": "Some files are public domain files, if public domain status is stated in the source file."
+    },
+    {
+      "licenseId": "LicenseRef-LZMA-SDK-4.40-Size-Exception",
+      "extractedText": "LZMA Decoder (optimized for Size version)\n\nLZMA SDK 4.40 Copyright (c) 1999-2006 Igor Pavlov (2006-05-01)\nhttp://www.7-zip.org/\n\nLZMA SDK is licensed under two licenses:\n1) GNU Lesser General Public License (GNU LGPL)\n2) Common Public License (CPL)\nIt means that you can select one of these two licenses and follow rules of that license.\n\nSPECIAL EXCEPTION:\nIgor Pavlov, as the author of this code, expressly permits you to statically or dynamically link your code (or bind by name) to the interfaces of this file without subjecting your linked code to the terms of the CPL or GNU LGPL. Any modifications or additions to this file, however, are subject to the LGPL or CPL terms."
+    },
+    {
+      "licenseId": "LicenseRef-LZMA-SDK-4.40-Public-Domain",
+      "extractedText": "Types for LZMA Decoder\n\nThis file written and distributed to public domain by Igor Pavlov.\nThis file is part of LZMA SDK 4.40 (2006-05-01)"
     }
   ]
 }
