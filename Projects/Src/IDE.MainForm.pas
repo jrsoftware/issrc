@@ -891,6 +891,10 @@ constructor TMainForm.Create(AOwner: TComponent);
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
         'VS Code-style editor shortcuts added! Use the <a id="toptions-vscode">Editor Keys option</a> in Options dialog.',
         BannerBlue, True);
+      if FormatDateTime('yyyymm', Date) = '202604' then
+        CheckUpdatePanelMessage(Ini, 'Ideas202604', 0, 1,
+          '<a id="ideas">Ideas board is open!</a> Share your ideas and vote on others, this month only.',
+          BannerBlue, True);
       const LicenseState = GetLicenseState;
       if LicenseState = lsExpiredButUpdated then begin
         { Complain twice per day }
@@ -6539,7 +6543,8 @@ begin
   else if Link = 'toptions-vscode' then begin
     TOptionsForm.DropDownMemoKeyMappingComboBoxOnNextShow := True;
     TOptions.Click
-  end;
+  end else if Link = 'ideas' then
+    LaunchFileOrURL('https://ideas.innosetup.nl');
 end;
 
 procedure TMainForm.UpdatePanelCloseBitBtnClick(Sender: TObject);
