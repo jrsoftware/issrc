@@ -826,12 +826,7 @@ begin
   if RestartSystem then begin
     if not Debugging then begin
       Log('Restarting Windows.');
-      RestartInitiatedByThisProcess := True;
-      if not RestartComputer then begin
-        LoggedMsgBox(PChar(SetupMessages[msgErrorRestartingComputer]),
-          PChar(SetupMessages[msgErrorTitle]), MB_OK or MB_ICONEXCLAMATION,
-          True, IDOK);
-      end;
+      RestartComputerFromThisProcess;
     end
     else
       Log('Not restarting Windows because Uninstall is being run from the debugger.');

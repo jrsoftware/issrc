@@ -228,6 +228,7 @@ function PreviousInstallCompleted(const WizardComponents, WizardTasks: TStringLi
 function CodeRegisterExtraCloseApplicationsResource(const AFilename: String): Boolean;
 procedure RegisterResourcesWithRestartManager(const WizardComponents, WizardTasks: TStringList);
 procedure RemoveTempInstallDir;
+procedure RestartComputerFromThisProcess;
 procedure SaveInf(const FileName: String);
 procedure SaveResourceToTempFile(const ResName, Filename: String);
 procedure SetActiveLanguage(const I: Integer);
