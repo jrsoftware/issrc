@@ -2438,10 +2438,6 @@ begin
     ActiveInfoAfterText := SetupHeader.InfoAfterText;
 
   SetMessageBoxRightToLeft(LangOptions.RightToLeft);
-  SetMessageBoxCaption(mbInformation, PChar(SetupMessages[msgInformationTitle]));
-  SetMessageBoxCaption(mbConfirmation, PChar(SetupMessages[msgConfirmTitle]));
-  SetMessageBoxCaption(mbError, PChar(SetupMessages[msgErrorTitle]));
-  SetMessageBoxCaption(mbCriticalError, PChar(SetupMessages[msgErrorTitle]));
   Application.Title := SetupMessages[msgSetupAppTitle];
 
   for var J := 0 to Entries[seType].Count-1 do begin

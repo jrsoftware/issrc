@@ -2,7 +2,7 @@ unit Shared.CommonFunc.Vcl;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -50,8 +50,6 @@ function MsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal): Integer; overload;
 function MsgBoxFmt(const Text: String; const Args: array of const;
   const Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal): Integer;
-procedure SetMessageBoxCaption(const Typ: TMsgBoxType; const NewCaption: PChar);
-function GetMessageBoxCaption(const Caption: PChar; const Typ: TMsgBoxType): PChar;
 procedure SetMessageBoxRightToLeft(const ARightToLeft: Boolean);
 function GetMessageBoxRightToLeft: Boolean;
 procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: NativeInt);
@@ -73,7 +71,6 @@ uses
   Shared.CommonFunc;
 
 var
-  MessageBoxCaptions: array[TMsgBoxType] of PChar;
   MessageBoxRightToLeft: Boolean;
   MessageBoxCallbackFunc: TMsgBoxCallbackFunc;
   MessageBoxCallbackParam: NativeInt;
@@ -183,27 +180,6 @@ begin
     end;
   finally
     ReleaseDC(0, DC);
-  end;
-end;
-
-procedure SetMessageBoxCaption(const Typ: TMsgBoxType; const NewCaption: PChar);
-begin
-  StrDispose(MessageBoxCaptions[Typ]);
-  MessageBoxCaptions[Typ] := nil;
-  if Assigned(NewCaption) then
-    MessageBoxCaptions[Typ] := StrNew(NewCaption);
-end;
-
-function GetMessageBoxCaption(const Caption: PChar; const Typ: TMsgBoxType): PChar;
-const
- DefaultCaptions: array[TMsgBoxType] of PChar =
-   ('Information', 'Confirm', 'Error', 'Error');
-begin
-  Result := Caption;
-  if (Result = nil) or (Result[0] = #0) then begin
-    Result := MessageBoxCaptions[Typ];
-    if Result = nil then
-      Result := DefaultCaptions[Typ];
   end;
 end;
 
@@ -483,23 +459,16 @@ const
   IconFlags: array[TMsgBoxType] of Cardinal =
     (MB_ICONINFORMATION, MB_ICONQUESTION, MB_ICONEXCLAMATION, MB_ICONSTOP);
 begin
-  Result := MsgBox(PChar(Text), GetMessageBoxCaption(PChar(Caption), Typ), Buttons or IconFlags[Typ]);
+  var NewCaption := Caption;
+  if NewCaption = '' then
+    NewCaption := Application.Title;
+  Result := MsgBox(PChar(Text), PChar(NewCaption), Buttons or IconFlags[Typ]);
 end;
 
 function MsgBoxFmt(const Text: String; const Args: array of const;
   const Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal): Integer;
 begin
   Result := MsgBox(Format(Text, Args), Caption, Typ, Buttons);
-end;
-
-procedure FreeCaptions; far;
-var
-  T: TMsgBoxType;
-begin
-  for T := Low(T) to High(T) do begin
-    StrDispose(MessageBoxCaptions[T]);
-    MessageBoxCaptions[T] := nil;
-  end;
 end;
 
 { TWindowDisabler }
@@ -596,7 +565,4 @@ begin
   FCurrentPPI := CurrentPPI;
 end;
 
-initialization
-finalization
-  FreeCaptions;
 end.

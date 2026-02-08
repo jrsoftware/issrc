@@ -61,7 +61,6 @@ procedure NoUninstallFuncError(const C: AnsiString); overload;
 procedure OnlyUninstallFuncError(const C: AnsiString); overload;
 function GetWizardForm: TWizardForm;
 function GetUninstallProgressForm: TUninstallProgressForm;
-function GetMsgBoxCaption: String;
 procedure InitializeScaleBaseUnits;
 function IsProtectedSrcExe(const Filename: String): Boolean;
 function LogFmtHelper(const S: String; const Args: array of const): String;
@@ -130,17 +129,6 @@ begin
   Result := UninstallProgressForm;
   if Result = nil then
     InternalError('An attempt was made to access UninstallProgressForm before it has been created');
-end;
-
-function GetMsgBoxCaption: String;
-var
-  ID: TSetupMessageID;
-begin
-  if IsUninstaller then
-    ID := msgUninstallAppTitle
-  else
-    ID := msgSetupAppTitle;
-  Result := SetupMessages[ID];
 end;
 
 var

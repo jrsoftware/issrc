@@ -1266,7 +1266,7 @@ var
         Suppressible := True;
         Default := Stack.GetInt(PStart-4);
       end;
-      Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-2)), Cardinal(Stack.GetInt(PStart-3)), Suppressible, Default));
+      Stack.SetInt(PStart, LoggedMsgBox(Stack.GetString(PStart-1), '', TMsgBoxType(Stack.GetInt(PStart-2)), Cardinal(Stack.GetInt(PStart-3)), Suppressible, Default));
     end);
     RegisterScriptFunc(['TaskDialogMsgBox', 'SuppressibleTaskDialogMsgBox'], procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -1280,7 +1280,7 @@ var
         Default := Stack.GetInt(PStart-7);
       end;
       var ButtonLabels := Stack.GetStringArray(PStart-5);
-      Stack.SetInt(PStart, LoggedTaskDialogMsgBox('', Stack.GetString(PStart-1), Stack.GetString(PStart-2), GetMsgBoxCaption, TMsgBoxType(Stack.GetInt(PStart-3)), Cardinal(Stack.GetInt(PStart-4)), ButtonLabels, Stack.GetInt(PStart-6), Suppressible, Default));
+      Stack.SetInt(PStart, LoggedTaskDialogMsgBox('', Stack.GetString(PStart-1), Stack.GetString(PStart-2), '', TMsgBoxType(Stack.GetInt(PStart-3)), Cardinal(Stack.GetInt(PStart-4)), ButtonLabels, Stack.GetInt(PStart-6), Suppressible, Default));
     end);
     RegisterScriptFunc('ISWIN64', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin

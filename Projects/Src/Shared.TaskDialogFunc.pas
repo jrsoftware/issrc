@@ -2,7 +2,7 @@ unit Shared.TaskDialogFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -204,7 +204,9 @@ begin
     DoInternalError('TaskDialogMsgBox: Invalid ButtonLabels');
 
   { Go }
-  const MessageBoxCaption = GetMessageBoxCaption(PChar(Caption), Typ);
+  var MessageBoxCaption := Caption;
+  if MessageBoxCaption = '' then
+    MessageBoxCaption := Application.Title;
   const TriggerMessageBoxCallbackFuncFlags = Cardinal(IfThen(Typ in [mbError, mbCriticalError], MB_ICONSTOP, 0));
 
   {$IFDEF USETASKDIALOGFORM}
@@ -220,7 +222,7 @@ begin
   {$ENDIF}
 
   if not DoTaskDialog(GetOwnerWndForMessageBox, PChar(Instruction), PChar(Text),
-           MessageBoxCaption, IconP, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
+           PChar(MessageBoxCaption), IconP, TDCommonButtons, ButtonLabels, ButtonIDs, ShieldButton,
            GetMessageBoxRightToLeft, TriggerMessageBoxCallbackFuncFlags, Result, PChar(VerificationText), pfVerificationFlagChecked) then //note that MB_ICONEXCLAMATION (used by mbError) includes MB_ICONSTOP (used by mbCriticalError)
     Result := 0;
 end;

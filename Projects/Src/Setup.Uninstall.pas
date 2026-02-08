@@ -878,10 +878,6 @@ begin
     SetupHeader.WizardBackColorDynamicDark := MessagesLangOptions.WizardBackColorDynamicDark;
     SetupHeader.WizardLightControlStyling := MessagesLangOptions.WizardLightControlStyling;
     SetMessageBoxRightToLeft(LangOptions.RightToLeft);
-    SetMessageBoxCaption(mbInformation, PChar(SetupMessages[msgInformationTitle]));
-    SetMessageBoxCaption(mbConfirmation, PChar(SetupMessages[msgConfirmTitle]));
-    SetMessageBoxCaption(mbError, PChar(SetupMessages[msgErrorTitle]));
-    SetMessageBoxCaption(mbCriticalError, PChar(SetupMessages[msgErrorTitle]));
     Application.Title := SetupMessages[msgUninstallAppTitle];
 
     { Verify that uninstall data file exists }
