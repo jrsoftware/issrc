@@ -63,8 +63,6 @@ SetupArchitecture={#arch}
 
 [Messages]
 HelpTextNote=/PORTABLE=1%nEnable portable mode.
-; Two "Setup" on the same line looks weird, so put a line break in between
-english.WelcomeLabel1=Welcome to the Inno Setup%nSetup Wizard
 
 [Tasks]
 Name: desktopicon; Description: "{cm:CreateDesktopIcon}"; Flags: unchecked; Check: not PortableCheck
