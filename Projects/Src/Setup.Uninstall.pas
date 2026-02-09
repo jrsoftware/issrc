@@ -600,6 +600,15 @@ begin
 
     Title := FmtSetupMessage1(msgUninstallAppFullTitle, UninstLog.AppName);
 
+    {$IFDEF WIN64}
+    { See Setup.MainFunc }
+    if not (paX86 in MachineTypesSupportedBySystem) then begin
+      LoggedMsgBox(PChar(SetupMessages[msgWindowsVersionNotSupported]), PChar(Title),
+        MB_OK or MB_ICONEXCLAMATION, True, IDOK);
+      Abort;
+    end;
+    {$ENDIF}
+
     { If install was done in Win64, verify that we're still running Win64.
       This test shouldn't fail unless the user somehow downgraded their
       Windows version, or they're running an uninstaller from another machine

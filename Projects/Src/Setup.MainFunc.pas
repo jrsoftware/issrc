@@ -3629,7 +3629,8 @@ begin
   end;
 
   {$IFDEF WIN64}
-  { Check for WOW64, at least until we add safeguards to run safely without it }
+  { Check for WOW64, at least until we add safeguards to run safely without it.
+    Also see Setup.Uninstall. }
   if not (paX86 in MachineTypesSupportedBySystem) then
      AbortInit(msgWindowsVersionNotSupported);
   {$ENDIF}
