@@ -1794,19 +1794,19 @@ procedure TInnoSetupStyler.StyleNeeded;
     end;
   end;
 
-var
-  NewLineState: TInnoSetupStylerLineState;
-  Section, NewSection: TInnoSetupStylerSection;
-  SectionEnd: Boolean;
-  S: TScintRawString;
+  function CheckSectionEnd(const NewSection, Section: TInnoSetupStylerSection): Boolean;
+  begin
+    Result := (NewSection = Section) or ((NewSection = scCode) and (Section = scCodeBlock));
+  end;
+
 begin
-  NewLineState := TInnoSetupStylerLineState(LineState);
+  var NewLineState := TInnoSetupStylerLineState(LineState);
   if NewLineState.NextLineSection <> scNone then begin
     { Previous line started a section }
     NewLineState.Section := NewLineState.NextLineSection;
     NewLineState.NextLineSection := scNone;
   end;
-  Section := NewLineState.Section;
+  var Section := NewLineState.Section;
 
   PreStyleInlineISPPDirectives;
 
@@ -1820,13 +1820,13 @@ begin
     ConsumeAllRemaining;
     CommitStyleSq(stComment, not ISPPInstalled and not IsCodeSection)
   end else if ConsumeChar('[') then begin
-    SectionEnd := ConsumeChar('/');
-    S := ConsumeString(AlphaUnderscoreChars);
+    const SectionEnd = ConsumeChar('/');
+    const S = ConsumeString(AlphaUnderscoreChars);
     if ConsumeChar(']') then begin
-      NewSection := MapSectionNameString(S);
+      const NewSection = MapSectionNameString(S);
       { Unknown section names and erroneously-placed end tags get squigglified }
       CommitStyleSq(stSection, (NewSection = scUnknown) or
-        (SectionEnd and (NewSection <> Section)));
+        (SectionEnd and not CheckSectionEnd(NewSection, Section)));
       if not SectionEnd then
         NewLineState.NextLineSection := NewSection;
     end else
