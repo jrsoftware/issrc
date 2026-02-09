@@ -75,3 +75,4 @@ begin
   MailBitmapButton.OnClick := @MailBitmapButtonOnClick;
   MailBitmapButton.Parent := WizardForm;
 end;
+[/Code]

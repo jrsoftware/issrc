@@ -7,3 +7,4 @@
 procedure Debug2_InitializeWizard;
 begin
 end;
+[/Code]

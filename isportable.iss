@@ -32,3 +32,4 @@ function IsPortableShouldSkipPage(PageID: Integer): Boolean;
 begin
   Result := (PageID = wpSelectProgramGroup) and PortableCheck;
 end;
+[/Code]
