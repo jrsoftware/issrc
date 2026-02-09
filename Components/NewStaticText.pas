@@ -21,6 +21,7 @@ uses
 type
   TNewStaticText = class(TWinControl)
   private
+    FAlignment: TAlignment;
     FAutoSize: Boolean;
     FFocusControl: TWinControl;
     FForceLTRReading: Boolean;
@@ -42,6 +43,7 @@ type
     procedure AdjustBounds;
     function CalcBounds: TPoint;
     function GetDrawTextFlags: UINT;
+    procedure SetAlignment(Value: TAlignment);
     procedure SetFocusControl(Value: TWinControl);
     procedure SetForceLTRReading(Value: Boolean);
     procedure SetShowAccelChar(Value: Boolean);
@@ -58,6 +60,8 @@ type
     function AdjustHeight: Integer;
   published
     property Align;
+    property Alignment: TAlignment read FAlignment write SetAlignment
+      default taLeftJustify;
     property Anchors;
     property AutoSize: Boolean read FAutoSize write SetAutoSize default True;
     property Caption;
@@ -140,18 +144,19 @@ begin
 end;
 
 procedure TNewStaticText.CreateParams(var Params: TCreateParams);
+const
+  Alignments: array[Boolean, TAlignment] of DWORD =
+    ((SS_LEFT, SS_RIGHT, SS_CENTER), (SS_RIGHT, SS_LEFT, SS_CENTER));
 begin
   inherited CreateParams(Params);
   CreateSubClass(Params, 'STATIC');
   with Params do
   begin
-    Style := Style or SS_NOTIFY;
-    if ExStyle and WS_EX_RIGHT = 0 then begin
-      { Quirk: No style is set for WordWrap=False in RTL mode; WS_EX_RIGHT
-        overrides SS_LEFTNOWORDWRAP, and there is no SS_RIGHTNOWORDWRAP style.
-        WordWrap=False still affects AdjustBounds, though. }
-      if not FWordWrap then Style := Style or SS_LEFTNOWORDWRAP;
-    end;
+    const AlignmentStyle = Alignments[UseRightToLeftAlignment, FAlignment];
+    Style := Style or SS_NOTIFY or AlignmentStyle;
+    { Quirk: There are no SS_RIGHTNOWORDWRAP and SS_CENTERNOWORDWRAP styles.
+      WordWrap=False still affects AdjustBounds, though. }
+    if (AlignmentStyle = SS_LEFT) and not FWordWrap then Style := Style or SS_LEFTNOWORDWRAP;
     if not FShowAccelChar then Style := Style or SS_NOPREFIX;
     if FForceLTRReading then ExStyle := ExStyle and not WS_EX_RTLREADING;
     WindowClass.style := WindowClass.style and not CS_VREDRAW;
@@ -204,16 +209,19 @@ begin
 end;
 
 function TNewStaticText.GetDrawTextFlags: UINT;
+const
+  Alignments: array[Boolean, TAlignment] of Word =
+    ((DT_LEFT, DT_RIGHT, DT_CENTER), (DT_RIGHT, DT_LEFT, DT_CENTER));
 begin
-  Result := DT_EXPANDTABS or DT_NOCLIP;
+  const AlignmentFlag = Alignments[UseRightToLeftAlignment, FAlignment];
+  Result := DT_EXPANDTABS or DT_NOCLIP or AlignmentFlag;
   if FWordWrap then Result := Result or DT_WORDBREAK;
   if not FShowAccelChar then Result := Result or DT_NOPREFIX;
-  if IsRightToLeft then begin
+  if UseRightToLeftReading then begin
     { Note: DT_RTLREADING must be included even when just calculating the
       size, since on certain fonts it can affect the width of characters.
       (Consider the Hebrew string: 'a '#$F9' b'. On 2000 with Lucida Console
       as the font, the spaces aren't drawn as wide with RTLREADING.) }
-    Result := Result or DT_RIGHT;
     if not FForceLTRReading then
       Result := Result or DT_RTLREADING;
   end;
@@ -284,6 +292,15 @@ begin
   inherited Notification(AComponent, Operation);
   if (Operation = opRemove) and (AComponent = FFocusControl) then
     FFocusControl := nil;
+end;
+
+procedure TNewStaticText.SetAlignment(Value: TAlignment);
+begin
+  if FAlignment <> Value then
+  begin
+    FAlignment := Value;
+    RecreateWnd;
+  end;
 end;
 
 procedure TNewStaticText.SetAutoSize(Value: Boolean);

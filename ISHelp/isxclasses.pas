@@ -578,6 +578,7 @@ end;
 
 TNewStaticText = class(TWinControl)
   function AdjustHeight: Integer;
+  property Alignment: TAlignment; read write;
   property Anchors: TAnchors; read write;
   property AutoSize: Boolean; read write;
   property Caption: String; read write;

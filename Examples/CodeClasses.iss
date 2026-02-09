@@ -122,7 +122,7 @@ var
   Memo: TNewMemo;
   ComboBox: TNewComboBox;
   ListBox: TNewListBox;
-  StaticText: array [0..2] of TNewStaticText;
+  StaticText: array [0..3] of TNewStaticText;
   ProgressBarLabel: TNewStaticText;
   LinkLabel: TNewLinkLabel;
   ProgressBar: array [0..2] of TNewProgressBar;
@@ -238,7 +238,7 @@ begin
   ListBox := TNewListBox.Create(Page);
   ListBox.Top := ComboBox.Top + ComboBox.Height + ScaleY(8);
   ListBox.Width := Page.SurfaceWidth;
-  ListBox.Height := ScaleY(97) + Page.SurfaceExtraHeight;
+  ListBox.Height := ScaleY(70) + Page.SurfaceExtraHeight;
   ListBox.Parent := Page.Surface;
   ListBox.Items.Add('TListBox');
   ListBox.ItemIndex := 0;
@@ -249,31 +249,42 @@ begin
   StaticText[0].Parent := Page.Surface;
 
   StaticText[1] := TNewStaticText.Create(Page);
-  StaticText[1].AutoSize := False;
-  StaticText[1].Left := StaticText[0].Width + ScaleX(32);
-  StaticText[1].Top := StaticText[0].Top;
-  StaticText[1].WordWrap := True;
-  StaticText[1].Caption := 'TNewStaticText with more text and an adjusted label height so it''s multi-line.';
-  StaticText[1].Width := Page.SurfaceWidth - StaticText[1].Left - ScaleX(8);
+  StaticText[1].Top := StaticText[0].Top + StaticText[0].Height + ScaleY(8);
+  StaticText[1].Caption := 'TNewStaticText';
   StaticText[1].Parent := Page.Surface;
-  StaticText[1].AdjustHeight;
+  StaticText[1].StyleElements := StaticText[1].StyleElements - [seFont];
+  if IsDarkInstallMode then
+    StaticText[1].Font.Color := StrToColor('#D95E6C')
+  else
+    StaticText[1].Font.Color := StrToColor('#D24152');
 
   StaticText[2] := TNewStaticText.Create(Page);
-  StaticText[2].Top := StaticText[0].Top + StaticText[0].Height + ScaleY(8);
-  StaticText[2].Caption := 'TNewStaticText';
+  StaticText[2].AutoSize := False;
+  StaticText[2].Left := StaticText[0].Width + ScaleX(32);
+  StaticText[2].Top := StaticText[0].Top;
+  StaticText[2].WordWrap := True;
+  StaticText[2].Caption := 'TNewStaticText with more text and an adjusted label height so it''s multi-line.';
+  StaticText[2].Width := Page.SurfaceWidth - StaticText[2].Left - ScaleX(8);
   StaticText[2].Parent := Page.Surface;
-  StaticText[2].StyleElements := StaticText[2].StyleElements - [seFont];
-  if IsDarkInstallMode then
-    StaticText[2].Font.Color := StrToColor('#D95E6C')
-  else
-    StaticText[2].Font.Color := StrToColor('#D24152');
+  StaticText[2].AdjustHeight;
 
+  StaticText[3] := TNewStaticText.Create(Page);
+  StaticText[3].Alignment := taCenter;
+  StaticText[3].AutoSize := False;
+  StaticText[3].Left := StaticText[2].Left;
+  StaticText[3].Top := StaticText[2].Top + StaticText[2].Height + ScaleY(8);
+  StaticText[3].WordWrap := True;
+  StaticText[3].Caption := 'TNewStaticText with more text and an adjusted label height so it''s multi-line, now centered.';
+  StaticText[3].Width := StaticText[2].Width;
+  StaticText[3].Parent := Page.Surface;
+  StaticText[3].AdjustHeight;
+  
   LinkLabel := TNewLinkLabel.Create(Page);
   LinkLabel.AutoSize := False;
-  LinkLabel.Left := StaticText[1].Left;
-  LinkLabel.Top := StaticText[1].Top + StaticText[1].Height + ScaleY(8);
+  LinkLabel.Left := StaticText[3].Left;
+  LinkLabel.Top := StaticText[3].Top + StaticText[3].Height + ScaleY(8);
   LinkLabel.Caption := 'TNew<a id="jrsoftware">Link</a>Label with more text and an adjusted label height so it''s multi-line with a second <a id="jrsoftware">link</a> on the second line.';
-  LinkLabel.Width := StaticText[1].Width;
+  LinkLabel.Width := StaticText[3].Width;
   LinkLabel.UseVisualStyle := HighContrastActive;
   LinkLabel.OnLinkClick := @LinkLabelOnLinkClick;
   LinkLabel.Parent := Page.Surface;
@@ -318,7 +329,7 @@ begin
 
   CheckListBox[0] := TNewCheckListBox.Create(Page);
   CheckListBox[0].Width := Page.SurfaceWidth;
-  CheckListBox[0].Height := ScaleY(97) + Page.SurfaceExtraHeight;
+  CheckListBox[0].Height := ScaleY(70) + Page.SurfaceExtraHeight;
   CheckListBox[0].Flat := True;
   CheckListBox[0].Parent := Page.Surface;
   CheckListBox[0].AddCheckBox('TNewCheckListBox', '', 0, True, True, False, True, nil);
@@ -337,7 +348,7 @@ begin
   CheckListBox[1] := TNewCheckListBox.Create(Page);
   CheckListBox[1].Top := CheckListBox[0].Top + CheckListBox[0].Height + ScaleY(8);
   CheckListBox[1].Width := Page.SurfaceWidth;
-  CheckListBox[1].Height := ScaleY(97);
+  CheckListBox[1].Height := ScaleY(70);
   CheckListBox[1].BorderStyle := bsNone;
   CheckListBox[1].ParentColor := True;
   CheckListBox[1].MinItemHeight := WizardForm.TasksList.MinItemHeight;
