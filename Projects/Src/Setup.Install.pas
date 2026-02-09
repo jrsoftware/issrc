@@ -159,17 +159,30 @@ var
       Result := False;
   end;
 
-  procedure HandleDuplicateDisplayNames(var DisplayName: String);
+  function ApplyDispayNameMarks(const DisplayName: String;
+    const ExistingAtOppositeAdminInstallMode, ExistingAtOpposite64BitInstallMode: Boolean): String;
   const
     UninstallDisplayNameMarksUser: array [Boolean] of TSetupMessageId =
       (msgUninstallDisplayNameMarkCurrentUser, msgUninstallDisplayNameMarkAllUsers);
     UninstallDisplayNameMarksBits: array [Boolean] of TSetupMessageId =
       (msgUninstallDisplayNameMark32Bit, msgUninstallDisplayNameMark64Bit);
-  var
-    ExistingAtOppositeAdminInstallMode, ExistingAtOpposite64BitInstallMode: Boolean;
+  begin
+    if ExistingAtOppositeAdminInstallMode and ExistingAtOpposite64BitInstallMode then
+      Result := FmtSetupMessage(msgUninstallDisplayNameMarks,
+        [DisplayName, SetupMessages[UninstallDisplayNameMarksUser[RootKeyIsHKLM]],
+                      SetupMessages[UninstallDisplayNameMarksBits[RegViewIs64Bit]]])
+    else if ExistingAtOppositeAdminInstallMode then
+      Result := FmtSetupMessage(msgUninstallDisplayNameMark,
+        [DisplayName, SetupMessages[UninstallDisplayNameMarksUser[RootKeyIsHKLM]]])
+    else
+      Result := FmtSetupMessage(msgUninstallDisplayNameMark,
+        [DisplayName, SetupMessages[UninstallDisplayNameMarksBits[RegViewIs64Bit]]]);
+  end;
+
+  procedure HandleDuplicateDisplayNames(var DisplayName: String);
   begin
     { Check opposite administrative install mode. }
-    ExistingAtOppositeAdminInstallMode := ExistingInstallationAt(RegView, OppositeRootKey);
+    var ExistingAtOppositeAdminInstallMode := ExistingInstallationAt(RegView, OppositeRootKey);
     if RootKeyIsHKLM or not IsWin64 then begin
       { Opposite (HKCU) is shared for 32-bit and 64-bit so don't log bitness. Also don't log bitness on a 32-bit system. }
       LogFmt('Detected previous %s install? %s',
@@ -180,6 +193,7 @@ var
         [AdminInstallModeNames[OppositeRootKeyIsHKLM {always True}], BitInstallModeNames[RegViewIs64Bit], SYesNo[ExistingAtOppositeAdminInstallMode]]);
     end;
 
+    var ExistingAtOpposite64BitInstallMode: Boolean;
     if IsWin64 then begin
       { Check opposite 32-bit or 64-bit install mode. }
       if RootKeyIsHKLM then begin
@@ -202,16 +216,8 @@ var
       
     { Mark new display name if needed. Note: currently we don't attempt to mark existing display names as well. }
     if ExistingAtOppositeAdminInstallMode or ExistingAtOpposite64BitInstallMode then begin
-      if ExistingAtOppositeAdminInstallMode and ExistingAtOpposite64BitInstallMode then
-        DisplayName := FmtSetupMessage(msgUninstallDisplayNameMarks,
-          [DisplayName, SetupMessages[UninstallDisplayNameMarksUser[RootKeyIsHKLM]],
-                        SetupMessages[UninstallDisplayNameMarksBits[RegViewIs64Bit]]])
-      else if ExistingAtOppositeAdminInstallMode then
-        DisplayName := FmtSetupMessage(msgUninstallDisplayNameMark,
-          [DisplayName, SetupMessages[UninstallDisplayNameMarksUser[RootKeyIsHKLM]]])
-      else
-        DisplayName := FmtSetupMessage(msgUninstallDisplayNameMark,
-          [DisplayName, SetupMessages[UninstallDisplayNameMarksBits[RegViewIs64Bit]]]);
+      DisplayName := ApplyDispayNameMarks(DisplayName, ExistingAtOppositeAdminInstallMode,
+        ExistingAtOpposite64BitInstallMode);
       LogFmt('Marked uninstall display name to avoid duplicate entries. New display name: %s', [DisplayName]);
     end;
   end;
