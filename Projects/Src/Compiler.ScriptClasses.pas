@@ -48,6 +48,7 @@ begin
   with Cl.AddClassN(Cl.FindClass('TWinControl'), 'TNewStaticText') do
   begin
     RegisterMethod('function AdjustHeight: Integer');
+    RegisterProperty('Alignment', 'TAlignment', iptrw);
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('AutoSize', 'Boolean', iptrw);
     RegisterProperty('Caption', 'String', iptrw);

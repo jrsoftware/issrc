@@ -175,7 +175,12 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Added a banner that will appear in April 2026, inviting you to share your ideas and vote on others on an ideas board, open that month only.</li>
   </ul>
   </li>
-  <li>Pascal Scripting: <tt>TNewPathEdit</tt>: Added new <tt>AutoCompleteFiles</tt> property. If set to <tt>False</tt> (the default value), only directory names are included in the AutoComplete list. If set to <tt>True</tt>, file names are included as well.</li>
+  <li>Pascal Scripting:
+  <ul>
+    <li>Added new <tt>Alignment</tt> property to support class <tt>TNewStaticText</tt>. See updated <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> example script for an example.</li>
+    <li>Added new <tt>AutoCompleteFiles</tt> property to support class <tt>TNewPathEdit</tt>. If set to <tt>False</tt> (the default value), only directory names are included in the AutoComplete list. If set to <tt>True</tt>, file names are included as well.</li>
+  </ul>
+  </li>
   <li>ISPP:
   <ul>
     <li>The date and time separators of support functions <tt>GetDateTimeString</tt> and <tt>GetFileDateTimeString</tt> are now truly optional, rather than requiring empty strings.</li>
