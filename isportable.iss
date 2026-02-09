@@ -18,6 +18,8 @@ begin
   else
     Result := '{autopf}';
   Result := ExpandConstant(AddBackslash(Result) + Param);
+  if PortableCheck then
+    Result := Result + '{#spacebit}';
 end;
 
 <event('InitializeWizard')>

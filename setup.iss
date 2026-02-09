@@ -2,8 +2,8 @@
 ; Inno Setup's own Setup script
 
 ; Inno Setup
-; Copyright (C) 1997-2025 Jordan Russell. All rights reserved.
-; Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.
+; Copyright (C) 1997-2026 Jordan Russell. All rights reserved.
+; Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.
 ; For conditions of distribution and use, see LICENSE.TXT.
 
 ; #define x64
@@ -12,10 +12,12 @@
   #define arch "x64"
   #define dasharch "-" + arch
   #define spacebit ""
+  #define proa "dialog"
 #else
   #define arch "x86"
   #define dasharch ""
   #define spacebit " (32-bit)"
+  #define proa "commandline"
 #endif
 //
 #define CheckArch(str Filename) \
@@ -23,27 +25,13 @@
  Local[1] = (arch == "x64") != 0, \
  (Local[0] != Local[1]) ? Error(ExtractFilename(Filename) + " has incorrect architecture. " + arch + " required.") : Filename
 //
-#define AppId "Inno Setup 7"
-//
 #include "isdonateandmail.iss"
 
 #include "isportable.iss"
 
-[Code]
-function GetExtendedAppId(ForceExtension: String): String;
-begin
-  Result := '{#AppId}';
-  if '{#spacebit}' <> '' then begin
-    { DefaultDirName: extend if installing to userpf or autodesktop, since those have no distinct 32-bit/64-bit versions
-      DefaultGroupName: always extend to not mess up side-by-side installation } 
-    if (ForceExtension = '1') or not IsAdminInstallMode or PortableCheck then
-      Result := Result + '{#spacebit}';
-  end;
-end;
-
 [Setup]
 AppName=Inno Setup
-AppId={#AppId}
+AppId=Inno Setup 7
 AppVersion=7.0.0-dev{#spacebit}
 AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
@@ -53,9 +41,9 @@ VersionInfoCopyright=Copyright (C) 1997-2026 Jordan Russell. Portions Copyright 
 AppMutex=InnoSetupCompilerAppMutex7{#dasharch},Global\InnoSetupCompilerAppMutex7{#dasharch}
 SetupMutex=InnoSetupCompilerSetupMutex7{#dasharch},Global\InnoSetupCompilerSetupMutex7{#dasharch}
 WizardStyle=modern dynamic
-DefaultDirName={code:GetDefaultDirName|{code:GetExtendedAppId|0}}
-DefaultGroupName={code:GetExtendedAppId|1}
-PrivilegesRequiredOverridesAllowed=dialog
+DefaultDirName={code:GetDefaultDirName|Inno Setup 7}
+DefaultGroupName=Inno Setup 7{#spacebit}
+PrivilegesRequiredOverridesAllowed={#proa}
 AllowNoIcons=yes
 Compression=lzma2/max
 SolidCompression=yes
@@ -229,3 +217,13 @@ Filename: "{app}\ISIDE.exe"; WorkingDir: "{app}"; Description: "{cm:LaunchProgra
 [UninstallRun]
 ; The /UNASSOC line will be automatically skipped on portable mode, because of Uninstallable being set to no
 Filename: "{app}\ISIDE.exe"; Parameters: "/UNASSOC"; RunOnceId: "RemoveISSAssoc"
+
+#ifndef x64
+[Code]
+function InitializeSetup: Boolean;
+begin
+  Result := IsAdminInstallMode or PortableCheck;
+  if not Result then
+    SuppressibleMsgBox('Non-administrative install of 32-bit Inno Setup requires using command-line parameter /PORTABLE=1', mbError, MB_OK, IDOK);
+end;
+#endif
