@@ -161,13 +161,17 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <details>
 <summary>Inno Setup 6.7</summary>
 
-<p><a name="6.7.1"></a><span class="ver">6.7.1-dev </span><span class="date">(?)</span></p>
+<p><a name="6.7.1"></a><span class="ver">6.7.1 </span><span class="date">(2026-02-17)</span></p>
+
+<span class="head2">General improvements</span>
 
 <ul>
-  <li>When setting <tt>WizardBackImageFile</tt>, it already checked whether a custom style was specified via <tt>WizardStyle</tt>. It now also checks <tt>WizardStyleFile</tt>.</li>
-  <li>The compiler's retry mechanisms have been extended to also retry the initial copy of the E32 file to the output EXE.</li>
-  <li>Improved enumeration of the Windows <i>PendingFileRenameOperations</i> registry value.</li>
-  <li>In Setup, edit controls that take paths to directories now exclude names of files from their AutoComplete lists.</li>
+  <li>Compiler:
+  <ul>
+    <li>When setting <tt>WizardBackImageFile</tt>, the compiler now also checks whether a custom style was specified via <tt>WizardStyleFile</tt>.</li>
+    <li>The compiler's retry mechanisms now also retry the initial copy of the E32 file to the output EXE.</li>
+  </ul>  
+  </li>
   <li>Compiler IDE:
   <ul>
     <li>Improved section folding to allow folding of (entire) functions and procedures in the <tt>[Code]</tt> section.</li>
@@ -175,6 +179,19 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Added a banner that will appear in April 2026, inviting you to share your ideas and vote on others on an ideas board, open that month only.</li>
   </ul>
   </li>
+  <li>Setup:
+    <ul>
+      <li>Improved enumeration of the Windows <i>PendingFileRenameOperations</i> registry value.<br/>
+          If you use <tt>restartreplace</tt> flags in your <tt>[Files]</tt> section, updating is recommended.</li>
+      <li>Edit controls that take paths to directories now exclude names of files from their AutoComplete lists.</li>
+      <li>Added workaround for slower folder browsing on Windows 11 25H2.</li>
+    </ul>
+  </li>
+</ul>
+
+<span class="head2">Other changes</span>
+
+<ul>
   <li>Pascal Scripting:
   <ul>
     <li>Added new <tt>Alignment</tt> property to support class <tt>TNewStaticText</tt>. See updated <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> example script for an example.</li>
@@ -187,7 +204,6 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Added new support function <tt>EmitLanguagesSection</tt>, to generate a full <tt>[Languages]</tt> section for all available official languages, including English. Example: <tt>#expr EmitLanguagesSection</tt>.</li>
   </ul>
   </li>
-  <li>Added workaround for slower folder browsing on Windows 11 25H2.</li>
   <li>Added official Thai translation.</li>
   <li>Other minor improvements.</li>
 </ul>
