@@ -29,7 +29,7 @@ uses
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.NewDiskForm,
   Setup.WizardForm, Shared.VerInfoFunc, Shared.SetupTypes,
   Setup.LoggingFunc, Setup.SetupForm, Setup.RegDLL,
-  Setup.SpawnClient, Setup.DotNetFunc, Setup.MainForm,
+  Setup.SpawnClient, Setup.DotNetFunc,
   Shared.DotNetVersion, Setup.MsiFunc, Compression.SevenZipDecoder, Compression.SevenZipDLLDecoder,
   Setup.DebugClient, Shared.ScriptFunc, Setup.ScriptFunc.HelperFunc, Setup.PathRedir;
 
@@ -1829,7 +1829,7 @@ var
     end);
     RegisterScriptFunc('SHOWEXCEPTIONMESSAGE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      TMainForm.ShowExceptionMsg(AddPeriod(GetExceptionMessage(Caller)));
+      ShowExceptionMsgText(AddPeriod(GetExceptionMessage(Caller)));
     end);
     RegisterScriptFunc('TERMINATED', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin

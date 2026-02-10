@@ -24,8 +24,6 @@ type
     procedure Finish(const FromPreparingPage: Boolean);
     function Install: Boolean;
     procedure SetStep(const AStep: TSetupStep; const HandleExceptions: Boolean);
-    class procedure ShowException(Sender: TObject; E: Exception);
-    class procedure ShowExceptionMsg(const S: String); static;
   end;
 
 var
@@ -45,17 +43,6 @@ destructor TMainForm.Destroy;
 begin
   MainForm := nil;  { just to detect use-after-free }
   inherited;
-end;
-
-class procedure TMainForm.ShowExceptionMsg(const S: String);
-begin
-  Log('Exception message:');
-  LoggedMsgBox(S, '', mbCriticalError, MB_OK, True, IDOK);
-end;
-
-class procedure TMainForm.ShowException(Sender: TObject; E: Exception);
-begin
-  ShowExceptionMsg(AddPeriod(E.Message));
 end;
 
 procedure TMainForm.SetStep(const AStep: TSetupStep; const HandleExceptions: Boolean);

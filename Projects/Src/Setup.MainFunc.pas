@@ -247,6 +247,7 @@ function ShouldProcessIconEntry(const WizardComponents, WizardTasks: TStringList
 function ShouldProcessRunEntry(const WizardComponents, WizardTasks: TStringList;
   const RunEntry: PSetupRunEntry): Boolean;
 procedure ShowExceptionMsg;
+procedure ShowExceptionMsgText(const S: String);
 procedure UnloadSHFolderDLL;
 function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
 function IsWindows8: Boolean;
@@ -2692,13 +2693,19 @@ begin
   end;
 end;
 
+procedure ShowExceptionMsgText(const S: String);
+begin
+  Log('Exception message:');
+  LoggedMsgBox(S, '', mbCriticalError, MB_OK, True, IDOK);
+end;
+
 procedure ShowExceptionMsg;
 { Shows and logs the current exception.
   Similar to calling Application.HandleException, but with these differences:
   - EAbort exceptions are logged. (Application.HandleException ignores them
     completely.)
   - If an exception doesn't descend from Exception (which shouldn't happen),
-    it is still passed to our TMainForm.ShowExceptionMsg function.
+    it is still passed to our ShowExceptionMsgText function.
     (Application.HandleException calls a different function which we can't
     hook into, SysUtils.ShowException.)
   - We don't include special support for exceptions raised by other modules.
@@ -2707,7 +2714,7 @@ begin
   if ExceptObject is EAbort then
     Log('Caught EAbort exception.')
   else
-    TMainForm.ShowExceptionMsg(GetExceptMessage);
+    ShowExceptionMsgText(GetExceptMessage);
 end;
 
 procedure RestartComputerFromThisProcess;

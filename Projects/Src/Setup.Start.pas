@@ -37,6 +37,7 @@ type
   TDummyClass = class
   private
     class function AntiShutdownHook(var Message: TMessage): Boolean;
+    class procedure ShowException(Sender: TObject; E: Exception);
   end;
 
 class function TDummyClass.AntiShutdownHook(var Message: TMessage): Boolean;
@@ -90,6 +91,11 @@ begin
         Result := True;
       end;
   end;
+end;
+
+class procedure TDummyClass.ShowException(Sender: TObject; E: Exception);
+begin
+  ShowExceptionMsgText(AddPeriod(E.Message));
 end;
 
 procedure DisableWindowGhosting;
@@ -169,7 +175,7 @@ begin
     now, set it to "Setup" so that if an exception is raised very early, the
     message box won't show the EXE name for its title. }
   Application.Title := 'Setup';
-  Application.OnException := TMainForm.ShowException;
+  Application.OnException := TDummyClass.ShowException;
 
   try
     SetErrorMode(SEM_FAILCRITICALERRORS);
