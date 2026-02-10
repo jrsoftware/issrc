@@ -159,7 +159,7 @@ var
       Result := False;
   end;
 
-  function ApplyDispayNameMarks(const DisplayName: String;
+  function ApplyDisplayNameMarks(const DisplayName: String;
     const ExistingAtOppositeAdminInstallMode, ExistingAtOpposite64BitInstallMode: Boolean): String;
   const
     UninstallDisplayNameMarksUser: array [Boolean] of TSetupMessageId =
@@ -216,7 +216,7 @@ var
       
     { Mark new display name if needed. Note: currently we don't attempt to mark existing display names as well. }
     if ExistingAtOppositeAdminInstallMode or ExistingAtOpposite64BitInstallMode then begin
-      DisplayName := ApplyDispayNameMarks(DisplayName, ExistingAtOppositeAdminInstallMode,
+      DisplayName := ApplyDisplayNameMarks(DisplayName, ExistingAtOppositeAdminInstallMode,
         ExistingAtOpposite64BitInstallMode);
       LogFmt('Marked uninstall display name to avoid duplicate entries. New display name: %s', [DisplayName]);
     end;
