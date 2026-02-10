@@ -32,7 +32,7 @@
 [Setup]
 AppName=Inno Setup
 AppId=Inno Setup 7
-AppVersion=7.0.0-dev
+AppVersion=7.0.0-preview-1
 AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
 AppSupportURL=https://www.innosetup.com/
