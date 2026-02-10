@@ -58,6 +58,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function AdjustHeight: Integer;
+    function GetControlsAlignment: TAlignment; override;
   published
     property Align;
     property Alignment: TAlignment read FAlignment write SetAlignment
@@ -206,6 +207,13 @@ procedure TNewStaticText.Loaded;
 begin
   inherited Loaded;
   AdjustBounds;
+end;
+
+function TNewStaticText.GetControlsAlignment: TAlignment;
+begin
+  { This is needed to suppress the WS_EX_RIGHT style when BiDiMode is
+    bdRightToLeft and Alignment is not taLeftJustify }
+  Result := FAlignment;
 end;
 
 function TNewStaticText.GetDrawTextFlags: UINT;
