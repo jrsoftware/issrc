@@ -2,7 +2,7 @@ unit Shared.SetupMessageIDs;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -66,7 +66,7 @@ type
     msgComponentsDiskSpaceMBLabel,
     msgConfirmDeleteSharedFile2,
     msgConfirmDeleteSharedFileTitle,
-    msgConfirmTitle,
+    msgConfirmTitle, { not used atm }
     msgConfirmUninstall,
     msgCustomInstallation,
     msgDirDoesntExist,
@@ -147,7 +147,7 @@ type
     msgInfoAfterLabel,
     msgInfoBeforeClickLabel,
     msgInfoBeforeLabel,
-    msgInformationTitle,
+    msgInformationTitle, { not used atm }
     msgInstallingLabel,
     msgInvalidDirName,
     msgInvalidDrive,
