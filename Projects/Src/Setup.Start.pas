@@ -2,7 +2,7 @@ unit Setup.Start;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -32,23 +32,6 @@ uses
   Shared.CommonFunc, Shared.SetupMessageIDs, Shared.FileClass, Shared.Struct,
   SetupLdrAndSetup.Messages, SetupLdrAndSetup.InstFunc,
   Setup.LoggingFunc, Setup.MainFunc, Setup.Uninstall, Setup.RegSvr, Setup.MainForm;
-
-procedure ShowExceptionMsg;
-begin
-  { Also see ShowExceptionMsg in Setup.Uninstall.pas }
-  if ExceptObject is EAbort then begin
-    Log('Got EAbort exception.');
-    Exit;
-  end;
-  const Msg = GetExceptMessage;
-  Log('Exception message:');
-  LoggedMsgBox(PChar(Msg), Pointer(SetupMessages[msgErrorTitle]),
-    MB_OK or MB_ICONSTOP, True, IDOK);
-    { ^ use a Pointer cast instead of a PChar cast so that it will use "nil"
-      if SetupMessages[msgErrorTitle] is empty due to the messages not being
-      loaded yet. LoggedMsgBox displays 'Error' as the caption if the lpCaption
-      parameter is nil, see GetMessageBoxCaption. }
-end;
 
 type
   TDummyClass = class
@@ -182,6 +165,12 @@ end;
 
 procedure Start;
 begin
+  { The proper localized, mode-specific title gets assigned later. But for
+    now, set it to "Setup" so that if an exception is raised very early, the
+    message box won't show the EXE name for its title. }
+  Application.Title := 'Setup';
+  Application.OnException := TMainForm.ShowException;
+
   try
     SetErrorMode(SEM_FAILCRITICALERRORS);
     DisableWindowGhosting;
@@ -217,12 +206,8 @@ begin
     Halt(ecInitializationError);
   end;
 
-  { Initialize.
-    Note: There's no need to localize the following line since it's changed in
-    InitializeSetup }
-  Application.Title := 'Setup';
+  { Initialize (Setup mode) }
   Application.ShowMainForm := False;
-  Application.OnException := TMainForm.ShowException;
   try
     Application.Initialize;
     Application.MainFormOnTaskBar := True;

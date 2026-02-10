@@ -246,6 +246,7 @@ function ShouldProcessIconEntry(const WizardComponents, WizardTasks: TStringList
   const WizardNoIcons: Boolean; const IconEntry: PSetupIconEntry): Boolean;
 function ShouldProcessRunEntry(const WizardComponents, WizardTasks: TStringList;
   const RunEntry: PSetupRunEntry): Boolean;
+procedure ShowExceptionMsg;
 procedure UnloadSHFolderDLL;
 function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
 function IsWindows8: Boolean;
@@ -2689,6 +2690,24 @@ begin
     end else
       Log('TaskDialogMsgBox failed.');
   end;
+end;
+
+procedure ShowExceptionMsg;
+{ Shows and logs the current exception.
+  Similar to calling Application.HandleException, but with these differences:
+  - EAbort exceptions are logged. (Application.HandleException ignores them
+    completely.)
+  - If an exception doesn't descend from Exception (which shouldn't happen),
+    it is still passed to our TMainForm.ShowExceptionMsg function.
+    (Application.HandleException calls a different function which we can't
+    hook into, SysUtils.ShowException.)
+  - We don't include special support for exceptions raised by other modules.
+    (Application.HandleException checks class names, rather than using "is".) }
+begin
+  if ExceptObject is EAbort then
+    Log('Caught EAbort exception.')
+  else
+    TMainForm.ShowExceptionMsg(GetExceptMessage);
 end;
 
 procedure RestartComputerFromThisProcess;

@@ -52,21 +52,6 @@ var
   InitialProcessWnd, FirstPhaseWnd, DebugServerWnd: HWND;
   OldWindowProc: Pointer;
 
-procedure ShowExceptionMsg;
-begin
-  { Also see ShowExceptionMsg in Setup.Start.pas }
-  if ExceptObject is EAbort then
-    Exit;
-  const Msg = GetExceptMessage;
-  Log('Exception message:');
-  LoggedMsgBox(PChar(Msg), Pointer(SetupMessages[msgErrorTitle]),
-    MB_OK or MB_ICONSTOP, True, IDOK);
-    { ^ use a Pointer cast instead of a PChar cast so that it will use "nil"
-      if SetupMessages[msgErrorTitle] is empty due to the messages not being
-      loaded yet. LoggedMsgBox displays 'Error' as the caption if the lpCaption
-      parameter is nil, see GetMessageBoxCaption. }
-end;
-
 procedure TExtUninstallLog.HandleException;
 begin
   ShowExceptionMsg;
