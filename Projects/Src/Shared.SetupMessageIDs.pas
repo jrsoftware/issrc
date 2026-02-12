@@ -113,7 +113,7 @@ type
     msgErrorReplacingExistingFile,
     msgErrorRestartingComputer,
     msgErrorRestartReplace,
-    msgErrorTitle,
+    msgErrorTitle, { not used atm }
     msgErrorTooManyFilesInDir,
     msgExistingFileNewerSelectAction,
     msgExistingFileNewer2,
