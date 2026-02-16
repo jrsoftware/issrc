@@ -208,10 +208,8 @@ function InstallOnThisVersion(const MinVersion: TSetupVersionData;
   const OnlyBelowVersion: TSetupVersionData): TInstallOnThisVersionResult;
 function IsRecurseableDirectory(const FindData: TWin32FindData): Boolean;
 procedure LoadSHFolderDLL;
-function LoggedMsgBox(const Text, Caption: PChar; const Flags: Cardinal;
-  const Suppressible: Boolean; const Default: Integer): Integer; overload;
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
-  const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer; overload;
+  const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer;
 function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
   const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
   const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer;
@@ -2638,22 +2636,6 @@ procedure LogMsgBox(const Text: PChar; const Buttons: Cardinal);
 begin
   Log(Format('Message box (%s):' + SNewLine,
     [GetButtonsText(Buttons)]) + Text);
-end;
-
-function LoggedMsgBox(const Text, Caption: PChar; const Flags: Cardinal;
-  const Suppressible: Boolean; const Default: Integer): Integer;
-begin
-  if InitSuppressMsgBoxes and Suppressible then begin
-    LogSuppressedMsgBox(Text, Flags, Default);
-    Result := Default;
-  end else begin
-    LogMsgBox(Text, Flags);
-    Result := MsgBox(Text, Caption, Flags);
-    if Result <> 0 then
-      LogFmt('User chose %s.', [GetMessageBoxResultText(Result)])
-    else
-      Log('MsgBox failed.');
-  end;
 end;
 
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
