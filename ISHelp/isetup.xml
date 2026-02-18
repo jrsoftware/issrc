@@ -3020,7 +3020,7 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <li>64-bit type libraries (.tlb) can only be (un)registered by 64-bit installers, and 32-bit type libraries only by 32-bit installers.<br/>
     Support for (un)registering 64-bit type libraries from a 32-bit installer has been dropped.</li>
 <li><tt>{sysnative}</tt> is not accessible to 64-bit installers or any other 64-bit applications, so use its value only to, for example, pass it to a 32-bit application.</li>
-<li>For the moment, 64-bit installers still require WOW64 to be present, so running on Windows Server Core without WOW64 is not yet supported.</li>
+<li>In our tests on 'Windows Server 2016 Datacenter Server Core' and 'Windows Server 2025 Datacenter: Azure Edition Core', with all WOW64 features disabled and removed using DISM, 64-bit installers still function correctly, even when run in 32-bit install mode.</li>
 </ul>
 
 <p><b>64-bit Compiler IDE and ISCC:</b></p>
