@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.23';
+  Version = '1.24';
 
   XMLFileVersion = '1';
 
@@ -60,6 +60,7 @@ type
     elSmall,
     elTable,
     elTD,
+    elTH,
     elTopic,
     elTR,
     elTT,
@@ -79,7 +80,6 @@ var
   TopicsGenerated: Integer = 0;
   CurrentTopicName: String;
   CurrentListIsCompact: Boolean;
-  CurrentTableColumnIndex: Integer;
 
 procedure UnexpectedElementError(const Node: IXMLNode);
 begin
@@ -327,7 +327,6 @@ end;
 function ParseFormattedText(Node: IXMLNode): String;
 var
   S: String;
-  I: Integer;
   B: Boolean;
 begin
   Result := '';
@@ -457,22 +456,11 @@ begin
       elTable:
         Result := Result + '<table>' + ParseFormattedText(Node) + '</table>';
       elTD:
-        begin
-          Result := Result + '<td';
-          if CurrentTableColumnIndex = 0 then
-            Result := Result + ' class="cellleft"'
-          else
-            Result := Result + ' class="cellright"';
-          Result := Result + '>' + ParseFormattedText(Node) + '</td>';
-          Inc(CurrentTableColumnIndex);
-        end;
+        Result := Result + '<td>' + ParseFormattedText(Node) + '</td>';
+      elTH:
+        Result := Result + '<th>' + ParseFormattedText(Node) + '</th>';
       elTR:
-        begin
-          I := CurrentTableColumnIndex;
-          CurrentTableColumnIndex := 0;
-          Result := Result + '<tr>' + ParseFormattedText(Node) + '</tr>';
-          CurrentTableColumnIndex := I;
-        end;
+        Result := Result + '<tr>' + ParseFormattedText(Node) + '</tr>';
       elTT:
         Result := Result + '<tt>' + ParseFormattedText(Node) + '</tt>';
       elU:
@@ -535,34 +523,28 @@ begin
           begin
             if not SetupTopic then
               raise Exception.Create('<setupdefault> is only valid inside <setuptopic>');
-            { <div class="margined"> is used instead of <p> since the data could
-              contain <p>'s of its own, which can't be nested.
-              NOTE: The space before </div> is intentional -- as noted in
-              styles.css, "vertical-align: baseline" doesn't work right on IE6,
-              but putting a space before </div> works around the problem, at
-              least when it comes to lining up normal text with a single line
-              of monospaced text. }
-            SetupDefaultText := '<tr><td class="setuphdrl"><p>Default value:</p></td>' +
-              '<td class="setuphdrr"><div class="margined">' + ParseFormattedText(Node) +
-               ' </div></td></tr>' + SNewLine;
+            { Margins can't be defined on table cells, so the <div> elements
+              here are styled with a bottom margin.
+              <div> is used instead of <p> since the content could contain
+              <p>'s of its own, which can't be nested. }
+            SetupDefaultText := '<tr><th><div>Default value:</div></th>' +
+              '<td><div>' + ParseFormattedText(Node) + '</div></td></tr>' + SNewLine;
           end;
         elSetupFormat:
           begin
             if not SetupTopic then
               raise Exception.Create('<setupformat> is only valid inside <setuptopic>');
-            { See comments above! }
-            SetupFormatText := '<tr><td class="setuphdrl"><p>Format:</p></td>' +
-              '<td class="setuphdrr"><div class="margined">' + ParseFormattedText(Node) +
-              ' </div></td></tr>' + SNewLine;
+            { See comment above }
+            SetupFormatText := '<tr><th><div>Format:</div></th>' +
+              '<td><div>' + ParseFormattedText(Node) + '</div></td></tr>' + SNewLine;
           end;
         elSetupValid:
           begin
             if not SetupTopic then
               raise Exception.Create('<setupvalid> is only valid inside <setuptopic>');
-            { See comments above! }
-            SetupValidText := '<tr><td class="setuphdrl"><p>Valid values:</p></td>' +
-              '<td class="setuphdrr"><div class="margined">' + ParseFormattedText(Node) +
-              ' </div></td></tr>' + SNewLine;
+            { See comment above }
+            SetupValidText := '<tr><th><div>Valid values:</div></th>' +
+              '<td><div>' + ParseFormattedText(Node) + '</div></td></tr>' + SNewLine;
           end;
       else
         UnexpectedElementError(Node);

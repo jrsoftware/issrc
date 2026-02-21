@@ -1813,7 +1813,7 @@ end;</pre></example>
 <p>Does not rewrite paths that do not contain System32 or Sysnative. Also does not rewrite when the system is running a 32-bit version of Windows.</p>
 <p>Path expansion and conversion to extended-length path always occurs.</p></description>
         <remarks><p>Does not rewrite for certain combinations, such as 64-bit System32 for a 64-bit target process, because no rewriting (or redirection) is needed for the target process to access the intended path. The following table lists all combinations for which rewriting has an effect, and the result:</p>
-        <table><tr><td>A64Bit</td><td>APath</td><td>ATargetProcess64Bit</td><td>Result</td><td>Explanation</td></tr>
+        <table><tr><th>A64Bit</th><th>APath</th><th>ATargetProcess64Bit</th><th>Result</th><th>Explanation</th></tr>
 <tr><td>True</td><td>System32</td><td>False</td><td>Sysnative</td><td>The 32-bit target process needs to use the Sysnative alias to access 64-bit system files.</td></tr>
 <tr><td>False</td><td>System32</td><td>True</td><td>SysWOW64</td><td>The 64-bit target process needs to use SysWOW64 to access 32-bit system files.</td></tr>
 <tr><td>False</td><td>System32</td><td>False</td><td>SysWOW64</td><td>Helps the 32-bit target process avoid some exceptions that apply to System32 but not to SysWOW64.</td></tr>

@@ -1,6 +1,6 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -15,6 +15,8 @@
 	--link-hover-fg-color: light-dark(hsl(206, 100%, 27%), hsl(206, 100%, 43%));
 	--header-bg-color: light-dark(#e0e0e0, #403e41);
 	--code-bg-color: light-dark(#f0f0f0, #353135);
+	--table-border-color: var(--header-bg-color);
+	--table-header-bg-color: var(--code-bg-color);
 }
 HTML {
 	/* Ensure that anchor targets don't get hidden underneath the sticky header.
@@ -32,7 +34,7 @@ BODY {
 PRE, TT {
 	font: calc(13rem/16) Consolas, monospace;
 }
-P, H1, H2, H3, H4, H5, BLOCKQUOTE, PRE, FORM, OL, UL, LI, DL, DD, TABLE, .examplebox, DIV.margined {
+P, H1, H2, H3, H4, H5, BLOCKQUOTE, PRE, FORM, OL, UL, LI, DL, DD, TABLE, .examplebox {
 	/* only the end of paragraphs etc. has a margin */
 	margin-top: 0;
 	margin-bottom: 1em;
@@ -46,14 +48,21 @@ TABLE {
 	/* equivalent of cellspacing="0" */
 	border-collapse: collapse;
 }
-TD {
-	/* equivalent of cellpadding="0" */
-	padding: 0;
-	/* note: "baseline" is broken on IE6; it only aligns correctly when there's
-	   a single line of text, and that text is directly inside the <TD> tag
-	   (not inside a <DIV>). otherwise it behaves more like "top".
-           (firefox 1.5 and opera 9 don't have this problem) */
+th, td {
+	padding: 6px 10px;
+	border: 1px solid #e0e0e0; /* for IE */
+	border: 1px solid var(--table-border-color);
+}
+th {
+	background-color: #f0f0f0; /* for IE */
+	background-color: var(--table-header-bg-color);
+}
+td {
 	vertical-align: baseline;
+}
+td > :last-child {
+	/* Suppress margin of <p>; see Setup Exit Codes topic */
+	margin-bottom: 0;
 }
 IMG {
 	border-style: none;
@@ -155,22 +164,26 @@ DT.flaglist {
 	font-weight: bold;
 }
 
-TD.cellleft {
-	white-space: nowrap;
-}
-TD.cellright {
-	padding-left: 2em;
-}
-
-TABLE.setuphdr {
+table.setuphdr {
 	margin: 0;
 }
-TD.setuphdrl {
+table.setuphdr > tbody > tr > th {
+	padding: 0;
+	border: none;
+	background-color: transparent;
+	vertical-align: baseline;
+	text-align: left;
 	font-weight: bold;
 	white-space: nowrap;
 }
-TD.setuphdrr {
+table.setuphdr > tbody > tr > td {
+	padding: 0;
 	padding-left: 1em;
+	border: none;
+}
+table.setuphdr > tbody > tr > th > div,
+table.setuphdr > tbody > tr > td > div {
+	margin-bottom: 1em;
 }
 
 

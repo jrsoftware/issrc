@@ -647,7 +647,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <indent>
 <table>
-<tr><td></td><td><u>Administrative</u></td><td><u>Non administrative</u></td></tr>
+<tr><th>Auto</th><th>Administrative</th><th>Non administrative</th></tr>
 <tr><td><tt><a name="autoappdata">autoappdata</a></tt></td><td><tt>commonappdata</tt></td><td><tt>userappdata</tt></td></tr>
 <tr><td><tt><a name="autocf">autocf</a></tt></td><td><tt>commoncf</tt></td><td><tt>usercf</tt></td></tr>
 <tr><td><tt><a name="autocf32">autocf32</a></tt></td><td><tt>commoncf32</tt></td><td><tt>usercf</tt></td></tr>
@@ -671,7 +671,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <indent>
 <table>
-<tr><td><u>Old name</u></td><td><u>New name</u></td></tr>
+<tr><th>Old name</th><th>New name</th></tr>
 <tr><td><tt><a name="cf">cf</a></tt></td><td><tt>commoncf</tt></td></tr>
 <tr><td><tt><a name="cf32">cf32</a></tt></td><td><tt>commoncf32</tt></td></tr>
 <tr><td><tt><a name="cf64">cf64</a></tt></td><td><tt>commoncf64</tt></td></tr>
@@ -2509,17 +2509,18 @@ Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string
 <p>The root key. This must be one of the following values:</p>
 <indent>
 <table>
-<tr><td><tt>HKCU</tt></td><td>(HKEY_CURRENT_USER)</td></tr>
-<tr><td><tt>HKLM</tt></td><td>(HKEY_LOCAL_MACHINE)</td></tr>
-<tr><td><tt>HKCR</tt></td><td>(HKEY_CLASSES_ROOT)</td></tr>
-<tr><td><tt>HKU</tt></td><td>(HKEY_USERS)</td></tr>
-<tr><td><tt>HKCC</tt></td><td>(HKEY_CURRENT_CONFIG)</td></tr>
+<tr><th>Value</th><th>Description</th></tr>
+<tr><td><tt>HKCU</tt></td><td>Short for <tt>HKEY_CURRENT_USER</tt></td></tr>
+<tr><td><tt>HKLM</tt></td><td>Short for <tt>HKEY_LOCAL_MACHINE</tt></td></tr>
+<tr><td><tt>HKCR</tt></td><td>Short for <tt>HKEY_CLASSES_ROOT</tt></td></tr>
+<tr><td><tt>HKU</tt></td><td>Short for <tt>HKEY_USERS</tt></td></tr>
+<tr><td><tt>HKCC</tt></td><td>Short for <tt>HKEY_CURRENT_CONFIG</tt></td></tr>
 </table>
 </indent>
 <p>Additionally one special value is allowed:</p>
 <indent>
 <table>
-<tr><td><tt>HKA</tt></td><td>(equals HKLM in <link topic="admininstallmode">administrative install mode</link>, HKCU otherwise)</td></tr>
+<tr><td><tt>HKA</tt></td><td>Equals <tt>HKLM</tt> in <link topic="admininstallmode">administrative install mode</link>, <tt>HKCU</tt> otherwise</td></tr>
 </table>
 </indent>
 <p><tt>HKCU</tt> and <tt>HKA</tt> should only be used for settings which are compatible with roaming profiles.</p>
@@ -3401,7 +3402,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for VK_OEM_1, . for VK_OEM_PERIOD, / for VK_OEM_2, [ for VK_OEM_4, \ for VK_OEM_5, and ] for VK_OEM_6. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p>
 
 <table>
-<tr><td></td><td><u>Classic</u></td><td><u>Visual Studio Code</u></td></tr>
+<tr><th>Command</th><th>Classic shortcut</th><th>Visual Studio Code shortcut</th></tr>
 <tr>
   <td>&nbsp;</td>
 </tr>
@@ -3662,7 +3663,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>When replacing using regular expressions the replace string may contain the following special escape sequences:</p>
 
 <table>
-<tr><td><u>Escape Sequence</u></td><td><u>Meaning</u></td></tr>
+<tr><th>Escape Sequence</th><th>Meaning</th></tr>
 <tr>
   <td>$1 through $9 or \1 through \9</td><td>Contents of the corresponding capture group</td>
 </tr>
@@ -4266,6 +4267,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <p>The Setup program may return one of the following exit codes:</p>
 
 <table>
+<tr><th>Code</th><th>Meaning</th></tr>
 
 <tr>
 <td><b>0</b></td>
@@ -4997,7 +4999,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <p>The following table summarizes the differences between these methods.</p>
 <indent>
 <table>
-<tr><td></td><td><u>Memory Requirements</u></td><td><u>Password-protected Archives</u></td><td><u>Setup Size Increase*</u></td><td><u>Archive Formats</u></td></tr>
+<tr><th>Method</th><th>Memory Requirements</th><th>Password-protected Archives</th><th>Setup Size Increase*</th><th>Archive Formats</th></tr>
 <tr><td><tt>basic</tt> (default)</td><td>High for large files**</td><td>No</td><td>0 KB</td><td>.7z</td></tr>
 <tr><td><tt>enhanced/nopassword</tt></td><td>Normal</td><td>No</td><td>100 KB</td><td>.7z</td></tr>
 <tr><td><tt>enhanced</tt></td><td>Normal</td><td>Yes</td><td>123 KB</td><td>.7z</td></tr>
@@ -5053,7 +5055,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <p><tt>lzma</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA</extlink> compressor. It typically compresses significantly better than the <tt>zip</tt> and <tt>bzip</tt> methods. However, depending on the compression level used, it can be significantly slower at compressing, and consume a <i>lot</i> more memory. The following table summarizes the approximate memory requirements for each of the supported <tt>lzma</tt> compression levels. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
 <indent>
 <table>
-<tr><td></td><td><u>Decompression (dictionary size)</u></td><td><u>Compression (6 MB + 11.5 * dictionary size)</u></td></tr>
+<tr><th>Level</th><th>Decompression<br/>(dictionary size)</th><th>Compression<br/>(6 MB + 11.5 * dictionary size)</th></tr>
 <tr><td><tt>fast</tt> (worst)</td><td>32 KB</td><td>6 MB</td></tr>
 <tr><td><tt>normal</tt></td><td>2 MB</td><td>29 MB</td></tr>
 <tr><td><tt>max</tt> (default)</td><td>8 MB</td><td>98 MB</td></tr>
@@ -5667,6 +5669,7 @@ DiskSliceSize=736000000
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 202x386 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240x459.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <tt>WizardSizePercent</tt>, and <tt>WizardKeepAspectRatio</tt> settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
+<tr><th>DPI</th><th>Image area size</th></tr>
 <tr><td>100%</td><td>202x386</td></tr>
 <tr><td>125%</td><td>269x515</td></tr>
 <tr><td>150%</td><td>336x643</td></tr>
@@ -5680,6 +5683,7 @@ DiskSliceSize=736000000
 <p>If this directive is set to a blank value, no wizard image will be used. This does not change the layout of the wizard.</p>
 <p>If the default settings from before Inno Setup 6.6.0 are being used, the size of the image area at various DPI settings is:</p>
 <table>
+<tr><th>DPI</th><th>Image area size</th></tr>
 <tr><td>100%</td><td>164x314</td></tr>
 <tr><td>125%</td><td>202x386</td></tr>
 <tr><td>150%</td><td>240x459</td></tr>
@@ -5717,6 +5721,7 @@ DiskSliceSize=736000000
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 58x58 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 147x147.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
+<tr><th>DPI</th><th>Image area size</th></tr>
 <tr><td>100%</td><td>58x58</td></tr>
 <tr><td>125%</td><td>77x77</td></tr>
 <tr><td>150%</td><td>97x97</td></tr>
@@ -5731,6 +5736,7 @@ DiskSliceSize=736000000
 <p>If this directive is set to a blank value, no wizard image will be used. This does not change the layout of the wizard.</p>
 <p>If the default settings from before Inno Setup 6.6.0 are being used, the size of the image area at various DPI settings is:</p>
 <table>
+<tr><th>DPI</th><th>Image area size</th></tr>
 <tr><td>100%</td><td>58x58</td></tr>
 <tr><td>125%</td><td>71x71</td></tr>
 <tr><td>150%</td><td>85x85</td></tr>
@@ -5768,6 +5774,7 @@ DiskSliceSize=736000000
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 596x432 is recommended to avoid the image looking blurry on higher-DPI systems.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <tt>WizardSizePercent</tt>, and <tt>WizardKeepAspectRatio</tt> settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
+<tr><th>DPI</th><th>Image area size</th></tr>
 <tr><td>100%</td><td>596x432</td></tr>
 <tr><td>125%</td><td>796x576</td></tr>
 <tr><td>150%</td><td>994x720</td></tr>
@@ -6943,6 +6950,7 @@ CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 <keyword value="Windows Versions" />
 <body>
 <table>
+<tr><th>Version number</th><th>Windows release(s)</th></tr>
 <tr><td>6.1.7600</td><td>Windows 7<br/>or Windows Server 2008 R2</td></tr>
 <tr><td>6.1.7601</td><td>Windows 7 with Service Pack 1<br/>or Windows Server 2008 R2 with Service Pack 1</td></tr>
 <tr><td>6.2.9200</td><td>Windows 8<br/>or Windows Server 2012</td></tr>
@@ -6977,6 +6985,7 @@ CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 <keyword value="User &amp; Group Identifiers" />
 <body>
 <table>
+<tr><th>Identifier</th><th>Meaning</th></tr>
 <tr><td><tt>admins</tt></td><td>Administrators group</td></tr>
 <tr><td><tt>authusers</tt></td><td>Authenticated Users group</td></tr>
 <tr><td><tt>creatorowner</tt></td><td>Creator Owner</td></tr>
