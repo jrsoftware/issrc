@@ -42,7 +42,7 @@ P, H1, H2, H3, H4, H5, BLOCKQUOTE, PRE, FORM, OL, UL, LI, DL, DD, TABLE, .exampl
 UL, OL, DD {
 	/* specify both of these for firefox compat. */
 	margin-left: 0;
-	padding-left: 2em;
+	padding-left: calc(28rem/16);  /* 2em with default font */
 }
 TABLE {
 	/* equivalent of cellspacing="0" */
@@ -59,6 +59,7 @@ th.nowrap, td.nowrap {
 th {
 	background-color: #f0f0f0; /* for IE */
 	background-color: var(--table-header-bg-color);
+	text-align: left;
 }
 td {
 	vertical-align: baseline;
@@ -103,10 +104,7 @@ span:target {
 	margin-top: 0;
 }
 .indent {
-	margin-left: 2em;
-}
-PRE.nomargin {
-	margin: 0;
+	margin-left: calc(28rem/16);  /* 2em with default font */
 }
 LI.compact {
 	margin-bottom: calc(2rem/16);
@@ -147,6 +145,9 @@ TT {
 	border-radius: 6px;
 	overflow-x: auto;
 }
+.examplebox > :last-child {
+	margin-bottom: 0;
+}
 .exampleheader {
 	font-size: calc(12rem/16);
 	font-weight: bold;
@@ -155,15 +156,13 @@ TT {
 }
 
 
-DT.paramlist {
-	margin-bottom: 0.5em;
-}
-DD.paramlist {
+dl.paramlist > dd {
+	margin-top: 0.5em;
 	/* give a little extra spacing between items */
 	margin-bottom: 1.5em;
 }
 
-DT.flaglist {
+dl.flaglist > dt {
 	font-weight: bold;
 }
 

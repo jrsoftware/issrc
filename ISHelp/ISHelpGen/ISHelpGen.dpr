@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.25';
+  Version = '1.26';
 
   XMLFileVersion = '1';
 
@@ -369,12 +369,12 @@ begin
           if CurrentTopicName = '' then
             raise Exception.Create('<flag> used outside of topic');
           CreateKeyword(S, CurrentTopicName, S);
-          Result := Result + '<dt class="flaglist">' + GenerateAnchorHTML(S, EscapeHTML(S)) +
+          Result := Result + '<dt>' + GenerateAnchorHTML(S, EscapeHTML(S)) +
             '</dt>' + SNewLine + '<dd>' + ParseFormattedText(Node) +
             '</dd>';
         end;
       elFlagList:
-        Result := Result + '<dl>' + ParseFormattedText(Node) + '</dl>';
+        Result := Result + '<dl class="flaglist">' + ParseFormattedText(Node) + '</dl>';
       elI:
         Result := Result + '<i>' + ParseFormattedText(Node) + '</i>';
       elImg:
@@ -425,30 +425,19 @@ begin
         end;
       elParam:
         begin
-          { IE doesn't support immediate-child-only selectors in CSS (e.g.
-            "DL.paramlist > DT") so we have to apply the class to each DT
-            instead of just on the DL. }
           S := Node.Attributes['name'];
           if CurrentTopicName = '' then
             raise Exception.Create('<param> used outside of topic');
           CreateKeyword(S, CurrentTopicName, S);
-          Result := Result + '<dt class="paramlist"><b>' + GenerateAnchorHTML(S, EscapeHTML(S)) + '</b>';
+          Result := Result + '<dt><b>' + GenerateAnchorHTML(S, EscapeHTML(S)) + '</b>';
           if Node.Attributes['required'] = 'yes' then
             Result := Result + ' &nbsp;<i>(Required)</i>';
-          Result := Result + '</dt><dd class="paramlist">' + ParseFormattedText(Node) + '</dd>';
+          Result := Result + '</dt><dd>' + ParseFormattedText(Node) + '</dd>';
         end;
       elParamList:
-        Result := Result + '<dl>' + ParseFormattedText(Node) + '</dl>';
+        Result := Result + '<dl class="paramlist">' + ParseFormattedText(Node) + '</dl>';
       elPre:
-        begin
-          Result := Result + '<pre';
-          { Special handling for <pre> inside example boxes: Don't include a
-            bottom margin if <pre> is the last element } 
-          if (ElementFromNode(Node.ParentNode) in [elExample, elExamples]) and
-             IsLastNonWhitespaceNode(Node) then
-            Result := Result + ' class="nomargin"';
-          Result := Result + '>' + ParseFormattedText(Node) + '</pre>';
-        end;
+        Result := Result + '<pre>' + ParseFormattedText(Node) + '</pre>';
       elPreCode:
         Result := Result + '<pre class="indent examplebox">' + ParseFormattedText(Node) + '</pre>';
       elSmall:
