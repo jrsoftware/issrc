@@ -401,9 +401,9 @@ FileName: "{app}\MyIni.ini"; Section: "MySettings"; Key: "ShortApp"; String: "{c
 <p>For each check function, may include a comma separated list of parameters that Setup should pass to the check function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
 <example>
 <pre>[Files]
-Source: "MYPROG.EXE"; DestDir: "{app}"; Check: MyProgCheck
-Source: "A\MYFILE.TXT"; DestDir: "{app}"; Check: MyDirCheck(ExpandConstant('{app}\A'))
-Source: "B\MYFILE.TXT"; DestDir: "{app}"; Check: DirExists(ExpandConstant('{app}\B'))</pre>
+Source: "MyProg.exe"; DestDir: "{app}"; Check: MyProgCheck
+Source: "A\MyFile.txt"; DestDir: "{app}"; Check: MyDirCheck(ExpandConstant('{app}\A'))
+Source: "B\MyFile.txt"; DestDir: "{app}"; Check: DirExists(ExpandConstant('{app}\B'))</pre>
 </example>
 </param>
 
@@ -460,10 +460,10 @@ end;
 <p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
 <example>
 <pre>[Files]
-Source: "MYPROG.EXE"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall
-Source: "A\MYFILE.TXT"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall2('{app}\A\MYFILE.TXT')
-Source: "B\MYFILE.TXT"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall2('{app}\B\MYFILE.TXT')
-Source: "MYPROG.CHM"; DestDir: "{app}"; BeforeInstall: Log('Before MYPROG.CHM Install')</pre>
+Source: "MyProg.exe"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall
+Source: "A\MyFile.txt"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall2('{app}\A\MyFile.txt')
+Source: "B\MyFile.txt"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall2('{app}\B\MyFile.txt')
+Source: "MyProg.chm"; DestDir: "{app}"; BeforeInstall: Log('Before MyProg.chm Install')</pre>
 </example>
 </param>
 
@@ -472,10 +472,10 @@ Source: "MYPROG.CHM"; DestDir: "{app}"; BeforeInstall: Log('Before MYPROG.CHM In
 <p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
 <example>
 <pre>[Files]
-Source: "MYPROG.EXE"; DestDir: "{app}"; AfterInstall: MyAfterInstall
-Source: "A\MYFILE.TXT"; DestDir: "{app}"; AfterInstall: MyAfterInstall2('{app}\A\MYFILE.TXT')
-Source: "B\MYFILE.TXT"; DestDir: "{app}"; AfterInstall: MyAfterInstall2('{app}\B\MYFILE.TXT')
-Source: "MYPROG.CHM"; DestDir: "{app}"; AfterInstall: Log('After MYPROG.CHM Install')</pre>
+Source: "MyProg.exe"; DestDir: "{app}"; AfterInstall: MyAfterInstall
+Source: "A\MyFile.txt"; DestDir: "{app}"; AfterInstall: MyAfterInstall2('{app}\A\MyFile.txt')
+Source: "B\MyFile.txt"; DestDir: "{app}"; AfterInstall: MyAfterInstall2('{app}\B\MyFile.txt')
+Source: "MyProg.chm"; DestDir: "{app}"; AfterInstall: Log('After MyProg.chm Install')</pre>
 </example>
 </param>
 

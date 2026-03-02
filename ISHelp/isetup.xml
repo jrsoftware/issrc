@@ -408,7 +408,7 @@ This " contains " embedded " quotes
 <keyword value="{wizardhwnd}" anchor="wizardhwnd" />
 <body>
 
-<p>The majority of the script entries can have <i>constants</i> embedded in them. These are predefined strings enclosed in brace characters <tt>{ }</tt>. Setup or Uninstall translates the constants to their literal values, depending on the user's choices and system configuration. For example, <tt>{win}</tt>, as described below, would translate to "C:\WINDOWS" on most systems.</p>
+<p>The majority of the script entries can have <i>constants</i> embedded in them. These are predefined strings enclosed in brace characters <tt>{ }</tt>. Setup or Uninstall translates the constants to their literal values, depending on the user's choices and system configuration. For example, <tt>{win}</tt>, as described below, would translate to "C:\Windows" on most systems.</p>
 
 <p>A "{" character is treated as the start of the constant. If you want to use that actual character in a place where constants are supported, you must use two consecutive "{" characters. (You do not need to double "}" characters.)</p>
 
@@ -423,19 +423,19 @@ This " contains " embedded " quotes
 <dt><b><a name="app">{app}</a></b></dt>
 <dd>
 <p>The application directory, which the user selects on the <i>Select Destination Location</i> page of the wizard.<br/>
-For example: If you used <tt>{app}\MyProg.exe</tt> on an entry and the user selected "C:\MYPROG" as the application directory, Setup will translate it to "C:\MYPROG\MyProg.exe".</p>
+For example: If you used <tt>{app}\MyProg.exe</tt> on an entry and the user selected "C:\MyProg" as the application directory, Setup will translate it to "C:\MyProg\MyProg.exe".</p>
 </dd>
 
 <dt><b><a name="win">{win}</a></b></dt>
 <dd>
 <p>The system's Windows directory.<br/>
-For example: If you used <tt>{win}\MYPROG.INI</tt> on an entry and the system's Windows directory is "C:\WINDOWS", Setup or Uninstall will translate it to "C:\WINDOWS\MYPROG.INI".</p>
+For example: If you used <tt>{win}\MyProg.ini</tt> on an entry and the system's Windows directory is "C:\Windows", Setup or Uninstall will translate it to "C:\Windows\MyProg.ini".</p>
 </dd>
 
 <dt><b><a name="sys">{sys}</a></b></dt>
 <dd>
 <p>The system's System32 directory.<br/>
-For example: If you used <tt>{sys}\CTL3D32.DLL</tt> on an entry and the system's Windows System directory is "C:\WINDOWS\SYSTEM", Setup or Uninstall will translate it to "C:\WINDOWS\SYSTEM\CTL3D32.DLL".</p>
+For example: If you used <tt>{sys}\CTL3D32.dll</tt> on an entry and the system's Windows System directory is "C:\Windows\System32", Setup or Uninstall will translate it to "C:\Windows\System32\CTL3D32.dll".</p>
 <p>On 64-bit Windows, by default, the System32 path returned by this constant maps to the directory containing 32-bit system files, just like on 32-bit Windows. (This can be overridden by enabling <link topic="32vs64bitinstalls">64-bit install mode</link>.)</p>
 </dd>
 
@@ -447,7 +447,7 @@ For example: If you used <tt>{sys}\CTL3D32.DLL</tt> on an entry and the system's
 
 <dt><b><a name="syswow64">{syswow64}</a></b></dt>
 <dd>
-<p>On 64-bit Windows, the system's SysWOW64 directory, typically "C:\WINDOWS\SysWOW64". This is the actual directory in which 32-bit system files reside. On 32-bit Windows, 32-bit system files do not reside in a separate SysWOW64 directory, so this constant will resolve to the same directory as <tt>{sys}</tt> if used there.</p>
+<p>On 64-bit Windows, the system's SysWOW64 directory, typically "C:\Windows\SysWOW64". This is the actual directory in which 32-bit system files reside. On 32-bit Windows, 32-bit system files do not reside in a separate SysWOW64 directory, so this constant will resolve to the same directory as <tt>{sys}</tt> if used there.</p>
 <p>Do not use this constant unless you have a specific need to obtain the name of the actual directory in which 32-bit system files reside. Gratuitously using <tt>{syswow64}</tt> in places where <tt>{sys}</tt> will suffice may cause problems. (See the documentation for the <link topic="filessection">[Files]</link> section's <tt>sharedfile</tt> flag for one example.)</p>
 </dd>
 
@@ -494,7 +494,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="tmp">{tmp}</a></b></dt>
 <dd>
-<p>Temporary directory used by Setup or Uninstall. This is <i>not</i> the value of the user's TEMP environment variable. It is a subdirectory of the user's temporary directory which is created by Setup or Uninstall at startup (with a name like "C:\WINDOWS\TEMP\IS-xxxxx.tmp"). All files and subdirectories in this directory are deleted when Setup or Uninstall exits. During Setup, this is primarily useful for extracting files that are to be executed in the [Run] section but aren't needed after the installation.</p>
+<p>Temporary directory used by Setup or Uninstall. This is <i>not</i> the value of the user's TEMP environment variable. It is a subdirectory of the user's temporary directory which is created by Setup or Uninstall at startup (with a name like "C:\Windows\Temp\IS-xxxxx.tmp"). All files and subdirectories in this directory are deleted when Setup or Uninstall exits. During Setup, this is primarily useful for extracting files that are to be executed in the [Run] section but aren't needed after the installation.</p>
 </dd>
 
 <dt><b><a name="commonfonts">{commonfonts}</a></b></dt>
@@ -1593,7 +1593,7 @@ DestDir: "{app}\subdir"
 <param name="DestName">
 <p>This parameter specifies a new name for the file when it is installed on the user's system. By default, Setup uses the name from the <tt>Source</tt> parameter, so in most cases it's not necessary to specify this parameter.</p>
 <example>
-<pre>DestName: "MYPROG2.EXE"</pre>
+<pre>DestName: "MyProg2.exe"</pre>
 </example>
 </param>
 
@@ -2850,7 +2850,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 
 <precode>
 [UninstallDelete]
-Type: files; Name: "{win}\MYPROG.INI"
+Type: files; Name: "{win}\MyProg.ini"
 </precode>
 
 <p>The following is a list of the supported <link topic="params">parameters</link>:</p>
@@ -2877,9 +2877,9 @@ Type: files; Name: "{win}\MYPROG.INI"
 
 <param name="Name" required="yes">
 <p>Name of the file or directory to delete.</p>
-<p><b>NOTE:</b> Don't be tempted to use a wildcard here to delete all files in the {app} directory. Doing this is strongly recommend against for two reasons. First, users usually don't appreciate having their data files they put in the application directory deleted without warning (they might only be uninstalling it because they want to move it to a different drive, for example). It's better to leave it up to the end users to manually remove them if they want. Also, if the user happened to install the program in the wrong directory by mistake (for example, C:\WINDOWS) and then went to uninstall it there could be disastrous consequences. So again, <b>DON'T DO THIS!</b></p>
+<p><b>NOTE:</b> Don't be tempted to use a wildcard here to delete all files in the {app} directory. Doing this is strongly recommend against for two reasons. First, users usually don't appreciate having their data files they put in the application directory deleted without warning (they might only be uninstalling it because they want to move it to a different drive, for example). It's better to leave it up to the end users to manually remove them if they want. Also, if the user happened to install the program in the wrong directory by mistake (for example, C:\Windows) and then went to uninstall it there could be disastrous consequences. So again, <b>DON'T DO THIS!</b></p>
 <example>
-<pre>Name: "{win}\MYPROG.INI"</pre>
+<pre>Name: "{win}\MyProg.ini"</pre>
 </example>
 </param>
 
@@ -3249,8 +3249,8 @@ Shown by default, but can be disabled in some cases via <link topic="setup_disab
 
 <precode>
 [INI]
-Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Flags: uninsdeletesectionifempty
-Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; String: "{app}"; Flags: uninsdeleteentry
+Filename: "{win}\MyProg.ini"; Section: "InstallSettings"; Flags: uninsdeletesectionifempty
+Filename: "{win}\MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; String: "{app}"; Flags: uninsdeleteentry
 </precode>
 
 <p>the installer will first record the data for first entry's <tt>uninsdeletesectionifempty</tt> flag in the uninstall log, create the key of the second entry, and then record the data for the <tt>uninsdeleteentry</tt> flag in the uninstall log. When the program is uninstalled, the uninstaller will first process the <tt>uninsdeleteentry</tt> flag, deleting the entry, and then the <tt>uninsdeletesectionifempty</tt> flag, deleting the section.</p>
@@ -4457,27 +4457,27 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <p>If you have a DLL residing in the Windows System directory that you are <b>absolutely sure</b> is redistributable, copy it to your script's source directory and deploy it from there instead.</p>
 </dd>
 
-<dt><b>ADVAPI32.DLL, COMDLG32.DLL, GDI32.DLL, KERNEL32.DLL, RICHED32.DLL, SHELL32.DLL, USER32.DLL, UXTHEME.DLL</b></dt>
+<dt><b>ADVAPI32.dll, COMDLG32.dll, GDI32.dll, KERNEL32.dll, RICHED32.dll, SHELL32.dll, USER32.dll, UXTHEME.dll</b></dt>
 <dd>
 <p>These are all core components of Windows and must never be deployed with an installation. Users may only get new versions of these DLLs by installing a new version of Windows or a service pack or hotfix for Windows.</p>
 </dd>
 
-<dt><i>(Special case)</i> <b>COMCAT.DLL, MSVBVM50.DLL, MSVBVM60.DLL, OLEAUT32.DLL, OLEPRO32.DLL, STDOLE2.TLB</b></dt>
+<dt><i>(Special case)</i> <b>COMCAT.dll, MSVBVM50.dll, MSVBVM60.dll, OLEAUT32.dll, OLEPRO32.dll, STDOLE2.TLB</b></dt>
 <dd>
 <p>If <tt>DestDir</tt> is set to a location <i>other</i> than <tt>{sys}</tt> and the <tt>regserver</tt> or <tt>regtypelib</tt> flag is used, then the above files will be considered "unsafe". These files must never be deployed to and registered in a directory other than <tt>{sys}</tt> because doing so can potentially cause <i>all</i> programs on the system to use them in favor of the files in <tt>{sys}</tt>. Problems would result if your copies of the files are older than the ones in <tt>{sys}</tt>. Also, if your copies of the files were removed, other applications would break.</p>
 </dd>
 
-<dt><b>COMCTL32.DLL</b></dt>
+<dt><b>COMCTL32.dll</b></dt>
 <dd>
-<p>Microsoft does not allow separate redistribution of COMCTL32.DLL (and for good reason - the file differs between platforms), so you should never place COMCTL32.DLL in a script's [Files] section. You can however direct your users to <extlink href="http://www.microsoft.com/downloads/details.aspx?FamilyID=cb2cf3a2-8025-4e8f-8511-9b476a8d35d2&amp;DisplayLang=en">download the COMCTL32 update from Microsoft</extlink>, or distribute the COMCTL32 update along with your program.</p>
+<p>Microsoft does not allow separate redistribution of COMCTL32.dll (and for good reason - the file differs between platforms), so you should never place COMCTL32.dll in a script's [Files] section. You can however direct your users to <extlink href="http://www.microsoft.com/downloads/details.aspx?FamilyID=cb2cf3a2-8025-4e8f-8511-9b476a8d35d2&amp;DisplayLang=en">download the COMCTL32 update from Microsoft</extlink>, or distribute the COMCTL32 update along with your program.</p>
 </dd>
 
-<dt><b>SHDOCVW.DLL, SHLWAPI.DLL, URLMON.DLL, WININET.DLL</b></dt>
+<dt><b>SHDOCVW.dll, SHLWAPI.dll, URLMON.dll, WININET.dll</b></dt>
 <dd>
 <p>These are core components of Internet Explorer and are also used by Windows Explorer. Replacing them may prevent Explorer from starting. If your application depends on these DLLs, or a recent version of them, then your users will need to install a recent version of Internet Explorer to get them.</p>
 </dd>
 
-<dt><b>MSCOREE.DLL</b></dt>
+<dt><b>MSCOREE.dll</b></dt>
 <dd>
 <p>This file is part of the Microsoft .NET Framework. You cannot safely install or update the .NET Framework by including this file with your installation. Call or direct your users to dotnetfx.exe instead.</p>
 </dd>
@@ -4818,9 +4818,9 @@ AppUpdatesURL=http://www.example.com/updates.html
 <p>If <link topic="setup_usepreviousappdir">UsePreviousAppDir</link> is <tt>yes</tt> (the default) and Setup finds a previous version of the <link topic="sameappnotes">same application</link> is already installed, it will substitute the default directory name with the directory selected previously.</p>
 <examples>
 <b>If you used:</b><br/>
-<pre>DefaultDirName={sd}\MYPROG</pre>
+<pre>DefaultDirName={sd}\MyProg</pre>
 <b>In Setup, this would typically display:</b><br/>
-C:\MYPROG<br/><br/>
+C:\MyProg<br/><br/>
 <b>If you used:</b><br/>
 <pre>DefaultDirName={autopf}\My Program</pre>
 <b>In Setup, this would typically display:</b><br/>
@@ -6573,7 +6573,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 <body>
 <p>Specifies whether the compiler should set the "Terminal Services aware" flag in the headers of the Setup and Uninstall programs.</p>
 <p>Most importantly, the "Terminal Services aware" flag affects the behavior of the {win} constant (and <link topic="isxfunc_GetWinDir">GetWinDir</link> support function) on servers with Terminal Services installed in application mode.</p>
-<p>When the flag is set, {win} will consistently return the system's real Windows directory, typically "C:\WINDOWS", just as on systems that do not have Terminal Services installed.</p>
+<p>When the flag is set, {win} will consistently return the system's real Windows directory, typically "C:\Windows", just as on systems that do not have Terminal Services installed.</p>
 <p>When the flag is not set, Windows runs the program in compatibility mode, where {win} may return either the real Windows directory or a user-specific Windows directory, such as "C:\Documents and Settings\&lt;user name&gt;\WINDOWS". Which one you get depends on the name of the program's EXE file and how it is launched. If the program is named setup.exe or install.exe, or if it is launched from the <i>Add/Remove Programs</i> Control Panel applet, then Windows will put the system in "install mode", which effectively makes the program (and all other programs running in the session) behave as if the "Terminal Services aware" flag were set. Otherwise, the program is treated as a legacy application and is given a private Windows directory. (This is true even if the user running the program has full administrative privileges.)</p>
 <p>Because the behavior that results from setting <tt>TerminalServicesAware</tt> to <tt>no</tt> is inconsistent and hard to predict, it is recommended that you use the default setting of <tt>yes</tt>. Only use <tt>no</tt> as a temporary fix if you encounter troubles on systems with Terminal Services after upgrading from a previous Inno Setup version.</p>
 </body>
