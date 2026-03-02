@@ -4111,6 +4111,11 @@ begin
   Log(S);
 end;
 
+procedure RunExecLogOnLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
+begin
+  CodeRunner.RunProcedure(AnsiString(PChar(Data)), [S, Error, FirstLine], True);
+end;
+
 procedure ProcessRunEntry(const RunEntry: PSetupRunEntry);
 begin
   { On 32-bit Setup, when the [Run] entry is 64-bit, we unfortunately cannot
@@ -4170,8 +4175,12 @@ begin
          NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent)) then begin
         var OutputReader: TCreateProcessOutputReader := nil;
         try
-          if GetLogActive and (roLogOutput in RunEntry.Options) then
-            OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
+          if roLogOutput in RunEntry.Options then begin
+            if (RunEntry.OnLog <> '') and (CodeRunner <> nil) then
+              OutputReader := TCreateProcessOutputReader.Create(RunExecLogOnLog, NativeInt(PChar(RunEntry.OnLog)))
+            else if GetLogActive then
+              OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
+          end;
           var ErrorCode: DWORD;
           if not InstExecEx(RunAsOriginalUser, RunEntry64Bit and not IsCurrentProcess64Bit,
              ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,

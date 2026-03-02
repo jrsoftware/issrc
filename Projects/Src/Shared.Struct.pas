@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (6.7.0)';
+  SetupID: TSetupID = 'Inno Setup Setup Data (7.0.0.1)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)',
      'Inno Setup Uninstall Log (b) 64-bit'); { '64-bit' refers to 64-bit install mode }
@@ -369,13 +369,13 @@ type
     DeleteType: TSetupDeleteType;
   end;
 const
-  SetupRunEntryStrings = 13;
+  SetupRunEntryStrings = 14;
   SetupRunEntryAnsiStrings = 0;
 type
   PSetupRunEntry = ^TSetupRunEntry;
   TSetupRunEntry = packed record
-    Name, Parameters, WorkingDir, RunOnceId, StatusMsg, Verb: String;
-    Description, Components, Tasks, Languages, Check, AfterInstall, BeforeInstall: String;
+    Name, Parameters, WorkingDir, RunOnceId, StatusMsg, Verb, Description,
+    Components, Tasks, Languages, Check, AfterInstall, BeforeInstall, OnLog: String;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     ShowCmd: Integer;
     Wait: (rwWaitUntilTerminated, rwNoWait, rwWaitUntilIdle);

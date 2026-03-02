@@ -15,7 +15,7 @@ uses
   Windows, SysUtils, Shared.FileClass, Shared.CommonFunc;
 
 const
-  HighestSupportedHeaderVersion = 1055;
+  HighestSupportedHeaderVersion = 1056;
   { Each time the format of the uninstall log changes, HighestSupportedHeaderVersion
     must be incremented, even if the change seems backward compatible (such as
     adding a new flag, or using one of the Reserved slots). When this happens, the
@@ -183,7 +183,8 @@ uses
   UnsignedFunc,
   PathFunc, Shared.Struct, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.InstFunc,
   Setup.InstFunc.Ole, Setup.RedirFunc, Compression.Base,
-  Setup.LoggingFunc, Setup.RegDLL, Setup.DotNetFunc, Setup.PathRedir;
+  Setup.LoggingFunc, Setup.RegDLL, Setup.DotNetFunc, Setup.PathRedir,
+  Setup.MainFunc;
 
 type
   { Note: TUninstallLogHeader should stay <= 512 bytes in size, so that it
@@ -572,6 +573,11 @@ begin
   Log(S);
 end;
 
+procedure RunExecLogOnLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
+begin
+  CodeRunner.RunProcedure(AnsiString(PChar(Data)), [S, Error, FirstLine], True);
+end;
+
 function TUninstallLog.PerformUninstall(const CallFromUninstaller: Boolean;
   const DeleteUninstallDataFilesProc: TDeleteUninstallDataFilesProc): Boolean;
 { Undoes all the changes in the uninstall list, in reverse order they were
@@ -839,8 +845,13 @@ begin
                    NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent)) then begin
                   var OutputReader: TCreateProcessOutputReader := nil;
                   try
-                    if GetLogActive and (CurRec^.ExtraData and utRun_LogOutput <> 0) then
-                      OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
+                    if CurRec^.ExtraData and utRun_LogOutput <> 0 then begin
+                      const FuncName = CurRecDataPChar[5];
+                      if (FuncName <> nil) and (FuncName <> '') and (CodeRunner <> nil) then
+                        OutputReader := TCreateProcessOutputReader.Create(RunExecLogOnLog, NativeInt(FuncName))
+                      else if GetLogActive then
+                        OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
+                    end;
                     var ErrorCode: DWORD;
                     if not InstExec(RunEntry64Bit and not IsCurrentProcess64Bit,
                        ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,

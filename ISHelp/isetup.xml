@@ -47,6 +47,7 @@
     <contentstopic title="Scripted Constants" topic="scriptconstants" />
     <contentstopic title="Check Parameters" topic="scriptcheck" />
     <contentstopic title="BeforeInstall and AfterInstall Parameters" topic="scriptinstall" />
+    <contentstopic title="OnLog Parameters" topic="scriptonlog" />
     <contentstopic title="Uninstall Code" topic="scriptuninstall" />
     <contentstopic title="Examples" topic="scriptexamples" />
     <contentstopic title="Support Functions Reference" topic="scriptfunctions" />
@@ -2737,6 +2738,13 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 </example>
 </param>
 
+<param name="OnLog">
+<p>The name of a <tt>[Code]</tt> procedure to be called for each line of the program's output. Must be combined with the <tt>logoutput</tt> flag. See <link topic="scriptonlog">Pascal Scripting: OnLog Parameters</link> for more information.</p>
+<example>
+<pre>OnLog: MyOnLog</pre>
+</example>
+</param>
+
 <param name="Flags">
 <p>This parameter is a set of extra options. Multiple options may be used by separating them by spaces. The following options are supported:</p>
 
@@ -2757,7 +2765,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 <p>If this flag is specified, the wizard will be hidden while the program is running.</p>
 </flag>
 <flag name="logoutput">
-<p>If this flag is specified, the output of the program will be included in the log file.</p>
+<p>If this flag is specified, the output of the program will be included in the log file. If the <tt>OnLog</tt> parameter is also specified, the output is passed to the <tt>OnLog</tt> procedure instead.</p>
 <p>This flag cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags.</p>
 </flag>
 <flag name="nowait">

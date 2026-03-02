@@ -2,6 +2,7 @@
 ; Demonstrates calling Powershell at compile time and at run time.
 ; At compile time it first generates a random password and then it shows it and copies it to the clipboard.
 ; At run time it shows the serial number of the system.
+; Also demonstrates the OnLog parameter for [Run] section entries.
 
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
 
@@ -45,7 +46,17 @@ Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 [Icons]
 Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
 
+[Run]
+Filename: "{#PowerShellExe}"; Parameters: "{#PowerShellCommandParam} ""Get-ChildItem -Path '{app}' | ForEach-Object {{ Start-Sleep -Milliseconds 250; $_.Name }}"""; \
+  StatusMsg: "Listing installed files..."; OnLog: RunOnLog; Flags: runhidden logoutput
+
 [Code]
+procedure RunOnLog(const S: String; const Error, FirstLine: Boolean);
+begin
+  if not Error then
+    WizardForm.StatusLabel.Caption := 'Found: ' + S;
+end;
+
 var
   Line: String;
 

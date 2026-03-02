@@ -517,6 +517,44 @@ end;
 
 
 
+<topic name="scriptonlog" title="Pascal Scripting: OnLog Parameters">
+<keyword value="Pascal Scripting: OnLog Parameters" />
+<keyword value="OnLog parameters" />
+<body>
+
+<p>There is one optional <link topic="params">parameter</link> that is supported by the <tt>[Run]</tt> and <tt>[UninstallRun]</tt> sections. This is:</p>
+
+<paramlist>
+
+<param name="OnLog">
+<p>When combined with the <tt>logoutput</tt> flag, this parameter specifies the name of procedure that is called for each line of the program's output instead of directly including it in the log file.</p>
+<p>The function must be a custom function in the [Code] section having the following prototype: <tt>procedure MyOnLog(const S: String; const Error, FirstLine: Boolean);</tt>.</p>
+<p>See <link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link> for an explanation of parameters <tt>S</tt>, <tt>Error</tt> and <tt>FirstLine</tt>.</p>
+<example>
+<pre>[Run]
+Filename: "{app}\MyConsoleProg.exe"; OnLog: MyOnLog; Flags: logoutput</pre>
+</example>
+</param>
+
+</paramlist>
+
+<p>Here is an example of a <tt>[Code]</tt> section containing the procedure used above. Function <tt>Log</tt> is a <link topic="scriptfunctions">support function</link> and therefore not included in this [Code] section.</p>
+
+<precode>
+[Code]
+procedure MyOnLog(const S: String; const Error, FirstLine: Boolean);
+begin
+  if not Error and FirstLine then
+    Log('Output:');
+  Log(S);
+end;
+</precode>
+
+</body>
+</topic>
+
+
+
 <topic name="scriptuninstall" title="Pascal Scripting: Uninstall Code">
 <keyword value="Pascal Scripting: Uninstall Code" />
 <keyword value="Uninstall code" />
