@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.26';
+  Version = '1.27';
 
   XMLFileVersion = '1';
 
@@ -58,6 +58,7 @@ type
     elSetupValid,
     elSetupTopic,
     elSmall,
+    elSup,
     elTable,
     elTD,
     elTH,
@@ -442,6 +443,8 @@ begin
         Result := Result + '<pre class="indent examplebox">' + ParseFormattedText(Node) + '</pre>';
       elSmall:
         Result := Result + '<span class="small">' + ParseFormattedText(Node) + '</span>';
+      elSup:
+        Result := Result + '<sup>' + ParseFormattedText(Node) + '</sup>';
       elTable:
         Result := Result + '<table>' + ParseFormattedText(Node) + '</table>';
       elTD:

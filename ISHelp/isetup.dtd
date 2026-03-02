@@ -7,10 +7,18 @@
   Document Type Definition for isetup.xml
 -->
 
-<!ENTITY nbsp "&#160;"> 
-<!ENTITY copy "&#169;"> 
+<!ENTITY nbsp   "&#x00A0;">
+<!ENTITY copy   "&#x00A9;">
+<!ENTITY times  "&#x00D7;">
+<!ENTITY divide "&#x00F7;">
+<!ENTITY ndash  "&#x2013;">
+<!ENTITY mdash  "&#x2014;">
+<!ENTITY rarr   "&#x2192;">
+<!ENTITY approx "&#x2248;">
+<!ENTITY le     "&#x2264;">
+<!ENTITY ge     "&#x2265;">
 
-<!ENTITY % _inlineExceptLink "b | br | i | tt | u">
+<!ENTITY % _inlineExceptLink "b | br | i | sup | tt | u">
 <!ENTITY % _inline "%_inlineExceptLink; | link | extlink | img | a | anchorlink">
 <!ENTITY % _block "p | heading | pre | precode | example | examples | indent | ul | ol | dl | paramlist | flaglist | table">
 
@@ -46,6 +54,7 @@
 <!ELEMENT b %Inline;>
 <!ELEMENT br EMPTY>
 <!ELEMENT i %Inline;>
+<!ELEMENT sup %Inline;>
 <!ELEMENT tt %Inline;>
 <!ELEMENT u %Inline;>
 <!ELEMENT link %InlineExceptLink;>
