@@ -130,29 +130,6 @@ begin
   Result := (Node = nil);
 end;
 
-function IsLastNonWhitespaceNode(Node: IXMLNode): Boolean;
-{ Returns True if no non-whitespace sibling elements follow }
-begin
-  repeat
-    Node := Node.NextSibling;
-  until (Node = nil) or not IsWhitespace(Node);
-  Result := (Node = nil);
-end;
-
-function NodeHasChildren(Node: IXMLNode): Boolean;
-{ Returns True if the node has non-whitespace children }
-begin
-  Node := Node.GetFirstChild;
-  while Assigned(Node) do begin
-    if not IsWhitespace(Node) then begin
-      Result := True;
-      Exit;
-    end;
-    Node := Node.NextSibling;
-  end;
-  Result := False;
-end;
-
 function ListItemExists(const SL: TStrings; const S: String): Boolean;
 var
   I: Integer;
