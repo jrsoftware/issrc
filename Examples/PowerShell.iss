@@ -47,14 +47,18 @@ Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
 
 [Run]
-Filename: "{#PowerShellExe}"; Parameters: "{#PowerShellCommandParam} ""Get-ChildItem -Path '{app}' | ForEach-Object {{ Start-Sleep -Milliseconds 250; $_.Name }}"""; \
-  StatusMsg: "Listing installed files..."; OnLog: RunOnLog; Flags: runhidden logoutput
+Filename: "{#PowerShellExe}"; Parameters: "{#PowerShellCommandParam} ""Get-ChildItem -Path '{sys}\d*' | ForEach-Object {{ $_.Name }"""; \
+  StatusMsg: "Listing System32\d* files..."; OnLog: RunOnLog; Flags: runhidden logoutput
 
 [Code]
 procedure RunOnLog(const S: String; const Error, FirstLine: Boolean);
 begin
-  if not Error then
+  if not Error then begin
+    if FirstLine then
+      Log('Output:');
     WizardForm.StatusLabel.Caption := 'Found: ' + S;
+    Log(S);
+  end;
 end;
 
 var
