@@ -839,57 +839,59 @@ begin
               LogFmt('Running %s filename: %s', [&Type, ExpandedFilename]);
               if (CurRec^.ExtraData and utRun_DontLogParameters = 0) and (ExpandedParameters <> '') then
                 LogFmt('Running %s parameters: %s', [&Type, ExpandedParameters]);
-
-              if CurRec^.ExtraData and utRun_ShellExec = 0 then begin
-                if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
-                   NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent)) then begin
-                  var OutputReader: TCreateProcessOutputReader := nil;
-                  try
-                    if CurRec^.ExtraData and utRun_LogOutput <> 0 then begin
-                      const FuncName = CurRecDataPChar[5];
-                      if (FuncName <> nil) and (FuncName <> '') and (CodeRunner <> nil) then
-                        OutputReader := TCreateProcessOutputReader.Create(RunExecLogOnLog, NativeInt(FuncName))
-                      else if GetLogActive then
-                        OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
+              try
+                if CurRec^.ExtraData and utRun_ShellExec = 0 then begin
+                  if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
+                     NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent)) then begin
+                    var OutputReader: TCreateProcessOutputReader := nil;
+                    try
+                      if CurRec^.ExtraData and utRun_LogOutput <> 0 then begin
+                        const FuncName = CurRecDataPChar[5];
+                        if (FuncName <> nil) and (FuncName <> '') and (CodeRunner <> nil) then
+                          OutputReader := TCreateProcessOutputReader.Create(RunExecLogOnLog, NativeInt(FuncName))
+                        else if GetLogActive then
+                          OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
+                      end;
+                      var ErrorCode: DWORD;
+                      if not InstExec(RunEntry64Bit and not IsCurrentProcess64Bit,
+                         ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,
+                         Wait, ShowCmd, ProcessMessagesProc, OutputReader, ErrorCode) then begin
+                        LogFmt('CreateProcess failed (%d).', [ErrorCode]);
+                        Result := False;
+                      end
+                      else begin
+                        if Wait = ewWaitUntilTerminated then
+                          LogFmt('Process exit code: %u', [ErrorCode]);
+                      end;
+                    finally
+                      OutputReader.Free;
                     end;
+                  end else
+                    Log('File doesn''t exist. Skipping.');
+                end
+                else begin
+                  if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
+                     FileOrDirExists(ExpandedFilename) then begin
+                    if CurRec^.ExtraData and utRun_ShellExecRespectWaitFlags = 0 then
+                      Wait := ewNoWait;
                     var ErrorCode: DWORD;
-                    if not InstExec(RunEntry64Bit and not IsCurrentProcess64Bit,
+                    if not InstShellExec(CurRecData[4],
                        ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,
-                       Wait, ShowCmd, ProcessMessagesProc, OutputReader, ErrorCode) then begin
-                      LogFmt('CreateProcess failed (%d).', [ErrorCode]);
+                       Wait, ShowCmd, ProcessMessagesProc, ErrorCode) then begin
+                      LogFmt('ShellExecuteEx failed (%d).', [ErrorCode]);
                       Result := False;
                     end
                     else begin
                       if Wait = ewWaitUntilTerminated then
                         LogFmt('Process exit code: %u', [ErrorCode]);
                     end;
-                  finally
-                    OutputReader.Free;
-                  end;
-                end else
-                  Log('File doesn''t exist. Skipping.');
-              end
-              else begin
-                if (CurRec^.ExtraData and utRun_SkipIfDoesntExist = 0) or
-                   FileOrDirExists(ExpandedFilename) then begin
-                  if CurRec^.ExtraData and utRun_ShellExecRespectWaitFlags = 0 then
-                    Wait := ewNoWait;
-                  var ErrorCode: DWORD;
-                  if not InstShellExec(CurRecData[4],
-                     ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,
-                     Wait, ShowCmd, ProcessMessagesProc, ErrorCode) then begin
-                    LogFmt('ShellExecuteEx failed (%d).', [ErrorCode]);
-                    Result := False;
-                  end
-                  else begin
-                    if Wait = ewWaitUntilTerminated then
-                      LogFmt('Process exit code: %u', [ErrorCode]);
-                  end;
-                end else
-                  Log('File/directory doesn''t exist. Skipping.');
+                  end else
+                    Log('File/directory doesn''t exist. Skipping.');
+                end;
+              finally
+                if CurRecData[3] <> '' then
+                  RunOnceList.Add(CurRecData[3]);
               end;
-              if CurRecData[3] <> '' then
-                RunOnceList.Add(CurRecData[3]);
             end else
               LogFmt('Skipping RunOnceId "%s" filename: %s', [CurRecData[3], CurRecData[0]]);
           except
