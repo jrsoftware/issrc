@@ -2877,7 +2877,7 @@ Type: files; Name: "{win}\MyProg.ini"
 
 <param name="Name" required="yes">
 <p>Name of the file or directory to delete.</p>
-<p><b>NOTE:</b> Don't be tempted to use a wildcard here to delete all files in the {app} directory. Doing this is strongly recommend against for two reasons. First, users usually don't appreciate having their data files they put in the application directory deleted without warning (they might only be uninstalling it because they want to move it to a different drive, for example). It's better to leave it up to the end users to manually remove them if they want. Also, if the user happened to install the program in the wrong directory by mistake (for example, C:\Windows) and then went to uninstall it there could be disastrous consequences. So again, <b>DON'T DO THIS!</b></p>
+<p><b>NOTE:</b> Don't be tempted to use a wildcard here to delete all files in the {app} directory. Doing this is strongly recommended against for two reasons. First, users usually don't appreciate having their data files they put in the application directory deleted without warning (they might only be uninstalling it because they want to move it to a different drive, for example). It's better to leave it up to the end users to manually remove them if they want. Also, if the user happened to install the program in the wrong directory by mistake (for example, C:\Windows) and then went to uninstall it there could be disastrous consequences. So again, <b>DON'T DO THIS!</b></p>
 <example>
 <pre>Name: "{win}\MyProg.ini"</pre>
 </example>
