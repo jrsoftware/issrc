@@ -527,7 +527,7 @@ end;
 <paramlist>
 
 <param name="OnLog">
-<p>When combined with the <tt>logoutput</tt> flag, this parameter specifies the name of procedure that is called for each line of the program's output instead of directly including it in the log file.</p>
+<p>When combined with the <tt>logoutput</tt> flag, this parameter specifies the name of a procedure that is to be called for each line of the program's output instead of directly including it in the log file.</p>
 <p>The function must be a custom function in the [Code] section having the following prototype: <tt>procedure MyOnLog(const S: String; const Error, FirstLine: Boolean);</tt>.</p>
 <p>See <link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link> for an explanation of parameters <tt>S</tt>, <tt>Error</tt> and <tt>FirstLine</tt>.</p>
 <example>
