@@ -1986,6 +1986,7 @@ initialization
   PascalRealEnumValues[3] := TypeInfo(TUninstallStep);
   PascalRealEnumValues[4] := TypeInfo(TSetupProcessorArchitecture);
   PascalRealEnumValues[5] := TypeInfo(TDotNetVersion);
+  { TPathRedirTargetProcess: see PascalEnumValues }
 
   const ArchitecturesExpressionValues: TArray<TScintRawString> = [
     'not', 'and', 'or',
