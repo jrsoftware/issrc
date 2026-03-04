@@ -3043,6 +3043,8 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 
 <p>To check which edition you installed, click the "Inno Setup Compiler" shortcut in the Start Menu. The 32-bit edition displays "32-bit" in the title bar, while the 64-bit edition does not.</p>
 
+<p>Using the 64-bit edition is recommended.</p>
+
 <p>Key benefits and differences:</p>
 <ul>
 <li>Either edition can generate installers of either architecture: 32-bit compilers can build 64-bit installers, and vice versa.</li>
