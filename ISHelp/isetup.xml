@@ -3,7 +3,7 @@
 
 <!--
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 -->
@@ -78,6 +78,7 @@
     <contentstopic title="Non Administrative Install Mode" topic="admininstallmode" />
     <contentstopic title="64-bit Install Mode" topic="32vs64bitinstalls" />
     <contentstopic title="64-bit Installation Limitations" topic="64bitlimitations" />
+    <contentstopic title="System Path Redirection" topic="pathredir" />
     <contentstopic title="Architecture Identifiers" topic="archidentifiers" />
     <contentstopic title="Wizard Pages" topic="wizardpages" />
     <contentstopic title="Installation Order" topic="installorder" />
@@ -1465,6 +1466,7 @@ Name: "{app}\bin"
 
 <param name="Name" required="yes">
 <p>The name of the directory to create, which normally will start with one of the directory constants.</p>
+<p><link topic="pathredir">System path redirection</link> is applied to the specified path.</p>
 <example>
 <pre>Name: "{app}\MyDir"</pre>
 </example>
@@ -1582,6 +1584,7 @@ Source: "Files\*"
 
 <param name="DestDir" required="yes">
 <p>The directory where the file is to be installed on the user's system. Will almost always begin with one of the directory constants. If the specified path does not already exist on the user's system, it will be created automatically, and removed automatically during uninstallation if empty.</p>
+<p><link topic="pathredir">System path redirection</link> is applied to the specified path.</p>
 <examples>
 <pre>
 DestDir: "{app}"
@@ -2689,7 +2692,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 
 <param name="Filename" required="yes">
 <p>The program to execute, or file/folder to open. If <tt>Filename</tt> is not an executable (.exe or .com) or batch file (.bat or .cmd), you <i>must</i> use the <tt>shellexec</tt> flag on the entry. This parameter can include constants.</p>
-<p>Any extended-length paths, also known as super paths, are always converted back to normal paths.</p>
+<p><link topic="pathredir">System path redirection</link> is applied to the specified path. Any extended-length paths, also known as super paths, are always converted back to normal paths.</p>
 <example>
 <pre>Filename: "{app}\INIT.EXE"</pre>
 </example>
@@ -2711,7 +2714,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 
 <param name="WorkingDir">
 <p>The initial current directory for the program. If this parameter is not specified or is blank, it uses the directory from the <tt>Filename</tt> parameter; if <tt>Filename</tt> does not include a path, it will use a default directory. This parameter can include constants.</p>
-<p>Any extended-length paths, also known as super paths, are always converted back to normal paths.</p>
+<p><link topic="pathredir">System path redirection</link> is applied to the specified path. Any extended-length paths, also known as super paths, are always converted back to normal paths.</p>
 <example>
 <pre>WorkingDir: "{app}"</pre>
 </example>
@@ -2877,6 +2880,7 @@ Type: files; Name: "{win}\MyProg.ini"
 
 <param name="Name" required="yes">
 <p>Name of the file or directory to delete.</p>
+<p><link topic="pathredir">System path redirection</link> is applied to the specified path.</p>
 <p><b>NOTE:</b> Don't be tempted to use a wildcard here to delete all files in the {app} directory. Doing this is strongly recommended against for two reasons. First, users usually don't appreciate having their data files they put in the application directory deleted without warning (they might only be uninstalling it because they want to move it to a different drive, for example). It's better to leave it up to the end users to manually remove them if they want. Also, if the user happened to install the program in the wrong directory by mistake (for example, C:\Windows) and then went to uninstall it there could be disastrous consequences. So again, <b>DON'T DO THIS!</b></p>
 <example>
 <pre>Name: "{win}\MyProg.ini"</pre>
@@ -3356,6 +3360,78 @@ Filename: "{win}\MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 </ul>
 
+</body>
+</topic>
+
+
+
+<topic name="pathredir" title="System Path Redirection">
+<keyword value="System Path Redirection" />
+<body>
+<p>On 64-bit Windows, there are two "System" directories: one containing 64-bit DLLs/EXEs, called <tt>System32</tt> on disk, and one containing 32-bit DLLs/EXEs, called <tt>SysWOW64</tt> on disk.</p>
+<p>In certain contexts where paths are specified, such as the <tt>DestDir</tt> parameter of the <tt>[Files]</tt> section, <i>system path redirection</i> is applied. Paths starting with <tt>{sys}</tt> (or other value expanding to <tt><i>x</i>:\Windows\System32</tt>) are automatically rewritten if needed so that in <link topic="32vs64bitinstalls">64-bit install mode</link>, it is the 64-bit System directory that is accessed, and in 32-bit install mode, it is the 32-bit System directory that is accessed.</p>
+<p>No rewriting occurs on systems running 32-bit Windows, as <tt>System32</tt> is the only System directory. <tt>SysWOW64</tt> doesn't exist, and the <tt>Sysnative</tt> alias isn't supported.</p>
+<p>Paths are rewritten according to the following rules:</p>
+<indent>
+<table>
+<tr>
+  <th>Input path bitness<sup>[1]</sup></th>
+  <th>Target process bitness<sup>[2]</sup></th>
+  <th>Substitution made</th>
+  <th>Explanation</th>
+</tr>
+<tr>
+  <td>64-bit</td>
+  <td>32-bit</td>
+  <td nowrap=""><tt>System32</tt> &rarr; <tt>Sysnative</tt></td>
+  <td>32-bit processes have to use the <tt>Sysnative</tt> alias to reach the "real" 64-bit <tt>System32</tt> directory.</td>
+</tr>
+<tr>
+  <td>32-bit</td>
+  <td>64-bit</td>
+  <td nowrap=""><tt>System32</tt> &rarr; <tt>SysWOW64</tt></td>
+  <td>
+    <p>64-bit processes can only access the 32-bit System directory as <tt>SysWOW64</tt>.</p>
+    <p>All subdirectories are redirected as well; there are no exemptions.</p>
+  </td>
+</tr>
+<tr>
+  <td>32-bit</td>
+  <td>32-bit</td>
+  <td nowrap="">
+    <p>Usually:<br/><tt>System32</tt> &rarr; <tt>SysWOW64</tt></p>
+    <p>In special cases:<br/><tt>SysWOW64</tt> &rarr; <tt>System32</tt></p>
+  </td>
+  <td>
+    <p>In 32-bit processes, <extlink href="https://learn.microsoft.com/en-us/windows/win32/winprog64/file-system-redirector">WOW64 file system redirection</extlink> already routes <tt>System32</tt> to <tt>SysWOW64</tt>, but certain subdirectories are exempt (one example: <tt>System32\drivers\etc</tt>). Explicitly changing <tt>System32</tt> &rarr; <tt>SysWOW64</tt> bypasses those exemptions, keeping the redirection consistent with the 64-bit target process rule above.</p>
+    <p>In a few special cases, the rule is flipped to <tt>SysWOW64</tt> &rarr; <tt>System32</tt>. These cases are:</p>
+    <ul appearance="compact">
+      <li>when setting values in the 32-bit <tt>SharedDLLs</tt> registry key, because <tt>SysWOW64</tt> isn't used there</li>
+      <li>when passing paths to the 32-bit <tt>regsvr32.exe</tt>, because DLLs are traditionally registered with a <tt>System32</tt> path</li>
+      <li>when registering/unregistering type libraries in 32-bit Setup/Uninstall, because type libraries are traditionally registered with a <tt>System32</tt> path</li>
+      <li>when the <tt><link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link></tt> support function is called with <tt>tp32BitPreferSystem32</tt> in the target process parameter</li>
+    </ul>
+  </td>
+</tr>
+<tr>
+  <td>64-bit</td>
+  <td>64-bit</td>
+  <td nowrap=""><tt>System32</tt> &rarr; <i>no change</i></td>
+  <td><tt>System32</tt> is correct as-is when the input path and target process are both 64-bit.</td>
+</tr>
+<tr>
+  <td>Any</td>
+  <td>64-bit</td>
+  <td nowrap=""><tt>Sysnative</tt> &rarr; <tt>System32</tt></td>
+  <td>
+    <p>64-bit processes cannot use the <tt>Sysnative</tt> alias; it is only available in 32-bit processes.</p>
+    <p>Although this rule is applied for both 32-bit and 64-bit input paths, <tt>Sysnative</tt> <i>should</i> only be present in 32-bit input paths.</p>
+  </td>
+</tr>
+</table>
+<p><sup>[1]</sup> By default, the "input path bitness" is the same as Setup/Uninstall's <link topic="32vs64bitinstalls">install mode</link> &mdash; 32-bit in 32-bit install mode, and 64-bit in 64-bit install mode. In the <tt>[Files]</tt> and <tt>[Run]</tt> sections, the path bitness can be overridden on a per-entry basis using the <tt>32bit</tt> and <tt>64bit</tt> flags.</p>
+<p><sup>[2]</sup> "Target process" is the process where the rewritten path will ultimately be accessed. In most cases, paths are accessed by Setup/Uninstall itself, so the target process bitness is Setup/Uninstall's bitness (as set by <tt><link topic="setup_setuparchitecture">SetupArchitecture</link></tt>).</p>
+</indent>
 </body>
 </topic>
 
