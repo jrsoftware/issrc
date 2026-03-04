@@ -22,12 +22,11 @@ unit Setup.PathRedir;
 interface
 
 uses
-  Windows, SysUtils;
+  Windows, SysUtils,
+  Shared.SetupTypes;
 
 type
   TPathRedirFlags = set of (rfNormalPath);
-  TPathRedirTargetProcess = (tpCurrent, tpNativeBit, tp32Bit,
-    tp32BitPreferSystem32);
 
 function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String;
   const ATargetProcess: TPathRedirTargetProcess;

@@ -180,9 +180,10 @@ implementation
 
 uses
   Messages, ShlObj, AnsiStrings,
-  UnsignedFunc,
-  PathFunc, Shared.Struct, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.InstFunc,
-  Setup.InstFunc.Ole, Setup.RedirFunc, Compression.Base,
+  UnsignedFunc, PathFunc,
+  Shared.Struct, Shared.SetupTypes, Shared.SetupMessageIDs,
+  SetupLdrAndSetup.Messages,
+  Setup.InstFunc, Setup.InstFunc.Ole, Setup.RedirFunc, Compression.Base,
   Setup.LoggingFunc, Setup.RegDLL, Setup.DotNetFunc, Setup.PathRedir,
   Setup.MainFunc;
 

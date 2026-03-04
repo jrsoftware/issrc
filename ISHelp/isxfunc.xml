@@ -1807,18 +1807,12 @@ end;</pre></example>
       </function>
       <function>
         <name>ApplyPathRedirRules</name>
-        <prototype>function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String; const ATargetProcess64Bit: Boolean): String;</prototype>
-        <description><p>Rewrites paths containing System32 to achieve the same effect as disabling/enabling WOW64 file system redirection, without actually changing the redirection state. Additionally, rewrites paths containing Sysnative for 64-bit target processes to ensure access to 64-bit System32.</p>
+        <prototype>function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String; const ATargetProcess: TPathRedirTargetProcess): String;</prototype>
+        <description><p>Applies <link topic="pathredir">system path redirection</link> to the specified path and returns the rewritten path.</p>
 <p>Before rewriting, the path is expanded using <link topic="isxfunc_ExpandFileName">ExpandFileName</link> and converted to an extended-length path (also known as a super path).</p>
-<p>Does not rewrite paths that do not contain System32 or Sysnative. Also does not rewrite when the system is running a 32-bit version of Windows.</p>
-<p>Path expansion and conversion to extended-length path always occurs.</p></description>
-        <remarks><p>Does not rewrite for certain combinations, such as 64-bit System32 for a 64-bit target process, because no rewriting (or redirection) is needed for the target process to access the intended path. The following table lists all combinations for which rewriting has an effect, and the result:</p>
-        <table><tr><th>A64Bit</th><th>APath</th><th>ATargetProcess64Bit</th><th>Result</th><th>Explanation</th></tr>
-<tr><td>True</td><td>System32</td><td>False</td><td>Sysnative</td><td>The 32-bit target process needs to use the Sysnative alias to access 64-bit system files.</td></tr>
-<tr><td>False</td><td>System32</td><td>True</td><td>SysWOW64</td><td>The 64-bit target process needs to use SysWOW64 to access 32-bit system files.</td></tr>
-<tr><td>False</td><td>System32</td><td>False</td><td>SysWOW64</td><td>Helps the 32-bit target process avoid some exceptions that apply to System32 but not to SysWOW64.</td></tr>
-<tr><td>Any value</td><td>Sysnative</td><td>True</td><td>System32</td><td>The 64-bit target process needs to use System32 instead of the Sysnative alias to access 64-bit system files, because the Sysnative alias is only accessible to 32-bit processes.</td></tr>
-</table></remarks>
+<p>Path expansion and conversion to extended-length path always occurs, even if nothing is rewritten.</p></description>
+        <remarks><p>TPathRedirTargetProcess is defined as:</p>
+<p><tt>TPathRedirTargetProcess = (tpCurrent, tpNativeBit, tp32Bit, tp32BitPreferSystem32);</tt></p></remarks>
         <seealso><p><link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link><br/>
 <link topic="isxfunc_PathConvertSuperToNormal">PathConvertSuperToNormal</link></p></seealso>
       </function>

@@ -2,7 +2,7 @@ unit Compiler.ScriptFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -109,6 +109,7 @@ begin
   RegisterRealEnum('TUninstallStep', TypeInfo(TUninstallStep));
   RegisterRealEnum('TSetupProcessorArchitecture', TypeInfo(TSetupProcessorArchitecture));
   RegisterRealEnum('TDotNetVersion', TypeInfo(TDotNetVersion));
+  RegisterRealEnum('TPathRedirTargetProcess', TypeInfo(TPathRedirTargetProcess));
 
   RegisterType('TSplitType', '(stAll, stExcludeEmpty, stExcludeLastEmpty)'); //must be compatible with System.SysUtils.TStringSplitOptions
 
