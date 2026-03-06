@@ -2744,7 +2744,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 </param>
 
 <param name="OnLog">
-<p>The name of a <tt>[Code]</tt> procedure to be called for each line of the program's output. Must be combined with the <tt>logoutput</tt> flag. See <link topic="scriptonlog">Pascal Scripting: OnLog Parameters</link> for more information.</p>
+<p>Valid only in a <tt>[Run]</tt> section. The name of a <tt>[Code]</tt> procedure to be called for each line of the program's output. Must be combined with the <tt>logoutput</tt> flag. See <link topic="scriptonlog">Pascal Scripting: OnLog Parameters</link> for more information.</p>
 <example>
 <pre>OnLog: MyOnLog</pre>
 </example>
