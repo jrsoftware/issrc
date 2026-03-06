@@ -148,7 +148,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
       If it selects <tt>basic</tt> because no entry uses the <tt>extractarchive</tt> flag, but you still use support function <tt>ExtractArchive</tt> or <tt>CreateExtractionPage</tt>, you must still manually set the correct method.</li>
   <li>Pascal Scripting:
   <ul>
-    <li>Added new optional <tt>OnLog</tt> parameter to the <tt>[Run]</tt> and <tt>[UninstallRun]</tt> sections. When combined with the <tt>logoutput</tt> flag, it specifies the name of a procedure that is to be called for each line of the program's output instead of directly including it in the log file. See updated <i>PowerShell.iss</i> example script.</li>
+    <li>Added new optional <tt>OnLog</tt> parameter to the <tt>[Run]</tt> section. When combined with the <tt>logoutput</tt> flag, it specifies the name of a procedure that is to be called for each line of the program's output instead of directly including it in the log file. See updated <i>PowerShell.iss</i> example script.</li>
     <li>Support function <tt>Chr</tt> now correctly accepts ordinal values greater than 255.</li>
     <li>Support function <tt>FloatToStr</tt> no longer outputs unnecessary trailing zeros.</li>
     <li>Using <tt>Exit</tt> within a <tt>try..finally</tt> block now works correctly when the <tt>finally</tt> block contains function calls.</li>

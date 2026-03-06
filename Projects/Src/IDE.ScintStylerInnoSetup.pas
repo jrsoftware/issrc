@@ -311,7 +311,7 @@ const
   UninstallRunSectionParameters: array of TScintRawString = [
     'AfterInstall', 'BeforeInstall', 'Check', 'Components', 'Filename', 'Flags',
     'Languages', 'MinVersion', 'OnlyBelowVersion', 'Parameters', 'RunOnceId',
-    'Tasks', 'Verb', 'WorkingDir', 'OnLog'
+    'Tasks', 'Verb', 'WorkingDir'
   ];
 
   UninstallRunSectionFlags: array of TScintRawString = [

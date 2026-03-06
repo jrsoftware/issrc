@@ -6109,14 +6109,14 @@ begin
       { RunOnceId }
       if Values[paRunOnceId].Data <> '' then begin
         if Ext = 0 then
-          AbortCompile(SCompilerRunCantUseRunOnceId);
+          AbortCompileFmt(SCompilerRunCantUseParameter, [ParamRunRunOnceId]);
       end else if Ext = 1 then
         MissingRunOnceIds := True;
       RunOnceId := Values[paRunOnceId].Data;
 
       { Description }
       if (Ext = 1) and (Values[paDescription].Data <> '') then
-        AbortCompile(SCompilerUninstallRunCantUseDescription);
+        AbortCompileFmt(SCompilerUninstallRunCantUseParameter, [ParamRunDescription]);
       Description := Values[paDescription].Data;
 
       { StatusMsg }
@@ -6129,6 +6129,8 @@ begin
       Verb := Values[paVerb].Data;
 
       { OnLog }
+      if (Ext = 1) and (Values[paOnLog].Data <> '') then
+        AbortCompileFmt(SCompilerUninstallRunCantUseParameter, [ParamRunOnLog]);
       OnLog := Values[paOnLog].Data;
 
       { Common parameters }

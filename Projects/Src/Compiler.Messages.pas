@@ -333,13 +333,13 @@ const
     'results would be disastrous. (You probably mean to delete a value instead.)';
 
   { [Run] }
-  SCompilerRunCantUseRunOnceId = 'Parameter "RunOnceId" can only be used in ' +
+  SCompilerRunCantUseParameter = 'Parameter "%s" can only be used in ' +
     'an [UninstallRun] section';
   SCompilerRunFlagObsolete = 'Flag "%s" is obsolete. Use "%s" instead.';
   SCompilerRunMultipleWaitFlags = 'Parameter "Flags" cannot include multiple "wait" flags';
 
   { [UninstallRun] }
-  SCompilerUninstallRunCantUseDescription = 'Parameter "Description" can only be used in ' +
+  SCompilerUninstallRunCantUseParameter = 'Parameter "%s" can only be used in ' +
     'a [Run] section';
 
 implementation

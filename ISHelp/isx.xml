@@ -522,7 +522,7 @@ end;
 <keyword value="OnLog parameters" />
 <body>
 
-<p>There is one optional <link topic="params">parameter</link> that is supported by the <tt>[Run]</tt> and <tt>[UninstallRun]</tt> sections. This is:</p>
+<p>There is one optional <link topic="params">parameter</link> that is supported by the <tt>[Run]</tt> section. This is:</p>
 
 <paramlist>
 
