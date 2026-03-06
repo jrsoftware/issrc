@@ -1,6 +1,6 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -83,12 +83,15 @@ function toggle_node(id)
 	imageElement.src = expanding ? "images/contentsheadopen.svg" : "images/contentsheadclosed.svg";
 	imageElement.alt = expanding ? "\u25BC " : "\u25B6 ";
 
+	// Disabled due to being annoying and non-standard for a website
+	/*
 	if (expanding) {
 		// Scroll expanded items into view. This is similar to calling scrollIntoView() but
 		// doesn't do any scrolling if the items are already fully visible.
 
 		ensure_elements_visible(itemElement, itemElement);
 	}
+	*/
 }
 
 function init_contents(toggleNode)
