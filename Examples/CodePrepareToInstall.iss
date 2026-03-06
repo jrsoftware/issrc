@@ -54,6 +54,7 @@ begin
 
   //<your code here>
   //extraction example: ExtractTemporaryFile('MyProg-Prerequisite-setup.exe');
+  //getting path after extraction example: ExpandConstant('{tmp}\MyProg-Prerequisite-setup.exe');
 
   Result := True;
 

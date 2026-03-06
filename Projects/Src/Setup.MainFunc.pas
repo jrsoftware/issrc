@@ -208,10 +208,8 @@ function InstallOnThisVersion(const MinVersion: TSetupVersionData;
   const OnlyBelowVersion: TSetupVersionData): TInstallOnThisVersionResult;
 function IsRecurseableDirectory(const FindData: TWin32FindData): Boolean;
 procedure LoadSHFolderDLL;
-function LoggedMsgBox(const Text, Caption: PChar; const Flags: Cardinal;
-  const Suppressible: Boolean; const Default: Integer): Integer; overload;
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
-  const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer; overload;
+  const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer;
 function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
   const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
   const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer;
@@ -2640,22 +2638,6 @@ begin
     [GetButtonsText(Buttons)]) + Text);
 end;
 
-function LoggedMsgBox(const Text, Caption: PChar; const Flags: Cardinal;
-  const Suppressible: Boolean; const Default: Integer): Integer;
-begin
-  if InitSuppressMsgBoxes and Suppressible then begin
-    LogSuppressedMsgBox(Text, Flags, Default);
-    Result := Default;
-  end else begin
-    LogMsgBox(Text, Flags);
-    Result := MsgBox(Text, Caption, Flags);
-    if Result <> 0 then
-      LogFmt('User chose %s.', [GetMessageBoxResultText(Result)])
-    else
-      Log('MsgBox failed.');
-  end;
-end;
-
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer;
 begin
@@ -4129,6 +4111,11 @@ begin
   Log(S);
 end;
 
+procedure RunExecLogOnLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
+begin
+  CodeRunner.RunProcedure(AnsiString(PChar(Data)), [S, Error, FirstLine], True);
+end;
+
 procedure ProcessRunEntry(const RunEntry: PSetupRunEntry);
 begin
   { On 32-bit Setup, when the [Run] entry is 64-bit, we unfortunately cannot
@@ -4188,8 +4175,12 @@ begin
          NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent)) then begin
         var OutputReader: TCreateProcessOutputReader := nil;
         try
-          if GetLogActive and (roLogOutput in RunEntry.Options) then
-            OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
+          if roLogOutput in RunEntry.Options then begin
+            if (RunEntry.OnLog <> '') and (CodeRunner <> nil) then
+              OutputReader := TCreateProcessOutputReader.Create(RunExecLogOnLog, NativeInt(PChar(RunEntry.OnLog)))
+            else if GetLogActive then
+              OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
+          end;
           var ErrorCode: DWORD;
           if not InstExecEx(RunAsOriginalUser, RunEntry64Bit and not IsCurrentProcess64Bit,
              ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,

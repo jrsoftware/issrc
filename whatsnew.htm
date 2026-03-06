@@ -78,17 +78,19 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>In 32-bit installers, types <tt>NativeInt</tt> and <tt>NativeUInt</tt> are 4 bytes, while in 64-bit installers they are 8 bytes. The same is true for all types derived from them, such as <tt>HWND</tt>.<br/>
         Example script <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeDll.iss">CodeDll.iss</a></i> demonstrates how to support both 32-bit and 64-bit installers from a single script.<br/>
         Please note: Even though types like <tt>HWND</tt> are 8 bytes (64-bit) in 64-bit processes, <a href="https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication">64-bit Windows uses 32-bit handle values for interoperability</a>. When sharing a handle between 32-bit and 64-bit applications, only the lower 32 bits are significant, so it is safe to truncate from 64-bit to 32-bit or sign extend from 32-bit to 64-bit.</li>
+        <li>In both 32-bit and 64-bit installers, Pascal Script records are always "packed". When calling a Windows API or external DLL function that expects aligned records, you may need to add manual padding fields. Even if this was not needed in a 32-bit installer, it may be needed in a 64-bit installer because alignment rules and field sizes differ.</li>
     <li>You cannot load 32-bit DLLs in 64-bit installers because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). However, you can always launch both 32-bit and 64-bit EXEs using the <tt>Exec</tt> function or the <tt>[Run]</tt> section.</li>
   </ul>
   </li>
   <li>64-bit type libraries (.tlb) can now only be (un)registered by 64-bit installers, and 32-bit type libraries only by 32-bit installers.<br/>
       Support for (un)registering 64-bit type libraries from a 32-bit installer has been dropped.</li>
   <li><tt>{sysnative}</tt> is not accessible to 64-bit installers or any other 64-bit applications, so use its value only to, for example, pass it to a 32-bit application.</li>
-  <li>For the moment, 64-bit installers still require WOW64 to be present, so running on Windows Server Core without WOW64 is not yet supported.</li>
+  <li>In our tests on 'Windows Server 2016 Datacenter Server Core' and 'Windows Server 2025 Datacenter: Azure Edition Core', with all WOW64 features disabled and removed using DISM, 64-bit installers still function correctly, even when run in 32-bit install mode.</li>
 </ul>
 
 <p>Related changes made in both editions:</p>
 <ul>
+  <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=pathredir">System Path Redirection</a> help topic.</li>
   <li>Pascal Scripting:
   <ul>
     <li>Removed support function <tt>EnableFsRedirection</tt>. Use new support function <tt>ApplyPathRedirRulesForCurrentProcess</tt> instead, or a 64-bit installer. 32-bit installers can also use <tt>{sysnative}</tt> instead.<br/>
@@ -142,8 +144,11 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p>Additionally, the following changes have been made in both editions:</p>
 <ul>
   <li>The Compiler IDE has been renamed from <tt>Compil32.exe</tt> to <tt>ISIDE.exe</tt>.</li>
+  <li><tt>[Setup]</tt> section directive <tt>ArchiveExtraction</tt> can now also be set to <tt>auto</tt>, the new default, which automatically selects the appropriate method based on entries in the <tt>[Files]</tt> section.<br/>
+      If it selects <tt>basic</tt> because no entry uses the <tt>extractarchive</tt> flag, but you still use support function <tt>ExtractArchive</tt> or <tt>CreateExtractionPage</tt>, you must still manually set the correct method.</li>
   <li>Pascal Scripting:
   <ul>
+    <li>Added new optional <tt>OnLog</tt> parameter to the <tt>[Run]</tt> and <tt>[UninstallRun]</tt> sections. When combined with the <tt>logoutput</tt> flag, it specifies the name of a procedure that is to be called for each line of the program's output instead of directly including it in the log file. See updated <i>PowerShell.iss</i> example script.</li>
     <li>Support function <tt>Chr</tt> now correctly accepts ordinal values greater than 255.</li>
     <li>Support function <tt>FloatToStr</tt> no longer outputs unnecessary trailing zeros.</li>
     <li>Using <tt>Exit</tt> within a <tt>try..finally</tt> block now works correctly when the <tt>finally</tt> block contains function calls.</li>
@@ -152,7 +157,14 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Fixed a runtime type mismatch when assigning between open and dynamic arrays.</li>
   </ul>
   </li>
+  <li>ISPP:
+  <ul>
+    <li>Renamed (previously undocumented) support functions <tt>GetFileCompany</tt>, <tt>GetFileDescription</tt>, <tt>GetFileCopyright</tt>, <tt>GetFileOriginalFilename</tt>, and <tt>GetFileProductVersion</tt> to <tt>GetFileCompanyString</tt>, <tt>GetFileDescriptionString</tt>, <tt>GetFileCopyrightString</tt>, <tt>GetFileOriginalFilenameString</tt>, and <tt>GetFileProductVersionString</tt> respectively, making them consistent with the existing (also previously undocumented) <tt>GetFileVersionString</tt>. The old names still work.</li>
+    <li>Documented the difference between <tt>GetFileVersionString</tt> and <tt>GetVersionNumbersString</tt>.</li>
+  </ul>
+  </li>
   <li>The Inno Setup source code now contains SPDX SBOM metadata.</li>
+  <li>Updated the 7-Zip and LZMA SDK source code used by Inno Setup to the latest versions.</li>
   <li>Other minor improvements.</li>
 </ul>
 

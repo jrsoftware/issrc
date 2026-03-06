@@ -3,7 +3,7 @@
 
 <!--
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 -->
@@ -47,6 +47,7 @@
     <contentstopic title="Scripted Constants" topic="scriptconstants" />
     <contentstopic title="Check Parameters" topic="scriptcheck" />
     <contentstopic title="BeforeInstall and AfterInstall Parameters" topic="scriptinstall" />
+    <contentstopic title="OnLog Parameters" topic="scriptonlog" />
     <contentstopic title="Uninstall Code" topic="scriptuninstall" />
     <contentstopic title="Examples" topic="scriptexamples" />
     <contentstopic title="Support Functions Reference" topic="scriptfunctions" />
@@ -77,6 +78,7 @@
     <contentstopic title="Non Administrative Install Mode" topic="admininstallmode" />
     <contentstopic title="64-bit Install Mode" topic="32vs64bitinstalls" />
     <contentstopic title="64-bit Installation Limitations" topic="64bitlimitations" />
+    <contentstopic title="System Path Redirection" topic="pathredir" />
     <contentstopic title="Architecture Identifiers" topic="archidentifiers" />
     <contentstopic title="Wizard Pages" topic="wizardpages" />
     <contentstopic title="Installation Order" topic="installorder" />
@@ -121,7 +123,9 @@
 
 <li>Support for every Windows release since 2009, including: Windows 11, Windows 10, Windows 11 on Arm, Windows 10 on Arm, Windows Server 2019, Windows Server 2016, Windows 8.1, Windows 8, Windows Server 2012, Windows 7, and Windows Server 2008 R2. (No service packs are required.)</li>
 
-<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit</link> applications on the 64-bit editions of Windows. The x64 and Arm64 architectures are both supported.</li>
+<li>Extensive support for installation of <link topic="32vs64bitinstalls">64-bit applications</link> on the 64-bit editions of Windows. The x64 and Arm64 architectures are both supported.</li>
+
+<li>Support for Windows Server Core using <link topic="64bit">64-bit installers</link>.</li>
 
 <li>Extensive support for both administrative and <link topic="admininstallmode">non administrative installations</link> installations.</li>
 
@@ -407,7 +411,7 @@ This " contains " embedded " quotes
 <keyword value="{wizardhwnd}" anchor="wizardhwnd" />
 <body>
 
-<p>The majority of the script entries can have <i>constants</i> embedded in them. These are predefined strings enclosed in brace characters <tt>{ }</tt>. Setup or Uninstall translates the constants to their literal values, depending on the user's choices and system configuration. For example, <tt>{win}</tt>, as described below, would translate to "C:\WINDOWS" on most systems.</p>
+<p>The majority of the script entries can have <i>constants</i> embedded in them. These are predefined strings enclosed in brace characters <tt>{ }</tt>. Setup or Uninstall translates the constants to their literal values, depending on the user's choices and system configuration. For example, <tt>{win}</tt>, as described below, would translate to "C:\Windows" on most systems.</p>
 
 <p>A "{" character is treated as the start of the constant. If you want to use that actual character in a place where constants are supported, you must use two consecutive "{" characters. (You do not need to double "}" characters.)</p>
 
@@ -422,19 +426,19 @@ This " contains " embedded " quotes
 <dt><b><a name="app">{app}</a></b></dt>
 <dd>
 <p>The application directory, which the user selects on the <i>Select Destination Location</i> page of the wizard.<br/>
-For example: If you used <tt>{app}\MyProg.exe</tt> on an entry and the user selected "C:\MYPROG" as the application directory, Setup will translate it to "C:\MYPROG\MyProg.exe".</p>
+For example: If you used <tt>{app}\MyProg.exe</tt> on an entry and the user selected "C:\MyProg" as the application directory, Setup will translate it to "C:\MyProg\MyProg.exe".</p>
 </dd>
 
 <dt><b><a name="win">{win}</a></b></dt>
 <dd>
 <p>The system's Windows directory.<br/>
-For example: If you used <tt>{win}\MYPROG.INI</tt> on an entry and the system's Windows directory is "C:\WINDOWS", Setup or Uninstall will translate it to "C:\WINDOWS\MYPROG.INI".</p>
+For example: If you used <tt>{win}\MyProg.ini</tt> on an entry and the system's Windows directory is "C:\Windows", Setup or Uninstall will translate it to "C:\Windows\MyProg.ini".</p>
 </dd>
 
 <dt><b><a name="sys">{sys}</a></b></dt>
 <dd>
 <p>The system's System32 directory.<br/>
-For example: If you used <tt>{sys}\CTL3D32.DLL</tt> on an entry and the system's Windows System directory is "C:\WINDOWS\SYSTEM", Setup or Uninstall will translate it to "C:\WINDOWS\SYSTEM\CTL3D32.DLL".</p>
+For example: If you used <tt>{sys}\CTL3D32.dll</tt> on an entry and the system's Windows System directory is "C:\Windows\System32", Setup or Uninstall will translate it to "C:\Windows\System32\CTL3D32.dll".</p>
 <p>On 64-bit Windows, by default, the System32 path returned by this constant maps to the directory containing 32-bit system files, just like on 32-bit Windows. (This can be overridden by enabling <link topic="32vs64bitinstalls">64-bit install mode</link>.)</p>
 </dd>
 
@@ -446,7 +450,7 @@ For example: If you used <tt>{sys}\CTL3D32.DLL</tt> on an entry and the system's
 
 <dt><b><a name="syswow64">{syswow64}</a></b></dt>
 <dd>
-<p>On 64-bit Windows, the system's SysWOW64 directory, typically "C:\WINDOWS\SysWOW64". This is the actual directory in which 32-bit system files reside. On 32-bit Windows, 32-bit system files do not reside in a separate SysWOW64 directory, so this constant will resolve to the same directory as <tt>{sys}</tt> if used there.</p>
+<p>On 64-bit Windows, the system's SysWOW64 directory, typically "C:\Windows\SysWOW64". This is the actual directory in which 32-bit system files reside. On 32-bit Windows, 32-bit system files do not reside in a separate SysWOW64 directory, so this constant will resolve to the same directory as <tt>{sys}</tt> if used there.</p>
 <p>Do not use this constant unless you have a specific need to obtain the name of the actual directory in which 32-bit system files reside. Gratuitously using <tt>{syswow64}</tt> in places where <tt>{sys}</tt> will suffice may cause problems. (See the documentation for the <link topic="filessection">[Files]</link> section's <tt>sharedfile</tt> flag for one example.)</p>
 </dd>
 
@@ -493,7 +497,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="tmp">{tmp}</a></b></dt>
 <dd>
-<p>Temporary directory used by Setup or Uninstall. This is <i>not</i> the value of the user's TEMP environment variable. It is a subdirectory of the user's temporary directory which is created by Setup or Uninstall at startup (with a name like "C:\WINDOWS\TEMP\IS-xxxxx.tmp"). All files and subdirectories in this directory are deleted when Setup or Uninstall exits. During Setup, this is primarily useful for extracting files that are to be executed in the [Run] section but aren't needed after the installation.</p>
+<p>Temporary directory used by Setup or Uninstall. This is <i>not</i> the value of the user's TEMP environment variable. It is a subdirectory of the user's temporary directory which is created by Setup or Uninstall at startup (with a name like "C:\Windows\Temp\IS-xxxxx.tmp"). All files and subdirectories in this directory are deleted when Setup or Uninstall exits. During Setup, this is primarily useful for extracting files that are to be executed in the [Run] section but aren't needed after the installation.</p>
 </dd>
 
 <dt><b><a name="commonfonts">{commonfonts}</a></b></dt>
@@ -647,7 +651,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <indent>
 <table>
-<tr><td></td><td><u>Administrative</u></td><td><u>Non administrative</u></td></tr>
+<tr><th>Auto</th><th>Administrative</th><th>Non administrative</th></tr>
 <tr><td><tt><a name="autoappdata">autoappdata</a></tt></td><td><tt>commonappdata</tt></td><td><tt>userappdata</tt></td></tr>
 <tr><td><tt><a name="autocf">autocf</a></tt></td><td><tt>commoncf</tt></td><td><tt>usercf</tt></td></tr>
 <tr><td><tt><a name="autocf32">autocf32</a></tt></td><td><tt>commoncf32</tt></td><td><tt>usercf</tt></td></tr>
@@ -671,7 +675,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <indent>
 <table>
-<tr><td><u>Old name</u></td><td><u>New name</u></td></tr>
+<tr><th>Old name</th><th>New name</th></tr>
 <tr><td><tt><a name="cf">cf</a></tt></td><td><tt>commoncf</tt></td></tr>
 <tr><td><tt><a name="cf32">cf32</a></tt></td><td><tt>commoncf32</tt></td></tr>
 <tr><td><tt><a name="cf64">cf64</a></tt></td><td><tt>commoncf64</tt></td></tr>
@@ -1464,6 +1468,7 @@ Name: "{app}\bin"
 
 <param name="Name" required="yes">
 <p>The name of the directory to create, which normally will start with one of the directory constants.</p>
+<p><link topic="pathredir">System path redirection</link> is applied to the specified path.</p>
 <example>
 <pre>Name: "{app}\MyDir"</pre>
 </example>
@@ -1581,6 +1586,7 @@ Source: "Files\*"
 
 <param name="DestDir" required="yes">
 <p>The directory where the file is to be installed on the user's system. Will almost always begin with one of the directory constants. If the specified path does not already exist on the user's system, it will be created automatically, and removed automatically during uninstallation if empty.</p>
+<p><link topic="pathredir">System path redirection</link> is applied to the specified path.</p>
 <examples>
 <pre>
 DestDir: "{app}"
@@ -1592,7 +1598,7 @@ DestDir: "{app}\subdir"
 <param name="DestName">
 <p>This parameter specifies a new name for the file when it is installed on the user's system. By default, Setup uses the name from the <tt>Source</tt> parameter, so in most cases it's not necessary to specify this parameter.</p>
 <example>
-<pre>DestName: "MYPROG2.EXE"</pre>
+<pre>DestName: "MyProg2.exe"</pre>
 </example>
 </param>
 
@@ -2509,17 +2515,18 @@ Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string
 <p>The root key. This must be one of the following values:</p>
 <indent>
 <table>
-<tr><td><tt>HKCU</tt></td><td>(HKEY_CURRENT_USER)</td></tr>
-<tr><td><tt>HKLM</tt></td><td>(HKEY_LOCAL_MACHINE)</td></tr>
-<tr><td><tt>HKCR</tt></td><td>(HKEY_CLASSES_ROOT)</td></tr>
-<tr><td><tt>HKU</tt></td><td>(HKEY_USERS)</td></tr>
-<tr><td><tt>HKCC</tt></td><td>(HKEY_CURRENT_CONFIG)</td></tr>
+<tr><th>Value</th><th>Description</th></tr>
+<tr><td><tt>HKCU</tt></td><td>Short for <tt>HKEY_CURRENT_USER</tt></td></tr>
+<tr><td><tt>HKLM</tt></td><td>Short for <tt>HKEY_LOCAL_MACHINE</tt></td></tr>
+<tr><td><tt>HKCR</tt></td><td>Short for <tt>HKEY_CLASSES_ROOT</tt></td></tr>
+<tr><td><tt>HKU</tt></td><td>Short for <tt>HKEY_USERS</tt></td></tr>
+<tr><td><tt>HKCC</tt></td><td>Short for <tt>HKEY_CURRENT_CONFIG</tt></td></tr>
 </table>
 </indent>
 <p>Additionally one special value is allowed:</p>
 <indent>
 <table>
-<tr><td><tt>HKA</tt></td><td>(equals HKLM in <link topic="admininstallmode">administrative install mode</link>, HKCU otherwise)</td></tr>
+<tr><td><tt>HKA</tt></td><td>Equals <tt>HKLM</tt> in <link topic="admininstallmode">administrative install mode</link>, <tt>HKCU</tt> otherwise</td></tr>
 </table>
 </indent>
 <p><tt>HKCU</tt> and <tt>HKA</tt> should only be used for settings which are compatible with roaming profiles.</p>
@@ -2687,7 +2694,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 
 <param name="Filename" required="yes">
 <p>The program to execute, or file/folder to open. If <tt>Filename</tt> is not an executable (.exe or .com) or batch file (.bat or .cmd), you <i>must</i> use the <tt>shellexec</tt> flag on the entry. This parameter can include constants.</p>
-<p>Any extended-length paths, also known as super paths, are always converted back to normal paths.</p>
+<p><link topic="pathredir">System path redirection</link> is applied to the specified path. Any extended-length paths, also known as super paths, are always converted back to normal paths.</p>
 <example>
 <pre>Filename: "{app}\INIT.EXE"</pre>
 </example>
@@ -2709,7 +2716,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 
 <param name="WorkingDir">
 <p>The initial current directory for the program. If this parameter is not specified or is blank, it uses the directory from the <tt>Filename</tt> parameter; if <tt>Filename</tt> does not include a path, it will use a default directory. This parameter can include constants.</p>
-<p>Any extended-length paths, also known as super paths, are always converted back to normal paths.</p>
+<p><link topic="pathredir">System path redirection</link> is applied to the specified path. Any extended-length paths, also known as super paths, are always converted back to normal paths.</p>
 <example>
 <pre>WorkingDir: "{app}"</pre>
 </example>
@@ -2736,6 +2743,13 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 </example>
 </param>
 
+<param name="OnLog">
+<p>The name of a <tt>[Code]</tt> procedure to be called for each line of the program's output. Must be combined with the <tt>logoutput</tt> flag. See <link topic="scriptonlog">Pascal Scripting: OnLog Parameters</link> for more information.</p>
+<example>
+<pre>OnLog: MyOnLog</pre>
+</example>
+</param>
+
 <param name="Flags">
 <p>This parameter is a set of extra options. Multiple options may be used by separating them by spaces. The following options are supported:</p>
 
@@ -2756,7 +2770,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 <p>If this flag is specified, the wizard will be hidden while the program is running.</p>
 </flag>
 <flag name="logoutput">
-<p>If this flag is specified, the output of the program will be included in the log file.</p>
+<p>If this flag is specified, the output of the program will be included in the log file. If the <tt>OnLog</tt> parameter is also specified, the output is passed to the <tt>OnLog</tt> procedure instead.</p>
 <p>This flag cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags.</p>
 </flag>
 <flag name="nowait">
@@ -2841,7 +2855,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 
 <precode>
 [UninstallDelete]
-Type: files; Name: "{win}\MYPROG.INI"
+Type: files; Name: "{win}\MyProg.ini"
 </precode>
 
 <p>The following is a list of the supported <link topic="params">parameters</link>:</p>
@@ -2868,9 +2882,10 @@ Type: files; Name: "{win}\MYPROG.INI"
 
 <param name="Name" required="yes">
 <p>Name of the file or directory to delete.</p>
-<p><b>NOTE:</b> Don't be tempted to use a wildcard here to delete all files in the {app} directory. Doing this is strongly recommend against for two reasons. First, users usually don't appreciate having their data files they put in the application directory deleted without warning (they might only be uninstalling it because they want to move it to a different drive, for example). It's better to leave it up to the end users to manually remove them if they want. Also, if the user happened to install the program in the wrong directory by mistake (for example, C:\WINDOWS) and then went to uninstall it there could be disastrous consequences. So again, <b>DON'T DO THIS!</b></p>
+<p><link topic="pathredir">System path redirection</link> is applied to the specified path.</p>
+<p><b>NOTE:</b> Don't be tempted to use a wildcard here to delete all files in the {app} directory. Doing this is strongly recommended against for two reasons. First, users usually don't appreciate having their data files they put in the application directory deleted without warning (they might only be uninstalling it because they want to move it to a different drive, for example). It's better to leave it up to the end users to manually remove them if they want. Also, if the user happened to install the program in the wrong directory by mistake (for example, C:\Windows) and then went to uninstall it there could be disastrous consequences. So again, <b>DON'T DO THIS!</b></p>
 <example>
-<pre>Name: "{win}\MYPROG.INI"</pre>
+<pre>Name: "{win}\MyProg.ini"</pre>
 </example>
 </param>
 
@@ -3014,13 +3029,14 @@ Name: bosskey; KeyFile: "boss.ispublickey"
   <li>In 32-bit installers, types <tt>NativeInt</tt> and <tt>NativeUInt</tt> are 4 bytes, while in 64-bit installers they are 8 bytes. The same is true for all types derived from them, such as <tt>HWND</tt>.<br/>
       Example script <i>CodeDll.iss</i> demonstrates how to support both 32-bit and 64-bit installers from a single script.<br/>
       Please note: Even though types like <tt>HWND</tt> are 8 bytes (64-bit) in 64-bit processes, <extlink href="https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication">64-bit Windows uses 32-bit handle values for interoperability</extlink>. When sharing a handle between 32-bit and 64-bit applications, only the lower 32 bits are significant, so it is safe to truncate from 64-bit to 32-bit or sign extend from 32-bit to 64-bit.</li>
+  <li>In both 32-bit and 64-bit installers, Pascal Script records are always "packed". When calling a Windows API or external DLL function that expects aligned records, you may need to add manual padding fields. Even if this was not needed in a 32-bit installer, it may be needed in a 64-bit installer because alignment rules and field sizes differ.</li>
   <li>You cannot load 32-bit DLLs in 64-bit installers because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). However, you can always launch both 32-bit and 64-bit EXEs using the <tt>Exec</tt> function or the [Run] section.</li>
   </ul>
 </li>
 <li>64-bit type libraries (.tlb) can only be (un)registered by 64-bit installers, and 32-bit type libraries only by 32-bit installers.<br/>
     Support for (un)registering 64-bit type libraries from a 32-bit installer has been dropped.</li>
 <li><tt>{sysnative}</tt> is not accessible to 64-bit installers or any other 64-bit applications, so use its value only to, for example, pass it to a 32-bit application.</li>
-<li>For the moment, 64-bit installers still require WOW64 to be present, so running on Windows Server Core without WOW64 is not yet supported.</li>
+<li>In our tests on 'Windows Server 2016 Datacenter Server Core' and 'Windows Server 2025 Datacenter: Azure Edition Core', with all WOW64 features disabled and removed using DISM, 64-bit installers still function correctly, even when run in 32-bit install mode.</li>
 </ul>
 
 <p><b>64-bit Compiler IDE and ISCC:</b></p>
@@ -3028,6 +3044,8 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <p>Install the 64-bit edition of Inno Setup to run 64-bit versions of the Compiler IDE and ISCC. Both editions read the same scripts and defaults, and either can generate 32-bit or 64-bit installers.</p>
 
 <p>To check which edition you installed, click the "Inno Setup Compiler" shortcut in the Start Menu. The 32-bit edition displays "32-bit" in the title bar, while the 64-bit edition does not.</p>
+
+<p>Using the 64-bit edition is recommended.</p>
 
 <p>Key benefits and differences:</p>
 <ul>
@@ -3239,8 +3257,8 @@ Shown by default, but can be disabled in some cases via <link topic="setup_disab
 
 <precode>
 [INI]
-Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Flags: uninsdeletesectionifempty
-Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; String: "{app}"; Flags: uninsdeleteentry
+Filename: "{win}\MyProg.ini"; Section: "InstallSettings"; Flags: uninsdeletesectionifempty
+Filename: "{win}\MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; String: "{app}"; Flags: uninsdeleteentry
 </precode>
 
 <p>the installer will first record the data for first entry's <tt>uninsdeletesectionifempty</tt> flag in the uninstall log, create the key of the second entry, and then record the data for the <tt>uninsdeleteentry</tt> flag in the uninstall log. When the program is uninstalled, the uninstaller will first process the <tt>uninsdeleteentry</tt> flag, deleting the entry, and then the <tt>uninsdeletesectionifempty</tt> flag, deleting the section.</p>
@@ -3351,6 +3369,78 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 
 
+<topic name="pathredir" title="System Path Redirection">
+<keyword value="System Path Redirection" />
+<body>
+<p>On 64-bit Windows, there are two "System" directories: one containing 64-bit DLLs/EXEs, called <tt>System32</tt> on disk, and one containing 32-bit DLLs/EXEs, called <tt>SysWOW64</tt> on disk.</p>
+<p>In certain contexts where paths are specified, such as the <tt>DestDir</tt> parameter of the <tt>[Files]</tt> section, <i>system path redirection</i> is applied. Paths starting with <tt>{sys}</tt> (or other value expanding to <tt><i>x</i>:\Windows\System32</tt>) are automatically rewritten if needed so that in <link topic="32vs64bitinstalls">64-bit install mode</link>, it is the 64-bit System directory that is accessed, and in 32-bit install mode, it is the 32-bit System directory that is accessed.</p>
+<p>No rewriting occurs on systems running 32-bit Windows, as <tt>System32</tt> is the only System directory. <tt>SysWOW64</tt> doesn't exist, and the <tt>Sysnative</tt> alias isn't supported.</p>
+<p>Paths are rewritten according to the following rules:</p>
+<indent>
+<table>
+<tr>
+  <th>Input path bitness<sup>[1]</sup></th>
+  <th>Target process bitness<sup>[2]</sup></th>
+  <th>Substitution made</th>
+  <th>Explanation</th>
+</tr>
+<tr>
+  <td>64-bit</td>
+  <td>32-bit</td>
+  <td nowrap=""><tt>System32</tt> &rarr; <tt>Sysnative</tt></td>
+  <td>32-bit processes have to use the <tt>Sysnative</tt> alias to reach the "real" 64-bit <tt>System32</tt> directory.</td>
+</tr>
+<tr>
+  <td>32-bit</td>
+  <td>64-bit</td>
+  <td nowrap=""><tt>System32</tt> &rarr; <tt>SysWOW64</tt></td>
+  <td>
+    <p>64-bit processes can only access the 32-bit System directory as <tt>SysWOW64</tt>.</p>
+    <p>All subdirectories are redirected as well; there are no exemptions.</p>
+  </td>
+</tr>
+<tr>
+  <td>32-bit</td>
+  <td>32-bit</td>
+  <td nowrap="">
+    <p>Usually:<br/><tt>System32</tt> &rarr; <tt>SysWOW64</tt></p>
+    <p>In special cases:<br/><tt>SysWOW64</tt> &rarr; <tt>System32</tt></p>
+  </td>
+  <td>
+    <p>In 32-bit processes, <extlink href="https://learn.microsoft.com/en-us/windows/win32/winprog64/file-system-redirector">WOW64 file system redirection</extlink> already routes <tt>System32</tt> to <tt>SysWOW64</tt>, but certain subdirectories are exempt (one example: <tt>System32\drivers\etc</tt>). Explicitly changing <tt>System32</tt> &rarr; <tt>SysWOW64</tt> bypasses those exemptions, keeping the redirection consistent with the 64-bit target process rule above.</p>
+    <p>In a few special cases, the rule is flipped to <tt>SysWOW64</tt> &rarr; <tt>System32</tt>. These cases are:</p>
+    <ul appearance="compact">
+      <li>when setting values in the 32-bit <tt>SharedDLLs</tt> registry key, because <tt>SysWOW64</tt> isn't used there</li>
+      <li>when passing paths to the 32-bit <tt>regsvr32.exe</tt>, because DLLs are traditionally registered with a <tt>System32</tt> path</li>
+      <li>when registering/unregistering type libraries in 32-bit Setup/Uninstall, because type libraries are traditionally registered with a <tt>System32</tt> path</li>
+      <li>when the <tt><link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link></tt> support function is called with <tt>tp32BitPreferSystem32</tt> in the target process parameter</li>
+    </ul>
+  </td>
+</tr>
+<tr>
+  <td>64-bit</td>
+  <td>64-bit</td>
+  <td nowrap=""><tt>System32</tt> &rarr; <i>no change</i></td>
+  <td><tt>System32</tt> is correct as-is when the input path and target process are both 64-bit.</td>
+</tr>
+<tr>
+  <td>Any</td>
+  <td>64-bit</td>
+  <td nowrap=""><tt>Sysnative</tt> &rarr; <tt>System32</tt></td>
+  <td>
+    <p>64-bit processes cannot use the <tt>Sysnative</tt> alias; it is only available in 32-bit processes.</p>
+    <p>Although this rule is applied for both 32-bit and 64-bit input paths, <tt>Sysnative</tt> <i>should</i> only be present in 32-bit input paths.</p>
+  </td>
+</tr>
+</table>
+<p><sup>[1]</sup> By default, the "input path bitness" is the same as Setup/Uninstall's <link topic="32vs64bitinstalls">install mode</link> &mdash; 32-bit in 32-bit install mode, and 64-bit in 64-bit install mode. In the <tt>[Files]</tt> and <tt>[Run]</tt> sections, the path bitness can be overridden on a per-entry basis using the <tt>32bit</tt> and <tt>64bit</tt> flags.</p>
+<p><sup>[2]</sup> "Target process" is the process where the rewritten path will ultimately be accessed. In most cases, paths are accessed by Setup/Uninstall itself, so the target process bitness is Setup/Uninstall's bitness (as set by <tt><link topic="setup_setuparchitecture">SetupArchitecture</link></tt>).</p>
+</indent>
+</body>
+</topic>
+
+
+
 <topic name="technotes" title="Miscellaneous Notes">
 <keyword value="Miscellaneous Notes" />
 <body>
@@ -3401,7 +3491,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for VK_OEM_1, . for VK_OEM_PERIOD, / for VK_OEM_2, [ for VK_OEM_4, \ for VK_OEM_5, and ] for VK_OEM_6. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p>
 
 <table>
-<tr><td></td><td><u>Classic</u></td><td><u>Visual Studio Code</u></td></tr>
+<tr><th>Command</th><th>Classic shortcut</th><th>Visual Studio Code shortcut</th></tr>
 <tr>
   <td>&nbsp;</td>
 </tr>
@@ -3662,7 +3752,7 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p>When replacing using regular expressions the replace string may contain the following special escape sequences:</p>
 
 <table>
-<tr><td><u>Escape Sequence</u></td><td><u>Meaning</u></td></tr>
+<tr><th>Escape Sequence</th><th>Meaning</th></tr>
 <tr>
   <td>$1 through $9 or \1 through \9</td><td>Contents of the corresponding capture group</td>
 </tr>
@@ -3694,13 +3784,11 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <ul>
 
 <li>
-<p>You can compile scripts from the command line using the console-mode compiler, ISCC.exe. Command line usage is as follows:</p>
+<p>You can compile scripts from the command line using the console-mode compiler, <tt>ISCC.exe</tt>. Command line usage is as follows:</p>
 
+<precode>iscc <i>[options]</i> <i>&lt;script name&gt;</i></precode>
 <indent>
-<p>iscc <i>[options]</i> <i>&lt;script name&gt;</i></p>
-<p>Or to read from standard input:</p>
-<p>iscc <i>[options]</i> -</p>
-<example>iscc "c:\isetup\samples\my script.iss"</example>
+<example><pre>iscc "c:\isetup\samples\my script.iss"</pre></example>
 </indent>
 
 <p>As shown in the example above, filenames that include spaces must be enclosed in quotes.</p>
@@ -3709,14 +3797,15 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <indent>
 <table>
-<tr><td>/O(+|-)</td><td>Enable or disable output (overrides <tt>Output</tt>)</td></tr>
-<tr><td>/O&lt;path&gt;</td><td>Output files to specified path (overrides <tt>OutputDir</tt>)</td></tr>
-<tr><td>/F&lt;filename&gt;</td><td>Specifies an output filename (overrides <tt>OutputBaseFilename</tt>)</td></tr>
-<tr><td>/S&lt;name&gt;=&lt;command></td><td>Sets a SignTool with the specified name and command (any Sign Tools configured using the Compiler IDE will be specified automatically)</td></tr>
-<tr><td>/Q</td><td>Quiet compile (print error messages only)</td></tr>
-<tr><td>/Qp</td><td>Enable quiet compile while still displaying progress</td></tr>
+<tr><th>Option</th><th>Meaning</th></tr>
+<tr><td nowrap=""><tt>/O+</tt><br/><tt>/O-</tt></td><td>Enable or disable output (overrides <tt>Output</tt>)</td></tr>
+<tr><td nowrap=""><tt>/O<i>&lt;path&gt;</i></tt></td><td>Output files to specified path (overrides <tt>OutputDir</tt>)</td></tr>
+<tr><td nowrap=""><tt>/F<i>&lt;filename&gt;</i></tt></td><td>Specifies an output filename (overrides <tt>OutputBaseFilename</tt>)</td></tr>
+<tr><td nowrap=""><tt>/S<i>&lt;name&gt;</i>=<i>&lt;command&gt;</i></tt></td><td>Sets a <tt>SignTool</tt> with the specified name and command (any Sign Tools configured using the Compiler IDE will be specified automatically)</td></tr>
+<tr><td nowrap=""><tt>/Q</tt></td><td>Quiet compile (print error messages only)</td></tr>
+<tr><td nowrap=""><tt>/Qp</tt></td><td>Enable quiet compile while still displaying progress</td></tr>
 </table>
-<example>iscc /Qp /O"My Output" /F"MyProgram-1.0" /Sbyparam=$p "c:\isetup\samples\my script.iss"</example>
+<example><pre>iscc /Qp /O"My Output" /F"MyProgram-1.0" /Sbyparam=$p "c:\isetup\samples\my script.iss"</pre></example>
 </indent>
 
 <p>Also see <link topic="isppcc">Inno Setup Preprocessor: Command Line Compiler</link> for additional options.</p>
@@ -3727,9 +3816,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <li>
 <p>Alternatively, scripts can also be compiled by the Compiler IDE from the command line. Command line usage is as follows:</p>
 
+<precode>iside /cc <i>&lt;script name&gt;</i></precode>
 <indent>
-<p>iside /cc <i>&lt;script name&gt;</i></p>
-<example>iside /cc "c:\isetup\samples\my script.iss"</example>
+<example><pre>iside /cc "c:\isetup\samples\my script.iss"</pre></example>
 </indent>
 
 <p>As shown in the example above, filenames that include spaces must be enclosed in quotes.</p>
@@ -3740,9 +3829,9 @@ Filename: "{win}\MYPROG.INI"; Section: "InstallSettings"; Key: "InstallPath"; St
 <li>
 <p>The Setup Script Wizard can be started from the command line. Command line usage is as follows:</p>
 
+<precode>iside /wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></precode>
 <indent>
-<p>iside /wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></p>
-<example>iside /wizard "MyProg Script Wizard" "c:\temp.iss"</example>
+<example><pre>iside /wizard "MyProg Script Wizard" "c:\temp.iss"</pre></example>
 </indent>
 
 <p>As shown in the example above, wizard names and filenames that include spaces must be enclosed in quotes.</p>
@@ -3895,28 +3984,29 @@ issigtool verify "MyFile.txt"
 
 <p>Command line usage is as follows:</p>
 
-<indent>
-<p>issigtool <i>[options]</i> <i>&lt;command&gt;</i> <i>&lt;arguments&gt;</i></p>
-</indent>
+<precode>
+issigtool <i>[options]</i> <i>&lt;command&gt;</i> <i>&lt;arguments&gt;</i>
+</precode>
 
 <p>Available commands:</p>
 
 <indent>
 <table>
+<tr><th>Command</th><th>Meaning</th></tr>
 <tr>
-<td>sign <i>&lt;file names&gt;</i></td>
+<td nowrap=""><tt>sign <i>&lt;file names&gt;</i></tt></td>
 <td>Signs each specified file. Requires a private key.</td>
 </tr>
 <tr>
-<td>verify <i>&lt;file names&gt;</i></td>
+<td nowrap=""><tt>verify <i>&lt;file names&gt;</i></tt></td>
 <td>Verifies the signature of each specified file against the key.</td>
 </tr>
 <tr>
-<td>export-public-key <i>&lt;file name&gt;</i></td>
+<td nowrap=""><tt>export-public-key <i>&lt;file name&gt;</i></tt></td>
 <td>Exports the public key used in the signing process to the specified file.</td>
 </tr>
 <tr>
-<td>generate-private-key</td>
+<td nowrap=""><tt>generate-private-key</tt></td>
 <td>Generates a new private key for signing operations.</td>
 </tr>
 </table>
@@ -3926,20 +4016,21 @@ issigtool verify "MyFile.txt"
 
 <indent>
 <table>
+<tr><th>Option</th><th>Meaning</th></tr>
 <tr>
-<td>--key-file=&lt;filename&gt;</td>
+<td nowrap=""><tt>--key-file=<i>&lt;filename&gt;</i></tt></td>
 <td>Specifies the private key filename required for signing. This option overrides the <tt>ISSIGTOOL_KEY_FILE</tt> environment variable which can also be used.</td>
 </tr>
 <tr>
-<td>--allow-overwrite, -o</td>
+<td nowrap=""><tt>--allow-overwrite</tt>, <tt>-o</tt></td>
 <td>Allow to overwrite existing files.</td>
 </tr>
 <tr>
-<td>--quiet, -q</td>
+<td nowrap=""><tt>--quiet</tt>, <tt>-q</tt></td>
 <td>Suppresses status messages that are normally printed to standard output.</td>
 </tr>
 <tr>
-<td>--help, -?</td>
+<td nowrap=""><tt>--help</tt>, <tt>-?</tt></td>
 <td>Prints usage information.</td>
 </tr>
 </table>
@@ -3947,19 +4038,18 @@ issigtool verify "MyFile.txt"
 
 <p>Examples:</p>
 
-<indent>
-<examples noheader="1">
-issigtool --key-file="MyKey.isprivatekey" generate-private-key<br/>
-issigtool --key-file="MyKey.isprivatekey" sign "MyProg.dll"<br/>
-issigtool --key-file="MyKey.isprivatekey" export-public-key "MyKey.ispublickey"<br/>
+<precode>
+issigtool --key-file="MyKey.isprivatekey" generate-private-key
+issigtool --key-file="MyKey.isprivatekey" sign "MyProg.dll"
+issigtool --key-file="MyKey.isprivatekey" export-public-key "MyKey.ispublickey"
 issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
-</examples>
-</indent>
+</precode>
 
 <p>Exit codes:</p>
 
 <indent>
 <table>
+<tr><th>Code</th><th>Meaning</th></tr>
 <tr>
 <td>0</td>
 <td>Success</td>
@@ -4266,6 +4356,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <p>The Setup program may return one of the following exit codes:</p>
 
 <table>
+<tr><th>Code</th><th>Meaning</th></tr>
 
 <tr>
 <td><b>0</b></td>
@@ -4446,27 +4537,27 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <p>If you have a DLL residing in the Windows System directory that you are <b>absolutely sure</b> is redistributable, copy it to your script's source directory and deploy it from there instead.</p>
 </dd>
 
-<dt><b>ADVAPI32.DLL, COMDLG32.DLL, GDI32.DLL, KERNEL32.DLL, RICHED32.DLL, SHELL32.DLL, USER32.DLL, UXTHEME.DLL</b></dt>
+<dt><b>ADVAPI32.dll, COMDLG32.dll, GDI32.dll, KERNEL32.dll, RICHED32.dll, SHELL32.dll, USER32.dll, UXTHEME.dll</b></dt>
 <dd>
 <p>These are all core components of Windows and must never be deployed with an installation. Users may only get new versions of these DLLs by installing a new version of Windows or a service pack or hotfix for Windows.</p>
 </dd>
 
-<dt><i>(Special case)</i> <b>COMCAT.DLL, MSVBVM50.DLL, MSVBVM60.DLL, OLEAUT32.DLL, OLEPRO32.DLL, STDOLE2.TLB</b></dt>
+<dt><i>(Special case)</i> <b>COMCAT.dll, MSVBVM50.dll, MSVBVM60.dll, OLEAUT32.dll, OLEPRO32.dll, STDOLE2.TLB</b></dt>
 <dd>
 <p>If <tt>DestDir</tt> is set to a location <i>other</i> than <tt>{sys}</tt> and the <tt>regserver</tt> or <tt>regtypelib</tt> flag is used, then the above files will be considered "unsafe". These files must never be deployed to and registered in a directory other than <tt>{sys}</tt> because doing so can potentially cause <i>all</i> programs on the system to use them in favor of the files in <tt>{sys}</tt>. Problems would result if your copies of the files are older than the ones in <tt>{sys}</tt>. Also, if your copies of the files were removed, other applications would break.</p>
 </dd>
 
-<dt><b>COMCTL32.DLL</b></dt>
+<dt><b>COMCTL32.dll</b></dt>
 <dd>
-<p>Microsoft does not allow separate redistribution of COMCTL32.DLL (and for good reason - the file differs between platforms), so you should never place COMCTL32.DLL in a script's [Files] section. You can however direct your users to <extlink href="http://www.microsoft.com/downloads/details.aspx?FamilyID=cb2cf3a2-8025-4e8f-8511-9b476a8d35d2&amp;DisplayLang=en">download the COMCTL32 update from Microsoft</extlink>, or distribute the COMCTL32 update along with your program.</p>
+<p>Microsoft does not allow separate redistribution of COMCTL32.dll (and for good reason - the file differs between platforms), so you should never place COMCTL32.dll in a script's [Files] section. You can however direct your users to <extlink href="http://www.microsoft.com/downloads/details.aspx?FamilyID=cb2cf3a2-8025-4e8f-8511-9b476a8d35d2&amp;DisplayLang=en">download the COMCTL32 update from Microsoft</extlink>, or distribute the COMCTL32 update along with your program.</p>
 </dd>
 
-<dt><b>SHDOCVW.DLL, SHLWAPI.DLL, URLMON.DLL, WININET.DLL</b></dt>
+<dt><b>SHDOCVW.dll, SHLWAPI.dll, URLMON.dll, WININET.dll</b></dt>
 <dd>
 <p>These are core components of Internet Explorer and are also used by Windows Explorer. Replacing them may prevent Explorer from starting. If your application depends on these DLLs, or a recent version of them, then your users will need to install a recent version of Internet Explorer to get them.</p>
 </dd>
 
-<dt><b>MSCOREE.DLL</b></dt>
+<dt><b>MSCOREE.dll</b></dt>
 <dd>
 <p>This file is part of the Microsoft .NET Framework. You cannot safely install or update the .NET Framework by including this file with your installation. Call or direct your users to dotnetfx.exe instead.</p>
 </dd>
@@ -4807,9 +4898,9 @@ AppUpdatesURL=http://www.example.com/updates.html
 <p>If <link topic="setup_usepreviousappdir">UsePreviousAppDir</link> is <tt>yes</tt> (the default) and Setup finds a previous version of the <link topic="sameappnotes">same application</link> is already installed, it will substitute the default directory name with the directory selected previously.</p>
 <examples>
 <b>If you used:</b><br/>
-<pre>DefaultDirName={sd}\MYPROG</pre>
+<pre>DefaultDirName={sd}\MyProg</pre>
 <b>In Setup, this would typically display:</b><br/>
-C:\MYPROG<br/><br/>
+C:\MyProg<br/><br/>
 <b>If you used:</b><br/>
 <pre>DefaultDirName={autopf}\My Program</pre>
 <b>In Setup, this would typically display:</b><br/>
@@ -4983,11 +5074,12 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <setuptopic directive="ArchiveExtraction">
 <keyword value=".7z" />
 <keyword value=".zip" />
-<setupvalid><tt>basic</tt><br/>
+<setupvalid><tt>auto</tt><br/>
+<tt>basic</tt><br/>
 <tt>enhanced/nopassword</tt><br/>
 <tt>enhanced</tt><br/>
 <tt>full</tt></setupvalid>
-<setupdefault><tt>basic</tt></setupdefault>
+<setupdefault><tt>auto</tt></setupdefault>
 <body>
 <p>This specifies the method of archive extraction used by [Files] section flag <link topic="filessection" anchor="extractarchive">extractarchive</link> and support functions <link topic="isxfunc_ExtractArchive">ExtractArchive</link> and <link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link>.</p>
 <p><tt>basic</tt> uses an embedded version of the "7z ANSI-C Decoder" from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements. It only supports .7z archives that are not password-protected.</p>
@@ -4997,7 +5089,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <p>The following table summarizes the differences between these methods.</p>
 <indent>
 <table>
-<tr><td></td><td><u>Memory Requirements</u></td><td><u>Password-protected Archives</u></td><td><u>Setup Size Increase*</u></td><td><u>Archive Formats</u></td></tr>
+<tr><th>Method</th><th>Memory Requirements</th><th>Password-protected Archives</th><th>Setup Size Increase*</th><th>Archive Formats</th></tr>
 <tr><td><tt>basic</tt> (default)</td><td>High for large files**</td><td>No</td><td>0 KB</td><td>.7z</td></tr>
 <tr><td><tt>enhanced/nopassword</tt></td><td>Normal</td><td>No</td><td>100 KB</td><td>.7z</td></tr>
 <tr><td><tt>enhanced</tt></td><td>Normal</td><td>Yes</td><td>123 KB</td><td>.7z</td></tr>
@@ -5006,6 +5098,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <p>* = When using a <link topic="64bit">32-bit installer</link>.<br/>
 ** = When extracting a file, at least enough memory will always be allocated to hold the <b>entire</b> file, regardless of the block size. For example, extracting a 1 GB file using the <tt>basic</tt> method requires at least 1 GB of RAM. Consider using a different method for .7z archives that contain large files: their memory requirements depend on the dictionary size only.</p>
 </indent>
+<p>When <tt>auto</tt> is specified, the compiler automatically selects the appropriate method based on entries in the [Files] section. If it selects <tt>basic</tt> because no entry uses the <tt>extractarchive</tt> flag, but you still use the aforementioned support functions, you must manually set the correct method.</p>
 <p>All methods overwrite read-only files which already exist in the destination directory without prompting the user.</p>
 <p>All methods restore the following file properties from the archive, if available: creation time, last modified time, attributes.</p>
 <p>When using the <tt>full</tt> method to extract a compressed archive, such as <i>archive.tar.gz</i>, the output will be the archive file itself (e.g., <i>archive.tar</i>) rather than the individual files contained within it.</p>
@@ -5053,7 +5146,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <p><tt>lzma</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA</extlink> compressor. It typically compresses significantly better than the <tt>zip</tt> and <tt>bzip</tt> methods. However, depending on the compression level used, it can be significantly slower at compressing, and consume a <i>lot</i> more memory. The following table summarizes the approximate memory requirements for each of the supported <tt>lzma</tt> compression levels. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
 <indent>
 <table>
-<tr><td></td><td><u>Decompression (dictionary size)</u></td><td><u>Compression (6 MB + 11.5 * dictionary size)</u></td></tr>
+<tr><th>Level</th><th>Decompression<br/>(dictionary size)</th><th>Compression<br/>(6 MB + 11.5 * dictionary size)</th></tr>
 <tr><td><tt>fast</tt> (worst)</td><td>32 KB</td><td>6 MB</td></tr>
 <tr><td><tt>normal</tt></td><td>2 MB</td><td>29 MB</td></tr>
 <tr><td><tt>max</tt> (default)</td><td>8 MB</td><td>98 MB</td></tr>
@@ -5667,6 +5760,7 @@ DiskSliceSize=736000000
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 202x386 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240x459.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <tt>WizardSizePercent</tt>, and <tt>WizardKeepAspectRatio</tt> settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
+<tr><th>DPI</th><th>Image area size</th></tr>
 <tr><td>100%</td><td>202x386</td></tr>
 <tr><td>125%</td><td>269x515</td></tr>
 <tr><td>150%</td><td>336x643</td></tr>
@@ -5680,6 +5774,7 @@ DiskSliceSize=736000000
 <p>If this directive is set to a blank value, no wizard image will be used. This does not change the layout of the wizard.</p>
 <p>If the default settings from before Inno Setup 6.6.0 are being used, the size of the image area at various DPI settings is:</p>
 <table>
+<tr><th>DPI</th><th>Image area size</th></tr>
 <tr><td>100%</td><td>164x314</td></tr>
 <tr><td>125%</td><td>202x386</td></tr>
 <tr><td>150%</td><td>240x459</td></tr>
@@ -5717,6 +5812,7 @@ DiskSliceSize=736000000
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 58x58 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 147x147.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
+<tr><th>DPI</th><th>Image area size</th></tr>
 <tr><td>100%</td><td>58x58</td></tr>
 <tr><td>125%</td><td>77x77</td></tr>
 <tr><td>150%</td><td>97x97</td></tr>
@@ -5731,6 +5827,7 @@ DiskSliceSize=736000000
 <p>If this directive is set to a blank value, no wizard image will be used. This does not change the layout of the wizard.</p>
 <p>If the default settings from before Inno Setup 6.6.0 are being used, the size of the image area at various DPI settings is:</p>
 <table>
+<tr><th>DPI</th><th>Image area size</th></tr>
 <tr><td>100%</td><td>58x58</td></tr>
 <tr><td>125%</td><td>71x71</td></tr>
 <tr><td>150%</td><td>85x85</td></tr>
@@ -5768,6 +5865,7 @@ DiskSliceSize=736000000
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 596x432 is recommended to avoid the image looking blurry on higher-DPI systems.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <tt>WizardSizePercent</tt>, and <tt>WizardKeepAspectRatio</tt> settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
+<tr><th>DPI</th><th>Image area size</th></tr>
 <tr><td>100%</td><td>596x432</td></tr>
 <tr><td>125%</td><td>796x576</td></tr>
 <tr><td>150%</td><td>994x720</td></tr>
@@ -6555,7 +6653,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 <body>
 <p>Specifies whether the compiler should set the "Terminal Services aware" flag in the headers of the Setup and Uninstall programs.</p>
 <p>Most importantly, the "Terminal Services aware" flag affects the behavior of the {win} constant (and <link topic="isxfunc_GetWinDir">GetWinDir</link> support function) on servers with Terminal Services installed in application mode.</p>
-<p>When the flag is set, {win} will consistently return the system's real Windows directory, typically "C:\WINDOWS", just as on systems that do not have Terminal Services installed.</p>
+<p>When the flag is set, {win} will consistently return the system's real Windows directory, typically "C:\Windows", just as on systems that do not have Terminal Services installed.</p>
 <p>When the flag is not set, Windows runs the program in compatibility mode, where {win} may return either the real Windows directory or a user-specific Windows directory, such as "C:\Documents and Settings\&lt;user name&gt;\WINDOWS". Which one you get depends on the name of the program's EXE file and how it is launched. If the program is named setup.exe or install.exe, or if it is launched from the <i>Add/Remove Programs</i> Control Panel applet, then Windows will put the system in "install mode", which effectively makes the program (and all other programs running in the session) behave as if the "Terminal Services aware" flag were set. Otherwise, the program is treated as a legacy application and is given a private Windows directory. (This is true even if the user running the program has full administrative privileges.)</p>
 <p>Because the behavior that results from setting <tt>TerminalServicesAware</tt> to <tt>no</tt> is inconsistent and hard to predict, it is recommended that you use the default setting of <tt>yes</tt>. Only use <tt>no</tt> as a temporary fix if you encounter troubles on systems with Terminal Services after upgrading from a previous Inno Setup version.</p>
 </body>
@@ -6943,6 +7041,7 @@ CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 <keyword value="Windows Versions" />
 <body>
 <table>
+<tr><th>Version number</th><th>Windows release(s)</th></tr>
 <tr><td>6.1.7600</td><td>Windows 7<br/>or Windows Server 2008 R2</td></tr>
 <tr><td>6.1.7601</td><td>Windows 7 with Service Pack 1<br/>or Windows Server 2008 R2 with Service Pack 1</td></tr>
 <tr><td>6.2.9200</td><td>Windows 8<br/>or Windows Server 2012</td></tr>
@@ -6977,6 +7076,7 @@ CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 <keyword value="User &amp; Group Identifiers" />
 <body>
 <table>
+<tr><th>Identifier</th><th>Meaning</th></tr>
 <tr><td><tt>admins</tt></td><td>Administrators group</td></tr>
 <tr><td><tt>authusers</tt></td><td>Authenticated Users group</td></tr>
 <tr><td><tt>creatorowner</tt></td><td>Creator Owner</td></tr>

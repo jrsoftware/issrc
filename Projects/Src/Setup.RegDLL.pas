@@ -23,6 +23,7 @@ uses
   SysUtils, Forms,
   PathFunc,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.SetupMessageIDs,
+  Shared.SetupTypes,
   SetupLdrAndSetup.Messages,
   Setup.InstFunc, Setup.LoggingFunc, Setup.MainFunc, Setup.PathRedir,
   Setup.RedirFunc;

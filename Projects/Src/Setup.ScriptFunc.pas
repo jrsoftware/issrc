@@ -2037,13 +2037,8 @@ var
       var TargetProcess: TPathRedirTargetProcess;
       if OrgName = 'ApplyPathRedirRulesForCurrentProcess' then
         TargetProcess := tpCurrent
-      else begin
-        const TargetProcess64Bit = Stack.GetBool(PStart-3);
-        if TargetProcess64Bit then
-          TargetProcess := tpNativeBit { Since ApplyPathRedirRules does not rewrite on 32-bit Windows this effectively means tp64Bit }
-        else
-          TargetProcess := tp32Bit;
-      end;
+      else
+        TargetProcess := TPathRedirTargetProcess(Stack.GetInt(PStart-3));
       Stack.SetString(PStart, ApplyPathRedirRules(Stack.GetBool(PStart-1),
         Stack.GetString(PStart-2), TargetProcess));
     end);

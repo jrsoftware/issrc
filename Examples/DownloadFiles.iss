@@ -21,9 +21,7 @@ DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
-ArchiveExtraction=full
-; Use "ArchiveExtraction=enhanced" if all your archives are .7z files
-; Use "ArchiveExtraction=enhanced/nopassword" if all your archives are not password-protected
+ArchiveExtraction=auto
 
 [ISSigKeys]
 ; Use Inno Setup Signature Tool (ISSigTool.exe) to create your own keys and

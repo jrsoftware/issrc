@@ -12,12 +12,10 @@
   #define arch "x64"
   #define dasharch "-" + arch
   #define spacebit ""
-  #define proa "dialog"
 #else
   #define arch "x86"
   #define dasharch ""
   #define spacebit " (32-bit)"
-  #define proa "commandline"
 #endif
 //
 #define CheckArch(str Filename) \
@@ -31,8 +29,8 @@
 
 [Setup]
 AppName=Inno Setup
-AppId=Inno Setup 7
-AppVersion=7.0.0-preview-1
+AppId=Inno Setup 7{#spacebit}
+AppVersion=7.0.0-preview-1{#spacebit}
 AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
 AppSupportURL=https://www.innosetup.com/
@@ -43,7 +41,7 @@ SetupMutex=InnoSetupCompilerSetupMutex7{#dasharch},Global\InnoSetupCompilerSetup
 WizardStyle=modern dynamic
 DefaultDirName={code:GetDefaultDirName|Inno Setup 7}
 DefaultGroupName=Inno Setup 7{#spacebit}
-PrivilegesRequiredOverridesAllowed={#proa}
+PrivilegesRequiredOverridesAllowed=dialog
 AllowNoIcons=yes
 Compression=lzma2/max
 SolidCompression=yes
@@ -215,13 +213,3 @@ Filename: "{app}\ISIDE.exe"; WorkingDir: "{app}"; Description: "{cm:LaunchProgra
 [UninstallRun]
 ; The /UNASSOC line will be automatically skipped on portable mode, because of Uninstallable being set to no
 Filename: "{app}\ISIDE.exe"; Parameters: "/UNASSOC"; RunOnceId: "RemoveISSAssoc"
-
-#ifndef x64
-[Code]
-function InitializeSetup: Boolean;
-begin
-  Result := IsAdminInstallMode or PortableCheck;
-  if not Result then
-    SuppressibleMsgBox('Non-administrative install of 32-bit Inno Setup requires using command-line parameter /PORTABLE=1', mbError, MB_OK, IDOK);
-end;
-#endif

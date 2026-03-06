@@ -18,7 +18,7 @@ begin
   else
     Result := '{autopf}';
   Result := ExpandConstant(AddBackslash(Result) + Param);
-  if PortableCheck then
+  if PortableCheck or not IsAdminInstallMode then
     Result := Result + '{#spacebit}';
 end;
 

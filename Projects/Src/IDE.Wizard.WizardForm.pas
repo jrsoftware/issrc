@@ -1055,6 +1055,8 @@ begin
         Setup := Setup + '; meaning it should use the native 64-bit Program Files directory and' + SNewLine;
         Setup := Setup + '; the 64-bit view of the registry.' + SNewLine;
         Setup := Setup + 'ArchitecturesInstallIn64BitMode=x64compatible' + SNewLine;
+        Setup := Setup + '; Uncomment the following line to use a 64-bit installer.' + SNewLine;
+        Setup := Setup + ';SetupArchitecture=x64' + SNewLine;
       end;
     end;
 

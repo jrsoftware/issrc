@@ -45,7 +45,6 @@ var
   UninstExeFilename, UninstDataFilename, UninstMsgFilename: String;
   UninstDataFile: TFile;
   UninstLog: TExtUninstallLog = nil;
-  Title: String;
   DidRespawn, SecondPhase: Boolean;
   EnableLogging, Silent, VerySilent, NoRestart, KeepExeDatMsgFiles: Boolean;
   LogFilename: String;
@@ -77,7 +76,7 @@ end;
 procedure InitializeUninstallProgressForm;
 begin
   UninstallProgressForm := AppCreateForm(TUninstallProgressForm) as TUninstallProgressForm;
-  UninstallProgressForm.Initialize(Title, UninstLog.AppName);
+  UninstallProgressForm.Initialize(Application.Title, UninstLog.AppName);
   if CodeRunner <> nil then begin
     try
       CodeRunner.RunProcedures('InitializeUninstallProgressForm', [''], False);
@@ -110,12 +109,12 @@ begin
   Application.ProcessMessages;
 end;
 
-function LoggedMessageBoxFmt1(const ID: TSetupMessageID; const Arg1: String;
-  const Title: String; const Flags: Cardinal; const Suppressible: Boolean;
-  const Default: Integer): Integer;
+function LoggedMsgBoxFSM(const ID: TSetupMessageID; const Arg1: String;
+  const Caption: String; const Typ: TMsgBoxType; const Buttons: Cardinal;
+  const Suppressible: Boolean; const Default: Integer): Integer;
 begin
-  Result := LoggedMsgBox(PChar(FmtSetupMessage1(ID, Arg1)), PChar(Title),
-    Flags, Suppressible, Default);
+  Result := LoggedMsgBox(FmtSetupMessage1(ID, Arg1), Caption, Typ, Buttons,
+    Suppressible, Default);
 end;
 
 procedure RaiseLastError(const S: String);
@@ -583,13 +582,13 @@ begin
       end;
     end;
 
-    Title := FmtSetupMessage1(msgUninstallAppFullTitle, UninstLog.AppName);
+    Application.Title := FmtSetupMessage1(msgUninstallAppFullTitle, UninstLog.AppName);
 
     {$IFDEF WIN64}
     { See Setup.MainFunc }
     if not (paX86 in MachineTypesSupportedBySystem) then begin
-      LoggedMsgBox(PChar(SetupMessages[msgWindowsVersionNotSupported]), PChar(Title),
-        MB_OK or MB_ICONEXCLAMATION, True, IDOK);
+      LoggedMsgBox(SetupMessages[msgWindowsVersionNotSupported], '',
+        mbCriticalError, MB_OK, True, IDOK);
       Abort;
     end;
     {$ENDIF}
@@ -599,15 +598,15 @@ begin
       Windows version, or they're running an uninstaller from another machine
       (which they definitely shouldn't be doing). }
     if (ufWin64 in UninstLog.Flags) and not IsWin64 then begin
-      LoggedMsgBox(PChar(SetupMessages[msgUninstallOnlyOnWin64]), PChar(Title),
-        MB_OK or MB_ICONEXCLAMATION, True, IDOK);
+      LoggedMsgBox(SetupMessages[msgUninstallOnlyOnWin64], '',
+        mbCriticalError, MB_OK, True, IDOK);
       Abort;
     end;
 
     { Check if admin privileges are needed to uninstall }
     if (ufAdminInstalled in UninstLog.Flags) and not IsAdmin then begin
-      LoggedMsgBox(PChar(SetupMessages[msgOnlyAdminCanUninstall]), PChar(Title),
-        MB_OK or MB_ICONEXCLAMATION, True, IDOK);
+      LoggedMsgBox(SetupMessages[msgOnlyAdminCanUninstall], '',
+        mbCriticalError, MB_OK, True, IDOK);
       Abort;
     end;
 
@@ -689,8 +688,8 @@ begin
 
         { Confirm uninstall }
         if not Silent and not VerySilent then begin
-          if LoggedMessageBoxFmt1(msgConfirmUninstall, UninstLog.AppName, Title,
-             MB_ICONQUESTION or MB_YESNO or MB_DEFBUTTON2, True, IDYES) <> IDYES then
+          if LoggedMsgBoxFSM(msgConfirmUninstall, UninstLog.AppName, '',
+             mbConfirmation, MB_YESNO or MB_DEFBUTTON2, True, IDYES) <> IDYES then
             Abort;
         end;
 
@@ -699,8 +698,8 @@ begin
         { Is the app running? }
         while UninstLog.CheckMutexes do
           { Yes, tell user to close it }
-          if LoggedMessageBoxFmt1(msgUninstallAppRunningError, UninstLog.AppName, Title,
-             MB_OKCANCEL or MB_ICONEXCLAMATION, True, IDCANCEL) <> IDOK then
+          if LoggedMsgBoxFSM(msgUninstallAppRunningError, UninstLog.AppName, '',
+             mbError, MB_OKCANCEL, True, IDCANCEL) <> IDOK then
             Abort;
    
         { Check for active WM_QUERYENDSESSION/WM_ENDSESSION }
@@ -762,14 +761,14 @@ begin
 
         if not UninstallNeedsRestart then begin
           if not Silent and not VerySilent then
-            LoggedMessageBoxFmt1(RemovedMsgs[RemovedAll], UninstLog.AppName,
-              Title, MB_ICONINFORMATION or MB_OK or MB_SETFOREGROUND, True, IDOK);
+            LoggedMsgBoxFSM(RemovedMsgs[RemovedAll], UninstLog.AppName,
+              '', mbInformation, MB_OK or MB_SETFOREGROUND, True, IDOK);
         end
         else begin
           if not NoRestart then begin
             if VerySilent or
-               (LoggedMessageBoxFmt1(msgUninstalledAndNeedsRestart, UninstLog.AppName,
-                  Title, MB_ICONQUESTION or MB_YESNO or MB_SETFOREGROUND, True, IDYES) = IDYES) then
+               (LoggedMsgBoxFSM(msgUninstalledAndNeedsRestart, UninstLog.AppName,
+                  '', mbConfirmation, MB_YESNO or MB_SETFOREGROUND, True, IDYES) = IDYES) then
               RestartSystem := True;
           end;
           if not RestartSystem then
@@ -871,8 +870,8 @@ begin
 
     { Verify that uninstall data file exists }
     if not NewFileExists(UninstDataFilename) then begin
-      LoggedMessageBoxFmt1(msgUninstallNotFound, UninstDataFilename,
-        SetupMessages[msgUninstallAppTitle], MB_ICONSTOP or MB_OK, True, IDOK);
+      LoggedMsgBoxFSM(msgUninstallNotFound, UninstDataFilename,
+        '', mbCriticalError, MB_OK, True, IDOK);
       Abort;
     end;
 

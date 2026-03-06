@@ -1,6 +1,11 @@
 HISTORY of the LZMA SDK
 -----------------------
 
+26.00          2026-02-12
+-------------------------
+- some bugs were fixed.
+
+
 25.01          2025-08-03
 -------------------------
 - The code for handling symbolic links has been changed 

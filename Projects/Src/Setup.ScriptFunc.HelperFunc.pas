@@ -29,7 +29,7 @@ type
   TOnLog = procedure(const S: String; const Error, FirstLine: Boolean) of object;
 
   { Must keep this in synch with Compiler.ScriptFunc.pas }
-  TFindRec = record
+  TFindRec = packed record
     Name: String;
     Attributes: Cardinal;
     SizeHigh: Cardinal;

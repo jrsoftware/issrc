@@ -714,11 +714,111 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Retrieves string from specified file's (first parameter) version information resource.</p>
-					<p>Second parameter is the name of the version info string-value. This should be one of the predefined strings. Those strings and shortcuts are declared in &builtins;.</p>
-					<p>Third optional parameter should specify the language and charset identifier. For example: 0x04BE0409 stands for "English (United States)". If this parameter is omitted, ISPP scans for all available version info blocks to find the value.</p>
-					<p>The function returns an empty string, if it was unable to retrieve the desired string-value.</p>
+					<p>Retrieves a string from specified file's (first parameter) version information resource.</p>
+					<p>Second parameter is the name of the version info string-value.</p>
+					<p>Third optional parameter should specify the language and charset identifier. For example: 0x04BE0409 stands for "English (United States)". If this parameter is omitted, the function scans all available version info blocks to find the value.</p>
+					<p>The function returns an empty string if it was unable to retrieve the value.</p>
 				</description>
+				<section title="See also">
+					<p><tt><link href="GetFileCompanyString">GetFileCompanyString</link></tt>, <tt><link href="GetFileDescriptionString">GetFileDescriptionString</link></tt>, <tt><link href="GetFileVersionString">GetFileVersionString</link></tt>, <tt><link href="GetFileCopyrightString">GetFileCopyrightString</link></tt>, <tt><link href="GetFileOriginalFilenameString">GetFileOriginalFilenameString</link></tt>, <tt><link href="GetFileProductVersionString">GetFileProductVersionString</link></tt></p>
+				</section>
+			</topic>
+			<topic id="GetFileCompanyString">
+				<title>GetFileCompanyString</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>str</b> GetFileCompanyString(<b>str</b> FileName)</line>
+					</pre>
+				</section>
+				<description>
+					<p>Returns the company name string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, COMPANY_NAME)</tt>.</p>
+					<p>The function returns an empty string if it was unable to retrieve the value.</p>
+					<p>Declared in &builtins;.</p>
+				</description>
+				<section title="See also">
+					<p><tt><link href="GetStringFileInfo">GetStringFileInfo</link></tt></p>
+				</section>
+			</topic>
+			<topic id="GetFileDescriptionString">
+				<title>GetFileDescriptionString</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>str</b> GetFileDescriptionString(<b>str</b> FileName)</line>
+					</pre>
+				</section>
+				<description>
+					<p>Returns the file description string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, FILE_DESCRIPTION)</tt>.</p>
+					<p>The function returns an empty string if it was unable to retrieve the value.</p>
+					<p>Declared in &builtins;.</p>
+				</description>
+				<section title="See also">
+					<p><tt><link href="GetStringFileInfo">GetStringFileInfo</link></tt></p>
+				</section>
+			</topic>
+			<topic id="GetFileVersionString">
+				<title>GetFileVersionString</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>str</b> GetFileVersionString(<b>str</b> FileName)</line>
+					</pre>
+				</section>
+				<description>
+					<p>Returns the file version string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, FILE_VERSION)</tt>.</p>
+					<p>Also see <link href="GetVersionNumbersString">GetVersionNumbersString</link>, which can also be used to retrieve the file version. The difference is that <tt>GetVersionNumbersString</tt> gets the binary file version from the fixed block of the specified file's version information resource, while <tt>GetFileVersionString</tt> gets the textual file version from the language specific block.</p>
+					<p>The function returns an empty string if it was unable to retrieve the value.</p>
+					<p>Declared in &builtins;.</p>
+				</description>
+				<section title="See also">
+					<p><tt><link href="GetStringFileInfo">GetStringFileInfo</link></tt></p>
+				</section>
+			</topic>
+			<topic id="GetFileCopyrightString">
+				<title>GetFileCopyrightString</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>str</b> GetFileCopyrightString(<b>str</b> FileName)</line>
+					</pre>
+				</section>
+				<description>
+					<p>Returns the legal copyright string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, LEGAL_COPYRIGHT)</tt>.</p>
+					<p>The function returns an empty string if it was unable to retrieve the value.</p>
+					<p>Declared in &builtins;.</p>
+				</description>
+				<section title="See also">
+					<p><tt><link href="GetStringFileInfo">GetStringFileInfo</link></tt></p>
+				</section>
+			</topic>
+			<topic id="GetFileOriginalFilenameString">
+				<title>GetFileOriginalFilenameString</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>str</b> GetFileOriginalFilenameString(<b>str</b> FileName)</line>
+					</pre>
+				</section>
+				<description>
+					<p>Returns the original filename string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, ORIGINAL_FILENAME)</tt>.</p>
+					<p>The function returns an empty string if it was unable to retrieve the value.</p>
+					<p>Declared in &builtins;.</p>
+				</description>
+				<section title="See also">
+					<p><tt><link href="GetStringFileInfo">GetStringFileInfo</link></tt></p>
+				</section>
+			</topic>
+			<topic id="GetFileProductVersionString">
+				<title>GetFileProductVersionString</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>str</b> GetFileProductVersionString(<b>str</b> FileName)</line>
+					</pre>
+				</section>
+				<description>
+					<p>Returns the product version string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, PRODUCT_VERSION)</tt>.</p>
+					<p>The function returns an empty string if it was unable to retrieve the value.</p>
+					<p>Declared in &builtins;.</p>
+				</description>
+				<section title="See also">
+					<p><tt><link href="GetStringFileInfo">GetStringFileInfo</link></tt></p>
+				</section>
 			</topic>
 			<topic id="Int">
 				<title>Int</title>
@@ -1472,7 +1572,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns the version of the specified file as a string (in "0.0.0.0" format) if successful, an empty string otherwise.</p>
-					<p>Also see <link href="GetStringFileInfo">GetStringFileInfo</link>, which can also be used to retrieve file versions using "FileVersion" or "ProductVersion" as the second parameter. The difference is that GetVersionNumbersString takes it from the fixed block of version info, unlike GetStringFileInfo which extracts string from the language specific block.</p>
+					<p>Also see <link href="GetFileVersionString">GetFileVersionString</link>, which can also be used to retrieve the file version. The difference is that <tt>GetVersionNumbersString</tt> gets the binary file version from the fixed block of the specified file's version information resource, while <tt>GetFileVersionString</tt> gets the textual file version from the language specific block.</p>
 				</description>
 			</topic>
 			<topic id="GetPackedVersion">

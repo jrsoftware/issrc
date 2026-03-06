@@ -13,9 +13,7 @@ DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
-ArchiveExtraction=enhanced/nopassword
-; Use "ArchiveExtraction=enhanced" if your archive has a password
-; Use "ArchiveExtraction=full" if your archive is not a .7z file but for example a .zip file
+ArchiveExtraction=auto
 
 [ISSigKeys]
 Name: mykey; RuntimeID: def02; \

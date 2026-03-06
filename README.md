@@ -252,6 +252,10 @@ directory. Example file, not used by any project.
 Each precompiled file is accompanied by an .issig signature file, and can be
 verified using Inno Setup Signature Tool and [this public key file].
 
+To build all these files except the MyDll and MyProg example files, run
+**build-precomp.bat** and follow the instructions. Requires a checkout of the
+aforementioned repositories. Does NOT update .issig files.
+
 Inno Setup-specific editing guidelines for the help files
 ---------------------------------------------------------
 

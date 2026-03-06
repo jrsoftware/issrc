@@ -2564,7 +2564,7 @@ begin
         Flags := Flags or utRun_LogOutput;
       UninstLog.Add(utRun, [ExpandConst(RunEntry.Name),
         ExpandConst(RunEntry.Parameters), ExpandConst(RunEntry.WorkingDir),
-        ExpandConst(RunEntry.RunOnceId), ExpandConst(RunEntry.Verb)],
+        ExpandConst(RunEntry.RunOnceId), ExpandConst(RunEntry.Verb), RunEntry.OnLog],
         Flags);
       NotifyAfterInstallEntry(RunEntry.AfterInstall);
     end;

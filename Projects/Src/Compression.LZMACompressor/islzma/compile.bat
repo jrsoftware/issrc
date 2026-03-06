@@ -42,7 +42,7 @@ set VSCMD_SKIP_SENDTELEMETRY=1
 
 echo - Calling vcvarsall.bat %vsarch%
 call "%VSBUILDROOT%\vcvarsall.bat" %vsarch%
-if errorlevel 1 goto exit
+if errorlevel 1 goto failed
 echo.
 
 set platform=%1

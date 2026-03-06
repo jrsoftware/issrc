@@ -42,6 +42,9 @@ type
   TVerificationError = (veSignatureMissing, veSignatureMalformed, veKeyNotFound,
     veSignatureBad, veFileNameIncorrect, veFileSizeIncorrect, veFileHashIncorrect);
 
+  TPathRedirTargetProcess = (tpCurrent, tpNativeBit, tp32Bit,
+    tp32BitPreferSystem32);
+
 const
   crHand = 1;
 

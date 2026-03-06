@@ -298,7 +298,7 @@ const
   RunSectionParameters: array of TScintRawString = [
     'AfterInstall', 'BeforeInstall', 'Check', 'Components', 'Description',
     'Filename', 'Flags', 'Languages', 'MinVersion', 'OnlyBelowVersion',
-    'Parameters', 'StatusMsg', 'Tasks', 'Verb', 'WorkingDir'
+    'Parameters', 'StatusMsg', 'Tasks', 'Verb', 'WorkingDir', 'OnLog'
   ];
 
   RunSectionFlags: array of TScintRawString = [
@@ -311,7 +311,7 @@ const
   UninstallRunSectionParameters: array of TScintRawString = [
     'AfterInstall', 'BeforeInstall', 'Check', 'Components', 'Filename', 'Flags',
     'Languages', 'MinVersion', 'OnlyBelowVersion', 'Parameters', 'RunOnceId',
-    'Tasks', 'Verb', 'WorkingDir'
+    'Tasks', 'Verb', 'WorkingDir', 'OnLog'
   ];
 
   UninstallRunSectionFlags: array of TScintRawString = [
@@ -458,7 +458,7 @@ const
     'Word', 'SmallInt', 'LongInt', 'LongWord', 'Integer', 'Cardinal', 'Int64', 'UInt64',
     'Single', 'Double', 'Extended', 'Currency', 'PAnsiChar', 'Variant',
     'TVariantArray', 'NativeInt', 'NativeUInt',
-    //undocumented: NativeString, AnyString, AnyMethod, ___Pointer, tbtString, NativeString, !NotificationVariant
+    //undocumented: NativeString, AnyString, AnyMethod, ___Pointer, tbtString, !NotificationVariant
     'TVarType',
     //undocumented: TIFException
     { ScriptFunc's real enums, values done via PascalRealEnumValues instead of PascalEnumValues}
@@ -468,7 +468,7 @@ const
     'TArrayOfString', 'TArrayOfChar', 'TArrayOfBoolean', 'TArrayOfInteger', 'TArrayOfGraphic',
     'DWORD', 'UINT', 'BOOL', 'INT_PTR', 'DWORD_PTR', 'UINT_PTR', 'LRESULT', 'HMODULE', 'WPARAM', 'LPARAM',
     'TFileTime', 'TSplitType', 'TExecWait', 'TExecOutput', 'TFindRec', 'TWindowsVersion',
-    'TOnDownloadProgress', 'TOnExtractionProgress', 'TOnLog',
+    'TOnDownloadProgress', 'TOnExtractionProgress', 'TOnLog', 'TPathRedirTargetProcess',
     { ScriptClasses: see PascalTypes_Isxclasses in isxclasses_wordlists_generated +
       also the following from USPC_comobj.pas }
     'HResult', 'TGUID', 'TCLSID', 'TIID' 
@@ -477,7 +477,8 @@ const
   PascalEnumValues: array of AnsiString = [
     { ScriptFunc's values of non real enums - also see PascalTypes above }
     'stAll', 'stExcludeEmpty', 'stExcludeLastEmpty',
-    'ewNoWait', 'ewWaitUntilTerminated', 'ewWaitUntilIdle'
+    'ewNoWait', 'ewWaitUntilTerminated', 'ewWaitUntilIdle',
+    'tpCurrent', 'tpNativeBit', 'tp32Bit', 'tp32BitPreferSystem32'
     { ScriptClasses: see PascalEnumValues_Isxclasses in isxclasses_wordlists_generated }
   ];
 
@@ -1985,6 +1986,7 @@ initialization
   PascalRealEnumValues[3] := TypeInfo(TUninstallStep);
   PascalRealEnumValues[4] := TypeInfo(TSetupProcessorArchitecture);
   PascalRealEnumValues[5] := TypeInfo(TDotNetVersion);
+  { TPathRedirTargetProcess: see PascalEnumValues }
 
   const ArchitecturesExpressionValues: TArray<TScintRawString> = [
     'not', 'and', 'or',
@@ -1995,7 +1997,7 @@ initialization
   SetupSectionDirectivesValues := [
     SSDV(ssArchitecturesAllowed, ArchitecturesExpressionValues),
     SSDV(ssArchitecturesInstallIn64BitMode, ArchitecturesExpressionValues),
-    SSDV(ssArchiveExtraction, ['enhanced/nopassword', 'enhanced', 'full', 'basic']),
+    SSDV(ssArchiveExtraction, ['auto', 'basic', 'enhanced/nopassword', 'enhanced', 'full']),
     SSDV(ssCloseApplications, ['force', SYes, SNo]),
     SSDV(ssCompression, GetCompressionValues),
     SSDV(ssDisablePrecompiledFileVerifications, ['setup', 'setupcustomstyle', 'setupldr', 'is7z', 'isbunzip', 'isunzlib', 'islzma']),

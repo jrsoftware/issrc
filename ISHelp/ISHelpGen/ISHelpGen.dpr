@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.23';
+  Version = '1.27';
 
   XMLFileVersion = '1';
 
@@ -58,8 +58,10 @@ type
     elSetupValid,
     elSetupTopic,
     elSmall,
+    elSup,
     elTable,
     elTD,
+    elTH,
     elTopic,
     elTR,
     elTT,
@@ -79,7 +81,6 @@ var
   TopicsGenerated: Integer = 0;
   CurrentTopicName: String;
   CurrentListIsCompact: Boolean;
-  CurrentTableColumnIndex: Integer;
 
 procedure UnexpectedElementError(const Node: IXMLNode);
 begin
@@ -127,29 +128,6 @@ begin
     Node := Node.PreviousSibling;
   until (Node = nil) or not IsWhitespace(Node);
   Result := (Node = nil);
-end;
-
-function IsLastNonWhitespaceNode(Node: IXMLNode): Boolean;
-{ Returns True if no non-whitespace sibling elements follow }
-begin
-  repeat
-    Node := Node.NextSibling;
-  until (Node = nil) or not IsWhitespace(Node);
-  Result := (Node = nil);
-end;
-
-function NodeHasChildren(Node: IXMLNode): Boolean;
-{ Returns True if the node has non-whitespace children }
-begin
-  Node := Node.GetFirstChild;
-  while Assigned(Node) do begin
-    if not IsWhitespace(Node) then begin
-      Result := True;
-      Exit;
-    end;
-    Node := Node.NextSibling;
-  end;
-  Result := False;
 end;
 
 function ListItemExists(const SL: TStrings; const S: String): Boolean;
@@ -327,7 +305,6 @@ end;
 function ParseFormattedText(Node: IXMLNode): String;
 var
   S: String;
-  I: Integer;
   B: Boolean;
 begin
   Result := '';
@@ -370,12 +347,12 @@ begin
           if CurrentTopicName = '' then
             raise Exception.Create('<flag> used outside of topic');
           CreateKeyword(S, CurrentTopicName, S);
-          Result := Result + '<dt class="flaglist">' + GenerateAnchorHTML(S, EscapeHTML(S)) +
+          Result := Result + '<dt>' + GenerateAnchorHTML(S, EscapeHTML(S)) +
             '</dt>' + SNewLine + '<dd>' + ParseFormattedText(Node) +
             '</dd>';
         end;
       elFlagList:
-        Result := Result + '<dl>' + ParseFormattedText(Node) + '</dl>';
+        Result := Result + '<dl class="flaglist">' + ParseFormattedText(Node) + '</dl>';
       elI:
         Result := Result + '<i>' + ParseFormattedText(Node) + '</i>';
       elImg:
@@ -426,53 +403,43 @@ begin
         end;
       elParam:
         begin
-          { IE doesn't support immediate-child-only selectors in CSS (e.g.
-            "DL.paramlist > DT") so we have to apply the class to each DT
-            instead of just on the DL. }
           S := Node.Attributes['name'];
           if CurrentTopicName = '' then
             raise Exception.Create('<param> used outside of topic');
           CreateKeyword(S, CurrentTopicName, S);
-          Result := Result + '<dt class="paramlist"><b>' + GenerateAnchorHTML(S, EscapeHTML(S)) + '</b>';
+          Result := Result + '<dt><b>' + GenerateAnchorHTML(S, EscapeHTML(S)) + '</b>';
           if Node.Attributes['required'] = 'yes' then
             Result := Result + ' &nbsp;<i>(Required)</i>';
-          Result := Result + '</dt><dd class="paramlist">' + ParseFormattedText(Node) + '</dd>';
+          Result := Result + '</dt><dd>' + ParseFormattedText(Node) + '</dd>';
         end;
       elParamList:
-        Result := Result + '<dl>' + ParseFormattedText(Node) + '</dl>';
+        Result := Result + '<dl class="paramlist">' + ParseFormattedText(Node) + '</dl>';
       elPre:
-        begin
-          Result := Result + '<pre';
-          { Special handling for <pre> inside example boxes: Don't include a
-            bottom margin if <pre> is the last element } 
-          if (ElementFromNode(Node.ParentNode) in [elExample, elExamples]) and
-             IsLastNonWhitespaceNode(Node) then
-            Result := Result + ' class="nomargin"';
-          Result := Result + '>' + ParseFormattedText(Node) + '</pre>';
-        end;
+        Result := Result + '<pre>' + ParseFormattedText(Node) + '</pre>';
       elPreCode:
         Result := Result + '<pre class="indent examplebox">' + ParseFormattedText(Node) + '</pre>';
       elSmall:
         Result := Result + '<span class="small">' + ParseFormattedText(Node) + '</span>';
+      elSup:
+        Result := Result + '<sup>' + ParseFormattedText(Node) + '</sup>';
       elTable:
         Result := Result + '<table>' + ParseFormattedText(Node) + '</table>';
       elTD:
         begin
           Result := Result + '<td';
-          if CurrentTableColumnIndex = 0 then
-            Result := Result + ' class="cellleft"'
-          else
-            Result := Result + ' class="cellright"';
+          if Node.HasAttribute('nowrap') then
+            Result := Result + ' class="nowrap"';
           Result := Result + '>' + ParseFormattedText(Node) + '</td>';
-          Inc(CurrentTableColumnIndex);
+        end;
+      elTH:
+        begin
+          Result := Result + '<th';
+          if Node.HasAttribute('nowrap') then
+            Result := Result + ' class="nowrap"';
+          Result := Result + '>' + ParseFormattedText(Node) + '</th>';
         end;
       elTR:
-        begin
-          I := CurrentTableColumnIndex;
-          CurrentTableColumnIndex := 0;
-          Result := Result + '<tr>' + ParseFormattedText(Node) + '</tr>';
-          CurrentTableColumnIndex := I;
-        end;
+        Result := Result + '<tr>' + ParseFormattedText(Node) + '</tr>';
       elTT:
         Result := Result + '<tt>' + ParseFormattedText(Node) + '</tt>';
       elU:
@@ -535,34 +502,28 @@ begin
           begin
             if not SetupTopic then
               raise Exception.Create('<setupdefault> is only valid inside <setuptopic>');
-            { <div class="margined"> is used instead of <p> since the data could
-              contain <p>'s of its own, which can't be nested.
-              NOTE: The space before </div> is intentional -- as noted in
-              styles.css, "vertical-align: baseline" doesn't work right on IE6,
-              but putting a space before </div> works around the problem, at
-              least when it comes to lining up normal text with a single line
-              of monospaced text. }
-            SetupDefaultText := '<tr><td class="setuphdrl"><p>Default value:</p></td>' +
-              '<td class="setuphdrr"><div class="margined">' + ParseFormattedText(Node) +
-               ' </div></td></tr>' + SNewLine;
+            { Margins can't be defined on table cells, so the <div> elements
+              here are styled with a bottom margin.
+              <div> is used instead of <p> since the content could contain
+              <p>'s of its own, which can't be nested. }
+            SetupDefaultText := '<tr><th><div>Default value:</div></th>' +
+              '<td><div>' + ParseFormattedText(Node) + '</div></td></tr>' + SNewLine;
           end;
         elSetupFormat:
           begin
             if not SetupTopic then
               raise Exception.Create('<setupformat> is only valid inside <setuptopic>');
-            { See comments above! }
-            SetupFormatText := '<tr><td class="setuphdrl"><p>Format:</p></td>' +
-              '<td class="setuphdrr"><div class="margined">' + ParseFormattedText(Node) +
-              ' </div></td></tr>' + SNewLine;
+            { See comment above }
+            SetupFormatText := '<tr><th><div>Format:</div></th>' +
+              '<td><div>' + ParseFormattedText(Node) + '</div></td></tr>' + SNewLine;
           end;
         elSetupValid:
           begin
             if not SetupTopic then
               raise Exception.Create('<setupvalid> is only valid inside <setuptopic>');
-            { See comments above! }
-            SetupValidText := '<tr><td class="setuphdrl"><p>Valid values:</p></td>' +
-              '<td class="setuphdrr"><div class="margined">' + ParseFormattedText(Node) +
-              ' </div></td></tr>' + SNewLine;
+            { See comment above }
+            SetupValidText := '<tr><th><div>Valid values:</div></th>' +
+              '<td><div>' + ParseFormattedText(Node) + '</div></td></tr>' + SNewLine;
           end;
       else
         UnexpectedElementError(Node);

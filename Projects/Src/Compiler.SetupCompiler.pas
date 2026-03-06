@@ -72,7 +72,7 @@ type
     Mask: DWORD;
   end;
 
-  TCheckOrInstallKind = (cikCheck, cikDirectiveCheck, cikInstall);
+  TCodeParameterKind = (cpkCheck, cpkDirectiveCheck, cpkInstall, cpkOnLog);
 
   TPrecompiledFile = (pfSetup, pfSetupCustomStyle, pfSetupLdr, pfIs7z, pfIsbunzip, pfIsunzlib, pfIslzma);
   TPrecompiledFiles = set of TPrecompiledFile;
@@ -81,6 +81,8 @@ type
 
   TSetupArchitecture = (sa32bit, sa64bit);
   TSetupLdrArchitecture = (slaNone, sla32bit, sla64bit);
+
+  TArchiveExtraction = (aeAuto, aeBasic, aeEnhancedNoPassword, aeEnhanced, aeFull); { should be ordered from basic to full }
 
   TSetupCompiler = class
   private
@@ -133,6 +135,7 @@ type
     InternalCompressLevel, CompressLevel: Integer;
     InternalCompressProps, CompressProps: TLZMACompressorProps;
     UseSolidCompression: Boolean;
+    ArchiveExtraction, MinArchiveExtraction: TArchiveExtraction;
     DontMergeDuplicateFiles: Boolean;
     DisablePrecompiledFileVerifications: TPrecompiledFiles;
     Password: String;
@@ -201,10 +204,10 @@ type
     procedure EnumIniSection(const EnumProc: TEnumIniSectionProc;
       const SectionName: String; const Ext: Integer; const Verbose, SkipBlankLines: Boolean;
       const Filename: String; const LangSection: Boolean = False; const LangSectionPre: Boolean = False);
-    function EvalCheckOrInstallIdentifier(Sender: TSimpleExpression; const Name: String;
+    function EvalCodeParameterIdentifier(Sender: TSimpleExpression; const Name: String;
       const Parameters: array of const): Boolean;
-    procedure CheckCheckOrInstall(const ParamName, ParamData: String;
-      const Kind: TCheckOrInstallKind);
+    procedure CheckCodeParameter(const ParamName, ParamData: String;
+      const Kind: TCodeParameterKind);
     function CheckConst(const S: String; const MinVersion: TSetupVersionData;
       const AllowedConsts: TAllowedConsts): Boolean;
     procedure CheckCustomMessageDefinitions;
@@ -1874,18 +1877,21 @@ begin
   end;
 end;
 
-function TSetupCompiler.EvalCheckOrInstallIdentifier(Sender: TSimpleExpression;
+function TSetupCompiler.EvalCodeParameterIdentifier(Sender: TSimpleExpression;
   const Name: String; const Parameters: array of const): Boolean;
 var
-  IsCheck: Boolean;
   Decl: String;
 begin
-  IsCheck := Boolean(Sender.Tag);
+  const Kind = TCodeParameterKind(Sender.Tag);
 
-  if IsCheck then
-    Decl := 'Boolean'
+  case Kind of
+    cpkCheck, cpkDirectiveCheck:
+      Decl := 'Boolean';
+    cpkOnLog:
+      Decl := '0 @String @Boolean @Boolean';
   else
     Decl := '0';
+  end;
 
   for var I := Low(Parameters) to High(Parameters) do begin
     if Parameters[I].VType = vtUnicodeString then
@@ -1903,15 +1909,14 @@ begin
   Result := True; { Result doesn't matter }
 end;
 
-procedure TSetupCompiler.CheckCheckOrInstall(const ParamName, ParamData: String;
-  const Kind: TCheckOrInstallKind);
+procedure TSetupCompiler.CheckCodeParameter(const ParamName, ParamData: String;
+  const Kind: TCodeParameterKind);
 var
   SimpleExpression: TSimpleExpression;
-  IsCheck, BoolResult: Boolean;
+  BoolResult: Boolean;
 begin
   if ParamData <> '' then begin
-    if (Kind <> cikDirectiveCheck) or not TryStrToBoolean(ParamData, BoolResult) then begin
-      IsCheck := Kind in [cikCheck, cikDirectiveCheck];
+    if (Kind <> cpkDirectiveCheck) or not TryStrToBoolean(ParamData, BoolResult) then begin
       { Check the expression in ParamData and add exports while
         evaluating. Use non-Lazy checking to make sure everything is evaluated. }
       try
@@ -1919,11 +1924,11 @@ begin
         try
           SimpleExpression.Lazy := False;
           SimpleExpression.Expression := ParamData;
-          SimpleExpression.OnEvalIdentifier := EvalCheckOrInstallIdentifier;
+          SimpleExpression.OnEvalIdentifier := EvalCodeParameterIdentifier;
           SimpleExpression.SilentOrAllowed := False;
-          SimpleExpression.SingleIdentifierMode := not IsCheck;
-          SimpleExpression.ParametersAllowed := True;
-          SimpleExpression.Tag := Integer(IsCheck);
+          SimpleExpression.SingleIdentifierMode := Kind in [cpkInstall, cpkOnLog];
+          SimpleExpression.ParametersAllowed := Kind <> cpkOnLog;
+          SimpleExpression.Tag := NativeInt(Kind);
           SimpleExpression.Eval;
         finally
           SimpleExpression.Free;
@@ -1935,7 +1940,7 @@ begin
     end;
   end
   else begin
-    if Kind = cikDirectiveCheck then
+    if Kind = cpkDirectiveCheck then
       AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', ParamName]);
   end;
 end;
@@ -2792,14 +2797,17 @@ begin
       end;
     ssArchiveExtraction: begin
         Value := LowerCase(Trim(Value));
-        { Names completed to is7z.dll etc later }
-        if Value = 'enhanced/nopassword' then
-          SetupHeader.SevenZipLibraryName := '7zxr'
+        if Value = 'auto' then
+          ArchiveExtraction := aeAuto
+        else if Value = 'basic' then
+          ArchiveExtraction := aeBasic
+        else if Value = 'enhanced/nopassword' then
+          ArchiveExtraction := aeEnhancedNoPassword
         else if Value = 'enhanced' then
-          SetupHeader.SevenZipLibraryName := '7zxa'
+          ArchiveExtraction := aeEnhanced
         else if Value = 'full' then
-          SetupHeader.SevenZipLibraryName := '7z'
-        else if Value <> 'basic' then
+          ArchiveExtraction := aeFull
+        else
           Invalid;
       end;
     ssASLRCompatible: begin
@@ -3789,7 +3797,7 @@ begin
         AbortCompile(SCompilerTypesCustomTypeAlreadyDefined);
 
       CheckConst(Description, MinVersion, []);
-      CheckCheckOrInstall(ParamCommonCheck, CheckOnce, cikCheck);
+      CheckCodeParameter(ParamCommonCheck, CheckOnce, cpkCheck);
     end;
   except
     SEFreeRec(NewTypeEntry, SetupTypeEntryStrings, SetupTypeEntryAnsiStrings);
@@ -3904,7 +3912,7 @@ begin
           [ParamCommonFlags, 'dontinheritcheck', 'exclusive']);
 
       CheckConst(Description, MinVersion, []);
-      CheckCheckOrInstall(ParamCommonCheck, CheckOnce, cikCheck);
+      CheckCodeParameter(ParamCommonCheck, CheckOnce, cpkCheck);
     end;
   except
     SEFreeRec(NewComponentEntry, SetupComponentEntryStrings, SetupComponentEntryAnsiStrings);
@@ -3994,7 +4002,7 @@ begin
 
       CheckConst(Description, MinVersion, []);
       CheckConst(GroupDescription, MinVersion, []);
-      CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
+      CheckCodeParameter(ParamCommonCheck, Check, cpkCheck);
     end;
   except
     SEFreeRec(NewTaskEntry, SetupTaskEntryStrings, SetupTaskEntryAnsiStrings);
@@ -4098,9 +4106,9 @@ begin
         AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, 'setntfscompression', 'unsetntfscompression']);
 
-      CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
-      CheckCheckOrInstall(ParamCommonBeforeInstall, BeforeInstall, cikInstall);
-      CheckCheckOrInstall(ParamCommonAfterInstall, AfterInstall, cikInstall);
+      CheckCodeParameter(ParamCommonCheck, Check, cpkCheck);
+      CheckCodeParameter(ParamCommonBeforeInstall, BeforeInstall, cpkInstall);
+      CheckCodeParameter(ParamCommonAfterInstall, AfterInstall, cpkInstall);
       CheckConst(DirName, MinVersion, []);
     end;
   except
@@ -4333,9 +4341,9 @@ begin
       if (IconIndex <> 0) and (IconFilename = '') then
         IconFilename := Filename;
 
-      CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
-      CheckCheckOrInstall(ParamCommonBeforeInstall, BeforeInstall, cikInstall);
-      CheckCheckOrInstall(ParamCommonAfterInstall, AfterInstall, cikInstall);
+      CheckCodeParameter(ParamCommonCheck, Check, cpkCheck);
+      CheckCodeParameter(ParamCommonBeforeInstall, BeforeInstall, cpkInstall);
+      CheckCodeParameter(ParamCommonAfterInstall, AfterInstall, cpkInstall);
       S := IconName;
       if Copy(S, 1, 8) = '{group}\' then
         Delete(S, 1, 8);
@@ -4438,9 +4446,9 @@ begin
         AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, 'uninsdeletesection', 'uninsdeletesectionifempty']);
 
-      CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
-      CheckCheckOrInstall(ParamCommonBeforeInstall, BeforeInstall, cikInstall);
-      CheckCheckOrInstall(ParamCommonAfterInstall, AfterInstall, cikInstall);
+      CheckCodeParameter(ParamCommonCheck, Check, cpkCheck);
+      CheckCodeParameter(ParamCommonBeforeInstall, BeforeInstall, cpkInstall);
+      CheckCodeParameter(ParamCommonAfterInstall, AfterInstall, cpkInstall);
       CheckConst(Filename, MinVersion, []);
       CheckConst(Section, MinVersion, []);
       CheckConst(Entry, MinVersion, []);
@@ -4707,9 +4715,9 @@ begin
           ValueData := ConvertBinaryString(AData);
       end;
 
-      CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
-      CheckCheckOrInstall(ParamCommonBeforeInstall, BeforeInstall, cikInstall);
-      CheckCheckOrInstall(ParamCommonAfterInstall, AfterInstall, cikInstall);
+      CheckCodeParameter(ParamCommonCheck, Check, cpkCheck);
+      CheckCodeParameter(ParamCommonBeforeInstall, BeforeInstall, cpkInstall);
+      CheckCodeParameter(ParamCommonAfterInstall, AfterInstall, cpkInstall);
       CheckConst(Subkey, MinVersion, []);
       CheckConst(ValueName, MinVersion, []);
       case Typ of
@@ -4787,9 +4795,9 @@ begin
       ProcessMinVersionParameter(Values[paMinVersion], MinVersion);
       ProcessOnlyBelowVersionParameter(Values[paOnlyBelowVersion], OnlyBelowVersion);
 
-      CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
-      CheckCheckOrInstall(ParamCommonBeforeInstall, BeforeInstall, cikInstall);
-      CheckCheckOrInstall(ParamCommonAfterInstall, AfterInstall, cikInstall);
+      CheckCodeParameter(ParamCommonCheck, Check, cpkCheck);
+      CheckCodeParameter(ParamCommonBeforeInstall, BeforeInstall, cpkInstall);
+      CheckCodeParameter(ParamCommonAfterInstall, AfterInstall, cpkInstall);
       CheckConst(Name, MinVersion, []);
     end;
   except
@@ -5817,8 +5825,23 @@ begin
             AbortCompileFmt(SCompilerParamFlagMissing, ['external', 'extractarchive']);
           if not(foIgnoreVersion in Options) then
             AbortCompileFmt(SCompilerParamFlagMissing, ['ignoreversion', 'extractarchive']);
-          if SetupHeader.SevenZipLibraryName = '' then
+          if ArchiveExtraction = aeBasic then
             AbortCompileFmt(SCompilerEntryValueUnsupported, ['Setup', 'ArchiveExtraction', 'basic', 'extractarchive']);
+
+          var ArchiveExt: String;
+          if foDownload in Options then
+            ArchiveExt := PathExtractExt(ADestName)
+          else
+            ArchiveExt := PathExtractExt(SourceWildcard);
+          if not PathSame(ArchiveExt, '.7z') then
+            MinArchiveExtraction := aeFull { When MapArchiveExtension is used it might not really need full, but keeping things simple }
+          else if ExtractArchivePassword <> '' then begin
+            if MinArchiveExtraction < aeEnhanced then
+              MinArchiveExtraction := aeEnhanced;
+          end else begin
+            if MinArchiveExtraction < aeEnhancedNoPassword then
+              MinArchiveExtraction := aeEnhancedNoPassword;
+          end;
         end;
 
         if (foIgnoreVersion in Options) and (foReplaceSameVersionIfContentsDiffer in Options) then
@@ -5866,9 +5889,9 @@ begin
         if not ExternalFile then
           SourceWildcard := PrependSourceDirName(SourceWildcard);
 
-        CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
-        CheckCheckOrInstall(ParamCommonBeforeInstall, BeforeInstall, cikInstall);
-        CheckCheckOrInstall(ParamCommonAfterInstall, AfterInstall, cikInstall);
+        CheckCodeParameter(ParamCommonCheck, Check, cpkCheck);
+        CheckCodeParameter(ParamCommonBeforeInstall, BeforeInstall, cpkInstall);
+        CheckCodeParameter(ParamCommonAfterInstall, AfterInstall, cpkInstall);
         CheckConst(DownloadISSigSource, MinVersion, []);
         CheckConst(DownloadUserName, MinVersion, []);
         CheckConst(DownloadPassword, MinVersion, []);
@@ -5927,7 +5950,7 @@ end;
 procedure TSetupCompiler.EnumRunProc(const Line: PChar; const Ext: Integer);
 type
   TParam = (paFlags, paFilename, paParameters, paWorkingDir, paRunOnceId,
-    paDescription, paStatusMsg, paVerb, paComponents, paTasks, paLanguages,
+    paDescription, paStatusMsg, paVerb, paOnLog, paComponents, paTasks, paLanguages,
     paCheck, paBeforeInstall, paAfterInstall, paMinVersion, paOnlyBelowVersion);
 const
   ParamRunFilename = 'Filename';
@@ -5937,6 +5960,7 @@ const
   ParamRunDescription = 'Description';
   ParamRunStatusMsg = 'StatusMsg';
   ParamRunVerb = 'Verb';
+  ParamRunOnLog = 'OnLog';
   ParamInfo: array[TParam] of TParamInfo = (
     (Name: ParamCommonFlags; Flags: []),
     (Name: ParamRunFilename; Flags: [piRequired, piNoEmpty, piNoQuotes]),
@@ -5946,6 +5970,7 @@ const
     (Name: ParamRunDescription; Flags: []),
     (Name: ParamRunStatusMsg; Flags: []),
     (Name: ParamRunVerb; Flags: []),
+    (Name: ParamRunOnLog; Flags: []),
     (Name: ParamCommonComponents; Flags: []),
     (Name: ParamCommonTasks; Flags: []),
     (Name: ParamCommonLanguages; Flags: []),
@@ -6103,6 +6128,9 @@ begin
           ['shellexec', 'Verb']);
       Verb := Values[paVerb].Data;
 
+      { OnLog }
+      OnLog := Values[paOnLog].Data;
+
       { Common parameters }
       ProcessExpressionParameter(ParamCommonComponents, Values[paComponents].Data, EvalComponentIdentifier, True, Components);
       ProcessExpressionParameter(ParamCommonTasks, Values[paTasks].Data, EvalTaskIdentifier, True, Tasks);
@@ -6123,9 +6151,13 @@ begin
         AbortCompileFmt(SCompilerParamErrorBadCombo2,
           [ParamCommonFlags, '64bit', 'shellexec']);
 
-      CheckCheckOrInstall(ParamCommonCheck, Check, cikCheck);
-      CheckCheckOrInstall(ParamCommonBeforeInstall, BeforeInstall, cikInstall);
-      CheckCheckOrInstall(ParamCommonAfterInstall, AfterInstall, cikInstall);
+      if (OnLog <> '') and not (roLogOutput in Options) then
+        AbortCompileFmt(SCompilerParamFlagMissing2, ['logoutput', ParamRunOnLog]);
+
+      CheckCodeParameter(ParamRunOnLog, OnLog, cpkOnLog);
+      CheckCodeParameter(ParamCommonCheck, Check, cpkCheck);
+      CheckCodeParameter(ParamCommonBeforeInstall, BeforeInstall, cpkInstall);
+      CheckCodeParameter(ParamCommonAfterInstall, AfterInstall, cpkInstall);
       CheckConst(Name, MinVersion, []);
       CheckConst(Parameters, MinVersion, []);
       CheckConst(WorkingDir, MinVersion, []);
@@ -8229,6 +8261,8 @@ begin
     SetupHeader.WizardBackColorDynamicDark := clNone;
     SetupHeader.WizardBackImageOpacity := 255;
     SetupHeader.WizardLightControlStyling := wcsAll;
+    ArchiveExtraction := aeAuto;
+    MinArchiveExtraction := aeBasic;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
@@ -8407,23 +8441,23 @@ begin
        ((SignTools.Count > 0) or (shSignedUninstaller in SetupHeader.Options)) then
       AbortCompile(SCompilerNoSetupLdrSignError);
     LineNumber := SetupDirectiveLines[ssCreateUninstallRegKey];
-    CheckCheckOrInstall('CreateUninstallRegKey', SetupHeader.CreateUninstallRegKey, cikDirectiveCheck);
+    CheckCodeParameter('CreateUninstallRegKey', SetupHeader.CreateUninstallRegKey, cpkDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssUninstallable];
-    CheckCheckOrInstall('Uninstallable', SetupHeader.Uninstallable, cikDirectiveCheck);
+    CheckCodeParameter('Uninstallable', SetupHeader.Uninstallable, cpkDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssUsePreviousAppDir];
-    CheckCheckOrInstall('UsePreviousAppDir', SetupHeader.UsePreviousAppDir, cikDirectiveCheck);
+    CheckCodeParameter('UsePreviousAppDir', SetupHeader.UsePreviousAppDir, cpkDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssUsePreviousGroup];
-    CheckCheckOrInstall('UsePreviousGroup', SetupHeader.UsePreviousGroup, cikDirectiveCheck);
+    CheckCodeParameter('UsePreviousGroup', SetupHeader.UsePreviousGroup, cpkDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssUsePreviousSetupType];
-    CheckCheckOrInstall('UsePreviousSetupType', SetupHeader.UsePreviousSetupType, cikDirectiveCheck);
+    CheckCodeParameter('UsePreviousSetupType', SetupHeader.UsePreviousSetupType, cpkDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssUsePreviousTasks];
-    CheckCheckOrInstall('UsePreviousTasks', SetupHeader.UsePreviousTasks, cikDirectiveCheck);
+    CheckCodeParameter('UsePreviousTasks', SetupHeader.UsePreviousTasks, cpkDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssUsePreviousUserInfo];
-    CheckCheckOrInstall('UsePreviousUserInfo', SetupHeader.UsePreviousUserInfo, cikDirectiveCheck);
+    CheckCodeParameter('UsePreviousUserInfo', SetupHeader.UsePreviousUserInfo, cpkDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssChangesEnvironment];
-    CheckCheckOrInstall('ChangesEnvironment', SetupHeader.ChangesEnvironment, cikDirectiveCheck);
+    CheckCodeParameter('ChangesEnvironment', SetupHeader.ChangesEnvironment, cpkDirectiveCheck);
     LineNumber := SetupDirectiveLines[ssChangesAssociations];
-    CheckCheckOrInstall('ChangesAssociations', SetupHeader.ChangesAssociations, cikDirectiveCheck);
+    CheckCodeParameter('ChangesAssociations', SetupHeader.ChangesAssociations, cpkDirectiveCheck);
     if Output and (OutputDir = '') then begin
       LineNumber := SetupDirectiveLines[ssOutput];
       AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'OutputDir']);
@@ -8847,6 +8881,17 @@ begin
     end;
 
     { Read 7-Zip DLL }
+    if ArchiveExtraction = aeAuto then
+      ArchiveExtraction := MinArchiveExtraction;
+    if ArchiveExtraction = aeEnhancedNoPassword then
+      SetupHeader.SevenZipLibraryName := '7zxr'
+    else if ArchiveExtraction = aeEnhanced then
+      SetupHeader.SevenZipLibraryName := '7zxa'
+    else if ArchiveExtraction = aeFull then
+      SetupHeader.SevenZipLibraryName := '7z'
+    else if ArchiveExtraction <> aeBasic then
+      AbortCompileFmt(SCompilerCompressInternalError, ['Unexpected ArchiveExtraction value']);
+
     if SetupHeader.SevenZipLibraryName <> '' then begin
       SetupHeader.SevenZipLibraryName := Format('is%s%s.dll', [SetupHeader.SevenZipLibraryName, DllNameExtension]);
       AddStatus(Format(SCompilerStatusReadingFile, [SetupHeader.SevenZipLibraryName]));

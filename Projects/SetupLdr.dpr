@@ -78,17 +78,20 @@ begin
     [SetupMessages[Msg], IntToStr(ErrorCode), Win32ErrorString(ErrorCode)]));
 end;
 
+function MsgBox(const Text: String; const Flags: UINT): Integer;
+begin
+  var Caption := 'Setup';
+  if ActiveLanguage <> -1 then
+    Caption := SetupMessages[msgSetupAppTitle];
+  Result := MessageBox(0, PChar(Text), PChar(Caption), Flags);
+end;
+
 procedure ShowExceptionMsg;
 begin
   if ExceptObject is EAbort then
     Exit;
   if not InitSuppressMsgBoxes then
-    MessageBox(0, PChar(GetExceptMessage), Pointer(SetupMessages[msgErrorTitle]),
-      MB_OK or MB_ICONSTOP);
-      { ^ use a Pointer cast instead of a PChar cast so that it will use "nil"
-        if SetupMessages[msgErrorTitle] is empty due to the messages not being
-        loaded yet. MessageBox displays 'Error' as the caption if the lpCaption
-        parameter is nil. }
+    MsgBox(GetExceptMessage, MB_OK or MB_ICONSTOP);
 end;
 
 procedure ProcessCommandLine(var SelfFilename: String);
@@ -382,7 +385,7 @@ begin
           SNewLine +
           'For more detailed information, please visit https://jrsoftware.org/ishelp/index.php?topic=setupcmdline';
 
-  MessageBox(0, PChar(Help), 'Setup', MB_OK or MB_ICONSTOP);
+  MsgBox(Help, MB_OK or MB_ICONSTOP);
 end;
 
 var
@@ -486,8 +489,8 @@ begin
           have constants. }
         if not(shDisableStartupPrompt in SetupHeader.Options) and
            not InitDisableStartupPrompt and
-           (MessageBox(0, PChar(FmtSetupMessage1(msgSetupLdrStartupMessage, SetupHeader.AppName)),
-             PChar(SetupMessages[msgSetupAppTitle]), MB_YESNO or MB_ICONQUESTION) <> IDYES) then begin
+           (MsgBox(FmtSetupMessage1(msgSetupLdrStartupMessage, SetupHeader.AppName),
+             MB_YESNO or MB_ICONQUESTION) <> IDYES) then begin
           SetupLdrExitCode := ecCancelledBeforeInstall;
           Abort;
         end;
@@ -581,9 +584,8 @@ begin
     end;
     if RestartSystem then begin
       if not RestartComputer and not InitSuppressMsgBoxes then
-        MessageBox(0, PChar(SetupMessages[msgErrorRestartingComputer]),
-          PChar(SetupMessages[msgErrorTitle]), MB_OK or MB_ICONEXCLAMATION or
-          MB_SETFOREGROUND);
+        MsgBox(SetupMessages[msgErrorRestartingComputer],
+          MB_OK or MB_ICONEXCLAMATION or MB_SETFOREGROUND);
     end;
   except
     ShowExceptionMsg;

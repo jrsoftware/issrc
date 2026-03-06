@@ -6558,12 +6558,15 @@ end;
 
 procedure TMainForm.UpdatePanelCloseBitBtnClick(Sender: TObject);
 begin
-  var MessageToHideIndex := UpdateLinkLabel.Tag;
-  var Ini := TConfigIniFile.Create;
-  try
-    Ini.WriteInteger('UpdatePanel', FUpdatePanelMessages[MessageToHideIndex].ConfigIdent, FUpdatePanelMessages[MessageToHideIndex].ConfigValue);
-  finally
-    Ini.Free;
+  const MessageToHideIndex = UpdateLinkLabel.Tag;
+  const UpdatePanelMessage = FUpdatePanelMessages[MessageToHideIndex];
+  if UpdatePanelMessage.ConfigIdent <> '' then begin
+    const Ini = TConfigIniFile.Create;
+    try
+      Ini.WriteInteger('UpdatePanel', UpdatePanelMessage.ConfigIdent, UpdatePanelMessage.ConfigValue);
+    finally
+      Ini.Free;
+    end;
   end;
   FUpdatePanelMessages.Delete(MessageToHideIndex);
   UpdateUpdatePanel;

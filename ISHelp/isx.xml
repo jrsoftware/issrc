@@ -401,9 +401,9 @@ FileName: "{app}\MyIni.ini"; Section: "MySettings"; Key: "ShortApp"; String: "{c
 <p>For each check function, may include a comma separated list of parameters that Setup should pass to the check function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
 <example>
 <pre>[Files]
-Source: "MYPROG.EXE"; DestDir: "{app}"; Check: MyProgCheck
-Source: "A\MYFILE.TXT"; DestDir: "{app}"; Check: MyDirCheck(ExpandConstant('{app}\A'))
-Source: "B\MYFILE.TXT"; DestDir: "{app}"; Check: DirExists(ExpandConstant('{app}\B'))</pre>
+Source: "MyProg.exe"; DestDir: "{app}"; Check: MyProgCheck
+Source: "A\MyFile.txt"; DestDir: "{app}"; Check: MyDirCheck(ExpandConstant('{app}\A'))
+Source: "B\MyFile.txt"; DestDir: "{app}"; Check: DirExists(ExpandConstant('{app}\B'))</pre>
 </example>
 </param>
 
@@ -460,10 +460,10 @@ end;
 <p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
 <example>
 <pre>[Files]
-Source: "MYPROG.EXE"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall
-Source: "A\MYFILE.TXT"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall2('{app}\A\MYFILE.TXT')
-Source: "B\MYFILE.TXT"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall2('{app}\B\MYFILE.TXT')
-Source: "MYPROG.CHM"; DestDir: "{app}"; BeforeInstall: Log('Before MYPROG.CHM Install')</pre>
+Source: "MyProg.exe"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall
+Source: "A\MyFile.txt"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall2('{app}\A\MyFile.txt')
+Source: "B\MyFile.txt"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall2('{app}\B\MyFile.txt')
+Source: "MyProg.chm"; DestDir: "{app}"; BeforeInstall: Log('Before MyProg.chm Install')</pre>
 </example>
 </param>
 
@@ -472,10 +472,10 @@ Source: "MYPROG.CHM"; DestDir: "{app}"; BeforeInstall: Log('Before MYPROG.CHM In
 <p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
 <example>
 <pre>[Files]
-Source: "MYPROG.EXE"; DestDir: "{app}"; AfterInstall: MyAfterInstall
-Source: "A\MYFILE.TXT"; DestDir: "{app}"; AfterInstall: MyAfterInstall2('{app}\A\MYFILE.TXT')
-Source: "B\MYFILE.TXT"; DestDir: "{app}"; AfterInstall: MyAfterInstall2('{app}\B\MYFILE.TXT')
-Source: "MYPROG.CHM"; DestDir: "{app}"; AfterInstall: Log('After MYPROG.CHM Install')</pre>
+Source: "MyProg.exe"; DestDir: "{app}"; AfterInstall: MyAfterInstall
+Source: "A\MyFile.txt"; DestDir: "{app}"; AfterInstall: MyAfterInstall2('{app}\A\MyFile.txt')
+Source: "B\MyFile.txt"; DestDir: "{app}"; AfterInstall: MyAfterInstall2('{app}\B\MyFile.txt')
+Source: "MyProg.chm"; DestDir: "{app}"; AfterInstall: Log('After MyProg.chm Install')</pre>
 </example>
 </param>
 
@@ -509,6 +509,44 @@ end;
 procedure MyAfterInstall2(FileName: String);
 begin
   MsgBox('Just installed ' + FileName + ' as ' + CurrentFileName + '.', mbInformation, MB_OK);
+end;
+</precode>
+
+</body>
+</topic>
+
+
+
+<topic name="scriptonlog" title="Pascal Scripting: OnLog Parameters">
+<keyword value="Pascal Scripting: OnLog Parameters" />
+<keyword value="OnLog parameters" />
+<body>
+
+<p>There is one optional <link topic="params">parameter</link> that is supported by the <tt>[Run]</tt> and <tt>[UninstallRun]</tt> sections. This is:</p>
+
+<paramlist>
+
+<param name="OnLog">
+<p>When combined with the <tt>logoutput</tt> flag, this parameter specifies the name of a procedure that is to be called for each line of the program's output instead of directly including it in the log file.</p>
+<p>The function must be a custom function in the [Code] section having the following prototype: <tt>procedure MyOnLog(const S: String; const Error, FirstLine: Boolean);</tt>.</p>
+<p>See <link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link> for an explanation of parameters <tt>S</tt>, <tt>Error</tt> and <tt>FirstLine</tt>.</p>
+<example>
+<pre>[Run]
+Filename: "{app}\MyConsoleProg.exe"; OnLog: MyOnLog; Flags: logoutput</pre>
+</example>
+</param>
+
+</paramlist>
+
+<p>Here is an example of a <tt>[Code]</tt> section containing the procedure used above. Function <tt>Log</tt> is a <link topic="scriptfunctions">support function</link> and therefore not included in this [Code] section.</p>
+
+<precode>
+[Code]
+procedure MyOnLog(const S: String; const Error, FirstLine: Boolean);
+begin
+  if not Error and FirstLine then
+    Log('Output:');
+  Log(S);
 end;
 </precode>
 
@@ -575,7 +613,7 @@ end;
 <keyword value="DLL files" />
 <body>
 
-<p>The Pascal script can call functions inside external DLLs. This includes both standard Win32 API functions inside standard Windows DLLs and custom functions in custom made DLLs.</p>
+<p>The Pascal script can call functions inside external DLLs. This includes both standard Windows API functions inside standard Windows DLLs and custom functions in custom made DLLs.</p>
 
 <p>Open the "CodeDll.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using DLLs.</p>
 
@@ -597,7 +635,7 @@ external '&lt;dllfunctionname&gt;@&lt;dllfilename&gt; &lt;callingconvention&gt; 
 
 <p>The first form specifies that the DLL function uses the default calling convention.</p>
 
-<p>The second form specifies that the DLL function uses a specific calling convention. Valid calling conventions are: 'stdcall' (default), 'cdecl', 'pascal', and 'register'. All standard 32-bit Win32 API functions use 'stdcall', as do many custom 32-bit DLL functions. For 64-bit Win32 API functions and custom DLL files, the calling convention may still be specified, but is ignored since all 64-bit functions always use the same calling convention.</p>
+<p>The second form specifies that the DLL function uses a specific calling convention. Valid calling conventions are: 'stdcall' (default), 'cdecl', 'pascal', and 'register'. All standard 32-bit Windows API functions use 'stdcall', as do many custom 32-bit DLL functions. For 64-bit Windows API functions and custom DLL files, the calling convention may still be specified, but is ignored since all 64-bit functions always use the same calling convention.</p>
 
 <p>The third form specifies one or more additional options for loading the DLL, separated by spaces:</p>
 
@@ -641,16 +679,20 @@ Source: "A.dll"; Flags: dontcopy noencryption
 Source: "B.dll"; Flags: dontcopy noencryption
 
 [Code]
-procedure MyDllFunc(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal);
+procedure MyDllFunc(hWnd: HWND; lpText, lpCaption: String; uType: Cardinal);
 external 'MyDllFunc@files:MyDll.dll stdcall';
 
-procedure ADllFunc(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal);
+procedure ADllFunc(hWnd: HWND; lpText, lpCaption: String; uType: Cardinal);
 external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll depends on B.dll
 </precode>
 
 <p>If you use a 'files:' prefix and <link topic="setup_solidcompression">solid compression</link> is enabled, be sure to list your DLLs at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p>
 
-<p>Use <link topic="isxfunc_CreateCallback">CreateCallback</link> to be able to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script</p>
+<p>Use <link topic="isxfunc_CreateCallback">CreateCallback</link> to be able to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script.</p>
+
+<p>The following built-in types are available to aid in calling Windows API functions besides <tt>THandle</tt>:<br/>
+<tt>DWORD</tt>, <tt>UINT</tt>, <tt>BOOL</tt>, <tt>INT_PTR</tt>, <tt>DWORD_PTR</tt>, <tt>UINT_PTR</tt>, <tt>LRESULT</tt>, <tt>HMODULE</tt>, <tt>WPARAM</tt>, <tt>LPARAM</tt>, <tt>HResult</tt>, <tt>TGUID</tt>, <tt>TCLSID</tt>, <tt>TIID</tt>, <tt>HBITMAP</tt>, <tt>HDC</tt>, <tt>HFONT</tt>, and <tt>HWND</tt></p>
+
 </body>
 </topic>
 
