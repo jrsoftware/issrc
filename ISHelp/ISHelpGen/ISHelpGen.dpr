@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.27';
+  Version = '1.28';
 
   XMLFileVersion = '1';
 
@@ -682,11 +682,11 @@ var
             begin
               Inc(CurHeadingID);
               SL.Add(Format('<li>' +
-                '<a href="javascript:toggle_node(%d);" aria-controls="nodecontent_%d" aria-expanded="true">' +
-                '<img src="images/contentsheadopen.svg" alt="'#$25BC' " aria-hidden="true" />' +
+                '<a href="javascript:toggle_node(%d);" aria-controls="nodecontent_%d" aria-expanded="false">' +
+                '<img src="images/contentsheadclosed.svg" alt="'#$25B6' " aria-hidden="true" />' +
                 '<span>%s</span></a>',
                 [CurHeadingID, CurHeadingID, EscapeHTML(Node.Attributes['title'])]));
-              SL.Add(Format('<ul id="nodecontent_%d">', [CurHeadingID]));
+              SL.Add(Format('<ul id="nodecontent_%d" hidden="hidden">', [CurHeadingID]));
               if Node.Attributes['title'] = '[Setup] section directives' then
                 HandleSetupDirectivesNode
               else

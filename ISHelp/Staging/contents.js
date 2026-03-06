@@ -94,18 +94,6 @@ function toggle_node(id)
 	*/
 }
 
-function init_contents(toggleNode)
-{
-	var i;
-	if (toggleNode == 0) {
-		for (i = 1; document.getElementById("nodecontent_" + i) != null; i++) {
-			toggle_node(i);
-		}
-	} else {
-		toggle_node(toggleNode);
-	}
-}
-
 var curSelectedNode = null;
 
 function set_selected_node(newSel)
