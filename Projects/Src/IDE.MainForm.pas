@@ -920,6 +920,7 @@ constructor TMainForm.Create(AOwner: TComponent);
           'Using Inno Setup commercially? Please <a id="hpurchase">purchase a license</a>. Thanks!',
           BannerBlue, True);
       end;
+      FUpdatePanelMessages.Add(TUpdatePanelMessage.Create('Do not use this preview to build installers you will use in production.', '', 0, BannerRed, False));
       UpdateUpdatePanel;
 
       { Debug options }

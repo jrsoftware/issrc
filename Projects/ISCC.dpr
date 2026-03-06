@@ -602,6 +602,7 @@ begin
         WriteStdOut('Licensee name: ' + GetLicenseeDescription)
       else
         WriteStdOut(GetLicenseeDescription);
+      WriteStdOut('Do not use this preview to build installers you will use in production');
       WriteStdOut('');
     end;
 
