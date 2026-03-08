@@ -73,15 +73,11 @@ function toggle_node(id)
 	const contentElement = document.getElementById("nodecontent_" + id);
 	const itemElement = contentElement.parentElement;
 	const linkElement = itemElement.querySelector(":scope > a");
-	const imageElement = linkElement.querySelector(":scope > img");
 
 	const expanding = !!contentElement.hidden;
 	contentElement.hidden = !expanding;
 
 	linkElement.setAttribute("aria-expanded", expanding);
-
-	imageElement.src = expanding ? "images/contentsheadopen.svg" : "images/contentsheadclosed.svg";
-	imageElement.alt = expanding ? "\u25BC " : "\u25B6 ";
 
 	// Disabled due to being annoying and non-standard for a website
 	/*

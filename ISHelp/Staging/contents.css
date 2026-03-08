@@ -1,6 +1,6 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -95,12 +95,14 @@ INPUT {
 			background-color: var(--selected-bg-color);
 			border-radius: 4px;
 		}
-		& > img {
-			/* The images are 16x16, but using "min-" in case the alt text is shown and it's larger */
-			min-width: 16px;
-			min-height: 16px;
-			/* If the alt text is wider than 16px, don't allow the element to be shrunk down to min-width */
+		& > img, & > svg {
+			inline-size: calc(16rem/16);
+			block-size: calc(16rem/16);
+			/* Prevent SVG from shrinking when there isn't enough room for the text */
 			flex-shrink: 0;
+		}
+		&[aria-expanded="true"] > svg {
+			transform: rotate(90deg);
 		}
 		& > span {
 			padding-inline: 2px;

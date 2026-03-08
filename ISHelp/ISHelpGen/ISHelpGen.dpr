@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.28';
+  Version = '1.29';
 
   XMLFileVersion = '1';
 
@@ -683,7 +683,7 @@ var
               Inc(CurHeadingID);
               SL.Add(Format('<li>' +
                 '<a href="javascript:toggle_node(%d);" aria-controls="nodecontent_%d" aria-expanded="false">' +
-                '<img src="images/contentsheadclosed.svg" alt="'#$25B6' " aria-hidden="true" />' +
+                '<svg aria-hidden="true"><use href="#icon-expand"></use></svg>' +
                 '<span>%s</span></a>',
                 [CurHeadingID, CurHeadingID, EscapeHTML(Node.Attributes['title'])]));
               SL.Add(Format('<ul id="nodecontent_%d" hidden="hidden">', [CurHeadingID]));
