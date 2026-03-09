@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.29';
+  Version = '1.30';
 
   XMLFileVersion = '1';
 
@@ -652,7 +652,6 @@ end;
 procedure GenerateStaticContents(const ContentsNode: IXMLNode);
 var
   SL: TStringList;
-  CurHeadingID: Integer;
 
   procedure AddLeaf(const Title, TopicName: String);
   begin
@@ -680,18 +679,15 @@ var
         case ElementFromNode(Node) of
           elContentsHeading:
             begin
-              Inc(CurHeadingID);
-              SL.Add(Format('<li>' +
-                '<a href="javascript:toggle_node(%d);" aria-controls="nodecontent_%d" aria-expanded="false">' +
+              SL.Add(Format('<li><details><summary>' +
                 '<svg aria-hidden="true"><use href="#icon-expand"></use></svg>' +
-                '<span>%s</span></a>',
-                [CurHeadingID, CurHeadingID, EscapeHTML(Node.Attributes['title'])]));
-              SL.Add(Format('<ul id="nodecontent_%d" hidden="hidden">', [CurHeadingID]));
+                '<span>%s</span></summary><ul>',
+                [EscapeHTML(Node.Attributes['title'])]));
               if Node.Attributes['title'] = '[Setup] section directives' then
                 HandleSetupDirectivesNode
               else
                 HandleNode(Node);
-              SL.Add('</ul></li>');
+              SL.Add('</ul></details></li>');
             end;
           elContentsTopic:
             AddLeaf(Node.Attributes['title'], Node.Attributes['topic']);
@@ -709,7 +705,6 @@ var
 begin
   SL := TStringList.Create;
   try
-    CurHeadingID := 0;
     SL.Add('<ul>');
     HandleNode(ContentsNode);
     SL.Add('</ul>');

@@ -68,28 +68,6 @@ function ensure_elements_visible(elementTop, elementBottom)
 	}
 }
 
-function toggle_node(id)
-{
-	const contentElement = document.getElementById("nodecontent_" + id);
-	const itemElement = contentElement.parentElement;
-	const linkElement = itemElement.querySelector(":scope > a");
-
-	const expanding = !!contentElement.hidden;
-	contentElement.hidden = !expanding;
-
-	linkElement.setAttribute("aria-expanded", expanding);
-
-	// Disabled due to being annoying and non-standard for a website
-	/*
-	if (expanding) {
-		// Scroll expanded items into view. This is similar to calling scrollIntoView() but
-		// doesn't do any scrolling if the items are already fully visible.
-
-		ensure_elements_visible(itemElement, itemElement);
-	}
-	*/
-}
-
 var curSelectedNode = null;
 
 function set_selected_node(newSel)
@@ -103,11 +81,11 @@ function set_selected_node(newSel)
 	if (curSelectedNode) {
 		curSelectedNode.setAttribute("aria-selected", true);
 
-		// Expand parent nodes (may scroll)
-		let p = curSelectedNode;
-		while ((p = p.parentElement) && p.id !== "tabbody-contents") {
-			if (p.id && p.id.startsWith("nodecontent_") && p.hidden) {
-				toggle_node(p.id.substring(12));
+		// Expand parent nodes
+		let element = curSelectedNode;
+		while ((element = element.parentElement) && element.id !== "tabbody-contents") {
+			if (element instanceof HTMLDetailsElement && !element.open) {
+				element.open = true;
 			}
 		}
 

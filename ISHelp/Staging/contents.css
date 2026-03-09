@@ -77,17 +77,30 @@ INPUT {
 	& li {
 		display: block;
 	}
-	& a:any-link {
+	& a:any-link, & summary {
 		display: flex;
 		inline-size: fit-content;
 		align-items: center;
 		gap: 2px;
 		margin-block-end: calc(2rem/16);
+
+		& > img, & > svg {
+			inline-size: calc(16rem/16);
+			block-size: calc(16rem/16);
+			/* Prevent SVG from shrinking when there isn't enough room for the text */
+			flex-shrink: 0;
+		}
+		& > span {
+			padding-inline: 2px;
+			padding-block: 1px;
+		}
+	}
+	& a:any-link {
 		color: inherit;
 		background-color: transparent;
 		text-decoration: none;
 
-		&:hover:not([aria-expanded]):not([aria-selected="true"]) {
+		&:hover:not([aria-selected="true"]) {
 			color: var(--link-hover-fg-color);
 			text-decoration: underline;
 		}
@@ -95,19 +108,14 @@ INPUT {
 			background-color: var(--selected-bg-color);
 			border-radius: 4px;
 		}
-		& > img, & > svg {
-			inline-size: calc(16rem/16);
-			block-size: calc(16rem/16);
-			/* Prevent SVG from shrinking when there isn't enough room for the text */
-			flex-shrink: 0;
-		}
-		&[aria-expanded="true"] > svg {
-			transform: rotate(90deg);
-		}
-		& > span {
-			padding-inline: 2px;
-			padding-block: 1px;
-		}
+	}
+	& summary {
+		cursor: pointer;
+		-webkit-user-select: none;  /* Safari doesn't support user-select */
+		user-select: none;
+	}
+	& details[open] > summary > svg {
+		transform: rotate(90deg);
 	}
 }
 
