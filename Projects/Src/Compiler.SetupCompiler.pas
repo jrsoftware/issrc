@@ -5767,10 +5767,10 @@ begin
         if foRegisterTypeLib in Options then begin
           { Only checks basic versions of ArchitecturesInstallIn64BitMode, so does not catch
             all cases of a mismatch. Setup will then throw an internal error instead. }
-          if (SetupArchitecture = sa32bit) and
+          if (SetupArchitecture = sa32bit) and not(fo32Bit in Options) and
              ((fo64Bit in Options) or (SetupHeader.ArchitecturesInstallIn64BitMode = 'x64compatible')) then
             AbortCompileFmt(SCompilerRegTypeLibArchitectureMismatch, [32, 64])
-          else if (SetupArchitecture = sa64bit) and
+          else if (SetupArchitecture = sa64bit) and not(fo64Bit in Options) and
                   ((fo32Bit in Options) or (SetupHeader.ArchitecturesInstallIn64BitMode = '')) then
             AbortCompileFmt(SCompilerRegTypeLibArchitectureMismatch, [64, 32])
         end;
