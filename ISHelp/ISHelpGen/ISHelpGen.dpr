@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.30';
+  Version = '1.31';
 
   XMLFileVersion = '1';
 
@@ -53,6 +53,7 @@ type
     elParamList,
     elPre,
     elPreCode,
+    elSD,
     elSetupDefault,
     elSetupFormat,
     elSetupValid,
@@ -292,6 +293,11 @@ begin
     [EscapeHTML(GenerateTopicLink(TopicName, AnchorName)), InnerContents]);
 end;
 
+function GenerateSetupDirectiveTopicName(const Directive: String): String;
+begin
+  Result := 'setup_' + Lowercase(Directive);
+end;
+
 procedure CreateKeyword(const AKeyword, ATopicName, AAnchorName: String);
 var
   KeywordInfo: TKeywordInfo;
@@ -418,6 +424,20 @@ begin
         Result := Result + '<pre>' + ParseFormattedText(Node) + '</pre>';
       elPreCode:
         Result := Result + '<pre class="indent examplebox">' + ParseFormattedText(Node) + '</pre>';
+      elSD:
+        begin
+          const DirectiveName = ParseFormattedText(Node);
+          for var C in DirectiveName do
+            if not CharInSet(C, ['A'..'Z', 'a'..'z', '0'..'9']) then
+              raise Exception.Create('<sd> inner content is invalid');
+          const NeedTT = (ElementFromNode(Node.ParentNode) <> elTT);
+          if NeedTT then
+            Result := Result + '<tt>';
+          Result := Result + GenerateTopicLinkHTML(
+            GenerateSetupDirectiveTopicName(DirectiveName), '', DirectiveName);
+          if NeedTT then
+            Result := Result + '</tt>';
+        end;
       elSmall:
         Result := Result + '<span class="small">' + ParseFormattedText(Node) + '</span>';
       elSup:
@@ -456,11 +476,6 @@ begin
     end;
     Node := Node.NextSibling;
   end;
-end;
-
-function GenerateSetupDirectiveTopicName(const Directive: String): String;
-begin
-  Result := 'setup_' + Lowercase(Directive);
 end;
 
 procedure ParseTopic(const TopicNode: IXMLNode; const SetupTopic: Boolean);
