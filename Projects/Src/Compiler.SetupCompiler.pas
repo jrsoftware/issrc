@@ -1104,28 +1104,38 @@ function TSetupCompiler.ReadScriptFile(const Filename: String;
   var
     S: String;
   begin
-    { Don't allow ISPPCC to be used if ISPP.dll is missing }
-    if (PreprocOptionsString <> '') and not Assigned(PreprocessScriptProc) then
-      raise Exception.Create(SCompilerISPPMissing);
-
-    { By default, only pass the main script through ISPP }
-    if (Filename = '') and Assigned(PreprocessScriptProc) then
-      Result := PreprocessScriptProc
-    else
+    if Filename <> '' then begin
+      { Non-empty Filename means a message file (.isl) is being read. For
+        security, we don't allow any compiler directives to be used.
+        Always use BuiltinPreprocessScript because it also has a non-empty
+        Filename check and will raise an error if any compiler directive
+        ('#' line) is encountered. }
       Result := BuiltinPreprocessScript;
-
-    { Check for (and remove) #preproc override directive on the first line }
-    if Lines.Count > 0 then begin
-      S := Trim(Lines[0]);
-      if S = '#preproc builtin' then begin
-        Lines[0] := '';
+    end
+    else begin
+      { Is ISPP available? }
+      if Assigned(PreprocessScriptProc) then
+        Result := PreprocessScriptProc
+      else begin
+        { If ISPP options were passed, then ISPP isn't optional }
+        if PreprocOptionsString <> '' then
+          AbortCompile(SCompilerISPPMissing);
         Result := BuiltinPreprocessScript;
-      end
-      else if S = '#preproc ispp' then begin
-        Lines[0] := '';
-        Result := PreprocessScriptProc;
-        if not Assigned(Result) then
-          raise Exception.Create(SCompilerISPPMissing);
+      end;
+
+      { Check for (and remove) #preproc override directive on the first line }
+      if Lines.Count > 0 then begin
+        S := Trim(Lines[0]);
+        if S = '#preproc builtin' then begin
+          Lines[0] := '';
+          Result := BuiltinPreprocessScript;
+        end
+        else if S = '#preproc ispp' then begin
+          Lines[0] := '';
+          Result := PreprocessScriptProc;
+          if not Assigned(Result) then
+            AbortCompile(SCompilerISPPMissing);
+        end;
       end;
     end;
   end;

@@ -246,7 +246,7 @@ Source: "MyProg.exe"; DestDir: "{app}"
 #preproc ispp
 </precode>
 
-<p>By default, scripts use ISPP if available, and .isl files use the built-in preprocessor.</p>
+<p>By default, scripts use ISPP if available. Message files (<tt>.isl</tt>) are not allowed to use any directives.</p>
 
 <p>If an Unicode file is used, it must be UTF-8 encoded.</p>
 
