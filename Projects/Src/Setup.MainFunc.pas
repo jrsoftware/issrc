@@ -3187,7 +3187,6 @@ var
   LogFilename: String;
   SetupFile: TFile;
   TestID: TSetupID;
-  NameAndVersionMsg: String;
   NextAllowedLevel: Integer;
   LastShownComponentEntry, ComponentEntry: PSetupComponentEntry;
   SourceWildcard: String;
@@ -3759,12 +3758,9 @@ begin
   ExpandedAppName := ExpandConst(SetupHeader.AppName);
   if SetupHeader.AppVerName <> '' then
     ExpandedAppVerName := ExpandConst(SetupHeader.AppVerName)
-  else begin
-    if not GetCustomMessageValue('NameAndVersion', NameAndVersionMsg) then
-      NameAndVersionMsg := '%1 %2';  { just in case }
-    ExpandedAppVerName := FmtMessage(PChar(NameAndVersionMsg),
-      [ExpandedAppName, ExpandConst(SetupHeader.AppVersion)]);
-  end;
+  else
+    ExpandedAppVerName := ExpandedAppName + ' ' +
+      ExpandConst(SetupHeader.AppVersion);
   ExpandedAppCopyright := ExpandConst(SetupHeader.AppCopyright);
   ExpandedAppMutex := ExpandConst(SetupHeader.AppMutex);
   ExpandedSetupMutex := ExpandConst(SetupHeader.SetupMutex);

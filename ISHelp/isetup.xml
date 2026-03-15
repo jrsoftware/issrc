@@ -4720,7 +4720,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 </setuptopic>
 
 <setuptopic directive="AppVerName">
-<setupdefault><link topic="setup_appname">AppName</link> version <link topic="setup_appversion">AppVersion</link>, localized according to the active language's <tt>NameAndVersion</tt> <link topic="custommessagessection">custom message</link></setupdefault>
+<setupdefault><tt><sd>AppName</sd> <sd>AppVersion</sd></tt></setupdefault>
 <body>
 <p>This directive specifies the name of the application plus its version number. The value of this directive is displayed on the <i>Welcome</i> page of Setup's wizard, and is used as the default title of the application's <i>Add/Remove Programs</i> entry (see <link topic="setup_uninstalldisplayname">UninstallDisplayName</link>). The value may include constants.</p>
 <p>If <link topic="setup_disablewelcomepage">DisableWelcomePage</link> is set to <tt>yes</tt> (which it is by default) then <tt>AppVerName</tt> is also displayed in window titles instead of <link topic="setup_appname">AppName</link>.</p>
@@ -4728,6 +4728,9 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <examples><pre>
 AppVerName=My Program 1.5
 AppVerName=My Program version 1.5
+
+; This produces "My Program version 1.5", localized using the
+; active language's NameAndVersion <link topic="custommessagessection">custom message</link>
 AppVerName={cm:NameAndVersion,My Program,1.5}
 </pre></examples>
 <p><b>See also:</b><br/>
