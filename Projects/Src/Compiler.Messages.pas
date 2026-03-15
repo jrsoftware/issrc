@@ -2,7 +2,7 @@ unit Compiler.Messages;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -136,7 +136,7 @@ const
   SCompilerArchitectureIdentifierInvalid = 'Architecture identifier "%s" is invalid';
   SCompilerArchitectureIdentifierDeprecatedWarning = 'Architecture identifier "%s" is deprecated. ' +
     'Substituting "%s", but note that "%s" is preferred in most cases. See the "Architecture Identifiers" topic in help file for more information.';
-  SCompilerRegTypeLibArchitectureMismatch = '%d-bit Setup cannot register %d-bit type libraries.';
+  SCompilerRegTypeLibArchitectureMismatch = '%d-bit Setup cannot register type libraries in the %d-bit registry view. If you intend for the type library to be registered in the %0:d-bit registry view, add the "%0:dbit" flag';
 
   { Signing }
   SCompilerSignatureNeeded = 'Signed uninstaller mode is enabled. Using ' +
@@ -165,6 +165,7 @@ const
   SCompilerSectionBadEndTag = 'Not inside "%s" section, but an end tag for ' +
     'it was encountered';
   SCompilerTextNotInSection = 'Text is not inside a section';
+  SCompilerDirectivesNotAllowed = 'Compiler directives are not allowed in message files';
   SCompilerInvalidDirective = 'Invalid compiler directive' +
     SNewLine2 + 'To be able to use compiler directives other than ''#include'', you need Inno Setup Preprocessor (ISPP) which is currently not installed.' +
     SNewLine2 + 'To install ISPP, reinstall Inno Setup and enable the ISPP option.';

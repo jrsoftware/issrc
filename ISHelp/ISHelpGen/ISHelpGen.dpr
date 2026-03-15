@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.27';
+  Version = '1.31';
 
   XMLFileVersion = '1';
 
@@ -53,6 +53,7 @@ type
     elParamList,
     elPre,
     elPreCode,
+    elSD,
     elSetupDefault,
     elSetupFormat,
     elSetupValid,
@@ -292,6 +293,11 @@ begin
     [EscapeHTML(GenerateTopicLink(TopicName, AnchorName)), InnerContents]);
 end;
 
+function GenerateSetupDirectiveTopicName(const Directive: String): String;
+begin
+  Result := 'setup_' + Lowercase(Directive);
+end;
+
 procedure CreateKeyword(const AKeyword, ATopicName, AAnchorName: String);
 var
   KeywordInfo: TKeywordInfo;
@@ -418,6 +424,20 @@ begin
         Result := Result + '<pre>' + ParseFormattedText(Node) + '</pre>';
       elPreCode:
         Result := Result + '<pre class="indent examplebox">' + ParseFormattedText(Node) + '</pre>';
+      elSD:
+        begin
+          const DirectiveName = ParseFormattedText(Node);
+          for var C in DirectiveName do
+            if not CharInSet(C, ['A'..'Z', 'a'..'z', '0'..'9']) then
+              raise Exception.Create('<sd> inner content is invalid');
+          const NeedTT = (ElementFromNode(Node.ParentNode) <> elTT);
+          if NeedTT then
+            Result := Result + '<tt>';
+          Result := Result + GenerateTopicLinkHTML(
+            GenerateSetupDirectiveTopicName(DirectiveName), '', DirectiveName);
+          if NeedTT then
+            Result := Result + '</tt>';
+        end;
       elSmall:
         Result := Result + '<span class="small">' + ParseFormattedText(Node) + '</span>';
       elSup:
@@ -456,11 +476,6 @@ begin
     end;
     Node := Node.NextSibling;
   end;
-end;
-
-function GenerateSetupDirectiveTopicName(const Directive: String): String;
-begin
-  Result := 'setup_' + Lowercase(Directive);
 end;
 
 procedure ParseTopic(const TopicNode: IXMLNode; const SetupTopic: Boolean);
@@ -652,7 +667,6 @@ end;
 procedure GenerateStaticContents(const ContentsNode: IXMLNode);
 var
   SL: TStringList;
-  CurHeadingID: Integer;
 
   procedure AddLeaf(const Title, TopicName: String);
   begin
@@ -680,18 +694,15 @@ var
         case ElementFromNode(Node) of
           elContentsHeading:
             begin
-              Inc(CurHeadingID);
-              SL.Add(Format('<li>' +
-                '<a href="javascript:toggle_node(%d);" aria-controls="nodecontent_%d" aria-expanded="true">' +
-                '<img src="images/contentsheadopen.svg" alt="'#$25BC' " aria-hidden="true" />' +
-                '<span>%s</span></a>',
-                [CurHeadingID, CurHeadingID, EscapeHTML(Node.Attributes['title'])]));
-              SL.Add(Format('<ul id="nodecontent_%d">', [CurHeadingID]));
+              SL.Add(Format('<li><details><summary>' +
+                '<svg aria-hidden="true"><use href="#icon-expand"></use></svg>' +
+                '<span>%s</span></summary><ul>',
+                [EscapeHTML(Node.Attributes['title'])]));
               if Node.Attributes['title'] = '[Setup] section directives' then
                 HandleSetupDirectivesNode
               else
                 HandleNode(Node);
-              SL.Add('</ul></li>');
+              SL.Add('</ul></details></li>');
             end;
           elContentsTopic:
             AddLeaf(Node.Attributes['title'], Node.Attributes['topic']);
@@ -709,7 +720,6 @@ var
 begin
   SL := TStringList.Create;
   try
-    CurHeadingID := 0;
     SL.Add('<ul>');
     HandleNode(ContentsNode);
     SL.Add('</ul>');

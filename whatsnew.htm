@@ -138,6 +138,11 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   </li>
 </ul>
 
+<span class="head2">Security improvements</span>
+
+<ul>
+  <li>As a proactive security measure, the compiler no longer allows <tt>.isl</tt> message files specified in the <tt>[Languages]</tt> section to contain compiler directives such as <tt>#include</tt>. Compilation will abort with an error if any <tt>#</tt> lines are encountered. Also, ISPP is not enabled and cannot be enabled (<tt>#preproc ispp</tt> isn't allowed), so any inline ISPP directives (<tt>{#...}</tt>) are not processed.</li>
+</ul>
 
 <span class="head2">Other changes</span>
 

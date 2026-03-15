@@ -1,6 +1,6 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -77,17 +77,30 @@ INPUT {
 	& li {
 		display: block;
 	}
-	& a:any-link {
+	& a:any-link, & summary {
 		display: flex;
 		inline-size: fit-content;
 		align-items: center;
 		gap: 2px;
 		margin-block-end: calc(2rem/16);
+
+		& > img, & > svg {
+			inline-size: calc(16rem/16);
+			block-size: calc(16rem/16);
+			/* Prevent SVG from shrinking when there isn't enough room for the text */
+			flex-shrink: 0;
+		}
+		& > span {
+			padding-inline: 2px;
+			padding-block: 1px;
+		}
+	}
+	& a:any-link {
 		color: inherit;
 		background-color: transparent;
 		text-decoration: none;
 
-		&:hover:not([aria-expanded]):not([aria-selected="true"]) {
+		&:hover:not([aria-selected="true"]) {
 			color: var(--link-hover-fg-color);
 			text-decoration: underline;
 		}
@@ -95,17 +108,14 @@ INPUT {
 			background-color: var(--selected-bg-color);
 			border-radius: 4px;
 		}
-		& > img {
-			/* The images are 16x16, but using "min-" in case the alt text is shown and it's larger */
-			min-width: 16px;
-			min-height: 16px;
-			/* If the alt text is wider than 16px, don't allow the element to be shrunk down to min-width */
-			flex-shrink: 0;
-		}
-		& > span {
-			padding-inline: 2px;
-			padding-block: 1px;
-		}
+	}
+	& summary {
+		cursor: pointer;
+		-webkit-user-select: none;  /* Safari doesn't support user-select */
+		user-select: none;
+	}
+	& details[open] > summary > svg {
+		transform: rotate(90deg);
 	}
 }
 

@@ -246,7 +246,7 @@ Source: "MyProg.exe"; DestDir: "{app}"
 #preproc ispp
 </precode>
 
-<p>By default, scripts use ISPP if available, and .isl files use the built-in preprocessor.</p>
+<p>By default, scripts use ISPP if available. Message files (<tt>.isl</tt>) are not allowed to use any directives.</p>
 
 <p>If an Unicode file is used, it must be UTF-8 encoded.</p>
 
@@ -1844,8 +1844,9 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="regtypelib">
 <p>Register the type library (.tlb). The uninstaller will unregister the type library (unless the flag <tt>uninsneveruninstall</tt> is specified). As with the <tt>regserver</tt> flag, when used in combination with <tt>sharedfile</tt>, the file will only be unregistered by the uninstaller when the reference count reaches zero.</p>
-<p>In <link topic="32vs64bitinstalls">64-bit install mode</link> running on an x64-compatible edition of Windows, the type library will be registered inside a 64-bit process. You can override this by specifying the <tt>32bit</tt> flag.</p>
-<p>64-bit type libraries can only be (un)registered by <link topic="64bit">64-bit installers</link>, and 32-bit type libraries only by 32-bit installers.</p>
+<p>Type libraries can be registered in either the 32-bit or 64-bit registry view, which are used by 32-bit and 64-bit applications respectively. By default, the <link topic="32vs64bitinstalls">install mode</link> (32-bit or 64-bit) determines which registry view is used, but this can be overridden with the <tt>32bit</tt> and <tt>64bit</tt> flags.</p>
+<p>In Inno Setup &ge;7.0, <link topic="64bit">32-bit Setup/Uninstall</link> can only register/unregister type libraries in the 32-bit registry view, and <link topic="64bit">64-bit Setup/Uninstall</link> can only register/unregister type libraries in the 64-bit registry view. In previous versions, 32-bit installers could register type libraries in the 64-bit registry view, but that now requires a 64-bit installer.</p>
+<p>The compiler tries to detect and report bitness mismatches. If a mismatch isn't caught by the compile-time check (which is possible with some custom <sd>ArchitecturesInstallIn64BitMode</sd> settings), Setup will display an error when attempting to register the type library. When the <tt>32bit</tt> or <tt>64bit</tt> flag is specified, any mismatch will always be caught at compile time.</p>
 <p>See the <i>Remarks</i> at the bottom of this topic for more information.</p>
 </flag>
 <flag name="replacesameversion">
@@ -3434,7 +3435,7 @@ Filename: "{win}\MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; St
 </tr>
 </table>
 <p><sup>[1]</sup> By default, the "input path bitness" is the same as Setup/Uninstall's <link topic="32vs64bitinstalls">install mode</link> &mdash; 32-bit in 32-bit install mode, and 64-bit in 64-bit install mode. In the <tt>[Files]</tt> and <tt>[Run]</tt> sections, the path bitness can be overridden on a per-entry basis using the <tt>32bit</tt> and <tt>64bit</tt> flags.</p>
-<p><sup>[2]</sup> "Target process" is the process where the rewritten path will ultimately be accessed. In most cases, paths are accessed by Setup/Uninstall itself, so the target process bitness is Setup/Uninstall's bitness (as set by <tt><link topic="setup_setuparchitecture">SetupArchitecture</link></tt>).</p>
+<p><sup>[2]</sup> "Target process" is the process where the rewritten path will ultimately be accessed. In most cases, paths are accessed by Setup/Uninstall itself, so the target process bitness is Setup/Uninstall's bitness (as set by <sd>SetupArchitecture</sd>).</p>
 </indent>
 </body>
 </topic>
