@@ -122,6 +122,8 @@ type
     procedure MovMemRSPReg(const Disp: Integer; const Src: TRegister64);
     procedure SubRsp(const Amount: Integer);
     procedure AddRsp(const Amount: Integer);
+    procedure MovXmmXmm(const Dest, Src: Byte);
+    procedure MovqRegXmm(const Dest: TRegister64; const Src: Byte);
     procedure CallReg(const Reg: TRegister64);
     procedure Ret;
 {$ENDIF}
@@ -467,6 +469,25 @@ begin
   WriteByte($81);
   WriteByte($C4);
   WriteInteger(Amount);
+end;
+
+procedure TASMInline.MovXmmXmm(const Dest, Src: Byte);
+begin
+  if (Dest >= 8) or (Src >= 8) then
+    WriteREX(False, Dest >= 8, False, Src >= 8);
+  WriteByte($0F);
+  WriteByte($28);
+  WriteByte(Byte($C0 or ((Dest and 7) shl 3) or (Src and 7)));
+end;
+
+procedure TASMInline.MovqRegXmm(const Dest: TRegister64; const Src: Byte);
+begin
+  const DestCode = RegCode(Dest);
+  WriteByte($66);
+  WriteREX(True, Src >= 8, False, DestCode >= 8);
+  WriteByte($0F);
+  WriteByte($7E);
+  WriteByte(Byte($C0 or ((Src and 7) shl 3) or (DestCode and 7)));
 end;
 
 procedure TASMInline.CallReg(const Reg: TRegister64);

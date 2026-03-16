@@ -659,9 +659,23 @@ begin
   var S := ProcRec.ExportDecl;
   GRFW(S);
   var ParamCount := 0;
+{$IFDEF CPUX64}
+  var Param4IsFloatByValue := False;
+{$ENDIF}
   while S <> '' do begin
     Inc(ParamCount);
-    GRFW(S);
+{$IFDEF CPUX64}
+    if ParamCount = 4 then begin
+      { Same code as in MyAllMethodsHandler64 }
+      var e := GRFW(S);
+      const fmod = e[1];
+      Delete(e, 1, 1);
+      const cpt = Caller.GetTypeNo(Cardinal(StrToInt(e)));
+      if not ParamAsVariable(fmod, cpt) then
+        Param4IsFloatByValue := cpt.BaseType in [btSingle, btDouble];
+    end else
+{$ENDIF}
+      GRFW(S);
   end;
 
   { Turn our proc into a callable TMethod - its Code will point to
@@ -706,15 +720,32 @@ begin
 
     Inliner.Jmp(Method.Code); //jump to the wrapped proc
 {$ELSE}
-    { RCX, RDX, R8, R9 carry the first 4 params and 32 bytes of shadow space
-      belong to the caller. ROPS' MyAllMethodsHandler expects RCX=Self/Data,
-      RDX/R8/R9=param1..param3 and the rest packed on the stack. }
+    { RCX/XMM0, RDX/XMM1, R8/XMM2, R9/XMM3 carry the first 4 params. 32 bytes
+      of shadow space belong to the caller. ROPS' MyAllMethodsHandler expects
+      RCX=Self/Data, RDX/R8/R9 to carry the first 3 params, and the rest
+      packed on the stack.
 
-    { Keep values for later }
+      So the things to set and move are:
+      -Self/Data -> RCX
+      -param1: RCX/XMM0 -> RDX/XMM1
+      -param2: RDX/XMM1 -> R8/XMM2
+      -param3: R8/XMM2 -> R9/XMM3
+      -param4: R9/XMM3 -> stack
+      -remaining params (5+): stack -> stack }
+
+    { Save RCX/RDX/R8/R9/XMM3 for move later }
     Inliner.MovRegReg(R11, RCX);
     Inliner.MovRegReg(R10, RDX);
     Inliner.MovRegReg(RAX, R8);
-    Inliner.MovRegReg(RDX, R9);
+    if Param4IsFloatByValue then
+      Inliner.MovqRegXmm(RDX, 3)
+    else
+      Inliner.MovRegReg(RDX, R9);
+
+    { Move XMM0/XMM1/XMM2 to XMM1/XMM2/XMM3 now that XMM3 has been saved }
+    Inliner.MovXmmXmm(3, 2); { param3: XMM2->XMM3 }
+    Inliner.MovXmmXmm(2, 1); { param2: XMM1->XMM2 }
+    Inliner.MovXmmXmm(1, 0); { param1: XMM0->XMM1 }
 
     { Make our own shadow space + spill area to re-stack params for ROPS. }
     var ExtraParams := ParamCount - 3;
@@ -726,10 +757,10 @@ begin
     Inliner.SubRsp(FrameSize);
 
     if ParamCount >= 4 then
-      Inliner.MovMemRSPReg(32, RDX); { param4: top of shadow space }
+      Inliner.MovMemRSPReg(32, RDX); { param4: saved R9/XMM3 -> stack }
 
-    { Copy remaining params (5+) from the caller's stack into our spill
-      area so they follow shadow space, matching the order ROPS expects. }
+    { Copy remaining params (5+) from the caller's stack to ours,
+      placed after shadow space + param4, matching the order ROPS expects. }
     if ParamCount > 4 then begin
       for var I := 0 to ParamCount - 5 do begin
         const SrcOffset = FrameSize + 40 + I * SizeOf(Pointer); { 40 = return address (8) + caller shadow space (32) }
@@ -739,13 +770,15 @@ begin
       end;
     end;
 
-    { Put the original params back in the order MyAllMethodsHandler wants. }
-    Inliner.MovRegImm64(RCX, NativeUInt(Method.Data)); { Self/Data }
-    Inliner.MovRegReg(RDX, R11); { param1 }
+    { Self/Data -> RCX }
+    Inliner.MovRegImm64(RCX, NativeUInt(Method.Data));
+
+    { Do the remaining moves using saved values }
+    Inliner.MovRegReg(RDX, R11); { param1: saved RCX->RDX }
     if ParamCount >= 2 then
-      Inliner.MovRegReg(R8, R10); { param2 }
+      Inliner.MovRegReg(R8, R10); { param2: saved RDX->R8 }
     if ParamCount >= 3 then
-      Inliner.MovRegReg(R9, RAX); { param3 }
+      Inliner.MovRegReg(R9, RAX); { param3: saved R8->R9 }
 
     Inliner.MovRegImm64(R10, NativeUInt(Method.Code));
     Inliner.CallReg(R10); { Call the wrapped proc }
