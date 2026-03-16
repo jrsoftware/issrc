@@ -733,19 +733,27 @@ begin
       -param4: R9/XMM3 -> stack
       -remaining params (5+): stack -> stack }
 
-    { Save RCX/RDX/R8/R9/XMM3 for move later }
-    Inliner.MovRegReg(R11, RCX);
-    Inliner.MovRegReg(R10, RDX);
-    Inliner.MovRegReg(RAX, R8);
-    if Param4IsFloatByValue then
-      Inliner.MovqRegXmm(RDX, 3)
-    else
-      Inliner.MovRegReg(RDX, R9);
+    { Save RCX, RDX, R8, R9/XMM3 for move later }
+    if ParamCount >= 1 then
+      Inliner.MovRegReg(R11, RCX);
+    if ParamCount >= 2 then
+      Inliner.MovRegReg(R10, RDX);
+    if ParamCount >= 3 then
+      Inliner.MovRegReg(RAX, R8);
+    if ParamCount >= 4 then begin
+      if Param4IsFloatByValue then
+        Inliner.MovqRegXmm(RDX, 3)
+      else
+        Inliner.MovRegReg(RDX, R9);
+    end;
 
-    { Move XMM0/XMM1/XMM2 to XMM1/XMM2/XMM3 now that XMM3 has been saved }
-    Inliner.MovXmmXmm(3, 2); { param3: XMM2->XMM3 }
-    Inliner.MovXmmXmm(2, 1); { param2: XMM1->XMM2 }
-    Inliner.MovXmmXmm(1, 0); { param1: XMM0->XMM1 }
+    { Move XMM0, XMM1, XMM2 to XMM1, XMM2, XMM3 now that XMM3 has been saved }
+    if ParamCount >= 3 then
+      Inliner.MovXmmXmm(3, 2); { param3: XMM2->XMM3 }
+    if ParamCount >= 2 then
+      Inliner.MovXmmXmm(2, 1); { param2: XMM1->XMM2 }
+    if ParamCount >= 1 then
+      Inliner.MovXmmXmm(1, 0); { param1: XMM0->XMM1 }
 
     { Make our own shadow space + spill area to re-stack params for ROPS. }
     var ExtraParams := ParamCount - 3;
@@ -774,7 +782,8 @@ begin
     Inliner.MovRegImm64(RCX, NativeUInt(Method.Data));
 
     { Do the remaining moves using saved values }
-    Inliner.MovRegReg(RDX, R11); { param1: saved RCX->RDX }
+    if ParamCount >= 1 then
+      Inliner.MovRegReg(RDX, R11); { param1: saved RCX->RDX }
     if ParamCount >= 2 then
       Inliner.MovRegReg(R8, R10); { param2: saved RDX->R8 }
     if ParamCount >= 3 then
