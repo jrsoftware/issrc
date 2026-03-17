@@ -68,6 +68,7 @@ type
   end;
 {$ELSE}
   TRegister64 = (RAX, RCX, RDX, RBX, RSP, RBP, RSI, RDI, R8, R9, R10, R11, R12, R13, R14, R15);
+  TXmmRegister64 = 0..15;
 {$ENDIF}
 
   TASMInline = class
@@ -122,8 +123,8 @@ type
     procedure MovMemRSPReg(const Disp: Integer; const Src: TRegister64);
     procedure SubRsp(const Amount: Integer);
     procedure AddRsp(const Amount: Integer);
-    procedure MovXmmXmm(const Dest, Src: Byte);
-    procedure MovqRegXmm(const Dest: TRegister64; const Src: Byte);
+    procedure MovXmmXmm(const Dest, Src: TXmmRegister64);
+    procedure MovqRegXmm(const Dest: TRegister64; const Src: TXmmRegister64);
     procedure CallReg(const Reg: TRegister64);
     procedure Ret;
 {$ENDIF}
@@ -471,7 +472,7 @@ begin
   WriteInteger(Amount);
 end;
 
-procedure TASMInline.MovXmmXmm(const Dest, Src: Byte);
+procedure TASMInline.MovXmmXmm(const Dest, Src: TXmmRegister64);
 begin
   if (Dest >= 8) or (Src >= 8) then
     WriteREX(False, Dest >= 8, False, Src >= 8);
@@ -480,7 +481,7 @@ begin
   WriteByte(Byte($C0 or ((Dest and 7) shl 3) or (Src and 7)));
 end;
 
-procedure TASMInline.MovqRegXmm(const Dest: TRegister64; const Src: Byte);
+procedure TASMInline.MovqRegXmm(const Dest: TRegister64; const Src: TXmmRegister64);
 begin
   const DestCode = RegCode(Dest);
   WriteByte($66);
