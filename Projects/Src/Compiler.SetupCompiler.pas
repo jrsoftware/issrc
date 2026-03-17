@@ -8227,6 +8227,7 @@ begin
     DiskClusterSize := 512;
     SlicesPerDisk := 1;
     ReserveBytes := 0;
+    TimeStampsInUTC := True;
     TimeStampRounding := 2;
     SetupEncryptionHeader.EncryptionUse := euNone;
     SetupEncryptionHeader.KDFIterations := DefaultKDFIterations;

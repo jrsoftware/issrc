@@ -6333,10 +6333,10 @@ WizardBackImageOpacity=150</pre></example>
 
 <setuptopic directive="TimeStampsInUTC">
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>no</tt></setupdefault>
+<setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>By default, time stamps on files referenced by non <tt>external</tt> [Files] section entries are saved and restored as local times. This means that if a particular file has a time stamp of 01:00 local time at compile time, Setup will extract the file with a time stamp of 01:00 local time, regardless of the user's time zone setting or whether DST is in effect.</p>
-<p>If <tt>TimeStampsInUTC</tt> is set to <tt>yes</tt>, time stamps will be saved and restored in UTC -- the native time format of Win32 and NTFS. In this mode, a file with a time stamp of 01:00 local time in New York will have a time stamp of 06:00 local time when installed in London.</p>
+<p>If set to <tt>yes</tt> (the default), time stamps on files embedded in the installer will be saved and restored as UTC times &mdash; what NTFS uses natively.</p>
+<p>If set to <tt>no</tt>, time stamps will be saved and restored as local times. This means that if a file has a time stamp showing 01:00 local time at compile time on the build system, Setup will extract the file with a time stamp equal to 01:00 local time in the user's current time zone. Note, however, that on NTFS and other file systems that store times in UTC, if the user subsequently changes their time zone setting, the time stamp will appear to shift when viewed as a local time.</p>
 </body>
 </setuptopic>
 

@@ -152,6 +152,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <ul>
   <li>The Compiler IDE has been renamed from <tt>Compil32.exe</tt> to <tt>ISIDE.exe</tt>.</li>
   <li>The <tt>[Setup]</tt> section directive <tt>AppVerName</tt> now defaults to <tt><i>AppName</i> <i>AppVersion</i></tt> (just a space separating the values) rather than <tt><i>AppName</i> version <i>AppVersion</i></tt> (localized). If you prefer to keep the word "version" (localized), use the <tt>NameAndVersion</tt> custom message: <tt>AppVerName={cm:NameAndVersion,My Program,1.5}</tt></li>
+  <li>The <tt>[Setup]</tt> section directive <tt>TimeStampsInUTC</tt> now defaults to <tt>yes</tt>.</li>
   <li>The <tt>[Setup]</tt> section directive <tt>ArchiveExtraction</tt> can now also be set to <tt>auto</tt>, the new default, which automatically selects the appropriate method based on entries in the <tt>[Files]</tt> section.<br/>
       If it selects <tt>basic</tt> because no entry uses the <tt>extractarchive</tt> flag, but you still use support function <tt>ExtractArchive</tt> or <tt>CreateExtractionPage</tt>, you must still manually set the correct method.</li>
   <li>Pascal Scripting:
