@@ -86,7 +86,10 @@ begin
   RegisterType('DWORD', 'Cardinal');
   RegisterType('UINT', 'Cardinal');
   RegisterType('BOOL', 'LongBool');
+  RegisterType('LONG', 'Integer');
+  RegisterType('ULONG', 'Cardinal');
   RegisterType('HANDLE', 'THandle');
+  RegisterType('COLORREF', 'DWORD');
 
   RegisterType('INT_PTR', 'NativeInt');
   RegisterType('LONG_PTR', 'NativeInt');
@@ -101,6 +104,7 @@ begin
   RegisterType('WPARAM', 'UINT_PTR');
   RegisterType('LPARAM', 'LONG_PTR');
   RegisterType('SIZE_T', 'ULONG_PTR');
+  RegisterType('SSIZE_T', 'LONG_PTR');
 
   RegisterType('TFileTime',
     'record' +
