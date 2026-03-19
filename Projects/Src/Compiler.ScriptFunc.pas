@@ -86,16 +86,21 @@ begin
   RegisterType('DWORD', 'Cardinal');
   RegisterType('UINT', 'Cardinal');
   RegisterType('BOOL', 'LongBool');
+  RegisterType('HANDLE', 'THandle');
 
   RegisterType('INT_PTR', 'NativeInt');
+  RegisterType('LONG_PTR', 'NativeInt');
   RegisterType('DWORD_PTR', 'NativeUInt');
   RegisterType('UINT_PTR', 'NativeUInt');
+  RegisterType('ULONG_PTR', 'NativeUInt');
 
-  RegisterType('LRESULT', 'NativeInt');
-  RegisterType('HKEY', 'NativeUInt');
-  RegisterType('HMODULE', 'NativeUInt');
-  RegisterType('WPARAM', 'NativeUInt');
-  RegisterType('LPARAM', 'NativeInt');
+  RegisterType('LRESULT', 'LONG_PTR');
+  RegisterType('HKEY', 'HANDLE');
+  RegisterType('HINSTANCE', 'HANDLE');
+  RegisterType('HMODULE', 'HINSTANCE');
+  RegisterType('WPARAM', 'UINT_PTR');
+  RegisterType('LPARAM', 'LONG_PTR');
+  RegisterType('SIZE_T', 'ULONG_PTR');
 
   RegisterType('TFileTime',
     'record' +

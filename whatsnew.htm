@@ -99,7 +99,8 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
         Use new support functions <tt>ExecWithNativeSysDir</tt>, <tt>ExecAndLogOutputWithNativeSysDir</tt>, or <tt>ExecAndCaptureOutputWithNativeSysDir</tt> to launch an executable located in the 64-bit System directory from a 32-bit installer.</li>
     <li>Removed parameter <tt>DisableFsRedir</tt> from support function <tt>RegisterExtraCloseApplicationsResource</tt>. Use <tt>ApplyPathRedirRulesForCurrentProcess</tt> instead to register a 64-bit file from a 32-bit installer, or vice versa.</li>
     <li>Added support functions <tt>ApplyPathRedirRules</tt> and <tt>IsCurrentProcess64Bit</tt>.</li>
-    <li>Added types <tt>UInt64</tt>, <tt>NativeInt</tt>, <tt>NativeUInt</tt>, <tt>THandle</tt>, <tt>HWND</tt>, <tt>HDC</tt>, <tt>HBITMAP</tt>, <tt>HFONT</tt>, <tt>HKEY</tt>, <tt>HMODULE</tt>, <tt>LRESULT</tt>, <tt>WPARAM</tt>, and <tt>LPARAM</tt>.</li>
+    <li>Added types <tt>UInt64</tt>, <tt>NativeInt</tt>, <tt>NativeUInt</tt>, <tt>LONG_PTR</tt>, <tt>ULONG_PTR</tt>, <tt>THandle</tt>, <tt>HANDLE</tt>, <tt>HWND</tt>, <tt>HDC</tt>, <tt>HBITMAP</tt>, <tt>HFONT</tt>, <tt>HKEY</tt>, <tt>HINSTANCE</tt>, <tt>HMODULE</tt>, <tt>LRESULT</tt>, <tt>WPARAM</tt>, <tt>LPARAM</tt>, and <tt>SIZE_T</tt>.<br/>
+        These new types complement the following similar types which were already available: <tt>Int64</tt>, <tt>DWORD_PTR</tt>, <tt>INT_PTR</tt>, and <tt>UINT_PTR</tt>.</li>
   </ul>
   </li>
 </ul>
