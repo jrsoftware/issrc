@@ -312,6 +312,14 @@ cd /d "%BDSCOMMONDIR%"
   Styles\Zircon.vsf
 ```
 
+When using Delphi 13.1 or newer, also run:
+```
+cd /d "%BDS%"
+"%ProgramFiles%\7-Zip\7z.exe" a -mx9 -mem=AES256 -p"<password>" ^
+  %USERPROFILE%\issrc-build-env.zip ^
+  bin64\cgrc.exe bin64\resinator.exe
+```
+
 Then, upload this encrypted file somewhere public. After that, add its URL as a new repository
 [secret] (at https://github.com/YOUR-USER-NAME/issrc/settings/secrets/actions), under the name
 `ISSRC_BUILD_ENV_ZIP_URL`, and the password as `ISSRC_BUILD_ENV_ZIP_PASSWORD`.

@@ -1,7 +1,7 @@
 @echo off
 
 rem  Inno Setup
-rem  Copyright (C) 1997-2025 Jordan Russell
+rem  Copyright (C) 1997-2026 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
@@ -39,6 +39,8 @@ cd Projects
 if errorlevel 1 goto failed
 
 set EnvOptionsWarn=false
+rem Optional: make it use rc.exe (via bin\cgrc.exe) instead of resinator.exe (via bin64\cgrc.exe)
+rem set BRCC_CompilerToUse=msrc
 
 if "%1"=="x64" ( set Bits=64 ) else ( set Bits=32 )
 
