@@ -110,13 +110,13 @@ const
 
   { Status messages }
   SCompilerStatusStarting = '*** Starting compile.  [%s]';
-  SCompilerStatusFinished = '*** Finished.  [%s, %s elapsed]';
+  SCompilerStatusFinished = '*** Finished.  [%0:s, %1:s elapsed]';
   SCompilerStatusErrorAborted = '*** Compile aborted.';
   SCompilerStatusReset = '*** Log size limit reached, list reset.';
 
   SCompilerNeedCompiledExe = 'Cannot run Setup at this time. Please compile Setup successfully to completion first, with output enabled';
   SCompilerNeedUninstExe = 'Cannot run Uninstall at this time. Please run Setup successfully to completion first';
-  SCompilerExecuteSetupError2 = 'Error executing "%s":' + SNewLine2 + '%d: %s';  
+  SCompilerExecuteSetupError2 = 'Error executing "%0:s":' + SNewLine2 + '%1:d: %2:s';
   SCompilerAbortCompileConfirm = 'Are you sure you want to abort the compile?';
 
   SCompilerErrorFilePrefix = 'File: %s';
@@ -130,12 +130,12 @@ const
   SFindNotFound = 'Cannot find "%s"';
   SFindInvalidRegEx = 'Invalid regular expression "%s"';
   SFindResultLinePrefix = '  Line %d: ';
-  SFindResultFileHeader = '%s (%d hits):';
-  SFindResultSummary = 'Find "%s" (%d hits in %d files)';
+  SFindResultFileHeader = '%0:s (%1:d hits):';
+  SFindResultSummary = 'Find "%0:s" (%1:d hits in %2:d files)';
   SReplaceCount = '%d occurrence(s) replaced.';
 
   { File association }
-  SAssocSuccess = 'The .iss extension was successfully associated for %s with:' + SNewLine  + '%s';
+  SAssocSuccess = 'The .iss extension was successfully associated for %0:s with:' + SNewLine  + '%1:s';
   SAssocTitle = 'Associate';
 
   { Registry Designer }
@@ -168,7 +168,7 @@ const
 
   { Navigation }
   SNavLineNumber = 'Line %d';
-  SNavItemCaption = '%s: %s';
+  SNavItemCaption = '%0:s: %1:s';
 
   { Caption status indicators }
   SCompilerCaption32Bit = '(32-bit)';
@@ -206,11 +206,11 @@ const
   SCompilerLicenseKeyRemoved = 'Commercial license key has been removed.';
 
   { Debugger }
-  SDebugExitCodeHex = '%s exit code: 0x%.8x';
-  SDebugExitCodeDecimal = '%s exit code: %u';
-  SDebugExitCodeGetFailed = 'Unable to get %s exit code (%s failed)';
+  SDebugExitCodeHex = '%0:s exit code: 0x%1:.8x';
+  SDebugExitCodeDecimal = '%0:s exit code: %1:u';
+  SDebugExitCodeGetFailed = 'Unable to get %0:s exit code (%1:s failed)';
   SDebugExitCodeStillRunning = '%s is still running; can''t get exit code';
-  SDebugExitCodeWaitFailed = 'Unable to get %s exit code (%s failed)';
+  SDebugExitCodeWaitFailed = 'Unable to get %0:s exit code (%1:s failed)';
   SCompilerStopDebugTargetBeforeCommand = 'Please stop the running %s process before performing this command.';
   SCompilerDetachDebuggerConfirm = 'This command will detach the debugger from the running %s process. Continue?';
   SCompilerModifiedWhileRunningWarning = 'The changes you made will not take effect until you re-compile.' + SNewLine2 + 'Continue running anyway?';
@@ -224,10 +224,10 @@ const
   SEvaluateResultTitle = 'Evaluate Result';
   SEvaluateErrorTitle = 'Evaluate Error';
   SEvaluateUnknownError = 'An unknown error occurred.';
-  SEvaluateHintSuccess = '%s = "%s"';
-  SEvaluateHintException = '%s = Exception: %s';
+  SEvaluateHintSuccess = '%0:s = "%1:s"';
+  SEvaluateHintException = '%0:s = Exception: %1:s';
   SEvaluateHintUnknownError = '%s = Unknown error';
-  SRuntimeErrorLine = 'Line %d:' + SNewLine + '%s';
+  SRuntimeErrorLine = 'Line %0:d:' + SNewLine + '%1:s';
   SRuntimeErrorTitle = 'Runtime Error';
   SDebugTargetStarted = '*** %s started';
   SDebugTerminatingProcess = '*** Terminating process';
