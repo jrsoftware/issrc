@@ -1,7 +1,7 @@
 unit NewGroupBox;
 
 {
-  TNewGroupBox - fixes TGroupBox bug when ShowFrame is False
+  TNewGroupBox - fixes two TGroupBox bugs when ShowFrame is False.
 
   In Delphi 13.0 and earlier, TCustomGroupBox.Paint has a bug where Details
   is not initialized when ShowFrame is False, but is still used to draw the
