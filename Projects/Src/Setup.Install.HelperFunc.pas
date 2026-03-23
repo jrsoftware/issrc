@@ -538,7 +538,7 @@ procedure ShutdownApplications;
 const
   ERROR_FAIL_SHUTDOWN = 351;
   ForcedStrings: array [Boolean] of String = ('', ' (forced)');
-  ForcedActionFlag: array [Boolean] of ULONG = (0, RmForceShutdown);
+  ForcedActionFlag: array [Boolean] of ULONG = (RmShutdownOnlyRegistered, RmForceShutdown);
 var
   Forced: Boolean;
   Error: DWORD;
