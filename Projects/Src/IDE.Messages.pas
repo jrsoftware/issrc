@@ -136,10 +136,7 @@ const
   SRegistryDesignerScriptHasSet = 'Script has %s set';
 
   { MsgBox Designer }
-  SMsgBoxDesignerPreviewInfo = 'Info';
-  SMsgBoxDesignerPreviewConfirm = 'Confirm';
-  SMsgBoxDesignerPreviewError = 'Error';
-  SMsgBoxDesignerPreviewFatalError = 'Fatal Error';
+  SMsgBoxDesignerPreviewCaption = 'Setup';
   SMsgBoxDesignerDefaultText = 'Your message text.';
   SMsgBoxDesignerDefaultInputText = '<Enter your text here...>';
   SMsgBoxDesignerReturnValues = ' Return values ';

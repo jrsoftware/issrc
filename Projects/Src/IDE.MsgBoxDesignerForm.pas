@@ -2,7 +2,7 @@ unit IDE.MsgBoxDesignerForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -772,24 +772,11 @@ begin
   var Buttons: Cardinal := MB_OK;
   var Typ := mbInformation;
 
-  { icon and caption set }
-  var Caption: String;
-  if rb_mbInformation.Checked then begin
-     Caption := SMsgBoxDesignerPreviewInfo;
-     Typ := mbInformation;
-  end;
-  if rb_mbConfirmation.Checked then begin
-     Caption := SMsgBoxDesignerPreviewConfirm;
-     Typ := mbConfirmation;
-  end;
-  if rb_mbError.Checked then begin
-     Caption := SMsgBoxDesignerPreviewError;
-     Typ := mbError;
-  end;
-  if rb_mbCriticalError.Checked then begin
-     Caption := SMsgBoxDesignerPreviewFatalError;
-     Typ := mbCriticalError;
-  end;
+  { icon set }
+  if rb_mbInformation.Checked then Typ := mbInformation;
+  if rb_mbConfirmation.Checked then Typ := mbConfirmation;
+  if rb_mbError.Checked then Typ := mbError;
+  if rb_mbCriticalError.Checked then Typ := mbCriticalError;
 
   { button type set }
   if rbMB_OK.Checked then Buttons := MB_OK;
@@ -804,18 +791,18 @@ begin
        MSGText.Lines.Add(SMsgBoxDesignerDefaultText);
     { MessageBox with DefButton }
     if NewEdit1.Text = '1' then
-       MsgBox(MSGText.Lines.GetText, Caption, Typ, Buttons);
+       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons);
     if NewEdit1.Text = '2' then
-       MsgBox(MSGText.Lines.GetText, Caption, Typ, Buttons or MB_DEFBUTTON2);
+       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON2);
     if NewEdit1.Text = '3' then
-       MsgBox(MSGText.Lines.GetText, Caption, Typ, Buttons or MB_DEFBUTTON3);
+       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON3);
     { MessageBox with DefButton and Flag MB_SETFOREGROUND }
     if (NewEdit1.Text = '1') and (cb_MB_SETFOREGROUND.Checked) then
-       MsgBox(MSGText.Lines.GetText, Caption, Typ, Buttons or MB_SETFOREGROUND);
+       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_SETFOREGROUND);
     if (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
-       MsgBox(MSGText.Lines.GetText, Caption, Typ, Buttons or MB_DEFBUTTON2 or MB_SETFOREGROUND);
+       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON2 or MB_SETFOREGROUND);
     if (NewEdit1.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
-       MsgBox(MSGText.Lines.GetText, Caption, Typ, Buttons or MB_DEFBUTTON3 or MB_SETFOREGROUND);
+       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON3 or MB_SETFOREGROUND);
   end else if cb_TaskDialogMsgBox.Checked then begin
      { create ButtonLabels array - also see GetText}
      var ButtonLabels: TArray<string>;
@@ -850,7 +837,7 @@ begin
      if rbMB_ABORTRETRYIGNORE.Checked and rb_IDIGNORE.Checked then ShieldButton := IDIGNORE;
 
      { TaskDialogMsgBox(Icon, Instruction, Text, Caption, Typ, Buttons, ButtonLabels, ShieldButton) }
-     TaskDialogMsgBox('', TaskInstructionText.Text, TaskMessageText.Text, Caption,
+     TaskDialogMsgBox('', TaskInstructionText.Text, TaskMessageText.Text, SMsgBoxDesignerPreviewCaption,
                       Typ, Buttons, ButtonLabels, ShieldButton);
   end;
 end;
