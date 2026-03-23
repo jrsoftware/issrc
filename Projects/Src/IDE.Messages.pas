@@ -224,6 +224,9 @@ const
   SEvaluateResultTitle = 'Evaluate Result';
   SEvaluateErrorTitle = 'Evaluate Error';
   SEvaluateUnknownError = 'An unknown error occurred.';
+  SEvaluateHintSuccess = '%s = "%s"';
+  SEvaluateHintException = '%s = Exception: %s';
+  SEvaluateHintUnknownError = '%s = Unknown error';
   SRuntimeErrorLine = 'Line %d:' + SNewLine + '%s';
   SRuntimeErrorTitle = 'Runtime Error';
   SDebugTargetStarted = '*** %s started';

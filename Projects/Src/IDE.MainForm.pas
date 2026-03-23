@@ -4811,10 +4811,10 @@ begin
       var HintStr := FActiveMemo.GetTextRange(ConstRange.StartPos, ConstRange.EndPos);
       var Output: String;
       case EvaluateConstant(Info.HintStr, Output) of
-        1: HintStr := HintStr + ' = "' + Output + '"';
-        2: HintStr := HintStr + ' = Exception: ' + Output;
+        1: HintStr := Format(SEvaluateHintSuccess, [HintStr, Output]);
+        2: HintStr := Format(SEvaluateHintException, [HintStr, Output]);
       else
-        HintStr := HintStr + ' = Unknown error';
+        HintStr := Format(SEvaluateHintUnknownError, [HintStr]);
       end;
       UpdateInfo(Info, HintStr, ConstRange, FActiveMemo);
     end;
