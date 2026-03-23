@@ -2,7 +2,7 @@ unit IDE.MainForm.FindReplaceHelper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -154,7 +154,7 @@ begin
      FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) then
     FActiveMemo.SelectAndEnsureVisible(Range)
   else
-    MsgBoxFmt('Cannot find "%s"', [FLastFindText], SCompilerFormCaption,
+    MsgBoxFmt(SFindNotFound, [FLastFindText], SCompilerFormCaption,
       mbInformation, MB_OK);
 end;
 
@@ -182,7 +182,7 @@ begin
   if FLastFindRegEx then begin
     Result := FActiveMemo.TestRegularExpression(FLastFindText);
     if not Result then
-      MsgBoxFmt('Invalid regular expression "%s"', [FLastFindText], SCompilerFormCaption,
+      MsgBoxFmt(SFindInvalidRegEx, [FLastFindText], SCompilerFormCaption,
         mbError, MB_OK);
   end else
     Result := True;
@@ -224,7 +224,7 @@ begin
               FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
         { Also see UpdateFindResult }
         var Line := Memo.GetLineFromPosition(Range.StartPos);
-        var Prefix := Format('  Line %d: ', [Line+1]);
+        var Prefix := Format(SFindResultLinePrefix, [Line+1]);
         var FindResult := TFindResult.Create;
         FindResult.Filename := Memo.Filename;
         FindResult.Line := Line;
@@ -239,12 +239,12 @@ begin
       Inc(Files);
       if FileHits > 0 then begin
         Inc(Hits, FileHits);
-        FindResultsList.Items.Insert(FindResultsList.Count-FileHits, Format('%s (%d hits):', [Memo.Filename, FileHits]));
+        FindResultsList.Items.Insert(FindResultsList.Count-FileHits, Format(SFindResultFileHeader, [Memo.Filename, FileHits]));
       end;
     end;
   end;
 
-  FindResultsList.Items.Insert(0, Format('Find "%s" (%d hits in %d files)', [FindInFilesDialog.FindText, Hits, Files]));
+  FindResultsList.Items.Insert(0, Format(SFindResultSummary, [FindInFilesDialog.FindText, Hits, Files]));
 
   FindInFilesDialog.CloseDialog;
 
@@ -256,9 +256,9 @@ procedure TMainFormFindReplaceHelper.UpdateFindResult(const FindResult: TFindRes
   const NewLine, NewLineStartPos: Integer);
 begin
   { Also see DoFindInFilesDialogFind }
-  const OldPrefix = Format('  Line %d: ', [FindResult.Line+1]);
+  const OldPrefix = Format(SFindResultLinePrefix, [FindResult.Line+1]);
   FindResult.Line := NewLine;
-  const NewPrefix = Format('  Line %d: ', [FindResult.Line+1]);
+  const NewPrefix = Format(SFindResultLinePrefix, [FindResult.Line+1]);
   FindResultsList.Items[ItemIndex] := NewPrefix + Copy(FindResultsList.Items[ItemIndex], Length(OldPrefix)+1, MaxInt);
   FindResult.PrefixStringLength := Length(NewPrefix);
   const PosChange = NewLineStartPos - FindResult.LineStartPos;
@@ -344,10 +344,10 @@ begin
       FActiveMemo.EndUndoAction;
     end;
     if ReplaceCount = 0 then
-      MsgBoxFmt('Cannot find "%s"', [FLastFindText], SCompilerFormCaption,
+      MsgBoxFmt(SFindNotFound, [FLastFindText], SCompilerFormCaption,
         mbInformation, MB_OK)
     else
-      MsgBoxFmt('%d occurrence(s) replaced.', [ReplaceCount], SCompilerFormCaption,
+      MsgBoxFmt(SReplaceCount, [ReplaceCount], SCompilerFormCaption,
         mbInformation, MB_OK);
   end
   else begin

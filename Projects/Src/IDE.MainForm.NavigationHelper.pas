@@ -2,7 +2,7 @@ unit IDE.MainForm.NavigationHelper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -38,7 +38,7 @@ implementation
 uses
   Windows,
   SysUtils, TypInfo, ComCtrls,
-  IDE.HelperFunc, IDE.ScintStylerInnoSetup;
+  IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.Messages;
 
 procedure TMainFormNavigationHelper.RemoveMemoFromNavigation(const AMemo: TIDEScintEdit);
 begin
@@ -135,11 +135,11 @@ procedure TMainFormNavigationHelper.UpdateNavigationMenu(const Menu: TMenuItem);
       raise Exception.Create('NavItem.Line >= NavItem.Memo.Lines.Count');
     var LineInfo :=  NavItem.Memo.Lines[NavItem.Line];
     if LineInfo.Trim = '' then
-      LineInfo := Format('Line %d', [NavItem.Line+1]);
+      LineInfo := Format(SNavLineNumber, [NavItem.Line+1]);
 
     var Caption: String;
     if MemosTabSet.Visible then
-      Caption := Format('%s: %s', [MemosTabSet.Tabs[MemoToTabIndex(NavItem.Memo)], LineInfo])
+      Caption := Format(SNavItemCaption, [MemosTabSet.Tabs[MemoToTabIndex(NavItem.Memo)], LineInfo])
     else
       Caption := LineInfo;
 

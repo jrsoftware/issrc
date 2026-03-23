@@ -2,7 +2,7 @@ unit IDE.MainForm.ToolsHelper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -76,7 +76,7 @@ end;
 
 procedure TMainFormToolsHelper.InsertGeneratedGuid(const AMemo: TScintEdit);
 begin
-  if MsgBox('The generated GUID will be inserted into the editor at the cursor position. Continue?',
+  if MsgBox(SToolsInsertGuidConfirm,
      SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
     AMemo.MainSelText := GenerateGuid;
 end;
@@ -84,7 +84,7 @@ end;
 procedure TMainFormToolsHelper.ShowMsgBoxDesignerForm(const AMemo: TScintEdit);
 begin
   if (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scCode) and
-     (MsgBox('The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the [Code] section. Continue anyway?',
+     (MsgBox(SToolsNotInCodeSectionConfirm,
       SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDNO) then
     Exit;
 

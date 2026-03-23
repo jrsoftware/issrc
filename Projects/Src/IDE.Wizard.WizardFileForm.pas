@@ -2,7 +2,7 @@ unit IDE.Wizard.WizardFileForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -100,7 +100,7 @@ begin
   FWizardFile := WizardFile;
 
   if foDownload in WizardFile.Options then begin
-    SourceLabel.Caption := '&Source URL:';
+    SourceLabel.Caption := SWizardSourceURLLabel;
     SourceEdit.Text := Format('%s (~%.1f MB)', [WizardFile.Source, WizardFile.ExternalSize/(1024*1024)]);
     MakeBold(DestNameLabel);
   end else begin

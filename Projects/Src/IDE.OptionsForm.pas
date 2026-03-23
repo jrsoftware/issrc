@@ -2,7 +2,7 @@ unit IDE.OptionsForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -78,7 +78,7 @@ type
 implementation
 
 uses
-  Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, IDE.FileAssocFunc;
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, IDE.FileAssocFunc, IDE.Messages;
 
 {$R *.DFM}
 
@@ -117,8 +117,8 @@ var
   AllUsers: Boolean;
 begin
   if RegisterISSFileAssociation(True, AllUsers) then
-    MsgBox('The .iss extension was successfully associated for ' + UserStrings[AllUsers] + ' with:'#13#10 + NewParamStr(0),
-      'Associate', mbInformation, MB_OK);
+    MsgBox(Format(SAssocSuccess, [UserStrings[AllUsers], NewParamStr(0)]),
+      SAssocTitle, mbInformation, MB_OK);
 end;
 
 procedure TOptionsForm.ChangeFontButtonClick(Sender: TObject);

@@ -2,7 +2,7 @@ unit IDE.SignToolsForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -50,7 +50,7 @@ implementation
 uses
   Windows, Messages, SysUtils, Dialogs,
   Shared.CommonFunc.Vcl, IDE.InputQueryMemoForm, IDE.HelperFunc,
-  IDE.HtmlHelpFunc;
+  IDE.HtmlHelpFunc, IDE.Messages;
 
 {$R *.DFM}
 
@@ -115,22 +115,22 @@ var
 begin
   Result := False;
 
-  if InputQuery(Caption, 'Name of the Sign Tool:', SignToolName) then begin
+  if InputQuery(Caption, SSignToolNamePrompt, SignToolName) then begin
     if (SignToolName = '') or (Pos('=', SignToolName) <> 0) then begin
-      MsgBox('Invalid name.', Caption, mbCriticalError, MB_OK);
+      MsgBox(SSignToolInvalidName, Caption, mbCriticalError, MB_OK);
       Exit;
     end;
 
     for I := 0 to FSignTools.Count-1 do begin
       if (I <> ExistingIndex) and (Pos(SignToolName + '=', FSignTools[I]) = 1) then begin
-        MsgBox('Duplicate name.', Caption, mbCriticalError, MB_OK);
+        MsgBox(SSignToolDuplicateName, Caption, mbCriticalError, MB_OK);
         Exit;
       end;
     end;
 
-    if InputQueryMemo(Caption, 'Command of the Sign Tool:', SignToolCommand, True, CommandDocBitBtnClick) then begin
+    if InputQueryMemo(Caption, SSignToolCommandPrompt, SignToolCommand, True, CommandDocBitBtnClick) then begin
       if SignToolCommand = '' then begin
-        MsgBox('Invalid command.', Caption, mbCriticalError, MB_OK);
+        MsgBox(SSignToolInvalidCommand, Caption, mbCriticalError, MB_OK);
         Exit;
       end;
     end;
