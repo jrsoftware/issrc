@@ -2,7 +2,7 @@ unit NewProgressBar;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -278,7 +278,7 @@ begin
     FMarqueeTimer.Enabled := False;
 end;
 
-{$IF CompilerVersion < 36.0}
+{$IF RtlVersion < 36.0}
 { From Delphi 12.3's GraphUtil - including the function name typo }
 procedure SetPreMutipliedColor(ABitMap: TBitmap; Color: TColor);
 var
@@ -309,7 +309,7 @@ begin
 end;
 {$ENDIF}
 
-{$IF CompilerVersion < 35.0}
+{$IF RtlVersion < 35.0}
 { From Delphi 12.3's GraphUtil }
 type
   PRGBAArray = ^TRGBAArray;
