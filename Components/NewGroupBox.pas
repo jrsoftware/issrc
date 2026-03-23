@@ -5,17 +5,22 @@ unit NewGroupBox;
 
   In Delphi 13.0 and earlier, TCustomGroupBox.Paint has a bug where Details
   is not initialized when ShowFrame is False, but is still used to draw the
-  Text. Embarcadero fixed this in Delphi 13.1. Since we can't detect 13.0 vs
-  13.1, the fix is active for 13.1 also.
+  Text. Embarcadero fixed this in Delphi 13.1 but since we can't detect 13.0
+  vs 13.1, the fix must be active for 13.1 also.
 
   The VCL Styles hook did not have this bug, so no VCL Styles code needed.
 
   Note: ShowFrame did not exist before Delphi 12.
+
+  Another note: This unit actually fixes a second bug which Embarcadero did
+  not fix, even though it's pretty much the same issue: R.Right is used
+  without being initialized when ShowFrame is False and RTL is active. This
+  bug is also not present in the VCL Styles hook.
 }
 
 interface
 
-{$IF (CompilerVersion >= 36.0) AND (CompilerVersion <= 37.0)}
+{$IF CompilerVersion >= 36.0}
   {$DEFINE FIX}
 {$ENDIF}
 
@@ -111,10 +116,13 @@ end;
 
 {$IFDEF FIX}
 
-{ The following is a copy of Delphi 13.1's TCustomGroupBox.Paint, which fixed
-  Details not being initialized when ShowFrame is False. Only change done is
-  FShowFrame -> ShowFrame, and turning off warnings for the implicit integer
-  casts the original code has. }
+{ The following is based on Delphi 13.1's TCustomGroupBox.Paint, which fixed
+  Details not being initialized when ShowFrame is False.
+
+  Changes done:
+  -FShowFrame -> ShowFrame
+  -Turning off warnings for the implicit integer casts the original code has.
+  -Fixed R.Right not being initialized when ShowFrame is False. }
 
 {$WARN IMPLICIT_INTEGER_CAST_LOSS OFF}
 
@@ -178,9 +186,9 @@ begin
     else
     begin
       H := TextHeight('0');
+      R := Rect(0, H div 2 - 1, Width, Height);
       if ShowFrame then
       begin
-        R := Rect(0, H div 2 - 1, Width, Height);
         if Ctl3D then
         begin
           Inc(R.Left);
