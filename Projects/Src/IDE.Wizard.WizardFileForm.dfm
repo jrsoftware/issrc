@@ -61,7 +61,7 @@ object WizardFileForm: TWizardFileForm
     ModalResult = 2
     TabOrder = 2
   end
-  object GroupBox2: TGroupBox
+  object GroupBox2: TNewGroupBox
     Left = 8
     Top = 108
     Width = 403
@@ -135,7 +135,7 @@ object WizardFileForm: TWizardFileForm
       TabOrder = 6
     end
   end
-  object GroupBox1: TGroupBox
+  object GroupBox1: TNewGroupBox
     Left = 8
     Top = 8
     Width = 403

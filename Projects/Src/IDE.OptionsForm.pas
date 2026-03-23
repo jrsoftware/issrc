@@ -13,18 +13,18 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewStaticText;
+  UIStateForm, StdCtrls, ExtCtrls, NewGroupBox, NewStaticText;
 
 type
   TOptionsForm = class(TUIStateForm)
     OKButton: TButton;
     CancelButton: TButton;
-    GroupBox1: TGroupBox;
+    GroupBox1: TNewGroupBox;
     BackupCheck: TCheckBox;
     AssocButton: TButton;
     StartupCheck: TCheckBox;
     WizardCheck: TCheckBox;
-    GroupBox3: TGroupBox;
+    GroupBox3: TNewGroupBox;
     ChangeFontButton: TButton;
     FontPanel: TPanel;
     Label1: TNewStaticText;

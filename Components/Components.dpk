@@ -44,6 +44,7 @@ contains
   FolderTreeView in 'FolderTreeView.pas',
   NewCheckListBox in 'NewCheckListBox.pas',
   NewCtrls in 'NewCtrls.pas',
+  NewGroupBox in 'NewGroupBox.pas',
   NewNotebookReg in 'NewNotebookReg.pas',
   NewProgressBar in 'NewProgressBar.pas',
   NewStaticText in 'NewStaticText.pas',

@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewStaticText, ComCtrls, pngimage, BitmapImage;
+  UIStateForm, StdCtrls, ExtCtrls, NewGroupBox, NewStaticText, ComCtrls, pngimage, BitmapImage;
 
 type
   TMsgBoxDesignerForm = class(TUIStateForm)
@@ -24,14 +24,14 @@ type
     IMGmbError: TBitmapImage;
     IMGmbCriticalError: TBitmapImage;
     Panel1: TPanel;
-    GroupBox1: TGroupBox;
-    GroupBox2: TGroupBox;
+    GroupBox1: TNewGroupBox;
+    GroupBox2: TNewGroupBox;
     MSGText: TMemo;
     rb_mbInformation: TRadioButton;
     rb_mbConfirmation: TRadioButton;
     rb_mbError: TRadioButton;
     rb_mbCriticalError: TRadioButton;
-    GroupBox3: TGroupBox;
+    GroupBox3: TNewGroupBox;
     MBDButtonOK: TButton;
     MBDButtonCancel: TButton;
     MBDButtonPreview: TButton;
@@ -42,7 +42,7 @@ type
     rbMB_YESNOCANCEL: TRadioButton;
     rbMB_RETRYCANCEL: TRadioButton;
     rbMB_ABORTRETRYIGNORE: TRadioButton;
-    GroupBox4: TGroupBox;
+    GroupBox4: TNewGroupBox;
     cb_IDOK: TCheckBox;
     cb_IDCANCEL: TCheckBox;
     cb_IDYES: TCheckBox;
@@ -50,12 +50,12 @@ type
     cb_IDABORT: TCheckBox;
     cb_IDRETRY: TCheckBox;
     cb_IDIGNORE: TCheckBox;
-    GroupBox5: TGroupBox;
+    GroupBox5: TNewGroupBox;
     cb_MB_SETFOREGROUND: TCheckBox;
     NewStaticText1: TNewStaticText;
     NewEdit1: TEdit;
     UpDown1: TUpDown;
-    GroupBox6: TGroupBox;
+    GroupBox6: TNewGroupBox;
     cb_MsgBox: TRadioButton;
     cb_TaskDialogMsgBox: TRadioButton;
     rb_IDOK: TCheckBox;

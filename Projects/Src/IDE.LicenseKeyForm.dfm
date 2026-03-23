@@ -18,7 +18,7 @@ object LicenseKeyForm: TLicenseKeyForm
     303
     200)
   TextHeight = 13
-  object GroupBox1: TGroupBox
+  object GroupBox1: TNewGroupBox
     Left = 8
     Top = 8
     Width = 287

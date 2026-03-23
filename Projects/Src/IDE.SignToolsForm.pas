@@ -12,13 +12,13 @@ unit IDE.SignToolsForm;
 interface
 
 uses
-  Classes, Controls, StdCtrls, UIStateForm;
+  Classes, Controls, StdCtrls, UIStateForm, NewGroupBox;
 
 type
   TSignToolsForm = class(TUIStateForm)
     OKButton: TButton;
     CancelButton: TButton;
-    GroupBox1: TGroupBox;
+    GroupBox1: TNewGroupBox;
     SignToolsListBox: TListBox;
     AddButton: TButton;
     RemoveButton: TButton;

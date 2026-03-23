@@ -228,7 +228,7 @@ object StartupForm: TStartupForm
     ModalResult = 2
     TabOrder = 3
   end
-  object GroupBox1: TGroupBox
+  object GroupBox1: TNewGroupBox
     Left = 8
     Top = 8
     Width = 563
@@ -270,7 +270,7 @@ object StartupForm: TStartupForm
       OnDblClick = DblClick_
     end
   end
-  object GroupBox2: TGroupBox
+  object GroupBox2: TNewGroupBox
     Left = 8
     Top = 76
     Width = 563

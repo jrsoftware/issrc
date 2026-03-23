@@ -102,6 +102,7 @@ If you intend to view or modify the ISIDE project's forms, you must
 additionally install the following components.
 
 - DropListBox
+- NewGroupBox
 - NewTabSet
 
 The [Components] directory contains a Components.dpk file which you can use to

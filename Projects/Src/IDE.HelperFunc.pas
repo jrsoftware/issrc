@@ -129,8 +129,8 @@ function InitFormTheme(const Form: TForm): Boolean;
   begin
     for var I := 0 to ParentControl.ControlCount-1 do begin
       const Control = ParentControl.Controls[I];
-      if Control is TGroupBox then
-        (Control as TGroupBox).ShowFrame := False;
+      if Control is TCustomGroupBox then
+        TCustomGroupBox(Control).ShowFrame := False;
 
       if Control is TWinControl then
         HideGroupBoxFrames(Control as TWinControl);

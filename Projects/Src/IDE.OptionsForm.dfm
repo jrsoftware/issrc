@@ -19,7 +19,7 @@ object OptionsForm: TOptionsForm
     589
     424)
   TextHeight = 13
-  object GroupBox1: TGroupBox
+  object GroupBox1: TNewGroupBox
     Left = 8
     Top = 8
     Width = 281
@@ -157,7 +157,7 @@ object OptionsForm: TOptionsForm
       TabOrder = 4
     end
   end
-  object GroupBox3: TGroupBox
+  object GroupBox3: TNewGroupBox
     Left = 300
     Top = 8
     Width = 281

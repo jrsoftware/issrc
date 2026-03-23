@@ -2,7 +2,7 @@ unit IDE.StartupForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, BitmapButton, BitmapImage;
+  UIStateForm, StdCtrls, ExtCtrls, BitmapButton, BitmapImage, NewGroupBox;
 
 type
   TStartupFormResult = (srNone, srEmpty, srWizard, srOpenFile, srOpenDialog,
@@ -22,8 +22,8 @@ type
   TStartupForm = class(TUIStateForm)
     OKButton: TButton;
     CancelButton: TButton;
-    GroupBox1: TGroupBox;
-    GroupBox2: TGroupBox;
+    GroupBox1: TNewGroupBox;
+    GroupBox2: TNewGroupBox;
     EmptyRadioButton: TRadioButton;
     WizardRadioButton: TRadioButton;
     OpenRadioButton: TRadioButton;

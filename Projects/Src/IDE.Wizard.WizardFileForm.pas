@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewStaticText;
+  UIStateForm, StdCtrls, ExtCtrls, NewGroupBox, NewStaticText;
 
 type
   TWizardFileOption = (foDownload, foExtractArchive, foRecurseSubDirs,  foCreateAllSubDirs);
@@ -34,7 +34,7 @@ type
   TWizardFileForm = class(TUIStateForm)
     OKButton: TButton;
     CancelButton: TButton;
-    GroupBox2: TGroupBox;
+    GroupBox2: TNewGroupBox;
     DestRootDirComboBox: TComboBox;
     DestRootDirEdit: TEdit;
     DestRootDirLabel: TNewStaticText;
@@ -42,7 +42,7 @@ type
     DestSubDirLabel: TNewStaticText;
     RequiredLabel1: TNewStaticText;
     RequiredLabel2: TNewStaticText;
-    GroupBox1: TGroupBox;
+    GroupBox1: TNewGroupBox;
     SourceLabel: TNewStaticText;
     SourceEdit: TEdit;
     RecurseSubDirsCheck: TCheckBox;
