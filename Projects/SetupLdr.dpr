@@ -511,7 +511,8 @@ begin
 
         { Create a temporary directory, and extract the embedded setup program
           there }
-        TempDir := CreateTempDir('.tmp', IsAdminLoggedOn);
+        S := CreateTempDir('.tmp', IsAdminLoggedOn);
+        TempDir := S;   { assign only if string was successfully constructed }
         S := AddBackslash(TempDir) + PathChangeExt(PathExtractName(SelfFilename), '.tmp');
         TempFile := S;  { assign only if string was successfully constructed }
 
