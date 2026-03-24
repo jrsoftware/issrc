@@ -385,6 +385,7 @@ begin
           SNewLine +
           'For more detailed information, please visit https://jrsoftware.org/ishelp/index.php?topic=setupcmdline';
 
+  { Cannot use a task dialog here, due to the compiler's call to PreventCOMCTL32Sideloading }
   MsgBox(Help, MB_OK or MB_ICONSTOP);
 end;
 
