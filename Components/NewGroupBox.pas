@@ -96,6 +96,8 @@ type
   TNewGroupBox = class(TGroupBox);
 {$ENDIF}
 
+procedure Register;
+
 implementation
 
 uses
