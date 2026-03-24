@@ -312,14 +312,12 @@ begin
     SetupCorruptError;
 end;
 
-procedure ShowHelp(const CustomNote: String);
-const
-  SNewLine = #13#10;
+function ShowBasicHelp(const CustomNote: String): Boolean;
 var
   PrNote, Help: String;
 begin
   { do not localize }
-  
+
   if proCommandLine in SetupHeader.PrivilegesRequiredOverridesAllowed then begin
     PrNote := '/ALLUSERS' + SNewLine +
               'Instructs Setup to install in administrative install mode.' + SNewLine +
@@ -328,22 +326,56 @@ begin
   end else
     PrNote := '';
 
-  Help := 'The Setup program accepts optional command line parameters.' + SNewLine +
-          SNewLine +
+  Help := 'The Setup program accepts optional command line parameters:' + SNewLine2 +
           '/HELP, /?' + SNewLine +
-           'Shows this information.' + SNewLine +
+           'Shows this help text.' + SNewLine +
           '/SP-' + SNewLine +
           'Disables the "This will install... Do you wish to continue?" message box at the beginning of Setup.' + SNewLine +
           '/SILENT, /VERYSILENT' + SNewLine +
           'Instructs Setup to be silent or very silent.' + SNewLine +
-          '/NOSTYLE' + SNewLine +
-          'Prevents Setup from activating custom styles (including the built-in custom dark style).' + SNewLine +
           '/SUPPRESSMSGBOXES' + SNewLine +
           'Instructs Setup to suppress message boxes.' + SNewLine +
           '/LOG' + SNewLine +
           'Causes Setup to create a log file in the user''s TEMP directory.' + SNewLine +
           '/LOG="filename"' + SNewLine +
           'Same as /LOG, except it allows you to specify a fixed path/filename to use for the log file.' + SNewLine +
+          '/LANG=language' + SNewLine +
+          'Specifies the internal name of the language to use.' + SNewLine +
+          '/DIR="x:\dirname"' + SNewLine +
+          'Overrides the default directory name.' + SNewLine +
+          '/GROUP="folder name"' + SNewLine +
+          'Overrides the default folder name.' + SNewLine +
+          '/TYPE=type name' + SNewLine +
+          'Overrides the default setup type.' + SNewLine +
+          '/COMPONENTS="comma separated list of component names"' + SNewLine +
+          'Overrides the default component settings.' + SNewLine +
+          '/TASKS="comma separated list of task names"' + SNewLine +
+          'Specifies a list of tasks that should be initially selected.' + SNewLine +
+          '/MERGETASKS="comma separated list of task names"' + SNewLine +
+          'Like the /TASKS parameter, except the specified tasks will be merged with the set of tasks that would have otherwise been selected by default.' + SNewLine +
+          '/PASSWORD=password' + SNewLine +
+          'Specifies the password to use.' + SNewLine +
+          PrNote +
+          CustomNote +
+          SNewLine +
+          'Show additional command line parameters?';
+
+  { Cannot use a task dialog here, due to the compiler's call to PreventCOMCTL32Sideloading }
+  Result := MsgBox(Help, MB_YESNO or MB_ICONSTOP) = IDYES;
+end;
+
+procedure ShowAdvancedHelp;
+var
+  Help: String;
+begin
+  { do not localize }
+  Help := 'Additional command line parameters:' + SNewLine2 +
+          '/LOADINF="filename", /SAVEINF="filename"' + SNewLine +
+          'Instructs Setup to load the settings from the specified file after having checked the command line, or to save them to it.' + SNewLine +
+          '/NOICONS' + SNewLine +
+          'Instructs Setup to initially check the Don''t create a Start Menu folder check box.' + SNewLine +
+          '/NOSTYLE' + SNewLine +
+          'Prevents Setup from activating custom styles (including the built-in custom dark style).' + SNewLine +
           '/NOCANCEL' + SNewLine +
           'Prevents the user from cancelling during the installation process.' + SNewLine +
           '/NORESTART' + SNewLine +
@@ -359,33 +391,9 @@ begin
           '/RESTARTAPPLICATIONS, /NORESTARTAPPLICATIONS' + SNewLine +
           'Instructs Setup to attempt restarting applications, or prevents it from doing so.' + SNewLine +
           '/REDIRECTIONGUARD, /NOREDIRECTIONGUARD' + SNewLine +
-          'Instructs Setup to attempt enabling RedirectionGuard, or prevents it from doing so.' + SNewLine +
-          '/LOADINF="filename", /SAVEINF="filename"' + SNewLine +
-          'Instructs Setup to load the settings from the specified file after having checked the command line, or to save them to it.' + SNewLine +
-          '/LANG=language' + SNewLine +
-          'Specifies the internal name of the language to use.' + SNewLine +
-          '/DIR="x:\dirname"' + SNewLine +
-          'Overrides the default directory name.' + SNewLine +
-          '/GROUP="folder name"' + SNewLine +
-          'Overrides the default folder name.' + SNewLine +
-          '/NOICONS' + SNewLine +
-          'Instructs Setup to initially check the Don''t create a Start Menu folder check box.' + SNewLine +
-          '/TYPE=type name' + SNewLine +
-          'Overrides the default setup type.' + SNewLine +
-          '/COMPONENTS="comma separated list of component names"' + SNewLine +
-          'Overrides the default component settings.' + SNewLine +
-          '/TASKS="comma separated list of task names"' + SNewLine +
-          'Specifies a list of tasks that should be initially selected.' + SNewLine +
-          '/MERGETASKS="comma separated list of task names"' + SNewLine +
-          'Like the /TASKS parameter, except the specified tasks will be merged with the set of tasks that would have otherwise been selected by default.' + SNewLine +
-          '/PASSWORD=password' + SNewLine +
-          'Specifies the password to use.' + SNewLine +
-          PrNote +
-          CustomNote +
-          SNewLine +
+          'Instructs Setup to attempt enabling RedirectionGuard, or prevents it from doing so.' + SNewLine2 +
           'For more detailed information, please visit https://jrsoftware.org/ishelp/index.php?topic=setupcmdline';
 
-  { Cannot use a task dialog here, due to the compiler's call to PreventCOMCTL32Sideloading }
   MsgBox(Help, MB_OK or MB_ICONSTOP);
 end;
 
@@ -483,7 +491,8 @@ begin
 
       if InitShowHelp then begin
         { Show the command line help. }
-        ShowHelp(SetupMessages[msgHelpTextNote]);
+        if ShowBasicHelp(SetupMessages[msgHelpTextNote]) then
+          ShowAdvancedHelp;
         SetupLdrExitCode := 0;
       end else begin
         { Show the startup prompt. If this is enabled, SetupHeader.AppName won't
