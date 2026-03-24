@@ -2917,6 +2917,19 @@ begin
     Exit;
   end;
 
+  { Enforce a limit on the number of components in the path to ensure
+    MakeDir's maximum recursion depth isn't exceeded }
+  var PathComponentCount := 0;
+  for I := Low(T) + PathDrivePartLength(T) to High(T) do
+    if T[I] = '\' then
+      Inc(PathComponentCount);
+  if PathComponentCount > 40 then begin
+    LogFmt('Folder path has too many components after the drive part (%d). Limit is 40.',
+      [PathComponentCount]);
+    LoggedMsgBox(SetupMessages[msgDirNameTooLong], '', mbError, MB_OK, True, IDOK);
+    Exit;
+  end;
+
   { Check if it's a valid drive, reconnecting it first if necessary }
   RootPath := RemoveBackslashUnlessRoot(AddBackslash(PathExtractDrive(T)));
   ReconnectPath(RootPath);
