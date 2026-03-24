@@ -25,7 +25,7 @@ implementation
 {$IFEND}
 
 uses
-  Classes, StrUtils, Math, Forms, Dialogs, SysUtils, Themes, Controls, CommCtrl,
+  Classes, StrUtils, Math, Forms, SysUtils, Themes, Controls, CommCtrl,
   PathFunc,
   {$IFDEF USETASKDIALOGFORM} Setup.TaskDialogForm, {$ENDIF}
   {$IFDEF SETUPPROJ} Setup.InstFunc, {$ENDIF}
@@ -49,8 +49,7 @@ function DoTaskDialog(const hWnd: HWND; const Instruction, Text, Caption, Icon: 
   var ModalResult: Integer; const VerificationText: PChar; const pfVerificationFlagChecked: PBOOL): Boolean;
 var
   Config: TTaskDialogConfig;
-  ButtonItems: TTaskDialogButtons;
-  ButtonItem: TTaskDialogButtonItem;
+  ButtonItems: array of TTaskDialogButton;
   ActiveWindow: Windows.HWND;
   WindowList: Pointer;
 begin
@@ -74,37 +73,31 @@ begin
       Config.pfCallback := ShieldButtonCallback;
       Config.lpCallbackData := ShieldButton;
     end;
-    ButtonItems := nil;
+    const NButtonLabelsAvailable = Length(ButtonLabels);
+    if NButtonLabelsAvailable <> 0 then begin
+      SetLength(ButtonItems, NButtonLabelsAvailable);
+      Config.dwFlags := Config.dwFlags or TDF_USE_COMMAND_LINKS;
+      for var I := 0 to NButtonLabelsAvailable-1 do begin
+        ButtonItems[I].pszButtonText := PChar(ButtonLabels[I]);
+        ButtonItems[I].nButtonID := ButtonIDs[I];
+      end;
+      Config.pButtons := @ButtonItems[0];
+      Config.cButtons := UINT(NButtonLabelsAvailable);
+    end;
+    TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
+    ActiveWindow := GetActiveWindow;
+    WindowList := DisableTaskWindows(Config.hwndParent);
+    { Temporarily clear SystemHooks to stop it from breaking the title bar. Does not make it dark.
+      Also see BrowseFunc's NewGetOpenOrSaveFileName. }
+    const SaveHooks = TStyleManager.SystemHooks;
+    TStyleManager.SystemHooks := [];
     try
-      const NButtonLabelsAvailable = Length(ButtonLabels);
-      if NButtonLabelsAvailable <> 0 then begin
-        ButtonItems := TTaskDialogButtons.Create(nil, TTaskDialogButtonItem);
-        Config.dwFlags := Config.dwFlags or TDF_USE_COMMAND_LINKS;
-        for var I := 0 to NButtonLabelsAvailable-1 do begin
-          ButtonItem := TTaskDialogButtonItem(ButtonItems.Add);
-          ButtonItem.Caption := ButtonLabels[I];
-          ButtonItem.ModalResult := ButtonIDs[I];
-        end;
-        Config.pButtons := ButtonItems.Buttons;
-        Config.cButtons := UINT(ButtonItems.Count);
-      end;
-      TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, False);
-      ActiveWindow := GetActiveWindow;
-      WindowList := DisableTaskWindows(Config.hwndParent);
-      { Temporarily clear SystemHooks to stop it from breaking the title bar. Does not make it dark.
-        Also see BrowseFunc's NewGetOpenOrSaveFileName. }
-      const SaveHooks = TStyleManager.SystemHooks;
-      TStyleManager.SystemHooks := [];
-      try
-        Result := TaskDialogIndirectFunc(Config, @ModalResult, nil, pfVerificationFlagChecked) = S_OK;
-      finally
-        TStyleManager.SystemHooks := SaveHooks;
-        EnableTaskWindows(WindowList);
-        SetActiveWindow(ActiveWindow);
-        TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, True);
-      end;
+      Result := TaskDialogIndirectFunc(Config, @ModalResult, nil, pfVerificationFlagChecked) = S_OK;
     finally
-      ButtonItems.Free;
+      TStyleManager.SystemHooks := SaveHooks;
+      EnableTaskWindows(WindowList);
+      SetActiveWindow(ActiveWindow);
+      TriggerMessageBoxCallbackFunc(TriggerMessageBoxCallbackFuncFlags, True);
     end;
   end else
     Result := False;
