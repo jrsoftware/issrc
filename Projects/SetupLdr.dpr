@@ -314,23 +314,28 @@ end;
 
 function ShowBasicHelp(const CustomNote: String): Boolean;
 var
-  PrNote, Help: String;
+  SpNote, PwNote, PrNote, Help: String;
 begin
   { do not localize }
 
-  if proCommandLine in SetupHeader.PrivilegesRequiredOverridesAllowed then begin
+  if not (shDisableStartupPrompt in SetupHeader.Options) then
+    SpNote := '/SP-' + SNewLine +
+              'Disables the "This will install... Do you wish to continue?" message box at the beginning of Setup.' + SNewLine;
+
+  if shPassword in SetupHeader.Options then
+    PwNote := '/PASSWORD=password' + SNewLine +
+              'Specifies the password to use.' + SNewLine;
+
+  if proCommandLine in SetupHeader.PrivilegesRequiredOverridesAllowed then
     PrNote := '/ALLUSERS' + SNewLine +
               'Instructs Setup to install in administrative install mode.' + SNewLine +
               '/CURRENTUSER' + SNewLine +
               'Instructs Setup to install in non administrative install mode.' + SNewLine;
-  end else
-    PrNote := '';
 
   Help := 'The Setup program accepts optional command line parameters:' + SNewLine2 +
           '/HELP, /?' + SNewLine +
            'Shows this help text.' + SNewLine +
-          '/SP-' + SNewLine +
-          'Disables the "This will install... Do you wish to continue?" message box at the beginning of Setup.' + SNewLine +
+           SpNote +
           '/SILENT, /VERYSILENT' + SNewLine +
           'Instructs Setup to be silent or very silent.' + SNewLine +
           '/SUPPRESSMSGBOXES' + SNewLine +
@@ -353,8 +358,7 @@ begin
           'Specifies a list of tasks that should be initially selected.' + SNewLine +
           '/MERGETASKS="comma separated list of task names"' + SNewLine +
           'Like the /TASKS parameter, except the specified tasks will be merged with the set of tasks that would have otherwise been selected by default.' + SNewLine +
-          '/PASSWORD=password' + SNewLine +
-          'Specifies the password to use.' + SNewLine +
+          PwNote +
           PrNote +
           CustomNote +
           SNewLine +
