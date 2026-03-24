@@ -358,6 +358,8 @@ begin
           'Specifies a list of tasks that should be initially selected.' + SNewLine +
           '/MERGETASKS="comma separated list of task names"' + SNewLine +
           'Like the /TASKS parameter, except the specified tasks will be merged with the set of tasks that would have otherwise been selected by default.' + SNewLine +
+          '/LOADINF="filename", /SAVEINF="filename"' + SNewLine +
+          'Instructs Setup to load the settings from the specified file after having checked the command line, or to save them to it.' + SNewLine +
           PwNote +
           PrNote +
           CustomNote +
@@ -374,8 +376,6 @@ var
 begin
   { do not localize }
   Help := 'Additional command line parameters:' + SNewLine2 +
-          '/LOADINF="filename", /SAVEINF="filename"' + SNewLine +
-          'Instructs Setup to load the settings from the specified file after having checked the command line, or to save them to it.' + SNewLine +
           '/NOICONS' + SNewLine +
           'Instructs Setup to initially check the Don''t create a Start Menu folder check box.' + SNewLine +
           '/NOSTYLE' + SNewLine +
