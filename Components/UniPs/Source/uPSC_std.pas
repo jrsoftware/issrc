@@ -82,6 +82,4 @@ end;
 // PS_MINIVCL changes by Martijn Laan
 
 
-End.
-
-
+end.
