@@ -131,7 +131,7 @@ begin
   cl.AddConstantN('clWindowText', 'Integer').Value.ts32 := clWindowText;
   cl.AddConstantN('clCaptionText', 'Integer').Value.ts32 := clCaptionText;
   cl.AddConstantN('clActiveBorder', 'Integer').Value.ts32 := clActiveBorder;
-  cl.AddConstantN('clInactiveBorder', 'Integer').Value.ts32 := clInactiveCaption;
+  cl.AddConstantN('clInactiveBorder', 'Integer').Value.ts32 := clInactiveBorder;
   cl.AddConstantN('clAppWorkSpace', 'Integer').Value.ts32 := clAppWorkSpace;
   cl.AddConstantN('clHighlight', 'Integer').Value.ts32 := clHighlight;
   cl.AddConstantN('clHighlightText', 'Integer').Value.ts32 := clHighlightText;
@@ -244,7 +244,7 @@ begin
     RegisterProperty('Handle', 'HBITMAP', iptrw);
 {$ENDIF}
 
-    {$IFNDEF IFPS_MINIVCL}
+    {$IFNDEF PS_MINIVCL}
     RegisterMethod('procedure Dormant');
     RegisterMethod('procedure FreeImage');
 {$IFNDEF CLX}

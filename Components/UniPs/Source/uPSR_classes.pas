@@ -188,8 +188,8 @@ end;
 {$IFNDEF PS_MINIVCL}
 procedure TBITSBITS_W(Self: TBITS; T: BOOLEAN; t1: INTEGER); begin Self.BITS[t1] := T; end;
 procedure TBITSBITS_R(Self: TBITS; var T: BOOLEAN; t1: INTEGER); begin T := Self.Bits[t1]; end;
-procedure TBITSSIZE_R(Self: TBITS; T: INTEGER); begin Self.SIZE := T; end;
-procedure TBITSSIZE_W(Self: TBITS; var T: INTEGER); begin T := Self.SIZE; end;
+procedure TBITSSIZE_W(Self: TBITS; T: INTEGER); begin Self.SIZE := T; end;
+procedure TBITSSIZE_R(Self: TBITS; var T: INTEGER); begin T := Self.SIZE; end;
 
 procedure RIRegisterTBITS(Cl: TPSRuntimeClassImporter);
 begin
