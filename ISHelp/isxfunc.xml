@@ -51,8 +51,8 @@ begin
   S := CustomMessage('CreateDesktopIcon');
   // S = 'Create a &amp;desktop icon'
 
-  S := FmtMessage(CustomMessage('NameAndVersion'), ['My Program', '1.0']);
-  // S = 'My Program version 1.0'
+  S := FmtMessage(CustomMessage('UninstallProgram'), ['My Program']);
+  // S = 'Uninstall My Program'
 end;</pre></example>
       </function>
       <function>
@@ -63,8 +63,8 @@ end;</pre></example>
         <example><pre>var
   S: String;
 begin
-  S := FmtMessage('%1 version %2 will be installed.', ['My Program', '1.0']);
-  // S = 'My Program version 1.0 will be installed.'
+  S := FmtMessage('%1 %2 will be installed.', ['My Program', '1.5']);
+  // S = 'My Program 1.5 will be installed.'
 
   S := FmtMessage(SetupMessage(msgNotOnThisPlatform), ['Windows 2000']);
   // S = 'This program will not run on Windows 2000.'

@@ -62,6 +62,8 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <p>This work would <b>not</b> have been possible without the support provided through the purchase of commercial licenses. <b>Using Inno Setup commercially?</b> Please <a href="https://jrsoftware.org/isorder.php">purchase a license</a>.</p>
 
+<p>Commercial licenses include two years of updates, both major and minor. If you purchased a commercial license recently, you are all set to use Inno Setup 7 as well.</p>
+
 <span class="head2">64-bit Installers</span>
 
 <p>Set new <tt>[Setup]</tt> section directive <tt>SetupArchitecture</tt> to <tt>x64</tt> to build a 64-bit x64 installer instead of a 32-bit x86 installer. This also changes the default values of <tt>ArchitecturesAllowed</tt> and <tt>ArchitecturesInstallIn64BitMode</tt> to <tt>x64compatible</tt>, making 64-bit installers default to <link topic="32vs64bitinstalls">64-bit install mode</link>.</p>
@@ -97,7 +99,9 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
         Use new support functions <tt>ExecWithNativeSysDir</tt>, <tt>ExecAndLogOutputWithNativeSysDir</tt>, or <tt>ExecAndCaptureOutputWithNativeSysDir</tt> to launch an executable located in the 64-bit System directory from a 32-bit installer.</li>
     <li>Removed parameter <tt>DisableFsRedir</tt> from support function <tt>RegisterExtraCloseApplicationsResource</tt>. Use <tt>ApplyPathRedirRulesForCurrentProcess</tt> instead to register a 64-bit file from a 32-bit installer, or vice versa.</li>
     <li>Added support functions <tt>ApplyPathRedirRules</tt> and <tt>IsCurrentProcess64Bit</tt>.</li>
-    <li>Added types <tt>UInt64</tt>, <tt>NativeInt</tt>, <tt>NativeUInt</tt>, <tt>THandle</tt>, <tt>HWND</tt>, <tt>HDC</tt>, <tt>HBITMAP</tt>, <tt>HFONT</tt>, <tt>HKEY</tt>, <tt>HMODULE</tt>, <tt>LRESULT</tt>, <tt>WPARAM</tt>, and <tt>LPARAM</tt>.</li>
+    <li>Added types <tt>UInt64</tt>, <tt>NativeInt</tt>, <tt>NativeUInt</tt>, <tt>LONG</tt>, <tt>ULONG</tt>, <tt>LONG_PTR</tt>, <tt>ULONG_PTR</tt>, <tt>THandle</tt>, <tt>HANDLE</tt>, <tt>COLORREF</tt>, <tt>HWND</tt>, <tt>HDC</tt>, <tt>HBITMAP</tt>, <tt>HFONT</tt>, <tt>HKEY</tt>, <tt>HINSTANCE</tt>, <tt>HMODULE</tt>, <tt>LRESULT</tt>, <tt>WPARAM</tt>, <tt>LPARAM</tt>, <tt>SIZE_T</tt>, and <tt>SSIZE_T</tt>.<br/>
+        These new types complement the following similar types which were already available: <tt>Int64</tt>, <tt>DWORD_PTR</tt>, <tt>INT_PTR</tt>, and <tt>UINT_PTR</tt>.<br/>
+        <i>If your script already included a custom definition of one of the new types, you should simply remove this definition.</i></li>
   </ul>
   </li>
 </ul>
@@ -149,16 +153,18 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p>Additionally, the following changes have been made in both editions:</p>
 <ul>
   <li>The Compiler IDE has been renamed from <tt>Compil32.exe</tt> to <tt>ISIDE.exe</tt>.</li>
-  <li><tt>[Setup]</tt> section directive <tt>ArchiveExtraction</tt> can now also be set to <tt>auto</tt>, the new default, which automatically selects the appropriate method based on entries in the <tt>[Files]</tt> section.<br/>
+  <li>The <tt>[Setup]</tt> section directive <tt>AppVerName</tt> now defaults to <tt><i>AppName</i> <i>AppVersion</i></tt> (just a space separating the values) rather than <tt><i>AppName</i> version <i>AppVersion</i></tt> (localized). If you prefer to keep the word "version" (localized), use the <tt>NameAndVersion</tt> custom message: <tt>AppVerName={cm:NameAndVersion,My Program,1.5}</tt></li>
+  <li>The <tt>[Setup]</tt> section directive <tt>TimeStampsInUTC</tt> now defaults to <tt>yes</tt>.</li>
+  <li>The <tt>[Setup]</tt> section directive <tt>ArchiveExtraction</tt> can now also be set to <tt>auto</tt>, the new default, which automatically selects the appropriate method based on entries in the <tt>[Files]</tt> section.<br/>
       If it selects <tt>basic</tt> because no entry uses the <tt>extractarchive</tt> flag, but you still use support function <tt>ExtractArchive</tt> or <tt>CreateExtractionPage</tt>, you must still manually set the correct method.</li>
   <li>Pascal Scripting:
   <ul>
-    <li>Added new optional <tt>OnLog</tt> parameter to the <tt>[Run]</tt> section. When combined with the <tt>logoutput</tt> flag, it specifies the name of a procedure that is to be called for each line of the program's output instead of directly including it in the log file. See updated <i>PowerShell.iss</i> example script.</li>
+    <li>Added new optional <tt>OnLog</tt> parameter to the <tt>[Run]</tt> section. When combined with the <tt>logoutput</tt> flag, it specifies the name of a procedure that is to be called for each line of the program's output instead of directly including it in the log file. See updated <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/PowerShell.iss">PowerShell.iss</a></i> example script.</li>
     <li>Support function <tt>Chr</tt> now correctly accepts ordinal values greater than 255.</li>
     <li>Support function <tt>FloatToStr</tt> no longer outputs unnecessary trailing zeros.</li>
     <li>Using <tt>Exit</tt> within a <tt>try..finally</tt> block now works correctly when the <tt>finally</tt> block contains function calls.</li>
     <li>Multiple statements in the <tt>else</tt> block of a <tt>case</tt> statement now no longer require using <tt>begin</tt>/<tt>end</tt>.</li>
-    <li>It's now possible to specify the <tt>safecall</tt> calling convention in interfaces, simplifying method declarations and eliminating the need to call <tt>OleCheck</tt> manually. See updated <i>CodeAutomation2.iss</i> example script.</li>
+    <li>It's now possible to specify the <tt>safecall</tt> calling convention in interfaces, simplifying method declarations and eliminating the need to call <tt>OleCheck</tt> manually. See updated <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeAutomation2.iss">CodeAutomation2.iss</a></i> example script.</li>
     <li>Fixed a runtime type mismatch when assigning between open and dynamic arrays.</li>
   </ul>
   </li>
@@ -168,8 +174,9 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Documented the difference between <tt>GetFileVersionString</tt> and <tt>GetVersionNumbersString</tt>.</li>
   </ul>
   </li>
+  <li>Split the help text shown by the <tt>/HELP</tt> command line parameter across two message boxes for easier reading.</li>
   <li>The Inno Setup source code now contains SPDX SBOM metadata.</li>
-  <li>Updated the 7-Zip and LZMA SDK source code used by Inno Setup to the latest versions.</li>
+  <li>Updated the 7-Zip, LZMA SDK, and Scintilla source code used by Inno Setup to the latest versions.</li>
   <li>Other minor improvements.</li>
 </ul>
 

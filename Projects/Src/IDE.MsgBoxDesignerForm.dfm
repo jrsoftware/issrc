@@ -96,7 +96,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 5
   end
-  object GroupBox1: TGroupBox
+  object GroupBox1: TNewGroupBox
     Left = 8
     Top = 8
     Width = 546
@@ -118,7 +118,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       OnKeyPress = MSGTextKeyPress
     end
   end
-  object GroupBox6: TGroupBox
+  object GroupBox6: TNewGroupBox
     Left = 8
     Top = 93
     Width = 240
@@ -156,7 +156,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       OnClick = cb_TaskDialogMsgBoxClick
     end
   end
-  object GroupBox5: TGroupBox
+  object GroupBox5: TNewGroupBox
     Left = 254
     Top = 93
     Width = 300
@@ -204,7 +204,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       TabOrder = 2
     end
   end
-  object GroupBox2: TGroupBox
+  object GroupBox2: TNewGroupBox
     Left = 8
     Top = 157
     Width = 165
@@ -281,7 +281,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       TabStop = True
     end
   end
-  object GroupBox3: TGroupBox
+  object GroupBox3: TNewGroupBox
     Left = 179
     Top = 157
     Width = 182
@@ -360,7 +360,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       OnClick = rbMB_ABORTRETRYIGNOREClick
     end
   end
-  object GroupBox4: TGroupBox
+  object GroupBox4: TNewGroupBox
     Left = 367
     Top = 158
     Width = 187

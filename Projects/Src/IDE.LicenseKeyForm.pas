@@ -2,7 +2,7 @@ unit IDE.LicenseKeyForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,12 +12,12 @@ unit IDE.LicenseKeyForm;
 interface
 
 uses
-  Classes, Controls, StdCtrls, UIStateForm;
+  Classes, Controls, StdCtrls, UIStateForm, NewGroupBox;
 
 type
   TLicenseKeyForm = class(TUIStateForm)
     CancelButton: TButton;
-    GroupBox1: TGroupBox;
+    GroupBox1: TNewGroupBox;
     LicenseKeyMemo: TMemo;
     procedure FormCreate(Sender: TObject);
     procedure LicenseKeyMemoChange(Sender: TObject);

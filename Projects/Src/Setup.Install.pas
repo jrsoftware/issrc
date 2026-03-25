@@ -380,7 +380,7 @@ type
     mdNotifyChange);
 
 function MakeDir(const UninstLog: TUninstallLog; Dir: String;
-  const Flags: TMakeDirFlags = []): Boolean;
+  const Flags: TMakeDirFlags = []; const RecursionDepth: Cardinal = 0): Boolean;
 { Returns True if a new directory was created. Also see ForceDirectories
   for similar code (but different return value). }
 var
@@ -397,7 +397,10 @@ begin
       Exit;
   end
   else begin
-    MakeDir(UninstLog, PathExtractDir(Dir), Flags - [mdAlwaysUninstall]);
+    if RecursionDepth >= 50 then
+      InternalError('MakeDir: Path requires more than 50 directory components to be created');
+    MakeDir(UninstLog, PathExtractDir(Dir), Flags - [mdAlwaysUninstall],
+      RecursionDepth + 1);
     LogFmt('Creating directory: %s', [Dir]);
     if not CreateDirectory(PChar(Dir), nil) then begin
       ErrorCode := GetLastError;

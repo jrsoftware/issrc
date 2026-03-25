@@ -2,7 +2,7 @@ unit IDE.MainForm.UpdateMenuHelper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -47,7 +47,7 @@ uses
   SysUtils, Generics.Collections, VirtualImageList, ComCtrls,
   PathFunc,
   Shared.LicenseFunc,
-  IDE.HelperFunc, IDE.IDEScintEdit;
+  IDE.HelperFunc, IDE.IDEScintEdit, IDE.Messages;
 
 procedure TMainFormUpdateMenuHelper._UpdateMenuBitmapsIfNeeded;
 
@@ -295,11 +295,11 @@ end;
 procedure TMainFormUpdateMenuHelper.UpdateNewMainFileButtons;
 begin
   if FOptions.UseWizard then begin
-    FNewMainFile.Caption := '&New...';
+    FNewMainFile.Caption := SMenuNewWithWizard;
     FNewMainFile.OnClick := FNewMainFileUserWizardClick;
     NewMainFileButton.OnClick := FNewMainFileUserWizardClick;
   end else begin
-    FNewMainFile.Caption := '&New';
+    FNewMainFile.Caption := SMenuNew;
     FNewMainFile.OnClick := FNewMainFileClick;
     NewMainFileButton.OnClick := FNewMainFileClick;
   end;

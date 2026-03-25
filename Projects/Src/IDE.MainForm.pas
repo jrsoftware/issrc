@@ -1539,15 +1539,15 @@ begin
       NewCaption := GetDisplayFilename(FMainMemo.Filename);
   end;
   NewCaption := NewCaption + ' '#$2013' ' + SCompilerFormCaption + ' ' +
-    String(FCompilerVersion.Version) {$IFNDEF WIN64} + ' (32-bit)' {$ENDIF} +
+    String(FCompilerVersion.Version) {$IFNDEF WIN64} + ' ' + SCompilerCaption32Bit {$ENDIF} +
     ' '#$2013' ' + GetLicenseeDescription;
   if FCompiling then
-    NewCaption := NewCaption + '  [Compiling]'
+    NewCaption := NewCaption + ' '#$2013' ' + SCompilerCaptionCompiling
   else if FDebugging then begin
     if not FPaused then
-      NewCaption := NewCaption + '  [Running]'
+      NewCaption := NewCaption + ' '#$2013' ' + SCompilerCaptionRunning
     else
-      NewCaption := NewCaption + '  [Paused]';
+      NewCaption := NewCaption + ' '#$2013' ' + SCompilerCaptionPaused;
   end;
   Caption := NewCaption;
   if not CommandLineWizard then
@@ -1725,7 +1725,7 @@ begin
       FMainMemo.ClearUndo;
       if WizardForm.Result = wrComplete then begin
         FMainMemo.ForceModifiedState;
-        if MsgBox('Would you like to compile the new script now?', SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
+        if MsgBox(SWizardCompileNewScriptPrompt, SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
           BCompileClick(Self);
       end;
     end;
@@ -1879,7 +1879,7 @@ begin
     OpenFile(FMainMemo, AFilename, True);
   except
     Application.HandleException(Self);
-    if MsgBoxFmt('There was an error opening the file. Remove it from the list?',
+    if MsgBoxFmt(SCompilerOpenFileErrorRemoveFromMRU,
        [AFilename], SCompilerFormCaption, mbError, MB_YESNO) = IDYES then begin
       ModifyMRUMainFilesList(AFilename, False);
       DeleteBreakPointLines(AFilename);
@@ -1899,7 +1899,7 @@ function TMainForm.SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolea
       way, if the system crashes or the disk runs out of space during the save,
       the existing file will still be intact. }
     if GetTempFileName(PChar(PathExtractDir(FN)), 'iss', 0, Buf) = 0 then
-      raise Exception.CreateFmt('Error creating file (code %d). Could not save file',
+      raise Exception.CreateFmt(SCompilerSaveErrorCreateFile,
         [GetLastError]);
     TempFN := Buf;
     try
@@ -1910,12 +1910,12 @@ function TMainForm.SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolea
         BackupFN := PathChangeExt(FN, '.~is');
         DeleteFile(BackupFN);
         if not RenameFile(FN, BackupFN) then
-          raise Exception.Create('Error creating backup file. Could not save file');
+          raise Exception.Create(SCompilerSaveErrorCreateBackup);
       end;
 
       { Delete existing file }
       if not DeleteFile(FN) and (GetLastError <> ERROR_FILE_NOT_FOUND) then
-        raise Exception.CreateFmt('Error removing existing file (code %d). Could not save file',
+        raise Exception.CreateFmt(SCompilerSaveErrorRemoveExisting,
           [GetLastError]);
     except
       DeleteFile(TempFN);
@@ -1926,7 +1926,7 @@ function TMainForm.SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolea
       existing file, and don't want the temp file also deleted in the unlikely
       event that the rename fails. }
     if not RenameFile(TempFN, FN) then
-      raise Exception.CreateFmt('Error renaming temporary file (code %d). Could not save file',
+      raise Exception.CreateFmt(SCompilerSaveErrorRenameTemp,
         [GetLastError]);
     GetLastWriteTimeOfFile(FN, @AMemo.FileLastWriteTime);
   end;
@@ -1973,8 +1973,8 @@ function TMainForm.ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
     Result := True;
     if AMemo.Modified then begin
       FileTitle := GetFileTitle(AMemo.Filename);
-      case MsgBox('The text in the ' + FileTitle + ' file has changed.'#13#10#13#10 +
-         'Do you want to save the changes?', SCompilerFormCaption, mbError,
+      case MsgBox(Format(SCompilerFileChangedSavePrompt, [FileTitle]),
+         SCompilerFormCaption, mbError,
          MB_YESNOCANCEL) of
         IDYES: Result := SaveFile(AMemo, False);
         IDNO: ;
@@ -1988,7 +1988,7 @@ var
   Memo: TIDEScintFileEdit;
 begin
   if FCompiling then begin
-    MsgBox('Please stop the compile process before performing this command.',
+    MsgBox(SCompilerStopCompileBeforeCommand,
       SCompilerFormCaption, mbError, MB_OK);
     Result := False;
     Exit;
@@ -2025,7 +2025,7 @@ procedure TMainForm.DebugShowCallStack(const CallStack: String; const CallStackC
 begin
   DebugCallStackList.Clear;
   AddLines(DebugCallStackList, CallStack, nil, True, alpCountdown, Integer(FCallStackCount-1));
-  DebugCallStackList.Items.Insert(0, '*** [Code] Call Stack');
+  DebugCallStackList.Items.Insert(0, Format(SDebugCodeCallStack, ['Code']));
   DebugCallStackList.Update;
 end;
 
@@ -2225,7 +2225,7 @@ var
 begin
   if FCompiling then begin
     { Shouldn't get here, but just in case... }
-    MsgBox('A compile is already in progress.', SCompilerFormCaption, mbError, MB_OK);
+    MsgBox(SCompilerCompileAlreadyInProgress, SCompilerFormCaption, mbError, MB_OK);
     Abort;
   end;
 
@@ -2238,8 +2238,8 @@ begin
             if not SaveFile(Memo, False) then
               Abort;
           end else begin
-            case MsgBox('The text in the ' + Memo.Filename + ' file has changed and must be saved before compiling.'#13#10#13#10 +
-               'Save the changes and continue?', SCompilerFormCaption, mbError,
+            case MsgBox(Format(SCompilerIncludedFileChangedSavePrompt, [Memo.Filename]),
+               SCompilerFormCaption, mbError,
                MB_YESNO) of
               IDYES:
                 if not SaveFile(Memo, False) then
@@ -2256,9 +2256,7 @@ begin
       if not SaveFile(FMainMemo, False) then
         Abort;
     end else if FMainMemo.Filename = '' then begin
-      case MsgBox('Would you like to save the script before compiling?' +
-         SNewLine2 + 'If you answer No, the compiled installation will be ' +
-         'placed under your My Documents folder by default.',
+      case MsgBox(SCompilerSaveScriptBeforeCompile,
          SCompilerFormCaption, mbConfirmation, MB_YESNOCANCEL) of
         IDYES:
           if not SaveFile(FMainMemo, False) then
@@ -2351,12 +2349,12 @@ begin
       if not AppData.Aborted then begin
         S := '';
         if AppData.ErrorFilename <> '' then
-          S := 'File: ' + AppData.ErrorFilename + SNewLine2;
+          S := Format(SCompilerErrorFilePrefix, [AppData.ErrorFilename]) + SNewLine2;
         if AppData.ErrorLine > 0 then
-          S := S + Format('Line %d:' + SNewLine, [AppData.ErrorLine]);
+          S := S + Format(SCompilerErrorLinePrefix, [AppData.ErrorLine]) + SNewLine;
         S := S + AppData.ErrorMsg;
         SetAppTaskbarProgressState(tpsError);
-        MsgBox(S, 'Compiler Error', mbCriticalError, MB_OK)
+        MsgBox(S, SCompilerErrorTitle, mbCriticalError, MB_OK)
       end;
       Abort;
     end;
@@ -2472,7 +2470,7 @@ begin
       if FOptions.OpenIncludedFiles then begin
         for var IncludedFile in FIncludedFiles do begin
           if PathSame(IncludedFile.Filename, Filename) and
-             (MsgBox('The selected file is an #include file. Go to its tab instead of opening it as the new main file?',
+             (MsgBox(SCompilerIncludedFileOpenAsTab,
                 SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES) then begin
             if IncludedFile.Memo <> nil then begin
               const HiddenFileIndex = FHiddenFiles.IndexOf(Filename);
@@ -2482,7 +2480,7 @@ begin
                 MemosTabSet.TabIndex := MemoToTabIndex(IncludedFile.Memo);
               Exit;
             end else { We know about this file but it has no memo because MaxMemos was reached (or there was some error loading the file) }
-              if MsgBox('The selected file is not available as a tab. Opening as the new main file instead.',
+              if MsgBox(SCompilerIncludedFileNotAvailableAsTab,
                    SCompilerFormCaption, mbError, MB_OKCANCEL) = IDCANCEL then
                 Exit;
           end;
@@ -2740,7 +2738,7 @@ begin
       DeleteDC(hdc);
       DeleteObject(fontHeader);
       DeleteObject(fontFooter);
-      MsgBox('Can not start printer document.', SCompilerFormCaption, mbError, MB_OK);
+      MsgBox(SCompilerPrinterDocumentStartError, SCompilerFormCaption, mbError, MB_OK);
       Exit;
     end;
 
@@ -2836,7 +2834,7 @@ end;
 
 procedure TMainForm.FClearRecentClick(Sender: TObject);
 begin
-  if MsgBox('Are you sure you want to clear the list of recently opened files?',
+  if MsgBox(SCompilerClearRecentFilesConfirm,
     SCompilerFormCaption, mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then
       ClearMRUMainFilesList;
 end;
@@ -3146,7 +3144,7 @@ procedure TMainForm.BStopCompileClick(Sender: TObject);
 begin
   SetAppTaskbarProgressState(tpsPaused);
   try
-    if MsgBox('Are you sure you want to abort the compile?', SCompilerFormCaption,
+    if MsgBox(SCompilerAbortCompileConfirm, SCompilerFormCaption,
        mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then
       FCompileWantAbort := True;
   finally
@@ -3176,7 +3174,7 @@ end;
 procedure TMainForm.HPurchaseClick(Sender: TObject);
 begin
   if IsLicensed then
-    if MsgBox('Do you want to copy your current license key to the clipboard before opening our order page? You will need it to be able to renew it.',
+    if MsgBox(SCompilerCopyLicenseKeyBeforePurchase,
        SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
       ClipBoard.AsText := GetChunkedLicenseKey;
   LaunchFileOrURL('https://jrsoftware.org/isorder.php');
@@ -3191,9 +3189,8 @@ begin
       WriteLicense;
       UpdateCaption;
 
-      MsgBox('New commercial license key has been registered:' + SNewLine2 +
-        GetLicenseDescription('', SNewLine2) + SNewLine2 +
-        'Thanks for your support!', SCompilerFormCaption, mbInformation, MB_OK);
+      MsgBox(Format(SCompilerLicenseRegisterSuccess, [GetLicenseDescription('', SNewLine2)]),
+        SCompilerFormCaption, mbInformation, MB_OK);
     end;
   finally
     LicenseKeyForm.Free;
@@ -3202,7 +3199,7 @@ end;
 
 procedure TMainForm.HUnregisterClick(Sender: TObject);
 begin
-  if MsgBox('Are you sure you want to remove your commercial license key and revert to non-commercial use only?',
+  if MsgBox(SCompilerRemoveLicenseConfirm,
     SCompilerFormCaption, mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then begin
 
     RemoveLicense;
@@ -3216,7 +3213,7 @@ begin
       Ini.Free;
     end;
  
-    MsgBox('Commercial license key has been removed.', SCompilerFormCaption, mbInformation, MB_OK);
+    MsgBox(SCompilerLicenseKeyRemoved, SCompilerFormCaption, mbInformation, MB_OK);
   end;
 end;
 
@@ -4248,7 +4245,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
           Inc(NextMemoIndex);
         except on E: Exception do
           begin
-            StatusMessage(smkWarning, 'Failed to open included file: ' + E.Message);
+            StatusMessage(smkWarning, Format(SCompilerStatusFailedToOpenIncludedFile, [E.Message]));
             IncludedFile.Memo := nil;
           end;
         end;
@@ -4815,10 +4812,10 @@ begin
       var HintStr := FActiveMemo.GetTextRange(ConstRange.StartPos, ConstRange.EndPos);
       var Output: String;
       case EvaluateConstant(Info.HintStr, Output) of
-        1: HintStr := HintStr + ' = "' + Output + '"';
-        2: HintStr := HintStr + ' = Exception: ' + Output;
+        1: HintStr := Format(SEvaluateHintSuccess, [HintStr, Output]);
+        2: HintStr := Format(SEvaluateHintException, [HintStr, Output]);
       else
-        HintStr := HintStr + ' = Unknown error';
+        HintStr := Format(SEvaluateHintUnknownError, [HintStr]);
       end;
       UpdateInfo(Info, HintStr, ConstRange, FActiveMemo);
     end;
@@ -5034,12 +5031,12 @@ begin
 
     ReplyMessage(Message.Result);  { so that Setup enters a paused state now }
     if LineNumber >= 0 then begin
-      S := Format('Line %d:' + SNewLine + '%s', [LineNumber + 1, AddPeriod(FDebuggerException)]);
+      S := Format(SRuntimeErrorLine, [LineNumber + 1, AddPeriod(FDebuggerException)]);
       if (Memo <> nil) and (Memo.Filename <> '') then
         S := Memo.Filename + SNewLine2 + S;
-      MsgBox(S, 'Runtime Error', mbCriticalError, mb_Ok)
+      MsgBox(S, SRuntimeErrorTitle, mbCriticalError, mb_Ok)
     end else
-      MsgBox(AddPeriod(FDebuggerException), 'Runtime Error', mbCriticalError, mb_Ok);
+      MsgBox(AddPeriod(FDebuggerException), SRuntimeErrorTitle, mbCriticalError, mb_Ok);
   end;
 end;
 
@@ -5277,17 +5274,17 @@ procedure TMainForm.DebuggingStopped(const WaitForTermination: Boolean);
             { If the high bit is set, the process was killed uncleanly (e.g.
               by a debugger). Show the exit code as hex in that case. }
             if ExitCode and $80000000 <> 0 then
-              Result := Format(DebugTargetStrings[FDebugTarget] + ' exit code: 0x%.8x', [ExitCode])
+              Result := Format(SDebugExitCodeHex, [DebugTargetStrings[FDebugTarget], ExitCode])
             else
-              Result := Format(DebugTargetStrings[FDebugTarget] + ' exit code: %u', [ExitCode]);
+              Result := Format(SDebugExitCodeDecimal, [DebugTargetStrings[FDebugTarget], ExitCode]);
           end
           else
-            Result := 'Unable to get ' + DebugTargetStrings[FDebugTarget] + ' exit code (GetExitCodeProcess failed)';
+            Result := Format(SDebugExitCodeGetFailed, [DebugTargetStrings[FDebugTarget], 'GetExitCodeProcess']);
         end;
       WAIT_TIMEOUT:
-        Result := DebugTargetStrings[FDebugTarget] + ' is still running; can''t get exit code';
+        Result := Format(SDebugExitCodeStillRunning, [DebugTargetStrings[FDebugTarget]]);
     else
-      Result := 'Unable to get ' + DebugTargetStrings[FDebugTarget] +  ' exit code (WaitForSingleObject failed)';
+      Result := Format(SDebugExitCodeWaitFailed, [DebugTargetStrings[FDebugTarget], 'WaitForSingleObject']);
     end;
   end;
 
@@ -5314,7 +5311,7 @@ begin
   SetStepLine(FStepMemo, -1);
   UpdateRunMenu;
   UpdateCaption;
-  DebugLogMessage('*** ' + ExitCodeText);
+  DebugLogMessage(Format(SDebugExitCodeText, [ExitCodeText]));
   StatusBar.Panels[spExtraStatus].Text := ' ' + ExitCodeText;
 end;
 
@@ -5329,10 +5326,10 @@ end;
 function TMainForm.AskToDetachDebugger: Boolean;
 begin
   if FDebugClientWnd = 0 then begin
-    MsgBox('Please stop the running ' + DebugTargetStrings[FDebugTarget] +  ' process before performing this command.',
+    MsgBox(Format(SCompilerStopDebugTargetBeforeCommand, [DebugTargetStrings[FDebugTarget]]),
       SCompilerFormCaption, mbError, MB_OK);
     Result := False;
-  end else if MsgBox('This command will detach the debugger from the running ' + DebugTargetStrings[FDebugTarget] + ' process. Continue?',
+  end else if MsgBox(Format(SCompilerDetachDebuggerConfirm, [DebugTargetStrings[FDebugTarget]]),
      SCompilerFormCaption, mbError, MB_OKCANCEL) = IDOK then begin
     DetachDebugger;
     Result := True;
@@ -5450,7 +5447,7 @@ procedure TMainForm.UpdateTheme;
 begin
   FTheme.Typ := FOptions.ThemeType;
 
-  {$IF CompilerVersion >= 36.0 }
+  {$IF RtlVersion >= 36.0 }
   { For MainForm the active style only impacts message boxes and tooltips: FMemos, ToolbarPanel,
     UpdatePanel, SplitPanel and the 4 ListBoxes all ignore it because their StyleName property is set
     to 'Windows' always, either by the .dfm or by code. Additionally, for scrollbars and StatusBar,
@@ -5581,8 +5578,7 @@ begin
 
   { Display warning if the user modified the script while running - does not support unopened included files  }
   if FDebugging and FModifiedAnySinceLastCompileAndGo then begin
-    if MsgBox('The changes you made will not take effect until you ' +
-       're-compile.' + SNewLine2 + 'Continue running anyway?',
+    if MsgBox(SCompilerModifiedWhileRunningWarning,
        SCompilerFormCaption, mbError, MB_YESNO) <> IDYES then
       Abort;
     FModifiedAnySinceLastCompileAndGo := False;
@@ -5675,7 +5671,7 @@ procedure TMainForm.Go(const AStepMode: TStepMode);
     CheckIfTerminatedTimer.Enabled := True;
     UpdateRunMenu;
     UpdateCaption;
-    DebugLogMessage('*** ' + DebugTargetStrings[FDebugTarget] + ' started');
+    DebugLogMessage(Format(SDebugTargetStarted, [DebugTargetStrings[FDebugTarget]]));
   end;
 
   procedure ContinueProcessIfPaused(const AStepMode: TStepMode);
@@ -5749,7 +5745,7 @@ begin
       UpdateCaption;
     end
     else
-      MsgBox('A pause is already pending.', SCompilerFormCaption, mbError,
+      MsgBox(SCompilerPauseAlreadyPending, SCompilerFormCaption, mbError,
         MB_OK);
   end;
 end;
@@ -5775,7 +5771,7 @@ procedure TMainForm.RRunToCursorClick(Sender: TObject);
 begin
   CompileIfNecessary;
   if not GetDebugEntryFromMemoAndLineNumber((FActiveMemo as TIDEScintFileEdit), FActiveMemo.CaretLine, FRunToCursorPoint) then begin
-    MsgBox('No code was generated for the current line.', SCompilerFormCaption,
+    MsgBox(SCompilerNoCodeGeneratedForLine, SCompilerFormCaption,
       mbError, MB_OK);
     Exit;
   end;
@@ -5804,30 +5800,27 @@ procedure TMainForm.RTerminateClick(Sender: TObject);
 var
   S, Dir: String;
 begin
-  S := 'This will unconditionally terminate the running ' +
-       DebugTargetStrings[FDebugTarget] + ' process. Continue?';
+  S := Format(SCompilerTerminateProcessConfirm, [DebugTargetStrings[FDebugTarget]]);
 
   if FDebugTarget = dtSetup then
-    S := S + #13#10#13#10'Note that if ' + DebugTargetStrings[FDebugTarget] + ' ' +
-         'is currently in the installation phase, any changes made to the ' +
-         'system thus far will not be undone, nor will uninstall data be written.';
+    S := S + SNewLine2 + Format(SCompilerTerminateProcessSetupNote, [DebugTargetStrings[FDebugTarget]]);
 
-  if MsgBox(S, 'Terminate', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDYES then
+  if MsgBox(S, SCompilerTerminateTitle, mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDYES then
     Exit;
   CheckIfTerminated;
   if FDebugging then begin
-    DebugLogMessage('*** Terminating process');
+    DebugLogMessage(SDebugTerminatingProcess);
     Win32Check(TerminateProcess(FDebugClientProcessHandle, 6));
     if (WaitForSingleObject(FDebugClientProcessHandle, 5000) <> WAIT_TIMEOUT) and
        (FTempDir <> '') then begin
       Dir := FTempDir;
       FTempDir := '';
-      DebugLogMessage('*** Removing left-over temporary directory: ' + Dir);
+      DebugLogMessage(Format(SDebugRemovingTempDir, [Dir]));
       { Sleep for a bit to allow files to be unlocked by Windows,
         otherwise it fails intermittently (with Hyper-Threading, at least) }
       Sleep(50);
       if not DeleteDirTree(Dir) and DirExists(Dir) then
-        DebugLogMessage('*** Failed to remove temporary directory');
+        DebugLogMessage(SDebugFailedToRemoveTempDir);
     end;
     DebuggingStopped(True);
   end;
@@ -5837,13 +5830,13 @@ procedure TMainForm.REvaluateClick(Sender: TObject);
 var
   Output: String;
 begin
-  if InputQuery('Evaluate', 'Constant to evaluate (e.g., "{app}"):',
+  if InputQuery(SEvaluateTitle, Format(SEvaluatePrompt, ['{app}']),
      FLastEvaluateConstantText) then begin
     case EvaluateConstant(FLastEvaluateConstantText, Output) of
-      1: MsgBox(Output, 'Evaluate Result', mbInformation, MB_OK);
-      2: MsgBox(Output, 'Evaluate Error', mbError, MB_OK);
+      1: MsgBox(Output, SEvaluateResultTitle, mbInformation, MB_OK);
+      2: MsgBox(Output, SEvaluateErrorTitle, mbError, MB_OK);
     else
-      MsgBox('An unknown error occurred.', 'Evaluate Error', mbError, MB_OK);
+      MsgBox(SEvaluateUnknownError, SEvaluateErrorTitle, mbError, MB_OK);
     end;
   end;
 end;
@@ -5979,7 +5972,7 @@ var
   L: Integer;
 begin
   S := IntToStr(FActiveMemo.CaretLine + 1);
-  if InputQuery('Go to Line', 'Line number:', S) then begin
+  if InputQuery(SGotoLineTitle, SGotoLinePrompt, S) then begin
     L := StrToIntDef(S, Low(L));
     if L <> Low(L) then
       FActiveMemo.CaretLine := L - 1;
@@ -6227,11 +6220,8 @@ end;
 procedure TMainForm.AppOnActivate(Sender: TObject);
 const
   ReloadMessages: array[Boolean] of String = (
-    'The %s file has been modified outside of the source editor.' + SNewLine2 +
-      'Do you want to reload the file?',
-    'The %s file has been modified outside of the source editor. Changes have ' +
-      'also been made in the source editor.' + SNewLine2 + 'Do you want to ' +
-      'reload the file and lose the changes made in the source editor?');
+    SCompilerFileModifiedReload,
+    SCompilerFileModifiedReloadChanged);
 var
   Memo: TIDEScintFileEdit;
   NewTime: TFileTime;
@@ -6265,8 +6255,7 @@ begin
       else begin
         { When a modal dialog is up, don't offer to reload the file. Probably
           not a good idea since the dialog might be manipulating the file. }
-        MsgBox('The ' + Memo.Filename + ' file has been modified outside ' +
-          'of the source editor. You might want to reload it.',
+        MsgBox(Format(SCompilerFileModifiedOutside, [Memo.Filename]),
           SCompilerFormCaption, mbInformation, MB_OK);
       end;
     end;
@@ -6350,7 +6339,7 @@ begin
           Exit;
         end;
       end;
-      MsgBox('File not opened.', SCompilerFormCaption, mbError, MB_OK);
+      MsgBox(SCompilerFileNotOpened, SCompilerFormCaption, mbError, MB_OK);
     end;
   end;
 end;

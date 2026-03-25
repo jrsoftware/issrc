@@ -18,14 +18,13 @@ object LicenseKeyForm: TLicenseKeyForm
     303
     200)
   TextHeight = 13
-  object GroupBox1: TGroupBox
+  object GroupBox1: TNewGroupBox
     Left = 8
     Top = 8
     Width = 287
     Height = 154
     Anchors = [akLeft, akTop, akRight, akBottom]
     Caption = 'Paste your license key below'
-    ShowFrame = False
     TabOrder = 0
     DesignSize = (
       287

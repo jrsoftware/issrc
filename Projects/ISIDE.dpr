@@ -2,7 +2,7 @@ program ISIDE;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -45,6 +45,7 @@ uses
   IDE.IDEScintEdit in 'Src\IDE.IDEScintEdit.pas',
   IDE.FilesDesignerForm in 'Src\IDE.FilesDesignerForm.pas' {FilesDesignerForm},
   IDE.Wizard.WizardFormFilesHelper in 'Src\IDE.Wizard.WizardFormFilesHelper.pas',
+  NewGroupBox in '..\Components\NewGroupBox.pas',
   NewTabSet in '..\Components\NewTabSet.pas',
   NewStaticText in '..\Components\NewStaticText.pas',
   BidiUtils in '..\Components\BidiUtils.pas',

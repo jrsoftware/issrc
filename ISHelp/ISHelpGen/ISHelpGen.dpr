@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.31';
+  Version = '1.32';
 
   XMLFileVersion = '1';
 
@@ -81,7 +81,6 @@ var
   Keywords, DefinedTopics, TargetTopics, SetupDirectives: TStringList;
   TopicsGenerated: Integer = 0;
   CurrentTopicName: String;
-  CurrentListIsCompact: Boolean;
 
 procedure UnexpectedElementError(const Node: IXMLNode);
 begin
@@ -311,7 +310,6 @@ end;
 function ParseFormattedText(Node: IXMLNode): String;
 var
   S: String;
-  B: Boolean;
 begin
   Result := '';
   Node := Node.FirstChild;
@@ -369,12 +367,7 @@ begin
       elIndent:
         Result := Result + '<div class="indent">' + ParseFormattedText(Node) + '</div>';
       elLI:
-        begin
-          Result := Result + '<li';
-          if CurrentListIsCompact then
-            Result := Result + ' class="compact"';
-          Result := Result + '>' + ParseFormattedText(Node) + '</li>';
-        end;
+        Result := Result + '<li>' + ParseFormattedText(Node) + '</li>';
       elLink:
         begin
           S := Node.Attributes['topic'];
@@ -466,10 +459,10 @@ begin
         Result := Result + '<u>' + ParseFormattedText(Node) + '</u>';
       elUL:
         begin
-          B := CurrentListIsCompact;
-          CurrentListIsCompact := (Node.HasAttribute('appearance') and (Node.Attributes['appearance'] = 'compact'));
-          Result := Result + '<ul>' + ParseFormattedText(Node) + '</ul>';
-          CurrentListIsCompact := B;
+          Result := Result + '<ul';
+          if Node.OptionalAttributes['appearance'] = 'compact' then
+            Result := Result + ' class="compact"';
+          Result := Result + '>' + ParseFormattedText(Node) + '</ul>';
         end;
     else
       UnexpectedElementError(Node);

@@ -127,7 +127,7 @@ constructor TNewStaticText.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   ControlStyle := [csCaptureMouse, csClickEvents, csSetCaption,
-    csReplicatable, csDoubleClicks, csGestures {$IF CompilerVersion >= 35.0}, csNeedsDesignDisabledState{$ENDIF}];
+    csReplicatable, csDoubleClicks, csGestures {$IF RtlVersion >= 35.0}, csNeedsDesignDisabledState{$ENDIF}];
   {$IFNDEF TRANSPARENCYSUPPORT}
   ControlStyle := ControlStyle + [csOpaque];
   FTransparent := True;  { Even though Transparent is ignored, we still want it to work as if it isn't at design time }

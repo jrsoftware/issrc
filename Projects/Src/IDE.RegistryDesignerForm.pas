@@ -2,7 +2,7 @@ unit IDE.RegistryDesignerForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -52,17 +52,17 @@ implementation
 {$R *.dfm}
 
 uses
-  IDE.HelperFunc;
+  IDE.HelperFunc, IDE.Messages;
 
 procedure TRegistryDesignerForm.SetPrivilegesRequired(
   const Value: TPrivilegesRequired);
 begin
   if Value = prAdmin then
-    PrivilegesRequiredLabel.Caption := 'Script has PrivilegesRequired=admin'
+    PrivilegesRequiredLabel.Caption := Format(SRegistryDesignerScriptHas, ['PrivilegesRequired=admin'])
   else if Value = prLowest then
-    PrivilegesRequiredLabel.Caption := 'Script has PrivilegesRequired=lowest'
+    PrivilegesRequiredLabel.Caption := Format(SRegistryDesignerScriptHas, ['PrivilegesRequired=lowest'])
   else
-    PrivilegesRequiredLabel.Caption := 'Script has PrivilegesRequiredOverridesAllowed set';
+    PrivilegesRequiredLabel.Caption := Format(SRegistryDesignerScriptHasSet, ['PrivilegesRequiredOverridesAllowed']);
   FRegistryHelper.PrivilegesRequired := Value;
 end;
 

@@ -17,8 +17,6 @@ Getting Started
     ```
     > git clone https://github.com/jrsoftware/issrc.git issrc
     > cd issrc
-    > git submodule init
-    > git submodule update
     ```
 
     If you don't have the Git client (`git`), get it from:
@@ -28,7 +26,6 @@ Getting Started
     To update your sources from the command line do:
     ```
     > git pull
-    > git submodule update
     ```
 
     To be able to contribute to Inno Setup, clone your own fork instead of
@@ -102,6 +99,7 @@ If you intend to view or modify the ISIDE project's forms, you must
 additionally install the following components.
 
 - DropListBox
+- NewGroupBox
 - NewTabSet
 
 The [Components] directory contains a Components.dpk file which you can use to
@@ -310,6 +308,14 @@ cd /d "%BDSCOMMONDIR%"
   Styles\Windows11_Polar_Dark.vsf ^
   Styles\Windows11_Polar_Light.vsf ^
   Styles\Zircon.vsf
+```
+
+When using Delphi 13.1 or newer, also run:
+```
+cd /d "%BDS%"
+"%ProgramFiles%\7-Zip\7z.exe" a -mx9 -mem=AES256 -p"<password>" ^
+  %USERPROFILE%\issrc-build-env.zip ^
+  bin64\cgrc.exe bin64\resinator.exe
 ```
 
 Then, upload this encrypted file somewhere public. After that, add its URL as a new repository

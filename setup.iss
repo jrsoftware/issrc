@@ -48,7 +48,6 @@ SolidCompression=yes
 UninstallDisplayIcon={app}\ISIDE.exe
 UsePreviousLanguage=no
 LicenseFile=license.txt
-TimeStampsInUTC=yes
 TouchDate=none
 TouchTime=00:00
 #ifdef SIGNTOOL

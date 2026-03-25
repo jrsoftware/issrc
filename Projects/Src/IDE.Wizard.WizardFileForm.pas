@@ -2,7 +2,7 @@ unit IDE.Wizard.WizardFileForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewStaticText;
+  UIStateForm, StdCtrls, ExtCtrls, NewGroupBox, NewStaticText;
 
 type
   TWizardFileOption = (foDownload, foExtractArchive, foRecurseSubDirs,  foCreateAllSubDirs);
@@ -34,7 +34,7 @@ type
   TWizardFileForm = class(TUIStateForm)
     OKButton: TButton;
     CancelButton: TButton;
-    GroupBox2: TGroupBox;
+    GroupBox2: TNewGroupBox;
     DestRootDirComboBox: TComboBox;
     DestRootDirEdit: TEdit;
     DestRootDirLabel: TNewStaticText;
@@ -42,7 +42,7 @@ type
     DestSubDirLabel: TNewStaticText;
     RequiredLabel1: TNewStaticText;
     RequiredLabel2: TNewStaticText;
-    GroupBox1: TGroupBox;
+    GroupBox1: TNewGroupBox;
     SourceLabel: TNewStaticText;
     SourceEdit: TEdit;
     RecurseSubDirsCheck: TCheckBox;
@@ -100,7 +100,7 @@ begin
   FWizardFile := WizardFile;
 
   if foDownload in WizardFile.Options then begin
-    SourceLabel.Caption := '&Source URL:';
+    SourceLabel.Caption := SWizardSourceURLLabel;
     SourceEdit.Text := Format('%s (~%.1f MB)', [WizardFile.Source, WizardFile.ExternalSize/(1024*1024)]);
     MakeBold(DestNameLabel);
   end else begin

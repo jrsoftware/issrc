@@ -2,7 +2,7 @@ unit IDE.MsgBoxDesignerForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewStaticText, ComCtrls, pngimage, BitmapImage;
+  UIStateForm, StdCtrls, ExtCtrls, NewGroupBox, NewStaticText, ComCtrls, pngimage, BitmapImage;
 
 type
   TMsgBoxDesignerForm = class(TUIStateForm)
@@ -24,14 +24,14 @@ type
     IMGmbError: TBitmapImage;
     IMGmbCriticalError: TBitmapImage;
     Panel1: TPanel;
-    GroupBox1: TGroupBox;
-    GroupBox2: TGroupBox;
+    GroupBox1: TNewGroupBox;
+    GroupBox2: TNewGroupBox;
     MSGText: TMemo;
     rb_mbInformation: TRadioButton;
     rb_mbConfirmation: TRadioButton;
     rb_mbError: TRadioButton;
     rb_mbCriticalError: TRadioButton;
-    GroupBox3: TGroupBox;
+    GroupBox3: TNewGroupBox;
     MBDButtonOK: TButton;
     MBDButtonCancel: TButton;
     MBDButtonPreview: TButton;
@@ -42,7 +42,7 @@ type
     rbMB_YESNOCANCEL: TRadioButton;
     rbMB_RETRYCANCEL: TRadioButton;
     rbMB_ABORTRETRYIGNORE: TRadioButton;
-    GroupBox4: TGroupBox;
+    GroupBox4: TNewGroupBox;
     cb_IDOK: TCheckBox;
     cb_IDCANCEL: TCheckBox;
     cb_IDYES: TCheckBox;
@@ -50,12 +50,12 @@ type
     cb_IDABORT: TCheckBox;
     cb_IDRETRY: TCheckBox;
     cb_IDIGNORE: TCheckBox;
-    GroupBox5: TGroupBox;
+    GroupBox5: TNewGroupBox;
     cb_MB_SETFOREGROUND: TCheckBox;
     NewStaticText1: TNewStaticText;
     NewEdit1: TEdit;
     UpDown1: TUpDown;
-    GroupBox6: TGroupBox;
+    GroupBox6: TNewGroupBox;
     cb_MsgBox: TRadioButton;
     cb_TaskDialogMsgBox: TRadioButton;
     rb_IDOK: TCheckBox;
@@ -126,7 +126,7 @@ begin
   IMGmbCriticalError.InitializeFromStockIcon(SIID_ERROR, clNone, [32, 48, 64]);
 
   cb_Suppressible.Checked := True;
-  MSGText.Text := '<Enter your text here...>';
+  MSGText.Text := SMsgBoxDesignerDefaultInputText;
   MSGText.SelectAll;
   cb_IDCANCEL.Enabled := False;
   cb_IDABORT.Enabled := False;
@@ -554,7 +554,7 @@ begin
    cb_MB_SETFOREGROUND.Checked := False;
    GroupBox1.Visible := True;
    if not cb_Suppressible.Checked then begin
-      GroupBox4.Caption := ' Return values ';
+      GroupBox4.Caption := SMsgBoxDesignerReturnValues;
       cb_DefIDOK.Visible := False;
       cb_DefIDCANCEL.Visible := False;
       cb_DefIDYES.Visible := False;
@@ -564,7 +564,7 @@ begin
       cb_DefIDIGNORE.Visible := False;
    end
    else begin
-     GroupBox4.Caption := ' Return values /  ------- / Default ';
+     GroupBox4.Caption := SMsgBoxDesignerReturnValuesDefault;
      cb_DefIDOK.Visible := True;
      cb_DefIDCANCEL.Visible := True;
      cb_DefIDYES.Visible := True;
@@ -613,9 +613,9 @@ begin
      cb_DefIDRETRY.Visible := True;
      cb_DefIDIGNORE.Visible := True;
      if cb_MsgBox.Checked then
-        GroupBox4.Caption := ' Return values /  -------- / Default ';
+        GroupBox4.Caption := SMsgBoxDesignerReturnValuesDefault;
      if cb_TaskDialogMsgBox.Checked then
-        GroupBox4.Caption := ' Return values /  Shield  / Default ';
+        GroupBox4.Caption := SMsgBoxDesignerReturnValuesShieldDefault;
    end
    else begin
      cb_DefIDOK.Checked := False;
@@ -633,9 +633,9 @@ begin
      cb_DefIDRETRY.Visible := False;
      cb_DefIDIGNORE.Visible := False;
      if cb_MsgBox.Checked then
-        GroupBox4.Caption := ' Return values ';
+        GroupBox4.Caption := SMsgBoxDesignerReturnValues;
      if cb_TaskDialogMsgBox.Checked then
-        GroupBox4.Caption := ' Return values /  Shield ';
+        GroupBox4.Caption := SMsgBoxDesignerReturnValuesShield;
    end;
    if rbMB_OK.Checked then rbMB_OKClick(Self);
    if rbMB_OKCANCEL.Checked then rbMB_OKCANCELClick(Self);
@@ -652,7 +652,7 @@ begin
    cb_MB_SETFOREGROUND.Checked := False;
    GroupBox1.Visible := False;
    if not cb_Suppressible.Checked then begin
-     GroupBox4.Caption := ' Return values /  Shield ';
+     GroupBox4.Caption := SMsgBoxDesignerReturnValuesShield;
       cb_DefIDOK.Visible := False;
       cb_DefIDCANCEL.Visible := False;
       cb_DefIDYES.Visible := False;
@@ -662,7 +662,7 @@ begin
       cb_DefIDIGNORE.Visible := False;
    end
    else begin
-     GroupBox4.Caption := ' Return values /  Shield  / Default ';
+     GroupBox4.Caption := SMsgBoxDesignerReturnValuesShieldDefault;
      cb_DefIDOK.Visible := True;
      cb_DefIDCANCEL.Visible := True;
      cb_DefIDYES.Visible := True;
@@ -772,24 +772,11 @@ begin
   var Buttons: Cardinal := MB_OK;
   var Typ := mbInformation;
 
-  { icon and caption set }
-  var Caption: String;
-  if rb_mbInformation.Checked then begin
-     Caption := 'Info';
-     Typ := mbInformation;
-  end;
-  if rb_mbConfirmation.Checked then begin
-     Caption := 'Confirm';
-     Typ := mbConfirmation;
-  end;
-  if rb_mbError.Checked then begin
-     Caption := 'Error';
-     Typ := mbError;
-  end;
-  if rb_mbCriticalError.Checked then begin
-     Caption := 'Fatal Error';
-     Typ := mbCriticalError;
-  end;
+  { icon set }
+  if rb_mbInformation.Checked then Typ := mbInformation;
+  if rb_mbConfirmation.Checked then Typ := mbConfirmation;
+  if rb_mbError.Checked then Typ := mbError;
+  if rb_mbCriticalError.Checked then Typ := mbCriticalError;
 
   { button type set }
   if rbMB_OK.Checked then Buttons := MB_OK;
@@ -801,21 +788,21 @@ begin
 
   if cb_MsgBox.Checked then begin
     if MSGText.GetTextLen = 0 then
-       MSGText.Lines.Add('Your message text.');
+       MSGText.Lines.Add(SMsgBoxDesignerDefaultText);
     { MessageBox with DefButton }
     if NewEdit1.Text = '1' then
-       MsgBox(MSGText.Lines.GetText, Caption, Typ, Buttons);
+       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons);
     if NewEdit1.Text = '2' then
-       MsgBox(MSGText.Lines.GetText, Caption, Typ, Buttons or MB_DEFBUTTON2);
+       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON2);
     if NewEdit1.Text = '3' then
-       MsgBox(MSGText.Lines.GetText, Caption, Typ, Buttons or MB_DEFBUTTON3);
+       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON3);
     { MessageBox with DefButton and Flag MB_SETFOREGROUND }
     if (NewEdit1.Text = '1') and (cb_MB_SETFOREGROUND.Checked) then
-       MsgBox(MSGText.Lines.GetText, Caption, Typ, Buttons or MB_SETFOREGROUND);
+       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_SETFOREGROUND);
     if (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
-       MsgBox(MSGText.Lines.GetText, Caption, Typ, Buttons or MB_DEFBUTTON2 or MB_SETFOREGROUND);
+       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON2 or MB_SETFOREGROUND);
     if (NewEdit1.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
-       MsgBox(MSGText.Lines.GetText, Caption, Typ, Buttons or MB_DEFBUTTON3 or MB_SETFOREGROUND);
+       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON3 or MB_SETFOREGROUND);
   end else if cb_TaskDialogMsgBox.Checked then begin
      { create ButtonLabels array - also see GetText}
      var ButtonLabels: TArray<string>;
@@ -850,7 +837,7 @@ begin
      if rbMB_ABORTRETRYIGNORE.Checked and rb_IDIGNORE.Checked then ShieldButton := IDIGNORE;
 
      { TaskDialogMsgBox(Icon, Instruction, Text, Caption, Typ, Buttons, ButtonLabels, ShieldButton) }
-     TaskDialogMsgBox('', TaskInstructionText.Text, TaskMessageText.Text, Caption,
+     TaskDialogMsgBox('', TaskInstructionText.Text, TaskMessageText.Text, SMsgBoxDesignerPreviewCaption,
                       Typ, Buttons, ButtonLabels, ShieldButton);
   end;
 end;

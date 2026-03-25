@@ -84,7 +84,7 @@ implementation
 uses
   ShellApi, PathFunc, ComObj;
 
-{$IF CompilerVersion < 36.0}
+{$IF RtlVersion < 36.0}
 const
   MSFTEDIT_CLASS = 'RICHEDIT50W';
 {$ENDIF}
@@ -113,7 +113,7 @@ type
       const chrg: TCharRange; out menu: HMENU): HResult; stdcall;
   end;
 
-{$IF CompilerVersion < 36.0}
+{$IF RtlVersion < 36.0}
   PEnLink = ^TEnLink;
   TENLink = record
     nmhdr: TNMHdr;

@@ -169,6 +169,7 @@
             <Form>FilesDesignerForm</Form>
         </DCCReference>
         <DCCReference Include="Src\IDE.Wizard.WizardFormFilesHelper.pas"/>
+        <DCCReference Include="..\Components\NewGroupBox.pas"/>
         <DCCReference Include="..\Components\NewTabSet.pas"/>
         <DCCReference Include="..\Components\NewStaticText.pas"/>
         <DCCReference Include="..\Components\BidiUtils.pas"/>

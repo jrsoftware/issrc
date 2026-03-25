@@ -105,7 +105,7 @@ function TryRestartReplace(ExistingFile, DestFile: String;
   out ErrorCode: DWORD): Boolean;
 procedure Win32ErrorMsg(const FunctionName: String);
 procedure Win32ErrorMsgEx(const FunctionName: String; const ErrorCode: DWORD);
-function ForceDirectories(Dir: String): Boolean;
+function ForceDirectories(const Dir: String): Boolean;
 procedure AddAttributesToFile(const Filename: String; Attribs: Integer);
 procedure ApplyRedirToRunEntryPaths(const RunEntry64Bit: Boolean;
   var AFilename, AWorkingDir: String);
@@ -978,7 +978,8 @@ begin
     LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, @MsgResult);
 end;
 
-function ForceDirectories(Dir: String): Boolean;
+function InternalForceDirectories(Dir: String;
+  const RecursionDepth: Cardinal = 0): Boolean;
 { Returns True if a new directory was created, or if the directory already
   existed. Also see MakeDir for similar code (but different return value). }
 begin
@@ -989,8 +990,17 @@ begin
   if DirExists(Dir) then
     Exit(True);
 
-  Result := ForceDirectories(PathExtractPath(Dir)) and
-    CreateDirectory(PChar(Dir), nil);
+  if RecursionDepth >= 50 then
+    Exit(False);
+  if not InternalForceDirectories(PathExtractDir(Dir), RecursionDepth + 1) then
+    Exit(False);
+
+  Result := CreateDirectory(PChar(Dir), nil);
+end;
+
+function ForceDirectories(const Dir: String): Boolean;
+begin
+  Result := InternalForceDirectories(Dir);
 end;
 
 procedure AddAttributesToFile(const Filename: String; Attribs: Integer);

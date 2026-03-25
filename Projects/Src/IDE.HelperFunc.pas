@@ -2,7 +2,7 @@
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -124,13 +124,13 @@ end;
 
 function InitFormTheme(const Form: TForm): Boolean;
 
-{$IF CompilerVersion >= 36.0}
+{$IF RtlVersion >= 36.0}
   procedure HideGroupBoxFrames(const ParentControl: TWinControl);
   begin
     for var I := 0 to ParentControl.ControlCount-1 do begin
       const Control = ParentControl.Controls[I];
-      if Control is TGroupBox then
-        (Control as TGroupBox).ShowFrame := False;
+      if Control is TCustomGroupBox then
+        TCustomGroupBox(Control).ShowFrame := False;
 
       if Control is TWinControl then
         HideGroupBoxFrames(Control as TWinControl);
@@ -148,7 +148,7 @@ begin
     SetDarkTitleBar(Form, FormTheme.Dark);
   end;
 
-{$IF CompilerVersion >= 36.0}
+{$IF RtlVersion >= 36.0}
   HideGroupBoxFrames(Form);
 {$ENDIF}
 end;

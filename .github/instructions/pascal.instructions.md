@@ -18,6 +18,9 @@ applyTo: "**/*.pas,**/*.dpr,**/*.inc"
 - Mark read-only parameters as const.
 - Use Windows units first, then RTL/VCL units, then Components units, then Shared units, then project specific units.
 - Using variable name Res as a shortcut for Result is allowed.
+# Code editing guidelines for Pascal source files
+- Do not modify existing comments unless the code they describe is also being changed.
+- Update Inno Setup copyright header of any file you edit, if the current year is not already included.
 # Code review guidelines for Pascal source files
 - All errors must be checked. Installers should be reliable above all.
 - Be alert for `out` parameters initializing to zero/empty upon function entry, unlike `var` parameters.

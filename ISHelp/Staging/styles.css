@@ -34,7 +34,7 @@ BODY {
 PRE, TT {
 	font: calc(13rem/16) Consolas, monospace;
 }
-P, H1, H2, H3, H4, H5, BLOCKQUOTE, PRE, FORM, OL, UL, LI, DL, DD, TABLE, .examplebox {
+P, H1, H2, H3, H4, H5, BLOCKQUOTE, PRE, FORM, OL, UL, DL, DD, TABLE, .examplebox {
 	/* only the end of paragraphs etc. has a margin */
 	margin-top: 0;
 	margin-bottom: 1em;
@@ -43,6 +43,11 @@ UL, OL, DD {
 	/* specify both of these for firefox compat. */
 	margin-left: 0;
 	padding-left: calc(28rem/16);  /* 2em with default font */
+}
+li {
+	/* LI does need a top margin when lists are nested */
+	margin-top: 1em;
+	margin-bottom: 1em;
 }
 TABLE {
 	/* equivalent of cellspacing="0" */
@@ -87,6 +92,9 @@ A[href]:hover {
 	color: var(--link-hover-fg-color);
 	text-decoration: underline;
 }
+a[href]:hover > tt {
+	text-decoration: underline;
+}
 span:target {
 	background-color: #ffff00;
 	color: black;
@@ -106,7 +114,8 @@ span:target {
 .indent {
 	margin-left: calc(28rem/16);  /* 2em with default font */
 }
-LI.compact {
+ul.compact > li {
+	margin-top: calc(2rem/16);
 	margin-bottom: calc(2rem/16);
 }
 

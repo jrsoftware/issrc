@@ -141,7 +141,7 @@
       "licenseDeclared": "LZMA-SDK-9.22",
       "copyrightText": "Public domain",
       "supplier": "Person: Igor Pavlov",
-      "versionInfo": "25.01"
+      "versionInfo": "26.00"
     },
     {
       "name": "LZMA SDK (Size-optimized)",
@@ -188,7 +188,7 @@
       "licenseDeclared": "LGPL-2.1-or-later AND LicenseRef-unRAR-restriction AND BSD-3-Clause AND BSD-2-Clause AND LicenseRef-7zip-Public-Domain",
       "copyrightText": "Copyright (C) 1999-2025 Igor Pavlov",
       "supplier": "Person: Igor Pavlov",
-      "versionInfo": "25.01",
+      "versionInfo": "26.00",
       "comment": "Optional decompression; is7z/is7zxa/is7zxr DLLs are compiled from 7-Zip source code (see README.md). License details in Is7z/DOC/License.txt describe LGPL-2.1-or-later with unRAR restriction, plus BSD-3-Clause/BSD-2-Clause and public domain files."
     },
     {
@@ -200,7 +200,7 @@
       "licenseDeclared": "LicenseRef-Scintilla",
       "copyrightText": "Copyright 1998-2021 by Neil Hodgson",
       "supplier": "Person: Neil Hodgson",
-      "versionInfo": "5.5.8",
+      "versionInfo": "5.6.0",
       "comment": "Used by ISIDE via isscint DLL. License text in Isscint/License.txt."
     }
   ],
