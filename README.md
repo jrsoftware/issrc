@@ -17,8 +17,6 @@ Getting Started
     ```
     > git clone https://github.com/jrsoftware/issrc.git issrc
     > cd issrc
-    > git submodule init
-    > git submodule update
     ```
 
     If you don't have the Git client (`git`), get it from:
@@ -28,7 +26,6 @@ Getting Started
     To update your sources from the command line do:
     ```
     > git pull
-    > git submodule update
     ```
 
     To be able to contribute to Inno Setup, clone your own fork instead of
