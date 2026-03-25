@@ -381,7 +381,7 @@ type
 
 function MakeDir(const UninstLog: TUninstallLog; Dir: String;
   const Flags: TMakeDirFlags = []; const RecursionDepth: Cardinal = 0): Boolean;
-{ Returns True if a new directory was created. Also see ForceDirectories
+{ Returns True if a new directory was created. Also see NewForceDirectories
   for similar code (but different return value). }
 var
   ErrorCode: DWORD;

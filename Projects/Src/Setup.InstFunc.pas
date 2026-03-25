@@ -96,6 +96,7 @@ function IsDirEmpty(const Dir: String): Boolean;
 function IsProtectedSystemFile(const Filename: String): Boolean;
 function MakePendingFileRenameOperationsChecksum: TSHA256Digest;
 function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;
+function NewForceDirectories(const Dir: String): Boolean;
 procedure RaiseOleError(const FunctionName: String; const ResultCode: HRESULT);
 procedure RefreshEnvironment;
 function RegRootKeyToUInt32(const RootKey: HKEY): UInt32;
@@ -105,7 +106,6 @@ function TryRestartReplace(ExistingFile, DestFile: String;
   out ErrorCode: DWORD): Boolean;
 procedure Win32ErrorMsg(const FunctionName: String);
 procedure Win32ErrorMsgEx(const FunctionName: String; const ErrorCode: DWORD);
-function ForceDirectories(const Dir: String): Boolean;
 procedure AddAttributesToFile(const Filename: String; Attribs: Integer);
 procedure ApplyRedirToRunEntryPaths(const RunEntry64Bit: Boolean;
   var AFilename, AWorkingDir: String);
@@ -978,7 +978,7 @@ begin
     LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, @MsgResult);
 end;
 
-function InternalForceDirectories(Dir: String;
+function InternalNewForceDirectories(Dir: String;
   const RecursionDepth: Cardinal = 0): Boolean;
 { Returns True if a new directory was created, or if the directory already
   existed. Also see MakeDir for similar code (but different return value). }
@@ -992,15 +992,15 @@ begin
 
   if RecursionDepth >= 50 then
     Exit(False);
-  if not InternalForceDirectories(PathExtractDir(Dir), RecursionDepth + 1) then
+  if not InternalNewForceDirectories(PathExtractDir(Dir), RecursionDepth + 1) then
     Exit(False);
 
   Result := CreateDirectory(PChar(Dir), nil);
 end;
 
-function ForceDirectories(const Dir: String): Boolean;
+function NewForceDirectories(const Dir: String): Boolean;
 begin
-  Result := InternalForceDirectories(Dir);
+  Result := InternalNewForceDirectories(Dir);
 end;
 
 procedure AddAttributesToFile(const Filename: String; Attribs: Integer);
