@@ -336,10 +336,10 @@ type
     class function RawStringIsBlank(const S: TScintRawString): Boolean; static;
     procedure Redo;
     procedure RemoveAdditionalSelections;
-    function ReplaceMainSelText(const S: String;
-      const ReplaceMode: TScintReplaceMode = srmNormal): TScintRange;
-    function ReplaceRawMainSelText(const S: TScintRawString;
-      const ReplaceMode: TScintReplaceMode = srmNormal): TScintRange;
+    procedure ReplaceMainSelText(const S: String;
+      const ReplaceMode: TScintReplaceMode = srmNormal);
+    procedure ReplaceRawMainSelText(const S: TScintRawString;
+      const ReplaceMode: TScintReplaceMode = srmNormal);
     function ReplaceRawTextRange(const StartPos, EndPos: Integer;
       const S: TScintRawString; const ReplaceMode: TScintReplaceMode = srmNormal): TScintRange;
     function ReplaceTextRange(const StartPos, EndPos: Integer; const S: String;
@@ -1670,14 +1670,14 @@ begin
   SetSingleSelection(CaretPos, AnchorPos);
 end;
 
-function TScintEdit.ReplaceMainSelText(const S: String;
-  const ReplaceMode: TScintReplaceMode): TScintRange;
+procedure TScintEdit.ReplaceMainSelText(const S: String;
+  const ReplaceMode: TScintReplaceMode);
 begin
   ReplaceRawMainSelText(ConvertStringToRawString(S), ReplaceMode);
 end;
 
-function TScintEdit.ReplaceRawMainSelText(const S: TScintRawString;
-  const ReplaceMode: TScintReplaceMode): TScintRange;
+procedure TScintEdit.ReplaceRawMainSelText(const S: TScintRawString;
+  const ReplaceMode: TScintReplaceMode);
 { Replaces the main selection just like SetRawSelText/SCI_REPLACESEL but
   without removing additional selections }
 begin
