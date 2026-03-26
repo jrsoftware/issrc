@@ -181,6 +181,7 @@ function TNewLinkLabel.AdjustHeight: Integer;
 begin
   var OldHeight := Height;
   var IdealSize: TSize;
+  { According to the documentation LM_GETIDEALSIZE always succeeds }
   SendMessage(Handle, LM_GETIDEALSIZE, Width, LPARAM(@IdealSize));
   Height := IdealSize.cy;
   Result := Height - OldHeight;
