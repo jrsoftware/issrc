@@ -2537,10 +2537,9 @@ begin
 end;
 
 procedure LogSetupVersion;
-const
-  Bits: array [Boolean] of Integer = (32, 64);
 begin
-  LogFmt('Setup version: %s version %s (%d-bit)', [SetupTitle, SetupVersion, Bits[IsCurrentProcess64Bit]]);
+  LogFmt('Setup version: %s version %s (%d-bit)', [SetupTitle, SetupVersion,
+    BitsFrom64BitBoolean(IsCurrentProcess64Bit)]);
 end;
 
 procedure LogWindowsVersion;
@@ -2565,8 +2564,6 @@ procedure LogWindowsVersion;
         AppendArchitecture(Result, Separator, SetupProcessorArchitectureNames[I]);
   end;
 
-const
-  Bits: array [Boolean] of Integer = (32, 64);
 var
   SP: String;
 begin
@@ -2578,7 +2575,9 @@ begin
   LogFmt('Windows version: %u.%u.%u%s', [WindowsVersion shr 24,
     (WindowsVersion shr 16) and $FF, WindowsVersion and $FFFF, SP]);
 
-  LogFmt('Windows architecture: %s (%d-bit)', [SetupProcessorArchitectureNames[ProcessorArchitecture], Bits[IsWin64]]);
+  LogFmt('Windows architecture: %s (%d-bit)',
+    [SetupProcessorArchitectureNames[ProcessorArchitecture],
+     BitsFrom64BitBoolean(IsWin64)]);
   LogFmt('Machine types supported by system: %s', [ArchitecturesToStr(MachineTypesSupportedBySystem, ' ')]);
 
   if IsAdmin then
