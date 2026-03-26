@@ -1207,7 +1207,7 @@ begin
       DrawThemeText := GetProcAddress(ThemeLibrary, 'DrawThemeText');
       DrawThemeTextEx := GetProcAddress(ThemeLibrary, 'DrawThemeTextEx');
       GetThemeBackgroundContentRect := GetProcAddress(ThemeLibrary, 'GetThemeBackgroundContentRect');
-      GetThemeBackgroundExtent := GetProcAddress(ThemeLibrary, 'GetThemeBackgroundContentRect');
+      GetThemeBackgroundExtent := GetProcAddress(ThemeLibrary, 'GetThemeBackgroundExtent');
       GetThemePartSize := GetProcAddress(ThemeLibrary, 'GetThemePartSize');
       GetThemeTextExtent := GetProcAddress(ThemeLibrary, 'GetThemeTextExtent');
       GetThemeTextMetrics := GetProcAddress(ThemeLibrary, 'GetThemeTextMetrics');
