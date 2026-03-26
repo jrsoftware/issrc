@@ -2066,7 +2066,7 @@ begin
         if RK = HKEY_AUTO then
           RK := InstallModeRootKey;
         S := ExpandConst(Subkey);
-        LogFmt('Key: %s\%s', [GetRegRootKeyName(RK), Subkey]);
+        LogFmt('Key: %s\%s', [GetRegRootKeyName(RK), S]);
         N := ExpandConst(ValueName);
         if N <> '' then
           LogFmt('Value name: %s', [N]);
