@@ -2586,9 +2586,9 @@ begin
           WizardTasks := nil;
           try
             WizardComponents := TStringList.Create;
-            WizardForm.GetComponents(WizardComponents, nil);
+            GetComponents(WizardComponents, nil);
             WizardTasks := TStringList.Create;
-            WizardForm.GetTasks(WizardTasks, nil);
+            GetTasks(WizardTasks, nil);
 
             PrepareToInstallFailureMessage := PrepareToInstall(WizardComponents, WizardTasks);
             if PrepareToInstallFailureMessage <> '' then begin
@@ -2600,9 +2600,9 @@ begin
               BackButton.Visible := False;
               NextButton.Visible := False;
               if InstallMode = imSilent then
-                WizardForm.Visible := True;
+                Visible := True;
               try
-                WizardForm.Update;
+                Update;
                 RmFoundApplications := QueryRestartManager(WizardComponents, WizardTasks) <> '';
                 if RmFoundApplications then
                   Break;  { stop on the page }
