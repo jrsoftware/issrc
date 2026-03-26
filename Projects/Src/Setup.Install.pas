@@ -1969,7 +1969,7 @@ begin
               end;
             end;
           end;
-          if not Skip then
+          if not Skip then begin
             Log('Updating the .INI file.');
             repeat
               if SetIniString(IniSection, IniEntry, IniValue, IniFilename) then begin
@@ -1979,6 +1979,7 @@ begin
              until AbortRetryIgnoreTaskDialogMsgBox(
                      FmtSetupMessage1(msgErrorIniEntry, IniFilename),
                      [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreIgnore], SetupMessages[msgAbortRetryIgnoreCancel]]);
+          end;
         end else
           Log('Skipping updating the .INI file, only updating uninstall log.');
 
