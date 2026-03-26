@@ -856,7 +856,7 @@ begin
     if LastError <> ERROR_SUCCESS then
       raise Exception.CreateFmt('PathStrFind: FindStringOrdinal failed (%u)',
         [LastError]);
-  end else if not ((CompareResult >= 0) and (CompareResult < SSourceLength)) then
+  end else if not ((CompareResult >= 0) and ((SSourceLength = -1) or (CompareResult < SSourceLength))) then
     raise Exception.CreateFmt('PathStrFind: FindStringOrdinal result invalid (%d)',
       [CompareResult]);
   Result := CompareResult;
