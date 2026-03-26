@@ -662,7 +662,7 @@ procedure TArchiveExtractBaseCallback.HandleResult;
     if Res = E_OUTOFMEMORY then
       SevenZipError(Win32ErrorString(DWORD(E_OUTOFMEMORY)))
     else
-      SevenZipWin32Error('Extract', DWORD(FResult.Res));
+      SevenZipWin32Error('Extract', DWORD(Res));
   end;
 
 begin
