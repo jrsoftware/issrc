@@ -248,7 +248,7 @@ end;
 {$R+}
 {$ENDIF}
 {$IFDEF RESTOREQ}
- {Q+}
+{$Q+}
 {$ENDIF}
 
 function TASMInline.GetReloc(index: integer): TReloc;
