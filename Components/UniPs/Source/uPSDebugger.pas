@@ -495,6 +495,7 @@ begin
     Pos := LastPos;
     Row := LastRow;
     Col := LastCol;
+    Fn := LastFn;
     Result := True;
   end else
   begin

@@ -5185,7 +5185,7 @@ begin
                     btU64: b := tbts32(var1^) > tbtu64(Var2^);
                   {$ENDIF}
                   btChar: b := tbts32(var1^) > Ord(tbtchar(Var2^));
-              {$IFNDEF PS_NOWIDESTRING}    btWideChar: b := tbts32(var1^) = Ord(tbtwidechar(Var2^));{$ENDIF}
+              {$IFNDEF PS_NOWIDESTRING}    btWideChar: b := tbts32(var1^) > Ord(tbtwidechar(Var2^));{$ENDIF}
                   btVariant: b := tbts32(var1^) > Variant(Var2^);
                   else raise Exception.Create(RPS_TypeMismatch);
                 end;
@@ -7123,7 +7123,7 @@ begin
         case Dest.aType.BaseType of
           btRecord:
             begin
-              if Param > Cardinal(TPSTypeRec_Record(Dest.aType).FFieldTypes.Count) then
+              if Param >= Cardinal(TPSTypeRec_Record(Dest.aType).FFieldTypes.Count) then
               begin
                 CMD_Err(erOutOfRange);
                 Result := False;
@@ -7279,7 +7279,7 @@ begin
         case Dest.aType.BaseType of
           btRecord:
             begin
-              if Param > Cardinal(TPSTypeRec_Record(Dest.aType).FFieldTypes.Count) then
+              if Param >= Cardinal(TPSTypeRec_Record(Dest.aType).FFieldTypes.Count) then
               begin
                 CMD_Err(erOutOfRange);
                 Result := False;
@@ -8579,7 +8579,7 @@ begin
               p := Cardinal((@FData^[FCurrentPosition])^);
 	      {$endif}
               Inc(FCurrentPosition, 4);
-              if p > FTypes.Count then
+              if p >= FTypes.Count then
               begin
                 CMD_Err(erInvalidType);
                 break;

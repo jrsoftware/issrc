@@ -3694,7 +3694,7 @@ begin
         end;
       otIn:
         begin
-          if (var2.Ftype.BaseType = btset) and (TPSSetType(var2).SetType = Var1.FType) then
+          if (var2.Ftype.BaseType = btset) and (TPSSetType(var2.Ftype).SetType = Var1.FType) then
           begin
             Set_membership(GetUint(var1, result), var2.tstring, b);
           end else Result := False;
@@ -4623,6 +4623,7 @@ begin
       if FParser.CurrTokenId <> CSTI_Identifier then
       begin
         MakeError('', ecIdentifierExpected, '');
+        exit;
       end;
       if VarIsDuplicate(proc, VarName, FParser.GetToken) then
       begin
@@ -5234,7 +5235,7 @@ begin
       {$ENDIF}
       Func.FDeclarePos := EPos;
       Func.FDeclareRow := ERow;
-      Func.FDeclarePos := ECol;
+      Func.FDeclareCol := ECol;
       Func.Decl.Assign(FunctionDecl);
       Result := ApplyAttribsToFunction(Func);
       exit;
@@ -7333,7 +7334,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
     begin
       FType := GetTypeNo(BlockInfo, p);
       if FType = nil then exit;
-      if (FType.BaseType <> btInterface) and (Ftype.BaseType <> BtVariant) and (FType.BaseType = btNotificationVariant) then Exit;
+      if (FType.BaseType <> btInterface) and (Ftype.BaseType <> BtVariant) and (FType.BaseType <> btNotificationVariant) then Exit;
 
       CheckArrayProperty:=(FParser.CurrTokenID=CSTI_OpenBlock) and
         (Ftype.BaseType = BtVariant);
@@ -8599,7 +8600,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                       begin
                         FRow := p2.Row;
                         FCol := p2.Col;
-                        FPosition := p1.Pos;
+                        FPosition := p2.Pos;
                       end;
                     end
                     else
@@ -9058,7 +9059,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                         btS32: TPSValueData(preplace).Data.ts8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32;
                         {$IFNDEF PS_NOINT64}
                         btS64: TPSValueData(preplace).Data.ts8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.ts64;
-                        btU64: TPSValueData(preplace).Data.tu8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu64
+                        btU64: TPSValueData(preplace).Data.ts8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu64;
                         {$ENDIF}
                       else
                         begin
@@ -9078,7 +9079,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                         {$ENDIF}
                         btU8: TPSValueData(preplace).Data.tu16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu8;
                         btS8: TPSValueData(preplace).Data.tu16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS8;
-                        btU16: TPSValueData(preplace).Data.ts16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16;
+                        btU16: TPSValueData(preplace).Data.tu16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16;
                         btS16: TPSValueData(preplace).Data.tu16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS16;
                         btU32: TPSValueData(preplace).Data.tu16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
                         btS32: TPSValueData(preplace).Data.tu16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32;
