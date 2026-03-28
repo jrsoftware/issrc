@@ -317,10 +317,8 @@ begin
     end;
     R.Right := R.Left + IW;
     R.Bottom := R.Top + IH;
-    if Draw then begin
-      FlipRect(R, LParentRect, LIsRightToLeft);
-      ImageList_Draw(IL.himl, ImgIndex, ACanvas.Handle, R.Left, R.Top, ILD_NORMAL);
-    end;
+    FlipRect(R, LParentRect, LIsRightToLeft);
+    ImageList_Draw(IL.himl, ImgIndex, ACanvas.Handle, R.Left, R.Top, ILD_NORMAL);
   end else begin
     if not Control.Enabled then
       Details := LStyle.GetElementDetails(tbCommandLinkGlyphDisabled)
@@ -338,23 +336,21 @@ begin
     DrawRect.Left := 3;
     DrawRect.Top := RSingleLine.Top + (RSingleLine.Height - IW) div 2;
     DrawRect.Bottom := DrawRect.Top + IW;
-    if Draw then begin
-      if LIsRightToLeft then begin
-        FlipRect(DrawRect, LParentRect, True);
-        var FlipBitmap := TBitmap.Create;
-        try
-          FlipBitmap.Width := DrawRect.Width;
-          FlipBitmap.Height := DrawRect.Height;
-          BitBlt(FlipBitmap.Canvas.Handle, 0, 0, DrawRect.Width, DrawRect.Height, ACanvas.Handle, DrawRect.Left, DrawRect.Top, SRCCOPY);
-          LStyle.DrawElement(FlipBitmap.Canvas.Handle, Details, Rect(0, 0, DrawRect.Width, DrawRect.Height), nil, LPPI);
-          StretchBlt(ACanvas.Handle, DrawRect.Left, DrawRect.Top, DrawRect.Width, DrawRect.Height,
-            FlipBitmap.Canvas.Handle, FlipBitmap.Width-1, 0, -FlipBitmap.Width, FlipBitmap.Height, SRCCOPY);
-        finally
-          FlipBitmap.Free;
-        end;
-      end else
-        LStyle.DrawElement(ACanvas.Handle, Details, DrawRect, nil, LPPI);
-    end;
+    if LIsRightToLeft then begin
+      FlipRect(DrawRect, LParentRect, True);
+      var FlipBitmap := TBitmap.Create;
+      try
+        FlipBitmap.Width := DrawRect.Width;
+        FlipBitmap.Height := DrawRect.Height;
+        BitBlt(FlipBitmap.Canvas.Handle, 0, 0, DrawRect.Width, DrawRect.Height, ACanvas.Handle, DrawRect.Left, DrawRect.Top, SRCCOPY);
+        LStyle.DrawElement(FlipBitmap.Canvas.Handle, Details, Rect(0, 0, DrawRect.Width, DrawRect.Height), nil, LPPI);
+        StretchBlt(ACanvas.Handle, DrawRect.Left, DrawRect.Top, DrawRect.Width, DrawRect.Height,
+          FlipBitmap.Canvas.Handle, FlipBitmap.Width-1, 0, -FlipBitmap.Width, FlipBitmap.Height, SRCCOPY);
+      finally
+        FlipBitmap.Free;
+      end;
+    end else
+      LStyle.DrawElement(ACanvas.Handle, Details, DrawRect, nil, LPPI);
   end;
 end;
 
