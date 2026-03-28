@@ -1282,14 +1282,7 @@ Retry:
         added). }
       if foSharedFile in CurFile^.Options then begin
         LastOperation := '';
-        if Is64Bit then begin
-          Log('Incrementing shared file count (64-bit).');
-          IncrementSharedCount(rv64Bit, DestFile, DestFileExistedBefore);
-        end
-        else begin
-          Log('Incrementing shared file count (32-bit).');
-          IncrementSharedCount(rv32Bit, DestFile, DestFileExistedBefore);
-        end;
+        IncrementSharedCount(Is64Bit, DestFile, DestFileExistedBefore);
         if not(foUninsNeverUninstall in CurFile^.Options) then begin
           DeleteFlags := DeleteFlags or utDeleteFile_SharedFile;
           if Is64Bit then

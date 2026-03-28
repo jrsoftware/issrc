@@ -940,13 +940,7 @@ var
     end);
     RegisterScriptFunc('DECREMENTSHAREDCOUNT', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      if Stack.GetBool(PStart-1) then begin
-        if not IsWin64 then
-          InternalError('Cannot access 64-bit registry keys on this version of Windows');
-        Stack.SetBool(PStart, DecrementSharedCount(rv64Bit, Stack.GetString(PStart-2)));
-      end
-      else
-        Stack.SetBool(PStart, DecrementSharedCount(rv32Bit, Stack.GetString(PStart-2)));
+      Stack.SetBool(PStart, DecrementSharedCount(Stack.GetBool(PStart-1), Stack.GetString(PStart-2)));
     end);
     RegisterScriptFunc('DELAYDELETEFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -1040,13 +1034,8 @@ var
     end);
     RegisterScriptFunc('INCREMENTSHAREDCOUNT', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      if Stack.GetBool(PStart) then begin
-        if not IsWin64 then
-          InternalError('Cannot access 64-bit registry keys on this version of Windows');
-        IncrementSharedCount(rv64Bit, Stack.GetString(PStart-1), Stack.GetBool(PStart-2));
-      end
-      else
-        IncrementSharedCount(rv32Bit, Stack.GetString(PStart-1), Stack.GetBool(PStart-2));
+      IncrementSharedCount(Stack.GetBool(PStart), Stack.GetString(PStart-1),
+        Stack.GetBool(PStart-2));
     end);
     RegisterScriptFunc(['Exec', 'ExecAndLogOutput', 'ExecAndCaptureOutput',
       'ExecWithNativeSysDir', 'ExecAndLogOutputWithNativeSysDir', 'ExecAndCaptureOutputWithNativeSysDir',
