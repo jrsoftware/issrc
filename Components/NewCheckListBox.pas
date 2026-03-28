@@ -94,6 +94,7 @@ type
     procedure HandleScroll;
     procedure InvalidateCheck(Index: Integer);
     function RemeasureItem(Index: Integer): Integer;
+    procedure RemeasureItemAndUpdate(Index: Integer);
     procedure Toggle(Index: Integer);
     procedure UpdateScrollRange;
     procedure LBDeleteString(var Message: TMessage); message LB_DELETESTRING;
@@ -693,6 +694,7 @@ begin
 
     if ItemState.SubItem <> '' then begin
       const DrawTextFormat = UDrawTextBiDiModeFlags(Self, DT_CALCRECT or DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE);
+      Font.Style := ItemState.SubItemFontStyle;
       SetRectEmpty(SubItemRect);
       DrawText(Canvas.Handle, PChar(ItemState.SubItem), Length(ItemState.SubItem),
         SubItemRect, DrawTextFormat);
@@ -709,6 +711,7 @@ begin
       DrawTextFormat := DrawTextFormat or DT_NOPREFIX;
     DrawTextFormat := UDrawTextBiDiModeFlags(Self, DrawTextFormat);
 
+    Font.Style := ItemState.ItemFontStyle;
     S := Items[Index]; { Passing Items[Index] directly into DrawText doesn't work on Unicode build. }
     ItemState.MeasuredHeight := DrawText(Canvas.Handle, PChar(S), Length(S), Rect, DrawTextFormat);
     if ItemState.MeasuredHeight < FMinItemHeight then
@@ -1612,14 +1615,33 @@ begin
   end;
 end;
 
-procedure TNewCheckListBox.SetItemFontStyle(Index: Integer; const AItemFontStyle: TFontStyles);
+procedure TNewCheckListBox.RemeasureItemAndUpdate(Index: Integer);
 var
-  R: TRect;
+  OldHeight, NewHeight: Integer;
+  R, R2: TRect;
+begin
+  OldHeight := Integer(SendMessage(Handle, LB_GETITEMHEIGHT, Index, 0));
+  NewHeight := RemeasureItem(Index);
+  R := ItemRect(Index);
+  { Scroll subsequent items down or up, if necessary }
+  if NewHeight <> OldHeight then begin
+    if Index >= TopIndex then begin
+      R2 := ClientRect;
+      R2.Top := R.Top + OldHeight;
+      if not IsRectEmpty(R2) then
+        ScrollWindowEx(Handle, 0, NewHeight - OldHeight, @R2, nil, 0, nil,
+          SW_INVALIDATE or SW_ERASE);
+    end;
+    UpdateScrollRange;
+  end;
+  InvalidateRect(Handle, @R, True);
+end;
+
+procedure TNewCheckListBox.SetItemFontStyle(Index: Integer; const AItemFontStyle: TFontStyles);
 begin
   if ItemStates[Index].ItemFontStyle <> AItemFontStyle then begin
     ItemStates[Index].ItemFontStyle := AItemFontStyle;
-    R := ItemRect(Index);
-    InvalidateRect(Handle, @R, True);
+    RemeasureItemAndUpdate(Index);
   end;
 end;
 
@@ -1656,39 +1678,18 @@ begin
 end;
 
 procedure TNewCheckListBox.SetSubItem(Index: Integer; const ASubItem: String);
-var
-  OldHeight, NewHeight: Integer;
-  R, R2: TRect;
 begin
-  if ItemStates[Index].SubItem <> ASubItem then
-  begin
+  if ItemStates[Index].SubItem <> ASubItem then begin
     ItemStates[Index].SubItem := ASubItem;
-    OldHeight := Integer(SendMessage(Handle, LB_GETITEMHEIGHT, Index, 0));
-    NewHeight := RemeasureItem(Index);
-    R := ItemRect(Index);
-    { Scroll subsequent items down or up, if necessary }
-    if NewHeight <> OldHeight then begin
-      if Index >= TopIndex then begin
-        R2 := ClientRect;
-        R2.Top := R.Top + OldHeight;
-        if not IsRectEmpty(R2) then
-          ScrollWindowEx(Handle, 0, NewHeight - OldHeight, @R2, nil, 0, nil,
-            SW_INVALIDATE or SW_ERASE);
-      end;
-      UpdateScrollRange;
-    end;
-    InvalidateRect(Handle, @R, True);
+    RemeasureItemAndUpdate(Index);
   end;
 end;
 
 procedure TNewCheckListBox.SetSubItemFontStyle(Index: Integer; const ASubItemFontStyle: TFontStyles);
-var
-  R: TRect;
 begin
   if ItemStates[Index].SubItemFontStyle <> ASubItemFontStyle then begin
     ItemStates[Index].SubItemFontStyle := ASubItemFontStyle;
-    R := ItemRect(Index);
-    InvalidateRect(Handle, @R, True);
+    RemeasureItemAndUpdate(Index);
   end;
 end;
 
