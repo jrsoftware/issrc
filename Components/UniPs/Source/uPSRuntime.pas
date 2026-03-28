@@ -4048,7 +4048,7 @@ begin
   for i := 0 to aType.FieldTypes.Count -1 do
   begin
     o := Longint(atype.RealFieldOffsets[i]);
-    CopyArrayContents(Pointer(IPointer(Dest)+Cardinal(o)), Pointer(IPointer(Src)+Cardinal(o)), 1, aType.FieldTypes[i]);
+    if not CopyArrayContents(Pointer(IPointer(Dest)+Cardinal(o)), Pointer(IPointer(Src)+Cardinal(o)), 1, aType.FieldTypes[i]) then begin result := false; exit; end;
   end;
   Result := true;
 end;
@@ -4981,6 +4981,10 @@ var
       btS16: tbts16(Into^) := Longint(b);
       btU32: tbtu32(Into^) := Cardinal(b);
       btS32: tbts32(Into^) := Longint(b);
+      {$IFNDEF PS_NOINT64}
+        btS64: tbts64(Into^) := Longint(b);
+        btU64: tbtu64(Into^) := Cardinal(b);
+      {$ENDIF}
       btVariant: Variant(Into^) := b;
     else begin
         CMD_Err(ErTypeMismatch);

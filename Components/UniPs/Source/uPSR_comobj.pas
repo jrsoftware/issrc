@@ -24,12 +24,7 @@ implementation
 {$ENDIF}
 {$IFNDEF DELPHI3UP}
 
-{$IFDEF DELPHI3UP }
-resourceString
-{$ELSE }
 const
-{$ENDIF }
-
   RPS_OLEError = 'OLE error %.8x';
 function OleErrorMessage(ErrorCode: HResult): String;
 begin

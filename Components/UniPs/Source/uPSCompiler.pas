@@ -1930,8 +1930,8 @@ begin
     end;
   btUnicodeString:
     begin
-      BlockWriteLong(BlockInfo, Length(tbtUnicodeString(p^.twidestring)));
-      BlockWriteData(BlockInfo, tbtUnicodeString(p^.twidestring)[1], 2*Length(tbtUnicodeString(p^.twidestring)));
+      BlockWriteLong(BlockInfo, Length(tbtUnicodeString(p^.tunistring)));
+      BlockWriteData(BlockInfo, tbtUnicodeString(p^.tunistring)[1], 2*Length(tbtUnicodeString(p^.tunistring)));
     end;
   btWideChar: BlockWriteData(BlockInfo, p^.twidechar, 2);
   {$ENDIF}
@@ -2774,7 +2774,7 @@ begin
   else if p.FType.BaseType = btWideString then
     finalizeW(tbtWideString(p.twidestring)) // tbtwidestring
   else if p.FType.BaseType = btUnicodeString then
-    finalizeU(tbtUnicodeString(p.tunistring)); // tbtwidestring
+    finalizeU(tbtUnicodeString(p.tunistring)); // tbtunistring
   {$ENDIF}
 end;
 
@@ -3677,7 +3677,7 @@ begin
             btChar: b := var1^.tchar = GetString(var2, Result);
             {$IFNDEF PS_NOWIDESTRING}
             btWideString: b := tbtWideString(var1^.twidestring) = GetWideString(var2, Result);
-            btUnicodeString: b := tbtUnicodeString(var1^.twidestring) = GetUnicodeString(var2, Result);
+            btUnicodeString: b := tbtUnicodeString(var1^.tunistring) = GetUnicodeString(var2, Result);
             btWideChar: b := var1^.twidechar = GetUnicodeString(var2, Result);
             {$ENDIF}
             btSet:
@@ -4894,7 +4894,6 @@ begin
         Result := True;
         exit;
       end;
-      GRFW(u);
     end;
     u := FunctionParamNames;
     while Pos(tbtchar('|'), u) > 0 do
@@ -11627,8 +11626,8 @@ var
         end;
       btUnicodeString:
         begin
-          WriteLong(Length(tbtUnicodestring(p^.twidestring)));
-          WriteData(tbtUnicodestring(p^.twidestring)[1], 2*Length(tbtUnicodestring(p^.twidestring)));
+          WriteLong(Length(tbtUnicodestring(p^.tunistring)));
+          WriteData(tbtUnicodestring(p^.tunistring)[1], 2*Length(tbtUnicodestring(p^.tunistring)));
         end;
       btWideChar: WriteData(p^.twidechar, 2);
       {$ENDIF}
@@ -14267,7 +14266,7 @@ begin
       btString: tbtString(FValue.tstring) := c;
       {$IFNDEF PS_NOWIDESTRING}
       btWideString: tbtwidestring(FValue.twidestring) := tbtWidestring(c);
-      btUnicodeString: tbtUnicodestring(FValue.twidestring) := tbtUnicodestring(c);
+      btUnicodeString: tbtUnicodestring(FValue.tunistring) := tbtUnicodestring(c);
       {$ENDIF}
     else
       raise EPSCompilerException.Create(RPS_ConstantValueMismatch);

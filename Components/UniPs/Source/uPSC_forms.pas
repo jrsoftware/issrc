@@ -141,11 +141,9 @@ begin
     {$IFNDEF PS_MINIVCL}
     {$IFNDEF CLX}
     RegisterMethod('procedure ArrangeIcons');
-//    RegisterMethod('function GetFormImage: TBitmap');
     RegisterMethod('procedure Print');
     RegisterMethod('procedure SendCancelMode(Sender: TControl)');
     RegisterProperty('ActiveOleControl', 'TWinControl', iptrw);
-    RegisterProperty('OleFormObject', 'TOLEFormObject', iptrw);
     RegisterProperty('ClientHandle', 'HWND', iptr);
     RegisterProperty('TileMode', 'TTileMode', iptrw);
     {$ENDIF}
@@ -223,23 +221,18 @@ begin
     {$IFNDEF PS_MINIVCL}
     RegisterMethod('procedure ControlDestroyed(Control: TControl)');
     RegisterMethod('procedure CancelHint');
-    RegisterMethod('procedure HandleException(Sender: TObject)');
     RegisterMethod('procedure HandleMessage');
     RegisterMethod('procedure HideHint');
-//    RegisterMethod('procedure HintMouseMessage(Control: TControl; var Message: TMessage)');
     RegisterMethod('procedure Initialize');
     RegisterMethod('procedure NormalizeTopMosts');
     RegisterMethod('procedure RestoreTopMosts');
     RegisterMethod('procedure Run');
-//    RegisterMethod('procedure ShowException(E: Exception)');
     {$IFNDEF CLX}
     RegisterMethod('function HelpCommand(Command: Integer; Data: NativeInt): Boolean');
     RegisterMethod('function HelpContext(Context: THelpContext): Boolean');
     RegisterMethod('function HelpJump(JumpID: NativeString): Boolean');
     RegisterProperty('DialogHandle', 'HWND', iptrw);
     RegisterMethod('procedure CreateHandle');
-//    RegisterMethod('procedure HookMainWindow(Hook: TWindowHook)');
-//    RegisterMethod('procedure UnhookMainWindow(Hook: TWindowHook)');
     {$ENDIF}
     RegisterProperty('HelpFile', 'NativeString', iptrw);
     RegisterProperty('HintColor', 'TColor', iptrw);
