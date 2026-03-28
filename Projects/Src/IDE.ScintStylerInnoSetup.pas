@@ -2012,7 +2012,7 @@ initialization
     SSDV(ssPrivilegesRequired, ['admin', 'lowest']), { We don't list none/poweruser }
     SSDV(ssPrivilegesRequiredOverridesAllowed, ['commandline', 'dialog']),
     SSDV(ssSetupArchitecture, ['x86', 'x64']),
-    SSDV(ssUninstallLogMode, ['append', 'new', 'override']),
+    SSDV(ssUninstallLogMode, ['append', 'new', 'overwrite']),
     SSDV(ssUseSetupLdr, ['x86', 'x64', SYes, SNo]),
     SSDV(ssWizardImageAlphaFormat, ['none', 'defined', 'premultiplied']),
     SSDV(ssWizardStyle, ['classic', 'modern', 'light', 'dark', 'dynamic', 'excludelightbuttons', 'excludelightcontrols', 'includetitlebar', 'hidebevels', 'polar', 'slate', 'windows11', 'zircon'])];
