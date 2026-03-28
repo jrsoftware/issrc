@@ -68,7 +68,6 @@ type
     FThreadsUpToDate: Boolean;
     FHotIndex: Integer;
     FDisableItemStateDeletion: Integer;
-    FWheelAccum: Integer;
     FDisableStyledButtons: Boolean;
     class constructor Create;
     class destructor Destroy;
@@ -105,7 +104,6 @@ type
     procedure WMMouseMove(var Message: TWMMouseMove); message WM_MOUSEMOVE;
     procedure WMMouseWheel(var Message: TWMMouseWheel); message WM_MOUSEWHEEL;
     procedure WMNCHitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
-    procedure WMSetFocus(var Message: TWMSetFocus); message WM_SETFOCUS;
     procedure WMSize(var Message: TWMSize); message WM_SIZE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
     procedure WMUpdateUIState(var Message: TMessage); message WM_UPDATEUISTATE;
@@ -1912,12 +1910,6 @@ begin
       end;
     end;
   end;
-end;
-
-procedure TNewCheckListBox.WMSetFocus(var Message: TWMSetFocus);
-begin
-  FWheelAccum := 0;
-  inherited;
 end;
 
 procedure TNewCheckListBox.WMSize(var Message: TWMSize);
