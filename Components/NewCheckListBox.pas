@@ -1863,9 +1863,16 @@ begin
   begin
     Rect := ItemRect(Index);
     Indent := (FOffset * 2 + FCheckWidth);
-    if FWantTabs or ((Pos.X >= Rect.Left + Indent * ItemLevel[Index]) and
-      (Pos.X < Rect.Left + Indent * (ItemLevel[Index] + 1))) then
-      NewHotIndex := Index;
+    if FWantTabs then
+      NewHotIndex := Index
+    else begin
+      var CheckRect := Rect;
+      CheckRect.Left := Rect.Left + Indent * ItemLevel[Index];
+      CheckRect.Right := CheckRect.Left + Indent;
+      FlipRect(CheckRect, ClientRect, IsRightToLeft);
+      if (Pos.X >= CheckRect.Left) and (Pos.X < CheckRect.Right) then
+        NewHotIndex := Index;
+    end;
   end;
   UpdateHotIndex(NewHotIndex);
 end;
