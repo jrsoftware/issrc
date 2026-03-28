@@ -442,7 +442,7 @@ begin
     end;
     Details := LStyle.GetElementDetails(States[Control.Enabled]);
     S := TNewStaticText(Control).Caption;
-    if (S = '') or (TNewStaticText(Control).FShowAccelChar and (S[1] = '&') and (S[2] = #0)) then
+    if (S = '') or (TNewStaticText(Control).FShowAccelChar and (S[1] = '&') and (Length(S) = 1)) then
       S := S + ' ';
     if seFont in Control.StyleElements then
       DrawControlText(Canvas, Details, S, R, TNewStaticText(Control).GetDrawTextFlags)
