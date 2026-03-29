@@ -87,7 +87,7 @@ begin
   InitFormFont(Self);
   InitFormTheme(Self);
 
-  { Order must match CompFunc.TKeyMappingType }
+  { Order must match IDE.HelperFunc.TKeyMappingType }
   KeyMappingComboBox.Items.Add('Classic');
   KeyMappingComboBox.Items.Add('Visual Studio / Visual Studio Code');
 
