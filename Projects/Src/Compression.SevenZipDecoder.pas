@@ -39,7 +39,6 @@ type
     LogBuffer: AnsiString;
     ExtractedArchiveName: String;
     OnExtractionProgress: TOnExtractionProgress;
-    LastReportedProgress, LastReportedProgressMax: UInt64;
     Aborted: Boolean;
   end;
 
@@ -382,8 +381,6 @@ begin
   State.LogBuffer := '';
   State.ExtractedArchiveName := PathExtractName(ArchiveFileName);
   State.OnExtractionProgress := OnExtractionProgress;
-  State.LastReportedProgress := 0;
-  State.LastReportedProgressMax := 0;
   State.Aborted := False;
 
   var Res := IS_7zDec(PChar(ArchiveFileName), FullPaths);
