@@ -560,7 +560,7 @@ end;
 
 procedure TCTokenizer.IllegalChar(C: Char);
 begin                                             
-  raise EParsingError.CreateFmt(SIllegalChar, [C, Ord(C)]);
+  ErrorFmt(SIllegalChar, [C, Ord(C)]);
 end;
 
 procedure TCTokenizer.SetPos(NewPos: PChar);
