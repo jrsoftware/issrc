@@ -705,6 +705,7 @@ end;
 destructor TArchiveExtractAllCallback.Destroy;
 begin
   FLogQueue.Free;
+  inherited;
 end;
 
 function TArchiveExtractAllCallback.GetIndices: TArchiveExtractBaseCallback.TArrayOfUInt32;
