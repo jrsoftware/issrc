@@ -2010,7 +2010,7 @@ begin
           GetMem(ProcessInfos, ProcessInfosCountNeeded * SizeOf(ProcessInfos[0]));
           ProcessInfosCount := ProcessInfosCountNeeded;
 
-          if not RmGetList(RmSessionHandle, @ProcessInfosCountNeeded, @ProcessInfosCount, ProcessInfos, @RebootReasons) in [ERROR_SUCCESS, ERROR_MORE_DATA] then begin
+          if not (RmGetList(RmSessionHandle, @ProcessInfosCountNeeded, @ProcessInfosCount, ProcessInfos, @RebootReasons) in [ERROR_SUCCESS, ERROR_MORE_DATA]) then begin
             RmEndSession(RmSessionHandle);
             RmSessionStarted := False;
             Break;
