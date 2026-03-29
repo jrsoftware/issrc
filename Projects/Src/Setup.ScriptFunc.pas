@@ -2076,7 +2076,7 @@ begin
     raise Exception.Create('Count <> 0');
   {$ENDIF}
 
-  { The following should register all functions in ScriptDelphiFuncTable }
+  { The following should register all functions in DelphiScriptFuncTable }
   {$IFDEF DEBUG}
   Count := 0;
   {$ENDIF}
