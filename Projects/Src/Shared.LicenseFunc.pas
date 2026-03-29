@@ -91,11 +91,15 @@ function ParseLicenseKey(const LicenseKey: String; out License: TLicense): Boole
   begin
     const N = S.Length;
     if N = 8 then begin
-      const Year = Word.Parse(Copy(S, 1, 4));
-      const Month = Word.Parse(Copy(S, 5, 2));
-      const Day = Word.Parse(Copy(S, 7, 2));
-      D := EncodeDate(Year, Month, Day);
-      Result := True;
+      try
+        const Year = Word.Parse(Copy(S, 1, 4));
+        const Month = Word.Parse(Copy(S, 5, 2));
+        const Day = Word.Parse(Copy(S, 7, 2));
+        D := EncodeDate(Year, Month, Day);
+        Result := True;
+      except
+        Result := False;
+      end;
     end else if N = 0 then begin
       D := 0;
       Result := True;
