@@ -213,7 +213,7 @@ begin
       try
         FIndex := ToInt(Value).AsInteger;
       except on E: Exception do
-        raise EIdentError(E.Message);
+        raise EIdentError.Create(E.Message);
       end;
     end
     else
