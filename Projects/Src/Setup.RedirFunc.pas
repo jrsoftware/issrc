@@ -133,24 +133,6 @@ begin
   SetLastError(ErrorCode);
 end;
 
-function DeleteFileRedir(const DisableFsRedir: Boolean; const Filename: String): BOOL;
-var
-  PrevState: TPreviousFsRedirectionState;
-  ErrorCode: DWORD;
-begin
-  if not DisableFsRedirectionIf(DisableFsRedir, PrevState) then begin
-    Result := False;
-    Exit;
-  end;
-  try
-    Result := Windows.DeleteFile(PChar(Filename));
-    ErrorCode := GetLastError;
-  finally
-    RestoreFsRedirection(PrevState);
-  end;
-  SetLastError(ErrorCode);
-end;
-
 initialization
   {$IFNDEF WIN64}
   Wow64DisableWow64FsRedirectionFunc := GetProcAddress(GetModuleHandle(kernel32),
