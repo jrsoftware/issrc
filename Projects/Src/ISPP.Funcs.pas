@@ -1855,7 +1855,7 @@ function StringChangeFunc(Ext: NativeInt; const Params: IIsppFuncParams;
 var
   S: String;
 begin
-  if CheckParams(Params, [evStr, evStr, evStr], 1, Result) then
+  if CheckParams(Params, [evStr, evStr, evStr], 3, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
