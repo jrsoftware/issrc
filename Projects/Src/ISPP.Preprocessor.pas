@@ -1713,9 +1713,6 @@ end;
 
 function TPreprocessor.ParseFormalParams(Parser: TParser;
   var ParamList: PParamList): Integer;
-var
-  Param: TIsppMacroParam;
-  Ident: string;
 
   procedure Grow;
   var
@@ -1738,13 +1735,10 @@ begin
     ParamList := AllocMem(SizeOf(TIsppMacroParam) * 4);
     while not (PeekAtNextToken in [tkEOF, tkCloseParen]) do
     begin
-      Param.Name := '';
-      Param.DefValue.AsStr := '';
-      FillChar(Param, SizeOf(Param), 0);
-      Param.ParamFlags := [];
+      var Param := Default(TIsppMacroParam);
       if NextTokenExpect([tkIdent, opMul]) = tkIdent then
       begin
-        Ident := TokenString;
+        var Ident := TokenString;
         if not (PeekAtNextToken in [tkEOF, tkComma, tkCloseParen, opAssign]) then
         begin
           Ident := UpperCase(Ident);
@@ -1772,7 +1766,7 @@ begin
         Include(Param.ParamFlags, pfByRef);
         NextTokenExpect([tkIdent]);
       end;
-      Ident := TokenString;
+      const Ident = TokenString;
       Param.Name := CheckReservedIdent(Ident);
       if PeekAtNextToken = opAssign then
       begin
