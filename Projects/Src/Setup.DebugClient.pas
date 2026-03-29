@@ -2,7 +2,7 @@ unit Setup.DebugClient;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -93,7 +93,7 @@ end;
 
 function InternalDebugNotify(DebuggerMsg: UINT; Kind: TDebugEntryKind;
   Index: Integer; var ADebugContinueStepOver: Boolean;
-  const GetCallStack: TDebugNotifyGetCallStack = nil; const GetCallStackData: Pointer = nil): Boolean;
+  const GetCallStack: TDebugNotifyGetCallStack = nil): Boolean;
 { Returns True if the debugger paused. ADebugContinueStepOver is set to True
   if the debugger paused and the user resumed via Step Over, False otherwise. }
 var
