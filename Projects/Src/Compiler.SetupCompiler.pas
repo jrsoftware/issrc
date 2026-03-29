@@ -4151,7 +4151,7 @@ procedure TSetupCompiler.EnumIconsProc(const Line: PChar; const Ext: Integer);
       Result := '';
       const ScanCode = Integer(MapVirtualKey(WordRec(HotKey).Lo, 0) shl 16);
       if ScanCode <> 0 then begin
-        GetKeyNameText(ScanCode, KeyName, SizeOf(KeyName));
+        GetKeyNameText(ScanCode, KeyName, SizeOf(KeyName) div SizeOf(KeyName[0]));
         if (KeyName[1] = #0) and (KeyName[0] <> #0) then
           GetSpecialName := KeyName;
       end;
