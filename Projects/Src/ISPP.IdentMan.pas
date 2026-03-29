@@ -622,6 +622,8 @@ end;
 
 destructor TFuncCallContext.Destroy;
 begin
+  for var I := 0 to FParams.Count - 1 do
+    Dispose(PIsppVariant(FParams[I]));
   FParams.Free;
 end;
 
