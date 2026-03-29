@@ -7682,7 +7682,6 @@ var
               end,
               procedure(const Filename, SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
               begin
-                var VerifyResultAsString: String;
                 case VerifyResult of
                   vsrMalformed: VerificationError(veSignatureMalformed, Filename, SigFilename);
                   vsrBad: VerificationError(veSignatureBad, Filename, SigFilename);
