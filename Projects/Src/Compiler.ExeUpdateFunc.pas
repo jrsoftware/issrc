@@ -950,7 +950,7 @@ begin
               NewGroupIconDir.Items[I].Header := Ico.Items[I].Header;
               const Id = I+100; //start at 100 to avoid overwriting other icons that may exist
               if Id > High(Word) then
-                ResUpdateErrorWithLastError('UpdateResource failed (7)', ResourceName);
+                ResUpdateError('UpdateResource failed (7)', ResourceName);
               NewGroupIconDir.Items[I].Id := Word(Id);
             end;
 
