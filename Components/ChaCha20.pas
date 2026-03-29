@@ -179,7 +179,8 @@ begin
     ChaCha20Init(Context, SubKey[0], ULength(SubKey), NonceBytes[16], 8, Count);
   finally
     { Security: don't leave derived key in heap memory }
-    FillChar(SubKey[0], Length(SubKey), 0);
+    if Length(SubKey) > 0 then
+      FillChar(SubKey[0], Length(SubKey), 0);
   end;
 end;
 
