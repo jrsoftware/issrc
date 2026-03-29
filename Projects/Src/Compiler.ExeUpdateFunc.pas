@@ -718,7 +718,7 @@ type
     Result := False;
     if Size < Cardinal(SizeOf(Word) * 3) then
       Exit;
-    if (PChar(P)[0] = 'M') and (PChar(P)[1] = 'Z') then
+    if (PAnsiChar(P)[0] = 'M') and (PAnsiChar(P)[1] = 'Z') then
       Exit;
     ItemCount := PIcoHeader(P).ItemCount;
     if Size < Cardinal((SizeOf(Word) * 3) + (ItemCount * SizeOf(TIcoItem))) then
