@@ -569,7 +569,11 @@ begin
               btInterface, {$IFNDEF FPC} btArray, {$ENDIF}{$IFNDEF PS_FPCSTRINGWORKAROUND}btstring, {$ENDIF}btVariant, btStaticArray: GetPtr(res);
               btRecord:
                 begin
+                  {$IFDEF MSWINDOWS}
                   if res.aType.RealSize > 4 then GetPtr(res);
+                  {$ELSE}
+                  GetPtr(res);
+                  {$ENDIF}
                 end;
               btSet:
                 begin
@@ -627,6 +631,7 @@ begin
               btStaticArray{$IFNDEF FPC}, btArray{$ENDIF}{$IFNDEF PS_FPCSTRINGWORKAROUND}, btstring{$ENDIF}: RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
               btRecord:
                 begin
+                  {$IFDEF MSWINDOWS}
                   if res.aType.RealSize <= 4 then
                     case res.aType.RealSize of
                       1: PByte(res.Dta)^ := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 1, nil);
@@ -636,6 +641,9 @@ begin
                     end
                   else
                     RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
+                  {$ELSE}
+                  RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
+                  {$ENDIF}
                 end;
               {$IFDEF PS_FPCSTRINGWORKAROUND}
               btstring: begin
@@ -666,7 +674,11 @@ begin
               {$IFNDEF PS_NOWIDESTRING}btWideString, btUnicodeString, {$ENDIF}btInterface, btArray, btString, btVariant: GetPtr(res);
               btRecord:
                 begin
+                  {$IFDEF MSWINDOWS}
                   if res.aType.RealSize > 4 then GetPtr(res);
+                  {$ELSE}
+                  GetPtr(res);
+                  {$ENDIF}
                 end;
             end;
           end;
@@ -701,6 +713,7 @@ begin
               btInterface, btstring: RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
               btRecord:
                 begin
+                  {$IFDEF MSWINDOWS}
                   if res.aType.RealSize <= 4 then
                     case res.aType.RealSize of
                       1: PByte(res.Dta)^ := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 1, nil);
@@ -710,6 +723,9 @@ begin
                     end
                   else
                     RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
+                  {$ELSE}
+                  RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
+                  {$ENDIF}
                 end;
             else
               exit;
@@ -776,6 +792,7 @@ begin
               btArray, btstring:      begin GetPtr(res); RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil); end;
               btRecord:
                 begin
+                  {$IFDEF MSWINDOWS}
                   if res.aType.RealSize > 4 then
                   begin
                     GetPtr(res);
@@ -788,6 +805,10 @@ begin
                     else
                       PCardinal(res.Dta)^ := RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
                     end;
+                  {$ELSE}
+                  GetPtr(res);
+                  RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
+                  {$ENDIF}
                 end;
             else
               exit;
@@ -828,6 +849,7 @@ begin
               btInterface, btArray, btstring: begin GetPtr(res); RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil); end;
               btRecord:
                 begin
+                  {$IFDEF MSWINDOWS}
                   if res.aType.RealSize > 4 then
                   begin
                     GetPtr(res);
@@ -840,6 +862,10 @@ begin
                     else
                       PCardinal(res.Dta)^ := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
                     end;
+                  {$ELSE}
+                  GetPtr(res);
+                  RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
+                  {$ENDIF}
                 end;
             else
               exit;

@@ -10,7 +10,7 @@ end;
 TComponent = class(TPersistent)
   function FindComponent(AName: String): TComponent;
   constructor Create(AOwner: TComponent);
-  property Owner: TComponent; read write;
+  property Owner: TComponent; read;
   procedure DestroyComponents;
   procedure Destroying;
   procedure FreeNotification(AComponent: TComponent);

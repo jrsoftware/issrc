@@ -1039,8 +1039,7 @@ end;
 
 destructor TPSStringList.Destroy;
 begin
-  while List.Count > 0 do
-    Delete(0);
+  Clear;
   List.Destroy;
   inherited Destroy;
 end;
@@ -1642,12 +1641,15 @@ function TPSList.IndexOf(P: Pointer): Longint;
 var
   i: Integer;
 begin
-  for i := FCount -1 downto 0 do
+  if FCount > 0 then
   begin
-    if FData[i] = p then
+    for i := FCount -1 downto 0 do
     begin
-      result := i;
-      exit;
+      if FData[i] = p then
+      begin
+        result := i;
+        exit;
+      end;
     end;
   end;
   result := -1;

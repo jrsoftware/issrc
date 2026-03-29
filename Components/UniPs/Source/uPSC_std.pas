@@ -45,7 +45,7 @@ begin
     RegisterMethod('function FindComponent(AName: string): TComponent;');
     RegisterMethod('constructor Create(AOwner: TComponent); virtual;');
 
-    RegisterProperty('Owner', 'TComponent', iptRW);
+    RegisterProperty('Owner', 'TComponent', iptR);
     RegisterMethod('procedure DestroyComponents');
     RegisterMethod('procedure Destroying');
     RegisterMethod('procedure FreeNotification(AComponent: TComponent)');
