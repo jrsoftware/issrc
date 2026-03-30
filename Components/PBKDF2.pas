@@ -51,7 +51,10 @@ begin
       var F := U;
 
       for var I := 2 to Iterations do begin
-        U := THashSHA2.GetHMACAsBytes(U, WorkingPassword, HashVersion);
+        const NewU = THashSHA2.GetHMACAsBytes(U, WorkingPassword, HashVersion);
+        { Security: don't leave key derivation intermediates on the heap }
+        FillChar(U[0], Length(U), 0);
+        U := NewU;
         for var J := 0 to High(F) do
           F[J] := F[J] xor U[J];
       end;

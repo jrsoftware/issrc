@@ -2,7 +2,7 @@ unit ISSigFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -398,10 +398,11 @@ begin
          PrivateDStr]);
     finally
       { Security: don't leave copy of private key scalar on the heap }
-      UniqueString(PrivateDStr);
-      if Length(PrivateDStr) > 0 then
+      if PrivateDStr <> '' then begin
+        UniqueString(PrivateDStr);
         FillChar(PrivateDStr[1], Length(PrivateDStr) * SizeOf(Char), 0);
-      PrivateDStr := '';
+        PrivateDStr := '';
+      end;
     end;
   finally
     PrivateKey.Clear;
