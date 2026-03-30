@@ -1149,7 +1149,7 @@ end;
 destructor TSimpleStringList.Destroy;
 begin
   Clear;
-  inherited Destroy;
+  inherited;
 end;
 
 { TProgressThrottler }

@@ -361,6 +361,7 @@ end;
 constructor TMacroCallContext.Create(const IdentManager: IIdentManager;
   Macro: PMacro);
 begin
+  inherited Create;
   FIdentManager := IdentManager;
   FMacro := Macro;
   FList := AllocMem(SizeOf(TMacroArgument) * Macro^.ParamCount);
@@ -373,7 +374,8 @@ begin
       Dispose(PIsppVariant(FLocalVars[I]));
     FLocalVars.Free;
   end;
-  FreeMem(FList)
+  FreeMem(FList);
+  inherited;
 end;
 
 procedure TMacroCallContext.Add(const Name: string;
@@ -615,6 +617,7 @@ type
 
 constructor TFuncCallContext.Create(Sender: NativeInt; Func: PFunc);
 begin
+  inherited Create;
   FSender := Sender;
   FFunc := Func;
   FParams := TList.Create;
@@ -625,6 +628,7 @@ begin
   for var I := 0 to FParams.Count - 1 do
     Dispose(PIsppVariant(FParams[I]));
   FParams.Free;
+  inherited;
 end;
 
 procedure TFuncCallContext.Add(const Name: string;
@@ -706,6 +710,7 @@ end;
 
 constructor TIdentManager.Create(const CustomIdents: IIdentManager; FuncSender: NativeInt);
 begin
+  inherited Create;
   FCustomIdents := CustomIdents;
   FVarMan := TList.Create;
   FFuncSender := FuncSender;
@@ -716,6 +721,7 @@ begin
   for var I := 0 to FVarMan.Count - 1 do
     FreeItem(FVarMan[I]);
   FVarMan.Free;
+  inherited;
 end;
 
 function TIdentManager.Defined(const Name: string): Boolean;

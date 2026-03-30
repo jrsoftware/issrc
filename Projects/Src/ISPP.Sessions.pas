@@ -80,7 +80,7 @@ begin
       DeleteFile(PChar(FTempFiles[I]));
     FTempFiles.Free;
   end;
-  inherited Destroy;
+  inherited;
 end;
 
 function TPreprocessorFlowStack.Peek: TPreprocessor;
