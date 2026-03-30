@@ -152,15 +152,25 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <p>Additionally, the following changes have been made in both editions:</p>
 <ul>
-  <li>The Compiler IDE has been renamed from <tt>Compil32.exe</tt> to <tt>ISIDE.exe</tt>.</li>
-  <li>Compiler IDE: <i>Find in Files</i>, <i>Replace All</i>, and <i>Select All Find Matches</i> could enter an infinite loop, or miss a valid match at the end of the text, when using a regular expression that matches zero-length text (for example <tt>^</tt> or <tt>\b</tt>).</li>
-  <li>The <tt>[Setup]</tt> section directive <tt>AppVerName</tt> now defaults to <tt><i>AppName</i> <i>AppVersion</i></tt> (just a space separating the values) rather than <tt><i>AppName</i> version <i>AppVersion</i></tt> (localized). If you prefer to keep the word "version" (localized), use the <tt>NameAndVersion</tt> custom message: <tt>AppVerName={cm:NameAndVersion,My Program,1.5}</tt></li>
-  <li>The <tt>[Setup]</tt> section directive <tt>TimeStampsInUTC</tt> now defaults to <tt>yes</tt>.</li>
-  <li>The <tt>[Setup]</tt> section directive <tt>ArchiveExtraction</tt> can now also be set to <tt>auto</tt>, the new default, which automatically selects the appropriate method based on entries in the <tt>[Files]</tt> section.<br/>
-      If it selects <tt>basic</tt> because no entry uses the <tt>extractarchive</tt> flag, but you still use support function <tt>ExtractArchive</tt> or <tt>CreateExtractionPage</tt>, you must still manually set the correct method.</li>
+  <li>Compiler IDE:
+  <ul>
+    <li>The Compiler IDE has been renamed from <tt>Compil32.exe</tt> to <tt>ISIDE.exe</tt>.</li>
+    <li><i>Find in Files</i>, <i>Replace All</i>, and <i>Select All Find Matches</i> could enter an infinite loop, or miss a valid match at the end of the text, when using a regular expression that matches zero-length text (for example <tt>^</tt> or <tt>\b</tt>).</li>
+  </ul>
+  </li>
+  <li><tt>[Setup]</tt> section:
+  <ul>
+    <li>Directive <tt>AppVerName</tt> now defaults to <tt><i>AppName</i> <i>AppVersion</i></tt> (just a space separating the values) rather than <tt><i>AppName</i> version <i>AppVersion</i></tt> (localized).<br/>
+        If you prefer to keep the word "version" (localized), use the <tt>NameAndVersion</tt> custom message: <tt>AppVerName={cm:NameAndVersion,My Program,1.5}</tt></li>
+    <li>Directive <tt>ArchiveExtraction</tt> can now also be set to <tt>auto</tt>, the new default, which automatically selects the appropriate method based on entries in the <tt>[Files]</tt> section.<br/>
+        If it selects <tt>basic</tt> because no entry uses the <tt>extractarchive</tt> flag, but you still use support function <tt>ExtractArchive</tt> or <tt>CreateExtractionPage</tt>, you must still manually set the correct method.</li>
+    <li>Directive <tt>TimeStampsInUTC</tt> now defaults to <tt>yes</tt>.</li>
+  </ul>
+  </li>
   <li>Pascal Scripting:
   <ul>
-    <li>Added new optional <tt>OnLog</tt> parameter to the <tt>[Run]</tt> section. When combined with the <tt>logoutput</tt> flag, it specifies the name of a procedure that is to be called for each line of the program's output instead of directly including it in the log file. See updated <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/PowerShell.iss">PowerShell.iss</a></i> example script.</li>
+    <li>Added new optional <tt>OnLog</tt> parameter to the <tt>[Run]</tt> section. When combined with the <tt>logoutput</tt> flag, it specifies the name of a procedure that is to be called for each line of the program's output instead of directly including it in the log file.<br/>
+        See updated <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/PowerShell.iss">PowerShell.iss</a></i> example script.</li>
     <li>Support function <tt>Chr</tt> now correctly accepts ordinal values greater than 255.</li>
     <li>Support function <tt>FloatToStr</tt> no longer outputs unnecessary trailing zeros.</li>
     <li>Using <tt>Exit</tt> within a <tt>try..finally</tt> block now works correctly when the <tt>finally</tt> block contains function calls.</li>
