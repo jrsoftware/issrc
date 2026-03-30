@@ -382,9 +382,9 @@ begin
   FComplexCommandsReversed.Clear;
 
   { Normally VK_OEM_1 is ;, VK_OEM_6 is ], VK_OEM_4 is [,  VK_OEM_2 is /,  and VK_OEM_5 is \
-    See IDE.HelperFunc's NewShortcutToText for how it's is handled when they are different.
+    See IDE.HelperFunc's NewShortcutToText for how it is handled when they are different.
     Note: all VK_OEM shortcuts must have a menu item so the user can see what the
-    shortcut is for their kayboard layout. }
+    shortcut is for their keyboard layout. }
 
   if FKeyMappingType = kmtVSCode then begin
     { Use freed Ctrl+D and Ctrl+Shift+L }
