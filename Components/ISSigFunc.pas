@@ -384,16 +384,25 @@ begin
   try
     AKey.ExportPrivateKey(PrivateKey);
 
-    APrivateKeyText := Format(
-      'format issig-private-key'#13#10 +
-      'key-id %s'#13#10 +
-      'public-x %s'#13#10 +
-      'public-y %s'#13#10 +
-      'private-d %s'#13#10,
-      [SHA256DigestToString(CalcKeyID(PrivateKey.PublicKey)),
-       ECDSAInt256ToString(PrivateKey.PublicKey.Public_x),
-       ECDSAInt256ToString(PrivateKey.PublicKey.Public_y),
-       ECDSAInt256ToString(PrivateKey.Private_d)]);
+    var PrivateDStr := ECDSAInt256ToString(PrivateKey.Private_d);
+    try
+      APrivateKeyText := Format(
+        'format issig-private-key'#13#10 +
+        'key-id %s'#13#10 +
+        'public-x %s'#13#10 +
+        'public-y %s'#13#10 +
+        'private-d %s'#13#10,
+        [SHA256DigestToString(CalcKeyID(PrivateKey.PublicKey)),
+         ECDSAInt256ToString(PrivateKey.PublicKey.Public_x),
+         ECDSAInt256ToString(PrivateKey.PublicKey.Public_y),
+         PrivateDStr]);
+    finally
+      { Security: don't leave copy of private key scalar on the heap }
+      UniqueString(PrivateDStr);
+      if Length(PrivateDStr) > 0 then
+        FillChar(PrivateDStr[1], Length(PrivateDStr) * SizeOf(Char), 0);
+      PrivateDStr := '';
+    end;
   finally
     PrivateKey.Clear;
   end;

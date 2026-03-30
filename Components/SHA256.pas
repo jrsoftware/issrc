@@ -57,15 +57,12 @@ begin
 end;
 
 function SHA256DigestsEqual(const A, B: TSHA256Digest): Boolean;
-var
-  I: Integer;
 begin
-  for I := Low(TSHA256Digest) to High(TSHA256Digest) do
-    if A[I] <> B[I] then begin
-      Result := False;
-      Exit;
-    end;
-  Result := True;
+  { Security: constant-time comparison to prevent timing side channels }
+  var Diff: Byte := 0;
+  for var I := Low(TSHA256Digest) to High(TSHA256Digest) do
+    Diff := Diff or (A[I] xor B[I]);
+  Result := Diff = 0;
 end;
 
 function SHA256DigestToString(const D: TSHA256Digest): String;

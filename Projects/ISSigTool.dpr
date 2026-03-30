@@ -159,9 +159,18 @@ begin
     Key.GenerateKeyPair;
 
     var PrivateKeyText: String;
-    ISSigExportPrivateKeyText(Key, PrivateKeyText);
-    ISSigSaveTextToFile(Options.KeyFile, PrivateKeyText);
-    PrintUnlessQuiet('private key written');
+    try
+      ISSigExportPrivateKeyText(Key, PrivateKeyText);
+      ISSigSaveTextToFile(Options.KeyFile, PrivateKeyText);
+      PrintUnlessQuiet('private key written');
+    finally
+      { Security: don't leave copy of private key text on the heap }
+      if PrivateKeyText <> '' then begin
+        UniqueString(PrivateKeyText);
+        FillChar(PrivateKeyText[1], Length(PrivateKeyText) * SizeOf(Char), 0);
+        PrivateKeyText := '';
+      end;
+    end;
   finally
     Key.Free;
   end;
