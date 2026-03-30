@@ -2,7 +2,7 @@ unit IDE.MainForm.ScintHelper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -361,8 +361,7 @@ begin
   var ClosestSelectionDistance := 0; { Silence compiler }
   var CaretPos := AMemo.CaretPosition;
 
-  while (StartPos < EndPos) and
-        AMemo.FindText(StartPos, EndPos, FLastFindText,
+  while AMemo.FindText(StartPos, EndPos, FLastFindText,
           FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), FoundRange) do begin
     if StartPos = 0 then
       AMemo.SetSingleSelection(FoundRange.EndPos, FoundRange.StartPos)
@@ -376,6 +375,12 @@ begin
     end;
 
     StartPos := FoundRange.EndPos;
+    { If the match was empty the next search would match at the same position, so must manually progress }
+    if FoundRange.Empty then begin
+      if StartPos = EndPos then
+        Break;
+      StartPos := AMemo.GetPositionAfter(StartPos);
+    end;
   end;
   if ClosestSelection <> -1 then begin
     AMemo.MainSelection := ClosestSelection;

@@ -153,6 +153,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p>Additionally, the following changes have been made in both editions:</p>
 <ul>
   <li>The Compiler IDE has been renamed from <tt>Compil32.exe</tt> to <tt>ISIDE.exe</tt>.</li>
+  <li>Compiler IDE: <i>Find in Files</i>, <i>Replace All</i>, and <i>Select All Find Matches</i> could enter an infinite loop, or miss a valid match at the end of the text, when using a regular expression that matches zero-length text (for example <tt>^</tt> or <tt>\b</tt>).</li>
   <li>The <tt>[Setup]</tt> section directive <tt>AppVerName</tt> now defaults to <tt><i>AppName</i> <i>AppVersion</i></tt> (just a space separating the values) rather than <tt><i>AppName</i> version <i>AppVersion</i></tt> (localized). If you prefer to keep the word "version" (localized), use the <tt>NameAndVersion</tt> custom message: <tt>AppVerName={cm:NameAndVersion,My Program,1.5}</tt></li>
   <li>The <tt>[Setup]</tt> section directive <tt>TimeStampsInUTC</tt> now defaults to <tt>yes</tt>.</li>
   <li>The <tt>[Setup]</tt> section directive <tt>ArchiveExtraction</tt> can now also be set to <tt>auto</tt>, the new default, which automatically selects the appropriate method based on entries in the <tt>[Files]</tt> section.<br/>
