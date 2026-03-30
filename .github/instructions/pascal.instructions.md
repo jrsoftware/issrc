@@ -20,6 +20,7 @@ applyTo: "**/*.pas,**/*.dpr,**/*.inc"
 - Using variable name Res as a shortcut for Result is allowed.
 # Code editing guidelines for Pascal source files
 - Do not modify existing comments unless the code they describe is also being changed.
+- When modifying code that calls Windows APIs, read the actual documentation before writing code. Do not assume parameter semantics based on similar APIs.
 - Update Inno Setup copyright header of any file you edit, if the current year is not already included.
 # Code review guidelines for Pascal source files
 - All errors must be checked. Installers should be reliable above all.
