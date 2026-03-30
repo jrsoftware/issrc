@@ -754,10 +754,10 @@ begin
 
   if Enabled then begin
     AppRootDirLabel.Font.Style := AppRootDirLabel.Font.Style + [fsBold];
-    AppDirNameLabel.Font.Style := AppRootDirLabel.Font.Style + [fsBold];
+    AppDirNameLabel.Font.Style := AppDirNameLabel.Font.Style + [fsBold];
   end else begin
     AppRootDirLabel.Font.Style := AppRootDirLabel.Font.Style - [fsBold];
-    AppDirNameLabel.Font.Style := AppRootDirLabel.Font.Style - [fsBold];
+    AppDirNameLabel.Font.Style := AppDirNameLabel.Font.Style - [fsBold];
   end;
 
   { AppFiles }
