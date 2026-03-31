@@ -8,6 +8,7 @@ applyTo: "**/*.pas,**/*.dpr,**/*.inc"
   Inline constants which are an object can still have their properties modified.
   const MaxCount = MinCount * 2;
   const ExpandedFilename = PathExpand(Filenames[I]);
+  Exception: inline constants cannot be passed as `var` parameters, so use an inline variable in that case.
 - Do not use with statements.
 - If and begin should be on the same line.
 - Else and begin should be on the same line.

@@ -1672,7 +1672,6 @@ const
 var
   I, StartIndex: Integer;
   Valid: Boolean;
-  Dummy: ShortInt;
 begin
   { Style span symbols, then replace them with spaces to prevent any further
     processing }
@@ -1703,7 +1702,8 @@ begin
         end;
         ResetCurIndexTo(StartIndex);
         try
-          HandleCompilerDirective(True, I - 1, Dummy);
+          var OpenCount: ShortInt := 0;
+          HandleCompilerDirective(True, I - 1, OpenCount);
         finally
           ResetCurIndexTo(0);
         end;
