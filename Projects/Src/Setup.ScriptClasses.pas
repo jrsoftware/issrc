@@ -2,7 +2,7 @@ unit Setup.ScriptClasses;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -20,7 +20,7 @@ procedure ScriptClassesLibraryUpdateVars(ScriptInterpreter: TIFPSExec);
 implementation
 
 uses
-  Windows, Controls, Forms, StdCtrls, Graphics, Imaging.pngimage, ExtCtrls,
+  Windows, Controls, Forms, StdCtrls, Graphics, Imaging.pngimage, ExtCtrls, Classes,
   uPSR_std, uPSR_classes, uPSR_graphics, uPSR_controls, uPSR_forms,
   uPSR_stdctrls, uPSR_extctrls, uPSR_comobj,
   NewStaticText, NewCheckListBox, NewProgressBar, RichEditViewer,
@@ -382,16 +382,41 @@ begin
   end;
 end;
 
+function DownloadWizardPageAddExHelper(Self: TDownloadWizardPage; const Url, BaseName,
+  RequiredSHA256OfFile, UserName, Password: String): NativeInt;
+begin
+  { Provides extra Data parameter which is not present in the prototype registered by
+    RegisterDownloadWizardPage_C }
+  Result := Self.AddEx(Url, BaseName, RequiredSHA256OfFile, UserName, Password, 0);
+end;
+
+function DownloadWizardPageAddExWithISSigVerifyHelper(Self: TDownloadWizardPage;
+  const Url, ISSigUrl, BaseName, UserName, Password: String;
+  const AllowedKeysRuntimeIDs: TStringList): NativeInt;
+begin
+  { Provides extra Data parameter which is not present in the prototype registered by
+    RegisterDownloadWizardPage_C }
+  Result := Self.AddExWithISSigVerify(Url, ISSigUrl, BaseName, UserName,
+    Password, AllowedKeysRuntimeIDs, 0);
+end;
+
+function DownloadWizardPageDownloadHelper(Self: TDownloadWizardPage): Int64;
+begin
+  { Provides extra OnDownloadFileCompleted parameter which is not present in the
+    prototype registered by RegisterDownloadWizardPage_C }
+  Result := Self.Download(nil);
+end;
+
 procedure RegisterDownloadWizardPage_R(CL: TPSRuntimeClassImporter);
 begin
   with CL.Add(TDownloadWizardPage) do
   begin
     RegisterMethod(@TDownloadWizardPage.Add, 'Add');
     RegisterMethod(@TDownloadWizardPage.AddWithISSigVerify, 'AddWithISSigVerify');
-    RegisterMethod(@TDownloadWizardPage.AddEx, 'AddEx');
-    RegisterMethod(@TDownloadWizardPage.AddExWithISSigVerify, 'AddExWithISSigVerify');
+    RegisterMethod(@DownloadWizardPageAddExHelper, 'AddEx');
+    RegisterMethod(@DownloadWizardPageAddExWithISSigVerifyHelper, 'AddExWithISSigVerify');
     RegisterMethod(@TDownloadWizardPage.Clear, 'Clear');
-    RegisterMethod(@TDownloadWizardPage.Download, 'Download');
+    RegisterMethod(@DownloadWizardPageDownloadHelper, 'Download');
     RegisterMethod(@TDownloadWizardPage.Show, 'Show');
   end;
 end;
