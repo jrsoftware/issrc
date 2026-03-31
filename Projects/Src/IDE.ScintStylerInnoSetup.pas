@@ -1913,8 +1913,6 @@ function GetCompressionValues: TArray<TScintRawString>;
 const
   ZipAlgos: TArray<TScintRawString> = ['zip', 'bzip'];
   LZMAAlgos: TArray<TScintRawString> = ['lzma', 'lzma2'];
-type
-  TZipLevels = 1..9;
 begin
   SetLength(Result, 1 +
     Length(ZipAlgos) + Length(ZipAlgos) * (High(TZipLevel) - Low(TZipLevel) + 1) +
