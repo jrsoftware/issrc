@@ -263,6 +263,8 @@ procedure TWizardFormFilesHelper.AddScript(var Files: String; out HasExtractArch
 var
   WizardFile: PWizardFile;
 begin
+  HasExtractArchive := False;
+
   var AddedVerificationNote := False;
 
   for var I := 0 to FWizardFiles.Count-1 do begin

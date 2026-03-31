@@ -24,7 +24,8 @@ applyTo: "**/*.pas,**/*.dpr,**/*.inc"
 - Update Inno Setup copyright header of any file you edit, if the current year is not already included.
 # Code review guidelines for Pascal source files
 - All errors must be checked. Installers should be reliable above all.
-- Be alert for `out` parameters initializing to zero/empty upon function entry, unlike `var` parameters.
+- Be alert for `out` parameters: an `out` parameter, like a `var` parameter, is passed by reference. However, with an `out` parameter, the initial value of the referenced variable for managed types, such as strings or arrays, is discarded by the caller before it is passed to the routine. Meanwhile, the initial value for unmanaged types, such as integers or pointers, is ignored. Therefore, for unmanaged types, it is not guaranteed that the initial value of the referenced variable will be overwritten in the routine to which it is passed. 
+- Be alert for functions not assigning a value to Result: if a function exits without assigning a value to Result or the function name, then the function's return value is undefined, even for managed types.
 - Code must be compatible with Delphi 10.4 Sydney and later.
 - Code must be compatible with 32-bit and 64-bit builds.
 - Code must be compatible with Windows 7 and later.
