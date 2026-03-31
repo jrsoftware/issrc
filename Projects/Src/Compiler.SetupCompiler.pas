@@ -2052,6 +2052,11 @@ begin
     Exit;
   V := 0;
 
+  {$IFOPT Q-}
+  {$DEFINE RESTOREQ}
+  {$Q+}
+  {$ENDIF}
+
   try
     for I := StartIndex to Len do begin
       C := UpCase(S[I]);
@@ -2076,9 +2081,13 @@ begin
     end;
     X := V;
     Result := True;
-  except on E: EOverflow do
+  except on E: EIntOverflow do
     ;
   end;
+
+  {$IFDEF RESTOREQ}
+  {$Q-}
+  {$ENDIF}
 end;
 
 function TSetupCompiler.EvalArchitectureIdentifier(Sender: TSimpleExpression;
