@@ -237,13 +237,13 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
 
   type
     TRegistryEntry = record
-      Root, Subkey, ValueName, ValueData, ValueType: String;
+      Root, QuotedSubkey, QuotedValueName, ValueData, ValueType: String;
     end;
 
   function RequiresAdminInstallMode(AEntry: TRegistryEntry): Boolean;
   begin
     Result := (AEntry.Root = 'HKLM') or (AEntry.Root = 'HKCC') or
-              ((AEntry.Root = 'HKU') and SameText(AEntry.Subkey, '.Default'));
+              ((AEntry.Root = 'HKU') and SameText(AEntry.QuotedSubkey, '".Default"'));
   end;
 
    function RequiresNotAdminInstallMode(AEntry: TRegistryEntry): Boolean;
@@ -265,7 +265,7 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
   function TextKeyEntry(AEntry: TRegistryEntry; ADeleteKey: Boolean): String;
   begin
     Result := 'Root: ' + AEntry.Root +
-              '; Subkey: ' + AEntry.Subkey;
+              '; Subkey: ' + AEntry.QuotedSubkey;
     if ADeleteKey then
       Result := Result + '; ValueType: none' +
                          '; Flags: deletekey'
@@ -281,9 +281,9 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
   function TextValueEntry(AEntry: TRegistryEntry; AValueType: TValueType): String;
   begin
     Result := 'Root: ' + AEntry.Root +
-              '; Subkey: ' + AEntry.Subkey +
+              '; Subkey: ' + AEntry.QuotedSubkey +
               '; ValueType: ' + AEntry.ValueType +
-              '; ValueName: ' + AEntry.ValueName;
+              '; ValueName: ' + AEntry.QuotedValueName;
     if AValueType = vtDelete then
       Result := Result + '; Flags: deletevalue'
     else begin
@@ -352,14 +352,14 @@ begin
 
         var Entry: TRegistryEntry;
         Entry.Root := StrRootRename(Copy(Line, 1, P - 1));
-        Entry.Subkey := Copy(Line, P + 1, MaxInt);
+        var Subkey := Copy(Line, P + 1, MaxInt);
         if Entry.Root = 'HKCR' then begin
           Entry.Root := 'HKA';
-          Entry.Subkey := 'Software\Classes\' + Entry.Subkey;
+          Subkey := 'Software\Classes\' + Subkey;
         end;
-        Entry.Subkey := Entry.Subkey.Replace('\WOW6432Node', '')
-                                            .Replace('{', '{{')
-                                            .QuotedString('"');
+        Entry.QuotedSubkey := Subkey.Replace('\WOW6432Node', '')
+                                    .Replace('{', '{{')
+                                    .QuotedString('"');
 
         var FilterKey := ((FPrivilegesRequired = prAdmin) and RequiresNotAdminInstallMode(Entry)) or
                          ((FPrivilegesRequired = prLowest) and RequiresAdminInstallMode(Entry));
@@ -376,10 +376,10 @@ begin
           if not FilterKey and not DeleteKey and (Line[1] <> ';') then begin
             P := Pos('=', Line);
             if (P = 2) and (Line[1] = '@') then
-              Entry.ValueName := '""'
+              Entry.QuotedValueName := '""'
             else begin
-              Entry.ValueName := CutStrBeginEnd(Copy(Line, 1, P - 1), 1);
-              Entry.ValueName := Entry.ValueName.Replace('\\', '\')
+              const ValueName = CutStrBeginEnd(Copy(Line, 1, P - 1), 1);
+              Entry.QuotedValueName := ValueName.Replace('\\', '\')
                                                 .Replace('{', '{{')
                                                 .QuotedString('"');
             end;
