@@ -93,16 +93,23 @@ begin
 end;
 
 procedure TDropListBox.WMDropFiles(var Msg: TWMDropFiles);
-var
-  FileName: array[0..MAX_PATH-1] of Char;
 begin
   try
     if Assigned(FOnDropFile) then begin
       const FileCount = DragQueryFile(Msg.Drop, $FFFFFFFF, nil, 0);
       if FileCount > 0 then
-        for var I := 0 to FileCount-1 do
-          if DragQueryFile(Msg.Drop, I, FileName, SizeOf(FileName) div SizeOf(FileName[0])) > 0 then
-            FOnDropFile(Self, FileName);
+        for var I := 0 to FileCount-1 do begin
+          const Len = DragQueryFile(Msg.Drop, I, nil, 0);
+          if Len > 0 then begin
+            var FileName: String;
+            SetLength(FileName, Len);
+            const Copied = DragQueryFile(Msg.Drop, I, PChar(FileName), Len + 1);
+            if Copied > 0 then begin
+              SetLength(FileName, Copied);
+              FOnDropFile(Self, FileName);
+            end;
+          end;
+        end;
     end;
     Msg.Result := 0;
   finally
