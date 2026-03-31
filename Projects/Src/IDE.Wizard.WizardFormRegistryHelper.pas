@@ -443,7 +443,7 @@ begin
                     { ValueData is in reverse order, fix this }
                     var ReverseValueData := Entry.ValueData.Replace(',', '');
                     Entry.ValueData := '';
-                    for var I := 0 to ReverseValueData.Length div 2 do
+                    for var I := 0 to ReverseValueData.Length div 2 - 1 do
                       Entry.ValueData := Copy(ReverseValueData, (I * 2) + 1, 2) + Entry.ValueData;
 
                     Entry.ValueType := IfThen(ValueType = vtDWordAsList, 'dword', 'qword');
