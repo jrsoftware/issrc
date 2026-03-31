@@ -2,7 +2,7 @@ unit Compiler.ScriptClasses;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -324,7 +324,7 @@ begin
   begin
     RegisterProperty('Color', 'TColor', iptrw);
     RegisterProperty('Notebook', 'TNewNotebook', iptrw);
-    RegisterProperty('PageIndex', 'Integer', iptrw);
+    RegisterProperty('PageIndex', 'NativeInt', iptrw);
   end;
 end;
 
@@ -595,10 +595,10 @@ begin
     RegisterProperty('AbortedByUser', 'Boolean', iptr);
     RegisterProperty('LastBaseNameOrUrl', 'String', iptr);
     RegisterProperty('ShowBaseNameInsteadOfUrl', 'Boolean', iptrw);
-    RegisterMethod('function Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer');
-    RegisterMethod('function AddWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList): Integer;');
-    RegisterMethod('function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String): Integer');
-    RegisterMethod('function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String; const AllowedKeysRuntimeIDs: TStringList): Integer;');
+    RegisterMethod('function Add(const Url, BaseName, RequiredSHA256OfFile: String): NativeInt');
+    RegisterMethod('function AddWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList): NativeInt;');
+    RegisterMethod('function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String): NativeInt');
+    RegisterMethod('function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String; const AllowedKeysRuntimeIDs: TStringList): NativeInt;');
     RegisterMethod('procedure Clear');
     RegisterMethod('function Download: Int64');
     RegisterMethod('procedure Show'); { Without this TOutputProgressWizardPage's Show will be called }
@@ -612,8 +612,8 @@ begin
     RegisterProperty('AbortButton', 'TNewButton', iptr);
     RegisterProperty('AbortedByUser', 'Boolean', iptr);
     RegisterProperty('ShowArchiveInsteadOfFile', 'Boolean', iptrw);
-    RegisterMethod('function Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): Integer');
-    RegisterMethod('function AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): Integer');
+    RegisterMethod('function Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): NativeInt');
+    RegisterMethod('function AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): NativeInt');
     RegisterMethod('procedure Clear');
     RegisterMethod('procedure Extract');
     RegisterMethod('procedure Show'); { Without this TOutputProgressWizardPage's Show will be called }
