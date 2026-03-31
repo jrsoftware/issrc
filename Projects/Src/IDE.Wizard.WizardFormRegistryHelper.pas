@@ -2,7 +2,7 @@ unit IDE.Wizard.WizardFormRegistryHelper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -399,7 +399,7 @@ begin
                   P := Pos(':', ValueTypeAndData);
                   var ValueData := Copy(ValueTypeAndData, P + 1, MaxInt);
 
-                  var HasMoreLines := ValueData[ValueData.Length] = '\';
+                  var HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
                   if HasMoreLines then
                     Delete(ValueData, ValueData.Length, 1);
                   Entry.ValueData := ValueData;
@@ -407,7 +407,7 @@ begin
                   while HasMoreLines do
                   begin
                     ValueData := NextLine(Lines, LineIndex).TrimLeft;
-                    HasMoreLines := ValueData[ValueData.Length] = '\';
+                    HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
                     if HasMoreLines then
                       Delete(ValueData, ValueData.Length, 1);
                     Entry.ValueData := Entry.ValueData + ValueData;
