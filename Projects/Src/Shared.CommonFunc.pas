@@ -2,7 +2,7 @@ unit Shared.CommonFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -841,7 +841,7 @@ function InternalRegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String
 var
   Typ, Size: DWORD;
   S: String;
-  ErrorCode: Longint;
+  ErrorCode: Integer;
 label 1;
 begin
   Result := False;
@@ -879,7 +879,7 @@ begin
         goto 1;
       end;
       if (ErrorCode = ERROR_SUCCESS) and
-         ((Typ = Type1) or (Typ = Type2) or (Typ = Type3)) then begin
+         ((Typ = Type1) or (Typ = Type2) or ((Type3 <> REG_NONE) and (Typ = Type3))) then begin
         { If Size isn't a multiple of SizeOf(S[1]), we disregard the partial
           character, like RegGetValue }
         Len := Size div SizeOf(S[1]);
