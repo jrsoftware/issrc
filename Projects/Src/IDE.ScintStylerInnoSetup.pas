@@ -366,7 +366,7 @@ const
     'userstartmenu', 'commonstartmenu', 'userstartup', 'commonstartup',
     'usertemplates', 'commontemplates', 'autoappdata', 'autocf', 'autodesktop',
     'autodocs', 'autofonts', 'autopf', 'autoprograms', 'autostartmenu', 'cmd',
-    'computername', 'groupname', 'hwnd', 'wizardhwnd', 'language', 'srcexe',
+    'computername', 'groupname', 'wizardhwnd', 'language', 'srcexe',
     'uninstallexe', 'sysuserinfoname', 'sysuserinfoorg', 'userinfoname',
     'userinfoorg', 'userinfoserial', 'username', 'log'
   ];
