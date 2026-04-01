@@ -4223,6 +4223,8 @@ procedure TSetupCompiler.EnumIconsProc(const Line: PChar; const Ext: Integer);
       else Break;
     end;
     if Text = '' then Exit;
+    { The use of $255 here is quite awkward, and also the comment isn't very clear, but
+      both of these are copied from Vcl.Menus.pas, and present even in Delphi 13.1 }
     for Key := $08 to $255 do { Copy range from table in HotKeyToText }
       if AnsiCompareText(Text, HotKeyToText(Key)) = 0 then
       begin
