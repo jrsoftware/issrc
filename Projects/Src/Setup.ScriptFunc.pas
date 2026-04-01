@@ -1133,12 +1133,12 @@ var
     end);
     RegisterScriptFunc('REGISTERSERVER', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      RegisterServer(False, Stack.GetBool(PStart), Stack.GetString(PStart-1), Stack.GetBool(PStart-2));
+      RegisterServer(False, Stack.GetBool(PStart), Stack.GetString(PStart-1));
     end);
     RegisterScriptFunc('UNREGISTERSERVER', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       try
-        RegisterServer(True, Stack.GetBool(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3));
+        RegisterServer(True, Stack.GetBool(PStart-1), Stack.GetString(PStart-2));
         Stack.SetBool(PStart, True);
       except
         Stack.SetBool(PStart, False);

@@ -657,7 +657,7 @@ var
       else
         LogFmt('Unregistering 32-bit DLL/OCX: %s', [Filename]);
       try
-        RegisterServer(True, Is64Bit, Filename, True);
+        RegisterServer(True, Is64Bit, Filename);
         UnregisteredServersList.Add(Filename);
         Log('Unregistration successful.');
       except

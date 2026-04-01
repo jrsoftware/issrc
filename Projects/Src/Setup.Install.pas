@@ -2432,7 +2432,7 @@ procedure RegisterFiles(const RegisterFilesList: TList);
         LogFmt('Registering 32-bit DLL/OCX: %s', [Filename]);
       NeedToRetry := False;
       try
-        RegisterServer(False, Is64Bit, Filename, NoErrorMessages);
+        RegisterServer(False, Is64Bit, Filename);
         Log('Registration successful.');
       except
         Log('Registration failed:' + SNewLine + GetExceptMessage);

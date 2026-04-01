@@ -161,8 +161,8 @@ begin
             NoErrorMessages := (L[3] = 'q') or (CreatedAsAdmin and not IsAdmin);
             try
               case L[2] of
-                's': RegisterServer(False, False, RegFilename, NoErrorMessages);
-                'S': RegisterServer(False, True, RegFilename, NoErrorMessages);
+                's': RegisterServer(False, False, RegFilename);
+                'S': RegisterServer(False, True, RegFilename);
                 {$IFNDEF WIN64} 't': RegisterTypeLibrary(RegFilename); {$ENDIF}
                 {$IFDEF WIN64} 'T': RegisterTypeLibrary(RegFilename); {$ENDIF}
               end;

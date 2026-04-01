@@ -389,8 +389,8 @@ initialization
     'function IsProtectedSystemFile(const Filename: String): Boolean;',
     'function MakePendingFileRenameOperationsChecksum: String;',
     'function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;',
-    'procedure RegisterServer(const Is64Bit: Boolean; const Filename: String; const FailCriticalErrors: Boolean);',
-    'function UnregisterServer(const Is64Bit: Boolean; const Filename: String; const FailCriticalErrors: Boolean): Boolean;',
+    'procedure RegisterServer(const Is64Bit: Boolean; const Filename: String; const Reserved: Boolean);',
+    'function UnregisterServer(const Is64Bit: Boolean; const Filename: String; const Reserved: Boolean): Boolean;',
     'procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);',
     //procedure RestartComputer;
     'procedure RestartReplace(const TempFile, DestFile: String);',
