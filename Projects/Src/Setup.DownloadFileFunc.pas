@@ -440,9 +440,10 @@ begin
   TempF := TFile.Create(TempFile, fdCreateAlways, faWrite, fsNone);
   TempFileLeftOver := True;
 
-  HTTPDataReceiver := THTTPDataReceiver.Create(Url,
-    DownloadTemporaryFileUser, DownloadTemporaryFilePass, TempF);
+  HTTPDataReceiver := nil;
   try
+    HTTPDataReceiver := THTTPDataReceiver.Create(Url,
+      DownloadTemporaryFileUser, DownloadTemporaryFilePass, TempF);
     HTTPDataReceiver.BaseName := BaseName;
     HTTPDataReceiver.OnDownloadProgress := OnDownloadProgress;
     HTTPDataReceiver.OnDownloadNoProgress := OnDownloadNoProgress;
