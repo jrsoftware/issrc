@@ -184,6 +184,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <ul>
     <li>Renamed (previously undocumented) support functions <tt>GetFileCompany</tt>, <tt>GetFileDescription</tt>, <tt>GetFileCopyright</tt>, <tt>GetFileOriginalFilename</tt>, and <tt>GetFileProductVersion</tt> to <tt>GetFileCompanyString</tt>, <tt>GetFileDescriptionString</tt>, <tt>GetFileCopyrightString</tt>, <tt>GetFileOriginalFilenameString</tt>, and <tt>GetFileProductVersionString</tt> respectively, making them consistent with the existing (also previously undocumented) <tt>GetFileVersionString</tt>. The old names still work.</li>
     <li>Documented the difference between <tt>GetFileVersionString</tt> and <tt>GetVersionNumbersString</tt>.</li>
+    <li>Fixed handling of relative filenames by support functions <tt>ReadIni</tt>, <tt>WriteIni</tt>, and <tt>Is64BitPEImage</tt> to be the same as other file-related support functions.</li>
   </ul>
   </li>
   <li>Split the help text shown by the <tt>/HELP</tt> command line parameter across two message boxes for easier reading.</li>
