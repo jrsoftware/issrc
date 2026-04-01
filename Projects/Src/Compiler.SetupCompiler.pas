@@ -5761,7 +5761,7 @@ begin
              end;
         end;
 
-        if (ADestDir = '{tmp}') or (Copy(ADestDir, 1, 4) = '{tmp}\') then
+        if (ADestDir = '{tmp}') or (Copy(ADestDir, 1, Length('{tmp}\')) = '{tmp}\') then
           Include(Options, foDeleteAfterInstall);
         if foDeleteAfterInstall in Options then begin
           if foRestartReplace in Options then
