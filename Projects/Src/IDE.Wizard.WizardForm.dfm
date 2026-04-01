@@ -838,7 +838,6 @@ object WizardForm: TWizardForm
             Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Other shortcuts to the main executable:'
-            FocusControl = AppDirNameEdit
             TabOrder = 7
             WordWrap = True
           end
@@ -1017,7 +1016,6 @@ object WizardForm: TWizardForm
             Anchors = [akLeft, akTop, akRight]
             AutoSize = False
             Caption = 'Install mode:'
-            FocusControl = AppLicenseFileEdit
             TabOrder = 0
             WordWrap = True
           end
