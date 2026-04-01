@@ -209,6 +209,8 @@ end;
 
 {$IFDEF CPUX86}
 
+{$UNDEF RESTORER}
+{$UNDEF RESTOREQ}
 {$IFOPT R+}
 {$DEFINE RESTORER}
 {$R-}
@@ -246,9 +248,11 @@ begin
 end;
 {$IFDEF RESTORER}
 {$R+}
+{$UNDEF RESTORER}
 {$ENDIF}
 {$IFDEF RESTOREQ}
 {$Q+}
+{$UNDEF RESTOREQ}
 {$ENDIF}
 
 function TASMInline.GetReloc(index: integer): TReloc;

@@ -2052,6 +2052,7 @@ begin
     Exit;
   V := 0;
 
+  {$UNDEF RESTOREQ}
   {$IFOPT Q-}
   {$DEFINE RESTOREQ}
   {$Q+}
@@ -2087,6 +2088,7 @@ begin
 
   {$IFDEF RESTOREQ}
   {$Q-}
+  {$UNDEF RESTOREQ}
   {$ENDIF}
 end;
 
