@@ -704,7 +704,12 @@ type
       if Cardinal(N) > Cardinal($100000) then  { sanity check }
         ResUpdateError('File is too large', '', ERROR_INVALID_PARAMETER);
       GetMem(P, N);
-      F.ReadBuffer(P^, N);
+      try
+        F.ReadBuffer(P^, N);
+      except
+        FreeMem(P);
+        raise;
+      end;
       Result := N;
     finally
       F.Free;
