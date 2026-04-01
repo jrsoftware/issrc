@@ -2,7 +2,7 @@ unit Compiler.HelperFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -61,7 +61,6 @@ const
   clDkGray = TColors.DkGray;
   clWhite = TColors.White;
   clNone = TColors.SysNone;
-  clDefault = TColors.SysDefault;
 
 function StringToColor(const S: string): TColor;
 function IsRelativePath(const Filename: String): Boolean;
@@ -89,7 +88,7 @@ type
   end;
 
 const
-  Colors: array[0..41] of TColorEntry = (
+  Colors: array[0..43] of TColorEntry = (
     (Value: clBlack; Name: 'clBlack'),
     (Value: clMaroon; Name: 'clMaroon'),
     (Value: clGreen; Name: 'clGreen'),
@@ -105,6 +104,8 @@ const
     (Value: clBlue; Name: 'clBlue'),
     (Value: clFuchsia; Name: 'clFuchsia'),
     (Value: clAqua; Name: 'clAqua'),
+    (Value: clLtGray; Name: 'clLtGray'),
+    (Value: clDkGray; Name: 'clDkGray'),
     (Value: clWhite; Name: 'clWhite'),
     (Value: clScrollBar; Name: 'clScrollBar'),
     (Value: clBackground; Name: 'clBackground'),
