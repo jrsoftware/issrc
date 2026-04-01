@@ -4744,7 +4744,7 @@ begin
           CheckConst(ValueData, MinVersion, [acOldData]);
         rtMultiString:
           CheckConst(ValueData, MinVersion, [acOldData, acBreak]);
-        rtDWord:
+        rtDWord, rtQWord:
           CheckConst(ValueData, MinVersion, []);
       end;
     end;
