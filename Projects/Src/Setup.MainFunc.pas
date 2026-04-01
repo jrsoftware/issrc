@@ -1103,9 +1103,8 @@ const
     ('commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
      'usersendto', 'commonfonts', 'commonappdata', 'commondocs', 'commontemplates',
      'commonfavorites' { not accepted anymore by the compiler }, '', '', '', ''));
-  NoUninstallConsts: array[0..6] of String =
-    ('src', 'srcexe', 'userinfoname', 'userinfoorg', 'userinfoserial', 'hwnd',
-     'wizardhwnd');
+  NoUninstallConsts: array[0..5] of String =
+    ('src', 'srcexe', 'userinfoname', 'userinfoorg', 'userinfoserial', 'wizardhwnd');
 var
   OriginalCnst, ShellFolder: String;
   Common: Boolean;
