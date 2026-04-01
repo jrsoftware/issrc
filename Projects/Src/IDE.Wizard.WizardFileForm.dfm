@@ -131,7 +131,7 @@ object WizardFileForm: TWizardFileForm
       Width = 86
       Height = 14
       Caption = 'Destination &name:'
-      FocusControl = DestSubDirEdit
+      FocusControl = DestNameEdit
       TabOrder = 6
     end
   end
