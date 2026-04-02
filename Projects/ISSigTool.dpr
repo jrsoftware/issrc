@@ -107,16 +107,21 @@ end;
 
 procedure ImportKey(const AKey: TECDSAKey; const ANeedPrivateKey: Boolean);
 begin
-  const ImportResult = ISSigImportKeyText(AKey,
-    ISSigLoadTextFromFile(Options.KeyFile), ANeedPrivateKey);
-  if ImportResult <> ikrSuccess then begin
-    case ImportResult of
-      ikrMalformed:
-        RaiseFatalError('Key file is malformed');
-      ikrNotPrivateKey:
-        RaiseFatalError('Key file must be a private key when signing');
+  var KeyText: String;
+  try
+    KeyText := ISSigLoadTextFromFile(Options.KeyFile);
+    const ImportResult = ISSigImportKeyText(AKey, KeyText, ANeedPrivateKey);
+    if ImportResult <> ikrSuccess then begin
+      case ImportResult of
+        ikrMalformed:
+          RaiseFatalError('Key file is malformed');
+        ikrNotPrivateKey:
+          RaiseFatalError('Key file must be a private key when signing');
+      end;
+      RaiseFatalError('Unknown import key result');
     end;
-    RaiseFatalError('Unknown import key result');
+  finally
+    ISSigWipeString(KeyText);
   end;
 end;
 
@@ -130,13 +135,19 @@ begin
     ISSigExportPublicKeyText(Key, PublicKeyText);
 
     if NewFileExists(AFilename) then begin
-      const ExistingText = ISSigLoadTextFromFile(AFilename);
-      if ExistingText = PublicKeyText then begin
-        PrintFmtUnlessQuiet('%s: ', [AFilename], False);
-        PrintUnlessQuiet('public key unchanged');
-        Exit;
-      end else if not Options.AllowOverwrite then
-        RaiseFatalError('File already exists');
+      var ExistingText: String;
+      try
+        ExistingText := ISSigLoadTextFromFile(AFilename);
+        if ExistingText = PublicKeyText then begin
+          PrintFmtUnlessQuiet('%s: ', [AFilename], False);
+          PrintUnlessQuiet('public key unchanged');
+          Exit;
+        end else if not Options.AllowOverwrite then
+          RaiseFatalError('File already exists');
+      finally
+        { Just in case the existing file is a private key file }
+        ISSigWipeString(ExistingText);
+      end;
     end;
 
     ISSigSaveTextToFile(AFilename, PublicKeyText);
@@ -164,12 +175,7 @@ begin
       ISSigSaveTextToFile(Options.KeyFile, PrivateKeyText);
       PrintUnlessQuiet('private key written');
     finally
-      { Security: don't leave copy of private key text on the heap }
-      if PrivateKeyText <> '' then begin
-        UniqueString(PrivateKeyText);
-        FillChar(PrivateKeyText[1], Length(PrivateKeyText) * SizeOf(Char), 0);
-        PrivateKeyText := '';
-      end;
+      ISSigWipeString(PrivateKeyText);
     end;
   finally
     Key.Free;
@@ -302,8 +308,8 @@ end;
 procedure ShowUsage;
 begin
   PrintErrOutput('Inno Setup Signature Tool');
-  PrintErrOutput('Copyright (C) 1997-2025 Jordan Russell. All rights reserved.');
-  PrintErrOutput('Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.');
+  PrintErrOutput('Copyright (C) 1997-2026 Jordan Russell. All rights reserved.');
+  PrintErrOutput('Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.');
   PrintErrOutput('https://www.innosetup.com');
   PrintErrOutput('');
   PrintErrOutput('Usage:  issigtool [options] sign <filenames>');

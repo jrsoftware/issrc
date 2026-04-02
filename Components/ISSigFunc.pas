@@ -27,6 +27,8 @@ type
 function ISSigLoadTextFromFile(const AFilename: String): String;
 procedure ISSigSaveTextToFile(const AFilename, AText: String);
 
+procedure ISSigWipeString(var S: String);
+
 function ISSigCreateSignatureText(const AKey: TECDSAKey;
   const AFileName: String; const AFileSize: Int64; const AFileHash: TSHA256Digest): String;
 function ISSigVerifySignatureText(const AAllowedKeys: array of TECDSAKey;
@@ -140,6 +142,34 @@ begin
         Result := SS.Consume(#10);
       end;
     end;
+end;
+
+procedure ISSigWipeString(var S: String);
+{ Clears a string variable, overwriting the existing contents with zeros
+  first. This should be called on string variables containing private keys
+  before the variables go out of scope.
+  Important: The string should have a reference count of 1 ("unique"). Do not
+  pass strings that reference string literals (which have a reference count of
+  -1) or strings with multiple references; they will not be wiped, and when
+  DEBUG is defined, an exception will be raised. }
+begin
+  if S = '' then
+    Exit;
+
+  var T := S;
+  S := '';
+  const RefCount = StringRefCount(T);
+  if RefCount = 1 then
+    FillChar(T[Low(T)], Length(T) * SizeOf(T[Low(T)]), 0)
+  else begin
+    { This function is usually called from a "finally" section. Raising an
+      exception there is improper practice, so only do it on debug builds. }
+    {$IFDEF DEBUG}
+    raise Exception.CreateFmt(
+      'ISSigWipeString: Cannot wipe string because reference count is %d',
+      [RefCount]);
+    {$ENDIF}
+  end;
 end;
 
 function ISSigLoadTextFromFile(const AFilename: String): String;
@@ -384,8 +414,9 @@ begin
   try
     AKey.ExportPrivateKey(PrivateKey);
 
-    var PrivateDStr := ECDSAInt256ToString(PrivateKey.Private_d);
+    var PrivateDStr: String;
     try
+      PrivateDStr := ECDSAInt256ToString(PrivateKey.Private_d);
       APrivateKeyText := Format(
         'format issig-private-key'#13#10 +
         'key-id %s'#13#10 +
@@ -397,12 +428,7 @@ begin
          ECDSAInt256ToString(PrivateKey.PublicKey.Public_y),
          PrivateDStr]);
     finally
-      { Security: don't leave copy of private key scalar on the heap }
-      if PrivateDStr <> '' then begin
-        UniqueString(PrivateDStr);
-        FillChar(PrivateDStr[1], Length(PrivateDStr) * SizeOf(Char), 0);
-        PrivateDStr := '';
-      end;
+      ISSigWipeString(PrivateDStr);
     end;
   finally
     PrivateKey.Clear;
@@ -463,27 +489,31 @@ begin
      not ConsumeLineValue(SS, 'public-x', TextValues.Public_x, 64, 64, HexDigitsSet) or
      not ConsumeLineValue(SS, 'public-y', TextValues.Public_y, 64, 64, HexDigitsSet) then
     Exit;
-  if HasPrivateKey then
-    if not ConsumeLineValue(SS, 'private-d', TextValues.Private_d, 64, 64, HexDigitsSet) then
+  try
+    if HasPrivateKey then
+      if not ConsumeLineValue(SS, 'private-d', TextValues.Private_d, 64, 64, HexDigitsSet) then
+        Exit;
+    if not SS.ReachedEnd then
       Exit;
-  if not SS.ReachedEnd then
-    Exit;
 
-  APrivateKey.Clear;  { just because Private_d isn't always set }
-  APrivateKey.PublicKey.Public_x := ECDSAInt256FromString(TextValues.Public_x);
-  APrivateKey.PublicKey.Public_y := ECDSAInt256FromString(TextValues.Public_y);
+    APrivateKey.Clear;  { just because Private_d isn't always set }
+    APrivateKey.PublicKey.Public_x := ECDSAInt256FromString(TextValues.Public_x);
+    APrivateKey.PublicKey.Public_y := ECDSAInt256FromString(TextValues.Public_y);
 
-  { Verify that the key ID is correct for the public key values }
-  if not SHA256DigestsEqual(SHA256DigestFromString(TextValues.KeyID),
-     CalcKeyID(APrivateKey.PublicKey)) then
-    Exit;
+    { Verify that the key ID is correct for the public key values }
+    if not SHA256DigestsEqual(SHA256DigestFromString(TextValues.KeyID),
+       CalcKeyID(APrivateKey.PublicKey)) then
+      Exit;
 
-  if ANeedPrivateKey then begin
-    if not HasPrivateKey then
-      Exit(ikrNotPrivateKey);
-    APrivateKey.Private_d := ECDSAInt256FromString(TextValues.Private_d);
+    if ANeedPrivateKey then begin
+      if not HasPrivateKey then
+        Exit(ikrNotPrivateKey);
+      APrivateKey.Private_d := ECDSAInt256FromString(TextValues.Private_d);
+    end;
+    Result := ikrSuccess;
+  finally
+    ISSigWipeString(TextValues.Private_d);
   end;
-  Result := ikrSuccess;
 end;
 
 function ISSigParsePrivateKeyText(const AText: String;
