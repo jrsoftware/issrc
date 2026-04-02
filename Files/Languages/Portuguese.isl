@@ -2,10 +2,10 @@
 ;
 ; Original translation by Nuno Silva (nars@gmx.net)
 ; Revised and updated to AO90 by BlackSpirits (blackspirits@gmail.com)
-; Last modified: 22 November 2025 by BlackSpirits
+; Last modified: 01 April 2026 by BlackSpirits
 
 [LangOptions]
-LanguageName=Português (Portugal)
+LanguageName=Portugu<00EA>s (Portugal)
 LanguageID=$0816
 LanguageCodePage=1252
 
@@ -48,8 +48,8 @@ SetupAppRunningError=O Assistente de Instalação detetou que o %1 está em exec
 UninstallAppRunningError=O Assistente de Desinstalação detetou que o %1 está em execução. Feche-o e de seguida clique em OK para continuar, ou clique em Cancelar para cancelar a desinstalação.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Selecione o Modo de Instalação
-PrivilegesRequiredOverrideInstruction=Selecione o Modo de Instalação
+PrivilegesRequiredOverrideTitle=Selecione o modo de instalação
+PrivilegesRequiredOverrideInstruction=Selecione o modo de instalação
 PrivilegesRequiredOverrideText1=%1 pode ser instalado para todos os utilizadores (necessita de privilégios administrativos), ou só para si.
 PrivilegesRequiredOverrideText2=%1 pode ser instalado só para si, ou para todos os utilizadores (necessita de privilégios administrativos).
 PrivilegesRequiredOverrideAllUsers=Instalar para &todos os utilizadores
@@ -66,9 +66,9 @@ ExitSetupTitle=Terminar a instalação
 ExitSetupMessage=A instalação não está completa. Se terminar agora, o programa não será instalado.%n%nMais tarde poderá executar novamente este Assistente de Instalação e concluir a instalação.%n%nDeseja terminar a instalação?
 AboutSetupMenuItem=&Acerca de...
 AboutSetupTitle=Acerca do Assistente de Instalação
-AboutSetupMessage=%1 versão %2%n%3%n%n%1 home page:%n%4
+AboutSetupMessage=%1 versão %2%n%3%n%nSite oficial do %1:%n%4
 AboutSetupNote=
-TranslatorNote=Portuguese (Portugal) translation by Nuno Silva (nars@gmx.net) and BlackSpirits (blackspirits@gmail.com)
+TranslatorNote=Tradução para português (Portugal) por Nuno Silva (nars@gmx.net) e BlackSpirits (blackspirits@gmail.com)
 
 ; *** Buttons
 ButtonBack=< &Anterior
@@ -83,18 +83,18 @@ ButtonNoToAll=Nã&o para todos
 ButtonFinish=&Concluir
 ButtonBrowse=&Procurar...
 ButtonWizardBrowse=P&rocurar...
-ButtonNewFolder=&Criar Nova Pasta
+ButtonNewFolder=&Criar nova pasta
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Selecione o Idioma do Assistente de Instalação
-SelectLanguageLabel=Selecione o idioma para usar durante a Instalação.
+SelectLanguageTitle=Selecione o idioma do Assistente de Instalação
+SelectLanguageLabel=Selecione o idioma a utilizar durante a instalação.
 
 ; *** Common wizard text
 ClickNext=Clique em Seguinte para continuar ou em Cancelar para cancelar a instalação.
 BeveledLabel=
-BrowseDialogTitle=Procurar Pasta
+BrowseDialogTitle=Procurar pasta
 BrowseDialogLabel=Selecione uma pasta na lista abaixo e clique em OK.
-NewFolderName=Nova Pasta
+NewFolderName=Nova pasta
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Bem-vindo ao Assistente de Instalação do [name]
@@ -103,7 +103,7 @@ WelcomeLabel2=O Assistente de Instalação irá instalar o [name/ver] no seu com
 ; *** "Password" wizard page
 WizardPassword=Palavra-passe
 PasswordLabel1=Esta instalação está protegida por palavra-passe.
-PasswordLabel3=Insira a palavra-passe e de seguida clique em Seguinte para continuar. Na palavra-passe existe diferença entre maiúsculas e minúsculas.
+PasswordLabel3=Insira a palavra-passe e, em seguida, clique em Seguinte para continuar. A palavra-passe distingue maiúsculas de minúsculas.
 PasswordEditLabel=&Palavra-passe:
 IncorrectPassword=A palavra-passe que introduziu não está correta. Tente novamente.
 
@@ -134,7 +134,7 @@ UserInfoNameRequired=Deve introduzir um nome.
 WizardSelectDir=Selecione a localização de destino
 SelectDirDesc=Onde deverá ser instalado o [name]?
 SelectDirLabel3=O [name] será instalado na seguinte pasta.
-SelectDirBrowseLabel=Para continuar, clique em Seguinte. Se desejar selecionar uma pasta diferente, clique em Procurar.
+SelectDirBrowseLabel=Para continuar, clique em Seguinte. Para selecionar uma pasta diferente, clique em Procurar.
 DiskSpaceGBLabel=É necessário pelo menos [gb] GB de espaço livre em disco.
 DiskSpaceMBLabel=É necessário pelo menos [mb] MB de espaço livre em disco.
 CannotInstallToNetworkDrive=O Assistente de Instalação não pode instalar numa unidade de rede.
@@ -145,7 +145,7 @@ DiskSpaceWarningTitle=Não há espaço suficiente no disco
 DiskSpaceWarning=O Assistente de Instalação necessita de pelo menos %1 KB de espaço livre, mas a unidade selecionada tem apenas %2 KB disponíveis.%n%nDeseja continuar de qualquer forma?
 DirNameTooLong=O nome ou caminho para a pasta é demasiado longo.
 InvalidDirName=O nome da pasta não é válido.
-BadDirName32=O nome da pasta não pode conter nenhum dos seguintes caracteres:%n%n%1
+BadDirName32=O nome da pasta não pode conter nenhum dos seguintes carateres:%n%n%1
 DirExistsTitle=A pasta já existe
 DirExists=A pasta:%n%n%1%n%njá existe. Pretende instalar nesta pasta?
 DirDoesntExistTitle=A pasta não existe
@@ -155,11 +155,11 @@ DirDoesntExist=A pasta:%n%n%1%n%nnão existe. Pretende que esta pasta seja criad
 WizardSelectComponents=Selecione os componentes
 SelectComponentsDesc=Que componentes deverão ser instalados?
 SelectComponentsLabel2=Selecione os componentes que quer instalar e desselecione os componentes que não quer instalar. Clique em Seguinte quando estiver pronto para continuar.
-FullInstallation=Instalação Completa
+FullInstallation=Instalação completa
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
-CompactInstallation=Instalação Compacta
-CustomInstallation=Instalação Personalizada
-NoUninstallWarningTitle=Componentes Encontrados
+CompactInstallation=Instalação compacta
+CustomInstallation=Instalação personalizada
+NoUninstallWarningTitle=Componentes encontrados
 NoUninstallWarning=O Assistente de Instalação detetou que os seguintes componentes estão instalados no seu computador:%n%n%1%n%nSe desselecionar estes componentes eles não serão desinstalados.%n%nDeseja continuar?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
@@ -179,7 +179,7 @@ SelectStartMenuFolderBrowseLabel=Para continuar, clique em Seguinte. Se desejar 
 MustEnterGroupName=É necessário introduzir um nome para a pasta.
 GroupNameTooLong=O nome ou caminho para a pasta é demasiado longo.
 InvalidGroupName=O nome da pasta não é válido.
-BadGroupName=O nome da pasta não pode conter nenhum dos seguintes caracteres:%n%n%1
+BadGroupName=O nome da pasta não pode conter nenhum dos seguintes carateres:%n%n%1
 NoProgramGroupCheck2=&Não criar nenhuma pasta no Menu Iniciar
 
 ; *** "Ready to Install" wizard page
@@ -197,36 +197,36 @@ ReadyMemoTasks=Tarefas adicionais:
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
 DownloadingLabel2=A transferir ficheiros...
 ButtonStopDownload=&Parar transferência
-StopDownload=Tem a certeza que deseja parar a transferência?
+StopDownload=Tem a certeza de que pretende parar a transferência?
 ErrorDownloadAborted=Transferência cancelada
 ErrorDownloadFailed=Falha na transferência: %1 %2
-ErrorDownloadSizeFailed=Falha ao obter tamanho: %1 %2
+ErrorDownloadSizeFailed=Falha ao obter o tamanho: %1 %2
 ErrorProgress=Progresso inválido: %1 de %2
 ErrorFileSize=Tamanho de ficheiro inválido: esperado %1, encontrado %2
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=A extrair ficheiros...
 ButtonStopExtraction=&Parar extração
-StopExtraction=Tem a certeza que deseja parar a extração?
+StopExtraction=Tem a certeza de que pretende parar a extração?
 ErrorExtractionAborted=Extração cancelada
 ErrorExtractionFailed=Falha na extração: %1
 
 ; *** Archive extraction failure details
-ArchiveIncorrectPassword=A palavra-passe está incorreta
-ArchiveIsCorrupted=O ficheiro está corrompido
-ArchiveUnsupportedFormat=O formato do ficheiro não é suportado
+ArchiveIncorrectPassword=A palavra-passe do ficheiro comprimido está incorreta
+ArchiveIsCorrupted=O ficheiro comprimido está corrompido
+ArchiveUnsupportedFormat=Formato de ficheiro comprimido não suportado
 
 ; *** "Preparing to Install" wizard page
-WizardPreparing=A preparar para instalar
-PreparingDesc=A preparar para instalar o [name] no seu computador.
+WizardPreparing=A preparar a instalação
+PreparingDesc=A preparar a instalação do [name] no seu computador.
 PreviousInstallNotCompleted=A instalação/remoção de um programa anterior não foi completada. Necessitará de reiniciar o computador para completar essa instalação.%n%nDepois de reiniciar o computador, execute novamente este Assistente de Instalação para completar a instalação do [name].
 CannotContinue=A instalação não pode continuar. Clique em Cancelar para sair.
 ApplicationsFound=As seguintes aplicações estão a utilizar ficheiros que necessitam de ser atualizados pelo Assistente de Instalação. Recomenda-se que permita que o Assistente de Instalação feche estas aplicações.
-ApplicationsFound2=As seguintes aplicações estão a utilizar ficheiros que necessitam de ser atualizados pelo Assistente de Instalação. Recomenda-se que permita que o Assistente de Instalação feche estas aplicações. Depois de completar a instalação, o Assistente de Instalação tentará reiniciar as aplicações.
+ApplicationsFound2=As seguintes aplicações estão a utilizar ficheiros que necessitam de ser atualizados pelo Assistente de Instalação. Recomenda-se que permita que o Assistente de Instalação feche estas aplicações. Depois de concluir a instalação, o Assistente de Instalação tentará reiniciar as aplicações.
 CloseApplications=&Fechar as aplicações automaticamente
 DontCloseApplications=&Não fechar as aplicações
-ErrorCloseApplications=O Assistente de Instalação não conseguiu fechar todas as aplicações automaticamente. Antes de continuar, recomenda-se que feche todas as aplicações que utilizem ficheiros que necessitem de ser atualizados pelo Assistente de Instalação.
-PrepareToInstallNeedsRestart=O Assistente de Instalação necessita de reiniciar o seu computador. Depois de reiniciar o computador, execute novamente o Assistente de Instalação para completar a instalação do [name].%n%nDeseja reiniciar agora?
+ErrorCloseApplications=O Assistente de Instalação não conseguiu fechar automaticamente todas as aplicações. Antes de continuar, recomenda-se que feche todas as aplicações que utilizem ficheiros que necessitem de ser atualizados pelo Assistente de Instalação.
+PrepareToInstallNeedsRestart=O Assistente de Instalação necessita de reiniciar o seu computador. Depois de reiniciar o computador, execute novamente o Assistente de Instalação para concluir a instalação do [name].%n%nDeseja reiniciar agora?
 
 ; *** "Installing" wizard page
 WizardInstalling=A instalar
@@ -239,7 +239,7 @@ FinishedLabel=O Assistente de Instalação concluiu a instalação do [name] no 
 ClickFinish=Clique em Concluir para finalizar o Assistente de Instalação.
 FinishedRestartLabel=Para completar a instalação do [name], o Assistente de Instalação deverá reiniciar o seu computador. Deseja reiniciar agora?
 FinishedRestartMessage=Para completar a instalação do [name], o Assistente de Instalação deverá reiniciar o seu computador.%n%nDeseja reiniciar agora?
-ShowReadmeCheck=Sim, desejo visualizar o ficheiro README
+ShowReadmeCheck=Sim, desejo ver o ficheiro README
 YesRadio=&Sim, desejo reiniciar o computador agora
 NoRadio=&Não, desejo reiniciar o computador mais tarde
 ; used for example as 'Run MyProg.exe'
@@ -276,7 +276,7 @@ StatusRegisterFiles=A registar ficheiros...
 StatusSavingUninstall=A guardar informações para desinstalação...
 StatusRunProgram=A concluir a instalação...
 StatusRestartingApplications=A reiniciar aplicações...
-StatusRollback=A anular as alterações...
+StatusRollback=A reverter as alterações...
 
 ; *** Misc. errors
 ErrorInternal2=Erro interno: %1
@@ -298,14 +298,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&Ignorar este ficheiro (não recomendado)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorar este erro e continuar (não recomendado)
 SourceIsCorrupted=O ficheiro de origem está corrompido
 SourceDoesntExist=O ficheiro de origem "%1" não existe
-SourceVerificationFailed=Verificação do ficheiro de origem falhou: %1
+SourceVerificationFailed=A verificação do ficheiro de origem falhou: %1
 VerificationSignatureDoesntExist=O ficheiro de assinatura "%1" não existe
 VerificationSignatureInvalid=O ficheiro de assinatura "%1" é inválido
-VerificationKeyNotFound=O ficheiro de assinatura "%1" usa uma chave desconhecida
-VerificationFileNameIncorrect=O nome do ficheiro é incorreto
-VerificationFileTagIncorrect=A tag do ficheiro é incorreta
-VerificationFileSizeIncorrect=O tamanho do ficheiro é incorreto
-VerificationFileHashIncorrect=O hash do ficheiro é incorreto
+VerificationKeyNotFound=O ficheiro de assinatura "%1" utiliza uma chave desconhecida
+VerificationFileNameIncorrect=O nome do ficheiro está incorreto
+VerificationFileTagIncorrect=A etiqueta do ficheiro está incorreta
+VerificationFileSizeIncorrect=O tamanho do ficheiro está incorreto
+VerificationFileHashIncorrect=O hash do ficheiro está incorreto
 ExistingFileReadOnly2=O ficheiro existente não pode ser substituído porque tem o atributo "só de leitura".
 ExistingFileReadOnlyRetry=&Remover o atributo "só de leitura" e tentar novamente
 ExistingFileReadOnlyKeepExisting=&Manter o ficheiro existente
@@ -314,18 +314,18 @@ FileExistsSelectAction=Selecione uma ação
 FileExists2=O ficheiro já existe.
 FileExistsOverwriteExisting=&Substituir o ficheiro existente
 FileExistsKeepExisting=&Manter o ficheiro existente
-FileExistsOverwriteOrKeepAll=&Fazer isto para os próximos conflitos
+FileExistsOverwriteOrKeepAll=&Aplicar esta ação aos próximos conflitos
 ExistingFileNewerSelectAction=Selecione uma ação
 ExistingFileNewer2=O ficheiro existente é mais recente que o que está a ser instalado.
 ExistingFileNewerOverwriteExisting=&Substituir o ficheiro existente
 ExistingFileNewerKeepExisting=&Manter o ficheiro existente (recomendado)
-ExistingFileNewerOverwriteOrKeepAll=&Fazer isto para os próximos conflitos
+ExistingFileNewerOverwriteOrKeepAll=&Aplicar esta ação aos próximos conflitos
 ErrorChangingAttr=Ocorreu um erro ao tentar alterar os atributos do ficheiro existente:
 ErrorCreatingTemp=Ocorreu um erro ao tentar criar um ficheiro na pasta de destino:
 ErrorReadingSource=Ocorreu um erro ao tentar ler o ficheiro de origem:
 ErrorCopying=Ocorreu um erro ao tentar copiar um ficheiro:
 ErrorDownloading=Ocorreu um erro ao tentar transferir um ficheiro:
-ErrorExtracting=Ocorreu um erro ao tentar extrair um ficheiro:
+ErrorExtracting=Ocorreu um erro ao tentar extrair um ficheiro comprimido:
 ErrorReplacingExistingFile=Ocorreu um erro ao tentar substituir o ficheiro existente:
 ErrorRestartReplace=RestartReplace falhou:
 ErrorRenamingTemp=Ocorreu um erro ao tentar mudar o nome de um ficheiro na pasta de destino:
@@ -345,17 +345,17 @@ UninstallDisplayNameMarkCurrentUser=Utilizador atual
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Ocorreu um erro ao tentar abrir o ficheiro README.
-ErrorRestartingComputer=O Assistente de Instalação não consegue reiniciar o computador. Por favor reinicie manualmente.
+ErrorRestartingComputer=O Assistente de Instalação não consegue reiniciar o computador. Reinicie-o manualmente.
 
 ; *** Uninstaller messages
 UninstallNotFound=O ficheiro "%1" não existe. Não é possível desinstalar.
 UninstallOpenError=Não foi possível abrir o ficheiro "%1". Não é possível desinstalar.
-UninstallUnsupportedVer=O ficheiro de registo de desinstalação "%1" está num formato que não é reconhecido por esta versão do desinstalador. Não é possível desinstalar
-UninstallUnknownEntry=Foi encontrada uma entrada desconhecida (%1) no ficheiro de registo de desinstalação
+UninstallUnsupportedVer=O ficheiro de registo de desinstalação "%1" está num formato que não é reconhecido por esta versão do desinstalador. Não é possível desinstalar.
+UninstallUnknownEntry=Foi encontrada uma entrada desconhecida (%1) no ficheiro de registo de desinstalação.
 ConfirmUninstall=Tem a certeza que deseja remover completamente o %1 e todos os seus componentes?
 UninstallOnlyOnWin64=Esta desinstalação só pode ser realizada na versão de 64 bits do Windows.
 OnlyAdminCanUninstall=Esta desinstalação só pode ser realizada por um utilizador com privilégios administrativos.
-UninstallStatusLabel=Por favor aguarde enquanto o %1 está a ser removido do seu computador.
+UninstallStatusLabel=Aguarde enquanto o %1 é removido do seu computador.
 UninstalledAll=O %1 foi removido do seu computador com sucesso.
 UninstalledMost=A desinstalação do %1 está concluída.%n%nAlguns elementos não puderam ser removidos. Estes elementos podem ser removidos manualmente.
 UninstalledAndNeedsRestart=Para completar a desinstalação do %1, o computador deve ser reiniciado.%n%nDeseja reiniciar agora?
@@ -380,7 +380,7 @@ ShutdownBlockReasonUninstallingApp=A desinstalar %1.
 
 NameAndVersion=%1 versão %2
 AdditionalIcons=Atalhos adicionais:
-CreateDesktopIcon=Criar atalho no Ambiente de &Trabalho
+CreateDesktopIcon=Criar um atalho no &Ambiente de Trabalho
 CreateQuickLaunchIcon=&Criar atalho na barra de Iniciação Rápida
 ProgramOnTheWeb=%1 na Web
 UninstallProgram=Desinstalar o %1
