@@ -186,9 +186,10 @@ begin
       end;
     end else
       FS := nil;
-    if Assigned(OnCheckedTrust) then
-      OnCheckedTrust(CheckTrust);
     try
+      if Assigned(OnCheckedTrust) then
+        OnCheckedTrust(CheckTrust);
+
       { Why not use TMemoryStream.LoadFromFile here?
         1. On Delphi 2 it opens files for exclusive access (not good).
         2. It doesn't give specific error messages. }
