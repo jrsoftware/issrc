@@ -190,6 +190,8 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Split the help text shown by the <tt>/HELP</tt> command line parameter across two message boxes for easier reading.</li>
   <li>The Inno Setup source code now contains SPDX SBOM metadata.</li>
   <li>Updated the 7-Zip, LZMA SDK, and Scintilla source code used by Inno Setup to the latest versions.</li>
+  <li><i>Fix:</i> <tt>[Files]</tt> section entries with the <tt>extractarchive</tt> flag could fail to extract any files from an archive if the first entry in the archive didn't match.<br/>
+      For example, if the archive contained a file in a subdirectory as its first entry (for example, <tt>subdir\file1.txt</tt> followed by <tt>file2.txt</tt>) and <tt>recursesubdirs</tt> was not used, no files would be extracted at all, not even <tt>file2.txt</tt>.</li>
   <li>Many other minor improvements and fixes.</li>
 </ul>
 

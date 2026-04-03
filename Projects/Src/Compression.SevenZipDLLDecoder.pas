@@ -1193,10 +1193,8 @@ begin
 
   if State.numItems > 0 then begin
     for var currentIndex: UInt32 := 0 to State.numItems-1 do begin
+      State.currentIndex := currentIndex;
       if State.GetInitialCurrentFindData(FindFileData) then begin
-        { Finish state }
-        State.currentIndex := currentIndex;
-
         { Save state }
         if ArchiveFindStates = nil then
           ArchiveFindStates := TArchiveFindStates.Create;
