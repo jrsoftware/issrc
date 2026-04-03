@@ -331,7 +331,7 @@ begin
         evInt: MakeInt(Op2, 0);
         evStr: MakeStr(Op2, '');
       end;
-  if (Op1.Typ <> Op2.Typ) or ((Op in [opSubtract..opShr]) and (Op1.Typ = evStr))
+  if (Op1.Typ <> Op2.Typ) or ((Op in [opSubtract..opMod]) and (Op1.Typ = evStr))
     then Error(SOperatorNotApplicableToThisOpera);
   AsBool := False;
   with Result do
