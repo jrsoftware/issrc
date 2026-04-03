@@ -4804,7 +4804,7 @@ begin
     if ConstRange.EndPos > ConstRange.StartPos then begin
       var HintStr := FActiveMemo.GetTextRange(ConstRange.StartPos, ConstRange.EndPos);
       var Output: String;
-      case EvaluateConstant(Info.HintStr, Output) of
+      case EvaluateConstant(HintStr, Output) of
         1: HintStr := HintStr + ' = "' + Output + '"';
         2: HintStr := HintStr + ' = Exception: ' + Output;
       else

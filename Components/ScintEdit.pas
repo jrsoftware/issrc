@@ -1557,7 +1557,7 @@ begin
         else if N.modificationType and SC_MOD_DELETETEXT <> 0 then
           Change(False, N.position, N.length, N.linesAdded);
 
-        if (N.linesAdded > 0) and FLineNumbers then
+        if (N.linesAdded <> 0) and FLineNumbers then
           UpdateLineNumbersWidth;
       end;
     SCN_SAVEPOINTLEFT,
@@ -1916,7 +1916,7 @@ begin
   CheckPosRange(StartPos, EndPos);
   Call(SCI_SETINDICATORCURRENT, IndicatorNumber, 0);
   if Value then begin
-    Call(SCI_SETINDICATORVALUE, IndicatorNumber, 1);
+    Call(SCI_SETINDICATORVALUE, 1, 0);
     Call(SCI_INDICATORFILLRANGE, StartPos, EndPos - StartPos);
   end else
     Call(SCI_INDICATORCLEARRANGE, StartPos, EndPos - StartPos);
@@ -2513,7 +2513,7 @@ begin
     if AutoCompleteFontName <> '' then
       DefaultAttr.FontName := AutoCompleteFontName;
     if AutoCompleteFontSize > 0 then
-    DefaultAttr.FontSize := AutoCompleteFontSize;
+      DefaultAttr.FontSize := AutoCompleteFontSize;
     DefaultAttr.FontStyle := [];
     { Note: Scintilla doesn't actually use the colors set here }
     DefaultAttr.ForeColor := clWindowText;

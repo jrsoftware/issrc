@@ -5222,7 +5222,7 @@ type
           NewFileLocationEntryExtraInfo^.Verification.Hash := NewFileEntry^.Verification.Hash;
           NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys := NewFileEntry^.Verification.ISSigAllowedKeys;
         end else begin
-          { Verification.Typ changes checked below }
+          { Verification.Typ changes checked below using ApplyNewVerificationType }
           if (NewFileLocationEntryExtraInfo^.Verification.Typ = fvHash) and
              (NewFileEntry^.Verification.Typ = fvHash) and
              not CompareMem(@NewFileLocationEntryExtraInfo^.Verification.Hash[0],
@@ -5232,6 +5232,10 @@ type
              (NewFileEntry^.Verification.Typ = fvISSig) and
              (NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys <> NewFileEntry^.Verification.ISSigAllowedKeys) then
             AbortCompileFmt(SCompilerFilesValueConflict, ['ISSigAllowedKeys']);
+          if NewFileLocationEntryExtraInfo^.Verification.Typ = fvNone then begin
+            NewFileLocationEntryExtraInfo^.Verification.Hash := NewFileEntry^.Verification.Hash;
+            NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys := NewFileEntry^.Verification.ISSigAllowedKeys;
+          end;
         end;
         if Touch then
           Include(NewFileLocationEntryExtraInfo^.Flags, floTouch);
