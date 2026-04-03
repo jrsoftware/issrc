@@ -172,46 +172,76 @@ begin
   end;
 end;
 
+procedure ZeroUTF8String(var S: UTF8String);
+{ Primitive UTF8String wiper for internal use only. Does not clear the string;
+  only overwrites contents with zeros. }
+begin
+  if (S <> '') and (StringRefCount(S) = 1) then
+    FillChar(S[Low(S)], Length(S), 0);
+end;
+
 function ISSigLoadTextFromFile(const AFilename: String): String;
 { Reads the specified file's contents into a string. This is intended only for
   loading .issig and key files. If the file appears to be invalid (e.g., if
   it is too large or contains invalid characters), then an empty string is
   returned, which will be reported as malformed when it is processed by
   ISSigVerifySignatureText or ISSigImportKeyText. }
+var
+  { One extra character here is intentional }
+  InBuf: array[0..ISSigTextFileLengthLimit] of AnsiChar;
 begin
-  var U: UTF8String;
-  SetLength(U, ISSigTextFileLengthLimit + 1);
-
-  const F = TFileStream.Create(AFilename, fmOpenRead or fmShareDenyWrite);
   try
-    const BytesRead = F.Read(U[Low(U)], Length(U));
-    if BytesRead >= Length(U) then
+    var InBufCount: Integer;
+    const F = TFileStream.Create(AFilename, fmOpenRead or fmShareDenyWrite);
+    try
+      InBufCount := Integer(F.Read(InBuf, SizeOf(InBuf)));
+    finally
+      F.Free;
+    end;
+    if (InBufCount <= 0) or (InBufCount >= SizeOf(InBuf)) then
       Exit('');
-    SetLength(U, BytesRead);
+
+    { Defense-in-depth: Reject any non-CRLF control characters up front, as well
+      as any byte values that are never used in UTF-8 encoding }
+    for var I := 0 to InBufCount-1 do
+      if not CharInSet(InBuf[I], [#10, #13] + NonControlASCIICharsSet + UTF8HighCharsSet) then
+        Exit('');
+
+    var UTF8Text, UTF8RoundTrip: UTF8String;
+    var UTF16Text: String;
+    try
+      SetString(UTF8Text, InBuf, InBufCount);
+      UTF16Text := String(UTF8Text);
+
+      { Do round-trip check to catch invalid sequences }
+      UTF8RoundTrip := UTF8String(UTF16Text);
+      if UTF8RoundTrip <> UTF8Text then
+        Exit('');
+
+      Result := UTF16Text;
+    finally
+      ZeroUTF8String(UTF8Text);
+      ZeroUTF8String(UTF8RoundTrip);
+      if StringRefCount(UTF16Text) <> 2 then
+        ISSigWipeString(UTF16Text);
+    end;
   finally
-    F.Free;
+    FillChar(InBuf, SizeOf(InBuf), 0);
   end;
-
-  { Defense-in-depth: Reject any non-CRLF control characters up front, as well
-    as any byte values that are never used in UTF-8 encoding }
-  for var C in U do
-    if not CharInSet(C, [#10, #13] + NonControlASCIICharsSet + UTF8HighCharsSet) then
-      Exit('');
-  { Do round-trip check to catch invalid sequences }
-  const UTF16Text = String(U);
-  if UTF8String(UTF16Text) <> U then
-    Exit('');
-
-  Result := UTF16Text;
 end;
 
 procedure ISSigSaveTextToFile(const AFilename, AText: String);
 begin
   const F = TFileStream.Create(AFilename, fmCreate or fmShareExclusive);
   try
-    const U = UTF8String(AText);
-    if U <> '' then
-      F.WriteBuffer(U[Low(U)], Length(U));
+    var U: UTF8String;
+    try
+      U := UTF8String(AText);
+      if U <> '' then
+        F.WriteBuffer(U[Low(U)], Length(U));
+    finally
+      ZeroUTF8String(U);
+    end;
   finally
     F.Free;
   end;
