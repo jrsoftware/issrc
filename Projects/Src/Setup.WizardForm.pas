@@ -2049,8 +2049,8 @@ begin
       PreparingLabel.Caption := SetupMessages[msgApplicationsFound];
     Y := PreparingLabel.Top + PreparingLabel.Height + ScalePixelsY(12);
     PreparingMemo.Top := Y;
-    IncTopDecHeight(PreparingMemo, AdjustLabelHeight(PreparingLabel));
-    AdjustLabelHeight(PreparingLabel);
+    Y := AdjustLabelHeight(PreparingLabel);
+    IncTopDecHeight(PreparingMemo, Y);
     PreparingErrorBitmapImage.Visible := True;
     PreparingLabel.Visible := True;
     PreparingMemo.Text := Result;
