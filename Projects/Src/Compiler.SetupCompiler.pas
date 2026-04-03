@@ -2925,6 +2925,7 @@ begin
         if CompareText(Value, 'auto') = 0 then
           { do nothing; it's the default }
         else begin
+          { as the documentation says: values of 2 or higher are currently equivalent to auto }
           if StrToIntRange(Value, 1, 64) = 1 then begin
             InternalCompressProps.NumThreads := 1;
             CompressProps.NumThreads := 1;
