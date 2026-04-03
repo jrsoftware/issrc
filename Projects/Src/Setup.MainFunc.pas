@@ -2870,7 +2870,12 @@ var
         Result := TBitmap.Create;
         TBitmap(Result).AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
       end;
-      Result.LoadFromStream(MemStream);
+      try
+        Result.LoadFromStream(MemStream);
+      except
+        Result.Free;
+        raise;
+      end;
     finally
       MemStream.Free;
     end;
