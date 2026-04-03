@@ -262,6 +262,7 @@ begin
            Preprocessor.FOptions.ParserOptions.Options) then
       begin
         Result := ispeInvalidParam;
+        PopPreproc;
         Exit;
       end;
 
