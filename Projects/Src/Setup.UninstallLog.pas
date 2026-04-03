@@ -722,7 +722,6 @@ var
   end;
 
 const
-  GroupInfoChars: array[0..3] of Char = ('"', '"', ',', ',');
   NullChar: Char = #0;
 var
   StartCount: Integer;
