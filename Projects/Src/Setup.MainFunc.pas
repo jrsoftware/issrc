@@ -397,7 +397,7 @@ var
   PrevLang: String;
 begin
   { do not localize or change the following string }
-  PrevLang := GetPreviousData(ExpandConst(SetupHeader.AppId), 'Inno Setup: Language', '');
+  PrevLang := GetPreviousData(ExpandedAppID, 'Inno Setup: Language', '');
 
   if PrevLang <> '' then begin
     for var I := 0 to Entries[seLanguage].Count-1 do begin
