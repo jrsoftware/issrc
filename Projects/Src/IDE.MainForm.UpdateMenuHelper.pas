@@ -338,7 +338,7 @@ begin
   EUnfoldLine.Enabled := EFoldLine.Enabled;
   EGotoFile.Enabled := FMainMemo.Filename <> '';
   EGotoLine.Enabled := MemoHasFocus;
-  EToggleLinesComment.Enabled := not MemoIsReadOnly;
+  EToggleLinesComment.Enabled := MemoHasFocus and not MemoIsReadOnly;
   EBraceMatch.Enabled := MemoHasFocus;
 
   _ApplyMenuBitmaps(Menu);
