@@ -447,16 +447,22 @@ begin
     var PrivateDStr: String;
     try
       PrivateDStr := ECDSAInt256ToString(PrivateKey.Private_d);
+
+      { Avoid passing PrivateDStr to Format because it internally writes the
+        result in a stack-based buffer that isn't cleared.
+        With concatenation, there is no buffering. The strings are copied
+        directly into a newly-allocated string sized to fit the result exactly
+        (no reallocations). }
       APrivateKeyText := Format(
         'format issig-private-key'#13#10 +
         'key-id %s'#13#10 +
         'public-x %s'#13#10 +
         'public-y %s'#13#10 +
-        'private-d %s'#13#10,
+        'private-d ',
         [SHA256DigestToString(CalcKeyID(PrivateKey.PublicKey)),
          ECDSAInt256ToString(PrivateKey.PublicKey.Public_x),
-         ECDSAInt256ToString(PrivateKey.PublicKey.Public_y),
-         PrivateDStr]);
+         ECDSAInt256ToString(PrivateKey.PublicKey.Public_y)]) +
+        PrivateDStr + #13#10;
     finally
       ISSigWipeString(PrivateDStr);
     end;
