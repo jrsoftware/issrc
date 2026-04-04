@@ -334,15 +334,11 @@ function SetupSetting(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
   function Find(L: TStrings; const S: string): string;
-  var
-    I, J: Integer;
-    InSetupSection: Boolean;
-    N: string;
   begin
-    InSetupSection := False;
+    var InSetupSection := False;
     Result := '';
     with L do
-      for I := 0 to Count - 1 do
+      for var I := 0 to Count - 1 do
       begin
         if Trim(Strings[I]) = '' then Continue;
         if InSetupSection then
@@ -353,8 +349,9 @@ function SetupSetting(Ext: NativeInt; const Params: IIsppFuncParams;
               InSetupSection := False;
             Continue;
           end;
-          J := Pos('=', Strings[I]);
-          if J > 0 then N := Trim(Copy(Strings[I], 1, J - 1));
+          const J = Pos('=', Strings[I]);
+          if J = 0 then Continue;
+          const N = Trim(Copy(Strings[I], 1, J - 1));
           if CompareText(N, S) = 0 then
           begin
             Result := Trim(Copy(Strings[I], J + 1, MaxInt));
@@ -388,16 +385,12 @@ function SetSetupSetting(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
   procedure DoSet(L: TStrings; const S, V: string);
-  var
-    I, J, FirstSetupSectionLine: Integer;
-    InSetupSection: Boolean;
-    N: string;
   begin
-    FirstSetupSectionLine := -1;
-    InSetupSection := False;
+    var FirstSetupSectionLine := -1;
+    var InSetupSection := False;
     with L do
     begin
-      for I := 0 to Count - 1 do
+      for var I := 0 to Count - 1 do
       begin
         if Trim(Strings[I]) = '' then Continue;
         if InSetupSection then
@@ -408,8 +401,9 @@ function SetSetupSetting(Ext: NativeInt; const Params: IIsppFuncParams;
               InSetupSection := False;
             Continue;
           end;
-          J := Pos('=', Strings[I]);
-          if J > 0 then N := Trim(Copy(Strings[I], 1, J - 1));
+          const J = Pos('=', Strings[I]);
+          if J = 0 then Continue;
+          const N = Trim(Copy(Strings[I], 1, J - 1));
           if CompareText(N, S) = 0 then
           begin
             Strings[I] := S + '=' + V;
