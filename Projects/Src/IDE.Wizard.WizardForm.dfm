@@ -876,7 +876,6 @@ object WizardForm: TWizardForm
             Anchors = [akLeft, akTop, akRight]
             Caption = 'Allow user to create a deskto&p shortcut'
             TabOrder = 8
-            OnClick = NotCreateAppDirCheckClick
           end
           object CreateUninstallIconCheck: TCheckBox
             Left = 36
@@ -1301,7 +1300,6 @@ object WizardForm: TWizardForm
             Anchors = [akLeft, akTop, akRight]
             Caption = 'Use the password to &encrypt the application files'
             TabOrder = 10
-            OnClick = NotDisableProgramGroupPageCheckClick
           end
           object OutputDirButton: TButton
             Left = 459
@@ -1423,7 +1421,6 @@ object WizardForm: TWizardForm
             Anchors = [akLeft, akTop, akRight]
             Caption = '*'
             TabOrder = 0
-            OnClick = NotDisableProgramGroupPageCheckClick
           end
         end
       end
