@@ -562,7 +562,7 @@ begin
 
       for var I := StartFromLine to Lines.Count-1 do begin
         var Line := Lines[I];
-        if Flags[0] and FIND_TRIM <> 0 then
+        if Flags[0] and FIND_TRIM <> 0 then { As documented, the FIND_TRIM flag must be used on Flags[0] }
           Line := Trim(Line);
 
         var Found := Meets(Line, Strs[0], Flags[0] and FIND_SENSITIVE <> 0,
