@@ -773,7 +773,8 @@ begin
       P^.Params[I] := Params[I];
     FVarMan.Add(P);
   except
-    FreeMem(P)
+    FreeMem(P);
+    raise;
   end;
   VerboseMsg(4, SMacroDefined, [GL[Scope], Name]);
 end;
