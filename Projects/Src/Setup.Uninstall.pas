@@ -642,15 +642,20 @@ begin
 
     DeleteResidualTempUninstallDirs;
 
+    { Init main constants, not depending on shfolder.dll/_shfoldr.dll. This also
+      initializes the Setup.PathRedir unit. If CompiledCodeText is empty then
+      currently it actually only needs the Setup.PathRedir unit initialization,
+      but init everything always anyway. }
+    InitMainNonSHFolderConstsAndPathRedir;
+
     { Create temporary directory }
     CreateTempInstallDir;
 
     if CompiledCodeText <> '' then begin
-      { Setup some global variables which are accessible to [Code] }
-
-      InitMainNonSHFolderConstsAndPathRedir;
+      { Load system's "shfolder.dll", and load it }
       LoadSHFolderDLL;
 
+      { Setup some global variables which are accessible to [Code] }
       UninstallExeFilename := UninstExeFilename;
       UninstallExpandedAppId := UninstLog.AppId;
       UninstallSilent := Silent or VerySilent;
