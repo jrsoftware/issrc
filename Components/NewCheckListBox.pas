@@ -1665,6 +1665,9 @@ begin
   if FOffset <> AnOffset then
   begin
     FOffset := AnOffset;
+    for var I := Items.Count-1 downto 0 do
+      RemeasureItem(I);
+    UpdateScrollRange;
     Invalidate;
   end;
 end;
