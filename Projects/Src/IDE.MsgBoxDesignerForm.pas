@@ -788,21 +788,15 @@ begin
 
   if cb_MsgBox.Checked then begin
     if MSGText.GetTextLen = 0 then
-       MSGText.Lines.Add(SMsgBoxDesignerDefaultText);
-    { MessageBox with DefButton }
+      MSGText.Lines.Add(SMsgBoxDesignerDefaultText);
+    if cb_MB_SETFOREGROUND.Checked then
+      Buttons := Buttons or MB_SETFOREGROUND;
     if NewEdit1.Text = '1' then
-       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons);
+      MsgBox(MSGText.Lines.Text, SMsgBoxDesignerPreviewCaption, Typ, Buttons);
     if NewEdit1.Text = '2' then
-       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON2);
+      MsgBox(MSGText.Lines.Text, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON2);
     if NewEdit1.Text = '3' then
-       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON3);
-    { MessageBox with DefButton and Flag MB_SETFOREGROUND }
-    if (NewEdit1.Text = '1') and (cb_MB_SETFOREGROUND.Checked) then
-       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_SETFOREGROUND);
-    if (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
-       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON2 or MB_SETFOREGROUND);
-    if (NewEdit1.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
-       MsgBox(MSGText.Lines.GetText, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON3 or MB_SETFOREGROUND);
+      MsgBox(MSGText.Lines.Text, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON3);
   end else if cb_TaskDialogMsgBox.Checked then begin
      { create ButtonLabels array - also see GetText}
      var ButtonLabels: TArray<string>;
@@ -1025,7 +1019,7 @@ begin
      if cb_Suppressible.Checked then Buttons := Buttons + SuppressibleDefault;
 
      { replace in a message string escape /r/n }
-     CaptionOrInstructionAndText := StringReplace(MSGText.Lines.GetText, SNewLine, '''#13#10''', [rfReplaceAll]);
+     CaptionOrInstructionAndText := StringReplace(MSGText.Lines.Text, SNewLine, '''#13#10''', [rfReplaceAll]);
   end else begin
      { TaskDialogMsgBox(TaskInstructionText.Text, TaskMessageText.Text, Typ, Buttons, ButtonLabels, ShieldButton) }
      ModeMsg := 1;

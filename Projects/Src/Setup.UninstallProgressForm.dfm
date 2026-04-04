@@ -79,7 +79,6 @@ object UninstallProgressForm: TUninstallProgressForm
             Anchors = [akLeft, akTop, akRight]
             Min = 0
             Max = 400
-            Style = npbstNormal
           end
           object FStatusLabel: TNewStaticText
             Left = 36

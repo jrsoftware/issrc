@@ -2,7 +2,7 @@ unit ISSigFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -26,6 +26,8 @@ type
 { Preferred, hardened functions for loading/saving .issig and key file text }
 function ISSigLoadTextFromFile(const AFilename: String): String;
 procedure ISSigSaveTextToFile(const AFilename, AText: String);
+
+procedure ISSigWipeString(var S: String);
 
 function ISSigCreateSignatureText(const AKey: TECDSAKey;
   const AFileName: String; const AFileSize: Int64; const AFileHash: TSHA256Digest): String;
@@ -142,46 +144,104 @@ begin
     end;
 end;
 
+procedure ISSigWipeString(var S: String);
+{ Clears a string variable, overwriting the existing contents with zeros
+  first. This should be called on string variables containing private keys
+  before the variables go out of scope.
+  Important: The string should have a reference count of 1 ("unique"). Do not
+  pass strings that reference string literals (which have a reference count of
+  -1) or strings with multiple references; they will not be wiped, and when
+  DEBUG is defined, an exception will be raised. }
+begin
+  if S = '' then
+    Exit;
+
+  var T := S;
+  S := '';
+  const RefCount = StringRefCount(T);
+  if RefCount = 1 then
+    FillChar(T[Low(T)], Length(T) * SizeOf(T[Low(T)]), 0)
+  else begin
+    { This function is usually called from a "finally" section. Raising an
+      exception there is improper practice, so only do it on debug builds. }
+    {$IFDEF DEBUG}
+    raise Exception.CreateFmt(
+      'ISSigWipeString: Cannot wipe string because reference count is %d',
+      [RefCount]);
+    {$ENDIF}
+  end;
+end;
+
+procedure ZeroUTF8String(var S: UTF8String);
+{ Primitive UTF8String wiper for internal use only. Does not clear the string;
+  only overwrites contents with zeros. }
+begin
+  if (S <> '') and (StringRefCount(S) = 1) then
+    FillChar(S[Low(S)], Length(S), 0);
+end;
+
 function ISSigLoadTextFromFile(const AFilename: String): String;
 { Reads the specified file's contents into a string. This is intended only for
   loading .issig and key files. If the file appears to be invalid (e.g., if
   it is too large or contains invalid characters), then an empty string is
   returned, which will be reported as malformed when it is processed by
   ISSigVerifySignatureText or ISSigImportKeyText. }
+var
+  { One extra character here is intentional }
+  InBuf: array[0..ISSigTextFileLengthLimit] of AnsiChar;
 begin
-  var U: UTF8String;
-  SetLength(U, ISSigTextFileLengthLimit + 1);
-
-  const F = TFileStream.Create(AFilename, fmOpenRead or fmShareDenyWrite);
   try
-    const BytesRead = F.Read(U[Low(U)], Length(U));
-    if BytesRead >= Length(U) then
+    var InBufCount: Integer;
+    const F = TFileStream.Create(AFilename, fmOpenRead or fmShareDenyWrite);
+    try
+      InBufCount := Integer(F.Read(InBuf, SizeOf(InBuf)));
+    finally
+      F.Free;
+    end;
+    if (InBufCount <= 0) or (InBufCount >= SizeOf(InBuf)) then
       Exit('');
-    SetLength(U, BytesRead);
+
+    { Defense-in-depth: Reject any non-CRLF control characters up front, as well
+      as any byte values that are never used in UTF-8 encoding }
+    for var I := 0 to InBufCount-1 do
+      if not CharInSet(InBuf[I], [#10, #13] + NonControlASCIICharsSet + UTF8HighCharsSet) then
+        Exit('');
+
+    var UTF8Text, UTF8RoundTrip: UTF8String;
+    var UTF16Text: String;
+    try
+      SetString(UTF8Text, InBuf, InBufCount);
+      UTF16Text := String(UTF8Text);
+
+      { Do round-trip check to catch invalid sequences }
+      UTF8RoundTrip := UTF8String(UTF16Text);
+      if UTF8RoundTrip <> UTF8Text then
+        Exit('');
+
+      Result := UTF16Text;
+    finally
+      ZeroUTF8String(UTF8Text);
+      ZeroUTF8String(UTF8RoundTrip);
+      if StringRefCount(UTF16Text) <> 2 then
+        ISSigWipeString(UTF16Text);
+    end;
   finally
-    F.Free;
+    FillChar(InBuf, SizeOf(InBuf), 0);
   end;
-
-  { Defense-in-depth: Reject any non-CRLF control characters up front, as well
-    as any byte values that are never used in UTF-8 encoding }
-  for var C in U do
-    if not CharInSet(C, [#10, #13] + NonControlASCIICharsSet + UTF8HighCharsSet) then
-      Exit('');
-  { Do round-trip check to catch invalid sequences }
-  const UTF16Text = String(U);
-  if UTF8String(UTF16Text) <> U then
-    Exit('');
-
-  Result := UTF16Text;
 end;
 
 procedure ISSigSaveTextToFile(const AFilename, AText: String);
 begin
   const F = TFileStream.Create(AFilename, fmCreate or fmShareExclusive);
   try
-    const U = UTF8String(AText);
-    if U <> '' then
-      F.WriteBuffer(U[Low(U)], Length(U));
+    var U: UTF8String;
+    try
+      U := UTF8String(AText);
+      if U <> '' then
+        F.WriteBuffer(U[Low(U)], Length(U));
+    finally
+      ZeroUTF8String(U);
+    end;
   finally
     F.Free;
   end;
@@ -384,16 +444,28 @@ begin
   try
     AKey.ExportPrivateKey(PrivateKey);
 
-    APrivateKeyText := Format(
-      'format issig-private-key'#13#10 +
-      'key-id %s'#13#10 +
-      'public-x %s'#13#10 +
-      'public-y %s'#13#10 +
-      'private-d %s'#13#10,
-      [SHA256DigestToString(CalcKeyID(PrivateKey.PublicKey)),
-       ECDSAInt256ToString(PrivateKey.PublicKey.Public_x),
-       ECDSAInt256ToString(PrivateKey.PublicKey.Public_y),
-       ECDSAInt256ToString(PrivateKey.Private_d)]);
+    var PrivateDStr: String;
+    try
+      PrivateDStr := ECDSAInt256ToString(PrivateKey.Private_d);
+
+      { Avoid passing PrivateDStr to Format because it internally writes the
+        result in a stack-based buffer that isn't cleared.
+        With concatenation, there is no buffering. The strings are copied
+        directly into a newly-allocated string sized to fit the result exactly
+        (no reallocations). }
+      APrivateKeyText := Format(
+        'format issig-private-key'#13#10 +
+        'key-id %s'#13#10 +
+        'public-x %s'#13#10 +
+        'public-y %s'#13#10 +
+        'private-d ',
+        [SHA256DigestToString(CalcKeyID(PrivateKey.PublicKey)),
+         ECDSAInt256ToString(PrivateKey.PublicKey.Public_x),
+         ECDSAInt256ToString(PrivateKey.PublicKey.Public_y)]) +
+        PrivateDStr + #13#10;
+    finally
+      ISSigWipeString(PrivateDStr);
+    end;
   finally
     PrivateKey.Clear;
   end;
@@ -453,27 +525,31 @@ begin
      not ConsumeLineValue(SS, 'public-x', TextValues.Public_x, 64, 64, HexDigitsSet) or
      not ConsumeLineValue(SS, 'public-y', TextValues.Public_y, 64, 64, HexDigitsSet) then
     Exit;
-  if HasPrivateKey then
-    if not ConsumeLineValue(SS, 'private-d', TextValues.Private_d, 64, 64, HexDigitsSet) then
+  try
+    if HasPrivateKey then
+      if not ConsumeLineValue(SS, 'private-d', TextValues.Private_d, 64, 64, HexDigitsSet) then
+        Exit;
+    if not SS.ReachedEnd then
       Exit;
-  if not SS.ReachedEnd then
-    Exit;
 
-  APrivateKey.Clear;  { just because Private_d isn't always set }
-  APrivateKey.PublicKey.Public_x := ECDSAInt256FromString(TextValues.Public_x);
-  APrivateKey.PublicKey.Public_y := ECDSAInt256FromString(TextValues.Public_y);
+    APrivateKey.Clear;  { just because Private_d isn't always set }
+    APrivateKey.PublicKey.Public_x := ECDSAInt256FromString(TextValues.Public_x);
+    APrivateKey.PublicKey.Public_y := ECDSAInt256FromString(TextValues.Public_y);
 
-  { Verify that the key ID is correct for the public key values }
-  if not SHA256DigestsEqual(SHA256DigestFromString(TextValues.KeyID),
-     CalcKeyID(APrivateKey.PublicKey)) then
-    Exit;
+    { Verify that the key ID is correct for the public key values }
+    if not SHA256DigestsEqual(SHA256DigestFromString(TextValues.KeyID),
+       CalcKeyID(APrivateKey.PublicKey)) then
+      Exit;
 
-  if ANeedPrivateKey then begin
-    if not HasPrivateKey then
-      Exit(ikrNotPrivateKey);
-    APrivateKey.Private_d := ECDSAInt256FromString(TextValues.Private_d);
+    if ANeedPrivateKey then begin
+      if not HasPrivateKey then
+        Exit(ikrNotPrivateKey);
+      APrivateKey.Private_d := ECDSAInt256FromString(TextValues.Private_d);
+    end;
+    Result := ikrSuccess;
+  finally
+    ISSigWipeString(TextValues.Private_d);
   end;
-  Result := ikrSuccess;
 end;
 
 function ISSigParsePrivateKeyText(const AText: String;

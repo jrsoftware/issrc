@@ -2,7 +2,7 @@ unit ChaCha20;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -156,9 +156,15 @@ begin
   ChaCha20InitCtx(ctx, Key, KeyLength, NonceBytes[4], 12, PCardinal(NonceBytes)^);
   var keystream: TChaCha20Ctx;
   ChaCha20RunRounds(ctx, keystream);
-  SetLength(SubKey, 32);
-  Move(keystream[0], SubKey[0], 16);
-  Move(keystream[12], SubKey[16], 16);
+  try
+    SetLength(SubKey, 32);
+    Move(keystream[0], SubKey[0], 16);
+    Move(keystream[12], SubKey[16], 16);
+  finally
+    { Security: don't leave key material on the stack }
+    FillChar(ctx, SizeOf(ctx), 0);
+    FillChar(keystream, SizeOf(keystream), 0);
+  end;
 end;
 
 procedure XChaCha20Init(var Context: TChaCha20Context; const Key;
@@ -168,8 +174,14 @@ begin
   Assert(NonceLength = 24);
   var SubKey: TBytes;
   HChaCha20(Key, KeyLength, Nonce, 16, SubKey);
-  var NonceBytes: PByte := @Nonce;
-  ChaCha20Init(Context, SubKey[0], ULength(SubKey), NonceBytes[16], 8, Count);
+  try
+    var NonceBytes: PByte := @Nonce;
+    ChaCha20Init(Context, SubKey[0], ULength(SubKey), NonceBytes[16], 8, Count);
+  finally
+    { Security: don't leave derived key in heap memory }
+    if Length(SubKey) > 0 then
+      FillChar(SubKey[0], Length(SubKey), 0);
+  end;
 end;
 
 procedure XChaCha20Crypt(var Context: TChaCha20Context; const InBuffer;

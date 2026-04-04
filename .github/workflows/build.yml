@@ -14,11 +14,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
         with:
           submodules: true
       - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v2
+        uses: microsoft/setup-msbuild@v3
       - name: Initialize build environment
         env:
           ISSRC_BUILD_ENV_ZIP_PASSWORD: ${{ secrets.ISSRC_BUILD_ENV_ZIP_PASSWORD }}
@@ -54,17 +54,17 @@ jobs:
           copy license.txt Output
           copy license.txt ISHelp/Staging
       - name: Upload Files/
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Files-x64
           path: Files/
       - name: Upload Output/
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Output
           path: Output/
       - name: Upload ISHelp/
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ISHelp
           path: |
@@ -108,7 +108,7 @@ jobs:
           powershell -command 'start-process -NoNewWindow -Wait -FilePath .\Procmon.exe -ArgumentList "-OpenLog trace\procmon.pml -SaveAs trace\procmon.csv"'
       - name: Upload trace
         if: contains(github.event.repository.topics, 'issrc-build-verify')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: trace
           path: trace/

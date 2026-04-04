@@ -66,9 +66,11 @@ begin
     {$IFNDEF PS_MINIVCL}
     RegisterMethod('function Dragging: Boolean;');
     RegisterMethod('function HasParent: Boolean');
-    RegisterMethod('procedure BeginDrag(Immediate: Boolean)');
     RegisterMethod('function ClientToScreen(Point: TPoint): TPoint');
+    {$IFNDEF FPC}
+    RegisterMethod('procedure BeginDrag(Immediate: Boolean)');
     RegisterMethod('procedure EndDrag(Drop: Boolean)');
+    {$ENDIF}
     {$IFNDEF CLX}
     RegisterMethod('function GetTextBuf(Buffer: PChar; BufSize: Integer): Integer');
     RegisterMethod('function GetTextLen: Integer');

@@ -647,23 +647,6 @@ var
     end;
   end;
 
-  function LoggedDecrementSharedCount(const Filename: String;
-    const Key64Bit: Boolean): Boolean;
-  const
-    Bits: array[Boolean] of Integer = (32, 64);
-  var
-    RegView: TRegView;
-  begin
-    if Key64Bit then
-      RegView := rv64Bit
-    else
-      RegView := rv32Bit;
-    LogFmt('Decrementing shared count (%d-bit): %s', [Bits[Key64Bit], Filename]);
-    Result := DecrementSharedCount(RegView, Filename);
-    if Result then
-      Log('Shared count reached zero.');
-  end;
-
   procedure LoggedUnregisterServer(const Is64Bit: Boolean; const Filename: String);
   begin
     { Just as an optimization, make sure we aren't unregistering
@@ -674,7 +657,7 @@ var
       else
         LogFmt('Unregistering 32-bit DLL/OCX: %s', [Filename]);
       try
-        RegisterServer(True, Is64Bit, Filename, True);
+        RegisterServer(True, Is64Bit, Filename);
         UnregisteredServersList.Add(Filename);
         Log('Unregistration successful.');
       except
@@ -739,7 +722,6 @@ var
   end;
 
 const
-  GroupInfoChars: array[0..3] of Char = ('"', '"', ',', ',');
   NullChar: Char = #0;
 var
   StartCount: Integer;
@@ -918,8 +900,9 @@ begin
             { Decrement shared file count if necessary }
             IsSharedFile := CurRec^.ExtraData and utDeleteFile_SharedFile <> 0;
             if IsSharedFile then
-              SharedCountDidReachZero := LoggedDecrementSharedCount(Filename,
-                CurRec^.ExtraData and utDeleteFile_SharedFileIn64BitKey <> 0)
+              SharedCountDidReachZero := DecrementSharedCount(
+                CurRec^.ExtraData and utDeleteFile_SharedFileIn64BitKey <> 0,
+                Filename)
             else
               SharedCountDidReachZero := False; //silence compiler
 
@@ -1030,8 +1013,9 @@ begin
                 { We're running from Setup, and the file existed before
                   installation... }
                 if CurRec^.ExtraData and utDeleteFile_SharedFile <> 0 then
-                  LoggedDecrementSharedCount(Filename,
-                    CurRec^.ExtraData and utDeleteFile_SharedFileIn64BitKey <> 0);
+                  DecrementSharedCount(
+                    CurRec^.ExtraData and utDeleteFile_SharedFileIn64BitKey <> 0,
+                    Filename);
                 { Delete file only if it's a temp file }
                 if IsTempFile then
                   if not LoggedFileDelete(Filename,
@@ -1121,7 +1105,7 @@ begin
                 a current-process-bit path. }
               const Is64Bit = CurRec^.ExtraData and utDecrementSharedCount_64BitKey <> 0;
               const Filename = ApplyPathRedirRules(Is64Bit, CurRecData[0], tpCurrent);
-              LoggedDecrementSharedCount(Filename, Is64Bit);
+              DecrementSharedCount(Is64Bit, Filename);
             end;
           utRefreshFileAssoc:
             RefreshFileAssoc := True;

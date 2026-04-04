@@ -2,7 +2,7 @@ unit TrustFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -54,8 +54,10 @@ var
   AllowedKeys: array of TECDSAKey;
 {$ENDIF}
 begin
-  var Attr := GetFileAttributes(PChar(Filename));
-  if (Attr = INVALID_FILE_ATTRIBUTES) or (Attr and faDirectory <> 0) then
+  const Attr = GetFileAttributes(PChar(Filename));
+  if Attr = INVALID_FILE_ATTRIBUTES then
+    raise Exception.Create(Win32ErrorString(GetLastError));
+  if Attr and faDirectory <> 0 then
     raise Exception.Create(Win32ErrorString(ERROR_FILE_NOT_FOUND));
 {$IFNDEF TRUSTALL}
 {$IFDEF DEBUG}

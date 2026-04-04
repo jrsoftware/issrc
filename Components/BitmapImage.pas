@@ -459,7 +459,7 @@ end;
 
 function TBitmapImage.InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
 begin
-  Result := FImpl.InitializeFromIcon(HInstance, Name, BkColor, AscendingTrySizes);
+  Result := FImpl.InitializeFromIcon(Instance, Name, BkColor, AscendingTrySizes);
 end;
 
 function TBitmapImage.InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;

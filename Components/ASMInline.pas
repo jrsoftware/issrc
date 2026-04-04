@@ -209,6 +209,8 @@ end;
 
 {$IFDEF CPUX86}
 
+{$UNDEF RESTORER}
+{$UNDEF RESTOREQ}
 {$IFOPT R+}
 {$DEFINE RESTORER}
 {$R-}
@@ -246,9 +248,11 @@ begin
 end;
 {$IFDEF RESTORER}
 {$R+}
+{$UNDEF RESTORER}
 {$ENDIF}
 {$IFDEF RESTOREQ}
- {Q+}
+{$Q+}
+{$UNDEF RESTOREQ}
 {$ENDIF}
 
 function TASMInline.GetReloc(index: integer): TReloc;
@@ -506,12 +510,31 @@ end;
 
 {$ENDIF}
 
+function Win32ErrorString(ErrorCode: Cardinal): String;
+{ Like SysErrorMessage but also passes the FORMAT_MESSAGE_IGNORE_INSERTS flag
+  which allows the function to succeed on errors like 129 }
+var
+  Buffer: array[0..1023] of Char;
+begin
+  var Len := FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM or
+    FORMAT_MESSAGE_IGNORE_INSERTS or FORMAT_MESSAGE_ARGUMENT_ARRAY, nil,
+    ErrorCode, 0, Buffer, SizeOf(Buffer) div SizeOf(Buffer[0]), nil);
+  while (Len > 0) and ((Buffer[Len-1] <= ' ') or (Buffer[Len-1] = '.')) do
+    Dec(Len);
+  SetString(Result, Buffer, Len);
+end;
+
 function TASMInline.SaveAsMemory: Pointer;
 begin
   var Buf: Pointer;
   GetMem(Buf, Size);
   var OldProtect: Cardinal;
-  VirtualProtect(Buf, SIZE_T(Size), PAGE_EXECUTE_READWRITE, OldProtect);
+  if not VirtualProtect(Buf, SIZE_T(Size), PAGE_EXECUTE_READWRITE, OldProtect) then begin
+    const LastError = GetLastError;
+    FreeMem(Buf);
+    raise Exception.Create(Win32ErrorString(LastError));
+  end;
+
 {$IFDEF CPUX86}
   Relocate(Buf);
 {$ENDIF}

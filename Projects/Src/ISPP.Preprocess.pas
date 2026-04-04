@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
  
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -262,6 +262,7 @@ begin
            Preprocessor.FOptions.ParserOptions.Options) then
       begin
         Result := ispeInvalidParam;
+        PopPreproc;
         Exit;
       end;
 

@@ -2024,7 +2024,7 @@ end;
 procedure TMainForm.DebugShowCallStack(const CallStack: String; const CallStackCount: Cardinal);
 begin
   DebugCallStackList.Clear;
-  AddLines(DebugCallStackList, CallStack, nil, True, alpCountdown, Integer(FCallStackCount-1));
+  AddLines(DebugCallStackList, CallStack, nil, True, alpCountdown, Integer(CallStackCount-1));
   DebugCallStackList.Items.Insert(0, Format(SDebugCodeCallStack, ['Code']));
   DebugCallStackList.Update;
 end;
@@ -4811,7 +4811,7 @@ begin
     if ConstRange.EndPos > ConstRange.StartPos then begin
       var HintStr := FActiveMemo.GetTextRange(ConstRange.StartPos, ConstRange.EndPos);
       var Output: String;
-      case EvaluateConstant(Info.HintStr, Output) of
+      case EvaluateConstant(HintStr, Output) of
         1: HintStr := Format(SEvaluateHintSuccess, [HintStr, Output]);
         2: HintStr := Format(SEvaluateHintException, [HintStr, Output]);
       else

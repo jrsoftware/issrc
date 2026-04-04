@@ -63,7 +63,7 @@ function GetWizardForm: TWizardForm;
 function GetUninstallProgressForm: TUninstallProgressForm;
 procedure InitializeScaleBaseUnits;
 function IsProtectedSrcExe(const Filename: String): Boolean;
-function LogFmtHelper(const S: String; const Args: array of const): String;
+procedure LogFmtHelper(const S: String; const Args: array of const);
 function FmtMessageHelper(const S: String; const Args: array of String): String;
 function FindFirstHelper(const FileName: String; var FindRec: TFindRec): Boolean;
 function FindNextHelper(var FindRec: TFindRec): Boolean;
@@ -173,7 +173,7 @@ begin
     Result := False;
 end;
 
-function LogFmtHelper(const S: String; const Args: array of const): String;
+procedure LogFmtHelper(const S: String; const Args: array of const);
 begin
   LogFmt(S, Args);
 end;

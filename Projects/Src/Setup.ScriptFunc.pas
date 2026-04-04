@@ -940,13 +940,7 @@ var
     end);
     RegisterScriptFunc('DECREMENTSHAREDCOUNT', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      if Stack.GetBool(PStart-1) then begin
-        if not IsWin64 then
-          InternalError('Cannot access 64-bit registry keys on this version of Windows');
-        Stack.SetBool(PStart, DecrementSharedCount(rv64Bit, Stack.GetString(PStart-2)));
-      end
-      else
-        Stack.SetBool(PStart, DecrementSharedCount(rv32Bit, Stack.GetString(PStart-2)));
+      Stack.SetBool(PStart, DecrementSharedCount(Stack.GetBool(PStart-1), Stack.GetString(PStart-2)));
     end);
     RegisterScriptFunc('DELAYDELETEFILE', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
@@ -1040,13 +1034,8 @@ var
     end);
     RegisterScriptFunc('INCREMENTSHAREDCOUNT', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      if Stack.GetBool(PStart) then begin
-        if not IsWin64 then
-          InternalError('Cannot access 64-bit registry keys on this version of Windows');
-        IncrementSharedCount(rv64Bit, Stack.GetString(PStart-1), Stack.GetBool(PStart-2));
-      end
-      else
-        IncrementSharedCount(rv32Bit, Stack.GetString(PStart-1), Stack.GetBool(PStart-2));
+      IncrementSharedCount(Stack.GetBool(PStart), Stack.GetString(PStart-1),
+        Stack.GetBool(PStart-2));
     end);
     RegisterScriptFunc(['Exec', 'ExecAndLogOutput', 'ExecAndCaptureOutput',
       'ExecWithNativeSysDir', 'ExecAndLogOutputWithNativeSysDir', 'ExecAndCaptureOutputWithNativeSysDir',
@@ -1144,12 +1133,12 @@ var
     end);
     RegisterScriptFunc('REGISTERSERVER', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      RegisterServer(False, Stack.GetBool(PStart), Stack.GetString(PStart-1), Stack.GetBool(PStart-2));
+      RegisterServer(False, Stack.GetBool(PStart), Stack.GetString(PStart-1));
     end);
     RegisterScriptFunc('UNREGISTERSERVER', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       try
-        RegisterServer(True, Stack.GetBool(PStart-1), Stack.GetString(PStart-2), Stack.GetBool(PStart-3));
+        RegisterServer(True, Stack.GetBool(PStart-1), Stack.GetString(PStart-2));
         Stack.SetBool(PStart, True);
       except
         Stack.SetBool(PStart, False);
@@ -1165,7 +1154,7 @@ var
     end);
     RegisterScriptFunc('FORCEDIRECTORIES', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetBool(PStart, ForceDirectories(Stack.GetString(PStart-1)));
+      Stack.SetBool(PStart, NewForceDirectories(Stack.GetString(PStart-1)));
     end);
   end;
 
@@ -2087,7 +2076,7 @@ begin
     raise Exception.Create('Count <> 0');
   {$ENDIF}
 
-  { The following should register all functions in ScriptDelphiFuncTable }
+  { The following should register all functions in DelphiScriptFuncTable }
   {$IFDEF DEBUG}
   Count := 0;
   {$ENDIF}

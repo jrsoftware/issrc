@@ -704,7 +704,12 @@ type
       if Cardinal(N) > Cardinal($100000) then  { sanity check }
         ResUpdateError('File is too large', '', ERROR_INVALID_PARAMETER);
       GetMem(P, N);
-      F.ReadBuffer(P^, N);
+      try
+        F.ReadBuffer(P^, N);
+      except
+        FreeMem(P);
+        raise;
+      end;
       Result := N;
     finally
       F.Free;
@@ -718,7 +723,7 @@ type
     Result := False;
     if Size < Cardinal(SizeOf(Word) * 3) then
       Exit;
-    if (PChar(P)[0] = 'M') and (PChar(P)[1] = 'Z') then
+    if (PAnsiChar(P)[0] = 'M') and (PAnsiChar(P)[1] = 'Z') then
       Exit;
     ItemCount := PIcoHeader(P).ItemCount;
     if Size < Cardinal((SizeOf(Word) * 3) + (ItemCount * SizeOf(TIcoItem))) then
@@ -950,7 +955,7 @@ begin
               NewGroupIconDir.Items[I].Header := Ico.Items[I].Header;
               const Id = I+100; //start at 100 to avoid overwriting other icons that may exist
               if Id > High(Word) then
-                ResUpdateErrorWithLastError('UpdateResource failed (7)', ResourceName);
+                ResUpdateError('UpdateResource failed (7)', ResourceName);
               NewGroupIconDir.Items[I].Id := Word(Id);
             end;
 

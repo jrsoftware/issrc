@@ -8,6 +8,7 @@ applyTo: "**/*.pas,**/*.dpr,**/*.inc"
   Inline constants which are an object can still have their properties modified.
   const MaxCount = MinCount * 2;
   const ExpandedFilename = PathExpand(Filenames[I]);
+  Exception: inline constants cannot be passed as `var` parameters, so use an inline variable in that case.
 - Do not use with statements.
 - If and begin should be on the same line.
 - Else and begin should be on the same line.
@@ -20,10 +21,12 @@ applyTo: "**/*.pas,**/*.dpr,**/*.inc"
 - Using variable name Res as a shortcut for Result is allowed.
 # Code editing guidelines for Pascal source files
 - Do not modify existing comments unless the code they describe is also being changed.
+- When modifying code that calls Windows APIs, read the actual documentation before writing code. Do not assume parameter semantics based on similar APIs.
 - Update Inno Setup copyright header of any file you edit, if the current year is not already included.
 # Code review guidelines for Pascal source files
 - All errors must be checked. Installers should be reliable above all.
-- Be alert for `out` parameters initializing to zero/empty upon function entry, unlike `var` parameters.
+- Be alert for `out` parameters: an `out` parameter, like a `var` parameter, is passed by reference. However, with an `out` parameter, the initial value of the referenced variable for managed types, such as strings or arrays, is discarded by the caller before it is passed to the routine. Meanwhile, the initial value for unmanaged types, such as integers or pointers, is ignored. Therefore, for unmanaged types, it is not guaranteed that the initial value of the referenced variable will be overwritten in the routine to which it is passed. 
+- Be alert for functions not assigning a value to Result: if a function exits without assigning a value to Result or the function name, then the function's return value is undefined, even for managed types.
 - Code must be compatible with Delphi 10.4 Sydney and later.
 - Code must be compatible with 32-bit and 64-bit builds.
 - Code must be compatible with Windows 7 and later.

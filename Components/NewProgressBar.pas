@@ -54,7 +54,7 @@ type
     property Max: LongInt read FMax write SetMax;
     property Position: LongInt read FPosition write SetPosition default 0;
     property State: TNewProgressBarState read FState write SetState default npbsNormal;
-    property Style: TNewProgressBarStyle read FStyle write SetStyle default npbstMarquee;
+    property Style: TNewProgressBarStyle read FStyle write SetStyle default npbstNormal;
     property Visible default True;
   end;
 

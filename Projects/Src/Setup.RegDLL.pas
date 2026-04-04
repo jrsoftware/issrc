@@ -15,7 +15,7 @@ uses
   Windows;
 
 procedure RegisterServer(const AUnregister: Boolean; const AIs64Bit: Boolean;
-  const Filename: String; const AFailCriticalErrors: Boolean);
+  const Filename: String);
 
 implementation
 
@@ -88,7 +88,7 @@ begin
 end;
 
 procedure RegisterServer(const AUnregister: Boolean; const AIs64Bit: Boolean;
-  const Filename: String; const AFailCriticalErrors: Boolean);
+  const Filename: String);
 var
   WindowDisabler: TWindowDisabler;
 begin

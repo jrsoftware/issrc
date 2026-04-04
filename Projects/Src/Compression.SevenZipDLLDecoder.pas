@@ -226,11 +226,11 @@ type
 function GetProperty(const InArchive: IInArchive; const index: UInt32;
   const propID: PROPID; const allowedTypes: TVarTypeSet; out value: OleVariant): Boolean; overload;
 { Raises an EOleSysError exception on error but otherwise always sets value,
-  returning True if it's not empty. Set index to $FFFF to query an archive property
-  instead of an item propery }
+  returning True if it's not empty. Set index to $FFFFFFFF to query an archive
+  property instead of an item property }
 begin
   var Res: HRESULT;
-  if index = $FFFF then
+  if index = $FFFFFFFF then
     Res := InArchive.GetArchiveProperty(propID, value)
   else
     Res := InArchive.GetProperty(index, propID, value);
@@ -662,7 +662,7 @@ procedure TArchiveExtractBaseCallback.HandleResult;
     if Res = E_OUTOFMEMORY then
       SevenZipError(Win32ErrorString(DWORD(E_OUTOFMEMORY)))
     else
-      SevenZipWin32Error('Extract', DWORD(FResult.Res));
+      SevenZipWin32Error('Extract', DWORD(Res));
   end;
 
 begin
@@ -705,6 +705,7 @@ end;
 destructor TArchiveExtractAllCallback.Destroy;
 begin
   FLogQueue.Free;
+  inherited;
 end;
 
 function TArchiveExtractAllCallback.GetIndices: TArchiveExtractBaseCallback.TArrayOfUInt32;
@@ -731,7 +732,7 @@ begin
           NewCurrent.Path := Path + '\';
           if not ValidateAndCombinePath(FExpandedDestDir, Path, NewCurrent.ExpandedPath) then
             OleError(E_ACCESSDENIED);
-          ForceDirectories(NewCurrent.ExpandedPath);
+          NewForceDirectories(NewCurrent.ExpandedPath);
         end;
         outStream := nil;
       end else begin
@@ -747,7 +748,7 @@ begin
         NewCurrent.Path := Path;
         if not ValidateAndCombinePath(FExpandedDestDir, Path, NewCurrent.ExpandedPath) then
           OleError(E_ACCESSDENIED);
-        ForceDirectories(PathExtractPath(NewCurrent.ExpandedPath));
+        NewForceDirectories(PathExtractDir(NewCurrent.ExpandedPath));
         const ExistingFileAttr = GetFileAttributes(PChar(NewCurrent.ExpandedPath));
         if (ExistingFileAttr <> INVALID_FILE_ATTRIBUTES) and
            (ExistingFileAttr and FILE_ATTRIBUTE_READONLY <> 0) then
@@ -1022,7 +1023,7 @@ begin
       Give up trying to get or open it on any error }
     var MainSubFile: Cardinal;
     var SubSeqStream: ISequentialInStream;
-    if not GetProperty(Result, $FFFF, kpidMainSubfile, MainSubFile) or
+    if not GetProperty(Result, $FFFFFFFF, kpidMainSubfile, MainSubFile) or
        (MainSubFile <> 0) or
        not Supports(Result, IInArchiveGetStream) or
        ((Result as IInArchiveGetStream).GetStream(MainSubFile, SubSeqStream) <> S_OK) or
@@ -1186,16 +1187,14 @@ begin
     LogFmt('Start extracting archive %s to %s. Recurse subdirs? %s', [ArchiveFilename,
       RemoveBackslashUnlessRoot(DestDir), SYesNo[RecurseSubDirs]]);
     var Solid: Boolean;
-    if GetProperty(State.InArchive, $FFFF, kpidSolid, Solid) and Solid then
+    if GetProperty(State.InArchive, $FFFFFFFF, kpidSolid, Solid) and Solid then
       Log('Archive is solid; extraction performance may degrade');
   end;
 
   if State.numItems > 0 then begin
     for var currentIndex: UInt32 := 0 to State.numItems-1 do begin
+      State.currentIndex := currentIndex;
       if State.GetInitialCurrentFindData(FindFileData) then begin
-        { Finish state }
-        State.currentIndex := currentIndex;
-
         { Save state }
         if ArchiveFindStates = nil then
           ArchiveFindStates := TArchiveFindStates.Create;

@@ -2,7 +2,7 @@ unit PBKDF2;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -14,7 +14,7 @@ interface
 uses
   System.SysUtils;
 
-function PBKDF2SHA256(Password: TBytes; const Salt: TBytes; const Iterations, KeyLength: Integer): TBytes; overload;
+function PBKDF2SHA256(const Password: TBytes; const Salt: TBytes; const Iterations, KeyLength: Integer): TBytes; overload;
 function PBKDF2SHA256(const Password: String; const Salt: TBytes; const Iterations, KeyLength: Integer): TBytes; overload;
 
 implementation
@@ -22,39 +22,55 @@ implementation
 uses
   System.Hash, System.Math;
 
-function PBKDF2SHA256(Password: TBytes; const Salt: TBytes; const Iterations, KeyLength: Integer): TBytes;
+function PBKDF2SHA256(const Password: TBytes; const Salt: TBytes; const Iterations, KeyLength: Integer): TBytes;
 begin
   var HashVersion := THashSHA2.TSHA2Version.SHA256;
 
   var Hash := THashSHA2.Create(HashVersion); { This is a record so no need to free }
   var HashSize := Hash.GetHashSize;
+  var WorkingPassword := Copy(Password);
+  try
 
-  if Length(Password) > Hash.GetBlockSize then begin
-    { Pre-hash password so THashSHA2.GetHMACAsBytes wont do this over and over again }
-    Hash.Update(Password);
-    Password := Hash.HashAsBytes;
-  end;
-
-  SetLength(Result, KeyLength);
-  var BytesDone := 0;
-
-  var L := Ceil(KeyLength / HashSize);
-
-  for var Block := 1 to L do begin
-    var SaltAndBlock := Salt + [Byte(Block shr 24), Byte(Block shr 16), Byte(Block shr 8), Byte(Block)];
-    var U := THashSHA2.GetHMACAsBytes(SaltAndBlock, Password, HashVersion);
-    var F := U;
-
-    for var I := 2 to Iterations do begin
-      U := THashSHA2.GetHMACAsBytes(U, Password, HashVersion);
-      for var J := 0 to High(F) do
-        F[J] := F[J] xor U[J];
+    if Length(WorkingPassword) > Hash.GetBlockSize then begin
+      { Pre-hash password so THashSHA2.GetHMACAsBytes wont do this over and over again }
+      Hash.Update(WorkingPassword);
+      var NewPassword := Hash.HashAsBytes;
+      { Security: don't leave the old copy on the heap }
+      FillChar(WorkingPassword[0], Length(WorkingPassword), 0);
+      WorkingPassword := NewPassword;
     end;
 
-    var BytesLeft := KeyLength - BytesDone;
-    var BytesToCopy := Min(BytesLeft, Length(F));
-    Move(F[0], Result[BytesDone], BytesToCopy);
-    Inc(BytesDone, BytesToCopy);
+    SetLength(Result, KeyLength);
+    var BytesDone := 0;
+
+    var L := Ceil(KeyLength / HashSize);
+
+    for var Block := 1 to L do begin
+      var SaltAndBlock := Salt + [Byte(Block shr 24), Byte(Block shr 16), Byte(Block shr 8), Byte(Block)];
+      var U := THashSHA2.GetHMACAsBytes(SaltAndBlock, WorkingPassword, HashVersion);
+      var F := U;
+
+      for var I := 2 to Iterations do begin
+        const NewU = THashSHA2.GetHMACAsBytes(U, WorkingPassword, HashVersion);
+        { Security: don't leave key derivation intermediates on the heap }
+        FillChar(U[0], Length(U), 0);
+        U := NewU;
+        for var J := 0 to High(F) do
+          F[J] := F[J] xor U[J];
+      end;
+
+      var BytesLeft := KeyLength - BytesDone;
+      var BytesToCopy := Min(BytesLeft, Length(F));
+      Move(F[0], Result[BytesDone], BytesToCopy);
+      { Security: don't leave key derivation intermediates on the heap }
+      FillChar(U[0], Length(U), 0);
+      FillChar(F[0], Length(F), 0);
+      Inc(BytesDone, BytesToCopy);
+    end;
+  finally
+    { Security: zero the password bytes created by Copy or HashAsBytes }
+    if Length(WorkingPassword) > 0 then
+      FillChar(WorkingPassword[0], Length(WorkingPassword), 0);
   end;
 end;
 
@@ -69,7 +85,14 @@ function PBKDF2SHA256(const Password: String; const Salt: TBytes; const Iteratio
   end;
 
 begin
-  Result := PBKDF2SHA256(StringToBytes(Password), Salt, Iterations, KeyLength);
+  var PasswordBytes := StringToBytes(Password);
+  try
+    Result := PBKDF2SHA256(PasswordBytes, Salt, Iterations, KeyLength);
+  finally
+    { Security: zero the password bytes created by StringToBytes }
+    if Length(PasswordBytes) > 0 then
+      FillChar(PasswordBytes[0], Length(PasswordBytes), 0);
+  end;
 end;
 
 {.$DEFINE TEST}
@@ -108,6 +131,11 @@ begin
   Salt := AnsiStringToBytes('saltSALTsaltSALTsaltSALTsaltSALTsalt');
   Test(PBKDF2SHA256(Password, Salt, 4096, 40),
        [$34, $8c, $89, $db, $cb, $d3, $2b, $2f, $32, $d8, $14, $b8, $11, $6e, $84, $cf, $2b, $17, $34, $7e, $bc, $18, $00, $18, $1c, $4e, $2a, $1f, $b8, $dd, $53, $e1, $c6, $35, $51, $8c, $7d, $ac, $47, $e9]);
+
+  Password := AnsiStringToBytes('1234567890123456789012345678901234567890123456789012345678901234567890');
+  const OriginalPassword = Copy(Password);
+  PBKDF2SHA256(Password, Salt, 1, 32);
+  Test(Password, OriginalPassword);
 
   Password := AnsiStringToBytes('pass'#0'word');
   Salt := AnsiStringToBytes('sa'#0'lt');

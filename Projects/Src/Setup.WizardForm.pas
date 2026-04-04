@@ -2010,7 +2010,7 @@ begin
           GetMem(ProcessInfos, ProcessInfosCountNeeded * SizeOf(ProcessInfos[0]));
           ProcessInfosCount := ProcessInfosCountNeeded;
 
-          if not RmGetList(RmSessionHandle, @ProcessInfosCountNeeded, @ProcessInfosCount, ProcessInfos, @RebootReasons) in [ERROR_SUCCESS, ERROR_MORE_DATA] then begin
+          if not (RmGetList(RmSessionHandle, @ProcessInfosCountNeeded, @ProcessInfosCount, ProcessInfos, @RebootReasons) in [ERROR_SUCCESS, ERROR_MORE_DATA]) then begin
             RmEndSession(RmSessionHandle);
             RmSessionStarted := False;
             Break;
@@ -2049,8 +2049,8 @@ begin
       PreparingLabel.Caption := SetupMessages[msgApplicationsFound];
     Y := PreparingLabel.Top + PreparingLabel.Height + ScalePixelsY(12);
     PreparingMemo.Top := Y;
-    IncTopDecHeight(PreparingMemo, AdjustLabelHeight(PreparingLabel));
-    AdjustLabelHeight(PreparingLabel);
+    Y := AdjustLabelHeight(PreparingLabel);
+    IncTopDecHeight(PreparingMemo, Y);
     PreparingErrorBitmapImage.Visible := True;
     PreparingLabel.Visible := True;
     PreparingMemo.Text := Result;
@@ -2586,9 +2586,9 @@ begin
           WizardTasks := nil;
           try
             WizardComponents := TStringList.Create;
-            WizardForm.GetComponents(WizardComponents, nil);
+            GetComponents(WizardComponents, nil);
             WizardTasks := TStringList.Create;
-            WizardForm.GetTasks(WizardTasks, nil);
+            GetTasks(WizardTasks, nil);
 
             PrepareToInstallFailureMessage := PrepareToInstall(WizardComponents, WizardTasks);
             if PrepareToInstallFailureMessage <> '' then begin
@@ -2600,9 +2600,9 @@ begin
               BackButton.Visible := False;
               NextButton.Visible := False;
               if InstallMode = imSilent then
-                WizardForm.Visible := True;
+                Visible := True;
               try
-                WizardForm.Update;
+                Update;
                 RmFoundApplications := QueryRestartManager(WizardComponents, WizardTasks) <> '';
                 if RmFoundApplications then
                   Break;  { stop on the page }

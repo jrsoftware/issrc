@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
   
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -82,14 +82,14 @@ end;
 
 constructor TOrderedList<T>.Create;
 begin
-  inherited Create;
+  inherited;
   FList := TList<T>.Create;
 end;
 
 destructor TOrderedList<T>.Destroy;
 begin
   List.Free;
-  inherited Destroy;
+  inherited;
 end;
 
 function TOrderedList<T>.PeekItem: T;

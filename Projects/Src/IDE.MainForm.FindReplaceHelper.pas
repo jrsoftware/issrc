@@ -219,8 +219,7 @@ begin
       var EndPos := Memo.RawTextLength;
       var FileHits := 0;
       var Range: TScintRange;
-      while (StartPos < EndPos) and
-            Memo.FindText(StartPos, EndPos, FLastFindText,
+      while Memo.FindText(StartPos, EndPos, FLastFindText,
               FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
         { Also see UpdateFindResult }
         var Line := Memo.GetLineFromPosition(Range.StartPos);
@@ -235,6 +234,12 @@ begin
         FindResultsList.Items.AddObject(Prefix + Memo.Lines[Line], FindResult);
         Inc(FileHits);
         StartPos := Range.EndPos;
+        { If the match was empty the next search would match at the same position, so must manually progress }
+        if Range.Empty then begin
+          if StartPos = EndPos then
+            Break;
+          StartPos := Memo.GetPositionAfter(StartPos);
+        end;
       end;
       Inc(Files);
       if FileHits > 0 then begin
@@ -332,12 +337,20 @@ begin
     var ReplaceCount := 0;
     FActiveMemo.BeginUndoAction;
     try
-      var Pos := 0;
+      var StartPos := 0;
+      var EndPos := FActiveMemo.RawTextLength;
       var Range: TScintRange;
-      while FActiveMemo.FindText(Pos, FActiveMemo.RawTextLength, FLastFindText,
-         FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
+      while FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
+              FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
         var NewRange := FActiveMemo.ReplaceTextRange(Range.StartPos, Range.EndPos, FLastReplaceText, ReplaceMode);
-        Pos := NewRange.EndPos;
+        StartPos := NewRange.EndPos;
+        EndPos := FActiveMemo.RawTextLength; { Update for replacement }
+        { If the match was empty there's no consumed text guaranteeing progress past it, so must manually progress }
+        if Range.Empty then begin
+          if StartPos = EndPos then
+            Break;
+          StartPos := FActiveMemo.GetPositionAfter(StartPos);
+        end;
         Inc(ReplaceCount);
       end;
     finally

@@ -2,7 +2,7 @@ unit Shared.CommonFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -188,6 +188,8 @@ function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRe
 function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRetryOnAlreadyExists: Boolean;
   const Op: TFileOperationFunc; const Failing: TFileOperationFailingExProc; const Failed: TFileOperationFailedProc): Boolean; overload;
 function Is64BitPEImage(const Filename: String): Boolean;
+function BitsFrom64BitBoolean(const A64Bit: Boolean): Integer; inline;
+function RegViewFrom64BitBoolean(const A64Bit: Boolean): TRegView;
 
 implementation
 
@@ -839,7 +841,7 @@ function InternalRegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String
 var
   Typ, Size: DWORD;
   S: String;
-  ErrorCode: Longint;
+  ErrorCode: Integer;
 label 1;
 begin
   Result := False;
@@ -877,7 +879,7 @@ begin
         goto 1;
       end;
       if (ErrorCode = ERROR_SUCCESS) and
-         ((Typ = Type1) or (Typ = Type2) or (Typ = Type3)) then begin
+         ((Typ = Type1) or (Typ = Type2) or ((Type3 <> REG_NONE) and (Typ = Type3))) then begin
         { If Size isn't a multiple of SizeOf(S[1]), we disregard the partial
           character, like RegGetValue }
         Len := Size div SizeOf(S[1]);
@@ -1752,6 +1754,23 @@ begin
   finally
     F.Free;
   end;
+end;
+
+function BitsFrom64BitBoolean(const A64Bit: Boolean): Integer;
+{ Returns 32 if A64Bit is False, or 64 if A64Bit is True.
+  This is intended for use with '%d-bit' in formatted log messages.
+  (This function really belongs in Setup.InstFunc, but 'inline' doesn't have
+  an effect when two units depend on each other.) }
+begin
+  Result := 32 shl Byte(A64Bit);
+end;
+
+function RegViewFrom64BitBoolean(const A64Bit: Boolean): TRegView;
+begin
+  if A64Bit then
+    Result := rv64Bit
+  else
+    Result := rv32Bit;
 end;
 
 { TOneShotTimer }

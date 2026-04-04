@@ -235,22 +235,18 @@ begin
         StartIndex := 0;
     end;
     var I := StartIndex;
-    repeat
-      if GoForward then begin
-        Inc(I);
-        if I = FPages.Count then
-          I := 0;
-      end
-      else begin
-        if I = 0 then
-          I := FPages.Count;
-        Dec(I);
-      end;
-      Result := FPages[I];
-      Exit;
-    until I = StartIndex;
-  end;
-  Result := nil;
+    if GoForward then begin
+      Inc(I);
+      if I = FPages.Count then
+        I := 0;
+    end else begin
+      if I = 0 then
+        I := FPages.Count;
+      Dec(I);
+    end;
+    Result := FPages[I];
+  end else
+    Result := nil;
 end;
 
 procedure TNewNotebook.GetChildren(Proc: TGetChildProc; Root: TComponent);

@@ -2052,6 +2052,12 @@ begin
     Exit;
   V := 0;
 
+  {$UNDEF RESTOREQ}
+  {$IFOPT Q-}
+  {$DEFINE RESTOREQ}
+  {$Q+}
+  {$ENDIF}
+
   try
     for I := StartIndex to Len do begin
       C := UpCase(S[I]);
@@ -2076,9 +2082,14 @@ begin
     end;
     X := V;
     Result := True;
-  except on E: EOverflow do
+  except on E: EIntOverflow do
     ;
   end;
+
+  {$IFDEF RESTOREQ}
+  {$Q-}
+  {$UNDEF RESTOREQ}
+  {$ENDIF}
 end;
 
 function TSetupCompiler.EvalArchitectureIdentifier(Sender: TSimpleExpression;
@@ -2914,6 +2925,7 @@ begin
         if CompareText(Value, 'auto') = 0 then
           { do nothing; it's the default }
         else begin
+          { as the documentation says: values of 2 or higher are currently equivalent to auto }
           if StrToIntRange(Value, 1, 64) = 1 then begin
             InternalCompressProps.NumThreads := 1;
             CompressProps.NumThreads := 1;
@@ -4151,7 +4163,7 @@ procedure TSetupCompiler.EnumIconsProc(const Line: PChar; const Ext: Integer);
       Result := '';
       const ScanCode = Integer(MapVirtualKey(WordRec(HotKey).Lo, 0) shl 16);
       if ScanCode <> 0 then begin
-        GetKeyNameText(ScanCode, KeyName, SizeOf(KeyName));
+        GetKeyNameText(ScanCode, KeyName, SizeOf(KeyName) div SizeOf(KeyName[0]));
         if (KeyName[1] = #0) and (KeyName[0] <> #0) then
           GetSpecialName := KeyName;
       end;
@@ -4214,6 +4226,8 @@ procedure TSetupCompiler.EnumIconsProc(const Line: PChar; const Ext: Integer);
       else Break;
     end;
     if Text = '' then Exit;
+    { The use of $255 here is quite awkward, and also the comment isn't very clear, but
+      both of these are copied from Vcl.Menus.pas, and present even in Delphi 13.1 }
     for Key := $08 to $255 do { Copy range from table in HotKeyToText }
       if AnsiCompareText(Text, HotKeyToText(Key)) = 0 then
       begin
@@ -4735,7 +4749,7 @@ begin
           CheckConst(ValueData, MinVersion, [acOldData]);
         rtMultiString:
           CheckConst(ValueData, MinVersion, [acOldData, acBreak]);
-        rtDWord:
+        rtDWord, rtQWord:
           CheckConst(ValueData, MinVersion, []);
       end;
     end;
@@ -5313,7 +5327,7 @@ type
           NewFileLocationEntryExtraInfo^.Verification.Hash := NewFileEntry^.Verification.Hash;
           NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys := NewFileEntry^.Verification.ISSigAllowedKeys;
         end else begin
-          { Verification.Typ changes checked below }
+          { Verification.Typ changes checked below using ApplyNewVerificationType }
           if (NewFileLocationEntryExtraInfo^.Verification.Typ = fvHash) and
              (NewFileEntry^.Verification.Typ = fvHash) and
              not CompareMem(@NewFileLocationEntryExtraInfo^.Verification.Hash[0],
@@ -5323,6 +5337,10 @@ type
              (NewFileEntry^.Verification.Typ = fvISSig) and
              (NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys <> NewFileEntry^.Verification.ISSigAllowedKeys) then
             AbortCompileFmt(SCompilerFilesValueConflict, ['ISSigAllowedKeys']);
+          if NewFileLocationEntryExtraInfo^.Verification.Typ = fvNone then begin
+            NewFileLocationEntryExtraInfo^.Verification.Hash := NewFileEntry^.Verification.Hash;
+            NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys := NewFileEntry^.Verification.ISSigAllowedKeys;
+          end;
         end;
         if Touch then
           Include(NewFileLocationEntryExtraInfo^.Flags, floTouch);
@@ -5752,7 +5770,7 @@ begin
              end;
         end;
 
-        if (ADestDir = '{tmp}') or (Copy(ADestDir, 1, 4) = '{tmp}\') then
+        if (ADestDir = '{tmp}') or (Copy(ADestDir, 1, Length('{tmp}\')) = '{tmp}\') then
           Include(Options, foDeleteAfterInstall);
         if foDeleteAfterInstall in Options then begin
           if foRestartReplace in Options then
@@ -7682,7 +7700,6 @@ var
               end,
               procedure(const Filename, SigFilename: String; const VerifyResult: TISSigVerifySignatureResult)
               begin
-                var VerifyResultAsString: String;
                 case VerifyResult of
                   vsrMalformed: VerificationError(veSignatureMalformed, Filename, SigFilename);
                   vsrBad: VerificationError(veSignatureBad, Filename, SigFilename);

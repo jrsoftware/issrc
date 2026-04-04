@@ -47,7 +47,6 @@ object SelectFolderForm: TSelectFolderForm
     Width = 17
     Height = 23
     Anchors = [akLeft, akBottom]
-    Cancel = True
     Caption = '*'
     Enabled = False
     TabOrder = 2

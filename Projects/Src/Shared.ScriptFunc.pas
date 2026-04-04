@@ -24,7 +24,7 @@ var
   DelphiScriptFuncTable: TScriptTable =
   [
     'function Format(const Format: String; const Args: array of const): String;',
-    'function LogFmt(const S: String; const Args: array of const): String;',
+    'procedure LogFmt(const S: String; const Args: array of const);',
     'function FmtMessage(const S: String; const Args: array of String): String;',
     'function FindFirst(const FileName: String; var FindRec: TFindRec): Boolean;',
     'function FindNext(var FindRec: TFindRec): Boolean;',
@@ -389,8 +389,8 @@ initialization
     'function IsProtectedSystemFile(const Filename: String): Boolean;',
     'function MakePendingFileRenameOperationsChecksum: String;',
     'function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;',
-    'procedure RegisterServer(const Is64Bit: Boolean; const Filename: String; const FailCriticalErrors: Boolean);',
-    'function UnregisterServer(const Is64Bit: Boolean; const Filename: String; const FailCriticalErrors: Boolean): Boolean;',
+    'procedure RegisterServer(const Is64Bit: Boolean; const Filename: String; const Reserved: Boolean);',
+    'function UnregisterServer(const Is64Bit: Boolean; const Filename: String; const Reserved: Boolean): Boolean;',
     'procedure UnregisterFont(const FontName, FontFilename: String; const PerUserFont: Boolean);',
     //procedure RestartComputer;
     'procedure RestartReplace(const TempFile, DestFile: String);',

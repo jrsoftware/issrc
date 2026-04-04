@@ -198,10 +198,12 @@ begin
 
   DestRootDirIndex := DestRootDirComboBox.ItemIndex;
 
-  if (DestRootDirIndex = DestRootDirComboBox.Items.Count-1) and (DestRootDirEdit.Text = '') then begin
+  const CustomDestRootDir = DestRootDirIndex = DestRootDirComboBox.Items.Count-1;
+
+  if CustomDestRootDir and (DestRootDirEdit.Text = '') then begin
     MsgBox(SWizardFileDestRootDirError, '',  mbError, MB_OK);
     ActiveControl := DestRootDirEdit;
-  end else if (DestRootDirs[DestRootDirIndex].Constant = '{app}') and not FAllowAppDestRootDir then begin
+  end else if not CustomDestRootDir and (DestRootDirs[DestRootDirIndex].Constant = '{app}') and not FAllowAppDestRootDir then begin
     MsgBox(SWizardFileAppDestRootDirError, '',  mbError, MB_OK);
     ActiveControl := DestRootDirComboBox;
   end else
@@ -215,7 +217,7 @@ begin
       Include(FWizardFile.Options, foRecurseSubDirs);
     if CreateAllSubDirsCheck.Checked then
       Include(FWizardFile.Options, foCreateAllSubDirs);
-    if DestRootDirIndex = DestRootDirComboBox.Items.Count-1 then begin
+    if CustomDestRootDir then begin
       FWizardFile.DestRootDir := DestRootDirEdit.Text;
       FWizardFile.DestRootDirIsConstant := False;
     end else begin

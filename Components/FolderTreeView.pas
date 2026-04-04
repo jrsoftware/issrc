@@ -807,6 +807,8 @@ begin
   ItemData.ChildrenAdded := False;
   Pointer(InsertStruct.item.lParam) := ItemData;
   Result := TreeView_InsertItem(Handle, InsertStruct);
+  if Result = nil then
+    Dispose(ItemData);
 end;
 
 function TCustomFolderTreeView.FindItem(const ParentItem: HTREEITEM;

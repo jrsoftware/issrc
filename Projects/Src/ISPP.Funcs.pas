@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -198,7 +198,7 @@ begin
   if CheckParams(Params, [evStr, evStr, evStr, evStr], 3, Result) then
   try
     with IInternalFuncParams(Params) do
-      with TIniFile.Create(Get(0).AsStr) do
+      with TIniFile.Create(PrependPath(Ext, Get(0).AsStr)) do
       try
         if GetCount < 4 then Default := '' else Default := Get(3).AsStr;
         MakeStr(ResPtr^, ReadString(Get(1).AsStr, Get(2).AsStr, Default));
@@ -220,7 +220,7 @@ begin
   if CheckParams(Params, [evStr, evStr, evStr, evSpecial], 4, Result) then
   try
     with IInternalFuncParams(Params) do
-      with TIniFile.Create(Get(0).AsStr) do
+      with TIniFile.Create(PrependPath(Ext, Get(0).AsStr)) do
       try
         case Get(3).Typ of
           evInt: WriteInt64(Get(1).AsStr, Get(2).AsStr, Get(3).AsInt64);
@@ -1855,7 +1855,7 @@ function StringChangeFunc(Ext: NativeInt; const Params: IIsppFuncParams;
 var
   S: String;
 begin
-  if CheckParams(Params, [evStr, evStr, evStr], 1, Result) then
+  if CheckParams(Params, [evStr, evStr, evStr], 3, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
@@ -1999,7 +1999,7 @@ begin
   try
     with IInternalFuncParams(Params) do
     begin
-      MakeBool(ResPtr^, Is64BitPEImage(Get(0).AsStr));
+      MakeBool(ResPtr^, Is64BitPEImage(PrependPath(Ext, Get(0).AsStr)));
     end;
   except
     on E: Exception do

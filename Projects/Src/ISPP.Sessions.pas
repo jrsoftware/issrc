@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -80,7 +80,7 @@ begin
       DeleteFile(PChar(FTempFiles[I]));
     FTempFiles.Free;
   end;
-  inherited Destroy;
+  inherited;
 end;
 
 function TPreprocessorFlowStack.Peek: TPreprocessor;
@@ -105,6 +105,7 @@ begin
   begin
     FTempFiles := TStringList.Create;
     FTempFiles.Duplicates := dupIgnore;
+    FTempFiles.Sorted := True;
   end;
   FTempFiles.Add(FileName);
 end;

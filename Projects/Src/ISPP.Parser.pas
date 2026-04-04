@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -331,7 +331,7 @@ begin
         evInt: MakeInt(Op2, 0);
         evStr: MakeStr(Op2, '');
       end;
-  if (Op1.Typ <> Op2.Typ) or ((Op in [opSubtract..opShr]) and (Op1.Typ = evStr))
+  if (Op1.Typ <> Op2.Typ) or ((Op in [opSubtract..opMod]) and (Op1.Typ = evStr))
     then Error(SOperatorNotApplicableToThisOpera);
   AsBool := False;
   with Result do

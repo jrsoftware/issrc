@@ -474,6 +474,12 @@ asm
   // copy result back
   mov rsi, [rbp-16]          // _RAX parameter
   mov [rsi], RAX
+  
+{$IFNDEF WINDOWS}
+  mov rsi, [rbp-32]          // Registers parameter
+  mov [rsi+16], RDX          // preserve RDX for 9..16 byte SYSV aggregate results
+{$ENDIF}
+
   mov rsi, [rbp-24]          // _XMM0 parameter
 
   // xmm0 res
@@ -939,6 +945,13 @@ begin
               3,
               4: Longint(res.Dta^) := _RAX;
               5,6,7,8: IPointer(res.dta^) := _RAX;
+              {$IFNDEF WINDOWS}
+              9..16:
+                begin
+                  Move(_RAX, res.Dta^, 8);
+                  Move(Registers._RDX, Pointer(IPointer(res.Dta) + 8)^, res.aType.RealSize - 8);
+                end;
+              {$ENDIF}
             end;
           end;
         btSingle:      tbtsingle(res.Dta^) := _XMM0;

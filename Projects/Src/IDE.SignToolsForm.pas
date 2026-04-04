@@ -133,9 +133,9 @@ begin
         MsgBox(SSignToolInvalidCommand, Caption, mbCriticalError, MB_OK);
         Exit;
       end;
+      
+      Result := True;
     end;
-
-    Result := True;
   end;
 end;
 

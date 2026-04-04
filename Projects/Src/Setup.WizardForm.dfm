@@ -651,7 +651,6 @@ object WizardForm: TWizardForm
             Anchors = [akLeft, akTop, akRight]
             Min = 0
             Max = 100
-            Style = npbstNormal
           end
         end
         object FInfoAfterPage: TNewNotebookPage

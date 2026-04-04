@@ -2,7 +2,7 @@ unit SetupLdrAndSetup.Messages;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -55,9 +55,6 @@ implementation
 
 uses
   Windows, SysUtils, Compression.Base, Shared.CommonFunc, Shared.FileClass;
-
-const
-  SMsgsFileTooLarge = 'Internal error: Messages file is too large';
 
 function FmtMessage(S: PChar; const Args: array of String): String;
 var

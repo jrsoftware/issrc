@@ -366,7 +366,7 @@ const
     'userstartmenu', 'commonstartmenu', 'userstartup', 'commonstartup',
     'usertemplates', 'commontemplates', 'autoappdata', 'autocf', 'autodesktop',
     'autodocs', 'autofonts', 'autopf', 'autoprograms', 'autostartmenu', 'cmd',
-    'computername', 'groupname', 'hwnd', 'wizardhwnd', 'language', 'srcexe',
+    'computername', 'groupname', 'wizardhwnd', 'language', 'srcexe',
     'uninstallexe', 'sysuserinfoname', 'sysuserinfoorg', 'userinfoname',
     'userinfoorg', 'userinfoserial', 'username', 'log'
   ];
@@ -1672,7 +1672,6 @@ const
 var
   I, StartIndex: Integer;
   Valid: Boolean;
-  Dummy: ShortInt;
 begin
   { Style span symbols, then replace them with spaces to prevent any further
     processing }
@@ -1703,7 +1702,8 @@ begin
         end;
         ResetCurIndexTo(StartIndex);
         try
-          HandleCompilerDirective(True, I - 1, Dummy);
+          var OpenCount: ShortInt := 0;
+          HandleCompilerDirective(True, I - 1, OpenCount);
         finally
           ResetCurIndexTo(0);
         end;
@@ -1913,8 +1913,6 @@ function GetCompressionValues: TArray<TScintRawString>;
 const
   ZipAlgos: TArray<TScintRawString> = ['zip', 'bzip'];
   LZMAAlgos: TArray<TScintRawString> = ['lzma', 'lzma2'];
-type
-  TZipLevels = 1..9;
 begin
   SetLength(Result, 1 +
     Length(ZipAlgos) + Length(ZipAlgos) * (High(TZipLevel) - Low(TZipLevel) + 1) +
@@ -2012,7 +2010,7 @@ initialization
     SSDV(ssPrivilegesRequired, ['admin', 'lowest']), { We don't list none/poweruser }
     SSDV(ssPrivilegesRequiredOverridesAllowed, ['commandline', 'dialog']),
     SSDV(ssSetupArchitecture, ['x86', 'x64']),
-    SSDV(ssUninstallLogMode, ['append', 'new', 'override']),
+    SSDV(ssUninstallLogMode, ['append', 'new', 'overwrite']),
     SSDV(ssUseSetupLdr, ['x86', 'x64', SYes, SNo]),
     SSDV(ssWizardImageAlphaFormat, ['none', 'defined', 'premultiplied']),
     SSDV(ssWizardStyle, ['classic', 'modern', 'light', 'dark', 'dynamic', 'excludelightbuttons', 'excludelightcontrols', 'includetitlebar', 'hidebevels', 'polar', 'slate', 'windows11', 'zircon'])];

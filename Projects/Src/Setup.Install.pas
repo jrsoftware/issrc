@@ -381,7 +381,7 @@ type
 
 function MakeDir(const UninstLog: TUninstallLog; Dir: String;
   const Flags: TMakeDirFlags = []; const RecursionDepth: Cardinal = 0): Boolean;
-{ Returns True if a new directory was created. Also see ForceDirectories
+{ Returns True if a new directory was created. Also see NewForceDirectories
   for similar code (but different return value). }
 var
   ErrorCode: DWORD;
@@ -1282,14 +1282,7 @@ Retry:
         added). }
       if foSharedFile in CurFile^.Options then begin
         LastOperation := '';
-        if Is64Bit then begin
-          Log('Incrementing shared file count (64-bit).');
-          IncrementSharedCount(rv64Bit, DestFile, DestFileExistedBefore);
-        end
-        else begin
-          Log('Incrementing shared file count (32-bit).');
-          IncrementSharedCount(rv32Bit, DestFile, DestFileExistedBefore);
-        end;
+        IncrementSharedCount(Is64Bit, DestFile, DestFileExistedBefore);
         if not(foUninsNeverUninstall in CurFile^.Options) then begin
           DeleteFlags := DeleteFlags or utDeleteFile_SharedFile;
           if Is64Bit then
@@ -1969,7 +1962,7 @@ begin
               end;
             end;
           end;
-          if not Skip then
+          if not Skip then begin
             Log('Updating the .INI file.');
             repeat
               if SetIniString(IniSection, IniEntry, IniValue, IniFilename) then begin
@@ -1979,6 +1972,7 @@ begin
              until AbortRetryIgnoreTaskDialogMsgBox(
                      FmtSetupMessage1(msgErrorIniEntry, IniFilename),
                      [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreIgnore], SetupMessages[msgAbortRetryIgnoreCancel]]);
+          end;
         end else
           Log('Skipping updating the .INI file, only updating uninstall log.');
 
@@ -2065,7 +2059,7 @@ begin
         if RK = HKEY_AUTO then
           RK := InstallModeRootKey;
         S := ExpandConst(Subkey);
-        LogFmt('Key: %s\%s', [GetRegRootKeyName(RK), Subkey]);
+        LogFmt('Key: %s\%s', [GetRegRootKeyName(RK), S]);
         N := ExpandConst(ValueName);
         if N <> '' then
           LogFmt('Value name: %s', [N]);
@@ -2438,7 +2432,7 @@ procedure RegisterFiles(const RegisterFilesList: TList);
         LogFmt('Registering 32-bit DLL/OCX: %s', [Filename]);
       NeedToRetry := False;
       try
-        RegisterServer(False, Is64Bit, Filename, NoErrorMessages);
+        RegisterServer(False, Is64Bit, Filename);
         Log('Registration successful.');
       except
         Log('Registration failed:' + SNewLine + GetExceptMessage);

@@ -433,16 +433,17 @@ begin
     DelayDeleteFile(DestFile, 13, 50, 250);
     DidJustDeleteDestFile := True;
   end else
-    ForceDirectories(PathExtractPath(DestFile));
+    NewForceDirectories(PathExtractDir(DestFile));
 
   { Create temporary file }
   TempFile := GenerateUniqueName(PathExtractPath(DestFile), '.tmp');
   TempF := TFile.Create(TempFile, fdCreateAlways, faWrite, fsNone);
   TempFileLeftOver := True;
 
-  HTTPDataReceiver := THTTPDataReceiver.Create(Url,
-    DownloadTemporaryFileUser, DownloadTemporaryFilePass, TempF);
+  HTTPDataReceiver := nil;
   try
+    HTTPDataReceiver := THTTPDataReceiver.Create(Url,
+      DownloadTemporaryFileUser, DownloadTemporaryFilePass, TempF);
     HTTPDataReceiver.BaseName := BaseName;
     HTTPDataReceiver.OnDownloadProgress := OnDownloadProgress;
     HTTPDataReceiver.OnDownloadNoProgress := OnDownloadNoProgress;

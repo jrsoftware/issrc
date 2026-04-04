@@ -397,7 +397,7 @@ var
   PrevLang: String;
 begin
   { do not localize or change the following string }
-  PrevLang := GetPreviousData(ExpandConst(SetupHeader.AppId), 'Inno Setup: Language', '');
+  PrevLang := GetPreviousData(ExpandedAppID, 'Inno Setup: Language', '');
 
   if PrevLang <> '' then begin
     for var I := 0 to Entries[seLanguage].Count-1 do begin
@@ -1103,9 +1103,8 @@ const
     ('commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
      'usersendto', 'commonfonts', 'commonappdata', 'commondocs', 'commontemplates',
      'commonfavorites' { not accepted anymore by the compiler }, '', '', '', ''));
-  NoUninstallConsts: array[0..6] of String =
-    ('src', 'srcexe', 'userinfoname', 'userinfoorg', 'userinfoserial', 'hwnd',
-     'wizardhwnd');
+  NoUninstallConsts: array[0..5] of String =
+    ('src', 'srcexe', 'userinfoname', 'userinfoorg', 'userinfoserial', 'wizardhwnd');
 var
   OriginalCnst, ShellFolder: String;
   Common: Boolean;
@@ -2537,10 +2536,9 @@ begin
 end;
 
 procedure LogSetupVersion;
-const
-  Bits: array [Boolean] of Integer = (32, 64);
 begin
-  LogFmt('Setup version: %s version %s (%d-bit)', [SetupTitle, SetupVersion, Bits[IsCurrentProcess64Bit]]);
+  LogFmt('Setup version: %s version %s (%d-bit)', [SetupTitle, SetupVersion,
+    BitsFrom64BitBoolean(IsCurrentProcess64Bit)]);
 end;
 
 procedure LogWindowsVersion;
@@ -2565,8 +2563,6 @@ procedure LogWindowsVersion;
         AppendArchitecture(Result, Separator, SetupProcessorArchitectureNames[I]);
   end;
 
-const
-  Bits: array [Boolean] of Integer = (32, 64);
 var
   SP: String;
 begin
@@ -2578,7 +2574,9 @@ begin
   LogFmt('Windows version: %u.%u.%u%s', [WindowsVersion shr 24,
     (WindowsVersion shr 16) and $FF, WindowsVersion and $FFFF, SP]);
 
-  LogFmt('Windows architecture: %s (%d-bit)', [SetupProcessorArchitectureNames[ProcessorArchitecture], Bits[IsWin64]]);
+  LogFmt('Windows architecture: %s (%d-bit)',
+    [SetupProcessorArchitectureNames[ProcessorArchitecture],
+     BitsFrom64BitBoolean(IsWin64)]);
   LogFmt('Machine types supported by system: %s', [ArchitecturesToStr(MachineTypesSupportedBySystem, ' ')]);
 
   if IsAdmin then
@@ -2872,7 +2870,12 @@ var
         Result := TBitmap.Create;
         TBitmap(Result).AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
       end;
-      Result.LoadFromStream(MemStream);
+      try
+        Result.LoadFromStream(MemStream);
+      except
+        Result.Free;
+        raise;
+      end;
     finally
       MemStream.Free;
     end;
@@ -3679,7 +3682,7 @@ begin
   { Create temporary directory }
   CreateTempInstallDir;
 
-  { Load system's "shfolder.dll", and load it }
+  { Load system's "shfolder.dll" }
   LoadSHFolderDLL;
 
   { Save DecompressorDLL stream as "_isdecmp.dll" in TempInstallDir, and load it }

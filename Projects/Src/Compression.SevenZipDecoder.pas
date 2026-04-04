@@ -39,7 +39,6 @@ type
     LogBuffer: AnsiString;
     ExtractedArchiveName: String;
     OnExtractionProgress: TOnExtractionProgress;
-    LastReportedProgress, LastReportedProgressMax: UInt64;
     Aborted: Boolean;
   end;
 
@@ -371,7 +370,7 @@ begin
   LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName,
     RemoveBackslashUnlessRoot(DestDir), SYesNo[FullPaths]]);
 
-  if not ForceDirectories(DestDir) then
+  if not NewForceDirectories(DestDir) then
     SevenZipError(FmtSetupMessage1(msgErrorCreatingDir, DestDir), 'Failed to create destination directory');
 
   if not PathConvertNormalToSuper(ArchiveFileName, State.ExpandedArchiveFileName, True) or
@@ -382,8 +381,6 @@ begin
   State.LogBuffer := '';
   State.ExtractedArchiveName := PathExtractName(ArchiveFileName);
   State.OnExtractionProgress := OnExtractionProgress;
-  State.LastReportedProgress := 0;
-  State.LastReportedProgressMax := 0;
   State.Aborted := False;
 
   var Res := IS_7zDec(PChar(ArchiveFileName), FullPaths);

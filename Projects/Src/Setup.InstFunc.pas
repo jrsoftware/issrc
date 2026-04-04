@@ -62,7 +62,7 @@ type
 
 function CheckForMutexes(const Mutexes: String): Boolean;
 procedure CreateMutexes(const Mutexes: String);
-function DecrementSharedCount(const RegView: TRegView; const Filename: String): Boolean;
+function DecrementSharedCount(const Key64Bit: Boolean; const Filename: String): Boolean;
 function DelTree(const Path: String;
   const IsDir, DeleteFiles, DeleteSubdirsAlso, BreakOnError: Boolean;
   const DeleteDirProc: TDeleteDirProc; const DeleteFileProc: TDeleteFileProc;
@@ -81,7 +81,7 @@ function GetSpaceOnDisk(const DriveRoot: String;
 function GetSpaceOnNearestMountPoint(const StartDir: String;
   var FreeBytes, TotalBytes: Int64): Boolean;
 function GetUserNameString: String;
-procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
+procedure IncrementSharedCount(const Key64Bit: Boolean; const Filename: String;
   const AlreadyExisted: Boolean);
 function InstExec(const DisableFsRedir: Boolean; const Filename, Params: String;
   WorkingDir: String; const Wait: TExecWait; const ShowCmd: Integer;
@@ -96,6 +96,7 @@ function IsDirEmpty(const Dir: String): Boolean;
 function IsProtectedSystemFile(const Filename: String): Boolean;
 function MakePendingFileRenameOperationsChecksum: TSHA256Digest;
 function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;
+function NewForceDirectories(const Dir: String): Boolean;
 procedure RaiseOleError(const FunctionName: String; const ResultCode: HRESULT);
 procedure RefreshEnvironment;
 function RegRootKeyToUInt32(const RootKey: HKEY): UInt32;
@@ -105,7 +106,6 @@ function TryRestartReplace(ExistingFile, DestFile: String;
   out ErrorCode: DWORD): Boolean;
 procedure Win32ErrorMsg(const FunctionName: String);
 procedure Win32ErrorMsgEx(const FunctionName: String; const ErrorCode: DWORD);
-function ForceDirectories(const Dir: String): Boolean;
 procedure AddAttributesToFile(const Filename: String; Attribs: Integer);
 procedure ApplyRedirToRunEntryPaths(const RunEntry64Bit: Boolean;
   var AFilename, AWorkingDir: String);
@@ -121,7 +121,7 @@ uses
   PathFunc, UnsignedFunc,
   Shared.SetupTypes, Shared.SetupMessageIDs,
   SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, Setup.PathRedir,
-  Setup.RedirFunc, Setup.MainFunc;
+  Setup.RedirFunc, Setup.LoggingFunc, Setup.MainFunc;
 
 procedure InternalError(const Id: String);
 begin
@@ -348,7 +348,7 @@ begin
   end;
 end;
 
-procedure IncrementSharedCount(const RegView: TRegView; const Filename: String;
+procedure IncrementSharedCount(const Key64Bit: Boolean; const Filename: String;
   const AlreadyExisted: Boolean);
 const
   SharedDLLsKey = REGSTR_PATH_SETUP + '\SharedDLLs';  {don't localize}
@@ -357,9 +357,15 @@ var
   Disp, Size, CurType, NewType: DWORD;
   CountStr: String;
 begin
-  const RedirFilename = ApplyRedirForRegistrationOperation(RegView in RegViews64Bit, Filename);
+  if Key64Bit and not IsWin64 then
+    InternalError('Cannot access 64-bit SharedDLLs key on 32-bit Windows');
 
-  const ErrorCode = Cardinal(RegCreateKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0, nil,
+  const RedirFilename = ApplyRedirForRegistrationOperation(Key64Bit, Filename);
+  LogFmt('Incrementing shared file reference count (%d-bit SharedDLLs key): %s',
+    [BitsFrom64BitBoolean(Key64Bit), RedirFilename]);
+
+  const ErrorCode = DWORD(RegCreateKeyExView(RegViewFrom64BitBoolean(Key64Bit),
+    HKEY_LOCAL_MACHINE, SharedDLLsKey, 0, nil,
     REG_OPTION_NON_VOLATILE, KEY_QUERY_VALUE or KEY_SET_VALUE, nil, K, @Disp));
   if ErrorCode <> ERROR_SUCCESS then
     raise Exception.Create(FmtSetupMessage(msgErrorRegOpenKey,
@@ -411,7 +417,7 @@ begin
   RegCloseKey(K);
 end;
 
-function DecrementSharedCount(const RegView: TRegView;
+function DecrementSharedCount(const Key64Bit: Boolean;
   const Filename: String): Boolean;
 { Attempts to decrement the shared file reference count of Filename. Returns
   True if the count reached zero (meaning it's OK to delete the file). }
@@ -424,11 +430,15 @@ var
   CountStr: String;
 begin
   Result := False;
+  if Key64Bit and not IsWin64 then
+    InternalError('Cannot access 64-bit SharedDLLs key on 32-bit Windows');
 
-  const RedirFilename = ApplyRedirForRegistrationOperation(RegView in RegViews64Bit, Filename);
+  const RedirFilename = ApplyRedirForRegistrationOperation(Key64Bit, Filename);
+  LogFmt('Decrementing shared file reference count (%d-bit SharedDLLs key): %s',
+    [BitsFrom64BitBoolean(Key64Bit), RedirFilename]);
 
-  const ErrorCode = Cardinal(RegOpenKeyExView(RegView, HKEY_LOCAL_MACHINE, SharedDLLsKey, 0,
-    KEY_QUERY_VALUE or KEY_SET_VALUE, K));
+  const ErrorCode = DWORD(RegOpenKeyExView(RegViewFrom64BitBoolean(Key64Bit),
+    HKEY_LOCAL_MACHINE, SharedDLLsKey, 0, KEY_QUERY_VALUE or KEY_SET_VALUE, K));
   if ErrorCode = ERROR_FILE_NOT_FOUND then
     Exit;
   if ErrorCode <> ERROR_SUCCESS then
@@ -474,6 +484,7 @@ begin
 
     Dec(Count);
     if Count <= 0 then begin
+      Log('Shared file reference count reached zero.');
       Result := True;
       RegDeleteValue(K, SharedFileP);
     end
@@ -978,7 +989,7 @@ begin
     LPARAM(PChar('Environment')), SMTO_ABORTIFHUNG, 5000, @MsgResult);
 end;
 
-function InternalForceDirectories(Dir: String;
+function InternalNewForceDirectories(Dir: String;
   const RecursionDepth: Cardinal = 0): Boolean;
 { Returns True if a new directory was created, or if the directory already
   existed. Also see MakeDir for similar code (but different return value). }
@@ -992,15 +1003,15 @@ begin
 
   if RecursionDepth >= 50 then
     Exit(False);
-  if not InternalForceDirectories(PathExtractDir(Dir), RecursionDepth + 1) then
+  if not InternalNewForceDirectories(PathExtractDir(Dir), RecursionDepth + 1) then
     Exit(False);
 
   Result := CreateDirectory(PChar(Dir), nil);
 end;
 
-function ForceDirectories(const Dir: String): Boolean;
+function NewForceDirectories(const Dir: String): Boolean;
 begin
-  Result := InternalForceDirectories(Dir);
+  Result := InternalNewForceDirectories(Dir);
 end;
 
 procedure AddAttributesToFile(const Filename: String; Attribs: Integer);
@@ -1138,7 +1149,7 @@ end;
 destructor TSimpleStringList.Destroy;
 begin
   Clear;
-  inherited Destroy;
+  inherited;
 end;
 
 { TProgressThrottler }

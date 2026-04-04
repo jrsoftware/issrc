@@ -2,7 +2,7 @@ unit Compiler.Compile;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -30,7 +30,7 @@ function GetSelfFilename: String;
 var
   Buf: array[0..MAX_PATH-1] of Char;
 begin
-  SetString(Result, Buf, GetModuleFileName(HInstance, Buf, SizeOf(Buf)))
+  SetString(Result, Buf, GetModuleFileName(HInstance, Buf, SizeOf(Buf) div SizeOf(Buf[0])));
 end;
 
 function ISCompileScript(const Params: TCompileScriptParamsEx;

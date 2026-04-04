@@ -10,7 +10,7 @@ end;
 TComponent = class(TPersistent)
   function FindComponent(AName: String): TComponent;
   constructor Create(AOwner: TComponent);
-  property Owner: TComponent; read write;
+  property Owner: TComponent; read;
   procedure DestroyComponents;
   procedure Destroying;
   procedure FreeNotification(AComponent: TComponent);
@@ -738,7 +738,7 @@ end;
 TNewNotebookPage = class(TCustomControl)
   property Color: TColor; read write;
   property Notebook: TNewNotebook; read write;
-  property PageIndex: Integer; read write;
+  property PageIndex: NativeInt; read write;
 end;
 
 TWizardPageNotifyEvent = procedure(Sender: TWizardPage);
@@ -826,10 +826,10 @@ end;
 TDownloadWizardPage = class(TOutputProgressWizardPage)
   property AbortButton: TNewButton; read;
   property AbortedByUser: Boolean; read;
-  function Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer;
-  function AddWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList): Integer;
-  function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String): Integer;
-  function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String; const AllowedKeysRuntimeIDs: TStringList: Integer;
+  function Add(const Url, BaseName, RequiredSHA256OfFile: String): NativeInt;
+  function AddWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList): NativeInt;
+  function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String): NativeInt;
+  function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String; const AllowedKeysRuntimeIDs: TStringList): NativeInt;
   procedure Clear;
   function Download: Int64;
   property LastBaseNameOrUrl: String; read;
@@ -839,8 +839,8 @@ end;
 TExtractionWizardPage = class(TOutputProgressWizardPage)
   property AbortButton: TNewButton; read;
   property AbortedByUser: Boolean; read;
-  function Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): Integer;
-  function AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): Integer;
+  function Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): NativeInt;
+  function AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): NativeInt;
   procedure Clear;
   procedure Extract;
   property ShowArchiveInsteadOfFile: Boolean; read write;

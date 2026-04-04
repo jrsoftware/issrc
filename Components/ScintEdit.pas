@@ -336,10 +336,10 @@ type
     class function RawStringIsBlank(const S: TScintRawString): Boolean; static;
     procedure Redo;
     procedure RemoveAdditionalSelections;
-    function ReplaceMainSelText(const S: String;
-      const ReplaceMode: TScintReplaceMode = srmNormal): TScintRange;
-    function ReplaceRawMainSelText(const S: TScintRawString;
-      const ReplaceMode: TScintReplaceMode = srmNormal): TScintRange;
+    procedure ReplaceMainSelText(const S: String;
+      const ReplaceMode: TScintReplaceMode = srmNormal);
+    procedure ReplaceRawMainSelText(const S: TScintRawString;
+      const ReplaceMode: TScintReplaceMode = srmNormal);
     function ReplaceRawTextRange(const StartPos, EndPos: Integer;
       const S: TScintRawString; const ReplaceMode: TScintReplaceMode = srmNormal): TScintRange;
     function ReplaceTextRange(const StartPos, EndPos: Integer; const S: String;
@@ -1322,7 +1322,7 @@ var
   Len: Integer;
   S: TScintRawString;
 begin
-  Len := Call(SCI_GETSELTEXT, 0, 0);
+  Len := Call(SCI_GETSELTEXT, 0, 0); { Returned length does not include null terminator }
   if Len > 0 then begin
     InitRawString(S, Len);
     Call(SCI_GETSELTEXT, 0, LPARAM(PAnsiChar(@S[1])));
@@ -1604,7 +1604,7 @@ begin
         else if N.modificationType and SC_MOD_DELETETEXT <> 0 then
           Change(False, Integer(N.position), Integer(N.length), Integer(N.linesAdded));
 
-        if (N.linesAdded > 0) and FLineNumbers then
+        if (N.linesAdded <> 0) and FLineNumbers then
           UpdateLineNumbersWidth;
       end;
     SCN_SAVEPOINTLEFT,
@@ -1670,14 +1670,14 @@ begin
   SetSingleSelection(CaretPos, AnchorPos);
 end;
 
-function TScintEdit.ReplaceMainSelText(const S: String;
-  const ReplaceMode: TScintReplaceMode): TScintRange;
+procedure TScintEdit.ReplaceMainSelText(const S: String;
+  const ReplaceMode: TScintReplaceMode);
 begin
   ReplaceRawMainSelText(ConvertStringToRawString(S), ReplaceMode);
 end;
 
-function TScintEdit.ReplaceRawMainSelText(const S: TScintRawString;
-  const ReplaceMode: TScintReplaceMode): TScintRange;
+procedure TScintEdit.ReplaceRawMainSelText(const S: TScintRawString;
+  const ReplaceMode: TScintReplaceMode);
 { Replaces the main selection just like SetRawSelText/SCI_REPLACESEL but
   without removing additional selections }
 begin
@@ -1963,7 +1963,7 @@ begin
   CheckPosRange(StartPos, EndPos);
   Call(SCI_SETINDICATORCURRENT, IndicatorNumber, 0);
   if Value then begin
-    Call(SCI_SETINDICATORVALUE, IndicatorNumber, 1);
+    Call(SCI_SETINDICATORVALUE, 1, 0);
     Call(SCI_INDICATORFILLRANGE, StartPos, EndPos - StartPos);
   end else
     Call(SCI_INDICATORCLEARRANGE, StartPos, EndPos - StartPos);
@@ -2558,7 +2558,7 @@ begin
     if AutoCompleteFontName <> '' then
       DefaultAttr.FontName := AutoCompleteFontName;
     if AutoCompleteFontSize > 0 then
-    DefaultAttr.FontSize := AutoCompleteFontSize;
+      DefaultAttr.FontSize := AutoCompleteFontSize;
     DefaultAttr.FontStyle := [];
     { Note: Scintilla doesn't actually use the colors set here }
     DefaultAttr.ForeColor := clWindowText;
@@ -2639,7 +2639,6 @@ end;
 procedure TScintEdit.WMDropFiles(var Message: TWMDropFiles);
 var
   FileList: TStringList;
-  Filename: array[0..MAX_PATH-1] of Char;
   P: TPoint;
 begin
   FileList := nil;
@@ -2648,10 +2647,18 @@ begin
       FileList := TStringList.Create;
       const NumFiles = DragQueryFile(Message.Drop, UINT(-1), nil, 0);
       if NumFiles > 0 then
-        for var I := 0 to NumFiles-1 do
-          if DragQueryFile(Message.Drop, I, Filename,
-             SizeOf(Filename) div SizeOf(Filename[0])) > 0 then
-            FileList.Add(Filename);
+        for var I := 0 to NumFiles-1 do begin
+          const Len = DragQueryFile(Message.Drop, I, nil, 0);
+          if Len > 0 then begin
+            var Filename: String;
+            SetLength(Filename, Len);
+            const Copied = DragQueryFile(Message.Drop, I, PChar(Filename), Len + 1);
+            if Copied > 0 then begin
+              SetLength(Filename, Copied);
+              FileList.Add(Filename);
+            end;
+          end;
+        end;
 
       if FileList.Count > 0 then begin
         if not DragQueryPoint(Message.Drop, P) then begin
