@@ -508,15 +508,17 @@ begin
     if FAbort then
       SysUtils.Abort;
 
-    System.TMonitor.Enter(FLock);
-    try
-      const MaxInt64 = High(Int64);
-      if completeValue^ > MaxInt64 then
-        FProgress := MaxInt64
-      else
-        FProgress := Int64(completeValue^);
-    finally
-      System.TMonitor.Exit(FLock);
+    if completeValue <> nil then begin
+      System.TMonitor.Enter(FLock);
+      try
+        const MaxInt64 = High(Int64);
+        if completeValue^ > MaxInt64 then
+          FProgress := MaxInt64
+        else
+          FProgress := Int64(completeValue^);
+      finally
+        System.TMonitor.Exit(FLock);
+      end;
     end;
     Result := S_OK;
   except
