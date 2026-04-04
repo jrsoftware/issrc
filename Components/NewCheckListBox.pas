@@ -1611,7 +1611,8 @@ begin
   if ItemStates[Index].Enabled <> AEnabled then
   begin
     ItemStates[Index].Enabled := AEnabled;
-    InvalidateCheck(Index);
+    const R = ItemRect(Index);
+    InvalidateRect(Handle, @R, True);
   end;
 end;
 
