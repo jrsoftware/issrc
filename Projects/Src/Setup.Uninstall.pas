@@ -652,7 +652,7 @@ begin
     CreateTempInstallDir;
 
     if CompiledCodeText <> '' then begin
-      { Load system's "shfolder.dll", and load it }
+      { Load system's "shfolder.dll" }
       LoadSHFolderDLL;
 
       { Setup some global variables which are accessible to [Code] }

@@ -3682,7 +3682,7 @@ begin
   { Create temporary directory }
   CreateTempInstallDir;
 
-  { Load system's "shfolder.dll", and load it }
+  { Load system's "shfolder.dll" }
   LoadSHFolderDLL;
 
   { Save DecompressorDLL stream as "_isdecmp.dll" in TempInstallDir, and load it }
