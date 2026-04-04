@@ -3528,8 +3528,8 @@ procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
 
   function HighlightAtCursorAllowed(const Word: TScintRawString): Boolean;
   begin
-    const Section = FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine]);
-    Result := FMemosStyler.HighlightAtCursorAllowed(Section, FActiveMemo.ConvertRawStringToString(Word));
+    const Section = FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
+    Result := FMemosStyler.HighlightAtCursorAllowed(Section, AMemo.ConvertRawStringToString(Word));
   end;
 
 begin
