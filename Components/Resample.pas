@@ -162,7 +162,10 @@ begin
     end;
     //NOTE: Irreversible change of SrcBitmap pixel format
     SrcBitmap.PixelFormat := PixelFormat;
-    SrcLineSize := Integer(PByte(SrcBitmap.ScanLine[0]) - PByte(SrcBitmap.ScanLine[1]));
+    if SrcHeight > 1 then
+      SrcLineSize := Integer(PByte(SrcBitmap.ScanLine[0]) - PByte(SrcBitmap.ScanLine[1])) {Could be negative, see below }
+    else
+      SrcLineSize := SrcWidth * PixelSize;
     if SrcLineSize >= 0 then
       SrcBits := SrcBitmap.ScanLine[SrcHeight - 1]
     else begin
@@ -173,7 +176,10 @@ begin
     DstBitmap.AlphaFormat := SrcBitmap.AlphaFormat;
     DstBitmap.Width := DstWidth;
     DstBitmap.Height := DstHeight;
-    DstLineSize := Integer(PByte(DstBitmap.ScanLine[0]) - PByte(DstBitmap.ScanLine[1]));
+    if DstHeight > 1 then
+      DstLineSize := Integer(PByte(DstBitmap.ScanLine[0]) - PByte(DstBitmap.ScanLine[1])) {Could be negative, see below }
+    else
+      DstLineSize := DstWidth * PixelSize;
     if DstLineSize >= 0 then
       DstBits := DstBitmap.ScanLine[DstHeight - 1]
     else begin
