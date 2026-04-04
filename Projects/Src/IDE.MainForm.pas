@@ -656,6 +656,7 @@ type
     FTheme: TTheme;
     procedure CheckIfTerminated;
     function MemoToTabIndex(const AMemo: TIDEScintEdit): Integer;
+    function MemoToTabName(const AMemo: TIDEScintEdit): String;
     procedure MoveCaretAndActivateMemo(AMemo: TIDEScintEdit; const LineNumberOrPosition: Integer;
       const AlwaysResetColumnEvenIfOnRequestedLineAlready: Boolean;
       const IsPosition: Boolean = False; const PositionVirtualSpace: Integer = 0);
@@ -3953,7 +3954,7 @@ begin
   end;
 end;
 
-{ Also see TabIndexToMemoIndex }
+{ Also see TabIndexToMemo & MemoToTabName }
 function TMainForm.MemoToTabIndex(const AMemo: TIDEScintEdit): Integer;
 begin
   if AMemo = FMainMemo then
@@ -3965,11 +3966,24 @@ begin
   end else begin
     Result := Integer(FFileMemos.IndexOf(AMemo as TIDEScintFileEdit)); { Other tabs display include files which start second tab }
 
+    { Hidden files have no tab, so MemoToTabIndex should not be called for a hidden file }
+    if FHiddenFiles.IndexOf(FFileMemos[Result].Filename) <> -1 then
+      raise Exception.Create('MemoToTabIndex Result is hidden');
+
    { Filter memos explicitly hidden by the user }
     for var MemoIndex := Result-1 downto 0 do
       if FHiddenFiles.IndexOf(FFileMemos[MemoIndex].Filename) <> -1 then
         Dec(Result);
   end;
+end;
+
+{ Unlike MemoToTabIndex, this function also works for hidden file memos }
+function TMainForm.MemoToTabName(const AMemo: TIDEScintEdit): String;
+begin
+  if (AMemo = FMainMemo) or (AMemo = FPreprocessorOutputMemo) then
+    Result := MemosTabSet.Tabs[MemoToTabIndex(AMemo)]
+  else
+    Result := GetDisplayFilename((AMemo as TIDEScintFileEdit).Filename); { Also see UpdateIncludedFilesMemos }
 end;
 
 { Also see MemoToTabIndex }
@@ -4235,7 +4249,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
           end;
 
           if FHiddenFiles.IndexOf(IncludedFile.Filename) = -1 then begin
-            NewTabs.Insert(NextTabIndex, GetDisplayFilename(IncludedFile.Filename));
+            NewTabs.Insert(NextTabIndex, GetDisplayFilename(IncludedFile.Filename)); { Also see MemoToTabName }
             NewHints.Insert(NextTabIndex, GetFileTitle(IncludedFile.Filename));
             NewCloseButtons.Insert(NextTabIndex, True);
             Inc(NextTabIndex);
