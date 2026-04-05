@@ -1132,7 +1132,7 @@ Retry:
         LastOperation := '';
         FontFilename := ShortenFontFilename(DestFile);
         if DestFileExistedBefore then
-          RemoveFontResource(PChar(FontFilename));
+          RemoveFontResource(PChar(PathConvertSuperToNormal(FontFilename)));
       end;
 
       { Delete existing version of file, if any. If it can't be deleted
