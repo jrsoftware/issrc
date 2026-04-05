@@ -139,7 +139,7 @@ begin
       relative path names but Restart Manager doesn't restore the working
       directory. }
     if CommandLineWizard then
-      CommandLine := '/WIZARD'
+      CommandLine := '/WIZARD "' + CommandLineWizardName + '" "' + CommandLineFilename + '"'
     else begin
       CommandLine := CommandLineFilename;
       if CommandLine <> '' then
