@@ -3,7 +3,7 @@ program ISCC;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -385,7 +385,7 @@ procedure ProcessCommandLine;
 
   procedure ShowBanner;
   begin
-    WriteStdOut('Inno Setup 7 Command-Line Compiler');
+    WriteStdOut('Inno Setup 7' {$IFNDEF WIN64} + ' (32-bit)' {$ENDIF} + ' Command-Line Compiler');
     WriteStdOut('Copyright (C) 1997-2026 Jordan Russell. All rights reserved.');
     WriteStdOut('Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.');
     if IsppMode then
