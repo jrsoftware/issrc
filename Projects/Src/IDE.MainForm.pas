@@ -3968,7 +3968,8 @@ begin
 
     { Hidden files have no tab, so MemoToTabIndex should not be called for a hidden file }
     if FHiddenFiles.IndexOf(FFileMemos[Result].Filename) <> -1 then
-      raise Exception.Create('MemoToTabIndex Result is hidden');
+      raise Exception.CreateFmt('MemoToTabIndex called for hidden file memo: %s',
+        [GetDisplayFilename((AMemo as TIDEScintFileEdit).Filename)]);
 
    { Filter memos explicitly hidden by the user }
     for var MemoIndex := Result-1 downto 0 do
