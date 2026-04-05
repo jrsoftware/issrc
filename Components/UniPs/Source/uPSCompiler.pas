@@ -1990,14 +1990,13 @@ begin
       end;
 	end;
 
-  bts8,btu8: BlockWriteData(BlockInfo, p^.tu8, 1);
-  bts16,btu16: BlockWriteData(BlockInfo, p^.tu16, 2);
-  bts32,btu32: BlockWriteData(BlockInfo, p^.tu32, 4);
+  bts8,btu8: BlockWriteData(BlockInfo, p^.tu8, SizeOf(tbtu8));
+  bts16,btu16: BlockWriteData(BlockInfo, p^.tu16, SizeOf(tbtu16));
+  bts32,btu32,btProcPtr: BlockWriteData(BlockInfo, p^.tu32, SizeOf(tbtu32));
   {$IFNDEF PS_NOINT64}
-  bts64: BlockWriteData(BlockInfo, p^.ts64, 8);
-  btU64: BlockWriteData(BlockInfo, p^.tu64, 8);
+  bts64: BlockWriteData(BlockInfo, p^.ts64, SizeOf(tbts64));
+  btU64: BlockWriteData(BlockInfo, p^.tu64, SizeOf(tbtu64));
   {$ENDIF}
-  btProcPtr: BlockWriteData(BlockInfo, p^.tu32, 4);
   {$IFDEF DEBUG}
   {$IFNDEF FPC}
   else
@@ -2717,7 +2716,7 @@ begin
   case src.FType.BaseType of
     btu8, bts8: dest^.tu8 := src^.tu8;
     btu16, bts16: dest^.tu16 := src^.tu16;
-    btenum, btu32, bts32: dest^.tu32 := src^.tu32;
+    btenum, btu32, bts32, btProcPtr: dest^.tu32 := src^.tu32;
     btsingle: Dest^.tsingle := src^.tsingle;
     btdouble: Dest^.tdouble := src^.tdouble;
     btextended: Dest^.textended := src^.textended;
@@ -2733,16 +2732,9 @@ begin
     btwidestring: tbtwidestring(dest^.twidestring) := tbtwidestring(src^.twidestring);
     btwidechar: Dest^.twidechar := src^.twidechar;
     {$ENDIF}
+    btType: dest^.ttype := src^.ttype;
   end;
 end;
-
-function DuplicateVariant(Src: PIfRVariant): PIfRVariant;
-begin
-  New(Result);
-  FillChar(Result^, SizeOf(TIfRVariant), 0);
-  CopyVariantContents(Src, Result);
-end;
-
 
 procedure InitializeVariant(Vari: PIfRVariant; FType: TPSType);
 begin
@@ -2759,6 +2751,13 @@ function NewVariant(FType: TPSType): PIfRVariant;
 begin
   New(Result);
   InitializeVariant(Result, FType);
+end;
+
+function DuplicateVariant(Src: PIfRVariant): PIfRVariant;
+begin
+  New(Result);
+  InitializeVariant(Result, Src^.FType);
+  CopyVariantContents(Src, Result);
 end;
 
 procedure FinalizeA(var s: tbtString); overload; begin s := ''; end;
@@ -3552,7 +3551,8 @@ begin
           else
             Result := False;
           end;
-          ConvertToBoolean(Self, FUseUsedTypes, Var1, b);
+          if Result then
+            ConvertToBoolean(Self, FUseUsedTypes, Var1, b);
         end;
       otLessEqual:
         begin { <= }
@@ -3579,7 +3579,8 @@ begin
           else
             Result := False;
           end;
-          ConvertToBoolean(Self, FUseUsedTypes, Var1, b);
+          if Result then
+            ConvertToBoolean(Self, FUseUsedTypes, Var1, b);
         end;
       otGreater:
         begin { > }
@@ -3599,7 +3600,8 @@ begin
           else
             Result := False;
           end;
-          ConvertToBoolean(Self, FUseUsedTypes, Var1, b);
+          if Result then
+            ConvertToBoolean(Self, FUseUsedTypes, Var1, b);
         end;
       otLess:
         begin { < }
@@ -3619,7 +3621,8 @@ begin
           else
             Result := False;
           end;
-          ConvertToBoolean(Self, FUseUsedTypes, Var1, b);
+          if Result then
+            ConvertToBoolean(Self, FUseUsedTypes, Var1, b);
         end;
       otNotEqual:
         begin { <> }
@@ -3655,7 +3658,8 @@ begin
           else
             Result := False;
           end;
-          ConvertToBoolean(Self, FUseUsedTypes, Var1, b);
+          if Result then
+            ConvertToBoolean(Self, FUseUsedTypes, Var1, b);
         end;
       otEqual:
         begin { = }
@@ -3690,7 +3694,8 @@ begin
           else
             Result := False;
           end;
-          ConvertToBoolean(Self, FUseUsedTypes, Var1, b);
+          if Result then
+            ConvertToBoolean(Self, FUseUsedTypes, Var1, b);
         end;
       otIn:
         begin
@@ -3698,6 +3703,8 @@ begin
           begin
             Set_membership(GetUint(var1, result), var2.tstring, b);
           end else Result := False;
+          if Result then
+            ConvertToBoolean(Self, FUseUsedTypes, Var1, b);
         end;
       else
         Result := False;
@@ -4545,6 +4552,20 @@ begin
         exit;
       end;
     end;
+    for l := Proc.FLabels.Count -1 downto 0 do
+    begin
+      v := Proc.FLabels[l];
+      delete(v, 1, 4);
+      if Longint((@v[1])^) = h then
+      begin
+        delete(v, 1, 4);
+        if v = s then
+        begin
+          Result := True;
+          exit;
+        end;
+      end;
+    end;
   end
   else
   begin
@@ -4921,7 +4942,7 @@ begin
     for i := 0 to Func.FLabels.Count -1 do
     begin
       u := Func.FLabels[I];
-      delete(u, 1, 4);
+      delete(u, 1, 8);
       if u = s then
       begin
         Result := True;
@@ -11681,14 +11702,13 @@ var
           else
             WriteData(p^.tu32, 4);
         end;
-      bts8,btu8: WriteData(p^.tu8, 1);
-      bts16,btu16: WriteData(p^.tu16, 2);
-      bts32,btu32: WriteData(p^.tu32, 4);
+      bts8,btu8: WriteData(p^.tu8, SizeOf(tbtu8));
+      bts16,btu16: WriteData(p^.tu16, SizeOf(tbtu16));
+      bts32,btu32,btProcPtr: WriteData(p^.tu32, SizeOf(tbtu32));
       {$IFNDEF PS_NOINT64}
-      bts64: WriteData(p^.ts64, 8);
-      btU64: WriteData(p^.tu64, 8);
+      bts64: WriteData(p^.ts64, SizeOf(tbts64));
+      btU64: WriteData(p^.tu64, SizeOf(tbtu64));
       {$ENDIF}
-      btProcPtr: WriteData(p^.tu32, 4);
       {$IFDEF DEBUG}
       else
           asm int 3; end;
