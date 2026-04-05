@@ -3029,20 +3029,23 @@ var
     var FindData: TWin32FindData;
     var H := FindFirstFile(PChar(SearchBaseDir + SearchSubDir + SearchWildcard), FindData);
     if H <> INVALID_HANDLE_VALUE then begin
-      repeat
-        if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
+      try
+        repeat
+          if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
 
-          if SourceIsWildcard then
-            if FindData.dwFileAttributes and FILE_ATTRIBUTE_HIDDEN <> 0 then
+            if SourceIsWildcard then
+              if FindData.dwFileAttributes and FILE_ATTRIBUTE_HIDDEN <> 0 then
+                Continue;
+
+            if IsExcluded(SearchSubDir + FindData.cFileName, Excludes) then
               Continue;
 
-          if IsExcluded(SearchSubDir + FindData.cFileName, Excludes) then
-            Continue;
-
-          Inc(Result, FindDataFileSizeToInt64(FindData));
-        end;
-      until not FindNextFile(H, FindData);
-      Windows.FindClose(H);
+            Inc(Result, FindDataFileSizeToInt64(FindData));
+          end;
+        until not FindNextFile(H, FindData);
+      finally
+        Windows.FindClose(H);
+      end;
     end;
 
     if RecurseSubDirs then begin
