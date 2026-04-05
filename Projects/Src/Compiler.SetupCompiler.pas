@@ -197,6 +197,8 @@ type
     procedure OnCheckedTrust(CheckedTrust: Boolean);
     class procedure AbortCompile(const Msg: String); static;
     class procedure AbortCompileParamError(const Msg, ParamName: String); static;
+    class procedure ApplyNewEntryBitness(var Bitness: TSetupEntryBitness;
+      const NewBitness: TSetupEntryBitness); static;
     function PrependDirName(const Filename, Dir: String): String;
     function PrependSourceDirName(const Filename: String): String;
     procedure DoCallback(const Code: Integer; var Data: TCompilerCallbackData;
@@ -1469,6 +1471,17 @@ end;
 class procedure TSetupCompiler.AbortCompileParamError(const Msg, ParamName: String);
 begin
   AbortCompileFmt(Msg, [ParamName]);
+end;
+
+class procedure TSetupCompiler.ApplyNewEntryBitness(var Bitness: TSetupEntryBitness;
+  const NewBitness: TSetupEntryBitness);
+begin
+  if Bitness <> NewBitness then begin
+    if Bitness <> ebInstallDefault then
+      AbortCompileFmt(SCompilerParamErrorBadCombo2,
+        [ParamCommonFlags, '32bit', '64bit']);
+    Bitness := NewBitness;
+  end;
 end;
 
 function TSetupCompiler.PrependDirName(const Filename, Dir: String): String;
@@ -4636,11 +4649,11 @@ begin
       if Length(S) >= 2 then begin
         { Check for '32' or '64' suffix }
         if (S[Length(S)-1] = '3') and (S[Length(S)] = '2') then begin
-          Include(Options, ro32Bit);
+          Bitness := eb32Bit;
           SetLength(S, Length(S)-2);
         end
         else if (S[Length(S)-1] = '6') and (S[Length(S)] = '4') then begin
-          Include(Options, ro64Bit);
+          Bitness := eb64Bit;
           SetLength(S, Length(S)-2);
         end;
       end;
@@ -5612,8 +5625,8 @@ begin
                    28: Include(Options, foDontVerifyChecksum);
                    29: Include(Options, foUninsNoSharedFilePrompt);
                    30: Include(Options, foCreateAllSubDirs);
-                   31: Include(Options, fo32Bit);
-                   32: Include(Options, fo64Bit);
+                   31: ApplyNewEntryBitness(Bitness, eb32Bit);
+                   32: ApplyNewEntryBitness(Bitness, eb64Bit);
                    33: SolidBreak := True;
                    34: Include(Options, foSetNTFSCompression);
                    35: Include(Options, foUnsetNTFSCompression);
@@ -5761,6 +5774,7 @@ begin
           1: begin
                SourceWildcard := '';
                FileType := ftUninstExe;
+               Bitness := ebCurrentProcessBit;
                { Ordinary hash comparison on unins*.exe won't really work since
                  Setup modifies the file after extracting it. Force same
                  version to always be overwritten by including the special
@@ -5788,18 +5802,14 @@ begin
           Include(Options, foUninsNeverUninstall);
         end;
 
-        if (fo32Bit in Options) and (fo64Bit in Options) then
-          AbortCompileFmt(SCompilerParamErrorBadCombo2,
-            [ParamCommonFlags, '32bit', '64bit']);
-
         if foRegisterTypeLib in Options then begin
           { Only checks basic versions of ArchitecturesInstallIn64BitMode, so does not catch
             all cases of a mismatch. Setup will then throw an internal error instead. }
-          if (SetupArchitecture = sa32bit) and not(fo32Bit in Options) and
-             ((fo64Bit in Options) or (SetupHeader.ArchitecturesInstallIn64BitMode = 'x64compatible')) then
+          if (SetupArchitecture = sa32bit) and (Bitness <> eb32Bit) and
+             ((Bitness in [eb64Bit, ebNativeBit]) or (SetupHeader.ArchitecturesInstallIn64BitMode = 'x64compatible')) then
             AbortCompileFmt(SCompilerRegTypeLibArchitectureMismatch, [32, 64])
-          else if (SetupArchitecture = sa64bit) and not(fo64Bit in Options) and
-                  ((fo32Bit in Options) or (SetupHeader.ArchitecturesInstallIn64BitMode = '')) then
+          else if (SetupArchitecture = sa64bit) and not(Bitness in [eb64Bit, ebNativeBit]) and
+                  ((Bitness = eb32Bit) or (SetupHeader.ArchitecturesInstallIn64BitMode = '')) then
             AbortCompileFmt(SCompilerRegTypeLibArchitectureMismatch, [64, 32])
         end;
 
@@ -6084,8 +6094,8 @@ begin
                Wait := rwWaitUntilTerminated;
                WaitFlagSpecified := True;
              end;
-          14: Include(Options, roRun32Bit);
-          15: Include(Options, roRun64Bit);
+          14: ApplyNewEntryBitness(Bitness, eb32Bit);
+          15: ApplyNewEntryBitness(Bitness, eb64Bit);
           16: begin
                if (Ext = 1) then
                  AbortCompileParamError(SCompilerParamUnsupportedFlag, ParamCommonFlags);
@@ -6101,6 +6111,15 @@ begin
           Wait := rwNoWait
         else
           Wait := rwWaitUntilTerminated;
+      end;
+
+      if (roShellExec in Options) and (Bitness <> ebInstallDefault) then begin
+        if Bitness = eb64Bit then
+          AbortCompileFmt(SCompilerParamErrorBadCombo2,
+            [ParamCommonFlags, 'shellexec', '64bit'])
+        else
+          AbortCompileFmt(SCompilerParamErrorBadCombo2,
+            [ParamCommonFlags, 'shellexec', '32bit']);
       end;
 
       if RunAsOriginalUser and RunAsCurrentUser then
@@ -6170,16 +6189,6 @@ begin
       AfterInstall := Values[paAfterInstall].Data;
       ProcessMinVersionParameter(Values[paMinVersion], MinVersion);
       ProcessOnlyBelowVersionParameter(Values[paOnlyBelowVersion], OnlyBelowVersion);
-
-      if (roRun32Bit in Options) and (roRun64Bit in Options) then
-        AbortCompileFmt(SCompilerParamErrorBadCombo2,
-          [ParamCommonFlags, '32bit', '64bit']);
-      if (roRun32Bit in Options) and (roShellExec in Options) then
-        AbortCompileFmt(SCompilerParamErrorBadCombo2,
-          [ParamCommonFlags, '32bit', 'shellexec']);
-      if (roRun64Bit in Options) and (roShellExec in Options) then
-        AbortCompileFmt(SCompilerParamErrorBadCombo2,
-          [ParamCommonFlags, '64bit', 'shellexec']);
 
       if (OnLog <> '') and not (roLogOutput in Options) then
         AbortCompileFmt(SCompilerParamFlagMissing2, ['logoutput', ParamRunOnLog]);
