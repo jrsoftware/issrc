@@ -8,7 +8,12 @@ repository. All files that Inno Setup does not use have been removed. See
 The retained source files still contain a significant amount of dead code
 guarded by compiler directives that are never true in Inno Setup builds. This
 dead code exists because Pascal Script supports many compilers, platforms, and
-configurations that Inno Setup does not use.
+configurations that Inno Setup does not use. For example `PS_NOINT64` is never
+true.
+
+There's also a significant amount of useless guards by compiler directives
+that are never false in Inno Setup builds. For example `PS_MINIVCL` is never
+false.
 
 ## Defines set by Inno Setup
 
