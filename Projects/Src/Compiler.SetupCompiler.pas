@@ -5245,7 +5245,7 @@ type
     const NewVerificationType: TSetupFileVerificationType; const ErrorMessage: String);
   begin
     if not (VerificationType in [fvNone, NewVerificationType]) then
-       AbortCompileFmt(ErrorMessage, ['Hash', 'issigverify'])
+       AbortCompileFmt(ErrorMessage, [ParamFilesHash, 'issigverify'])
     else
       VerificationType := NewVerificationType;
   end;
@@ -5332,11 +5332,11 @@ type
              (NewFileEntry^.Verification.Typ = fvHash) and
              not CompareMem(@NewFileLocationEntryExtraInfo^.Verification.Hash[0],
                @NewFileEntry^.Verification.Hash[0], SizeOf(TSHA256Digest)) then
-            AbortCompileFmt(SCompilerFilesValueConflict, ['Hash']);
+            AbortCompileFmt(SCompilerFilesValueConflict, [ParamFilesHash]);
           if (NewFileLocationEntryExtraInfo^.Verification.Typ = fvISSig) and
              (NewFileEntry^.Verification.Typ = fvISSig) and
              (NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys <> NewFileEntry^.Verification.ISSigAllowedKeys) then
-            AbortCompileFmt(SCompilerFilesValueConflict, ['ISSigAllowedKeys']);
+            AbortCompileFmt(SCompilerFilesValueConflict, [ParamFilesISSigAllowedKeys]);
           if NewFileLocationEntryExtraInfo^.Verification.Typ = fvNone then begin
             NewFileLocationEntryExtraInfo^.Verification.Hash := NewFileEntry^.Verification.Hash;
             NewFileLocationEntryExtraInfo^.Verification.ISSigAllowedKeys := NewFileEntry^.Verification.ISSigAllowedKeys;
@@ -5705,7 +5705,7 @@ begin
                { ExternalSize }
                if Values[paExternalSize].Found then begin
                  if not ExternalFile then
-                   AbortCompileFmt(SCompilerFilesParamRequiresFlag, ['ExternalSize', 'external']);
+                   AbortCompileFmt(SCompilerFilesParamRequiresFlag, [ParamFilesExternalSize, 'external']);
                  if not StrToInteger64(Values[paExternalSize].Data, ExternalSize) then
                    AbortCompileParamError(SCompilerParamInvalid2, ParamFilesExternalSize);
                  Include(Options, foExternalSizePreset);
@@ -5810,7 +5810,7 @@ begin
         end;
 
         if (foGacInstall in Options) and (AStrongAssemblyName = '') then
-          AbortCompileFmt(SCompilerParamFlagMissingParam, ['StrongAssemblyName', 'gacinstall']);
+          AbortCompileFmt(SCompilerParamFlagMissingParam, [ParamFilesStrongAssemblyName, 'gacinstall']);
         if AStrongAssemblyName <> '' then
           StrongAssemblyName := AStrongAssemblyName;
 
@@ -5843,9 +5843,9 @@ begin
           if not(foExtractArchive in Options) and RecurseSubdirs then
             AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'recursesubdirs', 'download']);
           if ADestName = '' then
-            AbortCompileFmt(SCompilerParamFlagMissingParam, ['DestName', 'download']);
+            AbortCompileFmt(SCompilerParamFlagMissingParam, [ParamFilesDestName, 'download']);
           if not(foExternalSizePreset in Options) then
-            AbortCompileFmt(SCompilerParamFlagMissingParam, ['ExternalSize', 'download']);
+            AbortCompileFmt(SCompilerParamFlagMissingParam, [ParamFilesExternalSize, 'download']);
         end;
 
         if foExtractArchive in Options then begin
@@ -5873,7 +5873,7 @@ begin
         end;
 
         if (foIgnoreVersion in Options) and (foReplaceSameVersionIfContentsDiffer in Options) then
-          AbortCompileFmt(SCompilerParamErrorBadCombo2, ['Flags', 'ignoreversion', 'replacesameversion']);
+          AbortCompileFmt(SCompilerParamErrorBadCombo2, [ParamCommonFlags, 'ignoreversion', 'replacesameversion']);
 
         if (ISSigKeyEntries.Count = 0) and (Verification.Typ = fvISSig) then
           AbortCompile(SCompilerFilesISSigVerifyMissingISSigKeys);
@@ -5883,7 +5883,7 @@ begin
         if Sign in [fsYes, fsOnce] then begin
           if Verification.Typ = fvHash then
             AbortCompileFmt(SCompilerFilesParamFlagConflict,
-              ['Hash', SignFlags[Sign]]);
+              [ParamFilesHash, SignFlags[Sign]]);
           if Verification.Typ = fvISSig then
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, SignFlags[Sign], 'issigverify']);
@@ -6153,7 +6153,7 @@ begin
       { Verb }
       if not (roShellExec in Options) and Values[paVerb].Found then
         AbortCompileFmt(SCompilerParamFlagMissing2,
-          ['shellexec', 'Verb']);
+          ['shellexec', ParamRunVerb]);
       Verb := Values[paVerb].Data;
 
       { OnLog }
