@@ -245,10 +245,10 @@ begin
       case reloc.relocType of
         rt32Bit: begin
             fbuffer.Seek(reloc.position, soBeginning);
-            fbuffer.Read(orig, sizeof(orig));
+            fbuffer.ReadBuffer(orig, sizeof(orig));
             fbuffer.seek(-sizeof(orig), soCurrent);
             orig := LongWord(orig + diff);
-            fbuffer.write(orig, sizeof(orig));
+            fbuffer.WriteBuffer(orig, sizeof(orig));
           end;
       end;
     end;
@@ -571,18 +571,18 @@ end;
 
 procedure TASMInline.WriteByte(const B: Byte);
 begin
-  FBuffer.Write(B, SizeOf(B));
+  FBuffer.WriteBuffer(B, SizeOf(B));
 end;
 
 procedure TASMInline.WriteInteger(const I: Integer);
 begin
-  FBuffer.Write(I, SizeOf(I));
+  FBuffer.WriteBuffer(I, SizeOf(I));
 end;
 
 {$IFNDEF CPUX86}
 procedure TASMInline.WriteUInt64(const U: UInt64);
 begin
-  FBuffer.Write(U, SizeOf(U));
+  FBuffer.WriteBuffer(U, SizeOf(U));
 end;
 {$ENDIF}
 
