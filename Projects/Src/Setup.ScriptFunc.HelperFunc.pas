@@ -644,10 +644,6 @@ begin
   until AdjustLength(Result, Res);
 end;
 
-
-var
-  ASMInliners: array of Pointer;
-
 function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): NativeInt;
 begin
   { ProcNo 0 means nil was passed by the script }
@@ -796,23 +792,10 @@ begin
     Inliner.Ret;
 {$ENDIF}
 
-    SetLength(ASMInliners, Length(ASMInliners) + 1);
-    ASMInliners[High(ASMInliners)] := Inliner.SaveAsMemory;
-    Result := NativeInt(ASMInliners[High(ASMInliners)]);
+    Result := NativeInt(Inliner.SaveAsMemory);
   finally
     Inliner.Free;
   end;
 end;
-
-procedure FreeASMInliners;
-begin
-  for var I := 0 to High(ASMInliners) do
-    FreeMem(ASMInliners[I]);
-  SetLength(ASMInliners, 0);
-end;
-
-initialization
-finalization
-  FreeASMInliners;
 
 end.

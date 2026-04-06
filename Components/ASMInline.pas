@@ -72,6 +72,11 @@ type
 {$ENDIF}
 
   TASMInline = class
+  strict private
+    class var
+      [volatile] FSharedCodeBlock: Pointer;
+      [volatile] FSharedCodeBlockBytesUsed: Integer;
+    class destructor Destroy;
   private
     FBuffer: TMemoryStream;
 {$IFDEF CPUX86}
@@ -98,7 +103,6 @@ type
     constructor Create;
     destructor Destroy; override;
     function SaveAsMemory: Pointer;
-    function Size: Integer;
 {$IFDEF CPUX86}
     function Addr(base: TRegister32; offset: Integer; size: TMemSize = ms32): TMemoryAddress; overload;
 
@@ -189,6 +193,13 @@ end;
 {$ENDIF}
 
 { TASMInline }
+
+class destructor TASMInline.Destroy;
+begin
+  const P = AtomicExchange(FSharedCodeBlock, nil);
+  if Assigned(P) then
+    VirtualFree(P, 0, MEM_RELEASE);
+end;
 
 constructor TASMInline.Create;
 begin
@@ -510,43 +521,52 @@ end;
 
 {$ENDIF}
 
-function Win32ErrorString(ErrorCode: Cardinal): String;
-{ Like SysErrorMessage but also passes the FORMAT_MESSAGE_IGNORE_INSERTS flag
-  which allows the function to succeed on errors like 129 }
-var
-  Buffer: array[0..1023] of Char;
-begin
-  var Len := FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM or
-    FORMAT_MESSAGE_IGNORE_INSERTS or FORMAT_MESSAGE_ARGUMENT_ARRAY, nil,
-    ErrorCode, 0, Buffer, SizeOf(Buffer) div SizeOf(Buffer[0]), nil);
-  while (Len > 0) and ((Buffer[Len-1] <= ' ') or (Buffer[Len-1] = '.')) do
-    Dec(Len);
-  SetString(Result, Buffer, Len);
-end;
-
 function TASMInline.SaveAsMemory: Pointer;
+const
+  SharedCodeBlockSize = $4000;  { 16 KB -- far more than anyone should need }
 begin
-  var Buf: Pointer;
-  GetMem(Buf, Size);
-  var OldProtect: Cardinal;
-  if not VirtualProtect(Buf, SIZE_T(Size), PAGE_EXECUTE_READWRITE, OldProtect) then begin
-    const LastError = GetLastError;
-    FreeMem(Buf);
-    raise Exception.Create(Win32ErrorString(LastError));
+  { Allocate code block if not already done so (thread-safe) }
+  if FSharedCodeBlock = nil then begin
+    const NewBlock = VirtualAlloc(nil, SharedCodeBlockSize, MEM_COMMIT,
+      PAGE_EXECUTE_READWRITE);
+    if NewBlock = nil then
+      OutOfMemoryError;
+    { Initialize with INT 3 (breakpoint) opcodes }
+    FillChar(NewBlock^, SharedCodeBlockSize, $CC);
+    FlushInstructionCache(GetCurrentProcess, NewBlock, SharedCodeBlockSize);
+    MemoryBarrier;
+    if AtomicCmpExchange(FSharedCodeBlock, NewBlock, nil) <> nil then
+      VirtualFree(NewBlock, 0, MEM_RELEASE);  { another thread beat us to it }
   end;
 
-{$IFDEF CPUX86}
-  Relocate(Buf);
-{$ENDIF}
-  Move(FBuffer.memory^, Buf^, Size);
-  Result := Buf;
-end;
+  const CodeSize = FBuffer.Size;
+  if (CodeSize <= 0) or (CodeSize > 1024) then
+    raise Exception.Create('TASMInline: Invalid code size');
+  { Pad to next multiple of 16 bytes. Do this even if the code size currently
+    is a multiple of 16 bytes so that there's always at least one INT 3
+    between code sequences -- it's added safety in case a terminating RET or
+    JMP is missing. }
+  const SuballocSize = (Integer(CodeSize) or $F) + 1;
 
-function TASMInline.Size: Integer;
-begin
-  if FBuffer.Size > High(Integer) then
-    raise Exception.Create('Unexpected Size value');
-  Result := Integer(FBuffer.Size);
+  { Suballocate SuballocSize bytes from the code block (thread-safe) }
+  var SuballocOffset: Integer;
+  repeat
+    SuballocOffset := FSharedCodeBlockBytesUsed;
+    if SuballocSize > SharedCodeBlockSize - SuballocOffset then
+      raise Exception.Create('TASMInline: No room left in code block');
+  until AtomicCmpExchange(FSharedCodeBlockBytesUsed,
+    SuballocOffset + SuballocSize, SuballocOffset) = SuballocOffset;
+  MemoryBarrier;
+
+  { We now exclusively own SuballocSize bytes at SuballocOffset }
+  const DestPtr = PByte(FSharedCodeBlock) + SuballocOffset;
+{$IFDEF CPUX86}
+  Relocate(DestPtr);
+{$ENDIF}
+  Move(FBuffer.Memory^, DestPtr^, NativeInt(CodeSize));
+  FlushInstructionCache(GetCurrentProcess, DestPtr, SIZE_T(CodeSize));
+  MemoryBarrier;
+  Result := DestPtr;
 end;
 
 procedure TASMInline.WriteByte(const B: Byte);
