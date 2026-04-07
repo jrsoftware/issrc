@@ -525,6 +525,7 @@ function TPSCustomDebugExec.GetCallStack(var Count: Cardinal): tbtString;
     I: Integer;
   begin
     Result := '';
+    if ParamList = nil then Exit;
     for I := 0 to ParamList.Count-1 do
       if (ParamList.Items[I] = 'Result') or (ParamList.Items[I] = '') then
         Continue

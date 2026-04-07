@@ -1978,16 +1978,17 @@ begin
     end;
      btenum:
      begin
-       if TPSEnumType(p^.FType).HighValue <=256 then
+       if TPSEnumType(p^.FType).HighValue <=255 then
       begin
         du8 := tbtu8(p^.tu32);
         BlockWriteData(BlockInfo, du8, 1)
       end
-       else if TPSEnumType(p^.FType).HighValue <=65536 then
+       else if TPSEnumType(p^.FType).HighValue <=65535 then
       begin
         du16 := tbtu16(p^.tu32);
         BlockWriteData(BlockInfo, du16, 2)
-      end;
+      end else
+        BlockWriteData(BlockInfo, p^.tu32, 4);
 	end;
 
   bts8,btu8: BlockWriteData(BlockInfo, p^.tu8, SizeOf(tbtu8));
@@ -11698,9 +11699,9 @@ var
         end;
       btenum:
         begin
-          if TPSEnumType(p^.FType).HighValue <=256 then
+          if TPSEnumType(p^.FType).HighValue <=255 then
             WriteData( p^.tu32, 1)
-          else if TPSEnumType(p^.FType).HighValue <=65536 then
+          else if TPSEnumType(p^.FType).HighValue <=65535 then
             WriteData(p^.tu32, 2)
           else
             WriteData(p^.tu32, 4);
@@ -11784,9 +11785,9 @@ var
             bt := btU32;
           end else
           if (x.BaseType = btEnum) then begin
-            if TPSEnumType(x).HighValue <= 256 then
+            if TPSEnumType(x).HighValue <= 255 then
               bt := btU8
-            else if TPSEnumType(x).HighValue <= 65536 then
+            else if TPSEnumType(x).HighValue <= 65535 then
               bt := btU16
             else
               bt := btU32;

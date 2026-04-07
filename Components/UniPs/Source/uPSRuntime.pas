@@ -2383,8 +2383,6 @@ var
               if not read(PPSVariantSet(varp).Data, TPSTypeRec_Set(varp.FType).aByteSize) then
               begin
                 CMD_Err(erOutOfRange);
-
-                DestroyHeapVariant(VarP);
                 Result := False;
                 exit;
               end;
@@ -2392,20 +2390,17 @@ var
           bts8, btchar, btU8: if not read(PPSVariantU8(VarP)^.data, SizeOf(tbtu8)) then
           begin
               CMD_Err(erOutOfRange);
-              DestroyHeapVariant(VarP);
               Result := False;
               exit;
             end;
           bts16, {$IFNDEF PS_NOWIDESTRING}btwidechar,{$ENDIF} btU16: if not read(PPSVariantU16(Varp)^.Data, SizeOf(TbtU16)) then begin
               CMD_Err(ErOutOfRange);
-              DestroyHeapVariant(VarP);
               Result := False;
               exit;
             end;
           bts32, btU32, btProcPtr: if not read(PPSVariantU32(VarP)^.Data, SizeOf(tbtu32)) then
             begin
               CMD_Err(erOutOfRange);
-              DestroyHeapVariant(VarP);
               Result := False;
               exit;
             end;
@@ -2413,14 +2408,12 @@ var
           bts64: if not read(PPSVariantS64(VarP)^.Data, sizeof(tbts64)) then
             begin
               CMD_Err(erOutOfRange);
-              DestroyHeapVariant(VarP);
               Result := False;
               exit;
             end;
           btU64: if not read(PPSVariantU64(VarP)^.Data, sizeof(tbtu64)) then
             begin
               CMD_Err(erOutOfRange);
-              DestroyHeapVariant(VarP);
               Result := False;
               exit;
             end;
@@ -2428,28 +2421,24 @@ var
           btSingle: if not read(PPSVariantSingle(VarP)^.Data, SizeOf(TbtSingle))
             then begin
               CMD_Err(erOutOfRange);
-              DestroyHeapVariant(VarP);
               Result := False;
               exit;
             end;
           btDouble: if not read(PPSVariantDouble(varp)^.Data, SizeOf(TbtDouble))
             then begin
               CMD_Err(erOutOfRange);
-              DestroyHeapVariant(VarP);
               Result := False;
               exit;
             end;
           btExtended: if not read(PPSVariantExtended(varp)^.Data, SizeOf(TbtExtended))
             then begin
               CMD_Err(erOutOfRange);
-              DestroyHeapVariant(VarP);
               Result := False;
               exit;
             end;
           btCurrency: if not read(PPSVariantCurrency(varp)^.Data, SizeOf(tbtCurrency))
             then begin
               CMD_Err(erOutOfRange);
-              DestroyHeapVariant(VarP);
               Result := False;
               exit;
             end;
@@ -2458,15 +2447,12 @@ var
             if not read(NameLen, 4) then
             begin
                 Cmd_Err(erOutOfRange);
-                DestroyHeapVariant(VarP);
                 Result := False;
                 exit;
               end;
-              Inc(FCurrentPosition, 4);
               SetLength(PPSVariantAString(varp)^.Data, NameLen);
               if not read(PPSVariantAString(varp)^.Data[1], NameLen) then begin
                 CMD_Err(erOutOfRange);
-                DestroyHeapVariant(VarP);
                 Result := False;
                 exit;
               end;
@@ -2477,15 +2463,12 @@ var
               if not read(NameLen, 4) then
               begin
                 Cmd_Err(erOutOfRange);
-                DestroyHeapVariant(VarP);
                 Result := False;
                 exit;
               end;
-              Inc(FCurrentPosition, 4);
               SetLength(PPSVariantWString(varp).Data, NameLen);
               if not read(PPSVariantWString(varp).Data[1], NameLen*2) then begin
                 CMD_Err(erOutOfRange);
-                DestroyHeapVariant(VarP);
                 Result := False;
                 exit;
               end;
@@ -2495,15 +2478,12 @@ var
               if not read(NameLen, 4) then
               begin
                 Cmd_Err(erOutOfRange);
-                DestroyHeapVariant(VarP);
                 Result := False;
                 exit;
               end;
-              Inc(FCurrentPosition, 4);
               SetLength(PPSVariantUString(varp).Data, NameLen);
               if not read(PPSVariantUString(varp).Data[1], NameLen*2) then begin
                 CMD_Err(erOutOfRange);
-                DestroyHeapVariant(VarP);
                 Result := False;
                 exit;
               end;
@@ -2511,7 +2491,6 @@ var
           {$ENDIF}
         else begin
             CMD_Err(erInvalidType);
-            DestroyHeapVariant(VarP);
             Result := False;
             exit;
           end;

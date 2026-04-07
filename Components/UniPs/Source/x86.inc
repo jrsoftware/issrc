@@ -77,14 +77,14 @@ begin
     @@2:
     call p
     fstp tbyte ptr [e]
-    @@5:
     mov ecx, stackdatalen
-    jecxz @@2
-    @@6:
+    jecxz @@4
+    @@3:
     pop edx
     dec ecx
     or ecx, ecx
-    jnz @@6
+    jnz @@3
+    @@4:
   end;
   Result := E;
 end;
