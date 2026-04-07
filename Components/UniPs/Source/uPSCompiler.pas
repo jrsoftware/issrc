@@ -6217,8 +6217,8 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
         end;
       otCast:
         begin
-          if ((Val.aType.BaseType = btChar) and (Val.aType.BaseType <> btU8)) {$IFNDEF PS_NOWIDESTRING}or
-            ((Val.aType.BaseType = btWideChar) and (Val.aType.BaseType <> btU16)){$ENDIF} then
+          if ((Val.aType.BaseType = btChar) and (GetTypeNo(BlockInfo, Val.FVal1).BaseType <> btU8)) {$IFNDEF PS_NOWIDESTRING}or
+            ((Val.aType.BaseType = btWideChar) and (GetTypeNo(BlockInfo, Val.FVal1).BaseType <> btU16)){$ENDIF} then
           begin
             Tmp := AllocStackReg(Val.aType);
           end else
@@ -6465,6 +6465,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
       tmpp := AllocStackReg(GetTypeNo(BlockInfo, x));
       if not DoUnCalc(TPSUnValueOp(x), tmpp) then
       begin
+        tmpp.Free;
         Result := False;
         exit;
       end;
@@ -10015,6 +10016,7 @@ begin
       MakeError('', ecTypeMismatch, '');
       VariableVar.Free;
       InitVal.Free;
+      finVal.Free;
       exit;
     end;
     case lType.BaseType of
@@ -10024,14 +10026,15 @@ begin
         MakeError('', ecTypeMismatch, '');
         VariableVar.Free;
         InitVal.Free;
+        finVal.Free;
         exit;
       end;
     end;
     if FParser.CurrTokenId <> CSTII_do then
     begin
       MakeError('', ecDoExpected, '');
-      finVal.Free;
       InitVal.Free;
+      finVal.Free;
       VariableVar.Free;
       exit;
     end;
