@@ -12,10 +12,6 @@ TComponent = class(TPersistent)
   constructor Create(AOwner: TComponent);
   property Owner: TComponent; read;
   procedure DestroyComponents;
-  procedure Destroying;
-  procedure FreeNotification(AComponent: TComponent);
-  procedure InsertComponent(AComponent: TComponent);
-  procedure RemoveComponent(AComponent: TComponent);
   property Components[Index: Integer]: TComponent; read;
   property ComponentCount: Integer; read;
   property ComponentIndex: Integer; read write;
@@ -159,7 +155,6 @@ TGraphic = class(TPersistent)
   procedure SaveToFile(const Filename: String);
   property Empty: Boolean; read write;
   property Height: Integer; read write;
-  property Modified: Boolean; read write;
   property Width: Integer; read write;
   property OnChange: TNotifyEvent; read write;
 end;
