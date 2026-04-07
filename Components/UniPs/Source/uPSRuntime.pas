@@ -6946,6 +6946,22 @@ begin
 	      {$endif}
               Inc(FCurrentPosition, sizeof(Extended));
             end;
+          btCurrency:
+            begin
+              if FCurrentPosition + (SizeOf(Currency)-1)>= FDataLength then
+              begin
+                CMD_Err(erOutOfRange);
+                FTempVars.Pop;
+                Result := False;
+                exit;
+              end;
+	      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
+              tbtcurrency(dest.p^) := unaligned(tbtcurrency((@FData^[FCurrentPosition])^));
+	      {$else}
+              tbtcurrency(dest.p^) := tbtcurrency((@FData^[FCurrentPosition])^);
+	      {$endif}
+              Inc(FCurrentPosition, SizeOf(Currency));
+            end;
           btPchar, btString:
           begin
               if FCurrentPosition + 3 >= FDataLength then
@@ -8778,7 +8794,7 @@ begin
                     end else if pp.Finally2Offset <> InvalidVal then
                     begin
                        FCurrentPosition := pp.Finally2Offset;
-                       pp.ExceptOffset := InvalidVal;
+                       pp.Finally2Offset := InvalidVal;
                     end else begin
                       if pp.ExitPoint <> InvalidVal then
                         p := pp.ExitPoint
@@ -9310,36 +9326,79 @@ begin
     7: // StrGet
       begin
         temp :=  NewTPSVariantIFC(Stack[Stack.Count -2], True);
-        if (temp.Dta = nil) or not (temp.aType.BaseType in [btString, btUnicodeString]) then
-        begin
+        if temp.Dta = nil then begin
           Result := False;
           exit;
         end;
-        I := Stack.GetInt(-3);
-        if (i<1) or (i>length(tbtstring(temp.Dta^))) then
-        begin
-          Caller.CMD_Err2(erCustomError, tbtString(RPS_OutOfStringRange));
-          Result := False;
-          exit;
+        case temp.aType.BaseType of
+          btString:
+            begin
+              I := Stack.GetInt(-3);
+              if (i<1) or (i>length(tbtstring(temp.Dta^))) then
+              begin
+                Caller.CMD_Err2(erCustomError, tbtString(RPS_OutOfStringRange));
+                Result := False;
+                exit;
+              end;
+              Stack.SetInt(-1,Ord(tbtstring(temp.Dta^)[i]));
+            end;
+          btUnicodeString:
+            begin
+              I := Stack.GetInt(-3);
+              if (i<1) or (i>length(tbtUnicodeString(temp.Dta^))) then
+              begin
+                Caller.CMD_Err2(erCustomError, tbtString(RPS_OutOfStringRange));
+                Result := False;
+                exit;
+              end;
+              Stack.SetInt(-1,Ord(tbtUnicodeString(temp.Dta^)[i]));
+            end;
+
+        else
+          begin
+            Result := False;
+            exit;
+          end;
         end;
-        Stack.SetInt(-1,Ord(tbtstring(temp.Dta^)[i]));
       end;
     8: // StrSet
       begin
         temp := NewTPSVariantIFC(Stack[Stack.Count -3], True);
-        if (temp.Dta = nil) or not (temp.aType.BaseType in [btString, btUnicodeString]) then
+        if (temp.Dta = nil) then
         begin
           Result := False;
           exit;
         end;
-        I := Stack.GetInt(-2);
-        if (i<1) or (i>length(tbtstring(temp.Dta^))) then
-        begin
-          Caller.CMD_Err2(erCustomError, tbtString(RPS_OutOfStringRange));
-          Result := True;
-          exit;
+        case temp.aType.BaseType of
+          btString:
+            begin
+              I := Stack.GetInt(-2);
+              if (i<1) or (i>length(tbtstring(temp.Dta^))) then
+              begin
+                Caller.CMD_Err2(erCustomError, tbtString(RPS_OutOfStringRange));
+                Result := True;
+                exit;
+              end;
+              tbtstring(temp.Dta^)[i] := tbtchar(Stack.GetInt(-1));
+            end;
+          btUnicodeString:
+            begin
+              I := Stack.GetInt(-2);
+              if (i<1) or (i>length(tbtUnicodeString(temp.Dta^))) then
+              begin
+                Caller.CMD_Err2(erCustomError, tbtString(RPS_OutOfStringRange));
+                Result := True;
+                exit;
+              end;
+              tbtUnicodeString(temp.Dta^)[i] := WideChar(Stack.GetInt(-1));
+            end;
+
+        else
+          begin
+            Result := False;
+            exit;
+          end;
         end;
-        tbtstring(temp.Dta^)[i] := tbtchar(Stack.GetInt(-1));
       end;
     10:
 {$IFNDEF PS_NOWIDESTRING}
@@ -9973,7 +10032,7 @@ begin
   case aType.BaseType of
     btVariant: Dest := variant(src^);
     btArray: if not BuildArray(Pointer(Src^), TPSTypeRec_Array(aType).ArrayType, PSDynArrayGetLength(Pointer(src^), aType)) then begin result := false; exit; end;
-    btStaticArray: if not BuildArray(Pointer(Src), TPSTypeRec_StaticArray(aType).ArrayType, PSDynArrayGetLength(Pointer(src^), aType)) then begin result := false; exit; end;
+    btStaticArray: if not BuildArray(Pointer(Src), TPSTypeRec_StaticArray(aType).ArrayType, TPSTypeRec_StaticArray(aType).Size) then begin result := false; exit; end;
     btU8:
       if aType.ExportName = 'BOOLEAN' then
         Dest := boolean(tbtu8(Src^) <> 0)
@@ -10321,7 +10380,7 @@ begin
         btInterface: begin
           if v^.VarParam then
             IUnknown(cp^) := IUnknown(TVarRec(p^).VInterface);
-          finalize(tbtString(TVarRec(p^).VAnsiString));
+          IUnknown(TVarRec(p^).VInterface) := nil;
         end;
 {$ENDIF}
 {$ENDIF}
