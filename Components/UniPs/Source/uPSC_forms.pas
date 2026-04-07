@@ -294,6 +294,7 @@ begin
   {$IFNDEF PS_MINIVCL}
   SIRegisterTCONTROLSCROLLBAR(cl);
   {$ENDIF}
+  // Keep TScrollingWinControl enabled on FPC even though uPSR_forms has it disabled for unknown reasons, because TScrollBox and TForm still need the base class
   SIRegisterTScrollingWinControl(cl);
   {$IFNDEF PS_MINIVCL}
   SIRegisterTSCROLLBOX(cl);
