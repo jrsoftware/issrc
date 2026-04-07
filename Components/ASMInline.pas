@@ -30,6 +30,11 @@ interface
 {$IFNDEF CPUX86}
 {$IFNDEF CPUX64}
 {$MESSAGE ERROR 'This needs updating for non-x86/x64 builds'}
+{ From an Embarcadero presentation about Arm64EC:
+  VirtualAlloc will return pages for x64 instructions
+  - Calls should be moved to VirtualAlloc2 with MEM_EXTENDED_PARAMETER_EC_CODE
+  HeapCreate/HeapAlloc cannot be used for runtime code injection
+  - The resulting pages can only be used to execute x64 instructions }
 {$ENDIF}
 {$ENDIF}
 
