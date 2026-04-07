@@ -48,6 +48,7 @@ Under `ISHelp/ISHelpGen/`:
 
 ## Code Conventions
 - Pascal coding style and review guidelines are in `.github/instructions/pascal.instructions.md` (auto-applied to `.pas`, `.dpr`, `.inc` files).
+- UniPs (Pascal Script) component guidelines are in `.github/instructions/unips.instructions.md` (auto-applied to `Components/UniPs/**` files).
 
 ## Docs
 - `whatsnew.htm` contains the Revision History.
