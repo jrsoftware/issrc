@@ -38,7 +38,9 @@ procedure SIRegisterTSCROLLINGWINCONTROL(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(cl.FindClass('TWinControl'), 'TScrollingWinControl') do
   begin
+    {$IFNDEF FPC}
     RegisterMethod('procedure ScrollInView(AControl: TControl)');
+    {$ENDIF}
     RegisterProperty('HorzScrollBar', 'TControlScrollBar', iptrw);
     RegisterProperty('VertScrollBar', 'TControlScrollBar', iptrw);
   end;
@@ -147,20 +149,22 @@ begin
     RegisterProperty('ClientHandle', 'HWND', iptr);
     RegisterProperty('TileMode', 'TTileMode', iptrw);
     {$ENDIF}
+    {$IFNDEF FPC}
     RegisterMethod('procedure Cascade');
+    RegisterMethod('procedure Next');
+    RegisterMethod('procedure Previous');
+    RegisterMethod('procedure Tile');
+    RegisterProperty('ActiveMDIChild', 'TForm', iptr);
+    RegisterProperty('DropTarget', 'Boolean', iptrw);
+    RegisterProperty('MDIChildCount', 'Integer', iptr);
+    RegisterProperty('MDIChildren', 'TForm Integer', iptr);
+    {$ENDIF}
     RegisterMethod('function CloseQuery: Boolean');
     RegisterMethod('procedure DefocusControl(Control: TWinControl; Removing: Boolean)');
     RegisterMethod('procedure FocusControl(Control: TWinControl)');
-    RegisterMethod('procedure Next');
-    RegisterMethod('procedure Previous');
     RegisterMethod('function SetFocusedControl(Control: TWinControl): Boolean');
-    RegisterMethod('procedure Tile');
-    RegisterProperty('ActiveMDIChild', 'TForm', iptr);
     RegisterProperty('Canvas', 'TCanvas', iptr);
-    RegisterProperty('DropTarget', 'Boolean', iptrw);
     RegisterProperty('ModalResult', 'LongInt', iptrw);
-    RegisterProperty('MDIChildCount', 'Integer', iptr);
-    RegisterProperty('MDIChildren', 'TForm Integer', iptr);
     RegisterProperty('Icon', 'TIcon', iptrw);
     RegisterProperty('Menu', 'TMainMenu', iptrw);
     RegisterProperty('ObjectMenuItem', 'TMenuItem', iptrw);
@@ -195,11 +199,13 @@ begin
     RegisterMethod('function MessageBox(Text,Caption: PChar; Flags: Longint): Integer');
   {$ENDIF}
 {$ENDIF}
+    {$IFNDEF FPC}
     RegisterMethod('procedure Minimize');
-    RegisterMethod('procedure ProcessMessages');
     RegisterMethod('procedure Restore');
-    RegisterMethod('procedure Terminate');
     RegisterProperty('Active', 'Boolean', iptr);
+    {$ENDIF}
+    RegisterMethod('procedure ProcessMessages');
+    RegisterMethod('procedure Terminate');
     RegisterProperty('ExeName', 'NativeString', iptr);
     {$IFNDEF CLX}
     RegisterProperty('Handle', 'HWND', iptrw);
@@ -211,12 +217,16 @@ begin
     RegisterProperty('ShowMainForm', 'Boolean', iptrw);
     RegisterProperty('Terminated', 'Boolean', iptr);
     RegisterProperty('Title', 'NativeString', iptrw);
+    {$IFNDEF FPC}
     RegisterProperty('OnActivate', 'TNotifyEvent', iptrw);
     RegisterProperty('OnDeactivate', 'TNotifyEvent', iptrw);
+    {$ENDIF}
     RegisterProperty('OnIdle', 'TIdleEvent', iptrw);
     RegisterProperty('OnHint', 'TNotifyEvent', iptrw);
+    {$IFNDEF FPC}
     RegisterProperty('OnMinimize', 'TNotifyEvent', iptrw);
     RegisterProperty('OnRestore', 'TNotifyEvent', iptrw);
+    {$ENDIF}
 
     {$IFNDEF PS_MINIVCL}
     RegisterMethod('procedure ControlDestroyed(Control: TControl)');
@@ -224,13 +234,19 @@ begin
     RegisterMethod('procedure HandleMessage');
     RegisterMethod('procedure HideHint');
     RegisterMethod('procedure Initialize');
+    {$IFNDEF FPC}
     RegisterMethod('procedure NormalizeTopMosts');
     RegisterMethod('procedure RestoreTopMosts');
+    {$ENDIF}
     RegisterMethod('procedure Run');
     {$IFNDEF CLX}
+    {$IFNDEF FPC}
     RegisterMethod('function HelpCommand(Command: Integer; Data: NativeInt): Boolean');
+    {$ENDIF}
     RegisterMethod('function HelpContext(Context: THelpContext): Boolean');
+    {$IFNDEF FPC}
     RegisterMethod('function HelpJump(JumpID: NativeString): Boolean');
+    {$ENDIF}
     RegisterProperty('DialogHandle', 'HWND', iptrw);
     RegisterMethod('procedure CreateHandle');
     {$ENDIF}

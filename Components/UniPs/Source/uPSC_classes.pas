@@ -266,7 +266,7 @@ Begin
 With cr do
   begin
 //  RegisterMethod('constructor Create(ItemClass: TCollectionItemClass)');
-{$IFDEF DELPHI3UP}  RegisterMethod('function Owner: TPersistent'); {$ENDIF}
+{$IFDEF DELPHI6UP} {$IFNDEF FPC} RegisterMethod('function Owner: TPersistent'); {$ENDIF} {$ENDIF} // no owner in FPC
   RegisterMethod('function Add: TCollectionItem');
   RegisterMethod('procedure BeginUpdate');
   RegisterMethod('procedure Clear');

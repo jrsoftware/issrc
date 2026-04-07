@@ -225,9 +225,12 @@ begin
     RegisterMethod('procedure SaveToFile(const FileName: string)');
     RegisterProperty('Empty', 'Boolean', iptr);
     RegisterProperty('Height', 'Integer', iptrw);
-    RegisterProperty('Modified', 'Boolean', iptrw);
     RegisterProperty('Width', 'Integer', iptrw);
     RegisterProperty('OnChange', 'TNotifyEvent', iptrw);
+
+    {$IFNDEF PS_MINIVCL}
+    RegisterProperty('Modified', 'Boolean', iptrw);
+    {$ENDIF}
   end;
 end;
 
@@ -245,7 +248,9 @@ begin
 {$ENDIF}
 
     {$IFNDEF PS_MINIVCL}
+{$IFNDEF FPC}
     RegisterMethod('procedure Dormant');
+{$ENDIF}
     RegisterMethod('procedure FreeImage');
 {$IFNDEF CLX}
     RegisterMethod('procedure LoadFromClipboardFormat(AFormat: Word; AData: THandle; APalette: HPALETTE)');
@@ -258,7 +263,9 @@ begin
     RegisterMethod('procedure SaveToClipboardFormat(var Format: Word; var Data: THandle; var APalette: HPALETTE)');
     RegisterProperty('Monochrome', 'Boolean', iptrw);
     RegisterProperty('Palette', 'HPALETTE', iptrw);
+{$IFNDEF FPC}
     RegisterProperty('IgnorePalette', 'Boolean', iptrw);
+{$ENDIF}
 {$ENDIF}
     RegisterProperty('TransparentColor', 'TColor', iptr);
     {$ENDIF}

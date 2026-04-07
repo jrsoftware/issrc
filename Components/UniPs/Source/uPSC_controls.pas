@@ -108,14 +108,16 @@ begin
     RegisterMethod('procedure HandleNeeded;');
     RegisterMethod('procedure EnableAlign;');
     RegisterMethod('procedure RemoveControl(AControl: TControl);');
+    {$IFNDEF FPC}
     RegisterMethod('procedure InsertControl(AControl: TControl);');
-    RegisterMethod('procedure Realign;');
     RegisterMethod('procedure ScaleBy(M, D: Integer);');
     RegisterMethod('procedure ScrollBy(DeltaX, DeltaY: Integer);');
-    RegisterMethod('procedure SetFocus; virtual;');
     {$IFNDEF CLX}
     RegisterMethod('procedure PaintTo(DC: HDC; X,Y: Integer)');
     {$ENDIF}
+    {$ENDIF}
+    RegisterMethod('procedure Realign;');
+    RegisterMethod('procedure SetFocus; virtual;');
 
     RegisterMethod('function ContainsControl(Control: TControl): Boolean');
     RegisterMethod('procedure DisableAlign');
