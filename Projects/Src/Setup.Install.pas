@@ -2809,7 +2809,7 @@ begin
       var AppendUninstallData := False;
 
       if Uninstallable then begin
-        { Generate the filenam(UninstLog)es for the uninstall info in the application
+        { Generate the filenames for the uninstall info in the application
           directory }
         SetStatusLabelText(SetupMessages[msgStatusSavingUninstall]);
         GenerateUninstallInfoFilename(UninstLog, UninstallDataFilename, UninstallMsgFilename,
