@@ -50,7 +50,7 @@ begin
     RegisterProperty('Components', 'TComponent Integer', iptr);
     RegisterProperty('ComponentCount', 'Integer', iptr);
     RegisterProperty('ComponentIndex', 'Integer', iptrw);
-    RegisterProperty('ComponentState', 'Byte', iptr);
+    RegisterProperty('ComponentState', 'TComponentState', iptr);
     RegisterProperty('DesignInfo', 'LongInt', iptrw);
     RegisterProperty('Name', 'string', iptrw);
     RegisterProperty('Tag', 'NativeInt', iptrw);

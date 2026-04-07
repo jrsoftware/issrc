@@ -7,6 +7,10 @@ TPersistent = class(TObject)
   procedure Assign(Source: TPersistent);
 end;
 
+TComponentStateE = (csLoading, csReading, csWriting, csDestroying, csDesigning, csAncestor, csUpdating, csFixups, csFreeNotification, csInline, csDesignInstance);
+
+TComponentState = set of TComponentStateE;
+
 TComponent = class(TPersistent)
   function FindComponent(AName: String): TComponent;
   constructor Create(AOwner: TComponent);
@@ -15,7 +19,7 @@ TComponent = class(TPersistent)
   property Components[Index: Integer]: TComponent; read;
   property ComponentCount: Integer; read;
   property ComponentIndex: Integer; read write;
-  property ComponentState: Byte; read;
+  property ComponentState: TComponentState; read;
   property DesignInfo: Longint; read write;
   property Name: String; read write;
   property Tag: NativeInt; read write;
@@ -101,13 +105,15 @@ TColor = Integer;
 
 HFONT = NativeUint;
 
+TFontPitch = (fpDefault, fpVariable, fpFixed);
+
 TFont = class(TGraphicsObject)
   constructor Create;
   property Handle: HFONT; read;
   property Color: TColor; read write;
   property Height: Integer; read write;
   property Name: String; read write;
-  property Pitch: Byte; read write;
+  property Pitch: TFontPitch; read write;
   property Size: Integer; read write;
   property PixelsPerInch: Integer; read write;
   property Style: TFontStyles; read write;
@@ -127,6 +133,8 @@ end;
 
 HDC = NativeUInt;
 
+TCopyMode = Longint;
+
 TCanvas = class(TPersistent)
   procedure Arc(X1, Y1, X2, Y2, X3, Y3, X4, Y4: Integer);
   procedure Chord(X1, Y1, X2, Y2, X3, Y3, X4, Y4: Integer);
@@ -145,7 +153,7 @@ TCanvas = class(TPersistent)
   property Handle: HDC; read write;
   property Pixels: Integer Integer Integer; read write;
   property Brush: TBrush; read;
-  property CopyMode: Byte; read write;
+  property CopyMode: TCopyMode; read write;
   property Font: TFont; read;
   property Pen: TPen; read;
 end;

@@ -47,9 +47,6 @@ procedure TControlVisibleW(Self: TControl; T: Boolean); begin Self.Visible:= T; 
 procedure TControlParentR(Self: TControl; var T: TWinControl); begin T := Self.Parent; end;
 procedure TControlParentW(Self: TControl; T: TWinControl); begin Self.Parent:= T; end;
 
-
-procedure TCONTROLSHOWHINT_W(Self: TCONTROL; T: BOOLEAN); begin Self.SHOWHINT := T; end;
-procedure TCONTROLSHOWHINT_R(Self: TCONTROL; var T: BOOLEAN); begin T := Self.SHOWHINT; end;
 procedure TCONTROLENABLED_W(Self: TCONTROL; T: BOOLEAN); begin Self.ENABLED := T; end;
 procedure TCONTROLENABLED_R(Self: TCONTROL; var T: BOOLEAN); begin T := Self.ENABLED; end;
 
@@ -184,14 +181,6 @@ procedure TDragObjectMouseDeltaX_R(Self: TDragObject; var T: Double);
 begin T := Self.MouseDeltaX; end;
 
 (*----------------------------------------------------------------------------*)
-procedure TDragObjectDragTarget_W(Self: TDragObject; const T: Pointer);
-begin Self.DragTarget := T; end;
-
-(*----------------------------------------------------------------------------*)
-procedure TDragObjectDragTarget_R(Self: TDragObject; var T: Pointer);
-begin T := Self.DragTarget; end;
-
-(*----------------------------------------------------------------------------*)
 procedure TDragObjectDragTargetPos_W(Self: TDragObject; const T: TPoint);
 begin Self.DragTargetPos := T; end;
 
@@ -243,7 +232,6 @@ begin
     RegisterPropertyHelper(@TDragObjectDragHandle_R,@TDragObjectDragHandle_W,'DragHandle');
     RegisterPropertyHelper(@TDragObjectDragPos_R,@TDragObjectDragPos_W,'DragPos');
     RegisterPropertyHelper(@TDragObjectDragTargetPos_R,@TDragObjectDragTargetPos_W,'DragTargetPos');
-    RegisterPropertyHelper(@TDragObjectDragTarget_R,@TDragObjectDragTarget_W,'DragTarget');
     RegisterPropertyHelper(@TDragObjectMouseDeltaX_R,nil,'MouseDeltaX');
     RegisterPropertyHelper(@TDragObjectMouseDeltaY_R,nil,'MouseDeltaY');
 {$ENDIF}
