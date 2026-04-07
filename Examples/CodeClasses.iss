@@ -558,7 +558,7 @@ begin
   URLLabel.Parent := ParentForm;
 end;
 
-procedure InitializeWizard();
+procedure InitializeWizard;
 begin
   { Custom wizard pages }
 
@@ -573,7 +573,7 @@ begin
   WizardForm.BeveledLabel.Caption := ' Bevel ';
 end;
 
-procedure InitializeUninstallProgressForm();
+procedure InitializeUninstallProgressForm;
 begin
   { Custom controls }
 

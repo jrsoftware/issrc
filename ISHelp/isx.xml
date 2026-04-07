@@ -140,17 +140,17 @@
 
 <dl>
 
-<dt><tt>function <a name="InitializeSetup">InitializeSetup</a>(): Boolean;</tt></dt>
+<dt><tt>function <a name="InitializeSetup">InitializeSetup</a>: Boolean;</tt></dt>
 <dd>
 <p>Called during Setup's initialization. Return False to abort Setup, True otherwise.</p>
 </dd>
 
-<dt><tt>procedure <a name="InitializeWizard">InitializeWizard</a>();</tt></dt>
+<dt><tt>procedure <a name="InitializeWizard">InitializeWizard</a>;</tt></dt>
 <dd>
 <p>Use this event function to make changes to the wizard or wizard pages at startup. You can't use the <tt>InitializeSetup</tt> event function for this since at the time it is triggered, the wizard form does not yet exist.</p>
 </dd>
 
-<dt><tt>procedure <a name="DeinitializeSetup">DeinitializeSetup</a>();</tt></dt>
+<dt><tt>procedure <a name="DeinitializeSetup">DeinitializeSetup</a>;</tt></dt>
 <dd>
 <p>Called just before Setup terminates. Note that this function is called even if the user exits Setup before anything is installed.</p>
 </dd>
@@ -201,7 +201,7 @@
 <p>Also note: If <link topic="setup_encryption">Encryption</link> is set to <tt>yes</tt> and your <tt>CheckPassword</tt> function accepts passwords different from the one used for the encryption, make sure to only extract non encrypted files.</p>
 </dd>
 
-<dt><tt>function <a name="NeedRestart">NeedRestart</a>(): Boolean;</tt></dt>
+<dt><tt>function <a name="NeedRestart">NeedRestart</a>: Boolean;</tt></dt>
 <dd>
 <p>Return True to instruct Setup to prompt the user to restart the system at the end of a successful installation, False otherwise.</p>
 </dd>
@@ -247,23 +247,23 @@
 
 <dl>
 
-<dt><tt>function <a name="InitializeUninstall">InitializeUninstall</a>(): Boolean;</tt></dt>
+<dt><tt>function <a name="InitializeUninstall">InitializeUninstall</a>: Boolean;</tt></dt>
 <dd>
 <p>Return False to abort Uninstall, True otherwise.</p>
 </dd>
 
-<dt><tt>procedure <a name="InitializeUninstallProgressForm">InitializeUninstallProgressForm</a>();</tt></dt>
+<dt><tt>procedure <a name="InitializeUninstallProgressForm">InitializeUninstallProgressForm</a>;</tt></dt>
 <dd>
 <p>Use this event function to make changes to the progress form at startup. You can't use the <tt>InitializeUninstall</tt> event function for this since at the time it is triggered, the progress form does not yet exist.</p>
 </dd>
 
-<dt><tt>procedure <a name="DeinitializeUninstall">DeinitializeUninstall</a>();</tt></dt>
+<dt><tt>procedure <a name="DeinitializeUninstall">DeinitializeUninstall</a>;</tt></dt>
 <dd />
 
 <dt><tt>procedure <a name="CurUninstallStepChanged">CurUninstallStepChanged</a>(CurUninstallStep: <anchorlink name="TUninstallStep">TUninstallStep</anchorlink>);</tt></dt>
 <dd />
 
-<dt><tt>function <a name="UninstallNeedRestart">UninstallNeedRestart</a>(): Boolean;</tt></dt>
+<dt><tt>function <a name="UninstallNeedRestart">UninstallNeedRestart</a>: Boolean;</tt></dt>
 <dd>
 <p>Return True to instruct Uninstall to prompt the user to restart the system at the end of a successful uninstallation, False otherwise.</p>
 </dd>
@@ -425,7 +425,7 @@ var
   MyProgChecked: Boolean;
   MyProgCheckResult: Boolean;
 
-function MyProgCheck(): Boolean;
+function MyProgCheck: Boolean;
 begin
   if not MyProgChecked then begin
     MyProgCheckResult := MsgBox('Do you want to install MyProg.exe to ' + ExtractFilePath(CurrentFileName) + '?', mbConfirmation, MB_YESNO) = idYes;
@@ -491,7 +491,7 @@ Source: "MyProg.chm"; DestDir: "{app}"; AfterInstall: Log('After MyProg.chm Inst
 
 <precode>
 [Code]
-procedure MyBeforeInstall();
+procedure MyBeforeInstall;
 begin
   MsgBox('About to install MyProg.exe as ' + CurrentFileName + '.', mbInformation, MB_OK);
 end;
@@ -501,7 +501,7 @@ begin
   MsgBox('About to install ' + FileName + ' as ' + CurrentFileName + '.', mbInformation, MB_OK);
 end;
 
-procedure MyAfterInstall();
+procedure MyAfterInstall;
 begin
   MsgBox('Just installed MyProg.exe as ' + CurrentFileName + '.', mbInformation, MB_OK);
 end;

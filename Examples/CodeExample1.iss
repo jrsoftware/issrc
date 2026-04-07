@@ -27,7 +27,7 @@ var
   MyProgCheckResult: Boolean;
   FinishedInstall: Boolean;
 
-function InitializeSetup(): Boolean;
+function InitializeSetup: Boolean;
 begin
   Log('InitializeSetup called');
   Result := MsgBox('InitializeSetup:' #13#13 'Setup is initializing. Do you really want to start setup?', mbConfirmation, MB_YESNO) = idYes;
@@ -46,7 +46,7 @@ begin
   Log('InitializeWizard2 called');
 end;
 
-procedure DeinitializeSetup();
+procedure DeinitializeSetup;
 var
   FileName: String;
   ResultCode: Integer;
@@ -137,7 +137,7 @@ begin
     Result := '';
 end;
 
-function MyProgCheck(): Boolean;
+function MyProgCheck: Boolean;
 begin
   Log('MyProgCheck() called');
   if not MyProgChecked then begin

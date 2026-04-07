@@ -859,7 +859,7 @@ end;</pre></example>
       </function>
       <function>
         <name>DLLGetLastError</name>
-        <prototype>function DLLGetLastError(): LongInt;</prototype>
+        <prototype>function DLLGetLastError: LongInt;</prototype>
         <description><p>Returns value the last error code had right after the most recent DLL function call you made. Useful after calling Windows API functions (if the function sets the last error code).</p></description>
         <remarks><p>It's recommended to use this function instead of directly calling the GetLastError Windows API function since Setup or Uninstall makes API calls of its own, so the last error code could be overwritten at any time.</p>
 <p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
