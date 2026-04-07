@@ -1854,17 +1854,14 @@ begin
 end;
 
 function GetSizeOfComponent(const ComponentName: String; const ExtraDiskSpaceRequired: Int64): Int64;
-var
-  ComponentNameAsList: TStringList;
-  FileEntry: PSetupFileEntry;
 begin
   Result := ExtraDiskSpaceRequired;
 
-  ComponentNameAsList := TStringList.Create();
+  const ComponentNameAsList = TStringList.Create;
   try
     ComponentNameAsList.Add(ComponentName);
     for var I := 0 to Entries[seFile].Count-1 do begin
-      FileEntry := PSetupFileEntry(Entries[seFile][I]);
+      const FileEntry = PSetupFileEntry(Entries[seFile][I]);
       with FileEntry^ do begin
         if (Components <> '') and
            ((Tasks = '') and (Check = '')) then begin {don't count tasks or scripted entries}
@@ -1873,37 +1870,35 @@ begin
               Inc(Result, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
             else
               Inc(Result, ExternalSize);
-            end;
+          end;
         end;
       end;
     end;
   finally
-    ComponentNameAsList.Free();
+    ComponentNameAsList.Free;
   end;
 end;
 
 function GetSizeOfType(const TypeName: String; const IsCustom: Boolean): Int64;
-var
-  ComponentTypes: TStringList;
 begin
   Result := 0;
-  ComponentTypes := TStringList.Create();
 
-  for var I := 0 to Entries[seComponent].Count-1 do begin
-    with PSetupComponentEntry(Entries[seComponent][I])^ do begin
-      SetStringsFromCommaString(ComponentTypes, Types);
-      { For custom types, only count fixed components. Otherwise count all. }
-      if IsCustom then begin
-        if (coFixed in Options) and ListContains(ComponentTypes, TypeName) then
-          Inc(Result, Size);
-      end else begin
-        if ListContains(ComponentTypes, TypeName) then
+  const ComponentTypes = TStringList.Create;
+  try
+    for var I := 0 to Entries[seComponent].Count-1 do begin
+      with PSetupComponentEntry(Entries[seComponent][I])^ do begin
+        SetStringsFromCommaString(ComponentTypes, Types);
+        { For custom types, only count fixed components. Otherwise count all. }
+        if IsCustom then begin
+          if (coFixed in Options) and ListContains(ComponentTypes, TypeName) then
+            Inc(Result, Size);
+        end else if ListContains(ComponentTypes, TypeName) then
           Inc(Result, Size);
       end;
     end;
+  finally
+    ComponentTypes.Free;
   end;
-
-  ComponentTypes.Free();
 end;
 
 function IsRecurseableDirectory(const FindData: TWin32FindData): Boolean;
