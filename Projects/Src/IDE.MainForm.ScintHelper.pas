@@ -170,7 +170,8 @@ begin
     VirtualSpaces := TScintCaretAndAnchorList.Create;
     AMemo.GetSelections(Selections, VirtualSpaces);
 
-    { First remove all empty selections }
+    { First remove all empty selections. Adding virtual space to a
+      position gives the actual displayed position. }
     for var I := Selections.Count-1 downto 0 do begin
       var Selection := Selections[I];
       var VirtualSpace := VirtualSpaces[I];
