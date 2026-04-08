@@ -461,11 +461,7 @@ begin
         N := Trim(Strings[I]);
         if (N <> '') and (N[1] <> ';') and (N[1] = '[') then
         begin
-          if DoCount then
-            DoCount := False
-          else
-            if CompareText(Copy(N, 2, Length(N) - 2), S) = 0 then
-              DoCount := True;
+          DoCount := CompareText(Copy(N, 2, Length(N) - 2), S) = 0;
           Continue;
         end;
         if DoCount and (N <> '') and (N[1] <> ';') then Inc(J);
