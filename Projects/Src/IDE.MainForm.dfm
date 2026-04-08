@@ -327,7 +327,7 @@ object MainForm: TMainForm
       object TargetUninstallButton: TToolButton
         Left = 285
         Top = 0
-        Hint = 'Target Uninstall (Ctrl+W)'
+        Hint = 'Target Uninstall (Alt+Q)'
         Grouped = True
         ImageIndex = 8
         ImageName = 'uninstall'
