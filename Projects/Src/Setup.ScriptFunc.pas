@@ -85,7 +85,6 @@ var
 
   procedure RegisterScriptFunc(const Name: AnsiString; const ScriptFuncTyp: TScriptFuncTyp; const ScriptFunc: TScriptFunc); overload;
   begin
-    var ScriptFuncEx: TScriptFuncEx;
     ScriptFuncs.Add(FastUpperCase(Name), TScriptFuncEx.Create(Name, ScriptFunc, ScriptFuncTyp));
     ScriptInterpreter.RegisterFunctionName(Name, ScriptFuncPSProc, nil, nil);
     {$IFDEF DEBUG}
