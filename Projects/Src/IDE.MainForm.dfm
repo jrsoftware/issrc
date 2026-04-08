@@ -874,7 +874,6 @@ object MainForm: TMainForm
       end
       object TRegistryDesigner: TMenuItem
         Caption = 'Generate [&Registry] Entries...'
-        ImageIndex = 66
         ShortCut = 24658
         OnClick = TRegistryDesignerClick
       end
