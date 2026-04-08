@@ -1820,10 +1820,10 @@ begin
     const NameChange = PathCompare(AMemo.Filename, AFilename) <> 0;
     const FilePosition = GetFilePosition(AMemo);
 
-    if IsReload then
-      AMemo.BeginUndoAction;
     Stream := TFileStream.Create(AFilename, fmOpenRead or fmShareDenyNone);
     try
+      if IsReload then
+        AMemo.BeginUndoAction;
       if AMemo = FMainMemo then
         NewMainFile(IsReload)
       else begin
@@ -1847,9 +1847,9 @@ begin
       if (AMemo <> FMainMemo) and not NameChange then
         RemoveMemoBadLinesFromNavigation(AMemo);
     finally
-      Stream.Free;
       if IsReload then
         AMemo.EndUndoAction;
+      Stream.Free;
     end;
     if IsReload then begin
       DisplayAround(AMemo, FilePosition);
