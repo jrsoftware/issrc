@@ -233,13 +233,15 @@ begin
   else if InstructionText.Visible then
     BottomControl := InstructionText;
 
-  var NewClientHeight := MainPanel.Padding.Top + MainStackPanel.Top;
+  { Note that MainStackPanel.Top already includes MainPanel.Padding.Top }
+  var NewClientHeight := MainStackPanel.Top + MainPanel.Padding.Bottom;
   if BottomControl <> nil then
     NewClientHeight := NewClientHeight + BottomControl.Top + BottomControl.Height;
 
   if LeftPanel.Visible then begin
-    { Make sure the height is enough to fit the icon }
-    const MinimumClientHeight = MainPanel.Padding.Top + LeftPanel.Top + BitmapImage.Top + BitmapImage.Height + MainPanel.Padding.Bottom;
+    { Make sure the height is enough to fit the icon. Note that LeftPanel.Top
+      already includes MainPanel.Padding.Top. }
+    const MinimumClientHeight = LeftPanel.Top + MainPanel.Padding.Bottom + BitmapImage.Top + BitmapImage.Height;
     if MinimumClientHeight > NewClientHeight then
       NewClientHeight := MinimumClientHeight;
   end;
