@@ -5094,7 +5094,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <indent>
 <table>
 <tr><th>Method</th><th>Memory Requirements</th><th>Password-protected Archives</th><th>Setup Size Increase*</th><th>Archive Formats</th></tr>
-<tr><td><tt>basic</tt> (default)</td><td>High for large files**</td><td>No</td><td>0 KB</td><td>.7z</td></tr>
+<tr><td><tt>basic</tt></td><td>High for large files**</td><td>No</td><td>0 KB</td><td>.7z</td></tr>
 <tr><td><tt>enhanced/nopassword</tt></td><td>Normal</td><td>No</td><td>100 KB</td><td>.7z</td></tr>
 <tr><td><tt>enhanced</tt></td><td>Normal</td><td>Yes</td><td>123 KB</td><td>.7z</td></tr>
 <tr><td><tt>full</tt></td><td>Normal</td><td>Yes</td><td>458 KB</td><td>.7z, .zip, .gz, .bz2, .xz, .tar, .rar, .iso, .msi, .cab, .rpm, .vhd, .vhdx, .vdi, .vmdk, .wim, .dmg, .001</td></tr>
@@ -5523,7 +5523,6 @@ DiskSliceSize=736000000
 <setupdefault><tt>1</tt></setupdefault>
 <body>
 <p>The number of Setup-*.bin files to create for each disk. If this is 1 (the default setting), the files will be named Setup-<i>x</i>.bin, where <i>x</i> is the disk number. If this is greater than 1, the files will be named Setup-<i>xy</i>.bin, where <i>x</i> is the disk number and <i>y</i> is a unique letter.</p>
-<p>One reason why you may need to increase this from the default value of 1 is if the size of your disk media exceeds 2,100,000,000 bytes -- the upper limit of the <tt>DiskSliceSize</tt> <tt>[Setup]</tt> section directive. If, for example, your disk media has a capacity of 3,000,000,000 bytes, you can avoid the 2,100,000,000-byte disk slice size limit by setting <tt>SlicesPerDisk</tt> to <tt>2</tt> and <tt>DiskSliceSize</tt> to <tt>1500000000</tt> (or perhaps slightly less, due to file system overhead).</p>
 </body>
 </setuptopic>
 
@@ -6184,7 +6183,7 @@ WizardBackImageOpacity=150</pre></example>
 </ul>
 <heading>Other Considerations</heading>
 <ul>
-<li>The default style can be customized by specifying a VCL Styles file using the <link topic="setup_wizardstylefile">WizardStyleFile</link> directive. When forced light (<tt>light</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
+<li>The default style can be customized by specifying a VCL Styles file using the <link topic="setup_wizardstylefile">WizardStyleFile</link> directive. When forced light (<tt>light</tt>) or dynamic light (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
 <li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme or when command line parameter '/NOSTYLE' is used.</li>
 <li>When a custom style (including the built-in custom dark style) is active, three additional things occur. First, all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent instead of opaque. Second, Setup and Uninstall use a custom implementation of Windows message boxes and task dialogs. Third, color properties set through Pascal Scripting are usually ignored, with the style's colors taking precedence.</li>
 <li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 220 KB. Enabling dynamic dark (<tt>dynamic</tt>) adds approximately 75 KB more. Enabling dynamic dark and including a custom light style as well (for example, <tt>dynamic windows11</tt>) adds approximately 110 KB more.</li>

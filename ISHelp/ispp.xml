@@ -717,7 +717,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<p>Retrieves a string from specified file's (first parameter) version information resource.</p>
 					<p>Second parameter is the name of the version info string-value.</p>
 					<p>Third optional parameter should specify the language and charset identifier. For example: 0x04BE0409 stands for "English (United States)". If this parameter is omitted, the function scans all available version info blocks to find the value.</p>
-					<p>The function returns an empty string if it was unable to retrieve the value.</p>
+					<p>The function returns null (void) if it was unable to retrieve the value.</p>
 				</description>
 				<section title="See also">
 					<p><tt><link href="GetFileCompanyString">GetFileCompanyString</link></tt>, <tt><link href="GetFileDescriptionString">GetFileDescriptionString</link></tt>, <tt><link href="GetFileVersionString">GetFileVersionString</link></tt>, <tt><link href="GetFileCopyrightString">GetFileCopyrightString</link></tt>, <tt><link href="GetFileOriginalFilenameString">GetFileOriginalFilenameString</link></tt>, <tt><link href="GetFileProductVersionString">GetFileProductVersionString</link></tt></p>
@@ -1358,7 +1358,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="GetMD5OfUnicodeString">
 				<title>GetMD5OfUnicodeString</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetMD5OfString(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetMD5OfUnicodeString(<b>str</b>)</line></pre>
 				</section>
 				<description>
 					<p>Gets the MD5 sum of the specified Unicode string, as a string.</p>
@@ -1571,7 +1571,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the version of the specified file as a string (in "0.0.0.0" format) if successful, an empty string otherwise.</p>
+					<p>Returns the version of the specified file as a string (in "0.0.0.0" format) if successful, null (void) otherwise.</p>
 					<p>Also see <link href="GetFileVersionString">GetFileVersionString</link>, which can also be used to retrieve the file version. The difference is that <tt>GetVersionNumbersString</tt> gets the binary file version from the fixed block of the specified file's version information resource, while <tt>GetFileVersionString</tt> gets the textual file version from the language specific block.</p>
 				</description>
 			</topic>
@@ -1679,7 +1679,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>VersionToStr</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>void</b> VersionToStr(<b>int</b> Version)</line>
+						<line><b>str</b> VersionToStr(<b>int</b> Version)</line>
 					</pre>
 				</section>
 				<description>
@@ -1835,11 +1835,11 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>RemoveFileExt</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>void</b> RemoveFileExt(<b>str</b> FileName)</line>
+						<line><b>str</b> RemoveFileExt(<b>str</b> FileName)</line>
 					</pre>
 				</section>
 				<description>
-					<p>Removes the extension in FileName.</p>
+					<p>Returns the given filename with the extension removed.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
