@@ -2047,10 +2047,6 @@ begin
     RegisterFunction('FileEof', FileEofFunc, -1);
     RegisterFunction('FileClose', FileCloseFunc, -1);
     RegisterFunction('SaveStringToFile', SaveStringToFileFunc, -1);
-    RegisterFunction('FileGetDateTime', FileGetDate, -1);
-    RegisterFunction('Now', GetNow, -1);
-    RegisterFunction('DateTimeToDate', GetDateFromDT, -1);
-    RegisterFunction('DateTimeToTime', GetTimeFromDT, -1);
     RegisterFunction('GetDateTimeString', GetDateTimeString, -1);
     RegisterFunction('GetFileDateTimeString', GetFileDateTimeString, -1);
     RegisterFunction('GetMD5OfFile', GetMD5OfFile, -1);
@@ -2071,6 +2067,12 @@ begin
     RegisterFunction('AddQuotes', AddQuotesFunc, -1);
     RegisterFunction('SameStr', SameStrFunc, -1);
     RegisterFunction('Is64BitPEImage', Is64BitPEImageFunc, -1);
+    { The following functions are intentionally undocumented, as they do
+      not integrate with the rest of the functions }
+    RegisterFunction('FileGetDateTime', FileGetDate, -1);
+    RegisterFunction('Now', GetNow, -1);
+    RegisterFunction('DateTimeToDate', GetDateFromDT, -1);
+    RegisterFunction('DateTimeToTime', GetTimeFromDT, -1);
   end;
 end;
 
