@@ -71,7 +71,7 @@ var
     'function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: String; Par: array of Variant): Variant;',
     'procedure UnloadDll(S: String);',
     'function DllGetLastError: LongInt;',
-    'function Int(E: Extended): Extended;',
+    'function Int(const E: Extended): Extended;',
     { Special functions: undocumented but listing anyway }
     'function Low(var X): Int64;',
     'function High(var X): Int64;',
@@ -371,8 +371,8 @@ initialization
     'function GetSHA256OfStream(const Stream: TStream): String;',
     'function GetSHA256OfString(const S: AnsiString): String;',
     'function GetSHA256OfUnicodeString(const S: String): String;',
-    'function GetSpaceOnDisk(const DriveRoot: String; const InMegabytes: Boolean; var Free, Total: Cardinal): Boolean;',
-    'function GetSpaceOnDisk64(const DriveRoot: String; var Free, Total: Int64): Boolean;',
+    'function GetSpaceOnDisk(const Path: String; const InMegabytes: Boolean; var Free, Total: Cardinal): Boolean;',
+    'function GetSpaceOnDisk64(const Path: String; var Free, Total: Int64): Boolean;',
     'function GetUserNameString: String;',
     //function GrantPermissionOnFile(const Filename: String; const Entries: TGrantPermissionEntry; const EntryCount: Integer): Boolean;
     //function GrantPermissionOnKey(const RootKey: HKEY; const Subkey: String; const Entries: TGrantPermissionEntry; const EntryCount: Integer): Boolean;

@@ -114,8 +114,8 @@
 <keyword value="ssDone" anchor="TSetupStep" />
 <keyword value="usAppMutexCheck" anchor="TUninstallStep" />
 <keyword value="usUninstall" anchor="TUninstallStep" />
-<keyword value="usFinished" anchor="TUninstallStep" />
-<keyword value="usTerminate" anchor="TUninstallStep" />
+<keyword value="usPostUninstall" anchor="TUninstallStep" />
+<keyword value="usDone" anchor="TUninstallStep" />
 <keyword value="wpWelcome" anchor="PageID" />
 <keyword value="wpLicense" anchor="PageID" />
 <keyword value="wpPassword" anchor="PageID" />
@@ -617,7 +617,7 @@ end;
 
 <p>Open the "CodeDll.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using DLLs.</p>
 
-<p>The "Examples" subdirectory also contains two custom DLL example projects, one for Microsoft Visual C++, and one for Borland Delphi.</p>
+<p>The "Examples" subdirectory also contains two custom DLL example projects, one for Microsoft Visual C++, and one for Embarcadero Delphi.</p>
 
 <p>To be able to call a DLL function you should first write the function prototype as normal but instead of then writing the function body, you use the 'external' keyword to specify a DLL. If your function has for example prototype <tt>function A(B: Integer): Integer;</tt>, the following three forms are supported:</p>
 
@@ -691,7 +691,7 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 <p>Use <link topic="isxfunc_CreateCallback">CreateCallback</link> to be able to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script.</p>
 
 <p>The following built-in types are available to aid in calling Windows API functions besides <tt>THandle</tt>:<br/>
-<tt>DWORD</tt>, <tt>UINT</tt>, <tt>BOOL</tt>, <tt>INT_PTR</tt>, <tt>DWORD_PTR</tt>, <tt>UINT_PTR</tt>, <tt>LRESULT</tt>, <tt>HMODULE</tt>, <tt>WPARAM</tt>, <tt>LPARAM</tt>, <tt>HResult</tt>, <tt>TGUID</tt>, <tt>TCLSID</tt>, <tt>TIID</tt>, <tt>HBITMAP</tt>, <tt>HDC</tt>, <tt>HFONT</tt>, and <tt>HWND</tt></p>
+<tt>DWORD</tt>, <tt>UINT</tt>, <tt>BOOL</tt>, <tt>LONG</tt>, <tt>ULONG</tt>, <tt>HANDLE</tt>, <tt>COLORREF</tt>, <tt>INT_PTR</tt>, <tt>LONG_PTR</tt>, <tt>DWORD_PTR</tt>, <tt>UINT_PTR</tt>, <tt>ULONG_PTR</tt>, <tt>LRESULT</tt>, <tt>HKEY</tt>, <tt>HINSTANCE</tt>, <tt>HMODULE</tt>, <tt>WPARAM</tt>, <tt>LPARAM</tt>, <tt>SIZE_T</tt>, <tt>SSIZE_T</tt>, <tt>TFileTime</tt>, <tt>HResult</tt>, <tt>TGUID</tt>, <tt>TCLSID</tt>, <tt>TIID</tt>, <tt>HBITMAP</tt>, <tt>HDC</tt>, <tt>HFONT</tt>, and <tt>HWND</tt></p>
 
 </body>
 </topic>
