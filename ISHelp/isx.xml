@@ -109,6 +109,7 @@
 <keyword value="CurUninstallStepChanged" anchor="CurUninstallStepChanged" />
 <keyword value="UninstallNeedRestart" anchor="UninstallNeedRestart" />
 <keyword value="InitializeUninstallProgressForm" anchor="InitializeUninstallProgressForm" />
+<keyword value="ssPreInstall" anchor="TSetupStep" />
 <keyword value="ssInstall" anchor="TSetupStep" />
 <keyword value="ssPostInstall" anchor="TSetupStep" />
 <keyword value="ssDone" anchor="TSetupStep" />
@@ -277,7 +278,7 @@
 <ul>
 
 <li><i><a name="TSetupStep">TSetupStep values</a></i><br />
-ssInstall, ssPostInstall, ssDone</li>
+ssPreInstall, ssInstall, ssPostInstall, ssDone</li>
 
 <li><i><a name="TUninstallStep">TUninstallStep value</a>s</i><br />
 usAppMutexCheck, usUninstall, usPostUninstall, usDone</li>
@@ -320,7 +321,7 @@ end;
 <li>Event attributes may be used for all event functions. If the event function has a return value then lazy evaluation is performed:</li>
 <ul>
 <li><tt>InitializeSetup</tt>, <tt>BackButtonClick</tt>, <tt>NextButtonClick</tt>, <tt>InitializeUninstall</tt>: All implementations must return True for the event function to be treated as returning True and an implementation returning False stops the calls to the other implementations.</li>
-<li><tt>CheckPassword</tt>, <tt>CheckSerial</tt>, <tt>ShouldSkipPage</tt>, <tt>NeedRestart</tt>: All implementations must return False for the event function to be treated as returning False and an implementation returning True stops the calls to the other implementations.</li>
+<li><tt>CheckPassword</tt>, <tt>CheckSerial</tt>, <tt>ShouldSkipPage</tt>, <tt>NeedRestart</tt>, <tt>UninstallNeedRestart</tt>: All implementations must return False for the event function to be treated as returning False and an implementation returning True stops the calls to the other implementations.</li>
 <li><tt>UpdateReadyMemo</tt>, <tt>PrepareToInstall</tt>: All implementations must return an empty string for the event function to be treated as returning an empty string and an implementation returning a non empty string stops the calls to the other implementations.</li>
 <li><tt>GetCustomSetupExitCode</tt>: All implementations must return zero for the event function to be treated as returning zero and an implementation returning a non zero number stops the calls to the other implementations.</li>
 </ul>

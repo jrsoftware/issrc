@@ -1098,7 +1098,7 @@ end;
       <function>
         <name>StrToIntDef</name>
         <prototype>function StrToIntDef(S: String; Def: LongInt): LongInt;</prototype>
-        <description><p>The StrToInt function converts the string passed in S into a number. If S does not represent a valid number, StrToInt returns the number passed in Def.</p></description>
+        <description><p>The StrToIntDef function converts the string passed in S into a number. If S does not represent a valid number, StrToIntDef returns the number passed in Def.</p></description>
       </function>
       <function>
         <name>StrToInt</name>
@@ -1109,7 +1109,7 @@ end;
       <function>
         <name>StrToInt64Def</name>
         <prototype>function StrToInt64Def(S: String; Def: Int64): Int64;</prototype>
-        <description><p>The StrToInt64Def function converts the string passed in S into a 64-bit number. If S does not represent a valid 64-bit number, StrToInt returns the 64-bit number passed in Def.</p></description>
+        <description><p>The StrToInt64Def function converts the string passed in S into a 64-bit number. If S does not represent a valid 64-bit number, StrToInt64Def returns the 64-bit number passed in Def.</p></description>
       </function>
       <function>
         <name>StrToInt64</name>
@@ -1751,6 +1751,12 @@ begin
 end;</pre></example>
       </function>
       <function>
+        <name>GetSysNativeDir</name>
+        <prototype>function GetSysNativeDir: String;</prototype>
+        <description><p>Returns the special Sysnative alias, without trailing backslash. An empty string is returned if there is no Sysnative alias.</p>
+<p>The Sysnative alias is not accessible to <link topic="64bit">64-bit installers</link> or any other 64-bit applications, so use its value only to, for example, pass it to a 32-bit application.</p></description>
+      </function>
+      <function>
         <name>GetTempDir</name>
         <prototype>function GetTempDir: String;</prototype>
         <description><p>Returns fully qualified path of the temporary directory, with trailing backslash. Uses the Win32 function GetTempPath2 if available, and GetTempPath otherwise.</p></description>
@@ -2142,7 +2148,7 @@ end;</pre></example>
         <example><pre>var
   F: TFileStream;
 begin
-  F := ISSigVerify([], Filename, True, True);
+  F := ISSigVerify(nil, Filename, True, True);
   try
     // Use file
   finally
@@ -2157,7 +2163,7 @@ end;</pre></example>
       <function>
         <name>RenameFile</name>
         <prototype>function RenameFile(const OldName, NewName: String): Boolean;</prototype>
-        <description><p>Attempts to change the name of the file or directory specified by OldFile to NewFile. If the operation succeeds, RenameFile returns True. If it cannot rename the file (for example, if a file called NewName already exists), it returns False.</p></description>
+        <description><p>Attempts to change the name of the file or directory specified by OldName to NewName. If the operation succeeds, RenameFile returns True. If it cannot rename the file (for example, if a file called NewName already exists), it returns False.</p></description>
         <remarks><p>Can't be used to rename Setup itself until the installation has started.</p></remarks>
       </function>
       <function>
