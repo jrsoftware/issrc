@@ -54,6 +54,7 @@ begin
     RegisterProperty('Caption', 'String', iptrw);
     RegisterProperty('Color', 'TColor', iptrw);
     RegisterProperty('FocusControl', 'TWinControl', iptrw);
+    RegisterProperty('ForceLTRReading', 'Boolean', iptrw);
     RegisterProperty('Font', 'TFont', iptrw);
     RegisterProperty('ParentColor', 'Boolean', iptrw);
     RegisterProperty('ParentFont', 'Boolean', iptrw);
@@ -525,7 +526,7 @@ begin
   begin
     RegisterMethod('function Add(const APrompt: String): NativeInt');
     RegisterProperty('Buttons', 'TNewButton NativeInt', iptr);
-    RegisterProperty('Edits', 'TEdit NativeInt', iptr);
+    RegisterProperty('Edits', 'TNewPathEdit NativeInt', iptr);
     RegisterProperty('NewFolderName', 'String', iptrw);
     RegisterProperty('PromptLabels', 'TNewStaticText NativeInt', iptr);
     RegisterProperty('SubCaptionLabel', 'TNewStaticText', iptr);
@@ -539,7 +540,7 @@ begin
   begin
     RegisterMethod('function Add(const APrompt, AFilter, ADefaultExtension: String): NativeInt');
     RegisterProperty('Buttons', 'TNewButton NativeInt', iptr);
-    RegisterProperty('Edits', 'TEdit NativeInt', iptr);
+    RegisterProperty('Edits', 'TNewPathEdit NativeInt', iptr);
     RegisterProperty('PromptLabels', 'TNewStaticText NativeInt', iptr);
     RegisterProperty('SubCaptionLabel', 'TNewStaticText', iptr);
     RegisterProperty('Values', 'String NativeInt', iptrw);
