@@ -909,11 +909,12 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <keyword value="Components and Tasks Parameters" />
 <body>
 
-<p>There are two optional <link topic="params">parameters</link> that are supported by all sections whose entries are separated into parameters, except [Types], [Components] and [Tasks]. They are:</p>
+<p>There are two optional <link topic="params">parameters</link> that are supported by all sections whose entries are separated into parameters, except as noted below. They are:</p>
 
 <paramlist>
 
 <param name="Components">
+<p>Supported by all sections except [Types] and [Components].</p>
 <p>A space separated list of component names, telling Setup to which components the entry belongs. If the end user selects a component from this list, the entry is processed (for example: the file is installed).</p>
 <p>An entry without a <tt>Components</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
@@ -927,6 +928,7 @@ Source: "Readme.txt"; DestDir: "{app}"
 </param>
 
 <param name="Tasks">
+<p>Supported by all sections except [Types], [Components] and [Tasks].</p>
 <p>A space separated list of task names, telling Setup to which task the entry belongs. If the end user selects a task from this list, the entry is processed (for example: the file is installed).</p>
 <p>An entry without a <tt>Tasks</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <p>Note that the <i>Don't create a Start Menu folder</i> checkbox on the <i>Select Start Menu Folder</i> wizard page doesn't affect [Icons] entries that have <tt>Tasks</tt> parameters since they have their own checkboxes.</p>
