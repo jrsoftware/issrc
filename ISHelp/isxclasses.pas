@@ -49,6 +49,7 @@ TDuplicates = (dupIgnore, dupAccept, dupError);
 TStringList = class(TStrings)
   function Find(S: String; var Index: Integer): Boolean;
   procedure Sort;
+  property CaseSensitive: Boolean; read write;
   property Duplicates: TDuplicates; read write;
   property Sorted: Boolean; read write;
   property OnChange: TNotifyEvent; read write;
@@ -109,7 +110,7 @@ TFontPitch = (fpDefault, fpVariable, fpFixed);
 
 TFont = class(TGraphicsObject)
   constructor Create;
-  property Handle: HFONT; read;
+  property Handle: HFONT; read write;
   property Color: TColor; read write;
   property Height: Integer; read write;
   property Name: String; read write;
@@ -288,7 +289,7 @@ TKeyEvent = procedure(Sender: TObject; var Key: Word; Shift: TShiftState);
 TKeyPressEvent = procedure(Sender: TObject; var Key: Char);
 
 TForm = class(TScrollingWinControl)
-  constructor CreateNew(AOwner: TComponent);
+  constructor CreateNew(AOwner: TComponent; Dummy: Integer);
   procedure Close;
   procedure Hide;
   procedure Show;
