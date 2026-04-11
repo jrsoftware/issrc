@@ -239,6 +239,7 @@ type
     msgStatusCreateRegistryEntries,
     msgStatusDownloadFiles,
     msgStatusExtractFiles,
+    msgStatusCompactFiles,
     msgStatusRegisterFiles,
     msgStatusRestartingApplications,
     msgStatusRollback,

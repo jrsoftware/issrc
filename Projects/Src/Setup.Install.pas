@@ -23,7 +23,7 @@ uses
   Shared.SetupMessageIDs, Shared.SetupTypes, Shared.Struct, Shared.VerInfoFunc,
   Compression.Base, Compression.SevenZipDLLDecoder,
   SetupLdrAndSetup.InstFunc, SetupLdrAndSetup.Messages, Setup.PathRedir,
-  Setup.DebugClient, Setup.DotNetFunc, Setup.DownloadFileFunc, Setup.InstFunc, Setup.InstFunc.Ole,
+  Setup.CompactFunc, Setup.DebugClient, Setup.DotNetFunc, Setup.DownloadFileFunc, Setup.InstFunc, Setup.InstFunc.Ole,
   Setup.ISSigVerifyFunc, Setup.FileExtractor, Setup.Install.HelperFunc,
   Setup.MainFunc, Setup.LoggingFunc, Setup.RegDLL, Setup.SecurityFunc,
   Setup.UninstallLog, Setup.WizardForm;
@@ -2856,6 +2856,10 @@ begin
         RegisterFiles(RegisterFilesList);
         ProcessEvents;
       end;
+
+      { Compact installed files, if supported. Failures are logged and ignored. }
+      CompactInstalledFiles(UninstLog);
+      ProcessEvents;
 
       { Save uninstall information. After uninstall info is saved, you cannot
         make any more modifications to the user's system. Any additional
