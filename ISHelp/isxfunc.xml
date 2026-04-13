@@ -799,7 +799,7 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>MakePendingFileRenameOperationsChecksum</name>
-        <prototype>procedure MakePendingFileRenameOperationsChecksum: String;</prototype>
+        <prototype>function MakePendingFileRenameOperationsChecksum: String;</prototype>
         <description><p>Calculates a checksum of the current PendingFileRenameOperations registry value. The caller can use this checksum to determine if PendingFileRenameOperations or WININIT.INI was changed (perhaps by another program).</p></description>
         <example><pre>var
   ChecksumBefore, ChecksumAfter: String;
@@ -859,7 +859,7 @@ end;</pre></example>
       </function>
       <function>
         <name>DLLGetLastError</name>
-        <prototype>function DLLGetLastError(): LongInt;</prototype>
+        <prototype>function DLLGetLastError: LongInt;</prototype>
         <description><p>Returns value the last error code had right after the most recent DLL function call you made. Useful after calling Windows API functions (if the function sets the last error code).</p></description>
         <remarks><p>It's recommended to use this function instead of directly calling the GetLastError Windows API function since Setup or Uninstall makes API calls of its own, so the last error code could be overwritten at any time.</p>
 <p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
@@ -959,7 +959,7 @@ end;</pre></example>
       </function>
       <function>
         <name>RPos</name>
-        <prototype>function RPos(SubStr, S: String): Integer;</prototype>
+        <prototype>function RPos(const SubStr, S: String): Integer;</prototype>
         <description><p>Searches for SubStr within S and returns the last index of SubStr within S, 1-based. If SubStr is not found, RPos returns zero. The RPos function is case-sensitive.</p></description>
         <seealso><p><link topic="isxfunc_Pos">Pos</link></p></seealso>
       </function>
@@ -1098,7 +1098,7 @@ end;
       <function>
         <name>StrToIntDef</name>
         <prototype>function StrToIntDef(S: String; Def: LongInt): LongInt;</prototype>
-        <description><p>The StrToInt function converts the string passed in S into a number. If S does not represent a valid number, StrToInt returns the number passed in Def.</p></description>
+        <description><p>The StrToIntDef function converts the string passed in S into a number. If S does not represent a valid number, StrToIntDef returns the number passed in Def.</p></description>
       </function>
       <function>
         <name>StrToInt</name>
@@ -1109,7 +1109,7 @@ end;
       <function>
         <name>StrToInt64Def</name>
         <prototype>function StrToInt64Def(S: String; Def: Int64): Int64;</prototype>
-        <description><p>The StrToInt64Def function converts the string passed in S into a 64-bit number. If S does not represent a valid 64-bit number, StrToInt returns the 64-bit number passed in Def.</p></description>
+        <description><p>The StrToInt64Def function converts the string passed in S into a 64-bit number. If S does not represent a valid 64-bit number, StrToInt64Def returns the 64-bit number passed in Def.</p></description>
       </function>
       <function>
         <name>StrToInt64</name>
@@ -1124,7 +1124,7 @@ end;
       </function>
       <function>
         <name>StrToColor</name>
-        <prototype>function StrToColor(S: String): TColor;</prototype>
+        <prototype>function StrToColor(const S: String): TColor;</prototype>
         <description><p>The StrToColor function converts the string passed in S, formatted as <tt>'#rrggbb'</tt>, into a color. Raises an exception if not successful.</p></description>
       </function>
       <function>
@@ -1751,6 +1751,12 @@ begin
 end;</pre></example>
       </function>
       <function>
+        <name>GetSysNativeDir</name>
+        <prototype>function GetSysNativeDir: String;</prototype>
+        <description><p>Returns the special Sysnative alias, without trailing backslash. An empty string is returned if there is no Sysnative alias.</p>
+<p>The Sysnative alias is not accessible to <link topic="64bit">64-bit installers</link> or any other 64-bit applications, so use its value only to, for example, pass it to a 32-bit application.</p></description>
+      </function>
+      <function>
         <name>GetTempDir</name>
         <prototype>function GetTempDir: String;</prototype>
         <description><p>Returns fully qualified path of the temporary directory, with trailing backslash. Uses the Win32 function GetTempPath2 if available, and GetTempPath otherwise.</p></description>
@@ -2064,14 +2070,14 @@ end;</pre></example>
       </function>
       <function>
         <name>DownloadTemporaryFileSize</name>
-        <prototype>function DownloadTemporaryFileSize(const Url): Int64;</prototype>
+        <prototype>function DownloadTemporaryFileSize(const Url: String): Int64;</prototype>
         <description><p>Returns the size of the file from the specified URL, without downloading the file. If the server does not provide the size, -1 will be returned.</p>
 <p>An exception will be raised if there was an error.</p>
 <p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations.</p></description>
       </function>
       <function>
         <name>DownloadTemporaryFileDate</name>
-        <prototype>function DownloadTemporaryFileDate(const Url): String;</prototype>
+        <prototype>function DownloadTemporaryFileDate(const Url: String): String;</prototype>
         <description><p>Returns the last modified date of the file from the specified URL, without downloading the file. If the server does not provide the last modified file date, '' will be returned.</p>
 <p>An exception will be raised if there was an error.</p>
 <p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations.</p></description>
@@ -2104,12 +2110,13 @@ end;</pre></example>
 <link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link></p></seealso>
         <example><pre>
 [Files]
-Source: "{src}\My7ZipSFX.exe; DestDir: "{app}"; Flags: external extractarchive recursesubdirs createallsubdirs ignoreversion
+Source: "{src}\My7ZipSFX.exe"; DestDir: "{app}"; Flags: external extractarchive recursesubdirs createallsubdirs ignoreversion
 
 [Code]
 function InitializeSetup: Boolean;
 begin
   MapArchiveExtensions('.exe', '.7z');
+  Result := True;
 end;</pre></example>
       </function>
     </subcategory>
@@ -2141,7 +2148,7 @@ end;</pre></example>
         <example><pre>var
   F: TFileStream;
 begin
-  F := ISSigVerify([], Filename, True);
+  F := ISSigVerify(nil, Filename, True, True);
   try
     // Use file
   finally
@@ -2156,7 +2163,7 @@ end;</pre></example>
       <function>
         <name>RenameFile</name>
         <prototype>function RenameFile(const OldName, NewName: String): Boolean;</prototype>
-        <description><p>Attempts to change the name of the file or directory specified by OldFile to NewFile. If the operation succeeds, RenameFile returns True. If it cannot rename the file (for example, if a file called NewName already exists), it returns False.</p></description>
+        <description><p>Attempts to change the name of the file or directory specified by OldName to NewName. If the operation succeeds, RenameFile returns True. If it cannot rename the file (for example, if a file called NewName already exists), it returns False.</p></description>
         <remarks><p>Can't be used to rename Setup itself until the installation has started.</p></remarks>
       </function>
       <function>
@@ -2462,7 +2469,7 @@ end;</pre>
       </function>
       <function>
         <name>StrToVersion</name>
-        <prototype>function StrToVersion(const Version: String; var Version: Int64): Boolean;</prototype>
+        <prototype>function StrToVersion(const VersionString: String; var Version: Int64): Boolean;</prototype>
         <description><p>Returns the specified string (in "0.0.0.0" format) as a packed version. Returns True if successful, False otherwise.</p></description>
         <seealso><p><link topic="isxfunc_VersionToStr">VersionToStr</link><br />
 <link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
@@ -2594,8 +2601,8 @@ end;</pre></example>
         <prototype>function RegWriteExpandStringValue(const RootKey: HKEY; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
         <description><p>Writes the specified REG_EXPAND_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
         <example><pre>begin
-  RegWriteStringValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
-    'UserName', '%UserName%);
+  RegWriteExpandStringValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
+    'UserName', '%UserName%');
 end;</pre></example>
       </function>
       <function>
@@ -3190,7 +3197,7 @@ end;</pre></example>
       </function>
       <function>
         <name>GetOpenFileNameMulti</name>
-        <prototype>function GetOpenFileNameMulti(const Prompt: String; var FileNameList: TStrings; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
+        <prototype>function GetOpenFileNameMulti(const Prompt: String; const FileNameList: TStrings; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
         <description><p>Displays a dialog box that enables the user to select one or more existing file(s). Returns True if the user selected a file, False otherwise. The name of the selected file(s) is returned in the FileNameList list.</p></description>
         <remarks><p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
         <example><pre>var
@@ -3496,7 +3503,7 @@ end;</pre></example>
       <function>
         <name>CallDLLProc</name>
         <prototype>function CallDLLProc(const DLLHandle: HMODULE; const ProcName: String; const Param1, Param2: NativeInt; var Result: NativeInt): Boolean;</prototype>
-        <description><p>Calls the specified function in a DLL specified using the DLL handle returned by LoadDLL. Returns True is the procedure was called successfully, False otherwise.<br />The function must use the standard calling convention, accept two 4 byte integer parameters and return a 4 byte integer result.</p></description>
+        <description><p>Calls the specified function in a DLL specified using the DLL handle returned by LoadDLL. Returns True if the procedure was called successfully, False otherwise.<br />The function must use the standard calling convention, accept two NativeInt parameters and return a NativeInt result.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
       </function>
       <function>

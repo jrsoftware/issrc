@@ -163,8 +163,10 @@ begin
     RegisterMethod('procedure CopyToClipboard');
     RegisterMethod('procedure CutToClipboard');
     RegisterMethod('procedure PasteFromClipboard');
+    {$IFNDEF FPC}
     RegisterMethod('function GetSelTextBuf(Buffer: PChar; BufSize: Integer): Integer');
     RegisterMethod('procedure SetSelTextBuf(Buffer: PChar)');
+    {$ENDIF}
     {$ENDIF}
   end;
 end;

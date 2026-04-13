@@ -76,7 +76,7 @@ function GetSHA256OfFile(const F: TFile): TSHA256Digest; overload;
 function GetSHA256OfAnsiString(const S: AnsiString): TSHA256Digest;
 function GetSHA256OfUnicodeString(const S: UnicodeString): TSHA256Digest;
 function GetRegRootKeyName(const RootKey: HKEY): String;
-function GetSpaceOnDisk(const DriveRoot: String;
+function GetSpaceOnDisk(const Path: String;
   var FreeBytes, TotalBytes: Int64): Boolean;
 function GetSpaceOnNearestMountPoint(const StartDir: String;
   var FreeBytes, TotalBytes: Int64): Boolean;
@@ -942,11 +942,13 @@ begin
     SendNotifyMessage(HWND_BROADCAST, WM_FONTCHANGE, 0, 0);
 end;
 
-function GetSpaceOnDisk(const DriveRoot: String;
+function GetSpaceOnDisk(const Path: String;
   var FreeBytes, TotalBytes: Int64): Boolean;
+{ The Path parameter does not have to specify the root directory on a disk.
+  The function accepts any directory on a disk. }
 begin
   { "Windows." prefix avoids emulated version in SysUtils }
-  Result := Windows.GetDiskFreeSpaceEx(PChar(AddBackslash(PathExpand(DriveRoot))),
+  Result := Windows.GetDiskFreeSpaceEx(PChar(AddBackslash(PathExpand(Path))),
     FreeBytes, TotalBytes, nil);
 end;
 

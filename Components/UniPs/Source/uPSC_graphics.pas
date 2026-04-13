@@ -52,7 +52,7 @@ begin
     RegisterProperty('Color', 'TColor', iptRW);
     RegisterProperty('Height', 'Integer', iptRW);
     RegisterProperty('Name', 'string', iptRW);
-    RegisterProperty('Pitch', 'Byte', iptRW);
+    RegisterProperty('Pitch', 'TFontPitch', iptRW);
     RegisterProperty('Size', 'Integer', iptRW);
     RegisterProperty('PixelsPerInch', 'Integer', iptRW);
     RegisterProperty('Style', 'TFontStyles', iptrw);
@@ -85,7 +85,7 @@ begin
 {$ENDIF}
     RegisterProperty('Pixels', 'Integer Integer Integer', iptRW);
     RegisterProperty('Brush', 'TBrush', iptR);
-    RegisterProperty('CopyMode', 'Byte', iptRw);
+    RegisterProperty('CopyMode', 'TCopyMode', iptRw);
     RegisterProperty('Font', 'TFont', iptR);
     RegisterProperty('Pen', 'TPen', iptR);
   end;
@@ -203,6 +203,11 @@ begin
   cl.AddTypeS('TPenMode', '(pmBlack, pmWhite, pmNop, pmNot, pmCopy, pmNotCopy, pmMergePenNot, pmMaskPenNot, pmMergeNotPen, pmMaskNotPen, pmMerge, pmNotMerge, pmMask, pmNotMask, pmXor, pmNotXor)');
   cl.AddTypeS('TBrushStyle', '(bsSolid, bsClear, bsHorizontal, bsVertical, bsFDiagonal, bsBDiagonal, bsCross, bsDiagCross)');
   cl.addTypeS('TColor', 'Integer');
+{$IFNDEF CLX}
+  cl.AddTypeS('TCopyMode', 'Longint');
+{$ELSE}
+  cl.AddTypeS('TCopyMode', '(cmBlackness, cmDstInvert, cmMergeCopy, cmMergePaint, cmNotSrcCopy, cmNotSrcErase, cmPatCopy, cmPatInvert, cmPatPaint, cmSrcAnd, cmSrcCopy, cmSrcErase, cmSrcInvert, cmSrcPaint, cmWhiteness, cmCreateMask)');
+{$ENDIF}
 
 {$IFNDEF CLX}
   if cl.FindType('HBITMAP') = nil then
@@ -225,9 +230,12 @@ begin
     RegisterMethod('procedure SaveToFile(const FileName: string)');
     RegisterProperty('Empty', 'Boolean', iptr);
     RegisterProperty('Height', 'Integer', iptrw);
-    RegisterProperty('Modified', 'Boolean', iptrw);
     RegisterProperty('Width', 'Integer', iptrw);
     RegisterProperty('OnChange', 'TNotifyEvent', iptrw);
+
+    {$IFNDEF PS_MINIVCL}
+    RegisterProperty('Modified', 'Boolean', iptrw);
+    {$ENDIF}
   end;
 end;
 
@@ -245,7 +253,9 @@ begin
 {$ENDIF}
 
     {$IFNDEF PS_MINIVCL}
+{$IFNDEF FPC}
     RegisterMethod('procedure Dormant');
+{$ENDIF}
     RegisterMethod('procedure FreeImage');
 {$IFNDEF CLX}
     RegisterMethod('procedure LoadFromClipboardFormat(AFormat: Word; AData: THandle; APalette: HPALETTE)');
@@ -258,7 +268,9 @@ begin
     RegisterMethod('procedure SaveToClipboardFormat(var Format: Word; var Data: THandle; var APalette: HPALETTE)');
     RegisterProperty('Monochrome', 'Boolean', iptrw);
     RegisterProperty('Palette', 'HPALETTE', iptrw);
+{$IFNDEF FPC}
     RegisterProperty('IgnorePalette', 'Boolean', iptrw);
+{$ENDIF}
 {$ENDIF}
     RegisterProperty('TransparentColor', 'TColor', iptr);
     {$ENDIF}

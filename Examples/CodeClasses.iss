@@ -483,9 +483,9 @@ begin
   BitmapButton[2].OnClick := @ButtonOnClick;  
   BitmapButton[2].Parent := Page.Surface;
 
-  { TRichViewer }
+  { TRichEditViewer }
 
-  Page := CreateCustomPage(Page.ID, 'Custom wizard page controls', 'TRichViewer');
+  Page := CreateCustomPage(Page.ID, 'Custom wizard page controls', 'TRichEditViewer');
 
   RichEditViewer := TRichEditViewer.Create(Page);
   RichEditViewer.Width := Page.SurfaceWidth;
@@ -558,7 +558,7 @@ begin
   URLLabel.Parent := ParentForm;
 end;
 
-procedure InitializeWizard();
+procedure InitializeWizard;
 begin
   { Custom wizard pages }
 
@@ -573,7 +573,7 @@ begin
   WizardForm.BeveledLabel.Caption := ' Bevel ';
 end;
 
-procedure InitializeUninstallProgressForm();
+procedure InitializeUninstallProgressForm;
 begin
   { Custom controls }
 

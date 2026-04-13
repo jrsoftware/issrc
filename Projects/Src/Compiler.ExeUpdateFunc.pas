@@ -1104,7 +1104,7 @@ begin
 
   Inc(Offset, P-1);
   F.Seek(Offset);
-  F.WriteAnsiString(AnsiString(Format('%*s', [Q-P-Length(COMCTL32Entry), ' '])));
+  F.WriteAnsiString(StringOfChar(AnsiChar(' '), Q-P-Length(COMCTL32Entry)));
   F.WriteAnsiString(AnsiString(Copy(S, Q, R-Q)));
   F.WriteAnsiString(COMCTL32Entry);
 end;

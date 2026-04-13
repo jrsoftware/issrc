@@ -1611,7 +1611,8 @@ begin
   if ItemStates[Index].Enabled <> AEnabled then
   begin
     ItemStates[Index].Enabled := AEnabled;
-    InvalidateCheck(Index);
+    const R = ItemRect(Index);
+    InvalidateRect(Handle, @R, True);
   end;
 end;
 
@@ -1664,6 +1665,9 @@ begin
   if FOffset <> AnOffset then
   begin
     FOffset := AnOffset;
+    for var I := Items.Count-1 downto 0 do
+      RemeasureItem(I);
+    UpdateScrollRange;
     Invalidate;
   end;
 end;

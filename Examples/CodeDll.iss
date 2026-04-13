@@ -61,7 +61,7 @@ begin
   if CurPage = wpWelcome then begin
     hWnd := StrToInt64(ExpandConstant('{wizardhwnd}'));
 
-    MessageBox(hWnd, 'Hello from Windows API function', 'MessageBoxA', MB_OK or MB_ICONINFORMATION);
+    MessageBox(hWnd, 'Hello from Windows API function', 'MessageBoxW', MB_OK or MB_ICONINFORMATION);
 
     MyDllFuncSetup(hWnd, 'Hello from custom DLL function', 'MyDllFunc', MB_OK or MB_ICONINFORMATION);
 

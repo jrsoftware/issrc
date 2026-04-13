@@ -392,12 +392,16 @@ begin
   SIRegisterTTIMER(Cl);
   {$ENDIF}
   SIRegisterTCUSTOMPANEL(Cl);
+  {$IFNDEF CLX}
   SIRegisterTPANEL(Cl);
+  {$ENDIF}
   {$IFNDEF PS_MINIVCL}
   {$IFNDEF CLX}
   SIRegisterTPAGE(Cl);
   SIRegisterTNOTEBOOK(Cl);
+  {$IFNDEF FPC}
   SIRegisterTHEADER(Cl);
+  {$ENDIF}
   {$ENDIF}
   SIRegisterTCUSTOMRADIOGROUP(Cl);
   SIRegisterTRADIOGROUP(Cl);

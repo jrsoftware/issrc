@@ -243,6 +243,7 @@ begin
   { Hack: push a dummy item onto the stack to defer deletion of temp. files }
   PushPreproc(nil);
   try
+    { Create the preprocessor, which also calls PushPreproc }
     Preprocessor := TPreprocessor.Create(Params, nil, ISPPOptions, SourcePath,
       CompilerPath, Params.Filename);
     try
@@ -262,6 +263,7 @@ begin
            Preprocessor.FOptions.ParserOptions.Options) then
       begin
         Result := ispeInvalidParam;
+        FreeAndNil(Preprocessor); { This also calls PopPreproc }
         PopPreproc;
         Exit;
       end;

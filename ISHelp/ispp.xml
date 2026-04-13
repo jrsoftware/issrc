@@ -716,8 +716,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<description>
 					<p>Retrieves a string from specified file's (first parameter) version information resource.</p>
 					<p>Second parameter is the name of the version info string-value.</p>
-					<p>Third optional parameter should specify the language and charset identifier. For example: 0x04BE0409 stands for "English (United States)". If this parameter is omitted, the function scans all available version info blocks to find the value.</p>
-					<p>The function returns an empty string if it was unable to retrieve the value.</p>
+					<p>Third optional parameter should specify the language and charset identifier. For example: 0x04E40409 stands for "English (United States)". If this parameter is omitted, the function scans all available version info blocks to find the value.</p>
+					<p>The function returns null (void) if it was unable to retrieve the value.</p>
 				</description>
 				<section title="See also">
 					<p><tt><link href="GetFileCompanyString">GetFileCompanyString</link></tt>, <tt><link href="GetFileDescriptionString">GetFileDescriptionString</link></tt>, <tt><link href="GetFileVersionString">GetFileVersionString</link></tt>, <tt><link href="GetFileCopyrightString">GetFileCopyrightString</link></tt>, <tt><link href="GetFileOriginalFilenameString">GetFileOriginalFilenameString</link></tt>, <tt><link href="GetFileProductVersionString">GetFileProductVersionString</link></tt></p>
@@ -732,7 +732,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns the company name string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, COMPANY_NAME)</tt>.</p>
-					<p>The function returns an empty string if it was unable to retrieve the value.</p>
+					<p>The function returns null (void) if it was unable to retrieve the value.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -748,7 +748,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns the file description string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, FILE_DESCRIPTION)</tt>.</p>
-					<p>The function returns an empty string if it was unable to retrieve the value.</p>
+					<p>The function returns null (void) if it was unable to retrieve the value.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -765,7 +765,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<description>
 					<p>Returns the file version string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, FILE_VERSION)</tt>.</p>
 					<p>Also see <link href="GetVersionNumbersString">GetVersionNumbersString</link>, which can also be used to retrieve the file version. The difference is that <tt>GetVersionNumbersString</tt> gets the binary file version from the fixed block of the specified file's version information resource, while <tt>GetFileVersionString</tt> gets the textual file version from the language specific block.</p>
-					<p>The function returns an empty string if it was unable to retrieve the value.</p>
+					<p>The function returns null (void) if it was unable to retrieve the value.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -781,7 +781,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns the legal copyright string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, LEGAL_COPYRIGHT)</tt>.</p>
-					<p>The function returns an empty string if it was unable to retrieve the value.</p>
+					<p>The function returns null (void) if it was unable to retrieve the value.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -797,7 +797,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns the original filename string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, ORIGINAL_FILENAME)</tt>.</p>
-					<p>The function returns an empty string if it was unable to retrieve the value.</p>
+					<p>The function returns null (void) if it was unable to retrieve the value.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -813,7 +813,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns the product version string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, PRODUCT_VERSION)</tt>.</p>
-					<p>The function returns an empty string if it was unable to retrieve the value.</p>
+					<p>The function returns null (void) if it was unable to retrieve the value.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -1133,6 +1133,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 						<tr><td><code>faVolumeID</code></td><td>Volume ID files</td></tr>
 						<tr><td><code>faDirectory</code></td><td>Directory files</td></tr>
 						<tr><td><code>faArchive</code></td><td>Archive files</td></tr>
+						<tr><td><code>faSymLink</code></td><td>Symbolic links</td></tr>
 						<tr><td><code>faAnyFile</code></td><td>Any file</td></tr>
 					</table>
 					<p>Attributes can be combined by OR-ing their constants or values. For example, to search for read-only and hidden files in addition to normal files, pass <tt>faReadOnly | faHidden</tt> as the parameter.</p>
@@ -1180,7 +1181,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Terminates a <tt><link href="FindFirst">FindFirst</link></tt>/<tt><link href="FindNext">FindNext</link></tt> sequence. The parameter must be a non-zero find handle returned by <tt>FindFirst</tt>.</p>
-					<p>This function is obsolete since 1.2. ISPP automatically frees resources allocated in a call to <tt>FindFirst</tt>.</p>
+					<p>Calling this function is no longer required since ISPP automatically frees resources allocated in a call to <tt>FindFirst</tt>.</p>
 				</description>
 			</topic>
 			<topic id="FindGetFileName">
@@ -1358,7 +1359,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="GetMD5OfUnicodeString">
 				<title>GetMD5OfUnicodeString</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetMD5OfString(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetMD5OfUnicodeString(<b>str</b>)</line></pre>
 				</section>
 				<description>
 					<p>Gets the MD5 sum of the specified Unicode string, as a string.</p>
@@ -1571,7 +1572,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the version of the specified file as a string (in "0.0.0.0" format) if successful, an empty string otherwise.</p>
+					<p>Returns the version of the specified file as a string (in "0.0.0.0" format) if successful, null (void) otherwise.</p>
 					<p>Also see <link href="GetFileVersionString">GetFileVersionString</link>, which can also be used to retrieve the file version. The difference is that <tt>GetVersionNumbersString</tt> gets the binary file version from the fixed block of the specified file's version information resource, while <tt>GetFileVersionString</tt> gets the textual file version from the language specific block.</p>
 				</description>
 			</topic>
@@ -1679,7 +1680,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>VersionToStr</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>void</b> VersionToStr(<b>int</b> Version)</line>
+						<line><b>str</b> VersionToStr(<b>int</b> Version)</line>
 					</pre>
 				</section>
 				<description>
@@ -1835,11 +1836,11 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>RemoveFileExt</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>void</b> RemoveFileExt(<b>str</b> FileName)</line>
+						<line><b>str</b> RemoveFileExt(<b>str</b> FileName)</line>
 					</pre>
 				</section>
 				<description>
-					<p>Removes the extension in FileName.</p>
+					<p>Returns the given filename with the extension removed.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -2181,12 +2182,12 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<tr><td><code>__WIN32__</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>ISPP_INVOKED</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>ISCC_INVOKED</code></td><td><code><b>void</b></code>. Defined if compilation was invoked using the console-mode compiler, ISCC.exe.</td></tr>
-					<tr><td><code>PREPROCVER</code></td><td><code><b>int</b></code>. Returns the 32-bit encoded version of ISPP. Highest byte holds the major version, lowest byte holds the build number.</td></tr>
+					<tr><td><code>PREPROCVER</code></td><td><code><b>int</b></code>. Returns the 32-bit encoded version of Inno Setup. Highest byte holds the major version, second highest byte holds the minor version, third highest byte holds the revision, and lowest byte holds the build number.</td></tr>
 					<tr><td><code>WINDOWS</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>UNICODE</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>CompilerPath</code></td><td><code><b>str</b></code>. Points to the directory where the compiler is located.</td></tr>
 					<tr><td><code>SourcePath</code></td><td><code><b>str</b></code>. Points to the directory where the root script file is located, or the My Documents directory if the script has not yet been saved.</td></tr>
-					<tr><td><code>Ver</code></td><td><code><b>int</b></code>. Returns the 32-bit encoded version of Inno Setup compiler. Highest byte holds the major version, lowest byte the minor version.</td></tr>
+					<tr><td><code>Ver</code></td><td><code><b>int</b></code>. Same as PREPROCVER.</td></tr>
 					<tr><td><code>NewLine</code></td><td><code><b>str</b></code>. Returns the newline character. Declared in &builtins;.</td></tr>
 					<tr><td><code>Tab</code></td><td><code><b>str</b></code>. Returns the tab character. Declared in &builtins;.</td></tr>
 				</table>

@@ -35,7 +35,7 @@ const
 var
   Restarted: Boolean;
 
-function InitializeSetup(): Boolean;
+function InitializeSetup: Boolean;
 begin
   Restarted := ExpandConstant('{param:restart|0}') = '1';
 

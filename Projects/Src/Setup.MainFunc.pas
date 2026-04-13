@@ -206,6 +206,7 @@ procedure InitializeWizard;
 procedure InitMainNonSHFolderConstsAndPathRedir;
 function InstallOnThisVersion(const MinVersion: TSetupVersionData;
   const OnlyBelowVersion: TSetupVersionData): TInstallOnThisVersionResult;
+function IsEntryBitness64Bit(const Bitness: TSetupEntryBitness): Boolean;
 function IsRecurseableDirectory(const FindData: TWin32FindData): Boolean;
 procedure LoadSHFolderDLL;
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
@@ -231,8 +232,6 @@ procedure SaveInf(const FileName: String);
 procedure SaveResourceToTempFile(const ResName, Filename: String);
 procedure SetActiveLanguage(const I: Integer);
 procedure ShellExecuteAsOriginalUser(hWnd: HWND; Operation, FileName, Parameters, Directory: LPWSTR; ShowCmd: Integer); stdcall;
-function FileEntryIs64Bit(const FileEntry: PSetupFileEntry): Boolean;
-function RunEntryIs64Bit(const RunEntry: PSetupRunEntry): Boolean;
 procedure ProcessRunEntry(const RunEntry: PSetupRunEntry);
 function EvalArchitectureIdentifier(const Name: String): Boolean;
 function EvalDirectiveCheck(const Expression: String): Boolean;
@@ -687,28 +686,23 @@ begin
     Result := ShouldProcessEntry(WizardComponents, WizardTasks, IconEntry.Components, IconEntry.Tasks, IconEntry.Languages, IconEntry.Check);
 end;
 
-function FileEntryIs64Bit(const FileEntry: PSetupFileEntry): Boolean;
+function IsEntryBitness64Bit(const Bitness: TSetupEntryBitness): Boolean;
 begin
-  Result := InstallDefault64Bit;
-  if fo32Bit in FileEntry.Options then
-    Result := False;
-  if fo64Bit in FileEntry.Options then begin
-    if not IsWin64 then
-      InternalError('Cannot install files to 64-bit locations on this version of Windows');
-    Result := True;
+  case Bitness of
+    eb32Bit:
+      Result := False;
+    eb64Bit:
+      Result := True;
+    ebNativeBit:
+      Result := IsWin64;
+    ebCurrentProcessBit:
+      Result := IsCurrentProcess64Bit;
+  else
+    { ebInstallDefault }
+    Result := InstallDefault64Bit;
   end;
-end;
-
-function RunEntryIs64Bit(const RunEntry: PSetupRunEntry): Boolean;
-begin
-  Result := InstallDefault64Bit;
-  if roRun32Bit in RunEntry.Options then
-    Result := False;
-  if roRun64Bit in RunEntry.Options then begin
-    if not IsWin64 then
-      InternalError('Cannot run files in 64-bit locations on this version of Windows');
-    Result := True;
-  end;
+  if Result and not IsWin64 then
+    InternalError('Cannot process 64-bit entry on 32-bit Windows');
 end;
 
 function SlashesToBackslashes(const S: String): String;
@@ -1860,17 +1854,14 @@ begin
 end;
 
 function GetSizeOfComponent(const ComponentName: String; const ExtraDiskSpaceRequired: Int64): Int64;
-var
-  ComponentNameAsList: TStringList;
-  FileEntry: PSetupFileEntry;
 begin
   Result := ExtraDiskSpaceRequired;
 
-  ComponentNameAsList := TStringList.Create();
+  const ComponentNameAsList = TStringList.Create;
   try
     ComponentNameAsList.Add(ComponentName);
     for var I := 0 to Entries[seFile].Count-1 do begin
-      FileEntry := PSetupFileEntry(Entries[seFile][I]);
+      const FileEntry = PSetupFileEntry(Entries[seFile][I]);
       with FileEntry^ do begin
         if (Components <> '') and
            ((Tasks = '') and (Check = '')) then begin {don't count tasks or scripted entries}
@@ -1879,37 +1870,35 @@ begin
               Inc(Result, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
             else
               Inc(Result, ExternalSize);
-            end;
+          end;
         end;
       end;
     end;
   finally
-    ComponentNameAsList.Free();
+    ComponentNameAsList.Free;
   end;
 end;
 
 function GetSizeOfType(const TypeName: String; const IsCustom: Boolean): Int64;
-var
-  ComponentTypes: TStringList;
 begin
   Result := 0;
-  ComponentTypes := TStringList.Create();
 
-  for var I := 0 to Entries[seComponent].Count-1 do begin
-    with PSetupComponentEntry(Entries[seComponent][I])^ do begin
-      SetStringsFromCommaString(ComponentTypes, Types);
-      { For custom types, only count fixed components. Otherwise count all. }
-      if IsCustom then begin
-        if (coFixed in Options) and ListContains(ComponentTypes, TypeName) then
-          Inc(Result, Size);
-      end else begin
-        if ListContains(ComponentTypes, TypeName) then
+  const ComponentTypes = TStringList.Create;
+  try
+    for var I := 0 to Entries[seComponent].Count-1 do begin
+      with PSetupComponentEntry(Entries[seComponent][I])^ do begin
+        SetStringsFromCommaString(ComponentTypes, Types);
+        { For custom types, only count fixed components. Otherwise count all. }
+        if IsCustom then begin
+          if (coFixed in Options) and ListContains(ComponentTypes, TypeName) then
+            Inc(Result, Size);
+        end else if ListContains(ComponentTypes, TypeName) then
           Inc(Result, Size);
       end;
     end;
+  finally
+    ComponentTypes.Free;
   end;
-
-  ComponentTypes.Free();
 end;
 
 function IsRecurseableDirectory(const FindData: TWin32FindData): Boolean;
@@ -2050,7 +2039,7 @@ begin
       CurFile := PSetupFileEntry(Entries[seFile][I]);
       if (CurFile^.FileType = ftUserFile) and
          ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
-        const Is64Bit = FileEntryIs64Bit(CurFile);
+        const Is64Bit = IsEntryBitness64Bit(CurFile^.Bitness);
         if CurFile^.LocationEntry <> -1 then begin
           { Non-external file }
           if not EnumFilesProc(ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName), tpCurrent), Param) then begin
@@ -3029,20 +3018,23 @@ var
     var FindData: TWin32FindData;
     var H := FindFirstFile(PChar(SearchBaseDir + SearchSubDir + SearchWildcard), FindData);
     if H <> INVALID_HANDLE_VALUE then begin
-      repeat
-        if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
+      try
+        repeat
+          if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
 
-          if SourceIsWildcard then
-            if FindData.dwFileAttributes and FILE_ATTRIBUTE_HIDDEN <> 0 then
+            if SourceIsWildcard then
+              if FindData.dwFileAttributes and FILE_ATTRIBUTE_HIDDEN <> 0 then
+                Continue;
+
+            if IsExcluded(SearchSubDir + FindData.cFileName, Excludes) then
               Continue;
 
-          if IsExcluded(SearchSubDir + FindData.cFileName, Excludes) then
-            Continue;
-
-          Inc(Result, FindDataFileSizeToInt64(FindData));
-        end;
-      until not FindNextFile(H, FindData);
-      Windows.FindClose(H);
+            Inc(Result, FindDataFileSizeToInt64(FindData));
+          end;
+        until not FindNextFile(H, FindData);
+      finally
+        Windows.FindClose(H);
+      end;
     end;
 
     if RecurseSubDirs then begin
@@ -3878,7 +3870,7 @@ begin
               InternalError('Unexpected download flag');
             try
               LExcludes.DelimitedText := Excludes;
-              const Is64Bit = FileEntryIs64Bit(PSetupFileEntry(Entries[seFile][I]));
+              const Is64Bit = IsEntryBitness64Bit(Bitness);
               if foExtractArchive in Options then begin
                 ExternalSize := RecurseExternalArchiveGetSizeOfFiles(
                   ApplyPathRedirRules(Is64Bit, ExpandConst(SourceFilename), tpCurrent),
@@ -3895,9 +3887,11 @@ begin
                   LExcludes, foRecurseSubDirsExternal in Options);
               end;
             except
-              { Ignore exceptions. Two notable exceptions we want to ignore are
-                the one about "app" not being initialized and also archive errors
-                (ESevenZipError). Also see EnumFiles. }
+              { Ignore exceptions. Notable exceptions we want to ignore:
+                - "app" constant not initialized
+                - IsEntryBitness64Bit failures on 32-bit Windows
+                - archive errors (ESevenZipError)
+                Also see EnumFiles. }
             end;
           end;
           if Components = '' then { no types or a file that doesn't belong to any component }
@@ -4148,7 +4142,7 @@ begin
     else
       Log('Type: ShellExec');
 
-    const RunEntry64Bit = RunEntryIs64Bit(RunEntry);
+    const RunEntry64Bit = IsEntryBitness64Bit(RunEntry.Bitness);
     var ExpandedFilename := ExpandConst(RunEntry.Name);
     const ExpandedParameters = ExpandConst(RunEntry.Parameters);
     var ExpandedWorkingDir := ExpandConst(RunEntry.WorkingDir);

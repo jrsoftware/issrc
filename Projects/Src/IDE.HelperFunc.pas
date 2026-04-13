@@ -613,8 +613,8 @@ var
   LastWasCR: Boolean;
 begin
   GetLocalTime(ST);
+  LineNumber := 0;
   if LineBreaks then begin
-    LineNumber := 0;
     LineStart := 1;
     LastWasCR := False;
     { Call AddLine for each line. CR, LF, and CRLF line breaks are supported. }

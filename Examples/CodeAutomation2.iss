@@ -278,7 +278,7 @@ begin
   end;
 end;
 
-procedure InitializeWizard();
+procedure InitializeWizard;
 var
   Left, LeftInc, Top, TopInc: Integer;
 begin

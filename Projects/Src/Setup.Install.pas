@@ -1132,7 +1132,7 @@ Retry:
         LastOperation := '';
         FontFilename := ShortenFontFilename(DestFile);
         if DestFileExistedBefore then
-          RemoveFontResource(PChar(FontFilename));
+          RemoveFontResource(PChar(PathConvertSuperToNormal(FontFilename)));
       end;
 
       { Delete existing version of file, if any. If it can't be deleted
@@ -1616,14 +1616,7 @@ begin
         DebugNotifyEntry(seFile, CurFileNumber);
         NotifyBeforeInstallFileEntry(CurFile);
 
-        var Is64Bit := InstallDefault64Bit;
-        if fo32Bit in CurFile^.Options then
-          Is64Bit := False;
-        if fo64Bit in CurFile^.Options then begin
-          if not IsWin64 then
-            InternalError('Cannot install files to 64-bit locations on this version of Windows');
-          Is64Bit := True;
-        end;
+        const Is64Bit = IsEntryBitness64Bit(CurFile^.Bitness);
 
         if CurFile^.LocationEntry <> -1 then begin
           ProcessFileEntry(UninstLog, ExpandedAppId, RegisterFilesList,
@@ -1636,7 +1629,6 @@ begin
           if CurFile^.FileType = ftUninstExe then begin
             { This is the file entry for the uninstaller program }
             SourceWildcard := NewParamStr(0);
-            Is64Bit := IsCurrentProcess64Bit;
           end else begin
             SourceWildcard := ExpandConst(CurFile^.SourceFilename);
             if not(foDownload in CurFile^.Options) then
@@ -2044,7 +2036,6 @@ var
   N, V, ExistingData: String;
   ExistingType, NewType, DV: DWORD;
   S: String;
-  RV: TRegView;
   NeedToRetry, DidDeleteKey: Boolean;
   I: Integer;
   AnsiS: AnsiString;
@@ -2063,19 +2054,10 @@ begin
         N := ExpandConst(ValueName);
         if N <> '' then
           LogFmt('Value name: %s', [N]);
-        RV := InstallDefaultRegView;
-        if (ro32Bit in Options) and (RV <> rv32Bit) then begin
-          Log('Non-default bitness: 32-bit');
-          RV := rv32Bit;
-        end;
-        if ro64Bit in Options then begin
-          if not IsWin64 then
-            InternalError('Cannot access 64-bit registry keys on this version of Windows');
-          if RV <> rv64Bit then begin
-            Log('Non-default bitness: 64-bit');
-            RV := rv64Bit;
-          end;
-        end;
+        const Key64Bit = IsEntryBitness64Bit(Bitness);
+        const RV = RegViewFrom64BitBoolean(Key64Bit);
+        if RV <> InstallDefaultRegView then
+          LogFmt('Non-default bitness: %d-bit', [BitsFrom64BitBoolean(Key64Bit)]);
 
         repeat
           NeedToRetry := False;
@@ -2545,7 +2527,7 @@ begin
       if roShellExec in RunEntry.Options then
         Flags := Flags or (utRun_ShellExec or utRun_ShellExecRespectWaitFlags)
       else begin
-        if RunEntryIs64Bit(RunEntry) then
+        if IsEntryBitness64Bit(RunEntry.Bitness) then
           Flags := Flags or utRun_Is64Bit;
       end;
       if roSkipIfDoesntExist in RunEntry.Options then
@@ -2827,7 +2809,7 @@ begin
       var AppendUninstallData := False;
 
       if Uninstallable then begin
-        { Generate the filenam(UninstLog)es for the uninstall info in the application
+        { Generate the filenames for the uninstall info in the application
           directory }
         SetStatusLabelText(SetupMessages[msgStatusSavingUninstall]);
         GenerateUninstallInfoFilename(UninstLog, UninstallDataFilename, UninstallMsgFilename,

@@ -2,7 +2,7 @@ unit Setup.SpawnClient;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -52,7 +52,8 @@ begin
   if Len > $FFFF then
     InternalError('WriteStringToStream: Length limit exceeded');
   WriteLongintToStream(M, Len);
-  M.WriteBuffer(Value[1], Len * SizeOf(Value[1]));
+  if Len > 0 then
+    M.WriteBuffer(Value[1], Len * SizeOf(Value[1]));
 end;
 
 procedure AllowSpawnServerToSetForegroundWindow;

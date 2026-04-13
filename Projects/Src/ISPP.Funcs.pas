@@ -334,15 +334,11 @@ function SetupSetting(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
   function Find(L: TStrings; const S: string): string;
-  var
-    I, J: Integer;
-    InSetupSection: Boolean;
-    N: string;
   begin
-    InSetupSection := False;
+    var InSetupSection := False;
     Result := '';
     with L do
-      for I := 0 to Count - 1 do
+      for var I := 0 to Count - 1 do
       begin
         if Trim(Strings[I]) = '' then Continue;
         if InSetupSection then
@@ -353,8 +349,9 @@ function SetupSetting(Ext: NativeInt; const Params: IIsppFuncParams;
               InSetupSection := False;
             Continue;
           end;
-          J := Pos('=', Strings[I]);
-          if J > 0 then N := Trim(Copy(Strings[I], 1, J - 1));
+          const J = Pos('=', Strings[I]);
+          if J = 0 then Continue;
+          const N = Trim(Copy(Strings[I], 1, J - 1));
           if CompareText(N, S) = 0 then
           begin
             Result := Trim(Copy(Strings[I], J + 1, MaxInt));
@@ -388,16 +385,12 @@ function SetSetupSetting(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
   procedure DoSet(L: TStrings; const S, V: string);
-  var
-    I, J, FirstSetupSectionLine: Integer;
-    InSetupSection: Boolean;
-    N: string;
   begin
-    FirstSetupSectionLine := -1;
-    InSetupSection := False;
+    var FirstSetupSectionLine := -1;
+    var InSetupSection := False;
     with L do
     begin
-      for I := 0 to Count - 1 do
+      for var I := 0 to Count - 1 do
       begin
         if Trim(Strings[I]) = '' then Continue;
         if InSetupSection then
@@ -408,8 +401,9 @@ function SetSetupSetting(Ext: NativeInt; const Params: IIsppFuncParams;
               InSetupSection := False;
             Continue;
           end;
-          J := Pos('=', Strings[I]);
-          if J > 0 then N := Trim(Copy(Strings[I], 1, J - 1));
+          const J = Pos('=', Strings[I]);
+          if J = 0 then Continue;
+          const N = Trim(Copy(Strings[I], 1, J - 1));
           if CompareText(N, S) = 0 then
           begin
             Strings[I] := S + '=' + V;
@@ -467,11 +461,7 @@ begin
         N := Trim(Strings[I]);
         if (N <> '') and (N[1] <> ';') and (N[1] = '[') then
         begin
-          if DoCount then
-            DoCount := False
-          else
-            if CompareText(Copy(N, 2, Length(N) - 2), S) = 0 then
-              DoCount := True;
+          DoCount := CompareText(Copy(N, 2, Length(N) - 2), S) = 0;
           Continue;
         end;
         if DoCount and (N <> '') and (N[1] <> ';') then Inc(J);
@@ -568,7 +558,7 @@ begin
 
       for var I := StartFromLine to Lines.Count-1 do begin
         var Line := Lines[I];
-        if Flags[0] and FIND_TRIM <> 0 then
+        if Flags[0] and FIND_TRIM <> 0 then { As documented, the FIND_TRIM flag must be used on Flags[0] }
           Line := Trim(Line);
 
         var Found := Meets(Line, Strs[0], Flags[0] and FIND_SENSITIVE <> 0,
@@ -2057,10 +2047,6 @@ begin
     RegisterFunction('FileEof', FileEofFunc, -1);
     RegisterFunction('FileClose', FileCloseFunc, -1);
     RegisterFunction('SaveStringToFile', SaveStringToFileFunc, -1);
-    RegisterFunction('FileGetDateTime', FileGetDate, -1);
-    RegisterFunction('Now', GetNow, -1);
-    RegisterFunction('DateTimeToDate', GetDateFromDT, -1);
-    RegisterFunction('DateTimeToTime', GetTimeFromDT, -1);
     RegisterFunction('GetDateTimeString', GetDateTimeString, -1);
     RegisterFunction('GetFileDateTimeString', GetFileDateTimeString, -1);
     RegisterFunction('GetMD5OfFile', GetMD5OfFile, -1);
@@ -2081,6 +2067,12 @@ begin
     RegisterFunction('AddQuotes', AddQuotesFunc, -1);
     RegisterFunction('SameStr', SameStrFunc, -1);
     RegisterFunction('Is64BitPEImage', Is64BitPEImageFunc, -1);
+    { The following functions are intentionally undocumented, as they do
+      not integrate with the rest of the functions }
+    RegisterFunction('FileGetDateTime', FileGetDate, -1);
+    RegisterFunction('Now', GetNow, -1);
+    RegisterFunction('DateTimeToDate', GetDateFromDT, -1);
+    RegisterFunction('DateTimeToTime', GetTimeFromDT, -1);
   end;
 end;
 

@@ -7,19 +7,19 @@ TPersistent = class(TObject)
   procedure Assign(Source: TPersistent);
 end;
 
+TComponentStateE = (csLoading, csReading, csWriting, csDestroying, csDesigning, csAncestor, csUpdating, csFixups, csFreeNotification, csInline, csDesignInstance);
+
+TComponentState = set of TComponentStateE;
+
 TComponent = class(TPersistent)
   function FindComponent(AName: String): TComponent;
   constructor Create(AOwner: TComponent);
   property Owner: TComponent; read;
   procedure DestroyComponents;
-  procedure Destroying;
-  procedure FreeNotification(AComponent: TComponent);
-  procedure InsertComponent(AComponent: TComponent);
-  procedure RemoveComponent(AComponent: TComponent);
   property Components[Index: Integer]: TComponent; read;
   property ComponentCount: Integer; read;
   property ComponentIndex: Integer; read write;
-  property ComponentState: Byte; read;
+  property ComponentState: TComponentState; read;
   property DesignInfo: Longint; read write;
   property Name: String; read write;
   property Tag: NativeInt; read write;
@@ -49,6 +49,7 @@ TDuplicates = (dupIgnore, dupAccept, dupError);
 TStringList = class(TStrings)
   function Find(S: String; var Index: Integer): Boolean;
   procedure Sort;
+  property CaseSensitive: Boolean; read write;
   property Duplicates: TDuplicates; read write;
   property Sorted: Boolean; read write;
   property OnChange: TNotifyEvent; read write;
@@ -58,12 +59,12 @@ end;
 { Seek Origin values: soFromBeginning, soFromCurrent, soFromEnd }
 
 TStream = class(TObject)
-  function Read(var Buffer: AnyString; ByteCount: Longint): Longint;
-  function Write(const Buffer: AnyString; ByteCount: Longint): Longint;
+  function Read(var Buffer: AnyString; Count: Longint): Longint;
+  function Write(const Buffer: AnyString; Count: Longint): Longint;
   function Seek(Offset: Int64; Origin: Word): Int64;
-  procedure ReadBuffer(var Buffer: AnyString; ByteCount: Longint);
-  procedure WriteBuffer(const Buffer: AnyString; ByteCount: Longint);
-  function CopyFrom(Source: TStream; ByteCount: Int64; BufferSize: Integer): Int64;
+  procedure ReadBuffer(var Buffer: AnyString; Count: Longint);
+  procedure WriteBuffer(const Buffer: AnyString; Count: Longint);
+  function CopyFrom(Source: TStream; Count: Int64; BufferSize: Integer): Int64;
   property Position: Longint; read write;
   property Size: Longint; read write;
 end;
@@ -105,13 +106,15 @@ TColor = Integer;
 
 HFONT = NativeUint;
 
+TFontPitch = (fpDefault, fpVariable, fpFixed);
+
 TFont = class(TGraphicsObject)
   constructor Create;
-  property Handle: HFONT; read;
+  property Handle: HFONT; read write;
   property Color: TColor; read write;
   property Height: Integer; read write;
   property Name: String; read write;
-  property Pitch: Byte; read write;
+  property Pitch: TFontPitch; read write;
   property Size: Integer; read write;
   property PixelsPerInch: Integer; read write;
   property Style: TFontStyles; read write;
@@ -131,11 +134,14 @@ end;
 
 HDC = NativeUInt;
 
+TCopyMode = Longint;
+
 TCanvas = class(TPersistent)
   procedure Arc(X1, Y1, X2, Y2, X3, Y3, X4, Y4: Integer);
   procedure Chord(X1, Y1, X2, Y2, X3, Y3, X4, Y4: Integer);
   procedure Draw(X, Y: Integer; Graphic: TGraphic);
   procedure Ellipse(X1, Y1, X2, Y2: Integer);
+  procedure FillRect(const Rect: TRect);
   procedure FloodFill(X, Y: Integer; Color: TColor; FillStyle: Byte);
   procedure LineTo(X, Y: Integer);
   procedure MoveTo(X, Y: Integer);
@@ -149,7 +155,7 @@ TCanvas = class(TPersistent)
   property Handle: HDC; read write;
   property Pixels: Integer Integer Integer; read write;
   property Brush: TBrush; read;
-  property CopyMode: Byte; read write;
+  property CopyMode: TCopyMode; read write;
   property Font: TFont; read;
   property Pen: TPen; read;
 end;
@@ -157,9 +163,8 @@ end;
 TGraphic = class(TPersistent)
   procedure LoadFromFile(const Filename: String);
   procedure SaveToFile(const Filename: String);
-  property Empty: Boolean; read write;
+  property Empty: Boolean; read;
   property Height: Integer; read write;
-  property Modified: Boolean; read write;
   property Width: Integer; read write;
   property OnChange: TNotifyEvent; read write;
 end;
@@ -172,14 +177,14 @@ TBitmap = class(TGraphic)
   procedure LoadFromStream(Stream: TStream);
   procedure SaveToStream(Stream: TStream);
   property AlphaFormat: TAlphaFormat; read write;
-  property Canvas: TCanvas; read write;
+  property Canvas: TCanvas; read;
   property Handle: HBITMAP; read write;
 end;
 
 TPngImage = class(TGraphic)
   procedure LoadFromStream(Stream: TStream);
   procedure SaveToStream(Stream: TStream);
-  property Canvas: TCanvas; read write;
+  property Canvas: TCanvas; read;
 end;
 
 TAlign = (alNone, alTop, alBottom, alLeft, alRight, alClient);
@@ -228,7 +233,7 @@ HWND = NativeUInt;
 TWinControl = class(TControl)
   property Parent: TWinControl; read write;
   property ParentBackground: Boolean; read write;
-  property Handle: HWND; read write;
+  property Handle: HWND; read;
   property Showing: Boolean; read;
   property TabOrder: Integer; read write;
   property TabStop: Boolean; read write;
@@ -284,7 +289,7 @@ TKeyEvent = procedure(Sender: TObject; var Key: Word; Shift: TShiftState);
 TKeyPressEvent = procedure(Sender: TObject; var Key: Char);
 
 TForm = class(TScrollingWinControl)
-  constructor CreateNew(AOwner: TComponent);
+  constructor CreateNew(AOwner: TComponent; Dummy: Integer);
   procedure Close;
   procedure Hide;
   procedure Show;
@@ -604,12 +609,12 @@ TCheckItemOperation = (coUncheck, coCheck, coCheckWithChildren);
 
 TNewCheckListBox = class(TCustomListBox)
   function AddCheckBox(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled, AHasInternalChildren, ACheckWhenParentChecked: Boolean; AObject: TObject): Integer;
-  function AddGroup(ACaption, ASubItem: String; ALevel: Byte; AObject: TObject): Integer;
+  function AddGroup(const ACaption, ASubItem: String; ALevel: Byte; AObject: TObject): Integer;
   function AddRadioButton(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled: Boolean; AObject: TObject): Integer;
   function CheckItem(const Index: Integer; const AOperation: TCheckItemOperation): Boolean;
   property Anchors: TAnchors; read write;
   property Checked[Index: Integer]: Boolean; read write;
-  property State[Index: Integer]: TCheckBoxState; read write;
+  property State[Index: Integer]: TCheckBoxState; read;
   property ItemCaption[Index: Integer]: String; read write;
   property ItemEnabled[Index: Integer]: Boolean; read write;
   property ItemFontStyle[Index: Integer]: TFontStyles; read write;
@@ -624,7 +629,6 @@ TNewCheckListBox = class(TCustomListBox)
   property BorderStyle: TBorderStyle; read write;
   property Color: TColor; read write;
   property Font: TFont; read write;
-  property Sorted: Boolean; read write;
   property OnClick: TNotifyEvent; read write;
   property OnDblClick: TNotifyEvent; read write;
   property OnKeyDown: TKeyEvent; read write;
@@ -680,7 +684,7 @@ end;
 TCustomFolderTreeView = class(TWinControl)
   procedure ChangeDirectory(const Value: String; const CreateNewItems: Boolean);
   procedure CreateNewDirectory(const ADefaultName: String);
-  property: Directory: String; read write;
+  property Directory: String; read write;
 end;
 
 TFolderRenameEvent = procedure(Sender: TCustomFolderTreeView; var NewName: String; var Accept: Boolean);
@@ -703,7 +707,7 @@ TBitmapButton = class(TCustomControl)
   property AutoSize: Boolean; read write;
   property BackColor: TColor; read write;
   property Bitmap: TBitmap; read write;
-  property Caption: Boolean; read write;
+  property Caption: String; read write;
   property Center: Boolean; read write;
   property PngImage: TPngImage; read write;
   property ReplaceColor: TColor; read write;
@@ -730,7 +734,7 @@ end;
 TNewNotebook = class(TWinControl)
   function FindNextPage(CurPage: TNewNotebookPage; GoForward: Boolean): TNewNotebookPage;
   property Anchors: TAnchors; read write;
-  property PageCount: NativeInt; read write;
+  property PageCount: NativeInt; read;
   property Pages[Index: NativeInt]: TNewNotebookPage; read;
   property ActivePage: TNewNotebookPage; read write;
 end;
@@ -856,8 +860,8 @@ TSetupForm = class(TUIStateForm)
   procedure FlipAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean);
   property CenterOnShow: Boolean; read write;
   property ControlsFlipped: Boolean; read;
-  property GetExtraClientWidth: Integer; read;
-  property GetExtraClientHeight: Integer; read;
+  property ExtraClientWidth: Integer; read;
+  property ExtraClientHeight: Integer; read;
   property FlipControlsOnShow: Boolean; read write;
   property KeepSizeX: Boolean; read;
   property KeepSizeY: Boolean; read;
@@ -868,8 +872,8 @@ TWizardForm = class(TSetupForm)
   property CancelButton: TNewButton; read;
   property NextButton: TNewButton; read;
   property BackButton: TNewButton; read;
-  property OuterNotebook: TNotebook; read;
-  property InnerNotebook: TNotebook; read;
+  property OuterNotebook: TNewNotebook; read;
+  property InnerNotebook: TNewNotebook; read;
   property WelcomePage: TNewNotebookPage; read;
   property InnerPage: TNewNotebookPage; read;
   property FinishedPage: TNewNotebookPage; read;

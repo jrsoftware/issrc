@@ -2,7 +2,7 @@ unit Compiler.StringLists;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -213,7 +213,8 @@ begin
   LB := sLineBreak;
   for var I := 0 to Count-1 do
     Inc(Size, Length(Get(I).LineText) + Length(LB));
-  Dec(Size, Length(LB));
+  if Count > 0 then
+    Dec(Size, Length(LB));
   SetString(Result, nil, Size);
   P := Pointer(Result);
   for var I := 0 to Count-1 do begin

@@ -909,11 +909,12 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <keyword value="Components and Tasks Parameters" />
 <body>
 
-<p>There are two optional <link topic="params">parameters</link> that are supported by all sections whose entries are separated into parameters, except [Types], [Components] and [Tasks]. They are:</p>
+<p>There are two optional <link topic="params">parameters</link> that are supported by all sections whose entries are separated into parameters, except as noted below. They are:</p>
 
 <paramlist>
 
 <param name="Components">
+<p>Supported by all sections except [Types] and [Components].</p>
 <p>A space separated list of component names, telling Setup to which components the entry belongs. If the end user selects a component from this list, the entry is processed (for example: the file is installed).</p>
 <p>An entry without a <tt>Components</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
@@ -927,6 +928,7 @@ Source: "Readme.txt"; DestDir: "{app}"
 </param>
 
 <param name="Tasks">
+<p>Supported by all sections except [Types], [Components] and [Tasks].</p>
 <p>A space separated list of task names, telling Setup to which task the entry belongs. If the end user selects a task from this list, the entry is processed (for example: the file is installed).</p>
 <p>An entry without a <tt>Tasks</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <p>Note that the <i>Don't create a Start Menu folder</i> checkbox on the <i>Select Start Menu Folder</i> wizard page doesn't affect [Icons] entries that have <tt>Tasks</tt> parameters since they have their own checkboxes.</p>
@@ -1144,6 +1146,7 @@ DefaultGroupName=My Program
 <li><link topic="setup_wizardbackcolor">WizardBackColor</link></li>
 <li><link topic="setup_wizardbackcolordynamicdark">WizardBackColorDynamicDark</link></li>
 <li><link topic="setup_wizardbackimagefile">WizardBackImageFile</link></li>
+<li><link topic="setup_wizardbackimagefiledynamicdark">WizardBackImageFileDynamicDark</link></li>
 <li><link topic="setup_wizardbackimageopacity">WizardBackImageOpacity</link></li>
 <li><link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link></li>
 <li><link topic="setup_wizardimagebackcolor">WizardImageBackColor</link></li>
@@ -2355,9 +2358,9 @@ nl.CreateDesktopIcon=Maak een snelkoppeling op het &amp;bureaublad
 
 <precode>
 NameAndVersion=%1 version %2
-AdditionalIcons=Additional icons:
-CreateDesktopIcon=Create a &amp;desktop icon
-CreateQuickLaunchIcon=Create a &amp;Quick Launch icon
+AdditionalIcons=Additional shortcuts:
+CreateDesktopIcon=Create a &amp;desktop shortcut
+CreateQuickLaunchIcon=Create a &amp;Quick Launch shortcut
 ProgramOnTheWeb=%1 on the Web
 UninstallProgram=Uninstall %1
 LaunchProgram=Launch %1
@@ -2912,10 +2915,10 @@ Type: files; Name: "{win}\MyProg.ini"
 
 <precode>
 [ISSigKeys]
-Name: "MyKey1; \
+Name: MyKey1; \
   KeyID:   "def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38"; \
   KeyFile: "MyKey1.ispublickey"
-Name: "MyKey2; \
+Name: MyKey2; \
   KeyID:   "def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28"; \
   PublicX: "515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097"; \
   PublicY: "f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61"
@@ -2923,7 +2926,7 @@ Name: "MyKey2; \
 
 <precode>
 [ISSigKeys]
-Name: anna: KeyFile: "anna.ispublickey"; Group: exesigner
+Name: anna; KeyFile: "anna.ispublickey"; Group: exesigner
 Name: ryan; KeyFile: "ryan.ispublickey"; Group: exesigner
 Name: ivan; KeyFile: "ivan.ispublickey"; Group: docsigner
 ; max is trusted for both exe and doc signing
@@ -5094,7 +5097,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <indent>
 <table>
 <tr><th>Method</th><th>Memory Requirements</th><th>Password-protected Archives</th><th>Setup Size Increase*</th><th>Archive Formats</th></tr>
-<tr><td><tt>basic</tt> (default)</td><td>High for large files**</td><td>No</td><td>0 KB</td><td>.7z</td></tr>
+<tr><td><tt>basic</tt></td><td>High for large files**</td><td>No</td><td>0 KB</td><td>.7z</td></tr>
 <tr><td><tt>enhanced/nopassword</tt></td><td>Normal</td><td>No</td><td>100 KB</td><td>.7z</td></tr>
 <tr><td><tt>enhanced</tt></td><td>Normal</td><td>Yes</td><td>123 KB</td><td>.7z</td></tr>
 <tr><td><tt>full</tt></td><td>Normal</td><td>Yes</td><td>458 KB</td><td>.7z, .zip, .gz, .bz2, .xz, .tar, .rar, .iso, .msi, .cab, .rpm, .vhd, .vhdx, .vdi, .vmdk, .wim, .dmg, .001</td></tr>
@@ -5523,7 +5526,6 @@ DiskSliceSize=736000000
 <setupdefault><tt>1</tt></setupdefault>
 <body>
 <p>The number of Setup-*.bin files to create for each disk. If this is 1 (the default setting), the files will be named Setup-<i>x</i>.bin, where <i>x</i> is the disk number. If this is greater than 1, the files will be named Setup-<i>xy</i>.bin, where <i>x</i> is the disk number and <i>y</i> is a unique letter.</p>
-<p>One reason why you may need to increase this from the default value of 1 is if the size of your disk media exceeds 2,100,000,000 bytes -- the upper limit of the <tt>DiskSliceSize</tt> <tt>[Setup]</tt> section directive. If, for example, your disk media has a capacity of 3,000,000,000 bytes, you can avoid the 2,100,000,000-byte disk slice size limit by setting <tt>SlicesPerDisk</tt> to <tt>2</tt> and <tt>DiskSliceSize</tt> to <tt>1500000000</tt> (or perhaps slightly less, due to file system overhead).</p>
 </body>
 </setuptopic>
 
@@ -5758,7 +5760,7 @@ DiskSliceSize=736000000
 <setuptopic directive="WizardImageFile">
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
-<p>Specifies the name(s) of the image file(s) to display on the left side of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. Wildcards are supported and the files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
+<p>Specifies the name(s) of the image file(s) to display on the left side of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>Supports .bmp and .png images, including those with transparency. Use <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link> to customize the background color. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information. Use <link topic="setup_wizardimageopacity">WizardImageOpacity</link> to increase transparency.</p>
 <p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font</link>, <link topic="setup_wizardsizepercent">WizardSizePercent</link>, and <link topic="setup_wizardkeepaspectratio">WizardKeepAspectRatio</link> settings are being used. In all cases, an aspect ratio of 164:314 is maintained. The specified image should have the same aspect ratio.</p>
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 202x386 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240x459.</p>
@@ -5863,8 +5865,8 @@ DiskSliceSize=736000000
 <setuptopic directive="WizardBackImageFile">
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
-<p>Specifies the name(s) of the image file(s) to display as the background of wizard pages in Setup, but not in Uninstall. Wildcards are supported and the files(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>Supports .bmp and .png images, including those with transparency. Use <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link> to customize the background color. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information. Use <link topic="setup_wizardbackimageopacity">WizardBackImageOpacity</link> to increase transparency.</p>
+<p>Specifies the name(s) of the image file(s) to display as the background of wizard pages in Setup, but not in Uninstall. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
+<p>Supports .bmp and .png images, including those with transparency. Use <link topic="setup_wizardbackcolor">WizardBackColor</link> to customize the background color. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information. Use <link topic="setup_wizardbackimageopacity">WizardBackImageOpacity</link> to increase transparency.</p>
 <p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font</link>, <link topic="setup_wizardsizepercent">WizardSizePercent</link>, and <link topic="setup_wizardkeepaspectratio">WizardKeepAspectRatio</link> settings are being used. If <tt>WizardKeepAspectRatio</tt> is set to <tt>yes</tt>, which is the default, an aspect ratio of 497:360 is maintained. The specified image should have the same aspect ratio.</p>
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 596x432 is recommended to avoid the image looking blurry on higher-DPI systems.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <tt>WizardSizePercent</tt>, and <tt>WizardKeepAspectRatio</tt> settings are being used, the size of the image area at various DPI settings is:</p>
@@ -5977,7 +5979,7 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 </setuptopic>
 
 <setuptopic directive="WizardImageBackColorDynamicDark">
-<setupdefault><tt>#314853</tt> (bluish dark gray)</setupdefault>
+<setupdefault><tt>#2e3a3f</tt> (very dark grayish blue)</setupdefault>
 <body>
 <p>Overrides <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
 <p>For all details see <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link>.</p>
@@ -6184,7 +6186,7 @@ WizardBackImageOpacity=150</pre></example>
 </ul>
 <heading>Other Considerations</heading>
 <ul>
-<li>The default style can be customized by specifying a VCL Styles file using the <link topic="setup_wizardstylefile">WizardStyleFile</link> directive. When forced light (<tt>light</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
+<li>The default style can be customized by specifying a VCL Styles file using the <link topic="setup_wizardstylefile">WizardStyleFile</link> directive. When forced light (<tt>light</tt>) or dynamic light (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
 <li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme or when command line parameter '/NOSTYLE' is used.</li>
 <li>When a custom style (including the built-in custom dark style) is active, three additional things occur. First, all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent instead of opaque. Second, Setup and Uninstall use a custom implementation of Windows message boxes and task dialogs. Third, color properties set through Pascal Scripting are usually ignored, with the style's colors taking precedence.</li>
 <li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 220 KB. Enabling dynamic dark (<tt>dynamic</tt>) adds approximately 75 KB more. Enabling dynamic dark and including a custom light style as well (for example, <tt>dynamic windows11</tt>) adds approximately 110 KB more.</li>
@@ -6316,7 +6318,7 @@ WizardBackImageOpacity=150</pre></example>
 <setupvalid><tt>uilanguage</tt>, <tt>locale</tt>, <tt>none</tt></setupvalid>
 <setupdefault><tt>uilanguage</tt></setupdefault>
 <body>
-<p>When set to <tt>uilanguage</tt>, Setup will determine the default language to use by checking the user's "UI language" (by calling GetUserDefaultUILanguage(), or on Windows versions where that function is unsupported, by reading the registry). This is the method that Microsoft recommends. The "UI language" is the language used in Windows' own dialogs. Thus, on an English edition of Windows, English will be the default, while on a Dutch edition of Windows, Dutch will be the default. On the MUI edition of Windows, the default will be the currently selected UI language.</p>
+<p>When set to <tt>uilanguage</tt>, Setup will determine the default language to use by checking the user's "UI language" (by calling GetUserDefaultUILanguage()). This is the method that Microsoft recommends. The "UI language" is the language used in Windows' own dialogs. Thus, on an English edition of Windows, English will be the default, while on a Dutch edition of Windows, Dutch will be the default. On the MUI edition of Windows, the default will be the currently selected UI language.</p>
 <p>When set to <tt>locale</tt>, Setup will determine the default language to use by calling GetUserDefaultLangID(). This function returns the setting of "Your locale" in Control Panel's Regional Options. It should however be noted that the "Your locale" option is not intended to affect languages; it is only documented to affect "numbers, currencies, times, and dates".</p>
 <p>When set to <tt>none</tt>, Setup will use the first language specified in the [Languages] section as the default language.</p>
 </body>
@@ -7069,8 +7071,9 @@ CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 <tr><td>10.0.22000</td><td>Windows 11 Version 21H2 (original release)</td></tr>
 <tr><td>10.0.22621</td><td>Windows 11 Version 22H2 (2022 Update)</td></tr>
 <tr><td>10.0.22631</td><td>Windows 11 Version 23H2 (2023 Update)</td></tr>
-<tr><td>10.0.26100</td><td>Windows 11 Version 24H2 (2024 Update)</td></tr>
+<tr><td>10.0.26100</td><td>Windows 11 Version 24H2 (2024 Update)<br/>or Windows Server 2025</td></tr>
 <tr><td>10.0.26200</td><td>Windows 11 Version 25H2 (2025 Update)</td></tr>
+<tr><td>10.0.28000</td><td>Windows 11 Version 26H1</td></tr>
 </table>
 <p>Note that except for Windows 11 there is normally no need to specify the build numbers (i.e., you may simply use "6.2" for Windows 8).</p>
 </body>

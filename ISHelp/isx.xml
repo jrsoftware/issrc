@@ -109,13 +109,14 @@
 <keyword value="CurUninstallStepChanged" anchor="CurUninstallStepChanged" />
 <keyword value="UninstallNeedRestart" anchor="UninstallNeedRestart" />
 <keyword value="InitializeUninstallProgressForm" anchor="InitializeUninstallProgressForm" />
+<keyword value="ssPreInstall" anchor="TSetupStep" />
 <keyword value="ssInstall" anchor="TSetupStep" />
 <keyword value="ssPostInstall" anchor="TSetupStep" />
 <keyword value="ssDone" anchor="TSetupStep" />
 <keyword value="usAppMutexCheck" anchor="TUninstallStep" />
 <keyword value="usUninstall" anchor="TUninstallStep" />
-<keyword value="usFinished" anchor="TUninstallStep" />
-<keyword value="usTerminate" anchor="TUninstallStep" />
+<keyword value="usPostUninstall" anchor="TUninstallStep" />
+<keyword value="usDone" anchor="TUninstallStep" />
 <keyword value="wpWelcome" anchor="PageID" />
 <keyword value="wpLicense" anchor="PageID" />
 <keyword value="wpPassword" anchor="PageID" />
@@ -140,17 +141,17 @@
 
 <dl>
 
-<dt><tt>function <a name="InitializeSetup">InitializeSetup</a>(): Boolean;</tt></dt>
+<dt><tt>function <a name="InitializeSetup">InitializeSetup</a>: Boolean;</tt></dt>
 <dd>
 <p>Called during Setup's initialization. Return False to abort Setup, True otherwise.</p>
 </dd>
 
-<dt><tt>procedure <a name="InitializeWizard">InitializeWizard</a>();</tt></dt>
+<dt><tt>procedure <a name="InitializeWizard">InitializeWizard</a>;</tt></dt>
 <dd>
 <p>Use this event function to make changes to the wizard or wizard pages at startup. You can't use the <tt>InitializeSetup</tt> event function for this since at the time it is triggered, the wizard form does not yet exist.</p>
 </dd>
 
-<dt><tt>procedure <a name="DeinitializeSetup">DeinitializeSetup</a>();</tt></dt>
+<dt><tt>procedure <a name="DeinitializeSetup">DeinitializeSetup</a>;</tt></dt>
 <dd>
 <p>Called just before Setup terminates. Note that this function is called even if the user exits Setup before anything is installed.</p>
 </dd>
@@ -201,7 +202,7 @@
 <p>Also note: If <link topic="setup_encryption">Encryption</link> is set to <tt>yes</tt> and your <tt>CheckPassword</tt> function accepts passwords different from the one used for the encryption, make sure to only extract non encrypted files.</p>
 </dd>
 
-<dt><tt>function <a name="NeedRestart">NeedRestart</a>(): Boolean;</tt></dt>
+<dt><tt>function <a name="NeedRestart">NeedRestart</a>: Boolean;</tt></dt>
 <dd>
 <p>Return True to instruct Setup to prompt the user to restart the system at the end of a successful installation, False otherwise.</p>
 </dd>
@@ -247,23 +248,23 @@
 
 <dl>
 
-<dt><tt>function <a name="InitializeUninstall">InitializeUninstall</a>(): Boolean;</tt></dt>
+<dt><tt>function <a name="InitializeUninstall">InitializeUninstall</a>: Boolean;</tt></dt>
 <dd>
 <p>Return False to abort Uninstall, True otherwise.</p>
 </dd>
 
-<dt><tt>procedure <a name="InitializeUninstallProgressForm">InitializeUninstallProgressForm</a>();</tt></dt>
+<dt><tt>procedure <a name="InitializeUninstallProgressForm">InitializeUninstallProgressForm</a>;</tt></dt>
 <dd>
 <p>Use this event function to make changes to the progress form at startup. You can't use the <tt>InitializeUninstall</tt> event function for this since at the time it is triggered, the progress form does not yet exist.</p>
 </dd>
 
-<dt><tt>procedure <a name="DeinitializeUninstall">DeinitializeUninstall</a>();</tt></dt>
+<dt><tt>procedure <a name="DeinitializeUninstall">DeinitializeUninstall</a>;</tt></dt>
 <dd />
 
 <dt><tt>procedure <a name="CurUninstallStepChanged">CurUninstallStepChanged</a>(CurUninstallStep: <anchorlink name="TUninstallStep">TUninstallStep</anchorlink>);</tt></dt>
 <dd />
 
-<dt><tt>function <a name="UninstallNeedRestart">UninstallNeedRestart</a>(): Boolean;</tt></dt>
+<dt><tt>function <a name="UninstallNeedRestart">UninstallNeedRestart</a>: Boolean;</tt></dt>
 <dd>
 <p>Return True to instruct Uninstall to prompt the user to restart the system at the end of a successful uninstallation, False otherwise.</p>
 </dd>
@@ -277,7 +278,7 @@
 <ul>
 
 <li><i><a name="TSetupStep">TSetupStep values</a></i><br />
-ssInstall, ssPostInstall, ssDone</li>
+ssPreInstall, ssInstall, ssPostInstall, ssDone</li>
 
 <li><i><a name="TUninstallStep">TUninstallStep value</a>s</i><br />
 usAppMutexCheck, usUninstall, usPostUninstall, usDone</li>
@@ -320,7 +321,7 @@ end;
 <li>Event attributes may be used for all event functions. If the event function has a return value then lazy evaluation is performed:</li>
 <ul>
 <li><tt>InitializeSetup</tt>, <tt>BackButtonClick</tt>, <tt>NextButtonClick</tt>, <tt>InitializeUninstall</tt>: All implementations must return True for the event function to be treated as returning True and an implementation returning False stops the calls to the other implementations.</li>
-<li><tt>CheckPassword</tt>, <tt>CheckSerial</tt>, <tt>ShouldSkipPage</tt>, <tt>NeedRestart</tt>: All implementations must return False for the event function to be treated as returning False and an implementation returning True stops the calls to the other implementations.</li>
+<li><tt>CheckPassword</tt>, <tt>CheckSerial</tt>, <tt>ShouldSkipPage</tt>, <tt>NeedRestart</tt>, <tt>UninstallNeedRestart</tt>: All implementations must return False for the event function to be treated as returning False and an implementation returning True stops the calls to the other implementations.</li>
 <li><tt>UpdateReadyMemo</tt>, <tt>PrepareToInstall</tt>: All implementations must return an empty string for the event function to be treated as returning an empty string and an implementation returning a non empty string stops the calls to the other implementations.</li>
 <li><tt>GetCustomSetupExitCode</tt>: All implementations must return zero for the event function to be treated as returning zero and an implementation returning a non zero number stops the calls to the other implementations.</li>
 </ul>
@@ -425,7 +426,7 @@ var
   MyProgChecked: Boolean;
   MyProgCheckResult: Boolean;
 
-function MyProgCheck(): Boolean;
+function MyProgCheck: Boolean;
 begin
   if not MyProgChecked then begin
     MyProgCheckResult := MsgBox('Do you want to install MyProg.exe to ' + ExtractFilePath(CurrentFileName) + '?', mbConfirmation, MB_YESNO) = idYes;
@@ -491,7 +492,7 @@ Source: "MyProg.chm"; DestDir: "{app}"; AfterInstall: Log('After MyProg.chm Inst
 
 <precode>
 [Code]
-procedure MyBeforeInstall();
+procedure MyBeforeInstall;
 begin
   MsgBox('About to install MyProg.exe as ' + CurrentFileName + '.', mbInformation, MB_OK);
 end;
@@ -501,7 +502,7 @@ begin
   MsgBox('About to install ' + FileName + ' as ' + CurrentFileName + '.', mbInformation, MB_OK);
 end;
 
-procedure MyAfterInstall();
+procedure MyAfterInstall;
 begin
   MsgBox('Just installed MyProg.exe as ' + CurrentFileName + '.', mbInformation, MB_OK);
 end;
@@ -617,7 +618,7 @@ end;
 
 <p>Open the "CodeDll.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using DLLs.</p>
 
-<p>The "Examples" subdirectory also contains two custom DLL example projects, one for Microsoft Visual C++, and one for Borland Delphi.</p>
+<p>The "Examples" subdirectory also contains two custom DLL example projects, one for Microsoft Visual C++, and one for Embarcadero Delphi.</p>
 
 <p>To be able to call a DLL function you should first write the function prototype as normal but instead of then writing the function body, you use the 'external' keyword to specify a DLL. If your function has for example prototype <tt>function A(B: Integer): Integer;</tt>, the following three forms are supported:</p>
 
@@ -691,7 +692,7 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 <p>Use <link topic="isxfunc_CreateCallback">CreateCallback</link> to be able to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script.</p>
 
 <p>The following built-in types are available to aid in calling Windows API functions besides <tt>THandle</tt>:<br/>
-<tt>DWORD</tt>, <tt>UINT</tt>, <tt>BOOL</tt>, <tt>INT_PTR</tt>, <tt>DWORD_PTR</tt>, <tt>UINT_PTR</tt>, <tt>LRESULT</tt>, <tt>HMODULE</tt>, <tt>WPARAM</tt>, <tt>LPARAM</tt>, <tt>HResult</tt>, <tt>TGUID</tt>, <tt>TCLSID</tt>, <tt>TIID</tt>, <tt>HBITMAP</tt>, <tt>HDC</tt>, <tt>HFONT</tt>, and <tt>HWND</tt></p>
+<tt>DWORD</tt>, <tt>UINT</tt>, <tt>BOOL</tt>, <tt>LONG</tt>, <tt>ULONG</tt>, <tt>HANDLE</tt>, <tt>COLORREF</tt>, <tt>INT_PTR</tt>, <tt>LONG_PTR</tt>, <tt>DWORD_PTR</tt>, <tt>UINT_PTR</tt>, <tt>ULONG_PTR</tt>, <tt>LRESULT</tt>, <tt>HKEY</tt>, <tt>HINSTANCE</tt>, <tt>HMODULE</tt>, <tt>WPARAM</tt>, <tt>LPARAM</tt>, <tt>SIZE_T</tt>, <tt>SSIZE_T</tt>, <tt>TFileTime</tt>, <tt>HResult</tt>, <tt>TGUID</tt>, <tt>TCLSID</tt>, <tt>TIID</tt>, <tt>HBITMAP</tt>, <tt>HDC</tt>, <tt>HFONT</tt>, and <tt>HWND</tt></p>
 
 </body>
 </topic>
