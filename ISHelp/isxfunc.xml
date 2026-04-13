@@ -3503,7 +3503,7 @@ end;</pre></example>
       <function>
         <name>CallDLLProc</name>
         <prototype>function CallDLLProc(const DLLHandle: HMODULE; const ProcName: String; const Param1, Param2: NativeInt; var Result: NativeInt): Boolean;</prototype>
-        <description><p>Calls the specified function in a DLL specified using the DLL handle returned by LoadDLL. Returns True is the procedure was called successfully, False otherwise.<br />The function must use the standard calling convention, accept two NativeInt parameters and return a NativeInt result.</p></description>
+        <description><p>Calls the specified function in a DLL specified using the DLL handle returned by LoadDLL. Returns True if the procedure was called successfully, False otherwise.<br />The function must use the standard calling convention, accept two NativeInt parameters and return a NativeInt result.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
       </function>
       <function>
