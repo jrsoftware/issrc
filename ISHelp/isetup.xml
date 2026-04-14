@@ -1589,6 +1589,7 @@ Source: "Files\*"
 
 <param name="DestDir" required="yes">
 <p>The directory where the file is to be installed on the user's system. Will almost always begin with one of the directory constants. If the specified path does not already exist on the user's system, it will be created automatically, and removed automatically during uninstallation if empty.</p>
+<p>Not required when the <tt>dontcopy</tt> flag is used.</p>
 <p><link topic="pathredir">System path redirection</link> is applied to the specified path.</p>
 <examples>
 <pre>
@@ -2637,7 +2638,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <p>This is only applicable when the <tt>ValueType</tt> parameter is <tt>string</tt> or <tt>expandsz</tt>. When this flag is specified and the value did not already exist or the existing value isn't a string type (REG_SZ or REG_EXPAND_SZ), it will be created with the type specified by <tt>ValueType</tt>. If the value did exist and is a string type, it will be replaced with the same value type as the pre-existing value.</p>
 </flag>
 <flag name="uninsclearvalue">
-<p>When the program is uninstalled, set the value's data to a null string (type REG_SZ). This flag cannot be combined with the <tt>uninsdeletekey</tt> flag.</p>
+<p>When the program is uninstalled, set the value's data to a null string (type REG_SZ). This flag cannot be combined with the <tt>uninsdeletekey</tt> or <tt>uninsdeletevalue</tt> flags.</p>
 </flag>
 <flag name="uninsdeletekey">
 <p>When the program is uninstalled, delete the entire key, including all values and subkeys in it. It obviously wouldn't be a good idea to use this on a key that is used by Windows itself. You should only use this on keys private to your application.</p>
@@ -2727,7 +2728,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 </param>
 
 <param name="StatusMsg">
-<p>Valid only in a <tt>[Run]</tt> section. Determines the message displayed on the wizard while the program is executed. If this parameter is not specified or is blank, a default message of "Finishing installation..." will be used. This parameter can include constants.</p>
+<p>Has no effect in an <tt>[UninstallRun]</tt> section. Determines the message displayed on the wizard while the program is executed. If this parameter is not specified or is blank, a default message of "Finishing installation..." will be used. This parameter can include constants.</p>
 <example>
 <pre>StatusMsg: "Installing BDE..."</pre>
 </example>
@@ -6961,7 +6962,7 @@ CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt> and <link topic="setup_closeapplications">CloseApplications</link> is also set to <tt>yes</tt>, Setup restarts the closed applications after the installation has completed.</p>
+<p>When set to <tt>yes</tt> and <link topic="setup_closeapplications">CloseApplications</link> is also set to <tt>yes</tt> or <tt>force</tt>, Setup restarts the closed applications after the installation has completed.</p>
 <p>Note: For Setup to be able to restart an application after the installation has completed, the application needs to be using the Windows <tt>RegisterApplicationRestart</tt> API function.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_closeapplications">CloseApplications</link><br/>
