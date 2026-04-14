@@ -716,11 +716,11 @@ external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll
 
 <p>There are two support functions to initialize IDispatch based COM Automation objects: <link topic="isxfunc_CreateOleObject">CreateOleObject</link> and <link topic="isxfunc_GetActiveOleObject">GetActiveOleObject</link>.</p>
 
-<p>Use <link topic="isxfunc_CreateOleObject">CreateOleObject</link> to create a new COM object with the specified class name. This function returns a variable of type <tt>Variant</tt> if successful and throws an exception otherwise.</p>
+<p>Use <link topic="isxfunc_CreateOleObject">CreateOleObject</link> to create a new COM object with the specified class name. This function returns a variable of type <tt>IDispatch</tt> if successful and throws an exception otherwise.</p>
 
-<p>Use <link topic="isxfunc_GetActiveOleObject">GetActiveOleObject</link> to connect to an existing COM object with the specified class name. This function returns a variable of type <tt>Variant</tt> if successful and throws an exception otherwise. In case of some programs, this can be used to detect whether the program is running or not.</p>
+<p>Use <link topic="isxfunc_GetActiveOleObject">GetActiveOleObject</link> to connect to an existing COM object with the specified class name. This function returns a variable of type <tt>IDispatch</tt> if successful and throws an exception otherwise. In case of some programs, this can be used to detect whether the program is running or not.</p>
 
-<p>The value returned by <link topic="isxfunc_CreateOleObject">CreateOleObject</link> or <link topic="isxfunc_GetActiveOleObject">GetActiveOleObject</link> can then be used to access the properties and methods of the COM object. The access is done via 'late binding' which means it is not checked whether the methods or properties you're trying to access actually exist until Setup actually needs to at run time.</p>
+<p>When stored in a variable of type <tt>Variant</tt> (so not <tt>IDispatch</tt>), the value returned by <link topic="isxfunc_CreateOleObject">CreateOleObject</link> or <link topic="isxfunc_GetActiveOleObject">GetActiveOleObject</link> can then be used to access the properties and methods of the COM object. The access is done via 'late binding' which means it is not checked whether the methods or properties you're trying to access actually exist until Setup actually needs to at run time.</p>
 
 <p>To access a property or method whose name is a reserved word, use <link topic="isxfunc_IDispatchInvoke">IDispatchInvoke</link>.</p>
 

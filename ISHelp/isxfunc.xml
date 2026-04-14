@@ -2933,7 +2933,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDownloadFiles.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
 <p>To add a new archive to extract, call the <tt>Add</tt> method or the <tt>AddEx</tt> method if the archive is password-protected. Always call the <tt>Clear</tt> method before adding the first file.</p>
 <p>To start the extraction, call the <tt>Extract</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Extract</tt> returns the number of archives extracted.</p>
-<p>Set the <tt>ShowArchiveInsteadFile</tt> property to <tt>True</tt> to show the name of the archive which is being extracted to the user instead of the names of the files inside the archive.</p>
+<p>Set the <tt>ShowArchiveInsteadOfFile</tt> property to <tt>True</tt> to show the name of the archive which is being extracted to the user instead of the names of the files inside the archive.</p>
 <p>See <link topic="isxfunc_ExtractArchive">ExtractArchive</link> for the definition of <tt>TOnExtractionProgress</tt>.</p></remarks>
         <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <tt>CreateDownloadPage</tt> which works very similar to <tt>CreateExtractionPage</tt>.</p>
 <p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a [Files] entry instead.</p>
@@ -3257,12 +3257,12 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>CreateOleObject</name>
-        <prototype>function CreateOleObject(const ClassName: String): Variant;</prototype>
+        <prototype>function CreateOleObject(const ClassName: String): IDispatch;</prototype>
         <description><p>See the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
       </function>
       <function>
         <name>GetActiveOleObject</name>
-        <prototype>function GetActiveOleObject(const ClassName: String): Variant;</prototype>
+        <prototype>function GetActiveOleObject(const ClassName: String): IDispatch;</prototype>
         <description><p>See the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
       </function>
       <function>
