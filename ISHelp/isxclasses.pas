@@ -33,7 +33,13 @@ TStrings = class(TPersistent)
   procedure Delete(Index: Integer);
   function IndexOf(const S: String): Integer;
   procedure Insert(Index: Integer; S: String);
+  property Capacity: Integer; read write;
   property Count: Integer; read;
+  property Delimiter: Char; read write;
+  property DelimitedText: String; read write;
+  property NameValueSeparator: Char; read write;
+  property QuoteChar: Char; read write;
+  property StrictDelimiter: Boolean; read write;
   property Text: String; read write;
   property CommaText: String; read write;
   procedure LoadFromFile(FileName: String);
@@ -339,6 +345,8 @@ TLabel = class(TCustomLabel)
   property Color: TColor; read write;
   property FocusControl: TWinControl; read write;
   property Font: TFont; read write;
+  property ShowAccelChar: Boolean; read write;
+  property Transparent: Boolean; read write;
   property WordWrap: Boolean; read write;
   property OnClick: TNotifyEvent; read write;
   property OnDblClick: TNotifyEvent; read write;

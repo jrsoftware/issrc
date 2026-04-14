@@ -69,8 +69,8 @@ var
     'function VarArrayGet(var S: Variant; I: Integer): Variant;',
     'procedure VarArraySet(C: Variant; I: Integer; var S: Variant);',
     'function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: String; Par: array of Variant): Variant;',
-    'procedure UnloadDll(S: String);',
-    'function DllGetLastError: LongInt;',
+    'procedure UnloadDLL(S: String);',
+    'function DLLGetLastError: LongInt;',
     'function Int(const E: Extended): Extended;',
     { Special functions: undocumented but listing anyway }
     'function Low(var X): Int64;',
@@ -457,8 +457,8 @@ initialization
     'function FileSize64(const Name: String; var Size: Int64): Boolean;',
     'procedure Set8087CW(NewCW: Word);',
     'function Get8087CW: Word;',
-    'function UTF8Encode(const S: String): AnsiString;',
-    'function UTF8Decode(const S: AnsiString): String;'
+    'function Utf8Encode(const S: String): AnsiString;',
+    'function Utf8Decode(const S: AnsiString): String;'
   ];
 
   ScriptFuncTables[sftSysUtils] :=

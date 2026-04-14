@@ -191,7 +191,7 @@ function EncodeDLLFilenameForROPS(const Filename: String): AnsiString;
 begin
   Result := '';
   if Filename <> '' then
-      Result := AnsiString('<utf8>') + UTF8Encode(Filename);
+      Result := AnsiString('<utf8>') + Utf8Encode(Filename);
 end;
 
 function NewUnloadDLLProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;

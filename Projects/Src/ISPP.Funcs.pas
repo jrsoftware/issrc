@@ -699,13 +699,13 @@ begin
 end;
 
 {
-  int Exec(str FileName, str Params, str WorkingDir, int Wait, int ShowCmd, int Log)
+  int Exec(str FileName, str Params, str WorkingDir, int Wait, int ShowCmd)
 }
 
 function ExecFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
-  if CheckParams(Params, [evStr, evStr, evStr, evInt, evInt, evInt], 1, Result) then
+  if CheckParams(Params, [evStr, evStr, evStr, evInt, evInt], 1, Result) then
   try
     with IInternalFuncParams(Params) do
     begin
