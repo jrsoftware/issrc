@@ -70,8 +70,9 @@ end;
 
 function AddParam(const S, P, V: String): String;
 begin
+  Result := S;
   if V <> '""' then
-    Result := S + ' /' + P + '=' + V;
+    Result := Result + ' /' + P + '=' + V;
 end;
 
 function AddSimpleParam(const S, P: String): String;
