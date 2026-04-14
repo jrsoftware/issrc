@@ -7950,6 +7950,7 @@ function TPSExec.RunScript: Boolean;
 var
   CalcType: Cardinal;
   vd, vs, v3: TPSResultData;
+  VdSlf, VdPtr: Pointer;
   vtemp: PIFVariant;
   p: Cardinal;
   P2: Longint;
@@ -9050,11 +9051,13 @@ begin
                 break;
               end;
               p := tbtu32(vd.P^);
+              VdSlf := Pointer(Pointer(IPointer(vd.p)+PointerSize)^);
+              VdPtr := Pointer(Pointer(IPointer(vd.p)+PointerSize2)^);
               if vd.FreeType <> vtNone then
-                FTempVars.Pop;
-              if (p = 0) and (Pointer(Pointer(IPointer(vd.p)+PointerSize2)^) <> nil) then
+                FTempVars.Pop; { This makes vd invalid }
+              if (p = 0) and (VdPtr <> nil) then
               begin
-                if not InvokeExternalMethod(TPSTypeRec_ProcPtr(vd.aType), Pointer(Pointer(IPointer(vd.p)+PointerSize)^), Pointer(Pointer(IPointer(vd.p)+PointerSize2)^)) then
+                if not InvokeExternalMethod(TPSTypeRec_ProcPtr(vd.aType), VdSlf, VdPtr) then
                   Break;
               end else begin
                 if (p >= FProcs.Count) or (p = FMainProc) then begin
