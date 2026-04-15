@@ -1316,6 +1316,7 @@ begin
     if (FHotIndex <> -1) and (FThemeData <> 0) then
       InvalidateCheck(FHotIndex);
   end;
+  inherited;
 end;
 
 procedure TNewCheckListBox.UpdateHotIndex(NewHotIndex: Integer);
@@ -1879,6 +1880,7 @@ begin
     end;
   end;
   UpdateHotIndex(NewHotIndex);
+  inherited;
 end;
 
 procedure TNewCheckListBox.WMMouseWheel(var Message: TWMMouseWheel);
