@@ -127,10 +127,13 @@ function GetCursorPos: TPoint;
 var
   CSBI: TConsoleScreenBufferInfo;
 begin
-  if not StdOutHandleIsConsole or not GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then
-    Exit;
-  Result.X := CSBI.dwCursorPosition.X;
-  Result.Y := CSBI.dwCursorPosition.Y;
+  if not StdOutHandleIsConsole or not GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then begin
+    Result.X := -1;
+    Result.Y := -1;
+  end else begin
+    Result.X := CSBI.dwCursorPosition.X;
+    Result.Y := CSBI.dwCursorPosition.Y;
+  end;
 end;
 
 procedure SetCursorPos(const P: TPoint);
@@ -142,8 +145,8 @@ begin
     Exit;
   if P.X < 0 then Exit;
   if P.Y < 0 then Exit;
-  if P.X > CSBI.dwSize.X then Exit;
-  if P.Y > CSBI.dwSize.Y then Exit;
+  if P.X >= CSBI.dwSize.X then Exit;
+  if P.Y >= CSBI.dwSize.Y then Exit;
   Coords.X := SHORT(P.X);
   Coords.Y := SHORT(P.Y);
   SetConsoleCursorPosition(StdOutHandle, Coords);
