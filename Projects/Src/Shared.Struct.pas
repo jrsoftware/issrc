@@ -134,6 +134,7 @@ type
       NumISSigKeyEntries, NumFileEntries, NumFileLocationEntries, NumIconEntries, NumIniEntries,
       NumRegistryEntries, NumInstallDeleteEntries, NumUninstallDeleteEntries,
       NumRunEntries, NumUninstallRunEntries: Integer;
+    CompiledCodeVersion: Cardinal;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     WizardSizePercentX, WizardSizePercentY: Integer;
     WizardDarkStyle: TSetupWizardDarkStyle;

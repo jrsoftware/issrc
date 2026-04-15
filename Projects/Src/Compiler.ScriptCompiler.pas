@@ -2,7 +2,7 @@ unit Compiler.ScriptCompiler;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -48,7 +48,7 @@ type
       function ExportFound(const Name: String): Boolean;
       function FunctionFound(const Name: String): Boolean;
       function IsObsoleteFunction(const Name: String): String;
-      property ExecIs64Bit: Boolean write FExecIs64Bit;
+      property ExecIs64Bit: Boolean read FExecIs64Bit write FExecIs64Bit;
       property NamingAttribute: String write FNamingAttribute;
       property OnLineToLineInfo: TScriptCompilerOnLineToLineInfo write FOnLineToLineInfo;
       property OnUsedLine: TScriptCompilerOnUsedLine write FOnUsedLine;

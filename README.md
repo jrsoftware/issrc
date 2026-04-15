@@ -180,7 +180,8 @@ Source code tips
   then run the ISIDE project and compile the Debug.iss script which
   should open automatically, and finally open and run the Setup project.
   This way you can simulate an actual installation while running under the
-  Delphi debugger.
+  Delphi debugger. To be able to run [Code] this way, the SetupArchitecture
+  setting of the test script should match the target of the Setup project.
 
 - To debug the SetupLdr project, first build the Debug64 build group and compile
   the Debug.iss script as explained above, except with the `UseSetupLdr=no` line

@@ -7311,6 +7311,12 @@ var
     SetupHeader.InfoBeforeText := InfoBeforeText;
     SetupHeader.InfoAfterText := InfoAfterText;
     SetupHeader.CompiledCodeText := CompiledCodeText;
+    if CompiledCodeText <> '' then begin
+      SetupHeader.CompiledCodeVersion := SetupBinVersion;
+      if CodeCompiler.ExecIs64Bit then
+        SetupHeader.CompiledCodeVersion := SetupHeader.CompiledCodeVersion or $80000000;
+    end else
+      SetupHeader.CompiledCodeVersion := 0;
 
     W := TCompressedBlockWriter.Create(F, TLZMACompressor, InternalCompressLevel,
       InternalCompressProps);

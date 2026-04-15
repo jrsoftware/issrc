@@ -3714,6 +3714,10 @@ begin
 
   { Load and initialize code }
   if SetupHeader.CompiledCodeText <> '' then begin
+    if (SetupHeader.CompiledCodeVersion and $80000000) <> {$IFDEF WIN64} $80000000 {$ELSE} 0 {$ENDIF} then
+      InternalError('[Code] was compiled for a different bitness than this Setup');
+    if (SetupHeader.CompiledCodeVersion and $7FFFFFFF) <> SetupBinVersion then
+      InternalError('[Code] was compiled for a different version of Setup');
     CodeRunner := TScriptRunner.Create();
     try
       CodeRunner.NamingAttribute := CodeRunnerNamingAttribute;
