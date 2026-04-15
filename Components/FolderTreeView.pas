@@ -85,7 +85,7 @@ type
   private
     FUserPrograms, FCommonPrograms: String;
     FUserStartup, FCommonStartup: String;
-    FImageIndexes: array[Boolean] of Integer;
+    FImageIndex: Integer;
   protected
     procedure CreateParams(var Params: TCreateParams); override;
     function GetRootItem: HTREEITEM; override;
@@ -1091,7 +1091,7 @@ end;
 function TStartMenuFolderTreeView.GetItemImageIndex(const Item: HTREEITEM;
   const NewItem, SelectedImage: Boolean): Integer;
 begin
-  Result := FImageIndexes[SelectedImage];
+  Result := FImageIndex;
 end;
 
 function TStartMenuFolderTreeView.GetRootItem: HTREEITEM;
@@ -1152,8 +1152,7 @@ begin
       if Root = '' then
         Exit;
     end;
-    FImageIndexes[False] := GetFileImageIndex(Root, False);
-    FImageIndexes[True] := FImageIndexes[False];
+    FImageIndex := GetFileImageIndex(Root, False);
     S := GetFileDisplayName(Root);
     if S = '' then
       S := PathExtractName(Root);
