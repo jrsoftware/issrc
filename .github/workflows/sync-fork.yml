@@ -21,7 +21,7 @@ jobs:
         run: |
           PR_NUMBER=$(gh pr list --repo "$REPOSITORY" --state open --base "$PR_BASE" --head "$BRANCH_NAME" --json number --jq '.[0].number')
           if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
-            gh pr edit $PR_NUMBER --add-reviewer @copilot
+            gh pr edit "$PR_NUMBER" --repo "$REPOSITORY" --add-reviewer @copilot
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.ISSRC_BUILD_ENV_SYNC_TOKEN }}
