@@ -1538,7 +1538,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>GetVersionNumbers</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>str</b> GetVersionNumbers(<b>str</b> Filename, <b>int</b> *VersionMS, <b>int</b> *VersionLS)</line>
+						<line><b>str</b> GetVersionNumbers(<b>str</b> Filename, *VersionMS, *VersionLS)</line>
 					</pre>
 				</section>
 				<description>
@@ -1553,7 +1553,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>GetVersionComponents</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>str</b> GetVersionComponents(<b>str</b> Filename, <b>int</b> *Major, <b>int</b> *Minor, <b>int</b> *Revision, <b>int</b> *Build)</line>
+						<line><b>str</b> GetVersionComponents(<b>str</b> Filename, *Major, *Minor, *Revision, *Build)</line>
 					</pre>
 				</section>
 				<description>
@@ -1580,7 +1580,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>GetPackedVersion</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>str</b> GetPackedVersion(<b>str</b> Filename, <b>int</b> *Version)</line>
+						<line><b>str</b> GetPackedVersion(<b>str</b> Filename, *Version)</line>
 					</pre>
 				</section>
 				<description>
@@ -1650,7 +1650,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>UnpackVersionNumbers</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>void</b> UnpackVersionNumbers(<b>int</b> Version, <b>int</b> *VersionMS, <b>int</b> *VersionLS)</line>
+						<line><b>void</b> UnpackVersionNumbers(<b>int</b> Version, *VersionMS, *VersionLS)</line>
 					</pre>
 				</section>
 				<description>
@@ -1665,7 +1665,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>UnpackVersionComponents</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>void</b> UnpackVersionComponents(<b>int</b> Version, <b>int</b> *Major, <b>int</b> *Minor, <b>int</b> *Revision, <b>int</b> *Build)</line>
+						<line><b>void</b> UnpackVersionComponents(<b>int</b> Version, *Major, *Minor, *Revision, *Build)</line>
 					</pre>
 				</section>
 				<description>

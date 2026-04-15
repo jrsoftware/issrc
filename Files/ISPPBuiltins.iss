@@ -179,13 +179,13 @@
   S = Copy(S, Local[0] + 1), \
   Local[1]
 
-#define GetVersionComponents(str FileName, *Major, *Minor, *Rev, *Build) \
+#define GetVersionComponents(str FileName, *Major, *Minor, *Revision, *Build) \
   Local[1]  = Local[0] = GetVersionNumbersString(FileName), \
   Local[1] == "" ? "" : ( \
-    Major   = Int(DeleteToFirstPeriod(Local[1])), \
-    Minor   = Int(DeleteToFirstPeriod(Local[1])), \
-    Rev     = Int(DeleteToFirstPeriod(Local[1])), \
-    Build   = Int(Local[1]), \
+    Major = Int(DeleteToFirstPeriod(Local[1])), \
+    Minor = Int(DeleteToFirstPeriod(Local[1])), \
+    Revision = Int(DeleteToFirstPeriod(Local[1])), \
+    Build = Int(Local[1]), \
   Local[0])
 
 #define GetPackedVersion(str FileName, *Version) \
@@ -193,26 +193,26 @@
   Version = PackVersionComponents(Local[1], Local[2], Local[3], Local[4]), \
   Local[0]
 
-#define GetVersionNumbers(str FileName, *MS, *LS) \
+#define GetVersionNumbers(str FileName, *VersionMS, *VersionLS) \
   Local[0] = GetPackedVersion(FileName, Local[1]), \
-  UnpackVersionNumbers(Local[1], MS, LS), \
+  UnpackVersionNumbers(Local[1], VersionMS, VersionLS), \
   Local[0]
 
 #define PackVersionNumbers(int VersionMS, int VersionLS) \
   VersionMS << 32 | (VersionLS & 0xFFFFFFFF)
 
-#define PackVersionComponents(int Major, int Minor, int Rev, int Build) \
-  Major << 48 | (Minor & 0xFFFF) << 32 | (Rev & 0xFFFF) << 16 | (Build & 0xFFFF)
+#define PackVersionComponents(int Major, int Minor, int Revision, int Build) \
+  Major << 48 | (Minor & 0xFFFF) << 32 | (Revision & 0xFFFF) << 16 | (Build & 0xFFFF)
 
 #define UnpackVersionNumbers(int Version, *VersionMS, *VersionLS) \
   VersionMS = Version >> 32, \
   VersionLS = Version & 0xFFFFFFFF, \
   void
 
-#define UnpackVersionComponents(int Version, *Major, *Minor, *Rev, *Build) \
+#define UnpackVersionComponents(int Version, *Major, *Minor, *Revision, *Build) \
   Major = Version >> 48, \
   Minor = (Version >> 32) & 0xFFFF, \
-  Rev   = (Version >> 16) & 0xFFFF, \
+  Revision = (Version >> 16) & 0xFFFF, \
   Build = Version & 0xFFFF, \
   void
 
