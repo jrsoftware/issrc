@@ -372,9 +372,14 @@ const
   ];
 
   ISPPPredefinedVariables: array of AnsiString = [
-    { #emit and #file handled separately by BuildConstantsWordList.
-      Only includes predefined variables that are useful on their own. }
-    'CompilerPath', 'SourcePath'
+    { Doesn't include predefined variables without a value, like __WIN32__ }
+    { From TPreprocessor.LookupPredefined - excludes __FILE__, 'PREPROCVER',
+      and __(P)OPT_*__ }
+    '__FILENAME__', '__PATHFILENAME__', '__DIR__', '__LINE__', '__INCLUDE__',
+    { From ISPreprocessScript - excludes 'Ver' }
+    'CompilerPath', 'SourcePath',
+    { Special }
+    '__COUNTER__'
   ];
 
   PascalConstants: array of AnsiString = [
