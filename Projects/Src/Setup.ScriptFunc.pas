@@ -1797,11 +1797,11 @@ var
     end);
     RegisterScriptFunc('CASTSTRINGTOINTEGER', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetInt(PStart, Integer(PChar(Stack.GetString(PStart-1))));
+      Stack.SetNativeInt(PStart, NativeInt(PChar(Stack.GetString(PStart-1))));
     end);
     RegisterScriptFunc('CASTINTEGERTOSTRING', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
-      Stack.SetString(PStart, String(PChar(Stack.GetInt(PStart-1))));
+      Stack.SetString(PStart, String(PChar(Stack.GetNativeInt(PStart-1))));
     end);
     RegisterScriptFunc('ABORT', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin

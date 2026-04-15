@@ -3516,13 +3516,13 @@ end;</pre></example>
     <subcategory>
       <function>
         <name>CastStringToInteger</name>
-        <prototype>function CastStringToInteger(var S: String): LongInt;</prototype>
+        <prototype>function CastStringToInteger(var S: String): NativeInt;</prototype>
         <description><p>Casts a string to an integer so that a string can be passed to a DLL using CallDllProc.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
       </function>
       <function>
         <name>CastIntegerToString</name>
-        <prototype>function CastIntegerToString(const L: LongInt): String;</prototype>
+        <prototype>function CastIntegerToString(const L: NativeInt): String;</prototype>
         <description><p>Casts an integer to a string so that a string can be received from a DLL using CallDllProc.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
       </function>
