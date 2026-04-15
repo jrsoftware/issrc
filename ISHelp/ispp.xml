@@ -710,7 +710,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>GetStringFileInfo</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>str</b> GetStringFileInfo(<b>str</b> 1, <b>str</b> 2, <b>int</b>? 3)</line>
+						<line><b>str</b> GetStringFileInfo(<b>str</b> FileName, <b>str</b> StringName, <b>int</b>? LangCodePage)</line>
 					</pre>
 				</section>
 				<description>
@@ -824,7 +824,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>Int</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>int</b> Int(<b>any</b> 1, <b>int</b>? 2)</line>
+						<line><b>int</b> Int(<b>any</b> Value, <b>int</b>? Default)</line>
 					</pre>
 				</section>
 				<description>
@@ -835,7 +835,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>Str</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>str</b> Str(<b>any</b>)</line>
+						<line><b>str</b> Str(<b>any</b> Value)</line>
 					</pre>
 				</section>
 				<description>
@@ -846,7 +846,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>FileExists</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>int</b> FileExists(<b>str</b>)</line>
+						<line><b>int</b> FileExists(<b>str</b> FileName)</line>
 					</pre>
 				</section>
 				<description>
@@ -857,7 +857,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>DirExists</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>int</b> DirExists(<b>str</b>)</line>
+						<line><b>int</b> DirExists(<b>str</b> DirName)</line>
 					</pre>
 				</section>
 				<description>
@@ -868,7 +868,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>ForceDirectories</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>int</b> ForceDirectories(<b>str</b>)</line>
+						<line><b>int</b> ForceDirectories(<b>str</b> DirPath)</line>
 					</pre>
 				</section>
 				<description>
@@ -879,7 +879,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>FileSize</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>int</b> FileSize(<b>str</b>)</line>
+						<line><b>int</b> FileSize(<b>str</b> FileName)</line>
 					</pre>
 				</section>
 				<description>
@@ -889,7 +889,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="ReadIni">
 				<title>ReadIni</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> ReadIni(<b>str</b> 1, <b>str</b> 2, <b>str</b> 3, <b>str</b>? 4)</line></pre>
+					<pre><line><b>str</b> ReadIni(<b>str</b> FileName, <b>str</b> Section, <b>str</b> Key, <b>str</b>? Default)</line></pre>
 				</section>
 				<description>
 					<p>Reads the value from an INI file. Parameter 1 must be the name of the INI file, parameter 2 &dash; the name of a section in the INI file, the third parameter is the key in the section to read. Last optional parameter can be used to provide the default value that will be returned on failure, if it is omitted, an empty string is returned.</p>
@@ -898,7 +898,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="WriteIni">
 				<title>WriteIni</title>
 				<section title="Prototype">
-					<pre><line><b>void</b> WriteIni(<b>str</b> 1, <b>str</b> 2, <b>str</b> 3, <b>any</b> 4)</line></pre>
+					<pre><line><b>void</b> WriteIni(<b>str</b> FileName, <b>str</b> Section, <b>str</b> Key, <b>any</b> Value)</line></pre>
 				</section>
 				<description>
 					<p>Writes specified value to an INI file. Parameter 1 is the name of the INI file, parameter 2 &dash; the name of a section in the INI file, parameter 3 &dash; the name of a key in the section. Last parameter should be set to the value you wish to be written to the INI file, it can be of any type.</p>
@@ -951,7 +951,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="Copy">
 				<title>Copy</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> Copy(<b>str</b> 1, <b>int</b> 2, <b>int</b>? 3)</line></pre>
+					<pre><line><b>str</b> Copy(<b>str</b> S, <b>int</b> StartIndex, <b>int</b>? Count)</line></pre>
 				</section>
 				<description>
 					<p>Extracts a substring from a string (first parameter). The 1-based index of the character from which the substring should start is specified by the second parameter. The third parameter specifies the number of characters to take, if it is omitted, all characters up to the end of the string are copied to the result.</p>
@@ -978,7 +978,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="Len">
 				<title>Len</title>
 				<section title="Prototype">
-					<pre><line><b>int</b> Len(<b>str</b>)</line></pre>
+					<pre><line><b>int</b> Len(<b>str</b> S)</line></pre>
 				</section>
 				<description>
 					<p>Returns the length of the given string.</p>
@@ -987,7 +987,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="SaveToFile">
 				<title>SaveToFile</title>
 				<section title="Prototype">
-					<pre><line><b>void</b> SaveToFile(<b>str</b>)</line></pre>
+					<pre><line><b>void</b> SaveToFile(<b>str</b> FileName)</line></pre>
 				</section>
 				<description>
 					<p>Saves &curtrans; to the specified file.</p>
@@ -1036,7 +1036,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="SetupSetting">
 				<title>SetupSetting</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> SetupSetting(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> SetupSetting(<b>str</b> DirectiveName)</line></pre>
 				</section>
 				<description>
 					<p>Parses <link href="setupsection">[Setup] section</link> in &curtrans; to find the key whose name is specified as function parameter. Function returns the value of that key if it's found, or an empty string otherwise.</p>
@@ -1045,7 +1045,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="SetSetupSetting">
 				<title>SetSetupSetting</title>
 				<section title="Prototype">
-					<pre><line><b>void</b> SetSetupSetting(<b>str</b> 1, <b>str</b> 2)</line></pre>
+					<pre><line><b>void</b> SetSetupSetting(<b>str</b> DirectiveName, <b>str</b> Value)</line></pre>
 				</section>
 				<description>
 					<p>Modifies or generates [Setup] section directive given the key (first parameter) and its value (second parameter).</p>
@@ -1056,7 +1056,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="LowerCase">
 				<title>LowerCase</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> LowerCase(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> LowerCase(<b>str</b> S)</line></pre>
 				</section>
 				<description>
 					<p>Returns a string with the same text as the string passed in its parameter, but with all letters converted to lowercase. The conversion affects only 7-bit ASCII characters between 'A' and 'Z'.</p>
@@ -1066,7 +1066,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="UpperCase">
 				<title>UpperCase</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> UpperCase(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> UpperCase(<b>str</b> S)</line></pre>
 				</section>
 				<description>
 					<p>Returns a string with the same text as the string passed in its parameter, but with all letters converted to uppercase. The conversion affects only 7-bit ASCII characters between 'A' and 'Z'.</p>
@@ -1075,7 +1075,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="EntryCount">
 				<title>EntryCount</title>
 				<section title="Prototype">
-					<pre><line><b>int</b> EntryCount(<b>str</b>)</line></pre>
+					<pre><line><b>int</b> EntryCount(<b>str</b> Section)</line></pre>
 				</section>
 				<description>
 					<p>Returns the total number of entries in specified section in &curtrans;. It does not count empty lines or comments. Function takes care of multiple sections with the same name and counts all of them.</p>
@@ -1084,7 +1084,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="GetEnv">
 				<title>GetEnv</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetEnv(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetEnv(<b>str</b> Name)</line></pre>
 				</section>
 				<description>
 					<p>Returns the value of the environment variable whose name is specified as the parameter. Returns an empty string if the variable is not defined.</p>
@@ -1093,7 +1093,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="DeleteFile">
 				<title>DeleteFile</title>
 				<section title="Prototype">
-					<pre><line><b>void</b> DeleteFile(<b>str</b>)</line></pre>
+					<pre><line><b>void</b> DeleteFile(<b>str</b> FileName)</line></pre>
 				</section>
 				<description>
 					<p>Marks the specified file for deletion after the compilation has completed. Does not return anything. Also see <tt><link href="DeleteFileNow">DeleteFileNow</link></tt>.</p>
@@ -1102,7 +1102,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="DeleteFileNow">
 				<title>DeleteFileNow</title>
 				<section title="Prototype">
-					<pre><line><b>void</b> DeleteFileNow(<b>str</b>)</line></pre>
+					<pre><line><b>void</b> DeleteFileNow(<b>str</b> FileName)</line></pre>
 				</section>
 				<description>
 					<p>Deletes the specified file. Does not return anything. Also see <tt><link href="DeleteFile">DeleteFile</link></tt>.</p>
@@ -1120,7 +1120,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="FindFirst">
 				<title>FindFirst</title>
 				<section title="Prototype">
-					<pre><line><b>int</b> FindFirst(<b>str</b>, <b>int</b>)</line></pre>
+					<pre><line><b>int</b> FindFirst(<b>str</b> Pattern, <b>int</b> Attrs)</line></pre>
 				</section>
 				<description>
 					<p>Searches the directory specified by first parameter for the first file that matches the file name implied by first parameter and the attributes specified by second parameter. If the file is found, the result is a find handle, that should be used in subsequent calls to <tt><link href="FindGetFileName">FindGetFileName</link></tt>, <tt><link href="FindNext">FindNext</link></tt>, and <tt><link href="FindClose"/></tt> functions, otherwise the return value is 0.</p>
@@ -1168,7 +1168,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="FindNext">
 				<title>FindNext</title>
 				<section title="Prototype">
-					<pre><line><b>int</b> FindNext(<b>int</b>)</line></pre>
+					<pre><line><b>int</b> FindNext(<b>int</b> Handle)</line></pre>
 				</section>
 				<description>
 					<p>Returns the next entry that matches the name and attributes specified in a previous call to <tt><link href="FindFirst">FindFirst</link></tt>. The parameter must be a find handle returned by <tt>FindFirst</tt>. The return value is non-zero if the function was successful.</p>
@@ -1177,7 +1177,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="FindClose">
 				<title>FindClose</title>
 				<section title="Prototype">
-					<pre><line><b>void</b> FindClose(<b>int</b>)</line></pre>
+					<pre><line><b>void</b> FindClose(<b>int</b> Handle)</line></pre>
 				</section>
 				<description>
 					<p>Terminates a <tt><link href="FindFirst">FindFirst</link></tt>/<tt><link href="FindNext">FindNext</link></tt> sequence. The parameter must be a non-zero find handle returned by <tt>FindFirst</tt>.</p>
@@ -1187,7 +1187,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="FindGetFileName">
 				<title>FindGetFileName</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> FindGetFileName(<b>int</b>)</line></pre>
+					<pre><line><b>str</b> FindGetFileName(<b>int</b> Handle)</line></pre>
 				</section>
 				<description>
 					<p>Feed <tt>FindGetFileName</tt> with the find handle returned by <tt><link href="FindFirst">FindFirst</link></tt> to get the name of the file found by the last call to <tt>FindFirst</tt> or <tt><link href="FindNext">FindNext</link></tt>.</p>
@@ -1196,7 +1196,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="FileOpen">
 				<title>FileOpen</title>
 				<section title="Prototype">
-					<pre><line><b>int</b> FileOpen(<b>str</b>)</line></pre>
+					<pre><line><b>int</b> FileOpen(<b>str</b> FileName)</line></pre>
 				</section>
 				<description>
 					<p>Opens a text file for reading and returns the file handle (or zero on failure) to be used in subsequent calls to <tt>File*</tt> functions.</p>
@@ -1206,7 +1206,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="FileRead">
 				<title>FileRead</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> FileRead(<b>int</b>)</line></pre>
+					<pre><line><b>str</b> FileRead(<b>int</b> Handle)</line></pre>
 				</section>
 				<description>
 					<p>Reads the next line in a text file opened with <tt><link href="FileOpen">FileOpen</link></tt>. The only parameter should be the file handle returned by <tt>FileOpen</tt>.</p>
@@ -1234,7 +1234,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="FileReset">
 				<title>FileReset</title>
 				<section title="Prototype">
-					<pre><line><b>void</b> FileReset(<b>int</b>)</line></pre>
+					<pre><line><b>void</b> FileReset(<b>int</b> Handle)</line></pre>
 				</section>
 				<description>
 					<p>Resets the file pointer to zero, so the subsequent call to <tt><link href="FileRead">FileRead</link></tt> will read the first line of the file. The only parameter should be the file handle returned by <tt><link href="FileOpen">FileOpen</link></tt>.</p>
@@ -1243,7 +1243,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="FileEof">
 				<title>FileEof</title>
 				<section title="Prototype">
-					<pre><line><b>int</b> FileEof(<b>int</b>)</line></pre>
+					<pre><line><b>int</b> FileEof(<b>int</b> Handle)</line></pre>
 				</section>
 				<description>
 					<p>Returns zero if the file pointer does not point to the end of the file, or non-zero otherwise. If this function returns non-zero value, subsequent calls to <tt><link href="FileRead">FileRead</link></tt> will fail. The only parameter should be the file handle returned by <tt><link href="FileOpen">FileOpen</link></tt>.</p>
@@ -1252,7 +1252,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="FileClose">
 				<title>FileClose</title>
 				<section title="Prototype">
-					<pre><line><b>void</b> FileClose(<b>int</b>)</line></pre>
+					<pre><line><b>void</b> FileClose(<b>int</b> Handle)</line></pre>
 				</section>
 				<description>
 					<p>Closes a file opened using <tt><link href="FileOpen">FileOpen</link></tt>. After calling <tt>FileClose</tt>, the file handle becomes invalid.</p>
@@ -1344,7 +1344,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="GetMD5OfString">
 				<title>GetMD5OfString</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetMD5OfString(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetMD5OfString(<b>str</b> S)</line></pre>
 				</section>
 				<description>
 					<p>Gets the MD5 sum of the specified ANSI string, as a string.</p>
@@ -1359,7 +1359,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="GetMD5OfUnicodeString">
 				<title>GetMD5OfUnicodeString</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetMD5OfUnicodeString(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetMD5OfUnicodeString(<b>str</b> S)</line></pre>
 				</section>
 				<description>
 					<p>Gets the MD5 sum of the specified Unicode string, as a string.</p>
@@ -1374,7 +1374,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="GetMD5OfFile">
 				<title>GetMD5OfFile</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetMD5OfFile(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetMD5OfFile(<b>str</b> FileName)</line></pre>
 				</section>
 				<description>
 					<p>Gets the MD5 sum of the specified file, as a string.</p>
@@ -1383,7 +1383,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="GetSHA1OfString">
 				<title>GetSHA1OfString</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetSHA1OfString(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetSHA1OfString(<b>str</b> S)</line></pre>
 				</section>
 				<description>
 					<p>Gets the SHA-1 hash of the specified ANSI string, as a string.</p>
@@ -1398,7 +1398,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="GetSHA1OfUnicodeString">
 				<title>GetSHA1OfUnicodeString</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetSHA1OfUnicodeString(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetSHA1OfUnicodeString(<b>str</b> S)</line></pre>
 				</section>
 				<description>
 					<p>Gets the SHA-1 hash of the specified Unicode string, as a string.</p>
@@ -1413,7 +1413,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="GetSHA1OfFile">
 				<title>GetSHA1OfFile</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetSHA1OfFile(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetSHA1OfFile(<b>str</b> FileName)</line></pre>
 				</section>
 				<description>
 					<p>Gets the SHA-1 hash of the specified file, as a string.</p>
@@ -1422,7 +1422,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="GetSHA256OfString">
 				<title>GetSHA256OfString</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetSHA256OfString(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetSHA256OfString(<b>str</b> S)</line></pre>
 				</section>
 				<description>
 					<p>Gets the SHA-256 hash of the specified ANSI string, as a string.</p>
@@ -1437,7 +1437,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="GetSHA256OfUnicodeString">
 				<title>GetSHA256OfUnicodeString</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetSHA256OfUnicodeString(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetSHA256OfUnicodeString(<b>str</b> S)</line></pre>
 				</section>
 				<description>
 					<p>Gets the SHA-256 hash of the specified Unicode string, as a string.</p>
@@ -1452,7 +1452,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="GetSHA256OfFile">
 				<title>GetSHA256OfFile</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> GetSHA256OfFile(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> GetSHA256OfFile(<b>str</b> FileName)</line></pre>
 				</section>
 				<description>
 					<p>Gets the SHA-256 hash of the specified file, as a string.</p>
@@ -1461,7 +1461,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="Trim">
 				<title>Trim</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> Trim(<b>str</b>)</line></pre>
+					<pre><line><b>str</b> Trim(<b>str</b> S)</line></pre>
 				</section>
 				<description>
 					<p>Returns a copy of the specified string without leading and trailing spaces.</p>
@@ -1470,7 +1470,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="StringChange">
 				<title>StringChange</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> StringChange(<b>str</b>, <b>str</b>, <b>str</b>)</line></pre>
+					<pre><line><b>str</b> StringChange(<b>str</b> S, <b>str</b> OldPattern, <b>str</b> NewPattern)</line></pre>
 				</section>
 				<description>
 					<p>Returns a copy of the first string, with all occurrences of the second string changed to the third string.</p>
