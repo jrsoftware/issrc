@@ -3866,7 +3866,7 @@ Filename: "{win}\MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; St
 
 <heading>Quick start: Verifying files at compile time</heading>
 
-<p>On the <tt>issigtool</tt> commands below, prepend the path of your Inno Setup installation, and include quotes. For example: <tt>"%ProgramFiles(x86)%\Inno Setup 6\issigtool"</tt></p>
+<p>On the <tt>issigtool</tt> commands below, prepend the path of your Inno Setup installation, and include quotes. For example: <tt>"%ProgramFiles%\Inno Setup 7\issigtool"</tt></p>
 
 <ol>
 

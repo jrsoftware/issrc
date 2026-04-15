@@ -2,6 +2,7 @@
 <tt>function <link topic="isxfunc_CreateCustomForm">CreateCustomForm</link>(const ClientWidth, ClientHeight: Integer; const KeepSizeX, KeepSizeY: Boolean): TSetupForm;</tt><br />
 <tt>function <link topic="isxfunc_CreateCustomPage">CreateCustomPage</link>(const AfterID: Integer; const ACaption, ADescription: String): TWizardPage;</tt><br />
 <tt>function <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link>(const ACaption, ADescription: String; const OnDownloadProgress: TOnDownloadProgress): TDownloadWizardPage;</tt><br />
+<tt>function <link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link>(const ACaption, ADescription: String; const OnExtractionProgress: TOnExtractionProgress): TExtractionWizardPage;</tt><br />
 <tt>function <link topic="isxfunc_CreateInputDirPage">CreateInputDirPage</link>(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; AAppendDir: Boolean; ANewFolderName: String): TInputDirWizardPage;</tt><br />
 <tt>function <link topic="isxfunc_CreateInputFilePage">CreateInputFilePage</link>(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String): TInputFileWizardPage;</tt><br />
 <tt>function <link topic="isxfunc_CreateInputOptionPage">CreateInputOptionPage</link>(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; Exclusive, ListBox: Boolean): TInputOptionWizardPage;</tt><br />

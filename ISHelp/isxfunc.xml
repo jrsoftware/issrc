@@ -934,7 +934,7 @@ begin
       <function>
         <name>StringChange</name>
         <prototype>function StringChange(var S: String; const FromStr, ToStr: String): Integer;</prototype>
-        <description><p>This function is deprecated. It is equivalent to calling <link topic="isxfunc_StringChangeEx">StringChangeEx</link> with the SupportMBCS parameter set to False.</p></description>
+        <description><p>This function is deprecated. It is equivalent to calling <link topic="isxfunc_StringChangeEx">StringChangeEx</link> with the SupportDBCS parameter set to False.</p></description>
       </function>
       <function>
         <name>StringChangeEx</name>
@@ -2932,7 +2932,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
 <p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDownloadFiles.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
 <p>To add a new archive to extract, call the <tt>Add</tt> method or the <tt>AddEx</tt> method if the archive is password-protected. Always call the <tt>Clear</tt> method before adding the first file.</p>
-<p>To start the extraction, call the <tt>Extract</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Extract</tt> returns the number of archives extracted.</p>
+<p>To start the extraction, call the <tt>Extract</tt> method. An exception will be raised if there was an error.</p>
 <p>Set the <tt>ShowArchiveInsteadOfFile</tt> property to <tt>True</tt> to show the name of the archive which is being extracted to the user instead of the names of the files inside the archive.</p>
 <p>See <link topic="isxfunc_ExtractArchive">ExtractArchive</link> for the definition of <tt>TOnExtractionProgress</tt>.</p></remarks>
         <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <tt>CreateDownloadPage</tt> which works very similar to <tt>CreateExtractionPage</tt>.</p>
