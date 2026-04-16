@@ -124,6 +124,9 @@ function RemoveScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptF
 function ExtractScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
 function ExtractScriptFuncName(const ScriptFunc: AnsiString): AnsiString;
 
+function RemoveISPPScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind): AnsiString;
+function ExtractISPPScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
+
 implementation
 
 uses
@@ -163,6 +166,24 @@ begin
     raise Exception.CreateFmt('Invalid ScriptFunc: %s', [Result]);
 end;
 
+function RemoveISPPScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind): AnsiString;
+begin
+  Result := ScriptFunc;
+
+  const SpacePos = Pos(AnsiString(' '), Result);
+  if SpacePos <= 1 then
+    raise Exception.CreateFmt('Invalid ISPP prototype: %s', [ScriptFunc]);
+
+  const H: AnsiString = 'void ';
+
+  if SameText(Copy(Result, 1, Length(H)), H) then
+    Kind := hkProcedure
+  else
+    Kind := hkFunction;
+
+  Delete(Result, 1, SpacePos);
+end;
+
 { Also present in UIsxclassesParser.pas }
 function ExtractScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
 begin
@@ -186,6 +207,15 @@ end;
 function ExtractScriptFuncName(const ScriptFunc: AnsiString): AnsiString;
 begin
   Result := ExtractScriptFuncWithoutHeaderName(RemoveScriptFuncHeader(ScriptFunc));
+end;
+
+function ExtractISPPScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
+begin
+  const ParenPos = Pos(AnsiString('('), ScriptFuncWithoutHeader);
+  if ParenPos = 0 then
+    Result := ScriptFuncWithoutHeader
+  else
+    Result := Copy(ScriptFuncWithoutHeader, 1, ParenPos - 1);
 end;
 
 {$IFDEF ISIDEPROJ}

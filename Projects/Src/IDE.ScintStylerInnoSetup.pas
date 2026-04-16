@@ -419,7 +419,7 @@ const
     'str DecodeVer(int Version, int Digits = 3)',
     'int FindSection(str Section = "Files")',
     'int FindSectionEnd(str Section = "Files")',
-    'int FindCode()',
+    'int FindCode',
     'str ExtractFilePath(str PathName)',
     'str ExtractFileDir(str PathName)',
     'str ExtractFileExt(str PathName)',
@@ -436,7 +436,7 @@ const
     'int Min(int A, int B, int C = MaxInt)',
     'int Max(int A, int B, int C = MinInt)',
     'int SameText(str S1, str S2)',
-    'void EmitLanguagesSection()',
+    'void EmitLanguagesSection',
     { From RegisterFunction - excludes ReadEnv }
     'int Int(any Value, int? Default)',
     'str Str(any Value)',
@@ -491,7 +491,7 @@ const
     'str GetSHA256OfUnicodeString(str S)',
     'str Trim(str S)',
     'str StringChange(str S, str OldPattern, str NewPattern)',
-    'int IsWin64()',
+    'int IsWin64',
     'void Message(str S)',
     'void Warning(str S)',
     'void Error(str S)',
@@ -790,10 +790,7 @@ end;
 
 constructor TFunctionDefinition.CreateISPP(const ISPPSignature: AnsiString);
 begin
-  { ISPP signatures have the form '<return-type> Name(<params>)' and so have
-    no 'function'/'procedure' header for the regular Create to strip. }
-  ScriptFuncWithoutHeader := ISPPSignature;
-  HeaderKind := hkFunction;
+  ScriptFuncWithoutHeader := RemoveISPPScriptFuncHeader(ISPPSignature, HeaderKind);
   HasParams := ScriptFuncHasParameters(ISPPSignature);
 end;
 
@@ -1100,27 +1097,16 @@ begin
 end;
 
 procedure TInnoSetupStyler.BuildISPPWordList;
-
-  function ExtractISPPSignatureName(const Sig: AnsiString): AnsiString;
-  begin
-    { All ISPP signatures have the form '<return-type> Name(<params>)'. }
-    const SpacePos = Pos(AnsiString(' '), Sig);
-    const ParenPos = Pos(AnsiString('('), Sig);
-    if (SpacePos <= 0) or (ParenPos <= SpacePos) then
-      raise Exception.CreateFmt('Invalid ISPP signature: %s', [Sig]);
-    Result := Copy(Sig, SpacePos + 1, ParenPos - SpacePos - 1);
-  end;
-
 begin
   const SL = TStringList.Create;
   try
     for var ISPPFunction in ISPPFunctions do begin
       const FunctionDefinition = TFunctionDefinition.CreateISPP(ISPPFunction);
-      const ISPPFunctionName = ExtractISPPSignatureName(ISPPFunction);
-      const Key = String(ISPPFunctionName);
+      const ISPPScriptFuncName = ExtractISPPScriptFuncWithoutHeaderName(FunctionDefinition.ScriptFuncWithoutHeader);
+      const Key = String(ISPPScriptFuncName);
       if not FISPPFunctionsByName.TryAdd(Key, [FunctionDefinition]) then
-        raise Exception.CreateFmt('Internal error: duplicate ISPP function "%s"', [ISPPFunctionName]);
-      AddWordToList(SL, ISPPFunctionName, awtISPPFunction);
+        raise Exception.CreateFmt('Internal error: duplicate ISPP function "%s"', [ISPPScriptFuncName]);
+      AddWordToList(SL, ISPPScriptFuncName, awtISPPFunction);
     end;
     for var ISPPPredefinedVariable in ISPPPredefinedVariables do
       AddWordToList(SL, ISPPPredefinedVariable, awtISPPVariable);
@@ -1236,6 +1222,7 @@ begin
   Result := FKeywordsWordList[Section];
 end;
 
+{ Result is undefined if out Count = 0 }
 class function TInnoSetupStyler.GetFunctionDefinition(
   const FunctionsByName: TFunctionDefinitionsByName; const Name: String;
   const Index: Integer; out Count: Integer): TFunctionDefinition;
