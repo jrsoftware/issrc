@@ -35,6 +35,9 @@ const
   awtScriptEvent = 16;
   awtScriptKeyword = 17;
   awtScriptEnumValue = 18;
+  awtISPPFunction = 30;
+  awtISPPVariable = 31;
+  awtISPPConstant = 32;
 
 type
   TInnoSetupStylerSection = (
@@ -82,6 +85,8 @@ type
     HeaderKind: TScriptFuncHeaderKind;
     HasParams: Boolean;
     constructor Create(const ScriptFunc: AnsiString);
+    {$WARN DUPLICATE_CTOR_DTOR OFF} { Don't care about C++ }
+    constructor CreateISPP(const ISPPSignature: AnsiString);
   end;
   TFunctionDefinitions = array of TFunctionDefinition;
   TFunctionDefinitionsByName = TDictionary<String, TFunctionDefinitions>;
@@ -93,6 +98,8 @@ type
     FNoHighlightAtCursorWords: TWordsBySection;
     FFlagsWords: TWordsBySection;
     FISPPDirectivesWordList, FConstantsWordList: AnsiString;
+    FISPPFunctionsByName: TFunctionDefinitionsByName;
+    FISPPWordList: AnsiString;
     FScriptFunctionsByName: array[Boolean] of TFunctionDefinitionsByName; { Only has functions with at least 1 parameter }
     FScriptWordList: array[Boolean] of AnsiString;
     FSectionsWordList: AnsiString;
@@ -111,6 +118,7 @@ type
     procedure BuildFlagsWordList(const Section: TInnoSetupStylerSection;
      const Flags: array of TScintRawString);
     procedure BuildISPPDirectivesWordList;
+    procedure BuildISPPWordList;
     procedure BuildKeywordsWordList(const Section: TInnoSetupStylerSection;
       const Parameters: array of TScintRawString);
     procedure BuildKeywordsWordListFromTypeInfo(const Section: TInnoSetupStylerSection;
@@ -125,6 +133,8 @@ type
     procedure CommitStyleSqPending(const Style: TInnoSetupStylerStyle);
     function GetEventFunctionsWordList(Procedures: Boolean): AnsiString;
     function GetFlagsWordList(Section: TInnoSetupStylerSection): AnsiString;
+    class function GetFunctionDefinition(const FunctionsByName: TFunctionDefinitionsByName;
+      const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; static;
     function GetKeywordsWordList(Section: TInnoSetupStylerSection): AnsiString;
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState; var CodeBlockHeader: Boolean);
     procedure HandleKeyValueSection(const Section: TInnoSetupStylerSection);
@@ -157,6 +167,8 @@ type
     class function IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean; static;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean; static;
+    function GetISPPFunctionDefinition(const Name: String;
+      const Index: Integer; out Count: Integer): TFunctionDefinition;
     function GetScriptFunctionDefinition(const ClassMember: Boolean;
       const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; overload;
     function GetScriptFunctionDefinition(const ClassMember: Boolean;
@@ -168,6 +180,7 @@ type
     property FlagsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetFlagsWordList;
     property ISPPDirectivesWordList: AnsiString read FISPPDirectivesWordList;
     property ISPPInstalled: Boolean read FISPPInstalled write SetISPPInstalled;
+    property ISPPWordList: AnsiString read FISPPWordList;
     property KeywordsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordsWordList;
     property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
     property SectionsWordList: AnsiString read FSectionsWordList;
@@ -775,6 +788,15 @@ begin
   HasParams := ScriptFuncHasParameters(ScriptFunc);
 end;
 
+constructor TFunctionDefinition.CreateISPP(const ISPPSignature: AnsiString);
+begin
+  { ISPP signatures have the form '<return-type> Name(<params>)' and so have
+    no 'function'/'procedure' header for the regular Create to strip. }
+  ScriptFuncWithoutHeader := ISPPSignature;
+  HeaderKind := hkFunction;
+  HasParams := ScriptFuncHasParameters(ISPPSignature);
+end;
+
 { TInnoSetupStyler }
 
 constructor TInnoSetupStyler.Create(AOwner: TComponent);
@@ -902,6 +924,8 @@ begin
   BuildEventFunctionsWordList;
   BuildFlagsWordLists;
   BuildISPPDirectivesWordList;
+  FISPPFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
+  BuildISPPWordList;
   BuildKeywordsWordLists;
   BuildSectionsWordList;
   BuildSetupDirectiveValueWordLists;
@@ -914,6 +938,7 @@ destructor TInnoSetupStyler.Destroy;
 begin
   FScriptFunctionsByName[False].Free;
   FScriptFunctionsByName[True].Free;
+  FISPPFunctionsByName.Free;
   FFlagsWords.Free;
   FNoHighlightAtCursorWords.Free;
   inherited;
@@ -1044,14 +1069,14 @@ procedure TInnoSetupStyler.BuildScriptFunctionsLists(
   const SL: TStringList);
 begin
   for var ScriptFunc in ScriptFuncTable do begin
-    var FunctionDefinition := TFunctionDefinition.Create(ScriptFunc);
-    var ScriptFuncName := ExtractScriptFuncWithoutHeaderName(FunctionDefinition.ScriptFuncWithoutHeader);
+    const FunctionDefinition = TFunctionDefinition.Create(ScriptFunc);
+    const ScriptFuncName = ExtractScriptFuncWithoutHeaderName(FunctionDefinition.ScriptFuncWithoutHeader);
     var DoAddWordToList := True;
-    var Key := String(ScriptFuncName);
+    const Key = String(ScriptFuncName);
     if not FScriptFunctionsByName[ClassMembers].TryAdd(Key, [FunctionDefinition]) then begin
       { Function has multiple prototypes }
       var ScriptFunctions := FScriptFunctionsByName[ClassMembers][Key];
-      var N := Length(ScriptFunctions);
+      const N = Length(ScriptFunctions);
       SetLength(ScriptFunctions, N+1);
       ScriptFunctions[N] := FunctionDefinition;
       FScriptFunctionsByName[ClassMembers][Key] := ScriptFunctions;
@@ -1069,6 +1094,39 @@ begin
     for var ISPPDirective in ISPPDirectives do
       AddWordToList(SL, '#' + ISPPDirective.Name, awtPreprocessorDirective);
     FISPPDirectivesWordList := BuildWordList(SL);
+  finally
+    SL.Free;
+  end;
+end;
+
+procedure TInnoSetupStyler.BuildISPPWordList;
+
+  function ExtractISPPSignatureName(const Sig: AnsiString): AnsiString;
+  begin
+    { All ISPP signatures have the form '<return-type> Name(<params>)'. }
+    const SpacePos = Pos(AnsiString(' '), Sig);
+    const ParenPos = Pos(AnsiString('('), Sig);
+    if (SpacePos <= 0) or (ParenPos <= SpacePos) then
+      raise Exception.CreateFmt('Invalid ISPP signature: %s', [Sig]);
+    Result := Copy(Sig, SpacePos + 1, ParenPos - SpacePos - 1);
+  end;
+
+begin
+  const SL = TStringList.Create;
+  try
+    for var ISPPFunction in ISPPFunctions do begin
+      const FunctionDefinition = TFunctionDefinition.CreateISPP(ISPPFunction);
+      const ISPPFunctionName = ExtractISPPSignatureName(ISPPFunction);
+      const Key = String(ISPPFunctionName);
+      if not FISPPFunctionsByName.TryAdd(Key, [FunctionDefinition]) then
+        raise Exception.CreateFmt('Internal error: duplicate ISPP function "%s"', [ISPPFunctionName]);
+      AddWordToList(SL, ISPPFunctionName, awtISPPFunction);
+    end;
+    for var ISPPPredefinedVariable in ISPPPredefinedVariables do
+      AddWordToList(SL, ISPPPredefinedVariable, awtISPPVariable);
+    for var ISPPConstant in ISPPConstants do
+      AddWordToList(SL, ISPPConstant, awtISPPConstant);
+    FISPPWordList := BuildWordList(SL);
   finally
     SL.Free;
   end;
@@ -1178,18 +1236,31 @@ begin
   Result := FKeywordsWordList[Section];
 end;
 
-function TInnoSetupStyler.GetScriptFunctionDefinition(const ClassMember: Boolean;
-  const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition;
+class function TInnoSetupStyler.GetFunctionDefinition(
+  const FunctionsByName: TFunctionDefinitionsByName; const Name: String;
+  const Index: Integer; out Count: Integer): TFunctionDefinition;
 begin
-  var ScriptFunctions: TFunctionDefinitions;
-  if FScriptFunctionsByName[ClassMember].TryGetValue(Name, ScriptFunctions) then begin
-    Count := Integer(Length(ScriptFunctions));
+  var FunctionDefinitions: TFunctionDefinitions;
+  if FunctionsByName.TryGetValue(Name, FunctionDefinitions) then begin
+    Count := Integer(Length(FunctionDefinitions));
     var ResultIndex := Index;
     if ResultIndex >= Count then
       ResultIndex := Count-1;
-    Result := ScriptFunctions[ResultIndex]
+    Result := FunctionDefinitions[ResultIndex]
   end else
     Count := 0;
+end;
+
+function TInnoSetupStyler.GetISPPFunctionDefinition(const Name: String;
+  const Index: Integer; out Count: Integer): TFunctionDefinition;
+begin
+  Result := GetFunctionDefinition(FISPPFunctionsByName, Name, Index, Count);
+end;
+
+function TInnoSetupStyler.GetScriptFunctionDefinition(const ClassMember: Boolean;
+  const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition;
+begin
+  Result := GetFunctionDefinition(FScriptFunctionsByName[ClassMember], Name, Index, Count);
 end;
 
 function TInnoSetupStyler.GetScriptFunctionDefinition(
