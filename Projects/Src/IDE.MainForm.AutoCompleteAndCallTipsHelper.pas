@@ -2,7 +2,7 @@ unit IDE.MainForm.AutoCompleteAndCallTipsHelper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -47,6 +47,83 @@ begin
 end;
 
 procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMemo: TScintEdit; const Key: AnsiChar);
+
+  function IsInISPPExpressionContext(const AMemo: TScintEdit; const LinePos, WordStartPos: Integer): Boolean;
+  begin
+    { Allow autocompletion if the text before the current word on the line start is
+      "ISPP expression context" like "#define X " or "#emit " }
+    Result := False;
+
+    if LinePos >= WordStartPos then
+      Exit;
+
+    var Pos := LinePos;
+
+    { Skip leading whitespace }
+    while (Pos < WordStartPos) and (AMemo.GetByteAtPosition(Pos) <= ' ') do
+      Pos := AMemo.GetPositionAfter(Pos);
+
+    { Require '#' as first non-whitespace character }
+    if (Pos >= WordStartPos) or (AMemo.GetByteAtPosition(Pos) <> '#') then
+      Exit;
+    Pos := AMemo.GetPositionAfter(Pos);
+
+    { Read the directive name, and remember if an identifier is to be expected }
+    const DirectiveEndPos = AMemo.GetWordEndPosition(Pos, True);
+    const Directive = AMemo.GetTextRange(Pos, DirectiveEndPos);
+    Pos := DirectiveEndPos;
+    const ExpectIdent = SameText(Directive, 'define') or SameText(Directive, 'dim') or SameText(Directive, 'redim');
+
+    { Check against the expression-supporting directive set }
+    if not ExpectIdent and not SameText(Directive, 'if') and not SameText(Directive, 'elif') and
+       not SameText(Directive, 'emit') and not SameText(Directive, 'expr') and
+       not SameText(Directive, 'insert') and not SameText(Directive, 'append') then
+      Exit;
+
+    { Require at least one whitespace character after the directive name }
+    if (Pos >= WordStartPos) or (AMemo.GetByteAtPosition(Pos) > ' ') then
+      Exit;
+
+    { For non-define directives, whitespace after the directive name is sufficient }
+    if not ExpectIdent then
+      Exit(True); { Return True }
+
+    { Skip whitespace }
+    while (Pos < WordStartPos) and (AMemo.GetByteAtPosition(Pos) <= ' ') do
+      Pos := AMemo.GetPositionAfter(Pos);
+    if Pos >= WordStartPos then
+      Exit;
+
+    { Skip the identifier }
+    Pos := AMemo.GetWordEndPosition(Pos, True);
+
+    { For define: skip optional parameter list }
+    if SameText(Directive, 'define') and (Pos < WordStartPos) and (AMemo.GetByteAtPosition(Pos) = '(') then begin
+      Pos := AMemo.GetPositionAfter(Pos);
+      var Depth := 1;
+      while (Pos < WordStartPos) and (Depth > 0) do begin
+        const C = AMemo.GetByteAtPosition(Pos);
+        if C = '(' then
+          Inc(Depth)
+        else if C = ')' then
+          Dec(Depth);
+        Pos := AMemo.GetPositionAfter(Pos);
+      end;
+      if Depth > 0 then
+        Exit;
+    end;
+
+    { Determine the alternative (non-whitespace) separator:
+      '=' for #define (like "#define X=expr") and '[' for #dim/#redim (like "#dim X[expr]"). }
+    var AlternativeSepChar: AnsiChar := '[';
+    if SameText(Directive, 'define') then
+      AlternativeSepChar := '=';
+
+    { Require at least one whitespace character or the separator after the identifier or param list }
+    if (Pos >= WordStartPos) or ((AMemo.GetByteAtPosition(Pos) > ' ') and (AMemo.GetByteAtPosition(Pos) <> AlternativeSepChar)) then
+      Exit;
+    Result := True;
+  end;
 
   function OnlyWhiteSpaceBeforeWord(const AMemo: TScintEdit; const LinePos, WordStartPos: Integer): Boolean;
   begin
@@ -95,6 +172,11 @@ begin
 
   var WordList: AnsiString;
 
+  if FMemosStyler.ISPPInstalled and
+     IsInISPPExpressionContext(AMemo, LinePos, WordStartPos) then begin
+    WordList := FMemosStyler.ISPPWordList;
+    AMemo.SetAutoCompleteFillupChars('');
+  end else
   case AMemo.GetByteAtPosition(WordStartPos) of
     '#':
       begin
