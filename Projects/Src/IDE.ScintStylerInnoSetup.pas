@@ -93,7 +93,7 @@ type
     FNoHighlightAtCursorWords: TWordsBySection;
     FFlagsWords: TWordsBySection;
     FISPPDirectivesWordList, FConstantsWordList: AnsiString;
-    FScriptFunctionsByName: array[Boolean] of TFunctionDefinitionsByName; { Only has functions with at least 1 parameter }
+    FScriptFunctionsByName: array[Boolean] of TFunctionDefinitionsByName;
     FScriptWordList: array[Boolean] of AnsiString;
     FSectionsWordList: AnsiString;
     FSetupSectionDirectiveValueAutoYesNoWordList: AnsiString;
