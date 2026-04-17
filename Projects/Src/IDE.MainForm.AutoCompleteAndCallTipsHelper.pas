@@ -59,8 +59,8 @@ class function TMainFormAutoCompleteAndCallTipsHelper.IsInISPPExpressionContext(
   const AMemo: TScintEdit; const LinePos, ScanEndPos: Integer): Boolean;
 begin
   { Allow autocompletion if the text before ScanEndPos on the line is
-    "ISPP expression context" because it starts with for example "#define X "
-    or "#emit " }
+    "ISPP expression context" because it starts with for example "#define X ",
+    "#define X=", "#:X ", "#:X=", "#emit ", "#=", or "#dim X[" }
   Result := False;
 
   if LinePos >= ScanEndPos then
@@ -76,22 +76,40 @@ begin
   if (Pos >= ScanEndPos) or (AMemo.GetByteAtPosition(Pos) <> '#') then
     Exit;
   Pos := AMemo.GetPositionAfter(Pos);
-
-  { Read the directive name, and remember if an identifier is to be expected }
-  const DirectiveEndPos = AMemo.GetWordEndPosition(Pos, True);
-  const Directive = AMemo.GetTextRange(Pos, DirectiveEndPos);
-  Pos := DirectiveEndPos;
-  const ExpectIdent = SameText(Directive, 'define') or SameText(Directive, 'dim') or SameText(Directive, 'redim');
-
-  { Check against the expression-supporting directive set }
-  if not ExpectIdent and not SameText(Directive, 'if') and not SameText(Directive, 'elif') and
-     not SameText(Directive, 'emit') and not SameText(Directive, 'expr') and
-     not SameText(Directive, 'insert') then
+  if Pos >= ScanEndPos then
     Exit;
 
-  { Require at least one whitespace character after the directive name }
-  if (Pos >= ScanEndPos) or (AMemo.GetByteAtPosition(Pos) > ' ') then
-    Exit;
+  var Directive: String;
+  var ExpectIdent: Boolean;
+
+  { Read the directive shorthand or name, and remember if an identifier is to be expected }
+  case AMemo.GetByteAtPosition(Pos) of
+    ':':
+      begin
+        Directive := 'define';
+        ExpectIdent := True;
+        Pos := AMemo.GetPositionAfter(Pos);
+      end;
+    '=' { emit } , '!' { expr }:
+      Exit(True); { #= and #! begin the expression immediately and do not require any whitespace }
+  else
+    begin
+      const DirectiveEndPos = AMemo.GetWordEndPosition(Pos, True);
+      Directive := AMemo.GetTextRange(Pos, DirectiveEndPos);
+      Pos := DirectiveEndPos;
+      ExpectIdent := SameText(Directive, 'define') or SameText(Directive, 'dim') or SameText(Directive, 'redim');
+
+      { Check against the expression-supporting directive set }
+      if not ExpectIdent and not SameText(Directive, 'if') and not SameText(Directive, 'elif') and
+         not SameText(Directive, 'emit') and not SameText(Directive, 'expr') and
+         not SameText(Directive, 'insert') then
+        Exit;
+
+      { Require at least one whitespace character after the directive name }
+      if (Pos >= ScanEndPos) or (AMemo.GetByteAtPosition(Pos) > ' ') then
+        Exit;
+    end;
+  end;
 
   { Most directives do not expect an identifier, and whitespace after the
     directive name is sufficient }
@@ -104,8 +122,11 @@ begin
   if Pos >= ScanEndPos then
     Exit;
 
-  { Skip the identifier }
-  Pos := AMemo.GetWordEndPosition(Pos, True);
+  { Skip the identifier (not using GetWordEndPosition because '[' is a word char) }
+  while (Pos < ScanEndPos) and (AMemo.GetByteAtPosition(Pos) in ['A'..'Z', 'a'..'z', '0'..'9', '_']) do
+    Pos := AMemo.GetPositionAfter(Pos);
+  if Pos >= ScanEndPos then
+    Exit;
 
   { For define: skip optional parameter list }
   if SameText(Directive, 'define') and (Pos < ScanEndPos) and (AMemo.GetByteAtPosition(Pos) = '(') then begin
@@ -184,7 +205,7 @@ begin
 
   var WordList: AnsiString;
 
-  if FMemosStyler.ISPPInstalled and IsInISPPExpressionContext(AMemo, LinePos, WordStartPos) then begin
+  if FMemosStyler.ISPPInstalled and IsInISPPExpressionContext(AMemo, LinePos, CaretPos) then begin
     if Key <> #0 then begin
       const PositionBeforeWordStartPos = AMemo.GetPositionBefore(WordStartPos);
       AMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
