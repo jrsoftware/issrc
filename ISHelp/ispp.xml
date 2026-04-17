@@ -951,7 +951,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="Copy">
 				<title>Copy</title>
 				<section title="Prototype">
-					<pre><line><b>str</b> Copy(<b>str</b> S, <b>int</b> StartIndex, <b>int</b>? Count)</line></pre>
+					<pre><line><b>str</b> Copy(<b>str</b> S, <b>int</b> Index, <b>int</b>? Count)</line></pre>
 				</section>
 				<description>
 					<p>Extracts a substring from a string (first parameter). The 1-based index of the character from which the substring should start is specified by the second parameter. The third parameter specifies the number of characters to take, if it is omitted, all characters up to the end of the string are copied to the result.</p>

@@ -450,7 +450,7 @@ const
     'any ReadReg(int RootKey, str SubKey, str? Name, any? Default)',
     'int Exec(str Filename, str? Params, str? WorkingDir, int? Wait, int? ShowCmd)',
     'str ExecAndGetFirstLine(str Filename, str? Params, str? WorkingDir)',
-    'str Copy(str S, int StartIndex, int? Count)',
+    'str Copy(str S, int Index, int? Count)',
     'int Pos(str SubStr, str S)',
     'int RPos(str SubStr, str S)',
     'int Len(str S)',
