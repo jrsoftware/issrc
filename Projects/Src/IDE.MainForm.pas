@@ -3721,7 +3721,10 @@ begin
           NNT(awtScriptProperty, 'ac\properties-filled'),
           NNT(awtScriptEvent, 'ac\event-filled'),
           NNT(awtScriptKeyword, 'ac\list'),
-          NNT(awtScriptEnumValue, 'ac\constant-filled')];
+          NNT(awtScriptEnumValue, 'ac\constant-filled'),
+          NNT(awtISPPFunction, 'ac\method-filled'),
+          NNT(awtISPPVariable, 'ac\variables'),
+          NNT(awtISPPConstant, 'ac\constant-filled')];
 
         for var NamedType in NamedTypes do
           AddMarkerOrAcBitmap(AutoCompleteBitmaps, DC, BitmapInfo, NamedType.Key, AutoCompleteBkBrush, ImageList, NamedType.Value);
