@@ -164,6 +164,7 @@ type
     destructor Destroy; override;
     class function GetSectionFromLineState(const LineState: TScintLineState; const ReturnCodeBlockAsCode: Boolean = True): TInnoSetupStylerSection; static;
     class function IsCommentOrKeywordStyle(const Style: TScintStyleNumber): Boolean; static;
+    class function IsCommentOrISPPStringStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean; static;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean; static;
@@ -1827,6 +1828,11 @@ end;
 class function TInnoSetupStyler.IsCommentOrKeywordStyle(const Style: TScintStyleNumber): Boolean;
 begin
   Result := Style in [Ord(stComment), Ord(stKeyword)];
+end;
+
+class function TInnoSetupStyler.IsCommentOrISPPStringStyle(const Style: TScintStyleNumber): Boolean;
+begin
+  Result := Style in [Ord(stComment), Ord(stISPPString)];
 end;
 
 class function TInnoSetupStyler.IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean;

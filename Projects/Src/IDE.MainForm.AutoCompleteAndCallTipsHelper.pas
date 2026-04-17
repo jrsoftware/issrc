@@ -28,7 +28,8 @@ type
       const LinePos, ScanEndPos: Integer): Boolean; static;
     { Private }
     function _InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
-      const WordStartLinePos, PositionBeforeWordStartPos: Integer): Boolean;
+      const WordStartLinePos, PositionBeforeWordStartPos: Integer;
+      const ISPPExpressionContext: Boolean): Boolean;
     procedure _UpdateCallTipFunctionDefinition(const AMemo: TScintEdit; const Pos: Integer = -1);
     procedure _InitiateCallTip(const AMemo: TScintEdit; const Key: AnsiChar);
     procedure _ContinueCallTip(const AMemo: TScintEdit);
@@ -42,10 +43,16 @@ uses
   IDE.ScintStylerInnoSetup;
 
 function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
-  const WordStartLinePos, PositionBeforeWordStartPos: Integer): Boolean;
+  const WordStartLinePos, PositionBeforeWordStartPos: Integer;
+  const ISPPExpressionContext: Boolean): Boolean;
 begin
-  Result := (PositionBeforeWordStartPos < WordStartLinePos) or
-            not FMemosStyler.IsCommentOrPascalStringStyle(AMemo.GetStyleAtPosition(PositionBeforeWordStartPos));
+  if PositionBeforeWordStartPos < WordStartLinePos then
+    Exit(True);
+  const Style = AMemo.GetStyleAtPosition(PositionBeforeWordStartPos);
+  if ISPPExpressionContext then
+    Result := not FMemosStyler.IsCommentOrISPPStringStyle(Style)
+  else
+    Result := not FMemosStyler.IsCommentOrPascalStringStyle(Style);
 end;
 
 class function TMainFormAutoCompleteAndCallTipsHelper.IsInISPPExpressionContext(
@@ -177,8 +184,13 @@ begin
 
   var WordList: AnsiString;
 
-  if FMemosStyler.ISPPInstalled and
-     IsInISPPExpressionContext(AMemo, LinePos, WordStartPos) then begin
+  if FMemosStyler.ISPPInstalled and IsInISPPExpressionContext(AMemo, LinePos, WordStartPos) then begin
+    if Key <> #0 then begin
+      const PositionBeforeWordStartPos = AMemo.GetPositionBefore(WordStartPos);
+      AMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
+      if not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo, LinePos, PositionBeforeWordStartPos, True) then
+        Exit;
+    end;
     WordList := FMemosStyler.ISPPWordList;
     AMemo.SetAutoCompleteFillupChars('');
   end else begin
@@ -213,7 +225,7 @@ begin
             const PositionBeforeWordStartPos = AMemo.GetPositionBefore(WordStartPos);
             if Key <> #0 then begin
               AMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
-              if not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo, LinePos, PositionBeforeWordStartPos) then
+              if not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo, LinePos, PositionBeforeWordStartPos, False) then
                 Exit;
             end;
 
@@ -390,7 +402,7 @@ begin
 
   if (not ISPPExpressionContext and (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[Line]) <> scCode)) or
      ((Key <> #0) and not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo,
-       LinePos, AMemo.GetPositionBefore(Pos))) then
+       LinePos, AMemo.GetPositionBefore(Pos), ISPPExpressionContext)) then
     Exit;
 
   { Based on SciTE 5.50's SciTEBase::StartAutoComplete }
