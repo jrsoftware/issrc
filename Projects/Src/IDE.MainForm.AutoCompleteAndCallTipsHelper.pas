@@ -86,7 +86,7 @@ begin
   { Check against the expression-supporting directive set }
   if not ExpectIdent and not SameText(Directive, 'if') and not SameText(Directive, 'elif') and
      not SameText(Directive, 'emit') and not SameText(Directive, 'expr') and
-     not SameText(Directive, 'insert') and not SameText(Directive, 'append') then
+     not SameText(Directive, 'insert') then
     Exit;
 
   { Require at least one whitespace character after the directive name }
