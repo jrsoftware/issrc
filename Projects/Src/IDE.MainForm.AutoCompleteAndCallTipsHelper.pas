@@ -50,9 +50,9 @@ begin
     Exit(True);
   const Style = AMemo.GetStyleAtPosition(PositionBeforeWordStartPos);
   if ISPPExpressionContext then
-    Result := not FMemosStyler.IsCommentOrISPPStringStyle(Style)
+    Result := not TInnoSetupStyler.IsCommentOrISPPStringStyle(Style)
   else
-    Result := not FMemosStyler.IsCommentOrPascalStringStyle(Style);
+    Result := not TInnoSetupStyler.IsCommentOrPascalStringStyle(Style);
 end;
 
 class function TMainFormAutoCompleteAndCallTipsHelper.IsInISPPExpressionContext(
@@ -123,7 +123,7 @@ begin
     Exit;
 
   { Skip the identifier (not using GetWordEndPosition because '[' is a word char) }
-  while (Pos < ScanEndPos) and (AMemo.GetByteAtPosition(Pos) in ['A'..'Z', 'a'..'z', '0'..'9', '_']) do
+  while (Pos < ScanEndPos) and TInnoSetupStyler.IsISPPIdentChar(AMemo.GetByteAtPosition(Pos)) do
     Pos := AMemo.GetPositionAfter(Pos);
   if Pos >= ScanEndPos then
     Exit;
@@ -199,7 +199,7 @@ begin
     var WordStartPos := CaretPos;
     while WordStartPos > LinePos do begin
       const PosBefore = AMemo.GetPositionBefore(WordStartPos);
-      if not (AMemo.GetByteAtPosition(PosBefore) in ['A'..'Z', 'a'..'z', '0'..'9', '_']) then
+      if not TInnoSetupStyler.IsISPPIdentChar(AMemo.GetByteAtPosition(PosBefore)) then
         Break;
       WordStartPos := PosBefore;
       Inc(CharsBefore);
@@ -211,7 +211,7 @@ begin
         inside the identifier. }
       if CharsBefore > 1 then
         Exit;
-      if AMemo.GetByteAtPosition(CaretPos) in ['A'..'Z', 'a'..'z', '0'..'9', '_'] then
+      if TInnoSetupStyler.IsISPPIdentChar(AMemo.GetByteAtPosition(CaretPos)) then
         Exit;
 
       { Also see below (scCode) }
@@ -257,7 +257,7 @@ begin
         end;
       else
         begin
-          const Section = FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[Line]);
+          const Section = TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[Line]);
           if Section = scCode then begin
             { Space can only initiate autocompletion after non whitespace }
             if (Key = ' ') and OnlyWhiteSpaceBeforeWord(AMemo, LinePos, WordStartPos) then
@@ -301,7 +301,7 @@ begin
             if WordList = '' then
               Exit;
           end else begin
-            const IsParamSection = FMemosStyler.IsParamSection(Section);
+            const IsParamSection = TInnoSetupStyler.IsParamSection(Section);
 
             var FoundSemicolon := False;
             var FoundFlagsOrType := False;
@@ -318,7 +318,7 @@ begin
                 like a space before the current flag }
 
               if IsParamSection and (C in [';', ':']) and
-                FMemosStyler.IsSymbolStyle(AMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string or comment }
+                TInnoSetupStyler.IsSymbolStyle(AMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string or comment }
                 FoundSemicolon := C = ';';
                 if not FoundSemicolon then begin
                   const ParameterWordEndPos = I;
@@ -362,7 +362,7 @@ begin
                     don't even know whether we are before or after the '='. As a workaround
                     we check for the expected style before '=', which is stKeyword or stComment,
                     and only continue if we don't find that. }
-                  if not FMemosStyler.IsCommentOrKeywordStyle(AMemo.GetStyleAtPosition(I)) then begin
+                  if not TInnoSetupStyler.IsCommentOrKeywordStyle(AMemo.GetStyleAtPosition(I)) then begin
                     FoundMultipleSetupDirectiveValues := True;
                     I := AMemo.GetWordStartPosition(I, True);
                   end else
@@ -442,7 +442,7 @@ begin
   const ISPPExpressionContext = FMemosStyler.ISPPInstalled and
     IsInISPPExpressionContext(AMemo, LinePos, AMemo.GetPositionBefore(Pos));
 
-  if (not ISPPExpressionContext and (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[Line]) <> scCode)) or
+  if (not ISPPExpressionContext and (TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[Line]) <> scCode)) or
      ((Key <> #0) and not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo,
        LinePos, AMemo.GetPositionBefore(Pos), ISPPExpressionContext)) then
     Exit;

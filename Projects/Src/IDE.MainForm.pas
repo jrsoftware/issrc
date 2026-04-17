@@ -3529,7 +3529,7 @@ procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
 
   function HighlightAtCursorAllowed(const Word: TScintRawString): Boolean;
   begin
-    const Section = FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
+    const Section = TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
     Result := FMemosStyler.HighlightAtCursorAllowed(Section, AMemo.ConvertRawStringToString(Word));
   end;
 
@@ -4140,7 +4140,7 @@ begin
     FActiveMemo.CaretColumnExpandedForTabs + 1]);
   if FOptions.ShowCaretPosition then begin
     const CaretPos = FActiveMemo.CaretPosition;
-    const Section = FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine], False);
+    const Section = TInnoSetupStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine], False);
     const Style = FActiveMemo.GetStyleAtPosition(CaretPos);
     Text := Format('%s-%s@%d+%d:%s', [
       Copy(GetEnumName(TypeInfo(TInnoSetupStylerSection), Ord(Section)), 3, MaxInt),
@@ -4399,7 +4399,7 @@ procedure TMainForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
 
   begin
     var Highlighted := False;
-    var Section := FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
+    var Section := TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
     if (Section <> scNone) and (AMemo.CaretVirtualSpace = 0) then begin
       var Pos := AMemo.CaretPosition;
       Highlighted := Highlighted or HighlightPos(AMemo, Pos, False, OpeningBraces);
@@ -4801,7 +4801,7 @@ begin
   end;
 
   { Check if cursor is over a [Code] variable or function }
-  if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]) = scCode then begin
+  if TInnoSetupStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]) = scCode then begin
     const VarOrFuncRange = FindVarOrFuncRange(Pos);
     if VarOrFuncRange.EndPos > VarOrFuncRange.StartPos then begin
       var HintStr := '';

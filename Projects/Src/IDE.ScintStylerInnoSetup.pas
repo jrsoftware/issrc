@@ -166,6 +166,7 @@ type
     class function IsCommentOrKeywordStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsCommentOrISPPStringStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean; static;
+    class function IsISPPIdentChar(const C: AnsiChar): Boolean; static;
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean; static;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean; static;
     function GetISPPFunctionDefinition(const Name: String;
@@ -1838,6 +1839,11 @@ end;
 class function TInnoSetupStyler.IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean;
 begin
   Result := Style in [Ord(stComment), Ord(stPascalString)];
+end;
+
+class function TInnoSetupStyler.IsISPPIdentChar(const C: AnsiChar): Boolean;
+begin
+  Result := C in ISPPIdentChars;
 end;
 
 class function TInnoSetupStyler.IsParamSection(
