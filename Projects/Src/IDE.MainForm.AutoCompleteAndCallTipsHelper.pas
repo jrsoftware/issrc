@@ -389,17 +389,17 @@ begin
 
   FCallTipState.CurrentCallTip := 0;
   FCallTipState.CurrentCallTipWord := '';
-  var Line := AMemo.CaretLineText;
+  var LineText := AMemo.CaretLineText;
   var Current := AMemo.CaretPositionInLine;
   const CallTipWordCharacters = AMemo.WordCharsAsSet;
 
   {$ZEROBASEDSTRINGS ON}
   repeat
     var Braces := 0;
-		while ((Current > 0) and ((Braces <> 0) or not (Line[Current-1] = '('))) do begin
-			if Line[Current-1] = '(' then
+		while ((Current > 0) and ((Braces <> 0) or not (LineText[Current-1] = '('))) do begin
+			if LineText[Current-1] = '(' then
 			  Dec(Braces)
-			else if Line[Current-1] = ')' then
+			else if LineText[Current-1] = ')' then
 				Inc(Braces);
 			Dec(Current);
 			Dec(Pos);
@@ -409,24 +409,24 @@ begin
       Dec(Pos);
     end else
       Break;
-    while (Current > 0) and (Line[Current-1] <= ' ') do begin
+    while (Current > 0) and (LineText[Current-1] <= ' ') do begin
       Dec(Current);
       Dec(Pos);
     end
-  until not ((Current > 0) and not CharInSet(Line[Current-1], CallTipWordCharacters));
+  until not ((Current > 0) and not CharInSet(LineText[Current-1], CallTipWordCharacters));
   {$ZEROBASEDSTRINGS OFF}
   if Current <= 0 then
     Exit;
 
 	FCallTipState.StartCallTipWord := Current - 1;
   {$ZEROBASEDSTRINGS ON}
-	while (FCallTipState.StartCallTipWord > 0) and CharInSet(Line[FCallTipState.StartCallTipWord-1], CallTipWordCharacters) do
+	while (FCallTipState.StartCallTipWord > 0) and CharInSet(LineText[FCallTipState.StartCallTipWord-1], CallTipWordCharacters) do
     Dec(FCallTipState.StartCallTipWord);
-  FCallTipState.ClassOrRecordMember := (FCallTipState.StartCallTipWord > 0) and (Line[FCallTipState.StartCallTipWord-1] = '.');
+  FCallTipState.ClassOrRecordMember := (FCallTipState.StartCallTipWord > 0) and (LineText[FCallTipState.StartCallTipWord-1] = '.');
   {$ZEROBASEDSTRINGS OFF}
 
-  SetLength(Line, Current);
-  FCallTipState.CurrentCallTipWord := Line.Substring(FCallTipState.StartCallTipWord); { Substring is zero-based }
+  SetLength(LineText, Current);
+  FCallTipState.CurrentCallTipWord := LineText.Substring(FCallTipState.StartCallTipWord); { Substring is zero-based }
 
   FCallTipState.FunctionDefinition := '';
   _UpdateCallTipFunctionDefinition(AMemo, Pos);
