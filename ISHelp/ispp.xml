@@ -1486,7 +1486,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="IsWin64">
 				<title>IsWin64</title>
 				<section title="Prototype">
-					<pre><line><b>int</b> IsWin64()</line></pre>
+					<pre><line><b>int</b> IsWin64</line></pre>
 				</section>
 				<description>
 					<p>Returns non-zero if the system is running a 64-bit version of Windows that provides the API support Inno Setup requires to perform 64-bit installation tasks, or zero otherwise.</p>
@@ -1758,7 +1758,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<title>FindCode</title>
 				<section title="Prototype">
 					<pre>
-						<line><b>int</b> FindCode()</line>
+						<line><b>int</b> FindCode</line>
 					</pre>
 				</section>
 				<description>
