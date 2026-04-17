@@ -190,23 +190,31 @@ begin
   const Line = AMemo.GetLineFromPosition(CaretPos);
   const LinePos = AMemo.GetPositionFromLine(Line);
 
-  const WordStartPos = AMemo.GetWordStartPosition(CaretPos, True);
-  const WordEndPos = AMemo.GetWordEndPosition(CaretPos, True);
-  const CharsBefore = CaretPos - WordStartPos;
-
-  { Don't auto start autocompletion after a character is typed if there are any
-    word characters adjacent to the character }
-  if Key <> #0 then begin
-    if CharsBefore > 1 then
-      Exit;
-    if WordEndPos > CaretPos then
-      Exit;
-  end;
-
+  var CharsBefore: Integer;
   var WordList: AnsiString;
 
   if FMemosStyler.ISPPInstalled and IsInISPPExpressionContext(AMemo, LinePos, CaretPos) then begin
+    { Calculate CharsBefore without using GetWordStartPosition and GetWordEndPosition because '[' is a word char }
+    CharsBefore := 0;
+    var WordStartPos := CaretPos;
+    while WordStartPos > LinePos do begin
+      const PosBefore = AMemo.GetPositionBefore(WordStartPos);
+      if not (AMemo.GetByteAtPosition(PosBefore) in ['A'..'Z', 'a'..'z', '0'..'9', '_']) then
+        Break;
+      WordStartPos := PosBefore;
+      Inc(CharsBefore);
+    end;
+
     if Key <> #0 then begin
+      { See below. Note that the second check is the ISPP equivalent of the
+        WordEndPos > CaretPos check below: don't auto start when the caret is
+        inside the identifier. }
+      if CharsBefore > 1 then
+        Exit;
+      if AMemo.GetByteAtPosition(CaretPos) in ['A'..'Z', 'a'..'z', '0'..'9', '_'] then
+        Exit;
+
+      { Also see below (scCode) }
       const PositionBeforeWordStartPos = AMemo.GetPositionBefore(WordStartPos);
       AMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
       if not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo, LinePos, PositionBeforeWordStartPos, True) then
@@ -215,6 +223,18 @@ begin
     WordList := FMemosStyler.ISPPWordList;
     AMemo.SetAutoCompleteFillupChars('');
   end else begin
+    const WordStartPos = AMemo.GetWordStartPosition(CaretPos, True);
+    const WordEndPos = AMemo.GetWordEndPosition(CaretPos, True);
+
+    { Don't auto start autocompletion after a character is typed if there are any
+      word characters adjacent to the character. Also see above. }
+    CharsBefore := CaretPos - WordStartPos;
+    if Key <> #0 then begin
+      if CharsBefore > 1 then
+        Exit;
+      if WordEndPos > CaretPos then
+        Exit;
+    end;
     case AMemo.GetByteAtPosition(WordStartPos) of
       '#':
         begin
@@ -243,6 +263,7 @@ begin
             if (Key = ' ') and OnlyWhiteSpaceBeforeWord(AMemo, LinePos, WordStartPos) then
               Exit;
 
+            { Also see above (ISPP) }
             const PositionBeforeWordStartPos = AMemo.GetPositionBefore(WordStartPos);
             if Key <> #0 then begin
               AMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
@@ -432,7 +453,9 @@ begin
   FCallTipState.CurrentCallTipWord := '';
   var LineText := AMemo.CaretLineText;
   var Current := AMemo.CaretPositionInLine;
-  const CallTipWordCharacters = AMemo.WordCharsAsSet;
+  var CallTipWordCharacters := AMemo.WordCharsAsSet;
+  if ISPPExpressionContext then
+    Exclude(CallTipWordCharacters, '['); { Also see InitiateAutoComplete }
 
   {$ZEROBASEDSTRINGS ON}
   repeat
