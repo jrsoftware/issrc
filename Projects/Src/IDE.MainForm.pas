@@ -97,6 +97,7 @@ type
     CurrentCallTipWord: String;
     CurrentCallTip: Integer;
     MaxCallTips: Integer;
+    ISPPExpressionContext: Boolean;
   end;
 
   TUpdatePanelMessage = class

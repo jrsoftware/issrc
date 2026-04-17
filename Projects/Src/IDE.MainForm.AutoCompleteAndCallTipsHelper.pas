@@ -363,7 +363,11 @@ begin
     FCallTipState.LastPosCallTip := Pos;
 
   // Should get current api definition
-  var FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(FCallTipState.ClassOrRecordMember, FCallTipState.CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips);
+  var FunctionDefinition: TFunctionDefinition;
+  if FCallTipState.ISPPExpressionContext then
+    FunctionDefinition := FMemosStyler.GetISPPFunctionDefinition(FCallTipState.CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips)
+  else
+    FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(FCallTipState.ClassOrRecordMember, FCallTipState.CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips);
   if ((FCallTipState.MaxCallTips = 1) and FunctionDefinition.HasParams) or //if there's a single definition then only show if it has a parameter
      (FCallTipState.MaxCallTips > 1) then begin                            //if there's multiple then show always just like MemoHintShow, so even the one without parameters if it exists
     FCallTipState.FunctionDefinition := FunctionDefinition.ScriptFuncWithoutHeader;
@@ -379,10 +383,14 @@ procedure TMainFormAutoCompleteAndCallTipsHelper._InitiateCallTip(const AMemo: T
 begin
   var Pos := AMemo.CaretPosition;
 
-  if (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.GetLineFromPosition(Pos)]) <> scCode) or
+  const Line = AMemo.GetLineFromPosition(Pos);
+  const LinePos = AMemo.GetPositionFromLine(Line);
+  const ISPPExpressionContext = FMemosStyler.ISPPInstalled and
+    IsInISPPExpressionContext(AMemo, LinePos, AMemo.GetPositionBefore(Pos));
+
+  if (not ISPPExpressionContext and (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[Line]) <> scCode)) or
      ((Key <> #0) and not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo,
-       AMemo.GetPositionFromLine(AMemo.GetLineFromPosition(Pos)),
-       AMemo.GetPositionBefore(Pos))) then
+       LinePos, AMemo.GetPositionBefore(Pos))) then
     Exit;
 
   { Based on SciTE 5.50's SciTEBase::StartAutoComplete }
@@ -422,7 +430,11 @@ begin
   {$ZEROBASEDSTRINGS ON}
 	while (FCallTipState.StartCallTipWord > 0) and CharInSet(LineText[FCallTipState.StartCallTipWord-1], CallTipWordCharacters) do
     Dec(FCallTipState.StartCallTipWord);
-  FCallTipState.ClassOrRecordMember := (FCallTipState.StartCallTipWord > 0) and (LineText[FCallTipState.StartCallTipWord-1] = '.');
+  FCallTipState.ISPPExpressionContext := ISPPExpressionContext;
+  if ISPPExpressionContext then
+    FCallTipState.ClassOrRecordMember := False { Value doesn't really matter }
+  else
+    FCallTipState.ClassOrRecordMember := (FCallTipState.StartCallTipWord > 0) and (LineText[FCallTipState.StartCallTipWord-1] = '.');
   {$ZEROBASEDSTRINGS OFF}
 
   SetLength(LineText, Current);
