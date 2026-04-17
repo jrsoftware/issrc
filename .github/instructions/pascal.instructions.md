@@ -19,6 +19,7 @@ applyTo: "**/*.pas,**/*.dpr,**/*.inc"
 - Mark read-only parameters as const.
 - Use Windows units first, then RTL/VCL units, then Components units, then Shared units, then project specific units.
 - Using variable name Res as a shortcut for Result is allowed.
+- Class methods should be static when possible.
 # Code editing guidelines for Pascal source files
 - Do not modify existing comments unless the code they describe is also being changed.
 - When modifying code that calls Windows APIs, read the actual documentation before writing code. Do not assume parameter semantics based on similar APIs.
