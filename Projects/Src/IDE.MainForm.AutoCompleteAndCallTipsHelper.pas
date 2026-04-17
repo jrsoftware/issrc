@@ -25,7 +25,7 @@ type
     procedure CallTipsHandleArrowClick(const AMemo: TScintEdit; const Up: Boolean);
     procedure CallTipsHandleCtrlSpace(const AMemo: TScintEdit);
     class function IsInISPPExpressionContext(const AMemo: TScintEdit;
-      const LinePos, WordStartPos: Integer): Boolean; static;
+      const LinePos, ScanEndPos: Integer): Boolean; static;
     { Private }
     function _InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
       const WordStartLinePos, PositionBeforeWordStartPos: Integer): Boolean;
@@ -49,23 +49,24 @@ begin
 end;
 
 class function TMainFormAutoCompleteAndCallTipsHelper.IsInISPPExpressionContext(
-  const AMemo: TScintEdit; const LinePos, WordStartPos: Integer): Boolean;
+  const AMemo: TScintEdit; const LinePos, ScanEndPos: Integer): Boolean;
 begin
-  { Allow autocompletion if the text before the current word on the line start is
-    "ISPP expression context" like "#define X " or "#emit " }
+  { Allow autocompletion if the text before ScanEndPos on the line is
+    "ISPP expression context" because it starts with for example "#define X "
+    or "#emit " }
   Result := False;
 
-  if LinePos >= WordStartPos then
+  if LinePos >= ScanEndPos then
     Exit;
 
   var Pos := LinePos;
 
   { Skip leading whitespace }
-  while (Pos < WordStartPos) and (AMemo.GetByteAtPosition(Pos) <= ' ') do
+  while (Pos < ScanEndPos) and (AMemo.GetByteAtPosition(Pos) <= ' ') do
     Pos := AMemo.GetPositionAfter(Pos);
 
   { Require '#' as first non-whitespace character }
-  if (Pos >= WordStartPos) or (AMemo.GetByteAtPosition(Pos) <> '#') then
+  if (Pos >= ScanEndPos) or (AMemo.GetByteAtPosition(Pos) <> '#') then
     Exit;
   Pos := AMemo.GetPositionAfter(Pos);
 
@@ -82,7 +83,7 @@ begin
     Exit;
 
   { Require at least one whitespace character after the directive name }
-  if (Pos >= WordStartPos) or (AMemo.GetByteAtPosition(Pos) > ' ') then
+  if (Pos >= ScanEndPos) or (AMemo.GetByteAtPosition(Pos) > ' ') then
     Exit;
 
   { Most directives do not expect an identifier, and whitespace after the
@@ -91,19 +92,19 @@ begin
     Exit(True); { Return True }
 
   { Skip whitespace }
-  while (Pos < WordStartPos) and (AMemo.GetByteAtPosition(Pos) <= ' ') do
+  while (Pos < ScanEndPos) and (AMemo.GetByteAtPosition(Pos) <= ' ') do
     Pos := AMemo.GetPositionAfter(Pos);
-  if Pos >= WordStartPos then
+  if Pos >= ScanEndPos then
     Exit;
 
   { Skip the identifier }
   Pos := AMemo.GetWordEndPosition(Pos, True);
 
   { For define: skip optional parameter list }
-  if SameText(Directive, 'define') and (Pos < WordStartPos) and (AMemo.GetByteAtPosition(Pos) = '(') then begin
+  if SameText(Directive, 'define') and (Pos < ScanEndPos) and (AMemo.GetByteAtPosition(Pos) = '(') then begin
     Pos := AMemo.GetPositionAfter(Pos);
     var Braces := 1;
-    while (Pos < WordStartPos) and (Braces > 0) do begin
+    while (Pos < ScanEndPos) and (Braces > 0) do begin
       const C = AMemo.GetByteAtPosition(Pos);
       if C = '(' then
         Inc(Braces)
@@ -122,7 +123,7 @@ begin
     AlternativeSepChar := '=';
 
   { Require at least one whitespace character or the separator after the identifier or param list }
-  if (Pos >= WordStartPos) or ((AMemo.GetByteAtPosition(Pos) > ' ') and (AMemo.GetByteAtPosition(Pos) <> AlternativeSepChar)) then
+  if (Pos >= ScanEndPos) or ((AMemo.GetByteAtPosition(Pos) > ' ') and (AMemo.GetByteAtPosition(Pos) <> AlternativeSepChar)) then
     Exit;
   Result := True;
 end;
