@@ -33,6 +33,7 @@ function PathCharIsTrailByte(const S: String; const Index: Integer): Boolean;
 function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
 function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): Integer;
+function PathComponentIsReservedName(const SingleComponent: String): Boolean;
 function PathConvertNormalToSuper(const Filename: String; out SuperFilename: String;
   const Expand: Boolean): Boolean;
 function PathConvertSuperToNormal(const Filename: String): String;
@@ -190,6 +191,52 @@ function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): In
 begin
   Result := PathStrCompare(PChar(S1), Length(S1), PChar(S2), Length(S2),
     IgnoreCase);
+end;
+
+function PathComponentIsReservedName(const SingleComponent: String): Boolean;
+{ Returns True if the specified path component is one of the "reserved" device
+  names listed here:
+    https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
+
+  Dots and all characters after them are ignored. Per docs: "NUL.txt and
+  NUL.tar.gz are both equivalent to NUL."
+  Spaces before dots are not ignored, so 'NUL .txt' is not equivalent to NUL
+  (consistent with GetFullPathName).
+
+  NOTE: This function always returns False for strings containing colons or
+  trailing spaces. The caller is expected to have already checked for those
+  characters using PathHasInvalidCharacters, and rejected names containing
+  them.
+  GetFullPathName treats 'NUL ', 'NUL:', and 'NUL :' as equivalent to NUL
+  (returning '\\.\NUL'). But it does not treat 'NUL:stream' as equivalent to
+  NUL; passing that to CreateFile will actually create a file named 'NUL'
+  instead of opening the NUL device. }
+const
+  Sup1 = #$00B9;
+  Sup2 = #$00B2;
+  Sup3 = #$00B3;
+  ThreeCharNames: array[0..3] of String = ('CON', 'PRN', 'AUX', 'NUL');
+begin
+  var Filename := SingleComponent;
+  const DotPos = PathPos('.', Filename);
+  if DotPos > 0 then
+    SetLength(Filename, DotPos-1);
+
+  case Length(Filename) of
+    3: begin
+         for var I := Low(ThreeCharNames) to High(ThreeCharNames) do
+           if SameText(Filename, ThreeCharNames[I]) then
+             Exit(True);
+       end;
+    4: begin
+         if PathStartsWith(Filename, 'COM') or
+            PathStartsWith(Filename, 'LPT') then
+           case Filename[4] of
+             '1'..'9', Sup1, Sup2, Sup3: Exit(True);
+           end;
+       end;
+  end;
+  Result := False;
 end;
 
 function PathConvertNormalToSuper(const Filename: String; out SuperFilename: String;
@@ -936,20 +983,24 @@ begin
     - Don't allow forward slashes or repeated slashes
     - Don't allow rooted (non-relative to current directory) names
     - Don't allow trailing slash
-    - Don't allow invalid characters/dots/spaces (this catches '..') }
+    - Don't allow invalid characters/dots/spaces (this catches '..')
+    - Don't allow reserved device names (such as NUL) }
   Result := False;
   if (AFilename <> '') and
      (AFilename = PathNormalizeSlashes(AFilename)) and
      not PathIsRooted(AFilename) and
      not PathCharIsSlash(AFilename[High(AFilename)]) and
-     not PathHasInvalidCharacters(AFilename, False) then begin
+     not PathHasInvalidCharacters(AFilename, False) and
+     not PathComponentIsReservedName(PathExtractName(AFilename)) then begin
     { Our validity checks passed. Now pass the combined path to PathExpand
       (GetFullPathName) to see if it thinks the path needs normalization.
       If the returned path isn't exactly what was passed in, then consider
       the name invalid.
-      One way that can happen is if the path ends in an MS-DOS device name:
-      PathExpand('c:\path\NUL') returns '\\.\NUL'. Obviously we don't want
-      devices being opened, so that must be rejected. }
+      Currently, there are no known cases where that happens. But if there is
+      some device name that PathComponentIsReservedName doesn't know about,
+      and the path doesn't start with '\\?\', then PathExpand may return a
+      '\\.\' prefixed path. For example, PathExpand('c:\path\NUL') returns
+      '\\.\NUL'. }
     var CombinedPath := ADestDir + AFilename;
     var TestExpandedPath: String;
     if PathExpand(CombinedPath, TestExpandedPath) and
