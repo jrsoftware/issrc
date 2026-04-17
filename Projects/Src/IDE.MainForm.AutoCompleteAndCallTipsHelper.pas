@@ -24,6 +24,8 @@ type
     procedure AutoCompleteAndCallTipsHandleCharAdded(const AMemo: TScintEdit; const Ch: AnsiChar);
     procedure CallTipsHandleArrowClick(const AMemo: TScintEdit; const Up: Boolean);
     procedure CallTipsHandleCtrlSpace(const AMemo: TScintEdit);
+    class function IsInISPPExpressionContext(const AMemo: TScintEdit;
+      const LinePos, WordStartPos: Integer): Boolean; static;
     { Private }
     function _InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
       const WordStartLinePos, PositionBeforeWordStartPos: Integer): Boolean;
@@ -46,84 +48,85 @@ begin
             not FMemosStyler.IsCommentOrPascalStringStyle(AMemo.GetStyleAtPosition(PositionBeforeWordStartPos));
 end;
 
-procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMemo: TScintEdit; const Key: AnsiChar);
+class function TMainFormAutoCompleteAndCallTipsHelper.IsInISPPExpressionContext(
+  const AMemo: TScintEdit; const LinePos, WordStartPos: Integer): Boolean;
+begin
+  { Allow autocompletion if the text before the current word on the line start is
+    "ISPP expression context" like "#define X " or "#emit " }
+  Result := False;
 
-  function IsInISPPExpressionContext(const AMemo: TScintEdit; const LinePos, WordStartPos: Integer): Boolean;
-  begin
-    { Allow autocompletion if the text before the current word on the line start is
-      "ISPP expression context" like "#define X " or "#emit " }
-    Result := False;
+  if LinePos >= WordStartPos then
+    Exit;
 
-    if LinePos >= WordStartPos then
-      Exit;
+  var Pos := LinePos;
 
-    var Pos := LinePos;
-
-    { Skip leading whitespace }
-    while (Pos < WordStartPos) and (AMemo.GetByteAtPosition(Pos) <= ' ') do
-      Pos := AMemo.GetPositionAfter(Pos);
-
-    { Require '#' as first non-whitespace character }
-    if (Pos >= WordStartPos) or (AMemo.GetByteAtPosition(Pos) <> '#') then
-      Exit;
+  { Skip leading whitespace }
+  while (Pos < WordStartPos) and (AMemo.GetByteAtPosition(Pos) <= ' ') do
     Pos := AMemo.GetPositionAfter(Pos);
 
-    { Read the directive name, and remember if an identifier is to be expected }
-    const DirectiveEndPos = AMemo.GetWordEndPosition(Pos, True);
-    const Directive = AMemo.GetTextRange(Pos, DirectiveEndPos);
-    Pos := DirectiveEndPos;
-    const ExpectIdent = SameText(Directive, 'define') or SameText(Directive, 'dim') or SameText(Directive, 'redim');
+  { Require '#' as first non-whitespace character }
+  if (Pos >= WordStartPos) or (AMemo.GetByteAtPosition(Pos) <> '#') then
+    Exit;
+  Pos := AMemo.GetPositionAfter(Pos);
 
-    { Check against the expression-supporting directive set }
-    if not ExpectIdent and not SameText(Directive, 'if') and not SameText(Directive, 'elif') and
-       not SameText(Directive, 'emit') and not SameText(Directive, 'expr') and
-       not SameText(Directive, 'insert') and not SameText(Directive, 'append') then
-      Exit;
+  { Read the directive name, and remember if an identifier is to be expected }
+  const DirectiveEndPos = AMemo.GetWordEndPosition(Pos, True);
+  const Directive = AMemo.GetTextRange(Pos, DirectiveEndPos);
+  Pos := DirectiveEndPos;
+  const ExpectIdent = SameText(Directive, 'define') or SameText(Directive, 'dim') or SameText(Directive, 'redim');
 
-    { Require at least one whitespace character after the directive name }
-    if (Pos >= WordStartPos) or (AMemo.GetByteAtPosition(Pos) > ' ') then
-      Exit;
+  { Check against the expression-supporting directive set }
+  if not ExpectIdent and not SameText(Directive, 'if') and not SameText(Directive, 'elif') and
+     not SameText(Directive, 'emit') and not SameText(Directive, 'expr') and
+     not SameText(Directive, 'insert') and not SameText(Directive, 'append') then
+    Exit;
 
-    { For non-define directives, whitespace after the directive name is sufficient }
-    if not ExpectIdent then
-      Exit(True); { Return True }
+  { Require at least one whitespace character after the directive name }
+  if (Pos >= WordStartPos) or (AMemo.GetByteAtPosition(Pos) > ' ') then
+    Exit;
 
-    { Skip whitespace }
-    while (Pos < WordStartPos) and (AMemo.GetByteAtPosition(Pos) <= ' ') do
+  { For non-define directives, whitespace after the directive name is sufficient }
+  if not ExpectIdent then
+    Exit(True); { Return True }
+
+  { Skip whitespace }
+  while (Pos < WordStartPos) and (AMemo.GetByteAtPosition(Pos) <= ' ') do
+    Pos := AMemo.GetPositionAfter(Pos);
+  if Pos >= WordStartPos then
+    Exit;
+
+  { Skip the identifier }
+  Pos := AMemo.GetWordEndPosition(Pos, True);
+
+  { For define: skip optional parameter list }
+  if SameText(Directive, 'define') and (Pos < WordStartPos) and (AMemo.GetByteAtPosition(Pos) = '(') then begin
+    Pos := AMemo.GetPositionAfter(Pos);
+    var Depth := 1;
+    while (Pos < WordStartPos) and (Depth > 0) do begin
+      const C = AMemo.GetByteAtPosition(Pos);
+      if C = '(' then
+        Inc(Depth)
+      else if C = ')' then
+        Dec(Depth);
       Pos := AMemo.GetPositionAfter(Pos);
-    if Pos >= WordStartPos then
-      Exit;
-
-    { Skip the identifier }
-    Pos := AMemo.GetWordEndPosition(Pos, True);
-
-    { For define: skip optional parameter list }
-    if SameText(Directive, 'define') and (Pos < WordStartPos) and (AMemo.GetByteAtPosition(Pos) = '(') then begin
-      Pos := AMemo.GetPositionAfter(Pos);
-      var Depth := 1;
-      while (Pos < WordStartPos) and (Depth > 0) do begin
-        const C = AMemo.GetByteAtPosition(Pos);
-        if C = '(' then
-          Inc(Depth)
-        else if C = ')' then
-          Dec(Depth);
-        Pos := AMemo.GetPositionAfter(Pos);
-      end;
-      if Depth > 0 then
-        Exit;
     end;
-
-    { Determine the alternative (non-whitespace) separator:
-      '=' for #define (like "#define X=expr") and '[' for #dim/#redim (like "#dim X[expr]"). }
-    var AlternativeSepChar: AnsiChar := '[';
-    if SameText(Directive, 'define') then
-      AlternativeSepChar := '=';
-
-    { Require at least one whitespace character or the separator after the identifier or param list }
-    if (Pos >= WordStartPos) or ((AMemo.GetByteAtPosition(Pos) > ' ') and (AMemo.GetByteAtPosition(Pos) <> AlternativeSepChar)) then
+    if Depth > 0 then
       Exit;
-    Result := True;
   end;
+
+  { Determine the alternative (non-whitespace) separator:
+    '=' for #define (like "#define X=expr") and '[' for #dim/#redim (like "#dim X[expr]"). }
+  var AlternativeSepChar: AnsiChar := '[';
+  if SameText(Directive, 'define') then
+    AlternativeSepChar := '=';
+
+  { Require at least one whitespace character or the separator after the identifier or param list }
+  if (Pos >= WordStartPos) or ((AMemo.GetByteAtPosition(Pos) > ' ') and (AMemo.GetByteAtPosition(Pos) <> AlternativeSepChar)) then
+    Exit;
+  Result := True;
+end;
+
+procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMemo: TScintEdit; const Key: AnsiChar);
 
   function OnlyWhiteSpaceBeforeWord(const AMemo: TScintEdit; const LinePos, WordStartPos: Integer): Boolean;
   begin

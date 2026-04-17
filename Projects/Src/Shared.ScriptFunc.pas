@@ -116,7 +116,8 @@ var
 {$ENDIF}
 
 type
-  TScriptFuncHeaderKind = (hkFunction, hkProcedure, hkConstructor);
+  TScriptFuncHeaderKind = (hkFunction, hkProcedure, hkConstructor,
+    hkISPPVoid, hkISPPStr, hkISPPInt, hkISPPAny);
 
 function ScriptFuncHasParameters(const ScriptFunc: AnsiString): Boolean;
 function RemoveScriptFuncHeader(const ScriptFunc: AnsiString): AnsiString; overload;
@@ -126,6 +127,8 @@ function ExtractScriptFuncName(const ScriptFunc: AnsiString): AnsiString;
 
 function RemoveISPPScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScriptFuncHeaderKind): AnsiString;
 function ExtractISPPScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
+
+function ScriptFuncHeaderKindToStr(const Kind: TScriptFuncHeaderKind): String;
 
 implementation
 
@@ -170,18 +173,25 @@ function RemoveISPPScriptFuncHeader(const ScriptFunc: AnsiString; out Kind: TScr
 begin
   Result := ScriptFunc;
 
-  const SpacePos = Pos(AnsiString(' '), Result);
-  if SpacePos <= 1 then
+  const H1: AnsiString = 'void ';
+  const H2: AnsiString = 'str ';
+  const H3: AnsiString = 'int ';
+  const H4: AnsiString = 'any ';
+
+  if SameText(Copy(Result, 1, Length(H1)), H1) then begin
+    Kind := hkISPPVoid;
+    Delete(Result, 1, Length(H1))
+  end else if SameText(Copy(Result, 1, Length(H2)), H2) then begin
+    Kind := hkISPPStr;
+    Delete(Result, 1, Length(H2))
+  end else if SameText(Copy(Result, 1, Length(H3)), H3) then begin
+    Kind := hkISPPInt;
+    Delete(Result, 1, Length(H3))
+  end else if SameText(Copy(Result, 1, Length(H4)), H4) then begin
+    Kind := hkISPPAny;
+    Delete(Result, 1, Length(H4))
+  end else
     raise Exception.CreateFmt('Invalid ISPP prototype: %s', [ScriptFunc]);
-
-  const H: AnsiString = 'void ';
-
-  if SameText(Copy(Result, 1, Length(H)), H) then
-    Kind := hkProcedure
-  else
-    Kind := hkFunction;
-
-  Delete(Result, 1, SpacePos);
 end;
 
 { Also present in UIsxclassesParser.pas }
@@ -216,6 +226,21 @@ begin
     Result := ScriptFuncWithoutHeader
   else
     Result := Copy(ScriptFuncWithoutHeader, 1, ParenPos - 1);
+end;
+
+function ScriptFuncHeaderKindToStr(const Kind: TScriptFuncHeaderKind): String;
+begin
+  case Kind of
+    hkFunction: Result := 'function ';
+    hkProcedure: Result := 'procedure ';
+    hkConstructor: Result := 'constructor ';
+    hkISPPVoid: Result := 'void ';
+    hkISPPStr: Result := 'str ';
+    hkISPPInt: Result := 'int ';
+    hkISPPAny: Result := 'any ';
+  else
+    raise Exception.CreateFmt('ScriptFuncHeaderKindToStr: unexpected Kind (%d)', [Ord(Kind)]);
+  end;
 end;
 
 {$IFDEF ISIDEPROJ}

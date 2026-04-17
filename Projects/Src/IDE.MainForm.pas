@@ -4769,14 +4769,39 @@ procedure TMainForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
   end;
 
 begin
-  var Pos := FActiveMemo.GetPositionFromPoint(Info.CursorPos, True, True);
+  const Pos = FActiveMemo.GetPositionFromPoint(Info.CursorPos, True, True);
   if Pos < 0 then
     Exit;
-  var Line := FActiveMemo.GetLineFromPosition(Pos);
+  const Line = FActiveMemo.GetLineFromPosition(Pos);
+
+  { Check if cursor is over an ISPP function. Checked before [Code] so
+    it wins when an ISPP directive line sits inside [Code]. }
+  if FMemosStyler.ISPPInstalled then begin
+    const VarOrFuncRange = FindVarOrFuncRange(Pos);
+    if VarOrFuncRange.EndPos > VarOrFuncRange.StartPos then begin
+      const LinePos = FActiveMemo.GetPositionFromLine(Line);
+      if IsInISPPExpressionContext(FActiveMemo, LinePos, VarOrFuncRange.StartPos) then begin
+        const Name = FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
+        var Count: Integer;
+        const FunctionDefinition = FMemosStyler.GetISPPFunctionDefinition(Name, 0, Count);
+        if Count > 0 then begin
+          if Count <> 1 then
+            raise Exception.CreateFmt('MemoHintShow: unexpected Count (%d)', [Count]);
+          const HintStr = ScriptFuncHeaderKindToStr(FunctionDefinition.HeaderKind) +
+            String(FunctionDefinition.ScriptFuncWithoutHeader);
+          UpdateInfo(Info, HintStr, VarOrFuncRange, FActiveMemo);
+        end;
+        { Exit whether we found the function or not: should not try to
+          lookup [Code] variable or function since we already detected
+          ISPP expression context. }
+        Exit;
+      end;
+    end;
+  end;
 
   { Check if cursor is over a [Code] variable or function }
   if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]) = scCode then begin
-    var VarOrFuncRange := FindVarOrFuncRange(Pos);
+    const VarOrFuncRange = FindVarOrFuncRange(Pos);
     if VarOrFuncRange.EndPos > VarOrFuncRange.StartPos then begin
       var HintStr := '';
       var DebugEntry: PVariableDebugEntry;
@@ -4791,7 +4816,7 @@ begin
         end;
       end else begin
         var ClassMember := False;
-        var Name := FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
+        const Name = FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
         var Index := 0;
         var Count: Integer;
         var FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
@@ -4804,13 +4829,8 @@ begin
             FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index);
           if HintStr <> '' then
             HintStr := HintStr + #13;
-          if FunctionDefinition.HeaderKind = hkFunction then
-            HintStr := HintStr + 'function '
-          else if FunctionDefinition.HeaderKind = hkProcedure then
-            HintStr := HintStr + 'procedure '
-          else
-            HintStr := HintStr + 'constructor ';
-          HintStr := HintStr + String(FunctionDefinition.ScriptFuncWithoutHeader);
+          HintStr := HintStr + ScriptFuncHeaderKindToStr(FunctionDefinition.HeaderKind) +
+            String(FunctionDefinition.ScriptFuncWithoutHeader);
           Inc(Index);
         end;
       end;
@@ -4824,7 +4844,7 @@ begin
 
   if FDebugClientWnd <> 0 then begin
     { Check if cursor is over a constant }
-    var ConstRange := FindConstRange(Pos);
+    const ConstRange = FindConstRange(Pos);
     if ConstRange.EndPos > ConstRange.StartPos then begin
       var HintStr := FActiveMemo.GetTextRange(ConstRange.StartPos, ConstRange.EndPos);
       var Output: String;
