@@ -652,9 +652,6 @@ begin
     CreateTempInstallDir;
 
     if CompiledCodeText <> '' then begin
-      { Load system's "shfolder.dll" }
-      LoadSHFolderDLL;
-
       { Setup some global variables which are accessible to [Code] }
       UninstallExeFilename := UninstExeFilename;
       UninstallExpandedAppId := UninstLog.AppId;
@@ -806,7 +803,6 @@ begin
     end;
   finally
     FreeAndNil(CodeRunner);
-    UnloadSHFolderDLL;
     RemoveTempInstallDir;
     UninstLog.Free;
     FreeAndNil(UninstDataFile);
@@ -906,7 +902,6 @@ begin
     Log('Detected restart. Removing temporary directory.');
 
     try
-      UnloadSHFolderDLL;
       RemoveTempInstallDir;
     except
       ShowExceptionMsg;
