@@ -7865,7 +7865,7 @@ var
           needs to be signed, but first make sure it isn't somehow corrupted. }
         if (SignedFileSize = UnsignedFileSize) and
            UCompareMem(UnsignedFile.Memory, SignedFile.Memory, UnsignedFileSize) then begin
-          SignedFile.Free;
+          FreeAndNil(SignedFile);
           Result := False;
           Exit;
         end;
