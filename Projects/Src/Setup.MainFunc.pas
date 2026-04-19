@@ -203,7 +203,7 @@ procedure LogArchiveExtractionModeOnce;
 procedure InitializeCommonVars;
 procedure InitializeSetup;
 procedure InitializeWizard;
-procedure InitMainNonSHFolderConstsAndPathRedir;
+procedure InitMainNonGetShellFolderPathConstsAndPathRedir;
 function InstallOnThisVersion(const MinVersion: TSetupVersionData;
   const OnlyBelowVersion: TSetupVersionData): TInstallOnThisVersionResult;
 function IsEntryBitness64Bit(const Bitness: TSetupEntryBitness): Boolean;
@@ -1340,7 +1340,7 @@ begin
     Result := S;
 end;
 
-procedure InitMainNonSHFolderConstsAndPathRedir;
+procedure InitMainNonGetShellFolderPathConstsAndPathRedir;
 
   function GetPath(const RegView: TRegView; const Name: PChar): String;
   var
@@ -3631,9 +3631,9 @@ begin
       if not IsAdmin then AbortInit(msgAdminPrivilegesRequired);
   end;
 
-  { Init main constants, not depending on shfolder.dll/_shfoldr.dll. This also
+  { Init main constants, not depending on GetShellFolderPath. This also
     initializes the Setup.PathRedir unit. }
-  InitMainNonSHFolderConstsAndPathRedir;
+  InitMainNonGetShellFolderPathConstsAndPathRedir;
 
   { Create temporary directory }
   CreateTempInstallDir;

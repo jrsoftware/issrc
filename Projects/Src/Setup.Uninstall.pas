@@ -642,11 +642,11 @@ begin
 
     DeleteResidualTempUninstallDirs;
 
-    { Init main constants, not depending on shfolder.dll/_shfoldr.dll. This also
+    { Init main constants, not depending on GetShellFolderPath. This also
       initializes the Setup.PathRedir unit. If CompiledCodeText is empty then
       currently it actually only needs the Setup.PathRedir unit initialization,
       but init everything always anyway. }
-    InitMainNonSHFolderConstsAndPathRedir;
+    InitMainNonGetShellFolderPathConstsAndPathRedir;
 
     { Create temporary directory }
     CreateTempInstallDir;

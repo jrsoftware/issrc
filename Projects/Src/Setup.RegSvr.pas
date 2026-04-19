@@ -152,10 +152,10 @@ begin
       SetMessageBoxRightToLeft(lfRightToLeft in MessagesLangOptions.Flags);
       Application.Title := SetupMessages[msgSetupAppTitle];
 
-      { Init main constants, not depending on shfolder.dll/_shfoldr.dll. This also
+      { Init main constants, not depending on GetShellFolderPath. This also
         initializes the Setup.PathRedir unit. Currently it actually only needs
         the Setup.PathRedir unit initialization, but init everything always anyway. }
-      InitMainNonSHFolderConstsAndPathRedir;
+      InitMainNonGetShellFolderPathConstsAndPathRedir;
 
       F := TTextFileReader.Create(ListFilename, fdOpenExisting, faRead, fsRead);
       try
