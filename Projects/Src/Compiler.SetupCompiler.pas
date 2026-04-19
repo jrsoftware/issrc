@@ -8798,7 +8798,7 @@ begin
 
     {$IFDEF DEBUG}
     const SaveCompilerDir = CompilerDir;
-    CompilerDir := AddBackslash(PathExpand('..\..\Files\'));
+    CompilerDir := AddBackslash(PathExpand(SaveCompilerDir + '..\..\Files\'));
     try
     {$ENDIF}
 
