@@ -697,22 +697,20 @@ begin
   Result := StrPas(Buf);
 end;
 
+function GetSystemWow64Directory_static(lpBuffer: LPWSTR; uSize: UINT): UINT; stdcall;
+  external kernel32 name 'GetSystemWow64DirectoryW';
+
 function GetSysWow64Dir: String;
 { Returns fully qualified path of the SysWow64 directory on 64-bit Windows.
   Returns '' if there is no SysWow64 directory (e.g. running 32-bit Windows). }
 var
-  GetSystemWow64DirectoryFunc: function(
-    lpBuffer: PWideChar; uSize: UINT): UINT; stdcall;
   Buf: array[0..MAX_PATH] of Char;
 begin
-  Result := '';
-  GetSystemWow64DirectoryFunc := GetProcAddress(GetModuleHandle(kernel32),
-      'GetSystemWow64DirectoryW');
-  if Assigned(GetSystemWow64DirectoryFunc) then begin
-    const Res = GetSystemWow64DirectoryFunc(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
-    if (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0])) then
-      Result := Buf;
-  end;
+  const Res = GetSystemWow64Directory_static(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
+  if (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0])) then
+    Result := Buf
+  else
+    Result := '';
 end;
 
 function GetSysNativeDir(const IsWin64: Boolean): String;

@@ -7,7 +7,7 @@ unit Setup.RedirFunc;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Functions for dealing with WOW64 file system redirection.
-  Used only by the Setup and SetupLdr projects.
+  Used only by the Setup project.
 
   The *Redir functions are counterparts to common functions that offer
   built-in support for disabling FS redirection.
@@ -22,13 +22,10 @@ type
   TPreviousFsRedirectionState = record
     {$IFNDEF WIN64}
     DidDisable: Boolean;
-    OldValue: Pointer;
+    OldValue: PVOID;
     {$ENDIF}
   end;
 
-{$IFNDEF WIN64}
-function AreFsRedirectionFunctionsAvailable: Boolean;
-{$ENDIF}
 function DisableFsRedirectionIf(const Disable: Boolean;
   var PreviousState: TPreviousFsRedirectionState): Boolean;
 procedure RestoreFsRedirection(const PreviousState: TPreviousFsRedirectionState);
@@ -47,15 +44,10 @@ uses
   Shared.CommonFunc;
 
 {$IFNDEF WIN64}
-var
-  Wow64DisableWow64FsRedirectionFunc: function(var OldValue: Pointer): BOOL; stdcall;
-  Wow64RevertWow64FsRedirectionFunc: function(OldValue: Pointer): BOOL; stdcall;
-  FsRedirectionFunctionsAvailable: Boolean;
-
-function AreFsRedirectionFunctionsAvailable: Boolean;
-begin
-  Result := FsRedirectionFunctionsAvailable;
-end;
+function Wow64DisableWow64FsRedirection_static(var OldValue: PVOID): BOOL; stdcall;
+  external kernel32 name 'Wow64DisableWow64FsRedirection';
+function Wow64RevertWow64FsRedirection_static(OldValue: PVOID): BOOL; stdcall;
+  external kernel32 name 'Wow64RevertWow64FsRedirection';
 {$ENDIF}
 
 function DisableFsRedirectionIf(const Disable: Boolean;
@@ -73,20 +65,13 @@ begin
   if not Disable then
     Result := True
   else begin
-    if FsRedirectionFunctionsAvailable then begin
-      { Note: Disassembling Wow64DisableWow64FsRedirection and the Rtl function
-        it calls, it doesn't appear as if it can ever actually fail on 64-bit
-        Windows. But it always fails on the 32-bit version of Windows Server
-        2003 SP1 (with error code 1 - ERROR_INVALID_FUNCTION). }
-      Result := Wow64DisableWow64FsRedirectionFunc(PreviousState.OldValue);
-      if Result then
-        PreviousState.DidDisable := True;
-    end
-    else begin
-      { Should never happen }
-      SetLastError(ERROR_INVALID_FUNCTION);
-      Result := False;
-    end;
+    { Note: Disassembling Wow64DisableWow64FsRedirection and the Rtl function
+      it calls, it doesn't appear as if it can ever actually fail on 64-bit
+      Windows. But it always fails on the 32-bit version of Windows Server
+      2003 SP1 (with error code 1 - ERROR_INVALID_FUNCTION). }
+    Result := Wow64DisableWow64FsRedirection_static(PreviousState.OldValue);
+    if Result then
+      PreviousState.DidDisable := True;
   end;
   {$ELSE}
   Result := True;
@@ -100,7 +85,7 @@ procedure RestoreFsRedirection(const PreviousState: TPreviousFsRedirectionState)
 begin
   {$IFNDEF WIN64}
   if PreviousState.DidDisable then
-    Wow64RevertWow64FsRedirectionFunc(PreviousState.OldValue);
+    Wow64RevertWow64FsRedirection_static(PreviousState.OldValue);
   {$ENDIF}
 end;
 
@@ -133,16 +118,8 @@ begin
   SetLastError(ErrorCode);
 end;
 
+{$IFNDEF WIN64}
 initialization
-  {$IFNDEF WIN64}
-  Wow64DisableWow64FsRedirectionFunc := GetProcAddress(GetModuleHandle(kernel32),
-    'Wow64DisableWow64FsRedirection');
-  Wow64RevertWow64FsRedirectionFunc := GetProcAddress(GetModuleHandle(kernel32),
-    'Wow64RevertWow64FsRedirection');
-  FsRedirectionFunctionsAvailable := Assigned(Wow64DisableWow64FsRedirectionFunc) and
-    Assigned(Wow64RevertWow64FsRedirectionFunc);
-  {$ENDIF}
-
   { FormatMessage might be called with FS redirection disabled, so ensure
     that all the DLLs FormatMessage searches in for messages (e.g. netmsg.dll,
     ws03res.dll) are pre-loaded by calling it now with a randomly-chosen
@@ -152,4 +129,5 @@ initialization
     actually may not matter whether it gets 32- or 64-bit versions. But let's
     be on the safe side.) }
   Win32ErrorString($4C783AFB);
+{$ENDIF}
 end.

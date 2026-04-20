@@ -4197,15 +4197,8 @@ begin
     processor architecture, and this is done below.
 
     32-bit build:
-    The system is considered a "Win64" system if all of the following
-    conditions are true:
-    1. One of the following two is true:
-       a. IsWow64Process2 is available, and returns True for the current process.
-       b. IsWow64Process is available, and returns True for the current process.
-    2. Wow64DisableWow64FsRedirection is available.
-    3. Wow64RevertWow64FsRedirection is available.
-    4. GetSystemWow64DirectoryA is available.
-    5. RegDeleteKeyExA is available.
+    The system is considered a "Win64" system if the current process is
+    running under WOW64, according to IsWow64Process/IsWow64Process2.
     The system does not have to be one of the known 64-bit architectures
     to be considered a "Win64" system. }
 
@@ -4249,14 +4242,6 @@ begin
       ProcessorArchitecture := paUnknown;
     end;
   end;
-
-  {$IFNDEF WIN64}
-  if IsWin64 and
-     not (AreFsRedirectionFunctionsAvailable and
-          (GetProcAddress(KernelModule, 'GetSystemWow64DirectoryA') <> nil) and
-          (GetProcAddress(GetModuleHandle(advapi32), 'RegDeleteKeyExA') <> nil)) then
-    IsWin64 := False;
-  {$ENDIF}
 
   { Setup MachineTypesSupportedBySystem. The result should end up being:
     - 32-bit x86: [paX86]
