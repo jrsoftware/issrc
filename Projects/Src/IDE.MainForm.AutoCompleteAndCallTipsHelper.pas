@@ -599,7 +599,7 @@ begin
         if not AMemo.AutoCompleteActive and FOptions.AutoAutoComplete and not (Ch in ['0'..'9']) then
           InitiateAutoComplete(AMemo, Ch);
     else
-      const RestartAutoComplete = (Ch in [' ', '.', '=']) and
+      const RestartAutoComplete = (Ch in [' ', '.', '!', '=']) and
         (FOptions.AutoAutoComplete or AMemo.AutoCompleteActive);
       AMemo.CancelAutoComplete;
       if RestartAutoComplete then
