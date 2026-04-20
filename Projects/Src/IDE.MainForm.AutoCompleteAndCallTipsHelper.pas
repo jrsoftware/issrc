@@ -24,6 +24,7 @@ type
     procedure AutoCompleteAndCallTipsHandleCharAdded(const AMemo: TScintEdit; const Ch: AnsiChar);
     procedure CallTipsHandleArrowClick(const AMemo: TScintEdit; const Up: Boolean);
     procedure CallTipsHandleCtrlSpace(const AMemo: TScintEdit);
+    procedure CallTipsHandleUpdateUI(const AMemo: TScintEdit);
     class function IsInISPPExpressionContext(const AMemo: TScintEdit;
       const LinePos, ScanEndPos: Integer): Boolean; static;
     { Private }
@@ -32,6 +33,7 @@ type
       const ISPPExpressionContext: Boolean): Boolean; static;
     procedure _UpdateCallTipFunctionDefinition(const AMemo: TScintEdit; const Pos: Integer = -1);
     procedure _InitiateCallTip(const AMemo: TScintEdit; const Key: AnsiChar);
+    procedure _CountCallTipBracesAndCommas(const AMemo: TScintEdit; out Braces, Commas: Integer);
     procedure _ContinueCallTip(const AMemo: TScintEdit);
   end;
 
@@ -500,25 +502,34 @@ begin
   _UpdateCallTipFunctionDefinition(AMemo, Pos);
 end;
 
+procedure TMainFormAutoCompleteAndCallTipsHelper._CountCallTipBracesAndCommas(
+  const AMemo: TScintEdit; out Braces, Commas: Integer);
+begin
+  { Based on SciTE 5.50's SciTEBase::ContinueCallTip }
+
+  const Line = AMemo.CaretLineText;
+  const Current = AMemo.CaretPositionInLine;
+
+  Braces := 0;
+  Commas := 0;
+  for var I := FCallTipState.StartCallTipWord to Current-1 do begin
+    {$ZEROBASEDSTRINGS ON}
+    if CharInSet(Line[I], ['(', '[']) then
+      Inc(Braces)
+    else if CharInSet(Line[I], [')', ']']) and (Braces > 0) then
+      Dec(Braces)
+    else if (Braces = 1) and (Line[I] = ',') then
+      Inc(Commas);
+    {$ZEROBASEDSTRINGS OFF}
+  end;
+end;
+
 procedure TMainFormAutoCompleteAndCallTipsHelper._ContinueCallTip(const AMemo: TScintEdit);
 begin
   { Based on SciTE 5.50's SciTEBase::ContinueCallTip }
 
-	const Line = AMemo.CaretLineText;
-	const Current = AMemo.CaretPositionInLine;
-
-	var Braces := 0;
-	var Commas := 0;
-	for var I := FCallTipState.StartCallTipWord to Current-1 do begin
-    {$ZEROBASEDSTRINGS ON}
-		if CharInSet(Line[I], ['(', '[']) then
-      Inc(Braces)
-		else if CharInSet(Line[I], [')', ']']) and (Braces > 0) then
-			Dec(Braces)
-		else if (Braces = 1) and (Line[I] = ',') then
-			Inc(Commas);
-    {$ZEROBASEDSTRINGS OFF}
-	end;
+  var Braces, Commas: Integer;
+  _CountCallTipBracesAndCommas(AMemo, Braces {unused}, Commas);
 
   {$ZEROBASEDSTRINGS ON}
 	var StartHighlight := 0;
@@ -548,11 +559,43 @@ begin
 	AMemo.SetCallTipHighlight(StartHighlight, EndHighlight);
 end;
 
+procedure TMainFormAutoCompleteAndCallTipsHelper.CallTipsHandleUpdateUI(const AMemo: TScintEdit);
+begin
+  { This helper should be called on SCN_UPDATEUI to refresh the calltip
+    highlight on horizontal caret movement, and also on edits which
+    don't call SCN_CHARADDED, like Backspace. Note: this code seems
+    to be missing from SciTE 5.50: it simply doesn't update highlight
+    in these cases (nor update the current state's BraceCount).
+
+    Note: SCN_UPDATEUI also fires after SCN_CHARADDED. In this case we
+    still update the already-up-to-date highlight here. This keeps things
+    simple and not dependent on any specific notification order.
+
+    Also note: Scintilla itself handles calltip cancellation when
+    moving to another line, or when using Home/End, and probably
+    all other cases where it can do so without knowing the
+    language specific rules for calltips. }
+
+  if not AMemo.CallTipActive then
+    Exit;
+
+  var Braces, Commas: Integer;
+  _CountCallTipBracesAndCommas(AMemo, Braces, Commas {unused});
+
+  FCallTipState.BraceCount := Braces;
+
+  if FCallTipState.BraceCount < 1 then
+    AMemo.CancelCallTip
+  else
+    _ContinueCallTip(AMemo);
+end;
+
 procedure TMainFormAutoCompleteAndCallTipsHelper.AutoCompleteAndCallTipsHandleCharAdded(
   const AMemo: TScintEdit; const Ch: AnsiChar);
 begin
   { Based on SciTE 5.50's SciTEBase::CharAdded but with an altered interaction
-    between calltips and autocomplete }
+    between calltips and autocomplete. Also see CallTipsHandleUpdateUI for
+    additional calltips code. }
 
   var DoAutoComplete := False;
 

@@ -4427,6 +4427,7 @@ begin
 
   UpdatePendingSquiggly(Memo);
   UpdateBraceHighlighting(Memo);
+  CallTipsHandleUpdateUI(Memo);
   UpdateOccurrenceIndicators(Memo);
 end;
 
