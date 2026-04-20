@@ -148,7 +148,8 @@ function RegOpenKeyExView(const RegView: TRegView; hKey: HKEY; lpSubKey: PChar;
 function RegDeleteKeyView(const RegView: TRegView; const Key: HKEY; const Name: PChar): Longint;
 function RegDeleteKeyIncludingSubkeys(const RegView: TRegView; const Key: HKEY; const Name: PChar): Longint;
 function RegDeleteKeyIfEmpty(const RegView: TRegView; const RootKey: HKEY; const SubkeyName: PChar): Longint;
-function GetShellFolderPath(const FolderID: Integer): String;
+function GetShellFolderPath(const FolderID: Integer): String; overload;
+function GetShellFolderPath(const FolderID: Integer; out Path: String): HRESULT; overload;
 function GetCurrentUserSid: String;
 function IsAdminLoggedOn: Boolean;
 function IsPowerUserLoggedOn: Boolean;
@@ -1041,17 +1042,31 @@ function SHGetFolderPath_shell32(hwnd: HWND; csidl: Integer; hToken: THandle;
   dwFlags: DWORD; pszPath: LPWSTR): HResult; stdcall;
   external 'shell32.dll' name 'SHGetFolderPathW';
 
-function GetShellFolderPath(const FolderID: Integer): String;
+function GetShellFolderPath(const FolderID: Integer; out Path: String): HRESULT;
+{ Gets the path of the specified folder (a CSIDL_* constant).
+  If successful, Path contains the path and the return value is S_OK.
+  On failure, Path is an empty string and the return value is not S_OK.
+  Callers can detect failure by checking for either an empty Path or a
+  non-S_OK return value; it is not necessary to check both. }
 const
   SHGFP_TYPE_CURRENT = 0;
 var
   Buf: array[0..MAX_PATH-1] of Char;
 begin
-  const Res = SHGetFolderPath_shell32(0, FolderID, 0, SHGFP_TYPE_CURRENT, Buf);
-  if Res = S_OK then
-    Result := Buf
-  else
-    Result := '';
+  Result := SHGetFolderPath_shell32(0, FolderID, 0, SHGFP_TYPE_CURRENT, Buf);
+  if Result = S_OK then begin
+    Path := Buf;
+    if Path = '' then  { just in case; not known to happen }
+      Result := E_FAIL;
+  end else
+    Path := '';
+end;
+
+function GetShellFolderPath(const FolderID: Integer): String;
+{ Gets the path of the specified folder (a CSIDL_* constant). On failure, an
+  empty string is returned. }
+begin
+  GetShellFolderPath(FolderID, Result);
 end;
 
 function GetCurrentUserSid: String;

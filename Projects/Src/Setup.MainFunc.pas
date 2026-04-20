@@ -203,12 +203,11 @@ procedure LogArchiveExtractionModeOnce;
 procedure InitializeCommonVars;
 procedure InitializeSetup;
 procedure InitializeWizard;
-procedure InitMainNonSHFolderConstsAndPathRedir;
+procedure InitMainNonGetShellFolderPathConstsAndPathRedir;
 function InstallOnThisVersion(const MinVersion: TSetupVersionData;
   const OnlyBelowVersion: TSetupVersionData): TInstallOnThisVersionResult;
 function IsEntryBitness64Bit(const Bitness: TSetupEntryBitness): Boolean;
 function IsRecurseableDirectory(const FindData: TWin32FindData): Boolean;
-procedure LoadSHFolderDLL;
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer;
 function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
@@ -245,7 +244,6 @@ function ShouldProcessRunEntry(const WizardComponents, WizardTasks: TStringList;
   const RunEntry: PSetupRunEntry): Boolean;
 procedure ShowExceptionMsg;
 procedure ShowExceptionMsgText(const S: String);
-procedure UnloadSHFolderDLL;
 function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
 function IsWindows8: Boolean;
 function IsWindows10: Boolean;
@@ -270,9 +268,6 @@ uses
 var
   ShellFolders: array[Boolean, TShellFolderID] of String;
   ShellFoldersRead: array[Boolean, TShellFolderID] of Boolean;
-  SHFolderDLLHandle: HMODULE;
-  SHGetFolderPathFunc: function(hwndOwner: HWND; nFolder: Integer;
-    hToken: THandle; dwFlags: DWORD; pszPath: PChar): HRESULT; stdcall;
   SHGetKnownFolderPathFunc: function(const rfid: TGUID; dwFlags: DWORD; hToken: THandle;
     var ppszPath: PWideChar): HRESULT; stdcall;
 
@@ -1345,7 +1340,7 @@ begin
     Result := S;
 end;
 
-procedure InitMainNonSHFolderConstsAndPathRedir;
+procedure InitMainNonGetShellFolderPathConstsAndPathRedir;
 
   function GetPath(const RegView: TRegView; const Name: PChar): String;
   var
@@ -1680,40 +1675,10 @@ begin
   end;
 end;
 
-procedure LoadSHFolderDLL;
-var
-  Filename: String;
-const
-  shfolder = 'shfolder.dll';
-begin
-  Filename := AddBackslash(GetSystemDir) + shfolder;
-  { Ensure shell32.dll is pre-loaded so it isn't loaded/freed for each
-    individual SHGetFolderPath call }
-  SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32, SEM_NOOPENFILEERRORBOX);
-  SHFolderDLLHandle := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
-  if SHFolderDLLHandle = 0 then
-    InternalError(Format('Failed to load DLL "%s"', [Filename]));
-  @SHGetFolderPathFunc := GetProcAddress(SHFolderDLLHandle, 'SHGetFolderPathW');
-  if @SHGetFolderPathFunc = nil then
-    InternalError('Failed to get address of SHGetFolderPath function');
-end;
-
-procedure UnloadSHFolderDLL;
-begin
-  @SHGetFolderPathFunc := nil;
-  if SHFolderDLLHandle <> 0 then begin
-    FreeLibrary(SHFolderDLLHandle);
-    SHFolderDLLHandle := 0;
-  end;
-end;
-
 function GetShellFolderByCSIDL(Folder: Integer; const Create: Boolean): String;
-const
-  CSIDL_FLAG_CREATE = $8000;
-  SHGFP_TYPE_CURRENT = 0;
 var
   Res: HRESULT;
-  Buf: array[0..MAX_PATH-1] of Char;
+  Path: String;
 begin
   { Note: Must pass Create=True or else SHGetFolderPath fails if the
     specified CSIDL is valid but doesn't currently exist. }
@@ -1730,15 +1695,14 @@ begin
     flag first, it seems to permanently cache the failure code, causing future
     calls that don't include the flag to fail as well. }
   if Folder and CSIDL_FLAG_CREATE <> 0 then
-    Res := SHGetFolderPathFunc(0, Folder and not CSIDL_FLAG_CREATE, 0,
-      SHGFP_TYPE_CURRENT, Buf)
+    Res := GetShellFolderPath(Folder and not CSIDL_FLAG_CREATE, Path)
   else
     Res := E_FAIL;  { always issue the call below }
 
   if Res <> S_OK then
-    Res := SHGetFolderPathFunc(0, Folder, 0, SHGFP_TYPE_CURRENT, Buf);
+    Res := GetShellFolderPath(Folder, Path);
   if Res = S_OK then
-    Result := RemoveBackslashUnlessRoot(PathExpand(Buf))
+    Result := RemoveBackslashUnlessRoot(PathExpand(Path))
   else begin
     Result := '';
     LogFmt('Warning: SHGetFolderPath failed with code 0x%.8x on folder 0x%.4x',
@@ -3667,15 +3631,12 @@ begin
       if not IsAdmin then AbortInit(msgAdminPrivilegesRequired);
   end;
 
-  { Init main constants, not depending on shfolder.dll/_shfoldr.dll. This also
+  { Init main constants, not depending on GetShellFolderPath. This also
     initializes the Setup.PathRedir unit. }
-  InitMainNonSHFolderConstsAndPathRedir;
+  InitMainNonGetShellFolderPathConstsAndPathRedir;
 
   { Create temporary directory }
   CreateTempInstallDir;
-
-  { Load system's "shfolder.dll" }
-  LoadSHFolderDLL;
 
   { Save DecompressorDLL stream as "_isdecmp.dll" in TempInstallDir, and load it }
   if SetupHeader.CompressMethod in [cmZip, cmBzip] then
@@ -4040,9 +4001,6 @@ begin
     SevenZipDLLDeInit;
     FreeLibrary(SevenZipDLLHandle);
   end;
-
-  { Free the shfolder.dll handle }
-  UnloadSHFolderDLL;
 
   { Remove TempInstallDir }
   RemoveTempInstallDir;

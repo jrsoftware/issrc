@@ -642,19 +642,16 @@ begin
 
     DeleteResidualTempUninstallDirs;
 
-    { Init main constants, not depending on shfolder.dll/_shfoldr.dll. This also
+    { Init main constants, not depending on GetShellFolderPath. This also
       initializes the Setup.PathRedir unit. If CompiledCodeText is empty then
       currently it actually only needs the Setup.PathRedir unit initialization,
       but init everything always anyway. }
-    InitMainNonSHFolderConstsAndPathRedir;
+    InitMainNonGetShellFolderPathConstsAndPathRedir;
 
     { Create temporary directory }
     CreateTempInstallDir;
 
     if CompiledCodeText <> '' then begin
-      { Load system's "shfolder.dll" }
-      LoadSHFolderDLL;
-
       { Setup some global variables which are accessible to [Code] }
       UninstallExeFilename := UninstExeFilename;
       UninstallExpandedAppId := UninstLog.AppId;
@@ -806,7 +803,6 @@ begin
     end;
   finally
     FreeAndNil(CodeRunner);
-    UnloadSHFolderDLL;
     RemoveTempInstallDir;
     UninstLog.Free;
     FreeAndNil(UninstDataFile);
@@ -906,7 +902,6 @@ begin
     Log('Detected restart. Removing temporary directory.');
 
     try
-      UnloadSHFolderDLL;
       RemoveTempInstallDir;
     except
       ShowExceptionMsg;
