@@ -83,7 +83,7 @@ end;
 
 procedure TMainFormToolsHelper.ShowMsgBoxDesignerForm(const AMemo: TScintEdit);
 begin
-  if (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scCode) and
+  if (TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scCode) and
      (MsgBox(SToolsNotInCodeSectionConfirm,
       SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDNO) then
     Exit;
@@ -114,7 +114,7 @@ begin
     begin
       AMemo.CaretColumn := 0;
       var Text := RegistryDesignerForm.Text;
-      if FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scRegistry then
+      if TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scRegistry then
         Text := '[Registry]' + SNewLine + Text;
       AMemo.MainSelText := Text;
     end;
@@ -131,7 +131,7 @@ begin
     if FilesDesignerForm.ShowModal = mrOk then begin
       AMemo.CaretColumn := 0;
       var Text := FilesDesignerForm.Text;
-      if FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scFiles then
+      if TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scFiles then
         Text := '[Files]' + SNewLine + Text;
       AMemo.MainSelText := Text;
     end;
