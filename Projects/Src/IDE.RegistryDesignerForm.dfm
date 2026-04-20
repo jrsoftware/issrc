@@ -118,7 +118,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
   object AppRegistryUninsDeleteKeyCheck: TCheckBox
     Left = 16
     Top = 109
-    Width = 225
+    Width = 245
     Height = 17
     Caption = 'Also delete keys which are not empty'
     TabOrder = 5
@@ -126,7 +126,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
   object AppRegistryUninsDeleteKeyIfEmptyCheck: TCheckBox
     Left = 8
     Top = 89
-    Width = 225
+    Width = 245
     Height = 17
     Caption = 'Delete keys which are empty on uninstall'
     Checked = True
@@ -136,7 +136,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
   object AppRegistryUninsDeleteValueCheck: TCheckBox
     Left = 8
     Top = 139
-    Width = 225
+    Width = 245
     Height = 17
     Caption = 'Delete values on uninstall'
     Checked = True

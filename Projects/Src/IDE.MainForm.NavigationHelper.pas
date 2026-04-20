@@ -139,7 +139,7 @@ procedure TMainFormNavigationHelper.UpdateNavigationMenu(const Menu: TMenuItem);
 
     var Caption: String;
     if MemosTabSet.Visible then
-      Caption := Format('%s: %s', [MemosTabSet.Tabs[MemoToTabIndex(NavItem.Memo)], LineInfo])
+      Caption := Format('%s: %s', [MemoToTabName(NavItem.Memo), LineInfo])
     else
       Caption := LineInfo;
 

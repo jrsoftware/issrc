@@ -2,7 +2,7 @@ unit IDE.Wizard.WizardFormFilesHelper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -168,6 +168,7 @@ begin
       for I := 0 to FileList.Count-1 do
         AddWizardFile(FileList[I], []);
       UpdateWizardFiles;
+      UpdateWizardFilesButtons;
     end;
   finally
     FileList.Free;
@@ -194,6 +195,7 @@ begin
       Options := [];
     AddWizardFile(AddBackslash(Path) + '*', Options);
     UpdateWizardFiles;
+    UpdateWizardFilesButtons;
   end;
 end;
 
@@ -226,6 +228,7 @@ begin
   WizardFile.DestName := DestName;
   WizardFile.ExternalSize := Round(ExternalSize*1024*1024);
   UpdateWizardFiles;
+  UpdateWizardFilesButtons;
 end;
 
 procedure TWizardFormFilesHelper.EditButtonClick(Sender: TObject);

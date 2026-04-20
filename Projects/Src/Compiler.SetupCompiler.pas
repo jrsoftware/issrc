@@ -5754,7 +5754,7 @@ begin
         if Sign in [fsYes, fsOnce] then begin
           if Verification.Typ = fvHash then
             AbortCompileFmt(SCompilerFilesParamFlagConflict,
-              [ParamCommonFlags, 'Hash', SignFlags[Sign]]);
+              ['Hash', SignFlags[Sign]]);
           if Verification.Typ = fvISSig then
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, SignFlags[Sign], 'issigverify']);

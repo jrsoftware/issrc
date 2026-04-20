@@ -422,11 +422,14 @@ begin
 
                   if ValueType in [vtSzAsList, vtExpandSz] then
                   begin
-                    Entry.ValueData := Entry.ValueData.Replace(#0, '');
+                    Entry.ValueData := Entry.ValueData.Replace(#0, '')
+                                                      .Replace('{', '{{');
                     Entry.ValueType := IfThen(ValueType = vtSzAsList, 'string', 'expandsz');
                   end else if ValueType = vtMultiSz then
                   begin
-                    Entry.ValueData := Entry.ValueData.Replace(#0, '{break}');
+                    Entry.ValueData := Entry.ValueData.TrimEnd([#0])
+                                                      .Replace('{', '{{')
+                                                      .Replace(#0, '{break}');
                     Entry.ValueType := 'multisz';
                   end else
                     Entry.ValueType := 'binary';

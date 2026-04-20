@@ -664,7 +664,6 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
         NextToken;
         const AParamCount = ParseFormalParams(Parser, ParamList);
         try
-          Inc(FExpr);
           P := FExpr;
           MacroExprPos.FileIndex := FCurrentFile;
           MacroExprPos.Line := FCurrentLine;

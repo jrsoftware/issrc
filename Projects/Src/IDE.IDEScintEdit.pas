@@ -136,7 +136,7 @@ type
   end;
 
   TIDEScintEditNavItem = record
-    Memo: TIDEScintEdit;
+    Memo: TIDEScintEdit; { May be hidden so don't use MemoToTabIndex }
     Line, Column, VirtualSpace: Integer;
     constructor Create(const AMemo: TIDEScintEdit);
     function EqualMemoAndLine(const ANavItem: TIDEScintEditNavItem): Boolean;
