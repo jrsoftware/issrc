@@ -38,13 +38,16 @@ uses
   IDE.Messages, IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.SignToolsForm, IDE.MsgBoxDesignerForm,
   IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.Wizard.WizardFormRegistryHelper;
 
+{$IFNDEF WIN64}
+function Wow64DisableWow64FsRedirection_static(var OldValue: PVOID): BOOL; stdcall;
+  external kernel32 name 'Wow64DisableWow64FsRedirection';
+function Wow64RevertWow64FsRedirection_static(OldValue: PVOID): BOOL; stdcall;
+  external kernel32 name 'Wow64RevertWow64FsRedirection';
+{$ENDIF}
+
 procedure TMainFormToolsHelper.StartAddRemovePrograms;
 var
   Dir: String;
-  Wow64DisableWow64FsRedirectionFunc: function(var OldValue: Pointer): BOOL; stdcall;
-  Wow64RevertWow64FsRedirectionFunc: function(OldValue: Pointer): BOOL; stdcall;
-  RedirDisabled: Boolean;
-  RedirOldValue: Pointer;
   StartupInfo: TStartupInfo;
   ProcessInfo: TProcessInformation;
 begin
@@ -56,20 +59,19 @@ begin
     appwiz.cpl is buggy on XP x64 RC2 -- it doesn't show any Change/Remove
     buttons on 64-bit MSI entries, and it doesn't list non-MSI 64-bit apps
     at all. }
-  Wow64DisableWow64FsRedirectionFunc := GetProcAddress(GetModuleHandle(kernel32),
-    'Wow64DisableWow64FsRedirection');
-  Wow64RevertWow64FsRedirectionFunc := GetProcAddress(GetModuleHandle(kernel32),
-    'Wow64RevertWow64FsRedirection');
-  RedirDisabled := Assigned(Wow64DisableWow64FsRedirectionFunc) and
-    Assigned(Wow64RevertWow64FsRedirectionFunc) and
-    Wow64DisableWow64FsRedirectionFunc(RedirOldValue);
+  {$IFNDEF WIN64}
+  var RedirOldValue: PVOID;
+  const RedirDisabled = Wow64DisableWow64FsRedirection_static(RedirOldValue);
   try
+  {$ENDIF}
     Win32Check(CreateProcess(nil, PChar('"' + AddBackslash(Dir) + 'control.exe" appwiz.cpl'),
        nil, nil, False, 0, nil, PChar(Dir), StartupInfo, ProcessInfo));
+  {$IFNDEF WIN64}
   finally
     if RedirDisabled then
-      Wow64RevertWow64FsRedirectionFunc(RedirOldValue);
+      Wow64RevertWow64FsRedirection_static(RedirOldValue);
   end;
+  {$ENDIF}
   CloseHandle(ProcessInfo.hProcess);
   CloseHandle(ProcessInfo.hThread);
 end;
