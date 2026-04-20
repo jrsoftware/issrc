@@ -310,7 +310,7 @@ begin
         Continue;
       var Comment: String;
       if LineBuf.StartsWith('//') or
-         (FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[I]) = scCode) then
+         (TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[I]) = scCode) then
         Comment := '//'
       else
         Comment := ';';

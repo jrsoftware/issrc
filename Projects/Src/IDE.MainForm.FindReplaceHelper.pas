@@ -289,7 +289,7 @@ begin
   while (StartPos < EndPos) and
         Memo.FindText(StartPos, EndPos, DirectiveName, [sfoWholeWord], Range) do begin
     var Line := Memo.GetLineFromPosition(Range.StartPos);
-    if FMemosStyler.GetSectionFromLineState(Memo.Lines.State[Line]) = scSetup then begin
+    if TInnoSetupStyler.GetSectionFromLineState(Memo.Lines.State[Line]) = scSetup then begin
       var LineValue := Memo.Lines[Line].Trim; { LineValue can't be empty }
       if LineValue[1] <> ';' then begin
         var LineParts := LineValue.Split(['=']);

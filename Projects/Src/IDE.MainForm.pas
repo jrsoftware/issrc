@@ -97,6 +97,7 @@ type
     CurrentCallTipWord: String;
     CurrentCallTip: Integer;
     MaxCallTips: Integer;
+    ISPPExpressionContext: Boolean;
   end;
 
   TUpdatePanelMessage = class
@@ -3528,7 +3529,7 @@ procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
 
   function HighlightAtCursorAllowed(const Word: TScintRawString): Boolean;
   begin
-    const Section = FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
+    const Section = TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
     Result := FMemosStyler.HighlightAtCursorAllowed(Section, AMemo.ConvertRawStringToString(Word));
   end;
 
@@ -3721,7 +3722,10 @@ begin
           NNT(awtScriptProperty, 'ac\properties-filled'),
           NNT(awtScriptEvent, 'ac\event-filled'),
           NNT(awtScriptKeyword, 'ac\list'),
-          NNT(awtScriptEnumValue, 'ac\constant-filled')];
+          NNT(awtScriptEnumValue, 'ac\constant-filled'),
+          NNT(awtISPPFunction, 'ac\method-filled'),
+          NNT(awtISPPVariable, 'ac\variables'),
+          NNT(awtISPPConstant, 'ac\constant-filled')];
 
         for var NamedType in NamedTypes do
           AddMarkerOrAcBitmap(AutoCompleteBitmaps, DC, BitmapInfo, NamedType.Key, AutoCompleteBkBrush, ImageList, NamedType.Value);
@@ -4136,7 +4140,7 @@ begin
     FActiveMemo.CaretColumnExpandedForTabs + 1]);
   if FOptions.ShowCaretPosition then begin
     const CaretPos = FActiveMemo.CaretPosition;
-    const Section = FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine], False);
+    const Section = TInnoSetupStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine], False);
     const Style = FActiveMemo.GetStyleAtPosition(CaretPos);
     Text := Format('%s-%s@%d+%d:%s', [
       Copy(GetEnumName(TypeInfo(TInnoSetupStylerSection), Ord(Section)), 3, MaxInt),
@@ -4395,7 +4399,7 @@ procedure TMainForm.MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
 
   begin
     var Highlighted := False;
-    var Section := FMemosStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
+    var Section := TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
     if (Section <> scNone) and (AMemo.CaretVirtualSpace = 0) then begin
       var Pos := AMemo.CaretPosition;
       Highlighted := Highlighted or HighlightPos(AMemo, Pos, False, OpeningBraces);
@@ -4766,14 +4770,39 @@ procedure TMainForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
   end;
 
 begin
-  var Pos := FActiveMemo.GetPositionFromPoint(Info.CursorPos, True, True);
+  const Pos = FActiveMemo.GetPositionFromPoint(Info.CursorPos, True, True);
   if Pos < 0 then
     Exit;
-  var Line := FActiveMemo.GetLineFromPosition(Pos);
+  const Line = FActiveMemo.GetLineFromPosition(Pos);
+
+  { Check if cursor is over an ISPP expression context. Checked before
+    [Code] so it wins when an ISPP directive line sits inside [Code]. }
+  if FMemosStyler.ISPPInstalled then begin
+    const VarOrFuncRange = FindVarOrFuncRange(Pos);
+    if VarOrFuncRange.EndPos > VarOrFuncRange.StartPos then begin
+      const LinePos = FActiveMemo.GetPositionFromLine(Line);
+      if IsInISPPExpressionContext(FActiveMemo, LinePos, VarOrFuncRange.StartPos) then begin
+        const Name = FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
+        var Count: Integer;
+        const FunctionDefinition = FMemosStyler.GetISPPFunctionDefinition(Name, 0, Count);
+        if Count > 0 then begin
+          if Count <> 1 then
+            raise Exception.CreateFmt('MemoHintShow: unexpected Count (%d)', [Count]);
+          const HintStr = ScriptFuncHeaderKindToStr(FunctionDefinition.HeaderKind) +
+            String(FunctionDefinition.ScriptFuncWithoutHeader);
+          UpdateInfo(Info, HintStr, VarOrFuncRange, FActiveMemo);
+        end;
+        { Exit whether we found the function or not: should not try to
+          lookup [Code] variable or function since we already detected
+          ISPP expression context. }
+        Exit;
+      end;
+    end;
+  end;
 
   { Check if cursor is over a [Code] variable or function }
-  if FMemosStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]) = scCode then begin
-    var VarOrFuncRange := FindVarOrFuncRange(Pos);
+  if TInnoSetupStyler.GetSectionFromLineState(FActiveMemo.Lines.State[Line]) = scCode then begin
+    const VarOrFuncRange = FindVarOrFuncRange(Pos);
     if VarOrFuncRange.EndPos > VarOrFuncRange.StartPos then begin
       var HintStr := '';
       var DebugEntry: PVariableDebugEntry;
@@ -4788,7 +4817,7 @@ begin
         end;
       end else begin
         var ClassMember := False;
-        var Name := FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
+        const Name = FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
         var Index := 0;
         var Count: Integer;
         var FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
@@ -4801,13 +4830,8 @@ begin
             FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index);
           if HintStr <> '' then
             HintStr := HintStr + #13;
-          if FunctionDefinition.HeaderKind = hkFunction then
-            HintStr := HintStr + 'function '
-          else if FunctionDefinition.HeaderKind = hkProcedure then
-            HintStr := HintStr + 'procedure '
-          else
-            HintStr := HintStr + 'constructor ';
-          HintStr := HintStr + String(FunctionDefinition.ScriptFuncWithoutHeader);
+          HintStr := HintStr + ScriptFuncHeaderKindToStr(FunctionDefinition.HeaderKind) +
+            String(FunctionDefinition.ScriptFuncWithoutHeader);
           Inc(Index);
         end;
       end;
@@ -4821,7 +4845,7 @@ begin
 
   if FDebugClientWnd <> 0 then begin
     { Check if cursor is over a constant }
-    var ConstRange := FindConstRange(Pos);
+    const ConstRange = FindConstRange(Pos);
     if ConstRange.EndPos > ConstRange.StartPos then begin
       var HintStr := FActiveMemo.GetTextRange(ConstRange.StartPos, ConstRange.EndPos);
       var Output: String;
