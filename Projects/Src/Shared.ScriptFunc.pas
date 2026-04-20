@@ -221,11 +221,11 @@ end;
 
 function ExtractISPPScriptFuncWithoutHeaderName(const ScriptFuncWithoutHeader: AnsiString): AnsiString;
 begin
-  const ParenPos = Pos(AnsiString('('), ScriptFuncWithoutHeader);
-  if ParenPos = 0 then
+  const P = Pos(AnsiString('('), ScriptFuncWithoutHeader);
+  if P = 0 then
     Result := ScriptFuncWithoutHeader
   else
-    Result := Copy(ScriptFuncWithoutHeader, 1, ParenPos - 1);
+    Result := Copy(ScriptFuncWithoutHeader, 1, P-1);
 end;
 
 function ScriptFuncHeaderKindToStr(const Kind: TScriptFuncHeaderKind): String;

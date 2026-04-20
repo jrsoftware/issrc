@@ -86,7 +86,8 @@ type
     HasParams: Boolean;
     constructor Create(const ScriptFunc: AnsiString);
     {$WARN DUPLICATE_CTOR_DTOR OFF} { Don't care about C++ }
-    constructor CreateISPP(const ISPPSignature: AnsiString);
+    constructor CreateISPP(const ISPPScriptFunc: AnsiString);
+    {.$WARN DUPLICATE_CTOR_DTOR ON} { Restoring doesn't work }
   end;
   TFunctionDefinitions = array of TFunctionDefinition;
   TFunctionDefinitionsByName = TDictionary<String, TFunctionDefinitions>;
@@ -99,7 +100,7 @@ type
     FFlagsWords: TWordsBySection;
     FISPPDirectivesWordList, FConstantsWordList: AnsiString;
     FISPPFunctionsByName: TFunctionDefinitionsByName;
-    FISPPWordList: AnsiString;
+    FISPPExpressionWordList: AnsiString;
     FScriptFunctionsByName: array[Boolean] of TFunctionDefinitionsByName;
     FScriptWordList: array[Boolean] of AnsiString;
     FSectionsWordList: AnsiString;
@@ -118,7 +119,7 @@ type
     procedure BuildFlagsWordList(const Section: TInnoSetupStylerSection;
      const Flags: array of TScintRawString);
     procedure BuildISPPDirectivesWordList;
-    procedure BuildISPPWordList;
+    procedure BuildISPPExpressionWordList;
     procedure BuildKeywordsWordList(const Section: TInnoSetupStylerSection;
       const Parameters: array of TScintRawString);
     procedure BuildKeywordsWordListFromTypeInfo(const Section: TInnoSetupStylerSection;
@@ -181,8 +182,8 @@ type
     property EventFunctionsWordList[Procedures: Boolean]: AnsiString read GetEventFunctionsWordList;
     property FlagsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetFlagsWordList;
     property ISPPDirectivesWordList: AnsiString read FISPPDirectivesWordList;
+    property ISPPExpressionWordList: AnsiString read FISPPExpressionWordList;
     property ISPPInstalled: Boolean read FISPPInstalled write SetISPPInstalled;
-    property ISPPWordList: AnsiString read FISPPWordList;
     property KeywordsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordsWordList;
     property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
     property SectionsWordList: AnsiString read FSectionsWordList;
@@ -790,10 +791,10 @@ begin
   HasParams := ScriptFuncHasParameters(ScriptFunc);
 end;
 
-constructor TFunctionDefinition.CreateISPP(const ISPPSignature: AnsiString);
+constructor TFunctionDefinition.CreateISPP(const ISPPScriptFunc: AnsiString);
 begin
-  ScriptFuncWithoutHeader := RemoveISPPScriptFuncHeader(ISPPSignature, HeaderKind);
-  HasParams := ScriptFuncHasParameters(ISPPSignature);
+  ScriptFuncWithoutHeader := RemoveISPPScriptFuncHeader(ISPPScriptFunc, HeaderKind);
+  HasParams := ScriptFuncHasParameters(ISPPScriptFunc);
 end;
 
 { TInnoSetupStyler }
@@ -924,7 +925,7 @@ begin
   BuildFlagsWordLists;
   BuildISPPDirectivesWordList;
   FISPPFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
-  BuildISPPWordList;
+  BuildISPPExpressionWordList;
   BuildKeywordsWordLists;
   BuildSectionsWordList;
   BuildSetupDirectiveValueWordLists;
@@ -1098,7 +1099,7 @@ begin
   end;
 end;
 
-procedure TInnoSetupStyler.BuildISPPWordList;
+procedure TInnoSetupStyler.BuildISPPExpressionWordList;
 begin
   const SL = TStringList.Create;
   try
@@ -1114,7 +1115,7 @@ begin
       AddWordToList(SL, ISPPPredefinedVariable, awtISPPVariable);
     for var ISPPConstant in ISPPConstants do
       AddWordToList(SL, ISPPConstant, awtISPPConstant);
-    FISPPWordList := BuildWordList(SL);
+    FISPPExpressionWordList := BuildWordList(SL);
   finally
     SL.Free;
   end;

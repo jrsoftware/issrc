@@ -220,7 +220,7 @@ begin
       if not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo, LinePos, PositionBeforeWordStartPos, True) then
         Exit;
     end;
-    WordList := FMemosStyler.ISPPWordList;
+    WordList := FMemosStyler.ISPPExpressionWordList;
     AMemo.SetAutoCompleteFillupChars('');
   end else begin
     const WordStartPos = AMemo.GetWordStartPosition(CaretPos, True);

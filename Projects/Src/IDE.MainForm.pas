@@ -4775,8 +4775,8 @@ begin
     Exit;
   const Line = FActiveMemo.GetLineFromPosition(Pos);
 
-  { Check if cursor is over an ISPP function. Checked before [Code] so
-    it wins when an ISPP directive line sits inside [Code]. }
+  { Check if cursor is over an ISPP expression context. Checked before
+    [Code] so it wins when an ISPP directive line sits inside [Code]. }
   if FMemosStyler.ISPPInstalled then begin
     const VarOrFuncRange = FindVarOrFuncRange(Pos);
     if VarOrFuncRange.EndPos > VarOrFuncRange.StartPos then begin
