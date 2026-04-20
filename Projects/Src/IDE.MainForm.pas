@@ -4715,9 +4715,14 @@ procedure TMainForm.MemoHintShow(Sender: TObject; var Info: TScintHintInfo);
   begin
     { Note: The GetPositionAfter is needed so that when the mouse is over a '.'
       between two words, it won't match the word to the left of the '.' }
+    const SavedWordChars = FActiveMemo.WordChars;
     FActiveMemo.SetDefaultWordChars;
-    Result.StartPos := FActiveMemo.GetWordStartPosition(FActiveMemo.GetPositionAfter(Pos), True);
-    Result.EndPos := FActiveMemo.GetWordEndPosition(Pos, True);
+    try
+      Result.StartPos := FActiveMemo.GetWordStartPosition(FActiveMemo.GetPositionAfter(Pos), True);
+      Result.EndPos := FActiveMemo.GetWordEndPosition(Pos, True);
+    finally
+      FActiveMemo.SetWordChars(SavedWordChars);
+    end;
   end;
 
   function FindConstRange(const Pos: Integer): TScintRange;
