@@ -27,9 +27,9 @@ type
     class function IsInISPPExpressionContext(const AMemo: TScintEdit;
       const LinePos, ScanEndPos: Integer): Boolean; static;
     { Private }
-    function _InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
+    class function _InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
       const WordStartLinePos, PositionBeforeWordStartPos: Integer;
-      const ISPPExpressionContext: Boolean): Boolean;
+      const ISPPExpressionContext: Boolean): Boolean; static;
     procedure _UpdateCallTipFunctionDefinition(const AMemo: TScintEdit; const Pos: Integer = -1);
     procedure _InitiateCallTip(const AMemo: TScintEdit; const Key: AnsiChar);
     procedure _ContinueCallTip(const AMemo: TScintEdit);
@@ -42,7 +42,7 @@ uses
   Shared.SetupSectionDirectives,
   IDE.ScintStylerInnoSetup;
 
-function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
+class function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
   const WordStartLinePos, PositionBeforeWordStartPos: Integer;
   const ISPPExpressionContext: Boolean): Boolean;
 begin
