@@ -28,6 +28,7 @@ applyTo: "**/*.pas,**/*.dpr,**/*.inc"
 - All errors must be checked. Installers should be reliable above all.
 - Be alert for `out` parameters: an `out` parameter, like a `var` parameter, is passed by reference. However, with an `out` parameter, the initial value of the referenced variable for managed types, such as strings or arrays, is discarded by the caller before it is passed to the routine. Meanwhile, the initial value for unmanaged types, such as integers or pointers, is ignored. Therefore, for unmanaged types, it is not guaranteed that the initial value of the referenced variable will be overwritten in the routine to which it is passed. 
 - Be alert for functions not assigning a value to Result: if a function exits without assigning a value to Result or the function name, then the function's return value is undefined, even for managed types.
+- Be alert for dynamic-array aliasing: assigning one dynamic array (e.g. `TBytes`) to another makes both reference the same buffer. Unlike strings and static arrays, copy-on-write is not employed, so writes through one alias (including `FillChar`) are visible through the other. Use `Copy(Source)` when an independent buffer is needed.
 - Code must be compatible with Delphi 10.4 Sydney and later.
 - Code must be compatible with 32-bit and 64-bit builds.
 - Code must be compatible with Windows 7 and later.
