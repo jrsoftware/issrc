@@ -48,7 +48,7 @@ begin
     for var Block := 1 to L do begin
       const SaltAndBlock = Salt + [Byte(Block shr 24), Byte(Block shr 16), Byte(Block shr 8), Byte(Block)];
       var U := THashSHA2.GetHMACAsBytes(SaltAndBlock, WorkingPassword, HashVersion);
-      var F := U;
+      var F := Copy(U);
 
       for var I := 2 to Iterations do begin
         const NewU = THashSHA2.GetHMACAsBytes(U, WorkingPassword, HashVersion);
