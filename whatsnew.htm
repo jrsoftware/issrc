@@ -59,6 +59,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
         For example, if the archive contained a file in a subdirectory as its first entry (for example, <tt>subdir\file1.txt</tt> followed by <tt>file2.txt</tt>) and <tt>recursesubdirs</tt> was not used, no files would be extracted at all, not even <tt>file2.txt</tt>.</li>
     <li>ISPP: Fixed handling of relative filenames by support functions <tt>ReadIni</tt>, <tt>WriteIni</tt>, and <tt>Is64BitPEImage</tt> to be the same as other file-related support functions.</li>
     <li>Pascal Scripting: Fixed support functions <tt>InitializeBitmapButtonFromIcon</tt> (broken since its introduction) and <tt>InitializeBitmapImageFromIcon</tt> (broken since 6.5.0).</li>
+	  <li>Setup: Added workaround for limitations in Wine's RichEdit implementation that caused text displayed by the <tt>[Setup]</tt> section directives <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt> to show with unchanged foreground colors when a custom wizard style is active.</li>
     <li>Other minor fixes.</li>
   </ul>
   </li>
