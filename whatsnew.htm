@@ -192,6 +192,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   </ul>
   </li>
   <li>Split the help text shown by the <tt>/HELP</tt> command line parameter across two message boxes for easier reading.</li>
+  <li>Added workaround for limitations in Wine's RichEdit implementation that caused text displayed by the <tt>[Setup]</tt> section directives <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt> to show with unchanged foreground colors when a custom wizard style is active.</li>
   <li>The Inno Setup source code now contains SPDX SBOM metadata.</li>
   <li>Updated the 7-Zip, LZMA SDK, and Scintilla source code used by Inno Setup to the latest versions.</li>
   <li><i>Fix:</i> <tt>[Files]</tt> section entries with the <tt>extractarchive</tt> flag could fail to extract any files from an archive if the first entry in the archive didn't match.<br/>
