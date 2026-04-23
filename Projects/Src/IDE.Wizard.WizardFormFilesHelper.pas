@@ -84,6 +84,7 @@ begin
   for var I := 0 to FWizardFiles.Count-1 do
     Dispose(PWizardFile(FWizardFiles[i]));
   FWizardFiles.Free;
+  inherited;
 end;
 
 function TWizardFormFilesHelper.AddWizardFile(const Source: String; const Options: TWizardFileOptions): PWizardFile;
