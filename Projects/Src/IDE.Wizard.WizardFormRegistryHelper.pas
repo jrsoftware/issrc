@@ -318,9 +318,11 @@ begin
   if FFileEdit.Text = '' then
     Exit;
 
-  var Lines := TStringList.Create;
-  var OutLines := TStringList.Create;
+  var Lines: TStringList := nil;
+  var OutLines: TStringList := nil;
   try
+    Lines := TStringList.Create;
+    OutLines := TStringList.Create;
     Lines.LoadFromFile(FFileEdit.Text);
 
     { Official .reg files must have blank lines as second and last lines but we
@@ -477,8 +479,8 @@ begin
     OutLines.Add(TextFooter(HadFilteredKeys, HadUnsupportedValueTypes));
     Registry := Registry + OutLines.Text;
   finally
-    Lines.Free;
     OutLines.Free;
+    Lines.Free;
   end;
 end;
 
