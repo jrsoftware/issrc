@@ -5913,19 +5913,23 @@ begin
            (Copy(ADestDir, 1, Length('{syswow64}')) = '{syswow64}') then
           WarningsList.Add(SCompilerFilesWarningSharedFileSysWow64);
 
-        SourceIsWildcard := not(foDownload in Options) and IsWildcard(SourceWildcard);
         if ExternalFile then begin
           if RecurseSubdirs then
             Include(Options, foRecurseSubDirsExternal);
           CheckConst(SourceWildcard, MinVersion, []);
+          { Since SourceWildcard contains constants, it shouldn't be passed to
+            IsWildcard. The check below for DestName used in combination with
+            a wildcard in Source isn't supported for external files. }
+          SourceIsWildcard := False;
+        end else begin
+          SourceWildcard := PrependSourceDirName(SourceWildcard);
+          SourceIsWildcard := IsWildcard(SourceWildcard);
         end;
         if (ADestName <> '') and (SourceIsWildcard or (not (foDownload in Options) and (foExtractArchive in Options))) then
           AbortCompile(SCompilerFilesDestNameCantBeSpecified);
         CheckConst(ADestDir, MinVersion, []);
         ADestDir := AddBackslash(ADestDir);
         CheckConst(ADestName, MinVersion, []);
-        if not ExternalFile then
-          SourceWildcard := PrependSourceDirName(SourceWildcard);
 
         CheckCodeParameter(ParamCommonCheck, Check, cpkCheck);
         CheckCodeParameter(ParamCommonBeforeInstall, BeforeInstall, cpkInstall);
