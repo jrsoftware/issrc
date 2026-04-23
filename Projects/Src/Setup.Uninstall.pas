@@ -833,7 +833,7 @@ begin
     SetCurrentDir(GetSystemDir);
 
     UninstExeFilename := NewParamStr(0);
-    ProcessCommandLine;  { note: may change UninstExeFile }
+    ProcessCommandLine;  { note: may change UninstExeFilename }
     UninstDataFilename := PathChangeExt(UninstExeFilename, '.dat');
     UninstMsgFilename := PathChangeExt(UninstExeFilename, '.msg');
 
