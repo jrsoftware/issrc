@@ -419,11 +419,12 @@ begin
     FCallTipState.LastPosCallTip := Pos;
 
   // Should get current api definition
+  const CurrentCallTipWord = AMemo.ConvertRawStringToString(FCallTipState.CurrentCallTipWord);
   var FunctionDefinition: TFunctionDefinition;
   if FCallTipState.ISPPExpressionContext then
-    FunctionDefinition := FMemosStyler.GetISPPFunctionDefinition(FCallTipState.CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips)
+    FunctionDefinition := FMemosStyler.GetISPPFunctionDefinition(CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips)
   else
-    FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(FCallTipState.ClassOrRecordMember, FCallTipState.CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips);
+    FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(FCallTipState.ClassOrRecordMember, CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips);
   if ((FCallTipState.MaxCallTips = 1) and FunctionDefinition.HasParams) or //if there's a single definition then only show if it has a parameter
      (FCallTipState.MaxCallTips > 1) then begin                            //if there's multiple then show always just like MemoHintShow, so even the one without parameters if it exists
     FCallTipState.FunctionDefinition := FunctionDefinition.ScriptFuncWithoutHeader;
@@ -449,11 +450,11 @@ begin
        LinePos, AMemo.GetPositionBefore(Pos), ISPPExpressionContext)) then
     Exit;
 
-  { Based on SciTE 5.50's SciTEBase::StartAutoComplete }
+  { Based on SciTE 5.50's SciTEBase::StartCallTip }
 
   FCallTipState.CurrentCallTip := 0;
   FCallTipState.CurrentCallTipWord := '';
-  var LineText := AMemo.CaretLineText;
+  var LineText := AMemo.RawCaretLineText;
   var Current := AMemo.CaretPositionInLine;
   var CallTipWordCharacters := AMemo.WordCharsAsSet;
   if ISPPExpressionContext then
@@ -496,7 +497,7 @@ begin
   {$ZEROBASEDSTRINGS OFF}
 
   SetLength(LineText, Current);
-  FCallTipState.CurrentCallTipWord := LineText.Substring(FCallTipState.StartCallTipWord); { Substring is zero-based }
+  FCallTipState.CurrentCallTipWord := Copy(LineText, FCallTipState.StartCallTipWord+1, MaxInt);
 
   FCallTipState.FunctionDefinition := '';
   _UpdateCallTipFunctionDefinition(AMemo, Pos);
@@ -507,7 +508,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper._CountCallTipBracesAndCommas(
 begin
   { Based on SciTE 5.50's SciTEBase::ContinueCallTip }
 
-  const Line = AMemo.CaretLineText;
+  const Line = AMemo.RawCaretLineText;
   const Current = AMemo.CaretPositionInLine;
 
   Braces := 0;

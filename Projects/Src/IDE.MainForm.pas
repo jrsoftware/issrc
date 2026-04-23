@@ -94,7 +94,7 @@ type
     BraceCount: Integer;
     LastPosCallTip: Integer;
     ClassOrRecordMember: Boolean;
-    CurrentCallTipWord: String;
+    CurrentCallTipWord: TScintRawString;
     CurrentCallTip: Integer;
     MaxCallTips: Integer;
     ISPPExpressionContext: Boolean;
