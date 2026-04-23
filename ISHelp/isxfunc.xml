@@ -1003,7 +1003,7 @@ end;</pre></example>
       <function>
         <name>IsWildcard</name>
         <prototype>function IsWildcard(const Pattern: String): Boolean;</prototype>
-        <description><p>Returns True if the specified pattern contains a wildcard.</p></description>
+        <description><p>Returns True if the last path component of the specified pattern contains a wildcard.</p></description>
       </function>
       <function>
         <name>WildcardMatch</name>
