@@ -1054,19 +1054,20 @@ function TDownloadWizardPage.DoAdd(const Url, BaseName, RequiredSHA256OfFile, Us
 begin
   if ISSigVerify and DotISSigEntry then
     InternalError('ISSigVerify and DotISSigEntry');
+  var Verification := NoVerification;
+  if RequiredSHA256OfFile <> '' then begin
+    Verification.Typ := fvHash;
+    Verification.Hash := SHA256DigestFromString(RequiredSHA256OfFile)
+  end else if ISSigVerify then begin
+    Verification.Typ := fvISSig;
+    Verification.ISSigAllowedKeys := ISSigAllowedKeys
+  end;
   var F := TDownloadFile.Create;
   F.Url := Url;
   F.BaseName := BaseName;
   F.UserName := UserName;
   F.Password := Password;
-  F.Verification := NoVerification;
-  if RequiredSHA256OfFile <> '' then begin
-    F.Verification.Typ := fvHash;
-    F.Verification.Hash := SHA256DigestFromString(RequiredSHA256OfFile)
-  end else if ISSigVerify then begin
-    F.Verification.Typ := fvISSig;
-    F.Verification.ISSigAllowedKeys := ISSigAllowedKeys
-  end;
+  F.Verification := Verification;
   F.DotISSigEntry := DotISSigEntry;
   F.Data := Data;
   Result := FFiles.Add(F);
