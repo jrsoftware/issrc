@@ -63,7 +63,6 @@ const
   clNone = TColors.SysNone;
 
 function StringToColor(const S: string): TColor;
-function IsRelativePath(const Filename: String): Boolean;
 function CreateMemoryStreamFromFile(const Filename: String; const CheckTrust: Boolean = False;
   const OnCheckedTrust: TProc<Boolean> = nil): TMemoryStream;
 function FileSizeAndCRCIs(const Filename: String; const Size: Cardinal;
@@ -155,17 +154,6 @@ begin
       Hex := '$' + Copy(Hex, 6, 2)  + Copy(Hex, 4, 2) + Copy(Hex, 2, 2);
     Result := TColor(StrToInt(Hex));
   end;
-end;
-
-function IsRelativePath(const Filename: String): Boolean;
-var
-  L: Integer;
-begin
-  Result := True;
-  L := Length(Filename);
-  if ((L >= 1) and (Filename[1] = '\')) or
-     ((L >= 2) and PathCharIsDriveLetter(Filename[1]) and (Filename[2] = ':')) then
-    Result := False;
 end;
 
 function CreateMemoryStreamFromFile(const Filename: String; const CheckTrust: Boolean;

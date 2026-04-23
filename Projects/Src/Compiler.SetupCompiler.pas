@@ -1485,6 +1485,10 @@ begin
 end;
 
 function TSetupCompiler.PrependDirName(const Filename, Dir: String): String;
+{ Filename and/or Dir are allowed to be empty:
+  - If Filename is empty, an empty string is returned.
+  - If Dir is empty, any prefix on Filename (like "compiler:") is expanded,
+    but if there is no prefix then Filename is returned unchanged. }
 
   function GetShellFolderPathCached(const FolderID: Integer;
     var CachedDir: String): String;
@@ -1503,20 +1507,17 @@ function TSetupCompiler.PrependDirName(const Filename, Dir: String): String;
 
 const
   CSIDL_PERSONAL = $0005;
-var
-  P: Integer;
-  Prefix: String;
 begin
-  P := PathPos(':', Filename);
-  if (P = 0) or
-     ((P = 2) and PathCharIsDriveLetter(Filename[1])) then begin
-    if (Filename = '') or not IsRelativePath(Filename) then
+  const P = PathPos(':', Filename);
+  const FilenameRooted = PathIsRooted(Filename);
+  if (P = 0) or FilenameRooted then begin
+    if (Filename = '') or (Dir = '') or FilenameRooted then
       Result := Filename
     else
       Result := Dir + Filename;
   end
   else begin
-    Prefix := Copy(Filename, 1, P-1);
+    const Prefix = Copy(Filename, 1, P-1);
     if Prefix = 'builtin' then
       Result := Filename
     else if Prefix = 'compiler' then
