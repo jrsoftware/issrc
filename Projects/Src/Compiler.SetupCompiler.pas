@@ -5924,6 +5924,13 @@ begin
           SourceIsWildcard := False;
         end else begin
           SourceWildcard := PrependSourceDirName(SourceWildcard);
+          { Convert to super form because "recursesubdirs" could potentially
+            produce paths longer than MAX_PATH. This also calls PathExpand on
+            the path, which helps MergeDuplicateFiles. }
+          var SuperSourceWildcard: String;
+          if not PathConvertNormalToSuper(SourceWildcard, SuperSourceWildcard, True) then
+            AbortCompile('EnumFilesProc: PathConvertNormalToSuper failed');
+          SourceWildcard := SuperSourceWildcard;
           SourceIsWildcard := IsWildcard(SourceWildcard);
         end;
         if (ADestName <> '') and (SourceIsWildcard or (not (foDownload in Options) and (foExtractArchive in Options))) then
