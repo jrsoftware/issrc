@@ -161,7 +161,7 @@ function GetTextWidth(const DC: HDC; S: String; const Prefix: Boolean): Integer;
 function AddPeriod(const S: String): String;
 function GetExceptMessage: String;
 function GetPreferredUIFont: String;
-function IsWildcard(const Pattern: String): Boolean;
+function IsWildcard(const Filename: String): Boolean;
 function WildcardMatch(const Text, Pattern: PChar): Boolean;
 function IntMax(const A, B: Integer): Integer;
 function Win32ErrorString(ErrorCode: DWORD): String;
@@ -1314,9 +1314,15 @@ begin
     Result := 'MS Sans Serif';
 end;
 
-function IsWildcard(const Pattern: String): Boolean;
+function IsWildcard(const Filename: String): Boolean;
 begin
-  Result := (Pos('*', Pattern) <> 0) or (Pos('?', Pattern) <> 0);
+  { To prevent a false positive result on '\\?\'-prefixed paths, only the last
+    path component is checked }
+  for var I := Low(Filename) + PathPathPartLength(Filename, True) to High(Filename) do
+    case Filename[I] of
+      '*', '?': Exit(True);
+    end;
+  Result := False;
 end;
 
 function WildcardMatch(const Text, Pattern: PChar): Boolean;
