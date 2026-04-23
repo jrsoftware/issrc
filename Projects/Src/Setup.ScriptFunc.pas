@@ -248,7 +248,7 @@ var
       Stack.SetClass(PStart, NewOutputMarqueeProgressPage);
     end);
     RegisterScriptFunc('CreateDownloadPage', sfNoUninstall, procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
-    begin;
+    begin
       var NewDownloadPage := TDownloadWizardPage.Create(GetWizardForm);
       try
         NewDownloadPage.Caption := Stack.GetString(PStart-1);
