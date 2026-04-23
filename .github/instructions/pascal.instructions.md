@@ -22,6 +22,7 @@ applyTo: "**/*.pas,**/*.dpr,**/*.inc"
 - Class methods should be static when possible.
 # Code editing guidelines for Pascal source files
 - Do not modify existing comments unless the code they describe is also being changed.
+- Keep new comments short and match the style of existing comments in the file.
 - When modifying code that calls Windows APIs, read the actual documentation before writing code. Do not assume parameter semantics based on similar APIs.
 - Update Inno Setup copyright header of any file you edit, if the current year is not already included.
 # Code review guidelines for Pascal source files

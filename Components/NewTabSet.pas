@@ -2,7 +2,7 @@ unit NewTabSet;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -368,7 +368,7 @@ begin
   if Button = mbLeft then begin
     for I := 0 to FTabs.Count-1 do begin
       R := GetTabRect(I);
-      if (X >= R.Left) and (X < R.Right) then begin
+      if (X >= R.Left) and (X < R.Right) then begin { No Y check needed }
         if ((I = TabIndex) or (I = FHotIndex)) and (I < FCloseButtons.Count) and FCloseButtons[I] then begin
           var R2 := GetCloseButtonRect(R);
           if PtInRect(R2, TPoint.Create(X, Y)) then begin
@@ -532,9 +532,11 @@ end;
 
 procedure TNewTabSet.SetCloseButtons(Value: TBoolList);
 begin
-  FCloseButtons.Clear;
-  for var V in Value do
-    FCloseButtons.Add(V);
+  if Value <> FCloseButtons then begin
+    FCloseButtons.Clear;
+    for var V in Value do
+      FCloseButtons.Add(V);
+  end;
 end;
 
 procedure TNewTabSet.SetHints(const Value: TStrings);
