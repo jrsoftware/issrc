@@ -434,7 +434,7 @@ begin
   if propID = kpidName then
     value := FArchiveFilename
   else
-    value := Unassigned; { Note sure if this is really needed }
+    value := Unassigned; { Not sure if this is really needed }
   Result := S_OK;
 end;
 

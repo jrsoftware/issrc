@@ -2,7 +2,7 @@ unit Compression.bzlib;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -143,7 +143,7 @@ begin
   try
     GetMem(Result, Items * Size);
   except
-    { trap any exception, because zlib expects a NULL result if it's out
+    { trap any exception, because bzlib expects a NULL result if it's out
       of memory }
     Result := nil;
   end;
