@@ -61,7 +61,8 @@ function PathLowercase(const S: String): String;
 function PathNormalizeSlashes(S: String): String;
 function PathPathPartLength(const Filename: String;
   const IncludeSlashesAfterPath: Boolean): Integer;
-function PathPos(Ch: Char; const S: String): Integer;
+function PathPos(const C: Char; const S: String;
+  const Offset: Integer = 1): Integer;
 function PathSame(const S1, S2: String): Boolean;
 function PathStartsWith(const S, AStartsWith: String;
   const IgnoreCase: Boolean = True): Boolean;
@@ -783,19 +784,20 @@ begin
   Result := AnsiLowerCase(S);
 end;
 
-function PathPos(Ch: Char; const S: String): Integer;
-var
-  Len, I: Integer;
+function PathPos(const C: Char; const S: String;
+  const Offset: Integer = 1): Integer;
+{ Like Delphi's Pos function, but searches for a single character instead of a
+  string, making it somewhat faster.
+  Returns 1-based index of the first occurrence of C in S, or 0 if not found.
+  The optional Offset parameter (1-based) specifies where the search should
+  start. If Offset is less than 1, then 0 is returned (same as Delphi's Pos
+  function). }
 begin
-  Len := Length(S);
-  I := 1;
-  while I <= Len do begin
-    if S[I] = Ch then begin
-      Result := I;
-      Exit;
-    end;
-    Inc(I, PathCharLength(S, I));
-  end;
+  if Offset >= 1 then
+    for var I := Offset to Length(S) do
+      if S[I] = C then
+        Exit(I);
+
   Result := 0;
 end;
 
