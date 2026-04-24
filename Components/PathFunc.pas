@@ -410,15 +410,15 @@ begin
   end;
 
   { x: }
-  if Len > 0 then begin
-    I := PathCharLength(Filename, 1) + 1;
-    if (I <= Len) and (Filename[I] = ':') then begin
-      if IncludeSignificantSlash and (I < Len) and PathCharIsSlash(Filename[I+1]) then
-        Result := I+1
-      else
-        Result := I;
-      Exit;
-    end;
+  if (Len >= 2) and (Filename[2] = ':') then begin
+    { We intentionally omit an A-Z check here because Windows doesn't have
+      one. For example, you can define a drive '@:' using DefineDosDevice, and
+      then successfully pass '@:\file' to APIs like GetFileAttributes. }
+    if IncludeSignificantSlash and (Len >= 3) and PathCharIsSlash(Filename[3]) then
+      Result := 3
+    else
+      Result := 2;
+    Exit;
   end;
 
   Result := 0;
@@ -427,22 +427,11 @@ end;
 function PathIsRooted(const Filename: String): Boolean;
 { Returns True if Filename begins with a slash or drive ('x:').
   Equivalent to: PathDrivePartLengthEx(Filename, True) <> 0 }
-var
-  Len, I: Integer;
 begin
-  Result := False;
-  Len := Length(Filename);
-  if Len > 0 then begin
-    { \ or \\ }
-    if PathCharIsSlash(Filename[1]) then
-      Result := True
-    else begin
-      { x: }
-      I := PathCharLength(Filename, 1) + 1;
-      if (I <= Len) and (Filename[I] = ':') then
-        Result := True;
-    end;
-  end;
+  const Len = Length(Filename);
+  Result :=
+    ((Len >= 1) and PathCharIsSlash(Filename[1])) or
+    ((Len >= 2) and (Filename[2] = ':'));
 end;
 
 function PathPathPartLength(const Filename: String;
