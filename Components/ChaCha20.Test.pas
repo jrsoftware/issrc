@@ -18,7 +18,7 @@ procedure ChaCha20RunTests;
 implementation
 
 uses
-  Windows, SysUtils, ChaCha20, UnsignedFunc;
+  {$IFDEF DEBUG} Winapi.Windows, {$ENDIF} System.SysUtils, ChaCha20, UnsignedFunc;
 
 {$C+}
 

@@ -18,7 +18,7 @@ procedure PBKDF2RunTests;
 implementation
 
 uses
-  Windows, SysUtils, PBKDF2;
+  {$IFDEF DEBUG} Winapi.Windows, {$ENDIF} System.SysUtils, PBKDF2;
 
 {$C+}
 
