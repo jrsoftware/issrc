@@ -66,7 +66,7 @@ Under `ISHelp/ISHelpGen/`:
 - Rebuild with `build-precomp.bat` (requires separate repository checkouts); refresh signatures separately with ISSigTool afterward.
 
 ## Testing & Verification
-- No automated tests ship with the repo.
+- Unit tests live in `*.Test.pas` files. No testing framework is used; tests raise an exception on failure.
 - After editing any `.pas`, `.dpr`, `.dproj`, or `.inc` file: run `compile.bat x64` and verify 0 errors.
 - When creating a new file: immediately `git add` to stage it.
 - Otherwise treat Git as read-only.

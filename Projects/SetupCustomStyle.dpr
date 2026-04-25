@@ -123,7 +123,9 @@ uses
   uPSR_stdctrls in '..\Components\UniPs\Source\uPSR_stdctrls.pas',
   uPSRuntime in '..\Components\UniPs\Source\uPSRuntime.pas',
   uPSUtils in '..\Components\UniPs\Source\uPSUtils.pas',
-  PathFunc.Test in '..\Components\PathFunc.Test.pas';
+  PathFunc.Test in '..\Components\PathFunc.Test.pas',
+  ChaCha20.Test in '..\Components\ChaCha20.Test.pas',
+  PBKDF2.Test in '..\Components\PBKDF2.Test.pas';
 
 {$R *.res}
 

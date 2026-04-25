@@ -235,6 +235,8 @@
         <DCCReference Include="..\Components\UniPs\Source\uPSRuntime.pas"/>
         <DCCReference Include="..\Components\UniPs\Source\uPSUtils.pas"/>
         <DCCReference Include="..\Components\PathFunc.Test.pas"/>
+        <DCCReference Include="..\Components\ChaCha20.Test.pas"/>
+        <DCCReference Include="..\Components\PBKDF2.Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
