@@ -18,8 +18,8 @@ applyTo: "**/*.pas,**/*.dpr,**/*.inc"
 - Use two spaces for indentation, not tabs.
 - Mark read-only parameters as const.
 - Use Windows units first, then RTL/VCL units, then Components units, then Shared units, then project specific units.
-- Using variable name Res as a shortcut for Result is allowed.
 - Class methods should be static when possible.
+- Do not shorten descriptive names. Write Expression, not Expr; MultiFileHandler, not MFH. Conventional short names (I, J, S, Res) and established identifiers (HiWord) are fine.
 # Code editing guidelines for Pascal source files
 - Do not modify existing comments unless the code they describe is also being changed.
 - Keep new comments short and match the style of existing comments in the file.
