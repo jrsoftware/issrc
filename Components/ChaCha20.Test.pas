@@ -18,7 +18,7 @@ procedure ChaCha20RunTests;
 implementation
 
 uses
-  Windows, SysUtils, ChaCha20;
+  Windows, SysUtils, ChaCha20, UnsignedFunc;
 
 {$C+}
 
@@ -28,13 +28,13 @@ procedure ChaCha20RunTests;
   begin
     //https://datatracker.ietf.org/doc/html/rfc7539#section-2.4.2
     var Buf: AnsiString := 'Ladies and Gentlemen of the class of ''99: If I could offer you only one tip for the future, sunscreen would be it.';
-    var BufSize := Length(Buf)*SizeOf(Buf[1]);
+    var BufSize := ULength(Buf)*SizeOf(Buf[1]);
     var Key: TBytes := [$00, $01, $02, $03, $04, $05, $06, $07, $08, $09, $0a, $0b, $0c, $0d, $0e, $0f, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $1a, $1b, $1c, $1d, $1e, $1f];
     var Nonce: TBytes := [$00, $00, $00, $00, $00, $00, $00, $4a, $00, $00, $00, $00];
-    var Counter := 1;
+    var Counter: Cardinal := 1;
     var Ctx: TChaCha20Context;
 
-    ChaCha20Init(Ctx, Key[0], Length(Key), Nonce[0], Length(Nonce), Counter);
+    ChaCha20Init(Ctx, Key[0], ULength(Key), Nonce[0], ULength(Nonce), Counter);
     ChaCha20Crypt(Ctx, Buf[1], Buf[1], 10);
     ChaCha20Crypt(Ctx, Buf[11], Buf[11], BufSize-10);
 
@@ -52,7 +52,7 @@ procedure ChaCha20RunTests;
     var Nonce: TBytes := [$00, $00, $00, $09, $00, $00, $00, $4a, $00, $00, $00, $00, $31, $41, $59, $27];
     var SubKey: TBytes;
 
-    HChaCha20(Key[0], Length(Key), Nonce[0], Length(Nonce), SubKey);
+    HChaCha20(Key[0], ULength(Key), Nonce[0], ULength(Nonce), SubKey);
 
     var ExpectedSubKey: TBytes := [$82, $41, $3b, $42, $27, $b2, $7b, $fe, $d3, $0e, $42, $50, $8a, $87, $7d, $73, $a0, $f9, $e4, $d5, $8a, $74, $a8, $53, $c1, $2e, $c4, $13, $26, $d3, $ec, $dc];
 
@@ -65,13 +65,13 @@ procedure ChaCha20RunTests;
   begin
     //https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-xchacha-03#appendix-A.2
     var Buf: AnsiString := 'The dhole (pronounced "dole") is also known as the Asiatic wild dog, red dog, and whistling dog.'+' It is about the size of a German shepherd but looks more like a long-legged fox. This highly elusive and skilled jumper is classified with wolves, coyotes, jackals, and foxes in the taxonomic family Canidae.';
-    var BufSize := Length(Buf)*SizeOf(Buf[1]);
+    var BufSize := ULength(Buf)*SizeOf(Buf[1]);
     var Key: TBytes := [$80, $81, $82, $83, $84, $85, $86, $87, $88, $89, $8a, $8b, $8c, $8d, $8e, $8f, $90, $91, $92, $93, $94, $95, $96, $97, $98, $99, $9a, $9b, $9c, $9d, $9e, $9f];
     var Nonce: TBytes := [$40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $4a, $4b, $4c, $4d, $4e, $4f, $50, $51, $52, $53, $54, $55, $56, $58];
-    var Counter := 0;
+    var Counter: Cardinal := 0;
     var Ctx: TChaCha20Context;
 
-    XChaCha20Init(Ctx, Key[0], Length(Key), Nonce[0], Length(Nonce), Counter);
+    XChaCha20Init(Ctx, Key[0], ULength(Key), Nonce[0], ULength(Nonce), Counter);
     XChaCha20Crypt(Ctx, Buf[1], Buf[1], BufSize);
 
     var CipherText: TBytes := [$45, $59, $ab, $ba, $4e, $48, $c1, $61, $02, $e8, $bb, $2c, $05, $e6, $94, $7f, $50, $a7, $86, $de, $16, $2f, $9b, $0b, $7e, $59, $2a, $9b, $53, $d0, $d4, $e9, $8d, $8d, $64, $10, $d5, $40, $a1, $a6, $37, $5b, $26, $d8, $0d, $ac, $e4, $fa, $b5, $23, $84, $c7, $31, $ac, $bf, $16, $a5, $92, $3c, $0c, $48, $d3, $57, $5d, $4d, $0d, $2c, $67, $3b, $66, $6f, $aa, $73, $10, $61, $27, $77, $01, $09, $3a, $6b, $f7, $a1, $58, $a8, $86, $42, $92, $a4, $1c, $48, $e3, $a9, $b4, $c0, $da, $ec, $e0, $f8, $d9, $8d, $0d, $7e, $05, $b3, $7a, $30, $7b, $bb, $66, $33, $31, $64, $ec, $9e, $1b, $24, $ea, $0d, $6c, $3f, $fd, $dc, $ec, $4f, $68, $e7, $44, $30, $56, $19, $3a, $03, $c8, $10, $e1, $13, $44, $ca, $06, $d8, $ed, $8a, $2b, $fb, $1e, $8d, $48, $cf, $a6, $bc, $0e,
