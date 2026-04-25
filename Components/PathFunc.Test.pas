@@ -180,8 +180,10 @@ begin
   Test('a\b', 0, 0, 1, 2);
   Test('a\b:c', 0, 0, 1, 2); {**}
 
-  Test('1:', 2, 2, 2, 2); {*}
-
+  { Drive "letters" can technically be any character other than '\'. See
+    comment in PathDrivePartLengthEx. }
+  Test('1:', 2, 2, 2, 2);
+  Test('@:', 2, 2, 2, 2);
   Test('\:', 0, 1, 1, 1); {*}
   { Yes, the following is a valid path -- it specifies a stream named 'stream'
     on the root directory of the current drive. (Yes, directories can have

@@ -259,7 +259,7 @@ begin
       Exit(True);
     end;
 
-    if PathCharIsDriveLetter(SuperFilename[1]) and
+    if not PathCharIsSlash(SuperFilename[1]) and
        (SuperFilename[2] = ':') and (SuperFilename[3] = '\') then begin
       Insert('\\?\', SuperFilename, 1);
       Exit(True);
@@ -295,7 +295,7 @@ begin
 
   const Len = Length(Filename);
   if (Len >= 6) and PathStartsWith(Filename, '\\?\') and
-     PathCharIsDriveLetter(Filename[5]) and
+     not PathCharIsSlash(Filename[5]) and
      (Filename[6] = ':') then begin
     { "\\?\C:\" or "\\?\C:\xxx" }
     if (Len >= 7) and (Filename[7] = '\') then
@@ -369,8 +369,7 @@ begin
              end;
           1: if FirstComponentIsNamespace then begin
                if ComponentLen = 2 then begin
-                 if PathCharIsDriveLetter(Filename[ComponentStartIndex]) and
-                    (Filename[ComponentStartIndex+1] = ':') then
+                 if Filename[ComponentStartIndex+1] = ':' then
                    SecondComponentIsDrive := True;
                end
                else if ComponentLen = 3 then begin
