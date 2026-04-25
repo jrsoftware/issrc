@@ -1,4 +1,4 @@
-unit PathFuncTest;
+unit PathFunc.Test;
 
 {
   Inno Setup
