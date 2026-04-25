@@ -125,7 +125,14 @@ uses
   uPSUtils in '..\Components\UniPs\Source\uPSUtils.pas',
   PathFunc.Test in '..\Components\PathFunc.Test.pas',
   ChaCha20.Test in '..\Components\ChaCha20.Test.pas',
-  PBKDF2.Test in '..\Components\PBKDF2.Test.pas';
+  PBKDF2.Test in '..\Components\PBKDF2.Test.pas',
+  MD5.Test in '..\Components\MD5.Test.pas',
+  SHA1.Test in '..\Components\SHA1.Test.pas',
+  SHA256.Test in '..\Components\SHA256.Test.pas',
+  SimpleExpression.Test in '..\Components\SimpleExpression.Test.pas',
+  StringScanner.Test in '..\Components\StringScanner.Test.pas',
+  UnsignedFunc.Test in '..\Components\UnsignedFunc.Test.pas',
+  Shared.EncryptionFunc.Test in 'Src\Shared.EncryptionFunc.Test.pas';
 
 {$R *.res}
 
