@@ -90,7 +90,8 @@ uses
   IDE.MainForm.ToolsHelper in 'Src\IDE.MainForm.ToolsHelper.pas',
   IDE.MainForm.AutoCompleteAndCallTipsHelper in 'Src\IDE.MainForm.AutoCompleteAndCallTipsHelper.pas',
   IDE.MainForm.ScintHelper in 'Src\IDE.MainForm.ScintHelper.pas',
-  IDE.MainForm.FinalHelper in 'Src\IDE.MainForm.FinalHelper.pas';
+  IDE.MainForm.FinalHelper in 'Src\IDE.MainForm.FinalHelper.pas',
+  ModernColors.Test in '..\Components\ModernColors.Test.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}

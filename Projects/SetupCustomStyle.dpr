@@ -132,6 +132,8 @@ uses
   SimpleExpression.Test in '..\Components\SimpleExpression.Test.pas',
   StringScanner.Test in '..\Components\StringScanner.Test.pas',
   UnsignedFunc.Test in '..\Components\UnsignedFunc.Test.pas',
+  ISSigFunc.Test in '..\Components\ISSigFunc.Test.pas',
+  BidiUtils.Test in '..\Components\BidiUtils.Test.pas',
   Shared.EncryptionFunc.Test in 'Src\Shared.EncryptionFunc.Test.pas';
 
 {$R *.res}
