@@ -374,7 +374,15 @@ end;
 
 {$IFDEF DEBUG}
 initialization
-  PathFuncRunTests(False);
+  try
+    const AlsoTestJapaneseDBCS = {$IFDEF UNICODE} False {$ELSE} True {$ENDIF};
+    PathFuncRunTests(AlsoTestJapaneseDBCS);
+  except on E: Exception do
+    begin
+      MessageBox(0, PChar(E.Message), '', MB_OK);
+      raise;
+    end;
+  end;
 {$ENDIF}
 
 end.
