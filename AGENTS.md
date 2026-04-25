@@ -44,6 +44,7 @@ Under `ISHelp/ISHelpGen/`:
 - `build.bat` orchestrates full release builds.
 
 ## Code Conventions
+- All files should use Windows newlines (CRLF).
 - Pascal style and review guidelines: `.github/instructions/pascal.instructions.md` (auto-applied to `.pas`, `.dpr`, `.inc`).
 - UniPs (Pascal Script) component guidelines: `.github/instructions/unips.instructions.md` (auto-applied to `Components/UniPs/**`).
 
