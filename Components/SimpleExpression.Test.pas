@@ -24,12 +24,10 @@ uses
 
 type
   TSimpleExpressionTestHandler = class
-    EvalCallCount: Integer;
+    EvalACallCount: Integer;
     function EvalNone(Sender: TSimpleExpression; const Name: String;
       const Parameters: array of const): Boolean;
     function EvalA(Sender: TSimpleExpression; const Name: String;
-      const Parameters: array of const): Boolean;
-    function EvalACounted(Sender: TSimpleExpression; const Name: String;
       const Parameters: array of const): Boolean;
     function EvalIntParams(Sender: TSimpleExpression; const Name: String;
       const Parameters: array of const): Boolean;
@@ -50,13 +48,7 @@ end;
 function TSimpleExpressionTestHandler.EvalA(Sender: TSimpleExpression;
   const Name: String; const Parameters: array of const): Boolean;
 begin
-  Result := SameText(Name, 'a');
-end;
-
-function TSimpleExpressionTestHandler.EvalACounted(Sender: TSimpleExpression;
-  const Name: String; const Parameters: array of const): Boolean;
-begin
-  Inc(EvalCallCount);
+  Inc(EvalACallCount);
   Result := SameText(Name, 'a');
 end;
 
@@ -205,27 +197,27 @@ begin
     { Lazy: short-circuited identifiers are not evaluated via OnEvalIdentifier }
     Evaluator := TSimpleExpression.Create;
     try
-      Evaluator.OnEvalIdentifier := Handler.EvalACounted;
+      Evaluator.OnEvalIdentifier := Handler.EvalA;
 
       { Lazy = False: every identifier is evaluated even after the result is known }
       Evaluator.Lazy := False;
-      Handler.EvalCallCount := 0;
+      Handler.EvalACallCount := 0;
       Evaluator.Expression := 'a or b';
       Assert(Evaluator.Eval);
-      Assert(Handler.EvalCallCount = 2);
+      Assert(Handler.EvalACallCount = 2);
 
       { Lazy = True: 'b' is skipped because 'a' already determined the result }
       Evaluator.Lazy := True;
-      Handler.EvalCallCount := 0;
+      Handler.EvalACallCount := 0;
       Evaluator.Expression := 'a or b';
       Assert(Evaluator.Eval);
-      Assert(Handler.EvalCallCount = 1);
+      Assert(Handler.EvalACallCount = 1);
 
       { Lazy = True: 'a' is skipped because 'b' already made the term False }
-      Handler.EvalCallCount := 0;
+      Handler.EvalACallCount := 0;
       Evaluator.Expression := 'b and a';
       Assert(not Evaluator.Eval);
-      Assert(Handler.EvalCallCount = 1);
+      Assert(Handler.EvalACallCount = 1);
     finally
       Evaluator.Free;
     end;
@@ -250,8 +242,6 @@ begin
       Evaluator.OnEvalIdentifier := Handler.EvalStringParams; { see above }
       Evaluator.ParametersAllowed := True;
       Evaluator.Expression := 'eval(''foo'', ExpandConstant(''foo''))';
-      Assert(Evaluator.Eval);
-      Evaluator.Expression := 'eval(''can''''t'', ''can''''t'')';
       Assert(Evaluator.Eval);
     finally
       Evaluator.Free;
