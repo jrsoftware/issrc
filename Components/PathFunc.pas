@@ -28,7 +28,6 @@ function AddBackslash(const S: String): String;
 function PathChangeExt(const Filename, Extension: String): String;
 function PathCharIsDriveLetter(const C: Char): Boolean;
 function PathCharIsSlash(const C: Char): Boolean;
-function PathCharIsTrailByte(const S: String; const Index: Integer): Boolean;
 function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
 function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): Integer;
@@ -111,23 +110,6 @@ function PathCharIsSlash(const C: Char): Boolean;
 { Returns True if C is a backslash or slash. }
 begin
   Result := (C = '\') or (C = '/');
-end;
-
-function PathCharIsTrailByte(const S: String; const Index: Integer): Boolean;
-{ Returns False if S[Index] is a single byte character or a lead byte.
-  Returns True otherwise (i.e. it must be a trail byte). }
-var
-  I: Integer;
-begin
-  I := 1;
-  while I <= Index do begin
-    if I = Index then begin
-      Result := False;
-      Exit;
-    end;
-    Inc(I, PathCharLength(S, I));
-  end;
-  Result := True;
 end;
 
 function PathChangeExt(const Filename, Extension: String): String;
