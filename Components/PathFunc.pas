@@ -26,10 +26,8 @@ interface
 
 function AddBackslash(const S: String): String;
 function PathChangeExt(const Filename, Extension: String): String;
-function PathCharCompare(const S1, S2: PChar): Boolean;
 function PathCharIsDriveLetter(const C: Char): Boolean;
 function PathCharIsSlash(const C: Char): Boolean;
-function PathCharIsTrailByte(const S: String; const Index: Integer): Boolean;
 function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
 function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): Integer;
@@ -61,7 +59,8 @@ function PathLowercase(const S: String): String;
 function PathNormalizeSlashes(S: String): String;
 function PathPathPartLength(const Filename: String;
   const IncludeSlashesAfterPath: Boolean): Integer;
-function PathPos(Ch: Char; const S: String): Integer;
+function PathPos(const C: Char; const S: String;
+  const Offset: Integer = 1): Integer;
 function PathSame(const S1, S2: String): Boolean;
 function PathStartsWith(const S, AStartsWith: String;
   const IgnoreCase: Boolean = True): Boolean;
@@ -72,7 +71,6 @@ function PathStrFind(const SSource: PChar; const SSourceLength: Integer;
   const SValue: PChar; const SValueLength: Integer;
   const IgnoreCase: Boolean = True): Integer;
 function PathStrNextChar(const S: PChar): PChar;
-function PathStrPrevChar(const Start, Current: PChar): PChar;
 function PathStrScan(const S: PChar; const C: Char): PChar;
 function RemoveBackslash(const S: String): String;
 function RemoveBackslashUnlessRoot(const S: String): String;
@@ -112,39 +110,6 @@ function PathCharIsSlash(const C: Char): Boolean;
 { Returns True if C is a backslash or slash. }
 begin
   Result := (C = '\') or (C = '/');
-end;
-
-function PathCharIsTrailByte(const S: String; const Index: Integer): Boolean;
-{ Returns False if S[Index] is a single byte character or a lead byte.
-  Returns True otherwise (i.e. it must be a trail byte). }
-var
-  I: Integer;
-begin
-  I := 1;
-  while I <= Index do begin
-    if I = Index then begin
-      Result := False;
-      Exit;
-    end;
-    Inc(I, PathCharLength(S, I));
-  end;
-  Result := True;
-end;
-
-function PathCharCompare(const S1, S2: PChar): Boolean;
-{ Compares two first characters, and returns True if they are equal. }
-begin
-  const N = PathStrNextChar(S1) - S1;
-  if N = PathStrNextChar(S2) - S2 then begin
-    for var I := 0 to N-1 do begin
-      if S1[I] <> S2[I] then begin
-        Result := False;
-        Exit;
-      end;
-    end;
-    Result := True;
-  end else
-    Result := False;
 end;
 
 function PathChangeExt(const Filename, Extension: String): String;
@@ -258,7 +223,7 @@ begin
       Exit(True);
     end;
 
-    if PathCharIsDriveLetter(SuperFilename[1]) and
+    if not PathCharIsSlash(SuperFilename[1]) and
        (SuperFilename[2] = ':') and (SuperFilename[3] = '\') then begin
       Insert('\\?\', SuperFilename, 1);
       Exit(True);
@@ -294,7 +259,7 @@ begin
 
   const Len = Length(Filename);
   if (Len >= 6) and PathStartsWith(Filename, '\\?\') and
-     PathCharIsDriveLetter(Filename[5]) and
+     not PathCharIsSlash(Filename[5]) and
      (Filename[6] = ':') then begin
     { "\\?\C:\" or "\\?\C:\xxx" }
     if (Len >= 7) and (Filename[7] = '\') then
@@ -368,8 +333,7 @@ begin
              end;
           1: if FirstComponentIsNamespace then begin
                if ComponentLen = 2 then begin
-                 if PathCharIsDriveLetter(Filename[ComponentStartIndex]) and
-                    (Filename[ComponentStartIndex+1] = ':') then
+                 if Filename[ComponentStartIndex+1] = ':' then
                    SecondComponentIsDrive := True;
                end
                else if ComponentLen = 3 then begin
@@ -409,15 +373,15 @@ begin
   end;
 
   { x: }
-  if Len > 0 then begin
-    I := PathCharLength(Filename, 1) + 1;
-    if (I <= Len) and (Filename[I] = ':') then begin
-      if IncludeSignificantSlash and (I < Len) and PathCharIsSlash(Filename[I+1]) then
-        Result := I+1
-      else
-        Result := I;
-      Exit;
-    end;
+  if (Len >= 2) and (Filename[2] = ':') then begin
+    { We intentionally omit an A-Z check here because Windows doesn't have
+      one. For example, you can define a drive '@:' using DefineDosDevice, and
+      then successfully pass '@:\file' to APIs like GetFileAttributes. }
+    if IncludeSignificantSlash and (Len >= 3) and PathCharIsSlash(Filename[3]) then
+      Result := 3
+    else
+      Result := 2;
+    Exit;
   end;
 
   Result := 0;
@@ -426,22 +390,11 @@ end;
 function PathIsRooted(const Filename: String): Boolean;
 { Returns True if Filename begins with a slash or drive ('x:').
   Equivalent to: PathDrivePartLengthEx(Filename, True) <> 0 }
-var
-  Len, I: Integer;
 begin
-  Result := False;
-  Len := Length(Filename);
-  if Len > 0 then begin
-    { \ or \\ }
-    if PathCharIsSlash(Filename[1]) then
-      Result := True
-    else begin
-      { x: }
-      I := PathCharLength(Filename, 1) + 1;
-      if (I <= Len) and (Filename[I] = ':') then
-        Result := True;
-    end;
-  end;
+  const Len = Length(Filename);
+  Result :=
+    ((Len >= 1) and PathCharIsSlash(Filename[1])) or
+    ((Len >= 2) and (Filename[2] = ':'));
 end;
 
 function PathPathPartLength(const Filename: String;
@@ -783,19 +736,20 @@ begin
   Result := AnsiLowerCase(S);
 end;
 
-function PathPos(Ch: Char; const S: String): Integer;
-var
-  Len, I: Integer;
+function PathPos(const C: Char; const S: String;
+  const Offset: Integer = 1): Integer;
+{ Like Delphi's Pos function, but searches for a single character instead of a
+  string, making it somewhat faster.
+  Returns 1-based index of the first occurrence of C in S, or 0 if not found.
+  The optional Offset parameter (1-based) specifies where the search should
+  start. If Offset is less than 1, then 0 is returned (same as Delphi's Pos
+  function). }
 begin
-  Len := Length(S);
-  I := 1;
-  while I <= Len do begin
-    if S[I] = Ch then begin
-      Result := I;
-      Exit;
-    end;
-    Inc(I, PathCharLength(S, I));
-  end;
+  if Offset >= 1 then
+    for var I := Offset to Length(S) do
+      if S[I] = C then
+        Exit(I);
+
   Result := 0;
 end;
 
@@ -917,14 +871,6 @@ begin
     Inc(Result);
 end;
 
-function PathStrPrevChar(const Start, Current: PChar): PChar;
-{ Returns pointer to the character before Current, unless Current = Start. }
-begin
-  Result := Current;
-  if Result > Start then
-    Dec(Result);
-end;
-
 function PathStrScan(const S: PChar; const C: Char): PChar;
 { Returns pointer to first occurrence of C in S, or nil if there are no
   occurrences. As with StrScan, specifying #0 for the search character is legal. }
@@ -946,7 +892,7 @@ var
   I: Integer;
 begin
   I := Length(S);
-  while (I > 0) and PathCharIsSlash(PathStrPrevChar(Pointer(S), @S[I+1])^) do
+  while (I > 0) and PathCharIsSlash(S[I]) do
     Dec(I);
   if I = Length(S) then
     Result := S
@@ -962,7 +908,7 @@ var
 begin
   DrivePartLen := PathDrivePartLengthEx(S, True);
   I := Length(S);
-  while (I > DrivePartLen) and PathCharIsSlash(PathStrPrevChar(Pointer(S), @S[I+1])^) do
+  while (I > DrivePartLen) and PathCharIsSlash(S[I]) do
     Dec(I);
   if I = Length(S) then
     Result := S
