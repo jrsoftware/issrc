@@ -377,23 +377,6 @@ function GetFinalFileName(const Filename: String): String;
 { Calls GetFinalPathNameByHandle to expand any SUBST'ed drives, network drives,
   and symbolic links in Filename. This is needed for elevation to succeed when
   Setup is started from a SUBST'ed drive letter. }
-
-  function ConvertToNormalPath(P: PChar): String;
-  begin
-    Result := P;
-    if StrLComp(P, '\\?\', 4) = 0 then begin
-      Inc(P, 4);
-      if (PathStrNextChar(P) = P + 1) and (P[1] = ':') and PathCharIsSlash(P[2]) then
-        Result := P
-      else if StrLIComp(P, 'UNC\', 4) = 0 then begin
-        Inc(P, 4);
-        Result := '\\' + P;
-      end;
-    end;
-  end;
-
-const
-  FILE_SHARE_DELETE = $00000004;
 var
   GetFinalPathNameByHandleFunc: function(hFile: THandle; lpszFilePath: PWideChar;
     cchFilePath: DWORD; dwFlags: DWORD): DWORD; stdcall;
@@ -420,7 +403,7 @@ begin
         if (Res > 0) and (Res < (SizeOf(Buf) div SizeOf(Buf[0])) - 16) then begin
           { ShellExecuteEx fails with error 3 on \\?\UNC\ paths, so try to
             convert the returned path from \\?\ form }
-          Result := ConvertToNormalPath(Buf);
+          Result := PathConvertSuperToNormal(Buf);
           Exit;
         end;
       end;
