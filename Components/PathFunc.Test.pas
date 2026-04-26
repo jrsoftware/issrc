@@ -13,14 +13,14 @@ unit PathFunc.Test;
 
 interface
 
-procedure PathFuncRunTests(const AlsoTestJapaneseDBCS: Boolean);
+procedure PathFuncRunTests;
 
 implementation
 
 uses
   Windows, SysUtils, PathFunc;
 
-procedure PathFuncRunTests(const AlsoTestJapaneseDBCS: Boolean);
+procedure PathFuncRunTests;
 
   procedure Test(const Filename: String;
     const DrivePartFalse, DrivePartTrue, PathPartFalse, PathPartTrue: Integer);
@@ -154,16 +154,7 @@ procedure PathFuncRunTests(const AlsoTestJapaneseDBCS: Boolean);
       raise Exception.Create('PathStrFind test failed');
   end;
 
-const
-  DBChar = #131'\'; { a double-byte character whose 2nd byte happens to be a backslash }
 begin
-  {$IFDEF UNICODE}
-  if AlsoTestJapaneseDBCS then
-    raise Exception.Create('DBCS tests not supported in Unicode build');
-  {$ENDIF}
-  if AlsoTestJapaneseDBCS and (GetACP <> 932) then
-    raise Exception.Create('Must be running in Japanese code page to run these tests');
-
   { * = Bogus path case. What the "correct" result should be is debatable. }
   { ** = Possible access to NTFS alternate data stream. The characters before
          and after the colon must be kept together as a single component. }
@@ -233,14 +224,6 @@ begin
   Test('\\?\UNC\server\share\dir', 20, 20, 20, 21);
   Test('\\.\UNC\server\share', 20, 20, 20, 20);
 
-  if AlsoTestJapaneseDBCS then begin
-    Test('\\'+DBChar+DBChar+'\b', 8, 8, 8, 8);
-    Test('\\'+DBChar+DBChar+'\b\c', 8, 8, 8, 9);
-    Test('\\'+DBChar+DBChar+'\b\c\', 8, 8, 10, 11);
-    Test('c:\'+DBChar+'\b', 2, 3, 5, 6);
-    Test(DBChar+':', 3, 3, 3, 3); {*}  { double-byte drive letter? bogus, but be like Windows... }
-  end;
-
   TestRemoveBackslash('', '');
   TestRemoveBackslash('\', '');
   TestRemoveBackslash('\\', '');
@@ -249,12 +232,6 @@ begin
   TestRemoveBackslash('c:\', 'c:');
   TestRemoveBackslash('c:\\', 'c:');
   TestRemoveBackslash('c:\\\', 'c:');
-
-  if AlsoTestJapaneseDBCS then begin
-    TestRemoveBackslash(DBChar, DBChar);
-    TestRemoveBackslash(DBChar+'\', DBChar);
-    TestRemoveBackslash(DBChar+'\\', DBChar);
-  end;
 
   TestRemoveBackslashUnlessRoot('', '');
   TestRemoveBackslashUnlessRoot('\', '\');
@@ -304,10 +281,6 @@ begin
   TestPathCombine('c:\\', 'x', 'c:\\x');
   TestPathCombine('c:\a', 'x', 'c:\a\x');
   TestPathCombine('\', 'x', '\x');
-  if AlsoTestJapaneseDBCS then begin
-    TestPathCombine(DBChar+':', 'x', DBChar+':x'); {*}  { double-byte drive letter? bogus, but be like Windows... }
-    TestPathCombine('c:\'+DBChar, 'x', 'c:\'+DBChar+'\x');
-  end;
   TestPathCombine('c:\', '', '');
   TestPathCombine('c:\', 'e:x', 'e:x');
   TestPathCombine('c:\', 'e:\x', 'e:\x');
@@ -320,12 +293,6 @@ begin
   TestPathStartsWith('C:', 'c:\', False);
   TestPathStartsWith('C:\', 'c:\', True);
   TestPathStartsWith('C:\test', 'c:\', True);
-  if AlsoTestJapaneseDBCS then begin
-    { Test PathStartsWith's PathCharIsTrailByte call; it shouldn't chop a
-      double-byte character in half }
-    TestPathStartsWith('C:'+DBChar, 'c:\', False);
-    TestPathStartsWith('C:'+DBChar, 'c:'+DBChar[1], False);
-  end;
 
   TestPathEndsWith(False, '', '', True);
   TestPathEndsWith(True, '', '', True);
@@ -377,8 +344,7 @@ end;
 {$IFDEF DEBUG}
 initialization
   try
-    const AlsoTestJapaneseDBCS = {$IFDEF UNICODE} False {$ELSE} True {$ENDIF};
-    PathFuncRunTests(AlsoTestJapaneseDBCS);
+    PathFuncRunTests;
   except on E: Exception do
     begin
       MessageBox(0, PChar(E.Message), '', MB_OK);
