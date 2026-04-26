@@ -34,13 +34,11 @@ function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String;
 procedure InitializePathRedir(const AWindows64Bit: Boolean;
   const ASystem32Path, ASysWow64Path, ASysNativePath: String);
 
-{$IFDEF DEBUG}
 { Does not depend on InitializePathRedir being called }
 function TestApplyPathRedirRules(const AWindows64Bit, A64Bit: Boolean;
   const ASystem32Path, ASysWow64Path, ASysNativePath, APath: String;
   const ATargetProcess: TPathRedirTargetProcess;
   const AFlags: TPathRedirFlags = []): String;
-{$ENDIF}
 
 implementation
 
@@ -99,7 +97,6 @@ begin
   end;
 end;
 
-{$IFDEF DEBUG}
 function TestApplyPathRedirRules(const AWindows64Bit, A64Bit: Boolean;
   const ASystem32Path, ASysWow64Path, ASysNativePath, APath: String;
   const ATargetProcess: TPathRedirTargetProcess;
@@ -113,7 +110,6 @@ begin
     LTestInstance.Free;
   end;
 end;
-{$ENDIF}
 
 { TPathRedir }
 

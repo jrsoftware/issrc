@@ -17,15 +17,12 @@ procedure PathRedirRunTests;
 
 implementation
 
-{$IFDEF DEBUG}
 uses
-  Winapi.Windows, System.SysUtils, Shared.SetupTypes, Setup.PathRedir;
-{$ENDIF}
+  {$IFDEF DEBUG} Winapi.Windows, System.SysUtils, {$ENDIF} Shared.SetupTypes, Setup.PathRedir;
 
 {$C+}
 
 procedure PathRedirRunTests;
-{$IFDEF DEBUG}
 const
   Sys32 = 'C:\FakeWin\System32';
   Sys32OtherCase = 'C:\FakeWin\system32';
@@ -57,10 +54,8 @@ const
     Assert(Caught);
   end;
   {$ENDIF}
-{$ENDIF}
-begin
-{$IFDEF DEBUG}
 
+begin
   { === Running on 64-bit Windows === }
 
   { Pass-through: a path under no system directory just gets the super prefix }
@@ -149,8 +144,6 @@ begin
   { A64Bit=True is rejected when running 32-bit Windows }
   TestRedirRaises(False, True, 'C:\foo', tpNativeBit);
   {$ENDIF}
-
-{$ENDIF}
 end;
 
 {$IFDEF DEBUG}
