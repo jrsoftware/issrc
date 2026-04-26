@@ -243,7 +243,7 @@ function PathConvertSuperToNormal(const Filename: String): String;
   unchanged.
   Reasons why a path cannot be converted include:
   - The path doesn't start with "\\?\" (i.e., it's already in normal form)
-  - The prefix isn't followed by a drive letter and colon, or "UNC\".
+  - The prefix isn't followed by a non-slash character and colon, or "UNC\".
     ("\\?\GLOBALROOT\" isn't supported.)
   - The path contains forward slashes or repeated backslashes (not counting
     the leading "\\"). Super paths shouldn't have them.
