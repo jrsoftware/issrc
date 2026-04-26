@@ -2,7 +2,7 @@ program SetupCustomStyle;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -134,7 +134,8 @@ uses
   UnsignedFunc.Test in '..\Components\UnsignedFunc.Test.pas',
   ISSigFunc.Test in '..\Components\ISSigFunc.Test.pas',
   BidiUtils.Test in '..\Components\BidiUtils.Test.pas',
-  Shared.EncryptionFunc.Test in 'Src\Shared.EncryptionFunc.Test.pas';
+  Shared.EncryptionFunc.Test in 'Src\Shared.EncryptionFunc.Test.pas',
+  Setup.PathRedir.Test in 'Src\Setup.PathRedir.Test.pas';
 
 {$R *.res}
 

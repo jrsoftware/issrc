@@ -246,6 +246,7 @@
         <DCCReference Include="..\Components\ISSigFunc.Test.pas"/>
         <DCCReference Include="..\Components\BidiUtils.Test.pas"/>
         <DCCReference Include="Src\Shared.EncryptionFunc.Test.pas"/>
+        <DCCReference Include="Src\Setup.PathRedir.Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

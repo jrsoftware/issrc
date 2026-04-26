@@ -34,6 +34,14 @@ function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String;
 procedure InitializePathRedir(const AWindows64Bit: Boolean;
   const ASystem32Path, ASysWow64Path, ASysNativePath: String);
 
+{$IFDEF DEBUG}
+{ Does not depend on InitializePathRedir being called }
+function TestApplyPathRedirRules(const AWindows64Bit, A64Bit: Boolean;
+  const ASystem32Path, ASysWow64Path, ASysNativePath, APath: String;
+  const ATargetProcess: TPathRedirTargetProcess;
+  const AFlags: TPathRedirFlags = []): String;
+{$ENDIF}
+
 implementation
 
 uses
@@ -90,6 +98,22 @@ begin
     AtomicDecrement(PathRedirActiveUseCount);
   end;
 end;
+
+{$IFDEF DEBUG}
+function TestApplyPathRedirRules(const AWindows64Bit, A64Bit: Boolean;
+  const ASystem32Path, ASysWow64Path, ASysNativePath, APath: String;
+  const ATargetProcess: TPathRedirTargetProcess;
+  const AFlags: TPathRedirFlags = []): String;
+begin
+  const LTestInstance = TPathRedir.Create(AWindows64Bit, ASystem32Path,
+    ASysWow64Path, ASysNativePath);
+  try
+    Result := LTestInstance.ApplyRules(A64Bit, APath, AFlags, ATargetProcess);
+  finally
+    LTestInstance.Free;
+  end;
+end;
+{$ENDIF}
 
 { TPathRedir }
 
