@@ -103,7 +103,7 @@ procedure SimpleExpressionRunTests;
     end;
   end;
 
-  {$IFDEF ISTESTPROJ}
+  {$IFDEF ISTESTTOOLPROJ}
   procedure TestException(const Expression: String);
   begin
     const Evaluator = TSimpleExpression.Create;
@@ -247,7 +247,7 @@ begin
       Evaluator.Free;
     end;
 
-    {$IFDEF ISTESTPROJ}
+    {$IFDEF ISTESTTOOLPROJ}
     { SingleIdentifierMode: only a single identifier is accepted }
     Evaluator := TSimpleExpression.Create;
     try

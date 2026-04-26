@@ -322,7 +322,7 @@ begin
   TestPathExpandAndNormalizeSlashes('\\?\C:\Windows', '\\?\C:\Windows');
   TestPathExpandAndNormalizeSlashes('\\\?\C:\Windows', '\\\?\C:\Windows');
   TestPathExpandAndNormalizeSlashes('\\?\\C:\\Windows', '\\?\C:\Windows');
-  {$IFDEF ISTESTPROJ}
+  {$IFDEF ISTESTTOOLPROJ}
   { These fail on Wine which is why they are excluded from self-test }
   TestPathExpandAndNormalizeSlashes('\\\\?\C:\Windows', '\\\?\C:\Windows');
   TestPathExpandAndNormalizeSlashes('\\\\\?\C:\Windows', '\\\?\C:\Windows');

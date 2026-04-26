@@ -28,7 +28,7 @@ uses
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
-{$R Res\ISSigTool.manifest.res}
+{$R Res\ConsoleApp.manifest.res}
 {$R Res\ISSigTool.versionandicon.res}
 
 var

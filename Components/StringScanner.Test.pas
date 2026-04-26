@@ -99,7 +99,7 @@ begin
   Assert(Scanner.ConsumeMultiToString(['a'..'z'], Captured) = 0);
   Assert(Captured = '');
 
-  {$IFDEF ISTESTPROJ}
+  {$IFDEF ISTESTTOOLPROJ}
   { Invalid AMinChars must raise }
   Scanner := TStringScanner.Create('abc');
   var Caught := False;

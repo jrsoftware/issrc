@@ -40,7 +40,7 @@ const
       Sys32, Wow64, Native, APath, ATargetProcess, AFlags) = AExpected);
   end;
 
-  {$IFDEF ISTESTPROJ}
+  {$IFDEF ISTESTTOOLPROJ}
   procedure TestRedirRaises(const AWindows64Bit, A64Bit: Boolean;
     const APath: String; const ATargetProcess: TPathRedirTargetProcess);
   begin
@@ -122,7 +122,7 @@ begin
   TestRedir(True, False, SuperSys32 + '\foo.exe', tpNativeBit, [rfNormalPath],
     Wow64 + '\foo.exe');
 
-  {$IFDEF ISTESTPROJ}
+  {$IFDEF ISTESTTOOLPROJ}
   { Empty input is rejected }
   TestRedirRaises(True, False, '', tpNativeBit);
 
@@ -140,7 +140,7 @@ begin
   { rfNormalPath round-trip: super added then stripped, leaving the input }
   TestRedir(False, False, Sys32 + '\foo.exe', tpNativeBit, [rfNormalPath], Sys32 + '\foo.exe');
 
-  {$IFDEF ISTESTPROJ}
+  {$IFDEF ISTESTTOOLPROJ}
   { A64Bit=True is rejected when running 32-bit Windows }
   TestRedirRaises(False, True, 'C:\foo', tpNativeBit);
   {$ENDIF}

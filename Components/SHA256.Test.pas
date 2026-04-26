@@ -64,7 +64,7 @@ begin
   Assert(SHA256DigestsEqual(FromUpper, FromLower));
   Assert(SameText(SHA256DigestToString(FromLower), HexLower));
 
-  {$IFDEF ISTESTPROJ}
+  {$IFDEF ISTESTTOOLPROJ}
   { Invalid lengths and characters must raise }
   var Caught := False;
   try

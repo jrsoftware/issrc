@@ -77,7 +77,7 @@ procedure ISSigFuncRunTests;
     end;
   end;
 
-  {$IFDEF ISTESTPROJ}
+  {$IFDEF ISTESTTOOLPROJ}
   procedure TestCreateSignatureTextRaises(const AKey: TECDSAKey; const AFileName: String;
     const AFileSize: Int64; const AFileHash: TSHA256Digest);
   begin
@@ -305,7 +305,7 @@ begin
       TestImportPublic('', PubX, PubY, ikrSuccess);
       TestImportPublic(Key2ID, PubX, PubY, ikrMalformed);
 
-      {$IFDEF ISTESTPROJ}
+      {$IFDEF ISTESTTOOLPROJ}
       { ISSigCreateSignatureText: each kind of invalid input must raise.
         File name longer than 1000 UTF-8 bytes, contains a quote, contains a
         control character, negative file size, file size above the 16-digit
@@ -355,7 +355,7 @@ begin
   ISSigCheckValidPublicXOrY(StringOfChar('0', 64));
   ISSigCheckValidPublicXOrY(StringOfChar('a', 64));
 
-  {$IFDEF ISTESTPROJ}
+  {$IFDEF ISTESTTOOLPROJ}
   { Wrong-length / out-of-charset input must raise. ISSigCheckValidKeyID and
     ISSigCheckValidPublicXOrY both ultimately call SHA256DigestFromString,
     which accepts mixed case, so the same set of inputs is invalid for both. }
