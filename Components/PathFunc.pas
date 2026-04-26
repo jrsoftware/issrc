@@ -26,7 +26,6 @@ interface
 
 function AddBackslash(const S: String): String;
 function PathChangeExt(const Filename, Extension: String): String;
-function PathCharCompare(const S1, S2: PChar): Boolean;
 function PathCharIsDriveLetter(const C: Char): Boolean;
 function PathCharIsSlash(const C: Char): Boolean;
 function PathCharIsTrailByte(const S: String; const Index: Integer): Boolean;
@@ -130,22 +129,6 @@ begin
     Inc(I, PathCharLength(S, I));
   end;
   Result := True;
-end;
-
-function PathCharCompare(const S1, S2: PChar): Boolean;
-{ Compares two first characters, and returns True if they are equal. }
-begin
-  const N = PathStrNextChar(S1) - S1;
-  if N = PathStrNextChar(S2) - S2 then begin
-    for var I := 0 to N-1 do begin
-      if S1[I] <> S2[I] then begin
-        Result := False;
-        Exit;
-      end;
-    end;
-    Result := True;
-  end else
-    Result := False;
 end;
 
 function PathChangeExt(const Filename, Extension: String): String;

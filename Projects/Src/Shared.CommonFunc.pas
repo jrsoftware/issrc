@@ -1370,7 +1370,7 @@ type
                Exit;
              end;
       else
-        if not PathCharCompare(T, P) then begin
+        if T^ <> P^ then begin
           Result := wmFalse;
           Exit;
         end;
