@@ -72,7 +72,6 @@ function PathStrFind(const SSource: PChar; const SSourceLength: Integer;
   const SValue: PChar; const SValueLength: Integer;
   const IgnoreCase: Boolean = True): Integer;
 function PathStrNextChar(const S: PChar): PChar;
-function PathStrPrevChar(const Start, Current: PChar): PChar;
 function PathStrScan(const S: PChar; const C: Char): PChar;
 function RemoveBackslash(const S: String): String;
 function RemoveBackslashUnlessRoot(const S: String): String;
@@ -890,14 +889,6 @@ begin
     Inc(Result);
 end;
 
-function PathStrPrevChar(const Start, Current: PChar): PChar;
-{ Returns pointer to the character before Current, unless Current = Start. }
-begin
-  Result := Current;
-  if Result > Start then
-    Dec(Result);
-end;
-
 function PathStrScan(const S: PChar; const C: Char): PChar;
 { Returns pointer to first occurrence of C in S, or nil if there are no
   occurrences. As with StrScan, specifying #0 for the search character is legal. }
@@ -919,7 +910,7 @@ var
   I: Integer;
 begin
   I := Length(S);
-  while (I > 0) and PathCharIsSlash(PathStrPrevChar(Pointer(S), @S[I+1])^) do
+  while (I > 0) and PathCharIsSlash(S[I]) do
     Dec(I);
   if I = Length(S) then
     Result := S
@@ -935,7 +926,7 @@ var
 begin
   DrivePartLen := PathDrivePartLengthEx(S, True);
   I := Length(S);
-  while (I > DrivePartLen) and PathCharIsSlash(PathStrPrevChar(Pointer(S), @S[I+1])^) do
+  while (I > DrivePartLen) and PathCharIsSlash(S[I]) do
     Dec(I);
   if I = Length(S) then
     Result := S
