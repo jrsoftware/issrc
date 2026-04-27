@@ -114,9 +114,34 @@
         <DCCReference Include="..\Components\SafeDLLPath.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
-        <DCCReference Include="..\Components\UnsignedFunc.pas"/>
+        <DCCReference Include="Src\Shared.Struct.pas"/>
+        <DCCReference Include="..\Components\ECDSA.pas"/>
+        <DCCReference Include="..\Components\BidiUtils.pas"/>
+        <DCCReference Include="..\Components\BidiUtils.Test.pas"/>
+        <DCCReference Include="..\Components\ChaCha20.pas"/>
+        <DCCReference Include="..\Components\ChaCha20.Test.pas"/>
+        <DCCReference Include="..\Components\ISSigFunc.pas"/>
+        <DCCReference Include="..\Components\ISSigFunc.Test.pas"/>
+        <DCCReference Include="..\Components\MD5.pas"/>
+        <DCCReference Include="..\Components\MD5.Test.pas"/>
+        <DCCReference Include="..\Components\ModernColors.pas"/>
+        <DCCReference Include="..\Components\ModernColors.Test.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="..\Components\PathFunc.Test.pas"/>
+        <DCCReference Include="..\Components\PBKDF2.pas"/>
+        <DCCReference Include="..\Components\PBKDF2.Test.pas"/>
+        <DCCReference Include="..\Components\SHA1.pas"/>
+        <DCCReference Include="..\Components\SHA1.Test.pas"/>
+        <DCCReference Include="..\Components\SHA256.pas"/>
+        <DCCReference Include="..\Components\SHA256.Test.pas"/>
+        <DCCReference Include="Src\Shared.EncryptionFunc.pas"/>
+        <DCCReference Include="Src\Shared.EncryptionFunc.Test.pas"/>
+        <DCCReference Include="..\Components\SimpleExpression.pas"/>
+        <DCCReference Include="..\Components\SimpleExpression.Test.pas"/>
+        <DCCReference Include="..\Components\StringScanner.pas"/>
+        <DCCReference Include="..\Components\StringScanner.Test.pas"/>
+        <DCCReference Include="..\Components\UnsignedFunc.pas"/>
+        <DCCReference Include="..\Components\UnsignedFunc.Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

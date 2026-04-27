@@ -16,9 +16,34 @@ uses
   Windows,
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
-  UnsignedFunc in '..\Components\UnsignedFunc.pas',
+  Shared.Struct in 'Src\Shared.Struct.pas',
+  ECDSA in '..\Components\ECDSA.pas',
+  BidiUtils in '..\Components\BidiUtils.pas',
+  BidiUtils.Test in '..\Components\BidiUtils.Test.pas',
+  ChaCha20 in '..\Components\ChaCha20.pas',
+  ChaCha20.Test in '..\Components\ChaCha20.Test.pas',
+  ISSigFunc in '..\Components\ISSigFunc.pas',
+  ISSigFunc.Test in '..\Components\ISSigFunc.Test.pas',
+  MD5 in '..\Components\MD5.pas',
+  MD5.Test in '..\Components\MD5.Test.pas',
+  ModernColors in '..\Components\ModernColors.pas',
+  ModernColors.Test in '..\Components\ModernColors.Test.pas',
   PathFunc in '..\Components\PathFunc.pas',
-  PathFunc.Test in '..\Components\PathFunc.Test.pas';
+  PathFunc.Test in '..\Components\PathFunc.Test.pas',
+  PBKDF2 in '..\Components\PBKDF2.pas',
+  PBKDF2.Test in '..\Components\PBKDF2.Test.pas',
+  SHA1 in '..\Components\SHA1.pas',
+  SHA1.Test in '..\Components\SHA1.Test.pas',
+  SHA256 in '..\Components\SHA256.pas',
+  SHA256.Test in '..\Components\SHA256.Test.pas',
+  Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
+  Shared.EncryptionFunc.Test in 'Src\Shared.EncryptionFunc.Test.pas',
+  SimpleExpression in '..\Components\SimpleExpression.pas',
+  SimpleExpression.Test in '..\Components\SimpleExpression.Test.pas',
+  StringScanner in '..\Components\StringScanner.pas',
+  StringScanner.Test in '..\Components\StringScanner.Test.pas',
+  UnsignedFunc in '..\Components\UnsignedFunc.pas',
+  UnsignedFunc.Test in '..\Components\UnsignedFunc.Test.pas';
 
 {$APPTYPE CONSOLE}
 {$SETPEOSVERSION 6.1}
@@ -103,7 +128,19 @@ end;
 procedure CommandTest;
 begin
   try
+    BidiUtilsRunTests;
+    ChaCha20RunTests;
+    ISSigFuncRunTests;
+    MD5RunTests;
+    ModernColorsRunTests;
     PathFuncRunTests;
+    PBKDF2RunTests;
+    SHA1RunTests;
+    SHA256RunTests;
+    SharedEncryptionFuncRunTests;
+    SimpleExpressionRunTests;
+    StringScannerRunTests;
+    UnsignedFuncRunTests;
     PrintUnlessQuiet('OK');
   except
     PrintErrOutput('test failed: ' + GetExceptMessage);
