@@ -214,7 +214,13 @@ begin
   end else
     SuperFilename := Filename;
 
-  if Length(SuperFilename) >= 3 then begin
+  if (Length(SuperFilename) >= 3) and not PathCharIsSlash(SuperFilename[1]) and
+     (SuperFilename[2] = ':') and (SuperFilename[3] = '\') then begin
+    Insert('\\?\', SuperFilename, 1);
+    Exit(True);
+  end;
+
+  if PathStartsWith(SuperFilename, '\\') then begin
     if PathStartsWith(SuperFilename, '\\?\') then
       Exit(True);
 
@@ -223,17 +229,13 @@ begin
       Exit(True);
     end;
 
-    if not PathCharIsSlash(SuperFilename[1]) and
-       (SuperFilename[2] = ':') and (SuperFilename[3] = '\') then begin
-      Insert('\\?\', SuperFilename, 1);
-      Exit(True);
-    end;
-
-    if (SuperFilename[1] = '\') and (SuperFilename[2] = '\') then begin
-      SuperFilename := '\\?\UNC\' + Copy(SuperFilename, 3, Maxint);
-      Exit(True);
-    end;
+    { No validation is done on anything after '\\'. Even '\\' by itself is
+      "successfully" converted. This is consistent with Windows'
+      RtlDosPathNameToNtPathName_U function. }
+    SuperFilename := '\\?\UNC\' + Copy(SuperFilename, 3, Maxint);
+    Exit(True);
   end;
+
   Result := False;
 end;
 
