@@ -32,8 +32,8 @@ function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
 function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): Integer;
 function PathComponentIsReservedName(const SingleComponent: String): Boolean;
-function PathConvertNormalToSuper(const Filename: String; out SuperFilename: String;
-  const Expand: Boolean): Boolean;
+function PathConvertNormalToSuper(const Filename: String;
+  out SuperFilename: String): Boolean;
 function PathConvertSuperToNormal(const Filename: String): String;
 function PathDrivePartLength(const Filename: String): Integer;
 function PathDrivePartLengthEx(const Filename: String;
@@ -204,15 +204,12 @@ begin
   Result := False;
 end;
 
-function PathConvertNormalToSuper(const Filename: String; out SuperFilename: String;
-  const Expand: Boolean): Boolean;
+function PathConvertNormalToSuper(const Filename: String;
+  out SuperFilename: String): Boolean;
 { Does not fail if the specified path already is an extended-length path. }
 begin
-  if Expand then begin
-    if not PathExpand(Filename, SuperFilename) then
-      Exit(False);
-  end else
-    SuperFilename := Filename;
+  if not PathExpand(Filename, SuperFilename) then
+    Exit(False);
 
   if (Length(SuperFilename) >= 3) and not PathCharIsSlash(SuperFilename[1]) and
      (SuperFilename[2] = ':') and (SuperFilename[3] = '\') then begin

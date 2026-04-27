@@ -5928,7 +5928,7 @@ begin
             produce paths longer than MAX_PATH. This also calls PathExpand on
             the path, which helps MergeDuplicateFiles. }
           var SuperSourceWildcard: String;
-          if not PathConvertNormalToSuper(SourceWildcard, SuperSourceWildcard, True) then
+          if not PathConvertNormalToSuper(SourceWildcard, SuperSourceWildcard) then
             AbortCompile('EnumFilesProc: PathConvertNormalToSuper failed');
           SourceWildcard := SuperSourceWildcard;
           SourceIsWildcard := IsWildcard(SourceWildcard);

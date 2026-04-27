@@ -1090,7 +1090,7 @@ begin
 
   { Extract }
   var ExpandedDestDir: String;
-  if not PathConvertNormalToSuper(DestDir, ExpandedDestDir, True) then
+  if not PathConvertNormalToSuper(DestDir, ExpandedDestDir) then
     InternalError('ExtractArchive: PathConvertNormalToSuper failed');
   const ExtractCallback: IArchiveExtractCallback =
     TArchiveExtractAllCallback.Create(InArchive, numItems,
@@ -1176,7 +1176,7 @@ begin
   State.InArchive := OpenArchive(ArchiveFilename, Password, clsid, State.numItems);
   if DestDir <> '' then begin
     var ExpandedDestDir: String;
-    if not PathConvertNormalToSuper(DestDir, ExpandedDestDir, True) then
+    if not PathConvertNormalToSuper(DestDir, ExpandedDestDir) then
       InternalError('ArchiveFindFirstFile: PathConvertNormalToSuper failed');
     State.ExpandedDestDir := AddBackslash(ExpandedDestDir);
   end;
