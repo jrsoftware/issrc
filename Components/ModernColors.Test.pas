@@ -18,7 +18,7 @@ procedure ModernColorsRunTests;
 implementation
 
 uses
-  {$IFDEF DEBUG} Winapi.Windows, System.SysUtils, {$ENDIF} Vcl.Graphics, ModernColors;
+  {$IFDEF DEBUG} Winapi.Windows, System.SysUtils, {$ENDIF} System.UITypes, ModernColors;
 
 {$C+}
 
@@ -48,7 +48,7 @@ begin
 
     { System colors are passed through (not RGB-swapped) }
     Theme.Typ := ttModernLight;
-    TestColor(Theme, tcToolBack, clBtnFace);
+    TestColor(Theme, tcToolBack, TColorRec.SysBtnFace);
 
     { Non-system color is RGB-swapped: ModernColors.pas defines CRed as
       $FF0000 (RRGGBB), which becomes Delphi's BGR $0000FF after the swap }
