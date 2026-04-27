@@ -168,7 +168,7 @@ begin
         end else if (S = '--quiet') or (S = '-q') then begin
           Options.Quiet := True;
         end else
-          RaiseFatalErrorFmt('Unknown option "%s".', [S]);
+          RaiseFatalErrorFmt('Unknown option "%s"', [S]);
         ArgList.Delete(J);
       end else begin
         if S = '' then
@@ -176,6 +176,9 @@ begin
         Inc(J);
       end;
     end;
+
+    if ArgList.Count <> 0 then
+      RaiseFatalError('Too many arguments');
 
     CommandTest;
   finally
