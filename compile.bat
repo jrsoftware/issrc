@@ -50,6 +50,9 @@ if /I "%2"=="ishelpgen" (
 ) else if /I "%2"=="issigtool" (
   echo - ISSigTool.exe
   msbuild.exe ISSigTool.dproj /t:Build /p:Config=Release;Platform=Win%Bits% /nologo
+) else if /I "%2"=="istesttool" (
+  echo - ISTestTool.exe
+  msbuild.exe ISTestTool.dproj /t:Build /p:Config=Release;Platform=Win%Bits% /nologo
 ) else (
   echo - Projects.groupproj - Release build group
   rem This emits warning MSB4056, but that's ok since the build doesn't use COM. Modern MSBuild supports

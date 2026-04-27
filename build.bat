@@ -11,9 +11,11 @@ rem  Calls setup-sign.bat if it exists to create a signed build, otherwise creat
 rem  Signed build also require a setup-presign.bat to exist which should sign all files passed to it
 rem
 rem  This batch files does the following things:
+rem  -Compile and use ISSigTool
 rem  -Compile ISHelpGen
 rem  -Compile ISetup*.chm
-rem  -Compile Inno Setup including ISSigTool
+rem  -Compile Inno Setup
+rem  -Run the unit tests
 rem  -Create 32-bit and 64-bit Inno Setup installers
 rem
 rem  Once done the installer can be found in Output
@@ -67,7 +69,7 @@ if errorlevel 1 goto failed
 echo Cleaning output of previous build
 del Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\Setup.e64 Files\SetupCustomStyle.e32 Files\SetupCustomStyle.e64 Files\SetupLdr.e32 Files\SetupLdr.e64
 if errorlevel 1 goto failed
-del Files\ISIDE.exe Files\ISCC.exe Files\ISSigTool.exe
+del Files\ISIDE.exe Files\ISCC.exe Files\ISSigTool.exe Files\ISTestTool.exe
 if errorlevel 1 goto failed
 
 call :build x64
@@ -86,6 +88,10 @@ exit /b 1
 call .\compile.bat %~1
 if errorlevel 1 exit /b 1
 echo Compiling %~1 Inno Setup done
+
+Files\ISTestTool.exe
+if errorlevel 1 exit /b 1
+echo Testing %~1 Inno Setup done
 
 if exist .\setup-presign.bat (
   echo - Presigning

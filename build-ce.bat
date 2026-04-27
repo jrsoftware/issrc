@@ -13,6 +13,7 @@ rem
 rem  This batch files does the following things:
 rem  -Ask the user to compile Inno Setup including ISSigTool and ISHelpGen after clearing output first
 rem  -Compile ISetup*.chm
+rem  -Run the unit tests
 rem  -Create 64-bit Inno Setup installer
 rem
 rem  Once done the installer can be found in Output
@@ -85,6 +86,7 @@ call :deletefile files\setupcustomstyle.e64
 call :deletefile files\setupldr.e32
 call :deletefile files\setupldr.e64
 call :deletefile files\issigtool.exe
+call :deletefile files\istesttool.exe
 call :deletefile ishelp\ishelpgen\ishelpgen.exe
 
 echo Clearing compilation output done
@@ -103,11 +105,16 @@ call :waitforfile files\setupcustomstyle.e64
 call :waitforfile files\setupldr.e32
 call :waitforfile files\setupldr.e64
 call :waitforfile files\issigtool.exe
+call :waitforfile files\istesttool.exe
 call :waitforfile ishelp\ishelpgen\ishelpgen.exe
 
 echo Found all, waiting 2 seconds more...
 timeout /t 2 /nobreak >nul
 echo Compiling Inno Setup done
+
+Files\ISTestTool.exe
+if errorlevel 1 goto failed
+echo Testing Inno Setup done
 
 if exist .\setup-presign.bat (
   echo - Presigning
