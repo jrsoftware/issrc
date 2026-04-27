@@ -2,7 +2,7 @@ unit ModernColors;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit ModernColors;
 interface
 
 uses
-  Vcl.Graphics;
+  System.UITypes;
 
 type
   TThemeType = (ttModernLight, ttModernDark, ttClassic);
@@ -65,7 +65,7 @@ const
 
   LFore = $3B3B3B;           { VSCode Modern Light }
   LBack = $FFFFFF;
-  LToolBack = clBtnFace;
+  LToolBack = TColors.SysBtnFace;
   LSelBack = $A7D6FD;        { VSCode Modern Light }
   //LSelInactiveBack = $E4EBF1;{ VSCode Modern Light }
   LIntelliBack = $F8F8F8;    { VSCode Modern Light }
@@ -79,12 +79,12 @@ const
 
   CFore = $000000;
   CBack = $FFFFFF;
-  CToolBack = clBtnFace;
+  CToolBack = TColors.SysBtnFace;
   CSelBack = LSelBack;
   CIntelliBack = LIntelliBack;
   CWACOBack = LWACOBack;
   CSTOBACK = LSTOBack;
-  CMarginFore = clWindowText;
+  CMarginFore = TColors.SysWindowText;
   CMarginBack = CToolBack;
   CSplitterBack = CToolBack;
   CBraceBack = CWACOBack;
