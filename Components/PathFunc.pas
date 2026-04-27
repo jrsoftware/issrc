@@ -241,9 +241,15 @@ function PathConvertSuperToNormal(const Filename: String): String;
 { Attempts to convert a "\\?\"-prefixed path to normal form, and returns the
   new path. If the path cannot be converted, then Filename is returned
   unchanged.
-  Reasons why a path cannot be converted include:
+  Note that the main purpose of this function is to reverse the effect of a
+  previous call to PathConvertNormalToSuper. Paths obtained from other sources
+  are not guaranteed to be convertible. Paths are assumed to be well-formed;
+  if passed a path that is malformed in some way, the result may also be
+  malformed (garbage in, garbage out).
+  Reasons why a path may not be convertible include:
   - The path doesn't start with "\\?\" (i.e., it's already in normal form)
-  - The prefix isn't followed by a non-slash character and colon, or "UNC\".
+  - The prefix isn't followed by "x:" (where "x" is a non-slash character
+    specifying a drive) or "UNC\".
     ("\\?\GLOBALROOT\" isn't supported.)
   - The path contains forward slashes or repeated backslashes (not counting
     the leading "\\"). Super paths shouldn't have them.
