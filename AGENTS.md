@@ -70,7 +70,7 @@ Under `ISHelp/ISHelpGen/`:
 ## Testing & Verification
 - After editing any `.pas`, `.dpr`, `.dproj`, or `.inc` file: run `compile.bat x64` and verify 0 errors.
 - Unit tests live in `*.Test.pas` files. No testing framework is used; tests raise an exception on failure.
-- To run tests, first run `compile.bat x64 istesttool` then `Files\ISTestTool.exe` and verify 0 exit code. Then repeat with `x86` instead of `x64`.
+- To run tests, `test.bat` and verify 0 exit code.
 
 ## Other information
 - When creating a new file: immediately `git add` to stage it.
