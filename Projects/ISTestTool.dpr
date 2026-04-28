@@ -54,7 +54,7 @@ uses
 {$WEAKLINKRTTI ON}
 
 {$R Res\ConsoleApp.manifest.res}
-// {$R Res\ISTestTool.versionandicon.res}
+{$R Res\ISTestTool.versionandicon.res}
 
 var
   Options: record
