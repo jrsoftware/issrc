@@ -25,7 +25,7 @@ var
   I: Integer;
   S: String;
 begin
-  Ini := TConfigIniFile.Create;
+  Ini := TConfigIniFile.CreateReadOnly;
   try
     { Sign tools }
     SignTools.Clear();

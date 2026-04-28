@@ -19,24 +19,40 @@ type
   private
     FMutex: THandle;
     FAcquiredMutex: Boolean;
+    procedure AcquireMutex;
   public
     constructor Create;
+    constructor CreateReadOnly;
     destructor Destroy; override;
   end;
 
 implementation
 
+const
+  ConfigRegKey = 'Software\Jordan Russell\Inno Setup';
+
 { TConfigIniFile }
 
-constructor TConfigIniFile.Create;
+procedure TConfigIniFile.AcquireMutex;
 begin
-  inherited Create('Software\Jordan Russell\Inno Setup');
   { Paranoia: Use a mutex to prevent multiple instances from reading/writing
     to the registry simultaneously }
   FMutex := CreateMutex(nil, False, 'Inno-Setup-IDE-Config-Mutex');
   if FMutex <> 0 then
     if WaitForSingleObject(FMutex, INFINITE) <> WAIT_FAILED then
       FAcquiredMutex := True;
+end;
+
+constructor TConfigIniFile.Create;
+begin
+  inherited Create(ConfigRegKey);
+  AcquireMutex;
+end;
+
+constructor TConfigIniFile.CreateReadOnly;
+begin
+  inherited Create(ConfigRegKey, KEY_READ);
+  AcquireMutex;
 end;
 
 destructor TConfigIniFile.Destroy;
