@@ -826,7 +826,7 @@ var
     RegisterScriptFunc('PathConvertNormalToSuper', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var SuperFilename: String;
-      Stack.SetBool(PStart, PathConvertNormalToSuper(Stack.GetString(PStart-1), SuperFilename, Stack.GetBool(PStart-3)));
+      Stack.SetBool(PStart, PathConvertNormalToSuper(Stack.GetString(PStart-1), SuperFilename));
       Stack.SetString(PStart-2, SuperFilename);
     end);
     RegisterScriptFunc('PathConvertSuperToNormal', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)

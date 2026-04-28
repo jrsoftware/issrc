@@ -1265,8 +1265,17 @@ end;</pre></example>
       </function>
       <function>
         <name>PathConvertNormalToSuper</name>
-        <prototype>function PathConvertNormalToSuper(const Filename: String; out SuperFilename: String; const Expand: Boolean): Boolean;</prototype>
-        <description><p>Converts a normal path to an extended-length path (also known as a super path). Set Expand to True unless you are sure that Filename is already an absolute (non-relative) path. Returns True if successful, False otherwise. Does not fail if the specified path already is an extended-length path.</p></description>
+        <prototype>function PathConvertNormalToSuper(const Filename: String; out SuperFilename: String): Boolean;</prototype>
+        <description><p>Converts a normal path to an absolute, extended-length path (also known as a super path). Returns True if successful, False otherwise. Does not fail if the specified path already is an extended-length path.</p></description>
+        <example><pre>var
+  SuperPath: String;
+begin
+  if PathConvertNormalToSuper('C:\Windows', SuperPath) then
+    Log(SuperPath);  // Logs '\\?\C:\Windows'
+
+  if PathConvertNormalToSuper('\\server\share\filename', SuperPath) then
+    Log(SuperPath);  // Logs '\\?\UNC\server\share\filename'
+end;</pre></example>
         <seealso><p><link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link><br/>
 <link topic="isxfunc_PathConvertSuperToNormal">PathConvertSuperToNormal</link></p></seealso>
       </function>

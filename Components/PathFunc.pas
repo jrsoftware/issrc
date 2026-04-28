@@ -32,8 +32,8 @@ function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
 function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): Integer;
 function PathComponentIsReservedName(const SingleComponent: String): Boolean;
-function PathConvertNormalToSuper(const Filename: String; out SuperFilename: String;
-  const Expand: Boolean): Boolean;
+function PathConvertNormalToSuper(const Filename: String;
+  out SuperFilename: String): Boolean;
 function PathConvertSuperToNormal(const Filename: String): String;
 function PathDrivePartLength(const Filename: String): Integer;
 function PathDrivePartLengthEx(const Filename: String;
@@ -204,17 +204,20 @@ begin
   Result := False;
 end;
 
-function PathConvertNormalToSuper(const Filename: String; out SuperFilename: String;
-  const Expand: Boolean): Boolean;
+function PathConvertNormalToSuper(const Filename: String;
+  out SuperFilename: String): Boolean;
 { Does not fail if the specified path already is an extended-length path. }
 begin
-  if Expand then begin
-    if not PathExpand(Filename, SuperFilename) then
-      Exit(False);
-  end else
-    SuperFilename := Filename;
+  if not PathExpand(Filename, SuperFilename) then
+    Exit(False);
 
-  if Length(SuperFilename) >= 3 then begin
+  if (Length(SuperFilename) >= 3) and not PathCharIsSlash(SuperFilename[1]) and
+     (SuperFilename[2] = ':') and (SuperFilename[3] = '\') then begin
+    Insert('\\?\', SuperFilename, 1);
+    Exit(True);
+  end;
+
+  if PathStartsWith(SuperFilename, '\\') then begin
     if PathStartsWith(SuperFilename, '\\?\') then
       Exit(True);
 
@@ -223,17 +226,13 @@ begin
       Exit(True);
     end;
 
-    if not PathCharIsSlash(SuperFilename[1]) and
-       (SuperFilename[2] = ':') and (SuperFilename[3] = '\') then begin
-      Insert('\\?\', SuperFilename, 1);
-      Exit(True);
-    end;
-
-    if (SuperFilename[1] = '\') and (SuperFilename[2] = '\') then begin
-      SuperFilename := '\\?\UNC\' + Copy(SuperFilename, 3, Maxint);
-      Exit(True);
-    end;
+    { No validation is done on anything after '\\'. Even '\\' by itself is
+      "successfully" converted. This is consistent with Windows'
+      RtlDosPathNameToNtPathName_U function. }
+    SuperFilename := '\\?\UNC\' + Copy(SuperFilename, 3, Maxint);
+    Exit(True);
   end;
+
   Result := False;
 end;
 
@@ -241,12 +240,23 @@ function PathConvertSuperToNormal(const Filename: String): String;
 { Attempts to convert a "\\?\"-prefixed path to normal form, and returns the
   new path. If the path cannot be converted, then Filename is returned
   unchanged.
-  Reasons why a path cannot be converted include:
+  Note that the main purpose of this function is to reverse the effect of a
+  previous call to PathConvertNormalToSuper. Paths obtained from other sources
+  are not guaranteed to be convertible. Paths are assumed to be well-formed;
+  if passed a path that is malformed in some way, the result may also be
+  malformed (garbage in, garbage out).
+
+  Reasons why a path may not be convertible include:
   - The path doesn't start with "\\?\" (i.e., it's already in normal form)
-  - The prefix isn't followed by a non-slash character and colon, or "UNC\".
+  - The prefix isn't followed by "x:" (where "x" is a non-slash character
+    specifying a drive) or "UNC\".
     ("\\?\GLOBALROOT\" isn't supported.)
   - The path contains forward slashes or repeated backslashes (not counting
-    the leading "\\"). Super paths shouldn't have them.
+    the leading "\\"). These are not permitted in super paths, so this
+    function does not make a special effort to support them. However, this
+    function may still convert such paths if the characters come after
+    "\\?\x:\" or "\\?\UNC\". But don't rely on that.
+
   Examples of conversions:
     \\?\C:               -> C:\
     \\?\C:\              -> C:\

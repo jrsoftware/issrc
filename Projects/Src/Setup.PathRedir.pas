@@ -176,7 +176,7 @@ begin
     DoInternalError('PathRedir: "\??\" prefix not allowed');
 
   var NewPath: String;
-  if not PathConvertNormalToSuper(APath, NewPath, True) then
+  if not PathConvertNormalToSuper(APath, NewPath) then
     DoInternalError('PathRedir: PathConvertNormalToSuper failed');
 
   if FWindows64Bit then begin

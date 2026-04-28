@@ -94,7 +94,7 @@ begin
     malicious archive cannot create files outside of the destination directory. }
   var ExpandedFileName: String;
   if ((dwDesiredAccess = GENERIC_READ) and
-      PathConvertNormalToSuper(lpFileName, ExpandedFileName, True) and
+      PathConvertNormalToSuper(lpFileName, ExpandedFileName) and
       PathSame(ExpandedFileName, State.ExpandedArchiveFileName)) or
      ((dwDesiredAccess = GENERIC_WRITE) and
       ValidateAndCombinePath(State.ExpandedDestDir, lpFileName, ExpandedFileName)) then
@@ -373,8 +373,8 @@ begin
   if not NewForceDirectories(DestDir) then
     SevenZipError(FmtSetupMessage1(msgErrorCreatingDir, DestDir), 'Failed to create destination directory');
 
-  if not PathConvertNormalToSuper(ArchiveFileName, State.ExpandedArchiveFileName, True) or
-     not PathConvertNormalToSuper(DestDir, State.ExpandedDestDir, True) then
+  if not PathConvertNormalToSuper(ArchiveFileName, State.ExpandedArchiveFileName) or
+     not PathConvertNormalToSuper(DestDir, State.ExpandedDestDir) then
     InternalError('Extract7ZipArchive: PathConvertNormalToSuper failed');
 
   State.ExpandedDestDir := AddBackslash(State.ExpandedDestDir);
