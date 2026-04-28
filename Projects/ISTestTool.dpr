@@ -14,7 +14,8 @@ uses
   SysUtils,
   Classes,
   Windows,
-  Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
+  Compression.Base in 'Src\Compression.Base.pas',
+  ISPP.Consts in 'Src\ISPP.Consts.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
   Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
   Shared.Struct in 'Src\Shared.Struct.pas',
@@ -23,6 +24,10 @@ uses
   BidiUtils.Test in '..\Components\BidiUtils.Test.pas',
   ChaCha20 in '..\Components\ChaCha20.pas',
   ChaCha20.Test in '..\Components\ChaCha20.Test.pas',
+  Compiler.StringLists in 'Src\Compiler.StringLists.pas',
+  Compiler.StringLists.Test in 'Src\Compiler.StringLists.Test.pas',
+  ISPP.CTokenizer in 'Src\ISPP.CTokenizer.pas',
+  ISPP.CTokenizer.Test in 'Src\ISPP.CTokenizer.Test.pas',
   ISSigFunc in '..\Components\ISSigFunc.pas',
   ISSigFunc.Test in '..\Components\ISSigFunc.Test.pas',
   MD5 in '..\Components\MD5.pas',
@@ -39,6 +44,8 @@ uses
   SHA1.Test in '..\Components\SHA1.Test.pas',
   SHA256 in '..\Components\SHA256.pas',
   SHA256.Test in '..\Components\SHA256.Test.pas',
+  Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
+  Shared.CommonFunc.Test in 'Src\Shared.CommonFunc.Test.pas',
   Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
   Shared.EncryptionFunc.Test in 'Src\Shared.EncryptionFunc.Test.pas',
   SimpleExpression in '..\Components\SimpleExpression.pas',
@@ -133,6 +140,8 @@ begin
   try
     BidiUtilsRunTests;
     ChaCha20RunTests;
+    CompilerStringListsRunTests;
+    ISPPCTokenizerRunTests;
     ISSigFuncRunTests;
     MD5RunTests;
     ModernColorsRunTests;
@@ -141,6 +150,7 @@ begin
     SetupPathRedirRunTests;
     SHA1RunTests;
     SHA256RunTests;
+    SharedCommonFuncRunTests;
     SharedEncryptionFuncRunTests;
     SimpleExpressionRunTests;
     StringScannerRunTests;

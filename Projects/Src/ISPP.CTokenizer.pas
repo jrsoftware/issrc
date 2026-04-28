@@ -78,6 +78,7 @@ type
   TCTokenizer = class(TObject)
   private
     FEscapeSequences: Boolean;
+    FExpressionRef: string; { Keeps FExpr/FExprStart valid, otherwise unused }
     FExprStart: PChar;
     FIdent: string;
     FToken: TTokenKind;
@@ -96,7 +97,7 @@ type
     procedure ErrorFmt(const Message: string; Args: array of const);
   public
     constructor Create(const Expression: string;
-      EscapeSequences: Boolean);
+      const EscapeSequences: Boolean);
     procedure SkipBlanks;
     function NextToken: TTokenKind;
     function NextTokenExpect(Expected: TTokenKinds): TTokenKind;
@@ -122,8 +123,9 @@ uses
 { TCTokenizer }
 
 constructor TCTokenizer.Create(const Expression: string;
-  EscapeSequences: Boolean);
+  const EscapeSequences: Boolean);
 begin
+  FExpressionRef := Expression;
   FExpr := PChar(Expression);
   FExprStart := FExpr;
   FEscapeSequences := EscapeSequences;

@@ -112,7 +112,8 @@
             <MainSource>MainSource</MainSource>
         </DelphiCompile>
         <DCCReference Include="..\Components\SafeDLLPath.pas"/>
-        <DCCReference Include="Src\Shared.CommonFunc.pas"/>
+        <DCCReference Include="Src\Compression.Base.pas"/>
+        <DCCReference Include="Src\ISPP.Consts.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="Src\Shared.SetupTypes.pas"/>
         <DCCReference Include="Src\Shared.Struct.pas"/>
@@ -121,6 +122,10 @@
         <DCCReference Include="..\Components\BidiUtils.Test.pas"/>
         <DCCReference Include="..\Components\ChaCha20.pas"/>
         <DCCReference Include="..\Components\ChaCha20.Test.pas"/>
+        <DCCReference Include="Src\Compiler.StringLists.pas"/>
+        <DCCReference Include="Src\Compiler.StringLists.Test.pas"/>
+        <DCCReference Include="Src\ISPP.CTokenizer.pas"/>
+        <DCCReference Include="Src\ISPP.CTokenizer.Test.pas"/>
         <DCCReference Include="..\Components\ISSigFunc.pas"/>
         <DCCReference Include="..\Components\ISSigFunc.Test.pas"/>
         <DCCReference Include="..\Components\MD5.pas"/>
@@ -137,6 +142,8 @@
         <DCCReference Include="..\Components\SHA1.Test.pas"/>
         <DCCReference Include="..\Components\SHA256.pas"/>
         <DCCReference Include="..\Components\SHA256.Test.pas"/>
+        <DCCReference Include="Src\Shared.CommonFunc.pas"/>
+        <DCCReference Include="Src\Shared.CommonFunc.Test.pas"/>
         <DCCReference Include="Src\Shared.EncryptionFunc.pas"/>
         <DCCReference Include="Src\Shared.EncryptionFunc.Test.pas"/>
         <DCCReference Include="..\Components\SimpleExpression.pas"/>
