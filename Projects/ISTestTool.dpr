@@ -16,6 +16,7 @@ uses
   Windows,
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
+  Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
   Shared.Struct in 'Src\Shared.Struct.pas',
   ECDSA in '..\Components\ECDSA.pas',
   BidiUtils in '..\Components\BidiUtils.pas',
@@ -32,6 +33,8 @@ uses
   PathFunc.Test in '..\Components\PathFunc.Test.pas',
   PBKDF2 in '..\Components\PBKDF2.pas',
   PBKDF2.Test in '..\Components\PBKDF2.Test.pas',
+  Setup.PathRedir in 'Src\Setup.PathRedir.pas',
+  Setup.PathRedir.Test in 'Src\Setup.PathRedir.Test.pas',
   SHA1 in '..\Components\SHA1.pas',
   SHA1.Test in '..\Components\SHA1.Test.pas',
   SHA256 in '..\Components\SHA256.pas',
@@ -135,6 +138,7 @@ begin
     ModernColorsRunTests;
     PathFuncRunTests;
     PBKDF2RunTests;
+    SetupPathRedirRunTests;
     SHA1RunTests;
     SHA256RunTests;
     SharedEncryptionFuncRunTests;

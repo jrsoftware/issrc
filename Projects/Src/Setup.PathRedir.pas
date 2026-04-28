@@ -16,7 +16,7 @@ unit Setup.PathRedir;
   passed to the function). Use rfNormalPath only in cases where a super
   path is known to not work properly.
 
-  Used only by the Setup project.
+  Used only by the Setup and ISTestTool projects.
 }
 
 interface
@@ -43,8 +43,7 @@ function TestApplyPathRedirRules(const AWindows64Bit, A64Bit: Boolean;
 implementation
 
 uses
-  PathFunc,
-  Setup.InstFunc;
+  PathFunc {$IFDEF SETUPPROJ}, Setup.InstFunc {$ENDIF};
 
 type
   TPathRedir = class
@@ -63,6 +62,15 @@ var
   [volatile] PathRedirInstance: TPathRedir;
   [volatile] PathRedirActiveUseCount: Integer;
 
+procedure DoInternalError(const Msg: String);
+begin
+  {$IFDEF SETUPPROJ}
+    InternalError(Msg);
+  {$ELSE}
+    raise Exception.Create(Msg);
+  {$ENDIF}
+end;
+
 procedure InitializePathRedir(const AWindows64Bit: Boolean;
   const ASystem32Path, ASysWow64Path, ASysNativePath: String);
 begin
@@ -71,7 +79,7 @@ begin
   MemoryBarrier;
   if AtomicCmpExchange(Pointer(PathRedirInstance), Pointer(LInstance), nil) <> nil then begin
     LInstance.Free;
-    InternalError('PathRedir: Already initialized');
+    DoInternalError('PathRedir: Already initialized');
   end;
 end;
 
@@ -82,14 +90,14 @@ begin
   while True do begin
     const CurCount = PathRedirActiveUseCount;
     if CurCount < 0 then
-      InternalError('PathRedir: Unit was finalized');
+      DoInternalError('PathRedir: Unit was finalized');
     if AtomicCmpExchange(PathRedirActiveUseCount, CurCount + 1, CurCount) = CurCount then
       Break;
   end;
   MemoryBarrier;
   try
     if PathRedirInstance = nil then
-      InternalError('PathRedir: Not initialized');
+      DoInternalError('PathRedir: Not initialized');
     Result := PathRedirInstance.ApplyRules(A64Bit, APath, AFlags, ATargetProcess);
   finally
     MemoryBarrier;
@@ -127,7 +135,7 @@ constructor TPathRedir.Create(const AWindows64Bit: Boolean;
       OutPath := '\\?\' + Dir;
       Exit;
     end;
-    InternalErrorFmt('Path for %s directory is invalid: "%s"', [Title, Dir]);
+    DoInternalError(Format('Path for %s directory is invalid: "%s"', [Title, Dir]));
   end;
 
 begin
@@ -148,7 +156,7 @@ function TPathRedir.ApplyRules(const A64Bit: Boolean; const APath: String;
   begin
     { Just an extra layer of safety }
     if (FromDir = '') or (ToDir = '') then
-      InternalError('PathRedir: SubstitutePath received invalid parameter');
+      DoInternalError('PathRedir: SubstitutePath received invalid parameter');
 
     const PathLen = Length(Path);
     const FromDirLen = Length(FromDir);
@@ -160,16 +168,16 @@ function TPathRedir.ApplyRules(const A64Bit: Boolean; const APath: String;
 
 begin
   if APath = '' then
-    InternalError('PathRedir: Called with empty path string');
+    DoInternalError('PathRedir: Called with empty path string');
   { Windows supports an undocumented "\??\" prefix that works like "\\?\".
     However, PathExpand (GetFullPathName) doesn't understand it and will
     prepend the current drive (e.g., "C:\??\"). So don't allow it. }
   if PathStartsWith(APath, '\??\') then
-    InternalError('PathRedir: "\??\" prefix not allowed');
+    DoInternalError('PathRedir: "\??\" prefix not allowed');
 
   var NewPath: String;
   if not PathConvertNormalToSuper(APath, NewPath, True) then
-    InternalError('PathRedir: PathConvertNormalToSuper failed');
+    DoInternalError('PathRedir: PathConvertNormalToSuper failed');
 
   if FWindows64Bit then begin
     { Running on 64-bit Windows }
@@ -207,7 +215,7 @@ begin
   end else begin
     { Running on 32-bit Windows; no substitutions are made }
     if A64Bit then
-      InternalError('PathRedir: A64Bit=True but not running 64-bit Windows');
+      DoInternalError('PathRedir: A64Bit=True but not running 64-bit Windows');
   end;
 
   if rfNormalPath in AFlags then

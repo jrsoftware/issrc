@@ -13,16 +13,16 @@ unit Setup.PathRedir.Test;
 
 interface
 
-procedure PathRedirRunTests;
+procedure SetupPathRedirRunTests;
 
 implementation
 
 uses
-  {$IFDEF DEBUG} Winapi.Windows, System.SysUtils, {$ENDIF} Shared.SetupTypes, Setup.PathRedir;
+  {$IFDEF DEBUG} Winapi.Windows, {$ENDIF} System.SysUtils, Shared.SetupTypes, Setup.PathRedir;
 
 {$C+}
 
-procedure PathRedirRunTests;
+procedure SetupPathRedirRunTests;
 const
   Sys32 = 'C:\FakeWin\System32';
   Sys32OtherCase = 'C:\FakeWin\system32';
@@ -149,7 +149,7 @@ end;
 {$IFDEF DEBUG}
 initialization
   try
-    PathRedirRunTests;
+    SetupPathRedirRunTests;
   except on E: Exception do
     begin
       MessageBox(0, PChar(E.Message), '', MB_OK);
