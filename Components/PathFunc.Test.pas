@@ -22,7 +22,7 @@ uses
 
 procedure PathFuncRunTests;
 
-  procedure Test(const Filename: String;
+  procedure TestPartLengths(const Filename: String;
     const DrivePartFalse, DrivePartTrue, PathPartFalse, PathPartTrue: Integer);
   begin
     if PathDrivePartLengthEx(Filename, False) <> DrivePartFalse then
@@ -159,70 +159,70 @@ begin
   { ** = Possible access to NTFS alternate data stream. The characters before
          and after the colon must be kept together as a single component. }
 
-  Test('', 0, 0, 0, 0);
-  Test('\', 0, 1, 1, 1);
-  Test('\a', 0, 1, 1, 1);
-  Test('\a\', 0, 1, 2, 3);
-  Test('\a\b', 0, 1, 2, 3);
-  Test('a', 0, 0, 0, 0);
-  Test('a\', 0, 0, 1, 2);
-  Test('a\\', 0, 0, 1, 3);
-  Test('a\\\', 0, 0, 1, 4);
-  Test('a\b', 0, 0, 1, 2);
-  Test('a\b:c', 0, 0, 1, 2); {**}
+  TestPartLengths('', 0, 0, 0, 0);
+  TestPartLengths('\', 0, 1, 1, 1);
+  TestPartLengths('\a', 0, 1, 1, 1);
+  TestPartLengths('\a\', 0, 1, 2, 3);
+  TestPartLengths('\a\b', 0, 1, 2, 3);
+  TestPartLengths('a', 0, 0, 0, 0);
+  TestPartLengths('a\', 0, 0, 1, 2);
+  TestPartLengths('a\\', 0, 0, 1, 3);
+  TestPartLengths('a\\\', 0, 0, 1, 4);
+  TestPartLengths('a\b', 0, 0, 1, 2);
+  TestPartLengths('a\b:c', 0, 0, 1, 2); {**}
 
   { Drive "letters" can technically be any character other than '\'. See
     comment in PathDrivePartLengthEx. }
-  Test('1:', 2, 2, 2, 2);
-  Test('@:', 2, 2, 2, 2);
-  Test('\:', 0, 1, 1, 1); {*}
+  TestPartLengths('1:', 2, 2, 2, 2);
+  TestPartLengths('@:', 2, 2, 2, 2);
+  TestPartLengths('\:', 0, 1, 1, 1); {*}
   { Yes, the following is a valid path -- it specifies a stream named 'stream'
     on the root directory of the current drive. (Yes, directories can have
     named streams.) }
-  Test('\:stream', 0, 1, 1, 1); {**}
+  TestPartLengths('\:stream', 0, 1, 1, 1); {**}
 
-  Test('c:', 2, 2, 2, 2);
-  Test('c:a', 2, 2, 2, 2);
-  Test('c:\', 2, 3, 3, 3);
-  Test('c:\\', 2, 3, 3, 4);
-  Test('c:\\\', 2, 3, 3, 5);
-  Test('c:\a', 2, 3, 3, 3);
-  Test('c:\a\', 2, 3, 4, 5);
-  Test('c:\a\\', 2, 3, 4, 6);
-  Test('c:\a\\\', 2, 3, 4, 7);
-  Test('c:\a\b', 2, 3, 4, 5);
-  Test('c:\a\b:c', 2, 3, 4, 5); {**}
+  TestPartLengths('c:', 2, 2, 2, 2);
+  TestPartLengths('c:a', 2, 2, 2, 2);
+  TestPartLengths('c:\', 2, 3, 3, 3);
+  TestPartLengths('c:\\', 2, 3, 3, 4);
+  TestPartLengths('c:\\\', 2, 3, 3, 5);
+  TestPartLengths('c:\a', 2, 3, 3, 3);
+  TestPartLengths('c:\a\', 2, 3, 4, 5);
+  TestPartLengths('c:\a\\', 2, 3, 4, 6);
+  TestPartLengths('c:\a\\\', 2, 3, 4, 7);
+  TestPartLengths('c:\a\b', 2, 3, 4, 5);
+  TestPartLengths('c:\a\b:c', 2, 3, 4, 5); {**}
 
-  Test('\\', 2, 2, 2, 2); {*}
+  TestPartLengths('\\', 2, 2, 2, 2); {*}
   { Odd cases follow: The extra slashes are considered to be in the drive part
     since PathDrivePartLength keeps slurping slashes looking for a share name
     that doesn't exist. }
-  Test('\\\', 3, 3, 3, 3); {*}
-  Test('\\\\', 4, 4, 4, 4); {*}
-  Test('\\\\\', 5, 5, 5, 5); {*}
-  Test('\\a', 3, 3, 3, 3); {*}
-  Test('\\a\', 4, 4, 4, 4); {*}
-  Test('\\a\b', 5, 5, 5, 5);
-  Test('\\a\b\', 5, 5, 5, 6);
-  Test('\\a\b\c', 5, 5, 5, 6);
-  Test('\\a\b\c\', 5, 5, 7, 8);
-  Test('\\a\b\c\d', 5, 5, 7, 8);
-  Test('\\a\b\c\d:e', 5, 5, 7, 8); {**}
-  Test('\\a\\\b', 7, 7, 7, 7);
-  Test('\\a\\\b\\\', 7, 7, 7, 10);
-  Test('\\a\\\b\\\c', 7, 7, 7, 10);
-  Test('\\a\\\b\\\c\\\', 7, 7, 11, 14);
+  TestPartLengths('\\\', 3, 3, 3, 3); {*}
+  TestPartLengths('\\\\', 4, 4, 4, 4); {*}
+  TestPartLengths('\\\\\', 5, 5, 5, 5); {*}
+  TestPartLengths('\\a', 3, 3, 3, 3); {*}
+  TestPartLengths('\\a\', 4, 4, 4, 4); {*}
+  TestPartLengths('\\a\b', 5, 5, 5, 5);
+  TestPartLengths('\\a\b\', 5, 5, 5, 6);
+  TestPartLengths('\\a\b\c', 5, 5, 5, 6);
+  TestPartLengths('\\a\b\c\', 5, 5, 7, 8);
+  TestPartLengths('\\a\b\c\d', 5, 5, 7, 8);
+  TestPartLengths('\\a\b\c\d:e', 5, 5, 7, 8); {**}
+  TestPartLengths('\\a\\\b', 7, 7, 7, 7);
+  TestPartLengths('\\a\\\b\\\', 7, 7, 7, 10);
+  TestPartLengths('\\a\\\b\\\c', 7, 7, 7, 10);
+  TestPartLengths('\\a\\\b\\\c\\\', 7, 7, 11, 14);
 
-  Test('\\?\C:', 6, 6, 6, 6);
-  Test('\\?\C:\', 6, 7, 7, 7);
-  Test('\\?\C:\a', 6, 7, 7, 7);
-  Test('\\?\C:\a\b', 6, 7, 8, 9);
-  Test('\\.\C:', 6, 6, 6, 6);
-  Test('\\.\C:\a', 6, 7, 7, 7);
-  Test('\\?\UNC\server\share', 20, 20, 20, 20);
-  Test('\\?\UNC\server\share\', 20, 20, 20, 21);
-  Test('\\?\UNC\server\share\dir', 20, 20, 20, 21);
-  Test('\\.\UNC\server\share', 20, 20, 20, 20);
+  TestPartLengths('\\?\C:', 6, 6, 6, 6);
+  TestPartLengths('\\?\C:\', 6, 7, 7, 7);
+  TestPartLengths('\\?\C:\a', 6, 7, 7, 7);
+  TestPartLengths('\\?\C:\a\b', 6, 7, 8, 9);
+  TestPartLengths('\\.\C:', 6, 6, 6, 6);
+  TestPartLengths('\\.\C:\a', 6, 7, 7, 7);
+  TestPartLengths('\\?\UNC\server\share', 20, 20, 20, 20);
+  TestPartLengths('\\?\UNC\server\share\', 20, 20, 20, 21);
+  TestPartLengths('\\?\UNC\server\share\dir', 20, 20, 20, 21);
+  TestPartLengths('\\.\UNC\server\share', 20, 20, 20, 20);
 
   TestRemoveBackslash('', '');
   TestRemoveBackslash('\', '');
