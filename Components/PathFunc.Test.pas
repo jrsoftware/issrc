@@ -591,6 +591,7 @@ begin
   TestPathComponentIsReservedName('COM'+#$00B9, True);
   TestPathComponentIsReservedName('COM'+#$00B2, True);
   TestPathComponentIsReservedName('COM'+#$00B3, True);
+  TestPathComponentIsReservedName('COM'+#$00B4, False);
   TestPathComponentIsReservedName('COM10', False);
   TestPathComponentIsReservedName('LPT1', True);
   TestPathComponentIsReservedName('LPT9', True);
