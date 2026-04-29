@@ -29,8 +29,8 @@ units:
 
 ## Defines set by PascalScript.inc
 
-`PascalScript.inc` (included by every unit) sets additional symbols based on
-the compiler version:
+`PascalScript.inc` (included by every unit) sets or normalizes additional
+symbols based on the compiler version:
 
 | Define | Condition | Always true in IS? |
 |--------|-----------|-------------------|
@@ -77,12 +77,22 @@ means the following are always true and their guards are dead code:
 | `DELPHI_or_MSWINDOWS` | Derived from `DELPHI`, always true |
 | `TExtended80Rec_present` | Defined for `DELPHI16UP`, always true |
 | `UNICODE_SUPPORT` | Derived from `UNICODE` in eDefines.inc, always true |
+| `STRINGSTREAMFIX` | Derived from `UNICODE` + not `FPC` in uPSR_classes.pas |
+
+## Symbols set by x64.inc
+
+These symbols are defined only for x64 builds, when `uPSRuntime.pas` includes
+`x64.inc`; they are not x86 symbols:
+
+| Symbol | Why defined in x64 builds |
+|--------|--------------------------|
 | `PS_RESBEFOREPARAMETERS` | Defined inside `{$IFDEF DELPHI}` in x64.inc |
 | `x64_string_result_as_varparameter` | Defined inside `{$IFDEF DELPHI}` in x64.inc |
 | `REG_STACK_PTR_OFFSET0` | Defined inside `{$IFDEF DELPHI}` + `{$IFDEF WINDOWS}` in x64.inc |
-| `STRINGSTREAMFIX` | Derived from `UNICODE` + not `FPC` in uPSR_classes.pas |
 
-And the following are always false:
+## Build environment (always false)
+
+The following are always false:
 
 | Symbol | Why always false |
 |--------|-----------------|
