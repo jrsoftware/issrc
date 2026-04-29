@@ -20,8 +20,8 @@ del Files\ISTestTool.exe
 call :test x64
 if errorlevel 1 goto failed
 
-echo All done!
-pause
+echo Success!
+
 exit /b 0
 
 :failed
