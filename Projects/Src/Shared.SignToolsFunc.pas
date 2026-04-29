@@ -2,7 +2,7 @@ unit Shared.SignToolsFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -20,16 +20,16 @@ function AddSignToolParam(Sign: string): string;
 implementation
 
 procedure ReadSignTools(SignTools: TStringList);
-var
-  Ini: TConfigIniFile;
-  I: Integer;
-  S: String;
 begin
-  Ini := TConfigIniFile.Create;
+  SignTools.Clear;
+
+  if not TConfigIniFile.Exists then { Prevents ISCC from always creating key }
+    Exit;
+
+  const Ini = TConfigIniFile.Create;
   try
-    { Sign tools }
-    SignTools.Clear();
-    I := 0;
+    var S: String;
+    var I := 0;
     repeat
       S := Ini.ReadString('SignTools', 'SignTool' + IntToStr(I), '');
       if S <> '' then

@@ -1,5 +1,5 @@
 ---
-applyTo: "Components/UniPs/**"
+paths: ["Components/UniPs/**"]
 ---
 # Instructions for UniPs (Pascal Script) components
 

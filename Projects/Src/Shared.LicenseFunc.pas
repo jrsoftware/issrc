@@ -50,6 +50,11 @@ var
 
 procedure ReadLicense;
 begin
+  if not TConfigIniFile.Exists then begin { Prevents ISCC from always creating key }
+    UpdateLicense('');
+    Exit;
+  end;
+
   const Ini = TConfigIniFile.Create;
   try
     UpdateLicense(Ini.ReadString('License', 'LicenseKey', ''));
