@@ -483,6 +483,14 @@ begin
   TestPathExpandAndNormalizeSlashes('\\\?\\C:\\Windows', '\\\?\C:\Windows');
   {$ENDIF}
 
+  TestPathNormalizeSlashes('a/\b', 'a\b');
+  TestPathNormalizeSlashes('a\\b', 'a\b');
+  TestPathNormalizeSlashes('\\a\\\b', '\\a\b');
+  TestPathNormalizeSlashes('a/b', 'a\b');
+  TestPathNormalizeSlashes('a//b', 'a\b');
+  TestPathNormalizeSlashes('///', '\\\'); { 3+ leading slash quirk preserved }
+  TestPathNormalizeSlashes('', '');
+
   TestPathStrCompare('Test', 'test', True, 0);
   TestPathStrCompare('Test', 'test', False, -1);
   TestPathStrCompare('Test', 'Te', False, 1);
@@ -657,14 +665,6 @@ begin
   TestPathCharIsDriveLetter('a', True);
   TestPathCharIsDriveLetter('Z', True);
   TestPathCharIsDriveLetter('1', False);
-
-  TestPathNormalizeSlashes('a/\b', 'a\b');
-  TestPathNormalizeSlashes('a\\b', 'a\b');
-  TestPathNormalizeSlashes('\\a\\\b', '\\a\b');
-  TestPathNormalizeSlashes('a/b', 'a\b');
-  TestPathNormalizeSlashes('a//b', 'a\b');
-  TestPathNormalizeSlashes('///', '\\\'); { 3+ leading slash quirk preserved }
-  TestPathNormalizeSlashes('', '');
 end;
 
 {$IFDEF DEBUG}
