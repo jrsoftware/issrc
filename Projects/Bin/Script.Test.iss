@@ -175,7 +175,7 @@ begin
   CheckEqualsInt64(32767, High(VSmallInt));
   //CheckEqualsInt64(-2147483648, Low(VInteger)); { fails because -2147483648 is read as 2147483648 }
   CheckEqualsInt64(2147483647, High(VInteger));
-  //CheckEqualsInt64(-9223372036854775808, Low(VInt64)); { fails because -9223372036854775808 is read as 0 }
+  CheckEqualsInt64(-9223372036854775808, Low(VInt64));
   CheckEqualsInt64(9223372036854775807, High(VInt64));
 
   { Unsigned integer boundaries }
@@ -186,7 +186,28 @@ begin
   CheckEqualsUInt64(0, Low(VCardinal));
   CheckEqualsUInt64(4294967295, High(VCardinal));
   CheckEqualsUInt64(0, Low(VUInt64));
-  //CheckEqualsUInt64(18446744073709551615, High(VUInt64));; { fails because 18446744073709551615 is read as 0 }
+  CheckEqualsUInt64(18446744073709551615, High(VUInt64));
+
+  { Same boundaries using hex literals }
+  CheckEqualsInt64(-$80, Low(VShortInt));
+  CheckEqualsInt64($7F, High(VShortInt));
+  CheckEqualsInt64(-$8000, Low(VSmallInt));
+  CheckEqualsInt64($7FFF, High(VSmallInt));
+  //CheckEqualsInt64(-$80000000, Low(VInteger)); { fails because -$80000000 is read as 2147483648 }
+  CheckEqualsInt64($7FFFFFFF, High(VInteger));
+  CheckEqualsInt64(-$8000000000000000, Low(VInt64)); { also see special case below }
+  CheckEqualsInt64($7FFFFFFFFFFFFFFF, High(VInt64));
+  CheckEqualsUInt64($0, Low(VByte));
+  CheckEqualsUInt64($FF, High(VByte));
+  CheckEqualsUInt64($0, Low(VWord));
+  CheckEqualsUInt64($FFFF, High(VWord));
+  CheckEqualsUInt64($0, Low(VCardinal));
+  CheckEqualsUInt64($FFFFFFFF, High(VCardinal));
+  CheckEqualsUInt64($0, Low(VUInt64));
+  CheckEqualsUInt64($FFFFFFFFFFFFFFFF, High(VUInt64));
+
+  { Special case, works like this in Delphi as well }
+  CheckEqualsInt64($8000000000000000, Low(VInt64));
 
   { Boolean value mapping }
   VBoolean := False;
