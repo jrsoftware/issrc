@@ -2,7 +2,7 @@ unit BidiUtils;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,20 +12,26 @@ unit BidiUtils;
 interface
 
 uses
-  Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs, StdCtrls;
+  {$IFNDEF ISTESTTOOLPROJ} Classes, Controls, {$ENDIF}
+  Types;
 
-procedure FlipControls(const AParentCtl: TWinControl);
 procedure FlipRect(var Rect: TRect; const ParentRect: TRect; const UseRightToLeft: Boolean);
+
+{$IFNDEF ISTESTTOOLPROJ}
+procedure FlipControls(const AParentCtl: TWinControl);
 function IsParentFlipped(const AControl: TControl): Boolean;
 
 var
   { This callback should be set by the caller. Inno Setup: set by the Setup.SetupForm unit: }
   IsParentFlippedFunc: function(AControl: TControl): Boolean;
+{$ENDIF}
 
 implementation
 
+{$IFNDEF ISTESTTOOLPROJ}
 uses
   WinXPanels;
+{$ENDIF}
 
 procedure FlipRect(var Rect: TRect; const ParentRect: TRect; const UseRightToLeft: Boolean);
 var
@@ -38,6 +44,7 @@ begin
   end;
 end;
 
+{$IFNDEF ISTESTTOOLPROJ}
 function IsParentFlipped(const AControl: TControl): Boolean;
 begin
   if Assigned(IsParentFlippedFunc) then
@@ -94,5 +101,6 @@ begin
     if AParentCtl.Controls[I] is TWinControl then
       FlipControls(TWinControl(AParentCtl.Controls[I]));
 end;
+{$ENDIF}
 
 end.

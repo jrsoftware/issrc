@@ -41,7 +41,7 @@ uses
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
-{$R Res\ISCC.manifest.res}
+{$R Res\ConsoleApp.manifest.res}
 {$R Res\ISCC.versionandicon.res}
 
 type

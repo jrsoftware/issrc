@@ -2,7 +2,7 @@ unit SimpleExpression;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -24,7 +24,12 @@ unit SimpleExpression;
 
 interface
 
+uses
+  SysUtils;
+
 type
+  ESimpleExpressionError = class(Exception);
+
   TSimpleExpression = class;
 
   TSimpleExpressionOnEvalIdentifier = function(Sender: TSimpleExpression;
@@ -64,9 +69,6 @@ type
     end;
 
 implementation
-
-uses
-  SysUtils;
 
 procedure AssignStringToVarRec(var VarRec: TVarRec; const S: String);
 begin
@@ -142,8 +144,8 @@ begin
         while True do begin
           Inc(FText);
           case FText^ of
-            #0: raise Exception.Create('Unexpected end of expression while reading string constant');
-            #10, #13: raise Exception.Create('Unterminated string');
+            #0: raise ESimpleExpressionError.Create('Unexpected end of expression while reading string constant');
+            #10, #13: raise ESimpleExpressionError.Create('Unterminated string');
           else
             if FText^ = '''' then begin
               Inc(FText);
@@ -156,7 +158,7 @@ begin
         FTokenId := tiString;
       end;
   else
-    raise Exception.CreateFmt('Invalid symbol ''%s'' found', [FText^]);
+    raise ESimpleExpressionError.CreateFmt('Invalid symbol ''%s'' found', [FText^]);
   end;
 end;
 
@@ -171,20 +173,20 @@ begin
       if FTokenId = tiIdentifier then begin
         { Currently only calls to 'ExpandConstant' are supported in parameter lists }
         if CompareText(FToken, 'ExpandConstant') <> 0 then
-          raise Exception.Create('Can only call function "ExpandConstant" within parameter lists');
+          raise ESimpleExpressionError.Create('Can only call function "ExpandConstant" within parameter lists');
         Next;
         if FTokenId <> tiOpenRound then
-          raise Exception.CreateFmt('Invalid token ''%s'' found', [FToken]);
+          raise ESimpleExpressionError.CreateFmt('Invalid token ''%s'' found', [FToken]);
         Next;
         if FTokenId <> tiString then
-          raise Exception.CreateFmt('Invalid token ''%s'' found', [FToken]);
+          raise ESimpleExpressionError.CreateFmt('Invalid token ''%s'' found', [FToken]);
         if Assigned(FOnExpandConstant) then
           AssignStringToVarRec(Parameters[I], FOnExpandConstant(Self, FToken))
         else
           AssignStringToVarRec(Parameters[I], FToken);
         Next;
         if FTokenId <> tiCloseRound then
-          raise Exception.CreateFmt('Invalid token ''%s'' found', [FToken]);
+          raise ESimpleExpressionError.CreateFmt('Invalid token ''%s'' found', [FToken]);
       end else if FTokenId = tiString then begin
         AssignStringToVarRec(Parameters[I], FToken);
       end else if FTokenId = tiInteger then begin
@@ -196,7 +198,7 @@ begin
       end;
       Inc(I);
     end else
-      raise Exception.Create('Maximum number of parameters exceeded');
+      raise ESimpleExpressionError.Create('Maximum number of parameters exceeded');
 
     Next;
     if FTokenId <> tiComma then
@@ -224,7 +226,7 @@ begin
       Next;
       ParameterCount := FReadParameters(Parameters);
       if FTokenId <> tiCloseRound then
-        raise Exception.CreateFmt('Invalid token ''%s'' found', [FToken]);
+        raise ESimpleExpressionError.CreateFmt('Invalid token ''%s'' found', [FToken]);
       Next;
     end else
       ParameterCount := 0;
@@ -251,7 +253,7 @@ begin
         Next;
         Result := FEvalExpression(InLazyBranch);
         if FTokenId <> tiCloseRound then
-          raise Exception.Create('Invalid token');
+          raise ESimpleExpressionError.Create('Invalid token');
         Next;
       end;
     tiNot:
@@ -264,7 +266,7 @@ begin
         Result := FEvalIdentifier(InLazyBranch);
       end;
     else
-      raise Exception.CreateFmt('Invalid token ''%s'' found', [FToken]);
+      raise ESimpleExpressionError.CreateFmt('Invalid token ''%s'' found', [FToken]);
   end;
 end;
 
@@ -307,12 +309,12 @@ begin
     Result := FEvalExpression(False)
   else begin
     if FTokenId <> tiIdentifier then
-      raise Exception.CreateFmt('Invalid token ''%s'' found', [FToken]);
+      raise ESimpleExpressionError.CreateFmt('Invalid token ''%s'' found', [FToken]);
     Result := FEvalIdentifier(False);
   end;
 
   if FTokenID <> tiEOF then
-    raise Exception.CreateFmt('Invalid token ''%s'' found', [FToken]);
+    raise ESimpleExpressionError.CreateFmt('Invalid token ''%s'' found', [FToken]);
 end;
 
 end.

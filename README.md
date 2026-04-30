@@ -116,7 +116,7 @@ because they can function independently from Inno Setup.
 Overview
 --------
 
-Inno Setup consists of eight projects:
+Inno Setup consists of nine projects:
 
 **ISIDE** - This is the GUI front-end for the compiler, also known as
 the Compiler IDE. ISIDE does not do the actual compilation itself; it
@@ -149,6 +149,11 @@ any of your files. ISIDE, ISCC, and ISCmplr use these signatures to verify the
 authenticity of a number of DLL, E32, E64, and EXE files before loading them. Note: this
 utility does not replace Microsoft's signtool.exe in any way and is in fact not
 related to Authenticode Code Signing at all.
+
+**ISTestTool** - This is an internal command-line utility which runs unit tests.
+It is run automatically by **build.bat** and **build-ce.bat** after compilation,
+and exits with a non-zero exit code as soon as a test fails. Does not use a
+testing framework. Run **test.bat** to compile and run the tests manually.
 
 How do the projects link together?
 

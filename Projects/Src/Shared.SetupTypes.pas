@@ -2,11 +2,13 @@ unit Shared.SetupTypes;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Types and functions used by both ISCmplr-only and Setup-only units
+
+  Also used by ISTestTool
 }
 
 interface

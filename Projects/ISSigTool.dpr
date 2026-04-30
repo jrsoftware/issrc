@@ -28,7 +28,7 @@ uses
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
-{$R Res\ISSigTool.manifest.res}
+{$R Res\ConsoleApp.manifest.res}
 {$R Res\ISSigTool.versionandicon.res}
 
 var
@@ -348,7 +348,7 @@ begin
         end else if S.StartsWith('--key-file=') then begin
           Options.KeyFile := S.Substring(Length('--key-file='));
         end else
-          RaiseFatalErrorFmt('Unknown option "%s".', [S]);
+          RaiseFatalErrorFmt('Unknown option "%s"', [S]);
         ArgList.Delete(J);
       end else begin
         if S = '' then

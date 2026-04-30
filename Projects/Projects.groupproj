@@ -27,6 +27,9 @@
         <Projects Include="ISSigTool.dproj">
             <Dependencies/>
         </Projects>
+        <Projects Include="ISTestTool.dproj">
+            <Dependencies/>
+        </Projects>
         <Projects Include="..\ISHelp\ISHelpGen\ISHelpGen.dproj">
             <Dependencies/>
         </Projects>
@@ -110,6 +113,15 @@
     <Target Name="ISSigTool:Make">
         <MSBuild Projects="ISSigTool.dproj" Targets="Make"/>
     </Target>
+    <Target Name="ISTestTool">
+        <MSBuild Projects="ISTestTool.dproj"/>
+    </Target>
+    <Target Name="ISTestTool:Clean">
+        <MSBuild Projects="ISTestTool.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="ISTestTool:Make">
+        <MSBuild Projects="ISTestTool.dproj" Targets="Make"/>
+    </Target>
     <Target Name="ISHelpGen">
         <MSBuild Projects="..\ISHelp\ISHelpGen\ISHelpGen.dproj"/>
     </Target>
@@ -120,13 +132,13 @@
         <MSBuild Projects="..\ISHelp\ISHelpGen\ISHelpGen.dproj" Targets="Make"/>
     </Target>
     <Target Name="Build">
-        <CallTarget Targets="ISIDE;ISCC;ISCmplr;ISPP;Setup;SetupCustomStyle;SetupLdr;ISSigTool;ISHelpGen"/>
+        <CallTarget Targets="ISIDE;ISCC;ISCmplr;ISPP;Setup;SetupCustomStyle;SetupLdr;ISSigTool;ISTestTool;ISHelpGen"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="ISIDE:Clean;ISCC:Clean;ISCmplr:Clean;ISPP:Clean;Setup:Clean;SetupCustomStyle:Clean;SetupLdr:Clean;ISSigTool:Clean;ISHelpGen:Clean"/>
+        <CallTarget Targets="ISIDE:Clean;ISCC:Clean;ISCmplr:Clean;ISPP:Clean;Setup:Clean;SetupCustomStyle:Clean;SetupLdr:Clean;ISSigTool:Clean;ISTestTool:Clean;ISHelpGen:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="ISIDE:Make;ISCC:Make;ISCmplr:Make;ISPP:Make;Setup:Make;SetupCustomStyle:Make;SetupLdr:Make;ISSigTool:Make;ISHelpGen:Make"/>
+        <CallTarget Targets="ISIDE:Make;ISCC:Make;ISCmplr:Make;ISPP:Make;Setup:Make;SetupCustomStyle:Make;SetupLdr:Make;ISSigTool:Make;ISTestTool:Make;ISHelpGen:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
     <ItemGroup Condition="'$(BuildGroup)'=='Release32'">
@@ -146,6 +158,12 @@
             <ProjectGuid>{4259E59E-2263-4FE8-8E6C-BFCBC7A6C66D}</ProjectGuid>
             <Configurations>Release</Configurations>
             <Platforms>Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="ISTestTool.dproj">
+            <ProjectGuid>{58FC87FD-6D1D-4295-BE36-FE6266FDB078}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
             <Enabled>True</Enabled>
         </BuildGroupProject>
         <BuildGroupProject Include="Setup.dproj">
@@ -204,6 +222,12 @@
             <Platforms>Win32;Win64</Platforms>
             <Enabled>True</Enabled>
         </BuildGroupProject>
+        <BuildGroupProject Include="ISTestTool.dproj">
+            <ProjectGuid>{58FC87FD-6D1D-4295-BE36-FE6266FDB078}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
         <BuildGroupProject Include="Setup.dproj">
             <ProjectGuid>{BB7C6F6A-AC62-46BB-A790-0CF4A74B649E}</ProjectGuid>
             <Configurations>Release</Configurations>
@@ -260,6 +284,12 @@
             <Platforms>Win32;Win64</Platforms>
             <Enabled>True</Enabled>
         </BuildGroupProject>
+        <BuildGroupProject Include="ISTestTool.dproj">
+            <ProjectGuid>{58FC87FD-6D1D-4295-BE36-FE6266FDB078}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
         <BuildGroupProject Include="Setup.dproj">
             <ProjectGuid>{BB7C6F6A-AC62-46BB-A790-0CF4A74B649E}</ProjectGuid>
             <Configurations>Debug</Configurations>
@@ -314,6 +344,12 @@
             <ProjectGuid>{4259E59E-2263-4FE8-8E6C-BFCBC7A6C66D}</ProjectGuid>
             <Configurations>Debug</Configurations>
             <Platforms>Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="ISTestTool.dproj">
+            <ProjectGuid>{58FC87FD-6D1D-4295-BE36-FE6266FDB078}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win64</Platforms>
             <Enabled>True</Enabled>
         </BuildGroupProject>
         <BuildGroupProject Include="Setup.dproj">
