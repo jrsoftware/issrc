@@ -30,43 +30,32 @@ end;
 procedure CheckEqualsInt64(const Expected, Actual: Int64);
 begin
   if Expected <> Actual then
-    RaiseException(
-      'CheckEqualsInt64 test failed: expected ' + IntToStr(Expected) +
-        ', got ' + IntToStr(Actual));
+    RaiseException(Format('CheckEqualsInt64 test failed: expected %d, got %d', [Expected, Actual]));
 end;
 
 procedure CheckEqualsUInt64(const Expected, Actual: UInt64);
 begin
   if Expected <> Actual then
-    RaiseException(
-      'CheckEqualsUInt64 test failed: expected ' + IntToStr(Expected) +
-        ', got ' + IntToStr(Actual));
+    RaiseException(Format('CheckEqualsUInt64 test failed: expected %u, got %u', [Expected, Actual]));
 end;
 
 procedure CheckEqualsString(const Expected, Actual: String);
 begin
   if Expected <> Actual then
-    RaiseException(
-      'CheckEqualsString test failed: expected "' + Expected +
-        '", got "' + Actual + '"');
+    RaiseException(Format('CheckEqualsString test failed: expected "%s", got "%s"', [Expected, Actual]));
 end;
 
 procedure CheckEqualsFloat(const Expected, Actual, Tolerance: Extended);
 begin
   if Abs(Expected - Actual) > Tolerance then
-    RaiseException(
-      'CheckEqualsFloat test failed: expected ' + FloatToStr(Expected) +
-        ', got ' + FloatToStr(Actual));
+    RaiseException(Format('CheckEqualsFloat test failed: expected %g, got %g', [Expected, Actual]));
 end;
 
 { Call inside an except block; raises if ExceptionType doesn't match. }
 procedure CheckRaisedCode(const ExpectedCode: TIFException);
 begin
   if ExceptionType <> ExpectedCode then
-    RaiseException(
-      'CheckRaisedCode test failed: expected exception ' +
-        IntToStr(Ord(ExpectedCode)) + ', got ' + IntToStr(Ord(ExceptionType)) +
-        ' [' + ExceptionToString(ExceptionType, ExceptionParam) + ']');
+    RaiseException(Format('CheckRaisedCode test failed: expected exception %d, got %d [%s]', [Ord(ExpectedCode), Ord(ExceptionType), ExceptionToString(ExceptionType, ExceptionParam)]));
 end;
 
 { Test 'export' keyword parses }
