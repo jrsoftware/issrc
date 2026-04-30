@@ -136,8 +136,100 @@ begin
 end;
 
 procedure CommandTest;
+
+  procedure ScriptRunTests;
+
+    procedure StrictDeleteFile(const Path: String);
+    begin
+      if not Windows.DeleteFile(PChar(Path)) then begin
+        const LastError = GetLastError;
+        if LastError <> ERROR_FILE_NOT_FOUND then
+          RaiseFatalErrorFmt('StrictDeleteFile: DeleteFile failed (Error %d: %s)',
+            [LastError, Win32ErrorString(LastError)]);
+      end;
+    end;
+
+    function RunAndWait(const CmdLine: String): DWORD;
+    begin
+      var StartupInfo: TStartupInfo;
+      FillChar(StartupInfo, SizeOf(StartupInfo), 0);
+      StartupInfo.cb := SizeOf(StartupInfo);
+      StartupInfo.dwFlags := STARTF_USESHOWWINDOW;
+      StartupInfo.wShowWindow := SW_SHOWNORMAL;
+
+      const InheritHandles = False;
+      const dwCreationFlags: DWORD = CREATE_DEFAULT_ERROR_MODE or CREATE_NO_WINDOW;
+
+      var ProcessInfo: TProcessInformation;
+      if not CreateProcess(nil, PChar(CmdLine), nil, nil, InheritHandles,
+         dwCreationFlags, nil, nil, StartupInfo, ProcessInfo) then begin
+        const LastError = GetLastError;
+        RaiseFatalErrorFmt('RunAndWait: CreateProcess failed (Error %d: %s)',
+          [LastError, Win32ErrorString(LastError)]);
+      end;
+      CloseHandle(ProcessInfo.hThread);
+      try
+        if WaitForSingleObject(ProcessInfo.hProcess, INFINITE) <> WAIT_OBJECT_0 then
+          RaiseFatalError('RunAndWait: WaitForSingleObject failed');
+        if not GetExitCodeProcess(ProcessInfo.hProcess, Result) then
+          RaiseFatalError('RunAndWait: GetExitCodeProcess failed');
+      finally
+        CloseHandle(ProcessInfo.hProcess);
+      end;
+    end;
+
+    function ReadFileContents(const Path: String): String;
+    begin
+      const F = TStringList.Create;
+      try
+        F.LoadFromFile(Path);
+        Result := Trim(F.Text);
+      finally
+        F.Free;
+      end;
+    end;
+
+  begin
+    const ExePath = PathExtractPath(ParamStr(0));
+    const TestDir = AddBackslash(ExePath + {$IFDEF DEBUG} '' {$ELSE} '..\Projects\Bin' {$ENDIF});
+    const TestIssPath = TestDir + 'Script.Test.iss';
+    const TestSetupExe = TestDir + 'Script.Test-Setup.exe';
+    const TestResultPath = TestDir + 'Script.Test-Result.txt';
+    const Arch = {$IFDEF CPUX64} 'x64' {$ELSE} 'x86' {$ENDIF};
+
+    try
+      PrintUnlessQuiet('  Compiling test Setup');
+
+      StrictDeleteFile(TestSetupExe);
+      const CompileExit = RunAndWait(AddQuotes(ExePath + 'ISCC.exe') + ' /Darch=' + Arch + ' ' +
+        AddQuotes(TestIssPath));
+      if CompileExit <> 0 then
+        RaiseFatalErrorFmt('Compilation failed (exit %d).', [CompileExit]);
+
+      PrintUnlessQuiet('  Running test Setup');
+
+      StrictDeleteFile(TestResultPath);
+      RunAndWait(AddQuotes(TestSetupExe));
+      if not NewFileExists(TestResultPath) then
+        RaiseFatalError('Test Setup result file not found');
+
+      PrintUnlessQuiet('  Evaluating test Setup result');
+
+      const TestResult = ReadFileContents(TestResultPath);
+      if TestResult = '' then
+        RaiseFatalError('Test Setup result is empty');
+      if TestResult <> 'OK' then
+        RaiseFatalErrorFmt('Test failed: %s', [TestResult]);
+    finally
+      Windows.DeleteFile(PChar(TestSetupExe));
+      Windows.DeleteFile(PChar(TestResultPath));
+    end;
+  end;
+
 begin
   try
+    PrintUnlessQuiet('Running native tests');
+
     BidiUtilsRunTests;
     ChaCha20RunTests;
     CompilerStringListsRunTests;
@@ -155,6 +247,11 @@ begin
     SimpleExpressionRunTests;
     StringScannerRunTests;
     UnsignedFuncRunTests;
+
+    PrintUnlessQuiet('Running ROPS script tests');
+
+    ScriptRunTests;
+
     PrintUnlessQuiet('OK');
   except
     PrintErrOutput('test failed: ' + GetExceptMessage);
