@@ -31,7 +31,7 @@ function PathCharIsSlash(const C: Char): Boolean;
 function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
 function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): Integer;
-function PathComponentIsReservedName(const SingleComponent: String): Boolean;
+function PathComponentIsReservedName(const Filename: String): Boolean;
 function PathConvertNormalToSuper(const Filename: String;
   out SuperFilename: String): Boolean;
 function PathConvertSuperToNormal(const Filename: String): String;
@@ -158,39 +158,72 @@ begin
     IgnoreCase);
 end;
 
-function PathComponentIsReservedName(const SingleComponent: String): Boolean;
+function PathComponentIsReservedName(const Filename: String): Boolean;
 { Returns True if the specified path component is one of the "reserved" device
   names listed here:
     https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file
+  or CONIN$ or CONOUT$, which are also reserved.
 
-  Dots and all characters after them are ignored. Per docs: "NUL.txt and
-  NUL.tar.gz are both equivalent to NUL."
-  Spaces before dots are not ignored, so 'NUL .txt' is not equivalent to NUL
-  (consistent with GetFullPathName).
+  Certain parts of the component are ignored when comparing against device
+  names, consistent with how GetFullPathName works on Windows 10 (22H2):
+    1. Dots/colons and all characters after them are removed.
+         Per docs: "NUL.txt and NUL.tar.gz are both equivalent to NUL."
+         Testing shows 'NUL:' and 'NUL:xxx' are also equivalent to NUL.
+    2. Any remaining trailing spaces are removed.
+         Testing shows 'NUL ', 'NUL .txt', and 'NUL :' are also equivalent to
+         NUL.
 
-  NOTE: This function always returns False for strings containing colons or
-  trailing spaces. The caller is expected to have already checked for those
-  characters using PathHasInvalidCharacters, and rejected names containing
-  them.
-  GetFullPathName treats 'NUL ', 'NUL:', and 'NUL :' as equivalent to NUL
-  (returning '\\.\NUL'). But it does not treat 'NUL:stream' as equivalent to
-  NUL; passing that to CreateFile will actually create a file named 'NUL'
-  instead of opening the NUL device. }
+  ("equivalent to NUL" means "GetFullPathName returns \\.\NUL")
+
+  ============================================================================
+  Different behavior on Windows 11 -- NOT IMPLEMENTED BY THIS FUNCTION:
+
+  On Windows 11's GetFullPathName, fewer parts of the component are ignored
+  when comparing against device names. From testing on 25H2, it appears that
+  the component is modified as follows:
+    1. If the last character is a colon, it is removed. (Just one.)
+    2. Any number of spaces/dots at the end are removed.
+    3. If the last character is a colon, it is removed. (Just one.)
+    4. Any number of spaces at the end are removed.
+  So these are all equivalent to NUL:
+    'NUL.'
+    'NUL::'
+    'NUL :'
+    'NUL . :'
+    'NUL : . :'
+  But these are not:
+    'NUL.txt'
+    'NUL:xxx'
+    'NUL:::'
+    'NUL : . : '
+    'NUL . : . :'
+  Another difference from Windows 10: with the sole exception of NUL, paths
+  with multiple components are not treated as devices.
+    'C:\PRN' is no longer equivalent to PRN. (Same for COM1, etc.)
+    'C:\NUL' is still equivalent to NUL.
+}
 const
   Sup1 = #$00B9;
   Sup2 = #$00B2;
   Sup3 = #$00B3;
-  ThreeCharNames: array[0..3] of String = ('CON', 'PRN', 'AUX', 'NUL');
+  DeviceNames: array[0..5] of String =
+    ('CON', 'PRN', 'AUX', 'NUL', 'CONIN$', 'CONOUT$');
 begin
-  var Filename := SingleComponent;
-  const DotPos = PathPos('.', Filename);
-  if DotPos > 0 then
-    SetLength(Filename, DotPos-1);
+  var NewLength := 0;
+  for var I := 1 to Length(Filename) do
+    case Filename[I] of
+      ' ': ;
+      '.', ':': Break;
+    else
+      NewLength := I;
+    end;
 
-  case Length(Filename) of
-    3: begin
-         for var I := Low(ThreeCharNames) to High(ThreeCharNames) do
-           if SameText(Filename, ThreeCharNames[I]) then
+  case NewLength of
+    3, 6, 7:
+       begin
+         for var J := Low(DeviceNames) to High(DeviceNames) do
+           if (NewLength = Length(DeviceNames[J])) and
+              PathStartsWith(Filename, DeviceNames[J]) then
              Exit(True);
        end;
     4: begin
