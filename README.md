@@ -153,7 +153,7 @@ related to Authenticode Code Signing at all.
 **ISTestTool** - This is an internal command-line utility which runs unit tests.
 It is run automatically by **build.bat** and **build-ce.bat** after compilation,
 and exits with a non-zero exit code as soon as a test fails. Does not use a
-testing framework. Run **test.bat** to run the tests manually.
+testing framework. Run **test.bat** to compile and run the tests manually.
 
 How do the projects link together?
 
