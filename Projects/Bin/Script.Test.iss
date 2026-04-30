@@ -1,3 +1,7 @@
+#ifndef arch
+  #define arch "x64"
+#endif
+
 [Setup]
 AppName=Script.Test
 AppVersion=1.0
@@ -116,6 +120,7 @@ begin
   except
     ResultText := GetExceptionMessage;
   end;
+  Log(ResultText);
   SaveStringToFile(ExpandConstant('{src}\Script.Test-Result.txt'), ResultText, False);
   Result := False;
 end;
