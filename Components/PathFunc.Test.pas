@@ -591,8 +591,15 @@ begin
   TestPathComponentIsReservedName('AUX', True);
   TestPathComponentIsReservedName('NUL', True);
   TestPathComponentIsReservedName('NULL', False);
-  TestPathComponentIsReservedName('NUL ', False);
-  TestPathComponentIsReservedName('NUL:', False);
+  TestPathComponentIsReservedName('NUL ', True);
+  TestPathComponentIsReservedName('NUL  ', True);
+  TestPathComponentIsReservedName('NUL:', True);
+  TestPathComponentIsReservedName('NUL: ', True);
+  TestPathComponentIsReservedName('NUL:xxx', True);
+  TestPathComponentIsReservedName('NUL :', True);
+  TestPathComponentIsReservedName(' NUL', False);
+  TestPathComponentIsReservedName('CONIN$', True);
+  TestPathComponentIsReservedName('CONOUT$', True);
   TestPathComponentIsReservedName('COM0', False);
   TestPathComponentIsReservedName('COM1', True);
   TestPathComponentIsReservedName('COM9', True);
@@ -606,7 +613,12 @@ begin
   TestPathComponentIsReservedName('LPT'+#$00B9, True);
   TestPathComponentIsReservedName('LPTA', False);
   TestPathComponentIsReservedName('NUL.txt', True);
+  TestPathComponentIsReservedName('NUL.txt:', True);
+  TestPathComponentIsReservedName('NUL.tar.gz', True);
+  TestPathComponentIsReservedName('NUL .txt', True);
+  TestPathComponentIsReservedName('NUL X.txt', False);
   TestPathComponentIsReservedName('COM1.anything', True);
+  TestPathComponentIsReservedName('sub\NUL', False);
 
   TestValidateAndCombinePath('c:\dest\', 'sub\file.txt', 'c:\dest\sub\file.txt', True); { success }
   TestValidateAndCombinePath('c:\dest\', '', '', False);                                { empty }
