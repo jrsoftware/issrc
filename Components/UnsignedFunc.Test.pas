@@ -23,6 +23,8 @@ uses
 {$C+}
 
 procedure UnsignedFuncRunTests;
+  var
+    Source, Dest, BufA, BufB: array[0..15] of Byte;
 begin
   { ULength: one assertion per actually-used overload pins down overload resolution }
   const SUnicode: String = 'hello';
@@ -35,8 +37,6 @@ begin
   Assert(ULength(Bytes) = 8);
 
   { UMove copies bytes correctly for small counts }
-  var Source: array[0..15] of Byte;
-  var Dest: array[0..15] of Byte;
   for var I := 0 to High(Source) do
     Source[I] := Byte(I + 1);
   FillChar(Dest, SizeOf(Dest), 0);
@@ -51,8 +51,6 @@ begin
     Assert(Dest[I] = $42);
 
   { UCompareMem returns True for equal buffers, and False when any byte differs }
-  var BufA: array[0..15] of Byte;
-  var BufB: array[0..15] of Byte;
   for var I := 0 to High(BufA) do begin
     BufA[I] := Byte(I);
     BufB[I] := Byte(I);

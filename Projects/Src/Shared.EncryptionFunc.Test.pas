@@ -32,6 +32,9 @@ procedure SharedEncryptionFuncRunTests;
     Result := True;
   end;
 
+var
+  Stream1, Stream2: array[0..63] of Byte;
+  SpecialStreams: array[TSpecialCryptContextType] of array[0..15] of Byte;
 begin
   var Salt: TSetupKDFSalt;
   for var I := 0 to High(Salt) do
@@ -95,8 +98,6 @@ begin
   var Ctx1, Ctx2: TChaCha20Context;
   InitCryptContext(Key1, Nonce, 0, 0, Ctx1);
   InitCryptContext(Key1, Nonce, 0, 0, Ctx2);
-  var Stream1: array[0..63] of Byte;
-  var Stream2: array[0..63] of Byte;
   FillChar(Stream1, SizeOf(Stream1), 0);
   FillChar(Stream2, SizeOf(Stream2), 0);
   XChaCha20Crypt(Ctx1, Stream1, Stream1, SizeOf(Stream1));
@@ -118,7 +119,6 @@ begin
 
   { InitCryptContext (special-context variant): each TSpecialCryptContextType produces a
     distinct keystream and none of them collide with offset 0 / slice 0 }
-  var SpecialStreams: array[TSpecialCryptContextType] of array[0..15] of Byte;
   for var T := Low(TSpecialCryptContextType) to High(TSpecialCryptContextType) do begin
     var Ctx: TChaCha20Context;
     InitCryptContext(Key1, Nonce, T, Ctx);

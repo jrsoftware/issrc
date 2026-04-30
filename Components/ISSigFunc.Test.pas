@@ -359,8 +359,8 @@ begin
   { Wrong-length / out-of-charset input must raise. ISSigCheckValidKeyID and
     ISSigCheckValidPublicXOrY both ultimately call SHA256DigestFromString,
     which accepts mixed case, so the same set of inputs is invalid for both. }
-  const Invalid: array of String = ['', 'abc', StringOfChar('z', 64),
-    StringOfChar('0', 63), StringOfChar('0', 65)];
+  const Invalid = ['', 'abc', StringOfChar('z', 64), StringOfChar('0', 63),
+    StringOfChar('0', 65)];
   for var S in Invalid do begin
     TestCheckValidKeyIDRaises(S);
     TestCheckValidPublicXOrYRaises(S);
