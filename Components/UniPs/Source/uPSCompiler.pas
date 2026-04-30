@@ -5717,6 +5717,7 @@ begin
 end;
 
 
+{ Note: 's' never starts with a minus sign }
 function TPSPascalCompiler.ReadInteger(const s: tbtString): PIfRVariant;
 var
   R: {$IFNDEF PS_NOINT64}Int64;{$ELSE}Longint;{$ENDIF}
@@ -5730,11 +5731,12 @@ begin
   Val(string(s), r, Code);
   if Code = 0 then
   begin
-    if (r >= Low(Integer)) and (r <= High(Integer)) then
+    { Even though 's' never starts with a minus sign, r will still be negative when '$8000000000000000' is used }
+    if (r >= Low(TbtS32)) and (r <= High(TbtS32)) then
     begin
       InitializeVariant(Result, at2ut(FindBaseType(bts32)));
       Result^.ts32 := r;
-    end else if (r <= $FFFFFFFF) then
+    end else if (r >= Low(TbtU32)) and (r <= High(TbtU32)) then
     begin
       InitializeVariant(Result, at2ut(FindBaseType(btu32)));
       Result^.tu32 := r;
