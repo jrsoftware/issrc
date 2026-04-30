@@ -94,9 +94,124 @@ begin
   { Other keyswords: exercised by other tests }
 end;
 
+procedure Test_BaseTypeSizes;
+var
+  VBoolean: Boolean;
+  VByte: Byte;
+  VShortInt: ShortInt;
+  VAnsiChar: AnsiChar;
+  VWord: Word;
+  VSmallInt: SmallInt;
+  VWideChar: WideChar;
+  VChar: Char;
+  VInteger: Integer;
+  VLongInt: LongInt;
+  VLongWord: LongWord;
+  VCardinal: Cardinal;
+  VSingle: Single;
+  VDouble: Double;
+  VInt64: Int64;
+  VUInt64: UInt64;
+  VCurrency: Currency;
+  VByteBool: ByteBool;
+  VWordBool: WordBool;
+  VLongBool: LongBool;
+begin
+  CheckEqualsInt64(1, SizeOf(VBoolean));
+  CheckEqualsInt64(1, SizeOf(VByte));
+  CheckEqualsInt64(1, SizeOf(VShortInt));
+  CheckEqualsInt64(1, SizeOf(VAnsiChar));
+  CheckEqualsInt64(2, SizeOf(VWord));
+  CheckEqualsInt64(2, SizeOf(VSmallInt));
+  CheckEqualsInt64(2, SizeOf(VWideChar));
+  CheckEqualsInt64(2, SizeOf(VChar));
+  CheckEqualsInt64(4, SizeOf(VInteger));
+  CheckEqualsInt64(4, SizeOf(VLongInt));
+  CheckEqualsInt64(4, SizeOf(VLongWord));
+  CheckEqualsInt64(4, SizeOf(VCardinal));
+  CheckEqualsInt64(4, SizeOf(VSingle));
+  CheckEqualsInt64(8, SizeOf(VDouble));
+  CheckEqualsInt64(8, SizeOf(VInt64));
+  CheckEqualsInt64(8, SizeOf(VUInt64));
+  CheckEqualsInt64(8, SizeOf(VCurrency));
+  CheckEqualsInt64(1, SizeOf(VByteBool));
+  CheckEqualsInt64(2, SizeOf(VWordBool));
+  CheckEqualsInt64(4, SizeOf(VLongBool));
+end;
+
+procedure Test_ArchDependentSizes;
+var
+  VExtended: Extended;
+  VNativeInt: NativeInt;
+  VNativeUInt: NativeUInt;
+begin
+  #if arch == "x64"
+    CheckEqualsInt64(8, SizeOf(VExtended));
+    CheckEqualsInt64(8, SizeOf(VNativeInt));
+    CheckEqualsInt64(8, SizeOf(VNativeUInt));
+  #else
+    CheckEqualsInt64(10, SizeOf(VExtended));
+    CheckEqualsInt64(4, SizeOf(VNativeInt));
+    CheckEqualsInt64(4, SizeOf(VNativeUInt));
+  #endif
+end;
+
+procedure Test_IntegerBoundaries;
+var
+  VShortInt: ShortInt;
+  VSmallInt: SmallInt;
+  VInteger: Integer;
+  VInt64: Int64;
+  VByte: Byte;
+  VWord: Word;
+  VCardinal: Cardinal;
+  VUInt64: UInt64;
+  VBoolean: Boolean;
+begin
+  { Signed integer boundaries }
+  CheckEqualsInt64(-128, Low(VShortInt));
+  CheckEqualsInt64(127, High(VShortInt));
+  CheckEqualsInt64(-32768, Low(VSmallInt));
+  CheckEqualsInt64(32767, High(VSmallInt));
+  //CheckEqualsInt64(-2147483648, Low(VInteger)); { fails because -2147483648 is read as 2147483648 }
+  CheckEqualsInt64(2147483647, High(VInteger));
+  //CheckEqualsInt64(-9223372036854775808, Low(VInt64)); { fails because -9223372036854775808 is read as 0 }
+  CheckEqualsInt64(9223372036854775807, High(VInt64));
+
+  { Unsigned integer boundaries }
+  CheckEqualsUInt64(0, Low(VByte));
+  CheckEqualsUInt64(255, High(VByte));
+  CheckEqualsUInt64(0, Low(VWord));
+  CheckEqualsUInt64(65535, High(VWord));
+  CheckEqualsUInt64(0, Low(VCardinal));
+  CheckEqualsUInt64(4294967295, High(VCardinal));
+  CheckEqualsUInt64(0, Low(VUInt64));
+  //CheckEqualsUInt64(18446744073709551615, High(VUInt64));; { fails because 18446744073709551615 is read as 0 }
+
+  { Boolean value mapping }
+  VBoolean := False;
+  CheckEqualsUInt64(0, Ord(VBoolean));
+  VBoolean := True;
+  CheckEqualsUInt64(1, Ord(VBoolean));
+end;
+
+procedure Test_CurrencyPrecision;
+var
+  C: Currency;
+begin
+  C := 1.5;
+  CheckEqualsFloat(1.5, C, 0);
+  C := 0.0001;
+  CheckEqualsFloat(0.0001, C, 1e-18);
+end;
+
 procedure RunAllTests;
 begin
   Test_Lexical;
+  Test_BaseTypeSizes;
+  Test_ArchDependentSizes;
+  Test_IntegerBoundaries;
+  Test_CurrencyPrecision;
 end;
 
 function InitializeSetup: Boolean;
