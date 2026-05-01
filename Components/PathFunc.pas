@@ -24,6 +24,12 @@ unit PathFunc;
 
 interface
 
+uses
+  Windows, SysUtils;
+
+type
+  EPathFuncError = class(Exception);
+
 function AddBackslash(const S: String): String;
 function PathChangeExt(const Filename, Extension: String): String;
 function PathCharIsDriveLetter(const C: Char): Boolean;
@@ -32,8 +38,9 @@ function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
 function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): Integer;
 function PathComponentIsReservedName(const Filename: String): Boolean;
+function PathConvertNormalToSuper(const Filename: String): String; overload;
 function PathConvertNormalToSuper(const Filename: String;
-  out SuperFilename: String): Boolean;
+  out SuperFilename: String): Boolean; overload;
 function PathConvertSuperToNormal(const Filename: String): String;
 function PathDrivePartLength(const Filename: String): Integer;
 function PathDrivePartLengthEx(const Filename: String;
@@ -81,9 +88,6 @@ function ValidateAndCombinePath(const ADestDir, AFilename: String): Boolean; ove
 implementation
 
 {$ZEROBASEDSTRINGS OFF}
-
-uses
-  Windows, SysUtils;
 
 function AddBackslash(const S: String): String;
 { Returns S plus a trailing backslash, unless S is an empty string or already
@@ -237,36 +241,63 @@ begin
   Result := False;
 end;
 
-function PathConvertNormalToSuper(const Filename: String;
-  out SuperFilename: String): Boolean;
-{ Does not fail if the specified path already is an extended-length path. }
+function PathInternalConvertNormalToSuper(var Filename: String): Boolean;
+{ For internal use. PathExpand must have already been called on Filename. }
 begin
-  if not PathExpand(Filename, SuperFilename) then
-    Exit(False);
-
-  if (Length(SuperFilename) >= 3) and not PathCharIsSlash(SuperFilename[1]) and
-     (SuperFilename[2] = ':') and (SuperFilename[3] = '\') then begin
-    Insert('\\?\', SuperFilename, 1);
+  if (Length(Filename) >= 3) and not PathCharIsSlash(Filename[1]) and
+     (Filename[2] = ':') and (Filename[3] = '\') then begin
+    Insert('\\?\', Filename, 1);
     Exit(True);
   end;
 
-  if PathStartsWith(SuperFilename, '\\') then begin
-    if PathStartsWith(SuperFilename, '\\?\') then
+  if PathStartsWith(Filename, '\\') then begin
+    if PathStartsWith(Filename, '\\?\') then
       Exit(True);
 
-    if PathStartsWith(SuperFilename, '\\.\') then begin
-      SuperFilename[3] := '?';
+    if PathStartsWith(Filename, '\\.\') then begin
+      Filename[3] := '?';
       Exit(True);
     end;
 
     { No validation is done on anything after '\\'. Even '\\' by itself is
       "successfully" converted. This is consistent with Windows'
       RtlDosPathNameToNtPathName_U function. }
-    SuperFilename := '\\?\UNC\' + Copy(SuperFilename, 3, Maxint);
+    Insert('?\UNC\', Filename, 3);
     Exit(True);
   end;
 
+  { Shouldn't be possible to get here; PathExpand is only known to return
+    'X:\' and '\\' paths }
   Result := False;
+end;
+
+function PathConvertNormalToSuper(const Filename: String;
+  out SuperFilename: String): Boolean;
+{ Does not fail if the specified path already is an extended-length path. }
+begin
+  var NewFilename: String;
+  if not PathExpand(Filename, NewFilename) then
+    Exit(False);
+  if not PathInternalConvertNormalToSuper(NewFilename) then
+    Exit(False);
+
+  SuperFilename := NewFilename;
+  Result := True;
+end;
+
+function PathConvertNormalToSuper(const Filename: String): String;
+{ Does not fail if the specified path already is an extended-length path. }
+begin
+  var NewFilename := PathExpand(Filename);  { may raise exception }
+  if NewFilename <> '' then begin
+    { There is no known case in which PathInternalConvertNormalToSuper
+      actually can return False when passed a non-empty path returned by
+      PathExpand. So it shouldn't be possible to see this exception. }
+    if not PathInternalConvertNormalToSuper(NewFilename) then
+      raise EPathFuncError.Create('PathConvertNormalToSuper: Unsupported syntax');
+  end;
+
+  Result := NewFilename;
 end;
 
 function PathConvertSuperToNormal(const Filename: String): String;
@@ -572,7 +603,7 @@ begin
     Exit('');
 
   if not PathExpand(Filename, Result) then
-    raise Exception.CreateFmt('PathExpand: GetFullPathName failed (length: %d)',
+    raise EPathFuncError.CreateFmt('PathExpand: GetFullPathName failed (length: %d)',
       [Length(Filename)]);
 end;
 
@@ -865,11 +896,11 @@ begin
   const CompareResult = CompareStringOrdinal_static(S1, S1Length, S2, S2Length,
     BOOL(Byte(IgnoreCase)));
   case CompareResult of
-    0: raise Exception.CreateFmt('PathStrCompare: CompareStringOrdinal failed (%u)',
+    0: raise EPathFuncError.CreateFmt('PathStrCompare: CompareStringOrdinal failed (%u)',
          [GetLastError]);
     1..3: ;
   else
-    raise Exception.CreateFmt('PathStrCompare: CompareStringOrdinal result invalid (%d)',
+    raise EPathFuncError.CreateFmt('PathStrCompare: CompareStringOrdinal result invalid (%d)',
       [CompareResult]);
   end;
   Result := CompareResult - 2;
@@ -898,10 +929,10 @@ begin
   if CompareResult = -1 then begin
     const LastError = GetLastError;
     if LastError <> ERROR_SUCCESS then
-      raise Exception.CreateFmt('PathStrFind: FindStringOrdinal failed (%u)',
+      raise EPathFuncError.CreateFmt('PathStrFind: FindStringOrdinal failed (%u)',
         [LastError]);
   end else if not ((CompareResult >= 0) and ((SSourceLength = -1) or (CompareResult < SSourceLength))) then
-    raise Exception.CreateFmt('PathStrFind: FindStringOrdinal result invalid (%d)',
+    raise EPathFuncError.CreateFmt('PathStrFind: FindStringOrdinal result invalid (%d)',
       [CompareResult]);
   Result := CompareResult;
 end;
