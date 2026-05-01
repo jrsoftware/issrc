@@ -26,7 +26,6 @@ exit /b 0
 
 :failed
 echo *** FAILED ***
-pause
 exit /b 1
 
 :test
