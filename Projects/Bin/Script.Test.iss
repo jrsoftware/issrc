@@ -286,7 +286,7 @@ begin
   { Sets }
   S := [1, 3, 5];
   T := [3, 4];
-  //CheckTrue(3 in S); { type mismatch }
+  //CheckTrue(3 in S); { Skipped: not supported }
   CheckTrue(Byte(3) in S);
   CheckTrue(not (Byte(4) in S));
   { ROPS bug: 'for I: Byte := 0 to 255' infinite-loops because the
@@ -296,7 +296,7 @@ begin
   CheckEqualsInt64(1, GetByteSetCount(S * T));
   CheckEqualsInt64(2, GetByteSetCount(S - T));
   CheckTrue(S = [1, 3, 5]);
-  //CheckTrue([1, 3] <= S); { type mismatch }
+  //CheckTrue([1, 3] <= S); { Skipped: not supported }
   T := [1, 3];
   CheckTrue(T <= S);
 
@@ -307,7 +307,7 @@ begin
   Exclude(S, Byte(7));
   CheckFalse(Byte(7) in S);
 
-  { Skipped: ROPS does not support '..' range syntax in set literals }
+  { Skipped: '..' range syntax in set literals not supported }
 end;
 
 procedure RunAllTests;
