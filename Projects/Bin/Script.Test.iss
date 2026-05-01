@@ -234,6 +234,28 @@ begin
   CheckEqualsFloat(0.0001, C, 1e-18);
 end;
 
+procedure Test_BooleanLikeTypes;
+var
+  BB: ByteBool;
+  WB: WordBool;
+  LB: LongBool;
+begin
+  BB := True;
+  CheckTrue(BB);
+  BB := False;
+  CheckFalse(BB);
+
+  WB := True;
+  CheckTrue(WB);
+  WB := False;
+  CheckFalse(WB);
+
+  LB := False;
+  CheckFalse(LB);
+  LB := True;
+  CheckTrue(LB);
+end;
+
 procedure RunAllTests;
 begin
   Test_Lexical;
@@ -241,6 +263,7 @@ begin
   Test_ArchDependentSizes;
   Test_IntegerBoundaries;
   Test_CurrencyPrecision;
+  Test_BooleanLikeTypes;
 end;
 
 function InitializeSetup: Boolean;
