@@ -15,15 +15,15 @@ PrivilegesRequired=lowest
 
 program Script_Test; { Test 'program' keyword parses }
 
-procedure CheckTrue(const Cond: Boolean);
+procedure CheckTrue(const Value: Boolean);
 begin
-  if not Cond then
+  if not Value then
     RaiseException('CheckTrue test failed');
 end;
 
-procedure CheckFalse(const Cond: Boolean);
+procedure CheckFalse(const Value: Boolean);
 begin
-  if Cond then
+  if Value then
     RaiseException('CheckFalse test failed');
 end;
 
