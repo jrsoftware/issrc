@@ -173,7 +173,7 @@ begin
   CheckEqualsInt64(127, High(VShortInt));
   CheckEqualsInt64(-32768, Low(VSmallInt));
   CheckEqualsInt64(32767, High(VSmallInt));
-  //CheckEqualsInt64(-2147483648, Low(VInteger)); { fails because -2147483648 is read as 2147483648 }
+  CheckEqualsInt64(-2147483648, Low(VInteger));
   CheckEqualsInt64(2147483647, High(VInteger));
   CheckEqualsInt64(-9223372036854775808, Low(VInt64));
   CheckEqualsInt64(9223372036854775807, High(VInt64));
@@ -193,7 +193,7 @@ begin
   CheckEqualsInt64($7F, High(VShortInt));
   CheckEqualsInt64(-$8000, Low(VSmallInt));
   CheckEqualsInt64($7FFF, High(VSmallInt));
-  //CheckEqualsInt64(-$80000000, Low(VInteger)); { fails because -$80000000 is read as 2147483648 }
+  CheckEqualsInt64(-$80000000, Low(VInteger));
   CheckEqualsInt64($7FFFFFFF, High(VInteger));
   CheckEqualsInt64(-$8000000000000000, Low(VInt64)); { also see special case below }
   CheckEqualsInt64($7FFFFFFFFFFFFFFF, High(VInt64));
