@@ -276,12 +276,14 @@ var
   S, T: TByteSet;
 begin
   { Enumerations }
-  //CheckEqualsUInt64(0, Ord(eA)); { type mismatch }
+  CheckEqualsUInt64(0, Ord(eA));
   VTSmall := eA;
   CheckEqualsUInt64(0, Ord(VTSmall));
   VTSmall := eC;
   CheckEqualsUInt64(2, Ord(VTSmall));
   CheckEqualsInt64(1, SizeOf(VTSmall));
+  VTSmall := TSmall(2);
+  CheckEqualsUInt64(2, Ord(VTSmall));
 
   { Sets }
   S := [1, 3, 5];
