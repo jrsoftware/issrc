@@ -292,9 +292,9 @@ begin
   { ROPS bug: 'for I: Byte := 0 to 255' infinite-loops because the
     loop variable wraps from 255 to 0 instead of terminating.
     Re-enable once the for-loop overflow is fixed. }
-  //CheckEqualsInt64(4, GetByteSetCount(S + T));
-  //CheckEqualsInt64(1, GetByteSetCount(S * T));
-  //CheckEqualsInt64(2, GetByteSetCount(S - T));
+  CheckEqualsInt64(4, GetByteSetCount(S + T));
+  CheckEqualsInt64(1, GetByteSetCount(S * T));
+  CheckEqualsInt64(2, GetByteSetCount(S - T));
   CheckTrue(S = [1, 3, 5]);
   //CheckTrue([1, 3] <= S); { type mismatch }
   T := [1, 3];
