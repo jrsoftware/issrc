@@ -63,6 +63,14 @@ procedure Test_Lexical_Export; export;
 begin
 end;
 
+{ Test attribute syntax parses }
+<event('InitializeWizard')>
+procedure Test_Lexical_Attribute;
+begin
+  { Never reached because InitializeSetup returns False before the wizard
+    is created. The test is that the attribute syntax compiles. }
+end;
+
 procedure Test_Lexical;
 begin
   { Keywords not exercisable from [Code]:
