@@ -24,6 +24,12 @@ unit PathFunc;
 
 interface
 
+uses
+  Windows, SysUtils;
+
+type
+  EPathFuncError = class(Exception);
+
 function AddBackslash(const S: String): String;
 function PathChangeExt(const Filename, Extension: String): String;
 function PathCharIsDriveLetter(const C: Char): Boolean;
@@ -81,9 +87,6 @@ function ValidateAndCombinePath(const ADestDir, AFilename: String): Boolean; ove
 implementation
 
 {$ZEROBASEDSTRINGS OFF}
-
-uses
-  Windows, SysUtils;
 
 function AddBackslash(const S: String): String;
 { Returns S plus a trailing backslash, unless S is an empty string or already
@@ -572,7 +575,7 @@ begin
     Exit('');
 
   if not PathExpand(Filename, Result) then
-    raise Exception.CreateFmt('PathExpand: GetFullPathName failed (length: %d)',
+    raise EPathFuncError.CreateFmt('PathExpand: GetFullPathName failed (length: %d)',
       [Length(Filename)]);
 end;
 
@@ -865,11 +868,11 @@ begin
   const CompareResult = CompareStringOrdinal_static(S1, S1Length, S2, S2Length,
     BOOL(Byte(IgnoreCase)));
   case CompareResult of
-    0: raise Exception.CreateFmt('PathStrCompare: CompareStringOrdinal failed (%u)',
+    0: raise EPathFuncError.CreateFmt('PathStrCompare: CompareStringOrdinal failed (%u)',
          [GetLastError]);
     1..3: ;
   else
-    raise Exception.CreateFmt('PathStrCompare: CompareStringOrdinal result invalid (%d)',
+    raise EPathFuncError.CreateFmt('PathStrCompare: CompareStringOrdinal result invalid (%d)',
       [CompareResult]);
   end;
   Result := CompareResult - 2;
@@ -898,10 +901,10 @@ begin
   if CompareResult = -1 then begin
     const LastError = GetLastError;
     if LastError <> ERROR_SUCCESS then
-      raise Exception.CreateFmt('PathStrFind: FindStringOrdinal failed (%u)',
+      raise EPathFuncError.CreateFmt('PathStrFind: FindStringOrdinal failed (%u)',
         [LastError]);
   end else if not ((CompareResult >= 0) and ((SSourceLength = -1) or (CompareResult < SSourceLength))) then
-    raise Exception.CreateFmt('PathStrFind: FindStringOrdinal result invalid (%d)',
+    raise EPathFuncError.CreateFmt('PathStrFind: FindStringOrdinal result invalid (%d)',
       [CompareResult]);
   Result := CompareResult;
 end;
