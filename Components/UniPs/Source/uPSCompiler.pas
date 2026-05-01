@@ -9111,7 +9111,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                         btS8: TPSValueData(preplace).Data.tu8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS8;
                         btU16: TPSValueData(preplace).Data.tu8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16;
                         btS16: TPSValueData(preplace).Data.tu8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS16;
-                        btU32: TPSValueData(preplace).Data.tu8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
+                        btEnum, btU32: TPSValueData(preplace).Data.tu8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
                         btS32: TPSValueData(preplace).Data.tu8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32;
                         {$IFNDEF PS_NOINT64}
                         btS64: TPSValueData(preplace).Data.tu8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.ts64;
@@ -9137,7 +9137,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                         btS8: TPSValueData(preplace).Data.ts8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS8;
                         btU16: TPSValueData(preplace).Data.ts8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16;
                         btS16: TPSValueData(preplace).Data.ts8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS16;
-                        btU32: TPSValueData(preplace).Data.ts8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
+                        btEnum, btU32: TPSValueData(preplace).Data.ts8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
                         btS32: TPSValueData(preplace).Data.ts8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32;
                         {$IFNDEF PS_NOINT64}
                         btS64: TPSValueData(preplace).Data.ts8 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.ts64;
@@ -9163,7 +9163,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                         btS8: TPSValueData(preplace).Data.tu16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS8;
                         btU16: TPSValueData(preplace).Data.tu16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16;
                         btS16: TPSValueData(preplace).Data.tu16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS16;
-                        btU32: TPSValueData(preplace).Data.tu16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
+                        btEnum, btU32: TPSValueData(preplace).Data.tu16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
                         btS32: TPSValueData(preplace).Data.tu16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32;
                         {$IFNDEF PS_NOINT64}
                         btS64: TPSValueData(preplace).Data.tu16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.ts64;
@@ -9189,7 +9189,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                         btS8: TPSValueData(preplace).Data.ts16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS8;
                         btU16: TPSValueData(preplace).Data.ts16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16;
                         btS16: TPSValueData(preplace).Data.ts16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS16;
-                        btU32: TPSValueData(preplace).Data.ts16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
+                        btEnum, btU32: TPSValueData(preplace).Data.ts16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
                         btS32: TPSValueData(preplace).Data.ts16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32;
                         {$IFNDEF PS_NOINT64}
                         btS64: TPSValueData(preplace).Data.ts16 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.ts64;
@@ -9204,7 +9204,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                         end;
                       end;
                     end;
-                  btU32:
+                  btEnum, btU32:
                     begin
                       case TPSValueData(TPSUnValueOp(p).FVal1).Data.Ftype.basetype of
                         btchar: TPSValueData(preplace).Data.tu32 := ord(TPSValueData(TPSUnValueOp(p).FVal1).Data^.tchar);
@@ -9215,7 +9215,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                         btS8: TPSValueData(preplace).Data.tu32 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS8;
                         btU16: TPSValueData(preplace).Data.tu32 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16;
                         btS16: TPSValueData(preplace).Data.tu32 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS16;
-                        btU32: TPSValueData(preplace).Data.tu32 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
+                        btEnum, btU32: TPSValueData(preplace).Data.tu32 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
                         btS32: TPSValueData(preplace).Data.tu32 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32;
                         {$IFNDEF PS_NOINT64}
                         btS64: TPSValueData(preplace).Data.tu32 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.ts64;
@@ -9241,7 +9241,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                         btS8: TPSValueData(preplace).Data.ts32 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS8;
                         btU16: TPSValueData(preplace).Data.ts32 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16;
                         btS16: TPSValueData(preplace).Data.ts32 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS16;
-                        btU32: TPSValueData(preplace).Data.ts32 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
+                        btEnum, btU32: TPSValueData(preplace).Data.ts32 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
                         btS32: TPSValueData(preplace).Data.ts32 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32;
                         {$IFNDEF PS_NOINT64}
                         btS64: TPSValueData(preplace).Data.ts32 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.ts64;
@@ -9268,7 +9268,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                         btS8: TPSValueData(preplace).Data.ts64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS8;
                         btU16: TPSValueData(preplace).Data.ts64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16;
                         btS16: TPSValueData(preplace).Data.ts64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS16;
-                        btU32: TPSValueData(preplace).Data.ts64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
+                        btEnum, btU32: TPSValueData(preplace).Data.ts64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
                         btS32: TPSValueData(preplace).Data.ts64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32;
                         btS64: TPSValueData(preplace).Data.ts64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.ts64;
                         btU64: TPSValueData(preplace).Data.ts64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu64;
@@ -9292,7 +9292,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                         btS8: TPSValueData(preplace).Data.tu64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS8;
                         btU16: TPSValueData(preplace).Data.tu64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16;
                         btS16: TPSValueData(preplace).Data.tu64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS16;
-                        btU32: TPSValueData(preplace).Data.tu64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
+                        btEnum, btU32: TPSValueData(preplace).Data.tu64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
                         btS32: TPSValueData(preplace).Data.tu64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32;
                         btS64: TPSValueData(preplace).Data.tu64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.ts64;
                         btU64: TPSValueData(preplace).Data.tu64 := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu64;
@@ -9317,7 +9317,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                         btS8: TPSValueData(preplace).Data.tchar := tbtchar(TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS8);
                         btU16: TPSValueData(preplace).Data.tchar := tbtchar(TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16);
                         btS16: TPSValueData(preplace).Data.tchar := tbtchar(TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS16);
-                        btU32: TPSValueData(preplace).Data.tchar := tbtchar(TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32);
+                        btEnum, btU32: TPSValueData(preplace).Data.tchar := tbtchar(TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32);
                         btS32: TPSValueData(preplace).Data.tchar := tbtchar(TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32);
                         {$IFNDEF PS_NOINT64}
                         btS64: TPSValueData(preplace).Data.tchar := tbtchar(TPSValueData(TPSUnValueOp(p).FVal1).Data^.ts64);
@@ -9342,7 +9342,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                         btS8: TPSValueData(preplace).Data.twidechar := tbtwidechar(TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS8);
                         btU16: TPSValueData(preplace).Data.twidechar := tbtwidechar(TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16);
                         btS16: TPSValueData(preplace).Data.twidechar := tbtwidechar(TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS16);
-                        btU32: TPSValueData(preplace).Data.twidechar := tbtwidechar(TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32);
+                        btEnum, btU32: TPSValueData(preplace).Data.twidechar := tbtwidechar(TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32);
                         btS32: TPSValueData(preplace).Data.twidechar := tbtwidechar(TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32);
                         {$IFNDEF PS_NOINT64}
                         btS64: TPSValueData(preplace).Data.twidechar := tbtwidechar(TPSValueData(TPSUnValueOp(p).FVal1).Data^.ts64);
