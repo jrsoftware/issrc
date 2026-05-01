@@ -8427,7 +8427,8 @@ begin
                 Break;
               { The compiler only emits Cm_CG for boolean types via
                 short-circuit 'or' evaluation in DoBinCalc (guarded by
-                IsBoolean). Enum serialization in WriteTypes maps these
+                IsBoolean) and for the boundary check in for-loops
+                (ProcessFor). Enum serialization in WriteTypes maps these
                 to btU8 (Boolean/ByteBool), btU16 (WordBool), or btU32
                 (LongBool) only, so btS8/btS16/btS32 never fire and
                 btS64/btU64 are correctly absent. }
@@ -8472,7 +8473,8 @@ begin
               if not ReadVariable(vs, BTemp) then
                 Break;
               { See Cm_CG comment: only btU8/btU16/btU32 are reachable
-                via short-circuit 'and' in DoBinCalc. }
+                via short-circuit 'and' in DoBinCalc and for-loop entry
+                checks in ProcessFor. }
               case Vs.aType.BaseType of
                 btU8: btemp := tbtu8(vs.p^) = 0;
                 btS8: btemp := tbts8(vs.p^) = 0;

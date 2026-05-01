@@ -10006,13 +10006,135 @@ begin
       finVal: TPSValue;
     Block: TPSBlockInfo;
     Backwards: Boolean;
-    FPos, NPos, EPos, RPos: Longint;
+    FPos, NPos, EPos, EPos2, RPos, RPos2: Longint;
     OldCO, OldBO: TPSList;
     I: Longint;
 		iOldWithCount: Integer;
 		iOldTryCount: Integer;
 		iOldExFnlCount: Integer;
-    lType: TPSType;
+    lType, CounterType: TPSType;
+    ExitCheckEmitted: Boolean;
+
+    function CreateForBoundaryValue: TPSValue;
+    { Returns High(CounterType) for to-loops or Low(CounterType) for
+      downto-loops. Returns nil if the type has no known boundary. }
+    begin
+      Result := TPSValueData.Create;
+      TPSValueData(Result).Data := NewVariant(CounterType);
+      case CounterType.BaseType of
+        btEnum:
+          if Backwards then
+            TPSValueData(Result).Data^.tu32 := 0
+          else
+            TPSValueData(Result).Data^.tu32 := TPSEnumType(CounterType).HighValue;
+        btU8:
+          if Backwards then
+            TPSValueData(Result).Data^.tu8 := Low(tbtU8)
+          else
+            TPSValueData(Result).Data^.tu8 := High(tbtU8);
+        btS8:
+          if Backwards then
+            TPSValueData(Result).Data^.ts8 := Low(tbtS8)
+          else
+            TPSValueData(Result).Data^.ts8 := High(tbtS8);
+        btU16:
+          if Backwards then
+            TPSValueData(Result).Data^.tu16 := Low(tbtU16)
+          else
+            TPSValueData(Result).Data^.tu16 := High(tbtU16);
+        btS16:
+          if Backwards then
+            TPSValueData(Result).Data^.ts16 := Low(tbtS16)
+          else
+            TPSValueData(Result).Data^.ts16 := High(tbtS16);
+        btU32:
+          if Backwards then
+            TPSValueData(Result).Data^.tu32 := Low(tbtU32)
+          else
+            TPSValueData(Result).Data^.tu32 := High(tbtU32);
+        btS32:
+          if Backwards then
+            TPSValueData(Result).Data^.ts32 := Low(tbtS32)
+          else
+            TPSValueData(Result).Data^.ts32 := High(tbtS32);
+        {$IFNDEF PS_NOINT64}
+        btS64:
+          if Backwards then
+            TPSValueData(Result).Data^.ts64 := Low(tbtS64)
+          else
+            TPSValueData(Result).Data^.ts64 := High(tbtS64);
+        btU64:
+          if Backwards then
+            TPSValueData(Result).Data^.tu64 := Low(tbtU64)
+          else
+            TPSValueData(Result).Data^.tu64 := High(tbtU64);
+        {$ENDIF}
+      else
+      begin
+        Result.Free;
+        Result := nil;
+      end;
+      end;
+    end;
+
+    function EmitForEntryCheck: Boolean;
+    { Emit: if VariableVar <= finVal (or >=) then continue else goto
+      end-of-loop. Skips the loop body when the range is empty.
+      Does not free finVal. See also EmitForExitCheck. }
+    begin
+      if not (PreWriteOutRec(VariableVar, nil) and PreWriteOutRec(finVal, nil)) then
+        Exit(False);
+      BlockWriteByte(BlockInfo, CM_CO);
+      if Backwards then
+        BlockWriteByte(BlockInfo, 0) { >= }
+      else
+        BlockWriteByte(BlockInfo, 1); { <= }
+      if not (WriteOutRec(TempBool, False) and WriteOutRec(VariableVar, True) and WriteOutRec(finVal, True)) then
+        Exit(False);
+      AfterWriteOutRec(finVal);
+      AfterWriteOutRec(VariableVar);
+      BlockWriteByte(BlockInfo, Cm_CNG);
+      EPos := Length(BlockInfo.Proc.Data);
+      BlockWriteLong(BlockInfo, $12345678);
+      WriteOutRec(TempBool, False);
+      RPos := Length(BlockInfo.Proc.Data);
+      Result := True;
+    end;
+
+    function EmitForExitCheck: Boolean;
+    { Emit: if VariableVar = High(counter type) (or Low for downto) then
+      goto end-of-loop. Prevents overflow when cm_inc/cm_dec would wrap
+      the counter, without changing non-boundary loop behavior. }
+    var
+      BoundaryValue: TPSValue;
+    begin
+      BoundaryValue := CreateForBoundaryValue;
+      ExitCheckEmitted := BoundaryValue <> nil;
+      if BoundaryValue = nil then
+        Exit(True);
+      if not (PreWriteOutRec(VariableVar, nil) and PreWriteOutRec(BoundaryValue, nil)) then
+      begin
+        BoundaryValue.Free;
+        Exit(False);
+      end;
+      BlockWriteByte(BlockInfo, CM_CO);
+      BlockWriteByte(BlockInfo, 5); { = }
+      if not (WriteOutRec(TempBool, False) and WriteOutRec(VariableVar, True) and WriteOutRec(BoundaryValue, True)) then
+      begin
+        BoundaryValue.Free;
+        Exit(False);
+      end;
+      AfterWriteOutRec(BoundaryValue);
+      AfterWriteOutRec(VariableVar);
+      BoundaryValue.Free;
+      BlockWriteByte(BlockInfo, Cm_CG);
+      EPos2 := Length(BlockInfo.Proc.Data);
+      BlockWriteLong(BlockInfo, $12345678);
+      WriteOutRec(TempBool, False);
+      RPos2 := Length(BlockInfo.Proc.Data);
+      Result := True;
+    end;
+
   begin
     Debug_WriteLine(BlockInfo);
     Result := False;
@@ -10031,6 +10153,7 @@ begin
       VariableVar.Free;
       exit;
     end;
+    CounterType := lType;
     case lType.BaseType of
       btU8, btS8, btU16, btS16, btU32, btS32, {$IFNDEF PS_NOINT64} btS64, btU64, {$ENDIF} btVariant, btEnum: ;
     else
@@ -10110,37 +10233,14 @@ begin
     InitVal.Free;
     TempBool := AllocStackReg(at2ut(FDefaultBoolType));
     NPos := Length(BlockInfo.Proc.Data);
-    if not (PreWriteOutRec(VariableVar, nil) and PreWriteOutRec(finVal, nil)) then
+    if not EmitForEntryCheck then { sets EPos/RPos for fixup }
     begin
       TempBool.Free;
       VariableVar.Free;
       finVal.Free;
       exit;
     end;
-    BlockWriteByte(BlockInfo, CM_CO);
-    if Backwards then
-    begin
-      BlockWriteByte(BlockInfo, 0); { >= }
-    end
-    else
-    begin
-      BlockWriteByte(BlockInfo, 1); { <= }
-    end;
-    if not (WriteOutRec(TempBool, False) and WriteOutRec(VariableVar, True) and WriteOutRec(finVal, True)) then
-    begin
-      TempBool.Free;
-      VariableVar.Free;
-      finVal.Free;
-      exit;
-    end;
-    AfterWriteOutRec(finVal);
-    AfterWriteOutRec(VariableVar);
     finVal.Free;
-    BlockWriteByte(BlockInfo, Cm_CNG);
-    EPos := Length(BlockInfo.Proc.Data);
-    BlockWriteLong(BlockInfo, $12345678);
-    WriteOutRec(TempBool, False);
-    RPos := Length(BlockInfo.Proc.Data);
     OldCO := FContinueOffsets;
     FContinueOffsets := TPSList.Create;
     OldBO := FBreakOffsets;
@@ -10173,6 +10273,21 @@ begin
 		end;
 		Block.Free;
 		FPos := Length(BlockInfo.Proc.Data);
+    if not EmitForExitCheck then { sets ExitCheckEmitted/EPos2/RPos2 for fixup }
+    begin
+      TempBool.Free;
+      VariableVar.Free;
+      FBreakOffsets.Free;
+      FContinueOffsets.Free;
+      FContinueOffsets := OldCO;
+      FBreakOffsets := OldBo;
+
+			FWithCount := iOldWithCount;
+			FTryCount := iOldTryCount;
+      FExceptFinallyCount := iOldExFnlCount;
+
+			exit;
+		end;
 		if not PreWriteOutRec(VariableVar, nil) then
 		begin
 			TempBool.Free;
@@ -10215,6 +10330,14 @@ begin
     {$else}
     Longint((@BlockInfo.Proc.Data[EPos + 1])^) := Length(BlockInfo.Proc.Data) - RPos;
     {$endif}
+    if ExitCheckEmitted then
+    begin
+      {$ifdef FPC_REQUIRES_PROPER_ALIGNMENT}
+      unaligned(Longint((@BlockInfo.Proc.Data[EPos2 + 1])^)) := Length(BlockInfo.Proc.Data) - RPos2;
+      {$else}
+      Longint((@BlockInfo.Proc.Data[EPos2 + 1])^) := Length(BlockInfo.Proc.Data) - RPos2;
+      {$endif}
+    end;
     for i := 0 to FBreakOffsets.Count -1 do
     begin
       EPos := IPointer(FBreakOffsets[I]);
