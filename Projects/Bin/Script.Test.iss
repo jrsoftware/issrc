@@ -256,6 +256,60 @@ begin
   CheckTrue(LB);
 end;
 
+type
+  TSmall = (eA, eB, eC);
+  TByteSet = set of Byte;
+
+function GetByteSetCount(const S: TByteSet): Integer;
+var
+  I: Byte;
+begin
+  Result := 0;
+  for I := 0 to 255 do
+    if I in S then
+      Result := Result + 1;
+end;
+
+procedure Test_EnumerationsAndSets;
+var
+  VTSmall: TSmall;
+  S, T: TByteSet;
+begin
+  { Enumerations }
+  //CheckEqualsUInt64(0, Ord(eA)); { type mismatch }
+  VTSmall := eA;
+  CheckEqualsUInt64(0, Ord(VTSmall));
+  VTSmall := eC;
+  CheckEqualsUInt64(2, Ord(VTSmall));
+  CheckEqualsInt64(1, SizeOf(VTSmall));
+
+  { Sets }
+  S := [1, 3, 5];
+  T := [3, 4];
+  //CheckTrue(3 in S); { type mismatch }
+  CheckTrue(Byte(3) in S);
+  CheckTrue(not (Byte(4) in S));
+  { ROPS bug: 'for I: Byte := 0 to 255' infinite-loops because the
+    loop variable wraps from 255 to 0 instead of terminating.
+    Re-enable once the for-loop overflow is fixed. }
+  //CheckEqualsInt64(4, GetByteSetCount(S + T));
+  //CheckEqualsInt64(1, GetByteSetCount(S * T));
+  //CheckEqualsInt64(2, GetByteSetCount(S - T));
+  CheckTrue(S = [1, 3, 5]);
+  //CheckTrue([1, 3] <= S); { type mismatch }
+  T := [1, 3];
+  CheckTrue(T <= S);
+
+  { Include/Exclude }
+  S := [];
+  Include(S, Byte(7));
+  CheckTrue(Byte(7) in S);
+  Exclude(S, Byte(7));
+  CheckFalse(Byte(7) in S);
+
+  { Skipped: ROPS does not support '..' range syntax in set literals }
+end;
+
 procedure RunAllTests;
 begin
   Test_Lexical;
@@ -264,6 +318,7 @@ begin
   Test_IntegerBoundaries;
   Test_CurrencyPrecision;
   Test_BooleanLikeTypes;
+  Test_EnumerationsAndSets;
 end;
 
 function InitializeSetup: Boolean;
