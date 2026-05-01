@@ -315,9 +315,6 @@ begin
   //CheckTrue(3 in VTByteSet); { Skipped: not supported }
   CheckTrue(Byte(3) in VTByteSet);
   CheckTrue(not (Byte(4) in VTByteSet));
-  { ROPS bug: 'for I: Byte := 0 to 255' infinite-loops because the
-    loop variable wraps from 255 to 0 instead of terminating.
-    Re-enable once the for-loop overflow is fixed. }
   CheckEqualsInt64(4, GetByteSetCount(VTByteSet + VTByteSet2));
   CheckEqualsInt64(1, GetByteSetCount(VTByteSet * VTByteSet2));
   CheckEqualsInt64(2, GetByteSetCount(VTByteSet - VTByteSet2));
