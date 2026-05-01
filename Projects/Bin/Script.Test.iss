@@ -658,6 +658,30 @@ begin
   CheckEqualsInt64(2147483647, VInteger);
 end;
 
+const
+  PI_TIMES_2 = 6.283185307;
+  CA = 10;
+  CB = CA + 5;
+  CC = CA * CB div 3;
+  CD = CA > CB;
+  CE = not False;
+  CF = (CA shl 2) or $0F;
+  CG = CA mod 3;
+
+procedure Test_ConstantsAndConstantExpressions;
+begin
+  { Global constant }
+  CheckEqualsFloat(PI_TIMES_2, 2 * Pi, 1e-6);
+
+  { Constant expressions evaluated at compile time }
+  CheckEqualsInt64(15, CB);
+  CheckEqualsInt64(50, CC);
+  CheckFalse(CD);
+  CheckTrue(CE);
+  CheckEqualsInt64(47, CF);
+  CheckEqualsInt64(1, CG);
+end;
+
 procedure RunAllTests;
 begin
   Test_Lexical;
@@ -675,6 +699,7 @@ begin
   Test_SignedUnsignedBoundaries;
   Test_EmptyStringEdgeCases;
   Test_IntegerOverflowWraparound;
+  Test_ConstantsAndConstantExpressions;
 end;
 
 function InitializeSetup: Boolean;
