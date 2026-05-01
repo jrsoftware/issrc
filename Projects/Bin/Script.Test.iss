@@ -529,11 +529,12 @@ end;
 
 procedure Test_StringTypeInteractions;
 var
-  VAnsiString: AnsiString;
+  VAnsiString, VAnsiString2: AnsiString;
   VString: String;
   VWideString: WideString;
   VUnicodeString: UnicodeString;
   VNativeString: NativeString;
+  VPAnsiChar: PAnsiChar;
 begin
   { String -> AnsiString and back }
   VString := 'hello';
@@ -569,6 +570,12 @@ begin
   CheckEqualsInt64(6, Length(VNativeString));
   VString := VNativeString;
   CheckEqualsString('native', VString);
+
+  { PAnsiChar -> AnsiString round-trip }
+  VAnsiString := 'pchar';
+  VPAnsiChar := VAnsiString; { ROPS needs a variable to keep the string alive } 
+  VAnsiString2 := VPAnsiChar;
+  CheckEqualsString('pchar', VAnsiString2);
 end;
 
 procedure Test_SignedUnsignedBoundaries;
