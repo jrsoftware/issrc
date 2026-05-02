@@ -682,6 +682,76 @@ begin
   CheckEqualsInt64(1, CG);
 end;
 
+var
+  GlobalVarInteger: Integer;
+  GlobalVarString: String;
+  GlobalVarArray: array of Integer;
+
+procedure Test_CheckGlobalsAndLocalsZeroed;
+var
+  I: Integer;
+  S: String;
+  R: TRec;
+  V: Variant;
+  DA: array of Integer;
+begin
+  { Global var initial values }
+  CheckEqualsInt64(0, GlobalVarInteger);
+  CheckEqualsInt64(0, Length(GlobalVarString));
+  CheckEqualsInt64(0, Length(GlobalVarArray));
+
+  { ROPS zero-initializes all types, unlike Delphi, so test various }
+  CheckEqualsInt64(0, I);
+  CheckEqualsInt64(0, R.A);
+  CheckEqualsInt64(0, Length(R.B));
+  CheckTrue(VarIsClear(V));
+  CheckEqualsInt64(0, Length(DA));
+  { String already tested in Test_EmptyStringEdgeCases }
+end;
+
+procedure Test_Variants;
+var
+  V: Variant;
+begin
+  V := Unassigned;
+  CheckEqualsInt64(varEmpty, VarType(V));
+  V := Null;
+  CheckEqualsInt64(varNull, VarType(V));
+  V := Integer(42);
+  CheckEqualsInt64(varInteger, VarType(V));
+  V := True;
+  CheckEqualsInt64(varBoolean, VarType(V));
+  V := Double(1.5);
+  CheckEqualsInt64(varDouble, VarType(V));
+  V := Int64(42);
+  CheckEqualsInt64(varInt64, VarType(V));
+  V := 'hello';
+  CheckEqualsInt64(varUString, VarType(V));
+end;
+
+procedure Test_WithScoping;
+var
+  R1, R2: TRec;
+begin
+  R1.A := 0;
+  R1.B := '';
+  with R1 do begin
+    A := 11;
+    B := 'changed';
+  end;
+  CheckEqualsInt64(11, R1.A);
+  CheckEqualsString('changed', R1.B);
+
+  { Nested with: innermost wins }
+  R1.A := 0;
+  R2.A := 0;
+  with R1 do
+    with R2 do
+      A := 1;
+  CheckEqualsInt64(1, R2.A);
+  CheckEqualsInt64(0, R1.A);
+end;
+
 procedure RunAllTests;
 begin
   Test_Lexical;
@@ -700,6 +770,9 @@ begin
   Test_EmptyStringEdgeCases;
   Test_IntegerOverflowWraparound;
   Test_ConstantsAndConstantExpressions;
+  Test_CheckGlobalsAndLocalsZeroed;
+  Test_Variants;
+  Test_WithScoping;
 end;
 
 function InitializeSetup: Boolean;
