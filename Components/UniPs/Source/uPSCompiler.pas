@@ -3570,6 +3570,13 @@ begin
             btDouble: b := var1^.tdouble >= GetReal( Var2, Result);
             btExtended: b := var1^.textended >= GetReal( Var2, Result);
             btCurrency: b := var1^.tcurrency >= GetReal( Var2, Result);
+            btString: b := tbtstring(var1^.tstring) >= GetString(var2, Result);
+            btChar: b := var1^.tchar >= GetString(var2, Result);
+            {$IFNDEF PS_NOWIDESTRING}
+            btWideString: b := tbtWideString(var1^.twidestring) >= GetWideString(var2, Result);
+            btUnicodeString: b := tbtUnicodeString(var1^.tunistring) >= GetUnicodeString(var2, Result);
+            btWideChar: b := var1^.twidechar >= GetUnicodeString(var2, Result);
+            {$ENDIF}
             btSet:
               begin
                 if (var1.FType = var2.FType) then
@@ -3598,6 +3605,13 @@ begin
             btDouble: b := var1^.tdouble <= GetReal( Var2, Result);
             btExtended: b := var1^.textended <= GetReal( Var2, Result);
             btCurrency: b := var1^.tcurrency <= GetReal( Var2, Result);
+            btString: b := tbtstring(var1^.tstring) <= GetString(var2, Result);
+            btChar: b := var1^.tchar <= GetString(var2, Result);
+            {$IFNDEF PS_NOWIDESTRING}
+            btWideString: b := tbtWideString(var1^.twidestring) <= GetWideString(var2, Result);
+            btUnicodeString: b := tbtUnicodeString(var1^.tunistring) <= GetUnicodeString(var2, Result);
+            btWideChar: b := var1^.twidechar <= GetUnicodeString(var2, Result);
+            {$ENDIF}
             btSet:
               begin
                 if (var1.FType = var2.FType) then
@@ -3626,6 +3640,13 @@ begin
             btDouble: b := var1^.tdouble > GetReal( Var2, Result);
             btExtended: b := var1^.textended > GetReal( Var2, Result);
             btCurrency: b := var1^.tcurrency > GetReal( Var2, Result);
+            btString: b := tbtstring(var1^.tstring) > GetString(var2, Result);
+            btChar: b := var1^.tchar > GetString(var2, Result);
+            {$IFNDEF PS_NOWIDESTRING}
+            btWideString: b := tbtWideString(var1^.twidestring) > GetWideString(var2, Result);
+            btUnicodeString: b := tbtUnicodeString(var1^.tunistring) > GetUnicodeString(var2, Result);
+            btWideChar: b := var1^.twidechar > GetUnicodeString(var2, Result);
+            {$ENDIF}
           else
             Result := False;
           end;
@@ -3647,6 +3668,13 @@ begin
             btDouble: b := var1^.tdouble < GetReal( Var2, Result);
             btExtended: b := var1^.textended < GetReal( Var2, Result);
             btCurrency: b := var1^.tcurrency < GetReal( Var2, Result);
+            btString: b := tbtstring(var1^.tstring) < GetString(var2, Result);
+            btChar: b := var1^.tchar < GetString(var2, Result);
+            {$IFNDEF PS_NOWIDESTRING}
+            btWideString: b := tbtWideString(var1^.twidestring) < GetWideString(var2, Result);
+            btUnicodeString: b := tbtUnicodeString(var1^.tunistring) < GetUnicodeString(var2, Result);
+            btWideChar: b := var1^.twidechar < GetUnicodeString(var2, Result);
+            {$ENDIF}
           else
             Result := False;
           end;
