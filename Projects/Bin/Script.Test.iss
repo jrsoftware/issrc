@@ -690,7 +690,6 @@ var
 procedure Test_CheckGlobalsAndLocalsZeroed;
 var
   I: Integer;
-  S: String;
   R: TRec;
   V: Variant;
   DA: array of Integer;
