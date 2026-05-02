@@ -63,6 +63,7 @@ begin
 end;
 
 {$IFDEF DEBUG}
+{$IFNDEF ISTESTTOOLPROJ}
 initialization
   try
     MD5RunTests;
@@ -72,6 +73,7 @@ initialization
       raise;
     end;
   end;
+{$ENDIF}
 {$ENDIF}
 
 end.

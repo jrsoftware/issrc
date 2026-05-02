@@ -65,6 +65,7 @@ begin
 end;
 
 {$IFDEF DEBUG}
+{$IFNDEF ISTESTTOOLPROJ}
 initialization
   try
     UnsignedFuncRunTests;
@@ -74,6 +75,7 @@ initialization
       raise;
     end;
   end;
+{$ENDIF}
 {$ENDIF}
 
 end.

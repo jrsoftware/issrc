@@ -355,6 +355,7 @@ begin
 end;
 
 {$IFDEF DEBUG}
+{$IFNDEF ISTESTTOOLPROJ}
 initialization
   try
     ISPPCTokenizerRunTests;
@@ -364,6 +365,7 @@ initialization
       raise;
     end;
   end;
+{$ENDIF}
 {$ENDIF}
 
 end.

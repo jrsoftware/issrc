@@ -286,6 +286,7 @@ begin
 end;
 
 {$IFDEF DEBUG}
+{$IFNDEF ISTESTTOOLPROJ}
 initialization
   try
     SimpleExpressionRunTests;
@@ -295,6 +296,7 @@ initialization
       raise;
     end;
   end;
+{$ENDIF}
 {$ENDIF}
 
 end.

@@ -78,6 +78,7 @@ begin
 end;
 
 {$IFDEF DEBUG}
+{$IFNDEF ISTESTTOOLPROJ}
 initialization
   try
     BidiUtilsRunTests;
@@ -87,6 +88,7 @@ initialization
       raise;
     end;
   end;
+{$ENDIF}
 {$ENDIF}
 
 end.
