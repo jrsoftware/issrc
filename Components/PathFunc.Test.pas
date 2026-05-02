@@ -426,10 +426,14 @@ begin
   TestPathCombine('a\', 'x', 'a\x');
   TestPathCombine('a\\', 'x', 'a\\x');
   TestPathCombine('c:', 'x', 'c:x');
+  TestPathCombine('c:a', 'x', 'c:a\x');
   TestPathCombine('c:\', 'x', 'c:\x');
   TestPathCombine('c:\\', 'x', 'c:\\x');
   TestPathCombine('c:\a', 'x', 'c:\a\x');
   TestPathCombine('\', 'x', '\x');
+  TestPathCombine('\:', 'x', '\:\x'); {*}
+  TestPathCombine('\:a', 'x', '\:a\x'); {*}
+  TestPathCombine('\:\a', 'x', '\:\a\x'); {*}
   TestPathCombine('c:\', '', '');
   TestPathCombine('c:\', 'e:x', 'e:x');
   TestPathCombine('c:\', 'e:\x', 'e:\x');

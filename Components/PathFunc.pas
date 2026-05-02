@@ -138,15 +138,12 @@ function PathCombine(const Dir, Filename: String): String;
   If Dir specifies only a drive letter and colon ('c:'), it returns
   Dir + Filename.
   Otherwise, it returns the equivalent of AddBackslash(Dir) + Filename. }
-var
-  I: Integer;
 begin
   if (Dir = '') or (Filename = '') or PathIsRooted(Filename) then
     Result := Filename
   else begin
-    I := PathCharLength(Dir, 1) + 1;
-    if ((I = Length(Dir)) and (Dir[I] = ':')) or
-       PathCharIsSlash(PathLastChar(Dir)^) then
+    if ((Length(Dir) = 2) and not PathCharIsSlash(Dir[1]) and (Dir[2] = ':')) or
+       PathCharIsSlash(Dir[High(Dir)]) then
       Result := Dir + Filename
     else
       Result := Dir + '\' + Filename;
