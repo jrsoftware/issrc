@@ -33,7 +33,7 @@ call .\compile.bat %~1 istesttool
 if errorlevel 1 exit /b 1
 echo Compiling %~1 Inno Setup Test Tool done
 
-Files\ISTestTool.exe
+Files\ISTestTool.exe Projects\Bin\Script.Test.iss
 if errorlevel 1 exit /b 1
 echo Testing %~1 Inno Setup done
 

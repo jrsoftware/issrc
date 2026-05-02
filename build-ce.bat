@@ -112,7 +112,7 @@ echo Found all, waiting 2 seconds more...
 timeout /t 2 /nobreak >nul
 echo Compiling Inno Setup done
 
-Files\ISTestTool.exe
+Files\ISTestTool.exe Projects\Bin\Script.Test.iss
 if errorlevel 1 goto failed
 echo Testing Inno Setup done
 
