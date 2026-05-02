@@ -219,7 +219,6 @@ procedure CommandTest(const ATestScriptFilename: String);
     try
       PrintUnlessQuiet('   Compiling test Setup');
 
-
       StrictDeleteFile(TestSetupExeFilename);
 
       var TestScriptFilename := ATestScriptFilename;
