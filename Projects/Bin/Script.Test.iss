@@ -529,7 +529,7 @@ var
   VAnsiString, VAnsiString2: AnsiString;
   VString: String;
   VWideString: WideString;
-  VUnicodeString: UnicodeString;
+  VUnicodeString, VUnicodeString2: UnicodeString;
   VNativeString: NativeString;
   VPAnsiChar: PAnsiChar;
 begin
@@ -570,9 +570,27 @@ begin
 
   { PAnsiChar -> AnsiString round-trip }
   VAnsiString := 'pchar';
-  VPAnsiChar := VAnsiString; { ROPS needs a variable to keep the string alive } 
+  VPAnsiChar := VAnsiString; { ROPS needs a variable to keep the string alive }
   VAnsiString2 := VPAnsiChar;
   CheckEqualsString('pchar', VAnsiString2);
+
+  { UnicodeString equality }
+  VUnicodeString := 'hello';
+  VUnicodeString2 := 'hel' + 'lo';
+  CheckTrue(VUnicodeString = VUnicodeString2);
+  CheckTrue(VUnicodeString <> 'hellp');
+
+  { String comparison }
+  CheckTrue('a' <> 'A');
+  CheckTrue('aa' < 'ab');
+  CheckTrue('z' > 'a');
+  VString := 'aa';
+  CheckTrue(VString < 'ab');
+  CheckTrue('ab' > VString);
+
+  { String concatenation }
+  CheckEqualsString('hello world', 'hello ' + 'world');
+  CheckEqualsString('A1', 'A' + IntToStr(1));
 end;
 
 procedure Test_SignedUnsignedBoundaries;
@@ -774,12 +792,12 @@ begin
   CheckEqualsInt64(3, 1 + 8 mod 3);
 
   { 'and' is multiplicative, 'or' is additive }
-  CheckTrue(True or True and False);
-  CheckFalse(False and True or False);
+  CheckTrue(True or True and False); { emits warning }
+  CheckFalse(False and True or False); { emits warning }
 
   { 'not' (unary) binds tighter than 'and' (multiplicative) }
-  CheckFalse(not True and True);
-  CheckTrue(not False and True);
+  CheckFalse(not True and True); { emits warning }
+  CheckTrue(not False and True); { emits warning }
 
   { Relational binds loosest }
   CheckTrue(2 + 3 = 5);
@@ -810,6 +828,32 @@ begin
   CheckEqualsInt64(-3, -(1 + 2));
   CheckEqualsInt64(15, (1 + 2) * (3 + 2));
   CheckTrue(not (1 = 2) and (3 > 0));
+
+  { / on int operands behaves like div) }
+  CheckEqualsInt64(2, 5 / 2);
+
+  { Real promotion with / }
+  CheckEqualsFloat(2.5, 5 / 2.0, 1e-9);
+  CheckEqualsFloat(2.5, 5.0 / 2, 1e-9);
+end;
+
+procedure Test_Int64Arithmetic;
+var
+  VInt64, VInt64_2,VInt64High: Int64;
+  VUInt64: UInt64;
+begin
+  { Int64 arithmetic and boundaries }
+  VInt64 := 1000000000;
+  VInt64_2 := VInt64 * VInt64;
+  CheckTrue(VInt64_2 > 0);
+  CheckEqualsInt64(0, VInt64_2 - VInt64*VInt64);
+
+  { UInt64 arithmetic and unsigned comparison }
+  VInt64High := High(VInt64);
+  VUInt64 := UInt64(VInt64High) + UInt64(2);
+  CheckTrue(VUInt64 > UInt64(VInt64High));
+  CheckEqualsInt64(2, Int64(VUInt64 - UInt64(VInt64High)));
+  CheckTrue(UInt64(0) - UInt64(1) = UInt64($FFFFFFFFFFFFFFFF));
 end;
 
 procedure RunAllTests;
@@ -834,6 +878,7 @@ begin
   Test_Variants;
   Test_WithScoping;
   Test_IntegerArithmeticAndPrecedence;
+  Test_Int64Arithmetic;
 end;
 
 function InitializeSetup: Boolean;
