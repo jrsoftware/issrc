@@ -74,8 +74,8 @@ end;
 procedure Test_Lexical;
 begin
   { Keywords not exercisable from [Code]:
-    unit, interface, implementation, uses, finalization, initialization, class,
-    inherited, constructor, destructor, virtual, override, private, protected,
+     unit, interface, implementation, uses, finalization, initialization, class,
+     inherited, constructor, destructor, virtual, override, private, protected,
     public, published, '^' dereference token. }
 
   { Numeric literals }
@@ -101,7 +101,7 @@ begin
   // line comment
 
   { '@' address-of token: exercised by procedural variable tests }
-  { Other keyswords: exercised by other tests }
+  { Other keywords: exercised by other tests }
 end;
 
 procedure Test_BaseTypeSizes;
@@ -364,6 +364,7 @@ var
   DA: array of Integer;
   DA2: TIntArr;
   M: T2D;
+  RA: array of TRec;
 begin
   { Records - field layout and copy }
   R1.A := 42;
@@ -373,6 +374,10 @@ begin
   CheckEqualsInt64(42, R2.A);
   CheckEqualsString('hello', R2.B);
   CheckEqualsFloat(1.5, R2.C, 0.0);
+  CheckTrue(R1 = R2);
+  R2.A := 43;
+  CheckTrue(R1 <> R2);
+  R2.A := 42;
   #if arch == "x64"
     CheckEqualsInt64(20, SizeOf(R1));
   #else
@@ -424,6 +429,16 @@ begin
   M[1][2] := 6;
   CheckEqualsInt64(6, M[1][2]);
   CheckEqualsInt64(3, Length(M[0]));
+
+  { Record array grow initializes fields }
+  SetLength(RA, 1);
+  RA[0].A := 42;
+  RA[0].B := 'test';
+  SetLength(RA, 3);
+  CheckEqualsInt64(42, RA[0].A);
+  CheckEqualsString('test', RA[0].B);
+  CheckEqualsInt64(0, RA[2].A);
+  CheckEqualsInt64(0, Length(RA[2].B));
 end;
 
 type
@@ -522,6 +537,14 @@ begin
   VChar := 'X';
   VString := VChar;
   CheckEqualsString('X', VString);
+
+  { Mixed-type comparisons }
+  VByte := 200;
+  VInt64 := 201;
+  CheckTrue(VByte < VInt64);
+  VSingle := 1.5;
+  VDouble := 2.5;
+  CheckTrue(VSingle < VDouble);
 end;
 
 procedure Test_StringTypeInteractions;
@@ -581,9 +604,12 @@ begin
   CheckTrue(VUnicodeString <> 'hellp');
 
   { String comparison }
+  CheckTrue('a' = 'a');
   CheckTrue('a' <> 'A');
   CheckTrue('aa' < 'ab');
+  CheckTrue('aa' <= 'ab');
   CheckTrue('z' > 'a');
+  CheckTrue('z' >= 'a');
   VString := 'aa';
   CheckTrue(VString < 'ab');
   CheckTrue('ab' > VString);
@@ -702,23 +728,49 @@ end;
 
 var
   GlobalVarInteger: Integer;
+  GlobalVarBoolean: Boolean;
+  GlobalVarEnum: TSmall;
+  GlobalVarSet: TSmallSet;
+  GlobalVarStaticArray: array[1..2] of Integer;
+  GlobalVarExtended: Extended;
+  GlobalVarCurrency: Currency;
   GlobalVarString: String;
   GlobalVarArray: array of Integer;
 
 procedure Test_CheckGlobalsAndLocalsZeroed;
 var
   I: Integer;
+  B: Boolean;
+  E: TSmall;
+  S: TSmallSet;
+  SA: array[1..2] of Integer;
+  X: Extended;
+  C: Currency;
   R: TRec;
   V: Variant;
   DA: array of Integer;
 begin
   { Global var initial values }
   CheckEqualsInt64(0, GlobalVarInteger);
+  CheckFalse(GlobalVarBoolean);
+  CheckEqualsInt64(0, Ord(GlobalVarEnum));
+  CheckTrue(GlobalVarSet = []);
+  CheckEqualsInt64(0, GlobalVarStaticArray[1]);
+  CheckEqualsInt64(0, GlobalVarStaticArray[2]);
+  CheckEqualsFloat(0.0, GlobalVarExtended, 0.0);
+  CheckEqualsFloat(0.0, GlobalVarCurrency, 0.0);
   CheckEqualsInt64(0, Length(GlobalVarString));
   CheckEqualsInt64(0, Length(GlobalVarArray));
 
   { ROPS zero-initializes all types, unlike Delphi, so test various }
   CheckEqualsInt64(0, I);
+  CheckFalse(B);
+  CheckEqualsInt64(0, Ord(E));
+  CheckTrue(S = []);
+  CheckEqualsInt64(0, SA[1]);
+  CheckEqualsInt64(0, SA[2]);
+  CheckEqualsFloat(0.0, X, 0.0);
+  CheckEqualsFloat(0.0, C, 0.0);
   CheckEqualsInt64(0, R.A);
   CheckEqualsInt64(0, Length(R.B));
   CheckTrue(VarIsClear(V));
@@ -771,6 +823,7 @@ end;
 
 procedure Test_IntegerArithmeticAndPrecedence;
 var
+  VInteger: Integer;
   VExtended: Extended;
 begin
   { Integer arithmetic }
@@ -786,6 +839,9 @@ begin
   CheckEqualsInt64(12, 10 xor 6);
   CheckEqualsInt64(-11, not 10);
   CheckEqualsInt64(-10, -(10));
+  VInteger := 10;
+  CheckEqualsInt64(-10, -VInteger);
+  CheckEqualsInt64(-11, not VInteger);
 
   { Operator precedence: multiplicative binds tighter than additive }
   CheckEqualsInt64(14, 2 + 3 * 4);
@@ -858,6 +914,12 @@ begin
   CheckTrue(VUInt64 > UInt64(VInt64High));
   CheckEqualsInt64(2, Int64(VUInt64 - UInt64(VInt64High)));
   CheckTrue(UInt64(0) - UInt64(1) = UInt64($FFFFFFFFFFFFFFFF));
+
+  { Int64 shifts }
+  VInt64 := Int64(1);
+  CheckEqualsInt64($100000000, VInt64 shl 32);
+  VInt64 := Int64($100000000);
+  CheckEqualsInt64(1, VInt64 shr 32);
 end;
 
 var
@@ -870,25 +932,31 @@ begin
 end;
 
 procedure Test_BooleanShortCircuit;
+var
+  LeftSide: Boolean;
 begin
   { and short-circuits when LHS is False }
   Test_BooleanShortCircuit_SideEffectCalled := False;
-  if False and Test_BooleanShortCircuit_SideEffect then ; { emits warning }
+  LeftSide := False;
+  if LeftSide and Test_BooleanShortCircuit_SideEffect then ;
   CheckFalse(Test_BooleanShortCircuit_SideEffectCalled);
 
   { or short-circuits when LHS is True }
   Test_BooleanShortCircuit_SideEffectCalled := False;
-  if True or Test_BooleanShortCircuit_SideEffect then ;  { emits warning }
+  LeftSide := True;
+  if LeftSide or Test_BooleanShortCircuit_SideEffect then ;
   CheckFalse(Test_BooleanShortCircuit_SideEffectCalled);
 
   { and evaluates RHS when LHS is True }
   Test_BooleanShortCircuit_SideEffectCalled := False;
-  if True and Test_BooleanShortCircuit_SideEffect then ; { emits warning }
+  LeftSide := True;
+  if LeftSide and Test_BooleanShortCircuit_SideEffect then ;
   CheckTrue(Test_BooleanShortCircuit_SideEffectCalled);
 
   { or evaluates RHS when LHS is False }
   Test_BooleanShortCircuit_SideEffectCalled := False;
-  if False or Test_BooleanShortCircuit_SideEffect then ; { emits warning }
+  LeftSide := False;
+  if LeftSide or Test_BooleanShortCircuit_SideEffect then ;
   CheckTrue(Test_BooleanShortCircuit_SideEffectCalled);
 end;
 
