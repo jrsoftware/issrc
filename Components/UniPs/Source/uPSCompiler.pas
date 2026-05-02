@@ -9358,6 +9358,112 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                       end;
                     end;
                   {$ENDIF}
+                  { Float-to-integer casts are rejected by IsCompatibleType, so the
+                    integer destination branches above do not need float sources. }
+                  btSingle:
+                    begin
+                      case TPSValueData(TPSUnValueOp(p).FVal1).Data.Ftype.basetype of
+                        btU8: TPSValueData(preplace).Data.tsingle := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu8;
+                        btS8: TPSValueData(preplace).Data.tsingle := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS8;
+                        btU16: TPSValueData(preplace).Data.tsingle := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16;
+                        btS16: TPSValueData(preplace).Data.tsingle := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS16;
+                        btEnum, btU32: TPSValueData(preplace).Data.tsingle := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
+                        btS32: TPSValueData(preplace).Data.tsingle := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32;
+                        {$IFNDEF PS_NOINT64}
+                        btS64: TPSValueData(preplace).Data.tsingle := TPSValueData(TPSUnValueOp(p).FVal1).Data^.ts64;
+                        btU64: TPSValueData(preplace).Data.tsingle := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu64;
+                        {$ENDIF}
+                        btSingle: TPSValueData(preplace).Data.tsingle := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tsingle;
+                        btDouble: TPSValueData(preplace).Data.tsingle := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tdouble;
+                        btExtended: TPSValueData(preplace).Data.tsingle := TPSValueData(TPSUnValueOp(p).FVal1).Data^.textended;
+                        btCurrency: TPSValueData(preplace).Data.tsingle := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tcurrency;
+                      else
+                        begin
+                          MakeError('', ecTypeMismatch, '');
+                          preplace.Free;
+                          Result := False;
+                          exit;
+                        end;
+                      end;
+                    end;
+                  btDouble:
+                    begin
+                      case TPSValueData(TPSUnValueOp(p).FVal1).Data.Ftype.basetype of
+                        btU8: TPSValueData(preplace).Data.tdouble := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu8;
+                        btS8: TPSValueData(preplace).Data.tdouble := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS8;
+                        btU16: TPSValueData(preplace).Data.tdouble := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16;
+                        btS16: TPSValueData(preplace).Data.tdouble := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS16;
+                        btEnum, btU32: TPSValueData(preplace).Data.tdouble := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
+                        btS32: TPSValueData(preplace).Data.tdouble := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32;
+                        {$IFNDEF PS_NOINT64}
+                        btS64: TPSValueData(preplace).Data.tdouble := TPSValueData(TPSUnValueOp(p).FVal1).Data^.ts64;
+                        btU64: TPSValueData(preplace).Data.tdouble := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu64;
+                        {$ENDIF}
+                        btSingle: TPSValueData(preplace).Data.tdouble := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tsingle;
+                        btDouble: TPSValueData(preplace).Data.tdouble := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tdouble;
+                        btExtended: TPSValueData(preplace).Data.tdouble := TPSValueData(TPSUnValueOp(p).FVal1).Data^.textended;
+                        btCurrency: TPSValueData(preplace).Data.tdouble := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tcurrency;
+                      else
+                        begin
+                          MakeError('', ecTypeMismatch, '');
+                          preplace.Free;
+                          Result := False;
+                          exit;
+                        end;
+                      end;
+                    end;
+                  btExtended:
+                    begin
+                      case TPSValueData(TPSUnValueOp(p).FVal1).Data.Ftype.basetype of
+                        btU8: TPSValueData(preplace).Data.textended := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu8;
+                        btS8: TPSValueData(preplace).Data.textended := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS8;
+                        btU16: TPSValueData(preplace).Data.textended := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16;
+                        btS16: TPSValueData(preplace).Data.textended := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS16;
+                        btEnum, btU32: TPSValueData(preplace).Data.textended := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
+                        btS32: TPSValueData(preplace).Data.textended := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32;
+                        {$IFNDEF PS_NOINT64}
+                        btS64: TPSValueData(preplace).Data.textended := TPSValueData(TPSUnValueOp(p).FVal1).Data^.ts64;
+                        btU64: TPSValueData(preplace).Data.textended := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu64;
+                        {$ENDIF}
+                        btSingle: TPSValueData(preplace).Data.textended := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tsingle;
+                        btDouble: TPSValueData(preplace).Data.textended := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tdouble;
+                        btExtended: TPSValueData(preplace).Data.textended := TPSValueData(TPSUnValueOp(p).FVal1).Data^.textended;
+                        btCurrency: TPSValueData(preplace).Data.textended := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tcurrency;
+                      else
+                        begin
+                          MakeError('', ecTypeMismatch, '');
+                          preplace.Free;
+                          Result := False;
+                          exit;
+                        end;
+                      end;
+                    end;
+                  btCurrency:
+                    begin
+                      case TPSValueData(TPSUnValueOp(p).FVal1).Data.Ftype.basetype of
+                        btU8: TPSValueData(preplace).Data.tcurrency := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu8;
+                        btS8: TPSValueData(preplace).Data.tcurrency := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS8;
+                        btU16: TPSValueData(preplace).Data.tcurrency := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu16;
+                        btS16: TPSValueData(preplace).Data.tcurrency := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS16;
+                        btEnum, btU32: TPSValueData(preplace).Data.tcurrency := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tU32;
+                        btS32: TPSValueData(preplace).Data.tcurrency := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tS32;
+                        {$IFNDEF PS_NOINT64}
+                        btS64: TPSValueData(preplace).Data.tcurrency := TPSValueData(TPSUnValueOp(p).FVal1).Data^.ts64;
+                        btU64: TPSValueData(preplace).Data.tcurrency := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tu64;
+                        {$ENDIF}
+                        btSingle: TPSValueData(preplace).Data.tcurrency := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tsingle;
+                        btDouble: TPSValueData(preplace).Data.tcurrency := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tdouble;
+                        btExtended: TPSValueData(preplace).Data.tcurrency := TPSValueData(TPSUnValueOp(p).FVal1).Data^.textended;
+                        btCurrency: TPSValueData(preplace).Data.tcurrency := TPSValueData(TPSUnValueOp(p).FVal1).Data^.tcurrency;
+                      else
+                        begin
+                          MakeError('', ecTypeMismatch, '');
+                          preplace.Free;
+                          Result := False;
+                          exit;
+                        end;
+                      end;
+                    end;
                 else
                   begin
                     MakeError('', ecTypeMismatch, '');
