@@ -770,6 +770,8 @@ begin
 end;
 
 procedure Test_IntegerArithmeticAndPrecedence;
+var
+  VExtended: Extended;
 begin
   { Integer arithmetic }
   CheckEqualsInt64(7, 3 + 4);
@@ -792,8 +794,8 @@ begin
   CheckEqualsInt64(3, 1 + 8 mod 3);
 
   { 'and' is multiplicative, 'or' is additive }
-  CheckTrue(True or True and False); { emits warning }
-  CheckFalse(False and True or False); { emits warning }
+  CheckTrue(True or True and False); { emits warnings }
+  CheckFalse(False and True or False); { emits warnings }
 
   { 'not' (unary) binds tighter than 'and' (multiplicative) }
   CheckFalse(not True and True); { emits warning }
@@ -832,9 +834,11 @@ begin
   { / on int operands behaves like div) }
   CheckEqualsInt64(2, 5 / 2);
 
-  { Real promotion with / }
+  { Real promotion }
   CheckEqualsFloat(2.5, 5 / 2.0, 1e-9);
   CheckEqualsFloat(2.5, 5.0 / 2, 1e-9);
+  VExtended := 1 + 1.5;
+  CheckEqualsFloat(2.5, VExtended, 1e-9);
 end;
 
 procedure Test_Int64Arithmetic;
@@ -854,6 +858,104 @@ begin
   CheckTrue(VUInt64 > UInt64(VInt64High));
   CheckEqualsInt64(2, Int64(VUInt64 - UInt64(VInt64High)));
   CheckTrue(UInt64(0) - UInt64(1) = UInt64($FFFFFFFFFFFFFFFF));
+end;
+
+var
+  Test_BooleanShortCircuit_SideEffectCalled: Boolean;
+
+function Test_BooleanShortCircuit_SideEffect: Boolean;
+begin
+  Test_BooleanShortCircuit_SideEffectCalled := True;
+  Result := True;
+end;
+
+procedure Test_BooleanShortCircuit;
+begin
+  { and short-circuits when LHS is False }
+  Test_BooleanShortCircuit_SideEffectCalled := False;
+  if False and Test_BooleanShortCircuit_SideEffect then ; { emits warning }
+  CheckFalse(Test_BooleanShortCircuit_SideEffectCalled);
+
+  { or short-circuits when LHS is True }
+  Test_BooleanShortCircuit_SideEffectCalled := False;
+  if True or Test_BooleanShortCircuit_SideEffect then ;  { emits warning }
+  CheckFalse(Test_BooleanShortCircuit_SideEffectCalled);
+
+  { and evaluates RHS when LHS is True }
+  Test_BooleanShortCircuit_SideEffectCalled := False;
+  if True and Test_BooleanShortCircuit_SideEffect then ; { emits warning }
+  CheckTrue(Test_BooleanShortCircuit_SideEffectCalled);
+
+  { or evaluates RHS when LHS is False }
+  Test_BooleanShortCircuit_SideEffectCalled := False;
+  if False or Test_BooleanShortCircuit_SideEffect then ; { emits warning }
+  CheckTrue(Test_BooleanShortCircuit_SideEffectCalled);
+end;
+
+procedure Test_ExplicitTypeCasts;
+var
+  VInt64: Int64;
+  VByte: Byte;
+  VDouble: Double;
+  VSingle: Single;
+begin
+  { Byte -> Int64 via explicit cast }
+  VByte := 200;
+  VInt64 := Int64(VByte);
+  CheckEqualsInt64(200, VInt64);
+
+  { Double -> Single (value fits) }
+  VDouble := 1.5;
+  VSingle := Single(VDouble);
+  CheckEqualsFloat(1.5, VSingle, 1e-6);
+
+  { Single -> Double }
+  VSingle := 3.14;
+  VDouble := Double(VSingle);
+  CheckEqualsFloat(3.14, VDouble, 1e-5);
+
+  { String type casts covered by Test_StringTypeInteractions }
+end;
+
+procedure Test_ConstantExpressionCasts;
+begin
+  { integer constant narrowing }
+  CheckEqualsUInt64(42, Byte(256 + 42));
+  CheckEqualsInt64(7, Integer(Int64($100000007)));
+
+  { integer constant widening }
+  CheckEqualsInt64(200, Int64(Byte(200)));
+
+  { enum <-> integer constants }
+  CheckEqualsUInt64(2, Ord(TSmall(2)));
+  CheckEqualsInt64(2, Integer(eC));
+  CheckEqualsUInt64(0, Byte(eA));
+
+  { float constant casts }
+  CheckEqualsFloat(1.5, Double(1.5), 0.0);
+  CheckEqualsFloat(1.5, Single(1.5), 1e-6);
+end;
+
+function Test_IdentifierCaseInsensitivity_Func: Integer;
+begin
+  Result := 7;
+end;
+
+procedure Test_IdentifierCaseInsensitivity;
+var
+  FooBar: Integer;
+begin
+  { lowercase access }
+  FooBar := 42;
+  CheckEqualsInt64(42, foobar);
+
+  { uppercase write, mixed-case read }
+  FOOBAR := 99;
+  CheckEqualsInt64(99, FooBar);
+
+  { function names are case-insensitive }
+  CheckEqualsInt64(7, test_identifiercaseinsensitivity_func);
+  CheckEqualsInt64(7, TEST_IDENTIFIERCASEINSENSITIVITY_FUNC);
 end;
 
 procedure RunAllTests;
@@ -879,6 +981,10 @@ begin
   Test_WithScoping;
   Test_IntegerArithmeticAndPrecedence;
   Test_Int64Arithmetic;
+  Test_BooleanShortCircuit;
+  Test_ExplicitTypeCasts;
+  Test_ConstantExpressionCasts;
+  Test_IdentifierCaseInsensitivity;
 end;
 
 function InitializeSetup: Boolean;
