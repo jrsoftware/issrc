@@ -273,8 +273,63 @@ procedure CommandTest(const ATestScriptFilename: String);
     end;
   end;
 
+  {$IFDEF DEBUG}
+  procedure RaiseException(const Msg: String);
+  begin
+    raise Exception.Create(Msg);
+  end;
+
+  procedure CheckTrue(const Value: Boolean);
+  begin
+    if not Value then
+      RaiseException('CheckTrue test failed');
+  end;
+
+  procedure CheckFalse(const Value: Boolean);
+  begin
+    if Value then
+      RaiseException('CheckFalse test failed');
+  end;
+
+  procedure CheckEqualsInt64(const Expected, Actual: Int64);
+  begin
+    if Expected <> Actual then
+      RaiseException(Format('CheckEqualsInt64 test failed: expected %d, got %d', [Expected, Actual]));
+  end;
+
+  procedure CheckEqualsUInt64(const Expected, Actual: UInt64);
+  begin
+    if Expected <> Actual then
+      RaiseException(Format('CheckEqualsUInt64 test failed: expected %u, got %u', [Expected, Actual]));
+  end;
+
+  procedure CheckEqualsString(const Expected, Actual: String);
+  begin
+    if Expected <> Actual then
+      RaiseException(Format('CheckEqualsString test failed: expected "%s", got "%s"', [Expected, Actual]));
+  end;
+
+  procedure CheckEqualsFloat(const Expected, Actual, Tolerance: Extended);
+  begin
+    if Abs(Expected - Actual) > Tolerance then
+      RaiseException(Format('CheckEqualsFloat test failed: expected %g, got %g', [Expected, Actual]));
+  end;
+
+  procedure ScriptRunTests_Delphi;
+  begin
+    { When doubt, paste tests from Script.Test.iss here to see if they succeed
+      or fail in the same way in Delphi. Helpers like CheckTrue are already
+      available from above. }
+
+  end;
+  {$ENDIF}
+
 begin
   try
+    {$IFDEF DEBUG}
+    ScriptRunTests_Delphi;
+    {$ENDIF}
+
     PrintUnlessQuiet('Running native tests');
 
     BidiUtilsRunTests;

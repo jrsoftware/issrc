@@ -751,6 +751,67 @@ begin
   CheckEqualsInt64(0, R1.A);
 end;
 
+procedure Test_IntegerArithmeticAndPrecedence;
+begin
+  { Integer arithmetic }
+  CheckEqualsInt64(7, 3 + 4);
+  CheckEqualsInt64(-1, 3 - 4);
+  CheckEqualsInt64(12, 3 * 4);
+  CheckEqualsInt64(2, 5 div 2);
+  CheckEqualsInt64(1, 5 mod 2);
+  CheckEqualsInt64(8, 1 shl 3);
+  CheckEqualsInt64(2, 16 shr 3);
+  CheckEqualsInt64(14, 10 or 6);
+  CheckEqualsInt64(2, 10 and 6);
+  CheckEqualsInt64(12, 10 xor 6);
+  CheckEqualsInt64(-11, not 10);
+  CheckEqualsInt64(-10, -(10));
+
+  { Operator precedence: multiplicative binds tighter than additive }
+  CheckEqualsInt64(14, 2 + 3 * 4);
+  CheckEqualsInt64(10, 2 * 3 + 4);
+  CheckEqualsInt64(7, 1 + 12 div 2);
+  CheckEqualsInt64(3, 1 + 8 mod 3);
+
+  { 'and' is multiplicative, 'or' is additive }
+  CheckTrue(True or True and False);
+  CheckFalse(False and True or False);
+
+  { 'not' (unary) binds tighter than 'and' (multiplicative) }
+  CheckFalse(not True and True);
+  CheckTrue(not False and True);
+
+  { Relational binds loosest }
+  CheckTrue(2 + 3 = 5);
+  CheckTrue(10 - 3 > 5);
+  CheckTrue(2 * 3 < 2 + 5);
+
+  { 'shl'/'shr' are multiplicative }
+  CheckEqualsInt64(9, 1 + 1 shl 3);
+  CheckEqualsInt64(5, 1 + 8 shr 1);
+
+  { 'xor' is additive, same level as '+'/'-'/'or' }
+  CheckEqualsInt64(4, 1 + 5 xor 2);
+  CheckEqualsInt64(16, 5 xor 2 + 3 * 3);
+
+  { Operator associativity: same-precedence operators evaluate left-to-right }
+  CheckEqualsInt64(5, 10 - 3 - 2);
+  CheckEqualsInt64(-4, 1 - 2 - 3);
+  CheckEqualsInt64(2, 100 div 10 div 5);
+  CheckEqualsInt64(0, 17 mod 5 mod 2);
+  CheckEqualsInt64(32, 1 shl 1 shl 4);
+  CheckEqualsInt64(6, 1 + 2 + 3);
+  CheckEqualsInt64(7, 1 or 2 or 4);
+
+  { Compound expressions mixing unary and binary operators }
+  CheckEqualsInt64(-9, -(1 + 2) * 3);
+  CheckEqualsInt64(7, -(-7));
+  CheckEqualsInt64(2, not (not 2));
+  CheckEqualsInt64(-3, -(1 + 2));
+  CheckEqualsInt64(15, (1 + 2) * (3 + 2));
+  CheckTrue(not (1 = 2) and (3 > 0));
+end;
+
 procedure RunAllTests;
 begin
   Test_Lexical;
@@ -772,6 +833,7 @@ begin
   Test_CheckGlobalsAndLocalsZeroed;
   Test_Variants;
   Test_WithScoping;
+  Test_IntegerArithmeticAndPrecedence;
 end;
 
 function InitializeSetup: Boolean;
