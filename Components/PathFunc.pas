@@ -482,25 +482,20 @@ function PathPathPartLength(const Filename: String;
   - If you pass in a filename with a reference to an NTFS alternate data
     stream, e.g. 'abc:def', it will return the length of the entire string,
     NOT the length of 'abc:'. }
-var
-  LastCharToKeep, Len, I: Integer;
 begin
-  Result := PathDrivePartLengthEx(Filename, True);
-  LastCharToKeep := Result;
-  Len := Length(Filename);
-  I := Result + 1;
-  while I <= Len do begin
-    if PathCharIsSlash(Filename[I]) then begin
+  const DrivePartLen = PathDrivePartLengthEx(Filename, True);
+  var FoundSlash := False;
+  Result := Length(Filename);
+  while Result > DrivePartLen do begin
+    if PathCharIsSlash(Filename[Result]) then begin
       if IncludeSlashesAfterPath then
-        Result := I
-      else
-        Result := LastCharToKeep;
-      Inc(I);
-    end
-    else begin
-      Inc(I, PathCharLength(Filename, I));
-      LastCharToKeep := I-1;
+        Break;
+      FoundSlash := True;
+    end else begin
+      if FoundSlash then
+        Break;
     end;
+    Dec(Result);
   end;
 end;
 
