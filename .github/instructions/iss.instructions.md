@@ -1,5 +1,5 @@
 ---
-paths: ["**/*.iss"]
+applyTo: "**/*.iss"
 ---
 # Coding conventions for Inno Setup script files
 Inno Setup `.iss` scripts use the `[Code]` section for Pascal Script code. This is RemObjects Pascal Script (ROPS), not modern Delphi. The following rules apply to code in `[Code]` sections.

@@ -1,5 +1,5 @@
 ---
-paths: ["**/*.pas", "**/*.dpr", "**/*.inc"]
+applyTo: "**/*.pas,**/*.dpr,**/*.inc"
 ---
 # Coding conventions for Pascal source files
 - Always use inline variables instead of pre-declaring them at the start of the function.
