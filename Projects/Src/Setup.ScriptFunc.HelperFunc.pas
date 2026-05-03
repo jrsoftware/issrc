@@ -111,13 +111,25 @@ function GetShortName(const LongName: String): String;
 function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): NativeInt;
 
 { Internal, used only by Script.Test.iss }
-function TestInnerfuse_ReturnSingle: Single;
-function TestInnerfuse_ReturnDouble: Double;
-function TestInnerfuse_ReturnExtended: Extended;
-function TestInnerfuse_ReturnCurrency: Currency;
-function TestInnerfuse_ReturnInt64: Int64;
-function TestInnerfuse_ReturnSmallRec: TTestInnerfuseSmallRec;
-function TestInnerfuse_ReturnLargeRec: TTestInnerfuseLargeRec;
+function TestInnerfuse_EchoSingle(Value: Single): Single;
+function TestInnerfuse_EchoDouble(Value: Double): Double;
+function TestInnerfuse_EchoExtended(Value: Extended): Extended;
+function TestInnerfuse_EchoCurrency(Value: Currency): Currency;
+function TestInnerfuse_EchoInt64(Value: Int64): Int64;
+function TestInnerfuse_EchoSmallRec(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec;
+function TestInnerfuse_EchoLargeRec(Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;
+function TestInnerfuse_EchoPAnsiChar(Value: PAnsiChar): String;
+function TestInnerfuse_EchoSingleStdCall(Value: Single): Single; stdcall;
+function TestInnerfuse_EchoDoubleStdCall(Value: Double): Double; stdcall;
+function TestInnerfuse_EchoExtendedStdCall(Value: Extended): Extended; stdcall;
+function TestInnerfuse_EchoCurrencyStdCall(Value: Currency): Currency; stdcall;
+function TestInnerfuse_EchoInt64StdCall(Value: Int64): Int64; stdcall;
+function TestInnerfuse_EchoSmallRecStdCall(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec; stdcall;
+function TestInnerfuse_EchoLargeRecStdCall(const Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec; stdcall;
+function TestInnerfuse_MixedFloats(A: Single; B: Double; C: Single): Double;
+function TestInnerfuse_SixParams(A, B, C, D, E, F: Integer): Int64;
+function TestInnerfuse_SixParamsStdCall(A, B, C, D, E, F: Integer): Int64; stdcall;
+procedure TestInnerfuse_RaiseException;
 
 implementation
 
@@ -819,41 +831,101 @@ begin
   end;
 end;
 
-function TestInnerfuse_ReturnSingle: Single;
+function TestInnerfuse_EchoSingle(Value: Single): Single;
 begin
-  Result := 1.5;
+  Result := Value;
 end;
 
-function TestInnerfuse_ReturnDouble: Double;
+function TestInnerfuse_EchoDouble(Value: Double): Double;
 begin
-  Result := 1.5e100;
+  Result := Value;
 end;
 
-function TestInnerfuse_ReturnExtended: Extended;
+function TestInnerfuse_EchoExtended(Value: Extended): Extended;
 begin
-  Result := Pi;
+  Result := Value;
 end;
 
-function TestInnerfuse_ReturnCurrency: Currency;
+function TestInnerfuse_EchoCurrency(Value: Currency): Currency;
 begin
-  Result := 1.2345;
+  Result := Value;
 end;
 
-function TestInnerfuse_ReturnInt64: Int64;
+function TestInnerfuse_EchoInt64(Value: Int64): Int64;
 begin
-  Result := 12345678901;
+  Result := Value;
 end;
 
-function TestInnerfuse_ReturnSmallRec: TTestInnerfuseSmallRec;
+function TestInnerfuse_EchoSmallRec(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec;
 begin
-  Result.A := 42;
-  Result.B := 99;
+  Result := Value;
 end;
 
-function TestInnerfuse_ReturnLargeRec: TTestInnerfuseLargeRec;
+function TestInnerfuse_EchoLargeRec(Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;
 begin
-  Result.A := 42;
-  Result.B := 'hello';
+  Result := Value;
+end;
+
+function TestInnerfuse_EchoPAnsiChar(Value: PAnsiChar): String;
+begin
+  Result := String(AnsiString(Value));
+end;
+
+function TestInnerfuse_EchoSingleStdCall(Value: Single): Single; stdcall;
+begin
+  Result := Value;
+end;
+
+function TestInnerfuse_EchoDoubleStdCall(Value: Double): Double; stdcall;
+begin
+  Result := Value;
+end;
+
+function TestInnerfuse_EchoExtendedStdCall(Value: Extended): Extended; stdcall;
+begin
+  Result := Value;
+end;
+
+function TestInnerfuse_EchoCurrencyStdCall(Value: Currency): Currency; stdcall;
+begin
+  Result := Value;
+end;
+
+function TestInnerfuse_EchoInt64StdCall(Value: Int64): Int64; stdcall;
+begin
+  Result := Value;
+end;
+
+function TestInnerfuse_EchoSmallRecStdCall(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec; stdcall;
+begin
+  Result := Value;
+end;
+
+{ const: ROPS pushes a pointer for large records, which only matches Delphi's
+  stdcall when the parameter is const/var (passed by reference) }
+function TestInnerfuse_EchoLargeRecStdCall(const Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec; stdcall;
+begin
+  Result := Value;
+end;
+
+function TestInnerfuse_MixedFloats(A: Single; B: Double; C: Single): Double;
+begin
+  Result := A + B + C;
+end;
+
+function TestInnerfuse_SixParams(A, B, C, D, E, F: Integer): Int64;
+begin
+  Result := Int64(A) + B + C + D + E + F;
+end;
+
+function TestInnerfuse_SixParamsStdCall(A, B, C, D, E, F: Integer): Int64; stdcall;
+begin
+  Result := Int64(A) + B + C + D + E + F;
+end;
+
+procedure TestInnerfuse_RaiseException;
+begin
+  raise Exception.Create('InnerfuseCall test exception');
 end;
 
 end.

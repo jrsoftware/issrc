@@ -1598,37 +1598,99 @@ begin
   end;
 end;
 
-procedure Test_InnerfuseCallReturnTypes;
+procedure Test_InnerfuseCallParamTypes;
 var
   SmallRec: TTestInnerfuseSmallRec;
   LargeRec: TTestInnerfuseLargeRec;
-  VNativeInt: NativeInt;
 begin
-  { Exercises every result-type branch in InnerfuseCall (x86.inc/x64.inc).
-    Each registered Delphi function returns a specific type that takes a
-    different code path through the case statement:
-    - Single/Double/Extended: returned in ST(0) on x86, XMM0 on x64
-    - Currency: ST(0) with /10000 on x86, RAX as scaled Int64 on x64
-    - Int64: EAX:EDX pair on x86, single RAX on x64
-    - Small record (2 bytes, fits in a register): register return path
-    - Large record (> register size): hidden var-param path }
+  { Exercises InnerfuseCall parameter and return type marshalling using the
+    register (default Delphi) calling convention. Each echo function round-trips
+    a value through a registered native function, testing both the parameter
+    passing and return value paths in x86.inc/x64.inc:
+    - Single/Double/Extended/Currency: different float handling per platform
+    - Int64: 8 bytes on stack (x86) vs one 64-bit register (x64)
+    - Small record: by value if <= pointer size, else by pointer
+    - Large record: hidden var-param return path for records > pointer size
+    - Mixed Single+Double: tests per-slot SingleBits indexing on x64
+    - PAnsiChar empty string: tests nil -> EmptyPchar substitution
+    - SixParams (6 integers): forces register-to-stack spill on both platforms }
 
-  CheckEqualsFloat(1.5, TestInnerfuse_ReturnSingle, 0.0);
-  CheckEqualsFloat(1.5e100, TestInnerfuse_ReturnDouble, 1e90);
-  { Extended is 10-byte on x86, 8-byte (=Double) on x64 }
-  CheckEqualsFloat(Pi, TestInnerfuse_ReturnExtended, 1e-12);
-  CheckEqualsFloat(1.2345, TestInnerfuse_ReturnCurrency, 0.0001);
-  CheckEqualsInt64(12345678901, TestInnerfuse_ReturnInt64);
+  CheckEqualsFloat(1.5, TestInnerfuse_EchoSingle(1.5), 0.0);
+  CheckEqualsFloat(1.5e100, TestInnerfuse_EchoDouble(1.5e100), 1e90);
+  CheckEqualsFloat(1.5, TestInnerfuse_EchoExtended(1.5), 0.0);
+  CheckEqualsFloat(1.2345, TestInnerfuse_EchoCurrency(1.2345), 0.0001);
+  CheckEqualsInt64(12345678901, TestInnerfuse_EchoInt64(12345678901));
 
-  CheckEqualsInt64(2, SizeOf(SmallRec));
-  SmallRec := TestInnerfuse_ReturnSmallRec;
+  SmallRec.A := 42;
+  SmallRec.B := 99;
+  SmallRec := TestInnerfuse_EchoSmallRec(SmallRec);
   CheckEqualsInt64(42, SmallRec.A);
   CheckEqualsInt64(99, SmallRec.B);
 
-  CheckTrue(SizeOf(LargeRec) > SizeOf(VNativeInt));
-  LargeRec := TestInnerfuse_ReturnLargeRec;
+  LargeRec.A := 42;
+  LargeRec.B := 'hello';
+  LargeRec := TestInnerfuse_EchoLargeRec(LargeRec);
   CheckEqualsInt64(42, LargeRec.A);
   CheckEqualsString('hello', LargeRec.B);
+
+  CheckEqualsFloat(4.5, TestInnerfuse_MixedFloats(1.5, 2.0, 1.0), 0.0);
+  CheckEqualsString('', TestInnerfuse_EchoPAnsiChar(''));
+  CheckEqualsString('hello', TestInnerfuse_EchoPAnsiChar('hello'));
+  CheckEqualsInt64(21, TestInnerfuse_SixParams(1, 2, 3, 4, 5, 6));
+end;
+
+procedure Test_InnerfuseCallParamTypesStdCall;
+var
+  SmallRec: TTestInnerfuseSmallRec;
+  LargeRec: TTestInnerfuseLargeRec;
+begin
+  { Repeats the echo tests from Test_InnerfuseCallParamTypes using the stdcall
+    calling convention. On x86 this exercises RealCall_Other /
+    RealFloatCall_Other (all params on stack) instead of RealCall_Register
+    (params in EAX/EDX/ECX then stack). On x64 both conventions use the same
+    Microsoft x64 ABI so the code paths are identical.
+    MixedFloats is omitted because its purpose (per-slot SingleBits indexing) is
+    x64-specific, where stdcall is identical to register. EchoPAnsiChar is
+    omitted because nil-to-EmptyPchar substitution is calling-convention-
+    independent. RaiseException has its own test and is not part of param types. }
+
+  CheckEqualsInt64(21, TestInnerfuse_SixParamsStdCall(1, 2, 3, 4, 5, 6));
+  CheckEqualsFloat(1.5, TestInnerfuse_EchoSingleStdCall(1.5), 0.0);
+  CheckEqualsFloat(1.5e100, TestInnerfuse_EchoDoubleStdCall(1.5e100), 1e90);
+  CheckEqualsFloat(1.5, TestInnerfuse_EchoExtendedStdCall(1.5), 0.0);
+  CheckEqualsFloat(1.2345, TestInnerfuse_EchoCurrencyStdCall(1.2345), 0.0001);
+  CheckEqualsInt64(12345678901, TestInnerfuse_EchoInt64StdCall(12345678901));
+
+  SmallRec.A := 42;
+  SmallRec.B := 99;
+  SmallRec := TestInnerfuse_EchoSmallRecStdCall(SmallRec);
+  CheckEqualsInt64(42, SmallRec.A);
+  CheckEqualsInt64(99, SmallRec.B);
+
+  LargeRec.A := 42;
+  LargeRec.B := 'hello';
+  LargeRec := TestInnerfuse_EchoLargeRecStdCall(LargeRec);
+  CheckEqualsInt64(42, LargeRec.A);
+  CheckEqualsString('hello', LargeRec.B);
+end;
+
+procedure Test_InnerfuseCallException;
+var
+  Caught: Boolean;
+begin
+  { Verifies that a Delphi exception raised inside a registered native function
+    correctly unwinds through the InnerfuseCall asm stubs and surfaces as a
+    catchable script exception. On x64, the x64call procedure has an elaborate
+    stack frame and exceptions must unwind through it without corruption. }
+
+  Caught := False;
+  try
+    TestInnerfuse_RaiseException;
+  except
+    Caught := True;
+    CheckEqualsString('InnerfuseCall test exception', GetExceptionMessage);
+  end;
+  CheckTrue(Caught);
 end;
 
 { External DLL declarations - compile-only witness, not called }
@@ -1685,7 +1747,9 @@ begin
   Test_RegisteredMethods;
   Test_IdentifierResolution;
   Test_ProcVarScript;
-  Test_InnerfuseCallReturnTypes;
+  Test_InnerfuseCallParamTypes;
+  Test_InnerfuseCallParamTypesStdCall;
+  Test_InnerfuseCallException;
 end;
 
 function InitializeSetup: Boolean;

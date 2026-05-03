@@ -35,13 +35,25 @@ var
   { Internal, used only by Script.Test.iss }
   TestInnerfuseScriptFuncTable: TScriptTable =
   [
-    'function TestInnerfuse_ReturnSingle: Single;',
-    'function TestInnerfuse_ReturnDouble: Double;',
-    'function TestInnerfuse_ReturnExtended: Extended;',
-    'function TestInnerfuse_ReturnCurrency: Currency;',
-    'function TestInnerfuse_ReturnInt64: Int64;',
-    'function TestInnerfuse_ReturnSmallRec: TTestInnerfuseSmallRec;',
-    'function TestInnerfuse_ReturnLargeRec: TTestInnerfuseLargeRec;'
+    'function TestInnerfuse_EchoSingle(Value: Single): Single;',
+    'function TestInnerfuse_EchoDouble(Value: Double): Double;',
+    'function TestInnerfuse_EchoExtended(Value: Extended): Extended;',
+    'function TestInnerfuse_EchoCurrency(Value: Currency): Currency;',
+    'function TestInnerfuse_EchoInt64(Value: Int64): Int64;',
+    'function TestInnerfuse_EchoSmallRec(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec;',
+    'function TestInnerfuse_EchoLargeRec(Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;',
+    'function TestInnerfuse_EchoPAnsiChar(Value: PAnsiChar): String;',
+    'function TestInnerfuse_EchoSingleStdCall(Value: Single): Single;',
+    'function TestInnerfuse_EchoDoubleStdCall(Value: Double): Double;',
+    'function TestInnerfuse_EchoExtendedStdCall(Value: Extended): Extended;',
+    'function TestInnerfuse_EchoCurrencyStdCall(Value: Currency): Currency;',
+    'function TestInnerfuse_EchoInt64StdCall(Value: Int64): Int64;',
+    'function TestInnerfuse_EchoSmallRecStdCall(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec;',
+    'function TestInnerfuse_EchoLargeRecStdCall(const Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;',
+    'function TestInnerfuse_MixedFloats(A: Single; B: Double; C: Single): Double;',
+    'function TestInnerfuse_SixParams(A, B, C, D, E, F: Integer): Int64;',
+    'function TestInnerfuse_SixParamsStdCall(A, B, C, D, E, F: Integer): Int64;',
+    'procedure TestInnerfuse_RaiseException;'
   ];
 
 {$IFDEF ISIDEPROJ}
