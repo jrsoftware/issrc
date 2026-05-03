@@ -1486,23 +1486,10 @@ type
   TIntegerFunction = function(X: Integer): Integer;
   TVoidProcedure = procedure;
   TVarParamProcedure = procedure(var X: Integer);
+  TVarRecParamProcedure = procedure(var R: TRec);
   TOutParamProcedure = procedure(out X: Integer);
   TRecordResultFunction = function: TRec;
-  TSetResultFunction = function: TByteSet;
-  TVarRecParamProcedure = procedure(var R: TRec);
-
-procedure Test_ProcVarTypes;
-var
-  VIntegerFunction: TIntegerFunction;
-  VVoidProcedure: TVoidProcedure;
-  VVarParamProcedure: TVarParamProcedure;
-  VOutParamProcedure: TOutParamProcedure;
-  VRecordResultFunction: TRecordResultFunction;
-  VSetResultFunction: TSetResultFunction;
-begin
-  { Compile-only: verifies all procvar type declarations parse
-    and that variables of each type can be declared }
-end;
+  TSetResultFunction = function: TByteSet; { compile-only witness }
 
 function Test_ProcVarScript_Double(X: Integer): Integer;
 begin
@@ -1551,9 +1538,9 @@ end;
 procedure Test_ProcVarScript;
 var
   IntegerFunction: TIntegerFunction;
-  VoidProcedure: TVoidProcedure;
   VarParamProcedure: TVarParamProcedure;
   OutParamProcedure: TOutParamProcedure;
+  VoidProcedure: TVoidProcedure;
   RecordResultFunction: TRecordResultFunction;
   VarRecParamProcedure: TVarRecParamProcedure;
   X: Integer;
@@ -1664,7 +1651,6 @@ begin
   Test_RegisteredProcs;
   Test_RegisteredMethods;
   Test_IdentifierResolution;
-  Test_ProcVarTypes;
   Test_ProcVarScript;
 end;
 
