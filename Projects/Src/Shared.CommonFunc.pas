@@ -1252,12 +1252,9 @@ begin
   Result := S;
   I := 1;
   while I <= Length(Result) do begin
-    if Result[I] = '&' then begin
-      System.Delete(Result, I, 1);
-      if I > Length(Result) then
-        Break;
-    end;
-    Inc(I, PathCharLength(Result, I));
+    if Result[I] = '&' then
+      Delete(Result, I, 1);
+    Inc(I);
   end;
 end;
 

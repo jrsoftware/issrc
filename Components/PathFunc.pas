@@ -34,7 +34,6 @@ function AddBackslash(const S: String): String;
 function PathChangeExt(const Filename, Extension: String): String;
 function PathCharIsDriveLetter(const C: Char): Boolean;
 function PathCharIsSlash(const C: Char): Boolean;
-function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
 function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): Integer;
 function PathComponentIsReservedName(const Filename: String): Boolean;
@@ -97,12 +96,6 @@ begin
     Result := S + '\'
   else
     Result := S;
-end;
-
-function PathCharLength(const S: String; const Index: Integer): Integer;
-{ Returns the length in characters of the character at Index in S. }
-begin
-  Result := 1;
 end;
 
 function PathCharIsDriveLetter(const C: Char): Boolean;
@@ -426,7 +419,7 @@ begin
         ComponentStartIndex := I;
       end
       else
-        Inc(I, PathCharLength(Filename, I));
+        Inc(I);
     end;
     Result := I - 1;
     Exit;
