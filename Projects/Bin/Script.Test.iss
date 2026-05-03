@@ -819,6 +819,14 @@ begin
       A := 1;
   CheckEqualsInt64(1, R2.A);
   CheckEqualsInt64(0, R1.A);
+
+  { Comma-separated with: last wins }
+  R1.A := 0;
+  R2.A := 0;
+  with R1, R2 do
+    A := 42;
+  CheckEqualsInt64(0, R1.A);
+  CheckEqualsInt64(42, R2.A);
 end;
 
 procedure Test_IntegerArithmeticAndPrecedence;
@@ -1026,6 +1034,210 @@ begin
   CheckEqualsInt64(7, TEST_IDENTIFIERCASEINSENSITIVITY_FUNC);
 end;
 
+procedure Test_IfElse;
+var
+  I: Integer;
+begin
+  { Basic if/then/else }
+  if True then I := 1 else I := 2;
+  CheckEqualsInt64(1, I);
+
+  if False then I := 10 else I := 20;
+  CheckEqualsInt64(20, I);
+
+  { Dangling else binds to nearest if }
+  I := 0;
+  if True then
+    if False then
+      I := 1
+    else
+      I := 2;
+  CheckEqualsInt64(2, I);
+
+  { Outer else when outer condition is false }
+  I := 0;
+  if False then
+    if True then
+      I := 1
+    else
+      I := 2
+  else
+    I := 3;
+  CheckEqualsInt64(3, I);
+end;
+
+procedure Test_WhileLoop;
+var
+  I, Count: Integer;
+begin
+  I := 0;
+  Count := 0;
+  while I < 5 do begin
+    Count := Count + 1;
+    I := I + 1;
+  end;
+  CheckEqualsInt64(5, Count);
+  CheckEqualsInt64(5, I);
+
+  { False condition never enters body }
+  Count := 0;
+  while False do
+    Count := Count + 1;
+  CheckEqualsInt64(0, Count);
+end;
+
+procedure Test_RepeatUntil;
+var
+  Count: Integer;
+begin
+  { Body runs at least once even when condition starts true }
+  Count := 0;
+  repeat
+    Count := Count + 1;
+  until True;
+  CheckEqualsInt64(1, Count);
+
+  { Normal repeat until }
+  Count := 0;
+  repeat
+    Count := Count + 1;
+  until Count = 5;
+  CheckEqualsInt64(5, Count);
+end;
+
+procedure Test_ForLoop;
+var
+  I, Sum: Integer;
+begin
+  { for..to counts correctly }
+  Sum := 0;
+  for I := 1 to 5 do
+    Sum := Sum + I;
+  CheckEqualsInt64(15, Sum);
+
+  { for..downto counts correctly }
+  Sum := 0;
+  for I := 5 downto 1 do
+    Sum := Sum + I;
+  CheckEqualsInt64(15, Sum);
+
+  { for..to preserves direction }
+  Sum := 0;
+  for I := 1 to 3 do
+    Sum := Sum * 10 + I;
+  CheckEqualsInt64(123, Sum);
+
+  { for..downto preserves direction }
+  Sum := 0;
+  for I := 3 downto 1 do
+    Sum := Sum * 10 + I;
+  CheckEqualsInt64(321, Sum);
+
+  { Empty body for..to: post-loop value is H + 1 }
+  for I := 0 to 3 do
+    ;
+  CheckEqualsInt64(4, I);
+
+  { Empty body for..downto: post-loop value is L - 1 }
+  for I := 3 downto 0 do
+    ;
+  CheckEqualsInt64(-1, I);
+end;
+
+procedure Test_CaseStatement_CaseTest(X: Integer; var S: String);
+begin
+  case X of
+    0:    S := 'zero';
+    1, 2: S := 'small';
+    3..5: S := 'mid';
+  else
+    S := 'big';
+  end;
+end;
+
+procedure Test_CaseStatement;
+var
+  S: String;
+begin
+  Test_CaseStatement_CaseTest(0, S);
+  CheckEqualsString('zero', S);
+  Test_CaseStatement_CaseTest(1, S);
+  CheckEqualsString('small', S);
+  Test_CaseStatement_CaseTest(2, S);
+  CheckEqualsString('small', S);
+  Test_CaseStatement_CaseTest(4, S);
+  CheckEqualsString('mid', S);
+  Test_CaseStatement_CaseTest(6, S);
+  CheckEqualsString('big', S);
+end;
+
+procedure Test_CaseElseMultipleStatements_CaseElseMulti(X: Integer; var Sum: Integer);
+begin
+  Sum := 0;
+  case X of
+    1: Sum := 100;
+  else
+    Sum := Sum + 10;
+    Sum := Sum + 20;
+    Sum := Sum + 30;
+  end;
+end;
+
+procedure Test_CaseElseMultipleStatements;
+var
+  R: Integer;
+begin
+  Test_CaseElseMultipleStatements_CaseElseMulti(99, R);
+  CheckEqualsInt64(60, R);
+
+  Test_CaseElseMultipleStatements_CaseElseMulti(1, R);
+  CheckEqualsInt64(100, R);
+end;
+
+procedure Test_GotoLabel;
+label SkipForward, BackLoop, SkipFromIf;
+var
+  I, Count: Integer;
+begin
+  { Forward goto }
+  I := 0;
+  goto SkipForward;
+  I := 1;
+  SkipForward:
+  CheckEqualsInt64(0, I);
+
+  { Backward goto simulating a loop }
+  Count := 0;
+  BackLoop:
+  Count := Count + 1;
+  if Count < 3 then
+    goto BackLoop;
+  CheckEqualsInt64(3, Count);
+
+  { goto out of nested if }
+  I := 0;
+  if True then begin
+    if True then
+      goto SkipFromIf;
+    I := 1;
+  end;
+  SkipFromIf:
+  CheckEqualsInt64(0, I);
+end;
+
+function Test_ExitEarlyReturn_EarlyExit(X: Integer): Integer;
+begin
+  Result := -1;
+  if X > 0 then Exit;
+  Result := X;
+end;
+
+procedure Test_ExitEarlyReturn;
+begin
+  CheckEqualsInt64(-1, Test_ExitEarlyReturn_EarlyExit(5));
+  CheckEqualsInt64(-3, Test_ExitEarlyReturn_EarlyExit(-3));
+end;
+
 procedure RunAllTests;
 begin
   Test_Lexical;
@@ -1053,6 +1265,14 @@ begin
   Test_ExplicitTypeCasts;
   Test_ConstantExpressionCasts;
   Test_IdentifierCaseInsensitivity;
+  Test_IfElse;
+  Test_WhileLoop;
+  Test_RepeatUntil;
+  Test_ForLoop;
+  Test_CaseStatement;
+  Test_CaseElseMultipleStatements;
+  Test_GotoLabel;
+  Test_ExitEarlyReturn;
 end;
 
 function InitializeSetup: Boolean;
