@@ -1277,6 +1277,222 @@ begin
   CheckEqualsInt64(-3, Test_ExitEarlyReturn_EarlyExit(-3));
 end;
 
+{ Forward declaration: A is declared forward, B calls A before A's body }
+procedure Test_ForwardDeclarations_A; forward;
+
+procedure Test_ForwardDeclarations_B(var R: Integer);
+begin
+  Test_ForwardDeclarations_A;
+  R := 1;
+end;
+
+procedure Test_ForwardDeclarations_A;
+begin
+  { Body provided after forward declaration }
+end;
+
+procedure Test_ForwardDeclarations;
+var
+  R: Integer;
+begin
+  R := 0;
+  Test_ForwardDeclarations_B(R);
+  CheckEqualsInt64(1, R);
+  Test_ForwardDeclarations_A;
+end;
+
+function Test_FunctionResults_Int: Integer;
+begin
+  Result := 42;
+end;
+
+function Test_FunctionResults_Int64: Int64;
+begin
+  Result := 12345678901;
+end;
+
+function Test_FunctionResults_Single: Single;
+begin
+  Result := 1.5;
+end;
+
+function Test_FunctionResults_Double: Double;
+begin
+  Result := 1.5;
+end;
+
+function Test_FunctionResults_String: String;
+begin
+  Result := 'hello';
+end;
+
+function Test_FunctionResults_AnsiString: AnsiString;
+begin
+  Result := 'a';
+end;
+
+function Test_FunctionResults_Boolean: Boolean;
+begin
+  Result := True;
+end;
+
+function Test_FunctionResults_Variant: Variant;
+begin
+  Result := 'v';
+end;
+
+function Test_FunctionResults_Rec: TRec;
+begin
+  Result.A := 1;
+  Result.B := 's';
+  Result.C := 1.0;
+end;
+
+function Test_FunctionResults_Arr: TIntArr;
+begin
+  SetLength(Result, 3);
+  Result[0] := 1;
+  Result[1] := 2;
+  Result[2] := 3;
+end;
+
+procedure Test_FunctionResults;
+var
+  Arr: TIntArr;
+  Rec: TRec;
+begin
+  CheckEqualsInt64(42, Test_FunctionResults_Int);
+  CheckEqualsInt64(12345678901, Test_FunctionResults_Int64);
+  CheckEqualsFloat(1.5, Test_FunctionResults_Single, 0.0);
+  CheckEqualsFloat(1.5, Test_FunctionResults_Double, 0.0);
+  CheckEqualsString('hello', Test_FunctionResults_String);
+  CheckEqualsString('a', Test_FunctionResults_AnsiString);
+  CheckTrue(Test_FunctionResults_Boolean);
+  CheckEqualsString('v', Test_FunctionResults_Variant);
+
+  Rec := Test_FunctionResults_Rec;
+  CheckEqualsInt64(1, Rec.A);
+  CheckEqualsString('s', Rec.B);
+  CheckEqualsFloat(1.0, Rec.C, 0.0);
+
+  { Record field directly from function result }
+  if Test_FunctionResults_Rec.A = 1 then
+    CheckTrue(True)
+  else
+    RaiseException('FRec.A field comparison broken');
+  CheckEqualsString('s', Test_FunctionResults_Rec.B);
+
+  Arr := Test_FunctionResults_Arr;
+  CheckEqualsInt64(3, Length(Arr));
+  CheckEqualsInt64(1, Arr[0]);
+  CheckEqualsInt64(2, Arr[1]);
+  CheckEqualsInt64(3, Arr[2]);
+end;
+
+function Test_Recursion_Fact(N: Integer): Int64;
+begin
+  if N <= 1 then
+    Result := 1
+  else
+    Result := N * Test_Recursion_Fact(N - 1);
+end;
+
+procedure Test_Recursion;
+begin
+  CheckEqualsInt64(1, Test_Recursion_Fact(0));
+  CheckEqualsInt64(1, Test_Recursion_Fact(1));
+  CheckEqualsInt64(120, Test_Recursion_Fact(5));
+end;
+
+procedure Test_RegisteredProcs;
+begin
+  { String -> String }
+  CheckEqualsString('abc', Trim('  abc  '));
+
+  { String -> Integer }
+  CheckEqualsInt64(3, Length('abc'));
+  CheckEqualsInt64(42, StrToInt('42'));
+
+  { Integer -> String }
+  CheckEqualsString('42', IntToStr(42));
+
+  { String, String -> Integer }
+  CheckEqualsInt64(0, CompareText('abc', 'ABC'));
+
+  { Char, Integer -> String }
+  CheckEqualsString('AAA', StringOfChar('A', 3));
+
+  { String, array of const -> String }
+  CheckEqualsString('x=1 y=hi', Format('x=%d y=%s', [1, 'hi']));
+end;
+
+procedure Test_RegisteredMethods;
+var
+  List: TStringList;
+begin
+  List := TStringList.Create;
+  try
+    { Method with String param returning Integer (Add) }
+    List.Add('cherry');
+    List.Add('apple');
+    List.Add('banana');
+
+    { Read-only Integer property (Count) }
+    CheckEqualsInt64(3, List.Count);
+
+    { Indexed String property (Strings[]) }
+    CheckEqualsString('cherry', List[0]);
+
+    { Boolean property write then read (Sorted) }
+    List.Sorted := True;
+    CheckTrue(List.Sorted);
+    CheckEqualsString('apple', List[0]);
+
+    { Method with String param returning Integer on sorted list (IndexOf) }
+    CheckEqualsInt64(2, List.IndexOf('cherry'));
+
+    { String property write then read (CommaText) }
+    CheckEqualsString('apple,banana,cherry', List.CommaText);
+
+    { Method with Integer param, no return (Delete) }
+    List.Delete(0);
+    CheckEqualsInt64(2, List.Count);
+    CheckEqualsString('banana', List[0]);
+  finally
+    List.Free;
+  end;
+end;
+
+var
+  GlobalForIdentRes: Integer;
+
+function Test_IdentifierResolution_ReadLocal: Integer;
+var
+  GlobalForIdentRes: Integer;
+begin
+  GlobalForIdentRes := 99;
+  Result := GlobalForIdentRes;
+end;
+
+procedure Test_IdentifierResolution;
+begin
+  GlobalForIdentRes := 1;
+  CheckEqualsInt64(99, Test_IdentifierResolution_ReadLocal);
+  { Global was not modified by the local }
+  CheckEqualsInt64(1, GlobalForIdentRes);
+end;
+
+{ External DLL declarations - compile-only witness, not called }
+procedure Test_ExternalDll_Default;   external 'GetLastError@kernel32.dll';
+procedure Test_ExternalDll_Register;  external 'GetLastError@kernel32.dll register';
+procedure Test_ExternalDll_Pascal;    external 'GetLastError@kernel32.dll pascal';
+procedure Test_ExternalDll_Cdecl;     external 'GetLastError@kernel32.dll cdecl';
+procedure Test_ExternalDll_Stdcall;   external 'GetLastError@kernel32.dll stdcall';
+procedure Test_ExternalDll_Delay;     external 'GetLastError@kernel32.dll stdcall delayload';
+procedure Test_ExternalDll_AltSearch; external 'GetLastError@kernel32.dll stdcall loadwithalteredsearchpath';
+procedure Test_ExternalDll_BothOpts;  external 'GetLastError@kernel32.dll stdcall delayload loadwithalteredsearchpath';
+procedure Test_ExternalDll_QuotedDll; external 'GetLastError@"kernel32.dll" stdcall';
+
 procedure RunAllTests;
 begin
   Test_Lexical;
@@ -1313,6 +1529,12 @@ begin
   Test_CaseElseMultipleStatements;
   Test_GotoLabel;
   Test_ExitEarlyReturn;
+  Test_ForwardDeclarations;
+  Test_FunctionResults;
+  Test_Recursion;
+  Test_RegisteredProcs;
+  Test_RegisteredMethods;
+  Test_IdentifierResolution;
 end;
 
 function InitializeSetup: Boolean;
