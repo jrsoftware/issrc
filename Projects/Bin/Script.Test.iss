@@ -1144,6 +1144,45 @@ begin
   CheckEqualsInt64(-1, I);
 end;
 
+procedure Test_VariantControlFlow;
+var
+  V: Variant;
+  Sum: Integer;
+begin
+  { if Variant then }
+  V := True;
+  if V then
+    Sum := 1
+  else
+    Sum := 0;
+  CheckEqualsInt64(1, Sum);
+
+  { while Variant do }
+  V := Integer(3);
+  Sum := 0;
+  while V > 0 do begin
+    Sum := Sum + V;
+    V := V - 1;
+  end;
+  CheckEqualsInt64(6, Sum);
+
+  { repeat until Variant }
+  V := Integer(0);
+  Sum := 0;
+  repeat
+    Sum := Sum + 1;
+    V := Sum >= 3;
+  until V;
+  CheckEqualsInt64(3, Sum);
+
+  { for Variant }
+  Sum := 0;
+  for V := 1 to 5 do
+    Sum := Sum + V;
+  CheckEqualsInt64(6, V);
+  CheckEqualsInt64(15, Sum);
+end;
+
 procedure Test_CaseStatement_CaseTest(X: Integer; var S: String);
 begin
   case X of
@@ -1269,6 +1308,7 @@ begin
   Test_WhileLoop;
   Test_RepeatUntil;
   Test_ForLoop;
+  Test_VariantControlFlow;
   Test_CaseStatement;
   Test_CaseElseMultipleStatements;
   Test_GotoLabel;
