@@ -604,20 +604,13 @@ function PathExtensionPos(const Filename: String): Integer;
   or 0 if there is no '.' in the filename portion.
   Note: Filename is assumed to NOT include an NTFS alternate data stream name
   (i.e. 'filename:stream'). }
-var
-  Len, I: Integer;
 begin
+  const NamePartStartIndex = PathPathPartLength(Filename, True) + 1;
+  for var I := Length(Filename) downto NamePartStartIndex do
+    if Filename[I] = '.' then
+      Exit(I);
+
   Result := 0;
-  Len := Length(Filename);
-  I := PathPathPartLength(Filename, True) + 1;
-  while I <= Len do begin
-    if Filename[I] = '.' then begin
-      Result := I;
-      Inc(I);
-    end
-    else
-      Inc(I, PathCharLength(Filename, I));
-  end;
 end;
 
 function PathExtractDir(const Filename: String): String;
