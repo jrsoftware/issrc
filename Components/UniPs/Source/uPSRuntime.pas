@@ -8959,6 +8959,7 @@ begin
                 bts64: dec(tbts64(vd.P^));
                 btU64: dec(tbtu64(vd.P^));
 {$ENDIF}
+                btVariant: dec(Variant(vd.P^));
               else
                 begin
                   CMD_Err(ErTypeMismatch);
@@ -8991,6 +8992,7 @@ begin
                 bts64: Inc(tbts64(vd.P^));
                 btU64: Inc(tbtu64(vd.P^));
 {$ENDIF}
+                btVariant: Inc(Variant(vd.P^));
               else
                 begin
                   CMD_Err(ErTypeMismatch);
