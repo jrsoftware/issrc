@@ -2112,6 +2112,8 @@ begin
   RegisterDelphiFunction(@TestInnerfuse_MixedFloats, 'TestInnerfuse_MixedFloats');
   RegisterDelphiFunction(@TestInnerfuse_SixParams, 'TestInnerfuse_SixParams');
   RegisterDelphiFunction(@TestInnerfuse_SixParamsStdCall, 'TestInnerfuse_SixParamsStdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_EchoIntegerSafeCall, 'TestInnerfuse_EchoIntegerSafeCall', cdSafeCall);
+  RegisterDelphiFunction(@TestInnerfuse_RaiseExceptionSafeCall, 'TestInnerfuse_RaiseExceptionSafeCall', cdSafeCall);
   RegisterDelphiFunction(@TestInnerfuse_RaiseException, 'TestInnerfuse_RaiseException');
   {$IFDEF DEBUG}
   if Count <> Length(TestInnerfuseScriptFuncTable) then

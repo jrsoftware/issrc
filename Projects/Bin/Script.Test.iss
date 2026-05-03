@@ -51,13 +51,6 @@ begin
     RaiseException(Format('CheckEqualsFloat test failed: expected %g, got %g', [Expected, Actual]));
 end;
 
-{ Call inside an except block; raises if ExceptionType doesn't match. }
-procedure CheckRaisedCode(const ExpectedCode: TIFException);
-begin
-  if ExceptionType <> ExpectedCode then
-    RaiseException(Format('CheckRaisedCode test failed: expected exception %d, got %d [%s]', [Ord(ExpectedCode), Ord(ExceptionType), ExceptionToString(ExceptionType, ExceptionParam)]));
-end;
-
 { Test 'export' keyword parses }
 procedure Test_Lexical_Export; export;
 begin
@@ -1674,6 +1667,33 @@ begin
   CheckEqualsString('hello', LargeRec.B);
 end;
 
+procedure Test_InnerfuseCallSafeCall;
+begin
+  { A single echo function is enough to verify the safecall code path in
+    x86.inc/x64.inc (HRESULT return with the actual result passed as a
+    hidden last parameter) }
+  CheckEqualsInt64(42, TestInnerfuse_EchoIntegerSafeCall(42));
+end;
+
+procedure Test_InnerfuseCallSafeCallException;
+var
+  Caught: Boolean;
+begin
+  { Unlike Test_InnerfuseCallException (below) where a Delphi exception unwinds
+    through InnerfuseCall asm stubs, safecall has no actual exception at the low
+    level: the Delphi compiler catches the exception inside the callee and
+    returns a failed HRESULT, then InnerfuseCall checks the HRESULT and raises
+    a new script exception from the OLE error info }
+  Caught := False;
+  try
+    TestInnerfuse_RaiseExceptionSafeCall;
+  except
+    Caught := True;
+    CheckTrue(GetExceptionMessage <> '');
+  end;
+  CheckTrue(Caught);
+end;
+
 procedure Test_InnerfuseCallException;
 var
   Caught: Boolean;
@@ -1689,6 +1709,55 @@ begin
   except
     Caught := True;
     CheckEqualsString('InnerfuseCall test exception', GetExceptionMessage);
+  end;
+  CheckTrue(Caught);
+end;
+
+procedure Test_ProcCallException_RaiseException;
+begin
+  RaiseException('Proc test exception');
+end;
+
+procedure Test_ProcCallException;
+var
+  Caught: Boolean;
+begin
+  Caught := False;
+  try
+    Test_ProcCallException_RaiseException;
+  except
+    Caught := True;
+    CheckEqualsString('Proc test exception', GetExceptionMessage);
+  end;
+  CheckTrue(Caught);
+end;
+
+procedure Test_NilProcVarCallException;
+var
+  Caught: Boolean;
+  VoidProcedure: TVoidProcedure;
+begin
+  VoidProcedure := nil;
+  Caught := False;
+  try
+    VoidProcedure(); { parentheses required }
+  except
+    Caught := True;
+    CheckTrue(GetExceptionMessage <> '');
+  end;
+  CheckTrue(Caught);
+end;
+
+procedure Test_ScriptFuncCallException;
+var
+  Caught: Boolean;
+begin
+  Caught := False;
+  try
+    StrToFloat('zzz'); { StrToInt doesn't raise }
+  except
+    Caught := True;
+    CheckTrue(GetExceptionMessage <> '');
   end;
   CheckTrue(Caught);
 end;
@@ -1749,7 +1818,12 @@ begin
   Test_ProcVarScript;
   Test_InnerfuseCallParamTypes;
   Test_InnerfuseCallParamTypesStdCall;
+  Test_InnerfuseCallSafeCall;
+  Test_InnerfuseCallSafeCallException;
   Test_InnerfuseCallException;
+  Test_ProcCallException;
+  Test_NilProcVarCallException;
+  Test_ScriptFuncCallException;
 end;
 
 function InitializeSetup: Boolean;

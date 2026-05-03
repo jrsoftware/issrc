@@ -129,6 +129,8 @@ function TestInnerfuse_EchoLargeRecStdCall(const Value: TTestInnerfuseLargeRec):
 function TestInnerfuse_MixedFloats(A: Single; B: Double; C: Single): Double;
 function TestInnerfuse_SixParams(A, B, C, D, E, F: Integer): Int64;
 function TestInnerfuse_SixParamsStdCall(A, B, C, D, E, F: Integer): Int64; stdcall;
+function TestInnerfuse_EchoIntegerSafeCall(Value: Integer): Integer; safecall;
+procedure TestInnerfuse_RaiseExceptionSafeCall; safecall;
 procedure TestInnerfuse_RaiseException;
 
 implementation
@@ -921,6 +923,16 @@ end;
 function TestInnerfuse_SixParamsStdCall(A, B, C, D, E, F: Integer): Int64; stdcall;
 begin
   Result := Int64(A) + B + C + D + E + F;
+end;
+
+function TestInnerfuse_EchoIntegerSafeCall(Value: Integer): Integer; safecall;
+begin
+  Result := Value;
+end;
+
+procedure TestInnerfuse_RaiseExceptionSafeCall; safecall;
+begin
+  raise Exception.Create('SafeCall test exception');
 end;
 
 procedure TestInnerfuse_RaiseException;

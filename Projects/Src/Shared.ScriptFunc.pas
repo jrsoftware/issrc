@@ -53,6 +53,8 @@ var
     'function TestInnerfuse_MixedFloats(A: Single; B: Double; C: Single): Double;',
     'function TestInnerfuse_SixParams(A, B, C, D, E, F: Integer): Int64;',
     'function TestInnerfuse_SixParamsStdCall(A, B, C, D, E, F: Integer): Int64;',
+    'function TestInnerfuse_EchoIntegerSafeCall(Value: Integer): Integer;',
+    'procedure TestInnerfuse_RaiseExceptionSafeCall;',
     'procedure TestInnerfuse_RaiseException;'
   ];
 
