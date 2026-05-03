@@ -55,7 +55,10 @@ var
     'function TestInnerfuse_SixParamsStdCall(A, B, C, D, E, F: Integer): Int64;',
     'function TestInnerfuse_EchoIntegerSafeCall(Value: Integer): Integer;',
     'procedure TestInnerfuse_RaiseExceptionSafeCall;',
-    'procedure TestInnerfuse_RaiseException;'
+    'procedure TestInnerfuse_RaiseException;',
+    'procedure TestCreateCallback_Invoke0(Callback: NativeInt);',
+    'procedure TestCreateCallback_Invoke5(Callback: NativeInt; A, B, C, D, E: Integer);',
+    'procedure TestCreateCallback_InvokeFloat4(Callback: NativeInt; A, B, C: Integer; D: Double);'
   ];
 
 {$IFDEF ISIDEPROJ}

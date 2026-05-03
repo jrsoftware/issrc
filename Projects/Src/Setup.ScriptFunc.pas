@@ -2115,6 +2115,9 @@ begin
   RegisterDelphiFunction(@TestInnerfuse_EchoIntegerSafeCall, 'TestInnerfuse_EchoIntegerSafeCall', cdSafeCall);
   RegisterDelphiFunction(@TestInnerfuse_RaiseExceptionSafeCall, 'TestInnerfuse_RaiseExceptionSafeCall', cdSafeCall);
   RegisterDelphiFunction(@TestInnerfuse_RaiseException, 'TestInnerfuse_RaiseException');
+  RegisterDelphiFunction(@TestCreateCallback_Invoke0, 'TestCreateCallback_Invoke0');
+  RegisterDelphiFunction(@TestCreateCallback_Invoke5, 'TestCreateCallback_Invoke5');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeFloat4, 'TestCreateCallback_InvokeFloat4');
   {$IFDEF DEBUG}
   if Count <> Length(TestInnerfuseScriptFuncTable) then
     raise Exception.Create('Count <> Length(TestInnerfuseScriptFuncTable)');

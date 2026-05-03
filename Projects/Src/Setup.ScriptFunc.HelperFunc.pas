@@ -132,6 +132,9 @@ function TestInnerfuse_SixParamsStdCall(A, B, C, D, E, F: Integer): Int64; stdca
 function TestInnerfuse_EchoIntegerSafeCall(Value: Integer): Integer; safecall;
 procedure TestInnerfuse_RaiseExceptionSafeCall; safecall;
 procedure TestInnerfuse_RaiseException;
+procedure TestCreateCallback_Invoke0(Callback: NativeInt);
+procedure TestCreateCallback_Invoke5(Callback: NativeInt; A, B, C, D, E: Integer);
+procedure TestCreateCallback_InvokeFloat4(Callback: NativeInt; A, B, C: Integer; D: Double);
 
 implementation
 
@@ -938,6 +941,26 @@ end;
 procedure TestInnerfuse_RaiseException;
 begin
   raise Exception.Create('InnerfuseCall test exception');
+end;
+
+type
+  TStdCallProc0 = procedure; stdcall;
+  TStdCallProc5 = procedure(A, B, C, D, E: Integer); stdcall;
+  TStdCallProcFloat4 = procedure(A, B, C: Integer; D: Double); stdcall;
+
+procedure TestCreateCallback_Invoke0(Callback: NativeInt);
+begin
+  TStdCallProc0(Callback)();
+end;
+
+procedure TestCreateCallback_Invoke5(Callback: NativeInt; A, B, C, D, E: Integer);
+begin
+  TStdCallProc5(Callback)(A, B, C, D, E);
+end;
+
+procedure TestCreateCallback_InvokeFloat4(Callback: NativeInt; A, B, C: Integer; D: Double);
+begin
+  TStdCallProcFloat4(Callback)(A, B, C, D);
 end;
 
 end.

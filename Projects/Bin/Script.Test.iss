@@ -1762,6 +1762,59 @@ begin
   CheckTrue(Caught);
 end;
 
+var
+  Test_CreateCallback_Result: String;
+  Test_CreateCallback_FloatResult: Double;
+
+procedure Test_CreateCallback_CBNoParams;
+begin
+  Test_CreateCallback_Result := 'called';
+end;
+
+procedure Test_CreateCallback_CBFiveParams(A, B, C, D, E: Integer);
+begin
+  Test_CreateCallback_Result := IntToStr(A) + ',' + IntToStr(B) + ',' + IntToStr(C) + ',' + IntToStr(D) + ',' + IntToStr(E);
+end;
+
+procedure Test_CreateCallback_CBFloat4(A, B, C: Integer; D: Double);
+begin
+  Test_CreateCallback_Result := IntToStr(A) + ',' + IntToStr(B) + ',' + IntToStr(C);
+  Test_CreateCallback_FloatResult := D;
+end;
+
+procedure Test_CreateCallback;
+begin
+  { Tests CreateCallback, which generates platform-specific machine code
+    (TASMInline) to bridge external stdcall callers to ROPS' register-convention
+    MyAllMethodsHandler. Each test exercises different asm code paths:
+    - 0 params: basic stub correctness (x86: pop/push retaddr, load Self;
+      x64: load Self->RCX, call)
+    - 5 params: on x86 tests parameter reversal and register pops;
+      on x64 tests register shifting, param4 spill, and stack-to-stack copy
+    - 4th param a float: on x86 tests parameters which aren't 4 bytes;
+      on x64 tests Param4IsFloatByValue path }
+
+  Test_CreateCallback_Result := '';
+  TestCreateCallback_Invoke0(CreateCallback(@Test_CreateCallback_CBNoParams));
+  CheckEqualsString('called', Test_CreateCallback_Result);
+
+  Test_CreateCallback_Result := '';
+  TestCreateCallback_Invoke5(CreateCallback(@Test_CreateCallback_CBFiveParams), 1, 2, 3, 4, 5);
+  CheckEqualsString('1,2,3,4,5', Test_CreateCallback_Result);
+
+  { Bug: CreateCallback's x86 code treats every parameter as a single 4-byte
+    stack slot. Parameters larger than 4 bytes (Int64, UInt64, Double, Extended,
+    Currency) corrupt the stack layout. On x64 all parameters are 8 bytes so
+    this is not an issue. }
+#if arch == "x64"
+  Test_CreateCallback_Result := '';
+  Test_CreateCallback_FloatResult := 0.0;
+  TestCreateCallback_InvokeFloat4(CreateCallback(@Test_CreateCallback_CBFloat4), 10, 20, 30, 4.5);
+  CheckEqualsString('10,20,30', Test_CreateCallback_Result);
+  CheckEqualsFloat(4.5, Test_CreateCallback_FloatResult, 0.0);
+#endif
+end;
+
 { External DLL declarations - compile-only witness, not called }
 procedure Test_ExternalDll_Default;   external 'GetLastError@kernel32.dll';
 procedure Test_ExternalDll_Register;  external 'GetLastError@kernel32.dll register';
@@ -1824,6 +1877,7 @@ begin
   Test_ProcCallException;
   Test_NilProcVarCallException;
   Test_ScriptFuncCallException;
+  Test_CreateCallback;
 end;
 
 function InitializeSetup: Boolean;
