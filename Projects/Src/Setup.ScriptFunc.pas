@@ -2088,6 +2088,22 @@ begin
   if Count <> Length(DelphiScriptFuncTable) then
     raise Exception.Create('Count <> Length(DelphiScriptFuncTable)');
   {$ENDIF}
+
+  { The following should register all functions in TestInnerfuseScriptFuncTable }
+  {$IFDEF DEBUG}
+  Count := 0;
+  {$ENDIF}
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSingle, 'TestInnerfuse_ReturnSingle');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnDouble, 'TestInnerfuse_ReturnDouble');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnExtended, 'TestInnerfuse_ReturnExtended');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnCurrency, 'TestInnerfuse_ReturnCurrency');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnInt64, 'TestInnerfuse_ReturnInt64');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSmallRec, 'TestInnerfuse_ReturnSmallRec');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnLargeRec, 'TestInnerfuse_ReturnLargeRec');
+  {$IFDEF DEBUG}
+  if Count <> Length(TestInnerfuseScriptFuncTable) then
+    raise Exception.Create('Count <> Length(TestInnerfuseScriptFuncTable)');
+  {$ENDIF}
 end;
 
 initialization

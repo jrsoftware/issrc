@@ -162,6 +162,12 @@ begin
   for var ScriptFuncTable in ScriptFuncTables do
     RegisterFunctionTable(ScriptFuncTable);
   RegisterDelphiFunctionTable(DelphiScriptFuncTable);
+
+  { These three are internal, used only by Script.Test.iss }
+  RegisterType('TTestInnerfuseSmallRec', 'record A: Byte; B: Byte; end');
+  RegisterType('TTestInnerfuseLargeRec','record A: Integer; B: String; end');
+  RegisterDelphiFunctionTable(TestInnerfuseScriptFuncTable);
+
   ObsoleteFunctionWarnings.Add('IsAdminLoggedOn', Format(SCompilerCodeFunctionRenamedWithAlternative, ['IsAdminLoggedOn', 'IsAdmin', 'IsAdminInstallMode']));
   ObsoleteFunctionWarnings.Add('IsComponentSelected', Format(SCompilerCodeFunctionRenamed, ['IsComponentSelected', 'WizardIsComponentSelected']));
   ObsoleteFunctionWarnings.Add('IsTaskSelected', Format(SCompilerCodeFunctionRenamed, ['IsTaskSelected', 'WizardIsTaskSelected']));

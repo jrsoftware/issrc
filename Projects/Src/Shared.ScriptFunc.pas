@@ -32,6 +32,18 @@ var
     'procedure GetWindowsVersionEx(var Version: TWindowsVersion);'
   ];
 
+  { Internal, used only by Script.Test.iss }
+  TestInnerfuseScriptFuncTable: TScriptTable =
+  [
+    'function TestInnerfuse_ReturnSingle: Single;',
+    'function TestInnerfuse_ReturnDouble: Double;',
+    'function TestInnerfuse_ReturnExtended: Extended;',
+    'function TestInnerfuse_ReturnCurrency: Currency;',
+    'function TestInnerfuse_ReturnInt64: Int64;',
+    'function TestInnerfuse_ReturnSmallRec: TTestInnerfuseSmallRec;',
+    'function TestInnerfuse_ReturnLargeRec: TTestInnerfuseLargeRec;'
+  ];
+
 {$IFDEF ISIDEPROJ}
 
   { These are just for ISIDE and should not be used by ISCmplr or Setup because

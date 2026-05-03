@@ -53,6 +53,18 @@ type
     SuiteMask: Word;
   end;
 
+  { Must keep this in synch with Compiler.ScriptFunc.pas - Internal, used only by Script.Test.iss }
+  TTestInnerfuseSmallRec = packed record
+    A: Byte;
+    B: Byte;
+  end;
+
+  { Must keep this in synch with Compiler.ScriptFunc.pas - Internal, used only by Script.Test.iss }
+  TTestInnerfuseLargeRec = packed record
+    A: Integer;
+    B: String;
+  end;
+
 var
   OrigScaleBaseUnitX, OrigScaleBaseUnitY: Integer;
   ScaleBaseUnitX, ScaleBaseUnitY: Integer;
@@ -97,6 +109,15 @@ function SaveStringsToFile(const FileName: String; const Stack: TPSStack;
   const ItemNo: Longint; Append, UTF8, UTF8WithoutBOM: Boolean): Boolean;
 function GetShortName(const LongName: String): String;
 function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): NativeInt;
+
+{ Internal, used only by Script.Test.iss }
+function TestInnerfuse_ReturnSingle: Single;
+function TestInnerfuse_ReturnDouble: Double;
+function TestInnerfuse_ReturnExtended: Extended;
+function TestInnerfuse_ReturnCurrency: Currency;
+function TestInnerfuse_ReturnInt64: Int64;
+function TestInnerfuse_ReturnSmallRec: TTestInnerfuseSmallRec;
+function TestInnerfuse_ReturnLargeRec: TTestInnerfuseLargeRec;
 
 implementation
 
@@ -796,6 +817,43 @@ begin
   finally
     Inliner.Free;
   end;
+end;
+
+function TestInnerfuse_ReturnSingle: Single;
+begin
+  Result := 1.5;
+end;
+
+function TestInnerfuse_ReturnDouble: Double;
+begin
+  Result := 1.5e100;
+end;
+
+function TestInnerfuse_ReturnExtended: Extended;
+begin
+  Result := Pi;
+end;
+
+function TestInnerfuse_ReturnCurrency: Currency;
+begin
+  Result := 1.2345;
+end;
+
+function TestInnerfuse_ReturnInt64: Int64;
+begin
+  Result := 12345678901;
+end;
+
+function TestInnerfuse_ReturnSmallRec: TTestInnerfuseSmallRec;
+begin
+  Result.A := 42;
+  Result.B := 99;
+end;
+
+function TestInnerfuse_ReturnLargeRec: TTestInnerfuseLargeRec;
+begin
+  Result.A := 42;
+  Result.B := 'hello';
 end;
 
 end.

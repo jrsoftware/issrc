@@ -1598,6 +1598,39 @@ begin
   end;
 end;
 
+procedure Test_InnerfuseCallReturnTypes;
+var
+  SmallRec: TTestInnerfuseSmallRec;
+  LargeRec: TTestInnerfuseLargeRec;
+  VNativeInt: NativeInt;
+begin
+  { Exercises every result-type branch in InnerfuseCall (x86.inc/x64.inc).
+    Each registered Delphi function returns a specific type that takes a
+    different code path through the case statement:
+    - Single/Double/Extended: returned in ST(0) on x86, XMM0 on x64
+    - Currency: ST(0) with /10000 on x86, RAX as scaled Int64 on x64
+    - Int64: EAX:EDX pair on x86, single RAX on x64
+    - Small record (2 bytes, fits in a register): register return path
+    - Large record (> register size): hidden var-param path }
+
+  CheckEqualsFloat(1.5, TestInnerfuse_ReturnSingle, 0.0);
+  CheckEqualsFloat(1.5e100, TestInnerfuse_ReturnDouble, 1e90);
+  { Extended is 10-byte on x86, 8-byte (=Double) on x64 }
+  CheckEqualsFloat(Pi, TestInnerfuse_ReturnExtended, 1e-12);
+  CheckEqualsFloat(1.2345, TestInnerfuse_ReturnCurrency, 0.0001);
+  CheckEqualsInt64(12345678901, TestInnerfuse_ReturnInt64);
+
+  CheckEqualsInt64(2, SizeOf(SmallRec));
+  SmallRec := TestInnerfuse_ReturnSmallRec;
+  CheckEqualsInt64(42, SmallRec.A);
+  CheckEqualsInt64(99, SmallRec.B);
+
+  CheckTrue(SizeOf(LargeRec) > SizeOf(VNativeInt));
+  LargeRec := TestInnerfuse_ReturnLargeRec;
+  CheckEqualsInt64(42, LargeRec.A);
+  CheckEqualsString('hello', LargeRec.B);
+end;
+
 { External DLL declarations - compile-only witness, not called }
 procedure Test_ExternalDll_Default;   external 'GetLastError@kernel32.dll';
 procedure Test_ExternalDll_Register;  external 'GetLastError@kernel32.dll register';
@@ -1652,6 +1685,7 @@ begin
   Test_RegisteredMethods;
   Test_IdentifierResolution;
   Test_ProcVarScript;
+  Test_InnerfuseCallReturnTypes;
 end;
 
 function InitializeSetup: Boolean;
