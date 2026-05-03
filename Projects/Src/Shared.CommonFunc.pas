@@ -781,11 +781,8 @@ begin
     [Res, GetLastError]);
 end;
 
-function StringChangeEx(var S: String; const FromStr, ToStr: String;
-  const SupportDBCS: Boolean): Integer;
-{ Changes all occurrences in S of FromStr to ToStr. If SupportDBCS is True
-  (recommended), double-byte character sequences in S are recognized and
-  handled properly. Otherwise, the function behaves in a binary-safe manner.
+function StringChange(var S: String; const FromStr, ToStr: String): Integer;
+{ Changes all occurrences in S of FromStr to ToStr. Is binary-safe.
   Returns the number of times FromStr was matched and changed. }
 var
   FromStrLen, I, EndPos, J: Integer;
@@ -814,17 +811,15 @@ begin
       Inc(I, Length(ToStr));
       goto 1;
     end;
-    if SupportDBCS then
-      Inc(I, PathCharLength(S, I))
-    else
-      Inc(I);
+    Inc(I);
   end;
 end;
 
-function StringChange(var S: String; const FromStr, ToStr: String): Integer;
-{ Same as calling StringChangeEx with SupportDBCS=False }
+function StringChangeEx(var S: String; const FromStr, ToStr: String;
+  const SupportDBCS: Boolean): Integer;
+{ Obsolete; just calls StringChange. The SupportDBCS parameter is ignored. }
 begin
-  Result := StringChangeEx(S, FromStr, ToStr, False);
+  Result := StringChange(S, FromStr, ToStr);
 end;
 
 function AdjustLength(var S: String; const Res: Cardinal): Boolean;
@@ -1257,12 +1252,9 @@ begin
   Result := S;
   I := 1;
   while I <= Length(Result) do begin
-    if Result[I] = '&' then begin
-      System.Delete(Result, I, 1);
-      if I > Length(Result) then
-        Break;
-    end;
-    Inc(I, PathCharLength(Result, I));
+    if Result[I] = '&' then
+      Delete(Result, I, 1);
+    Inc(I);
   end;
 end;
 

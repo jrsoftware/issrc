@@ -511,7 +511,7 @@ begin
         Break;
       I := P;
       while (P <= L) and (DirList[P] <> ';') do
-        Inc(P, PathCharLength(DirList, P));
+        Inc(P);
       Result := PathExpand(PathCombine(Copy(DirList, I, P - I), Name));
       if NewFileExists(Result) then
         Exit;

@@ -279,6 +279,7 @@ var
     UseReg: Boolean;
     tempstr: tbtstring;
     p: Pointer;
+    DataSize: Cardinal;
   begin
     Result := False;
     if FVar = nil then exit;
@@ -348,10 +349,14 @@ var
     end else begin
       UseReg := True;
       case fVar^.aType.BaseType of
-        btSet:
+        btSet, btRecord:
           begin
+            if fVar^.aType.BaseType = btSet then
+              DataSize := TPSTypeRec_Set(fvar.aType).aByteSize
+            else
+              DataSize := fvar^.aType.RealSize;
             tempstr := StringOfChar(AnsiChar(#0),4);
-            case TPSTypeRec_Set(fvar.aType).aByteSize of
+            case DataSize of
               1: Byte((@tempstr[1])^) := byte(fvar.dta^);
               2: word((@tempstr[1])^) := word(fvar.dta^);
               3, 4: cardinal((@tempstr[1])^) := cardinal(fvar.dta^);
@@ -398,8 +403,7 @@ var
             {$ENDIF}
             end;
           end;
-        btVariant
-        , btStaticArray, btRecord:
+        btVariant, btStaticArray:
           begin
             TempStr := StringOfChar(AnsiChar(#0),4);
             Pointer((@TempStr[1])^) := Pointer(fvar.Dta);

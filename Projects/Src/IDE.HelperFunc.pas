@@ -775,15 +775,9 @@ end;
 function DoubleAmp(const S: String): String;
 begin
   Result := S;
-  var I := 1;
-  while I <= Length(Result) do begin
-    if Result[I] = '&' then begin
-      Inc(I);
-      Insert('&', Result, I);
-      Inc(I);
-    end else
-      Inc(I, PathCharLength(Result, I));
-  end;
+  for var I := Length(Result) downto 1 do
+    if Result[I] = '&' then
+      Insert('&', Result, I + 1);
 end;
 
 initialization

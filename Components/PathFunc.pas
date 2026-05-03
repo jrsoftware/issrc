@@ -34,7 +34,6 @@ function AddBackslash(const S: String): String;
 function PathChangeExt(const Filename, Extension: String): String;
 function PathCharIsDriveLetter(const C: Char): Boolean;
 function PathCharIsSlash(const C: Char): Boolean;
-function PathCharLength(const S: String; const Index: Integer): Integer;
 function PathCombine(const Dir, Filename: String): String;
 function PathCompare(const S1, S2: String; const IgnoreCase: Boolean = True): Integer;
 function PathComponentIsReservedName(const Filename: String): Boolean;
@@ -97,12 +96,6 @@ begin
     Result := S + '\'
   else
     Result := S;
-end;
-
-function PathCharLength(const S: String; const Index: Integer): Integer;
-{ Returns the length in characters of the character at Index in S. }
-begin
-  Result := 1;
 end;
 
 function PathCharIsDriveLetter(const C: Char): Boolean;
@@ -426,7 +419,7 @@ begin
         ComponentStartIndex := I;
       end
       else
-        Inc(I, PathCharLength(Filename, I));
+        Inc(I);
     end;
     Result := I - 1;
     Exit;
@@ -604,20 +597,13 @@ function PathExtensionPos(const Filename: String): Integer;
   or 0 if there is no '.' in the filename portion.
   Note: Filename is assumed to NOT include an NTFS alternate data stream name
   (i.e. 'filename:stream'). }
-var
-  Len, I: Integer;
 begin
+  const NamePartStartIndex = PathPathPartLength(Filename, True) + 1;
+  for var I := Length(Filename) downto NamePartStartIndex do
+    if Filename[I] = '.' then
+      Exit(I);
+
   Result := 0;
-  Len := Length(Filename);
-  I := PathPathPartLength(Filename, True) + 1;
-  while I <= Len do begin
-    if Filename[I] = '.' then begin
-      Result := I;
-      Inc(I);
-    end
-    else
-      Inc(I, PathCharLength(Filename, I));
-  end;
 end;
 
 function PathExtractDir(const Filename: String): String;
@@ -776,24 +762,15 @@ end;
 function PathLastDelimiter(const Delimiters, S: string): Integer;
 { Returns the index of the last occurrence in S of one of the characters in
   Delimiters, or 0 if none were found.
-  Note: S is allowed to contain null characters. }
-var
-  P, E: PChar;
+  Both strings are allowed to contain #0 characters; they are treated the same
+  as any other character. (Delphi's LastDelimiter function doesn't allow #0
+  in Delimiters.) }
 begin
+  for var I := Length(S) downto 1 do
+    if PathPos(S[I], Delimiters) <> 0 then
+      Exit(I);
+
   Result := 0;
-  if (S = '') or (Delimiters = '') then
-    Exit;
-  P := Pointer(S);
-  E := P + Length(S);
-  while P < E do begin
-    if P^ <> #0 then begin
-      if StrScan(PChar(Pointer(Delimiters)), P^) <> nil then
-        Result := Integer((P - PChar(Pointer(S))) + 1);
-      P := PathStrNextChar(P);
-    end
-    else
-      Inc(P);
-  end;
 end;
 
 function PathLowercase(const S: String): String;
