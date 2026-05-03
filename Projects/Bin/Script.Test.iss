@@ -1482,6 +1482,135 @@ begin
   CheckEqualsInt64(1, GlobalForIdentRes);
 end;
 
+type
+  TIntegerFunction = function(X: Integer): Integer;
+  TVoidProcedure = procedure;
+  TVarParamProcedure = procedure(var X: Integer);
+  TOutParamProcedure = procedure(out X: Integer);
+  TRecordResultFunction = function: TRec;
+  TSetResultFunction = function: TByteSet;
+  TVarRecParamProcedure = procedure(var R: TRec);
+
+procedure Test_ProcVarTypes;
+var
+  VIntegerFunction: TIntegerFunction;
+  VVoidProcedure: TVoidProcedure;
+  VVarParamProcedure: TVarParamProcedure;
+  VOutParamProcedure: TOutParamProcedure;
+  VRecordResultFunction: TRecordResultFunction;
+  VSetResultFunction: TSetResultFunction;
+begin
+  { Compile-only: verifies all procvar type declarations parse
+    and that variables of each type can be declared }
+end;
+
+function Test_ProcVarScript_Double(X: Integer): Integer;
+begin
+  Result := X * 2;
+end;
+
+procedure Test_ProcVarScript_Increment(var X: Integer);
+begin
+  Inc(X);
+end;
+
+procedure Test_ProcVarScript_SetTo99(out X: Integer);
+begin
+  X := 99;
+end;
+
+var
+  Test_ProcVarScript_VoidCalled: Boolean;
+
+procedure Test_ProcVarScript_SetVoidCalled;
+begin
+  Test_ProcVarScript_VoidCalled := True;
+end;
+
+var
+  Test_ProcVarScript_OnChangeCount: Integer;
+
+function Test_ProcVarScript_ReturnRec: TRec;
+begin
+  Result.A := 1;
+  Result.B := 'test';
+  Result.C := 2.5;
+end;
+
+procedure Test_ProcVarScript_MutateRec(var R: TRec);
+begin
+  R.A := R.A + 10;
+  R.B := R.B + '!';
+end;
+
+procedure Test_ProcVarScript_OnChange(Sender: TObject);
+begin
+  Test_ProcVarScript_OnChangeCount := Test_ProcVarScript_OnChangeCount + 1;
+end;
+
+procedure Test_ProcVarScript;
+var
+  IntegerFunction: TIntegerFunction;
+  VoidProcedure: TVoidProcedure;
+  VarParamProcedure: TVarParamProcedure;
+  OutParamProcedure: TOutParamProcedure;
+  RecordResultFunction: TRecordResultFunction;
+  VarRecParamProcedure: TVarRecParamProcedure;
+  X: Integer;
+  Rec: TRec;
+  List: TStringList;
+begin
+  { Script function assigned to procvar and called }
+  IntegerFunction := @Test_ProcVarScript_Double;
+  CheckEqualsInt64(6, IntegerFunction(3));
+
+  { var parameter passes through procvar }
+  VarParamProcedure := @Test_ProcVarScript_Increment;
+  X := 5;
+  VarParamProcedure(X);
+  CheckEqualsInt64(6, X);
+
+  { out parameter passes through procvar }
+  OutParamProcedure := @Test_ProcVarScript_SetTo99;
+  X := 1;
+  OutParamProcedure(X);
+  CheckEqualsInt64(99, X);
+
+  { Parameterless procedure through procvar }
+  Test_ProcVarScript_VoidCalled := False;
+  VoidProcedure := @Test_ProcVarScript_SetVoidCalled;
+  VoidProcedure(); { parentheses required }
+  CheckTrue(Test_ProcVarScript_VoidCalled);
+
+  { Record with managed String field survives procvar dispatch }
+  RecordResultFunction := @Test_ProcVarScript_ReturnRec;
+  Rec := RecordResultFunction(); { parentheses required }
+  CheckEqualsInt64(1, Rec.A);
+  CheckEqualsString('test', Rec.B);
+  CheckEqualsFloat(2.5, Rec.C, 0.0);
+
+  { var record mutation visible to caller through procvar }
+  VarRecParamProcedure := @Test_ProcVarScript_MutateRec;
+  Rec.A := 1;
+  Rec.B := 'test';
+  Rec.C := 0.0;
+  VarRecParamProcedure(Rec);
+  CheckEqualsInt64(11, Rec.A);
+  CheckEqualsString('test!', Rec.B);
+
+  { TStringList.OnChange event fires when list changes }
+  Test_ProcVarScript_OnChangeCount := 0;
+  List := TStringList.Create;
+  try
+    List.OnChange := @Test_ProcVarScript_OnChange;
+    List.Add('a');
+    List.Add('b');
+    CheckTrue(Test_ProcVarScript_OnChangeCount >= 2);
+  finally
+    List.Free;
+  end;
+end;
+
 { External DLL declarations - compile-only witness, not called }
 procedure Test_ExternalDll_Default;   external 'GetLastError@kernel32.dll';
 procedure Test_ExternalDll_Register;  external 'GetLastError@kernel32.dll register';
@@ -1535,6 +1664,8 @@ begin
   Test_RegisteredProcs;
   Test_RegisteredMethods;
   Test_IdentifierResolution;
+  Test_ProcVarTypes;
+  Test_ProcVarScript;
 end;
 
 function InitializeSetup: Boolean;
