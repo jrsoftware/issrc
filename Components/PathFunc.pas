@@ -762,24 +762,15 @@ end;
 function PathLastDelimiter(const Delimiters, S: string): Integer;
 { Returns the index of the last occurrence in S of one of the characters in
   Delimiters, or 0 if none were found.
-  Note: S is allowed to contain null characters. }
-var
-  P, E: PChar;
+  Both strings are allowed to contain #0 characters; they are treated the same
+  as any other character. (Delphi's LastDelimiter function doesn't allow #0
+  in Delimiters.) }
 begin
+  for var I := Length(S) downto 1 do
+    if PathPos(S[I], Delimiters) <> 0 then
+      Exit(I);
+
   Result := 0;
-  if (S = '') or (Delimiters = '') then
-    Exit;
-  P := Pointer(S);
-  E := P + Length(S);
-  while P < E do begin
-    if P^ <> #0 then begin
-      if StrScan(PChar(Pointer(Delimiters)), P^) <> nil then
-        Result := Integer((P - PChar(Pointer(S))) + 1);
-      P := PathStrNextChar(P);
-    end
-    else
-      Inc(P);
-  end;
 end;
 
 function PathLowercase(const S: String): String;

@@ -654,9 +654,11 @@ begin
   TestPathLastDelimiter('', 'abc\/', 0);
   TestPathLastDelimiter('\/', '', 0);
   TestPathLastDelimiter('', '', 0);
-  { Search continues past #0 in S; #0 in Delimiters ends the delimiter set }
-  TestPathLastDelimiter('\/', 'a'+#0+'\b'+#0+'/c', 6);
-  TestPathLastDelimiter('\'+#0+'/', 'a\b/c', 2);
+  { Search continues past #0 in S, regardless of scan direction }
+  TestPathLastDelimiter('\/', 'a'#0'\b/'#0'c', 5);
+  { #0 in Delimiters is allowed; it doesn't end the delimiter set }
+  TestPathLastDelimiter('x'#0'y', 'a\'#0'/c', 3);
+  TestPathLastDelimiter('\'#0'/', 'a\b/c', 4);
 
   TestPathLowercase('ABC', 'abc');
   TestPathLowercase('abc', 'abc');
