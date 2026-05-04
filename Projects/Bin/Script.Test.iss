@@ -2095,6 +2095,8 @@ procedure Test_TypelessParamFunctions;
 var
   S: String;
   I: Integer;
+  DA: array of Integer;
+  SA: array[0..2] of Integer;
 begin
   { Tests typeless parameter functions: these declare parameters with no type
     and the compiler resolves the type at the call site. Straightforward
@@ -2108,6 +2110,16 @@ begin
   SetLength(S, 6);
   CheckEqualsInt64(6, Length(S));
   CheckEqualsString('hel', Copy(S, 1, 3));
+
+  { GetArrayLength on nil dynamic array }
+  CheckEqualsInt64(0, GetArrayLength(DA));
+
+  { GetArrayLength on dynamic array }
+  SetArrayLength(DA, 5);
+  CheckEqualsInt64(5, GetArrayLength(DA));
+
+  { GetArrayLength on static array }
+  CheckEqualsInt64(3, GetArrayLength(SA));
 
   { Dec (untested counterpart to Inc which is tested in Test_ProcVarScript) }
   I := 5;
@@ -2239,6 +2251,46 @@ begin
   CheckTrue(Assigned(S));
 end;
 
+function Test_PSStackHelper_DoubleValue(Value: Integer): Integer;
+begin
+  Result := Value * 2;
+end;
+
+procedure Test_PSStackHelper;
+var
+  DynArray: TArrayOfString;
+begin
+  { Tests PSStackHelper.GetStringArray, SetArray, and GetProc which marshal
+    array and callback parameters for RegisterScriptFunc-registered functions.
+    Other PSStackHelper methods (GetString, SetInt, etc.) are trivial wrappers
+    already exercised by every other RegisterScriptFunc function. }
+
+  { StringJoin exercises PSStackHelper.GetStringArray (input array of String) }
+  CheckEqualsString('a,b,c', StringJoin(',', ['a', 'b', 'c']));
+  CheckEqualsString('', StringJoin(',', []));
+  CheckEqualsString('solo', StringJoin(',', ['solo']));
+
+  { StringSplit exercises PSStackHelper.GetStringArray (separators) + SetArray (result) }
+  DynArray := StringSplit('a,b,c', [','], stAll);
+  CheckEqualsInt64(3, GetArrayLength(DynArray));
+  CheckEqualsString('a', DynArray[0]);
+  CheckEqualsString('b', DynArray[1]);
+  CheckEqualsString('c', DynArray[2]);
+
+  { Single-element split }
+  DynArray := StringSplit('hello', [','], stAll);
+  CheckEqualsInt64(1, GetArrayLength(DynArray));
+  CheckEqualsString('hello', DynArray[0]);
+
+  { TestPSStackHelper_InvokeCallback exercises PSStackHelper.GetProc }
+  CheckEqualsInt64(10, TestPSStackHelper_InvokeCallback(@Test_PSStackHelper_DoubleValue, 5));
+  CheckEqualsInt64(0, TestPSStackHelper_InvokeCallback(@Test_PSStackHelper_DoubleValue, 0));
+  CheckEqualsInt64(-6, TestPSStackHelper_InvokeCallback(@Test_PSStackHelper_DoubleValue, -3));
+
+  { nil callback returns -1 (tests GetProc nil-detection path) }
+  CheckEqualsInt64(-1, TestPSStackHelper_InvokeCallback(nil, 42));
+end;
+
 { External DLL declarations - compile-only witness, not called }
 procedure Test_ExternalDll_Default;   external 'GetLastError@kernel32.dll';
 procedure Test_ExternalDll_Register;  external 'GetLastError@kernel32.dll register';
@@ -2314,6 +2366,7 @@ begin
   Test_AnyStringFunctions;
   Test_DefProcCustomExceptions;
   Test_CompilerWorkaroundFunctions;
+  Test_PSStackHelper;
 end;
 
 function InitializeSetup: Boolean;

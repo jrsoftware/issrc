@@ -163,10 +163,12 @@ begin
     RegisterFunctionTable(ScriptFuncTable);
   RegisterDelphiFunctionTable(DelphiScriptFuncTable);
 
-  { These three are internal, used only by Script.Test.iss }
+  { These are internal, used only by Script.Test.iss }
   RegisterType('TTestInnerfuseSmallRec', 'record A: Byte; B: Byte; end');
   RegisterType('TTestInnerfuseLargeRec','record A: Integer; B: String; end');
   RegisterDelphiFunctionTable(TestInnerfuseScriptFuncTable);
+  RegisterType('TTestPSStackHelperProc', 'function(Value: Integer): Integer;');
+  ScriptCompiler.AddFunction('function TestPSStackHelper_InvokeCallback(const Callback: TTestPSStackHelperProc; const Value: Integer): Integer;');
 
   ObsoleteFunctionWarnings.Add('IsAdminLoggedOn', Format(SCompilerCodeFunctionRenamedWithAlternative, ['IsAdminLoggedOn', 'IsAdmin', 'IsAdminInstallMode']));
   ObsoleteFunctionWarnings.Add('IsComponentSelected', Format(SCompilerCodeFunctionRenamed, ['IsComponentSelected', 'WizardIsComponentSelected']));

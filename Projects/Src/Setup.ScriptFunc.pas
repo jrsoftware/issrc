@@ -48,6 +48,8 @@ type
 
   TScriptFuncs = TDictionary<AnsiString, TScriptFuncEx>;
 
+  TTestPSStackHelperProc = function(Value: Integer): Integer of object; { Internal, used only by Script.Test.iss }
+
 var
   ScriptFuncs: TScriptFuncs;
 
@@ -2090,7 +2092,8 @@ begin
     raise Exception.Create('Count <> Length(DelphiScriptFuncTable)');
   {$ENDIF}
 
-  { The following should register all functions in TestInnerfuseScriptFuncTable }
+  { The following should register all functions in TestInnerfuseScriptFuncTable
+    Internal, used only by Script.Test.iss }
   {$IFDEF DEBUG}
   Count := 0;
   {$ENDIF}
@@ -2122,6 +2125,16 @@ begin
   if Count <> Length(TestInnerfuseScriptFuncTable) then
     raise Exception.Create('Count <> Length(TestInnerfuseScriptFuncTable)');
   {$ENDIF}
+
+  { Internal, used only by Script.Test.iss }
+  RegisterScriptFunc('TestPSStackHelper_InvokeCallback', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    var Method := Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then
+      Stack.SetInt(PStart, TTestPSStackHelperProc(Method)(Stack.GetInt(PStart-2)))
+    else
+      Stack.SetInt(PStart, -1);
+  end);
 end;
 
 initialization
