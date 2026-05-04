@@ -733,7 +733,11 @@ begin
     var SwapFirst := 2;
     var SwapLast := ParamCount-1;
 
-    //Reverse the order of parameters from param3 onwards in the stack
+    { Reverse the order of parameters from param3 onwards in the stack
+      Limitation: this reversal code treats every parameter as a single
+      4-byte stack slot. So on x86 CreateCallback does not support
+      callback parameters passed by value when their type is larger than 
+      bytes (Int64, UInt64, Double, Extended, Currency). }
     while SwapLast > SwapFirst do begin
       Inliner.Mov(ECX, Inliner.Addr(ESP, SwapFirst * 4)); //load the first item of the pair
       Inliner.Mov(EDX, Inliner.Addr(ESP, SwapLast * 4)); //load the last item of the pair
