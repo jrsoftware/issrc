@@ -773,7 +773,9 @@ end;
 
 procedure Test_Variants;
 var
-  V: Variant;
+  V, V1, V2: Variant;
+  S: String;
+  Caught: Boolean;
 begin
   V := Unassigned;
   CheckEqualsInt64(varEmpty, VarType(V));
@@ -789,6 +791,48 @@ begin
   CheckEqualsInt64(varInt64, VarType(V));
   V := 'hello';
   CheckEqualsInt64(varUString, VarType(V));
+
+  { Variant integer addition }
+  V1 := 5;
+  V2 := 3;
+  CheckEqualsInt64(8, V1 + V2);
+
+  { Variant string concatenation }
+  V1 := 'hello';
+  V2 := ' world';
+  CheckEqualsString('hello world', V1 + V2);
+
+  { String-to-Variant round-trip via variable }
+  S := 'round-trip';
+  V := S;
+  CheckEqualsString('round-trip', V);
+
+  { VarIsNull and VarIsEmpty }
+  V := Null;
+  CheckTrue(VarIsNull(V));
+  V := Unassigned;
+  CheckTrue(VarIsEmpty(V));
+
+  { 'not' on a string variant raises an exception }
+  V := 'abc';
+  Caught := False;
+  try
+    V2 := not V;
+  except
+    Caught := True;
+    CheckTrue(GetExceptionMessage <> '');
+  end;
+  CheckTrue(Caught);
+end;
+
+procedure Test_IDispatchInvoke;
+var
+  Dict: Variant;
+begin
+  Dict := CreateOleObject('Scripting.Dictionary');
+  Dict.Add('key', 'value');
+  CheckEqualsInt64(1, Dict.Count);
+  CheckEqualsString('value', Dict.Item('key'));
 end;
 
 procedure Test_WithScoping;
@@ -1878,6 +1922,7 @@ begin
   Test_ConstantsAndConstantExpressions;
   Test_CheckGlobalsAndLocalsZeroed;
   Test_Variants;
+  Test_IDispatchInvoke;
   Test_WithScoping;
   Test_IntegerArithmeticAndPrecedence;
   Test_Int64Arithmetic;
