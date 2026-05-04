@@ -2492,12 +2492,125 @@ begin
   CheckEqualsInt64(-1, TestPSStackHelper_InvokeCallback(nil, 42));
 end;
 
-{ External DLL declarations - compile-only witness, not called }
+procedure Test_TStringStream;
+var
+  Stream: TStringStream;
+  S: String;
+begin
+  { TStringStream exercises the STRINGSTREAMFIX constructor wrapper in
+    uPSR_classes.pas (TStringStreamCreateString) which works around a Delphi
+    Unicode overload issue, plus the TStream property helpers for Position
+    and Size }
+
+  Stream := TStringStream.Create('hello world');
+  try
+    CheckEqualsInt64(11, Stream.Size);
+    CheckEqualsInt64(0, Stream.Position);
+
+    { Read exercises TStream.Read (RegisterVirtualAbstractMethod path) }
+    S := '           ';
+    Stream.Read(S, 5);
+    CheckEqualsInt64(5, Stream.Position);
+
+    { Seek exercises TStream.Seek }
+    Stream.Seek(0, soFromBeginning);
+    CheckEqualsInt64(0, Stream.Position);
+
+    { Position write exercises TSTREAMPOSITION_W property helper }
+    Stream.Position := 6;
+    CheckEqualsInt64(6, Stream.Position);
+
+    { Size write exercises TSTREAMSIZE_W property helper }
+    Stream.Size := 5;
+    CheckEqualsInt64(5, Stream.Size);
+  finally
+    Stream.Free;
+  end;
+end;
+
+procedure Test_CastStringToInteger;
+var
+  S: String;
+  N: NativeInt;
+begin
+  { CastStringToInteger / CastIntegerToString are special glue functions
+    that round-trip a String variable's internal PChar pointer through NativeInt }
+
+  S := 'test string';
+  N := CastStringToInteger(S);
+  CheckTrue(N <> 0);
+  CheckEqualsString('test string', CastIntegerToString(N));
+end;
+
+procedure Test_FindFirstNextClose;
+var
+  FindRec: TFindRec;
+  Found: Boolean;
+  Count: Integer;
+begin
+  { FindFirst / FindNext / FindClose are registered via RegisterDelphiFunction
+    and exercise InnerfuseCall with the script-defined TFindRec record passed as
+    a var parameter. TFindRec contains String fields, nested TFileTime records,
+    and a THandle field, making it a complex marshalling case. }
+
+  Found := FindFirst(ExpandConstant('{sys}\*'), FindRec);
+  CheckTrue(Found);
+  CheckTrue(Length(FindRec.Name) > 0);
+  CheckTrue(FindRec.Attributes <> 0);
+
+  Count := 1;
+  while FindNext(FindRec) do
+    Count := Count + 1;
+  CheckTrue(Count > 1);
+
+  FindClose(FindRec);
+end;
+
+procedure Test_TPersistentAssign;
+var
+  Source, Dest: TStringList;
+begin
+  { TPersistent.Assign is registered via RegisterVirtualMethod in uPSR_std.pas,
+    testing virtual method dispatch through the ROPS class hierarchy }
+
+  Source := TStringList.Create;
+  try
+    Dest := TStringList.Create;
+    try
+      Source.Add('alpha');
+      Source.Add('beta');
+
+      Dest.Assign(Source);
+      CheckEqualsInt64(2, Dest.Count);
+      CheckEqualsString('alpha', Dest[0]);
+      CheckEqualsString('beta', Dest[1]);
+
+      { Verify it is a copy, not a reference }
+      Source.Delete(0);
+      CheckEqualsInt64(2, Dest.Count);
+    finally
+      Dest.Free;
+    end;
+  finally
+    Source.Free;
+  end;
+end;
+
+function Test_ExternalDll_GetCurrentProcessId: Cardinal; external 'GetCurrentProcessId@kernel32.dll stdcall';
+procedure Test_ExternalDll_SetLastError(ErrorCode: Cardinal); external 'SetLastError@kernel32.dll stdcall';
+
+procedure Test_ExternalDll;
+begin
+  CheckTrue(Test_ExternalDll_GetCurrentProcessId <> 0);
+  Test_ExternalDll_SetLastError(12345);
+  CheckEqualsInt64(12345, DllGetLastError);
+end;
+
+{ Other external DLL decorators - compile-only witness, not called }
 procedure Test_ExternalDll_Default;   external 'GetLastError@kernel32.dll';
 procedure Test_ExternalDll_Register;  external 'GetLastError@kernel32.dll register';
 procedure Test_ExternalDll_Pascal;    external 'GetLastError@kernel32.dll pascal';
 procedure Test_ExternalDll_Cdecl;     external 'GetLastError@kernel32.dll cdecl';
-procedure Test_ExternalDll_Stdcall;   external 'GetLastError@kernel32.dll stdcall';
 procedure Test_ExternalDll_Delay;     external 'GetLastError@kernel32.dll stdcall delayload';
 procedure Test_ExternalDll_AltSearch; external 'GetLastError@kernel32.dll stdcall loadwithalteredsearchpath';
 procedure Test_ExternalDll_BothOpts;  external 'GetLastError@kernel32.dll stdcall delayload loadwithalteredsearchpath';
@@ -2576,6 +2689,11 @@ begin
   Test_DefProcCustomExceptions;
   Test_CompilerWorkaroundFunctions;
   Test_PSStackHelper;
+  Test_TStringStream;
+  Test_CastStringToInteger;
+  Test_FindFirstNextClose;
+  Test_TPersistentAssign;
+  Test_ExternalDll;
 end;
 
 function InitializeSetup: Boolean;
