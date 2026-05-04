@@ -8473,11 +8473,14 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
                 result := nil;
                 exit;
               end;
-              if (GetTypeNo(BlockInfo, NewVar) = nil) or 
+              if (GetTypeNo(BlockInfo, NewVar) = nil) or
                 ((GetTypeNo(BlockInfo, NewVar).BaseType <> btClass) and
                 (GetTypeNo(BlockInfo, NewVar).BaseType <> btInterface) and
                 (GetTypeNo(BlockInfo, NewVar).BaseType <> btPChar) and
-                (GetTypeNo(BlockInfo, NewVar).BaseType <> btString)) then
+                (GetTypeNo(BlockInfo, NewVar).BaseType <> btString)
+{$IFNDEF PS_NOWIDESTRING} and
+                (GetTypeNo(BlockInfo, NewVar).BaseType <> btUnicodeString) and
+                (GetTypeNo(BlockInfo, NewVar).BaseType <> btWideString) {$ENDIF}) then
               begin
                 NewVar.Free;
                 Result := nil;
