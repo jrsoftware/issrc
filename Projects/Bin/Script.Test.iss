@@ -2091,6 +2091,154 @@ begin
 #endif
 end;
 
+procedure Test_TypelessParamFunctions;
+var
+  S: String;
+  I: Integer;
+begin
+  { Tests typeless parameter functions: these declare parameters with no type
+    and the compiler resolves the type at the call site. Straightforward
+    functions like IntToStr, StrToInt, Sin, etc. are just typed params
+    dispatched normally and are not interesting to test here. }
+
+  { SetLength on strings (arrays already tested in Test_RecordsAndArrays) }
+  S := 'hello';
+  SetLength(S, 3);
+  CheckEqualsString('hel', S);
+  SetLength(S, 6);
+  CheckEqualsInt64(6, Length(S));
+  CheckEqualsString('hel', Copy(S, 1, 3));
+
+  { Dec (untested counterpart to Inc which is tested in Test_ProcVarScript) }
+  I := 5;
+  Dec(I);
+  CheckEqualsInt64(4, I);
+end;
+
+procedure Test_AnyStringFunctions;
+var
+  S: String;
+  VAnsiString: AnsiString;
+  VWideString: WideString;
+begin
+  { Tests AnyString parameter functions: these accept any string type via a
+    special AnyString type in their prototype. The interesting test is passing
+    different string types to verify the polymorphism works. }
+
+  { Copy on String }
+  CheckEqualsString('ell', Copy('hello', 2, 3));
+
+  { Copy on AnsiString - verifies AnyString polymorphism }
+  VAnsiString := 'hello';
+  CheckEqualsString('ell', Copy(VAnsiString, 2, 3));
+
+  { Delete / Insert (mutating, var AnyString) }
+  S := 'hello';
+  Delete(S, 2, 3);
+  CheckEqualsString('ho', S);
+  S := 'hello';
+  Insert('XX', S, 3);
+  CheckEqualsString('heXXllo', S);
+
+  { WStrGet / WStrSet (AnyString wide variant) }
+  VWideString := 'hello';
+  CheckEqualsString('h', WStrGet(VWideString, 1));
+  WStrSet('Y', 2, VWideString);
+  CheckEqualsString('hYllo', VWideString);
+
+  { UpperCase / LowerCase (AnyString -> AnyString) }
+  CheckEqualsString('ABCD', UpperCase('aBcD'));
+  CheckEqualsString('abcd', LowerCase('aBcD'));
+end;
+
+procedure Test_DefProcCustomExceptions;
+var
+  S: String;
+  VWideString: WideString;
+  Caught: Boolean;
+begin
+  { StrGet, StrSet, WStrGet, and WStrSet are the only DefProc functions that
+    raise catchable script exceptions via CMD_Err2 (out-of-range index).
+    All other DefProc error paths are fatal 'Could not call proc'. }
+
+  { StrGet out-of-range }
+  S := 'hello';
+  Caught := False;
+  try
+    StrGet(S, 99);
+  except
+    Caught := True;
+  end;
+  CheckTrue(Caught);
+
+  { StrSet out-of-range }
+  S := 'hello';
+  Caught := False;
+  try
+    StrSet('Y', 99, S);
+  except
+    Caught := True;
+  end;
+  CheckTrue(Caught);
+
+  { WStrGet out-of-range }
+  VWideString := 'hello';
+  Caught := False;
+  try
+    WStrGet(VWideString, 99);
+  except
+    Caught := True;
+  end;
+  CheckTrue(Caught);
+
+  { WStrSet out-of-range }
+  VWideString := 'hello';
+  Caught := False;
+  try
+    WStrSet('Y', 99, VWideString);
+  except
+    Caught := True;
+  end;
+  CheckTrue(Caught);
+end;
+
+procedure Test_CompilerWorkaroundFunctions;
+var
+  VTSmall: TSmall;
+  List: TStringList;
+  S: String;
+begin
+  { Tests Succ, Pred, and Assigned which are special-cased in the compiler's
+    ProcessSub instead of going through DefProc. }
+
+  { Succ/Pred on integer }
+  CheckEqualsInt64(6, Succ(5));
+  CheckEqualsInt64(4, Pred(5));
+
+  { Succ/Pred on enum (the compiler checks for btEnum explicitly) }
+  VTSmall := eA;
+  VTSmall := Succ(VTSmall);
+  CheckEqualsInt64(1, Ord(VTSmall));
+  VTSmall := Pred(VTSmall);
+  CheckEqualsInt64(0, Ord(VTSmall));
+
+  { Assigned on class }
+  List := TStringList.Create;
+  try
+    CheckTrue(Assigned(List));
+  finally
+    List.Free;
+  end;
+
+  { Assigned on nil class }
+  List := nil;
+  CheckFalse(Assigned(List));
+
+  { Assigned on String }
+  S := 'hello';
+  CheckTrue(Assigned(S));
+end;
+
 { External DLL declarations - compile-only witness, not called }
 procedure Test_ExternalDll_Default;   external 'GetLastError@kernel32.dll';
 procedure Test_ExternalDll_Register;  external 'GetLastError@kernel32.dll register';
@@ -2162,6 +2310,10 @@ begin
   Test_TryFinallyExcept;
   Test_RaiseLastException;
   Test_CreateCallback;
+  Test_TypelessParamFunctions;
+  Test_AnyStringFunctions;
+  Test_DefProcCustomExceptions;
+  Test_CompilerWorkaroundFunctions;
 end;
 
 function InitializeSetup: Boolean;
