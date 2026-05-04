@@ -1451,6 +1451,40 @@ begin
     List.Delete(0);
     CheckEqualsInt64(2, List.Count);
     CheckEqualsString('banana', List[0]);
+
+    { CommaText write populates the list }
+    List.CommaText := 'a,b,c';
+    CheckEqualsInt64(3, List.Count);
+    CheckEqualsString('b', List.Strings[1]);
+  finally
+    List.Free;
+  end;
+end;
+
+procedure Test_IsAsOperators;
+var
+  List: TStringList;
+  Obj: TObject;
+  Stream: TStream;
+  Caught: Boolean;
+begin
+  List := TStringList.Create;
+  try
+    Obj := List;
+    CheckTrue(Obj is TStringList);
+    CheckFalse(Obj is TStream);
+
+    { Valid as cast returns object }
+    CheckTrue((Obj as TStringList) <> nil);
+ 
+    { Invalid as cast raises an exception }
+    Caught := False;
+    try
+      Stream := Obj as TStream; { left-hand-side required}
+    except
+      Caught := True;
+    end;
+    CheckTrue(Caught);
   finally
     List.Free;
   end;
@@ -1865,6 +1899,7 @@ begin
   Test_Recursion;
   Test_RegisteredProcs;
   Test_RegisteredMethods;
+  Test_IsAsOperators;
   Test_IdentifierResolution;
   Test_ProcVarScript;
   Test_InnerfuseCallParamTypes;
