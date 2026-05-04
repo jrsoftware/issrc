@@ -6034,7 +6034,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
     procno: Cardinal;
 
   begin
-    if BVal.Operator >= otGreaterEqual then
+    if (BVal.Operator >= otGreaterEqual) or (BVal.Operator = otAs) then
     begin
       if BVal.FVal1.ClassType = TPSValueNil then
       begin
@@ -6130,22 +6130,44 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
         Result := False;
         exit;
       end;
-      BlockWriteByte(BlockInfo, CM_CO);
-      case BVal.Operator of
-        otGreaterEqual: BlockWriteByte(BlockInfo, 0);
-        otLessEqual: BlockWriteByte(BlockInfo, 1);
-        otGreater: BlockWriteByte(BlockInfo, 2);
-        otLess: BlockWriteByte(BlockInfo, 3);
-        otEqual: BlockWriteByte(BlockInfo, 5);
-        otNotEqual: BlockWriteByte(BlockInfo, 4);
-        otIn: BlockWriteByte(BlockInfo, 6);
-        otIs: BlockWriteByte(BlockInfo, 7);
-      end;
-
-      if not (WriteOutRec(Output, False) and writeOutRec(BVal.FVal1, True) and writeOutRec(BVal.FVal2, True)) then
+      if BVal.Operator = otAs then
       begin
-        Result := False;
-        exit;
+        // Both CM_CO ('is') and CM_CA ('as') call Class_IS at runtime, but
+        // CM_CO writes a Boolean into Output and does not allow further use
+        // of the object. So 'as' uses CM_A to copy the object, then CM_CA
+        // to validate the type (raises on mismatch, leaves the object intact).
+        BlockWriteByte(BlockInfo, CM_A);
+        if not (WriteOutRec(Output, False) and writeOutRec(BVal.FVal1, True)) then
+        begin
+          Result := False;
+          exit;
+        end;
+        BlockWriteByte(BlockInfo, Cm_CA);
+        BlockWriteByte(BlockInfo, 10);
+        if not (WriteOutRec(Output, False) and writeOutRec(BVal.FVal2, True)) then
+        begin
+          Result := False;
+          exit;
+        end;
+      end else
+      begin
+        BlockWriteByte(BlockInfo, CM_CO);
+        case BVal.Operator of
+          otGreaterEqual: BlockWriteByte(BlockInfo, 0);
+          otLessEqual: BlockWriteByte(BlockInfo, 1);
+          otGreater: BlockWriteByte(BlockInfo, 2);
+          otLess: BlockWriteByte(BlockInfo, 3);
+          otEqual: BlockWriteByte(BlockInfo, 5);
+          otNotEqual: BlockWriteByte(BlockInfo, 4);
+          otIn: BlockWriteByte(BlockInfo, 6);
+          otIs: BlockWriteByte(BlockInfo, 7);
+        end;
+
+        if not (WriteOutRec(Output, False) and writeOutRec(BVal.FVal1, True) and writeOutRec(BVal.FVal2, True)) then
+        begin
+          Result := False;
+          exit;
+        end;
       end;
       // Skip AfterWriteOutRec/unwrap when ValuesAllocatedBeforeOutput - see CheckFurther
       // Instead let the owner (TPSBinValueOp) handle cleanup when it's destroyed. This happens when
@@ -8854,7 +8876,6 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
     function ReadTerm: TPSValue;
     var
       F1, F2: TPSValue;
-      fType: TPSType;
       F: TPSBinValueOp;
       Token: TPSPasToken;
       Op: TPSBinOperatorType;
@@ -8888,16 +8909,7 @@ function TPSPascalCompiler.ProcessSub(BlockInfo: TPSBlockInfo): Boolean;
         else
           Op := otAdd;
         end;
-        if (Op = otAs) and (f2 is TPSValueData) and (TPSValueData(f2).Data.FType.BaseType = btType) then begin
-          fType := TPSValueData(f2).Data.ttype;
-          f2.Free;
-          f2 := TPSUnValueOp.Create;
-          TPSUnValueOp(F2).Val1 := f1;
-          TPSUnValueOp(F2).SetParserPos(FParser);
-          TPSUnValueOp(f2).FType := fType;
-          TPSUnValueOp(f2).Operator := otCast;
-          f1 := f2;
-        end else begin
+        begin
           F := TPSBinValueOp.Create;
           f.Val1 := F1;
           f.Val2 := F2;
