@@ -932,7 +932,7 @@ begin
   CheckEqualsInt64(15, (1 + 2) * (3 + 2));
   CheckTrue(not (1 = 2) and (3 > 0));
 
-  { / on int operands behaves like div) }
+  { / on int operands behaves like div }
   CheckEqualsInt64(2, 5 / 2);
 
   { Real promotion }
@@ -1179,6 +1179,25 @@ begin
   for I := 3 downto 0 do
     ;
   CheckEqualsInt64(-1, I);
+
+  { Empty range for..to: start > end, body should not execute }
+  Sum := 0;
+  for I := 5 to 3 do
+    Sum := Sum + 1;
+  CheckEqualsInt64(0, Sum);
+
+  { Empty range for..downto: start < end, body should not execute }
+  Sum := 0;
+  for I := 3 downto 5 do
+    Sum := Sum + 1;
+  CheckEqualsInt64(0, Sum);
+
+  { Single iteration: start = end }
+  Sum := 0;
+  for I := 7 to 7 do
+    Sum := Sum + 1;
+  CheckEqualsInt64(1, Sum);
+  CheckEqualsInt64(8, I);
 end;
 
 procedure Test_VariantControlFlow;
@@ -2226,7 +2245,7 @@ begin
   CheckEqualsString('1,2,3,4,5', Test_CreateCallback_Result);
 
   { Note: on x86 CreateCallback does not support callback parameters
-    passed by value when their type is larger than bytes (Int64, UInt64,
+    passed by value when their type is larger than 4 bytes (Int64, UInt64,
     Double, Extended, Currency) }
 #if arch == "x64"
   Test_CreateCallback_Result := '';
@@ -2280,6 +2299,22 @@ begin
   CheckEqualsInt64(4, I);
 end;
 
+procedure Test_DefProcFloatToInt;
+begin
+  { Round and Trunc are the only DefProc functions returning Integer from
+    Extended input, exercising the GetReal+SetInt path (cases 18/19). }
+
+  { Round (banker's rounding: half rounds to even) }
+  CheckEqualsInt64(2, Round(1.5));
+  CheckEqualsInt64(2, Round(2.5));
+  CheckEqualsInt64(-2, Round(-1.5));
+  CheckEqualsInt64(-2, Round(-2.5));
+
+  { Trunc (truncation toward zero) }
+  CheckEqualsInt64(3, Trunc(3.9));
+  CheckEqualsInt64(-3, Trunc(-3.9));
+end;
+
 procedure Test_AnyStringFunctions;
 var
   S: String;
@@ -2319,6 +2354,7 @@ end;
 procedure Test_DefProcCustomExceptions;
 var
   S: String;
+  C: Char;
   VWideString: WideString;
   Caught: Boolean;
 begin
@@ -2365,6 +2401,18 @@ begin
     Caught := True;
   end;
   CheckTrue(Caught);
+
+  { Read via S[I] syntax - compiler rewrites to WStrGet }
+  S := 'abcde';
+  C := S[1];
+  CheckEqualsString('a', C);
+  C := S[5];
+  CheckEqualsString('e', C);
+
+  { Write via S[I] := C syntax - compiler rewrites to WStrSet }
+  S := 'hello';
+  S[1] := 'H';
+  CheckEqualsString('Hello', S);
 end;
 
 procedure Test_CompilerWorkaroundFunctions;
@@ -2523,6 +2571,7 @@ begin
   Test_RaiseLastException;
   Test_CreateCallback;
   Test_TypelessParamFunctions;
+  Test_DefProcFloatToInt;
   Test_AnyStringFunctions;
   Test_DefProcCustomExceptions;
   Test_CompilerWorkaroundFunctions;
