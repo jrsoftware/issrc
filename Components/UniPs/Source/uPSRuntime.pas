@@ -9347,7 +9347,7 @@ begin
               if (i<1) or (i>length(tbtstring(temp.Dta^))) then
               begin
                 Caller.CMD_Err2(erCustomError, tbtString(RPS_OutOfStringRange));
-                Result := False;
+                Result := True;
                 exit;
               end;
               Stack.SetInt(-1,Ord(tbtstring(temp.Dta^)[i]));
@@ -9358,7 +9358,7 @@ begin
               if (i<1) or (i>length(tbtUnicodeString(temp.Dta^))) then
               begin
                 Caller.CMD_Err2(erCustomError, tbtString(RPS_OutOfStringRange));
-                Result := False;
+                Result := True;
                 exit;
               end;
               Stack.SetInt(-1,Ord(tbtUnicodeString(temp.Dta^)[i]));
@@ -9568,7 +9568,7 @@ begin
               if (i<1) or (i>length(tbtwidestring(temp.Dta^))) then
               begin
                 Caller.CMD_Err2(erCustomError, tbtString(RPS_OutOfStringRange));
-                Result := False;
+                Result := True;
                 exit;
               end;
               Stack.SetInt(-1,Ord(tbtwidestring(temp.Dta^)[i]));
@@ -9579,7 +9579,7 @@ begin
               if (i<1) or (i>length(tbtUnicodeString(temp.Dta^))) then
               begin
                 Caller.CMD_Err2(erCustomError, tbtString(RPS_OutOfStringRange));
-                Result := False;
+                Result := True;
                 exit;
               end;
               Stack.SetInt(-1,Ord(tbtUnicodeString(temp.Dta^)[i]));
