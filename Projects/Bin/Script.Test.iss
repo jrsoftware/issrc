@@ -1567,6 +1567,11 @@ begin
   Result := X * 2;
 end;
 
+function Test_ProcVarScript_Triple(X: Integer): Integer;
+begin
+  Result := X * 3;
+end;
+
 procedure Test_ProcVarScript_Increment(var X: Integer);
 begin
   Inc(X);
@@ -1608,7 +1613,7 @@ end;
 
 procedure Test_ProcVarScript;
 var
-  IntegerFunction: TIntegerFunction;
+  IntegerFunction, IntegerFunction2: TIntegerFunction;
   VarParamProcedure: TVarParamProcedure;
   OutParamProcedure: TOutParamProcedure;
   VoidProcedure: TVoidProcedure;
@@ -1667,6 +1672,13 @@ begin
   finally
     List.Free;
   end;
+
+  { Procvar equality: same target compares equal, different targets unequal }
+  IntegerFunction := @Test_ProcVarScript_Double;
+  IntegerFunction2 := @Test_ProcVarScript_Double;
+  CheckTrue(IntegerFunction = IntegerFunction2);
+  IntegerFunction2 := @Test_ProcVarScript_Triple;
+  CheckTrue(IntegerFunction <> IntegerFunction2);
 end;
 
 procedure Test_InnerfuseCallParamTypes;
@@ -2120,6 +2132,13 @@ begin
 
   { GetArrayLength on static array }
   CheckEqualsInt64(3, GetArrayLength(SA));
+
+  { Replicate / StringOfChar }
+  CheckEqualsString('aaa', Replicate('a', 3));
+  CheckEqualsString('aaa', StringOfChar('a', 3));
+  CheckEqualsString('', Replicate('a', 0));
+  CheckEqualsString(#0#0#0, Replicate(#0, 3));
+  CheckEqualsString(#8364#8364#8364, Replicate(#8364, 3));
 
   { Dec (untested counterpart to Inc which is tested in Test_ProcVarScript) }
   I := 5;
