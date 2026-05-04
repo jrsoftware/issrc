@@ -1840,6 +1840,206 @@ begin
   CheckTrue(Caught);
 end;
 
+procedure Test_DivisionByZeroExceptions;
+var
+  Caught: Boolean;
+  Divisor: Integer;
+  I: Integer;
+  FloatDivisor: Extended;
+  F: Extended;
+begin
+  { Uses variables for the divisors because the compiler rejects literal
+    'div 0' and '/ 0.0' as compile-time divide-by-zero errors }
+
+  { Integer divide by zero }
+  Caught := False;
+  Divisor := 0;
+  try
+    I := 5 div Divisor;
+  except
+    Caught := True;
+  end;
+  CheckTrue(Caught);
+
+  { Float divide by zero }
+  Caught := False;
+  FloatDivisor := 0.0;
+  try
+    F := 5.0 / FloatDivisor;
+  except
+    Caught := True;
+  end;
+  CheckTrue(Caught);
+end;
+
+var
+  Test_TryFinally_ExitFinallyRan: Boolean;
+
+procedure Test_TryFinally_ExitFinallySetFlag;
+begin
+  Test_TryFinally_ExitFinallyRan := True;
+end;
+
+procedure Test_TryFinally_ExitInTry;
+begin
+  Test_TryFinally_ExitFinallyRan := False;
+  try
+    Exit;
+  finally
+    { Calls a function rather than just assigning, to test the case fixed by
+      commit 110fb8b4 where Exit in try/finally broke when finally called functions }
+    Test_TryFinally_ExitFinallySetFlag;
+  end;
+end;
+
+procedure Test_TryFinally;
+var
+  FinallyRan: Boolean;
+  Caught: Boolean;
+  I: Integer;
+begin
+  { finally runs during normal flow }
+  FinallyRan := False;
+  try
+    I := 1;
+  finally
+    FinallyRan := True;
+  end;
+  CheckTrue(FinallyRan);
+  CheckEqualsInt64(1, I);
+
+  { finally runs during exception propagation }
+  FinallyRan := False;
+  Caught := False;
+  try
+    try
+      RaiseException('inner');
+    finally
+      FinallyRan := True;
+    end;
+  except
+    Caught := True;
+  end;
+  CheckTrue(FinallyRan);
+  CheckTrue(Caught);
+
+  { finally runs when Exit is called inside try }
+  Test_TryFinally_ExitInTry;
+  CheckTrue(Test_TryFinally_ExitFinallyRan);
+end;
+
+procedure Test_NestedTryExcept;
+var
+  OuterCaught: Boolean;
+  InnerCaught: Boolean;
+begin
+  { Inner handler catches, outer does not see the exception }
+  OuterCaught := False;
+  InnerCaught := False;
+  try
+    try
+      RaiseException('inner');
+    except
+      InnerCaught := True;
+    end;
+  except
+    OuterCaught := True;
+  end;
+  CheckTrue(InnerCaught);
+  CheckFalse(OuterCaught);
+end;
+
+procedure Test_TryExceptFinally;
+var
+  ExceptRan: Boolean;
+  FinallyRan: Boolean;
+begin
+  { ROPS extension: combined try..except..finally..end in a single block }
+
+  { Exception path: except catches, then finally runs }
+  ExceptRan := False;
+  FinallyRan := False;
+  try
+    RaiseException('test');
+  except
+    ExceptRan := True;
+  finally
+    FinallyRan := True;
+  end;
+  CheckTrue(ExceptRan);
+  CheckTrue(FinallyRan);
+
+  { Normal path: except is skipped, finally runs }
+  ExceptRan := False;
+  FinallyRan := False;
+  try
+    { no exception }
+  except
+    ExceptRan := True;
+  finally
+    FinallyRan := True;
+  end;
+  CheckFalse(ExceptRan);
+  CheckTrue(FinallyRan);
+end;
+
+procedure Test_TryFinallyExcept;
+var
+  ExceptRan: Boolean;
+  FinallyRan: Boolean;
+begin
+  { ROPS extension: combined try..finally..except..end in a single block }
+
+  { Exception path: finally runs, then except catches }
+  ExceptRan := False;
+  FinallyRan := False;
+  try
+    RaiseException('test');
+  finally
+    FinallyRan := True;
+  except
+    ExceptRan := True;
+    CheckTrue(Pos('test', GetExceptionMessage) > 0);
+  end;
+  CheckTrue(FinallyRan);
+  CheckTrue(ExceptRan);
+
+  { Normal path: finally runs, except is skipped }
+  ExceptRan := False;
+  FinallyRan := False;
+  try
+    { no exception }
+  finally
+    FinallyRan := True;
+  except
+    ExceptRan := True;
+  end;
+  CheckTrue(FinallyRan);
+  CheckFalse(ExceptRan);
+end;
+
+procedure Test_RaiseLastException;
+var
+  Caught: Boolean;
+begin
+  { Re-raise from except block preserves original message }
+  Caught := False;
+  try
+    try
+      RaiseException('original');
+    except
+      RaiseLastException;
+    end;
+  except
+    Caught := True;
+    CheckTrue(Pos('original', GetExceptionMessage) > 0);
+  end;
+  CheckTrue(Caught);
+
+  { RaiseLastException outside except is a no-op }
+  RaiseLastException; { doesn't actually raise }
+end;
+
 var
   Test_CreateCallback_Result: String;
   Test_CreateCallback_FloatResult: Double;
@@ -1955,6 +2155,12 @@ begin
   Test_ProcCallException;
   Test_NilProcVarCallException;
   Test_ScriptFuncCallException;
+  Test_DivisionByZeroExceptions;
+  Test_TryFinally;
+  Test_NestedTryExcept;
+  Test_TryExceptFinally;
+  Test_TryFinallyExcept;
+  Test_RaiseLastException;
   Test_CreateCallback;
 end;
 
