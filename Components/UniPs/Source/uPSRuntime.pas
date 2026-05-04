@@ -8100,6 +8100,7 @@ begin
                   7 = AND<br>
                   8 = OR<br>
                   9 = XOR<br>
+                  10 = AS<br>
                 </i><br>
                 VarDest, // no data<br>
                 VarSrc: TPSVariable;<br>
@@ -9140,6 +9141,8 @@ begin
                  3 = &lt;<br>
                  4 = &lt;&gt<br>
                  5 = =<br>
+                 6 = IN<br>
+                 7 = IS<br>
                 <i><br>
                 IntoVar: TPSAssignment;<br>
                 Compare1, Compare2: TPSAssigment;<br>
