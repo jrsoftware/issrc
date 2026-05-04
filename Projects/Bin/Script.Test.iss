@@ -1348,6 +1348,11 @@ begin
   Result := 12345678901;
 end;
 
+function Test_FunctionResults_UInt64: UInt64;
+begin
+  Result := $FFFFFFFFFFFFFFFF;
+end;
+
 function Test_FunctionResults_Single: Single;
 begin
   Result := 1.5;
@@ -1400,6 +1405,7 @@ var
 begin
   CheckEqualsInt64(42, Test_FunctionResults_Int);
   CheckEqualsInt64(12345678901, Test_FunctionResults_Int64);
+  CheckEqualsUInt64($FFFFFFFFFFFFFFFF, Test_FunctionResults_UInt64);
   CheckEqualsFloat(1.5, Test_FunctionResults_Single, 0.0);
   CheckEqualsFloat(1.5, Test_FunctionResults_Double, 0.0);
   CheckEqualsString('hello', Test_FunctionResults_String);
@@ -1892,6 +1898,25 @@ begin
   Test_TryFinally_ExitFinallyRan := True;
 end;
 
+function Test_TryFinally_ExitFinallyValue: Integer;
+begin
+  Result := 7;
+end;
+
+function Test_TryFinally_ExitResultInTry(X: Integer): Integer;
+begin
+  Result := -1;
+  try
+    if X > 0 then begin
+      Result := X;
+      Exit;
+    end;
+    Result := 0;
+  finally
+    Result := Result + Test_TryFinally_ExitFinallyValue;
+  end;
+end;
+
 procedure Test_TryFinally_ExitInTry;
 begin
   Test_TryFinally_ExitFinallyRan := False;
@@ -1938,6 +1963,10 @@ begin
   { finally runs when Exit is called inside try }
   Test_TryFinally_ExitInTry;
   CheckTrue(Test_TryFinally_ExitFinallyRan);
+
+  { finally can call a function and update Result while exiting a function }
+  CheckEqualsInt64(3 + Test_TryFinally_ExitFinallyValue, Test_TryFinally_ExitResultInTry(3));
+  CheckEqualsInt64(0 + Test_TryFinally_ExitFinallyValue, Test_TryFinally_ExitResultInTry(-1));
 end;
 
 procedure Test_NestedTryExcept;
@@ -2050,6 +2079,111 @@ begin
 
   { RaiseLastException outside except is a no-op }
   RaiseLastException; { doesn't actually raise }
+end;
+
+procedure Test_BreakForLoop;
+var
+  I: Integer;
+  Sum: Integer;
+begin
+  Sum := 0;
+  for I := 1 to 100 do begin
+    if I > 5 then Break;
+    Sum := Sum + I;
+  end;
+  CheckEqualsInt64(15, Sum);
+end;
+
+procedure Test_ContinueForLoop;
+var
+  I: Integer;
+  Sum: Integer;
+begin
+  Sum := 0;
+  for I := 1 to 10 do begin
+    if I mod 2 = 0 then Continue;
+    Sum := Sum + I;
+  end;
+  CheckEqualsInt64(25, Sum);
+end;
+
+procedure Test_BreakWhileLoop;
+var
+  I: Integer;
+begin
+  I := 0;
+  while True do begin
+    Inc(I);
+    if I = 3 then Break;
+  end;
+  CheckEqualsInt64(3, I);
+end;
+
+procedure Test_ContinueRepeatUntil;
+var
+  I: Integer;
+  Sum: Integer;
+begin
+  Sum := 0;
+  I := 0;
+  repeat
+    Inc(I);
+    if I = 3 then Continue;
+    Sum := Sum + I;
+  until I >= 5;
+  CheckEqualsInt64(12, Sum);
+end;
+
+procedure Test_BreakNestedLoops;
+var
+  Outer: Integer;
+  Inner: Integer;
+  Count: Integer;
+begin
+  Count := 0;
+  for Outer := 1 to 3 do
+    for Inner := 1 to 100 do begin
+      if Inner > 2 then Break;
+      Inc(Count);
+    end;
+  CheckEqualsInt64(6, Count);
+end;
+
+procedure Test_ContinueNestedLoops;
+var
+  Outer: Integer;
+  Inner: Integer;
+  Count: Integer;
+  Sum: Integer;
+begin
+  Count := 0;
+  Sum := 0;
+  for Outer := 1 to 2 do
+    for Inner := 1 to 4 do begin
+      if Inner mod 2 = 0 then Continue;
+      Inc(Count);
+      Sum := Sum + Inner;
+    end;
+  CheckEqualsInt64(4, Count);
+  CheckEqualsInt64(8, Sum);
+end;
+
+procedure Test_ContinueInsideWith;
+var
+  R: TRec;
+  I: Integer;
+  Sum: Integer;
+begin
+  R.A := 0;
+  Sum := 0;
+  for I := 1 to 5 do begin
+    with R do begin
+      A := I;
+      if I mod 2 = 0 then Continue;
+      Sum := Sum + A;
+    end;
+  end;
+  CheckEqualsInt64(9, Sum);
 end;
 
 var
@@ -2353,6 +2487,13 @@ begin
   Test_WhileLoop;
   Test_RepeatUntil;
   Test_ForLoop;
+  Test_BreakForLoop;
+  Test_ContinueForLoop;
+  Test_BreakWhileLoop;
+  Test_ContinueRepeatUntil;
+  Test_BreakNestedLoops;
+  Test_ContinueNestedLoops;
+  Test_ContinueInsideWith;
   Test_VariantControlFlow;
   Test_CaseStatement;
   Test_CaseElseMultipleStatements;
