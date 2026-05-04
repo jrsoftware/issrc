@@ -9267,6 +9267,7 @@ var
   temp: TPSVariantIFC;
   I: Longint;
   b: Boolean;
+  S: string;
   pex: TPSExceptionHandler;
   Tmp: TObject;
 begin
@@ -9493,7 +9494,14 @@ begin
       Stack.SetWideString(-1, wPadZ(Stack.GetWideString(-2), Stack.GetInt(-3)))// PadZ
     else{$ENDIF}
       Stack.SetAnsiString(-1, PadZ(Stack.GetAnsiString(-2), Stack.GetInt(-3)));// PadZ
-    28: Stack.SetAnsiString(-1, StringOfChar(tbtChar(Stack.GetInt(-2)), Stack.GetInt(-3))); // Replicate/StrOfChar
+    28: // Replicate/StringOfChar
+      begin
+        S := Stack.GetString(-2);
+        if S <> '' then
+          Stack.SetString(-1, StringOfChar(S[1], Stack.GetInt(-3)))
+        else
+          Stack.SetString(-1, StringOfChar(#0, Stack.GetInt(-3)));
+      end;
     29: // Assigned
       begin
         temp := NewTPSVariantIFC(Stack[Stack.Count -2], True);

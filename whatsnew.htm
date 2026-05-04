@@ -176,7 +176,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <ul>
     <li>Added new optional <tt>OnLog</tt> parameter to the <tt>[Run]</tt> section. When combined with the <tt>logoutput</tt> flag, it specifies the name of a procedure that is to be called for each line of the program's output instead of directly including it in the log file.<br/>
         See updated <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/PowerShell.iss">PowerShell.iss</a></i> example script.</li>
-    <li>Support function <tt>Chr</tt> now correctly accepts ordinal values greater than 255.</li>
+    <li>Support functions <tt>Chr</tt> and <tt>StringOfChar</tt> now correctly accept ordinal values greater than 255 and wide chars.</li>
     <li>Support function <tt>FloatToStr</tt> no longer outputs unnecessary trailing zeros.</li>
     <li>Using <tt>Exit</tt> within a <tt>try..finally</tt> block now works correctly when the <tt>finally</tt> block contains function calls.</li>
     <li>Multiple statements in the <tt>else</tt> block of a <tt>case</tt> statement now no longer require using <tt>begin</tt>/<tt>end</tt>.</li>
