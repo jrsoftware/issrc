@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 28.09.2025  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 02.05.2026  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -407,7 +407,7 @@ CreateDesktopIcon=Crea un'icona sul &desktop
 CreateQuickLaunchIcon=Crea un'icona nella &barra 'Avvio veloce'
 ProgramOnTheWeb=Sito web di %1
 UninstallProgram=Disinstalla %1
-LaunchProgram=Avvia %1
+LaunchProgram=Esegui %1
 AssocFileExtension=&Associa i file con estensione %2 a %1
 AssocingFileExtension=Associazione dei file con estensione %2 a %1...
 AutoStartProgramGroupDescription=Esecuzione automatica:
