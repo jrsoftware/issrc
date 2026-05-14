@@ -893,7 +893,7 @@ constructor TMainForm.Create(AOwner: TComponent);
         'VS Code-style editor shortcuts added! Use the <a id="toptions-vscode">Editor Keys option</a> in Options dialog.',
         BannerBlue, True);
       const LicenseState = GetLicenseState;
-      if FormatDateTime('yyyymm', Date) >= '202607' then begin
+      if FormatDateTime('yyyymmdd', Date) >= '20260718' then begin
         var Is7Msg := '<a id="is7">Inno Setup 7 released!</a> Can be installed side-by-side with Inno Setup 6.';
         if LicenseState in [lsLicensed, lsExpiring] then
           Is7Msg := Is7Msg + ' Does not require license renewal at this time.';
