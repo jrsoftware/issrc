@@ -892,11 +892,13 @@ constructor TMainForm.Create(AOwner: TComponent);
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
         'VS Code-style editor shortcuts added! Use the <a id="toptions-vscode">Editor Keys option</a> in Options dialog.',
         BannerBlue, True);
-      if FormatDateTime('yyyymm', Date) = '202604' then
-        CheckUpdatePanelMessage(Ini, 'Ideas202604', 0, 1,
-          '<a id="ideas">Ideas board is open!</a> Share your ideas and vote on others, this month only.',
-          BannerBlue, True);
       const LicenseState = GetLicenseState;
+      if FormatDateTime('yyyymm', Date) >= '202607' then begin
+        var Is7Msg := '<a id="is7">Inno Setup 7 released!</a> Can be installed side-by-side with Inno Setup 6.';
+        if LicenseState in [lsLicensed, lsExpiring] then
+          Is7Msg := Is7Msg + ' Does not require license renewal at this time.';
+        CheckUpdatePanelMessage(Ini, 'InnoSetup7', 0, 1, Is7Msg, BannerBlue, True);
+      end;
       if LicenseState = lsExpiredButUpdated then begin
         { Complain twice per day }
         const CurrentHourAsInt = FormatDateTime('yyyymmddhh', Now).ToInteger;
@@ -6562,8 +6564,8 @@ begin
   else if Link = 'toptions-vscode' then begin
     TOptionsForm.DropDownMemoKeyMappingComboBoxOnNextShow := True;
     TOptions.Click
-  end else if Link = 'ideas' then
-    LaunchFileOrURL('https://ideas.innosetup.nl');
+  end else if Link = 'is7' then
+    LaunchFileOrURL('https://jrsoftware.org/isdl.php#v7');
 end;
 
 procedure TMainForm.UpdatePanelCloseBitBtnClick(Sender: TObject);
