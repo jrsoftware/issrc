@@ -21,6 +21,7 @@ uses
   Windows,
   SysUtils,
   Classes,
+  JSON,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   PathFunc in '..\Components\PathFunc.pas',
   TrustFunc in '..\Components\TrustFunc.pas',
@@ -72,7 +73,7 @@ var
   ScriptLines, NextScriptLine: PScriptLine;
   CurLine: String;
   StartTime, EndTime: DWORD;
-  Quiet, ShowProgress, WantAbort: Boolean;
+  Quiet, ShowProgress, WantAbort, MessagesJsonl: Boolean;
   ProgressPoint: TPoint;
   LastProgress: String;
   IsppOptions: TIsppOptions;
@@ -93,33 +94,56 @@ begin
   end;
 end;
 
-procedure WriteStdOut(const S: String; const Warning: Boolean = False);
-var
-  CSBI: TConsoleScreenBufferInfo;
-  DidSetColor: Boolean;
+function GetErrorOrWarningTextAttribute(const Error: Boolean): Word;
 begin
-  DidSetColor := Warning and StdOutHandleIsConsole and GetConsoleScreenBufferInfo(StdOutHandle, CSBI) and
-                 SetConsoleTextAttribute(StdOutHandle, FOREGROUND_INTENSITY or FOREGROUND_RED or FOREGROUND_GREEN);
-  try
-    WriteToStdHandle(StdOutHandle, StdOutHandleIsConsole, S);
-  finally
-    if DidSetColor then
-      SetConsoleTextAttribute(StdOutHandle, CSBI.wAttributes);
-  end;
+  Result := FOREGROUND_INTENSITY or FOREGROUND_RED;
+  if not Error then
+    Result := Result or FOREGROUND_GREEN;
 end;
 
-procedure WriteStdErr(const S: String; const Error: Boolean = False);
-var
-  CSBI: TConsoleScreenBufferInfo;
-  DidSetColor: Boolean;
+procedure WriteStdOut(const S: String);
 begin
-  DidSetColor := Error and StdErrHandleIsConsole and GetConsoleScreenBufferInfo(StdErrHandle, CSBI) and
-                 SetConsoleTextAttribute(StdErrHandle, FOREGROUND_INTENSITY or FOREGROUND_RED);
+  WriteToStdHandle(StdOutHandle, StdOutHandleIsConsole, S);
+end;
+
+procedure WriteStdErr(const S: String; const Error: Boolean = False; const Warning: Boolean = False);
+begin
+  var CSBI: TConsoleScreenBufferInfo;
+  const DidSetColor = (Error or Warning) and StdErrHandleIsConsole and GetConsoleScreenBufferInfo(StdErrHandle, CSBI) and
+                      SetConsoleTextAttribute(StdErrHandle, GetErrorOrWarningTextAttribute(Error));
   try
     WriteToStdHandle(StdErrHandle, StdErrHandleIsConsole, S);
   finally
     if DidSetColor then
       SetConsoleTextAttribute(StdErrHandle, CSBI.wAttributes);
+  end;
+end;
+
+procedure WriteJsonlMessage(const Handle: THandle; const HandleIsConsole: Boolean;
+  const Line: Integer; const Filename, Message: String; const Error, Warning: Boolean);
+begin
+  var CSBI: TConsoleScreenBufferInfo;
+  const DidSetColor = (Error or Warning) and HandleIsConsole and GetConsoleScreenBufferInfo(Handle, CSBI) and
+                      SetConsoleTextAttribute(Handle, GetErrorOrWarningTextAttribute(Error));
+  try
+    const JsonObject = TJSONObject.Create;
+    try
+      if Line <> 0 then
+        JsonObject.AddPair('line', TJSONNumber.Create(Line)); { Delphi 10.4 does not support passing Line directly }
+      if Filename <> '' then
+        JsonObject.AddPair('filename', Filename);
+      JsonObject.AddPair('message', Message);
+      if Error then
+        JsonObject.AddPair('severity', 'error')
+      else if Warning then
+        JsonObject.AddPair('severity', 'warning');
+      WriteToStdHandle(Handle, HandleIsConsole, JsonObject.ToJSON);
+    finally
+      JsonObject.Free;
+    end;
+  finally
+    if DidSetColor then
+      SetConsoleTextAttribute(Handle, CSBI.wAttributes);
   end;
 end;
 
@@ -263,8 +287,13 @@ begin
         end;
       end;
     iscbNotifyStatus:
-      if not Quiet then
-        WriteStdOut(Data.StatusMsg, Data.Warning)
+      if Data.Warning then begin
+        if MessagesJsonl then
+          WriteJsonlMessage(StdErrHandle, StdErrHandleIsConsole, 0, '', Data.StatusMsg, False, True)
+        else if not Quiet then
+          WriteStdErr(Data.StatusMsg, False, True);
+      end else if not Quiet then
+        WriteStdOut(Data.StatusMsg)
       else if ShowProgress then
         PrintProgress(Trim(Data.StatusMsg));
     iscbNotifySuccess: begin
@@ -284,15 +313,23 @@ begin
       end;
     iscbNotifyError:
       if Assigned(Data.ErrorMsg) then begin
-        S := 'Error';
-        if Data.ErrorLine <> 0 then
-          S := S + Format(' on line %d', [Data.ErrorLine]);
-        if Assigned(Data.ErrorFilename) then
-          S := S + ' in ' + Data.ErrorFilename
-        else if ScriptFilename <> '' then
-          S := S + ' in ' + ScriptFilename;
-        S := S + ': ' + Data.ErrorMsg;
-        WriteStdErr(S, True);
+        if MessagesJsonl then begin
+          if Assigned(Data.ErrorFilename) then
+            S := Data.ErrorFilename
+          else
+            S := ScriptFilename;
+          WriteJsonlMessage(StdErrHandle, StdErrHandleIsConsole, Data.ErrorLine, S, Data.ErrorMsg, True, False);
+        end else begin
+          S := 'Error';
+          if Data.ErrorLine <> 0 then
+            S := S + Format(' on line %d', [Data.ErrorLine]);
+          if Assigned(Data.ErrorFilename) then
+            S := S + ' in ' + Data.ErrorFilename
+          else if ScriptFilename <> '' then
+            S := S + ' in ' + ScriptFilename;
+          S := S + ': ' + Data.ErrorMsg;
+          WriteStdErr(S, True);
+        end;
       end;
     iscbNotifyIdle:
       if ShowProgress and (Data.CompressProgress <> 0) then begin
@@ -388,7 +425,9 @@ procedure ProcessCommandLine;
     WriteStdErr('  /F<filename>       Specifies an output filename (overrides OutputBaseFilename)');
     WriteStdErr('  /S<name>=<command> Sets a SignTool with the specified name and command');
     WriteStdErr('                     (Any Sign Tools configured using the Compiler IDE will be specified automatically)');
-    WriteStdErr('  /Q                 Quiet compile (print error messages only)');
+    WriteStdErr('  /MJ                Output errors and warnings in JSONL format');
+    WriteStdErr('                     (Warnings are not suppressed by /Q when /MJ is active)');
+    WriteStdErr('  /Q                 Quiet compile (suppress status messages and warnings; see /MJ)');
     WriteStdErr('  /Qp                Enable quiet compile while still displaying progress');
     if IsppMode then begin
       WriteStdErr('  /D<name>[=<value>] Emulate #define public <name> <value>');
@@ -424,7 +463,9 @@ begin
   for I := 1 to NewParamCount do begin
     S := NewParamStr(I);
     if (S = '') or IsParam(S) then begin
-      if GetParam(S, 'Q') then begin
+      if GetParam(S, 'MJ') then
+        MessagesJsonl := True
+      else if GetParam(S, 'Q') then begin
         Quiet := True;
         ShowProgress := CompareText(S, 'P') = 0;
       end
@@ -631,7 +672,10 @@ begin
       isceNoError: ;
       isceCompileFailure: begin
           ExitCode := 2;
-          WriteStdErr('Compile aborted.', True);
+          if MessagesJsonl then
+            WriteJsonlMessage(StdErrHandle, StdErrHandleIsConsole, 0, '', 'Compile aborted.', True, False)
+          else
+            WriteStdErr('Compile aborted.', True);
         end;
     else
       ExitCode := 1;
