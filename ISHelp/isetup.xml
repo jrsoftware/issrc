@@ -3927,7 +3927,7 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 <ul>
 <li>Setup immediately removes all directories except the System directory from the DLL search path at startup.</li>
 <li>Setup never loads DLLs from a relative path and instead always uses absolute paths.</li>
-<li>Windows is known to sideload some DLLs without specifying a path, even when not asked to do so. To force it to load these from the System directory, special <tt>loadFrom</tt> instructions are included in the manifest files of Setup.</li>
+<li>Windows is known to sideload certain DLLs without specifying a path, even when not asked to do so. To force it to load these from the System directory, special <tt>loadFrom</tt> instructions are included in the manifest file of Setup. A daily automatic test is used to detect Windows sideloading any new DLLs not yet included in these special <tt>loadFrom</tt> instructions.</li>
 <li>Another special <tt>loadFrom</tt> instruction specifically for <tt>comctl32.dll</tt> is added to the manifest file of the setup loader program at compile time, replacing the regular <tt>dependency</tt> section.</li>
 </ul>
 
@@ -3941,7 +3941,7 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 <li>When Setup is running elevated, or when <tt>C:\Windows\Temp</tt> is in use, the subdirectory is secured using a special Access Control List (ACL) that disables all inherited permissions. Additionally, when Setup is running elevated, other processes running unelevated are denied write access, even those of the current user.<br/>
     The process of creating and securing the subdirectory is protected against the Time-Of-Check to Time-Of-Use (TOCTOU) problem.</li>
 <li>The name of the subdirectory is randomly generated using a cryptographically secure random number generator (CSPRNG).</li>
-<li>Both the setup loader and Setup do not write any sensitive material to the temporary directory. Even if your script puts sensitive data there anyway, it will be protected because of previous points.</li>
+<li>Both the setup loader and Setup do not write any sensitive material to the temporary directory.</li>
 </ul>
 
 <heading>Memory protection</heading>
@@ -3998,7 +3998,7 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 
 <ul>
 <li>Expired and self-signed certificates are never accepted.</li>
-<li>TLS 1.0 and TLS 1.1 are never accepted.</li>
+<li>TLS 1.0 and TLS 1.1 are never accepted. Both TLS 1.2 and TLS 1.3 are supported.</li>
 <li>Downloaded files can be verified using SHA-256 hash or an <link topic="issig">.issig signature</link>. Using the latter has the benefit that your script does not need to be changed when the downloaded file or archive changes, so any installers built will also keep working (they are "evergreen").</li>
 <li>Passwords in URLs are automatically excluded from Setup's log.</li>
 </ul>
@@ -4019,14 +4019,21 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 <li>The <tt>[Files]</tt> section supports a <tt>notimestamp</tt> flag to prevent files from being stored with a timestamp. Use this flag to help make builds reproducible, even if you cannot preserve timestamps on source files.</li>
 </ul>
 
+<p>IDE:</p>
+
+<ul>
+<li>The IDE is designed to never execute any commands from scripts when you merely open them.</li>
+</ul>
+
 <heading>Supply-chain security</heading>
 
 <p>Besides securing Inno Setup itself, we have also taken many steps to ensure the integrity of Inno Setup releases:</p>
 
 <ul>
 <li>Releases are built on a dedicated machine only used for this purpose. Signing keys are not stored on other machines.</li>
+<li>The Inno Setup source code repository is self-contained and no external dependencies are pulled in when a release is built.</li>
 <li>Precompiled files included in Inno Setup's source code are accompanied with <link topic="issig">.issig signature</link> files to detect corruption or tampering before using them to build a release.</li>
-<li>Updates of third-party source code (7-Zip, LZMA SDK, zlib, bzip2, Scintilla) are reviewed before being applied. An <extlink href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json">SPDX Software Bill of Materials</extlink> (SBOM) is available.</li>
+<li>Vendor updates of third-party source code (7-Zip, LZMA SDK, zlib, bzip2, Scintilla) are reviewed before being applied. An <extlink href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json">SPDX Software Bill of Materials</extlink> (SBOM) is available.</li>
 <li>Release binaries are made available through <extlink href="https://github.com/jrsoftware/issrc/releases">immutable GitHub releases</extlink> and accompanied with <link topic="issig">.issig signature</link> files you can use to detect corruption or tampering before running them. The <extlink href="https://files.jrsoftware.org/is/misc/def02.ispublickey">public key</extlink> for these signatures is hosted separately from GitHub for extra security.</li>
 </ul>
 
