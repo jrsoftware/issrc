@@ -68,7 +68,7 @@ var
   Options: record
     ScriptFilename: String;
     Definitions, IncludePath, IncludeFiles, Output, OutputPath, OutputFilename: String;
-    Quiet, ShowProgress, MessagesJsonl: Boolean;
+    Quiet, ShowProgress, MessagesJsonl, NoIDESignTools: Boolean;
     IsppOptions: TIsppOptions;
   end;
 
@@ -428,7 +428,8 @@ procedure ProcessCommandLine;
     WriteStdErr('  /O<path>           Output files to specified path (overrides OutputDir)');
     WriteStdErr('  /F<filename>       Specifies an output filename (overrides OutputBaseFilename)');
     WriteStdErr('  /S<name>=<command> Sets a SignTool with the specified name and command');
-    WriteStdErr('                     (Any Sign Tools configured using the Compiler IDE will be specified automatically)');
+    WriteStdErr('                     (any Sign Tools configured using the Compiler IDE will be specified automatically)');
+    WriteStdErr('  /NI                Do not auto-specify Sign Tools configured using the Compiler IDE');
     WriteStdErr('  /MJ                Output errors and warnings in JSONL format');
     WriteStdErr('                     (Warnings are not suppressed by /Q when /MJ is active)');
     WriteStdErr('  /Q                 Quiet compile (suppress status messages and warnings; see /MJ)');
@@ -487,7 +488,10 @@ begin
           Halt(1);
         end;
         SignTools.Add(S);
-      end else if IsppMode and GetParam(S, 'D') then begin
+      end
+      else if GetParam(S, 'NI') then
+        Options.NoIDESignTools := True
+      else if IsppMode and GetParam(S, 'D') then begin
         Options.Definitions := Options.Definitions + S + #1;
       end
       else if IsppMode and GetParam(S, 'I') then begin
@@ -581,7 +585,6 @@ var
   CompilerOptions: String;
   Res: Integer;
   I: Integer;
-  IDESignTools: TStringList;
 begin
   if Options.ScriptFilename <> '-' then begin
     Options.ScriptFilename := PathExpand(Options.ScriptFilename);
@@ -649,16 +652,18 @@ begin
     for I := 0 to SignTools.Count-1 do
       CompilerOptions := CompilerOptions + AddSignToolParam(SignTools[I]);
 
-    IDESignTools := TStringList.Create;
-    try
-      { Also automatically read and add SignTools defined using the IDE. Adding
-        these after the command line SignTools so that the latter are always
-        found first by the compiler. }
-      ReadSignTools(IDESignTools);
-      for I := 0 to IDESignTools.Count-1 do
-        CompilerOptions := CompilerOptions + AddSignToolParam(IDESignTools[I]);
-    finally
-      IDESignTools.Free;
+    if not Options.NoIDESignTools then begin
+      const IDESignTools = TStringList.Create;
+      try
+        { Also automatically read and add SignTools defined using the IDE. Adding
+          these after the command line SignTools so that the latter are always
+          found first by the compiler. }
+        ReadSignTools(IDESignTools);
+        for I := 0 to IDESignTools.Count-1 do
+          CompilerOptions := CompilerOptions + AddSignToolParam(IDESignTools[I]);
+      finally
+        IDESignTools.Free;
+      end;
     end;
 
     if IsppMode then
