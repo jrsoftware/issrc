@@ -775,7 +775,7 @@ begin
       P^.Params[I] := Params[I];
     FVarMan.Add(P);
   except
-    FreeMem(P);
+    FreeItem(P);
     raise;
   end;
   VerboseMsg(4, SMacroDefined, [GL[Scope], Name]);
@@ -802,14 +802,19 @@ begin
       raise EIdentError.CreateFmt(SUndeclaredIdentifier, [Name]);
     Delete(Name, Scope);
     V := AllocMem(SizeOf(TVariable));
-    V^.Name := Name;
-    V^.Hash := MakeHash(Name);
-    V^.IdentType := itVariable;
-    V^.Scope.IsProtected := Scope = dsProtected;
-    if Scope >= dsProtected then V^.Scope.LocalLevel := FLocalLevel;
-    V^.Dim := 0;
-    V^.Value[0] := Value;
-    FVarMan.Add(V);
+    try
+      V^.Name := Name;
+      V^.Hash := MakeHash(Name);
+      V^.IdentType := itVariable;
+      V^.Scope.IsProtected := Scope = dsProtected;
+      if Scope >= dsProtected then V^.Scope.LocalLevel := FLocalLevel;
+      V^.Dim := 0;
+      V^.Value[0] := Value;
+      FVarMan.Add(V);
+    except
+      FreeItem(V);
+      raise;
+    end;
   end;
   VerboseMsg(4, SVariableDefined, [GL[Scope], Name]);
 end;
@@ -867,29 +872,37 @@ begin
       ReDimIndex := -1;
 
     V := AllocMem(SizeOf(TVariable) + SizeOf(TIsppVariant) * (Length - 1));
-    V.Name := Name;
-    V.Hash := MakeHash(Name);
-    V.IdentType := itVariable;
-    V.Dim := Length;
-    V^.Scope.IsProtected := Scope = dsProtected;
-    if Scope >= dsProtected then V^.Scope.LocalLevel := FLocalLevel;
+    try
+      V.Name := Name;
+      V.Hash := MakeHash(Name);
+      V.IdentType := itVariable;
+      V.Dim := Length;
+      V^.Scope.IsProtected := Scope = dsProtected;
+      if Scope >= dsProtected then V^.Scope.LocalLevel := FLocalLevel;
 
-    if ReDimIndex = -1 then begin
-      Delete(Name, Scope);
-      for I := 0 to Length - 1 do
-        V.Value[I] := NULL;
-      FVarMan.Add(V);
-      Msg := SArrayDeclared;
-    end else begin
-      VOld := PVariable(FVarMan[ReDimIndex]);
-      for I := 0 to VOld.Dim - 1 do
-        if I < Length then
-          V.Value[I] := VOld.Value[I];
-      for I := VOld.Dim to Length - 1 do
-        V.Value[I] := NULL;
-      FVarMan[ReDimIndex] := V;
-      FreeItem(VOld);
-      Msg := SArrayReDimmed;
+      if ReDimIndex = -1 then begin
+        Delete(Name, Scope);
+        for I := 0 to Length - 1 do
+          V.Value[I] := NULL;
+        FVarMan.Add(V);
+        V := nil;
+        Msg := SArrayDeclared;
+      end else begin
+        VOld := PVariable(FVarMan[ReDimIndex]);
+        for I := 0 to VOld.Dim - 1 do
+          if I < Length then
+            V.Value[I] := VOld.Value[I];
+        for I := VOld.Dim to Length - 1 do
+          V.Value[I] := NULL;
+        FVarMan[ReDimIndex] := V;
+        V := nil;
+        FreeItem(VOld);
+        Msg := SArrayReDimmed;
+      end;
+    except
+      if V <> nil then
+        FreeItem(V);
+      raise;
     end;
     VerboseMsg(4, Msg, [GL[Scope], Name]);
  end else

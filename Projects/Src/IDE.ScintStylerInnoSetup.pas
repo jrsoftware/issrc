@@ -1177,7 +1177,7 @@ begin
       else if HeaderKind = hkProcedure then
         AddWordToList(SLProcedures, S, awtScriptEvent)
       else
-        raise Exception.Create('Got invalid HeaderKind for event function');
+        raise Exception.Create('Internal error: got invalid HeaderKind for event function');
     end;
     FEventFunctionsWordList[False] := BuildWordList(SLFunctions);
     FEventFunctionsWordList[True] := BuildWordList(SLProcedures);
@@ -1464,8 +1464,7 @@ begin
           end;
         '$':
           begin
-            if not ConsumeChars(HexDigitChars) then
-              CommitStyleSqPending(stPascalNumber);
+            ConsumeChars(HexDigitChars);
             CommitStyle(stPascalNumber);
           end;
         '#':
@@ -1694,12 +1693,17 @@ end;
 
 procedure TInnoSetupStyler.HandleParameterSection(
   const ValidParameters: array of TScintRawString);
+const
+  MaxParameters = 32;
 var
-  ParamsSpecified: set of 0..31;
+  ParamsSpecified: set of 0..MaxParameters-1;
   S: TScintRawString;
   ParamValueIndex, BraceLevel: Integer;
   NamePresent, ValidName, DuplicateName, ColonPresent: Boolean;
 begin
+  if Length(ValidParameters) > MaxParameters then
+    raise Exception.Create('Internal error: too many valid parameters');
+
   ParamsSpecified := [];
   while not EndOfLine do begin
     { Squigglify any bogus characters before the parameter name }

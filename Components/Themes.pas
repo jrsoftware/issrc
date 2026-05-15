@@ -119,7 +119,6 @@ type
   TThemedElementDetails = TObject;
 
   TCustomStyleServices = class
-  private
     public
       function DrawElement(DC: HDC; Details: TThemedElementDetails; const R: TRect;
         ClipRect: PRect = nil; DPI: Integer = 0): Boolean;
@@ -129,7 +128,7 @@ type
       function GetElementColor(Details: TThemedElementDetails; ElementColor: TElementColor; out Color: TColor): Boolean;
       function GetElementDetails(Detail: TThemedButton): TThemedElementDetails; overload;
       function GetElementDetails(Detail: TThemedCheckListBox): TThemedElementDetails; overload;
-      function GetStyleColor(Font: TStyleColor): TColor;
+      function GetStyleColor(Color: TStyleColor): TColor;
       function GetStyleFontColor(Font: TStyleFont): TColor;
       function GetSystemColor(Color: TColor): TColor;
       function IsSystemStyle: Boolean;
@@ -235,7 +234,7 @@ begin
   Result := nil;
 end;
 
-function TCustomStyleServices.GetStyleColor(Font: TStyleColor): TColor;
+function TCustomStyleServices.GetStyleColor(Color: TStyleColor): TColor;
 begin
   Result := clNone;
 end;

@@ -33,8 +33,9 @@ jobs:
             2. Run `gh pr view ${{ github.event.pull_request.number }} --comments` to see any previous review comments.
             3. Analyze the diff for bugs, security issues, and style problems. Focus only on the changed lines, not pre-existing issues.
             4. Read CLAUDE.md and AGENTS.md in full for project-specific guidelines and verify compliance.
-            5. If there are issues, write the review to a file named review.md in the current directory, then post it using `gh pr comment ${{ github.event.pull_request.number }} -F review.md`. Do not repeat issues you already mentioned in previous review comments, and do not report the same issue twice in a single review. If there are no new issues, do nothing.
-            Keep the review concise and actionable.
+            5. Do not repeat issues already mentioned in previous review comments, and do not report the same issue twice in a single review.
+            Post exactly one top-level PR comment using `gh pr comment`, either with findings or stating that no issues were found.
+            Do not post inline review comments and do not submit review text as messages.
           claude_args: |
             --model opus
             --allowedTools "Read,Write,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"

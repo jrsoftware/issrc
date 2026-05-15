@@ -367,25 +367,6 @@ procedure ProcessCommandLine;
       S := Copy(S, 2 + Length(Symbols), MaxInt);
   end;
 
-  function FindParam(var Index: Integer; Symbols: String): String;
-  var
-    I: Integer;
-    S: String;
-  begin
-    for I := Index to NewParamCount do
-    begin
-      S := NewParamStr(I);
-      if IsParam(S) and (CompareText(Copy(S, 2, Length(Symbols)), Symbols) = 0) then
-      begin
-        Result := Copy(S, 2 + Length(Symbols), MaxInt);
-        Index := I + 1;
-        Exit;
-      end;
-    end;
-    Index := MaxInt;
-    Result := '';
-  end;
-
   procedure ShowBanner;
   begin
     WriteStdOut('Inno Setup 7' {$IFNDEF WIN64} + ' (32-bit)' {$ENDIF} + ' Command-Line Compiler');

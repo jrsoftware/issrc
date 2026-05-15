@@ -26,7 +26,7 @@ function DownloadFile(const Url, CustomUserName, CustomPassword: String;
   const OnSimpleDownloadProgressParam: Int64;
   const OnSimpleDownloadNoProgress: TOnSimpleDownloadNoProgress): Int64;
 
-  function DownloadTemporaryFile(const Url, BaseName: String;
+function DownloadTemporaryFile(const Url, BaseName: String;
   [ref] const Verification: TSetupFileVerification; const OnDownloadProgress: TOnDownloadProgress;
   const OnDownloadNoProgress: TOnDownloadNoProgress): Int64; overload;
 function DownloadTemporaryFile(const Url, BaseName: String;

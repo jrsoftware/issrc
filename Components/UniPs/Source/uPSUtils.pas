@@ -1338,6 +1338,8 @@ var
             while (FText[ci] in ['A'..'F', 'a'..'f', '0'..'9']) do begin
               Inc(ci);
             end;
+            if ci = ct + 2 then
+              ParseToken := iCharError;
             CurrTokenId := CSTI_Char;
             CurrTokenLen := ci - ct;
           end else
@@ -1345,12 +1347,9 @@ var
             while (FText[ci] in ['0'..'9']) do begin
               Inc(ci);
             end;
-            if FText[ci] in ['A'..'Z', 'a'..'z', '_'] then
-            begin
+            if (ci = ct + 1) or (FText[ci] in ['A'..'Z', 'a'..'z', '_']) then
               ParseToken := iCharError;
-              CurrTokenId := CSTI_Char;
-            end else
-              CurrTokenId := CSTI_Char;
+            CurrTokenId := CSTI_Char;
             CurrTokenLen := ci - ct;
           end;
         end;

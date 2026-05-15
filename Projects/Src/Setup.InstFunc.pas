@@ -1175,16 +1175,12 @@ end;
 
 function TProgressThrottler.ThrottleOk(const Progress, ProgressMax: Int64): Boolean;
 begin
-  if FStopWatch.IsRunning then begin
-    Result := ((Progress = ProgressMax) and (FLastOkProgress <> ProgressMax)) or (FStopWatch.ElapsedMilliseconds >= 50);
-    if Result then
-      FStopWatch.Reset;
-  end else begin
-    Result := True;
+  Result := not FStopWatch.IsRunning or
+            ((Progress = ProgressMax) and (FLastOkProgress <> ProgressMax)) or (FStopWatch.ElapsedMilliseconds >= 50);
+  if Result then begin
     FStopWatch := TStopwatch.StartNew;
-  end;
-  if Result then
     FLastOkProgress := Progress;
+  end;
 end;
 
 function TProgressThrottler.OnDownloadProgress(const Url, BaseName: string; const Progress,

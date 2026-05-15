@@ -567,10 +567,6 @@ begin
 end;
 
 procedure TCustomFolderTreeView.CNNotify(var Message: TWMNotify);
-const
-  TVN_SINGLEEXPAND = (TVN_FIRST-15);
-  TVNRET_SKIPOLD = 1;
-  TVNRET_SKIPNEW = 2;
 
   procedure HandleClick;
   var
