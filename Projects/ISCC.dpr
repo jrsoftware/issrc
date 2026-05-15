@@ -65,18 +65,22 @@ type
   end;
 
 var
+  Options: record
+    ScriptFilename: String;
+    Definitions, IncludePath, IncludeFiles, Output, OutputPath, OutputFilename: String;
+    Quiet, ShowProgress, MessagesJsonl: Boolean;
+    IsppOptions: TIsppOptions;
+  end;
+
   StdOutHandle, StdErrHandle: THandle;
   StdOutHandleIsConsole, StdErrHandleIsConsole: Boolean;
-  ScriptFilename: String;
-  Definitions, IncludePath, IncludeFiles, Output, OutputPath, OutputFilename: String;
   SignTools: TStringList;
   ScriptLines, NextScriptLine: PScriptLine;
   CurLine: String;
   StartTime, EndTime: DWORD;
-  Quiet, ShowProgress, WantAbort, MessagesJsonl: Boolean;
+  WantAbort: Boolean;
   ProgressPoint: TPoint;
   LastProgress: String;
-  IsppOptions: TIsppOptions;
   IsppMode: Boolean;
 
 procedure WriteToStdHandle(const Handle: THandle; const HandleIsConsole: Boolean; S: String);
@@ -288,17 +292,17 @@ begin
       end;
     iscbNotifyStatus:
       if Data.Warning then begin
-        if MessagesJsonl then
+        if Options.MessagesJsonl then
           WriteJsonlMessage(StdErrHandle, StdErrHandleIsConsole, 0, '', Data.StatusMsg, False, True)
-        else if not Quiet then
+        else if not Options.Quiet then
           WriteStdErr(Data.StatusMsg, False, True);
-      end else if not Quiet then
+      end else if not Options.Quiet then
         WriteStdOut(Data.StatusMsg)
-      else if ShowProgress then
+      else if Options.ShowProgress then
         PrintProgress(Trim(Data.StatusMsg));
     iscbNotifySuccess: begin
         EndTime := GetTickCount;
-        if not Quiet then begin
+        if not Options.Quiet then begin
           WriteStdOut('');
           if Data.OutputExeFilename <> '' then begin
             WriteStdOut(Format('Successful compile (%.3f sec). ' +
@@ -313,11 +317,11 @@ begin
       end;
     iscbNotifyError:
       if Assigned(Data.ErrorMsg) then begin
-        if MessagesJsonl then begin
+        if Options.MessagesJsonl then begin
           if Assigned(Data.ErrorFilename) then
             S := Data.ErrorFilename
           else
-            S := ScriptFilename;
+            S := Options.ScriptFilename;
           WriteJsonlMessage(StdErrHandle, StdErrHandleIsConsole, Data.ErrorLine, S, Data.ErrorMsg, True, False);
         end else begin
           S := 'Error';
@@ -325,14 +329,14 @@ begin
             S := S + Format(' on line %d', [Data.ErrorLine]);
           if Assigned(Data.ErrorFilename) then
             S := S + ' in ' + Data.ErrorFilename
-          else if ScriptFilename <> '' then
-            S := S + ' in ' + ScriptFilename;
+          else if Options.ScriptFilename <> '' then
+            S := S + ' in ' + Options.ScriptFilename;
           S := S + ': ' + Data.ErrorMsg;
           WriteStdErr(S, True);
         end;
       end;
     iscbNotifyIdle:
-      if ShowProgress and (Data.CompressProgress <> 0) then begin
+      if Options.ShowProgress and (Data.CompressProgress <> 0) then begin
         if Data.BytesCompressedPerSecond <> 0 then
           BytesCompressedPerSecond := Format(' at %.2f kb/s', [Data.BytesCompressedPerSecond / 1024])
         else
@@ -454,28 +458,28 @@ var
   S: String;
 begin
   if IsppMode then begin
-    InitIsppOptions(IsppOptions, Definitions, IncludePath, IncludeFiles);
+    InitIsppOptions(Options.IsppOptions, Options.Definitions, Options.IncludePath, Options.IncludeFiles);
     { Also see below }
-    ReadOptionsParam(IsppOptions.Options, '$');
-    ReadOptionsParam(IsppOptions.ParserOptions, 'P');
+    ReadOptionsParam(Options.IsppOptions.Options, '$');
+    ReadOptionsParam(Options.IsppOptions.ParserOptions, 'P');
   end;
 
   for I := 1 to NewParamCount do begin
     S := NewParamStr(I);
     if (S = '') or IsParam(S) then begin
       if GetParam(S, 'MJ') then
-        MessagesJsonl := True
+        Options.MessagesJsonl := True
       else if GetParam(S, 'Q') then begin
-        Quiet := True;
-        ShowProgress := CompareText(S, 'P') = 0;
+        Options.Quiet := True;
+        Options.ShowProgress := CompareText(S, 'P') = 0;
       end
       else if GetParam(S, 'O') then begin
-        if S = '-' then Output := 'no'
-        else if S = '+' then Output := 'yes'
-        else OutputPath := S;
+        if S = '-' then Options.Output := 'no'
+        else if S = '+' then Options.Output := 'yes'
+        else Options.OutputPath := S;
       end
       else if GetParam(S, 'F') then
-        OutputFilename := S
+        Options.OutputFilename := S
       else if GetParam(S, 'S') then begin
         if Pos('=', S) = 0 then begin
           ShowBanner;
@@ -484,22 +488,22 @@ begin
         end;
         SignTools.Add(S);
       end else if IsppMode and GetParam(S, 'D') then begin
-        Definitions := Definitions + S + #1;
+        Options.Definitions := Options.Definitions + S + #1;
       end
       else if IsppMode and GetParam(S, 'I') then begin
-        IncludePath := IncludePath + ';' + S;
+        Options.IncludePath := Options.IncludePath + ';' + S;
       end
       else if IsppMode and GetParam(S, 'J') then begin
-        IncludeFiles := IncludeFiles + S + #1;
+        Options.IncludeFiles := Options.IncludeFiles + S + #1;
       end
       else if IsppMode and GetParam(S, '{#') then begin
-        if S <> '' then IsppOptions.InlineStart := S;
+        if S <> '' then Options.IsppOptions.InlineStart := S;
       end
       else if IsppMode and GetParam(S, '}') then begin
-        if S <> '' then IsppOptions.InlineEnd := S;
+        if S <> '' then Options.IsppOptions.InlineEnd := S;
       end
       else if IsppMode and GetParam(S, 'V') then begin
-        if S <> '' then IsppOptions.VerboseLevel := StrToIntDef(S, 0);
+        if S <> '' then Options.IsppOptions.VerboseLevel := StrToIntDef(S, 0);
       end
       else if IsppMode and (GetParam(S, '$') or GetParam(S, 'P')) then begin
         { Already handled above }
@@ -517,28 +521,28 @@ begin
     end
     else begin
       { Not a switch; must be the script filename }
-      if ScriptFilename <> '' then begin
+      if Options.ScriptFilename <> '' then begin
         ShowBanner;
         WriteStdErr('You may not specify more than one script filename.', True);
         Halt(1);
       end;
-      ScriptFilename := S;
+      Options.ScriptFilename := S;
     end;
   end;
 
-  if ScriptFilename = '' then begin
+  if Options.ScriptFilename = '' then begin
     ShowBanner;
     ShowUsage;
     Halt(1);
   end;
 
-  if not Quiet then
+  if not Options.Quiet then
     ShowBanner;
 end;
 
 procedure Go;
 
-  procedure AppendOption(var Opts: String; const OptName, OptValue: String);
+  procedure AppendCompilerOption(var Opts: String; const OptName, OptValue: String);
   begin
     Opts := Opts + OptName + '=' + OptValue + #0;
   end;
@@ -556,16 +560,16 @@ procedure Go;
   procedure IsppOptionsToString(var S: String; Opt: TIsppOptions; Definitions, IncludePath, IncludeFiles: String);
   begin
     with Opt do begin
-      AppendOption(S, 'ISPP:ParserOptions', ConvertOptionsToString(ParserOptions));
-      AppendOption(S, 'ISPP:Options', ConvertOptionsToString(Options));
-      AppendOption(S, 'ISPP:VerboseLevel', IntToStr(VerboseLevel));
-      AppendOption(S, 'ISPP:InlineStart', InlineStart);
-      AppendOption(S, 'ISPP:InlineEnd', InlineEnd);
+      AppendCompilerOption(S, 'ISPP:ParserOptions', ConvertOptionsToString(ParserOptions));
+      AppendCompilerOption(S, 'ISPP:Options', ConvertOptionsToString(Options));
+      AppendCompilerOption(S, 'ISPP:VerboseLevel', IntToStr(VerboseLevel));
+      AppendCompilerOption(S, 'ISPP:InlineStart', InlineStart);
+      AppendCompilerOption(S, 'ISPP:InlineEnd', InlineEnd);
     end;
 
-    AppendOption(S, 'ISPP:Definitions', Definitions);
-    AppendOption(S, 'ISPP:IncludePath', IncludePath);
-    AppendOption(S, 'ISPP:IncludeFiles', IncludeFiles);
+    AppendCompilerOption(S, 'ISPP:Definitions', Definitions);
+    AppendCompilerOption(S, 'ISPP:IncludePath', IncludePath);
+    AppendCompilerOption(S, 'ISPP:IncludeFiles', IncludeFiles);
   end;
 
 var
@@ -574,18 +578,18 @@ var
   Ver: PCompilerVersionInfo;
   F: TTextFileReader;
   Params: TCompileScriptParamsEx;
-  Options: String;
+  CompilerOptions: String;
   Res: Integer;
   I: Integer;
   IDESignTools: TStringList;
 begin
-  if ScriptFilename <> '-' then begin
-    ScriptFilename := PathExpand(ScriptFilename);
-    ScriptPath := PathExtractPath(ScriptFilename);
+  if Options.ScriptFilename <> '-' then begin
+    Options.ScriptFilename := PathExpand(Options.ScriptFilename);
+    ScriptPath := PathExtractPath(Options.ScriptFilename);
   end
   else begin
     { Read from standard input }
-    ScriptFilename := '<stdin>';
+    Options.ScriptFilename := '<stdin>';
     ScriptPath := GetCurrentDir;
   end;
 
@@ -611,8 +615,8 @@ begin
   ProgressPoint.X := -1;
   ExitCode := 0;
   try
-    if ScriptFilename <> '<stdin>' then
-      F := TTextFileReader.Create(ScriptFilename, fdOpenExisting, faRead, fsRead)
+    if Options.ScriptFilename <> '<stdin>' then
+      F := TTextFileReader.Create(Options.ScriptFilename, fdOpenExisting, faRead, fsRead)
     else
       F := TTextFileReader.CreateWithExistingHandle(GetStdHandle(STD_INPUT_HANDLE));
     try
@@ -621,7 +625,7 @@ begin
       F.Free;
     end;
 
-    if not Quiet then begin
+    if not Options.Quiet then begin
       WriteStdOut('Compiler engine version: ' + String(Ver.Title) + ' ' + String(Ver.Version));
       if IsLicensed then
         WriteStdOut('Licensee name: ' + GetLicenseeDescription)
@@ -634,16 +638,16 @@ begin
     Params.Size := SizeOf(Params);
     Params.SourcePath := PChar(ScriptPath);
     Params.CallbackProc := CompilerCallbackProc;
-    Options := '';
-    if Output <> '' then
-      AppendOption(Options, 'Output', Output);
-    if OutputPath <> '' then
-      AppendOption(Options, 'OutputDir', OutputPath);
-    if OutputFilename <> '' then
-      AppendOption(Options, 'OutputBaseFilename', OutputFilename);
+    CompilerOptions := '';
+    if Options.Output <> '' then
+      AppendCompilerOption(CompilerOptions, 'Output', Options.Output);
+    if Options.OutputPath <> '' then
+      AppendCompilerOption(CompilerOptions, 'OutputDir', Options.OutputPath);
+    if Options.OutputFilename <> '' then
+      AppendCompilerOption(CompilerOptions, 'OutputBaseFilename', Options.OutputFilename);
 
     for I := 0 to SignTools.Count-1 do
-      Options := Options + AddSignToolParam(SignTools[I]);
+      CompilerOptions := CompilerOptions + AddSignToolParam(SignTools[I]);
 
     IDESignTools := TStringList.Create;
     try
@@ -652,15 +656,15 @@ begin
         found first by the compiler. }
       ReadSignTools(IDESignTools);
       for I := 0 to IDESignTools.Count-1 do
-        Options := Options + AddSignToolParam(IDESignTools[I]);
+        CompilerOptions := CompilerOptions + AddSignToolParam(IDESignTools[I]);
     finally
       IDESignTools.Free;
     end;
 
     if IsppMode then
-      IsppOptionsToString(Options, IsppOptions, Definitions, IncludePath, IncludeFiles);
+      IsppOptionsToString(CompilerOptions, Options.IsppOptions, Options.Definitions, Options.IncludePath, Options.IncludeFiles);
 
-    Params.Options := PChar(Options);
+    Params.Options := PChar(CompilerOptions);
 
     StartTime := GetTickCount;
     {$IFNDEF STATICCOMPILER}
@@ -672,7 +676,7 @@ begin
       isceNoError: ;
       isceCompileFailure: begin
           ExitCode := 2;
-          if MessagesJsonl then
+          if Options.MessagesJsonl then
             WriteJsonlMessage(StdErrHandle, StdErrHandleIsConsole, 0, '', 'Compile aborted.', True, False)
           else
             WriteStdErr('Compile aborted.', True);
