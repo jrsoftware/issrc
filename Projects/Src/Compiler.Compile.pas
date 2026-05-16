@@ -152,6 +152,15 @@ begin
             Result := isceInvalidParam;
             Exit;
           end;
+        end else if StrLIComp(P, 'StopAfterPreprocessing=', Length('StopAfterPreprocessing=')) = 0 then begin
+          Inc(P, Length('StopAfterPreprocessing='));
+          var StopAfterPreprocessing: Boolean;
+          if TryStrToBoolean(P, StopAfterPreprocessing) then
+            SetupCompiler.SetStopAfterPreprocessing(StopAfterPreprocessing)
+          else begin
+            Result := isceInvalidParam;
+            Exit;
+          end;
         end else if StrLIComp(P, 'ISPP:', Length('ISPP:')) = 0 then
           SetupCompiler.AddPreprocOption(P)
         else begin

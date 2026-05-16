@@ -2,7 +2,7 @@ unit Shared.CompilerInt.Struct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -138,6 +138,8 @@ type
                             SignTool-[name]=[command]
                               Configures a SignTool with name [name] and command
                               [command].
+                            StopAfterPreprocessing=(0|no|false|1|yes|true)
+                              Preprocess to stdout and suppress compilation.
                             ISPP:[isppoption]
                               Configures an ISPP option. }
   end;

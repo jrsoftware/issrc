@@ -131,6 +131,7 @@ type
     OutputDir, OutputBaseFilename, OutputManifestFile, SignedUninstallerDir,
       ExeFilename: String;
     Output, FixedOutput, FixedOutputDir, FixedOutputBaseFilename: Boolean;
+    StopAfterPreprocessing: Boolean;
     CompressMethod: TSetupCompressMethod;
     InternalCompressLevel, CompressLevel: Integer;
     InternalCompressProps, CompressProps: TLZMACompressorProps;
@@ -324,6 +325,7 @@ type
     procedure SetOutput(Value: Boolean);
     procedure SetOutputBaseFilename(const Value: String);
     procedure SetOutputDir(const Value: String);
+    procedure SetStopAfterPreprocessing(Value: Boolean);
   end;
 
 implementation
@@ -1290,54 +1292,56 @@ var
 
     Lines := ReadScriptFile(Filename, UseCache, AnsiConvertCodePage);
     try
-      SaveLineFilename := LineFilename;
-      SaveLineNumber := LineNumber;
+      if Assigned(EnumProc) then begin
+        SaveLineFilename := LineFilename;
+        SaveLineNumber := LineNumber;
 
-      for var LineIndex := 0 to Lines.Count-1 do begin
-        Line := Lines[LineIndex];
-        LineFilename := Line.LineFilename;
-        LineNumber := Line.LineNumber;
-        L := Trim(Line.LineText);
-        { Check for blank lines or comments }
-        if (not FoundSection or SkipBlankLines) and ((L = '') or (L[1] = ';')) then Continue;
-        if (L <> '') and (L[1] = '[') then begin
-          { Section tag }
-          I := Pos(']', L);
-          if (I < 3) or (I <> Length(L)) then
-            AbortCompile(SCompilerSectionTagInvalid);
-          L := Copy(L, 2, I-2);
-          if L[1] = '/' then begin
-            L := Copy(L, 2, Maxint);
-            if (LastSection = '') or (CompareText(L, LastSection) <> 0) then
-              AbortCompileFmt(SCompilerSectionBadEndTag, [L]);
-            FoundSection := False;
-            LastSection := '';
+        for var LineIndex := 0 to Lines.Count-1 do begin
+          Line := Lines[LineIndex];
+          LineFilename := Line.LineFilename;
+          LineNumber := Line.LineNumber;
+          L := Trim(Line.LineText);
+          { Check for blank lines or comments }
+          if (not FoundSection or SkipBlankLines) and ((L = '') or (L[1] = ';')) then Continue;
+          if (L <> '') and (L[1] = '[') then begin
+            { Section tag }
+            I := Pos(']', L);
+            if (I < 3) or (I <> Length(L)) then
+              AbortCompile(SCompilerSectionTagInvalid);
+            L := Copy(L, 2, I-2);
+            if L[1] = '/' then begin
+              L := Copy(L, 2, Maxint);
+              if (LastSection = '') or (CompareText(L, LastSection) <> 0) then
+                AbortCompileFmt(SCompilerSectionBadEndTag, [L]);
+              FoundSection := False;
+              LastSection := '';
+            end
+            else begin
+              FoundSection := (CompareText(L, SectionName) = 0);
+              LastSection := L;
+            end;
           end
           else begin
-            FoundSection := (CompareText(L, SectionName) = 0);
-            LastSection := L;
+            if not FoundSection then begin
+              if LastSection = '' then
+                AbortCompile(SCompilerTextNotInSection);
+              Continue;  { not on the right section }
+            end;
+            if Verbose then begin
+              if LineFilename = '' then
+                AddStatus(Format(SCompilerStatusParsingSectionLine,
+                  [SectionName, LineNumber]))
+              else
+                AddStatus(Format(SCompilerStatusParsingSectionLineFile,
+                  [SectionName, LineNumber, LineFilename]));
+            end;
+            EnumProc(PChar(Line.LineText), Ext);
           end;
-        end
-        else begin
-          if not FoundSection then begin
-            if LastSection = '' then
-              AbortCompile(SCompilerTextNotInSection);
-            Continue;  { not on the right section }
-          end;
-          if Verbose then begin
-            if LineFilename = '' then
-              AddStatus(Format(SCompilerStatusParsingSectionLine,
-                [SectionName, LineNumber]))
-            else
-              AddStatus(Format(SCompilerStatusParsingSectionLineFile,
-                [SectionName, LineNumber, LineFilename]));
-          end;
-          EnumProc(PChar(Line.LineText), Ext);
         end;
-      end;
 
-      LineFilename := SaveLineFilename;
-      LineNumber := SaveLineNumber;
+        LineFilename := SaveLineFilename;
+        LineNumber := SaveLineNumber;
+      end;
     finally
       if not UseCache then
         Lines.Free;
@@ -2493,6 +2497,11 @@ procedure TSetupCompiler.SetOutputDir(const Value: String);
 begin
   OutputDir := Value;
   FixedOutputDir := True;
+end;
+
+procedure TSetupCompiler.SetStopAfterPreprocessing(Value: Boolean);
+begin
+  StopAfterPreprocessing := Value;
 end;
 
 procedure TSetupCompiler.EnumSetupProc(const Line: PChar; const Ext: Integer);
@@ -8324,8 +8333,16 @@ begin
     MinArchiveExtraction := aeBasic;
 
     { Read [Setup] section }
-    EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
+    var SetupEnumProc: TEnumIniSectionProc;
+    if StopAfterPreprocessing then
+      SetupEnumProc := nil  { triggers preprocessing without parsing }
+    else
+      SetupEnumProc := EnumSetupProc;
+    EnumIniSection(SetupEnumProc, 'Setup', 0, Assigned(SetupEnumProc), True, '', False, False);
     CallIdleProc;
+
+    if StopAfterPreprocessing then
+      Exit;
 
     { Verify settings set in [Setup] section }
     if SetupDirectiveLines[ssUseSetupLdr] = 0 then begin

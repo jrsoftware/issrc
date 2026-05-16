@@ -68,7 +68,7 @@ var
   Options: record
     ScriptFilename: String;
     Definitions, IncludePath, IncludeFiles, Output, OutputPath, OutputFilename: String;
-    Quiet, ShowProgress, MessagesJsonl, NoIDESignTools: Boolean;
+    Quiet, ShowProgress, MessagesJsonl, NoIDESignTools, OutputPreprocessed: Boolean;
     IsppOptions: TIsppOptions;
   end;
 
@@ -294,7 +294,7 @@ begin
       if Data.Warning then begin
         if Options.MessagesJsonl then
           WriteJsonlMessage(StdErrHandle, StdErrHandleIsConsole, 0, '', Data.StatusMsg, False, True)
-        else if not Options.Quiet then
+        else if not Options.Quiet or Options.OutputPreprocessed then
           WriteStdErr(Data.StatusMsg, False, True);
       end else if not Options.Quiet then
         WriteStdOut(Data.StatusMsg)
@@ -347,6 +347,9 @@ begin
           SecondsRemaining := '';
         PrintProgress(Format('Compressing: %.2f%% done%s%s', [Data.CompressProgress / Data.CompressProgressMax * 100, BytesCompressedPerSecond, SecondsRemaining]));
       end;
+    iscbNotifyPreproc:
+      if Options.OutputPreprocessed and (Data.PreprocessedScript <> '') then
+        WriteStdOut(Data.PreprocessedScript);
   end;
 end;
 
@@ -432,6 +435,7 @@ procedure ProcessCommandLine;
     WriteStdErr('  /NI                Do not auto-specify Sign Tools configured using the Compiler IDE');
     WriteStdErr('  /MJ                Output errors and warnings in JSONL format');
     WriteStdErr('                     (Warnings are not suppressed by /Q when /MJ is active)');
+    WriteStdErr('  /E                 Preprocess to stdout and suppress compilation');
     WriteStdErr('  /Q                 Quiet compile (suppress status messages and warnings; see /MJ)');
     WriteStdErr('  /Qp                Enable quiet compile while still displaying progress');
     if IsppMode then begin
@@ -491,6 +495,8 @@ begin
       end
       else if GetParam(S, 'NI') then
         Options.NoIDESignTools := True
+      else if GetParam(S, 'E') then
+        Options.OutputPreprocessed := True
       else if IsppMode and GetParam(S, 'D') then begin
         Options.Definitions := Options.Definitions + S + #1;
       end
@@ -538,6 +544,11 @@ begin
     ShowBanner;
     ShowUsage;
     Halt(1);
+  end;
+
+  if Options.OutputPreprocessed then begin
+    Options.Quiet := True;
+    Options.ShowProgress := False;
   end;
 
   if not Options.Quiet then
@@ -665,6 +676,9 @@ begin
         IDESignTools.Free;
       end;
     end;
+
+    if Options.OutputPreprocessed then
+      AppendCompilerOption(CompilerOptions, 'StopAfterPreprocessing', 'true');
 
     if IsppMode then
       IsppOptionsToString(CompilerOptions, Options.IsppOptions, Options.Definitions, Options.IncludePath, Options.IncludeFiles);
