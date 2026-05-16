@@ -131,7 +131,7 @@ type
     OutputDir, OutputBaseFilename, OutputManifestFile, SignedUninstallerDir,
       ExeFilename: String;
     Output, FixedOutput, FixedOutputDir, FixedOutputBaseFilename: Boolean;
-    StopAfterPreprocessing: Boolean;
+    StopAfterPreprocessing, FixedNoCompression: Boolean;
     CompressMethod: TSetupCompressMethod;
     InternalCompressLevel, CompressLevel: Integer;
     InternalCompressProps, CompressProps: TLZMACompressorProps;
@@ -326,6 +326,7 @@ type
     procedure SetOutputBaseFilename(const Value: String);
     procedure SetOutputDir(const Value: String);
     procedure SetStopAfterPreprocessing(Value: Boolean);
+    procedure SetNoCompression(Value: Boolean);
   end;
 
 implementation
@@ -2504,6 +2505,16 @@ begin
   StopAfterPreprocessing := Value;
 end;
 
+procedure TSetupCompiler.SetNoCompression(Value: Boolean);
+begin
+  if Value then begin
+    CompressMethod := cmStored;
+    CompressLevel := 0;
+    InternalCompressLevel := 0;
+  end;
+  FixedNoCompression := Value;
+end;
+
 procedure TSetupCompiler.EnumSetupProc(const Line: PChar; const Ext: Integer);
 var
   KeyName, Value: String;
@@ -2894,7 +2905,7 @@ begin
           AIncludes.Free;
         end;
       end;
-    ssCompression: begin
+    ssCompression: if not FixedNoCompression then begin
         Value := LowerCase(Trim(Value));
         if Value = 'none' then begin
           CompressMethod := cmStored;
@@ -3097,7 +3108,7 @@ begin
     ssInfoAfterFile: begin
         InfoAfterFile := Value;
       end;
-    ssInternalCompressLevel: begin
+    ssInternalCompressLevel: if not FixedNoCompression then begin
         Value := Trim(Value);
         if (Value = '0') or (CompareText(Value, 'none') = 0) then
           InternalCompressLevel := 0
@@ -8258,10 +8269,12 @@ begin
       OutputDir := 'Output';
     if not FixedOutputBaseFilename then
       OutputBaseFilename := 'mysetup';
-    InternalCompressLevel := clLZMANormal;
+    if not FixedNoCompression then begin
+      InternalCompressLevel := clLZMANormal;
+      CompressMethod := cmLZMA2;
+      CompressLevel := clLZMAMax;
+    end;
     InternalCompressProps := TLZMACompressorProps.Create;
-    CompressMethod := cmLZMA2;
-    CompressLevel := clLZMAMax;
     CompressProps := TLZMACompressorProps.Create;
     GetActiveProcessorGroupCountFunc := GetProcAddress(GetModuleHandle(kernel32),
       'GetActiveProcessorGroupCount');

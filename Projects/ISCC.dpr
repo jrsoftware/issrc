@@ -68,7 +68,7 @@ var
   Options: record
     ScriptFilename: String;
     Definitions, IncludePath, IncludeFiles, Output, OutputPath, OutputFilename: String;
-    Quiet, ShowProgress, MessagesJsonl, NoIDESignTools, OutputPreprocessed: Boolean;
+    Quiet, ShowProgress, MessagesJsonl, NoIDESignTools, NoCompression, OutputPreprocessed: Boolean;
     IsppOptions: TIsppOptions;
   end;
 
@@ -433,6 +433,7 @@ procedure ProcessCommandLine;
     WriteStdErr('  /S<name>=<command> Sets a SignTool with the specified name and command');
     WriteStdErr('                     (any Sign Tools configured using the Compiler IDE will be specified automatically)');
     WriteStdErr('  /NI                Do not auto-specify Sign Tools configured using the Compiler IDE');
+    WriteStdErr('  /NC                Disable compression (overrides Compression and InternalCompressLevel)');
     WriteStdErr('  /MJ                Output errors and warnings in JSONL format');
     WriteStdErr('                     (Warnings are not suppressed by /Q when /MJ is active)');
     WriteStdErr('  /E                 Preprocess to stdout and suppress compilation');
@@ -493,6 +494,8 @@ begin
         end;
         SignTools.Add(S);
       end
+      else if GetParam(S, 'NC') then
+        Options.NoCompression := True
       else if GetParam(S, 'NI') then
         Options.NoIDESignTools := True
       else if GetParam(S, 'E') then
@@ -676,6 +679,9 @@ begin
         IDESignTools.Free;
       end;
     end;
+
+    if Options.NoCompression then
+      AppendCompilerOption(CompilerOptions, 'NoCompression', 'true');
 
     if Options.OutputPreprocessed then
       AppendCompilerOption(CompilerOptions, 'StopAfterPreprocessing', 'true');

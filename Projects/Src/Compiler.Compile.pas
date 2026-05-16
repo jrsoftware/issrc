@@ -152,6 +152,15 @@ begin
             Result := isceInvalidParam;
             Exit;
           end;
+        end else if StrLIComp(P, 'NoCompression=', Length('NoCompression=')) = 0 then begin
+          Inc(P, Length('NoCompression='));
+          var NoCompression: Boolean;
+          if TryStrToBoolean(P, NoCompression) then
+            SetupCompiler.SetNoCompression(NoCompression)
+          else begin
+            Result := isceInvalidParam;
+            Exit;
+          end;
         end else if StrLIComp(P, 'StopAfterPreprocessing=', Length('StopAfterPreprocessing=')) = 0 then begin
           Inc(P, Length('StopAfterPreprocessing='));
           var StopAfterPreprocessing: Boolean;
