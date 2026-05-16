@@ -144,6 +144,8 @@ type
                             NoSigning=(0|no|false|1|yes|true)
                               Disables signing (overrides SignTool and
                               SignedUninstaller).
+                            NoSignCheck=(0|no|false|1|yes|true)
+                              Disables signcheck validation.
                             StopAfterPreprocessing=(0|no|false|1|yes|true)
                               Preprocess to stdout and suppress compilation.
                             ISPP:[isppoption]

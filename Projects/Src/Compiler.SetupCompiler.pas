@@ -131,7 +131,7 @@ type
     OutputDir, OutputBaseFilename, OutputManifestFile, SignedUninstallerDir,
       ExeFilename: String;
     Output, FixedOutput, FixedOutputDir, FixedOutputBaseFilename: Boolean;
-    StopAfterPreprocessing, FixedNoCompression, FixedNoSigning: Boolean;
+    StopAfterPreprocessing, FixedNoCompression, FixedNoSigning, FixedNoSignCheck: Boolean;
     CompressMethod: TSetupCompressMethod;
     InternalCompressLevel, CompressLevel: Integer;
     InternalCompressProps, CompressProps: TLZMACompressorProps;
@@ -328,6 +328,7 @@ type
     procedure SetStopAfterPreprocessing(Value: Boolean);
     procedure SetNoCompression(Value: Boolean);
     procedure SetNoSigning(Value: Boolean);
+    procedure SetNoSignCheck(Value: Boolean);
   end;
 
 implementation
@@ -2519,6 +2520,11 @@ end;
 procedure TSetupCompiler.SetNoSigning(Value: Boolean);
 begin
   FixedNoSigning := Value;
+end;
+
+procedure TSetupCompiler.SetNoSignCheck(Value: Boolean);
+begin
+  FixedNoSignCheck := Value;
 end;
 
 procedure TSetupCompiler.EnumSetupProc(const Line: PChar; const Ext: Integer);
@@ -7697,7 +7703,8 @@ var
         FLExtraInfo := FileLocationEntryExtraInfos[I];
         const FileLocationEntryFilename = FileLocationEntryFilenames[Integer(I)];
 
-        if FLExtraInfo.Sign <> fsNoSetting then begin
+        if (FLExtraInfo.Sign <> fsNoSetting) and
+           not ((FLExtraInfo.Sign = fsCheck) and FixedNoSignCheck) then begin
           var SignatureFound := False;
           if FLExtraInfo.Sign in [fsOnce, fsCheck] then begin
             { Check the file for a signature }

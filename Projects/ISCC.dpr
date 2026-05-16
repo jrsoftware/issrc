@@ -68,7 +68,7 @@ var
   Options: record
     ScriptFilename: String;
     Definitions, IncludePath, IncludeFiles, Output, OutputPath, OutputFilename: String;
-    Quiet, ShowProgress, MessagesJsonl, NoIDESignTools, NoCompression, NoSigning, OutputPreprocessed: Boolean;
+    Quiet, ShowProgress, MessagesJsonl, NoIDESignTools, NoCompression, NoSigning, NoSignCheck, OutputPreprocessed: Boolean;
     IsppOptions: TIsppOptions;
   end;
 
@@ -435,6 +435,7 @@ procedure ProcessCommandLine;
     WriteStdErr('  /NI                Do not auto-specify Sign Tools configured using the Compiler IDE');
     WriteStdErr('  /NC                Disable compression (overrides Compression and InternalCompressLevel)');
     WriteStdErr('  /NS                Disable signing (overrides SignTool and SignedUninstaller)');
+    WriteStdErr('  /NSC               Disable signcheck validation');
     WriteStdErr('  /MJ                Output errors and warnings in JSONL format');
     WriteStdErr('                     (Warnings are not suppressed by /Q when /MJ is active)');
     WriteStdErr('  /E                 Preprocess to stdout and suppress compilation');
@@ -502,6 +503,8 @@ begin
       else if GetParam(S, 'NS') then begin
         if S = '' then
           Options.NoSigning := True
+        else if CompareText(S, 'C') = 0 then
+          Options.NoSignCheck := True
         else begin
           ShowBanner;
           WriteStdErr('Unknown option: /NS' + S, True);
@@ -695,6 +698,9 @@ begin
 
     if Options.NoSigning then
       AppendCompilerOption(CompilerOptions, 'NoSigning', 'true');
+
+    if Options.NoSignCheck then
+      AppendCompilerOption(CompilerOptions, 'NoSignCheck', 'true');
 
     if Options.OutputPreprocessed then
       AppendCompilerOption(CompilerOptions, 'StopAfterPreprocessing', 'true');

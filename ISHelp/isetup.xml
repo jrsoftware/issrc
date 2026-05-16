@@ -3868,6 +3868,7 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 <tr><td nowrap=""><tt>/NI</tt></td><td>Do not auto-specify Sign Tools configured using the Compiler IDE</td></tr>
 <tr><td nowrap=""><tt>/NC</tt></td><td>Disable compression (overrides <tt>Compression</tt> and <tt>InternalCompressLevel</tt>)</td></tr>
 <tr><td nowrap=""><tt>/NS</tt></td><td>Disable signing (overrides <tt>SignTool</tt> and <tt>SignedUninstaller</tt>)</td></tr>
+<tr><td nowrap=""><tt>/NSC</tt></td><td>Disable <tt>signcheck</tt> validation</td></tr>
 <tr><td nowrap=""><tt>/MJ</tt></td><td>Output errors and warnings in JSONL format. Warnings are not suppressed by <tt>/Q</tt> when <tt>/MJ</tt> is active.</td></tr>
 <tr><td nowrap=""><tt>/E</tt></td><td>Preprocess to stdout and suppress compilation.</td></tr>
 <tr><td nowrap=""><tt>/Q</tt></td><td>Quiet compile (suppress status messages and warnings; see <tt>/MJ</tt>)</td></tr>
