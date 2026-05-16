@@ -387,14 +387,16 @@ procedure ProcessCommandLine;
     for I := 1 to NewParamCount do
     begin
       S := NewParamStr(I);
-      if Length(S) = 4 then
-        if ((S[1] = '/') or (S[1] = '-')) and (UpCase(S[2]) = Symbol) then
-          case S[4] of
-            '-': SetOption(Options, S[3], False);
-            '+': SetOption(Options, S[3], True)
-          else
-            raise Exception.CreateFmt('Invalid command line option: %s', [S]);
-          end;
+      if (Length(S) >= 2) and ((S[1] = '/') or (S[1] = '-')) and (UpCase(S[2]) = Symbol) then begin
+        if Length(S) <> 4 then
+          raise Exception.CreateFmt('Invalid command line option: %s', [S]);
+        case S[4] of
+          '-': SetOption(Options, S[3], False);
+          '+': SetOption(Options, S[3], True)
+        else
+          raise Exception.CreateFmt('Invalid command line option: %s', [S]);
+        end;
+      end;
     end;
   end;
 
@@ -403,12 +405,16 @@ procedure ProcessCommandLine;
     Result := (Length(S) >= 2) and ((S[1] = '/') or (S[1] = '-'));
   end;
 
-  function GetParam(var S: String; Symbols: String): Boolean;
+  function GetParam(var S: String; const Symbols: String): Boolean;
   begin
-    Result := IsParam(S) and
-      (CompareText(Copy(S, 2, Length(Symbols)), Symbols) = 0);
+    Result := IsParam(S) and (CompareText(Copy(S, 2, Length(Symbols)), Symbols) = 0);
     if Result then
       S := Copy(S, 2 + Length(Symbols), MaxInt);
+  end;
+
+  function GetFlagParam(const S: String; const Symbols: String): Boolean;
+  begin
+    Result := IsParam(S) and (CompareText(Copy(S, 2, MaxInt), Symbols) = 0);
   end;
 
   procedure ShowBanner;
@@ -475,11 +481,13 @@ begin
   for I := 1 to NewParamCount do begin
     S := NewParamStr(I);
     if (S = '') or IsParam(S) then begin
-      if GetParam(S, 'MJ') then
+      if GetFlagParam(S, 'MJ') then
         Options.MessagesJsonl := True
-      else if GetParam(S, 'Q') then begin
+      else if GetFlagParam(S, 'Q') then
+        Options.Quiet := True
+      else if GetFlagParam(S, 'QP') then begin
         Options.Quiet := True;
-        Options.ShowProgress := CompareText(S, 'P') = 0;
+        Options.ShowProgress := True;
       end
       else if GetParam(S, 'O') then begin
         if S = '-' then Options.Output := 'no'
@@ -496,22 +504,15 @@ begin
         end;
         SignTools.Add(S);
       end
-      else if GetParam(S, 'NC') then
+      else if GetFlagParam(S, 'NC') then
         Options.NoCompression := True
-      else if GetParam(S, 'NI') then
+      else if GetFlagParam(S, 'NI') then
         Options.NoIDESignTools := True
-      else if GetParam(S, 'NS') then begin
-        if S = '' then
-          Options.NoSigning := True
-        else if CompareText(S, 'C') = 0 then
-          Options.NoSignCheck := True
-        else begin
-          ShowBanner;
-          WriteStdErr('Unknown option: /NS' + S, True);
-          Halt(1);
-        end;
-      end
-      else if GetParam(S, 'E') then
+      else if GetFlagParam(S, 'NSC') then
+        Options.NoSignCheck := True
+      else if GetFlagParam(S, 'NS') then
+        Options.NoSigning := True
+      else if GetFlagParam(S, 'E') then
         Options.OutputPreprocessed := True
       else if IsppMode and GetParam(S, 'D') then begin
         Options.Definitions := Options.Definitions + S + #1;
@@ -534,7 +535,7 @@ begin
       else if IsppMode and (GetParam(S, '$') or GetParam(S, 'P')) then begin
         { Already handled above }
       end
-      else if GetParam(S, '?') then begin
+      else if GetFlagParam(S, '?') then begin
         ShowBanner;
         ShowUsage;
         Halt(1);
