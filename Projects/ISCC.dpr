@@ -68,7 +68,7 @@ var
   Options: record
     ScriptFilename: String;
     Definitions, IncludePath, IncludeFiles, Output, OutputPath, OutputFilename: String;
-    Quiet, ShowProgress, MessagesJsonl, NoIDESignTools, NoCompression, OutputPreprocessed: Boolean;
+    Quiet, ShowProgress, MessagesJsonl, NoIDESignTools, NoCompression, NoSigning, OutputPreprocessed: Boolean;
     IsppOptions: TIsppOptions;
   end;
 
@@ -434,6 +434,7 @@ procedure ProcessCommandLine;
     WriteStdErr('                     (any Sign Tools configured using the Compiler IDE will be specified automatically)');
     WriteStdErr('  /NI                Do not auto-specify Sign Tools configured using the Compiler IDE');
     WriteStdErr('  /NC                Disable compression (overrides Compression and InternalCompressLevel)');
+    WriteStdErr('  /NS                Disable signing (overrides SignTool and SignedUninstaller)');
     WriteStdErr('  /MJ                Output errors and warnings in JSONL format');
     WriteStdErr('                     (Warnings are not suppressed by /Q when /MJ is active)');
     WriteStdErr('  /E                 Preprocess to stdout and suppress compilation');
@@ -498,6 +499,15 @@ begin
         Options.NoCompression := True
       else if GetParam(S, 'NI') then
         Options.NoIDESignTools := True
+      else if GetParam(S, 'NS') then begin
+        if S = '' then
+          Options.NoSigning := True
+        else begin
+          ShowBanner;
+          WriteStdErr('Unknown option: /NS' + S, True);
+          Halt(1);
+        end;
+      end
       else if GetParam(S, 'E') then
         Options.OutputPreprocessed := True
       else if IsppMode and GetParam(S, 'D') then begin
@@ -682,6 +692,9 @@ begin
 
     if Options.NoCompression then
       AppendCompilerOption(CompilerOptions, 'NoCompression', 'true');
+
+    if Options.NoSigning then
+      AppendCompilerOption(CompilerOptions, 'NoSigning', 'true');
 
     if Options.OutputPreprocessed then
       AppendCompilerOption(CompilerOptions, 'StopAfterPreprocessing', 'true');

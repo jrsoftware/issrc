@@ -141,6 +141,9 @@ type
                             NoCompression=(0|no|false|1|yes|true)
                               Disables compression (overrides Compression
                               and InternalCompressLevel).
+                            NoSigning=(0|no|false|1|yes|true)
+                              Disables signing (overrides SignTool and
+                              SignedUninstaller).
                             StopAfterPreprocessing=(0|no|false|1|yes|true)
                               Preprocess to stdout and suppress compilation.
                             ISPP:[isppoption]

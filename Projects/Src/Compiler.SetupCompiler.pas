@@ -131,7 +131,7 @@ type
     OutputDir, OutputBaseFilename, OutputManifestFile, SignedUninstallerDir,
       ExeFilename: String;
     Output, FixedOutput, FixedOutputDir, FixedOutputBaseFilename: Boolean;
-    StopAfterPreprocessing, FixedNoCompression: Boolean;
+    StopAfterPreprocessing, FixedNoCompression, FixedNoSigning: Boolean;
     CompressMethod: TSetupCompressMethod;
     InternalCompressLevel, CompressLevel: Integer;
     InternalCompressProps, CompressProps: TLZMACompressorProps;
@@ -327,6 +327,7 @@ type
     procedure SetOutputDir(const Value: String);
     procedure SetStopAfterPreprocessing(Value: Boolean);
     procedure SetNoCompression(Value: Boolean);
+    procedure SetNoSigning(Value: Boolean);
   end;
 
 implementation
@@ -2515,6 +2516,11 @@ begin
   FixedNoCompression := Value;
 end;
 
+procedure TSetupCompiler.SetNoSigning(Value: Boolean);
+begin
+  FixedNoSigning := Value;
+end;
+
 procedure TSetupCompiler.EnumSetupProc(const Line: PChar; const Ext: Integer);
 var
   KeyName, Value: String;
@@ -3281,7 +3287,7 @@ begin
     ssShowUndisplayableLanguages: begin
         WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
       end;
-    ssSignedUninstaller: begin
+    ssSignedUninstaller: if not FixedNoSigning then begin
         SetSetupHeaderOption(shSignedUninstaller);
       end;
     ssSignedUninstallerDir: begin
@@ -3289,7 +3295,7 @@ begin
           Invalid;
         SignedUninstallerDir := Value;
       end;
-    ssSignTool: begin
+    ssSignTool: if not FixedNoSigning then begin
         P := Pos(' ', Value);
         if (P <> 0) then begin
           SignTool := Copy(Value, 1, P-1);

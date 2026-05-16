@@ -161,6 +161,15 @@ begin
             Result := isceInvalidParam;
             Exit;
           end;
+        end else if StrLIComp(P, 'NoSigning=', Length('NoSigning=')) = 0 then begin
+          Inc(P, Length('NoSigning='));
+          var NoSigning: Boolean;
+          if TryStrToBoolean(P, NoSigning) then
+            SetupCompiler.SetNoSigning(NoSigning)
+          else begin
+            Result := isceInvalidParam;
+            Exit;
+          end;
         end else if StrLIComp(P, 'StopAfterPreprocessing=', Length('StopAfterPreprocessing=')) = 0 then begin
           Inc(P, Length('StopAfterPreprocessing='));
           var StopAfterPreprocessing: Boolean;
