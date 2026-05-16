@@ -71,21 +71,15 @@ Type: files; Name: "{app}\Languages\*.isl"
 
 #include "setup.allowedpublickeys.iss"
 
-#ifdef SIGNTOOL
-  #define signcheck "signcheck"
-#else
-  #define signcheck
-#endif
-
 [Files]
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "{#CheckArch("files\ISIDE.exe")}"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\isscint{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\isscint{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "{#CheckArch("files\ISCC.exe")}"; DestDir: "{app}"; Flags: ignoreversion {#signcheck} touch
-Source: "{#CheckArch("files\ISCmplr.dll")}"; DestDir: "{app}"; Flags: ignoreversion issigverify {#signcheck} touch
+Source: "{#CheckArch("files\ISCC.exe")}"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
+Source: "{#CheckArch("files\ISCmplr.dll")}"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\ISCmplr.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "{#CheckArch("files\ISPP.dll")}"; DestDir: "{app}"; Flags: ignoreversion issigverify {#signcheck} touch
+Source: "{#CheckArch("files\ISPP.dll")}"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\ISPP.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\iszlib{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
