@@ -50,10 +50,8 @@ UsePreviousLanguage=no
 LicenseFile=license.txt
 TouchDate=none
 TouchTime=00:00
-#ifdef SIGNTOOL
 SignTool=issigntool256
 SignedUninstaller=yes
-#endif
 SetupArchitecture={#arch}
 
 #expr EmitLanguagesSection
