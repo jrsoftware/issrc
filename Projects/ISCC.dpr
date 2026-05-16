@@ -534,7 +534,7 @@ begin
       else if IsppMode and (GetParam(S, '$') or GetParam(S, 'P')) then begin
         { Already handled above }
       end
-      else if S = '/?' then begin
+      else if GetParam(S, '?') then begin
         ShowBanner;
         ShowUsage;
         Halt(1);
