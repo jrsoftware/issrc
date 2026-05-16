@@ -2252,14 +2252,15 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<description header="no">
 				<p>The <link href="compilercmdline">console-mode compiler</link> (ISCC.exe) provides extra parameters to control Inno Setup Preprocessor:</p>
 				<table>
-					<tr><td>/D&lt;name&gt;[=&lt;value&gt;]</td><td>Emulate <code>#define public &lt;name&gt; &lt;value&gt;</code></td></tr>
-					<tr><td>/$&lt;letter&gt;(+|-)</td><td>Emulate <code>#pragma option -&lt;letter&gt;(+|-)</code></td></tr>
-					<tr><td>/P&lt;letter&gt;(+|-)</td><td>Emulate <code>#pragma parseroption -&lt;letter&gt;(+|-)</code></td></tr>
-					<tr><td>/I&lt;paths&gt;</td><td>Emulate <code>#pragma include &lt;paths&gt;</code></td></tr>
-					<tr><td>/J&lt;filename&gt;</td><td>Emulate <code>#include &lt;filename&gt;</code></td></tr>
-					<tr><td>/{#&lt;string&gt;</td><td>Emulate <code>#pragma inlinestart &lt;string&gt;</code></td></tr>
-					<tr><td>/}&lt;string&gt;</td><td>Emulate <code>#pragma inlineend &lt;string&gt;</code></td></tr>
-					<tr><td>/V&lt;number&gt;</td><td>Emulate <code>#pragma verboselevel &lt;number&gt;</code></td></tr>
+					<tr><th>Option</th><th>Meaning</th></tr>
+					<tr><td nowrap=""><code>/D<i>&lt;name&gt;</i>[=<i>&lt;value&gt;</i>]</code></td><td>Emulate <code>#define public <i>&lt;name&gt; &lt;value&gt;</i></code></td></tr>
+					<tr><td nowrap=""><code>/$<i>&lt;letter&gt;</i>(+|-)</code></td><td>Emulate <code>#pragma option -<i>&lt;letter&gt;</i>(+|-)</code></td></tr>
+					<tr><td nowrap=""><code>/P<i>&lt;letter&gt;</i>(+|-)</code></td><td>Emulate <code>#pragma parseroption -<i>&lt;letter&gt;</i>(+|-)</code></td></tr>
+					<tr><td nowrap=""><code>/I<i>&lt;paths&gt;</i></code></td><td>Emulate <code>#pragma include <i>&lt;paths&gt;</i></code></td></tr>
+					<tr><td nowrap=""><code>/J<i>&lt;filename&gt;</i></code></td><td>Emulate <code>#include <i>&lt;filename&gt;</i></code></td></tr>
+					<tr><td nowrap=""><code>/{#<i>&lt;string&gt;</i></code></td><td>Emulate <code>#pragma inlinestart <i>&lt;string&gt;</i></code></td></tr>
+					<tr><td nowrap=""><code>/}<i>&lt;string&gt;</i></code></td><td>Emulate <code>#pragma inlineend <i>&lt;string&gt;</i></code></td></tr>
+					<tr><td nowrap=""><code>/V<i>&lt;number&gt;</i></code></td><td>Emulate <code>#pragma verboselevel <i>&lt;number&gt;</i></code></td></tr>
 				</table>
 				<p>Example: <tt>iscc /$c- /Pu+ "/DLicenseFile=Trial License.txt" /Ic:\inc;d:\inc /Jdefines.iss "c:\isetup\samples\my script.iss"</tt></p>
 			</description>

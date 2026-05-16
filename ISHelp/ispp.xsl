@@ -85,6 +85,10 @@
   <tr><xsl:apply-templates/></tr>
 </xsl:template>
 
+<xsl:template match="th">
+  <th><xsl:apply-templates/></th>
+</xsl:template>
+
 <xsl:template match="td">
   <td><xsl:apply-templates/></td>
 </xsl:template>

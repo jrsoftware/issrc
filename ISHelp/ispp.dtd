@@ -24,7 +24,7 @@
 <!ELEMENT pre       (line)*>
 <!ELEMENT line      (#PCDATA|link|b)*>
 <!ELEMENT tt        (#PCDATA|i|link|extlink)*>
-<!ELEMENT code      (#PCDATA|b)*>
+<!ELEMENT code      (#PCDATA|b|i)*>
 <!ELEMENT link      (#PCDATA)*>
 <!ATTLIST link
   href    CDATA     #IMPLIED
@@ -66,8 +66,13 @@
 <!ELEMENT case (txt|nt|opt|cases)*>
 
 <!ELEMENT table       (tr)*>
-<!ELEMENT tr          (td)*>
+<!ELEMENT tr          (th|td)*>
+<!ELEMENT th          (#PCDATA)>
+<!ATTLIST th
+  nowrap CDATA #IMPLIED>
 <!ELEMENT td          (#PCDATA|b|i|link|extlink|table|code)*>
+<!ATTLIST td
+  nowrap CDATA #IMPLIED>
 
 <!ELEMENT ul          (li)*>
 <!ELEMENT li          (#PCDATA|tt|link|extlink|p|pre)*>
