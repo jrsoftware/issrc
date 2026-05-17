@@ -3861,18 +3861,19 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 <indent>
 <table>
 <tr><th>Option</th><th>Meaning</th></tr>
-<tr><td nowrap=""><tt>/O+</tt><br/><tt>/O-</tt></td><td>Enable or disable output (overrides <tt>Output</tt>)</td></tr>
-<tr><td nowrap=""><tt>/O<i>&lt;path&gt;</i></tt></td><td>Output files to specified path (overrides <tt>OutputDir</tt>)</td></tr>
-<tr><td nowrap=""><tt>/F<i>&lt;filename&gt;</i></tt></td><td>Specifies an output filename (overrides <tt>OutputBaseFilename</tt>)</td></tr>
-<tr><td nowrap=""><tt>/S<i>&lt;name&gt;</i>=<i>&lt;command&gt;</i></tt></td><td>Sets a <tt>SignTool</tt> with the specified name and command (any Sign Tools configured using the Compiler IDE will be specified automatically)</td></tr>
-<tr><td nowrap=""><tt>/NI</tt></td><td>Do not auto-specify Sign Tools configured using the Compiler IDE</td></tr>
-<tr><td nowrap=""><tt>/NC</tt></td><td>Disable compression (overrides <tt>Compression</tt> and <tt>InternalCompressLevel</tt>)</td></tr>
-<tr><td nowrap=""><tt>/NS</tt></td><td>Disable signing (overrides <tt>SignTool</tt> and <tt>SignedUninstaller</tt>)</td></tr>
-<tr><td nowrap=""><tt>/NSC</tt></td><td>Disable <tt>signcheck</tt> validation</td></tr>
-<tr><td nowrap=""><tt>/MJ</tt></td><td>Output errors and warnings in JSONL format. Warnings are not suppressed by <tt>/Q</tt> when <tt>/MJ</tt> is active.</td></tr>
-<tr><td nowrap=""><tt>/E</tt></td><td>Preprocess to stdout and suppress compilation.</td></tr>
-<tr><td nowrap=""><tt>/Q</tt></td><td>Quiet compile (suppress status messages and warnings; see <tt>/MJ</tt>)</td></tr>
-<tr><td nowrap=""><tt>/Qp</tt></td><td>Enable quiet compile while still displaying progress</td></tr>
+<tr><td nowrap=""><tt>/O+</tt><br/><tt>/O-</tt></td><td>Enables or disables output (overrides <tt>Output</tt>).</td></tr>
+<tr><td nowrap=""><tt>/O<i>&lt;path&gt;</i></tt></td><td>Outputs files to specified path (overrides <tt>OutputDir</tt>).</td></tr>
+<tr><td nowrap=""><tt>/F<i>&lt;filename&gt;</i></tt></td><td>Specifies an output filename (overrides <tt>OutputBaseFilename</tt>).</td></tr>
+<tr><td nowrap=""><tt>/S<i>&lt;name&gt;</i>=<i>&lt;command&gt;</i></tt></td><td>Sets a <tt>SignTool</tt> with the specified name and command (any Sign Tools configured using the Compiler IDE will be specified automatically).</td></tr>
+<tr><td nowrap=""><tt>/NI</tt></td><td>Do not auto-specify Sign Tools configured using the Compiler IDE.</td></tr>
+<tr><td nowrap=""><tt>/NC</tt></td><td>Disables compression (overrides <tt>Compression</tt> and <tt>InternalCompressLevel</tt>).</td></tr>
+<tr><td nowrap=""><tt>/NS</tt></td><td>Disables signing (overrides <tt>SignTool</tt> and <tt>SignedUninstaller</tt>).</td></tr>
+<tr><td nowrap=""><tt>/NSC</tt></td><td>Disables <tt>signcheck</tt> validation.</td></tr>
+<tr><td nowrap=""><tt>/MJ</tt></td><td>Outputs errors and warnings in JSONL format. Warnings are not suppressed by <tt>/Q</tt> when <tt>/MJ</tt> is active.</td></tr>
+<tr><td nowrap=""><tt>/E</tt></td><td>Preprocesses to stdout and suppresses compilation.</td></tr>
+<tr><td nowrap=""><tt>/Q</tt></td><td>Suppresses messages that are normally printed to standard output (see <tt>/MJ</tt>).</td></tr>
+<tr><td nowrap=""><tt>/Qp</tt></td><td>Same as <tt>/Q</tt> while still displaying progress.</td></tr>
+<tr><td nowrap=""><tt>/?</tt></td><td>Prints usage information.</td></tr>
 </table>
 <example><pre>iscc /Qp /O"My Output" /F"MyProgram-1.0" /Sbyparam=$p "c:\isetup\samples\my script.iss"</pre></example>
 </indent>
