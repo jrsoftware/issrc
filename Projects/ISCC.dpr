@@ -379,6 +379,17 @@ procedure ProcessCommandLine;
     IncludeFiles := '';
   end;
 
+  procedure ShowBanner;
+  begin
+    WriteStdOut('Inno Setup 7' {$IFNDEF WIN64} + ' (32-bit)' {$ENDIF} + ' Command-Line Compiler');
+    WriteStdOut('Copyright (C) 1997-2026 Jordan Russell. All rights reserved.');
+    WriteStdOut('Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.');
+    if IsppMode then
+      WriteStdOut('Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.');
+    WriteStdOut('https://www.innosetup.com');
+    WriteStdOut('');
+  end;
+
   procedure ReadOptionsParam(var Options: TOptions; Symbol: Char);
   var
     I: Integer;
@@ -388,13 +399,18 @@ procedure ProcessCommandLine;
     begin
       S := NewParamStr(I);
       if (Length(S) >= 2) and ((S[1] = '/') or (S[1] = '-')) and (UpCase(S[2]) = Symbol) then begin
-        if Length(S) <> 4 then
-          raise Exception.CreateFmt('Invalid command line option: %s', [S]);
+        if Length(S) <> 4 then begin
+          ShowBanner;
+          WriteStdErr('Invalid option: ' + S, True);
+          Halt(1);
+        end;
         case S[4] of
           '-': SetOption(Options, S[3], False);
           '+': SetOption(Options, S[3], True)
         else
-          raise Exception.CreateFmt('Invalid command line option: %s', [S]);
+          ShowBanner;
+          WriteStdErr('Invalid option: ' + S, True);
+          Halt(1);
         end;
       end;
     end;
@@ -431,17 +447,6 @@ procedure ProcessCommandLine;
       ((LongSymbols <> '') and IsLongParam(S) and (Copy(S, 3, MaxInt) = LongSymbols));
   end;
 
-  procedure ShowBanner;
-  begin
-    WriteStdOut('Inno Setup 7' {$IFNDEF WIN64} + ' (32-bit)' {$ENDIF} + ' Command-Line Compiler');
-    WriteStdOut('Copyright (C) 1997-2026 Jordan Russell. All rights reserved.');
-    WriteStdOut('Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.');
-    if IsppMode then
-      WriteStdOut('Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.');
-    WriteStdOut('https://www.innosetup.com');
-    WriteStdOut('');
-  end;
-
   procedure ShowUsage;
   begin
     WriteStdErr('Usage:  iscc [options] scriptfile.iss');
@@ -459,7 +464,7 @@ procedure ProcessCommandLine;
     WriteStdErr('  --no-signing, -ns                    Disables signing (overrides SignTool and SignedUninstaller)');
     WriteStdErr('  --no-signcheck, -nsc                 Disables signcheck validation');
     WriteStdErr('  --messages-jsonl, -mj                Outputs errors and warnings in JSONL format');
-    WriteStdErr('                                       (Warnings are not suppressed by --quiet when --messages-jsonl is active)');
+    WriteStdErr('                                       (warnings are not suppressed by --quiet when --messages-jsonl is active)');
     WriteStdErr('  --preprocess, -e                     Preprocesses to stdout and suppresses compilation');
     WriteStdErr('  --quiet, -q                          Suppresses messages that are normally printed to standard output (see --messages-jsonl)');
     WriteStdErr('  --quiet-progress, -qp                Same as --quiet while still displaying progress');
@@ -469,6 +474,7 @@ procedure ProcessCommandLine;
       WriteStdErr('  -$<letter>(+|-)                      Emulates #pragma option -<letter>(+|-)');
       WriteStdErr('  -p<letter>(+|-)                      Emulates #pragma parseroption -<letter>(+|-)');
       WriteStdErr('  --include-dirs=<paths>, -i<paths>    Emulates #pragma include <paths>');
+      WriteStdErr('                                       (multiple paths can be delimited with semicolons)');
       WriteStdErr('  --include=<filename>, -j<filename>   Emulates #include <filename>');
       WriteStdErr('  --inline-start=<string>, -{#<string> Emulates #pragma inlinestart <string>');
       WriteStdErr('  --inline-end=<string>, -}<string>    Emulates #pragma inlineend <string>');
@@ -478,10 +484,9 @@ procedure ProcessCommandLine;
     WriteStdErr('');
     WriteStdErr('Examples: iscc "c:\isetup\samples\my script.iss"');
     WriteStdErr('          iscc --quiet-progress --output-dir="My Output" -f"MyProgram-1.0" -sbyparam=$p "c:\isetup\samples\my script.iss"');
-    if IsppMode then begin
+    if IsppMode then
       WriteStdErr('          iscc -$c- -pu+ "--define=Lic=Trial Lic.txt" --include-dirs=C:\INC;D:\INC scriptfile.iss');
-      WriteStdErr('');
-    end;
+    WriteStdErr('');
   end;
 
 var
@@ -505,8 +510,7 @@ begin
       else if GetFlagParam(S, 'QP', 'quiet-progress') then begin
         Options.Quiet := True;
         Options.ShowProgress := True;
-      end
-      else if GetFlagParam(S, 'O+', 'output=yes') then
+      end else if GetFlagParam(S, 'O+', 'output=yes') then
         Options.Output := 'yes'
       else if GetFlagParam(S, 'O-', 'output=no') then
         Options.Output := 'no'
@@ -517,12 +521,11 @@ begin
       else if GetParam(S, 'S', 'signtool') then begin
         if Pos('=', S) = 0 then begin
           ShowBanner;
-          WriteStdErr('Invalid option: ' + S, True);
+          WriteStdErr('Invalid option: ' + NewParamStr(I), True);
           Halt(1);
         end;
         SignTools.Add(S);
-      end
-      else if GetFlagParam(S, 'NC', 'no-compression') then
+      end else if GetFlagParam(S, 'NC', 'no-compression') then
         Options.NoCompression := True
       else if GetFlagParam(S, 'NI', 'no-ide-signtools') then
         Options.NoIDESignTools := True
@@ -539,29 +542,26 @@ begin
       else if IsppMode and GetParam(S, 'J', 'include') then
         Options.IncludeFiles := Options.IncludeFiles + S + #1
       else if IsppMode and GetParam(S, '{#', 'inline-start') then begin
-        if S <> '' then Options.IsppOptions.InlineStart := S;
-      end
-      else if IsppMode and GetParam(S, '}', 'inline-end') then begin
-        if S <> '' then Options.IsppOptions.InlineEnd := S;
-      end
-      else if IsppMode and GetParam(S, 'V', 'verbose') then begin
-        if S <> '' then Options.IsppOptions.VerboseLevel := StrToIntDef(S, 0);
-      end
-      else if IsppMode and (GetParam(S, '$') or GetParam(S, 'P')) then begin
+        if S <> '' then
+          Options.IsppOptions.InlineStart := S;
+      end else if IsppMode and GetParam(S, '}', 'inline-end') then begin
+        if S <> '' then
+          Options.IsppOptions.InlineEnd := S;
+      end else if IsppMode and GetParam(S, 'V', 'verbose') then begin
+        if S <> '' then
+          Options.IsppOptions.VerboseLevel := StrToIntDef(S, 0);
+      end else if IsppMode and (GetParam(S, '$') or GetParam(S, 'P')) then begin
         { Already handled above }
-      end
-      else if GetFlagParam(S, '?', 'help') then begin
+      end else if GetFlagParam(S, '?', 'help') then begin
         ShowBanner;
         ShowUsage;
         Halt(0);
-      end
-      else begin
+      end else begin
         ShowBanner;
-        WriteStdErr('Unknown option: ' + S, True);
+        WriteStdErr('Unknown option: ' + NewParamStr(I), True);
         Halt(1);
       end;
-    end
-    else begin
+    end else begin
       { Not a switch; must be the script filename }
       if Options.ScriptFilename <> '' then begin
         ShowBanner;
@@ -632,8 +632,7 @@ begin
   if Options.ScriptFilename <> '-' then begin
     Options.ScriptFilename := PathExpand(Options.ScriptFilename);
     ScriptPath := PathExtractPath(Options.ScriptFilename);
-  end
-  else begin
+  end else begin
     { Read from standard input }
     Options.ScriptFilename := '<stdin>';
     ScriptPath := GetCurrentDir;

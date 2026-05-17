@@ -3869,7 +3869,7 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 <tr><td nowrap=""><tt>--no-compression</tt>, <tt>-nc</tt></td><td>Disables compression (overrides <tt>Compression</tt> and <tt>InternalCompressLevel</tt>).</td></tr>
 <tr><td nowrap=""><tt>--no-signing</tt>, <tt>-ns</tt></td><td>Disables signing (overrides <tt>SignTool</tt> and <tt>SignedUninstaller</tt>).</td></tr>
 <tr><td nowrap=""><tt>--no-signcheck</tt>, <tt>-nsc</tt></td><td>Disables <tt>signcheck</tt> validation.</td></tr>
-<tr><td nowrap=""><tt>--messages-jsonl</tt>, <tt>-mj</tt></td><td>Outputs errors and warnings in JSONL format. Warnings are not suppressed by <tt>--quiet</tt> when <tt>--messages-jsonl</tt> is active.</td></tr>
+<tr><td nowrap=""><tt>--messages-jsonl</tt>, <tt>-mj</tt></td><td>Outputs errors and warnings in JSONL format (warnings are not suppressed by <tt>--quiet</tt> when <tt>--messages-jsonl</tt> is active).</td></tr>
 <tr><td nowrap=""><tt>--preprocess</tt>, <tt>-e</tt></td><td>Preprocesses to stdout and suppresses compilation.</td></tr>
 <tr><td nowrap=""><tt>--quiet</tt>, <tt>-q</tt></td><td>Suppresses messages that are normally printed to standard output (see <tt>--messages-jsonl</tt>).</td></tr>
 <tr><td nowrap=""><tt>--quiet-progress</tt>, <tt>-qp</tt></td><td>Same as <tt>--quiet</tt> while still displaying progress.</td></tr>
