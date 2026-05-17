@@ -399,7 +399,7 @@ procedure ProcessCommandLine;
     begin
       S := NewParamStr(I);
       if (Length(S) >= 2) and ((S[1] = '/') or (S[1] = '-')) and (UpCase(S[2]) = Symbol) then begin
-        if Length(S) <> 4 then begin
+        if (Length(S) <> 4) or not CharInSet(UpCase(S[3]), ['A'..'Z']) then begin
           ShowBanner;
           WriteStdErr('Invalid option: ' + S, True);
           Halt(1);

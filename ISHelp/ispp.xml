@@ -2250,7 +2250,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 		<topic id="isppcc">
 			<title>Extended Command Line Compiler</title>
 			<description header="no">
-				<p>The <link href="compilercmdline">console-mode compiler</link> (ISCC.exe) provides extra options to control Inno Setup Preprocessor:</p>
+				<p>The <link href="compilercmdline">console-mode compiler</link> (<tt>ISCC.exe</tt>) provides extra options to control Inno Setup Preprocessor:</p>
 				<table>
 					<tr><th>Option</th><th>Meaning</th></tr>
 					<tr><td nowrap=""><code>--define=<i>&lt;name&gt;</i>[=<i>&lt;value&gt;</i>]</code>, <code>-d<i>&lt;name&gt;</i>[=<i>&lt;value&gt;</i>]</code></td><td>Emulates <code>#define public <i>&lt;name&gt; &lt;value&gt;</i></code>.</td></tr>
