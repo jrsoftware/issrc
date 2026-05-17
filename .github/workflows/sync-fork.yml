@@ -12,7 +12,9 @@ jobs:
       contents: write
     steps:
       - name: Synchronize fork
-        run: gh repo sync $REPOSITORY -b $BRANCH_NAME
+        run: |
+          gh repo sync $REPOSITORY -b $BRANCH_NAME
+          gh repo sync $REPOSITORY -b vnext
         env:
           GITHUB_TOKEN: ${{ secrets.ISSRC_BUILD_ENV_SYNC_TOKEN }}
           REPOSITORY: ${{ github.repository }}
