@@ -4,7 +4,8 @@ on:
   pull_request:
     types: [opened, synchronize, ready_for_review]
     branches:
-      - code-review
+      - copilot-review
+      - copilot-review2
 
 jobs:
   copilot-review:
