@@ -538,7 +538,7 @@ begin
       else if GetFlagParam(S, '?') then begin
         ShowBanner;
         ShowUsage;
-        Halt(1);
+        Halt(0);
       end
       else begin
         ShowBanner;
