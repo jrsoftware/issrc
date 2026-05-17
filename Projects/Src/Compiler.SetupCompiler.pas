@@ -1295,56 +1295,54 @@ var
 
     Lines := ReadScriptFile(Filename, UseCache, AnsiConvertCodePage);
     try
-      if Assigned(EnumProc) then begin
-        SaveLineFilename := LineFilename;
-        SaveLineNumber := LineNumber;
+      SaveLineFilename := LineFilename;
+      SaveLineNumber := LineNumber;
 
-        for var LineIndex := 0 to Lines.Count-1 do begin
-          Line := Lines[LineIndex];
-          LineFilename := Line.LineFilename;
-          LineNumber := Line.LineNumber;
-          L := Trim(Line.LineText);
-          { Check for blank lines or comments }
-          if (not FoundSection or SkipBlankLines) and ((L = '') or (L[1] = ';')) then Continue;
-          if (L <> '') and (L[1] = '[') then begin
-            { Section tag }
-            I := Pos(']', L);
-            if (I < 3) or (I <> Length(L)) then
-              AbortCompile(SCompilerSectionTagInvalid);
-            L := Copy(L, 2, I-2);
-            if L[1] = '/' then begin
-              L := Copy(L, 2, Maxint);
-              if (LastSection = '') or (CompareText(L, LastSection) <> 0) then
-                AbortCompileFmt(SCompilerSectionBadEndTag, [L]);
-              FoundSection := False;
-              LastSection := '';
-            end
-            else begin
-              FoundSection := (CompareText(L, SectionName) = 0);
-              LastSection := L;
-            end;
+      for var LineIndex := 0 to Lines.Count-1 do begin
+        Line := Lines[LineIndex];
+        LineFilename := Line.LineFilename;
+        LineNumber := Line.LineNumber;
+        L := Trim(Line.LineText);
+        { Check for blank lines or comments }
+        if (not FoundSection or SkipBlankLines) and ((L = '') or (L[1] = ';')) then Continue;
+        if (L <> '') and (L[1] = '[') then begin
+          { Section tag }
+          I := Pos(']', L);
+          if (I < 3) or (I <> Length(L)) then
+            AbortCompile(SCompilerSectionTagInvalid);
+          L := Copy(L, 2, I-2);
+          if L[1] = '/' then begin
+            L := Copy(L, 2, Maxint);
+            if (LastSection = '') or (CompareText(L, LastSection) <> 0) then
+              AbortCompileFmt(SCompilerSectionBadEndTag, [L]);
+            FoundSection := False;
+            LastSection := '';
           end
           else begin
-            if not FoundSection then begin
-              if LastSection = '' then
-                AbortCompile(SCompilerTextNotInSection);
-              Continue;  { not on the right section }
-            end;
-            if Verbose then begin
-              if LineFilename = '' then
-                AddStatus(Format(SCompilerStatusParsingSectionLine,
-                  [SectionName, LineNumber]))
-              else
-                AddStatus(Format(SCompilerStatusParsingSectionLineFile,
-                  [SectionName, LineNumber, LineFilename]));
-            end;
-            EnumProc(PChar(Line.LineText), Ext);
+            FoundSection := (CompareText(L, SectionName) = 0);
+            LastSection := L;
           end;
+        end
+        else begin
+          if not FoundSection then begin
+            if LastSection = '' then
+              AbortCompile(SCompilerTextNotInSection);
+            Continue;  { not on the right section }
+          end;
+          if Verbose then begin
+            if LineFilename = '' then
+              AddStatus(Format(SCompilerStatusParsingSectionLine,
+                [SectionName, LineNumber]))
+            else
+              AddStatus(Format(SCompilerStatusParsingSectionLineFile,
+                [SectionName, LineNumber, LineFilename]));
+          end;
+          EnumProc(PChar(Line.LineText), Ext);
         end;
-
-        LineFilename := SaveLineFilename;
-        LineNumber := SaveLineNumber;
       end;
+
+      LineFilename := SaveLineFilename;
+      LineNumber := SaveLineNumber;
     finally
       if not UseCache then
         Lines.Free;
@@ -8359,16 +8357,12 @@ begin
     MinArchiveExtraction := aeBasic;
 
     { Read [Setup] section }
-    var SetupEnumProc: TEnumIniSectionProc;
-    if StopAfterPreprocessing then
-      SetupEnumProc := nil  { triggers preprocessing without parsing }
-    else
-      SetupEnumProc := EnumSetupProc;
-    EnumIniSection(SetupEnumProc, 'Setup', 0, Assigned(SetupEnumProc), True, '', False, False);
-    CallIdleProc;
-
-    if StopAfterPreprocessing then
+    if StopAfterPreprocessing then begin
+      ReadScriptFile('', False, 0).Free;
       Exit;
+    end else
+      EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
+    CallIdleProc;
 
     { Verify settings set in [Setup] section }
     if SetupDirectiveLines[ssUseSetupLdr] = 0 then begin
