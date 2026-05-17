@@ -86,11 +86,11 @@
 </xsl:template>
 
 <xsl:template match="th">
-  <th><xsl:apply-templates/></th>
+  <th><xsl:copy-of select="@nowrap"/><xsl:apply-templates/></th>
 </xsl:template>
 
 <xsl:template match="td">
-  <td><xsl:apply-templates/></td>
+  <td><xsl:copy-of select="@nowrap"/><xsl:apply-templates/></td>
 </xsl:template>
 
 <xsl:template match="code">
