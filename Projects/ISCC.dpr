@@ -447,6 +447,44 @@ procedure ProcessCommandLine;
       ((LongSymbols <> '') and IsLongParam(S) and (Copy(S, 3, MaxInt) = LongSymbols));
   end;
 
+  procedure RejectSingleDashLongParam(const S: String);
+
+    function StartsWithSingleDashLongParam(const S, LongSymbols: String): Boolean;
+    begin
+      const Symbols = Copy(S, 2, MaxInt);
+      Result := (Length(Symbols) > Length(LongSymbols)) and
+                (CompareText(Copy(Symbols, 1, Length(LongSymbols)), LongSymbols) = 0) and
+                (Symbols[Length(LongSymbols) + 1] = '=');
+    end;
+
+  begin
+    if not IsParam(S) or IsLongParam(S) then
+      Exit;
+
+    { Reject for example -signtool= which matches -s but was meant as --signtool=,
+      and cross-collisions like -include= matching -i which is --include-dirs=.
+      Without this, -signtool=x would define a signtool with name "igntool" and
+      command "x". }
+
+    if StartsWithSingleDashLongParam(S, 'output-filename') or
+       StartsWithSingleDashLongParam(S, 'output-dir') or
+       StartsWithSingleDashLongParam(S, 'output') or
+       StartsWithSingleDashLongParam(S, 'signtool') or
+       (IsppMode and (
+         StartsWithSingleDashLongParam(S, 'include-dirs') or
+         StartsWithSingleDashLongParam(S, 'inline-start') or
+         StartsWithSingleDashLongParam(S, 'inline-end') or
+         StartsWithSingleDashLongParam(S, 'include') or
+         StartsWithSingleDashLongParam(S, 'define') or
+         StartsWithSingleDashLongParam(S, 'verbose'))) then begin
+      ShowBanner;
+      const EqualsPos = Pos('=', S);
+      const SuggestedParam = LowerCase(Copy(S, 2, EqualsPos - 2)) + Copy(S, EqualsPos, MaxInt);
+      WriteStdErr(Format('Invalid option: %s (did you mean --%s?)', [S, SuggestedParam]), True);
+      Halt(1);
+    end;
+  end;
+
   procedure ShowUsage;
   begin
     WriteStdErr('Usage:  iscc [options] scriptfile.iss');
@@ -503,6 +541,7 @@ begin
   for I := 1 to NewParamCount do begin
     S := NewParamStr(I);
     if (S = '') or IsParam(S) or IsLongParam(S) then begin
+      RejectSingleDashLongParam(S);
       if GetFlagParam(S, 'MJ', 'messages-jsonl') then
         Options.MessagesJsonl := True
       else if GetFlagParam(S, 'Q', 'quiet') then
