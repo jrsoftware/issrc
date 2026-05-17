@@ -40,7 +40,7 @@ Under `ISHelp/ISHelpGen/`:
 - Extended-length (super) paths (`\\?\`) are used by Setup to avoid MAX_PATH issues and are produced by `ApplyPathRedirRules` unless `rfNormalPath` is used. Only pass super paths to APIs known to accept them; when in doubt (especially for shell APIs or user-facing strings), convert back to a normal path.
 
 ## Build
-- Run `compile.bat x64` or `compile.bat x86`. Release outputs go to `Files`, debug binaries to `Projects\Bin`.
+- Run `compile.bat x64` or `compile.bat x86`. Both output release binaries to `Files`.
 - Compiler path is configured in `compilesettings.bat`.
 - `build.bat` orchestrates full release builds.
 
