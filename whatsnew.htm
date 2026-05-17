@@ -53,13 +53,14 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <ul>
   <li>ISCC:
   <ul>
-    <li>Command-line parameters are now documented with a <tt>-</tt> prefix and in lowercase (for example <tt>-q</tt> instead of <tt>/Q</tt>). Both forms were already accepted, so existing use is not affected.</li>
-    <li>Added new <tt>-e</tt> command-line parameter to preprocess to stdout and suppress compilation.</li>
-    <li>Added new <tt>-mj</tt> command-line parameter to output errors and warnings in JSONL format, making them easier to parse by tools and scripts. Warnings are not suppressed by <tt>-q</tt> when <tt>-mj</tt> is active.</li>
-    <li>Added new <tt>-nc</tt> command-line parameter to disable compression (overrides <tt>Compression</tt> and <tt>InternalCompressLevel</tt>).</li>
-    <li>Added new <tt>-ni</tt> command-line parameter to not auto-specify Sign Tools configured using the Compiler IDE.</li>
-    <li>Added new <tt>-ns</tt> command-line parameter to disable signing (overrides <tt>SignTool</tt> and <tt>SignedUninstaller</tt>).</li>
-    <li>Added new <tt>-nsc</tt> command-line parameter to disable <tt>signcheck</tt> validation.</li>
+    <li>Options are now documented with a <tt>-</tt> prefix and in lowercase (for example <tt>-q</tt> instead of <tt>/Q</tt>). Both forms were already accepted, so existing use is not affected.</li>
+    <li>Options now have long-form alternatives (for example <tt>--quiet</tt> for <tt>-q</tt>), except for <tt>-$</tt> and <tt>-p</tt>.</li>
+    <li>Added new <tt>--preprocess</tt> (<tt>-e</tt>) option to preprocess to stdout and suppress compilation.</li>
+    <li>Added new <tt>--messages-jsonl</tt> (<tt>-mj</tt>) option to output errors and warnings in JSONL format, making them easier to parse by tools and scripts. Warnings are not suppressed by <tt>--quiet</tt> when <tt>--messages-jsonl</tt> is active.</li>
+    <li>Added new <tt>--no-compression</tt> (<tt>-nc</tt>) option to disable compression (overrides <tt>Compression</tt> and <tt>InternalCompressLevel</tt>).</li>
+    <li>Added new <tt>--no-ide-signtools</tt> (<tt>-ni</tt>) option to not auto-specify Sign Tools configured using the Compiler IDE.</li>
+    <li>Added new <tt>--no-signing</tt> (<tt>-ns</tt>) option to disable signing (overrides <tt>SignTool</tt> and <tt>SignedUninstaller</tt>).</li>
+    <li>Added new <tt>--no-signcheck</tt> (<tt>-nsc</tt>) option to disable <tt>signcheck</tt> validation.</li>
     <li>Warnings are now always written to stderr instead of stdout, consistent with other tools.</li>
     <li>Other minor fixes.</li>
   </ul>

@@ -405,16 +405,30 @@ procedure ProcessCommandLine;
     Result := (Length(S) >= 2) and ((S[1] = '/') or (S[1] = '-'));
   end;
 
-  function GetParam(var S: String; const Symbols: String): Boolean;
+  function IsLongParam(const S: String): Boolean;
+  begin
+    Result := (Length(S) >= 3) and (S[1] = '-') and (S[2] = '-');
+  end;
+
+  function GetParam(var S: String; const Symbols: String; const LongSymbols: String = ''): Boolean;
   begin
     Result := IsParam(S) and (CompareText(Copy(S, 2, Length(Symbols)), Symbols) = 0);
     if Result then
-      S := Copy(S, 2 + Length(Symbols), MaxInt);
+      S := Copy(S, 2 + Length(Symbols), MaxInt)
+    else if LongSymbols <> '' then begin
+      Result := IsLongParam(S) and
+        (Length(S) >= 3 + Length(LongSymbols)) and
+        (Copy(S, 3, Length(LongSymbols)) = LongSymbols) and
+        (S[3 + Length(LongSymbols)] = '=');
+      if Result then
+        S := Copy(S, 3 + Length(LongSymbols) + 1, MaxInt);
+    end;
   end;
 
-  function GetFlagParam(const S: String; const Symbols: String): Boolean;
+  function GetFlagParam(const S: String; const Symbols: String; const LongSymbols: String = ''): Boolean;
   begin
-    Result := IsParam(S) and (CompareText(Copy(S, 2, MaxInt), Symbols) = 0);
+    Result := (IsParam(S) and (CompareText(Copy(S, 2, MaxInt), Symbols) = 0)) or
+      ((LongSymbols <> '') and IsLongParam(S) and (Copy(S, 3, MaxInt) = LongSymbols));
   end;
 
   procedure ShowBanner;
@@ -433,36 +447,39 @@ procedure ProcessCommandLine;
     WriteStdErr('Usage:  iscc [options] scriptfile.iss');
     WriteStdErr('or to read from standard input:  iscc [options] -');
     WriteStdErr('Options:');
-    WriteStdErr('  -o(+|-)            Enables or disables output (overrides Output)');
-    WriteStdErr('  -o<path>           Outputs files to specified path (overrides OutputDir)');
-    WriteStdErr('  -f<filename>       Specifies an output filename (overrides OutputBaseFilename)');
-    WriteStdErr('  -s<name>=<command> Sets a SignTool with the specified name and command');
-    WriteStdErr('                     (any Sign Tools configured using the Compiler IDE will be specified automatically)');
-    WriteStdErr('  -ni                Do not auto-specify Sign Tools configured using the Compiler IDE');
-    WriteStdErr('  -nc                Disables compression (overrides Compression and InternalCompressLevel)');
-    WriteStdErr('  -ns                Disables signing (overrides SignTool and SignedUninstaller)');
-    WriteStdErr('  -nsc               Disables signcheck validation');
-    WriteStdErr('  -mj                Outputs errors and warnings in JSONL format');
-    WriteStdErr('                     (Warnings are not suppressed by -q when -mj is active)');
-    WriteStdErr('  -e                 Preprocesses to stdout and suppresses compilation');
-    WriteStdErr('  -q                 Suppresses messages that are normally printed to standard output (see -mj)');
-    WriteStdErr('  -qp                Same as -q while still displaying progress');
+    WriteStdErr('  --output=(yes|no), -o(+|-)           Enables or disables output (overrides Output)');
+    WriteStdErr('  --output-dir=<path>, -o<path>        Outputs files to specified path (overrides OutputDir)');
+    WriteStdErr('  --output-filename=<filename>, -f<filename>');
+    WriteStdErr('                                       Specifies an output filename (overrides OutputBaseFilename)');
+    WriteStdErr('  --signtool=<name>=<command>, -s<name>=<command>');
+    WriteStdErr('                                       Sets a SignTool with the specified name and command');
+    WriteStdErr('                                       (any Sign Tools configured using the Compiler IDE will be specified automatically)');
+    WriteStdErr('  --no-ide-signtools, -ni              Do not auto-specify Sign Tools configured using the Compiler IDE');
+    WriteStdErr('  --no-compression, -nc                Disables compression (overrides Compression and InternalCompressLevel)');
+    WriteStdErr('  --no-signing, -ns                    Disables signing (overrides SignTool and SignedUninstaller)');
+    WriteStdErr('  --no-signcheck, -nsc                 Disables signcheck validation');
+    WriteStdErr('  --messages-jsonl, -mj                Outputs errors and warnings in JSONL format');
+    WriteStdErr('                                       (Warnings are not suppressed by --quiet when --messages-jsonl is active)');
+    WriteStdErr('  --preprocess, -e                     Preprocesses to stdout and suppresses compilation');
+    WriteStdErr('  --quiet, -q                          Suppresses messages that are normally printed to standard output (see --messages-jsonl)');
+    WriteStdErr('  --quiet-progress, -qp                Same as --quiet while still displaying progress');
     if IsppMode then begin
-      WriteStdErr('  -d<name>[=<value>] Emulates #define public <name> <value>');
-      WriteStdErr('  -$<letter>(+|-)    Emulates #pragma option -<letter>(+|-)');
-      WriteStdErr('  -p<letter>(+|-)    Emulates #pragma parseroption -<letter>(+|-)');
-      WriteStdErr('  -i<paths>          Emulates #pragma include <paths>');
-      WriteStdErr('  -j<filename>       Emulates #include <filename>');
-      WriteStdErr('  -{#<string>        Emulates #pragma inlinestart <string>');
-      WriteStdErr('  -}<string>         Emulates #pragma inlineend <string>');
-      WriteStdErr('  -v<number>         Emulates #pragma verboselevel <number>');
+      WriteStdErr('  --define=<name>[=<value>], -d<name>[=<value>]');
+      WriteStdErr('                                       Emulates #define public <name> <value>');
+      WriteStdErr('  -$<letter>(+|-)                      Emulates #pragma option -<letter>(+|-)');
+      WriteStdErr('  -p<letter>(+|-)                      Emulates #pragma parseroption -<letter>(+|-)');
+      WriteStdErr('  --include-dirs=<paths>, -i<paths>    Emulates #pragma include <paths>');
+      WriteStdErr('  --include=<filename>, -j<filename>   Emulates #include <filename>');
+      WriteStdErr('  --inline-start=<string>, -{#<string> Emulates #pragma inlinestart <string>');
+      WriteStdErr('  --inline-end=<string>, -}<string>    Emulates #pragma inlineend <string>');
+      WriteStdErr('  --verbose=<number>, -v<number>       Emulates #pragma verboselevel <number>');
     end;
-    WriteStdErr('  -?                 Prints this information');
+    WriteStdErr('  --help, -?                           Prints usage information');
     WriteStdErr('');
     WriteStdErr('Examples: iscc "c:\isetup\samples\my script.iss"');
-    WriteStdErr('          iscc -qp -o"My Output" -f"MyProgram-1.0" -sbyparam=$p "c:\isetup\samples\my script.iss"');
+    WriteStdErr('          iscc --quiet-progress --output-dir="My Output" -f"MyProgram-1.0" -sbyparam=$p "c:\isetup\samples\my script.iss"');
     if IsppMode then begin
-      WriteStdErr('          iscc -$c- -pu+ "-dLic=Trial Lic.txt" -iC:\INC;D:\INC scriptfile.iss');
+      WriteStdErr('          iscc -$c- -pu+ "--define=Lic=Trial Lic.txt" --include-dirs=C:\INC;D:\INC scriptfile.iss');
       WriteStdErr('');
     end;
   end;
@@ -480,23 +497,24 @@ begin
 
   for I := 1 to NewParamCount do begin
     S := NewParamStr(I);
-    if (S = '') or IsParam(S) then begin
-      if GetFlagParam(S, 'MJ') then
+    if (S = '') or IsParam(S) or IsLongParam(S) then begin
+      if GetFlagParam(S, 'MJ', 'messages-jsonl') then
         Options.MessagesJsonl := True
-      else if GetFlagParam(S, 'Q') then
+      else if GetFlagParam(S, 'Q', 'quiet') then
         Options.Quiet := True
-      else if GetFlagParam(S, 'QP') then begin
+      else if GetFlagParam(S, 'QP', 'quiet-progress') then begin
         Options.Quiet := True;
         Options.ShowProgress := True;
       end
-      else if GetParam(S, 'O') then begin
-        if S = '-' then Options.Output := 'no'
-        else if S = '+' then Options.Output := 'yes'
-        else Options.OutputPath := S;
-      end
-      else if GetParam(S, 'F') then
+      else if GetFlagParam(S, 'O+', 'output=yes') then
+        Options.Output := 'yes'
+      else if GetFlagParam(S, 'O-', 'output=no') then
+        Options.Output := 'no'
+      else if GetParam(S, 'O', 'output-dir') then
+        Options.OutputPath := S
+      else if GetParam(S, 'F', 'output-filename') then
         Options.OutputFilename := S
-      else if GetParam(S, 'S') then begin
+      else if GetParam(S, 'S', 'signtool') then begin
         if Pos('=', S) = 0 then begin
           ShowBanner;
           WriteStdErr('Invalid option: ' + S, True);
@@ -504,38 +522,35 @@ begin
         end;
         SignTools.Add(S);
       end
-      else if GetFlagParam(S, 'NC') then
+      else if GetFlagParam(S, 'NC', 'no-compression') then
         Options.NoCompression := True
-      else if GetFlagParam(S, 'NI') then
+      else if GetFlagParam(S, 'NI', 'no-ide-signtools') then
         Options.NoIDESignTools := True
-      else if GetFlagParam(S, 'NSC') then
+      else if GetFlagParam(S, 'NSC', 'no-signcheck') then
         Options.NoSignCheck := True
-      else if GetFlagParam(S, 'NS') then
+      else if GetFlagParam(S, 'NS', 'no-signing') then
         Options.NoSigning := True
-      else if GetFlagParam(S, 'E') then
+      else if GetFlagParam(S, 'E', 'preprocess') then
         Options.OutputPreprocessed := True
-      else if IsppMode and GetParam(S, 'D') then begin
-        Options.Definitions := Options.Definitions + S + #1;
-      end
-      else if IsppMode and GetParam(S, 'I') then begin
-        Options.IncludePath := Options.IncludePath + ';' + S;
-      end
-      else if IsppMode and GetParam(S, 'J') then begin
-        Options.IncludeFiles := Options.IncludeFiles + S + #1;
-      end
-      else if IsppMode and GetParam(S, '{#') then begin
+      else if IsppMode and GetParam(S, 'D', 'define') then
+        Options.Definitions := Options.Definitions + S + #1
+      else if IsppMode and GetParam(S, 'I', 'include-dirs') then
+        Options.IncludePath := Options.IncludePath + ';' + S
+      else if IsppMode and GetParam(S, 'J', 'include') then
+        Options.IncludeFiles := Options.IncludeFiles + S + #1
+      else if IsppMode and GetParam(S, '{#', 'inline-start') then begin
         if S <> '' then Options.IsppOptions.InlineStart := S;
       end
-      else if IsppMode and GetParam(S, '}') then begin
+      else if IsppMode and GetParam(S, '}', 'inline-end') then begin
         if S <> '' then Options.IsppOptions.InlineEnd := S;
       end
-      else if IsppMode and GetParam(S, 'V') then begin
+      else if IsppMode and GetParam(S, 'V', 'verbose') then begin
         if S <> '' then Options.IsppOptions.VerboseLevel := StrToIntDef(S, 0);
       end
       else if IsppMode and (GetParam(S, '$') or GetParam(S, 'P')) then begin
         { Already handled above }
       end
-      else if GetFlagParam(S, '?') then begin
+      else if GetFlagParam(S, '?', 'help') then begin
         ShowBanner;
         ShowUsage;
         Halt(0);
