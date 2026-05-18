@@ -1786,6 +1786,8 @@ begin
         Grow;
       if NextTokenExpect([tkComma, tkCloseParen]) = tkCloseParen then Break;
     end;
+    if Result = 0 then
+      NextTokenExpect([tkCloseParen]);
   end;
 end;
 
