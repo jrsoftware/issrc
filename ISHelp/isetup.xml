@@ -3882,7 +3882,25 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 
 <p>Also see <link topic="isppcc">Inno Setup Preprocessor: Command Line Compiler</link> for additional options.</p>
 
-<p>ISCC will return an exit code of 0 if the compile was successful or if <tt>--help</tt> or <tt>-?</tt> was used, 1 if the command line was invalid or an internal error occurred, or 2 if the compile failed.</p>
+<p>Exit codes:</p>
+
+<indent>
+<table>
+<tr><th>Code</th><th>Meaning</th></tr>
+<tr>
+<td>0</td>
+<td>Success</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Command line parameters were invalid or a fatal error occurred</td>
+</tr>
+<tr>
+<td>2</td>
+<td>The compile failed</td>
+</tr>
+</table>
+</indent>
 </li>
 
 <li>
