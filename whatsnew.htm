@@ -48,9 +48,19 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <details open="">
 <summary>Inno Setup 6.7</summary>
 
-<p><a name="6.7.2"></a><span class="ver">6.7.2 </span><span class="date">(2026-05-18)</span></p>
+<p><a name="6.7.3"></a><span class="ver">6.7.3-dev </span><span class="date">(?)</span></p>
 
 <p><b>Using Inno Setup commercially?</b> Please <a href="https://jrsoftware.org/isorder.php">purchase a license</a>.</p>
+
+<ul>
+  <li>Fixes backported from <a href="https://jrsoftware.org/isdl.php#v7">Inno Setup 7</a>:
+  <ul>
+    <li>ISPP: A macro which has no parameters but uses <tt>()</tt> anyway compiles again. Example: <tt>#define MyAppName() "My Program"</tt>. Note that using <tt>()</tt> for a macro with no parameters is not needed and not recommended.</li>
+  </ul>
+  </li>
+</ul>
+
+<p><a name="6.7.2"></a><span class="ver">6.7.2 </span><span class="date">(2026-05-18)</span></p>
 
 <ul>
   <li>Fixes backported from <a href="https://jrsoftware.org/isdl.php#v7">Inno Setup 7</a>:
