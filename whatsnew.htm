@@ -70,13 +70,13 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <span class="head2">64-bit Installers</span>
 
-<p>Set new <tt>[Setup]</tt> section directive <tt>SetupArchitecture</tt> to <tt>x64</tt> to build a 64-bit x64 installer instead of a 32-bit x86 installer. This also changes the default values of <tt>ArchitecturesAllowed</tt> and <tt>ArchitecturesInstallIn64BitMode</tt> to <tt>x64compatible</tt>, making 64-bit installers default to <link topic="32vs64bitinstalls">64-bit install mode</link>.</p>
+<p>Building 32-bit installers is the default in both editions. Set new <tt>[Setup]</tt> section directive <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_architecture">SetupArchitecture</a> to <tt>x64</tt> to build a 64-bit x64 installer instead of a 32-bit x86 installer. This also changes the default values of <tt>ArchitecturesAllowed</tt> and <tt>ArchitecturesInstallIn64BitMode</tt> to <tt>x64compatible</tt>, making 64-bit installers default to <link topic="32vs64bitinstalls">64-bit install mode</link>.</p>
 
 <p>Key benefits and differences:</p>
 <ul>
   <li>64-bit installers allow a maximum dictionary size for compression methods <tt>lzma</tt> and <tt>lzma2</tt> of 3.8 GB instead of 1 GB. Review the memory requirements listed in the <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_compression">Compression help topic</a> before using large dictionary sizes.</li>
   <li>64-bit installers have high-entropy ASLR enabled by default. This can help satisfy organizational policies or third-party requirements that mandate 64-bit executables.</li>
-  <li>64-bit installers fully support <a href="https://jrsoftware.org/ishelp/index.php?topic=32vs64bitinstalls">32-bit install mode</a>. To use a 64-bit installer while remaining in 32-bit install mode (for example, because you have been deploying 64-bit applications in 32-bit mode inadvertently), set <tt>ArchitecturesInstallIn64BitMode</tt> to a blank value to override the new default.</li>
+  <li>64-bit installers fully support <a href="https://jrsoftware.org/ishelp/index.php?topic=32vs64bitinstalls">32-bit install mode</a>, and vice versa. To use a 64-bit installer while remaining in 32-bit install mode (for example, because you have been deploying 64-bit applications in 32-bit mode inadvertently), set <tt>ArchitecturesInstallIn64BitMode</tt> to a blank value to override the new default.</li>
   <li>Existing installations made by 32-bit installers can be updated by 64-bit installers without issue, and vice versa.</li>
   <li>64-bit Pascal Scripting notes:
   <ul>
@@ -114,7 +114,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <span class="head2">64-bit Compiler IDE and ISCC</span>
 
-<p>Install the 64-bit edition of Inno Setup 7 to run 64-bit versions of the Compiler IDE and ISCC. Both editions read the same scripts and defaults, and either can generate 32-bit or 64-bit installers.</p>
+<p>Install the 64-bit edition of Inno Setup 7 to run 64-bit versions of the Compiler IDE and ISCC. Both editions read the same scripts and defaults, and either can build 32-bit or 64-bit installers.</p>
 
 <p>To check which edition you installed, click the "Inno Setup Compiler" shortcut in the Start Menu. The 32-bit edition displays "32-bit" in the title bar, while the 64-bit edition does not.</p>
 
@@ -172,7 +172,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   </li>
   <li><tt>[Setup]</tt> section:
   <ul>
-    <li>A new custom style is now available built-in and directly supported by the <tt>WizardStyle</tt> directive: <tt>stellar</tt>. <tt>stellar</tt> is an alternative light-only style with white foreground text, ideally suited to be combined with a <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardbackcolor">custom darker background</a> color or <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardbackimagefile">image</a>. For example:
+    <li>A new custom style is now available built-in and directly supported by the <tt>WizardStyle</tt> directive: <tt>stellar</tt>. <tt>stellar</tt> is an alternative light-only style with white foreground text, ideally suited to be combined with a <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardbackcolor">custom darker background color</a> or <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardbackimagefile">image</a>. For example:
         <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern stellar excludelightcontrols</code></pre>
         <a href="https://jrsoftware.org/images/is-welcome-stellar-org-150.png">Example screenshot of Setup using the Stellar style, at 150% DPI</a>.<br/>
         <a href="https://jrsoftware.org/images/is-welcome-stellar-backimage-org-150.png">Example screenshot of Setup using the Stellar style, a custom background image, and the <tt>excludelightcontrols</tt> modifier, at 150% DPI</a>.<br/>
