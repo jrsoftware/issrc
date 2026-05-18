@@ -146,7 +146,7 @@ type
                               SignedUninstaller).
                             NoSignCheck=(0|no|false|1|yes|true)
                               Disables signcheck validation.
-                            StopAfterPreprocessing=(0|no|false|1|yes|true)
+                            PreprocessOnly=(0|no|false|1|yes|true)
                               Preprocess to stdout and suppress compilation.
                             ISPP:[isppoption]
                               Configures an ISPP option. }

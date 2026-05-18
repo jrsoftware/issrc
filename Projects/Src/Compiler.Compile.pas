@@ -179,11 +179,11 @@ begin
             Result := isceInvalidParam;
             Exit;
           end;
-        end else if StrLIComp(P, 'StopAfterPreprocessing=', Length('StopAfterPreprocessing=')) = 0 then begin
-          Inc(P, Length('StopAfterPreprocessing='));
-          var StopAfterPreprocessing: Boolean;
-          if TryStrToBoolean(P, StopAfterPreprocessing) then
-            SetupCompiler.SetStopAfterPreprocessing(StopAfterPreprocessing)
+        end else if StrLIComp(P, 'PreprocessOnly=', Length('PreprocessOnly=')) = 0 then begin
+          Inc(P, Length('PreprocessOnly='));
+          var PreprocessOnly: Boolean;
+          if TryStrToBoolean(P, PreprocessOnly) then
+            SetupCompiler.SetPreprocessOnly(PreprocessOnly)
           else begin
             Result := isceInvalidParam;
             Exit;

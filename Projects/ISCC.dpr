@@ -758,7 +758,7 @@ begin
       AppendCompilerOption(CompilerOptions, 'NoSignCheck', 'true');
 
     if Options.OutputPreprocessed then
-      AppendCompilerOption(CompilerOptions, 'StopAfterPreprocessing', 'true');
+      AppendCompilerOption(CompilerOptions, 'PreprocessOnly', 'true');
 
     if IsppMode then
       IsppOptionsToString(CompilerOptions, Options.IsppOptions, Options.Definitions, Options.IncludePath, Options.IncludeFiles);

@@ -131,7 +131,7 @@ type
     OutputDir, OutputBaseFilename, OutputManifestFile, SignedUninstallerDir,
       ExeFilename: String;
     Output, FixedOutput, FixedOutputDir, FixedOutputBaseFilename: Boolean;
-    StopAfterPreprocessing, FixedNoCompression, FixedNoSigning, FixedNoSignCheck: Boolean;
+    PreprocessOnly, FixedNoCompression, FixedNoSigning, FixedNoSignCheck: Boolean;
     CompressMethod: TSetupCompressMethod;
     InternalCompressLevel, CompressLevel: Integer;
     InternalCompressProps, CompressProps: TLZMACompressorProps;
@@ -325,7 +325,7 @@ type
     procedure SetOutput(Value: Boolean);
     procedure SetOutputBaseFilename(const Value: String);
     procedure SetOutputDir(const Value: String);
-    procedure SetStopAfterPreprocessing(Value: Boolean);
+    procedure SetPreprocessOnly(Value: Boolean);
     procedure SetNoCompression(Value: Boolean);
     procedure SetNoSigning(Value: Boolean);
     procedure SetNoSignCheck(Value: Boolean);
@@ -2500,9 +2500,9 @@ begin
   FixedOutputDir := True;
 end;
 
-procedure TSetupCompiler.SetStopAfterPreprocessing(Value: Boolean);
+procedure TSetupCompiler.SetPreprocessOnly(Value: Boolean);
 begin
-  StopAfterPreprocessing := Value;
+  PreprocessOnly := Value;
 end;
 
 procedure TSetupCompiler.SetNoCompression(Value: Boolean);
@@ -8356,12 +8356,13 @@ begin
     ArchiveExtraction := aeAuto;
     MinArchiveExtraction := aeBasic;
 
-    { Read [Setup] section }
-    if StopAfterPreprocessing then begin
+    if PreprocessOnly then begin
       ReadScriptFile('', False, 0).Free;
       Exit;
-    end else
-      EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
+    end;
+
+    { Read [Setup] section }
+    EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
     CallIdleProc;
 
     { Verify settings set in [Setup] section }
