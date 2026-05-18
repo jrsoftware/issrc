@@ -4,8 +4,7 @@ on:
   pull_request:
     types: [opened, synchronize, ready_for_review]
     branches:
-      - claude-review
-      - claude-review2
+      - claude-review**
 
 jobs:
   claude-review:
