@@ -13,8 +13,10 @@ jobs:
     steps:
       - name: Synchronize fork
         run: |
-          gh repo sync $REPOSITORY -b $BRANCH_NAME
-          gh repo sync $REPOSITORY -b vnext
+          status=0
+          gh repo sync $REPOSITORY -b $BRANCH_NAME || status=$?
+          gh repo sync $REPOSITORY -b vnext || status=$?
+          exit $status
         env:
           GITHUB_TOKEN: ${{ secrets.ISSRC_BUILD_ENV_SYNC_TOKEN }}
           REPOSITORY: ${{ github.repository }}
