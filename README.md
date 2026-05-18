@@ -353,11 +353,11 @@ chosen source branch (like `main`). Do not fast-forward to the head of it, as th
 close your PR and you will not be able to recreate it until another commit is made. After
 fast-forwarding, close and reopen the PR on GitHub to make it display updated information.
 
-For Copilot reviews, create a PR targeting `copilot-review` (and optionally `copilot-review2`).
+For Copilot reviews, create a PR targeting a branch whose name starts with `copilot-review`.
 No additional setup is needed, except ensuring you actually have access to Copilot reviews.
 Copilot reviews use workflow **code-review-copilot.yml**.
 
-For Claude Code reviews, create a PR targeting `claude-review` (and optionally `claude-review2`).
+For Claude Code reviews, create a PR targeting a branch whose name starts with `claude-review`.
 Install the [Claude GitHub App] on your fork. Then run `claude setup-token` locally and add
 this token as a new repository secret, under the name `CLAUDE_CODE_OAUTH_TOKEN`. See the
 [Claude Code Action setup guide] for more details. Finally, indicate that your fork has the
