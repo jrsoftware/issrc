@@ -345,22 +345,24 @@ the topic `has-issrc-build-env-sync-token`. Workflow **sync-fork.yml** will now
 synchronize your fork daily, and will automatically trigger the aforementioned build
 workflow on changes, if it's configured.
 
-If you also create a draft PR to merge `main` into a branch named `code-review`, then the
-synchronization can also automatically trigger code review by Copilot and/or Claude Code.
-See the setup instructions below. You should then regularly fast-forward your branch to
-the commit immediately preceding the head of `main`. Do not fast-forward to the head of
-`main`, as this will close your PR and you will not be able to recreate it until another
-commit is made. After fast-forwarding, close and reopen the PR on GitHub to make it display
-updated information.
+If you also create PRs to merge `main` or another branch of your choosing into the review
+branches listed below, then the synchronization can also automatically trigger code review
+by Copilot and/or Claude Code. See the setup instructions below. You should then regularly
+fast-forward your review branches to the commit immediately preceding the head of your
+chosen source branch (like `main`). Do not fast-forward to the head of it, as this will
+close your PR and you will not be able to recreate it until another commit is made. After
+fast-forwarding, close and reopen the PR on GitHub to make it display updated information.
 
-For Copilot reviews no additional setup is needed, except ensuring you actually have
-access to Copilot reviews. Copilot reviews use workflow **code-review-copilot.yml**.
+For Copilot reviews, create a PR targeting `copilot-review` (and optionally `copilot-review2`).
+No additional setup is needed, except ensuring you actually have access to Copilot reviews.
+Copilot reviews use workflow **code-review-copilot.yml**.
 
-For Claude Code reviews, install the [Claude GitHub App] on your fork. Then run
-`claude setup-token` locally and add this token as a new repository secret, under the
-name `CLAUDE_CODE_OAUTH_TOKEN`. See the [Claude Code Action setup guide] for more
-details. Finally, indicate that your fork has the secret, by adding the topic
-`has-claude-code-oauth-token`. Claude Code reviews use workflow **code-review-claude-code.yml**.
+For Claude Code reviews, create a PR targeting `claude-review` (and optionally `claude-review2`).
+Install the [Claude GitHub App] on your fork. Then run `claude setup-token` locally and add
+this token as a new repository secret, under the name `CLAUDE_CODE_OAUTH_TOKEN`. See the
+[Claude Code Action setup guide] for more details. Finally, indicate that your fork has the
+secret, by adding the topic `has-claude-code-oauth-token`. Claude Code reviews use workflow
+**code-review-claude-code.yml**.
 
 To perform a second unattended build using a different Delphi version, add topic
 `has-issrc-build2-env` and secrets `ISSRC_BUILD2_ENV_ZIP_URL` and
