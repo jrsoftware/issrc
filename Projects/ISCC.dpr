@@ -480,6 +480,7 @@ procedure ProcessCommandLine;
       ShowBanner;
       const EqualsPos = Pos('=', S);
       const SuggestedParam = LowerCase(Copy(S, 2, EqualsPos - 2)) + Copy(S, EqualsPos, MaxInt);
+      { The suggestion may still be invalid (for example '--output=Yes') but that's ok }
       WriteStdErr(Format('Invalid option: %s (did you mean --%s?)', [S, SuggestedParam]), True);
       Halt(1);
     end;
