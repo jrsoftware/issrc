@@ -147,7 +147,7 @@ type
                             NoSignCheck=(0|no|false|1|yes|true)
                               Disables signcheck validation.
                             PreprocessOnly=(0|no|false|1|yes|true)
-                              Preprocess to stdout and suppress compilation.
+                              Preprocess only, suppressing compilation.
                             ISPP:[isppoption]
                               Configures an ISPP option. }
   end;
