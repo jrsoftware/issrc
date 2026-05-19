@@ -1733,58 +1733,67 @@ begin
   begin
     Result := 0;
     ParamList := AllocMem(SizeOf(TIsppMacroParam) * 4);
-    while not (PeekAtNextToken in [tkEOF, tkCloseParen]) do
-    begin
-      var Param := Default(TIsppMacroParam);
-      if NextTokenExpect([tkIdent, opMul]) = tkIdent then
+    try
+      while not (PeekAtNextToken in [tkEOF, tkCloseParen]) do
       begin
-        var Ident := TokenString;
-        if not (PeekAtNextToken in [tkEOF, tkComma, tkCloseParen, opAssign]) then
+        var Param := Default(TIsppMacroParam);
+        if NextTokenExpect([tkIdent, opMul]) = tkIdent then
         begin
-          Ident := UpperCase(Ident);
-          if Ident = sAny then {do nothing }
-          else if Ident = sInt then Param.DefValue.Typ := evInt
-          else if Ident = sStr then Param.DefValue.Typ := evStr
-          else if Ident = 'FUNC' then
-            begin
-              Param.DefValue.Typ := evCallContext;
-              Include(Param.ParamFlags, pfFunc)
-            end
-          else if Ident = 'ARRAY' then Param.DefValue.Typ := evCallContext
-          else RaiseError(Format(SInvalidTypeId, [Ident]));
-          if Param.DefValue.Typ <> evSpecial then
-            Include(Param.ParamFlags, pfTypeDefined);
-          if NextTokenExpect([tkIdent, opMul]) = opMul then
+          var Ident := TokenString;
+          if not (PeekAtNextToken in [tkEOF, tkComma, tkCloseParen, opAssign]) then
           begin
-            Include(Param.ParamFlags, pfByRef);
-            NextTokenExpect([tkIdent]);
+            Ident := UpperCase(Ident);
+            if Ident = sAny then {do nothing }
+            else if Ident = sInt then Param.DefValue.Typ := evInt
+            else if Ident = sStr then Param.DefValue.Typ := evStr
+            else if Ident = 'FUNC' then
+              begin
+                Param.DefValue.Typ := evCallContext;
+                Include(Param.ParamFlags, pfFunc)
+              end
+            else if Ident = 'ARRAY' then Param.DefValue.Typ := evCallContext
+            else RaiseError(Format(SInvalidTypeId, [Ident]));
+            if Param.DefValue.Typ <> evSpecial then
+              Include(Param.ParamFlags, pfTypeDefined);
+            if NextTokenExpect([tkIdent, opMul]) = opMul then
+            begin
+              Include(Param.ParamFlags, pfByRef);
+              NextTokenExpect([tkIdent]);
+            end;
           end;
+        end
+        else
+        begin
+          Include(Param.ParamFlags, pfByRef);
+          NextTokenExpect([tkIdent]);
         end;
-      end
-      else
-      begin
-        Include(Param.ParamFlags, pfByRef);
-        NextTokenExpect([tkIdent]);
-      end;
-      const Ident = TokenString;
-      Param.Name := CheckReservedIdent(Ident);
-      if PeekAtNextToken = opAssign then
-      begin
-        if pfByRef in Param.ParamFlags then
-          RaiseError(SByRefNoDefault);
-        NextToken;
-        case Param.DefValue.Typ of
-          evSpecial: Param.DefValue := GetRValue(Expr(True));
-          evInt: Param.DefValue.AsInt64 := IntExpr(True);
-          evStr: Param.DefValue.AsStr := StrExpr(True);
+        const Ident = TokenString;
+        Param.Name := CheckReservedIdent(Ident);
+        if PeekAtNextToken = opAssign then
+        begin
+          if pfByRef in Param.ParamFlags then
+            RaiseError(SByRefNoDefault);
+          NextToken;
+          case Param.DefValue.Typ of
+            evSpecial: Param.DefValue := GetRValue(Expr(True));
+            evInt: Param.DefValue.AsInt64 := IntExpr(True);
+            evStr: Param.DefValue.AsStr := StrExpr(True);
+          end;
+          Include(Param.ParamFlags, pfHasDefault);
         end;
-        Include(Param.ParamFlags, pfHasDefault);
+        ParamList^[Result] := Param;
+        Inc(Result);
+        if Result mod 4 = 0 then
+          Grow;
+        if NextTokenExpect([tkComma, tkCloseParen]) = tkCloseParen then Break;
       end;
-      ParamList^[Result] := Param;
-      Inc(Result);
-      if Result mod 4 = 0 then
-        Grow;
-      if NextTokenExpect([tkComma, tkCloseParen]) = tkCloseParen then Break;
+      if Result = 0 then
+        NextTokenExpect([tkCloseParen]);
+    except
+      Finalize(ParamList^[0], Result);
+      FreeMem(ParamList);
+      ParamList := nil;
+      raise;
     end;
   end;
 end;
