@@ -961,6 +961,7 @@ begin
   SetDefaultWordChars;
   ApplyOptions;
   UpdateStyleAttributes;
+  UpdateLineNumbersWidth;
   if FAcceptDroppedFiles then
     DragAcceptFiles(Handle, True);
 end;
@@ -2628,6 +2629,7 @@ procedure TScintEdit.WMDestroy(var Message: TWMDestroy);
 begin
   FDirectPtr := nil;
   FDirectStatusFunction := nil;
+  FAutoCompleteStyle := 0;
   inherited;
 end;
 
