@@ -1946,6 +1946,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<p>A user defined function declaration consists of a formal parameter list and an expression. That expression is evaluated when the function is called (see below). The result of the function call is the result of the expression. The expression can contain parameter names, they are treated as usual variables.</p>
 				<p>The formal syntax of a user defined function is provided in &define; and &builtins; contains many example functions.</p>
         <p>Please note that there must be no space between the function name and opening parenthesis.</p>
+        <p>The formal parameter list can be empty, in which case the function takes no parameters. Without parentheses, a variable is defined instead of a user defined function.</p>
 				<p>Actual parameters for parameters declared as by-reference must be modifiable l-values (in other words, other defined variables or expressions that evaluate to l-values). If the expression modifies by-reference parameter, the variable that is passed as this parameter gets modified. By-value parameters can also be modified by the expression (using assignment operators), but this modification doesn't affect the value of a variable which could be passed as this parameter.</p>
 				<p>Though a user defined function can only contain one expression, sequential evaluation operators (comma), assignment operators (simple and compound) and conditional operators (<tt>?:</tt>) can be used to build more complicated functions.</p>
       </description>
