@@ -11,6 +11,8 @@ OutputBaseFilename=Script.Test-Setup
 SetupArchitecture={#arch}
 PrivilegesRequired=lowest
 
+#include "Script.ISPP.Test.iss"
+
 #include "Script.ROPS.Test.iss"
 
 [Code]
