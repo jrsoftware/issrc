@@ -191,28 +191,25 @@ end;
 
 function ParsePreprocCommand(var P: PChar; ExtraTerminator: Char): TPreprocessorCommand;
 begin
-  for Result := TPreprocessorCommand(1) to High(TPreprocessorCommand) do
-  begin
+  for Result := TPreprocessorCommand(1) to High(TPreprocessorCommand) do begin
     if (P^ = PpCmdSynonyms[Result]) then
       Inc(P)
     else if (StrLIComp(P, @PreprocCommands[Result][1], ULength(PreprocCommands[Result])) = 0) and
-      CharInSet(P[Length(PreprocCommands[Result])], [#0..#32, ExtraTerminator]) then
+            CharInSet(P[Length(PreprocCommands[Result])], [#0..#32, ExtraTerminator]) then
       Inc(P, Length(PreprocCommands[Result]))
     else
       Continue;
     Exit;
   end;
-  if StrLIComp('echo', P, 4) = 0 then
-  begin
+  if (StrLIComp('echo', P, 4) = 0) and
+     CharInSet(P[4], [#0..#32, ExtraTerminator]) then begin
     Result := pcEmit;
     Inc(P, 4)
-  end
-  else if StrLIComp('call', P, 4) = 0 then
-  begin
+  end else if (StrLIComp('call', P, 4) = 0) and
+              CharInSet(P[4], [#0..#32, ExtraTerminator]) then begin
     Result := pcExpr;
     Inc(P, 4);
-  end
-  else
+  end else
     Result := pcError;
 end;
 
