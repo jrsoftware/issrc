@@ -53,6 +53,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <p><b>Using Inno Setup commercially?</b> Please <a href="https://jrsoftware.org/isorder.php">purchase a license</a>.</p>
 
 <ul>
+  <li>Previously undocumented ISPP directive <tt>#env</tt> and its shorthand <tt>#%</tt> are now documented and recognized by the Compiler IDE. This directive replaces itself with the value of the specified environment variable. Example: <tt>AppName={#%MyAppName}</tt>.</li>
   <li>Previously undocumented ISPP directive aliases <tt>#call</tt> (for <tt>#expr</tt>) and <tt>#echo</tt> (for <tt>#emit</tt>) are now documented and recognized by the Compiler IDE.</li>
   <li><i>Fix:</i> ISPP: A user defined function which has no parameters compiles again. Example: <tt>#define MyAppName() "My Program"</tt>.</li>
 </ul>

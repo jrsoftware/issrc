@@ -23,6 +23,7 @@
  <!ENTITY sub     '<tt><link href="sub">sub</link></tt>'>
  <!ENTITY endsub  '<tt><link href="sub">endsub</link></tt>'>
  <!ENTITY for     '<tt><link href="for">for</link></tt>'>
+ <!ENTITY env     '<tt><link href="env">env</link></tt>'>
  <!ENTITY expr    '<tt>expr</tt>'> <!-- not a directive -->
  <!ENTITY curtrans '<link href="current-translation">current preprocessor output</link>'>
  <!ENTITY translation '<link href="translation">preprocessor output</link>'>
@@ -350,6 +351,37 @@
 				</section>
 				<section title="See also">
 					<p>&emit;.</p>
+				</section>
+			</topic>
+			<topic id="env">
+				<title>#env</title>
+				<keywords>
+            <kwd>#%</kwd>
+            <kwd>env</kwd>
+        </keywords>
+				<syntax>
+					<define id="env-directive">
+						<group><nt name="env-dir-name"/></group><nt>ident</nt>
+					</define>
+					<define id="env-dir-name" inline="yes">
+						<cases>
+							<case><txt>env</txt></case>
+							<case><txt>%</txt></case>
+						</cases>
+					</define>
+				</syntax>
+				<description>
+					<p>Replaces the directive with the value of the specified environment variable. If the environment variable is not defined, it is replaced with an empty string.</p>
+				</description>
+				<section title="Examples">
+					<pre>
+						<line>[Setup]</line>
+						<line>AppName={#env MyAppName}</line>
+						<line>AppVersion={#%MyAppVersion}</line>
+					</pre>
+				</section>
+				<section title="See also">
+					<p><tt><link href="GetEnv">GetEnv</link></tt>.</p>
 				</section>
 			</topic>
 			<topic id="insert">
@@ -1095,6 +1127,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<description>
 					<p>Returns the value of the environment variable whose name is specified as the parameter. Returns an empty string if the variable is not defined.</p>
 				</description>
+				<section title="See also">
+					<p>&env;.</p>
+				</section>
 			</topic>
 			<topic id="DeleteFile">
 				<title>DeleteFile</title>

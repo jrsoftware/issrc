@@ -1553,6 +1553,7 @@ const
      'x' {undef},
      '+' {include},
      '=' {emit},
+     '%' {env},
      '!' {expr}];
 begin
   var StartIndex := CurIndex;
@@ -2207,6 +2208,7 @@ initialization
     ISPPD('file', True, 0),
     ISPPD('emit', True, 0),
     ISPPD('echo', True, 0),
+    ISPPD('env', True, 0),
     ISPPD('expr', True, 0),
     ISPPD('call', True, 0),
     ISPPD('insert', True, 0),
