@@ -24,7 +24,7 @@
  <!ENTITY endsub  '<tt><link href="sub">endsub</link></tt>'>
  <!ENTITY for     '<tt><link href="for">for</link></tt>'>
  <!ENTITY env     '<tt><link href="env">env</link></tt>'>
- <!ENTITY expr    '<tt>expr</tt>'> <!-- not a directive -->
+ <!ENTITY expr    '<tt>expr</tt>'> <!-- refers to expression parameters, not the #expr directive -->
  <!ENTITY curtrans '<link href="current-translation">current preprocessor output</link>'>
  <!ENTITY translation '<link href="translation">preprocessor output</link>'>
  <!ENTITY builtins '<link href="builtinsiss">ISPPBuiltins.iss</link>'>
