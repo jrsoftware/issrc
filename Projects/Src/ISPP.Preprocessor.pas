@@ -54,9 +54,8 @@ type
 
   TPreprocessorCommand = (pcError, pcIf, pcIfDef, pcIfNDef, pcIfExist,
     pcIfNExist, pcElseIf, pcElse, pcEndIf, pcDefine, pcUndef, pcInclude,
-    pcErrorDir, pcPragma, pcLine, pcImport, pcEmit, pcEnv, pcFile,
-    pcExpr, pcInsert, pcAppend, pcDim, pcSub, pcEndSub, pcEndLoop,
-    pcFor, pcReDim);
+    pcErrorDir, pcPragma, pcEmit, pcEnv, pcFile, pcExpr, pcInsert,
+    pcAppend, pcDim, pcSub, pcEndSub, pcEndLoop, pcFor, pcReDim);
 
   TDropGarbageProc = procedure(Item: Pointer);
 
@@ -160,12 +159,14 @@ uses
 const
   PreprocCommands: array[TPreprocessorCommand] of String =
     ('', 'if', 'ifdef', 'ifndef', 'ifexist', 'ifnexist', 'elif', 'else',
-    'endif', 'define', 'undef', 'include', 'error', 'pragma', 'line', 'import',
-    'emit', 'env', 'file', 'expr', 'insert', 'append', 'dim', 'sub', 'endsub',
-    'endloop', 'for', 'redim');
+     'endif', 'define', 'undef', 'include', 'error', 'pragma',
+     'emit', 'env', 'file', 'expr', 'insert', 'append', 'dim', 'sub', 'endsub',
+     'endloop', 'for', 'redim');
   PpCmdSynonyms: array[TPreprocessorCommand] of Char =
-    (#0, '?', #0, #0, #0, #0, #0, '^', '.', ':', #0, '+', #0, #0, #0, #0,
-    '=', '%', #0, '!', #0, #0, #0, #0, #0, #0, #0, #0);
+    (#0, '?', #0, #0, #0, #0, #0, '^',
+     '.', ':', #0, '+', #0, #0,
+     '=', '%', #0, '!', #0, #0, #0, #0, #0,
+     #0, #0, #0);
 
 function GetEnv(const EnvVar: String): String;
 
