@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 02.05.2026  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 18.05.2026  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -63,8 +63,8 @@ WindowsServicePackRequired=Questo programma richiede %1 Service Pack %2 o succes
 NotOnThisPlatform=Questo programma non è compatibile con %1.
 OnlyOnThisPlatform=Questo programma richiede %1.
 OnlyOnTheseArchitectures=Questo programma può essere installato solo su versioni di Windows progettate per le seguenti architetture della CPU:%n%n%1
-WinVersionTooLowError=Questo programma richiede %1 versione %2 o successiva.
-WinVersionTooHighError=Questo programma non può essere installato su %1 versione %2 o successiva.
+WinVersionTooLowError=Questo programma richiede %1 %2 o versione successiva.
+WinVersionTooHighError=Questo programma non può essere installato su %1 %2 o versione successiva.
 AdminPrivilegesRequired=Per installare questo programma sono richiesti privilegi di amministratore.
 PowerUserPrivilegesRequired=Per poter installare questo programma sono richiesti i privilegi di amministratore o di Power Users.
 SetupAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona "OK", o seleziona "Annulla" per uscire.
@@ -89,7 +89,7 @@ ExitSetupTitle=Uscita dall'installazione
 ExitSetupMessage=L'installazione non è stata completata.%n%nUscendo dall'installazione in questo momento, il programma non sarà installato.%n%nÈ possibile eseguire l'installazione in un secondo tempo.%n%nVuoi uscire dall'installazione?
 AboutSetupMenuItem=&Informazioni sull'installazione...
 AboutSetupTitle=Informazioni sull'installazione
-AboutSetupMessage=%1 versione %2%n%3%n%n%1 sito web:%n%4
+AboutSetupMessage=%1 %2%n%3%n%n%1 sito web:%n%4
 AboutSetupNote=
 TranslatorNote=Traduzione italiana a cura di Rinaldo M. aka Whiteshark e bovirus (v. 12.06.2025)
 
@@ -401,7 +401,7 @@ ShutdownBlockReasonUninstallingApp=Disinstallazione di %1.
 
 [CustomMessages]
 
-NameAndVersion=%1 versione %2
+NameAndVersion=%1 %2
 AdditionalIcons=Icone aggiuntive:
 CreateDesktopIcon=Crea un'icona sul &desktop
 CreateQuickLaunchIcon=Crea un'icona nella &barra 'Avvio veloce'
