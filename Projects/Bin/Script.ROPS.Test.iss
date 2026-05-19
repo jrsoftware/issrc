@@ -1581,7 +1581,7 @@ begin
 
     { Valid as cast returns object }
     CheckTrue((Obj as TStringList) <> nil);
- 
+
     { Invalid as cast raises an exception }
     Caught := False;
     try
