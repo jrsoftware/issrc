@@ -1,5 +1,5 @@
 ---
-applyTo: "**/*Test.pas,**/Script.Test.iss"
+applyTo: "**/*Test.pas,**/*Test.iss"
 ---
 # Instructions for adding tests
 

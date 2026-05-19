@@ -48,7 +48,7 @@ Under `ISHelp/ISHelpGen/`:
 ## Code Conventions
 - `**/*.iss`: see `.claude/rules/iss.md`.
 - `**/*.pas`, `**/*.dpr`, `**/*.inc`: see `.claude/rules/pascal.md`.
-- `**/*Test.pas`, `**/Script.Test.iss`: see `.claude/rules/test.md`.
+- `**/*Test.pas`, `**/*Test.iss`: see `.claude/rules/test.md`.
 - `Components/UniPs/**`: see `.claude/rules/unips.md`.
 
 ## Docs

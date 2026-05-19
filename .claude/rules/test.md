@@ -1,5 +1,5 @@
 ---
-paths: ["**/*Test.pas", "**/Script.Test.iss"]
+paths: ["**/*Test.pas", "**/*Test.iss"]
 ---
 # Instructions for adding tests
 
