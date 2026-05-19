@@ -2060,6 +2060,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
           <line>&dsp;Local[1]</line>
         </pre>
 			</section>
+			<section title="See also">
+				<p><link href="expressions">Extended User Defined Function Call Syntax</link>.</p>
+			</section>
 		</topic>
 		<!--   EXPRESSIONS -->
 		<topic id="expressions">
