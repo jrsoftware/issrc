@@ -43,7 +43,7 @@ Under `ISHelp/ISHelpGen/`:
 - Run `compile.bat x64` or `compile.bat x86`. Both output release binaries to `Files`.
 - Compiler path is configured in `compilesettings.bat`.
 - `build.bat` orchestrates full release builds.
-- When necessary `build.bat` generates a new ISSigTool private key, and embeds its public key into `Components\TrustFunc.AllowedPublicKeys.inc`. When this change is lost (likely due to `git reset`) there will be an error "Signature file is not valid" when `Files\ISCC.exe` is run. Run `issig.bat embed` once and recompile to fix.
+- If a release build binary under `Files\` reports "Signature file is not valid", run `issig.bat embed`, then rerun the relevant compile command, usually `compile.bat x64`, and retry the failed command. This recovery step is required even though it updates `Components\TrustFunc.AllowedPublicKeys.inc`.
 
 ## Code Conventions
 - `**/*.iss`: see `.claude/rules/iss.md`.
