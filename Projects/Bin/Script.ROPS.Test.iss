@@ -1,16 +1,3 @@
-#ifndef arch
-  #define arch "x64"
-#endif
-
-[Setup]
-AppName=Script.Test
-AppVersion=1.0
-DefaultDirName={autopf}\Script.Test
-OutputDir=.
-OutputBaseFilename=Script.Test-Setup
-SetupArchitecture={#arch}
-PrivilegesRequired=lowest
-
 [Code]
 
 program Script_Test; { Test 'program' keyword parses }
@@ -2697,7 +2684,7 @@ procedure Test_ExternalDll_AltSearch; external 'GetLastError@kernel32.dll stdcal
 procedure Test_ExternalDll_BothOpts;  external 'GetLastError@kernel32.dll stdcall delayload loadwithalteredsearchpath';
 procedure Test_ExternalDll_QuotedDll; external 'GetLastError@"kernel32.dll" stdcall';
 
-procedure RunAllTests;
+procedure ROPS_RunAllTests;
 begin
   Test_Lexical;
   Test_BaseTypeSizes;
@@ -2778,17 +2765,4 @@ begin
   Test_ExternalDll;
 end;
 
-function InitializeSetup: Boolean;
-var
-  ResultText: String;
-begin
-  try
-    RunAllTests;
-    ResultText := 'OK';
-  except
-    ResultText := GetExceptionMessage;
-  end;
-  Log(ResultText);
-  SaveStringToFile(ExpandConstant('{src}\Script.Test-Result.txt'), ResultText, False);
-  Result := False;
-end;
+[/Code]
