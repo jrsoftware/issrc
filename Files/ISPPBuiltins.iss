@@ -353,7 +353,7 @@
 #sub GLS_DoFindFiles
   #for {GLS_FindHandle = GLS_FindResult = FindFirst(GLS_FindPathName + "*.isl", 0); GLS_FindResult; GLS_FindResult = FindNext(GLS_FindHandle)} GLS_ProcessFoundLanguagesFile
   #if GLS_FindHandle
-    #expr FindClose(GLS_FindHandle)
+    #call FindClose(GLS_FindHandle)
   #endif
 #endsub
 
@@ -364,7 +364,7 @@
 #sub EmitLanguagesSection
   #emit "[Languages]"
   #emit "Name: english; MessagesFile: compiler:Default.isl"
-  #expr GLS_FindFiles(CompilerPath + "Languages\")
+  #call GLS_FindFiles(CompilerPath + "Languages\")
 #endsub
 
 #ifdef DisablePOptP

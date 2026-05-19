@@ -1133,7 +1133,7 @@ begin
         UsingISPPEmitLanguagesSection := False;
 
       if UsingISPPEmitLanguagesSection then
-        ISPP := ISPP + '#expr EmitLanguagesSection' + SNewLine
+        ISPP := ISPP + '#call EmitLanguagesSection' + SNewLine
       else begin
         for I := 0 to LanguagesList.Items.Count-1 do begin
           if LanguagesList.Checked[I] then begin

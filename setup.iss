@@ -54,7 +54,7 @@ SignTool=issigntool256
 SignedUninstaller=yes
 SetupArchitecture={#arch}
 
-#expr EmitLanguagesSection
+#call EmitLanguagesSection
 
 [Messages]
 HelpTextNote=/PORTABLE=1%nEnable portable mode.
