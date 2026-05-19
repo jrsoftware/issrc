@@ -427,26 +427,47 @@
 			<topic id="if">
 				<title>#if, #elif, #else, #endif</title>
 				<keywords>
+					<kwd>#?</kwd>
 					<kwd>if</kwd>
 					<kwd>#elif</kwd>
 					<kwd>elif</kwd>
+					<kwd>#^</kwd>
 					<kwd>#else</kwd>
 					<kwd>else</kwd>
+					<kwd>#.</kwd>
 					<kwd>#endif</kwd>
 					<kwd>endif</kwd>
 				</keywords>
 				<syntax>
 					<define id="if-directive">
-						<txt>if</txt><nt>expr</nt>
+						<group><nt name="if-dir-name"/></group><nt>expr</nt>
+					</define>
+					<define id="if-dir-name" inline="yes">
+						<cases>
+							<case><txt>if</txt></case>
+							<case><txt>?</txt></case>
+						</cases>
 					</define>
 					<define id="elif-directive">
 						<txt>elif</txt><nt>expr</nt>
 					</define>
 					<define id="else-directive">
-						<txt>else</txt>
+						<group><nt name="else-dir-name"/></group>
+					</define>
+					<define id="else-dir-name" inline="yes">
+						<cases>
+							<case><txt>else</txt></case>
+							<case><txt>^</txt></case>
+						</cases>
 					</define>
 					<define id="endif-directive">
-						<txt>endif</txt>
+						<group><nt name="endif-dir-name"/></group>
+					</define>
+					<define id="endif-dir-name" inline="yes">
+						<cases>
+							<case><txt>endif</txt></case>
+							<case><txt>.</txt></case>
+						</cases>
 					</define>
 				</syntax>
 				<description>

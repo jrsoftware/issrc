@@ -96,8 +96,8 @@ begin
         ExpectIdent := True;
         Pos := AMemo.GetPositionAfter(Pos);
       end;
-    '=' { emit } , '!' { expr }:
-      Exit(True); { #= and #! begin the expression immediately and do not require any whitespace }
+    '=' { emit }, '!' { expr }, '?' { if }:
+      Exit(True); { #=, #! and #? begin the expression immediately and do not require any whitespace }
   else
     begin
       const DirectiveEndPos = AMemo.GetWordEndPosition(Pos, True);

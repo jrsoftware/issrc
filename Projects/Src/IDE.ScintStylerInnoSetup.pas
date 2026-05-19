@@ -1554,7 +1554,10 @@ const
      '+' {include},
      '=' {emit},
      '%' {env},
-     '!' {expr}];
+     '!' {expr},
+     '?' {if},
+     '^' {else},
+     '.' {endif}];
 begin
   var StartIndex := CurIndex;
   var NeedIspp: Boolean;
@@ -1575,7 +1578,18 @@ begin
   if ConsumeCharIn(ISPPDirectiveShorthands) then begin
     DoIncludeFileNotationCheck := C = '+'; { We need to check the include file notation  }
     NeedIspp := True;
-    FinishDirectiveNameOrShorthand(True); { All shorthands require a parameter }
+    if C = '?' then begin { if }
+      Inc(OpenCount);
+      FinishDirectiveNameOrShorthand(True);
+    end else if C = '.' then begin { endif }
+      Inc(OpenCount, -1);
+      if OpenCount < 0 then begin
+        CommitStyleSq(stCompilerDirective, True);
+        OpenCount := 0; { See below }
+      end;
+      FinishDirectiveNameOrShorthand(False);
+    end else
+      FinishDirectiveNameOrShorthand(C <> '^'); { All shorthands except ^ (else) require a parameter }
   end else begin
     var S := ConsumeString(ISPPIdentChars);
     for var ISPPDirective in ISPPDirectives do
@@ -2213,10 +2227,10 @@ initialization
     ISPPD('call', True, 0),
     ISPPD('insert', True, 0),
     ISPPD('append', False, 0),
-    ISPPD('if', True, 1),
+    ISPPD('if', True, 1), { also see #? OpenCount handling in HandleCompilerDirective }
     ISPPD('elif', False { bug in ISPP? }, 0),
     ISPPD('else', False, 0),
-    ISPPD('endif', False, -1),
+    ISPPD('endif', False, -1), { also see #. OpenCount handling in HandleCompilerDirective }
     ISPPD('ifdef', True, 1),
     ISPPD('ifndef', True, 1),
     ISPPD('ifexist', True, 1),
