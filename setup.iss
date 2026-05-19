@@ -69,7 +69,9 @@ Type: files; Name: {autodesktop}\Inno Setup Compiler.lnk; Tasks: not desktopicon
 ; Remove translations in case any got demoted
 Type: files; Name: "{app}\Languages\*.isl"
 
-#include "setup.allowedpublickeys.iss"
+[ISSigKeys]
+Name: mykey1; KeyFile: def01.ispublickey; KeyID: def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38
+Name: mykey2; KeyFile: def02.ispublickey
 
 [Files]
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
