@@ -677,6 +677,15 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
     end;
   end;
 
+  procedure RecolorAutoForegroundText_DropAllColors;
+
+  { Simply recolors everything to the desired color }
+
+  begin
+    const NewTextColorFormat = GetNewTextColorFormat;
+    SendMessage(Handle, EM_SETCHARFORMAT, SCF_ALL, LPARAM(@NewTextColorFormat));
+  end;
+
   function GetTextLength: NativeInt;
   begin
     var GetTextLengthEx: TGetTextLengthEx;
@@ -706,8 +715,12 @@ begin
     Exit;
   end;
 
-  if not RecolorAutoForegroundText_FullQuick then
+  if RecolorAutoForegroundText_FullQuick then
     Exit;
+  
+  { The text is large and we're on Wine: all we can do it just drop all
+    colors, meaning: change all foreground colors to the desired color. }
+  RecolorAutoForegroundText_DropAllColors;
 end;
 
 procedure TRichEditViewer.SetRTFTextProp(const Value: AnsiString);
