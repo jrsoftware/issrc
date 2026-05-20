@@ -648,7 +648,7 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
           Exit;
 
         { On Wine we cannot trust the value of Delta, see bug 2 above. So we need to calculate
-          Delta ourselves. Prevents an endless loop if they fix bug 1 but nog bug 2. }
+          Delta ourselves. Prevents an endless loop if they fix bug 1 but not bug 2. }
         var EndPos: Integer;
         if Failed(Range.GetEnd(EndPos)) or
            (EndPos <= PreviousEndPos) then
@@ -709,7 +709,7 @@ begin
     Exit;
 
   if TextLength < 50000 then begin
-    { Relatively small size: user the slower but Wine-compatible recolor,
+    { Relatively small size: use the slower but Wine-compatible recolor,
       timed to take a bit more than 1 sec at 50.000 chars. }
     RecolorAutoForegroundText_FullSlow(TextLength);
     Exit;
@@ -718,7 +718,7 @@ begin
   if RecolorAutoForegroundText_FullQuick then
     Exit;
   
-  { The text is large and we're on Wine: all we can do it just drop all
+  { The text is large and we're on Wine: all we can do is just drop all
     colors, meaning: change all foreground colors to the desired color. }
   RecolorAutoForegroundText_DropAllColors;
 end;
