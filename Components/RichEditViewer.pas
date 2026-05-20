@@ -129,6 +129,101 @@ type
     lpstrText: PWideChar;
   end;
 
+  { The following interface definitions are simplified to contain only function
+    prototypes up to the last one we need }
+
+  IRichEditOle = interface(IUnknown)
+    ['{00020D00-0000-0000-C000-000000000046}']
+  end;
+
+  ITextFont = interface(IDispatch)
+    ['{8CC497C3-A1DF-11CE-8098-00AA0047BE5D}']
+    function GetDuplicate(out Font: ITextFont): HResult; stdcall;
+    function SetDuplicate(const Font: ITextFont): HResult; stdcall;
+    function CanChange(out Value: Integer): HResult; stdcall;
+    function IsEqual(const Font: ITextFont; out Value: Integer): HResult; stdcall;
+    function Reset(Value: Integer): HResult; stdcall;
+    function GetStyle(out Value: Integer): HResult; stdcall;
+    function SetStyle(Value: Integer): HResult; stdcall;
+    function GetAllCaps(out Value: Integer): HResult; stdcall;
+    function SetAllCaps(Value: Integer): HResult; stdcall;
+    function GetAnimation(out Value: Integer): HResult; stdcall;
+    function SetAnimation(Value: Integer): HResult; stdcall;
+    function GetBackColor(out Value: Integer): HResult; stdcall;
+    function SetBackColor(Value: Integer): HResult; stdcall;
+    function GetBold(out Value: Integer): HResult; stdcall;
+    function SetBold(Value: Integer): HResult; stdcall;
+    function GetEmboss(out Value: Integer): HResult; stdcall;
+    function SetEmboss(Value: Integer): HResult; stdcall;
+    function GetForeColor(out Value: Integer): HResult; stdcall;
+    function SetForeColor(Value: Integer): HResult; stdcall;
+  end;
+
+  ITextPara = interface(IDispatch)
+    ['{8CC497C4-A1DF-11CE-8098-00AA0047BE5D}']
+  end;
+
+  ITextRange = interface(IDispatch)
+    ['{8CC497C2-A1DF-11CE-8098-00AA0047BE5D}']
+    function GetText(out Text: WideString): HResult; stdcall;
+    function SetText(const Text: WideString): HResult; stdcall;
+    function GetChar(out CharCode: Integer): HResult; stdcall;
+    function SetChar(CharCode: Integer): HResult; stdcall;
+    function GetDuplicate(out Range: ITextRange): HResult; stdcall;
+    function GetFormattedText(out Range: ITextRange): HResult; stdcall;
+    function SetFormattedText(const Range: ITextRange): HResult; stdcall;
+    function GetStart(out cpFirst: Integer): HResult; stdcall;
+    function SetStart(cpFirst: Integer): HResult; stdcall;
+    function GetEnd(out cpLim: Integer): HResult; stdcall;
+    function SetEnd(cpLim: Integer): HResult; stdcall;
+    function GetFont(out Font: ITextFont): HResult; stdcall;
+    function SetFont(const Font: ITextFont): HResult; stdcall;
+    function GetPara(out Para: ITextPara): HResult; stdcall;
+    function SetPara(const Para: ITextPara): HResult; stdcall;
+    function GetStoryLength(out Count: Integer): HResult; stdcall;
+    function GetStoryType(out TypeValue: Integer): HResult; stdcall;
+    function Collapse(Start: Integer): HResult; stdcall;
+    function Expand(UnitValue: Integer; out Delta: Integer): HResult; stdcall;
+    function GetIndex(UnitValue: Integer; out Index: Integer): HResult; stdcall;
+    function SetIndex(UnitValue, Index, Extend: Integer): HResult; stdcall;
+    function SetRange(Anchor, Active: Integer): HResult; stdcall;
+    function InRange(const Range: ITextRange; out InRangeValue: Integer): HResult; stdcall;
+    function InStory(const Range: ITextRange; out InStoryValue: Integer): HResult; stdcall;
+    function IsEqual(const Range: ITextRange; out Equal: Integer): HResult; stdcall;
+    function Select: HResult; stdcall;
+    function StartOf(UnitValue, Extend: Integer; out Delta: Integer): HResult; stdcall;
+    function EndOf(UnitValue, Extend: Integer; out Delta: Integer): HResult; stdcall;
+    function Move(UnitValue, Count: Integer; out Delta: Integer): HResult; stdcall;
+    function MoveStart(UnitValue, Count: Integer; out Delta: Integer): HResult; stdcall;
+    function MoveEnd(UnitValue, Count: Integer; out Delta: Integer): HResult; stdcall;
+  end;
+
+  ITextSelection = interface(ITextRange)
+    ['{8CC497C1-A1DF-11CE-8098-00AA0047BE5D}']
+  end;
+
+  ITextDocument = interface(IDispatch)
+    ['{8CC497C0-A1DF-11CE-8098-00AA0047BE5D}']
+    function GetName(out Name: WideString): HResult; stdcall;
+    function GetSelection(out Selection: ITextSelection): HResult; stdcall;
+    function GetStoryCount(out Count: Integer): HResult; stdcall;
+    function GetStoryRanges(out Stories: IDispatch): HResult; stdcall;
+    function GetSaved(out Value: Integer): HResult; stdcall;
+    function SetSaved(Value: Integer): HResult; stdcall;
+    function GetDefaultTabStop(out Value: Single): HResult; stdcall;
+    function SetDefaultTabStop(Value: Single): HResult; stdcall;
+    function New: HResult; stdcall;
+    function Open(var Data: OleVariant; Flags, CodePage: Integer): HResult; stdcall;
+    function Save(var Data: OleVariant; Flags, CodePage: Integer): HResult; stdcall;
+    function Freeze(out Count: Integer): HResult; stdcall;
+    function Unfreeze(out Count: Integer): HResult; stdcall;
+    function BeginEditCollection: HResult; stdcall;
+    function EndEditCollection: HResult; stdcall;
+    function Undo(Count: Integer; out Prop: Integer): HResult; stdcall;
+    function Redo(Count: Integer; out Prop: Integer): HResult; stdcall;
+    function Range(cp1, cp2: Integer; out Range: ITextRange): HResult; stdcall;
+  end;
+
 var
   RichEditModule: HMODULE;
   RichEditUseCount: Integer = 0;
@@ -397,12 +492,12 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
     Result.crTextColor := TColorRef(NewTextColor);
   end;
 
-  function RecolorAutoForegroundText_Quick: Boolean;
+  function RecolorAutoForegroundText_SimpleQuick: Boolean;
 
-    { Selects the entire text and calls EM_GETCHARFORMAT with SCF_SELECTION.
-      If the result has both CFM_COLOR and CFE_AUTOCOLOR set, then all of the
-      text uses auto-color text and everything can be recolored at once. This
-      always succeeds if a .txt was used, or a .rtf with no colors. }
+  { Selects the entire text and calls EM_GETCHARFORMAT with SCF_SELECTION.
+    If the result has both CFM_COLOR and CFE_AUTOCOLOR set, then all of the
+    text uses auto-color text and everything can be recolored at once. This
+    always succeeds if a .txt was used, or a .rtf with no colors. }
 
   begin
     { The following works even for read-only controls }
@@ -433,23 +528,23 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
 
   procedure RecolorAutoForegroundText_FullSlow(const TextLength: NativeInt);
 
-    { Recolors using EM_GETCHARFORMAT and EM_SETCHARFORMAT instead of the
-      simpler-looking RichEdit OLE interface (ITextDocument etc., obtained via
-      EM_GETOLEINTERFACE), because this runs into three separate bugs in
-      Wine's riched20 implementation (none of which exist in actual Windows):
-      1. ITextRange.MoveEnd(tomCharFormat, ...) is not implemented; Wine prints
-         a FIXME and returns E_NOTIMPL, so format-boundary navigation doesn't
-         work at all.
-      2. Once Range.End reaches the trailing CR, MoveEnd(tomCharacter, 1, Delta)
-         keeps returning Delta=1 while the range end actually stays the same,
-         producing an infinite loop. See cursor_from_char_ofs in dlls/riched20/run.c
-         and textrange_moveend in dlls/riched20/richole.c.
-      3. ITextFont.GetForeColor doesn't honor CFE_AUTOCOLOR: it simply returns
-         GetSysColor(COLOR_WINDOWTEXT) instead of the special tomAutoColor value,
-         so we can't distinguish auto from black. See get_textfont_prop_for_pos
-         in dlls/riched20/richole.c.
-      Issue 1 & 2 can be worked around, but 3 is a showstopper.
-      Note: see fa5eed5c+4d222320 for the EM_GETOLEINTERFACE implementation. }
+  { Recolors using EM_GETCHARFORMAT and EM_SETCHARFORMAT instead of the
+    simpler-looking RichEdit OLE interface (ITextDocument etc., obtained via
+    EM_GETOLEINTERFACE), because this runs into three separate bugs in
+    Wine's riched20 implementation (none of which exist in actual Windows):
+    1. ITextRange.MoveEnd(tomCharFormat, ...) is not implemented; Wine prints
+       a FIXME and returns E_NOTIMPL, so format-boundary navigation doesn't
+       work at all.
+    2. Once Range.End reaches the trailing CR, MoveEnd(tomCharacter, 1, Delta)
+       keeps returning Delta=1 while the range end actually stays the same,
+       producing an infinite loop. See cursor_from_char_ofs in dlls/riched20/run.c
+       and textrange_moveend in dlls/riched20/richole.c.
+    3. ITextFont.GetForeColor doesn't honor CFE_AUTOCOLOR: it simply returns
+       GetSysColor(COLOR_WINDOWTEXT) instead of the special tomAutoColor value,
+       so we can't distinguish auto from black. See get_textfont_prop_for_pos
+       in dlls/riched20/richole.c.
+    Issue 1 & 2 can be worked around, but 3 is a showstopper.
+    Note: see fa5eed5c+4d222320 for the EM_GETOLEINTERFACE implementation. }
 
     procedure SetSelection(const StartPos, EndPos: Integer);
     begin
@@ -507,6 +602,64 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
     end;
   end;
 
+  procedure RecolorAutoForegroundText_FullQuick;
+
+  { Recolors using the RichEdit OLE interface. Currently fails on Wine,
+    see the bugs listed above. }
+
+  const
+    IID_ITextDocument: TGUID = '{8CC497C0-A1DF-11CE-8098-00AA0047BE5D}';
+    { See https://learn.microsoft.com/en-us/windows/win32/api/tom/ne-tom-tomconstants }
+    tomAutoColor = -9999997;
+    tomCharFormat = 13;
+  begin
+    var RichEditOle: IRichEditOle;
+    var TextDocument: ITextDocument;
+    var Range: ITextRange;
+    var StoryLength: Integer;
+    if (SendMessage(Handle, EM_GETOLEINTERFACE, 0, LPARAM(@RichEditOle)) = 0) or
+       Failed(RichEditOle.QueryInterface(IID_ITextDocument, TextDocument)) or
+       Failed(TextDocument.Range(0, 0, Range)) or
+       Failed(Range.GetStoryLength(StoryLength)) or
+       (StoryLength < 2) then
+      Exit;
+
+    { See https://learn.microsoft.com/en-us/windows/win32/api/tom/nn-tom-itextrange:
+      All stories contain an undeletable final CR (0xD) character at the end }
+    const TextLength = StoryLength-1;
+
+    SendMessage(Handle, WM_SETREDRAW, 0, 0);
+    const SaveReadOnly = ReadOnly;
+    try
+      ReadOnly := False;
+      while True do begin
+        { Move the end of the range (which initializes at 0,0) to the end of constant formatting }
+        var Delta: Integer;
+        if Failed(Range.MoveEnd(tomCharFormat, 1, Delta)) or (Delta = 0) then
+          Break;
+
+        { Recolor the range if the foreground color is automatic }
+        var Font: ITextFont;
+        var TextColor: Integer;
+        if Succeeded(Range.GetFont(Font)) and
+           Succeeded(Font.GetForeColor(TextColor)) and
+           (TextColor = tomAutoColor) then
+          Font.SetForeColor(NewTextColor); { Ignore failure }
+
+        { Move the start of the range to the end of it, unless it ends at the end of the text }
+        var EndPos: Integer;
+        if Failed(Range.GetEnd(EndPos)) or
+           (EndPos >= TextLength) or
+           Failed(Range.SetStart(EndPos)) then
+          Break;
+      end;
+    finally
+      ReadOnly := SaveReadOnly;
+      SendMessage(Handle, WM_SETREDRAW, 1, 0);
+      Invalidate;
+    end;
+  end;
+
   function GetTextLength: NativeInt;
   begin
     var GetTextLengthEx: TGetTextLengthEx;
@@ -526,7 +679,7 @@ begin
   if TextLength = 0 then
     Exit;
 
-  if RecolorAutoForegroundText_Quick then
+  if RecolorAutoForegroundText_SimpleQuick then
     Exit;
 
   if TextLength < 50000 then begin
@@ -535,6 +688,8 @@ begin
     RecolorAutoForegroundText_FullSlow(TextLength);
     Exit;
   end;
+
+  RecolorAutoForegroundText_FullQuick;
 end;
 
 procedure TRichEditViewer.SetRTFTextProp(const Value: AnsiString);
