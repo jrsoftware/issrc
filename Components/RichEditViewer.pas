@@ -388,39 +388,85 @@ begin
 end;
 
 procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer);
-{ Recolors using EM_GETCHARFORMAT and EM_SETCHARFORMAT instead of the
-  simpler-looking RichEdit OLE interface (ITextDocument etc., obtained via
-  EM_GETOLEINTERFACE), because this runs into three separate bugs in
-  Wine's riched20 implementation (none of which exist in actual Windows):
-  1. ITextRange.MoveEnd(tomCharFormat, ...) is not implemented; Wine prints
-     a FIXME and returns E_NOTIMPL, so format-boundary navigation doesn't
-     work at all.
-  2. Once Range.End reaches the trailing CR, MoveEnd(tomCharacter, 1, Delta)
-     keeps returning Delta=1 while the range end actually stays the same,
-     producing an infinite loop. See cursor_from_char_ofs in dlls/riched20/run.c
-     and textrange_moveend in dlls/riched20/richole.c.
-  3. ITextFont.GetForeColor doesn't honor CFE_AUTOCOLOR: it simply returns
-     GetSysColor(COLOR_WINDOWTEXT) instead of the special tomAutoColor value,
-     so we can't distinguish auto from black. See get_textfont_prop_for_pos
-     in dlls/riched20/richole.c.
-  Issue 1 & 2 can be worked around, but 3 is a showstopper.
-  Note: see fa5eed5c+4d222320 for the EM_GETOLEINTERFACE implementation. }
 
-  procedure SetSelection(const StartPos, EndPos: Integer);
-  begin
-    var Range: TCharRange;
-    Range.cpMin := StartPos;
-    Range.cpMax := EndPos;
-    SendMessage(Handle, EM_EXSETSEL, 0, LPARAM(@Range));
-  end;
+  procedure RecolorAutoForegroundText_Full(const TextLength: NativeInt);
 
-  function GetTextColorAndEffectsAt(const Pos: Integer; out Format: TCharFormat2): Boolean;
+    { Recolors using EM_GETCHARFORMAT and EM_SETCHARFORMAT instead of the
+      simpler-looking RichEdit OLE interface (ITextDocument etc., obtained via
+      EM_GETOLEINTERFACE), because this runs into three separate bugs in
+      Wine's riched20 implementation (none of which exist in actual Windows):
+      1. ITextRange.MoveEnd(tomCharFormat, ...) is not implemented; Wine prints
+         a FIXME and returns E_NOTIMPL, so format-boundary navigation doesn't
+         work at all.
+      2. Once Range.End reaches the trailing CR, MoveEnd(tomCharacter, 1, Delta)
+         keeps returning Delta=1 while the range end actually stays the same,
+         producing an infinite loop. See cursor_from_char_ofs in dlls/riched20/run.c
+         and textrange_moveend in dlls/riched20/richole.c.
+      3. ITextFont.GetForeColor doesn't honor CFE_AUTOCOLOR: it simply returns
+         GetSysColor(COLOR_WINDOWTEXT) instead of the special tomAutoColor value,
+         so we can't distinguish auto from black. See get_textfont_prop_for_pos
+         in dlls/riched20/richole.c.
+      Issue 1 & 2 can be worked around, but 3 is a showstopper.
+      Note: see fa5eed5c+4d222320 for the EM_GETOLEINTERFACE implementation. }
+
+    procedure SetSelection(const StartPos, EndPos: Integer);
+    begin
+      var Range: TCharRange;
+      Range.cpMin := StartPos;
+      Range.cpMax := EndPos;
+      SendMessage(Handle, EM_EXSETSEL, 0, LPARAM(@Range));
+    end;
+
+    function GetTextColorAndEffectsAt(const Pos: Integer; out Format: TCharFormat2): Boolean;
+    begin
+      SetSelection(Pos, Pos + 1);
+      ZeroMemory(@Format, SizeOf(TCharFormat2));
+      Format.cbSize := SizeOf(TCharFormat2);
+      Format.dwMask := CFM_EFFECTS or CFM_COLOR; { CFM_COLOR does *not* refer to crBackColor }
+      Result := SendMessage(Handle, EM_GETCHARFORMAT, SCF_SELECTION, LPARAM(@Format)) <> 0;
+    end;
+
   begin
-    SetSelection(Pos, Pos + 1);
-    ZeroMemory(@Format, SizeOf(TCharFormat2));
-    Format.cbSize := SizeOf(TCharFormat2);
-    Format.dwMask := CFM_EFFECTS or CFM_COLOR; { CFM_COLOR does *not* refer to crBackColor }
-    Result := SendMessage(Handle, EM_GETCHARFORMAT, SCF_SELECTION, LPARAM(@Format)) <> 0;
+    { The following works even for read-only controls }
+
+    var SaveSel: TCharRange;
+    SendMessage(Handle, EM_EXGETSEL, 0, LPARAM(@SaveSel));
+    SendMessage(Handle, WM_SETREDRAW, 0, 0);
+    try
+      var StartPos := 0;
+      { Find sections of auto colored text. Do not pay attention to background colors while doing so.
+        This exactly replicates the behavior seen when a high-contrast theme is active. }
+      while StartPos < TextLength do begin
+        var StartColorAndEffects: TCharFormat2;
+        if not GetTextColorAndEffectsAt(StartPos, StartColorAndEffects) or
+           (StartColorAndEffects.dwEffects and CFE_AUTOCOLOR = 0) then begin
+          Inc(StartPos);
+          Continue;
+        end;
+        { Found start of auto colored section, look for the end }
+        var EndPos := StartPos + 1;
+        while EndPos < TextLength do begin
+          var NextColorAndEffects: TCharFormat2;
+          { Stop on any change, such as CFE_BOLD, and not just on CFE_AUTOCOLOR }
+          if not GetTextColorAndEffectsAt(EndPos, NextColorAndEffects) or
+             (NextColorAndEffects.dwEffects <> StartColorAndEffects.dwEffects) then
+            Break;
+          Inc(EndPos);
+        end;
+        if StartPos < EndPos then begin
+          { Update the section's foreground color }
+          SetSelection(StartPos, EndPos);
+          StartColorAndEffects.crTextColor := TColorRef(NewTextColor);
+          StartColorAndEffects.dwEffects := StartColorAndEffects.dwEffects and not CFE_AUTOCOLOR;
+          SendMessage(Handle, EM_SETCHARFORMAT, SCF_SELECTION, LPARAM(@StartColorAndEffects));
+          StartPos := EndPos;
+        end;
+      end;
+    finally
+      SendMessage(Handle, EM_EXSETSEL, 0, LPARAM(@SaveSel));
+      SendMessage(Handle, WM_SETREDRAW, 1, 0);
+      Invalidate;
+    end;
   end;
 
   function GetTextLength: NativeInt;
@@ -442,46 +488,7 @@ begin
   if TextLength = 0 then
     Exit;
 
-  { The following works even for read-only controls }
-
-  var SaveSel: TCharRange;
-  SendMessage(Handle, EM_EXGETSEL, 0, LPARAM(@SaveSel));
-  SendMessage(Handle, WM_SETREDRAW, 0, 0);
-  try
-    var StartPos := 0;
-    { Find sections of auto colored text. Do not pay attention to background colors while doing so.
-      This exactly replicates the behavior seen when a high-contrast theme is active. }
-    while StartPos < TextLength do begin
-      var StartColorAndEffects: TCharFormat2;
-      if not GetTextColorAndEffectsAt(StartPos, StartColorAndEffects) or
-         (StartColorAndEffects.dwEffects and CFE_AUTOCOLOR = 0) then begin
-        Inc(StartPos);
-        Continue;
-      end;
-      { Found start of auto colored section, look for the end }
-      var EndPos := StartPos + 1;
-      while EndPos < TextLength do begin
-        var NextColorAndEffects: TCharFormat2;
-        { Stop on any change, such as CFE_BOLD, and not just on CFE_AUTOCOLOR }
-        if not GetTextColorAndEffectsAt(EndPos, NextColorAndEffects) or
-           (NextColorAndEffects.dwEffects <> StartColorAndEffects.dwEffects) then
-          Break;
-        Inc(EndPos);
-      end;
-      if StartPos < EndPos then begin
-        { Update the section's foreground color }
-        SetSelection(StartPos, EndPos);
-        StartColorAndEffects.crTextColor := TColorRef(NewTextColor);
-        StartColorAndEffects.dwEffects := StartColorAndEffects.dwEffects and not CFE_AUTOCOLOR;
-        SendMessage(Handle, EM_SETCHARFORMAT, SCF_SELECTION, LPARAM(@StartColorAndEffects));
-        StartPos := EndPos;
-      end;
-    end;
-  finally
-    SendMessage(Handle, EM_EXSETSEL, 0, LPARAM(@SaveSel));
-    SendMessage(Handle, WM_SETREDRAW, 1, 0);
-    Invalidate;
-  end;
+  RecolorAutoForegroundText_Full(TextLength);
 end;
 
 procedure TRichEditViewer.SetRTFTextProp(const Value: AnsiString);
