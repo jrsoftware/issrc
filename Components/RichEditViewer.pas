@@ -508,6 +508,8 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
     SendMessage(Handle, EM_EXGETSEL, 0, LPARAM(@SaveSel));
     SendMessage(Handle, WM_SETREDRAW, 0, 0);
     try
+      { Select all. This is because EM_GETCHARFORMAT does not support
+        SCF_ALL, unlike EM_SETCHARFORMAT. }
       SendMessage(Handle, EM_SETSEL, 0, -1);
 
       var CheckFormat: TCharFormat2;
