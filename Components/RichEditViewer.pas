@@ -602,7 +602,7 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
     end;
   end;
 
-  procedure RecolorAutoForegroundText_FullQuick;
+  function RecolorAutoForegroundText_FullQuick: Boolean;
 
   { Recolors using the RichEdit OLE interface. Currently fails on Wine,
     see the bugs listed above. }
@@ -613,6 +613,8 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
     tomAutoColor = -9999997;
     tomCharFormat = 13;
   begin
+    Result := False;
+
     var RichEditOle: IRichEditOle;
     var TextDocument: ITextDocument;
     var Range: ITextRange;
@@ -635,7 +637,9 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
       while True do begin
         { Move the end of the range (which initializes at 0,0) to the end of constant formatting }
         var Delta: Integer;
-        if Failed(Range.MoveEnd(tomCharFormat, 1, Delta)) or (Delta = 0) then
+        if Failed(Range.MoveEnd(tomCharFormat, 1, Delta)) then { Fails in Wine, see bug 1 above }
+          Exit;
+        if Delta = 0 then
           Break;
 
         { Recolor the range if the foreground color is automatic }
@@ -653,6 +657,7 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
            Failed(Range.SetStart(EndPos)) then
           Break;
       end;
+      Result := True;
     finally
       ReadOnly := SaveReadOnly;
       SendMessage(Handle, WM_SETREDRAW, 1, 0);
@@ -689,7 +694,8 @@ begin
     Exit;
   end;
 
-  RecolorAutoForegroundText_FullQuick;
+  if RecolorAutoForegroundText_FullQuick then
+    Exit;
 end;
 
 procedure TRichEditViewer.SetRTFTextProp(const Value: AnsiString);
