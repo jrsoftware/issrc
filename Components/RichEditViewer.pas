@@ -495,9 +495,11 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
   function RecolorAutoForegroundText_SimpleQuick: Boolean;
 
   { Selects the entire text and calls EM_GETCHARFORMAT with SCF_SELECTION.
-    If the result has both CFM_COLOR and CFE_AUTOCOLOR set, then all of the
-    text uses auto-color text and everything can be recolored at once. This
-    always succeeds if a .txt was used, or a .rtf with no colors. }
+    If the result has CFM_COLOR set, then all of the text uses a single
+    color. If this color is the auto-color then everything can be recolored
+    at once. This happens if a .txt was used, or a .rtf with no colors. If
+    this color is not the auto-color then there is nothing to recolor and
+    we're done as well. This happens if a .rtf is for example all red. }
 
   begin
     { The following works even for read-only controls }
@@ -513,12 +515,14 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
       CheckFormat.cbSize := SizeOf(TCharFormat2);
       CheckFormat.dwMask := CFM_COLOR; { Also makes CFE_AUTOCOLOR in dwEffects valid }
       if (SendMessage(Handle, EM_GETCHARFORMAT, SCF_SELECTION, LPARAM(@CheckFormat)) = 0) or
-         (CheckFormat.dwMask and CFM_COLOR = 0) or
-         (CheckFormat.dwEffects and CFE_AUTOCOLOR = 0) then
+         ((CheckFormat.dwMask and CFM_COLOR) = 0) then
         Exit(False);
 
-      const NewTextColorFormat = GetNewTextColorFormat;
-      Result := SendMessage(Handle, EM_SETCHARFORMAT, SCF_ALL, LPARAM(@NewTextColorFormat)) <> 0;
+      if (CheckFormat.dwEffects and CFE_AUTOCOLOR) <> 0 then begin
+        const NewTextColorFormat = GetNewTextColorFormat;
+        Result := SendMessage(Handle, EM_SETCHARFORMAT, SCF_ALL, LPARAM(@NewTextColorFormat)) <> 0;
+      end else
+        Result := True; { There's nothing to recolor }
     finally
       SendMessage(Handle, EM_EXSETSEL, 0, LPARAM(@SaveSel));
       SendMessage(Handle, WM_SETREDRAW, 1, 0);
