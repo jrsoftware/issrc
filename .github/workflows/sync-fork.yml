@@ -1,7 +1,7 @@
 name: sync-fork
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '45 23 * * *'
   workflow_dispatch:
 jobs:
   sync:
@@ -12,7 +12,11 @@ jobs:
       contents: write
     steps:
       - name: Synchronize fork
-        run: gh repo sync $REPOSITORY -b $BRANCH_NAME
+        run: |
+          status=0
+          gh repo sync $REPOSITORY -b $BRANCH_NAME || status=$?
+          gh repo sync $REPOSITORY -b vnext || status=$?
+          exit $status
         env:
           GITHUB_TOKEN: ${{ secrets.ISSRC_BUILD_ENV_SYNC_TOKEN }}
           REPOSITORY: ${{ github.repository }}
