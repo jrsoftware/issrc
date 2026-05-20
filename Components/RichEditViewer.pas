@@ -513,7 +513,7 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
       var CheckFormat: TCharFormat2;
       ZeroMemory(@CheckFormat, SizeOf(TCharFormat2));
       CheckFormat.cbSize := SizeOf(TCharFormat2);
-      CheckFormat.dwMask := CFM_COLOR; { Also makes CFE_AUTOCOLOR in dwEffects valid }
+      CheckFormat.dwMask := CFM_COLOR; { CFM_COLOR = crTextColor + CFE_AUTOCOLOR }
       if (SendMessage(Handle, EM_GETCHARFORMAT, SCF_SELECTION, LPARAM(@CheckFormat)) = 0) or
          ((CheckFormat.dwMask and CFM_COLOR) = 0) then
         Exit(False);
@@ -564,7 +564,7 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
       var Format: TCharFormat2;
       ZeroMemory(@Format, SizeOf(TCharFormat2));
       Format.cbSize := SizeOf(TCharFormat2);
-      Format.dwMask := CFM_COLOR; { Also makes CFE_AUTOCOLOR in dwEffects valid }
+      Format.dwMask := CFM_COLOR; { CFM_COLOR = crTextColor + CFE_AUTOCOLOR }
       Result := (SendMessage(Handle, EM_GETCHARFORMAT, SCF_SELECTION, LPARAM(@Format)) <> 0) and
                 (Format.dwEffects and CFE_AUTOCOLOR <> 0);
     end;
