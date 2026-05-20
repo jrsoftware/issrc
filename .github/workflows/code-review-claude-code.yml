@@ -30,10 +30,11 @@ jobs:
             Review the changes in PR #${{ github.event.pull_request.number }} of repository ${{ github.repository }}.
             Steps:
             1. Run `gh pr diff ${{ github.event.pull_request.number }}` to get the changes.
-            2. Run `gh pr view ${{ github.event.pull_request.number }} --json comments` to see any previous review comments.
-            3. Analyze the diff for bugs, security issues, and style problems. Focus only on the changed lines, not pre-existing issues.
-            4. Read CLAUDE.md and AGENTS.md in full for project-specific guidelines and verify compliance.
-            5. Do not repeat issues already mentioned in previous review comments, and do not report the same issue twice in a single review.
+            2. Run `gh pr view ${{ github.event.pull_request.number }} --json commits --jq '.commits[] | {oid, committedDate, messageHeadline, messageBody}'` to read the commit messages.
+            3. Run `gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[] | {author: .author.login, body}'` to see any previous review comments.
+            4. Analyze the diff for bugs, security issues, and style problems. Use the commit messages to understand the claimed intent, but verify that the actual changes match - do not trust commit messages at face value. Focus only on the changed lines, not pre-existing issues.
+            5. Read CLAUDE.md and AGENTS.md in full for project-specific guidelines and verify compliance.
+            6. Do not repeat issues already mentioned in previous review comments, and do not report the same issue twice in a single review.
             Post exactly one top-level PR comment using `gh pr comment`, either with findings or stating that no issues were found.
             Do not post inline review comments and do not submit review text as messages.
             Keep the review concise and actionable.

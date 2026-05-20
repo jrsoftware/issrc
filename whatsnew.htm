@@ -48,7 +48,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <details open="">
 <summary>Inno Setup 7.0</summary>
 
-<p><a name="7.0.1"></a><span class="ver">7.0.1-dev </span><span class="date">(?)</span></p>
+<p><a name="7.0.2"></a><span class="ver">7.0.2-dev </span><span class="date">(?)</span></p>
 
 <p><b>Using Inno Setup commercially?</b> Please <a href="https://jrsoftware.org/isorder.php">purchase a license</a>.</p>
 
@@ -56,7 +56,6 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Previously undocumented ISPP directive <tt>#env</tt> and its shorthand <tt>#%</tt> are now documented and recognized by the Compiler IDE. This directive replaces itself with the value of the specified environment variable. Example: <tt>AppName={#%MyAppName}</tt>.</li>
   <li>Previously undocumented ISPP directive aliases <tt>#call</tt> (for <tt>#expr</tt>) and <tt>#echo</tt> (for <tt>#emit</tt>) are now documented and recognized by the Compiler IDE. Example: <tt>#call EmitLanguagesSection</tt>.</li>
   <li>Previously undocumented ISPP directive shorthands <tt>#?</tt> (for <tt>#if</tt>), <tt>#^</tt> (for <tt>#else</tt>), and <tt>#.</tt> (for <tt>#endif</tt>) are now documented and recognized by the Compiler IDE.</li>
-  <li><i>Fix:</i> ISPP: A user defined function which has no parameters compiles again. Example: <tt>#define MyAppName() "My Program"</tt>.</li>
 </ul>
 
 <!-- <p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p> -->
@@ -76,6 +75,13 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Other minor fixes.</li>
   </ul>
   </li>
+</ul>
+
+<p><a name="7.0.1"></a><span class="ver">7.0.1-beta </span><span class="date">(2026-05-26)</span></p>
+
+<ul>
+  <li>Improved the Wine RichEdit workaround added in 7.0.0 to prevent a long startup delay when extremely large texts are used in combination with a dark custom wizard style.</li>
+  <li><i>Fix:</i> ISPP: A user defined function which has no parameters compiles again. Example: <tt>#define MyAppName() "My Program"</tt>.</li>
 </ul>
 
 <p><a name="7.0.0"></a><span class="ver">7.0.0-beta </span><span class="date">(2026-05-18)</span></p>

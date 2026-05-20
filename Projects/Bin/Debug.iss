@@ -15,6 +15,7 @@ DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 AppVersion=1.2.3
 WizardStyle=modern dynamic
+InfoBeforeFile=Colortest.rtf
 
 ; DisableWelcomePage=no
 DisableDirPage=no
@@ -38,7 +39,7 @@ SetupArchitecture=x64
 
 [Languages]
 Name: en; MessagesFile: "compiler:Default.isl"
-Name: nl; MessagesFile: "compiler:Languages\Dutch.isl"
+; Name: nl; MessagesFile: "compiler:Languages\Dutch.isl"
 
 [Files]
 Source: "..\..\Examples\MyProg.exe"; DestDir: "{app}"
