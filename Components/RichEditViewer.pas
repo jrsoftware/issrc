@@ -634,12 +634,18 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
     const SaveReadOnly = ReadOnly;
     try
       ReadOnly := False;
+      var PreviousEndPos := 0;
       while True do begin
         { Move the end of the range (which initializes at 0,0) to the end of constant formatting }
         var Delta: Integer;
         if Failed(Range.MoveEnd(tomCharFormat, 1, Delta)) then { Fails in Wine, see bug 1 above }
           Exit;
-        if Delta = 0 then
+
+        { On Wine we cannot trust the value of Delta, see bug 2 above. So we need to calculate
+          Delta ourselves. Prevents an endless loop if they fix bug 1 but nog bug 2. }
+        var EndPos: Integer;
+        if Failed(Range.GetEnd(EndPos)) or
+           (EndPos <= PreviousEndPos) then
           Break;
 
         { Recolor the range if the foreground color is automatic }
@@ -651,11 +657,11 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
           Font.SetForeColor(NewTextColor); { Ignore failure }
 
         { Move the start of the range to the end of it, unless it ends at the end of the text }
-        var EndPos: Integer;
-        if Failed(Range.GetEnd(EndPos)) or
-           (EndPos >= TextLength) or
+        if (EndPos >= TextLength) or
            Failed(Range.SetStart(EndPos)) then
           Break;
+
+        PreviousEndPos := EndPos;
       end;
       Result := True;
     finally
@@ -694,7 +700,7 @@ begin
     Exit;
   end;
 
-  if RecolorAutoForegroundText_FullQuick then
+  if not RecolorAutoForegroundText_FullQuick then
     Exit;
 end;
 
