@@ -417,13 +417,15 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
       SendMessage(Handle, EM_EXSETSEL, 0, LPARAM(@Range));
     end;
 
-    function GetTextColorAndEffectsAt(const Pos: Integer; out Format: TCharFormat2): Boolean;
+    function IsAutoColoredAt(const Pos: Integer): Boolean;
     begin
       SetSelection(Pos, Pos + 1);
+      var Format: TCharFormat2;
       ZeroMemory(@Format, SizeOf(TCharFormat2));
       Format.cbSize := SizeOf(TCharFormat2);
-      Format.dwMask := CFM_EFFECTS or CFM_COLOR; { CFM_COLOR does *not* refer to crBackColor }
-      Result := SendMessage(Handle, EM_GETCHARFORMAT, SCF_SELECTION, LPARAM(@Format)) <> 0;
+      Format.dwMask := CFM_COLOR; { does *not* refer to crBackColor but does make CFE_AUTOCOLOR in dwEffects valid }
+      Result := (SendMessage(Handle, EM_GETCHARFORMAT, SCF_SELECTION, LPARAM(@Format)) <> 0) and
+                (Format.dwEffects and CFE_AUTOCOLOR <> 0);
     end;
 
   begin
@@ -433,32 +435,31 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
     SendMessage(Handle, EM_EXGETSEL, 0, LPARAM(@SaveSel));
     SendMessage(Handle, WM_SETREDRAW, 0, 0);
     try
+      { Prepare the format used by all recolor operations below }
+      var NewTextColorFormat: TCharFormat2;
+      ZeroMemory(@NewTextColorFormat, SizeOf(TCharFormat2));
+      NewTextColorFormat.cbSize := SizeOf(TCharFormat2);
+      NewTextColorFormat.dwMask := CFM_COLOR;
+      NewTextColorFormat.crTextColor := TColorRef(NewTextColor);
+
       var StartPos := 0;
       { Find sections of auto colored text. Do not pay attention to background colors while doing so.
         This exactly replicates the behavior seen when a high-contrast theme is active. }
       while StartPos < TextLength do begin
-        var StartColorAndEffects: TCharFormat2;
-        if not GetTextColorAndEffectsAt(StartPos, StartColorAndEffects) or
-           (StartColorAndEffects.dwEffects and CFE_AUTOCOLOR = 0) then begin
+        if not IsAutoColoredAt(StartPos) then begin
           Inc(StartPos);
           Continue;
         end;
         { Found start of auto colored section, look for the end }
         var EndPos := StartPos + 1;
         while EndPos < TextLength do begin
-          var NextColorAndEffects: TCharFormat2;
-          { Stop on any change, such as CFE_BOLD, and not just on CFE_AUTOCOLOR }
-          if not GetTextColorAndEffectsAt(EndPos, NextColorAndEffects) or
-             (NextColorAndEffects.dwEffects <> StartColorAndEffects.dwEffects) then
+          if not IsAutoColoredAt(EndPos) then
             Break;
           Inc(EndPos);
         end;
         if StartPos < EndPos then begin
-          { Update the section's foreground color }
           SetSelection(StartPos, EndPos);
-          StartColorAndEffects.crTextColor := TColorRef(NewTextColor);
-          StartColorAndEffects.dwEffects := StartColorAndEffects.dwEffects and not CFE_AUTOCOLOR;
-          SendMessage(Handle, EM_SETCHARFORMAT, SCF_SELECTION, LPARAM(@StartColorAndEffects));
+          SendMessage(Handle, EM_SETCHARFORMAT, SCF_SELECTION, LPARAM(@NewTextColorFormat));
           StartPos := EndPos;
         end;
       end;
