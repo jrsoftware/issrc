@@ -431,7 +431,7 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
     end;
   end;
 
-  procedure RecolorAutoForegroundText_Full(const TextLength: NativeInt);
+  procedure RecolorAutoForegroundText_FullSlow(const TextLength: NativeInt);
 
     { Recolors using EM_GETCHARFORMAT and EM_SETCHARFORMAT instead of the
       simpler-looking RichEdit OLE interface (ITextDocument etc., obtained via
@@ -529,7 +529,12 @@ begin
   if RecolorAutoForegroundText_Quick then
     Exit;
 
-  RecolorAutoForegroundText_Full(TextLength);
+  if TextLength < 50000 then begin
+    { Relatively small size: user the slower but Wine-compatible recolor,
+      timed to take a bit more than 1 sec at 50.000 chars. }
+    RecolorAutoForegroundText_FullSlow(TextLength);
+    Exit;
+  end;
 end;
 
 procedure TRichEditViewer.SetRTFTextProp(const Value: AnsiString);
