@@ -389,6 +389,48 @@ end;
 
 procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer);
 
+  function GetNewTextColorFormat: TCharFormat2;
+  begin
+    ZeroMemory(@Result, SizeOf(TCharFormat2));
+    Result.cbSize := SizeOf(TCharFormat2);
+    Result.dwMask := CFM_COLOR;
+    Result.crTextColor := TColorRef(NewTextColor);
+  end;
+
+  function RecolorAutoForegroundText_Quick: Boolean;
+
+    { Selects the entire text and calls EM_GETCHARFORMAT with SCF_SELECTION.
+      If the result has both CFM_COLOR and CFE_AUTOCOLOR set, then all of the
+      text uses auto-color text and everything can be recolored at once. This
+      always succeeds if a .txt was used, or a .rtf with no colors. }
+
+  begin
+    { The following works even for read-only controls }
+
+    var SaveSel: TCharRange;
+    SendMessage(Handle, EM_EXGETSEL, 0, LPARAM(@SaveSel));
+    SendMessage(Handle, WM_SETREDRAW, 0, 0);
+    try
+      SendMessage(Handle, EM_SETSEL, 0, -1);
+
+      var CheckFormat: TCharFormat2;
+      ZeroMemory(@CheckFormat, SizeOf(TCharFormat2));
+      CheckFormat.cbSize := SizeOf(TCharFormat2);
+      CheckFormat.dwMask := CFM_COLOR; { Also makes CFE_AUTOCOLOR in dwEffects valid }
+      if (SendMessage(Handle, EM_GETCHARFORMAT, SCF_SELECTION, LPARAM(@CheckFormat)) = 0) or
+         (CheckFormat.dwMask and CFM_COLOR = 0) or
+         (CheckFormat.dwEffects and CFE_AUTOCOLOR = 0) then
+        Exit(False);
+
+      const NewTextColorFormat = GetNewTextColorFormat;
+      Result := SendMessage(Handle, EM_SETCHARFORMAT, SCF_ALL, LPARAM(@NewTextColorFormat)) <> 0;
+    finally
+      SendMessage(Handle, EM_EXSETSEL, 0, LPARAM(@SaveSel));
+      SendMessage(Handle, WM_SETREDRAW, 1, 0);
+      Invalidate;
+    end;
+  end;
+
   procedure RecolorAutoForegroundText_Full(const TextLength: NativeInt);
 
     { Recolors using EM_GETCHARFORMAT and EM_SETCHARFORMAT instead of the
@@ -423,7 +465,7 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
       var Format: TCharFormat2;
       ZeroMemory(@Format, SizeOf(TCharFormat2));
       Format.cbSize := SizeOf(TCharFormat2);
-      Format.dwMask := CFM_COLOR; { does *not* refer to crBackColor but does make CFE_AUTOCOLOR in dwEffects valid }
+      Format.dwMask := CFM_COLOR; { Also makes CFE_AUTOCOLOR in dwEffects valid }
       Result := (SendMessage(Handle, EM_GETCHARFORMAT, SCF_SELECTION, LPARAM(@Format)) <> 0) and
                 (Format.dwEffects and CFE_AUTOCOLOR <> 0);
     end;
@@ -435,12 +477,7 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
     SendMessage(Handle, EM_EXGETSEL, 0, LPARAM(@SaveSel));
     SendMessage(Handle, WM_SETREDRAW, 0, 0);
     try
-      { Prepare the format used by all recolor operations below }
-      var NewTextColorFormat: TCharFormat2;
-      ZeroMemory(@NewTextColorFormat, SizeOf(TCharFormat2));
-      NewTextColorFormat.cbSize := SizeOf(TCharFormat2);
-      NewTextColorFormat.dwMask := CFM_COLOR;
-      NewTextColorFormat.crTextColor := TColorRef(NewTextColor);
+      const NewTextColorFormat = GetNewTextColorFormat;
 
       var StartPos := 0;
       { Find sections of auto colored text. Do not pay attention to background colors while doing so.
@@ -487,6 +524,9 @@ begin
 
   const TextLength = GetTextLength;
   if TextLength = 0 then
+    Exit;
+
+  if RecolorAutoForegroundText_Quick then
     Exit;
 
   RecolorAutoForegroundText_Full(TextLength);
