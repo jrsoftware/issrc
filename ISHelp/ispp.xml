@@ -2229,6 +2229,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<kwd>UNICODE</kwd>
 					<kwd>CompilerPath</kwd>
 					<kwd>SourcePath</kwd>
+					<kwd>SysPath</kwd>
 					<kwd>Ver</kwd>
 					<kwd>NewLine</kwd>
 					<kwd>Tab</kwd>
@@ -2253,6 +2254,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<tr><td><code>UNICODE</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>CompilerPath</code></td><td><code><b>str</b></code>. Points to the directory where the compiler is located.</td></tr>
 					<tr><td><code>SourcePath</code></td><td><code><b>str</b></code>. Points to the directory where the root script file is located, or the My Documents directory if the script has not yet been saved.</td></tr>
+					<tr><td><code>SysPath</code></td><td><code><b>str</b></code>. In a 64-bit compiler, the directory containing 64-bit system files. In a 32-bit compiler, the directory containing 32-bit system files.</td></tr>
 					<tr><td><code>Ver</code></td><td><code><b>int</b></code>. Same as PREPROCVER.</td></tr>
 					<tr><td><code>NewLine</code></td><td><code><b>str</b></code>. Returns the newline character. Declared in &builtins;.</td></tr>
 					<tr><td><code>Tab</code></td><td><code><b>str</b></code>. Returns the tab character. Declared in &builtins;.</td></tr>

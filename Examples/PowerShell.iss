@@ -6,13 +6,13 @@
 
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
 
-#define PowerShellExe "powershell.exe"
+#define PowerShellExe "WindowsPowerShell\v1.0\powershell.exe"
 #define PowerShellCommandParam "-ExecutionPolicy Bypass -Command"
 
 #define ExecPowerShell(str Command) \
   Local[0] = PowerShellCommandParam + " " + AddQuotes(Command), \
   Message("Executing PowerShell command: " + Local[0]), \
-  ExecAndGetFirstLine(PowerShellExe, Local[0])
+  ExecAndGetFirstLine(AddBackslash(SysPath) + PowerShellExe, Local[0])
 
 #define Password ExecPowerShell( \
   "Add-Type -AssemblyName 'System.Web';" + \
@@ -47,7 +47,7 @@ Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
 
 [Run]
-Filename: "{#PowerShellExe}"; Parameters: "{#PowerShellCommandParam} ""Get-ChildItem -Path '{sys}\d*' | ForEach-Object {{ $_.Name }"""; \
+Filename: "{sys}\{#PowerShellExe}"; Parameters: "{#PowerShellCommandParam} ""Get-ChildItem -Path '{sys}\d*' | ForEach-Object {{ $_.Name }"""; \
   StatusMsg: "Listing System32\d* files..."; OnLog: RunOnLog; Flags: runhidden logoutput
 
 [Code]
@@ -89,7 +89,7 @@ var
 begin
   FullCommand := '{#PowerShellCommandParam} ' + AddQuotes(Command);
   Log('Executing PowerShell command: ' + FullCommand);
-  Result := ExecAndGetFirstLine('{#PowerShellExe}', FullCommand, '', ResultCode);
+  Result := ExecAndGetFirstLine(ExpandConstant('{sys}\{#PowerShellExe}'), FullCommand, '', ResultCode);
 end;
 
 function InitializeSetup: Boolean;

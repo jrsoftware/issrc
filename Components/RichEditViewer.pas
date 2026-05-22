@@ -488,7 +488,7 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
   begin
     ZeroMemory(@Result, SizeOf(TCharFormat2));
     Result.cbSize := SizeOf(TCharFormat2);
-    Result.dwMask := CFM_COLOR;
+    Result.dwMask := CFM_COLOR; { CFM_COLOR = crTextColor + CFE_AUTOCOLOR }
     Result.crTextColor := TColorRef(NewTextColor);
   end;
 

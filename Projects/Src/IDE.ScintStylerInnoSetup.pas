@@ -401,7 +401,7 @@ const
       and __(P)OPT_*__ }
     '__FILENAME__', '__PATHFILENAME__', '__DIR__', '__LINE__', '__INCLUDE__',
     { From ISPreprocessScript - excludes 'Ver' }
-    'CompilerPath', 'SourcePath',
+    'CompilerPath', 'SourcePath', 'SysPath',
     { Special }
     '__COUNTER__'
   ];

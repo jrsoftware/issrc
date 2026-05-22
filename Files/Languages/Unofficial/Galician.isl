@@ -253,8 +253,8 @@ FinishedLabel=O instalador completou a instalación de [name] no seu computador.
 ClickFinish=Prema en Rematar para saír do instalador.
 FinishedRestartLabel=Para completar a instalación de [name], o seu computador debe reiniciarse. Desexa reiniciálo agora?
 FinishedRestartMessage=Para completar a instalación de [name], o seu computador debe reiniciarse.%n%nDesexa reiniciar agora?
-ShowReadmeCheck=Sí, desexo ver o arquivo léame (Readme)
-YesRadio=&Sí, desexo reiniciar o equipo agora
+ShowReadmeCheck=Si, desexo ver o arquivo léame (Readme)
+YesRadio=&Si, desexo reiniciar o equipo agora
 NoRadio=&Non, reiniciarei o equipo máis tarde
 ; used for example as 'Run MyProg.exe'
 RunEntryExec=Executar %1
@@ -378,7 +378,7 @@ UninstallDataCorrupted=O arquivo "%1" está danado. Non se pode desinstalar.
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Eliminar arquivo compartido?
-ConfirmDeleteSharedFile2=O sistema indica que o seguinte arquivo compartido non o utiliza ningún outro programa. Desexa eliminar este arquivo compartido?%n%nSe elimina o arquivo e hai programas que o utilizan, eses programas poderían deixar de funcionar correctamente. Se non está seguro, escolla Non. Deixar o arquivo no seu sistema non causará ningún dano.
+ConfirmDeleteSharedFile2=O sistema indica que o seguinte arquivo compartido non o utiliza ningún outro programa. Desexa eliminar este arquivo compartido?%n%nSe elimina o arquivo e hai programas que o utilizan, eses programas poderían deixar de funcionar correctamente. Se non está seguro/a, escolla Non. Deixar o arquivo no seu sistema non causará ningún dano.
 SharedFileNameLabel=Arquivo:
 SharedFileLocationLabel=Localización:
 WizardUninstalling=Estado da desinstalación
@@ -404,4 +404,4 @@ AssocFileExtension=&Asociar %1 coa extensión do arquivo %2
 AssocingFileExtension=Asociando %1 coa extensión do arquivo %2...
 AutoStartProgramGroupDescription=Inicio:
 AutoStartProgram=Iniciar automaticamente %1
-AddonHostProgramNotFound=Non se puido localizar %1 no cartafol seleccionado.%n%nDesexa continuar de todos os xeitos?
+AddonHostProgramNotFound=Non se puido localizar %1 no cortafol seleccionado.%n%nDesexa continuar de todos os xeitos?
