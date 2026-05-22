@@ -374,7 +374,7 @@ const
   ISPPPredefinedVariables: array of AnsiString = [
     { #emit and #file handled separately by BuildConstantsWordList.
       Only includes predefined variables that are useful on their own. }
-    'CompilerPath', 'SourcePath'
+    'CompilerPath', 'SourcePath', 'SysPath'
   ];
 
   PascalConstants: array of AnsiString = [
