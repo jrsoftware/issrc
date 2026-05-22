@@ -25,6 +25,7 @@ UninstallDisplayIcon={app}\MyProg.exe
 LicenseFile={#file AddBackslash(SourcePath) + "ISPPExample1License.txt"}
 VersionInfoVersion={#AppVersion}
 OutputDir=userdocs:Inno Setup Examples Output
+OutputBaseFilename={#Format('%s-%s-setup', AppName, AppVersion)}
 
 [Files]
 Source: "MyProg.exe"; DestDir: "{app}"

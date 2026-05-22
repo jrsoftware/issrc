@@ -42,7 +42,8 @@ begin
 end;
 
 function CheckParams(const Params: IIsppFuncParams;
-  Types: array of TIsppVarType; Minimum: Integer; var Error: TIsppFuncResult): Boolean;
+  Types: array of TIsppVarType; Minimum: Integer; var Error: TIsppFuncResult;
+  AllowManyArgs: Boolean = False): Boolean;
 begin
   FillChar(Error, SizeOf(TIsppFuncResult), 0);
   Result := False;
@@ -50,13 +51,13 @@ begin
     Error.ErrParam := Minimum;
     Error.Error := ISPPFUNC_INSUFARGS;
     Exit;
-  end else if Params.GetCount > High(Types) + 1 then begin
+  end else if not AllowManyArgs and (Params.GetCount > High(Types) + 1) then begin
     Error.ErrParam := Integer(High(Types)) + 1;
     Error.Error := ISPPFUNC_MANYARGS;
     Exit;
   end else
     with IInternalFuncParams(Params) do
-      for var I := 0 to Params.GetCount - 1 do
+      for var I := 0 to Min(Params.GetCount - 1, High(Types)) do
       begin
         if (Types[I] = evSpecial) or (Get(I)^.Typ = evNull) then
           Continue;
@@ -1824,6 +1825,53 @@ begin
   end;
 end;
 
+function FormatFunc(Ext: NativeInt; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+var
+  Args: array of TVarRec;
+  IntArgs: array of Int64;
+  StrArgs: array of string;
+begin
+  if CheckParams(Params, [evStr], 1, Result, True) then
+  try
+    with IInternalFuncParams(Params) do
+    begin
+      const ArgCount = GetCount - 1;
+      SetLength(Args, ArgCount);
+      SetLength(IntArgs, ArgCount);
+      SetLength(StrArgs, ArgCount);
+      for var I := 0 to ArgCount - 1 do
+      begin
+        const Arg = Get(I + 1);
+        case Arg.Typ of
+          evInt:
+            begin
+              IntArgs[I] := Arg.AsInt64;
+              Args[I].VType := vtInt64;
+              Args[I].VInt64 := @IntArgs[I];
+            end;
+          evStr:
+            begin
+              StrArgs[I] := Arg.AsStr;
+              Args[I].VType := vtUnicodeString;
+              Args[I].VUnicodeString := Pointer(StrArgs[I]);
+            end;
+        else
+          raise Exception.CreateFmt(
+            'Format: argument %d must be an integer or string', [I + 1]);
+        end;
+      end;
+      MakeStr(ResPtr^, Format(Get(0).AsStr, Args));
+    end;
+  except
+    on E: Exception do
+    begin
+      FuncResult.Error(PChar(E.Message));
+      Result.Error := ISPPFUNC_FAIL;
+    end;
+  end;
+end;
+
 function TrimFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 begin
@@ -2058,6 +2106,7 @@ begin
     RegisterFunction('GetSHA256OfFile', GetSHA256OfFile, -1);
     RegisterFunction('GetSHA256OfString', GetSHA256OfString, -1);
     RegisterFunction('GetSHA256OfUnicodeString', GetSHA256OfUnicodeString, -1);
+    RegisterFunction('Format', FormatFunc, -1);
     RegisterFunction('Trim', TrimFunc, -1);
     RegisterFunction('StringChange', StringChangeFunc, -1);
     RegisterFunction('IsWin64', IsWin64Func, -1);

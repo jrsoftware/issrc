@@ -500,6 +500,7 @@ const
     'str GetSHA256OfFile(str FileName)',
     'str GetSHA256OfString(str S)',
     'str GetSHA256OfUnicodeString(str S)',
+    'str Format(str Format, ...)',
     'str Trim(str S)',
     'str StringChange(str S, str OldPattern, str NewPattern)',
     'int IsWin64',

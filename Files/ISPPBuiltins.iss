@@ -329,7 +329,7 @@
   S1 == S2
 
 #define WarnRenamedVersion(str OldName, str NewName) \
-  Warning("Function """ + OldName + """ has been renamed. Use """ + NewName + """ instead.")
+  Warning(Format('Function "%s" has been renamed. Use "%s" instead.', OldName, NewName))
 
 #define ParseVersion(str FileName, *Major, *Minor, *Rev, *Build) \
   WarnRenamedVersion("ParseVersion", "GetVersionComponents"), \
@@ -343,7 +343,7 @@
   #define Filename FindGetFileName(GLS_FindHandle)
   #define Name LowerCase(RemoveFileExt(Filename))
   #define MessagesFile "compiler:Languages\" + Filename
-  #emit "Name: " + Name + "; MessagesFile: " + MessagesFile
+  #emit Format('Name: %s; MessagesFile: %s', Name, MessagesFile)
 #endsub
 
 #define GLS_FindPathName

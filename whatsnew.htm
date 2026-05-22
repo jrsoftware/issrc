@@ -52,12 +52,6 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <p><b>Using Inno Setup commercially?</b> Please <a href="https://jrsoftware.org/isorder.php">purchase a license</a>.</p>
 
-<ul>
-  <li>Previously undocumented ISPP directive <tt>#env</tt> and its shorthand <tt>#%</tt> are now documented and recognized by the Compiler IDE. This directive replaces itself with the value of the specified environment variable. Example: <tt>AppName={#%MyAppName}</tt>.</li>
-  <li>Previously undocumented ISPP directive aliases <tt>#call</tt> (for <tt>#expr</tt>) and <tt>#echo</tt> (for <tt>#emit</tt>) are now documented and recognized by the Compiler IDE. Example: <tt>#call EmitLanguagesSection</tt>.</li>
-  <li>Previously undocumented ISPP directive shorthands <tt>#?</tt> (for <tt>#if</tt>), <tt>#^</tt> (for <tt>#else</tt>), and <tt>#.</tt> (for <tt>#endif</tt>) are now documented and recognized by the Compiler IDE.</li>
-</ul>
-
 <!-- <p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p> -->
 
 <ul>
@@ -73,6 +67,14 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Added new <tt>--no-signcheck</tt> (<tt>-nsc</tt>) option to disable <tt>signcheck</tt> validation.</li>
     <li>Warnings are now always written to stderr instead of stdout, consistent with other tools.</li>
     <li>Other minor fixes.</li>
+  </ul>
+  </li>
+  <li>ISPP:
+  <ul>
+    <li>Previously undocumented directive <tt>#env</tt> and its shorthand <tt>#%</tt> are now documented and recognized by the Compiler IDE. This directive replaces itself with the value of the specified environment variable. Example: <tt>AppName={#%MyAppName}</tt>.</li>
+    <li>Previously undocumented directive aliases <tt>#call</tt> (for <tt>#expr</tt>) and <tt>#echo</tt> (for <tt>#emit</tt>) are now documented and recognized by the Compiler IDE. Example: <tt>#call EmitLanguagesSection</tt>.</li>
+    <li>Previously undocumented directive shorthands <tt>#?</tt> (for <tt>#if</tt>), <tt>#^</tt> (for <tt>#else</tt>), and <tt>#.</tt> (for <tt>#endif</tt>) are now documented and recognized by the Compiler IDE.</li>
+    <li>Added new support function <tt>Format</tt>.</li>
   </ul>
   </li>
 </ul>

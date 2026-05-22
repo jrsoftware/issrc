@@ -1520,6 +1520,29 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<p>Gets the SHA-256 hash of the specified file, as a string.</p>
 				</description>
 			</topic>
+			<topic id="Format">
+				<title>Format</title>
+				<section title="Prototype">
+					<pre><line><b>str</b> Format(<b>str</b> Format, ...)</line></pre>
+				</section>
+				<description>
+					<p>Formats the string Format using the series of arguments that follow it. Formatting is controlled by the format string Format; the results are returned as a string. Each argument must be an integer or a string.</p>
+					<p>An exception will be raised if an invalid format string is specified, too few arguments are passed, or if any arguments are of the wrong type.</p>
+					<p>Note: unlike the Pascal Scripting's <tt>Format</tt> function, arguments are passed directly instead of in an array.</p>
+				</description>
+				<section title="Example">
+					<pre>
+						<line>#define AppName "My Program"</line>
+						<line>#define AppVersion "1.0"</line>
+						<line>#define OutputBaseFilename Format('%s-%s-setup', AppName, AppVersion)</line>
+						<line>// OutputBaseFilename = 'My Program-1.0-setup'</line>
+						<line></line>
+						<line>#define Count 10</line>
+						<line>#emit Format('%d files found', Count)</line>
+						<line>// emits '10 files found'</line>
+					</pre>
+				</section>
+			</topic>
 			<topic id="Trim">
 				<title>Trim</title>
 				<section title="Prototype">
