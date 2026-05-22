@@ -249,11 +249,14 @@ begin
     try
       Preprocessor.IncludePath := IncludePath;
 
+      MakeStr(V, CompilerPath);
+      Preprocessor.VarMan.DefineVariable('CompilerPath', -1, V, dsPublic);
+
       MakeStr(V, SourcePath);
       Preprocessor.VarMan.DefineVariable('SourcePath', -1, V, dsPublic);
 
-      MakeStr(V, CompilerPath);
-      Preprocessor.VarMan.DefineVariable('CompilerPath', -1, V, dsPublic);
+      MakeStr(V, GetSystemDir);
+      Preprocessor.VarMan.DefineVariable('SysPath', -1, V, dsPublic);
 
       MakeInt(V, Params.CompilerBinVersion);
       Preprocessor.VarMan.DefineVariable('Ver', -1, V, dsPublic);
