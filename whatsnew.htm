@@ -56,11 +56,10 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <ul>
   <li>Improved the Wine RichEdit workaround added in 7.0.0 to prevent a startup delay when very large texts are used in combination with a dark custom wizard style.</li>
+  <li><i>Fix:</i> Example script <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/PowerShell.iss">PowerShell.iss</a></i> now uses an absolute path to load <tt>powershell.exe</tt>, for security reasons. If you used the demonstrated technique in your own scripts, <b>you should make the same changes</b>.</li>
   <li>ISPP:
   <ul>
     <li><i>Fix:</i> A user defined function which has no parameters compiles again (broken in 7.0.0). Example: <tt>#define MyAppName() "My Program"</tt>.</li>
-    <li><i>Fix:</i> Example script <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/PowerShell.iss">PowerShell.iss</a></i> now uses an absolute path to load <tt>powershell.exe</tt>, for security reasons.<br/>
-        If you used the demonstrated technique in your own scripts, <b>you should make the same changes</b>.</li>
     <li>Added new predefined variable <tt>SysPath</tt>.</li>
   </ul>
   </li>
