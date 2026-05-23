@@ -756,6 +756,22 @@ object MainForm: TMainForm
         Caption = '&Low Priority During Compile'
         OnClick = BLowPriorityClick
       end
+      object BOutputDisabled: TMenuItem
+        Caption = '&Disable Output'
+        OnClick = BOutputDisabledClick
+      end
+      object BNoCompression: TMenuItem
+        Caption = 'Disable Co&mpression'
+        OnClick = BNoCompressionClick
+      end
+      object BNoSigning: TMenuItem
+        Caption = 'Disable &Signing'
+        OnClick = BNoSigningClick
+      end
+      object BNoSignCheck: TMenuItem
+        Caption = 'Disable Signcheck &Validation'
+        OnClick = BNoSignCheckClick
+      end
       object N17: TMenuItem
         Caption = '-'
       end

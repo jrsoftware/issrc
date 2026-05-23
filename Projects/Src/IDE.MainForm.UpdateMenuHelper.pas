@@ -383,6 +383,10 @@ end;
 procedure TMainFormUpdateMenuHelper.UpdateBuildMenu(const Menu: TMenuItem);
 begin
   BLowPriority.Checked := FOptions.LowPriorityDuringCompile;
+  BOutputDisabled.Enabled := not FCompiling;
+  BNoCompression.Enabled := not FCompiling and not BOutputDisabled.Checked;
+  BNoSigning.Enabled := not FCompiling and not BOutputDisabled.Checked;
+  BNoSignCheck.Enabled := not FCompiling and not BOutputDisabled.Checked;
   BOpenOutputFolder.Enabled := (FCompiledExe <> '');
 
   _ApplyMenuBitmaps(Menu);

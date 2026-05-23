@@ -216,6 +216,10 @@ type
     RTerminate: TMenuItem;
     BMenu: TMenuItem;
     BLowPriority: TMenuItem;
+    BOutputDisabled: TMenuItem;
+    BNoCompression: TMenuItem;
+    BNoSigning: TMenuItem;
+    BNoSignCheck: TMenuItem;
     HPurchase: TMenuItem;
     HRegister: TMenuItem;
     HUnregister: TMenuItem;
@@ -377,6 +381,10 @@ type
     procedure RTerminateClick(Sender: TObject);
     procedure BMenuClick(Sender: TObject);
     procedure BLowPriorityClick(Sender: TObject);
+    procedure BOutputDisabledClick(Sender: TObject);
+    procedure BNoCompressionClick(Sender: TObject);
+    procedure BNoSigningClick(Sender: TObject);
+    procedure BNoSignCheckClick(Sender: TObject);
     procedure StatusBarDrawPanel(StatusBar: TStatusBar;
       Panel: TStatusPanel; const Rect: TRect);
     procedure HPurchaseClick(Sender: TObject);
@@ -2308,6 +2316,14 @@ begin
     Options := '';
     for I := 0 to FSignTools.Count-1 do
       Options := Options + AddSignToolParam(FSignTools[I]);
+    if BOutputDisabled.Checked then
+      Options := Options + 'Output=no' + #0;
+    if BNoCompression.Checked then
+      Options := Options + 'NoCompression=true' + #0;
+    if BNoSigning.Checked then
+      Options := Options + 'NoSigning=true' + #0;
+    if BNoSignCheck.Checked then
+      Options := Options + 'NoSignCheck=true' + #0;
     Params.Options := PChar(Options);
 
     AppData.Form := Self;
@@ -3159,6 +3175,26 @@ begin
   { If a compile is already in progress, change the priority now }
   if FCompiling then
     SetLowPriority(FOptions.LowPriorityDuringCompile, FSavePriorityClass);
+end;
+
+procedure TMainForm.BOutputDisabledClick(Sender: TObject);
+begin
+  BOutputDisabled.Checked := not BOutputDisabled.Checked;
+end;
+
+procedure TMainForm.BNoCompressionClick(Sender: TObject);
+begin
+  BNoCompression.Checked := not BNoCompression.Checked;
+end;
+
+procedure TMainForm.BNoSigningClick(Sender: TObject);
+begin
+  BNoSigning.Checked := not BNoSigning.Checked;
+end;
+
+procedure TMainForm.BNoSignCheckClick(Sender: TObject);
+begin
+  BNoSignCheck.Checked := not BNoSignCheck.Checked;
 end;
 
 procedure TMainForm.BOpenOutputFolderClick(Sender: TObject);

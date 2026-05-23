@@ -55,7 +55,12 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <!-- <p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p> -->
 
 <ul>
-  <li>ISCC:
+  <li>Compiler IDE:
+  <ul>
+    <li>Added new <i>Disable Output</i>, <i>Disable Compression</i>, <i>Disable Signing</i>, and <i>Disable Signcheck Validation</i> menu items to the <i>Build</i> menu. These are not remembered between sessions.</li>
+  </ul>
+  </li>
+  <li>Command-Line Compiler (ISCC):
   <ul>
     <li>Options are now documented with a <tt>-</tt> prefix and in lowercase (for example <tt>-q</tt> instead of <tt>/Q</tt>). Both forms were already accepted, so existing use is not affected.</li>
     <li>Options now have long-form alternatives (for example <tt>--quiet</tt> for <tt>-q</tt>), except for <tt>-$</tt> and <tt>-p</tt>.</li>
