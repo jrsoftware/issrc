@@ -257,14 +257,15 @@ function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
       Exit;
 
     Pt := GetCursorPos;
+    if (Pt.X < 0) or (Pt.Y < 0) then
+      Exit;
 
-    if Pt.Y <= ProgressPoint.Y then
-      Exit
-    else if ProgressPoint.X < 0 then begin
+    if ProgressPoint.X < 0 then begin
       ProgressPoint := Pt;
       WriteStdOut('');
       Pt := GetCursorPos;
-    end;
+    end else if Pt.Y < ProgressPoint.Y then
+      ProgressPoint.Y := Pt.Y; { Window was resized }
 
     SetCursorPos(ProgressPoint);
     WriteProgress(#13 + Progress);
@@ -771,6 +772,9 @@ begin
     {$ELSE}
     Res := ISCompileScript(Params, False);
     {$ENDIF}
+    if Options.ShowProgress and (ProgressPoint.X >= 0) then
+      WriteStdOut('');
+
     case Res of
       isceNoError: ;
       isceCompileFailure: begin

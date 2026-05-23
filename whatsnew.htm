@@ -70,6 +70,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Added new <tt>--no-ide-signtools</tt> (<tt>-ni</tt>) option to not auto-specify Sign Tools configured using the Compiler IDE.</li>
     <li>Added new <tt>--preprocess</tt> (<tt>-e</tt>) option to preprocess to stdout and suppress compilation.</li>
     <li>Added new <tt>--messages-jsonl</tt> (<tt>-mj</tt>) option to output errors and warnings in JSONL format, making them easier to parse by tools and scripts. Warnings are not suppressed by <tt>--quiet</tt> when <tt>--messages-jsonl</tt> is active.</li>
+    <li>Improved the <tt>--quiet-progress</tt> (<tt>-qp</tt>) option, especially progress not updating when the screen is full in Windows Terminal.</li>
     <li>Warnings are now always written to stderr instead of stdout, consistent with other tools.</li>
     <li>Other minor fixes.</li>
   </ul>
