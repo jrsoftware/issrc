@@ -33,6 +33,7 @@
 #expr CheckEqualsString("hello", 'hello')
 #expr CheckEqualsInt(0, Len(''))
 #expr CheckEqualsInt(2, Len("\n"))
+#expr CheckFalse(SameStr("\n", NewLine))
 
 ; String literals (C mode)
 
