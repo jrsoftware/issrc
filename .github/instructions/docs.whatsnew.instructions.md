@@ -5,7 +5,7 @@ applyTo: "whatsnew.htm"
 
 ## Formatting
 
-- `<tt>` for code identifiers, same as in help XML.
+- `<tt>` for script identifiers, same as in help XML.
 - `<i>Fix:</i>` prefix for bug fix entries.
 - `<i>` for example script file names when they are linked: `<i><a href="...">ScriptName.iss</a></i>`.
 - `<b>` for important warnings.
@@ -63,7 +63,6 @@ End a version's changes with one of:
 - "Minor tweaks and fixes."
 - "Other minor improvements and fixes."
 - "Documentation improvements."
-- "Many other minor improvements and fixes."
 
 ## Example script references
 

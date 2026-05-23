@@ -404,4 +404,4 @@ AssocFileExtension=&Asociar %1 coa extensión do arquivo %2
 AssocingFileExtension=Asociando %1 coa extensión do arquivo %2...
 AutoStartProgramGroupDescription=Inicio:
 AutoStartProgram=Iniciar automaticamente %1
-AddonHostProgramNotFound=Non se puido localizar %1 no cortafol seleccionado.%n%nDesexa continuar de todos os xeitos?
+AddonHostProgramNotFound=Non se puido localizar %1 no cartafol seleccionado.%n%nDesexa continuar de todos os xeitos?
