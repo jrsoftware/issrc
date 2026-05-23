@@ -2,7 +2,7 @@ library ISCmplr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -147,7 +147,7 @@ var
   WrapperData: TWrapperData;
   WrapperParams: PCompileScriptParamsEx;
   P: PAnsiChar;
-  Options: String;
+  CompilerPath, SourcePath, Options: String;
 begin
   if ((Params.Size <> SizeOf(Params)) and
       (Params.Size <> SizeOf(TCompileScriptParams))) or
@@ -161,10 +161,14 @@ begin
     UMove(Params, WrapperParams^, Params.Size);
     WrapperParams.CallbackProc := WrapperCallbackProc;
     WrapperParams.AppData := NativeInt(@WrapperData);
-    if Assigned(Params.CompilerPath) then
-      WrapperParams.CompilerPath := PWideChar(String(PAnsiChar(Params.CompilerPath)));
-    if Assigned(Params.SourcePath) then
-      WrapperParams.SourcePath := PWideChar(String(PAnsiChar(Params.SourcePath)));
+    if Assigned(Params.CompilerPath) then begin
+      CompilerPath := String(PAnsiChar(Params.CompilerPath));
+      WrapperParams.CompilerPath := PWideChar(CompilerPath);
+    end;
+    if Assigned(Params.SourcePath) then begin
+      SourcePath := String(PAnsiChar(Params.SourcePath));
+      WrapperParams.SourcePath := PWideChar(SourcePath);
+    end;
     if (Params.Size <> SizeOf(TCompileScriptParams)) and Assigned(Params.Options) then begin
       P := PAnsiChar(Params.Options);
       while P^ <> #0 do begin
