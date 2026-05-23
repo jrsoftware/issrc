@@ -1,5 +1,5 @@
 ---
-applyTo: "whatsnew.htm,ISHelp/isetup.xml,ISHelp/isx.xml,ISHelp/isxfunc.xml,ISHelp/isxclasses.header*,ISHelp/isxclasses.footer*"
+applyTo: "whatsnew.htm,ISHelp/isetup.xml,ISHelp/isx.xml,ISHelp/isxfunc.xml,ISHelp/isxclasses.header*,ISHelp/isxclasses.footer"
 ---
 # General documentation conventions for Inno Setup
 
@@ -64,7 +64,7 @@ Additional vocabulary rules:
 
 ## Code Formatting
 
-- `<tt>` for all code identifiers: directive names, parameter names, flag names, constant names, type names, function names, file names, values like `yes`/`no`/`True`/`False`.
+- `<tt>` for all code identifiers: section names, directive names, parameter names, flag names, constant names, type names, function names, file names, values like `yes`/`no`/`True`/`False`.
 - `<i>` for emphasis, wizard page names (such as *Select Destination Location*), UI element names, and file titles.
 - `<b>` sparingly, for important warnings or the word "NOTE:".
 

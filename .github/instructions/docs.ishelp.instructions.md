@@ -1,5 +1,5 @@
 ---
-applyTo: "ISHelp/isetup.xml,ISHelp/isx.xml,ISHelp/isxfunc.xml,ISHelp/isxclasses.header*,ISHelp/isxclasses.footer*"
+applyTo: "ISHelp/isetup.xml,ISHelp/isx.xml,ISHelp/isxfunc.xml,ISHelp/isxclasses.header*,ISHelp/isxclasses.footer"
 ---
 # ISHelp documentation conventions
 
