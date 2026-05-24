@@ -3874,6 +3874,7 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 <tr><td nowrap=""><tt>--quiet</tt>, <tt>-q</tt></td><td>Suppresses messages that are normally printed to standard output (see <tt>--messages-jsonl</tt>).</td></tr>
 <tr><td nowrap=""><tt>--quiet-progress</tt>, <tt>-qp</tt></td><td>Same as <tt>--quiet</tt> while still displaying progress.</td></tr>
 <tr><td nowrap=""><tt>--help</tt>, <tt>-?</tt></td><td>Prints usage information.</td></tr>
+<tr><td nowrap=""><tt>--version</tt></td><td>Prints the compiler engine version.</td></tr>
 </table>
 <example><pre>iscc --quiet-progress --output-dir="My Output" -f"MyProgram-1.0" -sbyparam=$p "c:\isetup\samples\my script.iss"</pre></example>
 </indent>

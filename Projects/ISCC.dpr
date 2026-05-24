@@ -82,6 +82,7 @@ var
   ProgressPoint: TPoint;
   LastProgress: String;
   IsppMode: Boolean;
+  CompilerVersionInfo: PCompilerVersionInfo;
 
 procedure WriteToStdHandle(const Handle: THandle; const HandleIsConsole: Boolean; S: String);
 begin
@@ -354,6 +355,30 @@ begin
   end;
 end;
 
+var InitializedCompiler: Boolean;
+
+procedure InitCompiler;
+begin
+  if InitializedCompiler then
+    Exit;
+
+  {$IFNDEF STATICCOMPILER}
+  try
+    InitISCmplrLibrary;
+  except
+    begin
+      WriteStdErr(Format('Could not load %s: %s', [ISCmplrDLL, GetExceptMessage]), True);
+      Halt(1);
+    end;
+  end;
+  CompilerVersionInfo := ISDllGetVersion;
+  {$ELSE}
+  CompilerVersionInfo := ISGetVersion;
+  {$ENDIF}
+
+  InitializedCompiler := True;
+end;
+
 procedure ProcessCommandLine;
 
   procedure SetOption(var Options: TOptions; Option: Char; Value: Boolean);
@@ -520,7 +545,8 @@ procedure ProcessCommandLine;
       WriteStdErr('  --inline-end=<string>, -}<string>    Emulates #pragma inlineend <string>');
       WriteStdErr('  --verbose=<number>, -v<number>       Emulates #pragma verboselevel <number>');
     end;
-    WriteStdErr('  --help, -?                           Prints usage information');
+    WriteStdErr('  --help, -?                           Prints this information');
+    WriteStdErr('  --version                            Prints the compiler engine version');
     WriteStdErr('');
     WriteStdErr('Examples: iscc "c:\isetup\samples\my script.iss"');
     WriteStdErr('          iscc --quiet-progress --output-dir="My Output" -f"MyProgram-1.0" -sbyparam=$p "c:\isetup\samples\my script.iss"');
@@ -597,6 +623,10 @@ begin
         ShowBanner;
         ShowUsage;
         Halt(0);
+      end else if GetFlagParam(S, '', 'version') then begin
+        InitCompiler;
+        WriteStdOut(String(CompilerVersionInfo.Version));
+        Halt(0);
       end else begin
         ShowBanner;
         WriteStdErr('Unknown option: ' + NewParamStr(I), True);
@@ -663,7 +693,6 @@ procedure Go;
 var
   ScriptPath: String;
   ExitCode: Word;
-  Ver: PCompilerVersionInfo;
   F: TTextFileReader;
   Params: TCompileScriptParamsEx;
   CompilerOptions: String;
@@ -679,20 +708,9 @@ begin
     ScriptPath := GetCurrentDir;
   end;
 
-  {$IFNDEF STATICCOMPILER}
-  try
-    InitISCmplrLibrary;
-  except
-    begin
-      WriteStdErr(Format('Could not load %s: %s', [ISCmplrDLL, GetExceptMessage]), True);
-      Halt(1);
-    end;
-  end;
-  Ver := ISDllGetVersion;
-  {$ELSE}
-  Ver := ISGetVersion;
-  {$ENDIF}
-  if Ver.BinVersion < $05000500 then begin
+  InitCompiler;
+
+  if CompilerVersionInfo.BinVersion < $05000500 then begin
     { 5.0.5 or later is required since we use TCompileScriptParamsEx }
     WriteStdErr('Incompatible compiler engine version.', True);
     Halt(1);
@@ -712,7 +730,7 @@ begin
     end;
 
     if not Options.Quiet then begin
-      WriteStdOut('Compiler engine version: ' + String(Ver.Title) + ' ' + String(Ver.Version));
+      WriteStdOut('Compiler engine version: ' + String(CompilerVersionInfo.Title) + ' ' + String(CompilerVersionInfo.Version));
       if IsLicensed then
         WriteStdOut('Licensee name: ' + GetLicenseeDescription)
       else
