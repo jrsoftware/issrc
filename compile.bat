@@ -60,6 +60,11 @@ if /I "%2"=="ishelpgen" (
   rem implementation of build groups does not seem to pass through additional parameters, so even with a
   rem modern MSBuild you cannot suppress the warning. Likewise, using /nologo or /v:q has no effect.
   msbuild.exe Projects.groupproj /t:Build /p:BuildGroup=Release%Bits%
+  if errorlevel 1 goto failed
+  rem  Sign using user's private key - will be overwritten if called by build.bat
+  call ..\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\Setup.e64 Files\SetupCustomStyle.e32 Files\SetupCustomStyle.e64 Files\SetupLdr.e32 Files\SetupLdr.e64
+  if errorlevel 1 goto failed
+  echo ISSigTool sign done
 )
 if errorlevel 1 goto failed
 
@@ -67,12 +72,6 @@ cd ..
 if errorlevel 1 goto failed
 
 echo Success!
-
-if not "%2"=="" goto exit
-rem  Sign using user's private key - will be overwritten if called by build.bat
-call .\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\Setup.e64 Files\SetupCustomStyle.e32 Files\SetupCustomStyle.e64 Files\SetupLdr.e32 Files\SetupLdr.e64
-if errorlevel 1 goto failed
-echo ISSigTool sign done
 
 goto exit
 
