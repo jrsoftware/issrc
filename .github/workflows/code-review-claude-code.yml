@@ -27,17 +27,20 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
-            Review the changes in PR #${{ github.event.pull_request.number }} of repository ${{ github.repository }}.
+            Review PR #${{ github.event.pull_request.number }} of ${{ github.repository }}.
             Steps:
-            1. Run `gh pr diff ${{ github.event.pull_request.number }}` to get the changes.
-            2. Run `gh pr view ${{ github.event.pull_request.number }} --json commits --jq '.commits[] | {oid, committedDate, messageHeadline, messageBody}'` to read the commit messages.
-            3. Run `gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[] | {author: .author.login, body}'` to see any previous review comments.
-            4. Analyze the diff for bugs, security issues, and style problems. Use the commit messages to understand the claimed intent, but verify that the actual changes match - do not trust commit messages at face value. Focus only on the changed lines, not pre-existing issues.
-            5. Read CLAUDE.md and AGENTS.md in full for project-specific guidelines and verify compliance.
-            6. Do not repeat issues already mentioned in previous review comments, and do not report the same issue twice in a single review.
-            Post exactly one top-level PR comment using `gh pr comment`, either with findings or stating that no issues were found.
-            Do not post inline review comments and do not submit review text as messages.
-            Keep the review concise and actionable.
+            1. Run `gh pr diff ${{ github.event.pull_request.number }}` to get the diff.
+            2. Run `gh pr view ${{ github.event.pull_request.number }} --json commits --jq '.commits[] | {oid, committedDate, messageHeadline, messageBody}'` for commit messages.
+            3. Run `gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[] | {author: .author.login, body}'` for previous review comments.
+            4. Read CLAUDE.md and AGENTS.md in full for project-specific guidelines.
+            5. Analyze the diff for bugs, security issues, and style problems. Verify that changes match commit message claims. Focus only on changed lines, not pre-existing issues.
+            6. Only report issues not already present in PR comments. Do NOT report:
+            - Previously raised issues from PR comments, unless a commit claims to fix one but the diff shows otherwise. That's a new issue.
+            - Summaries, commentary, praise, or validation that code is correct.
+            If there is nothing to report, report exactly "No new issues found."
+            Format each issue like this example:
+            **Issue:** `Foo.pas:42` Off-by-one in loop bound will skip the last item.
+            Post exactly one top-level PR comment via `gh pr comment`. No inline comments.
           claude_args: |
             --model opus
             --allowedTools "Read,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
