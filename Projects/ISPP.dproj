@@ -123,6 +123,7 @@
         <DCCReference Include="Src\ISPP.IdentMan.pas"/>
         <DCCReference Include="Src\ISPP.Sessions.pas"/>
         <DCCReference Include="Src\ISPP.CTokenizer.pas"/>
+        <DCCReference Include="Src\ISPP.CTokenizer.Test.pas"/>
         <DCCReference Include="Src\ISPP.Base.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
@@ -132,7 +133,6 @@
         <DCCReference Include="..\Components\SHA256.pas"/>
         <DCCReference Include="Src\Shared.Struct.pas"/>
         <DCCReference Include="..\Components\UnsignedFunc.pas"/>
-        <DCCReference Include="Src\ISPP.CTokenizer.Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

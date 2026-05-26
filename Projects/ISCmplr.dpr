@@ -18,6 +18,7 @@ uses
   Compiler.SetupCompiler in 'Src\Compiler.SetupCompiler.pas',
   Compiler.Messages in 'Src\Compiler.Messages.pas',
   Compiler.StringLists in 'Src\Compiler.StringLists.pas',
+  Compiler.StringLists.Test in 'Src\Compiler.StringLists.Test.pas',
   Compiler.CompressionHandler in 'Src\Compiler.CompressionHandler.pas',
   Compiler.HelperFunc in 'Src\Compiler.HelperFunc.pas',
   Compiler.BuiltinPreproc in 'Src\Compiler.BuiltinPreproc.pas',
@@ -63,8 +64,7 @@ uses
   uPSC_std in '..\Components\UniPs\Source\uPSC_std.pas',
   uPSC_stdctrls in '..\Components\UniPs\Source\uPSC_stdctrls.pas',
   uPSCompiler in '..\Components\UniPs\Source\uPSCompiler.pas',
-  uPSUtils in '..\Components\UniPs\Source\uPSUtils.pas',
-  Compiler.StringLists.Test in 'Src\Compiler.StringLists.Test.pas';
+  uPSUtils in '..\Components\UniPs\Source\uPSUtils.pas';
 
 {$IMAGEBASE $00800000}
 {$SETPEOSVERSION 6.1}

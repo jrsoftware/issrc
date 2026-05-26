@@ -120,6 +120,7 @@
         <DCCReference Include="..\Components\RichEditViewer.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.Vcl.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
+        <DCCReference Include="Src\Shared.CommonFunc.Test.pas"/>
         <DCCReference Include="Src\Setup.Start.pas"/>
         <DCCReference Include="Src\Setup.MainForm.pas"/>
         <DCCReference Include="Src\Setup.MainFunc.pas"/>
@@ -161,12 +162,16 @@
         <DCCReference Include="Src\Compression.LZMADecompressor.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="..\Components\MD5.pas"/>
+        <DCCReference Include="..\Components\MD5.Test.pas"/>
         <DCCReference Include="..\Components\SHA1.pas"/>
+        <DCCReference Include="..\Components\SHA1.Test.pas"/>
         <DCCReference Include="..\Components\SHA256.pas"/>
+        <DCCReference Include="..\Components\SHA256.Test.pas"/>
         <DCCReference Include="Src\Setup.LoggingFunc.pas"/>
         <DCCReference Include="Src\Setup.DebugClient.pas"/>
         <DCCReference Include="Src\Shared.DebugStruct.pas"/>
         <DCCReference Include="..\Components\ChaCha20.pas"/>
+        <DCCReference Include="..\Components\ChaCha20.Test.pas"/>
         <DCCReference Include="Src\Setup.Uninstall.pas"/>
         <DCCReference Include="Src\Setup.UninstallProgressForm.pas">
             <Form>UninstallProgressForm</Form>
@@ -175,11 +180,13 @@
             <Form>UninstallSharedFileForm</Form>
         </DCCReference>
         <DCCReference Include="..\Components\SimpleExpression.pas"/>
+        <DCCReference Include="..\Components\SimpleExpression.Test.pas"/>
         <DCCReference Include="..\Components\UIStateForm.pas"/>
         <DCCReference Include="Src\Setup.SetupForm.pas"/>
         <DCCReference Include="Src\Setup.RegSvr.pas"/>
         <DCCReference Include="..\Components\BrowseFunc.pas"/>
         <DCCReference Include="Src\Setup.PathRedir.pas"/>
+        <DCCReference Include="Src\Setup.PathRedir.Test.pas"/>
         <DCCReference Include="Src\Setup.RedirFunc.pas"/>
         <DCCReference Include="Src\Setup.SecurityFunc.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>
@@ -189,7 +196,9 @@
         <DCCReference Include="Src\Setup.SpawnClient.pas"/>
         <DCCReference Include="Src\Shared.TaskDialogFunc.pas"/>
         <DCCReference Include="..\Components\BidiUtils.pas"/>
+        <DCCReference Include="..\Components\BidiUtils.Test.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
+        <DCCReference Include="..\Components\PathFunc.Test.pas"/>
         <DCCReference Include="..\Components\NewCtrls.pas"/>
         <DCCReference Include="..\Components\BitmapButton.pas"/>
         <DCCReference Include="..\Components\BitmapImage.pas"/>
@@ -210,16 +219,21 @@
         <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
         <DCCReference Include="..\Components\NewUxTheme.pas"/>
         <DCCReference Include="..\Components\PBKDF2.pas"/>
+        <DCCReference Include="..\Components\PBKDF2.Test.pas"/>
         <DCCReference Include="Src\Compression.SevenZipDecoder.pas"/>
         <DCCReference Include="..\Components\PSStackHelper.pas"/>
         <DCCReference Include="Src\Setup.ScriptFunc.HelperFunc.pas"/>
         <DCCReference Include="..\Components\ECDSA.pas"/>
         <DCCReference Include="..\Components\ISSigFunc.pas"/>
+        <DCCReference Include="..\Components\ISSigFunc.Test.pas"/>
         <DCCReference Include="..\Components\StringScanner.pas"/>
+        <DCCReference Include="..\Components\StringScanner.Test.pas"/>
         <DCCReference Include="Src\Compression.SevenZipDLLDecoder.pas"/>
         <DCCReference Include="Src\Compression.SevenZipDLLDecoder.Interfaces.pas"/>
         <DCCReference Include="Src\Shared.EncryptionFunc.pas"/>
+        <DCCReference Include="Src\Shared.EncryptionFunc.Test.pas"/>
         <DCCReference Include="..\Components\UnsignedFunc.pas"/>
+        <DCCReference Include="..\Components\UnsignedFunc.Test.pas"/>
         <DCCReference Include="..\Components\Themes.pas"/>
         <DCCReference Include="..\Components\FormBackgroundStyleHook.pas"/>
         <DCCReference Include="..\Components\UniPs\Source\uPSDebugger.pas"/>
@@ -234,20 +248,6 @@
         <DCCReference Include="..\Components\UniPs\Source\uPSR_stdctrls.pas"/>
         <DCCReference Include="..\Components\UniPs\Source\uPSRuntime.pas"/>
         <DCCReference Include="..\Components\UniPs\Source\uPSUtils.pas"/>
-        <DCCReference Include="..\Components\PathFunc.Test.pas"/>
-        <DCCReference Include="..\Components\ChaCha20.Test.pas"/>
-        <DCCReference Include="..\Components\PBKDF2.Test.pas"/>
-        <DCCReference Include="..\Components\MD5.Test.pas"/>
-        <DCCReference Include="..\Components\SHA1.Test.pas"/>
-        <DCCReference Include="..\Components\SHA256.Test.pas"/>
-        <DCCReference Include="..\Components\SimpleExpression.Test.pas"/>
-        <DCCReference Include="..\Components\StringScanner.Test.pas"/>
-        <DCCReference Include="..\Components\UnsignedFunc.Test.pas"/>
-        <DCCReference Include="..\Components\ISSigFunc.Test.pas"/>
-        <DCCReference Include="..\Components\BidiUtils.Test.pas"/>
-        <DCCReference Include="Src\Shared.EncryptionFunc.Test.pas"/>
-        <DCCReference Include="Src\Setup.PathRedir.Test.pas"/>
-        <DCCReference Include="Src\Shared.CommonFunc.Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

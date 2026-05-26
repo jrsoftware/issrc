@@ -162,6 +162,7 @@
         <DCCReference Include="..\Components\ScintEdit.pas"/>
         <DCCReference Include="Src\IDE.ScintStylerInnoSetup.pas"/>
         <DCCReference Include="..\Components\ModernColors.pas"/>
+        <DCCReference Include="..\Components\ModernColors.Test.pas"/>
         <DCCReference Include="Src\IDE.MsgBoxDesignerForm.pas">
             <Form>MsgBoxDesignerForm</Form>
         </DCCReference>
@@ -220,7 +221,6 @@
         <DCCReference Include="Src\IDE.MainForm.AutoCompleteAndCallTipsHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.ScintHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.FinalHelper.pas"/>
-        <DCCReference Include="..\Components\ModernColors.Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
