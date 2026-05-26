@@ -89,7 +89,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Previously undocumented directive shorthands <tt>#?</tt> (for <tt>#if</tt>), <tt>#^</tt> (for <tt>#else</tt>), and <tt>#.</tt> (for <tt>#endif</tt>) are now documented and recognized by the Compiler IDE.</li>
     <li>Previously undocumented <tt>func</tt> and <tt>array</tt> parameter types and the <tt>@</tt> operator are now documented by the <a href="https://jrsoftware.org/ishelp/index.php?topic=macros">User Defined Functions</a> help topic. Implementation fixes were also made. Example:
         <pre><code class="innosetup"><span class="pre">#define</span> Apply(<span class="pre">func</span> Callback, <span class="pre">str</span> Value) Callback(Value)
-<span class="pre">#define</span> Decorate(str S) <span class="str">"("</span> + S + <span class="str">")"</span>
+<span class="pre">#define</span> Decorate(<span class="pre">str</span> S) <span class="str">"("</span> + S + <span class="str">")"</span>
 <span class="pre">#emit</span> Apply(@Decorate, <span class="str">"hello"</span>) <span class="com">; emits "(hello)"</span></code></pre>
     </li>
     <li>Other documentation improvements.</li>
