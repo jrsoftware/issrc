@@ -2143,13 +2143,13 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<p>The formal syntax of a user defined function is provided in &define; and &builtins; contains many example functions.</p>
         <p>Please note that there must be no space between the function name and opening parenthesis.</p>
         <p>The formal parameter list can be empty, in which case the function takes no parameters. Without parentheses, a variable is defined instead of a user defined function.</p>
-				<p>Actual parameters for parameters declared as by-reference must be modifiable l-values (in other words, other defined variables or expressions that evaluate to l-values). If the expression modifies by-reference parameter, the variable that is passed as this parameter gets modified. By-value parameters can also be modified by the expression (using assignment operators), but this modification doesn't affect the value of a variable which could be passed as this parameter.</p>
+				<p>Actual parameters for parameters declared as by-reference (<tt>*</tt>) must be modifiable l-values (in other words, other defined variables or expressions that evaluate to l-values). If the expression modifies by-reference parameter, the variable that is passed as this parameter gets modified. By-value parameters can also be modified by the expression (using assignment operators), but this modification doesn't affect the value of a variable which could be passed as this parameter.</p>
 				<p>Though a user defined function can only contain one expression, sequential evaluation operators (comma), assignment operators (simple and compound) and conditional operators (<tt>?:</tt>) can be used to build more complicated functions.</p>
       </description>
 			<section title="Local array">
         <p>In context of the expression, an additional array named <tt>Local</tt> is valid. Its elements can be used for temporary storage and reusing values in sequential expressions. Values stored in <tt>Local</tt> array are neither preserved from call to call (including recursive), nor are they accessible from anywhere except the expression.</p>
         <pre>
-          <line>#define DeleteToFirstPeriod(str *S) /* user defined function declaration */ \</line>
+          <line>#define DeleteToFirstPeriod(str *S) ; S is by-reference \</line>
           <line>&dsp;Local[1] = <link href="copy">Copy</link>(S, 1, (Local[0] = <link href="pos">Pos</link>(".", S)) - 1), \</line>
           <line>&dsp;S = Copy(S, Local[0] + 1), \</line>
           <line>&dsp;Local[1]</line>
