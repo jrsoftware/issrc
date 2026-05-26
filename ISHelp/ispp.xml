@@ -2160,14 +2160,14 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<line>#dim MyData[3] {10, 20, 30}</line>
 					<line>#define Sum3(array A) A[0] + A[1] + A[2]</line>
 					<line>#emit Sum3(@MyData) ; evaluates to 60</line>
-					<line>#define GetDim(array A) DimOf(A)</line>
+					<line>#define GetDim(array A) <link href="dimof">DimOf</link>(A)</line>
 					<line>#emit GetDim(@MyData) ; evaluates to 3</line>
 				</pre>
 			</section>
 			<section title="Local array">
         <p>In context of the expression, an additional array named <tt>Local</tt> is valid. Its elements can be used for temporary storage and reusing values in sequential expressions. Values stored in <tt>Local</tt> array are neither preserved from call to call (including recursive), nor are they accessible from anywhere except the expression.</p>
         <pre>
-          <line>#define DeleteToFirstPeriod(str *S) ; S is by-reference \</line>
+          <line>#define DeleteToFirstPeriod(str *S) /* S is by-reference */ \</line>
           <line>&dsp;Local[1] = <link href="copy">Copy</link>(S, 1, (Local[0] = <link href="pos">Pos</link>(".", S)) - 1), \</line>
           <line>&dsp;S = Copy(S, Local[0] + 1), \</line>
           <line>&dsp;Local[1]</line>
