@@ -117,6 +117,7 @@
 							<case><txt>int</txt></case>
 							<case><txt>str</txt></case>
 							<case><txt>func</txt></case>
+							<case><txt>array</txt></case>
 						</cases>
 					</define>
 					<define id="locality" inline="yes">
@@ -130,6 +131,7 @@
 				<description>
 					<p>The first syntax ("variable-definition") defines a variable named <tt>ident</tt>, or assigns a value to an element of an array named <tt>ident</tt> (use &dim; instead of <tt>define</tt> to define the array variable itself). If none of the <tt>public</tt>, <tt>protected</tt>, or <tt>private</tt> keywords are specified, default <link href="visibility">visibility</link> is assumed.</p>
 					<p>The second syntax ("macro-definition") defines <link href="macros">a user defined function</link> named <tt>ident</tt>. When defining a user defined function there must be no whitespace between the name and opening parenthesis, otherwise it will be treated as variable declaration.</p>
+					<p>In a macro-definition, formal parameters may be preceded by a type-id: <tt>any</tt>, <tt>int</tt>, <tt>str</tt>, <tt>func</tt>, or <tt>array</tt>. The <tt>func</tt> type-id declares that the parameter accepts a user defined function or built-in function, and the <tt>array</tt> type-id declares that it accepts an array variable. When calling such a user defined function, the actual parameter for a <tt>func</tt> or <tt>array</tt> parameter must be specified using the <tt>@</tt> operator (for example, <tt>@MyFunc</tt> or <tt>@MyArray</tt>). Also see <link href="macros">User Defined Functions</link>.</p>
 					<p>The third syntax ("default-visibility-set") sets the default <link href="visibility">visibility</link> of further variable and user defined function definitions in this file. If no visibility declaration occurs in a file, public visibility is assumed by default.</p>
 				</description>
 				<section title="Examples">
@@ -2146,6 +2148,22 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<p>Actual parameters for parameters declared as by-reference (<tt>*</tt>) must be modifiable l-values (in other words, other defined variables or expressions that evaluate to l-values). If the expression modifies by-reference parameter, the variable that is passed as this parameter gets modified. By-value parameters can also be modified by the expression (using assignment operators), but this modification doesn't affect the value of a variable which could be passed as this parameter.</p>
 				<p>Though a user defined function can only contain one expression, sequential evaluation operators (comma), assignment operators (simple and compound) and conditional operators (<tt>?:</tt>) can be used to build more complicated functions.</p>
       </description>
+			<section title="Function and array parameters">
+				<p>A parameter declared with the <tt>func</tt> type-id accepts a user defined function or built-in function. A parameter declared with the <tt>array</tt> type-id accepts an array variable. When calling a user defined function that has such a parameter, the actual parameter must be specified using the <tt>@</tt> operator followed by the name of the identifier to pass. For example:</p>
+				<pre>
+					<line>#define Apply(func Callback, str Value) Callback(Value)</line>
+					<line>#define Decorate(str S) "(" + S + ")"</line>
+					<line>#emit Apply(@Decorate, "hello") ; evaluates to "(hello)"</line>
+				</pre>
+				<p>And:</p>
+				<pre>
+					<line>#dim MyData[3] {10, 20, 30}</line>
+					<line>#define Sum3(array A) A[0] + A[1] + A[2]</line>
+					<line>#emit Sum3(@MyData) ; evaluates to 60</line>
+					<line>#define GetDim(array A) DimOf(A)</line>
+					<line>#emit GetDim(@MyData) ; evaluates to 3</line>
+				</pre>
+			</section>
 			<section title="Local array">
         <p>In context of the expression, an additional array named <tt>Local</tt> is valid. Its elements can be used for temporary storage and reusing values in sequential expressions. Values stored in <tt>Local</tt> array are neither preserved from call to call (including recursive), nor are they accessible from anywhere except the expression.</p>
         <pre>
@@ -2173,7 +2191,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			</description>
 			<section title="Differences between C and ISPP expression syntax">
 				<ul>
-					<li>ISPP does not support a number of operators (reference, dereference, namespace resolution, member selection, etc.).</li>
+					<li>ISPP does not support a number of operators (dereference, namespace resolution, member selection, etc.). The <tt>@</tt> operator is supported for passing identifiers to <tt>func</tt> and <tt>array</tt> parameters (see <link href="macros">User Defined Functions</link>).</li>
 					<li>ISPP treats an identifier and the equality sign as a name of an parameter, if it is used in parameter list.</li>
 					<li>Arithmetic division operator (slash) performs integer division, since ISPP does not support floating point math.</li>
 					<li>ISPP does not check for validity of expressions in certain cases. For example, in conditional expression, "true" operand can be of string type, whereas "false" operand can be of integer type.</li>
