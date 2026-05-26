@@ -135,7 +135,8 @@ uses
   ISSigFunc.Test in '..\Components\ISSigFunc.Test.pas',
   BidiUtils.Test in '..\Components\BidiUtils.Test.pas',
   Shared.EncryptionFunc.Test in 'Src\Shared.EncryptionFunc.Test.pas',
-  Setup.PathRedir.Test in 'Src\Setup.PathRedir.Test.pas';
+  Setup.PathRedir.Test in 'Src\Setup.PathRedir.Test.pas',
+  Shared.CommonFunc.Test in 'Src\Shared.CommonFunc.Test.pas';
 
 {$R *.res}
 

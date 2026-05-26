@@ -166,6 +166,7 @@
         <DCCReference Include="..\Components\UniPs\Source\uPSC_stdctrls.pas"/>
         <DCCReference Include="..\Components\UniPs\Source\uPSCompiler.pas"/>
         <DCCReference Include="..\Components\UniPs\Source\uPSUtils.pas"/>
+        <DCCReference Include="Src\Compiler.StringLists.Test.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

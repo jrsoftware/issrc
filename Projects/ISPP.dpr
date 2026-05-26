@@ -34,7 +34,8 @@ uses
   SHA1 in '..\Components\SHA1.pas',
   SHA256 in '..\Components\SHA256.pas',
   Shared.Struct in 'Src\Shared.Struct.pas',
-  UnsignedFunc in '..\Components\UnsignedFunc.pas';
+  UnsignedFunc in '..\Components\UnsignedFunc.pas',
+  ISPP.CTokenizer.Test in 'Src\ISPP.CTokenizer.Test.pas';
 
 {$IMAGEBASE $01800000}
 {$SETPEOSVERSION 6.1}
