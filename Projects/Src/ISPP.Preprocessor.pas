@@ -283,7 +283,7 @@ begin
   if Code = -1 then
     Result := FIncludes[FCurrentFile]
   else
-    Result := FIncludes[Integer(FOutput.Objects[Code]) shr 16];
+    Result := FIncludes[Integer(NativeUInt(FOutput.Objects[Code]) and $FFFF)];
 end;
 
 function TPreprocessor.GetLineNumber(Code: Integer): Integer;
@@ -291,7 +291,7 @@ begin
   if Code = -1 then
     Result := FCurrentLine
   else
-    Result := Integer(FOutput.Objects[Code]) and $FFFF
+    Result := Integer(NativeUInt(FOutput.Objects[Code]) shr 16)
 end;
 
 function TPreprocessor.GetNextOutputLine(var LineFilename: string; var LineNumber: Integer;
@@ -413,11 +413,11 @@ begin
         if FInsertionPoint >= 0 then
         begin
           EmitDestination.InsertObject(FInsertionPoint, S1,
-            TObject(FileIndex shl 16 or LineNo));
+            TObject(NativeUInt(LineNo) shl 16 or NativeUInt(FileIndex)));
           Inc(FInsertionPoint);
         end
         else
-          EmitDestination.AddObject(S1, TObject(FileIndex shl 16 or LineNo));
+          EmitDestination.AddObject(S1, TObject(NativeUInt(LineNo) shl 16 or NativeUInt(FileIndex)));
         while CharInSet(P^, [#10, #13]) do Inc(P);
       until P^ = #0;
     end;
@@ -1169,9 +1169,11 @@ procedure TPreprocessor.ExecProc(Body: TStrings);
 var
   I: Integer;
 begin
-  for I := 0 to Body.Count - 1 do
-    InternalAddLine(Body[I], Integer(Body.Objects[I]) shr 16,
-      Integer(Body.Objects[I]) and $FFFF - 1, False);
+  for I := 0 to Body.Count - 1 do begin
+    const PackedLocation = NativeUInt(Body.Objects[I]);
+    InternalAddLine(Body[I], Integer(PackedLocation and $FFFF),
+      Integer(PackedLocation shr 16) - 1, False);
+  end;
 end;
 
 { TConditionalTranslationStack }
