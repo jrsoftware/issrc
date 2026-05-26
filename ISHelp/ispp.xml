@@ -106,16 +106,21 @@
 						</cases>
 					</define>
 					<define id="by-val-arg">
-						<opt><nt name="type-id"/></opt><nt>ident</nt><opt><txt>=</txt><nt>expr</nt></opt>
+						<variant><opt><nt name="value-type-id"/></opt><nt>ident</nt><opt><txt>=</txt><nt>expr</nt></opt></variant>
+						<variant><nt name="func-or-array-type-id"/><nt>ident</nt></variant>
 					</define>
 					<define id="by-ref-arg">
-						<opt><nt name="type-id"/></opt><txt>*</txt><nt>ident</nt>
+						<opt><nt name="value-type-id"/></opt><txt>*</txt><nt>ident</nt>
 					</define>
-					<define id="type-id">
+					<define id="value-type-id">
 						<cases>
 							<case><txt>any</txt></case>
 							<case><txt>int</txt></case>
 							<case><txt>str</txt></case>
+						</cases>
+					</define>
+					<define id="func-or-array-type-id">
+						<cases>
 							<case><txt>func</txt></case>
 							<case><txt>array</txt></case>
 						</cases>
@@ -130,8 +135,13 @@
 				</syntax>
 				<description>
 					<p>The first syntax ("variable-definition") defines a variable named <tt>ident</tt>, or assigns a value to an element of an array named <tt>ident</tt> (use &dim; instead of <tt>define</tt> to define the array variable itself). If none of the <tt>public</tt>, <tt>protected</tt>, or <tt>private</tt> keywords are specified, default <link href="visibility">visibility</link> is assumed.</p>
-					<p>The second syntax ("macro-definition") defines <link href="macros">a user defined function</link> named <tt>ident</tt>. When defining a user defined function there must be no whitespace between the name and opening parenthesis, otherwise it will be treated as variable declaration.</p>
-					<p>In a macro-definition, formal parameters may be preceded by a type-id: <tt>any</tt>, <tt>int</tt>, <tt>str</tt>, <tt>func</tt>, or <tt>array</tt>. The <tt>func</tt> type-id declares that the parameter accepts a user defined function or built-in function, and the <tt>array</tt> type-id declares that it accepts an array variable. When calling such a user defined function, the actual parameter for a <tt>func</tt> or <tt>array</tt> parameter must be specified using the <tt>@</tt> operator (for example, <tt>@MyFunc</tt> or <tt>@MyArray</tt>). Also see <link href="macros">User Defined Functions</link>.</p>
+					<p>The second syntax ("macro-definition") defines <link href="macros">a user defined function</link> named <tt>ident</tt>. Note:</p>
+					<ul>
+						<li>There must be no whitespace between the name and opening parenthesis, otherwise it will be treated as variable declaration.</li>
+						<li>Formal parameters may be preceded by a type-id: <tt>any</tt>, <tt>int</tt>, <tt>str</tt>, <tt>func</tt>, or <tt>array</tt>.</li>
+						<li>Default values may be specified only for parameters with no type-id or with type-id: <tt>any</tt>, <tt>int</tt>, or <tt>str</tt>.</li>
+						<li>The <tt>func</tt> type-id declares that the parameter accepts a user defined function or built-in function, and the <tt>array</tt> type-id declares that it accepts an array variable. When calling such a user defined function, the actual parameter for a <tt>func</tt> or <tt>array</tt> parameter must be specified using the <tt>@</tt> operator (for example, <tt>@MyFunc</tt> or <tt>@MyArray</tt>). Also see <link href="macros">User Defined Functions</link>.</li>
+					</ul>
 					<p>The third syntax ("default-visibility-set") sets the default <link href="visibility">visibility</link> of further variable and user defined function definitions in this file. If no visibility declaration occurs in a file, public visibility is assumed by default.</p>
 				</description>
 				<section title="Examples">
