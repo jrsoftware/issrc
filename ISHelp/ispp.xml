@@ -1167,19 +1167,19 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<topic id="DeleteFileNow">
 				<title>DeleteFileNow</title>
 				<section title="Prototype">
-					<pre><line><b>void</b> DeleteFileNow(<b>str</b> FileName)</line></pre>
+					<pre><line><b>int</b> DeleteFileNow(<b>str</b> FileName)</line></pre>
 				</section>
 				<description>
-					<p>Deletes the specified file. Does not return anything. Also see <tt><link href="DeleteFile">DeleteFile</link></tt>.</p>
+					<p>Deletes the specified file. Returns non-zero value if successful. Also see <tt><link href="DeleteFile">DeleteFile</link></tt>.</p>
 				</description>
 			</topic>
 			<topic id="CopyFile">
 				<title>CopyFile</title>
 				<section title="Prototype">
-					<pre><line><b>void</b> CopyFile(<b>str</b> ExistingFile, <b>str</b> NewFile)</line></pre>
+					<pre><line><b>int</b> CopyFile(<b>str</b> ExistingFile, <b>str</b> NewFile)</line></pre>
 				</section>
 				<description>
-					<p>Copies ExistingFile to NewFile, preserving time stamp and file attributes. If NewFile already exists, it will be overwritten.</p>
+					<p>Copies ExistingFile to NewFile, preserving time stamp and file attributes. If NewFile already exists, it will be overwritten. Returns non-zero value if successful.</p>
 				</description>
 			</topic>
 			<topic id="FindFirst">

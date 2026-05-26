@@ -1096,10 +1096,7 @@ begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
-    begin
-      DeleteFile(PChar(PrependPath(Ext, Get(0).AsStr)));
-      ResPtr^.Typ := evNull;
-    end;
+      MakeBool(ResPtr^, DeleteFile(PChar(PrependPath(Ext, Get(0).AsStr))));
   except
     on E: Exception do
     begin
@@ -1115,10 +1112,7 @@ begin
   if CheckParams(Params, [evStr, evStr], 2, Result) then
   try
     with IInternalFuncParams(Params) do
-    begin
-      CopyFile(PChar(PrependPath(Ext, Get(0).AsStr)), PChar(PrependPath(Ext, Get(1).AsStr)), False);
-      ResPtr^.Typ := evNull;
-    end;
+      MakeBool(ResPtr^, CopyFile(PChar(PrependPath(Ext, Get(0).AsStr)), PChar(PrependPath(Ext, Get(1).AsStr)), False));
   except
     on E: Exception do
     begin
