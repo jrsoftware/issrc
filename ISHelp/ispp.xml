@@ -961,6 +961,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Writes specified value to an INI file. Parameter 1 is the name of the INI file, parameter 2 &dash; the name of a section in the INI file, parameter 3 &dash; the name of a key in the section. Last parameter should be set to the value you wish to be written to the INI file, it can be of any type.</p>
+					<p>A compiler error will be raised if the write fails.</p>
 				</description>
 			</topic>
 			<topic id="ReadReg">
@@ -971,6 +972,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<description>
 					<p>Reads the value of the specified registry key. First parameter is the root key, such as HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE_32 or HKEY_LOCAL_MACHINE_64. Constants for use with this parameter are declared in &builtins; accompanying ISPP. Second parameter specifies a subkey. Third parameter specifies the name of the value, if this parameter is omitted, a default value is assumed. Last optional parameter may be used to specify the default value that will be returned on failure.</p>
 					<p>Note that this function can return a value of any type depending on the type of actual value in the registry.</p>
+					<p>A compiler error will be raised if an invalid root key is specified or if 64-bit registry keys are requested on 32-bit Windows.</p>
 				</description>
 			</topic>
 			<topic id="Exec">
@@ -1050,6 +1052,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Saves &curtrans; to the specified file.</p>
+					<p>A compiler error will be raised if the save fails.</p>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1300,6 +1303,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Resets the file pointer to zero, so the subsequent call to <tt><link href="FileRead">FileRead</link></tt> will read the first line of the file. The only parameter should be the file handle returned by <tt><link href="FileOpen">FileOpen</link></tt>.</p>
+					<p>A compiler error will be raised if the reset fails.</p>
 				</description>
 			</topic>
 			<topic id="FileEof">
@@ -1327,7 +1331,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>int</b> SaveStringToFile(<b>str</b> Filename, <b>str</b> S, <b>int</b>? Append, <b>int</b>? UTF8)</line></pre>
 				</section>
 				<description>
-          <p>Saves the specified string to the specified file. If Append is non-zero or omitted and the specified file already exists, it will be appended to instead of overwritten. If UTF8 is non-zero or omitted, the string will be saved with UTF-8 encoding and a BOM instead of ASCII encoding. Returns non-zero if successful, or zero otherwise.</p>
+          <p>Saves the specified string to the specified file. If Append is non-zero or omitted and the specified file already exists, it will be appended to instead of overwritten. If UTF8 is non-zero or omitted, the string will be saved with UTF-8 encoding and a BOM instead of ASCII encoding. Returns non-zero if successful, or zero if the file can't be opened for writing.</p>
+          <p>A compiler error will be raised if writing to the file fails after it has been opened.</p>
           <p>This function does not automatically write a line break before or after the string. If Append is non-zero or omitted and the existing file did not end in a line break, the function will effectively append to the existing last line. To avoid this you can put line break characters (using <tt><link href="predefinedvars">NewLine</link></tt>) before and/or after your string.</p>
 				</description>
 				<section title="Example">
@@ -1393,6 +1398,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<description>
 					<p>Returns the date and time of the specified file as a string using the specified formatting.</p>
 					<p>The first parameter is the file name. The second parameter denotes the format string. The third and fourth parameters are optional and denote the DateSeparator and TimeSeparator parameters as explained in the <link href="GetDateTimeString">GetDateTimeString</link> topic.</p>
+					<p>A compiler error will be raised if the date and time of the specified file can't be read.</p>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1440,6 +1446,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Gets the MD5 sum of the specified file, as a string.</p>
+					<p>A compiler error will be raised if the specified file can't be read.</p>
 				</description>
 			</topic>
 			<topic id="GetSHA1OfString">
@@ -1479,6 +1486,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Gets the SHA-1 hash of the specified file, as a string.</p>
+					<p>A compiler error will be raised if the specified file can't be read.</p>
 				</description>
 			</topic>
 			<topic id="GetSHA256OfString">
@@ -1518,6 +1526,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Gets the SHA-256 hash of the specified file, as a string.</p>
+					<p>A compiler error will be raised if the specified file can't be read.</p>
 				</description>
 			</topic>
 			<topic id="Format">
@@ -1527,7 +1536,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Formats the string Format using the series of arguments that follow it. Formatting is controlled by the format string Format; the results are returned as a string. Each argument must be an integer or a string.</p>
-					<p>An exception will be raised if an invalid format string is specified, too few arguments are passed, or if any arguments are of the wrong type.</p>
+					<p>A compiler error will be raised if an invalid format string is specified, too few arguments are passed, or if any arguments are of the wrong type.</p>
 					<p>Note: unlike the Pascal Scripting's <tt>Format</tt> function, arguments are passed directly instead of in an array.</p>
 				</description>
 				<section title="Example">
@@ -2098,6 +2107,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns non-zero if the specified file is a non-32-bit PE image, zero otherwise.</p>
+					<p>A compiler error will be raised if the specified file can't be read.</p>
 				</description>
 			</topic>
 			<topic id="EmitLanguagesSection">
