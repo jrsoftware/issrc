@@ -784,7 +784,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
         NextTokenExpect([opSubtract]);
         repeat
           NextTokenExpect([tkIdent]);
-          if Length(TokenString) > 1 then
+          if (Length(TokenString) > 1) or not CharInSet(TokenString[1], ['A'..'Z', 'a'..'z']) then
             RaiseError(SInvalidOptionName);
           C := TokenString[1];
           V := NextTokenExpect([opAdd, opSubtract]) = opAdd;
@@ -1499,16 +1499,12 @@ begin
   else if Name = '__INCLUDE__' then
   begin
     if Value <> nil then MakeStr(Value^, FIncludePath);
-  end
-  else if (Length(Name) = 9) and (Copy(Name, 1, 6) = '__OPT_') and
-    (Copy(Name, 8, 2) = '__') then
-  begin
+  end else if (Length(Name) = 9) and (Copy(Name, 1, 6) = '__OPT_') and
+              CharInSet(Name[7], ['A'..'Z']) and (Copy(Name, 8, 2) = '__') then begin
     if Value <> nil then Value^ := NULL;
     Result := GetOption(FOptions.Options, Name[7]);
-  end
-  else if (Length(Name) = 10) and (Copy(Name, 1, 7) = '__POPT_') and
-    (Copy(Name, 9, 2) = '__') then
-  begin
+  end else if (Length(Name) = 10) and (Copy(Name, 1, 7) = '__POPT_') and
+              CharInSet(Name[8], ['A'..'Z']) and (Copy(Name, 9, 2) = '__') then begin
     if Value <> nil then Value^ := NULL;
     Result := GetOption(FOptions.ParserOptions.Options, Name[8]);
   end
