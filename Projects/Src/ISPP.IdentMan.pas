@@ -538,11 +538,20 @@ begin
   end;
   for I := 0 to FMacro.ParamCount - 1 do begin
     if CompareText(FMacro.Params[I].Name, Name) = 0 then begin
-      case GetRValue(FList[I].Value.Value[0]).Typ of
-        evNull: Result := TYPE_NULL;
-        evInt: Result := TYPE_INTEGER
-      else
-        Result := TYPE_STRING
+      if FMacro.Params[I].DefValue.Typ = evCallContext then begin
+        if pfFunc in FMacro.Params[I].ParamFlags then
+          Result := TYPE_FUNC
+        else if pfArray in FMacro.Params[I].ParamFlags then
+          Result := TYPE_ARRAY
+        else
+          Result := TYPE_ERROR { See TIdentManager.TypeOf }
+      end else begin
+        case GetRValue(FList[I].Value.Value[0]).Typ of
+          evNull: Result := TYPE_NULL;
+          evInt: Result := TYPE_INTEGER
+        else
+          Result := TYPE_STRING
+        end;
       end;
       Exit;
     end;
