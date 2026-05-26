@@ -1744,13 +1744,13 @@ begin
             if Ident = sAny then {do nothing }
             else if Ident = sInt then Param.DefValue.Typ := evInt
             else if Ident = sStr then Param.DefValue.Typ := evStr
-            else if Ident = 'FUNC' then
-              begin
-                Param.DefValue.Typ := evCallContext;
-                Include(Param.ParamFlags, pfFunc)
-              end
-            else if Ident = 'ARRAY' then Param.DefValue.Typ := evCallContext
-            else RaiseError(Format(SInvalidTypeId, [Ident]));
+            else if Ident = 'FUNC' then begin
+              Param.DefValue.Typ := evCallContext;
+              Include(Param.ParamFlags, pfFunc)
+            end else if Ident = 'ARRAY' then begin
+              Param.DefValue.Typ := evCallContext;
+              Include(Param.ParamFlags, pfArray)
+            end else RaiseError(Format(SInvalidTypeId, [Ident]));
             if Param.DefValue.Typ <> evSpecial then
               Include(Param.ParamFlags, pfTypeDefined);
             if NextTokenExpect([tkIdent, opMul]) = opMul then

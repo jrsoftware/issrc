@@ -419,10 +419,10 @@ begin
         begin
           if FMacro.Params[ParamIndex].DefValue.Typ = evCallContext then
           begin
-            if (pfFunc in FMacro.Params[ParamIndex].ParamFlags) and
-              (Value.AsCallContext.GroupingStyle <> agsParenteses) or
-              not (pfFunc in FMacro.Params[ParamIndex].ParamFlags) and
-              (Value.AsCallContext.GroupingStyle <> agsBrackets) then
+            if ((pfFunc in FMacro.Params[ParamIndex].ParamFlags) and
+                (Value.AsCallContext.GroupingStyle <> agsParenteses)) or
+               ((pfArray in FMacro.Params[ParamIndex].ParamFlags) and
+                (Value.AsCallContext.GroupingStyle <> agsBrackets)) then
               ErrorWrongType(FMacro.Params[ParamIndex].Name);
           end;
           FList[ParamIndex].Value.Value[0] := GetRValue(Value);
@@ -557,9 +557,9 @@ begin
     Exit(MaxLocalArraySize);
   for var I := 0 to FMacro.ParamCount - 1 do begin
     if CompareText(FMacro.Params[I].Name, Name) = 0 then begin
+      { Also see Add }
       if (FMacro.Params[I].DefValue.Typ = evCallContext) and
-         not (pfFunc in FMacro.Params[I].ParamFlags) and
-         (FList[I].Value.Value[0].AsCallContext <> nil) then begin
+         (pfArray in FMacro.Params[I].ParamFlags) then begin
         const Obj = FList[I].Value.Value[0].AsCallContext as TObject;
         if Obj is TVarCallContext then
           Exit(TVarCallContext(Obj).FVariable.Dim)
