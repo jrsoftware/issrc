@@ -160,8 +160,8 @@ begin
     Tokenizer.Free;
   end;
 
-  { Adjacent string literals of the same quote kind concatenate (the GetString
-    routine recurses across whitespace separating the two) }
+  { Adjacent C-style string literals of the same quote kind concatenate across
+    whitespace. }
   Tokenizer := NewTokenizer('"abc"  "def"');
   try
     Assert(Tokenizer.NextToken = tkString);
@@ -171,10 +171,10 @@ begin
     Tokenizer.Free;
   end;
 
-  { String literals (no escape sequences): handled by AnsiExtractQuotedStr.
-    Doubled quote-of-the-same-kind means a literal quote. Adjacent literals
-    of the different quote kind do not concatenate. }
-  Tokenizer := NewTokenizer('"hello" ''single-quoted'' "a""b"', False);
+  { Pascal-style string literals: doubled quote-of-the-same-kind
+    means a literal quote. Adjacent literals of the different quote kind do
+    not concatenate. }
+  Tokenizer := NewTokenizer('"hello" ''single-quoted'' "a""b"  "a"""', False);
   try
     Assert(Tokenizer.NextToken = tkString);
     Assert(Tokenizer.TokenString = 'hello');
@@ -182,12 +182,14 @@ begin
     Assert(Tokenizer.TokenString = 'single-quoted');
     Assert(Tokenizer.NextToken = tkString);
     Assert(Tokenizer.TokenString = 'a"b');
+    Assert(Tokenizer.NextToken = tkString);
+    Assert(Tokenizer.TokenString = 'a"');
     Assert(Tokenizer.NextToken = tkEOF);
   finally
     Tokenizer.Free;
   end;
 
-  { String literals with escape sequences: \n, \t, \\, \", \xNN, \NNN (octal),
+  { C-style string literals: \n, \t, \\, \", \xNN, \NNN (octal),
     and the catch-all (any other character is taken literally) }
   Tokenizer := NewTokenizer('"a\nb"');
   try
@@ -289,14 +291,19 @@ begin
   { Skip whitespace before reporting the bad character }
   ExpectErrorAt('  $', 3);
 
-  { Errors: unterminated string (in escape mode the scan stops at #0). The
-    Position points one past the last character read. }
+  { Errors: unterminated C-style string. The Position points one past the
+    last character read. }
   ExpectErrorAt('"abc', 5);
   ExpectErrorAt('''abc', 5);
   { Backslash followed by end-of-string is also unterminated }
   ExpectErrorAt('"\', 3);
   { Hex escape followed by end-of-string is unterminated as well }
   ExpectErrorAt('"\x', 4);
+
+  { Errors: unterminated Pascal-style string, including a string
+    ending with a quote pair but no real closing quote. }
+  ExpectErrorAt('"abc', 5, False);
+  ExpectErrorAt('"a""', 5, False);
 
   { Errors: unterminated /* comment */ }
   ExpectErrorAt('/* abc', 7);

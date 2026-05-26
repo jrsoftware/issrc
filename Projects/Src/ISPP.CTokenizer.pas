@@ -163,44 +163,39 @@ function TCTokenizer.InternalNextToken: TTokenKind;
     Inc(FExpr);
   end;
 
-  function GetString(QuoteChar: Char): string;
-  var
-    P: PChar;
-    S: string;
-    I: Integer;
-    C: Byte;
+  procedure Unterminated;
+  begin
+    if FExpr^ = #0 then
+      Error('Unterminated string');
+  end;
 
-    procedure Unterminated;
-    begin
-      if FExpr^ = #0 then
-        Error('Unterminated string');
-    end;
-
+  function GetEscapeSequencesString(QuoteChar: Char): string;
   begin
     Inc(FExpr);
     Result := '';
-    while True do
-    begin
-      P := FExpr;
-      while not CharInSet(FExpr^, [#0, '\', QuoteChar]) do Inc(FExpr);
+    while True do begin
+      const P = FExpr;
+      while not CharInSet(FExpr^, [#0, '\', QuoteChar]) do
+        Inc(FExpr);
+      Unterminated;
+      { FExpr^ is now '\' or QuoteChar }
+      var S: String;
       SetString(S, P, FExpr - P);
       Result := Result + S;
-      Unterminated;
-      if FExpr^ = QuoteChar then
-      begin
+      if FExpr^ = QuoteChar then begin
         Inc(FExpr);
-        Break;
+        Break;  { No paired quote check, must use \" and not "" }
       end;
+      { FExpr^ is now '\' }
       Inc(FExpr);
       Unterminated;
       case FExpr^ of
         #0: Unterminated;
         '0'..'7':// octal 400 = $100
           begin
-            C := 0;
-            I := 0;
-            while CharInSet(FExpr^, ['0'..'7']) and (I < 3) do
-            begin
+            var C: Byte := 0;
+            var I := 0;
+            while CharInSet(FExpr^, ['0'..'7']) and (I < 3) do begin
               Inc(I);
               C := Byte((C shl 3) + (Ord(FExpr^) - Ord('0')));
               Inc(FExpr);
@@ -219,10 +214,9 @@ function TCTokenizer.InternalNextToken: TTokenKind;
         'x':
           begin
             Inc(FExpr);
-            C := 0;
-            I := 0;
-            while CharInSet(FExpr^, ['0'..'9', 'A'..'F', 'a'..'f']) and (I < 2) do
-            begin
+            var C: Byte := 0;
+            var I := 0;
+            while CharInSet(FExpr^, ['0'..'9', 'A'..'F', 'a'..'f']) and (I < 2) do begin
               Inc(I);
               C := Byte(C shl 4);
               case FExpr^ of
@@ -244,7 +238,29 @@ function TCTokenizer.InternalNextToken: TTokenKind;
     end;
     SkipBlanks;
     if FExpr^ = QuoteChar then
-      Result := Result + GetString(QuoteChar);
+      Result := Result + GetEscapeSequencesString(QuoteChar);
+  end;
+
+  function GetPascalString(QuoteChar: Char): string;
+  begin
+    Inc(FExpr);
+    Result := '';
+    while True do begin
+      const P = FExpr;
+      while not CharInSet(FExpr^, [#0, QuoteChar]) do
+        Inc(FExpr);
+      Unterminated;
+      { FExpr^ is now QuoteChar }
+      var S: String;
+      SetString(S, P, FExpr - P);
+      Result := Result + S;
+      Inc(FExpr);
+      if FExpr^ <> QuoteChar then
+        Break;  { Single quote: done }
+      { Paired quotes: continue }
+      Result := Result + QuoteChar;
+      Inc(FExpr);
+    end;
   end;
 
 var
@@ -351,9 +367,9 @@ begin
     '"', '''':
       begin
         if FEscapeSequences then
-          FIdent := GetString(FExpr^)
+          FIdent := GetEscapeSequencesString(FExpr^)
         else
-          FIdent := AnsiExtractQuotedStr(FExpr, FExpr^);
+          FIdent := GetPascalString(FExpr^);
         Result := tkString;
         Exit;
       end;
