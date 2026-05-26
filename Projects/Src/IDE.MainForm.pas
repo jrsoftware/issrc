@@ -2354,7 +2354,6 @@ begin
     {$ELSE}
     if ISCompileScript(Params, False) <> isceNoError then begin
     {$ENDIF}
-      StatusMessage(smkError, SCompilerStatusErrorAborted);
       if not ReadFromFile and (AppData.ErrorLine > 0) then begin
         Memo := GetMemoFromErrorFilename(AppData.ErrorFilename);
         if Memo <> nil then begin
@@ -2366,13 +2365,16 @@ begin
       if not AppData.Aborted then begin
         S := '';
         if AppData.ErrorFilename <> '' then
-          S := Format(SCompilerErrorFilePrefix, [AppData.ErrorFilename]) + SNewLine2;
+          S := Format(SCompilerErrorFilePrefix, [PathExtractName(AppData.ErrorFilename)]) + SNewLine;
         if AppData.ErrorLine > 0 then
           S := S + Format(SCompilerErrorLinePrefix, [AppData.ErrorLine]) + SNewLine;
         S := S + AppData.ErrorMsg;
+        StatusMessage(smkError, StringReplace(StringReplace(S, #13, '', [rfReplaceAll]), #10, ' ', [rfReplaceAll]));
+        StatusMessage(smkError, SCompilerStatusErrorAborted);
         SetAppTaskbarProgressState(tpsError);
         MsgBox(S, SCompilerErrorTitle, mbCriticalError, MB_OK)
-      end;
+      end else
+        StatusMessage(smkError, SCompilerStatusErrorAborted);
       Abort;
     end;
     ElapsedTime := GetTickCount - StartTime;

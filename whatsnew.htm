@@ -58,6 +58,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Compiler IDE:
   <ul>
     <li>Added new <i>Disable Output</i>, <i>Disable Compression</i>, <i>Disable Signing</i>, and <i>Disable Signcheck Validation</i> menu items to the <i>Build</i> menu. These are not remembered between sessions.</li>
+    <li>Compiler errors are now also shown in the <i>Compiler Output</i> view, instead of only in a message box.</li>
   </ul>
   </li>
   <li>Command-Line Compiler (ISCC):
@@ -87,6 +88,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Other documentation improvements.</li>
   </ul>
   </li>
+  <li>Other minor improvements.</li>
 </ul>
 
 <p><a name="7.0.1"></a><span class="ver">7.0.1-beta </span><span class="date">(2026-05-26)</span></p>
@@ -1204,7 +1206,7 @@ position is not in the [Code] section.</li>
   <li>Added new <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section flag <tt>logoutput</tt>. Instructs Setup and Uninstall to log the output of the executed program or batch file. Cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags. Has no effect if logging is not enabled.</li>
   <li>Added new <tt>[Setup]</tt> section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
   <li>Digital signing change: Sign Tool output is now always logged in
-the Compiler IDE's "Compiler Output" view, making it easier to debug
+the Compiler IDE's <i>Compiler Output</i> view, making it easier to debug
 issues. Because of this, sign tools that are console programs will now
 always run hidden, as their output is being captured and they would
 display nothing in their window.</li>
@@ -1214,7 +1216,7 @@ or batch file to Setup and Uninstall's log, or to receive the output
 line by line in your own <tt>[Code]</tt> function, for example to read the first non-empty line from the output as shown in the help file and the new <i>PowerShell.iss</i> example script.</li>
   <li>ISPP changes:
     <ul>
-    <li>Output of programs or batch files executed using the <tt>Exec</tt> support function is now always logged in the Compiler IDE's "Compiler Output" view.</li>
+    <li>Output of programs or batch files executed using the <tt>Exec</tt> support function is now always logged in the Compiler IDE's <i>Compiler Output</i> view.</li>
     <li>Added new support function <tt>ExecAndGetFirstLine</tt> to
 execute a program or batch file and read the first non-empty line from
 its output which can then be placed or used in the script as shown in

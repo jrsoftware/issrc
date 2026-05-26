@@ -119,7 +119,7 @@ const
   SCompilerExecuteSetupError2 = 'Error executing "%0:s":' + SNewLine2 + '%1:d: %2:s';
   SCompilerAbortCompileConfirm = 'Are you sure you want to abort the compile?';
 
-  SCompilerErrorFilePrefix = 'File: %s';
+  SCompilerErrorFilePrefix = 'File %s:';
   SCompilerErrorLinePrefix = 'Line %d:';
   SCompilerErrorTitle = 'Compiler Error';
 
