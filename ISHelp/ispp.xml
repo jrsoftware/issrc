@@ -2163,15 +2163,15 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<pre>
 					<line>#define Apply(func Callback, str Value) Callback(Value)</line>
 					<line>#define Decorate(str S) "(" + S + ")"</line>
-					<line>#emit Apply(@Decorate, "hello") ; evaluates to "(hello)"</line>
+					<line>#emit Apply(@Decorate, "hello") ; emits "(hello)"</line>
 				</pre>
 				<p>And:</p>
 				<pre>
 					<line>#dim MyData[3] {10, 20, 30}</line>
 					<line>#define Sum3(array A) A[0] + A[1] + A[2]</line>
-					<line>#emit Sum3(@MyData) ; evaluates to 60</line>
+					<line>#emit Sum3(@MyData) ; emits 60</line>
 					<line>#define GetDim(array A) <link href="dimof">DimOf</link>(A)</line>
-					<line>#emit GetDim(@MyData) ; evaluates to 3</line>
+					<line>#emit GetDim(@MyData) ; emits 3</line>
 				</pre>
 			</section>
 			<section title="Local array">
