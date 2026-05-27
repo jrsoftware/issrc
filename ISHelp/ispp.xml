@@ -200,18 +200,11 @@
 			<topic id="undef">
 				<title>#undef</title>
 				<keywords>
-            <kwd>#x</kwd>
             <kwd>undef</kwd>
         </keywords>
 				<syntax>
 					<define id="undef-directive">
-						<group><nt name="undef-dir-name"/></group><opt><nt name="locality"/></opt><nt>ident</nt>
-					</define>
-					<define id="undef-dir-name" inline="yes">
-						<cases>
-							<case><txt>undef</txt></case>
-							<case><txt>x</txt></case>
-						</cases>
+						<txt>undef</txt><opt><nt name="locality"/></opt><nt>ident</nt>
 					</define>
 				</syntax>
 				<description>

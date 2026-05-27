@@ -1552,7 +1552,6 @@ const
     'verboselevel', 'include', 'spansymbol');
   ISPPDirectiveShorthands: TScintRawCharSet =
     [':' {define},
-     'x' {undef},
      '+' {include},
      '=' {emit},
      '%' {env},
