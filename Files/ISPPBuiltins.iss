@@ -320,10 +320,10 @@
   !P ? 1 : X * Power(X, P - 1)
 
 #define Min(int A, int B, int C = MaxInt)  \
-  A < B ? A < C ? Int(A) : Int(C) : Int(B)
+  A < B ? A < C ? Int(A) : Int(C) : B < C ? Int(B) : Int(C)
 
 #define Max(int A, int B, int C = MinInt)  \
-  A > B ? A > C ? Int(A) : Int(C) : Int(B)
+  A > B ? A > C ? Int(A) : Int(C) : B > C ? Int(B) : Int(C)
 
 #define SameText(str S1, str S2) \
   S1 == S2

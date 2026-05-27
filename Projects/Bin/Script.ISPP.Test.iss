@@ -1030,11 +1030,9 @@
 #call CheckEqualsInt(25, Power(5))
 #call CheckEqualsInt(1, Power(2, 0))
 #call CheckEqualsInt(1, Min(3, 1, 2))
-// bug: Min 3-arg form returns B when A >= B, ignoring C even if C < B
-//#call CheckEqualsInt(1, Min(3, 2, 1))
+#call CheckEqualsInt(1, Min(3, 2, 1))
 #call CheckEqualsInt(3, Max(1, 3, 2))
-// bug: Max 3-arg form returns B when A <= B, ignoring C even if C > B
-//#call CheckEqualsInt(3, Max(1, 2, 3))
+#call CheckEqualsInt(3, Max(1, 2, 3))
 #call CheckEqualsInt(3, Min(5, 3))
 #call CheckEqualsInt(5, Max(5, 3))
 //
