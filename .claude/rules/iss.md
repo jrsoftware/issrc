@@ -18,6 +18,7 @@ These are hard constraints of the ROPS compiler. Violating them causes compile e
 - `const` parameters are passed by value (copied), not by reference as in modern Delphi.
 - The `/` operator always returns `Extended`, even when both operands are integers. Use `div` for integer division.
 - `break` and `continue` are not reserved words. They are ordinary identifiers recognized specially inside loop bodies. A local declaration named `Break` or `Continue` will shadow the loop-control behavior.
+- `Low`, `High`, and `SizeOf` must be used with a variable, not a type.
 ## Conventions (same spirit as the Pascal rules, adapted for ROPS)
 - Pre-declare all local variables in the `var` block before `begin`.
 - Do not use `with` statements.
