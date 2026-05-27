@@ -12,8 +12,8 @@ SetupArchitecture={#arch}
 Uninstallable=yes
 PrivilegesRequired=lowest
 
-#include "Script.ISPP.Test.iss"
 #include "Script.ROPS.Test.iss"
+#include "Script.ISPP.Test.iss"
 
 [Code]
 function InitializeSetup: Boolean;

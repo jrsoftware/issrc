@@ -228,8 +228,11 @@ procedure CommandTest(const ATestScriptFilename: String);
         TestScriptFilename := ExePath + 'Script.Test.iss';
       const Arch = {$IFDEF CPUX64} 'x64' {$ELSE} 'x86' {$ENDIF};
 
-      const CompileExit = RunAndWait(AddQuotes(ExePath + 'ISCC.exe') + ' /Darch=' + Arch + ' ' +
-        '/O' + AddQuotes(ExePath) + ' ' + AddQuotes(TestScriptFilename));
+      SetEnvironmentVariable('ISTESTTOOLPROJ_TEST_ENV', '42');
+
+      const CompileExit = RunAndWait(AddQuotes(ExePath + 'ISCC.exe') +
+        ' /DISTESTTOOLPROJ /Darch=' + Arch + ' /O' + AddQuotes(ExePath) +
+        ' ' + AddQuotes(TestScriptFilename));
       if CompileExit <> 0 then
         RaiseFatalErrorFmt('Compilation failed (exit %d).', [CompileExit]);
 

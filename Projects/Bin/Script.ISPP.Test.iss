@@ -1050,3 +1050,122 @@
 #call CheckTrue(YesNo('1'))
 #call CheckFalse(YesNo('no'))
 #call CheckTrue(IsDirSet('Uninstallable'))
+#call CheckEqualsString('Script.Test', SetupSetting('AppName'))
+#call CheckTrue(EntryCount('Setup') > 0)
+//
+// #insert / #append
+//
+#emit '; INSERT_MARKER_BEFORE'
+#insert 0
+#emit '; INSERT_MARKER_AT_ZERO'
+#append
+#emit '; INSERT_MARKER_AFTER'
+#call CheckEqualsInt(0, Find(0, 'INSERT_MARKER_AT_ZERO', FIND_CONTAINS))
+#call CheckEqualsInt(Find(0, 'INSERT_MARKER_BEFORE', FIND_CONTAINS) + 1, Find(0, 'INSERT_MARKER_AFTER', FIND_CONTAINS))
+//
+// Preprocessor output functions
+//
+#call CheckTrue(FindSection('Setup') >= 0)
+#call CheckTrue(FindSectionEnd('Setup') > FindSection('Setup'))
+#call CheckTrue(FindCode() > 0)
+//
+// Find function with flags
+//
+#emit '; FIND_MARKER_START'
+#define FindTestStart = Find(0, '; FIND_MARKER_START', FIND_MATCH)
+#emit '; FIND_TEST Alpha Beta'
+#emit '; FIND_TEST Gamma'
+#define FindTestAlpha = FindTestStart + 1
+#define FindTestGamma = FindTestStart + 2
+#call CheckEqualsInt(FindTestAlpha, Find(FindTestStart, '; FIND_TEST Alpha Beta', FIND_MATCH))
+#call CheckEqualsInt(FindTestGamma, Find(FindTestStart, '; FIND_TEST Gamma', FIND_MATCH))
+#call CheckEqualsInt(FindTestAlpha, Find(FindTestStart, '; FIND_TEST', FIND_BEGINS))
+#call CheckEqualsInt(FindTestAlpha, Find(FindTestStart, 'Beta', FIND_ENDS))
+#call CheckEqualsInt(FindTestAlpha, Find(FindTestStart, 'Alpha', FIND_CONTAINS))
+#call CheckEqualsInt(FindTestGamma, Find(FindTestStart, '; find_test gamma', FIND_MATCH))
+#call CheckTrue(Find(FindTestStart, '; find_test gamma', FIND_MATCH | FIND_CASESENSITIVE) < 0)
+#call CheckEqualsInt(FindTestStart, Find(FindTestStart, '; FIND_TEST Gamma', FIND_MATCH | FIND_NOT))
+#emit '   ; FIND_TRIM_PAD   '
+#call CheckTrue(Find(FindTestStart, '; FIND_TRIM_PAD', FIND_MATCH | FIND_TRIM) >= 0)
+#call CheckEqualsInt(FindTestAlpha, Find(FindTestStart, 'Gamma', FIND_CONTAINS, 'Alpha', FIND_CONTAINS | FIND_OR))
+#call CheckEqualsInt(FindTestAlpha, Find(FindTestStart, '; FIND_TEST', FIND_BEGINS, 'Beta', FIND_ENDS | FIND_AND))
+#call CheckTrue(Find(FindTestStart, 'NONEXISTENT_MARKER_XYZ', FIND_MATCH) < 0)
+#undef FindTestGamma
+#undef FindTestAlpha
+#undef FindTestStart
+//
+// #env directive and environment functions
+//
+#ifdef ISTESTTOOLPROJ
+#insert FindSectionEnd('Setup') - 1
+AppComments={#env ISTESTTOOLPROJ_TEST_ENV}
+AppContact={#% ISTESTTOOLPROJ_TEST_ENV}
+#append
+#call CheckEqualsString('42', SetupSetting('AppComments'))
+#call CheckEqualsString('42', SetupSetting('AppContact'))
+#call CheckEqualsString('42', GetEnv('ISTESTTOOLPROJ_TEST_ENV'))
+#endif
+#call CheckTrue(Len(GetEnv('PATH')) > 0)
+#call CheckEqualsInt(0, Len(GetEnv('NONEXISTENT_VAR_12345')))
+//
+// Messaging functions
+//
+#call Message('test message')
+#call Warning('test warning')
+//
+// Pragmas
+//
+#pragma message 'test message'
+#pragma warning 'test warning'
+#pragma option -v+ ; v = verbose
+#call CheckTrue(Defined(__OPT_V__))
+#pragma option -v-
+#call CheckFalse(Defined(__OPT_V__))
+#pragma option -z+ ; any letter should be accepted
+#call CheckTrue(Defined(__OPT_Z__))
+#pragma option -z-
+#call CheckFalse(Defined(__OPT_Z__))
+#pragma parseroption -z+
+#call CheckTrue(Defined(__POPT_Z__))
+#pragma parseroption -z-
+#call CheckFalse(Defined(__POPT_Z__))
+#pragma inlinestart "<%"
+#pragma inlineend "%>"
+<%emit '; CUSTOM_INLINE_MARKER'%>
+#pragma inlinestart "{#"
+#pragma inlineend "}"
+#call CheckTrue(Find(0, 'CUSTOM_INLINE_MARKER', FIND_CONTAINS) >= 0)
+#define SavedIncludePath = __INCLUDE__
+#pragma include "."
+#pragma include SavedIncludePath
+#undef SavedIncludePath
+#pragma verboselevel 9
+#pragma verboselevel 0
+//
+// File system functions
+//
+#call CheckTrue(FileExists(AddBackslash(CompilerPath) + 'ISCC.exe'))
+#call CheckFalse(FileExists('nonexistent_file_xyz_12345.tmp'))
+#call CheckTrue(DirExists(SourcePath))
+#call CheckFalse(DirExists('C:\nonexistent_dir_xyz_12345'))
+#call CheckTrue(FileSize(AddBackslash(CompilerPath) + 'ISCC.exe') > 0)
+#call CheckEqualsInt(-1, FileSize('nonexistent_file_xyz_12345.tmp'))
+//
+// System functions
+//
+#call CheckTrue(IsWin64)
+//
+// Hash functions
+//
+#call CheckEqualsString('0cbc6611f5540bd0809a388dc95a615b', GetMD5OfString('Test'))
+#call CheckEqualsString('8e06915d5f5d4f8754f51892d884c477', GetMD5OfUnicodeString('Test'))
+#call CheckEqualsString('d41d8cd98f00b204e9800998ecf8427e', GetMD5OfString(''))
+#call CheckEqualsString('640ab2bae07bedc4c163f679a746f7ab7fb5d1fa', GetSHA1OfString('Test'))
+#call CheckEqualsString('9ab696a37604d665dc97134dbee44cfe70451b1a', GetSHA1OfUnicodeString('Test'))
+#call CheckEqualsString('532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25', GetSHA256OfString('Test'))
+#call CheckEqualsString('e6fa3ca87b1b641ab646d3b4933bba8d0970763f030b6578a60abdeae7366247', GetSHA256OfUnicodeString('Test'))
+//
+// Date/time functions
+//
+#call CheckEqualsInt(4, Len(GetDateTimeString('yyyy')))
+#call CheckTrue(Pos('-', GetDateTimeString('yyyy/mm', '-')) > 0)
