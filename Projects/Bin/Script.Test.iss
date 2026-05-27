@@ -9,6 +9,7 @@ DefaultDirName={autopf}\Script.Test
 OutputDir=.
 OutputBaseFilename=Script.Test-Setup
 SetupArchitecture={#arch}
+Uninstallable=yes
 PrivilegesRequired=lowest
 
 #include "Script.ISPP.Test.iss"

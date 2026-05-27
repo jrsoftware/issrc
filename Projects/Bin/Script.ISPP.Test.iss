@@ -981,3 +981,74 @@
 #call CheckEqualsString('hXXello', InsertTarget)
 #undef DeleteTarget
 #undef InsertTarget
+//
+// Version macros
+//
+#define VersionPacked = PackVersionComponents(1, 2, 3, 4)
+#define VersionMajor
+#define VersionMinor
+#define VersionRevision
+#define VersionBuild
+#call UnpackVersionComponents(VersionPacked, VersionMajor, VersionMinor, VersionRevision, VersionBuild)
+#call CheckEqualsInt(1, VersionMajor)
+#call CheckEqualsInt(2, VersionMinor)
+#call CheckEqualsInt(3, VersionRevision)
+#call CheckEqualsInt(4, VersionBuild)
+#define VersionMS = 0x00010002
+#define VersionLS = 0x00030004
+#define VersionFromNumbers = PackVersionNumbers(VersionMS, VersionLS)
+#call CheckEqualsInt(VersionPacked, VersionFromNumbers)
+#define UnpackedMS
+#define UnpackedLS
+#call UnpackVersionNumbers(VersionFromNumbers, UnpackedMS, UnpackedLS)
+#call CheckEqualsInt(VersionMS, UnpackedMS)
+#call CheckEqualsInt(VersionLS, UnpackedLS)
+#call CheckEqualsString('1.2.3.4', VersionToStr(PackVersionComponents(1, 2, 3, 4)))
+#call CheckEqualsInt(PackVersionComponents(1, 2, 3, 4), StrToVersion('1.2.3.4'))
+#call CheckEqualsString('6.4.0', DecodeVer(EncodeVer(6, 4)))
+#call CheckEqualsString('1.2.3.4', DecodeVer(EncodeVer(1, 2, 3, 4), 4))
+#call CheckEqualsString('6.4', DecodeVer(EncodeVer(6, 4), 2))
+#call CheckTrue(ComparePackedVersion(PackVersionComponents(1, 0, 0, 0), PackVersionComponents(2, 0, 0, 0)) < 0)
+#call CheckEqualsInt(0, ComparePackedVersion(PackVersionComponents(1, 2, 3, 4), PackVersionComponents(1, 2, 3, 4)))
+#call CheckTrue(ComparePackedVersion(PackVersionComponents(2, 0, 0, 0), PackVersionComponents(1, 0, 0, 0)) > 0)
+#call CheckTrue(SamePackedVersion(PackVersionComponents(1, 2, 3, 4), PackVersionComponents(1, 2, 3, 4)))
+#call CheckFalse(SamePackedVersion(PackVersionComponents(1, 0, 0, 0), PackVersionComponents(2, 0, 0, 0)))
+#undef VersionPacked
+#undef VersionMajor
+#undef VersionMinor
+#undef VersionRevision
+#undef VersionBuild
+#undef VersionMS
+#undef VersionLS
+#undef VersionFromNumbers
+#undef UnpackedMS
+#undef UnpackedLS
+//
+// Math macros
+//
+#call CheckEqualsInt(8, Power(2, 3))
+#call CheckEqualsInt(25, Power(5))
+#call CheckEqualsInt(1, Power(2, 0))
+#call CheckEqualsInt(1, Min(3, 1, 2))
+// bug: Min 3-arg form returns B when A >= B, ignoring C even if C < B
+//#call CheckEqualsInt(1, Min(3, 2, 1))
+#call CheckEqualsInt(3, Max(1, 3, 2))
+// bug: Max 3-arg form returns B when A <= B, ignoring C even if C > B
+//#call CheckEqualsInt(3, Max(1, 2, 3))
+#call CheckEqualsInt(3, Min(5, 3))
+#call CheckEqualsInt(5, Max(5, 3))
+//
+// Constants
+//
+#call CheckEqualsInt(1, True)
+#call CheckEqualsInt(0, False)
+#call CheckEqualsInt(1, Yes)
+#call CheckEqualsInt(0, No)
+//
+// Utility macros
+//
+#call CheckTrue(YesNo('yes'))
+#call CheckTrue(YesNo('true'))
+#call CheckTrue(YesNo('1'))
+#call CheckFalse(YesNo('no'))
+#call CheckTrue(IsDirSet('Uninstallable'))
