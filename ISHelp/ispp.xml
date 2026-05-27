@@ -1996,6 +1996,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<p>Deletes the specified number of characters beginning with Index from S. S is passed by reference (therefore is modified).</p>
           <p>Declared in &builtins;.</p>
 				</description>
+				<section title="See also">
+					<p><tt><link href="Insert2">Insert</link></tt></p>
+				</section>
 			</topic>
 			<topic id="Insert2">
 				<title>Insert</title>
@@ -2006,8 +2009,12 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Inserts specified Substr at Index'th character into S. S is passed by reference (therefore is modified).</p>
+					<p>Unrelated to &insert;.</p>
           <p>Declared in &builtins;.</p>
 				</description>
+				<section title="See also">
+					<p><tt><link href="Delete">Delete</link></tt></p>
+				</section>
 			</topic>
 			<topic id="YesNo">
 				<title>YesNo</title>
@@ -2017,9 +2024,27 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns non-zero if given string is "yes", "true" or "1". Intended to be used with the <tt><link href="SetupSetting">SetupSetting</link></tt> function.</p>
+					<p>Returns non-zero if given string is "yes", "true" or "1".</p>
           <p>Declared in &builtins;.</p>
 				</description>
+				<section title="See also">
+					<p><tt><link href="IsDirSet">IsDirSet</link></tt></p>
+				</section>
+			</topic>
+			<topic id="IsDirSet">
+				<title>IsDirSet</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>int</b> IsDirSet(<b>str</b> SetupDirective)</line>
+					</pre>
+				</section>
+				<description>
+					<p>Returns non-zero if the given [Setup] section directive is set to "yes", "true" or "1".</p>
+          <p>Declared in &builtins;.</p>
+				</description>
+				<section title="See also">
+					<p><tt><link href="YesNo">YesNo</link></tt></p>
+				</section>
 			</topic>
 			<topic id="Power">
 				<title>Power</title>
