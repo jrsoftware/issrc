@@ -115,6 +115,11 @@ var
     'procedure Include(var S: Set; I: Ordinal);',
     'procedure Exclude(var S: Set; I: Ordinal);',
     'function SizeOf(var X): LongInt;',
+    'function Abs(E: Extended): Extended;',
+    'procedure RaiseLastException;',
+    'function Succ(X: Ordinal): Ordinal;', // Implemented by TPSPascalCompiler.ProcessSub
+    'function Pred(X: Ordinal): Ordinal;', //
+    'function Assigned(var X): Boolean;',  //
     { Special: keywords instead of functions in ROPS but are presented and documented as functions by us }
     'function Chr(X: Word): Char;',
     'function Ord(X: Ordinal): UInt64;',
@@ -133,12 +138,10 @@ var
     'function Sqrt(E: Extended): Extended;',
     'function Int(E: Extended): Extended;',
     'function Pi: Extended;',
-    'function Abs(E: Extended): Extended;',
     'function PadL(S: AnyString; I: LongInt): AnyString;',
     'function PadR(S: AnyString; I: LongInt): AnyString;',
     'function PadZ(S: AnyString; I: LongInt): AnyString;',
     'function Replicate(C: Char; I: LongInt): String;',
-    'procedure RaiseLastException;',
     'procedure RaiseException(Ex: TIFException; Param: String);',
     'function ExceptionType: TIFException;',
     'function ExceptionParam: String;',
