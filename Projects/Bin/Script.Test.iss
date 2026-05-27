@@ -13,7 +13,7 @@ PrivilegesRequired=lowest
 
 #include "Script.ISPP.Test.iss"
 #include "Script.ROPS.Test.iss"
-//
+
 [Code]
 function InitializeSetup: Boolean;
 var

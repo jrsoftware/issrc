@@ -375,3 +375,251 @@
   2
 #call CheckEqualsInt(3, SpanRestoredResult)
 #undef SpanRestoredResult
+//
+// #if / #endif
+//
+#define IfResult = 0
+#if 1
+#define IfResult = 1
+#endif
+#call CheckEqualsInt(1, IfResult)
+#define IfResult = 0
+#if 0
+#define IfResult = 1
+#endif
+#call CheckEqualsInt(0, IfResult)
+#define IfResult = 0
+#if 1 + 1 == 2
+#define IfResult = 1
+#endif
+#call CheckEqualsInt(1, IfResult)
+#undef IfResult
+//
+// #if / #else / #endif
+//
+#define IfElseResult = 0
+#if 1
+#define IfElseResult = 10
+#else
+#define IfElseResult = 20
+#endif
+#call CheckEqualsInt(10, IfElseResult)
+#define IfElseResult = 0
+#if 0
+#define IfElseResult = 10
+#else
+#define IfElseResult = 20
+#endif
+#call CheckEqualsInt(20, IfElseResult)
+#undef IfElseResult
+//
+// #if / #elif / #else / #endif
+//
+#define ElifResult = 0
+#if 1
+#define ElifResult = 10
+#elif 1
+#define ElifResult = 20
+#else
+#define ElifResult = 30
+#endif
+#call CheckEqualsInt(10, ElifResult)
+#define ElifResult = 0
+#if 0
+#define ElifResult = 10
+#elif 1
+#define ElifResult = 20
+#else
+#define ElifResult = 30
+#endif
+#call CheckEqualsInt(20, ElifResult)
+#define ElifResult = 0
+#if 0
+#define ElifResult = 10
+#elif 0
+#define ElifResult = 20
+#else
+#define ElifResult = 30
+#endif
+#call CheckEqualsInt(30, ElifResult)
+#define ElifResult = 0
+#if 0
+#define ElifResult = 10
+#elif 0
+#define ElifResult = 20
+#elif 1
+#define ElifResult = 30
+#elif 1
+#define ElifResult = 40
+#else
+#define ElifResult = 50
+#endif
+#call CheckEqualsInt(30, ElifResult)
+#define ElifSkipCounter = 0
+#define ElifResult = 0
+#if 1
+#define ElifResult = 10
+#elif (ElifSkipCounter = ElifSkipCounter + 1)
+#define ElifResult = 20
+#endif
+#call CheckEqualsInt(10, ElifResult)
+#call CheckEqualsInt(0, ElifSkipCounter)
+#undef ElifSkipCounter
+#undef ElifResult
+//
+// #ifdef / #ifndef
+//
+#define IfdefTarget = 42
+#define IfdefResult = 0
+#ifdef IfdefTarget
+#define IfdefResult = 1
+#endif
+#call CheckEqualsInt(1, IfdefResult)
+#define IfdefResult = 0
+#ifdef UndefinedIdentifier_XYZ
+#define IfdefResult = 1
+#endif
+#call CheckEqualsInt(0, IfdefResult)
+#define IfdefResult = 0
+#ifndef IfdefTarget
+#define IfdefResult = 1
+#endif
+#call CheckEqualsInt(0, IfdefResult)
+#define IfdefResult = 0
+#ifndef UndefinedIdentifier_XYZ
+#define IfdefResult = 1
+#endif
+#call CheckEqualsInt(1, IfdefResult)
+#define IfdefMacro() 0
+#define IfdefResult = 0
+#ifdef IfdefMacro
+#define IfdefResult = 1
+#endif
+#call CheckEqualsInt(1, IfdefResult)
+#define IfdefVoid
+#define IfdefResult = 0
+#ifdef IfdefVoid
+#define IfdefResult = 1
+#endif
+#call CheckEqualsInt(1, IfdefResult)
+#undef IfdefVoid
+#undef IfdefMacro
+#undef IfdefTarget
+#undef IfdefResult
+//
+// #ifexist / #ifnexist
+//
+#define IfexistResult = 0
+#ifexist __PATHFILENAME__
+#define IfexistResult = 1
+#endif
+#call CheckEqualsInt(1, IfexistResult)
+#define IfexistResult = 0
+#ifexist "nonexistent_file_xyz_12345.tmp"
+#define IfexistResult = 1
+#endif
+#call CheckEqualsInt(0, IfexistResult)
+#define IfexistResult = 0
+#ifnexist "nonexistent_file_xyz_12345.tmp"
+#define IfexistResult = 1
+#endif
+#call CheckEqualsInt(1, IfexistResult)
+#define IfexistResult = 0
+#ifnexist __PATHFILENAME__
+#define IfexistResult = 1
+#endif
+#call CheckEqualsInt(0, IfexistResult)
+#undef IfexistResult
+//
+// Nested conditionals
+//
+#define NestResult = 0
+#if 1
+#if 0
+#if 1
+#define NestResult = 10
+#endif
+#endif
+#endif
+#call CheckEqualsInt(0, NestResult)
+#define NestResult = 0
+#if 1
+#if 1
+#if 1
+#define NestResult = 10
+#endif
+#endif
+#endif
+#call CheckEqualsInt(10, NestResult)
+#define NestResult = 0
+#if 0
+#if 1
+#define NestResult = 10
+#endif
+#define NestResult = 20
+#endif
+#call CheckEqualsInt(0, NestResult)
+#define NestDefined = 1
+#define NestResult = 0
+#if 1
+#ifdef NestDefined
+#define NestResult = 10
+#endif
+#endif
+#call CheckEqualsInt(10, NestResult)
+// bug: #elif expression is evaluated even when suppressed by an outer #if 0,
+// because the short-circuit guard checks only the innermost conditional block
+// state, not the outer conditional blocks
+//#define NestElifCounter = 0
+//#if 0
+//#if 0
+//#elif (NestElifCounter = NestElifCounter + 1)
+//#endif
+//#endif
+//#call CheckEqualsInt(0, NestElifCounter)
+//#undef NestElifCounter
+#undef NestDefined
+#undef NestResult
+//
+// Inline conditionals
+//
+{#if 1}; INLINE_COND_TRUE yes{#else}; INLINE_COND_TRUE no{#endif}
+{#if 0}; INLINE_COND_FALSE yes{#else}; INLINE_COND_FALSE no{#endif}
+{#if 1}{#if 1}; INLINE_COND_NESTED inner{#endif}{#endif}
+{#if 0}; INLINE_COND_ELIF first{#elif 1}; INLINE_COND_ELIF second{#else}; INLINE_COND_ELIF third{#endif}
+{#emit '; INLINE_POS before '}{#if 1}middle{#else}other{#endif}{#emit ' after'}
+#call CheckTrue(Find(0, 'INLINE_COND_TRUE yes', FIND_CONTAINS) >= 0)
+#call CheckTrue(Find(0, 'INLINE_COND_TRUE no', FIND_CONTAINS) < 0)
+#call CheckTrue(Find(0, 'INLINE_COND_FALSE no', FIND_CONTAINS) >= 0)
+#call CheckTrue(Find(0, 'INLINE_COND_FALSE yes', FIND_CONTAINS) < 0)
+#call CheckTrue(Find(0, 'INLINE_COND_NESTED inner', FIND_CONTAINS) >= 0)
+#call CheckTrue(Find(0, 'INLINE_COND_ELIF second', FIND_CONTAINS) >= 0)
+#call CheckTrue(Find(0, 'INLINE_COND_ELIF first', FIND_CONTAINS) < 0)
+#call CheckTrue(Find(0, 'INLINE_COND_ELIF third', FIND_CONTAINS) < 0)
+#call CheckTrue(Find(0, 'INLINE_POS before middle after', FIND_CONTAINS) >= 0)
+#call CheckTrue(Find(0, 'INLINE_POS before other after', FIND_CONTAINS) < 0)
+// bug: same as the nested #elif bug in the simple-directive path above,
+// but via ProcessInlineDirectives
+//#define InlineNestElifCounter = 0
+//{#if 0}{#if 0}x{#elif (InlineNestElifCounter = InlineNestElifCounter + 1)}y{#endif}{#endif}
+//#call CheckEqualsInt(0, InlineNestElifCounter)
+//#undef InlineNestElifCounter
+{#? 1}; INLINE_SHORTHAND_IF yes{#^}; INLINE_SHORTHAND_IF no{#.}
+#call CheckTrue(Find(0, 'INLINE_SHORTHAND_IF yes', FIND_CONTAINS) >= 0)
+#call CheckTrue(Find(0, 'INLINE_SHORTHAND_IF no', FIND_CONTAINS) < 0)
+//
+// Directive shorthands for conditionals
+//
+#define ShorthandIfResult = 0
+#? 1 == 1 ; #if
+#define ShorthandIfResult = 1
+#. ; #endif
+#call CheckEqualsInt(1, ShorthandIfResult)
+#define ShorthandIfResult = 0
+#? 0 ; #if
+#define ShorthandIfResult = 10
+#^ ; #else
+#define ShorthandIfResult = 20
+#. ; #endif
+#call CheckEqualsInt(20, ShorthandIfResult)
+#undef ShorthandIfResult
