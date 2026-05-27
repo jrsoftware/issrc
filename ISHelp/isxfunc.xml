@@ -375,6 +375,24 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
   // The following line will not be executed because of the exception
   MsgBox('You will not see this.', mbInformation, MB_OK);
 end;</pre></example>
+        <seealso><p><link topic="isxfunc_RaiseLastException">RaiseLastException</link></p></seealso>
+      </function>
+      <function>
+        <name>RaiseLastException</name>
+        <prototype>procedure RaiseLastException;</prototype>
+        <description><p>Reraises the current exception from an <tt>except</tt> section. Does nothing if there is no current exception.</p></description>
+        <example><pre>begin
+  try
+    RaiseException('Your message goes here');
+  except
+    Log('An exception occurred: ' + GetExceptionMessage);
+    RaiseLastException;
+  end;
+
+  // The following line will not be executed because of the exception being reraised
+  MsgBox('You will not see this.', mbInformation, MB_OK);
+end;</pre></example>
+        <seealso><p><link topic="isxfunc_RaiseException">RaiseException</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -3477,6 +3495,11 @@ end;</pre></example>
     </subcategory>
     <subcategory>
       <function>
+        <name>Abs</name>
+        <prototype>function Abs(E: Extended): Extended;</prototype>
+        <description><p>Returns the absolute value of E.</p></description>
+      </function>
+      <function>
         <name>Round</name>
         <prototype>function Round(const E: Extended): Int64;</prototype>
         <description><p>Returns the value of E rounded to the integer number.</p></description>
@@ -3508,6 +3531,70 @@ end;</pre></example>
         <name>Get8087CW</name>
         <prototype>function Get8087CW: Word;</prototype>
         <description><p>Returns the current value of the FPU control word.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>Low</name>
+        <prototype>function Low(var X): Int64;</prototype>
+        <description><p>Returns the lowest value or lower bound of X. Cannot be used with type parameters.</p></description>
+        <seealso><p><link topic="isxfunc_High">High</link></p></seealso>
+      </function>
+      <function>
+        <name>High</name>
+        <prototype>function High(var X): Int64;</prototype>
+        <description><p>Returns the highest value or upper bound of X. Cannot be used with type parameters.</p></description>
+        <seealso><p><link topic="isxfunc_Low">Low</link></p></seealso>
+      </function>
+      <function>
+        <name>SizeOf</name>
+        <prototype>function SizeOf(var X): LongInt;</prototype>
+        <description><p>Returns the number of bytes occupied by X. Cannot be used with type parameters.</p></description>
+      </function>
+      <function>
+        <name>Assigned</name>
+        <prototype>function Assigned(var X): Boolean;</prototype>
+        <description><p>Returns True if X is not nil. For strings and <tt>PChar</tt> values, returns True if X isn't empty. Returns False otherwise.</p></description>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>Inc</name>
+        <prototype>procedure Inc(var X: Ordinal);</prototype>
+        <description><p>Increments X by 1.</p></description>
+        <seealso><p><link topic="isxfunc_Dec">Dec</link></p></seealso>
+      </function>
+      <function>
+        <name>Dec</name>
+        <prototype>procedure Dec(var X: Ordinal);</prototype>
+        <description><p>Decrements X by 1.</p></description>
+        <seealso><p><link topic="isxfunc_Inc">Inc</link></p></seealso>
+      </function>
+      <function>
+        <name>Succ</name>
+        <prototype>function Succ(X: Ordinal): Ordinal;</prototype>
+        <description><p>Returns the successor of X.</p></description>
+        <seealso><p><link topic="isxfunc_Pred">Pred</link></p></seealso>
+      </function>
+      <function>
+        <name>Pred</name>
+        <prototype>function Pred(X: Ordinal): Ordinal;</prototype>
+        <description><p>Returns the predecessor of X.</p></description>
+        <seealso><p><link topic="isxfunc_Succ">Succ</link></p></seealso>
+      </function>
+    </subcategory>
+    <subcategory>
+      <function>
+        <name>Include</name>
+        <prototype>procedure Include(var S: Set; I: Ordinal);</prototype>
+        <description><p>Adds an element to a set.</p></description>
+        <seealso><p><link topic="isxfunc_Exclude">Exclude</link></p></seealso>
+      </function>
+      <function>
+        <name>Exclude</name>
+        <prototype>procedure Exclude(var S: Set; I: Ordinal);</prototype>
+        <description><p>Removes an element from a set.</p></description>
+        <seealso><p><link topic="isxfunc_Include">Include</link></p></seealso>
       </function>
     </subcategory>
     <subcategory>

@@ -107,7 +107,6 @@ var
     'procedure UnloadDLL(S: String);',
     'function DLLGetLastError: LongInt;',
     'function Int(const E: Extended): Extended;',
-    { Special functions: undocumented but listing anyway }
     'function Low(var X): Int64;',
     'function High(var X): Int64;',
     'procedure Dec(var X: Ordinal);',
