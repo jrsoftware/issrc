@@ -106,14 +106,14 @@ begin
         Result := CallerParams.CallbackProc(Code, Data, CallerParams.AppData);
         if Assigned(Data.LineRead) then begin
           WrapperData.LastLineRead := String(PAnsiChar(Data.LineRead));
-          Data.LineRead := PWideChar(WrapperData.LastLineRead);
+          Data.LineRead := PChar(WrapperData.LastLineRead);
         end;
       end;
     iscbNotifyStatus:
       begin
         if Assigned(Data.StatusMsg) then begin
           AnsiStatusMsg := AnsiString(Data.StatusMsg);
-          Data.StatusMsg := PWideChar(PAnsiChar(AnsiStatusMsg));
+          Data.StatusMsg := PChar(PAnsiChar(AnsiStatusMsg));
         end;
         Result := CallerParams.CallbackProc(Code, Data, CallerParams.AppData);
       end;
@@ -121,7 +121,7 @@ begin
       begin
         if Assigned(Data.OutputExeFilename) then begin
           AnsiOutputExeFilename := AnsiString(Data.OutputExeFilename);
-          Data.OutputExeFilename := PWideChar(PAnsiChar(AnsiOutputExeFilename));
+          Data.OutputExeFilename := PChar(PAnsiChar(AnsiOutputExeFilename));
         end;
         Result := CallerParams.CallbackProc(Code, Data, CallerParams.AppData);
       end;
@@ -129,11 +129,11 @@ begin
       begin
         if Assigned(Data.ErrorMsg) then begin
           AnsiErrorMsg := AnsiString(Data.ErrorMsg);
-          Data.ErrorMsg := PWideChar(PAnsiChar(AnsiErrorMsg));
+          Data.ErrorMsg := PChar(PAnsiChar(AnsiErrorMsg));
         end;
         if Assigned(Data.ErrorFilename) then begin
           AnsiErrorFilename := AnsiString(Data.ErrorFilename);
-          Data.ErrorFilename := PWideChar(PAnsiChar(AnsiErrorFilename));
+          Data.ErrorFilename := PChar(PAnsiChar(AnsiErrorFilename));
         end;
         Result := CallerParams.CallbackProc(Code, Data, CallerParams.AppData);
       end;
@@ -164,11 +164,11 @@ begin
     WrapperParams.AppData := NativeInt(@WrapperData);
     if Assigned(Params.CompilerPath) then begin
       CompilerPath := String(PAnsiChar(Params.CompilerPath));
-      WrapperParams.CompilerPath := PWideChar(CompilerPath);
+      WrapperParams.CompilerPath := PChar(CompilerPath);
     end;
     if Assigned(Params.SourcePath) then begin
       SourcePath := String(PAnsiChar(Params.SourcePath));
-      WrapperParams.SourcePath := PWideChar(SourcePath);
+      WrapperParams.SourcePath := PChar(SourcePath);
     end;
     if (Params.Size <> SizeOf(TCompileScriptParams)) and Assigned(Params.Options) then begin
       P := PAnsiChar(Params.Options);
@@ -176,7 +176,7 @@ begin
         Options := Options + String(P) + #0;
         Inc(P, StrLen(P) + 1);
       end;
-      WrapperParams.Options := PWideChar(Options);
+      WrapperParams.Options := PChar(Options);
     end;
     Result := ISCompileScript(WrapperParams^, False);
   finally
