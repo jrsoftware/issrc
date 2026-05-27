@@ -805,3 +805,179 @@
 #call CheckTrue(Find(0, 'EXPR_ALIAS_NOOUTPUT', FIND_CONTAINS) < 0)
 #echo '; ECHO_ALIAS_MARKER' ; #emit
 #call CheckTrue(Find(0, 'ECHO_ALIAS_MARKER', FIND_CONTAINS) >= 0)
+//
+// #dim / #redim
+//
+#dim DimBasicArray[3]
+#define DimBasicArray[0] = 10
+#define DimBasicArray[1] = 20
+#define DimBasicArray[2] = 30
+#call CheckEqualsInt(10, DimBasicArray[0])
+#call CheckEqualsInt(20, DimBasicArray[1])
+#call CheckEqualsInt(30, DimBasicArray[2])
+#dim DimInitArray[3] {100, 200, 300}
+#call CheckEqualsInt(100, DimInitArray[0])
+#call CheckEqualsInt(200, DimInitArray[1])
+#call CheckEqualsInt(300, DimInitArray[2])
+#call CheckEqualsInt(3, DimOf(DimBasicArray))
+#call CheckEqualsInt(3, DimOf(DimInitArray))
+#call CheckEqualsInt(TYPE_ARRAY, TypeOf(DimBasicArray))
+#call CheckEqualsInt(TYPE_ARRAY, TypeOf(DimInitArray))
+#call CheckEqualsInt(DimOf(DimBasicArray), DimOf DimBasicArray)
+#call CheckEqualsInt(TypeOf(DimBasicArray), TypeOf DimBasicArray)
+#redim DimBasicArray[5]
+#call CheckEqualsInt(5, DimOf(DimBasicArray))
+#call CheckEqualsInt(10, DimBasicArray[0])
+#call CheckEqualsInt(20, DimBasicArray[1])
+#call CheckEqualsInt(30, DimBasicArray[2])
+#call CheckEqualsInt(TYPE_NULL, TypeOf2(DimBasicArray[3]))
+#call CheckEqualsInt(TYPE_NULL, TypeOf2(DimBasicArray[4]))
+#redim DimBasicArray[2]
+#call CheckEqualsInt(2, DimOf(DimBasicArray))
+#call CheckEqualsInt(10, DimBasicArray[0])
+#call CheckEqualsInt(20, DimBasicArray[1])
+#undef DimBasicArray
+#undef DimInitArray
+//
+// Scope
+//
+#define public ScopePublicVar = 'public_value'
+#define protected ScopeProtectedVar = 'protected_value'
+#define private ScopePrivateVar = 'private_value'
+#call CheckEqualsString('public_value', ScopePublicVar)
+#call CheckEqualsString('protected_value', ScopeProtectedVar)
+#call CheckEqualsString('private_value', ScopePrivateVar)
+#undef ScopePublicVar
+#undef ScopeProtectedVar
+#undef ScopePrivateVar
+#define protected
+#define DefaultScopeTest = 42
+#call CheckEqualsInt(42, DefaultScopeTest)
+#undef public DefaultScopeTest
+#call CheckTrue(Defined(DefaultScopeTest))
+#undef protected DefaultScopeTest
+#call CheckFalse(Defined(DefaultScopeTest))
+#define public
+#define public SameNameVar = 12
+#define protected SameNameVar = 13
+#define private SameNameVar = 14
+#call CheckEqualsInt(14, SameNameVar)
+#undef private SameNameVar
+#call CheckEqualsInt(13, SameNameVar)
+#undef protected SameNameVar
+#call CheckEqualsInt(12, SameNameVar)
+#undef SameNameVar
+#call CheckFalse(Defined(SameNameVar))
+//
+// Predefined variables
+//
+#call CheckTrue(Defined(ISPP_INVOKED))
+#call CheckTrue(Defined(WINDOWS))
+#call CheckTrue(Defined(UNICODE))
+#call CheckTrue(Defined(__WIN32__))
+#call CheckTrue(Len(__FILENAME__) > 0)
+#call CheckTrue(__LINE__ > 0)
+#call CheckTrue(Len(__DIR__) > 0)
+#define CounterFirst = __COUNTER__
+#define CounterSecond = __COUNTER__
+#call CheckEqualsInt(CounterFirst + 1, CounterSecond)
+#undef CounterFirst
+#undef CounterSecond
+#call CheckTrue(PREPROCVER >= 0x01000000)
+#call CheckEqualsInt(PREPROCVER, Ver)
+#call CheckTrue(Len(CompilerPath) > 0)
+#call CheckTrue(Len(SourcePath) > 0)
+#call CheckTrue(Len(SysPath) > 0)
+#call CheckEqualsInt(TYPE_STRING, TypeOf2(__INCLUDE__))
+#ifdef ISCC_INVOKED
+#call CheckEqualsInt(TYPE_NULL, TypeOf(ISCC_INVOKED))
+#endif
+#call CheckTrue(Defined(__OPT_C__))
+#call CheckTrue(Defined(__POPT_B__))
+//
+// #include scoping
+//
+#define protected MainScopeProtectedVar = 'main_protected'
+#define private MainScopePrivateVar = 'main_private'
+#include "Script.ISPP.Include.Test.iss"
+#call CheckFalse(Defined(IncludeProtectedVar))
+#call CheckFalse(Defined(IncludePrivateVar))
+#call CheckTrue(IncludeSeesMainProtected)
+#call CheckFalse(IncludeSeesMainPrivate)
+#call CheckTrue(Len(IncludePathFilename) > 0)
+#undef MainScopeProtectedVar
+#undef MainScopePrivateVar
+#undef IncludeSeesMainProtected
+#undef IncludeSeesMainPrivate
+#undef IncludePathFilename
+//
+// Directive shorthand for #include
+//
+#+ "Script.ISPP.Include.Test.iss"
+#call CheckTrue(Defined(IncludePathFilename))
+#undef IncludeSeesMainProtected
+#undef IncludeSeesMainPrivate
+#undef IncludePathFilename
+//
+// String functions
+//
+#call CheckEqualsString('ell', Copy('hello', 2, 3))
+#call CheckEqualsString('ello', Copy('hello', 2))
+#call CheckEqualsInt(3, Pos('ll', 'hello'))
+#call CheckEqualsInt(0, Pos('LL', 'hello'))
+#call CheckEqualsInt(0, Pos('x', 'hello'))
+#call CheckEqualsInt(4, RPos('l', 'hello'))
+#call CheckEqualsInt(5, Len('hello'))
+#call CheckEqualsInt(0, Len(''))
+#call CheckEqualsString('hello', LowerCase('HELLO'))
+#call CheckEqualsString('HELLO', UpperCase('hello'))
+#call CheckEqualsString('hello', Trim('  hello  '))
+#call CheckEqualsString('aYbYc', StringChange('aXbXc', 'X', 'Y'))
+#call CheckEqualsString('aYbxc', StringChange('aXbxc', 'X', 'Y'))
+#call CheckEqualsString('hello', AddQuotes('hello'))
+#call CheckEqualsString('"hello world"', AddQuotes('hello world'))
+#call CheckTrue(SameStr('abc', 'abc'))
+#call CheckFalse(SameStr('abc', 'ABC'))
+#call CheckTrue(SameText('abc', 'ABC'))
+#call CheckFalse(SameText('abc', 'def'))
+//
+// Format function
+//
+#call CheckEqualsString('hello', Format('hello'))
+#call CheckEqualsString('world', Format('%s', 'world'))
+#call CheckEqualsString('42', Format('%d', 42))
+#call CheckEqualsString('age is 25', Format('%s is %d', 'age', 25))
+#call CheckEqualsString('FF', Format('%x', 255))
+#call CheckEqualsString('100%', Format('100%%'))
+#call CheckEqualsString('abc', Format('%s%s%s', 'a', 'b', 'c'))
+#define FormatTestName = 'Alice'
+#define FormatTestAge = 30
+#call CheckEqualsString('Alice is 30', Format('%s is %d', FormatTestName, FormatTestAge))
+#undef FormatTestName
+#undef FormatTestAge
+//
+// Path macros
+//
+#call CheckEqualsString('C:\Dir\', ExtractFilePath('C:\Dir\File.txt'))
+#call CheckEqualsString('', ExtractFilePath('File.txt'))
+#call CheckEqualsString('C:\Dir', ExtractFileDir('C:\Dir\File.txt'))
+#call CheckEqualsString('txt', ExtractFileExt('File.txt'))
+#call CheckEqualsString('File.txt', ExtractFileName('C:\Dir\File.txt'))
+#call CheckEqualsString('File.txt', ExtractFileName('File.txt'))
+#call CheckEqualsString('File.log', ChangeFileExt('File.txt', 'log'))
+#call CheckEqualsString('File', RemoveFileExt('File.txt'))
+#call CheckEqualsString('C:\Dir\', AddBackslash('C:\Dir'))
+#call CheckEqualsString('C:\Dir\', AddBackslash('C:\Dir\'))
+#call CheckEqualsString('C:\Dir', RemoveBackslashUnlessRoot('C:\Dir\'))
+#call CheckEqualsString('C:\', RemoveBackslashUnlessRoot('C:\'))
+//
+// Delete / Insert macros
+//
+#define DeleteTarget = 'hello'
+#call Delete(DeleteTarget, 2, 2)
+#call CheckEqualsString('hlo', DeleteTarget)
+#define InsertTarget = 'hello'
+#call Insert(InsertTarget, 2, 'XX')
+#call CheckEqualsString('hXXello', InsertTarget)
+#undef DeleteTarget
+#undef InsertTarget
