@@ -191,7 +191,7 @@
 #call CheckEqualsInt(-42, -UnaryTestValue)
 #call CheckEqualsInt(0, !UnaryTestValue)
 #call CheckEqualsInt(1, !0)
-#call CheckEqualsInt(~42, ~UnaryTestValue)
+#call CheckEqualsInt(-43, ~UnaryTestValue)
 #call CheckEqualsInt(0, +NULL)
 #call CheckEqualsInt(0, -NULL)
 #call CheckEqualsInt(1, !NULL)
@@ -215,14 +215,15 @@
 // Operator precedence
 //
 #call CheckEqualsInt(14, 2 + 3 * 4)
+#call CheckEqualsInt(20, (2 + 3) * 4)
 #call CheckEqualsInt(5, 10 - 3 - 2)
-#call CheckEqualsInt(1, 2 + 3 == 5)
-#call CheckEqualsInt(11, 1 | 2 + 8)
-#call CheckEqualsInt(1, 1 < 2 & 1 < 2)
-#call CheckEqualsInt(0, 0 || 1 && 0)
-#call CheckEqualsInt(7, 1 | 2 ^ 4)
-#call CheckEqualsInt(3, 1 ^ 2 & 3)
-#call CheckEqualsInt(1, 1 == 1 ^ 0)
+#call CheckTrue(1 || 0 && 0)
+#call CheckFalse(0 && 1 | 1)
+#call CheckEqualsInt(3, 2 | 1 + 2)
+#call CheckEqualsInt(3, 1 | 1 ^ 3)
+#call CheckEqualsInt(6, 4 ^ 6 & 3)
+#call CheckEqualsInt(0, 0 & 1 == 0)
+#call CheckFalse(1 == 2 < 2)
 #call CheckEqualsInt(1, 4 >> 1 < 4)
 #call CheckEqualsInt(4, 1 << 1 + 1)
 //
@@ -230,3 +231,147 @@
 //
 #call CheckEqualsInt(3, 1 + /* comment */ 2)
 #call CheckEqualsInt(42, 42) ; trailing semicolon comment
+//
+// Variable definition
+//
+#define DefinitionExplicit = 42
+#call CheckEqualsInt(42, DefinitionExplicit)
+#define DefinitionNull
+#call CheckEqualsInt(TYPE_NULL, TypeOf(DefinitionNull))
+#define DefinitionString = 'hello'
+#call CheckEqualsString('hello', DefinitionString)
+#define DefinitionRedefine = 1
+#define DefinitionRedefine = 2
+#call CheckEqualsInt(2, DefinitionRedefine)
+#undef DefinitionExplicit
+#undef DefinitionNull
+#undef DefinitionString
+#undef DefinitionRedefine
+//
+// Assignment operators
+//
+#define AssignTarget = 10
+#call CheckEqualsInt(5, (AssignTarget = 5))
+#call CheckEqualsInt(5, AssignTarget)
+#call CheckEqualsInt(8, AssignTarget += 3)
+#call CheckEqualsInt(8, AssignTarget)
+#call CheckEqualsInt(6, AssignTarget -= 2)
+#call CheckEqualsInt(6, AssignTarget)
+#call CheckEqualsInt(18, AssignTarget *= 3)
+#call CheckEqualsInt(18, AssignTarget)
+#call CheckEqualsInt(9, AssignTarget /= 2)
+#call CheckEqualsInt(9, AssignTarget)
+#call CheckEqualsInt(1, AssignTarget %= 4)
+#call CheckEqualsInt(1, AssignTarget)
+#define AssignTarget = 0xFF
+#call CheckEqualsInt(0x0F, AssignTarget &= 0x0F)
+#call CheckEqualsInt(0x0F, AssignTarget)
+#call CheckEqualsInt(0xFF, AssignTarget |= 0xF0)
+#call CheckEqualsInt(0xFF, AssignTarget)
+#call CheckEqualsInt(0xF0, AssignTarget ^= 0x0F)
+#call CheckEqualsInt(0xF0, AssignTarget)
+#call CheckEqualsInt(0xF00, AssignTarget <<= 4)
+#call CheckEqualsInt(0xF00, AssignTarget)
+#call CheckEqualsInt(0xF0, AssignTarget >>= 4)
+#call CheckEqualsInt(0xF0, AssignTarget)
+#define AssignStringTarget = 'hello'
+#call CheckEqualsString('hello world', AssignStringTarget += ' world')
+#call CheckEqualsString('hello world', AssignStringTarget)
+#undef AssignTarget
+#undef AssignStringTarget
+//
+// Prefix increment and decrement
+//
+#define PrefixTarget = 5
+#call CheckEqualsInt(6, ++PrefixTarget)
+#call CheckEqualsInt(6, PrefixTarget)
+#call CheckEqualsInt(5, --PrefixTarget)
+#call CheckEqualsInt(5, PrefixTarget)
+#define PrefixNullTarget
+#call CheckEqualsInt(1, ++PrefixNullTarget)
+#call CheckEqualsInt(1, PrefixNullTarget)
+#define PrefixNullTarget2
+#call CheckEqualsInt(-1, --PrefixNullTarget2)
+#call CheckEqualsInt(-1, PrefixNullTarget2)
+#undef PrefixTarget
+#undef PrefixNullTarget
+#undef PrefixNullTarget2
+//
+// Postfix increment and decrement
+//
+#define PostfixTarget = 5
+#call CheckEqualsInt(5, PostfixTarget++)
+#call CheckEqualsInt(6, PostfixTarget)
+#call CheckEqualsInt(6, PostfixTarget--)
+#call CheckEqualsInt(5, PostfixTarget)
+#call PostfixTarget++
+#call PostfixTarget++
+#call CheckEqualsInt(7, PostfixTarget)
+#undef PostfixTarget
+//
+// Ternary conditional
+//
+#call CheckEqualsString('yes', 1 ? 'yes' : 'no')
+#call CheckEqualsString('no', 0 ? 'yes' : 'no')
+#call CheckEqualsString('c', 0 ? 'a' : 0 ? 'b' : 'c')
+#call CheckEqualsString('a', 1 ? 'a' : 0 ? 'b' : 'c')
+#call CheckEqualsString('b', 0 ? 'a' : 1 ? 'b' : 'c')
+#define TernaryCounter = 0
+#call 1 ? (TernaryCounter = TernaryCounter + 1) : (TernaryCounter = TernaryCounter + 10)
+#call CheckEqualsInt(1, TernaryCounter)
+#call 0 ? (TernaryCounter = TernaryCounter + 10) : (TernaryCounter = TernaryCounter + 1)
+#call CheckEqualsInt(2, TernaryCounter)
+#undef TernaryCounter
+//
+// Comma operator
+//
+#call CheckEqualsInt(3, (1, 2, 3))
+#define CommaAccumulator = ''
+#call (CommaAccumulator += '1', CommaAccumulator += '2', CommaAccumulator += '3')
+#call CheckEqualsString('123', CommaAccumulator)
+#undef CommaAccumulator
+//
+// Short-circuit evaluation
+//
+#define ShortCircuitCounter = 0
+#call CheckFalse(0 && (ShortCircuitCounter = ShortCircuitCounter + 1))
+#call CheckEqualsInt(0, ShortCircuitCounter)
+#call CheckTrue(1 || (ShortCircuitCounter = ShortCircuitCounter + 1))
+#call CheckEqualsInt(0, ShortCircuitCounter)
+#call CheckTrue(1 && (ShortCircuitCounter = ShortCircuitCounter + 1))
+#call CheckEqualsInt(1, ShortCircuitCounter)
+#call CheckFalse(0 || (ShortCircuitCounter = ShortCircuitCounter + 1, 0))
+#call CheckEqualsInt(2, ShortCircuitCounter)
+#undef ShortCircuitCounter
+//
+// #undef
+//
+#define UndefTarget = 42
+#call CheckTrue(Defined(UndefTarget))
+#undef UndefTarget
+#call CheckFalse(Defined(UndefTarget))
+//
+// #define shorthand
+//
+#: AliasDefineTest = 42
+#call CheckEqualsInt(42, AliasDefineTest)
+#undef AliasDefineTest
+//
+// Line spanning
+//
+#define SpanResult = 10 + \
+  20 + \
+  12
+#call CheckEqualsInt(42, SpanResult)
+#undef SpanResult
+#pragma spansymbol "_"
+#define SpanCustomResult = 100 + _
+  200 + _
+  42
+#call CheckEqualsInt(342, SpanCustomResult)
+#undef SpanCustomResult
+#pragma spansymbol "\"
+#define SpanRestoredResult = 1 + \
+  2
+#call CheckEqualsInt(3, SpanRestoredResult)
+#undef SpanRestoredResult
