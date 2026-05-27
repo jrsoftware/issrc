@@ -1620,9 +1620,27 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Special function. Returns one of predefined TypeOf constants which are declared in &builtins; for the specified identifier.</p>
+					<p>Special function. Returns one of predefined <tt>TYPE_</tt> constants which are declared in &builtins; for the specified identifier.</p>
 					<p>Using parentheses is optional.</p>
 				</description>
+				<section title="See also">
+					<p><link href="TypeOf2">TypeOf2</link>.</p>
+				</section>
+			</topic>
+			<topic id="TypeOf2">
+				<title>TypeOf2</title>
+				<section title="Prototype">
+					<pre>
+						<line><b>int</b> TypeOf2(<b>any</b> Expr)</line>
+					</pre>
+				</section>
+				<description>
+					<p>Returns the type of the given expression as one of the predefined <tt>TYPE_</tt> constants. Unlike <link href="TypeOf">TypeOf</link>, which only accepts an identifier, this function accepts any expression, including array elements.</p>
+					<p>Declared in &builtins;.</p>
+				</description>
+				<section title="See also">
+					<p><link href="TypeOf">TypeOf</link>.</p>
+				</section>
 			</topic>
 			<topic id="DimOf">
 				<title>DimOf</title>

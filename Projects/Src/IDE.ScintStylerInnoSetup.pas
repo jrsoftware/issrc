@@ -411,6 +411,7 @@ const
       Includes void functions because they work with for example #expr,
       and because comma expressions make them work with for example #define. }
     { From ISPPBuiltins.iss }
+    'int TypeOf2(any Expr)',
     'str GetFileCompanyString(str FileName)',
     'str GetFileDescriptionString(str FileName)',
     'str GetFileVersionString(str FileName)',
@@ -511,9 +512,9 @@ const
     'int SameStr(str S1, str S2)',
     'int Is64BitPEImage(str FileName)',
     { Special }
-    'int Defined(identifier Name)',
-    'int TypeOf(identifier Name)',
-    'int DimOf(identifier Name)'
+    'int Defined(<ident>)',
+    'int TypeOf(<ident>)',
+    'int DimOf(<ident>)'
   ];
 
   ISPPConstants: array of AnsiString = [
