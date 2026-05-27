@@ -228,7 +228,11 @@ procedure CommandTest(const ATestScriptFilename: String);
         TestScriptFilename := ExePath + 'Script.Test.iss';
       const Arch = {$IFDEF CPUX64} 'x64' {$ELSE} 'x86' {$ENDIF};
 
-      SetEnvironmentVariable('ISTESTTOOLPROJ_TEST_ENV', '42');
+      if not SetEnvironmentVariable('ISTESTTOOLPROJ_TEST_ENV', '42') then begin
+        const LastError = GetLastError;
+        RaiseFatalErrorFmt('SetEnvironmentVariable failed (Error %d: %s)',
+          [LastError, Win32ErrorString(LastError)]);
+      end;
 
       const CompileExit = RunAndWait(AddQuotes(ExePath + 'ISCC.exe') +
         ' /DISTESTTOOLPROJ /Darch=' + Arch + ' /O' + AddQuotes(ExePath) +

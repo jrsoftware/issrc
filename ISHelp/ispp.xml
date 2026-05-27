@@ -1617,7 +1617,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<p>Using parentheses is optional.</p>
 				</description>
 				<section title="See also">
-					<p><link href="TypeOf2">TypeOf2</link>.</p>
+					<p><tt><link href="TypeOf2">TypeOf2</link></tt></p>
 				</section>
 			</topic>
 			<topic id="TypeOf2">
@@ -1632,7 +1632,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
-					<p><link href="TypeOf">TypeOf</link>.</p>
+					<p><tt><link href="TypeOf">TypeOf</link></tt></p>
 				</section>
 			</topic>
 			<topic id="DimOf">
