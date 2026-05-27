@@ -623,3 +623,185 @@
 #. ; #endif
 #call CheckEqualsInt(20, ShorthandIfResult)
 #undef ShorthandIfResult
+//
+// Basic macros
+//
+#define ParameterlessMacro() 42
+#call CheckEqualsInt(42, ParameterlessMacro())
+#define SingleParamMacro(X) X * 2
+#call CheckEqualsInt(10, SingleParamMacro(5))
+#define MultiParamMacro(X, Y) X + Y
+#call CheckEqualsInt(7, MultiParamMacro(3, 4))
+#define StringParamMacro(S) S + '!'
+#call CheckEqualsString('hello!', StringParamMacro('hello'))
+#undef ParameterlessMacro
+#undef SingleParamMacro
+#undef MultiParamMacro
+#undef StringParamMacro
+//
+// Default parameter values
+//
+#define DefaultParamMacro(X, Y = 10) X + Y
+#call CheckEqualsInt(15, DefaultParamMacro(5))
+#call CheckEqualsInt(25, DefaultParamMacro(5, 20))
+#undef DefaultParamMacro
+//
+// Typed parameters
+//
+#define IntTypedMacro(int X) X + 1
+#call CheckEqualsInt(43, IntTypedMacro(42))
+#define StrTypedMacro(str S) Len(S)
+#call CheckEqualsInt(5, StrTypedMacro('hello'))
+#define AnyTypedMacro(any X) TypeOf(X)
+#call CheckEqualsInt(TYPE_INTEGER, AnyTypedMacro(42))
+#call CheckEqualsInt(TYPE_STRING, AnyTypedMacro('hello'))
+#undef IntTypedMacro
+#undef StrTypedMacro
+#undef AnyTypedMacro
+//
+// By-reference parameters
+//
+#define ByRefMacro(int *X) X = X + 10
+#define ByRefTarget = 5
+#call ByRefMacro(ByRefTarget)
+#call CheckEqualsInt(15, ByRefTarget)
+#undef ByRefMacro
+#undef ByRefTarget
+//
+// Local array
+//
+#define LocalArrayMacro(X, Y) \
+  Local[0] = X, \
+  Local[1] = Y, \
+  Local[0] + Local[1]
+#call CheckEqualsInt(30, LocalArrayMacro(10, 20))
+#define LocalArrayHighIndex() \
+  Local[15] = 99, \
+  Local[15]
+#call CheckEqualsInt(99, LocalArrayHighIndex())
+#define LocalArrayNotPreserved() Local[0] + 0
+#call CheckEqualsInt(0, LocalArrayNotPreserved())
+#undef LocalArrayMacro
+#undef LocalArrayHighIndex
+#undef LocalArrayNotPreserved
+//
+// Recursion
+//
+#define Factorial(N) N <= 1 ? 1 : N * Factorial(N - 1)
+#call CheckEqualsInt(120, Factorial(5))
+#call CheckEqualsInt(1, Factorial(0))
+#undef Factorial
+//
+// @ operator with func parameter
+//
+#define ApplyFuncInt(func F, int X) F(X)
+#call CheckEqualsString('42', ApplyFuncInt(@Str, 42))
+#define Exclaim(str S) S + '!'
+#define ApplyFuncStr(func F, str X) F(X)
+#call CheckEqualsString('hi!', ApplyFuncStr(@Exclaim, 'hi'))
+#define GetTypeOfParam(func F) TypeOf(F)
+#call CheckEqualsInt(TYPE_FUNC, GetTypeOfParam(@Str))
+#undef ApplyFuncInt
+#undef ApplyFuncStr
+#undef Exclaim
+#undef GetTypeOfParam
+//
+// @ operator with array parameter
+//
+#dim FuncTestArray[3] {10, 20, 30}
+#define SumThree(array A) A[0] + A[1] + A[2]
+#call CheckEqualsInt(60, SumThree(@FuncTestArray))
+#define GetDimension(array A) DimOf(A)
+#call CheckEqualsInt(3, GetDimension(@FuncTestArray))
+#dim FuncTestArray2[7]
+#call CheckEqualsInt(7, GetDimension(@FuncTestArray2))
+#define GetDimOfScalar(int V) DimOf(V)
+#call CheckEqualsInt(0, GetDimOfScalar(42))
+#define GetTypeOfArray(array A) TypeOf(A)
+#call CheckEqualsInt(TYPE_ARRAY, GetTypeOfArray(@FuncTestArray))
+#undef FuncTestArray
+#undef FuncTestArray2
+#undef SumThree
+#undef GetDimension
+#undef GetDimOfScalar
+#undef GetTypeOfArray
+//
+// @ operator with built-in function (CopyExpVar evCallContext)
+//
+#define TestCopyExpFunc(str S) S + '!'
+#call Int(@TestCopyExpFunc)
+#call CheckEqualsString('test!', TestCopyExpFunc('test'))
+#undef TestCopyExpFunc
+//
+// #sub / #endsub
+//
+// bug: #sub body starts with #define private which leaks to the caller's
+// default scope after the call; re-enable these tests after fix
+//#sub SimpleSub
+//  #emit '; SUB_SIMPLE_MARKER'
+//#endsub
+//#call SimpleSub()
+//#call CheckTrue(Find(0, 'SUB_SIMPLE_MARKER', FIND_CONTAINS) >= 0)
+//#define SubArgValue = 'test42'
+//#sub SubWithVariable
+//  #emit '; SUB_VARIABLE_MARKER ' + SubArgValue
+//#endsub
+//#call SubWithVariable()
+//#call CheckTrue(Find(0, 'SUB_VARIABLE_MARKER test42', FIND_CONTAINS) >= 0)
+//#sub SubScopeTest
+//  #define ScopeLeakVar = 99
+//#endsub
+//#call SubScopeTest()
+//#call CheckFalse(Defined(ScopeLeakVar))
+//#undef SimpleSub
+//#undef SubArgValue
+//#undef SubWithVariable
+//#undef SubScopeTest
+//
+// #for loop
+//
+#define ForCounter
+#sub ForEmitSub
+  #emit '; FOR_EMIT_MARKER_' + Str(ForCounter)
+#endsub
+#for {ForCounter = 0; ForCounter < 5; ForCounter++} ForEmitSub
+#call CheckEqualsInt(5, ForCounter)
+#call CheckTrue(Find(0, 'FOR_EMIT_MARKER_0', FIND_CONTAINS) >= 0)
+#call CheckTrue(Find(0, 'FOR_EMIT_MARKER_4', FIND_CONTAINS) >= 0)
+#call CheckTrue(Find(0, 'FOR_EMIT_MARKER_5', FIND_CONTAINS) < 0)
+#define Accumulator = 0
+#for {ForCounter = 1; ForCounter <= 5; ForCounter++} Accumulator += ForCounter
+#call CheckEqualsInt(15, Accumulator)
+#define ZeroIterResult = 0
+#for {ForCounter = 0; 0; ForCounter++} ZeroIterResult = 1
+#call CheckEqualsInt(0, ZeroIterResult)
+#undef ForCounter
+#undef ForEmitSub
+#undef Accumulator
+#undef ZeroIterResult
+//
+// #emit
+//
+#emit '; EMIT_MARKER_' + Str(42)
+#call CheckTrue(Find(0, 'EMIT_MARKER_42', FIND_CONTAINS) >= 0)
+{#emit '; INLINE_DEFAULT '}{#42}
+#call CheckTrue(Find(0, 'INLINE_DEFAULT 42', FIND_CONTAINS) >= 0)
+#expr '; EXPR_NOEMIT_MARKER' ; #expr does not #emit
+#call CheckTrue(Find(0, 'EXPR_NOEMIT_MARKER', FIND_CONTAINS) < 0)
+//
+// Named parameters in function calls
+//
+#define NamedParamFunc(int A, int B = 10) A + B
+#call CheckEqualsInt(8, NamedParamFunc(A = 5, B = 3))
+#call CheckEqualsInt(8, NamedParamFunc(B = 3, A = 5))
+#call CheckEqualsInt(15, NamedParamFunc(A = 5))
+#undef NamedParamFunc
+//
+// Directive shorthands and the echo alias
+//
+#= '; EMIT_ALIAS_MARKER' ; #emit
+#call CheckTrue(Find(0, 'EMIT_ALIAS_MARKER', FIND_CONTAINS) >= 0)
+#! 'EXPR_ALIAS_NOOUTPUT' ; #expr
+#call CheckTrue(Find(0, 'EXPR_ALIAS_NOOUTPUT', FIND_CONTAINS) < 0)
+#echo '; ECHO_ALIAS_MARKER' ; #emit
+#call CheckTrue(Find(0, 'ECHO_ALIAS_MARKER', FIND_CONTAINS) >= 0)
