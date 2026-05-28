@@ -745,12 +745,13 @@
 #endsub
 #call SubScopeTest()
 #call CheckFalse(Defined(ScopeLeakVar))
-// scope leak checks: #define creates a public variable after #sub call
-#define public
+// scope leak checks: #define creates a protected variable after #sub call
+#define protected
 #call SimpleSub()
 #define ScopeNotLeaked = 42
-#undef public ScopeNotLeaked
+#undef protected ScopeNotLeaked
 #call CheckFalse(Defined(ScopeNotLeaked))
+#define public
 // scope leak checks: #undef uses the restored default scope
 #define SubUndefTarget = 1
 #call SimpleSub()
