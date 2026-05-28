@@ -92,7 +92,7 @@ procedure PathFuncRunTests(const IncludeWineIncompatibleTests: Boolean);
 
   procedure TestPathExpand(const S, ExpectedResult: String;
     const ExpectedResultFromTwoParamOverload: Boolean);
-  begin
+    begin
     if PathExpand(S) <> ExpectedResult then
       raise Exception.Create('PathExpand test failed');
 
@@ -583,17 +583,20 @@ begin
   TestPathExpand('NUL', '\\.\NUL', True);
   TestPathExpand('\\', '\\', True); {*}
   TestPathExpand('\\localhost', '\\localhost', True); {*}
-  TestPathExpand('\\localhost ', '\\localhost', True); {*}
-  TestPathExpand('\\localhost.', '\\localhost', True); {*}
-  TestPathExpand('\\localhost\.', '\\localhost\', True); {*}
-  TestPathExpand('\\localhost\..', '\\localhost\', True); {*}
-  TestPathExpand('\\localhost\...', '\\localhost\', True); {*}
+  if IncludeWineIncompatibleTests then begin
+    TestPathExpand('\\localhost ', '\\localhost', True); {*}
+    TestPathExpand('\\localhost.', '\\localhost', True); {*}
+    TestPathExpand('\\localhost\.', '\\localhost\', True); {*}
+    TestPathExpand('\\localhost\..', '\\localhost\', True); {*}
+    TestPathExpand('\\localhost\...', '\\localhost\', True); {*}
+  end;
   TestPathExpand('\\localhost\.\abc', '\\localhost\.\abc', True); {*}
   TestPathExpand('\\localhost\..\abc', '\\localhost\..\abc', True); {*}
   TestPathExpand('\\localhost\...\abc', '\\localhost\...\abc', True); {*}
   TestPathExpand('\\..\localhost', '\\..\localhost', True); {*}
   TestPathExpand('\\.', '\\.\', True);
-  TestPathExpand('\\?', '\\?\', True);
+  if IncludeWineIncompatibleTests then
+    TestPathExpand('\\?', '\\?\', True);
   TestPathExpand('C:\abc\def\.', 'C:\abc\def', True);
   TestPathExpand('C:\abc\def\..', 'C:\abc', True);
   TestPathExpand('C:\abc\def\...', 'C:\abc\def\', True);
@@ -602,7 +605,8 @@ begin
   TestPathExpand('C:\abc\def...', 'C:\abc\def', True);
   TestPathExpand('C:\abc\def . . ', 'C:\abc\def', True);
   TestPathExpand('C:\abc.\def', 'C:\abc\def', True);
-  TestPathExpand('C:\abc..\def', 'C:\abc..\def', True);
+  if IncludeWineIncompatibleTests then
+    TestPathExpand('C:\abc..\def', 'C:\abc..\def', True);
   TestPathExpand('C:\abc \def', 'C:\abc \def', True);
   TestPathExpand('\\localhost\share\..\abc\def', '\\localhost\share\abc\def', True);
   TestPathExpand('\\?\C:\..\abc\def', '\\?\abc\def', True); {*}
