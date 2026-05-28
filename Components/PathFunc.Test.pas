@@ -92,7 +92,7 @@ procedure PathFuncRunTests(const IncludeWineIncompatibleTests: Boolean);
 
   procedure TestPathExpand(const S, ExpectedResult: String;
     const ExpectedResultFromTwoParamOverload: Boolean);
-    begin
+  begin
     if PathExpand(S) <> ExpectedResult then
       raise Exception.Create('PathExpand test failed');
 
