@@ -4031,7 +4031,7 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 
 <ul>
 <li>Releases are built on a dedicated machine only used for this purpose. Signing keys are not stored on other machines.</li>
-<li>The Inno Setup source code repository is self-contained and no external dependencies are pulled in when a release is built.</li>
+<li>The Inno Setup source code is self-contained and no external dependencies are pulled in when a release is built.</li>
 <li>Precompiled files included in Inno Setup's source code are code signed and are accompanied with <link topic="issig">.issig signature</link> files to detect corruption or tampering before using them to build a release.</li>
 <li>Vendor updates of third-party source code (7-Zip, LZMA SDK, zlib, bzip2, Scintilla) are reviewed before being applied. An <extlink href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json">SPDX Software Bill of Materials</extlink> (SBOM) is available.</li>
 <li>Release binaries are made available through <extlink href="https://github.com/jrsoftware/issrc/releases">immutable GitHub releases</extlink> and accompanied with <link topic="issig">.issig signature</link> files you can use to detect corruption or tampering before running them. For more details, see <extlink href="https://jrsoftware.org/isdl-verify.php">Verifying Inno Setup Downloads</extlink>.</li>
