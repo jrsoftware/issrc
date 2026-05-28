@@ -86,6 +86,13 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>Support functions <tt>DeleteFileNow</tt> and <tt>CopyFile</tt> now return a non-zero value if successful.</li>
     <li><i>Fix:</i> Support functions <tt>Min</tt> and <tt>Max</tt> now return the correct result when 3 values are used and the third value is the smallest (for <tt>Min</tt>) or largest (for <tt>Max</tt>) value.</li>
     <li><i>Fix:</i> Pascal-style string literals (on by default) no longer silently accept a missing closing quote. An unterminated string now raises a compiler error.</li>
+    <li><i>Fix:</i> Calling a <tt>#sub</tt> procedure changes the <a href="https://jrsoftware.org/ishelp/index.php?topic=visibility">default visibility of identifiers</a> to <tt>private</tt>, which is correct, but this change persisted after the procedure returned. For example:
+<pre><code class="innosetup"><span class="pre">#sub</span> MySub
+  <span class="pre">#emit</span> <span class="str">'hello'</span>
+<span class="pre">#endsub</span>
+<span class="pre">#call</span> MySub()
+<span class="pre">#define</span> MyVar = 42 <span class="com">; was incorrectly created as private</span></code></pre>
+    This bug has been present since the introduction of ISPP.</li>
     <li>Previously undocumented support functions <tt>IsDirSet</tt> and <tt>TypeOf2</tt> are now documented and recognized by the Compiler IDE.</li>
     <li>Previously undocumented directive <tt>#env</tt> and its shorthand <tt>#%</tt> are now documented and recognized by the Compiler IDE. This directive replaces itself with the value of the specified environment variable. Example: <tt><code class="innosetup"><span class="key">AppName</span>=<span class="pre">{#%</span>MyAppName<span class="pre">}</span></code></tt>.</li>
     <li>Previously undocumented directive aliases <tt>#call</tt> (for <tt>#expr</tt>) and <tt>#echo</tt> (for <tt>#emit</tt>) are now documented and recognized by the Compiler IDE. All examples now use <tt>#call</tt> instead of <tt>#expr</tt>. Example: <tt><code class="innosetup"><span class="pre">#call</span> EmitLanguagesSection</code></tt>.</li>

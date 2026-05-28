@@ -724,28 +724,47 @@
 //
 // #sub / #endsub
 //
-// bug: #sub body starts with #define private which leaks to the caller's
-// default scope after the call; re-enable these tests after fix
-//#sub SimpleSub
-//  #emit '; SUB_SIMPLE_MARKER'
-//#endsub
-//#call SimpleSub()
-//#call CheckTrue(Find(0, 'SUB_SIMPLE_MARKER', FIND_CONTAINS) >= 0)
-//#define SubArgValue = 'test42'
-//#sub SubWithVariable
-//  #emit '; SUB_VARIABLE_MARKER ' + SubArgValue
-//#endsub
-//#call SubWithVariable()
-//#call CheckTrue(Find(0, 'SUB_VARIABLE_MARKER test42', FIND_CONTAINS) >= 0)
-//#sub SubScopeTest
-//  #define ScopeLeakVar = 99
-//#endsub
-//#call SubScopeTest()
-//#call CheckFalse(Defined(ScopeLeakVar))
-//#undef SimpleSub
-//#undef SubArgValue
-//#undef SubWithVariable
-//#undef SubScopeTest
+#sub SimpleSub
+  #emit '; SUB_SIMPLE_MARKER'
+#endsub
+#call SimpleSub()
+#call CheckTrue(Find(0, 'SUB_SIMPLE_MARKER', FIND_CONTAINS) >= 0)
+#define SubArgValue = 'test42'
+#sub SubWithVariable
+  #emit '; SUB_VARIABLE_MARKER ' + SubArgValue
+#endsub
+#call SubWithVariable()
+#call CheckTrue(Find(0, 'SUB_VARIABLE_MARKER test42', FIND_CONTAINS) >= 0)
+#sub SubScopeTest
+  #define ScopeLeakVar = 99
+#endsub
+#call SubScopeTest()
+#call CheckFalse(Defined(ScopeLeakVar))
+// scope leak checks: #define creates a public variable after #sub call
+#define public
+#call SimpleSub()
+#define ScopeNotLeaked = 42
+#undef public ScopeNotLeaked
+#call CheckFalse(Defined(ScopeNotLeaked))
+// scope leak checks: #undef uses the restored default scope
+#define SubUndefTarget = 1
+#call SimpleSub()
+#undef SubUndefTarget
+#call CheckFalse(Defined(SubUndefTarget))
+// nested #sub call restores inner scope independently
+#sub InnerSubChangesScope
+  #define public
+#endsub
+#sub OuterSubTestsInnerRestore
+  #call InnerSubChangesScope()
+  #define AfterInnerCall = 99
+#endsub
+#call OuterSubTestsInnerRestore()
+#call CheckFalse(Defined(AfterInnerCall))
+#undef SimpleSub
+#undef SubArgValue
+#undef SubWithVariable
+#undef SubScopeTest
 //
 // #for loop
 //
@@ -775,6 +794,15 @@
 #undef ZeroIterResult
 #undef ForDecCounter
 #undef DecAccumulator
+// variable visibility after #for with #sub
+#define ForScopeValue = 'ok'
+#sub ForScopeReader
+  #emit '; FOR_SCOPE_CHECK ' + ForScopeValue
+#endsub
+#call ForScopeReader()
+#call CheckTrue(Find(0, 'FOR_SCOPE_CHECK ok', FIND_CONTAINS) >= 0)
+#undef ForScopeValue
+#undef ForScopeReader
 //
 // #emit
 //

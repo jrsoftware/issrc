@@ -1809,10 +1809,12 @@ end;
 function TProcCallContext.Call: TIsppVariant;
 begin
   UpdateScope;
+  const SavedScope = FPreproc.GetDefaultScope;
   try
     FPreproc.ExecProc(FBody);
   finally
-    FPreproc.FIdentManager.EndLocal
+    FPreproc.FIdentManager.EndLocal;
+    FPreproc.SetDefaultScope(SavedScope);
   end;
 end;
 
