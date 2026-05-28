@@ -369,17 +369,17 @@
 //
 #define IfResult = 0
 #if 1
-#define IfResult = 1
+  #define IfResult = 1
 #endif
 #call CheckEqualsInt(1, IfResult)
 #define IfResult = 0
 #if 0
-#define IfResult = 1
+  #define IfResult = 1
 #endif
 #call CheckEqualsInt(0, IfResult)
 #define IfResult = 0
 #if 1 + 1 == 2
-#define IfResult = 1
+  #define IfResult = 1
 #endif
 #call CheckEqualsInt(1, IfResult)
 #undef IfResult
@@ -388,16 +388,16 @@
 //
 #define IfElseResult = 0
 #if 1
-#define IfElseResult = 10
+  #define IfElseResult = 10
 #else
-#define IfElseResult = 20
+  #define IfElseResult = 20
 #endif
 #call CheckEqualsInt(10, IfElseResult)
 #define IfElseResult = 0
 #if 0
-#define IfElseResult = 10
+  #define IfElseResult = 10
 #else
-#define IfElseResult = 20
+  #define IfElseResult = 20
 #endif
 #call CheckEqualsInt(20, IfElseResult)
 #undef IfElseResult
@@ -406,50 +406,50 @@
 //
 #define ElifResult = 0
 #if 1
-#define ElifResult = 10
+  #define ElifResult = 10
 #elif 1
-#define ElifResult = 20
+  #define ElifResult = 20
 #else
-#define ElifResult = 30
+  #define ElifResult = 30
 #endif
 #call CheckEqualsInt(10, ElifResult)
 #define ElifResult = 0
 #if 0
-#define ElifResult = 10
+  #define ElifResult = 10
 #elif 1
-#define ElifResult = 20
+  #define ElifResult = 20
 #else
-#define ElifResult = 30
+  #define ElifResult = 30
 #endif
 #call CheckEqualsInt(20, ElifResult)
 #define ElifResult = 0
 #if 0
-#define ElifResult = 10
+  #define ElifResult = 10
 #elif 0
-#define ElifResult = 20
+  #define ElifResult = 20
 #else
-#define ElifResult = 30
+  #define ElifResult = 30
 #endif
 #call CheckEqualsInt(30, ElifResult)
 #define ElifResult = 0
 #if 0
-#define ElifResult = 10
+  #define ElifResult = 10
 #elif 0
-#define ElifResult = 20
+  #define ElifResult = 20
 #elif 1
-#define ElifResult = 30
+  #define ElifResult = 30
 #elif 1
-#define ElifResult = 40
+  #define ElifResult = 40
 #else
-#define ElifResult = 50
+  #define ElifResult = 50
 #endif
 #call CheckEqualsInt(30, ElifResult)
 #define ElifSkipCounter = 0
 #define ElifResult = 0
 #if 1
-#define ElifResult = 10
+  #define ElifResult = 10
 #elif (ElifSkipCounter = ElifSkipCounter + 1)
-#define ElifResult = 20
+  #define ElifResult = 20
 #endif
 #call CheckEqualsInt(10, ElifResult)
 #call CheckEqualsInt(0, ElifSkipCounter)
@@ -461,34 +461,34 @@
 #define IfdefTarget = 42
 #define IfdefResult = 0
 #ifdef IfdefTarget
-#define IfdefResult = 1
+  #define IfdefResult = 1
 #endif
 #call CheckEqualsInt(1, IfdefResult)
 #define IfdefResult = 0
 #ifdef UndefinedIdentifier_XYZ
-#define IfdefResult = 1
+  #define IfdefResult = 1
 #endif
 #call CheckEqualsInt(0, IfdefResult)
 #define IfdefResult = 0
 #ifndef IfdefTarget
-#define IfdefResult = 1
+  #define IfdefResult = 1
 #endif
 #call CheckEqualsInt(0, IfdefResult)
 #define IfdefResult = 0
 #ifndef UndefinedIdentifier_XYZ
-#define IfdefResult = 1
+  #define IfdefResult = 1
 #endif
 #call CheckEqualsInt(1, IfdefResult)
 #define IfdefMacro() 0
 #define IfdefResult = 0
 #ifdef IfdefMacro
-#define IfdefResult = 1
+  #define IfdefResult = 1
 #endif
 #call CheckEqualsInt(1, IfdefResult)
 #define IfdefVoid
 #define IfdefResult = 0
 #ifdef IfdefVoid
-#define IfdefResult = 1
+  #define IfdefResult = 1
 #endif
 #call CheckEqualsInt(1, IfdefResult)
 #undef IfdefVoid
@@ -500,22 +500,22 @@
 //
 #define IfexistResult = 0
 #ifexist __PATHFILENAME__
-#define IfexistResult = 1
+  #define IfexistResult = 1
 #endif
 #call CheckEqualsInt(1, IfexistResult)
 #define IfexistResult = 0
 #ifexist "nonexistent_file_xyz_12345.tmp"
-#define IfexistResult = 1
+  #define IfexistResult = 1
 #endif
 #call CheckEqualsInt(0, IfexistResult)
 #define IfexistResult = 0
 #ifnexist "nonexistent_file_xyz_12345.tmp"
-#define IfexistResult = 1
+  #define IfexistResult = 1
 #endif
 #call CheckEqualsInt(1, IfexistResult)
 #define IfexistResult = 0
 #ifnexist __PATHFILENAME__
-#define IfexistResult = 1
+  #define IfexistResult = 1
 #endif
 #call CheckEqualsInt(0, IfexistResult)
 #undef IfexistResult
@@ -524,49 +524,56 @@
 //
 #define NestResult = 0
 #if 1
-#if 0
-#if 1
-#define NestResult = 10
-#endif
-#endif
+  #if 0
+    #if 1
+      #define NestResult = 10
+    #endif
+  #endif
 #endif
 #call CheckEqualsInt(0, NestResult)
 #define NestResult = 0
 #if 1
-#if 1
-#if 1
-#define NestResult = 10
-#endif
-#endif
+  #if 1
+    #if 1
+      #define NestResult = 10
+    #endif
+  #endif
 #endif
 #call CheckEqualsInt(10, NestResult)
 #define NestResult = 0
 #if 0
-#if 1
-#define NestResult = 10
-#endif
-#define NestResult = 20
+  #if 1
+    #define NestResult = 10
+  #endif
+  #define NestResult = 20
 #endif
 #call CheckEqualsInt(0, NestResult)
 #define NestDefined = 1
 #define NestResult = 0
 #if 1
-#ifdef NestDefined
-#define NestResult = 10
-#endif
+  #ifdef NestDefined
+    #define NestResult = 10
+  #endif
 #endif
 #call CheckEqualsInt(10, NestResult)
-// bug: #elif expression is evaluated even when suppressed by an outer #if 0,
-// because the short-circuit guard checks only the innermost conditional block
-// state, not the outer conditional blocks
-//#define NestElifCounter = 0
-//#if 0
-//#if 0
-//#elif (NestElifCounter = NestElifCounter + 1)
-//#endif
-//#endif
-//#call CheckEqualsInt(0, NestElifCounter)
-//#undef NestElifCounter
+#define NestElifCounter = 0
+#if 0
+  #if 0
+  #elif (NestElifCounter = NestElifCounter + 1) ; should not be evaluated
+  #endif
+#endif
+#call CheckEqualsInt(0, NestElifCounter)
+#undef NestElifCounter
+#define DeepNestElifCounter = 0
+#if 0
+  #if 1
+    #if 0
+    #elif (DeepNestElifCounter = DeepNestElifCounter + 1) ; should not be evaluated
+    #endif
+  #endif
+#endif
+#call CheckEqualsInt(0, DeepNestElifCounter)
+#undef DeepNestElifCounter
 #undef NestDefined
 #undef NestResult
 //
@@ -587,12 +594,10 @@
 #call CheckTrue(Find(0, 'INLINE_COND_ELIF third', FIND_CONTAINS) < 0)
 #call CheckTrue(Find(0, 'INLINE_POS before middle after', FIND_CONTAINS) >= 0)
 #call CheckTrue(Find(0, 'INLINE_POS before other after', FIND_CONTAINS) < 0)
-// bug: same as the nested #elif bug in the simple-directive path above,
-// but via ProcessInlineDirectives
-//#define InlineNestElifCounter = 0
-//{#if 0}{#if 0}x{#elif (InlineNestElifCounter = InlineNestElifCounter + 1)}y{#endif}{#endif}
-//#call CheckEqualsInt(0, InlineNestElifCounter)
-//#undef InlineNestElifCounter
+#define InlineNestElifCounter = 0
+{#if 0}{#if 0}x{#elif (InlineNestElifCounter = InlineNestElifCounter + 1)}y{#endif}{#endif}
+#call CheckEqualsInt(0, InlineNestElifCounter)
+#undef InlineNestElifCounter
 {#? 1}; INLINE_SHORTHAND_IF yes{#^}; INLINE_SHORTHAND_IF no{#.}
 #call CheckTrue(Find(0, 'INLINE_SHORTHAND_IF yes', FIND_CONTAINS) >= 0)
 #call CheckTrue(Find(0, 'INLINE_SHORTHAND_IF no', FIND_CONTAINS) < 0)
@@ -601,14 +606,14 @@
 //
 #define ShorthandIfResult = 0
 #? 1 == 1 ; #if
-#define ShorthandIfResult = 1
+  #define ShorthandIfResult = 1
 #. ; #endif
 #call CheckEqualsInt(1, ShorthandIfResult)
 #define ShorthandIfResult = 0
 #? 0 ; #if
-#define ShorthandIfResult = 10
+  #define ShorthandIfResult = 10
 #^ ; #else
-#define ShorthandIfResult = 20
+  #define ShorthandIfResult = 20
 #. ; #endif
 #call CheckEqualsInt(20, ShorthandIfResult)
 #undef ShorthandIfResult

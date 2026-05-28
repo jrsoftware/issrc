@@ -93,6 +93,13 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <span class="pre">#call</span> MySub()
 <span class="pre">#define</span> MyVar = 42 <span class="com">; was incorrectly created as private</span></code></pre>
     This bug has been present since the introduction of ISPP.</li>
+    <li><i>Fix:</i> <tt>#elif</tt> and <tt>{#elif}</tt> expressions were incorrectly evaluated when not selected by an outer <tt>#if</tt>. For example:
+<pre><code class="innosetup"><span class="pre">#if</span> 0
+  <span class="pre">#if</span> 0
+  <span class="pre">#elif</span> SomeExpression <span class="com">; was incorrectly evaluated</span>
+  <span class="pre">#endif</span>
+<span class="pre">#endif</span></code></pre>
+    This bug has been present since the introduction of ISPP.</li>
     <li>Previously undocumented support functions <tt>IsDirSet</tt> and <tt>TypeOf2</tt> are now documented and recognized by the Compiler IDE.</li>
     <li>Previously undocumented directive <tt>#env</tt> and its shorthand <tt>#%</tt> are now documented and recognized by the Compiler IDE. This directive replaces itself with the value of the specified environment variable. Example: <tt><code class="innosetup"><span class="key">AppName</span>=<span class="pre">{#%</span>MyAppName<span class="pre">}</span></code></tt>.</li>
     <li>Previously undocumented directive aliases <tt>#call</tt> (for <tt>#expr</tt>) and <tt>#echo</tt> (for <tt>#emit</tt>) are now documented and recognized by the Compiler IDE. All examples now use <tt>#call</tt> instead of <tt>#expr</tt>. Example: <tt><code class="innosetup"><span class="pre">#call</span> EmitLanguagesSection</code></tt>.</li>

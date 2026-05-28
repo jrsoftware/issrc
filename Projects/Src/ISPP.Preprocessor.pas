@@ -49,6 +49,7 @@ type
     procedure ElseInstruction;
     procedure EndIfInstruction;
     function Include: Boolean;
+    function OuterInclude: Boolean;
     procedure Resolved;
   end;
 
@@ -365,7 +366,7 @@ begin
                 ProcessPreprocCommand(Command, S, DirectiveOffset));
             pcElseIf:
               FStack.ElseIfInstruction(FStack.Last.Fired or
-                (FStack.Include or not FStack.Last.BlockState) and
+                FStack.OuterInclude and
                 ProcessPreprocCommand(Command, S, DirectiveOffset));
             pcElse: FStack.ElseInstruction;
             pcEndIf: FStack.EndIfInstruction
@@ -515,7 +516,7 @@ begin
             ProcessPreprocCommand(Command, S, DStart - LineStart));
         pcElseIf:
           LineStack.ElseIfInstruction(LineStack.Last.Fired or
-            (LineStack.Include or not LineStack.Last.BlockState) and
+            LineStack.OuterInclude and
             ProcessPreprocCommand(Command, S, DStart - LineStart));
         pcElse: LineStack.ElseInstruction;
         pcEndIf: LineStack.EndIfInstruction;
@@ -1260,6 +1261,14 @@ begin
     Result := True;
     FCache := True;
   end;
+end;
+
+function TConditionalTranslationStack.OuterInclude: Boolean;
+begin
+  for var I := Count - 2 downto 0 do
+    if not TConditionalBlockInfo(List[I]).BlockState then
+      Exit(False);
+  Result := True;
 end;
 
 procedure TConditionalTranslationStack.Resolved;
