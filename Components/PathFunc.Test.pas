@@ -581,6 +581,35 @@ begin
   TestPathExpand('...', AddBackslash(GetCurrentDir), True);
   TestPathExpand('.. ', AddBackslash(GetCurrentDir), True);
   TestPathExpand('NUL', '\\.\NUL', True);
+  TestPathExpand('\\', '\\', True); {*}
+  TestPathExpand('\\localhost', '\\localhost', True); {*}
+  TestPathExpand('\\localhost ', '\\localhost', True); {*}
+  TestPathExpand('\\localhost.', '\\localhost', True); {*}
+  TestPathExpand('\\localhost\.', '\\localhost\', True); {*}
+  TestPathExpand('\\localhost\..', '\\localhost\', True); {*}
+  TestPathExpand('\\localhost\...', '\\localhost\', True); {*}
+  TestPathExpand('\\localhost\.\abc', '\\localhost\.\abc', True); {*}
+  TestPathExpand('\\localhost\..\abc', '\\localhost\..\abc', True); {*}
+  TestPathExpand('\\localhost\...\abc', '\\localhost\...\abc', True); {*}
+  TestPathExpand('\\..\localhost', '\\..\localhost', True); {*}
+  TestPathExpand('\\.', '\\.\', True);
+  TestPathExpand('\\?', '\\?\', True);
+  TestPathExpand('C:\abc\def\.', 'C:\abc\def', True);
+  TestPathExpand('C:\abc\def\..', 'C:\abc', True);
+  TestPathExpand('C:\abc\def\...', 'C:\abc\def\', True);
+  TestPathExpand('C:\..\abc\def', 'C:\abc\def', True);
+  TestPathExpand('C:\abc\def   ', 'C:\abc\def', True);
+  TestPathExpand('C:\abc\def...', 'C:\abc\def', True);
+  TestPathExpand('C:\abc\def . . ', 'C:\abc\def', True);
+  TestPathExpand('C:\abc.\def', 'C:\abc\def', True);
+  TestPathExpand('C:\abc..\def', 'C:\abc..\def', True);
+  TestPathExpand('C:\abc \def', 'C:\abc \def', True);
+  TestPathExpand('\\localhost\share\..\abc\def', '\\localhost\share\abc\def', True);
+  TestPathExpand('\\?\C:\..\abc\def', '\\?\abc\def', True); {*}
+  TestPathExpand('\\?\C:\..\..\abc\def', '\\?\abc\def', True); {*}
+  TestPathExpand('\\?\UNC\localhost\share\..\abc\def', '\\?\UNC\localhost\abc\def', True); {*}
+  TestPathExpand('\\?\UNC\localhost\share\..\..\..\abc\def', '\\?\abc\def', True); {*}
+  TestPathExpand('\\?\UNC\localhost\share\..\..\..\..\abc\def', '\\?\abc\def', True); {*}
   {$IFDEF ISTESTTOOLPROJ}
   TestPathExpandFailure(StringOfChar('a', $8000));
   {$ENDIF}
