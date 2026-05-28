@@ -447,8 +447,8 @@ begin
   while PeekAtNextToken in OperatorPrecedence[Level].Operators do
   begin
     if DoEval and (OperatorPrecedence[Level].SCBE <> scemNone) and
-      (GetOption(FOptions.Options, 'B') or // short circuit bool eval
-       GetOption(FOptions.Options, 'M')) then // short circuit mul eval
+      ((optSCBE in FOptions.Options) or // short circuit bool eval
+       (optSCME in FOptions.Options)) then // short circuit mul eval
     begin
       with GetRValue(Result) do
         case Typ of
@@ -459,8 +459,8 @@ begin
         end;
       if R <> -1 then
       begin
-        if (OperatorPrecedence[Level].SCBE = scemStandard) and GetOption(FOptions.Options, 'B')
-          or (OperatorPrecedence[Level].SCBE = scemOptional) and GetOption(FOptions.Options, 'M') then
+        if (OperatorPrecedence[Level].SCBE = scemStandard) and (optSCBE in FOptions.Options)
+          or (OperatorPrecedence[Level].SCBE = scemOptional) and (optSCME in FOptions.Options) then
           DoEval := not (OperatorPrecedence[Level].SCBEValue = Boolean(R))
       end;
     end;

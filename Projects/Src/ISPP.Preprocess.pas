@@ -184,7 +184,7 @@ var
 
     procedure Include(FileName: String; Builtins: Boolean);
     begin
-      if not GetOption(Options, 'P') then
+      if not (optPascalStrings in Options) then
         FileName := Escape(FileName);
       Preprocessor.IncludeFile(FileName, Builtins, False, True);
     end;
@@ -274,7 +274,7 @@ begin
       ReadScript(Params, Preprocessor);
       Preprocessor.Stack.Resolved;
 
-      if not GetOption(Preprocessor.FOptions.Options, 'C') then
+      if not (optPassToCompiler in Preprocessor.FOptions.Options) then
         Result := ispeSilentAbort
       else
       begin
