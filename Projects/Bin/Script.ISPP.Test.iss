@@ -96,10 +96,13 @@
 // Type conversion
 //
 #call CheckEqualsInt(42, Int('42'))
+#call CheckEqualsInt(255, Int('$FF'))
+#call CheckEqualsInt(255, Int('0xFF'))
 #call CheckEqualsInt(0, Int(''))
 #call CheckEqualsInt(0, Int(NULL))
 #call CheckEqualsInt(-1, Int('not_a_number', -1))
 #call CheckEqualsString('42', Str(42))
+#call CheckEqualsString('-42', Str(-42))
 #call CheckEqualsString('', Str(NULL))
 #call CheckEqualsString('hello', Str('hello'))
 #call CheckEqualsInt(42, Int(42))
@@ -329,19 +332,6 @@
 #call (CommaAccumulator += '1', CommaAccumulator += '2', CommaAccumulator += '3')
 #call CheckEqualsString('123', CommaAccumulator)
 #undef CommaAccumulator
-//
-// Short-circuit evaluation
-//
-#define ShortCircuitCounter = 0
-#call CheckFalse(0 && (ShortCircuitCounter = ShortCircuitCounter + 1))
-#call CheckEqualsInt(0, ShortCircuitCounter)
-#call CheckTrue(1 || (ShortCircuitCounter = ShortCircuitCounter + 1))
-#call CheckEqualsInt(0, ShortCircuitCounter)
-#call CheckTrue(1 && (ShortCircuitCounter = ShortCircuitCounter + 1))
-#call CheckEqualsInt(1, ShortCircuitCounter)
-#call CheckFalse(0 || (ShortCircuitCounter = ShortCircuitCounter + 1, 0))
-#call CheckEqualsInt(2, ShortCircuitCounter)
-#undef ShortCircuitCounter
 //
 // #undef
 //
@@ -774,10 +764,17 @@
 #define ZeroIterResult = 0
 #for {ForCounter = 0; 0; ForCounter++} ZeroIterResult = 1
 #call CheckEqualsInt(0, ZeroIterResult)
+#define ForDecCounter
+#define DecAccumulator = 0
+#for {ForDecCounter = 5; ForDecCounter > 0; ForDecCounter--} DecAccumulator += ForDecCounter
+#call CheckEqualsInt(15, DecAccumulator)
+#call CheckEqualsInt(0, ForDecCounter)
 #undef ForCounter
 #undef ForEmitSub
 #undef Accumulator
 #undef ZeroIterResult
+#undef ForDecCounter
+#undef DecAccumulator
 //
 // #emit
 //
@@ -891,8 +888,6 @@
 #ifdef ISCC_INVOKED
 #call CheckEqualsInt(TYPE_NULL, TypeOf(ISCC_INVOKED))
 #endif
-#call CheckTrue(Defined(__OPT_C__))
-#call CheckTrue(Defined(__POPT_B__))
 //
 // #include scoping
 //
@@ -922,17 +917,22 @@
 //
 #call CheckEqualsString('ell', Copy('hello', 2, 3))
 #call CheckEqualsString('ello', Copy('hello', 2))
+#call CheckEqualsString('', Copy('hello', 10, 3))
 #call CheckEqualsInt(3, Pos('ll', 'hello'))
 #call CheckEqualsInt(0, Pos('LL', 'hello'))
 #call CheckEqualsInt(0, Pos('x', 'hello'))
 #call CheckEqualsInt(4, RPos('l', 'hello'))
+#call CheckEqualsInt(0, RPos('x', 'hello'))
 #call CheckEqualsInt(5, Len('hello'))
 #call CheckEqualsInt(0, Len(''))
 #call CheckEqualsString('hello', LowerCase('HELLO'))
 #call CheckEqualsString('HELLO', UpperCase('hello'))
+#call CheckEqualsString('', Trim('   '))
 #call CheckEqualsString('hello', Trim('  hello  '))
 #call CheckEqualsString('aYbYc', StringChange('aXbXc', 'X', 'Y'))
+#call CheckEqualsString('abc', StringChange('aXbXc', 'X', ''))
 #call CheckEqualsString('aYbxc', StringChange('aXbxc', 'X', 'Y'))
+#call CheckEqualsString('', AddQuotes(''))
 #call CheckEqualsString('hello', AddQuotes('hello'))
 #call CheckEqualsString('"hello world"', AddQuotes('hello world'))
 #call CheckTrue(SameStr('abc', 'abc'))
@@ -1007,6 +1007,9 @@
 #call CheckEqualsString('6.4.0', DecodeVer(EncodeVer(6, 4)))
 #call CheckEqualsString('1.2.3.4', DecodeVer(EncodeVer(1, 2, 3, 4), 4))
 #call CheckEqualsString('6.4', DecodeVer(EncodeVer(6, 4), 2))
+#call CheckEqualsString('6', DecodeVer(EncodeVer(6, 4), 1))
+#call CheckEqualsInt(EncodeVer(1, 2, 3), EncodeVer(1, 2, 3, 0))
+#call CheckEqualsString('1.2.3', DecodeVer(EncodeVer(1, 2, 3, 0), 4))
 #call CheckTrue(ComparePackedVersion(PackVersionComponents(1, 0, 0, 0), PackVersionComponents(2, 0, 0, 0)) < 0)
 #call CheckEqualsInt(0, ComparePackedVersion(PackVersionComponents(1, 2, 3, 4), PackVersionComponents(1, 2, 3, 4)))
 #call CheckTrue(ComparePackedVersion(PackVersionComponents(2, 0, 0, 0), PackVersionComponents(1, 0, 0, 0)) > 0)
@@ -1083,6 +1086,7 @@
 #call CheckEqualsInt(FindTestAlpha, Find(FindTestStart, 'Alpha', FIND_CONTAINS))
 #call CheckEqualsInt(FindTestGamma, Find(FindTestStart, '; find_test gamma', FIND_MATCH))
 #call CheckTrue(Find(FindTestStart, '; find_test gamma', FIND_MATCH | FIND_CASESENSITIVE) < 0)
+#call CheckTrue(Find(FindTestStart, '; find_test gamma', FIND_MATCH | FIND_SENSITIVE) < 0)
 #call CheckEqualsInt(FindTestStart, Find(FindTestStart, '; FIND_TEST Gamma', FIND_MATCH | FIND_NOT))
 #emit '   ; FIND_TRIM_PAD   '
 #call CheckTrue(Find(FindTestStart, '; FIND_TRIM_PAD', FIND_MATCH | FIND_TRIM) >= 0)
@@ -1112,7 +1116,17 @@ AppContact={#% ISTESTTOOLPROJ_TEST_ENV}
 #call Message('test message')
 #call Warning('test warning')
 //
-// Pragmas
+// Pragma: Defaults
+//
+#call CheckTrue(Defined(__OPT_C__))
+#call CheckTrue(Defined(__OPT_E__))
+#call CheckFalse(Defined(__OPT_V__))
+#call CheckTrue(Defined(__POPT_B__))
+#call CheckFalse(Defined(__POPT_M__))
+#call CheckTrue(Defined(__POPT_P__))
+#call CheckFalse(Defined(__POPT_U__))
+//
+// Pragma: General
 //
 #pragma message 'test message'
 #pragma warning 'test warning'
@@ -1140,6 +1154,76 @@ AppContact={#% ISTESTTOOLPROJ_TEST_ENV}
 #undef SavedIncludePath
 #pragma verboselevel 9
 #pragma verboselevel 0
+//
+// Pragma: Short-circuit boolean evaluation (default state: on)
+//
+#pragma parseroption -b-
+#call CheckFalse(Defined(__POPT_B__))
+#define SCBEOffCounter = 0
+#call CheckFalse(0 && (SCBEOffCounter = SCBEOffCounter + 1))
+#call CheckEqualsInt(1, SCBEOffCounter)
+#call CheckTrue(1 || (SCBEOffCounter = SCBEOffCounter + 1))
+#call CheckEqualsInt(2, SCBEOffCounter)
+#pragma parseroption -b+
+#call CheckTrue(Defined(__POPT_B__))
+#define SCBEOffCounter = 0
+#call CheckFalse(0 && (SCBEOffCounter = SCBEOffCounter + 1))
+#call CheckEqualsInt(0, SCBEOffCounter)
+#call CheckTrue(1 || (SCBEOffCounter = SCBEOffCounter + 1))
+#call CheckEqualsInt(0, SCBEOffCounter)
+#call CheckTrue(1 && (SCBEOffCounter = SCBEOffCounter + 1))
+#call CheckEqualsInt(1, SCBEOffCounter)
+#call CheckFalse(0 || (SCBEOffCounter = SCBEOffCounter + 1, 0))
+#call CheckEqualsInt(2, SCBEOffCounter)
+#undef SCBEOffCounter
+//
+// Pragma: Short-circuit multiplication evaluation (default state: off)
+//
+#pragma parseroption -m+
+#call CheckTrue(Defined(__POPT_M__))
+#define SCMECounter = 0
+#call 0 * (SCMECounter = SCMECounter + 1)
+#call CheckEqualsInt(0, SCMECounter)
+#define SCMECounter = 0
+#call 0 << (SCMECounter = SCMECounter + 1)
+#call CheckEqualsInt(0, SCMECounter)
+#pragma parseroption -m-
+#call CheckFalse(Defined(__POPT_M__))
+#define SCMECounter = 0
+#call 0 * (SCMECounter = SCMECounter + 1)
+#call CheckEqualsInt(1, SCMECounter)
+#undef SCMECounter
+//
+// Pragma: Allow undeclared identifiers (default state: off)
+//
+#pragma parseroption -u+
+#call CheckTrue(Defined(__POPT_U__))
+#call CheckEqualsInt(0, UndeclaredIdentifier_ParserU_Test + 0)
+#pragma parseroption -u-
+#call CheckFalse(Defined(__POPT_U__))
+//
+// Pragma: Emit empty lines (default state: on)
+//
+#pragma option -e-
+#call CheckFalse(Defined(__OPT_E__))
+#emit '; EMPTYLINE_OFF_BEFORE'
+
+#emit '; EMPTYLINE_OFF_AFTER'
+#define EmptyLineOffBefore = Find(0, '; EMPTYLINE_OFF_BEFORE', FIND_MATCH)
+#define EmptyLineOffAfter = Find(0, '; EMPTYLINE_OFF_AFTER', FIND_MATCH)
+#call CheckEqualsInt(EmptyLineOffBefore + 1, EmptyLineOffAfter)
+#undef EmptyLineOffBefore
+#undef EmptyLineOffAfter
+#pragma option -e+
+#call CheckTrue(Defined(__OPT_E__))
+#emit '; EMPTYLINE_ON_BEFORE'
+
+#emit '; EMPTYLINE_ON_AFTER'
+#define EmptyLineOnBefore = Find(0, '; EMPTYLINE_ON_BEFORE', FIND_MATCH)
+#define EmptyLineOnAfter = Find(0, '; EMPTYLINE_ON_AFTER', FIND_MATCH)
+#call CheckTrue(EmptyLineOnAfter > EmptyLineOnBefore + 1)
+#undef EmptyLineOnBefore
+#undef EmptyLineOnAfter
 //
 // File system functions
 //

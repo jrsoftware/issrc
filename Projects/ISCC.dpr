@@ -393,6 +393,7 @@ procedure ProcessCommandLine;
   begin
     with Opt do begin
       SetOption(Options, 'C', True);
+      SetOption(Options, 'E', True);
       SetOption(ParserOptions, 'B', True);
       SetOption(ParserOptions, 'P', True);
       VerboseLevel := 0;
