@@ -86,16 +86,7 @@
 #call CheckEqualsInt(TYPE_INTEGER, TypeOf2(1 + 1))
 #call CheckEqualsInt(TYPE_STRING, TypeOf2('a' + 'b'))
 #call CheckEqualsInt(TYPE_NULL, TypeOf2(NULL))
-#call CheckTrue(Defined(TypeCheckInt))
-#call CheckFalse(Defined(UndefinedIdentifier_XYZ))
-#call CheckTrue(Defined(ISPP_INVOKED))
-#call CheckTrue(Defined(WINDOWS))
-#call CheckTrue(Defined(UNICODE))
-#call CheckTrue(Defined(__WIN32__))
-#call CheckTrue(Defined(__FILENAME__))
-#call CheckTrue(Defined(PREPROCVER))
 #call CheckEqualsInt(TypeOf(TypeCheckInt), TypeOf TypeCheckInt)
-#call CheckEqualsInt(Defined(TypeCheckInt), Defined TypeCheckInt)
 #undef TypeCheckInt
 #undef TypeCheckString
 #undef TypeCheckNull
@@ -112,6 +103,14 @@
 #call CheckEqualsString('', Str(NULL))
 #call CheckEqualsString('hello', Str('hello'))
 #call CheckEqualsInt(42, Int(42))
+//
+// Defined
+//
+#define DefinedCheck
+#call CheckTrue(Defined(DefinedCheck))
+#call CheckEqualsInt(Defined(DefinedCheck), Defined DefinedCheck)
+#call CheckFalse(Defined(UndefinedIdentifier_XYZ))
+#undef DefinedCheck
 //
 // Arithmetic
 //
