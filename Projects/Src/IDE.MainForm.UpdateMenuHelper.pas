@@ -57,9 +57,10 @@ procedure TMainFormUpdateMenuHelper._UpdateMenuBitmapsIfNeeded;
     var pvBits: Pointer;
     var Bitmap := CreateDIBSection(DC, bitmapInfo, DIB_RGB_COLORS, pvBits, 0, 0);
     var OldBitmap := SelectObject(DC, Bitmap);
-    if ImageList_Draw(ImageList.Handle, ImageIndex, DC, 0, 0, ILD_TRANSPARENT) then
-      MenuBitmaps.Add(MenuItem, Bitmap)
-    else begin
+    if ImageList_Draw(ImageList.Handle, ImageIndex, DC, 0, 0, ILD_TRANSPARENT) then begin
+      MenuBitmaps.Add(MenuItem, Bitmap);
+      SelectObject(DC, OldBitmap); { Make sure the bitmap can be deleted later }
+    end else begin
       SelectObject(DC, OldBitmap);
       DeleteObject(Bitmap);
     end;

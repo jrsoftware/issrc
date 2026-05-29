@@ -3691,11 +3691,13 @@ type
 
     { Draw the image - the result will be in pvBits }
     if ImageList_Draw(ImageList.Handle, ImageList.GetIndexByName(ImageName), DC, 0, 0, ILD_TRANSPARENT) then begin
+      GdiFlush; { See CreateDIBSection docs }
       SwapRedBlue(pvBits, Width, Height); { Change pvBits from BGRA to RGBA like Scintilla wants }
       var Bitmap2 := TBitmapWithBits.Create;
       Bitmap2.Handle := Bitmap;
       Bitmap2.pvBits := pvBits;
       MarkerOrACBitmaps.Add(MarkerNumberOrACType, Bitmap2);
+      SelectObject(DC, OldBitmap); { Make sure the bitmap can be deleted later }
     end else begin
       SelectObject(DC, OldBitmap);
       DeleteObject(Bitmap);
