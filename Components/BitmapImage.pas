@@ -2,7 +2,7 @@ unit BitmapImage;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -416,11 +416,11 @@ begin
     var Y := R.Top;
     if Center then begin
       Inc(X, (R.Width - W) div 2);
-      if X < 0 then
-        X := 0;
+      if X < R.Left then
+        X := R.Left;
       Inc(Y, (R.Height - H) div 2);
-      if Y < 0 then
-        Y := 0;
+      if Y < R.Top then
+        Y := R.Top;
     end;
 
     if not Is32bit and (ReplaceColor <> clNone) and (ReplaceWithColor <> clNone) then begin
