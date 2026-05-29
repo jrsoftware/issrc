@@ -648,7 +648,7 @@ procedure TWizardForm.UpdateAppAssocControls;
 var
   Enabled: Boolean;
 begin
-  Enabled := not NoAppExeCheck.Checked;
+  Enabled := NoAppExeCheck.Enabled and not NoAppExeCheck.Checked;
   CreateAssocCheck.Enabled := Enabled;
 
   Enabled := Enabled and CreateAssocCheck.Checked;
@@ -756,6 +756,9 @@ begin
 
   { AppFiles }
   UpdateAppExeControls;
+
+  { AppAssoc }
+  UpdateAppAssocControls;
 end;
 
 procedure TWizardForm.AppExeButtonClick(Sender: TObject);
