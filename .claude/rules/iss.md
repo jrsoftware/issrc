@@ -12,7 +12,7 @@ These are hard constraints of the ROPS compiler. Violating them causes compile e
 - No default parameter values.
 - No function or procedure overloading.
 - No `raise` keyword. Use `RaiseException(Msg)` or `RaiseLastException` instead.
-- No `on E: ExceptionType do` in except blocks. Use `GetExceptionMessage` to inspect the current exception.
+- No `on E: ExceptionType do` in `except` blocks. Use `GetExceptionMessage` to inspect the current exception.
 - No script-defined classes. Classes can be used, but only those defined by Inno Setup.
 - No variant records.
 - `const` parameters are passed by value (copied), and not by reference as in modern Delphi.
