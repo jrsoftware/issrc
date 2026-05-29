@@ -5,16 +5,16 @@ paths: ["**/*.iss"]
 Inno Setup `.iss` scripts use the `[Code]` section for Pascal Script code. This is RemObjects Pascal Script (ROPS), not modern Delphi. The following rules apply to code in `[Code]` sections.
 ## Fundamental language differences from Delphi
 These are hard constraints of the ROPS compiler. Violating them causes compile errors.
-- No inline var or inline const. All local variables must be declared in a single `var` block before `begin`. All local constants in a `const` block before `begin`.
+- No inline var or inline const. All local variables must be declared in a `var` block before `begin`.
+- No local `const` or `type` declarations. Only `var` and `label` blocks are allowed before `begin`.
 - No `exit(Value)` syntax. Assign to `Result` first, then call `exit` separately.
 - No typed constants (`const X: Integer = 1`). Only untyped constants (`const X = 1`).
 - No default parameter values.
 - No function or procedure overloading.
-- No `raise` keyword. Use `RaiseException(Msg)` instead.
+- No `raise` keyword. Use `RaiseException(Msg)` or `RaiseLastException` instead.
 - No `on E: ExceptionType do` in except blocks. Use `ExceptionType`, `ExceptionParam`, and `GetExceptionMessage` to inspect the current exception.
 - No script-defined classes. Classes are host-registered only.
 - No variant records.
-- No `const` or `type` declaration blocks inside procedure or function bodies. Only `var` and `label` blocks are allowed before `begin`.
 - `const` parameters are passed by value (copied), not by reference as in modern Delphi.
 - The `/` operator always returns `Extended`, even when both operands are integers. Use `div` for integer division.
 - `break` and `continue` are not reserved words. They are ordinary identifiers recognized specially inside loop bodies. A local declaration named `Break` or `Continue` will shadow the loop-control behavior.

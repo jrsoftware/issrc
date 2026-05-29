@@ -550,41 +550,6 @@ begin
   Result := FIdentManager.TypeOf(Name)
 end;
 
-{TFuncParam}
-
-type
-
-  TFuncParam = class(TInterfacedObject, IIsppFuncParam)
-  private
-    FValue: PIsppVariant;
-  protected
-    constructor Create(Value: PIsppVariant);
-    function GetType: TIsppVarType; stdcall;
-    function GetAsInt64: Int64; stdcall;
-    function GetAsString(Buf: PChar; BufSize: Cardinal): Integer; stdcall;
-  end;
-
-constructor TFuncParam.Create(Value: PIsppVariant);
-begin
-  FValue := Value
-end;
-
-function TFuncParam.GetAsInt64: Int64;
-begin
-  Result := FValue^.AsInt64
-end;
-
-function TFuncParam.GetAsString(Buf: PChar; BufSize: Cardinal): Integer;
-begin
-  StrLCopy(Buf, PChar(FValue^.AsStr), BufSize);
-  Result := Length(FValue^.AsStr)
-end;
-
-function TFuncParam.GetType: TIsppVarType;
-begin
-  Result := FValue^.Typ
-end;
-
 { TFuncCallContext }
 
 type
@@ -600,11 +565,9 @@ type
     constructor Create(Sender: NativeInt; Func: PFunc);
     destructor Destroy; override;
     { IIsppFuncParams }
-    function Get(Index: NativeInt): IIsppFuncParam; stdcall;
     function GetCount: NativeInt; stdcall;
     { IInternalFuncParams }
-    function IInternalFuncParams.Get = InternalGet;
-    function InternalGet(Index: NativeInt): PIsppVariant;
+    function Get(Index: NativeInt): PIsppVariant;
     function ResPtr: PIsppVariant;
     { IIsppFuncResult }
     procedure SetAsInt(Value: Int64); stdcall;
@@ -673,17 +636,12 @@ begin
   raise Exception.Create(Message)
 end;
 
-function TFuncCallContext.Get(Index: NativeInt): IIsppFuncParam;
-begin
-  Result := TFuncParam.Create(FParams[Index]);
-end;
-
 function TFuncCallContext.GetCount: NativeInt;
 begin
   Result := FParams.Count
 end;
 
-function TFuncCallContext.InternalGet(Index: NativeInt): PIsppVariant;
+function TFuncCallContext.Get(Index: NativeInt): PIsppVariant;
 begin
   Result := FParams[Index]
 end;

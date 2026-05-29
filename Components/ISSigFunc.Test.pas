@@ -366,6 +366,40 @@ begin
     TestCheckValidPublicXOrYRaises(S);
   end;
   {$ENDIF}
+
+  { ISSigCalcStreamHash: empty stream hashes to SHA256 of empty input }
+  var HashStream := TMemoryStream.Create;
+  try
+    var EmptyContext: TSHA256Context;
+    SHA256Init(EmptyContext);
+    Assert(SHA256DigestsEqual(ISSigCalcStreamHash(HashStream),
+      SHA256Final(EmptyContext)));
+  finally
+    HashStream.Free;
+  end;
+
+  { ISSigCalcStreamHash: known data }
+  var HashData: TBytes := [$48, $65, $6C, $6C, $6F];
+  HashStream := TMemoryStream.Create;
+  try
+    HashStream.WriteBuffer(HashData[0], Length(HashData));
+    HashStream.Position := 0;
+    Assert(SHA256DigestsEqual(ISSigCalcStreamHash(HashStream),
+      SHA256Buf(HashData[0], Cardinal(Length(HashData)))));
+  finally
+    HashStream.Free;
+  end;
+
+  { ISSigCalcStreamHash: reads from current position, not start }
+  HashStream := TMemoryStream.Create;
+  try
+    HashStream.WriteBuffer(HashData[0], Length(HashData));
+    HashStream.Position := 2;
+    Assert(SHA256DigestsEqual(ISSigCalcStreamHash(HashStream),
+      SHA256Buf(HashData[2], Cardinal(Length(HashData)) - 2)));
+  finally
+    HashStream.Free;
+  end;
 end;
 
 {$IFDEF DEBUG}

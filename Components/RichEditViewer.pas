@@ -549,8 +549,7 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
        GetSysColor(COLOR_WINDOWTEXT) instead of the special tomAutoColor value,
        so we can't distinguish auto from black. See get_textfont_prop_for_pos
        in dlls/riched20/richole.c.
-    Issue 1 & 2 can be worked around, but 3 is a showstopper.
-    Note: see fa5eed5c+4d222320 for the EM_GETOLEINTERFACE implementation. }
+    Issue 1 & 2 can be worked around, but 3 is a showstopper. }
 
     procedure SetSelection(const StartPos, EndPos: Integer);
     begin
