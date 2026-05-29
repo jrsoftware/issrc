@@ -24,7 +24,7 @@
 <!ELEMENT pre       (line)*>
 <!ELEMENT line      (#PCDATA|link|b)*>
 <!ELEMENT tt        (#PCDATA|i|link|extlink)*>
-<!ELEMENT code      (#PCDATA|b|i)*>
+<!ELEMENT code      (#PCDATA|b|i|link)*>
 <!ELEMENT link      (#PCDATA)*>
 <!ATTLIST link
   href    CDATA     #IMPLIED

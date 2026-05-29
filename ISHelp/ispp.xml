@@ -679,9 +679,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="ISPP options">
 					<table>
-						<tr><td>c</td><td>Indicates that the &translation; should be sent to the compiler after preprocessing is done. Default state: on.</td></tr>
-						<tr><td>e</td><td>Specifies whether empty lines or lines with only whitespace should be emitted to the &translation;. Default state: on.</td></tr>
-						<tr><td>v</td><td>Turns on/off the verbose mode. Default state: off.</td></tr>
+						<tr><td>c</td><td>Send the &translation; to the compiler after preprocessing. Default state: on.</td></tr>
+						<tr><td>e</td><td>Keep empty lines and lines with only whitespace in the &translation;. Default state: on.</td></tr>
+						<tr><td>v</td><td>Verbose mode. Default state: off.</td></tr>
 					</table>
 				</section>
 				<section title="Parser options">
@@ -2418,14 +2418,14 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<p>The <link href="compilercmdline">console-mode compiler</link> (<tt>ISCC.exe</tt>) provides extra options to control Inno Setup Preprocessor:</p>
 				<table>
 					<tr><th>Option</th><th>Meaning</th></tr>
-					<tr><td nowrap=""><code>--define=<i>&lt;name&gt;</i>[=<i>&lt;value&gt;</i>]</code>, <code>-d<i>&lt;name&gt;</i>[=<i>&lt;value&gt;</i>]</code></td><td>Emulates <code>#define public <i>&lt;name&gt; &lt;value&gt;</i></code>.</td></tr>
-					<tr><td nowrap=""><code>-$<i>&lt;letter&gt;</i>(+|-)</code></td><td>Emulates <code>#pragma option -<i>&lt;letter&gt;</i>(+|-)</code>.</td></tr>
-					<tr><td nowrap=""><code>-p<i>&lt;letter&gt;</i>(+|-)</code></td><td>Emulates <code>#pragma parseroption -<i>&lt;letter&gt;</i>(+|-)</code>.</td></tr>
-					<tr><td nowrap=""><code>--include-dirs=<i>&lt;paths&gt;</i></code>, <code>-i<i>&lt;paths&gt;</i></code></td><td>Emulates <code>#pragma include <i>&lt;paths&gt;</i></code> (multiple paths can be delimited with semicolons).</td></tr>
-					<tr><td nowrap=""><code>--include=<i>&lt;filename&gt;</i></code>, <code>-j<i>&lt;filename&gt;</i></code></td><td>Emulates <code>#include <i>&lt;filename&gt;</i></code>.</td></tr>
-					<tr><td nowrap=""><code>--inline-start=<i>&lt;string&gt;</i></code>, <code>-{#<i>&lt;string&gt;</i></code></td><td>Emulates <code>#pragma inlinestart <i>&lt;string&gt;</i></code>.</td></tr>
-					<tr><td nowrap=""><code>--inline-end=<i>&lt;string&gt;</i></code>, <code>-}<i>&lt;string&gt;</i></code></td><td>Emulates <code>#pragma inlineend <i>&lt;string&gt;</i></code>.</td></tr>
-					<tr><td nowrap=""><code>--verbose=<i>&lt;number&gt;</i></code>, <code>-v<i>&lt;number&gt;</i></code></td><td>Emulates <code>#pragma verboselevel <i>&lt;number&gt;</i></code>.</td></tr>
+					<tr><td nowrap=""><code>--define=<i>&lt;name&gt;</i>[=<i>&lt;value&gt;</i>]</code>, <code>-d<i>&lt;name&gt;</i>[=<i>&lt;value&gt;</i>]</code></td><td>Emulates <code><link href="define">#define</link> public <i>&lt;name&gt; &lt;value&gt;</i></code> (variable-definition).</td></tr>
+					<tr><td nowrap=""><code>-$<i>&lt;letter&gt;</i>(+|-)</code></td><td>Emulates <code><link href="pragma">#pragma</link> option -<i>&lt;letter&gt;</i>(+|-)</code>.</td></tr>
+					<tr><td nowrap=""><code>-p<i>&lt;letter&gt;</i>(+|-)</code></td><td>Emulates <code><link href="pragma">#pragma</link> parseroption -<i>&lt;letter&gt;</i>(+|-)</code>.</td></tr>
+					<tr><td nowrap=""><code>--include-dirs=<i>&lt;paths&gt;</i></code>, <code>-i<i>&lt;paths&gt;</i></code></td><td>Emulates <code><link href="pragma">#pragma</link> include <i>&lt;paths&gt;</i></code> (multiple paths can be delimited with semicolons).</td></tr>
+					<tr><td nowrap=""><code>--include=<i>&lt;filename&gt;</i></code>, <code>-j<i>&lt;filename&gt;</i></code></td><td>Emulates <code><link href="include">#include</link>&sp;<i>&lt;filename&gt;</i></code>.</td></tr>
+					<tr><td nowrap=""><code>--inline-start=<i>&lt;string&gt;</i></code>, <code>-{#<i>&lt;string&gt;</i></code></td><td>Emulates <code><link href="pragma">#pragma</link> inlinestart <i>&lt;string&gt;</i></code>.</td></tr>
+					<tr><td nowrap=""><code>--inline-end=<i>&lt;string&gt;</i></code>, <code>-}<i>&lt;string&gt;</i></code></td><td>Emulates <code><link href="pragma">#pragma</link> inlineend <i>&lt;string&gt;</i></code>.</td></tr>
+					<tr><td nowrap=""><code>--verbose=<i>&lt;number&gt;</i></code>, <code>-v<i>&lt;number&gt;</i></code></td><td>Emulates <code><link href="pragma">#pragma</link> verboselevel <i>&lt;number&gt;</i></code>.</td></tr>
 				</table>
 				<p>Example: <tt>iscc -$c- -pu+ "--define=LicenseFile=Trial License.txt" --include-dirs=c:\inc;d:\inc --include=defines.iss "c:\isetup\samples\my script.iss"</tt></p>
 			</description>
