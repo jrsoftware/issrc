@@ -195,6 +195,15 @@ begin
   Assert(WildcardMatch('file.txt', '*.*'));
   Assert(not WildcardMatch('file', '*.*'));
 
+  { Non-consecutive '*': recursive backtracking on longer text }
+  const LongA = StringOfChar('a', 100);
+  Assert(WildcardMatch(PChar(LongA + 'b'), '*b'));
+  Assert(not WildcardMatch(PChar(LongA), '*b'));
+  Assert(WildcardMatch('the quick brown fox jumps over', '*brown*over'));
+  Assert(not WildcardMatch('the quick brown fox jumps over', '*brown*under'));
+  Assert(WildcardMatch('abcdefghij', '*c*f*j'));
+  Assert(not WildcardMatch('abcdefghij', '*c*f*k'));
+
   { TryStrToBoolean: case-insensitive yes/no/true/false plus '0'/'1';
     BoolResult must be left untouched on failure }
   var BoolResult: Boolean;
@@ -294,6 +303,159 @@ begin
   Assert(FileTime.HasTime);
   FileTime.Clear;
   Assert(not FileTime.HasTime);
+
+  { PerformFileOperationWithRetries: Op succeeds immediately }
+  var OpCount := 0;
+  var FailingCount := 0;
+  var FailedCount := 0;
+  var TestOp: TFileOperationFunc :=
+    function(out LastError: Cardinal): Boolean
+    begin
+      Inc(OpCount);
+      LastError := 0;
+      Exit(True);
+    end;
+  var TestFailing: TFileOperationFailingProc :=
+    procedure(const LastError: Cardinal)
+    begin
+      Inc(FailingCount);
+    end;
+  var TestFailed: TFileOperationFailedProc :=
+    procedure(const LastError: Cardinal; var TryOnceMore: Boolean)
+    begin
+      Inc(FailedCount);
+    end;
+  Assert(PerformFileOperationWithRetries(2, False, TestOp, TestFailing, TestFailed));
+  Assert(OpCount = 1);
+  Assert(FailingCount = 0);
+  Assert(FailedCount = 0);
+
+  { PerformFileOperationWithRetries: retryable error, succeeds on retry }
+  OpCount := 0;
+  FailingCount := 0;
+  FailedCount := 0;
+  TestOp :=
+    function(out LastError: Cardinal): Boolean
+    begin
+      Inc(OpCount);
+      if OpCount < 2 then begin
+        LastError := ERROR_SHARING_VIOLATION;
+        Exit(False);
+      end;
+      LastError := 0;
+      Exit(True);
+    end;
+  Assert(PerformFileOperationWithRetries(2, False, TestOp, TestFailing, TestFailed));
+  Assert(OpCount = 2);
+  Assert(FailingCount = 1);
+  Assert(FailedCount = 0);
+
+  { PerformFileOperationWithRetries: retryable error, exhausts all retries }
+  OpCount := 0;
+  FailingCount := 0;
+  FailedCount := 0;
+  TestOp :=
+    function(out LastError: Cardinal): Boolean
+    begin
+      Inc(OpCount);
+      LastError := ERROR_SHARING_VIOLATION;
+      Exit(False);
+    end;
+  Assert(not PerformFileOperationWithRetries(2, False, TestOp, TestFailing, TestFailed));
+  Assert(OpCount = 3);
+  Assert(FailingCount = 2);
+  Assert(FailedCount = 1);
+
+  { PerformFileOperationWithRetries: non-retryable error goes to Failed }
+  OpCount := 0;
+  FailingCount := 0;
+  FailedCount := 0;
+  TestOp :=
+    function(out LastError: Cardinal): Boolean
+    begin
+      Inc(OpCount);
+      LastError := ERROR_FILE_NOT_FOUND;
+      Exit(False);
+    end;
+  Assert(not PerformFileOperationWithRetries(2, False, TestOp, TestFailing, TestFailed));
+  Assert(OpCount = 1);
+  Assert(FailingCount = 0);
+  Assert(FailedCount = 1);
+
+  { PerformFileOperationWithRetries Ex: naStopAndSucceed path }
+  OpCount := 0;
+  var FailingExCount := 0;
+  FailedCount := 0;
+  TestOp :=
+    function(out LastError: Cardinal): Boolean
+    begin
+      Inc(OpCount);
+      LastError := ERROR_SHARING_VIOLATION;
+      Exit(False);
+    end;
+  var TestFailingEx: TFileOperationFailingExProc :=
+    procedure(const LastError: Cardinal; var RetriesLeft: Integer; var NextAction: TFileOperationFailingNextAction)
+    begin
+      Inc(FailingExCount);
+      NextAction := naStopAndSucceed;
+    end;
+  Assert(PerformFileOperationWithRetries(2, False, TestOp, TestFailingEx, TestFailed));
+  Assert(OpCount = 1);
+  Assert(FailingExCount = 1);
+  Assert(FailedCount = 0);
+
+  { PerformFileOperationWithRetries: TryOnceMore path }
+  OpCount := 0;
+  FailingCount := 0;
+  FailedCount := 0;
+  TestOp :=
+    function(out LastError: Cardinal): Boolean
+    begin
+      Inc(OpCount);
+      if OpCount < 3 then begin
+        LastError := ERROR_FILE_NOT_FOUND;
+        Exit(False);
+      end;
+      LastError := 0;
+      Exit(True);
+    end;
+  TestFailed :=
+    procedure(const LastError: Cardinal; var TryOnceMore: Boolean)
+    begin
+      Inc(FailedCount);
+      if FailedCount < 3 then
+        TryOnceMore := True;
+    end;
+  Assert(PerformFileOperationWithRetries(0, False, TestOp, TestFailing, TestFailed));
+  Assert(OpCount = 3);
+  Assert(FailingCount = 0);
+  Assert(FailedCount = 2);
+
+  { PerformFileOperationWithRetries: AlsoRetryOnAlreadyExists makes
+    ERROR_ALREADY_EXISTS retryable }
+  OpCount := 0;
+  FailingCount := 0;
+  FailedCount := 0;
+  TestOp :=
+    function(out LastError: Cardinal): Boolean
+    begin
+      Inc(OpCount);
+      if OpCount < 2 then begin
+        LastError := ERROR_ALREADY_EXISTS;
+        Exit(False);
+      end;
+      LastError := 0;
+      Exit(True);
+    end;
+  TestFailed :=
+    procedure(const LastError: Cardinal; var TryOnceMore: Boolean)
+    begin
+      Inc(FailedCount);
+    end;
+  Assert(PerformFileOperationWithRetries(2, True, TestOp, TestFailing, TestFailed));
+  Assert(OpCount = 2);
+  Assert(FailingCount = 1);
+  Assert(FailedCount = 0);
 end;
 
 {$IFDEF DEBUG}

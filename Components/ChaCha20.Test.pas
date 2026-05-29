@@ -82,10 +82,45 @@ procedure ChaCha20RunTests;
       Assert(Byte(Buf[I+1]) = CipherText[I]);
   end;
 
+  procedure TestEmptyInput;
+  begin
+    var Key: TBytes := [$00, $01, $02, $03, $04, $05, $06, $07, $08, $09, $0a, $0b, $0c, $0d, $0e, $0f, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $1a, $1b, $1c, $1d, $1e, $1f];
+    var Nonce12: TBytes := [$00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00];
+
+    var Ctx1, Ctx2: TChaCha20Context;
+    ChaCha20Init(Ctx1, Key[0], ULength(Key), Nonce12[0], ULength(Nonce12), 0);
+    ChaCha20Init(Ctx2, Key[0], ULength(Key), Nonce12[0], ULength(Nonce12), 0);
+
+    { Calling with size 0 is a no-op }
+    var Dummy: Byte := 0;
+    ChaCha20Crypt(Ctx1, Dummy, Dummy, 0);
+
+    { Confirm the call above has no side-effect }
+    var Byte1: Byte := $42;
+    var Byte2: Byte := $42;
+    ChaCha20Crypt(Ctx1, Byte1, Byte1, 1);
+    ChaCha20Crypt(Ctx2, Byte2, Byte2, 1);
+    Assert(Byte1 = Byte2);
+
+    var Nonce24: TBytes := [$40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $4a, $4b, $4c, $4d, $4e, $4f, $50, $51, $52, $53, $54, $55, $56, $58];
+    XChaCha20Init(Ctx1, Key[0], ULength(Key), Nonce24[0], ULength(Nonce24), 0);
+    XChaCha20Init(Ctx2, Key[0], ULength(Key), Nonce24[0], ULength(Nonce24), 0);
+
+    Dummy := 0;
+    XChaCha20Crypt(Ctx1, Dummy, Dummy, 0);
+
+    Byte1 := $42;
+    Byte2 := $42;
+    XChaCha20Crypt(Ctx1, Byte1, Byte1, 1);
+    XChaCha20Crypt(Ctx2, Byte2, Byte2, 1);
+    Assert(Byte1 = Byte2);
+  end;
+
 begin
   TestChaCha20;
   TestHChaCha20;
   TestXChaCha20;
+  TestEmptyInput;
 end;
 
 {$IFDEF DEBUG}

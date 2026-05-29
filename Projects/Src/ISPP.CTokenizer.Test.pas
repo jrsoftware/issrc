@@ -283,6 +283,15 @@ begin
     Tokenizer.Free;
   end;
 
+  { NextTokenExpect accepts tkSemicolon }
+  Tokenizer := NewTokenizer('foo;');
+  try
+    Assert(Tokenizer.NextTokenExpect([tkIdent]) = tkIdent);
+    Assert(Tokenizer.NextTokenExpect([tkEOF, tkSemicolon]) = tkSemicolon);
+  finally
+    Tokenizer.Free;
+  end;
+
   {$IFDEF ISTESTTOOLPROJ}
   { Errors: illegal character. The bad character is at column 1 (1-based). }
   ExpectErrorAt('$', 1);
@@ -307,6 +316,22 @@ begin
 
   { Errors: unterminated /* comment */ }
   ExpectErrorAt('/* abc', 7);
+
+  { Errors: '12AB' is tokenized as a number but the hex prefix is
+    missing }
+  Tokenizer := NewTokenizer('12AB');
+  try
+    Assert(Tokenizer.NextToken = tkNumber);
+    var Caught := False;
+    try
+      Tokenizer.TokenInt;
+    except
+      on EParsingError do Caught := True;
+    end;
+    Assert(Caught);
+  finally
+    Tokenizer.Free;
+  end;
   {$ENDIF}
 
   { PeekAtNextToken does not consume; a subsequent NextToken returns the same

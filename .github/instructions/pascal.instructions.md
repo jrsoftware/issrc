@@ -20,9 +20,9 @@ applyTo: "**/*.pas,**/*.dpr,**/*.inc"
 - Use Windows units first, then RTL/VCL units, then Components units, then Shared units, then project specific units.
 - Class methods should be static when possible.
 - Do not shorten descriptive names. Write `Expression`, not `Expr`; `MultiFileHandler`, not `MFH`. Conventional short names (`I`, `J`, `S`, `Res`) and established identifiers (`HiWord`) are fine.
+- Comments should be short and match the style of existing comments in the file. Prefer using `{` and `}`, and do not end one-sentence comments with a period.
 # Code editing guidelines
 - Do not modify existing comments unless the code they describe is also being changed.
-- Keep new comments short and match the style of existing comments in the file.
 - When modifying code that calls Windows APIs, read the actual documentation before writing code. Do not assume parameter semantics based on similar APIs.
 - Update Inno Setup copyright header of any file you edit, if the current year is not already included.
 - Add tests for new code to the unit's `*.Test.pas` if it exists; otherwise consider creating one if the code is complex enough to warrant testing.
