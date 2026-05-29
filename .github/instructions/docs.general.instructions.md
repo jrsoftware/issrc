@@ -1,5 +1,5 @@
 ---
-applyTo: "whatsnew.htm,ISHelp/isetup.xml,ISHelp/isx.xml,ISHelp/isxfunc.xml,ISHelp/isxclasses.header*,ISHelp/isxclasses.footer"
+applyTo: "whatsnew.htm,ISHelp/isetup.xml,ISHelp/ispp.xml,ISHelp/isx.xml,ISHelp/isxfunc.xml,ISHelp/isxclasses.header*,ISHelp/isxclasses.footer"
 ---
 # General documentation conventions for Inno Setup
 
@@ -49,6 +49,7 @@ Additional vocabulary rules:
 - "Returns True if..." is the standard pattern for boolean function descriptions.
 - "cannot" as one word. Not "can not".
 - Use "use" not "utilize".
+- Use "non-zero" not "non-zero value".
 - Do not shorten established descriptive terms. Write "support function", not "func".
 - Repeat the same term for the same concept. Do not rotate between synonyms for variety.
 

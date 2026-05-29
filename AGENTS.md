@@ -52,9 +52,8 @@ Under `ISHelp/ISHelpGen/`:
 - `Components/UniPs/**`: see `.claude/rules/unips.md`.
 
 ## Documentation Conventions
-- `whatsnew.htm`, `ISHelp/isetup.xml`, `ISHelp/isx.xml`, `ISHelp/isxfunc.xml`, `ISHelp/isxclasses.header*`, `ISHelp/isxclasses.footer`: see `.claude/rules/docs.general.md`.
+- `whatsnew.htm`, `ISHelp/isetup.xml`, `ISHelp/ispp.xml`, `ISHelp/isx.xml`, `ISHelp/isxfunc.xml`, `ISHelp/isxclasses.header*`, `ISHelp/isxclasses.footer`: see `.claude/rules/docs.general.md`.
 - `ISHelp/isetup.xml`, `ISHelp/isx.xml`, `ISHelp/isxfunc.xml`, `ISHelp/isxclasses.header*`, `ISHelp/isxclasses.footer`: see `.claude/rules/docs.ishelp.md`.
-- `ISHelp/ispp.xml` currently doesn't conform to these conventions.
 - `whatsnew.htm`: see `.claude/rules/docs.whatsnew.md`.
 
 ## Docs

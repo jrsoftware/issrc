@@ -985,7 +985,7 @@ end;</pre></example>
       <function>
         <name>AddQuotes</name>
         <prototype>function AddQuotes(const S: String): String;</prototype>
-        <description><p>Adds a quote (") character to the left and right sides of the string if the string contains a space and it didn't have quotes already. This is primarily used when spawning another process with a long filename as one of the parameters.</p></description>
+        <description><p>Adds a quote (") character to the left and right sides of the string if the string contains a space and does not already have quotes. This is primarily used when spawning another process with a long filename as one of the parameters.</p></description>
       </function>
       <function>
         <name>RemoveQuotes</name>
@@ -1365,7 +1365,7 @@ a/p	Uses the 12-hour clock for the preceding h or hh specifier.<br />
 	If TimeSeparator is set to #0, the system's time separator character will be used instead.<br />
 'xx'/"xx"	Characters enclosed in single or double quotes are displayed as-is, and do not affect formatting.<br />
 <br />
-Format specifiers may be written in upper case as well as in lower case letters--both produce the same result.</p></description>
+Format specifiers may be written in upper case as well as in lower case letters. Both produce the same result.</p></description>
         <example><pre>
 GetDateTimeString('ddddd', #0, #0);
 GetDateTimeString('ddddd tt', #0, #0);
@@ -1404,7 +1404,7 @@ GetDateTimeString('dd/mm/yyyy hh:nn:ss', '-', ':');
       <function>
         <name>GetMD5OfString</name>
         <prototype>function GetMD5OfString(const S: AnsiString): String;</prototype>
-        <description><p>Gets the MD5 sum of the specified string, as a string.</p></description>
+        <description><p>Returns the MD5 sum of the specified string, as a string.</p></description>
         <example><pre>var
   MD5: String;
 begin
@@ -1416,7 +1416,7 @@ end;
       <function>
         <name>GetMD5OfUnicodeString</name>
         <prototype>function GetMD5OfUnicodeString(const S: String): String;</prototype>
-        <description><p>Gets the MD5 sum of the specified string, as a string.</p></description>
+        <description><p>Returns the MD5 sum of the specified string, as a string.</p></description>
         <example><pre>var
   MD5: String;
 begin
@@ -1428,7 +1428,7 @@ end;
       <function>
         <name>GetSHA1OfString</name>
         <prototype>function GetSHA1OfString(const S: AnsiString): String;</prototype>
-        <description><p>Gets the SHA-1 hash of the specified string, as a string.</p></description>
+        <description><p>Returns the SHA-1 hash of the specified string, as a string.</p></description>
         <example><pre>var
   SHA1: String;
 begin
@@ -1440,7 +1440,7 @@ end;
       <function>
         <name>GetSHA1OfUnicodeString</name>
         <prototype>function GetSHA1OfUnicodeString(const S: String): String;</prototype>
-        <description><p>Gets the SHA-1 hash of the specified string, as a string.</p></description>
+        <description><p>Returns the SHA-1 hash of the specified string, as a string.</p></description>
         <example><pre>var
   SHA1: String;
 begin
@@ -1452,7 +1452,7 @@ end;
       <function>
         <name>GetSHA256OfString</name>
         <prototype>function GetSHA256OfString(const S: AnsiString): String;</prototype>
-        <description><p>Gets the SHA-256 hash of the specified string, as a string.</p></description>
+        <description><p>Returns the SHA-256 hash of the specified string, as a string.</p></description>
         <example><pre>var
   SHA256: String;
 begin
@@ -1464,7 +1464,7 @@ end;
       <function>
         <name>GetSHA256OfUnicodeString</name>
         <prototype>function GetSHA256OfUnicodeString(const S: String): String;</prototype>
-        <description><p>Gets the SHA-256 hash of the specified string, as a string.</p></description>
+        <description><p>Returns the SHA-256 hash of the specified string, as a string.</p></description>
         <example><pre>var
   SHA256: String;
 begin
@@ -2170,17 +2170,17 @@ end;</pre></example>
       <function>
         <name>GetMD5OfFile</name>
         <prototype>function GetMD5OfFile(const Filename: String): String;</prototype>
-        <description><p>Gets the MD5 sum of the specified file, as a string. An exception will be raised upon failure.</p></description>
+        <description><p>Returns the MD5 sum of the specified file, as a string. An exception will be raised upon failure.</p></description>
       </function>
       <function>
         <name>GetSHA1OfFile</name>
         <prototype>function GetSHA1OfFile(const Filename: String): String;</prototype>
-        <description><p>Gets the SHA-1 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
+        <description><p>Returns the SHA-1 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
       </function>
       <function>
         <name>GetSHA256OfFile</name>
         <prototype>function GetSHA256OfFile(const Filename: String): String;</prototype>
-        <description><p>Gets the SHA-256 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
+        <description><p>Returns the SHA-256 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
         <seealso><p><link topic="isxfunc_GetSHA256OfStream">GetSHA256OfStream</link></p></seealso>
       </function>
     </subcategory>

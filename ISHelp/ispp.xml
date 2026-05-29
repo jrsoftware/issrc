@@ -34,10 +34,10 @@
 	<topic id="isppoverview">
 		<title>Introduction</title>
 		<description header="no">
-			<p>The main purpose of Inno Setup Preprocessor (ISPP) is to automate compile-time tasks and avoid repetition in your scripts. For example, you can declare a compile-time preprocessor variable &dash; containing your application name, for instance &dash; and then use its value in several places of your script. If for some reason you need to change the name of your application, you'll have to change it only once in your script. Without the preprocessor, you would need to change all occurrences of your application name throughout the script.</p>
+			<p>The main purpose of Inno Setup Preprocessor (ISPP) is to automate compile-time tasks and avoid repetition in your scripts. For example, you can declare a compile-time preprocessor variable &dash; containing your application name, for instance &dash; and then use its value in several places in your script. If for some reason you need to change the name of your application, you'll have to change it only once in your script. Without the preprocessor, you would need to change all occurrences of your application name throughout the script.</p>
 			<p>Another example of using the preprocessor would be gathering version information from your application at compile-time by reading the version info of an EXE file, and using it in your <link href="setup_appvername">AppVerName</link> [Setup] section directive or anywhere else. Without the preprocessor, you would have to modify your script each time the version of your application changes.</p>
 			<p>The preprocessor can even scan your source folder and generate script lines for the found files. Without the preprocessor, you would have to manually maintain the list of files.</p>
-			<p>Conditional in- and exclusion of portions of script is also possible by using the preprocessor: you can create one single script for different versions/levels of your applications (for example, trial versus fully functional). Without the preprocessor, you would need multiple scripts.</p>
+			<p>The preprocessor can also conditionally include or exclude portions of the script: you can create one single script for different versions of your application (for example, trial versus fully functional). Without the preprocessor, you would need multiple scripts.</p>
 			<p>Finally, the preprocessor makes it possible to split long lines using a line spanning symbol.</p>
 			<p>Note: the preprocessor works exclusively at compile-time, and has no run-time functionality.</p>
     </description>
@@ -46,16 +46,16 @@
 			<title>Directives Reference</title>
  			<description header="no">
 				<p>There are two kinds of directives in ISPP: simple and inline.</p>
-				<p>Simple directives occupy a whole line and begin with the <tt>#</tt> symbol. For example the following defines a variable called <tt>MyAppName</tt>:</p>
+				<p>Simple directives occupy a whole line and begin with the <tt>#</tt> symbol. For example, the following defines a variable called <tt>MyAppName</tt>:</p>
 				<pre>
 					<line>#define MyAppName "My Program"</line>
 				</pre>
-				<p>Inline directives appear inside other lines and begin with <tt>{#</tt> and end with <tt>}</tt>. For example the following sets Inno Setup's <tt>AppName</tt> directive to the value of the previously defined variable:</p>
+				<p>Inline directives appear inside other lines and begin with <tt>{#</tt> and end with <tt>}</tt>. For example, the following sets Inno Setup's <tt>AppName</tt> directive to the value of the previously defined variable:</p>
 				<pre>
 					<line>[Setup]</line>
 					<line>AppName={#MyAppName}</line>
 				</pre>
-				<p>As seen in the above example it is not necessary to specify the name of the &emit; directive when it is used inline, so <tt>{#MyAppName}</tt> is short for <tt>{#emit MyAppName}</tt>.</p>
+				<p>As seen in the above example, you don't need to specify the name of the &emit; directive when it's used inline, so <tt>{#MyAppName}</tt> is short for <tt>{#emit MyAppName}</tt>.</p>
 			</description>
 			<section title="Directive syntax documenting conventions">
 				<p>Directive usage syntax uses the following conventions.</p>
@@ -137,7 +137,7 @@
 					<p>The first syntax ("variable-definition") defines a variable named <tt>ident</tt>, or assigns a value to an element of an array named <tt>ident</tt> (use &dim; instead of <tt>define</tt> to define the array variable itself). If none of the <tt>public</tt>, <tt>protected</tt>, or <tt>private</tt> keywords are specified, default <link href="visibility">visibility</link> is assumed.</p>
 					<p>The second syntax ("macro-definition") defines <link href="macros">a user defined function</link> named <tt>ident</tt>. Note:</p>
 					<ul>
-						<li>There must be no whitespace between the name and opening parenthesis, otherwise it will be treated as variable declaration.</li>
+						<li>There must be no whitespace between the name and the opening parenthesis, otherwise it will be treated as a variable declaration.</li>
 						<li>Formal parameters may be preceded by a type-id: <tt>any</tt>, <tt>int</tt>, <tt>str</tt>, <tt>func</tt>, or <tt>array</tt>.</li>
 						<li>Default values may be specified only for parameters with no type-id or with type-id: <tt>any</tt>, <tt>int</tt>, or <tt>str</tt>.</li>
 						<li>The <tt>func</tt> type-id declares that the parameter accepts a user defined function or built-in function, and the <tt>array</tt> type-id declares that it accepts an array variable. When calling such a user defined function, the actual parameter for a <tt>func</tt> or <tt>array</tt> parameter must be specified using the <tt>@</tt> operator (for example, <tt>@MyFunc</tt> or <tt>@MyArray</tt>). Also see <link href="macros">User Defined Functions</link>.</li>
@@ -180,7 +180,7 @@
 					</define>
 				</syntax>
 				<description>
-					<p>Use &dim; to define an array variable, set its dimension and optionally intialize it. All unitialized elements of the array are initialized to null (void). To assign an element value after declaring the array, use &define;. Instead of assigning element values with &define;, it is also possible to set an element value by using it as the left operand of an assignment.</p>
+					<p>Use &dim; to define an array variable, set its dimension and optionally initialize it. All uninitialized elements of the array are initialized to null (void). To assign an element value after declaring the array, use &define;. Instead of assigning element values with &define;, it is also possible to set an element value by using it as the left operand of an assignment.</p>
 					<p>Use &redim; to increase or decrease the dimension of an existing array variable. All new elements of the array are initialized to null (void) and existing elements are left unchanged. Identical to &dim; if <tt>ident</tt> isn't an existing array variable.</p>
 				</description>
 				<section title="Examples">
@@ -240,11 +240,11 @@
 					</define>
 				</syntax>
 				<description>
-					<p>Includes the &translation; of the specified file. If an Unicode file is used, it must be UTF-8 (with or without a BOM) encoded</p>
-					<p>If the filename is enclosed in quotes, ISPP first searches for the file in the directory where current file resides, then in the directory where the file that included current file resides, and so on. If the file is not found, it is searched on current include path, set via &pragma;, then on the path specified by INCLUDE environment variable.</p>
-					<p>If filename is an expression or specified in angle brackets, it is searched on current include path only.</p>
+					<p>Includes the &translation; of the specified file. If a Unicode file is used, it must be UTF-8 (with or without a BOM) encoded.</p>
+					<p>If the filename is enclosed in quotes, ISPP first searches for the file in the directory where the current file resides, then in the directory where the file that included the current file resides, and so on. If the file is not found, ISPP searches for it on the current include path, set via &pragma;, then on the path specified by the INCLUDE environment variable.</p>
+					<p>If the filename is an expression or specified in angle brackets, ISPP searches for it on the current include path only.</p>
           <p>The filename may be prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
-					<p>This directive cannot be used inline.</p>
+					<p>This directive can't be used inline.</p>
 				</description>
 				<section title="Examples">
 					<pre>
@@ -266,9 +266,9 @@
 					</define>
 				</syntax>
 				<description>
-					<p>Replaces the directive with the name of a temporary file containing the &translation; of the specified file. Upon end of compilation, the temporary file is automatically deleted. If an Unicode file is used, it must be UTF-8 (with or without a BOM) encoded.</p>
-					<p>Including a file using this directive creates a new independent instance of the preprocessor, passing it options currently in effect and all declared identifiers. If the included file modifies options in some way, they are not propagated back.</p>
-					<p>When using this directive in Inno Setup's Source parameter of the [Files] section, specify a DestName parameter too, else the file with not be installed with the original name.</p>
+					<p>Replaces the directive with the name of a temporary file containing the &translation; of the specified file. When compilation finishes, the temporary file is automatically deleted. If a Unicode file is used, it must be UTF-8 (with or without a BOM) encoded.</p>
+					<p>Including a file using this directive creates a new independent instance of the preprocessor, passing it the options currently in effect and all declared identifiers. If the included file modifies options in some way, they are not propagated back.</p>
+					<p>When using this directive in Inno Setup's Source parameter of the [Files] section, specify a DestName parameter too, otherwise the file will not be installed with the original name.</p>
 					<p>This directive can only be used <link href="directives">inline</link>.</p>
 				</description>
 				<section title="Examples">
@@ -304,7 +304,7 @@
 				<description>
 					<p>Replaces the directive with the value of &expr;.</p>
 					<p>When used <link href="directives">inline</link>, the name of this directive can be omitted unless &expr; begins with the name of another directive.</p>
-					<p>This means you can, for example, use <tt>{#MyDestDir}</tt> instead of <tt>{#emit MyDestDir}</tt>, <tt>{#echo MyDestDir}</tt> or <tt>{#=MyDestDir}</tt></p>
+					<p>This means you can, for example, use <tt>{#MyDestDir}</tt> instead of <tt>{#emit MyDestDir}</tt>, <tt>{#echo MyDestDir}</tt>, or <tt>{#=MyDestDir}</tt>.</p>
 				</description>
 				<section title="Examples">
 					<pre>
@@ -346,7 +346,7 @@
 					</define>
 				</syntax>
 				<description>
-					<p>Evaluates an expression ignoring its result. This directive acts like &emit; with the exception that it doesn't emit anything to the &translation;.</p>
+					<p>Evaluates an expression ignoring its result. This directive acts like &emit; except that it doesn't emit anything to the &translation;.</p>
 					<p>This directive is intended to be used with functions that produce side effects and do not return any significant value.</p>
 				</description>
 				<section title="Examples">
@@ -376,7 +376,7 @@
 					</define>
 				</syntax>
 				<description>
-					<p>Replaces the directive with the value of the specified environment variable. If the environment variable is not defined, it is replaced with an empty string.</p>
+					<p>Replaces the directive with the value of the specified environment variable. If the environment variable isn't defined, it is replaced with an empty string.</p>
 				</description>
 				<section title="Examples">
 					<pre>
@@ -398,9 +398,9 @@
 					</define>
 				</syntax>
 				<description>
-					<p>Changes the insertion point. By default, each processed line is appended to the end of the &translation;. Using &insert; the point at which the next processed line will be inserted into the &translation; can be set. &insert; takes an expression which must evaluate to a 0-based line index. If this index is 0, the next processed line is inserted at the beginning of the &translation;. If this index is 1, the next processed line is put in the second position of the &translation;, and so on.</p>
-					<p>The insertion point is also always automatically incremented each time after a line has been added to the &translation;, so that each new line is inserted after the one previously inserted.</p>
-					<p>It is not recommended to use script generating functions (such as <tt><link href="SetSetupSetting">SetSetupSetting</link></tt>) which may insert a line by themselves, thus shifting a part of the &translation; one line down, whereas insertion point is not updated. This may result in different insertion point than expected.</p>
+					<p>Changes the insertion point. By default, each processed line is appended to the end of the &translation;. With &insert;, you can set where the next processed line is inserted. &insert; takes an expression that must evaluate to a 0-based line index. If this index is 0, the next processed line is inserted at the beginning of the &translation;. If this index is 1, the next processed line is put in the second position of the &translation;, and so on.</p>
+					<p>The insertion point is automatically incremented after each line is added to the &translation;, so each new line is inserted after the previously inserted line.</p>
+					<p>Avoid script generating functions (such as <tt><link href="SetSetupSetting">SetSetupSetting</link></tt>) that may insert a line themselves. This shifts part of the &translation; one line down without updating the insertion point. The next line may then be inserted in an unexpected place.</p>
 					<p>The <tt><link href="find">Find</link></tt> function can be used to produce values for the &insert; directive.</p>
 				</description>
 				<section title="Examples">
@@ -477,7 +477,7 @@
 				</syntax>
 				<description>
 					<p>The &if;, &elif;, &else;, and &endif; conditional directives control in- and exclusion of portions of script.</p>
-					<p>ISPP first evaluates the expressions following each &if; or &elif; directive until it finds one evaluating to non-zero. It then selects the portion of script following this directive up to its associated &elif;, &else;, or &endif;. Earlier portions which followed an &if; or &elif; which evaluated to zero, or which follows any next &elif; are not selected and thus not seen by the Inno Setup compiler.</p>
+					<p>ISPP first evaluates the expressions following each &if; or &elif; directive until it finds one evaluating to non-zero. It then selects the portion of script following this directive up to its associated &elif;, &else;, or &endif;. Portions which followed an &if; or &elif; which evaluated to zero, or which follow any subsequent &elif;, are not selected and thus not seen by the Inno Setup compiler.</p>
 					<p>If no expression evaluated to non-zero, the preprocessor selects the script portion after the &else; directive if present, otherwise nothing is selected.</p>
 					<p>Finally, after selecting any script portion, ISPP preprocesses it too, so if it contains other preprocessor directives, ISPP carries out those directives as well.</p>
 					<p>Each &if; directive in a source file must be matched by a closing &endif; directive. Any number of &elif; directives can appear between the &if; and &endif; directives, but at most one &else; directive is allowed. The &else; directive, if present, must be the last directive before &endif;.</p>
@@ -527,7 +527,7 @@
 				</syntax>
 				<description>
 					<p>You can use the &ifdef;, &ifndef;, &ifexist;, and &ifnexist; directives anywhere &if; can be used. The <tt>ifdef identifier</tt> statement is equivalent to <tt>if 1</tt> when the specified identifier has been defined, and equivalent to <tt>if 0</tt> when the identifier has not been defined or has been undefined with the &undef; directive. These directives check only for the presence or absence of identifiers defined with &define;.</p>
-					<p>&ifexist; and &ifnexist; directives check for presence and absence of the file, respectively.</p>
+					<p>The &ifexist; and &ifnexist; directives check for the presence and absence of the file, respectively.</p>
 				</description>
 				<section title="Examples">
 					<pre>
@@ -553,7 +553,7 @@
 					</define>
 				</syntax>
 				<description>
-					<p>Use the &for; directive to get loop behaviour. &for; takes 4 expressions. The first expression (<tt>expr1</tt>) is called "initialization expression", the second expression (<tt>expr2</tt>) "condition", the third expression (<tt>expr3</tt>) "action", and the final expression (<tt>expr4</tt>) "loop body".</p>
+					<p>Use the &for; directive to repeat part of a script. &for; takes 4 expressions. The first expression (<tt>expr1</tt>) is called "initialization expression", the second expression (<tt>expr2</tt>) "condition", the third expression (<tt>expr3</tt>) "action", and the final expression (<tt>expr4</tt>) "loop body".</p>
 					<p>The logic the &for; directive follows is:</p>
 					<p>&dsp;1. The initialization expression is evaluated.</p>
 					<p>&dsp;2. The condition is evaluated. If it evaluates to 0, the loop ends.</p>
@@ -590,9 +590,9 @@
 					</define>
 				</syntax>
 				<description>
-					<p>&sub; and &endsub; directives are used to declare a user defined procedure which is a portion of script which may be included later once or several times. You may think of a user defined procedure as being similar to an external file, and a call to a user defined procedure as being similar to inclusion of an external file, except that procedures may also be called from within expressions. Please note that it is strongly not recommended to call procedures which emit several lines to the &translation; from within compound expressions or directives.</p>
-					<p>A procedure is called by simply specifying its identifier, with which it was declared.</p>
-					<p>A procedure is not processed in any way until it is called, so if any errors exist in its body, they will only pop up when the procedure is called.</p>
+					<p>&sub; and &endsub; directives are used to declare a user defined procedure, which is a portion of script that may be included later, once or several times. A user defined procedure works much like an external file, and calling one works much like including that file, except that procedures may also be called from within expressions. Avoid calling procedures that emit several lines to the &translation; from within compound expressions or directives.</p>
+					<p>A procedure is called by specifying its identifier, with which it was declared.</p>
+					<p>A procedure isn't processed until it's called, so errors in its body are reported only when the procedure is called.</p>
 				</description>
 				<section title="Examples">
 					<pre>
@@ -667,37 +667,37 @@
 					</define>
 				</syntax>
 				<description>
-					<p>&pragma; is a special directive. Please note that if ISPP fails to parse parameters of this directive (because of typo or wrong syntax), no error will occur &dash; only a warning will be issued; this is done for compatibility with other preprocessors, which can have their own syntax of &pragma; directive.</p>
-					<p>The "pragma-option" variant of &pragma; directive controls the options which ISPP uses to read the source. Each option has an assigned letter and you specify options by typing group name (<tt>option</tt> or <tt>parseroption</tt>),
-then the letter prefixed by a dash. After the letter a plus must be used to turn the option on and minus turn it off. Multiple options can be specified at once (see syntax).
-The first group of options (<tt>option</tt>) controls the general options, while the second group (<tt>parseroption</tt>) controls options specific to parser. The list of options is provided at the end of this topic.</p>
-					<p>The "pragma-itokens" variant is used to specify inline directive terminators: starting and ending, respectively. After the token description keyword (<tt>inlinestart</tt> or <tt>inlineend</tt>) a string type expression must follow. It must not evaluate to an empty string. It is allowed to specify the same token for both starting and ending terminators. By default, <tt>{#</tt> (opening brace and a pound sign) and <tt>}</tt> (closing brace) are assumed.</p>
-					<p>The "pragma-msg" variant issues a message of the type specified by the keyword following the directive name. Messages and warnings are sent to the messages window of the compiler. Errors are shown (by the compiler) using message boxes. Expression must be of type string. Also see the &error; directive.</p>
-					<p>The "pragma-verblev" variant turns on verbose mode and sets the level of verbosity which controls the importance of messages (see below). Least important messages will show up only when highest verbose level is set.</p>
-					<p>The "pragma-include"  variant sets the include path. Expression may specify multiple paths delimited with semicolons. The list of these directories is used when ISPP tries to find a file, mentioned in &include; directive.</p>
-					<p>The "pragma-spansymb" variant sets the symbol used to span multiple lines together. Expression must not evaluate to an empty string. Only first symbol in string is taken.</p>
+					<p>&pragma; is a special directive. If ISPP can't parse its parameters (because of a typo or wrong syntax), no error occurs &dash; only a warning is issued. This is done for compatibility with other preprocessors, which may have their own syntax for the &pragma; directive.</p>
+					<p>The "pragma-option" variant of the &pragma; directive controls the options that ISPP uses to read the source. Each option has an assigned letter. Specify options by typing the group name (<tt>option</tt> or <tt>parseroption</tt>),
+then the letter prefixed by a dash. Use a plus after the letter to turn the option on and a minus to turn it off. Multiple options can be specified at once (see syntax).
+The first group of options (<tt>option</tt>) controls the general options, while the second group (<tt>parseroption</tt>) controls options specific to the parser. The list of options is shown at the end of this topic.</p>
+					<p>The "pragma-itokens" variant specifies inline directive terminators: starting and ending, respectively. After the token description keyword (<tt>inlinestart</tt> or <tt>inlineend</tt>), a string type expression must follow. It must not evaluate to an empty string. You can specify the same token for both starting and ending terminators. By default, <tt>{#</tt> (opening brace and a pound sign) and <tt>}</tt> (closing brace) are assumed.</p>
+					<p>The "pragma-msg" variant issues a message of the type specified by the keyword following the directive name. Messages and warnings are sent to the messages window of the compiler. Errors are shown (by the compiler) using message boxes. The expression must be of type string. See the &error; directive.</p>
+					<p>The "pragma-verblev" variant turns on verbose mode and sets the level of verbosity, which controls the importance of messages (see below). The least important messages appear only when the highest verbose level is set.</p>
+					<p>The "pragma-include" variant sets the include path. The expression may specify multiple paths delimited with semicolons. ISPP uses the list of directories when trying to find a file mentioned in the &include; directive.</p>
+					<p>The "pragma-spansymb" variant sets the symbol used to span multiple lines together. The expression must not evaluate to an empty string. Only the first symbol in the string is used.</p>
 				</description>
 				<section title="ISPP options">
 					<table>
-						<tr><td>c</td><td>Send the &translation; to the compiler after preprocessing. Default state: on.</td></tr>
-						<tr><td>e</td><td>Keep empty lines and lines with only whitespace in the &translation;. Default state: on.</td></tr>
-						<tr><td>v</td><td>Verbose mode. Default state: off.</td></tr>
+						<tr><td>c</td><td>Send the &translation; to the compiler after preprocessing. Defaults to on.</td></tr>
+						<tr><td>e</td><td>Keep empty lines and lines with only whitespace in the &translation;. Defaults to on.</td></tr>
+						<tr><td>v</td><td>Verbose mode. Defaults to off.</td></tr>
 					</table>
 				</section>
 				<section title="Parser options">
 					<table>
-						<tr><td>b</td><td>Short-circuit boolean evaluation. Default state: on.</td></tr>
-						<tr><td>m</td><td>Short-circuit multiplication evaluation. (In "<code>0 * A</code>", <code>A</code> will not be evaluated, since the result of expression is known to be zero.) Default state: off.</td></tr>
-						<tr><td>p</td><td>Pascal-style string literals. In off state, uses C-style string literals (with escape sequences). Default state: on.</td></tr>
-						<tr><td>u</td><td>Allow undeclared identifiers. If an undefined identifier is encountered, ISPP will raise an error unless this option is turned on, in which case a standalone identifier (the one that does not look like a function call) will be considered void value. Default state: off.</td></tr>
+						<tr><td>b</td><td>Short-circuit boolean evaluation. Defaults to on.</td></tr>
+						<tr><td>m</td><td>Short-circuit multiplication evaluation. (In "<code>0 * A</code>", <code>A</code> won't be evaluated because the result of the expression is known to be zero.) Defaults to off.</td></tr>
+						<tr><td>p</td><td>Pascal-style string literals. When off, uses C-style string literals (with escape sequences). Defaults to on.</td></tr>
+						<tr><td>u</td><td>Allow undeclared identifiers. If an undefined identifier is encountered, ISPP raises an error unless this option is turned on, in which case a standalone identifier (one that doesn't look like a function call) is considered a void value. Defaults to off.</td></tr>
 					</table>
 				</section>
 				<section title="Verbose levels">
 					<table>
-						<tr><td>0</td><td>Verbosity level messages</td></tr>
+						<tr><td>0</td><td>Messages about changes to the verbosity level</td></tr>
 						<tr><td>1</td><td>Messages about any temporary files created by #file</td></tr>
 						<tr><td>2</td><td>#insert and #append messages</td></tr>
-						<tr><td>4</td><td>#dim, #define and #undef messages</td></tr>
+						<tr><td>4</td><td>#dim, #define, and #undef messages</td></tr>
 						<tr><td>6</td><td>Conditional inclusion messages</td></tr>
 						<tr><td>8</td><td>#emit messages</td></tr>
 						<tr><td>9</td><td>Macro and functions call messages</td></tr>
@@ -730,7 +730,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</define>
 				</syntax>
 				<description>
-					<p>Causes the Inno Setup compiler to issue an error message with the specified text. Unlike <tt>pragma error</tt>, text in <tt>error</tt> directive is not parsed, so it is recommended to use this directive instead of &pragma; when possible to avoid possible syntax errors that may hide real errors your script is trying to report.</p>
+					<p>Causes the Inno Setup compiler to issue an error message with the specified text. Unlike <tt>pragma error</tt>, the text in the <tt>error</tt> directive is not parsed, so it is recommended to use this directive instead of &pragma; when possible, to avoid syntax errors that may hide the real errors your script is trying to report.</p>
 				</description>
 				<section title="Examples">
 					<pre>
@@ -748,7 +748,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 		<topic id="funcs">
 			<title>Support Functions Reference</title>
 			<description header="no">
-				<p>There are a number of built-in support functions which you can use to perform compile-time actions and/or change your script. For example the following uses ISPP function <link href="GetVersionNumbersString">GetVersionNumbersString</link> to read version info from an EXE and uses the return value of the function to set the <link href="setup_appvername">AppVerName</link> [Setup] section directive using directive &emit;:</p>
+				<p>There are a number of built-in support functions which you can use to perform compile-time actions and change your script. For example, the following uses ISPP function <link href="GetVersionNumbersString">GetVersionNumbersString</link> to read version info from an EXE and uses the return value of the function to set the <link href="setup_appvername">AppVerName</link> [Setup] section directive using directive &emit;:</p>
         <pre>
           <line>#define MyAppVer <link href="getversionnumbersstring">GetVersionNumbersString</link>(<link href="addbackslash">AddBackslash</link>(<link href="predefinedvars">SourcePath</link>) + "MyProg.exe")</line>
           <line></line>
@@ -767,7 +767,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<section title="Function prototypes documenting conventions">
 				<p>Function prototypes show the function result type, name, and parameters.</p>
 				<p>Return and parameter types <tt>int</tt>, <tt>str</tt>, <tt>any</tt>, and <tt>void</tt> respectively specify the integer type, the string type, any type, and the null type. The integer type is a signed 64-bit integer. When the null type is specified as a function result type then the function does not return a value.</p>
-				<p>A question mark (<tt>?</tt>) after an parameter type means that the parameter is optional.</p>
+				<p>A question mark (<tt>?</tt>) after a parameter type means that the parameter is optional.</p>
       </section>
 			<subtopicstitle>Available functions</subtopicstitle>
 			<topic id="GetStringFileInfo">
@@ -778,9 +778,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Retrieves a string from specified file's (first parameter) version information resource.</p>
-					<p>Second parameter is the name of the version info string-value.</p>
-					<p>Third optional parameter should specify the language and charset identifier. For example: 0x04E40409 stands for "English (United States)". If this parameter is omitted, the function scans all available version info blocks to find the value.</p>
+					<p>Retrieves a string from the version information resource of the specified file (first parameter).</p>
+					<p>The second parameter is the name of the version info string-value.</p>
+					<p>The third, optional parameter should specify the language and charset identifier. For example: 0x04E40409 stands for "English (United States)". If this parameter is omitted, the function scans all available version info blocks to find the value.</p>
 					<p>The function returns null (void) if it was unable to retrieve the value.</p>
 				</description>
 				<section title="See also">
@@ -892,7 +892,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Converts an expression (first parameter) to its integer representation. If the expression is an integer, the result of the function is the expression value. If the expression is void, the result is 0. If the expression is string, ISPP tries to convert it to integer; if such attempt fails, an error is raised unless second parameter specifies the default result.</p>
+					<p>Converts an expression (first parameter) to its integer representation. If the expression is an integer, the result of the function is the expression value. If the expression is void, the result is 0. If the expression is a string, ISPP tries to convert it to an integer; if such an attempt fails, an error is raised unless the second parameter specifies the default result.</p>
 				</description>
 			</topic>
 			<topic id="Str">
@@ -903,7 +903,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Converts an expression to string. If the expression is integer, the result is its string representation. If the expression is void, the result is an empty string. Otherwise the result is the value of the expression.</p>
+					<p>Converts an expression to a string. If the expression is an integer, the result is its string representation. If the expression is void, the result is an empty string. Otherwise the result is the value of the expression.</p>
 				</description>
 			</topic>
 			<topic id="FileExists">
@@ -914,7 +914,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns non-zero value if the specified file exists.</p>
+					<p>Returns non-zero if the specified file exists.</p>
 				</description>
 			</topic>
 			<topic id="DirExists">
@@ -925,7 +925,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns non-zero value if the specified directory exists.</p>
+					<p>Returns non-zero if the specified directory exists.</p>
 				</description>
 			</topic>
 			<topic id="ForceDirectories">
@@ -936,7 +936,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Creates all the directories along the specified directory path all at once. If the first directories in the path do exist, but the latter ones don't, ForceDirectories creates just the ones that don't exist. Returns non-zero value if successful.</p>
+					<p>Creates all the directories along the specified directory path. If the first directories in the path already exist, but the latter ones don't, ForceDirectories creates just the ones that don't exist. Returns non-zero if successful.</p>
 				</description>
 			</topic>
 			<topic id="FileSize">
@@ -947,7 +947,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns size, in bytes, of the specified file. If the file does not exist, the result is -1.</p>
+					<p>Returns the size, in bytes, of the specified file. If the file does not exist, the result is -1.</p>
 				</description>
 			</topic>
 			<topic id="ReadIni">
@@ -956,7 +956,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> ReadIni(<b>str</b> FileName, <b>str</b> Section, <b>str</b> Key, <b>str</b>? Default)</line></pre>
 				</section>
 				<description>
-					<p>Reads the value from an INI file. Parameter 1 must be the name of the INI file, parameter 2 &dash; the name of a section in the INI file, the third parameter is the key in the section to read. Last optional parameter can be used to provide the default value that will be returned on failure, if it is omitted, an empty string is returned.</p>
+					<p>Reads the value from an INI file. The first parameter is the name of the INI file, the second is the name of a section in the INI file, and the third is the key in the section to read. The last optional parameter can be used to specify the default value that will be returned on failure; if it is omitted, an empty string is returned.</p>
 				</description>
 			</topic>
 			<topic id="WriteIni">
@@ -965,7 +965,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>void</b> WriteIni(<b>str</b> FileName, <b>str</b> Section, <b>str</b> Key, <b>any</b> Value)</line></pre>
 				</section>
 				<description>
-					<p>Writes specified value to an INI file. Parameter 1 is the name of the INI file, parameter 2 &dash; the name of a section in the INI file, parameter 3 &dash; the name of a key in the section. Last parameter should be set to the value you wish to be written to the INI file, it can be of any type.</p>
+					<p>Writes the specified value to an INI file. The first parameter is the name of the INI file, the second is the name of a section in the INI file, and the third is the name of a key in the section. The last parameter should be set to the value you wish to be written to the INI file; it can be of any type.</p>
 					<p>A compiler error will be raised if the write fails.</p>
 				</description>
 			</topic>
@@ -975,7 +975,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>any</b> ReadReg(<b>int</b> RootKey, <b>str</b> SubKey, <b>str</b>? Name, <b>any</b>? Default)</line></pre>
 				</section>
 				<description>
-					<p>Reads the value of the specified registry key. First parameter is the root key, such as HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE_32 or HKEY_LOCAL_MACHINE_64. Constants for use with this parameter are declared in &builtins; accompanying ISPP. Second parameter specifies a subkey. Third parameter specifies the name of the value, if this parameter is omitted, a default value is assumed. Last optional parameter may be used to specify the default value that will be returned on failure.</p>
+					<p>Reads the value of the specified registry key. The first parameter is the root key, such as HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE_32, or HKEY_LOCAL_MACHINE_64. Constants for use with this parameter are declared in &builtins; accompanying ISPP. The second parameter specifies a subkey. The third parameter specifies the name of the value to read; if it is omitted or empty, the key's default (unnamed) value is read. The last optional parameter specifies the value to return on failure.</p>
 					<p>Note that this function can return a value of any type depending on the type of actual value in the registry.</p>
 					<p>A compiler error will be raised if an invalid root key is specified or if 64-bit registry keys are requested on 32-bit Windows.</p>
 				</description>
@@ -986,14 +986,14 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>int</b> Exec(<b>str</b> Filename, <b>str</b>? Params, <b>str</b>? WorkingDir, <b>int</b>? Wait, <b>int</b>? ShowCmd)</line></pre>
 				</section>
 				<description>
-					<p>Executes specified executable or batch file.</p>
-					<p>The Filename parameter specifies the filename of the executable or batch file. If this does not includes quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass '>' in this parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
+					<p>Executes the specified executable or batch file.</p>
+					<p>The Filename parameter specifies the filename of the executable or batch file. If this does not include quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (such as a command line obtained from an UninstallString registry value), you need not separate them yourself. Instead, just pass '>' in this parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
 					<p>The Params parameter may be used to specify parameters for the process.</p>
 					<p>The WorkingDir parameter may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process.</p>
-					<p>The Wait parameter may be set to zero if you don't wish to wait for the process to finish, and non-zero otherwise. By default, non-zero value is assumed.</p>
+					<p>The Wait parameter may be set to zero if you don't wish to wait for the process to finish, and non-zero otherwise. By default, non-zero is assumed.</p>
 					<p>The ShowCmd parameter may be any of the <tt>SW_*</tt> constants defined in &builtins;. Console programs are always hidden and the ShowCmd parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> (the default) instead of <tt>SW_HIDE</tt> is recommended.</p>
 					<p>If the Wait parameter is omitted or is non-zero, the function returns the exit code of the process. Otherwise, the function result indicates whether the process has been successfully launched (non-zero for success).</p>
-          <p><i>Note: compared to Pascal Scripting's Exec the Wait and ShowCmd parameters are swapped!</i></p>
+          <p>Note: compared to Pascal Scripting's Exec, the Wait and ShowCmd parameters are swapped.</p>
 				</description>
 				<section title="See also">
 					<p><tt><link href="ExecAndGetFirstLine">ExecAndGetFirstLine</link></tt></p>
@@ -1005,8 +1005,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> ExecAndGetFirstLine(<b>str</b> Filename, <b>str</b>? Params, <b>str</b>? WorkingDir)</line></pre>
 				</section>
 				<description>
-					<p>Executes specified executable or batch file and reads the first non-empty line from its output.</p>
-					<p>The Filename parameter specifies the filename of the executable or batch file. If this does not includes quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass '>' in this parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
+					<p>Executes the specified executable or batch file and reads the first non-empty line from its output.</p>
+					<p>The Filename parameter specifies the filename of the executable or batch file. If this does not include quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (such as a command line obtained from an UninstallString registry value), you need not separate them yourself. Instead, just pass '>' in this parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
 					<p>The Params parameter may be used to specify parameters for the process.</p>
 					<p>The WorkingDir parameter may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process.</p>
 				</description>
@@ -1020,7 +1020,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> Copy(<b>str</b> S, <b>int</b> Index, <b>int</b>? Count)</line></pre>
 				</section>
 				<description>
-					<p>Extracts a substring from a string (first parameter). The 1-based index of the character from which the substring should start is specified by the second parameter. The third parameter specifies the number of characters to take, if it is omitted, all characters up to the end of the string are copied to the result.</p>
+					<p>Extracts a substring from a string (first parameter). The 1-based index of the character from which the substring should start is specified by the second parameter. The third parameter specifies the number of characters to take. If it is omitted, all characters up to the end of the string are copied to the result.</p>
 				</description>
 			</topic>
 			<topic id="Pos">
@@ -1071,12 +1071,12 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>int</b> Find(<b>int</b> StartLine, <b>str</b> Str1, <b>int</b>? Flags1, <b>str</b>? Str2, <b>int</b>? Flags2, <b>str</b>? Str3, <b>int</b>? Flags3)</line></pre>
 				</section>
 				<description>
-					<p>Intended to be used with &insert; directive: returns the 0-based index of the first line in the &translation; matching the specified criteria. Return less than 0 if not match was found.</p>
-					<p>First parameter denotes the 0-based index of the line to start the search from, usually it is set to zero.</p>
-					<p>Second, fourth, and sixth parameters should specify string(s) to search within each line. Only the first string must be specified, whereas the others may be omitted.</p>
-					<p>Third, fifth, and seventh parameters should specify the search flags for each string meaning that first flags parameter specifies flags for the first string, and so on.</p>
-					<p>See <link href="find-flags">Find flags</link> topic for the description of the available search flags.</p>
-					<p>If any of the 'flags' parameters is omitted but the string parameter preceding it is specified, <tt>FIND_MATCH | FIND_AND</tt> (i. e. 0) is used.</p>
+					<p>Intended to be used with the &insert; directive: returns the 0-based index of the first line in the &translation; matching the specified criteria. Returns less than 0 if no match was found.</p>
+					<p>The first parameter denotes the 0-based index of the line to start the search from, usually it is set to zero.</p>
+					<p>The second, fourth, and sixth parameters should specify string(s) to search within each line. Only the first string must be specified, whereas the others may be omitted.</p>
+					<p>The third, fifth, and seventh parameters should specify the search flags for each string meaning that the first flags parameter specifies flags for the first string, and so on.</p>
+					<p>See the <link href="find-flags">Find flags</link> topic for the description of the available search flags.</p>
+					<p>If any of the 'flags' parameters is omitted but the string parameter preceding it is specified, <tt>FIND_MATCH | FIND_AND</tt> (that is, 0) is used.</p>
 				</description>
 				<section title="See also">
 					<p>&insert;.</p>
@@ -1088,15 +1088,15 @@ The first group of options (<tt>option</tt>) controls the general options, while
 						<p><tt>FIND_MATCH</tt> (0) means that the line must match the search string.</p>
 						<p><tt>FIND_BEGINS</tt> (1) means that the line must start with the search string.</p>
 						<p><tt>FIND_ENDS</tt> (2) means that the line must end with the search string.</p>
-						<p><tt>FIND_CONTAINS</tt> (3) means that the line must contain (i. e. it also can match, begin, or end with) the search string.</p>
+						<p><tt>FIND_CONTAINS</tt> (3) means that the line must contain (that is, it also can match, begin, or end with) the search string.</p>
 						<p>Any of the following modifiers may be combined with one of the previous using bitwise OR operator (<tt>|</tt>):</p>
 						<p><tt>FIND_CASESENSITIVE</tt> (4) means that comparison must be case-sensitive.</p>
-						<p><tt>FIND_AND</tt> (0) means that this criterium (the pair of parameters in <tt>Find</tt> function) must be met as well as previous criteria. Has no effect for the first criterium.</p>
-						<p><tt>FIND_OR</tt> (8) means that it is allowed that this criterium is tested even if previous criteria were not met. Has no effect for the first criterium.</p>
-						<p><tt>FIND_NOT</tt> (16) means that this criterium must not be met.</p>
+						<p><tt>FIND_AND</tt> (0) means that this criterion (the pair of parameters in <tt>Find</tt> function) must be met as well as previous criteria. Has no effect for the first criterion.</p>
+						<p><tt>FIND_OR</tt> (8) means that it is allowed that this criterion is tested even if previous criteria were not met. Has no effect for the first criterion.</p>
+						<p><tt>FIND_NOT</tt> (16) means that this criterion must not be met.</p>
 						<p><tt>FIND_AND</tt> and <tt>FIND_OR</tt> are mutually exclusive. If both are specified, <tt>FIND_OR</tt> takes precedence.</p>
 						<p>Special flags:</p>
-						<p><tt>FIND_TRIM</tt> (32) means that leading and trailing whitespaces must be stripped off from the line prior to testing it against all the criteria. This flag can only be used for the first criterium, and has no effect if used for the others. It is not mutually exclusive with any of the previously mentioned flags.</p>
+						<p><tt>FIND_TRIM</tt> (32) means that leading and trailing whitespace must be stripped from the line prior to testing it against all the criteria. This flag can only be used for the first criterion, and has no effect if used for the others. It is not mutually exclusive with any of the previously mentioned flags.</p>
 					</description>
 				</topic>
 			</topic>
@@ -1106,7 +1106,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> SetupSetting(<b>str</b> DirectiveName)</line></pre>
 				</section>
 				<description>
-					<p>Parses <link href="setupsection">[Setup] section</link> in &curtrans; to find the key whose name is specified as function parameter. Function returns the value of that key if it's found, or an empty string otherwise.</p>
+					<p>Parses the <link href="setupsection">[Setup] section</link> in &curtrans; to find the directive whose name is specified as the function parameter. The function returns the value of that directive if it's found, or an empty string otherwise.</p>
 				</description>
 			</topic>
 			<topic id="SetSetupSetting">
@@ -1115,9 +1115,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>void</b> SetSetupSetting(<b>str</b> DirectiveName, <b>str</b> Value)</line></pre>
 				</section>
 				<description>
-					<p>Modifies or generates [Setup] section directive given the key (first parameter) and its value (second parameter).</p>
-					<p>If there is no [Setup] section in &curtrans; (it may happen that function is called before that section in a script), its header (as well as directive itself) is generated by this function.</p>
-					<p>Please use this function carefully &dash; it should not be called when ISPP is in insert mode (i. e. after &insert; directive).</p>
+					<p>Modifies or generates a [Setup] section directive using the directive name (first parameter) and its value (second parameter).</p>
+					<p>If there is no [Setup] section in &curtrans; (it may happen that the function is called before that section in a script), its header (as well as the directive itself) is generated by this function.</p>
+					<p>This function shouldn't be called when ISPP is in insert mode (that is, after the &insert; directive).</p>
 				</description>
 			</topic>
 			<topic id="LowerCase">
@@ -1145,7 +1145,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>int</b> EntryCount(<b>str</b> Section)</line></pre>
 				</section>
 				<description>
-					<p>Returns the total number of entries in specified section in &curtrans;. It does not count empty lines or comments. Function takes care of multiple sections with the same name and counts all of them.</p>
+					<p>Returns the total number of entries in the specified section in &curtrans;. It does not count empty lines or comments. The function handles multiple sections with the same name and counts all of them.</p>
 				</description>
 			</topic>
 			<topic id="GetEnv">
@@ -1175,7 +1175,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>int</b> DeleteFileNow(<b>str</b> FileName)</line></pre>
 				</section>
 				<description>
-					<p>Deletes the specified file. Returns non-zero value if successful. Also see <tt><link href="DeleteFile">DeleteFile</link></tt>.</p>
+					<p>Deletes the specified file. Returns non-zero if successful. Also see <tt><link href="DeleteFile">DeleteFile</link></tt>.</p>
 				</description>
 			</topic>
 			<topic id="CopyFile">
@@ -1184,7 +1184,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>int</b> CopyFile(<b>str</b> ExistingFile, <b>str</b> NewFile)</line></pre>
 				</section>
 				<description>
-					<p>Copies ExistingFile to NewFile, preserving time stamp and file attributes. If NewFile already exists, it will be overwritten. Returns non-zero value if successful.</p>
+					<p>Copies ExistingFile to NewFile, preserving the time stamp and file attributes. If NewFile already exists, it will be overwritten. Returns non-zero if successful.</p>
 				</description>
 			</topic>
 			<topic id="FindFirst">
@@ -1193,8 +1193,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>int</b> FindFirst(<b>str</b> Pattern, <b>int</b> Attrs)</line></pre>
 				</section>
 				<description>
-					<p>Searches the directory specified by first parameter for the first file that matches the file name implied by first parameter and the attributes specified by second parameter. If the file is found, the result is a find handle, that should be used in subsequent calls to <tt><link href="FindGetFileName">FindGetFileName</link></tt>, <tt><link href="FindNext">FindNext</link></tt>, and <tt><link href="FindClose"/></tt> functions, otherwise the return value is 0.</p>
-					<p>The first parameter is the directory and file name mask, including wildcard characters. For example, <tt>'.\*.*'</tt> specifies all files in the current directory).</p>
+					<p>Searches for the first file matching the file name mask specified by the first parameter and the attributes specified by the second parameter. If a file is found, the result is a find handle to be used in subsequent calls to the <tt><link href="FindGetFileName">FindGetFileName</link></tt>, <tt><link href="FindNext">FindNext</link></tt>, and <tt><link href="FindClose"/></tt> functions, otherwise the return value is 0.</p>
+					<p>The first parameter is the directory and file name mask, including wildcard characters. For example, <tt>'.\*.*'</tt> specifies all files in the current directory.</p>
 					<p>The second parameter specifies the special files to include in addition to all normal files. Choose from these file attribute constants defined in &builtins; when specifying this parameter:</p>
 					<table>
 						<tr><td><code>faReadOnly</code></td><td>Read-only files</td></tr>
@@ -1207,7 +1207,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 						<tr><td><code>faAnyFile</code></td><td>Any file</td></tr>
 					</table>
 					<p>Attributes can be combined by OR-ing their constants or values. For example, to search for read-only and hidden files in addition to normal files, pass <tt>faReadOnly | faHidden</tt> as the parameter.</p>
-					<!--para><tt>FindFirst</tt> allocates resources which must be released by calling <tt>FindClose</tt>, but only if <tt>FindFirst</tt> returned non-zero value.</para-->
+					<!--para><tt>FindFirst</tt> allocates resources which must be released by calling <tt>FindClose</tt>, but only if <tt>FindFirst</tt> returned non-zero.</para-->
 				</description>
 				<section title="Example">
 					<pre>
@@ -1260,7 +1260,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> FindGetFileName(<b>int</b> Handle)</line></pre>
 				</section>
 				<description>
-					<p>Feed <tt>FindGetFileName</tt> with the find handle returned by <tt><link href="FindFirst">FindFirst</link></tt> to get the name of the file found by the last call to <tt>FindFirst</tt> or <tt><link href="FindNext">FindNext</link></tt>.</p>
+					<p>Returns the name of the file found by the last call to <tt><link href="FindFirst">FindFirst</link></tt> or <tt><link href="FindNext">FindNext</link></tt>. The only parameter should be the find handle returned by <tt>FindFirst</tt>.</p>
 				</description>
 			</topic>
 			<topic id="FileOpen">
@@ -1317,7 +1317,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>int</b> FileEof(<b>int</b> Handle)</line></pre>
 				</section>
 				<description>
-					<p>Returns zero if the file pointer does not point to the end of the file, or non-zero otherwise. If this function returns non-zero value, subsequent calls to <tt><link href="FileRead">FileRead</link></tt> will fail. The only parameter should be the file handle returned by <tt><link href="FileOpen">FileOpen</link></tt>.</p>
+					<p>Returns zero if the file pointer does not point to the end of the file, or non-zero otherwise. If this function returns non-zero, subsequent calls to <tt><link href="FileRead">FileRead</link></tt> will fail. The only parameter should be the file handle returned by <tt><link href="FileOpen">FileOpen</link></tt>.</p>
 				</description>
 			</topic>
 			<topic id="FileClose">
@@ -1338,7 +1338,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<description>
           <p>Saves the specified string to the specified file. If Append is non-zero or omitted and the specified file already exists, it will be appended to instead of overwritten. If UTF8 is non-zero or omitted, the string will be saved with UTF-8 encoding and a BOM instead of ASCII encoding. Returns non-zero if successful, or zero if the file can't be opened for writing.</p>
           <p>A compiler error will be raised if writing to the file fails after it has been opened.</p>
-          <p>This function does not automatically write a line break before or after the string. If Append is non-zero or omitted and the existing file did not end in a line break, the function will effectively append to the existing last line. To avoid this you can put line break characters (using <tt><link href="predefinedvars">NewLine</link></tt>) before and/or after your string.</p>
+          <p>This function does not automatically write a line break before or after the string. If Append is non-zero or omitted and the existing file did not end in a line break, the function will effectively append to the existing last line. To avoid this you can put line break characters (using <tt><link href="predefinedvars">NewLine</link></tt>) before or after your string.</p>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1382,7 +1382,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 						<tr><td>:</td><td>Displays the time separator character given by the TimeSeparator parameter. If TimeSeparator is set to an empty string, the system's time separator character will be used instead.</td></tr>
 						<tr><td>'xx'/"xx"</td><td>Characters enclosed in single or double quotes are displayed as-is, and do not affect formatting.</td></tr>
 					</table>
-					<p>Format specifiers may be written in upper case as well as in lower case letters--both produce the same result.</p>
+					<p>Format specifiers may be written in upper case as well as in lower case letters. Both produce the same result.</p>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1420,7 +1420,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> GetMD5OfString(<b>str</b> S)</line></pre>
 				</section>
 				<description>
-					<p>Gets the MD5 sum of the specified ANSI string, as a string.</p>
+					<p>Returns the MD5 sum of the specified ANSI string, as a string.</p>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1435,7 +1435,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> GetMD5OfUnicodeString(<b>str</b> S)</line></pre>
 				</section>
 				<description>
-					<p>Gets the MD5 sum of the specified Unicode string, as a string.</p>
+					<p>Returns the MD5 sum of the specified Unicode string, as a string.</p>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1450,7 +1450,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> GetMD5OfFile(<b>str</b> FileName)</line></pre>
 				</section>
 				<description>
-					<p>Gets the MD5 sum of the specified file, as a string.</p>
+					<p>Returns the MD5 sum of the specified file, as a string.</p>
 					<p>A compiler error will be raised if the specified file can't be read.</p>
 				</description>
 			</topic>
@@ -1460,7 +1460,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> GetSHA1OfString(<b>str</b> S)</line></pre>
 				</section>
 				<description>
-					<p>Gets the SHA-1 hash of the specified ANSI string, as a string.</p>
+					<p>Returns the SHA-1 hash of the specified ANSI string, as a string.</p>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1475,7 +1475,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> GetSHA1OfUnicodeString(<b>str</b> S)</line></pre>
 				</section>
 				<description>
-					<p>Gets the SHA-1 hash of the specified Unicode string, as a string.</p>
+					<p>Returns the SHA-1 hash of the specified Unicode string, as a string.</p>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1490,7 +1490,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> GetSHA1OfFile(<b>str</b> FileName)</line></pre>
 				</section>
 				<description>
-					<p>Gets the SHA-1 hash of the specified file, as a string.</p>
+					<p>Returns the SHA-1 hash of the specified file, as a string.</p>
 					<p>A compiler error will be raised if the specified file can't be read.</p>
 				</description>
 			</topic>
@@ -1500,7 +1500,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> GetSHA256OfString(<b>str</b> S)</line></pre>
 				</section>
 				<description>
-					<p>Gets the SHA-256 hash of the specified ANSI string, as a string.</p>
+					<p>Returns the SHA-256 hash of the specified ANSI string, as a string.</p>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1515,7 +1515,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> GetSHA256OfUnicodeString(<b>str</b> S)</line></pre>
 				</section>
 				<description>
-					<p>Gets the SHA-256 hash of the specified Unicode string, as a string.</p>
+					<p>Returns the SHA-256 hash of the specified Unicode string, as a string.</p>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1530,7 +1530,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> GetSHA256OfFile(<b>str</b> FileName)</line></pre>
 				</section>
 				<description>
-					<p>Gets the SHA-256 hash of the specified file, as a string.</p>
+					<p>Returns the SHA-256 hash of the specified file, as a string.</p>
 					<p>A compiler error will be raised if the specified file can't be read.</p>
 				</description>
 			</topic>
@@ -1542,7 +1542,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<description>
 					<p>Formats the string Format using the series of arguments that follow it. Formatting is controlled by the format string Format; the results are returned as a string. Each argument must be an integer or a string.</p>
 					<p>A compiler error will be raised if an invalid format string is specified, too few arguments are passed, or if any arguments are of the wrong type.</p>
-					<p>Note: unlike the Pascal Scripting's <tt>Format</tt> function, arguments are passed directly instead of in an array.</p>
+					<p>Note: unlike Pascal Scripting's <tt>Format</tt> function, arguments are passed directly instead of in an array.</p>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1600,7 +1600,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Special function. Returns non-zero if the specified identifier is defined with &define; directive.</p>
+					<p>Special function. Returns non-zero if the specified identifier is defined with the &define; directive.</p>
 					<p>Using parentheses is optional.</p>
 				</description>
 			</topic>
@@ -1613,7 +1613,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Special function. Returns one of predefined <tt>TYPE_</tt> constants which are declared in &builtins; for the specified identifier.</p>
+					<p>Special function. Returns one of the predefined <tt>TYPE_</tt> constants which are declared in &builtins; for the specified identifier.</p>
 					<p>Using parentheses is optional.</p>
 				</description>
 				<section title="See also">
@@ -1659,7 +1659,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Gets the version numbers of the specified file. Returns the version as a string (in "0.0.0.0" format) if successful, an empty string otherwise.</p>
+					<p>Returns the version numbers of the specified file as a string (in "0.0.0.0" format) if successful, an empty string otherwise.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -1674,7 +1674,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Gets the individual version components of the specified file. Returns the version as a string (in "0.0.0.0" format) if successful, an empty string otherwise.</p>
+					<p>Returns the individual version components of the specified file as a string (in "0.0.0.0" format) if successful, an empty string otherwise.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -1701,7 +1701,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Gets the packed version of the specified file. Returns the version as a string (in "0.0.0.0" format) if successful, an empty string otherwise.</p>
+					<p>Returns the packed version of the specified file as a string (in "0.0.0.0" format) if successful, an empty string otherwise.</p>
           <p>Always use <tt><link href="ComparePackedVersion">ComparePackedVersion</link></tt> or <tt><link href="SamePackedVersion">SamePackedVersion</link></tt> to compare packed versions.</p>
           <p>Declared in &builtins;.</p>
 				</description>
@@ -1831,7 +1831,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns given four version elements encoded to a 32 bit integer number (8 bits for each element, i.e. elements must be within 0...255 range).</p>
+					<p>Returns the given four version elements encoded to a 32 bit integer number (8 bits for each element, so elements must be within the 0...255 range).</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1843,7 +1843,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns given 32 bit integer encoded version decoded to its string representation. The Digits parameter indicates how many elements to show (if the fourth element is 0, it won't be shown anyway).</p>
+					<p>Returns the given 32 bit integer encoded version decoded to its string representation. The Digits parameter indicates how many elements to show (if the fourth element is 0, it won't be shown anyway).</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1855,7 +1855,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the 0-based index of the line following the header of the section, or less than 0 if the section was not found. This function is intended to be used with &insert; directive.</p>
+					<p>Returns the 0-based index of the line following the header of the section, or less than 0 if the section was not found. This function is intended to be used with the &insert; directive.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1867,7 +1867,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the 0-based index of the line following last entry of the section, or less than 0 if the section was not found. This function is intended to be used with #insert directive.</p>
+					<p>Returns the 0-based index of the line following the last entry of the section, or less than 0 if the section was not found. This function is intended to be used with the &insert; directive.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1921,7 +1921,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the extension portion of the given filename, NOT including the period character.</p>
+					<p>Returns the extension portion of the given filename, not including the period character.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1945,7 +1945,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Changes the extension in FileName with NewExt. NewExt must not contain period.</p>
+					<p>Changes the extension in FileName with NewExt. NewExt must not contain a period.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1993,7 +1993,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Deletes the specified number of characters beginning with Index from S. S is passed by reference (therefore is modified).</p>
+					<p>Deletes the specified number of characters beginning with Index from S. S is passed by reference (and is therefore modified).</p>
           <p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -2008,7 +2008,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Inserts specified Substr at Index'th character into S. S is passed by reference (therefore is modified).</p>
+					<p>Inserts the specified Substr into S at the position given by Index. S is passed by reference (and is therefore modified).</p>
 					<p>Unrelated to &insert;.</p>
           <p>Declared in &builtins;.</p>
 				</description>
@@ -2024,7 +2024,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns non-zero if given string is "yes", "true" or "1".</p>
+					<p>Returns non-zero if the given string is "yes", "true", or "1".</p>
           <p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -2039,7 +2039,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns non-zero if the given [Setup] section directive is set to "yes", "true" or "1".</p>
+					<p>Returns non-zero if the given [Setup] section directive is set to "yes", "true", or "1".</p>
           <p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -2054,7 +2054,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-          <p>Declared in &builtins;.</p>
+					<p>Returns <tt>X</tt> raised to the power <tt>P</tt>.</p>
+					<p>Declared in &builtins;.</p>
 				</description>
 			</topic>
 			<topic id="Min">
@@ -2065,7 +2066,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-          <p>Declared in &builtins;.</p>
+					<p>Returns the smallest of two or three integer values.</p>
+					<p>Declared in &builtins;.</p>
 				</description>
 			</topic>
 			<topic id="Max">
@@ -2076,7 +2078,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-          <p>Declared in &builtins;.</p>
+					<p>Returns the largest of two or three integer values.</p>
+					<p>Declared in &builtins;.</p>
 				</description>
 			</topic>
 			<topic id="SameText">
@@ -2143,7 +2146,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Adds a quote (&quot;) character to the left and right sides of the string if the string contains a space and it didn't have quotes already. This is primarily used when spawning another process with a long filename as one of the parameters.</p>
+					<p>Adds a quote (&quot;) character to the left and right sides of the string if the string contains a space and does not already have quotes. This is primarily used when spawning another process with a long filename as one of the parameters.</p>
 				</description>
 			</topic>
 			<topic id="Is64BitPEImage">
@@ -2186,13 +2189,13 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			</keywords>
 			<title>User Defined Functions</title>
 			<description header="no">
-				<p>You can define user defined functions.</p>
+				<p>In addition to the built-in support functions, you can define your own functions.</p>
 				<p>A user defined function declaration consists of a formal parameter list and an expression. That expression is evaluated when the function is called (see below). The result of the function call is the result of the expression. The expression can contain parameter names, they are treated as usual variables.</p>
-				<p>The formal syntax of a user defined function is provided in &define; and &builtins; contains many example functions.</p>
-        <p>Please note that there must be no space between the function name and opening parenthesis.</p>
+				<p>The formal syntax of a user defined function is shown in &define; and &builtins; contains many example functions.</p>
+        <p>Note that there must be no space between the function name and the opening parenthesis.</p>
         <p>The formal parameter list can be empty, in which case the function takes no parameters. Without parentheses, a variable is defined instead of a user defined function.</p>
-				<p>Actual parameters for parameters declared as by-reference (<tt>*</tt>) must be modifiable l-values (in other words, other defined variables or expressions that evaluate to l-values). If the expression modifies by-reference parameter, the variable that is passed as this parameter gets modified. By-value parameters can also be modified by the expression (using assignment operators), but this modification doesn't affect the value of a variable which could be passed as this parameter.</p>
-				<p>Though a user defined function can only contain one expression, sequential evaluation operators (comma), assignment operators (simple and compound) and conditional operators (<tt>?:</tt>) can be used to build more complicated functions.</p>
+				<p>Actual parameters for parameters declared as by-reference (<tt>*</tt>) must be modifiable l-values (in other words, defined variables or expressions that evaluate to l-values). If the expression modifies a by-reference parameter, the variable passed as this parameter is modified. By-value parameters can also be modified by the expression (using assignment operators), but this doesn't affect the value of a variable passed as this parameter.</p>
+				<p>Though a user defined function can only contain one expression, sequential evaluation operators (comma), assignment operators (simple and compound), and conditional operators (<tt>?:</tt>) can be used to build more complicated functions.</p>
       </description>
 			<section title="Function and array parameters">
 				<p>A parameter declared with the <tt>func</tt> type-id accepts a user defined function or built-in function. A parameter declared with the <tt>array</tt> type-id accepts an array variable. When calling a user defined function that has such a parameter, the actual parameter must be specified using the <tt>@</tt> operator followed by the name of the identifier to pass. For example:</p>
@@ -2211,7 +2214,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</pre>
 			</section>
 			<section title="Local array">
-        <p>In context of the expression, an additional array named <tt>Local</tt> is valid. Its elements can be used for temporary storage and reusing values in sequential expressions. Values stored in <tt>Local</tt> array are neither preserved from call to call (including recursive), nor are they accessible from anywhere except the expression.</p>
+        <p>In the context of the expression, an additional array named <tt>Local</tt> is valid. Its elements can be used for temporary storage and reusing values in sequential expressions. Values stored in the <tt>Local</tt> array are neither preserved from call to call (including recursive), nor are they accessible from anywhere except the expression.</p>
         <pre>
           <line>#define DeleteToFirstPeriod(str *S) /* S is by-reference */ \</line>
           <line>&dsp;Local[1] = <link href="copy">Copy</link>(S, 1, (Local[0] = <link href="pos">Pos</link>(".", S)) - 1), \</line>
@@ -2232,22 +2235,22 @@ The first group of options (<tt>option</tt>) controls the general options, while
       </keywords>
       <title>Expression Syntax</title>
 			<description header="no">
-				<p>ISPP uses C/C++-like expression syntax. It supports simple and compound assignment operators, conditional operator, and sequential evaluation operator. Although ISPP is an interpreter, it does support short circuit boolean evaluation and never evaluates expressions (nor calls any user defined functions mentioned in those expressions) that should not be evaluated due to specific rules (for example, when conditional operator is used, always only 2 out of 3 operands are evaluated).</p>
+				<p>ISPP uses C/C++-like expression syntax. It supports simple and compound assignment operators, the conditional operator, and the sequential evaluation operator. Although ISPP is an interpreter, it does support short-circuit boolean evaluation. It never evaluates an expression (or calls any user defined function within it) when the operator's rules say it should not be evaluated. For example, the conditional operator always evaluates only 2 of its 3 operands.</p>
         <p>&builtins; contains many example expressions.</p>
 			</description>
 			<section title="Differences between C and ISPP expression syntax">
 				<ul>
-					<li>ISPP does not support a number of operators (dereference, namespace resolution, member selection, etc.). The <tt>@</tt> operator is supported for passing identifiers to <tt>func</tt> and <tt>array</tt> parameters (see <link href="macros">User Defined Functions</link>).</li>
-					<li>ISPP treats an identifier and the equality sign as a name of an parameter, if it is used in parameter list.</li>
-					<li>Arithmetic division operator (slash) performs integer division, since ISPP does not support floating point math.</li>
-					<li>ISPP does not check for validity of expressions in certain cases. For example, in conditional expression, "true" operand can be of string type, whereas "false" operand can be of integer type.</li>
-					<li>String literals can be quoted by both single and double quotes (in both modes &dash; C-style or Pascal-style). If a literal begins with a single quote, it must also end with a single quote. Double quotes may be used in single quoted string without any escaping, and vice versa. Within a string, the character used to quote the string must be escaped (the manner depends on current state of "Pascal-style string literals" parser option, see &pragma;). Also see predefined variable <tt><link href="predefinedvars">NewLine</link></tt>.</li>
+					<li>ISPP doesn't support a number of operators (dereference, namespace resolution, member selection, etc.). The <tt>@</tt> operator is supported for passing identifiers to <tt>func</tt> and <tt>array</tt> parameters (see <link href="macros">User Defined Functions</link>).</li>
+					<li>ISPP treats an identifier and the equality sign as a name of a parameter, if it is used in the parameter list.</li>
+					<li>The arithmetic division operator (slash) performs integer division, since ISPP does not support floating point math.</li>
+					<li>ISPP does not check for validity of expressions in certain cases. For example, in a conditional expression, the "true" operand can be of string type, whereas the "false" operand can be of integer type.</li>
+					<li>String literals can be quoted by both single and double quotes (in both modes &dash; C-style or Pascal-style). If a literal begins with a single quote, it must also end with a single quote. Double quotes may be used in a single quoted string without any escaping, and vice versa. Within a string, the character used to quote the string must be escaped (the manner depends on the current state of the "Pascal-style string literals" parser option, see &pragma;). Also see the predefined variable <tt><link href="predefinedvars">NewLine</link></tt>.</li>
 				</ul>
 			</section>
 			<section title="Data types">
-				<p>There are three types in ISPP: void, integer, and string. Variable of void type is declared by just specifying its name after &define; directive without any value. Such variables should be used with &ifdef; directive or <tt><link href="Defined">Defined</link></tt> function.</p>
-				<p>If "allow undeclared identifiers" parser option is off (the default state, see &pragma;), an error is raised when undefined variable is mentioned. Otherwise, it will be treated as a value of type void.</p>
-				<p>Void is compatible with integer and string in expressions. For example, you can use addition operator with void and integer operands, in this case void operand will be treated as zero. In conjunction with string, void operand is treated as an empty string.</p>
+				<p>There are three types in ISPP: void, integer, and string. A variable of void type is declared by specifying its name after the &define; directive without any value. Such variables should be used with the &ifdef; directive or the <tt><link href="Defined">Defined</link></tt> function.</p>
+				<p>If the "allow undeclared identifiers" parser option is off (the default state, see &pragma;), an error is raised when an undefined variable is mentioned. Otherwise, it will be treated as a value of type void.</p>
+				<p>Void is compatible with integer and string in expressions. For example, you can use the addition operator with void and integer operands, in this case the void operand will be treated as zero. In conjunction with a string, the void operand is treated as an empty string.</p>
 				<p>String comparison operators are case-insensitive.</p>
 			</section>
 			<section title="Comments">
@@ -2260,7 +2263,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<line>#emit Var1 + Var2 ; this is a comment</line>
 					<line>#emit Var1 + Var2 // this is also comment</line>
 				</pre>
-				<p>Please note that line spanning feature is triggered before any further processing, so this is also a valid comment:</p>
+				<p>Note that the line spanning feature is triggered before any further processing, so this is also a valid comment:</p>
 				<pre>
 					<line>#emit Var1 + Var2 ; this is \</line>
 					<line>&dsp;still a comment</line>
@@ -2277,7 +2280,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</pre>
 			</section>
 			<section title="Extended User Defined Function Call Syntax">
-				<p>In ISPP, it is possible to use named parameters when calling user defined function. Given the declaration:</p>
+				<p>In ISPP, you can use named parameters when calling a user defined function. Given the declaration:</p>
 				<pre>
 					<line>#define MyFunction(int A = 2, int B = 2) A + B</line>
 				</pre>
@@ -2291,19 +2294,19 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<li>If a name is specified for one parameter, then all (required) parameters in the list must also be named.</li>
 					<li>The order of named parameters does not matter.</li>
 					<li>
-						<p>Because of this extension, an assignment expression must be enclosed in parentheses, if not using extended call syntax, to avoid ambiguity:</p>
+						<p>Because of this extension, an assignment expression must be enclosed in parentheses, if not using the extended call syntax, to avoid ambiguity:</p>
 						<pre>
 							<line>#emit MyFunction((MyVar = 5), 10)</line>
 						</pre>
 						<p>In the above example, the equality sign is treated as a direct assignment operator.</p>
-						<p>Although functions do not have named parameters, it is still required to enclose assignment expressions in parentheses when calling those functions.</p>
+						<p>Even when a function doesn't have named parameters, assignment expressions still need parentheses when calling it.</p>
 					</li>
 					<li>
-						<p>By standard rule, comma is used to separate actual parameters. If you need to use sequential evaluation operator, you must include the expression in parentheses:</p>
+						<p>By the standard rule, a comma is used to separate actual parameters. If you need to use the sequential evaluation operator, you must include the expression in parentheses:</p>
 						<pre>
 							<line>#emit MyFunction((SaveToFile("script.txt"), 5), 10)</line>
 						</pre>
-						<p>In the above example, the first comma is treated as the sequential evaluation operator, whereas the second one as the parameter delimiter.</p>
+						<p>In the above example, the first comma is treated as the sequential evaluation operator, and the second one is treated as the parameter delimiter.</p>
 					</li>
 				</ul>
 			</section>
@@ -2333,7 +2336,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
         </keywords>
 			<title>Predefined Variables</title>
 			<description header="no">
-				<p>There are a number of predefined variables provided ISPP:</p>
+				<p>There are a number of predefined variables provided by ISPP:</p>
 				<table>
 					<tr><td><code>__COUNTER__</code></td><td><code><b>int</b></code>. Automatically increments each time it is used (afterwards).</td></tr>
 					<tr><td><code>__FILENAME__</code></td><td><code><b>str</b></code>. Similar to __PATHFILENAME__, but returns only the filename portion.</td></tr>
@@ -2386,30 +2389,30 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</pre>
 				<p>In the example above, none of the last two declarations undefine any of the previous, though they share the same identifier (<tt>MyVar</tt>). This is because they are declared in different visibilities.</p>
 				<p>Public variables are ordinary variables accessible from anywhere after the point they are declared.</p>
-				<p>Protected variables are accessible only in the file they are declared in and in files included by that file via &include; or &file; directives. You can basically think of them as public variables which are automatically undefined once their file has finished.</p>
+				<p>Protected variables are accessible only in the file they are declared in and in files included by that file via &include; or &file; directives. You can think of them as public variables which are automatically undefined once their file has finished.</p>
 				<p>Private variables are accessible only in the file they are declared in. They are not propagated to any other file, be it included or "parent" file.</p>
-				<p>Since ISPP does not have semantics of pushing and popping variable value, visibility resolution can be useful.</p>
-				<p>Note that you cannot explicitly refer to a variable in a specific visibility from expressions. Given the example above, if <tt>MyVar</tt> is mentioned in expression in declaration file, its identifier refers to private <tt>MyVar</tt>. If it is mentioned in included file, it refers to protected <tt>MyVar</tt>. If it is mentioned in one of the files above the declaration file on the include stack (i. e. one of the files from which a chain of &include; directives resulted in processing the declaration file), it refers to public <tt>MyVar</tt>.</p>
-				<p>Also note, that if we'd swap last two declarations from the above example, private <tt>MyVar</tt> would become inaccessible (until protected is undefined) because protected would be declared after it and would take precedence. But it wouldn't undefine its private counterpart.</p>
-				<p>Each file can set a default visibility, the visibility that will be used when no resolution clause is specified in variable declaration. This can be done using &define; directive, for example:</p>
+				<p>ISPP has no mechanism for saving and restoring a variable's value (pushing and popping), so visibility resolution can be useful.</p>
+				<p>Note that you cannot explicitly refer to a variable in a specific visibility from expressions. Given the example above, if <tt>MyVar</tt> is mentioned in an expression in the declaration file, its identifier refers to private <tt>MyVar</tt>. If it is mentioned in an included file, it refers to protected <tt>MyVar</tt>. If it is mentioned in one of the files above the declaration file on the include stack (that is, one of the files that included the declaration file, directly or indirectly), it refers to public <tt>MyVar</tt>.</p>
+				<p>Also note that if you swapped the last two declarations from the above example, private <tt>MyVar</tt> would become inaccessible (until protected is undefined) because protected would be declared after it and would take precedence. But it wouldn't undefine its private counterpart.</p>
+				<p>Each file can set a default visibility, the visibility that will be used when no resolution clause is specified in a variable declaration. This can be done using the &define; directive, for example:</p>
 				<pre><line>#define protected</line></pre>
 				<p>sets protected visibility by default.</p>
 				<p>The default visibility isn't used when evaluating expressions, it is only used when a variable is defined or undefined without explicitly specifying its visibility. When default visibility is not set, public is assumed by default. Setting default visibility is not propagated on included or parent files.</p>
 				<p>In user defined function expressions, avoid using identifiers of lower visibility than the one the user defined function is declared in. This may cause "Undeclared identifier" errors if the user defined function is called from another file.</p>
-				<p>It is recommended that you use appropriate visibility when declaring variables to avoid problems with unexpected redefinition of a variable (for example in included third-party file). If no included files depend on a variable, declare it as private. If they do, but the parent file doesn't, declare it as protected. Declare it as public otherwise. If you're unsure, then protected visibility is the common case.</p>
+				<p>It is recommended that you use appropriate visibility when declaring variables to avoid problems with unexpected redefinition of a variable (for example in an included third-party file). If no included files depend on a variable, declare it as private. If they do, but the parent file doesn't, declare it as protected. Declare it as public otherwise. If you're unsure, protected visibility is usually the safe choice.</p>
 			</description>
 		</topic>
     <topic id="example">
       <title>Example Script</title>
       <description header="no">
-        <p>An example script called <i>ISPPExample1.iss</i> is located in a separate folder. Please click the "Inno Setup Example Scripts" shortcut created in the Start Menu when you installed Inno Setup, or open the "Examples" folder in your Inno Setup directory.</p>
+        <p>An example script called <i>ISPPExample1.iss</i> is located in a separate folder. Click the "Inno Setup Example Scripts" shortcut created in the Start Menu when you installed Inno Setup, or open the "Examples" folder in your Inno Setup directory.</p>
         <p>Also see &builtins;.</p>
       </description>
     </topic>
 		<topic id="builtinsiss">
 			<title>ISPPBuiltins.iss</title>
 			<description header="no">
-				<p>The ISPPBuiltins.iss file is part of Inno Setup Preprocessor and is automatically installed to root of your Inno Setup folder. This file is automatically included at the start of preprocessing: some of ISPP's functions are actually implemented by this file instead of being built-in. It also contains common declarations such as special constants. The file is a regular Inno Setup Script file so you can use all of its techniques in your own script as well.</p>
+				<p>The ISPPBuiltins.iss file is part of Inno Setup Preprocessor and is automatically installed to the root of your Inno Setup folder. This file is automatically included at the start of preprocessing: some of ISPP's functions are actually implemented by this file instead of being built-in. It also contains common declarations such as special constants. The file is a regular Inno Setup script, so you can study it and reuse its techniques in your own scripts.</p>
 			</description>
 		</topic>
 		<topic id="isppcc">
@@ -2442,42 +2445,6 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<p>Current preprocessor output refers to the &translation; up to the line which ISPP is currently processing.</p>
 			</description>
 		</topic>
-		<!--topic id="tricks">
-  <title>Secondary ISPP features</title>
-  <description header="no">
-    <p>Since ISPP is not a script engine, many useful language constructs are not supported directly. But some results can be achieved using existing features of ISPP.</p>
-  </description>
-  <topic id="looping">
-    <title>Looping</title>
-    <description header="no">
-      <p>ISPP allows you to call macro recursively, i. e. call it from itself. This feature can be used to emulate loop.</p>
-      <p>For example, you wish to construct a "for"-like loop. To achieve this, you'll need to declare a macro that takes one integer parameter and which makes the loop "body". After that you declare "outer" loop, which is used for iterating:</p>
-      <pre> 
-        <line>#define LoopBody(int I) Str(I) + "th iteration\n"</line>
-        <line></line>
-        <line>#define Loop(int LoopRoof = 10) \ </line>
-        <line>&dsp;LoopRoof ?&sp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;/* if LoopTop is not zero */ \</line>
-        <line>&dsp;&dsp;LoopBody(LoopRoof) +&sp;/* call the body */ \ </line>
-        <line>&dsp;&dsp;Loop(LoopRoof - 1)&sp;&dsp;/* next iteration*/ \</line>
-        <line>&dsp;:&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;/* else */ \</line>
-        <line>&dsp;&dsp;""&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&dsp;&sp;/* return empty string */</line>
-      </pre>
-      <p>With these two macros declared, this command:</p>
-      <pre>
-        <line>#emit Loop(LoopRoof = 5)</line>
-      </pre>
-      <p>will produce</p>
-      <pre>
-        <line>5th iteration</line>
-        <line>4th iteration</line>
-        <line>3th iteration</line>
-        <line>2th iteration</line>
-        <line>1th iteration</line>
-      </pre>
-      <p>Note that this example emits text to translation, therefore it should use concatenation operator (<tt>+</tt>) with loop body and next iteration. If the loop body does not produce any output, it is recommended to use sequential evaluation operator (<tt>,</tt> - comma).</p>
-    </description>
-  </topic>
-</topic-->
 	</topic>
 </yasyx>
 
