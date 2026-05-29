@@ -77,7 +77,7 @@ begin
     { Default property routes through Get and raises the same exception }
     Caught := False;
     try
-      const OutOfBoundsString = List[List.Count];
+      List[List.Count];
     except
       on EStringListError do Caught := True;
     end;
@@ -197,6 +197,30 @@ begin
   finally
     Lines.Free;
   end;
+
+  {$IFDEF ISTESTTOOLPROJ}
+  { TScriptFileLines.Get out of bounds raises EListError }
+  Lines := TScriptFileLines.Create;
+  try
+    var Caught := False;
+    try
+      Lines[-1];
+    except
+      on EListError do Caught := True;
+    end;
+    Assert(Caught);
+
+    Caught := False;
+    try
+      Lines[Lines.Count];
+    except
+      on EListError do Caught := True;
+    end;
+    Assert(Caught);
+  finally
+    Lines.Free;
+  end;
+  {$ENDIF}
 end;
 
 {$IFDEF DEBUG}

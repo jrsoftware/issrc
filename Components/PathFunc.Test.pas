@@ -512,6 +512,7 @@ begin
   TestPathChangeExt('a', '.txt', 'a.txt');
   TestPathChangeExt('a.tar', '.txt', 'a.txt');
   TestPathChangeExt('a.tar', 'txt', 'atxt');
+  TestPathChangeExt('a..tar', '.txt', 'a..txt');
   TestPathChangeExt('a.txt', '', 'a');
 
   TestPathExtractExt('c:', '');
