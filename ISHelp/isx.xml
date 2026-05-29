@@ -19,21 +19,13 @@
 <p>The Pascal scripting feature (modern Delphi-like Pascal) adds lots of new possibilities to customize your Setup or Uninstall at run-time. Some examples:</p>
 
 <ul>
-
 <li>Support for aborting Setup or Uninstall startup under custom conditions.</li>
-
 <li>Support for adding custom wizard pages to Setup at run-time.</li>
-
 <li>Support for extracting and calling DLL or other files from the Pascal script before, during or after the installation.</li>
-
 <li>Support for scripted constants that can do anything the normal constants, the read-from-registry, read-from-ini and read-from-commandline constants can do + more.</li>
-
 <li>Support for run-time removal of types, components and/or tasks under custom conditions.</li>
-
 <li>Support for conditional installation of <tt>[Files]</tt>, <tt>[Registry]</tt>, <tt>[Run]</tt> etc. entries based on custom conditions.</li>
-
 <li>Lots of support functions to do from the Pascal script just about everything Inno Setup itself does/can do + more.</li>
-
 </ul>
 
 <p>An integrated <link topic="scriptdebug">run-time debugger</link> to debug your custom Pascal script is also available.</p>
@@ -41,6 +33,27 @@
 <p>The scripting engine used by Inno Setup is RemObjects Pascal Script by Carlo Kok. Like Inno Setup, RemObjects Pascal Script is freely available and comes with source. See <extlink href="http://www.remobjects.com/ps">http://www.remobjects.com/ps</extlink> for more information.</p>
 
 <p>Note: the Pascal scripting feature works exclusively at run-time, and has no compile-time functionality.</p>
+
+<heading>Language differences compared to Delphi</heading>
+
+<p>Pascal Script has some language differences compared to Delphi. Key differences include:</p>
+
+<ul>
+<li>No inline <tt>var</tt> or inline <tt>const</tt>. All local variables must be declared in a <tt>var</tt> block before <tt>begin</tt>.</li>
+<li>No local <tt>const</tt> or <tt>type</tt> declarations. Only <tt>var</tt> and <tt>label</tt> blocks are allowed before <tt>begin</tt>.</li>
+<li>No <tt>Exit(Value)</tt> syntax. Assign to <tt>Result</tt> first, then call <tt>Exit</tt> separately.</li>
+<li>No typed constants (<tt>const X: Integer = 1</tt>). Only untyped constants (<tt>const X = 1</tt>).</li>
+<li>No default parameter values.</li>
+<li>No function or procedure overloading.</li>
+<li>No <tt>raise</tt> keyword. Use <tt>RaiseException(Msg)</tt> or <tt>RaiseLastException</tt> instead.</li>
+<li>No <tt>on E: ExceptionType do</tt> in except blocks. Use <tt>GetExceptionMessage</tt> to inspect the current exception.</li>
+<li>No script-defined classes. Classes can be used, but only those defined by Inno Setup.</li>
+<li>No variant records.</li>
+<li><tt>const</tt> parameters are passed by value (copied), and not by reference as in modern Delphi.</li>
+<li>The <tt>/</tt> operator always returns <tt>Extended</tt>, even when both operands are integers. Use <tt>div</tt> for integer division.</li>
+<li><tt>break</tt> and <tt>continue</tt> are not reserved words. They are ordinary identifiers recognized specially inside loop bodies. A local declaration named <tt>Break</tt> or <tt>Continue</tt> will shadow the loop-control behavior.</li>
+<li><tt>Low</tt>, <tt>High</tt>, and <tt>SizeOf</tt> must be used with a variable, not a type.</li>
+</ul>
 
 <p><br/><b>See also:</b><br/>
 <link topic="scriptcreating">Creating the [Code] section</link><br/>
