@@ -78,14 +78,14 @@
 				<syntax>
 					<define id="define-directive">
 						<variant><nt name="variable-definition"/></variant>
-						<variant><nt name="macro-definition"/></variant>
+						<variant><nt name="function-definition"/></variant>
 						<variant><nt name="default-visibility-set"/></variant>
 					</define>
 					<define id="variable-definition">
 						<group><nt name="define-dir-name"/></group><opt><nt name="locality"/></opt><nt>ident</nt><opt><nt name="index-spec"/></opt><opt><opt><txt>=</txt></opt><nt>expr</nt></opt>
 					</define>
-					<define id="macro-definition">
-						<group><nt name="define-dir-name"/></group><opt><nt name="locality"/></opt><nt>ident</nt><txt>(</txt><opt><nt name="formal-macro-args"/></opt><txt>)</txt><nt>expr</nt>
+					<define id="function-definition">
+						<group><nt name="define-dir-name"/></group><opt><nt name="locality"/></opt><nt>ident</nt><txt>(</txt><opt><nt name="formal-function-args"/></opt><txt>)</txt><nt>expr</nt>
 					</define>
 					<define id="default-visibility-set">
 						<group><nt name="define-dir-name"/></group><nt name="locality"/>
@@ -96,10 +96,10 @@
 							<case><txt>:</txt></case>
 						</cases>
 					</define>
-					<define id="formal-macro-args">
-						<nt name="formal-macro-arg"/><opt repeated="yes"><txt>,</txt><nt name="formal-macro-arg"/></opt>
+					<define id="formal-function-args">
+						<nt name="formal-function-arg"/><opt repeated="yes"><txt>,</txt><nt name="formal-function-arg"/></opt>
 					</define>
-					<define id="formal-macro-arg">
+					<define id="formal-function-arg">
 						<cases>
 							<case><nt name="by-val-arg"/></case>
 							<case><nt name="by-ref-arg"/></case>
@@ -135,7 +135,7 @@
 				</syntax>
 				<description>
 					<p>The first syntax ("variable-definition") defines a variable named <tt>ident</tt>, or assigns a value to an element of an array named <tt>ident</tt> (use &dim; instead of <tt>define</tt> to define the array variable itself). If none of the <tt>public</tt>, <tt>protected</tt>, or <tt>private</tt> keywords are specified, default <link href="visibility">visibility</link> is assumed.</p>
-					<p>The second syntax ("macro-definition") defines <link href="macros">a user defined function</link> named <tt>ident</tt>. Note:</p>
+					<p>The second syntax ("function-definition") defines <link href="macros">a user defined function</link> named <tt>ident</tt>. Note:</p>
 					<ul>
 						<li>There must be no whitespace between the name and the opening parenthesis, otherwise it will be treated as a variable declaration.</li>
 						<li>Formal parameters may be preceded by a type-id: <tt>any</tt>, <tt>int</tt>, <tt>str</tt>, <tt>func</tt>, or <tt>array</tt>.</li>
@@ -700,8 +700,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 						<tr><td>4</td><td>#dim, #define, and #undef messages</td></tr>
 						<tr><td>6</td><td>Conditional inclusion messages</td></tr>
 						<tr><td>8</td><td>#emit messages</td></tr>
-						<tr><td>9</td><td>Macro and functions call messages</td></tr>
-						<tr><td>10</td><td><code>Local</code> macro array allocation messages</td></tr>
+						<tr><td>9</td><td>Function call messages</td></tr>
+						<tr><td>10</td><td><code>Local</code> array allocation messages</td></tr>
 					</table>
 				</section>
 				<section title="Examples">
