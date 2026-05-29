@@ -67,29 +67,26 @@
 #call CheckEqualsInt(0, NullVariable + 0)
 #call CheckEqualsString('', NullVariable + '')
 #call CheckEqualsInt(TYPE_NULL, TypeOf(void))
+#call CheckEqualsInt(TYPE_NULL, TypeOf2(NULL))
 #undef NullVariable
 //
 // Type checking
 //
 #define TypeCheckInt = 42
 #define TypeCheckString = 'hello'
-#define TypeCheckNull
 #define TypeCheckMacro() 0
 #dim TypeCheckArray[1]
 #call CheckEqualsInt(TYPE_INTEGER, TypeOf(TypeCheckInt))
 #call CheckEqualsInt(TYPE_STRING, TypeOf(TypeCheckString))
-#call CheckEqualsInt(TYPE_NULL, TypeOf(TypeCheckNull))
 #call CheckEqualsInt(TYPE_MACRO, TypeOf(TypeCheckMacro))
 #call CheckEqualsInt(TYPE_FUNC, TypeOf(Int))
 #call CheckEqualsInt(TYPE_ERROR, TypeOf(UndefinedIdentifier_XYZ))
 #call CheckEqualsInt(TYPE_ARRAY, TypeOf(TypeCheckArray))
 #call CheckEqualsInt(TYPE_INTEGER, TypeOf2(1 + 1))
 #call CheckEqualsInt(TYPE_STRING, TypeOf2('a' + 'b'))
-#call CheckEqualsInt(TYPE_NULL, TypeOf2(NULL))
 #call CheckEqualsInt(TypeOf(TypeCheckInt), TypeOf TypeCheckInt)
 #undef TypeCheckInt
 #undef TypeCheckString
-#undef TypeCheckNull
 #undef TypeCheckMacro
 #undef TypeCheckArray
 //
@@ -1150,7 +1147,7 @@ AppContact={#% ISTESTTOOLPROJ_TEST_ENV}
 #call Message('test message')
 #call Warning('test warning')
 //
-// Pragma: Defaults
+// Pragma: Defaults (C/E/B/P on, V/M/U off, any other letter off)
 //
 #call CheckTrue(Defined(__OPT_C__))
 #call CheckTrue(Defined(__OPT_E__))
@@ -1159,6 +1156,8 @@ AppContact={#% ISTESTTOOLPROJ_TEST_ENV}
 #call CheckFalse(Defined(__POPT_M__))
 #call CheckTrue(Defined(__POPT_P__))
 #call CheckFalse(Defined(__POPT_U__))
+#call CheckFalse(Defined(__OPT_Z__))
+#call CheckFalse(Defined(__POPT_Z__))
 //
 // Pragma: General
 //
@@ -1168,7 +1167,7 @@ AppContact={#% ISTESTTOOLPROJ_TEST_ENV}
 #call CheckTrue(Defined(__OPT_V__))
 #pragma option -v-
 #call CheckFalse(Defined(__OPT_V__))
-#pragma option -z+ ; any letter should be accepted
+#pragma option -z+ ; any other letter should be accepted
 #call CheckTrue(Defined(__OPT_Z__))
 #pragma option -z-
 #call CheckFalse(Defined(__OPT_Z__))

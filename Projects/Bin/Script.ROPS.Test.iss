@@ -1201,12 +1201,12 @@ begin
     Sum := Sum * 10 + I;
   CheckEqualsInt64(321, Sum);
 
-  { Empty body for..to: post-loop value is H + 1 }
+  { Empty body for..to: post-loop value is final value + 1 }
   for I := 0 to 3 do
     ;
   CheckEqualsInt64(4, I);
 
-  { Empty body for..downto: post-loop value is L - 1 }
+  { Empty body for..downto: post-loop value is final value - 1 }
   for I := 3 downto 0 do
     ;
   CheckEqualsInt64(-1, I);
