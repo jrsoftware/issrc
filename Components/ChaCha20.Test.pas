@@ -102,6 +102,7 @@ procedure ChaCha20RunTests;
     ChaCha20Crypt(Ctx2, Byte2, Byte2, 1);
     Assert(Byte1 = Byte2);
 
+    { Note: this is same nonce as above in TestXChaCha20 }
     var Nonce24: TBytes := [$40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $4a, $4b, $4c, $4d, $4e, $4f, $50, $51, $52, $53, $54, $55, $56, $58];
     XChaCha20Init(Ctx1, Key[0], ULength(Key), Nonce24[0], ULength(Nonce24), 0);
     XChaCha20Init(Ctx2, Key[0], ULength(Key), Nonce24[0], ULength(Nonce24), 0);
