@@ -846,6 +846,12 @@ end;
 
 function TMsgBoxDesignerForm.GetText(TabWidth: Integer; UseTabCharacter: Boolean): String;
 
+  function EscapeQuotes(const S: String): String;
+  begin
+    Result := QuotedStr(S);
+    Result := Copy(Result, 2, Length(Result)-2);
+  end;
+
   function TextTab: String;
   begin     
     if UseTabCharacter then
@@ -1019,7 +1025,7 @@ begin
      if cb_Suppressible.Checked then Buttons := Buttons + SuppressibleDefault;
 
      { replace in a message string escape /r/n }
-     CaptionOrInstructionAndText := StringReplace(MSGText.Lines.Text, SNewLine, '''#13#10''', [rfReplaceAll]);
+     CaptionOrInstructionAndText := StringReplace(EscapeQuotes(MSGText.Lines.Text), SNewLine, '''#13#10''', [rfReplaceAll]);
   end else begin
      { TaskDialogMsgBox(TaskInstructionText.Text, TaskMessageText.Text, Typ, Buttons, ButtonLabels, ShieldButton) }
      ModeMsg := 1;
@@ -1027,11 +1033,11 @@ begin
      { create ButtonLabels array - also see MBDButtonPreviewClick }
      var ButtonLabelsArray: TArray<string>;
      if Button3Text.Enabled then
-        ButtonLabelsArray := TArray<string>.Create(Button1Text.Text, Button2Text.Text, Button3Text.Text)
+        ButtonLabelsArray := TArray<string>.Create(EscapeQuotes(Button1Text.Text), EscapeQuotes(Button2Text.Text), EscapeQuotes(Button3Text.Text))
      else if Button2Text.Enabled then
-        ButtonLabelsArray := TArray<string>.Create(Button1Text.Text, Button2Text.Text)
+        ButtonLabelsArray := TArray<string>.Create(EscapeQuotes(Button1Text.Text), EscapeQuotes(Button2Text.Text))
      else
-        ButtonLabelsArray := TArray<string>.Create(Button1Text.Text);
+        ButtonLabelsArray := TArray<string>.Create(EscapeQuotes(Button1Text.Text));
      var NLabels := Length(ButtonLabelsArray);
      if rbMB_OKCANCEL.Checked or rbMB_YESNOCANCEL.Checked or rbMB_RETRYCANCEL.Checked then begin
       { Specifying a cancel label is optional: if it's missing TaskDialogMsgBox will use a button
@@ -1066,7 +1072,7 @@ begin
      { Suppressible msg }
      if cb_Suppressible.Checked then ShieldButton := ShieldButton + SuppressibleDefault;
 
-     CaptionOrInstructionAndText := TaskInstructionText.Text + ''', ''' + TaskMessageText.Text;
+     CaptionOrInstructionAndText := EscapeQuotes(TaskInstructionText.Text) + ''', ''' + EscapeQuotes(TaskMessageText.Text);
   end;
 
   var IDButton, IDButton2, IDButton3: String;
