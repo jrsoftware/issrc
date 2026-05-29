@@ -1366,9 +1366,9 @@ type
   private
     FPreproc: TPreprocessor;
     FBody: TStrings;
-    FScopeUpdated: Boolean;
+    FLocalsEnsured: Boolean;
     FIndex: Integer;
-    procedure UpdateScope;
+    procedure EnsureLocals;
   public
     constructor Create(Proprocessor: TPreprocessor; ProcBody: TStrings);
     procedure Add(const Name: String; const Value: TIsppVariant);
@@ -1808,7 +1808,7 @@ end;
 procedure TProcCallContext.Add(const Name: String;
   const Value: TIsppVariant);
 begin
-  UpdateScope;
+  EnsureLocals;
   if Name <> '' then
     FPreproc.FIdentManager.DefineVariable(Name, -1, Value, dsPrivate);
   FPreproc.FIdentManager.DefineVariable(SLocal, FIndex, Value, dsPrivate);
@@ -1817,7 +1817,7 @@ end;
 
 function TProcCallContext.Call: TIsppVariant;
 begin
-  UpdateScope;
+  EnsureLocals;
   const SavedScope = FPreproc.GetDefaultScope;
   try
     FPreproc.ExecProc(FBody);
@@ -1844,16 +1844,13 @@ begin
   Result := agsParenteses;
 end;
 
-procedure TProcCallContext.UpdateScope;
-var
-  ReDim: Boolean;
+procedure TProcCallContext.EnsureLocals;
 begin
-  if not FScopeUpdated then
-  begin
+  if not FLocalsEnsured then begin
     FPreproc.FIdentManager.BeginLocal;
-    ReDim := False;
+    var ReDim := False;
     FPreproc.FIdentManager.DimVariable(SLocal, 16, dsPrivate, ReDim);
-    FScopeUpdated := True;
+    FLocalsEnsured := True;
   end;
 end;
 
