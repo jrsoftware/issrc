@@ -755,8 +755,9 @@ begin
     DisableControlStyleAsNeeded(AControl);
 
   { Set CurrentPPI of the control to be parented to the CurrentPPI of the parent, preventing VCL
-    from scaling the control. Also see TSetupForm.CreateWnd.  }
-  AControl.SetCurrentPPI(AParent.CurrentPPI);
+    from scaling the control. Also see TSetupForm.CreateWnd. }
+  if AParent <> nil then { Could happen if called by [Code] }
+    AControl.SetCurrentPPI(AParent.CurrentPPI);
   AControl.Parent := AParent;
 end;
 
