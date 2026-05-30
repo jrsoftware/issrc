@@ -734,7 +734,8 @@ begin
           NewCurrent.Path := Path + '\';
           if not ValidateAndCombinePath(FExpandedDestDir, Path, NewCurrent.ExpandedPath) then
             OleError(E_ACCESSDENIED);
-          NewForceDirectories(NewCurrent.ExpandedPath);
+          if not NewForceDirectories(NewCurrent.ExpandedPath) then
+            OleError(E_FAIL);
         end;
         outStream := nil;
       end else begin
@@ -750,7 +751,8 @@ begin
         NewCurrent.Path := Path;
         if not ValidateAndCombinePath(FExpandedDestDir, Path, NewCurrent.ExpandedPath) then
           OleError(E_ACCESSDENIED);
-        NewForceDirectories(PathExtractDir(NewCurrent.ExpandedPath));
+        if not NewForceDirectories(PathExtractDir(NewCurrent.ExpandedPath)) then
+          OleError(E_FAIL);
         const ExistingFileAttr = GetFileAttributes(PChar(NewCurrent.ExpandedPath));
         if (ExistingFileAttr <> INVALID_FILE_ATTRIBUTES) and
            (ExistingFileAttr and FILE_ATTRIBUTE_READONLY <> 0) then
