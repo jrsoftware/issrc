@@ -129,7 +129,7 @@ begin
     const ExpectedCommand = '"' + NewParamStr(0) + '" "%1"';
     var CurCommand: String;
     if GetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\open\command', CurCommand) and
-       (PathCompare(CurCommand, ExpectedCommand) <> 0) then
+       not PathSame(CurCommand, ExpectedCommand) then
       Exit;
   end;
 

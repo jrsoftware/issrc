@@ -1826,7 +1826,7 @@ begin
   AMemo.OpeningFile := True;
   try
     AFilename := PathExpand(AFilename);
-    const NameChange = PathCompare(AMemo.Filename, AFilename) <> 0;
+    const NameChange = not PathSame(AMemo.Filename, AFilename);
     const FilePosition = GetFilePosition(AMemo);
 
     Stream := TFileStream.Create(AFilename, fmOpenRead or fmShareDenyNone);
@@ -1962,7 +1962,7 @@ begin
   Result := True;
   if AMemo = FMainMemo then begin
     ModifyMRUMainFilesList(AMemo.Filename, True);
-    if PathCompare(AMemo.Filename, OldName) <> 0 then begin
+    if not PathSame(AMemo.Filename, OldName) then begin
       if OldName <> '' then begin
         DeleteBreakPointLines(OldName);
         DeleteKnownIncludedAndHiddenFiles(OldName);
@@ -2213,7 +2213,7 @@ procedure TMainForm.CompileFile(AFilename: String; const ReadFromFile: Boolean);
     else begin
       if FOptions.OpenIncludedFiles then begin
         for Memo in FFileMemos do begin
-          if Memo.Used and (PathCompare(Memo.Filename, ErrorFilename) = 0) then begin
+          if Memo.Used and PathSame(Memo.Filename, ErrorFilename) then begin
             Result := Memo;
             Exit;
           end;
@@ -3040,7 +3040,7 @@ begin
   { Activate the memo if requested }
   if Activate then begin
     for var Memo in FFileMemos do begin
-      if Memo.Used and (PathCompare(Memo.Filename, ReopenFilename) = 0) then begin
+      if Memo.Used and PathSame(Memo.Filename, ReopenFilename) then begin
         MemosTabSet.TabIndex := MemoToTabIndex(memo);
         Break;
       end;
@@ -4073,7 +4073,7 @@ begin
         longer does at some point: look it up again }
       AMemo := nil;
       for var Memo in FFileMemos do begin
-        if Memo.Used and (PathCompare(Memo.Filename, Filename) = 0) then begin
+        if Memo.Used and PathSame(Memo.Filename, Filename) then begin
           AMemo := Memo;
           Break;
         end;
@@ -4333,7 +4333,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
   function FindTabHint(const Hints: TStrings; const Hint: String): Integer;
   begin
     for Result := 0 to Hints.Count-1 do
-      if PathCompare(Hints[Result], Hint) = 0 then
+      if PathSame(Hints[Result], Hint) then
         Exit;
     Result := -1;
   end;

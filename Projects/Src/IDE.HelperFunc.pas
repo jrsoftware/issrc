@@ -243,7 +243,7 @@ end;
 
 function IsISPPBuiltins(const Filename: String): Boolean;
 begin
-  Result := PathCompare(PathExtractName(Filename), 'ISPPBuiltins.iss') = 0;
+  Result := PathSame(PathExtractName(Filename), 'ISPPBuiltins.iss');
 end;
 
 var
