@@ -919,6 +919,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
   begin
     Result := TStringList.Create;
     Result.CaseSensitive := False;
+    Result.UseLocale := False; { Make sure it uses CompareText and not AnsiCompareText }
     Result.Sorted := True;
   end;
 
