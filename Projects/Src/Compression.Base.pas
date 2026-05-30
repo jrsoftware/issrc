@@ -110,7 +110,7 @@ type
     destructor Destroy; override;
     procedure InitDecryption(const CryptKey: TSetupEncryptionKey;
       const EncryptionBaseNonce: TSetupEncryptionNonce; const SpecialCryptContextType: TSpecialCryptContextType);
-    class procedure RaiseCompressedBlockDataError;
+    class procedure RaiseCompressedBlockDataError; static;
     procedure Read(var Buffer; Count: Cardinal);
   end;
 
