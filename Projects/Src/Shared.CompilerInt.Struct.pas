@@ -66,9 +66,9 @@ type
 
       iscbNotifyIdle: (
         CompressProgress: Cardinal;     { [in] Amount compressed so far
-                                          (new in 4.1.6) }
+                                          (not in bytes, new in 4.1.6) }
         CompressProgressMax: Cardinal;  { [in] Maximum value of CompressProgress
-                                          (new in 4.1.6) }
+                                          (not in bytes, new in 4.1.6) }
         SecondsRemaining: Integer;      { [in] Estimated time remaining, or -1
                                           if not known (new in 5.1.13) }
         BytesCompressedPerSecond: Cardinal); { [in] Average bytes compressed
