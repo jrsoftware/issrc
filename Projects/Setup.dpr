@@ -77,6 +77,7 @@ uses
   Setup.RedirFunc in 'Src\Setup.RedirFunc.pas',
   Setup.SecurityFunc in 'Src\Setup.SecurityFunc.pas',
   Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',
+  Shared.VerInfoFunc.Test in 'Src\Shared.VerInfoFunc.Test.pas',
   Setup.RegDLL in 'Src\Setup.RegDLL.pas',
   Setup.SpawnCommon in 'Src\Setup.SpawnCommon.pas',
   Setup.SpawnServer in 'Src\Setup.SpawnServer.pas',

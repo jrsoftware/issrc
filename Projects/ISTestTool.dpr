@@ -48,6 +48,8 @@ uses
   Shared.CommonFunc.Test in 'Src\Shared.CommonFunc.Test.pas',
   Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
   Shared.EncryptionFunc.Test in 'Src\Shared.EncryptionFunc.Test.pas',
+  Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',
+  Shared.VerInfoFunc.Test in 'Src\Shared.VerInfoFunc.Test.pas',
   SimpleExpression in '..\Components\SimpleExpression.pas',
   SimpleExpression.Test in '..\Components\SimpleExpression.Test.pas',
   StringScanner in '..\Components\StringScanner.pas',
@@ -355,6 +357,7 @@ begin
     SHA256RunTests;
     SharedCommonFuncRunTests;
     SharedEncryptionFuncRunTests;
+    SharedVerInfoFuncRunTests;
     SimpleExpressionRunTests;
     StringScannerRunTests;
     UnsignedFuncRunTests;

@@ -12,12 +12,12 @@ These are hard constraints of the ROPS compiler. Violating them causes compile e
 - No default parameter values.
 - No function or procedure overloading.
 - No `raise` keyword. Use `RaiseException(Msg)` or `RaiseLastException` instead.
-- No `on E: ExceptionType do` in except blocks. Use `GetExceptionMessage` to inspect the current exception.
+- No `on E: ExceptionType do` in `except` blocks. Use `GetExceptionMessage` to inspect the current exception.
 - No script-defined classes. Classes can be used, but only those defined by Inno Setup.
 - No variant records.
 - `const` parameters are passed by value (copied), and not by reference as in modern Delphi.
 - The `/` operator always returns `Extended`, even when both operands are integers. Use `div` for integer division.
-- `break` and `continue` are not reserved words. They are ordinary identifiers recognized specially inside loop bodies. A local declaration named `Break` or `Continue` will shadow the loop-control behavior.
+- `Break` and `Continue` are not reserved words. They are ordinary identifiers recognized specially inside loop bodies. A local declaration named `Break` or `Continue` will shadow the loop-control behavior.
 - `Low`, `High`, and `SizeOf` must be used with a variable, not a type.
 ## Conventions (same spirit as the Pascal rules, adapted for ROPS)
 - Pre-declare all local variables in the `var` block before `begin`.

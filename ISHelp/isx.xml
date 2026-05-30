@@ -46,12 +46,12 @@
 <li>No default parameter values.</li>
 <li>No function or procedure overloading.</li>
 <li>No <tt>raise</tt> keyword. Use <tt>RaiseException(Msg)</tt> or <tt>RaiseLastException</tt> instead.</li>
-<li>No <tt>on E: ExceptionType do</tt> in except blocks. Use <tt>GetExceptionMessage</tt> to inspect the current exception.</li>
+<li>No <tt>on E: ExceptionType do</tt> in <tt>except</tt> blocks. Use <tt>GetExceptionMessage</tt> to inspect the current exception.</li>
 <li>No script-defined classes. Classes can be used, but only those defined by Inno Setup.</li>
 <li>No variant records.</li>
 <li><tt>const</tt> parameters are passed by value (copied), and not by reference as in modern Delphi.</li>
 <li>The <tt>/</tt> operator always returns <tt>Extended</tt>, even when both operands are integers. Use <tt>div</tt> for integer division.</li>
-<li><tt>break</tt> and <tt>continue</tt> are not reserved words. They are ordinary identifiers recognized specially inside loop bodies. A local declaration named <tt>Break</tt> or <tt>Continue</tt> will shadow the loop-control behavior.</li>
+<li><tt>Break</tt> and <tt>Continue</tt> are not reserved words. They are ordinary identifiers recognized specially inside loop bodies. A local declaration named <tt>Break</tt> or <tt>Continue</tt> will shadow the loop-control behavior.</li>
 <li><tt>Low</tt>, <tt>High</tt>, and <tt>SizeOf</tt> must be used with a variable, not a type.</li>
 </ul>
 

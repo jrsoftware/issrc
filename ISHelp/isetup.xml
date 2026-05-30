@@ -6491,7 +6491,7 @@ WizardBackImageOpacity=150</pre></example>
 <setupdefault><link topic="setup_versioninfoversion">VersionInfoVersion</link></setupdefault>
 <body>
 <p>Specifies the binary product version value for the Setup version info.</p>
-<p>Partial version numbers are allowed. Missing numbers will be appended as zero's.</p>
+<p>Partial version numbers (for example, <tt>1.5</tt>) are allowed. Missing numbers will be appended as zero's. Extra numbers are ignored.</p>
 <p>Note that this value is only known to be displayed by Explorer on Windows Vista SP2. Other versions display the textual product version value (<link topic="setup_versioninfoproducttextversion">VersionInfoProductTextVersion</link>) instead.</p>
 </body>
 </setuptopic>
@@ -6510,7 +6510,7 @@ WizardBackImageOpacity=150</pre></example>
 <setupdefault>0.0.0.0</setupdefault>
 <body>
 <p>Specifies the binary file version value for the Setup version info.</p>
-<p>Partial version numbers are allowed. Missing numbers will be appended as zero's.</p>
+<p>Partial version numbers (for example, <tt>1.5</tt>) are allowed. Missing numbers will be appended as zero's. Extra numbers are ignored.</p>
 <p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>

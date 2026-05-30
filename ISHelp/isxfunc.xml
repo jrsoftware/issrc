@@ -2445,7 +2445,7 @@ end;</pre>
       <function>
         <name>GetVersionNumbersString</name>
         <prototype>function GetVersionNumbersString(const Filename: String; var Version: String): Boolean;</prototype>
-        <description><p>Gets the version of the specified file as a string (in "0.0.0.0" format). Returns True if successful, False otherwise.</p></description>
+        <description><p>Gets the version of the specified file as a string (in '0.0.0.0' format). Returns True if successful, False otherwise.</p></description>
         <remarks><p>Uses the binary file version from the fixed block of the specified file's version information resource, and not the textual file version from the language specific block.</p></remarks>
       </function>
       <function>
@@ -2508,7 +2508,7 @@ end;</pre>
       <function>
         <name>VersionToStr</name>
         <prototype>function VersionToStr(const Version: Int64): String;</prototype>
-        <description><p>Returns the specified packed version as a string (in "0.0.0.0" format).</p></description>
+        <description><p>Returns the specified packed version as a string (in '0.0.0.0' format).</p></description>
         <seealso><p><link topic="isxfunc_StrToVersion">StrToVersion</link><br />
 <link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link><br />
 <link topic="isxfunc_UnpackVersionComponents">UnpackVersionComponents</link></p></seealso>
@@ -2516,7 +2516,9 @@ end;</pre>
       <function>
         <name>StrToVersion</name>
         <prototype>function StrToVersion(const VersionString: String; var Version: Int64): Boolean;</prototype>
-        <description><p>Returns the specified string (in "0.0.0.0" format) as a packed version. Returns True if successful, False otherwise.</p></description>
+        <description><p>Returns the specified string (in '0.0.0.0' format) as a packed version. Returns True if successful, False otherwise.</p>
+<p>Partial version numbers (for example, '1.5') are allowed. Missing numbers will be appended as zero's. Extra numbers are ignored.</p>
+</description>
         <seealso><p><link topic="isxfunc_VersionToStr">VersionToStr</link><br />
 <link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
 <link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
