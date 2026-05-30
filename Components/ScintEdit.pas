@@ -294,6 +294,7 @@ type
     procedure ForceModifiedState;
     function GetByteAtPosition(const Pos: Integer): AnsiChar;
     function GetCharacterCount(const StartPos, EndPos: Integer): Integer;
+    function GetCodeUnitCount(const StartPos, EndPos: Integer): Integer;
     function GetColumnFromPosition(const Pos: Integer): Integer;
     function GetDefaultWordChars: AnsiString;
     function GetDocLineFromVisibleLine(const VisibleLine: Integer): Integer;
@@ -1125,6 +1126,15 @@ function TScintEdit.GetCharacterCount(const StartPos, EndPos: Integer): Integer;
 begin
   CheckPosRange(StartPos, EndPos);
   Result := Call(SCI_COUNTCHARACTERS, StartPos, EndPos);
+end;
+
+function TScintEdit.GetCodeUnitCount(const StartPos, EndPos: Integer): Integer;
+{ Unlike GetCharacterCount this counts UTF-16 code units. So for a basic
+  smiley emoji this returns 2, same as the length of the string that would be
+  returned by GetTextRange. GetCharacterCount returns 1 instead. }
+begin
+  CheckPosRange(StartPos, EndPos);
+  Result := Call(SCI_COUNTCODEUNITS, StartPos, EndPos);
 end;
 
 function TScintEdit.GetColumnFromPosition(const Pos: Integer): Integer;

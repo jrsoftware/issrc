@@ -80,7 +80,7 @@ type
     Filename: String;
     Line, LineStartPos: Integer;
     Range: TScintRange;
-    PrefixStringLength: Integer;
+    StartIndex, EndIndex: Integer;
   end;
 
   TFindResults = TObjectList<TFindResult>;
@@ -6452,7 +6452,6 @@ var
   Canvas: TCanvas;
   S, S2: String;
   FindResult: TFindResult;
-  StartI, EndI: Integer;
   SaveColor: TColor;
 begin
   Canvas := FindResultsList.Canvas;
@@ -6465,10 +6464,8 @@ begin
     Canvas.Font.Style := [fsBold];
     Canvas.TextOut(Rect.Left, Rect.Top, S);
   end else if not (odSelected in State) then begin
-    StartI := FindResult.Range.StartPos - FindResult.LineStartPos + 1 + FindResult.PrefixStringLength;
-    EndI := FindResult.Range.EndPos - FindResult.LineStartPos + 1 + FindResult.PrefixStringLength;
-    if StartI > 1 then begin
-      Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, StartI-1));
+    if FindResult.StartIndex > 1 then begin
+      Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, FindResult.StartIndex-1));
       Rect.Left := Canvas.PenPos.X;
     end;
     SaveColor := Canvas.Brush.Color;
@@ -6476,12 +6473,12 @@ begin
       Canvas.Brush.Color := FTheme.Colors[tcRed]
     else
       Canvas.Brush.Color := FTheme.Colors[tcSelBack];
-    S2 := Copy(S, StartI, EndI-StartI);
+    S2 := Copy(S, FindResult.StartIndex, FindResult.EndIndex-FindResult.StartIndex);
     Rect.Right := Rect.Left + Canvas.TextWidth(S2);
     Canvas.TextRect(Rect, Rect.Left, Rect.Top, S2); { TextRect instead of TextOut to avoid a margin around the text }
-    if EndI <= Length(S) then begin
+    if FindResult.EndIndex <= Length(S) then begin
       Canvas.Brush.Color := SaveColor;
-      S2 := Copy(S, EndI, MaxInt);
+      S2 := Copy(S, FindResult.EndIndex, MaxInt);
       Rect.Left := Rect.Right;
       Rect.Right := Rect.Left + Canvas.TextWidth(S2);
       Canvas.TextRect(Rect, Rect.Left, Rect.Top, S2);

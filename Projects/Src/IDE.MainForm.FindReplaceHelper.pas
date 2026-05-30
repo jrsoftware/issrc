@@ -229,7 +229,8 @@ begin
         FindResult.Line := Line;
         FindResult.LineStartPos := Memo.GetPositionFromLine(Line);
         FindResult.Range := Range;
-        FindResult.PrefixStringLength := Length(Prefix);
+        FindResult.StartIndex := Length(Prefix) + Memo.GetCodeUnitCount(FindResult.LineStartPos, Range.StartPos) + 1;
+        FindResult.EndIndex := Length(Prefix) + Memo.GetCodeUnitCount(FindResult.LineStartPos, Range.EndPos) + 1;
         FFindResults.Add(FindResult);
         FindResultsList.Items.AddObject(Prefix + Memo.Lines[Line], FindResult);
         Inc(FileHits);
@@ -265,11 +266,13 @@ begin
   FindResult.Line := NewLine;
   const NewPrefix = Format(SFindResultLinePrefix, [FindResult.Line+1]);
   FindResultsList.Items[ItemIndex] := NewPrefix + Copy(FindResultsList.Items[ItemIndex], Length(OldPrefix)+1, MaxInt);
-  FindResult.PrefixStringLength := Length(NewPrefix);
   const PosChange = NewLineStartPos - FindResult.LineStartPos;
   FindResult.LineStartPos := NewLineStartPos;
   FindResult.Range.StartPos := FindResult.Range.StartPos + PosChange;
   FindResult.Range.EndPos := FindResult.Range.EndPos + PosChange;
+  const PrefixChange = Length(NewPrefix) - Length(OldPrefix);
+  FindResult.StartIndex := FindResult.StartIndex + PrefixChange;
+  FindResult.EndIndex := FindResult.EndIndex + PrefixChange;
 end;
 
 function TMainFormFindReplaceHelper.FindSetupDirectiveValue(const DirectiveName,
