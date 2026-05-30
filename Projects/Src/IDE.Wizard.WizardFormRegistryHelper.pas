@@ -147,6 +147,25 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
     Result := Copy(S, CharCount + 1, S.Length - 2 * CharCount);
   end;
 
+  function FindValueNameSeparator(const Line: String): Integer;
+  { Returns the position of the '=' separating the value name from the value
+    data, skipping any '=' inside the quoted value name }
+  begin
+    if (Line <> '') and (Line[1] = '@') then
+      Exit(Pos('=', Line));
+    { The value name is a quoted string, which may contain '='. We need
+      to find the end before searching for the true separator. Make sure
+      an escaped \ before a quote (so: \\") doesn't confuse us. }
+    const N = Length(Line);
+    var I := 2;
+    while (I <= N) and (Line[I] <> '"') do begin
+      if Line[I] = '\' then
+        Inc(I); { skip escaped character }
+      Inc(I);
+    end;
+    Result := Pos('=', Line, I + 1);
+  end;
+
   function StrRootRename(S: String): String;
   type
     TStrings = (HKEY_CURRENT_USER, HKEY_LOCAL_MACHINE, HKEY_CLASSES_ROOT, HKEY_USERS, HKEY_CURRENT_CONFIG);
@@ -376,12 +395,13 @@ begin
 
         while Line <> '' do begin
           if not FilterKey and not DeleteKey and (Line[1] <> ';') then begin
-            P := Pos('=', Line);
+            P := FindValueNameSeparator(Line);
             if (P = 2) and (Line[1] = '@') then
               Entry.QuotedValueName := '""'
             else begin
               const ValueName = CutStrBeginEnd(Copy(Line, 1, P - 1), 1);
               Entry.QuotedValueName := ValueName.Replace('\\', '\')
+                                                .Replace('\"', '"')
                                                 .Replace('{', '{{')
                                                 .QuotedString('"');
             end;
@@ -392,6 +412,7 @@ begin
                 begin
                   Entry.ValueData := CutStrBeginEnd(ValueTypeAndData, 1);
                   Entry.ValueData := Entry.ValueData.Replace('\\', '\')
+                                                    .Replace('\"', '"')
                                                     .Replace('{', '{{')
                                                     .QuotedString('"');
                   Entry.ValueType := 'string';
