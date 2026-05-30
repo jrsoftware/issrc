@@ -55,6 +55,7 @@ begin
   TestStrToVersionNumbers('1.2.3.4.', True, $00010002, $00030004);
   TestStrToVersionNumbers('1.2.3.4.5', True, $00010002, $00030004);
 
+  {$IFDEF ISTESTTOOLPROJ}
   TestStrToVersionNumbers('65536', False, 0, 0);
   TestStrToVersionNumbers('1.2.3.65536', False, 0, 0);
   TestStrToVersionNumbers('-1', False, 0, 0);
@@ -63,6 +64,7 @@ begin
   TestStrToVersionNumbers('1..2', False, 0, 0);
   TestStrToVersionNumbers('.5', False, 0, 0);
   TestStrToVersionNumbers('.', False, 0, 0);
+  {$ENDIF}
 
   TestVersionNumbersToInt64(0, 0, 0);
   TestVersionNumbersToInt64(0, $00000001, 1);
