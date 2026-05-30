@@ -4330,12 +4330,27 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
     end;
   end;
 
+  function FindTabHint(const Hints: TStrings; const Hint: String): Integer;
+  begin
+    for Result := 0 to Hints.Count-1 do
+      if PathCompare(Hints[Result], Hint) = 0 then
+        Exit;
+    Result := -1;
+  end;
+
 var
   NewTabs, NewHints: TStringList;
   NewCloseButtons: TBoolList;
-  I, SaveTabIndex: Integer;
-  SaveTabName: String;
 begin
+  var SavedActiveFileHint: String;
+  if FActiveMemo is TIDEScintFileEdit then
+    SavedActiveFileHint := GetFileTitle((FActiveMemo as TIDEScintFileEdit).Filename)
+  else begin
+    if FActiveMemo <> FPreprocessorOutputMemo then
+      raise Exception.Create('Unexpected non-file memo');
+    SavedActiveFileHint := '';
+  end;
+
   NewTabs := nil;
   NewHints := nil;
   NewCloseButtons := nil;
@@ -4343,20 +4358,21 @@ begin
     NewTabs := TStringList.Create;
     NewTabs.Add(MemosTabSet.Tabs[0]); { 'Main Script' }
     NewHints := TStringList.Create;
-    NewHints.Add(GetFileTitle(FMainMemo.Filename));
+    NewHints.Add(GetFileTitle(FMainMemo.Filename)); { Also see above }
     NewCloseButtons := TBoolList.Create;
     NewCloseButtons.Add(False);
 
     UpdatePreprocessorOutputMemo(NewTabs, NewHints, NewCloseButtons);
     UpdateIncludedFilesMemos(NewTabs, NewHints, NewCloseButtons);
 
-    { Set new tabs, try keep same file open }
-    SaveTabIndex := MemosTabSet.TabIndex;
-    SaveTabName := MemosTabSet.Tabs[MemosTabSet.TabIndex];
+    { Set new tabs, keeping same file open even if it moved to
+      another memo. We can use the tab hints for it: the tab we want
+      is the one with the hint that matches SavedActiveFileHint. }
+    const SaveTabIndex = MemosTabSet.TabIndex;
     MemosTabSet.Tabs := NewTabs;
     MemosTabSet.Hints := NewHints;
     MemosTabSet.CloseButtons := NewCloseButtons;
-    I := MemosTabSet.Tabs.IndexOf(SaveTabName);
+    const I = FindTabHint(MemosTabSet.Hints, SavedActiveFileHint);
     if I <> -1 then
        MemosTabSet.TabIndex := I;
     if MemosTabSet.TabIndex = SaveTabIndex then begin
