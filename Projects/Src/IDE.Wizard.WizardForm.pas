@@ -1003,9 +1003,8 @@ begin
   UninstallDelete := '[UninstallDelete]' + SNewLine;
 
   if not EmptyCheck.Checked then begin
-    Setup := Setup + (
-      '; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.' + SNewLine +
-      '; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)' + SNewLine);
+    Setup := Setup + '; ' + SWizardScriptCommentUniqueAppId + SNewLine +
+      '; ' + SWizardScriptCommentGenerateGuid + SNewLine;
     Setup := Setup + 'AppId={' + GenerateGuid + SNewLine;
     { AppInfo }
     Setup := Setup + 'AppName=' + AppNameEdit.Text + SNewLine;
@@ -1044,15 +1043,23 @@ begin
       if AppExeIsReallyExe then
         Setup := Setup + 'UninstallDisplayIcon={app}\' + AppExeName + SNewLine;
       if Is64BitPEImage(AppExeEdit.Text) then begin
-        Setup := Setup + '; "ArchitecturesAllowed=x64compatible" specifies that Setup cannot run' + SNewLine;
-        Setup := Setup + '; on anything but x64 and Windows 11 on Arm.' + SNewLine;
+        if SWizardScriptCommentArchitecturesAllowed1 <> '' then
+          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesAllowed1 + SNewLine;
+        if SWizardScriptCommentArchitecturesAllowed2 <> '' then
+          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesAllowed2 + SNewLine;
+        if SWizardScriptCommentArchitecturesAllowed3 <> '' then
+          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesAllowed3 + SNewLine;
         Setup := Setup + 'ArchitecturesAllowed=x64compatible' + SNewLine;
-        Setup := Setup + '; "ArchitecturesInstallIn64BitMode=x64compatible" requests that the' + SNewLine;
-        Setup := Setup + '; install be done in "64-bit mode" on x64 or Windows 11 on Arm,' + SNewLine;
-        Setup := Setup + '; meaning it should use the native 64-bit Program Files directory and' + SNewLine;
-        Setup := Setup + '; the 64-bit view of the registry.' + SNewLine;
+        if SWizardScriptCommentArchitecturesInstallIn64BitMode1 <> '' then
+          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesInstallIn64BitMode1 + SNewLine;
+        if SWizardScriptCommentArchitecturesInstallIn64BitMode2 <> '' then
+          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesInstallIn64BitMode2 + SNewLine;
+        if SWizardScriptCommentArchitecturesInstallIn64BitMode3 <> '' then
+          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesInstallIn64BitMode3 + SNewLine;
+        if SWizardScriptCommentArchitecturesInstallIn64BitMode4 <> '' then
+          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesInstallIn64BitMode4 + SNewLine;
         Setup := Setup + 'ArchitecturesInstallIn64BitMode=x64compatible' + SNewLine;
-        Setup := Setup + '; Uncomment the following line to use a 64-bit installer.' + SNewLine;
+        Setup := Setup + '; ' + SWizardScriptCommentChangeTo64BitInstaller + SNewLine;
         Setup := Setup + ';SetupArchitecture=x64' + SNewLine;
       end;
     end;
@@ -1061,8 +1068,8 @@ begin
     FFilesHelper.AddScript(Files, HasExtractArchive);
     if HasExtractArchive then begin
       Setup := Setup + 'ArchiveExtraction=full' + SNewLine;
-      Setup := Setup + '; Use "ArchiveExtraction=enhanced" if all your archives are .7z files' + SNewLine;
-      Setup := Setup + '; Use "ArchiveExtraction=enhanced/nopassword" if all your archives are not password-protected' + SNewLine;
+      Setup := Setup + '; ' + SWizardScriptCommentArchiveExtractionEnhanced + SNewLine;
+      Setup := Setup + '; ' + SWizardScriptCommentArchiveExtractionEnhancedNoPassword + SNewLine;
     end;
 
     { AppAssocation }
@@ -1108,9 +1115,9 @@ begin
 
     { PrivilegesRequired }
     if PrivilegesRequiredAdminRadioButton.Checked then
-      Setup := Setup + '; Uncomment the following line to run in non administrative install mode (install for current user only).' + SNewLine + ';'
+      Setup := Setup + '; ' + SWizardScriptCommentChangeToLowest + SNewLine + ';'
     else
-      Setup := Setup + '; Remove the following line to run in administrative install mode (install for all users).' + SNewLine;
+      Setup := Setup + '; ' + SWizardScriptCommentChangeToAdmin + SNewLine;
     Setup := Setup + 'PrivilegesRequired=lowest' + SNewLine; { Note how previous made sure this is outputted as comment if needed. }
     if PrivilegesRequiredOverridesAllowedDialogCheckbox.Checked then
       Setup := Setup + 'PrivilegesRequiredOverridesAllowed=dialog' + SNewLine
@@ -1180,9 +1187,7 @@ begin
     if Length(Tasks) > Length('[Tasks]')+2 then
       Script := Script + Tasks + SNewLine;
     if Length(Files) > Length('[Files]')+2 then
-      Script := Script + Files +
-        '; NOTE: Don''t use "Flags: ignoreversion" on any shared system files' +
-        SNewLine2;
+      Script := Script + Files + '; ' + SWizardScriptCommentSharedSystemFiles + SNewLine2;
     if Length(Registry) > Length('[Registry]')+2 then
       Script := Script + Registry + SNewLine;
     if Length(INI) > Length('[INI]')+2 then
