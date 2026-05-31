@@ -1207,7 +1207,7 @@ begin
 
   FResultScript := FixLabel(SWizardScriptHeader) + SNewLine;
   if (FResult = wrComplete) and not IsLicensed then
-    FResultScript := FResultScript + '; ' + GetLicenseeDescription + SNewLine;
+    FResultScript := FResultScript + '; ' + AddPeriod(GetLicenseeDescription) + SNewLine;
   FResultScript := FResultScript + SNewLine + Script;
 end;
 
