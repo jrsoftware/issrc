@@ -466,8 +466,8 @@ begin
         ExpectedFileHash := Verification.Hash
       else
         DoISSigVerify(TempF, nil, DestFile, False, Verification.ISSigAllowedKeys, ExpectedFileHash);
-        FreeAndNil(TempF);
-        const FileHash = GetSHA256OfFile(TempFile);
+      FreeAndNil(TempF);
+      const FileHash = GetSHA256OfFile(TempFile);
       if not SHA256DigestsEqual(FileHash, ExpectedFileHash) then
         VerificationError(veFileHashIncorrect);
       Log(VerificationSuccessfulLogMessage);
