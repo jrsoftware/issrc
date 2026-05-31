@@ -460,7 +460,7 @@ begin
       for I := 0 to Count - 1 do
       begin
         N := Trim(Strings[I]);
-        if (N <> '') and (N[1] <> ';') and (N[1] = '[') then
+        if (N <> '') and (N[1] = '[') then
         begin
           DoCount := CompareText(Copy(N, 2, Length(N) - 2), S) = 0;
           Continue;
