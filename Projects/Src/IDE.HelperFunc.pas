@@ -577,7 +577,7 @@ var
         end;
       alpCountdown:
         begin
-          if PrefixParam < LineNumber then
+          if (PrefixParam < 0) or (Cardinal(PrefixParam) < LineNumber) then
             raise Exception.Create('Unexpected PrefixParam value');
           Insert(Format('[%.2u]   ', [Cardinal(PrefixParam)-LineNumber]), S, 1);
         end;
