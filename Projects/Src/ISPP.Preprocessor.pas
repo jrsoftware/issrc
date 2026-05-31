@@ -365,9 +365,9 @@ begin
               FStack.IfInstruction(FStack.Include and
                 ProcessPreprocCommand(Command, S, DirectiveOffset));
             pcElseIf:
-              FStack.ElseIfInstruction(FStack.Last.Fired or
-                FStack.OuterInclude and
-                ProcessPreprocCommand(Command, S, DirectiveOffset));
+              FStack.ElseIfInstruction((FStack.AtLeast(1) and FStack.Last.Fired) or
+                (FStack.OuterInclude and
+                 ProcessPreprocCommand(Command, S, DirectiveOffset)));
             pcElse: FStack.ElseInstruction;
             pcEndIf: FStack.EndIfInstruction
             else
@@ -515,9 +515,9 @@ begin
           LineStack.IfInstruction(LineStack.Include and
             ProcessPreprocCommand(Command, S, DStart - LineStart));
         pcElseIf:
-          LineStack.ElseIfInstruction(LineStack.Last.Fired or
-            LineStack.OuterInclude and
-            ProcessPreprocCommand(Command, S, DStart - LineStart));
+          LineStack.ElseIfInstruction((LineStack.AtLeast(1) and LineStack.Last.Fired) or
+            (LineStack.OuterInclude and
+             ProcessPreprocCommand(Command, S, DStart - LineStart)));
         pcElse: LineStack.ElseInstruction;
         pcEndIf: LineStack.EndIfInstruction;
       else
