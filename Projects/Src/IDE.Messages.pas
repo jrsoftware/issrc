@@ -322,6 +322,18 @@ const
   SDebugFailedToRemoveTempDir = '*** Failed to remove temporary directory';
   SDebugExitCodeText = '*** %s';
   SDebugCodeCallStack = '*** [%s] Call Stack';
+
+  { License - first 3 duplicated in Shared.LicenseFunc for ISCC }
+  SLicenseeExpired = '%s (Update entitlement ended)';
+  SLicenseeExpiredButUpdated = '%s (Update entitlement ended but updated anyway)';
+  SLicenseeNonCommercial = 'Non-commercial use only';
+  SLicenseTypeSingleUser = 'Single User';
+  SLicenseTypeTeam = 'Team';
+  SLicenseTypeEnterprise = 'Enterprise';
+  SLicenseTypeDescription = 'Inno Setup %s License';
+  SLicenseDescriptionNameAndType = '%0:s, %1:s.';
+  SLicenseDescriptionUpdatesUntil = 'Includes updates until %s, major and minor.';
+  SLicenseDescriptionAllFutureUpdates = 'Includes all future updates, major and minor.';
  
 implementation
 
