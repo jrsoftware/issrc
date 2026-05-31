@@ -127,7 +127,7 @@
 
 <li>Support for Windows Server Core using <link topic="64bit">64-bit installers</link>.</li>
 
-<li>Extensive support for both administrative and <link topic="admininstallmode">non administrative installations</link> installations.</li>
+<li>Extensive support for both administrative and <link topic="admininstallmode">non administrative installations</link>.</li>
 
 <li>Supports creation of a single EXE to install your program for easy online distribution. <link topic="setup_diskspanning">Disk spanning</link> is also supported.</li>
 
@@ -188,7 +188,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <p>Scripts have an ".iss" (meaning Inno Setup Script) extension. The script controls every aspect of the installation. It specifies which files are to be installed and where, what shortcuts are to be created and what they are to be named, and so on.</p>
 
-<p>Script files are usually edited from inside the "Inno Setup Compiler" Compiler IDE program. After you have finishing writing the script, the next and final step is select "Compile" in the Compiler IDE. What this does is create a complete, ready-to-run Setup program based on your script. By default, this is created in a directory named "Output" under the directory containing the script.</p>
+<p>Script files are usually edited from inside the "Inno Setup Compiler" Compiler IDE program. After you have finished writing the script, the next and final step is to select "Compile" in the Compiler IDE. What this does is create a complete, ready-to-run Setup program based on your script. By default, this is created in a directory named "Output" under the directory containing the script.</p>
 
 <p>To give you an idea of how this all works, start the Compiler IDE, click <i>File | Open</i>, and select one of the script files in the Examples subdirectory located under the Inno Setup directory. (It may be helpful to use the sample scripts as a template for your own scripts.)</p>
 
@@ -248,7 +248,7 @@ Source: "MyProg.exe"; DestDir: "{app}"
 
 <p>By default, scripts use ISPP if available. Message files (<tt>.isl</tt>) are not allowed to use any directives.</p>
 
-<p>If an Unicode file is used, it must be UTF-8 encoded.</p>
+<p>If a Unicode file is used, it must be UTF-8 encoded.</p>
 
 <p><b>See also:</b><br/>
 <link topic="params">Parameters in Sections</link><br/>
@@ -1325,13 +1325,13 @@ Name: "help\dutch"; Description: "Dutch"; Types: full
 <p>Instructs Setup that this component is mutually exclusive with sibling components that also have the <tt>exclusive</tt> flag.</p>
 </flag>
 <flag name="fixed">
-<p>Instructs Setup that this component can not be manually selected or unselected by the end user during installation.</p>
+<p>Instructs Setup that this component cannot be manually selected or unselected by the end user during installation.</p>
 </flag>
 <flag name="restart">
 <p>Instructs Setup to ask the user to restart the system if this component is installed, regardless of whether this is necessary (for example because of [Files] section entries with the <tt>restartreplace</tt> flag). Like <link topic="setup_alwaysrestart">AlwaysRestart</link> but per component.</p>
 </flag>
 <flag name="disablenouninstallwarning">
-<p>Instructs Setup not to warn the user that this component will not be uninstalled after they deselected this component when it's already installed on his/her machine.</p>
+<p>Instructs Setup not to warn the user that this component won't be uninstalled if they deselect it when it's already installed on the user's system.</p>
 <p>Depending on the complexity of your components, you can try to use the [InstallDelete] section and this flag to automatically 'uninstall' deselected components.</p>
 </flag>
 </flaglist>
@@ -2791,7 +2791,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 <flag name="postinstall">
 <p>Valid only in a [Run] section. Instructs Setup to create a checkbox on the <i>Setup Completed</i> wizard page. The user can uncheck or check this checkbox and thereby choose whether this entry should be processed or not. Previously this flag was called <tt>showcheckbox</tt>.</p>
 <p>If Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <tt>AlwaysRestart</tt> <tt>[Setup]</tt> section directive is <tt>yes</tt>), there will not be an opportunity for the checkbox to be displayed and therefore the entry will never be processed.</p>
-<p>The <tt>isreadme</tt> flag for entries in the [Files] section is now obsolete. If the compiler detects a entry with an <tt>isreadme</tt> flag, it strips the <tt>isreadme</tt> flag from the [Files] entry and inserts a generated [Run] entry at the head of the list of [Run] entries. This generated [Run] entry runs the README file and has flags <tt>shellexec</tt>, <tt>skipifdoesntexist</tt>, <tt>postinstall</tt> and <tt>skipifsilent</tt>.</p>
+<p>The <tt>isreadme</tt> flag for entries in the <tt>[Files]</tt> section is now obsolete. If the compiler detects an entry with an <tt>isreadme</tt> flag, it strips the <tt>isreadme</tt> flag from the <tt>[Files]</tt> entry and inserts a generated <tt>[Run]</tt> entry at the head of the list of <tt>[Run]</tt> entries. This generated <tt>[Run]</tt> entry runs the README file and has flags <tt>shellexec</tt>, <tt>skipifdoesntexist</tt>, <tt>postinstall</tt>, and <tt>skipifsilent</tt>.</p>
 </flag>
 <flag name="runascurrentuser">
 <p>If this flag is specified, the spawned process will inherit Setup/Uninstall's user credentials (typically, full administrative privileges).</p>
@@ -4834,7 +4834,7 @@ AppVerName={cm:NameAndVersion,My Program,1.5}
 <body>
 <p>The value of <tt>AppId</tt> is stored inside uninstall log files (unins???.dat), and is checked by subsequent installations to determine whether it may <link topic="appendnotes">append to a particular existing uninstall log</link>. Setup will only append to an uninstall log if the <tt>AppId</tt> of the existing uninstall log is the same as the current installation's <tt>AppId</tt>. For a practical example, say you have two installations -- one entitled <i>My Program</i> and the other entitled <i>My Program 1.1 Update.</i> To get My Program 1.1 Update to append to My Program's uninstall log, you would have to set <tt>AppId</tt> to the same value in both installations.</p>
 <p><tt>AppId</tt> also determines the actual name of the Uninstall registry key, to which Inno Setup tacks on "_is1" at the end. (Therefore, if <tt>AppId</tt> is "MyProgram", the key will be named "MyProgram_is1".) Pre-1.3 versions of Inno Setup based the key name on the value of <tt>AppVerName</tt>.</p>
-<p>AppId is a not used for display anywhere, so feel free to make it as cryptic as you desire. The value may include constants.</p>
+<p><tt>AppId</tt> isn't used for display anywhere, so feel free to make it as cryptic as you desire. The value may include constants.</p>
 <p>If you use a {code:..} constant to allow your user to customize <tt>AppId</tt>, you do not need to return the real value until just before the installation starts: if necessary you may return an empty or generic value at earlier times. If not empty, this value will only be used to attempt to restore previous install settings (like the settings stored by [Setup] section directive <link topic="setup_usepreviousappdir">UsePreviousAppDir</link>). If empty, it isn't used for anything.</p>
 <p>The length of <tt>AppId</tt> with all constants evaluated should never exceed 127 characters.</p>
 <example><pre>AppId=MyProgram</pre></example>
@@ -5137,7 +5137,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p><i>Obsolete in 4.1.2.</i> Pre-4.1.2 versions of Inno Setup had a different directory selection interface, and the <tt>DisableAppendDir</tt> directive was used to control its behaviour.</p>
+<p><i>Obsolete in 4.1.2.</i> Pre-4.1.2 versions of Inno Setup had a different directory selection interface, and the <tt>DisableAppendDir</tt> directive was used to control its behavior.</p>
 </body>
 </setuptopic>
 
@@ -5320,7 +5320,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>If this is set to <tt>no</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>False</tt>, Setup won't create an entry in the <i>Add/Remove Programs</i> Control Panel applet.</p>
-<p>Setting this to <tt>no</tt> can be useful if your installation is merely an update to an existing application and you don't want another entry created, but don't want to the disable the uninstall features entirely (via <tt>Uninstallable=no</tt>). In this case, <link topic="setup_updateuninstalllogappname">UpdateUninstallLogAppName</link> is usually set to <tt>no</tt> as well.</p>
+<p>Setting this to <tt>no</tt> can be useful if your installation is merely an update to an existing application and you don't want another entry created, but don't want to disable the uninstall features entirely (via <tt>Uninstallable=no</tt>). In this case, <link topic="setup_updateuninstalllogappname">UpdateUninstallLogAppName</link> is usually set to <tt>no</tt> as well.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_uninstallable">Uninstallable</link>
 </p>
@@ -5714,7 +5714,7 @@ DiskSliceSize=736000000
 <body>
 <p>Specifies the name of an optional license agreement file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>If the user selects a language for which the <tt>LicenseFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
-<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
+<p>If a Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <p>If using a .rtf file with custom colors, be mindful of contrast ratios, especially if supporting a <link topic="setup_wizardstyle">dark style</link>. Aim for at least an AA pass for normal text, using a <extlink href="https://webaim.org/resources/contrastchecker">contrast checker</extlink>. Example colors that pass on both light and dark backgrounds include: red #eb0000, green #008a00, and blue #6161ff.</p>
 <example><pre>LicenseFile=license.txt</pre></example>
 <p><b>See also:</b><br/>
@@ -5727,7 +5727,7 @@ DiskSliceSize=736000000
 <body>
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>If the user selects a language for which the <tt>InfoBeforeFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
-<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
+<p>If a Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <p>If using a .rtf file with custom colors, see <link topic="setup_licensefile">LicenseFile</link> for special considerations.</p>
 <example><pre>InfoBeforeFile=infobefore.txt</pre></example>
 <p><b>See also:</b><br/>
@@ -5741,7 +5741,7 @@ DiskSliceSize=736000000
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed after a successful install. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>This differs from <tt>isreadme</tt> files in that this text is displayed as a page of the wizard, instead of in a separate Notepad window.</p>
 <p>If the user selects a language for which the <tt>InfoAfterFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
-<p>If an Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
+<p>If a Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <p>If using a .rtf file with custom colors, see <link topic="setup_licensefile">LicenseFile</link> for special considerations.</p>
 <example><pre>InfoAfterFile=infoafter.txt</pre></example>
 <p><b>See also:</b><br/>
@@ -6491,7 +6491,7 @@ WizardBackImageOpacity=150</pre></example>
 <setupdefault><link topic="setup_versioninfoversion">VersionInfoVersion</link></setupdefault>
 <body>
 <p>Specifies the binary product version value for the Setup version info.</p>
-<p>Partial version numbers (for example, <tt>1.5</tt>) are allowed. Missing numbers will be appended as zero's. Extra numbers are ignored.</p>
+<p>Partial version numbers (for example, <tt>1.5</tt>) are allowed. Missing numbers will be appended as zeros. Extra numbers are ignored.</p>
 <p>Note that this value is only known to be displayed by Explorer on Windows Vista SP2. Other versions display the textual product version value (<link topic="setup_versioninfoproducttextversion">VersionInfoProductTextVersion</link>) instead.</p>
 </body>
 </setuptopic>
@@ -6510,7 +6510,7 @@ WizardBackImageOpacity=150</pre></example>
 <setupdefault>0.0.0.0</setupdefault>
 <body>
 <p>Specifies the binary file version value for the Setup version info.</p>
-<p>Partial version numbers (for example, <tt>1.5</tt>) are allowed. Missing numbers will be appended as zero's. Extra numbers are ignored.</p>
+<p>Partial version numbers (for example, <tt>1.5</tt>) are allowed. Missing numbers will be appended as zeros. Extra numbers are ignored.</p>
 <p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
@@ -6983,7 +6983,7 @@ SignTool=byparam format c:
 <setupvalid><tt>1</tt> through <tt>256</tt></setupvalid>
 <setupdefault><tt>1</tt></setupdefault>
 <body>
-<p>When compressing a large file, the LZMA2 compressor has the ability to divide its data into "blocks" and compress two or more of these blocks in parallel through the use of additional threads (provided sufficient processor power is available). This directive specifies the maximum number of threads to use -- that is, the maximum number of blocks that the LZMA2 compressor may compress in parallel. Using a high maximum requires a very large file before this maximum is fully utilized.</p>
+<p>When compressing a large file, the LZMA2 compressor has the ability to divide its data into "blocks" and compress two or more of these blocks in parallel through the use of additional threads (provided sufficient processor power is available). This directive specifies the maximum number of threads to use -- that is, the maximum number of blocks that the LZMA2 compressor may compress in parallel. Using a high maximum requires a very large file before this maximum is fully used.</p>
 <p>The memory required during compression when multiple block threads are used is roughly:</p>
 <indent><p>LZMANumBlockThreads * (<link topic="setup_compression">Normal memory usage</link> + (<link topic="setup_lzmablocksize">LZMABlockSize</link> * 2))</p></indent>
 <p>Since LZMA2 (and LZMA) uses two threads for match-finding by default (see <link topic="setup_compressionthreads">CompressionThreads</link>), there ideally should be two processor cores available for each block thread. Thus, to see the maximum benefit from a value of <tt>2</tt>, four cores are needed.</p>

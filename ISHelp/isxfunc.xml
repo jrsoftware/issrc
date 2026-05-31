@@ -562,7 +562,7 @@ end;</pre></example>
       <function>
         <name>IsWin64</name>
         <prototype>function IsWin64: Boolean;</prototype>
-        <description><p>Returns True if the system is running a 64-bit version of Windows. If False is returned, you cannot utilize any of Inno Setup's 64-bit-only features.</p>
+        <description><p>Returns True if the system is running a 64-bit version of Windows. If False is returned, you cannot use any of Inno Setup's 64-bit-only features.</p>
 <p>Another way to describe this function is: Returns True if the system matches architecture identifier <link topic="archidentifiers">win64</link>.</p>
 <p>Do not use this function to detect <link topic="32vs64bitinstalls">64-bit install mode</link>, use <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link> instead.</p></description>
         <example><pre>begin
@@ -2151,7 +2151,7 @@ end;</pre></example>
         <prototype>procedure MapArchiveExtensions(const DestExt, SourceExt: String);</prototype>
         <description><p>Allows files with a specified destination extension, such as .exe, to be treated as if they have a different source extension, such as .7z, for extraction purposes.</p>
 <p>An exception will be raised if there was an error.</p></description>
-        <remarks><p>Calls to this function are ignored if the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive is set to <tt>basic</tt>. In this case files as always extracted as .7z, regardless of the extension.</p></remarks>
+        <remarks><p>Calls to this function are ignored if the <link topic="setup_archiveextraction">ArchiveExtraction</link> <tt>[Setup]</tt> section directive is set to <tt>basic</tt>. In this case files are always extracted as .7z, regardless of the extension.</p></remarks>
         <seealso><p><link topic="isxfunc_ExtractArchive">ExtractArchive</link><br/>
 <link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link></p></seealso>
         <example><pre>
@@ -2517,7 +2517,7 @@ end;</pre>
         <name>StrToVersion</name>
         <prototype>function StrToVersion(const VersionString: String; var Version: Int64): Boolean;</prototype>
         <description><p>Returns the specified string (in '0.0.0.0' format) as a packed version. Returns True if successful, False otherwise.</p>
-<p>Partial version numbers (for example, '1.5') are allowed. Missing numbers will be appended as zero's. Extra numbers are ignored.</p>
+<p>Partial version numbers (for example, '1.5') are allowed. Missing numbers will be appended as zeros. Extra numbers are ignored.</p>
 </description>
         <seealso><p><link topic="isxfunc_VersionToStr">VersionToStr</link><br />
 <link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
@@ -2938,7 +2938,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDlg.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
 <p>To set the text on the page, call the <tt>SetText</tt> method. <tt>SetText</tt> takes two string parameters: use the first to tell the user what you're doing, and the second to display a file or directory name. Either parameter may be blank.</p>
 <p>To show or update the progress bar, call the <tt>SetProgress</tt> method. <tt>SetProgress</tt> takes two integer parameters: the first specifies the position of the progress bar (zero-based), and the second specifies the highest possible position. If the second parameter is 0, the progress bar will be hidden.</p></remarks>
-        <example><p>See <i>CodeDlg.iss</i> and <i>AllPagesExample.iss</i> example scrips in the "Examples" subdirectory in your Inno Setup directory for examples.</p></example>
+        <example><p>See <i>CodeDlg.iss</i> and <i>AllPagesExample.iss</i> example scripts in the "Examples" subdirectory in your Inno Setup directory for examples.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TOutputProgressWizardPage">TOutputProgressWizardPage</link><br />
 <link topic="isxfunc_CreateOutputMarqueeProgressPage">CreateOutputMarqueeProgressPage</link></p></seealso>
       </function>
@@ -3044,7 +3044,7 @@ end;</pre></example>
       <function>
         <name>PageIndexFromID</name>
         <prototype>function PageIndexFromID(const ID: Integer): NativeInt;</prototype>
-        <description><p>Given a page ID, returns an position index. Call this if, for example, you want to check whether a page is positioned before a certain other page.</p></description>
+        <description><p>Given a page ID, returns a position index. Call this if, for example, you want to check whether a page is positioned before a certain other page.</p></description>
         <example><pre>function ShouldSkipPage(PageID: Integer): Boolean;
 begin
   Result := PageIndexFromID(PageID) &lt; PageIndexFromID(wpReady);
@@ -3527,7 +3527,7 @@ end;</pre></example>
         <name>Set8087CW</name>
         <prototype>procedure Set8087CW(NewCW: Word);</prototype>
         <description><p>Sets the FPU control word.</p></description>
-        <example><pre>Set8087CW($133f); //Disables all fpu exceptions }</pre></example>
+        <example><pre>Set8087CW($133f); // Disables all FPU exceptions</pre></example>
       </function>
       <function>
         <name>Get8087CW</name>
