@@ -577,7 +577,9 @@ var
         end;
       alpCountdown:
         begin
-          Insert(Format('[%.2d]   ', [Cardinal(PrefixParam)-LineNumber]), S, 1);
+          if PrefixParam < LineNumber then
+            raise Exception.Create('Unexpected PrefixParam value');
+          Insert(Format('[%.2u]   ', [Cardinal(PrefixParam)-LineNumber]), S, 1);
         end;
     end;
     try
