@@ -806,6 +806,40 @@
 #call CheckTrue(Find(0, 'FOR_SCOPE_CHECK ok', FIND_CONTAINS) >= 0)
 #undef ForScopeValue
 #undef ForScopeReader
+// #for loop inside a #sub body
+#define SubForIndex
+#sub SubForLeaf
+  #emit '; SUB_FOR_MARKER_' + Str(SubForIndex)
+#endsub
+#sub SubContainingForLoop
+  #for {SubForIndex = 0; SubForIndex < 3; SubForIndex++} SubForLeaf
+#endsub
+#call SubContainingForLoop()
+#call CheckTrue(Find(0, 'SUB_FOR_MARKER_0', FIND_CONTAINS) >= 0)
+#call CheckTrue(Find(0, 'SUB_FOR_MARKER_2', FIND_CONTAINS) >= 0)
+#call CheckTrue(Find(0, 'SUB_FOR_MARKER_3', FIND_CONTAINS) < 0)
+#undef SubForIndex
+#undef SubForLeaf
+#undef SubContainingForLoop
+// compound loops: a #for body that runs another #for via a #sub
+#define CompoundOuter
+#define CompoundInner
+#sub CompoundLeaf
+  #emit '; COMPOUND_MARKER_' + Str(CompoundOuter) + '_' + Str(CompoundInner)
+#endsub
+#sub CompoundInnerLoop
+  #for {CompoundInner = 0; CompoundInner < 2; CompoundInner++} CompoundLeaf
+#endsub
+#for {CompoundOuter = 0; CompoundOuter < 2; CompoundOuter++} CompoundInnerLoop
+#call CheckTrue(Find(0, 'COMPOUND_MARKER_0_0', FIND_CONTAINS) >= 0)
+#call CheckTrue(Find(0, 'COMPOUND_MARKER_0_1', FIND_CONTAINS) >= 0)
+#call CheckTrue(Find(0, 'COMPOUND_MARKER_1_0', FIND_CONTAINS) >= 0)
+#call CheckTrue(Find(0, 'COMPOUND_MARKER_1_1', FIND_CONTAINS) >= 0)
+#call CheckTrue(Find(0, 'COMPOUND_MARKER_2_0', FIND_CONTAINS) < 0)
+#undef CompoundOuter
+#undef CompoundInner
+#undef CompoundLeaf
+#undef CompoundInnerLoop
 //
 // #emit
 //
