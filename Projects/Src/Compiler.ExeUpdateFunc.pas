@@ -352,7 +352,7 @@ begin
     for the RVA to point to a different section, but we don't support that. }
   if Cardinal(DataEntry.OffsetToData) < SectionVirtualAddr then
     Error('Invalid resource (1)');
-  if Cardinal(DataEntry.OffsetToData - SectionVirtualAddr + DataEntry.Size) > SectionPhysSize then
+  if DataEntry.OffsetToData - SectionVirtualAddr + Int64(DataEntry.Size) > SectionPhysSize then
     Error('Invalid resource (2)');
 
   { Seek to the resource }
