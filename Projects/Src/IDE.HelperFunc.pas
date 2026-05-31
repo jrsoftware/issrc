@@ -181,7 +181,7 @@ end;
 function GetFileTitle(const Filename: String): String;
 begin
   if Filename = '' then
-    Result := 'Untitled'
+    Result := SCompilerUntitledFile
   else
     Result := Filename;
 end;

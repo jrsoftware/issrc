@@ -237,11 +237,11 @@ const
 
   AppRootDirs: array[0..0] of TConstant =
   (
-    ( Constant: '{autopf}'; Description: 'Program Files folder')
+    ( Constant: '{autopf}'; Description: SWizardDirProgramFiles)
   );
 
   LanguagesDefaultIsl = 'Default.isl';
-  LanguagesDefaultIslDescription = 'English';
+  LanguagesDefaultIslDescription = 'English'; { do not localize }
 
   EnabledColors: array[Boolean] of TColor = (clBtnFace, clWindow);
 
@@ -345,15 +345,15 @@ begin
     BackButton.Left := BackButton.Left - 2;
 
   { AppInfo }
-  AppNameEdit.Text := 'My Program';
+  AppNameEdit.Text := SWizardDefaultAppName;
   AppVersionEdit.Text := '1.5';
-  AppPublisherEdit.Text := 'My Company, Inc.';
+  AppPublisherEdit.Text := SWizardDefaultAppPublisher;
   AppURLEdit.Text := 'https://www.example.com/';
 
   { AppDir }
   for I := Low(AppRootDirs) to High(AppRootDirs) do
     AppRootDirComboBox.Items.Add(AppRootDirs[I].Description);
-  AppRootDirComboBox.Items.Add('(Custom)');
+  AppRootDirComboBox.Items.Add(SWizardDirCustom);
   AppRootDirComboBox.ItemIndex := 0;
   AppRootDirEdit.Enabled := False;
   AppRootDirEdit.Color := clBtnFace;
@@ -600,7 +600,7 @@ begin
     { Even if we're skipping a page, we should still update it }
     case FCurPage of
       wpAppDir: if AppDirNameEdit.Text = '' then AppDirNameEdit.Text := AppNameEdit.Text;
-      wpAppAssoc: if AppAssocNameEdit.Text = '' then AppAssocNameEdit.Text := AppNameEdit.Text + ' File';
+      wpAppAssoc: if AppAssocNameEdit.Text = '' then AppAssocNameEdit.Text := Format(SWizardAppAssocDefaultName, [AppNameEdit.Text]);
       wpAppIcons: if AppGroupNameEdit.Text = '' then AppGroupNameEdit.Text := AppNameEdit.Text;
     end;
   until not SkipCurPage;

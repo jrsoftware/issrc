@@ -79,13 +79,13 @@ type
 const
   DestRootDirs: array[0..6] of TConstant =
   (
-    ( Constant: '{app}'; Description: 'Application directory'),
-    ( Constant: '{autopf}'; Description: 'Program Files directory'),
-    ( Constant: '{autocf}'; Description: 'Common Files directory'),
-    ( Constant: '{win}'; Description: 'Windows directory'),
-    ( Constant: '{sys}'; Description: 'Windows system directory'),
-    ( Constant: '{src}'; Description: 'Setup source directory'),
-    ( Constant: '{sd}'; Description: 'System drive root directory')
+    ( Constant: '{app}'; Description: SWizardDirApplication),
+    ( Constant: '{autopf}'; Description: SWizardDirProgramFiles),
+    ( Constant: '{autocf}'; Description: SWizardDirCommonFiles),
+    ( Constant: '{win}'; Description: SWizardDirWindows),
+    ( Constant: '{sys}'; Description: SWizardDirWindowsSystem),
+    ( Constant: '{src}'; Description: SWizardDirSetupSource),
+    ( Constant: '{sd}'; Description: SWizardDirSystemDriveRoot)
   );
 
 procedure MakeBold(const Ctl: TNewStaticText);
@@ -151,7 +151,7 @@ begin
 
   for I := Low(DestRootDirs) to High(DestRootDirs) do
     DestRootDirComboBox.Items.Add(DestRootDirs[I].Description);
-  DestRootDirComboBox.Items.Add('(Custom)');
+  DestRootDirComboBox.Items.Add(SWizardDirCustom);
   DestRootDirComboBox.ItemIndex := 0;
 end;
 

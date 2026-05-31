@@ -27,6 +27,7 @@ const
     'iside /cc c:\isetup\sample32\sample1.iss' + SNewLine +
     'iside /cc "C:\Inno Setup\Sample32\My script.iss"' + SNewLine +
     'iside /wizard "My Script Wizard" c:\temp.iss';
+  SCompilerLibraryLoadError = 'Could not load %0:s: %1:s';
 
   { Compiler form labels }
   SCompilerFormCaption = 'Inno Setup Compiler';
@@ -38,6 +39,10 @@ const
   SCompilerOpenFilter = 'Inno Setup Script files (*.iss)|*.iss|All files|*.*';
   SCompilerExampleScripts = 'Example scripts...';
   SCompilerMoreFiles = 'More files...';
+  SCompilerUntitledFile = 'Untitled';
+  SCompilerPreprocessorOutput = 'Preprocessor Output';
+  SCompilerRunParametersTitle = 'Run Parameters';
+  SCompilerRunParametersPrompt = 'Command line parameters for %0:s and %1:s:';
 
   { Compiler Script Wizard }
   SWizardDefaultName = 'Inno Setup Script Wizard';
@@ -59,6 +64,7 @@ const
   SWizardAppExeDefaultExt = 'exe';
   SWizardAppAssoc = 'Application File Association';
   SWizardAppAssoc2 = 'Please specify which file association should be created for your application.';
+  SWizardAppAssocDefaultName = '%s File';
   SWizardAppIcons = 'Application Shortcuts';
   SWizardAppIcons2 = 'Please specify which shortcuts should be created for your application.';
   SWizardAppDocs = 'Application Documentation';
@@ -120,8 +126,26 @@ const
   SWizardScriptCommentChangeToLowest = 'Uncomment the following line to run in non administrative install mode (install for current user only).';
   SWizardScriptCommentChangeToAdmin = 'Remove the following line to run in administrative install mode (install for all users).';
   SWizardScriptCommentSharedSystemFiles = 'NOTE: Don''t use "Flags: ignoreversion" on any shared system files.';
+  SWizardScriptCommentVerifyDownloads = 'NOTE: Use the "issigverify" flag or the "Hash" parameter to verify downloads.';
+  SWizardScriptCommentRegistryDataFromFile = 'Registry data from file %s';
+  SWizardScriptCommentCouldNotImport = 'COULD NOT IMPORT %s';
+  SWizardScriptCommentEndOfRegistryDataFromFile = 'End of registry data from file %s';
+  SWizardScriptCommentKeysFilteredDuePrivilegesRequired = 'SOME KEYS FILTERED DUE TO PRIVILEGESREQUIRED SETTINGS!';
+  SWizardScriptCommentValuesWithUnsupportedTypesSkipped = 'SOME VALUES WITH UNSUPPORTED TYPES SKIPPED!';
 
   SWizardCompileNewScriptPrompt = 'Would you like to compile the new script now?';
+
+  SWizardDefaultAppName = 'My Program';
+  SWizardDefaultAppPublisher = 'My Company, Inc.';
+
+  SWizardDirApplication = 'Application directory';
+  SWizardDirProgramFiles = 'Program Files directory';
+  SWizardDirCommonFiles = 'Common Files directory';
+  SWizardDirWindows = 'Windows directory';
+  SWizardDirWindowsSystem = 'Windows system directory';
+  SWizardDirSetupSource = 'Setup source directory';
+  SWizardDirSystemDriveRoot = 'System drive root directory';
+  SWizardDirCustom = '(Custom)';
 
   { Status messages }
   SCompilerStatusStarting = '*** Starting compile.  [%s]';
@@ -150,12 +174,18 @@ const
   SReplaceCount = '%d occurrence(s) replaced.';
 
   { File association }
-  SAssocSuccess = 'The .iss extension was successfully associated for %0:s with:' + SNewLine  + '%1:s';
+  SAssocSuccessCurrentUser = 'The .iss extension was successfully associated for the current user with:' + SNewLine + '%s';
+  SAssocSuccessAllUsers = 'The .iss extension was successfully associated for all users with:' + SNewLine + '%s';
+  SAssocError = 'Error creating file association:' + SNewLine + '%0:d - %1:s';
+  SAssocUnableForAllUsers = 'Unable to associate for all users without administrative privileges. Do you want to associate only for yourself instead?';
   SAssocTitle = 'Associate';
+  SAssocInnoSetupScript = 'Inno Setup Script';
+  SAssocInnoSetupScriptCompile = 'Compi&le';
 
   { Registry Designer }
   SRegistryDesignerScriptHas = 'Script has %s';
   SRegistryDesignerScriptHasSet = 'Script has %s set';
+  SRegistryDesignerInvalidFileFormat = 'Invalid file format.';
 
   { MsgBox Designer }
   SMsgBoxDesignerPreviewCaption = 'Setup';
@@ -165,6 +195,17 @@ const
   SMsgBoxDesignerReturnValuesDefault = ' Return values /  -------  / Default ';
   SMsgBoxDesignerReturnValuesShield = ' Return values /  Shield ';
   SMsgBoxDesignerReturnValuesShieldDefault = ' Return values /  Shield  / Default ';
+  SMsgBoxDesignerInstructionText = 'Instruction Text';
+  SMsgBoxDesignerMessageText = 'Message Text';
+  SMsgBoxDesignerUserClicked = 'user clicked %s';
+  SMsgBoxDesignerButtonOK = 'OK';
+  SMsgBoxDesignerButtonYes = 'Yes';
+  SMsgBoxDesignerButtonNo = 'No';
+  SMsgBoxDesignerButtonCancel = 'Cancel';
+  SMsgBoxDesignerButtonRetry = 'Retry';
+  SMsgBoxDesignerButtonIgnore = 'Ignore';
+  SMsgBoxDesignerButtonAbort = 'Abort';
+  SMsgBoxDesignerCommentDisplayMessageBox = '// Display a message box';
 
   { Sign Tools }
   SSignToolNamePrompt = 'Name of the Sign Tool:';
@@ -177,6 +218,15 @@ const
   SToolsInsertGuidConfirm = 'The generated GUID will be inserted into the editor at the cursor position. Continue?';
   SToolsNotInCodeSectionConfirm = 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the [Code] section. Continue anyway?';
 
+  { Options }
+  SOptionsKeyMappingDelphi = 'Classic';
+  SOptionsKeyMappingVisualStudio = 'Visual Studio / Visual Studio Code';
+  SOptionsMemoKeyMappingDefault = 'Classic / Visual Studio';
+  SOptionsMemoKeyMappingVSCode = 'Visual Studio Code';
+  SOptionsThemeLight = 'Light';
+  SOptionsThemeDark = 'Dark';
+  SOptionsThemeClassic = 'Classic';
+
   { Menu captions }
   SMenuNewWithWizard = '&New...';
   SMenuNew = '&New';
@@ -184,12 +234,22 @@ const
   { Navigation }
   SNavLineNumber = 'Line %d';
   SNavItemCaption = '%0:s: %1:s';
+  SNavBack = 'Back (%s)';
+  SNavForward = 'Forward (%s)';
 
   { Caption status indicators }
   SCompilerCaption32Bit = '(32-bit)';
   SCompilerCaptionCompiling = '[Compiling]';
   SCompilerCaptionRunning = '[Running]';
   SCompilerCaptionPaused = '[Paused]';
+
+  { Status bar }
+  SStatusReadOnly = 'Read only';
+  SStatusModified = 'Modified';
+  SStatusOverwrite = 'Overwrite';
+  SStatusInsert = 'Insert';
+  SStatusTabsClosed = 'Tabs closed: %d';
+  SStatusEstimatedTimeRemaining = ' Estimated time remaining: %0:.2d%1:s%2:.2d%3:s%4:.2d     Average KB/sec: %5:.0n';
 
   { File operations }
   SCompilerOpenFileErrorRemoveFromMRU = 'There was an error opening the file. Remove it from the list?';
@@ -220,7 +280,18 @@ const
   SCompilerRemoveLicenseConfirm = 'Are you sure you want to remove your commercial license key and revert to non-commercial use only?';
   SCompilerLicenseKeyRemoved = 'Commercial license key has been removed.';
 
+  { Update panel }
+  SUpdatePanelVersionUpdated = 'Your version of Inno Setup has been updated! <a id="hwhatsnew">See what''s new</a>.';
+  SUpdatePanelVSCodeShortcutsAdded = 'VS Code-style editor shortcuts added! Use the <a id="toptions-vscode">Editor Keys option</a> in Options dialog.';
+  SUpdatePanelIdeasBoardOpen = '<a id="ideas">Ideas board is open!</a> Share your ideas and vote on others, this month only.';
+  SUpdatePanelRunningAfterEntitlementEnded = 'Running a version released after your update entitlement ended. <a id="hpurchase">Renew license</a>, <a id="hunregister">remove key</a>, or <a id="fexit">exit</a>.';
+  SUpdatePanelEntitlementEndingSoon = 'Your update entitlement is ending soon. Please <a id="hpurchase">renew your license</a>. Thanks!';
+  SUpdatePanelEntitlementEnded = 'Your update entitlement has ended. Please <a id="hpurchase">renew your license</a>. Thanks!';
+  SUpdatePanelUsingCommercially = 'Using Inno Setup commercially? Please <a id="hpurchase">purchase a license</a>. Thanks!';
+
   { Debugger }
+  SDebugTargetSetup = 'Setup';
+  SDebugTargetUninstall = 'Uninstall';
   SDebugExitCodeHex = '%0:s exit code: 0x%1:.8x';
   SDebugExitCodeDecimal = '%0:s exit code: %1:u';
   SDebugExitCodeGetFailed = 'Unable to get %0:s exit code (%1:s failed)';
@@ -242,6 +313,7 @@ const
   SEvaluateHintSuccess = '%0:s = "%1:s"';
   SEvaluateHintException = '%0:s = Exception: %1:s';
   SEvaluateHintUnknownError = '%s = Unknown error';
+  SEvaluateHintUnknownError2 = 'Unknown error';
   SRuntimeErrorLine = 'Line %0:d:' + SNewLine + '%1:s';
   SRuntimeErrorTitle = 'Runtime Error';
   SDebugTargetStarted = '*** %s started';

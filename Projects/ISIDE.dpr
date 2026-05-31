@@ -235,7 +235,7 @@ begin
     InitISCmplrLibrary;
   except
     begin
-      MessageBox(0, PChar(Format('Could not load %s: %s' {$IFDEF DEBUG} + #13#10#13#10'Did you build the ISCmplr project?' {$ENDIF},
+      MessageBox(0, PChar(Format(SCompilerLibraryLoadError {$IFDEF DEBUG} + #13#10#13#10'Did you build the ISCmplr project?' {$ENDIF},
         [ISCmplrDLL, GetExceptMessage])), nil, MB_OK or MB_ICONSTOP);
       Halt(3);
     end;
@@ -246,7 +246,7 @@ begin
     InitIsscintLibrary;
   except
     begin
-      MessageBox(0, PChar(Format('Could not load %s: %s' {$IFDEF DEBUG} + #13#10#13#10'Did you run Projects\Bin\synch-isfiles.bat as instructed in README.md?' {$ENDIF},
+      MessageBox(0, PChar(Format(SCompilerLibraryLoadError {$IFDEF DEBUG} + #13#10#13#10'Did you run Projects\Bin\synch-isfiles.bat as instructed in README.md?' {$ENDIF},
         [IsscintDLL, GetExceptMessage])), nil, MB_OK or MB_ICONSTOP);
       Halt(4);
     end;

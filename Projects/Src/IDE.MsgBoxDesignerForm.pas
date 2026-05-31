@@ -189,7 +189,7 @@ begin
      Button2Label.Enabled := False;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
-     Button1Text.Text := 'OK';
+     Button1Text.Text := SMsgBoxDesignerButtonOK;
      Button2Text.Text := '';
      Button3Text.Text := '';
   end;
@@ -255,8 +255,8 @@ begin
      Button2Label.Enabled := True;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
-     Button1Text.Text := 'Yes';
-     Button2Text.Text := 'No';
+     Button1Text.Text := SMsgBoxDesignerButtonYes;
+     Button2Text.Text := SMsgBoxDesignerButtonNo;
      Button3Text.Text := '';
   end;
   if cb_Suppressible.Checked then begin
@@ -321,8 +321,8 @@ begin
      Button2Label.Enabled := True;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
-     Button1Text.Text := 'OK';
-     Button2Text.Text := 'Cancel';
+     Button1Text.Text := SMsgBoxDesignerButtonOK;
+     Button2Text.Text := SMsgBoxDesignerButtonCancel;
      Button3Text.Text := '';
   end;
   if cb_Suppressible.Checked then begin
@@ -387,8 +387,8 @@ begin
      Button2Label.Enabled := True;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
-     Button1Text.Text := 'Retry';
-     Button2Text.Text := 'Cancel';
+     Button1Text.Text := SMsgBoxDesignerButtonRetry;
+     Button2Text.Text := SMsgBoxDesignerButtonCancel;
      Button3Text.Text := '';
   end;
   if cb_Suppressible.Checked then begin
@@ -453,9 +453,9 @@ begin
      Button2Label.Enabled := True;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
-     Button1Text.Text := 'Yes';
-     Button2Text.Text := 'No';
-     Button3Text.Text := 'Cancel';
+     Button1Text.Text := SMsgBoxDesignerButtonYes;
+     Button2Text.Text := SMsgBoxDesignerButtonNo;
+     Button3Text.Text := SMsgBoxDesignerButtonCancel;
   end;
   if cb_Suppressible.Checked then begin
      cb_DefIDOK.Checked := False;
@@ -519,9 +519,9 @@ begin
      Button2Label.Enabled := True;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
-     Button1Text.Text := 'Retry';  //this order is not a mistake
-     Button2Text.Text := 'Ignore'; //
-     Button3Text.Text := 'Abort';  //
+     Button1Text.Text := SMsgBoxDesignerButtonRetry;  //this order is not a mistake
+     Button2Text.Text := SMsgBoxDesignerButtonIgnore; //
+     Button3Text.Text := SMsgBoxDesignerButtonAbort;  //
   end;
   if cb_Suppressible.Checked then begin
      cb_DefIDOK.Checked := False;
@@ -697,8 +697,8 @@ begin
     Button1Label.Visible := True;
     Button2Label.Visible := True;
     Button3Label.Visible := True;
-   TaskInstructionText.Text := 'Instruction Text';
-   TaskMessageText.Text := 'Message Text';
+   TaskInstructionText.Text := SMsgBoxDesignerInstructionText;
+   TaskMessageText.Text := SMsgBoxDesignerMessageText;
    rbMB_OK.Checked := True;
    rbMB_OKClick(Self);
 end;
@@ -856,7 +856,7 @@ function TMsgBoxDesignerForm.GetText(TabWidth: Integer; UseTabCharacter: Boolean
 
   function TextUserClicked(IDButton: String): String;
   begin
-    Result := 'user clicked ' + StringReplace(IDButton, 'ID', '', [])
+    Result := Format(SMsgBoxDesignerUserClicked, [StringReplace(IDButton, 'ID', '', [])])
   end;
 
   function TextCase(IDButton: String): String;
@@ -1265,7 +1265,7 @@ begin
   var SL := TStringList.Create;
   try
     SL.Text := Text;
-    SL.Insert(0, '// Display a message box');
+    SL.Insert(0, SMsgBoxDesignerCommentDisplayMessageBox);
     for var I := 0 to SL.Count-1 do
       SL[I] := TextTab + SL[I];
     Result := SL.Text;

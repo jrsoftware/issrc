@@ -42,9 +42,6 @@ type
   TDebugTarget = (dtSetup, dtUninstall);
 
 const
-  DebugTargetStrings: array[TDebugTarget] of String = ('Setup', 'Uninstall');
-
-const
   MRUListMaxCount = 10;
 
   { Status bar panel indexes }
@@ -703,6 +700,8 @@ uses
 {$R *.DFM}
 
 const
+  DebugTargetStrings: array[TDebugTarget] of String = (SDebugTargetSetup, SDebugTargetUninstall);
+
   { Memos }
   MaxMemos = 52; { Includes the main and preprocessor output memos }
   FirstIncludedFilesMemoIndex = 1; { This is an index into FFileMemos }
@@ -896,30 +895,24 @@ constructor TMainForm.Create(AOwner: TComponent);
       const BannerOrange = $9EB8F0; {MOrange with HSL lightness changed from 63% to 78% }
       const BannerRed = $BBB5EE; {MRed with HSL lightness changed from 58% to 82% }
       CheckUpdatePanelMessage(Ini, 'KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
-        'Your version of Inno Setup has been updated! <a id="hwhatsnew">See what''s new</a>.',
-        BannerGreen, True);
+        SUpdatePanelVersionUpdated, BannerGreen, True);
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
-        'VS Code-style editor shortcuts added! Use the <a id="toptions-vscode">Editor Keys option</a> in Options dialog.',
-        BannerBlue, True);
+        SUpdatePanelVSCodeShortcutsAdded, BannerBlue, True);
       { if FormatDateTime('yyyymm', Date) = '202604' then
         CheckUpdatePanelMessage(Ini, 'Ideas202604', 0, 1,
-          '<a id="ideas">Ideas board is open!</a> Share your ideas and vote on others, this month only.',
-          BannerBlue, True); }
+          SUpdatePanelIdeasBoardOpen, BannerBlue, True); }
       const LicenseState = GetLicenseState;
       if LicenseState = lsExpiredButUpdated then begin
         { Complain twice per day }
         const CurrentHourAsInt = FormatDateTime('yyyymmddhh', Now).ToInteger;
         const WarnAgainHourAsInt = FormatDateTime('yyyymmddhh', IncHour(Now, 12)).ToInteger;
-        const Msg = 'Running a version released after your update entitlement ended. <a id="hpurchase">Renew license</a>, <a id="hunregister">remove key</a>, or <a id="fexit">exit</a>.';
         CheckUpdatePanelMessage(Ini, 'Purchase.ExpiredButUpdated', 0, CurrentHourAsInt, WarnAgainHourAsInt, { Also see UpdateUpdatePanel }
-          Msg, BannerRed, True);
+          SUpdatePanelRunningAfterEntitlementEnded, BannerRed, True);
       end else if LicenseState in [lsExpiring, lsExpired] then begin
         { Warn about expiry, once per week }
         const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
         const WarnAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(Date, 7)).ToInteger;
-        const Msg = IfThen(LicenseState = lsExpiring,
-          'Your update entitlement is ending soon. Please <a id="hpurchase">renew your license</a>. Thanks!',
-          'Your update entitlement has ended. Please <a id="hpurchase">renew your license</a>. Thanks!');
+        const Msg = IfThen(LicenseState = lsExpiring, SUpdatePanelEntitlementEndingSoon, SUpdatePanelEntitlementEnded);
         CheckUpdatePanelMessage(Ini, 'Purchase.Renew', 0, CurrentDateAsInt, WarnAgainDateAsInt, { Also see UpdateUpdatePanel }
           Msg, BannerOrange, True);
       end else if LicenseState = lsNotLicensed then begin
@@ -927,8 +920,7 @@ constructor TMainForm.Create(AOwner: TComponent);
         const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
         const AskAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(IncMonth(Date, 6), -1)).ToInteger; { Also see HUnregisterClick }
         CheckUpdatePanelMessage(Ini, 'Purchase', 0, CurrentDateAsInt, AskAgainDateAsInt, { Also see UpdateUpdatePanel and HUnregisterClick }
-          'Using Inno Setup commercially? Please <a id="hpurchase">purchase a license</a>. Thanks!',
-          BannerBlue, True);
+          SUpdatePanelUsingCommercially, BannerBlue, True);
       end;
       UpdateUpdatePanel;
 
@@ -4195,10 +4187,10 @@ end;
 
 procedure TMainForm.UpdateEditModeStatusPanel;
 const
-  InsertText: array[Boolean] of String = ('Overwrite', 'Insert');
+  InsertText: array[Boolean] of String = (SStatusOverwrite, SStatusInsert);
 begin
   if FActiveMemo.ReadOnly then
-    StatusBar.Panels[spEditMode].Text := 'Read only'
+    StatusBar.Panels[spEditMode].Text := SStatusReadOnly
   else
     StatusBar.Panels[spEditMode].Text := InsertText[FActiveMemo.InsertMode];
 end;
@@ -4227,7 +4219,7 @@ end;
 procedure TMainForm.UpdateModifiedStatusPanel;
 begin
   if FActiveMemo.Modified then
-    StatusBar.Panels[spModified].Text := 'Modified'
+    StatusBar.Panels[spModified].Text := SStatusModified
   else
     StatusBar.Panels[spModified].Text := '';
 end;
@@ -4240,7 +4232,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
   begin
     if FOptions.ShowPreprocessorOutput and (FPreprocessorOutput <> '') and
        (FMainMemo.Lines.Text.TrimRight <> FPreprocessorOutput) then begin
-      NewTabs.Add('Preprocessor Output');
+      NewTabs.Add(SCompilerPreprocessorOutput);
       NewHints.Add('');
       NewCloseButtons.Add(False);
       FPreprocessorOutputMemo.ReadOnly := False;
@@ -4877,7 +4869,7 @@ begin
         case EvaluateVariableEntry(DebugEntry, Output) of
           1, 2: HintStr := Output;
         else
-          HintStr := 'Unknown error';
+          HintStr := SEvaluateHintUnknownError2;
         end;
       end else begin
         var ClassMember := False;
@@ -5530,9 +5522,9 @@ begin
     raise Exception.Create('Unknown FOptions.KeyMappingType');
   end;
 
-  BackNavButton.Hint := Format('Back (%s)', [NewShortCutToText(FBackNavButtonShortCut)]);
+  BackNavButton.Hint := Format(SNavBack, [NewShortCutToText(FBackNavButtonShortCut)]);
   FKeyMappedMenus.Add(FBackNavButtonShortCut, nil);
-  ForwardNavButton.Hint := Format('Forward (%s)', [NewShortCutToText(FForwardNavButtonShortCut)]);
+  ForwardNavButton.Hint := Format(SNavForward, [NewShortCutToText(FForwardNavButtonShortCut)]);
   FKeyMappedMenus.Add(FForwardNavButtonShortCut, nil);
 end;
 
@@ -5833,8 +5825,8 @@ end;
 procedure TMainForm.RParametersClick(Sender: TObject);
 begin
   ReadMRUParametersList;
-  InputQueryCombo('Run Parameters', 'Command line parameters for ' + DebugTargetStrings[dtSetup] +
-    ' and ' + DebugTargetStrings[dtUninstall] + ':', FRunParameters, FMRUParametersList);
+  InputQueryCombo(SCompilerRunParametersTitle, Format(SCompilerRunParametersPrompt,
+    [DebugTargetStrings[dtSetup], DebugTargetStrings[dtUninstall]]), FRunParameters, FMRUParametersList);
   if FRunParameters <> '' then
     ModifyMRUParametersList(FRunParameters, True);
 end;
@@ -6122,7 +6114,7 @@ begin
           LStyle.GetElementColor(Details, ecTextColor, Color);
         end;
         Canvas.Font.Color := Color;
-        var S := Format('Tabs closed: %d', [FHiddenFiles.Count]);
+        var S := Format(SStatusTabsClosed, [FHiddenFiles.Count]);
         Canvas.TextRect(RText, S, [tfCenter]);
       end;
     spCompileIcon:
@@ -6224,7 +6216,7 @@ begin
     FBuildAnimationFrame := (FBuildAnimationFrame + 1) mod 4;
     if ASecondsRemaining >= 0 then
       StatusBar.Panels[spExtraStatus].Text := Format(
-        ' Estimated time remaining: %.2d%s%.2d%s%.2d     Average KB/sec: %.0n',
+        SStatusEstimatedTimeRemaining,
         [(ASecondsRemaining div 60) div 60, FormatSettings.TimeSeparator,
          (ASecondsRemaining div 60) mod 60, FormatSettings.TimeSeparator,
          ASecondsRemaining mod 60, ABytesCompressedPerSecond / 1024])
