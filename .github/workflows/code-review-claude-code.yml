@@ -23,7 +23,7 @@ jobs:
       - name: Run Claude Code Review
         uses: anthropics/claude-code-action@v1
         env:
-          CLAUDE_CODE_EFFORT_LEVEL: max
+          CLAUDE_CODE_EFFORT_LEVEL: xhigh
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           prompt: |
