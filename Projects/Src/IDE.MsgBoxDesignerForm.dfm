@@ -193,7 +193,6 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Max = 3
       Position = 1
       TabOrder = 1
-      OnChanging = UpDown1Changing
     end
     object cb_MB_SETFOREGROUND: TCheckBox
       Left = 140

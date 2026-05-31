@@ -84,7 +84,6 @@ type
     cb_DefIDRETRY: TRadioButton;
     cb_DefIDIGNORE: TRadioButton;
     procedure FormCreate(Sender: TObject);
-    procedure UpDown1Changing(Sender: TObject; var AllowChange: Boolean);
     procedure rbMB_OKClick(Sender: TObject);
     procedure rbMB_OKCANCELClick(Sender: TObject);
     procedure rbMB_YESNOClick(Sender: TObject);
@@ -540,11 +539,6 @@ begin
      cb_DefIDRETRY.Enabled := True;
      cb_DefIDIGNORE.Enabled := True;
   end;
-end;
-
-procedure TMsgBoxDesignerForm.UpDown1Changing(Sender: TObject; var AllowChange: Boolean);
-begin
-   AllowChange := True;
 end;
 
 procedure TMsgBoxDesignerForm.cb_MsgBoxClick(Sender: TObject);
