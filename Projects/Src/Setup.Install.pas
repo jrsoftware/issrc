@@ -598,6 +598,49 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
     end;
   end;
 
+  function InstallAssemblyIntoGAC(const TempFile, DestFile: String): Boolean;
+  begin
+    Result := False;
+    while True do begin
+      try
+        var GacFile: String;
+        if TempFile <> '' then begin
+          { InstallAssembly is not sensitive to the path and the file can even be deleted
+            after installing, but it is sensitive to the filename. See for example
+            https://sourceforge.net/p/wix/bugs/1301 So we need to make a copy with the
+            original filename. }
+          const TempGacDir = GenerateUniqueName(TempInstallDir, '.tmp');
+          const DestFileName = PathExtractName(DestFile);
+          LogFmt('Creating temporary copy with original name: %s', [DestFileName]);
+          GacFile := AddBackslash(TempGacDir) + DestFileName;
+          if not CreateDirectory(PChar(TempGacDir), nil) then
+            Win32ErrorMsg('CreateDirectory');
+          if not CopyFile(PChar(TempFile), PChar(GacFile), False) then
+            Win32ErrorMsg('CopyFile');
+        end else
+          GacFile := DestFile;
+        const AssemblyCacheInfo = TAssemblyCacheInfo.Create(rvDefault);
+        try
+          { PathConvertSuperToNormal because it is not known where InstallAssembly supports
+            super paths. It might do now (not tested), but this might not have always been
+            the case. }
+          AssemblyCacheInfo.InstallAssembly(PathConvertSuperToNormal(GacFile));
+        finally
+          AssemblyCacheInfo.Free;
+        end;
+        Result := True;
+        Break;
+      except
+        if ExceptObject is EAbort then
+          raise;
+        if AbortRetryIgnoreTaskDialogMsgBox(
+             PathConvertSuperToNormal(DestFile) + SNewLine2 + GetExceptMessage,
+             [SetupMessages[msgAbortRetryIgnoreRetry], SetupMessages[msgAbortRetryIgnoreIgnore], SetupMessages[msgAbortRetryIgnoreCancel]]) then
+          Break;
+      end;
+    end;
+  end;
+
   procedure SetFileLocationFilename(const LocationEntry: Integer;
     Filename: String);
   begin
@@ -723,8 +766,6 @@ Retry:
         DeleteFlags := DeleteFlags or utDeleteFile_RestartDelete;
       if foUninsRemoveReadOnly in CurFile^.Options then
         DeleteFlags := DeleteFlags or utDeleteFile_RemoveReadOnly;
-      if foGacInstall in CurFile^.Options then
-        DeleteFlags := DeleteFlags or utDeleteFile_GacInstalled;
       FontFilename := '';
 
       { Determine the destination filename }
@@ -1235,6 +1276,14 @@ Retry:
           DeleteFlags := DeleteFlags or utDeleteFile_PerUserFont;
       end;
 
+      { Install into GAC }
+      if foGacInstall in CurFile^.Options then begin
+        LastOperation := '';
+        Log('Installing into GAC');
+        if InstallAssemblyIntoGAC(TempFile, DestFile) then
+          DeleteFlags := DeleteFlags or utDeleteFile_GacInstalled;
+      end;
+
       { There were no errors so add the uninstall log entry, unless the file
         is the uninstall program, or if it has the foSharedFile flag; shared
         files are handled below. }
@@ -1321,22 +1370,6 @@ Retry:
           ApplyNTFSCompression(TempFile, False, foSetNTFSCompression in CurFile^.Options)
         else
           ApplyNTFSCompression(DestFile, False, foSetNTFSCompression in CurFile^.Options);
-      end;
-
-      { Install into GAC (even if the file wasn't replaced) }
-      if foGacInstall in CurFile^.Options then begin
-        Log('Installing into GAC');
-        with TAssemblyCacheInfo.Create(rvDefault) do try
-          { PathConvertSuperToNormal because it is not known where InstallAssembly supports
-            super paths. It might do now (not tested), but this might not have always been
-            the case. }
-          if TempFile <> '' then
-            InstallAssembly(PathConvertSuperToNormal(TempFile))
-          else
-            InstallAssembly(PathConvertSuperToNormal(DestFile));
-        finally
-          Free;
-        end;
       end;
     except
       if ExceptObject is EAbort then
