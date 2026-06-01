@@ -97,7 +97,7 @@ begin
     ApplyBitmaps will apply them to menu items using SetMenuItemInfo. The menu item
     does not copy the bitmap so they should still be alive after ApplyBitmaps is done.
 
-    Depends on FMenuImageList to pick the best size icons for the current DPI
+    Depends on FMenuImageList to pick the best size bitmaps for the current DPI
     from the collection. }
 
   var ImageList := FMenuImageList;
@@ -245,13 +245,13 @@ begin
     managed the hotkeys ourselves anyway and .AutoLineReduction was also set to
     maManual and we now manage that ourselves as well.
 
-    This just leave an issue with the icons not appearing on the first popup after
+    This just leave an issue with the bitmaps not appearing on the first popup after
     a DPI change and this seems like a minor issue only.
 
-    For TPopupMenu: calling _ApplyMenuBitmapsAndNewShortCutText(PopupMenu.Items) does work but makes
-    the popup only show icons without text. This seems to be a limitiation of menus
+    For TPopupMenu: calling this function on PopupMenu.Items does work but makes
+    the popup only show bitmaps without text. This seems to be a limitiation of menus
     created by CreatePopupMenu instead of CreateMenu. This is why our popups with
-    icons are all menu items popped using TMainFormPopupMenu. These menu items
+    bitmaps are all menu items popped using TMainFormPopupMenu. These menu items
     are hidden in the main menu and temporarily shown on popup. Popping an always
     hidden menu item (or a visible one as a child of a hidden parent) doesnt work.
 
@@ -260,7 +260,9 @@ begin
     Our NewShortCutToText produces a different result than ShortCutToText for
     dead keys, for shortcuts which include both Shift and Alt, and when
     localization is active. To get the menu item to display the new text we
-    use the same technique as described above, for the same reasons. }
+    use the same technique as described above, for the same reasons. Leaves
+    same minor issue as for bitmaps: shortcuts not using our new text on the
+    first popup after a DPI change.  }
 
   for var I := 0 to ParentMenuItem.Count-1 do begin
     var MenuItem := ParentMenuItem.Items[I];
