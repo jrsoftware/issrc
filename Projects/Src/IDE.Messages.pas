@@ -8,7 +8,8 @@ unit IDE.Messages;
 
   Compiler IDE Messages
 
-  Some but not all language-specific text used by the Compiler IDE is in here.
+  Language-specific text used by the Compiler IDE is in here, except the About
+  box, internal errors, DEBUG messages, and text in .dfm files.
 }
 
 interface
