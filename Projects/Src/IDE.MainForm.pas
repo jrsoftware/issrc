@@ -895,24 +895,24 @@ constructor TMainForm.Create(AOwner: TComponent);
       const BannerOrange = $9EB8F0; {MOrange with HSL lightness changed from 63% to 78% }
       const BannerRed = $BBB5EE; {MRed with HSL lightness changed from 58% to 82% }
       CheckUpdatePanelMessage(Ini, 'KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
-        SUpdatePanelVersionUpdated, BannerGreen, True);
+        Format(SUpdatePanelVersionUpdated, ['hwhatsnew']), BannerGreen, True);
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
-        SUpdatePanelVSCodeShortcutsAdded, BannerBlue, True);
+        Format(SUpdatePanelVSCodeShortcutsAdded, ['toptions-vscode']), BannerBlue, True);
       { if FormatDateTime('yyyymm', Date) = '202604' then
         CheckUpdatePanelMessage(Ini, 'Ideas202604', 0, 1,
-          SUpdatePanelIdeasBoardOpen, BannerBlue, True); }
+          Format(SUpdatePanelIdeasBoardOpen, ['ideas']), BannerBlue, True); }
       const LicenseState = GetLicenseState;
       if LicenseState = lsExpiredButUpdated then begin
         { Complain twice per day }
         const CurrentHourAsInt = FormatDateTime('yyyymmddhh', Now).ToInteger;
         const WarnAgainHourAsInt = FormatDateTime('yyyymmddhh', IncHour(Now, 12)).ToInteger;
         CheckUpdatePanelMessage(Ini, 'Purchase.ExpiredButUpdated', 0, CurrentHourAsInt, WarnAgainHourAsInt, { Also see UpdateUpdatePanel }
-          SUpdatePanelRunningAfterEntitlementEnded, BannerRed, True);
+          Format(SUpdatePanelRunningAfterEntitlementEnded, ['hpurchase', 'hunregister', 'fexit']), BannerRed, True);
       end else if LicenseState in [lsExpiring, lsExpired] then begin
         { Warn about expiry, once per week }
         const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
         const WarnAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(Date, 7)).ToInteger;
-        const Msg = IfThen(LicenseState = lsExpiring, SUpdatePanelEntitlementEndingSoon, SUpdatePanelEntitlementEnded);
+        const Msg = Format(IfThen(LicenseState = lsExpiring, SUpdatePanelEntitlementEndingSoon, SUpdatePanelEntitlementEnded), ['hpurchase']);
         CheckUpdatePanelMessage(Ini, 'Purchase.Renew', 0, CurrentDateAsInt, WarnAgainDateAsInt, { Also see UpdateUpdatePanel }
           Msg, BannerOrange, True);
       end else if LicenseState = lsNotLicensed then begin
@@ -920,7 +920,7 @@ constructor TMainForm.Create(AOwner: TComponent);
         const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
         const AskAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(IncMonth(Date, 6), -1)).ToInteger; { Also see HUnregisterClick }
         CheckUpdatePanelMessage(Ini, 'Purchase', 0, CurrentDateAsInt, AskAgainDateAsInt, { Also see UpdateUpdatePanel and HUnregisterClick }
-          SUpdatePanelUsingCommercially, BannerBlue, True);
+          Format(SUpdatePanelUsingCommercially, ['hpurchase']), BannerBlue, True);
       end;
       UpdateUpdatePanel;
 
@@ -2481,7 +2481,7 @@ begin
       if FOptions.OpenIncludedFiles then begin
         for var IncludedFile in FIncludedFiles do begin
           if PathSame(IncludedFile.Filename, Filename) and
-             (MsgBox(SCompilerIncludedFileOpenAsTab,
+             (MsgBox(Format(SCompilerIncludedFileOpenAsTab, ['#include']),
                 SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES) then begin
             if IncludedFile.Memo <> nil then begin
               const HiddenFileIndex = FHiddenFiles.IndexOf(Filename);

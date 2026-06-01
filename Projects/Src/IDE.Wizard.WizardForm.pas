@@ -389,8 +389,8 @@ begin
   EncryptionCheck.Enabled := False;
 
   { ISPP }
-  ISPPLabel.Caption := FixLabel(SWizardISPPLabel);
-  ISPPCheck.Caption := SWizardISPPCheck;
+  ISPPLabel.Caption := FixLabel(Format(SWizardISPPLabel, ['[name]', '#define']));
+  ISPPCheck.Caption := Format(SWizardISPPCheck, ['#define']);
   ISPPCheck.Checked := ISPPInstalled;
 
   FCurPage := Low(TWizardPage);
@@ -408,7 +408,7 @@ procedure TWizardForm.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
   if ModalResult = mrCancel then
-    CanClose := MsgBox(FixLabel(SWizardCancelMessage), FWizardName, mbConfirmation, MB_YESNO) = idYes;
+    CanClose := MsgBox(FixLabel(Format(SWizardCancelMessage, ['[name]'])), FWizardName, mbConfirmation, MB_YESNO) = idYes;
 end;
 
 procedure TWizardForm.FormDestroy(Sender: TObject);
@@ -1003,7 +1003,7 @@ begin
   UninstallDelete := '[UninstallDelete]' + SNewLine;
 
   if not EmptyCheck.Checked then begin
-    Setup := Setup + '; ' + SWizardScriptCommentUniqueAppId + SNewLine +
+    Setup := Setup + '; ' + Format(SWizardScriptCommentUniqueAppId, ['AppId']) + SNewLine +
       '; ' + SWizardScriptCommentGenerateGuid + SNewLine;
     Setup := Setup + 'AppId={' + GenerateGuid + SNewLine;
     { AppInfo }
@@ -1044,14 +1044,14 @@ begin
         Setup := Setup + 'UninstallDisplayIcon={app}\' + AppExeName + SNewLine;
       if Is64BitPEImage(AppExeEdit.Text) then begin
         if SWizardScriptCommentArchitecturesAllowed1 <> '' then
-          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesAllowed1 + SNewLine;
+          Setup := Setup + '; ' + Format(SWizardScriptCommentArchitecturesAllowed1, ['ArchitecturesAllowed=x64compatible']) + SNewLine;
         if SWizardScriptCommentArchitecturesAllowed2 <> '' then
           Setup := Setup + '; ' + SWizardScriptCommentArchitecturesAllowed2 + SNewLine;
         if SWizardScriptCommentArchitecturesAllowed3 <> '' then
           Setup := Setup + '; ' + SWizardScriptCommentArchitecturesAllowed3 + SNewLine;
         Setup := Setup + 'ArchitecturesAllowed=x64compatible' + SNewLine;
         if SWizardScriptCommentArchitecturesInstallIn64BitMode1 <> '' then
-          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesInstallIn64BitMode1 + SNewLine;
+          Setup := Setup + '; ' + Format(SWizardScriptCommentArchitecturesInstallIn64BitMode1, ['ArchitecturesInstallIn64BitMode=x64compatible']) + SNewLine;
         if SWizardScriptCommentArchitecturesInstallIn64BitMode2 <> '' then
           Setup := Setup + '; ' + SWizardScriptCommentArchitecturesInstallIn64BitMode2 + SNewLine;
         if SWizardScriptCommentArchitecturesInstallIn64BitMode3 <> '' then
@@ -1068,8 +1068,8 @@ begin
     FFilesHelper.AddScript(Files, HasExtractArchive);
     if HasExtractArchive then begin
       Setup := Setup + 'ArchiveExtraction=full' + SNewLine;
-      Setup := Setup + '; ' + SWizardScriptCommentArchiveExtractionEnhanced + SNewLine;
-      Setup := Setup + '; ' + SWizardScriptCommentArchiveExtractionEnhancedNoPassword + SNewLine;
+      Setup := Setup + '; ' + Format(SWizardScriptCommentArchiveExtractionEnhanced, ['ArchiveExtraction=enhanced']) + SNewLine;
+      Setup := Setup + '; ' + Format(SWizardScriptCommentArchiveExtractionEnhancedNoPassword, ['ArchiveExtraction=enhanced/nopassword']) + SNewLine;
     end;
 
     { AppAssocation }
@@ -1187,7 +1187,7 @@ begin
     if Length(Tasks) > Length('[Tasks]')+2 then
       Script := Script + Tasks + SNewLine;
     if Length(Files) > Length('[Files]')+2 then
-      Script := Script + Files + '; ' + SWizardScriptCommentSharedSystemFiles + SNewLine2;
+      Script := Script + Files + '; ' + Format(SWizardScriptCommentSharedSystemFiles, ['Flags: ignoreversion']) + SNewLine2;
     if Length(Registry) > Length('[Registry]')+2 then
       Script := Script + Registry + SNewLine;
     if Length(INI) > Length('[INI]')+2 then
@@ -1205,7 +1205,7 @@ begin
     FResult := wrEmpty;
   end;
 
-  FResultScript := FixLabel(SWizardScriptHeader) + SNewLine;
+  FResultScript := FixLabel(Format(SWizardScriptHeader, ['[name]'])) + SNewLine;
   if (FResult = wrComplete) and not IsLicensed then
     FResultScript := FResultScript + '; ' + AddPeriod(GetLicenseeDescription) + SNewLine;
   FResultScript := FResultScript + SNewLine + Script;

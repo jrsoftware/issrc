@@ -86,7 +86,7 @@ end;
 procedure TMainFormToolsHelper.ShowMsgBoxDesignerForm(const AMemo: TScintEdit);
 begin
   if (TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scCode) and
-     (MsgBox(SToolsNotInCodeSectionConfirm,
+     (MsgBox(Format(SToolsNotInCodeSectionConfirm, ['[Code]']),
       SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDNO) then
     Exit;
 

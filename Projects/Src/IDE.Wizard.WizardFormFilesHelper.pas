@@ -275,7 +275,7 @@ begin
     WizardFile := FWizardFiles[I];
 
     if (foDownload in WizardFile.Options) and not AddedVerificationNote then begin
-      Files := Files + '; ' + SWizardScriptCommentVerifyDownloads + SNewLine;
+      Files := Files + '; ' + Format(SWizardScriptCommentVerifyDownloads, ['issigverify', 'Hash']) + SNewLine;
       AddedVerificationNote := True;
     end;
 

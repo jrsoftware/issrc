@@ -328,7 +328,7 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
   begin
     Result := ';' + Format(SWizardScriptCommentEndOfRegistryDataFromFile, [ExtractFileName(FFileEdit.Text)]);
     if HadFilteredKeys then
-      Result := Result + SNewLine + ';' + SWizardScriptCommentKeysFilteredDuePrivilegesRequired;
+      Result := Result + SNewLine + ';' + Format(SWizardScriptCommentKeysFilteredDuePrivilegesRequired, ['PRIVILEGESREQUIRED']);
     if HadUnsupportedValueTypes then
       Result := Result + SNewLine + ';' + SWizardScriptCommentValuesWithUnsupportedTypesSkipped
   end;
