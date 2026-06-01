@@ -2158,7 +2158,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns non-zero if the specified file is a non-32-bit PE image, zero otherwise.</p>
-					<p>A compiler error will be raised if the specified file can't be read.</p>
+					<p>A compiler error will be raised if the specified file exists, but can't be read.</p>
 				</description>
 			</topic>
 			<topic id="EmitLanguagesSection">

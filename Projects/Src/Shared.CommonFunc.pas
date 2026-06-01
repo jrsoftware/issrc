@@ -1735,7 +1735,8 @@ end;
 
 function Is64BitPEImage(const Filename: String): Boolean;
 { Returns True if the specified file is a non-32-bit PE image, False
-  otherwise. }
+  otherwise. Raises an exception if the specified file exists, but
+  can't be read. }
 var
   DosHeader: packed record
     Sig: array[0..1] of AnsiChar;
@@ -1749,6 +1750,8 @@ var
   end;
 begin
   Result := False;
+  if not NewFileExists(Filename) then
+    Exit;
   const F = TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
   try
     if F.Read(DosHeader, SizeOf(DosHeader)) = SizeOf(DosHeader) then begin
