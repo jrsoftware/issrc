@@ -422,10 +422,24 @@ begin
 end;
 
 function NewShortCutToText(const ShortCut: TShortCut): String;
-{ This function is better than Delphi's ShortCutToText function because it works
-  for dead keys. A dead key is a key which waits for the user to press another
-  key so it can be combined. For example `+e=è. Pressing space after a dead key
-  produces the dead key char itself. For example `+space=`. }
+{ This function is better than Delphi's ShortCutToText function because:
+  -It works for dead keys. A dead key is a key which waits for the user to press
+   another key so it can be combined. For example `+e=è (backtick and then e
+   becomes è). Pressing space after a dead key produces the dead key char itself.
+   For example `+space=` (backtick and then space becomes backtick and no space).
+  -It uses 'Ctrl+Shift+Alt' ordering like VSCode and Visual Studio, and not
+   'Ctrl+Alt+Shift' like VCL.
+  -It supports localization via LStr. }
+
+  function PrependModifiers(const KeyName: String): String;
+  begin
+    Result := '';
+    if ShortCut and scCtrl <> 0 then Result := Result + LStr(SShortCutCtrl);
+    if ShortCut and scShift <> 0 then Result := Result + LStr(SShortCutShift);
+    if ShortCut and scAlt <> 0 then Result := Result + LStr(SShortCutAlt);
+    Result := Result + KeyName;
+  end;
+
 const
   { List of chars ShortCutToText knows about and doesn't rely on Win32's
   GetKeyNameText for, taken from Vcl.Menus.pas }
@@ -456,13 +470,8 @@ begin
         ScanCode := MapVirtualKey(VK_SPACE, MAPVK_VK_TO_VSC);
         if ScanCode <> 0 then begin
           Size := ToUnicode(VK_SPACE, ScanCode, KeyboardState, @TempStr[1], TempSize, 0);
-          if Size = 1 then begin
-            var Name := TempStr[1];
-            if ShortCut and scShift <> 0 then Result := Result + SmkcShift;
-            if ShortCut and scCtrl <> 0 then Result := Result + SmkcCtrl;
-            if ShortCut and scAlt <> 0 then Result := Result + SmkcAlt;
-            Result := Result + Name;
-          end;
+          if Size = 1 then
+            Result := PrependModifiers(TempStr[1]);
         end;
       end;
     end else begin
@@ -473,8 +482,11 @@ begin
     end;
   end;
 
-  if Result = '' then
-    Result := ShortCutToText(ShortCut);
+  if Result = '' then begin
+    const KeyName = ShortCutToText(TShortCut(ShortCut and not (scCtrl or scAlt or scShift)));
+    if KeyName <> '' then
+      Result := PrependModifiers(KeyName);
+  end;
 
   { Example CompForm test code:
     SetFakeShortCut(HDonate, ShortCut(VK_OEM_1, []));

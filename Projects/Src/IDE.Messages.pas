@@ -234,6 +234,12 @@ const
   SNavBack = 'Back (%s)';
   SNavForward = 'Forward (%s)';
 
+  { Shortcuts }
+  SShortCutCtrl = 'Ctrl+';
+  SShortCutShift = 'Shift+';
+  SShortCutAlt = 'Alt+';
+  SShortCutNumpad = 'Num %s';
+
   { Caption status indicators }
   SCompilerCaption32Bit = '(32-bit)';
   SCompilerCaptionCompiling = '[Compiling]';

@@ -1019,9 +1019,9 @@ begin
   SetFakeShortCut(EPaste, Ord('V'), [ssCtrl]);
   SetFakeShortCut(ESelectAll, Ord('A'), [ssCtrl]);
   SetFakeShortCut(EDelete, VK_DELETE, []);
-  SetFakeShortCutText(VZoomIn, SmkcCtrl + 'Num +');    { These zoom shortcuts are handled by Scintilla and only support the active memo, unlike the menu items which work on all memos }
-  SetFakeShortCutText(VZoomOut, SmkcCtrl + 'Num -');
-  SetFakeShortCutText(VZoomReset, SmkcCtrl + 'Num /');
+  SetFakeShortCutText(VZoomIn, LStr(SShortCutCtrl) + LStrFmt(SShortCutNumpad, ['+'])); { These zoom shortcuts are handled by Scintilla and only support the active memo, unlike the menu items which work on all memos }
+  SetFakeShortCutText(VZoomOut, LStr(SShortCutCtrl) + LStrFmt(SShortCutNumpad, ['-']));
+  SetFakeShortCutText(VZoomReset, LStr(SShortCutCtrl) + LStrFmt(SShortCutNumpad, ['/']));
   { Use fake Esc shortcut for Stop Compile so it doesn't conflict with the
     editor's autocompletion list }
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
