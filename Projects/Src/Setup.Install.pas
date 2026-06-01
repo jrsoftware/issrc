@@ -1311,8 +1311,11 @@ Retry:
       else
         ApplyPermissions(DestFile, CurFile^.PermissionsEntry);
 
-      { Set NTFS compression (even if the file wasn't replaced) }
-      if (foSetNTFSCompression in CurFile^.Options) or (foUnsetNTFSCompression in CurFile^.Options) then begin
+      { Set NTFS compression (even if the file wasn't replaced).
+        Don't attempt to set if the file doesn't exist (which can
+        happen if the foOnlyIfDestFileExists flag is used). }
+      if ((foSetNTFSCompression in CurFile^.Options) or (foUnsetNTFSCompression in CurFile^.Options)) and
+         ((TempFile <> '') or NewFileExists(DestFile)) then begin
         LastOperation := '';
         if TempFile <> '' then
           ApplyNTFSCompression(TempFile, False, foSetNTFSCompression in CurFile^.Options)
