@@ -4,11 +4,11 @@ applyTo: "**/*.pas,**/*.dpr,**/*.inc"
 # Coding conventions for Pascal source files
 - Always use inline variables instead of pre-declaring them at the start of the function.
 - Prefer inline constants over inline variables, even for run-time values and not just for compile-time constants.
-  Inline constants use `=` as the assignment operator instead of `:=`. Examples:
+  Exception: inline constants cannot be passed as `var` parameters, so use an inline variable in that case.
   Inline constants which are an object can still have their properties modified.
+  Inline constants use `=` as the assignment operator instead of `:=`. Examples:
   `const MaxCount = MinCount * 2;`
   `const ExpandedFilename = PathExpand(Filenames[I]);`
-  Exception: inline constants cannot be passed as `var` parameters, so use an inline variable in that case.
 - Do not use `with` statements.
 - `if` and `begin` should be on the same line.
 - `else` and `begin` should be on the same line.
@@ -26,6 +26,7 @@ applyTo: "**/*.pas,**/*.dpr,**/*.inc"
 - When modifying code that calls Windows APIs, read the actual documentation before writing code. Do not assume parameter semantics based on similar APIs.
 - Update Inno Setup copyright header of any file you edit, if the current year is not already included.
 - Add tests for new code to the unit's `*.Test.pas` if it exists; otherwise consider creating one if the code is complex enough to warrant testing.
+- ISPP and ROPS code is tested by `Script.ISPP.Test.iss` and `Script.ROPS.Test.iss`, not a `*.Test.pas` unit.
 # Code review guidelines
 - All errors must be checked. Installers should be reliable above all.
 - Be alert for `out` parameters: an `out` parameter, like a `var` parameter, is passed by reference. However, with an `out` parameter, the initial value of the referenced variable for managed types, such as strings or arrays, is discarded by the caller before it is passed to the routine. Meanwhile, the initial value for unmanaged types, such as integers or pointers, is ignored. Therefore, for unmanaged types, it is not guaranteed that the initial value of the referenced variable will be overwritten in the routine to which it is passed.
