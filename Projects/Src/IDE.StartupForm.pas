@@ -63,7 +63,7 @@ implementation
 uses
   ComCtrls,
   Shared.LicenseFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc,
-  IDE.Messages, IDE.HelperFunc, IDE.MainForm, IDE.ImagesModule;
+  IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.MainForm, IDE.ImagesModule;
 
 {$R *.DFM}
 
@@ -120,8 +120,8 @@ begin
 
   UpdateImages;
 
-  OpenListBox.Items.Add(SCompilerExampleScripts);
-  OpenListBox.Items.Add(SCompilerMoreFiles);
+  OpenListBox.Items.Add(LStr(SCompilerExampleScripts));
+  OpenListBox.Items.Add(LStr(SCompilerMoreFiles));
   OpenListBox.ItemIndex := 0;
   UpdateHorizontalExtent(OpenListBox);
 

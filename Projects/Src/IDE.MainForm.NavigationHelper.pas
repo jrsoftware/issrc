@@ -38,7 +38,7 @@ implementation
 uses
   Windows,
   SysUtils, TypInfo, ComCtrls,
-  IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.Messages;
+  IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.Messages, IDE.LocalizeFunc;
 
 procedure TMainFormNavigationHelper.RemoveMemoFromNavigation(const AMemo: TIDEScintEdit);
 begin
@@ -135,11 +135,11 @@ procedure TMainFormNavigationHelper.UpdateNavigationMenu(const Menu: TMenuItem);
       raise Exception.Create('NavItem.Line >= NavItem.Memo.Lines.Count');
     var LineInfo :=  NavItem.Memo.Lines[NavItem.Line];
     if LineInfo.Trim = '' then
-      LineInfo := Format(SNavLineNumber, [NavItem.Line+1]);
+      LineInfo := LStrFmt(SNavLineNumber, [NavItem.Line+1]);
 
     var Caption: String;
     if MemosTabSet.Visible then
-      Caption := Format(SNavItemCaption, [MemoToTabName(NavItem.Memo), LineInfo])
+      Caption := LStrFmt(SNavItemCaption, [MemoToTabName(NavItem.Memo), LineInfo])
     else
       Caption := LineInfo;
 

@@ -20,7 +20,7 @@ uses
   Windows, SysUtils, ShlObj,
   PathFunc, UnsignedFunc,
   Shared.CommonFunc.Vcl, Shared.CommonFunc,
-  IDE.Messages;
+  IDE.Messages, IDE.LocalizeFunc;
   
 function GetRootkey: HKEY;
 begin
@@ -40,7 +40,7 @@ function RegisterISSFileAssociation(const AllowInteractive: Boolean; var AllUser
     procedure Check(const Res: DWORD);
     begin
       if Res <> ERROR_SUCCESS then
-        raise Exception.CreateFmt(SAssocError, [Res, Win32ErrorString(Res)]);
+        raise Exception.CreateFmt(LStr(SAssocError), [Res, Win32ErrorString(Res)]);
     end;
 
   var
@@ -64,7 +64,7 @@ begin
   AllUsers := Rootkey = HKEY_LOCAL_MACHINE;
   
   Result := AllUsers or not AllowInteractive or
-            (MsgBox(SAssocUnableForAllUsers, SAssocTitle, mbConfirmation, MB_YESNO) = IDYES);
+            (MsgBox(LStr(SAssocUnableForAllUsers), LStr(SAssocTitle), mbConfirmation, MB_YESNO) = IDYES);
   if not Result then
     Exit;
 
@@ -77,11 +77,11 @@ begin
   SetKeyValue(Rootkey, 'Software\Classes\.iss', 'Content Type', 'text/plain');
   SetKeyValue(Rootkey, 'Software\Classes\.iss\OpenWithProgids', 'InnoSetupScriptFile', '');
 
-  SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile', nil, SAssocInnoSetupScript);
+  SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile', nil, LStr(SAssocInnoSetupScript));
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\DefaultIcon', nil, SelfName + ',1');
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\open\command', nil,
     '"' + SelfName + '" "%1"');
-  SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile', nil, SAssocInnoSetupScriptCompile);
+  SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile', nil, LStr(SAssocInnoSetupScriptCompile));
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile\command', nil,
     '"' + SelfName + '" /cc "%1"');
 

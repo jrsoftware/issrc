@@ -47,7 +47,7 @@ uses
   SysUtils, Generics.Collections, VirtualImageList, ComCtrls,
   PathFunc,
   Shared.LicenseFunc,
-  IDE.HelperFunc, IDE.IDEScintEdit, IDE.Messages;
+  IDE.HelperFunc, IDE.IDEScintEdit, IDE.Messages, IDE.LocalizeFunc;
 
 procedure TMainFormUpdateMenuHelper._UpdateMenuBitmapsIfNeeded;
 
@@ -296,11 +296,11 @@ end;
 procedure TMainFormUpdateMenuHelper.UpdateNewMainFileButtons;
 begin
   if FOptions.UseWizard then begin
-    FNewMainFile.Caption := SMenuNewWithWizard;
+    FNewMainFile.Caption := LStr(SMenuNewWithWizard);
     FNewMainFile.OnClick := FNewMainFileUserWizardClick;
     NewMainFileButton.OnClick := FNewMainFileUserWizardClick;
   end else begin
-    FNewMainFile.Caption := SMenuNew;
+    FNewMainFile.Caption := LStr(SMenuNew);
     FNewMainFile.OnClick := FNewMainFileClick;
     NewMainFileButton.OnClick := FNewMainFileClick;
   end;

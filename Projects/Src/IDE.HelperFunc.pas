@@ -79,7 +79,7 @@ uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils, ExtCtrls,
   Messages, Consts, NetEncoding,
   ECDSA, SHA256, Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme, NewNotebook,
-  IDE.MainForm, IDE.Messages, Shared.ConfigIniFile;
+  IDE.MainForm, IDE.Messages, IDE.LocalizeFunc, Shared.ConfigIniFile;
 
 procedure InitFormFont(Form: TForm);
 begin
@@ -181,7 +181,7 @@ end;
 function GetFileTitle(const Filename: String): String;
 begin
   if Filename = '' then
-    Result := SCompilerUntitledFile
+    Result := LStr(SCompilerUntitledFile)
   else
     Result := Filename;
 end;
@@ -588,7 +588,7 @@ var
       on EOutOfResources do begin
         ListBox.Clear;
         SendMessage(ListBox.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-        ListBox.Items.Add(SCompilerStatusReset);
+        ListBox.Items.Add(LStr(SCompilerStatusReset));
         ListBox.TopIndex := ListBox.Items.AddObject(S, AObject);
       end;
     end;

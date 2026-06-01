@@ -2,7 +2,7 @@ unit IDE.MainForm.FinalHelper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -29,11 +29,11 @@ implementation
 uses
   Windows,
   Shared.CommonFunc, Shared.CommonFunc.Vcl,
-  IDE.Messages;
+  IDE.Messages, IDE.LocalizeFunc;
 
 class procedure TMainFormFinalHelper.AppOnException(Sender: TObject; E: Exception);
 begin
-  MsgBox(AddPeriod(E.Message), SCompilerFormCaption, mbCriticalError, MB_OK);
+  MsgBox(AddPeriod(E.Message), LStr(SCompilerFormCaption), mbCriticalError, MB_OK);
 end;
 
 function TMainFormFinalHelper.ToCurrentPPI(const XY: Integer): Integer;

@@ -35,7 +35,7 @@ uses
   SysUtils, Forms, UITypes,
   PathFunc,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.ConfigIniFile,
-  IDE.Messages, IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.SignToolsForm, IDE.MsgBoxDesignerForm,
+  IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.SignToolsForm, IDE.MsgBoxDesignerForm,
   IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.Wizard.WizardFormRegistryHelper;
 
 {$IFNDEF WIN64}
@@ -78,16 +78,16 @@ end;
 
 procedure TMainFormToolsHelper.InsertGeneratedGuid(const AMemo: TScintEdit);
 begin
-  if MsgBox(SToolsInsertGuidConfirm,
-     SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
+  if MsgBox(LStr(SToolsInsertGuidConfirm),
+     LStr(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDYES then
     AMemo.MainSelText := GenerateGuid;
 end;
 
 procedure TMainFormToolsHelper.ShowMsgBoxDesignerForm(const AMemo: TScintEdit);
 begin
   if (TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scCode) and
-     (MsgBox(Format(SToolsNotInCodeSectionConfirm, ['[Code]']),
-      SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDNO) then
+     (MsgBox(LStrFmt(SToolsNotInCodeSectionConfirm, ['[Code]']),
+      LStr(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDNO) then
     Exit;
 
   var MsgBoxForm := TMsgBoxDesignerForm.Create(Application);

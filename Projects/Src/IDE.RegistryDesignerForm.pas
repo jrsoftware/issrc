@@ -52,17 +52,17 @@ implementation
 {$R *.dfm}
 
 uses
-  IDE.HelperFunc, IDE.Messages;
+  IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc;
 
 procedure TRegistryDesignerForm.SetPrivilegesRequired(
   const Value: TPrivilegesRequired);
 begin
   if Value = prAdmin then
-    PrivilegesRequiredLabel.Caption := Format(SRegistryDesignerScriptHas, ['PrivilegesRequired=admin'])
+    PrivilegesRequiredLabel.Caption := LStrFmt(SRegistryDesignerScriptHas, ['PrivilegesRequired=admin'])
   else if Value = prLowest then
-    PrivilegesRequiredLabel.Caption := Format(SRegistryDesignerScriptHas, ['PrivilegesRequired=lowest'])
+    PrivilegesRequiredLabel.Caption := LStrFmt(SRegistryDesignerScriptHas, ['PrivilegesRequired=lowest'])
   else
-    PrivilegesRequiredLabel.Caption := Format(SRegistryDesignerScriptHasSet, ['PrivilegesRequiredOverridesAllowed']);
+    PrivilegesRequiredLabel.Caption := LStrFmt(SRegistryDesignerScriptHasSet, ['PrivilegesRequiredOverridesAllowed']);
   FRegistryHelper.PrivilegesRequired := Value;
 end;
 

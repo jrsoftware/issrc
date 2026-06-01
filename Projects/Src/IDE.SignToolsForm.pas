@@ -50,7 +50,7 @@ implementation
 uses
   Windows, Messages, SysUtils, Dialogs,
   Shared.CommonFunc.Vcl, IDE.InputQueryMemoForm, IDE.HelperFunc,
-  IDE.HtmlHelpFunc, IDE.Messages;
+  IDE.HtmlHelpFunc, IDE.Messages, IDE.LocalizeFunc;
 
 {$R *.DFM}
 
@@ -115,22 +115,22 @@ var
 begin
   Result := False;
 
-  if InputQuery(Caption, SSignToolNamePrompt, SignToolName) then begin
+  if InputQuery(Caption, LStr(SSignToolNamePrompt), SignToolName) then begin
     if (SignToolName = '') or (Pos('=', SignToolName) <> 0) then begin
-      MsgBox(SSignToolInvalidName, Caption, mbCriticalError, MB_OK);
+      MsgBox(LStr(SSignToolInvalidName), Caption, mbCriticalError, MB_OK);
       Exit;
     end;
 
     for I := 0 to FSignTools.Count-1 do begin
       if (I <> ExistingIndex) and (Pos(SignToolName + '=', FSignTools[I]) = 1) then begin
-        MsgBox(SSignToolDuplicateName, Caption, mbCriticalError, MB_OK);
+        MsgBox(LStr(SSignToolDuplicateName), Caption, mbCriticalError, MB_OK);
         Exit;
       end;
     end;
 
-    if InputQueryMemo(Caption, SSignToolCommandPrompt, SignToolCommand, True, CommandDocBitBtnClick) then begin
+    if InputQueryMemo(Caption, LStr(SSignToolCommandPrompt), SignToolCommand, True, CommandDocBitBtnClick) then begin
       if SignToolCommand = '' then begin
-        MsgBox(SSignToolInvalidCommand, Caption, mbCriticalError, MB_OK);
+        MsgBox(LStr(SSignToolInvalidCommand), Caption, mbCriticalError, MB_OK);
         Exit;
       end;
       

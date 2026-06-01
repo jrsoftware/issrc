@@ -78,7 +78,7 @@ type
 implementation
 
 uses
-  Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, IDE.FileAssocFunc, IDE.Messages;
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, IDE.FileAssocFunc, IDE.Messages, IDE.LocalizeFunc;
 
 {$R *.DFM}
 
@@ -88,17 +88,17 @@ begin
   InitFormTheme(Self);
 
   { Order must match IDE.HelperFunc.TKeyMappingType }
-  KeyMappingComboBox.Items.Add(SOptionsKeyMappingDelphi);
-  KeyMappingComboBox.Items.Add(SOptionsKeyMappingVisualStudio);
+  KeyMappingComboBox.Items.Add(LStr(SOptionsKeyMappingDelphi));
+  KeyMappingComboBox.Items.Add(LStr(SOptionsKeyMappingVisualStudio));
 
   { Order must match TIDEScintKeyMappingType }
-  MemoKeyMappingComboBox.Items.Add(SOptionsMemoKeyMappingDefault);
-  MemoKeyMappingComboBox.Items.Add(SOptionsMemoKeyMappingVSCode);
+  MemoKeyMappingComboBox.Items.Add(LStr(SOptionsMemoKeyMappingDefault));
+  MemoKeyMappingComboBox.Items.Add(LStr(SOptionsMemoKeyMappingVSCode));
 
   { Order must match TThemeType }
-  ThemeComboBox.Items.Add(SOptionsThemeLight);
-  ThemeComboBox.Items.Add(SOptionsThemeDark);
-  ThemeComboBox.Items.Add(SOptionsThemeClassic);
+  ThemeComboBox.Items.Add(LStr(SOptionsThemeLight));
+  ThemeComboBox.Items.Add(LStr(SOptionsThemeDark));
+  ThemeComboBox.Items.Add(LStr(SOptionsThemeClassic));
 end;
 
 procedure TOptionsForm.FormShow(Sender: TObject);
@@ -117,7 +117,7 @@ var
   AllUsers: Boolean;
 begin
   if RegisterISSFileAssociation(True, AllUsers) then
-    MsgBox(Format(SuccessMessages[AllUsers], [NewParamStr(0)]), SAssocTitle, mbInformation, MB_OK);
+    MsgBox(LStrFmt(SuccessMessages[AllUsers], [NewParamStr(0)]), LStr(SAssocTitle), mbInformation, MB_OK);
 end;
 
 procedure TOptionsForm.ChangeFontButtonClick(Sender: TObject);

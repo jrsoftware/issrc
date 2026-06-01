@@ -21,6 +21,7 @@ uses
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   IDE.HelperFunc in 'Src\IDE.HelperFunc.pas',
   IDE.Messages in 'Src\IDE.Messages.pas',
+  IDE.LocalizeFunc in 'Src\IDE.LocalizeFunc.pas',
   Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
   Shared.CompilerInt.Struct in 'Src\Shared.CompilerInt.Struct.pas',
   IDE.OptionsForm in 'Src\IDE.OptionsForm.pas' {OptionsForm},
@@ -178,7 +179,7 @@ procedure CheckParams;
 
   procedure Error;
   begin
-    MessageBox(0, SCompilerCommandLineHelp3, SCompilerFormCaption,
+    MessageBox(0, PChar(LStr(SCompilerCommandLineHelp3)), PChar(LStr(SCompilerFormCaption)),
       MB_OK or MB_ICONEXCLAMATION);
     Halt(1);
   end;
@@ -235,8 +236,8 @@ begin
     InitISCmplrLibrary;
   except
     begin
-      MessageBox(0, PChar(Format(SCompilerLibraryLoadError {$IFDEF DEBUG} + #13#10#13#10'Did you build the ISCmplr project?' {$ENDIF},
-        [ISCmplrDLL, GetExceptMessage])), nil, MB_OK or MB_ICONSTOP);
+      MessageBox(0, PChar(LStrFmt(SCompilerLibraryLoadError, [ISCmplrDLL, GetExceptMessage])
+        {$IFDEF DEBUG} + #13#10#13#10'Did you build the ISCmplr project?' {$ENDIF}), nil, MB_OK or MB_ICONSTOP);
       Halt(3);
     end;
   end;
@@ -246,8 +247,8 @@ begin
     InitIsscintLibrary;
   except
     begin
-      MessageBox(0, PChar(Format(SCompilerLibraryLoadError {$IFDEF DEBUG} + #13#10#13#10'Did you run Projects\Bin\synch-isfiles.bat as instructed in README.md?' {$ENDIF},
-        [IsscintDLL, GetExceptMessage])), nil, MB_OK or MB_ICONSTOP);
+      MessageBox(0, PChar(LStrFmt(SCompilerLibraryLoadError, [IsscintDLL, GetExceptMessage])
+        {$IFDEF DEBUG} + #13#10#13#10'Did you run Projects\Bin\synch-isfiles.bat as instructed in README.md?' {$ENDIF}), nil, MB_OK or MB_ICONSTOP);
       Halt(4);
     end;
   end;
@@ -274,7 +275,7 @@ begin
     if CommandLineWizard then
       Title := CommandLineWizardName
     else
-      Title := SCompilerFormCaption;
+      Title := LStr(SCompilerFormCaption);
   end;
 
   { Don't allow VCL Styles to style menus using owner drawing. Instead we get native dark menus

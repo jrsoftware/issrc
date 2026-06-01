@@ -67,7 +67,7 @@ type
 implementation
 
 uses
-  IDE.Messages, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc;
+  IDE.Messages, IDE.LocalizeFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc;
 
 {$R *.DFM}
 
@@ -100,7 +100,7 @@ begin
   FWizardFile := WizardFile;
 
   if foDownload in WizardFile.Options then begin
-    SourceLabel.Caption := SWizardSourceURLLabel;
+    SourceLabel.Caption := LStr(SWizardSourceURLLabel);
     SourceEdit.Text := Format('%s (~%.1f MB)', [WizardFile.Source, WizardFile.ExternalSize/(1024*1024)]);
     MakeBold(DestNameLabel);
   end else begin
@@ -150,8 +150,8 @@ begin
   RequiredLabel2.Left := RequiredLabel1.Left + RequiredLabel1.Width;
 
   for I := Low(DestRootDirs) to High(DestRootDirs) do
-    DestRootDirComboBox.Items.Add(DestRootDirs[I].Description);
-  DestRootDirComboBox.Items.Add(SWizardDirCustom);
+    DestRootDirComboBox.Items.Add(LStr(DestRootDirs[I].Description));
+  DestRootDirComboBox.Items.Add(LStr(SWizardDirCustom));
   DestRootDirComboBox.ItemIndex := 0;
 end;
 
@@ -201,10 +201,10 @@ begin
   const CustomDestRootDir = DestRootDirIndex = DestRootDirComboBox.Items.Count-1;
 
   if CustomDestRootDir and (DestRootDirEdit.Text = '') then begin
-    MsgBox(SWizardFileDestRootDirError, '',  mbError, MB_OK);
+    MsgBox(LStr(SWizardFileDestRootDirError), '',  mbError, MB_OK);
     ActiveControl := DestRootDirEdit;
   end else if not CustomDestRootDir and (DestRootDirs[DestRootDirIndex].Constant = '{app}') and not FAllowAppDestRootDir then begin
-    MsgBox(SWizardFileAppDestRootDirError, '',  mbError, MB_OK);
+    MsgBox(LStr(SWizardFileAppDestRootDirError), '',  mbError, MB_OK);
     ActiveControl := DestRootDirComboBox;
   end else
     ModalResult := mrOk;
