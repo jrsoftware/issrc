@@ -26,6 +26,56 @@ uses
   SysUtils, Controls, StdCtrls, Menus,
   NewTabSet;
 
+function FmtIDEMessage(S: PChar; const Args: array of const): String;
+{ Same Setup's FmtMessage, but takes an array of const and replaces %n }
+
+  function ArgToStr(const Arg: TVarRec): String;
+  begin
+    case Arg.VType of
+      vtInteger: Result := IntToStr(Arg.VInteger);
+      vtInt64: Result := IntToStr(Arg.VInt64^);
+      vtChar: Result := Char(Arg.VChar);
+      vtWideChar: Result := Arg.VWideChar;
+      vtString: Result := String(Arg.VString^);
+      vtAnsiString: Result := String(AnsiString(Arg.VAnsiString));
+      vtWideString: Result := WideString(Arg.VWideString);
+      vtUnicodeString: Result := UnicodeString(Arg.VUnicodeString);
+    else
+      raise Exception.Create('Internal error: Unexpected Arg.VType');
+    end;
+  end;
+
+begin
+  Result := '';
+  if S = nil then Exit;
+  while True do begin
+    var P := StrScan(S, '%');
+    if P = nil then begin
+      Result := Result + S;
+      Break;
+    end;
+    if P <> S then begin
+      var Z: String;
+      SetString(Z, S, P - S);
+      Result := Result + Z;
+      S := P;
+    end;
+    Inc(P);
+    if CharInSet(P^, ['1'..'9']) and (Ord(P^) - Ord('1') <= High(Args)) then begin
+      Result := Result + ArgToStr(Args[Ord(P^) - Ord('1')]);
+      Inc(S, 2);
+    end else if P^ = 'n' then begin
+      Result := Result + #13#10;
+      Inc(S, 2);
+    end else begin
+      Result := Result + '%';
+      Inc(S);
+      if P^ = '%' then
+        Inc(S);
+    end;
+  end;
+end;
+
 function LFmtMessage(const Str: String; const AllowEmpty: Boolean): String;
 begin
   Result := LFmtMessage(Str, [], AllowEmpty);
@@ -41,7 +91,7 @@ begin
       raise Exception.Create('Internal error: LFmtMessage called with empty string');
   end;
   Result := Str; { Temporary }
-  Result := Format(StringReplace(Result, '%n', #13#10, [rfReplaceAll]), Args);
+  Result := FmtIDEMessage(PChar(Result), Args);
 end;
 
 type
