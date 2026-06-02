@@ -429,7 +429,7 @@ function NewShortCutToText(const ShortCut: TShortCut): String;
    For example `+space=` (backtick and then space becomes backtick and no space).
   -It uses 'Ctrl+Shift+Alt' ordering like VSCode and Visual Studio, and not
    'Ctrl+Alt+Shift' like VCL.
-  -It supports localization via LFmtMessage. }
+  -It supports modifier localization via LFmtMessage. }
 
   function PrependModifiers(const KeyName: String): String;
   begin
