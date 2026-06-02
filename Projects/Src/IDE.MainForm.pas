@@ -1941,7 +1941,10 @@ begin
     if AMemo <> FMainMemo then
       raise Exception.Create('Internal error: AMemo <> FMainMemo');
     FN := AMemo.Filename;
-    if not NewGetSaveFileName('', FN, '', LStr(SCompilerOpenFilter), 'iss', Handle) then Exit;
+    if not NewGetSaveFileName('', FN, '',
+             Format(SLitExtAndAllFilter, [LStr(SIssFiles), SLitIssExt, LStr(SAllFiles)]),
+             SLitIssExt, Handle) then
+      Exit;
     FN := PathExpand(FN);
     SaveMemoTo(FN);
     AMemo.Filename := FN;
@@ -2026,7 +2029,7 @@ procedure TMainForm.DebugShowCallStack(const CallStack: String; const CallStackC
 begin
   DebugCallStackList.Clear;
   AddLines(DebugCallStackList, CallStack, nil, True, alpCountdown, Integer(CallStackCount-1));
-  DebugCallStackList.Items.Insert(0, LStrFmt(SDebugCodeCallStack, ['Code']));
+  DebugCallStackList.Items.Insert(0, SLitStatusEventPrefix + LStrFmt(SDebugCodeCallStack, ['[Code]']));
   DebugCallStackList.Update;
 end;
 
@@ -2331,7 +2334,7 @@ begin
     end;
 
     StartTime := GetTickCount;
-    StatusMessage(smkStartEnd, LStrFmt(SCompilerStatusStarting, [TimeToStr(Time)]));
+    StatusMessage(smkStartEnd, SLitStatusEventPrefix + LStrFmt(SCompilerStatusStarting, [TimeToStr(Time)]));
     StatusMessage(smkStartEnd, '');
     FCompiling := True;
     FCompileWantAbort := False;
@@ -2362,16 +2365,16 @@ begin
           S := S + LStrFmt(SCompilerErrorLinePrefix, [AppData.ErrorLine]) + SNewLine;
         S := S + AppData.ErrorMsg;
         StatusMessage(smkError, StringReplace(StringReplace(S, #13, '', [rfReplaceAll]), #10, ' ', [rfReplaceAll]));
-        StatusMessage(smkError, LStr(SCompilerStatusErrorAborted));
+        StatusMessage(smkError, SLitStatusEventPrefix + LStr(SCompilerStatusErrorAborted));
         SetAppTaskbarProgressState(tpsError);
         MsgBox(S, LStr(SCompilerErrorTitle), mbCriticalError, MB_OK)
       end else
-        StatusMessage(smkError, LStr(SCompilerStatusErrorAborted));
+        StatusMessage(smkError, SLitStatusEventPrefix + LStr(SCompilerStatusErrorAborted));
       Abort;
     end;
     ElapsedTime := GetTickCount - StartTime;
     ElapsedSeconds := ElapsedTime div 1000;
-    StatusMessage(smkStartEnd, LStrFmt(SCompilerStatusFinished, [TimeToStr(Time),
+    StatusMessage(smkStartEnd, SLitStatusEventPrefix + LStrFmt(SCompilerStatusFinished, [TimeToStr(Time),
       Format('%.2u%s%.2u%s%.3u', [ElapsedSeconds div 60, FormatSettings.TimeSeparator,
         ElapsedSeconds mod 60, FormatSettings.DecimalSeparator, ElapsedTime mod 1000])]));
   finally
@@ -2476,7 +2479,9 @@ begin
     Filename := '';
   end;
   if ConfirmCloseFile(True) then
-    if NewGetOpenFileName('', Filename, InitialDir, LStr(SCompilerOpenFilter), 'iss', Handle) then begin
+    if NewGetOpenFileName('', Filename, InitialDir,
+         Format(SLitExtAndAllFilter, [LStr(SIssFiles), SLitIssExt, LStr(SAllFiles)]),
+         SLitIssExt, Handle) then begin
       { Check if user actually wants to open tab for an included file }
       if FOptions.OpenIncludedFiles then begin
         for var IncludedFile in FIncludedFiles do begin
@@ -5368,9 +5373,9 @@ procedure TMainForm.DebuggingStopped(const WaitForTermination: Boolean);
             { If the high bit is set, the process was killed uncleanly (e.g.
               by a debugger). Show the exit code as hex in that case. }
             if ExitCode and $80000000 <> 0 then
-              Result := LStrFmt(SDebugExitCodeHex, [LStr(DebugTargetStrings[FDebugTarget]), ExitCode])
+              Result := LStrFmt(SDebugExitCodeHex, [LStr(DebugTargetStrings[FDebugTarget]), Format('%.8x', [ExitCode])])
             else
-              Result := LStrFmt(SDebugExitCodeDecimal, [LStr(DebugTargetStrings[FDebugTarget]), ExitCode]);
+              Result := LStrFmt(SDebugExitCodeDecimal, [LStr(DebugTargetStrings[FDebugTarget]), Format('%u', [ExitCode])]);
           end
           else
             Result := LStrFmt(SDebugExitCodeGetFailed, [LStr(DebugTargetStrings[FDebugTarget]), 'GetExitCodeProcess']);
@@ -5405,7 +5410,7 @@ begin
   SetStepLine(FStepMemo, -1);
   UpdateRunMenu;
   UpdateCaption;
-  DebugLogMessage(LStrFmt(SDebugExitCodeText, [ExitCodeText]));
+  DebugLogMessage(SLitStatusEventPrefix + ExitCodeText);
   StatusBar.Panels[spExtraStatus].Text := ' ' + ExitCodeText;
 end;
 
@@ -5765,7 +5770,7 @@ procedure TMainForm.Go(const AStepMode: TStepMode);
     CheckIfTerminatedTimer.Enabled := True;
     UpdateRunMenu;
     UpdateCaption;
-    DebugLogMessage(LStrFmt(SDebugTargetStarted, [LStr(DebugTargetStrings[FDebugTarget])]));
+    DebugLogMessage(SLitStatusEventPrefix + LStrFmt(SDebugTargetStarted, [LStr(DebugTargetStrings[FDebugTarget])]));
   end;
 
   procedure ContinueProcessIfPaused(const AStepMode: TStepMode);
@@ -5903,18 +5908,18 @@ begin
     Exit;
   CheckIfTerminated;
   if FDebugging then begin
-    DebugLogMessage(LStr(SDebugTerminatingProcess));
+    DebugLogMessage(SLitStatusEventPrefix + LStr(SDebugTerminatingProcess));
     Win32Check(TerminateProcess(FDebugClientProcessHandle, 6));
     if (WaitForSingleObject(FDebugClientProcessHandle, 5000) <> WAIT_TIMEOUT) and
        (FTempDir <> '') then begin
       Dir := FTempDir;
       FTempDir := '';
-      DebugLogMessage(LStrFmt(SDebugRemovingTempDir, [Dir]));
+      DebugLogMessage(SLitStatusEventPrefix + LStrFmt(SDebugRemovingTempDir, [Dir]));
       { Sleep for a bit to allow files to be unlocked by Windows,
         otherwise it fails intermittently (with Hyper-Threading, at least) }
       Sleep(50);
       if not DeleteDirTree(Dir) and DirExists(Dir) then
-        DebugLogMessage(LStr(SDebugFailedToRemoveTempDir));
+        DebugLogMessage(SLitStatusEventPrefix + LStr(SDebugFailedToRemoveTempDir));
     end;
     DebuggingStopped(True);
   end;
@@ -6215,11 +6220,13 @@ begin
     InvalidateStatusPanel(spCompileIcon);
     FBuildAnimationFrame := (FBuildAnimationFrame + 1) mod 4;
     if ASecondsRemaining >= 0 then
-      StatusBar.Panels[spExtraStatus].Text := LStrFmt(
-        SStatusEstimatedTimeRemaining,
-        [(ASecondsRemaining div 60) div 60, FormatSettings.TimeSeparator,
-         (ASecondsRemaining div 60) mod 60, FormatSettings.TimeSeparator,
-         ASecondsRemaining mod 60, ABytesCompressedPerSecond / 1024])
+      StatusBar.Panels[spExtraStatus].Text := ' ' +
+        LStrFmt(SStatusEstimatedTimeRemaining, [Format('%.2d%s%.2d%s%.2d',
+          [(ASecondsRemaining div 60) div 60, FormatSettings.TimeSeparator,
+           (ASecondsRemaining div 60) mod 60, FormatSettings.TimeSeparator,
+           ASecondsRemaining mod 60])]) +
+        '     ' + LStrFmt(SStatusAverage,
+          [Format('%.0n', [ABytesCompressedPerSecond / 1024])])
     else
       StatusBar.Panels[spExtraStatus].Text := '';
   end;

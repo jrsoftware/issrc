@@ -15,19 +15,28 @@ unit IDE.Messages;
 interface
 
 const
+  { Do not localize }
   SNewLine = #13#10;  { line break }
   SNewLine2 = #13#10#13#10;  { double line break }
+  SLitComment = '; ';
+  SLitCodeComment = '// ';
+  SLitStatusEventPrefix = '*** ';
+  SLitIssExt = 'iss';
+  SLitExeExt = 'exe';
+  SLitRtfExt = 'rtf';
+  SLitRegExt = 'reg';
+  SLitIcoExt = 'ico';
+  SLitExtAndAllFilter = '%0:s (*.%1:s)|*.%1:s|%2:s|*.*';
+  SLitDocsAndAllFilter = '%0:s (*.rtf,*.txt)|*.rtf;*.txt|%1:s|*.*';
+  SLitAllFilesFilter = '%s|*.*';
 
   { Compiler-specific messages }
-  SCompilerCommandLineHelp3 = 'Command line usage:' + SNewLine +
-    SNewLine +
-    'iside /cc <script file>' + SNewLine +
-    'iside /wizard <wizard name> <script file>' + SNewLine +
-    SNewLine +
-    'Examples:' + SNewLine +
-    'iside /cc c:\isetup\sample32\sample1.iss' + SNewLine +
-    'iside /cc "C:\Inno Setup\Sample32\My script.iss"' + SNewLine +
-    'iside /wizard "My Script Wizard" c:\temp.iss';
+  SCompilerCommandLineHelpUsage = 'Command line usage:';
+  SCompilerCommandLineHelpExamples = 'Examples:';
+  SCompilerCommandLineHelpScriptFile = 'script file';
+  SCompilerCommandLineHelpWizardName = 'wizard name';
+  SCompilerCommandLineHelpMyScript = 'My script';
+  SCompilerCommandLineHelpMyScriptWizard = 'My Script Wizard';
   SCompilerLibraryLoadError = 'Could not load %0:s: %1:s';
 
   { Compiler form labels }
@@ -37,13 +46,20 @@ const
   SCompilerScriptBrowseButton = '&Browse...';
   SCompilerStartButton = '&Start';
   SCompilerExitButton = 'E&xit';
-  SCompilerOpenFilter = 'Inno Setup Script files (*.iss)|*.iss|All files|*.*';
   SCompilerExampleScripts = 'Example scripts...';
   SCompilerMoreFiles = 'More files...';
   SCompilerUntitledFile = 'Untitled';
   SCompilerPreprocessorOutput = 'Preprocessor Output';
   SCompilerRunParametersTitle = 'Run Parameters';
   SCompilerRunParametersPrompt = 'Command line parameters for %0:s and %1:s:';
+
+  { File filter names }
+  SIssFiles = 'Inno Setup Script files';
+  SAllFiles = 'All files';
+  SExeFiles = 'Application files';
+  SDocFiles = 'Documentation files';
+  SRegFiles = 'Registry files';
+  SIcoFiles = 'Icon files';
 
   { Compiler Script Wizard }
   SWizardDefaultName = 'Inno Setup Script Wizard';
@@ -61,8 +77,6 @@ const
   SWizardAppFilesDownloadDestNamePrompt = 'Name of the file:';
   SWizardAppFilesDownloadArchiveDestNamePrompt = 'Name of the file (extension should match archive format):';
   SWizardAppFilesDownloadExternalSizePrompt = 'Approximate size of the file in megabytes:';
-  SWizardAppExeFilter = 'Application files (*.exe)|*.exe|All files|*.*';
-  SWizardAppExeDefaultExt = 'exe';
   SWizardAppAssoc = 'Application File Association';
   SWizardAppAssoc2 = 'Please specify which file association should be created for your application.';
   SWizardAppAssocDefaultName = '%s File';
@@ -70,10 +84,6 @@ const
   SWizardAppIcons2 = 'Please specify which shortcuts should be created for your application.';
   SWizardAppDocs = 'Application Documentation';
   SWizardAppDocs2 = 'Please specify which documentation files should be shown by Setup during installation.';
-  SWizardAppDocsFilter = 'Documentation files (*.rtf,*.txt)|*.rtf;*.txt|All files|*.*';
-  SWizardAppDocsDefaultExt = 'rtf';
-  SWizardAppRegFilter = 'Registry files (*.reg)|*.reg|All files|*.*';
-  SWizardAppRegDefaultExt = 'reg';
   SWizardPrivilegesRequired = 'Setup Install Mode';
   SWizardPrivilegesRequired2 = 'Please specify in which install mode Setup should run.';
   SWizardAppRegistry = 'Application Registry Keys And Values';
@@ -82,22 +92,18 @@ const
   SWizardLanguages2 = 'Please specify which Setup languages should be included.';
   SWizardCompiler = 'Compiler Settings';
   SWizardCompiler2 = 'Please specify some basic compiler settings.';
-  SWizardCompilerSetupIconFileFilter = 'Icon files (*.ico)|*.ico|All files|*.*';
-  SWizardCompilerSetupIconFileDefaultExt = 'ico';
   SWizardCompilerOutputDir = 'Please specify the folder.';
   SWizardWizardStyle = 'Wizard Style';
   SWizardWizardStyle2 = 'Please specify which wizard style should be used.';
   SWizardISPP = 'Inno Setup Preprocessor';
   SWizardISPP2 = 'Please specify whether Inno Setup Preprocessor should be used.';
-  SWizardISPPLabel = 'The %0:s can use %1:s compiler directives to simplify your script. Although this is not necessary, it will make it easier to manually change the script later.' + SNewLine2 + 'Do you want the %0:s to use %1:s compiler directives?';
+  SWizardISPPLabel = 'The %0:s can use %1:s compiler directives to simplify your script. Although this is not necessary, it will make it easier to manually change the script later.%n%nDo you want the %0:s to use %1:s compiler directives?';
   SWizardISPPCheck = '&Yes, use %s compiler directives';
   SWizardFinished = 'Finished';
 
   SWizardNextButton = '&Next';
   SWizardFinishButton = '&Finish';
-  SWizardCancelMessage = 'The %0:s is not complete. If you quit now, the new script file will not be generated.'#13#13'Exit the %0:s?';
-
-  SWizardAllFilesFilter = 'All files|*.*';
+  SWizardCancelMessage = 'The %0:s is not complete. If you quit now, the new script file will not be generated.%n%nExit the %0:s?';
 
   SWizardAppNameError = 'Please specify the application name.';
   SWizardAppVersionError = 'Please specify the application version.';
@@ -111,7 +117,8 @@ const
 
   SWizardSourceURLLabel = '&Source URL:';
   
-  SWizardScriptHeader = '; Script generated by the %s.' + SNewLine  + '; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!';
+  SWizardScriptHeader1 = 'Script generated by the %s.';
+  SWizardScriptHeader2 = 'SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!';
   SWizardScriptCommentUniqueAppId = 'NOTE: The value of %0:s uniquely identifies this application. Do not use the same %0:s value in installers for other applications.';
   SWizardScriptCommentGenerateGuid = '(To generate a new GUID, click Tools | Generate GUID inside the IDE.)';
   SWizardScriptCommentArchitecturesAllowed = '"%s" specifies that Setup cannot run on anything but x64 and Windows 11 on Arm.';
@@ -145,14 +152,19 @@ const
   SWizardDirCustom = '(Custom)';
 
   { Status messages }
-  SCompilerStatusStarting = '*** Starting compile.  [%s]';
-  SCompilerStatusFinished = '*** Finished.  [%0:s, %1:s elapsed]';
-  SCompilerStatusErrorAborted = '*** Compile aborted.';
-  SCompilerStatusReset = '*** Log size limit reached, list reset.';
+  SCompilerStatusStarting = 'Starting compile.  [%s]';
+  SCompilerStatusFinished = 'Finished.  [%0:s, %1:s elapsed]';
+  SCompilerStatusErrorAborted = 'Compile aborted.';
+  SCompilerStatusReset = 'Log size limit reached, list reset.';
+  SDebugTargetStarted = '%s started';
+  SDebugTerminatingProcess = 'Terminating process';
+  SDebugRemovingTempDir = 'Removing left-over temporary directory: %s';
+  SDebugFailedToRemoveTempDir = 'Failed to remove temporary directory';
+  SDebugCodeCallStack = '%s Call Stack';
 
   SCompilerNeedCompiledExe = 'Cannot run Setup at this time. Please compile Setup successfully to completion first, with output enabled';
   SCompilerNeedUninstExe = 'Cannot run Uninstall at this time. Please run Setup successfully to completion first';
-  SCompilerExecuteSetupError2 = 'Error executing "%0:s":' + SNewLine2 + '%1:d: %2:s';
+  SCompilerExecuteSetupError2 = 'Error executing "%0:s":%n%n%1:d: %2:s';
   SCompilerAbortCompileConfirm = 'Are you sure you want to abort the compile?';
 
   SCompilerErrorFilePrefix = 'File %s:';
@@ -171,9 +183,9 @@ const
   SReplaceCount = '%d occurrence(s) replaced.';
 
   { File association }
-  SAssocSuccessCurrentUser = 'The .iss extension was successfully associated for the current user with:' + SNewLine + '%s';
-  SAssocSuccessAllUsers = 'The .iss extension was successfully associated for all users with:' + SNewLine + '%s';
-  SAssocError = 'Error creating file association:' + SNewLine + '%0:d - %1:s';
+  SAssocSuccessCurrentUser = 'The .%0:s extension was successfully associated for the current user with:%n%1:s';
+  SAssocSuccessAllUsers = 'The .%0:s extension was successfully associated for all users with:%n%1:s';
+  SAssocError = 'Error creating file association:%n%0:d - %1:s';
   SAssocUnableForAllUsers = 'Unable to associate for all users without administrative privileges. Do you want to associate only for yourself instead?';
   SAssocTitle = 'Associate';
   SAssocInnoSetupScript = 'Inno Setup Script';
@@ -202,7 +214,7 @@ const
   SMsgBoxDesignerButtonRetry = 'Retry';
   SMsgBoxDesignerButtonIgnore = 'Ignore';
   SMsgBoxDesignerButtonAbort = 'Abort';
-  SMsgBoxDesignerCommentDisplayMessageBox = '// Display a message box';
+  SMsgBoxDesignerCommentDisplayMessageBox = 'Display a message box';
 
   { Sign Tools }
   SSignToolNamePrompt = 'Name of the Sign Tool:';
@@ -252,15 +264,16 @@ const
   SStatusOverwrite = 'Overwrite';
   SStatusInsert = 'Insert';
   SStatusTabsClosed = 'Tabs closed: %d';
-  SStatusEstimatedTimeRemaining = ' Estimated time remaining: %0:.2d%1:s%2:.2d%3:s%4:.2d     Average KB/sec: %5:.0n';
+  SStatusEstimatedTimeRemaining = 'Estimated time remaining: %s';
+  SStatusAverage = 'Average KB/sec: %s';
 
   { File operations }
   SCompilerOpenFileErrorRemoveFromMRU = 'There was an error opening the file. Remove it from the list?';
-  SCompilerFileChangedSavePrompt = 'The text in the %s file has changed.' + SNewLine2 + 'Do you want to save the changes?';
+  SCompilerFileChangedSavePrompt = 'The text in the %s file has changed.%n%nDo you want to save the changes?';
   SCompilerStopCompileBeforeCommand = 'Please stop the compile process before performing this command.';
   SCompilerCompileAlreadyInProgress = 'A compile is already in progress.';
-  SCompilerIncludedFileChangedSavePrompt = 'The text in the %s file has changed and must be saved before compiling.' + SNewLine2 + 'Save the changes and continue?';
-  SCompilerSaveScriptBeforeCompile = 'Would you like to save the script before compiling?' + SNewLine2 + 'If you answer No, the compiled installation will be placed under your My Documents folder by default.';
+  SCompilerIncludedFileChangedSavePrompt = 'The text in the %s file has changed and must be saved before compiling.%n%nSave the changes and continue?';
+  SCompilerSaveScriptBeforeCompile = 'Would you like to save the script before compiling?%n%nIf you answer No, the compiled installation will be placed under your My Documents folder by default.';
   SCompilerIncludedFileOpenAsTab = 'The selected file is an %s file. Go to its tab instead of opening it as the new main file?';
   SCompilerIncludedFileNotAvailableAsTab = 'The selected file is not available as a tab. Opening as the new main file instead.';
   SCompilerSaveErrorCreateFile = 'Error creating file (code %d). Could not save file';
@@ -271,15 +284,15 @@ const
   SCompilerPrinterDocumentStartError = 'Can not start printer document.';
   SCompilerClearRecentFilesConfirm = 'Are you sure you want to clear the list of recently opened files?';
   SCompilerFileModifiedOutside = 'The %s file has been modified outside of the source editor. You might want to reload it.';
-  SCompilerFileModifiedReload = 'The %s file has been modified outside of the source editor.' + SNewLine2 + 'Do you want to reload the file?';
-  SCompilerFileModifiedReloadChanged = 'The %s file has been modified outside of the source editor. Changes have also been made in the source editor.' + SNewLine2 + 'Do you want to reload the file and lose the changes made in the source editor?';
+  SCompilerFileModifiedReload = 'The %s file has been modified outside of the source editor.%n%nDo you want to reload the file?';
+  SCompilerFileModifiedReloadChanged = 'The %s file has been modified outside of the source editor. Changes have also been made in the source editor.%n%nDo you want to reload the file and lose the changes made in the source editor?';
   SCompilerFileNotOpened = 'File not opened.';
   SGotoLineTitle = 'Go to Line';
   SGotoLinePrompt = 'Line number:';
 
   { License }
   SCompilerCopyLicenseKeyBeforePurchase = 'Do you want to copy your current license key to the clipboard before opening our order page? You will need it to be able to renew it.';
-  SCompilerLicenseRegisterSuccess = 'New commercial license key has been registered:' + SNewLine2 + '%s' + SNewLine2 + 'Thanks for your support!';
+  SCompilerLicenseRegisterSuccess = 'New commercial license key has been registered:%n%n%s%n%nThanks for your support!';
   SCompilerRemoveLicenseConfirm = 'Are you sure you want to remove your commercial license key and revert to non-commercial use only?';
   SCompilerLicenseKeyRemoved = 'Commercial license key has been removed.';
 
@@ -295,14 +308,14 @@ const
   { Debugger }
   SDebugTargetSetup = 'Setup';
   SDebugTargetUninstall = 'Uninstall';
-  SDebugExitCodeHex = '%0:s exit code: 0x%1:.8x';
-  SDebugExitCodeDecimal = '%0:s exit code: %1:u';
+  SDebugExitCodeHex = '%0:s exit code: 0x%1:s';
+  SDebugExitCodeDecimal = '%0:s exit code: %1:s';
   SDebugExitCodeGetFailed = 'Unable to get %0:s exit code (%1:s failed)';
   SDebugExitCodeStillRunning = '%s is still running; can''t get exit code';
   SDebugExitCodeWaitFailed = 'Unable to get %0:s exit code (%1:s failed)';
   SCompilerStopDebugTargetBeforeCommand = 'Please stop the running %s process before performing this command.';
   SCompilerDetachDebuggerConfirm = 'This command will detach the debugger from the running %s process. Continue?';
-  SCompilerModifiedWhileRunningWarning = 'The changes you made will not take effect until you re-compile.' + SNewLine2 + 'Continue running anyway?';
+  SCompilerModifiedWhileRunningWarning = 'The changes you made will not take effect until you re-compile.%n%nContinue running anyway?';
   SCompilerPauseAlreadyPending = 'A pause is already pending.';
   SCompilerNoCodeGeneratedForLine = 'No code was generated for the current line.';
   SCompilerTerminateTitle = 'Terminate';
@@ -317,14 +330,8 @@ const
   SEvaluateHintException = '%0:s = Exception: %1:s';
   SEvaluateHintUnknownError = '%s = Unknown error';
   SEvaluateHintUnknownError2 = 'Unknown error';
-  SRuntimeErrorLine = 'Line %0:d:' + SNewLine + '%1:s';
+  SRuntimeErrorLine = 'Line %0:d:%n%1:s';
   SRuntimeErrorTitle = 'Runtime Error';
-  SDebugTargetStarted = '*** %s started';
-  SDebugTerminatingProcess = '*** Terminating process';
-  SDebugRemovingTempDir = '*** Removing left-over temporary directory: %s';
-  SDebugFailedToRemoveTempDir = '*** Failed to remove temporary directory';
-  SDebugExitCodeText = '*** %s';
-  SDebugCodeCallStack = '*** [%s] Call Stack';
 
   { License - first 3 duplicated in Shared.LicenseFunc for ISCC }
   SLicenseeExpired = '%s (Update entitlement ended)';

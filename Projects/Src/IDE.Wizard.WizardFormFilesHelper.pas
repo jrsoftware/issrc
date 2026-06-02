@@ -163,7 +163,9 @@ var
 begin
   FileList := TStringList.Create;
   try
-    if NewGetOpenFileNameMulti('', FileList, '', LStr(SWizardAllFilesFilter), '', FForm.Handle) then begin
+    if NewGetOpenFileNameMulti('', FileList, '',
+         Format(SLitAllFilesFilter, [LStr(SAllFiles)]),
+         '', FForm.Handle) then begin
       FileList.Sort;
       for I := 0 to FileList.Count-1 do
         AddWizardFile(FileList[I], []);
@@ -275,7 +277,7 @@ begin
     WizardFile := FWizardFiles[I];
 
     if (foDownload in WizardFile.Options) and not AddedVerificationNote then begin
-      Files := Files + '; ' + LStrFmt(SWizardScriptCommentVerifyDownloads, ['issigverify', 'Hash']) + SNewLine;
+      Files := Files + SLitComment + LStrFmt(SWizardScriptCommentVerifyDownloads, ['issigverify', 'Hash']) + SNewLine;
       AddedVerificationNote := True;
     end;
 

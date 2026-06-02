@@ -34,6 +34,7 @@ begin
       raise Exception.Create('Internal error: LStr called with empty string');
   end;
   Result := Str; { Temporary }
+  Result := StringReplace(Result, '%n', #13#10, [rfReplaceAll]);
 end;
 
 function LStrFmt(const Str: String; const Args: array of const;

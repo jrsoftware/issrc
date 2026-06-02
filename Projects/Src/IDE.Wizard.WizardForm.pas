@@ -766,7 +766,9 @@ var
   FileName: String;
 begin
   FileName := AppExeEdit.Text;
-  if NewGetOpenFileName('', FileName, PathExtractPath(FileName), LStr(SWizardAppExeFilter), LStr(SWizardAppExeDefaultExt), Handle) then
+  if NewGetOpenFileName('', FileName, PathExtractPath(FileName),
+       Format(SLitExtAndAllFilter, [LStr(SExeFiles), SLitExeExt, LStr(SAllFiles)]),
+       SLitExeExt, Handle) then
     AppExeEdit.Text := FileName;
 end;
 
@@ -808,11 +810,11 @@ begin
     Edit := SetupIconFileEdit;
 
   if Sender <> SetupIconFileButton then begin
-    Filter := LStr(SWizardAppDocsFilter);
-    DefaultExt := LStr(SWizardAppDocsDefaultExt);
+    Filter := Format(SLitDocsAndAllFilter, [LStr(SDocFiles), LStr(SAllFiles)]);
+    DefaultExt := SLitRtfExt;
   end else begin
-    Filter := LStr(SWizardCompilerSetupIconFileFilter);
-    DefaultExt := LStr(SWizardCompilerSetupIconFileDefaultExt);
+    Filter := Format(SLitExtAndAllFilter, [LStr(SIcoFiles), SLitIcoExt, LStr(SAllFiles)]);
+    DefaultExt := SLitIcoExt;
   end;
 
   FileName := Edit.Text;
@@ -1003,8 +1005,8 @@ begin
   UninstallDelete := '[UninstallDelete]' + SNewLine;
 
   if not EmptyCheck.Checked then begin
-    Setup := Setup + '; ' + LStrFmt(SWizardScriptCommentUniqueAppId, ['AppId']) + SNewLine +
-      '; ' + LStr(SWizardScriptCommentGenerateGuid) + SNewLine;
+    Setup := Setup + SLitComment + LStrFmt(SWizardScriptCommentUniqueAppId, ['AppId']) + SNewLine +
+      SLitComment + LStr(SWizardScriptCommentGenerateGuid) + SNewLine;
     Setup := Setup + 'AppId={' + GenerateGuid + SNewLine;
     { AppInfo }
     Setup := Setup + 'AppName=' + AppNameEdit.Text + SNewLine;
@@ -1043,12 +1045,12 @@ begin
       if AppExeIsReallyExe then
         Setup := Setup + 'UninstallDisplayIcon={app}\' + AppExeName + SNewLine;
       if Is64BitPEImage(AppExeEdit.Text) then begin
-        Setup := Setup + '; ' + LStrFmt(SWizardScriptCommentArchitecturesAllowed, ['ArchitecturesAllowed=x64compatible']) + SNewLine;
+        Setup := Setup + SLitComment + LStrFmt(SWizardScriptCommentArchitecturesAllowed, ['ArchitecturesAllowed=x64compatible']) + SNewLine;
         Setup := Setup + 'ArchitecturesAllowed=x64compatible' + SNewLine;
-        Setup := Setup + '; ' + LStrFmt(SWizardScriptCommentArchitecturesInstallIn64BitMode1, ['ArchitecturesInstallIn64BitMode=x64compatible']) + SNewLine;
-        Setup := Setup + '; ' + LStr(SWizardScriptCommentArchitecturesInstallIn64BitMode2) + SNewLine;
+        Setup := Setup + SLitComment + LStrFmt(SWizardScriptCommentArchitecturesInstallIn64BitMode1, ['ArchitecturesInstallIn64BitMode=x64compatible']) + SNewLine;
+        Setup := Setup + SLitComment + LStr(SWizardScriptCommentArchitecturesInstallIn64BitMode2) + SNewLine;
         Setup := Setup + 'ArchitecturesInstallIn64BitMode=x64compatible' + SNewLine;
-        Setup := Setup + '; ' + LStr(SWizardScriptCommentChangeTo64BitInstaller) + SNewLine;
+        Setup := Setup + SLitComment + LStr(SWizardScriptCommentChangeTo64BitInstaller) + SNewLine;
         Setup := Setup + ';SetupArchitecture=x64' + SNewLine;
       end;
     end;
@@ -1057,8 +1059,8 @@ begin
     FFilesHelper.AddScript(Files, HasExtractArchive);
     if HasExtractArchive then begin
       Setup := Setup + 'ArchiveExtraction=full' + SNewLine;
-      Setup := Setup + '; ' + LStrFmt(SWizardScriptCommentArchiveExtractionEnhanced, ['ArchiveExtraction=enhanced']) + SNewLine;
-      Setup := Setup + '; ' + LStrFmt(SWizardScriptCommentArchiveExtractionEnhancedNoPassword, ['ArchiveExtraction=enhanced/nopassword']) + SNewLine;
+      Setup := Setup + SLitComment + LStrFmt(SWizardScriptCommentArchiveExtractionEnhanced, ['ArchiveExtraction=enhanced']) + SNewLine;
+      Setup := Setup + SLitComment + LStrFmt(SWizardScriptCommentArchiveExtractionEnhancedNoPassword, ['ArchiveExtraction=enhanced/nopassword']) + SNewLine;
     end;
 
     { AppAssocation }
@@ -1104,9 +1106,9 @@ begin
 
     { PrivilegesRequired }
     if PrivilegesRequiredAdminRadioButton.Checked then
-      Setup := Setup + '; ' + LStr(SWizardScriptCommentChangeToLowest) + SNewLine + ';'
+      Setup := Setup + SLitComment + LStr(SWizardScriptCommentChangeToLowest) + SNewLine + ';'
     else
-      Setup := Setup + '; ' + LStr(SWizardScriptCommentChangeToAdmin) + SNewLine;
+      Setup := Setup + SLitComment + LStr(SWizardScriptCommentChangeToAdmin) + SNewLine;
     Setup := Setup + 'PrivilegesRequired=lowest' + SNewLine; { Note how previous made sure this is outputted as comment if needed. }
     if PrivilegesRequiredOverridesAllowedDialogCheckbox.Checked then
       Setup := Setup + 'PrivilegesRequiredOverridesAllowed=dialog' + SNewLine
@@ -1176,7 +1178,7 @@ begin
     if Length(Tasks) > Length('[Tasks]')+2 then
       Script := Script + Tasks + SNewLine;
     if Length(Files) > Length('[Files]')+2 then
-      Script := Script + Files + '; ' + LStrFmt(SWizardScriptCommentSharedSystemFiles, ['Flags: ignoreversion']) + SNewLine2;
+      Script := Script + Files + SLitComment + LStrFmt(SWizardScriptCommentSharedSystemFiles, ['Flags: ignoreversion']) + SNewLine2;
     if Length(Registry) > Length('[Registry]')+2 then
       Script := Script + Registry + SNewLine;
     if Length(INI) > Length('[INI]')+2 then
@@ -1194,9 +1196,10 @@ begin
     FResult := wrEmpty;
   end;
 
-  FResultScript := FixLabel(LStrFmt(SWizardScriptHeader, ['[name]'])) + SNewLine;
+  FResultScript := SLitComment + FixLabel(LStrFmt(SWizardScriptHeader1, ['[name]'])) + SNewLine +
+    SLitComment + LStr(SWizardScriptHeader2) + SNewLine;
   if (FResult = wrComplete) and not IsLicensed then
-    FResultScript := FResultScript + '; ' + AddPeriod(GetLicenseeDescription) + SNewLine;
+    FResultScript := FResultScript + SLitComment + AddPeriod(GetLicenseeDescription) + SNewLine;
   FResultScript := FResultScript + SNewLine + Script;
 end;
 

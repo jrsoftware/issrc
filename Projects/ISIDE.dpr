@@ -179,7 +179,19 @@ procedure CheckParams;
 
   procedure Error;
   begin
-    MessageBox(0, PChar(LStr(SCompilerCommandLineHelp3)), PChar(LStr(SCompilerFormCaption)),
+    const CommandLineHelp = '%0:s' + SNewLine2 +
+      'iside /cc <%1:s>' + SNewLine +
+      'iside /wizard <%2:s> <%1:s>' + SNewLine2 +
+      '%3:s' + SNewLine +
+      'iside /cc c:\isetup\sample32\sample1.iss' + SNewLine +
+      'iside /cc "C:\Inno Setup\Sample32\%4:s.iss"' + SNewLine +
+      'iside /wizard "%5:s" c:\temp.iss';
+    MessageBox(0, PChar(Format(CommandLineHelp,
+      [LStr(SCompilerCommandLineHelpUsage), LStr(SCompilerCommandLineHelpScriptFile),
+       LStr(SCompilerCommandLineHelpWizardName), LStr(SCompilerCommandLineHelpExamples),
+       LStr(SCompilerCommandLineHelpMyScript),
+       LStr(SCompilerCommandLineHelpMyScriptWizard)])),
+      PChar(LStr(SCompilerFormCaption)),
       MB_OK or MB_ICONEXCLAMATION);
     Halt(1);
   end;

@@ -117,7 +117,8 @@ var
   AllUsers: Boolean;
 begin
   if RegisterISSFileAssociation(True, AllUsers) then
-    MsgBox(LStrFmt(SuccessMessages[AllUsers], [NewParamStr(0)]), LStr(SAssocTitle), mbInformation, MB_OK);
+    MsgBox(LStrFmt(SuccessMessages[AllUsers], [SLitIssExt, NewParamStr(0)]),
+      LStr(SAssocTitle), mbInformation, MB_OK);
 end;
 
 procedure TOptionsForm.ChangeFontButtonClick(Sender: TObject);

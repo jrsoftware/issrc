@@ -600,7 +600,7 @@ var
       on EOutOfResources do begin
         ListBox.Clear;
         SendMessage(ListBox.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-        ListBox.Items.Add(LStr(SCompilerStatusReset));
+        ListBox.Items.Add(SLitStatusEventPrefix + LStr(SCompilerStatusReset));
         ListBox.TopIndex := ListBox.Items.AddObject(S, AObject);
       end;
     end;

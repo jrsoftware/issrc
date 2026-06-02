@@ -1265,7 +1265,7 @@ begin
   var SL := TStringList.Create;
   try
     SL.Text := Text;
-    SL.Insert(0, LStr(SMsgBoxDesignerCommentDisplayMessageBox));
+    SL.Insert(0, SLitCodeComment + LStr(SMsgBoxDesignerCommentDisplayMessageBox));
     for var I := 0 to SL.Count-1 do
       SL[I] := TextTab + SL[I];
     Result := SL.Text;
