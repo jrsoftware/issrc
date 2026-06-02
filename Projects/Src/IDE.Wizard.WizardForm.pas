@@ -388,6 +388,14 @@ begin
   EncryptionCheck.Checked := True;
   EncryptionCheck.Enabled := False;
 
+  { WizardStyle }
+  WizardStyleMainComboBox.Items.AddStrings(['classic', 'modern']);
+  WizardStyleMainComboBox.ItemIndex := 1;
+  WizardStyleDarkComboBox.Items.AddStrings(['light', 'dark', 'dynamic']);
+  WizardStyleDarkComboBox.ItemIndex := 2;
+  WizardStyleSubStyleComboBox.Items.AddStrings(['default', 'polar', 'slate', 'stellar', 'windows11', 'zircon']);
+  WizardStyleSubStyleComboBox.ItemIndex := 0;
+
   { ISPP }
   ISPPLabel.Caption := FixLabel(LFmtMessage(SWizardISPPLabel, ['[name]', '#define']));
   ISPPCheck.Caption := LFmtMessage(SWizardISPPCheck, ['#define']);

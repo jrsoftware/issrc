@@ -1355,13 +1355,8 @@ object WizardForm: TWizardForm
             Style = csDropDownList
             Anchors = [akLeft, akTop, akRight]
             DropDownCount = 12
-            ItemIndex = 1
             TabOrder = 1
-            Text = 'modern'
             OnChange = WizardStyleComboBoxChange
-            Items.Strings = (
-              'classic'
-              'modern')
           end
           object WizardStyleDarkComboBox: TComboBox
             Left = 173
@@ -1371,14 +1366,8 @@ object WizardForm: TWizardForm
             Style = csDropDownList
             Anchors = [akTop, akRight]
             DropDownCount = 12
-            ItemIndex = 2
             TabOrder = 2
-            Text = 'dynamic'
             OnChange = WizardStyleComboBoxChange
-            Items.Strings = (
-              'light'
-              'dark'
-              'dynamic')
           end
           object WizardStyleSubStyleComboBox: TComboBox
             Left = 311
@@ -1388,17 +1377,8 @@ object WizardForm: TWizardForm
             Style = csDropDownList
             Anchors = [akTop, akRight]
             DropDownCount = 12
-            ItemIndex = 0
             TabOrder = 3
-            Text = 'default'
             OnChange = WizardStyleComboBoxChange
-            Items.Strings = (
-              'default'
-              'polar'
-              'slate'
-              'stellar'
-              'windows11'
-              'zircon')
           end
         end
         object ISPPPage: TNewNotebookPage
