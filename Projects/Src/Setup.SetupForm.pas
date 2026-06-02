@@ -6,7 +6,7 @@ unit Setup.SetupForm;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  TSetupForm
+  TSetupForm, a TUIStateForm descendant
 
   Also used by UninstallProgressForm and UninstallSharedFileForm!
 
