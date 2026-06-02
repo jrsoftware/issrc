@@ -1114,7 +1114,7 @@ begin
   UpdatePreprocMemos;
 
   FDebugTarget := dtSetup;
-  UpdateTargetMenu;
+  UpdateTargetMenuItems;
 
   ReadLicense;
   UpdateCaption;
@@ -1563,7 +1563,7 @@ begin
   FUninstExe := '';
   if FDebugTarget <> dtSetup then begin
     FDebugTarget := dtSetup;
-    UpdateTargetMenu;
+    UpdateTargetMenuItems;
   end;
   FHiddenFiles.Clear;
   InvalidateStatusPanel(spHiddenFilesCount);
@@ -6314,7 +6314,7 @@ begin
     FDebugTarget := NewTarget;
 
   { Update always even if the user decided not to switch so the states are restored }
-  UpdateTargetMenu;
+  UpdateTargetMenuItems;
 end;
 
 procedure TMainForm.AppOnActivate(Sender: TObject);

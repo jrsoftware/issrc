@@ -32,7 +32,7 @@ type
     procedure UpdateRunMenu;
     procedure UpdateRunMenu2(const Menu: TMenuItem);
     procedure UpdateBreakPointsMenu(const Menu: TMenuItem);
-    procedure UpdateTargetMenu;
+    procedure UpdateTargetMenuItems;
     { Private }
     procedure _UpdateMenuBitmapsIfNeeded;
     procedure _ApplyMenuBitmapsAndNewShortCutText(const ParentMenuItem: TMenuItem);
@@ -512,7 +512,7 @@ begin
   _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;
 
-procedure TMainFormUpdateMenuHelper.UpdateTargetMenu;
+procedure TMainFormUpdateMenuHelper.UpdateTargetMenuItems;
 begin
   if FDebugTarget = dtSetup then begin
     RTargetSetup.Checked := True;
