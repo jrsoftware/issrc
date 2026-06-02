@@ -26,6 +26,7 @@ const
   SLitRtfExt = 'rtf';
   SLitRegExt = 'reg';
   SLitIcoExt = 'ico';
+  SLit7zExt  = '7z';
   SLitExtAndAllFilter = '%0:s (*.%1:s)|*.%1:s|%2:s|*.*';
   SLitDocsAndAllFilter = '%s (*.rtf,*.txt)|*.rtf;*.txt|%s|*.*';
   SLitAllFilesFilter = '%s|*.*';
@@ -125,7 +126,7 @@ const
   SWizardScriptCommentArchitecturesInstallIn64BitMode1 = '"%1" requests that the install be done in "64-bit mode" on x64 or Windows 11 on Arm.';
   SWizardScriptCommentArchitecturesInstallIn64BitMode2 = 'This means it should use the native 64-bit Program Files directory and the 64-bit view of the registry.';
   SWizardScriptCommentChangeTo64BitInstaller = 'Uncomment the following line to use a 64-bit installer.';
-  SWizardScriptCommentArchiveExtractionEnhanced = 'Use "%1" if all your archives are .7z files.';
+  SWizardScriptCommentArchiveExtractionEnhanced = 'Use "%1" if all your archives are .%2 files.';
   SWizardScriptCommentArchiveExtractionEnhancedNoPassword = 'Use "%1" if all your archives are not password-protected.';
   SWizardScriptCommentChangeToLowest = 'Uncomment the following line to run in non administrative install mode (install for current user only).';
   SWizardScriptCommentChangeToAdmin = 'Remove the following line to run in administrative install mode (install for all users).';
@@ -152,8 +153,8 @@ const
   SWizardDirCustom = '(Custom)';
 
   { Status messages }
-  SCompilerStatusStarting = 'Starting compile.  [%1]';
-  SCompilerStatusFinished = 'Finished.  [%1, %2 elapsed]';
+  SCompilerStatusStarting = 'Starting compile.%1[%2]';
+  SCompilerStatusFinished = 'Finished.%1[%2, %3 elapsed]';
   SCompilerStatusErrorAborted = 'Compile aborted.';
   SCompilerStatusReset = 'Log size limit reached, list reset.';
   SDebugTargetStarted = '%1 started';
@@ -177,7 +178,7 @@ const
   { Find & Replace }
   SFindNotFound = 'Cannot find "%1"';
   SFindInvalidRegEx = 'Invalid regular expression "%1"';
-  SFindResultLinePrefix = '  Line %1: ';
+  SFindResultLinePrefix = 'Line %1:';
   SFindResultFileHeader = '%1 (%2 hits):';
   SFindResultSummary = 'Find "%1" (%2 hits in %3 files)';
   SReplaceCount = '%1 occurrence(s) replaced.';
@@ -199,11 +200,10 @@ const
   { MsgBox Designer }
   SMsgBoxDesignerPreviewCaption = 'Setup';
   SMsgBoxDesignerDefaultText = 'Your message text.';
-  SMsgBoxDesignerDefaultInputText = '<Enter your text here...>';
-  SMsgBoxDesignerReturnValues = ' Return values ';
-  SMsgBoxDesignerReturnValuesDefault = ' Return values /  -------  / Default ';
-  SMsgBoxDesignerReturnValuesShield = ' Return values /  Shield ';
-  SMsgBoxDesignerReturnValuesShieldDefault = ' Return values /  Shield  / Default ';
+  SMsgBoxDesignerDefaultInputText = 'Enter your text here...';
+  SMsgBoxDesignerReturnValues = 'Return values';
+  SMsgBoxDesignerReturnValuesDefault = 'Default';
+  SMsgBoxDesignerReturnValuesShield = 'Shield';
   SMsgBoxDesignerInstructionText = 'Instruction Text';
   SMsgBoxDesignerMessageText = 'Message Text';
   SMsgBoxDesignerUserClicked = 'user clicked %1';
@@ -281,7 +281,7 @@ const
   SCompilerSaveErrorRemoveExisting = 'Error removing existing file (code %1). Could not save file';
   SCompilerSaveErrorRenameTemp = 'Error renaming temporary file (code %1). Could not save file';
   SCompilerStatusFailedToOpenIncludedFile = 'Failed to open included file: %1';
-  SCompilerPrinterDocumentStartError = 'Can not start printer document.';
+  SCompilerPrinterDocumentStartError = 'Cannot start printer document.';
   SCompilerClearRecentFilesConfirm = 'Are you sure you want to clear the list of recently opened files?';
   SCompilerFileModifiedOutside = 'The %1 file has been modified outside of the source editor. You might want to reload it.';
   SCompilerFileModifiedReload = 'The %1 file has been modified outside of the source editor.%n%nDo you want to reload the file?';
@@ -322,7 +322,7 @@ const
   SCompilerTerminateProcessConfirm = 'This will unconditionally terminate the running %1 process. Continue?';
   SCompilerTerminateProcessSetupNote = 'Note that if %1 is currently in the installation phase, any changes made to the system thus far will not be undone, nor will uninstall data be written.';
   SEvaluateTitle = 'Evaluate';
-  SEvaluatePrompt = 'Constant to evaluate (e.g., "%1"):';
+  SEvaluatePrompt = 'Constant to evaluate (for example, "%1"):';
   SEvaluateResultTitle = 'Evaluate Result';
   SEvaluateErrorTitle = 'Evaluate Error';
   SEvaluateUnknownError = 'An unknown error occurred.';

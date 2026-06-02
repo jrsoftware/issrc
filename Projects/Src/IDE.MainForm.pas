@@ -2334,7 +2334,7 @@ begin
     end;
 
     StartTime := GetTickCount;
-    StatusMessage(smkStartEnd, SLitStatusEventPrefix + LFmtMessage(SCompilerStatusStarting, [TimeToStr(Time)]));
+    StatusMessage(smkStartEnd, SLitStatusEventPrefix + LFmtMessage(SCompilerStatusStarting, ['  ', TimeToStr(Time)]));
     StatusMessage(smkStartEnd, '');
     FCompiling := True;
     FCompileWantAbort := False;
@@ -2374,7 +2374,7 @@ begin
     end;
     ElapsedTime := GetTickCount - StartTime;
     ElapsedSeconds := ElapsedTime div 1000;
-    StatusMessage(smkStartEnd, SLitStatusEventPrefix + LFmtMessage(SCompilerStatusFinished, [TimeToStr(Time),
+    StatusMessage(smkStartEnd, SLitStatusEventPrefix + LFmtMessage(SCompilerStatusFinished, ['  ', TimeToStr(Time),
       Format('%.2u%s%.2u%s%.3u', [ElapsedSeconds div 60, FormatSettings.TimeSeparator,
         ElapsedSeconds mod 60, FormatSettings.DecimalSeparator, ElapsedTime mod 1000])]));
   finally

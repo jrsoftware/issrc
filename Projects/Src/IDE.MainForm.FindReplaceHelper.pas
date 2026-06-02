@@ -87,6 +87,11 @@ begin
   end;
 end;
 
+function FindResultLinePrefix(const LineNumber: Integer): String;
+begin
+  Result := '  ' + LFmtMessage(SFindResultLinePrefix, [LineNumber]) + ' ';
+end;
+
 {  TMainFormFindReplaceHelper }
 
 procedure TMainFormFindReplaceHelper._InitializeFindText(Dlg: TFindDialog);
@@ -223,7 +228,7 @@ begin
               FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
         { Also see UpdateFindResult }
         var Line := Memo.GetLineFromPosition(Range.StartPos);
-        var Prefix := LFmtMessage(SFindResultLinePrefix, [Line+1]);
+        var Prefix := FindResultLinePrefix(Line+1);
         var FindResult := TFindResult.Create;
         FindResult.Filename := Memo.Filename;
         FindResult.Line := Line;
@@ -262,9 +267,9 @@ procedure TMainFormFindReplaceHelper.UpdateFindResult(const FindResult: TFindRes
   const NewLine, NewLineStartPos: Integer);
 begin
   { Also see DoFindInFilesDialogFind }
-  const OldPrefix = LFmtMessage(SFindResultLinePrefix, [FindResult.Line+1]);
+  const OldPrefix = FindResultLinePrefix(FindResult.Line+1);
   FindResult.Line := NewLine;
-  const NewPrefix = LFmtMessage(SFindResultLinePrefix, [FindResult.Line+1]);
+  const NewPrefix = FindResultLinePrefix(FindResult.Line+1);
   FindResultsList.Items[ItemIndex] := NewPrefix + Copy(FindResultsList.Items[ItemIndex], Length(OldPrefix)+1, MaxInt);
   const PosChange = NewLineStartPos - FindResult.LineStartPos;
   FindResult.LineStartPos := NewLineStartPos;

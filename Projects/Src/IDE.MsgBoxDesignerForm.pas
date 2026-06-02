@@ -116,6 +116,20 @@ uses
 
 {$R *.DFM}
 
+function GroupBox4Caption(const IncludeShield, IncludeDefault: Boolean): String;
+begin
+  Result := ' ' + LFmtMessage(SMsgBoxDesignerReturnValues) + ' ';
+  if IncludeShield then
+    Result := Result + '/  ' + LFmtMessage(SMsgBoxDesignerReturnValuesShield) + ' ';
+  if IncludeDefault then begin
+    if IncludeShield then
+      Result := Result + ' / '
+    else
+      Result := Result + '/  -------  / ';
+    Result := Result + LFmtMessage(SMsgBoxDesignerReturnValuesDefault) + ' ';
+  end;
+end;
+
 procedure TMsgBoxDesignerForm.FormCreate(Sender: TObject);
 begin
   IMGmbInformation.InitializeFromStockIcon(SIID_INFO, clNone, [32, 48, 64]);
@@ -124,7 +138,7 @@ begin
   IMGmbCriticalError.InitializeFromStockIcon(SIID_ERROR, clNone, [32, 48, 64]);
 
   cb_Suppressible.Checked := True;
-  MSGText.Text := LFmtMessage(SMsgBoxDesignerDefaultInputText);
+  MSGText.Text := '<' + LFmtMessage(SMsgBoxDesignerDefaultInputText) + '>';
   MSGText.SelectAll;
   cb_IDCANCEL.Enabled := False;
   cb_IDABORT.Enabled := False;
@@ -547,7 +561,7 @@ begin
    cb_MB_SETFOREGROUND.Checked := False;
    GroupBox1.Visible := True;
    if not cb_Suppressible.Checked then begin
-      GroupBox4.Caption := LFmtMessage(SMsgBoxDesignerReturnValues);
+      GroupBox4.Caption := GroupBox4Caption(False, False);
       cb_DefIDOK.Visible := False;
       cb_DefIDCANCEL.Visible := False;
       cb_DefIDYES.Visible := False;
@@ -557,7 +571,7 @@ begin
       cb_DefIDIGNORE.Visible := False;
    end
    else begin
-     GroupBox4.Caption := LFmtMessage(SMsgBoxDesignerReturnValuesDefault);
+     GroupBox4.Caption := GroupBox4Caption(False, True);
      cb_DefIDOK.Visible := True;
      cb_DefIDCANCEL.Visible := True;
      cb_DefIDYES.Visible := True;
@@ -606,9 +620,9 @@ begin
      cb_DefIDRETRY.Visible := True;
      cb_DefIDIGNORE.Visible := True;
      if cb_MsgBox.Checked then
-        GroupBox4.Caption := LFmtMessage(SMsgBoxDesignerReturnValuesDefault);
+        GroupBox4.Caption := GroupBox4Caption(False, True);
      if cb_TaskDialogMsgBox.Checked then
-        GroupBox4.Caption := LFmtMessage(SMsgBoxDesignerReturnValuesShieldDefault);
+        GroupBox4.Caption := GroupBox4Caption(True, True);
    end
    else begin
      cb_DefIDOK.Checked := False;
@@ -626,9 +640,9 @@ begin
      cb_DefIDRETRY.Visible := False;
      cb_DefIDIGNORE.Visible := False;
      if cb_MsgBox.Checked then
-        GroupBox4.Caption := LFmtMessage(SMsgBoxDesignerReturnValues);
+        GroupBox4.Caption := GroupBox4Caption(False, False);
      if cb_TaskDialogMsgBox.Checked then
-        GroupBox4.Caption := LFmtMessage(SMsgBoxDesignerReturnValuesShield);
+        GroupBox4.Caption := GroupBox4Caption(True, False);
    end;
    if rbMB_OK.Checked then rbMB_OKClick(Self);
    if rbMB_OKCANCEL.Checked then rbMB_OKCANCELClick(Self);
@@ -645,7 +659,7 @@ begin
    cb_MB_SETFOREGROUND.Checked := False;
    GroupBox1.Visible := False;
    if not cb_Suppressible.Checked then begin
-     GroupBox4.Caption := LFmtMessage(SMsgBoxDesignerReturnValuesShield);
+     GroupBox4.Caption := GroupBox4Caption(True, False);
       cb_DefIDOK.Visible := False;
       cb_DefIDCANCEL.Visible := False;
       cb_DefIDYES.Visible := False;
@@ -655,7 +669,7 @@ begin
       cb_DefIDIGNORE.Visible := False;
    end
    else begin
-     GroupBox4.Caption := LFmtMessage(SMsgBoxDesignerReturnValuesShieldDefault);
+     GroupBox4.Caption := GroupBox4Caption(True, True);
      cb_DefIDOK.Visible := True;
      cb_DefIDCANCEL.Visible := True;
      cb_DefIDYES.Visible := True;

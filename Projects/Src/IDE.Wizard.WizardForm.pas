@@ -1059,7 +1059,7 @@ begin
     FFilesHelper.AddScript(Files, HasExtractArchive);
     if HasExtractArchive then begin
       Setup := Setup + 'ArchiveExtraction=full' + SNewLine;
-      Setup := Setup + SLitComment + LFmtMessage(SWizardScriptCommentArchiveExtractionEnhanced, ['ArchiveExtraction=enhanced']) + SNewLine;
+      Setup := Setup + SLitComment + LFmtMessage(SWizardScriptCommentArchiveExtractionEnhanced, ['ArchiveExtraction=enhanced', SLit7zExt]) + SNewLine;
       Setup := Setup + SLitComment + LFmtMessage(SWizardScriptCommentArchiveExtractionEnhancedNoPassword, ['ArchiveExtraction=enhanced/nopassword']) + SNewLine;
     end;
 
