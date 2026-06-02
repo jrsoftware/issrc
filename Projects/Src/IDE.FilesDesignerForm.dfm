@@ -2,7 +2,7 @@ object FilesDesignerForm: TFilesDesignerForm
   Left = 624
   Top = 375
   BorderStyle = bsDialog
-  Caption = '[Files] Entries Designer'
+  Caption = '%1 Entries Designer'
   ClientHeight = 403
   ClientWidth = 575
   Color = clBtnFace
@@ -109,7 +109,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Top = 8
     Width = 253
     Height = 17
-    Caption = '&Script has CreateAppDir=no'
+    Caption = '&Script has %1'
     TabOrder = 8
   end
   object AppFilesAddDownloadButton: TButton

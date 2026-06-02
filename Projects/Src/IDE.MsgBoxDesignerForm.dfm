@@ -2,7 +2,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
   Left = 0
   Top = 0
   BorderStyle = bsDialog
-  Caption = 'MsgBox/TaskDialogMsgBox Call Designer'
+  Caption = '%1 Call Designer'
   ClientHeight = 380
   ClientWidth = 562
   Color = clBtnFace
@@ -139,7 +139,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Top = 13
       Width = 115
       Height = 17
-      Caption = 'MsgBox'
+      Caption = '*'
       Checked = True
       TabOrder = 1
       TabStop = True
@@ -150,7 +150,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Top = 36
       Width = 122
       Height = 17
-      Caption = 'TaskDialogMsgBox'
+      Caption = '*'
       TabOrder = 2
       TabStop = True
       OnClick = cb_TaskDialogMsgBoxClick
@@ -199,7 +199,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Top = 24
       Width = 157
       Height = 17
-      Caption = 'MB_SETFOREGROUND'
+      Caption = '*'
       TabOrder = 2
     end
   end
@@ -244,7 +244,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Width = 110
       Height = 17
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'mbInformation'
+      Caption = '*'
       Checked = True
       TabOrder = 0
       TabStop = True
@@ -255,7 +255,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Width = 110
       Height = 17
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'mbConfirmation'
+      Caption = '*'
       TabOrder = 1
       TabStop = True
     end
@@ -265,7 +265,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Width = 110
       Height = 17
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'mbError'
+      Caption = '*'
       TabOrder = 2
       TabStop = True
     end
@@ -275,7 +275,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Width = 110
       Height = 17
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'mbCriticalError'
+      Caption = '*'
       TabOrder = 3
       TabStop = True
     end
@@ -297,7 +297,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Width = 160
       Height = 17
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'MB_OK'
+      Caption = '*'
       Checked = True
       TabOrder = 0
       TabStop = True
@@ -309,7 +309,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Width = 160
       Height = 17
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'MB_OKCANCEL'
+      Caption = '*'
       TabOrder = 1
       TabStop = True
       OnClick = rbMB_OKCANCELClick
@@ -320,7 +320,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Width = 160
       Height = 17
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'MB_YESNO'
+      Caption = '*'
       TabOrder = 2
       TabStop = True
       OnClick = rbMB_YESNOClick
@@ -331,7 +331,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Width = 160
       Height = 17
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'MB_YESNOCANCEL'
+      Caption = '*'
       TabOrder = 3
       TabStop = True
       OnClick = rbMB_YESNOCANCELClick
@@ -342,7 +342,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Width = 160
       Height = 17
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'MB_RETRYCANCEL'
+      Caption = '*'
       TabOrder = 4
       TabStop = True
       OnClick = rbMB_RETRYCANCELClick
@@ -353,7 +353,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Width = 160
       Height = 17
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'MB_ABORTRETRYIGNORE'
+      Caption = '*'
       TabOrder = 5
       TabStop = True
       OnClick = rbMB_ABORTRETRYIGNOREClick
@@ -372,7 +372,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Top = 23
       Width = 80
       Height = 17
-      Caption = 'IDOK'
+      Caption = '*'
       TabOrder = 0
     end
     object cb_IDCANCEL: TCheckBox
@@ -380,7 +380,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Top = 42
       Width = 80
       Height = 17
-      Caption = 'IDCANCEL'
+      Caption = '*'
       TabOrder = 1
     end
     object cb_IDYES: TCheckBox
@@ -388,7 +388,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Top = 62
       Width = 80
       Height = 17
-      Caption = 'IDYES'
+      Caption = '*'
       TabOrder = 2
     end
     object cb_IDNO: TCheckBox
@@ -396,7 +396,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Top = 82
       Width = 80
       Height = 17
-      Caption = 'IDNO'
+      Caption = '*'
       TabOrder = 3
     end
     object cb_IDABORT: TCheckBox
@@ -404,7 +404,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Top = 102
       Width = 80
       Height = 17
-      Caption = 'IDABORT'
+      Caption = '*'
       TabOrder = 4
     end
     object cb_IDRETRY: TCheckBox
@@ -412,7 +412,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Top = 122
       Width = 80
       Height = 17
-      Caption = 'IDRETRY'
+      Caption = '*'
       TabOrder = 5
     end
     object cb_IDIGNORE: TCheckBox
@@ -420,7 +420,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Top = 142
       Width = 80
       Height = 17
-      Caption = 'IDIGNORE'
+      Caption = '*'
       TabOrder = 6
     end
     object rb_IDOK: TCheckBox

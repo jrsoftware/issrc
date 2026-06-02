@@ -132,6 +132,31 @@ end;
 
 procedure TMsgBoxDesignerForm.FormCreate(Sender: TObject);
 begin
+  { Finish localization: LocalizeComponent translated every property, but some
+    still contain an unfilled %1 etc., which we now replace }
+  Caption := LFmtMessage(Caption, ['MsgBox/TaskDialogMsgBox']);
+  { Also, all these should not be localized, so are kept out of the .dfm }
+  cb_MsgBox.Caption := 'MsgBox';
+  cb_TaskDialogMsgBox.Caption := 'TaskDialogMsgBox';
+  cb_MB_SETFOREGROUND.Caption := 'MB_SETFOREGROUND';
+  rb_mbInformation.Caption := 'mbInformation';
+  rb_mbConfirmation.Caption := 'mbConfirmation';
+  rb_mbError.Caption := 'mbError';
+  rb_mbCriticalError.Caption := 'mbCriticalError';
+  rbMB_OK.Caption := 'MB_OK';
+  rbMB_OKCANCEL.Caption := 'MB_OKCANCEL';
+  rbMB_YESNO.Caption := 'MB_YESNO';
+  rbMB_YESNOCANCEL.Caption := 'MB_YESNOCANCEL';
+  rbMB_RETRYCANCEL.Caption := 'MB_RETRYCANCEL';
+  rbMB_ABORTRETRYIGNORE.Caption := 'MB_ABORTRETRYIGNORE';
+  cb_IDOK.Caption := 'IDOK';
+  cb_IDCANCEL.Caption := 'IDCANCEL';
+  cb_IDYES.Caption := 'IDYES';
+  cb_IDNO.Caption := 'IDNO';
+  cb_IDABORT.Caption := 'IDABORT';
+  cb_IDRETRY.Caption := 'IDRETRY';
+  cb_IDIGNORE.Caption := 'IDIGNORE';
+
   IMGmbInformation.InitializeFromStockIcon(SIID_INFO, clNone, [32, 48, 64]);
   IMGmbConfirmation.InitializeFromStockIcon(SIID_HELP, clNone, [32, 48, 64]);
   IMGmbError.InitializeFromStockIcon(SIID_WARNING, clNone, [32, 48, 64]);

@@ -2,7 +2,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
   Left = 298
   Top = 273
   BorderStyle = bsDialog
-  Caption = '[Registry] Entries Designer'
+  Caption = '%1 Entries Designer'
   ClientHeight = 347
   ClientWidth = 496
   Color = clBtnFace
@@ -85,7 +85,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Top = 18
     Width = 170
     Height = 14
-    Caption = '&Windows registry file (.reg) to import:'
+    Caption = '&Windows registry file (.%1) to import:'
     FocusControl = AppRegistryFileEdit
     TabOrder = 0
   end

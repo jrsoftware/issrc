@@ -86,6 +86,12 @@ uses
 
 procedure TOptionsForm.FormCreate(Sender: TObject);
 begin
+  { Finish localization: LocalizeComponent translated every property, but some
+    still contain an unfilled %1 etc., which we now replace }
+  OpenIncludedFilesCheck.Caption := LFmtMessage(OpenIncludedFilesCheck.Caption, ['#include']);
+  AutoHideNewIncludedFilesCheck.Caption := LFmtMessage(AutoHideNewIncludedFilesCheck.Caption, ['#include']);
+  AssocButton.Caption := LFmtMessage(AssocButton.Caption, [SLitIssExt]);
+
   { Order must match IDE.HelperFunc.TKeyMappingType }
   KeyMappingComboBox.Items.Add(LFmtMessage(SOptionsKeyMappingDelphi));
   KeyMappingComboBox.Items.Add(LFmtMessage(SOptionsKeyMappingVisualStudio));

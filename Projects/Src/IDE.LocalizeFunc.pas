@@ -27,7 +27,11 @@ uses
   NewTabSet;
 
 function FmtIDEMessage(S: PChar; const Args: array of const): String;
-{ Same Setup's FmtMessage, but takes an array of const and replaces %n }
+{ Same as Setup's FmtMessage, but takes an array of const and replaces %n.
+  Important property: %1, %2, etc. with no matching argument stay
+  unchanged, so it is possible to first call FmtIDEMessage on a string
+  without supplying the arguments, and then later call it a second
+  time. This is used for .dfm strings having %1, etc. }
 
   function ArgToStr(const Arg: TVarRec): String;
   begin

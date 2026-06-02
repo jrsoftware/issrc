@@ -235,7 +235,7 @@ object MainForm: TMainForm
       object NewMainFileButton: TToolButton
         Left = 54
         Top = 0
-        Hint = 'New Main Script (Ctrl+N)'
+        Hint = 'New Main Script (%1)'
         ImageIndex = 0
         ImageName = 'document-new'
         OnClick = FNewMainFileClick
@@ -243,7 +243,7 @@ object MainForm: TMainForm
       object OpenMainFileButton: TToolButton
         Left = 77
         Top = 0
-        Hint = 'Open Main Script (Ctrl+O)'
+        Hint = 'Open Main Script (%1)'
         ImageIndex = 1
         ImageName = 'folder-open-filled-arrow-down-right'
         OnClick = FOpenMainFileClick
@@ -251,7 +251,7 @@ object MainForm: TMainForm
       object SaveButton: TToolButton
         Left = 100
         Top = 0
-        Hint = 'Save (Ctrl+S)'
+        Hint = 'Save (%1)'
         ImageIndex = 2
         ImageName = 'save-filled'
         OnClick = FSaveClick
@@ -272,7 +272,7 @@ object MainForm: TMainForm
       object StopCompileButton: TToolButton
         Left = 154
         Top = 0
-        Hint = 'Stop Compile (Esc)'
+        Hint = 'Stop Compile (%1)'
         Enabled = False
         ImageIndex = 4
         ImageName = 'build-cancel-2'
@@ -317,7 +317,7 @@ object MainForm: TMainForm
       object TargetSetupButton: TToolButton
         Left = 262
         Top = 0
-        Hint = 'Target Setup (Ctrl+Q)'
+        Hint = 'Target Setup (%1)'
         Grouped = True
         ImageIndex = 7
         ImageName = 'install'
@@ -327,7 +327,7 @@ object MainForm: TMainForm
       object TargetUninstallButton: TToolButton
         Left = 285
         Top = 0
-        Hint = 'Target Uninstall (Alt+Q)'
+        Hint = 'Target Uninstall (%1)'
         Grouped = True
         ImageIndex = 8
         ImageName = 'uninstall'
@@ -343,7 +343,7 @@ object MainForm: TMainForm
       object HelpButton: TToolButton
         Left = 316
         Top = 0
-        Hint = 'Help (F1)'
+        Hint = 'Help (%1)'
         ImageIndex = 9
         ImageName = 'button-help'
         OnClick = HDocClick
@@ -410,9 +410,7 @@ object MainForm: TMainForm
       Top = 13
       Width = 303
       Height = 17
-      Caption = 
-        'Your version of Inno Setup has been updated! <a id="hwhatsnew">S' +
-        'ee what'#39's new</a>.'
+      Caption = '*'
       TabOrder = 0
       OnLinkClick = UpdateLinkLabelLinkClick
     end
@@ -884,17 +882,17 @@ object MainForm: TMainForm
         OnClick = TGenerateGUIDClick
       end
       object TFilesDesigner: TMenuItem
-        Caption = 'Generate [F&iles] Entries...'
+        Caption = 'Generate %1 Entries...'
         ShortCut = 24649
         OnClick = TFilesDesignerClick
       end
       object TRegistryDesigner: TMenuItem
-        Caption = 'Generate [&Registry] Entries...'
+        Caption = 'Generate %1 Entries...'
         ShortCut = 24658
         OnClick = TRegistryDesignerClick
       end
       object TMsgBoxDesigner: TMenuItem
-        Caption = 'Generate &MsgBox/TaskDialogMsgBox Call...'
+        Caption = 'Generate %1 Call...'
         ShortCut = 24653
         OnClick = TMsgBoxDesignerClick
       end

@@ -396,7 +396,7 @@ object WizardForm: TWizardForm
         Height = 53
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
-        Caption = 'Welcome to the [name]'
+        Caption = 'Welcome to the %1'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -16
@@ -433,7 +433,7 @@ object WizardForm: TWizardForm
         Caption = 
           'Not all features of Inno Setup are covered by this wizard. See t' +
           'he documentation for details on creating Inno Setup script files' +
-          '.'#13#13'Click Next to continue, or Cancel to exit this wizard.'
+          '.%n%nClick Next to continue, or Cancel to exit this wizard.'
         TabOrder = 2
         WordWrap = True
       end
@@ -1076,7 +1076,7 @@ object WizardForm: TWizardForm
             Height = 16
             Anchors = [akLeft, akTop, akRight]
             AutoSize = False
-            Caption = '&Windows registry file (.reg) to import:'
+            Caption = '&Windows registry file (.%1) to import:'
             FocusControl = AppRegistryFileEdit
             TabOrder = 0
           end
@@ -1624,8 +1624,8 @@ object WizardForm: TWizardForm
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 
-          'You have successfully completed the [name].'#13#13'To close this wizar' +
-          'd and generate the new script file, click Finish.'
+          'You have successfully completed the %1.%n%nTo close this wizard ' +
+          'and generate the new script file, click Finish.'
         ShowAccelChar = False
         TabOrder = 0
         WordWrap = True

@@ -69,6 +69,11 @@ end;
 
 procedure TRegistryDesignerForm.FormCreate(Sender: TObject);
 begin
+  { Finish localization: LocalizeComponent translated every property, but some
+    still contain an unfilled %1 etc., which we now replace }
+  Caption := LFmtMessage(Caption, ['[Registry]']);
+  AppRegistryFileLabel.Caption := LFmtMessage(AppRegistryFileLabel.Caption, [SLitRegExt]);
+
   FRegistryHelper := TWizardFormRegistryHelper.Create(Self, AppRegistryFileEdit,
     AppRegistryFileButton, AppRegistryUninsDeleteKeyCheck,
     AppRegistryUninsDeleteKeyIfEmptyCheck, AppRegistryUninsDeleteValueCheck,

@@ -104,7 +104,7 @@ object OptionsForm: TOptionsForm
       Top = 76
       Width = 265
       Height = 17
-      Caption = 'Automatically open #include files'
+      Caption = 'Automatically open %1 files'
       TabOrder = 3
     end
     object ShowPreprocessorOutputCheck: TCheckBox
@@ -153,7 +153,7 @@ object OptionsForm: TOptionsForm
       Top = 96
       Width = 265
       Height = 17
-      Caption = 'Keep new #include files closed'
+      Caption = 'Keep new %1 files closed'
       TabOrder = 4
     end
   end
@@ -376,7 +376,7 @@ object OptionsForm: TOptionsForm
     Width = 201
     Height = 23
     Anchors = [akLeft, akBottom]
-    Caption = '&Associate .iss files with this compiler'
+    Caption = '&Associate .%1 files with this compiler'
     TabOrder = 4
     OnClick = AssocButtonClick
   end

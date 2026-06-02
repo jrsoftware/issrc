@@ -996,6 +996,21 @@ begin
   LocalizeComponent(Self);
   InitFormFont(Self);
 
+  { Finish localization: LocalizeComponent translated every property, but some
+    still contain an unfilled %1 etc., which we now replace }
+  NewMainFileButton.Hint := LFmtMessage(NewMainFileButton.Hint, [NewShortCutToText(FNewMainFile.ShortCut)]);
+  OpenMainFileButton.Hint := LFmtMessage(OpenMainFileButton.Hint, [NewShortCutToText(FOpenMainFile.ShortCut)]);
+  SaveButton.Hint := LFmtMessage(SaveButton.Hint, [NewShortCutToText(FSave.ShortCut)]);
+  StopCompileButton.Hint := LFmtMessage(StopCompileButton.Hint, [NewShortCutToText(ShortCut(VK_ESCAPE, []))]);
+  TargetSetupButton.Hint := LFmtMessage(TargetSetupButton.Hint, [NewShortCutToText(RTargetSetup.ShortCut)]);
+  TargetUninstallButton.Hint := LFmtMessage(TargetUninstallButton.Hint, [NewShortCutToText(RTargetUninstall.ShortCut)]);
+  HelpButton.Hint := LFmtMessage(HelpButton.Hint, [NewShortCutToText(ShortCut(VK_F1, []))]);
+  { The accelerator stays on the (untranslated) section name, so it stays distinct
+    between the two otherwise-identical 'Generate %1 Entries...' captions }
+  TFilesDesigner.Caption := LFmtMessage(TFilesDesigner.Caption, ['[F&iles]']);
+  TRegistryDesigner.Caption := LFmtMessage(TRegistryDesigner.Caption, ['[&Registry]']);
+  TMsgBoxDesigner.Caption := LFmtMessage(TMsgBoxDesigner.Caption, ['&MsgBox/TaskDialogMsgBox']);
+
   FHighContrastActive := HighContrastActive; { Just checking once at startup }
   if FHighContrastActive then begin
     { If UseVisualStyle is False (LWS_USEVISUALSTYLE is off) the regular text of the label does not
