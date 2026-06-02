@@ -26,7 +26,7 @@ applyTo: "**/*.pas,**/*.dpr,**/*.inc"
 - When modifying code that calls Windows APIs, read the actual documentation before writing code. Do not assume parameter semantics based on similar APIs.
 - Update Inno Setup copyright header of any file you edit, if the current year is not already included.
 - Add tests for new code to the unit's `*.Test.pas` if it exists; otherwise consider creating one if the code is complex enough to warrant testing.
-- ISPP and ROPS code is tested by `Script.ISPP.Test.iss` and `Script.ROPS.Test.iss`, not a `*.Test.pas` unit.
+  ISPP and ROPS code is tested by `Script.ISPP.Test.iss` and `Script.ROPS.Test.iss`, not a `*.Test.pas` unit.
 # Code review guidelines
 - All errors must be checked. Installers should be reliable above all.
 - Be alert for `out` parameters: an `out` parameter, like a `var` parameter, is passed by reference. However, with an `out` parameter, the initial value of the referenced variable for managed types, such as strings or arrays, is discarded by the caller before it is passed to the routine. Meanwhile, the initial value for unmanaged types, such as integers or pointers, is ignored. Therefore, for unmanaged types, it is not guaranteed that the initial value of the referenced variable will be overwritten in the routine to which it is passed.
