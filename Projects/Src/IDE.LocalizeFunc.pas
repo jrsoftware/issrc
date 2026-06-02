@@ -119,7 +119,7 @@ procedure LocalizeComponent(const Component: TComponent);
     end;
   end;
 
-  procedure LocalizeComboBox(const ComboBox: TComboBox);
+  procedure LocalizeComboBox(const ComboBox: TCustomComboBox);
   begin
     const ItemIndex = ComboBox.ItemIndex;
     if LocalizeStrings(ComboBox.Items) then
@@ -136,8 +136,8 @@ begin
     if ControlAccess.Text <> '' then { This is both Caption and Text }
       ControlAccess.Text := LFmtMessage(ControlAccess.Text);
 
-    if Component is TComboBox then
-      LocalizeComboBox(TComboBox(Component))
+    if Component is TCustomComboBox then
+      LocalizeComboBox(TCustomComboBox(Component))
     else if Component is TNewTabSet then begin
       LocalizeStrings(TNewTabSet(Component).Tabs);
       LocalizeStrings(TNewTabSet(Component).Hints);
