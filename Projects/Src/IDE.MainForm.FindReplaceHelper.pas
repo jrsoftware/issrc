@@ -154,7 +154,7 @@ begin
      FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) then
     FActiveMemo.SelectAndEnsureVisible(Range)
   else
-    MsgBoxFmt(LStr(SFindNotFound), [FLastFindText], LStr(SCompilerFormCaption),
+    MsgBox(LStrFmt(SFindNotFound, [FLastFindText]), LStr(SCompilerFormCaption),
       mbInformation, MB_OK);
 end;
 
@@ -182,7 +182,7 @@ begin
   if FLastFindRegEx then begin
     Result := FActiveMemo.TestRegularExpression(FLastFindText);
     if not Result then
-      MsgBoxFmt(LStr(SFindInvalidRegEx), [FLastFindText], LStr(SCompilerFormCaption),
+      MsgBox(LStrFmt(SFindInvalidRegEx, [FLastFindText]), LStr(SCompilerFormCaption),
         mbError, MB_OK);
   end else
     Result := True;
@@ -360,10 +360,10 @@ begin
       FActiveMemo.EndUndoAction;
     end;
     if ReplaceCount = 0 then
-      MsgBoxFmt(LStr(SFindNotFound), [FLastFindText], LStr(SCompilerFormCaption),
+      MsgBox(LStrFmt(SFindNotFound, [FLastFindText]), LStr(SCompilerFormCaption),
         mbInformation, MB_OK)
     else
-      MsgBoxFmt(LStr(SReplaceCount), [ReplaceCount], LStr(SCompilerFormCaption),
+      MsgBox(LStrFmt(SReplaceCount, [ReplaceCount]), LStr(SCompilerFormCaption),
         mbInformation, MB_OK);
   end
   else begin

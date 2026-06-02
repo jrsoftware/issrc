@@ -40,7 +40,7 @@ function RegisterISSFileAssociation(const AllowInteractive: Boolean; var AllUser
     procedure Check(const Res: DWORD);
     begin
       if Res <> ERROR_SUCCESS then
-        raise Exception.CreateFmt(LStr(SAssocError), [Res, Win32ErrorString(Res)]);
+        raise Exception.Create(LStrFmt(SAssocError, [Res, Win32ErrorString(Res)]));
     end;
 
   var

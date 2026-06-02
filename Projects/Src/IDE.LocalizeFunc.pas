@@ -27,6 +27,12 @@ uses
 
 function LStr(const Str: String; const AllowEmpty: Boolean): String;
 begin
+  Result := LStrFmt(Str, [], AllowEmpty);
+end;
+
+function LStrFmt(const Str: String; const Args: array of const;
+  const AllowEmpty: Boolean): String;
+begin
   if Str = '' then begin
     if AllowEmpty then
       Exit('')
@@ -34,13 +40,7 @@ begin
       raise Exception.Create('Internal error: LStr called with empty string');
   end;
   Result := Str; { Temporary }
-  Result := StringReplace(Result, '%n', #13#10, [rfReplaceAll]);
-end;
-
-function LStrFmt(const Str: String; const Args: array of const;
-  const AllowEmpty: Boolean): String;
-begin
-  Result := Format(LStr(Str, AllowEmpty), Args);
+  Result := Format(StringReplace(Result, '%n', #13#10, [rfReplaceAll]), Args);
 end;
 
 type

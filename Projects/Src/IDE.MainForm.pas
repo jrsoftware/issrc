@@ -1899,8 +1899,8 @@ function TMainForm.SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolea
       way, if the system crashes or the disk runs out of space during the save,
       the existing file will still be intact. }
     if GetTempFileName(PChar(PathExtractDir(FN)), 'iss', 0, Buf) = 0 then
-      raise Exception.CreateFmt(LStr(SCompilerSaveErrorCreateFile),
-        [GetLastError]);
+      raise Exception.Create(LStrFmt(SCompilerSaveErrorCreateFile,
+        [GetLastError]));
     TempFN := Buf;
     try
       SaveTextToFile(TempFN, AMemo.Lines.Text, AMemo.SaveEncoding);
@@ -1915,8 +1915,8 @@ function TMainForm.SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolea
 
       { Delete existing file }
       if not DeleteFile(FN) and (GetLastError <> ERROR_FILE_NOT_FOUND) then
-        raise Exception.CreateFmt(LStr(SCompilerSaveErrorRemoveExisting),
-          [GetLastError]);
+        raise Exception.Create(LStrFmt(SCompilerSaveErrorRemoveExisting,
+          [GetLastError]));
     except
       DeleteFile(TempFN);
       raise;
@@ -1926,8 +1926,8 @@ function TMainForm.SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolea
       existing file, and don't want the temp file also deleted in the unlikely
       event that the rename fails. }
     if not RenameFile(TempFN, FN) then
-      raise Exception.CreateFmt(LStr(SCompilerSaveErrorRenameTemp),
-        [GetLastError]);
+      raise Exception.Create(LStrFmt(SCompilerSaveErrorRenameTemp,
+        [GetLastError]));
     GetLastWriteTimeOfFile(FN, @AMemo.FileLastWriteTime);
   end;
 
@@ -2329,7 +2329,7 @@ begin
         MoveCaretAndActivateMemo(FMainMemo, I, False);
         SetErrorLine(FMainMemo, I);
       end;
-      raise Exception.CreateFmt(LStr(SCompilerIllegalNullChar), [I + 1]);
+      raise Exception.Create(LStrFmt(SCompilerIllegalNullChar, [I + 1]));
     end;
 
     StartTime := GetTickCount;
@@ -5760,8 +5760,8 @@ procedure TMainForm.Go(const AStepMode: TStepMode);
       { Don't display error message if user clicked Cancel at UAC dialog }
       if ErrorCode = ERROR_CANCELLED then
         Abort;
-      raise Exception.CreateFmt(LStr(SCompilerExecuteSetupError2), [RunFilename,
-        ErrorCode, Win32ErrorString(ErrorCode)]);
+      raise Exception.Create(LStrFmt(SCompilerExecuteSetupError2, [RunFilename,
+        ErrorCode, Win32ErrorString(ErrorCode)]));
     end;
     FDebugging := True;
     FPaused := False;
