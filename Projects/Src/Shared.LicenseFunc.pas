@@ -267,14 +267,14 @@ const
   SLicenseeExpiredButUpdated = '%s (Update entitlement ended but updated anyway)';
   SLicenseeNonCommercial = 'Non-commercial use only';
 
-function LFmtMessage(const Str: String): String; overload;
-begin
-  Result := LFmtMessage(Str, []);
-end;
-
 function LFmtMessage(const Str: String; const Args: array of const): String; overload;
 begin
   Result := Format(Str, Args);
+end;
+
+function LFmtMessage(const Str: String): String; overload;
+begin
+  Result := LFmtMessage(Str, []);
 end;
 
 {$ENDIF}
