@@ -12,10 +12,12 @@ unit IDE.SignToolsForm;
 interface
 
 uses
-  Classes, Controls, StdCtrls, UIStateForm, NewGroupBox;
+  Classes, Controls, StdCtrls,
+  NewGroupBox,
+  IDE.IDEForm;
 
 type
-  TSignToolsForm = class(TUIStateForm)
+  TSignToolsForm = class(TIDEForm)
     OKButton: TButton;
     CancelButton: TButton;
     GroupBox1: TNewGroupBox;
@@ -79,8 +81,6 @@ end;
 procedure TSignToolsForm.FormCreate(Sender: TObject);
 begin
   FSignTools := TStringList.Create();
-  InitFormFont(Self);
-  InitFormTheme(Self);
 end;
 
 { This and CreateParams make bsSizeable (which has an unwanted icon) look like bsDialog, see:

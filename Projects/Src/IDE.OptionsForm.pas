@@ -13,10 +13,12 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewGroupBox, NewStaticText;
+  StdCtrls, ExtCtrls,
+  NewGroupBox, NewStaticText,
+  IDE.IDEForm;
 
 type
-  TOptionsForm = class(TUIStateForm)
+  TOptionsForm = class(TIDEForm)
     OKButton: TButton;
     CancelButton: TButton;
     GroupBox1: TNewGroupBox;
@@ -84,9 +86,6 @@ uses
 
 procedure TOptionsForm.FormCreate(Sender: TObject);
 begin
-  InitFormFont(Self);
-  InitFormTheme(Self);
-
   { Order must match IDE.HelperFunc.TKeyMappingType }
   KeyMappingComboBox.Items.Add(LFmtMessage(SOptionsKeyMappingDelphi));
   KeyMappingComboBox.Items.Add(LFmtMessage(SOptionsKeyMappingVisualStudio));

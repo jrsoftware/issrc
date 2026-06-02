@@ -12,10 +12,12 @@ unit IDE.LicenseKeyForm;
 interface
 
 uses
-  Classes, Controls, StdCtrls, UIStateForm, NewGroupBox;
+  Classes, Controls, StdCtrls,
+  NewGroupBox,
+  IDE.IDEForm;
 
 type
-  TLicenseKeyForm = class(TUIStateForm)
+  TLicenseKeyForm = class(TIDEForm)
     CancelButton: TButton;
     GroupBox1: TNewGroupBox;
     LicenseKeyMemo: TMemo;
@@ -33,9 +35,6 @@ uses
 
 procedure TLicenseKeyForm.FormCreate(Sender: TObject);
 begin
-  InitFormFont(Self);
-  InitFormTheme(Self);
-
   LicenseKeyMemo.Font.Name := GetPreferredMemoFont;
   LicenseKeyMemo.Font.Size := 10;
 end;

@@ -15,10 +15,12 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewGroupBox, NewStaticText, ComCtrls, pngimage, BitmapImage;
+  StdCtrls, ExtCtrls, ComCtrls, pngimage,
+  NewGroupBox, NewStaticText, BitmapImage,
+  IDE.IDEForm;
 
 type
-  TMsgBoxDesignerForm = class(TUIStateForm)
+  TMsgBoxDesignerForm = class(TIDEForm)
     IMGmbInformation: TBitmapImage;
     IMGmbConfirmation: TBitmapImage;
     IMGmbError: TBitmapImage;
@@ -116,9 +118,6 @@ uses
 
 procedure TMsgBoxDesignerForm.FormCreate(Sender: TObject);
 begin
-  InitFormFont(Self);
-  InitFormTheme(Self);
-
   IMGmbInformation.InitializeFromStockIcon(SIID_INFO, clNone, [32, 48, 64]);
   IMGmbConfirmation.InitializeFromStockIcon(SIID_HELP, clNone, [32, 48, 64]);
   IMGmbError.InitializeFromStockIcon(SIID_WARNING, clNone, [32, 48, 64]);

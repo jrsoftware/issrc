@@ -993,6 +993,7 @@ begin
 
   FModifiedAnySinceLastCompile := True;
 
+  LocalizeComponent(Self);
   InitFormFont(Self);
 
   FHighContrastActive := HighContrastActive; { Just checking once at startup }

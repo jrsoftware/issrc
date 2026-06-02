@@ -184,6 +184,7 @@
         <DCCReference Include="..\Components\TaskbarProgressFunc.pas"/>
         <DCCReference Include="Src\IDE.HtmlHelpFunc.pas"/>
         <DCCReference Include="..\Components\UIStateForm.pas"/>
+        <DCCReference Include="Src\IDE.IDEForm.pas"/>
         <DCCReference Include="Src\Shared.LangOptionsSectionDirectives.pas"/>
         <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
         <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>

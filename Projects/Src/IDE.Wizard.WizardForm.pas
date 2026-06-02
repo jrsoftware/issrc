@@ -13,9 +13,10 @@ interface
 
 uses
   Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
-  UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
-  IDE.Wizard.WizardFormFilesHelper, IDE.Wizard.WizardFormRegistryHelper, BitmapButton,
-  Vcl.BaseImageCollection, Vcl.ImageCollection, BitmapImage;
+  Vcl.BaseImageCollection, Vcl.ImageCollection,
+  NewStaticText, DropListBox, NewCheckListBox, NewNotebook, BitmapButton, BitmapImage, 
+  IDE.Wizard.WizardFormFilesHelper, IDE.Wizard.WizardFormRegistryHelper,
+  IDE.IDEForm;
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppAssoc, wpAppIcons,
@@ -24,7 +25,7 @@ type
 
   TWizardFormResult = (wrNone, wrEmpty, wrComplete);
 
-  TWizardForm = class(TUIStateForm)
+  TWizardForm = class(TIDEForm)
     CancelButton: TButton;
     NextButton: TButton;
     BackButton: TButton;
@@ -310,8 +311,7 @@ begin
   FLanguages.Sorted := False;
   FLanguages.Insert(0, LanguagesDefaultIsl);
 
-  InitFormFont(Self);
-  if not InitFormTheme(Self) then
+  if not ThemeStyled then
     OuterNotebook.Color := InitFormThemeGetBkColor(True);
 
   if FontExists('Segoe UI') then begin

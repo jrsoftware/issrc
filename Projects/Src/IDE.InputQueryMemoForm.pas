@@ -2,7 +2,7 @@ unit IDE.InputQueryMemoForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -14,10 +14,12 @@ unit IDE.InputQueryMemoForm;
 interface
 
 uses
-  Classes, Controls, StdCtrls, UIStateForm, ExtCtrls, BitmapButton;
+  Classes, Controls, StdCtrls, ExtCtrls,
+  BitmapButton,
+  IDE.IDEForm;
 
 type
-  TInputQueryMemoForm = class(TUIStateForm)
+  TInputQueryMemoForm = class(TIDEForm)
     OKButton: TButton;
     CancelButton: TButton;
     PromptLabel: TLabel;
@@ -76,8 +78,6 @@ end;
 
 procedure TInputQueryMemoForm.FormCreate(Sender: TObject);
 begin
-  InitFormFont(Self);
-  InitFormTheme(Self);
   UpdateImages;
 end;
 

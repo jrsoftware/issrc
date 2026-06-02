@@ -2,7 +2,7 @@ unit IDE.GotoFileForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,15 +12,15 @@ unit IDE.GotoFileForm;
 interface
 
 uses
-  Classes, Controls, StdCtrls, UIStateForm;
+  Classes, Controls, StdCtrls,
+  IDE.IDEForm;
 
 type
-  TGotoFileForm = class(TUIStateForm)
+  TGotoFileForm = class(TIDEForm)
     OKButton: TButton;
     CancelButton: TButton;
     GotoFileListBox: TListBox;
     GotoFileEdit: TEdit;
-    procedure FormCreate(Sender: TObject);
     procedure GotoFileListBoxDblClick(Sender: TObject);
     procedure GotoFileEditOrListBoxKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure GotoFileEditChange(Sender: TObject);
@@ -42,8 +42,7 @@ implementation
 
 uses
   Windows, Messages,
-  PathFunc,
-  IDE.HelperFunc;
+  PathFunc;
 
 {$R *.DFM}
 
@@ -77,12 +76,6 @@ begin
     GotoFileListBox.ItemIndex := 0;
 
   OKButton.Enabled := GotoFileListBox.ItemIndex >= 0;
-end;
-
-procedure TGotoFileForm.FormCreate(Sender: TObject);
-begin
-  InitFormFont(Self);
-  InitFormTheme(Self);
 end;
 
 { This and CreateParams make bsSizeable (which has an unwanted icon) look like bsDialog, see:

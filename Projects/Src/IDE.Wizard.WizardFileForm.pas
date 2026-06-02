@@ -13,7 +13,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewGroupBox, NewStaticText;
+  StdCtrls, ExtCtrls,
+  NewGroupBox, NewStaticText,
+  IDE.IDEForm;
 
 type
   TWizardFileOption = (foDownload, foExtractArchive, foRecurseSubDirs,  foCreateAllSubDirs);
@@ -31,7 +33,7 @@ type
     { Don't forget to initialize new fields in TWizardFormFilesHelper.AddWizardFile }
   end;
 
-  TWizardFileForm = class(TUIStateForm)
+  TWizardFileForm = class(TIDEForm)
     OKButton: TButton;
     CancelButton: TButton;
     GroupBox2: TNewGroupBox;
@@ -141,9 +143,6 @@ procedure TWizardFileForm.FormCreate(Sender: TObject);
 var
   I: Integer;
 begin
-  InitFormFont(Self);
-  InitFormTheme(Self);
-
   MakeBold(SourceLabel);
   MakeBold(DestRootDirLabel);
   MakeBold(RequiredLabel1);

@@ -59,6 +59,7 @@ uses
   TaskbarProgressFunc in '..\Components\TaskbarProgressFunc.pas',
   IDE.HtmlHelpFunc in 'Src\IDE.HtmlHelpFunc.pas',
   UIStateForm in '..\Components\UIStateForm.pas',
+  IDE.IDEForm in 'Src\IDE.IDEForm.pas',
   Shared.LangOptionsSectionDirectives in 'Src\Shared.LangOptionsSectionDirectives.pas',
   Shared.SetupMessageIDs in 'Src\Shared.SetupMessageIDs.pas',
   Shared.SetupSectionDirectives in 'Src\Shared.SetupSectionDirectives.pas',

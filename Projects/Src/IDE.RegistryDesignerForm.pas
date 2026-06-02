@@ -16,10 +16,11 @@ interface
 uses
   SysUtils, Classes,
   Forms, Controls, StdCtrls, ExtCtrls,
-  IDE.Wizard.WizardFormRegistryHelper, NewStaticText, BitmapButton;
+  NewStaticText, BitmapButton,
+  IDE.Wizard.WizardFormRegistryHelper, IDE.IDEForm;
 
 type
-  TRegistryDesignerForm = class(TForm)
+  TRegistryDesignerForm = class(TIDEForm)
     Panel1: TPanel;
     Bevel1: TBevel;
     InsertButton: TButton;
@@ -68,9 +69,6 @@ end;
 
 procedure TRegistryDesignerForm.FormCreate(Sender: TObject);
 begin
-  InitFormFont(Self);
-  InitFormTheme(Self);
-
   FRegistryHelper := TWizardFormRegistryHelper.Create(Self, AppRegistryFileEdit,
     AppRegistryFileButton, AppRegistryUninsDeleteKeyCheck,
     AppRegistryUninsDeleteKeyIfEmptyCheck, AppRegistryUninsDeleteValueCheck,

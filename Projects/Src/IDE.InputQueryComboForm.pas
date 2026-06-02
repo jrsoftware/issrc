@@ -2,7 +2,7 @@ unit IDE.InputQueryComboForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -14,15 +14,15 @@ unit IDE.InputQueryComboForm;
 interface
 
 uses
-  Classes, Controls, StdCtrls, UIStateForm;
+  Classes, Controls, StdCtrls,
+  IDE.IDEForm;
 
 type
-  TInputQueryComboForm = class(TUIStateForm)
+  TInputQueryComboForm = class(TIDEForm)
     OKButton: TButton;
     CancelButton: TButton;
     PromptLabel: TLabel;
     ValueControl: TComboBox;
-    procedure FormCreate(Sender: TObject);
   private
     function GetValue: String;
     procedure SetPrompt(const APrompt: String);
@@ -39,7 +39,7 @@ function InputQueryCombo(const ACaption, APrompt: String; var AValue: String; co
 implementation
 
 uses
-  Windows, Messages, IDE.HelperFunc, Forms;
+  Windows, Messages, Forms;
 
 {$R *.DFM}
 
@@ -58,12 +58,6 @@ begin
   finally
     Free;
   end;
-end;
-
-procedure TInputQueryComboForm.FormCreate(Sender: TObject);
-begin
-  InitFormFont(Self);
-  InitFormTheme(Self);
 end;
 
 function TInputQueryComboForm.GetValue: String;

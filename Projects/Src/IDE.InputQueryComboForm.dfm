@@ -13,7 +13,6 @@ object InputQueryComboForm: TInputQueryComboForm
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   Position = poScreenCenter
-  OnCreate = FormCreate
   DesignSize = (
     582
     73)

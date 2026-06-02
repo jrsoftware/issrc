@@ -13,13 +13,15 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, BitmapButton, BitmapImage, NewGroupBox;
+  StdCtrls, ExtCtrls,
+  BitmapButton, BitmapImage, NewGroupBox,
+  IDE.IDEForm;
 
 type
   TStartupFormResult = (srNone, srEmpty, srWizard, srOpenFile, srOpenDialog,
     srOpenDialogExamples);
 
-  TStartupForm = class(TUIStateForm)
+  TStartupForm = class(TIDEForm)
     OKButton: TButton;
     CancelButton: TButton;
     GroupBox1: TNewGroupBox;
@@ -100,9 +102,6 @@ end;
 procedure TStartupForm.FormCreate(Sender: TObject);
 begin
   FResult := srNone;
-
-  InitFormFont(Self);
-  InitFormTheme(Self);
 
   if IsLicensed then begin
     DonateBitBtn.Visible := False;
