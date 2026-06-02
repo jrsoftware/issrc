@@ -49,16 +49,31 @@ type
 
 procedure LocalizeComponent(const Component: TComponent);
 
-  procedure LocalizeStrings(const Strings: TStrings);
+  function LocalizeStrings(const Strings: TStrings): Boolean;
   begin
-    Strings.BeginUpdate;
+    const NewStrings = TStringList.Create;
     try
-      for var I := 0 to Strings.Count-1 do
-        if Strings[I] <> '' then
-          Strings[I] := LFmtMessage(Strings[I]);
+      NewStrings.Assign(Strings);
+      Result := False;
+      for var I := 0 to NewStrings.Count-1 do begin
+        const LocalizedString = LFmtMessage(NewStrings[I], True);
+        if LocalizedString <> NewStrings[I] then begin
+          NewStrings[I] := LocalizedString;
+          Result := True;
+        end;
+      end;
+      if Result then
+        Strings.Assign(NewStrings);
     finally
-      Strings.EndUpdate;
+      NewStrings.Free;
     end;
+  end;
+
+  procedure LocalizeComboBox(const ComboBox: TComboBox);
+  begin
+    const ItemIndex = ComboBox.ItemIndex;
+    if LocalizeStrings(ComboBox.Items) then
+      ComboBox.ItemIndex := ItemIndex;
   end;
 
 begin
@@ -72,7 +87,7 @@ begin
       ControlAccess.Text := LFmtMessage(ControlAccess.Text);
 
     if Component is TComboBox then
-      LocalizeStrings(TComboBox(Component).Items)
+      LocalizeComboBox(TComboBox(Component))
     else if Component is TNewTabSet then begin
       LocalizeStrings(TNewTabSet(Component).Tabs);
       LocalizeStrings(TNewTabSet(Component).Hints);
