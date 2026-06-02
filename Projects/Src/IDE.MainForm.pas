@@ -1880,8 +1880,7 @@ begin
     OpenFile(FMainMemo, AFilename, True);
   except
     Application.HandleException(Self);
-    if MsgBoxFmt(LStr(SCompilerOpenFileErrorRemoveFromMRU),
-       [AFilename], LStr(SCompilerFormCaption), mbError, MB_YESNO) = IDYES then begin
+    if MsgBox(LStr(SCompilerOpenFileErrorRemoveFromMRU), LStr(SCompilerFormCaption), mbError, MB_YESNO) = IDYES then begin
       ModifyMRUMainFilesList(AFilename, False);
       DeleteBreakPointLines(AFilename);
       DeleteKnownIncludedAndHiddenFiles(AFilename);
