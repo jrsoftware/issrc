@@ -267,14 +267,14 @@ const
   SLicenseeExpiredButUpdated = '%s (Update entitlement ended but updated anyway)';
   SLicenseeNonCommercial = 'Non-commercial use only';
 
-function LStr(const English: String): String;
+function LFmtMessage(const Str: String): String; overload;
 begin
-  Result := English;
+  Result := LFmtMessage(Str, []);
 end;
 
-function LStrFmt(const English: String; const Args: array of const): String;
+function LFmtMessage(const Str: String; const Args: array of const): String; overload;
 begin
-  Result := Format(LStr(English), Args);
+  Result := Format(Str, Args);
 end;
 
 {$ENDIF}
@@ -285,11 +285,11 @@ begin
   if LicenseState <> lsNotLicensed then begin
     Result := GetLicenseeName;
     if LicenseState = lsExpired then
-      Result := LStrFmt(SLicenseeExpired, [Result])
+      Result := LFmtMessage(SLicenseeExpired, [Result])
     else if LicenseState = lsExpiredButUpdated then
-      Result := LStrFmt(SLicenseeExpiredButUpdated, [Result]);
+      Result := LFmtMessage(SLicenseeExpiredButUpdated, [Result]);
   end else
-    Result := LStr(SLicenseeNonCommercial);
+    Result := LFmtMessage(SLicenseeNonCommercial);
 end;
 
 {$IFDEF ISIDEPROJ}
@@ -297,23 +297,23 @@ end;
 function GetLicenseTypeDescription: String;
 begin
   case License.Typ of
-    ltSingle: Result := LStr(SLicenseTypeSingleUser);
-    ltTeam: Result := LStr(SLicenseTypeTeam);
-    ltEnterprise: Result := LStr(SLicenseTypeEnterprise);
+    ltSingle: Result := LFmtMessage(SLicenseTypeSingleUser);
+    ltTeam: Result := LFmtMessage(SLicenseTypeTeam);
+    ltEnterprise: Result := LFmtMessage(SLicenseTypeEnterprise);
   else
     raise Exception.Create('Unknown License.Typ');
   end;
-  Result := LStrFmt(SLicenseTypeDescription, [Result]);
+  Result := LFmtMessage(SLicenseTypeDescription, [Result]);
 end;
 
 function GetLicenseDescription(const Prefix, Separator: String): String;
 begin
   if IsLicensed then begin
-    Result := Prefix + LStrFmt(SLicenseDescriptionNameAndType, [GetLicenseeName, GetLicenseTypeDescription]) + Separator;
+    Result := Prefix + LFmtMessage(SLicenseDescriptionNameAndType, [GetLicenseeName, GetLicenseTypeDescription]) + Separator;
     if License.ExpirationDate <> 0 then
-      Result := Result + LStrFmt(SLicenseDescriptionUpdatesUntil, [DateToStr(License.ExpirationDate)])
+      Result := Result + LFmtMessage(SLicenseDescriptionUpdatesUntil, [DateToStr(License.ExpirationDate)])
     else
-      Result := Result + LStr(SLicenseDescriptionAllFutureUpdates);
+      Result := Result + LFmtMessage(SLicenseDescriptionAllFutureUpdates);
   end else
     Result := AddPeriod(GetLicenseeDescription);
 end;

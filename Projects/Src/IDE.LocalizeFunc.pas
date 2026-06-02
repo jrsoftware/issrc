@@ -14,9 +14,10 @@ interface
 uses
   Classes;
 
-function LStr(const Str: String; const AllowEmpty: Boolean = False): String;
-function LStrFmt(const Str: String; const Args: array of const;
-  const AllowEmpty: Boolean = False): String;
+function LFmtMessage(const Str: String; const AllowEmpty: Boolean = False): String; overload;
+function LFmtMessage(const Str: String; const Args: array of const;
+  const AllowEmpty: Boolean = False): String; overload;
+
 procedure LocalizeComponent(const Component: TComponent);
 
 implementation
@@ -25,19 +26,19 @@ uses
   SysUtils, Controls, StdCtrls, Menus,
   NewTabSet;
 
-function LStr(const Str: String; const AllowEmpty: Boolean): String;
+function LFmtMessage(const Str: String; const AllowEmpty: Boolean): String;
 begin
-  Result := LStrFmt(Str, [], AllowEmpty);
+  Result := LFmtMessage(Str, [], AllowEmpty);
 end;
 
-function LStrFmt(const Str: String; const Args: array of const;
+function LFmtMessage(const Str: String; const Args: array of const;
   const AllowEmpty: Boolean): String;
 begin
   if Str = '' then begin
     if AllowEmpty then
       Exit('')
     else
-      raise Exception.Create('Internal error: LStr called with empty string');
+      raise Exception.Create('Internal error: LFmtMessage called with empty string');
   end;
   Result := Str; { Temporary }
   Result := Format(StringReplace(Result, '%n', #13#10, [rfReplaceAll]), Args);
@@ -54,7 +55,7 @@ procedure LocalizeComponent(const Component: TComponent);
     try
       for var I := 0 to Strings.Count-1 do
         if Strings[I] <> '' then
-          Strings[I] := LStr(Strings[I]);
+          Strings[I] := LFmtMessage(Strings[I]);
     finally
       Strings.EndUpdate;
     end;
@@ -64,11 +65,11 @@ begin
   if Component is TControl then begin
     const Control = TControl(Component);
     if Control.Hint <> '' then
-      Control.Hint := LStr(Control.Hint);
+      Control.Hint := LFmtMessage(Control.Hint);
 
     const ControlAccess = TControlAccess(Control);
     if ControlAccess.Text <> '' then { This is both Caption and Text }
-      ControlAccess.Text := LStr(ControlAccess.Text);
+      ControlAccess.Text := LFmtMessage(ControlAccess.Text);
 
     if Component is TComboBox then
       LocalizeStrings(TComboBox(Component).Items)
@@ -80,9 +81,9 @@ begin
   end else if Component is TMenuItem then begin
     const MenuItem = TMenuItem(Component);
     if MenuItem.Caption <> '' then
-      MenuItem.Caption := LStr(MenuItem.Caption);
+      MenuItem.Caption := LFmtMessage(MenuItem.Caption);
     if MenuItem.Hint <> '' then
-      MenuItem.Hint := LStr(MenuItem.Hint);
+      MenuItem.Hint := LFmtMessage(MenuItem.Hint);
   end;
 
   for var I := 0 to Component.ComponentCount-1 do

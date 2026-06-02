@@ -120,8 +120,8 @@ begin
 
   UpdateImages;
 
-  OpenListBox.Items.Add(LStr(SCompilerExampleScripts));
-  OpenListBox.Items.Add(LStr(SCompilerMoreFiles));
+  OpenListBox.Items.Add(LFmtMessage(SCompilerExampleScripts));
+  OpenListBox.Items.Add(LFmtMessage(SCompilerMoreFiles));
   OpenListBox.ItemIndex := 0;
   UpdateHorizontalExtent(OpenListBox);
 

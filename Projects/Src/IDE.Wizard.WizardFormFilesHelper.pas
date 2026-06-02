@@ -164,7 +164,7 @@ begin
   FileList := TStringList.Create;
   try
     if NewGetOpenFileNameMulti('', FileList, '',
-         Format(SLitAllFilesFilter, [LStr(SAllFiles)]),
+         Format(SLitAllFilesFilter, [LFmtMessage(SAllFiles)]),
          '', FForm.Handle) then begin
       FileList.Sort;
       for I := 0 to FileList.Count-1 do
@@ -183,8 +183,8 @@ var
   Recurse: Boolean;
 begin
   Path := '';
-  if BrowseForFolder(LStr(SWizardAppFiles3), Path, FForm.Handle, False) then begin
-    case MsgBox(LStrFmt(SWizardAppFilesSubDirsMessage, [Path]), '', mbConfirmation, MB_YESNOCANCEL) of
+  if BrowseForFolder(LFmtMessage(SWizardAppFiles3), Path, FForm.Handle, False) then begin
+    case MsgBox(LFmtMessage(SWizardAppFilesSubDirsMessage, [Path]), '', mbConfirmation, MB_YESNOCANCEL) of
       IDYES: Recurse := True;
       IDNO: Recurse := False;
     else
@@ -207,19 +207,19 @@ const
 begin
   var Source := 'https://www.example.com/MyProg.7z';
   repeat
-    if not InputQuery(FForm.Caption, LStr(SWizardAppFilesDownloadSourcePrompt), Source)  then
+    if not InputQuery(FForm.Caption, LFmtMessage(SWizardAppFilesDownloadSourcePrompt), Source)  then
       Exit;
   until Source <> '';
-  const ExtractArchive = MsgBox(LStr(SWizardAppFilesDownloadExtractArchiveMessage), '', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES;
+  const ExtractArchive = MsgBox(LFmtMessage(SWizardAppFilesDownloadExtractArchiveMessage), '', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES;
   var DestName := 'MyProg.7z';
   repeat
-    if not InputQuery(FForm.Caption, LStr(DestNamePrompts[ExtractArchive]), DestName)  then
+    if not InputQuery(FForm.Caption, LFmtMessage(DestNamePrompts[ExtractArchive]), DestName)  then
       Exit;
   until DestName <> '';
   var ExternalSizeAsString := '';
   var ExternalSize: Extended;
   repeat
-    if not InputQuery(FForm.Caption, LStr(SWizardAppFilesDownloadExternalSizePrompt), ExternalSizeAsString)  then
+    if not InputQuery(FForm.Caption, LFmtMessage(SWizardAppFilesDownloadExternalSizePrompt), ExternalSizeAsString)  then
       Exit;
   until TryStrToFloat(ExternalSizeAsString, ExternalSize);
 
@@ -277,7 +277,7 @@ begin
     WizardFile := FWizardFiles[I];
 
     if (foDownload in WizardFile.Options) and not AddedVerificationNote then begin
-      Files := Files + SLitComment + LStrFmt(SWizardScriptCommentVerifyDownloads, ['issigverify', 'Hash']) + SNewLine;
+      Files := Files + SLitComment + LFmtMessage(SWizardScriptCommentVerifyDownloads, ['issigverify', 'Hash']) + SNewLine;
       AddedVerificationNote := True;
     end;
 

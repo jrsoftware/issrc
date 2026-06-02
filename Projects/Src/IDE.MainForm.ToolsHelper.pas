@@ -78,16 +78,16 @@ end;
 
 procedure TMainFormToolsHelper.InsertGeneratedGuid(const AMemo: TScintEdit);
 begin
-  if MsgBox(LStr(SToolsInsertGuidConfirm),
-     LStr(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDYES then
+  if MsgBox(LFmtMessage(SToolsInsertGuidConfirm),
+     LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDYES then
     AMemo.MainSelText := GenerateGuid;
 end;
 
 procedure TMainFormToolsHelper.ShowMsgBoxDesignerForm(const AMemo: TScintEdit);
 begin
   if (TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scCode) and
-     (MsgBox(LStrFmt(SToolsNotInCodeSectionConfirm, ['[Code]']),
-      LStr(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDNO) then
+     (MsgBox(LFmtMessage(SToolsNotInCodeSectionConfirm, ['[Code]']),
+      LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDNO) then
     Exit;
 
   var MsgBoxForm := TMsgBoxDesignerForm.Create(Application);

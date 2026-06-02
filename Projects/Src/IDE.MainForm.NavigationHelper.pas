@@ -135,11 +135,11 @@ procedure TMainFormNavigationHelper.UpdateNavigationMenu(const Menu: TMenuItem);
       raise Exception.Create('NavItem.Line >= NavItem.Memo.Lines.Count');
     var LineInfo :=  NavItem.Memo.Lines[NavItem.Line];
     if LineInfo.Trim = '' then
-      LineInfo := LStrFmt(SNavLineNumber, [NavItem.Line+1]);
+      LineInfo := LFmtMessage(SNavLineNumber, [NavItem.Line+1]);
 
     var Caption: String;
     if MemosTabSet.Visible then
-      Caption := LStrFmt(SNavItemCaption, [MemoToTabName(NavItem.Memo), LineInfo])
+      Caption := LFmtMessage(SNavItemCaption, [MemoToTabName(NavItem.Memo), LineInfo])
     else
       Caption := LineInfo;
 

@@ -324,11 +324,11 @@ end;
 procedure TMainFormUpdateMenuHelper.UpdateNewMainFileButtons;
 begin
   if FOptions.UseWizard then begin
-    FNewMainFile.Caption := LStr(SMenuNewWithWizard);
+    FNewMainFile.Caption := LFmtMessage(SMenuNewWithWizard);
     FNewMainFile.OnClick := FNewMainFileUserWizardClick;
     NewMainFileButton.OnClick := FNewMainFileUserWizardClick;
   end else begin
-    FNewMainFile.Caption := LStr(SMenuNew);
+    FNewMainFile.Caption := LFmtMessage(SMenuNew);
     FNewMainFile.OnClick := FNewMainFileClick;
     NewMainFileButton.OnClick := FNewMainFileClick;
   end;

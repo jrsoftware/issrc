@@ -181,7 +181,7 @@ end;
 function GetFileTitle(const Filename: String): String;
 begin
   if Filename = '' then
-    Result := LStr(SCompilerUntitledFile)
+    Result := LFmtMessage(SCompilerUntitledFile)
   else
     Result := Filename;
 end;
@@ -429,14 +429,14 @@ function NewShortCutToText(const ShortCut: TShortCut): String;
    For example `+space=` (backtick and then space becomes backtick and no space).
   -It uses 'Ctrl+Shift+Alt' ordering like VSCode and Visual Studio, and not
    'Ctrl+Alt+Shift' like VCL.
-  -It supports localization via LStr. }
+  -It supports localization via LFmtMessage. }
 
   function PrependModifiers(const KeyName: String): String;
   begin
     Result := '';
-    if ShortCut and scCtrl <> 0 then Result := Result + LStr(SShortCutCtrl);
-    if ShortCut and scShift <> 0 then Result := Result + LStr(SShortCutShift);
-    if ShortCut and scAlt <> 0 then Result := Result + LStr(SShortCutAlt);
+    if ShortCut and scCtrl <> 0 then Result := Result + LFmtMessage(SShortCutCtrl);
+    if ShortCut and scShift <> 0 then Result := Result + LFmtMessage(SShortCutShift);
+    if ShortCut and scAlt <> 0 then Result := Result + LFmtMessage(SShortCutAlt);
     Result := Result + KeyName;
   end;
 
@@ -600,7 +600,7 @@ var
       on EOutOfResources do begin
         ListBox.Clear;
         SendMessage(ListBox.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-        ListBox.Items.Add(SLitStatusEventPrefix + LStr(SCompilerStatusReset));
+        ListBox.Items.Add(SLitStatusEventPrefix + LFmtMessage(SCompilerStatusReset));
         ListBox.TopIndex := ListBox.Items.AddObject(S, AObject);
       end;
     end;

@@ -33,7 +33,7 @@ uses
 
 class procedure TMainFormFinalHelper.AppOnException(Sender: TObject; E: Exception);
 begin
-  MsgBox(AddPeriod(E.Message), LStr(SCompilerFormCaption), mbCriticalError, MB_OK);
+  MsgBox(AddPeriod(E.Message), LFmtMessage(SCompilerFormCaption), mbCriticalError, MB_OK);
 end;
 
 function TMainFormFinalHelper.ToCurrentPPI(const XY: Integer): Integer;
