@@ -311,7 +311,7 @@ begin
   FLanguages.Sorted := False;
   FLanguages.Insert(0, LanguagesDefaultIsl);
 
-  if not ThemeStyled then
+  if not FormThemeActive then
     OuterNotebook.Color := InitFormThemeGetBkColor(True);
 
   if FontExists('Segoe UI') then begin

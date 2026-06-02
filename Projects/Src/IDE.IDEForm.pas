@@ -21,10 +21,10 @@ uses
 type
   TIDEForm = class(TUIStateForm)
   private
-    FThemeStyled: Boolean;
+    FFormThemeActive: Boolean;
   public
     constructor Create(AOwner: TComponent); override;
-    property ThemeStyled: Boolean read FThemeStyled;
+    property FormThemeActive: Boolean read FFormThemeActive;
   end;
 
 implementation
@@ -37,7 +37,7 @@ begin
   inherited;
   LocalizeComponent(Self);
   InitFormFont(Self);
-  FThemeStyled := InitFormTheme(Self);
+  FFormThemeActive := InitFormTheme(Self);
 end;
 
 end.
