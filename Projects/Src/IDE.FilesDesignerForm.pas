@@ -14,7 +14,7 @@ interface
 uses
   Classes, Controls, Forms, Dialogs, ExtCtrls, StdCtrls,
   NewStaticText, DropListBox,
-  IDE.Wizard.WizardFormFilesHelper, IDE.LocalizeFunc, IDE.IDEForm;
+  IDE.Wizard.WizardFormFilesHelper, IDE.Messages, IDE.LocalizeFunc, IDE.IDEForm;
 
 type
   TFilesDesignerForm = class(TIDEForm)
@@ -51,7 +51,7 @@ begin
   { Finish localization: LocalizeComponent translated every property, but some
     still contain an unfilled %1 etc., which we now replace }
   Caption := LFmtMessage(Caption, ['[Files]']);
-  NotCreateAppDirCheck.Caption := LFmtMessage(NotCreateAppDirCheck.Caption, ['CreateAppDir=no']);
+  NotCreateAppDirCheck.Caption := LFmtMessage(SDesignerScriptHas, ['CreateAppDir=no']);
 
   FFilesHelper := TWizardFormFilesHelper.Create(Self,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,

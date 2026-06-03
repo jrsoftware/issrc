@@ -682,7 +682,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = '&Add file(s)...'
+            Caption = '&Add File(s)...'
             TabOrder = 7
           end
           object AppFilesEditButton: TButton
@@ -736,7 +736,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'Add fol&der...'
+            Caption = 'Add Fol&der...'
             TabOrder = 8
           end
           object NoAppExeCheck: TCheckBox
@@ -1182,7 +1182,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = '&Select all'
+            Caption = 'Select &All'
             TabOrder = 2
             OnClick = AllLanguagesButtonClick
           end
@@ -1192,7 +1192,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = '&Deselect all'
+            Caption = '&Deselect All'
             TabOrder = 3
             OnClick = NoLanguagesButtonClick
           end

@@ -188,7 +188,7 @@ const
   SAssocInnoSetupScriptCompile = 'Compi&le';
 
   { Registry Designer }
-  SRegistryDesignerScriptHas = 'Script has %1';
+  SDesignerScriptHas = '&Script has %1';
   SRegistryDesignerScriptHasSet = 'Script has %1 set';
   SRegistryDesignerInvalidFileFormat = 'Invalid file format.';
 

@@ -74,7 +74,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Top = 79
     Width = 89
     Height = 23
-    Caption = 'Add fol&der...'
+    Caption = 'Add Fol&der...'
     TabOrder = 3
   end
   object AppFilesAddButton: TButton
@@ -82,7 +82,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Top = 50
     Width = 89
     Height = 23
-    Caption = '&Add file(s)...'
+    Caption = '&Add File(s)...'
     TabOrder = 4
   end
   object AppFilesListBox: TDropListBox
@@ -109,7 +109,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Top = 8
     Width = 253
     Height = 17
-    Caption = '&Script has %1'
+    Caption = '*'
     TabOrder = 8
   end
   object AppFilesAddDownloadButton: TButton
