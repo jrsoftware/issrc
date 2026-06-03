@@ -778,7 +778,7 @@ object MainForm: TMainForm
       Caption = '&Run'
       OnClick = RMenuClick
       object RRun: TMenuItem
-        Caption = '&Run'
+        Caption = '&Run...'
         OnClick = RRunClick
       end
       object RParameters: TMenuItem

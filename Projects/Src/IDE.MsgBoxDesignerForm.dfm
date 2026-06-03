@@ -587,7 +587,7 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Width = 75
       Height = 25
       Anchors = [akRight, akBottom]
-      Caption = 'Insert'
+      Caption = '&Insert'
       Default = True
       ModalResult = 1
       TabOrder = 1

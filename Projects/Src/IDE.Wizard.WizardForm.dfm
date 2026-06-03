@@ -726,7 +726,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = '&Browse...'
+            Caption = 'B&rowse...'
             TabOrder = 2
             OnClick = AppExeButtonClick
           end
@@ -962,7 +962,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = '&Browse...'
+            Caption = 'B&rowse...'
             TabOrder = 2
             OnClick = FileButtonClick
           end
@@ -1093,7 +1093,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = '&Browse...'
+            Caption = 'B&rowse...'
             TabOrder = 2
           end
           object AppRegistrySettingsLabel: TNewStaticText
@@ -1307,7 +1307,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = '&Browse...'
+            Caption = 'B&rowse...'
             TabOrder = 2
             OnClick = OutputDirButtonClick
           end
