@@ -146,7 +146,6 @@ object MainForm: TMainForm
       item
         Alignment = taCenter
         Bevel = pbNone
-        Text = '   1:   1'
         Width = 64
       end
       item
@@ -157,13 +156,11 @@ object MainForm: TMainForm
       item
         Alignment = taCenter
         Bevel = pbNone
-        Text = 'Insert'
         Width = 64
       end
       item
         Alignment = taCenter
         Bevel = pbNone
-        Text = '.*'
         Width = 23
       end
       item
@@ -408,7 +405,7 @@ object MainForm: TMainForm
     object UpdateLinkLabel: TLinkLabel
       Left = 13
       Top = 13
-      Width = 303
+      Width = 8
       Height = 17
       Caption = '*'
       TabOrder = 0
