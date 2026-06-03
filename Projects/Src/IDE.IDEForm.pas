@@ -34,7 +34,7 @@ uses
 
 constructor TIDEForm.Create(AOwner: TComponent);
 begin
-  inherited;
+  inherited; { This does not trigger the OnCreate event of the form }
   LocalizeComponent(Self);
   InitFormFont(Self);
   FFormThemeActive := InitFormTheme(Self);
