@@ -53,6 +53,7 @@ implementation
 
 uses
   Windows, Messages, Forms, Graphics, ComCtrls,
+  Shared.CommonFunc,
   IDE.HelperFunc, IDE.ImagesModule, IDE.MainForm;
 
 {$R *.DFM}
@@ -78,6 +79,8 @@ end;
 
 procedure TInputQueryMemoForm.FormCreate(Sender: TObject);
 begin
+  DocBitBtn.Caption := RemoveAccelChar(MainForm.HMenu.Caption);
+  DocBitBtn.Hint := DocBitBtn.Caption;
   UpdateImages;
 end;
 

@@ -88,6 +88,8 @@ begin
   UninsDeleteKeyIfEmptyCheck.OnClick := UninsDeleteKeyIfEmptyCheckClick;
   MinVerCheck.OnClick := MinVerCheckClick;
   MinVerCheck.OnClick(nil);
+  MinVerDocBitBtn.Caption := RemoveAccelChar(MainForm.HMenu.Caption);
+  MinVerDocBitBtn.Hint := MinVerDocBitBtn.Caption;
   MinVerDocBitBtn.OnClick := MinVerDocBitBtnClick;
   MinVerDocBitBtn.Cursor := crHandPoint;
 

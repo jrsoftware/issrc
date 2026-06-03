@@ -1005,11 +1005,17 @@ begin
   TargetSetupButton.Hint := LFmtMessage(TargetSetupButton.Hint, [NewShortCutToText(RTargetSetup.ShortCut)]);
   TargetUninstallButton.Hint := LFmtMessage(TargetUninstallButton.Hint, [NewShortCutToText(RTargetUninstall.ShortCut)]);
   HelpButton.Hint := LFmtMessage(HelpButton.Hint, [NewShortCutToText(ShortCut(VK_F1, []))]);
-  { The accelerator stays on the (untranslated) section name, so it stays distinct
-    between the two otherwise-identical 'Generate %1 Entries...' captions }
   TFilesDesigner.Caption := LFmtMessage(TFilesDesigner.Caption, ['[F&iles]']);
   TRegistryDesigner.Caption := LFmtMessage(TRegistryDesigner.Caption, ['[&Registry]']);
   TMsgBoxDesigner.Caption := LFmtMessage(TMsgBoxDesigner.Caption, ['&MsgBox/TaskDialogMsgBox']);
+  { These are not set in the .dfm because that would duplicate a message,
+    one with and one without the accel char }
+  PauseButton.Hint := RemoveAccelChar(RPause.Caption);
+  UpdatePanelDonateBitBtn.Caption := RemoveAccelChar(HDonate.Caption);
+  OutputTabSet.Tabs[tiCompilerOutput] := RemoveAccelChar(VCompilerOutput.Caption);
+  OutputTabSet.Tabs[tiDebugOutput] := RemoveAccelChar(VDebugOutput.Caption);
+  OutputTabSet.Tabs[tiDebugCallStack] := RemoveAccelChar(VDebugCallStack.Caption);
+  OutputTabSet.Tabs[tiFindResults] := RemoveAccelChar(VFindResults.Caption);
 
   FHighContrastActive := HighContrastActive; { Just checking once at startup }
   if FHighContrastActive then begin
@@ -5919,7 +5925,7 @@ begin
   if FDebugTarget = dtSetup then
     S := S + SNewLine2 + LFmtMessage(SCompilerTerminateProcessSetupNote, [LFmtMessage(DebugTargetStrings[FDebugTarget])]);
 
-  if MsgBox(S, LFmtMessage(SCompilerTerminateTitle), mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDYES then
+  if MsgBox(S, RemoveAccelChar(RTerminate.Caption), mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDYES then
     Exit;
   CheckIfTerminated;
   if FDebugging then begin

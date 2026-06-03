@@ -42,11 +42,6 @@ const
 
   { Compiler form labels }
   SCompilerFormCaption = 'Inno Setup Compiler';
-  SCompilerScriptFileLabel = 'Script &File:';
-  SCompilerStatusLabel = 'Status &Messages:';
-  SCompilerScriptBrowseButton = '&Browse...';
-  SCompilerStartButton = '&Start';
-  SCompilerExitButton = 'E&xit';
   SCompilerExampleScripts = 'Example scripts...';
   SCompilerMoreFiles = 'More files...';
   SCompilerUntitledFile = 'Untitled';
@@ -318,7 +313,6 @@ const
   SCompilerModifiedWhileRunningWarning = 'The changes you made will not take effect until you re-compile.%n%nContinue running anyway?';
   SCompilerPauseAlreadyPending = 'A pause is already pending.';
   SCompilerNoCodeGeneratedForLine = 'No code was generated for the current line.';
-  SCompilerTerminateTitle = 'Terminate';
   SCompilerTerminateProcessConfirm = 'This will unconditionally terminate the running %1 process. Continue?';
   SCompilerTerminateProcessSetupNote = 'Note that if %1 is currently in the installation phase, any changes made to the system thus far will not be undone, nor will uninstall data be written.';
   SEvaluateTitle = 'Evaluate';

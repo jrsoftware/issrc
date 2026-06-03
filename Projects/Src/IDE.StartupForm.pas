@@ -108,8 +108,10 @@ begin
     const DiffX = MailingListBitBtn.Left - DonateBitBtn.Left;
     MailingListBitBtn.Left := MailingListBitBtn.Left - DiffX;
     StartupCheck.Left := StartupCheck.Left - DiffX;
-  end else
-	  DonateBitBtn.Hint := MainForm.UpdatePanelDonateBitBtn.Hint;
+  end else begin
+    DonateBitBtn.Caption := MainForm.UpdatePanelDonateBitBtn.Caption;
+    DonateBitBtn.Hint := MainForm.UpdatePanelDonateBitBtn.Hint;
+  end;
 
   if InitFormThemeIsDark then begin
     if DonateBitBtn.Visible then

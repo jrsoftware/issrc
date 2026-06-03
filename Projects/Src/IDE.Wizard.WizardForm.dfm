@@ -980,7 +980,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'Browse...'
+            Caption = '*'
             TabOrder = 5
             OnClick = FileButtonClick
           end
@@ -998,7 +998,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'Browse...'
+            Caption = '*'
             TabOrder = 8
             OnClick = FileButtonClick
           end
@@ -1066,7 +1066,6 @@ object WizardForm: TWizardForm
             Width = 20
             Height = 20
             Anchors = [akTop, akRight]
-            Caption = 'Help'
             TabOrder = 9
           end
           object AppRegistryFileLabel: TNewStaticText
@@ -1289,7 +1288,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'Browse...'
+            Caption = '*'
             TabOrder = 7
             OnClick = FileButtonClick
           end

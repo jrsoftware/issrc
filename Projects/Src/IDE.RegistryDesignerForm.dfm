@@ -12,6 +12,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   Position = poScreenCenter
+  ShowHint = True
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   DesignSize = (
@@ -24,7 +25,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Width = 20
     Height = 20
     Anchors = [akTop, akRight]
-    Caption = 'Help'
     TabOrder = 9
   end
   object Panel1: TPanel
@@ -83,7 +83,7 @@ object RegistryDesignerForm: TRegistryDesignerForm
   object AppRegistryFileLabel: TNewStaticText
     Left = 8
     Top = 18
-    Width = 170
+    Width = 169
     Height = 14
     Caption = '&Windows registry file (.%1) to import:'
     FocusControl = AppRegistryFileEdit

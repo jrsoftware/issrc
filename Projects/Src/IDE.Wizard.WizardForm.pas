@@ -299,6 +299,11 @@ begin
   AppRegistryFileLabel.Caption := LFmtMessage(AppRegistryFileLabel.Caption, [SLitRegExt]);
   WelcomeLabel1.Caption := LFmtMessage(WelcomeLabel1.Caption, ['[name]']);
   FinishedLabel.Caption := LFmtMessage(FinishedLabel.Caption, ['[name]']);
+  { These are not set in the .dfm because that would duplicate a message,
+    one with and one without the accel char }
+  AppInfoBeforeFileButton.Caption := RemoveAccelChar(AppLicenseFileButton.Caption);
+  AppInfoAfterFileButton.Caption := RemoveAccelChar(AppLicenseFileButton.Caption);
+  SetupIconFileButton.Caption := RemoveAccelChar(OutputDirButton.Caption);
 
   FResult := wrNone;
 

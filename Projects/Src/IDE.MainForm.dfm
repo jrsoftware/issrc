@@ -129,10 +129,10 @@ object MainForm: TMainForm
         Align = alBottom
         TabIndex = 0
         Tabs.Strings = (
-          'Compiler Output'
-          'Debug Output'
-          'Debug Call Stack'
-          'Find Results')
+          '*'
+          '*'
+          '*'
+          '*')
         OnClick = OutputTabSetClick
       end
     end
@@ -291,7 +291,6 @@ object MainForm: TMainForm
       object PauseButton: TToolButton
         Left = 208
         Top = 0
-        Hint = 'Pause'
         Enabled = False
         ImageIndex = 6
         ImageName = 'debug-break-all-filled'
@@ -396,7 +395,6 @@ object MainForm: TMainForm
       Margins.Right = 0
       Margins.Bottom = 8
       Align = alRight
-      Caption = 'Donate'
       ParentShowHint = False
       ShowHint = True
       TabOrder = 2
