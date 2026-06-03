@@ -140,6 +140,8 @@ begin
     if ControlAccess.Text <> '' then { This is both Caption and Text }
       ControlAccess.Text := LFmtMessage(ControlAccess.Text);
 
+    { Of the following, only TNewTabSet.Tabs is currently actually
+      prefilled in the .dfm files }
     if Component is TCustomComboBox then
       LocalizeComboBox(TCustomComboBox(Component))
     else if Component is TNewTabSet then begin
