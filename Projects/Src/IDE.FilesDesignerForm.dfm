@@ -117,7 +117,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Top = 106
     Width = 89
     Height = 23
-    Caption = 'Do&wnload...'
+    Caption = 'D&ownload...'
     TabOrder = 6
   end
 end

@@ -726,7 +726,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'B&rowse...'
+            Caption = '&Browse...'
             TabOrder = 2
             OnClick = AppExeButtonClick
           end
@@ -962,7 +962,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'B&rowse...'
+            Caption = '&Browse...'
             TabOrder = 2
             OnClick = FileButtonClick
           end
@@ -980,7 +980,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'Br&owse...'
+            Caption = 'Browse...'
             TabOrder = 5
             OnClick = FileButtonClick
           end
@@ -998,7 +998,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'Bro&wse...'
+            Caption = 'Browse...'
             TabOrder = 8
             OnClick = FileButtonClick
           end
@@ -1094,7 +1094,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'B&rowse...'
+            Caption = '&Browse...'
             TabOrder = 2
           end
           object AppRegistrySettingsLabel: TNewStaticText
@@ -1289,7 +1289,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'Bro&wse...'
+            Caption = 'Browse...'
             TabOrder = 7
             OnClick = FileButtonClick
           end
@@ -1308,7 +1308,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'B&rowse...'
+            Caption = '&Browse...'
             TabOrder = 2
             OnClick = OutputDirButtonClick
           end
