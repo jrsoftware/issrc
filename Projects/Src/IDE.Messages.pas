@@ -99,7 +99,7 @@ const
 
   SWizardNextButton = '&Next';
   SWizardFinishButton = '&Finish';
-  SWizardCancelMessage = 'The %1 is not complete. If you quit now, the new script file will not be generated.%n%nExit the %1?';
+  SWizardCancelMessage = 'The %1 is not complete. If you quit now, the new script file will not be generated.%n%nExit anyway?';
 
   SWizardAppNameError = 'Please specify the application name.';
   SWizardAppVersionError = 'Please specify the application version.';

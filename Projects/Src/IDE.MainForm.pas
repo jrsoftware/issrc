@@ -25,7 +25,8 @@ uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs, CommDlg,
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.IDEScintEdit,
-  Shared.DebugStruct, Shared.CompilerInt.Struct, NewUxTheme, ImageList, ImgList, ToolWin, IDE.HelperFunc,
+  Shared.DebugStruct, Shared.CompilerInt.Struct, NewUxTheme, ImageList, ImgList, ToolWin,
+  IDE.HelperFunc, IDE.LocalizeFunc,
   VirtualImageList, BaseImageCollection, BitmapButton;
 
 const
@@ -140,6 +141,7 @@ type
     KeyMappingType: TKeyMappingType;
     MemoKeyMappingType: TIDEScintKeyMappingType;
     ThemeType: TThemeType;
+    Language: TIDELanguage;
     ShowPreprocessorOutput: Boolean;
     OpenIncludedFiles: Boolean;
     AutoHideNewIncludedFiles: Boolean;
@@ -692,7 +694,7 @@ uses
   PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc, UnsignedFunc,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.ScriptFunc,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
-  IDE.Messages, IDE.LocalizeFunc, IDE.HtmlHelpFunc, IDE.ImagesModule,
+  IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.GotoFileForm,
   IDE.InputQueryComboForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper,
   Shared.ConfigIniFile, Shared.SignToolsFunc, Shared.CompilerInt, Shared.LicenseFunc;
@@ -965,6 +967,19 @@ constructor TMainForm.Create(AOwner: TComponent);
     FOptionsLoaded := True;
   end;
 
+  procedure ReadAndApplyLanguage;
+  begin
+    const Ini = TConfigIniFile.Create;
+    try
+      const I = Ini.ReadInteger('Options', 'Language', Ord(GetDefaultLanguage));
+      if (I >= 0) and (I <= Ord(High(TIDELanguage))) then
+        FOptions.Language := TIDELanguage(I);
+    finally
+      Ini.Free
+    end;
+    InitLocalization(FOptions.Language);
+  end;
+
   procedure ReadAndApplyTheme;
   begin
     const Ini = TConfigIniFile.Create;
@@ -993,6 +1008,7 @@ begin
 
   FModifiedAnySinceLastCompile := True;
 
+  ReadAndApplyLanguage;
   LocalizeComponent(Self);
   InitFormFont(Self);
 
@@ -4006,6 +4022,7 @@ begin
       Ini.WriteInteger('Options', 'KeyMappingType', Ord(FOptions.KeyMappingType));
       Ini.WriteInteger('Options', 'MemoKeyMappingType', Ord(FOptions.MemoKeyMappingType));
       Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType)); { Also see Destroy }
+      Ini.WriteInteger('Options', 'Language', Ord(FOptions.Language));
       Ini.WriteString('Options', 'EditorFontName', FMainMemo.Font.Name);
       Ini.WriteInteger('Options', 'EditorFontSize', FMainMemo.Font.Size);
       Ini.WriteInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset);

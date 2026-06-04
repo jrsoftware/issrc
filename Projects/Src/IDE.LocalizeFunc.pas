@@ -14,6 +14,15 @@ interface
 uses
   Classes;
 
+type
+  TTranslationPair = record
+    English, Localized: String;
+  end;
+
+  TIDELanguage = (ilEnglish, ilDutch, ilGerman, ilJapanese);
+
+procedure InitLocalization(const Lang: TIDELanguage);
+
 function LFmtMessage(const Str: String; const AllowEmpty: Boolean = False): String; overload;
 function LFmtMessage(const Str: String; const Args: array of const;
   const AllowEmpty: Boolean = False): String; overload;
@@ -23,8 +32,29 @@ procedure LocalizeComponent(const Component: TComponent);
 implementation
 
 uses
-  SysUtils, Controls, StdCtrls, Menus,
-  NewTabSet;
+  SysUtils, Controls, StdCtrls, Menus, Generics.Collections,
+  NewTabSet,
+  IDE.LocalizeFunc.Dutch, IDE.LocalizeFunc.German, IDE.LocalizeFunc.Japanese;
+
+var
+  TranslationDictionary: TDictionary<String, String>;
+
+procedure InitLocalization(const Lang: TIDELanguage);
+
+  procedure AddTranslations(const Translations: array of TTranslationPair);
+  begin
+    for var I := Low(Translations) to High(Translations) do
+      TranslationDictionary.AddOrSetValue(Translations[I].English, Translations[I].Localized);
+  end;
+
+begin
+  TranslationDictionary.Clear;
+  case Lang of
+    ilDutch: AddTranslations(DutchIDETranslations);
+    ilGerman: AddTranslations(GermanIDETranslations);
+    ilJapanese: AddTranslations(JapaneseIDETranslations);
+  end;
+end;
 
 function FmtIDEMessage(S: PChar; const Args: array of const): String;
 { Same as Setup's FmtMessage, but takes an array of const and replaces %n.
@@ -94,7 +124,9 @@ begin
     else
       raise Exception.Create('Internal error: LFmtMessage called with empty string');
   end;
-  Result := Str; { Temporary }
+  if not Assigned(TranslationDictionary) or
+     not TranslationDictionary.TryGetValue(Str, Result) then
+    Result := Str;
   Result := FmtIDEMessage(PChar(Result), Args);
 end;
 
@@ -161,4 +193,8 @@ begin
     LocalizeComponent(Component.Components[I]);
 end;
 
+initialization
+  TranslationDictionary := TDictionary<String, String>.Create;
+finalization
+  TranslationDictionary.Free;
 end.

@@ -14,7 +14,8 @@ interface
 uses
   Windows,
   Classes, Forms, Dialogs, Menus, Controls, StdCtrls, Graphics,
-  ScintEdit, IDE.IDEScintEdit, ModernColors;
+  ScintEdit, ModernColors,
+  IDE.IDEScintEdit, IDE.LocalizeFunc;
 
 type
   TAddLinesPrefix = (alpNone, alpTimestamp, alpCountdown);
@@ -39,6 +40,7 @@ function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 
 function IsWindows10: Boolean;
 function IsWindows11: Boolean;
 function GetDefaultThemeType: TThemeType;
+function GetDefaultLanguage: TIDELanguage;
 function GetDefaultKeyMappingType: TKeyMappingType;
 function GetDefaultMemoKeyMappingType: TIDEScintKeyMappingType;
 procedure LaunchFileOrURL(const AFilename: String; const AParameters: String = '');
@@ -79,7 +81,7 @@ uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils, ExtCtrls,
   Messages, Consts, NetEncoding,
   ECDSA, SHA256, Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme, NewNotebook,
-  IDE.MainForm, IDE.Messages, IDE.LocalizeFunc, Shared.ConfigIniFile;
+  IDE.MainForm, IDE.Messages, Shared.ConfigIniFile;
 
 procedure InitFormFont(Form: TForm);
 begin
@@ -270,6 +272,11 @@ begin
     Result := ttModernDark
   else
     Result := ttModernLight;
+end;
+
+function GetDefaultLanguage: TIDELanguage;
+begin
+  Result := ilEnglish;
 end;
 
 function GetDefaultKeyMappingType: TKeyMappingType;

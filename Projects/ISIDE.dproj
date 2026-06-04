@@ -125,6 +125,9 @@
         <DCCReference Include="Src\IDE.HelperFunc.pas"/>
         <DCCReference Include="Src\IDE.Messages.pas"/>
         <DCCReference Include="Src\IDE.LocalizeFunc.pas"/>
+        <DCCReference Include="Src\IDE.LocalizeFunc.Dutch.pas"/>
+        <DCCReference Include="Src\IDE.LocalizeFunc.German.pas"/>
+        <DCCReference Include="Src\IDE.LocalizeFunc.Japanese.pas"/>
         <DCCReference Include="Src\Shared.CompilerInt.pas"/>
         <DCCReference Include="Src\Shared.CompilerInt.Struct.pas"/>
         <DCCReference Include="Src\IDE.OptionsForm.pas">
