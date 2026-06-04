@@ -23,7 +23,7 @@ object OptionsForm: TOptionsForm
     Left = 8
     Top = 8
     Width = 281
-    Height = 334
+    Height = 363
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Miscellaneous '
     TabOrder = 0
@@ -155,6 +155,23 @@ object OptionsForm: TOptionsForm
       Height = 17
       Caption = 'Keep new %1 files closed'
       TabOrder = 4
+    end
+    object Label6: TNewStaticText
+      Left = 8
+      Top = 330
+      Width = 49
+      Height = 14
+      Caption = 'Language'
+      FocusControl = LanguageComboBox
+      TabOrder = 16
+    end
+    object LanguageComboBox: TComboBox
+      Left = 72
+      Top = 326
+      Width = 201
+      Height = 21
+      Style = csDropDownList
+      TabOrder = 17
     end
   end
   object GroupBox3: TNewGroupBox

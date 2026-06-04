@@ -900,6 +900,10 @@ constructor TMainForm.Create(AOwner: TComponent);
         LFmtMessage(SUpdatePanelVersionUpdated, ['hwhatsnew']), BannerGreen, True);
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
         LFmtMessage(SUpdatePanelVSCodeShortcutsAdded, ['toptions-vscode']), BannerBlue, True);
+      if (FOptions.Language = ilEnglish) and
+         (PRIMARYLANGID(GetUILanguage) in [LANG_DUTCH, LANG_GERMAN, LANG_JAPANESE]) then
+        CheckUpdatePanelMessage(Ini, 'Language', 0, 1,
+          LFmtMessage(SUpdatePanelLanguageAvailable, ['toptions-language']), BannerBlue, True);
       { if FormatDateTime('yyyymm', Date) = '202604' then
         CheckUpdatePanelMessage(Ini, 'Ideas202604', 0, 1,
           LFmtMessage(SUpdatePanelIdeasBoardOpen, ['ideas']), BannerBlue, True); }
@@ -3930,11 +3934,14 @@ begin
     OptionsForm.KeyMappingComboBox.ItemIndex := Ord(FOptions.KeyMappingType);
     OptionsForm.MemoKeyMappingComboBox.ItemIndex := Ord(FOptions.MemoKeyMappingType);
     OptionsForm.ThemeComboBox.ItemIndex := Ord(FOptions.ThemeType);
+    OptionsForm.LanguageComboBox.ItemIndex := Ord(FOptions.Language);
     OptionsForm.FontPanel.Font.Assign(FMainMemo.Font);
     OptionsForm.FontPanel.ParentBackground := False;
     OptionsForm.FontPanel.Color := FMainMemo.Color;
     OptionsForm.HighlightWordAtCursorOccurrencesCheck.Checked := FOptions.HighlightWordAtCursorOccurrences;
     OptionsForm.HighlightSelTextOccurrencesCheck.Checked := FOptions.HighlightSelTextOccurrences;
+
+    const SaveLanguage = FOptions.Language;
 
     if OptionsForm.ShowModal <> mrOK then
       Exit;
@@ -3968,6 +3975,7 @@ begin
     FOptions.KeyMappingType := TKeyMappingType(OptionsForm.KeyMappingComboBox.ItemIndex);
     FOptions.MemoKeyMappingType := TIDEScintKeyMappingType(OptionsForm.MemoKeyMappingComboBox.ItemIndex);
     FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
+    FOptions.Language := TIDELanguage(OptionsForm.LanguageComboBox.ItemIndex);
     FOptions.HighlightWordAtCursorOccurrences := OptionsForm.HighlightWordAtCursorOccurrencesCheck.Checked;
     FOptions.HighlightSelTextOccurrences := OptionsForm.HighlightSelTextOccurrencesCheck.Checked;
 
@@ -4029,6 +4037,10 @@ begin
     finally
       Ini.Free;
     end;
+
+    if FOptions.Language <> SaveLanguage then
+      MsgBox(LFmtMessage(SOptionsLanguageChangeRestart),
+        LFmtMessage(SCompilerFormCaption), mbInformation, MB_OK);
   finally
     OptionsForm.Free;
   end;
@@ -6676,7 +6688,10 @@ begin
   else if Link = 'hwhatsnew' then
     HWhatsNew.Click
   else if Link = 'toptions-vscode' then begin
-    TOptionsForm.DropDownMemoKeyMappingComboBoxOnNextShow := True;
+    TOptionsForm.DropDownOnNextShow := odMemoKeyMapping;
+    TOptions.Click
+  end else if Link = 'toptions-language' then begin
+    TOptionsForm.DropDownOnNextShow := odLanguage;
     TOptions.Click
   end else if Link = 'ideas' then
     LaunchFileOrURL('https://ideas.innosetup.nl');

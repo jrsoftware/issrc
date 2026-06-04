@@ -230,6 +230,7 @@ const
   SOptionsThemeLight = 'Light';
   SOptionsThemeDark = 'Dark';
   SOptionsThemeClassic = 'Classic';
+  SOptionsLanguageChangeRestart = 'The new language will take effect the next time you start the Compiler IDE.';
 
   { Menu captions }
   SMenuNewWithWizard = '&New...';
@@ -294,6 +295,7 @@ const
   { Update panel }
   SUpdatePanelVersionUpdated = 'Your version of Inno Setup has been updated! <a id="%1">See what''s new</a>.';
   SUpdatePanelVSCodeShortcutsAdded = 'VS Code-style editor shortcuts added! Use the <a id="%1">Editor Keys option</a> in Options dialog.';
+  SUpdatePanelLanguageAvailable = 'The Compiler IDE is available in your language! Use the <a id="%1">Language option</a> in Options dialog.';
   SUpdatePanelIdeasBoardOpen = '<a id="%1">Ideas board is open!</a> Share your ideas and vote on others, this month only.';
   SUpdatePanelRunningAfterEntitlementEnded = 'Running a version released after your update entitlement ended. <a id="%1">Renew license</a>, <a id="%2">remove key</a>, or <a id="%3">exit</a>.';
   SUpdatePanelEntitlementEndingSoon = 'Your update entitlement is ending soon. Please <a id="%1">renew your license</a>. Thanks!';
