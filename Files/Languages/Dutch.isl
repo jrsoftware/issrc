@@ -47,8 +47,8 @@ SetupAppRunningError=Setup heeft vastgesteld dat %1 op dit moment actief is.%n%n
 UninstallAppRunningError=Het verwijderprogramma heeft vastgesteld dat %1 op dit moment actief is.%n%nSluit alle vensters hiervan, en klik daarna op OK om verder te gaan, of op Annuleren om het verwijderen af te breken.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Selecteer installatie modus voor Setup
-PrivilegesRequiredOverrideInstruction=Selecteer installatie modus
+PrivilegesRequiredOverrideTitle=Selecteer installatiemodus voor Setup
+PrivilegesRequiredOverrideInstruction=Selecteer installatiemodus
 PrivilegesRequiredOverrideText1=%1 kan geïnstalleerd worden voor alle gebruikers (vereist aanmelding als een systeembeheerder), of voor u alleen.
 PrivilegesRequiredOverrideText2=%1 kan geïnstalleerd worden voor u alleen, of voor alle gebruikers (vereist aanmelding als een systeembeheerder).
 PrivilegesRequiredOverrideAllUsers=Installeer voor &alle gebruikers
