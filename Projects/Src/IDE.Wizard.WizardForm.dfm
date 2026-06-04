@@ -1139,7 +1139,7 @@ object WizardForm: TWizardForm
             Top = 160
             Width = 245
             Height = 17
-            Caption = 'Create only if Windows'#39' version is at least:'
+            Caption = 'Minimum Windows version:'
             TabOrder = 7
           end
           object AppRegistryMinVerEdit: TEdit

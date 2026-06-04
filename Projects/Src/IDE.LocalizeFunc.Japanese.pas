@@ -444,7 +444,7 @@ const
     (English: 'Also delete keys which are not empty'; Localized: '空でないキーも削除する'),
     (English: 'Delete keys which are empty on uninstall'; Localized: 'アンインストール時に空のキーを削除する'),
     (English: 'Delete values on uninstall'; Localized: 'アンインストール時に値を削除する'),
-    (English: 'Create only if Windows'' version is at least:'; Localized: 'Windows のバージョンが次以上の場合のみ作成:'),
+    (English: 'Minimum Windows version:'; Localized: 'Windows の最小バージョン:'),
     (English: 'Configure Sign Tools'; Localized: '署名ツールの構成'),
     (English: ' Sign Tools '; Localized: ' 署名ツール '),
     (English: '&Add...'; Localized: '追加(&A)...'),

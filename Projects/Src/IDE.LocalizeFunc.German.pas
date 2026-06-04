@@ -444,7 +444,7 @@ const
     (English: 'Also delete keys which are not empty'; Localized: 'Auch Schlüssel löschen, die nicht leer sind'),
     (English: 'Delete keys which are empty on uninstall'; Localized: 'Bei der Deinstallation leere Schlüssel löschen'),
     (English: 'Delete values on uninstall'; Localized: 'Bei der Deinstallation Werte löschen'),
-    (English: 'Create only if Windows'' version is at least:'; Localized: 'Nur erstellen ab Windows-Version:'),
+    (English: 'Minimum Windows version:'; Localized: 'Windows-Mindestversion:'),
     (English: 'Configure Sign Tools'; Localized: 'Signaturtools konfigurieren'),
     (English: ' Sign Tools '; Localized: ' Signaturtools '),
     (English: '&Add...'; Localized: '&Hinzufügen...'),
