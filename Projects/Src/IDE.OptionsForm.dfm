@@ -159,9 +159,9 @@ object OptionsForm: TOptionsForm
     object Label6: TNewStaticText
       Left = 8
       Top = 330
-      Width = 49
+      Width = 52
       Height = 14
-      Caption = 'Language'
+      Caption = 'Language:'
       FocusControl = LanguageComboBox
       TabOrder = 16
     end

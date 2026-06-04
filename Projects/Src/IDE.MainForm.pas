@@ -900,10 +900,17 @@ constructor TMainForm.Create(AOwner: TComponent);
         LFmtMessage(SUpdatePanelVersionUpdated, ['hwhatsnew']), BannerGreen, True);
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
         LFmtMessage(SUpdatePanelVSCodeShortcutsAdded, ['toptions-vscode']), BannerBlue, True);
-      if (FOptions.Language = ilEnglish) and
-         (PRIMARYLANGID(GetUILanguage) in [LANG_DUTCH, LANG_GERMAN, LANG_JAPANESE]) then
-        CheckUpdatePanelMessage(Ini, 'Language', 0, 1,
-          LFmtMessage(SUpdatePanelLanguageAvailable, ['toptions-language']), BannerBlue, True);
+      if FOptions.Language = ilEnglish then begin
+        var MessageLanguage := ilEnglish;
+        case PRIMARYLANGID(GetUILanguage) of
+          LANG_DUTCH: MessageLanguage := ilDutch;
+          LANG_GERMAN: MessageLanguage := ilGerman;
+          LANG_JAPANESE: MessageLanguage := ilJapanese;
+        end;
+        if MessageLanguage <> ilEnglish then
+          CheckUpdatePanelMessage(Ini, 'Language', 0, 1,
+            LFmtMessage(MessageLanguage, SUpdatePanelLanguageAvailable, ['toptions-language']), BannerBlue, True);
+      end;
       { if FormatDateTime('yyyymm', Date) = '202604' then
         CheckUpdatePanelMessage(Ini, 'Ideas202604', 0, 1,
           LFmtMessage(SUpdatePanelIdeasBoardOpen, ['ideas']), BannerBlue, True); }

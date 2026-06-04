@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..497] of TTranslationPair = (
+  GermanIDETranslations: array [0..500] of TTranslationPair = (
     (English: 'Command line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -179,6 +179,7 @@ const
     (English: 'Visual Studio Code'; Localized: 'Visual Studio Code'),
     (English: 'Light'; Localized: 'Hell'),
     (English: 'Dark'; Localized: 'Dunkel'),
+    (English: 'The new language will take effect the next time you start Inno Setup Compiler.'; Localized: 'Die neue Sprache wird beim nächsten Start von Inno Setup Compiler wirksam.'),
     (English: '&New...'; Localized: '&Neu...'),
     (English: '&New'; Localized: '&Neu'),
     (English: 'Line %1'; Localized: 'Zeile %1'),
@@ -227,6 +228,7 @@ const
     (English: 'Commercial license key has been removed.'; Localized: 'Kommerzieller Lizenzschlüssel wurde entfernt.'),
     (English: 'Your version of Inno Setup has been updated! <a id="%1">See what''s new</a>.'; Localized: 'Ihre Version von Inno Setup wurde aktualisiert! <a id="%1">Neuerungen ansehen</a>.'),
     (English: 'VS Code-style editor shortcuts added! Use the <a id="%1">Editor Keys option</a> in Options dialog.'; Localized: 'Editor-Tastenkombinationen im VS Code-Stil hinzugefügt! Verwenden Sie die <a id="%1">Option "Tasten"</a> im Dialog "Optionen".'),
+    (English: 'Inno Setup Compiler is available in your language! Use the <a id="%1">Language option</a> in Options dialog.'; Localized: 'Inno Setup Compiler ist in Ihrer Sprache verfügbar! Verwenden Sie die <a id="%1">Option "Sprache"</a> im Dialog "Optionen".'),
     (English: '<a id="%1">Ideas board is open!</a> Share your ideas and vote on others, this month only.'; Localized: '<a id="%1">Das Ideen-Board ist geöffnet!</a> Teilen Sie Ihre Ideen und stimmen Sie über andere ab, nur diesen Monat.'),
     (English: 'Running a version released after your update entitlement ended. <a id="%1">Renew license</a>, <a id="%2">remove key</a>, or <a id="%3">exit</a>.'; Localized: 'Sie verwenden eine Version, die nach dem Ende Ihrer Update-Berechtigung veröffentlicht wurde. <a id="%1">Lizenz verlängern</a>, <a id="%2">Schlüssel entfernen</a> oder <a id="%3">beenden</a>.'),
     (English: 'Your update entitlement is ending soon. Please <a id="%1">renew your license</a>. Thanks!'; Localized: 'Ihre Update-Berechtigung endet bald. Bitte <a id="%1">verlängern Sie Ihre Lizenz</a>. Vielen Dank!'),
@@ -417,6 +419,7 @@ const
     (English: 'Automatically reload files'; Localized: 'Dateien automatisch neu laden'),
     (English: 'Allow Undo after reload'; Localized: 'Rückgängig nach dem Neuladen erlauben'),
     (English: 'Keep new %1 files closed'; Localized: 'Neue %1-Dateien geschlossen halten'),
+    (English: 'Language:'; Localized: 'Sprache:'),
     (English: ' Editor '; Localized: ' Editor '),
     (English: 'Invoke autoco&mplete automatically'; Localized: 'Autovervollständigung auto&matisch aufrufen'),
     (English: 'Use syntax &highlighting'; Localized: 'Syntax&hervorhebung verwenden'),

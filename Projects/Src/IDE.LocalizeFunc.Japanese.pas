@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..497] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..500] of TTranslationPair = (
     (English: 'Command line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -23,7 +23,7 @@ const
     (English: 'My script'; Localized: 'マイ スクリプト'),
     (English: 'My Script Wizard'; Localized: 'マイ スクリプトウィザード'),
     (English: 'Could not load %1: %2'; Localized: '%1 を読み込めませんでした: %2'),
-    (English: 'Inno Setup Compiler'; Localized: 'Inno Setup コンパイラー'),
+    (English: 'Inno Setup Compiler'; Localized: 'Inno Setup Compiler'),
     (English: 'Example scripts...'; Localized: 'サンプルスクリプト...'),
     (English: 'More files...'; Localized: 'その他のファイル...'),
     (English: 'Untitled'; Localized: '無題'),
@@ -179,6 +179,7 @@ const
     (English: 'Visual Studio Code'; Localized: 'Visual Studio Code'),
     (English: 'Light'; Localized: 'ライト'),
     (English: 'Dark'; Localized: 'ダーク'),
+    (English: 'The new language will take effect the next time you start Inno Setup Compiler.'; Localized: '新しい言語は、次回 Inno Setup Compiler を起動したときに反映されます。'),
     (English: '&New...'; Localized: '新規(&N)...'),
     (English: '&New'; Localized: '新規(&N)'),
     (English: 'Line %1'; Localized: '行 %1'),
@@ -227,6 +228,7 @@ const
     (English: 'Commercial license key has been removed.'; Localized: '商用ライセンスキーが削除されました。'),
     (English: 'Your version of Inno Setup has been updated! <a id="%1">See what''s new</a>.'; Localized: 'ご使用の Inno Setup のバージョンが更新されました！<a id="%1">新機能を見る</a>。'),
     (English: 'VS Code-style editor shortcuts added! Use the <a id="%1">Editor Keys option</a> in Options dialog.'; Localized: 'VS Code スタイルのエディターショートカットが追加されました！「オプション」ダイアログで <a id="%1">エディターの「キー」オプション</a>を使用してください。'),
+    (English: 'Inno Setup Compiler is available in your language! Use the <a id="%1">Language option</a> in Options dialog.'; Localized: 'Inno Setup Compiler をお使いの言語でご利用いただけます！「オプション」ダイアログで <a id="%1">「言語」オプション</a>を使用してください。'),
     (English: '<a id="%1">Ideas board is open!</a> Share your ideas and vote on others, this month only.'; Localized: '<a id="%1">アイデアボードが公開されました！</a> あなたのアイデアを共有し、他の人のアイデアに投票してください。今月限定です。'),
     (English: 'Running a version released after your update entitlement ended. <a id="%1">Renew license</a>, <a id="%2">remove key</a>, or <a id="%3">exit</a>.'; Localized: 'アップデート権の終了後にリリースされたバージョンを実行しています。<a id="%1">ライセンスを更新</a>、<a id="%2">キーを削除</a>、または <a id="%3">終了</a>。'),
     (English: 'Your update entitlement is ending soon. Please <a id="%1">renew your license</a>. Thanks!'; Localized: 'アップデート権はまもなく終了します。<a id="%1">ライセンスを更新</a>してください。よろしくお願いします！'),
@@ -417,6 +419,7 @@ const
     (English: 'Automatically reload files'; Localized: 'ファイルを自動的に再読み込み'),
     (English: 'Allow Undo after reload'; Localized: '再読み込み後に元に戻すことを許可'),
     (English: 'Keep new %1 files closed'; Localized: '新しい %1 ファイルを閉じたままにする'),
+    (English: 'Language:'; Localized: '言語:'),
     (English: ' Editor '; Localized: ' エディター '),
     (English: 'Invoke autoco&mplete automatically'; Localized: 'オートコンプリートを自動的に呼び出す(&M)'),
     (English: 'Use syntax &highlighting'; Localized: '構文の強調表示を使用(&H)'),

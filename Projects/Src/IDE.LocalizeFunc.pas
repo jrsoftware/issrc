@@ -26,6 +26,10 @@ procedure InitLocalization(const Lang: TIDELanguage);
 function LFmtMessage(const Str: String; const AllowEmpty: Boolean = False): String; overload;
 function LFmtMessage(const Str: String; const Args: array of const;
   const AllowEmpty: Boolean = False): String; overload;
+function LFmtMessage(const Language: TIDELanguage; const Str: String;
+  const AllowEmpty: Boolean = False): String; overload;
+function LFmtMessage(const Language: TIDELanguage; const Str: String;
+  const Args: array of const; const AllowEmpty: Boolean = False): String; overload;
 
 procedure LocalizeComponent(const Component: TComponent);
 
@@ -110,6 +114,17 @@ begin
   end;
 end;
 
+function CheckMessageStr(const Str: String; const AllowEmpty: Boolean): Boolean;
+begin
+  if Str = '' then begin
+    if AllowEmpty then
+      Exit(False)
+    else
+      raise Exception.Create('Internal error: LFmtMessage called with empty string');
+  end;
+  Result := True;
+end;
+
 function LFmtMessage(const Str: String; const AllowEmpty: Boolean): String;
 begin
   Result := LFmtMessage(Str, [], AllowEmpty);
@@ -118,14 +133,49 @@ end;
 function LFmtMessage(const Str: String; const Args: array of const;
   const AllowEmpty: Boolean): String;
 begin
-  if Str = '' then begin
-    if AllowEmpty then
-      Exit('')
-    else
-      raise Exception.Create('Internal error: LFmtMessage called with empty string');
-  end;
+  if not CheckMessageStr(Str, AllowEmpty) then
+    Exit('');
   if not Assigned(TranslationDictionary) or
      not TranslationDictionary.TryGetValue(Str, Result) then
+    Result := Str;
+  Result := FmtIDEMessage(PChar(Result), Args);
+end;
+
+function LFmtMessage(const Language: TIDELanguage; const Str: String;
+  const AllowEmpty: Boolean): String;
+begin
+  Result := LFmtMessage(Language, Str, [], AllowEmpty);
+end;
+
+function LFmtMessage(const Language: TIDELanguage; const Str: String;
+  const Args: array of const; const AllowEmpty: Boolean): String;
+
+  function GetTranslationFrom(const Translations: array of TTranslationPair; out Localized: String): Boolean;
+  begin
+    for var I := Low(Translations) to High(Translations) do begin
+      if Translations[I].English = Str then begin
+        Localized := Translations[I].Localized;
+        Exit(True);
+      end;
+    end;
+    Result := False;
+  end;
+
+  function GetTranslationForLanguage(out Localized: String): Boolean;
+  begin
+    case Language of
+      ilDutch: Result := GetTranslationFrom(DutchIDETranslations, Localized);
+      ilGerman: Result := GetTranslationFrom(GermanIDETranslations, Localized);
+      ilJapanese: Result := GetTranslationFrom(JapaneseIDETranslations, Localized);
+    else
+      Result := False;
+    end;
+  end;
+
+begin
+  if not CheckMessageStr(Str, AllowEmpty) then
+    Exit('');
+  if not GetTranslationForLanguage(Result) then
     Result := Str;
   Result := FmtIDEMessage(PChar(Result), Args);
 end;

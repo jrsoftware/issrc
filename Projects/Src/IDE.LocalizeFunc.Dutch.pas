@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..497] of TTranslationPair = (
+  DutchIDETranslations: array [0..500] of TTranslationPair = (
     (English: 'Command line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -179,6 +179,7 @@ const
     (English: 'Visual Studio Code'; Localized: 'Visual Studio Code'),
     (English: 'Light'; Localized: 'Licht'),
     (English: 'Dark'; Localized: 'Donker'),
+    (English: 'The new language will take effect the next time you start Inno Setup Compiler.'; Localized: 'De nieuwe taal wordt van kracht de volgende keer dat u Inno Setup Compiler start.'),
     (English: '&New...'; Localized: '&Nieuw...'),
     (English: '&New'; Localized: '&Nieuw'),
     (English: 'Line %1'; Localized: 'Regel %1'),
@@ -227,6 +228,7 @@ const
     (English: 'Commercial license key has been removed.'; Localized: 'Commerciële licentiesleutel is verwijderd.'),
     (English: 'Your version of Inno Setup has been updated! <a id="%1">See what''s new</a>.'; Localized: 'Uw versie van Inno Setup is bijgewerkt! <a id="%1">Bekijk wat er nieuw is</a>.'),
     (English: 'VS Code-style editor shortcuts added! Use the <a id="%1">Editor Keys option</a> in Options dialog.'; Localized: 'Editorsneltoetsen in VS Code-stijl toegevoegd! Gebruik de <a id="%1">optie Editortoetsen</a> in het venster Opties.'),
+    (English: 'Inno Setup Compiler is available in your language! Use the <a id="%1">Language option</a> in Options dialog.'; Localized: 'Inno Setup Compiler is beschikbaar in uw taal! Gebruik de <a id="%1">optie Taal</a> in het venster Opties.'),
     (English: '<a id="%1">Ideas board is open!</a> Share your ideas and vote on others, this month only.'; Localized: '<a id="%1">Het ideeënbord is open!</a> Deel uw ideeën en stem op die van anderen, alleen deze maand.'),
     (English: 'Running a version released after your update entitlement ended. <a id="%1">Renew license</a>, <a id="%2">remove key</a>, or <a id="%3">exit</a>.'; Localized: 'U gebruikt een versie die is uitgebracht nadat uw recht op updates is verlopen. <a id="%1">Licentie verlengen</a>, <a id="%2">licentiesleutel verwijderen</a> of <a id="%3">afsluiten</a>.'),
     (English: 'Your update entitlement is ending soon. Please <a id="%1">renew your license</a>. Thanks!'; Localized: 'Uw recht op updates verloopt binnenkort. <a id="%1">Verleng uw licentie</a>. Bedankt!'),
@@ -417,6 +419,7 @@ const
     (English: 'Automatically reload files'; Localized: 'Bestanden automatisch opnieuw laden'),
     (English: 'Allow Undo after reload'; Localized: 'Ongedaan maken na opnieuw laden toestaan'),
     (English: 'Keep new %1 files closed'; Localized: 'Nieuwe %1-bestanden gesloten houden'),
+    (English: 'Language:'; Localized: 'Taal:'),
     (English: ' Editor '; Localized: ' Editor '),
     (English: 'Invoke autoco&mplete automatically'; Localized: 'Aa&nvulling automatisch aanroepen'),
     (English: 'Use syntax &highlighting'; Localized: 'S&yntaxismarkering gebruiken'),
