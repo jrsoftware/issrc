@@ -27,7 +27,7 @@ const
   SLitRegExt = 'reg';
   SLitIcoExt = 'ico';
   SLit7zExt  = '7z';
-  SLitExtAndAllFilter = '%0:s (*.%1:s)|*.%1:s|%2:s|*.*';
+  SLitExtAndAllFilter = '%s (*.%s)|*.%1:s|%s|*.*';
   SLitDocsAndAllFilter = '%s (*.rtf,*.txt)|*.rtf;*.txt|%s|*.*';
   SLitAllFilesFilter = '%s|*.*';
 
