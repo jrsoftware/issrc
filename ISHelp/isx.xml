@@ -87,7 +87,7 @@
 
 <p>The <i>Code*.iss</i>, <i>UninstallCode*.iss</i>, and <i>AllPagesExample.iss</i> example scripts in the "Examples" subdirectory in your Inno Setup directory contain various example <tt>[Code]</tt> sections. Please study them carefully before trying to create your own Pascal script.</p>
 
-<p>Note: to learn more about the Pascal programming language you may find useful to refer to Marco Cant&#249;'s free Essential Pascal book. See <extlink href="http://www.marcocantu.com/epascal/">http://www.marcocantu.com/epascal/</extlink> and <extlink href="https://www.marcocantu.com/epascal/EssentialPascal.zip">https://www.marcocantu.com/epascal/EssentialPascal.zip</extlink>.</p>
+<p>Note: to learn more about the Pascal programming language you may find it useful to refer to Marco Cant&#249;'s free Essential Pascal book. See <extlink href="http://www.marcocantu.com/epascal/">http://www.marcocantu.com/epascal/</extlink> and <extlink href="https://www.marcocantu.com/epascal/EssentialPascal.zip">https://www.marcocantu.com/epascal/EssentialPascal.zip</extlink>.</p>
 
 <p>To suppress compiler warnings for a line, include a <tt>{$NOWARN}</tt> marker anywhere on that line. It is recognized even inside comments.</p>
 
@@ -415,7 +415,7 @@ FileName: "{app}\MyIni.ini"; Section: "MySettings"; Key: "ShortApp"; String: "{c
 <param name="Check">
 <p>The name of a check function that determines whether an entry has to be processed or not. The function must either be a custom function in the [Code] section or a <link topic="scriptfunctions">support function</link>.</p>
 <p>Besides a single name, you may also use boolean expressions. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</p>
-<p>For each check function, may include a comma separated list of parameters that Setup should pass to the check function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
+<p>For each check function, you may include a comma separated list of parameters that Setup should pass to the check function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
 <example>
 <pre>[Files]
 Source: "MyProg.exe"; DestDir: "{app}"; Check: MyProgCheck

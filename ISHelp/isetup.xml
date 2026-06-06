@@ -1740,7 +1740,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <li>The <tt>ignoreversion</tt> flag is also used on the entry.</li>
 <li>The <tt>replacesameversion</tt> flag isn't used, and the existing file and the file being installed have the same version number (as determined by the files' version info).</li>
 </ul>
-<p>If the existing file has an older time stamp (last write/modified time) than the file being installed, the existing file will replaced. Otherwise, it will not be replaced.</p>
+<p>If the existing file has an older time stamp (last write/modified time) than the file being installed, the existing file will be replaced. Otherwise, it will not be replaced.</p>
 <p>Use of this flag is <i>not recommended</i> except as a last resort, because there is an inherent issue with it: NTFS partitions store time stamps in UTC (unlike FAT partitions), which causes local time stamps -- what Inno Setup works with by default -- to shift whenever a user changes their system's time zone or when daylight saving time goes into or out of effect. This can create a situation where files are replaced when the user doesn't expect them to be, or not replaced when the user expects them to be.</p>
 </flag>
 <flag name="confirmoverwrite">
@@ -1796,7 +1796,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="issigverify">
 <p>Instructs the compiler or Setup to verify the source file's signature using a key from the <link topic="issigkeyssection">[ISSigKeys] section</link>, allowing all keys by default. Use the <tt>ISSigAllowedKeys</tt> parameter to limit the allowed keys.</p>
-<p>The verification requires an <tt>.issig</tt> signature file to be present in the same directory as the source file, created using the <link topic="issigtool">Inno Setup Signature Tool</link>. If flag <tt>download</tt> is set then the <tt>.issig</tt> signature file will be downloaded instead. See the <tt>DownloadISSigSource</tt> parameter description for more information..</p>
+<p>The verification requires an <tt>.issig</tt> signature file to be present in the same directory as the source file, created using the <link topic="issigtool">Inno Setup Signature Tool</link>. If flag <tt>download</tt> is set then the <tt>.issig</tt> signature file will be downloaded instead. See the <tt>DownloadISSigSource</tt> parameter description for more information.</p>
 <p>The precise effect of this flag depends on whether it is combined with the <tt>external</tt> flag:</p>
 <ul>
 <li>When used without the <tt>external</tt> flag, the compiler will verify the source file while it is being compressed/stored into the resulting installer. If the verification fails, compilation will abort.</li>
@@ -2307,7 +2307,7 @@ ButtonNext=&amp;Forward
 en.ButtonNext=&amp;Forward
 </precode>
 
-<p>If a message is missing or not recognized for a language, the compiler will warn you about this, which can be disabled using <link topic="setup_missingmessageswarning">MissingMessagesWarning</link> and  <link topic="setup_notrecognizedmessageswarning">NotRecognizedMessagesWarning</link>.</p>
+<p>If a message is missing or not recognized for a language, the compiler will warn you about this, which can be disabled using <link topic="setup_missingmessageswarning">MissingMessagesWarning</link> and <link topic="setup_notrecognizedmessageswarning">NotRecognizedMessagesWarning</link>.</p>
 
 <heading>Special-purpose messages</heading>
 
@@ -3799,7 +3799,7 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 <keyword value="Regex" />
 <body>
 
-<p>The Compiler IDE supports to use of regular expressions for all of its find and replace operations. This can be enabled and disabled using the <i>Use Regular Expressions</i> option to the <i>Edit</i> menu or its shortcut (Ctrl+Alt+R or Alt+R). Once enabled or disabled, this setting will be preserved across sessions.</p>
+<p>The Compiler IDE supports the use of regular expressions for all of its find and replace operations. This can be enabled and disabled using the <i>Use Regular Expressions</i> option to the <i>Edit</i> menu or its shortcut (Ctrl+Alt+R or Alt+R). Once enabled or disabled, this setting will be preserved across sessions.</p>
 
 <p>When used, regular expressions will only match ranges within a single line, never matching over multiple lines.</p>
 
@@ -6566,7 +6566,7 @@ WizardBackImageOpacity=150</pre></example>
 <p>If set to <tt>yes</tt>, files that are compiled into the installation (via [Files] section entries) will be encrypted using XChaCha20 encryption.</p>
 <p>If set to <tt>full</tt>, the entire installation will be encrypted, and the password must be specified using the <link topic="setupcmdline" anchor="PASSWORD">/PASSWORD=</link> command line parameter.</p>
 <p>If set to <tt>yes</tt> or <tt>full</tt> and you call the <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> function from the [Code] section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the [Files] section entry for the file.</p>
-<p>If set to <tt>yes</tt> or <tt>full</tt> the 256-bit XChaCha20 encryption key is derived from the value of <link topic="setup_password">Password</link> using the function specified by <link topic="setup_encryptionkeyderivation">EncryptionKeyDerivation</link></p>
+<p>If set to <tt>yes</tt> or <tt>full</tt> the 256-bit XChaCha20 encryption key is derived from the value of <link topic="setup_password">Password</link> using the function specified by <link topic="setup_encryptionkeyderivation">EncryptionKeyDerivation</link>.</p>
 <p>The 192-bit XChaCha20 encryption nonce is a random base nonce, appending the index of the first file in the chunk for unique encryption nonces.</p>
 <p><b>See also:</b><br/>
 <link topic="setup_password">Password</link><br/>
