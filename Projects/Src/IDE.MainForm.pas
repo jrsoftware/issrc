@@ -2386,7 +2386,7 @@ begin
     StatusMessage(smkStartEnd, '');
     FCompiling := True;
     FCompileWantAbort := False;
-    UpdateRunMenu;
+    UpdateRunMenuItems;
     UpdateCaption;
     SetLowPriority(FOptions.LowPriorityDuringCompile, FSavePriorityClass);
 
@@ -2435,7 +2435,7 @@ begin
     for Memo in FFileMemos do
       Memo.ReadOnly := False;
     UpdateEditModeStatusPanel;
-    UpdateRunMenu;
+    UpdateRunMenuItems;
     UpdateCaption;
     UpdatePreprocMemos;
     if AppData.DebugInfo <> nil then begin
@@ -3491,7 +3491,7 @@ begin
     OldActiveMemo.Visible := False;
 
     UpdateSaveMenuItemAndButton;
-    UpdateRunMenu;
+    UpdateRunMenuItems;
     UpdateCaretPosPanelAndBackNavStack;
     UpdateEditModeStatusPanel;
     UpdateModifiedStatusPanel;
@@ -5035,7 +5035,7 @@ begin
     SendCopyDataMessageStr(FDebugClientWnd, Handle, CD_DebugClient_CompiledCodeTextA, FCompiledCodeText);
   SendCopyDataMessageStr(FDebugClientWnd, Handle, CD_DebugClient_CompiledCodeDebugInfoA, FCompiledCodeDebugInfo);
 
-  UpdateRunMenu;
+  UpdateRunMenuItems;
 end;
 
 procedure TMainForm.WMDebuggerGoodbye(var Message: TMessage);
@@ -5134,7 +5134,7 @@ begin
     Message.Result := 1;
     FPaused := True;
     FPausedAtCodeLine := DebugEntry.Kind = Ord(deCodeLine);
-    UpdateRunMenu;
+    UpdateRunMenuItems;
     UpdateCaption;
   end;
 end;
@@ -5182,7 +5182,7 @@ begin
     Message.Result := 1;
     FPaused := True;
     FPausedAtCodeLine := (DebugEntry <> nil) and (DebugEntry.Kind = Ord(deCodeLine));
-    UpdateRunMenu;
+    UpdateRunMenuItems;
     UpdateCaption;
 
     ReplyMessage(Message.Result);  { so that Setup enters a paused state now }
@@ -5465,7 +5465,7 @@ begin
   CheckIfTerminatedTimer.Enabled := False;
   HideError;
   SetStepLine(FStepMemo, -1);
-  UpdateRunMenu;
+  UpdateRunMenuItems;
   UpdateCaption;
   DebugLogMessage(SLitStatusEventPrefix + ExitCodeText);
   StatusBar.Panels[spExtraStatus].Text := ' ' + ExitCodeText;
@@ -5495,7 +5495,7 @@ end;
 
 procedure TMainForm.RMenuClick(Sender: TObject);
 begin
-  UpdateRunMenu2(RMenu);
+  UpdateRunMenu(RMenu);
 end;
 
 procedure TMainForm.BreakPointsPopupMenuClick(Sender: TObject);
@@ -5825,7 +5825,7 @@ procedure TMainForm.Go(const AStepMode: TStepMode);
     FPaused := False;
     FProcessHandle := Info.hProcess;
     CheckIfTerminatedTimer.Enabled := True;
-    UpdateRunMenu;
+    UpdateRunMenuItems;
     UpdateCaption;
     DebugLogMessage(SLitStatusEventPrefix + LFmtMessage(SDebugTargetStarted, [LFmtMessage(DebugTargetStrings[FDebugTarget])]));
   end;
@@ -5834,7 +5834,7 @@ procedure TMainForm.Go(const AStepMode: TStepMode);
   begin
     if FPaused then begin
       FPaused := False;
-      UpdateRunMenu;
+      UpdateRunMenuItems;
       UpdateCaption;
       if DebugCallStackList.Items.Count > 0 then begin
         DebugCallStackList.Clear;

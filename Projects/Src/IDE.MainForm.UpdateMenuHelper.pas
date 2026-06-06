@@ -29,8 +29,8 @@ type
     procedure UpdateHelpMenu(const Menu: TMenuItem);
     procedure UpdateSimpleMenu(const Menu: TMenuItem);
     procedure UpdateToolsMenu(const Menu: TMenuItem);
-    procedure UpdateRunMenu;
-    procedure UpdateRunMenu2(const Menu: TMenuItem);
+    procedure UpdateRunMenuItems;
+    procedure UpdateRunMenu(const Menu: TMenuItem);
     procedure UpdateBreakPointsMenu(const Menu: TMenuItem);
     procedure UpdateTargetMenuItems;
     { Private }
@@ -473,7 +473,7 @@ end;
   other code depends on the states being correct always even if the user never
   clicks the Run menu. This is unlike the other menus. Note: also updates
   BCompile and BStopCompile from the Build menu. }
-procedure TMainFormUpdateMenuHelper.UpdateRunMenu;
+procedure TMainFormUpdateMenuHelper.UpdateRunMenuItems;
 begin
   CheckIfTerminated;
   BCompile.Enabled := not FCompiling and not FDebugging;
@@ -495,7 +495,7 @@ begin
   { See UpdateRunMenu2 for other menu items and also see UpdateBreakPointsMenu }
 end;
 
-procedure TMainFormUpdateMenuHelper.UpdateRunMenu2(const Menu: TMenuItem);
+procedure TMainFormUpdateMenuHelper.UpdateRunMenu(const Menu: TMenuItem);
 begin
   RDeleteBreakPoints.Enabled := _AnyMemoHasBreakPoint;
   { See UpdateRunMenu for other menu items }
