@@ -6696,10 +6696,10 @@ begin
     HWhatsNew.Click
   else if Link = 'toptions-vscode' then begin
     TOptionsForm.DropDownOnNextShow := odMemoKeyMapping;
-    TOptions.Click
+    TOptions.Click;
   end else if Link = 'toptions-language' then begin
     TOptionsForm.DropDownOnNextShow := odLanguage;
-    TOptions.Click
+    TOptions.Click;
   end else if Link = 'ideas' then
     LaunchFileOrURL('https://ideas.innosetup.nl');
 end;
