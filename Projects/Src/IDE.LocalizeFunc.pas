@@ -21,7 +21,7 @@ type
 
   TIDELanguage = (ilEnglish, ilDutch, ilGerman, ilJapanese);
 
-procedure InitLocalization(const Lang: TIDELanguage);
+procedure InitLocalization(const Lang: TIDELanguage; const Reverse: Boolean = False);
 
 function LFmtMessage(const Str: String; const AllowEmpty: Boolean = False): String; overload;
 function LFmtMessage(const Str: String; const Args: array of const;
@@ -43,12 +43,16 @@ uses
 var
   TranslationDictionary: TDictionary<String, String>;
 
-procedure InitLocalization(const Lang: TIDELanguage);
+procedure InitLocalization(const Lang: TIDELanguage; const Reverse: Boolean);
 
   procedure AddTranslations(const Translations: array of TTranslationPair);
   begin
-    for var I := Low(Translations) to High(Translations) do
-      TranslationDictionary.AddOrSetValue(Translations[I].English, Translations[I].Localized);
+    for var I := Low(Translations) to High(Translations) do begin
+      if Reverse then
+        TranslationDictionary.AddOrSetValue(Translations[I].Localized, Translations[I].English)
+      else
+        TranslationDictionary.AddOrSetValue(Translations[I].English, Translations[I].Localized);
+    end;
   end;
 
 begin

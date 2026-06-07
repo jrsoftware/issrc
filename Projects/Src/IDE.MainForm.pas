@@ -533,6 +533,7 @@ type
     function EvaluateConstant(const S: String; out Output: String): Integer;
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       out Output: String): Integer;
+    procedure FinishLocalization;
     function GetBorderStyle: TFormBorderStyle;
     procedure Go(const AStepMode: TStepMode);
     procedure HideError;
@@ -1022,27 +1023,7 @@ begin
   ReadAndApplyLanguage;
   LocalizeComponent(Self);
   InitFormFont(Self);
-
-  { Finish localization: LocalizeComponent translated every property, but some
-    still contain an unfilled %1 etc., which we now replace }
-  NewMainFileButton.Hint := LFmtMessage(NewMainFileButton.Hint, [NewShortCutToText(FNewMainFile.ShortCut)]);
-  OpenMainFileButton.Hint := LFmtMessage(OpenMainFileButton.Hint, [NewShortCutToText(FOpenMainFile.ShortCut)]);
-  SaveButton.Hint := LFmtMessage(SaveButton.Hint, [NewShortCutToText(FSave.ShortCut)]);
-  StopCompileButton.Hint := LFmtMessage(StopCompileButton.Hint, [NewShortCutToText(ShortCut(VK_ESCAPE, []))]);
-  TargetSetupButton.Hint := LFmtMessage(TargetSetupButton.Hint, [NewShortCutToText(RTargetSetup.ShortCut)]);
-  TargetUninstallButton.Hint := LFmtMessage(TargetUninstallButton.Hint, [NewShortCutToText(RTargetUninstall.ShortCut)]);
-  HelpButton.Hint := LFmtMessage(HelpButton.Hint, [NewShortCutToText(ShortCut(VK_F1, []))]);
-  TFilesDesigner.Caption := LFmtMessage(TFilesDesigner.Caption, ['[F&iles]']);
-  TRegistryDesigner.Caption := LFmtMessage(TRegistryDesigner.Caption, ['[&Registry]']);
-  TMsgBoxDesigner.Caption := LFmtMessage(TMsgBoxDesigner.Caption, ['&MsgBox/TaskDialogMsgBox']);
-  { These are not set in the .dfm because that would duplicate a message,
-    one with and one without the accel char }
-  PauseButton.Hint := RemoveAccelChar(RPause.Caption);
-  UpdatePanelDonateBitBtn.Caption := RemoveAccelChar(HDonate.Caption);
-  OutputTabSet.Tabs[tiCompilerOutput] := RemoveAccelChar(VCompilerOutput.Caption);
-  OutputTabSet.Tabs[tiDebugOutput] := RemoveAccelChar(VDebugOutput.Caption);
-  OutputTabSet.Tabs[tiDebugCallStack] := RemoveAccelChar(VDebugCallStack.Caption);
-  OutputTabSet.Tabs[tiFindResults] := RemoveAccelChar(VFindResults.Caption);
+  FinishLocalization;
 
   FHighContrastActive := HighContrastActive; { Just checking once at startup }
   if FHighContrastActive then begin
@@ -1068,9 +1049,7 @@ begin
   SetFakeShortCut(EPaste, Ord('V'), [ssCtrl]);
   SetFakeShortCut(ESelectAll, Ord('A'), [ssCtrl]);
   SetFakeShortCut(EDelete, VK_DELETE, []);
-  SetFakeShortCutText(VZoomIn, LFmtMessage(SShortCutCtrl) + LFmtMessage(SShortCutNumpad, ['+'])); { These zoom shortcuts are handled by Scintilla and only support the active memo, unlike the menu items which work on all memos }
-  SetFakeShortCutText(VZoomOut, LFmtMessage(SShortCutCtrl) + LFmtMessage(SShortCutNumpad, ['-']));
-  SetFakeShortCutText(VZoomReset, LFmtMessage(SShortCutCtrl) + LFmtMessage(SShortCutNumpad, ['/']));
+  { VZoom*: See FinishLocalization }
   { Use fake Esc shortcut for Stop Compile so it doesn't conflict with the
     editor's autocompletion list }
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
@@ -1574,6 +1553,34 @@ begin
     Result := inherited IsShortCut(Message)
   else
     Result := False;
+end;
+
+procedure TMainForm.FinishLocalization;
+begin
+  { LocalizeComponent translated every property, but some still contain an
+    unfilled %1 etc., which we now replace }
+  NewMainFileButton.Hint := LFmtMessage(NewMainFileButton.Hint, [NewShortCutToText(FNewMainFile.ShortCut)]);
+  OpenMainFileButton.Hint := LFmtMessage(OpenMainFileButton.Hint, [NewShortCutToText(FOpenMainFile.ShortCut)]);
+  SaveButton.Hint := LFmtMessage(SaveButton.Hint, [NewShortCutToText(FSave.ShortCut)]);
+  StopCompileButton.Hint := LFmtMessage(StopCompileButton.Hint, [NewShortCutToText(ShortCut(VK_ESCAPE, []))]);
+  TargetSetupButton.Hint := LFmtMessage(TargetSetupButton.Hint, [NewShortCutToText(RTargetSetup.ShortCut)]);
+  TargetUninstallButton.Hint := LFmtMessage(TargetUninstallButton.Hint, [NewShortCutToText(RTargetUninstall.ShortCut)]);
+  HelpButton.Hint := LFmtMessage(HelpButton.Hint, [NewShortCutToText(ShortCut(VK_F1, []))]);
+  TFilesDesigner.Caption := LFmtMessage(TFilesDesigner.Caption, ['[F&iles]']);
+  TRegistryDesigner.Caption := LFmtMessage(TRegistryDesigner.Caption, ['[&Registry]']);
+  TMsgBoxDesigner.Caption := LFmtMessage(TMsgBoxDesigner.Caption, ['&MsgBox/TaskDialogMsgBox']);
+  { These are not set in the .dfm because that would duplicate a message,
+    one with and one without the accel char }
+  PauseButton.Hint := RemoveAccelChar(RPause.Caption);
+  UpdatePanelDonateBitBtn.Caption := RemoveAccelChar(HDonate.Caption);
+  OutputTabSet.Tabs[tiCompilerOutput] := RemoveAccelChar(VCompilerOutput.Caption);
+  OutputTabSet.Tabs[tiDebugOutput] := RemoveAccelChar(VDebugOutput.Caption);
+  OutputTabSet.Tabs[tiDebugCallStack] := RemoveAccelChar(VDebugCallStack.Caption);
+  OutputTabSet.Tabs[tiFindResults] := RemoveAccelChar(VFindResults.Caption);
+
+  SetFakeShortCutText(VZoomIn, LFmtMessage(SShortCutCtrl) + LFmtMessage(SShortCutNumpad, ['+'])); { These zoom shortcuts are handled by Scintilla and only support the active memo, unlike the menu items which work on all memos }
+  SetFakeShortCutText(VZoomOut, LFmtMessage(SShortCutCtrl) + LFmtMessage(SShortCutNumpad, ['-']));
+  SetFakeShortCutText(VZoomReset, LFmtMessage(SShortCutCtrl) + LFmtMessage(SShortCutNumpad, ['/']));
 end;
 
 procedure TMainForm.UpdateCaption;
@@ -4045,9 +4052,35 @@ begin
       Ini.Free;
     end;
 
-    if FOptions.Language <> SaveLanguage then
+    if FOptions.Language <> SaveLanguage then begin
+      {$IFDEF DEBUG}
+      { Applying the new language immediately but imperfectly is done on DEBUG to
+        quickly check translations while working on localization. It is imperfect:
+        -It does not retranslate strings into which a shortcut or argument was
+         merged, so they no longer exactly match a translation entry: toolbar and
+         help button hints which used %1, menu item captions which used %1, and
+         menu items which have a fake shortcut appended.
+        -If multiple English strings have the same translation, only one is used
+         when retranslating the translation back into to English.
+        -It does not update the UpdatePanel message text.
+        -It does not update the exit code shown in the status bar (spExtraStatus). }
+      if SaveLanguage <> ilEnglish then begin
+        InitLocalization(SaveLanguage, True);
+        LocalizeComponent(Self);
+      end;
+      InitLocalization(FOptions.Language);
+      if FOptions.Language <> ilEnglish then
+        LocalizeComponent(Self);
+      FinishLocalization;
+      UpdateCaption;
+      UpdateEditModeStatusPanel;
+      UpdateModifiedStatusPanel;
+      InvalidateStatusPanel(spHiddenFilesCount);
+      {$ELSE}
       MsgBox(LFmtMessage(SOptionsLanguageChangeRestart),
         LFmtMessage(SCompilerFormCaption), mbInformation, MB_OK);
+      {$ENDIF}
+    end;
   finally
     OptionsForm.Free;
   end;
