@@ -22,14 +22,18 @@ type
   TIDEForm = class(TUIStateForm)
   private
     FFormThemeActive: Boolean;
+    function ScalePixelsX(const N: Integer): Integer;
   public
     constructor Create(AOwner: TComponent); override;
+    function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
     property FormThemeActive: Boolean read FFormThemeActive;
   end;
 
 implementation
 
 uses
+  Windows,
+  Shared.CommonFunc,
   IDE.HelperFunc, IDE.LocalizeFunc;
 
 constructor TIDEForm.Create(AOwner: TComponent);
@@ -38,6 +42,31 @@ begin
   LocalizeComponent(Self);
   InitFormFont(Self);
   FFormThemeActive := InitFormTheme(Self);
+end;
+
+function TIDEForm.ScalePixelsX(const N: Integer): Integer;
+begin
+  { Unlike Setup, the IDE's forms have Scaled set to True, so scale using
+    CurrentPPI instead of font base units }
+  Result := MulDiv(N, CurrentPPI, 96);
+end;
+
+function TIDEForm.CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
+begin
+  { Same code as TSetupForm.CalculateButtonWidth }
+  Result := ScalePixelsX(75);
+  { Increase the button size if there are unusually long button captions }
+  const DC = GetDC(0);
+  try
+    SelectObject(DC, Font.Handle);
+    for var I := Low(ButtonCaptions) to High(ButtonCaptions) do begin
+      const W = GetTextWidth(DC, ButtonCaptions[I], True) + ScalePixelsX(20);
+      if Result < W then
+        Result := W;
+    end;
+  finally
+    ReleaseDC(0, DC);
+  end;
 end;
 
 end.

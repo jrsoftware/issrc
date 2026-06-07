@@ -239,17 +239,15 @@ begin
 end;
 
 function TSetupForm.CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
-var
-  DC: HDC;
-  W: Integer;
 begin
+  { Same code as TIDEForm.CalculateButtonWidth }
   Result := ScalePixelsX(75);
   { Increase the button size if there are unusually long button captions }
-  DC := GetDC(0);
+  const DC = GetDC(0);
   try
     SelectObject(DC, Font.Handle);
     for var I := Low(ButtonCaptions) to High(ButtonCaptions) do begin
-      W := GetTextWidth(DC, ButtonCaptions[I], True) + ScalePixelsX(20);
+      const W = GetTextWidth(DC, ButtonCaptions[I], True) + ScalePixelsX(20);
       if Result < W then
         Result := W;
     end;
