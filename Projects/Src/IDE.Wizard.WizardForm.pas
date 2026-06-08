@@ -291,14 +291,32 @@ procedure TWizardForm.FormCreate(Sender: TObject);
     end;
   end;
 
+  procedure SetWidestNextCaption;
+  begin
+    { CurPageChanged will override this again }
+    const FinishCaption = LFmtMessage(SWizardFinishButton);
+    const NextCaption = LFmtMessage(SWizardNextButton);
+    if CalculateButtonWidth([FinishCaption]) > CalculateButtonWidth([NextCaption]) then
+      NextButton.Caption := FinishCaption
+    else
+      NextButton.Caption := NextCaption;
+  end;
+
 var
   I: Integer;
 begin
-  { Finish localization: LocalizeComponent translated every property, but some
-    still contain an unfilled %1 etc., which we now replace }
+  { Finish localization }
   AppRegistryFileLabel.Caption := LFmtMessage(AppRegistryFileLabel.Caption, [SLitRegExt]);
   WelcomeLabel1.Caption := LFmtMessage(WelcomeLabel1.Caption, ['[name]']);
   FinishedLabel.Caption := LFmtMessage(FinishedLabel.Caption, ['[name]']);
+  SetWidestNextCaption;
+  const W = SizeBottomButtons(NextButton, CancelButton, [BackButton]);
+  BackButton.Width := W;
+  BackButton.Left := NextButton.Left - W;
+  SizeSideButtons([AppFilesAddButton, AppFilesAddDirButton,
+    AppFilesAddDownloadButton, AppFilesEditButton, AppFilesRemoveButton],
+    [AppFilesListBox]);
+  SizeSideButtons([AllLanguagesButton, NoLanguagesButton], [LanguagesList]);
   { These are not set in the .dfm because that would duplicate a message,
     one with and one without the accel char }
   AppInfoBeforeFileButton.Caption := RemoveAccelChar(AppLicenseFileButton.Caption);
