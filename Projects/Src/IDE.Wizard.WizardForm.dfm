@@ -755,7 +755,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'D&ownload...'
+            Caption = 'Add D&ownload...'
             TabOrder = 9
           end
         end

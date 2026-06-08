@@ -274,7 +274,7 @@ const
     (English: 'Add Fol&der...'; Localized: '&Ordner hinzufügen...'),
     (English: '&Add File(s)...'; Localized: '&Datei(en) hinzufügen...'),
     (English: '&Files:'; Localized: 'D&ateien:'),
-    (English: 'D&ownload...'; Localized: '&Herunterladen...'),
+    (English: 'Add D&ownload...'; Localized: 'Do&wnload hinzufügen...'),
     (English: 'Go to File'; Localized: 'Gehe zu Datei'),
     (English: 'Enter Commercial License Key'; Localized: 'Kommerziellen Lizenzschlüssel eingeben'),
     (English: 'Paste your license key below'; Localized: 'Fügen Sie Ihren Lizenzschlüssel unten ein'),

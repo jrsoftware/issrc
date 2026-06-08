@@ -128,7 +128,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Width = 89
     Height = 23
     Anchors = [akTop, akRight]
-    Caption = 'D&ownload...'
+    Caption = 'Add D&ownload...'
     TabOrder = 6
   end
 end

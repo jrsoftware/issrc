@@ -274,7 +274,7 @@ const
     (English: 'Add Fol&der...'; Localized: 'フォルダーの追加(&D)...'),
     (English: '&Add File(s)...'; Localized: 'ファイルの追加(&A)...'),
     (English: '&Files:'; Localized: 'ファイル(&F):'),
-    (English: 'D&ownload...'; Localized: 'ダウンロード(&O)...'),
+    (English: 'Add D&ownload...'; Localized: 'ダウンロードの追加(&O)...'),
     (English: 'Go to File'; Localized: 'ファイルに移動'),
     (English: 'Enter Commercial License Key'; Localized: '商用ライセンスキーの入力'),
     (English: 'Paste your license key below'; Localized: 'ライセンスキーを下に貼り付けてください'),

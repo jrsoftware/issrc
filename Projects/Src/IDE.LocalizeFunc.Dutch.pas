@@ -274,7 +274,7 @@ const
     (English: 'Add Fol&der...'; Localized: '&Map toevoegen...'),
     (English: '&Add File(s)...'; Localized: 'Bestand(en) &toevoegen...'),
     (English: '&Files:'; Localized: '&Bestanden:'),
-    (English: 'D&ownload...'; Localized: '&Downloaden...'),
+    (English: 'Add D&ownload...'; Localized: '&Download toevoegen...'),
     (English: 'Go to File'; Localized: 'Ga naar bestand'),
     (English: 'Enter Commercial License Key'; Localized: 'Commerciële licentiesleutel invoeren'),
     (English: 'Paste your license key below'; Localized: 'Plak hieronder uw licentiesleutel'),
