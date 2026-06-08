@@ -50,7 +50,7 @@ uses
 procedure TGotoFileForm.FormCreate(Sender: TObject);
 begin
   { Finish localization }
-  SizeBottomButtons(OKButton, CancelButton, []);
+  SizeBottomButtons(OKButton, CancelButton);
 end;
 
 procedure TGotoFileForm.SetFiles(Value: TStrings);

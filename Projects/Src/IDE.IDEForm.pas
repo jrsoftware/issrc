@@ -27,7 +27,9 @@ type
     constructor Create(AOwner: TComponent); override;
     function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
     function SizeBottomButtons(const LeftBottomButton, RightBottomButton: TButton;
-      const OtherButtons: array of TButton; const ResizeControl: TControl = nil): Integer;
+      const ResizeControl: TControl = nil): Integer; overload;
+    function SizeBottomButtons(const LeftBottomButton, RightBottomButton: TButton;
+      const OtherButtons: array of TButton; const ResizeControl: TControl = nil): Integer; overload;
     function SizeSideButtons(const Buttons: array of TButton;
       const ResizeControl: TControl = nil): Integer;
     property FormThemeActive: Boolean read FFormThemeActive;
@@ -71,6 +73,13 @@ begin
   finally
     ReleaseDC(0, DC);
   end;
+end;
+
+function TIDEForm.SizeBottomButtons(const LeftBottomButton,
+  RightBottomButton: TButton; const ResizeControl: TControl): Integer;
+begin
+  Result := SizeBottomButtons(LeftBottomButton, RightBottomButton, [],
+    ResizeControl);
 end;
 
 function TIDEForm.SizeBottomButtons(const LeftBottomButton, RightBottomButton: TButton;

@@ -82,7 +82,7 @@ end;
 procedure TInputQueryForm.FormCreate(Sender: TObject);
 begin
   { Finish localization }
-  SizeBottomButtons(OKButton, CancelButton, []);
+  SizeBottomButtons(OKButton, CancelButton);
 end;
 
 procedure TInputQueryForm.SelectValueControl(const AUseComboBox: Boolean);

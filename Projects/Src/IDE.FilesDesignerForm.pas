@@ -53,7 +53,7 @@ begin
   NotCreateAppDirCheck.Caption := LFmtMessage(SDesignerScriptHas, ['CreateAppDir=no']);
   SizeSideButtons([AppFilesAddButton, AppFilesAddDirButton,
     AppFilesAddDownloadButton, AppFilesEditButton, AppFilesRemoveButton], AppFilesListBox);
-  SizeBottomButtons(InsertButton, CancelButton, []);
+  SizeBottomButtons(InsertButton, CancelButton);
 
   FFilesHelper := TWizardFormFilesHelper.Create(Self,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,

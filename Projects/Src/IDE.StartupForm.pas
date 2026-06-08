@@ -102,7 +102,7 @@ end;
 procedure TStartupForm.FormCreate(Sender: TObject);
 begin
   { Finish localization }
-  SizeBottomButtons(OKButton, CancelButton, [], StartupCheck);
+  SizeBottomButtons(OKButton, CancelButton, StartupCheck);
 
   FResult := srNone;
 

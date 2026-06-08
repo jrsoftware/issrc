@@ -83,7 +83,7 @@ procedure TSignToolsForm.FormCreate(Sender: TObject);
 begin
   { Finish localization }
   SizeSideButtons([AddButton, EditButton, RemoveButton], SignToolsListBox);
-  SizeBottomButtons(OKButton, CancelButton, []);
+  SizeBottomButtons(OKButton, CancelButton);
 
   FSignTools := TStringList.Create();
 end;
