@@ -37,7 +37,7 @@ implementation
 
 uses
   SysUtils, Controls, StdCtrls, Menus, Generics.Collections,
-  NewTabSet,
+  NewTabSet, ScintEdit,
   IDE.LocalizeFunc.Dutch, IDE.LocalizeFunc.German, IDE.LocalizeFunc.Japanese;
 
 var
@@ -219,12 +219,15 @@ procedure LocalizeComponent(const Component: TComponent);
 begin
   if Component is TControl then begin
     const Control = TControl(Component);
-    if Control.Hint <> '' then
-      Control.Hint := LFmtMessage(Control.Hint);
 
-    const ControlAccess = TControlAccess(Control);
-    if ControlAccess.Text <> '' then { This is both Caption and Text }
-      ControlAccess.Text := LFmtMessage(ControlAccess.Text);
+    if not (Control is TScintEdit) then begin
+      if Control.Hint <> '' then
+        Control.Hint := LFmtMessage(Control.Hint);
+
+      const ControlAccess = TControlAccess(Control);
+      if ControlAccess.Text <> '' then { This is both Caption and Text }
+        ControlAccess.Text := LFmtMessage(ControlAccess.Text);
+    end;
 
     { Of the following, only TNewTabSet.Tabs is currently actually
       prefilled in the .dfm files }
