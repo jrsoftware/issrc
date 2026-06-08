@@ -492,13 +492,13 @@ begin
   RTerminate.Enabled := FDebugging and (FDebugClientWnd <> 0);
   TerminateButton.Enabled := RTerminate.Enabled;
   REvaluate.Enabled := FDebugging and (FDebugClientWnd <> 0);
-  { See UpdateRunMenu2 for other menu items and also see UpdateBreakPointsMenu }
+  { See UpdateRunMenu for other menu items and also see UpdateBreakPointsMenu }
 end;
 
 procedure TMainFormUpdateMenuHelper.UpdateRunMenu(const Menu: TMenuItem);
 begin
   RDeleteBreakPoints.Enabled := _AnyMemoHasBreakPoint;
-  { See UpdateRunMenu for other menu items }
+  { See UpdateRunMenuItems for other menu items }
 
   _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;
@@ -507,7 +507,7 @@ procedure TMainFormUpdateMenuHelper.UpdateBreakPointsMenu(const Menu: TMenuItem)
 begin
   RToggleBreakPoint2.Enabled := FActiveMemo is TIDEScintFileEdit;
   RDeleteBreakPoints2.Enabled := _AnyMemoHasBreakPoint;
-  { Also see UpdateRunMenu }
+  { Also see UpdateRunMenuItems }
 
   _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;
