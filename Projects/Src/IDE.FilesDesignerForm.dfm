@@ -29,6 +29,7 @@ object FilesDesignerForm: TFilesDesignerForm
       Width = 575
       Height = 1
       Align = alTop
+      Anchors = [akLeft, akRight, akBottom]
       Shape = bsTopLine
     end
     object InsertButton: TButton
@@ -36,6 +37,7 @@ object FilesDesignerForm: TFilesDesignerForm
       Top = 11
       Width = 75
       Height = 25
+      Anchors = [akTop, akRight]
       Caption = '&Insert'
       Default = True
       ModalResult = 1
@@ -47,6 +49,7 @@ object FilesDesignerForm: TFilesDesignerForm
       Top = 11
       Width = 75
       Height = 25
+      Anchors = [akTop, akRight]
       Cancel = True
       Caption = 'Cancel'
       ModalResult = 2
@@ -58,6 +61,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Top = 135
     Width = 89
     Height = 23
+    Anchors = [akTop, akRight]
     Caption = '&Parameters...'
     TabOrder = 1
   end
@@ -66,6 +70,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Top = 162
     Width = 89
     Height = 23
+    Anchors = [akTop, akRight]
     Caption = 'Remo&ve'
     TabOrder = 2
   end
@@ -74,6 +79,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Top = 79
     Width = 89
     Height = 23
+    Anchors = [akTop, akRight]
     Caption = 'Add Fol&der...'
     TabOrder = 3
   end
@@ -82,6 +88,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Top = 50
     Width = 89
     Height = 23
+    Anchors = [akTop, akRight]
     Caption = '&Add File(s)...'
     TabOrder = 4
   end
@@ -90,6 +97,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Top = 52
     Width = 449
     Height = 297
+    Anchors = [akLeft, akTop, akRight, akBottom]
     ItemHeight = 15
     TabOrder = 5
   end
@@ -98,6 +106,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Top = 32
     Width = 411
     Height = 16
+    Anchors = [akLeft, akTop, akRight]
     AutoSize = False
     Caption = '&Files:'
     FocusControl = AppFilesListBox
@@ -109,6 +118,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Top = 8
     Width = 253
     Height = 17
+    Anchors = [akLeft, akTop, akRight]
     Caption = '*'
     TabOrder = 8
   end
@@ -117,6 +127,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Top = 106
     Width = 89
     Height = 23
+    Anchors = [akTop, akRight]
     Caption = 'D&ownload...'
     TabOrder = 6
   end
