@@ -697,7 +697,7 @@ uses
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.GotoFileForm,
-  IDE.InputQueryComboForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper,
+  IDE.InputQueryForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper,
   Shared.ConfigIniFile, Shared.SignToolsFunc, Shared.CompilerInt, Shared.LicenseFunc;
 
 {$R *.DFM}
@@ -6019,7 +6019,7 @@ procedure TMainForm.REvaluateClick(Sender: TObject);
 var
   Output: String;
 begin
-  if InputQuery(LFmtMessage(SEvaluateTitle), LFmtMessage(SEvaluatePrompt, ['{app}']),
+  if InputQueryEdit(LFmtMessage(SEvaluateTitle), LFmtMessage(SEvaluatePrompt, ['{app}']),
      FLastEvaluateConstantText) then begin
     case EvaluateConstant(FLastEvaluateConstantText, Output) of
       1: MsgBox(Output, LFmtMessage(SEvaluateResultTitle), mbInformation, MB_OK);
@@ -6161,7 +6161,7 @@ var
   L: Integer;
 begin
   S := IntToStr(FActiveMemo.CaretLine + 1);
-  if InputQuery(LFmtMessage(SGotoLineTitle), LFmtMessage(SGotoLinePrompt), S) then begin
+  if InputQueryEdit(LFmtMessage(SGotoLineTitle), LFmtMessage(SGotoLinePrompt), S) then begin
     L := StrToIntDef(S, Low(L));
     if L <> Low(L) then
       FActiveMemo.CaretLine := L - 1;

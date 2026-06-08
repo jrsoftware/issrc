@@ -49,9 +49,9 @@ type
 implementation
 
 uses
-  SysUtils, UITypes, Dialogs,
+  SysUtils, UITypes,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, BrowseFunc, PathFunc,
-  IDE.Messages, IDE.LocalizeFunc;
+  IDE.InputQueryForm, IDE.Messages, IDE.LocalizeFunc;
 
 constructor TWizardFormFilesHelper.Create(const Form: TForm;
   const NotCreateAppDirCheck: TCheckBox; const FilesListBox: TDropListBox;
@@ -207,19 +207,19 @@ const
 begin
   var Source := 'https://www.example.com/MyProg.7z';
   repeat
-    if not InputQuery(FForm.Caption, LFmtMessage(SWizardAppFilesDownloadSourcePrompt), Source)  then
+    if not InputQueryEdit(FForm.Caption, LFmtMessage(SWizardAppFilesDownloadSourcePrompt), Source)  then
       Exit;
   until Source <> '';
   const ExtractArchive = MsgBox(LFmtMessage(SWizardAppFilesDownloadExtractArchiveMessage), '', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES;
   var DestName := 'MyProg.7z';
   repeat
-    if not InputQuery(FForm.Caption, LFmtMessage(DestNamePrompts[ExtractArchive]), DestName)  then
+    if not InputQueryEdit(FForm.Caption, LFmtMessage(DestNamePrompts[ExtractArchive]), DestName)  then
       Exit;
   until DestName <> '';
   var ExternalSizeAsString := '';
   var ExternalSize: Extended;
   repeat
-    if not InputQuery(FForm.Caption, LFmtMessage(SWizardAppFilesDownloadExternalSizePrompt), ExternalSizeAsString)  then
+    if not InputQueryEdit(FForm.Caption, LFmtMessage(SWizardAppFilesDownloadExternalSizePrompt), ExternalSizeAsString)  then
       Exit;
   until TryStrToFloat(ExternalSizeAsString, ExternalSize);
 

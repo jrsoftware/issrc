@@ -156,8 +156,8 @@
         <DCCReference Include="Src\IDE.LicenseKeyForm.pas">
             <Form>LicenseKeyForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\IDE.InputQueryComboForm.pas">
-            <Form>InputQueryComboForm</Form>
+        <DCCReference Include="Src\IDE.InputQueryForm.pas">
+            <Form>InputQueryForm</Form>
         </DCCReference>
         <DCCReference Include="Src\IDE.InputQueryMemoForm.pas">
             <Form>InputQueryMemoForm</Form>

@@ -39,7 +39,7 @@ uses
   IDE.SignToolsForm in 'Src\IDE.SignToolsForm.pas' {SignToolsForm},
   IDE.GotoFileForm in 'Src\IDE.GotoFileForm.pas' {GotoFileForm},
   IDE.LicenseKeyForm in 'Src\IDE.LicenseKeyForm.pas' {LicenseKeyForm},
-  IDE.InputQueryComboForm in 'Src\IDE.InputQueryComboForm.pas' {InputQueryComboForm},
+  IDE.InputQueryForm in 'Src\IDE.InputQueryForm.pas' {InputQueryForm},
   IDE.InputQueryMemoForm in 'Src\IDE.InputQueryMemoForm.pas' {InputQueryMemoForm},
   ScintInt in '..\Components\ScintInt.pas',
   ScintEdit in '..\Components\ScintEdit.pas',
