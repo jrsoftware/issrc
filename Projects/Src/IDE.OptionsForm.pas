@@ -90,21 +90,13 @@ uses
 
 procedure TOptionsForm.FormCreate(Sender: TObject);
 begin
-  { Finish localization: LocalizeComponent translated every property, but some
-    still contain an unfilled %1 etc., which we now replace }
+  { Finish localization }
   OpenIncludedFilesCheck.Caption := LFmtMessage(OpenIncludedFilesCheck.Caption, ['#include']);
   AutoHideNewIncludedFilesCheck.Caption := LFmtMessage(AutoHideNewIncludedFilesCheck.Caption, ['#include']);
   AssocButton.Caption := LFmtMessage(AssocButton.Caption, [SLitIssExt]);
   AssocButton.Width := CalculateButtonWidth([AssocButton.Caption]);
-  const W = CalculateButtonWidth([OKButton.Caption, CancelButton.Caption,
-    ChangeFontButton.Caption]);
-  const Gap = CancelButton.Left - OKButton.Left - OKButton.Width;
-  var Diff := W - CancelButton.Width;
-  CancelButton.Left := CancelButton.Left - Diff;
-  CancelButton.Width := W;
-  OKButton.Left := CancelButton.Left - Gap - W;
-  OKButton.Width := W;
-  Diff := W - ChangeFontButton.Width;
+  const W = SizeBottomButtons(OKButton, CancelButton, [ChangeFontButton]);
+  const Diff = W - ChangeFontButton.Width;
   ChangeFontButton.Left := ChangeFontButton.Left - Diff;
   ChangeFontButton.Width := W;
   FontPanel.Width := FontPanel.Width - Diff;

@@ -109,10 +109,9 @@ object RegistryDesignerForm: TRegistryDesignerForm
   object AppRegistrySettingsLabel: TNewStaticText
     Left = 8
     Top = 69
-    Width = 476
-    Height = 16
+    Width = 156
+    Height = 14
     Anchors = [akLeft, akTop, akRight]
-    AutoSize = False
     Caption = 'Settings (for all keys and values):'
     TabOrder = 3
   end

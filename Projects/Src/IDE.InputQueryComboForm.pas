@@ -23,6 +23,7 @@ type
     CancelButton: TButton;
     PromptLabel: TLabel;
     ValueControl: TComboBox;
+    procedure FormCreate(Sender: TObject);
   private
     function GetValue: String;
     procedure SetPrompt(const APrompt: String);
@@ -58,6 +59,12 @@ begin
   finally
     Free;
   end;
+end;
+
+procedure TInputQueryComboForm.FormCreate(Sender: TObject);
+begin
+  { Finish localization }
+  SizeBottomButtons(OKButton, CancelButton, []);
 end;
 
 function TInputQueryComboForm.GetValue: String;

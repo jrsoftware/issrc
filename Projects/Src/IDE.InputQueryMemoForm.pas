@@ -79,6 +79,9 @@ end;
 
 procedure TInputQueryMemoForm.FormCreate(Sender: TObject);
 begin
+  { Finish localization }
+  SizeBottomButtons(OKButton, CancelButton, []);
+
   DocBitBtn.Caption := RemoveAccelChar(MainForm.HMenu.Caption);
   DocBitBtn.Hint := DocBitBtn.Caption;
   UpdateImages;

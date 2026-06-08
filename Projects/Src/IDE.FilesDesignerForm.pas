@@ -48,10 +48,12 @@ implementation
 
 procedure TFilesDesignerForm.FormCreate(Sender: TObject);
 begin
-  { Finish localization: LocalizeComponent translated every property, but some
-    still contain an unfilled %1 etc., which we now replace }
+  { Finish localization }
   Caption := LFmtMessage(Caption, ['[Files]']);
   NotCreateAppDirCheck.Caption := LFmtMessage(SDesignerScriptHas, ['CreateAppDir=no']);
+  SizeSideButtons([AppFilesAddButton, AppFilesAddDirButton,
+    AppFilesAddDownloadButton, AppFilesEditButton, AppFilesRemoveButton], AppFilesListBox);
+  SizeBottomButtons(InsertButton, CancelButton, []);
 
   FFilesHelper := TWizardFormFilesHelper.Create(Self,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,

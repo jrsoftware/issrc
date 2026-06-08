@@ -101,6 +101,9 @@ end;
 
 procedure TStartupForm.FormCreate(Sender: TObject);
 begin
+  { Finish localization }
+  SizeBottomButtons(OKButton, CancelButton, [], StartupCheck);
+
   FResult := srNone;
 
   if IsLicensed then begin

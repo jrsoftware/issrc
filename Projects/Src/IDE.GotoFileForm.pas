@@ -21,6 +21,7 @@ type
     CancelButton: TButton;
     GotoFileListBox: TListBox;
     GotoFileEdit: TEdit;
+    procedure FormCreate(Sender: TObject);
     procedure GotoFileListBoxDblClick(Sender: TObject);
     procedure GotoFileEditOrListBoxKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
     procedure GotoFileEditChange(Sender: TObject);
@@ -45,6 +46,12 @@ uses
   PathFunc;
 
 {$R *.DFM}
+
+procedure TGotoFileForm.FormCreate(Sender: TObject);
+begin
+  { Finish localization }
+  SizeBottomButtons(OKButton, CancelButton, []);
+end;
 
 procedure TGotoFileForm.SetFiles(Value: TStrings);
 begin

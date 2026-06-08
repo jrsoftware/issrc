@@ -12,6 +12,7 @@ object GotoFileForm: TGotoFileForm
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   Position = poScreenCenter
+  OnCreate = FormCreate
   DesignSize = (
     577
     497)

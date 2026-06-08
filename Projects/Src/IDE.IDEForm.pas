@@ -15,7 +15,7 @@ unit IDE.IDEForm;
 interface
 
 uses
-  Classes,
+  Classes, Controls, StdCtrls,
   UIStateForm;
 
 type
@@ -26,6 +26,10 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
+    function SizeBottomButtons(const LeftBottomButton, RightBottomButton: TButton;
+      const OtherButtons: array of TButton; const ResizeControl: TControl = nil): Integer;
+    function SizeSideButtons(const Buttons: array of TButton;
+      const ResizeControl: TControl = nil): Integer;
     property FormThemeActive: Boolean read FFormThemeActive;
   end;
 
@@ -67,6 +71,40 @@ begin
   finally
     ReleaseDC(0, DC);
   end;
+end;
+
+function TIDEForm.SizeBottomButtons(const LeftBottomButton, RightBottomButton: TButton;
+  const OtherButtons: array of TButton; const ResizeControl: TControl): Integer;
+begin
+  var Captions: array of String := [LeftBottomButton.Caption, RightBottomButton.Caption];
+  for var Button in OtherButtons do
+    Captions := Captions + [Button.Caption];
+  Result := CalculateButtonWidth(Captions);
+  const Gap = RightBottomButton.Left - LeftBottomButton.Left - LeftBottomButton.Width;
+  const Diff = Result - RightBottomButton.Width;
+  RightBottomButton.Width := Result;
+  RightBottomButton.Left := RightBottomButton.Left - Diff;
+  LeftBottomButton.Width := Result;
+  const OldLeft = LeftBottomButton.Left;
+  LeftBottomButton.Left := RightBottomButton.Left - Gap - Result;
+  if ResizeControl <> nil then
+    ResizeControl.Width := ResizeControl.Width - (OldLeft - LeftBottomButton.Left);
+end;
+
+function TIDEForm.SizeSideButtons(const Buttons: array of TButton;
+  const ResizeControl: TControl): Integer;
+begin
+  var Captions: array of String;
+  for var Button in Buttons do
+    Captions := Captions + [Button.Caption];
+  Result := CalculateButtonWidth(Captions);
+  const Diff = Result - Buttons[0].Width;
+  for var Button in Buttons do begin
+    Button.Width := Result;
+    Button.Left := Button.Left - Diff;
+  end;
+  if ResizeControl <> nil then
+    ResizeControl.Width := ResizeControl.Width - Diff;
 end;
 
 end.

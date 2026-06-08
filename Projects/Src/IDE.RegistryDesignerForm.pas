@@ -69,10 +69,16 @@ end;
 
 procedure TRegistryDesignerForm.FormCreate(Sender: TObject);
 begin
-  { Finish localization: LocalizeComponent translated every property, but some
-    still contain an unfilled %1 etc., which we now replace }
+  { Finish localization }
   Caption := LFmtMessage(Caption, ['[Registry]']);
   AppRegistryFileLabel.Caption := LFmtMessage(AppRegistryFileLabel.Caption, [SLitRegExt]);
+  const W = SizeBottomButtons(InsertButton, CancelButton, [AppRegistryFileButton]);
+  const Diff = W - AppRegistryFileButton.Width;
+  AppRegistryFileButton.Width := W;
+  AppRegistryFileButton.Left := AppRegistryFileButton.Left - Diff;
+  AppRegistryFileEdit.Width := AppRegistryFileEdit.Width - Diff;
+  AppRegistryMinVerEdit.Width := AppRegistryMinVerEdit.Width - Diff;
+  AppRegistryMinVerDocBitBtn.Left := AppRegistryMinVerDocBitBtn.Left - Diff;
 
   FRegistryHelper := TWizardFormRegistryHelper.Create(Self, AppRegistryFileEdit,
     AppRegistryFileButton, AppRegistryUninsDeleteKeyCheck,
