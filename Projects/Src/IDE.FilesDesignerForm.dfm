@@ -104,7 +104,7 @@ object FilesDesignerForm: TFilesDesignerForm
   object AppFilesLabel: TNewStaticText
     Left = 8
     Top = 32
-    Width = 411
+    Width = 557
     Height = 16
     Anchors = [akLeft, akTop, akRight]
     AutoSize = False
@@ -116,7 +116,7 @@ object FilesDesignerForm: TFilesDesignerForm
   object NotCreateAppDirCheck: TCheckBox
     Left = 8
     Top = 8
-    Width = 253
+    Width = 557
     Height = 17
     Anchors = [akLeft, akTop, akRight]
     Caption = '*'
