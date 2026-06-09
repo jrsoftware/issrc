@@ -70,15 +70,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
       ModalResult = 2
       TabOrder = 1
     end
-    object PrivilegesRequiredLabel: TNewStaticText
-      Left = 8
-      Top = 15
-      Width = 5
-      Height = 14
-      Caption = '*'
-      Enabled = False
-      TabOrder = 2
-    end
   end
   object AppRegistryFileLabel: TNewStaticText
     Left = 8
@@ -158,5 +149,15 @@ object RegistryDesignerForm: TRegistryDesignerForm
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 8
+  end
+  object PrivilegesRequiredLabel: TNewStaticText
+    Left = 8
+    Top = 280
+    Width = 5
+    Height = 14
+    Anchors = [akLeft, akBottom]
+    Caption = '*'
+    Enabled = False
+    TabOrder = 11
   end
 end
