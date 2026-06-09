@@ -151,12 +151,12 @@ object MainForm: TMainForm
       item
         Alignment = taCenter
         Bevel = pbNone
-        Width = 64
+        Width = 88
       end
       item
         Alignment = taCenter
         Bevel = pbNone
-        Width = 64
+        Width = 96
       end
       item
         Alignment = taCenter
@@ -166,7 +166,7 @@ object MainForm: TMainForm
       item
         Bevel = pbNone
         Style = psOwnerDraw
-        Width = 110
+        Width = 192
       end
       item
         Bevel = pbNone
