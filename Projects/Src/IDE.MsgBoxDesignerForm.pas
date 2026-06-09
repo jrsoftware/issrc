@@ -118,23 +118,20 @@ uses
 
 function GroupBox4Caption(const IncludeShield, IncludeDefault: Boolean): String;
 begin
-  Result := ' ' + LFmtMessage(SMsgBoxDesignerReturnValues) + ' ';
+  Result := LFmtMessage(SMsgBoxDesignerReturnValues);
   if IncludeShield then
-    Result := Result + '/  ' + LFmtMessage(SMsgBoxDesignerReturnValuesShield) + ' ';
-  if IncludeDefault then begin
-    if IncludeShield then
-      Result := Result + ' / '
-    else
-      Result := Result + '/  -------  / ';
-    Result := Result + LFmtMessage(SMsgBoxDesignerReturnValuesDefault) + ' ';
-  end;
+    Result := Result + ' / ' + LFmtMessage(SMsgBoxDesignerReturnValuesShield);
+  if IncludeDefault then
+    Result := Result + ' / ' + LFmtMessage(SMsgBoxDesignerReturnValuesDefault);
+  Result := ' ' + Result + ' ';
 end;
 
 procedure TMsgBoxDesignerForm.FormCreate(Sender: TObject);
 begin
-  { Finish localization: LocalizeComponent translated every property, but some
-    still contain an unfilled %1 etc., which we now replace }
+  { Finish localization }
   Caption := LFmtMessage(Caption, ['MsgBox/TaskDialogMsgBox']);
+  const W = SizeBottomButtons(MBDButtonOK, MBDButtonCancel, [MBDButtonPreview]);
+  MBDButtonPreview.Width := W;
   { Also, all these should not be localized, so are kept out of the .dfm }
   cb_MsgBox.Caption := 'MsgBox';
   cb_TaskDialogMsgBox.Caption := 'TaskDialogMsgBox';
