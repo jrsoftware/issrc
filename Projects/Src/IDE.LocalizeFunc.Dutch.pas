@@ -407,7 +407,7 @@ const
     (English: 'Allow &Undo after save'; Localized: 'Ongedaan maken na ops&laan toestaan'),
     (English: 'Display &full path in title bar'; Localized: 'V&olledig pad in titelbalk tonen'),
     (English: '&Pause on exceptions'; Localized: '&Pauzeren bij uitzonderingen'),
-    (English: 'Always &launch Setup/Uninstall as administrator'; Localized: 'Setup/V&erwijderprogramma altijd als administrator starten'),
+    (English: 'Always &launch Setup/Uninstall as administrator'; Localized: 'Setup/V&erwijderprogramma altijd als admin starten'),
     (English: 'Colori&ze "Compiler Output" view'; Localized: 'Wee&rgave "Compiler-uitvoer" inkleuren'),
     (English: 'Automatically open %1 files'; Localized: '%1-bestanden automatisch openen'),
     (English: 'Automatically show preprocessor output'; Localized: 'Preprocessor-uitvoer automatisch tonen'),
