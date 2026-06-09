@@ -56,7 +56,6 @@ type
     FinishedImage: TBitmapImage;
     WelcomeLabel2: TNewStaticText;
     EmptyCheck: TCheckBox;
-    WelcomeLabel3: TNewStaticText;
     AppNameLabel: TNewStaticText;
     AppNameEdit: TEdit;
     AppVersionLabel: TNewStaticText;
@@ -305,18 +304,13 @@ procedure TWizardForm.FormCreate(Sender: TObject);
 var
   I: Integer;
 begin
-  { Finish localization }
-  AppRegistryFileLabel.Caption := LFmtMessage(AppRegistryFileLabel.Caption, [SLitRegExt]);
+  { Finish localization - also done per page below }
   WelcomeLabel1.Caption := LFmtMessage(WelcomeLabel1.Caption, ['[name]']);
   FinishedLabel.Caption := LFmtMessage(FinishedLabel.Caption, ['[name]']);
   SetWidestNextCaption;
   const W = SizeBottomButtons(NextButton, CancelButton, [BackButton]);
   BackButton.Width := W;
   BackButton.Left := NextButton.Left - W;
-  SizeSideButtons([AppFilesAddButton, AppFilesAddDirButton,
-    AppFilesAddDownloadButton, AppFilesEditButton, AppFilesRemoveButton],
-    [AppFilesListBox]);
-  SizeSideButtons([AllLanguagesButton, NoLanguagesButton], [LanguagesList]);
   { These are not set in the .dfm because that would duplicate a message,
     one with and one without the accel char }
   AppInfoBeforeFileButton.Caption := RemoveAccelChar(AppLicenseFileButton.Caption);
@@ -389,6 +383,9 @@ begin
   NotDisableDirPageCheck.Checked := True;
 
   { AppFiles }
+  SizeSideButtons([AppFilesAddButton, AppFilesAddDirButton,
+    AppFilesAddDownloadButton, AppFilesEditButton, AppFilesRemoveButton],
+    [AppFilesListBox]);
   AppExeEdit.Text := PathExtractPath(NewParamStr(0)) + 'Examples\MyProg-x64.exe';
   AppExeRunCheck.Checked := True;
 
@@ -403,8 +400,12 @@ begin
 
   { PrivilegesRequired }
   PrivilegesRequiredAdminRadioButton.Checked := True;
+  
+  { AppRegistry }
+  AppRegistryFileLabel.Caption := LFmtMessage(AppRegistryFileLabel.Caption, [SLitRegExt]);
 
   { Languages }
+  SizeSideButtons([AllLanguagesButton, NoLanguagesButton], [LanguagesList]);
   for I := 0 to FLanguages.Count-1 do begin
     if FLanguages[I] <> LanguagesDefaultIsl then
       LanguagesList.AddCheckBox(SpaceLanguageName(PathChangeExt(FLanguages[I], '')), '', 0, False, True, False, True, TObject(I))

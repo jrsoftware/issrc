@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..500] of TTranslationPair = (
+  GermanIDETranslations: array [0..499] of TTranslationPair = (
     (English: 'Command line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -473,8 +473,7 @@ const
     (English: '&Include empty subfolders'; Localized: '&Leere Unterordner einbeziehen'),
     (English: '&Extract archive'; Localized: '&Archiv entpacken'),
     (English: 'Welcome to the %1'; Localized: 'Willkommen beim %1'),
-    (English: 'This wizard will guide you through the process of creating a new Inno Setup script file. The results will be used to generate a new script file which can be compiled directly or saved on disk for later use.'; Localized: 'Dieser Assistent führt Sie durch die Erstellung einer neuen Inno Setup-Skriptdatei. Die Ergebnisse werden verwendet, um eine neue Skriptdatei zu generieren, die direkt kompiliert oder zur späteren Verwendung auf dem Datenträger gespeichert werden kann.'),
-    (English: 'Not all features of Inno Setup are covered by this wizard. See the documentation for details on creating Inno Setup script files.%n%nClick Next to continue, or Cancel to exit this wizard.'; Localized: 'Nicht alle Funktionen von Inno Setup werden von diesem Assistenten abgedeckt. Einzelheiten zum Erstellen von Inno Setup-Skriptdateien finden Sie in der Dokumentation.%n%n'+'Klicken Sie auf "Weiter", um fortzufahren, oder auf "Abbrechen", um diesen Assistenten zu beenden.'),
+    (English: 'This wizard will guide you through the process of creating a new Inno Setup script file. The results will be used to generate a new script file which can be compiled directly or saved on disk for later use.%n%nNot all features of Inno Setup are covered by this wizard. See the documentation for details on creating Inno Setup script files.%n%nClick Next to continue, or Cancel to exit this wizard.'; Localized: 'Dieser Assistent führt Sie durch die Erstellung einer neuen Inno Setup-Skriptdatei. Die Ergebnisse werden verwendet, um eine neue Skriptdatei zu generieren, die direkt kompiliert oder zur späteren Verwendung auf dem Datenträger gespeichert werden kann.%n%nNicht alle Funktionen von Inno Setup werden von diesem Assistenten abgedeckt. Einzelheiten zum Erstellen von Inno Setup-Skriptdateien finden Sie in der Dokumentation.%n%n'+'Klicken Sie auf "Weiter", um fortzufahren, oder auf "Abbrechen", um diesen Assistenten zu beenden.'),
     (English: 'Application na&me:'; Localized: 'Anwendungs&name:'),
     (English: 'Application &version:'; Localized: 'Anwendungs&version:'),
     (English: 'Application &publisher:'; Localized: 'Anwendungs&herausgeber:'),

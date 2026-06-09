@@ -411,30 +411,19 @@ object WizardForm: TWizardForm
         Left = 214
         Top = 76
         Width = 362
-        Height = 57
+        Height = 278
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 
           'This wizard will guide you through the process of creating a new' +
           ' Inno Setup script file. The results will be used to generate a ' +
           'new script file which can be compiled directly or saved on disk ' +
-          'for later use.'
+          'for later use.%n%nNot all features of Inno Setup are covered by ' +
+          'this wizard. See the documentation for details on creating Inno ' +
+          'Setup script files.%n%nClick Next to continue, or Cancel to exit' +
+          ' this wizard.'
         ShowAccelChar = False
         TabOrder = 1
-        WordWrap = True
-      end
-      object WelcomeLabel3: TNewStaticText
-        Left = 214
-        Top = 140
-        Width = 362
-        Height = 77
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Caption = 
-          'Not all features of Inno Setup are covered by this wizard. See t' +
-          'he documentation for details on creating Inno Setup script files' +
-          '.%n%nClick Next to continue, or Cancel to exit this wizard.'
-        TabOrder = 2
         WordWrap = True
       end
       object EmptyCheck: TCheckBox
@@ -444,7 +433,7 @@ object WizardForm: TWizardForm
         Height = 17
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'Create a new &empty script file'
-        TabOrder = 3
+        TabOrder = 2
       end
     end
     object MainPage: TNewNotebookPage
@@ -871,7 +860,7 @@ object WizardForm: TWizardForm
           object DesktopIconCheck: TCheckBox
             Left = 36
             Top = 180
-            Width = 356
+            Width = 524
             Height = 17
             Anchors = [akLeft, akTop, akRight]
             Caption = 'Allow user to create a deskto&p shortcut'
@@ -880,7 +869,7 @@ object WizardForm: TWizardForm
           object CreateUninstallIconCheck: TCheckBox
             Left = 36
             Top = 136
-            Width = 400
+            Width = 524
             Height = 17
             Anchors = [akLeft, akTop, akRight]
             Caption = 'Create an &Uninstall shortcut in the Start Menu folder'
@@ -889,7 +878,7 @@ object WizardForm: TWizardForm
           object CreateURLIconCheck: TCheckBox
             Left = 36
             Top = 116
-            Width = 400
+            Width = 524
             Height = 17
             Anchors = [akLeft, akTop, akRight]
             Caption = 'Create an &Internet shortcut in the Start Menu folder'
@@ -1619,7 +1608,7 @@ object WizardForm: TWizardForm
         Left = 214
         Top = 16
         Width = 362
-        Height = 121
+        Height = 353
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 
