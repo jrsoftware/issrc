@@ -308,9 +308,21 @@ begin
   WelcomeLabel1.Caption := LFmtMessage(WelcomeLabel1.Caption, ['[name]']);
   FinishedLabel.Caption := LFmtMessage(FinishedLabel.Caption, ['[name]']);
   SetWidestNextCaption;
-  const W = SizeBottomButtons(NextButton, CancelButton, [BackButton]);
+  var W := SizeBottomButtons(NextButton, CancelButton, [BackButton]);
   BackButton.Width := W;
   BackButton.Left := NextButton.Left - W;
+  { Size all browse buttons and resize all page-wide edits and comboboxes to keep a
+    consistent right edge }
+  const OldW = AppRegistryFileButton.Width;
+  W := SizeSideButtons([AppExeButton, AppLicenseFileButton, AppInfoBeforeFileButton,
+    AppInfoAfterFileButton, AppRegistryFileButton, SetupIconFileButton, OutputDirButton],
+    [AppNameEdit, AppVersionEdit, AppPublisherEdit, AppURLEdit, AppRootDirComboBox,
+    AppRootDirEdit, AppDirNameEdit, AppExeEdit, AppAssocNameEdit, AppAssocExtEdit,
+    AppGroupNameEdit, AppLicenseFileEdit, AppInfoBeforeFileEdit, AppInfoAfterFileEdit,
+    AppRegistryFileEdit, AppRegistryMinVerEdit, OutputDirEdit, OutputBaseFileNameEdit,
+    SetupIconFileEdit, PasswordEdit]);
+  const Diff = W - OldW;
+  AppRegistryMinVerDocBitBtn.Left := AppRegistryMinVerDocBitBtn.Left - Diff;
   { These are not set in the .dfm because that would duplicate a message,
     one with and one without the accel char }
   AppInfoBeforeFileButton.Caption := RemoveAccelChar(AppLicenseFileButton.Caption);
@@ -384,8 +396,7 @@ begin
 
   { AppFiles }
   SizeSideButtons([AppFilesAddButton, AppFilesAddDirButton,
-    AppFilesAddDownloadButton, AppFilesEditButton, AppFilesRemoveButton],
-    [AppFilesListBox]);
+    AppFilesAddDownloadButton, AppFilesEditButton, AppFilesRemoveButton], AppFilesListBox);
   AppExeEdit.Text := PathExtractPath(NewParamStr(0)) + 'Examples\MyProg-x64.exe';
   AppExeRunCheck.Checked := True;
 
@@ -405,7 +416,7 @@ begin
   AppRegistryFileLabel.Caption := LFmtMessage(AppRegistryFileLabel.Caption, [SLitRegExt]);
 
   { Languages }
-  SizeSideButtons([AllLanguagesButton, NoLanguagesButton], [LanguagesList]);
+  SizeSideButtons([AllLanguagesButton, NoLanguagesButton], LanguagesList);
   for I := 0 to FLanguages.Count-1 do begin
     if FLanguages[I] <> LanguagesDefaultIsl then
       LanguagesList.AddCheckBox(SpaceLanguageName(PathChangeExt(FLanguages[I], '')), '', 0, False, True, False, True, TObject(I))

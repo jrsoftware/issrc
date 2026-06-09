@@ -497,7 +497,7 @@ const
     (English: 'Allow user to create a deskto&p shortcut'; Localized: 'Gebruiker mag een &bureaubladsnelkoppeling maken'),
     (English: 'Create an &Uninstall shortcut in the Start Menu folder'; Localized: 'Een snelkoppeling naar het &verwijderprogramma maken in de map van het menu Start'),
     (English: 'Create an &Internet shortcut in the Start Menu folder'; Localized: 'Een &internetsnelkoppeling maken in de map van het menu Start'),
-    (English: '&Create a shortcut to the main executable in the Start Menu Programs folder'; Localized: 'Een &snelkoppeling naar het hoofduitvoerbare bestand maken in de map Programma''s van het menu Start'),
+    (English: '&Create a shortcut to the main executable in the Start Menu Programs folder'; Localized: 'Een &snelkoppeling naar het hoofduitvoerbare bestand maken in het menu Start'),
     (English: '&License file:'; Localized: '&Licentiebestand:'),
     (English: '&Information file shown before installation:'; Localized: '&Informatiebestand dat vóór installatie wordt getoond:'),
     (English: 'Information file shown &after installation:'; Localized: 'Informatiebestand dat na installatie wordt &getoond:'),

@@ -140,15 +140,16 @@ end;
 { --- }
 
 procedure TWizardFileForm.FormCreate(Sender: TObject);
-var
-  I: Integer;
 begin
+  { Finish localization - also done for DestRootDirComboBox below}
+  SizeBottomButtons(OKButton, CancelButton);
+
   MakeBold(SourceLabel);
   MakeBold(DestRootDirLabel);
   MakeBold(RequiredLabel1);
   RequiredLabel2.Left := RequiredLabel1.Left + RequiredLabel1.Width;
 
-  for I := Low(DestRootDirs) to High(DestRootDirs) do
+  for var I := Low(DestRootDirs) to High(DestRootDirs) do
     DestRootDirComboBox.Items.Add(LFmtMessage(DestRootDirs[I].Description));
   DestRootDirComboBox.Items.Add(LFmtMessage(SWizardDirCustom));
   DestRootDirComboBox.ItemIndex := 0;

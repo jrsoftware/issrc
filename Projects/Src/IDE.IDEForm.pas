@@ -31,7 +31,9 @@ type
     function SizeBottomButtons(const LeftBottomButton, RightBottomButton: TButton;
       const OtherButtons: array of TButton; const ResizeControl: TControl = nil): Integer; overload;
     function SizeSideButtons(const Buttons: array of TButton;
-      const ResizeControl: TControl = nil): Integer;
+      const ResizeControl: TControl): Integer; overload;
+    function SizeSideButtons(const Buttons: array of TButton;
+      const ResizeControls: array of TControl): Integer; overload;
     property FormThemeActive: Boolean read FFormThemeActive;
   end;
 
@@ -103,6 +105,12 @@ end;
 function TIDEForm.SizeSideButtons(const Buttons: array of TButton;
   const ResizeControl: TControl): Integer;
 begin
+  Result := SizeSideButtons(Buttons, [ResizeControl])
+end;
+
+function TIDEForm.SizeSideButtons(const Buttons: array of TButton;
+  const ResizeControls: array of TControl): Integer;
+begin
   var Captions: array of String;
   for var Button in Buttons do
     Captions := Captions + [Button.Caption];
@@ -112,8 +120,9 @@ begin
     Button.Width := Result;
     Button.Left := Button.Left - Diff;
   end;
-  if ResizeControl <> nil then
-    ResizeControl.Width := ResizeControl.Width - Diff;
+  for var ResizeControl in ResizeControls do
+    if ResizeControl <> nil then
+      ResizeControl.Width := ResizeControl.Width - Diff;
 end;
 
 end.

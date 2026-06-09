@@ -72,12 +72,10 @@ begin
   { Finish localization }
   Caption := LFmtMessage(Caption, ['[Registry]']);
   AppRegistryFileLabel.Caption := LFmtMessage(AppRegistryFileLabel.Caption, [SLitRegExt]);
-  const W = SizeBottomButtons(InsertButton, CancelButton, [AppRegistryFileButton]);
-  const Diff = W - AppRegistryFileButton.Width;
-  AppRegistryFileButton.Width := W;
-  AppRegistryFileButton.Left := AppRegistryFileButton.Left - Diff;
-  AppRegistryFileEdit.Width := AppRegistryFileEdit.Width - Diff;
-  AppRegistryMinVerEdit.Width := AppRegistryMinVerEdit.Width - Diff;
+  SizeBottomButtons(InsertButton, CancelButton);
+  const OldW = AppRegistryFileButton.Width;
+  const W = SizeSideButtons([AppRegistryFileButton], [AppRegistryFileEdit, AppRegistryMinVerEdit]);
+  const Diff = W - OldW;
   AppRegistryMinVerDocBitBtn.Left := AppRegistryMinVerDocBitBtn.Left - Diff;
 
   FRegistryHelper := TWizardFormRegistryHelper.Create(Self, AppRegistryFileEdit,
