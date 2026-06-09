@@ -96,7 +96,7 @@ object OptionsForm: TOptionsForm
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'Always &launch Setup/Uninstall as administrator'
+      Caption = '&Launch Setup/Uninstall as administrator'
       TabOrder = 12
     end
     object ColorizeCompilerOutputCheck: TCheckBox

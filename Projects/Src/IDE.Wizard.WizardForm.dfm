@@ -890,9 +890,7 @@ object WizardForm: TWizardForm
             Width = 524
             Height = 17
             Anchors = [akLeft, akTop, akRight]
-            Caption = 
-              '&Create a shortcut to the main executable in the Start Menu Prog' +
-              'rams folder'
+            Caption = '&Create a Start Menu shortcut but no folder'
             TabOrder = 0
             OnClick = UseAutoProgramsCheckClick
           end
