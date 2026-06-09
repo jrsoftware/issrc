@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..499] of TTranslationPair = (
+  GermanIDETranslations: array [0..495] of TTranslationPair = (
     (English: 'Command line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -390,16 +390,12 @@ const
     (English: '%1 Call Designer'; Localized: '%1-Aufruf-Designer'),
     (English: 'Instruction'; Localized: 'Anweisung'),
     (English: 'Message'; Localized: 'Meldung'),
-    (English: 'Text Button1'; Localized: 'Text Schaltfläche1'),
-    (English: 'Button2'; Localized: 'Schaltfläche2'),
-    (English: 'Button3'; Localized: 'Schaltfläche3'),
-    (English: ' Message '; Localized: ' Meldung '),
-    (English: ' Type'; Localized: ' Typ'),
+    (English: 'Buttons'; Localized: 'Schaltflächen'),
+    (English: ' Type '; Localized: ' Typ '),
     (English: 'Suppressible'; Localized: 'Unterdrückbar'),
     (English: ' Flags '; Localized: ' Flags '),
     (English: 'Default button'; Localized: 'Standardschaltfläche'),
     (English: ' Icon '; Localized: ' Symbol '),
-    (English: ' Buttons '; Localized: ' Schaltflächen '),
     (English: ' Return values '; Localized: ' Rückgabewerte '),
     (English: '&Preview'; Localized: '&Vorschau'),
     (English: 'Options'; Localized: 'Optionen'),

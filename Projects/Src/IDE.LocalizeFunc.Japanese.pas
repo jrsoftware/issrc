@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..499] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..495] of TTranslationPair = (
     (English: 'Command line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -390,16 +390,12 @@ const
     (English: '%1 Call Designer'; Localized: '%1 呼び出しデザイナー'),
     (English: 'Instruction'; Localized: '指示'),
     (English: 'Message'; Localized: 'メッセージ'),
-    (English: 'Text Button1'; Localized: 'ボタン 1 のテキスト'),
-    (English: 'Button2'; Localized: 'ボタン 2'),
-    (English: 'Button3'; Localized: 'ボタン 3'),
-    (English: ' Message '; Localized: ' メッセージ '),
-    (English: ' Type'; Localized: ' 種類'),
+    (English: 'Buttons'; Localized: 'ボタン'),
+    (English: ' Type '; Localized: ' 種類 '),
     (English: 'Suppressible'; Localized: '抑制可能'),
     (English: ' Flags '; Localized: ' フラグ '),
     (English: 'Default button'; Localized: '既定のボタン'),
     (English: ' Icon '; Localized: ' アイコン '),
-    (English: ' Buttons '; Localized: ' ボタン '),
     (English: ' Return values '; Localized: ' 戻り値 '),
     (English: '&Preview'; Localized: 'プレビュー(&P)'),
     (English: 'Options'; Localized: 'オプション'),

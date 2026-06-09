@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..499] of TTranslationPair = (
+  DutchIDETranslations: array [0..495] of TTranslationPair = (
     (English: 'Command line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -390,16 +390,12 @@ const
     (English: '%1 Call Designer'; Localized: 'Ontwerper voor %1-aanroep'),
     (English: 'Instruction'; Localized: 'Instructie'),
     (English: 'Message'; Localized: 'Bericht'),
-    (English: 'Text Button1'; Localized: 'Tekst van knop 1'),
-    (English: 'Button2'; Localized: 'Knop 2'),
-    (English: 'Button3'; Localized: 'Knop 3'),
-    (English: ' Message '; Localized: ' Bericht '),
-    (English: ' Type'; Localized: ' Type'),
+    (English: 'Buttons'; Localized: 'Knoppen'),
+    (English: ' Type '; Localized: ' Type '),
     (English: 'Suppressible'; Localized: 'Onderdrukbaar'),
     (English: ' Flags '; Localized: ' Vlaggen '),
     (English: 'Default button'; Localized: 'Standaardknop'),
     (English: ' Icon '; Localized: ' Pictogram '),
-    (English: ' Buttons '; Localized: ' Knoppen '),
     (English: ' Return values '; Localized: ' Retourwaarden '),
     (English: '&Preview'; Localized: '&Voorbeeld'),
     (English: 'Options'; Localized: 'Opties'),

@@ -54,9 +54,9 @@ type
     cb_IDIGNORE: TCheckBox;
     GroupBox5: TNewGroupBox;
     cb_MB_SETFOREGROUND: TCheckBox;
-    NewStaticText1: TNewStaticText;
-    NewEdit1: TEdit;
-    UpDown1: TUpDown;
+    DefaultButtonLabel: TNewStaticText;
+    DefaultButtonEdit: TEdit;
+    DefaultButtonUpDown: TUpDown;
     GroupBox6: TNewGroupBox;
     cb_MsgBox: TRadioButton;
     cb_TaskDialogMsgBox: TRadioButton;
@@ -130,8 +130,12 @@ procedure TMsgBoxDesignerForm.FormCreate(Sender: TObject);
 begin
   { Finish localization }
   Caption := LFmtMessage(Caption, ['MsgBox/TaskDialogMsgBox']);
+  GroupBox1.Caption := ' ' + TaskMessageLabel.Caption + ' ';
+  GroupBox3.Caption := ' ' + Button1Label.Caption + ' ';
   const W = SizeBottomButtons(MBDButtonOK, MBDButtonCancel, [MBDButtonPreview]);
   MBDButtonPreview.Width := W;
+  DefaultButtonLabel.Caption := DefaultButtonLabel.Caption + ' ';
+  DefaultButtonEdit.Left := DefaultButtonLabel.Left + DefaultButtonLabel.Width;
   { Also, all these should not be localized, so are kept out of the .dfm }
   cb_MsgBox.Caption := 'MsgBox';
   cb_TaskDialogMsgBox.Caption := 'TaskDialogMsgBox';
@@ -168,9 +172,9 @@ begin
   cb_IDIGNORE.Enabled := False;
   cb_IDYES.Enabled := False;
   cb_IDNO.Enabled := False;
-  NewStaticText1.Enabled := False;
-  NewEdit1.Enabled := False;
-  UpDown1.Enabled := False;
+  DefaultButtonLabel.Enabled := False;
+  DefaultButtonEdit.Enabled := False;
+  DefaultButtonUpDown.Enabled := False;
   TaskInstructionLabel.Visible := False;
   TaskMessageLabel.Visible := False;
   TaskInstructionText.Visible := False;
@@ -199,10 +203,10 @@ begin
   cb_IDIGNORE.Enabled := False;
   cb_IDYES.Enabled := False;
   cb_IDNO.Enabled := False;
-  NewStaticText1.Enabled := False;
-  NewEdit1.Enabled := False;
-  NewEdit1.Text := '1';
-  UpDown1.Enabled := False;
+  DefaultButtonLabel.Enabled := False;
+  DefaultButtonEdit.Enabled := False;
+  DefaultButtonEdit.Text := '1';
+  DefaultButtonUpDown.Enabled := False;
   if cb_TaskDialogMsgBox.Checked then begin
      rb_IDOK.Enabled := True;
      rb_IDCANCEL.Enabled := False;
@@ -263,11 +267,11 @@ begin
   cb_IDYES.Enabled := True;
   cb_IDNO.Enabled := True;
   if not cb_TaskDialogMsgBox.Checked then begin
-     NewStaticText1.Enabled := True;
-     NewEdit1.Enabled := True;
-     NewEdit1.Text := '1';
-     UpDown1.Max := 2;
-     UpDown1.Enabled := True;
+     DefaultButtonLabel.Enabled := True;
+     DefaultButtonEdit.Enabled := True;
+     DefaultButtonEdit.Text := '1';
+     DefaultButtonUpDown.Max := 2;
+     DefaultButtonUpDown.Enabled := True;
   end;
   if cb_TaskDialogMsgBox.Checked then begin
      rb_IDOK.Enabled := False;
@@ -329,11 +333,11 @@ begin
   cb_IDYES.Enabled := False;
   cb_IDNO.Enabled := False;
   if not cb_TaskDialogMsgBox.Checked then begin
-     NewStaticText1.Enabled := True;
-     NewEdit1.Enabled := True;
-     NewEdit1.Text := '1';
-     UpDown1.Max := 2;
-     UpDown1.Enabled := True;
+     DefaultButtonLabel.Enabled := True;
+     DefaultButtonEdit.Enabled := True;
+     DefaultButtonEdit.Text := '1';
+     DefaultButtonUpDown.Max := 2;
+     DefaultButtonUpDown.Enabled := True;
   end;
   if cb_TaskDialogMsgBox.Checked then begin
      rb_IDOK.Enabled := True;
@@ -395,11 +399,11 @@ begin
   cb_IDYES.Enabled := False;
   cb_IDNO.Enabled := False;
   if not cb_TaskDialogMsgBox.Checked then begin
-     NewStaticText1.Enabled := True;
-     NewEdit1.Enabled := True;
-     NewEdit1.Text := '1';
-     UpDown1.Max := 2;
-     UpDown1.Enabled := True;
+     DefaultButtonLabel.Enabled := True;
+     DefaultButtonEdit.Enabled := True;
+     DefaultButtonEdit.Text := '1';
+     DefaultButtonUpDown.Max := 2;
+     DefaultButtonUpDown.Enabled := True;
   end;
   if cb_TaskDialogMsgBox.Checked then begin
      rb_IDOK.Enabled := False;
@@ -461,11 +465,11 @@ begin
   cb_IDYES.Enabled := True;
   cb_IDNO.Enabled := True;
   if not cb_TaskDialogMsgBox.Checked then begin
-     NewStaticText1.Enabled := True;
-     NewEdit1.Enabled := True;
-     NewEdit1.Text := '1';
-     UpDown1.Max := 3;
-     UpDown1.Enabled := True;
+     DefaultButtonLabel.Enabled := True;
+     DefaultButtonEdit.Enabled := True;
+     DefaultButtonEdit.Text := '1';
+     DefaultButtonUpDown.Max := 3;
+     DefaultButtonUpDown.Enabled := True;
   end;
   if cb_TaskDialogMsgBox.Checked then begin
      rb_IDOK.Enabled := False;
@@ -527,11 +531,11 @@ begin
   cb_IDYES.Enabled := False;
   cb_IDNO.Enabled := False;
   if not cb_TaskDialogMsgBox.Checked then begin
-     NewStaticText1.Enabled := True;
-     NewEdit1.Enabled := True;
-     NewEdit1.Text := '1';
-     UpDown1.Max := 3;
-     UpDown1.Enabled := True;
+     DefaultButtonLabel.Enabled := True;
+     DefaultButtonEdit.Enabled := True;
+     DefaultButtonEdit.Text := '1';
+     DefaultButtonUpDown.Max := 3;
+     DefaultButtonUpDown.Enabled := True;
   end;
   if cb_TaskDialogMsgBox.Checked then begin
      rb_IDOK.Enabled := False;
@@ -820,11 +824,11 @@ begin
       MSGText.Lines.Add(LFmtMessage(SMsgBoxDesignerDefaultText));
     if cb_MB_SETFOREGROUND.Checked then
       Buttons := Buttons or MB_SETFOREGROUND;
-    if NewEdit1.Text = '1' then
+    if DefaultButtonEdit.Text = '1' then
       MsgBox(MSGText.Lines.Text, LFmtMessage(SMsgBoxDesignerPreviewCaption), Typ, Buttons);
-    if NewEdit1.Text = '2' then
+    if DefaultButtonEdit.Text = '2' then
       MsgBox(MSGText.Lines.Text, LFmtMessage(SMsgBoxDesignerPreviewCaption), Typ, Buttons or MB_DEFBUTTON2);
-    if NewEdit1.Text = '3' then
+    if DefaultButtonEdit.Text = '3' then
       MsgBox(MSGText.Lines.Text, LFmtMessage(SMsgBoxDesignerPreviewCaption), Typ, Buttons or MB_DEFBUTTON3);
   end else if cb_TaskDialogMsgBox.Checked then begin
      { create ButtonLabels array - also see GetText}
@@ -1002,52 +1006,52 @@ begin
      if (rbMB_OK.Checked) and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_OK or MB_SETFOREGROUND';
 
-     if (rbMB_OKCANCEL.Checked) and (NewEdit1.Text = '2') then
+     if (rbMB_OKCANCEL.Checked) and (DefaultButtonEdit.Text = '2') then
         Buttons := 'MB_OKCANCEL or MB_DEFBUTTON2';
      { MessageBox with DefButton and Flag MB_SETFOREGROUND }
      if (rbMB_OKCANCEL.Checked) and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_OKCANCEL or MB_SETFOREGROUND';
-     if (rbMB_OKCANCEL.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
+     if (rbMB_OKCANCEL.Checked) and (DefaultButtonEdit.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_OKCANCEL or MB_DEFBUTTON2 or MB_SETFOREGROUND';
 
-     if (rbMB_YESNO.Checked) and (NewEdit1.Text = '2') then
+     if (rbMB_YESNO.Checked) and (DefaultButtonEdit.Text = '2') then
         Buttons := 'MB_YESNO or MB_DEFBUTTON2';
      { MessageBox with DefButton and Flag MB_SETFOREGROUND }
      if (rbMB_YESNO.Checked) and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_YESNO or MB_SETFOREGROUND';
-     if (rbMB_YESNO.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
+     if (rbMB_YESNO.Checked) and (DefaultButtonEdit.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_YESNO or MB_DEFBUTTON2 or MB_SETFOREGROUND';
 
-     if (rbMB_RETRYCANCEL.Checked) and (NewEdit1.Text = '2') then
+     if (rbMB_RETRYCANCEL.Checked) and (DefaultButtonEdit.Text = '2') then
         Buttons := 'MB_RETRYCANCEL or MB_DEFBUTTON2';
      { MessageBox with DefButton and Flag MB_SETFOREGROUND }
      if (rbMB_RETRYCANCEL.Checked) and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_RETRYCANCEL or MB_SETFOREGROUND';
-     if (rbMB_RETRYCANCEL.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
+     if (rbMB_RETRYCANCEL.Checked) and (DefaultButtonEdit.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_RETRYCANCEL or MB_DEFBUTTON2 or MB_SETFOREGROUND';
 
-     if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '2') then
+     if (rbMB_YESNOCANCEL.Checked) and (DefaultButtonEdit.Text = '2') then
         Buttons := 'MB_YESNOCANCEL or MB_DEFBUTTON2';
-     if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '3') then
+     if (rbMB_YESNOCANCEL.Checked) and (DefaultButtonEdit.Text = '3') then
         Buttons := 'MB_YESNOCANCEL or MB_DEFBUTTON3';
      { MessageBox with DefButton and Flag MB_SETFOREGROUND }
      if (rbMB_YESNOCANCEL.Checked) and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_YESNOCANCEL or MB_SETFOREGROUND';
-     if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
+     if (rbMB_YESNOCANCEL.Checked) and (DefaultButtonEdit.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_YESNOCANCEL or MB_DEFBUTTON2 or MB_SETFOREGROUND';
-     if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
+     if (rbMB_YESNOCANCEL.Checked) and (DefaultButtonEdit.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_YESNOCANCEL or MB_DEFBUTTON3 or MB_SETFOREGROUND';
 
-     if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '2') then
+     if (rbMB_ABORTRETRYIGNORE.Checked) and (DefaultButtonEdit.Text = '2') then
         Buttons := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON2';
-     if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '3') then
+     if (rbMB_ABORTRETRYIGNORE.Checked) and (DefaultButtonEdit.Text = '3') then
         Buttons := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON3';
      { MessageBox with DefButton and Flag MB_SETFOREGROUND }
      if (rbMB_ABORTRETRYIGNORE.Checked) and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_ABORTRETRYIGNORE or MB_SETFOREGROUND';
-     if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
+     if (rbMB_ABORTRETRYIGNORE.Checked) and (DefaultButtonEdit.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON2 or MB_SETFOREGROUND';
-     if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
+     if (rbMB_ABORTRETRYIGNORE.Checked) and (DefaultButtonEdit.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON3 or MB_SETFOREGROUND';
 
      { Suppressible msg }
