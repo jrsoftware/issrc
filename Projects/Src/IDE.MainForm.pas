@@ -904,6 +904,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       if FOptions.Language = ilEnglish then begin
         var MessageLanguage := ilEnglish;
         case PRIMARYLANGID(GetUILanguage) of
+          LANG_CZECH: MessageLanguage := ilCzech;
           LANG_DUTCH: MessageLanguage := ilDutch;
           LANG_GERMAN: MessageLanguage := ilGerman;
           LANG_JAPANESE: MessageLanguage := ilJapanese;

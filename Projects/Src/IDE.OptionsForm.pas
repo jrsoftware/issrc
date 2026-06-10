@@ -116,6 +116,7 @@ begin
 
   { Order must match TIDELanguage }
   LanguageComboBox.Items.Add('English');
+  LanguageComboBox.Items.Add(#$010C'e'#$0161'tina');
   LanguageComboBox.Items.Add('Nederlands');
   LanguageComboBox.Items.Add('Deutsch');
   LanguageComboBox.Items.Add(#$65E5#$672C#$8A9E);

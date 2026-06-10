@@ -22,6 +22,7 @@ uses
   IDE.HelperFunc in 'Src\IDE.HelperFunc.pas',
   IDE.Messages in 'Src\IDE.Messages.pas',
   IDE.LocalizeFunc in 'Src\IDE.LocalizeFunc.pas',
+  IDE.LocalizeFunc.Czech in 'Src\IDE.LocalizeFunc.Czech.pas',
   IDE.LocalizeFunc.Dutch in 'Src\IDE.LocalizeFunc.Dutch.pas',
   IDE.LocalizeFunc.German in 'Src\IDE.LocalizeFunc.German.pas',
   IDE.LocalizeFunc.Japanese in 'Src\IDE.LocalizeFunc.Japanese.pas',

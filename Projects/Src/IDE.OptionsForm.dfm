@@ -136,9 +136,9 @@ object OptionsForm: TOptionsForm
       TabOrder = 14
     end
     object KeyMappingComboBox: TComboBox
-      Left = 88
+      Left = 104
       Top = 297
-      Width = 225
+      Width = 209
       Height = 21
       Style = csDropDownList
       Anchors = [akLeft, akTop, akRight]
@@ -181,9 +181,9 @@ object OptionsForm: TOptionsForm
       TabOrder = 16
     end
     object LanguageComboBox: TComboBox
-      Left = 88
-      Top = 326
-      Width = 225
+      Left = 104
+      Top = 324
+      Width = 209
       Height = 21
       Style = csDropDownList
       Anchors = [akLeft, akTop, akRight]
@@ -280,9 +280,9 @@ object OptionsForm: TOptionsForm
       TabOrder = 16
     end
     object FontPanel: TPanel
-      Left = 88
+      Left = 104
       Top = 326
-      Width = 145
+      Width = 129
       Height = 32
       Anchors = [akLeft, akRight, akBottom]
       BevelKind = bkFlat
@@ -311,9 +311,9 @@ object OptionsForm: TOptionsForm
       TabOrder = 19
     end
     object TabWidthEdit: TEdit
-      Left = 88
+      Left = 104
       Top = 366
-      Width = 66
+      Width = 50
       Height = 21
       Anchors = [akLeft, akRight, akBottom]
       TabOrder = 20
@@ -339,9 +339,9 @@ object OptionsForm: TOptionsForm
       TabOrder = 14
     end
     object ThemeComboBox: TComboBox
-      Left = 88
+      Left = 104
       Top = 297
-      Width = 225
+      Width = 209
       Height = 21
       Style = csDropDownList
       Anchors = [akLeft, akRight, akBottom]
@@ -376,9 +376,9 @@ object OptionsForm: TOptionsForm
       TabOrder = 12
     end
     object MemoKeyMappingComboBox: TComboBox
-      Left = 88
+      Left = 104
       Top = 268
-      Width = 225
+      Width = 209
       Height = 21
       Style = csDropDownList
       Anchors = [akLeft, akRight, akBottom]
