@@ -44,15 +44,20 @@ rem set BRCC_CompilerToUse=msrc
 
 if "%1"=="x64" ( set Bits=64 ) else ( set Bits=32 )
 
+set "SignFiles="
+if /I "%2"=="iscmplr" set "SignFiles=Files\ISCmplr.dll"
+if /I "%2"=="ispp" set "SignFiles=Files\ISPP.dll"
+if /I "%2"=="setup" set "SignFiles=Files\Setup.e%Bits%"
+if /I "%2"=="setupcustomstyle" set "SignFiles=Files\SetupCustomStyle.e%Bits%"
+if /I "%2"=="setupldr" set "SignFiles=Files\SetupLdr.e%Bits%"
+if "%2"=="" set "SignFiles=Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\Setup.e64 Files\SetupCustomStyle.e32 Files\SetupCustomStyle.e64 Files\SetupLdr.e32 Files\SetupLdr.e64"
+
 if /I "%2"=="ishelpgen" (
   echo - ISHelpGen.exe
   msbuild.exe ..\ISHelp\ISHelpGen\ISHelpGen.dproj /t:Build /p:Config=Release;Platform=Win64 /nologo
-) else if /I "%2"=="issigtool" (
-  echo - ISSigTool.exe
-  msbuild.exe ISSigTool.dproj /t:Build /p:Config=Release;Platform=Win%Bits% /nologo
-) else if /I "%2"=="istesttool" (
-  echo - ISTestTool.exe
-  msbuild.exe ISTestTool.dproj /t:Build /p:Config=Release;Platform=Win%Bits% /nologo
+) else if not "%2"=="" (
+  echo - %2
+  msbuild.exe "%2.dproj" /t:Build /p:Config=Release;Platform=Win%Bits% /nologo
 ) else (
   echo - Projects.groupproj - Release build group
   rem This emits warning MSB4056, but that's ok since the build doesn't use COM. Modern MSBuild supports
@@ -60,16 +65,18 @@ if /I "%2"=="ishelpgen" (
   rem implementation of build groups does not seem to pass through additional parameters, so even with a
   rem modern MSBuild you cannot suppress the warning. Likewise, using /nologo or /v:q has no effect.
   msbuild.exe Projects.groupproj /t:Build /p:BuildGroup=Release%Bits%
-  if errorlevel 1 goto failed
-  rem  Sign using user's private key - will be overwritten if called by build.bat
-  call ..\issig.bat sign Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\Setup.e64 Files\SetupCustomStyle.e32 Files\SetupCustomStyle.e64 Files\SetupLdr.e32 Files\SetupLdr.e64
-  if errorlevel 1 goto failed
-  echo ISSigTool sign done
 )
 if errorlevel 1 goto failed
 
 cd ..
 if errorlevel 1 goto failed
+
+if defined SignFiles (
+  rem  Sign using user's private key - will be overwritten if called by build.bat
+  call .\issig.bat sign %SignFiles%
+  if errorlevel 1 goto failed2
+  echo ISSigTool sign done
+)
 
 echo Success!
 

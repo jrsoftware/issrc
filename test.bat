@@ -29,7 +29,7 @@ echo *** FAILED ***
 exit /b 1
 
 :test
-call .\compile.bat %~1 istesttool
+call .\compile.bat %~1 ISTestTool
 if errorlevel 1 exit /b 1
 echo Compiling %~1 Inno Setup Test Tool done
 

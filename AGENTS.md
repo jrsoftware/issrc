@@ -41,6 +41,7 @@ Under `ISHelp/ISHelpGen/`:
 
 ## Build
 - Run `compile.bat x64` or `compile.bat x86`. Both output release binaries to `Files`.
+- Append a project name, such as `compile.bat x64 ISCC`, to compile only that project.
 - Compiler path is configured in `compilesettings.bat`.
 - `build.bat` orchestrates full release builds.
 - If a release build binary under `Files\` reports "Signature file is not valid", run `issig.bat embed`, then rerun the relevant compile command, usually `compile.bat x64`, and retry the failed command. This recovery step is required even though it updates `Components\TrustFunc.AllowedPublicKeys.inc`.
@@ -59,7 +60,7 @@ Under `ISHelp/ISHelpGen/`:
 ## Docs
 - `whatsnew.htm` contains the Revision History.
 - Help content lives under `ISHelp`:
-  - When editing `ISHelp\*`, regenerate CHM/Web help: run `compile.bat x64 ishelpgen` then `ISHelp\compile.bat` and verify 0 errors. Don't skip; this regenerates `isxclasses_wordlists_generated.pas`, which is in Git.
+  - When editing `ISHelp\*`, regenerate CHM/Web help: run `compile.bat x64 ISHelpGen` then `ISHelp\compile.bat` and verify 0 errors. Don't skip; this regenerates `isxclasses_wordlists_generated.pas`, which is in Git.
   - `isxfunc.xml` documents Pascal Script functions.
   - `isxclasses.pas` documents Pascal Script classes, with `isxclasses.header`, `isxclasses.header2`, and `isxclasses.footer` as helpers. When a `uPSC_*.pas` registration changes for Inno Setup (`PS_MINIVCL` is defined, `FPC` and `CLX` are not), update `isxclasses.pas` to match and regenerate as above.
   - `isx.xml` contains all other Pascal Script documentation.
