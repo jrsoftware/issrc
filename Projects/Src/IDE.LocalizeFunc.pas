@@ -43,6 +43,20 @@ uses
 
 var
   TranslationDictionary: TDictionary<String, String>;
+  ResourceStringHookInstalled: Boolean;
+  OrgLoadResStringFunc: function(ResStringRec: PResStringRec): String;
+
+function TranslateMessage(const Str: String): String;
+begin
+  if not Assigned(TranslationDictionary) or
+     not TranslationDictionary.TryGetValue(Str, Result) then
+    Result := Str;
+end;
+
+function NewLoadResStringFunc(ResStringRec: PResStringRec): String;
+begin
+  Result := TranslateMessage(OrgLoadResStringFunc(ResStringRec));
+end;
 
 procedure InitLocalization(const Lang: TIDELanguage; const Reverse: Boolean);
 
@@ -56,6 +70,15 @@ procedure InitLocalization(const Lang: TIDELanguage; const Reverse: Boolean);
     end;
   end;
 
+  procedure InstallResourceStringHook;
+  begin
+    if not ResourceStringHookInstalled and Assigned(LoadResStringFunc) then begin
+      OrgLoadResStringFunc := LoadResStringFunc;
+      LoadResStringFunc := NewLoadResStringFunc;
+      ResourceStringHookInstalled := True;
+    end;
+  end;
+
 begin
   TranslationDictionary.Clear;
   case Lang of
@@ -64,6 +87,7 @@ begin
     ilGerman: AddTranslations(GermanIDETranslations);
     ilJapanese: AddTranslations(JapaneseIDETranslations);
   end;
+  InstallResourceStringHook;
 end;
 
 function FmtIDEMessage(S: PChar; const Args: array of const): String;
@@ -141,9 +165,7 @@ function LFmtMessage(const Str: String; const Args: array of const;
 begin
   if not CheckMessageStr(Str, AllowEmpty) then
     Exit('');
-  if not Assigned(TranslationDictionary) or
-     not TranslationDictionary.TryGetValue(Str, Result) then
-    Result := Str;
+  Result := TranslateMessage(Str);
   Result := FmtIDEMessage(PChar(Result), Args);
 end;
 
@@ -256,5 +278,7 @@ end;
 initialization
   TranslationDictionary := TDictionary<String, String>.Create;
 finalization
+  if ResourceStringHookInstalled then
+    LoadResStringFunc := OrgLoadResStringFunc;
   TranslationDictionary.Free;
 end.
