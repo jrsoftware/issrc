@@ -149,7 +149,6 @@ type
     function GetCaretLine: Integer;
     function GetCaretLineText: String;
     function GetCaretPosition: Integer;
-    function GetCaretPositionInLine: Integer;
     function GetCaretVirtualSpace: Integer;
     function GetInsertMode: Boolean;
     function GetLineEndings: TScintLineEndings;
@@ -391,7 +390,6 @@ type
     property CaretLine: Integer read GetCaretLine write SetCaretLine;
     property CaretLineText: String read GetCaretLineText;
     property CaretPosition: Integer read GetCaretPosition write SetCaretPosition;
-    property CaretPositionInLine: Integer read GetCaretPositionInLine;
     property CaretPositionWithSelectFromAnchor: Integer write SetCaretPositionWithSelectFromAnchor;
     property CaretVirtualSpace: Integer read GetCaretVirtualSpace write SetCaretVirtualSpace;
     property EffectiveCodePage: Word read FEffectiveCodePage;
@@ -1105,13 +1103,6 @@ end;
 function TScintEdit.GetCaretPosition: Integer;
 begin
   Result := Call(SCI_GETCURRENTPOS, 0, 0);
-end;
-
-function TScintEdit.GetCaretPositionInLine: Integer;
-begin
-  var Caret := CaretPosition;
-  var LineStart := GetPositionFromLine(GetLineFromPosition(Caret));
-  Result := Caret - LineStart;
 end;
 
 function TScintEdit.GetCaretVirtualSpace: Integer;
