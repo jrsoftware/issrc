@@ -221,7 +221,7 @@ begin
   repeat
     if not InputQueryEdit(FForm.Caption, LFmtMessage(SWizardAppFilesDownloadExternalSizePrompt), ExternalSizeAsString)  then
       Exit;
-  until TryStrToFloat(ExternalSizeAsString, ExternalSize);
+  until TryStrToFloat(ExternalSizeAsString, ExternalSize) and (ExternalSize > 0);
 
   var Options: TWizardFileOptions := [foDownload];
   if ExtractArchive then
