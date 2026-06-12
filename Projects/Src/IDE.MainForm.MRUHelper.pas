@@ -2,7 +2,7 @@ unit IDE.MainForm.MRUHelper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -126,11 +126,7 @@ procedure TMainFormMRUHelper.ModifyMRUMainFilesList(const AFilename: String;
   const AddNewItem: Boolean);
 begin
   { Load most recent items first, just in case they've changed }
-  try
-    ReadMRUMainFilesList;
-  except
-    { Ignore any exceptions. }
-  end;
+  ReadMRUMainFilesList;
   try
     ModifyMRUList(FMRUMainFilesList, 'ScriptFileHistoryNew', 'History', AFileName, AddNewItem, PathSame);
   except
@@ -153,11 +149,7 @@ procedure TMainFormMRUHelper.ModifyMRUParametersList(const AParameter: String;
   const AddNewItem: Boolean);
 begin
   { Load most recent items first, just in case they've changed }
-  try
-    ReadMRUParametersList;
-  except
-    { Ignore any exceptions. }
-  end;
+  ReadMRUParametersList;
   try
     ModifyMRUList(FMRUParametersList, 'ParametersHistory', 'History', AParameter, AddNewItem, SameText);
   except
