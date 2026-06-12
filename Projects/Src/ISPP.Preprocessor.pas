@@ -1006,8 +1006,9 @@ begin
       pcErrorDir:
         begin
           { Also see ErrorFunc in IsppFuncs }
+          Params := Params.Trim;
           if Params = '' then Params := 'Error';
-          RaiseError(Params.Trim);
+          RaiseError(Params);
         end;
       pcPragma: Pragma(Parser);
       pcEmit: Params := ToStr(Evaluate).AsStr;
