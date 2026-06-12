@@ -64,8 +64,8 @@ begin
   with TInputQueryMemoForm.Create(Application) do try
     Caption := ACaption;
     Prompt := APrompt;
-    Value := AValue;
     SingleLine := ASingleLine;
+    Value := AValue;
     DocBitBtnClick := ADocBitBtnClick;
     if ShowModal = mrOk then begin
       AValue := Value;
