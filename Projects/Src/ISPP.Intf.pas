@@ -38,7 +38,7 @@ type
     procedure SetAsInt(Value: Int64); stdcall;
     procedure SetAsString(Value: PChar); stdcall;
     procedure SetAsNull; stdcall;
-    procedure Error(Message: PChar); stdcall;
+    procedure RaiseError(Message: PChar); stdcall;
   end;
 
   IIsppFuncParams = interface
