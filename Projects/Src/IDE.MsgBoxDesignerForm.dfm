@@ -567,8 +567,6 @@ object MsgBoxDesignerForm: TMsgBoxDesignerForm
       Height = 1
       Align = alTop
       Shape = bsTopLine
-      ExplicitLeft = 168
-      ExplicitWidth = 50
     end
     object MBDButtonPreview: TButton
       Left = 10

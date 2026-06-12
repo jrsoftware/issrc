@@ -791,9 +791,7 @@ end;
 function ExpandIndividualConst(Cnst: String;
   const CustomConsts: array of String): String;
 { Cnst must be the name of a single constant, without the braces.
-  For example: app
-  IsPath is set to True if the result is a path which needs special trailing-
-  backslash handling. }
+  For example: app }
   
   procedure HandleAutoConstants(var Cnst: String);
   const

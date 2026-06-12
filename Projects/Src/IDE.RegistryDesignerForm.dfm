@@ -45,7 +45,6 @@ object RegistryDesignerForm: TRegistryDesignerForm
       Height = 1
       Align = alTop
       Shape = bsTopLine
-      ExplicitWidth = 500
     end
     object InsertButton: TButton
       Left = 322

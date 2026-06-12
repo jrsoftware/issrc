@@ -29,7 +29,6 @@ object FilesDesignerForm: TFilesDesignerForm
       Width = 575
       Height = 1
       Align = alTop
-      Anchors = [akLeft, akRight, akBottom]
       Shape = bsTopLine
     end
     object InsertButton: TButton

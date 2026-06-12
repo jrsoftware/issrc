@@ -108,7 +108,7 @@ const
   SWizardAppExeError = 'Please specify the application main executable file.';
   SWizardAppGroupNameError = 'Please specify the application Start Menu group name.';
   SWizardFileDestRootDirError = 'Please specify the destination base folder.';
-  SWizardFileAppDestRootDirError = 'Please specify a destination base folder other than the application folder';
+  SWizardFileAppDestRootDirError = 'Please specify a destination base folder other than the application folder.';
   SWizardLanguagesSelError = 'Please select at least one language.';
 
   SWizardSourceURLLabel = '&Source URL:';

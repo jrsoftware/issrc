@@ -955,7 +955,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
   procedure EndProcDecl;
   begin
     if not FInProcBody then
-      RaiseError('''endproc'' without ''procedure''');
+      RaiseError('''endsub'' without ''sub''');
     FInProcBody := False;
   end;
 

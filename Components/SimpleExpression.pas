@@ -253,7 +253,7 @@ begin
         Next;
         Result := FEvalExpression(InLazyBranch);
         if FTokenId <> tiCloseRound then
-          raise ESimpleExpressionError.Create('Invalid token');
+          raise ESimpleExpressionError.CreateFmt('Invalid token ''%s'' found', [FToken]);
         Next;
       end;
     tiNot:

@@ -103,7 +103,7 @@ const
   SActualParamsNamingConflict = 'All actual parameters must appear either in order of their declaration, or by names';
   SCannotConvertToInteger = 'Cannot convert "%s" to integer';
   SExpectedButFound = '%s expected but %s found';
-  SIllegalChar = 'Illegal character in input file: ''%s'' (0x%-2x)';
+  SIllegalChar = 'Illegal character in input file: ''%s'' (0x%.2x)';
   SIntegerExpressionExpected = 'Integer expression expected';
   SLValueRequired = 'Left side cannot be assigned to (expression is not an l-value)';
   SOperatorNotApplicableToThisOpera = 'Operator not applicable to this operand type';
