@@ -411,6 +411,7 @@ begin
   TestPartLengths('a\\\', 0, 0, 1, 4);
   TestPartLengths('a\b', 0, 0, 1, 2);
   TestPartLengths('a\b:c', 0, 0, 1, 2); {**}
+  TestPartLengths('abc:def', 0, 0, 0, 0); {**}
 
   { Drive "letters" can technically be any character other than '\'. See
     comment in PathDrivePartLengthEx. }
@@ -710,6 +711,7 @@ begin
   TestPathExtracts('\file', 'file', '\', '\', '');
   TestPathExtracts('', '', '', '', '');
   TestPathExtracts('a\b:c', 'b:c', 'a\', 'a', ''); {**}
+  TestPathExtracts('abc:def', 'abc:def', '', '', ''); {**}
 
   TestPathExtensionPos('', 0);
   TestPathExtensionPos('file', 0);
