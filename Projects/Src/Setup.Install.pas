@@ -430,7 +430,7 @@ end;
 
 procedure ApplyNTFSCompression(const Filename: String; const FilenameIsDirectory, Compress: Boolean);
 const
-  SSet: array [Boolean] of String = ('Setting', 'Unsetting');
+  SSet: array [Boolean] of String = ('Unsetting', 'Setting');
   SFileDir: array [Boolean] of String = ('file', 'directory');
 begin
   LogFmt('%s NTFS compression on %s: %s', [SSet[Compress], SFileDir[FilenameIsDirectory], Filename]);
