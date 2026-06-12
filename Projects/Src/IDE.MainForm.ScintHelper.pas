@@ -228,7 +228,6 @@ begin
     { Send updated selections to memo }
     for var I := 0 to Selections.Count-1 do begin
       var Selection := Selections[I];
-      var VirtualSpace := VirtualSpaces[I];
       if I = 0 then
         AMemo.SetSingleSelection(Selection.CaretPos, Selection.AnchorPos)
       else

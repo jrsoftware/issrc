@@ -435,8 +435,6 @@ begin
 end;
 
 procedure RegisterHandCursor_R(Cl: TPSRuntimeClassImporter);
-const
-  IDC_HAND = MakeIntResource(32649);
 begin
   Screen.Cursors[crHand] := LoadCursor(0, IDC_HAND);
 end;

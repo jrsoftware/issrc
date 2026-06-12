@@ -753,7 +753,6 @@ const
   inSquiggly = 0;
   inPendingSquiggly = 1;
 
-  AllChars = [#0..#255];
   WhitespaceChars = [#0..' '];
   AlphaChars = ['A'..'Z', 'a'..'z'];
   DigitChars = ['0'..'9'];

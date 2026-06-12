@@ -153,7 +153,6 @@ function GetShellFolderPath(const FolderID: Integer; out Path: String): HRESULT;
 function GetCurrentUserSid: String;
 function IsAdminLoggedOn: Boolean;
 function IsPowerUserLoggedOn: Boolean;
-function IsMultiByteString(const S: AnsiString): Boolean;
 function FontExists(const FaceName: String): Boolean;
 function GetUILanguage: LANGID;
 function RemoveAccelChar(const S: String): String;
@@ -1184,18 +1183,6 @@ const
   DOMAIN_ALIAS_RID_POWER_USERS = $00000223;
 begin
   Result := IsMemberOfGroup(DOMAIN_ALIAS_RID_POWER_USERS);
-end;
-
-function IsMultiByteString(const S: AnsiString): Boolean;
-var
-  I: Integer;
-begin
-  Result := False;
-  for I := 1 to Length(S) do
-    if IsDBCSLeadByte(Ord(S[I])) then begin
-      Result := True;
-      Break;
-    end;
 end;
 
 function FontExistsCallback(const lplf: TLogFont; const lptm: TTextMetric;

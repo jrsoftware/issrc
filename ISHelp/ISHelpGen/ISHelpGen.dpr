@@ -960,11 +960,9 @@ begin
     SetupDirectives.Free;
     TargetTopics.Free;
     DefinedTopics.Free;
-    if Assigned(Keywords) then begin
-      for I := Keywords.Count-1 downto 0 do
-        TKeywordInfo(Keywords.Objects[I]).Free;
-      Keywords.Free;
-    end;
+    for I := Keywords.Count-1 downto 0 do
+      TKeywordInfo(Keywords.Objects[I]).Free;
+    Keywords.Free;
   end;
 end;
 

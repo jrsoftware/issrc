@@ -53,11 +53,6 @@ type
   TIsppFunction = function (Ext: NativeInt; const Params: IIsppFuncParams;
     const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
-  IPreprocessor = interface
-    procedure DefineVariable(Name: PChar; Typ: TIsppVarType; Value: Int64);
-    procedure QueueLine(Line: PChar);
-  end;
-
 const
 
   { TIsppFuncResult.Error values }

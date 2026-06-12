@@ -41,7 +41,7 @@ uses
   ShellAPI,
   PathFunc, BrowseFunc,
   Shared.SetupMessageIDs, Shared.CommonFunc.Vcl, Shared.CommonFunc,
-  SetupLdrAndSetup.Messages, Setup.MainFunc, Setup.MainForm, Setup.WizardForm;
+  SetupLdrAndSetup.Messages, Setup.MainFunc, Setup.WizardForm;
 
 {$R *.DFM}
 

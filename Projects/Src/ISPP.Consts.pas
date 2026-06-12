@@ -32,8 +32,6 @@ const
   SElseWithoutIf = '''else'' without ''if''';
   SEndifExpected = '''endif'' expected';
   SEndifWithoutIf = '''endif'' without ''if''';
-  SErrorWhileOpeningFile = 'Error %d while opening file %s';
-  SErrorWhileReadingFile = 'Error %d while reading file %s';
   SFileDirectiveCanBeOnlyInline = '''file'' directive can be only inline';
   SFileIsAlreadyBeingIncluded = 'File %s is already being included';
   SFileNotFound = 'File not found: %s';

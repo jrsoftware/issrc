@@ -45,7 +45,6 @@ type
       function CheckExports: Boolean;
       function Compile(const ScriptText: String; var CompiledScriptText, CompiledScriptDebugInfo: tbtString): Boolean;
       property ExportCount: NativeInt read GetExportCount;
-      function ExportFound(const Name: String): Boolean;
       function FunctionFound(const Name: String): Boolean;
       function IsObsoleteFunction(const Name: String): String;
       property ExecIs64Bit: Boolean read FExecIs64Bit write FExecIs64Bit;
@@ -519,21 +518,6 @@ begin
   finally
     PSPascalCompiler.Free();
   end;
-end;
-
-function TScriptCompiler.ExportFound(const Name: String): Boolean;
-var
-  ScriptExport: TScriptExport;
-begin
-  for var I := 0 to FExports.Count-1 do begin
-    ScriptExport := FExports[I];
-    if CompareText(ScriptExport.Name, Name) = 0 then begin
-      Result := ScriptExport.Exported;
-      Exit;
-    end;
-  end;
-
-  Result := False;
 end;
 
 function TScriptCompiler.FunctionFound(const Name: String): Boolean;

@@ -131,7 +131,6 @@ const
   RESTART_MAX_CMD_LINE = 1024;
   RESTART_NO_CRASH = $1;
   RESTART_NO_HANG = $2;
-  RESTART_NO_PATCH = $4;
   RESTART_NO_REBOOT = $8;
 var
   Func: function(pwzCommandLine: PWideChar; dwFlags: DWORD): HRESULT; stdcall;

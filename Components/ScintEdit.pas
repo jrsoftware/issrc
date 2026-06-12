@@ -582,9 +582,6 @@ uses
 
 { TScintEdit }
 
-const
-  AUTOCSETSEPARATOR = #9;
-
 constructor TScintEdit.Create(AOwner: TComponent);
 begin
   inherited;
