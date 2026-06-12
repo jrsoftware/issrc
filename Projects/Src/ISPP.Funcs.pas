@@ -294,6 +294,7 @@ begin
           case GetDataType(Name) of
             rdString, rdExpandString: MakeStr(ResPtr^, ReadString(Name));
             rdInteger: MakeInt(ResPtr^, ReadInteger(Name));
+            rdInt64: MakeInt(ResPtr^, ReadInt64(Name));
           else
             CopyExpVar(Default, ResPtr^);
           end
