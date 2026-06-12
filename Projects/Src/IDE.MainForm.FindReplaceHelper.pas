@@ -247,8 +247,8 @@ begin
           StartPos := Memo.GetPositionAfter(StartPos);
         end;
       end;
-      Inc(Files);
       if FileHits > 0 then begin
+        Inc(Files);
         Inc(Hits, FileHits);
         FindResultsList.Items.Insert(FindResultsList.Count-FileHits, LFmtMessage(SFindResultFileHeader, [Memo.Filename, FileHits]));
       end;
