@@ -1022,7 +1022,7 @@ begin
     end;
 
     { Special ones }
-    if not NoAppExeCheck.Checked then begin
+    if NoAppExeCheck.Enabled and not NoAppExeCheck.Checked then begin
       ISPP := ISPP + '#define MyAppExeName "' + AppExeName + '"' + SNewLine;
       AppExeName := '{#MyAppExeName}';
     end;
