@@ -1129,7 +1129,7 @@ type
 procedure GarbageCloseFind(Item: Pointer);
 begin
   FindClose(PSearchRec(Item)^);
-  Dispose(Item);
+  Dispose(PSearchRec(Item));
 end;
 
 function FindFirstFunc(Ext: NativeInt; const Params: IIsppFuncParams;
