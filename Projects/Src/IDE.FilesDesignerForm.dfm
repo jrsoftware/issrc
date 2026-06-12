@@ -11,7 +11,7 @@ object FilesDesignerForm: TFilesDesignerForm
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
-  Position = poDesktopCenter
+  Position = poScreenCenter
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   TextHeight = 15
@@ -22,7 +22,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Height = 42
     Align = alBottom
     BevelOuter = bvNone
-    TabOrder = 0
+    TabOrder = 8
     object Bevel1: TBevel
       Left = 0
       Top = 0
@@ -62,7 +62,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Height = 23
     Anchors = [akTop, akRight]
     Caption = '&Parameters...'
-    TabOrder = 1
+    TabOrder = 6
   end
   object AppFilesRemoveButton: TButton
     Left = 476
@@ -71,7 +71,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Height = 23
     Anchors = [akTop, akRight]
     Caption = 'Remo&ve'
-    TabOrder = 2
+    TabOrder = 7
   end
   object AppFilesAddDirButton: TButton
     Left = 476
@@ -80,7 +80,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Height = 23
     Anchors = [akTop, akRight]
     Caption = 'Add Fol&der...'
-    TabOrder = 3
+    TabOrder = 4
   end
   object AppFilesAddButton: TButton
     Left = 476
@@ -89,7 +89,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Height = 23
     Anchors = [akTop, akRight]
     Caption = '&Add File(s)...'
-    TabOrder = 4
+    TabOrder = 3
   end
   object AppFilesListBox: TDropListBox
     Left = 8
@@ -98,7 +98,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Height = 297
     Anchors = [akLeft, akTop, akRight, akBottom]
     ItemHeight = 15
-    TabOrder = 5
+    TabOrder = 2
   end
   object AppFilesLabel: TNewStaticText
     Left = 8
@@ -109,7 +109,7 @@ object FilesDesignerForm: TFilesDesignerForm
     AutoSize = False
     Caption = '&Files:'
     FocusControl = AppFilesListBox
-    TabOrder = 7
+    TabOrder = 1
     WordWrap = True
   end
   object NotCreateAppDirCheck: TCheckBox
@@ -119,7 +119,7 @@ object FilesDesignerForm: TFilesDesignerForm
     Height = 17
     Anchors = [akLeft, akTop, akRight]
     Caption = '*'
-    TabOrder = 8
+    TabOrder = 0
   end
   object AppFilesAddDownloadButton: TButton
     Left = 476
@@ -128,6 +128,6 @@ object FilesDesignerForm: TFilesDesignerForm
     Height = 23
     Anchors = [akTop, akRight]
     Caption = 'Add D&ownload...'
-    TabOrder = 6
+    TabOrder = 5
   end
 end
