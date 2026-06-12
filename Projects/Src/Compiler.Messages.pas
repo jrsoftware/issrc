@@ -18,11 +18,6 @@ const
   SNewLine = #13#10;  { line break }
   SNewLine2 = #13#10#13#10;  { double line break }
   
-  { Compiler-specific messages }
-  SCompilerVersion = 'version %s';
-
-  SCompilerNotOnWin32s = 'The 32-bit compiler will not run on Win32s.';
-
   { Status messages }
   SCompilerStatusPreprocessing = 'Preprocessing';
   SCompilerStatusPreprocessorStatus = '   %s';
@@ -61,8 +56,6 @@ const
   SCompilerStatusUpdatingIcons = '   Updating icons (%s)';
   SCompilerStatusUpdatingIconsAndVsf = '   Updating icons and style (%s)';
   SCompilerStatusOutputFileInUse = '   The output file appears to be in use (%d). Retrying: %s';
-  SCompilerStatusCreatingDisk = '   Creating disk %d';
-  SCompilerStatusError = 'ERROR:';
   SCompilerStatusWarning = 'Warning: ';
   SCompilerStatusSigningSetup = '   Signing Setup program executable';
   SCompilerStatusSigningSourceFile = '   Signing: %s';
@@ -71,20 +64,7 @@ const
   SCompilerStatusSigningWithDelay = '   Running Sign Tool %s in %d milliseconds: %s';
   SCompilerStatusWillRetrySigning = '   Sign Tool command failed (%s). Will retry (%d tries left).';
 
-  SCompilerSuccessfulMessage2 = 'The setup images were successfully created ' +
-    'in the output directory:' + SNewLine +
-    '%s' + SNewLine +
-    SNewLine +
-    'Would you like to test the installation now?';
-  SCompilerSuccessfulTitle = 'Compile Successful';
-
-  SCompilerAborted = 'Compile aborted. Please correct the problem and try again.';
-
   { Fatal errors }
-  SCompilerScriptMissing2 = 'Specified script file does not exist';
-  SCompilerOutputNotEmpty2 = 'Output directory must be empty prior to ' +
-    'compilation of any non-Setup files. Files named Setup.* are ' +
-    'automatically deleted at the start of compilation.';
   SCompilerUnknownFilenamePrefix = 'Unknown filename prefix "%s"';
   SCompilerSourceFileDoesntExist = 'Source file "%s" does not exist';
   SCompilerSourceFileNotSigned = 'Source file "%s" is not signed';
@@ -103,7 +83,6 @@ const
   SCompilerNotEnoughSpaceOnFirstDisk = 'There is not enough space on the first disk to copy all of the required files';
   SCompilerSetup0Mismatch = 'Internal error SC1';
   SCompilerMustUseDiskSpanning = 'Disk spanning must be enabled to create an installation larger than %d bytes in size for a single Setup.exe, as this approaches the maximum supported by Windows';
-  SCompilerCompileCodeError = 'An error occurred while trying to compile the [Code] section:' + SNewLine2 + '%s';
   SCompilerFunctionFailedWithCode = '%s failed. Error %d: %s';
   SCompilerCheckPrecompiledFileTrustError = '%s' + SNewLine2 + 'To disable this verification, set [Setup] section directive "DisablePrecompiledFileVerifications". Before proceeding, ensure that the file is neither corrupted nor has been tampered with.';
 
@@ -114,7 +93,6 @@ const
   SCompilerEntryMissing2 = 'Required [%s] section directive "%s" not specified';
   SCompilerEntryInvalid2 = 'Value of [%s] section directive "%s" is invalid';
   SCompilerEntryValueUnsupported = 'Value of [%s] section directive "%s" must not be "%s" if flag "%s" is used.';
-  SCompilerEntryValueUnsupported2 = 'Value of [%s] section directive "%s" must not be "%s" if compression method "%s" is used.';
   SCompilerEntryAlreadySpecified = '[%s] section directive "%s" already specified';
   SCompilerAppVersionOrAppVerNameRequired = 'The [Setup] section must include an AppVersion or AppVerName directive';
   SCompilerMinVersionWinMustBeZero = 'Minimum non NT version specified by MinVersion must be 0. (Windows 95/98/Me are no longer supported.)';
@@ -123,7 +101,6 @@ const
   SCompilerMinVersionRecommendation = 'Minimum version is set to %s but using %s instead (which is the default) is recommended.';
   SCompilerDiskSliceSizeInvalid = 'DiskSliceSize must be between %d and %d, or "max"';
   SCompilerDiskClusterSizeInvalid = 'DiskClusterSize must be between 1 and 32768';
-  SCompilerInstallModeObsolete = 'The [%s] section directive "%s" is obsolete and ignored in this version of Inno Setup. Use command line parameters instead.';
   SCompilerMessagesFileObsolete = 'The MessagesFile directive is obsolete and no longer supported. Use the [Languages] section instead.';
   SCompilerMustUseDisableStartupPrompt = 'DisableStartupPrompt must be set to "yes" when AppName includes constants';
   SCompilerMustNotUsePreviousLanguage = 'UsePreviousLanguage must be set to "no" when AppId includes constants';
@@ -160,7 +137,6 @@ const
     'exit code of 0, but the file does not have a digital signature';
 
   { Line parsing }
-  SCompilerLineTooLong = 'Line too long';
   SCompilerSectionTagInvalid = 'Invalid section tag';
   SCompilerSectionBadEndTag = 'Not inside "%s" section, but an end tag for ' +
     'it was encountered';
@@ -189,7 +165,6 @@ const
   SCompilerBadCodeConst = 'Invalid code constant "%s"';
   SCompilerBadDriveConst = 'Invalid drive constant "%s"';
   SCompilerBadCustomMessageConst = 'Invalid custom message constant "%s"';
-  SCompilerBadBoolConst = 'Invalid boolean constant "%s"';
   SCompilerConstantRenamed = 'Constant "%s" has been renamed. Use "%s" instead.';
   SCompilerCommonConstantRenamed = 'Constant "%s" has been renamed. Use "%s" instead or consider using its "auto" form.';
 
@@ -210,7 +185,6 @@ const
   SCompilerParamHasNoValue = 'Specified parameter "%s" has no value';
   SCompilerParamQuoteError = 'Mismatched or misplaced quotes on parameter "%s"';
   SCompilerParamMissingClosingQuote = 'Missing closing quote on parameter "%s"';
-  SCompilerParamDataTooLong = 'Data on parameter "%s" is too long';
   SCompilerParamUnknownParam = 'Unrecognized parameter name "%s"';
   SCompilerParamDuplicated = 'Cannot have multiple "%s" parameters';
   SCompilerParamConflict = 'Cannot have both the "%s" and "%s" parameters';
@@ -237,7 +211,6 @@ const
   SCompilerParamUnknownComponent = 'Parameter "%s" includes an unknown component';
   SCompilerParamUnknownTask = 'Parameter "%s" includes an unknown task';
   SCompilerExpressionError = 'Directive or parameter "%s" expression error: %s';
-  SCompilerBadCheckOrInstall = 'Invalid Check, BeforeInstall or AfterInstall parameter "%s"';
 
   { Permissions }
   SCompilerPermissionsInvalidValue = 'Parameter "Permissions" includes a malformed value: "%s"';
