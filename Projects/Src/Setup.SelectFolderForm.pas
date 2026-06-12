@@ -2,7 +2,7 @@ unit Setup.SelectFolderForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -41,7 +41,7 @@ implementation
 
 uses
   PathFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.MainFunc,
-  Shared.SetupTypes, Setup.WizardForm, Shared.CommonFunc.Vcl;
+  Setup.WizardForm;
 
 {$R *.DFM}
 
