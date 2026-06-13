@@ -2,7 +2,7 @@ unit BrowseFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -71,10 +71,6 @@ begin
       Exit;
 
     Options := Options or FOS_PICKFOLDERS or FOS_FORCEFILESYSTEM;
-    if not NewFolderButton then begin
-      const FOS_NOCREATEFOLDERS: DWORD = $00000200;
-      Options := Options or FOS_NOCREATEFOLDERS;
-    end;
     if Failed(FileDialog.SetOptions(Options)) then
       Exit;
 
