@@ -10,10 +10,9 @@
 
 [Setup]
 AppName=ɯɐɹƃoɹd ʎɯ
-AppVerName=My Program version 1.5
+AppVersion=1.5
 DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
-AppVersion=1.2.3
 WizardStyle=modern dynamic
 InfoBeforeFile=Colortest.rtf
 

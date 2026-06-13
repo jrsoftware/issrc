@@ -65,7 +65,7 @@ ExitSetupTitle=Setup afsluiten
 ExitSetupMessage=Setup is niet voltooid. Als u nu afsluit, wordt het programma niet geïnstalleerd.%n%nU kunt Setup later opnieuw uitvoeren om de installatie te voltooien.%n%nSetup afsluiten?
 AboutSetupMenuItem=&Over Setup...
 AboutSetupTitle=Over Setup
-AboutSetupMessage=%1 versie %2%n%3%n%n%1-homepage:%n%4
+AboutSetupMessage=%1 %2%n%3%n%n%1-homepage:%n%4
 AboutSetupNote=
 TranslatorNote=Dutch translation maintained by Martijn Laan (mlaan@innosetup.nl)
 

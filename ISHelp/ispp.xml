@@ -35,7 +35,7 @@
 		<title>Introduction</title>
 		<description header="no">
 			<p>The main purpose of Inno Setup Preprocessor (ISPP) is to automate compile-time tasks and avoid repetition in your scripts. For example, you can declare a compile-time preprocessor variable &dash; containing your application name, for instance &dash; and then use its value in several places in your script. If for some reason you need to change the name of your application, you'll have to change it only once in your script. Without the preprocessor, you would need to change all occurrences of your application name throughout the script.</p>
-			<p>Another example of using the preprocessor would be gathering version information from your application at compile-time by reading the version info of an EXE file, and using it in your <link href="setup_appvername">AppVerName</link> [Setup] section directive or anywhere else. Without the preprocessor, you would have to modify your script each time the version of your application changes.</p>
+			<p>Another example of using the preprocessor would be gathering version information from your application at compile-time by reading the version info of an EXE file, and using it in your <link href="setup_appversion">AppVersion</link> [Setup] section directive or anywhere else. Without the preprocessor, you would have to modify your script each time the version of your application changes.</p>
 			<p>The preprocessor can even scan your source folder and generate script lines for the found files. Without the preprocessor, you would have to manually maintain the list of files.</p>
 			<p>The preprocessor can also conditionally include or exclude portions of the script: you can create one single script for different versions of your application (for example, trial versus fully functional). Without the preprocessor, you would need multiple scripts.</p>
 			<p>Finally, the preprocessor makes it possible to split long lines using a line spanning symbol.</p>
@@ -748,12 +748,12 @@ The first group of options (<tt>option</tt>) controls the general options, while
 		<topic id="funcs">
 			<title>Support Functions Reference</title>
 			<description header="no">
-				<p>There are a number of built-in support functions which you can use to perform compile-time actions and change your script. For example, the following uses ISPP function <link href="GetVersionNumbersString">GetVersionNumbersString</link> to read version info from an EXE and uses the return value of the function to set the <link href="setup_appvername">AppVerName</link> [Setup] section directive using directive &emit;:</p>
+				<p>There are a number of built-in support functions which you can use to perform compile-time actions and change your script. For example, the following uses ISPP function <link href="GetVersionNumbersString">GetVersionNumbersString</link> to read version info from an EXE and uses the return value of the function to set the <link href="setup_appversion">AppVersion</link> [Setup] section directive using directive &emit;:</p>
         <pre>
           <line>#define MyAppVer <link href="getversionnumbersstring">GetVersionNumbersString</link>(<link href="addbackslash">AddBackslash</link>(<link href="predefinedvars">SourcePath</link>) + "MyProg.exe")</line>
           <line></line>
           <line>[Setup]</line>
-          <line>AppVerName=MyProg version {#MyAppVer}</line>
+          <line>AppVersion={#MyAppVer}</line>
         </pre>
 				<p>Built-in support functions can also be called directly from directive &emit;. For example:</p>
         <pre>
