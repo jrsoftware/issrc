@@ -4265,9 +4265,46 @@ end;
 procedure TMainForm.UpdateCaretPosPanelAndBackNavStack;
 begin
   { Update panel }
-  var Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
-    FActiveMemo.CaretColumnExpandedForTabs + 1]);
+  var Text: String;
+  if (FActiveMemo.SelectionCount > 1) or not FActiveMemo.SelEmpty then begin
+    { Show selection info }
+    var CharacterCount, LineCount: Integer;
+    GetSelectionCharacterAndLineCounts(FActiveMemo, CharacterCount, LineCount);
+    if FActiveMemo.SelectionCount = 1 then
+      { Single non-empty selection }
+      Text := Format('%4d|%4d', [CharacterCount, LineCount])
+    else if FActiveMemo.SelectionMode in [ssmRectangular, ssmThinRectangular] then begin
+      { Rectangular selection: rows x widest row, then = when all rows are equally
+        wide or -> otherwise, then total chars }
+      const Rows = FActiveMemo.SelectionCount;
+      var MaxRowWidth := 0;
+      var AllRowsEqualWidth := True;
+      var FirstRowWidth := 0;
+      for var I := 0 to Rows-1 do begin
+        const RowWidth = FActiveMemo.GetCharacterCount(
+          FActiveMemo.SelectionStartPosition[I], FActiveMemo.SelectionEndPosition[I]);
+        if I = 0 then
+          FirstRowWidth := RowWidth
+        else if RowWidth <> FirstRowWidth then
+          AllRowsEqualWidth := False;
+        MaxRowWidth := Max(MaxRowWidth, RowWidth);
+      end;
+      var WidthSeparator: String;
+      if AllRowsEqualWidth then
+        WidthSeparator := '='
+      else
+        WidthSeparator := '->';
+      Text := Format('%4dx%4d%s%4d', [Rows, MaxRowWidth, WidthSeparator, CharacterCount]);
+    end else
+      { Multiple stream selections, including all-empty multi-carets }
+      Text := Format('%4d:%4d|%4d', [FActiveMemo.SelectionCount, CharacterCount, LineCount]);
+  end else begin
+    { Show caret line and column }
+    Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
+      FActiveMemo.CaretColumnExpandedForTabs + 1]);
+  end;
   if FOptions.ShowCaretPosition then begin
+    { Debug: show more caret info }
     const CaretPos = FActiveMemo.CaretPosition;
     const Section = TInnoSetupStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine], False);
     const Style = FActiveMemo.GetStyleAtPosition(CaretPos);

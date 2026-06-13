@@ -146,7 +146,7 @@ object MainForm: TMainForm
       item
         Alignment = taCenter
         Bevel = pbNone
-        Width = 64
+        Width = 96
       end
       item
         Alignment = taCenter

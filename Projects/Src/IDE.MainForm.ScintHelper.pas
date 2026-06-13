@@ -26,12 +26,14 @@ type
     function MultipleSelectionPasteFromClipboard(const AMemo: TScintEdit): Boolean;
     procedure ToggleLinesComment(const AMemo: TScintEdit);
     procedure SelectAllFindMatches(const AMemo: TScintEdit);
+    procedure GetSelectionCharacterAndLineCounts(const AMemo: TScintEdit;
+      out CharacterCount, LineCount: Integer);
   end;
 
 implementation
 
 uses
-  SysUtils, Clipbrd, Math,
+  SysUtils, Clipbrd, Math, Generics.Collections, Generics.Defaults,
   ScintInt,
   IDE.HelperFunc, IDE.ScintStylerInnoSetup;
 
@@ -385,6 +387,57 @@ begin
   if ClosestSelection <> -1 then begin
     AMemo.MainSelection := ClosestSelection;
     AMemo.ScrollCaretIntoView;
+  end;
+end;
+
+type
+  TLineRange = record
+    StartLine, EndLine: Integer;
+  end;
+
+procedure TMainFormScintHelper.GetSelectionCharacterAndLineCounts(
+  const AMemo: TScintEdit; out CharacterCount, LineCount: Integer);
+
+  function GetSelectionLineRange(const Selection: Integer): TLineRange;
+  begin
+    const EndPos = AMemo.SelectionEndPosition[Selection];
+    Result.StartLine := AMemo.GetLineFromPosition(AMemo.SelectionStartPosition[Selection]);
+    Result.EndLine := AMemo.GetLineFromPosition(EndPos);
+    if (Result.EndLine > Result.StartLine) and (AMemo.GetPositionFromLine(Result.EndLine) = EndPos) then
+      Dec(Result.EndLine);
+  end;
+
+begin
+  const SelectionCount = AMemo.SelectionCount;
+
+  CharacterCount := 0;
+  for var I := 0 to SelectionCount-1 do
+    Inc(CharacterCount, AMemo.GetCharacterCount(
+      AMemo.SelectionStartPosition[I], AMemo.SelectionEndPosition[I]));
+
+  if SelectionCount = 1 then begin
+    const LineRange = GetSelectionLineRange(0);
+    LineCount := LineRange.EndLine - LineRange.StartLine + 1;
+  end else begin
+    { Make sure to count each line only once, by sorting the ranges and keeping
+      track of the max end line so far }
+    var LineRanges: TArray<TLineRange>;
+    SetLength(LineRanges, SelectionCount);
+    for var I := 0 to SelectionCount-1 do
+      LineRanges[I] := GetSelectionLineRange(I);
+    TArray.Sort<TLineRange>(LineRanges, TComparer<TLineRange>.Construct(
+      function(const A, B: TLineRange): Integer
+      begin
+        Result := CompareValue(A.StartLine, B.StartLine);
+      end));
+    LineCount := 0;
+    var MaxEndLineSoFar := -1;
+    for var LineRange in LineRanges do begin
+      const StartLine = Max(LineRange.StartLine, MaxEndLineSoFar + 1);
+      if StartLine <= LineRange.EndLine then
+        Inc(LineCount, LineRange.EndLine - StartLine + 1);
+      MaxEndLineSoFar := Max(MaxEndLineSoFar, LineRange.EndLine);
+    end;
   end;
 end;
 
