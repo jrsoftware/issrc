@@ -183,7 +183,7 @@ var
   Recurse: Boolean;
 begin
   Path := '';
-  if BrowseForFolder(LFmtMessage(SWizardAppFiles3), Path, FForm.Handle, False) then begin
+  if BrowseForFolder(LFmtMessage(SWizardAppFiles3), Path, FForm.Handle) then begin
     case MsgBox(LFmtMessage(SWizardAppFilesSubDirsMessage, [Path]), '', mbConfirmation, MB_YESNOCANCEL) of
       IDYES: Recurse := True;
       IDNO: Recurse := False;

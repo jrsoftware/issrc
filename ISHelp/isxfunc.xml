@@ -3285,8 +3285,9 @@ end;</pre></example>
       </function>
       <function>
         <name>BrowseForFolder</name>
-        <prototype>function BrowseForFolder(const Prompt: String; var Directory: String; const NewFolderButton: Boolean): Boolean;</prototype>
-        <description><p>Displays a dialog box that enables the user to select a directory. The current value of Directory is used as the initially selected directory. If NewFolderButton is True, a <i>New Folder</i> button will be shown, allowing the user to create new folders. Returns True if the user selected a directory and clicked OK, False otherwise. The selected directory is returned in the Directory string.</p></description>
+        <prototype>function BrowseForFolder(const Prompt: String; var Directory: String; const Reserved: Boolean): Boolean;</prototype>
+        <description><p>Displays a dialog box that enables the user to select a directory. The current value of Directory is used as the initially selected directory. Returns True if the user selected a directory and clicked OK, False otherwise. The selected directory is returned in the Directory string.</p>
+<p>Parameter Reserved is ignored, but must be specified anyway.</p></description>
       </function>
       <function>
         <name>ExitSetupMsgBox</name>

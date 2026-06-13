@@ -15,7 +15,7 @@ uses
   Windows, Classes, Forms;
 
 function BrowseForFolder(const Prompt: String; var Directory: String;
-  const ParentWnd: HWND; const NewFolderButton: Boolean): Boolean;
+  const ParentWnd: HWND): Boolean;
 function NewGetOpenFileName(const Prompt: String; var FileName: String;
   const InitialDirectory, Filter, DefaultExtension: String;
   const ParentWnd: HWND): Boolean;
@@ -34,7 +34,7 @@ uses
   PathFunc;
 
 function BrowseForFolder(const Prompt: String; var Directory: String;
-  const ParentWnd: HWND; const NewFolderButton: Boolean): Boolean;
+  const ParentWnd: HWND): Boolean;
 
   function RemoveSinglePeriod(const S: String): String;
   begin

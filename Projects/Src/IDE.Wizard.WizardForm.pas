@@ -878,7 +878,7 @@ begin
   Path := OutputDirEdit.Text;
   if PathDrivePartLength(Path) = 0 then
     Path := '';  { don't pass in a relative path to BrowseForFolder }
-  if BrowseForFolder(LFmtMessage(SWizardCompilerOutputDir), Path, Handle, True) then
+  if BrowseForFolder(LFmtMessage(SWizardCompilerOutputDir), Path, Handle) then
     OutputDirEdit.Text := Path;
 end;
 
