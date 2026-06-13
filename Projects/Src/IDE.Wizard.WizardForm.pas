@@ -987,16 +987,27 @@ begin
 end;
 
 procedure TWizardForm.GenerateScript;
+
+  function EscapeConstArgument(const S: String): String;
+  begin
+    Result := S;
+    StringChange(Result, '%', '%25');
+    StringChange(Result, ',', '%2c');
+    StringChange(Result, '}', '%7d');
+  end;
+
 var
   Script, ISPP, Setup, Languages, Tasks, Files, Registry, INI, Icons, Run, UninstallDelete: String;
   I: Integer;
-  AppExeName, AppName, AppAmpEscapedName, AppAssocKey, LanguageName, LanguageMessagesFile: String;
+  AppExeName, AppName, AppAmpEscapedName, AppConstEscapedName, AppConstEscapedVersion, AppAssocKey, LanguageName, LanguageMessagesFile: String;
 begin
   Script := '';
 
   AppExeName := PathExtractName(AppExeEdit.Text);
   AppName := AppNameEdit.Text;
   AppAmpEscapedName := DoubleAmp(AppName);
+  AppConstEscapedName := EscapeConstArgument(AppName);
+  AppConstEscapedVersion := EscapeConstArgument(AppVersionEdit.Text);
 
   if ISPPCheck.Checked then begin
     { Setup ISPP usage. Change the edits to reflect ISPP usage. A bit ugly but for now it works. }
@@ -1008,8 +1019,10 @@ begin
     if AppGroupNameEdit.Text = AppNameEdit.Text then
       AppGroupNameEdit.Text := '{#MyAppName}';
     AppNameEdit.Text := '{#MyAppName}';
-    AppAmpEscapedName := '{#StringChange(MyAppName, ''&'', ''&&'')}';
+    AppAmpEscapedName := '{#DoubleAmp(MyAppName)}';
+    AppConstEscapedName := '{#EscapeConstArgument(MyAppName)}';
     AppVersionEdit.Text := '{#MyAppVersion}';
+    AppConstEscapedVersion := '{#EscapeConstArgument(MyAppVersion)}';
 
     if AppPublisherEdit.Text <> '' then begin
       ISPP := ISPP + '#define MyAppPublisher "' + AppPublisherEdit.Text + '"' + SNewLine;
@@ -1038,6 +1051,11 @@ begin
       ISPP := ISPP + '#define MyAppAssocKey StringChange(MyAppAssocName, " ", "") + MyAppAssocExt' + SNewLine;
       AppAssocKey := '{#MyAppAssocKey}';
     end;
+
+    if not NotCreateAppDirCheck.Checked and not NoAppExeCheck.Checked and AppExeRunCheck.Checked then
+      ISPP := ISPP + '#define DoubleAmp(Value) StringChange(Value, "&", "&&")' + SNewLine;
+
+    ISPP := ISPP + '#define EscapeConstArgument(Value) StringChange(StringChange(StringChange(Value, "%", "%25"), ",", "%2c"), "}", "%7d")' + SNewLine;
   end else begin
     ISPP := '';
     AppAssocKey := StringReplace(AppAssocNameEdit.Text, ' ', '', [rfReplaceAll]) + AppAssocExtEdit.Text;
@@ -1060,7 +1078,7 @@ begin
     { AppInfo }
     Setup := Setup + 'AppName=' + AppNameEdit.Text + SNewLine;
     Setup := Setup + 'AppVersion=' + AppVersionEdit.Text + SNewLine;
-    Setup := Setup + ';AppVerName=' + AppNameEdit.Text + ' ' + AppVersionEdit.Text + SNewLine;
+    Setup := Setup + ';AppVerName={cm:NameAndVersion,' + AppConstEscapedName + ',' + AppConstEscapedVersion + '}' + SNewLine;
     if AppPublisherEdit.Text <> '' then
       Setup := Setup + 'AppPublisher=' + AppPublisherEdit.Text + SNewLine;
     if AppURLEdit.Text <> '' then begin
