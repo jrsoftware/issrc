@@ -47,4 +47,9 @@ uses
 exports
   ISPreprocessScript name 'ISPreprocessScriptW';
 
+begin
+  { See ISCmplr.dpr }
+  IsMultiThread := True;
+end.
+
 end.
