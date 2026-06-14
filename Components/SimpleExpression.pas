@@ -11,9 +11,9 @@ unit SimpleExpression;
   Grammar:
   -expression = term ('or' term)*
   -term       = factor ('and' factor)*
-  -factor     = '(' expression ')' | 'not' factor | identifier ( '(' parameters ')' )
+  -factor     = '(' expression ')' | 'not' factor | identifier [ '(' parameters ')' ]
   -identifier = letter | '_' (letter | number | '_' | '\')*
-  -parameters = string | number | boolean (',' string | number | boolean )*
+  -parameters = [ (string | number | boolean) (',' (string | number | boolean))* ]
 
   As a special optional rule it can insert an 'or' if an identifier is encountered
   at the place where an 'or' could be.
