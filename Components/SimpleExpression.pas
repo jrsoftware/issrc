@@ -163,12 +163,14 @@ begin
 end;
 
 function TSimpleExpression.FReadParameters(var Parameters: array of const): Integer;
+const
+  ParameterTokens = [tiIdentifier, tiString, tiInteger, tiBoolean];
 var
   I: Integer;
 begin
   I := 0;
 
-  while FTokenId in [tiIdentifier, tiString, tiInteger, tiBoolean] do begin
+  while FTokenId in ParameterTokens do begin
     if I <= High(Parameters) then begin
       if FTokenId = tiIdentifier then begin
         { Currently only calls to 'ExpandConstant' are supported in parameter lists }
@@ -203,8 +205,11 @@ begin
     Next;
     if FTokenId <> tiComma then
       Break
-    else
+    else begin
       Next;
+      if not (FTokenId in ParameterTokens) then
+        raise ESimpleExpressionError.CreateFmt('Invalid token ''%s'' found', [FToken]);
+    end;
   end;
 
   Result := I;

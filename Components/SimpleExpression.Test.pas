@@ -114,11 +114,13 @@ procedure SimpleExpressionRunTests;
   end;
 
   {$IFDEF ISTESTTOOLPROJ}
-  procedure TestException(const Expression: String);
+  procedure TestException(const Expression: String;
+    const ParametersAllowed: Boolean = False);
   begin
     const Evaluator = TSimpleExpression.Create;
     try
       Evaluator.Expression := Expression;
+      Evaluator.ParametersAllowed := ParametersAllowed;
       var Caught := False;
       try
         Evaluator.Eval;
@@ -293,6 +295,7 @@ begin
     TestException('(a');
     TestException('a)');
     TestException('a $');
+    TestException('eval(1,)', True);
     {$ENDIF}
   finally
     Handler.Free;
