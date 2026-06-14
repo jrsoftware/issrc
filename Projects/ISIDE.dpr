@@ -242,7 +242,8 @@ begin
       CommandLineFilename := PathExpand(PathCombine(InitialCurDir, S));
     Inc(I);
   end;
-  if (CommandLineCompile or CommandLineWizard) and (CommandLineFilename = '') then
+  if (CommandLineCompile and CommandLineWizard) or
+     ((CommandLineCompile or CommandLineWizard) and (CommandLineFilename = '')) then
     Error;
 end;
 
