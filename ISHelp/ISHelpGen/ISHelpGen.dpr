@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.32';
+  Version = '1.33';
 
   XMLFileVersion = '1';
 
@@ -265,9 +265,9 @@ begin
   Result := Format('<span id="%s">%s</span>', [EscapeHTML(AnchorName), InnerContents]);
 end;
 
-function GenerateTopicLinkHTML(const TopicName, AnchorName, InnerContents: String): String;
-{ Generates HTML for a link to a topic and/or anchor, also updating
-  TargetTopics }
+procedure RegisterTopicLinkTarget(const TopicName, AnchorName: String);
+{ Validates a link to a topic and/or anchor and registers it in TargetTopics
+  so that CheckForNonexistentTargetTopics can verify the target exists }
 var
   S: String;
 begin
@@ -287,7 +287,13 @@ begin
   end;
   if not ListItemExists(TargetTopics, S) then
     TargetTopics.Add(S);
+end;
 
+function GenerateTopicLinkHTML(const TopicName, AnchorName, InnerContents: String): String;
+{ Generates HTML for a link to a topic and/or anchor, also updating
+  TargetTopics }
+begin
+  RegisterTopicLinkTarget(TopicName, AnchorName);
   Result := Format('<a href="%s">%s</a>',
     [EscapeHTML(GenerateTopicLink(TopicName, AnchorName)), InnerContents]);
 end;
@@ -301,6 +307,7 @@ procedure CreateKeyword(const AKeyword, ATopicName, AAnchorName: String);
 var
   KeywordInfo: TKeywordInfo;
 begin
+  RegisterTopicLinkTarget(ATopicName, AAnchorName);
   KeywordInfo := TKeywordInfo.Create;
   KeywordInfo.Topic := ATopicName;
   KeywordInfo.Anchor := AAnchorName;
@@ -596,6 +603,7 @@ var
 
   procedure AddLeaf(const Title, TopicName: String);
   begin
+    RegisterTopicLinkTarget(TopicName, '');
     SL.Add(Format('<li><object type="text/sitemap">' +
       '<param name="Name" value="%s">' +
       '<param name="Local" value="%s"></object>',
@@ -663,6 +671,7 @@ var
 
   procedure AddLeaf(const Title, TopicName: String);
   begin
+    RegisterTopicLinkTarget(TopicName, '');
     SL.Add(Format('<li><a href="%s" target="bodyframe">' +
       '<img src="images/contentstopic.svg" alt="" aria-hidden="true" />' +
       '<span>%s</span></a></li>',
