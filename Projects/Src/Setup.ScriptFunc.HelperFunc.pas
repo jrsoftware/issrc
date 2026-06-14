@@ -351,6 +351,7 @@ begin
       SetString(S, PChar(@Buf[1]), BufSize);
       ArrayBuilder.Add(S);
     end;
+    ArrayBuilder.Finish;
   finally
     RegCloseKey(K);
   end;
@@ -606,6 +607,7 @@ begin
       var ArrayBuilder := Stack.InitArrayBuilder(ItemNo);
       while not F.Eof do
         ArrayBuilder.Add(F.ReadLine);
+      ArrayBuilder.Finish;
     finally
       F.Free;
     end;
