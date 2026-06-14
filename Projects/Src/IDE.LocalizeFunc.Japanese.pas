@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..897] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..898] of TTranslationPair = (
     (English: 'Command line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -82,6 +82,7 @@ const
     (English: 'Please specify the application destination base folder.'; Localized: 'アプリケーションのインストール先ベースフォルダーを指定してください。'),
     (English: 'Please specify the application folder name.'; Localized: 'アプリケーションのフォルダー名を指定してください。'),
     (English: 'Please specify the application main executable file.'; Localized: 'アプリケーションのメイン実行ファイルを指定してください。'),
+    (English: 'The specified application main executable file does not exist.'; Localized: '指定されたアプリケーションのメイン実行ファイルは存在しません。'),
     (English: 'Please specify the application Start Menu group name.'; Localized: 'アプリケーションのスタートメニューのグループ名を指定してください。'),
     (English: 'Please specify the destination base folder.'; Localized: 'インストール先ベースフォルダーを指定してください。'),
     (English: 'Please specify a destination base folder other than the application folder.'; Localized: 'アプリケーションフォルダー以外のインストール先ベースフォルダーを指定してください。'),

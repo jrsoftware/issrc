@@ -586,6 +586,9 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     if AppExeEdit.Enabled and (AppExeEdit.Text = '') then begin
       MsgBox(LFmtMessage(SWizardAppExeError), '', mbError, MB_OK);
       ActiveControl := AppExeEdit;
+    end else if AppExeEdit.Enabled and not NewFileExists(AppExeEdit.Text) then begin
+      MsgBox(LFmtMessage(SWizardAppExeNotExistError), '', mbError, MB_OK);
+      ActiveControl := AppExeEdit;
     end else
       Result := True;
   end;

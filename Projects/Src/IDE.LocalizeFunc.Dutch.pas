@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..897] of TTranslationPair = (
+  DutchIDETranslations: array [0..898] of TTranslationPair = (
     (English: 'Command line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -82,6 +82,7 @@ const
     (English: 'Please specify the application destination base folder.'; Localized: 'Geef de doelbasismap van de toepassing op.'),
     (English: 'Please specify the application folder name.'; Localized: 'Geef de naam van de toepassingsmap op.'),
     (English: 'Please specify the application main executable file.'; Localized: 'Geef het hoofduitvoerbare bestand van de toepassing op.'),
+    (English: 'The specified application main executable file does not exist.'; Localized: 'Het opgegeven hoofduitvoerbare bestand van de toepassing bestaat niet.'),
     (English: 'Please specify the application Start Menu group name.'; Localized: 'Geef de groepsnaam in het menu Start van de toepassing op.'),
     (English: 'Please specify the destination base folder.'; Localized: 'Geef de doelbasismap op.'),
     (English: 'Please specify a destination base folder other than the application folder.'; Localized: 'Geef een andere doelbasismap op dan de toepassingsmap.'),

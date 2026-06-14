@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..897] of TTranslationPair = (
+  CzechIDETranslations: array [0..898] of TTranslationPair = (
     (English: 'Command line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -82,6 +82,7 @@ const
     (English: 'Please specify the application destination base folder.'; Localized: 'Zadejte cílovou základní složku aplikace.'),
     (English: 'Please specify the application folder name.'; Localized: 'Zadejte název složky aplikace.'),
     (English: 'Please specify the application main executable file.'; Localized: 'Zadejte hlavní spustitelný soubor aplikace.'),
+    (English: 'The specified application main executable file does not exist.'; Localized: 'Zadaný hlavní spustitelný soubor aplikace neexistuje.'),
     (English: 'Please specify the application Start Menu group name.'; Localized: 'Zadejte název složky aplikace v nabídce Start.'),
     (English: 'Please specify the destination base folder.'; Localized: 'Zadejte cílovou základní složku.'),
     (English: 'Please specify a destination base folder other than the application folder.'; Localized: 'Zadejte jinou cílovou základní složku než složku aplikace.'),

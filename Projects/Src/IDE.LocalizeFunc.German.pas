@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..897] of TTranslationPair = (
+  GermanIDETranslations: array [0..898] of TTranslationPair = (
     (English: 'Command line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -82,6 +82,7 @@ const
     (English: 'Please specify the application destination base folder.'; Localized: 'Bitte geben Sie den Ziel-Basisordner der Anwendung an.'),
     (English: 'Please specify the application folder name.'; Localized: 'Bitte geben Sie den Namen des Anwendungsordners an.'),
     (English: 'Please specify the application main executable file.'; Localized: 'Bitte geben Sie die ausführbare Hauptdatei der Anwendung an.'),
+    (English: 'The specified application main executable file does not exist.'; Localized: 'Die angegebene ausführbare Hauptdatei der Anwendung ist nicht vorhanden.'),
     (English: 'Please specify the application Start Menu group name.'; Localized: 'Bitte geben Sie den Namen des Startmenüordners der Anwendung an.'),
     (English: 'Please specify the destination base folder.'; Localized: 'Bitte geben Sie den Ziel-Basisordner an.'),
     (English: 'Please specify a destination base folder other than the application folder.'; Localized: 'Bitte geben Sie einen anderen Ziel-Basisordner als den Anwendungsordner an.'),
