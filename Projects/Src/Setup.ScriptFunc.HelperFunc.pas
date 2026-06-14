@@ -314,44 +314,47 @@ function GetSubkeyOrValueNames(const RegView: TRegView; const RootKey: HKEY;
   const SubKeyName: String; const Stack: TPSStack; const ItemNo: Longint; const Subkey: Boolean): Boolean;
 const
   samDesired: array [Boolean] of REGSAM = (KEY_QUERY_VALUE, KEY_ENUMERATE_SUB_KEYS);
-var
-  K: HKEY;
-  Buf, S: String;
 begin
   Result := False;
+  var Buf: String;
   SetString(Buf, nil, 512);
+  var K: HKEY;
   if RegOpenKeyExView(RegView, RootKey, PChar(SubKeyName), 0, samDesired[Subkey], K) <> ERROR_SUCCESS then
     Exit;
   try
-    var ArrayBuilder := Stack.InitArrayBuilder(ItemNo);
-    while True do begin
-      var BufSize := ULength(Buf);
-      var R: Integer;
-      if Subkey then
-        R := RegEnumKeyEx(K, DWORD(ArrayBuilder.I), @Buf[1], BufSize, nil, nil, nil, nil)
-      else
-        R := RegEnumValue(K, DWORD(ArrayBuilder.I), @Buf[1], BufSize, nil, nil, nil, nil);
-      case R of
-        ERROR_SUCCESS: ;
-        ERROR_NO_MORE_ITEMS: Break;
-        ERROR_MORE_DATA:
-          begin
-            { Double the size of the buffer and try again }
-            if Length(Buf) >= 65536 then begin
-              { Sanity check: If we tried a 64 KB buffer and it's still saying
-                there's more data, something must be seriously wrong. Bail. }
-              Exit;
+    const ArrayBuilder = Stack.InitArrayBuilder(ItemNo);
+    try
+      while True do begin
+        var BufSize := ULength(Buf);
+        var R: Integer;
+        if Subkey then
+          R := RegEnumKeyEx(K, DWORD(ArrayBuilder.I), @Buf[1], BufSize, nil, nil, nil, nil)
+        else
+          R := RegEnumValue(K, DWORD(ArrayBuilder.I), @Buf[1], BufSize, nil, nil, nil, nil);
+        case R of
+          ERROR_SUCCESS: ;
+          ERROR_NO_MORE_ITEMS: Break;
+          ERROR_MORE_DATA:
+            begin
+              { Double the size of the buffer and try again }
+              if Length(Buf) >= 65536 then begin
+                { Sanity check: If we tried a 64 KB buffer and it's still saying
+                  there's more data, something must be seriously wrong. Bail. }
+                Exit;
+              end;
+              SetString(Buf, nil, Length(Buf) * 2);
+              Continue;
             end;
-            SetString(Buf, nil, Length(Buf) * 2);
-            Continue;
-          end;
-      else
-        Exit;  { unknown failure... }
+        else
+          Exit;  { unknown failure... }
+        end;
+        var S: String;
+        SetString(S, PChar(@Buf[1]), BufSize);
+        ArrayBuilder.Add(S);
       end;
-      SetString(S, PChar(@Buf[1]), BufSize);
-      ArrayBuilder.Add(S);
+    finally
+      ArrayBuilder.Finish;
     end;
-    ArrayBuilder.Finish;
   finally
     RegCloseKey(K);
   end;
@@ -598,16 +601,17 @@ end;
 
 function LoadStringsFromFile(const FileName: String; const Stack: TPSStack;
   const ItemNo: Longint; const Sharing: TFileSharing): Boolean;
-var
-  F: TTextFileReader;
 begin
   try
-    F := TTextFileReader.Create(FileName, fdOpenExisting, faRead, Sharing);
+    const F = TTextFileReader.Create(FileName, fdOpenExisting, faRead, Sharing);
     try
-      var ArrayBuilder := Stack.InitArrayBuilder(ItemNo);
-      while not F.Eof do
-        ArrayBuilder.Add(F.ReadLine);
-      ArrayBuilder.Finish;
+      const ArrayBuilder = Stack.InitArrayBuilder(ItemNo);
+      try
+        while not F.Eof do
+          ArrayBuilder.Add(F.ReadLine);
+      finally
+        ArrayBuilder.Finish;
+      end;
     finally
       F.Free;
     end;
