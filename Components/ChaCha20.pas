@@ -46,6 +46,7 @@ uses
   UnsignedFunc;
 
 {$C+}
+{$Q-} { ChaCha20 arithmetic relies on Cardinal wraparound }
 
 procedure ChaCha20InitCtx(var ctx: TChaCha20Ctx; const Key;
   const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal;

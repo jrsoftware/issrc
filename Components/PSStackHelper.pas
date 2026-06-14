@@ -57,6 +57,8 @@ type
 
 implementation
 
+{$ZEROBASEDSTRINGS OFF}
+
 function TPSStackHelper.GetArray(const ItemNo, FieldNo: Longint;
   out N: Integer): TPSVariantIFC;
 begin
