@@ -114,10 +114,10 @@ begin
       RegistryDesignerForm.PrivilegesRequired := prDynamic;
     if RegistryDesignerForm.ShowModal = mrOk then
     begin
-      AMemo.CaretColumn := 0;
       var Text := RegistryDesignerForm.Text;
       if TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scRegistry then
         Text := '[Registry]' + SNewLine + Text;
+      AMemo.CaretColumn := 0;
       AMemo.MainSelText := Text;
     end;
   finally
@@ -131,10 +131,10 @@ begin
   try
     FilesDesignerForm.CreateAppDir := FindSetupDirectiveValue('CreateAppDir', True);
     if FilesDesignerForm.ShowModal = mrOk then begin
-      AMemo.CaretColumn := 0;
       var Text := FilesDesignerForm.Text;
       if TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scFiles then
         Text := '[Files]' + SNewLine + Text;
+      AMemo.CaretColumn := 0;
       AMemo.MainSelText := Text;
     end;
   finally
