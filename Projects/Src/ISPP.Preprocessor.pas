@@ -1778,6 +1778,8 @@ begin
         begin
           if pfByRef in Param.ParamFlags then
             RaiseError(SByRefNoDefault);
+          if (Param.ParamFlags * [pfFunc, pfArray]) <> [] then
+            RaiseError(SFuncArrayNoDefault);
           NextToken;
           case Param.DefValue.Typ of
             evSpecial: Param.DefValue := GetRValue(Expr(True));

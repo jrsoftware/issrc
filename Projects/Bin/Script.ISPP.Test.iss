@@ -636,6 +636,11 @@
 #call CheckEqualsInt(15, DefaultParamMacro(5))
 #call CheckEqualsInt(25, DefaultParamMacro(5, 20))
 #undef DefaultParamMacro
+// func/array parameters take no default; a defaulted param may still follow one
+#define ApplyFuncDefault(func F, int X = 7) F(X)
+#call CheckEqualsString('7', ApplyFuncDefault(@Str))
+#call CheckEqualsString('9', ApplyFuncDefault(@Str, 9))
+#undef ApplyFuncDefault
 //
 // Typed parameters
 //

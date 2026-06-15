@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -35,6 +35,7 @@ const
   SFileDirectiveCanBeOnlyInline = '''file'' directive can be only inline';
   SFileIsAlreadyBeingIncluded = 'File %s is already being included';
   SFileNotFound = 'File not found: %s';
+  SFuncArrayNoDefault = 'Function or array parameter cannot have a default value';
   SInsertLineNoTooBig = 'Line number %d is out of current translation';
   SInvalidOptionName = 'Invalid option name';
   SInvalidTypeId = 'Invalid type identifier: %s';
