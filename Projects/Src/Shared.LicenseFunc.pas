@@ -239,7 +239,7 @@ begin
       end;
       ReadLinkerTimeStamp := True;
     end;
-    if (LinkerTimeStamp <> 0) and (LinkerTimeStamp > License.ExpirationDate) then
+    if (LinkerTimeStamp <> 0) and (DateOf(LinkerTimeStamp) > License.ExpirationDate) then
       Result := lsExpiredButUpdated
     else begin
       const CurrentDate = Date;
