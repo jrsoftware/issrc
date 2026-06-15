@@ -1964,8 +1964,14 @@ begin
         Exit;
       end;
     end;
-    Message.Result := LresultFromObjectFunc(IID_IAccessible, Message.WParam,
-      TAccObject(FAccObjectInstance));
+    const AccObject = TAccObject(FAccObjectInstance);
+    AccObject.AddRef; { Add our own reference to ensure release even if LresultFromObjectFunc fails }
+    try
+      Message.Result := LresultFromObjectFunc(IID_IAccessible, Message.WParam,
+        AccObject);
+    finally
+      AccObject.Release;
+    end;
   end
   else
     inherited;
