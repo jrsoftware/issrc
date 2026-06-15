@@ -1234,7 +1234,7 @@ begin
     var ScrollBarInfo: TScrollBarInfo;
     ScrollBarInfo.cbSize := SizeOf(ScrollBarInfo);
     if GetScrollBarInfo(Handle, Integer(OBJID_VSCROLL), ScrollBarInfo) and
-       (ScrollBarInfo.rgstate[0] <> STATE_SYSTEM_INVISIBLE) then
+       (ScrollBarInfo.rgstate[0] and STATE_SYSTEM_INVISIBLE = 0) then
       InvalidateRect(Handle, nil, True);
   end;
 end;
