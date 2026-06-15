@@ -2,7 +2,7 @@ unit NewNotebookReg;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -63,9 +63,11 @@ begin
     0, 1:
       begin
         Page := Notebook.FindNextPage(Notebook.ActivePage, Index = 0);
-        Notebook.ActivePage := Page;
-        Designer.Modified;
-        Designer.SelectComponent(Page);
+        if Assigned(Page) then begin
+          Notebook.ActivePage := Page;
+          Designer.Modified;
+          Designer.SelectComponent(Page);
+        end;
       end;
     3:
       begin
