@@ -1919,8 +1919,8 @@ procedure TScintEdit.SetEmptySelections;
 { Makes all selections empty without scrolling the caret into view }
 begin
   for var Selection := 0 to SelectionCount-1 do begin
-    var Pos := SelectionCaretPosition[Selection];
-    SelectionAnchorPosition[Selection] := Pos;
+    SelectionAnchorPosition[Selection] := SelectionCaretPosition[Selection];
+    SelectionAnchorVirtualSpace[Selection] := SelectionCaretVirtualSpace[Selection];
   end;
 end;
 
