@@ -266,7 +266,9 @@ begin
           case GetDataType(Name) of
             rdString, rdExpandString: MakeStr(ResPtr^, ReadString(Name));
             rdInteger: MakeInt(ResPtr^, ReadInteger(Name));
+            {$IF RtlVersion >= 36.0}
             rdInt64: MakeInt(ResPtr^, ReadInt64(Name));
+            {$ENDIF}
           else
             CopyExpVar(Default, ResPtr^);
           end

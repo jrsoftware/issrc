@@ -3,9 +3,9 @@ paths: ["**/*.pas", "**/*.dpr", "**/*.inc"]
 ---
 # Coding conventions for Pascal source files
 - Always use inline variables instead of pre-declaring them at the start of the function.
+  Exception: Delphi 10.4 does not support inline variables (or constants) for arrays, so pre-declare them.
 - Prefer inline constants over inline variables, even for run-time values and not just for compile-time constants.
   Exception: inline constants cannot be passed as `var` parameters, so use an inline variable in that case.
-  Exception: Delphi 10.4 does not support inline constants for arrays, so use an inline variable in that case.
   Inline constants which are an object can still have their properties modified.
   Inline constants use `=` as the assignment operator instead of `:=`. Examples:
   `const MaxCount = MinCount * 2;`

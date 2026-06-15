@@ -86,8 +86,10 @@ end;
 
 function TIDEForm.SizeBottomButtons(const LeftBottomButton, RightBottomButton: TButton;
   const OtherButtons: array of TButton; const ResizeControl: TControl): Integer;
+var
+  Captions: array of String;
 begin
-  var Captions: array of String := [LeftBottomButton.Caption, RightBottomButton.Caption];
+  Captions := [LeftBottomButton.Caption, RightBottomButton.Caption];
   for var Button in OtherButtons do
     Captions := Captions + [Button.Caption];
   Result := CalculateButtonWidth(Captions);
@@ -110,8 +112,9 @@ end;
 
 function TIDEForm.SizeSideButtons(const Buttons: array of TButton;
   const ResizeControls: array of TControl): Integer;
+var
+  Captions: array of String;
 begin
-  var Captions: array of String;
   for var Button in Buttons do
     Captions := Captions + [Button.Caption];
   Result := CalculateButtonWidth(Captions);

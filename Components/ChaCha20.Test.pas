@@ -118,6 +118,8 @@ procedure ChaCha20RunTests;
   end;
 
   procedure TestCounterExhaustion;
+  var
+    Buf: array[0..63] of Byte;
   begin
     var Key: TBytes := [$00, $01, $02, $03, $04, $05, $06, $07, $08, $09, $0a, $0b, $0c, $0d, $0e, $0f, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $1a, $1b, $1c, $1d, $1e, $1f];
     var Nonce8: TBytes := [$00, $00, $00, $00, $00, $00, $00, $00];
@@ -127,8 +129,6 @@ procedure ChaCha20RunTests;
       block is the last valid one }
     var Ctx: TChaCha20Context;
     ChaCha20Init(Ctx, Key[0], ULength(Key), Nonce12[0], ULength(Nonce12), High(Cardinal));
-
-    var Buf: array[0..63] of Byte;
 
     { Encrypting that final block must succeed }
     ChaCha20Crypt(Ctx, Buf, Buf, SizeOf(Buf));
