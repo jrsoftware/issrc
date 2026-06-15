@@ -2732,7 +2732,10 @@ var
   StartPos, EndPos: Integer;
 begin
   CheckIndexRange(Index);
-  StartPos := FEdit.GetPositionFromLine(Index);
+  if (Index > 0) and (Index = GetCount - 1) then
+    StartPos := FEdit.GetLineEndPosition(Index - 1)
+  else
+    StartPos := FEdit.GetPositionFromLine(Index);
   EndPos := FEdit.GetPositionFromLine(Index + 1);
   FEdit.ReplaceRawTextRange(StartPos, EndPos, '');
 end;
