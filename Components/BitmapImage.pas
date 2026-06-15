@@ -230,18 +230,20 @@ begin
   var SHStockIconInfo: TSHStockIconInfo;
   SHStockIconInfo.cbSize := SizeOf(SHStockIconInfo);
   if Succeeded(SHGetStockIconInfo(siid, SHGSI_SYSICONINDEX, SHStockIconInfo)) then begin
-   var ImageList: HIMAGELIST;
     { The SHGetImageList documentation remarks that SHIL_SMALL and SHIL_LARGE are DPI-aware. However
       because this does not provide per-monitor DPI awareness, we always use SHIL_JUMBO and perform
-      scaling ourselves. It also remarks that "the IImageList pointer type, such as that returned in
-      the ppv parameter can be cast as an HIMAGELIST as needed", and we make use of that. }
+      scaling ourselves. }
     const Size = GetInitializeSize(AscendingTrySizes);
     var iImageList: Integer;
     if Size > 24 then
       iImageList := SHIL_JUMBO
     else
       iImageList := SHIL_EXTRALARGE; { For small images use SHIL_EXTRALARGE, which should be 48x48 at least }
-    if Succeeded(SHGetImageList(iImageList, IID_IImageList, Pointer(ImageList))) then begin
+    var ImageListIntf: IUnknown; { Use an interface and not HIMAGELIST for proper release }
+    if Succeeded(SHGetImageList(iImageList, IID_IImageList, Pointer(ImageListIntf))) then begin
+      { The SHGetImageList documentation also remarks that "the IImageList pointer type can be cast as an
+        HIMAGELIST as needed", and we make use of that }
+      const ImageList = HIMAGELIST(Pointer(ImageListIntf));
       var Handle := ImageList_GetIcon(ImageList, SHStockIconInfo.iSysImageIndex, ILD_TRANSPARENT);
       if Handle <> 0 then begin
         const Icon = TIcon.Create;
