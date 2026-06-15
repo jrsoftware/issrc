@@ -3856,6 +3856,8 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 
 <p>As shown in the example above, filenames that include spaces must be enclosed in quotes.</p>
 
+<p>To read the script from standard input, specify <tt>-</tt> as the script name. Such a script is assumed to be UTF-8 encoded.</p>
+
 <p>Valid options are:</p>
 
 <indent>

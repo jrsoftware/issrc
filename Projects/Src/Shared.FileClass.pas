@@ -47,11 +47,13 @@ type
   private
     FHandle: THandle;
     FHandleCreated: Boolean;
+    function GetCanSeek: Boolean;
   protected
     function CreateHandle(const AFilename: String;
       ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
       ASharing: TFileSharing): THandle; virtual;
     function GetPosition: Int64; override;
+    property CanSeek: Boolean read GetCanSeek;
     function GetSize: Int64; override;
   public
     constructor Create(const AFilename: String;
@@ -97,11 +99,13 @@ type
     FSawFirstLine: Boolean;
     FCodePage: Word;
     function DoReadLine(const UTF8: Boolean): AnsiString;
+    function GetCanDetectUTF8WithoutBOM: Boolean;
     function GetEof: Boolean;
     procedure FillBuffer;
   public
     function ReadLine: String;
     function ReadAnsiLine: AnsiString;
+    property CanDetectUTF8WithoutBOM: Boolean read GetCanDetectUTF8WithoutBOM;
     property CodePage: Word write FCodePage;
     property Eof: Boolean read GetEof;
   end;
@@ -240,6 +244,13 @@ function TFile.GetPosition: Int64;
 begin
   if not SetFilePointerEx(FHandle, 0, @Result, FILE_CURRENT) then
     RaiseLastError;
+end;
+
+function TFile.GetCanSeek: Boolean;
+begin
+  { Seek/GetPosition use SetFilePointerEx, which requires a GetFileType check first, see
+    https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfilepointerex }
+  Result := GetFileType(FHandle) = FILE_TYPE_DISK;
 end;
 
 function TFile.GetSize: Int64;
@@ -400,6 +411,12 @@ begin
     FEof := True;
 end;
 
+function TTextFileReader.GetCanDetectUTF8WithoutBOM: Boolean;
+begin
+  { DoReadLine requires Seek support to detect BOM-less UTF-8 }
+  Result := CanSeek;
+end;
+
 function TTextFileReader.GetEof: Boolean;
 begin
   FillBuffer;
@@ -470,10 +487,11 @@ begin
       if (Length(S) > 2) and (S[1] = #$EF) and (S[2] = #$BB) and (S[3] = #$BF) then begin
         Delete(S, 1, 3);
         FCodePage := CP_UTF8;
-      end else begin
-        var OldPosition := GetPosition;
+      end else if CanSeek then begin
+        { Detect BOM-less UTF8, also see GetCanDetectUTF8WithoutBOM }
+        const OldPosition = GetPosition;
         try
-          var CappedSize := GetCappedSize; //can't be 0
+          const CappedSize = GetCappedSize; //can't be 0
           Seek(0);
           var S2: AnsiString;
           SetLength(S2, CappedSize);

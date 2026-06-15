@@ -40,6 +40,8 @@ Use the established Inno Setup terms consistently. Never substitute synonyms:
 | Pascal Scripting | the scripting engine (for the feature/topic name; "Pascal Script" is acceptable when referring to the RemObjects Pascal Script engine itself) |
 | extended-length paths | long paths (use "also known as super paths" parenthetically on first mention within a topic; don't use "super paths" as a standalone term) |
 | menu item | menu option |
+| without a BOM | BOM-less, BOMless |
+| the help file | the help |
 
 Additional vocabulary rules:
 - "Setup or Uninstall" or "the Setup program and uninstaller" when a feature applies to both. Not "the installer or uninstaller".
