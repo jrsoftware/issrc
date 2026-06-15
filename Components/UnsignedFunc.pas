@@ -2,7 +2,7 @@ unit UnsignedFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -60,14 +60,25 @@ procedure UMove(const Source; var Dest; Count: NativeUInt);
 begin
   var SourceBuf: PByte := @Source;
   var DestBuf: PByte := @Dest;
+  const Backward = NativeUInt(DestBuf) > NativeUInt(SourceBuf);
+  if Backward then begin
+    Inc(SourceBuf, Count);
+    Inc(DestBuf, Count);
+  end;
   while Count > 0 do begin
     var SignedCount := High(NativeInt);
     if Count < NativeUInt(SignedCount) then
       SignedCount := NativeInt(Count);
+    if Backward then begin
+      Dec(SourceBuf, SignedCount);
+      Dec(DestBuf, SignedCount);
+    end;
     Move(SourceBuf^, DestBuf^, SignedCount);
     Dec(Count, SignedCount);
-    Inc(SourceBuf, SignedCount);
-    Inc(DestBuf, SignedCount);
+    if not Backward then begin
+      Inc(SourceBuf, SignedCount);
+      Inc(DestBuf, SignedCount);
+    end;
   end;
 end;
 
