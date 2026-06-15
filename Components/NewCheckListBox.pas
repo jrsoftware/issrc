@@ -1511,9 +1511,8 @@ function TNewCheckListBox.CheckItem(const Index: Integer;
   begin
     while True do begin
       I := FindCheckedSibling(AIndex);
-      if I = -1 then
+      if (I = -1) or not RecursiveCheck(I, coUncheck) then
         Break;
-      RecursiveCheck(I, coUncheck);
     end;
   end;
 
