@@ -90,7 +90,7 @@
     <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
     <contentstopic title="Compiler IDE Keyboard And Mouse Commands" topic="compformshortcuts" />
     <contentstopic title="Compiler IDE Regular Expressions" topic="compformregex" />
-    <contentstopic title="Security Enhancements" topic="securityenhancements" />
+    <contentstopic title="Security Measures" topic="securitymeasures" />
     <contentstopic title=".issig Signatures: Introduction" topic="issig" />
     <contentstopic title="Inno Setup Signature Tool" topic="issigtool" />
     <contentstopic title="Miscellaneous Notes" topic="technotes" />
@@ -3910,15 +3910,15 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 
 
 
-<topic name="securityenhancements" title="Security Enhancements">
+<topic name="securitymeasures" title="Security Measures">
 <keyword value="DLL hijacking" />
 <body>
 
-<p>Inno Setup includes many security enhancements, not just in Setup and Uninstall but also in the compiler toolchain.</p>
+<p>Inno Setup incorporates many security measures, not just in Setup and Uninstall but also in the compiler toolchain.</p>
 
-<p>Many of these enhancements add defense-in-depth; they do not address specific vulnerabilities.</p>
+<p>Many of these security measures add defense-in-depth; they do not address specific vulnerabilities.</p>
 
-<p>This topic lists the enhancements, focusing on Setup. In general, anything applying to Setup also applies to Uninstall, and the setup loader program (SetupLdr).</p>
+<p>This topic lists the security measures, focusing on Setup. In general, anything applying to Setup also applies to Uninstall, and the setup loader program (SetupLdr).</p>
 
 <heading>DLL hijacking protection</heading>
 
@@ -4007,7 +4007,7 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 <li>Passwords in URLs are automatically excluded from Setup's log.</li>
 </ul>
 
-<heading>Other enhancements</heading>
+<heading>Other security measures</heading>
 
 <p>Setup:</p>
 
