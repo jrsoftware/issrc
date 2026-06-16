@@ -4029,7 +4029,7 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 <li>The IDE is designed to never execute any commands from scripts when you merely open them.</li>
 </ul>
 
-<heading>Supply-chain security</heading>
+<heading><a name="supplychain">Supply-chain security</a></heading>
 
 <p>Besides securing Inno Setup itself, we have also taken many steps to ensure the integrity of Inno Setup releases:</p>
 
