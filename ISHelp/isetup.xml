@@ -6270,7 +6270,7 @@ WizardBackImageOpacity=150</pre></example>
 <li><sd>WizardBackImageFileDynamicDark</sd> and <sd>WizardBackColorDynamicDark</sd>.</li>
 <li><sd>WizardImageFileDynamicDark</sd> and <sd>WizardImageBackColorDynamicDark</sd>.</li>
 <li><sd>WizardSmallImageFileDynamicDark</sd> and <sd>WizardSmallImageBackColorDynamicDark</sd>.</li>
-<li><sd>WizardStyleFileDynamicDark</sd></li>
+<li><sd>WizardStyleFileDynamicDark</sd>.</li>
 </ul>
   The standard <tt>WizardBackImageFile</tt>, <tt>WizardBackColor</tt>, <tt>WizardImageFile</tt>, <tt>WizardImageBackColor</tt>, <tt>WizardSmallImageFile</tt>, <tt>WizardSmallImageBackColor</tt>, and <tt>WizardStyleFile</tt> settings are used for dynamic light mode.<br/><br/>
   Note: Forced dark mode (<tt>dark</tt>) does <i>not</i> use the <tt>DynamicDark</tt> settings; it uses the standard settings.</li>
