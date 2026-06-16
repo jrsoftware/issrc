@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.33';
+  Version = '1.34';
 
   XMLFileVersion = '1';
 
@@ -293,6 +293,8 @@ function GenerateTopicLinkHTML(const TopicName, AnchorName, InnerContents: Strin
 { Generates HTML for a link to a topic and/or anchor, also updating
   TargetTopics }
 begin
+  if (TopicName <> '') and (AnchorName = '') and SameText(TopicName, CurrentTopicName) then
+    raise Exception.CreateFmt('Topic "%s" links to itself', [CurrentTopicName]);
   RegisterTopicLinkTarget(TopicName, AnchorName);
   Result := Format('<a href="%s">%s</a>',
     [EscapeHTML(GenerateTopicLink(TopicName, AnchorName)), InnerContents]);

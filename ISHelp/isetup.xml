@@ -832,7 +832,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="uninstallexe">{uninstallexe}</a></b></dt>
 <dd>
-<p>The full pathname of the uninstall program extracted by Setup, e.g. "C:\Program Files\My Program\unins000.exe". This constant is typically used in an [Icons] section entry for creating an Uninstall icon. It is only valid if <tt>Uninstallable</tt> is <tt>yes</tt> (the default setting).</p>
+<p>The full pathname of the uninstall program extracted by Setup, e.g. "C:\Program Files\My Program\unins000.exe". This constant is typically used in an [Icons] section entry for creating an Uninstall icon. It is only valid if <sd>Uninstallable</sd> is <tt>yes</tt> (the default setting).</p>
 </dd>
 
 <dt><b><a name="sysuserinfoname">{sysuserinfoname}</a></b><br/>
@@ -845,7 +845,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <b><a name="userinfoorg">{userinfoorg}</a></b><br/>
 <b><a name="userinfoserial">{userinfoserial}</a></b></dt>
 <dd>
-<p>The name, organization and serial number, respectively, that the user entered on the <i>User Information</i> wizard page (which can be enabled via the <tt>UserInfoPage</tt> directive). Typically, these constants are used in [Registry] or [INI] entries to save their values for later use.</p>
+<p>The name, organization and serial number, respectively, that the user entered on the <i>User Information</i> wizard page (which can be enabled via the <sd>UserInfoPage</sd> directive). Typically, these constants are used in [Registry] or [INI] entries to save their values for later use.</p>
 </dd>
 
 <dt><b><a name="username">{username}</a></b></dt>
@@ -1697,7 +1697,7 @@ ExternalSize: 1_048_576; Flags: external
 </param>
 
 <param name="ExtractArchivePassword">
-<p>Specifies the password of the archive, which can include constants. Please be aware that this password is stored in an unencrypted form in the resulting Setup file(s), even if you have enabled encryption (using the [Setup] section directive <tt>Encryption</tt>).</p>
+<p>Specifies the password of the archive, which can include constants. Please be aware that this password is stored in an unencrypted form in the resulting Setup file(s), even if you have enabled encryption (using the [Setup] section directive <sd>Encryption</sd>).</p>
 <p>This parameter is ignored if the <tt>extractarchive</tt> flag isn't also specified.</p>
 </param>
 
@@ -1713,7 +1713,7 @@ ExternalSize: 1_048_576; Flags: external
 </param>
 
 <param name="DownloadPassword">
-<p>Specifies the basic authentication password to use for the file download, which can include constants. Please be aware that this password is stored in an unencrypted form in the resulting Setup file(s), even if you have enabled encryption (using the [Setup] section directive <tt>Encryption</tt>).</p>
+<p>Specifies the basic authentication password to use for the file download, which can include constants. Please be aware that this password is stored in an unencrypted form in the resulting Setup file(s), even if you have enabled encryption (using the [Setup] section directive <sd>Encryption</sd>).</p>
 <p>This parameter is ignored if the <tt>download</tt> flag isn't also specified.</p>
 </param>
 
@@ -1810,14 +1810,14 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="isreadme">
 <p>File is the "README" file. Only <i>one</i> file in an installation can have this flag. When a file has this flag, the user will be asked if they would like to view the README file after the installation has completed. If Yes is chosen, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like .txt, .wri, or .doc.</p>
-<p>Note that if Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <tt>AlwaysRestart</tt> <tt>[Setup]</tt> section directive is <tt>yes</tt>), the user will not be given an option to view the README file.</p>
+<p>Note that if Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <sd>AlwaysRestart</sd> <tt>[Setup]</tt> section directive is <tt>yes</tt>), the user will not be given an option to view the README file.</p>
 </flag>
 <flag name="nocompression">
 <p>Prevents the compiler from attempting to compress the file. Use this flag on file types that you know can't benefit from compression (for example, JPEG images) to speed up the compilation process and save a few bytes in the resulting installation.</p>
 <p>This flag has no effect if combined with the <tt>external</tt> flag.</p>
 </flag>
 <flag name="noencryption">
-<p>Prevents the file from being stored encrypted. Use this flag if you have enabled encryption (using the [Setup] section directive <tt>Encryption</tt>) but want to be able to extract the file using the [Code] section support function <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> before the user has entered the correct password.</p>
+<p>Prevents the file from being stored encrypted. Use this flag if you have enabled encryption (using the [Setup] section directive <sd>Encryption</sd>) but want to be able to extract the file using the [Code] section support function <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> before the user has entered the correct password.</p>
 <p>This flag has no effect if combined with the <tt>external</tt> flag.</p>
 </flag>
 <flag name="notimestamp">
@@ -1945,7 +1945,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 
 <p>If Setup is unable to replace an existing file because it is in use by another process, it will make up to 4 additional attempts to replace the file, delaying one second before each attempt. If all attempts fail, an error message will be displayed.</p>
 
-<p>Setup registers all files with the <tt>regserver</tt> or <tt>regtypelib</tt> flags as the last step of installation. However, if the <tt>[Setup]</tt> section directive <tt>AlwaysRestart</tt> is <tt>yes</tt>, or if there are files with the <tt>restartreplace</tt> flag, all files get registered on the next reboot (by creating an entry in Windows' <i>RunOnce</i> registry key).</p>
+<p>Setup registers all files with the <tt>regserver</tt> or <tt>regtypelib</tt> flags as the last step of installation. However, if the <tt>[Setup]</tt> section directive <sd>AlwaysRestart</sd> is <tt>yes</tt>, or if there are files with the <tt>restartreplace</tt> flag, all files get registered on the next reboot (by creating an entry in Windows' <i>RunOnce</i> registry key).</p>
 
 <p>When files with a .HLP extension (Windows help files) are uninstalled, the corresponding .GID and .FTS files are automatically deleted as well. Similarly, when a .CHM (HTML Help) file is deleted, any .CHW (generated index) file is automatically deleted.</p>
 
@@ -2477,7 +2477,7 @@ en.LanguageName=English
 
 <p><i>Feature removed in 6.4.</i> <b><a name="TitleFontName">TitleFontName</a></b> and <b><a name="TitleFontSize">TitleFontSize</a></b> used to specify the font name and point size to use when displaying the application name on the background window (only visible when <tt>WindowVisible=yes</tt>). If the specified font name does not exist on the user's system, 29-point <i>Arial</i> will be substituted. If the specified font name is an empty string, 29-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
 
-<p><i>Feature removed in 6.4.</i> <b><a name="CopyrightFontName">CopyrightFontName</a></b> and <b><a name="CopyrightFontSize">CopyrightFontSize</a></b> used to specify the font name and point size to use when displaying the <tt>AppCopyright</tt> message on the background window (only visible when <tt>WindowVisible=yes</tt>). If the specified font name does not exist on the user's system, 8-point <i>Arial</i> will be substituted. If the specified font name is an empty string, 8-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
+<p><i>Feature removed in 6.4.</i> <b><a name="CopyrightFontName">CopyrightFontName</a></b> and <b><a name="CopyrightFontSize">CopyrightFontSize</a></b> used to specify the font name and point size to use when displaying the <sd>AppCopyright</sd> message on the background window (only visible when <tt>WindowVisible=yes</tt>). If the specified font name does not exist on the user's system, 8-point <i>Arial</i> will be substituted. If the specified font name is an empty string, 8-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
 
 
 </body>
@@ -2791,7 +2791,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 </flag>
 <flag name="postinstall">
 <p>Valid only in a [Run] section. Instructs Setup to create a checkbox on the <i>Setup Completed</i> wizard page. The user can uncheck or check this checkbox and thereby choose whether this entry should be processed or not. Previously this flag was called <tt>showcheckbox</tt>.</p>
-<p>If Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <tt>AlwaysRestart</tt> <tt>[Setup]</tt> section directive is <tt>yes</tt>), there will not be an opportunity for the checkbox to be displayed and therefore the entry will never be processed.</p>
+<p>If Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <sd>AlwaysRestart</sd> <tt>[Setup]</tt> section directive is <tt>yes</tt>), there will not be an opportunity for the checkbox to be displayed and therefore the entry will never be processed.</p>
 <p>The <tt>isreadme</tt> flag for entries in the <tt>[Files]</tt> section is now obsolete. If the compiler detects an entry with an <tt>isreadme</tt> flag, it strips the <tt>isreadme</tt> flag from the <tt>[Files]</tt> entry and inserts a generated <tt>[Run]</tt> entry at the head of the list of <tt>[Run]</tt> entries. This generated <tt>[Run]</tt> entry runs the README file and has flags <tt>shellexec</tt>, <tt>skipifdoesntexist</tt>, <tt>postinstall</tt>, and <tt>skipifsilent</tt>.</p>
 </flag>
 <flag name="runascurrentuser">
@@ -3034,7 +3034,7 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <ul>
 <li>64-bit installers allow a maximum dictionary size for compression methods <tt>lzma</tt> and <tt>lzma2</tt> of 3.8 GB instead of 1 GB. Review the memory requirements listed in the <sd>Compression</sd> topic before using large dictionary sizes.</li>
 <li>64-bit installers have high-entropy ASLR enabled by default. This can help satisfy organizational policies or third-party requirements that mandate 64-bit executables.</li>
-<li>64-bit installers fully support <link topic="32vs64bitinstalls">32-bit install mode</link>, and vice versa. To use a 64-bit installer while remaining in 32-bit install mode (for example, because you have been deploying 64-bit applications in 32-bit mode inadvertently), set <tt>ArchitecturesInstallIn64BitMode</tt> to a blank value to override the new default.</li>
+<li>64-bit installers fully support <link topic="32vs64bitinstalls">32-bit install mode</link>, and vice versa. To use a 64-bit installer while remaining in 32-bit install mode (for example, because you have been deploying 64-bit applications in 32-bit mode inadvertently), set <sd>ArchitecturesInstallIn64BitMode</sd> to a blank value to override the new default.</li>
 <li>Existing installations made by 32-bit installers can be updated by 64-bit installers without issue, and vice versa.</li>
 <li>64-bit Pascal Scripting notes:
   <ul>
@@ -3067,7 +3067,7 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <li>Both editions can be installed side by side and include the same examples and help files.</li>
 <li>64-bit compilers generally achieve faster LZMA compression while maintaining full compatibility with existing scripts.<br/>
     On Arm64-based Windows 11, they use an ARM64EC binary (<tt>islzma-Arm64EC.dll</tt>) for native performance.</li>
-<li>The [Setup] directive <tt>LZMAUseSeparateProcess</tt> is ignored by 64-bit compilers, because 64-bit processes can directly allocate more memory, eliminating the need for an out-of-process compressor.</li>
+<li>The [Setup] directive <sd>LZMAUseSeparateProcess</sd> is ignored by 64-bit compilers, because 64-bit processes can directly allocate more memory, eliminating the need for an out-of-process compressor.</li>
 </ul>
 
 </body>
@@ -3864,13 +3864,13 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 <indent>
 <table>
 <tr><th>Option</th><th>Meaning</th></tr>
-<tr><td nowrap=""><tt>--output=(yes|no)</tt>, <tt>-o(+|-)</tt></td><td>Enables or disables output (overrides <tt>Output</tt>).</td></tr>
-<tr><td nowrap=""><tt>--output-dir=<i>&lt;path&gt;</i></tt>, <tt>-o<i>&lt;path&gt;</i></tt></td><td>Outputs files to specified path (overrides <tt>OutputDir</tt>).</td></tr>
-<tr><td nowrap=""><tt>--output-filename=<i>&lt;filename&gt;</i></tt>, <tt>-f<i>&lt;filename&gt;</i></tt></td><td>Specifies an output filename (overrides <tt>OutputBaseFilename</tt>).</td></tr>
-<tr><td nowrap=""><tt>--signtool=<i>&lt;name&gt;</i>=<i>&lt;command&gt;</i></tt>, <tt>-s<i>&lt;name&gt;</i>=<i>&lt;command&gt;</i></tt></td><td>Sets a <tt>SignTool</tt> with the specified name and command (any Sign Tools configured using the Compiler IDE will be specified automatically).</td></tr>
+<tr><td nowrap=""><tt>--output=(yes|no)</tt>, <tt>-o(+|-)</tt></td><td>Enables or disables output (overrides <sd>Output</sd>).</td></tr>
+<tr><td nowrap=""><tt>--output-dir=<i>&lt;path&gt;</i></tt>, <tt>-o<i>&lt;path&gt;</i></tt></td><td>Outputs files to specified path (overrides <sd>OutputDir</sd>).</td></tr>
+<tr><td nowrap=""><tt>--output-filename=<i>&lt;filename&gt;</i></tt>, <tt>-f<i>&lt;filename&gt;</i></tt></td><td>Specifies an output filename (overrides <sd>OutputBaseFilename</sd>).</td></tr>
+<tr><td nowrap=""><tt>--signtool=<i>&lt;name&gt;</i>=<i>&lt;command&gt;</i></tt>, <tt>-s<i>&lt;name&gt;</i>=<i>&lt;command&gt;</i></tt></td><td>Sets a <sd>SignTool</sd> with the specified name and command (any Sign Tools configured using the Compiler IDE will be specified automatically).</td></tr>
 <tr><td nowrap=""><tt>--no-ide-signtools</tt>, <tt>-ni</tt></td><td>Do not auto-specify Sign Tools configured using the Compiler IDE.</td></tr>
-<tr><td nowrap=""><tt>--no-compression</tt>, <tt>-nc</tt></td><td>Disables compression (overrides <tt>Compression</tt> and <tt>InternalCompressLevel</tt>).</td></tr>
-<tr><td nowrap=""><tt>--no-signing</tt>, <tt>-ns</tt></td><td>Disables signing (overrides <tt>SignTool</tt> and <tt>SignedUninstaller</tt>).</td></tr>
+<tr><td nowrap=""><tt>--no-compression</tt>, <tt>-nc</tt></td><td>Disables compression (overrides <sd>Compression</sd> and <sd>InternalCompressLevel</sd>).</td></tr>
+<tr><td nowrap=""><tt>--no-signing</tt>, <tt>-ns</tt></td><td>Disables signing (overrides <sd>SignTool</sd> and <sd>SignedUninstaller</sd>).</td></tr>
 <tr><td nowrap=""><tt>--no-signcheck</tt>, <tt>-nsc</tt></td><td>Disables <tt>signcheck</tt> validation.</td></tr>
 <tr><td nowrap=""><tt>--messages-jsonl</tt>, <tt>-mj</tt></td><td>Outputs errors and warnings in JSONL format (warnings are not suppressed by <tt>--quiet</tt> when <tt>--messages-jsonl</tt> is active).</td></tr>
 <tr><td nowrap=""><tt>--preprocess</tt>, <tt>-e</tt></td><td>Preprocesses to stdout and suppresses compilation.</td></tr>
@@ -4357,12 +4357,12 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="HELP">/HELP</a>, <a name="HELP2">/?</a></b></dt>
 <dd>
-<p>Shows a summary of this information. Ignored if the <tt>UseSetupLdr</tt> <tt>[Setup]</tt> section directive was set to <tt>no</tt>.</p>
+<p>Shows a summary of this information. Ignored if the <sd>UseSetupLdr</sd> <tt>[Setup]</tt> section directive was set to <tt>no</tt>.</p>
 </dd>
 
 <dt><b><a name="SP-">/SP-</a></b></dt>
 <dd>
-<p>Disables the <i>This will install... Do you wish to continue?</i> prompt at the beginning of Setup. Of course, this will have no effect if the <tt>DisableStartupPrompt</tt> <tt>[Setup]</tt> section directive was set to <tt>yes</tt>.</p>
+<p>Disables the <i>This will install... Do you wish to continue?</i> prompt at the beginning of Setup. Of course, this will have no effect if the <sd>DisableStartupPrompt</sd> <tt>[Setup]</tt> section directive was set to <tt>yes</tt>.</p>
 </dd>
 
 <dt><b><a name="SILENT">/SILENT</a>, <a name="VERYSILENT">/VERYSILENT</a></b></dt>
@@ -4506,7 +4506,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="GROUP">/GROUP=</a>"<i>folder name</i>"</b></dt>
 <dd>
-<p>Overrides the default folder name displayed on the <i>Select Start Menu Folder</i> wizard page. May include an "expand:" prefix, see '/DIR='. If the <tt>[Setup]</tt> section directive <tt>DisableProgramGroupPage</tt> was set to <tt>yes</tt>, this command line parameter is ignored.</p>
+<p>Overrides the default folder name displayed on the <i>Select Start Menu Folder</i> wizard page. May include an "expand:" prefix, see '/DIR='. If the <tt>[Setup]</tt> section directive <sd>DisableProgramGroupPage</sd> was set to <tt>yes</tt>, this command line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="NOICONS">/NOICONS</a></b></dt>
@@ -4567,7 +4567,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b><a name="PASSWORD">/PASSWORD=</a><i>password</i></b></dt>
 <dd>
-<p>Specifies the password to use. If the <tt>[Setup]</tt> section directive <tt>Password</tt> was not set, this command line parameter is ignored.</p>
+<p>Specifies the password to use. If the <tt>[Setup]</tt> section directive <sd>Password</sd> was not set, this command line parameter is ignored.</p>
 <p>When an invalid password is specified, this command line parameter is also ignored.</p>
 </dd>
 
@@ -4973,7 +4973,7 @@ AppVerName={cm:NameAndVersion,My Program,1.5}
 <setupdefault><sd>AppName</sd></setupdefault>
 <body>
 <p>The value of <tt>AppId</tt> is stored inside uninstall log files (unins???.dat), and is checked by subsequent installations to determine whether it may <link topic="appendnotes">append to a particular existing uninstall log</link>. Setup will only append to an uninstall log if the <tt>AppId</tt> of the existing uninstall log is the same as the current installation's <tt>AppId</tt>. For a practical example, say you have two installations -- one entitled <i>My Program</i> and the other entitled <i>My Program 1.1 Update.</i> To get My Program 1.1 Update to append to My Program's uninstall log, you would have to set <tt>AppId</tt> to the same value in both installations.</p>
-<p><tt>AppId</tt> also determines the actual name of the Uninstall registry key, to which Inno Setup tacks on "_is1" at the end. (Therefore, if <tt>AppId</tt> is "MyProgram", the key will be named "MyProgram_is1".) Pre-1.3 versions of Inno Setup based the key name on the value of <tt>AppVerName</tt>.</p>
+<p><tt>AppId</tt> also determines the actual name of the Uninstall registry key, to which Inno Setup tacks on "_is1" at the end. (Therefore, if <tt>AppId</tt> is "MyProgram", the key will be named "MyProgram_is1".) Pre-1.3 versions of Inno Setup based the key name on the value of <sd>AppVerName</sd>.</p>
 <p><tt>AppId</tt> isn't used for display anywhere, so feel free to make it as cryptic as you desire. The value may include constants.</p>
 <p>If you use a {code:..} constant to allow your user to customize <tt>AppId</tt>, you do not need to return the real value until just before the installation starts: if necessary you may return an empty or generic value at earlier times. If not empty, this value will only be used to attempt to restore previous install settings (like the settings stored by [Setup] section directive <sd>UsePreviousAppDir</sd>). If empty, it isn't used for anything.</p>
 <p>The length of <tt>AppId</tt> with all constants evaluated should never exceed 127 characters.</p>
@@ -5471,7 +5471,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <setupvalid><tt>auto</tt>, <link topic="yesnonotes"><tt>yes</tt>, or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>auto</tt></setupdefault>
 <body>
-<p>When set to <tt>auto</tt>, the default setting, Setup will show a "The directory ... already exists. Would you like to install to that directory anyway?" message if the user selects a directory that already exists on the <i>Select Destination Location</i> wizard page, except when another version of the <link topic="sameappnotes">same application</link> is already installed and the selected directory is the same as the previous one (only if <tt>UsePreviousAppDir</tt> is <tt>yes</tt>, the default setting).</p>
+<p>When set to <tt>auto</tt>, the default setting, Setup will show a "The directory ... already exists. Would you like to install to that directory anyway?" message if the user selects a directory that already exists on the <i>Select Destination Location</i> wizard page, except when another version of the <link topic="sameappnotes">same application</link> is already installed and the selected directory is the same as the previous one (only if <sd>UsePreviousAppDir</sd> is <tt>yes</tt>, the default setting).</p>
 <p>When set to <tt>yes</tt>, Setup will always display the "Directory Exists" message when the user selects an existing directory.</p>
 <p>When set to <tt>no</tt>, Setup will never display the "Directory Exists" message.</p>
 </body>
@@ -5591,7 +5591,7 @@ end;</pre></example>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If set to <tt>no</tt> the compiler will only check the script for errors and skip creating setup files. Note: it will still clean the output directory and delete the manifest file, unless <tt>OutputDir</tt> and <tt>OutputManifestFile</tt> are set to an empty string.</p>
+<p>If set to <tt>no</tt> the compiler will only check the script for errors and skip creating setup files. Note: it will still clean the output directory and delete the manifest file, unless <sd>OutputDir</sd> and <sd>OutputManifestFile</sd> are set to an empty string.</p>
 </body>
 </setuptopic>
 
@@ -5629,7 +5629,7 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 
 <setuptopic directive="UninstallDisplayName">
 <body>
-<p>This lets you specify a custom name for the program's entry in the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants. If this directive is not specified or is blank, Setup will use the value of <tt>[Setup]</tt> section directive <tt>AppVerName</tt> for the name.</p>
+<p>This lets you specify a custom name for the program's entry in the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants. If this directive is not specified or is blank, Setup will use the value of <tt>[Setup]</tt> section directive <sd>AppVerName</sd> for the name.</p>
 <example><pre>UninstallDisplayName=My Program</pre></example>
 <p><b>See also:</b><br/>
 <link topic="sidebyside">Side-by-side installation</link></p>
@@ -5655,7 +5655,7 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing <link topic="uninstcmdline" anchor="LOG">/LOG</link> on the command line.</p>
-<p>This directive has no effect if <tt>CreateUninstallRegKey</tt> is not set to <tt>yes</tt>.</p>
+<p>This directive has no effect if <sd>CreateUninstallRegKey</sd> is not set to <tt>yes</tt>.</p>
 <p><b>See also:</b><br/>
 <sd>SetupLogging</sd></p>
 </body>
@@ -5684,7 +5684,7 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If <tt>yes</tt>, when appending to an existing uninstall log, Setup will replace the <tt>AppName</tt> field in the log with the current installation's <tt>AppName</tt>. The <tt>AppName</tt> field of the uninstall log determines the title displayed in the uninstaller. You may want to set this to <tt>no</tt> if your installation is merely an upgrade or add-on to an existing program, and you don't want the title of the uninstaller changed.</p>
+<p>If <tt>yes</tt>, when appending to an existing uninstall log, Setup will replace the <sd>AppName</sd> field in the log with the current installation's <sd>AppName</sd>. The <sd>AppName</sd> field of the uninstall log determines the title displayed in the uninstaller. You may want to set this to <tt>no</tt> if your installation is merely an upgrade or add-on to an existing program, and you don't want the title of the uninstaller changed.</p>
 </body>
 </setuptopic>
 
@@ -5701,7 +5701,7 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>When this is set to <tt>yes</tt>, Setup will not show the <i>This will install... Do you wish to continue?</i> prompt.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
+<p>This setting has no effect if <sd>UseSetupLdr</sd> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -5720,8 +5720,8 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <setupvalid><tt>262144</tt> through <tt>9223372036800000000</tt>, or <tt>max</tt></setupvalid>
 <setupdefault><tt>2100000000</tt></setupdefault>
 <body>
-<p>This specifies the maximum number of bytes per disk slice (Setup-*.bin file). Normally, this should be set to the total number of bytes available on the disk media divided by the value of the <tt>SlicesPerDisk</tt> <tt>[Setup]</tt> section directive, which defaults to 1.</p>
-<p>This directive is ignored if disk spanning is not enabled using the <tt>DiskSpanning</tt> <tt>[Setup]</tt> section directive.</p>
+<p>This specifies the maximum number of bytes per disk slice (Setup-*.bin file). Normally, this should be set to the total number of bytes available on the disk media divided by the value of the <sd>SlicesPerDisk</sd> <tt>[Setup]</tt> section directive, which defaults to 1.</p>
+<p>This directive is ignored if disk spanning is not enabled using the <sd>DiskSpanning</sd> <tt>[Setup]</tt> section directive.</p>
 <p>To optimally fill 4.7 GB recordable DVDs, use:</p>
 <precode>
 SlicesPerDisk=3
@@ -5744,7 +5744,7 @@ DiskSliceSize=736000000
 <setupdefault><tt>512</tt></setupdefault>
 <body>
 <p>This specifies the cluster size of the disk media. The compiler needs to know this in order to properly fill each disk to capacity.</p>
-<p>This directive is ignored if disk spanning is not enabled using the <tt>DiskSpanning</tt> <tt>[Setup]</tt> section directive.</p>
+<p>This directive is ignored if disk spanning is not enabled using the <sd>DiskSpanning</sd> <tt>[Setup]</tt> section directive.</p>
 </body>
 </setuptopic>
 
@@ -5761,7 +5761,7 @@ DiskSliceSize=736000000
 <body>
 <p>This specifies the minimum number of free bytes to reserve on the first disk. This is useful if you have to copy other files onto the first disk that aren't part of the setup program, such as a Readme file.</p>
 <p>The compiler rounds this number up to the nearest cluster.</p>
-<p>This directive is ignored if disk spanning is not enabled using the <tt>DiskSpanning</tt> <tt>[Setup]</tt> section directive.</p>
+<p>This directive is ignored if disk spanning is not enabled using the <sd>DiskSpanning</sd> <tt>[Setup]</tt> section directive.</p>
 </body>
 </setuptopic>
 
@@ -5913,7 +5913,7 @@ DiskSliceSize=736000000
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the directory of the previous installation as the default directory presented to the user in the wizard.</p>
-<p>Note that Setup cannot re-use settings from a previous installation that had <tt>Uninstallable</tt> set to <tt>no</tt>, since the registry entries it looks for are not created when <tt>Uninstallable</tt> is <tt>no</tt>.</p>
+<p>Note that Setup cannot re-use settings from a previous installation that had <sd>Uninstallable</sd> set to <tt>no</tt>, since the registry entries it looks for are not created when <sd>Uninstallable</sd> is <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -5921,8 +5921,8 @@ DiskSliceSize=736000000
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link>, or a <link topic="scriptexpression">scripted boolean expression</link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the Start Menu folder name of the previous installation as the default Start Menu folder name presented to the user in the wizard. Additionally, if <tt>AllowNoIcons</tt> is set to <tt>yes</tt>, the <i>Don't create a Start Menu folder</i> setting from the previous installation will be restored.</p>
-<p>Note that Setup cannot re-use settings from a previous installation that had <tt>Uninstallable</tt> set to <tt>no</tt>, since the registry entries it looks for are not created when <tt>Uninstallable</tt> is <tt>no</tt>.</p>
+<p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the Start Menu folder name of the previous installation as the default Start Menu folder name presented to the user in the wizard. Additionally, if <sd>AllowNoIcons</sd> is set to <tt>yes</tt>, the <i>Don't create a Start Menu folder</i> setting from the previous installation will be restored.</p>
+<p>Note that Setup cannot re-use settings from a previous installation that had <sd>Uninstallable</sd> set to <tt>no</tt>, since the registry entries it looks for are not created when <sd>Uninstallable</sd> is <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -5932,8 +5932,8 @@ DiskSliceSize=736000000
 <body>
 <p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the language of the previous installation as the default language presented to the user in the wizard.</p>
 <p>Note that this directive does not change the language used by the <i>Select Language</i> dialog itself. See the <link topic="languagessection">[Languages] section</link> help topic for details on which language the <i>Select Language</i> dialog uses by default.</p>
-<p>Also note that Setup cannot re-use settings from a previous installation that had <tt>Uninstallable</tt> set to <tt>no</tt>, since the registry entries it looks for are not created when <tt>Uninstallable</tt> is <tt>no</tt>.</p>
-<p><tt>UsePreviousLanguage</tt> must be set to <tt>no</tt> when <tt>AppId</tt> includes constants.</p>
+<p>Also note that Setup cannot re-use settings from a previous installation that had <sd>Uninstallable</sd> set to <tt>no</tt>, since the registry entries it looks for are not created when <sd>Uninstallable</sd> is <tt>no</tt>.</p>
+<p><tt>UsePreviousLanguage</tt> must be set to <tt>no</tt> when <sd>AppId</sd> includes constants.</p>
 </body>
 </setuptopic>
 
@@ -5942,8 +5942,8 @@ DiskSliceSize=736000000
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed in one of the two install modes, and if so, it will use that install mode and not ask the user.</p>
-<p>If <tt>PrivilegesRequiredOverridesAllowed</tt> does not allow <tt>dialog</tt>, this directive is effectively ignored.</p>
-<p><tt>UsePreviousPrivileges</tt> must be set to <tt>no</tt> when <tt>AppId</tt> includes constants and <tt>PrivilegesRequiredOverridesAllowed</tt> allows <tt>dialog</tt>.</p>
+<p>If <sd>PrivilegesRequiredOverridesAllowed</sd> does not allow <tt>dialog</tt>, this directive is effectively ignored.</p>
+<p><tt>UsePreviousPrivileges</tt> must be set to <tt>no</tt> when <sd>AppId</sd> includes constants and <sd>PrivilegesRequiredOverridesAllowed</sd> allows <tt>dialog</tt>.</p>
 <p><b>See also:</b><br/>
 <sd>PrivilegesRequiredOverridesAllowed</sd></p>
 </body>
@@ -5954,7 +5954,7 @@ DiskSliceSize=736000000
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the setup type and component settings of the previous installation as the default settings presented to the user in the wizard.</p>
-<p>Note that Setup cannot re-use settings from a previous installation that had <tt>Uninstallable</tt> set to <tt>no</tt>, since the registry entries it looks for are not created when <tt>Uninstallable</tt> is <tt>no</tt>.</p>
+<p>Note that Setup cannot re-use settings from a previous installation that had <sd>Uninstallable</sd> set to <tt>no</tt>, since the registry entries it looks for are not created when <sd>Uninstallable</sd> is <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -5963,7 +5963,7 @@ DiskSliceSize=736000000
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the task settings of the previous installation as the default settings presented to the user in the wizard.</p>
-<p>Note that Setup cannot re-use settings from a previous installation that had <tt>Uninstallable</tt> set to <tt>no</tt>, since the registry entries it looks for are not created when <tt>Uninstallable</tt> is <tt>no</tt>.</p>
+<p>Note that Setup cannot re-use settings from a previous installation that had <sd>Uninstallable</sd> set to <tt>no</tt>, since the registry entries it looks for are not created when <sd>Uninstallable</sd> is <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -5972,7 +5972,7 @@ DiskSliceSize=736000000
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the name, organization and serial number entered previously as the default settings presented to the user on the <i>User Information</i> wizard page.</p>
-<p>Note that Setup cannot re-use settings from a previous installation that had <tt>Uninstallable</tt> set to <tt>no</tt>, since the registry entries it looks for are not created when <tt>Uninstallable</tt> is <tt>no</tt>.</p>
+<p>Note that Setup cannot re-use settings from a previous installation that had <sd>Uninstallable</sd> set to <tt>no</tt>, since the registry entries it looks for are not created when <sd>Uninstallable</sd> is <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -5991,7 +5991,7 @@ DiskSliceSize=736000000
 <p>Supports .bmp and .png images, including those with transparency. Use <sd>WizardImageBackColor</sd> to customize the background color. Even transparent .bmp files are supported, see <sd>WizardImageAlphaFormat</sd> for more information. Use <sd>WizardImageOpacity</sd> to increase transparency.</p>
 <p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font</link>, <sd>WizardSizePercent</sd>, and <sd>WizardKeepAspectRatio</sd> settings are being used. In all cases, an aspect ratio of 164:314 is maintained. The specified image should have the same aspect ratio.</p>
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 202x386 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240x459.</p>
-<p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <tt>WizardSizePercent</tt>, and <tt>WizardKeepAspectRatio</tt> settings are being used, the size of the image area at various DPI settings is:</p>
+<p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <sd>WizardSizePercent</sd>, and <sd>WizardKeepAspectRatio</sd> settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><th>DPI</th><th>Image area size</th></tr>
 <tr><td>100%</td><td>202x386</td></tr>
@@ -6094,9 +6094,9 @@ DiskSliceSize=736000000
 <body>
 <p>Specifies the name(s) of the image file(s) to display as the background of wizard pages in Setup, but not in Uninstall. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>Supports .bmp and .png images, including those with transparency. Use <sd>WizardBackColor</sd> to customize the background color. Even transparent .bmp files are supported, see <sd>WizardImageAlphaFormat</sd> for more information. Use <sd>WizardBackImageOpacity</sd> to increase transparency.</p>
-<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font</link>, <sd>WizardSizePercent</sd>, and <sd>WizardKeepAspectRatio</sd> settings are being used. If <tt>WizardKeepAspectRatio</tt> is set to <tt>yes</tt>, which is the default, an aspect ratio of 497:360 is maintained. The specified image should have the same aspect ratio.</p>
+<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font</link>, <sd>WizardSizePercent</sd>, and <sd>WizardKeepAspectRatio</sd> settings are being used. If <sd>WizardKeepAspectRatio</sd> is set to <tt>yes</tt>, which is the default, an aspect ratio of 497:360 is maintained. The specified image should have the same aspect ratio.</p>
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 596x432 is recommended to avoid the image looking blurry on higher-DPI systems.</p>
-<p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <tt>WizardSizePercent</tt>, and <tt>WizardKeepAspectRatio</tt> settings are being used, the size of the image area at various DPI settings is:</p>
+<p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <sd>WizardSizePercent</sd>, and <sd>WizardKeepAspectRatio</sd> settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
 <tr><th>DPI</th><th>Image area size</th></tr>
 <tr><td>100%</td><td>596x432</td></tr>
@@ -6109,7 +6109,7 @@ DiskSliceSize=736000000
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
 <p>If this directive is set to a blank value, no background image will be used.</p>
-<p>Otherwise, if a custom style is not specified by <sd>WizardStyle</sd> or <sd>WizardStyleFile</sd>, it will automatically activate custom style <tt>windows11</tt> with modifiers <tt>excludelightcontrols</tt> and <tt>hidebevels</tt>. Note that in light mode, the <tt>windows11</tt> custom style uses an off-white background color. To revert this, set <tt>WizardBackColor</tt> to <tt>white</tt>.</p>
+<p>Otherwise, if a custom style is not specified by <sd>WizardStyle</sd> or <sd>WizardStyleFile</sd>, it will automatically activate custom style <tt>windows11</tt> with modifiers <tt>excludelightcontrols</tt> and <tt>hidebevels</tt>. Note that in light mode, the <tt>windows11</tt> custom style uses an off-white background color. To revert this, set <sd>WizardBackColor</sd> to <tt>white</tt>.</p>
 <p>To show only the background image and no other wizard images, set both <sd>WizardImageFile</sd> and <sd>WizardSmallImageFile</sd> to blank values. Alternatively set <sd>WizardImageOpacity</sd> to for example <tt>150</tt> to make both those images partially transparent.</p>
 <p>Use support function <link topic="isxfunc_WizardSetBackImage">WizardSetBackImage</link> to set, update, or remove the background image at runtime.</p>
 <examples>
@@ -6345,7 +6345,7 @@ WizardBackImageOpacity=150</pre></example>
 <setupdefault><tt>Output</tt></setupdefault>
 <body>
 <p>Specifies the "output" directory for the script, which is where the compiler will place the resulting Setup.* files. By default, it creates a directory named "Output" under the directory containing the script for this.</p>
-<p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <tt>SourceDir</tt>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the My Documents folder of the currently logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
+<p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <sd>SourceDir</sd>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the My Documents folder of the currently logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
 <example><pre>OutputDir=c:\output</pre></example>
 </body>
 </setuptopic>
@@ -6410,7 +6410,7 @@ WizardBackImageOpacity=150</pre></example>
 <li><sd>WizardSmallImageFileDynamicDark</sd> and <sd>WizardSmallImageBackColorDynamicDark</sd>.</li>
 <li><sd>WizardStyleFileDynamicDark</sd>.</li>
 </ul>
-  The standard <tt>WizardBackImageFile</tt>, <tt>WizardBackColor</tt>, <tt>WizardImageFile</tt>, <tt>WizardImageBackColor</tt>, <tt>WizardSmallImageFile</tt>, <tt>WizardSmallImageBackColor</tt>, and <tt>WizardStyleFile</tt> settings are used for dynamic light mode.<br/><br/>
+  The standard <sd>WizardBackImageFile</sd>, <sd>WizardBackColor</sd>, <sd>WizardImageFile</sd>, <sd>WizardImageBackColor</sd>, <sd>WizardSmallImageFile</sd>, <sd>WizardSmallImageBackColor</sd>, and <sd>WizardStyleFile</sd> settings are used for dynamic light mode.<br/><br/>
   Note: Forced dark mode (<tt>dark</tt>) does <i>not</i> use the <tt>DynamicDark</tt> settings; it uses the standard settings.</li>
 </ul>
 <heading>Other Considerations</heading>
@@ -6488,7 +6488,7 @@ WizardBackImageOpacity=150</pre></example>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>If this directive is set to <tt>yes</tt>, Setup will always show the selected directory in the list of settings on the <i>Ready to Install</i> wizard page. If this is set to <tt>no</tt>, Setup will not show the selected directory if <tt>DisableDirPage</tt> is <tt>yes</tt>.</p>
+<p>If this directive is set to <tt>yes</tt>, Setup will always show the selected directory in the list of settings on the <i>Ready to Install</i> wizard page. If this is set to <tt>no</tt>, Setup will not show the selected directory if <sd>DisableDirPage</sd> is <tt>yes</tt>.</p>
 </body>
 </setuptopic>
 
@@ -6496,7 +6496,7 @@ WizardBackImageOpacity=150</pre></example>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>If this directive is set to <tt>yes</tt>, Setup will always show the selected Start Menu folder name in the list of settings on the <i>Ready to Install</i> wizard page. If this is set to <tt>no</tt>, Setup will not show the selected Start Menu folder name if <tt>DisableProgramGroupPage</tt> is <tt>yes</tt>.</p>
+<p>If this directive is set to <tt>yes</tt>, Setup will always show the selected Start Menu folder name in the list of settings on the <i>Ready to Install</i> wizard page. If this is set to <tt>no</tt>, Setup will not show the selected Start Menu folder name if <sd>DisableProgramGroupPage</sd> is <tt>yes</tt>.</p>
 <p>If no Start Menu folder is going to be created by Setup, this directive is effectively ignored.</p>
 </body>
 </setuptopic>
@@ -6602,7 +6602,7 @@ WizardBackImageOpacity=150</pre></example>
 <setupdefault>"<sd>AppName</sd> Setup" if <sd>AppName</sd> doesn't include constants, an empty string otherwise</setupdefault>
 <body>
 <p>Specifies the file description value for the Setup version info.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
+<p>This setting has no effect if <sd>UseSetupLdr</sd> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -6641,7 +6641,7 @@ WizardBackImageOpacity=150</pre></example>
 <body>
 <p>Specifies the textual file version value for the Setup version info.</p>
 <p>Note that this value was only displayed on Explorer's Version tab on Windows 98 and earlier. Later versions display the binary version value (<sd>VersionInfoVersion</sd>) instead.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
+<p>This setting has no effect if <sd>UseSetupLdr</sd> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -6651,7 +6651,7 @@ WizardBackImageOpacity=150</pre></example>
 <body>
 <p>Specifies the binary file version value for the Setup version info.</p>
 <p>Partial version numbers (for example, <tt>1.5</tt>) are allowed. Missing numbers will be appended as zeros. Extra numbers are ignored.</p>
-<p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
+<p>This setting has no effect if <sd>UseSetupLdr</sd> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -6665,7 +6665,7 @@ WizardBackImageOpacity=150</pre></example>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>By default, when a folder in the dialog displayed by the <i>Browse...</i> button on the <i>Select Destination Location</i> wizard page is clicked, Setup automatically appends the last component of <tt>DefaultDirName</tt> onto the new path. For example, if <tt>DefaultDirName</tt> is <tt>{autopf}\My Program</tt> and "Z:\" is clicked, the new path will become "Z:\My Program".</p>
+<p>By default, when a folder in the dialog displayed by the <i>Browse...</i> button on the <i>Select Destination Location</i> wizard page is clicked, Setup automatically appends the last component of <sd>DefaultDirName</sd> onto the new path. For example, if <sd>DefaultDirName</sd> is <tt>{autopf}\My Program</tt> and "Z:\" is clicked, the new path will become "Z:\My Program".</p>
 <p>Setting this directive to <tt>no</tt> disables the aforementioned behavior. In addition, it causes a <i>Make New Folder</i> button to appear on the dialog.</p>
 </body>
 </setuptopic>
@@ -6674,7 +6674,7 @@ WizardBackImageOpacity=150</pre></example>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>By default, when a folder in the dialog displayed by the <i>Browse...</i> button on the <i>Select Start Menu Folder</i> wizard page is clicked, Setup automatically appends the last component of <tt>DefaultGroupName</tt> onto the new path. For example, if <tt>DefaultGroupName</tt> is <tt>My Program</tt> and "Accessories" is clicked, the new path will become "Accessories\My Program".</p>
+<p>By default, when a folder in the dialog displayed by the <i>Browse...</i> button on the <i>Select Start Menu Folder</i> wizard page is clicked, Setup automatically appends the last component of <sd>DefaultGroupName</sd> onto the new path. For example, if <sd>DefaultGroupName</sd> is <tt>My Program</tt> and "Accessories" is clicked, the new path will become "Accessories\My Program".</p>
 <p>Setting this directive to <tt>no</tt> disables the aforementioned behavior. In addition, it causes a <i>Make New Folder</i> button to appear on the dialog.</p>
 </body>
 </setuptopic>
@@ -6798,7 +6798,7 @@ WizardBackImageOpacity=150</pre></example>
 <dt><b>x86os</b></dt>
 <dd>
 <p>Matches systems running 32-bit x86 Windows only.</p>
-<p><tt>x86os</tt> usually only makes sense when installing 32-bit x86 device drivers. When installing a regular 32-bit app, <tt>x86compatible</tt> should be used instead (or just leave <tt>ArchitecturesAllowed</tt> unset).</p>
+<p><tt>x86os</tt> usually only makes sense when installing 32-bit x86 device drivers. When installing a regular 32-bit app, <tt>x86compatible</tt> should be used instead (or just leave <sd>ArchitecturesAllowed</sd> unset).</p>
 <p>Before Inno Setup 6.3, <tt>x86os</tt> was named <tt>x86</tt>. The compiler still accepts <tt>x86</tt> as an alias for <tt>x86os</tt>.</p>
 </dd>
 
@@ -6950,8 +6950,8 @@ ArchitecturesInstallIn64BitMode=x64compatible
 <setupdefault><sd>OutputDir</sd></setupdefault>
 <body>
 <p>Specifies the directory in which <link topic="setup_signeduninstaller">signed uninstaller</link> files should be stored. By default, such files are stored in the <link topic="setup_outputdir">output directory</link>.</p>
-<p>Separate script files may share the same <tt>SignedUninstallerDir</tt> setting. By setting up a common directory to hold signed uninstaller files, you won't have to re-sign the uninstaller each time you compile a new script file with a distinct <tt>OutputDir</tt> setting.</p>
-<p>If <tt>SignedUninstallerDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <tt>SourceDir</tt>. Setting <tt>SignedUninstallerDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
+<p>Separate script files may share the same <tt>SignedUninstallerDir</tt> setting. By setting up a common directory to hold signed uninstaller files, you won't have to re-sign the uninstaller each time you compile a new script file with a distinct <sd>OutputDir</sd> setting.</p>
+<p>If <tt>SignedUninstallerDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <sd>SourceDir</sd>. Setting <tt>SignedUninstallerDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
 <example><pre>SignedUninstallerDir=c:\signeduninstallers</pre></example>
 </body>
 </setuptopic>
@@ -7235,8 +7235,8 @@ CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 <topic name="sameappnotes" title="Same Application">
 <keyword value="Same Application" />
 <body>
-<p>"Same application" refers to two separate installation runs that share the same <sd>AppId</sd> setting (or if <tt>AppId</tt> is not set, the same <sd>AppName</sd> setting), and the same <link topic="admininstallmode">administrative or non administrative install mode</link>, and the same <link topic="32vs64bitinstalls">32-bit or 64-bit install mode</link>*. Two of such installation runs will usually lead to only one actual installation of the files.</p>
-<p>(* = This requirement does not apply to any same application information retrieved from the registry in non administrative install mode since the HKEY_CURRENT_USER key is shared between the 32-bit and 64-bit registry. It does however always apply to the uninstall log since the 32-bit and 64-bit uninstall logs are kept separate, even in non administrative install mode. In practice this means you should avoid offering both a 32-bit and a 64-bit non administrative installer to your users without giving these installers different <tt>AppId</tt>, <tt>DefaultDirName</tt>, <tt>DefaultGroupName</tt>, and <tt>UninstallDisplayName</tt> settings.)</p>
+<p>"Same application" refers to two separate installation runs that share the same <sd>AppId</sd> setting (or if <sd>AppId</sd> is not set, the same <sd>AppName</sd> setting), and the same <link topic="admininstallmode">administrative or non administrative install mode</link>, and the same <link topic="32vs64bitinstalls">32-bit or 64-bit install mode</link>*. Two of such installation runs will usually lead to only one actual installation of the files.</p>
+<p>(* = This requirement does not apply to any same application information retrieved from the registry in non administrative install mode since the HKEY_CURRENT_USER key is shared between the 32-bit and 64-bit registry. It does however always apply to the uninstall log since the 32-bit and 64-bit uninstall logs are kept separate, even in non administrative install mode. In practice this means you should avoid offering both a 32-bit and a 64-bit non administrative installer to your users without giving these installers different <sd>AppId</sd>, <sd>DefaultDirName</sd>, <sd>DefaultGroupName</sd>, and <sd>UninstallDisplayName</sd> settings.)</p>
 <p><b>See also:</b><br/>
 <link topic="sidebyside">Side-by-side installation</link></p>
 </body>
@@ -7245,7 +7245,7 @@ CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 <topic name="sidebyside" title="Side-by-side installation">
 <keyword value="Side-by-side installation" />
 <body>
-<p>"Side-by-side installation" refers to two separate installation runs that share the same <sd>AppId</sd> setting (or if <tt>AppId</tt> is not set, the same <sd>AppName</sd> setting) but not the other <link topic="sameappnotes">"Same application"</link> requirements. Two of such installation runs will usually lead to two actual installations of the files. To avoid entries with identical names in the <i>Add/Remove Programs</i> Control Panel applet Setup will automatically mark the new entry with a text like "Current user" or "64-bit" when necessary during a side-by-side installation.</p>
+<p>"Side-by-side installation" refers to two separate installation runs that share the same <sd>AppId</sd> setting (or if <sd>AppId</sd> is not set, the same <sd>AppName</sd> setting) but not the other <link topic="sameappnotes">"Same application"</link> requirements. Two of such installation runs will usually lead to two actual installations of the files. To avoid entries with identical names in the <i>Add/Remove Programs</i> Control Panel applet Setup will automatically mark the new entry with a text like "Current user" or "64-bit" when necessary during a side-by-side installation.</p>
 </body>
 </topic>
 
