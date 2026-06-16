@@ -90,6 +90,7 @@
     <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
     <contentstopic title="Compiler IDE Keyboard And Mouse Commands" topic="compformshortcuts" />
     <contentstopic title="Compiler IDE Regular Expressions" topic="compformregex" />
+    <contentstopic title="Security Measures" topic="securitymeasures" />
     <contentstopic title=".issig Signatures: Introduction" topic="issig" />
     <contentstopic title="Inno Setup Signature Tool" topic="issigtool" />
     <contentstopic title="Miscellaneous Notes" topic="technotes" />
@@ -3902,6 +3903,143 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 <p>Running the wizard from the command line does not suppress any error messages. The Setup Script Wizard will return an exit code of 0 if there was no error and additionally it will save the generated script file to the specified filename, 1 if the command line parameters were invalid, or 2 if the generated script file could not be saved. If the user cancelled the Setup Script Wizard, an exit code of 0 is returned and no script file is saved.</p>
 </li>
 
+</ul>
+
+</body>
+</topic>
+
+
+
+<topic name="securitymeasures" title="Security Measures">
+<keyword value="DLL hijacking" />
+<body>
+
+<p>Inno Setup incorporates many security measures, not just in Setup and Uninstall but also in the compiler toolchain.</p>
+
+<p>Many of these security measures add defense-in-depth; they do not address specific vulnerabilities.</p>
+
+<p>This topic lists the security measures, focusing on Setup. In general, anything applying to Setup also applies to Uninstall, and the setup loader program (SetupLdr).</p>
+
+<heading>DLL hijacking protection</heading>
+
+<p>Setup employs protections against DLL hijacking (also known as DLL sideloading):</p>
+
+<ul>
+<li>Setup immediately removes all directories except the System directory from the DLL search path at startup.</li>
+<li>Setup never loads DLLs from a relative path and instead always uses absolute paths.</li>
+<li>Windows is known to sideload certain DLLs without specifying a path, even when not asked to do so. To force it to load these from the System directory, special <tt>loadFrom</tt> instructions are included in the manifest file of Setup. A daily automatic test is used to detect Windows sideloading any new DLLs not yet included in these special <tt>loadFrom</tt> instructions.</li>
+<li>Another special <tt>loadFrom</tt> instruction specifically for <tt>comctl32.dll</tt> is added to the manifest file of the setup loader program at compile time, replacing the regular <tt>dependency</tt> section.</li>
+</ul>
+
+<heading>Temporary directory security</heading>
+
+<p>SetupLdr, Setup, and Uninstall create subdirectories under the user's top-level temporary directory (typically <tt>%LOCALAPPDATA%\Temp</tt> for users other than SYSTEM).</p>
+
+<p>The actual Setup program is extracted to and runs from the subdirectory created by SetupLdr. Storing the file in a subdirectory ensures that Setup cannot unintentionally make use of DLLs or other files that exist in the top-level directory.</p>
+
+<p>The creation of the subdirectories is secured in several ways:</p>
+
+<ul>
+<li>The top-level temporary directory path is retrieved using the <tt>GetTempPath2</tt> API when available. This means that when running under the SYSTEM user account, subdirectories will be created under the private <tt>%SystemRoot%\SystemTemp</tt> directory instead of the shared <tt>%SystemRoot%\Temp</tt> directory. <tt>GetTempPath2</tt> was first introduced in Windows 11 and later backported to Windows 10 and Windows Server 2016. On older systems, <tt>GetTempPath</tt> is used instead.</li>
+<li>The names of the subdirectories include ten base-36 digits (0&ndash;9, A&ndash;Z), randomly generated using a cryptographically secure random number generator (CSPRNG).</li>
+<li><p>When the top-level temporary directory path is <tt>%SystemRoot%\Temp</tt>, subdirectories are created with a special access control list (ACL) that contains "allow" entries for only the current user, the built-in Administrators group, and the SYSTEM user. This is necessary because the default ACL on <tt>%SystemRoot%\Temp</tt> allows all unprivileged users to create files inside subdirectories.</p>
+<p>The same ACL is used when the process is running elevated and the top-level temporary directory is on a local drive (any path), except the current user's access is set to "Read &amp; Execute" rather than "Full Control". Although Microsoft does not intend for elevation to define a security boundary, this is done as a defense-in-depth measure to prevent non-elevated processes running under the same user account from writing to the subdirectory.</p></li>
+</ul>
+
+<p>No sensitive material is written to the temporary directories.</p>
+
+<heading>Memory protection</heading>
+
+<p>Setup enables Data Execution Prevention (DEP) and Address Space Layout Randomization (ASLR) by default. <link topic="64bit">64-bit installers</link> support high-entropy ASLR.</p>
+
+<p>See <sd>DEPCompatible</sd> and <sd>ASLRCompatible</sd> for more information.</p>
+
+<heading>Path security</heading>
+
+<p>Setup uses a custom path validation function library which is extremely robust and knows about all the various path mechanisms available in Windows, including some very obscure ones. The library is tested against a very large list of possible valid and invalid inputs.</p>
+
+<p>When extracting files from an external archive like a <tt>.7z</tt> or <tt>.zip</tt> archive, the library is used to protect against malicious archives.</p>
+
+<heading>Redirection mitigation</heading>
+
+<p>The <extlink href="https://www.microsoft.com/en-us/msrc/blog/2025/06/redirectionguard-mitigating-unsafe-junction-traversal-in-windows">RedirectionGuard mitigation</extlink>, available on Windows 11 and Windows 10 22H2, blocks traversal of NTFS junctions and symbolic links created by unprivileged users (or any non-elevated processes).</p>
+
+<p>By default, Setup attempts to enable Windows' RedirectionGuard mitigation on its own process. Uninstall also enables RedirectionGuard for its process if it was successfully enabled during the most recent installation of the application.</p>
+
+<p>See <sd>RedirectionGuard</sd> for more information.</p>
+
+<heading>Program launch security</heading>
+
+<p>The setup loader program always uses an <tt>asInvoker</tt> manifest regardless of the <sd>PrivilegesRequired</sd> setting, and Setup requests elevation only when needed.</p>
+
+<p>When launching other programs for the user, like post-install from the <tt>[Run]</tt> section, or when the user clicks on a link, Setup ensures these programs are launched unelevated by default, even if Setup itself is running elevated. It achieves this by requesting the setup loader to perform the launch, instead of directly launching the other program itself.</p>
+
+<p>Also, when launching other programs and creating shortcuts, Setup ensures the working directory is never left unspecified.</p>
+
+<heading>Corruption or tampering detection</heading>
+
+<p>Setup (and Uninstall) can be digitally signed automatically by the compiler. The compiler can also sign your own original source files for you, or just verify that you did not forget to do this yourself.</p>
+
+<p>After signing, the compiler double-checks that the signature was added without otherwise changing the original file.</p>
+
+<p>See <sd>SignTool</sd> for more information.</p>
+
+<p>Additionally, an integrated signature-verification capability is included that can be used to detect corruption or tampering in your files at compile time, before files are included in an installer being built, or during installation, before Setup copies external files onto a user's system. This capability is protected against the Time-Of-Check to Time-Of-Use (TOCTOU) problem throughout, and uses strong cryptography.</p>
+
+<p>See <link topic="issig">.issig Signatures: Introduction</link> for more information.</p>
+
+<p>Setup also uses SHA-256 hashes to verify various components, and you can use these yourself as well. Older hashing algorithms are available, but not used for security purposes by Setup.</p>
+
+<heading>Encryption</heading>
+
+<p>Password-protected encryption is available, using strong XChaCha20 encryption and PBKDF2-HMAC-SHA256 key derivation. All salts and nonces are generated using a cryptographically secure random number generator (CSPRNG).</p>
+
+<p>See <sd>Encryption</sd> for more information.</p>
+
+<heading>Download security</heading>
+
+<p>Setup can securely download files from remote servers, and verify their integrity, without using any <tt>[Code]</tt>. It uses these protections:</p>
+
+<ul>
+<li>Expired and self-signed certificates are never accepted.</li>
+<li>TLS 1.0 and TLS 1.1 are never accepted. Both TLS 1.2 and TLS 1.3 are supported.</li>
+<li>Downloaded files can be verified using SHA-256 hash or an <link topic="issig">.issig signature</link>. Using the latter has the benefit that your script does not need to be changed when the downloaded file or archive changes, so any installers built will also keep working (they are "evergreen").</li>
+<li>Passwords in URLs are automatically excluded from Setup's log.</li>
+</ul>
+
+<heading>Other security measures</heading>
+
+<p>Setup:</p>
+
+<ul>
+<li>The <tt>[Run]</tt> and <tt>[UninstallRun]</tt> sections support a <tt>dontlogparameters</tt> flag to prevent parameters from being included in Setup's log.</li>
+</ul>
+
+<p>Compiler:</p>
+
+<ul>
+<li>The compiler itself uses <link topic="issig">.issig signature</link> files to detect corruption or tampering with components such as Setup, before using them to build your installer.</li>
+<li>The compiler doesn't allow .isl message files specified in the <tt>[Languages]</tt> section to contain compiler directives such as <tt>#include</tt>. This stops any translations from injecting unexpected content.</li>
+<li>The <tt>[Files]</tt> section supports a <tt>notimestamp</tt> flag to prevent files from being stored with a timestamp. Use this flag to help make builds reproducible, even if you cannot preserve timestamps on source files.</li>
+</ul>
+
+<p>IDE:</p>
+
+<ul>
+<li>The IDE is designed to never execute any commands from scripts when you merely open them.</li>
+</ul>
+
+<heading><a name="supplychain">Supply-chain security</a></heading>
+
+<p>Besides securing Inno Setup itself, we have also taken many steps to ensure the integrity of Inno Setup releases:</p>
+
+<ul>
+<li>Releases are built on a dedicated machine only used for this purpose. Signing keys are not stored on other machines.</li>
+<li>The Inno Setup source code is self-contained and no external dependencies are pulled in when a release is built.</li>
+<li>Precompiled files included in Inno Setup's source code are code signed and are accompanied with <link topic="issig">.issig signature</link> files to detect corruption or tampering before using them to build a release.</li>
+<li>Vendor updates of third-party source code (7-Zip, LZMA SDK, zlib, bzip2, Scintilla) are reviewed before being applied. An <extlink href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json">SPDX Software Bill of Materials</extlink> (SBOM) is available. Of the named sources, only LZMA SDK is an integral part of the Setup program, and only in a reduced form.</li>
+<li>Release binaries are made available through <extlink href="https://github.com/jrsoftware/issrc/releases">immutable GitHub releases</extlink> and accompanied with <link topic="issig">.issig signature</link> files you can use to detect corruption or tampering before running them. For more details, see <extlink href="https://jrsoftware.org/isdl-verify.php">Verifying Inno Setup Downloads</extlink>.</li>
+<li>Our GitHub repositories require signed commits on all branches, have GitHub Actions disabled, and do not allow any workflows to run.</li>
 </ul>
 
 </body>
