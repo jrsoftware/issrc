@@ -139,6 +139,9 @@
 <xsl:template match="tt">
 <tt><xsl:apply-templates/></tt></xsl:template>
 
+<xsl:template match="sd">
+<sd><xsl:apply-templates/></sd></xsl:template>
+
 <xsl:template match="ul">
 <ul><xsl:apply-templates/></ul></xsl:template>
 
