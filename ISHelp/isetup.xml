@@ -3911,18 +3911,18 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 
 
 <topic name="securityenhancements" title="Security Enhancements">
-<keyword value="DLL-hijacking" />
+<keyword value="DLL hijacking" />
 <body>
 
 <p>Inno Setup includes many security enhancements, not just in Setup and Uninstall but also in the compiler toolchain.</p>
 
-<p>Many of these enhancements add defense-in-depth; they do not address a known vulnerability.</p>
+<p>Many of these enhancements add defense-in-depth; they do not address specific vulnerabilities.</p>
 
 <p>This topic lists the enhancements, focusing on Setup. In general, anything applying to Setup also applies to Uninstall, and the setup loader program (SetupLdr).</p>
 
-<heading>DLL-hijacking protection</heading>
+<heading>DLL hijacking protection</heading>
 
-<p>Even though Windows User Account Control (UAC) is not a security boundary, Setup employs additional protections against DLL-hijacking (also known as DLL-sideloading):</p>
+<p>Setup employs protections against DLL hijacking (also known as DLL sideloading):</p>
 
 <ul>
 <li>Setup immediately removes all directories except the System directory from the DLL search path at startup.</li>
@@ -3933,22 +3933,26 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 
 <heading>Temporary directory security</heading>
 
-<p>The setup loader program extracts the actual Setup program to a temporary directory. This directory is protected and made secure in various ways:</p>
+<p>SetupLdr, Setup, and Uninstall create subdirectories under the user's top-level temporary directory (typically <tt>%LOCALAPPDATA%\Temp</tt> for users other than SYSTEM).</p>
+
+<p>The actual Setup program is extracted to and runs from the subdirectory created by SetupLdr. Storing the file in a subdirectory ensures that Setup cannot unintentionally make use of DLLs or other files that exist in the top-level directory.</p>
+
+<p>The creation of the subdirectories is secured in several ways:</p>
 
 <ul>
-<li>Setup is extracted to a subdirectory of the current user's main temporary directory. This prevents Setup from seeing any other files which already exist in the main directory.</li>
-<li>When running under the SYSTEM account, Setup uses the <tt>C:\Windows\SystemTemp</tt> directory when available, instead of <tt>C:\Windows\Temp</tt>.</li>
-<li>When Setup is running elevated, or when <tt>C:\Windows\Temp</tt> is in use, the subdirectory is secured using a special Access Control List (ACL) that disables all inherited permissions. Additionally, when Setup is running elevated, other processes running unelevated are denied write access, even those of the current user.<br/>
-    The process of creating and securing the subdirectory is protected against the Time-Of-Check to Time-Of-Use (TOCTOU) problem.</li>
-<li>The name of the subdirectory is randomly generated using a cryptographically secure random number generator (CSPRNG).</li>
-<li>Both the setup loader and Setup do not write any sensitive material to the temporary directory.</li>
+<li>The top-level temporary directory path is retrieved using the <tt>GetTempPath2</tt> API when available. This means that when running under the SYSTEM user account, subdirectories will be created under the private <tt>%SystemRoot%\SystemTemp</tt> directory instead of the shared <tt>%SystemRoot%\Temp</tt> directory. <tt>GetTempPath2</tt> was first introduced in Windows 11 and later backported to Windows 10 and Windows Server 2016. On older systems, <tt>GetTempPath</tt> is used instead.</li>
+<li>The names of the subdirectories include ten base-36 digits (0&ndash;9, A&ndash;Z), randomly generated using a cryptographically secure random number generator (CSPRNG).</li>
+<li><p>When the top-level temporary directory path is <tt>%SystemRoot%\Temp</tt>, subdirectories are created with a special access control list (ACL) that contains "allow" entries for only the current user, the built-in Administrators group, and the SYSTEM user. This is necessary because the default ACL on <tt>%SystemRoot%\Temp</tt> allows all unprivileged users to create files inside subdirectories.</p>
+<p>The same ACL is used when the process is running elevated and the top-level temporary directory is on a local drive (any path), except the current user's access is set to "Read &amp; Execute" rather than "Full Control". Although Microsoft does not intend for elevation to define a security boundary, this is done as a defense-in-depth measure to prevent non-elevated processes running under the same user account from writing to the subdirectory.</p></li>
 </ul>
+
+<p>No sensitive material is written to the temporary directories.</p>
 
 <heading>Memory protection</heading>
 
 <p>Setup enables Data Execution Prevention (DEP) and Address Space Layout Randomization (ASLR) by default. <link topic="64bit">64-bit installers</link> support high-entropy ASLR.</p>
 
-<p>See <link topic="setup_depcompatible">DEPCompatible</link> and <link topic="setup_aslrcompatible">ASLRCompatible</link> for more information.</p>
+<p>See <sd>DEPCompatible</sd> and <sd>ASLRCompatible</sd> for more information.</p>
 
 <heading>Path security</heading>
 
@@ -3962,11 +3966,11 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 
 <p>By default, Setup attempts to enable Windows' RedirectionGuard mitigation on its own process. Uninstall also enables RedirectionGuard for its process if it was successfully enabled during the most recent installation of the application.</p>
 
-<p>See <link topic="setup_redirectionguard">RedirectionGuard</link> for more information.</p>
+<p>See <sd>RedirectionGuard</sd> for more information.</p>
 
 <heading>Program launch security</heading>
 
-<p>The setup loader program always uses an <tt>asInvoker</tt> manifest regardless of the <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting, and Setup requests elevation only when needed.</p>
+<p>The setup loader program always uses an <tt>asInvoker</tt> manifest regardless of the <sd>PrivilegesRequired</sd> setting, and Setup requests elevation only when needed.</p>
 
 <p>When launching other programs for the user, like post-install from the <tt>[Run]</tt> section, or when the user clicks on a link, Setup ensures these programs are launched unelevated by default, even if Setup itself is running elevated. It achieves this by requesting the setup loader to perform the launch, instead of directly launching the other program itself.</p>
 
@@ -3978,7 +3982,7 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 
 <p>After signing, the compiler double-checks that the signature was added without otherwise changing the original file.</p>
 
-<p>See <link topic="setup_signtool">SignTool</link> for more information.</p>
+<p>See <sd>SignTool</sd> for more information.</p>
 
 <p>Additionally, an integrated signature-verification capability is included that can be used to detect corruption or tampering in your files at compile time, before files are included in an installer being built, or during installation, before Setup copies external files onto a user's system. This capability is protected against the Time-Of-Check to Time-Of-Use (TOCTOU) problem throughout, and uses strong cryptography.</p>
 
@@ -3990,7 +3994,7 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 
 <p>Password-protected encryption is available, using strong XChaCha20 encryption and PBKDF2-HMAC-SHA256 key derivation. All salts and nonces are generated using a cryptographically secure random number generator (CSPRNG).</p>
 
-<p>See <link topic="setup_encryption">Encryption</link> for more information.</p>
+<p>See <sd>Encryption</sd> for more information.</p>
 
 <heading>Download security</heading>
 
