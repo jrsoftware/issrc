@@ -883,7 +883,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 </param>
 
 <param name="MinVersion">
-<p>A minimum <link topic="winvernotes">Windows version</link> for the entry to be processed. If you use <tt>0</tt> then the entry will never be processed. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>MinVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>A minimum <link topic="winvernotes">Windows version</link> for the entry to be processed. If you use <tt>0</tt> then the entry will never be processed. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <sd>MinVersion</sd> directive in the script's <tt>[Setup]</tt> section.</p>
 <p>An entry without a <tt>MinVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
 <pre>MinVersion: 6.2</pre>
@@ -891,7 +891,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 </param>
 
 <param name="OnlyBelowVersion">
-<p>Essentially the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows version</link> for the entry <i>not</i> to be processed. For example, if you use <tt>6.2</tt> and the user is running Windows 7, the entry <i>will</i> be processed, but if the user is running Windows 8 (which reports its version as 6.2) or later, it will <i>not</i> be processed. Putting <tt>0</tt> means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <tt>OnlyBelowVersion</tt> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>Essentially the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows version</link> for the entry <i>not</i> to be processed. For example, if you use <tt>6.2</tt> and the user is running Windows 7, the entry <i>will</i> be processed, but if the user is running Windows 8 (which reports its version as 6.2) or later, it will <i>not</i> be processed. Putting <tt>0</tt> means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <sd>OnlyBelowVersion</sd> directive in the script's <tt>[Setup]</tt> section.</p>
 <p>If <tt>0</tt> is not used: should be higher than <tt>6.1</tt> otherwise the entry is never processed. (Windows Vista/Server 2008 are no longer supported.)</p>
 <p>An entry without an <tt>OnlyBelowVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
@@ -5493,7 +5493,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Setup Completed</i> wizard page, and instead will immediately close the Setup program once the installation process finishes. This may be useful if you execute a program in the [Run] section using the <tt>nowait</tt> flag, and don't want the <i>Setup Completed</i> window to remain in the background after the other program has started.</p>
-<p>Note that the <tt>DisableFinishedPage</tt> directive is ignored if a restart of the computer is deemed necessary, or if a file is assigned to the <tt>InfoAfterFile</tt> <tt>[Setup]</tt> section directive. In those cases, the <i>Setup Completed</i> wizard page will still be displayed.</p>
+<p>Note that the <tt>DisableFinishedPage</tt> directive is ignored if a restart of the computer is deemed necessary, or if a file is assigned to the <sd>InfoAfterFile</sd> <tt>[Setup]</tt> section directive. In those cases, the <i>Setup Completed</i> wizard page will still be displayed.</p>
 </body>
 </setuptopic>
 
