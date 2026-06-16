@@ -218,14 +218,14 @@ end;</pre></example>
       <function>
         <name>RegisterExtraCloseApplicationsResource</name>
         <prototype>function RegisterExtraCloseApplicationsResource(const AFilename: String): Boolean;</prototype>
-        <description><p>Registers an extra file which Setup should check for being in-use. Call <tt>RegisterExtraCloseApplicationsResource</tt> inside a <tt>RegisterExtraCloseApplicationsResources</tt> event function, once per file. Ignores <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link>. Returns True if successful.</p></description>
+        <description><p>Registers an extra file which Setup should check for being in-use. Call <tt>RegisterExtraCloseApplicationsResource</tt> inside a <tt>RegisterExtraCloseApplicationsResources</tt> event function, once per file. Ignores <sd>CloseApplicationsFilter</sd>. Returns True if successful.</p></description>
         <remarks><p>This function used to have a <tt>DisableFsRedir</tt> parameter, which was removed in 7.0. Use <link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link> instead to register a 64-bit file from a <link topic="64bit">32-bit installer</link>, or vice versa.</p></remarks>
       </function>
       <function>
         <name>RmSessionStarted</name>
         <prototype>function RmSessionStarted: Boolean;</prototype>
         <description><p>Returns True if a Restart Manager session was started, False otherwise.</p></description>
-        <seealso><p><link topic="setup_closeapplications">CloseApplications</link></p></seealso>
+        <seealso><p><sd>CloseApplications</sd></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -279,10 +279,10 @@ end;</pre></example>
         <prototype>procedure WizardSetBackImage(const BackImages: TArrayOfGraphic; const Stretch, Center: Boolean; const Opacity: Byte);</prototype>
           <description><p>Sets a wizard background image. If multiple images are specified, the best-fitting one will be selected. If no images are specified, any existing background image is cleared and the other function parameters are ignored.</p>
 <p>If <tt>Stretch</tt> is <tt>True</tt>, the image will be stretched or shrunk if the image is larger or smaller than required. If <tt>Stretch</tt> is <tt>False</tt> and <tt>Center</tt> is <tt>True</tt>, the image will be centered in the wizard window if it is smaller than required, and clipped if it is larger than required. Otherwise, the image will be positioned in the upper-left corner in its original size.</p>
-<p>See <link topic="setup_wizardbackimagefile">WizardBackImageFile</link> for information about the recommended image size(s).</p>
+<p>See <sd>WizardBackImageFile</sd> for information about the recommended image size(s).</p>
 <p></p><p><tt>Opacity</tt> specifies the opacity of the image, from <tt>0</tt> (fully transparent) to <tt>255</tt> (fully opaque, so non-transparent).</p>
-<p>Raises an exception if a custom wizard background is not already active. Custom wizard backgrounds can be activated by using <link topic="setup_wizardbackcolor">WizardBackColor</link>, <link topic="setup_wizardbackcolordynamicdark">WizardBackColorDynamicDark</link>, <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, or <link topic="setup_wizardbackimagefiledynamicdark">WizardBackImageFileDynamicDark</link>.</p>
-<p>To display a single image for the entire duration of Setup, do not use this function. Instead, set <link topic="setup_wizardbackimagefile">WizardBackImageFile</link> and optionally <link topic="setup_wizardbackimagefiledynamicdark">WizardBackImageFileDynamicDark</link>.</p>
+<p>Raises an exception if a custom wizard background is not already active. Custom wizard backgrounds can be activated by using <sd>WizardBackColor</sd>, <sd>WizardBackColorDynamicDark</sd>, <sd>WizardBackImageFile</sd>, or <sd>WizardBackImageFileDynamicDark</sd>.</p>
+<p>To display a single image for the entire duration of Setup, do not use this function. Instead, set <sd>WizardBackImageFile</sd> and optionally <sd>WizardBackImageFileDynamicDark</sd>.</p>
 </description>
         <example><pre>[Setup]
 WizardStyle=modern dynamic
@@ -419,7 +419,7 @@ end;</pre></example>
         <name>ShowExceptionMessage</name>
         <prototype>procedure ShowExceptionMessage;</prototype>
         <description><p>Shows the message associated with the current exception in a message box. This function should only be called from within an <tt>except</tt> section, or a function called from an <tt>except</tt> section.</p></description>
-        <remarks><p>If logging is enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive or the <link topic="setup_uninstalllogging">UninstallLogging</link> [Setup] section directive or debugging from the Compiler IDE) the message will be recorded in the log file and/or in the Compiler IDE's "Debug Output" view in addition to being shown.</p></remarks>
+        <remarks><p>If logging is enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <sd>SetupLogging</sd> [Setup] section directive or the <sd>UninstallLogging</sd> [Setup] section directive or debugging from the Compiler IDE) the message will be recorded in the log file and/or in the Compiler IDE's "Debug Output" view in addition to being shown.</p></remarks>
         <example><pre>var
   I: Integer;
 begin
@@ -597,7 +597,7 @@ end;</pre></example>
         <description><p>Returns the architecture of the system's Windows installation.</p>
 <p><tt>TSetupProcessorArchitecture</tt> is an enumerated type, defined as:</p>
 <p><tt>TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paArm32, paArm64);</tt></p></description>
-        <remarks><p><tt>paUnknown</tt> is returned if Setup/Uninstall does not recognize the architecture of the Windows installation. It can be assumed that an "unknown" architecture is at least capable of executing the architecture of Setup/Uninstall itself (see <link topic="setup_setuparchitecture">SetupArchitecture</link>), or Setup/Uninstall wouldn't be running at all.</p>
+        <remarks><p><tt>paUnknown</tt> is returned if Setup/Uninstall does not recognize the architecture of the Windows installation. It can be assumed that an "unknown" architecture is at least capable of executing the architecture of Setup/Uninstall itself (see <sd>SetupArchitecture</sd>), or Setup/Uninstall wouldn't be running at all.</p>
 <p><tt>paArm32</tt> is not a possible return value for this function because no version of Windows for 32-bit Arm processors had the ability to run x86 binaries. (An x86 emulator was first introduced in Arm64 Windows.)</p></remarks>
         <example><pre>var
   S: String;
@@ -661,7 +661,7 @@ end;</pre></example>
       <function>
         <name>IsCurrentProcess64Bit</name>
         <prototype>function IsCurrentProcess64Bit: Boolean;</prototype>
-        <description><p>Returns True if Setup is built as a 64-bit x64 application, as specified by <link topic="setup_setuparchitecture">SetupArchitecture</link>.</p></description>
+        <description><p>Returns True if Setup is built as a 64-bit x64 application, as specified by <sd>SetupArchitecture</sd>.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -2133,7 +2133,7 @@ end;</pre></example>
         <prototype>procedure ExtractArchive(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);</prototype>
         <description><p>Extracts the specified archive to the specified directory, with or without preserving full path names.</p>
 <p>An exception will be raised if there was an error.</p>
-<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive.</p>
+<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> [Setup] section directive.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
 <p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p>TOnExtractionProgress is defined as:</p>
@@ -2151,7 +2151,7 @@ end;</pre></example>
         <prototype>procedure MapArchiveExtensions(const DestExt, SourceExt: String);</prototype>
         <description><p>Allows files with a specified destination extension, such as .exe, to be treated as if they have a different source extension, such as .7z, for extraction purposes.</p>
 <p>An exception will be raised if there was an error.</p></description>
-        <remarks><p>Calls to this function are ignored if the <link topic="setup_archiveextraction">ArchiveExtraction</link> <tt>[Setup]</tt> section directive is set to <tt>basic</tt>. In this case files are always extracted as .7z, regardless of the extension.</p></remarks>
+        <remarks><p>Calls to this function are ignored if the <sd>ArchiveExtraction</sd> <tt>[Setup]</tt> section directive is set to <tt>basic</tt>. In this case files are always extracted as .7z, regardless of the extension.</p></remarks>
         <seealso><p><link topic="isxfunc_ExtractArchive">ExtractArchive</link><br/>
 <link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link></p></seealso>
         <example><pre>
@@ -2973,7 +2973,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <name>CreateExtractionPage</name>
         <prototype>function CreateExtractionPage(const ACaption, ADescription: String; const OnExtractionProgress: TOnExtractionProgress): TExtractionWizardPage;</prototype>
         <description><p>Creates a wizard page to extract archives and show progress.</p>
-<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive.</p>
+<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> [Setup] section directive.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
 <p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>    
 <p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
@@ -3007,7 +3007,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <remarks><p>You should call this function instead of creating <link topic="scriptclasses" anchor="TForm">TForm</link> or <link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link> instances directly. This function automatically initializes the font and other properties of the created form to be like Setup's other dialogs.</p>
 <p>The <tt>[LangOptions]</tt> section's <tt>DialogFontName</tt> and <tt>DialogFontSize</tt> directives determine the font used by the form and, by default, any child controls created on the form.</p>
 <p>You should use <link topic="isxfunc_ScaleX">ScaleX</link> and <link topic="isxfunc_ScaleY">ScaleY</link> to scale the desired client width and height to appropriate values. A form's client width and height are the form's full width and height minus its borders.</p>
-<p><tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> specify whether the form is allowed to grow horizontally and vertically as the client area is resized, for [Setup] section directive <link topic="setup_wizardsizepercent">WizardSizePercent</link>.</p>
+<p><tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> specify whether the form is allowed to grow horizontally and vertically as the client area is resized, for [Setup] section directive <sd>WizardSizePercent</sd>.</p>
 <p>The signature of the <tt>CreateCustomForm</tt> function has changed as of version 6.6.0. The width and height must now be specified upfront (they are now read-only properties once the form is constructed). Previously, your code might have looked like this:</p>
 <pre>
   Form := CreateCustomForm;
@@ -3363,7 +3363,7 @@ end;</pre></example>
         <name>Log</name>
         <prototype>procedure Log(const S: String);</prototype>
         <description><p>Logs the specified string in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p></description>
-        <remarks><p>Calls to this function are ignored if logging is not enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <link topic="setup_setuplogging">SetupLogging</link> [Setup] section directive or the <link topic="setup_uninstalllogging">UninstallLogging</link> [Setup] section directive or debugging from the Compiler IDE).</p></remarks>
+        <remarks><p>Calls to this function are ignored if logging is not enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <sd>SetupLogging</sd> [Setup] section directive or the <sd>UninstallLogging</sd> [Setup] section directive or debugging from the Compiler IDE).</p></remarks>
         <seealso><p><link topic="isxfunc_LogFmt">LogFmt</link></p></seealso>
       </function>
       <function>

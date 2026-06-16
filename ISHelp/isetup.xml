@@ -747,7 +747,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="hwnd">{hwnd}</a></b></dt>
 <dd>
-<p><i>Feature removed in 6.4.</i> Previously translated to the window handle of the background window that could be enabled via the <link topic="setup_windowvisible">WindowVisible</link> directive.</p>
+<p><i>Feature removed in 6.4.</i> Previously translated to the window handle of the background window that could be enabled via the <sd>WindowVisible</sd> directive.</p>
 </dd>
 
 <dt><b><a name="wizardhwnd">{wizardhwnd}</a></b></dt>
@@ -1304,7 +1304,7 @@ Name: "help\dutch"; Description: "Dutch"; Types: full
 </param>
 
 <param name="ExtraDiskSpaceRequired">
-<p>The extra disk space required by this component, similar to the <link topic="setup_extradiskspacerequired">ExtraDiskSpaceRequired</link> directive for the [Setup] section.</p>
+<p>The extra disk space required by this component, similar to the <sd>ExtraDiskSpaceRequired</sd> directive for the [Setup] section.</p>
 <p>Supports digit separators and set in bytes. (1048576 bytes = 1 megabyte)</p>
 <example>
 <pre>ExtraDiskSpaceRequired: 1_048_576</pre>
@@ -1328,7 +1328,7 @@ Name: "help\dutch"; Description: "Dutch"; Types: full
 <p>Instructs Setup that this component cannot be manually selected or unselected by the end user during installation.</p>
 </flag>
 <flag name="restart">
-<p>Instructs Setup to ask the user to restart the system if this component is installed, regardless of whether this is necessary (for example because of [Files] section entries with the <tt>restartreplace</tt> flag). Like <link topic="setup_alwaysrestart">AlwaysRestart</link> but per component.</p>
+<p>Instructs Setup to ask the user to restart the system if this component is installed, regardless of whether this is necessary (for example because of [Files] section entries with the <tt>restartreplace</tt> flag). Like <sd>AlwaysRestart</sd> but per component.</p>
 </flag>
 <flag name="disablenouninstallwarning">
 <p>Instructs Setup not to warn the user that this component won't be uninstalled if they deselect it when it's already installed on the user's system.</p>
@@ -1424,7 +1424,7 @@ Name: associate; Description: "&amp;Associate files"; GroupDescription: "Other t
 <p>Instructs Setup that this task is mutually exclusive with sibling tasks that also have the <tt>exclusive</tt> flag.</p>
 </flag>
 <flag name="restart">
-<p>Instructs Setup to ask the user to restart the system at the end of installation if this task is selected, regardless of whether it is necessary (for example because of [Files] section entries with the <tt>restartreplace</tt> flag). Like <link topic="setup_alwaysrestart">AlwaysRestart</link> but per task.</p>
+<p>Instructs Setup to ask the user to restart the system at the end of installation if this task is selected, regardless of whether it is necessary (for example because of [Files] section entries with the <tt>restartreplace</tt> flag). Like <sd>AlwaysRestart</sd> but per task.</p>
 </flag>
 <flag name="unchecked">
 <p>Instructs Setup that this task should be unchecked initially.</p>
@@ -1775,7 +1775,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="extractarchive">
 <p>This flag instructs Setup not to copy an existing archive file, but instead to extract it. Optionally use the <tt>ExtractArchivePassword</tt> parameter to specify a password.</p>
-<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <link topic="setup_archiveextraction">ArchiveExtraction</link> [Setup] section directive, that must not be set to <tt>basic</tt>.</p>
+<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> [Setup] section directive, that must not be set to <tt>basic</tt>.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
 <p>This flag must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
 <p>This flag is usually combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</p>
@@ -1862,7 +1862,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="restartreplace">
 <p>When an existing file needs to be replaced, and it is in use (locked) by another running process, Setup will by default display an error message. This flag tells Setup to instead register the file to be replaced the next time the system is restarted (by calling MoveFileEx or by creating an entry in WININIT.INI). When this happens, the user will be prompted to restart their computer at the end of the installation process.</p>
-<p><b>NOTE:</b> This flag has no effect if the user does not have administrative privileges. Therefore, when using this flag, it is recommended that you leave the <link topic="setup_privilegesrequired">PrivilegesRequired</link> [Setup] section directive at the default setting of <tt>admin</tt>.</p>
+<p><b>NOTE:</b> This flag has no effect if the user does not have administrative privileges. Therefore, when using this flag, it is recommended that you leave the <sd>PrivilegesRequired</sd> [Setup] section directive at the default setting of <tt>admin</tt>.</p>
 </flag>
 <flag name="setntfscompression">
 <p>Instructs Setup to enable NTFS compression on the file (even if it didn't replace the file). If it fails to set the compression state for any reason (for example, if compression is not supported by the file system), no error message will be displayed.</p>
@@ -1870,19 +1870,19 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="sharedfile">
 <p>Specifies that the file is shared among multiple applications, and should only be removed at uninstall time if no other applications are using it. Most files installed to the Windows System directory should use this flag, including .OCX, .BPL, and .DPL files.</p>
 <p>Windows' standard shared file reference-counting mechanism (located in the registry under HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\SharedDLLs) is used to keep track of how many applications depend on the file. Each time the file is installed, the reference count for the file is incremented. (This happens regardless of whether the installer actually replaces the file on disk.) When an application using the file is uninstalled, the reference count is decremented. If the count reaches zero, the file is deleted (with the user's confirmation, unless the <tt>uninsnosharedfileprompt</tt> flag is also specified).</p>
-<p>If Setup is run more than once, the reference count for the file will be incremented more than once. The uninstaller will decrement the reference count the same number of times, however, so no references are leaked (provided the <link topic="setup_uninstalllogmode">UninstallLogMode</link> [Setup] section directive isn't changed from its default setting of <tt>append</tt>).</p>
+<p>If Setup is run more than once, the reference count for the file will be incremented more than once. The uninstaller will decrement the reference count the same number of times, however, so no references are leaked (provided the <sd>UninstallLogMode</sd> [Setup] section directive isn't changed from its default setting of <tt>append</tt>).</p>
 <p>On 64-bit Windows, there are separate <tt>SharedDLLs</tt> registry keys for 32-bit and 64-bit applications. The <link topic="entrybitness">entry's bitness</link> determines whether the 32-bit or 64-bit <tt>SharedDLLs</tt> key is updated. The default bitness can be overridden with the <tt>32bit</tt> and <tt>64bit</tt> flags.</p>
 <p>When this flag is used, do not specify <tt>{syswow64}</tt> in the <tt>DestDir</tt> parameter; use <tt>{sys}</tt> instead. Even though <tt>{sys}</tt> and <tt>{syswow64}</tt> map to the same underlying directory in <link topic="32vs64bitinstalls">32-bit install mode</link>, the path name must exactly match what every other existing installer is using; otherwise, a second reference count for the file would be created, which could result in the file being removed prematurely. If you need to install a shared file to the 32-bit System directory in <link topic="32vs64bitinstalls">64-bit install mode</link>, specify <tt>{sys}</tt> in the <tt>DestDir</tt> parameter and additionally include the <tt>32bit</tt> flag.</p>
 </flag>
 <flag name="sign">
-<p>This flag instructs the compiler to digitally sign the original source files before storing them. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
+<p>This flag instructs the compiler to digitally sign the original source files before storing them. Ignored if [Setup] section directive <sd>SignTool</sd> is not set.</p>
 <p>This flag cannot be combined with the <tt>issigverify</tt> flag. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="signcheck">
 <p>This flag instructs the compiler to check the original source files for a digital signature before storing them.</p>
 </flag>
 <flag name="signonce">
-<p>This flag instructs the compiler to digitally sign the original source files before storing them, but only if the files are not already signed. Ignored if [Setup] section directive <link topic="setup_signtool">SignTool</link> is not set.</p>
+<p>This flag instructs the compiler to digitally sign the original source files before storing them, but only if the files are not already signed. Ignored if [Setup] section directive <sd>SignTool</sd> is not set.</p>
 <p>This flag cannot be combined with the <tt>issigverify</tt> flag. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="skipifsourcedoesntexist">
@@ -1898,7 +1898,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag instructs the compiler to compress the found files sorted by name before it sorts by path name. This potentially decreases the size of Setup if <link topic="setup_solidcompression">solid compression</link> is also used. If <tt>sortfilesbyextension</tt> is also used, files are first sorted by extension.</p>
 </flag>
 <flag name="touch">
-<p>This flag causes Setup to set the time/date stamp of the installed file(s) to that which is specified by the <link topic="setup_touchdate">TouchDate</link> and <link topic="setup_touchtime">TouchTime</link> [Setup] section directives.</p>
+<p>This flag causes Setup to set the time/date stamp of the installed file(s) to that which is specified by the <sd>TouchDate</sd> and <sd>TouchTime</sd> [Setup] section directives.</p>
 <p>This flag has no effect if combined with the <tt>external</tt> flag.</p>
 </flag>
 <flag name="uninsnosharedfileprompt">
@@ -2215,12 +2215,12 @@ Filename: "MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; String: 
 <p>Setup determines the default language to use for its messages in the following order:</p>
 
 <ol>
-<li>It searches for a language whose <tt>LanguageID</tt> setting (normally specified in the [LangOptions] section of the language's .isl file) matches both the primary language identifier and sublanguage identifier of the current user's UI language or locale (depending on the setting of <link topic="setup_languagedetectionmethod">LanguageDetectionMethod</link>).</li>
-<li>If no match is found, it searches for just a primary language identifier match. If two or more available languages have the same primary language identifier, it selects the first one listed in the [Languages] section.<br />Exception: Simplified Chinese is excluded from consideration in this step if the user's UI language or locale (depending on the setting of <link topic="setup_languagedetectionmethod">LanguageDetectionMethod</link>) is Traditional Chinese, and vice versa.</li>
+<li>It searches for a language whose <tt>LanguageID</tt> setting (normally specified in the [LangOptions] section of the language's .isl file) matches both the primary language identifier and sublanguage identifier of the current user's UI language or locale (depending on the setting of <sd>LanguageDetectionMethod</sd>).</li>
+<li>If no match is found, it searches for just a primary language identifier match. If two or more available languages have the same primary language identifier, it selects the first one listed in the [Languages] section.<br />Exception: Simplified Chinese is excluded from consideration in this step if the user's UI language or locale (depending on the setting of <sd>LanguageDetectionMethod</sd>) is Traditional Chinese, and vice versa.</li>
 <li>If no match is found, it defaults to the first language specified in the [Languages] section.</li>
 </ol>
 
-<p>If the <link topic="setup_showlanguagedialog">ShowLanguageDialog</link> [Setup] section directive is set to <tt>yes</tt> (the default), a <i>Select Language</i> dialog will be displayed which gives the user an opportunity to override the language Setup chose. See the <link topic="langoptionssection">[LangOptions] section</link> help topic for details.</p>
+<p>If the <sd>ShowLanguageDialog</sd> [Setup] section directive is set to <tt>yes</tt> (the default), a <i>Select Language</i> dialog will be displayed which gives the user an opportunity to override the language Setup chose. See the <link topic="langoptionssection">[LangOptions] section</link> help topic for details.</p>
 
 <p>The following is an example of a <tt>[Languages]</tt> section. It defines two languages: English, based on the standard Default.isl file, and Dutch, based on a third-party translation.</p>
 
@@ -2253,21 +2253,21 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 </param>
 
 <param name="LicenseFile">
-<p>Specifies the name of an optional license agreement file, overriding the <link topic="setup_licensefile">LicenseFile</link> [Setup] section directive.</p>
+<p>Specifies the name of an optional license agreement file, overriding the <sd>LicenseFile</sd> [Setup] section directive.</p>
 <example>
 <pre>LicenseFile: "license-Dutch.txt"</pre>
 </example>
 </param>
 
 <param name="InfoBeforeFile">
-<p>Specifies the name of an optional "readme" file, overriding the <link topic="setup_infobeforefile">InfoBeforeFile</link> [Setup] section directive.</p>
+<p>Specifies the name of an optional "readme" file, overriding the <sd>InfoBeforeFile</sd> [Setup] section directive.</p>
 <example>
 <pre>InfoBeforeFile: "infobefore-Dutch.txt"</pre>
 </example>
 </param>
 
 <param name="InfoAfterFile">
-<p>Specifies the name of an optional "readme" file, overriding the <link topic="setup_infoafterfile">InfoAfterFile</link> [Setup] section directive.</p>
+<p>Specifies the name of an optional "readme" file, overriding the <sd>InfoAfterFile</sd> [Setup] section directive.</p>
 <example>
 <pre>InfoAfterFile: "infoafter-Dutch.txt"</pre>
 </example>
@@ -2307,7 +2307,7 @@ ButtonNext=&amp;Forward
 en.ButtonNext=&amp;Forward
 </precode>
 
-<p>If a message is missing or not recognized for a language, the compiler will warn you about this, which can be disabled using <link topic="setup_missingmessageswarning">MissingMessagesWarning</link> and <link topic="setup_notrecognizedmessageswarning">NotRecognizedMessagesWarning</link>.</p>
+<p>If a message is missing or not recognized for a language, the compiler will warn you about this, which can be disabled using <sd>MissingMessagesWarning</sd> and <sd>NotRecognizedMessagesWarning</sd>.</p>
 
 <heading>Special-purpose messages</heading>
 
@@ -2434,7 +2434,7 @@ If no code page currently exists for the language, set <tt>LanguageCodePage</tt>
 If the language only uses ASCII characters (like English), set <tt>LanguageCodePage</tt> to zero as well.<br/>
 If <tt>LanguageCodePage</tt> is set to zero but non-Unicode text is used in one of the language's files, the system code page will be used to convert the text in the file to Unicode.</p>
 
-<p><b><a name="DialogFontName">DialogFontName</a></b>, <b><a name="DialogFontSize">DialogFontSize</a></b>, <b><a name="DialogFontBaseScaleWidth">DialogFontBaseScaleWidth</a></b>, and <b><a name="DialogFontBaseScaleHeight">DialogFontBaseScaleHeight</a></b> specify the font name and point size to use in dialogs. If no <tt>DialogFontName</tt> setting is present, then the value of the <link topic="setup_defaultdialogfontname">DefaultDialogFontName</link> [Setup] section directive is used for the font name. If the specified font name does not exist on the user's system or is an empty string, 9-point <i>Segoe UI</i> will be substituted.</p>
+<p><b><a name="DialogFontName">DialogFontName</a></b>, <b><a name="DialogFontSize">DialogFontSize</a></b>, <b><a name="DialogFontBaseScaleWidth">DialogFontBaseScaleWidth</a></b>, and <b><a name="DialogFontBaseScaleHeight">DialogFontBaseScaleHeight</a></b> specify the font name and point size to use in dialogs. If no <tt>DialogFontName</tt> setting is present, then the value of the <sd>DefaultDialogFontName</sd> [Setup] section directive is used for the font name. If the specified font name does not exist on the user's system or is an empty string, 9-point <i>Segoe UI</i> will be substituted.</p>
 
 <p>Before Inno Setup 6.6, the default font was 8-point <i>Tahoma</i> instead of 9-point <i>Segoe UI</i>. To use this font again without changes in scaling, use:</p>
 
@@ -2689,7 +2689,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 
 <p>Programs are executed in the order they appear in the script. By default, when processing a [Run]/[UninstallRun] entry, Setup/Uninstall will wait until the program has terminated before proceeding to the next one, unless the <tt>nowait</tt>, <tt>shellexec</tt>, or <tt>waituntilidle</tt> flags are used.</p>
 
-<p>Note that by default, if a program executed in the [Run] section queues files to be replaced on the next reboot (by calling MoveFileEx or by modifying wininit.ini), Setup will detect this and prompt the user to restart the computer at the end of installation. If you don't want this, set the <link topic="setup_restartifneededbyrun">RestartIfNeededByRun</link> directive to <tt>no</tt>.</p>
+<p>Note that by default, if a program executed in the [Run] section queues files to be replaced on the next reboot (by calling MoveFileEx or by modifying wininit.ini), Setup will detect this and prompt the user to restart the computer at the end of installation. If you don't want this, set the <sd>RestartIfNeededByRun</sd> directive to <tt>no</tt>.</p>
 
 <p>The following is an example of a <tt>[Run]</tt> section.</p>
 
@@ -2742,7 +2742,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 </param>
 
 <param name="RunOnceId">
-<p>Valid only in an <tt>[UninstallRun]</tt> section. If the <link topic="sameappnotes">same application</link> is installed more than once, "run" entries will be duplicated in the uninstall log file. By assigning a string to <tt>RunOnceId</tt>, you can ensure that a particular <tt>[UninstallRun]</tt> entry will only be executed once during uninstallation. For example, if two or more "run" entries in the uninstall log have a <tt>RunOnceId</tt> setting of "DelService", only the latest entry with a <tt>RunOnceId</tt> setting of "DelService" will be executed; the rest will be ignored. Note that <tt>RunOnceId</tt> comparisons are case-sensitive. If you don't assign a string to <tt>RunOnceId</tt>, the compiler will warn you about this, which can be disabled using <link topic="setup_missingrunonceidswarning">MissingRunOnceIdsWarning</link>.</p>
+<p>Valid only in an <tt>[UninstallRun]</tt> section. If the <link topic="sameappnotes">same application</link> is installed more than once, "run" entries will be duplicated in the uninstall log file. By assigning a string to <tt>RunOnceId</tt>, you can ensure that a particular <tt>[UninstallRun]</tt> entry will only be executed once during uninstallation. For example, if two or more "run" entries in the uninstall log have a <tt>RunOnceId</tt> setting of "DelService", only the latest entry with a <tt>RunOnceId</tt> setting of "DelService" will be executed; the rest will be ignored. Note that <tt>RunOnceId</tt> comparisons are case-sensitive. If you don't assign a string to <tt>RunOnceId</tt>, the compiler will warn you about this, which can be disabled using <sd>MissingRunOnceIdsWarning</sd>.</p>
 <example>
 <pre>RunOnceId: "DelService"</pre>
 </example>
@@ -3027,11 +3027,11 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 
 <p><b>64-bit Installers:</b></p>
 
-<p>Building 32-bit installers is the default in both editions. Set <link topic="setup_setuparchitecture">SetupArchitecture</link> to <tt>x64</tt> to build a 64-bit x64 installer instead of a 32-bit x86 installer. This also changes the default values of <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> and <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link> to <tt>x64compatible</tt>, making 64-bit installers default to <link topic="32vs64bitinstalls">64-bit install mode</link>.</p>
+<p>Building 32-bit installers is the default in both editions. Set <sd>SetupArchitecture</sd> to <tt>x64</tt> to build a 64-bit x64 installer instead of a 32-bit x86 installer. This also changes the default values of <sd>ArchitecturesAllowed</sd> and <sd>ArchitecturesInstallIn64BitMode</sd> to <tt>x64compatible</tt>, making 64-bit installers default to <link topic="32vs64bitinstalls">64-bit install mode</link>.</p>
 
 <p>Key benefits and differences:</p>
 <ul>
-<li>64-bit installers allow a maximum dictionary size for compression methods <tt>lzma</tt> and <tt>lzma2</tt> of 3.8 GB instead of 1 GB. Review the memory requirements listed in the <link topic="setup_compression">Compression</link> topic before using large dictionary sizes.</li>
+<li>64-bit installers allow a maximum dictionary size for compression methods <tt>lzma</tt> and <tt>lzma2</tt> of 3.8 GB instead of 1 GB. Review the memory requirements listed in the <sd>Compression</sd> topic before using large dictionary sizes.</li>
 <li>64-bit installers have high-entropy ASLR enabled by default. This can help satisfy organizational policies or third-party requirements that mandate 64-bit executables.</li>
 <li>64-bit installers fully support <link topic="32vs64bitinstalls">32-bit install mode</link>, and vice versa. To use a 64-bit installer while remaining in 32-bit install mode (for example, because you have been deploying 64-bit applications in 32-bit mode inadvertently), set <tt>ArchitecturesInstallIn64BitMode</tt> to a blank value to override the new default.</li>
 <li>Existing installations made by 32-bit installers can be updated by 64-bit installers without issue, and vice versa.</li>
@@ -3135,32 +3135,32 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 
 <li>
 <b>Welcome</b><br/>
-Shown if <link topic="setup_disablewelcomepage">DisableWelcomePage</link> is set to <tt>no</tt>.
+Shown if <sd>DisableWelcomePage</sd> is set to <tt>no</tt>.
 </li>
 
 <li>
 <b>License Agreement</b><br/>
-Shown if <link topic="setup_licensefile">LicenseFile</link> is set. Users may proceed to the next page only if the option "I accept the agreement" is selected.
+Shown if <sd>LicenseFile</sd> is set. Users may proceed to the next page only if the option "I accept the agreement" is selected.
 </li>
 
 <li>
 <b>Password</b><br/>
-Shown if <link topic="setup_password">Password</link> is set. Users may proceed to the next page only after entering the correct password.
+Shown if <sd>Password</sd> is set. Users may proceed to the next page only after entering the correct password.
 </li>
 
 <li>
 <b>Information</b><br/>
-Shown if <link topic="setup_infobeforefile">InfoBeforeFile</link> is set.
+Shown if <sd>InfoBeforeFile</sd> is set.
 </li>
 
 <li>
 <b>User Information</b><br/>
-Shown if <link topic="setup_userinfopage">UserInfoPage</link> is set to <tt>yes</tt>.
+Shown if <sd>UserInfoPage</sd> is set to <tt>yes</tt>.
 </li>
 
 <li>
 <b>Select Destination Location</b><br/>
-Shown if <link topic="setup_disabledirpage">DisableDirPage</link> is set to <tt>no</tt> or <tt>auto</tt>.
+Shown if <sd>DisableDirPage</sd> is set to <tt>no</tt> or <tt>auto</tt>.
 </li>
 
 <li>
@@ -3170,7 +3170,7 @@ Shown if there are any <link topic="componentssection">[Components]</link> entri
 
 <li>
 <b>Select Start Menu Folder</b><br/>
-Shown if there are any <link topic="iconssection">[Icons]</link> entries and if <link topic="setup_disableprogramgrouppage">DisableProgramGroupPage</link> is set to <tt>no</tt> or <tt>auto</tt>.
+Shown if there are any <link topic="iconssection">[Icons]</link> entries and if <sd>DisableProgramGroupPage</sd> is set to <tt>no</tt> or <tt>auto</tt>.
 </li>
 
 <li>
@@ -3180,14 +3180,14 @@ Shown if there are any <link topic="taskssection">[Tasks]</link> entries, unless
 
 <li>
 <b>Ready to Install</b><br/>
-Shown by default, but can be disabled via <link topic="setup_disablereadypage">DisableReadyPage</link>.
+Shown by default, but can be disabled via <sd>DisableReadyPage</sd>.
 </li>
 
 <li>
 <b>Preparing to Install</b><br/>
 Normally, Setup will never stop or pause on this page. The only time it will is if Setup determines it can't continue or if it detects applications using files that need to be updated.<br/><br/>
 The former can happen if the <link topic="scriptevents" anchor="PrepareToInstall"><tt>PrepareToInstall</tt></link> event function returned an error or if one or more files specified in the [Files] and [InstallDelete] sections were queued (by some other installation) to be replaced or deleted on the next restart. In this case, it tells the user they need to restart their computer and then run Setup again. Note that this check is performed on silent installations too, but any messages are displayed in a message box instead of inside a wizard page.<br/><br/>
-The latter can happen if <link topic="setup_closeapplications">CloseApplications</link> is set to <tt>yes</tt> or <tt>force</tt>.
+The latter can happen if <sd>CloseApplications</sd> is set to <tt>yes</tt> or <tt>force</tt>.
 </li>
 
 <li>
@@ -3197,12 +3197,12 @@ Shown during the actual installation process.
 
 <li>
 <b>Information</b><br/>
-Shown if <link topic="setup_infoafterfile">InfoAfterFile</link> is set.
+Shown if <sd>InfoAfterFile</sd> is set.
 </li>
 
 <li>
 <b>Setup Completed</b><br/>
-Shown by default, but can be disabled in some cases via <link topic="setup_disablefinishedpage">DisableFinishedPage</link>.
+Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage</sd>.
 </li>
 
 </ul>
@@ -3222,7 +3222,7 @@ Shown by default, but can be disabled in some cases via <link topic="setup_disab
 
 <ul>
 
-<li>If <link topic="setup_closeapplications">CloseApplications</link> was set to <tt>yes</tt>, Setup closes applications using files that need to be updated.</li>
+<li>If <sd>CloseApplications</sd> was set to <tt>yes</tt>, Setup closes applications using files that need to be updated.</li>
 
 <li><link topic="installdeletesection">[InstallDelete]</link> is processed.</li>
 
@@ -3252,11 +3252,11 @@ Shown by default, but can be disabled in some cases via <link topic="setup_disab
 
 <li><link topic="runsection">[Run]</link> is processed, except for entries with the <tt>postinstall</tt> flag, which get processed after the <i>Setup Completed</i> wizard page is shown.</li>
 
-<li>If <link topic="setup_restartapplications">RestartApplications</link> was set to <tt>yes</tt>, Setup restarts closed applications which support being restarted.</li>
+<li>If <sd>RestartApplications</sd> was set to <tt>yes</tt>, Setup restarts closed applications which support being restarted.</li>
 
-<li>If <link topic="setup_changesassociations">ChangesAssociations</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, file associations are refreshed now.</li>
+<li>If <sd>ChangesAssociations</sd> was set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, file associations are refreshed now.</li>
 
-<li>If <link topic="setup_changesenvironment">ChangesEnvironment</link> was set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, other applications are notified at this point.</li>
+<li>If <sd>ChangesEnvironment</sd> was set to <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt>, other applications are notified at this point.</li>
 
 </ul>
 
@@ -3289,7 +3289,7 @@ Filename: "{win}\MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; St
 <keyword value="install mode" />
 <body>
 
-<p>An installation can run in one of two modes: administrative or non administrative. Which mode is selected is specified by the <link topic="setup_privilegesrequired">PrivilegesRequired</link> and <link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link> [Setup] section directives.</p>
+<p>An installation can run in one of two modes: administrative or non administrative. Which mode is selected is specified by the <sd>PrivilegesRequired</sd> and <sd>PrivilegesRequiredOverridesAllowed</sd> [Setup] section directives.</p>
 
 <p>In administrative install mode:</p>
 <ul>
@@ -3307,7 +3307,7 @@ Filename: "{win}\MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; St
 </ul>
 
 <p><b>Notes:</b></p>
-<p>Regardless of the version of Windows, if the installation is running in administrative install mode then you should be careful about making any per-user area changes: user-level files and settings must be handled by the application itself, and never in an administrative install mode installer. The compiler will warn you about this, which can be disabled using <link topic="setup_useduserareaswarning">UsedUserAreasWarning</link>.</p>
+<p>Regardless of the version of Windows, if the installation is running in administrative install mode then you should be careful about making any per-user area changes: user-level files and settings must be handled by the application itself, and never in an administrative install mode installer. The compiler will warn you about this, which can be disabled using <sd>UsedUserAreasWarning</sd>.</p>
 <p>If the installation is running in non administrative install mode, but administrative privileges are available anyway then Setup or the [Code] section might still make use of these privileges. For this reason the uninstaller will always be marked as requiring administrative privileges in this case, just as if the installation was running in administrative install mode.</p>
 
 </body>
@@ -3950,7 +3950,7 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 
 <p>Creation of <tt>.issig</tt> signatures does <i>not</i> require a certificate from a certificate authority. There is no cost involved.</p>
 
-<p>Note, however, that an <tt>.issig</tt> signature cannot be used to eliminate an "Unknown publisher" warning message shown by Windows when an installer or other EXE file is started. That requires a completely different kind of signature (Authenticode) embedded inside the EXE file by a different tool (Microsoft's <tt>signtool.exe</tt>), and it does require a (usually expensive) code-signing certificate from a certificate authority. You can however use both <tt>signtool.exe</tt> and <tt>ISSigTool.exe</tt> on a single file, in that order. If you are looking for more information about <tt>signtool.exe</tt> see <link topic="setup_signtool">SignTool</link> instead.</p>
+<p>Note, however, that an <tt>.issig</tt> signature cannot be used to eliminate an "Unknown publisher" warning message shown by Windows when an installer or other EXE file is started. That requires a completely different kind of signature (Authenticode) embedded inside the EXE file by a different tool (Microsoft's <tt>signtool.exe</tt>), and it does require a (usually expensive) code-signing certificate from a certificate authority. You can however use both <tt>signtool.exe</tt> and <tt>ISSigTool.exe</tt> on a single file, in that order. If you are looking for more information about <tt>signtool.exe</tt> see <sd>SignTool</sd> instead.</p>
 
 <heading>Quick start: Verifying files at compile time</heading>
 
@@ -4263,12 +4263,12 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="ALLUSERS">/ALLUSERS</a></b></dt>
 <dd>
-<p>Instructs Setup to install in <link topic="admininstallmode">administrative install</link> mode. Only has an effect when the <tt>[Setup]</tt> section directive <link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link> allows the <tt>commandline</tt> override.</p>
+<p>Instructs Setup to install in <link topic="admininstallmode">administrative install</link> mode. Only has an effect when the <tt>[Setup]</tt> section directive <sd>PrivilegesRequiredOverridesAllowed</sd> allows the <tt>commandline</tt> override.</p>
 </dd>
 
 <dt><b><a name="CURRENTUSER">/CURRENTUSER</a></b></dt>
 <dd>
-<p>Instructs Setup to install in <link topic="admininstallmode">non administrative install</link> mode. Only has an effect when the <tt>[Setup]</tt> section directive <link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link> allows the <tt>commandline</tt> override.</p>
+<p>Instructs Setup to install in <link topic="admininstallmode">non administrative install</link> mode. Only has an effect when the <tt>[Setup]</tt> section directive <sd>PrivilegesRequiredOverridesAllowed</sd> allows the <tt>commandline</tt> override.</p>
 </dd>
 
 <dt><b><a name="LOG">/LOG</a></b></dt>
@@ -4416,7 +4416,7 @@ Deselect all tasks, then select a parent task and all of its children with the e
 <dt><b><a name="MERGETASKS">/MERGETASKS=</a>"<i>comma separated list of task names</i>"</b></dt>
 <dd>
 <p>Like the /TASKS parameter, except the specified tasks will be merged with the set of tasks that would have otherwise been selected by default.</p>
-<p>If <link topic="setup_useprevioustasks">UsePreviousTasks</link> is set to <tt>yes</tt>, the specified tasks will be selected/deselected after any previous tasks are restored.</p>
+<p>If <sd>UsePreviousTasks</sd> is set to <tt>yes</tt>, the specified tasks will be selected/deselected after any previous tasks are restored.</p>
 <example>
 Keep the default set of selected tasks, but additionally select the "desktopicon" and "fileassoc" tasks:<br/>
 /MERGETASKS="desktopicon,fileassoc"
@@ -4785,28 +4785,28 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <p>This tells the compiler which type of Setup to create. If this is <tt>no</tt>, it compiles the setup data into at least three files: setup.exe, setup-0.bin, and setup-1.bin. The <b>only</b> reason you would probably want to use <tt>no</tt> is for debugging purposes. Otherwise, it compiles all setup data into a single EXE</p>
 <p>When all setup data is compiled into a single EXE, a "Setup Loader" program is used, called SetupLdr. When using <tt>yes</tt> or <tt>x86</tt>, a 32-bit version of SetupLdr is used which runs on systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64 Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
 <p>Otherwise, when using <tt>x64</tt>, a 64-bit version of SetupLdr is used which runs on systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation.</p>
-<p>Matches the value of <link topic="setup_setuparchitecture">SetupArchitecture</link> by default.</p>
+<p>Matches the value of <sd>SetupArchitecture</sd> by default.</p>
 <p><i>Note:</i> Do not use <tt>no</tt> on an installation which uses disk spanning (<tt>DiskSpanning=yes</tt>). When using <tt>yes</tt>, the setup program is copied to and run from the user's TEMP directory. This does not happen when using <tt>no</tt>, and could result in errors if Windows tries to locate the setup.exe file on the disk and can't find it because a different disk is in the drive.</p>
-<p><i>Note:</i> Do not use <tt>no</tt> to avoid digital signature verification startup delays on a large Setup, use disk spanning instead. See <link topic="setup_signtool">SignTool</link> for more information. Also note that digitally signing Setup when using <tt>no</tt> will lead to an invalid digital signature for Uninstall.</p>
+<p><i>Note:</i> Do not use <tt>no</tt> to avoid digital signature verification startup delays on a large Setup, use disk spanning instead. See <sd>SignTool</sd> for more information. Also note that digitally signing Setup when using <tt>no</tt> will lead to an invalid digital signature for Uninstall.</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="AppName">
 <body>
-<p>This required directive specifies the name of the application being installed. Do not include the version number, as that is defined by the <link topic="setup_appversion">AppVersion</link> and/or <link topic="setup_appvername">AppVerName</link> directives. <tt>AppName</tt> is displayed throughout the Setup program and uninstaller in window titles, wizard pages, and dialog boxes. The value may include constants.</p>
-<p>If <link topic="setup_disablewelcomepage">DisableWelcomePage</link> is set to <tt>yes</tt> (which it is by default) then <link topic="setup_appvername">AppVerName</link> is displayed in window titles instead of <tt>AppName</tt>.</p>
-<p>The value of this directive is also used as the default value for the <link topic="setup_appid">AppId</link>, <link topic="setup_versioninfodescription">VersionInfoDescription</link>, and <link topic="setup_versioninfoproductname">VersionInfoProductName</link> directives if those are not specified.</p>
+<p>This required directive specifies the name of the application being installed. Do not include the version number, as that is defined by the <sd>AppVersion</sd> and/or <sd>AppVerName</sd> directives. <tt>AppName</tt> is displayed throughout the Setup program and uninstaller in window titles, wizard pages, and dialog boxes. The value may include constants.</p>
+<p>If <sd>DisableWelcomePage</sd> is set to <tt>yes</tt> (which it is by default) then <sd>AppVerName</sd> is displayed in window titles instead of <tt>AppName</tt>.</p>
+<p>The value of this directive is also used as the default value for the <sd>AppId</sd>, <sd>VersionInfoDescription</sd>, and <sd>VersionInfoProductName</sd> directives if those are not specified.</p>
 <example><pre>AppName=My Program</pre></example>
 <p><b>See also:</b><br/>
-<link topic="setup_appvername">AppVerName</link>
+<sd>AppVerName</sd>
 </p>
 </body>
 </setuptopic>
 
 <setuptopic directive="AppVersion">
 <body>
-<p>This directive specifies the version number of the application being installed. The value of this directive, which may include constants, is used in the default value for the <link topic="setup_appvername">AppVerName</link> directive, and is displayed in the Version field of the application's <i>Add/Remove Programs</i> entry. It is also used to set the <tt>MajorVersion</tt> and <tt>MinorVersion</tt> values in the Uninstall registry key when possible.</p>
-<p>This directive is required and cannot be empty if the <link topic="setup_appvername">AppVerName</link> directive is not set.</p>
+<p>This directive specifies the version number of the application being installed. The value of this directive, which may include constants, is used in the default value for the <sd>AppVerName</sd> directive, and is displayed in the Version field of the application's <i>Add/Remove Programs</i> entry. It is also used to set the <tt>MajorVersion</tt> and <tt>MinorVersion</tt> values in the Uninstall registry key when possible.</p>
+<p>This directive is required and cannot be empty if the <sd>AppVerName</sd> directive is not set.</p>
 <example><pre>AppVersion=1.5</pre></example>
 </body>
 </setuptopic>
@@ -4814,9 +4814,9 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <setuptopic directive="AppVerName">
 <setupdefault><tt><sd>AppName</sd> <sd>AppVersion</sd></tt></setupdefault>
 <body>
-<p>This directive specifies the name of the application plus its version number. The value of this directive is displayed on the <i>Welcome</i> page of Setup's wizard, and is used as the default title of the application's <i>Add/Remove Programs</i> entry (see <link topic="setup_uninstalldisplayname">UninstallDisplayName</link>). The value may include constants.</p>
-<p>If <link topic="setup_disablewelcomepage">DisableWelcomePage</link> is set to <tt>yes</tt> (which it is by default) then <tt>AppVerName</tt> is also displayed in window titles instead of <link topic="setup_appname">AppName</link>.</p>
-<p>This directive is required if the <link topic="setup_appversion">AppVersion</link> directive is not set.</p>
+<p>This directive specifies the name of the application plus its version number. The value of this directive is displayed on the <i>Welcome</i> page of Setup's wizard, and is used as the default title of the application's <i>Add/Remove Programs</i> entry (see <sd>UninstallDisplayName</sd>). The value may include constants.</p>
+<p>If <sd>DisableWelcomePage</sd> is set to <tt>yes</tt> (which it is by default) then <tt>AppVerName</tt> is also displayed in window titles instead of <sd>AppName</sd>.</p>
+<p>This directive is required if the <sd>AppVersion</sd> directive is not set.</p>
 <examples><pre>
 AppVerName=My Program 1.5
 AppVerName=My Program version 1.5
@@ -4826,18 +4826,18 @@ AppVerName=My Program version 1.5
 AppVerName={cm:NameAndVersion,My Program,1.5}
 </pre></examples>
 <p><b>See also:</b><br/>
-<link topic="setup_appname">AppName</link>
+<sd>AppName</sd>
 </p>
 </body>
 </setuptopic>
 
 <setuptopic directive="AppId">
-<setupdefault><link topic="setup_appname">AppName</link></setupdefault>
+<setupdefault><sd>AppName</sd></setupdefault>
 <body>
 <p>The value of <tt>AppId</tt> is stored inside uninstall log files (unins???.dat), and is checked by subsequent installations to determine whether it may <link topic="appendnotes">append to a particular existing uninstall log</link>. Setup will only append to an uninstall log if the <tt>AppId</tt> of the existing uninstall log is the same as the current installation's <tt>AppId</tt>. For a practical example, say you have two installations -- one entitled <i>My Program</i> and the other entitled <i>My Program 1.1 Update.</i> To get My Program 1.1 Update to append to My Program's uninstall log, you would have to set <tt>AppId</tt> to the same value in both installations.</p>
 <p><tt>AppId</tt> also determines the actual name of the Uninstall registry key, to which Inno Setup tacks on "_is1" at the end. (Therefore, if <tt>AppId</tt> is "MyProgram", the key will be named "MyProgram_is1".) Pre-1.3 versions of Inno Setup based the key name on the value of <tt>AppVerName</tt>.</p>
 <p><tt>AppId</tt> isn't used for display anywhere, so feel free to make it as cryptic as you desire. The value may include constants.</p>
-<p>If you use a {code:..} constant to allow your user to customize <tt>AppId</tt>, you do not need to return the real value until just before the installation starts: if necessary you may return an empty or generic value at earlier times. If not empty, this value will only be used to attempt to restore previous install settings (like the settings stored by [Setup] section directive <link topic="setup_usepreviousappdir">UsePreviousAppDir</link>). If empty, it isn't used for anything.</p>
+<p>If you use a {code:..} constant to allow your user to customize <tt>AppId</tt>, you do not need to return the real value until just before the installation starts: if necessary you may return an empty or generic value at earlier times. If not empty, this value will only be used to attempt to restore previous install settings (like the settings stored by [Setup] section directive <sd>UsePreviousAppDir</sd>). If empty, it isn't used for anything.</p>
 <p>The length of <tt>AppId</tt> with all constants evaluated should never exceed 127 characters.</p>
 <example><pre>AppId=MyProgram</pre></example>
 </body>
@@ -4873,8 +4873,8 @@ CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
 <p>See the topic for CreateMutex in the MS SDK help for more information on mutexes.</p>
 <example><pre>AppMutex=MyProgramsMutexName,Global\MyProgramsMutexName</pre></example>
 <p><b>See also:</b><br/>
-<link topic="setup_setupmutex">SetupMutex</link><br/>
-<link topic="setup_closeapplications">CloseApplications</link></p>
+<sd>SetupMutex</sd><br/>
+<sd>CloseApplications</sd></p>
 </body>
 </setuptopic>
 
@@ -4885,14 +4885,14 @@ CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
 <p>See the topic for CreateMutex in the MS SDK help for more information on mutexes.</p>
 <example><pre>SetupMutex=MySetupsMutexName,Global\MySetupsMutexName</pre></example>
 <p><b>See also:</b><br/>
-<link topic="setup_appmutex">AppMutex</link>
+<sd>AppMutex</sd>
 </p>
 </body>
 </setuptopic>
 
 <setuptopic directive="AppCopyright">
 <body>
-<p>The value of this directive is used as the default value for the <link topic="setup_versioninfocopyright">VersionInfoCopyright</link> directive if it is not specified.</p>
+<p>The value of this directive is used as the default value for the <sd>VersionInfoCopyright</sd> directive if it is not specified.</p>
 <example><pre>AppCopyright=Copyright (C) 1997-2005 My Company, Inc.</pre></example>
 </body>
 </setuptopic>
@@ -4922,7 +4922,7 @@ AppContact=My Company Customer Support
 <setuptopic directive="AppPublisher">
 <body>
 <p>This string is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
-<p>The value of this directive is also used as the default value for the <link topic="setup_versioninfocompany">VersionInfoCompany</link> directive if it is not specified.</p>
+<p>The value of this directive is also used as the default value for the <sd>VersionInfoCompany</sd> directive if it is not specified.</p>
 <example>
 <pre>
 AppPublisher=My Company, Inc.
@@ -4991,7 +4991,7 @@ AppUpdatesURL=http://www.example.com/updates.html
 <setuptopic directive="DefaultDirName">
 <body>
 <p>The value of this required directive is used for the default directory name, which is used in the <i>Select Destination Location</i> page of the wizard. Normally it is prefixed by a directory constant.</p>
-<p>If <link topic="setup_usepreviousappdir">UsePreviousAppDir</link> is <tt>yes</tt> (the default) and Setup finds a previous version of the <link topic="sameappnotes">same application</link> is already installed, it will substitute the default directory name with the directory selected previously.</p>
+<p>If <sd>UsePreviousAppDir</sd> is <tt>yes</tt> (the default) and Setup finds a previous version of the <link topic="sameappnotes">same application</link> is already installed, it will substitute the default directory name with the directory selected previously.</p>
 <examples>
 <b>If you used:</b><br/>
 <pre>DefaultDirName={sd}\MyProg</pre>
@@ -5017,7 +5017,7 @@ Uninstallable=not IsTaskSelected('portablemode')
 [Tasks]
 Name: portablemode; Description: "Portable Mode"</pre></example>
 <p><b>See also:</b><br/>
-<link topic="setup_createuninstallregkey">CreateUninstallRegKey</link>
+<sd>CreateUninstallRegKey</sd>
 </p>
 </body>
 </setuptopic>
@@ -5038,7 +5038,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <setupdefault><tt>0</tt></setupdefault>
 <body>
 <p>This directive lets you specify a minimum <link topic="winvernotes">version of Windows</link> that your software <i>will not</i> run on. Specifying <tt>0</tt> means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included.</p>
-<p>This directive is essentially the opposite of <link topic="setup_minversion">MinVersion</link>.</p>
+<p>This directive is essentially the opposite of <sd>MinVersion</sd>.</p>
 </body>
 </setuptopic>
 
@@ -5048,7 +5048,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <body>
 <p>This directive lets you disable warnings about messages missing for a language.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_notrecognizedmessageswarning">NotRecognizedMessagesWarning</link>
+<sd>NotRecognizedMessagesWarning</sd>
 </p>
 </body>
 </setuptopic>
@@ -5067,7 +5067,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <body>
 <p>This directive lets you disable warnings about messages not recognized for a language.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_missingmessageswarning">MissingMessagesWarning</link>
+<sd>MissingMessagesWarning</sd>
 </p>
 </body>
 </setuptopic>
@@ -5089,7 +5089,7 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <!-- <p>When set to <tt>none</tt>, Setup will only run with administrative privileges if it was started by a member of the Administrators group. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p> -->
 <p>When set to <tt>lowest</tt>, Setup will not request to be run with administrative privileges even if it was started by a member of the Administrators group and will always run in <link topic="admininstallmode">non administrative install mode</link>. Do not use this setting unless you are sure your installation will run successfully on unprivileged accounts.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link>
+<sd>PrivilegesRequiredOverridesAllowed</sd>
 </p>
 </body>
 </setuptopic>
@@ -5100,11 +5100,11 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <setupvalid>One or more of the following, separated by spaces: <br/><tt>commandline</tt><br/><tt>dialog</tt></setupvalid>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
-<p>Can be set to one or more overrides which allow the end user to override the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting.</p>
-<p>If override <tt>commandline</tt> is allowed then Setup will support two additional command line parameters to override the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting: /ALLUSERS and /CURRENTUSER. See <link topic="setupcmdline" anchor="ALLUSERS">Setup Command Line Parameters</link> for more details.</p>
-<p>If override <tt>dialog</tt> is allowed then Setup will ask the user to choose the install mode based on the script's default <link topic="setup_privilegesrequired">PrivilegesRequired</link> setting using a suppressible dialog. Allowing <tt>dialog</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</p>
+<p>Can be set to one or more overrides which allow the end user to override the script's default <sd>PrivilegesRequired</sd> setting.</p>
+<p>If override <tt>commandline</tt> is allowed then Setup will support two additional command line parameters to override the script's default <sd>PrivilegesRequired</sd> setting: /ALLUSERS and /CURRENTUSER. See <link topic="setupcmdline" anchor="ALLUSERS">Setup Command Line Parameters</link> for more details.</p>
+<p>If override <tt>dialog</tt> is allowed then Setup will ask the user to choose the install mode based on the script's default <sd>PrivilegesRequired</sd> setting using a suppressible dialog. Allowing <tt>dialog</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_usepreviousprivileges">UsePreviousPrivileges</link></p>
+<sd>UsePreviousPrivileges</sd></p>
 </body>
 </setuptopic>
 
@@ -5257,19 +5257,19 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <tr><td></td><td>3.8 GB</td><td>43.13 GB</td></tr>
 </table>
 <p>Dictionary sizes larger than 1 GB are only supported by <link topic="setup_setuparchitecture">64-bit Setup</link>.</p>
-<p>The compression memory requirements are approximately 60% of the above when <link topic="setup_lzmamatchfinder">LZMAMatchFinder</link> is set to <tt>HC</tt> at the expense of compression ratio.</p>
+<p>The compression memory requirements are approximately 60% of the above when <sd>LZMAMatchFinder</sd> is set to <tt>HC</tt> at the expense of compression ratio.</p>
 </indent>
-<p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for incompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio (see <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link>). If a compression level isn't specified, it defaults to <tt>max</tt>. Like LZMA, LZMA2 can consume a <i>lot</i> of memory; see the above table. Do note: LZMA2 only supports a limited number of dictionary sizes and other sizes will be rounded up to the next supported size. Supported sizes are powers of two starting at 4 (4, 8, 16, 32, etc.) and the midway points between them (6, 12, 24, etc.). For instance, a dictionary size of 524289 (512 MB + 1 byte) has the same memory requirements as one of 786432 (768 MB).</p>
+<p><tt>lzma2</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA2</extlink> compressor. LZMA2 is a modified version of LZMA that offers a better compression ratio for incompressible data (random data expands about 0.005%, compared to 1.35% with original LZMA), and optionally can compress multiple parts of large files in parallel, greatly increasing compression speed but with a possible reduction in compression ratio (see <sd>LZMANumBlockThreads</sd>). If a compression level isn't specified, it defaults to <tt>max</tt>. Like LZMA, LZMA2 can consume a <i>lot</i> of memory; see the above table. Do note: LZMA2 only supports a limited number of dictionary sizes and other sizes will be rounded up to the next supported size. Supported sizes are powers of two starting at 4 (4, 8, 16, 32, etc.) and the midway points between them (6, 12, 24, etc.). For instance, a dictionary size of 524289 (512 MB + 1 byte) has the same memory requirements as one of 786432 (768 MB).</p>
 <p><tt>none</tt> specifies that no compression be used.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_solidcompression">SolidCompression</link><br/>
-<link topic="setup_lzmaalgorithm">LZMAAlgorithm</link><br/>
-<link topic="setup_lzmablocksize">LZMABlockSize</link><br/>
-<link topic="setup_lzmadictionarysize">LZMADictionarySize</link><br/>
-<link topic="setup_lzmamatchfinder">LZMAMatchFinder</link><br/>
-<link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link><br/>
-<link topic="setup_lzmanumfastbytes">LZMANumFastBytes</link><br/>
-<link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link>
+<sd>SolidCompression</sd><br/>
+<sd>LZMAAlgorithm</sd><br/>
+<sd>LZMABlockSize</sd><br/>
+<sd>LZMADictionarySize</sd><br/>
+<sd>LZMAMatchFinder</sd><br/>
+<sd>LZMANumBlockThreads</sd><br/>
+<sd>LZMANumFastBytes</sd><br/>
+<sd>LZMAUseSeparateProcess</sd>
 </p>
 </body>
 </setuptopic>
@@ -5286,9 +5286,9 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <p>A value of <tt>auto</tt> (the default) enables the multi-threaded match finder for all compression levels except <tt>fast</tt>, which doesn't support it.</p>
 <p>A value of <tt>1</tt> always disables the multi-threaded match finder.</p>
 <p>Values of <tt>2</tt> or higher are currently equivalent to <tt>auto</tt>.</p>
-<p>Note that for the LZMA2 compressor, this directive only controls whether the multi-threaded match finder is used. To enable support for compressing multiple parts of large files in parallel, set <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link>.</p>
+<p>Note that for the LZMA2 compressor, this directive only controls whether the multi-threaded match finder is used. To enable support for compressing multiple parts of large files in parallel, set <sd>LZMANumBlockThreads</sd>.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link></p>
+<sd>LZMANumBlockThreads</sd></p>
 </body>
 </setuptopic>
 
@@ -5322,9 +5322,9 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>If this is set to <tt>no</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>False</tt>, Setup won't create an entry in the <i>Add/Remove Programs</i> Control Panel applet.</p>
-<p>Setting this to <tt>no</tt> can be useful if your installation is merely an update to an existing application and you don't want another entry created, but don't want to disable the uninstall features entirely (via <tt>Uninstallable=no</tt>). In this case, <link topic="setup_updateuninstalllogappname">UpdateUninstallLogAppName</link> is usually set to <tt>no</tt> as well.</p>
+<p>Setting this to <tt>no</tt> can be useful if your installation is merely an update to an existing application and you don't want another entry created, but don't want to disable the uninstall features entirely (via <tt>Uninstallable=no</tt>). In this case, <sd>UpdateUninstallLogAppName</sd> is usually set to <tt>no</tt> as well.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_uninstallable">Uninstallable</link>
+<sd>Uninstallable</sd>
 </p>
 </body>
 </setuptopic>
@@ -5346,7 +5346,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Select Destination Location</i> wizard page.</p>
 <p>If this is set to <tt>auto</tt>, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will not show the <i>Select Destination Location</i> wizard page.</p>
 <p>If the <i>Select Destination Location</i> wizard page is not shown, it will always use the default directory name.</p>
-<p>Also see <link topic="setup_alwaysshowdironreadypage">AlwaysShowDirOnReadyPage</link>.</p>
+<p>Also see <sd>AlwaysShowDirOnReadyPage</sd>.</p>
 </body>
 </setuptopic>
 
@@ -5366,7 +5366,7 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Select Start Menu Folder</i> wizard page.</p>
 <p>If this is set to <tt>auto</tt>, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will not show the <i>Select Start Menu Folder</i> wizard page.</p>
 <p>If the <i>Select Start Menu Folder</i> wizard page is not shown, it will always use the default Start Menu folder name.</p>
-<p>Also see <link topic="setup_alwaysshowgrouponreadypage">AlwaysShowGroupOnReadyPage</link>.</p>
+<p>Also see <sd>AlwaysShowGroupOnReadyPage</sd>.</p>
 </body>
 </setuptopic>
 
@@ -5415,7 +5415,7 @@ end;</pre></example>
 <body>
 <p>If this is set to <tt>yes</tt>, Setup will show a <i>User Information</i> wizard page which asks for the user's name, organization and possibly a serial number. The values the user enters are stored in the <tt>{userinfoname}</tt>, <tt>{userinfoorg}</tt> and <tt>{userinfoserial}</tt> constants. You can use these constants in [Registry] or [INI] entries to save their values for later use.</p>
 <p>For the serial number field to appear, a <link topic="scriptevents" anchor="CheckSerial">CheckSerial</link> event function must be present.</p>
-<p>The <link topic="setup_defaultuserinfoname">DefaultUserInfoName</link>, <link topic="setup_defaultuserinfoorg">DefaultUserInfoOrg</link> and <link topic="setup_defaultuserinfoserial">DefaultUserInfoSerial</link> directives determine the default name, organization and serial number shown. If <link topic="setup_useprevioususerinfo">UsePreviousUserInfo</link> is <tt>yes</tt> (the default) and Setup finds that a previous version of the <link topic="sameappnotes">same application</link> is already installed, it will use the name, organization and serial number entered previously instead.</p>
+<p>The <sd>DefaultUserInfoName</sd>, <sd>DefaultUserInfoOrg</sd> and <sd>DefaultUserInfoSerial</sd> directives determine the default name, organization and serial number shown. If <sd>UsePreviousUserInfo</sd> is <tt>yes</tt> (the default) and Setup finds that a previous version of the <link topic="sameappnotes">same application</link> is already installed, it will use the name, organization and serial number entered previously instead.</p>
 <p>On silent installs, the default user name, organization, and serial number values will be assumed. Setup will not check whether the user name is blank (since the user has no way of correcting it), however it will still check the serial number.</p>
 </body>
 </setuptopic>
@@ -5445,7 +5445,7 @@ end;</pre></example>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>Normally, Inno Setup's <tt>{group}</tt> constant points to the All Users start menu if the user has administrative privileges. If this directive is set to <tt>yes</tt>, it always uses current user's profile.</p>
-<p>You should be careful about using this option: it may not achieve what you are intending. The compiler will warn you about this, which can be disabled using <link topic="setup_useduserareaswarning">UsedUserAreasWarning</link>.</p>
+<p>You should be careful about using this option: it may not achieve what you are intending. The compiler will warn you about this, which can be disabled using <sd>UsedUserAreasWarning</sd>.</p>
 </body>
 </setuptopic>
 
@@ -5519,7 +5519,7 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <p>If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing <link topic="uninstcmdline" anchor="LOG">/LOG</link> on the command line.</p>
 <p>This directive has no effect if <tt>CreateUninstallRegKey</tt> is not set to <tt>yes</tt>.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_setuplogging">SetupLogging</link></p>
+<sd>SetupLogging</sd></p>
 </body>
 </setuptopic>
 
@@ -5573,7 +5573,7 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, the disk spanning feature will be enabled. Instead of storing all the compressed file data inside Setup.exe, the compiler will split it into multiple Setup-*.bin files -- known as "slices" -- suitable for copying onto separate CD-ROMs or DVD-ROMs. Each generated slice contains a number in its name which indicates the disk onto which it should be copied. (For example, Setup-2.bin should be placed on disk 2.) The generated Setup.exe always goes on disk 1 along with the Setup-1*.bin file.</p>
-<p>The size of each slice and the number of slices to create for each disk are determined by the values of the <link topic="setup_diskslicesize">DiskSliceSize</link> and <link topic="setup_slicesperdisk">SlicesPerDisk</link> <tt>[Setup]</tt> section directives, respectively. Other disk spanning-related directives that you may want to tweak include <link topic="setup_diskclustersize">DiskClusterSize</link> and <link topic="setup_reservebytes">ReserveBytes</link>.</p>
+<p>The size of each slice and the number of slices to create for each disk are determined by the values of the <sd>DiskSliceSize</sd> and <sd>SlicesPerDisk</sd> <tt>[Setup]</tt> section directives, respectively. Other disk spanning-related directives that you may want to tweak include <sd>DiskClusterSize</sd> and <sd>ReserveBytes</sd>.</p>
 <p>Note that it is required that you set this directive to <tt>yes</tt> if the compressed size of your installation exceeds 4,200,000,000 bytes, even if you don't intend to place the installation onto multiple disks. (The installation will still function correctly if all the Setup-*.bin files are placed on the same disk.)</p>
 </body>
 </setuptopic>
@@ -5638,7 +5638,7 @@ DiskSliceSize=736000000
 <setuptopic directive="DontMergeDuplicateFiles">
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <body>
-<p><i>Obsolete in 4.2.5.</i> Use <link topic="setup_mergeduplicatefiles">MergeDuplicateFiles</link> instead.</p>
+<p><i>Obsolete in 4.2.5.</i> Use <sd>MergeDuplicateFiles</sd> instead.</p>
 <p><tt>MergeDuplicateFiles=no</tt> is equivalent to <tt>DontMergeDuplicateFiles=yes</tt>.</p>
 </body>
 </setuptopic>
@@ -5673,7 +5673,7 @@ DiskSliceSize=736000000
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>If set to <tt>no</tt>, the user will not be allowed to enter a UNC path (such as "\\server\share") on the <i>Select Destination Location</i> page of the wizard.</p>
-<p>To fully disallow installation to network locations, you must also set <link topic="setup_allownetworkdrive">AllowNetworkDrive</link> to <tt>no</tt>.</p>
+<p>To fully disallow installation to network locations, you must also set <sd>AllowNetworkDrive</sd> to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -5682,7 +5682,7 @@ DiskSliceSize=736000000
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>If set to <tt>no</tt>, the user will not be allowed to enter a network drive on the <i>Select Destination Location</i> page of the wizard.</p>
-<p>To fully disallow installation to network locations, you must also set <link topic="setup_allowuncpath">AllowUNCPath</link> to <tt>no</tt>.</p>
+<p>To fully disallow installation to network locations, you must also set <sd>AllowUNCPath</sd> to <tt>no</tt>.</p>
 </body>
 </setuptopic>
 
@@ -5720,8 +5720,8 @@ DiskSliceSize=736000000
 <p>If using a .rtf file with custom colors, be mindful of contrast ratios, especially if supporting a <link topic="setup_wizardstyle">dark style</link>. Aim for at least an AA pass for normal text, using a <extlink href="https://webaim.org/resources/contrastchecker">contrast checker</extlink>. Example colors that pass on both light and dark backgrounds include: red #eb0000, green #008a00, and blue #6161ff.</p>
 <example><pre>LicenseFile=license.txt</pre></example>
 <p><b>See also:</b><br/>
-<link topic="setup_infobeforefile">InfoBeforeFile</link><br/>
-<link topic="setup_infoafterfile">InfoAfterFile</link></p>
+<sd>InfoBeforeFile</sd><br/>
+<sd>InfoAfterFile</sd></p>
 </body>
 </setuptopic>
 
@@ -5730,11 +5730,11 @@ DiskSliceSize=736000000
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>If the user selects a language for which the <tt>InfoBeforeFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
 <p>If a Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
-<p>If using a .rtf file with custom colors, see <link topic="setup_licensefile">LicenseFile</link> for special considerations.</p>
+<p>If using a .rtf file with custom colors, see <sd>LicenseFile</sd> for special considerations.</p>
 <example><pre>InfoBeforeFile=infobefore.txt</pre></example>
 <p><b>See also:</b><br/>
-<link topic="setup_infoafterfile">InfoAfterFile</link><br/>
-<link topic="setup_licensefile">LicenseFile</link></p>
+<sd>InfoAfterFile</sd><br/>
+<sd>LicenseFile</sd></p>
 </body>
 </setuptopic>
 
@@ -5744,11 +5744,11 @@ DiskSliceSize=736000000
 <p>This differs from <tt>isreadme</tt> files in that this text is displayed as a page of the wizard, instead of in a separate Notepad window.</p>
 <p>If the user selects a language for which the <tt>InfoAfterFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
 <p>If a Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
-<p>If using a .rtf file with custom colors, see <link topic="setup_licensefile">LicenseFile</link> for special considerations.</p>
+<p>If using a .rtf file with custom colors, see <sd>LicenseFile</sd> for special considerations.</p>
 <example><pre>InfoAfterFile=infoafter.txt</pre></example>
 <p><b>See also:</b><br/>
-<link topic="setup_infobeforefile">InfoBeforeFile</link><br/>
-<link topic="setup_licensefile">LicenseFile</link></p>
+<sd>InfoBeforeFile</sd><br/>
+<sd>LicenseFile</sd></p>
 </body>
 </setuptopic>
 
@@ -5807,7 +5807,7 @@ DiskSliceSize=736000000
 <p>If <tt>PrivilegesRequiredOverridesAllowed</tt> does not allow <tt>dialog</tt>, this directive is effectively ignored.</p>
 <p><tt>UsePreviousPrivileges</tt> must be set to <tt>no</tt> when <tt>AppId</tt> includes constants and <tt>PrivilegesRequiredOverridesAllowed</tt> allows <tt>dialog</tt>.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link></p>
+<sd>PrivilegesRequiredOverridesAllowed</sd></p>
 </body>
 </setuptopic>
 
@@ -5841,7 +5841,7 @@ DiskSliceSize=736000000
 <setuptopic directive="Password">
 <body>
 <p>Specifies a password you want to prompt the user for at the beginning of the installation.</p>
-<p>When using a password, you might consider setting <link topic="setup_encryption">Encryption</link> to <tt>yes</tt> as well, otherwise files will be stored as plain text and it would not be exceedingly difficult for someone to gain access to them through reverse engineering.</p>
+<p>When using a password, you might consider setting <sd>Encryption</sd> to <tt>yes</tt> as well, otherwise files will be stored as plain text and it would not be exceedingly difficult for someone to gain access to them through reverse engineering.</p>
 <p>The password itself is not stored (neither as clear text nor as a hash) but you should still use a strong password.</p>
 </body>
 </setuptopic>
@@ -5850,8 +5850,8 @@ DiskSliceSize=736000000
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
 <p>Specifies the name(s) of the image file(s) to display on the left side of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>Supports .bmp and .png images, including those with transparency. Use <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link> to customize the background color. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information. Use <link topic="setup_wizardimageopacity">WizardImageOpacity</link> to increase transparency.</p>
-<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font</link>, <link topic="setup_wizardsizepercent">WizardSizePercent</link>, and <link topic="setup_wizardkeepaspectratio">WizardKeepAspectRatio</link> settings are being used. In all cases, an aspect ratio of 164:314 is maintained. The specified image should have the same aspect ratio.</p>
+<p>Supports .bmp and .png images, including those with transparency. Use <sd>WizardImageBackColor</sd> to customize the background color. Even transparent .bmp files are supported, see <sd>WizardImageAlphaFormat</sd> for more information. Use <sd>WizardImageOpacity</sd> to increase transparency.</p>
+<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font</link>, <sd>WizardSizePercent</sd>, and <sd>WizardKeepAspectRatio</sd> settings are being used. In all cases, an aspect ratio of 164:314 is maintained. The specified image should have the same aspect ratio.</p>
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 202x386 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 240x459.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <tt>WizardSizePercent</tt>, and <tt>WizardKeepAspectRatio</tt> settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
@@ -5881,20 +5881,20 @@ DiskSliceSize=736000000
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicImage.bmp</tt>.</p>
 <example><pre>WizardImageFile=myimage.bmp,myimage2.bmp</pre></example>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardbackimagefile">WizardBackImageFile</link><br/>
-<link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link><br/>
-<link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link><br/>
-<link topic="setup_wizardimagebackcolor">WizardImageBackColor</link><br/>
-<link topic="setup_wizardimageopacity">WizardImageOpacity</link><br/>
-<link topic="setup_wizardimagestretch">WizardImageStretch</link></p>
+<sd>WizardBackImageFile</sd><br/>
+<sd>WizardSmallImageFile</sd><br/>
+<sd>WizardImageAlphaFormat</sd><br/>
+<sd>WizardImageBackColor</sd><br/>
+<sd>WizardImageOpacity</sd><br/>
+<sd>WizardImageStretch</sd></p>
 </body>
 </setuptopic>
 
 <setuptopic directive="WizardImageFileDynamicDark">
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
-<p>Overrides <link topic="setup_wizardimagefile">WizardImageFile</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
-<p>For all details see <link topic="setup_wizardimagefile">WizardImageFile</link>.</p>
+<p>Overrides <sd>WizardImageFile</sd> when using <sd>WizardStyle</sd> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
+<p>For all details see <sd>WizardImageFile</sd>.</p>
 </body>
 </setuptopic>
 
@@ -5902,7 +5902,7 @@ DiskSliceSize=736000000
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
 <p>Specifies the name(s) of the image file(s) to display in the upper right corner of the wizard. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>Supports .bmp and .png images, including those with transparency. Use <link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link> to customize the background color. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information. Use <link topic="setup_wizardimageopacity">WizardImageOpacity</link> to increase transparency.</p>
+<p>Supports .bmp and .png images, including those with transparency. Use <sd>WizardSmallImageBackColor</sd> to customize the background color. Even transparent .bmp files are supported, see <sd>WizardImageAlphaFormat</sd> for more information. Use <sd>WizardImageOpacity</sd> to increase transparency.</p>
 <p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font settings</link> are being used. In all cases, the area is square; thus, the specified image should be square as well.</p>
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 58x58 is recommended to avoid the image looking blurry on higher-DPI systems. The size of the default built-in image is 147x147.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font settings are being used, the size of the image area at various DPI settings is:</p>
@@ -5934,20 +5934,20 @@ DiskSliceSize=736000000
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicSmallImage.bmp</tt>.</p>
 <example><pre>WizardSmallImageFile=mysmallimage.bmp,mysmallimage2.bmp</pre></example>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardbackimagefile">WizardBackImageFile</link><br/>
-<link topic="setup_wizardimagefile">WizardImageFile</link><br/>
-<link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link><br/>
-<link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link><br/>
-<link topic="setup_wizardimageopacity">WizardImageOpacity</link><br/>
-<link topic="setup_wizardimagestretch">WizardImageStretch</link></p>
+<sd>WizardBackImageFile</sd><br/>
+<sd>WizardImageFile</sd><br/>
+<sd>WizardImageAlphaFormat</sd><br/>
+<sd>WizardSmallImageBackColor</sd><br/>
+<sd>WizardImageOpacity</sd><br/>
+<sd>WizardImageStretch</sd></p>
 </body>
 </setuptopic>
 
 <setuptopic directive="WizardSmallImageFileDynamicDark">
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
-<p>Overrides <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
-<p>For all details see <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link>.</p>
+<p>Overrides <sd>WizardSmallImageFile</sd> when using <sd>WizardStyle</sd> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
+<p>For all details see <sd>WizardSmallImageFile</sd>.</p>
 </body>
 </setuptopic>
 
@@ -5955,8 +5955,8 @@ DiskSliceSize=736000000
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Specifies the name(s) of the image file(s) to display as the background of wizard pages in Setup, but not in Uninstall. Wildcards are supported and the file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>Supports .bmp and .png images, including those with transparency. Use <link topic="setup_wizardbackcolor">WizardBackColor</link> to customize the background color. Even transparent .bmp files are supported, see <link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link> for more information. Use <link topic="setup_wizardbackimageopacity">WizardBackImageOpacity</link> to increase transparency.</p>
-<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font</link>, <link topic="setup_wizardsizepercent">WizardSizePercent</link>, and <link topic="setup_wizardkeepaspectratio">WizardKeepAspectRatio</link> settings are being used. If <tt>WizardKeepAspectRatio</tt> is set to <tt>yes</tt>, which is the default, an aspect ratio of 497:360 is maintained. The specified image should have the same aspect ratio.</p>
+<p>Supports .bmp and .png images, including those with transparency. Use <sd>WizardBackColor</sd> to customize the background color. Even transparent .bmp files are supported, see <sd>WizardImageAlphaFormat</sd> for more information. Use <sd>WizardBackImageOpacity</sd> to increase transparency.</p>
+<p>The size of the area in which the image is displayed depends on the system's DPI setting and whether the default <link topic="langoptionssection">font</link>, <sd>WizardSizePercent</sd>, and <sd>WizardKeepAspectRatio</sd> settings are being used. If <tt>WizardKeepAspectRatio</tt> is set to <tt>yes</tt>, which is the default, an aspect ratio of 497:360 is maintained. The specified image should have the same aspect ratio.</p>
 <p>Any size of image may be used; by default, images that are too small or too large to fit in the image area will be stretched or shrunk. Specifying an image larger than 596x432 is recommended to avoid the image looking blurry on higher-DPI systems.</p>
 <p>If a single larger-sized image does not produce a satisfactory result across different DPI settings, multiple files may be specified, separated by commas. In that case, Setup will automatically select the one that best matches the size of the image area. Assuming the default font, <tt>WizardSizePercent</tt>, and <tt>WizardKeepAspectRatio</tt> settings are being used, the size of the image area at various DPI settings is:</p>
 <table>
@@ -5971,8 +5971,8 @@ DiskSliceSize=736000000
 </table>
 <p>(You may notice that the size at 200% is not exactly double the 100% size. This is because the scaling factor is based on the dimensions of the font that a DPI setting uses, not the DPI itself.)</p>
 <p>If this directive is set to a blank value, no background image will be used.</p>
-<p>Otherwise, if a custom style is not specified by <link topic="setup_wizardstyle">WizardStyle</link> or <link topic="setup_wizardstylefile">WizardStyleFile</link>, it will automatically activate custom style <tt>windows11</tt> with modifiers <tt>excludelightcontrols</tt> and <tt>hidebevels</tt>. Note that in light mode, the <tt>windows11</tt> custom style uses an off-white background color. To revert this, set <tt>WizardBackColor</tt> to <tt>white</tt>.</p>
-<p>To show only the background image and no other wizard images, set both <link topic="setup_wizardimagefile">WizardImageFile</link> and <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link> to blank values. Alternatively set <link topic="setup_wizardimageopacity">WizardImageOpacity</link> to for example <tt>150</tt> to make both those images partially transparent.</p>
+<p>Otherwise, if a custom style is not specified by <sd>WizardStyle</sd> or <sd>WizardStyleFile</sd>, it will automatically activate custom style <tt>windows11</tt> with modifiers <tt>excludelightcontrols</tt> and <tt>hidebevels</tt>. Note that in light mode, the <tt>windows11</tt> custom style uses an off-white background color. To revert this, set <tt>WizardBackColor</tt> to <tt>white</tt>.</p>
+<p>To show only the background image and no other wizard images, set both <sd>WizardImageFile</sd> and <sd>WizardSmallImageFile</sd> to blank values. Alternatively set <sd>WizardImageOpacity</sd> to for example <tt>150</tt> to make both those images partially transparent.</p>
 <p>Use support function <link topic="isxfunc_WizardSetBackImage">WizardSetBackImage</link> to set, update, or remove the background image at runtime.</p>
 <examples>
 <pre>
@@ -6004,20 +6004,20 @@ WizardBackImageOpacity=150
 </pre>
 </examples>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardimagefile">WizardImageFile</link><br/>
-<link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link><br/>
-<link topic="setup_wizardbackcolor">WizardBackColor</link><br/>
-<link topic="setup_wizardbackimageopacity">WizardBackImageOpacity</link><br/>
-<link topic="setup_wizardimagealphaformat">WizardImageAlphaFormat</link><br/>
-<link topic="setup_wizardimagestretch">WizardImageStretch</link></p>
+<sd>WizardImageFile</sd><br/>
+<sd>WizardSmallImageFile</sd><br/>
+<sd>WizardBackColor</sd><br/>
+<sd>WizardBackImageOpacity</sd><br/>
+<sd>WizardImageAlphaFormat</sd><br/>
+<sd>WizardImageStretch</sd></p>
 </body>
 </setuptopic>
 
 <setuptopic directive="WizardBackImageFileDynamicDark">
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
-<p>Overrides <link topic="setup_wizardbackimagefile">WizardBackImageFile</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
-<p>For all details see <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>.</p>
+<p>Overrides <sd>WizardBackImageFile</sd> when using <sd>WizardStyle</sd> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
+<p>For all details see <sd>WizardBackImageFile</sd>.</p>
 </body>
 </setuptopic>
 
@@ -6044,9 +6044,9 @@ WizardBackImageOpacity=150
 <p>This directive has no effect for a wizard image which is not a 32-bit .bmp file.</p>
 <p>To create transparent .bmp files compatible with Inno Setup, you can use Paint.NET, a free image editor. Open your transparent image in Paint.NET, save it as a 32-bit .bmp file, and then set this directive to <tt>defined</tt>. These files may appear large, but Inno Setup compresses them using LZMA, which typically achieves better compression ratios than, for example, PNG compression.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardbackimagefile">WizardBackImageFile</link><br/>
-<link topic="setup_wizardimagefile">WizardImageFile</link><br/>
-<link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link></p>
+<sd>WizardBackImageFile</sd><br/>
+<sd>WizardImageFile</sd><br/>
+<sd>WizardSmallImageFile</sd></p>
 </body>
 </setuptopic>
 
@@ -6054,9 +6054,9 @@ WizardBackImageOpacity=150
 <setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>black</tt>, <tt>maroon</tt>, <tt>green</tt>, <tt>olive</tt>, <tt>navy</tt>, <tt>purple</tt>, <tt>teal</tt>, <tt>gray</tt>, <tt>silver</tt>, <tt>red</tt>, <tt>lime</tt>, <tt>yellow</tt>, <tt>blue</tt>, <tt>fuchsia</tt>, <tt>aqua</tt>, <tt>white</tt>, <tt>none</tt>, <tt>window</tt>.</setupvalid>
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
-<p>This directive specifies the background color used to fill any unused or transparent space around the wizard image, which is specified by <link topic="setup_wizardimagefile">WizardImageFile</link>. Using <tt>none</tt> as the fill color keeps transparency.</p>
-<p>If a custom background image is specified by <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, then this directive defaults to <tt>none</tt>.<br/>
-Otherwise, if <link topic="setup_wizardimagefile">WizardImageFile</link> specifies a blank value, then this directive also defaults to <tt>none</tt>.<br/>
+<p>This directive specifies the background color used to fill any unused or transparent space around the wizard image, which is specified by <sd>WizardImageFile</sd>. Using <tt>none</tt> as the fill color keeps transparency.</p>
+<p>If a custom background image is specified by <sd>WizardBackImageFile</sd>, then this directive defaults to <tt>none</tt>.<br/>
+Otherwise, if <sd>WizardImageFile</sd> specifies a blank value, then this directive also defaults to <tt>none</tt>.<br/>
 Otherwise, if a custom wizard image is used, then this directive defaults to <tt>window</tt>.<br/>
 Otherwise, if custom style <tt>slate</tt> is used then this directive defaults to <tt>#bcd2e2</tt> (light grayish blue).<br/>
 Otherwise, if custom style <tt>stellar</tt> is used then this directive defaults to <tt>#a7c0e2</tt> (light steel blue).<br/>
@@ -6064,15 +6064,15 @@ Otherwise, if custom style <tt>zircon</tt> is used then this directive defaults 
 Otherwise, if forced dark mode is used then this directive defaults to <tt>#2e3a3f</tt> (very dark grayish blue).<br/>
 Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardimagefile">WizardImageFile</link><br/>
-<link topic="setup_wizardstyle">WizardStyle</link></p></body>
+<sd>WizardImageFile</sd><br/>
+<sd>WizardStyle</sd></p></body>
 </setuptopic>
 
 <setuptopic directive="WizardImageBackColorDynamicDark">
 <setupdefault><tt>#2e3a3f</tt> (very dark grayish blue)</setupdefault>
 <body>
-<p>Overrides <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
-<p>For all details see <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link>.</p>
+<p>Overrides <sd>WizardImageBackColor</sd> when using <sd>WizardStyle</sd> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
+<p>For all details see <sd>WizardImageBackColor</sd>.</p>
 </body>
 </setuptopic>
 
@@ -6080,9 +6080,9 @@ Otherwise, it defaults to <tt>#e8f3f9</tt> (light grayish blue).</p>
 <setupvalid>A value in the form of <tt>#<i>rrggbb</i></tt> or <tt>$<i>bbggrr</i></tt>, where <tt>bb</tt>, <tt>gg</tt>, and <tt>rr</tt> specify the two-digit intensities (in hexadecimal) for blue, green, and red respectively. Or it may be one of the following predefined color names: <tt>black</tt>, <tt>maroon</tt>, <tt>green</tt>, <tt>olive</tt>, <tt>navy</tt>, <tt>purple</tt>, <tt>teal</tt>, <tt>gray</tt>, <tt>silver</tt>, <tt>red</tt>, <tt>lime</tt>, <tt>yellow</tt>, <tt>blue</tt>, <tt>fuchsia</tt>, <tt>aqua</tt>, <tt>white</tt>, <tt>none</tt>, <tt>window</tt>.</setupvalid>
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
-<p>This directive specifies the background color used to fill any unused or transparent space around the small wizard image, which is specified by <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link>. Using <tt>none</tt> as the fill color keeps transparency.</p>
-<p>If a custom background image is used via <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, then this directive defaults to <tt>none</tt>.<br/>
-Otherwise, if <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link> specifies a blank value, then this directive also defaults to <tt>none</tt>.<br/>
+<p>This directive specifies the background color used to fill any unused or transparent space around the small wizard image, which is specified by <sd>WizardSmallImageFile</sd>. Using <tt>none</tt> as the fill color keeps transparency.</p>
+<p>If a custom background image is used via <sd>WizardBackImageFile</sd>, then this directive defaults to <tt>none</tt>.<br/>
+Otherwise, if <sd>WizardSmallImageFile</sd> specifies a blank value, then this directive also defaults to <tt>none</tt>.<br/>
 Otherwise, if a custom wizard image is used, then this directive defaults to <tt>window</tt>.<br/>
 Otherwise, it defaults to <tt>none</tt>.</p>
 </body>
@@ -6091,8 +6091,8 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setuptopic directive="WizardSmallImageBackColorDynamicDark">
 <setupdefault><tt>none</tt></setupdefault>
 <body>
-<p>Overrides <link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
-<p>For all details see <link topic="setup_wizardsmallimagebackcolor">WizardSmallImageBackColor</link>.</p>
+<p>Overrides <sd>WizardSmallImageBackColor</sd> when using <sd>WizardStyle</sd> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
+<p>For all details see <sd>WizardSmallImageBackColor</sd>.</p>
 </body>
 </setuptopic>
 
@@ -6101,21 +6101,21 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
 <p>This directive specifies the background color to use for wizard pages and all other windows such as the <i>Select Language</i> dialog, in both Setup and Uninstall.</p>
-<p>If a custom background image is specified by <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>, then this directive defaults to <tt>window</tt> and setting it to <tt>none</tt> is not allowed.<br/>
+<p>If a custom background image is specified by <sd>WizardBackImageFile</sd>, then this directive defaults to <tt>window</tt> and setting it to <tt>none</tt> is not allowed.<br/>
 Otherwise, it defaults to <tt>none</tt>.</p>
 <p>Using <tt>window</tt> without also specifying a custom background image has no effect.</p>
 <p>Using <tt>none</tt> disables this feature, so native background colors will be used, as determined by the system or the custom style.</p>
-<p>If this feature is enabled, and the color is set to another value than <tt>window</tt>, then all panels will become transparent. To also hide all bevels (horizontal lines) in Setup and Uninstall, enable <link topic="setup_wizardstyle">WizardStyle</link> modifier <tt>hidebevels</tt>.</p>
-<p>Additionally, if this feature is enabled but a custom style is not specified by <link topic="setup_wizardstyle">WizardStyle</link>, it will automatically activate custom style <tt>windows11</tt> with modifier <tt>excludelightcontrols</tt>.</p>
+<p>If this feature is enabled, and the color is set to another value than <tt>window</tt>, then all panels will become transparent. To also hide all bevels (horizontal lines) in Setup and Uninstall, enable <sd>WizardStyle</sd> modifier <tt>hidebevels</tt>.</p>
+<p>Additionally, if this feature is enabled but a custom style is not specified by <sd>WizardStyle</sd>, it will automatically activate custom style <tt>windows11</tt> with modifier <tt>excludelightcontrols</tt>.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardbackimagefile">WizardBackImageFile</link><br/>
-<link topic="setup_wizardstyle">WizardStyle</link></p></body>
+<sd>WizardBackImageFile</sd><br/>
+<sd>WizardStyle</sd></p></body>
 </setuptopic>
 
 <setuptopic directive="WizardBackColorDynamicDark">
 <body>
-<p>Overrides <link topic="setup_wizardbackcolor">WizardBackColor</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
-<p>For all details see <link topic="setup_wizardbackcolor">WizardBackColor</link>.</p>
+<p>Overrides <sd>WizardBackColor</sd> when using <sd>WizardStyle</sd> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
+<p>For all details see <sd>WizardBackColor</sd>.</p>
 </body>
 </setuptopic>
 
@@ -6123,8 +6123,8 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupvalid><tt>0</tt> through <tt>255</tt></setupvalid>
 <setupdefault><tt>255</tt></setupdefault>
 <body>
-<p>If set to <tt>0</tt>, the wizard images set via <link topic="setup_wizardimagefile">WizardImageFile</link> and <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link> will be fully transparent. If set to <tt>255</tt>, the wizard images will be fully opaque (non-transparent).</p>
-<p>This is useful if you want to use identical regular and <tt>DynamicDark</tt> wizard images, or if you want to use them in combination with a custom background image set via <link topic="setup_wizardbackimagefile">WizardBackImageFile</link>. For example, you can set <tt>WizardImageOpacity</tt> to <tt>150</tt> to achieve partial transparency.</p>
+<p>If set to <tt>0</tt>, the wizard images set via <sd>WizardImageFile</sd> and <sd>WizardSmallImageFile</sd> will be fully transparent. If set to <tt>255</tt>, the wizard images will be fully opaque (non-transparent).</p>
+<p>This is useful if you want to use identical regular and <tt>DynamicDark</tt> wizard images, or if you want to use them in combination with a custom background image set via <sd>WizardBackImageFile</sd>. For example, you can set <tt>WizardImageOpacity</tt> to <tt>150</tt> to achieve partial transparency.</p>
 <example><pre>WizardStyle=modern dynamic
 WizardImageFile=MyImage.png
 WizardImageFileDynamicDark=MyImage.png
@@ -6132,7 +6132,7 @@ WizardSmallImageFile=MySmallImage.png
 WizardSmallImageFileDynamicDark=MySmallImage.png
 WizardImageOpacity=150</pre></example>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardbackimageopacity">WizardBackImageOpacity</link></p>
+<sd>WizardBackImageOpacity</sd></p>
 </body>
 </setuptopic>
 
@@ -6140,14 +6140,14 @@ WizardImageOpacity=150</pre></example>
 <setupvalid><tt>0</tt> through <tt>255</tt></setupvalid>
 <setupdefault><tt>255</tt></setupdefault>
 <body>
-<p>If set to <tt>0</tt>, the background wizard image set via <link topic="setup_wizardbackimagefile">WizardBackImageFile</link> will be fully transparent. If set to <tt>255</tt>, the wizard images will be fully opaque (non-transparent).</p>
+<p>If set to <tt>0</tt>, the background wizard image set via <sd>WizardBackImageFile</sd> will be fully transparent. If set to <tt>255</tt>, the wizard images will be fully opaque (non-transparent).</p>
 <p>This is useful if you want to use an identical regular and <tt>DynamicDark</tt> background image. For example, you can set <tt>WizardBackImageOpacity</tt> to <tt>150</tt> to achieve partial transparency.</p>
 <example><pre>WizardStyle=modern dynamic
 WizardBackImageFile=MyBackImage.png
 WizardBackImageFileDynamicDark=MyBackImage.png
 WizardBackImageOpacity=150</pre></example>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardimageopacity">WizardImageOpacity</link></p>
+<sd>WizardImageOpacity</sd></p>
 </body>
 </setuptopic>
 
@@ -6158,9 +6158,9 @@ WizardBackImageOpacity=150</pre></example>
 <p>If set to <tt>yes</tt>, the default, the wizard images (including the background image) will be stretched or shrunk if the images are larger or smaller than required.</p>
 <p>If set to <tt>no</tt>, the wizard images (including the background image) will be centered in their respective areas if the images are smaller than required, and clipped if the images are larger than required.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardbackimagefile">WizardBackImageFile</link><br/>
-<link topic="setup_wizardimagefile">WizardImageFile</link><br/>
-<link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link></p>
+<sd>WizardBackImageFile</sd><br/>
+<sd>WizardImageFile</sd><br/>
+<sd>WizardSmallImageFile</sd></p>
 </body>
 </setuptopic>
 
@@ -6177,7 +6177,7 @@ WizardBackImageOpacity=150</pre></example>
 <p>If set to <tt>yes</tt>, the default, Setup and Uninstall keep the original aspect ratio of their windows when scaling for DPI.</p>
 <p>If set to <tt>no</tt>, the aspect ratio may be changed when scaling for DPI. As a result, your Setup and Uninstall windows will by default be 14% narrower at 125% DPI or higher.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardsizepercent">WizardSizePercent</link></p>
+<sd>WizardSizePercent</sd></p>
 </body>
 </setuptopic>
 
@@ -6191,7 +6191,7 @@ WizardBackImageOpacity=150</pre></example>
 <example><pre>WizardSizePercent=130</pre></example>
 <p>Note: Some windows such as the <i>Select Language</i> dialog will only increase in size horizontally.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardkeepaspectratio">WizardKeepAspectRatio</link><br/>
+<sd>WizardKeepAspectRatio</sd><br/>
 <link topic="langoptionssection" anchor="DialogFontSize">DialogFontSize</link></p>
 </body>
 </setuptopic>
@@ -6251,12 +6251,12 @@ WizardBackImageOpacity=150</pre></example>
 <heading>Dark Mode Behavior</heading>
 <p>When forced dark (<tt>dark</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in dark mode) is active, the following changes occur:</p>
 <ul>
-<li>The main icon of Setup and Uninstall is replaced by its dark mode version, if not overridden by a custom one using <link topic="setup_setupiconfile">SetupIconFile</link>.<br/>
+<li>The main icon of Setup and Uninstall is replaced by its dark mode version, if not overridden by a custom one using <sd>SetupIconFile</sd>.<br/>
     Note: Windows may temporarily display a different icon due to its icon cache, this is normal.</li>
 <li>Other icons in Setup and Uninstall are also replaced by dark mode versions. These are not affected by Windows' icon cache.</li>
-<li>The wizard images are replaced by dark mode versions, if not overridden by custom ones using <link topic="setup_wizardimagefile">WizardImageFile</link>.</li>
-<li>The wizard image background color is adjusted for dark mode if not overridden by custom values using <link topic="setup_wizardimagebackcolor">WizardImageBackColor</link>.</li>
-<li>The small wizard images are replaced by dark mode versions, if not overridden by custom ones using <link topic="setup_wizardsmallimagefile">WizardSmallImageFile</link>.</li>
+<li>The wizard images are replaced by dark mode versions, if not overridden by custom ones using <sd>WizardImageFile</sd>.</li>
+<li>The wizard image background color is adjusted for dark mode if not overridden by custom values using <sd>WizardImageBackColor</sd>.</li>
+<li>The small wizard images are replaced by dark mode versions, if not overridden by custom ones using <sd>WizardSmallImageFile</sd>.</li>
 <li>Any colors in RTF files are removed and replaced by the dark style colors.</li>
 <li>If <tt>includetitlebar</tt> is not used: the title bar is made dark to match the system appearance, if the system allows this.</li>
 </ul>
@@ -6267,21 +6267,21 @@ WizardBackImageOpacity=150</pre></example>
 <li>The system's light or dark mode setting is checked only once, at startup.</li>
 <li>Separate directives are available to specify images and colors used specifically for dynamic dark mode:
 <ul>
-<li><link topic="setup_wizardbackimagefiledynamicdark">WizardBackImageFileDynamicDark</link> and <link topic="setup_wizardbackcolordynamicdark">WizardBackColorDynamicDark</link>.</li>
-<li><link topic="setup_wizardimagefiledynamicdark">WizardImageFileDynamicDark</link> and <link topic="setup_wizardimagebackcolordynamicdark">WizardImageBackColorDynamicDark</link>.</li>
-<li><link topic="setup_wizardsmallimagefiledynamicdark">WizardSmallImageFileDynamicDark</link> and <link topic="setup_wizardsmallimagebackcolordynamicdark">WizardSmallImageBackColorDynamicDark</link>.</li>
-<li><link topic="setup_wizardstylefiledynamicdark">WizardStyleFileDynamicDark</link></li>
+<li><sd>WizardBackImageFileDynamicDark</sd> and <sd>WizardBackColorDynamicDark</sd>.</li>
+<li><sd>WizardImageFileDynamicDark</sd> and <sd>WizardImageBackColorDynamicDark</sd>.</li>
+<li><sd>WizardSmallImageFileDynamicDark</sd> and <sd>WizardSmallImageBackColorDynamicDark</sd>.</li>
+<li><sd>WizardStyleFileDynamicDark</sd></li>
 </ul>
   The standard <tt>WizardBackImageFile</tt>, <tt>WizardBackColor</tt>, <tt>WizardImageFile</tt>, <tt>WizardImageBackColor</tt>, <tt>WizardSmallImageFile</tt>, <tt>WizardSmallImageBackColor</tt>, and <tt>WizardStyleFile</tt> settings are used for dynamic light mode.<br/><br/>
   Note: Forced dark mode (<tt>dark</tt>) does <i>not</i> use the <tt>DynamicDark</tt> settings; it uses the standard settings.</li>
 </ul>
 <heading>Other Considerations</heading>
 <ul>
-<li>The default style can be customized by specifying a VCL Styles file using the <link topic="setup_wizardstylefile">WizardStyleFile</link> directive. When forced light (<tt>light</tt>) or dynamic light (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
+<li>The default style can be customized by specifying a VCL Styles file using the <sd>WizardStyleFile</sd> directive. When forced light (<tt>light</tt>) or dynamic light (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
 <li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme or when command line parameter '/NOSTYLE' is used.</li>
 <li>When a custom style (including the built-in custom dark style) is active, three additional things occur. First, all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent instead of opaque. Second, Setup and Uninstall use a custom implementation of Windows message boxes and task dialogs. Third, color properties set through Pascal Scripting are usually ignored, with the style's colors taking precedence.</li>
 <li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 220 KB. Enabling dynamic dark (<tt>dynamic</tt>) adds approximately 75 KB more. Enabling dynamic dark and including a custom light style as well (for example, <tt>dynamic windows11</tt>) adds approximately 110 KB more.</li>
-<li>Messages displayed by the so-called "setup loader" will never be styled. Normally no such messages are displayed, unless you enabled the startup prompt using <link topic="setup_disablestartupprompt">DisableStartupPrompt</link>.</li>
+<li>Messages displayed by the so-called "setup loader" will never be styled. Normally no such messages are displayed, unless you enabled the startup prompt using <sd>DisableStartupPrompt</sd>.</li>
 </ul>
 <heading>Example screenshots</heading>
 <p><tt>classic</tt><br/><br/><img src="wizardstyle-classic.png"/></p>
@@ -6300,8 +6300,8 @@ WizardBackImageOpacity=150</pre></example>
 <p><tt>modern zircon</tt><br/><br/><img src="wizardstyle-modern-zircon.png"/></p>
 <p><tt>modern zircon includetitlebar</tt><br/><br/><img src="wizardstyle-modern-zircon-includetitlebar.png"/></p>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardsizepercent">WizardSizePercent</link><br/>
-<link topic="setup_wizardstylefile">WizardStyleFile</link><br/>
+<sd>WizardSizePercent</sd><br/>
+<sd>WizardStyleFile</sd><br/>
 <link topic="isxfunc_IsDarkInstallMode">IsDarkInstallMode</link><br/>
 <link topic="isxfunc_HighContrastActive">HighContrastActive</link></p>
 </body>
@@ -6312,23 +6312,23 @@ WizardBackImageOpacity=150</pre></example>
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>This directive specifies a custom VCL Styles file (.vsf) to be used. It is recommended to use only styles that support high DPI.</p>
-<p>When using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>light</tt> or <tt>dynamic</tt> mode, the specified style should always use a light color theme (such as predominantly white or in other light colors). When using <tt>dark</tt>, use a dark color theme (such as predominantly black or in other dark colors).</p>
+<p>When using <sd>WizardStyle</sd> with <tt>light</tt> or <tt>dynamic</tt> mode, the specified style should always use a light color theme (such as predominantly white or in other light colors). When using <tt>dark</tt>, use a dark color theme (such as predominantly black or in other dark colors).</p>
 <p>Using a custom style file increases the size of Setup, except when using <tt>dark</tt> mode and a style file that is smaller than the built-in one, which is 199 KB before compression.</p>
-<p>Can also be set to <tt>builtin:polar</tt>, <tt>builtin:slate</tt>, <tt>builtin:stellar</tt>, or <tt>builtin:zircon</tt> to use one of the built-in custom styles. See <link topic="setup_wizardstyle">WizardStyle</link> for more information.</p>
+<p>Can also be set to <tt>builtin:polar</tt>, <tt>builtin:slate</tt>, <tt>builtin:stellar</tt>, or <tt>builtin:zircon</tt> to use one of the built-in custom styles. See <sd>WizardStyle</sd> for more information.</p>
 <p>VCL Styles files can be downloaded from sources such as <extlink href="https://getitnow.embarcadero.com/category/styles">GetIt</extlink> (free if 'Subscription' says 'Not Required', requires a Delphi installation to download, which may be a Community Edition for the free styles), and from <extlink href="https://www.delphistyles.com/vcl">DelphiStyles</extlink> (not free).</p>
 <p>FireMonkey (FMX) Styles files are not supported.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_wizardstyle">WizardStyle</link><br/>
-<link topic="setup_wizardstylefiledynamicdark">WizardStyleFileDynamicDark</link></p>
+<sd>WizardStyle</sd><br/>
+<sd>WizardStyleFileDynamicDark</sd></p>
 </body>
 </setuptopic>
 
 <setuptopic directive="WizardStyleFileDynamicDark">
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
-<p>Overrides <link topic="setup_wizardstylefile">WizardStyleFile</link> when using <link topic="setup_wizardstyle">WizardStyle</link> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
+<p>Overrides <sd>WizardStyleFile</sd> when using <sd>WizardStyle</sd> with <tt>dynamic</tt> mode and Windows is in dark mode. Ignored otherwise.</p>
 <p>The specified style should always use a dark color theme (such as predominantly black or in other dark colors).</p>
-<p>For all other details see <link topic="setup_wizardstylefile">WizardStyleFile</link>.</p>
+<p>For all other details see <sd>WizardStyleFile</sd>.</p>
 </body>
 </setuptopic>
 
@@ -6403,7 +6403,7 @@ WizardBackImageOpacity=150</pre></example>
 <p>When set to <tt>no</tt>, the dialog will never be displayed.</p>
 <p>When set to <tt>auto</tt>, the dialog will only be displayed if Setup does not find a language identifier match.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_usepreviouslanguage">UsePreviousLanguage</link></p>
+<sd>UsePreviousLanguage</sd></p>
 </body>
 </setuptopic>
 
@@ -6447,21 +6447,21 @@ WizardBackImageOpacity=150</pre></example>
 </setuptopic>
 
 <setuptopic directive="VersionInfoCompany">
-<setupdefault><link topic="setup_apppublisher">AppPublisher</link> if <link topic="setup_apppublisher">AppPublisher</link> doesn't include constants, an empty string otherwise</setupdefault>
+<setupdefault><sd>AppPublisher</sd> if <sd>AppPublisher</sd> doesn't include constants, an empty string otherwise</setupdefault>
 <body>
 <p>Specifies the company name value for the Setup version info.</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="VersionInfoCopyright">
-<setupdefault><link topic="setup_appcopyright">AppCopyright</link> if <link topic="setup_appcopyright">AppCopyright</link> doesn't include constants, an empty string otherwise</setupdefault>
+<setupdefault><sd>AppCopyright</sd> if <sd>AppCopyright</sd> doesn't include constants, an empty string otherwise</setupdefault>
 <body>
 <p>Specifies the copyright value for the Setup version info.</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="VersionInfoDescription">
-<setupdefault>"<link topic="setup_appname">AppName</link> Setup" if <link topic="setup_appname">AppName</link> doesn't include constants, an empty string otherwise</setupdefault>
+<setupdefault>"<sd>AppName</sd> Setup" if <sd>AppName</sd> doesn't include constants, an empty string otherwise</setupdefault>
 <body>
 <p>Specifies the file description value for the Setup version info.</p>
 <p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
@@ -6475,14 +6475,14 @@ WizardBackImageOpacity=150</pre></example>
 </setuptopic>
 
 <setuptopic directive="VersionInfoProductName">
-<setupdefault><link topic="setup_appname">AppName</link> if <link topic="setup_appname">AppName</link> doesn't include constants, an empty string otherwise</setupdefault>
+<setupdefault><sd>AppName</sd> if <sd>AppName</sd> doesn't include constants, an empty string otherwise</setupdefault>
 <body>
 <p>Specifies the product name value for the Setup version info.</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="VersionInfoProductTextVersion">
-<setupdefault><link topic="setup_versioninfoproductversion">VersionInfoProductVersion</link> if set, else <link topic="setup_appversion">AppVersion</link> if set and does not include constants, else <link topic="setup_versioninfotextversion">VersionInfoTextVersion</link></setupdefault>
+<setupdefault><sd>VersionInfoProductVersion</sd> if set, else <sd>AppVersion</sd> if set and does not include constants, else <sd>VersionInfoTextVersion</sd></setupdefault>
 <body>
 <p>Specifies the textual product version value for the Setup version info.</p>
 </body>
@@ -6490,19 +6490,19 @@ WizardBackImageOpacity=150</pre></example>
 
 <setuptopic directive="VersionInfoProductVersion">
 <setupvalid>A value in the form of up to 4 numbers separated by dots</setupvalid>
-<setupdefault><link topic="setup_versioninfoversion">VersionInfoVersion</link></setupdefault>
+<setupdefault><sd>VersionInfoVersion</sd></setupdefault>
 <body>
 <p>Specifies the binary product version value for the Setup version info.</p>
 <p>Partial version numbers (for example, <tt>1.5</tt>) are allowed. Missing numbers will be appended as zeros. Extra numbers are ignored.</p>
-<p>Note that this value is only known to be displayed by Explorer on Windows Vista SP2. Other versions display the textual product version value (<link topic="setup_versioninfoproducttextversion">VersionInfoProductTextVersion</link>) instead.</p>
+<p>Note that this value is only known to be displayed by Explorer on Windows Vista SP2. Other versions display the textual product version value (<sd>VersionInfoProductTextVersion</sd>) instead.</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="VersionInfoTextVersion">
-<setupdefault><link topic="setup_versioninfoversion">VersionInfoVersion</link></setupdefault>
+<setupdefault><sd>VersionInfoVersion</sd></setupdefault>
 <body>
 <p>Specifies the textual file version value for the Setup version info.</p>
-<p>Note that this value was only displayed on Explorer's Version tab on Windows 98 and earlier. Later versions display the binary version value (<link topic="setup_versioninfoversion">VersionInfoVersion</link>) instead.</p>
+<p>Note that this value was only displayed on Explorer's Version tab on Windows 98 and earlier. Later versions display the binary version value (<sd>VersionInfoVersion</sd>) instead.</p>
 <p>This setting has no effect if <tt>UseSetupLdr</tt> is set to <tt>no</tt>.</p>
 </body>
 </setuptopic>
@@ -6546,7 +6546,7 @@ WizardBackImageOpacity=150</pre></example>
 <setupdefault><tt>current</tt></setupdefault>
 <body>
 <p>The date used in the time/date stamp of files referenced by [Files] section entries that include the <tt>touch</tt> flag.</p>
-<p>A value of <tt>current</tt> causes the current system date (at compile time) to be used. A value of <tt>none</tt> leaves the date as-is. Otherwise, <tt>TouchDate</tt> is interpreted as an explicit date in <tt><i>YYYY</i>-<i>MM</i>-<i>DD</i></tt> (ISO 8601) format. If <link topic="setup_timestampsinutc">TimeStampsInUTC</link> is set to <tt>yes</tt>, the date is assumed to be a UTC date.</p>
+<p>A value of <tt>current</tt> causes the current system date (at compile time) to be used. A value of <tt>none</tt> leaves the date as-is. Otherwise, <tt>TouchDate</tt> is interpreted as an explicit date in <tt><i>YYYY</i>-<i>MM</i>-<i>DD</i></tt> (ISO 8601) format. If <sd>TimeStampsInUTC</sd> is set to <tt>yes</tt>, the date is assumed to be a UTC date.</p>
 <example><pre>TouchDate=2004-01-31</pre></example>
 </body>
 </setuptopic>
@@ -6556,7 +6556,7 @@ WizardBackImageOpacity=150</pre></example>
 <setupdefault><tt>current</tt></setupdefault>
 <body>
 <p>The time used in the time/date stamp of files referenced by [Files] section entries that include the <tt>touch</tt> flag.</p>
-<p>A value of <tt>current</tt> causes the current system time (at compile time) to be used. A value of <tt>none</tt> leaves the time as-is. Otherwise, <tt>TouchTime</tt> is interpreted as an explicit time in <tt><i>HH</i>:<i>MM</i></tt> or <tt><i>HH</i>:<i>MM</i>:<i>SS</i></tt> format. If <link topic="setup_timestampsinutc">TimeStampsInUTC</link> is set to <tt>yes</tt>, the time is assumed to be a UTC time.</p>
+<p>A value of <tt>current</tt> causes the current system time (at compile time) to be used. A value of <tt>none</tt> leaves the time as-is. Otherwise, <tt>TouchTime</tt> is interpreted as an explicit time in <tt><i>HH</i>:<i>MM</i></tt> or <tt><i>HH</i>:<i>MM</i>:<i>SS</i></tt> format. If <sd>TimeStampsInUTC</sd> is set to <tt>yes</tt>, the time is assumed to be a UTC time.</p>
 <example><pre>TouchTime=13:00</pre></example>
 </body>
 </setuptopic>
@@ -6568,11 +6568,11 @@ WizardBackImageOpacity=150</pre></example>
 <p>If set to <tt>yes</tt>, files that are compiled into the installation (via [Files] section entries) will be encrypted using XChaCha20 encryption.</p>
 <p>If set to <tt>full</tt>, the entire installation will be encrypted, and the password must be specified using the <link topic="setupcmdline" anchor="PASSWORD">/PASSWORD=</link> command line parameter.</p>
 <p>If set to <tt>yes</tt> or <tt>full</tt> and you call the <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> function from the [Code] section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the [Files] section entry for the file.</p>
-<p>If set to <tt>yes</tt> or <tt>full</tt> the 256-bit XChaCha20 encryption key is derived from the value of <link topic="setup_password">Password</link> using the function specified by <link topic="setup_encryptionkeyderivation">EncryptionKeyDerivation</link>.</p>
+<p>If set to <tt>yes</tt> or <tt>full</tt> the 256-bit XChaCha20 encryption key is derived from the value of <sd>Password</sd> using the function specified by <sd>EncryptionKeyDerivation</sd>.</p>
 <p>The 192-bit XChaCha20 encryption nonce is a random base nonce, appending the index of the first file in the chunk for unique encryption nonces.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_password">Password</link><br/>
-<link topic="setup_encryptionkeyderivation">EncryptionKeyDerivation</link></p>
+<sd>Password</sd><br/>
+<sd>EncryptionKeyDerivation</sd></p>
 </body>
 </setuptopic>
 
@@ -6582,10 +6582,10 @@ WizardBackImageOpacity=150</pre></example>
 <tt>pbkdf2/1</tt> through <tt>pbkdf2/2147483647</tt></setupvalid>
 <setupdefault><tt>pbkdf2/220000</tt></setupdefault>
 <body>
-<p>This specifies the key derivation function to use to derive the encryption key from the value of <link topic="setup_password">Password</link>, and optionally its parameters.</p>
+<p>This specifies the key derivation function to use to derive the encryption key from the value of <sd>Password</sd>, and optionally its parameters.</p>
 <p><tt>pbkdf2</tt> is the PBKDF2-HMAC-SHA256 function with a 128-bit random salt, and optionally allows to increase its number of iterations for extra security. If the number of iterations isn't specified, it defaults to 220000.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_encryption">Encryption</link></p>
+<sd>Encryption</sd></p>
 </body>
 </setuptopic>
 
@@ -6617,7 +6617,7 @@ WizardBackImageOpacity=150</pre></example>
 <keyword value="Architecture Identifiers" />
 <body>
 
-<p>These are used in the values of <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> and <link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link>.</p>
+<p>These are used in the values of <sd>ArchitecturesAllowed</sd> and <sd>ArchitecturesInstallIn64BitMode</sd>.</p>
 
 <dl>
 
@@ -6640,7 +6640,7 @@ WizardBackImageOpacity=150</pre></example>
 <dt><b>x64compatible</b></dt>
 <dd>
 <p>Matches systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation and also support Arm64EC.</p>
-<p>Always matches if Setup itself is built as a 64-bit x64 binary, see <link topic="setup_setuparchitecture">SetupArchitecture</link>.</p>
+<p>Always matches if Setup itself is built as a 64-bit x64 binary, see <sd>SetupArchitecture</sd>.</p>
 </dd>
 
 <dt><b>x64os</b></dt>
@@ -6654,7 +6654,7 @@ WizardBackImageOpacity=150</pre></example>
 <dt><b>x86compatible</b></dt>
 <dd>
 <p>Matches systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64 Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
-<p>Always matches if Setup itself is built as a 32-bit x86 binary, see <link topic="setup_setuparchitecture">SetupArchitecture</link>.</p>
+<p>Always matches if Setup itself is built as a 32-bit x86 binary, see <sd>SetupArchitecture</sd>.</p>
 </dd>
 
 <dt><b>x86os</b></dt>
@@ -6713,7 +6713,7 @@ ArchitecturesAllowed=win64
 </pre>
 </examples>
 <p><b>See also:</b><br/>
-<link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link></p>
+<sd>ArchitecturesInstallIn64BitMode</sd></p>
 </body>
 </setuptopic>
 
@@ -6731,7 +6731,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <p>Specifies the architectures on which Setup should enable <link topic="32vs64bitinstalls">64-bit install mode</link>. If this directive is set to a blank value, Setup will always use <link topic="32vs64bitinstalls">32-bit install mode</link>.</p>
 <p>Generally, 64-bit install mode should only be enabled on installers that ship 64-bit binaries (x64 or Arm64).</p>
 <p>Since 64-bit install mode is only supported on systems running 64-bit Windows, the specified expression must never match systems running 32-bit Windows. So, for example, don't set this directive to a value like <tt>x86compatible</tt>, since that <i>will</i> match systems running 32-bit Windows. If the expression does indeed match a system running 32-bit Windows, Setup will display an error message and exit.</p>
-<p>If your application runs only on 64-bit architectures and you're using <link topic="setup_setuparchitecture">32-bit Setup</link>, you should set <link topic="setup_architecturesallowed">ArchitecturesAllowed</link> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
+<p>If your application runs only on 64-bit architectures and you're using <link topic="setup_setuparchitecture">32-bit Setup</link>, you should set <sd>ArchitecturesAllowed</sd> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
 <example>
 <pre>
 ; Only allow the installer to run on x64-compatible systems,
@@ -6741,7 +6741,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 </pre>
 </example>
 <p><b>See also:</b><br/>
-<link topic="setup_architecturesallowed">ArchitecturesAllowed</link></p>
+<sd>ArchitecturesAllowed</sd></p>
 </body>
 </setuptopic>
 
@@ -6782,7 +6782,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 <body>
 <p>If set to <tt>yes</tt>, Setup will always create a log file. Equivalent to passing <link topic="setupcmdline" anchor="LOG">/LOG</link> on the command line.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_uninstalllogging">UninstallLogging</link></p>
+<sd>UninstallLogging</sd></p>
 </body>
 </setuptopic>
 
@@ -6791,17 +6791,17 @@ ArchitecturesInstallIn64BitMode=x64compatible
 <keyword value="digital signature" />
 <keyword value="code signing" />
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
-<setupdefault><tt>yes</tt> if a <link topic="setup_signtool">SignTool</link> is set, <tt>no</tt> otherwise</setupdefault>
+<setupdefault><tt>yes</tt> if a <sd>SignTool</sd> is set, <tt>no</tt> otherwise</setupdefault>
 <body>
 <p>Specifies whether the uninstaller program (unins???.exe) should be deployed with a digital signature attached. When the uninstaller has a valid digital signature, users will not see an "unknown publisher" warning when launching it.</p>
 <p>When set to <tt>yes</tt>, any temporary self-copies used by Setup are digitally signed too.</p>
-<p>If the <link topic="setup_signtool">SignTool</link> directive is set, the file will be signed automatically on the fly. Otherwise:</p>
+<p>If the <sd>SignTool</sd> directive is set, the file will be signed automatically on the fly. Otherwise:</p>
 <ul>
-  <li>The first time you compile a script with <tt>SignedUninstaller</tt> set to <tt>yes</tt>, a uniquely-named non-temporary copy of the uninstaller EXE file will be created in the directory specified by the <link topic="setup_signeduninstallerdir">SignedUninstallerDir</link> directive (which defaults to the <link topic="setup_outputdir">output directory</link>).</li>
+  <li>The first time you compile a script with <tt>SignedUninstaller</tt> set to <tt>yes</tt>, a uniquely-named non-temporary copy of the uninstaller EXE file will be created in the directory specified by the <sd>SignedUninstallerDir</sd> directive (which defaults to the <link topic="setup_outputdir">output directory</link>).</li>
   <li>You will then be prompted to attach a digital signature to this file using an external code-signing tool (such as Microsoft's <tt>signtool.exe</tt>).</li>
   <li>On subsequent compiles, the signature from the file will be embedded into the compiled installations' uninstallers, without prompting you.</li>
   <li>If you delete the file, you will be prompted again if necessary on the next compile.</li>
-  <li>Upgrading to a newer version of Inno Setup, or changing certain [Setup] section directives that affect the contents of the uninstaller EXE file (such as <link topic="setup_setupiconfile">SetupIconFile</link>, <link topic="setup_wizardstyle">WizardStyle</link> and VersionInfo directives), will cause a new file to be created under a different name.</li>
+  <li>Upgrading to a newer version of Inno Setup, or changing certain [Setup] section directives that affect the contents of the uninstaller EXE file (such as <sd>SetupIconFile</sd>, <sd>WizardStyle</sd> and VersionInfo directives), will cause a new file to be created under a different name.</li>
 </ul>
 <p>When the uninstaller has a digital signature, Setup will write the messages from the active language into a separate file (unins???.msg). It cannot embed the messages into the EXE file because doing so would invalidate the digital signature.</p>
 <p>Details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
@@ -6809,7 +6809,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 </setuptopic>
 
 <setuptopic directive="SignedUninstallerDir">
-<setupdefault><link topic="setup_outputdir">OutputDir</link></setupdefault>
+<setupdefault><sd>OutputDir</sd></setupdefault>
 <body>
 <p>Specifies the directory in which <link topic="setup_signeduninstaller">signed uninstaller</link> files should be stored. By default, such files are stored in the <link topic="setup_outputdir">output directory</link>.</p>
 <p>Separate script files may share the same <tt>SignedUninstallerDir</tt> setting. By setting up a common directory to hold signed uninstaller files, you won't have to re-sign the uninstaller each time you compile a new script file with a distinct <tt>OutputDir</tt> setting.</p>
@@ -6827,7 +6827,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 <p>Specifies the name and parameters of the Sign Tool to be used to digitally sign:</p>
 <ul appearance="compact">
 <li>Setup</li>
-<li>Uninstall if <link topic="setup_signeduninstaller">SignedUninstaller</link> is set to <tt>yes</tt></li>
+<li>Uninstall if <sd>SignedUninstaller</sd> is set to <tt>yes</tt></li>
 <li>Original source files if the <link topic="filessection">[Files]</link> section's <tt>sign</tt> or <tt>signonce</tt> flag is used</li>
 </ul>
 <p>When Setup has a valid digital signature, users will not see an "unidentified program" warning when launching it.</p>
@@ -6869,11 +6869,11 @@ SignTool=byparam format c:
 </pre>
 </example>
 <p>Further details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
-<p><i>Note:</i> If you use a Sign Tool and your Setup contains a large amount of data, it is recommended that you enable <link topic="setup_diskspanning">Disk spanning</link> with <link topic="setup_diskslicesize">DiskSliceSize</link> set to <tt>max</tt>. If you don't do this, the user might experience a long delay after starting Setup caused by Windows verifying the digital signature against all your data. There should be no security reduction from using disk spanning in practice: all files extracted from the unsigned .bin files undergo SHA-256 verification (provided <tt>dontverifychecksum</tt> isn't used). The SHA-256 hashes for this (along with all other metadata) are kept inside Setup's EXE, which is protected by the digital signature.</p>
+<p><i>Note:</i> If you use a Sign Tool and your Setup contains a large amount of data, it is recommended that you enable <link topic="setup_diskspanning">Disk spanning</link> with <sd>DiskSliceSize</sd> set to <tt>max</tt>. If you don't do this, the user might experience a long delay after starting Setup caused by Windows verifying the digital signature against all your data. There should be no security reduction from using disk spanning in practice: all files extracted from the unsigned .bin files undergo SHA-256 verification (provided <tt>dontverifychecksum</tt> isn't used). The SHA-256 hashes for this (along with all other metadata) are kept inside Setup's EXE, which is protected by the digital signature.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_signtoolminimumtimebetween">SignToolMinimumTimeBetween</link><br/>
-<link topic="setup_signtoolretrycount">SignToolRetryCount</link><br/>
-<link topic="setup_signtoolrunminimized">SignToolRunMinimized</link></p>
+<sd>SignToolMinimumTimeBetween</sd><br/>
+<sd>SignToolRetryCount</sd><br/>
+<sd>SignToolRunMinimized</sd></p>
 </body>
 </setuptopic>
 
@@ -6885,7 +6885,7 @@ SignTool=byparam format c:
 <body>
 <p>If not set to 0, specifies the minimum number of milliseconds that should have elapsed between consecutive digital signing actions by the compiler. For example, if set to 5000 then the compiler will perform 1 digital signing per 5 seconds at most. Can be used to avoid being rejected by rate limiting timestamp services.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_signtool">SignTool</link></p>
+<sd>SignTool</sd></p>
 </body>
 </setuptopic>
 
@@ -6897,8 +6897,8 @@ SignTool=byparam format c:
 <body>
 <p>Specifies the number of times the compiler should automatically retry digital signing on any errors.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_signtool">SignTool</link><br/>
-<link topic="setup_signtoolretrydelay">SignToolRetryDelay</link></p>
+<sd>SignTool</sd><br/>
+<sd>SignToolRetryDelay</sd></p>
 </body>
 </setuptopic>
 
@@ -6908,10 +6908,10 @@ SignTool=byparam format c:
 <keyword value="code signing" />
 <setupdefault><tt>500</tt></setupdefault>
 <body>
-<p>Specifies the number of milliseconds the compiler should wait before any automatic digital signing retries specified by <link topic="setup_signtoolretrycount">SignToolRetryCount</link>.</p>
+<p>Specifies the number of milliseconds the compiler should wait before any automatic digital signing retries specified by <sd>SignToolRetryCount</sd>.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_signtool">SignTool</link><br/>
-<link topic="setup_signtoolretrycount">SignToolRetryCount</link></p>
+<sd>SignTool</sd><br/>
+<sd>SignToolRetryCount</sd></p>
 </body>
 </setuptopic>
 
@@ -6924,7 +6924,7 @@ SignTool=byparam format c:
 <body>
 <p>When set to <tt>yes</tt>, the compiler will run Sign Tools in a minimized window. Has no effect if the sign tool is a console program.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_signtool">SignTool</link></p>
+<sd>SignTool</sd></p>
 </body>
 </setuptopic>
 
@@ -6941,19 +6941,19 @@ SignTool=byparam format c:
 
 <setuptopic directive="LZMABlockSize">
 <setupvalid><tt>1024</tt> through <tt>262144</tt></setupvalid>
-<setupdefault>4 * <link topic="setup_lzmadictionarysize">LZMADictionarySize</link> with a minimum of 1024 and a maximum of 262144</setupdefault>
+<setupdefault>4 * <sd>LZMADictionarySize</sd> with a minimum of 1024 and a maximum of 262144</setupdefault>
 <body>
-<p>Controls the block size used by the LZMA2 compressor, in kilobytes, when <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link> is set to <tt>2</tt> or higher.</p>
+<p>Controls the block size used by the LZMA2 compressor, in kilobytes, when <sd>LZMANumBlockThreads</sd> is set to <tt>2</tt> or higher.</p>
 <p>Note that setting this too high can negate the benefits of using multiple block threads. Typically, the block size should be no more than the total size of your data divided by the number of block threads.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_lzmadictionarysize">LZMADictionarySize</link><br/>
-<link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link></p>
+<sd>LZMADictionarySize</sd><br/>
+<sd>LZMANumBlockThreads</sd></p>
 </body>
 </setuptopic>
 
 <setuptopic directive="LZMADictionarySize">
 <setupvalid><link topic="64bit">32-bit compiler</link>: <tt>4</tt> through <tt>131072</tt> (by default)<br />
-<tt>4</tt> through <tt>1048576</tt> if <link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link> is set to <tt>yes</tt> and running on 64-bit Windows (x64)<br />
+<tt>4</tt> through <tt>1048576</tt> if <sd>LZMAUseSeparateProcess</sd> is set to <tt>yes</tt> and running on 64-bit Windows (x64)<br />
 <link topic="64bit">64-bit compiler</link>: <tt>4</tt> through <tt>3932160</tt></setupvalid>
 <setupdefault><tt>32</tt> if the <link topic="setup_compression">LZMA compression level</link> is set to <tt>fast</tt><br />
 <tt>2048</tt> if the LZMA compression level is set to <tt>normal</tt><br />
@@ -6962,10 +6962,10 @@ SignTool=byparam format c:
 <tt>65536</tt> if the LZMA compression level is set to <tt>ultra64</tt></setupdefault>
 <body>
 <p>Controls the dictionary size used by the LZMA and LZMA2 compressors, in kilobytes. A larger dictionary size can provide a better compression ratio at the expense of compression speed and memory requirements.</p>
-<p>Review the memory requirements listed in the <link topic="setup_compression">Compression</link> topic before using.</p>
-<p><link topic="64bit">32-bit compiler</link>: If an "Out of memory" error is seen after increasing the dictionary size, <link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link> may need to be set.</p>
+<p>Review the memory requirements listed in the <sd>Compression</sd> topic before using.</p>
+<p><link topic="64bit">32-bit compiler</link>: If an "Out of memory" error is seen after increasing the dictionary size, <sd>LZMAUseSeparateProcess</sd> may need to be set.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_lzmablocksize">LZMABlockSize</link></p>
+<sd>LZMABlockSize</sd></p>
 </body>
 </setuptopic>
 
@@ -6987,12 +6987,12 @@ SignTool=byparam format c:
 <body>
 <p>When compressing a large file, the LZMA2 compressor has the ability to divide its data into "blocks" and compress two or more of these blocks in parallel through the use of additional threads (provided sufficient processor power is available). This directive specifies the maximum number of threads to use -- that is, the maximum number of blocks that the LZMA2 compressor may compress in parallel. Using a high maximum requires a very large file before this maximum is fully used.</p>
 <p>The memory required during compression when multiple block threads are used is roughly:</p>
-<indent><p>LZMANumBlockThreads * (<link topic="setup_compression">Normal memory usage</link> + (<link topic="setup_lzmablocksize">LZMABlockSize</link> * 2))</p></indent>
-<p>Since LZMA2 (and LZMA) uses two threads for match-finding by default (see <link topic="setup_compressionthreads">CompressionThreads</link>), there ideally should be two processor cores available for each block thread. Thus, to see the maximum benefit from a value of <tt>2</tt>, four cores are needed.</p>
+<indent><p>LZMANumBlockThreads * (<link topic="setup_compression">Normal memory usage</link> + (<sd>LZMABlockSize</sd> * 2))</p></indent>
+<p>Since LZMA2 (and LZMA) uses two threads for match-finding by default (see <sd>CompressionThreads</sd>), there ideally should be two processor cores available for each block thread. Thus, to see the maximum benefit from a value of <tt>2</tt>, four cores are needed.</p>
 <p>Dividing the data into multiple blocks can reduce the compression ratio, as the compressor cannot find matches across blocks. Using a large <link topic="setup_lzmablocksize">block size</link> can help to mitigate this.</p>
-<p><link topic="64bit">32-bit compiler</link>: If an "Out of memory" error is seen when multiple block threads are enabled in combination with a compression level that uses a large dictionary size (such as <tt>ultra64</tt>), <link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link> may need to be set.</p>
+<p><link topic="64bit">32-bit compiler</link>: If an "Out of memory" error is seen when multiple block threads are enabled in combination with a compression level that uses a large dictionary size (such as <tt>ultra64</tt>), <sd>LZMAUseSeparateProcess</sd> may need to be set.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_lzmablocksize">LZMABlockSize</link></p>
+<sd>LZMABlockSize</sd></p>
 </body>
 </setuptopic>
 
@@ -7014,10 +7014,10 @@ SignTool=byparam format c:
 <p>If set to <tt>force</tt> Setup will force close when closing applications, unless told not to via the command line. Use with care since this may cause the user to lose unsaved work.</p>
 <p>Note: Setup uses Windows <extlink href="https://docs.microsoft.com/en-us/windows/win32/rstmgr/about-restart-manager">Restart Manager</extlink> to detect, close, and restart applications.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link><br/>
+<sd>CloseApplicationsFilter</sd><br/>
 <link topic="scriptevents" anchor="RegisterExtraCloseApplicationsResources">RegisterExtraCloseApplicationsResources</link><br/>
-<link topic="setup_restartapplications">RestartApplications</link><br/>
-<link topic="setup_appmutex">AppMutex</link></p>
+<sd>RestartApplications</sd><br/>
+<sd>AppMutex</sd></p>
 </body>
 </setuptopic>
 
@@ -7028,24 +7028,24 @@ SignTool=byparam format c:
 <p>Limits which [Files] and [InstallDelete] entries Setup will check for being in use. Only files matching one of the wildcards will be checked.</p>
 <p>Setting this to <tt>*.*</tt> can provide better checking at the expense of speed.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_closeapplications">CloseApplications</link><br/>
-<link topic="setup_closeapplicationsfilterexcludes">CloseApplicationsFilterExcludes</link><br/>
-<link topic="setup_restartapplications">RestartApplications</link></p>
+<sd>CloseApplications</sd><br/>
+<sd>CloseApplicationsFilterExcludes</sd><br/>
+<sd>RestartApplications</sd></p>
 </body>
 </setuptopic>
 
 <setuptopic directive="CloseApplicationsFilterExcludes">
 <setupvalid>A list of file name wildcards, separated by commas</setupvalid>
 <body>
-<p>Limits which [Files] and [InstallDelete] entries Setup will check for being in use. Files matching one of the wildcards will not be checked even if they match <link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link>.</p>
+<p>Limits which [Files] and [InstallDelete] entries Setup will check for being in use. Files matching one of the wildcards will not be checked even if they match <sd>CloseApplicationsFilter</sd>.</p>
 <p>For example, to check all files except MyProg.exe:</p>
 <example><pre>[Setup]
 CloseApplicationsFilter=*.*
 CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 <p><b>See also:</b><br/>
-<link topic="setup_closeapplications">CloseApplications</link><br/>
-<link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link><br/>
-<link topic="setup_restartapplications">RestartApplications</link></p>
+<sd>CloseApplications</sd><br/>
+<sd>CloseApplicationsFilter</sd><br/>
+<sd>RestartApplications</sd></p>
 </body>
 </setuptopic>
 
@@ -7053,11 +7053,11 @@ CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt> and <link topic="setup_closeapplications">CloseApplications</link> is also set to <tt>yes</tt> or <tt>force</tt>, Setup restarts the closed applications after the installation has completed.</p>
+<p>When set to <tt>yes</tt> and <sd>CloseApplications</sd> is also set to <tt>yes</tt> or <tt>force</tt>, Setup restarts the closed applications after the installation has completed.</p>
 <p>Note: For Setup to be able to restart an application after the installation has completed, the application needs to be using the Windows <tt>RegisterApplicationRestart</tt> API function.</p>
 <p><b>See also:</b><br/>
-<link topic="setup_closeapplications">CloseApplications</link><br/>
-<link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link></p>
+<sd>CloseApplications</sd><br/>
+<sd>CloseApplicationsFilter</sd></p>
 </body>
 </setuptopic>
 
@@ -7075,7 +7075,7 @@ CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 <body>
 <p>Controls whether LZMA compression is performed inside the main compiler process or in a separate process.</p>
 <p>This directive is ignored if the <link topic="64bit">64-bit compiler</link> is being used. Otherwise:</p>
-<p>Using a separate process for LZMA compression allows the compressor to allocate larger amounts of memory, which makes it possible for higher <link topic="setup_lzmadictionarysize">LZMADictionarySize</link> and <link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link> settings to be used. Additionally, on 64-bit Windows (x64), a small increase in compression speed may be observed.</p>
+<p>Using a separate process for LZMA compression allows the compressor to allocate larger amounts of memory, which makes it possible for higher <sd>LZMADictionarySize</sd> and <sd>LZMANumBlockThreads</sd> settings to be used. Additionally, on 64-bit Windows (x64), a small increase in compression speed may be observed.</p>
 <p>On 64-bit Windows (x64), there are no limitations on the amount of memory the compressor may use, as it runs inside a native 64-bit process. On 32-bit Windows, however, due to address space constraints, typically only about 1.5 GB is available for use by the compressor.</p>
 <p>A value of <tt>yes</tt> enables the use of a 64-bit process on 64-bit Windows (x64), and a 32-bit process on 32-bit Windows.</p>
 <p>A value of <tt>x86</tt> enables the use of a 32-bit process only (normally only useful for debugging purposes).</p>
@@ -7089,15 +7089,15 @@ CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 <body>
 <p>When a new version of an application is installed over an existing version, instead of creating a new uninstall log file (unins???.dat), Setup will by default look for and append to an existing uninstall log file that belongs to the <link topic="sameappnotes">same application</link> and is in the same directory. This way, when the application is uninstalled, changes made by all the different installations will be undone (starting with the most recent installation).</p>
 <p>The uninstaller will use the <link topic="messagessection">messages</link> from the most recent installation of the application. However, there is an exception: if an installation was built with an older version of Inno Setup that included an older version of the uninstaller than the existing one on the user's system, neither the existing uninstaller nor its messages will be replaced. In this case the uninstall log will still be appended to, though, since the file format is backward compatible.</p>
-<p>The application name displayed in the uninstaller will be the same as the value of the <tt>[Setup]</tt> section directive <link topic="setup_appname">AppName</link> from the most recent installation, unless <link topic="setup_updateuninstalllogappname">UpdateUninstallLogAppName</link> is set to <tt>no</tt>.</p>
-<p>To disable the uninstall log-appending feature set the <tt>[Setup]</tt> section directive <link topic="setup_uninstalllogmode">UninstallLogMode</link>.</p>
+<p>The application name displayed in the uninstaller will be the same as the value of the <tt>[Setup]</tt> section directive <sd>AppName</sd> from the most recent installation, unless <sd>UpdateUninstallLogAppName</sd> is set to <tt>no</tt>.</p>
+<p>To disable the uninstall log-appending feature set the <tt>[Setup]</tt> section directive <sd>UninstallLogMode</sd>.</p>
 </body>
 </topic>
 
 <topic name="sameappnotes" title="Same Application">
 <keyword value="Same Application" />
 <body>
-<p>"Same application" refers to two separate installation runs that share the same <link topic="setup_appid">AppId</link> setting (or if <tt>AppId</tt> is not set, the same <link topic="setup_appname">AppName</link> setting), and the same <link topic="admininstallmode">administrative or non administrative install mode</link>, and the same <link topic="32vs64bitinstalls">32-bit or 64-bit install mode</link>*. Two of such installation runs will usually lead to only one actual installation of the files.</p>
+<p>"Same application" refers to two separate installation runs that share the same <sd>AppId</sd> setting (or if <tt>AppId</tt> is not set, the same <sd>AppName</sd> setting), and the same <link topic="admininstallmode">administrative or non administrative install mode</link>, and the same <link topic="32vs64bitinstalls">32-bit or 64-bit install mode</link>*. Two of such installation runs will usually lead to only one actual installation of the files.</p>
 <p>(* = This requirement does not apply to any same application information retrieved from the registry in non administrative install mode since the HKEY_CURRENT_USER key is shared between the 32-bit and 64-bit registry. It does however always apply to the uninstall log since the 32-bit and 64-bit uninstall logs are kept separate, even in non administrative install mode. In practice this means you should avoid offering both a 32-bit and a 64-bit non administrative installer to your users without giving these installers different <tt>AppId</tt>, <tt>DefaultDirName</tt>, <tt>DefaultGroupName</tt>, and <tt>UninstallDisplayName</tt> settings.)</p>
 <p><b>See also:</b><br/>
 <link topic="sidebyside">Side-by-side installation</link></p>
@@ -7107,14 +7107,14 @@ CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
 <topic name="sidebyside" title="Side-by-side installation">
 <keyword value="Side-by-side installation" />
 <body>
-<p>"Side-by-side installation" refers to two separate installation runs that share the same <link topic="setup_appid">AppId</link> setting (or if <tt>AppId</tt> is not set, the same <link topic="setup_appname">AppName</link> setting) but not the other <link topic="sameappnotes">"Same application"</link> requirements. Two of such installation runs will usually lead to two actual installations of the files. To avoid entries with identical names in the <i>Add/Remove Programs</i> Control Panel applet Setup will automatically mark the new entry with a text like "Current user" or "64-bit" when necessary during a side-by-side installation.</p>
+<p>"Side-by-side installation" refers to two separate installation runs that share the same <sd>AppId</sd> setting (or if <tt>AppId</tt> is not set, the same <sd>AppName</sd> setting) but not the other <link topic="sameappnotes">"Same application"</link> requirements. Two of such installation runs will usually lead to two actual installations of the files. To avoid entries with identical names in the <i>Add/Remove Programs</i> Control Panel applet Setup will automatically mark the new entry with a text like "Current user" or "64-bit" when necessary during a side-by-side installation.</p>
 </body>
 </topic>
 
 <topic name="sourcedirectorynotes" title="Source Directory">
 <keyword value="Source Directory" />
 <body>
-<p>By default, the compiler expects to find files referenced in the script's <tt>[Files]</tt> section <tt>Source</tt> parameters, and files referenced in the <tt>[Setup]</tt> section, under the same directory the script file is located if they do not contain fully qualified pathnames. To specify a different source directory, create a <link topic="setup_sourcedir">SourceDir</link> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>By default, the compiler expects to find files referenced in the script's <tt>[Files]</tt> section <tt>Source</tt> parameters, and files referenced in the <tt>[Setup]</tt> section, under the same directory the script file is located if they do not contain fully qualified pathnames. To specify a different source directory, create a <sd>SourceDir</sd> directive in the script's <tt>[Setup]</tt> section.</p>
 </body>
 </topic>
 
