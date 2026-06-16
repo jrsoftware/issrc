@@ -9,8 +9,8 @@
 
   <xsl:comment>
     Inno Setup Preprocessor Reference
-    Copyright (C) 1997-2025 Jordan Russell
-    Portions Copyright (C) 2000-2024 Martijn Laan
+    Copyright (C) 1997-2026 Jordan Russell
+    Portions Copyright (C) 2000-2026 Martijn Laan
     For conditions of distribution and use, see LICENSE.TXT.
     Portions Copyright (C) 2001-2004 Alex Yackimoff
 
@@ -126,6 +126,10 @@
 
 <xsl:template match="tt">
   <tt><xsl:apply-templates/></tt>
+</xsl:template>
+
+<xsl:template match="sd">
+  <sd><xsl:apply-templates/></sd>
 </xsl:template>
 
 <xsl:template match="syntax">

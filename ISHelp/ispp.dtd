@@ -20,7 +20,7 @@
 <!ATTLIST section
   title  CDATA      #REQUIRED>
 
-<!ELEMENT p         (#PCDATA|tt|i|link|extlink)*>
+<!ELEMENT p         (#PCDATA|tt|i|link|extlink|sd)*>
 <!ELEMENT pre       (line)*>
 <!ELEMENT line      (#PCDATA|link|b)*>
 <!ELEMENT tt        (#PCDATA|i|link|extlink)*>
@@ -34,6 +34,7 @@
   href    CDATA     #REQUIRED>
 <!ELEMENT i         (#PCDATA)*>
 <!ELEMENT b         (#PCDATA)*>
+<!ELEMENT sd        (#PCDATA)*>
 
 <!ELEMENT syntax (define)*>
 
