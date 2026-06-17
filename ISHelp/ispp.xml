@@ -48,7 +48,7 @@
 				<p>There are two kinds of directives in ISPP: simple and inline.</p>
 				<p>Simple directives occupy a whole line and begin with the <tt>#</tt> symbol. For example, the following defines a variable called <tt>MyAppName</tt>:</p>
 				<pre>
-					<line>#define MyAppName "My Program"</line>
+					<line><ispp>#define</ispp> MyAppName <str>"My Program"</str></line>
 				</pre>
 				<p>Inline directives appear inside other lines and begin with <tt>{#</tt> and end with <tt>}</tt>. For example, the following sets Inno Setup's <sd>AppName</sd> directive to the value of the previously defined variable:</p>
 				<pre>
@@ -351,7 +351,7 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>#call <link href="savetofile">SaveToFile</link>(AddBackslash(SourcePath) + "Preprocessed.iss"), <link href="exec">Exec</link>(AddBackslash(CompilerPath) + "ISIDE.exe", """" + AddBackslash(SourcePath) + "Preprocessed.iss""")</line>
+						<line><ispp>#call</ispp> <link href="savetofile">SaveToFile</link>(AddBackslash(SourcePath) + <str>"Preprocessed.iss"</str>), <link href="exec">Exec</link>(AddBackslash(CompilerPath) + <str>"ISIDE.exe"</str>, <str>""""</str> + AddBackslash(SourcePath) + <str>"Preprocessed.iss"""</str>)</line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -1061,8 +1061,11 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#call SaveToFile(AddBackslash(SourcePath) + "Preprocessed.iss")</line>
+						<line><ispp>#call</ispp> SaveToFile(AddBackslash(SourcePath) + <str>"Preprocessed.iss"</str>)</line>
 					</pre>
+				</section>
+				<section title="See also">
+					<p><tt><link href="SaveStringToFile">SaveStringToFile</link></tt></p>
 				</section>
 			</topic>
 			<topic id="Find">
@@ -1342,8 +1345,11 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#call SaveStringToFile('c:\filename.txt', NewLine + 'the string' + NewLine)</line>
+						<line><ispp>#call</ispp> SaveStringToFile(<str>'c:\filename.txt'</str>, NewLine + <str>'the string'</str> + NewLine)</line>
 					</pre>
+				</section>
+				<section title="See also">
+					<p><tt><link href="SaveToFile">SaveToFile</link></tt></p>
 				</section>
 			</topic>
 			<topic id="GetDateTimeString">
@@ -1407,7 +1413,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#define MyFileDateTimeString GetFileDateTimeString('myfile.txt', 'dd/mm/yyyy hh:nn:ss', '-', ':');</line>
+						<line><ispp>#define</ispp> MyFileDateTimeString GetFileDateTimeString(<str>'myfile.txt'</str>, <str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</str>);</line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -2175,7 +2181,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#call EmitLanguagesSection</line>
+						<line><ispp>#call</ispp> EmitLanguagesSection</line>
 					</pre>
 				</section>
 			</topic>
@@ -2256,7 +2262,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<section title="Comments">
 				<p>Comments may be embedded in an expression by using a slash and an asterisk. For example:</p>
 				<pre>
-					<line>#emit Var1 /* this is a comment */ + Var2 /* this is also a comment */</line>
+					<line><ispp>#emit</ispp> Var1 <com>/* this is a comment */</com> + Var2 <com>/* this is also a comment */</com></line>
 				</pre>
 				<p>Comments may also be placed at the end of an expression by using a semicolon or two slashes. For example:</p>
 				<pre>
@@ -2270,7 +2276,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</pre>
         <p>Comments may also be placed anywhere by starting a line with two slashes. For example:</p>
 				<pre>
-					<line>// This is a comment</line>
+					<line><com>// This is a comment</com></line>
 				</pre>
         <p>All of the comments listed above are not included in the &translation;, unlike (non ISPP) comments using a semicolon at the start of a line. For example:</p>
 				<pre>
@@ -2282,7 +2288,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<section title="Extended User Defined Function Call Syntax">
 				<p>In ISPP, you can use named parameters when calling a user defined function. Given the declaration:</p>
 				<pre>
-					<line>#define MyFunction(int A = 2, int B = 2) A + B</line>
+					<line><ispp>#define</ispp> MyFunction(<ispp>int</ispp> A = <num>2</num>, <ispp>int</ispp> B = <num>2</num>) A + B</line>
 				</pre>
 				<p>This function can be called specifying parameter names:</p>
 				<pre>
@@ -2296,7 +2302,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<li>
 						<p>Because of this extension, an assignment expression must be enclosed in parentheses, if not using the extended call syntax, to avoid ambiguity:</p>
 						<pre>
-							<line>#emit MyFunction((MyVar = 5), 10)</line>
+							<line><ispp>#emit</ispp> MyFunction((MyVar = <num>5</num>), <num>10</num>)</line>
 						</pre>
 						<p>In the above example, the equality sign is treated as a direct assignment operator.</p>
 						<p>Even when a function doesn't have named parameters, assignment expressions still need parentheses when calling it.</p>
@@ -2304,7 +2310,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<li>
 						<p>By the standard rule, a comma is used to separate actual parameters. If you need to use the sequential evaluation operator, you must include the expression in parentheses:</p>
 						<pre>
-							<line>#emit MyFunction((SaveToFile("script.txt"), 5), 10)</line>
+							<line><ispp>#emit</ispp> MyFunction((SaveToFile(<str>"script.txt"</str>), <num>5</num>), <num>10</num>)</line>
 						</pre>
 						<p>In the above example, the first comma is treated as the sequential evaluation operator, and the second one is treated as the parameter delimiter.</p>
 					</li>
@@ -2395,7 +2401,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<p>Note that you cannot explicitly refer to a variable in a specific visibility from expressions. Given the example above, if <tt>MyVar</tt> is mentioned in an expression in the declaration file, its identifier refers to private <tt>MyVar</tt>. If it is mentioned in an included file, it refers to protected <tt>MyVar</tt>. If it is mentioned in one of the files above the declaration file on the include stack (that is, one of the files that included the declaration file, directly or indirectly), it refers to public <tt>MyVar</tt>.</p>
 				<p>Also note that if you swapped the last two declarations from the above example, private <tt>MyVar</tt> would become inaccessible (until protected is undefined) because protected would be declared after it and would take precedence. But it wouldn't undefine its private counterpart.</p>
 				<p>Each file can set a default visibility, the visibility that will be used when no resolution clause is specified in a variable declaration. This can be done using the &define; directive, for example:</p>
-				<pre><line>#define protected</line></pre>
+				<pre><line><ispp>#define</ispp> <ispp>protected</ispp></line></pre>
 				<p>sets protected visibility by default.</p>
 				<p>The default visibility isn't used when evaluating expressions, it is only used when a variable is defined or undefined without explicitly specifying its visibility. When default visibility is not set, public is assumed by default. Setting default visibility is not propagated on included or parent files.</p>
 				<p>In user defined function expressions, avoid using identifiers of lower visibility than the one the user defined function is declared in. This may cause "Undeclared identifier" errors if the user defined function is called from another file.</p>

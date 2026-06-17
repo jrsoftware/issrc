@@ -374,7 +374,7 @@ end;
 </ul>
 
 <example>
-<pre>DefaultDirName={code:MyConst}\My Program</pre>
+<pre><key>DefaultDirName</key>=<con>{code:MyConst}</con>\My Program</pre>
 </example>
 
 <p>Here is an example of a <tt>[Code]</tt> section containing the <tt>MyConst</tt> function used above.</p>
