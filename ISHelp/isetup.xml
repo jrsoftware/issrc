@@ -230,21 +230,21 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <p>You can put "comments" in the script (which are ignored by the compiler) by placing a semicolon at the beginning of a line. For example:</p>
 
 <precode>
-; This is a comment. I could put reminders to myself here...
+<com>; This is a comment. I could put reminders to myself here...</com>
 </precode>
 
 <p>A C-like <a name="include"><tt>#include</tt></a> directive is supported, which pulls in lines from a separate file into the script at the position of the <tt>#include</tt> directive. The syntax is:</p>
 
 <precode>
-#include "filename.txt"
+<ispp>#include</ispp> <str>"filename.txt"</str>
 </precode>
 
 <p>If the filename is not fully qualified, the compiler will look for it in the same directory as the file containing the <tt>#include</tt> directive. The filename may be prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 
 <p>A <a name="preproc"><tt>#preproc</tt></a> directive is supported, which must be placed on the first line of the file and specifies whether to use the built-in preprocessor, which only supports the above <tt>#include</tt> directive, or to use Inno Setup Preprocessor (ISPP), which supports many more directives. The syntax is:</p>
 <precode>
-#preproc builtin
-#preproc ispp
+<ispp>#preproc</ispp> builtin
+<ispp>#preproc</ispp> ispp
 </precode>
 
 <p>By default, scripts use ISPP if available. Message files (<tt>.isl</tt>) are not allowed to use any directives.</p>
@@ -290,10 +290,10 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <p>All of the sections in a script, with the exception of <tt>[Setup]</tt>, <tt>[Messages]</tt>, <tt>[CustomMessages]</tt>, <tt>[LangOptions]</tt>, and <tt>[Code]</tt>, contain lines separated into <i>parameters</i>. The following is an example of a <tt>[Files]</tt> section:</p>
 
 <precode>
-[Files]
-Source: "MyProg.exe"; DestDir: "{app}"
-Source: "MyProg.chm"; DestDir: "{app}"
-Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
+<sec>[Files]</sec>
+<key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"
+<key>Source</key>: "MyProg.chm"; <key>DestDir</key>: "<con>{app}</con>"
+<key>Source</key>: "Readme.txt"; <key>DestDir</key>: "<con>{app}</con>"; <key>Flags</key>: isreadme
 </precode>
 
 <p>Each parameter consists of a name, followed by a colon, and then a value. Unless otherwise noted, parameters are optional in that they assume a default value if they are not specified. Multiple parameters on a line are separated by semicolons, and can be listed in any order.</p>
@@ -708,8 +708,8 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 </ul>
 <examples>
 <pre>
-{%COMSPEC}
-{%PROMPT|$P$G}
+<con>{%COMSPEC}</con>
+<con>{%PROMPT|$P$G}</con>
 </pre>
 </examples>
 </dd>
@@ -734,9 +734,9 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 </ul>
 <examples>
 <pre>
-{drive:{src}}
-{drive:c:\path\file}
-{drive:\\server\share\path\file}
+<con>{drive:{src}}</con>
+<con>{drive:c:\path\file}</con>
+<con>{drive:\\server\share\path\file}</con>
 </pre>
 </examples>
 </dd>
@@ -920,10 +920,10 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <p>An entry without a <tt>Components</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
 <pre>
-[Files]
-Source: "MyProg.exe"; DestDir: "{app}"; Components: main
-Source: "MyProg.chm"; DestDir: "{app}"; Components: help
-Source: "Readme.txt"; DestDir: "{app}"
+<sec>[Files]</sec>
+<key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"; <key>Components</key>: main
+<key>Source</key>: "MyProg.chm"; <key>DestDir</key>: "<con>{app}</con>"; <key>Components</key>: help
+<key>Source</key>: "Readme.txt"; <key>DestDir</key>: "<con>{app}</con>"
 </pre>
 </example>
 </param>
@@ -935,10 +935,10 @@ Source: "Readme.txt"; DestDir: "{app}"
 <p>Note that the <i>Don't create a Start Menu folder</i> checkbox on the <i>Select Start Menu Folder</i> wizard page doesn't affect [Icons] entries that have <tt>Tasks</tt> parameters since they have their own checkboxes.</p>
 <example>
 <pre>
-[Icons]
-Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"; Components: main; Tasks: startmenu
-Name: "{group}\My Program Help"; Filename: "{app}\MyProg.chm"; Components: help; Tasks: startmenu
-Name: "{commondesktop}\My Program"; Filename: "{app}\MyProg.exe"; Components: main; Tasks: desktopicon
+<sec>[Icons]</sec>
+<key>Name</key>: "<con>{group}</con>\My Program"; <key>Filename</key>: "<con>{app}</con>\MyProg.exe"; <key>Components</key>: main; <key>Tasks</key>: startmenu
+<key>Name</key>: "<con>{group}</con>\My Program Help"; <key>Filename</key>: "<con>{app}</con>\MyProg.chm"; <key>Components</key>: help; <key>Tasks</key>: startmenu
+<key>Name</key>: "<con>{commondesktop}</con>\My Program"; <key>Filename</key>: "<con>{app}</con>\MyProg.exe"; <key>Components</key>: main; <key>Tasks</key>: desktopicon
 </pre>
 </example>
 </param>
@@ -949,16 +949,16 @@ Name: "{commondesktop}\My Program"; Filename: "{app}\MyProg.exe"; Components: ma
 Besides space separated lists, you may also use boolean expressions containing component or task names as Components and Tasks parameters. Supported operators include <tt>not</tt>, <tt>and</tt>, and <tt>or</tt>. For example:</p>
 
 <precode>
-[Components]
-Name: a; Description: a
-Name: b; Description: b
+<sec>[Components]</sec>
+<key>Name</key>: a; <key>Description</key>: a
+<key>Name</key>: b; <key>Description</key>: b
 
-[Tasks]
-Name: p; Description: a or b; Components: a or b
-Name: q; Description: a and b; Components: a and b
-Name: r; Description: not a or b; Components: not a or b
-Name: s; Description: not (a or b); Components: not (a or b)
-Name: t; Description: a or b - old style; Components: a b
+<sec>[Tasks]</sec>
+<key>Name</key>: p; <key>Description</key>: a or b; <key>Components</key>: a or b
+<key>Name</key>: q; <key>Description</key>: a and b; <key>Components</key>: a and b
+<key>Name</key>: r; <key>Description</key>: not a or b; <key>Components</key>: not a or b
+<key>Name</key>: s; <key>Description</key>: not (a or b); <key>Components</key>: not (a or b)
+<key>Name</key>: t; <key>Description</key>: a or b - old style; <key>Components</key>: a b
 </precode>
 
 </body>
@@ -974,11 +974,11 @@ Name: t; Description: a or b - old style; Components: a b
 <p>This section contains global settings used by the installer and uninstaller. Certain directives are required for any installation you create. Here is an example of a <tt>[Setup]</tt> section:</p>
 
 <precode>
-[Setup]
-AppName=My Program
-AppVersion=1.5
-DefaultDirName={autopf}\My Program
-DefaultGroupName=My Program
+<sec>[Setup]</sec>
+<key>AppName</key>=My Program
+<key>AppVersion</key>=1.5
+<key>DefaultDirName</key>=<con>{autopf}</con>\My Program
+<key>DefaultGroupName</key>=My Program
 </precode>
 
 <p>By default, any leading or trailing whitespace in a directive's value will be stripped. It is possible to avoid this by surrounding the directive's value in double quotes (<tt>"</tt>).</p>
@@ -1205,10 +1205,10 @@ DefaultGroupName=My Program
 <p>Here is an example of a <tt>[Types]</tt> section:</p>
 
 <precode>
-[Types]
-Name: "full"; Description: "Full installation"
-Name: "compact"; Description: "Compact installation"
-Name: "custom"; Description: "Custom installation"; Flags: iscustom
+<sec>[Types]</sec>
+<key>Name</key>: "full"; <key>Description</key>: "Full installation"
+<key>Name</key>: "compact"; <key>Description</key>: "Compact installation"
+<key>Name</key>: "custom"; <key>Description</key>: "Custom installation"; <key>Flags</key>: iscustom
 </precode>
 
 <p>The following is a list of the supported <link topic="params">parameters</link>:</p>
@@ -1266,11 +1266,11 @@ Name: "custom"; Description: "Custom installation"; Flags: iscustom
 <p>Here is an example of a <tt>[Components]</tt> section:</p>
 
 <precode>
-[Components]
-Name: "main"; Description: "Main Files"; Types: full compact custom; Flags: fixed
-Name: "help"; Description: "Help Files"; Types: full
-Name: "help\english"; Description: "English"; Types: full
-Name: "help\dutch"; Description: "Dutch"; Types: full
+<sec>[Components]</sec>
+<key>Name</key>: "main"; <key>Description</key>: "Main Files"; <key>Types</key>: full compact custom; <key>Flags</key>: fixed
+<key>Name</key>: "help"; <key>Description</key>: "Help Files"; <key>Types</key>: full
+<key>Name</key>: "help\english"; <key>Description</key>: "English"; <key>Types</key>: full
+<key>Name</key>: "help\dutch"; <key>Description</key>: "Dutch"; <key>Types</key>: full
 </precode>
 
 <p>The example above generates four components: A "main" component which gets installed if the end user selects a type with name "full" or "compact" and a "help" component which has two child components and only gets installed if the end user selects the "full" type.</p>
@@ -1364,12 +1364,12 @@ Name: "help\dutch"; Description: "Dutch"; Types: full
 <p>Here is an example of a <tt>[Tasks]</tt> section:</p>
 
 <precode>
-[Tasks]
-Name: desktopicon; Description: "Create a &amp;desktop icon"; GroupDescription: "Additional icons:"; Components: main
-Name: desktopicon\common; Description: "For all users"; GroupDescription: "Additional icons:"; Components: main; Flags: exclusive
-Name: desktopicon\user; Description: "For the current user only"; GroupDescription: "Additional icons:"; Components: main; Flags: exclusive unchecked
-Name: quicklaunchicon; Description: "Create a &amp;Quick Launch icon"; GroupDescription: "Additional icons:"; Components: main; Flags: unchecked
-Name: associate; Description: "&amp;Associate files"; GroupDescription: "Other tasks:"; Flags: unchecked
+<sec>[Tasks]</sec>
+<key>Name</key>: desktopicon; <key>Description</key>: "Create a &amp;desktop icon"; <key>GroupDescription</key>: "Additional icons:"; <key>Components</key>: main
+<key>Name</key>: desktopicon\common; <key>Description</key>: "For all users"; <key>GroupDescription</key>: "Additional icons:"; <key>Components</key>: main; <key>Flags</key>: exclusive
+<key>Name</key>: desktopicon\user; <key>Description</key>: "For the current user only"; <key>GroupDescription</key>: "Additional icons:"; <key>Components</key>: main; <key>Flags</key>: exclusive unchecked
+<key>Name</key>: quicklaunchicon; <key>Description</key>: "Create a &amp;Quick Launch icon"; <key>GroupDescription</key>: "Additional icons:"; <key>Components</key>: main; <key>Flags</key>: unchecked
+<key>Name</key>: associate; <key>Description</key>: "&amp;Associate files"; <key>GroupDescription</key>: "Other tasks:"; <key>Flags</key>: unchecked
 </precode>
 
 <p>The following is a list of the supported <link topic="params">parameters</link>:</p>
@@ -1459,9 +1459,9 @@ Name: associate; Description: "&amp;Associate files"; GroupDescription: "Other t
 <p>Here is an example of a <tt>[Dirs]</tt> section:</p>
 
 <precode>
-[Dirs]
-Name: "{app}\data"
-Name: "{app}\bin"
+<sec>[Dirs]</sec>
+<key>Name</key>: "<con>{app}</con>\data"
+<key>Name</key>: "<con>{app}</con>\bin"
 </precode>
 
 <p>The example above will, after Setup creates the application directory, create two subdirectories underneath the application directory.</p>
@@ -1562,10 +1562,10 @@ Name: "{app}\bin"
 <p>Here is an example of a <tt>[Files]</tt> section:</p>
 
 <precode>
-[Files]
-Source: "MyProg.exe"; DestDir: "{app}"
-Source: "MyProg.chm"; DestDir: "{app}"
-Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
+<sec>[Files]</sec>
+<key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"
+<key>Source</key>: "MyProg.chm"; <key>DestDir</key>: "<con>{app}</con>"
+<key>Source</key>: "Readme.txt"; <key>DestDir</key>: "<con>{app}</con>"; <key>Flags</key>: isreadme
 </precode>
 
 <p>See the <i>Remarks</i> section at the bottom of this topic for some important notes.</p>
@@ -1582,8 +1582,8 @@ Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 <p>Constants may only be used when the <tt>external</tt> flag is specified, because the compiler does not do any constant translating itself.</p>
 <examples>
 <pre>
-Source: "MyProg.exe"
-Source: "Files\*"
+<key>Source</key>: "MyProg.exe"
+<key>Source</key>: "Files\*"
 </pre>
 </examples>
 </param>
@@ -1594,8 +1594,8 @@ Source: "Files\*"
 <p><link topic="pathredir">System path redirection</link> is applied to the specified path.</p>
 <examples>
 <pre>
-DestDir: "{app}"
-DestDir: "{app}\subdir"
+<key>DestDir</key>: "<con>{app}</con>"
+<key>DestDir</key>: "<con>{app}</con>\subdir"
 </pre>
 </examples>
 </param>
@@ -1614,8 +1614,8 @@ DestDir: "{app}\subdir"
 <p>The patterns may include backslashes. "foo\bar" will exclude both "foo\bar" and "subdir\foo\bar". "\foo\bar" will only exclude "foo\bar".</p>
 <examples>
 <pre>
-Source: "*"; Excludes: "*.~*"
-Source: "*"; Excludes: "*.~*,\Temp\*"; Flags: recursesubdirs
+<key>Source</key>: "*"; <key>Excludes</key>: "*.~*"
+<key>Source</key>: "*"; <key>Excludes</key>: "*.~*,\Temp\*"; <key>Flags</key>: recursesubdirs
 </pre>
 </examples>
 </param>
@@ -1627,7 +1627,7 @@ Source: "*"; Excludes: "*.~*,\Temp\*"; Flags: recursesubdirs
 <p>Supports digit separators and set in bytes. (1048576 bytes = 1 megabyte)</p>
 <example>
 <pre>
-ExternalSize: 1_048_576; Flags: external
+<key>ExternalSize</key>: 1_048_576; <key>Flags</key>: external
 </pre>
 </example>
 </param>
@@ -1964,9 +1964,9 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>Here is an example of an <tt>[Icons]</tt> section:</p>
 
 <precode>
-[Icons]
-Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"; WorkingDir: "{app}"
-Name: "{group}\Uninstall My Program"; Filename: "{uninstallexe}"
+<sec>[Icons]</sec>
+<key>Name</key>: "<con>{group}</con>\My Program"; <key>Filename</key>: "<con>{app}</con>\MyProg.exe"; <key>WorkingDir</key>: "<con>{app}</con>"
+<key>Name</key>: "<con>{group}</con>\Uninstall My Program"; <key>Filename</key>: "<con>{uninstallexe}</con>"
 </precode>
 
 <p>The following is a list of the supported <link topic="params">parameters</link>:</p>
@@ -1978,11 +1978,11 @@ Name: "{group}\Uninstall My Program"; Filename: "{uninstallexe}"
 <p>Keep in mind that shortcuts are stored as literal files so any characters not allowed in normal filenames can't be used here. Also, because it's not possible to have two files with the same name, it's therefore not possible to have two shortcuts with the same name.</p>
 <examples>
 <pre>
-Name: "{group}\My Program"
-Name: "{group}\Subfolder\My Program"
-Name: "{commondesktop}\My Program"
-Name: "{commonprograms}\My Program"
-Name: "{commonstartup}\My Program"
+<key>Name</key>: "<con>{group}</con>\My Program"
+<key>Name</key>: "<con>{group}</con>\Subfolder\My Program"
+<key>Name</key>: "<con>{commondesktop}</con>\My Program"
+<key>Name</key>: "<con>{commonprograms}</con>\My Program"
+<key>Name</key>: "<con>{commonstartup}</con>\My Program"
 </pre>
 </examples>
 </param>
@@ -1993,10 +1993,10 @@ Name: "{commonstartup}\My Program"
 <p>On 64-bit Windows, note that the <tt>{sys}</tt> constant will map to the native 64-bit System directory when the shortcut is launched by a 64-bit process, such as Windows Explorer. This is true regardless of whether the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>. To create a shortcut that always points to the 32-bit System directory, use <tt>{syswow64}</tt> instead. (The same applies to the <tt>WorkingDir</tt> and <tt>IconFilename</tt> parameters.)</p>
 <examples>
 <pre>
-Filename: "{app}\MyProg.exe"
-Filename: "{uninstallexe}"
-Filename: "{app}\FolderName"
-Filename: "http://www.example.com/"
+<key>Filename</key>: "<con>{app}</con>\MyProg.exe"
+<key>Filename</key>: "<con>{uninstallexe}</con>"
+<key>Filename</key>: "<con>{app}</con>\FolderName"
+<key>Filename</key>: "http://www.example.com/"
 </pre>
 </examples>
 </param>
@@ -2121,9 +2121,9 @@ Filename: "http://www.example.com/"
 <p>Here is an example of an <tt>[INI]</tt> section:</p>
 
 <precode>
-[INI]
-Filename: "MyProg.ini"; Section: "InstallSettings"; Flags: uninsdeletesection
-Filename: "MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; String: "{app}"
+<sec>[INI]</sec>
+<key>Filename</key>: "MyProg.ini"; <key>Section</key>: "InstallSettings"; <key>Flags</key>: uninsdeletesection
+<key>Filename</key>: "MyProg.ini"; <key>Section</key>: "InstallSettings"; <key>Key</key>: "InstallPath"; <key>String</key>: "<con>{app}</con>"
 </precode>
 
 <p>The following is a list of the supported <link topic="params">parameters</link>:</p>
@@ -2226,9 +2226,9 @@ Filename: "MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; String: 
 <p>The following is an example of a <tt>[Languages]</tt> section. It defines two languages: English, based on the standard Default.isl file, and Dutch, based on a third-party translation.</p>
 
 <precode>
-[Languages]
-Name: "en"; MessagesFile: "compiler:Default.isl"
-Name: "nl"; MessagesFile: "compiler:Languages\Dutch.isl"
+<sec>[Languages]</sec>
+<key>Name</key>: "en"; <key>MessagesFile</key>: "compiler:Default.isl"
+<key>Name</key>: "nl"; <key>MessagesFile</key>: "compiler:Languages\Dutch.isl"
 </precode>
 
 <paramlist>
@@ -2247,8 +2247,8 @@ Name: "nl"; MessagesFile: "compiler:Languages\Dutch.isl"
 <p>The file is recommended to be UTF-8 encoded, without a BOM.</p>
 <examples>
 <pre>
-MessagesFile: "compiler:Dutch.isl"
-MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
+<key>MessagesFile</key>: "compiler:Dutch.isl"
+<key>MessagesFile</key>: "compiler:Default.isl,compiler:MyMessages.isl"
 </pre>
 </examples>
 </param>
@@ -2294,8 +2294,8 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 <p>However, particular messages can be overridden by creating a [Messages] section in your script file. To do this, first you will need to know the ID of the message you want to change. This can be easily found by searching Default.isl. For example, say you wanted to change the "&amp;Next" button on the wizard to read "&amp;Forward". The ID of this message is "ButtonNext", so you would create a [Messages] section like this:</p>
 
 <precode>
-[Messages]
-ButtonNext=&amp;Forward
+<sec>[Messages]</sec>
+<key>ButtonNext</key>=&amp;Forward
 </precode>
 
 <p>Some messages take arguments such as %1 and %2. You can rearrange the order of the arguments (i.e. move the %2 before a %1) and also duplicate arguments if needed (i.e. "%1 ... %1 %2"). On messages with arguments, use two consecutive "%" characters to embed a single "%". "%n" creates a line break.</p>
@@ -2305,7 +2305,7 @@ ButtonNext=&amp;Forward
 <p>In cases where there are multiple [Languages] section entries, specifying a [Messages] section entry in your script (as opposed to an .isl file) will by default override that message for all languages. To apply a [Messages] section entry to only one language, prefix it with the language's internal name followed by a period. For example:</p>
 
 <precode>
-en.ButtonNext=&amp;Forward
+en.<key>ButtonNext</key>=&amp;Forward
 </precode>
 
 <p>If a message is missing or not recognized for a language, the compiler will warn you about this, which can be disabled using <sd>MissingMessagesWarning</sd> and <sd>NotRecognizedMessagesWarning</sd>.</p>
@@ -2315,15 +2315,15 @@ en.ButtonNext=&amp;Forward
 <p>The <a name="BeveledLabel"><tt>BeveledLabel</tt></a> message can be used to specify a line of text that is shown in the lower left corner of the wizard window and uninstaller window. The following is an example:</p>
 
 <precode>
-[Messages]
-BeveledLabel=Inno Setup
+<sec>[Messages]</sec>
+<key>BeveledLabel</key>=Inno Setup
 </precode>
 
 <p>The <tt>HelpTextNote</tt> message can be used to specify one or more lines of text that are added to the list of parameters in the summary shown when passing <link topic="setupcmdline" anchor="HELP">/HELP</link> on the command line. The following is an example:</p>
 
 <precode>
-[Messages]
-HelpTextNote=/PORTABLE=1%nEnable portable mode.
+<sec>[Messages]</sec>
+<key>HelpTextNote</key>=/PORTABLE=1%nEnable portable mode.
 </precode>
 
 <p>These special-purpose messages default to an empty string so make sure to provide a non-empty default for all languages from your main script if you want to use these messages.</p>
@@ -2343,11 +2343,11 @@ HelpTextNote=/PORTABLE=1%nEnable portable mode.
 <p>An example of a task with a description taken from the [CustomMessages] section using a {cm:...} constant:</p>
 
 <precode>
-[CustomMessages]
-CreateDesktopIcon=Create a &amp;desktop icon
+<sec>[CustomMessages]</sec>
+<key>CreateDesktopIcon</key>=Create a &amp;desktop icon
 
-[Tasks]
-Name: desktopicon; Description: "{cm:CreateDesktopIcon}"
+<sec>[Tasks]</sec>
+<key>Name</key>: desktopicon; <key>Description</key>: "<con>{cm:CreateDesktopIcon}</con>"
 </precode>
 
 <p>Messages may take arguments, from %1 up to %9. You can rearrange the order of the arguments (i.e. move the %2 before a %1) and also duplicate arguments if needed (i.e. "%1 ... %1 %2"). On messages with arguments, use two consecutive "%" characters to embed a single "%". "%n" creates a line break.</p>
@@ -2355,31 +2355,31 @@ Name: desktopicon; Description: "{cm:CreateDesktopIcon}"
 <p>In cases where there are multiple [Languages] section entries, specifying a [CustomMessages] section entry in your script (as opposed to an .isl file) will by default override that message for all languages. To apply a [CustomMessages] section entry to only one language, prefix it with the language's internal name followed by a period. For example:</p>
 
 <precode>
-nl.CreateDesktopIcon=Maak een snelkoppeling op het &amp;bureaublad
+nl.<key>CreateDesktopIcon</key>=Maak een snelkoppeling op het &amp;bureaublad
 </precode>
 
 <p>Currently, the .isl files for all languages that come with Inno Setup have the following custom messages defined and translated for each language (shown here with their English values):</p>
 
 <precode>
-NameAndVersion=%1 version %2
-AdditionalIcons=Additional shortcuts:
-CreateDesktopIcon=Create a &amp;desktop shortcut
-CreateQuickLaunchIcon=Create a &amp;Quick Launch shortcut
-ProgramOnTheWeb=%1 on the Web
-UninstallProgram=Uninstall %1
-LaunchProgram=Launch %1
-AssocFileExtension=&amp;Associate %1 with the %2 file extension
-AssocingFileExtension=Associating %1 with the %2 file extension...
-AutoStartProgramGroupDescription=Startup:
-AutoStartProgram=Automatically start %1
-AddonHostProgramNotFound=%1 could not be located in the folder you selected.%n%nDo you want to continue anyway?
+<key>NameAndVersion</key>=%1 version %2
+<key>AdditionalIcons</key>=Additional shortcuts:
+<key>CreateDesktopIcon</key>=Create a &amp;desktop shortcut
+<key>CreateQuickLaunchIcon</key>=Create a &amp;Quick Launch shortcut
+<key>ProgramOnTheWeb</key>=%1 on the Web
+<key>UninstallProgram</key>=Uninstall %1
+<key>LaunchProgram</key>=Launch %1
+<key>AssocFileExtension</key>=&amp;Associate %1 with the %2 file extension
+<key>AssocingFileExtension</key>=Associating %1 with the %2 file extension...
+<key>AutoStartProgramGroupDescription</key>=Startup:
+<key>AutoStartProgram</key>=Automatically start %1
+<key>AddonHostProgramNotFound</key>=%1 could not be located in the folder you selected.%n%nDo you want to continue anyway?
 </precode>
 
 <p>You may use these predefined custom messages in your own script. An example which uses <tt>UninstallProgram</tt>:</p>
 
 <precode>
-[Icons]
-Name: "{group}\{cm:UninstallProgram,My Program}"; Filename: "{uninstallexe}"
+<sec>[Icons]</sec>
+<key>Name</key>: "<con>{group}</con>\<con>{cm:UninstallProgram,My Program}</con>"; <key>Filename</key>: "<con>{uninstallexe}</con>"
 </precode>
 
 </body>
@@ -2413,17 +2413,17 @@ Name: "{group}\{cm:UninstallProgram,My Program}"; Filename: "{uninstallexe}"
 <p>The following is an example of a <tt>[LangOptions]</tt> section. (The settings listed below are the defaults.)</p>
 
 <precode>
-[LangOptions]
-LanguageName=English
-LanguageID=$0409
-LanguageCodePage=0
-DialogFontName=
-DialogFontSize=9
-DialogFontBaseScaleWidth=7
-DialogFontBaseScaleHeight=15
-WelcomeFontName=Segoe UI
-WelcomeFontSize=14
-RightToLeft=no
+<sec>[LangOptions]</sec>
+<key>LanguageName</key>=English
+<key>LanguageID</key>=$0409
+<key>LanguageCodePage</key>=0
+<key>DialogFontName</key>=
+<key>DialogFontSize</key>=9
+<key>DialogFontBaseScaleWidth</key>=7
+<key>DialogFontBaseScaleHeight</key>=15
+<key>WelcomeFontName</key>=Segoe UI
+<key>WelcomeFontSize</key>=14
+<key>RightToLeft</key>=no
 </precode>
 
 <p><b><a name="LanguageName">LanguageName</a></b> is the native name of the language (so not the English name). It is displayed in the list of available languages on the <i>Select Language</i> dialog in a multilingual installation.</p>
@@ -2440,19 +2440,19 @@ If <tt>LanguageCodePage</tt> is set to zero but non-Unicode text is used in one 
 <p>Before Inno Setup 6.6, the default font was 8-point <i>Tahoma</i> instead of 9-point <i>Segoe UI</i>. To use this font again without changes in scaling, use:</p>
 
 <precode>
-DialogFontName=Tahoma
-DialogFontSize=8
-DialogFontBaseScaleHeight=13
-DialogFontBaseScaleWidth=6
+<key>DialogFontName</key>=Tahoma
+<key>DialogFontSize</key>=8
+<key>DialogFontBaseScaleHeight</key>=13
+<key>DialogFontBaseScaleWidth</key>=6
 </precode>
 
 <p>If you were already using 9-point <i>Segoe UI</i> before Inno Setup 6.6, you will notice a change in scaling when you update. To use your previous scaling, use:</p>
 
 <precode>
-DialogFontName=Segoe UI
-DialogFontSize=9
-DialogFontBaseScaleHeight=13
-DialogFontBaseScaleWidth=6
+<key>DialogFontName</key>=Segoe UI
+<key>DialogFontSize</key>=9
+<key>DialogFontBaseScaleHeight</key>=13
+<key>DialogFontBaseScaleWidth</key>=6
 </precode>
 
 <p><b><a name="WelcomeFontName">WelcomeFontName</a></b> and <b><a name="WelcomeFontSize">WelcomeFontSize</a></b> specify the font name and point size to use at the top of the <i>Welcome</i> and <i>Setup Completed</i> wizard pages. If the specified font name does not exist on the user's system or is an empty string, 14-point <i>Segoe UI</i> will be substituted.</p>
@@ -2460,8 +2460,8 @@ DialogFontBaseScaleWidth=6
 <p>Before Inno Setup 6.6, the default font was 12-point <i>Verdana</i> instead of 14-point <i>Segoe UI</i>. To use this font again, use:</p>
 
 <precode>
-WelcomeFontName=Verdana
-WelcomeFontSize=12
+<key>WelcomeFontName</key>=Verdana
+<key>WelcomeFontSize</key>=12
 </precode>
 
 <p><b><a name="RightToLeft">RightToLeft</a></b> specifies whether the language is written from right to left. If set to <tt>yes</tt>, text alignment and reading order will be reversed (with some intentional exceptions), and controls will be arranged from right to left ("flipped").</p>
@@ -2470,7 +2470,7 @@ WelcomeFontSize=12
 In cases where there are multiple [Languages] section entries, specifying a [LangOptions] section directive in your script (as opposed to an .isl file) will by default override that directive for all languages. To apply a [LangOptions] section directive to only one language, prefix it with the language's internal name followed by a period. For example:</p>
 
 <precode>
-en.LanguageName=English
+en.<key>LanguageName</key>=English
 </precode>
 
 <heading>Obsolete</heading>
@@ -2509,10 +2509,10 @@ en.LanguageName=English
 <p>The following is an example of a <tt>[Registry]</tt> section.</p>
 
 <precode>
-[Registry]
-Root: HKLM; Subkey: "Software\My Company"; Flags: uninsdeletekeyifempty
-Root: HKLM; Subkey: "Software\My Company\My Program"; Flags: uninsdeletekey
-Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string; ValueName: "InstallPath"; ValueData: "{app}"
+<sec>[Registry]</sec>
+<key>Root</key>: HKLM; <key>Subkey</key>: "Software\My Company"; <key>Flags</key>: uninsdeletekeyifempty
+<key>Root</key>: HKLM; <key>Subkey</key>: "Software\My Company\My Program"; <key>Flags</key>: uninsdeletekey
+<key>Root</key>: HKLM; <key>Subkey</key>: "Software\My Company\My Program\Settings"; <key>ValueType</key>: string; <key>ValueName</key>: "InstallPath"; <key>ValueData</key>: "<con>{app}</con>"
 </precode>
 
 <p>The following is a list of the supported <link topic="params">parameters</link>:</p>
@@ -2695,10 +2695,10 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <p>The following is an example of a <tt>[Run]</tt> section.</p>
 
 <precode>
-[Run]
-Filename: "{app}\Init.exe"; Parameters: "/x"
-Filename: "{app}\Readme.txt"; Description: "View the README file"; Flags: postinstall shellexec skipifsilent
-Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinstall nowait skipifsilent unchecked
+<sec>[Run]</sec>
+<key>Filename</key>: "<con>{app}</con>\Init.exe"; <key>Parameters</key>: "/x"
+<key>Filename</key>: "<con>{app}</con>\Readme.txt"; <key>Description</key>: "View the README file"; <key>Flags</key>: postinstall shellexec skipifsilent
+<key>Filename</key>: "<con>{app}</con>\MyProg.exe"; <key>Description</key>: "Launch application"; <key>Flags</key>: postinstall nowait skipifsilent unchecked
 </precode>
 
 <p>The following is a list of the supported <link topic="params">parameters</link>:</p>
@@ -2867,8 +2867,8 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 <p>Here is an example of a <tt>[UninstallDelete]</tt> section:</p>
 
 <precode>
-[UninstallDelete]
-Type: files; Name: "{win}\MyProg.ini"
+<sec>[UninstallDelete]</sec>
+<key>Type</key>: files; <key>Name</key>: "<con>{win}</con>\MyProg.ini"
 </precode>
 
 <p>The following is a list of the supported <link topic="params">parameters</link>:</p>
@@ -2923,25 +2923,25 @@ Type: files; Name: "{win}\MyProg.ini"
 <p>Here are two examples of an <tt>[ISSigKeys]</tt> section:</p>
 
 <precode>
-[ISSigKeys]
-Name: MyKey1; \
-  KeyID:   "def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38"; \
-  KeyFile: "MyKey1.ispublickey"
-Name: MyKey2; \
-  KeyID:   "def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28"; \
-  PublicX: "515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097"; \
-  PublicY: "f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61"
+<sec>[ISSigKeys]</sec>
+<key>Name</key>: MyKey1; \
+  <key>KeyID</key>:   "def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38"; \
+  <key>KeyFile</key>: "MyKey1.ispublickey"
+<key>Name</key>: MyKey2; \
+  <key>KeyID</key>:   "def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28"; \
+  <key>PublicX</key>: "515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097"; \
+  <key>PublicY</key>: "f3c21f6b5156c52a35f6f28016ee3e31a3ded60c325b81fb7b1f88c221081a61"
 </precode>
 
 <precode>
-[ISSigKeys]
-Name: anna; KeyFile: "anna.ispublickey"; Group: exesigner
-Name: ryan; KeyFile: "ryan.ispublickey"; Group: exesigner
-Name: ivan; KeyFile: "ivan.ispublickey"; Group: docsigner
-; max is trusted for both exe and doc signing
-Name: max; KeyFile: "max.ispublickey"; Group: exesigner docsigner
-; the boss also has a key
-Name: bosskey; KeyFile: "boss.ispublickey"
+<sec>[ISSigKeys]</sec>
+<key>Name</key>: anna; <key>KeyFile</key>: "anna.ispublickey"; <key>Group</key>: exesigner
+<key>Name</key>: ryan; <key>KeyFile</key>: "ryan.ispublickey"; <key>Group</key>: exesigner
+<key>Name</key>: ivan; <key>KeyFile</key>: "ivan.ispublickey"; <key>Group</key>: docsigner
+<com>; max is trusted for both exe and doc signing</com>
+<key>Name</key>: max; <key>KeyFile</key>: "max.ispublickey"; <key>Group</key>: exesigner docsigner
+<com>; the boss also has a key</com>
+<key>Name</key>: bosskey; <key>KeyFile</key>: "boss.ispublickey"
 </precode>
 
 <p>See the <i>Remarks</i> section at the bottom of this topic for some important notes.</p>
@@ -3270,9 +3270,9 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <p>In this example:</p>
 
 <precode>
-[INI]
-Filename: "{win}\MyProg.ini"; Section: "InstallSettings"; Flags: uninsdeletesectionifempty
-Filename: "{win}\MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; String: "{app}"; Flags: uninsdeleteentry
+<sec>[INI]</sec>
+<key>Filename</key>: "<con>{win}</con>\MyProg.ini"; <key>Section</key>: "InstallSettings"; <key>Flags</key>: uninsdeletesectionifempty
+<key>Filename</key>: "<con>{win}</con>\MyProg.ini"; <key>Section</key>: "InstallSettings"; <key>Key</key>: "InstallPath"; <key>String</key>: "<con>{app}</con>"; <key>Flags</key>: uninsdeleteentry
 </precode>
 
 <p>the installer will first record the data for first entry's <tt>uninsdeletesectionifempty</tt> flag in the uninstall log, create the key of the second entry, and then record the data for the <tt>uninsdeleteentry</tt> flag in the uninstall log. When the program is uninstalled, the uninstaller will first process the <tt>uninsdeleteentry</tt> flag, deleting the entry, and then the <tt>uninsdeletesectionifempty</tt> flag, deleting the section.</p>
@@ -3429,13 +3429,13 @@ Filename: "{win}\MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; St
 <p><i>System path redirection</i> is applied to the values of certain parameters that take paths &mdash; see <link topic="entrybitness">Entry Bitness</link> for the full list. Paths starting with <tt>{sys}</tt> (or other value expanding to <tt><i>x</i>:\Windows\System32</tt>) are automatically rewritten if needed so that on 64-bit entries, it is the 64-bit System directory that is accessed, and on 32-bit entries, it is the 32-bit System directory that is accessed.</p>
 <p>For example, on 64-bit Windows, in this case:</p>
 <precode>
-[Files]
-Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 32bit
+<sec>[Files]</sec>
+<key>Source</key>: "MyLibrary.dll"; <key>DestDir</key>: "<con>{sys}</con>"; <key>Flags</key>: 32bit
 </precode>
 <p>the file is actually installed to <tt>SysWOW64</tt> (32-bit), not <tt>System32</tt> (64-bit). But in this case:</p>
 <precode>
-[Files]
-Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
+<sec>[Files]</sec>
+<key>Source</key>: "MyLibrary.dll"; <key>DestDir</key>: "<con>{sys}</con>"; <key>Flags</key>: 64bit
 </precode>
 <p>the file is installed to <tt>System32</tt> (64-bit). Behind the scenes, however, <link topic="64bit">32-bit installers</link> access the directory under the alias <tt>Sysnative</tt> (see table below).</p>
 <p>No rewriting occurs on systems running 32-bit Windows, as <tt>System32</tt> is the only System directory. <tt>SysWOW64</tt> doesn't exist, and the <tt>Sysnative</tt> alias isn't supported.</p>
@@ -4127,11 +4127,11 @@ issigtool --key-file="MyKey.isprivatekey" sign "MyFile.txt"
 <li>
 <p>Inside your Inno Setup script, add an <link topic="issigkeyssection">[ISSigKeys] section</link> entry linking to your key file, and a <link topic="filessection">[Files] section</link> entry for <tt>MyFile.txt</tt> that includes the <tt>issigverify</tt> flag:</p>
 <precode>
-[ISSigKeys]
-Name: MyKey; KeyFile: "MyKey.isprivatekey"
+<sec>[ISSigKeys]</sec>
+<key>Name</key>: MyKey; <key>KeyFile</key>: "MyKey.isprivatekey"
 
-[Files]
-Source: "MyFile.txt"; DestDir: "{app}"; Flags: issigverify
+<sec>[Files]</sec>
+<key>Source</key>: "MyFile.txt"; <key>DestDir</key>: "<con>{app}</con>"; <key>Flags</key>: issigverify
 </precode>
 <p>Note: Specifying a <i>public</i> key file instead is preferred; see the <link topic="issig" anchor="tips">Tips &amp; Recommendations</link> section below.</p>
 </li>
@@ -4167,8 +4167,8 @@ Signature is not valid for source file "MyFile.txt": file hash incorrect.
 <li>
 <p>The <tt>[Files]</tt> section entry would include a path in the <tt>Source</tt> parameter, and include the <tt>external</tt> flag:</p>
 <precode>
-[Files]
-Source: "{src}\MyFile.txt"; DestDir: "{app}"; Flags: external issigverify
+<sec>[Files]</sec>
+<key>Source</key>: "<con>{src}</con>\MyFile.txt"; <key>DestDir</key>: "<con>{app}</con>"; <key>Flags</key>: external issigverify
 </precode>
 </li>
 
@@ -4966,12 +4966,12 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <p>If <sd>DisableWelcomePage</sd> is set to <tt>yes</tt> (which it is by default) then <tt>AppVerName</tt> is also displayed in window titles instead of <sd>AppName</sd>.</p>
 <p>This directive is required if the <sd>AppVersion</sd> directive is not set.</p>
 <examples><pre>
-AppVerName=My Program 1.5
-AppVerName=My Program version 1.5
+<key>AppVerName</key>=My Program 1.5
+<key>AppVerName</key>=My Program version 1.5
 
-; This produces "My Program version 1.5", localized using the
-; active language's NameAndVersion <link topic="custommessagessection">custom message</link>
-AppVerName={cm:NameAndVersion,My Program,1.5}
+<com>; This produces "My Program version 1.5", localized using the</com>
+<com>; active language's NameAndVersion <link topic="custommessagessection">custom message</link></com>
+<key>AppVerName</key>=<con>{cm:NameAndVersion,My Program,1.5}</con>
 </pre></examples>
 <p><b>See also:</b><br/>
 <sd>AppName</sd>
@@ -5073,8 +5073,8 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>The value of this directive is also used as the default value for the <sd>VersionInfoCompany</sd> directive if it is not specified.</p>
 <example>
 <pre>
-AppPublisher=My Company, Inc.
-AppPublisherURL=http://www.example.com/
+<key>AppPublisher</key>=My Company, Inc.
+<key>AppPublisherURL</key>=http://www.example.com/
 </pre>
 </example>
 </body>
@@ -5085,8 +5085,8 @@ AppPublisherURL=http://www.example.com/
 <p>A link to the specified URL is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
 <example>
 <pre>
-AppPublisher=My Company, Inc.
-AppPublisherURL=http://www.example.com/
+<key>AppPublisher</key>=My Company, Inc.
+<key>AppPublisherURL</key>=http://www.example.com/
 </pre>
 </example>
 </body>
@@ -5159,11 +5159,11 @@ C:\Program Files\My Program
 <body>
 <p>This determines if Inno Setup's automatic uninstaller is to be included in the installation. If this is <tt>yes</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>True</tt> the uninstaller is included. Otherwise, no uninstallation support is included, requiring the end-user to manually remove the files pertaining to your application.</p>
 <p>Setting this to a boolean expression can be useful if you want to offer the user a 'portable mode' option.</p>
-<example><pre>[Setup]
-Uninstallable=not IsTaskSelected('portablemode')
+<example><pre><sec>[Setup]</sec>
+<key>Uninstallable</key>=not IsTaskSelected('portablemode')
 
-[Tasks]
-Name: portablemode; Description: "Portable Mode"</pre></example>
+<sec>[Tasks]</sec>
+<key>Name</key>: portablemode; <key>Description</key>: "Portable Mode"</pre></example>
 <p><b>See also:</b><br/>
 <sd>CreateUninstallRegKey</sd>
 </p>
@@ -5310,8 +5310,8 @@ Name: portablemode; Description: "Portable Mode"</pre></example>
 <body>
 <p>Normally, the disk space requirement displayed on the wizard is calculated by adding up the size of all the files in the [Files] section. If you want to increase the disk space display for whatever reason, set <tt>ExtraDiskSpaceRequired</tt> to the amount of bytes you wish to add to this figure. (1048576 bytes = 1 megabyte)</p>
 <p>Supports digit separators and set in bytes. (1048576 bytes = 1 megabyte)</p>
-<example><pre>[Setup]
-ExtraDiskSpaceRequired=1_048_576</pre></example>
+<example><pre><sec>[Setup]</sec>
+<key>ExtraDiskSpaceRequired</key>=1_048_576</pre></example>
 </body>
 </setuptopic>
 
@@ -5533,19 +5533,19 @@ ExtraDiskSpaceRequired=1_048_576</pre></example>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Ready to Install</i> wizard page.</p>
 <p>When Setup is not running silently, this directive is ignored if no other wizard page before the <i>Ready to Install</i> wizard page has been shown yet.</p>
 <p>Setting this to <tt>yes</tt> does not automatically change the caption of the <i>Next</i> button on the new last pre-installation wizard page to <i>Install</i>. You must do so manually instead. For example, if the new last pre-installation wizard page is the <i>Select Program Group</i> page:</p>
-<example><pre>[Setup]
-DisableReadyPage=yes
+<example><pre><sec>[Setup]</sec>
+<key>DisableReadyPage</key>=yes
 
-[Code]
-procedure CurPageChanged(CurPageID: Integer);
-begin
-  if CurPageID in [wpSelectProgramGroup, wpReady] then
+<sec>[Code]</sec>
+<key>procedure</key> <evt>CurPageChanged</evt>(CurPageID: Integer);
+<key>begin</key>
+  <key>if</key> CurPageID <key>in</key> [wpSelectProgramGroup, wpReady] <key>then</key>
     WizardForm.NextButton.Caption := SetupMessage(msgButtonInstall)
-  else if CurPageID = wpFinished then
+  <key>else</key> <key>if</key> CurPageID = wpFinished <key>then</key>
     WizardForm.NextButton.Caption := SetupMessage(msgButtonFinish)
-  else
+  <key>else</key>
     WizardForm.NextButton.Caption := SetupMessage(msgButtonNext);
-end;</pre></example>
+<key>end</key>;</pre></example>
 </body>
 </setuptopic>
 
@@ -5630,8 +5630,8 @@ end;</pre></example>
 <p>If this directive is not specified or is blank, Windows will select an icon itself, which may not be the one you prefer.</p>
 <examples>
 <pre>
-UninstallDisplayIcon={app}\MyProg.exe
-UninstallDisplayIcon={app}\MyProg.exe,1
+<key>UninstallDisplayIcon</key>=<con>{app}</con>\MyProg.exe
+<key>UninstallDisplayIcon</key>=<con>{app}</con>\MyProg.exe,1
 </pre>
 </examples>
 </body>
@@ -5734,18 +5734,18 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <p>This directive is ignored if disk spanning is not enabled using the <sd>DiskSpanning</sd> <tt>[Setup]</tt> section directive.</p>
 <p>To optimally fill 4.7 GB recordable DVDs, use:</p>
 <precode>
-SlicesPerDisk=3
-DiskSliceSize=1566000000
+<key>SlicesPerDisk</key>=3
+<key>DiskSliceSize</key>=1566000000
 </precode>
 <p>To optimally fill 8.5 GB (dual-layer) recordable DVDs, use:</p>
 <precode>
-SlicesPerDisk=5
-DiskSliceSize=1708200000
+<key>SlicesPerDisk</key>=5
+<key>DiskSliceSize</key>=1708200000
 </precode>
 <p>To optimally fill 700 MB (80-minute) recordable CDs, use:</p>
 <precode>
-SlicesPerDisk=1
-DiskSliceSize=736000000
+<key>SlicesPerDisk</key>=1
+<key>DiskSliceSize</key>=736000000
 </precode>
 </body>
 </setuptopic>
@@ -6124,31 +6124,31 @@ DiskSliceSize=736000000
 <p>Use support function <link topic="isxfunc_WizardSetBackImage">WizardSetBackImage</link> to set, update, or remove the background image at runtime.</p>
 <examples>
 <pre>
-; Use separate background images for light and dark appearances
-WizardBackImageFile=MyBackImage.png
-WizardBackImageFileDynamicDark=MyBackImage_Dark.png
-; Hide the large and small wizard images
-WizardImageFile=
-WizardSmallImageFile=
+<com>; Use separate background images for light and dark appearances</com>
+<key>WizardBackImageFile</key>=MyBackImage.png
+<key>WizardBackImageFileDynamicDark</key>=MyBackImage_Dark.png
+<com>; Hide the large and small wizard images</com>
+<key>WizardImageFile</key>=
+<key>WizardSmallImageFile</key>=
 
-; Use the same background image for both light and dark appearances
-WizardBackImageFile=MyBackImage.png
-WizardBackImageFileDynamicDark=MyBackImage.png
-; Apply transparency to the background image so it works well in
-; both light and dark appearances
-WizardBackImageOpacity=150
-; Keep large and small wizard images, applying transparency so they
-; blend with the background image
-WizardImageOpacity=150
+<com>; Use the same background image for both light and dark appearances</com>
+<key>WizardBackImageFile</key>=MyBackImage.png
+<key>WizardBackImageFileDynamicDark</key>=MyBackImage.png
+<com>; Apply transparency to the background image so it works well in</com>
+<com>; both light and dark appearances</com>
+<key>WizardBackImageOpacity</key>=150
+<com>; Keep large and small wizard images, applying transparency so they</com>
+<com>; blend with the background image</com>
+<key>WizardImageOpacity</key>=150
 
-; Use a background image in the wizard, and also use custom
-; background colors on other windows, and in Uninstall
-WizardBackImageFile=MyBackImage.png
-WizardBackImageFileDynamicDark=MyBackImage.png
-WizardBackColor=#ffc0cb
-WizardBackColorDynamicDark=#570c22
-; On wizard pages blend the background image and color together
-WizardBackImageOpacity=150
+<com>; Use a background image in the wizard, and also use custom</com>
+<com>; background colors on other windows, and in Uninstall</com>
+<key>WizardBackImageFile</key>=MyBackImage.png
+<key>WizardBackImageFileDynamicDark</key>=MyBackImage.png
+<key>WizardBackColor</key>=#ffc0cb
+<key>WizardBackColorDynamicDark</key>=#570c22
+<com>; On wizard pages blend the background image and color together</com>
+<key>WizardBackImageOpacity</key>=150
 </pre>
 </examples>
 <p><b>See also:</b><br/>
@@ -6273,12 +6273,12 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <body>
 <p>If set to <tt>0</tt>, the wizard images set via <sd>WizardImageFile</sd> and <sd>WizardSmallImageFile</sd> will be fully transparent. If set to <tt>255</tt>, the wizard images will be fully opaque (non-transparent).</p>
 <p>This is useful if you want to use identical regular and <tt>DynamicDark</tt> wizard images, or if you want to use them in combination with a custom background image set via <sd>WizardBackImageFile</sd>. For example, you can set <tt>WizardImageOpacity</tt> to <tt>150</tt> to achieve partial transparency.</p>
-<example><pre>WizardStyle=modern dynamic
-WizardImageFile=MyImage.png
-WizardImageFileDynamicDark=MyImage.png
-WizardSmallImageFile=MySmallImage.png
-WizardSmallImageFileDynamicDark=MySmallImage.png
-WizardImageOpacity=150</pre></example>
+<example><pre><key>WizardStyle</key>=modern dynamic
+<key>WizardImageFile</key>=MyImage.png
+<key>WizardImageFileDynamicDark</key>=MyImage.png
+<key>WizardSmallImageFile</key>=MySmallImage.png
+<key>WizardSmallImageFileDynamicDark</key>=MySmallImage.png
+<key>WizardImageOpacity</key>=150</pre></example>
 <p><b>See also:</b><br/>
 <sd>WizardBackImageOpacity</sd></p>
 </body>
@@ -6290,10 +6290,10 @@ WizardImageOpacity=150</pre></example>
 <body>
 <p>If set to <tt>0</tt>, the background wizard image set via <sd>WizardBackImageFile</sd> will be fully transparent. If set to <tt>255</tt>, the wizard images will be fully opaque (non-transparent).</p>
 <p>This is useful if you want to use an identical regular and <tt>DynamicDark</tt> background image. For example, you can set <tt>WizardBackImageOpacity</tt> to <tt>150</tt> to achieve partial transparency.</p>
-<example><pre>WizardStyle=modern dynamic
-WizardBackImageFile=MyBackImage.png
-WizardBackImageFileDynamicDark=MyBackImage.png
-WizardBackImageOpacity=150</pre></example>
+<example><pre><key>WizardStyle</key>=modern dynamic
+<key>WizardBackImageFile</key>=MyBackImage.png
+<key>WizardBackImageFileDynamicDark</key>=MyBackImage.png
+<key>WizardBackImageOpacity</key>=150</pre></example>
 <p><b>See also:</b><br/>
 <sd>WizardImageOpacity</sd></p>
 </body>
@@ -6834,30 +6834,30 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <p>If you are installing device drivers, then the proper setting is <tt>x86os</tt>, <tt>x64os</tt>, or <tt>arm64</tt>, depending on the architecture of the drivers.</p>
 <examples>
 <pre>
-; Require two architecture identifier matches at the same time.
-; - An x64 app installer that includes some 32-bit x86 binaries:
-ArchitecturesAllowed=x64compatible and x86compatible
-; - An Arm64 app installer that includes some x64 or Arm64EC binaries:
-ArchitecturesAllowed=arm64 and x64compatible
+<com>; Require two architecture identifier matches at the same time.</com>
+<com>; - An x64 app installer that includes some 32-bit x86 binaries:</com>
+<key>ArchitecturesAllowed</key>=x64compatible and x86compatible
+<com>; - An Arm64 app installer that includes some x64 or Arm64EC binaries:</com>
+<key>ArchitecturesAllowed</key>=arm64 and x64compatible
 
-; Only allow installation on systems that <i>aren't</i> x64-compatible.
-; Useful in a situation where you have separate x86 &amp; x64 installers,
-; and don't want users of x64-compatible OSes (x64 + Arm64 Win11)
-; erroneously running the x86 installer.
-ArchitecturesAllowed=x86compatible and not x64compatible
+<com>; Only allow installation on systems that <i>aren't</i> x64-compatible.</com>
+<com>; Useful in a situation where you have separate x86 &amp; x64 installers,</com>
+<com>; and don't want users of x64-compatible OSes (x64 + Arm64 Win11)</com>
+<com>; erroneously running the x86 installer.</com>
+<key>ArchitecturesAllowed</key>=x86compatible and not x64compatible
 
-; Allow installation on x64-compatible systems, but deny Arm64.
-; Useful if you provide a separate installer for Arm64 systems.
-ArchitecturesAllowed=x64compatible and not arm64
+<com>; Allow installation on x64-compatible systems, but deny Arm64.</com>
+<com>; Useful if you provide a separate installer for Arm64 systems.</com>
+<key>ArchitecturesAllowed</key>=x64compatible and not arm64
 
-; The "os" variant is appropriate when installing something that
-; cannot operate in an emulated environment, such as a device driver.
-ArchitecturesAllowed=x64os
+<com>; The "os" variant is appropriate when installing something that</com>
+<com>; cannot operate in an emulated environment, such as a device driver.</com>
+<key>ArchitecturesAllowed</key>=x64os
 
-; Allow installation only on 64-bit Windows, but don't check the
-; architecture.
-; (Don't use this if installing any architecture-specific binaries.)
-ArchitecturesAllowed=win64
+<com>; Allow installation only on 64-bit Windows, but don't check the</com>
+<com>; architecture.</com>
+<com>; (Don't use this if installing any architecture-specific binaries.)</com>
+<key>ArchitecturesAllowed</key>=win64
 </pre>
 </examples>
 <p><b>See also:</b><br/>
@@ -6882,10 +6882,10 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <p>If your application runs only on 64-bit architectures and you're using <link topic="setup_setuparchitecture">32-bit Setup</link>, you should set <sd>ArchitecturesAllowed</sd> to the same value as this directive to prevent Setup from running on 32-bit Windows.</p>
 <example>
 <pre>
-; Only allow the installer to run on x64-compatible systems,
-; and enable 64-bit install mode.
-ArchitecturesAllowed=x64compatible
-ArchitecturesInstallIn64BitMode=x64compatible
+<com>; Only allow the installer to run on x64-compatible systems,</com>
+<com>; and enable 64-bit install mode.</com>
+<key>ArchitecturesAllowed</key>=x64compatible
+<key>ArchitecturesInstallIn64BitMode</key>=x64compatible
 </pre>
 </example>
 <p><b>See also:</b><br/>
@@ -6994,26 +6994,26 @@ byparam=$p
 </pre>
 <p>then some examples would be:</p>
 <pre>
-[Setup]
-SignTool=mystandard
+<sec>[Setup]</sec>
+<key>SignTool</key>=mystandard
 
-[Setup]
-SignTool=mycustom sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
+<sec>[Setup]</sec>
+<key>SignTool</key>=mycustom sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
 
-[Setup]
-SignTool=byparam signtool.exe sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
+<sec>[Setup]</sec>
+<key>SignTool</key>=byparam signtool.exe sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
 </pre>
 <p>The Setup section may also list multiple SignTool directives which will be executed in order of appearance. This can be used to dual sign (SHA1 &amp; SHA256) Setup and Uninstall:</p>
 <pre>
-[Setup]
-SignTool=mycustom sign /a /n $qMy Common Name$q /fd sha1 /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
-;the /as parameter in the following SignTool requires a recent signtool.exe version and a SHA256 (SHA-2) certificate
-SignTool=mycustom sign /a /n $qMy Common Name$q /as /fd sha256 /td sha256 /tr http://timestamp.comodoca.com/rfc3161 /d $qMy Program$q $f
+<sec>[Setup]</sec>
+<key>SignTool</key>=mycustom sign /a /n $qMy Common Name$q /fd sha1 /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
+<com>;the /as parameter in the following SignTool requires a recent signtool.exe version and a SHA256 (SHA-2) certificate</com>
+<key>SignTool</key>=mycustom sign /a /n $qMy Common Name$q /as /fd sha256 /td sha256 /tr http://timestamp.comodoca.com/rfc3161 /d $qMy Program$q $f
 </pre>
 <p>Note: for security reasons you should give a unique name to any Sign Tool set to <tt>$p</tt>, and not use a <tt>byparam</tt> name copied from this example. Consider what happens if you #include a third-party file that says:</p>
 <pre>
-[Setup]
-SignTool=byparam format c:
+<sec>[Setup]</sec>
+<key>SignTool</key>=byparam format c:
 </pre>
 </example>
 <p>Further details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
@@ -7187,9 +7187,9 @@ SignTool=byparam format c:
 <body>
 <p>Limits which [Files] and [InstallDelete] entries Setup will check for being in use. Files matching one of the wildcards will not be checked even if they match <sd>CloseApplicationsFilter</sd>.</p>
 <p>For example, to check all files except MyProg.exe:</p>
-<example><pre>[Setup]
-CloseApplicationsFilter=*.*
-CloseApplicationsFilterExcludes=MyProg.exe</pre></example>
+<example><pre><sec>[Setup]</sec>
+<key>CloseApplicationsFilter</key>=*.*
+<key>CloseApplicationsFilterExcludes</key>=MyProg.exe</pre></example>
 <p><b>See also:</b><br/>
 <sd>CloseApplications</sd><br/>
 <sd>CloseApplicationsFilter</sd><br/>

@@ -82,7 +82,8 @@ category. Five non-obvious rules:
 - Use of `<con>` depends on context. Use it for a regular constant (`{app}`) inside a section directive or parameter
   value, including inside a parameter value such as `ExpandConstant('<con>{app}</con>\...')`,
   but not inside a Pascal string literal, where the whole literal stays `<str>`. An ISPP inline constant
-  (`{#...}`) is the exception: it always uses `<con>`, even inside a Pascal string literal, because ISPP pre-styles it.
+  (`{#...}`) is the exception: it always uses `<ispp>` on the `{#...}` delimiters and directive name (the inner
+  expression keeps its own styling), even inside a string literal, because ISPP pre-styles it.
 - `<evt>` applies only to the fixed `BasicEventFunctions` set; functions named via event attributes are not bolded.
 - `[Messages]`/`[CustomMessages]`/`[LangOptions]`: only the message name is `<key>`; a language prefix is not.
 
