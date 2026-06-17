@@ -297,7 +297,7 @@
 <key>Source</key>: "MyImageLarge.png"; <key>DestDir</key>: "<con>{app}</con>"
 
 <sec>[Code]</sec>
-; Show an image on the install page only
+<com>// Show an image on the install page only</com>
 &lt;<key>event</key>(<str>'CurStepChanged'</str>)&gt;
 <key>procedure</key> CurStepChanged_UpdateBackImage(CurStep: TSetupStep);
 <key>var</key>
@@ -321,7 +321,7 @@
     WizardSetBackImage([], True, True, <num>150</num>);
 <key>end</key>;
 
-; Show an image during uninstall
+<com>// Show an image during uninstall</com>
 &lt;<key>event</key>(<str>'InitializeUninstallProgressForm'</str>)&gt;
 <key>procedure</key> InitializeUninstallProgressForm_UpdateBackImage;
 <key>var</key>
@@ -344,7 +344,7 @@
   <key>end</key>;
 <key>end</key>;
 
-; See CodeClasses.iss for another example.</pre></example>
+<com>// See CodeClasses.iss for another example.</com></pre></example>
       </function>
     </subcategory>
   </category>
