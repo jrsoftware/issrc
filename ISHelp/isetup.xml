@@ -4934,7 +4934,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <p>This required directive specifies the name of the application being installed. Do not include the version number, as that is defined by the <sd>AppVersion</sd> and/or <sd>AppVerName</sd> directives. <tt>AppName</tt> is displayed throughout the Setup program and uninstaller in window titles, wizard pages, and dialog boxes. The value may include constants.</p>
 <p>If <sd>DisableWelcomePage</sd> is set to <tt>yes</tt> (which it is by default) then <sd>AppVerName</sd> is displayed in window titles instead of <tt>AppName</tt>.</p>
 <p>The value of this directive is also used as the default value for the <sd>AppId</sd>, <sd>VersionInfoDescription</sd>, and <sd>VersionInfoProductName</sd> directives if those are not specified.</p>
-<example><pre>AppName=My Program</pre></example>
+<example><pre><key>AppName</key>=My Program</pre></example>
 <p><b>See also:</b><br/>
 <sd>AppVerName</sd>
 </p>
@@ -4945,7 +4945,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <body>
 <p>This directive specifies the version number of the application being installed. The value of this directive, which may include constants, is used in the default value for the <sd>AppVerName</sd> directive, and is displayed in the Version field of the application's <i>Add/Remove Programs</i> entry. It is also used to set the <tt>MajorVersion</tt> and <tt>MinorVersion</tt> values in the Uninstall registry key when possible.</p>
 <p>This directive is required and cannot be empty if the <sd>AppVerName</sd> directive is not set.</p>
-<example><pre>AppVersion=1.5</pre></example>
+<example><pre><key>AppVersion</key>=1.5</pre></example>
 </body>
 </setuptopic>
 
@@ -4977,7 +4977,7 @@ AppVerName={cm:NameAndVersion,My Program,1.5}
 <p><tt>AppId</tt> isn't used for display anywhere, so feel free to make it as cryptic as you desire. The value may include constants.</p>
 <p>If you use a {code:..} constant to allow your user to customize <tt>AppId</tt>, you do not need to return the real value until just before the installation starts: if necessary you may return an empty or generic value at earlier times. If not empty, this value will only be used to attempt to restore previous install settings (like the settings stored by [Setup] section directive <sd>UsePreviousAppDir</sd>). If empty, it isn't used for anything.</p>
 <p>The length of <tt>AppId</tt> with all constants evaluated should never exceed 127 characters.</p>
-<example><pre>AppId=MyProgram</pre></example>
+<example><pre><key>AppId</key>=MyProgram</pre></example>
 </body>
 </setuptopic>
 
@@ -5009,7 +5009,7 @@ CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
 <p>Note that mutex name comparison in Windows is <i>case sensitive.</i></p>
 <p>To specify a mutex name containing a comma, escape the comma with a backslash.</p>
 <p>See the topic for CreateMutex in the MS SDK help for more information on mutexes.</p>
-<example><pre>AppMutex=MyProgramsMutexName,Global\MyProgramsMutexName</pre></example>
+<example><pre><key>AppMutex</key>=MyProgramsMutexName,Global\MyProgramsMutexName</pre></example>
 <p><b>See also:</b><br/>
 <sd>SetupMutex</sd><br/>
 <sd>CloseApplications</sd></p>
@@ -5021,7 +5021,7 @@ CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
 <p>This directive is used to prevent Setup from running while Setup is already running. It specifies the names of one or more named mutexes (multiple mutexes are separated by commas), which Setup will check for at startup. If any exist, Setup will display the message: "Setup has detected that Setup is currently running. Please close all instances of it now, then click OK to continue, or Cancel to exit." If none exist, Setup will create the mutex(es) and continue normally. The value may include constants.</p>
 <p>To specify a mutex name containing a comma, escape the comma with a backslash.</p>
 <p>See the topic for CreateMutex in the MS SDK help for more information on mutexes.</p>
-<example><pre>SetupMutex=MySetupsMutexName,Global\MySetupsMutexName</pre></example>
+<example><pre><key>SetupMutex</key>=MySetupsMutexName,Global\MySetupsMutexName</pre></example>
 <p><b>See also:</b><br/>
 <sd>AppMutex</sd>
 </p>
@@ -5031,7 +5031,7 @@ CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
 <setuptopic directive="AppCopyright">
 <body>
 <p>The value of this directive is used as the default value for the <sd>VersionInfoCopyright</sd> directive if it is not specified.</p>
-<example><pre>AppCopyright=Copyright (C) 1997-2005 My Company, Inc.</pre></example>
+<example><pre><key>AppCopyright</key>=Copyright (C) 1997-2005 My Company, Inc.</pre></example>
 </body>
 </setuptopic>
 
@@ -5040,7 +5040,7 @@ CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
 <p>This string is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
 <example>
 <pre>
-AppComments=Hello.
+<key>AppComments</key>=Hello.
 </pre>
 </example>
 </body>
@@ -5051,7 +5051,7 @@ AppComments=Hello.
 <p>This string is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
 <example>
 <pre>
-AppContact=My Company Customer Support
+<key>AppContact</key>=My Company Customer Support
 </pre>
 </example>
 </body>
@@ -5087,7 +5087,7 @@ AppPublisherURL=http://www.example.com/
 <p>This string, which may be a URL, is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
 <example>
 <pre>
-AppReadmeFile=http://www.example.com/readme.html
+<key>AppReadmeFile</key>=http://www.example.com/readme.html
 </pre>
 </example>
 </body>
@@ -5098,7 +5098,7 @@ AppReadmeFile=http://www.example.com/readme.html
 <p>This string is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
 <example>
 <pre>
-AppSupportPhone=1-800-555-1212
+<key>AppSupportPhone</key>=1-800-555-1212
 </pre>
 </example>
 </body>
@@ -5109,7 +5109,7 @@ AppSupportPhone=1-800-555-1212
 <p>A link to the specified URL is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
 <example>
 <pre>
-AppSupportURL=http://www.example.com/support.html
+<key>AppSupportURL</key>=http://www.example.com/support.html
 </pre>
 </example>
 </body>
@@ -5120,7 +5120,7 @@ AppSupportURL=http://www.example.com/support.html
 <p>A link to the specified URL is displayed on the "Support" dialog of the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants.</p>
 <example>
 <pre>
-AppUpdatesURL=http://www.example.com/updates.html
+<key>AppUpdatesURL</key>=http://www.example.com/updates.html
 </pre>
 </example>
 </body>
@@ -5600,7 +5600,7 @@ end;</pre></example>
 <body>
 <p>This directive allows you to assign a different name for the resulting Setup file(s), so you don't have to manually rename them after running the compiler.</p>
 <p>Setting this to <tt>setup</tt> is not recommended: all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll. These DLLs are loaded unsafely by Windows and can be hijacked.</p>
-<example><pre>OutputBaseFilename=MyProg100</pre></example>
+<example><pre><key>OutputBaseFilename</key>=MyProg100</pre></example>
 </body>
 </setuptopic>
 
@@ -5630,7 +5630,7 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <setuptopic directive="UninstallDisplayName">
 <body>
 <p>This lets you specify a custom name for the program's entry in the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants. If this directive is not specified or is blank, Setup will use the value of <tt>[Setup]</tt> section directive <sd>AppVerName</sd> for the name.</p>
-<example><pre>UninstallDisplayName=My Program</pre></example>
+<example><pre><key>UninstallDisplayName</key>=My Program</pre></example>
 <p><b>See also:</b><br/>
 <link topic="sidebyside">Side-by-side installation</link></p>
 </body>
@@ -5640,7 +5640,7 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <body>
 <p>On Windows 7 and later, Setup uses this directive to set the <tt>EstimatedSize</tt> value in the Uninstall registry key when possible since the Windows 7 <i>Add/Remove Programs</i> Control Panel (called <i>Program and Features</i>) no longer automatically calculates it. If an <tt>UninstallDisplaySize</tt> is not set, Setup estimates the size itself by taking the size of all files installed and adding any <tt>ExtraDiskSpaceRequired</tt> values set. Note: Windows 7 without any service pack only supports the display of values smaller than 4 GB.</p>
 <p>Supports digit separators and set in bytes. (1048576 bytes = 1 megabyte)</p>
-<example><pre>UninstallDisplaySize=1_073_741_824</pre></example>
+<example><pre><key>UninstallDisplaySize</key>=1_073_741_824</pre></example>
 </body>
 </setuptopic>
 
@@ -5668,7 +5668,7 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <p><tt>append</tt>, the default setting, instructs Setup to <link topic="appendnotes">append to an existing uninstall log</link> when possible.</p>
 <p><tt>new</tt>, which corresponds to the behavior in pre-1.3 versions of Inno Setup, instructs Setup to always create a new uninstall log.</p>
 <p><tt>overwrite</tt> instructs Setup to overwrite any existing uninstall logs from the <link topic="sameappnotes">same application</link> instead of appending to them (this is <i>not</i> recommended). The same rules for appending to existing logs apply to overwriting existing logs.</p>
-<example><pre>UninstallLogMode=append</pre></example>
+<example><pre><key>UninstallLogMode</key>=append</pre></example>
 </body>
 </setuptopic>
 
@@ -5692,7 +5692,7 @@ UninstallDisplayIcon={app}\MyProg.exe,1
 <body>
 <p>The value of this directive is used for the default Start Menu folder name on the <i>Select Start Menu Folder</i> page of the wizard. If this directive is blank or isn't specified, it will use "(Default)" for the name.</p>
 <p>Keep in mind that Start Menu folders are stored as literal directories so any characters not allowed in normal directory names can't be used in Start Menu folder names.</p>
-<example><pre>DefaultGroupName=My Program</pre></example>
+<example><pre><key>DefaultGroupName</key>=My Program</pre></example>
 </body>
 </setuptopic>
 
@@ -5856,7 +5856,7 @@ DiskSliceSize=736000000
 <p>If the user selects a language for which the <tt>LicenseFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
 <p>If a Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <p>If using a .rtf file with custom colors, be mindful of contrast ratios, especially if supporting a <link topic="setup_wizardstyle">dark style</link>. Aim for at least an AA pass for normal text, using a <extlink href="https://webaim.org/resources/contrastchecker">contrast checker</extlink>. Example colors that pass on both light and dark backgrounds include: red #eb0000, green #008a00, and blue #6161ff.</p>
-<example><pre>LicenseFile=license.txt</pre></example>
+<example><pre><key>LicenseFile</key>=license.txt</pre></example>
 <p><b>See also:</b><br/>
 <sd>InfoBeforeFile</sd><br/>
 <sd>InfoAfterFile</sd></p>
@@ -5869,7 +5869,7 @@ DiskSliceSize=736000000
 <p>If the user selects a language for which the <tt>InfoBeforeFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
 <p>If a Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <p>If using a .rtf file with custom colors, see <sd>LicenseFile</sd> for special considerations.</p>
-<example><pre>InfoBeforeFile=infobefore.txt</pre></example>
+<example><pre><key>InfoBeforeFile</key>=infobefore.txt</pre></example>
 <p><b>See also:</b><br/>
 <sd>InfoAfterFile</sd><br/>
 <sd>LicenseFile</sd></p>
@@ -5883,7 +5883,7 @@ DiskSliceSize=736000000
 <p>If the user selects a language for which the <tt>InfoAfterFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
 <p>If a Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <p>If using a .rtf file with custom colors, see <sd>LicenseFile</sd> for special considerations.</p>
-<example><pre>InfoAfterFile=infoafter.txt</pre></example>
+<example><pre><key>InfoAfterFile</key>=infoafter.txt</pre></example>
 <p><b>See also:</b><br/>
 <sd>InfoBeforeFile</sd><br/>
 <sd>LicenseFile</sd></p>
@@ -6017,7 +6017,7 @@ DiskSliceSize=736000000
 <tr><td>250%</td><td>416x797</td></tr>
 </table>
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicImage.bmp</tt>.</p>
-<example><pre>WizardImageFile=myimage.bmp,myimage2.bmp</pre></example>
+<example><pre><key>WizardImageFile</key>=myimage.bmp,myimage2.bmp</pre></example>
 <p><b>See also:</b><br/>
 <sd>WizardBackImageFile</sd><br/>
 <sd>WizardSmallImageFile</sd><br/>
@@ -6070,7 +6070,7 @@ DiskSliceSize=736000000
 <tr><td>250%</td><td>147x147</td></tr>
 </table>
 <p>To use the old default wizard images set this directive to <tt>compiler:WizClassicSmallImage.bmp</tt>.</p>
-<example><pre>WizardSmallImageFile=mysmallimage.bmp,mysmallimage2.bmp</pre></example>
+<example><pre><key>WizardSmallImageFile</key>=mysmallimage.bmp,mysmallimage2.bmp</pre></example>
 <p><b>See also:</b><br/>
 <sd>WizardBackImageFile</sd><br/>
 <sd>WizardImageFile</sd><br/>
@@ -6326,7 +6326,7 @@ WizardBackImageOpacity=150</pre></example>
 <body>
 <p>Lets you increase the default size of all Setup and Uninstall windows without increasing the font size. A size of for example 120 means a 20% size increase.</p>
 <p>If you specify only one size it will be used as both the horizontal and the vertical size.</p>
-<example><pre>WizardSizePercent=130</pre></example>
+<example><pre><key>WizardSizePercent</key>=130</pre></example>
 <p>Note: Some windows such as the <i>Select Language</i> dialog will only increase in size horizontally.</p>
 <p><b>See also:</b><br/>
 <sd>WizardKeepAspectRatio</sd><br/>
@@ -6337,7 +6337,7 @@ WizardBackImageOpacity=150</pre></example>
 <setuptopic directive="SourceDir">
 <body>
 <p>Specifies a new <link topic="sourcedirectorynotes">source directory</link> for the script.</p>
-<example><pre>SourceDir=c:\files</pre></example>
+<example><pre><key>SourceDir</key>=c:\files</pre></example>
 </body>
 </setuptopic>
 
@@ -6346,7 +6346,7 @@ WizardBackImageOpacity=150</pre></example>
 <body>
 <p>Specifies the "output" directory for the script, which is where the compiler will place the resulting Setup.* files. By default, it creates a directory named "Output" under the directory containing the script for this.</p>
 <p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <sd>SourceDir</sd>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the My Documents folder of the currently logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
-<example><pre>OutputDir=c:\output</pre></example>
+<example><pre><key>OutputDir</key>=c:\output</pre></example>
 </body>
 </setuptopic>
 
@@ -6580,7 +6580,7 @@ WizardBackImageOpacity=150</pre></example>
 <p>It is recommended to include at least the following sizes in your icon: 16x16, 32x32, 48x48, 64x64, and 256x256.</p>
 <p>If this directive is not specified or is blank, a built-in icon supporting the above sizes will be used.</p>
 <p>To use the old default icon set this directive to <tt>compiler:SetupClassicIcon.ico</tt>.</p>
-<example><pre>SetupIconFile=MyProgSetup.ico</pre></example>
+<example><pre><key>SetupIconFile</key>=MyProgSetup.ico</pre></example>
 </body>
 </setuptopic>
 
@@ -6685,7 +6685,7 @@ WizardBackImageOpacity=150</pre></example>
 <body>
 <p>The date used in the time/date stamp of files referenced by [Files] section entries that include the <tt>touch</tt> flag.</p>
 <p>A value of <tt>current</tt> causes the current system date (at compile time) to be used. A value of <tt>none</tt> leaves the date as-is. Otherwise, <tt>TouchDate</tt> is interpreted as an explicit date in <tt><i>YYYY</i>-<i>MM</i>-<i>DD</i></tt> (ISO 8601) format. If <sd>TimeStampsInUTC</sd> is set to <tt>yes</tt>, the date is assumed to be a UTC date.</p>
-<example><pre>TouchDate=2004-01-31</pre></example>
+<example><pre><key>TouchDate</key>=2004-01-31</pre></example>
 </body>
 </setuptopic>
 
@@ -6695,7 +6695,7 @@ WizardBackImageOpacity=150</pre></example>
 <body>
 <p>The time used in the time/date stamp of files referenced by [Files] section entries that include the <tt>touch</tt> flag.</p>
 <p>A value of <tt>current</tt> causes the current system time (at compile time) to be used. A value of <tt>none</tt> leaves the time as-is. Otherwise, <tt>TouchTime</tt> is interpreted as an explicit time in <tt><i>HH</i>:<i>MM</i></tt> or <tt><i>HH</i>:<i>MM</i>:<i>SS</i></tt> format. If <sd>TimeStampsInUTC</sd> is set to <tt>yes</tt>, the time is assumed to be a UTC time.</p>
-<example><pre>TouchTime=13:00</pre></example>
+<example><pre><key>TouchTime</key>=13:00</pre></example>
 </body>
 </setuptopic>
 
@@ -6737,7 +6737,7 @@ WizardBackImageOpacity=150</pre></example>
 <setuptopic directive="OutputManifestFile">
 <body>
 <p>When this directive is set, the compiler will create a manifest file detailing information about the files compiled into Setup. The file will be created in the <link topic="setup_outputdir">output directory</link> unless a path is included.</p>
-<example><pre>OutputManifestFile=Setup-Manifest.txt</pre></example>
+<example><pre><key>OutputManifestFile</key>=Setup-Manifest.txt</pre></example>
 </body>
 </setuptopic>
 
@@ -6952,7 +6952,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 <p>Specifies the directory in which <link topic="setup_signeduninstaller">signed uninstaller</link> files should be stored. By default, such files are stored in the <link topic="setup_outputdir">output directory</link>.</p>
 <p>Separate script files may share the same <tt>SignedUninstallerDir</tt> setting. By setting up a common directory to hold signed uninstaller files, you won't have to re-sign the uninstaller each time you compile a new script file with a distinct <sd>OutputDir</sd> setting.</p>
 <p>If <tt>SignedUninstallerDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <sd>SourceDir</sd>. Setting <tt>SignedUninstallerDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
-<example><pre>SignedUninstallerDir=c:\signeduninstallers</pre></example>
+<example><pre><key>SignedUninstallerDir</key>=c:\signeduninstallers</pre></example>
 </body>
 </setuptopic>
 
