@@ -6393,9 +6393,17 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <li><tt>hidebevels</tt>: Hides all bevels (horizontal lines) across Setup and Uninstall, except those in native system dialogs.</li>
 <li><tt>includetitlebar</tt>: Enables custom styling of both title bars and borders when a custom style (including the built-in custom dark style) is active. By default, the system's native light or dark title bar is used instead.</li>
 </ul>
-<p><b>Examples:</b></p>
-<p><tt>WizardStyle=modern dynamic</tt> will use the modern look and automatically adapt to the system's light or dark mode setting.<br/>
-<tt>WizardStyle=modern dark polar includetitlebar</tt> will use the modern look, and the dark appearance of the built-in polar style, and also style both title bars and borders.</p>
+<examples>
+<pre>
+<com>; Use the modern look and automatically adapt to the system's light</com>
+<com>; or dark mode setting</com>
+<key>WizardStyle</key>=modern dynamic
+
+<com>; Use the modern look, and the dark appearance of the built-in polar</com>
+<com>; style, and also style both title bars and borders</com>
+<key>WizardStyle</key>=modern dark polar includetitlebar
+</pre>
+</examples>
 <heading>Dark Mode Behavior</heading>
 <p>When forced dark (<tt>dark</tt>) or dynamic dark (<tt>dynamic</tt> with Windows in dark mode) is active, the following changes occur:</p>
 <ul>
