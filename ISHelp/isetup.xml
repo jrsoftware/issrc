@@ -878,7 +878,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <p>An entry without a <tt>Languages</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <p>Besides space separated lists, you may also use boolean expressions containing language names. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</p>
 <example>
-<pre>Languages: en nl</pre>
+<pre><key>Languages</key>: en nl</pre>
 </example>
 </param>
 
@@ -886,7 +886,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <p>A minimum <link topic="winvernotes">Windows version</link> for the entry to be processed. If you use <tt>0</tt> then the entry will never be processed. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <sd>MinVersion</sd> directive in the script's <tt>[Setup]</tt> section.</p>
 <p>An entry without a <tt>MinVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
-<pre>MinVersion: 6.2</pre>
+<pre><key>MinVersion</key>: 6.2</pre>
 </example>
 </param>
 
@@ -895,7 +895,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <p>If <tt>0</tt> is not used: should be higher than <tt>6.1</tt> otherwise the entry is never processed. (Windows Vista/Server 2008 are no longer supported.)</p>
 <p>An entry without an <tt>OnlyBelowVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
-<pre>OnlyBelowVersion: 6.2</pre>
+<pre><key>OnlyBelowVersion</key>: 6.2</pre>
 </example>
 </param>
 
@@ -1218,14 +1218,14 @@ Name: "custom"; Description: "Custom installation"; Flags: iscustom
 <param name="Name" required="yes">
 <p>The internal name of the type. Used as parameter for components in the [Components] section to instruct Setup to which types a component belongs.</p>
 <example>
-<pre>Name: "full"</pre>
+<pre><key>Name</key>: "full"</pre>
 </example>
 </param>
 
 <param name="Description" required="yes">
 <p>The description of the type, which can include constants. This description is shown during installation.</p>
 <example>
-<pre>Description: "Full installation"</pre>
+<pre><key>Description</key>: "Full installation"</pre>
 </example>
 </param>
 
@@ -1240,7 +1240,7 @@ Name: "custom"; Description: "Custom installation"; Flags: iscustom
 </flaglist>
 
 <example>
-<pre>Flags: iscustom</pre>
+<pre><key>Flags</key>: iscustom</pre>
 </example>
 
 </param>
@@ -1285,14 +1285,14 @@ Name: "help\dutch"; Description: "Dutch"; Types: full
 <p>A child component can't be selected if its parent component isn't selected. A parent component can't be selected if none of its children are selected, unless a <tt>Components</tt> parameter directly references the parent component or the parent component includes the <tt>checkablealone</tt> flag.</p>
 <p>If sibling components have the <tt>exclusive</tt> flag, only one of them can be selected.</p>
 <example>
-<pre>Name: "help"</pre>
+<pre><key>Name</key>: "help"</pre>
 </example>
 </param>
 
 <param name="Description" required="yes">
 <p>The description of the component, which can include constants. This description is shown to the end user during installation.</p>
 <example>
-<pre>Description: "Help Files"</pre>
+<pre><key>Description</key>: "Help Files"</pre>
 </example>
 </param>
 
@@ -1300,7 +1300,7 @@ Name: "help\dutch"; Description: "Dutch"; Types: full
 <p>A space separated list of types this component belongs to. If the end user selects a type from this list, this component will be installed.</p>
 <p>If the <tt>fixed</tt> flag isn't used (see below), any custom types (types using the <tt>iscustom</tt> flag) in this list are ignored by Setup.</p>
 <example>
-<pre>Types: full compact</pre>
+<pre><key>Types</key>: full compact</pre>
 </example>
 </param>
 
@@ -1308,7 +1308,7 @@ Name: "help\dutch"; Description: "Dutch"; Types: full
 <p>The extra disk space required by this component, similar to the <sd>ExtraDiskSpaceRequired</sd> directive for the [Setup] section.</p>
 <p>Supports digit separators and set in bytes. (1048576 bytes = 1 megabyte)</p>
 <example>
-<pre>ExtraDiskSpaceRequired: 1_048_576</pre>
+<pre><key>ExtraDiskSpaceRequired</key>: 1_048_576</pre>
 </example>
 </param>
 
@@ -1338,7 +1338,7 @@ Name: "help\dutch"; Description: "Dutch"; Types: full
 </flaglist>
 
 <example>
-<pre>Flags: fixed</pre>
+<pre><key>Flags</key>: fixed</pre>
 </example>
 
 </param>
@@ -1382,28 +1382,28 @@ Name: associate; Description: "&amp;Associate files"; GroupDescription: "Other t
 <p>A child task can't be selected if its parent task isn't selected. A parent task can't be selected if none of its children are selected, unless a <tt>Tasks</tt> parameter directly references the parent task or the parent task includes the <tt>checkablealone</tt> flag.</p>
 <p>If sibling tasks have the <tt>exclusive</tt> flag, only one of them can be selected.</p>
 <example>
-<pre>Name: "desktopicon"</pre>
+<pre><key>Name</key>: "desktopicon"</pre>
 </example>
 </param>
 
 <param name="Description" required="yes">
 <p>The description of the task, which can include constants. This description is shown to the end user during installation.</p>
 <example>
-<pre>Description: "Create a &amp;desktop icon"</pre>
+<pre><key>Description</key>: "Create a &amp;desktop icon"</pre>
 </example>
 </param>
 
 <param name="GroupDescription">
 <p>The group description of a group of tasks, which can include constants. Consecutive tasks with the same group description will be grouped below a text label. The text label shows the group description.</p>
 <example>
-<pre>GroupDescription: "Additional icons"</pre>
+<pre><key>GroupDescription</key>: "Additional icons"</pre>
 </example>
 </param>
 
 <param name="Components">
 <p>A space separated list of components this task belongs to. If the end user selects a component from this list, this task will be shown. A task entry without a Components parameter is always shown.</p>
 <example>
-<pre>Components: main</pre>
+<pre><key>Components</key>: main</pre>
 </example>
 </param>
 
@@ -1433,7 +1433,7 @@ Name: associate; Description: "&amp;Associate files"; GroupDescription: "Other t
 </flaglist>
 
 <example>
-<pre>Flags: unchecked</pre>
+<pre><key>Flags</key>: unchecked</pre>
 </example>
 
 </param>
@@ -1482,7 +1482,7 @@ Name: "{app}\bin"
 <p>Specifies additional attributes for the directory. This can include one or more of the following: <tt>readonly</tt>, <tt>hidden</tt>, <tt>system</tt>, <tt>notcontentindexed</tt>. If this parameter is not specified, Setup does not assign any special attributes to the directory.</p>
 <p>If the directory already exists, the specified attributes will be combined with the directory's existing attributes.</p>
 <example>
-<pre>Attribs: hidden system</pre>
+<pre><key>Attribs</key>: hidden system</pre>
 </example>
 </param>
 
@@ -1507,7 +1507,7 @@ Name: "{app}\bin"
 </flag>
 </flaglist>
 <example>
-<pre>Permissions: users-modify</pre>
+<pre><key>Permissions</key>: users-modify</pre>
 </example>
 </param>
 
@@ -1536,7 +1536,7 @@ Name: "{app}\bin"
 </flaglist>
 
 <example>
-<pre>Flags: uninsneveruninstall</pre>
+<pre><key>Flags</key>: uninsneveruninstall</pre>
 </example>
 
 </param>
@@ -1603,7 +1603,7 @@ DestDir: "{app}\subdir"
 <param name="DestName">
 <p>This parameter specifies a new name for the file when it is installed on the user's system. By default, Setup uses the name from the <tt>Source</tt> parameter, so in most cases it's not necessary to specify this parameter.</p>
 <example>
-<pre>DestName: "MyProg2.exe"</pre>
+<pre><key>DestName</key>: "MyProg2.exe"</pre>
 </example>
 </param>
 
@@ -1635,7 +1635,7 @@ ExternalSize: 1_048_576; Flags: external
 <param name="Attribs">
 <p>Specifies additional attributes for the file. This can include one or more of the following: <tt>readonly</tt>, <tt>hidden</tt>, <tt>system</tt>, <tt>notcontentindexed</tt>. If this parameter is not specified, Setup does not assign any special attributes to the file.</p>
 <example>
-<pre>Attribs: hidden system</pre>
+<pre><key>Attribs</key>: hidden system</pre>
 </example>
 </param>
 
@@ -1659,7 +1659,7 @@ ExternalSize: 1_048_576; Flags: external
 </flag>
 </flaglist>
 <example>
-<pre>Permissions: users-modify</pre>
+<pre><key>Permissions</key>: users-modify</pre>
 </example>
 </param>
 
@@ -1670,7 +1670,7 @@ ExternalSize: 1_048_576; Flags: external
 <p>If the installation is running in <link topic="admininstallmode">non administrative install mode</link>, Windows 10 Version 1803 or later is required to successfully install a font.</p>
 <p>For compatibility with 64-bit Windows, fonts should not be installed to the <tt>{sys}</tt> directory. Use <tt>{autofonts}</tt> as the destination directory instead.</p>
 <example>
-<pre>Source: "OZHANDIN.TTF"; DestDir: "{autofonts}"; FontInstall: "Oz Handicraft BT"; Flags: onlyifdoesntexist uninsneveruninstall</pre>
+<pre><key>Source</key>: "OZHANDIN.TTF"; <key>DestDir</key>: "<con>{autofonts}</con>"; <key>FontInstall</key>: "Oz Handicraft BT"; <key>Flags</key>: onlyifdoesntexist uninsneveruninstall</pre>
 </example>
 </param>
 
@@ -1678,21 +1678,21 @@ ExternalSize: 1_048_576; Flags: external
 <p>Specifies the strong assembly name of the file. Used by Uninstall only.</p>
 <p>This parameter is ignored if the <tt>gacinstall</tt> flag isn't also specified.</p>
 <example>
-<pre>StrongAssemblyName: "MyAssemblyName, Version=1.0.0.0, Culture=neutral, PublicKeyToken=abcdef123456, ProcessorArchitecture=MSIL"</pre>
+<pre><key>StrongAssemblyName</key>: "MyAssemblyName, Version=1.0.0.0, Culture=neutral, PublicKeyToken=abcdef123456, ProcessorArchitecture=MSIL"</pre>
 </example>
 </param>
 
 <param name="ISSigAllowedKeys">
 <p>A space separated list of key names or group names from the <link topic="issigkeyssection">[ISSigKeys] section</link>, specifying which keys are allowed for the verification done by the <tt>issigverify</tt> flag.</p>
 <example>
-<pre>ISSigAllowedKeys: "exesigner bosskey"</pre>
+<pre><key>ISSigAllowedKeys</key>: "exesigner bosskey"</pre>
 </example>
 </param>
 
 <param name="Hash">
 <p>Instructs the compiler or Setup to do a simple SHA-256 hash check instead of a full signature verification, as an alternative to using the <tt>issigverify</tt> flag. The precise effect of this parameter depends on whether it is combined with the <tt>external</tt> flag. See the <tt>issigverify</tt> flag description for more information.</p>
 <example>
-<pre>Hash: "2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc"</pre>
+<pre><key>Hash</key>: "2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc"</pre>
 </example>
 </param>
 
@@ -1921,7 +1921,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flaglist>
 
 <example>
-<pre>Flags: isreadme</pre>
+<pre><key>Flags</key>: isreadme</pre>
 </example>
 
 </param>
@@ -2004,7 +2004,7 @@ Filename: "http://www.example.com/"
 <param name="Parameters">
 <p>Optional command line parameters for the shortcut, which can include constants.</p>
 <example>
-<pre>Parameters: "/play filename.mid"</pre>
+<pre><key>Parameters</key>: "/play filename.mid"</pre>
 </example>
 </param>
 
@@ -2020,14 +2020,14 @@ Filename: "http://www.example.com/"
 <p>The hot key (or "shortcut key") setting for the shortcut, which is a combination of keys with which the program can be started.</p>
 <p>Note: If you change the shortcut key and reinstall the application, Windows may continue to recognize old shortcut key(s) until you log off and back on or restart the system.</p>
 <example>
-<pre>HotKey: "ctrl+alt+k"</pre>
+<pre><key>HotKey</key>: "ctrl+alt+k"</pre>
 </example>
 </param>
 
 <param name="Comment">
 <p>Specifies the <i>Comment</i> (or "description") field of the shortcut, which determines the popup hint for it. This parameter can include constants.</p>
 <example>
-<pre>Comment: "This is my program"</pre>
+<pre><key>Comment</key>: "This is my program"</pre>
 </example>
 </param>
 
@@ -2043,21 +2043,21 @@ Filename: "http://www.example.com/"
 <p>Zero-based index of the icon to use in the file specified by <tt>IconFilename</tt>. Defaults to <tt>0</tt>.</p>
 <p>If <tt>IconIndex</tt> is non-zero and <tt>IconFilename</tt> is not specified or is blank, it will act as if <tt>IconFilename</tt> is the same as <tt>Filename</tt>.</p>
 <example>
-<pre>IconIndex: 0</pre>
+<pre><key>IconIndex</key>: 0</pre>
 </example>
 </param>
 
 <param name="AppUserModelID">
 <p>Specifies the Windows 7 (or later) Application User Model ID for the shortcut. Ignored on earlier Windows versions. This parameter can include constants.</p>
 <example>
-<pre>AppUserModelID: "MyCompany.MyProg"</pre>
+<pre><key>AppUserModelID</key>: "MyCompany.MyProg"</pre>
 </example>
 </param>
 
 <param name="AppUserModelToastActivatorCLSID">
 <p>Specifies the Windows 10 (or later) Application User Model Toast Activator CLSID for the shortcut. Ignored on earlier Windows versions.</p>
 <example>
-<pre>AppUserModelToastActivatorCLSID: "B784B1A4-D682-4FE6-BDBA-21EDDAE42795"</pre>
+<pre><key>AppUserModelToastActivatorCLSID</key>: "B784B1A4-D682-4FE6-BDBA-21EDDAE42795"</pre>
 </example>
 </param>
 
@@ -2095,7 +2095,7 @@ Filename: "http://www.example.com/"
 </flaglist>
 
 <example>
-<pre>Flags: runminimized</pre>
+<pre><key>Flags</key>: runminimized</pre>
 </example>
 
 </param>
@@ -2140,21 +2140,21 @@ Filename: "MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; String: 
 <param name="Section" required="yes">
 <p>The name of the section in which to create the entry, which can include constants.</p>
 <example>
-<pre>Section: "Settings"</pre>
+<pre><key>Section</key>: "Settings"</pre>
 </example>
 </param>
 
 <param name="Key">
 <p>The name of the key to set, which can include constants. If this parameter is not specified or is blank, no key is created.</p>
 <example>
-<pre>Key: "Version"</pre>
+<pre><key>Key</key>: "Version"</pre>
 </example>
 </param>
 
 <param name="String">
 <p>The value to assign to the key, which can use constants. If this parameter is not specified, no key is created.</p>
 <example>
-<pre>String: "1.0"</pre>
+<pre><key>String</key>: "1.0"</pre>
 </example>
 </param>
 
@@ -2177,7 +2177,7 @@ Filename: "MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; String: 
 </flaglist>
 
 <example>
-<pre>Flags: uninsdeleteentry</pre>
+<pre><key>Flags</key>: uninsdeleteentry</pre>
 </example>
 
 </param>
@@ -2236,7 +2236,7 @@ Name: "nl"; MessagesFile: "compiler:Languages\Dutch.isl"
 <param name="Name" required="yes">
 <p>The internal name of the language, which you can set to anything you like. This can used as a prefix on [LangOptions] or [Messages] section entries to have the entries apply to only one language. The {language} constant returns the internal name of the selected language.</p>
 <example>
-<pre>Name: "en"</pre>
+<pre><key>Name</key>: "en"</pre>
 </example>
 </param>
 
@@ -2256,21 +2256,21 @@ MessagesFile: "compiler:Default.isl,compiler:MyMessages.isl"
 <param name="LicenseFile">
 <p>Specifies the name of an optional license agreement file, overriding the <sd>LicenseFile</sd> [Setup] section directive.</p>
 <example>
-<pre>LicenseFile: "license-Dutch.txt"</pre>
+<pre><key>LicenseFile</key>: "license-Dutch.txt"</pre>
 </example>
 </param>
 
 <param name="InfoBeforeFile">
 <p>Specifies the name of an optional "readme" file, overriding the <sd>InfoBeforeFile</sd> [Setup] section directive.</p>
 <example>
-<pre>InfoBeforeFile: "infobefore-Dutch.txt"</pre>
+<pre><key>InfoBeforeFile</key>: "infobefore-Dutch.txt"</pre>
 </example>
 </param>
 
 <param name="InfoAfterFile">
 <p>Specifies the name of an optional "readme" file, overriding the <sd>InfoAfterFile</sd> [Setup] section directive.</p>
 <example>
-<pre>InfoAfterFile: "infoafter-Dutch.txt"</pre>
+<pre><key>InfoAfterFile</key>: "infoafter-Dutch.txt"</pre>
 </example>
 </param>
 
@@ -2548,14 +2548,14 @@ Root: HKLM; Subkey: "Software\My Company\My Program\Settings"; ValueType: string
 </li>
 </ul>
 <example>
-<pre>Root: HKLM</pre>
+<pre><key>Root</key>: HKLM</pre>
 </example>
 </param>
 
 <param name="Subkey" required="yes">
 <p>The subkey name, which can include constants.</p>
 <example>
-<pre>Subkey: "Software\My Company\My Program"</pre>
+<pre><key>Subkey</key>: "Software\My Company\My Program"</pre>
 </example>
 </param>
 
@@ -2577,14 +2577,14 @@ If <tt>dword</tt> is specified, Setup will create a 32-bit integer (REG_DWORD) v
 If <tt>qword</tt> is specified, Setup will create a 64-bit integer (REG_QWORD) value.<br/>
 If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.</p>
 <example>
-<pre>ValueType: string</pre>
+<pre><key>ValueType</key>: string</pre>
 </example>
 </param>
 
 <param name="ValueName">
 <p>The name of the value to modify, which can include constants. If this is blank, it will modify the "Default" value.</p>
 <example>
-<pre>ValueName: "Version"</pre>
+<pre><key>ValueName</key>: "Version"</pre>
 </example>
 </param>
 
@@ -2593,7 +2593,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <p>On a <tt>string</tt>, <tt>expandsz</tt>, or <tt>multisz</tt> type value, you may use a special constant called <tt>{olddata}</tt> in this parameter. <tt>{olddata}</tt> is replaced with the previous data of the registry value. The <tt>{olddata}</tt> constant can be useful if you need to append a string to an existing value, for example, <tt>{olddata};{app}</tt>. If the value does not exist or the existing value isn't a string type, the {olddata} constant is silently removed. {olddata} will also be silently removed if the value being created is a <tt>multisz</tt> type but the existing value is not a multi-string type (i.e. it's REG_SZ or REG_EXPAND_SZ), and vice versa.</p>
 <p>On a <tt>multisz</tt> type value, you may use a special constant called <tt>{break}</tt> in this parameter to embed line breaks (nulls).</p>
 <example>
-<pre>ValueData: "1.0"</pre>
+<pre><key>ValueData</key>: "1.0"</pre>
 </example>
 </param>
 
@@ -2617,7 +2617,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 </flag>
 </flaglist>
 <example>
-<pre>Permissions: users-modify</pre>
+<pre><key>Permissions</key>: users-modify</pre>
 </example>
 </param>
 
@@ -2663,7 +2663,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 </flaglist>
 
 <example>
-<pre>Flags: uninsdeletevalue</pre>
+<pre><key>Flags</key>: uninsdeletevalue</pre>
 </example>
 
 </param>
@@ -2716,14 +2716,14 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 <param name="Description">
 <p>Valid only in a <tt>[Run]</tt> section. The description of the entry, which can include constants. This description is used for entries with the <tt>postinstall</tt> flag. If the description is not specified for an entry, Setup will use a default description. This description depends on the type of the entry (normal or <tt>shellexec</tt>).</p>
 <example>
-<pre>Description: "View the README file"</pre>
+<pre><key>Description</key>: "View the README file"</pre>
 </example>
 </param>
 
 <param name="Parameters">
 <p>Optional command line parameters for the program, which can include constants.</p>
 <example>
-<pre>Parameters: "/x"</pre>
+<pre><key>Parameters</key>: "/x"</pre>
 </example>
 </param>
 
@@ -2738,28 +2738,28 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 <param name="StatusMsg">
 <p>Has no effect in an <tt>[UninstallRun]</tt> section. Determines the message displayed on the wizard while the program is executed. If this parameter is not specified or is blank, a default message of "Finishing installation..." will be used. This parameter can include constants.</p>
 <example>
-<pre>StatusMsg: "Installing BDE..."</pre>
+<pre><key>StatusMsg</key>: "Installing BDE..."</pre>
 </example>
 </param>
 
 <param name="RunOnceId">
 <p>Valid only in an <tt>[UninstallRun]</tt> section. If the <link topic="sameappnotes">same application</link> is installed more than once, "run" entries will be duplicated in the uninstall log file. By assigning a string to <tt>RunOnceId</tt>, you can ensure that a particular <tt>[UninstallRun]</tt> entry will only be executed once during uninstallation. For example, if two or more "run" entries in the uninstall log have a <tt>RunOnceId</tt> setting of "DelService", only the latest entry with a <tt>RunOnceId</tt> setting of "DelService" will be executed; the rest will be ignored. Note that <tt>RunOnceId</tt> comparisons are case-sensitive. If you don't assign a string to <tt>RunOnceId</tt>, the compiler will warn you about this, which can be disabled using <sd>MissingRunOnceIdsWarning</sd>.</p>
 <example>
-<pre>RunOnceId: "DelService"</pre>
+<pre><key>RunOnceId</key>: "DelService"</pre>
 </example>
 </param>
 
 <param name="Verb">
 <p>Specifies the action to be performed on the file. Must be combined with the <tt>shellexec</tt> flag. Commonly available verbs include "open" and "print". If this parameter is not specified or is blank, the default verb for the file type will be used (typically "open").</p>
 <example>
-<pre>Verb: "print"</pre>
+<pre><key>Verb</key>: "print"</pre>
 </example>
 </param>
 
 <param name="OnLog">
 <p>Valid only in a <tt>[Run]</tt> section. The name of a <tt>[Code]</tt> procedure to be called for each line of the program's output. Must be combined with the <tt>logoutput</tt> flag. See <link topic="scriptonlog">Pascal Scripting: OnLog Parameters</link> for more information.</p>
 <example>
-<pre>OnLog: MyOnLog</pre>
+<pre><key>OnLog</key>: MyOnLog</pre>
 </example>
 </param>
 
@@ -2841,7 +2841,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 </flaglist>
 
 <example>
-<pre>Flags: postinstall nowait skipifsilent</pre>
+<pre><key>Flags</key>: postinstall nowait skipifsilent</pre>
 </example>
 
 </param>
@@ -2889,7 +2889,7 @@ Type: files; Name: "{win}\MyProg.ini"
 </flag>
 </flaglist>
 <example>
-<pre>Type: files</pre>
+<pre><key>Type</key>: files</pre>
 </example>
 </param>
 
@@ -2953,43 +2953,43 @@ Name: bosskey; KeyFile: "boss.ispublickey"
 <param name="Name" required="yes">
 <p>The internal name of the key.</p>
 <p>Key names are not stored in the resulting Setup file(s), so you may use personal or non-public information in them, like the names of developers.</p>
-<example><pre>Name: MyKey</pre></example>
+<example><pre><key>Name</key>: MyKey</pre></example>
 </param>
 
 <param name="Group">
 <p>A space separated list of internal group names, specifying how to group the key.</p>
 <p>Group names are not stored in the resulting Setup file(s), so you may use personal or non-public information in them, like the names of developer groups.</p>
-<example><pre>Group: exesigner docsigner</pre></example>
+<example><pre><key>Group</key>: exesigner docsigner</pre></example>
 </param>
 
 <param name="KeyID">
 <p>Specifies the ID of the key. If specified, the compiler uses it to double check the values of parameters <tt>KeyFile</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt>. Is not used for anything else.</p>
-<example><pre>KeyID: "def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38"</pre></example>
+<example><pre><key>KeyID</key>: "def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38"</pre></example>
 </param>
 
 <param name="KeyFile">
 <p>Specifies the private or public key file. The compiler will prepend the path of your installation's <link topic="sourcedirectorynotes">source directory</link> if you do not specify a fully qualified pathname.</p>
 <p>Must be set if parameters <tt>PublicX</tt> and <tt>PublicY</tt> aren't set.</p>
 <p>If a private key file is specified, only its public information is stored in the resulting Setup file(s).</p>
-<example><pre>KeyFile: "MyKey.ispublickey"</pre></example>
+<example><pre><key>KeyFile</key>: "MyKey.ispublickey"</pre></example>
 </param>
 
 <param name="PublicX">
 <p>Specifies the "public-x" value of the key.</p>
 <p>Must be set if parameter <tt>KeyFile</tt> isn't set.</p>
-<example><pre>PublicX: "e3e943066aff8f28d2219fd71c9ffff4c8d1aa26bc4225434be67180ab5e242d"</pre></example>
+<example><pre><key>PublicX</key>: "e3e943066aff8f28d2219fd71c9ffff4c8d1aa26bc4225434be67180ab5e242d"</pre></example>
 </param>
 
 <param name="PublicY">
 <p>Specifies the "public-y" value of the key.</p>
 <p>Must be set if parameter <tt>KeyFile</tt> isn't set.</p>
-<example><pre>PublicY: "e419041c3f54551e86a1c47f387005cd535dfc9d64339b30d37f9a4f7866b650"</pre></example>
+<example><pre><key>PublicY</key>: "e419041c3f54551e86a1c47f387005cd535dfc9d64339b30d37f9a4f7866b650"</pre></example>
 </param>
 
 <param name="RuntimeID">
 <p>Specifies the runtime ID of the key, used by <link topic="isxfunc_ISSigVerify">ISSigVerify</link>.</p>
 <p>Runtime ID's are stored in the resulting Setup file(s), so you should <i>not</i> use personal or non-public information in them.</p>
-<example><pre>RuntimeID: def01</pre></example>
+<example><pre><key>RuntimeID</key>: def01</pre></example>
 </param>
 
 </paramlist>

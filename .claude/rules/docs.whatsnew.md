@@ -9,7 +9,7 @@ paths: ["whatsnew.htm"]
 - `<i>Fix:</i>` prefix for bug fix entries.
 - `<i>` for example script file names when they are linked: `<i><a href="...">ScriptName.iss</a></i>`.
 - `<b>` for important warnings.
-- `<pre><code class="innosetup">` with `<sec>`, `<evt>`, `<key>`, `<com>`, `<con>`, `<str>`, `<num>`, and `<ispp>` for syntax-highlighted script examples.
+- `<pre><code class="innosetup">` for syntax-highlighted script examples.
 
 ## Entry structure
 

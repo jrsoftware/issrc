@@ -71,6 +71,21 @@ Additional vocabulary rules:
 - `<i>` for emphasis, wizard page names (such as *Select Destination Location*), UI element names, and file titles.
 - `<b>` sparingly, for important warnings or the word "NOTE:".
 
+## Syntax Highlighting
+
+The IDE styler (`Projects/Src/IDE.ScintStylerInnoSetup.pas`),  is the source of truth for which token gets which
+category. Five non-obvious rules:
+
+- Use `<sec>`, `<evt>`, `<key>`, `<com>`, `<con>`, `<str>`, `<num>`, and `<ispp>` for syntax-highlighted script examples.
+- Use `<str>` and `<num>` only in Pascal Script and ISPP contexts. Section directive and parameter string
+  values stay plain, with only their inner constants using `<con>`. Number literals include ISPP array indices.
+- Use of `<con>` depends on context. Use it for a regular constant (`{app}`) inside a section directive or parameter
+  value, including inside a parameter value such as `ExpandConstant('<con>{app}</con>\...')`,
+  but not inside a Pascal string literal, where the whole literal stays `<str>`. An ISPP inline constant
+  (`{#...}`) is the exception: it always uses `<con>`, even inside a Pascal string literal, because ISPP pre-styles it.
+- `<evt>` applies only to the fixed `BasicEventFunctions` set; functions named via event attributes are not bolded.
+- `[Messages]`/`[CustomMessages]`/`[LangOptions]`: only the message name is `<key>`; a language prefix is not.
+
 ## Review Guidelines
 
 When reviewing documentation, check for:

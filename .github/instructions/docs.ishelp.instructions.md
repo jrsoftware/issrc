@@ -7,9 +7,8 @@ applyTo: "ISHelp/isetup.xml,ISHelp/isx.xml,ISHelp/isxfunc.xml,ISHelp/isxclasses.
 
 - `<link>` for cross-references to other help topics.
 - `<extlink>` for external URLs.
-- `<precode>` for section-level and topic-level script examples (such as showing a full [Run] section).
-- `<example><pre>` for parameter and function examples, which can also be multi-line.
-- `<sec>`, `<evt>`, `<key>`, `<com>`, `<con>`, `<str>`, `<num>`, and `<ispp>` for syntax-highlighted script examples.
+- `<precode>` for syntax-highlighted section-level and topic-level script examples (such as showing a full [Run] section).
+- `<example><pre>` for syntax-highlighted parameter and function examples, which can also be multi-line.
 - Always link to related topics when mentioning directives, sections, or functions. Do not leave them as plain text if a help topic exists.
 
 ## Section topic structure
