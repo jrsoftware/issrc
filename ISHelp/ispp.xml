@@ -1413,7 +1413,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line><ispp>#define</ispp> MyFileDateTimeString GetFileDateTimeString(<str>'myfile.txt'</str>, <str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</str>);</line>
+						<line><ispp>#define</ispp> MyFileDateTimeString GetFileDateTimeString(<str>'myfile.txt'</str>, <str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</str>)</line>
 					</pre>
 				</section>
 				<section title="See also">
