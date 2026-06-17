@@ -29,6 +29,7 @@
     .head2       { font-size: calc(20rem/16) }
     .ver         { font-size: calc(20rem/16); font-weight: bold }
     code.innosetup .sec { font-weight: bold }
+    code.innosetup .evt { font-weight: bold }
     code.innosetup .key { color: light-dark(#0078d4, #0088f0) }
     code.innosetup .com { color: light-dark(#2d862d, #339933) }
     code.innosetup .con { color: light-dark(#9262a8, #a278b5) }
@@ -1170,19 +1171,19 @@ emulation. For example, when running on an Arm64 Windows 11 system, it
 logs: <tt>Machine types supported by system: x86 x64 Arm32 Arm64</tt>.</li>
   <li>The <tt>OnlyOnTheseArchitectures</tt> message is not used anymore. Instead, the <tt>WindowsVersionNotSupported</tt> message is now shown when Setup is started on an architecture that is not allowed by the <tt>ArchitecturesAllowed</tt> expression. (But please do not remove the message from translation files.)</li>
   <li>Pascal Scripting change: Added new <tt>IsArm32Compatible</tt>, <tt>IsX64Compatible</tt>, <tt>IsX64OS</tt>, <tt>IsX86Compatible</tt>, and <tt>IsX86OS</tt> support functions. The <tt>IsX64</tt> support function still exists but is now deprecated as explained above. Example testing all architecture identifiers:
-      <pre>[Code]
-function InitializeSetup: Boolean;
-begin
-  if IsArm32Compatible then Log('IsArm32Compatible');
-  if IsArm64 then Log('IsArm64');
-  if IsX64OS then Log('IsX64OS');
-  if IsX64Compatible then Log('IsX64Compatible');
-  if IsX86 then Log('IsX86');
-  if IsX86OS then Log('IsX86OS');
-  if IsX86Compatible then Log('IsX86Compatible');
-  if IsWin64 then Log('IsWin64');
+      <pre><code class="innosetup"><span class="sec">[Code]</span>
+<span class="key">function</span> <span class="evt">InitializeSetup</span>: Boolean;
+<span class="key">begin</span>
+  <span class="key">if</span> IsArm32Compatible <span class="key">then</span> Log(<span class="str">'IsArm32Compatible'</span>);
+  <span class="key">if</span> IsArm64 <span class="key">then</span> Log(<span class="str">'IsArm64'</span>);
+  <span class="key">if</span> IsX64OS <span class="key">then</span> Log(<span class="str">'IsX64OS'</span>);
+  <span class="key">if</span> IsX64Compatible <span class="key">then</span> Log(<span class="str">'IsX64Compatible'</span>);
+  <span class="key">if</span> IsX86 <span class="key">then</span> Log(<span class="str">'IsX86'</span>);
+  <span class="key">if</span> IsX86OS <span class="key">then</span> Log(<span class="str">'IsX86OS'</span>);
+  <span class="key">if</span> IsX86Compatible <span class="key">then</span> Log(<span class="str">'IsX86Compatible'</span>);
+  <span class="key">if</span> IsWin64 <span class="key">then</span> Log(<span class="str">'IsWin64'</span>);
   Result := True;
-end;</pre>
+<span class="key">end</span>;</code></pre>
   </li>
 </ul>
 <p><span class="head2">Support for #include files improved</span></p>
