@@ -52,8 +52,8 @@
 				</pre>
 				<p>Inline directives appear inside other lines and begin with <tt>{#</tt> and end with <tt>}</tt>. For example, the following sets Inno Setup's <sd>AppName</sd> directive to the value of the previously defined variable:</p>
 				<pre>
-					<line>[Setup]</line>
-					<line>AppName={#MyAppName}</line>
+					<line><sec>[Setup]</sec></line>
+					<line><key>AppName</key>=<ispp>{#</ispp>MyAppName<ispp>}</ispp></line>
 				</pre>
 				<p>As seen in the above example, you don't need to specify the name of the &emit; directive when it's used inline, so <tt>{#MyAppName}</tt> is short for <tt>{#emit MyAppName}</tt>.</p>
 			</description>
@@ -185,12 +185,12 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>#dim MyArray[10]</line>
-						<line>#define MyArray[0] 15</line>
-						<line>#redim MyArray[20]</line>
-						<line>#define MyArray[10] 30</line>
-						<line>#redim MyArray[10]</line>
-						<line>#dim MyArray2[3] {1, 2, 3}</line>
+						<line><ispp>#dim</ispp> MyArray[<num>10</num>]</line>
+						<line><ispp>#define</ispp> MyArray[<num>0</num>] <num>15</num></line>
+						<line><ispp>#redim</ispp> MyArray[<num>20</num>]</line>
+						<line><ispp>#define</ispp> MyArray[<num>10</num>] <num>30</num></line>
+						<line><ispp>#redim</ispp> MyArray[<num>10</num>]</line>
+						<line><ispp>#dim</ispp> MyArray2[<num>3</num>] {<num>1</num>, <num>2</num>, <num>3</num>}</line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -212,9 +212,9 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>#undef MyVar</line>
-						<line>#undef MyFunction</line>
-						<line>#undef public MyVar</line>
+						<line><ispp>#undef</ispp> MyVar</line>
+						<line><ispp>#undef</ispp> MyFunction</line>
+						<line><ispp>#undef</ispp> <ispp>public</ispp> MyVar</line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -248,9 +248,9 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>#include &lt;file.iss&gt;</line>
-						<line>#include "c:\dir\file.iss"</line>
-						<line>#include <link href="addbackslash">AddBackslash</link>(<link href="predefinedvars">CompilerPath</link>) + "common.iss"</line>
+						<line><ispp>#include</ispp> <str>&lt;file.iss&gt;</str></line>
+						<line><ispp>#include</ispp> <str>"c:\dir\file.iss"</str></line>
+						<line><ispp>#include</ispp> <link href="addbackslash">AddBackslash</link>(<link href="predefinedvars">CompilerPath</link>) + <str>"common.iss"</str></line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -273,8 +273,8 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>[Setup]</line>
-						<line>LicenseFile={#file "mylic.txt"}</line>
+						<line><sec>[Setup]</sec></line>
+						<line><key>LicenseFile</key>=<ispp>{#file</ispp> <str>"mylic.txt"</str><ispp>}</ispp></line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -308,17 +308,17 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>[Setup]</line>
-						<line>AppVersion={#<link href="getversionnumbersstring">GetVersionNumbersString</link>(<link href="addbackslash">AddBackslash</link>(SourcePath) + "MyProg.exe")}</line>
+						<line><sec>[Setup]</sec></line>
+						<line><key>AppVersion</key>=<ispp>{#</ispp><link href="getversionnumbersstring">GetVersionNumbersString</link>(<link href="addbackslash">AddBackslash</link>(SourcePath) + <str>"MyProg.exe"</str>)<ispp>}</ispp></line>
 						<line></line>
-						<line>[Files]</line>
-						<line>#emit 'Source: "file1.ext"; DestDir: ' + MyDestDir</line>
-						<line>Source: "file2.ext"; DestDir: {#MyDestDir}</line>
-						<line>#emit GenerateVisualCppFilesEntries ; user defined function</line>
+						<line><sec>[Files]</sec></line>
+						<line><ispp>#emit</ispp> <str>'Source: "file1.ext"; DestDir: '</str> + MyDestDir</line>
+						<line><key>Source</key>: "file2.ext"; <key>DestDir</key>: <ispp>{#</ispp>MyDestDir<ispp>}</ispp></line>
+						<line><ispp>#emit</ispp> GenerateVisualCppFilesEntries <com>; user defined function</com></line>
 						<line></line>
-						<line>[Code]</line>
-						<line>const</line>
-						<line>&dsp;AppName = '{#<link href="setupsetting">SetupSetting</link>("AppName")}';</line>
+						<line><sec>[Code]</sec></line>
+						<line><key>const</key></line>
+						<line>&dsp;AppName = <str>'</str><ispp>{#</ispp><link href="setupsetting">SetupSetting</link>(<str>"AppName"</str>)<ispp>}</ispp><str>'</str>;</line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -380,9 +380,9 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>[Setup]</line>
-						<line>AppName={#env MyAppName}</line>
-						<line>AppVersion={#%MyAppVersion}</line>
+						<line><sec>[Setup]</sec></line>
+						<line><key>AppName</key>=<ispp>{#env</ispp> MyAppName<ispp>}</ispp></line>
+						<line><key>AppVersion</key>=<ispp>{#%</ispp>MyAppVersion<ispp>}</ispp></line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -405,9 +405,9 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>#insert FindSectionEnd("Icons")</line>
-						<line>#insert FindSection("Setup") + 1</line>
-						<line>#insert <link href="find">Find</link>(0, "somefile.ext", FIND_CONTAINS)</line>
+						<line><ispp>#insert</ispp> FindSectionEnd(<str>"Icons"</str>)</line>
+						<line><ispp>#insert</ispp> FindSection(<str>"Setup"</str>) + <num>1</num></line>
+						<line><ispp>#insert</ispp> <link href="find">Find</link>(<num>0</num>, <str>"somefile.ext"</str>, FIND_CONTAINS)</line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -486,17 +486,17 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>#define Lang</line>
+						<line><ispp>#define</ispp> Lang</line>
 						<line></line>
-						<line>[Tasks]</line>
-						<line>#if "English" == Lang = <link href="ReadIni">ReadIni</link>(<link href="SetupSetting">SetupSetting</link>("MessagesFile"), \</line>
-						<line>&dsp;"LangOptions", "LanguageName")</line>
-						<line>&dsp;Description: "For all users"; Name: all</line>
-						<line>#elif "German" == Lang</line>
-						<line>&dsp;Description: "Fur alle"; Name: all</line>
-						<line>#else</line>
-						<line>#&sp;error Unsupported language</line>
-						<line>#endif</line>
+						<line><sec>[Tasks]</sec></line>
+						<line><ispp>#if</ispp> <str>"English"</str> == Lang = <link href="ReadIni">ReadIni</link>(<link href="SetupSetting">SetupSetting</link>(<str>"MessagesFile"</str>), \</line>
+						<line>&dsp;<str>"LangOptions"</str>, <str>"LanguageName"</str>)</line>
+						<line>&dsp;<key>Description</key>: "For all users"; <key>Name</key>: all</line>
+						<line><ispp>#elif</ispp> <str>"German"</str> == Lang</line>
+						<line>&dsp;<key>Description</key>: "Fur alle"; <key>Name</key>: all</line>
+						<line><ispp>#else</ispp></line>
+						<line><ispp>#&sp;error</ispp> <str>Unsupported language</str></line>
+						<line><ispp>#endif</ispp></line>
 					</pre>
 				</section>
 			</topic>
@@ -531,13 +531,13 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>[Files]</line>
-						<line>#ifexist "myfile.ext"</line>
-						<line>&dsp;Filename: "myfile.ext"; DestDir: {app}</line>
-						<line>#endif</line>
-						<line>#ifdef Enterpise</line>
-						<line>&dsp;Filename: "extra.dll"; DestDir: {app}</line>
-						<line>#endif</line>
+						<line><sec>[Files]</sec></line>
+						<line><ispp>#ifexist</ispp> <str>"myfile.ext"</str></line>
+						<line>&dsp;<key>Filename</key>: "myfile.ext"; <key>DestDir</key>: <con>{app}</con></line>
+						<line><ispp>#endif</ispp></line>
+						<line><ispp>#ifdef</ispp> Enterpise</line>
+						<line>&dsp;<key>Filename</key>: "extra.dll"; <key>DestDir</key>: <con>{app}</con></line>
+						<line><ispp>#endif</ispp></line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -563,8 +563,8 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>// Call AddFile user defined procedure 200 times</line>
-						<line>#for {i = 200; i &gt; 0; i--} AddFile</line>
+						<line><com>// Call AddFile user defined procedure 200 times</com></line>
+						<line><ispp>#for</ispp> {i = <num>200</num>; i &gt; <num>0</num>; i--} AddFile</line>
 					</pre>
 				</section>
 				<section title="More examples">
@@ -596,13 +596,13 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>#sub AddFile</line>
-						<line>&dsp;#if <link href="Copy">Copy</link>(FileName, 1, 1) == "A"</line>
-						<line>&dsp;&dsp;Source: {#FileName}; DestDir: {app}\A</line>
-						<line>&dsp;#else</line>
-						<line>&dsp;&dsp;Source: {#FileName}; DestDir: {app}</line>
-						<line>&dsp;#endif</line>
-						<line>#endsub</line>
+						<line><ispp>#sub</ispp> AddFile</line>
+						<line>&dsp;<ispp>#if</ispp> <link href="Copy">Copy</link>(FileName, <num>1</num>, <num>1</num>) == <str>"A"</str></line>
+						<line>&dsp;&dsp;<key>Source</key>: <ispp>{#</ispp>FileName<ispp>}</ispp>; <key>DestDir</key>: <con>{app}</con>\A</line>
+						<line>&dsp;<ispp>#else</ispp></line>
+						<line>&dsp;&dsp;<key>Source</key>: <ispp>{#</ispp>FileName<ispp>}</ispp>; <key>DestDir</key>: <con>{app}</con></line>
+						<line>&dsp;<ispp>#endif</ispp></line>
+						<line><ispp>#endsub</ispp></line>
 					</pre>
 				</section>
 				<section title="More examples">
@@ -706,15 +706,15 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<section title="Examples">
 					<pre>
-						<line>#pragma parseroption -b- -u+</line>
-						<line>#pragma option -c-</line>
-						<line>#pragma warning "Variable value is: " + Str(MyVar)</line>
-						<line>#pragma option -v+</line>
-						<line>#pragma verboselevel 9</line>
-						<line>#pragma inlinestart "$("</line>
-						<line>#pragma inlineend ")"</line>
-						<line>#pragma include __INCLUDE__ + ";D:\INCLUDE"</line>
-						<line>#pragma spansymbol "_"</line>
+						<line><ispp>#pragma</ispp> <ispp>parseroption</ispp> -b- -u+</line>
+						<line><ispp>#pragma</ispp> <ispp>option</ispp> -c-</line>
+						<line><ispp>#pragma</ispp> <ispp>warning</ispp> <str>"Variable value is: "</str> + Str(MyVar)</line>
+						<line><ispp>#pragma</ispp> <ispp>option</ispp> -v+</line>
+						<line><ispp>#pragma</ispp> <ispp>verboselevel</ispp> <num>9</num></line>
+						<line><ispp>#pragma</ispp> <ispp>inlinestart</ispp> <str>"$("</str></line>
+						<line><ispp>#pragma</ispp> <ispp>inlineend</ispp> <str>")"</str></line>
+						<line><ispp>#pragma</ispp> <ispp>include</ispp> __INCLUDE__ + <str>";D:\INCLUDE"</str></line>
+						<line><ispp>#pragma</ispp> <ispp>spansymbol</ispp> <str>"_"</str></line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -734,9 +734,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>#if <link href="predefinedvars">VER</link> &lt; EncodeVer(5,4,2)</line>
-						<line>&dsp;#error A more recent version of Inno Setup is required to compile this script (5.4.2 or newer)</line>
-						<line>#endif</line>
+						<line><ispp>#if</ispp> <link href="predefinedvars">VER</link> &lt; EncodeVer(<num>5</num>,<num>4</num>,<num>2</num>)</line>
+						<line>&dsp;<ispp>#error</ispp> <str>A more recent version of Inno Setup is required to compile this script (5.4.2 or newer)</str></line>
+						<line><ispp>#endif</ispp></line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -750,18 +750,18 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<description header="no">
 				<p>There are a number of built-in support functions which you can use to perform compile-time actions and change your script. For example, the following uses ISPP function <link href="GetVersionNumbersString">GetVersionNumbersString</link> to read version info from an EXE and uses the return value of the function to set the <sd>AppVersion</sd> [Setup] section directive using directive &emit;:</p>
         <pre>
-          <line>#define MyAppVer <link href="getversionnumbersstring">GetVersionNumbersString</link>(<link href="addbackslash">AddBackslash</link>(<link href="predefinedvars">SourcePath</link>) + "MyProg.exe")</line>
+          <line><ispp>#define</ispp> MyAppVer <link href="getversionnumbersstring">GetVersionNumbersString</link>(<link href="addbackslash">AddBackslash</link>(<link href="predefinedvars">SourcePath</link>) + <str>"MyProg.exe"</str>)</line>
           <line></line>
-          <line>[Setup]</line>
-          <line>AppVersion={#MyAppVer}</line>
+          <line><sec>[Setup]</sec></line>
+          <line><key>AppVersion</key>=<ispp>{#</ispp>MyAppVer<ispp>}</ispp></line>
         </pre>
 				<p>Built-in support functions can also be called directly from directive &emit;. For example:</p>
         <pre>
-          <line>#define MyAppEnterprise</line>
+          <line><ispp>#define</ispp> MyAppEnterprise</line>
   				<line></line>
-  	      <line>[Setup]</line>
-          <line>AppName=MyProg{#<link href="defined">Defined</link> MyAppEnterprise?" Enterprise Edition":""}</line>
-					<line>AppVersion={#<link href="getversionnumbersstring">GetVersionNumbersString</link>(<link href="addbackslash">AddBackslash</link>(<link href="predefinedvars">SourcePath</link>) + "MyProg.exe")}</line>
+  	      <line><sec>[Setup]</sec></line>
+          <line><key>AppName</key>=MyProg<ispp>{#</ispp><link href="defined">Defined</link> MyAppEnterprise?<str>" Enterprise Edition"</str>:<str>""</str><ispp>}</ispp></line>
+					<line><key>AppVersion</key>=<ispp>{#</ispp><link href="getversionnumbersstring">GetVersionNumbersString</link>(<link href="addbackslash">AddBackslash</link>(<link href="predefinedvars">SourcePath</link>) + <str>"MyProg.exe"</str>)<ispp>}</ispp></line>
         </pre>
       </description>
 			<section title="Function prototypes documenting conventions">
@@ -1214,24 +1214,24 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>[Files]</line>
-						<line>#define FindHandle</line>
-						<line>#define FindResult</line>
-						<line>#define Mask "*.pas"</line>
+						<line><sec>[Files]</sec></line>
+						<line><ispp>#define</ispp> FindHandle</line>
+						<line><ispp>#define</ispp> FindResult</line>
+						<line><ispp>#define</ispp> Mask <str>"*.pas"</str></line>
 						<line></line>
-						<line>#sub ProcessFoundFile</line>
-						<line>&dsp;#define FileName FindGetFileName(FindHandle)</line>
-						<line>&dsp;#if Copy(FileName, 1, 4) == "ispp"</line>
-						<line>&dsp;&dsp;Source: {#FileName}; DestDir: {app}\ispp</line>
-						<line>&dsp;#else</line>
-						<line>&dsp;&dsp;Source: {#FileName}; DestDir: {app}</line>
-						<line>&dsp;#endif</line>
-						<line>#endsub</line>
+						<line><ispp>#sub</ispp> ProcessFoundFile</line>
+						<line>&dsp;<ispp>#define</ispp> FileName FindGetFileName(FindHandle)</line>
+						<line>&dsp;<ispp>#if</ispp> Copy(FileName, <num>1</num>, <num>4</num>) == <str>"ispp"</str></line>
+						<line>&dsp;&dsp;<key>Source</key>: <ispp>{#</ispp>FileName<ispp>}</ispp>; <key>DestDir</key>: <con>{app}</con>\ispp</line>
+						<line>&dsp;<ispp>#else</ispp></line>
+						<line>&dsp;&dsp;<key>Source</key>: <ispp>{#</ispp>FileName<ispp>}</ispp>; <key>DestDir</key>: <con>{app}</con></line>
+						<line>&dsp;<ispp>#endif</ispp></line>
+						<line><ispp>#endsub</ispp></line>
 						<line></line>
-						<line>#for {FindHandle = FindResult = FindFirst(Mask, 0); FindResult; FindResult = FindNext(FindHandle)} ProcessFoundFile</line>
-						<line>#if FindHandle</line>
-						<line>&dsp;#call FindClose(FindHandle)</line>
-						<line>#endif</line>
+						<line><ispp>#for</ispp> {FindHandle = FindResult = FindFirst(Mask, <num>0</num>); FindResult; FindResult = FindNext(FindHandle)} ProcessFoundFile</line>
+						<line><ispp>#if</ispp> FindHandle</line>
+						<line>&dsp;<ispp>#call</ispp> FindClose(FindHandle)</line>
+						<line><ispp>#endif</ispp></line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -1286,18 +1286,18 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#define FileHandle</line>
-						<line>#define FileLine</line>
-						<line>#sub ProcessFileLine</line>
-						<line>&dsp;#define FileLine = FileRead(FileHandle)</line>
-						<line>&dsp;#pragma message FileLine</line>
-						<line>#endsub</line>
-						<line>#for {FileHandle = FileOpen(AddBackslash(CompilerPath) + "whatsnew.htm"); \</line>
-						<line>&dsp;FileHandle &amp;&amp; !<link href="FileEof">FileEof</link>(FileHandle); ""} \</line>
+						<line><ispp>#define</ispp> FileHandle</line>
+						<line><ispp>#define</ispp> FileLine</line>
+						<line><ispp>#sub</ispp> ProcessFileLine</line>
+						<line>&dsp;<ispp>#define</ispp> FileLine = FileRead(FileHandle)</line>
+						<line>&dsp;<ispp>#pragma</ispp> <ispp>message</ispp> FileLine</line>
+						<line><ispp>#endsub</ispp></line>
+						<line><ispp>#for</ispp> {FileHandle = FileOpen(AddBackslash(CompilerPath) + <str>"whatsnew.htm"</str>); \</line>
+						<line>&dsp;FileHandle &amp;&amp; !<link href="FileEof">FileEof</link>(FileHandle); <str>""</str>} \</line>
 						<line>&dsp;ProcessFileLine</line>
-						<line>#if FileHandle</line>
-						<line>&dsp;#call <link href="FileClose">FileClose</link>(FileHandle)</line>
-						<line>#endif</line>
+						<line><ispp>#if</ispp> FileHandle</line>
+						<line>&dsp;<ispp>#call</ispp> <link href="FileClose">FileClose</link>(FileHandle)</line>
+						<line><ispp>#endif</ispp></line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -1392,9 +1392,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#define MyDateTimeString GetDateTimeString('ddddd')</line>
-						<line>#define MyDateTimeString GetDateTimeString('ddddd tt')</line>
-						<line>#define MyDateTimeString GetDateTimeString('dd/mm/yyyy hh:nn:ss', '-', ':')</line>
+						<line><ispp>#define</ispp> MyDateTimeString GetDateTimeString(<str>'ddddd'</str>)</line>
+						<line><ispp>#define</ispp> MyDateTimeString GetDateTimeString(<str>'ddddd tt'</str>)</line>
+						<line><ispp>#define</ispp> MyDateTimeString GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</str>)</line>
 					</pre>
 				</section>
 				<section title="See also">
@@ -1430,8 +1430,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#define MD5 GetMD5OfString('Test')</line>
-						<line>// MD5 = '0cbc6611f5540bd0809a388dc95a615b'</line>
+						<line><ispp>#define</ispp> MD5 GetMD5OfString(<str>'Test'</str>)</line>
+						<line><com>// MD5 = '0cbc6611f5540bd0809a388dc95a615b'</com></line>
 					</pre>
 				</section>
 			</topic>
@@ -1445,8 +1445,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#define MD5 GetMD5OfUnicodeString('Test')</line>
-						<line>// MD5 = '8e06915d5f5d4f8754f51892d884c477'</line>
+						<line><ispp>#define</ispp> MD5 GetMD5OfUnicodeString(<str>'Test'</str>)</line>
+						<line><com>// MD5 = '8e06915d5f5d4f8754f51892d884c477'</com></line>
 					</pre>
 				</section>
 			</topic>
@@ -1470,8 +1470,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#define SHA1 GetSHA1OfString('Test')</line>
-						<line>// SHA1 = '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa'</line>
+						<line><ispp>#define</ispp> SHA1 GetSHA1OfString(<str>'Test'</str>)</line>
+						<line><com>// SHA1 = '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa'</com></line>
 					</pre>
 				</section>
 			</topic>
@@ -1485,8 +1485,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#define SHA1 GetSHA1OfUnicodeString('Test')</line>
-						<line>// SHA1 = '9ab696a37604d665dc97134dbee44cfe70451b1a'</line>
+						<line><ispp>#define</ispp> SHA1 GetSHA1OfUnicodeString(<str>'Test'</str>)</line>
+						<line><com>// SHA1 = '9ab696a37604d665dc97134dbee44cfe70451b1a'</com></line>
 					</pre>
 				</section>
 			</topic>
@@ -1510,8 +1510,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#define SHA256 GetSHA256OfString('Test')</line>
-						<line>// SHA256 = '532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25'</line>
+						<line><ispp>#define</ispp> SHA256 GetSHA256OfString(<str>'Test'</str>)</line>
+						<line><com>// SHA256 = '532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25'</com></line>
 					</pre>
 				</section>
 			</topic>
@@ -1525,8 +1525,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#define SHA256 GetSHA256OfUnicodeString('Test')</line>
-						<line>// SHA256 = 'e6fa3ca87b1b641ab646d3b4933bba8d0970763f030b6578a60abdeae7366247'</line>
+						<line><ispp>#define</ispp> SHA256 GetSHA256OfUnicodeString(<str>'Test'</str>)</line>
+						<line><com>// SHA256 = 'e6fa3ca87b1b641ab646d3b4933bba8d0970763f030b6578a60abdeae7366247'</com></line>
 					</pre>
 				</section>
 			</topic>
@@ -1552,14 +1552,14 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#define AppName "My Program"</line>
-						<line>#define AppVersion "1.0"</line>
-						<line>#define OutputBaseFilename Format('%s-%s-setup', AppName, AppVersion)</line>
-						<line>// OutputBaseFilename = 'My Program-1.0-setup'</line>
+						<line><ispp>#define</ispp> AppName <str>"My Program"</str></line>
+						<line><ispp>#define</ispp> AppVersion <str>"1.0"</str></line>
+						<line><ispp>#define</ispp> OutputBaseFilename Format(<str>'%s-%s-setup'</str>, AppName, AppVersion)</line>
+						<line><com>// OutputBaseFilename = 'My Program-1.0-setup'</com></line>
 						<line></line>
-						<line>#define Count 10</line>
-						<line>#emit Format('%d files found', Count)</line>
-						<line>// emits '10 files found'</line>
+						<line><ispp>#define</ispp> Count <num>10</num></line>
+						<line><ispp>#emit</ispp> Format(<str>'%d files found'</str>, Count)</line>
+						<line><com>// emits '10 files found'</com></line>
 					</pre>
 				</section>
 			</topic>
@@ -1582,9 +1582,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</description>
 				<section title="Example">
 					<pre>
-						<line>#define MyString "a ca c"</line>
-						<line>#define MyString2 StringChange(MyString, " ", "b")</line>
-						<line>// MyString2 = 'abcabc'</line>
+						<line><ispp>#define</ispp> MyString <str>"a ca c"</str></line>
+						<line><ispp>#define</ispp> MyString2 StringChange(MyString, <str>" "</str>, <str>"b"</str>)</line>
+						<line><com>// MyString2 = 'abcabc'</com></line>
 					</pre>
 				</section>
 			</topic>
@@ -2206,26 +2206,26 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<section title="Function and array parameters">
 				<p>A parameter declared with the <tt>func</tt> type-id accepts a user defined function or built-in function. A parameter declared with the <tt>array</tt> type-id accepts an array variable. When calling a user defined function that has such a parameter, the actual parameter must be specified using the <tt>@</tt> operator followed by the name of the identifier to pass. For example:</p>
 				<pre>
-					<line>#define Apply(func Callback, str Value) Callback(Value)</line>
-					<line>#define Decorate(str S) "(" + S + ")"</line>
-					<line>#emit Apply(@Decorate, "hello") ; emits "(hello)"</line>
+					<line><ispp>#define</ispp> Apply(<ispp>func</ispp> Callback, <ispp>str</ispp> Value) Callback(Value)</line>
+					<line><ispp>#define</ispp> Decorate(<ispp>str</ispp> S) <str>"("</str> + S + <str>")"</str></line>
+					<line><ispp>#emit</ispp> Apply(@Decorate, <str>"hello"</str>) <com>; emits "(hello)"</com></line>
 				</pre>
 				<p>And:</p>
 				<pre>
-					<line>#dim MyData[3] {10, 20, 30}</line>
-					<line>#define Sum3(array A) A[0] + A[1] + A[2]</line>
-					<line>#emit Sum3(@MyData) ; emits 60</line>
-					<line>#define GetDim(array A) <link href="dimof">DimOf</link>(A)</line>
-					<line>#emit GetDim(@MyData) ; emits 3</line>
+					<line><ispp>#dim</ispp> MyData[<num>3</num>] {<num>10</num>, <num>20</num>, <num>30</num>}</line>
+					<line><ispp>#define</ispp> Sum3(<ispp>array</ispp> A) A[<num>0</num>] + A[<num>1</num>] + A[<num>2</num>]</line>
+					<line><ispp>#emit</ispp> Sum3(@MyData) <com>; emits 60</com></line>
+					<line><ispp>#define</ispp> GetDim(<ispp>array</ispp> A) <link href="dimof">DimOf</link>(A)</line>
+					<line><ispp>#emit</ispp> GetDim(@MyData) <com>; emits 3</com></line>
 				</pre>
 			</section>
 			<section title="Local array">
         <p>In the context of the expression, an additional array named <tt>Local</tt> is valid. Its elements can be used for temporary storage and reusing values in sequential expressions. Values stored in the <tt>Local</tt> array are neither preserved from call to call (including recursive), nor are they accessible from anywhere except the expression.</p>
         <pre>
-          <line>#define DeleteToFirstPeriod(str *S) /* S is by-reference */ \</line>
-          <line>&dsp;Local[1] = <link href="copy">Copy</link>(S, 1, (Local[0] = <link href="pos">Pos</link>(".", S)) - 1), \</line>
-          <line>&dsp;S = Copy(S, Local[0] + 1), \</line>
-          <line>&dsp;Local[1]</line>
+          <line><ispp>#define</ispp> DeleteToFirstPeriod(<ispp>str</ispp> *S) <com>/* S is by-reference */</com> \</line>
+          <line>&dsp;Local[<num>1</num>] = <link href="copy">Copy</link>(S, <num>1</num>, (Local[<num>0</num>] = <link href="pos">Pos</link>(<str>"."</str>, S)) - <num>1</num>), \</line>
+          <line>&dsp;S = Copy(S, Local[<num>0</num>] + <num>1</num>), \</line>
+          <line>&dsp;Local[<num>1</num>]</line>
         </pre>
 			</section>
 			<section title="See also">
@@ -2266,13 +2266,13 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</pre>
 				<p>Comments may also be placed at the end of an expression by using a semicolon or two slashes. For example:</p>
 				<pre>
-					<line>#emit Var1 + Var2 ; this is a comment</line>
-					<line>#emit Var1 + Var2 // this is also comment</line>
+					<line><ispp>#emit</ispp> Var1 + Var2 <com>; this is a comment</com></line>
+					<line><ispp>#emit</ispp> Var1 + Var2 <com>// this is also comment</com></line>
 				</pre>
 				<p>Note that the line spanning feature is triggered before any further processing, so this is also a valid comment:</p>
 				<pre>
-					<line>#emit Var1 + Var2 ; this is \</line>
-					<line>&dsp;still a comment</line>
+					<line><ispp>#emit</ispp> Var1 + Var2 <com>; this is </com>\</line>
+					<line>&dsp;<com>still a comment</com></line>
 				</pre>
         <p>Comments may also be placed anywhere by starting a line with two slashes. For example:</p>
 				<pre>
@@ -2280,9 +2280,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</pre>
         <p>All of the comments listed above are not included in the &translation;, unlike (non ISPP) comments using a semicolon at the start of a line. For example:</p>
 				<pre>
-					<line>#emit Var1 + Var2 ; this comment is not included</line>
-					<line>// This comment is not included</line>
-          <line>; This comment IS included</line>
+					<line><ispp>#emit</ispp> Var1 + Var2 <com>; this comment is not included</com></line>
+					<line><com>// This comment is not included</com></line>
+          <line><com>; This comment IS included</com></line>
 				</pre>
 			</section>
 			<section title="Extended User Defined Function Call Syntax">
@@ -2292,9 +2292,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</pre>
 				<p>This function can be called specifying parameter names:</p>
 				<pre>
-					<line>#emit MyFunction(A = 5, B = 10)</line>
-					<line>#emit MyFunction(B = 3)</line>
-					<line>#emit MyFunction(B = 10, A = 5)</line>
+					<line><ispp>#emit</ispp> MyFunction(A = <num>5</num>, B = <num>10</num>)</line>
+					<line><ispp>#emit</ispp> MyFunction(B = <num>3</num>)</line>
+					<line><ispp>#emit</ispp> MyFunction(B = <num>10</num>, A = <num>5</num>)</line>
 				</pre>
 				<ul>
 					<li>If a name is specified for one parameter, then all (required) parameters in the list must also be named.</li>
@@ -2372,8 +2372,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
       <description header="no">
         <p>By ending lines with ISPP's line spanning symbol preceded with a space, you can split long lines. For example:</p>
         <pre>
-          <line>#define MyAppName \</line>
-          <line>&dsp;"My Program"</line>
+          <line><ispp>#define</ispp> MyAppName \</line>
+          <line>&dsp;<str>"My Program"</str></line>
         </pre>
         <p>The default line spanning symbol is "\" which can be changed using &pragma;.</p>
       </description>
@@ -2389,9 +2389,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			<description header="no">
 				<p>Variables (as well as user defined functions, read "variable or user defined function" anywhere it says "variable" below) can be explicitly defined as "public", "protected", or "private". To define such a variable, its name in its &define; directive should be prepended with one of the visibility keywords:</p>
 				<pre>
-					<line>#define public MyVar 12</line>
-					<line>#define protected MyVar 13</line>
-					<line>#define private MyVar 14</line>
+					<line><ispp>#define</ispp> <ispp>public</ispp> MyVar <num>12</num></line>
+					<line><ispp>#define</ispp> <ispp>protected</ispp> MyVar <num>13</num></line>
+					<line><ispp>#define</ispp> <ispp>private</ispp> MyVar <num>14</num></line>
 				</pre>
 				<p>In the example above, none of the last two declarations undefine any of the previous, though they share the same identifier (<tt>MyVar</tt>). This is because they are declared in different visibilities.</p>
 				<p>Public variables are ordinary variables accessible from anywhere after the point they are declared.</p>

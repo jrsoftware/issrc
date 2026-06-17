@@ -60,15 +60,15 @@
         <prototype>function FmtMessage(const S: String; const Args: array of String): String;</prototype>
         <description><p>Formats the string S using the specified string arguments. A <tt>%1</tt> in the format string will be replaced with the first value in the Args array; a <tt>%2</tt> will be replaced with the second value; and so on. <tt>%%</tt> will be replaced with <tt>%</tt>.</p></description>
         <remarks><p>If a <tt>%</tt>-specifier references a non-existing argument, it will be returned untouched. No exception will be raised.</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   S: String;
-begin
-  S := FmtMessage('%1 %2 will be installed.', ['My Program', '1.5']);
-  // S = 'My Program 1.5 will be installed.'
+<key>begin</key>
+  S := FmtMessage(<str>'%1 %2 will be installed.'</str>, [<str>'My Program'</str>, <str>'1.5'</str>]);
+  <com>// S = 'My Program 1.5 will be installed.'</com>
 
-  S := FmtMessage(SetupMessage(msgNotOnThisPlatform), ['Windows 2000']);
-  // S = 'This program will not run on Windows 2000.'
-end;</pre></example>
+  S := FmtMessage(SetupMessage(msgNotOnThisPlatform), [<str>'Windows 2000'</str>]);
+  <com>// S = 'This program will not run on Windows 2000.'</com>
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>SetupMessage</name>
@@ -76,12 +76,12 @@ end;</pre></example>
         <description><p>Returns the value of the specified message.</p>
 <p>TSetupMessageID is defined as:</p>
 <p>'msg' + the message name. Example: <i>SetupMessage(msgSetupAppTitle)</i></p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   S: String;
-begin
+<key>begin</key>
   S := SetupMessage(msgButtonNext);
-  // S now equals '&amp;Next &gt;'
-end;</pre></example>
+  <com>// S now equals '&amp;Next &gt;'</com>
+<key>end</key>;</pre></example>
       </function>
     </subcategory>
     <subcategory>
@@ -120,10 +120,10 @@ end;</pre></example>
         <description><p>Returns True if the specified component is selected. Multiple components may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Components parameter</link>.</p></description>
         <seealso><p><link topic="isxfunc_WizardSelectedComponents">WizardSelectedComponents</link><br />
 <link topic="isxfunc_WizardSelectComponents">WizardSelectComponents</link></p></seealso>
-        <example><pre>begin
-  if WizardIsComponentSelected('helpfiles') then
-    // the 'helpfiles' component is selected
-end;</pre></example>
+        <example><pre><key>begin</key>
+  <key>if</key> WizardIsComponentSelected(<str>'helpfiles'</str>) <key>then</key>
+    <com>// the 'helpfiles' component is selected</com>
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>WizardSelectedTasks</name>
@@ -138,10 +138,10 @@ end;</pre></example>
         <description><p>Returns True if the specified task is selected. Multiple tasks may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Tasks parameter</link>.</p></description>
         <seealso><p><link topic="isxfunc_WizardSelectedTasks">WizardSelectedTasks</link><br />
 <link topic="isxfunc_WizardSelectTasks">WizardSelectTasks</link></p></seealso>
-        <example><pre>begin
-  if WizardIsTaskSelected('desktopicon') then
-    // the 'desktopicon' task is selected
-end;</pre></example>
+        <example><pre><key>begin</key>
+  <key>if</key> WizardIsTaskSelected(<str>'desktopicon'</str>) <key>then</key>
+    <com>// the 'desktopicon' task is selected</com>
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>WizardSilent</name>
@@ -255,10 +255,10 @@ end;</pre></example>
 </description>
         <seealso><p><link topic="isxfunc_WizardSelectedComponents">WizardSelectedComponents</link><br />
 <link topic="isxfunc_WizardIsComponentSelected">WizardIsComponentSelected</link></p></seealso>
-        <example><pre>begin
-  WizardSelectComponents('!helpfiles');
-  // the 'helpfiles' component is deselected
-end;</pre></example>
+        <example><pre><key>begin</key>
+  WizardSelectComponents(<str>'!helpfiles'</str>);
+  <com>// the 'helpfiles' component is deselected</com>
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>WizardSelectTasks</name>
@@ -269,10 +269,10 @@ end;</pre></example>
 </description>
         <seealso><p><link topic="isxfunc_WizardSelectedTasks">WizardSelectedTasks</link><br />
 <link topic="isxfunc_WizardIsTaskSelected">WizardIsTaskSelected</link></p></seealso>
-        <example><pre>begin
-  WizardSelectTasks('!desktopicon');
-  // the 'desktopicon' task is deselected
-end;</pre></example>
+        <example><pre><key>begin</key>
+  WizardSelectTasks(<str>'!desktopicon'</str>);
+  <com>// the 'desktopicon' task is deselected</com>
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>WizardSetBackImage</name>
@@ -284,65 +284,65 @@ end;</pre></example>
 <p>Raises an exception if a custom wizard background is not already active. Custom wizard backgrounds can be activated by using <sd>WizardBackColor</sd>, <sd>WizardBackColorDynamicDark</sd>, <sd>WizardBackImageFile</sd>, or <sd>WizardBackImageFileDynamicDark</sd>.</p>
 <p>To display a single image for the entire duration of Setup, do not use this function. Instead, set <sd>WizardBackImageFile</sd> and optionally <sd>WizardBackImageFileDynamicDark</sd>.</p>
 </description>
-        <example><pre>[Setup]
-WizardStyle=modern dynamic
-WizardBackColor=#f3f3f3
-WizardBackColorDynamicDark=#202020
+        <example><pre><sec>[Setup]</sec>
+<key>WizardStyle</key>=modern dynamic
+<key>WizardBackColor</key>=#f3f3f3
+<key>WizardBackColorDynamicDark</key>=#202020
 
-[Files]
-; Replace the DestDir parameters with the following if you do not need the
-; images available during uninstall:
-; Flags: dontcopy noencryption
-Source: "MyImageNormal.png"; DestDir: "{app}"
-Source: "MyImageLarge.png"; DestDir: "{app}"
+<sec>[Files]</sec>
+<com>; Replace the DestDir parameters with the following if you do not need the</com>
+<com>; images available during uninstall:</com>
+<com>; Flags: dontcopy noencryption</com>
+<key>Source</key>: "MyImageNormal.png"; <key>DestDir</key>: "<con>{app}</con>"
+<key>Source</key>: "MyImageLarge.png"; <key>DestDir</key>: "<con>{app}</con>"
 
-[Code]
+<sec>[Code]</sec>
 ; Show an image on the install page only
-&lt;event('CurStepChanged')&gt;
-procedure CurStepChanged_UpdateBackImage(CurStep: TSetupStep);
-var
-  PngImages: TArrayOfGraphic; 
-begin
-  if CurStep = ssInstall then begin
-    SetLength(PngImages, 2);
-    PngImages[0] := TPngImage.Create;
-    PngImages[1] := TPngImage.Create;
-    try
-      ExtractTemporaryFile('MyImageNormal.png');
-      PngImages[0].LoadFromFile(ExpandConstant('{tmp}\MyImageNormal.png'));
-      ExtractTemporaryFile('MyImageLarge.png');
-      PngImages[1].LoadFromFile(ExpandConstant('{tmp}\MyImageLarge.png'));
-      WizardSetBackImage(PngImages, True, True, 150);
-    finally
-      PngImages[1].Free;
-      PngImages[0].Free;
-    end;
-  end else if CurStep = ssPostInstall then
-    WizardSetBackImage([], True, True, 150);
-end;
+&lt;<key>event</key>(<str>'CurStepChanged'</str>)&gt;
+<key>procedure</key> CurStepChanged_UpdateBackImage(CurStep: TSetupStep);
+<key>var</key>
+  PngImages: TArrayOfGraphic;
+<key>begin</key>
+  <key>if</key> CurStep = ssInstall <key>then</key> <key>begin</key>
+    SetLength(PngImages, <num>2</num>);
+    PngImages[<num>0</num>] := TPngImage.Create;
+    PngImages[<num>1</num>] := TPngImage.Create;
+    <key>try</key>
+      ExtractTemporaryFile(<str>'MyImageNormal.png'</str>);
+      PngImages[<num>0</num>].LoadFromFile(ExpandConstant(<str>'{tmp}\MyImageNormal.png'</str>));
+      ExtractTemporaryFile(<str>'MyImageLarge.png'</str>);
+      PngImages[<num>1</num>].LoadFromFile(ExpandConstant(<str>'{tmp}\MyImageLarge.png'</str>));
+      WizardSetBackImage(PngImages, True, True, <num>150</num>);
+    <key>finally</key>
+      PngImages[<num>1</num>].Free;
+      PngImages[<num>0</num>].Free;
+    <key>end</key>;
+  <key>end</key> <key>else</key> <key>if</key> CurStep = ssPostInstall <key>then</key>
+    WizardSetBackImage([], True, True, <num>150</num>);
+<key>end</key>;
 
 ; Show an image during uninstall
-&lt;event('InitializeUninstallProgressForm')&gt;
-procedure InitializeUninstallProgressForm_UpdateBackImage;
-var
+&lt;<key>event</key>(<str>'InitializeUninstallProgressForm'</str>)&gt;
+<key>procedure</key> InitializeUninstallProgressForm_UpdateBackImage;
+<key>var</key>
   PngImages: TArrayOfGraphic;
-begin
-  try
-    SetLength(PngImages, 2);
-    PngImages[0] := TPngImage.Create;
-    PngImages[1] := TPngImage.Create;
-    try
-      PngImages[0].LoadFromFile(ExpandConstant('{app}\MyImageNormal.png'));
-      PngImages[1].LoadFromFile(ExpandConstant('{app}\MyImageLarge.png'));
-      WizardSetBackImage(PngImages, True, False, 150);
-    finally
-      PngImages[1].Free;
-      PngImages[0].Free;
-    end;
-  except
-    LogFmt('Could not enable background image: %s', [GetExceptionMessage]);
-  end;
-end; 
+<key>begin</key>
+  <key>try</key>
+    SetLength(PngImages, <num>2</num>);
+    PngImages[<num>0</num>] := TPngImage.Create;
+    PngImages[<num>1</num>] := TPngImage.Create;
+    <key>try</key>
+      PngImages[<num>0</num>].LoadFromFile(ExpandConstant(<str>'{app}\MyImageNormal.png'</str>));
+      PngImages[<num>1</num>].LoadFromFile(ExpandConstant(<str>'{app}\MyImageLarge.png'</str>));
+      WizardSetBackImage(PngImages, True, False, <num>150</num>);
+    <key>finally</key>
+      PngImages[<num>1</num>].Free;
+      PngImages[<num>0</num>].Free;
+    <key>end</key>;
+  <key>except</key>
+    LogFmt(<str>'Could not enable background image: %s'</str>, [GetExceptionMessage]);
+  <key>end</key>;
+<key>end</key>;
 
 ; See CodeClasses.iss for another example.</pre></example>
       </function>
@@ -369,29 +369,29 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>RaiseException</name>
         <prototype>procedure RaiseException(const Msg: String);</prototype>
         <description><p>Raises an exception with the specified message.</p></description>
-        <example><pre>begin
-  RaiseException('Your message goes here');
+        <example><pre><key>begin</key>
+  RaiseException(<str>'Your message goes here'</str>);
 
-  // The following line will not be executed because of the exception
-  MsgBox('You will not see this.', mbInformation, MB_OK);
-end;</pre></example>
+  <com>// The following line will not be executed because of the exception</com>
+  MsgBox(<str>'You will not see this.'</str>, mbInformation, MB_OK);
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_RaiseLastException">RaiseLastException</link></p></seealso>
       </function>
       <function>
         <name>RaiseLastException</name>
         <prototype>procedure RaiseLastException;</prototype>
         <description><p>Reraises the current exception from an <tt>except</tt> section. Does nothing if there is no current exception.</p></description>
-        <example><pre>begin
-  try
-    RaiseException('Your message goes here');
-  except
-    Log('An exception occurred: ' + GetExceptionMessage);
+        <example><pre><key>begin</key>
+  <key>try</key>
+    RaiseException(<str>'Your message goes here'</str>);
+  <key>except</key>
+    Log(<str>'An exception occurred: '</str> + GetExceptionMessage);
     RaiseLastException;
-  end;
+  <key>end</key>;
 
-  // The following line will not be executed because of the exception being reraised
-  MsgBox('You will not see this.', mbInformation, MB_OK);
-end;</pre></example>
+  <com>// The following line will not be executed because of the exception being reraised</com>
+  MsgBox(<str>'You will not see this.'</str>, mbInformation, MB_OK);
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_RaiseException">RaiseException</link></p></seealso>
       </function>
     </subcategory>
@@ -401,37 +401,37 @@ end;</pre></example>
         <prototype>function GetExceptionMessage: String;</prototype>
         <description><p>Returns the message associated with the current exception. This function should only be called from within an <tt>except</tt> section, or a function called from an <tt>except</tt> section.</p></description>
         <remarks><p>Exception messages generally do not end in a period. Pass the result of this function to AddPeriod to add one.</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   I: Integer;
-begin
-  I := 1;
-  try
-    // The following line will raise a "Division by zero" exception
-    I := I div 0;
-  except
-    // Catch the exception, deal with it, and continue
-    MsgBox('We caught this exception: ' + AddPeriod(GetExceptionMessage),
+<key>begin</key>
+  I := <num>1</num>;
+  <key>try</key>
+    <com>// The following line will raise a "Division by zero" exception</com>
+    I := I <key>div</key> <num>0</num>;
+  <key>except</key>
+    <com>// Catch the exception, deal with it, and continue</com>
+    MsgBox(<str>'We caught this exception: '</str> + AddPeriod(GetExceptionMessage),
       mbError, MB_OK);
-  end;
-end;</pre></example>
+  <key>end</key>;
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>ShowExceptionMessage</name>
         <prototype>procedure ShowExceptionMessage;</prototype>
         <description><p>Shows the message associated with the current exception in a message box. This function should only be called from within an <tt>except</tt> section, or a function called from an <tt>except</tt> section.</p></description>
         <remarks><p>If logging is enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <sd>SetupLogging</sd> [Setup] section directive or the <sd>UninstallLogging</sd> [Setup] section directive or debugging from the Compiler IDE) the message will be recorded in the log file and/or in the Compiler IDE's "Debug Output" view in addition to being shown.</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   I: Integer;
-begin
-  I := 1;
-  try
-    // The following line will raise a "Division by zero" exception
-    I := I div 0;
-  except
-    // Catch the exception, show it, and continue
+<key>begin</key>
+  I := <num>1</num>;
+  <key>try</key>
+    <com>// The following line will raise a "Division by zero" exception</com>
+    I := I <key>div</key> <num>0</num>;
+  <key>except</key>
+    <com>// Catch the exception, show it, and continue</com>
     ShowExceptionMessage;
-  end;
-end;</pre></example>
+  <key>end</key>;
+<key>end</key>;</pre></example>
       </function>
     </subcategory>
   </category>
@@ -479,10 +479,10 @@ end;</pre></example>
         <prototype>function GetWindowsVersion: Cardinal;</prototype>
         <description><p>Returns the version number of Windows packed into a single integer. The upper 8 bits specify the major version; the following 8 bits specify the minor version; the lower 16 bits specify the build number. For example, this function will return $0A002800 on Windows 10 Version 1507, which is version 10.0.10240.</p>
 <p>To retrieve just the major version number, use: "GetWindowsVersion shr 24". To retrieve just the minor version number, use: "(GetWindowsVersion shr 16) and $FF". To retrieve just the build number, use: "GetWindowsVersion and $FFFF".</p></description>
-        <example><pre>function IsWindows8OrLater: Boolean;
-begin
-  Result := (GetWindowsVersion &gt;= $06020000);
-end;</pre></example>
+        <example><pre><key>function</key> IsWindows8OrLater: Boolean;
+<key>begin</key>
+  Result := (GetWindowsVersion &gt;= <num>$06020000</num>);
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link></p></seealso>
       </function>
       <function>
@@ -524,33 +524,33 @@ end;</pre></example>
 </pre>
 <p>VER_SUITE_PERSONAL, for example, is set on Home edition of Windows XP, and VER_SUITE_BLADE is set on the Web edition of Windows Server 2003.</p></description>
         <example><p>The following example demonstrates how you can disallow installation on certain editions of Windows, and check service pack levels on multiple operating system versions. (Neither of these things are possible with the <tt>MinVersion</tt> [Setup] section directive.)</p>
-<pre>function InitializeSetup: Boolean;
-var
+<pre><key>function</key> <evt>InitializeSetup</evt>: Boolean;
+<key>var</key>
   Version: TWindowsVersion;
   S: String;
-begin
+<key>begin</key>
   GetWindowsVersionEx(Version);
 
-  // Disallow installation on Home edition of Windows
-  if Version.SuiteMask and VER_SUITE_PERSONAL &lt;&gt; 0 then
-  begin
-    SuppressibleMsgBox('This program cannot be installed on a Home edition of Windows.',
+  <com>// Disallow installation on Home edition of Windows</com>
+  <key>if</key> Version.SuiteMask <key>and</key> VER_SUITE_PERSONAL &lt;&gt; <num>0</num> <key>then</key>
+  <key>begin</key>
+    SuppressibleMsgBox(<str>'This program cannot be installed on a Home edition of Windows.'</str>,
       mbCriticalError, MB_OK, IDOK);
     Result := False;
     Exit;
-  end;
+  <key>end</key>;
 
-  // Disallow installation on domain controllers
-  if Version.ProductType = VER_NT_DOMAIN_CONTROLLER then
-  begin
-    SuppressibleMsgBox('This program cannot be installed on domain controllers.',
+  <com>// Disallow installation on domain controllers</com>
+  <key>if</key> Version.ProductType = VER_NT_DOMAIN_CONTROLLER <key>then</key>
+  <key>begin</key>
+    SuppressibleMsgBox(<str>'This program cannot be installed on domain controllers.'</str>,
       mbCriticalError, MB_OK, IDOK);
     Result := False;
     Exit;
-  end;
+  <key>end</key>;
 
   Result := True;
-end;</pre></example>
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>GetWindowsVersionString</name>
@@ -565,15 +565,15 @@ end;</pre></example>
         <description><p>Returns True if the system is running a 64-bit version of Windows. If False is returned, you cannot use any of Inno Setup's 64-bit-only features.</p>
 <p>Another way to describe this function is: Returns True if the system matches architecture identifier <link topic="archidentifiers">win64</link>.</p>
 <p>Do not use this function to detect <link topic="32vs64bitinstalls">64-bit install mode</link>, use <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link> instead.</p></description>
-        <example><pre>begin
-  // Check IsWin64 before using a 64-bit-only feature to
-  // avoid an exception when running on 32-bit Windows.
-  if IsWin64 then
-  begin
-    MsgBox('64-bit program files reside in: ' +
-      ExpandConstant('{autopf64}'), mbInformation, MB_OK);
-  end;
-end;</pre></example>
+        <example><pre><key>begin</key>
+  <com>// Check IsWin64 before using a 64-bit-only feature to</com>
+  <com>// avoid an exception when running on 32-bit Windows.</com>
+  <key>if</key> IsWin64 <key>then</key>
+  <key>begin</key>
+    MsgBox(<str>'64-bit program files reside in: '</str> +
+      ExpandConstant(<str>'{autopf64}'</str>), mbInformation, MB_OK);
+  <key>end</key>;
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link><br />
 <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
       </function>
@@ -582,12 +582,12 @@ end;</pre></example>
         <prototype>function Is64BitInstallMode: Boolean;</prototype>
         <description><p>Returns True if Setup or Uninstall is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, or False if it is running in <link topic="32vs64bitinstalls">32-bit install mode</link>.</p></description>
         <remarks><p>When True is returned, it is safe to assume that <link topic="isxfunc_IsWin64">IsWin64</link> will also return True.</p></remarks>
-        <example><pre>begin
-  if Is64BitInstallMode then
-    MsgBox('Installing in 64-bit mode', mbInformation, MB_OK)
-  else
-    MsgBox('Installing in 32-bit mode', mbInformation, MB_OK);
-end;</pre></example>
+        <example><pre><key>begin</key>
+  <key>if</key> Is64BitInstallMode <key>then</key>
+    MsgBox(<str>'Installing in 64-bit mode'</str>, mbInformation, MB_OK)
+  <key>else</key>
+    MsgBox(<str>'Installing in 32-bit mode'</str>, mbInformation, MB_OK);
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_IsWin64">IsWin64</link><br />
 <link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
       </function>
@@ -599,18 +599,18 @@ end;</pre></example>
 <p><tt>TSetupProcessorArchitecture = (paUnknown, paX86, paX64, paArm32, paArm64);</tt></p></description>
         <remarks><p><tt>paUnknown</tt> is returned if Setup/Uninstall does not recognize the architecture of the Windows installation. It can be assumed that an "unknown" architecture is at least capable of executing the architecture of Setup/Uninstall itself (see <sd>SetupArchitecture</sd>), or Setup/Uninstall wouldn't be running at all.</p>
 <p><tt>paArm32</tt> is not a possible return value for this function because no version of Windows for 32-bit Arm processors had the ability to run x86 binaries. (An x86 emulator was first introduced in Arm64 Windows.)</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   S: String;
-begin
-  case ProcessorArchitecture of
-    paX86: S := 'x86';
-    paX64: S := 'x64';
-    paArm64: S := 'Arm64';
-  else
-    S := 'Unrecognized';
-  end;
-  MsgBox('Windows architecture: ' + S, mbInformation, MB_OK);
-end;</pre></example>
+<key>begin</key>
+  <key>case</key> ProcessorArchitecture <key>of</key>
+    paX86: S := <str>'x86'</str>;
+    paX64: S := <str>'x64'</str>;
+    paArm64: S := <str>'Arm64'</str>;
+  <key>else</key>
+    S := <str>'Unrecognized'</str>;
+  <key>end</key>;
+  MsgBox(<str>'Windows architecture: '</str> + S, mbInformation, MB_OK);
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
 <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link></p></seealso>
       </function>
@@ -671,17 +671,17 @@ end;</pre></example>
         <description><p>This function is deprecated. Returns True if an entry with the specified MinVersion and OnlyBelowVersion parameters should be installed. If an invalid version string is passed, an exception will be raised.</p>
 <p>This function is provided for backward compatibility only, and may be removed in a future release. New scripts should use <link topic="isxfunc_GetWindowsVersion">GetWindowsVersion</link> or <link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link> instead.</p></description>
         <remarks><p>Prior to Inno Setup 5.5.0, this function returned <tt>irInstall</tt> rather than a Boolean True value. <tt>irInstall</tt> is now defined as an alias for True.</p></remarks>
-        <example><pre>// Old method, deprecated
-function IsWindows8OrLater: Boolean;
-begin
-  Result := InstallOnThisVersion('0,6.2', '0,0');
-end;
+        <example><pre><com>// Old method, deprecated</com>
+<key>function</key> IsWindows8OrLater: Boolean;
+<key>begin</key>
+  Result := InstallOnThisVersion(<str>'0,6.2'</str>, <str>'0,0'</str>);
+<key>end</key>;
 
-// New method
-function IsWindows8OrLater: Boolean;
-begin
-  Result := (GetWindowsVersion &gt;= $06020000);
-end;</pre></example>
+<com>// New method</com>
+<key>function</key> IsWindows8OrLater: Boolean;
+<key>begin</key>
+  Result := (GetWindowsVersion &gt;= <num>$06020000</num>);
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_GetWindowsVersion">GetWindowsVersion</link><br />
 <link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link></p></seealso>
       </function>
@@ -691,12 +691,12 @@ end;</pre></example>
         <description><p>Returns True if the .NET Framework with the specified MinVersion and MinServicePack parameters is installed.</p>
 <p>TDotNetVersion is defined as:</p>
 <p><tt>TDotNetVersion = (net11, net20, net30, net35, net4Client, net4Full, net45, net451, net452, net46, net461, net462, net47, net471, net472, net48, net481);</tt></p></description>
-        <example><pre>function InitializeSetup: Boolean;
-begin
-  Result := IsDotNetInstalled(net462, 0); //Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8.1
-  if not Result then
-    SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['.NET Framework', '4.6.2']), mbCriticalError, MB_OK, IDOK);
-end;</pre></example>
+        <example><pre><key>function</key> <evt>InitializeSetup</evt>: Boolean;
+<key>begin</key>
+  Result := IsDotNetInstalled(net462, <num>0</num>); <com>//Returns True if .NET Framework version 4.6.2 is installed, or a compatible version such as 4.8.1</com>
+  <key>if</key> <key>not</key> Result <key>then</key>
+    SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), [<str>'.NET Framework'</str>, <str>'4.6.2'</str>]), mbCriticalError, MB_OK, IDOK);
+<key>end</key>;</pre></example>
       </function>    
       <function>
         <name>IsMsiProductInstalled</name>
@@ -704,12 +704,12 @@ end;</pre></example>
         <description><p>Returns True if a MSI product with the specified UpgradeCode and PackedMinVersion is installed.</p>
 <p>If there are multiple products installed with the specified UpgradeCode only the version of the first product returned by the system is checked.</p>
 <p>An exception will be raised if an error occurs.</p></description>
-        <example><pre>function InitializeSetup: Boolean;
-begin
-  Result := IsMsiProductInstalled('{20400CF0-DE7C-327E-9AE4-F0F38D9085F8}', PackVersionComponents(12, 0, 0, 0)); //Returns True if Visual C++ 2013 Redistributable (x64) is installed
-  if not Result then
-    SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), ['Visual C++ 2013 Redistributable (x64)', '12.0']), mbCriticalError, MB_OK, IDOK);
-end;</pre></example>
+        <example><pre><key>function</key> <evt>InitializeSetup</evt>: Boolean;
+<key>begin</key>
+  Result := IsMsiProductInstalled(<str>'{20400CF0-DE7C-327E-9AE4-F0F38D9085F8}'</str>, PackVersionComponents(<num>12</num>, <num>0</num>, <num>0</num>, <num>0</num>)); <com>//Returns True if Visual C++ 2013 Redistributable (x64) is installed</com>
+  <key>if</key> <key>not</key> Result <key>then</key>
+    SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), [<str>'Visual C++ 2013 Redistributable (x64)'</str>, <str>'12.0'</str>]), mbCriticalError, MB_OK, IDOK);
+<key>end</key>;</pre></example>
       </function>    
     </subcategory>
     <subcategory>
@@ -735,18 +735,18 @@ end;</pre></example>
         <prototype>function GetUILanguage: Integer;</prototype>
         <description><p>Returns the language identifier (LANGID) of the current user's UI language, which is either the language of Windows itself, or in the case of a MUI edition of Windows, the user interface language chosen in Control Panel's Regional Options. Returns 0 if the function fails (unlikely).</p></description>
         <remarks><p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/dd318693.aspx">list of valid language identifiers on MSDN</a>.</p></remarks>
-        <example><pre>begin
-  if GetUILanguage = $0409 then
-  begin
-    // UI language is English (United States)
-  end;
+        <example><pre><key>begin</key>
+  <key>if</key> GetUILanguage = <num>$0409</num> <key>then</key>
+  <key>begin</key>
+    <com>// UI language is English (United States)</com>
+  <key>end</key>;
 
-  // You can use "and $3FF" to extract the primary language identifier
-  if GetUILanguage and $3FF = $09 then
-  begin
-    // Matches any variant of English
-  end;
-end;</pre></example>
+  <com>// You can use "and $3FF" to extract the primary language identifier</com>
+  <key>if</key> GetUILanguage <key>and</key> <num>$3FF</num> = <num>$09</num> <key>then</key>
+  <key>begin</key>
+    <com>// Matches any variant of English</com>
+  <key>end</key>;
+<key>end</key>;</pre></example>
       </function>
     </subcategory>
     <subcategory>
@@ -819,15 +819,15 @@ end;</pre></example>
         <name>MakePendingFileRenameOperationsChecksum</name>
         <prototype>function MakePendingFileRenameOperationsChecksum: String;</prototype>
         <description><p>Calculates a checksum of the current PendingFileRenameOperations registry value. The caller can use this checksum to determine if PendingFileRenameOperations or WININIT.INI was changed (perhaps by another program).</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   ChecksumBefore, ChecksumAfter: String;
-begin
+<key>begin</key>
   ChecksumBefore := MakePendingFileRenameOperationsChecksum;
-  // ...run a program...
+  <com>// ...run a program...</com>
   ChecksumAfter := MakePendingFileRenameOperationsChecksum;
-  if ChecksumAfter &lt;&gt; ChecksumBefore then
-    // PendingFileRenameOperations or WININIT.INI changed
-end;</pre></example>
+  <key>if</key> ChecksumAfter &lt;&gt; ChecksumBefore <key>then</key>
+    <com>// PendingFileRenameOperations or WININIT.INI changed</com>
+<key>end</key>;</pre></example>
       </function>
     </subcategory>
     <subcategory>
@@ -836,23 +836,23 @@ end;</pre></example>
         <prototype>function CreateCallback(Method: AnyMethod): NativeInt;</prototype>
         <description><p>Allows you to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script.</p></description>
         <remarks><p>In a <link topic="64bit">32-bit installer</link>, callback parameters passed by value are not supported when their type is larger than 4 bytes, such as <tt>Int64</tt>, <tt>Double</tt>, <tt>Extended</tt>, and <tt>Currency</tt>. <link topic="64bit">64-bit installers</link> have no such limitation.</p></remarks>
-        <example><pre>function SetTimer(hWnd: HWND; nIDEvent: UINT_PTR; uElapse: UINT; lpTimerFunc: NativeInt): UINT_PTR;
-external 'SetTimer@user32.dll stdcall';
+        <example><pre><key>function</key> SetTimer(hWnd: HWND; nIDEvent: UINT_PTR; uElapse: UINT; lpTimerFunc: NativeInt): UINT_PTR;
+<key>external</key> <str>'SetTimer@user32.dll stdcall'</str>;
 
-var
+<key>var</key>
   TimerCount: Integer;
 
-procedure MyTimerProc(Arg1: HWND; Arg2: UINT; Arg3: UINT_PTR; Arg4: DWORD);
-begin
+<key>procedure</key> MyTimerProc(Arg1: HWND; Arg2: UINT; Arg3: UINT_PTR; Arg4: DWORD);
+<key>begin</key>
   Inc(TimerCount);
-  WizardForm.BeveledLabel.Caption := ' Timer! ' + IntToStr(TimerCount);
+  WizardForm.BeveledLabel.Caption := <str>' Timer! '</str> + IntToStr(TimerCount);
   WizardForm.BeveledLabel.Visible := True;
-end;
+<key>end</key>;
 
-procedure InitializeWizard;
-begin
-  SetTimer(0, 0, 1000, CreateCallback(@MyTimerProc));
-end;</pre></example>
+<key>procedure</key> <evt>InitializeWizard</evt>;
+<key>begin</key>
+  SetTimer(<num>0</num>, <num>0</num>, <num>1000</num>, CreateCallback(@MyTimerProc));
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>UnloadDLL</name>
@@ -861,20 +861,20 @@ end;</pre></example>
 <p>The case of the filename and any path name must exactly match that of the function import. You will need to expand any constants in the filename yourself before passing it to UnloadDLL.</p>
 <p>If the function import used a "files:" prefix, prepend the value of the <tt>{tmp}</tt> constant to the filename (e.g. <tt>ExpandConstant('{tmp}\filename.dll')</tt>).</p></description>
         <remarks><p>It's not recommended that you try this, but if you attempt to call a function in a DLL that has been unloaded, the DLL will be re-loaded.</p></remarks>
-        <example><pre>procedure DllFunc; external 'DllFunc@{app}\MyDll.dll stdcall uninstallonly';
+        <example><pre><key>procedure</key> DllFunc; <key>external</key> <str>'DllFunc@{app}\MyDll.dll stdcall uninstallonly'</str>;
 
 ...
 
-begin
-  // Call DllFunc
+<key>begin</key>
+  <com>// Call DllFunc</com>
   DllFunc;
 
-  // Unload the DLL
-  UnloadDLL(ExpandConstant('{app}\MyDll.dll'));
+  <com>// Unload the DLL</com>
+  UnloadDLL(ExpandConstant(<str>'{app}\MyDll.dll'</str>));
 
-  // Now we can delete the DLL
-  DeleteFile(ExpandConstant('{app}\MyDll.dll'));
-end;</pre></example>
+  <com>// Now we can delete the DLL</com>
+  DeleteFile(ExpandConstant(<str>'{app}\MyDll.dll'</str>));
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>DLLGetLastError</name>
@@ -882,12 +882,12 @@ end;</pre></example>
         <description><p>Returns the value the last error code had right after the most recent DLL function call you made. Useful after calling Windows API functions (if the function sets the last error code).</p></description>
         <remarks><p>It's recommended to use this function instead of directly calling the GetLastError Windows API function since Setup or Uninstall makes API calls of its own, so the last error code could be overwritten at any time.</p>
 <p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
-        <example><pre>function MessageBox(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal): Integer; external 'MessageBoxA@user32.dll stdcall';
+        <example><pre><key>function</key> MessageBox(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal): Integer; <key>external</key> <str>'MessageBoxA@user32.dll stdcall'</str>;
 
 ...
 
-begin
-  if MessageBox(-1, '', '', -1) = 0 then
+<key>begin</key>
+  <key>if</key> MessageBox(-<num>1</num>, <str>''</str>, <str>''</str>, -<num>1</num>) = <num>0</num> <key>then</key>
     MsgBox(SysErrorMessage(DLLGetLastError), mbError, mb_Ok);</pre></example>
       </function>
     </subcategory>
@@ -960,15 +960,15 @@ begin
         <prototype>function StringChangeEx(var S: String; const FromStr, ToStr: String; const SupportDBCS: Boolean): Integer;</prototype>
         <description><p>Changes all occurrences in S of FromStr to ToStr. If SupportDBCS is True (recommended unless you require binary safety), double-byte character sequences in S are recognized and handled properly. Otherwise, the function behaves in a binary-safe manner. Returns the number of times FromStr was matched and changed.</p></description>
         <remarks><p>When working with strings containing paths or filenames, be sure to pass True in the SupportDBCS parameter. Otherwise, paths with Chinese, Japanese, or Korean characters may be corrupted.</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   S: String;
-begin
-  S := ExpandConstant('{commonappdata}');
-  // S = 'C:\Documents and Settings\All Users\Application Data'
+<key>begin</key>
+  S := ExpandConstant(<str>'{commonappdata}'</str>);
+  <com>// S = 'C:\Documents and Settings\All Users\Application Data'</com>
 
-  StringChangeEx(S, '\', '/', True);
-  // S = 'C:/Documents and Settings/All Users/Application Data'
-end;</pre></example>
+  StringChangeEx(S, <str>'\'</str>, <str>'/'</str>, True);
+  <com>// S = 'C:/Documents and Settings/All Users/Application Data'</com>
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>Pos</name>
@@ -1036,20 +1036,20 @@ end;</pre></example>
         <prototype>function Format(const Format: String; const Args: array of const): String;</prototype>
         <description><p>Formats the string Format using the series of arguments in the open array Args. Formatting is controlled by the format string Format; the results are returned as a string.</p>
 <p>An exception will be raised if an invalid format string is specified, too few arguments are passed, or if any arguments are of the wrong type.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   S: String;
   I: Integer;
-begin
-  S := Format('%d files found', [10]);
-  // S = '10 files found'
+<key>begin</key>
+  S := Format(<str>'%d files found'</str>, [<num>10</num>]);
+  <com>// S = '10 files found'</com>
 
-  S := Format('Filename: %s', ['file.txt']);
-  // S = 'Filename: file.txt'
+  S := Format(<str>'Filename: %s'</str>, [<str>'file.txt'</str>]);
+  <com>// S = 'Filename: file.txt'</com>
 
-  I := 64;
-  S := Format('%d in hex, padded to 8 digits: %.8x', [I, I]);
-  // S = '64 in hex, padded to 8 digits: 00000040'
-end;</pre></example>
+  I := <num>64</num>;
+  S := Format(<str>'%d in hex, padded to 8 digits: %.8x'</str>, [I, I]);
+  <com>// S = '64 in hex, padded to 8 digits: 00000040'</com>
+<key>end</key>;</pre></example>
       </function>
     </subcategory>
     <subcategory>
@@ -1072,12 +1072,12 @@ end;</pre></example>
         <name>StringJoin</name>
         <prototype>function StringJoin(const Separator: String; const Values: TArrayOfString): String;</prototype>
         <description><p>Joins two or more strings together separated by the given separator.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   S: String;
-begin
-  S := StringJoin(',', ['1', '2']);
-  // S = '1,2'
-end;
+<key>begin</key>
+  S := StringJoin(<str>','</str>, [<str>'1'</str>, <str>'2'</str>]);
+  <com>// S = '1,2'</com>
+<key>end</key>;
 </pre></example>
         <seealso><p><link topic="isxfunc_StringSplit">StringSplit</link></p></seealso>
       </function>
@@ -1087,12 +1087,12 @@ end;
         <description><p>Splits the given string into substrings, using the given characters or strings to be used as separator. Empty substrings can be ignored.</p>
 <p>TSplitType is defined as:</p>
 <p><tt>TSplitType = (stAll, stExcludeEmpty, stExcludeLastEmpty);</tt></p></description>
-        <example><pre>var
-  A: array of String;
-begin
-  A := StringSplit('1,,2', [','], stExcludeEmpty);
-  // A = ['1','2']
-end;
+        <example><pre><key>var</key>
+  A: <key>array</key> <key>of</key> String;
+<key>begin</key>
+  A := StringSplit(<str>'1,,2'</str>, [<str>','</str>], stExcludeEmpty);
+  <com>// A = ['1','2']</com>
+<key>end</key>;
 </pre></example>
         <seealso><p><link topic="isxfunc_StringJoin">StringJoin</link><br />
 <link topic="isxfunc_StringSplitEx">StringSplitEx</link></p></seealso>
@@ -1103,12 +1103,12 @@ end;
         <description><p>Splits the given string into substrings, using the given characters or strings to be used as separator. Empty substrings can be ignored. Use the Quote parameter to specify the start and end character of a quoted part of the string where separators are ignored.</p>
 <p>TSplitType is defined as:</p>
 <p><tt>TSplitType = (stAll, stExcludeEmpty, stExcludeLastEmpty);</tt></p></description>
-        <example><pre>var
-  A: array of String;
-begin
-  A := StringSplitEx('1,",",2', [','], '"', stAll);
-  // A = ['1','","','2']
-end;
+        <example><pre><key>var</key>
+  A: <key>array</key> <key>of</key> String;
+<key>begin</key>
+  A := StringSplitEx(<str>'1,",",2'</str>, [<str>','</str>], <str>'"'</str>, stAll);
+  <com>// A = ['1','","','2']</com>
+<key>end</key>;
 </pre></example>
         <seealso><p><link topic="isxfunc_StringSplit">StringSplit</link></p></seealso>
       </function>
@@ -1279,12 +1279,12 @@ end;
         <prototype>function ExtractRelativePath(const BaseName, DestName: String): String;</prototype>
         <description><p>Converts a fully qualified path name into a relative path name. The DestName parameter specifies the file name (including path) to be converted. BaseName is the fully qualified name of the base directory to which the returned path name should be relative. BaseName may or may not include a file name, but it must include the final path delimiter.</p>
 <p>ExtractRelativePath strips out common path directories and inserts '..\' for each level up from the BaseName.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   S: String;
-begin
-  S := ExtractRelativePath('c:\windows\system32\', 'c:\autoexec.bat');
-  // S = ..\..\autoexec.bat
-end;</pre></example>
+<key>begin</key>
+  S := ExtractRelativePath(<str>'c:\windows\system32\'</str>, <str>'c:\autoexec.bat'</str>);
+  <com>// S = ..\..\autoexec.bat</com>
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>ExpandFileName</name>
@@ -1304,15 +1304,15 @@ end;</pre></example>
         <description><p>Converts a normal path to a fully qualified extended-length path (also known as a super path). Does not fail if the specified path already is an extended-length path.</p>
 <p>An empty string is returned if the input is an empty string or contains only spaces.</p>
 <p>An exception will be raised upon failure, which is only known to happen when the input or output path exceeds 32K characters.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   SuperPath: String;
-begin
-  SuperPath := PathConvertNormalToSuper('C:\Windows');
-  Log(SuperPath);  // Logs '\\?\C:\Windows'
+<key>begin</key>
+  SuperPath := PathConvertNormalToSuper(<str>'C:\Windows'</str>);
+  Log(SuperPath);  <com>// Logs '\\?\C:\Windows'</com>
 
-  SuperPath := PathConvertNormalToSuper('\\server\share\filename');
-  Log(SuperPath);  // Logs '\\?\UNC\server\share\filename'
-end;</pre></example>
+  SuperPath := PathConvertNormalToSuper(<str>'\\server\share\filename'</str>);
+  Log(SuperPath);  <com>// Logs '\\?\UNC\server\share\filename'</com>
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link><br/>
 <link topic="isxfunc_PathConvertSuperToNormal">PathConvertSuperToNormal</link></p></seealso>
       </function>
@@ -1367,9 +1367,9 @@ a/p	Uses the 12-hour clock for the preceding h or hh specifier.<br />
 <br />
 Format specifiers may be written in upper case as well as in lower case letters. Both produce the same result.</p></description>
         <example><pre>
-GetDateTimeString('ddddd', #0, #0);
-GetDateTimeString('ddddd tt', #0, #0);
-GetDateTimeString('dd/mm/yyyy hh:nn:ss', '-', ':');
+GetDateTimeString(<str>'ddddd'</str>, <str>#0</str>, <str>#0</str>);
+GetDateTimeString(<str>'ddddd tt'</str>, <str>#0</str>, <str>#0</str>);
+GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</str>);
 </pre></example>
       </function>
     </subcategory>
@@ -1405,72 +1405,72 @@ GetDateTimeString('dd/mm/yyyy hh:nn:ss', '-', ':');
         <name>GetMD5OfString</name>
         <prototype>function GetMD5OfString(const S: AnsiString): String;</prototype>
         <description><p>Returns the MD5 sum of the specified string, as a string.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   MD5: String;
-begin
-  MD5 := GetMD5OfString('Test');
-  // MD5 = '0cbc6611f5540bd0809a388dc95a615b'
-end;
+<key>begin</key>
+  MD5 := GetMD5OfString(<str>'Test'</str>);
+  <com>// MD5 = '0cbc6611f5540bd0809a388dc95a615b'</com>
+<key>end</key>;
 </pre></example>
       </function>
       <function>
         <name>GetMD5OfUnicodeString</name>
         <prototype>function GetMD5OfUnicodeString(const S: String): String;</prototype>
         <description><p>Returns the MD5 sum of the specified string, as a string.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   MD5: String;
-begin
-  MD5 := GetMD5OfUnicodeString('Test');
-  // MD5 = '8e06915d5f5d4f8754f51892d884c477'
-end;
+<key>begin</key>
+  MD5 := GetMD5OfUnicodeString(<str>'Test'</str>);
+  <com>// MD5 = '8e06915d5f5d4f8754f51892d884c477'</com>
+<key>end</key>;
 </pre></example>
       </function>
       <function>
         <name>GetSHA1OfString</name>
         <prototype>function GetSHA1OfString(const S: AnsiString): String;</prototype>
         <description><p>Returns the SHA-1 hash of the specified string, as a string.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   SHA1: String;
-begin
-  SHA1 := GetSHA1OfString('Test');
-  // SHA1 = '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa'
-end;
+<key>begin</key>
+  SHA1 := GetSHA1OfString(<str>'Test'</str>);
+  <com>// SHA1 = '640ab2bae07bedc4c163f679a746f7ab7fb5d1fa'</com>
+<key>end</key>;
 </pre></example>
       </function>
       <function>
         <name>GetSHA1OfUnicodeString</name>
         <prototype>function GetSHA1OfUnicodeString(const S: String): String;</prototype>
         <description><p>Returns the SHA-1 hash of the specified string, as a string.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   SHA1: String;
-begin
-  SHA1 := GetSHA1OfUnicodeString('Test');
-  // SHA1 = '9ab696a37604d665dc97134dbee44cfe70451b1a'
-end;
+<key>begin</key>
+  SHA1 := GetSHA1OfUnicodeString(<str>'Test'</str>);
+  <com>// SHA1 = '9ab696a37604d665dc97134dbee44cfe70451b1a'</com>
+<key>end</key>;
 </pre></example>
       </function>
       <function>
         <name>GetSHA256OfString</name>
         <prototype>function GetSHA256OfString(const S: AnsiString): String;</prototype>
         <description><p>Returns the SHA-256 hash of the specified string, as a string.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   SHA256: String;
-begin
-  SHA256 := GetSHA256OfString('Test');
-  // SHA256 = '532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25'
-end;
+<key>begin</key>
+  SHA256 := GetSHA256OfString(<str>'Test'</str>);
+  <com>// SHA256 = '532eaabd9574880dbf76b9b8cc00832c20a6ec113d682299550d7a6e0f345e25'</com>
+<key>end</key>;
 </pre></example>
       </function>
       <function>
         <name>GetSHA256OfUnicodeString</name>
         <prototype>function GetSHA256OfUnicodeString(const S: String): String;</prototype>
         <description><p>Returns the SHA-256 hash of the specified string, as a string.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   SHA256: String;
-begin
-  SHA256 := GetSHA256OfUnicodeString('Test');
-  // SHA256 = 'e6fa3ca87b1b641ab646d3b4933bba8d0970763f030b6578a60abdeae7366247'
-end;
+<key>begin</key>
+  SHA256 := GetSHA256OfUnicodeString(<str>'Test'</str>);
+  <com>// SHA256 = 'e6fa3ca87b1b641ab646d3b4933bba8d0970763f030b6578a60abdeae7366247'</com>
+<key>end</key>;
 </pre></example>
       </function>
     </subcategory>
@@ -1631,42 +1631,42 @@ const
         <prototype>function GetSpaceOnDisk(const Path: String; const InMegabytes: Boolean; var Free, Total: Cardinal): Boolean;</prototype>
         <description><p>Returns the number of free and total bytes or megabytes on a drive. Path specifies a directory on the drive or UNC share to check; it can be either the root (e.g. <tt>C:\</tt>) or an existing subdirectory. The setting of the InMegabytes parameter determines whether it returns figures in bytes or in megabytes (2^20), rounded down. Returns True if successful, False otherwise.</p></description>
         <remarks><p>The figures returned by this function are capped at 2147483647 (2^31-1). Therefore, if InMegaBytes is False, it will return no more than 2147483647 bytes. If InMegaBytes is True, it will return no more than 2147483647 megabytes.</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   Path: String;
   FreeMB, TotalMB: Cardinal;
-begin
-  // Get and display free megabytes on the Program Files drive
-  Path := ExpandConstant('{autopf}');
-  if GetSpaceOnDisk(Path, True, FreeMB, TotalMB) then
-  begin
-    MsgBox('There are ' + IntToStr(FreeMB) + ' megabytes free on ' +
+<key>begin</key>
+  <com>// Get and display free megabytes on the Program Files drive</com>
+  Path := ExpandConstant(<str>'{autopf}'</str>);
+  <key>if</key> GetSpaceOnDisk(Path, True, FreeMB, TotalMB) <key>then</key>
+  <key>begin</key>
+    MsgBox(<str>'There are '</str> + IntToStr(FreeMB) + <str>' megabytes free on '</str> +
       Path, mbInformation, MB_OK);
-  end
-  else begin
-    // the function failed
-  end;
-end;</pre></example>
+  <key>end</key>
+  <key>else</key> <key>begin</key>
+    <com>// the function failed</com>
+  <key>end</key>;
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_GetSpaceOnDisk64">GetSpaceOnDisk64</link></p></seealso>
       </function>
       <function>
         <name>GetSpaceOnDisk64</name>
         <prototype>function GetSpaceOnDisk64(const Path: String; var Free, Total: Int64): Boolean;</prototype>
         <description><p>Returns the number of free and total bytes on a drive. Path specifies a directory on the drive or UNC share to check; it can be either the root (e.g. <tt>C:\</tt>) or an existing subdirectory. Returns True if successful, False otherwise.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   Path: String;
   FreeBytes, TotalBytes: Int64;
-begin
-  // Get and display free bytes on the Program Files drive
-  Path := ExpandConstant('{autopf}');
-  if GetSpaceOnDisk64(Path, FreeBytes, TotalBytes) then
-  begin
-    MsgBox('There are ' + IntToStr(FreeBytes) + ' bytes free on ' +
+<key>begin</key>
+  <com>// Get and display free bytes on the Program Files drive</com>
+  Path := ExpandConstant(<str>'{autopf}'</str>);
+  <key>if</key> GetSpaceOnDisk64(Path, FreeBytes, TotalBytes) <key>then</key>
+  <key>begin</key>
+    MsgBox(<str>'There are '</str> + IntToStr(FreeBytes) + <str>' bytes free on '</str> +
       Path, mbInformation, MB_OK);
-  end
-  else begin
-    // the function failed
-  end;
-end;</pre></example>
+  <key>end</key>
+  <key>else</key> <key>begin</key>
+    <com>// the function failed</com>
+  <key>end</key>;
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_GetSpaceOnDisk">GetSpaceOnDisk</link></p></seealso>
       </function>
     </subcategory>
@@ -1720,25 +1720,25 @@ end;</pre></example>
 </pre></description>
         <remarks><p>If FindFirst returns True, call <link topic="isxfunc_FindNext">FindNext</link> to enumerate the rest of the files, and then <link topic="isxfunc_FindClose">FindClose</link>.</p></remarks>
         <example><p>The following example counts the number of files in the Windows System directory.</p>
-<pre>var
+<pre><key>var</key>
   FilesFound: Integer;
   FindRec: TFindRec;
-begin
-  FilesFound := 0;
-  if FindFirst(ExpandConstant('{sys}\*'), FindRec) then begin
-    try
-      repeat
-        // Don't count directories
-        if FindRec.Attributes and FILE_ATTRIBUTE_DIRECTORY = 0 then
-          FilesFound := FilesFound + 1;
-      until not FindNext(FindRec);
-    finally
+<key>begin</key>
+  FilesFound := <num>0</num>;
+  <key>if</key> FindFirst(ExpandConstant(<str>'{sys}\*'</str>), FindRec) <key>then</key> <key>begin</key>
+    <key>try</key>
+      <key>repeat</key>
+        <com>// Don't count directories</com>
+        <key>if</key> FindRec.Attributes <key>and</key> FILE_ATTRIBUTE_DIRECTORY = <num>0</num> <key>then</key>
+          FilesFound := FilesFound + <num>1</num>;
+      <key>until</key> <key>not</key> FindNext(FindRec);
+    <key>finally</key>
       FindClose(FindRec);
-    end;
-  end;
-  MsgBox(IntToStr(FilesFound) + ' files found in the System directory.',
+    <key>end</key>;
+  <key>end</key>;
+  MsgBox(IntToStr(FilesFound) + <str>' files found in the System directory.'</str>,
     mbInformation, MB_OK);
-end;</pre></example>
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_FindNext">FindNext</link><br />
 <link topic="isxfunc_FindClose">FindClose</link></p></seealso>
       </function>
@@ -1784,17 +1784,17 @@ end;</pre></example>
         <name>GetSysWow64Dir</name>
         <prototype>function GetSysWow64Dir: String;</prototype>
         <description><p>64-bit Windows only: returns fully qualified path of the SysWOW64 directory. This is the actual directory in which 32-bit system files reside. An empty string is returned if this function is called on 32-bit Windows, or if for some reason it fails to retrieve the path on 64-bit Windows (unlikely).</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   S: String;
-begin
+<key>begin</key>
   S := GetSysWow64Dir;
-  // Must check the result -- an empty string is returned
-  // if there is no SysWOW64 directory.
-  if S &lt;&gt; '' then
-    MsgBox('SysWOW64 directory: ' + S, mbInformation, MB_OK)
-  else
-    MsgBox('There is no SysWOW64 directory.', mbInformation, MB_OK);
-end;</pre></example>
+  <com>// Must check the result -- an empty string is returned</com>
+  <com>// if there is no SysWOW64 directory.</com>
+  <key>if</key> S &lt;&gt; <str>''</str> <key>then</key>
+    MsgBox(<str>'SysWOW64 directory: '</str> + S, mbInformation, MB_OK)
+  <key>else</key>
+    MsgBox(<str>'There is no SysWOW64 directory.'</str>, mbInformation, MB_OK);
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>GetSysNativeDir</name>
@@ -1812,24 +1812,24 @@ end;</pre></example>
         <prototype>function GetShellFolderByCSIDL(const Folder: Integer; const Create: Boolean): String;</prototype>
         <description><p>Gets the path of the specified shell folder. Folder specifies the value of a CSIDL constant (a complete list of which can be found in ShlObj.h). If Create is True, the folder will be created if it does not exist. On failure, an empty string is returned.</p></description>
         <remarks><p>It is recommended that you always specify True in the Create parameter. Otherwise, the function may fail if the CSIDL value is valid but the directory does not currently exist. (This is a Windows issue.)</p></remarks>
-        <example><pre>const
-  CSIDL_MYPICTURES = $0027;
+        <example><pre><key>const</key>
+  CSIDL_MYPICTURES = <num>$0027</num>;
 
 ...
 
-var
+<key>var</key>
   Path: String;
-begin
+<key>begin</key>
   Path := GetShellFolderByCSIDL(CSIDL_MYPICTURES, True);
-  if Path &lt;&gt; '' then
-  begin
-    MsgBox('My Pictures path = ' + Path, mbInformation, MB_OK);
-  end
-  else
-  begin
-    // handle failure
-  end;
-end;</pre></example>
+  <key>if</key> Path &lt;&gt; <str>''</str> <key>then</key>
+  <key>begin</key>
+    MsgBox(<str>'My Pictures path = '</str> + Path, mbInformation, MB_OK);
+  <key>end</key>
+  <key>else</key>
+  <key>begin</key>
+    <com>// handle failure</com>
+  <key>end</key>;
+<key>end</key>;</pre></example>
       </function>
     </subcategory>
     <subcategory>
@@ -1896,19 +1896,19 @@ end;</pre></example>
 <p>To execute a 64-bit System32 binary from a 32-bit installer, use <tt>{sysnative}</tt> or <link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link> to rewrite the path. In a 64-bit installer the rewrite is not needed.</p>
 <p>Can't be used to execute Setup itself until the installation has started.</p>
 <p><i>Note: compared to ISPP's Exec the ShowCmd and Wait parameters are swapped!</i></p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   ResultCode: Integer;
-begin
-  // Launch Notepad and wait for it to terminate
-  if Exec(ExpandConstant('{win}\notepad.exe'), '', '', SW_SHOWNORMAL,
-     ewWaitUntilTerminated, ResultCode) then
-  begin
-    // handle success if necessary; ResultCode contains the exit code
-  end
-  else begin
-    // handle failure if necessary; ResultCode contains the error code
-  end;
-end;</pre></example>
+<key>begin</key>
+  <com>// Launch Notepad and wait for it to terminate</com>
+  <key>if</key> Exec(ExpandConstant(<str>'{win}\notepad.exe'</str>), <str>''</str>, <str>''</str>, SW_SHOWNORMAL,
+     ewWaitUntilTerminated, ResultCode) <key>then</key>
+  <key>begin</key>
+    <com>// handle success if necessary; ResultCode contains the exit code</com>
+  <key>end</key>
+  <key>else</key> <key>begin</key>
+    <com>// handle failure if necessary; ResultCode contains the error code</com>
+  <key>end</key>;
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_ExecAndCaptureOutput">ExecAndCaptureOutput</link><br />
 <link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link><br />
 <link topic="isxfunc_ExecAsOriginalUser">ExecAsOriginalUser</link><br/>
@@ -1930,15 +1930,15 @@ end;</pre></example>
 <p>Note that passing a Wait value other than <tt>ewNoWait</tt> will have no effect if a new process isn't spawned (for example, if the file is opened inside an already-running instance of the program that handles the file type).</p>
 <p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p>
 <p>Can't be used to execute Setup itself until the installation has started.</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   ErrorCode: Integer;
-begin
-  if not ShellExec('', ExpandConstant('{app}\filename.rtf'),
-     '', '', SW_SHOWNORMAL, ewNoWait, ErrorCode) then
-  begin
-    // handle failure if necessary
-  end;
-end;</pre></example>
+<key>begin</key>
+  <key>if</key> <key>not</key> ShellExec(<str>''</str>, ExpandConstant(<str>'{app}\filename.rtf'</str>),
+     <str>''</str>, <str>''</str>, SW_SHOWNORMAL, ewNoWait, ErrorCode) <key>then</key>
+  <key>begin</key>
+    <com>// handle failure if necessary</com>
+  <key>end</key>;
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_ShellExecAsOriginalUser">ShellExecAsOriginalUser</link></p></seealso>
       </function>
       <function>
@@ -1957,17 +1957,17 @@ end;</pre></example>
         <description><p>Use this function instead of <link topic="isxfunc_Exec">Exec</link> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
 <p>This function avoids the problem that <tt>Exec</tt> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
         <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <tt>Exec</tt>.</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   ResultCode: Integer;
-begin
-  if IsWin64 then begin
-    { This starts 32-bit cmd.exe in a 32-bit installer, and 64-bit cmd.exe in a 64-bit installer }
-    Exec(ExpandConstant('{cmd}'), '', '', SW_SHOWNORMAL, ewNoWait, ResultCode);
-    { This starts 64-bit cmd.exe in both a 32-bit installer and a 64-bit installer }
-    ExecWithNativeSysDir(ExpandConstant('{cmd}'), '', '', SW_SHOWNORMAL, ewNoWait, ResultCode);
-    { WRONG: This would also start 64-bit cmd.exe in a 32-bit installer, but it would use the Sysnative alias, which 64-bit cmd.exe cannot access } 
-    // Exec(ApplyPathRedirRulesForCurrentProcess(True, ExpandConstant('{cmd}')), '', '', SW_SHOWNORMAL, ewNoWait, ResultCode);
-  end;</pre></example>
+<key>begin</key>
+  <key>if</key> IsWin64 <key>then</key> <key>begin</key>
+    <com>{ This starts 32-bit cmd.exe in a 32-bit installer, and 64-bit cmd.exe in a 64-bit installer }</com>
+    Exec(ExpandConstant(<str>'{cmd}'</str>), <str>''</str>, <str>''</str>, SW_SHOWNORMAL, ewNoWait, ResultCode);
+    <com>{ This starts 64-bit cmd.exe in both a 32-bit installer and a 64-bit installer }</com>
+    ExecWithNativeSysDir(ExpandConstant(<str>'{cmd}'</str>), <str>''</str>, <str>''</str>, SW_SHOWNORMAL, ewNoWait, ResultCode);
+    <com>{ WRONG: This would also start 64-bit cmd.exe in a 32-bit installer, but it would use the Sysnative alias, which 64-bit cmd.exe cannot access }</com>
+    <com>// Exec(ApplyPathRedirRulesForCurrentProcess(True, ExpandConstant('{cmd}')), '', '', SW_SHOWNORMAL, ewNoWait, ResultCode);</com>
+  <key>end</key>;</pre></example>
       </function>
     </subcategory>
     <subcategory>
@@ -1982,23 +1982,23 @@ begin
 <p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
         <seealso><p><link topic="isxfunc_ExtractTemporaryFiles">ExtractTemporaryFiles</link><br />
 <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link></p></seealso>
-        <example><pre>[Files]
-Source: "Readme.txt"; Flags: dontcopy noencryption
+        <example><pre><sec>[Files]</sec>
+<key>Source</key>: "Readme.txt"; <key>Flags</key>: dontcopy noencryption
 
-[Code]
-function InitializeSetup: Boolean;
-var
+<sec>[Code]</sec>
+<key>function</key> <evt>InitializeSetup</evt>: Boolean;
+<key>var</key>
   S: AnsiString;
-begin
-  // Show the contents of Readme.txt (non Unicode) in a message box
-  ExtractTemporaryFile('Readme.txt');
-  if LoadStringFromFile(ExpandConstant('{tmp}\Readme.txt'), S) then
-  begin
+<key>begin</key>
+  <com>// Show the contents of Readme.txt (non Unicode) in a message box</com>
+  ExtractTemporaryFile(<str>'Readme.txt'</str>);
+  <key>if</key> LoadStringFromFile(ExpandConstant(<str>'{tmp}\Readme.txt'</str>), S) <key>then</key>
+  <key>begin</key>
     MsgBox(S, mbInformation, MB_OK);
-  end;
+  <key>end</key>;
 
   Result := True;
-end;</pre></example>
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>ExtractTemporaryFiles</name>
@@ -2009,31 +2009,31 @@ end;</pre></example>
         <remarks><p>Use <tt>Flags: dontcopy noencryption</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage, and to ensure it can be extracted before the password is known.</p>
 <p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
         <seealso><p><link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
-        <example><pre>[Files]
-Source: "Readme.txt"; Flags: dontcopy noencryption
-Source: "MyProg.exe"; DestDir: "{app}"
-Source: "MyProg.chm"; DestDir: "{app}"
+        <example><pre><sec>[Files]</sec>
+<key>Source</key>: "Readme.txt"; <key>Flags</key>: dontcopy noencryption
+<key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"
+<key>Source</key>: "MyProg.chm"; <key>DestDir</key>: "<con>{app}</con>"
 
-[Code]
-function InitializeSetup: Boolean;
-var
+<sec>[Code]</sec>
+<key>function</key> <evt>InitializeSetup</evt>: Boolean;
+<key>var</key>
   S: AnsiString;
   ResultCode: Integer;
-begin
-  // Show the contents of Readme.txt (non Unicode) in a message box
-  ExtractTemporaryFiles('{tmp}\Readme.txt');
-  if LoadStringFromFile(ExpandConstant('{tmp}\Readme.txt'), S) then
-  begin
+<key>begin</key>
+  <com>// Show the contents of Readme.txt (non Unicode) in a message box</com>
+  ExtractTemporaryFiles(<str>'{tmp}\Readme.txt'</str>);
+  <key>if</key> LoadStringFromFile(ExpandConstant(<str>'{tmp}\Readme.txt'</str>), S) <key>then</key>
+  <key>begin</key>
     MsgBox(S, mbInformation, MB_OK);
-  end;
+  <key>end</key>;
 
-  // Extract all MyProg files and launch it. Note how {app} is left unexpanded.
-  ExtractTemporaryFiles('{app}\MyProg.*');
-  ExecAsOriginalUser(ExpandConstant('{tmp}\')+'{app}\MyProg.exe', '', '',
+  <com>// Extract all MyProg files and launch it. Note how {app} is left unexpanded.</com>
+  ExtractTemporaryFiles(<str>'{app}\MyProg.*'</str>);
+  ExecAsOriginalUser(ExpandConstant(<str>'{tmp}\'</str>)+<str>'{app}\MyProg.exe'</str>, <str>''</str>, <str>''</str>,
     SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode);
 
   Result := True;
-end;</pre></example>
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>DownloadTemporaryFile</name>
@@ -2048,27 +2048,27 @@ end;</pre></example>
 <p><tt>TOnDownloadProgress = function(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>ProgressMax will be 0 if the file size is still unknown. Return True to allow the download to continue, False otherwise.</p></remarks>
         <example><pre>
-[Code]
-function OnDownloadProgress(const Url, Filename: String; const Progress, ProgressMax: Int64): Boolean;
-begin
-  if ProgressMax &lt;&gt; 0 then
-    Log(Format('  %d of %d bytes done.', [Progress, ProgressMax]))
-  else
-    Log(Format('  %d bytes done.', [Progress]));
+<sec>[Code]</sec>
+<key>function</key> OnDownloadProgress(<key>const</key> Url, Filename: String; <key>const</key> Progress, ProgressMax: Int64): Boolean;
+<key>begin</key>
+  <key>if</key> ProgressMax &lt;&gt; <num>0</num> <key>then</key>
+    Log(Format(<str>'  %d of %d bytes done.'</str>, [Progress, ProgressMax]))
+  <key>else</key>
+    Log(Format(<str>'  %d bytes done.'</str>, [Progress]));
   Result := True;
-end;
+<key>end</key>;
 
-function InitializeSetup: Boolean;
-begin
-  try
-    DownloadTemporaryFile('https://jrsoftware.org/download.php/is.exe?dontcount=1', 'innosetup-latest.exe', '', @OnDownloadProgress);
-    DownloadTemporaryFile('https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1', 'ISCrypt.dll', '2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc', @OnDownloadProgress);
+<key>function</key> <evt>InitializeSetup</evt>: Boolean;
+<key>begin</key>
+  <key>try</key>
+    DownloadTemporaryFile(<str>'https://jrsoftware.org/download.php/is.exe?dontcount=1'</str>, <str>'innosetup-latest.exe'</str>, <str>''</str>, @OnDownloadProgress);
+    DownloadTemporaryFile(<str>'https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1'</str>, <str>'ISCrypt.dll'</str>, <str>'2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc'</str>, @OnDownloadProgress);
     Result := True;
-  except
+  <key>except</key>
     Log(GetExceptionMessage);
     Result := False;
-  end;
-end;</pre>
+  <key>end</key>;
+<key>end</key>;</pre>
 <p>See <i>CodeDownloadFiles.iss</i> for another example which uses <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link> instead.</p>
 <p>See <i>DownloadFiles.iss</i> for an example of file download using just a [Files] entry.</p></example>
         <seealso><p><link topic="isxfunc_SetDownloadCredentials">SetDownloadCredentials</link><br />
@@ -2090,19 +2090,19 @@ end;</pre>
 <link topic="issig">.issig Signatures: Introduction</link><br/>
 <link topic="isxfunc_ISSigVerify">ISSigVerify</link></p></seealso>
         <example><pre>
-[Code]
-function InitializeSetup: Boolean;
-begin
-  try
+<sec>[Code]</sec>
+<key>function</key> <evt>InitializeSetup</evt>: Boolean;
+<key>begin</key>
+  <key>try</key>
     DownloadTemporaryFileWithISSigVerify(
-      'https://jrsoftware.org/download.php/myprog-extrareadmes.7z', '',
-      'myprog-extrareadmes.7z', nil, nil);
+      <str>'https://jrsoftware.org/download.php/myprog-extrareadmes.7z'</str>, <str>''</str>,
+      <str>'myprog-extrareadmes.7z'</str>, <key>nil</key>, <key>nil</key>);
     Result := True;
-  except
+  <key>except</key>
     Log(GetExceptionMessage);
     Result := False;
-  end;
-end;</pre></example>
+  <key>end</key>;
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>SetDownloadCredentials</name>
@@ -2155,15 +2155,15 @@ end;</pre></example>
         <seealso><p><link topic="isxfunc_ExtractArchive">ExtractArchive</link><br/>
 <link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link></p></seealso>
         <example><pre>
-[Files]
-Source: "{src}\My7ZipSFX.exe"; DestDir: "{app}"; Flags: external extractarchive recursesubdirs createallsubdirs ignoreversion
+<sec>[Files]</sec>
+<key>Source</key>: "<con>{src}</con>\My7ZipSFX.exe"; <key>DestDir</key>: "<con>{app}</con>"; <key>Flags</key>: external extractarchive recursesubdirs createallsubdirs ignoreversion
 
-[Code]
-function InitializeSetup: Boolean;
-begin
-  MapArchiveExtensions('.exe', '.7z');
+<sec>[Code]</sec>
+<key>function</key> <evt>InitializeSetup</evt>: Boolean;
+<key>begin</key>
+  MapArchiveExtensions(<str>'.exe'</str>, <str>'.7z'</str>);
   Result := True;
-end;</pre></example>
+<key>end</key>;</pre></example>
       </function>
     </subcategory>
     <subcategory>
@@ -2191,16 +2191,16 @@ end;</pre></example>
         <description><p>Verifies the signature of the specified file using the specified allowed keys, looked up using <link topic="issigkeyssection">[ISSigKeys] section</link> parameter <tt>RuntimeID</tt>. To allow all keys set AllowedKeysRuntimeIDs to <tt>nil</tt>. An exception will be raised upon failure.</p>
 <p>If VerifyFilename is set to False the verification allows signatures for a different filename. It is recommended that you only set it to False if you don't know the name the file had when the signature was created. The size and hash of the file must always match.</p>        
 <p>Returns a handle to the still open file if KeepOpen is set to True, <tt>nil</tt> otherwise. It is recommended that you always set it to True if you plan to use the file for anything after verification. Otherwise, you risk creating a Time-Of-Check to Time-Of-Use (TOCTOU) problem.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   F: TFileStream;
-begin
-  F := ISSigVerify(nil, Filename, True, True);
-  try
-    // Use file
-  finally
+<key>begin</key>
+  F := ISSigVerify(<key>nil</key>, Filename, True, True);
+  <key>try</key>
+    <com>// Use file</com>
+  <key>finally</key>
     F.Free;
-  end;
-end;</pre></example>
+  <key>end</key>;
+<key>end</key>;</pre></example>
         <seealso><p><link topic="issig">.issig Signatures: Introduction</link><br/>
 <link topic="isxfunc_DownloadTemporaryFileWithISSigVerify">DownloadTemporaryFileWithISSigVerify</link></p></seealso>
       </function>
@@ -2315,17 +2315,17 @@ end;</pre></example>
 <p>If DeleteFiles is set to True, files inside the specified directory will be deleted if IsDir is True, or files matching the specified wildcard (including those with hidden, system, and read-only attributes) will be deleted if IsDir is False.</p>
 <p>If DeleteFiles and DeleteSubdirsAlso are both set to True, subdirectories (and their contents) will be deleted in addition to files.</p></description>
         <remarks><p>This function will remove directories that are reparse points, but it will not recursively delete files/directories inside them.</p></remarks>
-        <example><pre>begin
-  // Delete the directory C:\Test and everything inside it
-  DelTree('C:\Test', True, True, True);
+        <example><pre><key>begin</key>
+  <com>// Delete the directory C:\Test and everything inside it</com>
+  DelTree(<str>'C:\Test'</str>, True, True, True);
 
-  // Delete files matching C:\Test\*.tmp
-  DelTree('C:\Test\*.tmp', False, True, False);
+  <com>// Delete files matching C:\Test\*.tmp</com>
+  DelTree(<str>'C:\Test\*.tmp'</str>, False, True, False);
 
-  // Delete all files and directories inside C:\Test
-  // but leave the directory itself
-  DelTree('C:\Test\*', False, True, True);
-end;</pre></example>
+  <com>// Delete all files and directories inside C:\Test</com>
+  <com>// but leave the directory itself</com>
+  DelTree(<str>'C:\Test\*'</str>, False, True, True);
+<key>end</key>;</pre></example>
       </function>
     </subcategory>
     <subcategory>
@@ -2344,13 +2344,13 @@ end;</pre></example>
 <i>ShowCmd</i><br />One of the SW_* constants</p></description>
         <remarks><p>You will most likely want to remove this shortcut on uninstall. Do this by adding an entry to the <tt>UninstallDelete</tt> section.</p></remarks>
         <example><pre>CreateShellLink(
-  ExpandConstant('{app}\config\Open licence database.lnk'),
-  'Opens the licence database in SQLite',
-  ExpandConstant('{app}\config\sqlite.exe'),
-  ExpandConstant('"{app}\config\licences.db"'),
-  ExpandConstant('{app}\config'),
-  '',
-  0,
+  ExpandConstant(<str>'{app}\config\Open licence database.lnk'</str>),
+  <str>'Opens the licence database in SQLite'</str>,
+  ExpandConstant(<str>'{app}\config\sqlite.exe'</str>),
+  ExpandConstant(<str>'"{app}\config\licences.db"'</str>),
+  ExpandConstant(<str>'{app}\config'</str>),
+  <str>''</str>,
+  <num>0</num>,
   SW_SHOWNORMAL);</pre></example>
       </function>
       <function>
@@ -2365,10 +2365,10 @@ end;</pre></example>
         <prototype>procedure RegisterServer(const Is64Bit: Boolean; const Filename: String; const Reserved: Boolean);</prototype>
         <description><p>Registers the DLL/OCX with the specified filename. If Is64Bit is True, the DLL/OCX will be loaded as a 64-bit image and registered in a 64-bit process. Raises an exception if not successful.</p>
 <p>Parameter Reserved is ignored, but must be specified anyway.</p></description>
-        <example><pre>begin
-  // Register hhctrl.ocx located in the System directory.
-  RegisterServer(Is64BitInstallMode, ExpandConstant('{sys}\hhctrl.ocx'), False);
-end;</pre>
+        <example><pre><key>begin</key>
+  <com>// Register hhctrl.ocx located in the System directory.</com>
+  RegisterServer(Is64BitInstallMode, ExpandConstant(<str>'{sys}\hhctrl.ocx'</str>), False);
+<key>end</key>;</pre>
 <p>Because we specify Is64BitInstallMode in the first parameter, it will register the 64-bit OCX in the 64-bit System directory when Setup is running in 64-bit install mode. Otherwise, it will register the 32-bit OCX in the 32-bit System directory.</p></example>
       </function>
       <function>
@@ -2381,10 +2381,10 @@ end;</pre>
         <name>RegisterTypeLibrary</name>
         <prototype>procedure RegisterTypeLibrary(const Is64Bit: Boolean; const Filename: String);</prototype>
         <description><p>Registers the type library with the specified filename. If Is64Bit is True, the type library will be registered in a 64-bit process. Raises an exception if not successful.</p></description>
-        <example><pre>begin
-  // Register stdole2.tlb located in the System directory.
-  RegisterTypeLibrary(Is64BitInstallMode, ExpandConstant('{sys}\stdole2.tlb'));
-end;</pre>
+        <example><pre><key>begin</key>
+  <com>// Register stdole2.tlb located in the System directory.</com>
+  RegisterTypeLibrary(Is64BitInstallMode, ExpandConstant(<str>'{sys}\stdole2.tlb'</str>));
+<key>end</key>;</pre>
 <p>Because we specify Is64BitInstallMode in the first parameter, it will register the 64-bit type library in the 64-bit System directory when Setup is running in 64-bit install mode. Otherwise, it will register the 32-bit type library in the 32-bit System directory.</p></example>
       </function>
       <function>
@@ -2532,23 +2532,23 @@ end;</pre>
         <name>RegKeyExists</name>
         <prototype>function RegKeyExists(const RootKey: HKEY; const SubKeyName: String): Boolean;</prototype>
         <description><p>Returns True if the specified registry key exists.</p></description>
-        <example><pre>begin
-  if RegKeyExists(HKEY_AUTO, 'Software\Jordan Russell\Inno Setup') then
-  begin
-    // The key exists
-  end;
-end;</pre></example>
+        <example><pre><key>begin</key>
+  <key>if</key> RegKeyExists(HKEY_AUTO, <str>'Software\Jordan Russell\Inno Setup'</str>) <key>then</key>
+  <key>begin</key>
+    <com>// The key exists</com>
+  <key>end</key>;
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>RegValueExists</name>
         <prototype>function RegValueExists(const RootKey: HKEY; const SubKeyName, ValueName: String): Boolean;</prototype>
         <description><p>Returns True if the specified registry key and value exist.</p></description>
-        <example><pre>begin
-  if RegValueExists(HKEY_CURRENT_USER, 'Console', 'WindowSize') then
-  begin
-    // The value exists
-  end;
-end;</pre></example>
+        <example><pre><key>begin</key>
+  <key>if</key> RegValueExists(HKEY_CURRENT_USER, <str>'Console'</str>, <str>'WindowSize'</str>) <key>then</key>
+  <key>begin</key>
+    <com>// The value exists</com>
+  <key>end</key>;
+<key>end</key>;</pre></example>
       </function>
     </subcategory>
     <subcategory>
@@ -2556,37 +2556,37 @@ end;</pre></example>
         <name>RegGetSubkeyNames</name>
         <prototype>function RegGetSubkeyNames(const RootKey: HKEY; const SubKeyName: String; var Names: TArrayOfString): Boolean;</prototype>
         <description><p>Opens the specified registry key and reads the names of its subkeys into the specified string array Names. Returns True if successful, False otherwise.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   Names: TArrayOfString;
   S: String;
-begin
-  if RegGetSubkeyNames(HKEY_CURRENT_USER, 'Control Panel', Names) then
-  begin
-    S := StringJoin(#13#10, Names);
-    MsgBox('List of subkeys:'#13#10#13#10 + S, mbInformation, MB_OK);
-  end else
-  begin
-    // add any code to handle failure here
-  end;
-end;</pre></example>
+<key>begin</key>
+  <key>if</key> RegGetSubkeyNames(HKEY_CURRENT_USER, <str>'Control Panel'</str>, Names) <key>then</key>
+  <key>begin</key>
+    S := StringJoin(<str>#13#10</str>, Names);
+    MsgBox(<str>'List of subkeys:'#13#10#13#10</str> + S, mbInformation, MB_OK);
+  <key>end</key> <key>else</key>
+  <key>begin</key>
+    <com>// add any code to handle failure here</com>
+  <key>end</key>;
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>RegGetValueNames</name>
         <prototype>function RegGetValueNames(const RootKey: HKEY; const SubKeyName: String; var Names: TArrayOfString): Boolean;</prototype>
         <description><p>Opens the specified registry key and reads the names of its values into the specified string array Names. Returns True if successful, False otherwise.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   Names: TArrayOfString;
   S: String;
-begin
-  if RegGetValueNames(HKEY_CURRENT_USER, 'Control Panel\Mouse', Names) then
-  begin
-    S := StringJoin(#13#10, Names);
-    MsgBox('List of values:'#13#10#13#10 + S, mbInformation, MB_OK);
-  end else
-  begin
-    // add any code to handle failure here
-  end;
-end;</pre></example>
+<key>begin</key>
+  <key>if</key> RegGetValueNames(HKEY_CURRENT_USER, <str>'Control Panel\Mouse'</str>, Names) <key>then</key>
+  <key>begin</key>
+    S := StringJoin(<str>#13#10</str>, Names);
+    MsgBox(<str>'List of values:'#13#10#13#10</str> + S, mbInformation, MB_OK);
+  <key>end</key> <key>else</key>
+  <key>begin</key>
+    <com>// add any code to handle failure here</com>
+  <key>end</key>;
+<key>end</key>;</pre></example>
       </function>
     </subcategory>
     <subcategory>
@@ -2594,16 +2594,16 @@ end;</pre></example>
         <name>RegQueryStringValue</name>
         <prototype>function RegQueryStringValue(const RootKey: HKEY; const SubKeyName, ValueName: String; var ResultStr: String): Boolean;</prototype>
         <description><p>Queries the specified REG_SZ- or REG_EXPAND_SZ-type value, and returns the data in ResultStr. Returns True if successful. When False is returned, ResultStr is unmodified.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   Country: String;
-begin
-  if RegQueryStringValue(HKEY_CURRENT_USER, 'Control Panel\International',
-     'sCountry', Country) then
-  begin
-    // Successfully read the value
-    MsgBox('Your country: ' + Country, mbInformation, MB_OK);
-  end;
-end;</pre></example>
+<key>begin</key>
+  <key>if</key> RegQueryStringValue(HKEY_CURRENT_USER, <str>'Control Panel\International'</str>,
+     <str>'sCountry'</str>, Country) <key>then</key>
+  <key>begin</key>
+    <com>// Successfully read the value</com>
+    MsgBox(<str>'Your country: '</str> + Country, mbInformation, MB_OK);
+  <key>end</key>;
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>RegQueryMultiStringValue</name>
@@ -2615,17 +2615,17 @@ end;</pre></example>
         <name>RegQueryDWordValue</name>
         <prototype>function RegQueryDWordValue(const RootKey: HKEY; const SubKeyName, ValueName: String; var ResultDWord: Cardinal): Boolean;</prototype>
         <description><p>Queries the specified REG_DWORD-type registry value, and returns the data in ResultDWord. Returns True if successful. When False is returned, ResultDWord is unmodified.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   HistoryBufferSize: Cardinal;
-begin
-  if RegQueryDWordValue(HKEY_CURRENT_USER, 'Console',
-     'HistoryBufferSize', HistoryBufferSize) then
-  begin
-    // Successfully read the value
-    MsgBox('Console history buffer size: ' + IntToStr(HistoryBufferSize),
+<key>begin</key>
+  <key>if</key> RegQueryDWordValue(HKEY_CURRENT_USER, <str>'Console'</str>,
+     <str>'HistoryBufferSize'</str>, HistoryBufferSize) <key>then</key>
+  <key>begin</key>
+    <com>// Successfully read the value</com>
+    MsgBox(<str>'Console history buffer size: '</str> + IntToStr(HistoryBufferSize),
       mbInformation, MB_OK);
-  end;
-end;</pre></example>
+  <key>end</key>;
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>RegQueryBinaryValue</name>
@@ -2639,47 +2639,47 @@ end;</pre></example>
         <prototype>function RegWriteStringValue(const RootKey: HKEY; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
         <description><p>Writes the specified REG_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
         <remarks><p>If the value already exists and is of type REG_EXPAND_SZ, the new value will also be of type REG_EXPAND_SZ. Otherwise, a REG_SZ-type value will be created.</p></remarks>
-        <example><pre>begin
-  RegWriteStringValue(HKEY_AUTO, 'Software\My Company\My Program',
-    'Language', ExpandConstant('{language}'));
-end;</pre></example>
+        <example><pre><key>begin</key>
+  RegWriteStringValue(HKEY_AUTO, <str>'Software\My Company\My Program'</str>,
+    <str>'Language'</str>, ExpandConstant(<str>'{language}'</str>));
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>RegWriteExpandStringValue</name>
         <prototype>function RegWriteExpandStringValue(const RootKey: HKEY; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
         <description><p>Writes the specified REG_EXPAND_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
-        <example><pre>begin
-  RegWriteExpandStringValue(HKEY_CURRENT_USER, 'Software\My Company\My Program',
-    'UserName', '%UserName%');
-end;</pre></example>
+        <example><pre><key>begin</key>
+  RegWriteExpandStringValue(HKEY_CURRENT_USER, <str>'Software\My Company\My Program'</str>,
+    <str>'UserName'</str>, <str>'%UserName%'</str>);
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>RegWriteMultiStringValue</name>
         <prototype>function RegWriteMultiStringValue(const RootKey: HKEY; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
         <description><p>Writes the specified REG_MULTI_SZ-type registry value. Returns True if successful, False otherwise.</p></description>
         <remarks><p>In a REG_MULTI_SZ-type value, each string is separated by a null character (<tt>#0</tt>).</p></remarks>
-        <example><pre>begin
-  RegWriteMultiStringValue(HKEY_AUTO, 'Software\My Company\My Program',
-    'MultiStringTest', 'String1' + #0 + 'String2' + #0 + 'String3');
-end;</pre></example>
+        <example><pre><key>begin</key>
+  RegWriteMultiStringValue(HKEY_AUTO, <str>'Software\My Company\My Program'</str>,
+    <str>'MultiStringTest'</str>, <str>'String1'</str> + <str>#0</str> + <str>'String2'</str> + <str>#0</str> + <str>'String3'</str>);
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>RegWriteDWordValue</name>
         <prototype>function RegWriteDWordValue(const RootKey: HKEY; const SubKeyName, ValueName: String; const Data: Cardinal): Boolean;</prototype>
         <description><p>Writes the specified REG_DWORD-type registry value. Returns True if successful, False otherwise.</p></description>
-        <example><pre>begin
-  RegWriteDWordValue(HKEY_AUTO, 'Software\My Company\My Program',
-    'ShowToolbar', 1);
-end;</pre></example>
+        <example><pre><key>begin</key>
+  RegWriteDWordValue(HKEY_AUTO, <str>'Software\My Company\My Program'</str>,
+    <str>'ShowToolbar'</str>, <num>1</num>);
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>RegWriteBinaryValue</name>
         <prototype>function RegWriteBinaryValue(const RootKey: HKEY; const SubKeyName, ValueName: String; const Data: AnsiString): Boolean;</prototype>
         <description><p>Writes the specified REG_BINARY-type registry value. Returns True if successful, False otherwise.</p></description>
-        <example><pre>begin
-  RegWriteBinaryValue(HKEY_AUTO, 'Software\My Company\My Program',
-    'BinaryTest', 'Whatever' + #1#2#3#4);
-end;</pre></example>
+        <example><pre><key>begin</key>
+  RegWriteBinaryValue(HKEY_AUTO, <str>'Software\My Company\My Program'</str>,
+    <str>'BinaryTest'</str>, <str>'Whatever'</str> + <str>#1#2#3#4</str>);
+<key>end</key>;</pre></example>
       </function>
     </subcategory>
     <subcategory>
@@ -2769,30 +2769,30 @@ end;</pre></example>
         <prototype>function CreateInputQueryPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String): TInputQueryWizardPage;</prototype>
         <description><p>Creates a wizard page containing edit boxes.</p></description>
         <remarks><p>To create edit boxes on the page, call the Add method. Use the Values property to get/set the text of the edit boxes.</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   Page: TInputQueryWizardPage;
   UserName, UserCompany: String;
 
 ...
 
-// Create the page
+<com>// Create the page</com>
 Page := CreateInputQueryPage(wpWelcome,
-  'Personal Information', 'Who are you?',
-  'Please specify your name and the company for whom you work, then click Next.');
+  <str>'Personal Information'</str>, <str>'Who are you?'</str>,
+  <str>'Please specify your name and the company for whom you work, then click Next.'</str>);
 
-// Add items (False means it's not a password edit)
-Page.Add('&amp;Name:', False);
-Page.Add('&amp;Company:', False);
+<com>// Add items (False means it's not a password edit)</com>
+Page.Add(<str>'&amp;Name:'</str>, False);
+Page.Add(<str>'&amp;Company:'</str>, False);
 
-// Set initial values (optional)
-Page.Values[0] := ExpandConstant('{sysuserinfoname}');
-Page.Values[1] := ExpandConstant('{sysuserinfoorg}');
+<com>// Set initial values (optional)</com>
+Page.Values[<num>0</num>] := ExpandConstant(<str>'{sysuserinfoname}'</str>);
+Page.Values[<num>1</num>] := ExpandConstant(<str>'{sysuserinfoorg}'</str>);
 
 ...
 
-// Read values into variables
-UserName := Page.Values[0];
-UserCompany := Page.Values[1];
+<com>// Read values into variables</com>
+UserName := Page.Values[<num>0</num>];
+UserCompany := Page.Values[<num>1</num>];
 </pre>
 <p>See <i>AllPagesExample.iss</i> for another example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TInputQueryWizardPage">TInputQueryWizardPage</link></p></seealso>
@@ -2803,28 +2803,28 @@ UserCompany := Page.Values[1];
         <description><p>Creates a wizard page containing check boxes or radio buttons.</p>
 <p>If Exclusive is True, radio buttons are displayed instead of check boxes, and only one item in the list may be selected at a time. If ListBox is True, the check boxes or radio buttons are placed inside a scrollable list box.</p></description>
         <remarks><p>To create check boxes / radio buttons on the page, call the Add method. Use the Values property to get/set the checked state of items. On pages created with Exclusive=True, you can get/set the index of the one selected item via the SelectedValueIndex property.</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   Page: TInputOptionWizardPage;
   IsRegisteredUser: Boolean;
 
 ...
 
-// Create the page
+<com>// Create the page</com>
 Page := CreateInputOptionPage(wpWelcome,
-  'License Information', 'Are you a registered user?',
-  'If you are a registered user, please check the box below, then click Next.',
+  <str>'License Information'</str>, <str>'Are you a registered user?'</str>,
+  <str>'If you are a registered user, please check the box below, then click Next.'</str>,
   False, False);
 
-// Add items
-Page.Add('&amp;I am a registered user');
+<com>// Add items</com>
+Page.Add(<str>'&amp;I am a registered user'</str>);
 
-// Set initial values (optional)
-Page.Values[0] := False;
+<com>// Set initial values (optional)</com>
+Page.Values[<num>0</num>] := False;
 
 ...
 
-// Read values into variables
-IsRegisteredUser := Page.Values[0];
+<com>// Read values into variables</com>
+IsRegisteredUser := Page.Values[<num>0</num>];
 </pre>
 <p>See <i>AllPagesExample.iss</i> for another example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TInputOptionWizardPage">TInputOptionWizardPage</link></p></seealso>
@@ -2834,29 +2834,29 @@ IsRegisteredUser := Page.Values[0];
         <prototype>function CreateInputDirPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; AAppendDir: Boolean; ANewFolderName: String): TInputDirWizardPage;</prototype>
         <description><p>Creates a wizard page that contains edit boxes and Browse buttons for selecting directories. If AAppendDir is True, the value of ANewFolderName will be appended onto any folder name the user clicks. If AAppendDir is False and ANewFolderName is not empty, a Make New Folder button will be shown that creates a new folder with the specified default name.</p></description>
         <remarks><p>To create directory selection boxes on the page, call the Add method. Use the Values property to get/set the items' values.</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   Page: TInputDirWizardPage;
   DataDir: String;
 
 ...
 
-// Create the page
+<com>// Create the page</com>
 Page := CreateInputDirPage(wpWelcome,
-  'Select Personal Data Location', 'Where should personal data files be stored?',
-  'Personal data files will be stored in the following folder.'#13#10#13#10 +
-  'To continue, click Next. If you would like to select a different folder, click Browse.',
+  <str>'Select Personal Data Location'</str>, <str>'Where should personal data files be stored?'</str>,
+  <str>'Personal data files will be stored in the following folder.'#13#10#13#10</str> +
+  <str>'To continue, click Next. If you would like to select a different folder, click Browse.'</str>,
   False, SetupMessage(msgNewFolderName));
 
-// Add item (with an empty caption)
-Page.Add('');
+<com>// Add item (with an empty caption)</com>
+Page.Add(<str>''</str>);
 
-// Set initial value (optional)
-Page.Values[0] := ExpandConstant('{userappdata}\My Company\My Program');
+<com>// Set initial value (optional)</com>
+Page.Values[<num>0</num>] := ExpandConstant(<str>'{userappdata}\My Company\My Program'</str>);
 
 ...
 
-// Read value into variable
-DataDir := Page.Values[0];
+<com>// Read value into variable</com>
+DataDir := Page.Values[<num>0</num>];
 </pre>
 <p>See <i>AllPagesExample.iss</i> for another example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TInputDirWizardPage">TInputDirWizardPage</link></p></seealso>
@@ -2867,29 +2867,29 @@ DataDir := Page.Values[0];
         <description><p>Creates a wizard page that contains edit boxes and Browse buttons for selecting files.</p></description>
         <remarks><p>To create file selection boxes on the page, call the Add method. Use the Values property to get/set the items' values.</p>
 <p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   Page: TInputFileWizardPage;
   NotepadLocation: String;
 
 ...
 
-// Create the page
+<com>// Create the page</com>
 Page := CreateInputFilePage(wpWelcome,
-  'Select Notepad Location', 'Where is Notepad located?',
-  'Select where Notepad is located, then click Next.');
+  <str>'Select Notepad Location'</str>, <str>'Where is Notepad located?'</str>,
+  <str>'Select where Notepad is located, then click Next.'</str>);
 
-// Add item
-Page.Add('&amp;Location of notepad.exe:',        // caption
-  'Executable files|*.exe|All files|*.*',    // filters
-  '.exe');                                   // default extension
+<com>// Add item</com>
+Page.Add(<str>'&amp;Location of notepad.exe:'</str>,        <com>// caption</com>
+  <str>'Executable files|*.exe|All files|*.*'</str>,    <com>// filters</com>
+  <str>'.exe'</str>);                                   <com>// default extension</com>
 
-// Set initial value (optional)
-Page.Values[0] := ExpandConstant('{win}\notepad.exe');
+<com>// Set initial value (optional)</com>
+Page.Values[<num>0</num>] := ExpandConstant(<str>'{win}\notepad.exe'</str>);
 
 ...
 
-// Read value into variable
-NotepadLocation := Page.Values[0];
+<com>// Read value into variable</com>
+NotepadLocation := Page.Values[<num>0</num>];
 </pre>
 <p>See <i>AllPagesExample.iss</i> for another example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TInputFileWizardPage">TInputFileWizardPage</link></p></seealso>
@@ -2898,15 +2898,15 @@ NotepadLocation := Page.Values[0];
         <name>CreateOutputMsgPage</name>
         <prototype>function CreateOutputMsgPage(const AfterID: Integer; const ACaption, ADescription, AMsg: String): TOutputMsgWizardPage;</prototype>
         <description><p>Creates a wizard page containing only static text. The AMsg parameter specifies the text to display.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   Page: TOutputMsgWizardPage;
 
 ...
 
-// Create the page
+<com>// Create the page</com>
 Page := CreateOutputMsgPage(wpWelcome,
-  'Information', 'Please read the following important information before continuing.',
-  'Blah blah blah.');
+  <str>'Information'</str>, <str>'Please read the following important information before continuing.'</str>,
+  <str>'Blah blah blah.'</str>);
 </pre>
 <p>See <i>AllPagesExample.iss</i> for another example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TOutputMsgWizardPage">TOutputMsgWizardPage</link></p></seealso>
@@ -2915,16 +2915,16 @@ Page := CreateOutputMsgPage(wpWelcome,
         <name>CreateOutputMsgMemoPage</name>
         <prototype>function CreateOutputMsgMemoPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; const AMsg: AnsiString): TOutputMsgMemoWizardPage;</prototype>
         <description><p>Creates a wizard page containing static text as well as a read-only, multi-line edit control, capable of displaying RTF text. The ASubCaption parameter specifies the static text to display. AMsg specifies the text to assign to the edit control.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   Page: TOutputMsgMemoWizardPage;
 
 ...
 
-// Create the page
+<com>// Create the page</com>
 Page := CreateOutputMsgMemoPage(wpWelcome,
-  'Information', 'Please read the following important information before continuing.',
-  'When you are ready to continue with Setup, click Next.',
-  'Blah blah blah.');
+  <str>'Information'</str>, <str>'Please read the following important information before continuing.'</str>,
+  <str>'When you are ready to continue with Setup, click Next.'</str>,
+  <str>'Blah blah blah.'</str>);
 </pre>
 <p>See <i>AllPagesExample.iss</i> for another example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TOutputMsgMemoWizardPage">TOutputMsgMemoWizardPage</link></p></seealso>
@@ -3033,22 +3033,22 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <prototype>function PageFromID(const ID: Integer): TWizardPage;</prototype>
         <description><p>Given a page ID, returns a <link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link> instance. Call this if, for example, you need to get at the surface of a page and only know its ID.</p>
 <p>An exception will be raised if an invalid page ID is specified.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   Page: TWizardPage;
-begin
+<key>begin</key>
   Page := PageFromID(wpWelcome);
   Page.Surface.Color := clBlue;
-end;</pre></example>
+<key>end</key>;</pre></example>
         <seealso><p><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></p></seealso>
       </function>
       <function>
         <name>PageIndexFromID</name>
         <prototype>function PageIndexFromID(const ID: Integer): NativeInt;</prototype>
         <description><p>Given a page ID, returns a position index. Call this if, for example, you want to check whether a page is positioned before a certain other page.</p></description>
-        <example><pre>function ShouldSkipPage(PageID: Integer): Boolean;
-begin
+        <example><pre><key>function</key> <evt>ShouldSkipPage</evt>(PageID: Integer): Boolean;
+<key>begin</key>
   Result := PageIndexFromID(PageID) &lt; PageIndexFromID(wpReady);
-end;</pre></example>
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>ScaleX</name>
@@ -3074,23 +3074,23 @@ end;</pre></example>
 <p>The array must be sorted already from smallest to highest size.</p>
 <p>If no match is found in the array (for example, because it is empty), the minimum of the bitmap image's width and height will be used as the size.</p>
 <p>Returns True if the icon could be loaded, False otherwise.</p></description>
-        <example><pre>procedure InitializeWizard;
-var
+        <example><pre><key>procedure</key> <evt>InitializeWizard</evt>;
+<key>var</key>
   Page: TWizardPage;
   BitmapImage: TBitmapImage;
-begin
-  Page := CreateCustomPage(wpWelcome, 'Test', 'Test');
+<key>begin</key>
+  Page := CreateCustomPage(wpWelcome, <str>'Test'</str>, <str>'Test'</str>);
 
   BitmapImage := TBitmapImage.Create(Page);
-  
-  with BitmapImage do begin
-    Width := ScaleX(32);
-    Height := ScaleY(32);
-    Parent := Page.Surface;
-  end;
 
-  InitializeBitmapImageFromIcon(BitmapImage, 'MyProg.ico', clNone, [32, 48, 64]);
-end;</pre></example>
+  <key>with</key> BitmapImage <key>do</key> <key>begin</key>
+    Width := ScaleX(<num>32</num>);
+    Height := ScaleY(<num>32</num>);
+    Parent := Page.Surface;
+  <key>end</key>;
+
+  InitializeBitmapImageFromIcon(BitmapImage, <str>'MyProg.ico'</str>, clNone, [<num>32</num>, <num>48</num>, <num>64</num>]);
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_InitializeBitmapImageFromStockIcon">InitializeBitmapImageFromStockIcon</link></p></seealso>
       </function>
       <function>
@@ -3131,23 +3131,23 @@ SIID_DEVICECAMERA, SIID_DEVICEVIDEOCAMERA, SIID_DEVICEAUDIOPLAYER,
 SIID_NETWORKCONNECT, SIID_INTERNET, SIID_ZIPFILE, SIID_SETTINGS, SIID_DRIVEHDDVD,
 SIID_DRIVEBD, SIID_MEDIAHDDVDROM, SIID_MEDIAHDDVDR, SIID_MEDIAHDDVDRAM,
 SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></remarks>
-        <example><pre>procedure InitializeWizard;
-var
+        <example><pre><key>procedure</key> <evt>InitializeWizard</evt>;
+<key>var</key>
   Page: TWizardPage;
   BitmapImage: TBitmapImage;
-begin
-  Page := CreateCustomPage(wpWelcome, 'Test', 'Test');
+<key>begin</key>
+  Page := CreateCustomPage(wpWelcome, <str>'Test'</str>, <str>'Test'</str>);
 
   BitmapImage := TBitmapImage.Create(Page);
-  
-  with BitmapImage do begin
-    Width := ScaleX(32);
-    Height := ScaleY(32);
-    Parent := Page.Surface;
-  end;
 
-  InitializeBitmapImageFromStockIcon(BitmapImage, SIID_ERROR, clNone, [32, 48, 64]);
-end;</pre></example>
+  <key>with</key> BitmapImage <key>do</key> <key>begin</key>
+    Width := ScaleX(<num>32</num>);
+    Height := ScaleY(<num>32</num>);
+    Parent := Page.Surface;
+  <key>end</key>;
+
+  InitializeBitmapImageFromStockIcon(BitmapImage, SIID_ERROR, clNone, [<num>32</num>, <num>48</num>, <num>64</num>]);
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_InitializeBitmapImageFromIcon">InitializeBitmapImageFromIcon</link></p></seealso>
       </function>
     </subcategory>
@@ -3165,22 +3165,22 @@ end;</pre></example>
 <p><tt>MB_OK, MB_OKCANCEL, MB_ABORTRETRYIGNORE, MB_YESNOCANCEL, MB_YESNO, MB_RETRYCANCEL, MB_DEFBUTTON1, MB_DEFBUTTON2, MB_DEFBUTTON3, MB_SETFOREGROUND</tt></p>
 <p>Possible return values are:</p>
 <p><tt>IDOK, IDCANCEL, IDABORT, IDRETRY, IDIGNORE, IDYES, IDNO</tt></p></remarks>
-        <example><pre>begin
-  // Display a simple message box with an OK button
-  MsgBox('Hello.', mbInformation, MB_OK);
+        <example><pre><key>begin</key>
+  <com>// Display a simple message box with an OK button</com>
+  MsgBox(<str>'Hello.'</str>, mbInformation, MB_OK);
 
-  // Ask the user a Yes/No question
-  if MsgBox('Are you sure?', mbConfirmation, MB_YESNO) = IDYES then
-  begin
-    // user clicked Yes
-  end;
+  <com>// Ask the user a Yes/No question</com>
+  <key>if</key> MsgBox(<str>'Are you sure?'</str>, mbConfirmation, MB_YESNO) = IDYES <key>then</key>
+  <key>begin</key>
+    <com>// user clicked Yes</com>
+  <key>end</key>;
 
-  // Ask the user a Yes/No question, defaulting to No
-  if MsgBox('Are you sure?', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES then
-  begin
-    // user clicked Yes
-  end;
-end;</pre></example>
+  <com>// Ask the user a Yes/No question, defaulting to No</com>
+  <key>if</key> MsgBox(<str>'Are you sure?'</str>, mbConfirmation, MB_YESNO <key>or</key> MB_DEFBUTTON2) = IDYES <key>then</key>
+  <key>begin</key>
+    <com>// user clicked Yes</com>
+  <key>end</key>;
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_SuppressibleMsgBox">SuppressibleMsgBox</link><br />
 <link topic="isxfunc_TaskDialogMsgBox">TaskDialogMsgBox</link></p></seealso>
       </function>
@@ -3207,16 +3207,16 @@ end;</pre></example>
 <p>If <tt>MB_ABORTRETRYIGNORE</tt> is used, <tt>ButtonLabels</tt> may not be an empty array and the button labels must be specified in the following special order: Retry, Ignore, Abort.</p>
 <p>Supported values for <tt>ShieldButton</tt> and possible return values are:</p>
 <p><tt>IDOK, IDCANCEL, IDRETRY, IDYES, IDNO, IDABORT, IDIGNORE</tt></p></remarks>
-        <example><pre>begin
-  case TaskDialogMsgBox('Choose A or B',
-                        'You can choose A or B.',   
+        <example><pre><key>begin</key>
+  <key>case</key> TaskDialogMsgBox(<str>'Choose A or B'</str>,
+                        <str>'You can choose A or B.'</str>,
                         mbInformation,
-                        MB_YESNOCANCEL, ['I choose &amp;A'#13#10'A will be chosen.', 'I choose &amp;B'#13#10'B will be chosen.'],
-                        IDYES) of
-    IDYES: MsgBox('You chose A.', mbInformation, MB_OK);
-    IDNO: MsgBox('You chose B.', mbInformation, MB_OK);
-  end;
-end;</pre></example>
+                        MB_YESNOCANCEL, [<str>'I choose &amp;A'#13#10'A will be chosen.'</str>, <str>'I choose &amp;B'#13#10'B will be chosen.'</str>],
+                        IDYES) <key>of</key>
+    IDYES: MsgBox(<str>'You chose A.'</str>, mbInformation, MB_OK);
+    IDNO: MsgBox(<str>'You chose B.'</str>, mbInformation, MB_OK);
+  <key>end</key>;
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_SuppressibleTaskDialogMsgBox">SuppressibleTaskDialogMsgBox</link><br />
 <link topic="isxfunc_MsgBox">MsgBox</link></p></seealso>
       </function>
@@ -3230,58 +3230,58 @@ end;</pre></example>
         <prototype>function GetOpenFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
         <description><p>Displays a dialog box that enables the user to select an existing file. Returns True if the user selected a file, False otherwise. The name of the selected file is returned in the FileName string.</p></description>
         <remarks><p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   FileName: String;
-begin
-  // Set the initial filename
-  FileName := '';
-  if GetOpenFileName('', FileName, '',
-     'Text Documents (*.txt)|*.txt|All Files|*.*', 'txt') then
-  begin
-    // Successful; user clicked OK
-    // FileName contains the selected filename
-  end;
-end;</pre></example>
+<key>begin</key>
+  <com>// Set the initial filename</com>
+  FileName := <str>''</str>;
+  <key>if</key> GetOpenFileName(<str>''</str>, FileName, <str>''</str>,
+     <str>'Text Documents (*.txt)|*.txt|All Files|*.*'</str>, <str>'txt'</str>) <key>then</key>
+  <key>begin</key>
+    <com>// Successful; user clicked OK</com>
+    <com>// FileName contains the selected filename</com>
+  <key>end</key>;
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>GetOpenFileNameMulti</name>
         <prototype>function GetOpenFileNameMulti(const Prompt: String; const FileNameList: TStrings; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
         <description><p>Displays a dialog box that enables the user to select one or more existing file(s). Returns True if the user selected a file, False otherwise. The name of the selected file(s) is returned in the FileNameList list.</p></description>
         <remarks><p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   FileNameList: TStrings;
-begin
-  // Create the list
+<key>begin</key>
+  <com>// Create the list</com>
   FileNameList := TStringList.Create;
-  try
-    if GetOpenFileNameMulti('', FileNameList, '',
-       'Text Documents (*.txt)|*.txt|All Files|*.*', 'txt') then
-    begin
-      // Successful; user clicked OK
-      // FileNameList contains the selected filename(s)
-    end;
-  finally
+  <key>try</key>
+    <key>if</key> GetOpenFileNameMulti(<str>''</str>, FileNameList, <str>''</str>,
+       <str>'Text Documents (*.txt)|*.txt|All Files|*.*'</str>, <str>'txt'</str>) <key>then</key>
+    <key>begin</key>
+      <com>// Successful; user clicked OK</com>
+      <com>// FileNameList contains the selected filename(s)</com>
+    <key>end</key>;
+  <key>finally</key>
     FileNameList.Free;
-  end;
-end;</pre></example>
+  <key>end</key>;
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>GetSaveFileName</name>
         <prototype>function GetSaveFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
         <description><p>Displays a dialog box that enables the user to select a new file. Returns True if the user selected a file, False otherwise. The name of the selected file is returned in the FileName string.</p></description>
         <remarks><p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   Filename: String;
-begin
-  // Set the initial filename
-  Filename := '';
-  if GetSaveFileName('', Filename, '',
-     'Text Documents (*.txt)|*.txt|All Files|*.*', 'txt') then
-  begin
-    // Successful; user clicked OK
-    // Filename contains the selected filename
-  end;
-end;</pre></example>
+<key>begin</key>
+  <com>// Set the initial filename</com>
+  Filename := <str>''</str>;
+  <key>if</key> GetSaveFileName(<str>''</str>, Filename, <str>''</str>,
+     <str>'Text Documents (*.txt)|*.txt|All Files|*.*'</str>, <str>'txt'</str>) <key>then</key>
+  <key>begin</key>
+    <com>// Successful; user clicked OK</com>
+    <com>// Filename contains the selected filename</com>
+  <key>end</key>;
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>BrowseForFolder</name>
@@ -3318,17 +3318,17 @@ end;</pre></example>
         <name>IDispatchInvoke</name>
         <prototype>function IDispatchInvoke(Self: IDispatch; PropertySet: Boolean; const Name: String; Par: array of Variant): Variant;</prototype>
         <description><p>Use <tt>IDispatchInvoke</tt> to access a COM Automation property or method whose name is a reserved word.</p></description>
-        <example><pre>var
+        <example><pre><key>var</key>
   AObject: Variant;
   AType: String;
-begin
-  AObject := CreateOleObject('MyObject');
-  // Set a property named 'Type'
-  // Cannot use "AObject.Type := 'MyType';" because Type is a reserved word
-  IDispatchInvoke(AObject, True, 'Type', ['MyType']);
-  // Get a property or call a method named 'Type'
-  AType := IDispatchInvoke(AObject, False, 'Type', ['']);
-end;</pre></example>
+<key>begin</key>
+  AObject := CreateOleObject(<str>'MyObject'</str>);
+  <com>// Set a property named 'Type'</com>
+  <com>// Cannot use "AObject.Type := 'MyType';" because Type is a reserved word</com>
+  IDispatchInvoke(AObject, True, <str>'Type'</str>, [<str>'MyType'</str>]);
+  <com>// Get a property or call a method named 'Type'</com>
+  AType := IDispatchInvoke(AObject, False, <str>'Type'</str>, [<str>''</str>]);
+<key>end</key>;</pre></example>
         <seealso><p><link topic="scriptautomation" window="main">Using COM Automation objects</link></p></seealso>
       </function>
       <function>
@@ -3370,11 +3370,11 @@ end;</pre></example>
         <name>LogFmt</name>
         <prototype>procedure LogFmt(const S: String; const Args: array of const);</prototype>
         <description><p>Formats the string S using the series of arguments in the open array Args, and then logs it.</p></description>
-        <example><pre>function OnDownloadProgress(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;
-begin
-  LogFmt('%s->%s: %d/%d', [Url, FileName, Progress, ProgressMax]);
+        <example><pre><key>function</key> OnDownloadProgress(<key>const</key> Url, FileName: String; <key>const</key> Progress, ProgressMax: Int64): Boolean;
+<key>begin</key>
+  LogFmt(<str>'%s->%s: %d/%d'</str>, [Url, FileName, Progress, ProgressMax]);
   Result := True;
-end;</pre></example>
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_Log">Log</link><br/>
 <link topic="isxfunc_Format">Format</link></p></seealso>
       </function>
@@ -3398,22 +3398,22 @@ end;</pre></example>
 </pre>
 <p>Error will be True if there was an error reading the output (which should be very rare) or if the output is too big. The error is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view. There is no further output after an error.</p>
 <p>Output is limited to a total size of 10 million bytes or a maximum of 1 million lines.</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   ResultCode: Integer;
   Output: TExecOutput;
-begin
-  try
-    // Get the system configuration
-    Result := ExecAndCaptureOutput(ExpandConstant('{cmd}'), '/c systeminfo', '', SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, Output);
-  except
+<key>begin</key>
+  <key>try</key>
+    <com>// Get the system configuration</com>
+    Result := ExecAndCaptureOutput(ExpandConstant(<str>'{cmd}'</str>), <str>'/c systeminfo'</str>, <str>''</str>, SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, Output);
+  <key>except</key>
     Result := False;
     Log(GetExceptionMessage);
-  end;
+  <key>end</key>;
 
-  if Result then begin
-    // Do something with the Output.StdOut array of string
-  end;
-end;</pre></example>
+  <key>if</key> Result <key>then</key> <key>begin</key>
+    <com>// Do something with the Output.StdOut array of string</com>
+  <key>end</key>;
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_Exec">Exec</link><br />
 <link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link><br/>
 <link topic="isxfunc_ExecAndCaptureOutputWithNativeSysDir">ExecAndCaptureOutputWithNativeSysDir</link></p></seealso>
@@ -3432,28 +3432,28 @@ end;</pre></example>
 <p>Parameter S is the output line when Error is False, otherwise an error message. FirstLine is True if this is the first line of output from the program, otherwise False.</p>
 <p>Error will be True if reading the output failed (which should be very rare), or if the output is too big. There is no further output after an error.</p>
 <p>Output is limited to a total size of 10 million bytes or a maximum of 1 million lines.</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   Line: String;
 
-procedure ExecAndGetFirstLineLog(const S: String; const Error, FirstLine: Boolean);
-begin
-  if not Error and (Line = '') and (Trim(S) &lt;&gt; '') then
-    Line := S; { First non-empty line found, store it }
-  if FirstLine then
-    Log('Output:');
+<key>procedure</key> ExecAndGetFirstLineLog(<key>const</key> S: String; <key>const</key> Error, FirstLine: Boolean);
+<key>begin</key>
+  <key>if</key> <key>not</key> Error <key>and</key> (Line = <str>''</str>) <key>and</key> (Trim(S) &lt;&gt; <str>''</str>) <key>then</key>
+    Line := S; <com>{ First non-empty line found, store it }</com>
+  <key>if</key> FirstLine <key>then</key>
+    Log(<str>'Output:'</str>);
   Log(S);
-end;
+<key>end</key>;
 
-function ExecAndGetFirstLine(const Filename, Params, WorkingDir: String; var ResultCode: Integer): String;
-begin
-  Line := '';
-  try
+<key>function</key> ExecAndGetFirstLine(<key>const</key> Filename, Params, WorkingDir: String; <key>var</key> ResultCode: Integer): String;
+<key>begin</key>
+  Line := <str>''</str>;
+  <key>try</key>
     ExecAndLogOutput(Filename, Params, WorkingDir, SW_SHOWNORMAL, ewWaitUntilTerminated, ResultCode, @ExecAndGetFirstLineLog);
-  except
+  <key>except</key>
     Log(GetExceptionMessage);
-  end;
+  <key>end</key>;
   Result := Line;
-end;</pre></example>
+<key>end</key>;</pre></example>
         <seealso><p><link topic="isxfunc_Exec">Exec</link><br />
 <link topic="isxfunc_ExecAndCaptureOutput">ExecAndCaptureOutput</link><br/>
 <link topic="isxfunc_ExecAndLogOutputWithNativeSysDir">ExecAndLogOutputWithNativeSysDir</link></p></seealso>
