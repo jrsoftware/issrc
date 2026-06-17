@@ -28,13 +28,14 @@
     .head1       { font-size: calc(32rem/16) }
     .head2       { font-size: calc(20rem/16) }
     .ver         { font-size: calc(20rem/16); font-weight: bold }
-    code.innosetup .sec { font-weight: bold }
-    code.innosetup .evt { font-weight: bold }
-    code.innosetup .key { color: light-dark(#0078d4, #0088f0) }
-    code.innosetup .com { color: light-dark(#2d862d, #339933) }
-    code.innosetup .con { color: light-dark(#9262a8, #a278b5) }
-    code.innosetup .pre { color: light-dark(#d24152, #d95e6c) }
-    code.innosetup .str { color: light-dark(#c55420, #f09060) }
+    code.innosetup sec { font-weight: bold }
+    code.innosetup evt { font-weight: bold }
+    code.innosetup key { color: light-dark(#0078d4, #0088f0) }
+    code.innosetup com { color: light-dark(#2d862d, #339933) }
+    code.innosetup con { color: light-dark(#9262a8, #a278b5) }
+    code.innosetup ispp { color: light-dark(#d24152, #d95e6c) }
+    code.innosetup str { color: light-dark(#c55420, #f09060) }
+    code.innosetup num { color: light-dark(#c55420, #f09060) }
 </style>
 </head>
 <body>
@@ -101,27 +102,27 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
       <li>Support functions <tt>Min</tt> and <tt>Max</tt> now return the correct result when 3 values are used and the third value is the smallest (for <tt>Min</tt>) or largest (for <tt>Max</tt>) value.</li>
       <li>Pascal-style string literals (on by default) no longer silently accept a missing closing quote. An unterminated string now raises a compiler error.</li>
       <li>Calling a <tt>#sub</tt> procedure changes the <a href="https://jrsoftware.org/ishelp/index.php?topic=visibility">default visibility of identifiers</a> to <tt>private</tt>, which is correct, but this change persisted after the procedure returned. For example:
-<pre><code class="innosetup"><span class="pre">#sub</span> MySub
-  <span class="pre">#emit</span> <span class="str">'hello'</span>
-<span class="pre">#endsub</span>
-<span class="pre">#call</span> MySub()
-<span class="pre">#define</span> MyVar = 42 <span class="com">; was incorrectly created as private</span></code></pre></li>
+<pre><code class="innosetup"><ispp>#sub</ispp> MySub
+  <ispp>#emit</ispp> <str>'hello'</str>
+<ispp>#endsub</ispp>
+<ispp>#call</ispp> MySub()
+<ispp>#define</ispp> MyVar = <num>42</num> <com>; was incorrectly created as private</com></code></pre></li>
       <li>ISPP could incorrectly evaluate expressions following nested <tt>#elif</tt> and <tt>{#elif}</tt> directives in portions of script that were not selected. For example:
-<pre><code class="innosetup"><span class="pre">#if</span> 0
-  <span class="pre">#if</span> 0
-  <span class="pre">#elif</span> SomeExpression <span class="com">; was incorrectly evaluated</span>
-  <span class="pre">#endif</span>
-<span class="pre">#endif</span></code></pre></li>
+<pre><code class="innosetup"><ispp>#if</ispp> <num>0</num>
+  <ispp>#if</ispp> <num>0</num>
+  <ispp>#elif</ispp> SomeExpression <com>; was incorrectly evaluated</com>
+  <ispp>#endif</ispp>
+<ispp>#endif</ispp></code></pre></li>
     </ul>
     </li>
     <li>Previously undocumented support functions <tt>IsDirSet</tt> and <tt>TypeOf2</tt> are now documented and recognized by the Compiler IDE.</li>
-    <li>Previously undocumented directive <tt>#env</tt> and its shorthand <tt>#%</tt> are now documented and recognized by the Compiler IDE. This directive replaces itself with the value of the specified environment variable. Example: <tt><code class="innosetup"><span class="key">AppName</span>=<span class="pre">{#%</span>MyAppName<span class="pre">}</span></code></tt>.</li>
-    <li>Previously undocumented directive aliases <tt>#call</tt> (for <tt>#expr</tt>) and <tt>#echo</tt> (for <tt>#emit</tt>) are now documented and recognized by the Compiler IDE. All examples now use <tt>#call</tt> instead of <tt>#expr</tt>. Example: <tt><code class="innosetup"><span class="pre">#call</span> EmitLanguagesSection</code></tt>.</li>
+    <li>Previously undocumented directive <tt>#env</tt> and its shorthand <tt>#%</tt> are now documented and recognized by the Compiler IDE. This directive replaces itself with the value of the specified environment variable. Example: <tt><code class="innosetup"><key>AppName</key>=<ispp>{#%</ispp>MyAppName<ispp>}</ispp></code></tt>.</li>
+    <li>Previously undocumented directive aliases <tt>#call</tt> (for <tt>#expr</tt>) and <tt>#echo</tt> (for <tt>#emit</tt>) are now documented and recognized by the Compiler IDE. All examples now use <tt>#call</tt> instead of <tt>#expr</tt>. Example: <tt><code class="innosetup"><ispp>#call</ispp> EmitLanguagesSection</code></tt>.</li>
     <li>Previously undocumented directive shorthands <tt>#?</tt> (for <tt>#if</tt>), <tt>#^</tt> (for <tt>#else</tt>), and <tt>#.</tt> (for <tt>#endif</tt>) are now documented and recognized by the Compiler IDE.</li>
     <li>Previously undocumented <tt>func</tt> and <tt>array</tt> parameter types and the <tt>@</tt> operator are now documented by the <a href="https://jrsoftware.org/ishelp/index.php?topic=macros">User Defined Functions</a> help topic. Implementation fixes were also made. Example:
-        <pre><code class="innosetup"><span class="pre">#define</span> Apply(<span class="pre">func</span> Callback, <span class="pre">str</span> Value) Callback(Value)
-<span class="pre">#define</span> Decorate(<span class="pre">str</span> S) <span class="str">"("</span> + S + <span class="str">")"</span>
-<span class="pre">#emit</span> Apply(@Decorate, <span class="str">"hello"</span>) <span class="com">; emits "(hello)"</span></code></pre>
+        <pre><code class="innosetup"><ispp>#define</ispp> Apply(<ispp>func</ispp> Callback, <ispp>str</ispp> Value) Callback(Value)
+<ispp>#define</ispp> Decorate(<ispp>str</ispp> S) <str>"("</str> + S + <str>")"</str>
+<ispp>#emit</ispp> Apply(@Decorate, <str>"hello"</str>) <com>; emits "(hello)"</com></code></pre>
     </li>
     <li>Other documentation improvements.</li>
   </ul>
@@ -152,7 +153,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li><i>Fix:</i> Example script <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/PowerShell.iss">PowerShell.iss</a></i> now uses an absolute path to load <tt>powershell.exe</tt>, for security reasons. If you used the demonstrated technique in your own scripts, <b>you should make the same changes</b>.</li>
   <li>ISPP:
   <ul>
-    <li><i>Fix:</i> A user defined function which has no parameters compiles again (broken in 7.0.0). Example: <tt><code class="innosetup"><span class="pre">#define</span> MyAppName() <span class="str">"My Program"</span></code></tt>.</li>
+    <li><i>Fix:</i> A user defined function which has no parameters compiles again (broken in 7.0.0). Example: <tt><code class="innosetup"><ispp>#define</ispp> MyAppName() <str>"My Program"</str></code></tt>.</li>
     <li>Added new predefined variable <tt>SysPath</tt>.</li>
   </ul>
   </li>
@@ -277,7 +278,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li><tt>[Setup]</tt> section:
   <ul>
     <li>A new custom style is now available built-in and directly supported by the <tt>WizardStyle</tt> directive: <tt>stellar</tt>. <tt>stellar</tt> is an alternative light-only style with white foreground text, ideally suited to be combined with a <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardbackcolor">custom darker background color</a> or <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardbackimagefile">image</a>. For example:
-        <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern stellar excludelightcontrols</code></pre>
+        <pre><code class="innosetup"><key>WizardStyle</key>=modern stellar excludelightcontrols</code></pre>
         <a href="https://jrsoftware.org/images/is-welcome-stellar-org-150.png">Example screenshot of Setup using the Stellar style, at 150% DPI</a>.<br/>
         <a href="https://jrsoftware.org/images/is-welcome-stellar-backimage-org-150.png">Example screenshot of Setup using the Stellar style, a custom background image, and the <tt>excludelightcontrols</tt> modifier, at 150% DPI</a>.<br/>
     </li>
@@ -399,31 +400,31 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Added new <tt>[Setup]</tt> section directive <tt>WizardBackImageOpacity</tt> to specify the opacity (non-transparency) of the background image.<br/>
       This is useful if you want to use an identical regular and <tt>DynamicDark</tt> background image.</li>
   <li>Examples:
-<pre><code class="innosetup"><span class="com">; Use separate background images for light and dark appearances</span>
-<span class="key">WizardBackImageFile</span>=MyBackImage.png
-<span class="key">WizardBackImageFileDynamicDark</span>=MyBackImage_Dark.png
-<span class="com">; Hide the large and small wizard images</span>
-<span class="key">WizardImageFile</span>=
-<span class="key">WizardSmallImageFile</span>=
+<pre><code class="innosetup"><com>; Use separate background images for light and dark appearances</com>
+<key>WizardBackImageFile</key>=MyBackImage.png
+<key>WizardBackImageFileDynamicDark</key>=MyBackImage_Dark.png
+<com>; Hide the large and small wizard images</com>
+<key>WizardImageFile</key>=
+<key>WizardSmallImageFile</key>=
 
-<span class="com">; Use the same background image for both light and dark appearances</span>
-<span class="key">WizardBackImageFile</span>=MyBackImage.png
-<span class="key">WizardBackImageFileDynamicDark</span>=MyBackImage.png
-<span class="com">; Apply transparency to the background image so it works well in</span>
-<span class="com">; both light and dark appearances</span>
-<span class="key">WizardBackImageOpacity</span>=150
-<span class="com">; Keep large and small wizard images, applying transparency so they</span>
-<span class="com">; blend with the background image</span>
-<span class="key">WizardImageOpacity</span>=150
+<com>; Use the same background image for both light and dark appearances</com>
+<key>WizardBackImageFile</key>=MyBackImage.png
+<key>WizardBackImageFileDynamicDark</key>=MyBackImage.png
+<com>; Apply transparency to the background image so it works well in</com>
+<com>; both light and dark appearances</com>
+<key>WizardBackImageOpacity</key>=150
+<com>; Keep large and small wizard images, applying transparency so they</com>
+<com>; blend with the background image</com>
+<key>WizardImageOpacity</key>=150
 
-<span class="com">; Use a background image in the wizard, and also use custom</span>
-<span class="com">; background colors on other windows, and in Uninstall</span>
-<span class="key">WizardBackImageFile</span>=MyBackImage.png
-<span class="key">WizardBackImageFileDynamicDark</span>=MyBackImage.png
-<span class="key">WizardBackColor</span>=#ffc0cb
-<span class="key">WizardBackColorDynamicDark</span>=#570c22
-<span class="com">; On wizard pages blend the background image and color together</span>
-<span class="key">WizardBackImageOpacity</span>=150</code></pre></li>
+<com>; Use a background image in the wizard, and also use custom</com>
+<com>; background colors on other windows, and in Uninstall</com>
+<key>WizardBackImageFile</key>=MyBackImage.png
+<key>WizardBackImageFileDynamicDark</key>=MyBackImage.png
+<key>WizardBackColor</key>=#ffc0cb
+<key>WizardBackColorDynamicDark</key>=#570c22
+<com>; On wizard pages blend the background image and color together</com>
+<key>WizardBackImageOpacity</key>=150</code></pre></li>
   <li>Pascal Scripting: Added new support function <tt>WizardSetBackImage</tt> to set, update, or remove the background image at runtime. It can be used not only in Setup, but also in Uninstall.<br/>
       See the <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_wizardsetbackimage">new help topic</a> for an example, and see new function <tt>BackImageButtonOnClick</tt> in <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for another example.</li>
 </ul>
@@ -515,7 +516,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <ul>
     <li>Added appearance modes: <tt>light</tt> (default, forced light mode, same appearance as previous versions), <tt>dark</tt> (forced dark mode, new appearance), and <tt>dynamic</tt> (automatically follows Windows system settings).</li>
     <li>For example, to use the modern look and automatically switch between light and dark appearance based on the user's Windows system settings:
-        <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dynamic</code></pre>
+        <pre><code class="innosetup"><key>WizardStyle</key>=modern dynamic</code></pre>
     </li>
     <li>Dark mode automatically replaces icons, wizard images, and colors while maintaining a consistent user experience. It still allows a custom main icon, and custom images and colors. Includes support for styled task dialogs.<br/>
         <a href="https://jrsoftware.org/images/is-welcome-dark-org-150.png">Example screenshot of Setup using the built-in dark style, at 150% DPI</a>.<br/>
@@ -528,37 +529,37 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Added four new <tt>DynamicDark</tt> directives to the <tt>[Setup]</tt> section, for specifying separate custom images and colors used specifically when dynamic mode switches to dark appearance:
   <ul>
     <li>For example, to specify two custom colors, one for light mode and one for dark mode:
-        <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dynamic
-<span class="key">WizardImageBackColor</span>=white
-<span class="key">WizardImageBackColorDynamicDark</span>=#2b2b2b</code></pre>
+        <pre><code class="innosetup"><key>WizardStyle</key>=modern dynamic
+<key>WizardImageBackColor</key>=white
+<key>WizardImageBackColorDynamicDark</key>=#2b2b2b</code></pre>
         Note: Forced dark mode (<tt>dark</tt>) does not use the <tt>DynamicDark</tt> settings; it uses the standard settings. Example:
-      <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dark
-<span class="key">WizardImageBackColor</span>=#2b2b2b</code></pre>
+      <pre><code class="innosetup"><key>WizardStyle</key>=modern dark
+<key>WizardImageBackColor</key>=#2b2b2b</code></pre>
     </li>
   </ul>
   </li>
   <li>The default style can be customized by specifying a VCL Styles file using the new <tt>WizardStyleFile</tt> directive and a fifth <tt>DynamicDark</tt> directive:
   <ul>
     <li>For example, to specify two custom styles, one for light mode and one for dark mode:
-        <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dynamic
-<span class="key">WizardStyleFile</span>=MyStyleLight.vsf
-<span class="key">WizardStyleFileDynamicDark</span>=MyStyleDark.vsf</code></pre>
+        <pre><code class="innosetup"><key>WizardStyle</key>=modern dynamic
+<key>WizardStyleFile</key>=MyStyleLight.vsf
+<key>WizardStyleFileDynamicDark</key>=MyStyleDark.vsf</code></pre>
         <a href="https://jrsoftware.org/images/is-welcome-polarlight-org-150.png">Example screenshot of Setup using the Polar Light style, at 150% DPI</a>.<br/>
         <a href="https://jrsoftware.org/images/is-welcome-polardark-org-150.png">Example screenshot of Setup using the Polar Dark style, at 150% DPI</a>.<br/>
         <a href="https://jrsoftware.org/images/is-taskdialog-zircon-org-125.png">Example screenshot of a task dialog using the Zircon style, at 125% DPI</a>.
     </li>
     <li>When a custom style (including the built-in custom dark style) is active, all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent rather than opaque.</li>
     <li>The Polar style shown above is available built-in and directly supported by the <tt>WizardStyle</tt> directive. For example:
-        <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dynamic polar</code></pre>
+        <pre><code class="innosetup"><key>WizardStyle</key>=modern dynamic polar</code></pre>
     </li>
     <li>Three more custom styles are available built-in and directly supported by the <tt>WizardStyle</tt> directive: <tt>slate</tt>, <tt>windows11</tt> and <tt>zircon</tt>. <tt>slate</tt> uses medium gray for both the light and dark appearances, <tt>windows11</tt> enables a light counterpart of the built-in dark style, and <tt>zircon</tt> is an alternative light-only style with cyan accents, shown above. For example:
-        <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern zircon</code></pre>
+        <pre><code class="innosetup"><key>WizardStyle</key>=modern zircon</code></pre>
     </li>
     <li>Also supported is an <tt>includetitlebar</tt> modifier: Enables custom styling of both title bars and borders. By default, the system's native light or dark title bar is used instead. For example:
-        <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dynamic polar includetitlebar</code></pre>
+        <pre><code class="innosetup"><key>WizardStyle</key>=modern dynamic polar includetitlebar</code></pre>
     </li>
     <li>Also supported is an <tt>excludelightbuttons</tt> modifier: Disables custom styling of all buttons (including command link buttons, as used in task dialogs) when a light style is active. For example:
-        <pre><code class="innosetup"><span class="key">WizardStyle</span>=modern dynamic windows11 excludelightbuttons</code></pre>
+        <pre><code class="innosetup"><key>WizardStyle</key>=modern dynamic windows11 excludelightbuttons</code></pre>
     </li>
   </ul>
   </li>
@@ -583,23 +584,23 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Support for <tt>[Setup]</tt> section directive <tt>WizardResizable</tt> has been dropped, so the user will no longer be able to resize the main Setup wizard window.</li>
   <li>The default regular font used by Setup and Uninstall has been changed from 8-point <i>Tahoma</i> to 9-point <i>Segoe UI</i>, for a more modern appearance.<br/>
       To use 8-point <i>Tahoma</i> again, use:
-      <pre><code class="innosetup"><span class="sec">[LangOptions]</span>
-<span class="key">DialogFontName</span>=Tahoma
-<span class="key">DialogFontSize</span>=8
-<span class="key">DialogFontBaseScaleHeight</span>=13
-<span class="key">DialogFontBaseScaleWidth</span>=6</code></pre>
+      <pre><code class="innosetup"><sec>[LangOptions]</sec>
+<key>DialogFontName</key>=Tahoma
+<key>DialogFontSize</key>=8
+<key>DialogFontBaseScaleHeight</key>=13
+<key>DialogFontBaseScaleWidth</key>=6</code></pre>
 If you were already using 9-point <i>Segoe UI</i>, you will notice a change in scaling when you update. To use your previous scaling, use:
-<pre><code class="innosetup"><span class="sec">[LangOptions]</span>
-<span class="key">DialogFontName</span>=Segoe UI
-<span class="key">DialogFontSize</span>=9
-<span class="key">DialogFontBaseScaleHeight</span>=13
-<span class="key">DialogFontBaseScaleWidth</span>=6</code></pre>
+<pre><code class="innosetup"><sec>[LangOptions]</sec>
+<key>DialogFontName</key>=Segoe UI
+<key>DialogFontSize</key>=9
+<key>DialogFontBaseScaleHeight</key>=13
+<key>DialogFontBaseScaleWidth</key>=6</code></pre>
   </li>
   <li>The default large font used by Setup on the <i>Welcome</i> and <i>Setup Completed</i> wizard pages has been changed from 12-point <i>Verdana</i> to 14-point <i>Segoe UI</i>, for a more modern appearance.<br/>
       To use 12-point <i>Verdana</i> again, use:
-      <pre><code class="innosetup"><span class="sec">[LangOptions]</span>
-<span class="key">WelcomeFontName</span>=Verdana
-<span class="key">WelcomeFontSize</span>=12</code></pre>
+      <pre><code class="innosetup"><sec>[LangOptions]</sec>
+<key>WelcomeFontName</key>=Verdana
+<key>WelcomeFontSize</key>=12</code></pre>
   </li>
   <li>Pascal Scripting:
   <ul>
@@ -742,12 +743,12 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
         <li>Using a solid archive is not recommended; extraction performance may degrade depending on the solid block size.</li>
         <li>Archive extraction otherwise behaves the same as external file copying. For example, it supports automatic uninstallation of extracted files and can be combined with same other flags and parameters.</li>
         <li>Example script:
-          <pre><code class="innosetup"><span class="sec">[Setup]</span>
-<span class="key">ArchiveExtraction</span>=enhanced/nopassword
+          <pre><code class="innosetup"><sec>[Setup]</sec>
+<key>ArchiveExtraction</key>=enhanced/nopassword
 
-<span class="sec">[Files]</span>
-<span class="key">Source</span>: "<span class="con">{tmp}</span>\MyProg-ExtraReadmes.7z"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"</span>; \
-  <span class="key">Flags</span>: external extractarchive recursesubdirs createallsubdirs ignoreversion</code></pre>
+<sec>[Files]</sec>
+<key>Source</key>: "<con>{tmp}</con>\MyProg-ExtraReadmes.7z"; <key>DestDir</key>: "<con>{app}</con>"; \
+  <key>Flags</key>: external extractarchive recursesubdirs createallsubdirs ignoreversion</code></pre>
         </li>
       </ul>
     </li>
@@ -777,13 +778,13 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
     <li>When combined with the new <tt>extractarchive</tt> flag (see above), the archive will be downloaded and, if the <tt>issigverify</tt> flag is also used, verified at the start of the <i>Preparing to Install</i> step. The archive is then extracted normally during the actual installation process.<br/>
         In this case, the value of <tt>DestName</tt> is used to determine the archive format and for display and logging purposes.</li>
     <li>Example script:
-      <pre><code class="innosetup"><span class="sec">[Files]</span>
-<span class="key">Source</span>: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; \
-  <span class="key">DestName</span>: "innosetup-latest.exe"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
-  <span class="key">ExternalSize</span>: 7_000_000; <span class="key">Flags</span>: external download ignoreversion
-<span class="key">Source</span>: "https://jrsoftware.org/download.php/myprog-extrareadmes.7z"; \
-  <span class="key">DestName</span>: "MyProg.ExtraReadmes.7z"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
-  <span class="key">ExternalSize</span>: 275; <span class="key">Flags</span>: external download extractarchive ignoreversion</code></pre>
+      <pre><code class="innosetup"><sec>[Files]</sec>
+<key>Source</key>: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; \
+  <key>DestName</key>: "innosetup-latest.exe"; <key>DestDir</key>: "<con>{app}</con>"; \
+  <key>ExternalSize</key>: 7_000_000; <key>Flags</key>: external download ignoreversion
+<key>Source</key>: "https://jrsoftware.org/download.php/myprog-extrareadmes.7z"; \
+  <key>DestName</key>: "MyProg.ExtraReadmes.7z"; <key>DestDir</key>: "<con>{app}</con>"; \
+  <key>ExternalSize</key>: 275; <key>Flags</key>: external download extractarchive ignoreversion</code></pre>
     </li>
     <li>Added example script <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/DownloadFiles.iss">DownloadFiles.iss</a></i> to demonstrate how to use a single <tt>[Files]</tt> entry to download a file, or to download and extract an archive, with verification.</li>
   </ul>
@@ -801,14 +802,14 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
     <li>Supports parameters <tt>Name</tt> (required) and <tt>Group</tt> to identify keys, parameters <tt>KeyFile</tt>, <tt>PublicX</tt>, and <tt>PublicY</tt> to specify the key values, parameter <tt>KeyID</tt> to double-check the key values, and parameter <tt>RuntimeID</tt> for runtime identification of the key.</li>
     <li>Key files are human-readable and can be created using Inno Setup Signature Tool (see below).</li>
     <li>Example section:
-      <pre><code class="innosetup"><span class="sec">[ISSigKeys]</span>
-<span class="key">Name</span>: anna; <span class="key">KeyFile</span>: "anna.ispublickey"; <span class="key">Group</span>: exesigner
-<span class="key">Name</span>: ryan; <span class="key">KeyFile</span>: "ryan.ispublickey"; <span class="key">Group</span>: exesigner
-<span class="key">Name</span>: ivan; <span class="key">KeyFile</span>: "ivan.ispublickey"; <span class="key">Group</span>: docsigner
-<span class="com">; max is trusted for both exe and doc signing</span>
-<span class="key">Name</span>: max; <span class="key">KeyFile</span>: "max.ispublickey"; <span class="key">Group</span>: exesigner docsigner
-<span class="com">; the boss also has a key</span>
-<span class="key">Name</span>: bosskey; <span class="key">KeyFile</span>: "boss.ispublickey"</code></pre>
+      <pre><code class="innosetup"><sec>[ISSigKeys]</sec>
+<key>Name</key>: anna; <key>KeyFile</key>: "anna.ispublickey"; <key>Group</key>: exesigner
+<key>Name</key>: ryan; <key>KeyFile</key>: "ryan.ispublickey"; <key>Group</key>: exesigner
+<key>Name</key>: ivan; <key>KeyFile</key>: "ivan.ispublickey"; <key>Group</key>: docsigner
+<com>; max is trusted for both exe and doc signing</com>
+<key>Name</key>: max; <key>KeyFile</key>: "max.ispublickey"; <key>Group</key>: exesigner docsigner
+<com>; the boss also has a key</com>
+<key>Name</key>: bosskey; <key>KeyFile</key>: "boss.ispublickey"</code></pre>
     </li>
   </ul>
   </li>
@@ -823,18 +824,18 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
     <li>Added a new and optional <tt>ISSigAllowedKeys</tt> parameter to restrict which keys or groups of keys from the <tt>[ISSigKeys]</tt> section are permitted for signature verification using the <tt>issigverify</tt> flag.</li>
     <li>Note: The <tt>issigverify</tt> flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</li>
     <li>Example section:
-      <pre><code class="innosetup"><span class="sec">[Files]</span>
-<span class="key">Source</span>: "MyProg.exe"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
-  <span class="key">ISSigAllowedKeys</span>: "exesigner bosskey"; <span class="key">Flags</span>: issigverify
-<span class="key">Source</span>: "MyProg.chm"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
-  <span class="key">ISSigAllowedKeys</span>: "docsigner bosskey"; <span class="key">Flags</span>: issigverify
-<span class="key">Source</span>: "<span class="con">{src}</span>\Extra\*.chm"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
-  <span class="key">ISSigAllowedKeys</span>: "docsigner bosskey"; <span class="key">Flags</span>: issigverify external; \
-  <span class="key">Excludes</span>: "*.issig"
-<span class="key">Source</span>: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
-  <span class="key">ISSigAllowedKeys</span>: "exesigner bosskey"; \
-  <span class="key">Flags</span>: issigverify external download ignoreversion; \
-  <span class="key">DestName</span>: "innosetup-latest.exe"; <span class="key">ExternalSize</span>: 7_000_000</code></pre>
+      <pre><code class="innosetup"><sec>[Files]</sec>
+<key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"; \
+  <key>ISSigAllowedKeys</key>: "exesigner bosskey"; <key>Flags</key>: issigverify
+<key>Source</key>: "MyProg.chm"; <key>DestDir</key>: "<con>{app}</con>"; \
+  <key>ISSigAllowedKeys</key>: "docsigner bosskey"; <key>Flags</key>: issigverify
+<key>Source</key>: "<con>{src}</con>\Extra\*.chm"; <key>DestDir</key>: "<con>{app}</con>"; \
+  <key>ISSigAllowedKeys</key>: "docsigner bosskey"; <key>Flags</key>: issigverify external; \
+  <key>Excludes</key>: "*.issig"
+<key>Source</key>: "https://jrsoftware.org/download.php/is.exe?dontcount=1"; <key>DestDir</key>: "<con>{app}</con>"; \
+  <key>ISSigAllowedKeys</key>: "exesigner bosskey"; \
+  <key>Flags</key>: issigverify external download ignoreversion; \
+  <key>DestName</key>: "innosetup-latest.exe"; <key>ExternalSize</key>: 7_000_000</code></pre>
     </li>
   </ul>
   </li>
@@ -863,11 +864,11 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
     <li>The compiler now verifies additional precompiled files, such as <i>Setup.e32</i> and <i>SetupLdr.e32</i>, to ensure they remain unchanged before using them. Can be disabled using new [Setup] section directive <tt>DisablePrecompiledFileVerifications</tt>, though doing so is <i>not</i> recommended.</li>
     <li>Added new <tt>[Files]</tt> section parameter <tt>Hash</tt>. Instructs the compiler or Setup to do a simple SHA-256 hash check instead of a full signature verification, as an alternative to using the <tt>issigverify</tt> flag.<br/>
         Example script:
-      <pre><code class="innosetup"><span class="sec">[Files]</span>
-<span class="key">Source</span>: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; \
-  <span class="key">DestName</span>: "ISCrypt.dll"; <span class="key">DestDir</span>: "<span class="con">{app}</span>"; \
-  <span class="key">Hash</span>: "2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc"; \
-  <span class="key">ExternalSize</span>: 2560; <span class="key">Flags</span>: external download ignoreversion</code></pre>
+      <pre><code class="innosetup"><sec>[Files]</sec>
+<key>Source</key>: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; \
+  <key>DestName</key>: "ISCrypt.dll"; <key>DestDir</key>: "<con>{app}</con>"; \
+  <key>Hash</key>: "2f6294f9aa09f59a574b5dcd33be54e16b39377984f3d5658cda44950fa0f8fc"; \
+  <key>ExternalSize</key>: 2560; <key>Flags</key>: external download ignoreversion</code></pre>
     </li>
     <li>Pascal Scripting:
       <ul>
@@ -1171,19 +1172,19 @@ emulation. For example, when running on an Arm64 Windows 11 system, it
 logs: <tt>Machine types supported by system: x86 x64 Arm32 Arm64</tt>.</li>
   <li>The <tt>OnlyOnTheseArchitectures</tt> message is not used anymore. Instead, the <tt>WindowsVersionNotSupported</tt> message is now shown when Setup is started on an architecture that is not allowed by the <tt>ArchitecturesAllowed</tt> expression. (But please do not remove the message from translation files.)</li>
   <li>Pascal Scripting change: Added new <tt>IsArm32Compatible</tt>, <tt>IsX64Compatible</tt>, <tt>IsX64OS</tt>, <tt>IsX86Compatible</tt>, and <tt>IsX86OS</tt> support functions. The <tt>IsX64</tt> support function still exists but is now deprecated as explained above. Example testing all architecture identifiers:
-      <pre><code class="innosetup"><span class="sec">[Code]</span>
-<span class="key">function</span> <span class="evt">InitializeSetup</span>: Boolean;
-<span class="key">begin</span>
-  <span class="key">if</span> IsArm32Compatible <span class="key">then</span> Log(<span class="str">'IsArm32Compatible'</span>);
-  <span class="key">if</span> IsArm64 <span class="key">then</span> Log(<span class="str">'IsArm64'</span>);
-  <span class="key">if</span> IsX64OS <span class="key">then</span> Log(<span class="str">'IsX64OS'</span>);
-  <span class="key">if</span> IsX64Compatible <span class="key">then</span> Log(<span class="str">'IsX64Compatible'</span>);
-  <span class="key">if</span> IsX86 <span class="key">then</span> Log(<span class="str">'IsX86'</span>);
-  <span class="key">if</span> IsX86OS <span class="key">then</span> Log(<span class="str">'IsX86OS'</span>);
-  <span class="key">if</span> IsX86Compatible <span class="key">then</span> Log(<span class="str">'IsX86Compatible'</span>);
-  <span class="key">if</span> IsWin64 <span class="key">then</span> Log(<span class="str">'IsWin64'</span>);
+      <pre><code class="innosetup"><sec>[Code]</sec>
+<key>function</key> <evt>InitializeSetup</evt>: Boolean;
+<key>begin</key>
+  <key>if</key> IsArm32Compatible <key>then</key> Log(<str>'IsArm32Compatible'</str>);
+  <key>if</key> IsArm64 <key>then</key> Log(<str>'IsArm64'</str>);
+  <key>if</key> IsX64OS <key>then</key> Log(<str>'IsX64OS'</str>);
+  <key>if</key> IsX64Compatible <key>then</key> Log(<str>'IsX64Compatible'</str>);
+  <key>if</key> IsX86 <key>then</key> Log(<str>'IsX86'</str>);
+  <key>if</key> IsX86OS <key>then</key> Log(<str>'IsX86OS'</str>);
+  <key>if</key> IsX86Compatible <key>then</key> Log(<str>'IsX86Compatible'</str>);
+  <key>if</key> IsWin64 <key>then</key> Log(<str>'IsWin64'</str>);
   Result := True;
-<span class="key">end</span>;</code></pre>
+<key>end</key>;</code></pre>
   </li>
 </ul>
 <p><span class="head2">Support for #include files improved</span></p>
