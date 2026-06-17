@@ -311,23 +311,23 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 <p>Here is an example of a script which contains three implementations of the <tt>InitializeWizard</tt> event function.</p>
 
 <precode>
-[Code]
-procedure InitializeWizard;
-begin
-  Log('InitializeWizard called');
-end;
+<sec>[Code]</sec>
+<key>procedure</key> <evt>InitializeWizard</evt>;
+<key>begin</key>
+  Log(<str>'InitializeWizard called'</str>);
+<key>end</key>;
 
-&lt;event('InitializeWizard')&gt;
-procedure InitializeWizard2;
-begin
-  Log('InitializeWizard2 called');
-end;
+&lt;<key>event</key>(<str>'InitializeWizard'</str>)&gt;
+<key>procedure</key> InitializeWizard2;
+<key>begin</key>
+  Log(<str>'InitializeWizard2 called'</str>);
+<key>end</key>;
 
-&lt;event('InitializeWizard')&gt;
-procedure InitializeWizard3;
-begin
-  Log('InitializeWizard3 called');
-end;
+&lt;<key>event</key>(<str>'InitializeWizard'</str>)&gt;
+<key>procedure</key> InitializeWizard3;
+<key>begin</key>
+  Log(<str>'InitializeWizard3 called'</str>);
+<key>end</key>;
 </precode>
 
 <p>The following rules apply:</p>
@@ -380,18 +380,18 @@ end;
 <p>Here is an example of a <tt>[Code]</tt> section containing the <tt>MyConst</tt> function used above.</p>
 
 <precode>
-[Code]
-function MyConst(Param: String): String;
-begin
-  Result := ExpandConstant('{autopf}');
-end;
+<sec>[Code]</sec>
+<key>function</key> MyConst(Param: String): String;
+<key>begin</key>
+  Result := ExpandConstant(<str>'{autopf}'</str>);
+<key>end</key>;
 </precode>
 
 <p>If the function specified by the <tt>{code:...}</tt> constant is not included in the <tt>[Code]</tt> section, it must be a <link topic="scriptfunctions">support function</link>. Here is an example.</p>
 
 <precode>
-[INI]
-FileName: "{app}\MyIni.ini"; Section: "MySettings"; Key: "ShortApp"; String: "{code:GetShortName|{app}}"
+<sec>[INI]</sec>
+<key>FileName</key>: "<con>{app}</con>\MyIni.ini"; <key>Section</key>: "MySettings"; <key>Key</key>: "ShortApp"; <key>String</key>: "<con>{code:GetShortName|{app}}</con>"
 </precode>
 
 <p><br/><b>See also:</b><br/>
@@ -417,10 +417,10 @@ FileName: "{app}\MyIni.ini"; Section: "MySettings"; Key: "ShortApp"; String: "{c
 <p>Besides a single name, you may also use boolean expressions. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</p>
 <p>For each check function, you may include a comma separated list of parameters that Setup should pass to the check function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
 <example>
-<pre>[Files]
-Source: "MyProg.exe"; DestDir: "{app}"; Check: MyProgCheck
-Source: "A\MyFile.txt"; DestDir: "{app}"; Check: MyDirCheck(ExpandConstant('{app}\A'))
-Source: "B\MyFile.txt"; DestDir: "{app}"; Check: DirExists(ExpandConstant('{app}\B'))</pre>
+<pre><sec>[Files]</sec>
+<key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"; <key>Check</key>: MyProgCheck
+<key>Source</key>: "A\MyFile.txt"; <key>DestDir</key>: "<con>{app}</con>"; <key>Check</key>: MyDirCheck(ExpandConstant('<con>{app}</con>\A'))
+<key>Source</key>: "B\MyFile.txt"; <key>DestDir</key>: "<con>{app}</con>"; <key>Check</key>: DirExists(ExpandConstant('<con>{app}</con>\B'))</pre>
 </example>
 </param>
 
@@ -437,24 +437,24 @@ Source: "B\MyFile.txt"; DestDir: "{app}"; Check: DirExists(ExpandConstant('{app}
 <p>Here is an example of a [Code] section containing the check functions used above. Function <tt>DirExists</tt> is a <link topic="scriptfunctions">support function</link> and therefore not included in this [Code] section.</p>
 
 <precode>
-[Code]
-var
+<sec>[Code]</sec>
+<key>var</key>
   MyProgChecked: Boolean;
   MyProgCheckResult: Boolean;
 
-function MyProgCheck: Boolean;
-begin
-  if not MyProgChecked then begin
-    MyProgCheckResult := MsgBox('Do you want to install MyProg.exe to ' + ExtractFilePath(CurrentFileName) + '?', mbConfirmation, MB_YESNO) = idYes;
+<key>function</key> MyProgCheck: Boolean;
+<key>begin</key>
+  <key>if</key> <key>not</key> MyProgChecked <key>then</key> <key>begin</key>
+    MyProgCheckResult := MsgBox(<str>'Do you want to install MyProg.exe to '</str> + ExtractFilePath(CurrentFileName) + <str>'?'</str>, mbConfirmation, MB_YESNO) = idYes;
     MyProgChecked := True;
-  end;
+  <key>end</key>;
   Result := MyProgCheckResult;
-end;
+<key>end</key>;
 
-function MyDirCheck(DirName: String): Boolean;
-begin
+<key>function</key> MyDirCheck(DirName: String): Boolean;
+<key>begin</key>
   Result := DirExists(DirName);
-end;
+<key>end</key>;
 </precode>
 
 </body>
@@ -476,11 +476,11 @@ end;
 <p>The name of a function that is to be called once just before an entry is installed. The function must either be a custom function in the [Code] section or a <link topic="scriptfunctions">support function</link>.</p>
 <p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
 <example>
-<pre>[Files]
-Source: "MyProg.exe"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall
-Source: "A\MyFile.txt"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall2('{app}\A\MyFile.txt')
-Source: "B\MyFile.txt"; DestDir: "{app}"; BeforeInstall: MyBeforeInstall2('{app}\B\MyFile.txt')
-Source: "MyProg.chm"; DestDir: "{app}"; BeforeInstall: Log('Before MyProg.chm Install')</pre>
+<pre><sec>[Files]</sec>
+<key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"; <key>BeforeInstall</key>: MyBeforeInstall
+<key>Source</key>: "A\MyFile.txt"; <key>DestDir</key>: "<con>{app}</con>"; <key>BeforeInstall</key>: MyBeforeInstall2('<con>{app}</con>\A\MyFile.txt')
+<key>Source</key>: "B\MyFile.txt"; <key>DestDir</key>: "<con>{app}</con>"; <key>BeforeInstall</key>: MyBeforeInstall2('<con>{app}</con>\B\MyFile.txt')
+<key>Source</key>: "MyProg.chm"; <key>DestDir</key>: "<con>{app}</con>"; <key>BeforeInstall</key>: Log('Before MyProg.chm Install')</pre>
 </example>
 </param>
 
@@ -488,11 +488,11 @@ Source: "MyProg.chm"; DestDir: "{app}"; BeforeInstall: Log('Before MyProg.chm In
 <p>The name of a function that is to be called once just after an entry is installed. The function must either be a custom function in the [Code] section or a <link topic="scriptfunctions">support function</link>.</p>
 <p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
 <example>
-<pre>[Files]
-Source: "MyProg.exe"; DestDir: "{app}"; AfterInstall: MyAfterInstall
-Source: "A\MyFile.txt"; DestDir: "{app}"; AfterInstall: MyAfterInstall2('{app}\A\MyFile.txt')
-Source: "B\MyFile.txt"; DestDir: "{app}"; AfterInstall: MyAfterInstall2('{app}\B\MyFile.txt')
-Source: "MyProg.chm"; DestDir: "{app}"; AfterInstall: Log('After MyProg.chm Install')</pre>
+<pre><sec>[Files]</sec>
+<key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"; <key>AfterInstall</key>: MyAfterInstall
+<key>Source</key>: "A\MyFile.txt"; <key>DestDir</key>: "<con>{app}</con>"; <key>AfterInstall</key>: MyAfterInstall2('<con>{app}</con>\A\MyFile.txt')
+<key>Source</key>: "B\MyFile.txt"; <key>DestDir</key>: "<con>{app}</con>"; <key>AfterInstall</key>: MyAfterInstall2('<con>{app}</con>\B\MyFile.txt')
+<key>Source</key>: "MyProg.chm"; <key>DestDir</key>: "<con>{app}</con>"; <key>AfterInstall</key>: Log('After MyProg.chm Install')</pre>
 </example>
 </param>
 
@@ -507,26 +507,26 @@ Source: "MyProg.chm"; DestDir: "{app}"; AfterInstall: Log('After MyProg.chm Inst
 <p>Here is an example of a <tt>[Code]</tt> section containing the functions used above. Functions <tt>CurrentFileName</tt> and <tt>Log</tt> are <link topic="scriptfunctions">support functions</link> and therefore not included in this [Code] section.</p>
 
 <precode>
-[Code]
-procedure MyBeforeInstall;
-begin
-  MsgBox('About to install MyProg.exe as ' + CurrentFileName + '.', mbInformation, MB_OK);
-end;
+<sec>[Code]</sec>
+<key>procedure</key> MyBeforeInstall;
+<key>begin</key>
+  MsgBox(<str>'About to install MyProg.exe as '</str> + CurrentFileName + <str>'.'</str>, mbInformation, MB_OK);
+<key>end</key>;
 
-procedure MyBeforeInstall2(FileName: String);
-begin
-  MsgBox('About to install ' + FileName + ' as ' + CurrentFileName + '.', mbInformation, MB_OK);
-end;
+<key>procedure</key> MyBeforeInstall2(FileName: String);
+<key>begin</key>
+  MsgBox(<str>'About to install '</str> + FileName + <str>' as '</str> + CurrentFileName + <str>'.'</str>, mbInformation, MB_OK);
+<key>end</key>;
 
-procedure MyAfterInstall;
-begin
-  MsgBox('Just installed MyProg.exe as ' + CurrentFileName + '.', mbInformation, MB_OK);
-end;
+<key>procedure</key> MyAfterInstall;
+<key>begin</key>
+  MsgBox(<str>'Just installed MyProg.exe as '</str> + CurrentFileName + <str>'.'</str>, mbInformation, MB_OK);
+<key>end</key>;
 
-procedure MyAfterInstall2(FileName: String);
-begin
-  MsgBox('Just installed ' + FileName + ' as ' + CurrentFileName + '.', mbInformation, MB_OK);
-end;
+<key>procedure</key> MyAfterInstall2(FileName: String);
+<key>begin</key>
+  MsgBox(<str>'Just installed '</str> + FileName + <str>' as '</str> + CurrentFileName + <str>'.'</str>, mbInformation, MB_OK);
+<key>end</key>;
 </precode>
 
 </body>
@@ -548,8 +548,8 @@ end;
 <p>The function must be a custom function in the [Code] section having the following prototype: <tt>procedure MyOnLog(const S: String; const Error, FirstLine: Boolean);</tt>.</p>
 <p>See <link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link> for an explanation of parameters <tt>S</tt>, <tt>Error</tt> and <tt>FirstLine</tt>.</p>
 <example>
-<pre>[Run]
-Filename: "{app}\MyConsoleProg.exe"; OnLog: MyOnLog; Flags: logoutput</pre>
+<pre><sec>[Run]</sec>
+<key>Filename</key>: "<con>{app}</con>\MyConsoleProg.exe"; <key>OnLog</key>: MyOnLog; <key>Flags</key>: logoutput</pre>
 </example>
 </param>
 
@@ -558,13 +558,13 @@ Filename: "{app}\MyConsoleProg.exe"; OnLog: MyOnLog; Flags: logoutput</pre>
 <p>Here is an example of a <tt>[Code]</tt> section containing the procedure used above. Function <tt>Log</tt> is a <link topic="scriptfunctions">support function</link> and therefore not included in this [Code] section.</p>
 
 <precode>
-[Code]
-procedure MyOnLog(const S: String; const Error, FirstLine: Boolean);
-begin
-  if not Error and FirstLine then
-    Log('Output:');
+<sec>[Code]</sec>
+<key>procedure</key> MyOnLog(<key>const</key> S: String; <key>const</key> Error, FirstLine: Boolean);
+<key>begin</key>
+  <key>if</key> <key>not</key> Error <key>and</key> FirstLine <key>then</key>
+    Log(<str>'Output:'</str>);
   Log(S);
-end;
+<key>end</key>;
 </precode>
 
 </body>
@@ -639,15 +639,15 @@ end;
 <p>To be able to call a DLL function you should first write the function prototype as normal but instead of then writing the function body, you use the 'external' keyword to specify a DLL. If your function has for example prototype <tt>function A(B: Integer): Integer;</tt>, the following three forms are supported:</p>
 
 <precode>
-[Code]
-function A(B: Integer): Integer;
-external '&lt;dllfunctionname&gt;@&lt;dllfilename&gt;';
+<sec>[Code]</sec>
+<key>function</key> A(B: Integer): Integer;
+<key>external</key> <str>'&lt;dllfunctionname&gt;@&lt;dllfilename&gt;'</str>;
 
-function A(B: Integer): Integer;
-external '&lt;dllfunctionname&gt;@&lt;dllfilename&gt; &lt;callingconvention&gt;';
+<key>function</key> A(B: Integer): Integer;
+<key>external</key> <str>'&lt;dllfunctionname&gt;@&lt;dllfilename&gt; &lt;callingconvention&gt;'</str>;
 
-function A(B: Integer): Integer;
-external '&lt;dllfunctionname&gt;@&lt;dllfilename&gt; &lt;callingconvention&gt; &lt;options&gt;';
+<key>function</key> A(B: Integer): Integer;
+<key>external</key> <str>'&lt;dllfunctionname&gt;@&lt;dllfilename&gt; &lt;callingconvention&gt; &lt;options&gt;'</str>;
 </precode>
 
 <p>The first form specifies that the DLL function uses the default calling convention.</p>
@@ -681,26 +681,26 @@ external '&lt;dllfunctionname&gt;@&lt;dllfilename&gt; &lt;callingconvention&gt; 
 <p>An example (of the second form) if the DLL function has name 'A2' inside the DLL, the DLL has name 'MyDll.dll' and the DLL function uses the 'stdcall' calling convention:</p>
 
 <precode>
-[Code]
-function A(B: Integer): Integer;
-external 'A2@MyDll.dll stdcall';
+<sec>[Code]</sec>
+<key>function</key> A(B: Integer): Integer;
+<key>external</key> <str>'A2@MyDll.dll stdcall'</str>;
 </precode>
 
 <p>Constants may be used in the DLL filename.</p>
 <p>During Setup, a special 'files:' prefix may also be used to instruct Setup to automatically extract one or more DLLs from the [Files] section before loading the first DLL. For example:</p>
 
 <precode>
-[Files]
-Source: "MyDll.dll"; Flags: dontcopy noencryption
-Source: "A.dll"; Flags: dontcopy noencryption
-Source: "B.dll"; Flags: dontcopy noencryption
+<sec>[Files]</sec>
+<key>Source</key>: "MyDll.dll"; <key>Flags</key>: dontcopy noencryption
+<key>Source</key>: "A.dll"; <key>Flags</key>: dontcopy noencryption
+<key>Source</key>: "B.dll"; <key>Flags</key>: dontcopy noencryption
 
-[Code]
-procedure MyDllFunc(hWnd: HWND; lpText, lpCaption: String; uType: Cardinal);
-external 'MyDllFunc@files:MyDll.dll stdcall';
+<sec>[Code]</sec>
+<key>procedure</key> MyDllFunc(hWnd: HWND; lpText, lpCaption: String; uType: Cardinal);
+<key>external</key> <str>'MyDllFunc@files:MyDll.dll stdcall'</str>;
 
-procedure ADllFunc(hWnd: HWND; lpText, lpCaption: String; uType: Cardinal);
-external 'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'; //A.dll depends on B.dll
+<key>procedure</key> ADllFunc(hWnd: HWND; lpText, lpCaption: String; uType: Cardinal);
+<key>external</key> <str>'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'</str>; <com>//A.dll depends on B.dll</com>
 </precode>
 
 <p>If you use a 'files:' prefix and <link topic="setup_solidcompression">solid compression</link> is enabled, be sure to list your DLLs at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p>
