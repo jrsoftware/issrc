@@ -4987,23 +4987,23 @@ AppVerName={cm:NameAndVersion,My Program,1.5}
 <p>Use of this directive requires that you add code to your application which creates a mutex with the name you specify in this directive. Examples of creating a mutex in Delphi, C, and Visual Basic are shown below. The code should be executed during your application's startup.</p>
 <p>Delphi:</p>
 <precode>
-CreateMutex(nil, False, 'MyProgramsMutexName');
+CreateMutex(<key>nil</key>, False, <str>'MyProgramsMutexName'</str>);
 </precode>
 <p>C:</p>
 <precode>
-CreateMutex(NULL, FALSE, "MyProgramsMutexName");
+CreateMutex(<key>NULL</key>, <key>FALSE</key>, <str>"MyProgramsMutexName"</str>);
 </precode>
 <p>Visual Basic (submitted by Peter Young):</p>
 <precode>
-'Place in Declarations section:
-Private Declare Function CreateMutex Lib "kernel32" _
-        Alias "CreateMutexA" _
-       (ByVal lpMutexAttributes As Long, _
-        ByVal bInitialOwner As Long, _
-        ByVal lpName As String) As Long
+<com>'Place in Declarations section:</com>
+<key>Private</key> Declare <key>Function</key> CreateMutex Lib <str>"kernel32"</str> _
+        Alias <str>"CreateMutexA"</str> _
+       (ByVal lpMutexAttributes As <key>Long</key>, _
+        ByVal bInitialOwner As <key>Long</key>, _
+        ByVal lpName As <key>String</key>) As <key>Long</key>
 
-'Place in startup code (Form_Load or Sub Main):
-CreateMutex 0&amp;, 0&amp;, "MyProgramsMutexName"
+<com>'Place in startup code (Form_Load or Sub Main):</com>
+CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"MyProgramsMutexName"</str>
 </precode>
 <p>It is not necessary to explicitly destroy the mutex object upon your application's termination; the system will do this automatically. Nor is it recommended that you do so, because ideally the mutex object should exist until the process completely terminates.</p>
 <p>Note that mutex name comparison in Windows is <i>case sensitive.</i></p>
