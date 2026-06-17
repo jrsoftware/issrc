@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.34';
+  Version = '1.35';
 
   XMLFileVersion = '1';
 
@@ -29,12 +29,15 @@ type
     elB,
     elBody,
     elBR,
+    elCom, { script comment }
+    elCon, { script constant }
     elContents,
     elContentsHeading,
     elContentsTopic,
     elDD,
     elDL,
     elDT,
+    elEvt, { script event function name }
     elExample,
     elExamples,
     elExtLink,
@@ -44,9 +47,12 @@ type
     elI,
     elImg,
     elIndent,
+    elISPP, { script preprocessor directive }
+    elKey, { script section directive key, section parameter name, or Pascal keyword }
     elKeyword,
     elLI,
     elLink,
+    elNum, { script number literal }
     elOL,
     elP,
     elParam,
@@ -54,11 +60,13 @@ type
     elPre,
     elPreCode,
     elSD,
+    elSec, { script section header }
     elSetupDefault,
     elSetupFormat,
     elSetupValid,
     elSetupTopic,
     elSmall,
+    elStr, { script string literal }
     elSup,
     elTable,
     elTD,
@@ -472,6 +480,12 @@ begin
           if Node.OptionalAttributes['appearance'] = 'compact' then
             Result := Result + ' class="compact"';
           Result := Result + '>' + ParseFormattedText(Node) + '</ul>';
+        end;
+      elSec, elEvt, elKey, elCom, elCon, elStr, elNum, elISPP:
+        begin
+          { Unlike whatsnew this still uses span, for IE }
+          Result := Result + Format('<span class="%s">%s</span>',
+            [Node.NodeName, ParseFormattedText(Node)]);
         end;
     else
       UnexpectedElementError(Node);

@@ -146,11 +146,11 @@
 				</description>
 				<section title="Examples">
 					<pre>
-						<line>#define MyAppName "My Program"</line>
-						<line>#define MyAppExe MyAppName + ".exe"</line>
-						<line>#define MyAppVer <link href="GetVersionNumbersString">GetVersionNumbersString</link>(MyAppExe)</line>
-						<line>#define MyArray[0] 15</line>
-						<line>#define Multiply(int A, int B = 10) A * B</line>
+						<line><ispp>#define</ispp> MyAppName <str>"My Program"</str></line>
+						<line><ispp>#define</ispp> MyAppExe MyAppName + <str>".exe"</str></line>
+						<line><ispp>#define</ispp> MyAppVer <link href="GetVersionNumbersString">GetVersionNumbersString</link>(MyAppExe)</line>
+						<line><ispp>#define</ispp> MyArray[<num>0</num>] <num>15</num></line>
+						<line><ispp>#define</ispp> Multiply(<ispp>int</ispp> A, <ispp>int</ispp> B = <num>10</num>) A * B</line>
 					</pre>
 				</section>
 				<section title="See also">

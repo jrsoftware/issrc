@@ -21,11 +21,14 @@
 <!ENTITY % _inlineExceptLink "b | br | i | sup | tt | u">
 <!ENTITY % _inline "%_inlineExceptLink; | link | extlink | img | a | anchorlink | sd">
 <!ENTITY % _block "p | heading | pre | precode | example | examples | indent | ul | ol | dl | paramlist | flaglist | table">
+<!ENTITY % _highlight "sec | evt | key | com | con | str | num | ispp">
 
 <!ENTITY % Inline "(#PCDATA | %_inline;)*">
 <!ENTITY % InlineExceptLink "(#PCDATA | %_inlineExceptLink;)*">
 <!ENTITY % Block "(%_block;)*">
 <!ENTITY % InlineOrBlock "(#PCDATA | %_inline; | %_block;)*">
+<!ENTITY % InlineWithHighlight "(#PCDATA | %_inline; | %_highlight;)*">
+<!ENTITY % InlineOrBlockWithHighlight "(#PCDATA | %_inline; | %_highlight; | %_block;)*">
 
 <!ELEMENT ishelp (contents?, (topic | setuptopic)*)>
 <!ATTLIST ishelp version CDATA #REQUIRED>
@@ -55,7 +58,7 @@
 <!ELEMENT br EMPTY>
 <!ELEMENT i %Inline;>
 <!ELEMENT sup %Inline;>
-<!ELEMENT tt %Inline;>
+<!ELEMENT tt %InlineWithHighlight;>
 <!ELEMENT u %Inline;>
 <!ELEMENT link %InlineExceptLink;>
 <!ATTLIST link topic CDATA #REQUIRED anchor CDATA #IMPLIED>
@@ -69,16 +72,27 @@
 <!ATTLIST anchorlink name CDATA #REQUIRED>
 <!ELEMENT sd %InlineExceptLink;>
 
+<!-- Syntax highlighting elements -->
+
+<!ELEMENT sec %InlineWithHighlight;>
+<!ELEMENT evt %InlineWithHighlight;>
+<!ELEMENT key %InlineWithHighlight;>
+<!ELEMENT com %InlineWithHighlight;>
+<!ELEMENT con %InlineWithHighlight;>
+<!ELEMENT str %InlineWithHighlight;>
+<!ELEMENT num %InlineWithHighlight;>
+<!ELEMENT ispp %InlineWithHighlight;>
+
 <!-- Simple block elements -->
 
 <!ELEMENT p %Inline;>
 <!ATTLIST p margin (yes|no) "yes">
 <!ELEMENT heading %Inline;>
-<!ELEMENT pre %Inline;>
-<!ELEMENT precode %Inline;>
-<!ELEMENT example %InlineOrBlock;>
+<!ELEMENT pre %InlineWithHighlight;>
+<!ELEMENT precode %InlineWithHighlight;>
+<!ELEMENT example %InlineOrBlockWithHighlight;>
 <!ATTLIST example noheader CDATA #IMPLIED>
-<!ELEMENT examples %InlineOrBlock;>
+<!ELEMENT examples %InlineOrBlockWithHighlight;>
 <!ATTLIST examples noheader CDATA #IMPLIED>
 <!ELEMENT indent %Block;>
 

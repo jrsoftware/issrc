@@ -218,11 +218,11 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <p>Here is an example:</p>
 
 <precode>
-[Setup]
-AppName=My Program
+<sec>[Setup]</sec>
+<key>AppName</key>=My Program
 
-[Files]
-Source: "MyProg.exe"; DestDir: "{app}"
+<sec>[Files]</sec>
+<key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"
 </precode>
 
 <p>Note that it is legal to specify multiple sections of the same name.</p>

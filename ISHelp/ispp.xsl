@@ -132,6 +132,38 @@
   <sd><xsl:apply-templates/></sd>
 </xsl:template>
 
+<xsl:template match="sec">
+  <sec><xsl:apply-templates/></sec>
+</xsl:template>
+
+<xsl:template match="evt">
+  <evt><xsl:apply-templates/></evt>
+</xsl:template>
+
+<xsl:template match="key">
+  <key><xsl:apply-templates/></key>
+</xsl:template>
+
+<xsl:template match="com">
+  <com><xsl:apply-templates/></com>
+</xsl:template>
+
+<xsl:template match="con">
+  <con><xsl:apply-templates/></con>
+</xsl:template>
+
+<xsl:template match="str">
+  <str><xsl:apply-templates/></str>
+</xsl:template>
+
+<xsl:template match="num">
+  <num><xsl:apply-templates/></num>
+</xsl:template>
+
+<xsl:template match="ispp">
+  <ispp><xsl:apply-templates/></ispp>
+</xsl:template>
+
 <xsl:template match="syntax">
   <heading>Syntax</heading>
   <xsl:apply-templates select="*[@inline!='yes']"/>

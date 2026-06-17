@@ -1,4 +1,6 @@
 
+<!ENTITY % highlight "sec|evt|key|com|con|str|num|ispp">
+
 <!ELEMENT yasyx     (topic)*>
 <!ELEMENT topic     (title|subtopicstitle|keywords|syntax|description|(topic|section)*)+>
 <!ATTLIST topic
@@ -22,7 +24,7 @@
 
 <!ELEMENT p         (#PCDATA|tt|i|link|extlink|sd)*>
 <!ELEMENT pre       (line)*>
-<!ELEMENT line      (#PCDATA|link|b)*>
+<!ELEMENT line      (#PCDATA|link|b|%highlight;)*>
 <!ELEMENT tt        (#PCDATA|i|link|extlink)*>
 <!ELEMENT code      (#PCDATA|b|i|link)*>
 <!ELEMENT link      (#PCDATA)*>
@@ -35,6 +37,15 @@
 <!ELEMENT i         (#PCDATA)*>
 <!ELEMENT b         (#PCDATA)*>
 <!ELEMENT sd        (#PCDATA)*>
+
+<!ELEMENT sec       (#PCDATA|%highlight;)*>
+<!ELEMENT evt       (#PCDATA|%highlight;)*>
+<!ELEMENT key       (#PCDATA|%highlight;)*>
+<!ELEMENT com       (#PCDATA|%highlight;)*>
+<!ELEMENT con       (#PCDATA|%highlight;)*>
+<!ELEMENT str       (#PCDATA|%highlight;)*>
+<!ELEMENT num       (#PCDATA|%highlight;)*>
+<!ELEMENT ispp      (#PCDATA|%highlight;)*>
 
 <!ELEMENT syntax (define)*>
 
