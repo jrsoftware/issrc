@@ -52,7 +52,7 @@ type
     elKeyword,
     elLI,
     elLink,
-    elNum, { script number literal }
+    elNum, { script number literal in Pascal/ISPP contexts }
     elOL,
     elP,
     elParam,
@@ -66,7 +66,7 @@ type
     elSetupValid,
     elSetupTopic,
     elSmall,
-    elStr, { script string literal }
+    elStr, { script string literal in Pascal/ISPP contexts }
     elSup,
     elTable,
     elTD,
