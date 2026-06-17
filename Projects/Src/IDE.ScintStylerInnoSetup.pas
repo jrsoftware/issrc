@@ -1545,9 +1545,9 @@ procedure TInnoSetupStyler.HandleCompilerDirective(const InlineDirective: Boolea
   end;
 
 const
-  ISPPReservedWords: array[0..16] of TScintRawString = (
+  ISPPReservedWords: array[0..17] of TScintRawString = (
     'private', 'protected', 'public', 'any', 'int',
-    'str', 'func', 'option', 'parseroption', 'inlinestart',
+    'str', 'func', 'array', 'option', 'parseroption', 'inlinestart',
     'inlineend', 'message', 'warning', 'error',
     'verboselevel', 'include', 'spansymbol');
   ISPPDirectiveShorthands: TScintRawCharSet =
