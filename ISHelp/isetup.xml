@@ -768,7 +768,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <li><i>Filename, Section, Key</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>
-<pre>{ini:{win}\MyProg.ini,Settings,Path|{autopf}\My Program}</pre>
+<pre><con>{ini:{win}\MyProg.ini,Settings,Path|{autopf}\My Program}</con></pre>
 </example>
 </dd>
 
@@ -788,7 +788,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <li>Each argument in <i>Arguments</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>
-<pre>{cm:LaunchProgram,Inno Setup}</pre>
+<pre><con>{cm:LaunchProgram,Inno Setup}</con></pre>
 </example>
 <p>The example above translates to "Launch Inno Setup" if English is the active language.</p>
 </dd>
@@ -806,7 +806,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <li>If the value is not a string type (REG_SZ or REG_EXPAND_SZ) but a REG_DWORD-type then its value as a decimal string is embedded.</li>
 </ul>
 <example>
-<pre>{reg:HKA\Software\My Program,Path|{autopf}\My Program}</pre>
+<pre><con>{reg:HKA\Software\My Program,Path|{autopf}\My Program}</con></pre>
 </example>
 </dd>
 
@@ -820,7 +820,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <li><i>ParamName</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>
-<pre>{param:Path|{autopf}\My Program}</pre>
+<pre><con>{param:Path|{autopf}\My Program}</con></pre>
 </example>
 <p>The example above translates to <tt>c:\My Program</tt> if the command line <tt>/Path="c:\My Program"</tt> was specified.</p>
 </dd>
@@ -1474,7 +1474,7 @@ Name: "{app}\bin"
 <p>The name of the directory to create, which normally will start with one of the directory constants.</p>
 <p><link topic="pathredir">System path redirection</link> is applied to the specified path.</p>
 <example>
-<pre>Name: "{app}\MyDir"</pre>
+<pre><key>Name</key>: "<con>{app}</con>\MyDir"</pre>
 </example>
 </param>
 
@@ -2012,7 +2012,7 @@ Filename: "http://www.example.com/"
 <p>The working (or <i>Start In</i>) directory for the shortcut, which specifies the initial current directory for the program. This parameter can include constants.</p>
 <p>If this parameter is not specified or is blank, Setup will try to extract a directory name from the <tt>Filename</tt> parameter. If that fails (unlikely), the working directory will be set to <tt>{sys}</tt>.</p>
 <example>
-<pre>WorkingDir: "{app}"</pre>
+<pre><key>WorkingDir</key>: "<con>{app}</con>"</pre>
 </example>
 </param>
 
@@ -2034,7 +2034,7 @@ Filename: "http://www.example.com/"
 <param name="IconFilename">
 <p>The filename of a custom icon (located on the user's system) to be displayed. This can be an executable image (.exe, .dll) containing icons or a .ico file. If this parameter is not specified or is blank, Windows will use the file's default icon. This parameter can include constants.</p>
 <example>
-<pre>IconFilename: "{app}\myicon.ico"</pre>
+<pre><key>IconFilename</key>: "<con>{app}</con>\myicon.ico"</pre>
 </example>
 <p>Note: when Setup is running on 64-bit Windows, it will automatically replace <tt>{commonpf32}\</tt>'s value in the filename with '%ProgramFiles(x86)%\' to work around a bug in 64-bit Windows: 64-bit Windows replaces it with '%ProgramFiles%\' instead which is incorrect.</p>
 </param>
@@ -2133,7 +2133,7 @@ Filename: "MyProg.ini"; Section: "InstallSettings"; Key: "InstallPath"; String: 
 <param name="Filename" required="yes">
 <p>The name of the .INI file you want Setup to modify, which can include constants. If this parameter does not include a path, it will write to the Windows directory. If this parameter is blank, it will write to WIN.INI in the Windows directory.</p>
 <example>
-<pre>Filename: "{app}\MyProg.ini"</pre>
+<pre><key>Filename</key>: "<con>{app}</con>\MyProg.ini"</pre>
 </example>
 </param>
 
@@ -2709,7 +2709,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 <p>The program to execute, or file/folder to open. If <tt>Filename</tt> is not an executable (.exe or .com) or batch file (.bat or .cmd), you <i>must</i> use the <tt>shellexec</tt> flag on the entry. This parameter can include constants.</p>
 <p><link topic="pathredir">System path redirection</link> is applied to the specified path when the <tt>shellexec</tt> flag is <i>not</i> specified. Any extended-length paths, also known as super paths, are always converted back to normal paths.</p>
 <example>
-<pre>Filename: "{app}\INIT.EXE"</pre>
+<pre><key>Filename</key>: "<con>{app}</con>\INIT.EXE"</pre>
 </example>
 </param>
 
@@ -2731,7 +2731,7 @@ Filename: "{app}\MyProg.exe"; Description: "Launch application"; Flags: postinst
 <p>The initial current directory for the program. If this parameter is not specified or is blank, it uses the directory from the <tt>Filename</tt> parameter; if <tt>Filename</tt> does not include a path, it will use a default directory. This parameter can include constants.</p>
 <p><link topic="pathredir">System path redirection</link> is applied to the specified path when the <tt>shellexec</tt> flag is <i>not</i> specified. Any extended-length paths, also known as super paths, are always converted back to normal paths.</p>
 <example>
-<pre>WorkingDir: "{app}"</pre>
+<pre><key>WorkingDir</key>: "<con>{app}</con>"</pre>
 </example>
 </param>
 
@@ -2898,7 +2898,7 @@ Type: files; Name: "{win}\MyProg.ini"
 <p><link topic="pathredir">System path redirection</link> is applied to the specified path.</p>
 <p><b>NOTE:</b> Don't be tempted to use a wildcard here to delete all files in the {app} directory. Doing this is strongly recommended against for two reasons. First, users usually don't appreciate having their data files they put in the application directory deleted without warning (they might only be uninstalling it because they want to move it to a different drive, for example). It's better to leave it up to the end users to manually remove them if they want. Also, if the user happened to install the program in the wrong directory by mistake (for example, C:\Windows) and then went to uninstall it there could be disastrous consequences. So again, <b>DON'T DO THIS!</b></p>
 <example>
-<pre>Name: "{win}\MyProg.ini"</pre>
+<pre><key>Name</key>: "<con>{win}</con>\MyProg.ini"</pre>
 </example>
 </param>
 
@@ -5132,11 +5132,11 @@ AppUpdatesURL=http://www.example.com/updates.html
 <p>If <sd>UsePreviousAppDir</sd> is <tt>yes</tt> (the default) and Setup finds a previous version of the <link topic="sameappnotes">same application</link> is already installed, it will substitute the default directory name with the directory selected previously.</p>
 <examples>
 <b>If you used:</b><br/>
-<pre>DefaultDirName={sd}\MyProg</pre>
+<pre><key>DefaultDirName</key>=<con>{sd}</con>\MyProg</pre>
 <b>In Setup, this would typically display:</b><br/>
 C:\MyProg<br/><br/>
 <b>If you used:</b><br/>
-<pre>DefaultDirName={autopf}\My Program</pre>
+<pre><key>DefaultDirName</key>=<con>{autopf}</con>\My Program</pre>
 <b>In Setup, this would typically display:</b><br/>
 C:\Program Files\My Program
 </examples>
@@ -5609,7 +5609,7 @@ end;</pre></example>
 <body>
 <p>Specifies the directory where the "unins*.*" files for the uninstaller are stored.</p>
 <p><i>Note:</i> You should not assign a different value here on a new version of an application, or else Setup won't find the uninstall logs from the previous versions and therefore won't be able to <link topic="appendnotes">append to</link> them.</p>
-<example><pre>UninstallFilesDir={app}\uninst</pre></example>
+<example><pre><key>UninstallFilesDir</key>=<con>{app}</con>\uninst</pre></example>
 </body>
 </setuptopic>
 
@@ -6730,7 +6730,7 @@ WizardBackImageOpacity=150</pre></example>
 <setuptopic directive="AppModifyPath">
 <body>
 <p>When this directive is set, a separate "Modify" button in the Add/Remove Programs Control Panel applet will be displayed. Setting it is optional. The value may include constants.</p>
-<example><pre>AppModifyPath="{app}\Setup.exe" /modify=1</pre></example>
+<example><pre><key>AppModifyPath</key>="<con>{app}</con>\Setup.exe" /modify=1</pre></example>
 </body>
 </setuptopic>
 
