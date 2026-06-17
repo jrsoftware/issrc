@@ -491,16 +491,16 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <description><p>Returns extended information about the version of Windows in a record.</p>
 <p>TWindowsVersion is defined as:</p>
 <pre>
-  TWindowsVersion = record
-    Major: Cardinal;             // Major version number
-    Minor: Cardinal;             // Minor version number
-    Build: Cardinal;             // Build number
-    ServicePackMajor: Cardinal;  // Major version number of service pack
-    ServicePackMinor: Cardinal;  // Minor version number of service pack
-    NTPlatform: Boolean;         // True if an NT-based platform
-    ProductType: Byte;           // Product type (see below)
-    SuiteMask: Word;             // Product suites installed (see below)
-  end;
+  TWindowsVersion = <key>record</key>
+    Major: Cardinal;             <com>// Major version number</com>
+    Minor: Cardinal;             <com>// Minor version number</com>
+    Build: Cardinal;             <com>// Build number</com>
+    ServicePackMajor: Cardinal;  <com>// Major version number of service pack</com>
+    ServicePackMinor: Cardinal;  <com>// Minor version number of service pack</com>
+    NTPlatform: Boolean;         <com>// True if an NT-based platform</com>
+    ProductType: Byte;           <com>// Product type (see below)</com>
+    SuiteMask: Word;             <com>// Product suites installed (see below)</com>
+  <key>end</key>;
 </pre>
 <p>The ProductType field can be one of the following values:</p>
 <pre>
@@ -1557,32 +1557,32 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <p>The lower twelve bits of a variant type code (the bits defined by the varTypeMask bit mask) define the type of the variant. The varArray bit is set if the variant is an array of the given type. The varByRef bit is set if the variant is a reference to a value of the given type as opposed to an actual value.</p>
 <p>The following variant type code constants are defined:</p>
 <pre>
-const
-  varEmpty    = $0000;
-  varNull     = $0001;
-  varSmallInt = $0002;
-  varInteger  = $0003;
-  varSingle   = $0004;
-  varDouble   = $0005;
-  varCurrency = $0006;
-  varDate     = $0007;
-  varOleStr   = $0008;
-  varDispatch = $0009;
-  varError    = $000A;
-  varBoolean  = $000B;
-  varVariant  = $000C;
-  varUnknown  = $000D;
-  varByte     = $0011;
-  varWord     = $0012;
-  varLongWord = $0013;
-  varInt64    = $0014;
-  varStrArg   = $0048;
-  varString   = $0100;
-  varAny      = $0101;
-  varUString  = $0102;
-  varTypeMask = $0FFF;
-  varArray    = $2000;
-  varByRef    = $4000;
+<key>const</key>
+  varEmpty    = <num>$0000</num>;
+  varNull     = <num>$0001</num>;
+  varSmallInt = <num>$0002</num>;
+  varInteger  = <num>$0003</num>;
+  varSingle   = <num>$0004</num>;
+  varDouble   = <num>$0005</num>;
+  varCurrency = <num>$0006</num>;
+  varDate     = <num>$0007</num>;
+  varOleStr   = <num>$0008</num>;
+  varDispatch = <num>$0009</num>;
+  varError    = <num>$000A</num>;
+  varBoolean  = <num>$000B</num>;
+  varVariant  = <num>$000C</num>;
+  varUnknown  = <num>$000D</num>;
+  varByte     = <num>$0011</num>;
+  varWord     = <num>$0012</num>;
+  varLongWord = <num>$0013</num>;
+  varInt64    = <num>$0014</num>;
+  varStrArg   = <num>$0048</num>;
+  varString   = <num>$0100</num>;
+  varAny      = <num>$0101</num>;
+  varUString  = <num>$0102</num>;
+  varTypeMask = <num>$0FFF</num>;
+  varArray    = <num>$2000</num>;
+  varByRef    = <num>$4000</num>;
 </pre>
 </description>
       </function>
@@ -1682,24 +1682,24 @@ const
         <description><p>Retrieves information about the first file matching the wildcard specified by FileName. Returns True if successful.</p>
 <p>TFindRec is defined as:</p>
 <pre>
-  TFindRec = record
-    Name: String;               // name of the found file (no path)
-    Attributes: LongWord;       // file attributes
-    SizeHigh: LongWord;         // size of the file, upper 32 bits
-    SizeLow: LongWord;          // size of the file, lower 32 bits
-    CreationTime: TFileTime;    // time file was created
-    LastAccessTime: TFileTime;  // time file was last accessed
-    LastWriteTime: TFileTime;   // time file was last modified
-    AlternateName: String;      // file's short name (empty if none)
-    FindHandle: THandle;        // used internally
-  end;
+  TFindRec = <key>record</key>
+    Name: String;               <com>// name of the found file (no path)</com>
+    Attributes: LongWord;       <com>// file attributes</com>
+    SizeHigh: LongWord;         <com>// size of the file, upper 32 bits</com>
+    SizeLow: LongWord;          <com>// size of the file, lower 32 bits</com>
+    CreationTime: TFileTime;    <com>// time file was created</com>
+    LastAccessTime: TFileTime;  <com>// time file was last accessed</com>
+    LastWriteTime: TFileTime;   <com>// time file was last modified</com>
+    AlternateName: String;      <com>// file's short name (empty if none)</com>
+    FindHandle: THandle;        <com>// used internally</com>
+  <key>end</key>;
 </pre>
 <p>TFileTime is defined as:</p>
 <pre>
-  TFileTime = record
+  TFileTime = <key>record</key>
     dwLowDateTime: DWORD;
     dwHighDateTime: DWORD;
-  end;
+  <key>end</key>;
 </pre>
 <p>Valid file attributes are:</p>
 <pre>
@@ -3011,14 +3011,14 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>The signature of the <tt>CreateCustomForm</tt> function has changed as of version 6.6.0. The width and height must now be specified upfront (they are now read-only properties once the form is constructed). Previously, your code might have looked like this:</p>
 <pre>
   Form := CreateCustomForm;
-  Form.Caption := 'TSetupForm';
-  Form.ClientWidth := ScaleX(256);
-  Form.ClientHeight := ScaleY(128);
+  Form.Caption := <str>'TSetupForm'</str>;
+  Form.ClientWidth := ScaleX(<num>256</num>);
+  Form.ClientHeight := ScaleY(<num>128</num>);
 </pre>
 <p>Starting with version 6.6.0, it should be updated as follows:</p>
 <pre>
-  Form := CreateCustomForm(ScaleX(256), ScaleY(128), False, False);
-  Form.Caption := 'TSetupForm';
+  Form := CreateCustomForm(ScaleX(<num>256</num>), ScaleY(<num>128</num>), False, False);
+  Form.Caption := <str>'TSetupForm'</str>;
 </pre>
 <p>The same applies to the <tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> properties, which were writable properties before version 6.6.0, but are now specified as parameters when calling <tt>CreateCustomForm</tt> and are read-only properties afterwards.</p>
 </remarks>
@@ -3390,11 +3390,11 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
 <p>TExecOutput is defined as:</p>
 <pre>
-  TExecOutput = record
+  TExecOutput = <key>record</key>
     StdOut: TArrayOfString;
     StdErr: TArrayOfString;
     Error: Boolean;
-  end;
+  <key>end</key>;
 </pre>
 <p>Error will be True if there was an error reading the output (which should be very rare) or if the output is too big. The error is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view. There is no further output after an error.</p>
 <p>Output is limited to a total size of 10 million bytes or a maximum of 1 million lines.</p></remarks>
