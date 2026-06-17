@@ -154,8 +154,8 @@
 					</pre>
 				</section>
 				<section title="See also">
-					<p>&dim;, &undef;, <link href="visibility"/>.</p>
-					<p><link href="macros"/>.</p>
+					<p>&dim;, &undef;, <link href="visibility"/></p>
+					<p><link href="macros"/></p>
 				</section>
 			</topic>
 			<topic id="dim">
@@ -194,7 +194,7 @@
 					</pre>
 				</section>
 				<section title="See also">
-					<p>&define;, &undef;, <link href="DimOf"/>, <link href="visibility"/>.</p>
+					<p>&define;, &undef;, <link href="DimOf"/>, <link href="visibility"/></p>
 				</section>
 			</topic>
 			<topic id="undef">
@@ -218,7 +218,7 @@
 					</pre>
 				</section>
 				<section title="See also">
-					<p>&define;, &dim;, <link href="visibility"/>.</p>
+					<p>&define;, &dim;, <link href="visibility"/></p>
 				</section>
 			</topic>
 			<topic id="include">
@@ -254,7 +254,7 @@
 					</pre>
 				</section>
 				<section title="See also">
-					<p>&file;, &sub;.</p>
+					<p>&file;, &sub;</p>
 				</section>
 			</topic>
 			<topic id="file">
@@ -278,7 +278,7 @@
 					</pre>
 				</section>
 				<section title="See also">
-					<p>&include;.</p>
+					<p>&include;</p>
 				</section>
 			</topic>
 			<topic id="emit">
@@ -322,7 +322,7 @@
 					</pre>
 				</section>
 				<section title="See also">
-					<p><tt><link href="expr">expr</link></tt>.</p>
+					<p><tt><link href="expr">expr</link></tt></p>
 				</section>
 			</topic>
 			<topic id="expr">
@@ -355,7 +355,7 @@
 					</pre>
 				</section>
 				<section title="See also">
-					<p>&emit;.</p>
+					<p>&emit;</p>
 				</section>
 			</topic>
 			<topic id="env">
@@ -386,7 +386,7 @@
 					</pre>
 				</section>
 				<section title="See also">
-					<p><tt><link href="GetEnv">GetEnv</link></tt>.</p>
+					<p><tt><link href="GetEnv">GetEnv</link></tt></p>
 				</section>
 			</topic>
 			<topic id="insert">
@@ -411,7 +411,7 @@
 					</pre>
 				</section>
 				<section title="See also">
-					<p><tt><link href="append">append</link></tt>.</p>
+					<p><tt><link href="append">append</link></tt></p>
 				</section>
 			</topic>
 			<topic id="append">
@@ -426,7 +426,7 @@
 					<p>Resets the insertion point (if previously changed using &insert;) to the end of the &translation;.</p>
 				</description>
 				<section title="See also">
-					<p>&insert;.</p>
+					<p>&insert;</p>
 				</section>
 			</topic>
 			<topic id="if">
@@ -568,10 +568,10 @@
 					</pre>
 				</section>
 				<section title="More examples">
-					<p><link href="FindFirst"/>, <link href="FileRead"/>.</p>
+					<p><link href="FindFirst"/>, <link href="FileRead"/></p>
 				</section>
 				<section title="See also">
-					<p>&sub;, &include;.</p>
+					<p>&sub;, &include;</p>
 				</section>
 			</topic>
 			<topic id="sub">
@@ -606,10 +606,10 @@
 					</pre>
 				</section>
 				<section title="More examples">
-					<p><link href="FindFirst"/>, <link href="FileRead"/>.</p>
+					<p><link href="FindFirst"/>, <link href="FileRead"/></p>
 				</section>
 				<section title="See also">
-					<p><link href="macros"/>, &if;, &emit;.</p>
+					<p><link href="macros"/>, &if;, &emit;</p>
 				</section>
 			</topic>
 			<topic id="pragma">
@@ -718,7 +718,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<section title="See also">
-					<p><tt><link href="Message">Message</link></tt>, <tt><link href="Warning">Warning</link></tt>, <tt><link href="Error2">Error</link></tt>.</p>
+					<p><tt><link href="Message">Message</link></tt>, <tt><link href="Warning">Warning</link></tt>, <tt><link href="Error2">Error</link></tt></p>
 				</section>
 			</topic>
 			<topic id="error">
@@ -740,7 +740,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<section title="See also">
-					<p>&pragma;, &if;, <tt><link href="Error2">Error</link></tt>.</p>
+					<p>&pragma;, &if;, <tt><link href="Error2">Error</link></tt></p>
 				</section>
 			</topic>
 		</topic>
@@ -1082,7 +1082,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<p>If any of the 'flags' parameters is omitted but the string parameter preceding it is specified, <tt>FIND_MATCH | FIND_AND</tt> (that is, 0) is used.</p>
 				</description>
 				<section title="See also">
-					<p>&insert;.</p>
+					<p>&insert;</p>
 				</section>
 				<topic id="find-flags">
 					<title>Find flags</title>
@@ -1160,7 +1160,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<p>Returns the value of the environment variable whose name is specified as the parameter. Returns an empty string if the variable is not defined.</p>
 				</description>
 				<section title="See also">
-					<p>&env;.</p>
+					<p>&env;</p>
 				</section>
 			</topic>
 			<topic id="DeleteFile">
@@ -1235,7 +1235,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<section title="See also">
-					<p>&define;, &sub;, &if;.</p>
+					<p>&define;, &sub;, &if;</p>
 				</section>
 			</topic>
 			<topic id="FindNext">
@@ -1301,7 +1301,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<section title="See also">
-					<p>&define;, &sub;, &pragma;, &for;, &if;.</p>
+					<p>&define;, &sub;, &pragma;, &for;, &if;</p>
 				</section>
 			</topic>
 			<topic id="FileReset">
@@ -1654,7 +1654,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<p>Using parentheses is optional.</p>
 				</description>
 				<section title="See also">
-					<p>&dim;, &redim;.</p>
+					<p>&dim;, &redim;</p>
 				</section>
 			</topic>
 			<topic id="GetVersionNumbers">
@@ -2229,7 +2229,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
         </pre>
 			</section>
 			<section title="See also">
-				<p><link href="expressions">Extended User Defined Function Call Syntax</link>.</p>
+				<p><link href="expressions">Extended User Defined Function Call Syntax</link></p>
 			</section>
 		</topic>
 		<!--   EXPRESSIONS -->
