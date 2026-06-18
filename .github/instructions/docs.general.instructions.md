@@ -73,7 +73,7 @@ Additional vocabulary rules:
 
 ## Syntax Highlighting
 
-The IDE styler (`Projects/Src/IDE.ScintStylerInnoSetup.pas`),  is the source of truth for which token gets which
+The IDE styler (`Projects/Src/IDE.ScintStylerInnoSetup.pas`) is the source of truth for which token gets which
 category. Five non-obvious rules:
 
 - Use `<sec>`, `<evt>`, `<key>`, `<com>`, `<con>`, `<str>`, `<num>`, and `<ispp>` for syntax-highlighted script examples.
