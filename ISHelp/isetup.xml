@@ -1727,7 +1727,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 </flag>
 <flag name="64bit">
 <p>Sets the <link topic="entrybitness">entry's bitness</link> to 64-bit, overriding the default bitness.</p>
-<p>This flag can only be used when Setup is running on 64-bit Windows, otherwise an error will occur. On an installation supporting both 32- and 64-bit architectures, it is possible to avoid the error by adding a <tt>Check: IsWin64</tt> parameter, which will cause the entry to be silently skipped when running on 32-bit Windows.</p>
+<p>This flag can only be used when Setup is running on 64-bit Windows, otherwise an error will occur. On an installation supporting both 32- and 64-bit architectures, it is possible to avoid the error by adding a <tt>Check: <isxfunc>IsWin64</isxfunc></tt> parameter, which will cause the entry to be silently skipped when running on 32-bit Windows.</p>
 <p>Combining <tt>64bit</tt> and <tt>regtypelib</tt> requires a <link topic="64bit">64-bit installer</link>.</p>
 </flag>
 <flag name="allowunsafefiles">
@@ -2544,7 +2544,7 @@ en.<key>LanguageName</key>=English
 <li>Root key values with a suffix of <tt>32</tt> (for example, <tt>HKLM32</tt>) map to the 32-bit view of the registry.</li>
 <li>
 <p>Root key values with a suffix of <tt>64</tt> (for example, <tt>HKLM64</tt>) map to the 64-bit view of the registry.</p>
-<p>The <tt>64</tt> suffix can only be used when Setup is running on 64-bit Windows, otherwise an error will occur. On an installation supporting both 32- and 64-bit architectures, it is possible to avoid the error by adding a <tt>Check: IsWin64</tt> parameter, which will cause the entry to be silently skipped when running on 32-bit Windows.</p>
+<p>The <tt>64</tt> suffix can only be used when Setup is running on 64-bit Windows, otherwise an error will occur. On an installation supporting both 32- and 64-bit architectures, it is possible to avoid the error by adding a <tt>Check: <isxfunc>IsWin64</isxfunc></tt> parameter, which will cause the entry to be silently skipped when running on 32-bit Windows.</p>
 </li>
 </ul>
 <example>
@@ -2773,7 +2773,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 </flag>
 <flag name="64bit">
 <p>Sets the <link topic="entrybitness">entry's bitness</link> to 64-bit, overriding the default bitness.</p>
-<p>This flag can only be used when Setup is running on 64-bit Windows, otherwise an error will occur. On an installation supporting both 32- and 64-bit architectures, it is possible to avoid the error by adding a <tt>Check: IsWin64</tt> parameter, which will cause the entry to be silently skipped when running on 32-bit Windows.</p>
+<p>This flag can only be used when Setup is running on 64-bit Windows, otherwise an error will occur. On an installation supporting both 32- and 64-bit architectures, it is possible to avoid the error by adding a <tt>Check: <isxfunc>IsWin64</isxfunc></tt> parameter, which will cause the entry to be silently skipped when running on 32-bit Windows.</p>
 <p>This flag cannot be combined with the <tt>shellexec</tt> flag.</p>
 </flag>
 <flag name="dontlogparameters">
@@ -3095,7 +3095,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
   <ul>
   <li>The Unicode compiler sees type 'String' as a Unicode string, and 'Char' as a Unicode character. Its 'AnsiString' type hasn't changed and still is an ANSI string. Its 'PChar' type has been renamed to 'PAnsiChar', and using it is generally discouraged now.</li>
   <li>The Unicode compiler is more strict about correct ';' usage: it no longer accepts certain missing ';' characters.</li>
-  <li>Some support functions had their prototype changed: some parameters of <isxfunc>CreateOutputMsgMemoPage</isxfunc>, <isxfunc>RegQueryBinaryValue</isxfunc>, <isxfunc>RegWriteBinaryValue</isxfunc>, <isxfunc>OemToCharBuff</isxfunc>, <isxfunc>CharToOemBuff</isxfunc>, <tt>LoadStringFromfile</tt>, <isxfunc>SaveStringToFile</isxfunc>, and <isxfunc>GetMD5OfString</isxfunc> are of type AnsiString now instead of String.</li>
+  <li>Some support functions had their prototype changed: some parameters of <isxfunc>CreateOutputMsgMemoPage</isxfunc>, <isxfunc>RegQueryBinaryValue</isxfunc>, <isxfunc>RegWriteBinaryValue</isxfunc>, <isxfunc>OemToCharBuff</isxfunc>, <isxfunc>CharToOemBuff</isxfunc>, <isxfunc>LoadStringFromFile</isxfunc>, <isxfunc>SaveStringToFile</isxfunc>, and <isxfunc>GetMD5OfString</isxfunc> are of type AnsiString now instead of String.</li>
   <li>Added new <isxfunc>SaveStringsToUTF8File</isxfunc>, and <isxfunc>GetMD5OfUnicodeString</isxfunc> support functions.</li>
   <li>Added new 'Int64' type, supported by <isxfunc>IntToStr</isxfunc>. Also added new <isxfunc>StrToInt64</isxfunc>, <isxfunc>StrToInt64Def</isxfunc>, and <isxfunc>GetSpaceOnDisk64</isxfunc> support functions.</li>
   <li>Added new <tt>TStringStream</tt> class.</li>

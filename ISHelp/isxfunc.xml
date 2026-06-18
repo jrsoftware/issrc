@@ -89,13 +89,13 @@
         <name>WizardDirValue</name>
         <prototype>function WizardDirValue: String;</prototype>
         <description><p>Returns the current contents of the edit control on the <i>Select Destination Location</i> page of the wizard.</p>
-<p>Unlike <tt>ExpandConstant('{app}')</tt>, this function will not fail if called after the wizard is shown but prior to the user selecting a directory. Rather, it will return the default directory name.</p></description>
+<p>Unlike <tt><isxfunc>ExpandConstant</isxfunc>('{app}')</tt>, this function will not fail if called after the wizard is shown but prior to the user selecting a directory. Rather, it will return the default directory name.</p></description>
       </function>
       <function>
         <name>WizardGroupValue</name>
         <prototype>function WizardGroupValue: String;</prototype>
         <description><p>Returns the current contents of the edit control on the <i>Select Start Menu Folder</i> page of the wizard.</p>
-<p>Unlike <tt>ExpandConstant('{group}')</tt>, this function will not fail if called after the wizard is shown but prior to the user selecting a folder. Rather, it will return the default folder name.</p></description>
+<p>Unlike <tt><isxfunc>ExpandConstant</isxfunc>('{group}')</tt>, this function will not fail if called after the wizard is shown but prior to the user selecting a folder. Rather, it will return the default folder name.</p></description>
       </function>
       <function>
         <name>WizardNoIcons</name>
@@ -859,7 +859,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <prototype>procedure UnloadDLL(Filename: String);</prototype>
         <description><p>Unloads the specified DLL that was loaded by the [Code] section using an "external" keyword. This can be useful if you need to delete the DLL.</p>
 <p>The case of the filename and any path name must exactly match that of the function import. You will need to expand any constants in the filename yourself before passing it to UnloadDLL.</p>
-<p>If the function import used a "files:" prefix, prepend the value of the <tt>{tmp}</tt> constant to the filename (e.g. <tt>ExpandConstant('{tmp}\filename.dll')</tt>).</p></description>
+<p>If the function import used a "files:" prefix, prepend the value of the <tt>{tmp}</tt> constant to the filename (e.g. <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}\filename.dll')</tt>).</p></description>
         <remarks><p>It's not recommended that you try this, but if you attempt to call a function in a DLL that has been unloaded, the DLL will be re-loaded.</p></remarks>
         <example><pre><key>procedure</key> DllFunc; <key>external</key> <str>'DllFunc@{app}\MyDll.dll stdcall uninstallonly'</str>;
 
@@ -1974,7 +1974,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ExtractTemporaryFile</name>
         <prototype>procedure ExtractTemporaryFile(const FileName: String);</prototype>
-        <description><p>Extracts the specified file from the [Files] section to a temporary directory. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
+        <description><p>Extracts the specified file from the [Files] section to a temporary directory. To find the location of the temporary directory, use <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}')</tt>.</p>
 <p>The extracted files are automatically deleted when Setup exits.</p>
 <p>An exception will be raised if the file wasn't extracted successfully, if the file wasn't found, or if the file was found but couldn't be processed because of its MinVersion and/or OnlyBelowVersion parameters.</p></description>
         <remarks><p>Use <tt>Flags: dontcopy noencryption</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage, and to ensure it can be extracted before the password is known.</p>
@@ -2003,7 +2003,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ExtractTemporaryFiles</name>
         <prototype>function ExtractTemporaryFiles(const Pattern: String): Integer;</prototype>
-        <description><p>Extracts the files matching the wildcard specified by Pattern from the [Files] section to a temporary directory. Returns the number of extracted files. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
+        <description><p>Extracts the files matching the wildcard specified by Pattern from the [Files] section to a temporary directory. Returns the number of extracted files. To find the location of the temporary directory, use <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}')</tt>.</p>
 <p>The extracted files are automatically deleted when Setup exits.</p>
 <p>An exception will be raised if no files were extracted successfully, no files were found, or if files were found but none could be processed because of their MinVersion and/or OnlyBelowVersion parameters.</p></description>
         <remarks><p>Use <tt>Flags: dontcopy noencryption</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage, and to ensure it can be extracted before the password is known.</p>
@@ -2038,7 +2038,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>DownloadTemporaryFile</name>
         <prototype>function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
-        <description><p>Downloads the file from the specified URL to a temporary directory using the specified name. To find the location of the temporary directory, use <tt>ExpandConstant('{tmp}')</tt>.</p>
+        <description><p>Downloads the file from the specified URL to a temporary directory using the specified name. To find the location of the temporary directory, use <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}')</tt>.</p>
 <p>If RequiredSHA256OfFile is set it will compare this to the SHA-256 of the downloaded file and raise an exception if the hashes don't match.</p>
 <p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded. Returns 0 if RequiredSHA256OfFile is set and the file was already downloaded.</p>
 <p>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</p>
@@ -2337,7 +2337,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <i>Filename</i><br />Filename of the shortcut file to be created. This should be the full path and must end with ".lnk".<br />
 <i>Description</i><br />Description of the link. This will be displayed on a supporting OS when the user hovers the mouse over the file or shows the properties.<br />
 <i>ShortcutTo</i><br />Target file for the shortcut. This must be the full path to the file. Double quotation marks to surround the path will be added automatically.<br />
-<i>Parameters</i><br />Parameters to pass to the target file of the shortcut. Parameters which may include spaces should have double quote marks surrounding them. e.g. <tt>ExpandConstant('"{app}\foo"')</tt><br />
+<i>Parameters</i><br />Parameters to pass to the target file of the shortcut. Parameters which may include spaces should have double quote marks surrounding them. e.g. <tt><isxfunc>ExpandConstant</isxfunc>('"{app}\foo"')</tt><br />
 <i>WorkingDir</i><br />Working directory for the target file. This should be set to an absolute directory.<br />
 <i>IconFilename</i><br />Path to file to supply the icon. If this is left as the empty string then the system default icon for the target file will be used.<br />
 <i>IconIndex</i><br />Zero-based index of the icon.<br />
