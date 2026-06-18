@@ -1416,7 +1416,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 </flag>
 <flag name="checkedonce">
 <p>Instructs Setup that this task should be unchecked initially when Setup finds a previous version of the <link topic="sameappnotes">same application</link> is already installed.</p>
-<p>If the <tt>UsePreviousTasks [Setup]</tt> section directive is <tt>no</tt>, this flag is effectively disabled.</p>
+<p>If the <tt><sd>UsePreviousTasks</sd> [Setup]</tt> section directive is <tt>no</tt>, this flag is effectively disabled.</p>
 </flag>
 <flag name="dontinheritcheck">
 <p>Specifies that the task should not automatically become checked when its parent is checked. Has no effect on top-level tasks, and cannot be combined with the <tt>exclusive</tt> flag.</p>
@@ -2475,9 +2475,9 @@ en.<key>LanguageName</key>=English
 
 <heading>Obsolete</heading>
 
-<p><i>Feature removed in 6.4.</i> <b><a name="TitleFontName">TitleFontName</a></b> and <b><a name="TitleFontSize">TitleFontSize</a></b> used to specify the font name and point size to use when displaying the application name on the background window (only visible when <tt>WindowVisible=yes</tt>). If the specified font name does not exist on the user's system, 29-point <i>Arial</i> will be substituted. If the specified font name is an empty string, 29-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
+<p><i>Feature removed in 6.4.</i> <b><a name="TitleFontName">TitleFontName</a></b> and <b><a name="TitleFontSize">TitleFontSize</a></b> used to specify the font name and point size to use when displaying the application name on the background window (only visible when <tt><sd>WindowVisible</sd>=yes</tt>). If the specified font name does not exist on the user's system, 29-point <i>Arial</i> will be substituted. If the specified font name is an empty string, 29-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
 
-<p><i>Feature removed in 6.4.</i> <b><a name="CopyrightFontName">CopyrightFontName</a></b> and <b><a name="CopyrightFontSize">CopyrightFontSize</a></b> used to specify the font name and point size to use when displaying the <sd>AppCopyright</sd> message on the background window (only visible when <tt>WindowVisible=yes</tt>). If the specified font name does not exist on the user's system, 8-point <i>Arial</i> will be substituted. If the specified font name is an empty string, 8-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
+<p><i>Feature removed in 6.4.</i> <b><a name="CopyrightFontName">CopyrightFontName</a></b> and <b><a name="CopyrightFontSize">CopyrightFontSize</a></b> used to specify the font name and point size to use when displaying the <sd>AppCopyright</sd> message on the background window (only visible when <tt><sd>WindowVisible</sd>=yes</tt>). If the specified font name does not exist on the user's system, 8-point <i>Arial</i> will be substituted. If the specified font name is an empty string, 8-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
 
 
 </body>
@@ -4936,7 +4936,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <p>When all setup data is compiled into a single EXE, a "Setup Loader" program is used, called SetupLdr. When using <tt>yes</tt> or <tt>x86</tt>, a 32-bit version of SetupLdr is used which runs on systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64 Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
 <p>Otherwise, when using <tt>x64</tt>, a 64-bit version of SetupLdr is used which runs on systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation.</p>
 <p>Matches the value of <sd>SetupArchitecture</sd> by default.</p>
-<p><i>Note:</i> Do not use <tt>no</tt> on an installation which uses disk spanning (<tt>DiskSpanning=yes</tt>). When using <tt>yes</tt>, the setup program is copied to and run from the user's TEMP directory. This does not happen when using <tt>no</tt>, and could result in errors if Windows tries to locate the setup.exe file on the disk and can't find it because a different disk is in the drive.</p>
+<p><i>Note:</i> Do not use <tt>no</tt> on an installation which uses disk spanning (<tt><sd>DiskSpanning</sd>=yes</tt>). When using <tt>yes</tt>, the setup program is copied to and run from the user's TEMP directory. This does not happen when using <tt>no</tt>, and could result in errors if Windows tries to locate the setup.exe file on the disk and can't find it because a different disk is in the drive.</p>
 <p><i>Note:</i> Do not use <tt>no</tt> to avoid digital signature verification startup delays on a large Setup, use disk spanning instead. See <sd>SignTool</sd> for more information. Also note that digitally signing Setup when using <tt>no</tt> will lead to an invalid digital signature for Uninstall.</p>
 </body>
 </setuptopic>
@@ -5297,7 +5297,7 @@ C:\Program Files\My Program
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt>, Setup will display a message box if the directory the user selects doesn't exist. Usually you will also set <tt>DirExistsWarning=no</tt> when this is <tt>yes</tt>.</p>
+<p>When set to <tt>yes</tt>, Setup will display a message box if the directory the user selects doesn't exist. Usually you will also set <tt><sd>DirExistsWarning</sd>=no</tt> when this is <tt>yes</tt>.</p>
 </body>
 </setuptopic>
 
@@ -5472,7 +5472,7 @@ C:\Program Files\My Program
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>If this is set to <tt>no</tt> or to a <link topic="scriptexpression">scripted boolean expression</link> evaluating to <tt>False</tt>, Setup won't create an entry in the <i>Add/Remove Programs</i> Control Panel applet.</p>
-<p>Setting this to <tt>no</tt> can be useful if your installation is merely an update to an existing application and you don't want another entry created, but don't want to disable the uninstall features entirely (via <tt>Uninstallable=no</tt>). In this case, <sd>UpdateUninstallLogAppName</sd> is usually set to <tt>no</tt> as well.</p>
+<p>Setting this to <tt>no</tt> can be useful if your installation is merely an update to an existing application and you don't want another entry created, but don't want to disable the uninstall features entirely (via <tt><sd>Uninstallable</sd>=no</tt>). In this case, <sd>UpdateUninstallLogAppName</sd> is usually set to <tt>no</tt> as well.</p>
 <p><b>See also:</b><br/>
 <sd>Uninstallable</sd>
 </p>
@@ -5789,7 +5789,7 @@ C:\Program Files\My Program
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <body>
 <p><i>Obsolete in 4.2.5.</i> Use <sd>MergeDuplicateFiles</sd> instead.</p>
-<p><tt>MergeDuplicateFiles=no</tt> is equivalent to <tt>DontMergeDuplicateFiles=yes</tt>.</p>
+<p><tt><sd>MergeDuplicateFiles</sd>=no</tt> is equivalent to <tt>DontMergeDuplicateFiles=yes</tt>.</p>
 </body>
 </setuptopic>
 

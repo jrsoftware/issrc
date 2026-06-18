@@ -235,7 +235,7 @@
 
 <dt><tt>function <a name="CheckSerial">CheckSerial</a>(Serial: String): Boolean;</tt></dt>
 <dd>
-<p>If Setup finds the <tt>CheckSerial</tt> event function in the Pascal script, a serial number field will automatically appear on the User Info wizard page (which must be enabled using <tt>UserInfoPage=yes</tt> in your [Setup] section!). Return True to accept the serial number and False to reject it. When using serial numbers, it's important to keep in mind that since no encryption is used and the source code to Inno Setup is freely available, it would not be too difficult for an experienced individual to remove the serial number protection from an installation. Use this only as a convenience to the end user and double check the entered serial number (stored in the <tt>{userinfoserial}</tt> constant) in your application.</p>
+<p>If Setup finds the <tt>CheckSerial</tt> event function in the Pascal script, a serial number field will automatically appear on the User Info wizard page (which must be enabled using <tt><sd>UserInfoPage</sd>=yes</tt> in your [Setup] section!). Return True to accept the serial number and False to reject it. When using serial numbers, it's important to keep in mind that since no encryption is used and the source code to Inno Setup is freely available, it would not be too difficult for an experienced individual to remove the serial number protection from an installation. Use this only as a convenience to the end user and double check the entered serial number (stored in the <tt>{userinfoserial}</tt> constant) in your application.</p>
 </dd>
 
 <dt><tt>function <a name="GetCustomSetupExitCode">GetCustomSetupExitCode</a>: Integer;</tt></dt>
@@ -581,9 +581,9 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>There is one thing that's important to be aware of when designing code to be executed at uninstall time: In cases where multiple versions of an application are installed over each other, only <i>one</i> Pascal script is run at uninstall time. Ordinarily, the script from the most recent install will be chosen. If, however, you were to <i>downgrade</i> your version of Inno Setup in a new version of your application, the script from the install built with the most recent Inno Setup version may be chosen instead. A similar situation can occur if a user installs an older version of your application over a newer one.</p>
 
-<p>When producing an installation that is a "patch" for another install, and the patch install shares the same uninstall log as the original install (i.e. <tt>Uninstallable</tt> is set to <tt>yes</tt> and <tt>AppId</tt> is set the same as the original install), make sure the patch includes a copy of the full [Code] section from the original install. Otherwise, no code would be run at uninstall time.</p>
+<p>When producing an installation that is a "patch" for another install, and the patch install shares the same uninstall log as the original install (i.e. <sd>Uninstallable</sd> is set to <tt>yes</tt> and <sd>AppId</sd> is set the same as the original install), make sure the patch includes a copy of the full [Code] section from the original install. Otherwise, no code would be run at uninstall time.</p>
 
-<p>If, however, the patch install has <tt>Uninstallable</tt> set to <tt>no</tt> then Setup will not touch the existing uninstaller EXE or uninstall log; in this case, the patch install need not contain a copy of the [Code] section from the original install.</p>
+<p>If, however, the patch install has <sd>Uninstallable</sd> set to <tt>no</tt> then Setup will not touch the existing uninstaller EXE or uninstall log; in this case, the patch install need not contain a copy of the [Code] section from the original install.</p>
 
 </body>
 </topic>
