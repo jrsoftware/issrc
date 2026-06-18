@@ -46,10 +46,21 @@
             <xsl:for-each select="topic">
               <xsl:sort select="title" data-type="text" order="ascending"/>
               <xsl:if test="title">
-                <li><link topic="{translate(@id,$ucletters,$lcletters)}"><xsl:value-of select="title"/></link></li>
+                <li><tt><link topic="{translate(@id,$ucletters,$lcletters)}"><xsl:value-of select="title"/></link></tt></li>
               </xsl:if>
             </xsl:for-each>
           </xsl:when>
+          <xsl:when test="@id='directives'">
+            <xsl:for-each select="topic">
+              <xsl:if test="title and not(@unlisted='yes')">
+                <li><xsl:call-template name="directivelinks">
+                  <xsl:with-param name="title" select="title"/>
+                  <xsl:with-param name="topic" select="translate(@id,$ucletters,$lcletters)"/>
+                </xsl:call-template></li>
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:when>
+          <!-- Used by the "All topics" list -->
           <xsl:otherwise>
             <xsl:for-each select="topic">
               <xsl:if test="title and not(@unlisted='yes')">
@@ -65,6 +76,24 @@
   <xsl:for-each select="topic">
     <xsl:apply-templates select="."/>
   </xsl:for-each>
+</xsl:template>
+
+<xsl:template name="directivelinks">
+  <xsl:param name="title"/>
+  <xsl:param name="topic"/>
+  <xsl:choose>
+    <xsl:when test="contains($title, ', ')">
+      <tt><link topic="{$topic}"><xsl:value-of select="substring-before($title, ', ')"/></link></tt>
+      <xsl:text>, </xsl:text>
+      <xsl:call-template name="directivelinks">
+        <xsl:with-param name="title" select="substring-after($title, ', ')"/>
+        <xsl:with-param name="topic" select="$topic"/>
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:otherwise>
+      <tt><link topic="{$topic}"><xsl:value-of select="$title"/></link></tt>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="title">
