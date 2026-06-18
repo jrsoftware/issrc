@@ -213,7 +213,7 @@
 <dt><tt>function <a name="CheckPassword">CheckPassword</a>(Password: String): Boolean;</tt></dt>
 <dd>
 <p>If Setup finds the <tt>CheckPassword</tt> event function in the Pascal script, it automatically displays the <i>Password</i> page and calls <tt>CheckPassword</tt> to check passwords. Return True to accept the password and False to reject it.</p>
-<p>To avoid storing the actual password inside the compiled [Code] section which is stored inside Setup, you should use comparisons by hash only: calculate the SHA-256 hash of your salted password yourself and then compare that to <tt><link topic="isxfunc_GetSHA256OfString">GetSHA256OfString</link>(Password)</tt>. This way the actual value of the password is better protected.</p>
+<p>To avoid storing the actual password inside the compiled [Code] section which is stored inside Setup, you should use comparisons by hash only: calculate the SHA-256 hash of your salted password yourself and then compare that to <tt><isxfunc>GetSHA256OfString</isxfunc>(Password)</tt>. This way the actual value of the password is better protected.</p>
 <p>Note: If Setup is run with a /PASSWORD= <link topic="setupcmdline" anchor="PASSWORD">command line parameter</link>, your <tt>CheckPassword</tt> function will be called <i>before</i> any other event function is called, including <tt><anchorlink name="InitializeSetup">InitializeSetup</anchorlink></tt>.</p>
 <p>Also note: If <sd>Encryption</sd> is set to <tt>yes</tt> and your <tt>CheckPassword</tt> function accepts passwords different from the one used for the encryption, make sure to only extract non encrypted files.</p>
 </dd>
@@ -253,7 +253,7 @@
 
 <dt><tt>procedure <a name="RegisterExtraCloseApplicationsResources">RegisterExtraCloseApplicationsResources</a>;</tt></dt>
 <dd>
-<p>To register extra files which Setup should check for being in-use if <sd>CloseApplications</sd> is set to <tt>yes</tt>, place a <tt>RegisterExtraCloseApplicationsResources</tt> event function in the Pascal script and call <link topic="isxfunc_RegisterExtraCloseApplicationsResource">RegisterExtraCloseApplicationsResource</link> inside it, once per file.</p>
+<p>To register extra files which Setup should check for being in-use if <sd>CloseApplications</sd> is set to <tt>yes</tt>, place a <tt>RegisterExtraCloseApplicationsResources</tt> event function in the Pascal script and call <isxfunc>RegisterExtraCloseApplicationsResource</isxfunc> inside it, once per file.</p>
 </dd>
 
 </dl>
@@ -705,7 +705,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>If you use a 'files:' prefix and <link topic="setup_solidcompression">solid compression</link> is enabled, be sure to list your DLLs at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p>
 
-<p>Use <link topic="isxfunc_CreateCallback">CreateCallback</link> to be able to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script.</p>
+<p>Use <isxfunc>CreateCallback</isxfunc> to be able to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script.</p>
 
 <p>The following built-in types are available to aid in calling Windows API functions besides <tt>THandle</tt>:<br/>
 <tt>DWORD</tt>, <tt>UINT</tt>, <tt>BOOL</tt>, <tt>LONG</tt>, <tt>ULONG</tt>, <tt>HANDLE</tt>, <tt>COLORREF</tt>, <tt>INT_PTR</tt>, <tt>LONG_PTR</tt>, <tt>DWORD_PTR</tt>, <tt>UINT_PTR</tt>, <tt>ULONG_PTR</tt>, <tt>LRESULT</tt>, <tt>HKEY</tt>, <tt>HINSTANCE</tt>, <tt>HMODULE</tt>, <tt>WPARAM</tt>, <tt>LPARAM</tt>, <tt>SIZE_T</tt>, <tt>SSIZE_T</tt>, <tt>TFileTime</tt>, <tt>HResult</tt>, <tt>TGUID</tt>, <tt>TCLSID</tt>, <tt>TIID</tt>, <tt>HBITMAP</tt>, <tt>HDC</tt>, <tt>HFONT</tt>, and <tt>HWND</tt></p>
@@ -730,15 +730,15 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <dd>
 
-<p>There are two support functions to initialize IDispatch based COM Automation objects: <link topic="isxfunc_CreateOleObject">CreateOleObject</link> and <link topic="isxfunc_GetActiveOleObject">GetActiveOleObject</link>.</p>
+<p>There are two support functions to initialize IDispatch based COM Automation objects: <isxfunc>CreateOleObject</isxfunc> and <isxfunc>GetActiveOleObject</isxfunc>.</p>
 
-<p>Use <link topic="isxfunc_CreateOleObject">CreateOleObject</link> to create a new COM object with the specified class name. This function returns a variable of type <tt>IDispatch</tt> if successful and throws an exception otherwise.</p>
+<p>Use <isxfunc>CreateOleObject</isxfunc> to create a new COM object with the specified class name. This function returns a variable of type <tt>IDispatch</tt> if successful and throws an exception otherwise.</p>
 
-<p>Use <link topic="isxfunc_GetActiveOleObject">GetActiveOleObject</link> to connect to an existing COM object with the specified class name. This function returns a variable of type <tt>IDispatch</tt> if successful and throws an exception otherwise. In case of some programs, this can be used to detect whether the program is running or not.</p>
+<p>Use <isxfunc>GetActiveOleObject</isxfunc> to connect to an existing COM object with the specified class name. This function returns a variable of type <tt>IDispatch</tt> if successful and throws an exception otherwise. In case of some programs, this can be used to detect whether the program is running or not.</p>
 
-<p>When stored in a variable of type <tt>Variant</tt> (so not <tt>IDispatch</tt>), the value returned by <link topic="isxfunc_CreateOleObject">CreateOleObject</link> or <link topic="isxfunc_GetActiveOleObject">GetActiveOleObject</link> can then be used to access the properties and methods of the COM object. The access is done via 'late binding' which means it is not checked whether the methods or properties you're trying to access actually exist until Setup actually needs to at run time.</p>
+<p>When stored in a variable of type <tt>Variant</tt> (so not <tt>IDispatch</tt>), the value returned by <isxfunc>CreateOleObject</isxfunc> or <isxfunc>GetActiveOleObject</isxfunc> can then be used to access the properties and methods of the COM object. The access is done via 'late binding' which means it is not checked whether the methods or properties you're trying to access actually exist until Setup actually needs to at run time.</p>
 
-<p>To access a property or method whose name is a reserved word, use <link topic="isxfunc_IDispatchInvoke">IDispatchInvoke</link>.</p>
+<p>To access a property or method whose name is a reserved word, use <isxfunc>IDispatchInvoke</isxfunc>.</p>
 
 <p>Open the "CodeAutomation.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using IDispatch based COM Automation objects.</p>
 
@@ -752,11 +752,11 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>If the IDispatch interface isn't implemented by the object, you can use the IUnknown based COM support.</p>
 
-<p>To initialize IUnknown based COM Automation objects use <link topic="isxfunc_CreateComObject">CreateComObject</link>.</p>
+<p>To initialize IUnknown based COM Automation objects use <isxfunc>CreateComObject</isxfunc>.</p>
 
-<p>The value returned by <link topic="isxfunc_CreateComObject">CreateComObject</link> can then be used to access the methods of the COM object after casting it to the desired interface. The access is done via 'early binding' which means the desired interface needs to be defined in the script, unlike for IDispatch based COM support.</p>
+<p>The value returned by <isxfunc>CreateComObject</isxfunc> can then be used to access the methods of the COM object after casting it to the desired interface. The access is done via 'early binding' which means the desired interface needs to be defined in the script, unlike for IDispatch based COM support.</p>
 
-<p><link topic="isxfunc_StringToGUID">StringToGUID</link> can be used to convert the string representation of a GUID into a 'real' GUID. Use <link topic="isxfunc_OleCheck">OleCheck</link> to check the return values of any method you call, or specify the <tt>safecall</tt> calling convention instead.</p>
+<p><isxfunc>StringToGUID</isxfunc> can be used to convert the string representation of a GUID into a 'real' GUID. Use <isxfunc>OleCheck</isxfunc> to check the return values of any method you call, or specify the <tt>safecall</tt> calling convention instead.</p>
 
 <p>If you copy the interface definition from any existing Delphi source code, remove the brackets around the interface GUID string. Also remove any calling conventions except <tt>safecall</tt>; Inno Setup assumes <tt>stdcall</tt>. If the interface contains any functions you won't call, you can replace these by dummies to avoid having to define any special types used by them.</p>
 
@@ -770,7 +770,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>COM objects are released automatically when they go out of scope. There are no functions to 'destroy' or 'free' them.</p>
 
-<p>If you are extracting a COM Automation library to a temporary location and want to be able to delete it after using it, make sure you no longer have any references to the library and then call <link topic="isxfunc_CoFreeUnusedLibraries">CoFreeUnusedLibraries</link>. This Windows function will then attempt to unload the library so you can delete it.</p>
+<p>If you are extracting a COM Automation library to a temporary location and want to be able to delete it after using it, make sure you no longer have any references to the library and then call <isxfunc>CoFreeUnusedLibraries</isxfunc>. This Windows function will then attempt to unload the library so you can delete it.</p>
 
 </dd>
 
@@ -832,7 +832,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 <p>* = actual shortcut depends on the &quot;Menu keys&quot; option.</p>
 
 <p><b>See also:</b><br/>
-<link topic="isxfunc_Debugging">Debugging</link></p>
+<isxfunc>Debugging</isxfunc></p>
 
 </body>
 </topic>
@@ -851,17 +851,17 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 <keyword value="IsX86" />
 <body>
 <p>This is the list of support functions which test if the system matches an <link topic="archidentifiers">architecture identifier</link>:<br/><br/>
-<link topic="isxfunc_IsArm32Compatible">IsArm32Compatible</link><br/>
-<link topic="isxfunc_IsArm64">IsArm64</link><br/>
-<link topic="isxfunc_IsWin64">IsWin64</link><br/>
-<link topic="isxfunc_IsX64Compatible">IsX64Compatible</link><br/>
-<link topic="isxfunc_IsX64OS">IsX64OS</link><br/>
-<link topic="isxfunc_IsX86Compatible">IsX86Compatible</link><br/>
-<link topic="isxfunc_IsX86OS">IsX86OS</link><br/><br/>
+<isxfunc>IsArm32Compatible</isxfunc><br/>
+<isxfunc>IsArm64</isxfunc><br/>
+<isxfunc>IsWin64</isxfunc><br/>
+<isxfunc>IsX64Compatible</isxfunc><br/>
+<isxfunc>IsX64OS</isxfunc><br/>
+<isxfunc>IsX86Compatible</isxfunc><br/>
+<isxfunc>IsX86OS</isxfunc><br/><br/>
 <link topic="isxfunc_IsX64OS">IsX64</link> (alias for IsX64OS; deprecated)<br/>
 <link topic="isxfunc_IsX86OS">IsX86</link> (alias for IsX86OS)<br/><br/></p>
 <p><b>See also:</b><br/>
-<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p>
+<isxfunc>ProcessorArchitecture</isxfunc></p>
 </body>
 </topic>
 

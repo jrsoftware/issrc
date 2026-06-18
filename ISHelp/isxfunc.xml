@@ -6,7 +6,7 @@
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 </copyright>
-<isxfunc>
+<isxfuncs>
   <category>
     <description>Setup or Uninstall Info</description>
     <subcategory>
@@ -20,8 +20,8 @@
         <name>ParamCount</name>
         <prototype>function ParamCount: Integer;</prototype>
         <description><p>Returns the number of command line parameters passed to Setup or Uninstall, excluding undocumented internal parameters used by Setup and Uninstall.</p></description>
-        <seealso><p><link topic="isxfunc_ParamStr">ParamStr</link><br />
-<link topic="isxfunc_GetCmdTail">GetCmdTail</link></p></seealso>
+        <seealso><p><isxfunc>ParamStr</isxfunc><br />
+<isxfunc>GetCmdTail</isxfunc></p></seealso>
       </function>
       <function>
         <name>ParamStr</name>
@@ -29,8 +29,8 @@
         <description><p>Returns the Index-th command line parameter passed to Setup or Uninstall, excluding undocumented internal parameters used by Setup and Uninstall.</p>
 <p>Parameter number zero is the full file name with which Setup or Uninstall was started.</p>
 <p>If Index is invalid, ParamStr returns an empty string.</p></description>
-        <seealso><p><link topic="isxfunc_ParamCount">ParamCount</link><br />
-<link topic="isxfunc_GetCmdTail">GetCmdTail</link></p></seealso>
+        <seealso><p><isxfunc>ParamCount</isxfunc><br />
+<isxfunc>GetCmdTail</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -111,15 +111,15 @@
         <name>WizardSelectedComponents</name>
         <prototype>function WizardSelectedComponents(const Descriptions: Boolean): String;</prototype>
         <description><p>Returns a comma-separated list of names or descriptions of the components selected by the user.</p></description>
-        <seealso><p><link topic="isxfunc_WizardIsComponentSelected">WizardIsComponentSelected</link><br />
-<link topic="isxfunc_WizardSelectComponents">WizardSelectComponents</link></p></seealso>
+        <seealso><p><isxfunc>WizardIsComponentSelected</isxfunc><br />
+<isxfunc>WizardSelectComponents</isxfunc></p></seealso>
       </function>
       <function>
         <name>WizardIsComponentSelected</name>
         <prototype>function WizardIsComponentSelected(const Components: String): Boolean;</prototype>
         <description><p>Returns True if the specified component is selected. Multiple components may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Components parameter</link>.</p></description>
-        <seealso><p><link topic="isxfunc_WizardSelectedComponents">WizardSelectedComponents</link><br />
-<link topic="isxfunc_WizardSelectComponents">WizardSelectComponents</link></p></seealso>
+        <seealso><p><isxfunc>WizardSelectedComponents</isxfunc><br />
+<isxfunc>WizardSelectComponents</isxfunc></p></seealso>
         <example><pre><key>begin</key>
   <key>if</key> WizardIsComponentSelected(<str>'helpfiles'</str>) <key>then</key>
     <com>// the 'helpfiles' component is selected</com>
@@ -129,15 +129,15 @@
         <name>WizardSelectedTasks</name>
         <prototype>function WizardSelectedTasks(const Descriptions: Boolean): String;</prototype>
         <description><p>Returns a comma-separated list of names or descriptions of the tasks selected by the user.</p></description>
-        <seealso><p><link topic="isxfunc_WizardIsTaskSelected">WizardIsTaskSelected</link><br />
-<link topic="isxfunc_WizardSelectTasks">WizardSelectTasks</link></p></seealso>
+        <seealso><p><isxfunc>WizardIsTaskSelected</isxfunc><br />
+<isxfunc>WizardSelectTasks</isxfunc></p></seealso>
       </function>
       <function>
         <name>WizardIsTaskSelected</name>
         <prototype>function WizardIsTaskSelected(const Tasks: String): Boolean;</prototype>
         <description><p>Returns True if the specified task is selected. Multiple tasks may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Tasks parameter</link>.</p></description>
-        <seealso><p><link topic="isxfunc_WizardSelectedTasks">WizardSelectedTasks</link><br />
-<link topic="isxfunc_WizardSelectTasks">WizardSelectTasks</link></p></seealso>
+        <seealso><p><isxfunc>WizardSelectedTasks</isxfunc><br />
+<isxfunc>WizardSelectTasks</isxfunc></p></seealso>
         <example><pre><key>begin</key>
   <key>if</key> WizardIsTaskSelected(<str>'desktopicon'</str>) <key>then</key>
     <com>// the 'desktopicon' task is selected</com>
@@ -219,7 +219,7 @@
         <name>RegisterExtraCloseApplicationsResource</name>
         <prototype>function RegisterExtraCloseApplicationsResource(const AFilename: String): Boolean;</prototype>
         <description><p>Registers an extra file which Setup should check for being in-use. Call <tt>RegisterExtraCloseApplicationsResource</tt> inside a <tt>RegisterExtraCloseApplicationsResources</tt> event function, once per file. Ignores <sd>CloseApplicationsFilter</sd>. Returns True if successful.</p></description>
-        <remarks><p>This function used to have a <tt>DisableFsRedir</tt> parameter, which was removed in 7.0. Use <link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link> instead to register a 64-bit file from a <link topic="64bit">32-bit installer</link>, or vice versa.</p></remarks>
+        <remarks><p>This function used to have a <tt>DisableFsRedir</tt> parameter, which was removed in 7.0. Use <isxfunc>ApplyPathRedirRulesForCurrentProcess</isxfunc> instead to register a 64-bit file from a <link topic="64bit">32-bit installer</link>, or vice versa.</p></remarks>
       </function>
       <function>
         <name>RmSessionStarted</name>
@@ -253,8 +253,8 @@
 <p>If a component name is prefixed with a "*" character, any child components will be selected as well (except for those that include the <tt>dontinheritcheck</tt> flag). If a component name is prefixed with a "!" character, the component will be deselected.</p>
 <p>This function does not change the state of unspecified components. This function can change the state of specified components that include the <tt>fixed</tt> flag.</p>
 </description>
-        <seealso><p><link topic="isxfunc_WizardSelectedComponents">WizardSelectedComponents</link><br />
-<link topic="isxfunc_WizardIsComponentSelected">WizardIsComponentSelected</link></p></seealso>
+        <seealso><p><isxfunc>WizardSelectedComponents</isxfunc><br />
+<isxfunc>WizardIsComponentSelected</isxfunc></p></seealso>
         <example><pre><key>begin</key>
   WizardSelectComponents(<str>'!helpfiles'</str>);
   <com>// the 'helpfiles' component is deselected</com>
@@ -267,8 +267,8 @@
 <p>If a task name is prefixed with a "!" character, the task will be deselected.</p>
 <p>This function does not change the state of unspecified tasks.</p>
 </description>
-        <seealso><p><link topic="isxfunc_WizardSelectedTasks">WizardSelectedTasks</link><br />
-<link topic="isxfunc_WizardIsTaskSelected">WizardIsTaskSelected</link></p></seealso>
+        <seealso><p><isxfunc>WizardSelectedTasks</isxfunc><br />
+<isxfunc>WizardIsTaskSelected</isxfunc></p></seealso>
         <example><pre><key>begin</key>
   WizardSelectTasks(<str>'!desktopicon'</str>);
   <com>// the 'desktopicon' task is deselected</com>
@@ -375,7 +375,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
   <com>// The following line will not be executed because of the exception</com>
   MsgBox(<str>'You will not see this.'</str>, mbInformation, MB_OK);
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_RaiseLastException">RaiseLastException</link></p></seealso>
+        <seealso><p><isxfunc>RaiseLastException</isxfunc></p></seealso>
       </function>
       <function>
         <name>RaiseLastException</name>
@@ -392,7 +392,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
   <com>// The following line will not be executed because of the exception being reraised</com>
   MsgBox(<str>'You will not see this.'</str>, mbInformation, MB_OK);
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_RaiseException">RaiseException</link></p></seealso>
+        <seealso><p><isxfunc>RaiseException</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -455,22 +455,22 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <prototype>function IsWinDark: Boolean;</prototype>
         <description><p>Returns True if the system is running in dark mode.</p></description>
         <remarks><p>The system's light or dark mode setting is checked only once, at startup.</p></remarks>
-        <seealso><p><link topic="isxfunc_IsDarkInstallMode">IsDarkInstallMode</link></p></seealso>
+        <seealso><p><isxfunc>IsDarkInstallMode</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsDarkInstallMode</name>
         <prototype>function IsDarkInstallMode: Boolean;</prototype>
         <description><p>Returns True if Setup or Uninstall runs with a <link topic="setup_wizardstyle">dark style</link>.</p></description>
-        <remarks><p>Can return True even if <link topic="isxfunc_IsWinDark">IsWinDark</link> returns False.</p>
-<p>Cannot return True if <link topic="isxfunc_HighContrastActive">HighContrastActive</link> returns True.</p></remarks>
-        <seealso><p><link topic="isxfunc_IsWinDark">IsWinDark</link><br/>
-<link topic="isxfunc_HighContrastActive">HighContrastActive</link></p></seealso>
+        <remarks><p>Can return True even if <isxfunc>IsWinDark</isxfunc> returns False.</p>
+<p>Cannot return True if <isxfunc>HighContrastActive</isxfunc> returns True.</p></remarks>
+        <seealso><p><isxfunc>IsWinDark</isxfunc><br/>
+<isxfunc>HighContrastActive</isxfunc></p></seealso>
       </function>
       <function>
         <name>HighContrastActive</name>
         <prototype>function HighContrastActive: Boolean;</prototype>
         <description><p>Returns True if the user's system is set to a high-contrast theme.</p></description>
-        <seealso><p><link topic="isxfunc_IsDarkInstallMode">IsDarkInstallMode</link></p></seealso>
+        <seealso><p><isxfunc>IsDarkInstallMode</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -483,7 +483,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
 <key>begin</key>
   Result := (GetWindowsVersion &gt;= <num>$06020000</num>);
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link></p></seealso>
+        <seealso><p><isxfunc>GetWindowsVersionEx</isxfunc></p></seealso>
       </function>
       <function>
         <name>GetWindowsVersionEx</name>
@@ -564,7 +564,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <prototype>function IsWin64: Boolean;</prototype>
         <description><p>Returns True if the system is running a 64-bit version of Windows. If False is returned, you cannot use any of Inno Setup's 64-bit-only features.</p>
 <p>Another way to describe this function is: Returns True if the system matches architecture identifier <link topic="archidentifiers">win64</link>.</p>
-<p>Do not use this function to detect <link topic="32vs64bitinstalls">64-bit install mode</link>, use <link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link> instead.</p></description>
+<p>Do not use this function to detect <link topic="32vs64bitinstalls">64-bit install mode</link>, use <isxfunc>Is64BitInstallMode</isxfunc> instead.</p></description>
         <example><pre><key>begin</key>
   <com>// Check IsWin64 before using a 64-bit-only feature to</com>
   <com>// avoid an exception when running on 32-bit Windows.</com>
@@ -574,22 +574,22 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       ExpandConstant(<str>'{autopf64}'</str>), mbInformation, MB_OK);
   <key>end</key>;
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link><br />
-<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+        <seealso><p><isxfunc>Is64BitInstallMode</isxfunc><br />
+<isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
       </function>
       <function>
         <name>Is64BitInstallMode</name>
         <prototype>function Is64BitInstallMode: Boolean;</prototype>
         <description><p>Returns True if Setup or Uninstall is running in <link topic="32vs64bitinstalls">64-bit install mode</link>, or False if it is running in <link topic="32vs64bitinstalls">32-bit install mode</link>.</p></description>
-        <remarks><p>When True is returned, it is safe to assume that <link topic="isxfunc_IsWin64">IsWin64</link> will also return True.</p></remarks>
+        <remarks><p>When True is returned, it is safe to assume that <isxfunc>IsWin64</isxfunc> will also return True.</p></remarks>
         <example><pre><key>begin</key>
   <key>if</key> Is64BitInstallMode <key>then</key>
     MsgBox(<str>'Installing in 64-bit mode'</str>, mbInformation, MB_OK)
   <key>else</key>
     MsgBox(<str>'Installing in 32-bit mode'</str>, mbInformation, MB_OK);
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_IsWin64">IsWin64</link><br />
-<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+        <seealso><p><isxfunc>IsWin64</isxfunc><br />
+<isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
       </function>
       <function>
         <name>ProcessorArchitecture</name>
@@ -612,28 +612,28 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
   MsgBox(<str>'Windows architecture: '</str> + S, mbInformation, MB_OK);
 <key>end</key>;</pre></example>
         <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
-<link topic="isxfunc_Is64BitInstallMode">Is64BitInstallMode</link></p></seealso>
+<isxfunc>Is64BitInstallMode</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsArm32Compatible</name>
         <prototype>function IsArm32Compatible: Boolean;</prototype>
         <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">arm32compatible</link>.</p></description>
         <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
-<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+<isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsArm64</name>
         <prototype>function IsArm64: Boolean;</prototype>
         <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">arm64</link>.</p></description>
         <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
-<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+<isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsX64Compatible</name>
         <prototype>function IsX64Compatible: Boolean;</prototype>
         <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">x64compatible</link>.</p></description>
         <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
-<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+<isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsX64OS</name>
@@ -641,14 +641,14 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">x64os</link>.</p>
 <p>Before Inno Setup 6.3, <tt>IsX64OS</tt> was named <tt>IsX64</tt>. The compiler still accepts <tt>IsX64</tt> as an alias for <tt>IsX64OS</tt>, but will emit a deprecation warning when used.</p></description>
         <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
-<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+<isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsX86Compatible</name>
         <prototype>function IsX86Compatible: Boolean;</prototype>
         <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">x86compatible</link>.</p></description>
         <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
-<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+<isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsX86OS</name>
@@ -656,7 +656,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <description><p>Returns True if the system matches architecture identifier <link topic="archidentifiers">x86os</link>.</p>
 <p>Before Inno Setup 6.3, <tt>IsX86OS</tt> was named <tt>IsX86</tt>. The compiler still accepts <tt>IsX86</tt> as an alias for <tt>IsX86OS</tt>.</p></description>
         <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
-<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p></seealso>
+<isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsCurrentProcess64Bit</name>
@@ -669,7 +669,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>InstallOnThisVersion</name>
         <prototype>function InstallOnThisVersion(const MinVersion, OnlyBelowVersion: String): Boolean;</prototype>
         <description><p>This function is deprecated. Returns True if an entry with the specified MinVersion and OnlyBelowVersion parameters should be installed. If an invalid version string is passed, an exception will be raised.</p>
-<p>This function is provided for backward compatibility only, and may be removed in a future release. New scripts should use <link topic="isxfunc_GetWindowsVersion">GetWindowsVersion</link> or <link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link> instead.</p></description>
+<p>This function is provided for backward compatibility only, and may be removed in a future release. New scripts should use <isxfunc>GetWindowsVersion</isxfunc> or <isxfunc>GetWindowsVersionEx</isxfunc> instead.</p></description>
         <remarks><p>Prior to Inno Setup 5.5.0, this function returned <tt>irInstall</tt> rather than a Boolean True value. <tt>irInstall</tt> is now defined as an alias for True.</p></remarks>
         <example><pre><com>// Old method, deprecated</com>
 <key>function</key> IsWindows8OrLater: Boolean;
@@ -682,8 +682,8 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
 <key>begin</key>
   Result := (GetWindowsVersion &gt;= <num>$06020000</num>);
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_GetWindowsVersion">GetWindowsVersion</link><br />
-<link topic="isxfunc_GetWindowsVersionEx">GetWindowsVersionEx</link></p></seealso>
+        <seealso><p><isxfunc>GetWindowsVersion</isxfunc><br />
+<isxfunc>GetWindowsVersionEx</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsDotNetInstalled</name>
@@ -953,7 +953,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>StringChange</name>
         <prototype>function StringChange(var S: String; const FromStr, ToStr: String): Integer;</prototype>
-        <description><p>This function is deprecated. It is equivalent to calling <link topic="isxfunc_StringChangeEx">StringChangeEx</link> with the SupportDBCS parameter set to False.</p></description>
+        <description><p>This function is deprecated. It is equivalent to calling <isxfunc>StringChangeEx</isxfunc> with the SupportDBCS parameter set to False.</p></description>
       </function>
       <function>
         <name>StringChangeEx</name>
@@ -974,13 +974,13 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>Pos</name>
         <prototype>function Pos(SubStr, S: AnyString): Integer;</prototype>
         <description><p>Searches for SubStr within S and returns the first index of SubStr within S, 1-based. If SubStr is not found, Pos returns zero. The Pos function is case-sensitive.</p></description>
-        <seealso><p><link topic="isxfunc_RPos">RPos</link></p></seealso>
+        <seealso><p><isxfunc>RPos</isxfunc></p></seealso>
       </function>
       <function>
         <name>RPos</name>
         <prototype>function RPos(const SubStr, S: String): Integer;</prototype>
         <description><p>Searches for SubStr within S and returns the last index of SubStr within S, 1-based. If SubStr is not found, RPos returns zero. The RPos function is case-sensitive.</p></description>
-        <seealso><p><link topic="isxfunc_Pos">Pos</link></p></seealso>
+        <seealso><p><isxfunc>Pos</isxfunc></p></seealso>
       </function>
       <function>
         <name>AddQuotes</name>
@@ -1079,7 +1079,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
   <com>// S = '1,2'</com>
 <key>end</key>;
 </pre></example>
-        <seealso><p><link topic="isxfunc_StringSplit">StringSplit</link></p></seealso>
+        <seealso><p><isxfunc>StringSplit</isxfunc></p></seealso>
       </function>
       <function>
         <name>StringSplit</name>
@@ -1094,8 +1094,8 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
   <com>// A = ['1','2']</com>
 <key>end</key>;
 </pre></example>
-        <seealso><p><link topic="isxfunc_StringJoin">StringJoin</link><br />
-<link topic="isxfunc_StringSplitEx">StringSplitEx</link></p></seealso>
+        <seealso><p><isxfunc>StringJoin</isxfunc><br />
+<isxfunc>StringSplitEx</isxfunc></p></seealso>
       </function>
       <function>
         <name>StringSplitEx</name>
@@ -1110,7 +1110,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
   <com>// A = ['1','","','2']</com>
 <key>end</key>;
 </pre></example>
-        <seealso><p><link topic="isxfunc_StringSplit">StringSplit</link></p></seealso>
+        <seealso><p><isxfunc>StringSplit</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -1123,7 +1123,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>StrToInt</name>
         <prototype>function StrToInt(S: String): LongInt;</prototype>
         <description><p>The StrToInt function converts the string passed in S into a number. Returns -1 if not successful.</p></description>
-        <remarks><p>Use of <link topic="isxfunc_StrToIntDef">StrToIntDef</link> instead of StrToInt is recommended.</p></remarks>
+        <remarks><p>Use of <isxfunc>StrToIntDef</isxfunc> instead of StrToInt is recommended.</p></remarks>
       </function>
       <function>
         <name>StrToInt64Def</name>
@@ -1134,7 +1134,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>StrToInt64</name>
         <prototype>function StrToInt64(S: String): Int64;</prototype>
         <description><p>The StrToInt64 function converts the string passed in S into a 64-bit number. Raises an exception if not successful.</p></description>
-        <remarks><p>Use of <link topic="isxfunc_StrToInt64Def">StrToInt64Def</link> instead of StrToInt64 is recommended.</p></remarks>
+        <remarks><p>Use of <isxfunc>StrToInt64Def</isxfunc> instead of StrToInt64 is recommended.</p></remarks>
       </function>
       <function>
         <name>StrToUInt64Def</name>
@@ -1145,7 +1145,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>StrToUInt64</name>
         <prototype>function StrToUInt64(S: String): UInt64;</prototype>
         <description><p>The StrToUInt64 function converts the string passed in S into an unsigned 64-bit number. Raises an exception if not successful.</p></description>
-        <remarks><p>Use of <link topic="isxfunc_StrToUInt64Def">StrToUInt64Def</link> instead of StrToUInt64 is recommended.</p></remarks>
+        <remarks><p>Use of <isxfunc>StrToUInt64Def</isxfunc> instead of StrToUInt64 is recommended.</p></remarks>
       </function>
       <function>
         <name>StrToFloat</name>
@@ -1195,7 +1195,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>RemoveBackslash</name>
         <prototype>function RemoveBackslash(const S: String): String;</prototype>
         <description><p>Returns the specified string with any trailing slashes/backslashes removed.</p></description>
-        <remarks><p>Use of this function is discouraged; use <link topic="isxfunc_RemoveBackslashUnlessRoot">RemoveBackslashUnlessRoot</link> instead when working with file system paths.</p></remarks>
+        <remarks><p>Use of this function is discouraged; use <isxfunc>RemoveBackslashUnlessRoot</isxfunc> instead when working with file system paths.</p></remarks>
       </function>
       <function>
         <name>PathCombine</name>
@@ -1229,13 +1229,13 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>PathStartsWith</name>
         <prototype>function PathStartsWith(const S, AStartsWith: String; const IgnoreCase: Boolean): Boolean;</prototype>
         <description><p>Returns True if S starts with (or is equal to) AStartsWith. Uses a locale-independent "ordinal" comparison, which is important when comparing filenames/paths. Optionally ignores case.</p></description>
-        <seealso><p><link topic="isxfunc_PathEndsWith">PathEndsWith</link></p></seealso>
+        <seealso><p><isxfunc>PathEndsWith</isxfunc></p></seealso>
       </function>
       <function>
         <name>PathEndsWith</name>
         <prototype>function PathEndsWith(const S, AEndsWith: String; const IgnoreCase: Boolean): Boolean;</prototype>
         <description><p>Returns True if S ends with (or is equal to) AEndsWith. Uses a locale-independent "ordinal" comparison, which is important when comparing filenames/paths. Optionally ignores case.</p></description>
-        <seealso><p><link topic="isxfunc_PathStartsWith">PathStartsWith</link></p></seealso>
+        <seealso><p><isxfunc>PathStartsWith</isxfunc></p></seealso>
       </function>
       <function>
         <name>AddPeriod</name>
@@ -1256,13 +1256,13 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>ExtractFileDir</name>
         <prototype>function ExtractFileDir(const FileName: String): String;</prototype>
         <description><p>Extracts the drive and directory parts of the given file name, excluding a trailing backslash (unless it is a root directory). The resulting string is empty if FileName contains no drive and directory parts.</p></description>
-        <seealso><p><link topic="isxfunc_ExtractFilePath">ExtractFilePath</link></p></seealso>
+        <seealso><p><isxfunc>ExtractFilePath</isxfunc></p></seealso>
       </function>
       <function>
         <name>ExtractFilePath</name>
         <prototype>function ExtractFilePath(const FileName: String): String;</prototype>
         <description><p>Extracts the drive and directory parts of the given file name, including a trailing backslash. The resulting string is the leftmost characters of FileName, up to and including the colon or backslash that separates the path information from the name and extension. The resulting string is empty if FileName contains no drive and directory parts.</p></description>
-        <seealso><p><link topic="isxfunc_ExtractFileDir">ExtractFileDir</link></p></seealso>
+        <seealso><p><isxfunc>ExtractFileDir</isxfunc></p></seealso>
       </function>
       <function>
         <name>ExtractFileName</name>
@@ -1313,16 +1313,16 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
   SuperPath := PathConvertNormalToSuper(<str>'\\server\share\filename'</str>);
   Log(SuperPath);  <com>// Logs '\\?\UNC\server\share\filename'</com>
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link><br/>
-<link topic="isxfunc_PathConvertSuperToNormal">PathConvertSuperToNormal</link></p></seealso>
+        <seealso><p><isxfunc>ApplyPathRedirRules</isxfunc><br/>
+<isxfunc>PathConvertSuperToNormal</isxfunc></p></seealso>
       </function>
       <function>
         <name>PathConvertSuperToNormal</name>
         <prototype>function PathConvertSuperToNormal(const FileName: String): String;</prototype>
         <description><p>Converts an extended-length path (also known as a super path) to a normal path.</p></description>
         <remarks><p>Only use this function in cases where an extended-length path is known to not work properly.</p></remarks>
-        <seealso><p><link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link><br/>
-<link topic="isxfunc_PathConvertNormalToSuper">PathConvertNormalToSuper</link></p></seealso>
+        <seealso><p><isxfunc>ApplyPathRedirRules</isxfunc><br/>
+<isxfunc>PathConvertNormalToSuper</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -1514,7 +1514,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>GetSHA256OfStream</name>
         <prototype>function GetSHA256OfStream(const Stream: TStream): String;</prototype>
         <description><p>Gets the SHA-256 hash of the specified stream, as a string. An exception will be raised upon failure.</p></description>
-        <seealso><p><link topic="isxfunc_GetSHA256OfFile">GetSHA256OfFile</link></p></seealso>
+        <seealso><p><isxfunc>GetSHA256OfFile</isxfunc></p></seealso>
       </function>
     </subcategory>
   </category>
@@ -1537,13 +1537,13 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>VarIsEmpty</name>
         <prototype>function VarIsEmpty(const V: Variant): Boolean;</prototype>
         <description><p>Returns True if the specified variant is unassigned.</p></description>
-        <seealso><p><link topic="isxfunc_VarIsClear">VarIsClear</link></p></seealso>
+        <seealso><p><isxfunc>VarIsClear</isxfunc></p></seealso>
       </function>
       <function>
         <name>VarIsClear</name>
         <prototype>function VarIsClear(const V: Variant): Boolean;</prototype>
         <description><p>Returns True if the specified variant's value is undefined.</p></description>
-        <seealso><p><link topic="isxfunc_VarIsEmpty">VarIsEmpty</link></p></seealso>
+        <seealso><p><isxfunc>VarIsEmpty</isxfunc></p></seealso>
       </function>
       <function>
         <name>VarIsNull</name>
@@ -1619,7 +1619,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>FileSize</name>
         <prototype>function FileSize(const Name: String; var Size: Integer): Boolean;</prototype>
-        <description><p>Sets Size to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise. Only supports file sizes smaller than 2 GB. To get all 64 bits of the file size, use <link topic="isxfunc_FileSize64">FileSize64</link> instead.</p></description>
+        <description><p>Sets Size to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise. Only supports file sizes smaller than 2 GB. To get all 64 bits of the file size, use <isxfunc>FileSize64</isxfunc> instead.</p></description>
       </function>
       <function>
         <name>FileSize64</name>
@@ -1646,7 +1646,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
     <com>// the function failed</com>
   <key>end</key>;
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_GetSpaceOnDisk64">GetSpaceOnDisk64</link></p></seealso>
+        <seealso><p><isxfunc>GetSpaceOnDisk64</isxfunc></p></seealso>
       </function>
       <function>
         <name>GetSpaceOnDisk64</name>
@@ -1667,7 +1667,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
     <com>// the function failed</com>
   <key>end</key>;
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_GetSpaceOnDisk">GetSpaceOnDisk</link></p></seealso>
+        <seealso><p><isxfunc>GetSpaceOnDisk</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -1718,7 +1718,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
   FILE_ATTRIBUTE_NOT_CONTENT_INDEXED
   FILE_ATTRIBUTE_ENCRYPTED
 </pre></description>
-        <remarks><p>If FindFirst returns True, call <link topic="isxfunc_FindNext">FindNext</link> to enumerate the rest of the files, and then <link topic="isxfunc_FindClose">FindClose</link>.</p></remarks>
+        <remarks><p>If FindFirst returns True, call <isxfunc>FindNext</isxfunc> to enumerate the rest of the files, and then <isxfunc>FindClose</isxfunc>.</p></remarks>
         <example><p>The following example counts the number of files in the Windows System directory.</p>
 <pre><key>var</key>
   FilesFound: Integer;
@@ -1739,24 +1739,24 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
   MsgBox(IntToStr(FilesFound) + <str>' files found in the System directory.'</str>,
     mbInformation, MB_OK);
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_FindNext">FindNext</link><br />
-<link topic="isxfunc_FindClose">FindClose</link></p></seealso>
+        <seealso><p><isxfunc>FindNext</isxfunc><br />
+<isxfunc>FindClose</isxfunc></p></seealso>
       </function>
       <function>
         <name>FindNext</name>
         <prototype>function FindNext(var FindRec: TFindRec): Boolean;</prototype>
-        <description><p>Retrieves information about the next matching file after a call to <link topic="isxfunc_FindFirst">FindFirst</link>. Returns True if successful.</p></description>
-        <example><p>For an example, see the documentation for <link topic="isxfunc_FindFirst">FindFirst</link>.</p></example>
-        <seealso><p><link topic="isxfunc_FindFirst">FindFirst</link><br />
-<link topic="isxfunc_FindClose">FindClose</link></p></seealso>
+        <description><p>Retrieves information about the next matching file after a call to <isxfunc>FindFirst</isxfunc>. Returns True if successful.</p></description>
+        <example><p>For an example, see the documentation for <isxfunc>FindFirst</isxfunc>.</p></example>
+        <seealso><p><isxfunc>FindFirst</isxfunc><br />
+<isxfunc>FindClose</isxfunc></p></seealso>
       </function>
       <function>
         <name>FindClose</name>
         <prototype>procedure FindClose(var FindRec: TFindRec);</prototype>
-        <description><p>Ends a find sequence, and frees the resources associated with it. You should always call this when <link topic="isxfunc_FindFirst">FindFirst</link> returns True.</p></description>
-        <example><p>For an example, see the documentation for <link topic="isxfunc_FindFirst">FindFirst</link>.</p></example>
-        <seealso><p><link topic="isxfunc_FindFirst">FindFirst</link><br />
-<link topic="isxfunc_FindNext">FindNext</link></p></seealso>
+        <description><p>Ends a find sequence, and frees the resources associated with it. You should always call this when <isxfunc>FindFirst</isxfunc> returns True.</p></description>
+        <example><p>For an example, see the documentation for <isxfunc>FindFirst</isxfunc>.</p></example>
+        <seealso><p><isxfunc>FindFirst</isxfunc><br />
+<isxfunc>FindNext</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -1855,26 +1855,26 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ApplyPathRedirRulesForCurrentProcess</name>
         <prototype>function ApplyPathRedirRulesForCurrentProcess(const A64Bit: Boolean; const APath: String): String;</prototype>
-        <description><p>Calls <link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link> function with the current process as the target process.</p></description>
+        <description><p>Calls <isxfunc>ApplyPathRedirRules</isxfunc> function with the current process as the target process.</p></description>
       </function>
       <function>
         <name>ApplyPathRedirRules</name>
         <prototype>function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String; const ATargetProcess: TPathRedirTargetProcess): String;</prototype>
         <description><p>Applies <link topic="pathredir">system path redirection</link> to the specified path and returns the rewritten path.</p>
-<p>Before rewriting, the path is expanded using <link topic="isxfunc_ExpandFileName">ExpandFileName</link> and converted to an extended-length path (also known as a super path).</p>
+<p>Before rewriting, the path is expanded using <isxfunc>ExpandFileName</isxfunc> and converted to an extended-length path (also known as a super path).</p>
 <p>Path expansion and conversion to extended-length path always occurs, even if nothing is rewritten.</p></description>
         <remarks><p>TPathRedirTargetProcess is defined as:</p>
 <p><tt>TPathRedirTargetProcess = (tpCurrent, tpNativeBit, tp32Bit, tp32BitPreferSystem32);</tt></p></remarks>
-        <seealso><p><link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link><br/>
-<link topic="isxfunc_PathConvertSuperToNormal">PathConvertSuperToNormal</link></p></seealso>
+        <seealso><p><isxfunc>ApplyPathRedirRulesForCurrentProcess</isxfunc><br/>
+<isxfunc>PathConvertSuperToNormal</isxfunc></p></seealso>
       </function>
       <function>
         <name>EnableFsRedirection</name>
         <prototype>function EnableFsRedirection(const Enable: Boolean): Boolean;</prototype>
         <description><p>Function removed in 7.0.</p></description>
-        <remarks><p>Use support function <link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link> instead, or a <link topic="64bit">64-bit installer</link>.</p>
+        <remarks><p>Use support function <isxfunc>ApplyPathRedirRulesForCurrentProcess</isxfunc> instead, or a <link topic="64bit">64-bit installer</link>.</p>
 <p><link topic="64bit">32-bit installers</link> can also use <tt>{sysnative}</tt> instead.</p>
-<p>Use support functions <link topic="isxfunc_ExecWithNativeSysDir">ExecWithNativeSysDir</link>, <link topic="isxfunc_ExecAndLogOutputWithNativeSysDir">ExecAndLogOutputWithNativeSysDir</link>, or <link topic="isxfunc_ExecAndCaptureOutputWithNativeSysDir">ExecAndCaptureOutputWithNativeSysDir</link> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p></remarks>
+<p>Use support functions <isxfunc>ExecWithNativeSysDir</isxfunc>, <isxfunc>ExecAndLogOutputWithNativeSysDir</isxfunc>, or <isxfunc>ExecAndCaptureOutputWithNativeSysDir</isxfunc> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p></remarks>
       </function>
     </subcategory>
   </category>
@@ -1889,11 +1889,11 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <p>If False is returned then ResultCode specifies the error that occurred. Use SysErrorMessage(ResultCode) to get a description of the error.</p></description>
         <remarks><p>TExecWait is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
-<p>Use the <link topic="isxfunc_ShellExec">ShellExec</link> function instead if you need to launch a file that is not an executable or batch file.</p>
+<p>Use the <isxfunc>ShellExec</isxfunc> function instead if you need to launch a file that is not an executable or batch file.</p>
 <p>Do not include quotes in the Filename parameter; the function will add them automatically.</p>
 <p>The WorkingDir parameter can be an empty string, in which case it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process. If no pathname was specified in Filename, a default directory will be used.</p>
 <p>If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass <tt>'>'</tt> in the Filename parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
-<p>To execute a 64-bit System32 binary from a 32-bit installer, use <tt>{sysnative}</tt> or <link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link> to rewrite the path. In a 64-bit installer the rewrite is not needed.</p>
+<p>To execute a 64-bit System32 binary from a 32-bit installer, use <tt>{sysnative}</tt> or <isxfunc>ApplyPathRedirRulesForCurrentProcess</isxfunc> to rewrite the path. In a 64-bit installer the rewrite is not needed.</p>
 <p>Can't be used to execute Setup itself until the installation has started.</p>
 <p><i>Note: compared to ISPP's Exec the ShowCmd and Wait parameters are swapped!</i></p></remarks>
         <example><pre><key>var</key>
@@ -1909,15 +1909,15 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
     <com>// handle failure if necessary; ResultCode contains the error code</com>
   <key>end</key>;
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_ExecAndCaptureOutput">ExecAndCaptureOutput</link><br />
-<link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link><br />
-<link topic="isxfunc_ExecAsOriginalUser">ExecAsOriginalUser</link><br/>
-<link topic="isxfunc_ExecWithNativeSysDir">ExecWithNativeSysDir</link></p></seealso>
+        <seealso><p><isxfunc>ExecAndCaptureOutput</isxfunc><br />
+<isxfunc>ExecAndLogOutput</isxfunc><br />
+<isxfunc>ExecAsOriginalUser</isxfunc><br/>
+<isxfunc>ExecWithNativeSysDir</isxfunc></p></seealso>
       </function>
       <function>
         <name>ExecAsOriginalUser</name>
         <prototype>function ExecAsOriginalUser(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer): Boolean;</prototype>
-        <description><p>Executes the specified executable or batch file, using the (normally non-elevated) credentials of the user that started Setup initially. See <link topic="isxfunc_Exec">Exec</link> and the [Run] section flag <tt>runasoriginaluser</tt> for more information.</p></description>
+        <description><p>Executes the specified executable or batch file, using the (normally non-elevated) credentials of the user that started Setup initially. See <isxfunc>Exec</isxfunc> and the [Run] section flag <tt>runasoriginaluser</tt> for more information.</p></description>
         <remarks><p>This function is not supported at uninstall time.</p>
 <p>In very unusual failure cases (e.g. if the initial Setup process died unexpectedly), it is possible for this function to raise an exception instead of just returning False.</p></remarks>
       </function>
@@ -1939,12 +1939,12 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
     <com>// handle failure if necessary</com>
   <key>end</key>;
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_ShellExecAsOriginalUser">ShellExecAsOriginalUser</link></p></seealso>
+        <seealso><p><isxfunc>ShellExecAsOriginalUser</isxfunc></p></seealso>
       </function>
       <function>
         <name>ShellExecAsOriginalUser</name>
         <prototype>function ShellExecAsOriginalUser(const Verb, Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ErrorCode: Integer): Boolean;</prototype>
-        <description><p>Opens the specified file or performs another action specified by Verb, using the (normally non-elevated) credentials of the user that started Setup initially. See <link topic="isxfunc_ShellExec">ShellExec</link> and the [Run] section flag <tt>runasoriginaluser</tt> for more information.</p></description>
+        <description><p>Opens the specified file or performs another action specified by Verb, using the (normally non-elevated) credentials of the user that started Setup initially. See <isxfunc>ShellExec</isxfunc> and the [Run] section flag <tt>runasoriginaluser</tt> for more information.</p></description>
         <remarks><p>This function is not supported at uninstall time.</p>
 <p>In very unusual failure cases (e.g. if the initial Setup process died unexpectedly), it is possible for this function to raise an exception instead of just returning False.</p>
 <p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
@@ -1954,7 +1954,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ExecWithNativeSysDir</name>
         <prototype>function ExecWithNativeSysDir(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer): Boolean;</prototype>
-        <description><p>Use this function instead of <link topic="isxfunc_Exec">Exec</link> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
+        <description><p>Use this function instead of <isxfunc>Exec</isxfunc> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
 <p>This function avoids the problem that <tt>Exec</tt> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
         <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <tt>Exec</tt>.</p></remarks>
         <example><pre><key>var</key>
@@ -1980,8 +1980,8 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <remarks><p>Use <tt>Flags: dontcopy noencryption</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage, and to ensure it can be extracted before the password is known.</p>
 <p>Use <tt>Flags: noencryption</tt> in the [Files] section if encryption is enabled and you call the ExtractTemporaryFile function prior to the user entering the correct password.</p>
 <p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
-        <seealso><p><link topic="isxfunc_ExtractTemporaryFiles">ExtractTemporaryFiles</link><br />
-<link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link></p></seealso>
+        <seealso><p><isxfunc>ExtractTemporaryFiles</isxfunc><br />
+<isxfunc>DownloadTemporaryFile</isxfunc></p></seealso>
         <example><pre><sec>[Files]</sec>
 <key>Source</key>: "Readme.txt"; <key>Flags</key>: dontcopy noencryption
 
@@ -2008,7 +2008,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <p>An exception will be raised if no files were extracted successfully, no files were found, or if files were found but none could be processed because of their MinVersion and/or OnlyBelowVersion parameters.</p></description>
         <remarks><p>Use <tt>Flags: dontcopy noencryption</tt> in the [Files] section to tell Setup to skip the file during the normal file copying stage, and to ensure it can be extracted before the password is known.</p>
 <p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p></remarks>
-        <seealso><p><link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
+        <seealso><p><isxfunc>ExtractTemporaryFile</isxfunc></p></seealso>
         <example><pre><sec>[Files]</sec>
 <key>Source</key>: "Readme.txt"; <key>Flags</key>: dontcopy noencryption
 <key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"
@@ -2042,7 +2042,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <p>If RequiredSHA256OfFile is set it will compare this to the SHA-256 of the downloaded file and raise an exception if the hashes don't match.</p>
 <p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded. Returns 0 if RequiredSHA256OfFile is set and the file was already downloaded.</p>
 <p>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</p>
-<p>For basic authentication use <link topic="isxfunc_SetDownloadCredentials">SetDownloadCredentials</link>.</p>
+<p>For basic authentication use <isxfunc>SetDownloadCredentials</isxfunc>.</p>
 <p>Set OnDownloadProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p>TOnDownloadProgress is defined as:</p>
 <p><tt>TOnDownloadProgress = function(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
@@ -2069,26 +2069,26 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
     Result := False;
   <key>end</key>;
 <key>end</key>;</pre>
-<p>See <i>CodeDownloadFiles.iss</i> for another example which uses <link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link> instead.</p>
+<p>See <i>CodeDownloadFiles.iss</i> for another example which uses <isxfunc>CreateDownloadPage</isxfunc> instead.</p>
 <p>See <i>DownloadFiles.iss</i> for an example of file download using just a [Files] entry.</p></example>
-        <seealso><p><link topic="isxfunc_SetDownloadCredentials">SetDownloadCredentials</link><br />
-<link topic="isxfunc_DownloadTemporaryFileWithISSigVerify">DownloadTemporaryFileWithISSigVerify</link><br />
-<link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br />
-<link topic="isxfunc_DownloadTemporaryFileDate">DownloadTemporaryFileDate</link><br />
-<link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
-<link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link><br />
-<link topic="isxfunc_ExtractArchive">ExtractArchive</link></p></seealso>
+        <seealso><p><isxfunc>SetDownloadCredentials</isxfunc><br />
+<isxfunc>DownloadTemporaryFileWithISSigVerify</isxfunc><br />
+<isxfunc>DownloadTemporaryFileSize</isxfunc><br />
+<isxfunc>DownloadTemporaryFileDate</isxfunc><br />
+<isxfunc>CreateDownloadPage</isxfunc><br />
+<isxfunc>ExtractTemporaryFile</isxfunc><br />
+<isxfunc>ExtractArchive</isxfunc></p></seealso>
       </function>
       <function>
         <name>DownloadTemporaryFileWithISSigVerify</name>
         <prototype>function DownloadTemporaryFileWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
-        <description><p>Like <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link>, but downloads an .issig signature file first from the specified second URL and uses it to verify the main file downloaded from the first URL.</p>
+        <description><p>Like <isxfunc>DownloadTemporaryFile</isxfunc>, but downloads an .issig signature file first from the specified second URL and uses it to verify the main file downloaded from the first URL.</p>
 <p>If the second URL is an empty string, Setup will instead append ".issig" (without quotes) to the path portion of the first URL. It will then use the result as the URL to download the .issig signature file from.</p>        
 <p>Verification uses the specified allowed keys, looked up using <link topic="issigkeyssection">[ISSigKeys] section</link> parameter <tt>RuntimeID</tt>. To allow all keys set AllowedKeysRuntimeIDs to <tt>nil</tt>.</p>
 <p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded for the main file from the first URL. Returns 0 if the main file was already downloaded and still verified.</p></description>
-        <seealso><p><link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br/>
+        <seealso><p><isxfunc>DownloadTemporaryFile</isxfunc><br/>
 <link topic="issig">.issig Signatures: Introduction</link><br/>
-<link topic="isxfunc_ISSigVerify">ISSigVerify</link></p></seealso>
+<isxfunc>ISSigVerify</isxfunc></p></seealso>
         <example><pre>
 <sec>[Code]</sec>
 <key>function</key> <evt>InitializeSetup</evt>: Boolean;
@@ -2109,24 +2109,24 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>procedure SetDownloadCredentials(const User, Pass: String);</prototype>
         <description><p>Sets the basic authentication username and password for all following downloads done by <tt>DownloadTemporaryFile</tt>, <tt>DownloadTemporaryFileWithISSigVerify</tt>, <tt>DownloadTemporaryFileSize</tt>, and <tt>DownloadTemporaryFileDate</tt>.</p>
 <p>Specify an empty username or password to unset the username or password.</p></description>
-        <seealso><p><link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br/>
-<link topic="isxfunc_DownloadTemporaryFileWithISSigVerify">DownloadTemporaryFileWithISSigVerify</link><br/>
-<link topic="isxfunc_DownloadTemporaryFileSize">DownloadTemporaryFileSize</link><br/>
-<link topic="isxfunc_DownloadTemporaryFileDate">DownloadTemporaryFileDate</link></p></seealso>
+        <seealso><p><isxfunc>DownloadTemporaryFile</isxfunc><br/>
+<isxfunc>DownloadTemporaryFileWithISSigVerify</isxfunc><br/>
+<isxfunc>DownloadTemporaryFileSize</isxfunc><br/>
+<isxfunc>DownloadTemporaryFileDate</isxfunc></p></seealso>
       </function>
       <function>
         <name>DownloadTemporaryFileSize</name>
         <prototype>function DownloadTemporaryFileSize(const Url: String): Int64;</prototype>
         <description><p>Returns the size of the file from the specified URL, without downloading the file. If the server does not provide the size, -1 will be returned.</p>
 <p>An exception will be raised if there was an error.</p>
-<p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations.</p></description>
+<p>See <isxfunc>DownloadTemporaryFile</isxfunc> for other considerations.</p></description>
       </function>
       <function>
         <name>DownloadTemporaryFileDate</name>
         <prototype>function DownloadTemporaryFileDate(const Url: String): String;</prototype>
         <description><p>Returns the last modified date of the file from the specified URL, without downloading the file. If the server does not provide the last modified file date, '' will be returned.</p>
 <p>An exception will be raised if there was an error.</p>
-<p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations.</p></description>
+<p>See <isxfunc>DownloadTemporaryFile</isxfunc> for other considerations.</p></description>
       </function>
       <function>
         <name>ExtractArchive</name>
@@ -2134,17 +2134,17 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <description><p>Extracts the specified archive to the specified directory, with or without preserving full path names.</p>
 <p>An exception will be raised if there was an error.</p>
 <p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> [Setup] section directive.</p>
-<p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
+<p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <isxfunc>MapArchiveExtensions</isxfunc>.</p>
 <p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p>TOnExtractionProgress is defined as:</p>
 <p><tt>TOnExtractionProgress = function(const ArchiveName, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>Return True to allow the extraction to continue, False otherwise.</p></remarks>
         <example><p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a [Files] entry.</p></example>
-        <seealso><p><link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link><br />
-<link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link><br />
-<link topic="isxfunc_CreateDownloadPage">CreateDownloadPage</link><br />
-<link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br />
-<link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link></p></seealso>
+        <seealso><p><isxfunc>CreateExtractionPage</isxfunc><br />
+<isxfunc>MapArchiveExtensions</isxfunc><br />
+<isxfunc>CreateDownloadPage</isxfunc><br />
+<isxfunc>DownloadTemporaryFile</isxfunc><br />
+<isxfunc>ExtractTemporaryFile</isxfunc></p></seealso>
       </function>
       <function>
         <name>MapArchiveExtensions</name>
@@ -2152,8 +2152,8 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <description><p>Allows files with a specified destination extension, such as .exe, to be treated as if they have a different source extension, such as .7z, for extraction purposes.</p>
 <p>An exception will be raised if there was an error.</p></description>
         <remarks><p>Calls to this function are ignored if the <sd>ArchiveExtraction</sd> <tt>[Setup]</tt> section directive is set to <tt>basic</tt>. In this case files are always extracted as .7z, regardless of the extension.</p></remarks>
-        <seealso><p><link topic="isxfunc_ExtractArchive">ExtractArchive</link><br/>
-<link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link></p></seealso>
+        <seealso><p><isxfunc>ExtractArchive</isxfunc><br/>
+<isxfunc>CreateExtractionPage</isxfunc></p></seealso>
         <example><pre>
 <sec>[Files]</sec>
 <key>Source</key>: "<con>{src}</con>\My7ZipSFX.exe"; <key>DestDir</key>: "<con>{app}</con>"; <key>Flags</key>: external extractarchive recursesubdirs createallsubdirs ignoreversion
@@ -2181,7 +2181,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>GetSHA256OfFile</name>
         <prototype>function GetSHA256OfFile(const Filename: String): String;</prototype>
         <description><p>Returns the SHA-256 hash of the specified file, as a string. An exception will be raised upon failure.</p></description>
-        <seealso><p><link topic="isxfunc_GetSHA256OfStream">GetSHA256OfStream</link></p></seealso>
+        <seealso><p><isxfunc>GetSHA256OfStream</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -2202,7 +2202,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
   <key>end</key>;
 <key>end</key>;</pre></example>
         <seealso><p><link topic="issig">.issig Signatures: Introduction</link><br/>
-<link topic="isxfunc_DownloadTemporaryFileWithISSigVerify">DownloadTemporaryFileWithISSigVerify</link></p></seealso>
+<isxfunc>DownloadTemporaryFileWithISSigVerify</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -2241,27 +2241,27 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>LoadStringFromFile</name>
         <prototype>function LoadStringFromFile(const FileName: String; var S: AnsiString): Boolean;</prototype>
         <description><p>Loads the specified binary or non Unicode text file into the specified string. Returns True if successful, False otherwise.</p></description>
-        <remarks><p>Use <link topic="isxfunc_LoadStringFromLockedFile">LoadStringFromLockedFile</link> to load even if the file is already opened for writing by another program.</p></remarks>
-        <seealso><p><link topic="isxfunc_LoadStringsFromFile">LoadStringsFromFile</link></p></seealso>
+        <remarks><p>Use <isxfunc>LoadStringFromLockedFile</isxfunc> to load even if the file is already opened for writing by another program.</p></remarks>
+        <seealso><p><isxfunc>LoadStringsFromFile</isxfunc></p></seealso>
       </function>
       <function>
         <name>LoadStringFromLockedFile</name>
         <prototype>function LoadStringFromLockedFile(const FileName: String; var S: AnsiString): Boolean;</prototype>
         <description><p>Loads the specified binary or non Unicode text file into the specified string, even if the file is already opened for writing by another program. Returns True if successful, False otherwise.</p></description>
-        <seealso><p><link topic="isxfunc_LoadStringFromFile">LoadStringFromFile</link></p></seealso>
+        <seealso><p><isxfunc>LoadStringFromFile</isxfunc></p></seealso>
       </function>
       <function>
         <name>LoadStringsFromFile</name>
         <prototype>function LoadStringsFromFile(const FileName: String; var S: TArrayOfString): Boolean;</prototype>
         <description><p>Loads the specified text file into the specified string array. UTF-8 encoded files with or without a BOM are also supported. Returns True if successful, False otherwise.</p></description>
-        <remarks><p>Use <link topic="isxfunc_LoadStringsFromLockedFile">LoadStringsFromLockedFile</link> to load even if the file is already opened for writing by another program.</p></remarks>
-        <seealso><p><link topic="isxfunc_LoadStringFromFile">LoadStringFromFile</link></p></seealso>
+        <remarks><p>Use <isxfunc>LoadStringsFromLockedFile</isxfunc> to load even if the file is already opened for writing by another program.</p></remarks>
+        <seealso><p><isxfunc>LoadStringFromFile</isxfunc></p></seealso>
       </function>
       <function>
         <name>LoadStringsFromLockedFile</name>
         <prototype>function LoadStringsFromLockedFile(const FileName: String; var S: TArrayOfString): Boolean;</prototype>
         <description><p>Loads the specified text file into the specified string array, even if the file is already opened for writing by another program. UTF-8 encoded files with or without a BOM are also supported. Returns True if successful, False otherwise.</p></description>
-        <seealso><p><link topic="isxfunc_LoadStringsFromFile">LoadStringsFromFile</link></p></seealso>
+        <seealso><p><isxfunc>LoadStringsFromFile</isxfunc></p></seealso>
       </function>
       <function>
         <name>SaveStringToFile</name>
@@ -2274,22 +2274,22 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>SaveStringsToFile</name>
         <prototype>function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
         <description><p>Saves the specified string array to the specified file with ASCII encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
-        <seealso><p><link topic="isxfunc_SaveStringsToUTF8File">SaveStringsToUTF8File</link><br />
-<link topic="isxfunc_SaveStringsToUTF8FileWithoutBOM">SaveStringsToUTF8FileWithoutBOM</link></p></seealso>
+        <seealso><p><isxfunc>SaveStringsToUTF8File</isxfunc><br />
+<isxfunc>SaveStringsToUTF8FileWithoutBOM</isxfunc></p></seealso>
       </function>
       <function>
         <name>SaveStringsToUTF8File</name>
         <prototype>function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
         <description><p>Saves the specified string array to the specified file with UTF-8 encoding with a BOM. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
-        <seealso><p><link topic="isxfunc_SaveStringsToFile">SaveStringsToFile</link><br />
-<link topic="isxfunc_SaveStringsToUTF8FileWithoutBOM">SaveStringsToUTF8FileWithoutBOM</link></p></seealso>
+        <seealso><p><isxfunc>SaveStringsToFile</isxfunc><br />
+<isxfunc>SaveStringsToUTF8FileWithoutBOM</isxfunc></p></seealso>
       </function>
       <function>
         <name>SaveStringsToUTF8FileWithoutBOM</name>
         <prototype>function SaveStringsToUTF8FileWithoutBOM(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
         <description><p>Saves the specified string array to the specified file with UTF-8 encoding without a BOM. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
-        <seealso><p><link topic="isxfunc_SaveStringsToFile">SaveStringsToFile</link><br />
-<link topic="isxfunc_SaveStringsToUTF8File">SaveStringsToUTF8File</link></p></seealso>
+        <seealso><p><isxfunc>SaveStringsToFile</isxfunc><br />
+<isxfunc>SaveStringsToUTF8File</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -2434,13 +2434,13 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>GetVersionNumbers</name>
         <prototype>function GetVersionNumbers(const Filename: String; var VersionMS, VersionLS: Cardinal): Boolean;</prototype>
         <description><p>Gets the version numbers of the specified file. Returns True if successful, False otherwise.</p></description>
-        <seealso><p><link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link></p></seealso>
+        <seealso><p><isxfunc>PackVersionNumbers</isxfunc></p></seealso>
       </function>
       <function>
         <name>GetVersionComponents</name>
         <prototype>function GetVersionComponents(const Filename: String; var Major, Minor, Revision, Build: Word): Boolean;</prototype>
         <description><p>Gets the individual version components of the specified file. Returns True if successful, False otherwise.</p></description>
-        <seealso><p><link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
+        <seealso><p><isxfunc>PackVersionComponents</isxfunc></p></seealso>
       </function>
       <function>
         <name>GetVersionNumbersString</name>
@@ -2452,8 +2452,8 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>GetPackedVersion</name>
         <prototype>function GetPackedVersion(const Filename: String; var Version: Int64): Boolean;</prototype>
         <description><p>Gets the packed version of the specified file. Returns True if successful, False otherwise.</p>
-<p>Always use <link topic="isxfunc_ComparePackedVersion">ComparePackedVersion</link> or <link topic="isxfunc_SamePackedVersion">SamePackedVersion</link> to compare packed versions.</p></description>
-        <seealso><p><link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
+<p>Always use <isxfunc>ComparePackedVersion</isxfunc> or <isxfunc>SamePackedVersion</isxfunc> to compare packed versions.</p></description>
+        <seealso><p><isxfunc>PackVersionComponents</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -2461,19 +2461,19 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>PackVersionNumbers</name>
         <prototype>function PackVersionNumbers(const VersionMS, VersionLS: Cardinal): Int64;</prototype>
         <description><p>Packs version numbers into a single value.</p>
-<p>Always use <link topic="isxfunc_ComparePackedVersion">ComparePackedVersion</link> or <link topic="isxfunc_SamePackedVersion">SamePackedVersion</link> to compare packed versions.</p></description>
-        <seealso><p><link topic="isxfunc_GetVersionNumbers">GetVersionNumbers</link><br />
-<link topic="isxfunc_PackVersionComponents">PackVersionComponents</link><br />
-<link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link></p></seealso>
+<p>Always use <isxfunc>ComparePackedVersion</isxfunc> or <isxfunc>SamePackedVersion</isxfunc> to compare packed versions.</p></description>
+        <seealso><p><isxfunc>GetVersionNumbers</isxfunc><br />
+<isxfunc>PackVersionComponents</isxfunc><br />
+<isxfunc>UnpackVersionNumbers</isxfunc></p></seealso>
       </function>
       <function>
         <name>PackVersionComponents</name>
         <prototype>function PackVersionComponents(const Major, Minor, Revision, Build: Word): Int64;</prototype>
         <description><p>Packs individual version components into a single value.</p>
-<p>Always use <link topic="isxfunc_ComparePackedVersion">ComparePackedVersion</link> or <link topic="isxfunc_SamePackedVersion">SamePackedVersion</link> to compare packed versions.</p></description>
-        <seealso><p><link topic="isxfunc_GetVersionComponents">GetVersionComponents</link><br />
-<link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
-<link topic="isxfunc_UnpackVersionComponents">UnpackVersionComponents</link></p></seealso>
+<p>Always use <isxfunc>ComparePackedVersion</isxfunc> or <isxfunc>SamePackedVersion</isxfunc> to compare packed versions.</p></description>
+        <seealso><p><isxfunc>GetVersionComponents</isxfunc><br />
+<isxfunc>PackVersionNumbers</isxfunc><br />
+<isxfunc>UnpackVersionComponents</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -2493,15 +2493,15 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>UnpackVersionNumbers</name>
         <prototype>procedure UnpackVersionNumbers(const Version: Int64; var VersionMS, VersionLS: Cardinal);</prototype>
         <description><p>Unpacks a packed version into version numbers.</p></description>
-        <seealso><p><link topic="isxfunc_UnpackVersionComponents">UnpackVersionComponents</link><br />
-<link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link></p></seealso>
+        <seealso><p><isxfunc>UnpackVersionComponents</isxfunc><br />
+<isxfunc>PackVersionNumbers</isxfunc></p></seealso>
       </function>
       <function>
         <name>UnpackVersionComponents</name>
         <prototype>procedure UnpackVersionComponents(const Version: Int64; var Major, Minor, Revision, Build: Word);</prototype>
         <description><p>Unpacks a packed version into individual version components.</p></description>
-        <seealso><p><link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link><br />
-<link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
+        <seealso><p><isxfunc>UnpackVersionNumbers</isxfunc><br />
+<isxfunc>PackVersionComponents</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -2509,9 +2509,9 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>VersionToStr</name>
         <prototype>function VersionToStr(const Version: Int64): String;</prototype>
         <description><p>Returns the specified packed version as a string (in '0.0.0.0' format).</p></description>
-        <seealso><p><link topic="isxfunc_StrToVersion">StrToVersion</link><br />
-<link topic="isxfunc_UnpackVersionNumbers">UnpackVersionNumbers</link><br />
-<link topic="isxfunc_UnpackVersionComponents">UnpackVersionComponents</link></p></seealso>
+        <seealso><p><isxfunc>StrToVersion</isxfunc><br />
+<isxfunc>UnpackVersionNumbers</isxfunc><br />
+<isxfunc>UnpackVersionComponents</isxfunc></p></seealso>
       </function>
       <function>
         <name>StrToVersion</name>
@@ -2519,9 +2519,9 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <description><p>Returns the specified string (in '0.0.0.0' format) as a packed version. Returns True if successful, False otherwise.</p>
 <p>Partial version numbers (for example, '1.5') are allowed. Missing numbers will be appended as zeros. Extra numbers are ignored.</p>
 </description>
-        <seealso><p><link topic="isxfunc_VersionToStr">VersionToStr</link><br />
-<link topic="isxfunc_PackVersionNumbers">PackVersionNumbers</link><br />
-<link topic="isxfunc_PackVersionComponents">PackVersionComponents</link></p></seealso>
+        <seealso><p><isxfunc>VersionToStr</isxfunc><br />
+<isxfunc>PackVersionNumbers</isxfunc><br />
+<isxfunc>PackVersionComponents</isxfunc></p></seealso>
       </function>
     </subcategory>
   </category>
@@ -2940,13 +2940,13 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>To show or update the progress bar, call the <tt>SetProgress</tt> method. <tt>SetProgress</tt> takes two integer parameters: the first specifies the position of the progress bar (zero-based), and the second specifies the highest possible position. If the second parameter is 0, the progress bar will be hidden.</p></remarks>
         <example><p>See <i>CodeDlg.iss</i> and <i>AllPagesExample.iss</i> example scripts in the "Examples" subdirectory in your Inno Setup directory for examples.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TOutputProgressWizardPage">TOutputProgressWizardPage</link><br />
-<link topic="isxfunc_CreateOutputMarqueeProgressPage">CreateOutputMarqueeProgressPage</link></p></seealso>
+<isxfunc>CreateOutputMarqueeProgressPage</isxfunc></p></seealso>
       </function>
       <function>
         <name>CreateOutputMarqueeProgressPage</name>
         <prototype>function CreateOutputMarqueeProgressPage(const ACaption, ADescription: String): TOutputMarqueeProgressWizardPage;</prototype>
         <description><p>Creates a wizard page containing static text as well as a marquee progress bar.</p>
-<p>See <link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link> for information on how to work with progress pages.</p></description>
+<p>See <isxfunc>CreateOutputProgressPage</isxfunc> for information on how to work with progress pages.</p></description>
         <remarks><p>To animate the progress bar, call the <tt>Animate</tt> method. Do not call the <tt>SetProgress</tt> method, it will raise an internal error.</p></remarks>
         <example><p>See <i>AllPagesExample.iss</i> for an example.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TOutputMarqueeProgressWizardPage">TOutputMarqueeProgressWizardPage</link></p></seealso>
@@ -2962,19 +2962,19 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>To add a new file to download, call the <tt>Add</tt> method. Always call the <tt>Clear</tt> method before adding the first file.</p>
 <p>To start the download, call the <tt>Download</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Download</tt> returns the number of bytes downloaded.</p>
 <p>Set the <tt>ShowBaseNameInsteadOfUrl</tt> property to <tt>True</tt> to show the base name of the file which is being downloaded to the user instead of the URL.</p>
-<p>See <link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link> for other considerations and the definition of <tt>TOnDownloadProgress</tt>.</p></remarks>
+<p>See <isxfunc>DownloadTemporaryFile</isxfunc> for other considerations and the definition of <tt>TOnDownloadProgress</tt>.</p></remarks>
         <example><p>See <i>CodeDownloadFiles.iss</i> for an example.</p>
 <p>See <i>DownloadFiles.iss</i> for an example of file download using just a [Files] entry instead.</p></example>
         <seealso><p><link topic="scriptclasses" anchor="TDownloadWizardPage">TDownloadWizardPage</link><br />
-<link topic="isxfunc_DownloadTemporaryFile">DownloadTemporaryFile</link><br />
-<link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link></p></seealso>
+<isxfunc>DownloadTemporaryFile</isxfunc><br />
+<isxfunc>CreateOutputProgressPage</isxfunc></p></seealso>
       </function>
       <function>
         <name>CreateExtractionPage</name>
         <prototype>function CreateExtractionPage(const ACaption, ADescription: String; const OnExtractionProgress: TOnExtractionProgress): TExtractionWizardPage;</prototype>
         <description><p>Creates a wizard page to extract archives and show progress.</p>
 <p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> [Setup] section directive.</p>
-<p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
+<p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <isxfunc>MapArchiveExtensions</isxfunc>.</p>
 <p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>    
 <p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
         <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
@@ -2982,14 +2982,14 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>To add a new archive to extract, call the <tt>Add</tt> method or the <tt>AddEx</tt> method if the archive is password-protected. Always call the <tt>Clear</tt> method before adding the first file.</p>
 <p>To start the extraction, call the <tt>Extract</tt> method. An exception will be raised if there was an error.</p>
 <p>Set the <tt>ShowArchiveInsteadOfFile</tt> property to <tt>True</tt> to show the name of the archive which is being extracted to the user instead of the names of the files inside the archive.</p>
-<p>See <link topic="isxfunc_ExtractArchive">ExtractArchive</link> for the definition of <tt>TOnExtractionProgress</tt>.</p></remarks>
+<p>See <isxfunc>ExtractArchive</isxfunc> for the definition of <tt>TOnExtractionProgress</tt>.</p></remarks>
         <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <tt>CreateDownloadPage</tt> which works very similar to <tt>CreateExtractionPage</tt>.</p>
 <p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a [Files] entry instead.</p>
 </example>
         <seealso><p><link topic="scriptclasses" anchor="TExtractionWizardPage">TExtractionWizardPage</link><br />
-<link topic="isxfunc_ExtractArchive">ExtractArchive</link><br />
-<link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link><br />
-<link topic="isxfunc_CreateOutputProgressPage">CreateOutputProgressPage</link></p></seealso>
+<isxfunc>ExtractArchive</isxfunc><br />
+<isxfunc>MapArchiveExtensions</isxfunc><br />
+<isxfunc>CreateOutputProgressPage</isxfunc></p></seealso>
       </function>
       <function>
         <name>CreateCustomPage</name>
@@ -3006,7 +3006,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <description><p>Creates a form. The form is empty by default; you have to create your own controls afterward and place them on the form (by setting their Parent properties to the <link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link> instance returned by this function).</p></description>
         <remarks><p>You should call this function instead of creating <link topic="scriptclasses" anchor="TForm">TForm</link> or <link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link> instances directly. This function automatically initializes the font and other properties of the created form to be like Setup's other dialogs.</p>
 <p>The <tt>[LangOptions]</tt> section's <tt>DialogFontName</tt> and <tt>DialogFontSize</tt> directives determine the font used by the form and, by default, any child controls created on the form.</p>
-<p>You should use <link topic="isxfunc_ScaleX">ScaleX</link> and <link topic="isxfunc_ScaleY">ScaleY</link> to scale the desired client width and height to appropriate values. A form's client width and height are the form's full width and height minus its borders.</p>
+<p>You should use <isxfunc>ScaleX</isxfunc> and <isxfunc>ScaleY</isxfunc> to scale the desired client width and height to appropriate values. A form's client width and height are the form's full width and height minus its borders.</p>
 <p><tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> specify whether the form is allowed to grow horizontally and vertically as the client area is resized, for [Setup] section directive <sd>WizardSizePercent</sd>.</p>
 <p>The signature of the <tt>CreateCustomForm</tt> function has changed as of version 6.6.0. The width and height must now be specified upfront (they are now read-only properties once the form is constructed). Previously, your code might have looked like this:</p>
 <pre>
@@ -3064,7 +3064,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <name>InitializeBitmapButtonFromIcon</name>
         <prototype>function InitializeBitmapButtonFromIcon(const BitmapButton: TBitmapButton; const IconFilename: String; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;</prototype>
         <description><p>Initializes the given bitmap button with an icon from the given icon file using the given background color for transparent parts.</p>
-<p>See <link topic="isxfunc_InitializeBitmapImageFromIcon">InitializeBitmapImageFromIcon</link> for more information.</p></description>
+<p>See <isxfunc>InitializeBitmapImageFromIcon</isxfunc> for more information.</p></description>
       </function>
       <function>
         <name>InitializeBitmapImageFromIcon</name>
@@ -3091,13 +3091,13 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 
   InitializeBitmapImageFromIcon(BitmapImage, <str>'MyProg.ico'</str>, clNone, [<num>32</num>, <num>48</num>, <num>64</num>]);
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_InitializeBitmapImageFromStockIcon">InitializeBitmapImageFromStockIcon</link></p></seealso>
+        <seealso><p><isxfunc>InitializeBitmapImageFromStockIcon</isxfunc></p></seealso>
       </function>
       <function>
         <name>InitializeBitmapButtonFromStockIcon</name>
         <prototype>function InitializeBitmapButtonFromStockIcon(const BitmapButton: TBitmapButton; const Siid: Integer; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;</prototype>
         <description><p>Initializes the given bitmap button with a system-defined stock icon from the given stock icon id (siid) using the given background color for transparent parts.</p>
-<p>See <link topic="isxfunc_InitializeBitmapImageFromStockIcon">InitializeBitmapImageFromStockIcon</link> for more information.</p></description>
+<p>See <isxfunc>InitializeBitmapImageFromStockIcon</isxfunc> for more information.</p></description>
       </function>
       <function>
         <name>InitializeBitmapImageFromStockIcon</name>
@@ -3106,7 +3106,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>The bitmap image should be scaled already and the function will load the largest fitting icon which has a size from the given array of sizes. After loading the function will set the size of the bitmap image to the loaded size.</p>
 <p>The array must be sorted already from smallest to highest size.</p>
 <p>If no match is found in the array (for example, because it is empty), the minimum of the bitmap image's width and height will be used as the size.</p>
-<p>Unlike <link topic="isxfunc_InitializeBitmapImageFromIcon">InitializeBitmapImageFromIcon</link>, this function supports arbitrary sizes.</p>
+<p>Unlike <isxfunc>InitializeBitmapImageFromIcon</isxfunc>, this function supports arbitrary sizes.</p>
 <p>Returns True if the icon could be loaded, False otherwise.</p></description>
         <remarks><p>See <a href="https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ne-shellapi-shstockiconid#constants">Microsoft Learn</a> for an overview of all available icons.</p>
 <p>Supported values for <tt>Siid</tt> are:</p>
@@ -3148,7 +3148,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
 
   InitializeBitmapImageFromStockIcon(BitmapImage, SIID_ERROR, clNone, [<num>32</num>, <num>48</num>, <num>64</num>]);
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_InitializeBitmapImageFromIcon">InitializeBitmapImageFromIcon</link></p></seealso>
+        <seealso><p><isxfunc>InitializeBitmapImageFromIcon</isxfunc></p></seealso>
       </function>
     </subcategory>
   </category>
@@ -3181,13 +3181,13 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
     <com>// user clicked Yes</com>
   <key>end</key>;
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_SuppressibleMsgBox">SuppressibleMsgBox</link><br />
-<link topic="isxfunc_TaskDialogMsgBox">TaskDialogMsgBox</link></p></seealso>
+        <seealso><p><isxfunc>SuppressibleMsgBox</isxfunc><br />
+<isxfunc>TaskDialogMsgBox</isxfunc></p></seealso>
       </function>
       <function>
         <name>SuppressibleMsgBox</name>
         <prototype>function SuppressibleMsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons, Default: Integer): Integer;</prototype>
-        <description><p>Displays a suppressible message box. If message boxes are being suppressed (see <link topic="setupcmdline" window="main">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, SuppressibleMsgBox acts the same as the regular <link topic="isxfunc_MsgBox">MsgBox</link>.</p></description>
+        <description><p>Displays a suppressible message box. If message boxes are being suppressed (see <link topic="setupcmdline" window="main">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, SuppressibleMsgBox acts the same as the regular <isxfunc>MsgBox</isxfunc>.</p></description>
       </function>
       <function>
         <name>TaskDialogMsgBox</name>
@@ -3217,13 +3217,13 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
     IDNO: MsgBox(<str>'You chose B.'</str>, mbInformation, MB_OK);
   <key>end</key>;
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_SuppressibleTaskDialogMsgBox">SuppressibleTaskDialogMsgBox</link><br />
-<link topic="isxfunc_MsgBox">MsgBox</link></p></seealso>
+        <seealso><p><isxfunc>SuppressibleTaskDialogMsgBox</isxfunc><br />
+<isxfunc>MsgBox</isxfunc></p></seealso>
       </function>
       <function>
         <name>SuppressibleTaskDialogMsgBox</name>
         <prototype>function SuppressibleTaskDialogMsgBox(const Instruction, Text: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer; const Default: Integer): Integer;</prototype>
-        <description><p>Displays a suppressible message box using a task dialog. If message boxes are being suppressed (see <link topic="setupcmdline" window="main">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, SuppressibleTaskDialogMsgBox acts the same as the regular <link topic="isxfunc_TaskDialogMsgBox">TaskDialogMsgBox</link>.</p></description>
+        <description><p>Displays a suppressible message box using a task dialog. If message boxes are being suppressed (see <link topic="setupcmdline" window="main">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, SuppressibleTaskDialogMsgBox acts the same as the regular <isxfunc>TaskDialogMsgBox</isxfunc>.</p></description>
       </function>
       <function>
         <name>GetOpenFileName</name>
@@ -3364,7 +3364,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <prototype>procedure Log(const S: String);</prototype>
         <description><p>Logs the specified string in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p></description>
         <remarks><p>Calls to this function are ignored if logging is not enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <sd>SetupLogging</sd> [Setup] section directive or the <sd>UninstallLogging</sd> [Setup] section directive or debugging from the Compiler IDE).</p></remarks>
-        <seealso><p><link topic="isxfunc_LogFmt">LogFmt</link></p></seealso>
+        <seealso><p><isxfunc>LogFmt</isxfunc></p></seealso>
       </function>
       <function>
         <name>LogFmt</name>
@@ -3375,16 +3375,16 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
   LogFmt(<str>'%s->%s: %d/%d'</str>, [Url, FileName, Progress, ProgressMax]);
   Result := True;
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_Log">Log</link><br/>
-<link topic="isxfunc_Format">Format</link></p></seealso>
+        <seealso><p><isxfunc>Log</isxfunc><br/>
+<isxfunc>Format</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>ExecAndCaptureOutput</name>
         <prototype>function ExecAndCaptureOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; var Output: TExecOutput): Boolean;</prototype>
-        <description><p>Identical to <link topic="isxfunc_Exec">Exec</link> except:</p>
-<p>Program output from the stdout and stderr streams is captured. This is different from <link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link> which merges the streams.</p>
+        <description><p>Identical to <isxfunc>Exec</isxfunc> except:</p>
+<p>Program output from the stdout and stderr streams is captured. This is different from <isxfunc>ExecAndLogOutput</isxfunc> which merges the streams.</p>
 <p>Console programs are always hidden and the ShowCmd parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> instead of <tt>SW_HIDE</tt> is recommended.</p>
 <p>An exception will be raised if there was an error setting up output redirection (which should be very rare).</p></description>
         <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
@@ -3414,14 +3414,14 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
     <com>// Do something with the Output.StdOut array of string</com>
   <key>end</key>;
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_Exec">Exec</link><br />
-<link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link><br/>
-<link topic="isxfunc_ExecAndCaptureOutputWithNativeSysDir">ExecAndCaptureOutputWithNativeSysDir</link></p></seealso>
+        <seealso><p><isxfunc>Exec</isxfunc><br />
+<isxfunc>ExecAndLogOutput</isxfunc><br/>
+<isxfunc>ExecAndCaptureOutputWithNativeSysDir</isxfunc></p></seealso>
       </function>
       <function>
         <name>ExecAndLogOutput</name>
         <prototype>function ExecAndLogOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; const OnLog: TOnLog): Boolean;</prototype>
-        <description><p>Identical to <link topic="isxfunc_Exec">Exec</link> except:</p>
+        <description><p>Identical to <isxfunc>Exec</isxfunc> except:</p>
 <p>Console programs are always hidden and the ShowCmd parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> instead of <tt>SW_HIDE</tt> is recommended.</p>
 <p>If OnLog is set to <tt>nil</tt> then the output of the executed executable or batch file is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p>
 <p>If OnLog is not set to <tt>nil</tt> then the output is sent to the specified function, line by line.</p>
@@ -3454,23 +3454,23 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
   <key>end</key>;
   Result := Line;
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isxfunc_Exec">Exec</link><br />
-<link topic="isxfunc_ExecAndCaptureOutput">ExecAndCaptureOutput</link><br/>
-<link topic="isxfunc_ExecAndLogOutputWithNativeSysDir">ExecAndLogOutputWithNativeSysDir</link></p></seealso>
+        <seealso><p><isxfunc>Exec</isxfunc><br />
+<isxfunc>ExecAndCaptureOutput</isxfunc><br/>
+<isxfunc>ExecAndLogOutputWithNativeSysDir</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>ExecAndCaptureOutputWithNativeSysDir</name>
         <prototype>function ExecAndCaptureOutputWithNativeSysDir(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; var Output: TExecOutput): Boolean;</prototype>
-        <description><p>Use this function instead of <link topic="isxfunc_ExecAndCaptureOutput">ExecAndCaptureOutput</link> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
+        <description><p>Use this function instead of <isxfunc>ExecAndCaptureOutput</isxfunc> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
 <p>This function avoids the problem that <tt>ExecAndCaptureOutput</tt> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
         <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <tt>ExecAndCaptureOutput</tt>.</p></remarks>
       </function>
       <function>
         <name>ExecAndLogOutputWithNativeSysDir</name>
         <prototype>function ExecAndLogOutputWithNativeSysDir(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; const OnLog: TOnLog): Boolean;</prototype>
-        <description><p>Use this function instead of <link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
+        <description><p>Use this function instead of <isxfunc>ExecAndLogOutput</isxfunc> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
 <p>This function avoids the problem that <tt>ExecAndLogOutput</tt> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
         <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <tt>ExecAndLogOutput</tt>.</p></remarks>
       </function>
@@ -3541,13 +3541,13 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <name>Low</name>
         <prototype>function Low(var X): Int64;</prototype>
         <description><p>Returns the lowest value or lower bound of X. Cannot be used with type parameters.</p></description>
-        <seealso><p><link topic="isxfunc_High">High</link></p></seealso>
+        <seealso><p><isxfunc>High</isxfunc></p></seealso>
       </function>
       <function>
         <name>High</name>
         <prototype>function High(var X): Int64;</prototype>
         <description><p>Returns the highest value or upper bound of X. Cannot be used with type parameters.</p></description>
-        <seealso><p><link topic="isxfunc_Low">Low</link></p></seealso>
+        <seealso><p><isxfunc>Low</isxfunc></p></seealso>
       </function>
       <function>
         <name>SizeOf</name>
@@ -3565,25 +3565,25 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <name>Inc</name>
         <prototype>procedure Inc(var X: Ordinal);</prototype>
         <description><p>Increments X by 1.</p></description>
-        <seealso><p><link topic="isxfunc_Dec">Dec</link></p></seealso>
+        <seealso><p><isxfunc>Dec</isxfunc></p></seealso>
       </function>
       <function>
         <name>Dec</name>
         <prototype>procedure Dec(var X: Ordinal);</prototype>
         <description><p>Decrements X by 1.</p></description>
-        <seealso><p><link topic="isxfunc_Inc">Inc</link></p></seealso>
+        <seealso><p><isxfunc>Inc</isxfunc></p></seealso>
       </function>
       <function>
         <name>Succ</name>
         <prototype>function Succ(X: Ordinal): Ordinal;</prototype>
         <description><p>Returns the successor of X.</p></description>
-        <seealso><p><link topic="isxfunc_Pred">Pred</link></p></seealso>
+        <seealso><p><isxfunc>Pred</isxfunc></p></seealso>
       </function>
       <function>
         <name>Pred</name>
         <prototype>function Pred(X: Ordinal): Ordinal;</prototype>
         <description><p>Returns the predecessor of X.</p></description>
-        <seealso><p><link topic="isxfunc_Succ">Succ</link></p></seealso>
+        <seealso><p><isxfunc>Succ</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -3591,13 +3591,13 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <name>Include</name>
         <prototype>procedure Include(var S: Set; I: Ordinal);</prototype>
         <description><p>Adds an element to a set.</p></description>
-        <seealso><p><link topic="isxfunc_Exclude">Exclude</link></p></seealso>
+        <seealso><p><isxfunc>Exclude</isxfunc></p></seealso>
       </function>
       <function>
         <name>Exclude</name>
         <prototype>procedure Exclude(var S: Set; I: Ordinal);</prototype>
         <description><p>Removes an element from a set.</p></description>
-        <seealso><p><link topic="isxfunc_Include">Include</link></p></seealso>
+        <seealso><p><isxfunc>Include</isxfunc></p></seealso>
       </function>
     </subcategory>
     <subcategory>
@@ -3646,8 +3646,8 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       </function>
     </subcategory>
   </category>
-</isxfunc>
-<isxenum>
+</isxfuncs>
+<isxenums>
   <enum>
      <description>Exec and ShellExec - ShowCmd values</description>
      <values>SW_SHOW, SW_SHOWNORMAL, SW_SHOWMAXIMIZED, SW_SHOWMINIMIZED, SW_SHOWMINNOACTIVE, SW_HIDE</values>
@@ -3664,5 +3664,5 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
      <description>Reg* - RootKey values (also see the <link topic="registrysection" window="main">[Registry]</link> section documentation)</description>
      <values>HKEY_AUTO, HKEY_AUTO_32, HKEY_AUTO_64,<br />HKEY_CLASSES_ROOT, HKEY_CLASSES_ROOT_32, HKEY_CLASSES_ROOT_64,<br />HKEY_CURRENT_USER, HKEY_CURRENT_USER_32, HKEY_CURRENT_USER_64,<br />HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE_32, HKEY_LOCAL_MACHINE_64,<br />HKEY_USERS, HKEY_USERS_32, HKEY_USERS_64,<br />HKEY_PERFORMANCE_DATA,<br />HKEY_CURRENT_CONFIG, HKEY_CURRENT_CONFIG_32, HKEY_CURRENT_CONFIG_64,<br />HKEY_DYN_DATA,<br />HKA, HKA32, HKA64, HKCR, HKCR32, HKCR64, HKCU, HKCU32, HKCU64, HKLM, HKLM32, HKLM64, HKU, HKU32, HKU64, HKCC, HKCC32, HKCC64</values>
   </enum>
-</isxenum>
+</isxenums>
 </isxhelp>

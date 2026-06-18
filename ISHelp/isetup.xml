@@ -1757,7 +1757,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag cannot be combined with the <tt>isreadme</tt>, <tt>regserver</tt>, <tt>regtypelib</tt>, <tt>restartreplace</tt>, <tt>sharedfile</tt>, or <tt>uninsneveruninstall</tt> flags.</p>
 </flag>
 <flag name="dontcopy">
-<p>Don't copy the file to the user's system during the normal file copying stage but do statically compile the file into the installation. This flag is useful if the file is handled by the [Code] section exclusively and extracted using <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link>, and in that case should be combined with <tt>noencryption</tt>.</p>
+<p>Don't copy the file to the user's system during the normal file copying stage but do statically compile the file into the installation. This flag is useful if the file is handled by the [Code] section exclusively and extracted using <isxfunc>ExtractTemporaryFile</isxfunc>, and in that case should be combined with <tt>noencryption</tt>.</p>
 </flag>
 <flag name="dontverifychecksum">
 <p>Prevents Setup from verifying the file checksum after extraction. Use this flag on files you wish to modify while already compiled into Setup.</p>
@@ -1777,7 +1777,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="extractarchive">
 <p>This flag instructs Setup not to copy an existing archive file, but instead to extract it. Optionally use the <tt>ExtractArchivePassword</tt> parameter to specify a password.</p>
 <p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> [Setup] section directive, that must not be set to <tt>basic</tt>.</p>
-<p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link>.</p>
+<p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <isxfunc>MapArchiveExtensions</isxfunc>.</p>
 <p>This flag must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
 <p>This flag is usually combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</p>
 <p>Using a solid archive is not recommended; extraction performance may degrade depending on the solid block size.</p>
@@ -1817,7 +1817,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag has no effect if combined with the <tt>external</tt> flag.</p>
 </flag>
 <flag name="noencryption">
-<p>Prevents the file from being stored encrypted. Use this flag if you have enabled encryption (using the [Setup] section directive <sd>Encryption</sd>) but want to be able to extract the file using the [Code] section support function <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> before the user has entered the correct password.</p>
+<p>Prevents the file from being stored encrypted. Use this flag if you have enabled encryption (using the [Setup] section directive <sd>Encryption</sd>) but want to be able to extract the file using the [Code] section support function <isxfunc>ExtractTemporaryFile</isxfunc> before the user has entered the correct password.</p>
 <p>This flag has no effect if combined with the <tt>external</tt> flag.</p>
 </flag>
 <flag name="notimestamp">
@@ -2987,7 +2987,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 </param>
 
 <param name="RuntimeID">
-<p>Specifies the runtime ID of the key, used by <link topic="isxfunc_ISSigVerify">ISSigVerify</link>.</p>
+<p>Specifies the runtime ID of the key, used by <isxfunc>ISSigVerify</isxfunc>.</p>
 <p>Runtime ID's are stored in the resulting Setup file(s), so you should <i>not</i> use personal or non-public information in them.</p>
 <example><pre><key>RuntimeID</key>: def01</pre></example>
 </param>
@@ -3044,7 +3044,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
       Please note: Even though types like <tt>HWND</tt> are 8 bytes (64-bit) in 64-bit processes, <extlink href="https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication">64-bit Windows uses 32-bit handle values for interoperability</extlink>. When sharing a handle between 32-bit and 64-bit applications, only the lower 32 bits are significant, so it is safe to truncate from 64-bit to 32-bit or sign extend from 32-bit to 64-bit.</li>
   <li>In both 32-bit and 64-bit installers, Pascal Script records are always "packed". When calling a Windows API or external DLL function that expects aligned records, you may need to add manual padding fields. Even if this was not needed in a 32-bit installer, it may be needed in a 64-bit installer because alignment rules and field sizes differ.</li>
   <li>You cannot load 32-bit DLLs in 64-bit installers because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). However, you can always launch both 32-bit and 64-bit EXEs using the <tt>Exec</tt> function or the [Run] section.</li>
-  <li>In 32-bit installers, <link topic="isxfunc_CreateCallback">CreateCallback</link> does not support callback parameters passed by value when their type is larger than 4 bytes, such as <tt>Int64</tt>, <tt>UInt64</tt>, <tt>Double</tt>, <tt>Extended</tt>, and <tt>Currency</tt>. In 64-bit installers, larger by-value parameter types are supported.</li>
+  <li>In 32-bit installers, <isxfunc>CreateCallback</isxfunc> does not support callback parameters passed by value when their type is larger than 4 bytes, such as <tt>Int64</tt>, <tt>UInt64</tt>, <tt>Double</tt>, <tt>Extended</tt>, and <tt>Currency</tt>. In 64-bit installers, larger by-value parameter types are supported.</li>
   </ul>
 </li>
 <li>64-bit type libraries (.tlb) can only be (un)registered by 64-bit installers, and 32-bit type libraries only by 32-bit installers.<br/>
@@ -3477,7 +3477,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
       <li>when setting values in the 32-bit <tt>SharedDLLs</tt> registry key, because <tt>SysWOW64</tt> isn't used there</li>
       <li>when passing paths to the 32-bit <tt>regsvr32.exe</tt>, because DLLs are traditionally registered with a <tt>System32</tt> path</li>
       <li>when registering/unregistering type libraries in 32-bit Setup/Uninstall, because type libraries are traditionally registered with a <tt>System32</tt> path</li>
-      <li>when the <tt><link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link></tt> support function is called with <tt>tp32BitPreferSystem32</tt> in the target process parameter</li>
+      <li>when the <isxfunc>ApplyPathRedirRules</isxfunc> support function is called with <tt>tp32BitPreferSystem32</tt> in the target process parameter</li>
     </ul>
   </td>
 </tr>
@@ -3497,7 +3497,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   </td>
 </tr>
 </table>
-<p><sup>[1]</sup> With the <tt><link topic="isxfunc_ApplyPathRedirRules">ApplyPathRedirRules</link></tt> support function, the <tt>A64Bit</tt> parameter specifies the "entry bitness".</p>
+<p><sup>[1]</sup> With the <isxfunc>ApplyPathRedirRules</isxfunc> support function, the <tt>A64Bit</tt> parameter specifies the "entry bitness".</p>
 <p><sup>[2]</sup> "Target process" is the process where the rewritten path will ultimately be accessed. In most cases, paths are accessed by Setup/Uninstall itself, so the target process bitness is Setup/Uninstall's bitness (as set by <sd>SetupArchitecture</sd>).</p>
 </indent>
 </body>
@@ -4407,7 +4407,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <li>The Exit Setup? message box.</li>
 <li>The FileNotInDir2 message box displayed when Setup requires a new disk to be inserted and the disk was not found.</li>
 <li>Any (error) message box displayed before Setup (or Uninstall) could read the command line parameters.</li>
-<li>Any task dialog or message box displayed by [Code] support functions <tt>TaskDialogMsgBox</tt> and <tt>MsgBox</tt> (use <link topic="isxfunc_SuppressibleTaskDialogMsgBox">SuppressibleTaskDialogMsgBox</link> and <link topic="isxfunc_SuppressibleMsgBox">SuppressibleMsgBox</link> instead).</li>
+<li>Any task dialog or message box displayed by [Code] support functions <tt>TaskDialogMsgBox</tt> and <tt>MsgBox</tt> (use <isxfunc>SuppressibleTaskDialogMsgBox</isxfunc> and <isxfunc>SuppressibleMsgBox</isxfunc> instead).</li>
 </ul>
 </dd>
 
@@ -5327,7 +5327,7 @@ C:\Program Files\My Program
 <tt>full</tt></setupvalid>
 <setupdefault><tt>auto</tt></setupdefault>
 <body>
-<p>This specifies the method of archive extraction used by [Files] section flag <link topic="filessection" anchor="extractarchive">extractarchive</link> and support functions <link topic="isxfunc_ExtractArchive">ExtractArchive</link> and <link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link>.</p>
+<p>This specifies the method of archive extraction used by [Files] section flag <link topic="filessection" anchor="extractarchive">extractarchive</link> and support functions <isxfunc>ExtractArchive</isxfunc> and <isxfunc>CreateExtractionPage</isxfunc>.</p>
 <p><tt>basic</tt> uses an embedded version of the "7z ANSI-C Decoder" from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements. It only supports .7z archives that are not password-protected.</p>
 <p><tt>enhanced/nopassword</tt> internally uses 7zxr.dll from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled, code-signed, and renamed to is7zxr.dll. Compared to <tt>basic</tt>, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</p>
 <p><tt>enhanced</tt> uses 7zxa.dll instead of 7zxr.dll, recompiled, code-signed, and renamed to is7zxa.dll. It still only supports .7z archives, but they may be password-protected.</p>
@@ -5355,9 +5355,9 @@ C:\Program Files\My Program
 <li>It decodes whole solid block from 7z archive to RAM. The RAM consumption can be high.</li>
 </ul>
 <p><b>See also:</b><br/>
-<link topic="isxfunc_ExtractArchive">ExtractArchive</link><br/>
-<link topic="isxfunc_MapArchiveExtensions">MapArchiveExtensions</link><br/>
-<link topic="isxfunc_CreateExtractionPage">CreateExtractionPage</link>
+<isxfunc>ExtractArchive</isxfunc><br/>
+<isxfunc>MapArchiveExtensions</isxfunc><br/>
+<isxfunc>CreateExtractionPage</isxfunc>
 </p>
 </body>
 </setuptopic>
@@ -5806,7 +5806,7 @@ C:\Program Files\My Program
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>When set to <tt>yes</tt>, Setup will display a <i>Don't create a Start Menu folder</i> check box on the <i>Select Start Menu Folder</i> wizard page, which allows the user to skip creation of program shortcuts on the Start Menu.</p>
-<p>Only [Icons] entries that have a <tt>Name</tt> parameter starting with <tt>{group}\</tt> and no <tt>Tasks</tt> parameter are affected by default. To force the check box to have an effect on a particular [Icons] entry, add a <tt>Check: not <link topic="isxfunc_WizardNoIcons">WizardNoIcons</link></tt> parameter.</p>
+<p>Only [Icons] entries that have a <tt>Name</tt> parameter starting with <tt>{group}\</tt> and no <tt>Tasks</tt> parameter are affected by default. To force the check box to have an effect on a particular [Icons] entry, add a <tt>Check: not <isxfunc>WizardNoIcons</isxfunc></tt> parameter.</p>
 </body>
 </setuptopic>
 
@@ -6123,7 +6123,7 @@ C:\Program Files\My Program
 <p>If this directive is set to a blank value, no background image will be used.</p>
 <p>Otherwise, if a custom style is not specified by <sd>WizardStyle</sd> or <sd>WizardStyleFile</sd>, it will automatically activate custom style <tt>windows11</tt> with modifiers <tt>excludelightcontrols</tt> and <tt>hidebevels</tt>. Note that in light mode, the <tt>windows11</tt> custom style uses an off-white background color. To revert this, set <sd>WizardBackColor</sd> to <tt>white</tt>.</p>
 <p>To show only the background image and no other wizard images, set both <sd>WizardImageFile</sd> and <sd>WizardSmallImageFile</sd> to blank values. Alternatively set <sd>WizardImageOpacity</sd> to for example <tt>150</tt> to make both those images partially transparent.</p>
-<p>Use support function <link topic="isxfunc_WizardSetBackImage">WizardSetBackImage</link> to set, update, or remove the background image at runtime.</p>
+<p>Use support function <isxfunc>WizardSetBackImage</isxfunc> to set, update, or remove the background image at runtime.</p>
 <examples>
 <pre>
 <com>; Use separate background images for light and dark appearances</com>
@@ -6460,8 +6460,8 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <p><b>See also:</b><br/>
 <sd>WizardSizePercent</sd><br/>
 <sd>WizardStyleFile</sd><br/>
-<link topic="isxfunc_IsDarkInstallMode">IsDarkInstallMode</link><br/>
-<link topic="isxfunc_HighContrastActive">HighContrastActive</link></p>
+<isxfunc>IsDarkInstallMode</isxfunc><br/>
+<isxfunc>HighContrastActive</isxfunc></p>
 </body>
 </setuptopic>
 
@@ -6725,7 +6725,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <body>
 <p>If set to <tt>yes</tt>, files that are compiled into the installation (via [Files] section entries) will be encrypted using XChaCha20 encryption.</p>
 <p>If set to <tt>full</tt>, the entire installation will be encrypted, and the password must be specified using the <link topic="setupcmdline" anchor="PASSWORD">/PASSWORD=</link> command line parameter.</p>
-<p>If set to <tt>yes</tt> or <tt>full</tt> and you call the <link topic="isxfunc_ExtractTemporaryFile">ExtractTemporaryFile</link> function from the [Code] section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the [Files] section entry for the file.</p>
+<p>If set to <tt>yes</tt> or <tt>full</tt> and you call the <isxfunc>ExtractTemporaryFile</isxfunc> function from the [Code] section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the [Files] section entry for the file.</p>
 <p>If set to <tt>yes</tt> or <tt>full</tt> the 256-bit XChaCha20 encryption key is derived from the value of <sd>Password</sd> using the function specified by <sd>EncryptionKeyDerivation</sd>.</p>
 <p>The 192-bit XChaCha20 encryption nonce is a random base nonce, appending the index of the first file in the chunk for unique encryption nonces.</p>
 <p><b>See also:</b><br/>
@@ -6825,7 +6825,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 </dl>
 <p><b>See also:</b><br/>
 <link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
-<link topic="isxfunc_ProcessorArchitecture">ProcessorArchitecture</link></p>
+<isxfunc>ProcessorArchitecture</isxfunc></p>
 </body>
 </topic>
 
@@ -6908,7 +6908,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>Specifies whether the compiler should set the "Terminal Services aware" flag in the headers of the Setup and Uninstall programs.</p>
-<p>Most importantly, the "Terminal Services aware" flag affects the behavior of the {win} constant (and <link topic="isxfunc_GetWinDir">GetWinDir</link> support function) on servers with Terminal Services installed in application mode.</p>
+<p>Most importantly, the "Terminal Services aware" flag affects the behavior of the {win} constant (and <isxfunc>GetWinDir</isxfunc> support function) on servers with Terminal Services installed in application mode.</p>
 <p>When the flag is set, {win} will consistently return the system's real Windows directory, typically "C:\Windows", just as on systems that do not have Terminal Services installed.</p>
 <p>When the flag is not set, Windows runs the program in compatibility mode, where {win} may return either the real Windows directory or a user-specific Windows directory, such as "C:\Documents and Settings\&lt;user name&gt;\WINDOWS". Which one you get depends on the name of the program's EXE file and how it is launched. If the program is named setup.exe or install.exe, or if it is launched from the <i>Add/Remove Programs</i> Control Panel applet, then Windows will put the system in "install mode", which effectively makes the program (and all other programs running in the session) behave as if the "Terminal Services aware" flag were set. Otherwise, the program is treated as a legacy application and is given a private Windows directory. (This is true even if the user running the program has full administrative privileges.)</p>
 <p>Because the behavior that results from setting <tt>TerminalServicesAware</tt> to <tt>no</tt> is inconsistent and hard to predict, it is recommended that you use the default setting of <tt>yes</tt>. Only use <tt>no</tt> as a temporary fix if you encounter troubles on systems with Terminal Services after upgrading from a previous Inno Setup version.</p>

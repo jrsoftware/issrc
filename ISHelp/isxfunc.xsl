@@ -33,7 +33,7 @@
 
 <p>Parameter type <tt>Array</tt> means any array type can be used.</p>
 
-<xsl:for-each select="isxfunc//category">
+<xsl:for-each select="isxfuncs//category">
 <xsl:call-template name="category"/>
 </xsl:for-each>
 
@@ -41,13 +41,13 @@
 
 <p>Here's the list of constants used by these functions:</p>
 
-<xsl:for-each select="isxenum/enum">
+<xsl:for-each select="isxenums/enum">
 <xsl:call-template name="enum"/></xsl:for-each>
 
 </body>
 </topic>
 
-<xsl:for-each select="isxfunc//function">
+<xsl:for-each select="isxfuncs//function">
 <xsl:call-template name="function2"/>
 </xsl:for-each>
 

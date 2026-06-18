@@ -72,5 +72,6 @@ State defaults explicitly: "Defaults to [value]." or "The default value is [valu
 ## Cross-references
 
 - Within the same help system: `<link topic="topicname">Display Text</link>`.
+- Use the `<sd>Directive</sd>` and `<isxfunc>FunctionName</isxfunc>` shorthands instead of a `<link>` to a [Setup] directive or support function.
 - To specific anchors: `<link topic="topicname" anchor="anchorname">Display Text</link>`.
 - External links: `<extlink href="url">Display Text</extlink>`.
