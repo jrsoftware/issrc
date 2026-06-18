@@ -4044,8 +4044,10 @@ Source: "MyLibrary.dll"; DestDir: "{sys}"; Flags: 64bit
 
 <heading><a name="vulnerabilities">Vulnerability management</a></heading>
 
+<p>We welcome good-faith security reports:</p>
+
 <ul>
-<li>We welcome good-faith security reports. If you discover a security vulnerability in Inno Setup, please <extlink href="https://jrsoftware.org/contact.php">contact us</extlink> privately before making it public.</li>
+<li>If you discover a security vulnerability in Inno Setup, please <extlink href="https://jrsoftware.org/contact.php">contact us</extlink> privately before making it public.</li>
 <li>Before reporting, make sure you fully understand the issue yourself and can explain it in your own words.</li>
 <li>We have extensive knowledge of what constitutes a security vulnerability in Windows, and what does not. When you are unsure, please reframe your report as a request for defense-in-depth.</li>
 <li>For example, <extlink href="https://learn.microsoft.com/en-us/previous-versions/technet-magazine/dd822916(v=msdn.10)">as Microsoft points out</extlink>, User Account Control (UAC) elevation is a convenience feature, not a security boundary.</li>
