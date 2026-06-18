@@ -1955,8 +1955,8 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>ExecWithNativeSysDir</name>
         <prototype>function ExecWithNativeSysDir(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer): Boolean;</prototype>
         <description><p>Use this function instead of <isxfunc>Exec</isxfunc> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
-<p>This function avoids the problem that <tt>Exec</tt> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
-        <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <tt>Exec</tt>.</p></remarks>
+<p>This function avoids the problem that <isxfunc>Exec</isxfunc> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
+        <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <isxfunc>Exec</isxfunc>.</p></remarks>
         <example><pre><key>var</key>
   ResultCode: Integer;
 <key>begin</key>
@@ -2107,7 +2107,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>SetDownloadCredentials</name>
         <prototype>procedure SetDownloadCredentials(const User, Pass: String);</prototype>
-        <description><p>Sets the basic authentication username and password for all following downloads done by <tt>DownloadTemporaryFile</tt>, <tt>DownloadTemporaryFileWithISSigVerify</tt>, <tt>DownloadTemporaryFileSize</tt>, and <tt>DownloadTemporaryFileDate</tt>.</p>
+        <description><p>Sets the basic authentication username and password for all following downloads done by <isxfunc>DownloadTemporaryFile</isxfunc>, <isxfunc>DownloadTemporaryFileWithISSigVerify</isxfunc>, <isxfunc>DownloadTemporaryFileSize</isxfunc>, and <isxfunc>DownloadTemporaryFileDate</isxfunc>.</p>
 <p>Specify an empty username or password to unset the username or password.</p></description>
         <seealso><p><isxfunc>DownloadTemporaryFile</isxfunc><br/>
 <isxfunc>DownloadTemporaryFileWithISSigVerify</isxfunc><br/>
@@ -2397,7 +2397,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>procedure IncrementSharedCount(const Is64Bit: Boolean; const Filename: String; const AlreadyExisted: Boolean);</prototype>
         <description><p>Increments or initializes the reference count for the specified file in the following registry key:</p>
 <p>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\SharedDLLs</p>
-<p>64-bit versions of Windows have two separate SharedDLLs keys, one for 64-bit files and one for 32-bit files. If Is64Bit is True, the 64-bit SharedDLLs key will be updated, otherwise the 32-bit SharedDLLs key will be updated. The setting of this parameter should correspond to the bitness of the file; for example, if it is a 32-bit DLL located in the 32-bit System directory, you should specify False. You may also specify <tt>Is64BitInstallMode</tt> in which case it will use the current install mode to determine which key to open.</p>
+<p>64-bit versions of Windows have two separate SharedDLLs keys, one for 64-bit files and one for 32-bit files. If Is64Bit is True, the 64-bit SharedDLLs key will be updated, otherwise the 32-bit SharedDLLs key will be updated. The setting of this parameter should correspond to the bitness of the file; for example, if it is a 32-bit DLL located in the 32-bit System directory, you should specify False. You may also specify <isxfunc>Is64BitInstallMode</isxfunc> in which case it will use the current install mode to determine which key to open.</p>
 <p>Pass True in the AlreadyExisted parameter if the file already exists; in this case the initial reference count for the file will be 2 if the value for the file doesn't already exist in the registry. (This behavior is in line with Microsoft's requirements.)</p>
 <p>An exception will be raised if the registry key cannot be opened for write access.</p></description>
       </function>
@@ -2406,7 +2406,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>function DecrementSharedCount(const Is64Bit: Boolean; const Filename: String): Boolean;</prototype>
         <description><p>Decrements the reference count for the specified file in the following registry key:</p>
 <p>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\SharedDLLs</p>
-<p>64-bit versions of Windows have two separate SharedDLLs keys, one for 64-bit files and one for 32-bit files. If Is64Bit is True, the 64-bit SharedDLLs key will be updated, otherwise the 32-bit SharedDLLs key will be updated. The setting of this parameter should correspond to the bitness of the file; for example, if it is a 32-bit DLL located in the 32-bit System directory, you should specify False. You may also specify <tt>Is64BitInstallMode</tt> in which case it will use the current install mode to determine which key to open.</p>
+<p>64-bit versions of Windows have two separate SharedDLLs keys, one for 64-bit files and one for 32-bit files. If Is64Bit is True, the 64-bit SharedDLLs key will be updated, otherwise the 32-bit SharedDLLs key will be updated. The setting of this parameter should correspond to the bitness of the file; for example, if it is a 32-bit DLL located in the 32-bit System directory, you should specify False. You may also specify <isxfunc>Is64BitInstallMode</isxfunc> in which case it will use the current install mode to determine which key to open.</p>
 <p>Returns True if the count reached zero (meaning it's OK to delete the file). Returns False if the new count is greater than zero, or if the value for the file doesn't exist or is in an unrecognizable format.</p>
 <p>An exception will be raised if the registry key cannot be opened for write access.</p></description>
       </function>
@@ -2983,7 +2983,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>To start the extraction, call the <tt>Extract</tt> method. An exception will be raised if there was an error.</p>
 <p>Set the <tt>ShowArchiveInsteadOfFile</tt> property to <tt>True</tt> to show the name of the archive which is being extracted to the user instead of the names of the files inside the archive.</p>
 <p>See <isxfunc>ExtractArchive</isxfunc> for the definition of <tt>TOnExtractionProgress</tt>.</p></remarks>
-        <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <tt>CreateDownloadPage</tt> which works very similar to <tt>CreateExtractionPage</tt>.</p>
+        <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <isxfunc>CreateDownloadPage</isxfunc> which works very similar to <tt>CreateExtractionPage</tt>.</p>
 <p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a [Files] entry instead.</p>
 </example>
         <seealso><p><link topic="scriptclasses" anchor="TExtractionWizardPage">TExtractionWizardPage</link><br />
@@ -3464,15 +3464,15 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <name>ExecAndCaptureOutputWithNativeSysDir</name>
         <prototype>function ExecAndCaptureOutputWithNativeSysDir(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; var Output: TExecOutput): Boolean;</prototype>
         <description><p>Use this function instead of <isxfunc>ExecAndCaptureOutput</isxfunc> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
-<p>This function avoids the problem that <tt>ExecAndCaptureOutput</tt> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
-        <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <tt>ExecAndCaptureOutput</tt>.</p></remarks>
+<p>This function avoids the problem that <isxfunc>ExecAndCaptureOutput</isxfunc> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
+        <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <isxfunc>ExecAndCaptureOutput</isxfunc>.</p></remarks>
       </function>
       <function>
         <name>ExecAndLogOutputWithNativeSysDir</name>
         <prototype>function ExecAndLogOutputWithNativeSysDir(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; const OnLog: TOnLog): Boolean;</prototype>
         <description><p>Use this function instead of <isxfunc>ExecAndLogOutput</isxfunc> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
-<p>This function avoids the problem that <tt>ExecAndLogOutput</tt> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
-        <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <tt>ExecAndLogOutput</tt>.</p></remarks>
+<p>This function avoids the problem that <isxfunc>ExecAndLogOutput</isxfunc> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
+        <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <isxfunc>ExecAndLogOutput</isxfunc>.</p></remarks>
       </function>
     </subcategory>
   </category>

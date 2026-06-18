@@ -45,14 +45,14 @@
 <li>No typed constants (<tt>const X: Integer = 1</tt>). Only untyped constants (<tt>const X = 1</tt>).</li>
 <li>No default parameter values.</li>
 <li>No function or procedure overloading.</li>
-<li>No <tt>raise</tt> keyword. Use <tt>RaiseException(Msg)</tt> or <tt>RaiseLastException</tt> instead.</li>
-<li>No <tt>on E: ExceptionType do</tt> in <tt>except</tt> blocks. Use <tt>GetExceptionMessage</tt> to inspect the current exception.</li>
+<li>No <tt>raise</tt> keyword. Use <tt>RaiseException(Msg)</tt> or <isxfunc>RaiseLastException</isxfunc> instead.</li>
+<li>No <tt>on E: ExceptionType do</tt> in <tt>except</tt> blocks. Use <isxfunc>GetExceptionMessage</isxfunc> to inspect the current exception.</li>
 <li>No script-defined classes. Classes can be used, but only those defined by Inno Setup.</li>
 <li>No variant records.</li>
 <li><tt>const</tt> parameters are passed by value (copied), and not by reference as in modern Delphi.</li>
 <li>The <tt>/</tt> operator always returns <tt>Extended</tt>, even when both operands are integers. Use <tt>div</tt> for integer division.</li>
 <li><tt>Break</tt> and <tt>Continue</tt> are not reserved words. They are ordinary identifiers recognized specially inside loop bodies. A local declaration named <tt>Break</tt> or <tt>Continue</tt> will shadow the loop-control behavior.</li>
-<li><tt>Low</tt>, <tt>High</tt>, and <tt>SizeOf</tt> must be used with a variable, not a type.</li>
+<li><isxfunc>Low</isxfunc>, <isxfunc>High</isxfunc>, and <isxfunc>SizeOf</isxfunc> must be used with a variable, not a type.</li>
 </ul>
 
 <p><br/><b>See also:</b><br/>
@@ -415,7 +415,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 <param name="Check">
 <p>The name of a check function that determines whether an entry has to be processed or not. The function must either be a custom function in the [Code] section or a <link topic="scriptfunctions">support function</link>.</p>
 <p>Besides a single name, you may also use boolean expressions. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</p>
-<p>For each check function, you may include a comma separated list of parameters that Setup should pass to the check function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
+<p>For each check function, you may include a comma separated list of parameters that Setup should pass to the check function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <isxfunc>ExpandConstant</isxfunc>.</p>
 <example>
 <pre><sec>[Files]</sec>
 <key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"; <key>Check</key>: MyProgCheck
@@ -434,7 +434,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>A check function for a [Files] section entry using a wildcard but not the <tt>external</tt> flag is called once per file matching the wildcard, instead of once per entry. Use <tt>CurrentFileName</tt> to check for which file the function is called.</p>
 
-<p>Here is an example of a [Code] section containing the check functions used above. Function <tt>DirExists</tt> is a <link topic="scriptfunctions">support function</link> and therefore not included in this [Code] section.</p>
+<p>Here is an example of a [Code] section containing the check functions used above. Function <isxfunc>DirExists</isxfunc> is a <link topic="scriptfunctions">support function</link> and therefore not included in this [Code] section.</p>
 
 <precode>
 <sec>[Code]</sec>
@@ -474,7 +474,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <param name="BeforeInstall">
 <p>The name of a function that is to be called once just before an entry is installed. The function must either be a custom function in the [Code] section or a <link topic="scriptfunctions">support function</link>.</p>
-<p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
+<p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <isxfunc>ExpandConstant</isxfunc>.</p>
 <example>
 <pre><sec>[Files]</sec>
 <key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"; <key>BeforeInstall</key>: MyBeforeInstall
@@ -486,7 +486,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <param name="AfterInstall">
 <p>The name of a function that is to be called once just after an entry is installed. The function must either be a custom function in the [Code] section or a <link topic="scriptfunctions">support function</link>.</p>
-<p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <tt>ExpandConstant</tt>.</p>
+<p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <isxfunc>ExpandConstant</isxfunc>.</p>
 <example>
 <pre><sec>[Files]</sec>
 <key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"; <key>AfterInstall</key>: MyAfterInstall
@@ -504,7 +504,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>A <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> function for a [Files] section entry using a wildcard but not the <tt>external</tt> flag is called once per file matching the wildcard, instead of once per entry. Use <tt>CurrentFileName</tt> to check for which file the function is called.</p>
 
-<p>Here is an example of a <tt>[Code]</tt> section containing the functions used above. Functions <tt>CurrentFileName</tt> and <tt>Log</tt> are <link topic="scriptfunctions">support functions</link> and therefore not included in this [Code] section.</p>
+<p>Here is an example of a <tt>[Code]</tt> section containing the functions used above. Functions <tt>CurrentFileName</tt> and <isxfunc>Log</isxfunc> are <link topic="scriptfunctions">support functions</link> and therefore not included in this [Code] section.</p>
 
 <precode>
 <sec>[Code]</sec>
@@ -555,7 +555,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 </paramlist>
 
-<p>Here is an example of a <tt>[Code]</tt> section containing the procedure used above. Function <tt>Log</tt> is a <link topic="scriptfunctions">support function</link> and therefore not included in this [Code] section.</p>
+<p>Here is an example of a <tt>[Code]</tt> section containing the procedure used above. Function <isxfunc>Log</isxfunc> is a <link topic="scriptfunctions">support function</link> and therefore not included in this [Code] section.</p>
 
 <precode>
 <sec>[Code]</sec>
@@ -608,7 +608,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>The Pascal script allows you to add custom pages to Setup's wizard. This includes "pre-built" wizard pages for common queries and completely custom wizard pages with the controls of your choice.</p>
 
-<p>To use custom wizard pages, first create them inside your <tt>InitializeWizard</tt> event function. You can either use pre-built pages created by the <tt>CreateInput...Page</tt> and <tt>CreateOutput...Page</tt> functions or "empty" pages created by the <tt>CreateCustomPage</tt> function. See <link topic="scriptfunctions">Support Functions</link> topic for a listing and explanation of all <tt>Create...Page</tt> functions.</p>
+<p>To use custom wizard pages, first create them inside your <tt>InitializeWizard</tt> event function. You can either use pre-built pages created by the <tt>CreateInput...Page</tt> and <tt>CreateOutput...Page</tt> functions or "empty" pages created by the <isxfunc>CreateCustomPage</isxfunc> function. See <link topic="scriptfunctions">Support Functions</link> topic for a listing and explanation of all <tt>Create...Page</tt> functions.</p>
 
 <p>After creating each page, you add controls to it, either by calling the special methods of the pre-built pages, or by manually creating controls on the page yourself.</p>
 

@@ -3043,7 +3043,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
       Example script <i>CodeDll.iss</i> demonstrates how to support both 32-bit and 64-bit installers from a single script.<br/>
       Please note: Even though types like <tt>HWND</tt> are 8 bytes (64-bit) in 64-bit processes, <extlink href="https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication">64-bit Windows uses 32-bit handle values for interoperability</extlink>. When sharing a handle between 32-bit and 64-bit applications, only the lower 32 bits are significant, so it is safe to truncate from 64-bit to 32-bit or sign extend from 32-bit to 64-bit.</li>
   <li>In both 32-bit and 64-bit installers, Pascal Script records are always "packed". When calling a Windows API or external DLL function that expects aligned records, you may need to add manual padding fields. Even if this was not needed in a 32-bit installer, it may be needed in a 64-bit installer because alignment rules and field sizes differ.</li>
-  <li>You cannot load 32-bit DLLs in 64-bit installers because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). However, you can always launch both 32-bit and 64-bit EXEs using the <tt>Exec</tt> function or the [Run] section.</li>
+  <li>You cannot load 32-bit DLLs in 64-bit installers because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). However, you can always launch both 32-bit and 64-bit EXEs using the <isxfunc>Exec</isxfunc> function or the [Run] section.</li>
   <li>In 32-bit installers, <isxfunc>CreateCallback</isxfunc> does not support callback parameters passed by value when their type is larger than 4 bytes, such as <tt>Int64</tt>, <tt>UInt64</tt>, <tt>Double</tt>, <tt>Extended</tt>, and <tt>Currency</tt>. In 64-bit installers, larger by-value parameter types are supported.</li>
   </ul>
 </li>
@@ -3095,9 +3095,9 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
   <ul>
   <li>The Unicode compiler sees type 'String' as a Unicode string, and 'Char' as a Unicode character. Its 'AnsiString' type hasn't changed and still is an ANSI string. Its 'PChar' type has been renamed to 'PAnsiChar', and using it is generally discouraged now.</li>
   <li>The Unicode compiler is more strict about correct ';' usage: it no longer accepts certain missing ';' characters.</li>
-  <li>Some support functions had their prototype changed: some parameters of <tt>CreateOutputMsgMemoPage</tt>, <tt>RegQueryBinaryValue</tt>, <tt>RegWriteBinaryValue</tt>, <tt>OemToCharBuff</tt>, <tt>CharToOemBuff</tt>, <tt>LoadStringFromfile</tt>, <tt>SaveStringToFile</tt>, and <tt>GetMD5OfString</tt> are of type AnsiString now instead of String.</li>
-  <li>Added new <tt>SaveStringsToUTF8File</tt>, and <tt>GetMD5OfUnicodeString</tt> support functions.</li>
-  <li>Added new 'Int64' type, supported by <tt>IntToStr</tt>. Also added new <tt>StrToInt64</tt>, <tt>StrToInt64Def</tt>, and <tt>GetSpaceOnDisk64</tt> support functions.</li>
+  <li>Some support functions had their prototype changed: some parameters of <isxfunc>CreateOutputMsgMemoPage</isxfunc>, <isxfunc>RegQueryBinaryValue</isxfunc>, <isxfunc>RegWriteBinaryValue</isxfunc>, <isxfunc>OemToCharBuff</isxfunc>, <isxfunc>CharToOemBuff</isxfunc>, <tt>LoadStringFromfile</tt>, <isxfunc>SaveStringToFile</isxfunc>, and <isxfunc>GetMD5OfString</isxfunc> are of type AnsiString now instead of String.</li>
+  <li>Added new <isxfunc>SaveStringsToUTF8File</isxfunc>, and <isxfunc>GetMD5OfUnicodeString</isxfunc> support functions.</li>
+  <li>Added new 'Int64' type, supported by <isxfunc>IntToStr</isxfunc>. Also added new <isxfunc>StrToInt64</isxfunc>, <isxfunc>StrToInt64Def</isxfunc>, and <isxfunc>GetSpaceOnDisk64</isxfunc> support functions.</li>
   <li>Added new <tt>TStringStream</tt> class.</li>
   <li>If you want to compile an existing script that imports ANSI Windows API calls with the Unicode compiler, either upgrade to the 'W' Unicode API calls and use 'String' parameters, or keep the 'A' ANSI API calls and start using 'AnsiString' parameters.</li>
   </ul>
@@ -4407,7 +4407,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <li>The Exit Setup? message box.</li>
 <li>The FileNotInDir2 message box displayed when Setup requires a new disk to be inserted and the disk was not found.</li>
 <li>Any (error) message box displayed before Setup (or Uninstall) could read the command line parameters.</li>
-<li>Any task dialog or message box displayed by [Code] support functions <tt>TaskDialogMsgBox</tt> and <tt>MsgBox</tt> (use <isxfunc>SuppressibleTaskDialogMsgBox</isxfunc> and <isxfunc>SuppressibleMsgBox</isxfunc> instead).</li>
+<li>Any task dialog or message box displayed by [Code] support functions <isxfunc>TaskDialogMsgBox</isxfunc> and <isxfunc>MsgBox</isxfunc> (use <isxfunc>SuppressibleTaskDialogMsgBox</isxfunc> and <isxfunc>SuppressibleMsgBox</isxfunc> instead).</li>
 </ul>
 </dd>
 
@@ -4855,7 +4855,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>DRON: Code for the improved image stretching (5.6).</li>
 
-<li>Sherlock Software: Most of the x86 code for the <tt>CreateCallback</tt> support function (6.0).</li>
+<li>Sherlock Software: Most of the x86 code for the <isxfunc>CreateCallback</isxfunc> support function (6.0).</li>
 
 <li>Vizit0r: Code for the "Debug Call Stack" view (6.0.3).</li>
 
