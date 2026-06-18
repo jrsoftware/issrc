@@ -14,7 +14,7 @@
         <name>GetCmdTail</name>
         <prototype>function GetCmdTail: String;</prototype>
         <description><p>Returns all command line parameters passed to Setup or Uninstall as a single string, including undocumented internal parameters used by Setup and Uninstall.</p></description>
-        <seealso><p><link topic="isxfunc_ParamStr">ParamStr</link></p></seealso>
+        <seealso><p><isxfunc>ParamStr</isxfunc></p></seealso>
       </function>
       <function>
         <name>ParamCount</name>

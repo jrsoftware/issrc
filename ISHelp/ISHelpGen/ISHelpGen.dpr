@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.35';
+  Version = '1.36';
 
   XMLFileVersion = '1';
 
@@ -48,6 +48,7 @@ type
     elImg,
     elIndent,
     elISPP, { script preprocessor directive }
+    elISXFunc,
     elKey, { script section directive key, section parameter name, or Pascal keyword }
     elKeyword,
     elLI,
@@ -324,6 +325,21 @@ begin
   Keywords.AddObject(AKeyword, KeywordInfo);
 end;
 
+function GenerateSdOrIsxFuncTopicLinkHTML(const Node: IXMLNode; const ElementName,
+  TopicName, InnerContents: String): String;
+begin
+  for var C in InnerContents do
+    if not CharInSet(C, ['A'..'Z', 'a'..'z', '0'..'9']) then
+      raise Exception.CreateFmt('<%s> inner content is invalid', [ElementName]);
+  Result := '';
+  const NeedTT = (ElementFromNode(Node.ParentNode) <> elTT);
+  if NeedTT then
+    Result := Result + '<tt>';
+  Result := Result + GenerateTopicLinkHTML(TopicName, '', InnerContents);
+  if NeedTT then
+    Result := Result + '</tt>';
+end;
+
 function ParseFormattedText(Node: IXMLNode): String;
 var
   S: String;
@@ -437,16 +453,14 @@ begin
       elSD:
         begin
           const DirectiveName = ParseFormattedText(Node);
-          for var C in DirectiveName do
-            if not CharInSet(C, ['A'..'Z', 'a'..'z', '0'..'9']) then
-              raise Exception.Create('<sd> inner content is invalid');
-          const NeedTT = (ElementFromNode(Node.ParentNode) <> elTT);
-          if NeedTT then
-            Result := Result + '<tt>';
-          Result := Result + GenerateTopicLinkHTML(
-            GenerateSetupDirectiveTopicName(DirectiveName), '', DirectiveName);
-          if NeedTT then
-            Result := Result + '</tt>';
+          Result := Result + GenerateSdOrIsxFuncTopicLinkHTML(Node, 'sd',
+            GenerateSetupDirectiveTopicName(DirectiveName), DirectiveName);
+        end;
+      elISXFunc:
+        begin
+          const FunctionName = ParseFormattedText(Node);
+          Result := Result + GenerateSdOrIsxFuncTopicLinkHTML(Node, 'isxfunc',
+            'isxfunc_' + FunctionName, FunctionName);
         end;
       elSmall:
         Result := Result + '<span class="small">' + ParseFormattedText(Node) + '</span>';

@@ -142,6 +142,9 @@
 <xsl:template match="sd">
 <sd><xsl:apply-templates/></sd></xsl:template>
 
+<xsl:template match="isxfunc">
+<isxfunc><xsl:apply-templates/></isxfunc></xsl:template>
+
 <xsl:template match="sec">
 <sec><xsl:apply-templates/></sec></xsl:template>
 

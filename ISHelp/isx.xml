@@ -546,7 +546,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 <param name="OnLog">
 <p>When combined with the <tt>logoutput</tt> flag, this parameter specifies the name of a procedure that is to be called for each line of the program's output instead of directly including it in the log file.</p>
 <p>The function must be a custom function in the [Code] section having the following prototype: <tt>procedure MyOnLog(const S: String; const Error, FirstLine: Boolean);</tt>.</p>
-<p>See <link topic="isxfunc_ExecAndLogOutput">ExecAndLogOutput</link> for an explanation of parameters <tt>S</tt>, <tt>Error</tt> and <tt>FirstLine</tt>.</p>
+<p>See <isxfunc>ExecAndLogOutput</isxfunc> for an explanation of parameters <tt>S</tt>, <tt>Error</tt> and <tt>FirstLine</tt>.</p>
 <example>
 <pre><sec>[Run]</sec>
 <key>Filename</key>: "<con>{app}</con>\MyConsoleProg.exe"; <key>OnLog</key>: MyOnLog; <key>Flags</key>: logoutput</pre>
