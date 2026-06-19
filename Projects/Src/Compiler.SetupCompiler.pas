@@ -2885,6 +2885,9 @@ begin
           AIncludes.Free;
         end;
       end;
+    ssTreeComponentsList: begin
+        SetSetupHeaderOption(shTreeComponentsList);
+      end;
     ssCompression: begin
         Value := LowerCase(Trim(Value));
         if Value = 'none' then begin

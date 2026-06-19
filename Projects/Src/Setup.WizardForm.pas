@@ -1132,6 +1132,7 @@ begin
   //first fill list
   ComponentsList.Clear();
   ComponentsList.Flat := shFlatComponentsList in SetupHeader.Options;
+  ComponentsList.TreeViewStyle := shTreeComponentsList in SetupHeader.Options;
   for var J := 0 to Entries[seComponent].Count-1 do begin
     ComponentEntry := PSetupComponentEntry(Entries[seComponent][J]);
     if coExclusive in ComponentEntry.Options then

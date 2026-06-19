@@ -57,7 +57,7 @@ type
     shDisableFinishedPage, shUpdateUninstallLogAppName, shDisableReadyMemo,
     shAlwaysShowComponentsList, shFlatComponentsList, shShowComponentSizes,
     shDisableReadyPage, shAlwaysShowDirOnReadyPage, shAlwaysShowGroupOnReadyPage,
-    shAllowUNCPath, shUserInfoPage,
+    shAllowUNCPath, shUserInfoPage, shTreeComponentsList,
     shUninstallRestartComputer, shRestartIfNeededByRun, shShowTasksTreeLines,
     shAllowCancelDuringInstall, shWizardImageStretch, shAppendDefaultDirName,
     shAppendDefaultGroupName, shSetupLogging,

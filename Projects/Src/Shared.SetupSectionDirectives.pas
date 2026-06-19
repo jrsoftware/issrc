@@ -55,6 +55,7 @@ type
     ssCloseApplications,
     ssCloseApplicationsFilter,
     ssCloseApplicationsFilterExcludes,
+    ssTreeComponentsList,
     ssCompression,
     ssCompressionThreads,
     ssCreateAppDir,

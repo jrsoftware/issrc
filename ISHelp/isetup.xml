@@ -1140,6 +1140,7 @@ DefaultGroupName=My Program
 
 <ul appearance="compact">
 <li><link topic="setup_appcopyright">AppCopyright</link></li>
+<li><link topic="setup_treecomponentslist">TreeComponentsList</link></li>
 <li><link topic="setup_flatcomponentslist">FlatComponentsList</link></li>
 <li><link topic="setup_setupiconfile">SetupIconFile</link></li>
 <li><link topic="setup_showcomponentsizes">ShowComponentSizes</link></li>
@@ -6732,6 +6733,14 @@ WizardBackImageOpacity=150</pre></example>
 <p>When using <tt>x86</tt> (the default), a 32-bit version of Setup is used which runs on systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64 Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
 <p>Otherwise, when using <tt>x64</tt>, a 64-bit version of Setup is used which runs on systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation.</p>
 <p>For more information, see <link topic="64bit">64-bit Inno Setup</link>.</p>
+</body>
+</setuptopic>
+
+<setuptopic directive="TreeComponentsList">
+<setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
+<setupdefault><tt>no</tt></setupdefault>
+<body>
+<p>When this directive is set to <tt>yes</tt>, Setup will displays the components list as tree (with collapse/expand buttons for nodes). Otherwise Setup will use default design of the components list.</p>
 </body>
 </setuptopic>
 
