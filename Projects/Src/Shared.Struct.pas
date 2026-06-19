@@ -214,7 +214,7 @@ type
     Used: Boolean;
     MinVersion, OnlyBelowVersion: TSetupVersionData;
     Options: set of (coFixed, coRestart, coDisableNoUninstallWarning,
-      coExclusive, coDontInheritCheck);
+      coExclusive, coDontInheritCheck, coCollapsed);
     { internally used: }
     Size: Int64;
   end;

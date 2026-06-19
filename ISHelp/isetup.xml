@@ -1336,6 +1336,9 @@ Name: "help\dutch"; Description: "Dutch"; Types: full
 <p>Instructs Setup not to warn the user that this component will not be uninstalled after they deselected this component when it's already installed on his/her machine.</p>
 <p>Depending on the complexity of your components, you can try to use the [InstallDelete] section and this flag to automatically 'uninstall' deselected components.</p>
 </flag>
+<flag name="collapsed">
+<p>Instructs Setup to display this component in a collapsed state. During installation, the end user can expand it to select or deselect nested components. This flag does not work if the value of <tt>yes</tt> is not set for the <link topic="setup_treecomponentslist">TreeComponentsList</link> directive in the [Setup] section.</p>
+</flag>
 </flaglist>
 
 <example>

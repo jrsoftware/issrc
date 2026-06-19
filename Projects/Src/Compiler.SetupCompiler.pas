@@ -3873,9 +3873,9 @@ const
     (Name: ParamCommonCheck; Flags: []),
     (Name: ParamCommonMinVersion; Flags: []),
     (Name: ParamCommonOnlyBelowVersion; Flags: []));
-  Flags: array[0..5] of PChar = (
+  Flags: array[0..6] of PChar = (
     'fixed', 'restart', 'disablenouninstallwarning', 'exclusive',
-    'dontinheritcheck', 'checkablealone');
+    'dontinheritcheck', 'collapsed', 'checkablealone');
 var
   Values: array[TParam] of TParamValue;
   NewComponentEntry: PSetupComponentEntry;
@@ -3898,7 +3898,8 @@ begin
           2: Include(Options, coDisableNoUninstallWarning);
           3: Include(Options, coExclusive);
           4: Include(Options, coDontInheritCheck);
-          5: Used := True;
+          5: Include(Options, coCollapsed);
+          6: Used := True;
         end;
 
       { Name }

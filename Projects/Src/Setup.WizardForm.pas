@@ -1139,9 +1139,16 @@ begin
       ComponentsList.AddRadioButton(ExpandConst(ComponentEntry.Description), '', ComponentEntry.Level,
         False, not (coFixed in ComponentEntry.Options), TObject(ComponentEntry))
     else
-      ComponentsList.AddCheckBox(ExpandConst(ComponentEntry.Description), '', ComponentEntry.Level,
-        False, not (coFixed in ComponentEntry.Options), ComponentEntry.Used,
-        not (coDontInheritCheck in ComponentEntry.Options), TObject(ComponentEntry));
+    begin
+      if coCollapsed in ComponentEntry.Options then
+        ComponentsList.AddCheckBoxEx(ExpandConst(ComponentEntry.Description), '', ComponentEntry.Level,
+          False, not (coFixed in ComponentEntry.Options), ComponentEntry.Used,
+          not (coDontInheritCheck in ComponentEntry.Options), not (coCollapsed in ComponentEntry.Options), TObject(ComponentEntry))
+      else
+        ComponentsList.AddCheckBox(ExpandConst(ComponentEntry.Description), '', ComponentEntry.Level,
+          False, not (coFixed in ComponentEntry.Options), ComponentEntry.Used,
+          not (coDontInheritCheck in ComponentEntry.Options), TObject(ComponentEntry));
+    end;
     if ComponentEntry.Size >= 1024*1024 then
       HasLargeComponents := True;
   end;

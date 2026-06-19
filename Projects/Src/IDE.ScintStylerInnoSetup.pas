@@ -226,8 +226,8 @@ const
   ];
 
   ComponentsSectionFlags: array of TScintRawString = [
-    'checkablealone', 'disablenouninstallwarning', 'dontinheritcheck', 'exclusive',
-    'fixed', 'restart'
+    'checkablealone', 'collapsed', 'disablenouninstallwarning', 'dontinheritcheck',
+    'exclusive', 'fixed', 'restart'
   ];
 
   DeleteSectionParameters: array of TScintRawString = [
