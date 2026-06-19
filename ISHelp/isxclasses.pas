@@ -654,6 +654,7 @@ TNewCheckListBox = class(TCustomListBox)
   property UseStyledColor: Boolean; read write;
   property TreeViewStyle: Boolean; read write;
   property ShowRoot: Boolean; read write;
+  property OnExpandCollapse: TNotifyEvent; read write;
 end;
 
 TNewProgressBarState = (npbsNormal, npbsError, npbsPaused);

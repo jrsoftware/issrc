@@ -83,6 +83,7 @@ type
     FLastMouseOverIndex: Integer;
     FHasAnyChildren: Boolean;
     FStyleServices: TCustomStyleServices;
+    FOnExpandCollapse: TNotifyEvent;
     class constructor Create;
     class destructor Destroy;
     class var FComplexParentBackground: Boolean;
@@ -250,6 +251,7 @@ type
     property WantTabs: Boolean read FWantTabs write FWantTabs default False;
     property TreeViewStyle: Boolean read FTreeViewStyle write SetTreeViewStyle default False;
     property ShowRoot: Boolean read FShowRoot write SetShowRoot default True;
+    property OnExpandCollapse: TNotifyEvent read FOnExpandCollapse write FOnExpandCollapse;
   end;
 
   TNewCheckListBoxStyleHook = class(TScrollingStyleHook)
@@ -883,6 +885,8 @@ begin
   end;
   UpdateScrollRange;
   Invalidate;
+  if Assigned(FOnExpandCollapse) then
+    FOnExpandCollapse(Self);
 end;
 
 function TNewCheckListBox.HasVisibleChildren(Index: Integer): Boolean;
@@ -2653,6 +2657,8 @@ begin
       Inc(I);
     end;
     Invalidate;
+    if Assigned(FOnExpandCollapse) then
+      FOnExpandCollapse(Self);
   end;
 end;
 
@@ -2672,6 +2678,8 @@ begin
       Inc(I);
     end;
     Invalidate;
+    if Assigned(FOnExpandCollapse) then
+      FOnExpandCollapse(Self);
   end;
 end;
 
