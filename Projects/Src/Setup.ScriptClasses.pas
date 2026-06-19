@@ -111,6 +111,8 @@ procedure TNewCheckListBoxUseStyledColor_W(Self: TNewCheckListBox; const T: Bool
 procedure TNewCheckListBoxUseStyledColor_R(Self: TNewCheckListBox; var T: Boolean); begin T := Self.UseStyledColor; end;
 procedure TNewCheckListBoxOnExpandCollapse_W(Self: TNewCheckListBox; const T: TNotifyEvent); begin Self.OnExpandCollapse := T; end;
 procedure TNewCheckListBoxOnExpandCollapse_R(Self: TNewCheckListBox; var T: TNotifyEvent); begin T := Self.OnExpandCollapse; end;
+procedure TNewCheckListBoxOnItemMouseMove_W(Self: TNewCheckListBox; const T: TItemMouseMoveEvent); begin Self.OnItemMouseMove := T; end;
+procedure TNewCheckListBoxOnItemMouseMove_R(Self: TNewCheckListBox; var T: TItemMouseMoveEvent); begin T := Self.OnItemMouseMove; end;
 
 procedure RegisterNewCheckListBox_R(Cl: TPSRuntimeClassImporter);
 begin
@@ -139,6 +141,7 @@ begin
     RegisterPropertyHelper(@TNewCheckListBoxTreeViewStyle_R,@TNewCheckListBoxTreeViewStyle_W,'TreeViewStyle');
     RegisterPropertyHelper(@TNewCheckListBoxUseStyledColor_R,@TNewCheckListBoxUseStyledColor_W,'UseStyledColor');
     RegisterPropertyHelper(@TNewCheckListBoxOnExpandCollapse_R,@TNewCheckListBoxOnExpandCollapse_W,'OnExpandCollapse');
+    RegisterPropertyHelper(@TNewCheckListBoxOnItemMouseMove_R,@TNewCheckListBoxOnItemMouseMove_W,'OnItemMouseMove');
   end;
 end;
 

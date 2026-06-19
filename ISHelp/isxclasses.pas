@@ -615,6 +615,10 @@ end;
 
 TCheckItemOperation = (coUncheck, coCheck, coCheckWithChildren);
 
+TItemArea = (iaOther, iaButton, iaCheckmark, iaItem, iaSubItem);
+
+TItemMouseMoveEvent = procedure(Sender: TObject; X, Y: Integer; Index: Integer; Area: TItemArea);
+
 TNewCheckListBox = class(TCustomListBox)
   function AddCheckBox(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled, AHasInternalChildren, ACheckWhenParentChecked: Boolean; AObject: TObject): Integer;
   function AddGroup(const ACaption, ASubItem: String; ALevel: Byte; AObject: TObject): Integer;
@@ -655,6 +659,12 @@ TNewCheckListBox = class(TCustomListBox)
   property TreeViewStyle: Boolean; read write;
   property ShowRoot: Boolean; read write;
   property OnExpandCollapse: TNotifyEvent; read write;
+  property OnItemMouseMove: TItemMouseMoveEvent; read write;
+  property OnMouseDown: TMouseEvent; read write;
+  property OnMouseEnter: TNotifyEvent; read write;
+  property OnMouseLeave: TNotifyEvent; read write;
+  property OnMouseMove: TMouseMoveEvent; read write;
+  property OnMouseUp: TMouseEvent; read write;
 end;
 
 TNewProgressBarState = (npbsNormal, npbsError, npbsPaused);

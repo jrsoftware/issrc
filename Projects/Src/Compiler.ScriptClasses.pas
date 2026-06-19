@@ -82,6 +82,8 @@ end;
 procedure RegisterNewCheckListBox_C(Cl: TPSPascalCompiler);
 begin
   Cl.AddTypeS('TCheckItemOperation', '(coUncheck, coCheck, coCheckWithChildren)');
+  Cl.AddTypeS('TItemArea', '(iaOther, iaButton, iaCheckmark, iaItem, iaSubItem)');
+  Cl.AddTypeS('TItemMouseMoveEvent', 'procedure(Sender: TObject; X, Y: Integer; Index: Integer; Area: TItemArea)');
   with Cl.AddClassN(Cl.FindClass('TCustomListBox'), 'TNewCheckListBox') do
   begin
     RegisterMethod('function AddCheckBox(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled, AHasInternalChildren, ACheckWhenParentChecked: Boolean; AObject: TObject): Integer');
@@ -127,6 +129,12 @@ begin
     RegisterProperty('TreeViewStyle', 'Boolean', iptrw);
     RegisterProperty('ShowRoot', 'Boolean', iptrw);
     RegisterProperty('OnExpandCollapse', 'TNotifyEvent', iptrw);
+    RegisterProperty('OnItemMouseMove', 'TItemMouseMoveEvent', iptrw);
+    RegisterProperty('OnMouseDown', 'TMouseEvent', iptrw);
+    RegisterProperty('OnMouseMove', 'TMouseMoveEvent', iptrw);
+    RegisterProperty('OnMouseEnter', 'TNotifyEvent', iptrw);
+    RegisterProperty('OnMouseLeave', 'TNotifyEvent', iptrw);
+    RegisterProperty('OnMouseUp', 'TMouseEvent', iptrw);
 
     {$IFNDEF PS_MINIVCL}
     RegisterProperty('Ctl3D', 'Boolean', iptrw);
@@ -138,9 +146,6 @@ begin
     RegisterProperty('OnDragDrop', 'TDragDropEvent', iptrw);
     RegisterProperty('OnDragOver', 'TDragOverEvent', iptrw);
     RegisterProperty('OnEndDrag', 'TEndDragEvent', iptrw);
-    RegisterProperty('OnMouseDown', 'TMouseEvent', iptrw);
-    RegisterProperty('OnMouseMove', 'TMouseMoveEvent', iptrw);
-    RegisterProperty('OnMouseUp', 'TMouseEvent', iptrw);
     RegisterProperty('OnStartDrag', 'TStartDragEvent', iptrw);
     {$ENDIF}
   end;

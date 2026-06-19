@@ -27,6 +27,8 @@ type
   TItemType = (itGroup, itCheck, itRadio);
   TCheckBoxState2 = (cb2Normal, cb2Hot, cb2Pressed, cb2Disabled);
   TExpandButtonState = (ebsCollapsed, ebsExpanded);
+  TItemArea = (iaOther, iaButton, iaCheckmark, iaItem, iaSubItem, iaGroup);
+  TItemMouseMoveEvent = procedure(Sender: TObject; X, Y: Integer; Index: Integer; Area: TItemArea) of object;
 
   TItemState = class(TObject)
   public
@@ -84,6 +86,8 @@ type
     FHasAnyChildren: Boolean;
     FStyleServices: TCustomStyleServices;
     FOnExpandCollapse: TNotifyEvent;
+    FOnItemMouseMove: TItemMouseMoveEvent;
+    FLastMouseOverArea: TItemArea;
     class constructor Create;
     class destructor Destroy;
     class var FComplexParentBackground: Boolean;
@@ -234,6 +238,8 @@ type
     property OnKeyPress;
     property OnKeyUp;
     property OnMouseDown;
+    property OnMouseEnter;
+    property OnMouseLeave;
     property OnMouseMove;
     property OnMouseUp;
     property OnStartDrag;
@@ -252,6 +258,7 @@ type
     property TreeViewStyle: Boolean read FTreeViewStyle write SetTreeViewStyle default False;
     property ShowRoot: Boolean read FShowRoot write SetShowRoot default True;
     property OnExpandCollapse: TNotifyEvent read FOnExpandCollapse write FOnExpandCollapse;
+    property OnItemMouseMove: TItemMouseMoveEvent read FOnItemMouseMove write FOnItemMouseMove;
   end;
 
   TNewCheckListBoxStyleHook = class(TScrollingStyleHook)
@@ -487,6 +494,7 @@ begin
   FExpandButtonColor := clBtnFace;
   FExpandButtonLineColor := clWindowText;
   FLastMouseOverIndex := -1;
+  FLastMouseOverArea := iaOther;
 end;
 
 procedure TNewCheckListBox.CreateParams(var Params: TCreateParams);
@@ -1848,6 +1856,14 @@ end;
 
 procedure TNewCheckListBox.CMMouseLeave(var Message: TMessage);
 begin
+  if (FLastMouseOverIndex >= 0) or (FLastMouseOverArea <> iaOther) then
+  begin
+    FLastMouseOverIndex := -1;
+    FLastMouseOverArea := iaOther;
+    if Assigned(FOnItemMouseMove) then
+      FOnItemMouseMove(Self, -1, -1, -1, iaOther);
+  end;
+
   UpdateHotIndex(-1);
   inherited;
 end;
@@ -2394,9 +2410,90 @@ var
   Rect: TRect;
   Indent: Integer;
   HotLeft: Integer;
+  CheckRect, ExpandRect, SubItemRect, TextRect: TRect;
+  Area: TItemArea;
+  CheckLeft: Integer;
 begin
   Pos := SmallPointToPoint(Message.Pos);
   Index := ItemAtPos(Pos, True);
+
+  if (Index >= 0) and (SendMessage(Handle, LB_GETITEMHEIGHT, Index, 0) = 1) then
+    Index := -1;
+
+  Area := iaOther;
+
+  if Index >= 0 then
+  begin
+    Rect := ItemRect(Index);
+
+    if FTreeViewStyle and HasVisibleChildren(Index) then
+    begin
+      ExpandRect := GetExpandButtonRect(Index);
+      if PtInRect(ExpandRect, Pos) then
+        Area := iaButton;
+    end;
+
+    if (Area = iaOther) and (ItemStates[Index].ItemType <> itGroup) then
+    begin
+      CheckLeft := Rect.Left + (FCheckWidth + 2 * FOffset) * ItemLevel[Index];
+      if ShouldShowExpandButton(Index) then
+        Inc(CheckLeft, 2 * FOffset + FExpandButtonSize + 2);
+      CheckRect := Rect;
+      CheckRect.Left := CheckLeft;
+      CheckRect.Right := CheckLeft + FCheckWidth + 2 * FOffset;
+      FlipRect(CheckRect, ClientRect, IsRightToLeft);
+      if PtInRect(CheckRect, Pos) then
+        Area := iaCheckmark;
+    end;
+
+    if (Area = iaOther) and (ItemStates[Index].SubItem <> '') then
+    begin
+      SubItemRect := Rect;
+      SubItemRect.Left := SubItemRect.Right - (Canvas.TextWidth(ItemStates[Index].SubItem) + 2 * FOffset);
+      FlipRect(SubItemRect, ClientRect, IsRightToLeft);
+      if PtInRect(SubItemRect, Pos) then
+        Area := iaSubItem;
+    end;
+
+    if (Area = iaOther) and (ItemStates[Index].ItemType = itGroup) then
+    begin
+      TextRect := Rect;
+      TextRect.Left := Rect.Left + (FCheckWidth + 2 * FOffset) * ItemLevel[Index];
+      if ShouldShowExpandButton(Index) then
+        Inc(TextRect.Left, 2 * FOffset + FExpandButtonSize + 2);
+      if ItemStates[Index].SubItem <> '' then
+        TextRect.Right := TextRect.Right - (Canvas.TextWidth(ItemStates[Index].SubItem) + 2 * FOffset)
+      else
+        TextRect.Right := TextRect.Right - FOffset;
+      FlipRect(TextRect, ClientRect, IsRightToLeft);
+      if (TextRect.Left < TextRect.Right) and PtInRect(TextRect, Pos) then
+        Area := iaGroup;
+    end
+
+    else if Area = iaOther then
+    begin
+      TextRect := Rect;
+      TextRect.Left := Rect.Left + (FCheckWidth + 2 * FOffset) * (ItemLevel[Index] + 1);
+      if ShouldShowExpandButton(Index) then
+        Inc(TextRect.Left, 2 * FOffset + FExpandButtonSize + 2);
+      if ItemStates[Index].SubItem <> '' then
+        TextRect.Right := TextRect.Right - (Canvas.TextWidth(ItemStates[Index].SubItem) + 2 * FOffset)
+      else
+        TextRect.Right := TextRect.Right - FOffset;
+      FlipRect(TextRect, ClientRect, IsRightToLeft);
+      if (TextRect.Left < TextRect.Right) and PtInRect(TextRect, Pos) then
+        Area := iaItem;
+    end;
+  end;
+
+  if (Index <> FLastMouseOverIndex) or (Area <> FLastMouseOverArea) then
+  begin
+    FLastMouseOverIndex := Index;
+    FLastMouseOverArea := Area;
+
+    if Assigned(FOnItemMouseMove) then
+      FOnItemMouseMove(Self, Pos.X, Pos.Y, Index, Area);
+  end;
 
   if FCaptureIndex >= 0 then begin
     if not FSpaceDown and (Index <> FLastMouseMoveIndex) then begin
