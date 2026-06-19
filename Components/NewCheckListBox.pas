@@ -76,6 +76,7 @@ type
     FDisableStyledButtons: Boolean;
     FUseStyledColor: Boolean;
     FTreeViewStyle: Boolean;
+    FShowRoot: Boolean;
     FExpandButtonSize: Integer;
     FExpandButtonColor: TColor;
     FExpandButtonLineColor: TColor;
@@ -128,6 +129,8 @@ type
     procedure ToggleExpand(Index: Integer);
     function HasVisibleChildren(Index: Integer): Boolean;
     procedure SetTreeViewStyle(Value: Boolean);
+    procedure SetShowRoot(Value: Boolean);
+    function IsRootExpandHidden(Index: Integer): Boolean;
     function ShouldShowExpandButton(Index: Integer): Boolean;
     procedure UpdateStyleServices;
     procedure UpdateExpandButtonSize;
@@ -242,6 +245,7 @@ type
     property Visible;
     property WantTabs: Boolean read FWantTabs write FWantTabs default False;
     property TreeViewStyle: Boolean read FTreeViewStyle write SetTreeViewStyle default False;
+    property ShowRoot: Boolean read FShowRoot write SetShowRoot default True;
   end;
 
   TNewCheckListBoxStyleHook = class(TScrollingStyleHook)
@@ -472,6 +476,7 @@ begin
   FLastMouseMoveIndex := -1;
   FUseStyledColor := False;
   FTreeViewStyle := False;
+  FShowRoot := True;
   FExpandButtonSize := 9;
   FExpandButtonColor := clBtnFace;
   FExpandButtonLineColor := clWindowText;
@@ -837,6 +842,9 @@ begin
   ItemRect := Self.ItemRect(Index);
   Level := ItemLevel[Index];
 
+  if not FShowRoot then
+    ItemRect.Left := ItemRect.Left - 2 * FOffset - FExpandButtonSize - 2;
+
   if Level = 0 then
     Result.Left := FOffset
   else
@@ -859,7 +867,7 @@ begin
   ItemState := ItemStates[Index];
   if not ItemState.HasChildren then
     Exit;
-  if (not FTreeViewStyle or FWantTabs) and ItemState.Expanded then
+  if (not FTreeViewStyle or FWantTabs or IsRootExpandHidden(Index)) and ItemState.Expanded then
     Exit;
   ItemState.Expanded := not ItemState.Expanded;
   ParentLevel := ItemLevel[Index];
@@ -993,7 +1001,7 @@ var
 
     ThreadPosX := (FCheckWidth + 2 * FOffset) * I + FCheckWidth div 2 + FOffset;
 
-    if BtnMode then
+    if BtnMode and FShowRoot then
       Inc(ThreadPosX, 2 * FOffset + FExpandButtonSize + 2);
 
     HorzLen := FCheckWidth div 2 + 2 * (FOffset - 1);
@@ -1136,7 +1144,7 @@ begin
           if (I in ItemStates[Index].ThreadCache) and (I < ItemStates[GroupParentIndex].Level) and ((Index mod 2) = 0) then
           begin
             ThreadPosX := (FCheckWidth + 2 * FOffset) * I + FCheckWidth div 2 + FOffset;
-            if FTreeViewStyle then
+            if FTreeViewStyle and FShowRoot then
               Inc(ThreadPosX, 2 * FOffset + FExpandButtonSize + 2);
             Canvas.Pixels[FlipX(ThreadPosX), Rect.Top + (Rect.Height div 2)] := clGrayText;
           end;
@@ -1228,7 +1236,7 @@ begin
     end;
 
     { Draw Root threads }
-    if FTreeViewStyle and (ItemLevel[Index] = 0) and FShowLines then
+    if FTreeViewStyle and (ItemLevel[Index] = 0) and FShowLines and FShowRoot then
     begin
       ButtonCenterX := FOffset + FExpandButtonSize div 2;
       ItemMiddle := Rect.Top + (Rect.Bottom - Rect.Top) div 2;
@@ -1277,7 +1285,8 @@ begin
     end;
 
     { Draw expand button }
-    ShouldDrawExpandButton := FTreeViewStyle and HasVisibleChildren(Index);
+    ShouldDrawExpandButton := FTreeViewStyle and HasVisibleChildren(Index) and
+      not IsRootExpandHidden(Index);
     if ShouldDrawExpandButton and not FWantTabs then
     begin
       ExpandRect := GetExpandButtonRect(Index);
@@ -1767,7 +1776,7 @@ begin
     Index := ItemAtPos(Point(X, Y), True);
     if (Index <> -1) then
     begin
-      if FTreeViewStyle and HasVisibleChildren(Index) then
+      if FTreeViewStyle and HasVisibleChildren(Index) and not IsRootExpandHidden(Index) then
       begin
         ExpandRect := GetExpandButtonRect(Index);
         if PtInRect(ExpandRect, Point(X, Y)) then
@@ -2534,7 +2543,34 @@ end;
 
 function TNewCheckListBox.ShouldShowExpandButton(Index: Integer): Boolean;
 begin
-  Result := FTreeViewStyle and not FWantTabs;
+  Result := FTreeViewStyle and not FWantTabs and FShowRoot;
+end;
+
+function TNewCheckListBox.IsRootExpandHidden(Index: Integer): Boolean;
+begin
+  Result := not FShowRoot and (ItemLevel[Index] = 0);
+end;
+
+procedure TNewCheckListBox.SetShowRoot(Value: Boolean);
+var
+  I: Integer;
+begin
+  if FShowRoot <> Value then
+  begin
+    FShowRoot := Value;
+    if not Value then
+    begin
+      for I := 0 to Items.Count - 1 do
+        if (ItemLevel[I] = 0) and ItemStates[I].HasChildren and
+           not ItemStates[I].Expanded then
+          ItemStates[I].Expanded := True;
+    end;
+    FThreadsUpToDate := False;
+    for I := 0 to Items.Count - 1 do
+      RemeasureItem(I);
+    UpdateScrollRange;
+    RedrawWindow(Handle, nil, 0, RDW_INVALIDATE or RDW_ERASE or RDW_FRAME);
+  end;
 end;
 
 procedure TNewCheckListBox.UpdateHasAnyChildren;

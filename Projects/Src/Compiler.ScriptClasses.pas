@@ -121,6 +121,7 @@ begin
     RegisterProperty('OnEnter', 'TNotifyEvent', iptrw);
     RegisterProperty('OnExit', 'TNotifyEvent', iptrw);
     RegisterProperty('TreeViewStyle', 'Boolean', iptrw);
+    RegisterProperty('ShowRoot', 'Boolean', iptrw);
 
     {$IFNDEF PS_MINIVCL}
     RegisterProperty('Ctl3D', 'Boolean', iptrw);
