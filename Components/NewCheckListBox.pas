@@ -190,7 +190,9 @@ type
     function GetParentOf(Item: Integer): Integer;
     procedure UpdateThreads;
     procedure CollapseAll;
+    procedure CollapseItem(Index: Integer);
     procedure ExpandAll;
+    procedure ExpandItem(Index: Integer);
     property Checked[Index: Integer]: Boolean read GetChecked write SetChecked;
     property DisableStyledButtons: Boolean read FDisableStyledButtons write FDisableStyledButtons;
     property ItemCaption[Index: Integer]: String read GetCaption write SetCaption;
@@ -2633,6 +2635,44 @@ begin
   end;
   UpdateScrollRange;
   Invalidate;
+end;
+
+procedure TNewCheckListBox.ExpandItem(Index: Integer);
+var
+  I, ParentLevel: Integer;
+begin
+  if (Index >= 0) and (Index < Items.Count) and (ItemStates[Index].HasChildren) then
+  begin
+    ItemStates[Index].Expanded := True;
+    ParentLevel := ItemLevel[Index];
+    I := Index + 1;
+    while I < Items.Count do
+    begin
+      if ItemLevel[I] <= ParentLevel then Break;
+      RemeasureItem(I);
+      Inc(I);
+    end;
+    Invalidate;
+  end;
+end;
+
+procedure TNewCheckListBox.CollapseItem(Index: Integer);
+var
+  I, ParentLevel: Integer;
+begin
+  if (Index >= 0) and (Index < Items.Count) and (ItemStates[Index].HasChildren) then
+  begin
+    ItemStates[Index].Expanded := False;
+    ParentLevel := ItemLevel[Index];
+    I := Index + 1;
+    while I < Items.Count do
+    begin
+      if ItemLevel[I] <= ParentLevel then Break;
+      RemeasureItem(I);
+      Inc(I);
+    end;
+    Invalidate;
+  end;
 end;
 
 {$IFDEF VCLSTYLES}

@@ -89,7 +89,9 @@ begin
     RegisterMethod('function AddRadioButton(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled: Boolean; AObject: TObject): Integer');
     RegisterMethod('function CheckItem(const Index: Integer; const AOperation: TCheckItemOperation): Boolean');
     RegisterMethod('procedure CollapseAll');
+    RegisterMethod('procedure CollapseItem(Index: Integer)');
     RegisterMethod('procedure ExpandAll');
+    RegisterMethod('procedure ExpandItem(Index: Integer)');
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('Checked', 'Boolean Integer', iptrw);
     RegisterProperty('State', 'TCheckBoxState Integer', iptr);

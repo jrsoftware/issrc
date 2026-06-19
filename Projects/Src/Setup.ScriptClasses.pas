@@ -119,7 +119,9 @@ begin
     RegisterMethod(@TNewCheckListBox.AddRadioButton, 'AddRadioButton');
     RegisterMethod(@TNewCheckListBox.CheckItem, 'CheckItem');
     RegisterMethod(@TNewCheckListBox.CollapseAll, 'CollapseAll');
+    RegisterMethod(@TNewCheckListBox.CollapseItem, 'CollapseItem');
     RegisterMethod(@TNewCheckListBox.ExpandAll, 'ExpandAll');
+    RegisterMethod(@TNewCheckListBox.ExpandItem, 'ExpandItem');
     RegisterPropertyHelper(@TNewCheckListBoxChecked_R, @TNewCheckListBoxChecked_W, 'Checked');
     RegisterPropertyHelper(@TNewCheckListBoxState_R, nil, 'State');
     RegisterPropertyHelper(@TNewCheckListBoxItemCaption_R, @TNewCheckListBoxItemCaption_W, 'ItemCaption');
