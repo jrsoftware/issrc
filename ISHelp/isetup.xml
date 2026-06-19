@@ -233,7 +233,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <com>; This is a comment. I could put reminders to myself here...</com>
 </precode>
 
-<p>A C-like <a name="include"><tt>#include</tt></a> directive is supported, which pulls in lines from a separate file into the script at the position of the <tt>#include</tt> directive. The syntax is:</p>
+<p>A C-like <tt><a name="include">#include</a></tt> directive is supported, which pulls in lines from a separate file into the script at the position of the <tt>#include</tt> directive. The syntax is:</p>
 
 <precode>
 <ispp>#include</ispp> <str>"filename.txt"</str>
@@ -241,7 +241,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <p>If the filename is not fully qualified, the compiler will look for it in the same directory as the file containing the <tt>#include</tt> directive. The filename may be prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 
-<p>A <a name="preproc"><tt>#preproc</tt></a> directive is supported, which must be placed on the first line of the file and specifies whether to use the built-in preprocessor, which only supports the above <tt>#include</tt> directive, or to use Inno Setup Preprocessor (ISPP), which supports many more directives. The syntax is:</p>
+<p>A <tt><a name="preproc">#preproc</a></tt> directive is supported, which must be placed on the first line of the file and specifies whether to use the built-in preprocessor, which only supports the above <tt>#include</tt> directive, or to use Inno Setup Preprocessor (ISPP), which supports many more directives. The syntax is:</p>
 <precode>
 <ispp>#preproc</ispp> builtin
 <ispp>#preproc</ispp> ispp
@@ -2312,7 +2312,7 @@ en.<key>ButtonNext</key>=&amp;Forward
 
 <heading>Special-purpose messages</heading>
 
-<p>The <a name="BeveledLabel"><tt>BeveledLabel</tt></a> message can be used to specify a line of text that is shown in the lower left corner of the wizard window and uninstaller window. The following is an example:</p>
+<p>The <tt><a name="BeveledLabel">BeveledLabel</a></tt> message can be used to specify a line of text that is shown in the lower left corner of the wizard window and uninstaller window. The following is an example:</p>
 
 <precode>
 <sec>[Messages]</sec>
@@ -2408,7 +2408,7 @@ nl.<key>CreateDesktopIcon</key>=Maak een snelkoppeling op het &amp;bureaublad
 <keyword value="fonts" />
 <body>
 
-<p>A <a name="LangOptions">[LangOptions]</a> section is used to define the language-specific settings, such as fonts, used by the Setup program and uninstaller. Normally, you need not create a [LangOptions] section in your script file, since the language-specific settings are, by default, pulled in from the file <i>Default.isl</i> included with Inno Setup (or whichever file is specified by a [Languages] section entry).</p>
+<p>A <tt><a name="LangOptions">[LangOptions]</a></tt> section is used to define the language-specific settings, such as fonts, used by the Setup program and uninstaller. Normally, you need not create a [LangOptions] section in your script file, since the language-specific settings are, by default, pulled in from the file <i>Default.isl</i> included with Inno Setup (or whichever file is specified by a [Languages] section entry).</p>
 
 <p>The following is an example of a <tt>[LangOptions]</tt> section. (The settings listed below are the defaults.)</p>
 
@@ -2475,9 +2475,9 @@ en.<key>LanguageName</key>=English
 
 <heading>Obsolete</heading>
 
-<p><i>Feature removed in 6.4.</i> <b><a name="TitleFontName">TitleFontName</a></b> and <b><a name="TitleFontSize">TitleFontSize</a></b> used to specify the font name and point size to use when displaying the application name on the background window (only visible when <tt><sd>WindowVisible</sd>=yes</tt>). If the specified font name does not exist on the user's system, 29-point <i>Arial</i> will be substituted. If the specified font name is an empty string, 29-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
+<p><i>Feature removed in 6.4.</i> <tt><a name="TitleFontName">TitleFontName</a></tt> and <tt><a name="TitleFontSize">TitleFontSize</a></tt> used to specify the font name and point size to use when displaying the application name on the background window (only visible when <tt><sd>WindowVisible</sd>=yes</tt>). If the specified font name does not exist on the user's system, 29-point <i>Arial</i> will be substituted. If the specified font name is an empty string, 29-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
 
-<p><i>Feature removed in 6.4.</i> <b><a name="CopyrightFontName">CopyrightFontName</a></b> and <b><a name="CopyrightFontSize">CopyrightFontSize</a></b> used to specify the font name and point size to use when displaying the <sd>AppCopyright</sd> message on the background window (only visible when <tt><sd>WindowVisible</sd>=yes</tt>). If the specified font name does not exist on the user's system, 8-point <i>Arial</i> will be substituted. If the specified font name is an empty string, 8-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
+<p><i>Feature removed in 6.4.</i> <tt><a name="CopyrightFontName">CopyrightFontName</a></tt> and <tt><a name="CopyrightFontSize">CopyrightFontSize</a></tt> used to specify the font name and point size to use when displaying the <sd>AppCopyright</sd> message on the background window (only visible when <tt><sd>WindowVisible</sd>=yes</tt>). If the specified font name does not exist on the user's system, 8-point <i>Arial</i> will be substituted. If the specified font name is an empty string, 8-point <i>Microsoft Sans Serif</i> or <i>MS Sans Serif</i> will be substituted.</p>
 
 
 </body>
