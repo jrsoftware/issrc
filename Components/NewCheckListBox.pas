@@ -634,8 +634,12 @@ begin
   Canvas.Font := Font;
 end;
 
-procedure LineDDAProc(X, Y: Integer; Canvas: TCanvas); stdcall;
+procedure LineDDAProc(X, Y: Integer; lpData: LPARAM); stdcall;
+var
+  Canvas: TCanvas;
 begin
+  Canvas := TCanvas(NativeInt(lpData));
+
   if ((X xor Y) and 1) = 0 then
   begin
     Canvas.MoveTo(X, Y);
