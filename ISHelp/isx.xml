@@ -230,7 +230,7 @@
 
 <dt><tt>procedure <a name="RegisterPreviousData">RegisterPreviousData</a>(PreviousDataKey: Integer);</tt></dt>
 <dd>
-<p>To store user settings entered on custom wizard pages, place a <tt>RegisterPreviousData</tt> event function in the Pascal script and call <link topic="isxfunc_SetPreviousData">SetPreviousData(PreviousDataKey, ...)</link> inside it, once per setting.</p>
+<p>To store user settings entered on custom wizard pages, place a <tt>RegisterPreviousData</tt> event function in the Pascal script and call <tt><isxfunc>SetPreviousData</isxfunc>(PreviousDataKey, ...)</tt> inside it, once per setting.</p>
 </dd>
 
 <dt><tt>function <a name="CheckSerial">CheckSerial</a>(Serial: String): Boolean;</tt></dt>

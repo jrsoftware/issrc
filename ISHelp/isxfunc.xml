@@ -193,12 +193,12 @@
       <function>
         <name>GetPreviousData</name>
         <prototype>function GetPreviousData(const ValueName, DefaultValueData: String): String;</prototype>
-        <description><p>Gets a value that was previously stored using SetPreviousData.</p></description>
+        <description><p>Gets a value that was previously stored using <isxfunc>SetPreviousData</isxfunc>.</p></description>
       </function>
       <function>
         <name>SetPreviousData</name>
         <prototype>function SetPreviousData(const PreviousDataKey: Integer; const ValueName, ValueData: String): Boolean;</prototype>
-        <description><p>Sets a value that can be restored later using GetPreviousData. Call SetPreviousData inside a RegisterPreviousData event function, once per setting.</p></description>
+        <description><p>Sets a value that can be restored later using <isxfunc>GetPreviousData</isxfunc>. Call SetPreviousData inside a RegisterPreviousData event function, once per setting.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -400,7 +400,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>GetExceptionMessage</name>
         <prototype>function GetExceptionMessage: String;</prototype>
         <description><p>Returns the message associated with the current exception. This function should only be called from within an <tt>except</tt> section, or a function called from an <tt>except</tt> section.</p></description>
-        <remarks><p>Exception messages generally do not end in a period. Pass the result of this function to AddPeriod to add one.</p></remarks>
+        <remarks><p>Exception messages generally do not end in a period. Pass the result of this function to <isxfunc>AddPeriod</isxfunc> to add one.</p></remarks>
         <example><pre><key>var</key>
   I: Integer;
 <key>begin</key>
@@ -785,17 +785,17 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>RegisterWindowMessage</name>
         <prototype>function RegisterWindowMessage(const Name: String): Cardinal;</prototype>
-        <description><p>The RegisterWindowMessage function defines a new window message that is guaranteed to be unique throughout the system. The returned message value can be used when calling the SendBroadcastMessage or PostBroadcastMessage function.</p></description>
+        <description><p>The RegisterWindowMessage function defines a new window message that is guaranteed to be unique throughout the system. The returned message value can be used when calling the <isxfunc>SendBroadcastMessage</isxfunc> or <isxfunc>PostBroadcastMessage</isxfunc> function.</p></description>
       </function>
       <function>
         <name>SendBroadcastMessage</name>
         <prototype>function SendBroadcastMessage(const Msg: Cardinal; const WParam: WPARAM; const LParam: LPARAM): LRESULT;</prototype>
-        <description><p>Sends the specified message to top-level windows in the system. Does not return until all window procedures have processed the message.<br />The specified message must be unique. Use RegisterWindowMessage to get such a message.</p></description>
+        <description><p>Sends the specified message to top-level windows in the system. Does not return until all window procedures have processed the message.<br />The specified message must be unique. Use <isxfunc>RegisterWindowMessage</isxfunc> to get such a message.</p></description>
       </function>
       <function>
         <name>PostBroadcastMessage</name>
         <prototype>function PostBroadcastMessage(const Msg: Cardinal; const WParam: WPARAM; const LParam: LPARAM): Boolean;</prototype>
-        <description><p>Posts the specified message to top-level windows in the system, returning immediately.<br />The specified message must be unique. Use RegisterWindowMessage to get such a message.</p></description>
+        <description><p>Posts the specified message to top-level windows in the system, returning immediately.<br />The specified message must be unique. Use <isxfunc>RegisterWindowMessage</isxfunc> to get such a message.</p></description>
       </function>
       <function>
         <name>SendBroadcastNotifyMessage</name>
@@ -918,12 +918,12 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>LowerCase</name>
         <prototype>function LowerCase(S: AnyString): String;</prototype>
-        <description><p>Returns a copy of the string S, but with all 7-bit ASCII characters between 'A' and 'Z' converted to lowercase. To convert 8-bit international characters, use AnsiLowerCase instead.</p></description>
+        <description><p>Returns a copy of the string S, but with all 7-bit ASCII characters between 'A' and 'Z' converted to lowercase. To convert 8-bit international characters, use <isxfunc>AnsiLowerCase</isxfunc> instead.</p></description>
       </function>
       <function>
         <name>UpperCase</name>
         <prototype>function UpperCase(S: AnyString): String;</prototype>
-        <description><p>Returns a copy of the string S, but with all 7-bit ASCII characters between 'a' and 'z' converted to uppercase. To convert 8-bit international characters, use AnsiUpperCase instead.</p></description>
+        <description><p>Returns a copy of the string S, but with all 7-bit ASCII characters between 'a' and 'z' converted to uppercase. To convert 8-bit international characters, use <isxfunc>AnsiUpperCase</isxfunc> instead.</p></description>
       </function>
       <function>
         <name>AnsiLowerCase</name>
@@ -990,7 +990,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>RemoveQuotes</name>
         <prototype>function RemoveQuotes(const S: String): String;</prototype>
-        <description><p>Opposite of AddQuotes; removes any quotes around the string.</p></description>
+        <description><p>Opposite of <isxfunc>AddQuotes</isxfunc>; removes any quotes around the string.</p></description>
       </function>
       <function>
         <name>ConvertPercentStr</name>
@@ -1886,7 +1886,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>function Exec(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer): Boolean;</prototype>
         <description><p>Executes the specified executable or batch file, using the same credentials as Setup/Uninstall. The Wait parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was executed successfully, False otherwise.</p>
 <p>If True is returned and Wait is ewWaitUntilTerminated then ResultCode returns the exit code of the process.</p>
-<p>If False is returned then ResultCode specifies the error that occurred. Use SysErrorMessage(ResultCode) to get a description of the error.</p></description>
+<p>If False is returned then ResultCode specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ResultCode)</tt> to get a description of the error.</p></description>
         <remarks><p>TExecWait is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
 <p>Use the <isxfunc>ShellExec</isxfunc> function instead if you need to launch a file that is not an executable or batch file.</p>
@@ -1924,7 +1924,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ShellExec</name>
         <prototype>function ShellExec(const Verb, Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ErrorCode: Integer): Boolean;</prototype>
-        <description><p>Opens the specified file or performs another action specified by Verb, using the same credentials as Setup/Uninstall. The filename can be an executable file, a document file, a folder, or a URL. Verb may be an empty string, in which case the default verb for the file type is used (usually "open"). The Wait parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was opened successfully, False otherwise. If False is returned then ErrorCode specifies the error that occurred. Use SysErrorMessage(ErrorCode) to get a description of the error.</p></description>
+        <description><p>Opens the specified file or performs another action specified by Verb, using the same credentials as Setup/Uninstall. The filename can be an executable file, a document file, a folder, or a URL. Verb may be an empty string, in which case the default verb for the file type is used (usually "open"). The Wait parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was opened successfully, False otherwise. If False is returned then ErrorCode specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ErrorCode)</tt> to get a description of the error.</p></description>
         <remarks><p>TExecWait is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
 <p>Note that passing a Wait value other than <tt>ewNoWait</tt> will have no effect if a new process isn't spawned (for example, if the file is opened inside an already-running instance of the program that handles the file type).</p>
@@ -2369,7 +2369,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
   <com>// Register hhctrl.ocx located in the System directory.</com>
   RegisterServer(Is64BitInstallMode, ExpandConstant(<str>'{sys}\hhctrl.ocx'</str>), False);
 <key>end</key>;</pre>
-<p>Because we specify Is64BitInstallMode in the first parameter, it will register the 64-bit OCX in the 64-bit System directory when Setup is running in 64-bit install mode. Otherwise, it will register the 32-bit OCX in the 32-bit System directory.</p></example>
+<p>Because we specify <isxfunc>Is64BitInstallMode</isxfunc> in the first parameter, it will register the 64-bit OCX in the 64-bit System directory when Setup is running in 64-bit install mode. Otherwise, it will register the 32-bit OCX in the 32-bit System directory.</p></example>
       </function>
       <function>
         <name>UnregisterServer</name>
@@ -2385,7 +2385,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
   <com>// Register stdole2.tlb located in the System directory.</com>
   RegisterTypeLibrary(Is64BitInstallMode, ExpandConstant(<str>'{sys}\stdole2.tlb'</str>));
 <key>end</key>;</pre>
-<p>Because we specify Is64BitInstallMode in the first parameter, it will register the 64-bit type library in the 64-bit System directory when Setup is running in 64-bit install mode. Otherwise, it will register the 32-bit type library in the 32-bit System directory.</p></example>
+<p>Because we specify <isxfunc>Is64BitInstallMode</isxfunc> in the first parameter, it will register the 64-bit type library in the 64-bit System directory when Setup is running in 64-bit install mode. Otherwise, it will register the 32-bit type library in the 32-bit System directory.</p></example>
       </function>
       <function>
         <name>UnregisterTypeLibrary</name>
@@ -3614,20 +3614,20 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>LoadDLL</name>
         <prototype>function LoadDLL(const DLLName: String; var ErrorCode: Integer): HMODULE;</prototype>
-        <description><p>Loads the specified DLL. Returns the DLL handle if the DLL was loaded successfully, zero otherwise. If zero is returned then ErrorCode specifies the error that occurred. Use SysErrorMessage(ErrorCode) to get a description of the error.</p></description>
+        <description><p>Loads the specified DLL. Returns the DLL handle if the DLL was loaded successfully, zero otherwise. If zero is returned then ErrorCode specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ErrorCode)</tt> to get a description of the error.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p>
 <p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
       </function>
       <function>
         <name>CallDLLProc</name>
         <prototype>function CallDLLProc(const DLLHandle: HMODULE; const ProcName: String; const Param1, Param2: NativeInt; var Result: NativeInt): Boolean;</prototype>
-        <description><p>Calls the specified function in a DLL specified using the DLL handle returned by LoadDLL. Returns True if the procedure was called successfully, False otherwise.<br />The function must use the standard calling convention, accept two NativeInt parameters and return a NativeInt result.</p></description>
+        <description><p>Calls the specified function in a DLL specified using the DLL handle returned by <isxfunc>LoadDLL</isxfunc>. Returns True if the procedure was called successfully, False otherwise.<br />The function must use the standard calling convention, accept two NativeInt parameters and return a NativeInt result.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
       </function>
       <function>
         <name>FreeDLL</name>
         <prototype>function FreeDLL(const DLLHandle: HMODULE): Boolean;</prototype>
-        <description><p>Unloads a DLL specified using the DLL handle returned by LoadDLL.</p></description>
+        <description><p>Unloads a DLL specified using the DLL handle returned by <isxfunc>LoadDLL</isxfunc>.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
       </function>
     </subcategory>
@@ -3649,15 +3649,15 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
 </isxfuncs>
 <isxenums>
   <enum>
-     <description>Exec and ShellExec - ShowCmd values</description>
+     <description><isxfunc>Exec</isxfunc> and <isxfunc>ShellExec</isxfunc> - ShowCmd values</description>
      <values>SW_SHOW, SW_SHOWNORMAL, SW_SHOWMAXIMIZED, SW_SHOWMINIMIZED, SW_SHOWMINNOACTIVE, SW_HIDE</values>
   </enum>
   <enum>
-     <description>MsgBox - Buttons flags</description>
+     <description><isxfunc>MsgBox</isxfunc> - Buttons flags</description>
      <values>MB_OK, MB_OKCANCEL, MB_ABORTRETRYIGNORE, MB_YESNOCANCEL, MB_YESNO, MB_RETRYCANCEL, MB_DEFBUTTON1, MB_DEFBUTTON2, MB_DEFBUTTON3, MB_SETFOREGROUND</values>
   </enum>
   <enum>
-     <description>MsgBox - return values</description>
+     <description><isxfunc>MsgBox</isxfunc> - return values</description>
      <values>IDOK, IDCANCEL, IDABORT, IDRETRY, IDIGNORE, IDYES, IDNO</values>
   </enum>
   <enum>
