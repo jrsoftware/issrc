@@ -849,9 +849,12 @@ begin
         NewSubItemTextColor := Self.Font.Color;
       end;
       if (LStyle <> nil) and (seClient in StyleElements) then begin
-        if FWantTabs then
-          Brush.Color := LStyle.GetStyleColor(scWindow)
-        else
+        if FWantTabs then begin
+          if ParentColor then
+            Brush.Color := LStyle.GetStyleColor(scWindow)
+          else
+            Brush.Color := LStyle.GetStyleColor(scListBox);
+        end else
           Brush.Color := LStyle.GetStyleColor(ColorStates[Enabled]);
         if seFont in StyleElements then begin
           if FWantTabs then begin
