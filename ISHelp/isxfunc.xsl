@@ -87,10 +87,10 @@
 <keyword value="{name}" />
 <body>
 
-<p margin="no"><b>Prototype:</b></p>
+<heading>Prototype</heading>
 <p><tt><xsl:value-of select="prototype"/></tt></p>
 
-<p margin="no"><b>Description:</b></p>
+<heading>Description</heading>
 <xsl:choose>
 <xsl:when test="description">
 <xsl:apply-templates select="description"/>
@@ -100,32 +100,35 @@
 </xsl:otherwise>
 </xsl:choose>
 
-<xsl:choose>
-<xsl:when test="remarks">
-<p margin="no"><b>Remarks:</b></p>
+<xsl:if test="remarks">
+<heading>Remarks</heading>
 <xsl:apply-templates select="remarks"/>
-</xsl:when>
-</xsl:choose>
+</xsl:if>
 
-<xsl:choose>
-<xsl:when test="example">
-<p margin="no"><b>Example:</b></p>
 <xsl:apply-templates select="example"/>
-</xsl:when>
-</xsl:choose>
 
-<xsl:choose>
-<xsl:when test="seealso">
-<p margin="no"><b>See also:</b></p>
+<xsl:if test="seealso">
+<heading>See also</heading>
 <xsl:apply-templates select="seealso"/>
-</xsl:when>
-</xsl:choose>
+</xsl:if>
 </body>
 </topic>
 </xsl:template>
 
 <xsl:template match="p">
 <p><xsl:apply-templates/></p></xsl:template>
+
+<xsl:template match="example">
+<xsl:for-each select="*">
+<xsl:choose>
+<xsl:when test="self::pre or self::precode">
+<example><xsl:apply-templates select="."/></example>
+</xsl:when>
+<xsl:otherwise>
+<xsl:apply-templates select="."/>
+</xsl:otherwise>
+</xsl:choose>
+</xsl:for-each></xsl:template>
 
 <xsl:template match="pre">
 <pre><xsl:apply-templates/></pre></xsl:template>
