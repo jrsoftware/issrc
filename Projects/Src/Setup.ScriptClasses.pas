@@ -103,6 +103,8 @@ procedure TNewCheckListBoxSubItemFontColor_R(Self: TNewCheckListBox; var T: TCol
 procedure TNewCheckListBoxSubItemFontColor_W(Self: TNewCheckListBox; const T: TColor; const t1: Integer); begin Self.SubItemFontColor[t1] := T; end;
 procedure TNewCheckListBoxSubItemFontStyle_R(Self: TNewCheckListBox; var T: TFontStyles; const t1: Integer); begin T := Self.SubItemFontStyle[t1]; end;
 procedure TNewCheckListBoxSubItemFontStyle_W(Self: TNewCheckListBox; const T: TFontStyles; const t1: Integer); begin Self.SubItemFontStyle[t1] := T; end;
+procedure TNewCheckListBoxTreeViewStyle_W(Self: TNewCheckListBox; const T: Boolean); begin Self.TreeViewStyle := T; end;
+procedure TNewCheckListBoxTreeViewStyle_R(Self: TNewCheckListBox; var T: Boolean); begin T := Self.TreeViewStyle; end;
 procedure TNewCheckListBoxUseStyledColor_W(Self: TNewCheckListBox; const T: Boolean); begin Self.UseStyledColor := T; end;
 procedure TNewCheckListBoxUseStyledColor_R(Self: TNewCheckListBox; var T: Boolean); begin T := Self.UseStyledColor; end;
 
@@ -125,6 +127,7 @@ begin
     RegisterPropertyHelper(@TNewCheckListBoxItemFontStyle_R, @TNewCheckListBoxItemFontStyle_W, 'ItemFontStyle');
     RegisterPropertyHelper(@TNewCheckListBoxSubItemFontColor_R, @TNewCheckListBoxSubItemFontColor_W, 'SubItemFontColor');
     RegisterPropertyHelper(@TNewCheckListBoxSubItemFontStyle_R, @TNewCheckListBoxSubItemFontStyle_W, 'SubItemFontStyle');
+    RegisterPropertyHelper(@TNewCheckListBoxTreeViewStyle_R,@TNewCheckListBoxTreeViewStyle_W,'TreeViewStyle');
     RegisterPropertyHelper(@TNewCheckListBoxUseStyledColor_R,@TNewCheckListBoxUseStyledColor_W,'UseStyledColor');
   end;
 end;

@@ -120,6 +120,7 @@ begin
     RegisterProperty('RequireRadioSelection', 'Boolean', iptrw);
     RegisterProperty('OnEnter', 'TNotifyEvent', iptrw);
     RegisterProperty('OnExit', 'TNotifyEvent', iptrw);
+    RegisterProperty('TreeViewStyle', 'Boolean', iptrw);
 
     {$IFNDEF PS_MINIVCL}
     RegisterProperty('Ctl3D', 'Boolean', iptrw);

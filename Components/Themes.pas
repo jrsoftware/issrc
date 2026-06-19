@@ -110,6 +110,16 @@ type
     ecBodyTextColor
   );
 
+  TThemedCategoryButtons = (
+    tcbCategoryButtonsDontCare,
+    tcbCategoryButtonsRoot,
+    tcbBackground,
+    tcbCategoryNormal, tcbCategorySelected,
+    tcbButtonNormal, tcbButtonHot, tcbButtonSelected,
+    tcbCategoryGlyphOpened, tcbCategoryGlyphClosed,
+    tcbCategoryChevronOpened, tcbCategoryChevronClosed
+  );
+
   TCustomStyleEngine = class
     public
       class procedure RegisterStyleHook(ControlClass: TClass; StyleHookClass: TStyleHookClass); static;
@@ -128,6 +138,7 @@ type
       function GetElementColor(Details: TThemedElementDetails; ElementColor: TElementColor; out Color: TColor): Boolean;
       function GetElementDetails(Detail: TThemedButton): TThemedElementDetails; overload;
       function GetElementDetails(Detail: TThemedCheckListBox): TThemedElementDetails; overload;
+      function GetElementDetails(Detail: TThemedCategoryButtons): TThemedElementDetails; overload;
       function GetStyleColor(Color: TStyleColor): TColor;
       function GetStyleFontColor(Font: TStyleFont): TColor;
       function GetSystemColor(Color: TColor): TColor;
@@ -252,6 +263,11 @@ end;
 function TCustomStyleServices.IsSystemStyle: Boolean;
 begin
   Result := True;
+end;
+
+function TCustomStyleServices.GetElementDetails(Detail: TThemedCategoryButtons): TThemedElementDetails;
+begin
+  Result := nil;
 end;
 
 { TStyleManager }

@@ -26,6 +26,7 @@ const
 type
   TItemType = (itGroup, itCheck, itRadio);
   TCheckBoxState2 = (cb2Normal, cb2Hot, cb2Pressed, cb2Disabled);
+  TExpandButtonState = (ebsCollapsed, ebsExpanded);
 
   TItemState = class(TObject)
   public
@@ -44,6 +45,8 @@ type
     ItemFontStyle: TFontStyles;
     SubItemFontColor: TColor;
     SubItemFontStyle: TFontStyles;
+    Expanded: Boolean;
+    HasChildren: Boolean;
   end;
 
   TCheckItemOperation = (coUncheck, coCheck, coCheckWithChildren); 
@@ -72,9 +75,16 @@ type
     FDisableItemStateDeletion: Integer;
     FDisableStyledButtons: Boolean;
     FUseStyledColor: Boolean;
+    FTreeViewStyle: Boolean;
+    FExpandButtonSize: Integer;
+    FExpandButtonColor: TColor;
+    FExpandButtonLineColor: TColor;
+    FLastMouseOverIndex: Integer;
+    FHasAnyChildren: Boolean;
     class constructor Create;
     class destructor Destroy;
     class var FComplexParentBackground: Boolean;
+    procedure UpdateHasAnyChildren;
     procedure UpdateThemeData(const Close, Open: Boolean);
     function CanFocusItem(Item: Integer): Boolean;
     function CheckPotentialRadioParents(Index, ALevel: Integer): Boolean;
@@ -88,7 +98,7 @@ type
     procedure EndCapture(Cancel: Boolean);
     function AddItem2(AType: TItemType; const ACaption, ASubItem: string;
       ALevel: Byte; AChecked, AEnabled, AHasInternalChildren,
-      ACheckWhenParentChecked: Boolean; AObject: TObject): Integer;
+      ACheckWhenParentChecked, AExpanded: Boolean; AObject: TObject): Integer;
     function FindAccel(VK: Word): Integer;
     function FindCheckedSibling(const AIndex: Integer): Integer;
     function FindNextItem(StartFrom: Integer; GoForward,
@@ -112,6 +122,11 @@ type
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
     procedure WMUpdateUIState(var Message: TMessage); message WM_UPDATEUISTATE;
     procedure WMVScroll(var Message: TWMVScroll); message WM_VSCROLL;
+    function GetExpandButtonRect(Index: Integer): TRect;
+    procedure ToggleExpand(Index: Integer);
+    function HasVisibleChildren(Index: Integer): Boolean;
+    procedure SetTreeViewStyle(Value: Boolean);
+    function ShouldShowExpandButton(Index: Integer): Boolean;
   protected
     procedure CreateWnd; override;
     procedure MeasureItem(Index: Integer; var Height: Integer); override;
@@ -221,6 +236,7 @@ type
     property UseStyledColor: Boolean read FUseStyledColor write SetUseStyledColor default False;
     property Visible;
     property WantTabs: Boolean read FWantTabs write FWantTabs default False;
+    property TreeViewStyle: Boolean read FTreeViewStyle write SetTreeViewStyle default False;
   end;
 
   TNewCheckListBoxStyleHook = class(TScrollingStyleHook)
@@ -244,7 +260,7 @@ procedure Register;
 implementation
 
 uses
-  UITypes, Types, ActiveX,
+  UITypes, Types, ActiveX, Math,
   NewUxTheme.TmSchema, PathFunc, BidiUtils, UnsignedFunc;
 
 const
@@ -439,6 +455,7 @@ begin
     end;
   end;
 
+  FHasAnyChildren := False;
   FStateList := TList.Create;
   FMinItemHeight := 16;
   FOffset := 4;
@@ -446,7 +463,13 @@ begin
   Style := lbOwnerDrawVariable;
   FHotIndex := -1;
   FCaptureIndex := -1;
+  FLastMouseMoveIndex := -1;
   FUseStyledColor := False;
+  FTreeViewStyle := False;
+  FExpandButtonSize := 9;
+  FExpandButtonColor := clBtnFace;
+  FExpandButtonLineColor := clWindowText;
+  FLastMouseOverIndex := -1;
 end;
 
 procedure TNewCheckListBox.CreateWnd;
@@ -513,14 +536,14 @@ begin
   if not AEnabled and CheckPotentialRadioParents(Items.Count, ALevel) then
     raise Exception.Create(sRadioCantHaveDisabledChildren);
   Result := AddItem2(itCheck, ACaption, ASubItem, ALevel, AChecked, AEnabled,
-    AHasInternalChildren, ACheckWhenParentChecked, AObject);
+    AHasInternalChildren, ACheckWhenParentChecked, True, AObject);
 end;
 
 function TNewCheckListBox.AddGroup(const ACaption, ASubItem: string;
   ALevel: Byte; AObject: TObject): Integer;
 begin
   Result := AddItem2(itGroup, ACaption, ASubItem, ALevel, False, True, False,
-    True, AObject);
+    True, True, AObject);
 end;
 
 function TNewCheckListBox.AddRadioButton(const ACaption, ASubItem: string;
@@ -529,7 +552,7 @@ begin
   if not AEnabled then
     AChecked := False;
   Result := AddItem2(itRadio, ACaption, ASubItem, ALevel, AChecked, AEnabled,
-    False, True, AObject);
+    False, True, True, AObject);
 end;
 
 function TNewCheckListBox.CanFocusItem(Item: Integer): Boolean;
@@ -660,8 +683,23 @@ begin
     if itemID <> UINT(-1) then begin
       var L := ItemStates[Integer(itemID)].Level;
       if ItemStates[Integer(itemID)].ItemType <> itGroup then Inc(L);
-      rcItem.Left := rcItem.Left + (FCheckWidth + 2 * FOffset) * L;
-      FlipRect(rcItem, ClientRect, IsRightToLeft);
+
+      if IsRightToLeft then
+      begin
+        if ItemStates[Integer(itemID)].ItemType = itGroup then
+          Dec(rcItem.Right, FOffset);
+        Dec(rcItem.Right, (FCheckWidth + 2 * FOffset) * L);
+        if ShouldShowExpandButton(Integer(itemID)) and FHasAnyChildren then
+          Dec(rcItem.Right, 2 * FOffset + FExpandButtonSize + 2);
+      end
+      else
+      begin
+        if ItemStates[Integer(itemID)].ItemType = itGroup then
+          Inc(rcItem.Left, FOffset);
+        Inc(rcItem.Left, (FCheckWidth + 2 * FOffset) * L);
+        if ShouldShowExpandButton(Integer(itemID)) and FHasAnyChildren then
+          Inc(rcItem.Left, 2 * FOffset + FExpandButtonSize + 2);
+      end;
     end;
     { Don't let TCustomListBox.CNDrawItem draw the focus }
     if FWantTabs or
@@ -683,12 +721,19 @@ end;
 procedure TNewCheckListBox.UpdateScrollRange;
 { Updates the vertical scroll range, hiding/showing the scroll bar if needed.
   This should be called after any RemeasureItem call. }
+var
+  TopIndex: NativeInt;
 begin
   { Update the scroll bounds by sending a seemingly-ineffectual LB_SETTOPINDEX
     message. This works on Windows 95 and 2000.
     NOTE: This causes the selected item to be repainted for no apparent reason!
     I wish I knew of a better way to do this... }
-  SendMessage(Handle, LB_SETTOPINDEX, SendMessage(Handle, LB_GETTOPINDEX, 0, 0), 0);
+  if HandleAllocated then begin
+    TopIndex := SendMessage(Handle, LB_GETTOPINDEX, 0, 0);
+    SendMessage(Handle, LB_SETCOUNT, Items.Count, 0);
+    SendMessage(Handle, LB_SETTOPINDEX, TopIndex, 0);
+    InvalidateRect(Handle, nil, True);
+  end;
 end;
 
 procedure TNewCheckListBox.MeasureItem(Index: Integer; var Height: Integer);
@@ -697,9 +742,29 @@ var
   ItemState: TItemState;
   L, SubItemWidth: Integer;
   S: String;
+  ParentIndex: Integer;
+  CurrentLevel: Byte;
 begin
+  ItemState := ItemStates[Index];
+
+  CurrentLevel := ItemState.Level;
+  ParentIndex := Index - 1;
+  while ParentIndex >= 0 do
+  begin
+    if ItemStates[ParentIndex].Level < CurrentLevel then
+    begin
+      if not ItemStates[ParentIndex].Expanded then
+      begin
+        Height := 1; // Use 1 instead of 0 to avoid LB_ERR
+        Exit;
+      end;
+      CurrentLevel := ItemStates[ParentIndex].Level;
+    end;
+    Dec(ParentIndex);
+  end;
+
   with Canvas do begin
-    ItemState := ItemStates[Index];
+    Font := Self.Font;
     Rect := Classes.Rect(0, 0, ClientWidth, 0);
 
     L := ItemState.Level;
@@ -707,6 +772,9 @@ begin
       Inc(L);
     Rect.Left := Rect.Left + (FCheckWidth + 2 * FOffset) * L;
     Inc(Rect.Left);
+
+    if ShouldShowExpandButton(Index) then
+      Inc(Rect.Left, 2 * FOffset + FExpandButtonSize + 2);
 
     if ItemState.SubItem <> '' then begin
       const DrawTextFormat = UDrawTextBiDiModeFlags(Self, DT_CALCRECT or DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE);
@@ -738,6 +806,75 @@ begin
     { The height must be an even number for tree lines to be painted correctly }
     if Odd(Height) then
       Inc(Height);
+  end;
+end;
+
+function TNewCheckListBox.GetExpandButtonRect(Index: Integer): TRect;
+var
+  ItemRect: TRect;
+  Level: Integer;
+begin
+  if (Index < 0) or (Index >= Items.Count) then
+  begin
+    Result := Rect(0, 0, 0, 0);
+    Exit;
+  end;
+
+  ItemRect := Self.ItemRect(Index);
+  Level := ItemLevel[Index];
+
+  if Level = 0 then
+    Result.Left := FOffset
+  else
+    Result.Left := ItemRect.Left + (FCheckWidth + 2 * FOffset) * Level + FOffset + FExpandButtonSize + 1 - FCheckWidth div 2 - FExpandButtonSize div 2;
+
+  Result.Right := Result.Left + FExpandButtonSize;
+  Result.Top := ItemRect.Top + (ItemRect.Bottom - ItemRect.Top - FExpandButtonSize) div 2 + 1;
+  Result.Bottom := Result.Top + FExpandButtonSize;
+
+  FlipRect(Result, ClientRect, IsRightToLeft);
+end;
+
+procedure TNewCheckListBox.ToggleExpand(Index: Integer);
+var
+  ItemState: TItemState;
+  ParentLevel, I: Integer;
+begin
+  if (Index < 0) or (Index >= Items.Count) then
+    Exit;
+  ItemState := ItemStates[Index];
+  if not ItemState.HasChildren then
+    Exit;
+  if (not FTreeViewStyle or FWantTabs) and ItemState.Expanded then
+    Exit;
+  ItemState.Expanded := not ItemState.Expanded;
+  ParentLevel := ItemLevel[Index];
+  I := Index + 1;
+  while I < Items.Count do begin
+    if ItemLevel[I] <= ParentLevel then Break;
+    RemeasureItem(I);
+    Inc(I);
+  end;
+  UpdateScrollRange;
+  Invalidate;
+end;
+
+function TNewCheckListBox.HasVisibleChildren(Index: Integer): Boolean;
+var
+  I, ParentLevel: Integer;
+begin
+  Result := False;
+  if (Index < 0) or (Index >= Items.Count) then Exit;
+
+  ParentLevel := ItemLevel[Index];
+  for I := Index + 1 to Items.Count - 1 do
+  begin
+    if ItemLevel[I] <= ParentLevel then Break;
+    if ItemLevel[I] = ParentLevel + 1 then
+    begin
+      Result := True;
+      Break;
+    end;
   end;
 end;
 
@@ -776,6 +913,9 @@ const
   RadioButtonUncheckedStates: array[Boolean] of TThemedButton = (tbRadioButtonUncheckedDisabled, tbRadioButtonUncheckedNormal);
 var
   SavedClientRect: TRect;
+  IsItemVisible: Boolean;
+  LStyle: TCustomStyleServices;
+  ButtonCenterX, HalfButtonSize: Integer;
 
   function FlipX(const X: Integer): Integer;
   begin
@@ -783,6 +923,14 @@ var
       Result := (SavedClientRect.Right - 1) - X
     else
       Result := X;
+  end;
+
+  function RectIntersect(const R1, R2: TRect): Boolean;
+  begin
+    Result := not ((R1.Right <= R2.Left) or
+                  (R1.Left >= R2.Right) or
+                  (R1.Bottom <= R2.Top) or
+                  (R1.Top >= R2.Bottom));
   end;
 
   procedure InternalDrawText(const S: string; var R: TRect; Format: UINT;
@@ -802,24 +950,196 @@ var
       DrawText(Canvas.Handle, PChar(S), Length(S), R, Format);
   end;
 
+  procedure DrawThread(I, ThreadLevel, ItemMiddle: Integer; BtnMode: Boolean);
+  var
+    ThreadPosX, HorzLen, ThreadBottom: Integer;
+    LocalParentIndex, LocalCurrentLevel: Integer;
+    LocalAnyParentCollapsed: Boolean;
+    LocalGroupParentIndex: Integer;
+  begin
+    LocalAnyParentCollapsed := False;
+    LocalCurrentLevel := ItemLevel[Index];
+    LocalParentIndex := Index - 1;
+    LocalGroupParentIndex := -1;
+
+    while (LocalParentIndex >= 0) do
+    begin
+      if ItemStates[LocalParentIndex].Level < LocalCurrentLevel then
+      begin
+        if not ItemStates[LocalParentIndex].Expanded then
+        begin
+          LocalAnyParentCollapsed := True;
+          if (LocalGroupParentIndex = -1) or (ItemStates[LocalParentIndex].Level < ItemStates[LocalGroupParentIndex].Level) then
+            LocalGroupParentIndex := LocalParentIndex;
+        end;
+        LocalCurrentLevel := ItemStates[LocalParentIndex].Level;
+      end;
+      Dec(LocalParentIndex);
+    end;
+
+    ThreadPosX := (FCheckWidth + 2 * FOffset) * I + FCheckWidth div 2 + FOffset;
+
+    if BtnMode then
+      Inc(ThreadPosX, 2 * FOffset + FExpandButtonSize + 2);
+
+    HorzLen := FCheckWidth div 2 + 2 * (FOffset - 1);
+    ThreadBottom := Rect.Bottom;
+
+    if I = ThreadLevel - 1 then
+    begin
+      if ItemStates[Index].IsLastChild then
+        ThreadBottom := ItemMiddle;
+      if IsItemVisible and not LocalAnyParentCollapsed then
+        LineDDA(FlipX(ThreadPosX), ItemMiddle, FlipX(ThreadPosX + HorzLen),
+          ItemMiddle, @LineDDAProc, NativeInt(Canvas));
+    end;
+
+    if (LocalAnyParentCollapsed and (I < ItemStates[LocalGroupParentIndex].Level)) or IsItemVisible then
+      LineDDA(FlipX(ThreadPosX), Rect.Top, FlipX(ThreadPosX), ThreadBottom,
+        @LineDDAProc, NativeInt(Canvas))
+    else
+      Canvas.Pixels[FlipX(ThreadPosX), Rect.Top + (Rect.Height div 2)] := clGrayText;
+  end;
+
+  procedure DrawRootLineSegment(const FromMiddle, ToMiddle: Integer; const FromHasChildren, ToHasChildren: Boolean);
+  var
+    LineStart, LineEnd: Integer;
+  begin
+    if FromHasChildren then
+      LineStart := FromMiddle + HalfButtonSize
+    else
+      LineStart := FromMiddle;
+    if ToHasChildren then
+      LineEnd := ToMiddle - HalfButtonSize
+    else
+      LineEnd := ToMiddle;
+    LineStart := Max(LineStart, ClientRect.Top);
+    LineEnd := Min(LineEnd, ClientRect.Bottom);
+    if LineStart < LineEnd then
+      LineDDA(FlipX(ButtonCenterX), LineStart, FlipX(ButtonCenterX), LineEnd,
+              @LineDDAProc, NativeInt(Canvas));
+  end;
+
+  procedure InternalDrawExpandButton(Rect: TRect; State: TExpandButtonState; Index: Integer);
+  var
+    CenterX, CenterY: Integer;
+    OldPenColor, OldBrushColor: TColor;
+    FDetailsPressed: TThemedElementDetails;
+    FDetailsNormal: TThemedElementDetails;
+  begin
+    if not FTreeViewStyle or (Index < 0) or (Index >= Items.Count) then Exit;
+
+    CenterX := Rect.Left + (Rect.Width div 2);
+    CenterY := Rect.Top + (Rect.Height div 2);
+    OldPenColor := Canvas.Pen.Color;
+    OldBrushColor := Canvas.Brush.Color;
+
+    if LStyle <> nil then
+    begin
+      Canvas.Brush.Style := bsClear;
+      FDetailsPressed := LStyle.GetElementDetails(tcbCategoryGlyphOpened);
+      FDetailsNormal := LStyle.GetElementDetails(tcbCategoryGlyphClosed);
+      if State = ebsExpanded then
+        LStyle.DrawElement(Canvas.Handle, FDetailsPressed, Rect, nil, CurrentPPI)
+      else
+        LStyle.DrawElement(Canvas.Handle, FDetailsNormal, Rect, nil, CurrentPPI);
+    end
+    else
+    begin
+      Canvas.Brush.Color := FExpandButtonColor;
+      Canvas.Pen.Color := FExpandButtonLineColor;
+      Canvas.Rectangle(Rect);
+
+      Canvas.MoveTo(Rect.Left + 2, CenterY);
+      Canvas.LineTo(Rect.Right - 2, CenterY);
+
+      if State = ebsCollapsed then
+      begin
+        Canvas.MoveTo(CenterX, Rect.Top + 2);
+        Canvas.LineTo(CenterX, Rect.Bottom - 2);
+      end;
+    end;
+    Canvas.Pen.Color := OldPenColor;
+    Canvas.Brush.Color := OldBrushColor;
+  end;
+
 var
   ItemDisabled: Boolean;
-  I, ThreadPosX, ThreadBottom, ThreadLevel, ItemMiddle: Integer;
-  CheckRect, SubItemRect, FocusRect: TRect;
+  I, ThreadLevel, ItemMiddle: Integer;
+  CheckRect, SubItemRect, FocusRect, ExpandRect: TRect;
   NewTextColor, NewSubItemTextColor: TColor;
   ItemState: TItemState;
   SubItemWidth: Integer;
   PartId, StateId: Integer;
   Size: TSize;
+  ShouldDrawExpandButton: Boolean;
+  AnyParentCollapsed: Boolean;
+  GroupParentIndex, ThreadPosX, CurrentLevel, ParentIndex: Integer;
+  J, HorzLen: Integer;
+  PrevItemMiddle, NextItemMiddle: Integer;
+  PrevRootIndex, NextRootIndex: Integer;
+  PrevRect, NextRect: TRect;
 begin
+  IsItemVisible := (SendMessage(Handle, LB_GETITEMHEIGHT, Index, 0) > 1);
+
+  if not IsItemVisible then
+  begin
+    AnyParentCollapsed := False;
+    GroupParentIndex := -1;
+    CurrentLevel := ItemLevel[Index];
+    ParentIndex := Index - 1;
+
+    while (ParentIndex >= 0) do
+    begin
+      if ItemStates[ParentIndex].Level < CurrentLevel then
+      begin
+        if not ItemStates[ParentIndex].Expanded then
+        begin
+          AnyParentCollapsed := True;
+          if (GroupParentIndex = -1) or (ItemStates[ParentIndex].Level < ItemStates[GroupParentIndex].Level) then
+            GroupParentIndex := ParentIndex;
+        end;
+        CurrentLevel := ItemStates[ParentIndex].Level;
+      end;
+      Dec(ParentIndex);
+    end;
+
+    if AnyParentCollapsed then
+    begin
+      if FShowLines and not FThreadsUpToDate then begin
+        UpdateThreads;
+        FThreadsUpToDate := True;
+      end;
+
+      if FShowLines then begin
+        SavedClientRect := ClientRect;
+        FlipRect(Rect, SavedClientRect, IsRightToLeft);
+
+        Canvas.Pen.Color := clGrayText;
+        ThreadLevel := ItemLevel[Index];
+
+        for I := 0 to ThreadLevel - 1 do
+          if (I in ItemStates[Index].ThreadCache) and (I < ItemStates[GroupParentIndex].Level) and ((Index mod 2) = 0) then
+          begin
+            ThreadPosX := (FCheckWidth + 2 * FOffset) * I + FCheckWidth div 2 + FOffset;
+            if FTreeViewStyle then
+              Inc(ThreadPosX, 2 * FOffset + FExpandButtonSize + 2);
+            Canvas.Pixels[FlipX(ThreadPosX), Rect.Top + (Rect.Height div 2)] := clGrayText;
+          end;
+      end;
+    end;
+    Exit;
+  end;
+
+  if not RectIntersect(Rect, GetClientRect) then
+    Exit;
+
   if FShowLines and not FThreadsUpToDate then begin
     UpdateThreads;
     FThreadsUpToDate := True;
   end;
 
   SavedClientRect := ClientRect;
-  { Undo flipping performed by TNewCheckListBox.CNDrawItem }
-  FlipRect(Rect, SavedClientRect, IsRightToLeft);
 
   ItemState := ItemStates[Index];
   const UIState = SendMessage(Handle, WM_QUERYUISTATE, 0, 0);
@@ -827,7 +1147,7 @@ begin
 
   { Style code below is based on Vcl.StdCtrls' TCustomListBox.CNDrawItem and Vcl.CheckLst's
     TCustomCheckListBox.DrawItem and .DrawCheck }
-  var LStyle := StyleServices(Self);
+  LStyle := StyleServices{$IFDEF VER340_UP}(Self){$ENDIF};
   if not LStyle.Enabled or LStyle.IsSystemStyle then
     LStyle := nil;
 
@@ -884,31 +1204,87 @@ begin
           NewSubItemTextColor := ItemState.SubItemFontColor;
       end;
     end;
+
     { Draw threads }
     if FShowLines then begin
       Pen.Color := clGrayText;
       ThreadLevel := ItemLevel[Index];
+      ItemMiddle := (Rect.Bottom - Rect.Top) div 2 + Rect.Top;
       for I := 0 to ThreadLevel - 1 do
-        if I in ItemStates[Index].ThreadCache then begin
-          ThreadPosX := (FCheckWidth + 2 * FOffset) * I + FCheckWidth div 2 + FOffset;
-          ItemMiddle := (Rect.Bottom - Rect.Top) div 2 + Rect.Top;
-          ThreadBottom := Rect.Bottom;
-          if I = ThreadLevel - 1 then begin
-            if ItemStates[Index].IsLastChild then
-              ThreadBottom := ItemMiddle;
-            LineDDA(FlipX(ThreadPosX), ItemMiddle, FlipX(ThreadPosX + FCheckWidth div 2 + FOffset),
-              ItemMiddle, @LineDDAProc, LPARAM(Canvas));
-          end;
-          LineDDA(FlipX(ThreadPosX), Rect.Top, FlipX(ThreadPosX), ThreadBottom,
-            @LineDDAProc, LPARAM(Canvas));
-        end;
+        if I in ItemState.ThreadCache then
+          DrawThread(I, ThreadLevel, ItemMiddle, FTreeViewStyle);
     end;
+
+    { Draw Root threads }
+    if FTreeViewStyle and (ItemLevel[Index] = 0) and FShowLines then
+    begin
+      ButtonCenterX := FOffset + FExpandButtonSize div 2;
+      ItemMiddle := Rect.Top + (Rect.Bottom - Rect.Top) div 2;
+      HalfButtonSize := FExpandButtonSize div 2;
+      Pen.Color := clGrayText;
+
+      NextRootIndex := -1;
+      for J := Index + 1 to Items.Count - 1 do
+        if ItemLevel[J] = 0 then
+        begin
+          NextRootIndex := J;
+          Break;
+        end;
+
+      if NextRootIndex >= 0 then
+      begin
+        NextRect := ItemRect(NextRootIndex);
+        NextItemMiddle := NextRect.Top + (NextRect.Bottom - NextRect.Top) div 2;
+        DrawRootLineSegment(ItemMiddle, NextItemMiddle, ItemStates[Index].HasChildren,
+                            ItemStates[NextRootIndex].HasChildren);
+      end;
+
+      PrevRootIndex := -1;
+      for J := Index - 1 downto 0 do
+        if ItemLevel[J] = 0 then
+        begin
+          PrevRootIndex := J;
+          Break;
+        end;
+
+      if PrevRootIndex >= 0 then
+      begin
+        PrevRect := ItemRect(PrevRootIndex);
+        PrevItemMiddle := PrevRect.Top + (PrevRect.Bottom - PrevRect.Top) div 2;
+        DrawRootLineSegment(PrevItemMiddle, ItemMiddle, ItemStates[PrevRootIndex].HasChildren,
+                            ItemStates[Index].HasChildren);
+      end;
+
+      if ShouldShowExpandButton(Index) then
+      begin
+        HorzLen := FCheckWidth div 2 + 2 * (FOffset - 1);
+        if (ItemMiddle >= ClientRect.Top) and (ItemMiddle <= ClientRect.Bottom) then
+          LineDDA(FlipX(ButtonCenterX), ItemMiddle, FlipX(ButtonCenterX + HorzLen),
+                  ItemMiddle, @LineDDAProc, NativeInt(Canvas));
+      end;
+    end;
+
+    { Draw expand button }
+    ShouldDrawExpandButton := FTreeViewStyle and HasVisibleChildren(Index);
+    if ShouldDrawExpandButton and not FWantTabs then
+    begin
+      ExpandRect := GetExpandButtonRect(Index);
+      if ItemState.Expanded then
+        InternalDrawExpandButton(ExpandRect, ebsExpanded, Index)
+      else
+        InternalDrawExpandButton(ExpandRect, ebsCollapsed, Index);
+    end;
+
     { Draw checkmark}
     if ItemState.ItemType <> itGroup then begin
-      CheckRect := Bounds(Rect.Left - (FCheckWidth + FOffset),
-        Rect.Top + ((Rect.Bottom - Rect.Top - FCheckHeight) div 2),
-        FCheckWidth, FCheckHeight);
-      FlipRect(CheckRect, SavedClientRect, IsRightToLeft);
+      if IsRightToLeft then
+        CheckRect := Bounds(Rect.Right + FOffset,
+                            Rect.Top + ((Rect.Bottom - Rect.Top - FCheckHeight) div 2),
+                            FCheckWidth, FCheckHeight)
+      else
+        CheckRect := Bounds(Rect.Left - (FCheckWidth + FOffset),
+                            Rect.Top + ((Rect.Bottom - Rect.Top - FCheckHeight) div 2),
+                            FCheckWidth, FCheckHeight);
       if (LStyle <> nil) and not FDisableStyledButtons then begin
         var Detail: TThemedButton;
         if ItemState.State <> cbGrayed then begin
@@ -975,7 +1351,6 @@ begin
       end;
     end;
     { Draw background & subitem }
-    FlipRect(Rect, SavedClientRect, IsRightToLeft);
     if TransparentIfStyled and (LStyle <> nil) then begin
       { Same method as TTrackBar.CNNotify uses }
       const Rgn = CreateRectRgn(Rect.Left, Rect.Top, Rect.Right, Rect.Bottom);
@@ -1006,6 +1381,7 @@ begin
     end
     else
       Dec(Rect.Right, FOffset);
+
     { Draw item text }
     if not FWantTabs then
       Inc(Rect.Left);
@@ -1096,11 +1472,12 @@ end;
 
 function TNewCheckListBox.AddItem2(AType: TItemType;
   const ACaption, ASubItem: string; ALevel: Byte;
-  AChecked, AEnabled, AHasInternalChildren, ACheckWhenParentChecked: Boolean;
+  AChecked, AEnabled, AHasInternalChildren, ACheckWhenParentChecked, AExpanded: Boolean;
   AObject: TObject): Integer;
 var
   ItemState: TItemState;
   I: Integer;
+  ParentHasChildren: Boolean;
 begin
   if Items.Count <> FStateList.Count then  { sanity check }
     raise Exception.Create('List item and state item count mismatch');
@@ -1128,6 +1505,8 @@ begin
     ItemState.SubItem := ASubItem;
     ItemState.HasInternalChildren := AHasInternalChildren;
     ItemState.CheckWhenParentChecked := ACheckWhenParentChecked;
+    ItemState.Expanded := AExpanded;
+    ItemState.HasChildren := False;
   except
     ItemState.Free;
     raise;
@@ -1140,6 +1519,21 @@ begin
     ItemState.Free;
     raise;
   end;
+
+  I := -1;
+  if ALevel > 0 then
+  begin
+    I := GetParentOf(Result);
+    if I >= 0 then
+      ItemStates[I].HasChildren := True;
+  end;
+
+  ParentHasChildren := False;
+  if I >= 0 then
+    ParentHasChildren := ItemStates[I].HasChildren;
+  if ItemState.HasChildren or ParentHasChildren then
+    FHasAnyChildren := True;
+
   { If the first item in a radio group is being added, and it is top-level or
     has a checked parent, force it to be checked. (We don't want to allow radio
     groups with no selection.) }
@@ -1153,6 +1547,11 @@ begin
           AChecked := True;
   end;
   SetChecked(Result, AChecked);
+
+  RemeasureItem(Result);
+
+  if HandleAllocated and not (csLoading in ComponentState) then
+    UpdateScrollRange;
 end;
 
 function TNewCheckListBox.FindAccel(VK: Word): Integer;
@@ -1172,6 +1571,21 @@ function TNewCheckListBox.FindNextItem(StartFrom: Integer; GoForward,
       Result := (ItemType = itRadio) and (State <> cbChecked)
   end;
 
+  function IsItemVisible(Index: Integer): Boolean;
+  var
+    ParentIndex: Integer;
+  begin
+    Result := True;
+    ParentIndex := GetParentOf(Index);
+    while ParentIndex >= 0 do begin
+      if not ItemStates[ParentIndex].Expanded then begin
+        Result := False;
+        Break;
+      end;
+      ParentIndex := GetParentOf(ParentIndex);
+    end;
+  end;
+
 var
   Delta: Integer;
 begin
@@ -1181,9 +1595,12 @@ begin
   begin
     Delta := Ord(GoForward) * 2 - 1;
     Result := StartFrom + Delta;
-    while (Result >= 0) and (Result < Items.Count) and
-      (not CanFocusItem(Result) or SkipUncheckedRadios and ShouldSkip(Result)) do
+    while (Result >= 0) and (Result < Items.Count) do begin
+      if CanFocusItem(Result) and IsItemVisible(Result) and
+         (not SkipUncheckedRadios or not ShouldSkip(Result)) then
+        Break;
       Result := Result + Delta;
+    end;
     if (Result < 0) or (Result >= Items.Count) then
       Result := -1;
   end
@@ -1293,6 +1710,8 @@ var
 begin
   IRect := ItemRect(Index);
   Inc(IRect.Left, (FCheckWidth + 2 * Offset) * (ItemLevel[Index]));
+    if ShouldShowExpandButton(Index) then
+      Inc(IRect.Left, 2 * FOffset + FExpandButtonSize + 2);
   IRect.Right := IRect.Left + (FCheckWidth + 2 * Offset);
   FlipRect(IRect, ClientRect, IsRightToLeft);
   InvalidateRect(Handle, @IRect, FThemeData <> 0);
@@ -1330,23 +1749,37 @@ procedure TNewCheckListBox.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 var
   Index: Integer;
+  ExpandRect: TRect;
 begin
   if Button = mbLeft then begin
     Index := ItemAtPos(Point(X, Y), True);
-    if (Index <> -1) and CanFocusItem(Index) then
+    if (Index <> -1) then
     begin
-      if FWantTabs then begin
-        if not FSpaceDown then begin
-          if not MouseCapture then
-            MouseCapture := True;
-          FCaptureIndex := Index;
-          FLastMouseMoveIndex := Index;
-          InvalidateCheck(Index);
-          HandleScroll; { Might have scrolled a new item into view }
+      if FTreeViewStyle and HasVisibleChildren(Index) then
+      begin
+        ExpandRect := GetExpandButtonRect(Index);
+        if PtInRect(ExpandRect, Point(X, Y)) then
+        begin
+          ToggleExpand(Index);
+          Exit;
         end;
-      end
-      else
-        Toggle(Index);
+      end;
+
+      if CanFocusItem(Index) then
+      begin
+        if FWantTabs then begin
+          if not FSpaceDown then begin
+            if not MouseCapture then
+              MouseCapture := True;
+            FCaptureIndex := Index;
+            FLastMouseMoveIndex := Index;
+            InvalidateCheck(Index);
+            HandleScroll; { Might have scrolled a new item into view }
+          end;
+        end
+        else
+          Toggle(Index);
+      end;
     end;
   end;
   inherited;
@@ -1826,6 +2259,7 @@ begin
     for J := I + 1 to LastChild do
       Include(ItemStates[J].ThreadCache, L);
   end;
+  FThreadsUpToDate := True;
 end;
 
 procedure TNewCheckListBox.LBDeleteString(var Message: TMessage);
@@ -1838,6 +2272,8 @@ begin
     if (I >= 0) and (I < FStateList.Count) then begin
       ItemState := FStateList[I];
       FStateList.Delete(I);
+      if ItemState.HasChildren then
+        UpdateHasAnyChildren;
       ItemState.Free;
     end;
   end;
@@ -1848,12 +2284,14 @@ var
   ItemState: TItemState;
 begin
   inherited;
-  if FDisableItemStateDeletion = 0 then
+  if FDisableItemStateDeletion = 0 then begin
     for var I := FStateList.Count-1 downto 0 do begin
       ItemState := FStateList[I];
       FStateList.Delete(I);
       ItemState.Free;
     end;
+  FHasAnyChildren := False;
+  end;
 end;
 
 procedure TNewCheckListBox.WMGetDlgCode(var Message: TWMGetDlgCode);
@@ -1926,6 +2364,7 @@ var
   Index, NewHotIndex: Integer;
   Rect: TRect;
   Indent: Integer;
+  HotLeft: Integer;
 begin
   Pos := SmallPointToPoint(Message.Pos);
   Index := ItemAtPos(Pos, True);
@@ -1943,14 +2382,17 @@ begin
   begin
     Rect := ItemRect(Index);
     Indent := (FOffset * 2 + FCheckWidth);
+    HotLeft := Rect.Left + Indent * ItemLevel[Index];
+    if ShouldShowExpandButton(Index) then
+      Inc(HotLeft, 2 * FOffset + FExpandButtonSize + 2);
     if FWantTabs then
       NewHotIndex := Index
     else begin
-      var CheckRect := Rect;
-      CheckRect.Left := Rect.Left + Indent * ItemLevel[Index];
-      CheckRect.Right := CheckRect.Left + Indent;
-      FlipRect(CheckRect, ClientRect, IsRightToLeft);
-      if (Pos.X >= CheckRect.Left) and (Pos.X < CheckRect.Right) then
+      var CheckRectHot := Rect;
+      CheckRectHot.Left := HotLeft;
+      CheckRectHot.Right := CheckRectHot.Left + Indent;
+      FlipRect(CheckRectHot, ClientRect, IsRightToLeft);
+      if (Pos.X >= CheckRectHot.Left) and (Pos.X < CheckRectHot.Right) then
         NewHotIndex := Index;
     end;
   end;
@@ -2044,6 +2486,45 @@ begin
   end
   else
     inherited;
+end;
+
+procedure TNewCheckListBox.SetTreeViewStyle(Value: Boolean);
+var
+  I: Integer;
+begin
+  if FTreeViewStyle <> Value then
+  begin
+    FTreeViewStyle := Value;
+    if not Value then
+    begin
+      for I := 0 to Items.Count - 1 do
+      begin
+        if ItemStates[I].HasChildren and not ItemStates[I].Expanded then
+          ItemStates[I].Expanded := True;
+        RemeasureItem(I);
+      end;
+      UpdateScrollRange;
+    end;
+    RedrawWindow(Handle, nil, 0, RDW_INVALIDATE or RDW_ERASE or RDW_FRAME);
+  end;
+end;
+
+function TNewCheckListBox.ShouldShowExpandButton(Index: Integer): Boolean;
+begin
+  Result := FTreeViewStyle and not FWantTabs;
+end;
+
+procedure TNewCheckListBox.UpdateHasAnyChildren;
+var
+  I: Integer;
+begin
+  FHasAnyChildren := False;
+  for I := 0 to Items.Count - 1 do
+    if ItemStates[I].HasChildren then
+    begin
+      FHasAnyChildren := True;
+      Break;
+    end;
 end;
 
 {$IFDEF VCLSTYLES}

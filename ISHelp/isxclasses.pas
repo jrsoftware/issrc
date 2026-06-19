@@ -648,6 +648,7 @@ TNewCheckListBox = class(TCustomListBox)
   property WantTabs: Boolean; read write;
   property RequireRadioSelection: Boolean; read write;
   property UseStyledColor: Boolean; read write;
+  property TreeViewStyle: Boolean; read write;
 end;
 
 TNewProgressBarState = (npbsNormal, npbsError, npbsPaused);
