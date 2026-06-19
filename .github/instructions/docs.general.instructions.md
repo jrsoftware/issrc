@@ -68,6 +68,7 @@ Additional vocabulary rules:
 ## Code Formatting
 
 - `<tt>` for all code identifiers: section names, directive names, parameter names, flag names, constant names, type names, function names, file names, values like `yes`/`no`/`True`/`False`.
+- An actual path value goes in double quotes as plain text, not `<tt>`.
 - `<i>` for emphasis, wizard page names (such as *Select Destination Location*), UI element names, and file titles.
 - `<b>` sparingly, for important warnings or the word "NOTE:".
 

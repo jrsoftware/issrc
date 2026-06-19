@@ -5141,17 +5141,12 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setuptopic directive="DefaultDirName">
 <body>
 <p>The value of this required directive is used for the default directory name, which is used in the <i>Select Destination Location</i> page of the wizard. Normally it is prefixed by a directory constant.</p>
+<p>For example:</p>
+<ul>
+<li>If you used <tt><key>DefaultDirName</key>=<con>{sd}</con>\MyProg</tt>, Setup would typically display "C:\MyProg".</li>
+<li>If you used <tt><key>DefaultDirName</key>=<con>{autopf}</con>\My Program</tt>, Setup would typically display "C:\Program Files\My Program".</li>
+</ul>
 <p>If <sd>UsePreviousAppDir</sd> is <tt>yes</tt> (the default) and Setup finds a previous version of the <link topic="sameappnotes">same application</link> is already installed, it will substitute the default directory name with the directory selected previously.</p>
-<examples>
-<b>If you used:</b><br/>
-<pre><key>DefaultDirName</key>=<con>{sd}</con>\MyProg</pre>
-<b>In Setup, this would typically display:</b><br/>
-C:\MyProg<br/><br/>
-<b>If you used:</b><br/>
-<pre><key>DefaultDirName</key>=<con>{autopf}</con>\My Program</pre>
-<b>In Setup, this would typically display:</b><br/>
-C:\Program Files\My Program
-</examples>
 </body>
 </setuptopic>
 
@@ -6995,14 +6990,14 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <p><tt>$p</tt>, replaced by the Sign Tool parameters.</p>
 <p><tt>$q</tt>, replaced by a quote, useful for defining a Sign Tool which contains quotes from the command line.</p>
 <p><tt>$$</tt>, replaced by a single <tt>$</tt> character.</p>
-<example>
-<p>Assume the following Sign Tools have been defined in the Compiler IDE:</p>
-<pre>
-mystandard=signtool.exe sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
-mycustom=signtool.exe $p
-byparam=$p
-</pre>
+<p>Assume the following Sign Tools have been defined in the Compiler IDE or <link topic="compilercmdline">on the compiler command line</link>:</p>
+<ul appearance="compact">
+<li>mystandard=signtool.exe sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f</li>
+<li>mycustom=signtool.exe $p</li>
+<li>byparam=$p</li>
+</ul>
 <p>then some examples would be:</p>
+<examples>
 <pre>
 <sec>[Setup]</sec>
 <key>SignTool</key>=mystandard
@@ -7012,20 +7007,20 @@ byparam=$p
 
 <sec>[Setup]</sec>
 <key>SignTool</key>=byparam signtool.exe sign /a /n $qMy Common Name$q /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
-</pre>
-<p>The Setup section may also list multiple SignTool directives which will be executed in order of appearance. This can be used to dual sign (SHA1 &amp; SHA256) Setup and Uninstall:</p>
-<pre>
+
+<com>;The [Setup] section may also list multiple SignTool directives which will be executed in order of appearance. This can be used to dual sign (SHA1 &amp; SHA256) Setup and Uninstall:</com>
+
 <sec>[Setup]</sec>
 <key>SignTool</key>=mycustom sign /a /n $qMy Common Name$q /fd sha1 /t http://timestamp.comodoca.com/authenticode /d $qMy Program$q $f
 <com>;the /as parameter in the following SignTool requires a recent signtool.exe version and a SHA256 (SHA-2) certificate</com>
 <key>SignTool</key>=mycustom sign /a /n $qMy Common Name$q /as /fd sha256 /td sha256 /tr http://timestamp.comodoca.com/rfc3161 /d $qMy Program$q $f
-</pre>
-<p>Note: for security reasons you should give a unique name to any Sign Tool set to <tt>$p</tt>, and not use a <tt>byparam</tt> name copied from this example. Consider what happens if you #include a third-party file that says:</p>
-<pre>
+
+<com>;Note: for security reasons you should give a unique name to any Sign Tool set to <tt>$p</tt>, and not use a <tt>byparam</tt> name copied from this example. Consider what happens if you #include a third-party file that says:</com>
+
 <sec>[Setup]</sec>
 <key>SignTool</key>=byparam format c:
 </pre>
-</example>
+</examples>
 <p>Further details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
 <p><i>Note:</i> If you use a Sign Tool and your Setup contains a large amount of data, it is recommended that you enable <link topic="setup_diskspanning">Disk spanning</link> with <sd>DiskSliceSize</sd> set to <tt>max</tt>. If you don't do this, the user might experience a long delay after starting Setup caused by Windows verifying the digital signature against all your data. There should be no security reduction from using disk spanning in practice: all files extracted from the unsigned .bin files undergo SHA-256 verification (provided <tt>dontverifychecksum</tt> isn't used). The SHA-256 hashes for this (along with all other metadata) are kept inside Setup's EXE, which is protected by the digital signature.</p>
 <p><b>See also:</b><br/>
