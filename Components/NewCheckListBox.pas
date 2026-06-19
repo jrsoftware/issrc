@@ -641,7 +641,7 @@ begin
   with Message.DrawItemStruct^ do
   begin
     { Note: itemID is -1 when there are no items }
-    if Integer(itemID) >= 0 then begin
+    if itemID <> UINT(-1) then begin
       var L := ItemStates[Integer(itemID)].Level;
       if ItemStates[Integer(itemID)].ItemType <> itGroup then Inc(L);
       rcItem.Left := rcItem.Left + (FCheckWidth + 2 * FOffset) * L;
