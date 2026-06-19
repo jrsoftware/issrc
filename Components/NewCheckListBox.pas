@@ -123,12 +123,14 @@ type
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
     procedure WMUpdateUIState(var Message: TMessage); message WM_UPDATEUISTATE;
     procedure WMVScroll(var Message: TWMVScroll); message WM_VSCROLL;
+    procedure WMDpiChanged(var Message: TMessage); message WM_DPICHANGED;
     function GetExpandButtonRect(Index: Integer): TRect;
     procedure ToggleExpand(Index: Integer);
     function HasVisibleChildren(Index: Integer): Boolean;
     procedure SetTreeViewStyle(Value: Boolean);
     function ShouldShowExpandButton(Index: Integer): Boolean;
     procedure UpdateStyleServices;
+    procedure UpdateExpandButtonSize;
   protected
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
@@ -494,6 +496,7 @@ begin
     Dec(FDisableItemStateDeletion);
   end;
   UpdateStyleServices;
+  UpdateExpandButtonSize;
 end;
 
 procedure TNewCheckListBox.UpdateThemeData(const Close, Open: Boolean);
@@ -2498,6 +2501,16 @@ begin
     inherited;
 end;
 
+procedure TNewCheckListBox.WMDpiChanged(var Message: TMessage);
+begin
+  inherited;
+  UpdateExpandButtonSize;
+  for var I := 0 to Items.Count - 1 do
+    RemeasureItem(I);
+  UpdateScrollRange;
+  Invalidate;
+end;
+
 procedure TNewCheckListBox.SetTreeViewStyle(Value: Boolean);
 var
   I: Integer;
@@ -2542,6 +2555,11 @@ begin
   FStyleServices := StyleServices{$IFDEF VER340_UP}(Self){$ENDIF};
   if (FStyleServices <> nil) and (not FStyleServices.Enabled or FStyleServices.IsSystemStyle) then
     FStyleServices := nil;
+end;
+
+procedure TNewCheckListBox.UpdateExpandButtonSize;
+begin
+  FExpandButtonSize := MulDiv(9, CurrentPPI, 96);
 end;
 
 {$IFDEF VCLSTYLES}
