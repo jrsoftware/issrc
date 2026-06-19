@@ -861,7 +861,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
   </li>
   <li>Other related changes:
   <ul>
-    <li>The compiler now verifies additional precompiled files, such as <i>Setup.e32</i> and <i>SetupLdr.e32</i>, to ensure they remain unchanged before using them. Can be disabled using new [Setup] section directive <tt>DisablePrecompiledFileVerifications</tt>, though doing so is <i>not</i> recommended.</li>
+    <li>The compiler now verifies additional precompiled files, such as <i>Setup.e32</i> and <i>SetupLdr.e32</i>, to ensure they remain unchanged before using them. Can be disabled using new <tt>[Setup]</tt> section directive <tt>DisablePrecompiledFileVerifications</tt>, though doing so is <i>not</i> recommended.</li>
     <li>Added new <tt>[Files]</tt> section parameter <tt>Hash</tt>. Instructs the compiler or Setup to do a simple SHA-256 hash check instead of a full signature verification, as an alternative to using the <tt>issigverify</tt> flag.<br/>
         Example script:
       <pre><code class="innosetup"><sec>[Files]</sec>
@@ -971,7 +971,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
 <p><span class="head2">Other changes</span></p>
 <ul>
   <li>{reg:...} constants can now also embed REG_DWORD-type registry values.</li>
-  <li><i>Fix:</i> In 6.4.0, using &quot;Shift+&quot; in a <tt>HotKey</tt> parameter in the [Icons] section didn't work and required &quot;Shift&quot; instead, so for example &quot;Ctrl+ShiftM&quot; instead of &quot;Ctrl+Shift+M&quot;.</li>
+  <li><i>Fix:</i> In 6.4.0, using &quot;Shift+&quot; in a <tt>HotKey</tt> parameter in the <tt>[Icons]</tt> section didn't work and required &quot;Shift&quot; instead, so for example &quot;Ctrl+ShiftM&quot; instead of &quot;Ctrl+Shift+M&quot;.</li>
   <li><i>Fix:</i> In 6.4.0, a custom form shown using <tt>[Code]</tt> didn't have a taskbar button if Setup's wizard was not visible at the time.</li>
   <li>Added official Arabic translation.</li>
   <li>Some minor tweaks and improvements.</li>
@@ -1003,7 +1003,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
   <li>Added autocompletion support for all Pascal Scripting support functions, types, constants, etcetera. Existing option <i>Invoke autocompletion automatically</i> controls whether the autocompletion suggestions appear automatically or only when invoked manually by pressing Ctrl+Space or Ctrl+I.</li>
   <li>Added parameter hints and autocompletion support for all Pascal Scripting support class members and properties. Both always show all classes' members and properties instead of just those of the current object's class.</li>
   <li>Added autocompletion support for all Pascal Scripting event function parameters. Always shows all parameters instead of just those of the current event function.</li>
-  <li>Added autocompletion support for the [Messages] section.</li>
+  <li>Added autocompletion support for the <tt>[Messages]</tt> section.</li>
   <li>Improved autocompletion support for all Flags parameters: now works for multiple flags instead of for the first only.</li>
   <li>Added new <i>Enable section folding</i> option which allows you to temporarily hide sections while editing by clicking the new minus or plus icons in the editor's gutter or by using the new keyboard shortcuts (Ctrl+Shift+[ to fold and Ctrl+Shift+] to unfold) or menu items. Enabled by default.</li>
   <li>The editor's gutter now shows change history to keep track of saved and unsaved modifications. Always enabled.</li>
@@ -1253,7 +1253,7 @@ executable instead of 32-bit MyProg.exe.</li>
   <li>The <i>Generate MsgBox/TaskDialogMsgBox Call</i> tool (previously named <i>MsgBox/TaskDialogMsgBox Designer</i>)
  now respects the tab width and tab character settings, indents the
 generated Pascal script one extra level, and warns if the cursor
-position is not in the [Code] section.</li>
+position is not in the <tt>[Code]</tt> section.</li>
   <li>Minor theme color tweaks such as a different background color for the selected text.</li>
 </ul>
 <p><span class="head2">Support for logging improved</span></p>
