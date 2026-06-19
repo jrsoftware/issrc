@@ -253,7 +253,7 @@ function GetProperty(const InArchive: IInArchive; index: UInt32; propID: PROPID;
   out value: Cardinal): Boolean; overload;
 begin
   var varValue: OleVariant;
-  Result := GetProperty(InArchive, index, propID, [varUInt32], varValue);
+  Result := GetProperty(InArchive, index, propID, [varByte, varWord, varUInt32], varValue);
   value := varValue;
 end;
 
@@ -269,7 +269,7 @@ function GetProperty(const InArchive: IInArchive; index: UInt32; propID: PROPID;
   out value: UInt64): Boolean; overload;
 begin
   var varValue: OleVariant;
-  Result := GetProperty(InArchive, index, propID, [varUInt64], varValue);
+  Result := GetProperty(InArchive, index, propID, [varByte, varWord, varUInt32, varUInt64], varValue);
   value := varValue;
 end;
 
