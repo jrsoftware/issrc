@@ -697,7 +697,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
   <key>if</key> <key>not</key> Result <key>then</key>
     SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), [<str>'.NET Framework'</str>, <str>'4.6.2'</str>]), mbCriticalError, MB_OK, IDOK);
 <key>end</key>;</pre></example>
-      </function>    
+      </function>
       <function>
         <name>IsMsiProductInstalled</name>
         <prototype>function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion: Int64): Boolean;</prototype>
@@ -710,7 +710,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
   <key>if</key> <key>not</key> Result <key>then</key>
     SuppressibleMsgBox(FmtMessage(SetupMessage(msgWinVersionTooLowError), [<str>'Visual C++ 2013 Redistributable (x64)'</str>, <str>'12.0'</str>]), mbCriticalError, MB_OK, IDOK);
 <key>end</key>;</pre></example>
-      </function>    
+      </function>
     </subcategory>
     <subcategory>
       <function>
@@ -1745,8 +1745,8 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>FindNext</name>
         <prototype>function FindNext(var FindRec: TFindRec): Boolean;</prototype>
-        <description><p>Retrieves information about the next matching file after a call to <isxfunc>FindFirst</isxfunc>. Returns True if successful.</p></description>
-        <example><p>For an example, see the documentation for <isxfunc>FindFirst</isxfunc>.</p></example>
+        <description><p>Retrieves information about the next matching file after a call to <isxfunc>FindFirst</isxfunc>. Returns True if successful.</p>
+<p>For an example, see the documentation for <isxfunc>FindFirst</isxfunc>.</p></description>
         <seealso><p><isxfunc>FindFirst</isxfunc><br />
 <isxfunc>FindClose</isxfunc></p></seealso>
       </function>
@@ -2083,7 +2083,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>DownloadTemporaryFileWithISSigVerify</name>
         <prototype>function DownloadTemporaryFileWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
         <description><p>Like <isxfunc>DownloadTemporaryFile</isxfunc>, but downloads an .issig signature file first from the specified second URL and uses it to verify the main file downloaded from the first URL.</p>
-<p>If the second URL is an empty string, Setup will instead append ".issig" (without quotes) to the path portion of the first URL. It will then use the result as the URL to download the .issig signature file from.</p>        
+<p>If the second URL is an empty string, Setup will instead append ".issig" (without quotes) to the path portion of the first URL. It will then use the result as the URL to download the .issig signature file from.</p>
 <p>Verification uses the specified allowed keys, looked up using <link topic="issigkeyssection">[ISSigKeys] section</link> parameter <tt>RuntimeID</tt>. To allow all keys set <tt>AllowedKeysRuntimeIDs</tt> to <tt>nil</tt>.</p>
 <p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded for the main file from the first URL. Returns 0 if the main file was already downloaded and still verified.</p></description>
         <seealso><p><isxfunc>DownloadTemporaryFile</isxfunc><br/>
@@ -2189,7 +2189,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>ISSigVerify</name>
         <prototype>function ISSigVerify(const AllowedKeysRuntimeIDs: TStringList; const Filename: String; const VerifyFilename: Boolean; const KeepOpen: Boolean): TFileStream;</prototype>
         <description><p>Verifies the signature of the specified file using the specified allowed keys, looked up using <link topic="issigkeyssection">[ISSigKeys] section</link> parameter <tt>RuntimeID</tt>. To allow all keys set <tt>AllowedKeysRuntimeIDs</tt> to <tt>nil</tt>. An exception will be raised upon failure.</p>
-<p>If <tt>VerifyFilename</tt> is set to False the verification allows signatures for a different filename. It is recommended that you only set it to False if you don't know the name the file had when the signature was created. The size and hash of the file must always match.</p>        
+<p>If <tt>VerifyFilename</tt> is set to False the verification allows signatures for a different filename. It is recommended that you only set it to False if you don't know the name the file had when the signature was created. The size and hash of the file must always match.</p>
 <p>Returns a handle to the still open file if <tt>KeepOpen</tt> is set to True, <tt>nil</tt> otherwise. It is recommended that you always set it to True if you plan to use the file for anything after verification. Otherwise, you risk creating a Time-Of-Check to Time-Of-Use (TOCTOU) problem.</p></description>
         <example><pre><key>var</key>
   F: TFileStream;
@@ -2955,16 +2955,16 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <name>CreateDownloadPage</name>
         <prototype>function CreateDownloadPage(const ACaption, ADescription: String; const OnDownloadProgress: TOnDownloadProgress): TDownloadWizardPage;</prototype>
         <description><p>Creates a wizard page to download files and show progress.</p>
-<p>Set <tt>OnDownloadProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>    
+<p>Set <tt>OnDownloadProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>
 <p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
         <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
 <p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDownloadFiles.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
 <p>To add a new file to download, call the <tt>Add</tt> method. Always call the <tt>Clear</tt> method before adding the first file.</p>
 <p>To start the download, call the <tt>Download</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Download</tt> returns the number of bytes downloaded.</p>
 <p>Set the <tt>ShowBaseNameInsteadOfUrl</tt> property to <tt>True</tt> to show the base name of the file which is being downloaded to the user instead of the URL.</p>
-<p>See <isxfunc>DownloadTemporaryFile</isxfunc> for other considerations and the definition of <tt>TOnDownloadProgress</tt>.</p></remarks>
-        <example><p>See <i>CodeDownloadFiles.iss</i> for an example.</p>
-<p>See <i>DownloadFiles.iss</i> for an example of file download using just a <tt>[Files]</tt> entry instead.</p></example>
+<p>See <isxfunc>DownloadTemporaryFile</isxfunc> for other considerations and the definition of <tt>TOnDownloadProgress</tt>.</p>
+<p>See <i>CodeDownloadFiles.iss</i> for an example.</p>
+<p>See <i>DownloadFiles.iss</i> for an example of file download using just a <tt>[Files]</tt> entry instead.</p></remarks>
         <seealso><p><link topic="scriptclasses" anchor="TDownloadWizardPage">TDownloadWizardPage</link><br />
 <isxfunc>DownloadTemporaryFile</isxfunc><br />
 <isxfunc>CreateOutputProgressPage</isxfunc></p></seealso>
@@ -2975,7 +2975,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <description><p>Creates a wizard page to extract archives and show progress.</p>
 <p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <tt>[Setup]</tt> section directive.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <isxfunc>MapArchiveExtensions</isxfunc>.</p>
-<p>Set <tt>OnExtractionProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>    
+<p>Set <tt>OnExtractionProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>
 <p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
         <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
 <p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDownloadFiles.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
@@ -3009,17 +3009,17 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>You should use <isxfunc>ScaleX</isxfunc> and <isxfunc>ScaleY</isxfunc> to scale the desired client width and height to appropriate values. A form's client width and height are the form's full width and height minus its borders.</p>
 <p><tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> specify whether the form is allowed to grow horizontally and vertically as the client area is resized, for <tt>[Setup]</tt> section directive <sd>WizardSizePercent</sd>.</p>
 <p>The signature of the <tt>CreateCustomForm</tt> function has changed as of version 6.6.0. The width and height must now be specified upfront (they are now read-only properties once the form is constructed). Previously, your code might have looked like this:</p>
-<pre>
+<example><pre>
   Form := CreateCustomForm;
   Form.Caption := <str>'TSetupForm'</str>;
   Form.ClientWidth := ScaleX(<num>256</num>);
   Form.ClientHeight := ScaleY(<num>128</num>);
-</pre>
+</pre></example>
 <p>Starting with version 6.6.0, it should be updated as follows:</p>
-<pre>
+<example><pre>
   Form := CreateCustomForm(ScaleX(<num>256</num>), ScaleY(<num>128</num>), False, False);
   Form.Caption := <str>'TSetupForm'</str>;
-</pre>
+</pre></example>
 <p>The same applies to the <tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> properties, which were writable properties before version 6.6.0, but are now specified as parameters when calling <tt>CreateCustomForm</tt> and are read-only properties afterwards.</p>
 </remarks>
         <example><p>See <i>CodeClasses.iss</i> for an example.</p></example>
