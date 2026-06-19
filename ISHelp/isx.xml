@@ -213,7 +213,7 @@
 <dt><tt>function <a name="CheckPassword">CheckPassword</a>(Password: String): Boolean;</tt></dt>
 <dd>
 <p>If Setup finds the <tt>CheckPassword</tt> event function in the Pascal script, it automatically displays the <i>Password</i> page and calls <tt>CheckPassword</tt> to check passwords. Return True to accept the password and False to reject it.</p>
-<p>To avoid storing the actual password inside the compiled [Code] section which is stored inside Setup, you should use comparisons by hash only: calculate the SHA-256 hash of your salted password yourself and then compare that to <tt><isxfunc>GetSHA256OfString</isxfunc>(Password)</tt>. This way the actual value of the password is better protected.</p>
+<p>To avoid storing the actual password inside the compiled <tt>[Code]</tt> section which is stored inside Setup, you should use comparisons by hash only: calculate the SHA-256 hash of your salted password yourself and then compare that to <tt><isxfunc>GetSHA256OfString</isxfunc>(Password)</tt>. This way the actual value of the password is better protected.</p>
 <p>Note: If Setup is run with a /PASSWORD= <link topic="setupcmdline" anchor="PASSWORD">command line parameter</link>, your <tt>CheckPassword</tt> function will be called <i>before</i> any other event function is called, including <tt><anchorlink name="InitializeSetup">InitializeSetup</anchorlink></tt>.</p>
 <p>Also note: If <sd>Encryption</sd> is set to <tt>yes</tt> and your <tt>CheckPassword</tt> function accepts passwords different from the one used for the encryption, make sure to only extract non encrypted files.</p>
 </dd>
@@ -235,7 +235,7 @@
 
 <dt><tt>function <a name="CheckSerial">CheckSerial</a>(Serial: String): Boolean;</tt></dt>
 <dd>
-<p>If Setup finds the <tt>CheckSerial</tt> event function in the Pascal script, a serial number field will automatically appear on the User Info wizard page (which must be enabled using <tt><sd>UserInfoPage</sd>=yes</tt> in your [Setup] section!). Return True to accept the serial number and False to reject it. When using serial numbers, it's important to keep in mind that since no encryption is used and the source code to Inno Setup is freely available, it would not be too difficult for an experienced individual to remove the serial number protection from an installation. Use this only as a convenience to the end user and double check the entered serial number (stored in the <tt>{userinfoserial}</tt> constant) in your application.</p>
+<p>If Setup finds the <tt>CheckSerial</tt> event function in the Pascal script, a serial number field will automatically appear on the User Info wizard page (which must be enabled using <tt><sd>UserInfoPage</sd>=yes</tt> in your <tt>[Setup]</tt> section!). Return True to accept the serial number and False to reject it. When using serial numbers, it's important to keep in mind that since no encryption is used and the source code to Inno Setup is freely available, it would not be too difficult for an experienced individual to remove the serial number protection from an installation. Use this only as a convenience to the end user and double check the entered serial number (stored in the <tt>{userinfoserial}</tt> constant) in your application.</p>
 </dd>
 
 <dt><tt>function <a name="GetCustomSetupExitCode">GetCustomSetupExitCode</a>: Integer;</tt></dt>
@@ -248,7 +248,7 @@
 <p>You can use this event function to detect and install missing prerequisites and/or to shutdown any application which is about to be updated.</p>
 <p>Return a non empty string to instruct Setup to stop at the <link topic="wizardpages">Preparing to Install</link> wizard page, showing the returned string as the error message. Set <tt>NeedsRestart</tt> to True (and return a non empty string) if a restart is needed. If Setup is stopped this way, it will exit with a dedicated exit code as described in <link topic="setupexitcodes">Setup Exit Codes</link>. Any custom exit code set by the /RESTARTEXITCODE= <link topic="setupcmdline" anchor="RESTARTEXITCODE">command line parameter</link> will not be used in this case.</p>
 <p>This function is called before Setup checks for files being in-use if <sd>CloseApplications</sd> is set to <tt>yes</tt>.</p>
-<p>This function is only called if Setup didn't already determine it can't continue because one or more files specified in the [Files] and [InstallDelete] sections were queued (by some other installation) to be replaced or deleted on the next restart.</p>
+<p>This function is only called if Setup didn't already determine it can't continue because one or more files specified in the <tt>[Files]</tt> and <tt>[InstallDelete]</tt> sections were queued (by some other installation) to be replaced or deleted on the next restart.</p>
 </dd>
 
 <dt><tt>procedure <a name="RegisterExtraCloseApplicationsResources">RegisterExtraCloseApplicationsResources</a>;</tt></dt>
@@ -343,7 +343,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 </ul>
 <li>Event attributes may only be used on procedures or functions which do not already have the name of an event function.</li>
 <li>If the event function uses <tt>var</tt> parameters then the value will be passed on from implementation to implementation.</li>
-<li>To call an implementation with an event attribute yourself from [Code] you should use the normal name of the function, just as if the implementation had no event attribute.</li>
+<li>To call an implementation with an event attribute yourself from <tt>[Code]</tt> you should use the normal name of the function, just as if the implementation had no event attribute.</li>
 </ul>
 
 </body>
@@ -413,7 +413,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 <paramlist>
 
 <param name="Check">
-<p>The name of a check function that determines whether an entry has to be processed or not. The function must either be a custom function in the [Code] section or a <link topic="scriptfunctions">support function</link>.</p>
+<p>The name of a check function that determines whether an entry has to be processed or not. The function must either be a custom function in the <tt>[Code]</tt> section or a <link topic="scriptfunctions">support function</link>.</p>
 <p>Besides a single name, you may also use boolean expressions. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</p>
 <p>For each check function, you may include a comma separated list of parameters that Setup should pass to the check function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <isxfunc>ExpandConstant</isxfunc>.</p>
 <example>
@@ -428,13 +428,13 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>All check functions must have a Boolean return value. If a check function (or the boolean expression) returns True, the entry is processed otherwise it's skipped.</p>
 
-<p>For all sections except [Types] and [Components], Setup might call each check function several times, even if there's only one entry that uses the check function. If your function performs a lengthy piece of code, you can optimize it by performing the code only once and 'caching' the result in a global variable.</p>
+<p>For all sections except <tt>[Types]</tt> and <tt>[Components]</tt>, Setup might call each check function several times, even if there's only one entry that uses the check function. If your function performs a lengthy piece of code, you can optimize it by performing the code only once and 'caching' the result in a global variable.</p>
 
 <p>A check function isn't called if Setup already determined the entry shouldn't be processed.</p>
 
-<p>A check function for a [Files] section entry using a wildcard but not the <tt>external</tt> flag is called once per file matching the wildcard, instead of once per entry. Use <isxfunc>CurrentFilename</isxfunc> to check for which file the function is called.</p>
+<p>A check function for a <tt>[Files]</tt> section entry using a wildcard but not the <tt>external</tt> flag is called once per file matching the wildcard, instead of once per entry. Use <isxfunc>CurrentFilename</isxfunc> to check for which file the function is called.</p>
 
-<p>Here is an example of a [Code] section containing the check functions used above. Function <isxfunc>DirExists</isxfunc> is a <link topic="scriptfunctions">support function</link> and therefore not included in this [Code] section.</p>
+<p>Here is an example of a <tt>[Code]</tt> section containing the check functions used above. Function <isxfunc>DirExists</isxfunc> is a <link topic="scriptfunctions">support function</link> and therefore not included in this <tt>[Code]</tt> section.</p>
 
 <precode>
 <sec>[Code]</sec>
@@ -468,12 +468,12 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 <keyword value="AfterInstall parameters" />
 <body>
 
-<p>There are two optional <link topic="params">parameters</link> that are supported by all sections whose entries are separated into parameters except for [Languages], [Types], [Components] and [Tasks]. These are:</p>
+<p>There are two optional <link topic="params">parameters</link> that are supported by all sections whose entries are separated into parameters except for <tt>[Languages]</tt>, <tt>[Types]</tt>, <tt>[Components]</tt> and <tt>[Tasks]</tt>. These are:</p>
 
 <paramlist>
 
 <param name="BeforeInstall">
-<p>The name of a function that is to be called once just before an entry is installed. The function must either be a custom function in the [Code] section or a <link topic="scriptfunctions">support function</link>.</p>
+<p>The name of a function that is to be called once just before an entry is installed. The function must either be a custom function in the <tt>[Code]</tt> section or a <link topic="scriptfunctions">support function</link>.</p>
 <p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <isxfunc>ExpandConstant</isxfunc>.</p>
 <example>
 <pre><sec>[Files]</sec>
@@ -485,7 +485,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 </param>
 
 <param name="AfterInstall">
-<p>The name of a function that is to be called once just after an entry is installed. The function must either be a custom function in the [Code] section or a <link topic="scriptfunctions">support function</link>.</p>
+<p>The name of a function that is to be called once just after an entry is installed. The function must either be a custom function in the <tt>[Code]</tt> section or a <link topic="scriptfunctions">support function</link>.</p>
 <p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <isxfunc>ExpandConstant</isxfunc>.</p>
 <example>
 <pre><sec>[Files]</sec>
@@ -502,9 +502,9 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>A <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> function isn't called if Setup already determined the entry shouldn't be processed.</p>
 
-<p>A <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> function for a [Files] section entry using a wildcard but not the <tt>external</tt> flag is called once per file matching the wildcard, instead of once per entry. Use <isxfunc>CurrentFilename</isxfunc> to check for which file the function is called.</p>
+<p>A <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> function for a <tt>[Files]</tt> section entry using a wildcard but not the <tt>external</tt> flag is called once per file matching the wildcard, instead of once per entry. Use <isxfunc>CurrentFilename</isxfunc> to check for which file the function is called.</p>
 
-<p>Here is an example of a <tt>[Code]</tt> section containing the functions used above. Functions <isxfunc>CurrentFilename</isxfunc> and <isxfunc>Log</isxfunc> are <link topic="scriptfunctions">support functions</link> and therefore not included in this [Code] section.</p>
+<p>Here is an example of a <tt>[Code]</tt> section containing the functions used above. Functions <isxfunc>CurrentFilename</isxfunc> and <isxfunc>Log</isxfunc> are <link topic="scriptfunctions">support functions</link> and therefore not included in this <tt>[Code]</tt> section.</p>
 
 <precode>
 <sec>[Code]</sec>
@@ -545,7 +545,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <param name="OnLog">
 <p>When combined with the <tt>logoutput</tt> flag, this parameter specifies the name of a procedure that is to be called for each line of the program's output instead of directly including it in the log file.</p>
-<p>The function must be a custom function in the [Code] section having the following prototype: <tt>procedure MyOnLog(const S: String; const Error, FirstLine: Boolean);</tt>.</p>
+<p>The function must be a custom function in the <tt>[Code]</tt> section having the following prototype: <tt>procedure MyOnLog(const S: String; const Error, FirstLine: Boolean);</tt>.</p>
 <p>See <isxfunc>ExecAndLogOutput</isxfunc> for an explanation of parameters <tt>S</tt>, <tt>Error</tt> and <tt>FirstLine</tt>.</p>
 <example>
 <pre><sec>[Run]</sec>
@@ -555,7 +555,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 </paramlist>
 
-<p>Here is an example of a <tt>[Code]</tt> section containing the procedure used above. Function <isxfunc>Log</isxfunc> is a <link topic="scriptfunctions">support function</link> and therefore not included in this [Code] section.</p>
+<p>Here is an example of a <tt>[Code]</tt> section containing the procedure used above. Function <isxfunc>Log</isxfunc> is a <link topic="scriptfunctions">support function</link> and therefore not included in this <tt>[Code]</tt> section.</p>
 
 <precode>
 <sec>[Code]</sec>
@@ -581,9 +581,9 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>There is one thing that's important to be aware of when designing code to be executed at uninstall time: In cases where multiple versions of an application are installed over each other, only <i>one</i> Pascal script is run at uninstall time. Ordinarily, the script from the most recent install will be chosen. If, however, you were to <i>downgrade</i> your version of Inno Setup in a new version of your application, the script from the install built with the most recent Inno Setup version may be chosen instead. A similar situation can occur if a user installs an older version of your application over a newer one.</p>
 
-<p>When producing an installation that is a "patch" for another install, and the patch install shares the same uninstall log as the original install (i.e. <sd>Uninstallable</sd> is set to <tt>yes</tt> and <sd>AppId</sd> is set the same as the original install), make sure the patch includes a copy of the full [Code] section from the original install. Otherwise, no code would be run at uninstall time.</p>
+<p>When producing an installation that is a "patch" for another install, and the patch install shares the same uninstall log as the original install (i.e. <sd>Uninstallable</sd> is set to <tt>yes</tt> and <sd>AppId</sd> is set the same as the original install), make sure the patch includes a copy of the full <tt>[Code]</tt> section from the original install. Otherwise, no code would be run at uninstall time.</p>
 
-<p>If, however, the patch install has <sd>Uninstallable</sd> set to <tt>no</tt> then Setup will not touch the existing uninstaller EXE or uninstall log; in this case, the patch install need not contain a copy of the [Code] section from the original install.</p>
+<p>If, however, the patch install has <sd>Uninstallable</sd> set to <tt>no</tt> then Setup will not touch the existing uninstaller EXE or uninstall log; in this case, the patch install need not contain a copy of the <tt>[Code]</tt> section from the original install.</p>
 
 </body>
 </topic>
@@ -687,7 +687,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 </precode>
 
 <p>Constants may be used in the DLL filename.</p>
-<p>During Setup, a special 'files:' prefix may also be used to instruct Setup to automatically extract one or more DLLs from the [Files] section before loading the first DLL. For example:</p>
+<p>During Setup, a special 'files:' prefix may also be used to instruct Setup to automatically extract one or more DLLs from the <tt>[Files]</tt> section before loading the first DLL. For example:</p>
 
 <precode>
 <sec>[Files]</sec>
@@ -703,7 +703,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 <key>external</key> <str>'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'</str>; <com>//A.dll depends on B.dll</com>
 </precode>
 
-<p>If you use a 'files:' prefix and <link topic="setup_solidcompression">solid compression</link> is enabled, be sure to list your DLLs at (or near) the top of the [Files] section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the [Files] section.</p>
+<p>If you use a 'files:' prefix and <link topic="setup_solidcompression">solid compression</link> is enabled, be sure to list your DLLs at (or near) the top of the <tt>[Files]</tt> section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the <tt>[Files]</tt> section.</p>
 
 <p>Use <isxfunc>CreateCallback</isxfunc> to be able to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script.</p>
 
@@ -827,7 +827,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>Lines which can be paused on are marked by a gray square in the gutter. The square turns green the first time Setup reaches the line.</p>
 
-<p>Besides lines in the Pascal script, lines in some other sections can also be paused on, again shown by a gray square in the gutter. For example, toggling a breakpoint on a line in the [Files] section will pause Setup when that file is about to be processed. On such lines <i>Step Over</i> and <i>Step Out</i> both act as <i>Step Into</i>.</p>
+<p>Besides lines in the Pascal script, lines in some other sections can also be paused on, again shown by a gray square in the gutter. For example, toggling a breakpoint on a line in the <tt>[Files]</tt> section will pause Setup when that file is about to be processed. On such lines <i>Step Over</i> and <i>Step Out</i> both act as <i>Step Into</i>.</p>
 
 <p>* = actual shortcut depends on the &quot;Menu keys&quot; option.</p>
 
