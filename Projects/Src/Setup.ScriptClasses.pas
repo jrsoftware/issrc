@@ -95,10 +95,16 @@ procedure TNewCheckListBoxItemObject_R(Self: TNewCheckListBox; var T: TObject; c
 procedure TNewCheckListBoxItemObject_W(Self: TNewCheckListBox; const T: TObject; const t1: Integer); begin Self.ItemObject[t1] := T; end;
 procedure TNewCheckListBoxItemSubItem_R(Self: TNewCheckListBox; var T: String; const t1: Integer); begin T := Self.ItemSubItem[t1]; end;
 procedure TNewCheckListBoxItemSubItem_W(Self: TNewCheckListBox; const T: String; const t1: Integer); begin Self.ItemSubItem[t1] := T; end;
+procedure TNewCheckListBoxItemFontColor_R(Self: TNewCheckListBox; var T: TColor; const t1: Integer); begin T := Self.ItemFontColor[t1]; end;
+procedure TNewCheckListBoxItemFontColor_W(Self: TNewCheckListBox; const T: TColor; const t1: Integer); begin Self.ItemFontColor[t1] := T; end;
 procedure TNewCheckListBoxItemFontStyle_R(Self: TNewCheckListBox; var T: TFontStyles; const t1: Integer); begin T := Self.ItemFontStyle[t1]; end;
 procedure TNewCheckListBoxItemFontStyle_W(Self: TNewCheckListBox; const T: TFontStyles; const t1: Integer); begin Self.ItemFontStyle[t1] := T; end;
+procedure TNewCheckListBoxSubItemFontColor_R(Self: TNewCheckListBox; var T: TColor; const t1: Integer); begin T := Self.SubItemFontColor[t1]; end;
+procedure TNewCheckListBoxSubItemFontColor_W(Self: TNewCheckListBox; const T: TColor; const t1: Integer); begin Self.SubItemFontColor[t1] := T; end;
 procedure TNewCheckListBoxSubItemFontStyle_R(Self: TNewCheckListBox; var T: TFontStyles; const t1: Integer); begin T := Self.SubItemFontStyle[t1]; end;
 procedure TNewCheckListBoxSubItemFontStyle_W(Self: TNewCheckListBox; const T: TFontStyles; const t1: Integer); begin Self.SubItemFontStyle[t1] := T; end;
+procedure TNewCheckListBoxUseStyledColor_W(Self: TNewCheckListBox; const T: Boolean); begin Self.UseStyledColor := T; end;
+procedure TNewCheckListBoxUseStyledColor_R(Self: TNewCheckListBox; var T: Boolean); begin T := Self.UseStyledColor; end;
 
 procedure RegisterNewCheckListBox_R(Cl: TPSRuntimeClassImporter);
 begin
@@ -115,8 +121,11 @@ begin
     RegisterPropertyHelper(@TNewCheckListBoxItemLevel_R, nil, 'ItemLevel');
     RegisterPropertyHelper(@TNewCheckListBoxItemObject_R, @TNewCheckListBoxItemObject_W, 'ItemObject');
     RegisterPropertyHelper(@TNewCheckListBoxItemSubItem_R, @TNewCheckListBoxItemSubItem_W, 'ItemSubItem');
+    RegisterPropertyHelper(@TNewCheckListBoxItemFontColor_R, @TNewCheckListBoxItemFontColor_W, 'ItemFontColor');
     RegisterPropertyHelper(@TNewCheckListBoxItemFontStyle_R, @TNewCheckListBoxItemFontStyle_W, 'ItemFontStyle');
+    RegisterPropertyHelper(@TNewCheckListBoxSubItemFontColor_R, @TNewCheckListBoxSubItemFontColor_W, 'SubItemFontColor');
     RegisterPropertyHelper(@TNewCheckListBoxSubItemFontStyle_R, @TNewCheckListBoxSubItemFontStyle_W, 'SubItemFontStyle');
+    RegisterPropertyHelper(@TNewCheckListBoxUseStyledColor_R,@TNewCheckListBoxUseStyledColor_W,'UseStyledColor');
   end;
 end;
 

@@ -40,7 +40,9 @@ type
     SubItem: string;
     ThreadCache: set of Byte;
     MeasuredHeight: Integer;
+    ItemFontColor: TColor;
     ItemFontStyle: TFontStyles;
+    SubItemFontColor: TColor;
     SubItemFontStyle: TFontStyles;
   end;
 
@@ -69,6 +71,7 @@ type
     FHotIndex: Integer;
     FDisableItemStateDeletion: Integer;
     FDisableStyledButtons: Boolean;
+    FUseStyledColor: Boolean;
     class constructor Create;
     class destructor Destroy;
     class var FComplexParentBackground: Boolean;
@@ -117,11 +120,13 @@ type
     function GetCaption(Index: Integer): String;
     function GetChecked(Index: Integer): Boolean;
     function GetItemEnabled(Index: Integer): Boolean;
+    function GetItemFontColor(Index: Integer): TColor;
     function GetItemFontStyle(Index: Integer): TFontStyles;
     function GetLevel(Index: Integer): Byte;
     function GetObject(Index: Integer): TObject;
     function GetState(Index: Integer): TCheckBoxState;
     function GetSubItem(Index: Integer): string;
+    function GetSubItemFontColor(Index: Integer): TColor;
     function GetSubItemFontStyle(Index: Integer): TFontStyles;
     function GetTransparentIfStyled: Boolean;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
@@ -135,13 +140,16 @@ type
     procedure SetChecked(Index: Integer; const AChecked: Boolean);
     procedure SetFlat(Value: Boolean);
     procedure SetItemEnabled(Index: Integer; const AEnabled: Boolean);
+    procedure SetItemFontColor(Index: Integer; const AItemFontColor: TColor);
     procedure SetItemFontStyle(Index: Integer; const AItemFontStyle: TFontStyles);
     procedure SetItemIndex(const Value: Integer); override;
     procedure SetObject(Index: Integer; const AObject: TObject);
     procedure SetOffset(AnOffset: Integer);
     procedure SetShowLines(Value: Boolean);
     procedure SetSubItem(Index: Integer; const ASubItem: String);
+    procedure SetSubItemFontColor(Index: Integer; const ASubItemFontColor: TColor);
     procedure SetSubItemFontStyle(Index: Integer; const ASubItemFontStyle: TFontStyles);
+    procedure SetUseStyledColor(Value: Boolean);
     property ItemStates[Index: Integer]: TItemState read GetItemState;
   public
     constructor Create(AOwner: TComponent); override;
@@ -161,12 +169,14 @@ type
     property Checked[Index: Integer]: Boolean read GetChecked write SetChecked;
     property DisableStyledButtons: Boolean read FDisableStyledButtons write FDisableStyledButtons;
     property ItemCaption[Index: Integer]: String read GetCaption write SetCaption;
+    property ItemFontColor[Index: Integer]: TColor read GetItemFontColor write SetItemFontColor;
     property ItemEnabled[Index: Integer]: Boolean read GetItemEnabled write SetItemEnabled;
     property ItemFontStyle[Index: Integer]: TFontStyles read GetItemFontStyle write SetItemFontStyle;
     property ItemLevel[Index: Integer]: Byte read GetLevel;
     property ItemObject[Index: Integer]: TObject read GetObject write SetObject;
     property ItemSubItem[Index: Integer]: string read GetSubItem write SetSubItem;
     property State[Index: Integer]: TCheckBoxState read GetState;
+    property SubItemFontColor[Index: Integer]: TColor read GetSubItemFontColor write SetSubItemFontColor;
     property SubItemFontStyle[Index: Integer]: TFontStyles read GetSubItemFontStyle write SetSubItemFontStyle;
     property TransparentIfStyled: Boolean read GetTransparentIfStyled;
     class property ComplexParentBackground: Boolean read FComplexParentBackground write FComplexParentBackground;
@@ -208,6 +218,7 @@ type
     property ShowHint;
     property ShowLines: Boolean read FShowLines write SetShowLines default True;
     property TabOrder;
+    property UseStyledColor: Boolean read FUseStyledColor write SetUseStyledColor default False;
     property Visible;
     property WantTabs: Boolean read FWantTabs write FWantTabs default False;
   end;
@@ -435,6 +446,7 @@ begin
   Style := lbOwnerDrawVariable;
   FHotIndex := -1;
   FCaptureIndex := -1;
+  FUseStyledColor := False;
 end;
 
 procedure TNewCheckListBox.CreateWnd;
@@ -790,7 +802,7 @@ var
   ItemDisabled: Boolean;
   I, ThreadPosX, ThreadBottom, ThreadLevel, ItemMiddle: Integer;
   CheckRect, SubItemRect, FocusRect: TRect;
-  NewTextColor: TColor;
+  NewTextColor, NewSubItemTextColor: TColor;
   ItemState: TItemState;
   SubItemWidth: Integer;
   PartId, StateId: Integer;
@@ -819,34 +831,51 @@ begin
     { Initialize colors }
     if not FWantTabs and (odSelected in State) and Focused then begin
       NewTextColor := clHighlightText;
+      NewSubItemTextColor := clHighlightText;
       if (LStyle <> nil) and (seClient in StyleElements) then begin
         Brush.Color := LStyle.GetSystemColor(clHighlight);
-        if seFont in StyleElements then
+        if seFont in StyleElements then begin
           NewTextColor := LStyle.GetStyleFontColor(sfListItemTextSelected);
+          NewSubItemTextColor := NewTextColor;
+        end;
       end else
         Brush.Color := clHighlight;
     end else begin
-      if ItemDisabled then
-        NewTextColor := clGrayText
-      else
+      if ItemDisabled then begin
+        NewTextColor := clGrayText;
+        NewSubItemTextColor := clGrayText;
+      end else begin
         NewTextColor := Self.Font.Color;
+        NewSubItemTextColor := Self.Font.Color;
+      end;
       if (LStyle <> nil) and (seClient in StyleElements) then begin
         if FWantTabs then
           Brush.Color := LStyle.GetStyleColor(scWindow)
         else
           Brush.Color := LStyle.GetStyleColor(ColorStates[Enabled]);
         if seFont in StyleElements then begin
-          if FWantTabs then
-            NewTextColor := LStyle.GetStyleFontColor(TextLabelFontColorStates[not ItemDisabled])
-          else
+          if FWantTabs then begin
+            NewTextColor := LStyle.GetStyleFontColor(TextLabelFontColorStates[not ItemDisabled]);
+            NewSubItemTextColor := NewTextColor;
+          end else begin
             NewTextColor := LStyle.GetStyleFontColor(ListItemFontColorStates[not ItemDisabled]);
+            NewSubItemTextColor := NewTextColor;
+          end;
           const Details = LStyle.GetElementDetails(CheckListItemStates[not ItemDisabled]);
           var LColor: TColor;
-          if LStyle.GetElementColor(Details, ecTextColor, LColor) and (LColor <> clNone) then
+          if LStyle.GetElementColor(Details, ecTextColor, LColor) and (LColor <> clNone) then begin
             NewTextColor := LColor;
+            NewSubItemTextColor := LColor;
+          end;
         end;
       end else
         Brush.Color := Self.Color;
+      if not ItemDisabled and not FUseStyledColor then begin
+        if ItemState.ItemFontColor <> 0 then
+          NewTextColor := ItemState.ItemFontColor;
+        if ItemState.SubItemFontColor <> 0 then
+          NewSubItemTextColor := ItemState.SubItemFontColor;
+      end;
     end;
     { Draw threads }
     if FShowLines then begin
@@ -956,7 +985,7 @@ begin
     begin
       const DrawTextFormat = UDrawTextBiDiModeFlags(Self, DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE or DT_VCENTER);
       Font.Style := ItemState.SubItemFontStyle;
-      Font.Color := NewTextColor;
+      Font.Color := NewSubItemTextColor;
       SetRectEmpty(SubItemRect);
       InternalDrawText(ItemState.SubItem, SubItemRect, DrawTextFormat or
         DT_CALCRECT, False);
@@ -1170,6 +1199,11 @@ begin
   Result := ItemStates[Index].Enabled;
 end;
 
+function TNewCheckListBox.GetItemFontColor(Index: Integer): TColor;
+begin
+  Result := ItemStates[Index].ItemFontColor;
+end;
+
 function TNewCheckListBox.GetItemFontStyle(Index: Integer): TFontStyles;
 begin
   Result := ItemStates[Index].ItemFontStyle;
@@ -1214,6 +1248,11 @@ end;
 function TNewCheckListBox.GetSubItem(Index: Integer): String;
 begin
   Result := ItemStates[Index].SubItem;
+end;
+
+function TNewCheckListBox.GetSubItemFontColor(Index: Integer): TColor;
+begin
+  Result := ItemStates[Index].SubItemFontColor;
 end;
 
 function TNewCheckListBox.GetSubItemFontStyle(Index: Integer): TFontStyles;
@@ -1641,6 +1680,15 @@ begin
   InvalidateRect(Handle, @R, True);
 end;
 
+procedure TNewCheckListBox.SetItemFontColor(Index: Integer; const AItemFontColor: TColor);
+begin
+  if ItemStates[Index].ItemFontColor <> AItemFontColor then
+  begin
+    ItemStates[Index].ItemFontColor := AItemFontColor;
+    RemeasureItemAndUpdate(Index);
+  end;
+end;
+
 procedure TNewCheckListBox.SetItemFontStyle(Index: Integer; const AItemFontStyle: TFontStyles);
 begin
   if ItemStates[Index].ItemFontStyle <> AItemFontStyle then begin
@@ -1692,11 +1740,29 @@ begin
   end;
 end;
 
+procedure TNewCheckListBox.SetSubItemFontColor(Index: Integer; const ASubItemFontColor: TColor);
+begin
+  if ItemStates[Index].SubItemFontColor <> ASubItemFontColor then
+  begin
+    ItemStates[Index].SubItemFontColor := ASubItemFontColor;
+    RemeasureItemAndUpdate(Index);
+  end;
+end;
+
 procedure TNewCheckListBox.SetSubItemFontStyle(Index: Integer; const ASubItemFontStyle: TFontStyles);
 begin
   if ItemStates[Index].SubItemFontStyle <> ASubItemFontStyle then begin
     ItemStates[Index].SubItemFontStyle := ASubItemFontStyle;
     RemeasureItemAndUpdate(Index);
+  end;
+end;
+
+procedure TNewCheckListBox.SetUseStyledColor(Value: Boolean);
+begin
+  if Value <> FUseStyledColor then
+  begin
+    FUseStyledColor := Value;
+    Invalidate;
   end;
 end;
 
