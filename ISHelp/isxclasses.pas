@@ -620,6 +620,8 @@ TNewCheckListBox = class(TCustomListBox)
   function AddGroup(const ACaption, ASubItem: String; ALevel: Byte; AObject: TObject): Integer;
   function AddRadioButton(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled: Boolean; AObject: TObject): Integer;
   function CheckItem(const Index: Integer; const AOperation: TCheckItemOperation): Boolean;
+  procedure CollapseAll;
+  procedure ExpandAll;
   property Anchors: TAnchors; read write;
   property Checked[Index: Integer]: Boolean; read write;
   property State[Index: Integer]: TCheckBoxState; read;

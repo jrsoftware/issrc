@@ -189,6 +189,8 @@ type
     procedure EnumChildrenOf(Item: Integer; Proc: TEnumChildrenProc; Ext: NativeInt);
     function GetParentOf(Item: Integer): Integer;
     procedure UpdateThreads;
+    procedure CollapseAll;
+    procedure ExpandAll;
     property Checked[Index: Integer]: Boolean read GetChecked write SetChecked;
     property DisableStyledButtons: Boolean read FDisableStyledButtons write FDisableStyledButtons;
     property ItemCaption[Index: Integer]: String read GetCaption write SetCaption;
@@ -2596,6 +2598,41 @@ end;
 procedure TNewCheckListBox.UpdateExpandButtonSize;
 begin
   FExpandButtonSize := MulDiv(9, CurrentPPI, 96);
+end;
+
+procedure TNewCheckListBox.ExpandAll;
+var
+  I: Integer;
+begin
+  for I := 0 to Items.Count - 1 do
+  begin
+    if ItemStates[I].HasChildren then
+      ItemStates[I].Expanded := True;
+    RemeasureItem(I);
+  end;
+  UpdateScrollRange;
+  Invalidate;
+end;
+
+procedure TNewCheckListBox.CollapseAll;
+var
+  I: Integer;
+begin
+  if not FTreeViewStyle or FWantTabs then
+    Exit;
+
+  for I := 0 to Items.Count - 1 do
+  begin
+    if ItemStates[I].HasChildren then
+    begin
+      if not FShowRoot and (ItemLevel[I] = 0) then
+        Continue;
+      ItemStates[I].Expanded := False;
+    end;
+    RemeasureItem(I);
+  end;
+  UpdateScrollRange;
+  Invalidate;
 end;
 
 {$IFDEF VCLSTYLES}
