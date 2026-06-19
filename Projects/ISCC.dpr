@@ -574,6 +574,8 @@ begin
       F := TTextFileReader.Create(ScriptFilename, fdOpenExisting, faRead, fsRead)
     else
       F := TTextFileReader.CreateWithExistingHandle(GetStdHandle(STD_INPUT_HANDLE));
+    if not F.CanDetectUTF8WithoutBOM then
+      F.CodePage := CP_UTF8; { Assume UTF-8 }
     try
       ReadScriptLines(F);
     finally
