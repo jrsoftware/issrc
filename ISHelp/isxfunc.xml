@@ -26,9 +26,9 @@
       <function>
         <name>ParamStr</name>
         <prototype>function ParamStr(Index: Integer): String;</prototype>
-        <description><p>Returns the Index-th command line parameter passed to Setup or Uninstall, excluding undocumented internal parameters used by Setup and Uninstall.</p>
+        <description><p>Returns the <tt>Index</tt>-th command line parameter passed to Setup or Uninstall, excluding undocumented internal parameters used by Setup and Uninstall.</p>
 <p>Parameter number zero is the full file name with which Setup or Uninstall was started.</p>
-<p>If Index is invalid, ParamStr returns an empty string.</p></description>
+<p>If <tt>Index</tt> is invalid, ParamStr returns an empty string.</p></description>
         <seealso><p><isxfunc>ParamCount</isxfunc><br />
 <isxfunc>GetCmdTail</isxfunc></p></seealso>
       </function>
@@ -58,7 +58,7 @@
       <function>
         <name>FmtMessage</name>
         <prototype>function FmtMessage(const S: String; const Args: array of String): String;</prototype>
-        <description><p>Formats the string S using the specified string arguments. A <tt>%1</tt> in the format string will be replaced with the first value in the Args array; a <tt>%2</tt> will be replaced with the second value; and so on. <tt>%%</tt> will be replaced with <tt>%</tt>.</p></description>
+        <description><p>Formats the string <tt>S</tt> using the specified string arguments. A <tt>%1</tt> in the format string will be replaced with the first value in the <tt>Args</tt> array; a <tt>%2</tt> will be replaced with the second value; and so on. <tt>%%</tt> will be replaced with <tt>%</tt>.</p></description>
         <remarks><p>If a <tt>%</tt>-specifier references a non-existing argument, it will be returned untouched. No exception will be raised.</p></remarks>
         <example><pre><key>var</key>
   S: String;
@@ -179,13 +179,13 @@
       <function>
         <name>ExpandConstant</name>
         <prototype>function ExpandConstant(const S: String): String;</prototype>
-        <description><p>Changes all constants in S to their values. For example, ExpandConstant('{srcexe}') is changed to the filename of Setup.</p>
+        <description><p>Changes all constants in <tt>S</tt> to their values. For example, ExpandConstant('{srcexe}') is changed to the filename of Setup.</p>
 <p>An exception will be raised if there was an error expanding the constants.</p></description>
       </function>
       <function>
         <name>ExpandConstantEx</name>
         <prototype>function ExpandConstantEx(const S: String; const CustomConst, CustomValue: String): String;</prototype>
-        <description><p>Changes all constants in S to their values. Additionally, any constant equal to CustomConst will be changed to CustomValue.</p>
+        <description><p>Changes all constants in <tt>S</tt> to their values. Additionally, any constant equal to <tt>CustomConst</tt> will be changed to <tt>CustomValue</tt>.</p>
 <p>An exception will be raised if there was an error expanding the constants.</p></description>
       </function>
     </subcategory>
@@ -668,7 +668,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>InstallOnThisVersion</name>
         <prototype>function InstallOnThisVersion(const MinVersion, OnlyBelowVersion: String): Boolean;</prototype>
-        <description><p>This function is deprecated. Returns True if an entry with the specified MinVersion and OnlyBelowVersion parameters should be installed. If an invalid version string is passed, an exception will be raised.</p>
+        <description><p>This function is deprecated. Returns True if an entry with the specified <tt>MinVersion</tt> and <tt>OnlyBelowVersion</tt> parameters should be installed. If an invalid version string is passed, an exception will be raised.</p>
 <p>This function is provided for backward compatibility only, and may be removed in a future release. New scripts should use <isxfunc>GetWindowsVersion</isxfunc> or <isxfunc>GetWindowsVersionEx</isxfunc> instead.</p></description>
         <remarks><p>Prior to Inno Setup 5.5.0, this function returned <tt>irInstall</tt> rather than a Boolean True value. <tt>irInstall</tt> is now defined as an alias for True.</p></remarks>
         <example><pre><com>// Old method, deprecated</com>
@@ -688,7 +688,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>IsDotNetInstalled</name>
         <prototype>function IsDotNetInstalled(const MinVersion: TDotNetVersion; const MinServicePack: Cardinal): Boolean;</prototype>
-        <description><p>Returns True if the .NET Framework with the specified MinVersion and MinServicePack parameters is installed.</p>
+        <description><p>Returns True if the .NET Framework with the specified <tt>MinVersion</tt> and <tt>MinServicePack</tt> parameters is installed.</p>
 <p>TDotNetVersion is defined as:</p>
 <p><tt>TDotNetVersion = (net11, net20, net30, net35, net4Client, net4Full, net45, net451, net452, net46, net461, net462, net47, net471, net472, net48, net481);</tt></p></description>
         <example><pre><key>function</key> <evt>InitializeSetup</evt>: Boolean;
@@ -701,8 +701,8 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>IsMsiProductInstalled</name>
         <prototype>function IsMsiProductInstalled(const UpgradeCode: String; const PackedMinVersion: Int64): Boolean;</prototype>
-        <description><p>Returns True if a MSI product with the specified UpgradeCode and PackedMinVersion is installed.</p>
-<p>If there are multiple products installed with the specified UpgradeCode only the version of the first product returned by the system is checked.</p>
+        <description><p>Returns True if a MSI product with the specified <tt>UpgradeCode</tt> and <tt>PackedMinVersion</tt> is installed.</p>
+<p>If there are multiple products installed with the specified <tt>UpgradeCode</tt> only the version of the first product returned by the system is checked.</p>
 <p>An exception will be raised if an error occurs.</p></description>
         <example><pre><key>function</key> <evt>InitializeSetup</evt>: Boolean;
 <key>begin</key>
@@ -811,7 +811,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>CheckForMutexes</name>
         <prototype>function CheckForMutexes(Mutexes: String): Boolean;</prototype>
-        <description><p>Returns True if any of the mutexes in the comma-separated Mutexes string exist.</p></description>
+        <description><p>Returns True if any of the mutexes in the comma-separated <tt>Mutexes</tt> string exist.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -908,7 +908,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>Copy</name>
         <prototype>function Copy(S: AnyString; Index, Count: Integer): String;</prototype>
-        <description><p>Returns a string containing Count characters starting at S[Index].<br />If Index is larger than the length of S, Copy returns an empty string.<br />If Count specifies more characters than are available, only the characters from S[Index] to the end of S are returned.</p></description>
+        <description><p>Returns a string containing <tt>Count</tt> characters starting at <tt>S</tt>[<tt>Index</tt>].<br />If <tt>Index</tt> is larger than the length of <tt>S</tt>, Copy returns an empty string.<br />If <tt>Count</tt> specifies more characters than are available, only the characters from <tt>S</tt>[<tt>Index</tt>] to the end of <tt>S</tt> are returned.</p></description>
       </function>
       <function>
         <name>Length</name>
@@ -918,12 +918,12 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>LowerCase</name>
         <prototype>function LowerCase(S: AnyString): String;</prototype>
-        <description><p>Returns a copy of the string S, but with all 7-bit ASCII characters between 'A' and 'Z' converted to lowercase. To convert 8-bit international characters, use <isxfunc>AnsiLowerCase</isxfunc> instead.</p></description>
+        <description><p>Returns a copy of the string <tt>S</tt>, but with all 7-bit ASCII characters between 'A' and 'Z' converted to lowercase. To convert 8-bit international characters, use <isxfunc>AnsiLowerCase</isxfunc> instead.</p></description>
       </function>
       <function>
         <name>UpperCase</name>
         <prototype>function UpperCase(S: AnyString): String;</prototype>
-        <description><p>Returns a copy of the string S, but with all 7-bit ASCII characters between 'a' and 'z' converted to uppercase. To convert 8-bit international characters, use <isxfunc>AnsiUpperCase</isxfunc> instead.</p></description>
+        <description><p>Returns a copy of the string <tt>S</tt>, but with all 7-bit ASCII characters between 'a' and 'z' converted to uppercase. To convert 8-bit international characters, use <isxfunc>AnsiUpperCase</isxfunc> instead.</p></description>
       </function>
       <function>
         <name>AnsiLowerCase</name>
@@ -938,17 +938,17 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>StringOfChar</name>
         <prototype>function StringOfChar(C: Char; I : LongInt): String;</prototype>
-        <description><p>Returns a string of length I with all characters set to character C.</p></description>
+        <description><p>Returns a string of length <tt>I</tt> with all characters set to character <tt>C</tt>.</p></description>
       </function>
       <function>
         <name>Delete</name>
         <prototype>procedure Delete(var S: AnyString; Index, Count: Integer);</prototype>
-        <description><p>Removes a substring of Count characters from string S starting at S[Index].<br />If Index is larger than the length of S, no characters are deleted. If Count specifies more characters than remain starting at the S[Index], Delete removes the rest of the string.</p></description>
+        <description><p>Removes a substring of <tt>Count</tt> characters from string <tt>S</tt> starting at <tt>S</tt>[<tt>Index</tt>].<br />If <tt>Index</tt> is larger than the length of <tt>S</tt>, no characters are deleted. If <tt>Count</tt> specifies more characters than remain starting at the <tt>S</tt>[<tt>Index</tt>], Delete removes the rest of the string.</p></description>
       </function>
       <function>
         <name>Insert</name>
         <prototype>procedure Insert(Source: AnyString; var Dest: AnyString; Index: Integer);</prototype>
-        <description><p>Merges Source into Dest at the position Dest[Index].</p></description>
+        <description><p>Merges <tt>Source</tt> into <tt>Dest</tt> at the position <tt>Dest</tt>[<tt>Index</tt>].</p></description>
       </function>
       <function>
         <name>StringChange</name>
@@ -958,8 +958,8 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>StringChangeEx</name>
         <prototype>function StringChangeEx(var S: String; const FromStr, ToStr: String; const SupportDBCS: Boolean): Integer;</prototype>
-        <description><p>Changes all occurrences in S of FromStr to ToStr. If SupportDBCS is True (recommended unless you require binary safety), double-byte character sequences in S are recognized and handled properly. Otherwise, the function behaves in a binary-safe manner. Returns the number of times FromStr was matched and changed.</p></description>
-        <remarks><p>When working with strings containing paths or filenames, be sure to pass True in the SupportDBCS parameter. Otherwise, paths with Chinese, Japanese, or Korean characters may be corrupted.</p></remarks>
+        <description><p>Changes all occurrences in <tt>S</tt> of <tt>FromStr</tt> to <tt>ToStr</tt>. If <tt>SupportDBCS</tt> is True (recommended unless you require binary safety), double-byte character sequences in <tt>S</tt> are recognized and handled properly. Otherwise, the function behaves in a binary-safe manner. Returns the number of times <tt>FromStr</tt> was matched and changed.</p></description>
+        <remarks><p>When working with strings containing paths or filenames, be sure to pass True in the <tt>SupportDBCS</tt> parameter. Otherwise, paths with Chinese, Japanese, or Korean characters may be corrupted.</p></remarks>
         <example><pre><key>var</key>
   S: String;
 <key>begin</key>
@@ -973,13 +973,13 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>Pos</name>
         <prototype>function Pos(SubStr, S: AnyString): Integer;</prototype>
-        <description><p>Searches for SubStr within S and returns the first index of SubStr within S, 1-based. If SubStr is not found, Pos returns zero. The Pos function is case-sensitive.</p></description>
+        <description><p>Searches for <tt>SubStr</tt> within <tt>S</tt> and returns the first index of <tt>SubStr</tt> within <tt>S</tt>, 1-based. If <tt>SubStr</tt> is not found, Pos returns zero. The Pos function is case-sensitive.</p></description>
         <seealso><p><isxfunc>RPos</isxfunc></p></seealso>
       </function>
       <function>
         <name>RPos</name>
         <prototype>function RPos(const SubStr, S: String): Integer;</prototype>
-        <description><p>Searches for SubStr within S and returns the last index of SubStr within S, 1-based. If SubStr is not found, RPos returns zero. The RPos function is case-sensitive.</p></description>
+        <description><p>Searches for <tt>SubStr</tt> within <tt>S</tt> and returns the last index of <tt>SubStr</tt> within <tt>S</tt>, 1-based. If <tt>SubStr</tt> is not found, RPos returns zero. The RPos function is case-sensitive.</p></description>
         <seealso><p><isxfunc>Pos</isxfunc></p></seealso>
       </function>
       <function>
@@ -1002,22 +1002,22 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>CompareText</name>
         <prototype>function CompareText(const S1, S2: String): Integer;</prototype>
-        <description><p>Compares the strings S1 and S2 and returns 0 if they are equal. If S1 is greater than S2, CompareText returns an integer greater than 0. If S1 is less than S2, CompareText returns an integer less than 0. The CompareText function is not case-sensitive.</p></description>
+        <description><p>Compares the strings <tt>S1</tt> and <tt>S2</tt> and returns 0 if they are equal. If <tt>S1</tt> is greater than <tt>S2</tt>, CompareText returns an integer greater than 0. If <tt>S1</tt> is less than <tt>S2</tt>, CompareText returns an integer less than 0. The CompareText function is not case-sensitive.</p></description>
       </function>
       <function>
         <name>CompareStr</name>
         <prototype>function CompareStr(const S1, S2: String): Integer;</prototype>
-        <description><p>Compares S1 to S2, with case-sensitivity. The return value is less than 0 if S1 is less than S2, 0 if S1 equals S2, or greater than 0 if S1 is greater than S2.</p></description>
+        <description><p>Compares <tt>S1</tt> to <tt>S2</tt>, with case-sensitivity. The return value is less than 0 if <tt>S1</tt> is less than <tt>S2</tt>, 0 if <tt>S1</tt> equals <tt>S2</tt>, or greater than 0 if <tt>S1</tt> is greater than <tt>S2</tt>.</p></description>
       </function>
       <function>
         <name>SameText</name>
         <prototype>function SameText(const S1, S2: String): Boolean;</prototype>
-        <description><p>Compares the strings S1 and S2 and returns True if they are equal. The SameText function is not case-sensitive.</p></description>
+        <description><p>Compares the strings <tt>S1</tt> and <tt>S2</tt> and returns True if they are equal. The SameText function is not case-sensitive.</p></description>
       </function>
       <function>
         <name>SameStr</name>
         <prototype>function SameStr(const S1, S2: String): Boolean;</prototype>
-        <description><p>Compares S1 to S2, with case-sensitivity. The return value is True if they are equal.</p></description>
+        <description><p>Compares <tt>S1</tt> to <tt>S2</tt>, with case-sensitivity. The return value is True if they are equal.</p></description>
       </function>
       <function>
         <name>IsWildcard</name>
@@ -1034,7 +1034,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>Format</name>
         <prototype>function Format(const Format: String; const Args: array of const): String;</prototype>
-        <description><p>Formats the string Format using the series of arguments in the open array Args. Formatting is controlled by the format string Format; the results are returned as a string.</p>
+        <description><p>Formats the string <tt>Format</tt> using the series of arguments in the open array <tt>Args</tt>. Formatting is controlled by the format string <tt>Format</tt>; the results are returned as a string.</p>
 <p>An exception will be raised if an invalid format string is specified, too few arguments are passed, or if any arguments are of the wrong type.</p></description>
         <example><pre><key>var</key>
   S: String;
@@ -1056,17 +1056,17 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>Trim</name>
         <prototype>function Trim(const S: AnyString): AnyString;</prototype>
-        <description><p>Trims leading and trailing spaces and control characters from the given string S.</p></description>
+        <description><p>Trims leading and trailing spaces and control characters from the given string <tt>S</tt>.</p></description>
       </function>
       <function>
         <name>TrimLeft</name>
         <prototype>function TrimLeft(const S: String): String;</prototype>
-        <description><p>Trims leading spaces and control characters from the given string S.</p></description>
+        <description><p>Trims leading spaces and control characters from the given string <tt>S</tt>.</p></description>
       </function>
       <function>
         <name>TrimRight</name>
         <prototype>function TrimRight(const S: String): String;</prototype>
-        <description><p>Trims trailing spaces and control characters from the given string S.</p></description>
+        <description><p>Trims trailing spaces and control characters from the given string <tt>S</tt>.</p></description>
       </function>
       <function>
         <name>StringJoin</name>
@@ -1100,7 +1100,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>StringSplitEx</name>
         <prototype>function StringSplitEx(const S: String; const Separators: TArrayOfString; const Quote: Char; const Typ: TSplitType): TArrayOfString;</prototype>
-        <description><p>Splits the given string into substrings, using the given characters or strings to be used as separator. Empty substrings can be ignored. Use the Quote parameter to specify the start and end character of a quoted part of the string where separators are ignored.</p>
+        <description><p>Splits the given string into substrings, using the given characters or strings to be used as separator. Empty substrings can be ignored. Use the <tt>Quote</tt> parameter to specify the start and end character of a quoted part of the string where separators are ignored.</p>
 <p>TSplitType is defined as:</p>
 <p><tt>TSplitType = (stAll, stExcludeEmpty, stExcludeLastEmpty);</tt></p></description>
         <example><pre><key>var</key>
@@ -1117,45 +1117,45 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>StrToIntDef</name>
         <prototype>function StrToIntDef(S: String; Def: LongInt): LongInt;</prototype>
-        <description><p>The StrToIntDef function converts the string passed in S into a number. If S does not represent a valid number, StrToIntDef returns the number passed in Def.</p></description>
+        <description><p>The StrToIntDef function converts the string passed in <tt>S</tt> into a number. If <tt>S</tt> does not represent a valid number, StrToIntDef returns the number passed in <tt>Def</tt>.</p></description>
       </function>
       <function>
         <name>StrToInt</name>
         <prototype>function StrToInt(S: String): LongInt;</prototype>
-        <description><p>The StrToInt function converts the string passed in S into a number. Returns -1 if not successful.</p></description>
+        <description><p>The StrToInt function converts the string passed in <tt>S</tt> into a number. Returns -1 if not successful.</p></description>
         <remarks><p>Use of <isxfunc>StrToIntDef</isxfunc> instead of StrToInt is recommended.</p></remarks>
       </function>
       <function>
         <name>StrToInt64Def</name>
         <prototype>function StrToInt64Def(S: String; Def: Int64): Int64;</prototype>
-        <description><p>The StrToInt64Def function converts the string passed in S into a 64-bit number. If S does not represent a valid 64-bit number, StrToInt64Def returns the 64-bit number passed in Def.</p></description>
+        <description><p>The StrToInt64Def function converts the string passed in <tt>S</tt> into a 64-bit number. If <tt>S</tt> does not represent a valid 64-bit number, StrToInt64Def returns the 64-bit number passed in <tt>Def</tt>.</p></description>
       </function>
       <function>
         <name>StrToInt64</name>
         <prototype>function StrToInt64(S: String): Int64;</prototype>
-        <description><p>The StrToInt64 function converts the string passed in S into a 64-bit number. Raises an exception if not successful.</p></description>
+        <description><p>The StrToInt64 function converts the string passed in <tt>S</tt> into a 64-bit number. Raises an exception if not successful.</p></description>
         <remarks><p>Use of <isxfunc>StrToInt64Def</isxfunc> instead of StrToInt64 is recommended.</p></remarks>
       </function>
       <function>
         <name>StrToUInt64Def</name>
         <prototype>function StrToUInt64Def(S: String; Def: UInt64): UInt64;</prototype>
-        <description><p>The StrToUInt64Def function converts the string passed in S into an unsigned 64-bit number. If S does not represent a valid unsigned 64-bit number, StrToUInt64Def returns the unsigned 64-bit number passed in Def.</p></description>
+        <description><p>The StrToUInt64Def function converts the string passed in <tt>S</tt> into an unsigned 64-bit number. If <tt>S</tt> does not represent a valid unsigned 64-bit number, StrToUInt64Def returns the unsigned 64-bit number passed in <tt>Def</tt>.</p></description>
       </function>
       <function>
         <name>StrToUInt64</name>
         <prototype>function StrToUInt64(S: String): UInt64;</prototype>
-        <description><p>The StrToUInt64 function converts the string passed in S into an unsigned 64-bit number. Raises an exception if not successful.</p></description>
+        <description><p>The StrToUInt64 function converts the string passed in <tt>S</tt> into an unsigned 64-bit number. Raises an exception if not successful.</p></description>
         <remarks><p>Use of <isxfunc>StrToUInt64Def</isxfunc> instead of StrToUInt64 is recommended.</p></remarks>
       </function>
       <function>
         <name>StrToFloat</name>
         <prototype>function StrToFloat(S: String): Extended;</prototype>
-        <description><p>The StrToFloat function converts the string passed in S into a floating point number. The character used for the decimal point should always be a dot. Raises an exception if not successful.</p></description>
+        <description><p>The StrToFloat function converts the string passed in <tt>S</tt> into a floating point number. The character used for the decimal point should always be a dot. Raises an exception if not successful.</p></description>
       </function>
       <function>
         <name>StrToColor</name>
         <prototype>function StrToColor(const S: String): TColor;</prototype>
-        <description><p>The StrToColor function converts the string passed in S, formatted as <tt>'#rrggbb'</tt>, into a color. Raises an exception if not successful.</p></description>
+        <description><p>The StrToColor function converts the string passed in <tt>S</tt>, formatted as <tt>'#rrggbb'</tt>, into a color. Raises an exception if not successful.</p></description>
       </function>
       <function>
         <name>IntToStr</name>
@@ -1200,12 +1200,12 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>PathCombine</name>
         <prototype>function PathCombine(const Dir, Filename: String): String;</prototype>
-        <description><p>Combines a directory and file name into a single path. If Filename is empty the result is an empty string. If Filename already starts with a drive letter or slash it is returned unchanged. Otherwise a single backslash is inserted between Dir and Filename when needed.</p></description>
+        <description><p>Combines a directory and file name into a single path. If <tt>Filename</tt> is empty the result is an empty string. If <tt>Filename</tt> already starts with a drive letter or slash it is returned unchanged. Otherwise a single backslash is inserted between <tt>Dir</tt> and <tt>Filename</tt> when needed.</p></description>
       </function>
       <function>
         <name>PathHasInvalidCharacters</name>
         <prototype>function PathHasInvalidCharacters(const S: String; const AllowDriveLetterColon: Boolean): Boolean;</prototype>
-        <description><p>Returns True if the specified string contains characters that are never allowed in paths, or characters and path components that are accepted by the system but might present a security problem (such as '..' and sometimes ':'). Set AllowDriveLetterColon to True when the first character may be a drive letter followed by a colon.</p></description>
+        <description><p>Returns True if the specified string contains characters that are never allowed in paths, or characters and path components that are accepted by the system but might present a security problem (such as '..' and sometimes ':'). Set <tt>AllowDriveLetterColon</tt> to True when the first character may be a drive letter followed by a colon.</p></description>
         <remarks><p>Extended-length paths that start with a "\\?\" prefix are rejected because the '?' is treated as an invalid character.</p></remarks>
       </function>
       <function>
@@ -1228,13 +1228,13 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>PathStartsWith</name>
         <prototype>function PathStartsWith(const S, AStartsWith: String; const IgnoreCase: Boolean): Boolean;</prototype>
-        <description><p>Returns True if S starts with (or is equal to) AStartsWith. Uses a locale-independent "ordinal" comparison, which is important when comparing filenames/paths. Optionally ignores case.</p></description>
+        <description><p>Returns True if <tt>S</tt> starts with (or is equal to) <tt>AStartsWith</tt>. Uses a locale-independent "ordinal" comparison, which is important when comparing filenames/paths. Optionally ignores case.</p></description>
         <seealso><p><isxfunc>PathEndsWith</isxfunc></p></seealso>
       </function>
       <function>
         <name>PathEndsWith</name>
         <prototype>function PathEndsWith(const S, AEndsWith: String; const IgnoreCase: Boolean): Boolean;</prototype>
-        <description><p>Returns True if S ends with (or is equal to) AEndsWith. Uses a locale-independent "ordinal" comparison, which is important when comparing filenames/paths. Optionally ignores case.</p></description>
+        <description><p>Returns True if <tt>S</tt> ends with (or is equal to) <tt>AEndsWith</tt>. Uses a locale-independent "ordinal" comparison, which is important when comparing filenames/paths. Optionally ignores case.</p></description>
         <seealso><p><isxfunc>PathStartsWith</isxfunc></p></seealso>
       </function>
       <function>
@@ -1245,7 +1245,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>ChangeFileExt</name>
         <prototype>function ChangeFileExt(const FileName, Extension: String): String;</prototype>
-        <description><p>Takes the file name passed in FileName and changes the extension of the file name to the extension passed in Extension.</p></description>
+        <description><p>Takes the file name passed in <tt>FileName</tt> and changes the extension of the file name to the extension passed in <tt>Extension</tt>.</p></description>
       </function>
       <function>
         <name>ExtractFileExt</name>
@@ -1255,30 +1255,30 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>ExtractFileDir</name>
         <prototype>function ExtractFileDir(const FileName: String): String;</prototype>
-        <description><p>Extracts the drive and directory parts of the given file name, excluding a trailing backslash (unless it is a root directory). The resulting string is empty if FileName contains no drive and directory parts.</p></description>
+        <description><p>Extracts the drive and directory parts of the given file name, excluding a trailing backslash (unless it is a root directory). The resulting string is empty if <tt>FileName</tt> contains no drive and directory parts.</p></description>
         <seealso><p><isxfunc>ExtractFilePath</isxfunc></p></seealso>
       </function>
       <function>
         <name>ExtractFilePath</name>
         <prototype>function ExtractFilePath(const FileName: String): String;</prototype>
-        <description><p>Extracts the drive and directory parts of the given file name, including a trailing backslash. The resulting string is the leftmost characters of FileName, up to and including the colon or backslash that separates the path information from the name and extension. The resulting string is empty if FileName contains no drive and directory parts.</p></description>
+        <description><p>Extracts the drive and directory parts of the given file name, including a trailing backslash. The resulting string is the leftmost characters of <tt>FileName</tt>, up to and including the colon or backslash that separates the path information from the name and extension. The resulting string is empty if <tt>FileName</tt> contains no drive and directory parts.</p></description>
         <seealso><p><isxfunc>ExtractFileDir</isxfunc></p></seealso>
       </function>
       <function>
         <name>ExtractFileName</name>
         <prototype>function ExtractFileName(const FileName: String): String;</prototype>
-        <description><p>Extracts the name and extension parts of the given file name. The resulting string is the rightmost characters of FileName, starting with the first character after the colon or backslash that separates the path information from the name and extension. The resulting string is equal to FileName if FileName contains no drive and directory parts.</p></description>
+        <description><p>Extracts the name and extension parts of the given file name. The resulting string is the rightmost characters of <tt>FileName</tt>, starting with the first character after the colon or backslash that separates the path information from the name and extension. The resulting string is equal to <tt>FileName</tt> if <tt>FileName</tt> contains no drive and directory parts.</p></description>
       </function>
       <function>
         <name>ExtractFileDrive</name>
         <prototype>function ExtractFileDrive(const FileName: String): String;</prototype>
-        <description><p>Returns a string containing the 'drive' portion of a fully qualified path name for the file passed in FileName. For file names with drive letters, the resulting string is in the form '&lt;drive&gt;:'. For file names with a UNC path the resulting string is in the form '\\&lt;servername&gt;\&lt;sharename&gt;'. If the given path contains neither style of path prefix, the result is an empty string.</p></description>
+        <description><p>Returns a string containing the 'drive' portion of a fully qualified path name for the file passed in <tt>FileName</tt>. For file names with drive letters, the resulting string is in the form '&lt;drive&gt;:'. For file names with a UNC path the resulting string is in the form '\\&lt;servername&gt;\&lt;sharename&gt;'. If the given path contains neither style of path prefix, the result is an empty string.</p></description>
       </function>
       <function>
         <name>ExtractRelativePath</name>
         <prototype>function ExtractRelativePath(const BaseName, DestName: String): String;</prototype>
-        <description><p>Converts a fully qualified path name into a relative path name. The DestName parameter specifies the file name (including path) to be converted. BaseName is the fully qualified name of the base directory to which the returned path name should be relative. BaseName may or may not include a file name, but it must include the final path delimiter.</p>
-<p>ExtractRelativePath strips out common path directories and inserts '..\' for each level up from the BaseName.</p></description>
+        <description><p>Converts a fully qualified path name into a relative path name. The <tt>DestName</tt> parameter specifies the file name (including path) to be converted. <tt>BaseName</tt> is the fully qualified name of the base directory to which the returned path name should be relative. <tt>BaseName</tt> may or may not include a file name, but it must include the final path delimiter.</p>
+<p>ExtractRelativePath strips out common path directories and inserts '..\' for each level up from the <tt>BaseName</tt>.</p></description>
         <example><pre><key>var</key>
   S: String;
 <key>begin</key>
@@ -1289,14 +1289,14 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>ExpandFileName</name>
         <prototype>function ExpandFileName(const FileName: String): String;</prototype>
-        <description><p>Returns a string containing a fully qualified path name for the file passed in FileName. A fully qualified path name includes the drive letter and any directory and subdirectories in addition to the file name and extension.</p>
+        <description><p>Returns a string containing a fully qualified path name for the file passed in <tt>FileName</tt>. A fully qualified path name includes the drive letter and any directory and subdirectories in addition to the file name and extension.</p>
 <p>An empty string is returned if the input is an empty string or contains only spaces.</p>
 <p>An exception will be raised upon failure, which is only known to happen when the input or output path exceeds 32K characters.</p></description>
       </function>
       <function>
         <name>ExpandUNCFileName</name>
         <prototype>function ExpandUNCFileName(const FileName: String): String;</prototype>
-        <description><p>Returns a string containing a fully qualified path name for the file passed in FileName. A fully qualified path name includes the drive portion of the filename in the UNC format '\\&lt;servername&gt;\&lt;sharename&gt;' if the drive letter is mapped to a network resource instead of a local drive and any directory and subdirectories in addition to the file name and extension.</p></description>
+        <description><p>Returns a string containing a fully qualified path name for the file passed in <tt>FileName</tt>. A fully qualified path name includes the drive portion of the filename in the UNC format '\\&lt;servername&gt;\&lt;sharename&gt;' if the drive letter is mapped to a network resource instead of a local drive and any directory and subdirectories in addition to the file name and extension.</p></description>
       </function>
       <function>
         <name>PathConvertNormalToSuper</name>
@@ -1359,10 +1359,10 @@ am/pm	Uses the 12-hour clock for the preceding h or hh specifier.<br />
 a/p	Uses the 12-hour clock for the preceding h or hh specifier.<br />
 	Displays 'a' for any hour before noon, and 'p' for any hour after noon.<br />
 	The a/p specifier can use lower, upper, or mixed case, and the result is displayed accordingly.<br />
-/	Displays the date separator character given by the DateSeparator parameter.<br />
-	If DateSeparator is set to #0, the system's date separator character will be used instead.<br />
-:	Displays the time separator character given by the TimeSeparator parameter.<br />
-	If TimeSeparator is set to #0, the system's time separator character will be used instead.<br />
+/	Displays the date separator character given by the <tt>DateSeparator</tt> parameter.<br />
+	If <tt>DateSeparator</tt> is set to #0, the system's date separator character will be used instead.<br />
+:	Displays the time separator character given by the <tt>TimeSeparator</tt> parameter.<br />
+	If <tt>TimeSeparator</tt> is set to #0, the system's time separator character will be used instead.<br />
 'xx'/"xx"	Characters enclosed in single or double quotes are displayed as-is, and do not affect formatting.<br />
 <br />
 Format specifiers may be written in upper case as well as in lower case letters. Both produce the same result.</p></description>
@@ -1486,7 +1486,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>MinimizePathName</name>
         <prototype>function MinimizePathName(const Filename: String; const Font: TFont; MaxLen: Integer): String;</prototype>
-        <description><p>Returns a minimized filename that will not take more than MaxLen pixels to display with the given font. The minimizing is done by replacing the middle part with '...' as needed.</p></description>
+        <description><p>Returns a minimized filename that will not take more than <tt>MaxLen</tt> pixels to display with the given font. The minimizing is done by replacing the middle part with '...' as needed.</p></description>
         <example><pre>MyLabel.Caption := MinimizePathName(MyPathName, MyLabel.Font, MyLabel.Width);</pre></example>
         <seealso><p><link topic="scriptclasses" anchor="TFont">TFont</link></p></seealso>
       </function>
@@ -1619,18 +1619,18 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>FileSize</name>
         <prototype>function FileSize(const Name: String; var Size: Integer): Boolean;</prototype>
-        <description><p>Sets Size to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise. Only supports file sizes smaller than 2 GB. To get all 64 bits of the file size, use <isxfunc>FileSize64</isxfunc> instead.</p></description>
+        <description><p>Sets <tt>Size</tt> to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise. Only supports file sizes smaller than 2 GB. To get all 64 bits of the file size, use <isxfunc>FileSize64</isxfunc> instead.</p></description>
       </function>
       <function>
         <name>FileSize64</name>
         <prototype>function FileSize64(const Name: String; var Size: Int64): Boolean;</prototype>
-        <description><p>Sets Size to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise.</p></description>
+        <description><p>Sets <tt>Size</tt> to the size of the specified file in bytes. Returns True if the file size was set successfully and False otherwise.</p></description>
       </function>
       <function>
         <name>GetSpaceOnDisk</name>
         <prototype>function GetSpaceOnDisk(const Path: String; const InMegabytes: Boolean; var Free, Total: Cardinal): Boolean;</prototype>
-        <description><p>Returns the number of free and total bytes or megabytes on a drive. Path specifies a directory on the drive or UNC share to check; it can be either the root (e.g. <tt>C:\</tt>) or an existing subdirectory. The setting of the InMegabytes parameter determines whether it returns figures in bytes or in megabytes (2^20), rounded down. Returns True if successful, False otherwise.</p></description>
-        <remarks><p>The figures returned by this function are capped at 2147483647 (2^31-1). Therefore, if InMegaBytes is False, it will return no more than 2147483647 bytes. If InMegaBytes is True, it will return no more than 2147483647 megabytes.</p></remarks>
+        <description><p>Returns the number of free and total bytes or megabytes on a drive. <tt>Path</tt> specifies a directory on the drive or UNC share to check; it can be either the root (e.g. <tt>C:\</tt>) or an existing subdirectory. The setting of the <tt>InMegabytes</tt> parameter determines whether it returns figures in bytes or in megabytes (2^20), rounded down. Returns True if successful, False otherwise.</p></description>
+        <remarks><p>The figures returned by this function are capped at 2147483647 (2^31-1). Therefore, if <tt>InMegabytes</tt> is False, it will return no more than 2147483647 bytes. If <tt>InMegabytes</tt> is True, it will return no more than 2147483647 megabytes.</p></remarks>
         <example><pre><key>var</key>
   Path: String;
   FreeMB, TotalMB: Cardinal;
@@ -1651,7 +1651,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>GetSpaceOnDisk64</name>
         <prototype>function GetSpaceOnDisk64(const Path: String; var Free, Total: Int64): Boolean;</prototype>
-        <description><p>Returns the number of free and total bytes on a drive. Path specifies a directory on the drive or UNC share to check; it can be either the root (e.g. <tt>C:\</tt>) or an existing subdirectory. Returns True if successful, False otherwise.</p></description>
+        <description><p>Returns the number of free and total bytes on a drive. <tt>Path</tt> specifies a directory on the drive or UNC share to check; it can be either the root (e.g. <tt>C:\</tt>) or an existing subdirectory. Returns True if successful, False otherwise.</p></description>
         <example><pre><key>var</key>
   Path: String;
   FreeBytes, TotalBytes: Int64;
@@ -1674,12 +1674,12 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>FileSearch</name>
         <prototype>function FileSearch(const Name, DirList: String): String;</prototype>
-        <description><p>Searches through the directories passed in DirList for a file named Name. DirList should be directory names separated by semicolons. If FileSearch locates a file matching Name, it returns a string containing a fully-qualified path name for that file. If no matching file exists, FileSearch returns an empty string.</p></description>
+        <description><p>Searches through the directories passed in <tt>DirList</tt> for a file named <tt>Name</tt>. <tt>DirList</tt> should be directory names separated by semicolons. If FileSearch locates a file matching <tt>Name</tt>, it returns a string containing a fully-qualified path name for that file. If no matching file exists, FileSearch returns an empty string.</p></description>
       </function>
       <function>
         <name>FindFirst</name>
         <prototype>function FindFirst(const FileName: String; var FindRec: TFindRec): Boolean;</prototype>
-        <description><p>Retrieves information about the first file matching the wildcard specified by FileName. Returns True if successful.</p>
+        <description><p>Retrieves information about the first file matching the wildcard specified by <tt>FileName</tt>. Returns True if successful.</p>
 <p>TFindRec is defined as:</p>
 <pre>
   TFindRec = <key>record</key>
@@ -1810,8 +1810,8 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>GetShellFolderByCSIDL</name>
         <prototype>function GetShellFolderByCSIDL(const Folder: Integer; const Create: Boolean): String;</prototype>
-        <description><p>Gets the path of the specified shell folder. Folder specifies the value of a CSIDL constant (a complete list of which can be found in ShlObj.h). If Create is True, the folder will be created if it does not exist. On failure, an empty string is returned.</p></description>
-        <remarks><p>It is recommended that you always specify True in the Create parameter. Otherwise, the function may fail if the CSIDL value is valid but the directory does not currently exist. (This is a Windows issue.)</p></remarks>
+        <description><p>Gets the path of the specified shell folder. <tt>Folder</tt> specifies the value of a CSIDL constant (a complete list of which can be found in ShlObj.h). If <tt>Create</tt> is True, the folder will be created if it does not exist. On failure, an empty string is returned.</p></description>
+        <remarks><p>It is recommended that you always specify True in the <tt>Create</tt> parameter. Otherwise, the function may fail if the CSIDL value is valid but the directory does not currently exist. (This is a Windows issue.)</p></remarks>
         <example><pre><key>const</key>
   CSIDL_MYPICTURES = <num>$0027</num>;
 
@@ -1884,15 +1884,15 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>Exec</name>
         <prototype>function Exec(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer): Boolean;</prototype>
-        <description><p>Executes the specified executable or batch file, using the same credentials as Setup/Uninstall. The Wait parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was executed successfully, False otherwise.</p>
-<p>If True is returned and Wait is ewWaitUntilTerminated then ResultCode returns the exit code of the process.</p>
-<p>If False is returned then ResultCode specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ResultCode)</tt> to get a description of the error.</p></description>
+        <description><p>Executes the specified executable or batch file, using the same credentials as Setup/Uninstall. The <tt>Wait</tt> parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was executed successfully, False otherwise.</p>
+<p>If True is returned and <tt>Wait</tt> is ewWaitUntilTerminated then <tt>ResultCode</tt> returns the exit code of the process.</p>
+<p>If False is returned then <tt>ResultCode</tt> specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ResultCode)</tt> to get a description of the error.</p></description>
         <remarks><p>TExecWait is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
 <p>Use the <isxfunc>ShellExec</isxfunc> function instead if you need to launch a file that is not an executable or batch file.</p>
-<p>Do not include quotes in the Filename parameter; the function will add them automatically.</p>
-<p>The WorkingDir parameter can be an empty string, in which case it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process. If no pathname was specified in Filename, a default directory will be used.</p>
-<p>If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass <tt>'>'</tt> in the Filename parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
+<p>Do not include quotes in the <tt>Filename</tt> parameter; the function will add them automatically.</p>
+<p>The <tt>WorkingDir</tt> parameter can be an empty string, in which case it will try to extract a pathname from the <tt>Filename</tt> parameter and use that as the initial current directory for the process. If no pathname was specified in <tt>Filename</tt>, a default directory will be used.</p>
+<p>If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass <tt>'>'</tt> in the <tt>Filename</tt> parameter, and the full command line in the <tt>Params</tt> parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
 <p>To execute a 64-bit System32 binary from a 32-bit installer, use <tt>{sysnative}</tt> or <isxfunc>ApplyPathRedirRulesForCurrentProcess</isxfunc> to rewrite the path. In a 64-bit installer the rewrite is not needed.</p>
 <p>Can't be used to execute Setup itself until the installation has started.</p>
 <p><i>Note: compared to ISPP's Exec the ShowCmd and Wait parameters are swapped!</i></p></remarks>
@@ -1924,10 +1924,10 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ShellExec</name>
         <prototype>function ShellExec(const Verb, Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ErrorCode: Integer): Boolean;</prototype>
-        <description><p>Opens the specified file or performs another action specified by Verb, using the same credentials as Setup/Uninstall. The filename can be an executable file, a document file, a folder, or a URL. Verb may be an empty string, in which case the default verb for the file type is used (usually "open"). The Wait parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was opened successfully, False otherwise. If False is returned then ErrorCode specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ErrorCode)</tt> to get a description of the error.</p></description>
+        <description><p>Opens the specified file or performs another action specified by <tt>Verb</tt>, using the same credentials as Setup/Uninstall. The filename can be an executable file, a document file, a folder, or a URL. <tt>Verb</tt> may be an empty string, in which case the default verb for the file type is used (usually "open"). The <tt>Wait</tt> parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was opened successfully, False otherwise. If False is returned then <tt>ErrorCode</tt> specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ErrorCode)</tt> to get a description of the error.</p></description>
         <remarks><p>TExecWait is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
-<p>Note that passing a Wait value other than <tt>ewNoWait</tt> will have no effect if a new process isn't spawned (for example, if the file is opened inside an already-running instance of the program that handles the file type).</p>
+<p>Note that passing a <tt>Wait</tt> value other than <tt>ewNoWait</tt> will have no effect if a new process isn't spawned (for example, if the file is opened inside an already-running instance of the program that handles the file type).</p>
 <p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p>
 <p>Can't be used to execute Setup itself until the installation has started.</p></remarks>
         <example><pre><key>var</key>
@@ -1944,7 +1944,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ShellExecAsOriginalUser</name>
         <prototype>function ShellExecAsOriginalUser(const Verb, Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ErrorCode: Integer): Boolean;</prototype>
-        <description><p>Opens the specified file or performs another action specified by Verb, using the (normally non-elevated) credentials of the user that started Setup initially. See <isxfunc>ShellExec</isxfunc> and the <tt>[Run]</tt> section flag <tt>runasoriginaluser</tt> for more information.</p></description>
+        <description><p>Opens the specified file or performs another action specified by <tt>Verb</tt>, using the (normally non-elevated) credentials of the user that started Setup initially. See <isxfunc>ShellExec</isxfunc> and the <tt>[Run]</tt> section flag <tt>runasoriginaluser</tt> for more information.</p></description>
         <remarks><p>This function is not supported at uninstall time.</p>
 <p>In very unusual failure cases (e.g. if the initial Setup process died unexpectedly), it is possible for this function to raise an exception instead of just returning False.</p>
 <p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
@@ -2003,7 +2003,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ExtractTemporaryFiles</name>
         <prototype>function ExtractTemporaryFiles(const Pattern: String): Integer;</prototype>
-        <description><p>Extracts the files matching the wildcard specified by Pattern from the <tt>[Files]</tt> section to a temporary directory. Returns the number of extracted files. To find the location of the temporary directory, use <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}')</tt>.</p>
+        <description><p>Extracts the files matching the wildcard specified by <tt>Pattern</tt> from the <tt>[Files]</tt> section to a temporary directory. Returns the number of extracted files. To find the location of the temporary directory, use <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}')</tt>.</p>
 <p>The extracted files are automatically deleted when Setup exits.</p>
 <p>An exception will be raised if no files were extracted successfully, no files were found, or if files were found but none could be processed because of their MinVersion and/or OnlyBelowVersion parameters.</p></description>
         <remarks><p>Use <tt>Flags: dontcopy noencryption</tt> in the <tt>[Files]</tt> section to tell Setup to skip the file during the normal file copying stage, and to ensure it can be extracted before the password is known.</p>
@@ -2039,11 +2039,11 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>DownloadTemporaryFile</name>
         <prototype>function DownloadTemporaryFile(const Url, BaseName, RequiredSHA256OfFile: String; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
         <description><p>Downloads the file from the specified URL to a temporary directory using the specified name. To find the location of the temporary directory, use <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}')</tt>.</p>
-<p>If RequiredSHA256OfFile is set it will compare this to the SHA-256 of the downloaded file and raise an exception if the hashes don't match.</p>
-<p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded. Returns 0 if RequiredSHA256OfFile is set and the file was already downloaded.</p>
+<p>If <tt>RequiredSHA256OfFile</tt> is set it will compare this to the SHA-256 of the downloaded file and raise an exception if the hashes don't match.</p>
+<p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded. Returns 0 if <tt>RequiredSHA256OfFile</tt> is set and the file was already downloaded.</p>
 <p>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</p>
 <p>For basic authentication use <isxfunc>SetDownloadCredentials</isxfunc>.</p>
-<p>Set OnDownloadProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
+<p>Set <tt>OnDownloadProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p>TOnDownloadProgress is defined as:</p>
 <p><tt>TOnDownloadProgress = function(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>ProgressMax will be 0 if the file size is still unknown. Return True to allow the download to continue, False otherwise.</p></remarks>
@@ -2084,7 +2084,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>function DownloadTemporaryFileWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
         <description><p>Like <isxfunc>DownloadTemporaryFile</isxfunc>, but downloads an .issig signature file first from the specified second URL and uses it to verify the main file downloaded from the first URL.</p>
 <p>If the second URL is an empty string, Setup will instead append ".issig" (without quotes) to the path portion of the first URL. It will then use the result as the URL to download the .issig signature file from.</p>        
-<p>Verification uses the specified allowed keys, looked up using <link topic="issigkeyssection">[ISSigKeys] section</link> parameter <tt>RuntimeID</tt>. To allow all keys set AllowedKeysRuntimeIDs to <tt>nil</tt>.</p>
+<p>Verification uses the specified allowed keys, looked up using <link topic="issigkeyssection">[ISSigKeys] section</link> parameter <tt>RuntimeID</tt>. To allow all keys set <tt>AllowedKeysRuntimeIDs</tt> to <tt>nil</tt>.</p>
 <p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded for the main file from the first URL. Returns 0 if the main file was already downloaded and still verified.</p></description>
         <seealso><p><isxfunc>DownloadTemporaryFile</isxfunc><br/>
 <link topic="issig">.issig Signatures: Introduction</link><br/>
@@ -2135,7 +2135,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <p>An exception will be raised if there was an error.</p>
 <p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <tt>[Setup]</tt> section directive.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <isxfunc>MapArchiveExtensions</isxfunc>.</p>
-<p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
+<p>Set <tt>OnExtractionProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p>TOnExtractionProgress is defined as:</p>
 <p><tt>TOnExtractionProgress = function(const ArchiveName, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>Return True to allow the extraction to continue, False otherwise.</p></remarks>
@@ -2188,9 +2188,9 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ISSigVerify</name>
         <prototype>function ISSigVerify(const AllowedKeysRuntimeIDs: TStringList; const Filename: String; const VerifyFilename: Boolean; const KeepOpen: Boolean): TFileStream;</prototype>
-        <description><p>Verifies the signature of the specified file using the specified allowed keys, looked up using <link topic="issigkeyssection">[ISSigKeys] section</link> parameter <tt>RuntimeID</tt>. To allow all keys set AllowedKeysRuntimeIDs to <tt>nil</tt>. An exception will be raised upon failure.</p>
-<p>If VerifyFilename is set to False the verification allows signatures for a different filename. It is recommended that you only set it to False if you don't know the name the file had when the signature was created. The size and hash of the file must always match.</p>        
-<p>Returns a handle to the still open file if KeepOpen is set to True, <tt>nil</tt> otherwise. It is recommended that you always set it to True if you plan to use the file for anything after verification. Otherwise, you risk creating a Time-Of-Check to Time-Of-Use (TOCTOU) problem.</p></description>
+        <description><p>Verifies the signature of the specified file using the specified allowed keys, looked up using <link topic="issigkeyssection">[ISSigKeys] section</link> parameter <tt>RuntimeID</tt>. To allow all keys set <tt>AllowedKeysRuntimeIDs</tt> to <tt>nil</tt>. An exception will be raised upon failure.</p>
+<p>If <tt>VerifyFilename</tt> is set to False the verification allows signatures for a different filename. It is recommended that you only set it to False if you don't know the name the file had when the signature was created. The size and hash of the file must always match.</p>        
+<p>Returns a handle to the still open file if <tt>KeepOpen</tt> is set to True, <tt>nil</tt> otherwise. It is recommended that you always set it to True if you plan to use the file for anything after verification. Otherwise, you risk creating a Time-Of-Check to Time-Of-Use (TOCTOU) problem.</p></description>
         <example><pre><key>var</key>
   F: TFileStream;
 <key>begin</key>
@@ -2209,25 +2209,25 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>RenameFile</name>
         <prototype>function RenameFile(const OldName, NewName: String): Boolean;</prototype>
-        <description><p>Attempts to change the name of the file or directory specified by OldName to NewName. If the operation succeeds, RenameFile returns True. If it cannot rename the file (for example, if a file called NewName already exists), it returns False.</p></description>
+        <description><p>Attempts to change the name of the file or directory specified by <tt>OldName</tt> to <tt>NewName</tt>. If the operation succeeds, RenameFile returns True. If it cannot rename the file (for example, if a file called <tt>NewName</tt> already exists), it returns False.</p></description>
         <remarks><p>Can't be used to rename Setup itself until the installation has started.</p></remarks>
       </function>
       <function>
         <name>CopyFile</name>
         <prototype>function CopyFile(const ExistingFile, NewFile: String; const FailIfExists: Boolean): Boolean;</prototype>
-        <description><p>Copies ExistingFile to NewFile, preserving time stamp and file attributes.<br />If FailIfExists is True it will fail if NewFile already exists, otherwise it will overwrite it.<br />Returns True if successful, False otherwise.</p>
+        <description><p>Copies <tt>ExistingFile</tt> to <tt>NewFile</tt>, preserving time stamp and file attributes.<br />If <tt>FailIfExists</tt> is True it will fail if <tt>NewFile</tt> already exists, otherwise it will overwrite it.<br />Returns True if successful, False otherwise.</p>
 <p>Files copied using <tt>CopyFile</tt> are not automatically uninstalled. Consider using a <tt>[Files]</tt> entry with the <tt>external</tt> flag set instead.</p></description>
         <remarks><p>Can't be used to copy Setup itself until the installation has started.</p></remarks>
       </function>
       <function>
         <name>DeleteFile</name>
         <prototype>function DeleteFile(const FileName: String): Boolean;</prototype>
-        <description><p>Erases the file named by FileName from the disk.<br />If the file cannot be deleted or does not exist, the function returns False.</p></description>
+        <description><p>Erases the file named by <tt>FileName</tt> from the disk.<br />If the file cannot be deleted or does not exist, the function returns False.</p></description>
       </function>
       <function>
         <name>DelayDeleteFile</name>
         <prototype>procedure DelayDeleteFile(const Filename: String; const Tries: Integer);</prototype>
-        <description><p>Attempts to delete Filename, retrying up to Tries times if the file is in use. It delays 250 msec between tries.</p></description>
+        <description><p>Attempts to delete <tt>Filename</tt>, retrying up to <tt>Tries</tt> times if the file is in use. It delays 250 msec between tries.</p></description>
       </function>
       <function>
         <name>SetNTFSCompression</name>
@@ -2266,28 +2266,28 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>SaveStringToFile</name>
         <prototype>function SaveStringToFile(const FileName: String; const S: AnsiString; const Append: Boolean): Boolean;</prototype>
-        <description><p>Saves the specified string to the specified file. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
-        <remarks><p>This function does not automatically write a line break before or after the string. If Append is True and the existing file did not end in a line break, the function will effectively append to the existing last line. To avoid this you can put line break characters before and/or after your string:</p>
+        <description><p>Saves the specified string to the specified file. If <tt>Append</tt> is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
+        <remarks><p>This function does not automatically write a line break before or after the string. If <tt>Append</tt> is True and the existing file did not end in a line break, the function will effectively append to the existing last line. To avoid this you can put line break characters before and/or after your string:</p>
 <p><tt>SaveStringToFile('c:\filename.txt', #13#10 + 'the string' + #13#10, True);</tt></p></remarks>
       </function>
       <function>
         <name>SaveStringsToFile</name>
         <prototype>function SaveStringsToFile(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
-        <description><p>Saves the specified string array to the specified file with ASCII encoding. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
+        <description><p>Saves the specified string array to the specified file with ASCII encoding. If <tt>Append</tt> is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
         <seealso><p><isxfunc>SaveStringsToUTF8File</isxfunc><br />
 <isxfunc>SaveStringsToUTF8FileWithoutBOM</isxfunc></p></seealso>
       </function>
       <function>
         <name>SaveStringsToUTF8File</name>
         <prototype>function SaveStringsToUTF8File(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
-        <description><p>Saves the specified string array to the specified file with UTF-8 encoding with a BOM. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
+        <description><p>Saves the specified string array to the specified file with UTF-8 encoding with a BOM. If <tt>Append</tt> is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
         <seealso><p><isxfunc>SaveStringsToFile</isxfunc><br />
 <isxfunc>SaveStringsToUTF8FileWithoutBOM</isxfunc></p></seealso>
       </function>
       <function>
         <name>SaveStringsToUTF8FileWithoutBOM</name>
         <prototype>function SaveStringsToUTF8FileWithoutBOM(const FileName: String; const S: TArrayOfString; const Append: Boolean): Boolean;</prototype>
-        <description><p>Saves the specified string array to the specified file with UTF-8 encoding without a BOM. If Append is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
+        <description><p>Saves the specified string array to the specified file with UTF-8 encoding without a BOM. If <tt>Append</tt> is True and the specified file already exists, it will be appended to instead of overwritten. Returns True if successful, False otherwise.</p></description>
         <seealso><p><isxfunc>SaveStringsToFile</isxfunc><br />
 <isxfunc>SaveStringsToUTF8File</isxfunc></p></seealso>
       </function>
@@ -2311,9 +2311,9 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>DelTree</name>
         <prototype>function DelTree(const Path: String; const IsDir, DeleteFiles, DeleteSubdirsAlso: Boolean): Boolean;</prototype>
-        <description><p>Deletes the specified directory if IsDir is set to True, or files/directories matching a wildcard if IsDir is set to False. Returns True if it was able to successfully remove everything.</p>
-<p>If DeleteFiles is set to True, files inside the specified directory will be deleted if IsDir is True, or files matching the specified wildcard (including those with hidden, system, and read-only attributes) will be deleted if IsDir is False.</p>
-<p>If DeleteFiles and DeleteSubdirsAlso are both set to True, subdirectories (and their contents) will be deleted in addition to files.</p></description>
+        <description><p>Deletes the specified directory if <tt>IsDir</tt> is set to True, or files/directories matching a wildcard if <tt>IsDir</tt> is set to False. Returns True if it was able to successfully remove everything.</p>
+<p>If <tt>DeleteFiles</tt> is set to True, files inside the specified directory will be deleted if <tt>IsDir</tt> is True, or files matching the specified wildcard (including those with hidden, system, and read-only attributes) will be deleted if <tt>IsDir</tt> is False.</p>
+<p>If <tt>DeleteFiles</tt> and <tt>DeleteSubdirsAlso</tt> are both set to True, subdirectories (and their contents) will be deleted in addition to files.</p></description>
         <remarks><p>This function will remove directories that are reparse points, but it will not recursively delete files/directories inside them.</p></remarks>
         <example><pre><key>begin</key>
   <com>// Delete the directory C:\Test and everything inside it</com>
@@ -2334,10 +2334,10 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>function CreateShellLink(const Filename, Description, ShortcutTo, Parameters, WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer): String;</prototype>
         <description><p>Creates a shortcut to a file or folder. Returns the resulting filename of the link, which may differ from <tt>Filename</tt> if it ended up creating a .pif file instead of a .lnk file. On failure, an exception will be raised.</p>
 <p><b>Parameters:</b><br />
-<i>Filename</i><br />Filename of the shortcut file to be created. This should be the full path and must end with ".lnk".<br />
-<i>Description</i><br />Description of the link. This will be displayed on a supporting OS when the user hovers the mouse over the file or shows the properties.<br />
+<i>Filename</i><br /><tt>Filename</tt> of the shortcut file to be created. This should be the full path and must end with ".lnk".<br />
+<i>Description</i><br /><tt>Description</tt> of the link. This will be displayed on a supporting OS when the user hovers the mouse over the file or shows the properties.<br />
 <i>ShortcutTo</i><br />Target file for the shortcut. This must be the full path to the file. Double quotation marks to surround the path will be added automatically.<br />
-<i>Parameters</i><br />Parameters to pass to the target file of the shortcut. Parameters which may include spaces should have double quote marks surrounding them. e.g. <tt><isxfunc>ExpandConstant</isxfunc>('"{app}\foo"')</tt><br />
+<i>Parameters</i><br /><tt>Parameters</tt> to pass to the target file of the shortcut. <tt>Parameters</tt> which may include spaces should have double quote marks surrounding them. e.g. <tt><isxfunc>ExpandConstant</isxfunc>('"{app}\foo"')</tt><br />
 <i>WorkingDir</i><br />Working directory for the target file. This should be set to an absolute directory.<br />
 <i>IconFilename</i><br />Path to file to supply the icon. If this is left as the empty string then the system default icon for the target file will be used.<br />
 <i>IconIndex</i><br />Zero-based index of the icon.<br />
@@ -2363,8 +2363,8 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>RegisterServer</name>
         <prototype>procedure RegisterServer(const Is64Bit: Boolean; const Filename: String; const Reserved: Boolean);</prototype>
-        <description><p>Registers the DLL/OCX with the specified filename. If Is64Bit is True, the DLL/OCX will be loaded as a 64-bit image and registered in a 64-bit process. Raises an exception if not successful.</p>
-<p>Parameter Reserved is ignored, but must be specified anyway.</p></description>
+        <description><p>Registers the DLL/OCX with the specified filename. If <tt>Is64Bit</tt> is True, the DLL/OCX will be loaded as a 64-bit image and registered in a 64-bit process. Raises an exception if not successful.</p>
+<p>Parameter <tt>Reserved</tt> is ignored, but must be specified anyway.</p></description>
         <example><pre><key>begin</key>
   <com>// Register hhctrl.ocx located in the System directory.</com>
   RegisterServer(Is64BitInstallMode, ExpandConstant(<str>'{sys}\hhctrl.ocx'</str>), False);
@@ -2374,13 +2374,13 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>UnregisterServer</name>
         <prototype>function UnregisterServer(const Is64Bit: Boolean; const Filename: String; const Reserved: Boolean): Boolean;</prototype>
-        <description><p>Unregisters the DLL/OCX with the specified filename. If Is64Bit is True, the DLL/OCX will be loaded as a 64-bit image and unregistered in a 64-bit process. Returns True if successful, False otherwise.</p>
-<p>Parameter Reserved is ignored, but must be specified anyway.</p></description>
+        <description><p>Unregisters the DLL/OCX with the specified filename. If <tt>Is64Bit</tt> is True, the DLL/OCX will be loaded as a 64-bit image and unregistered in a 64-bit process. Returns True if successful, False otherwise.</p>
+<p>Parameter <tt>Reserved</tt> is ignored, but must be specified anyway.</p></description>
       </function>
       <function>
         <name>RegisterTypeLibrary</name>
         <prototype>procedure RegisterTypeLibrary(const Is64Bit: Boolean; const Filename: String);</prototype>
-        <description><p>Registers the type library with the specified filename. If Is64Bit is True, the type library will be registered in a 64-bit process. Raises an exception if not successful.</p></description>
+        <description><p>Registers the type library with the specified filename. If <tt>Is64Bit</tt> is True, the type library will be registered in a 64-bit process. Raises an exception if not successful.</p></description>
         <example><pre><key>begin</key>
   <com>// Register stdole2.tlb located in the System directory.</com>
   RegisterTypeLibrary(Is64BitInstallMode, ExpandConstant(<str>'{sys}\stdole2.tlb'</str>));
@@ -2390,15 +2390,15 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>UnregisterTypeLibrary</name>
         <prototype>function UnregisterTypeLibrary(const Is64Bit: Boolean; const Filename: String): Boolean;</prototype>
-        <description><p>Unregisters the type library with the specified filename. If Is64Bit is True, the type library will be unregistered in a 64-bit process. Returns True if successful, False otherwise.</p></description>
+        <description><p>Unregisters the type library with the specified filename. If <tt>Is64Bit</tt> is True, the type library will be unregistered in a 64-bit process. Returns True if successful, False otherwise.</p></description>
       </function>
       <function>
         <name>IncrementSharedCount</name>
         <prototype>procedure IncrementSharedCount(const Is64Bit: Boolean; const Filename: String; const AlreadyExisted: Boolean);</prototype>
         <description><p>Increments or initializes the reference count for the specified file in the following registry key:</p>
 <p>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\SharedDLLs</p>
-<p>64-bit versions of Windows have two separate SharedDLLs keys, one for 64-bit files and one for 32-bit files. If Is64Bit is True, the 64-bit SharedDLLs key will be updated, otherwise the 32-bit SharedDLLs key will be updated. The setting of this parameter should correspond to the bitness of the file; for example, if it is a 32-bit DLL located in the 32-bit System directory, you should specify False. You may also specify <isxfunc>Is64BitInstallMode</isxfunc> in which case it will use the current install mode to determine which key to open.</p>
-<p>Pass True in the AlreadyExisted parameter if the file already exists; in this case the initial reference count for the file will be 2 if the value for the file doesn't already exist in the registry. (This behavior is in line with Microsoft's requirements.)</p>
+<p>64-bit versions of Windows have two separate SharedDLLs keys, one for 64-bit files and one for 32-bit files. If <tt>Is64Bit</tt> is True, the 64-bit SharedDLLs key will be updated, otherwise the 32-bit SharedDLLs key will be updated. The setting of this parameter should correspond to the bitness of the file; for example, if it is a 32-bit DLL located in the 32-bit System directory, you should specify False. You may also specify <isxfunc>Is64BitInstallMode</isxfunc> in which case it will use the current install mode to determine which key to open.</p>
+<p>Pass True in the <tt>AlreadyExisted</tt> parameter if the file already exists; in this case the initial reference count for the file will be 2 if the value for the file doesn't already exist in the registry. (This behavior is in line with Microsoft's requirements.)</p>
 <p>An exception will be raised if the registry key cannot be opened for write access.</p></description>
       </function>
       <function>
@@ -2406,14 +2406,14 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>function DecrementSharedCount(const Is64Bit: Boolean; const Filename: String): Boolean;</prototype>
         <description><p>Decrements the reference count for the specified file in the following registry key:</p>
 <p>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\SharedDLLs</p>
-<p>64-bit versions of Windows have two separate SharedDLLs keys, one for 64-bit files and one for 32-bit files. If Is64Bit is True, the 64-bit SharedDLLs key will be updated, otherwise the 32-bit SharedDLLs key will be updated. The setting of this parameter should correspond to the bitness of the file; for example, if it is a 32-bit DLL located in the 32-bit System directory, you should specify False. You may also specify <isxfunc>Is64BitInstallMode</isxfunc> in which case it will use the current install mode to determine which key to open.</p>
+<p>64-bit versions of Windows have two separate SharedDLLs keys, one for 64-bit files and one for 32-bit files. If <tt>Is64Bit</tt> is True, the 64-bit SharedDLLs key will be updated, otherwise the 32-bit SharedDLLs key will be updated. The setting of this parameter should correspond to the bitness of the file; for example, if it is a 32-bit DLL located in the 32-bit System directory, you should specify False. You may also specify <isxfunc>Is64BitInstallMode</isxfunc> in which case it will use the current install mode to determine which key to open.</p>
 <p>Returns True if the count reached zero (meaning it's OK to delete the file). Returns False if the new count is greater than zero, or if the value for the file doesn't exist or is in an unrecognizable format.</p>
 <p>An exception will be raised if the registry key cannot be opened for write access.</p></description>
       </function>
       <function>
         <name>RestartReplace</name>
         <prototype>procedure RestartReplace(const TempFile, DestFile: String);</prototype>
-        <description><p>Renames TempFile to DestFile the next time Windows is started. If DestFile already existed, it will be overwritten. If DestFile is '' then TempFile will be deleted. An exception will be raised upon failure.</p></description>
+        <description><p>Renames <tt>TempFile</tt> to <tt>DestFile</tt> the next time Windows is started. If <tt>DestFile</tt> already existed, it will be overwritten. If <tt>DestFile</tt> is '' then <tt>TempFile</tt> will be deleted. An exception will be raised upon failure.</p></description>
       </function>
       <function>
         <name>UnregisterFont</name>
@@ -2480,12 +2480,12 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ComparePackedVersion</name>
         <prototype>function ComparePackedVersion(const Version1, Version2: Int64): Integer;</prototype>
-        <description><p>Compares Version1 to Version2. The return value is less than 0 if Version1 is less than Version2, 0 if Version1 equals Version2, or greater than 0 if Version1 is greater than Version2.</p></description>
+        <description><p>Compares <tt>Version1</tt> to <tt>Version2</tt>. The return value is less than 0 if <tt>Version1</tt> is less than <tt>Version2</tt>, 0 if <tt>Version1</tt> equals <tt>Version2</tt>, or greater than 0 if <tt>Version1</tt> is greater than <tt>Version2</tt>.</p></description>
       </function>
       <function>
         <name>SamePackedVersion</name>
         <prototype>function SamePackedVersion(const Version1, Version2: Int64): Boolean;</prototype>
-        <description><p>Compares the packed versions Version1 and Version2 and returns True if they are equal.</p></description>
+        <description><p>Compares the packed versions <tt>Version1</tt> and <tt>Version2</tt> and returns True if they are equal.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -2555,7 +2555,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>RegGetSubkeyNames</name>
         <prototype>function RegGetSubkeyNames(const RootKey: HKEY; const SubKeyName: String; var Names: TArrayOfString): Boolean;</prototype>
-        <description><p>Opens the specified registry key and reads the names of its subkeys into the specified string array Names. Returns True if successful, False otherwise.</p></description>
+        <description><p>Opens the specified registry key and reads the names of its subkeys into the specified string array <tt>Names</tt>. Returns True if successful, False otherwise.</p></description>
         <example><pre><key>var</key>
   Names: TArrayOfString;
   S: String;
@@ -2573,7 +2573,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>RegGetValueNames</name>
         <prototype>function RegGetValueNames(const RootKey: HKEY; const SubKeyName: String; var Names: TArrayOfString): Boolean;</prototype>
-        <description><p>Opens the specified registry key and reads the names of its values into the specified string array Names. Returns True if successful, False otherwise.</p></description>
+        <description><p>Opens the specified registry key and reads the names of its values into the specified string array <tt>Names</tt>. Returns True if successful, False otherwise.</p></description>
         <example><pre><key>var</key>
   Names: TArrayOfString;
   S: String;
@@ -2593,7 +2593,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>RegQueryStringValue</name>
         <prototype>function RegQueryStringValue(const RootKey: HKEY; const SubKeyName, ValueName: String; var ResultStr: String): Boolean;</prototype>
-        <description><p>Queries the specified REG_SZ- or REG_EXPAND_SZ-type value, and returns the data in ResultStr. Returns True if successful. When False is returned, ResultStr is unmodified.</p></description>
+        <description><p>Queries the specified REG_SZ- or REG_EXPAND_SZ-type value, and returns the data in <tt>ResultStr</tt>. Returns True if successful. When False is returned, <tt>ResultStr</tt> is unmodified.</p></description>
         <example><pre><key>var</key>
   Country: String;
 <key>begin</key>
@@ -2608,13 +2608,13 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>RegQueryMultiStringValue</name>
         <prototype>function RegQueryMultiStringValue(const RootKey: HKEY; const SubKeyName, ValueName: String; var ResultStr: String): Boolean;</prototype>
-        <description><p>Queries the specified REG_MULTI_SZ-type registry value, and returns the data in ResultStr. Returns True if successful. When False is returned, ResultStr is unmodified.</p></description>
+        <description><p>Queries the specified REG_MULTI_SZ-type registry value, and returns the data in <tt>ResultStr</tt>. Returns True if successful. When False is returned, <tt>ResultStr</tt> is unmodified.</p></description>
         <remarks><p>In a REG_MULTI_SZ-type value, each string is separated by a null character (<tt>#0</tt>).</p></remarks>
       </function>
       <function>
         <name>RegQueryDWordValue</name>
         <prototype>function RegQueryDWordValue(const RootKey: HKEY; const SubKeyName, ValueName: String; var ResultDWord: Cardinal): Boolean;</prototype>
-        <description><p>Queries the specified REG_DWORD-type registry value, and returns the data in ResultDWord. Returns True if successful. When False is returned, ResultDWord is unmodified.</p></description>
+        <description><p>Queries the specified REG_DWORD-type registry value, and returns the data in <tt>ResultDWord</tt>. Returns True if successful. When False is returned, <tt>ResultDWord</tt> is unmodified.</p></description>
         <example><pre><key>var</key>
   HistoryBufferSize: Cardinal;
 <key>begin</key>
@@ -2630,7 +2630,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>RegQueryBinaryValue</name>
         <prototype>function RegQueryBinaryValue(const RootKey: HKEY; const SubKeyName, ValueName: String; var ResultStr: AnsiString): Boolean;</prototype>
-        <description><p>Queries the specified registry value, and returns the data in ResultStr. Returns True if successful. When False is returned, ResultStr is unmodified.</p></description>
+        <description><p>Queries the specified registry value, and returns the data in <tt>ResultStr</tt>. Returns True if successful. When False is returned, <tt>ResultStr</tt> is unmodified.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -2723,7 +2723,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>GetIniInt</name>
         <prototype>function GetIniInt(const Section, Key: String; const Default, Min, Max: LongInt; const Filename: String): LongInt;</prototype>
-        <description><p>Reads a LongInt from an INI file. If the LongInt read is not between Min/Max then it returns Default. If Min=Max then Min/Max are ignored.</p></description>
+        <description><p>Reads a LongInt from an INI file. If the LongInt read is not between <tt>Min</tt>/<tt>Max</tt> then it returns <tt>Default</tt>. If <tt>Min</tt>=<tt>Max</tt> then <tt>Min</tt>/<tt>Max</tt> are ignored.</p></description>
       </function>
       <function>
         <name>GetIniString</name>
@@ -2801,8 +2801,8 @@ UserCompany := Page.Values[<num>1</num>];
         <name>CreateInputOptionPage</name>
         <prototype>function CreateInputOptionPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; Exclusive, ListBox: Boolean): TInputOptionWizardPage;</prototype>
         <description><p>Creates a wizard page containing check boxes or radio buttons.</p>
-<p>If Exclusive is True, radio buttons are displayed instead of check boxes, and only one item in the list may be selected at a time. If ListBox is True, the check boxes or radio buttons are placed inside a scrollable list box.</p></description>
-        <remarks><p>To create check boxes / radio buttons on the page, call the Add method. Use the Values property to get/set the checked state of items. On pages created with Exclusive=True, you can get/set the index of the one selected item via the SelectedValueIndex property.</p></remarks>
+<p>If <tt>Exclusive</tt> is True, radio buttons are displayed instead of check boxes, and only one item in the list may be selected at a time. If <tt>ListBox</tt> is True, the check boxes or radio buttons are placed inside a scrollable list box.</p></description>
+        <remarks><p>To create check boxes / radio buttons on the page, call the Add method. Use the Values property to get/set the checked state of items. On pages created with <tt>Exclusive</tt>=True, you can get/set the index of the one selected item via the SelectedValueIndex property.</p></remarks>
         <example><pre><key>var</key>
   Page: TInputOptionWizardPage;
   IsRegisteredUser: Boolean;
@@ -2832,7 +2832,7 @@ IsRegisteredUser := Page.Values[<num>0</num>];
       <function>
         <name>CreateInputDirPage</name>
         <prototype>function CreateInputDirPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; AAppendDir: Boolean; ANewFolderName: String): TInputDirWizardPage;</prototype>
-        <description><p>Creates a wizard page that contains edit boxes and Browse buttons for selecting directories. If AAppendDir is True, the value of ANewFolderName will be appended onto any folder name the user clicks. If AAppendDir is False and ANewFolderName is not empty, a Make New Folder button will be shown that creates a new folder with the specified default name.</p></description>
+        <description><p>Creates a wizard page that contains edit boxes and Browse buttons for selecting directories. If <tt>AAppendDir</tt> is True, the value of <tt>ANewFolderName</tt> will be appended onto any folder name the user clicks. If <tt>AAppendDir</tt> is False and <tt>ANewFolderName</tt> is not empty, a Make New Folder button will be shown that creates a new folder with the specified default name.</p></description>
         <remarks><p>To create directory selection boxes on the page, call the Add method. Use the Values property to get/set the items' values.</p></remarks>
         <example><pre><key>var</key>
   Page: TInputDirWizardPage;
@@ -2897,7 +2897,7 @@ NotepadLocation := Page.Values[<num>0</num>];
       <function>
         <name>CreateOutputMsgPage</name>
         <prototype>function CreateOutputMsgPage(const AfterID: Integer; const ACaption, ADescription, AMsg: String): TOutputMsgWizardPage;</prototype>
-        <description><p>Creates a wizard page containing only static text. The AMsg parameter specifies the text to display.</p></description>
+        <description><p>Creates a wizard page containing only static text. The <tt>AMsg</tt> parameter specifies the text to display.</p></description>
         <example><pre><key>var</key>
   Page: TOutputMsgWizardPage;
 
@@ -2914,7 +2914,7 @@ Page := CreateOutputMsgPage(wpWelcome,
       <function>
         <name>CreateOutputMsgMemoPage</name>
         <prototype>function CreateOutputMsgMemoPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; const AMsg: AnsiString): TOutputMsgMemoWizardPage;</prototype>
-        <description><p>Creates a wizard page containing static text as well as a read-only, multi-line edit control, capable of displaying RTF text. The ASubCaption parameter specifies the static text to display. AMsg specifies the text to assign to the edit control.</p></description>
+        <description><p>Creates a wizard page containing static text as well as a read-only, multi-line edit control, capable of displaying RTF text. The <tt>ASubCaption</tt> parameter specifies the static text to display. <tt>AMsg</tt> specifies the text to assign to the edit control.</p></description>
         <example><pre><key>var</key>
   Page: TOutputMsgMemoWizardPage;
 
@@ -2955,7 +2955,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <name>CreateDownloadPage</name>
         <prototype>function CreateDownloadPage(const ACaption, ADescription: String; const OnDownloadProgress: TOnDownloadProgress): TDownloadWizardPage;</prototype>
         <description><p>Creates a wizard page to download files and show progress.</p>
-<p>Set OnDownloadProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>    
+<p>Set <tt>OnDownloadProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>    
 <p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
         <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
 <p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDownloadFiles.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
@@ -2975,7 +2975,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <description><p>Creates a wizard page to extract archives and show progress.</p>
 <p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <tt>[Setup]</tt> section directive.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <isxfunc>MapArchiveExtensions</isxfunc>.</p>
-<p>Set OnExtractionProgress to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>    
+<p>Set <tt>OnExtractionProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>    
 <p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
         <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
 <p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDownloadFiles.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
@@ -3031,8 +3031,8 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
       <function>
         <name>PageFromID</name>
         <prototype>function PageFromID(const ID: Integer): TWizardPage;</prototype>
-        <description><p>Given a page ID, returns a <link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link> instance. Call this if, for example, you need to get at the surface of a page and only know its ID.</p>
-<p>An exception will be raised if an invalid page ID is specified.</p></description>
+        <description><p>Given a page <tt>ID</tt>, returns a <link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link> instance. Call this if, for example, you need to get at the surface of a page and only know its <tt>ID</tt>.</p>
+<p>An exception will be raised if an invalid page <tt>ID</tt> is specified.</p></description>
         <example><pre><key>var</key>
   Page: TWizardPage;
 <key>begin</key>
@@ -3044,7 +3044,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
       <function>
         <name>PageIndexFromID</name>
         <prototype>function PageIndexFromID(const ID: Integer): NativeInt;</prototype>
-        <description><p>Given a page ID, returns a position index. Call this if, for example, you want to check whether a page is positioned before a certain other page.</p></description>
+        <description><p>Given a page <tt>ID</tt>, returns a position index. Call this if, for example, you want to check whether a page is positioned before a certain other page.</p></description>
         <example><pre><key>function</key> <evt>ShouldSkipPage</evt>(PageID: Integer): Boolean;
 <key>begin</key>
   Result := PageIndexFromID(PageID) &lt; PageIndexFromID(wpReady);
@@ -3053,12 +3053,12 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
       <function>
         <name>ScaleX</name>
         <prototype>function ScaleX(X: Integer): Integer;</prototype>
-        <description><p>Takes an X coordinate or width and returns it scaled to fit the size of the current dialog font. If you use the default font settings with standard DPI (100%), then X is returned unchanged.</p></description>
+        <description><p>Takes an <tt>X</tt> coordinate or width and returns it scaled to fit the size of the current dialog font. If you use the default font settings with standard DPI (100%), then <tt>X</tt> is returned unchanged.</p></description>
       </function>
       <function>
         <name>ScaleY</name>
         <prototype>function ScaleY(Y: Integer): Integer;</prototype>
-        <description><p>Takes a Y coordinate or height and returns it scaled to fit the size of the current dialog font. If you use the default font settings with standard DPI (100%), then Y is returned unchanged.</p></description>
+        <description><p>Takes a <tt>Y</tt> coordinate or height and returns it scaled to fit the size of the current dialog font. If you use the default font settings with standard DPI (100%), then <tt>Y</tt> is returned unchanged.</p></description>
       </function>
       <function>
         <name>InitializeBitmapButtonFromIcon</name>
@@ -3228,8 +3228,8 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>GetOpenFileName</name>
         <prototype>function GetOpenFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
-        <description><p>Displays a dialog box that enables the user to select an existing file. Returns True if the user selected a file, False otherwise. The name of the selected file is returned in the FileName string.</p></description>
-        <remarks><p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
+        <description><p>Displays a dialog box that enables the user to select an existing file. Returns True if the user selected a file, False otherwise. The name of the selected file is returned in the <tt>FileName</tt> string.</p></description>
+        <remarks><p>An example <tt>Filter</tt>: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
         <example><pre><key>var</key>
   FileName: String;
 <key>begin</key>
@@ -3246,8 +3246,8 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>GetOpenFileNameMulti</name>
         <prototype>function GetOpenFileNameMulti(const Prompt: String; const FileNameList: TStrings; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
-        <description><p>Displays a dialog box that enables the user to select one or more existing file(s). Returns True if the user selected a file, False otherwise. The name of the selected file(s) is returned in the FileNameList list.</p></description>
-        <remarks><p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
+        <description><p>Displays a dialog box that enables the user to select one or more existing file(s). Returns True if the user selected a file, False otherwise. The name of the selected file(s) is returned in the <tt>FileNameList</tt> list.</p></description>
+        <remarks><p>An example <tt>Filter</tt>: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
         <example><pre><key>var</key>
   FileNameList: TStrings;
 <key>begin</key>
@@ -3268,8 +3268,8 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>GetSaveFileName</name>
         <prototype>function GetSaveFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
-        <description><p>Displays a dialog box that enables the user to select a new file. Returns True if the user selected a file, False otherwise. The name of the selected file is returned in the FileName string.</p></description>
-        <remarks><p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
+        <description><p>Displays a dialog box that enables the user to select a new file. Returns True if the user selected a file, False otherwise. The name of the selected file is returned in the <tt>FileName</tt> string.</p></description>
+        <remarks><p>An example <tt>Filter</tt>: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
         <example><pre><key>var</key>
   Filename: String;
 <key>begin</key>
@@ -3286,8 +3286,8 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>BrowseForFolder</name>
         <prototype>function BrowseForFolder(const Prompt: String; var Directory: String; const Reserved: Boolean): Boolean;</prototype>
-        <description><p>Displays a dialog box that enables the user to select a directory. The current value of Directory is used as the initially selected directory. Returns True if the user selected a directory and clicked OK, False otherwise. The selected directory is returned in the Directory string.</p>
-<p>Parameter Reserved is ignored, but must be specified anyway.</p></description>
+        <description><p>Displays a dialog box that enables the user to select a directory. The current value of <tt>Directory</tt> is used as the initially selected directory. Returns True if the user selected a directory and clicked OK, False otherwise. The selected directory is returned in the <tt>Directory</tt> string.</p>
+<p>Parameter <tt>Reserved</tt> is ignored, but must be specified anyway.</p></description>
       </function>
       <function>
         <name>ExitSetupMsgBox</name>
@@ -3297,7 +3297,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>SelectDisk</name>
         <prototype>function SelectDisk(const DiskNumber: Integer; const AFilename: String; var Path: String): Boolean;</prototype>
-        <description><p>Displays the "Setup Needs the Next Disk" message box, and returns True if the user enters a path containing the file specified by AFileName and selects OK. The selected path is returned in the Path string. The current value of Path is used as the initially selected path and DiskNumber is used only as information to the user.</p></description>
+        <description><p>Displays the "Setup Needs the Next Disk" message box, and returns True if the user enters a path containing the file specified by <tt>AFilename</tt> and selects OK. The selected path is returned in the <tt>Path</tt> string. The current value of <tt>Path</tt> is used as the initially selected path and <tt>DiskNumber</tt> is used only as information to the user.</p></description>
       </function>
     </subcategory>
   </category>
@@ -3369,7 +3369,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>LogFmt</name>
         <prototype>procedure LogFmt(const S: String; const Args: array of const);</prototype>
-        <description><p>Formats the string S using the series of arguments in the open array Args, and then logs it.</p></description>
+        <description><p>Formats the string <tt>S</tt> using the series of arguments in the open array <tt>Args</tt>, and then logs it.</p></description>
         <example><pre><key>function</key> OnDownloadProgress(<key>const</key> Url, FileName: String; <key>const</key> Progress, ProgressMax: Int64): Boolean;
 <key>begin</key>
   LogFmt(<str>'%s->%s: %d/%d'</str>, [Url, FileName, Progress, ProgressMax]);
@@ -3385,7 +3385,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <prototype>function ExecAndCaptureOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; var Output: TExecOutput): Boolean;</prototype>
         <description><p>Identical to <isxfunc>Exec</isxfunc> except:</p>
 <p>Program output from the stdout and stderr streams is captured. This is different from <isxfunc>ExecAndLogOutput</isxfunc> which merges the streams.</p>
-<p>Console programs are always hidden and the ShowCmd parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> instead of <tt>SW_HIDE</tt> is recommended.</p>
+<p>Console programs are always hidden and the <tt>ShowCmd</tt> parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> instead of <tt>SW_HIDE</tt> is recommended.</p>
 <p>An exception will be raised if there was an error setting up output redirection (which should be very rare).</p></description>
         <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
 <p>TExecOutput is defined as:</p>
@@ -3397,7 +3397,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
   <key>end</key>;
 </pre>
 <p>Error will be True if there was an error reading the output (which should be very rare) or if the output is too big. The error is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view. There is no further output after an error.</p>
-<p>Output is limited to a total size of 10 million bytes or a maximum of 1 million lines.</p></remarks>
+<p><tt>Output</tt> is limited to a total size of 10 million bytes or a maximum of 1 million lines.</p></remarks>
         <example><pre><key>var</key>
   ResultCode: Integer;
   Output: TExecOutput;
@@ -3422,9 +3422,9 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <name>ExecAndLogOutput</name>
         <prototype>function ExecAndLogOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; const OnLog: TOnLog): Boolean;</prototype>
         <description><p>Identical to <isxfunc>Exec</isxfunc> except:</p>
-<p>Console programs are always hidden and the ShowCmd parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> instead of <tt>SW_HIDE</tt> is recommended.</p>
-<p>If OnLog is set to <tt>nil</tt> then the output of the executed executable or batch file is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p>
-<p>If OnLog is not set to <tt>nil</tt> then the output is sent to the specified function, line by line.</p>
+<p>Console programs are always hidden and the <tt>ShowCmd</tt> parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> instead of <tt>SW_HIDE</tt> is recommended.</p>
+<p>If <tt>OnLog</tt> is set to <tt>nil</tt> then the output of the executed executable or batch file is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p>
+<p>If <tt>OnLog</tt> is not set to <tt>nil</tt> then the output is sent to the specified function, line by line.</p>
 <p>An exception will be raised if there was an error setting up output redirection (which should be very rare).</p></description>
         <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
 <p>TOnLog is defined as:</p>
@@ -3487,7 +3487,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>Random</name>
         <prototype>function Random(const Range: Integer): Integer;</prototype>
-        <description><p>Returns a random number within the range 0 &lt;= X &lt; Range.</p></description>
+        <description><p>Returns a random number within the range 0 &lt;= X &lt; <tt>Range</tt>.</p></description>
       </function>
       <function>
         <name>Beep</name>
@@ -3500,28 +3500,28 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>Abs</name>
         <prototype>function Abs(E: Extended): Extended;</prototype>
-        <description><p>Returns the absolute value of E.</p></description>
+        <description><p>Returns the absolute value of <tt>E</tt>.</p></description>
       </function>
       <function>
         <name>Round</name>
         <prototype>function Round(const E: Extended): Int64;</prototype>
-        <description><p>Returns the value of E rounded to the integer number.</p></description>
-        <remarks><p>If E is exactly halfway between two integer numbers, the result is always the even number. This method of rounding is often called "Banker's rounding."</p></remarks>
+        <description><p>Returns the value of <tt>E</tt> rounded to the integer number.</p></description>
+        <remarks><p>If <tt>E</tt> is exactly halfway between two integer numbers, the result is always the even number. This method of rounding is often called "Banker's rounding."</p></remarks>
       </function>
       <function>
         <name>Trunc</name>
         <prototype>function Trunc(const E: Extended): Int64;</prototype>
-        <description><p>Returns the truncated value of E; that is, E rounded toward zero, as an integer number.</p></description>
+        <description><p>Returns the truncated value of <tt>E</tt>; that is, <tt>E</tt> rounded toward zero, as an integer number.</p></description>
       </function>
       <function>
         <name>Int</name>
         <prototype>function Int(const E: Extended): Extended;</prototype>
-        <description><p>Returns the integer part of E; that is, E rounded toward zero.</p></description>
+        <description><p>Returns the integer part of <tt>E</tt>; that is, <tt>E</tt> rounded toward zero.</p></description>
       </function>
       <function>
         <name>MulDiv</name>
         <prototype>function MulDiv(const Number, Numerator, Denominator: Integer): Integer;</prototype>
-        <description><p>Multiplies two 32-bit values (Number and Numerator) and then divides the 64-bit result by a third 32-bit value (Denominator). The final result is rounded to the nearest integer.</p></description>
+        <description><p>Multiplies two 32-bit values (<tt>Number</tt> and <tt>Numerator</tt>) and then divides the 64-bit result by a third 32-bit value (<tt>Denominator</tt>). The final result is rounded to the nearest integer.</p></description>
         <remarks><p>If the result is a positive half integer (ends in .5), it is rounded up. If the result is a negative half integer, it is rounded down.</p></remarks>
       </function>
       <function>
@@ -3540,49 +3540,49 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>Low</name>
         <prototype>function Low(var X): Int64;</prototype>
-        <description><p>Returns the lowest value or lower bound of X. Cannot be used with type parameters.</p></description>
+        <description><p>Returns the lowest value or lower bound of <tt>X</tt>. Cannot be used with type parameters.</p></description>
         <seealso><p><isxfunc>High</isxfunc></p></seealso>
       </function>
       <function>
         <name>High</name>
         <prototype>function High(var X): Int64;</prototype>
-        <description><p>Returns the highest value or upper bound of X. Cannot be used with type parameters.</p></description>
+        <description><p>Returns the highest value or upper bound of <tt>X</tt>. Cannot be used with type parameters.</p></description>
         <seealso><p><isxfunc>Low</isxfunc></p></seealso>
       </function>
       <function>
         <name>SizeOf</name>
         <prototype>function SizeOf(var X): LongInt;</prototype>
-        <description><p>Returns the number of bytes occupied by X. Cannot be used with type parameters.</p></description>
+        <description><p>Returns the number of bytes occupied by <tt>X</tt>. Cannot be used with type parameters.</p></description>
       </function>
       <function>
         <name>Assigned</name>
         <prototype>function Assigned(var X): Boolean;</prototype>
-        <description><p>Returns True if X is not nil. For strings and <tt>PChar</tt> values, returns True if X isn't empty. Returns False otherwise.</p></description>
+        <description><p>Returns True if <tt>X</tt> is not nil. For strings and <tt>PChar</tt> values, returns True if <tt>X</tt> isn't empty. Returns False otherwise.</p></description>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>Inc</name>
         <prototype>procedure Inc(var X: Ordinal);</prototype>
-        <description><p>Increments X by 1.</p></description>
+        <description><p>Increments <tt>X</tt> by 1.</p></description>
         <seealso><p><isxfunc>Dec</isxfunc></p></seealso>
       </function>
       <function>
         <name>Dec</name>
         <prototype>procedure Dec(var X: Ordinal);</prototype>
-        <description><p>Decrements X by 1.</p></description>
+        <description><p>Decrements <tt>X</tt> by 1.</p></description>
         <seealso><p><isxfunc>Inc</isxfunc></p></seealso>
       </function>
       <function>
         <name>Succ</name>
         <prototype>function Succ(X: Ordinal): Ordinal;</prototype>
-        <description><p>Returns the successor of X.</p></description>
+        <description><p>Returns the successor of <tt>X</tt>.</p></description>
         <seealso><p><isxfunc>Pred</isxfunc></p></seealso>
       </function>
       <function>
         <name>Pred</name>
         <prototype>function Pred(X: Ordinal): Ordinal;</prototype>
-        <description><p>Returns the predecessor of X.</p></description>
+        <description><p>Returns the predecessor of <tt>X</tt>.</p></description>
         <seealso><p><isxfunc>Succ</isxfunc></p></seealso>
       </function>
     </subcategory>
@@ -3614,7 +3614,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>LoadDLL</name>
         <prototype>function LoadDLL(const DLLName: String; var ErrorCode: Integer): HMODULE;</prototype>
-        <description><p>Loads the specified DLL. Returns the DLL handle if the DLL was loaded successfully, zero otherwise. If zero is returned then ErrorCode specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ErrorCode)</tt> to get a description of the error.</p></description>
+        <description><p>Loads the specified DLL. Returns the DLL handle if the DLL was loaded successfully, zero otherwise. If zero is returned then <tt>ErrorCode</tt> specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ErrorCode)</tt> to get a description of the error.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p>
 <p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
       </function>
