@@ -121,6 +121,9 @@ begin
     RegisterMethod(@TNewCheckListBox.AddCheckBox, 'AddCheckBox');
     RegisterMethod(@TNewCheckListBox.AddGroup, 'AddGroup');
     RegisterMethod(@TNewCheckListBox.AddRadioButton, 'AddRadioButton');
+    RegisterMethod(@TNewCheckListBox.AddCheckBoxEx, 'AddCheckBoxEx');
+    RegisterMethod(@TNewCheckListBox.AddGroupEx, 'AddGroupEx');
+    RegisterMethod(@TNewCheckListBox.AddRadioButtonEx, 'AddRadioButtonEx');
     RegisterMethod(@TNewCheckListBox.CheckItem, 'CheckItem');
     RegisterMethod(@TNewCheckListBox.CollapseAll, 'CollapseAll');
     RegisterMethod(@TNewCheckListBox.CollapseItem, 'CollapseItem');

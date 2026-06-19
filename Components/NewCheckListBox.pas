@@ -190,6 +190,13 @@ type
       AObject: TObject): Integer;
     function AddRadioButton(const ACaption, ASubItem: string;
       ALevel: Byte; AChecked, AEnabled: Boolean; AObject: TObject): Integer;
+    function AddCheckBoxEx(const ACaption, ASubItem: String; ALevel: Byte;
+      AChecked, AEnabled, AHasInternalChildren, ACheckWhenParentChecked: Boolean;
+      AExpanded: Boolean; AObject: TObject): Integer;
+    function AddGroupEx(const ACaption, ASubItem: string; ALevel: Byte;
+      AExpanded: Boolean; AObject: TObject): Integer;
+    function AddRadioButtonEx(const ACaption, ASubItem: string;
+      ALevel: Byte; AChecked, AEnabled: Boolean; AExpanded: Boolean; AObject: TObject): Integer;
     function CheckItem(const Index: Integer; const AOperation: TCheckItemOperation): Boolean;
     procedure EnumChildrenOf(Item: Integer; Proc: TEnumChildrenProc; Ext: NativeInt);
     function GetParentOf(Item: Integer): Integer;
@@ -586,6 +593,32 @@ begin
     AChecked := False;
   Result := AddItem2(itRadio, ACaption, ASubItem, ALevel, AChecked, AEnabled,
     False, True, True, AObject);
+end;
+
+function TNewCheckListBox.AddCheckBoxEx(const ACaption, ASubItem: string;
+  ALevel: Byte; AChecked, AEnabled, AHasInternalChildren,
+  ACheckWhenParentChecked: Boolean; AExpanded: Boolean; AObject: TObject): Integer;
+begin
+  if not AEnabled and CheckPotentialRadioParents(Items.Count, ALevel) then
+    raise Exception.Create(sRadioCantHaveDisabledChildren);
+  Result := AddItem2(itCheck, ACaption, ASubItem, ALevel, AChecked, AEnabled,
+    AHasInternalChildren, ACheckWhenParentChecked, AExpanded, AObject);
+end;
+
+function TNewCheckListBox.AddGroupEx(const ACaption, ASubItem: string;
+  ALevel: Byte; AExpanded: Boolean; AObject: TObject): Integer;
+begin
+  Result := AddItem2(itGroup, ACaption, ASubItem, ALevel, False, True, False,
+    True, AExpanded, AObject);
+end;
+
+function TNewCheckListBox.AddRadioButtonEx(const ACaption, ASubItem: string;
+  ALevel: Byte; AChecked, AEnabled: Boolean; AExpanded: Boolean; AObject: TObject): Integer;
+begin
+  if not AEnabled then
+    AChecked := False;
+  Result := AddItem2(itRadio, ACaption, ASubItem, ALevel, AChecked, AEnabled,
+    False, True, AExpanded, AObject);
 end;
 
 function TNewCheckListBox.CanFocusItem(Item: Integer): Boolean;

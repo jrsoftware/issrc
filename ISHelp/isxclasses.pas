@@ -621,8 +621,11 @@ TItemMouseMoveEvent = procedure(Sender: TObject; X, Y: Integer; Index: Integer; 
 
 TNewCheckListBox = class(TCustomListBox)
   function AddCheckBox(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled, AHasInternalChildren, ACheckWhenParentChecked: Boolean; AObject: TObject): Integer;
+  function AddCheckBoxEx(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled, AHasInternalChildren, ACheckWhenParentChecked: Boolean; AExpanded: Boolean; AObject: TObject): Integer;
   function AddGroup(const ACaption, ASubItem: String; ALevel: Byte; AObject: TObject): Integer;
+  function AddGroupEx(const ACaption, ASubItem: String; ALevel: Byte; AExpanded: Boolean; AObject: TObject): Integer;
   function AddRadioButton(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled: Boolean; AObject: TObject): Integer;
+  function AddRadioButtonEx(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled: Boolean; AExpanded: Boolean; AObject: TObject): Integer;
   function CheckItem(const Index: Integer; const AOperation: TCheckItemOperation): Boolean;
   procedure CollapseAll;
   procedure CollapseItem(Index: Integer);

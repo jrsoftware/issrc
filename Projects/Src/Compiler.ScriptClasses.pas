@@ -89,6 +89,9 @@ begin
     RegisterMethod('function AddCheckBox(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled, AHasInternalChildren, ACheckWhenParentChecked: Boolean; AObject: TObject): Integer');
     RegisterMethod('function AddGroup(const ACaption, ASubItem: String; ALevel: Byte; AObject: TObject): Integer');
     RegisterMethod('function AddRadioButton(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled: Boolean; AObject: TObject): Integer');
+    RegisterMethod('function AddCheckBoxEx(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled, AHasInternalChildren, ACheckWhenParentChecked: Boolean; AExpanded: Boolean; AObject: TObject): Integer');
+    RegisterMethod('function AddGroupEx(const ACaption, ASubItem: String; ALevel: Byte; AExpanded: Boolean; AObject: TObject): Integer');
+    RegisterMethod('function AddRadioButtonEx(const ACaption, ASubItem: String; ALevel: Byte; AChecked, AEnabled: Boolean; AExpanded: Boolean; AObject: TObject): Integer');
     RegisterMethod('function CheckItem(const Index: Integer; const AOperation: TCheckItemOperation): Boolean');
     RegisterMethod('procedure CollapseAll');
     RegisterMethod('procedure CollapseItem(Index: Integer)');
