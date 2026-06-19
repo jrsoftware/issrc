@@ -130,6 +130,7 @@ type
     function ShouldShowExpandButton(Index: Integer): Boolean;
     procedure UpdateStyleServices;
   protected
+    procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
     procedure MeasureItem(Index: Integer; var Height: Integer); override;
     procedure DrawItem(Index: Integer; Rect: TRect; State: TOwnerDrawState);
@@ -473,6 +474,12 @@ begin
   FExpandButtonColor := clBtnFace;
   FExpandButtonLineColor := clWindowText;
   FLastMouseOverIndex := -1;
+end;
+
+procedure TNewCheckListBox.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  Params.ExStyle := Params.ExStyle or WS_EX_COMPOSITED;
 end;
 
 procedure TNewCheckListBox.CreateWnd;
