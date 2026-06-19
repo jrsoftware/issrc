@@ -81,6 +81,7 @@ type
     FExpandButtonLineColor: TColor;
     FLastMouseOverIndex: Integer;
     FHasAnyChildren: Boolean;
+    FStyleServices: TCustomStyleServices;
     class constructor Create;
     class destructor Destroy;
     class var FComplexParentBackground: Boolean;
@@ -127,6 +128,7 @@ type
     function HasVisibleChildren(Index: Integer): Boolean;
     procedure SetTreeViewStyle(Value: Boolean);
     function ShouldShowExpandButton(Index: Integer): Boolean;
+    procedure UpdateStyleServices;
   protected
     procedure CreateWnd; override;
     procedure MeasureItem(Index: Integer; var Height: Integer); override;
@@ -443,6 +445,7 @@ end;
 constructor TNewCheckListBox.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FStyleServices := nil;
 
   with TBitmap.Create do
   begin
@@ -483,6 +486,7 @@ begin
   finally
     Dec(FDisableItemStateDeletion);
   end;
+  UpdateStyleServices;
 end;
 
 procedure TNewCheckListBox.UpdateThemeData(const Close, Open: Boolean);
@@ -1147,9 +1151,7 @@ begin
 
   { Style code below is based on Vcl.StdCtrls' TCustomListBox.CNDrawItem and Vcl.CheckLst's
     TCustomCheckListBox.DrawItem and .DrawCheck }
-  LStyle := StyleServices{$IFDEF VER340_UP}(Self){$ENDIF};
-  if not LStyle.Enabled or LStyle.IsSystemStyle then
-    LStyle := nil;
+  LStyle := FStyleServices;
 
   with Canvas do begin { From now on Handle refers to Canvas.Handle! }
     { Initialize colors }
@@ -2459,6 +2461,7 @@ procedure TNewCheckListBox.WMThemeChanged(var Message: TMessage);
 begin
   { Don't Run to Cursor into this function, it will interrupt up the theme change }
   UpdateThemeData(True, True);
+  UpdateStyleServices;
   inherited;
 end;
 
@@ -2525,6 +2528,13 @@ begin
       FHasAnyChildren := True;
       Break;
     end;
+end;
+
+procedure TNewCheckListBox.UpdateStyleServices;
+begin
+  FStyleServices := StyleServices{$IFDEF VER340_UP}(Self){$ENDIF};
+  if (FStyleServices <> nil) and (not FStyleServices.Enabled or FStyleServices.IsSystemStyle) then
+    FStyleServices := nil;
 end;
 
 {$IFDEF VCLSTYLES}
