@@ -8,7 +8,7 @@
 -->
 
 <!ENTITY % _inlineExceptLink "b | br | i | tt">
-<!ENTITY % _inline "%_inlineExceptLink; | link | a | sd | sn | isxfunc">
+<!ENTITY % _inline "%_inlineExceptLink; | link | extlink | sd | sn | isxfunc">
 <!ENTITY % _block "p | pre | example | ul | table">
 <!ENTITY % _highlight "sec | evt | key | com | con | str | num | ispp">
 
@@ -44,8 +44,8 @@
 <!ELEMENT tt %InlineWithHighlight;>
 <!ELEMENT link %InlineExceptLink;>
 <!ATTLIST link topic CDATA #REQUIRED anchor CDATA #IMPLIED window CDATA #IMPLIED>
-<!ELEMENT a %InlineExceptLink;>
-<!ATTLIST a href CDATA #REQUIRED>
+<!ELEMENT extlink %InlineExceptLink;>
+<!ATTLIST extlink href CDATA #REQUIRED>
 <!ELEMENT sd %InlineExceptLink;>
 <!ELEMENT sn %InlineExceptLink;>
 <!ELEMENT isxfunc %InlineExceptLink;>

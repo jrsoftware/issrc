@@ -208,7 +208,7 @@
 </xsl:choose>
 </xsl:template>
 
-<xsl:template match="a">
+<xsl:template match="extlink">
   <extlink href="{@href}"><xsl:apply-templates/></extlink>
 </xsl:template>
 

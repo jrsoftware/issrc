@@ -735,7 +735,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>GetUILanguage</name>
         <prototype>function GetUILanguage: Integer;</prototype>
         <description><p>Returns the language identifier (LANGID) of the current user's UI language, which is either the language of Windows itself, or in the case of a MUI edition of Windows, the user interface language chosen in Control Panel's Regional Options. Returns 0 if the function fails (unlikely).</p></description>
-        <remarks><p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/dd318693.aspx">list of valid language identifiers on MSDN</a>.</p></remarks>
+        <remarks><p>Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/dd318693.aspx">list of valid language identifiers on MSDN</extlink>.</p></remarks>
         <example><pre><key>begin</key>
   <key>if</key> GetUILanguage = <num>$0409</num> <key>then</key>
   <key>begin</key>
@@ -882,7 +882,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <prototype>function DLLGetLastError: LongInt;</prototype>
         <description><p>Returns the value the last error code had right after the most recent DLL function call you made. Useful after calling Windows API functions (if the function sets the last error code).</p></description>
         <remarks><p>It's recommended to use this function instead of directly calling the GetLastError Windows API function since Setup or Uninstall makes API calls of its own, so the last error code could be overwritten at any time.</p>
-<p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
+<p>Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</extlink>.</p></remarks>
         <example><pre><key>function</key> MessageBox(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal): Integer; <key>external</key> <str>'MessageBoxA@user32.dll stdcall'</str>;
 
 ...
@@ -996,7 +996,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>ConvertPercentStr</name>
         <prototype>function ConvertPercentStr(var S: String): Boolean;</prototype>
-        <description><p>Expands all %-encoded characters in the string (see <a href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</a>). Returns <tt>True</tt> if all were successfully expanded.</p></description>
+        <description><p>Expands all %-encoded characters in the string (see <extlink href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</extlink>). Returns <tt>True</tt> if all were successfully expanded.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -1480,7 +1480,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>SysErrorMessage</name>
         <prototype>function SysErrorMessage(ErrorCode: Cardinal): String;</prototype>
         <description><p>Returns a localized error message string that corresponds to the given operating system error code.</p></description>
-        <remarks><p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
+        <remarks><p>Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</extlink>.</p></remarks>
       </function>
     </subcategory>
     <subcategory>
@@ -1929,7 +1929,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <remarks><p><tt>TExecWait</tt> is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
 <p>Note that passing a <tt>Wait</tt> value other than <tt>ewNoWait</tt> will have no effect if a new process isn't spawned (for example, if the file is opened inside an already-running instance of the program that handles the file type).</p>
-<p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p>
+<p>Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</extlink>.</p>
 <p>Can't be used to execute Setup itself until the installation has started.</p></remarks>
         <example><pre><key>var</key>
   ErrorCode: Integer;
@@ -1948,7 +1948,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <description><p>Opens the specified file or performs another action specified by <tt>Verb</tt>, using the (normally non-elevated) credentials of the user that started Setup initially. See <isxfunc>ShellExec</isxfunc> and the <sn>[Run]</sn> section flag <tt>runasoriginaluser</tt> for more information.</p></description>
         <remarks><p>This function is not supported at uninstall time.</p>
 <p>In very unusual failure cases (e.g. if the initial Setup process died unexpectedly), it is possible for this function to raise an exception instead of just returning <tt>False</tt>.</p>
-<p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
+<p>Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</extlink>.</p></remarks>
       </function>
     </subcategory>
     <subcategory>
@@ -2088,7 +2088,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <p>Verification uses the specified allowed keys, looked up using <sn>[ISSigKeys]</sn> section parameter <tt>RuntimeID</tt>. To allow all keys set <tt>AllowedKeysRuntimeIDs</tt> to <tt>nil</tt>.</p>
 <p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded for the main file from the first URL. Returns 0 if the main file was already downloaded and still verified.</p></description>
         <seealso><p><isxfunc>DownloadTemporaryFile</isxfunc><br/>
-<link topic="issig">.issig Signatures: Introduction</link><br/>
+<link topic="issig"><tt>.issig</tt> Signatures: Introduction</link><br/>
 <isxfunc>ISSigVerify</isxfunc></p></seealso>
         <example><pre>
 <sec>[Code]</sec>
@@ -2202,7 +2202,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
     F.Free;
   <key>end</key>;
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="issig">.issig Signatures: Introduction</link><br/>
+        <seealso><p><link topic="issig"><tt>.issig</tt> Signatures: Introduction</link><br/>
 <isxfunc>DownloadTemporaryFileWithISSigVerify</isxfunc></p></seealso>
       </function>
     </subcategory>
@@ -3109,7 +3109,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>If no match is found in the array (for example, because it is empty), the minimum of the bitmap image's width and height will be used as the size.</p>
 <p>Unlike <isxfunc>InitializeBitmapImageFromIcon</isxfunc>, this function supports arbitrary sizes.</p>
 <p>Returns <tt>True</tt> if the icon could be loaded, <tt>False</tt> otherwise.</p></description>
-        <remarks><p>See <a href="https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ne-shellapi-shstockiconid#constants">Microsoft Learn</a> for an overview of all available icons.</p>
+        <remarks><p>See <extlink href="https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ne-shellapi-shstockiconid#constants">Microsoft Learn</extlink> for an overview of all available icons.</p>
 <p>Supported values for <tt>Siid</tt> are:</p>
 <p><tt>SIID_DOCNOASSOC, SIID_DOCASSOC, SIID_APPLICATION, SIID_FOLDER, SIID_FOLDEROPEN,
 SIID_DRIVE525, SIID_DRIVE35, SIID_DRIVEREMOVE, SIID_DRIVEFIXED, SIID_DRIVENET,
@@ -3617,7 +3617,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <prototype>function LoadDLL(const DLLName: String; var ErrorCode: Integer): HMODULE;</prototype>
         <description><p>Loads the specified DLL. Returns the DLL handle if the DLL was loaded successfully, zero otherwise. If zero is returned then <tt>ErrorCode</tt> specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ErrorCode)</tt> to get a description of the error.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p>
-<p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
+<p>Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</extlink>.</p></remarks>
       </function>
       <function>
         <name>CallDLLProc</name>
