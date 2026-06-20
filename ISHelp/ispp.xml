@@ -2354,7 +2354,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<tr><td><code>__POPT_X__</code></td><td><code><b>void</b></code>. Defined if specified parser option set via <code>#pragma parseroption -x+</code> is in effect. In place of "X" may be any letter from "A" to "Z". Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
 					<tr><td><code>__WIN32__</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>ISPP_INVOKED</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
-					<tr><td><code>ISCC_INVOKED</code></td><td><code><b>void</b></code>. Defined if compilation was invoked using the console-mode compiler, ISCC.exe.</td></tr>
+					<tr><td><code>ISCC_INVOKED</code></td><td><code><b>void</b></code>. Defined if compilation was invoked using the console-mode compiler, <code>ISCC.exe</code>.</td></tr>
 					<tr><td><code>PREPROCVER</code></td><td><code><b>int</b></code>. Returns the 32-bit encoded version of Inno Setup. Highest byte holds the major version, second highest byte holds the minor version, third highest byte holds the revision, and lowest byte holds the build number.</td></tr>
 					<tr><td><code>WINDOWS</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
 					<tr><td><code>UNICODE</code></td><td><code><b>void</b></code>. Always defined.</td></tr>
@@ -2418,7 +2418,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 		<topic id="builtinsiss">
 			<title>ISPPBuiltins.iss</title>
 			<description header="no">
-				<p>The ISPPBuiltins.iss file is part of Inno Setup Preprocessor and is automatically installed to the root of your Inno Setup folder. This file is automatically included at the start of preprocessing: some of ISPP's functions are actually implemented by this file instead of being built-in. It also contains common declarations such as special constants. The file is a regular Inno Setup script, so you can study it and reuse its techniques in your own scripts.</p>
+				<p>The <tt>ISPPBuiltins.iss</tt> file is part of Inno Setup Preprocessor and is automatically installed to the root of your Inno Setup folder. This file is automatically included at the start of preprocessing: some of ISPP's functions are actually implemented by this file instead of being built-in. It also contains common declarations such as special constants. The file is a regular Inno Setup script, so you can study it and reuse its techniques in your own scripts.</p>
 			</description>
 		</topic>
 		<topic id="isppcc">

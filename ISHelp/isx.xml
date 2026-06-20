@@ -618,7 +618,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>At any time during Setup you can retrieve the values entered by the user either by using the special properties of the pre-built pages, or by using the properties of the controls you created yourself.</p>
 
-<p>Open the "CodeDlg.iss" script in the "Examples" subdirectory of your Inno Setup directory for an example of how to use pre-built custom wizard pages and event functions. Open the "CodeClasses.iss" script for an example of how to use completely custom wizard pages and controls.</p>
+<p>Open the <tt>CodeDlg.iss</tt> script in the "Examples" subdirectory of your Inno Setup directory for an example of how to use pre-built custom wizard pages and event functions. Open the <tt>CodeClasses.iss</tt> script for an example of how to use completely custom wizard pages and controls.</p>
 
 </body>
 </topic>
@@ -632,7 +632,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>The Pascal script can call functions inside external DLLs. This includes both standard Windows API functions inside standard Windows DLLs and custom functions in custom made DLLs.</p>
 
-<p>Open the "CodeDll.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using DLLs.</p>
+<p>Open the <tt>CodeDll.iss</tt> file in the "Examples" subdirectory in your Inno Setup directory for an example script using DLLs.</p>
 
 <p>The "Examples" subdirectory also contains two custom DLL example projects, one for Microsoft Visual C++, and one for Embarcadero Delphi.</p>
 
@@ -678,7 +678,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 </flaglist>
 </indent>
 
-<p>An example (of the second form) if the DLL function has name 'A2' inside the DLL, the DLL has name 'MyDll.dll' and the DLL function uses the 'stdcall' calling convention:</p>
+<p>An example (of the second form) if the DLL function has name 'A2' inside the DLL, the DLL has name <tt>MyDll.dll</tt> and the DLL function uses the 'stdcall' calling convention:</p>
 
 <precode>
 <sec>[Code]</sec>
@@ -740,7 +740,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>To access a property or method whose name is a reserved word, use <isxfunc>IDispatchInvoke</isxfunc>.</p>
 
-<p>Open the "CodeAutomation.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using <tt>IDispatch</tt> based COM Automation objects.</p>
+<p>Open the <tt>CodeAutomation.iss</tt> file in the "Examples" subdirectory in your Inno Setup directory for an example script using <tt>IDispatch</tt> based COM Automation objects.</p>
 
 <p>If you're using a .NET COM object and loading it fails since Inno Setup 5.5.9 try putting this line in your script before creating the COM object: <tt><isxfunc>LoadDLL</isxfunc>(<isxfunc>ExpandConstant</isxfunc>('{sys}\mscoree.dll'), ErrorCode);</tt> and add a variable <tt>ErrorCode</tt> of type <tt>Integer</tt>.</p>
 
@@ -760,7 +760,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>If you copy the interface definition from any existing Delphi source code, remove the brackets around the interface GUID string. Also remove any calling conventions except <tt>safecall</tt>; Inno Setup assumes <tt>stdcall</tt>. If the interface contains any functions you won't call, you can replace these by dummies to avoid having to define any special types used by them.</p>
 
-<p>Open the "CodeAutomation2.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using <tt>IUnknown</tt> based COM Automation objects.</p>
+<p>Open the <tt>CodeAutomation2.iss</tt> file in the "Examples" subdirectory in your Inno Setup directory for an example script using <tt>IUnknown</tt> based COM Automation objects.</p>
 
 </dd>
 

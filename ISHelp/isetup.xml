@@ -1609,9 +1609,9 @@ Besides space separated lists, you may also use boolean expressions containing c
 
 <param name="Excludes">
 <p>Specifies a list of patterns to exclude, separated by commas.</p>
-<p>Patterns may include wildcard characters ("*" and "?"). Note that unlike the <tt>Source</tt> parameter, a simple Unix-style pattern matching routine is used for <tt>Excludes</tt>. Dots in the pattern are always significant, thus "*.*" will not exclude a file with no extension (instead, use just "*"). Also, question marks always match exactly one character, thus "?????" will not exclude files with names less than five characters long.</p>
-<p>If a pattern starts with a backslash ("\") it is matched against the start of a path name, otherwise it is matched against the end of a path name. Thus "\foo" will only exclude a file named "foo" at the base of the tree. On the other hand, "foo" will exclude any file named "foo" anywhere in the tree.</p>
-<p>The patterns may include backslashes. "foo\bar" will exclude both "foo\bar" and "subdir\foo\bar". "\foo\bar" will only exclude "foo\bar".</p>
+<p>Patterns may include wildcard characters (<tt>*</tt> and <tt>?</tt>). Note that unlike the <tt>Source</tt> parameter, a simple Unix-style pattern matching routine is used for <tt>Excludes</tt>. Dots in the pattern are always significant, thus <tt>*.*</tt> will not exclude a file with no extension (instead, use just <tt>*</tt>). Also, question marks always match exactly one character, thus <tt>?????</tt> will not exclude files with names less than five characters long.</p>
+<p>If a pattern starts with a backslash ("\") it is matched against the start of a path name, otherwise it is matched against the end of a path name. Thus <tt>\foo</tt> will only exclude a file named <tt>foo</tt> at the base of the tree. On the other hand, <tt>foo</tt> will exclude any file named <tt>foo</tt> anywhere in the tree.</p>
+<p>The patterns may include backslashes. <tt>foo\bar</tt> will exclude both <tt>foo\bar</tt> and <tt>subdir\foo\bar</tt>. <tt>\foo\bar</tt> will only exclude <tt>foo\bar</tt>.</p>
 <examples>
 <pre>
 <key>Source</key>: "*"; <key>Excludes</key>: "*.~*"
@@ -1870,7 +1870,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="sharedfile">
 <p>Specifies that the file is shared among multiple applications, and should only be removed at uninstall time if no other applications are using it. Most files installed to the Windows System directory should use this flag, including .OCX, .BPL, and .DPL files.</p>
-<p>Windows' standard shared file reference-counting mechanism (located in the registry under HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\SharedDLLs) is used to keep track of how many applications depend on the file. Each time the file is installed, the reference count for the file is incremented. (This happens regardless of whether the installer actually replaces the file on disk.) When an application using the file is uninstalled, the reference count is decremented. If the count reaches zero, the file is deleted (with the user's confirmation, unless the <tt>uninsnosharedfileprompt</tt> flag is also specified).</p>
+<p>Windows' standard shared file reference-counting mechanism (located in the registry under <tt>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\SharedDLLs</tt>) is used to keep track of how many applications depend on the file. Each time the file is installed, the reference count for the file is incremented. (This happens regardless of whether the installer actually replaces the file on disk.) When an application using the file is uninstalled, the reference count is decremented. If the count reaches zero, the file is deleted (with the user's confirmation, unless the <tt>uninsnosharedfileprompt</tt> flag is also specified).</p>
 <p>If Setup is run more than once, the reference count for the file will be incremented more than once. The uninstaller will decrement the reference count the same number of times, however, so no references are leaked (provided the <sd>UninstallLogMode</sd> <sn>[Setup]</sn> section directive isn't changed from its default setting of <tt>append</tt>).</p>
 <p>On 64-bit Windows, there are separate <tt>SharedDLLs</tt> registry keys for 32-bit and 64-bit applications. The <link topic="entrybitness">entry's bitness</link> determines whether the 32-bit or 64-bit <tt>SharedDLLs</tt> key is updated. The default bitness can be overridden with the <tt>32bit</tt> and <tt>64bit</tt> flags.</p>
 <p>When this flag is used, do not specify <tt>{syswow64}</tt> in the <tt>DestDir</tt> parameter; use <tt>{sys}</tt> instead. Even though <tt>{sys}</tt> and <tt>{syswow64}</tt> map to the same underlying directory in <link topic="32vs64bitinstalls">32-bit install mode</link>, the path name must exactly match what every other existing installer is using; otherwise, a second reference count for the file would be created, which could result in the file being removed prematurely. If you need to install a shared file to the 32-bit System directory in <link topic="32vs64bitinstalls">64-bit install mode</link>, specify <tt>{sys}</tt> in the <tt>DestDir</tt> parameter and additionally include the <tt>32bit</tt> flag.</p>
@@ -2036,7 +2036,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <example>
 <pre><key>IconFilename</key>: "<con>{app}</con>\myicon.ico"</pre>
 </example>
-<p>Note: when Setup is running on 64-bit Windows, it will automatically replace <tt>{commonpf32}\</tt>'s value in the filename with '%ProgramFiles(x86)%\' to work around a bug in 64-bit Windows: 64-bit Windows replaces it with '%ProgramFiles%\' instead which is incorrect.</p>
+<p>Note: when Setup is running on 64-bit Windows, it will automatically replace <tt>{commonpf32}\</tt>'s value in the filename with <tt>%ProgramFiles(x86)%\</tt> to work around a bug in 64-bit Windows: 64-bit Windows replaces it with <tt>%ProgramFiles%\</tt> instead which is incorrect.</p>
 </param>
 
 <param name="IconIndex">
@@ -2090,7 +2090,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>Instructs the uninstaller not to delete the icon.</p>
 </flag>
 <flag name="useapppaths">
-<p>When this flag is set, specify just a filename (no path) in the <tt>Filename</tt> parameter, and Setup will retrieve the pathname from the "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths" registry key and prepend it to the filename automatically.</p>
+<p>When this flag is set, specify just a filename (no path) in the <tt>Filename</tt> parameter, and Setup will retrieve the pathname from the <tt>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths</tt> registry key and prepend it to the filename automatically.</p>
 </flag>
 </flaglist>
 
@@ -2223,7 +2223,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 
 <p>If the <sd>ShowLanguageDialog</sd> <sn>[Setup]</sn> section directive is set to <tt>yes</tt> (the default), a <i>Select Language</i> dialog will be displayed which gives the user an opportunity to override the language Setup chose. See the <sn>[LangOptions]</sn> section help topic for details.</p>
 
-<p>The following is an example of a <tt>[Languages]</tt> section. It defines two languages: English, based on the standard Default.isl file, and Dutch, based on a third-party translation.</p>
+<p>The following is an example of a <tt>[Languages]</tt> section. It defines two languages: English, based on the standard <tt>Default.isl</tt> file, and Dutch, based on a third-party translation.</p>
 
 <precode>
 <sec>[Languages]</sec>
@@ -2291,7 +2291,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 
 <p>A <tt>[Messages]</tt> section is used to define the messages displayed by the Setup program and uninstaller. Normally, you need not create a <tt>[Messages]</tt> section in your script file, since all messages are, by default, pulled in from the file <a name="Default.isl"><i>Default.isl</i></a> included with Inno Setup (or whichever file is specified by a <sn>[Languages]</sn> section entry).</p>
 
-<p>However, particular messages can be overridden by creating a <tt>[Messages]</tt> section in your script file. To do this, first you will need to know the ID of the message you want to change. This can be easily found by searching Default.isl. For example, say you wanted to change the "&amp;Next" button on the wizard to read "&amp;Forward". The ID of this message is "ButtonNext", so you would create a <tt>[Messages]</tt> section like this:</p>
+<p>However, particular messages can be overridden by creating a <tt>[Messages]</tt> section in your script file. To do this, first you will need to know the ID of the message you want to change. This can be easily found by searching <tt>Default.isl</tt>. For example, say you wanted to change the "&amp;Next" button on the wizard to read "&amp;Forward". The ID of this message is "ButtonNext", so you would create a <tt>[Messages]</tt> section like this:</p>
 
 <precode>
 <sec>[Messages]</sec>
@@ -2300,7 +2300,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 
 <p>Some messages take arguments such as %1 and %2. You can rearrange the order of the arguments (i.e. move the %2 before a %1) and also duplicate arguments if needed (i.e. "%1 ... %1 %2"). On messages with arguments, use two consecutive "%" characters to embed a single "%". "%n" creates a line break.</p>
 
-<p>If you wish to translate all of Inno Setup's text to another language, instead of modifying Default.isl or overriding each message in every script you create, make a copy of Default.isl with another name like <i>MyTranslation.isl.</i> On any installation you wish to use MyTranslation.isl, create a <sn>[Languages]</sn> section entry pointing to the file.</p>
+<p>If you wish to translate all of Inno Setup's text to another language, instead of modifying <tt>Default.isl</tt> or overriding each message in every script you create, make a copy of <tt>Default.isl</tt> with another name like <i>MyTranslation.isl.</i> On any installation you wish to use <tt>MyTranslation.isl</tt>, create a <sn>[Languages]</sn> section entry pointing to the file.</p>
 
 <p>In cases where there are multiple <sn>[Languages]</sn> section entries, specifying a <tt>[Messages]</tt> section entry in your script (as opposed to an .isl file) will by default override that message for all languages. To apply a <tt>[Messages]</tt> section entry to only one language, prefix it with the language's internal name followed by a period. For example:</p>
 
@@ -2538,7 +2538,7 @@ en.<key>LanguageName</key>=English
 </table>
 </indent>
 <p><tt>HKCU</tt> and <tt>HKA</tt> should only be used for settings which are compatible with roaming profiles.</p>
-<p>Using <tt>HKCR</tt> is not recommended, use <tt>HKA</tt> with the <tt>Subkey</tt> parameter set to "Software\Classes" instead.</p>
+<p>Using <tt>HKCR</tt> is not recommended, use <tt>HKA</tt> with the <tt>Subkey</tt> parameter set to <tt>Software\Classes</tt> instead.</p>
 <p>By default, keys are created/opened in the 32-bit view of the registry when running in <link topic="32vs64bitinstalls">32-bit install mode</link>, and in the 64-bit view of the registry when running in <link topic="32vs64bitinstalls">64-bit install mode</link>. To specify a different view, root key values (including <tt>HKA</tt>) may include a suffix of <tt>32</tt> or <tt>64</tt>:</p>
 <ul>
 <li>Root key values with a suffix of <tt>32</tt> (for example, <tt>HKLM32</tt>) map to the 32-bit view of the registry.</li>
@@ -2600,7 +2600,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <param name="Permissions">
 <p>Specifies additional permissions to grant in the registry key's ACL (access control list). It is not recommended that you use this parameter if you aren't familiar with ACLs or why you would need to change them, because misusing it could negatively impact system security.</p>
 <p>For this parameter to have an effect the current user must be able to change the permissions on the registry key. In the event these conditions are not met, no error message will be displayed, and the permissions will not be set.</p>
-<p>This parameter should <i>only</i> be used on registry keys private to your application. Never change the ACLs on a top-level key like HKEY_LOCAL_MACHINE\SOFTWARE, otherwise you can open up security holes on your users' systems.</p>
+<p>This parameter should <i>only</i> be used on registry keys private to your application. Never change the ACLs on a top-level key like <tt>HKEY_LOCAL_MACHINE\SOFTWARE</tt>, otherwise you can open up security holes on your users' systems.</p>
 <p>The specified permissions are set regardless of whether the registry key existed prior to installation. The permissions are not set if <tt>ValueType</tt> is <tt>none</tt> and the <tt>deletekey</tt> flag or <tt>deletevalue</tt> flag is used.</p>
 <p>This parameter can include one or more space separated values in the format:</p>
 <indent><p><tt><link topic="usergroupids">&lt;user or group identifier&gt;</link>-&lt;access type&gt;</tt></p></indent>
@@ -2690,7 +2690,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 
 <p>Programs are executed in the order they appear in the script. By default, when processing a <tt>[Run]</tt>/<tt>[UninstallRun]</tt> entry, Setup/Uninstall will wait until the program has terminated before proceeding to the next one, unless the <tt>nowait</tt>, <tt>shellexec</tt>, or <tt>waituntilidle</tt> flags are used.</p>
 
-<p>Note that by default, if a program executed in the <tt>[Run]</tt> section queues files to be replaced on the next reboot (by calling MoveFileEx or by modifying wininit.ini), Setup will detect this and prompt the user to restart the computer at the end of installation. If you don't want this, set the <sd>RestartIfNeededByRun</sd> directive to <tt>no</tt>.</p>
+<p>Note that by default, if a program executed in the <tt>[Run]</tt> section queues files to be replaced on the next reboot (by calling MoveFileEx or by modifying <tt>wininit.ini</tt>), Setup will detect this and prompt the user to restart the computer at the end of installation. If you don't want this, set the <sd>RestartIfNeededByRun</sd> directive to <tt>no</tt>.</p>
 
 <p>The following is an example of a <tt>[Run]</tt> section.</p>
 
@@ -2896,7 +2896,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <param name="Name" required="yes">
 <p>Name of the file or directory to delete.</p>
 <p><link topic="pathredir">System path redirection</link> is applied to the specified path.</p>
-<p><b>NOTE:</b> Don't be tempted to use a wildcard here to delete all files in the {app} directory. Doing this is strongly recommended against for two reasons. First, users usually don't appreciate having their data files they put in the application directory deleted without warning (they might only be uninstalling it because they want to move it to a different drive, for example). It's better to leave it up to the end users to manually remove them if they want. Also, if the user happened to install the program in the wrong directory by mistake (for example, C:\Windows) and then went to uninstall it there could be disastrous consequences. So again, <b>DON'T DO THIS!</b></p>
+<p><b>NOTE:</b> Don't be tempted to use a wildcard here to delete all files in the {app} directory. Doing this is strongly recommended against for two reasons. First, users usually don't appreciate having their data files they put in the application directory deleted without warning (they might only be uninstalling it because they want to move it to a different drive, for example). It's better to leave it up to the end users to manually remove them if they want. Also, if the user happened to install the program in the wrong directory by mistake (for example, <tt>C:\Windows</tt>) and then went to uninstall it there could be disastrous consequences. So again, <b>DON'T DO THIS!</b></p>
 <example>
 <pre><key>Name</key>: "<con>{win}</con>\MyProg.ini"</pre>
 </example>
@@ -3512,13 +3512,13 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <ul>
 
 <li>
-<p>To easily auto update your application, first make your application somehow detect a new version of your Setup.exe and make it locate or download this new version. Then, to auto update, start your Setup.exe from your application with for example the following command line:</p>
+<p>To easily auto update your application, first make your application somehow detect a new version of your <tt>Setup.exe</tt> and make it locate or download this new version. Then, to auto update, start your <tt>Setup.exe</tt> from your application with for example the following command line:</p>
 
 <precode>
 /SP- /silent /noicons "/dir=expand:{autopf}\My Program"
 </precode>
 
-<p>After starting setup.exe, exit your application as soon as possible. Note that to avoid problems with updating your .exe, Setup has an auto retry feature.</p>
+<p>After starting <tt>setup.exe</tt>, exit your application as soon as possible. Note that to avoid problems with updating your .exe, Setup has an auto retry feature.</p>
 
 <p>Optionally you could also use the <tt>skipifsilent</tt> and <tt>skipifnotsilent</tt> flags and make your application aware of a custom '/updated' parameter to for example show a nice message box to inform the user that the update has completed.</p>
 </li>
@@ -4513,7 +4513,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="DIR">/DIR=</a>"<i>x</i>:\<i>dirname</i>"</b></dt>
 <dd>
-<p>Overrides the default directory name displayed on the <i>Select Destination Location</i> wizard page. A fully qualified pathname must be specified. May include an "expand:" prefix which instructs Setup to expand any constants in the name. For example: '/DIR=expand:{autopf}\My Program'.</p>
+<p>Overrides the default directory name displayed on the <i>Select Destination Location</i> wizard page. A fully qualified pathname must be specified. May include an "expand:" prefix which instructs Setup to expand any constants in the name. For example: <tt>/DIR=expand:{autopf}\My Program</tt>.</p>
 </dd>
 
 <dt><b><a name="GROUP">/GROUP=</a>"<i>folder name</i>"</b></dt>
@@ -4792,7 +4792,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b>COMCTL32.dll</b></dt>
 <dd>
-<p>Microsoft does not allow separate redistribution of COMCTL32.dll (and for good reason - the file differs between platforms), so you should never place COMCTL32.dll in a script's <sn>[Files]</sn> section. You can however direct your users to <extlink href="http://www.microsoft.com/downloads/details.aspx?FamilyID=cb2cf3a2-8025-4e8f-8511-9b476a8d35d2&amp;DisplayLang=en">download the COMCTL32 update from Microsoft</extlink>, or distribute the COMCTL32 update along with your program.</p>
+<p>Microsoft does not allow separate redistribution of <tt>COMCTL32.dll</tt> (and for good reason - the file differs between platforms), so you should never place <tt>COMCTL32.dll</tt> in a script's <sn>[Files]</sn> section. You can however direct your users to <extlink href="http://www.microsoft.com/downloads/details.aspx?FamilyID=cb2cf3a2-8025-4e8f-8511-9b476a8d35d2&amp;DisplayLang=en">download the COMCTL32 update from Microsoft</extlink>, or distribute the COMCTL32 update along with your program.</p>
 </dd>
 
 <dt><b>SHDOCVW.dll, SHLWAPI.dll, URLMON.dll, WININET.dll</b></dt>
@@ -4802,7 +4802,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b>MSCOREE.dll</b></dt>
 <dd>
-<p>This file is part of the Microsoft .NET Framework. You cannot safely install or update the .NET Framework by including this file with your installation. Call or direct your users to dotnetfx.exe instead.</p>
+<p>This file is part of the Microsoft .NET Framework. You cannot safely install or update the .NET Framework by including this file with your installation. Call or direct your users to <tt>dotnetfx.exe</tt> instead.</p>
 </dd>
 
 </dl>
@@ -4932,11 +4932,11 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link> or <tt>x86</tt> or <tt>x64</tt></setupvalid>
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
-<p>This tells the compiler which type of Setup to create. If this is <tt>no</tt>, it compiles the setup data into at least three files: setup.exe, setup-0.bin, and setup-1.bin. The <b>only</b> reason you would probably want to use <tt>no</tt> is for debugging purposes. Otherwise, it compiles all setup data into a single EXE</p>
+<p>This tells the compiler which type of Setup to create. If this is <tt>no</tt>, it compiles the setup data into at least three files: <tt>setup.exe</tt>, <tt>setup-0.bin</tt>, and <tt>setup-1.bin</tt>. The <b>only</b> reason you would probably want to use <tt>no</tt> is for debugging purposes. Otherwise, it compiles all setup data into a single EXE</p>
 <p>When all setup data is compiled into a single EXE, a "Setup Loader" program is used, called SetupLdr. When using <tt>yes</tt> or <tt>x86</tt>, a 32-bit version of SetupLdr is used which runs on systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64 Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
 <p>Otherwise, when using <tt>x64</tt>, a 64-bit version of SetupLdr is used which runs on systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation.</p>
 <p>Matches the value of <sd>SetupArchitecture</sd> by default.</p>
-<p><i>Note:</i> Do not use <tt>no</tt> on an installation which uses disk spanning (<tt><sd>DiskSpanning</sd>=yes</tt>). When using <tt>yes</tt>, the setup program is copied to and run from the user's TEMP directory. This does not happen when using <tt>no</tt>, and could result in errors if Windows tries to locate the setup.exe file on the disk and can't find it because a different disk is in the drive.</p>
+<p><i>Note:</i> Do not use <tt>no</tt> on an installation which uses disk spanning (<tt><sd>DiskSpanning</sd>=yes</tt>). When using <tt>yes</tt>, the setup program is copied to and run from the user's TEMP directory. This does not happen when using <tt>no</tt>, and could result in errors if Windows tries to locate the <tt>setup.exe</tt> file on the disk and can't find it because a different disk is in the drive.</p>
 <p><i>Note:</i> Do not use <tt>no</tt> to avoid digital signature verification startup delays on a large Setup, use disk spanning instead. See <sd>SignTool</sd> for more information. Also note that digitally signing Setup when using <tt>no</tt> will lead to an invalid digital signature for Uninstall.</p>
 </body>
 </setuptopic>
@@ -5324,9 +5324,9 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <body>
 <p>This specifies the method of archive extraction used by <sn>[Files]</sn> section flag <tt><link topic="filessection" anchor="extractarchive">extractarchive</link></tt> and support functions <isxfunc>ExtractArchive</isxfunc> and <isxfunc>CreateExtractionPage</isxfunc>.</p>
 <p><tt>basic</tt> uses an embedded version of the "7z ANSI-C Decoder" from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements. It only supports .7z archives that are not password-protected.</p>
-<p><tt>enhanced/nopassword</tt> internally uses 7zxr.dll from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled, code-signed, and renamed to is7zxr.dll. Compared to <tt>basic</tt>, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</p>
-<p><tt>enhanced</tt> uses 7zxa.dll instead of 7zxr.dll, recompiled, code-signed, and renamed to is7zxa.dll. It still only supports .7z archives, but they may be password-protected.</p>
-<p><tt>full</tt> uses 7z.dll instead of 7zxa.dll, recompiled, code-signed, and renamed to is7z.dll. It supports multiple archive formats, although not as many as the original 7z.dll, to reduce its size. Additionally, it supports multi-volume archives.</p>
+<p><tt>enhanced/nopassword</tt> internally uses <tt>7zxr.dll</tt> from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled, code-signed, and renamed to <tt>is7zxr.dll</tt>. Compared to <tt>basic</tt>, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</p>
+<p><tt>enhanced</tt> uses <tt>7zxa.dll</tt> instead of <tt>7zxr.dll</tt>, recompiled, code-signed, and renamed to <tt>is7zxa.dll</tt>. It still only supports .7z archives, but they may be password-protected.</p>
+<p><tt>full</tt> uses <tt>7z.dll</tt> instead of <tt>7zxa.dll</tt>, recompiled, code-signed, and renamed to <tt>is7z.dll</tt>. It supports multiple archive formats, although not as many as the original <tt>7z.dll</tt>, to reduce its size. Additionally, it supports multi-volume archives.</p>
 <p>The following table summarizes the differences between these methods.</p>
 <indent>
 <table>
@@ -5606,7 +5606,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><tt>mysetup</tt></setupdefault>
 <body>
 <p>This directive allows you to assign a different name for the resulting Setup file(s), so you don't have to manually rename them after running the compiler.</p>
-<p>Setting this to <tt>setup</tt> is not recommended: all executables named "setup.exe" are shimmed by Windows application compatibility to load additional DLLs, such as version.dll. These DLLs are loaded unsafely by Windows and can be hijacked.</p>
+<p>Setting this to <tt>setup</tt> is not recommended: all executables named <tt>setup.exe</tt> are shimmed by Windows application compatibility to load additional DLLs, such as <tt>version.dll</tt>. These DLLs are loaded unsafely by Windows and can be hijacked.</p>
 <example><pre><key>OutputBaseFilename</key>=MyProg100</pre></example>
 </body>
 </setuptopic>
@@ -5717,9 +5717,9 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>If set to <tt>yes</tt>, the disk spanning feature will be enabled. Instead of storing all the compressed file data inside Setup.exe, the compiler will split it into multiple Setup-*.bin files -- known as "slices" -- suitable for copying onto separate CD-ROMs or DVD-ROMs. Each generated slice contains a number in its name which indicates the disk onto which it should be copied. (For example, Setup-2.bin should be placed on disk 2.) The generated Setup.exe always goes on disk 1 along with the Setup-1*.bin file.</p>
+<p>If set to <tt>yes</tt>, the disk spanning feature will be enabled. Instead of storing all the compressed file data inside <tt>Setup.exe</tt>, the compiler will split it into multiple <tt>Setup-*.bin</tt> files -- known as "slices" -- suitable for copying onto separate CD-ROMs or DVD-ROMs. Each generated slice contains a number in its name which indicates the disk onto which it should be copied. (For example, <tt>Setup-2.bin</tt> should be placed on disk 2.) The generated <tt>Setup.exe</tt> always goes on disk 1 along with the <tt>Setup-1*.bin</tt> file.</p>
 <p>The size of each slice and the number of slices to create for each disk are determined by the values of the <sd>DiskSliceSize</sd> and <sd>SlicesPerDisk</sd> <sn>[Setup]</sn> section directives, respectively. Other disk spanning-related directives that you may want to tweak include <sd>DiskClusterSize</sd> and <sd>ReserveBytes</sd>.</p>
-<p>Note that it is required that you set this directive to <tt>yes</tt> if the compressed size of your installation exceeds 4,200,000,000 bytes, even if you don't intend to place the installation onto multiple disks. (The installation will still function correctly if all the Setup-*.bin files are placed on the same disk.)</p>
+<p>Note that it is required that you set this directive to <tt>yes</tt> if the compressed size of your installation exceeds 4,200,000,000 bytes, even if you don't intend to place the installation onto multiple disks. (The installation will still function correctly if all the <tt>Setup-*.bin</tt> files are placed on the same disk.)</p>
 </body>
 </setuptopic>
 
@@ -5847,7 +5847,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt>, and a program executed in the <sn>[Run]</sn> section queues files to be replaced on the next reboot (by calling MoveFileEx or by modifying wininit.ini), Setup will detect this and prompt the user to restart the computer at the end of installation.</p>
+<p>When set to <tt>yes</tt>, and a program executed in the <sn>[Run]</sn> section queues files to be replaced on the next reboot (by calling MoveFileEx or by modifying <tt>wininit.ini</tt>), Setup will detect this and prompt the user to restart the computer at the end of installation.</p>
 </body>
 </setuptopic>
 
@@ -6689,7 +6689,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>By default, when a folder in the dialog displayed by the <i>Browse...</i> button on the <i>Select Start Menu Folder</i> wizard page is clicked, Setup automatically appends the last component of <sd>DefaultGroupName</sd> onto the new path. For example, if <sd>DefaultGroupName</sd> is <tt>My Program</tt> and "Accessories" is clicked, the new path will become "Accessories\My Program".</p>
+<p>By default, when a folder in the dialog displayed by the <i>Browse...</i> button on the <i>Select Start Menu Folder</i> wizard page is clicked, Setup automatically appends the last component of <sd>DefaultGroupName</sd> onto the new path. For example, if <sd>DefaultGroupName</sd> is <tt>My Program</tt> and "Accessories" is clicked, the new path will become <tt>Accessories\My Program</tt>.</p>
 <p>Setting this directive to <tt>no</tt> disables the aforementioned behavior. In addition, it causes a <i>Make New Folder</i> button to appear on the dialog.</p>
 </body>
 </setuptopic>
@@ -6905,7 +6905,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <p>Specifies whether the compiler should set the "Terminal Services aware" flag in the headers of the Setup and Uninstall programs.</p>
 <p>Most importantly, the "Terminal Services aware" flag affects the behavior of the {win} constant (and <isxfunc>GetWinDir</isxfunc> support function) on servers with Terminal Services installed in application mode.</p>
 <p>When the flag is set, {win} will consistently return the system's real Windows directory, typically <tt>C:\Windows</tt>, just as on systems that do not have Terminal Services installed.</p>
-<p>When the flag is not set, Windows runs the program in compatibility mode, where {win} may return either the real Windows directory or a user-specific Windows directory, such as <tt>C:\Documents and Settings\&lt;user name&gt;\WINDOWS</tt>. Which one you get depends on the name of the program's EXE file and how it is launched. If the program is named setup.exe or install.exe, or if it is launched from the <i>Add/Remove Programs</i> Control Panel applet, then Windows will put the system in "install mode", which effectively makes the program (and all other programs running in the session) behave as if the "Terminal Services aware" flag were set. Otherwise, the program is treated as a legacy application and is given a private Windows directory. (This is true even if the user running the program has full administrative privileges.)</p>
+<p>When the flag is not set, Windows runs the program in compatibility mode, where {win} may return either the real Windows directory or a user-specific Windows directory, such as <tt>C:\Documents and Settings\&lt;user name&gt;\WINDOWS</tt>. Which one you get depends on the name of the program's EXE file and how it is launched. If the program is named <tt>setup.exe</tt> or <tt>install.exe</tt>, or if it is launched from the <i>Add/Remove Programs</i> Control Panel applet, then Windows will put the system in "install mode", which effectively makes the program (and all other programs running in the session) behave as if the "Terminal Services aware" flag were set. Otherwise, the program is treated as a legacy application and is given a private Windows directory. (This is true even if the user running the program has full administrative privileges.)</p>
 <p>Because the behavior that results from setting <tt>TerminalServicesAware</tt> to <tt>no</tt> is inconsistent and hard to predict, it is recommended that you use the default setting of <tt>yes</tt>. Only use <tt>no</tt> as a temporary fix if you encounter troubles on systems with Terminal Services after upgrading from a previous Inno Setup version.</p>
 </body>
 </setuptopic>
@@ -7191,7 +7191,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <setupvalid>A list of file name wildcards, separated by commas</setupvalid>
 <body>
 <p>Limits which <sn>[Files]</sn> and <sn>[InstallDelete]</sn> entries Setup will check for being in use. Files matching one of the wildcards will not be checked even if they match <sd>CloseApplicationsFilter</sd>.</p>
-<p>For example, to check all files except MyProg.exe:</p>
+<p>For example, to check all files except <tt>MyProg.exe</tt>:</p>
 <example><pre><sec>[Setup]</sec>
 <key>CloseApplicationsFilter</key>=*.*
 <key>CloseApplicationsFilterExcludes</key>=MyProg.exe</pre></example>

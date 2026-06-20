@@ -67,7 +67,7 @@ Additional vocabulary rules:
 
 ## Formatting
 
-- `<tt>` for all code identifiers: section names, directive names, parameter names, flag names, constant names, type names, function names, file names, directory names, path values, and values like `yes`/`no`/`True`/`False`.
+- `<tt>` for all code identifiers: section names, directive names, parameter names, flag names, constant names, type names, function names, file names, directory names, path values, registry key names, and values like `yes`/`no`/`True`/`False`.
 - `<i>` for emphasis, wizard page names (such as *Select Destination Location*), and UI element names.
 - `<b>` sparingly, for important warnings or the word "NOTE:".
 
