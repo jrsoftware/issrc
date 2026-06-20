@@ -703,7 +703,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <ul>
 <li><i>NAME</i> specifies the name of the environment variable to use.</li>
 <li><i>DefaultValue</i> determines the string to embed if the specified variable does not exist on the user's system.</li>
-<li>If you wish to include a comma, vertical bar ("|"), or closing brace ("}") inside the constant, you must escape it via "%-encoding." Replace the character with a "%" character, followed by its two-digit hex code. A comma is "%2c", a vertical bar is "%7c", and a closing brace is "%7d". If you want to include an actual "%" character, use "%25".</li>
+<li>If you wish to include a comma, vertical bar (<tt>|</tt>), or closing brace (<tt>}</tt>) inside the constant, you must escape it via "%-encoding." Replace the character with a <tt>%</tt> character, followed by its two-digit hex code. A comma is <tt>%2c</tt>, a vertical bar is <tt>%7c</tt>, and a closing brace is <tt>%7d</tt>. If you want to include an actual <tt>%</tt> character, use <tt>%25</tt>.</li>
 <li><i>NAME</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <examples>
@@ -729,7 +729,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <p>Extracts and returns the drive letter and colon (e.g. <tt>C:</tt>) from the specified path. In the case of a UNC path, it returns the server and share name (e.g. <tt>\\SERVER\SHARE</tt>).</p>
 <ul>
 <li><i>Path</i> specifies the path.</li>
-<li>If you wish to include a comma, vertical bar ("|"), or closing brace ("}") inside the constant, you must escape it via "%-encoding." Replace the character with a "%" character, followed by its two-digit hex code. A comma is "%2c", a vertical bar is "%7c", and a closing brace is "%7d". If you want to include an actual "%" character, use "%25".</li>
+<li>If you wish to include a comma, vertical bar (<tt>|</tt>), or closing brace (<tt>}</tt>) inside the constant, you must escape it via "%-encoding." Replace the character with a <tt>%</tt> character, followed by its two-digit hex code. A comma is <tt>%2c</tt>, a vertical bar is <tt>%7c</tt>, and a closing brace is <tt>%7d</tt>. If you want to include an actual <tt>%</tt> character, use <tt>%25</tt>.</li>
 <li><i>Path</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <examples>
@@ -764,7 +764,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <li><i>Section</i> specifies the name of the section to read from.</li>
 <li><i>Key</i> specifies the name of the key to read.</li>
 <li><i>DefaultValue</i> determines the string to embed if the specified key does not exist.</li>
-<li>If you wish to include a comma, vertical bar ("|"), or closing brace ("}") inside the constant, you must escape it via "%-encoding." Replace the character with a "%" character, followed by its two-digit hex code. A comma is "%2c", a vertical bar is "%7c", and a closing brace is "%7d". If you want to include an actual "%" character, use "%25".</li>
+<li>If you wish to include a comma, vertical bar (<tt>|</tt>), or closing brace (<tt>}</tt>) inside the constant, you must escape it via "%-encoding." Replace the character with a <tt>%</tt> character, followed by its two-digit hex code. A comma is <tt>%2c</tt>, a vertical bar is <tt>%7c</tt>, and a closing brace is <tt>%7d</tt>. If you want to include an actual <tt>%</tt> character, use <tt>%25</tt>.</li>
 <li><i>Filename, Section, Key</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>
@@ -784,7 +784,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <ul>
 <li><i>MessageName</i> specifies the name of custom message to read from. See the <sn>[CustomMessages]</sn> section documentation for more information.</li>
 <li><i>Arguments</i> optionally specifies a comma separated list of arguments to the message value.</li>
-<li>If you wish to include a comma, vertical bar ("|"), or closing brace ("}") inside the constant, you must escape it via "%-encoding." Replace the character with a "%" character, followed by its two-digit hex code. A comma is "%2c", a vertical bar is "%7c", and a closing brace is "%7d". If you want to include an actual "%" character, use "%25".</li>
+<li>If you wish to include a comma, vertical bar (<tt>|</tt>), or closing brace (<tt>}</tt>) inside the constant, you must escape it via "%-encoding." Replace the character with a <tt>%</tt> character, followed by its two-digit hex code. A comma is <tt>%2c</tt>, a vertical bar is <tt>%7c</tt>, and a closing brace is <tt>%7d</tt>. If you want to include an actual <tt>%</tt> character, use <tt>%25</tt>.</li>
 <li>Each argument in <i>Arguments</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>
@@ -801,7 +801,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <li><i>SubkeyName</i> specifies the name of the subkey to read from.</li>
 <li><i>ValueName</i> specifies the name of the value to read; leave <i>ValueName</i> blank if you wish to read the "default" value of a key.</li>
 <li><i>DefaultValue</i> determines the string to embed if the specified registry value does not exist, or is not a string type (REG_SZ or REG_EXPAND_SZ) and also not a REG_DWORD-type.</li>
-<li>If you wish to include a comma, vertical bar ("|"), or closing brace ("}") inside the constant, you must escape it via "%-encoding." Replace the character with a "%" character, followed by its two-digit hex code. A comma is "%2c", a vertical bar is "%7c", and a closing brace is "%7d". If you want to include an actual "%" character, use "%25".</li>
+<li>If you wish to include a comma, vertical bar (<tt>|</tt>), or closing brace (<tt>}</tt>) inside the constant, you must escape it via "%-encoding." Replace the character with a <tt>%</tt> character, followed by its two-digit hex code. A comma is <tt>%2c</tt>, a vertical bar is <tt>%7c</tt>, and a closing brace is <tt>%7d</tt>. If you want to include an actual <tt>%</tt> character, use <tt>%25</tt>.</li>
 <li><i>SubkeyName, ValueName,</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 <li>If the value is not a string type (REG_SZ or REG_EXPAND_SZ) but a REG_DWORD-type then its value as a decimal string is embedded.</li>
 </ul>
@@ -816,7 +816,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <ul>
 <li><i>ParamName</i> specifies the name of the command line parameter to read from.</li>
 <li><i>DefaultValue</i> determines the string to embed if the specified command line parameter does not exist, or its value could not be determined.</li>
-<li>If you wish to include a comma, vertical bar ("|"), or closing brace ("}") inside the constant, you must escape it via "%-encoding." Replace the character with a "%" character, followed by its two-digit hex code. A comma is "%2c", a vertical bar is "%7c", and a closing brace is "%7d". If you want to include an actual "%" character, use "%25".</li>
+<li>If you wish to include a comma, vertical bar (<tt>|</tt>), or closing brace (<tt>}</tt>) inside the constant, you must escape it via "%-encoding." Replace the character with a <tt>%</tt> character, followed by its two-digit hex code. A comma is <tt>%2c</tt>, a vertical bar is <tt>%7c</tt>, and a closing brace is <tt>%7d</tt>. If you want to include an actual <tt>%</tt> character, use <tt>%25</tt>.</li>
 <li><i>ParamName</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
 <example>

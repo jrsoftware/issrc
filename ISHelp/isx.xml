@@ -367,7 +367,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <li><i>Param</i> specifies the string parameter to pass to the function. If you omit <i>Param</i>, an empty string will be passed.</li>
 
-<li>If you wish to include a comma, vertical bar ("|"), or closing brace ("}") inside the constant, you must escape it via "%-encoding." Replace the character with a "%" character, followed by its two-digit hex code. A comma is "%2c", a vertical bar is "%7c", and a closing brace is "%7d". If you want to include an actual "%" character, use "%25".</li>
+<li>If you wish to include a comma, vertical bar (<tt>|</tt>), or closing brace (<tt>}</tt>) inside the constant, you must escape it via "%-encoding." Replace the character with a <tt>%</tt> character, followed by its two-digit hex code. A comma is <tt>%2c</tt>, a vertical bar is <tt>%7c</tt>, and a closing brace is <tt>%7d</tt>. If you want to include an actual <tt>%</tt> character, use <tt>%25</tt>.</li>
 
 <li><i>Param</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 
