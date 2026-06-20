@@ -155,7 +155,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 
 <ul>
   <li>Improved the Wine RichEdit workaround added in 7.0.0 to prevent a startup delay when very large texts are used in combination with a dark custom wizard style.</li>
-  <li><i>Fix:</i> Example script <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/PowerShell.iss">PowerShell.iss</a></i> now uses an absolute path to load <tt>powershell.exe</tt>, for security reasons. If you used the demonstrated technique in your own scripts, <b>you should make the same changes</b>.</li>
+  <li><i>Fix:</i> Example script <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/PowerShell.iss">PowerShell.iss</a></tt> now uses an absolute path to load <tt>powershell.exe</tt>, for security reasons. If you used the demonstrated technique in your own scripts, <b>you should make the same changes</b>.</li>
   <li>ISPP:
   <ul>
     <li><i>Fix:</i> A user defined function which has no parameters compiles again (broken in 7.0.0). Example: <tt><code class="innosetup"><ispp>#define</ispp> MyAppName() <str>"My Program"</str></code></tt>.</li>
@@ -192,7 +192,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <ul>
     <li>In 32-bit installers, type <tt>Extended</tt> is 10 bytes, while in 64-bit installers it is 8 bytes and just an alias for type <tt>Double</tt>.</li>
     <li>In 32-bit installers, types <tt>NativeInt</tt> and <tt>NativeUInt</tt> are 4 bytes, while in 64-bit installers they are 8 bytes. The same is true for all types derived from them, such as <tt>HWND</tt>.<br/>
-        Example script <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeDll.iss">CodeDll.iss</a></i> demonstrates how to support both 32-bit and 64-bit installers from a single script.<br/>
+        Example script <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeDll.iss">CodeDll.iss</a></tt> demonstrates how to support both 32-bit and 64-bit installers from a single script.<br/>
         Please note: Even though types like <tt>HWND</tt> are 8 bytes (64-bit) in 64-bit processes, <a href="https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication">64-bit Windows uses 32-bit handle values for interoperability</a>. When sharing a handle between 32-bit and 64-bit applications, only the lower 32 bits are significant, so it is safe to truncate from 64-bit to 32-bit or sign extend from 32-bit to 64-bit.</li>
         <li>In both 32-bit and 64-bit installers, Pascal Script records are always "packed". When calling a Windows API or external DLL function that expects aligned records, you may need to add manual padding fields. Even if this was not needed in a 32-bit installer, it may be needed in a 64-bit installer because alignment rules and field sizes differ.</li>
     <li>You cannot load 32-bit DLLs in 64-bit installers because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). However, you can always launch both 32-bit and 64-bit EXEs using the <tt>Exec</tt> function or the <tt>[Run]</tt> section.</li>
@@ -297,13 +297,13 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Pascal Scripting:
   <ul>
     <li>Added new optional <tt>OnLog</tt> parameter to the <tt>[Run]</tt> section. When combined with the <tt>logoutput</tt> flag, it specifies the name of a procedure that is to be called for each line of the program's output instead of directly including it in the log file.<br/>
-      See updated <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/PowerShell.iss">PowerShell.iss</a></i> example script.</li>
+      See updated <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/PowerShell.iss">PowerShell.iss</a></tt> example script.</li>
     <li>Added support functions <tt>StrToUInt64</tt>, <tt>StrToUInt64Def</tt>, and <tt>UIntToStr</tt>.</li>
     <li>Support functions <tt>Chr</tt> and <tt>StringOfChar</tt> now correctly accept ordinal values greater than 255 and wide chars.</li>
     <li>Support function <tt>FloatToStr</tt> no longer outputs unnecessary trailing zeros.</li>
     <li>Using <tt>Exit</tt> within a <tt>try..finally</tt> block now works correctly when the <tt>finally</tt> block contains function calls.</li>
     <li>Multiple statements in the <tt>else</tt> block of a <tt>case</tt> statement now no longer require using <tt>begin</tt>/<tt>end</tt>.</li>
-    <li>It's now possible to specify the <tt>safecall</tt> calling convention in interfaces, simplifying method declarations and eliminating the need to call <tt>OleCheck</tt> manually. See updated <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeAutomation2.iss">CodeAutomation2.iss</a></i> example script.</li>
+    <li>It's now possible to specify the <tt>safecall</tt> calling convention in interfaces, simplifying method declarations and eliminating the need to call <tt>OleCheck</tt> manually. See updated <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeAutomation2.iss">CodeAutomation2.iss</a></tt> example script.</li>
     <li>To suppress compiler warnings for a line in a <tt>[Code]</tt> section, you can now include a <tt>{$NOWARN}</tt> marker anywhere on that line. It is recognized even inside comments.</li>
     <li>Improved the <tt>as</tt> operator to perform the same runtime type check as the <tt>is</tt> operator.</li>
     <li>Fixed a runtime type mismatch when assigning between open and dynamic arrays.</li>
@@ -366,7 +366,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <ul>
   <li>Pascal Scripting:
   <ul>
-    <li>Added new <tt>Alignment</tt> property to support class <tt>TNewStaticText</tt>. See updated <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> example script for an example.</li>
+    <li>Added new <tt>Alignment</tt> property to support class <tt>TNewStaticText</tt>. See updated <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> example script for an example.</li>
     <li>Added new <tt>AutoCompleteFiles</tt> property to support class <tt>TNewPathEdit</tt>. If set to <tt>False</tt> (the default value), only directory names are included in the AutoComplete list. If set to <tt>True</tt>, file names are included as well.</li>
   </ul>
   </li>
@@ -431,7 +431,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <com>; On wizard pages blend the background image and color together</com>
 <key>WizardBackImageOpacity</key>=150</code></pre></li>
   <li>Pascal Scripting: Added new support function <tt>WizardSetBackImage</tt> to set, update, or remove the background image at runtime. It can be used not only in Setup, but also in Uninstall.<br/>
-      See the <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_wizardsetbackimage">new help topic</a> for an example, and see new function <tt>BackImageButtonOnClick</tt> in <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for another example.</li>
+      See the <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_wizardsetbackimage">new help topic</a> for an example, and see new function <tt>BackImageButtonOnClick</tt> in <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> for another example.</li>
 </ul>
 
 <span class="head2">Compiler IDE improvements</span>
@@ -573,7 +573,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
   <li>Pascal Scripting:
   <ul>
     <li>Added new support functions <tt>IsWinDark</tt> and <tt>IsDarkInstallMode</tt>.</li>
-    <li>Added new <tt>StyleElements</tt> and <tt>StyleName</tt> properties to support class <tt>TControl</tt>. See <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for an example, which also demonstrates the use of <tt>IsDarkInstallMode</tt>.</li>
+    <li>Added new <tt>StyleElements</tt> and <tt>StyleName</tt> properties to support class <tt>TControl</tt>. See <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> for an example, which also demonstrates the use of <tt>IsDarkInstallMode</tt>.</li>
   </ul>
 </li>
 </ul>
@@ -610,14 +610,14 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
   <li>Pascal Scripting:
   <ul>
     <li>Added support functions <tt>InitializeBitmapButtonFromStockIcon</tt> and <tt>InitializeBitmapImageFromStockIcon</tt>. Can be used to display various high-quality, system-defined icons, on all versions of Windows.<br/>
-        See <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for an example, and <a href="https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ne-shellapi-shstockiconid#constants">Microsoft Learn</a> for an overview of all available icons.<br/>
+        See <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> for an example, and <a href="https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ne-shellapi-shstockiconid#constants">Microsoft Learn</a> for an overview of all available icons.<br/>
         <a href="https://jrsoftware.org/images/is-codeclasses-stockicons-125.png">Example screenshot of the new CodeClasses.iss example, at 125% DPI and in dark mode</a>.
     </li>
     <li>Wizard form sizing for <tt>WizardSizePercent</tt> is now done before event function <tt>InitializeWizard</tt> is called, instead of after, consistent with scaling for system DPI or for a custom <tt>DialogFontSize</tt>.<br/>
          If you have custom controls that must grow with <tt>WizardSizePercent</tt>, and those controls use the <tt>Anchors</tt> property to achieve this (that is, they have both <tt>akLeft</tt> and <tt>akRight</tt> set, or both <tt>akTop</tt> and <tt>akBottom</tt> set), and they do not use <tt>SurfaceWidth</tt> or <tt>SurfaceHeight</tt>, you must either start using the new <tt>SurfaceExtraWidth</tt> and <tt>SurfaceExtraHeight</tt> properties (as demonstrated by the updated <a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a> example script), or switch to using <tt>SurfaceWidth</tt> and <tt>SurfaceHeight</tt>.<br/>
          Existing custom code that assigns the <tt>Anchors</tt> property can be removed from your scripts.
     </li>
-    <li>The prototype of support function <tt>CreateCustomForm</tt> has changed. Support class <tt>TSetupForm</tt> has changed as well: function <tt>FlipSizeAndCenterIfNeeded</tt> has been renamed to <tt>FlipAndCenterIfNeeded</tt>, property <tt>SizeAndCenterOnShow</tt> has been renamed to <tt>CenterOnShow</tt>, and property <tt>KeepSizeX</tt> is now read-only. See <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for an updated <tt>CreateCustomForm</tt>/<tt>TSetupForm</tt> example.
+    <li>The prototype of support function <tt>CreateCustomForm</tt> has changed. Support class <tt>TSetupForm</tt> has changed as well: function <tt>FlipSizeAndCenterIfNeeded</tt> has been renamed to <tt>FlipAndCenterIfNeeded</tt>, property <tt>SizeAndCenterOnShow</tt> has been renamed to <tt>CenterOnShow</tt>, and property <tt>KeepSizeX</tt> is now read-only. See <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> for an updated <tt>CreateCustomForm</tt>/<tt>TSetupForm</tt> example.
     </li>
   </ul>
   </li>
@@ -642,7 +642,7 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
   <li>Setup command line parameter '/SUPPRESSMSGBOXES' can now suppress additional early fatal error messages and the final restart error message. The parameter still only has an effect when combined with '/SILENT' or '/VERYSILENT'.</li>
   <li>Pascal Scripting:
   <ul>
-    <li>Added support for command link buttons (the button style used in task dialogs). See <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></i> for an example.</li>
+    <li>Added support for command link buttons (the button style used in task dialogs). See <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> for an example.</li>
     <li>Added support functions <tt>Round</tt>, <tt>Trunc</tt>, <tt>Int</tt>, and <tt>MulDiv</tt>.</li>
     <li>Added support function <tt>StrToColor</tt>.</li>
     <li>Undid the change made to the <tt>CurPageChanged</tt> event function in version 6.5.0.</li>
@@ -791,7 +791,7 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
   <key>DestName</key>: "MyProg.ExtraReadmes.7z"; <key>DestDir</key>: "<con>{app}</con>"; \
   <key>ExternalSize</key>: 275; <key>Flags</key>: external download extractarchive ignoreversion</code></pre>
     </li>
-    <li>Added example script <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/DownloadFiles.iss">DownloadFiles.iss</a></i> to demonstrate how to use a single <tt>[Files]</tt> entry to download a file, or to download and extract an archive, with verification.</li>
+    <li>Added example script <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/DownloadFiles.iss">DownloadFiles.iss</a></tt> to demonstrate how to use a single <tt>[Files]</tt> entry to download a file, or to download and extract an archive, with verification.</li>
   </ul>
   </li>
 </ul>
@@ -866,7 +866,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
   </li>
   <li>Other related changes:
   <ul>
-    <li>The compiler now verifies additional precompiled files, such as <i>Setup.e32</i> and <i>SetupLdr.e32</i>, to ensure they remain unchanged before using them. Can be disabled using new <tt>[Setup]</tt> section directive <tt>DisablePrecompiledFileVerifications</tt>, though doing so is <i>not</i> recommended.</li>
+    <li>The compiler now verifies additional precompiled files, such as <tt>Setup.e32</tt> and <tt>SetupLdr.e32</tt>, to ensure they remain unchanged before using them. Can be disabled using new <tt>[Setup]</tt> section directive <tt>DisablePrecompiledFileVerifications</tt>, though doing so is <i>not</i> recommended.</li>
     <li>Added new <tt>[Files]</tt> section parameter <tt>Hash</tt>. Instructs the compiler or Setup to do a simple SHA-256 hash check instead of a full signature verification, as an alternative to using the <tt>issigverify</tt> flag.<br/>
         Example script:
       <pre><code class="innosetup"><sec>[Files]</sec>
@@ -911,7 +911,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
     <ul>
       <li>Added new <tt>TBitmapButton</tt> support class which works just like <tt>TBitmapImage</tt>, but is accessible by keyboard and compatible with screen readers. Make sure to set the <tt>Caption</tt> property, even if it isn't visible. See updated example script <a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a> for an example.</li>
       <li>Added new <tt>InitializeBitmapButtonFromIcon</tt> and <tt>GetSHA256OfStream</tt> support functions.</li>
-      <li>Added new <tt>LastBaseNameOrUrl</tt> property to support class <tt>TDownloadWizardPage</tt>. See updated example script <i>CodeDownloadFiles.iss</i> for an example.</li>
+      <li>Added new <tt>LastBaseNameOrUrl</tt> property to support class <tt>TDownloadWizardPage</tt>. See updated example script <tt>CodeDownloadFiles.iss</tt> for an example.</li>
       <li><i>Fix:</i> Event function <tt>CurPageChanged</tt> is now always only triggered when the current page actually changes. Before it was called twice in a row for <tt>wpPreparing</tt> when the script had a <tt>PrepareToInstall</tt> event function which returned a non empty string to instruct Setup to stop.</li>
     </ul>
   </li>
@@ -1056,7 +1056,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
     <li>Added new <tt>Extract7ZipArchive</tt> support function to extract a 7-Zip archive, based on the &quot;7z ANSI-C Decoder&quot; from the LZMA SDK by Igor Pavlov. See the new <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_extract7ziparchive">help topic</a> for information about its limitations.<br />Added new <tt>CreateExtractionPage</tt> support function to easily show the extraction progress to the user.</li>
     <li>Added new <tt>ExecAndCaptureOutput</tt> support function to execute a program or batch file and capture its <i>stdout</i> and <i>stderr</i> outputs separately.</li>
     <li>Added new <tt>StringJoin</tt>, <tt>StringSplit</tt>, and <tt>StringSplitEx</tt> support functions.</li>
-    <li>Output logging now raises an exception if there was an error setting up output redirection (which should be very rare). The <i>PowerShell.iss</i> example script has been updated to catch the exception.</li>
+    <li>Output logging now raises an exception if there was an error setting up output redirection (which should be very rare). The <tt>PowerShell.iss</tt> example script has been updated to catch the exception.</li>
     <li>Added new <tt>NewFolderName</tt> property to support class <tt>TInputDirWizardPage</tt> update the initial value passed to <tt>CreateInputDirPage</tt>.</li>
     <li>Added new <tt>PopupMode</tt> and <tt>PopupParent</tt> properties to support class <tt>TForm</tt>.</li>
     <li>Documented support functions <tt>VarArrayGet</tt> and <tt>VarArraySet</tt> which were already available but not documented.</li>
@@ -1273,14 +1273,14 @@ display nothing in their window.</li>
   <li>Pascal Scripting change: Added new <tt>ExecAndLogOutput</tt>
 support function. Can be used to log the output of the executed program
 or batch file to Setup and Uninstall's log, or to receive the output
-line by line in your own <tt>[Code]</tt> function, for example to read the first non-empty line from the output as shown in the help file and the new <i>PowerShell.iss</i> example script.</li>
+line by line in your own <tt>[Code]</tt> function, for example to read the first non-empty line from the output as shown in the help file and the new <tt>PowerShell.iss</tt> example script.</li>
   <li>ISPP changes:
     <ul>
     <li>Output of programs or batch files executed using the <tt>Exec</tt> support function is now always logged in the Compiler IDE's <i>Compiler Output</i> view.</li>
     <li>Added new support function <tt>ExecAndGetFirstLine</tt> to
 execute a program or batch file and read the first non-empty line from
 its output which can then be placed or used in the script as shown in
-the new <i>PowerShell.iss</i> example script.</li>
+the new <tt>PowerShell.iss</tt> example script.</li>
     </ul>
     </li>
 </ul>
@@ -1310,12 +1310,12 @@ platform-independent support for <tt>.bat</tt> and <tt>.cmd</tt> files, both jus
     <ul>
     <li>Added support functions <tt>Utf8Encode</tt> and <tt>Utf8Decode</tt> to encode a Unicode string into a UTF-8 encoded ANSI string and vice versa.</li>
     <li>Added support functions <tt>LoadStringFromLockedFile</tt> and <tt>LoadStringsFromLockedFile</tt> to read strings from a file even if it's already opened for writing by another program.</li>
-    <li>Added support class <tt>TNewLinkLabel</tt> which can display multi-line text with embedded links and internally uses a Windows SysLink control. See the <i>CodeClasses.iss</i> example script for examples.</li>
+    <li>Added support class <tt>TNewLinkLabel</tt> which can display multi-line text with embedded links and internally uses a Windows SysLink control. See the <tt>CodeClasses.iss</tt> example script for examples.</li>
     <li><tt>TWizardForm</tt>: Added new <tt>AdjustLinkLabelHeight</tt> function.</li>
     <li><tt>TDownloadWizardPage</tt>: Added new <tt>ShowBaseNameInsteadOfUrl</tt> property.</li>
     <li>It is now possible to write <tt>var S: set of AnsiChar; begin S := ['a', 'b']; end;</tt>. In previous versions this would result in a type mismatch error.
     </li><li>It is now possible to write <tt>Stream.ReadBuffer(S, Length(S));</tt> when S is of type <tt>AnsiString</tt>. In previous versions this would compile but not work at run time. Same applies to <tt>Read</tt>, <tt>Write</tt>, and <tt>WriteBuffer</tt>: all four functions now accept any type of string.</li>
-    <li>Added example which downloads and unzips a Zip file to the <i>CodeAutomation.iss</i> example script.</li>
+    <li>Added example which downloads and unzips a Zip file to the <tt>CodeAutomation.iss</tt> example script.</li>
     <li>Type <tt>TShellFolderID</tt> was removed because it wasn't used by any support function.</li>
     </ul>
   </li>
@@ -1323,7 +1323,7 @@ platform-independent support for <tt>.bat</tt> and <tt>.cmd</tt> files, both jus
   <li>Added modern icons to the MyProg example executables, now compiled with Visual Studio 2022.</li>
   <li>Added official Korean translation.</li>
   <li>Inno Setup is now built using Delphi 11.3 Alexandria instead of Delphi 10.3 Rio.</li>
-  <li>Inno Setup's Delphi projects have been recreated as new clean projects and have been added to a <i>Projects\Projects.groupproj</i>
+  <li>Inno Setup's Delphi projects have been recreated as new clean projects and have been added to a <tt>Projects\Projects.groupproj</tt>
  project group. This makes it a lot easier to get started with working
 with the Inno Setup source code and making contributions, even with the
 free Delphi Community Edition.</li>

@@ -2070,8 +2070,8 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
     Result := False;
   <key>end</key>;
 <key>end</key>;</pre>
-<p>See <i>CodeDownloadFiles.iss</i> for another example which uses <isxfunc>CreateDownloadPage</isxfunc> instead.</p>
-<p>See <i>DownloadFiles.iss</i> for an example of file download using just a <sn>[Files]</sn> entry.</p></example>
+<p>See <tt>CodeDownloadFiles.iss</tt> for another example which uses <isxfunc>CreateDownloadPage</isxfunc> instead.</p>
+<p>See <tt>DownloadFiles.iss</tt> for an example of file download using just a <sn>[Files]</sn> entry.</p></example>
         <seealso><p><isxfunc>SetDownloadCredentials</isxfunc><br />
 <isxfunc>DownloadTemporaryFileWithISSigVerify</isxfunc><br />
 <isxfunc>DownloadTemporaryFileSize</isxfunc><br />
@@ -2140,7 +2140,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <remarks><p><tt>TOnExtractionProgress</tt> is defined as:</p>
 <p><tt>TOnExtractionProgress = function(const ArchiveName, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>Return <tt>True</tt> to allow the extraction to continue, <tt>False</tt> otherwise.</p></remarks>
-        <example><p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a <sn>[Files]</sn> entry.</p></example>
+        <example><p>See <tt>DownloadFiles.iss</tt> for an example of archive extraction using just a <sn>[Files]</sn> entry.</p></example>
         <seealso><p><isxfunc>CreateExtractionPage</isxfunc><br />
 <isxfunc>MapArchiveExtensions</isxfunc><br />
 <isxfunc>CreateDownloadPage</isxfunc><br />
@@ -2795,7 +2795,7 @@ Page.Values[<num>1</num>] := ExpandConstant(<str>'{sysuserinfoorg}'</str>);
 UserName := Page.Values[<num>0</num>];
 UserCompany := Page.Values[<num>1</num>];
 </pre>
-<p>See <i>AllPagesExample.iss</i> for another example.</p></example>
+<p>See <tt>AllPagesExample.iss</tt> for another example.</p></example>
         <seealso><p><tt><link topic="scriptclasses" anchor="TInputQueryWizardPage">TInputQueryWizardPage</link></tt></p></seealso>
       </function>
       <function>
@@ -2827,7 +2827,7 @@ Page.Values[<num>0</num>] := False;
 <com>// Read values into variables</com>
 IsRegisteredUser := Page.Values[<num>0</num>];
 </pre>
-<p>See <i>AllPagesExample.iss</i> for another example.</p></example>
+<p>See <tt>AllPagesExample.iss</tt> for another example.</p></example>
         <seealso><p><tt><link topic="scriptclasses" anchor="TInputOptionWizardPage">TInputOptionWizardPage</link></tt></p></seealso>
       </function>
       <function>
@@ -2859,7 +2859,7 @@ Page.Values[<num>0</num>] := ExpandConstant(<str>'{userappdata}\My Company\My Pr
 <com>// Read value into variable</com>
 DataDir := Page.Values[<num>0</num>];
 </pre>
-<p>See <i>AllPagesExample.iss</i> for another example.</p></example>
+<p>See <tt>AllPagesExample.iss</tt> for another example.</p></example>
         <seealso><p><tt><link topic="scriptclasses" anchor="TInputDirWizardPage">TInputDirWizardPage</link></tt></p></seealso>
       </function>
       <function>
@@ -2892,7 +2892,7 @@ Page.Values[<num>0</num>] := ExpandConstant(<str>'{win}\notepad.exe'</str>);
 <com>// Read value into variable</com>
 NotepadLocation := Page.Values[<num>0</num>];
 </pre>
-<p>See <i>AllPagesExample.iss</i> for another example.</p></example>
+<p>See <tt>AllPagesExample.iss</tt> for another example.</p></example>
         <seealso><p><tt><link topic="scriptclasses" anchor="TInputFileWizardPage">TInputFileWizardPage</link></tt></p></seealso>
       </function>
       <function>
@@ -2909,7 +2909,7 @@ Page := CreateOutputMsgPage(wpWelcome,
   <str>'Information'</str>, <str>'Please read the following important information before continuing.'</str>,
   <str>'Blah blah blah.'</str>);
 </pre>
-<p>See <i>AllPagesExample.iss</i> for another example.</p></example>
+<p>See <tt>AllPagesExample.iss</tt> for another example.</p></example>
         <seealso><p><tt><link topic="scriptclasses" anchor="TOutputMsgWizardPage">TOutputMsgWizardPage</link></tt></p></seealso>
       </function>
       <function>
@@ -2927,7 +2927,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
   <str>'When you are ready to continue with Setup, click Next.'</str>,
   <str>'Blah blah blah.'</str>);
 </pre>
-<p>See <i>AllPagesExample.iss</i> for another example.</p></example>
+<p>See <tt>AllPagesExample.iss</tt> for another example.</p></example>
         <seealso><p><tt><link topic="scriptclasses" anchor="TOutputMsgMemoWizardPage">TOutputMsgMemoWizardPage</link></tt></p></seealso>
       </function>
       <function>
@@ -2936,10 +2936,10 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <description><p>Creates a wizard page containing static text as well as a progress bar (which is hidden by default).</p>
 <p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
         <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
-<p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDlg.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
+<p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <tt>CodeDlg.iss</tt>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
 <p>To set the text on the page, call the <tt>SetText</tt> method. <tt>SetText</tt> takes two string parameters: use the first to tell the user what you're doing, and the second to display a file or directory name. Either parameter may be blank.</p>
 <p>To show or update the progress bar, call the <tt>SetProgress</tt> method. <tt>SetProgress</tt> takes two integer parameters: the first specifies the position of the progress bar (zero-based), and the second specifies the highest possible position. If the second parameter is 0, the progress bar will be hidden.</p></remarks>
-        <example><p>See <i>CodeDlg.iss</i> and <i>AllPagesExample.iss</i> example scripts in the <tt>Examples</tt> subdirectory in your Inno Setup directory for examples.</p></example>
+        <example><p>See <tt>CodeDlg.iss</tt> and <tt>AllPagesExample.iss</tt> example scripts in the <tt>Examples</tt> subdirectory in your Inno Setup directory for examples.</p></example>
         <seealso><p><tt><link topic="scriptclasses" anchor="TOutputProgressWizardPage">TOutputProgressWizardPage</link></tt><br />
 <isxfunc>CreateOutputMarqueeProgressPage</isxfunc></p></seealso>
       </function>
@@ -2949,7 +2949,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <description><p>Creates a wizard page containing static text as well as a marquee progress bar.</p>
 <p>See <isxfunc>CreateOutputProgressPage</isxfunc> for information on how to work with progress pages.</p></description>
         <remarks><p>To animate the progress bar, call the <tt>Animate</tt> method. Do not call the <tt>SetProgress</tt> method, it will raise an internal error.</p></remarks>
-        <example><p>See <i>AllPagesExample.iss</i> for an example.</p></example>
+        <example><p>See <tt>AllPagesExample.iss</tt> for an example.</p></example>
         <seealso><p><tt><link topic="scriptclasses" anchor="TOutputMarqueeProgressWizardPage">TOutputMarqueeProgressWizardPage</link></tt></p></seealso>
       </function>
       <function>
@@ -2959,13 +2959,13 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>Set <tt>OnDownloadProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>
 <p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
         <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
-<p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDownloadFiles.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
+<p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <tt>CodeDownloadFiles.iss</tt>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
 <p>To add a new file to download, call the <tt>Add</tt> method. Always call the <tt>Clear</tt> method before adding the first file.</p>
 <p>To start the download, call the <tt>Download</tt> method. An exception will be raised if there was an error. Otherwise, <tt>Download</tt> returns the number of bytes downloaded.</p>
 <p>Set the <tt>ShowBaseNameInsteadOfUrl</tt> property to <tt>True</tt> to show the base name of the file which is being downloaded to the user instead of the URL.</p>
 <p>See <isxfunc>DownloadTemporaryFile</isxfunc> for other considerations and the definition of <tt>TOnDownloadProgress</tt>.</p>
-<p>See <i>CodeDownloadFiles.iss</i> for an example.</p>
-<p>See <i>DownloadFiles.iss</i> for an example of file download using just a <sn>[Files]</sn> entry instead.</p></remarks>
+<p>See <tt>CodeDownloadFiles.iss</tt> for an example.</p>
+<p>See <tt>DownloadFiles.iss</tt> for an example of file download using just a <sn>[Files]</sn> entry instead.</p></remarks>
         <seealso><p><tt><link topic="scriptclasses" anchor="TDownloadWizardPage">TDownloadWizardPage</link></tt><br />
 <isxfunc>DownloadTemporaryFile</isxfunc><br />
 <isxfunc>CreateOutputProgressPage</isxfunc></p></seealso>
@@ -2979,13 +2979,13 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>Set <tt>OnExtractionProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>
 <p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
         <remarks><p>Call the <tt>Show</tt> method to activate and show the page. When you're finished with it, call the <tt>Hide</tt> method to revert to the previous page.</p>
-<p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <i>CodeDownloadFiles.iss</i>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
+<p>Always put the <tt>Hide</tt> call inside the <tt>finally</tt> part of a <tt>try..finally</tt> language construct, as demonstrated in <tt>CodeDownloadFiles.iss</tt>. Not calling <tt>Hide</tt> will result in the wizard being permanently stuck on the progress page.</p>
 <p>To add a new archive to extract, call the <tt>Add</tt> method or the <tt>AddEx</tt> method if the archive is password-protected. Always call the <tt>Clear</tt> method before adding the first file.</p>
 <p>To start the extraction, call the <tt>Extract</tt> method. An exception will be raised if there was an error.</p>
 <p>Set the <tt>ShowArchiveInsteadOfFile</tt> property to <tt>True</tt> to show the name of the archive which is being extracted to the user instead of the names of the files inside the archive.</p>
 <p>See <isxfunc>ExtractArchive</isxfunc> for the definition of <tt>TOnExtractionProgress</tt>.</p></remarks>
-        <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <isxfunc>CreateDownloadPage</isxfunc> which works very similar to <tt>CreateExtractionPage</tt>.</p>
-<p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a <sn>[Files]</sn> entry instead.</p>
+        <example><p>See <tt>CodeDownloadFiles.iss</tt> for an example of <isxfunc>CreateDownloadPage</isxfunc> which works very similar to <tt>CreateExtractionPage</tt>.</p>
+<p>See <tt>DownloadFiles.iss</tt> for an example of archive extraction using just a <sn>[Files]</sn> entry instead.</p>
 </example>
         <seealso><p><tt><link topic="scriptclasses" anchor="TExtractionWizardPage">TExtractionWizardPage</link></tt><br />
 <isxfunc>ExtractArchive</isxfunc><br />
@@ -2996,7 +2996,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <name>CreateCustomPage</name>
         <prototype>function CreateCustomPage(const AfterID: Integer; const ACaption, ADescription: String): TWizardPage;</prototype>
         <description><p>Creates a custom wizard page. The page is empty by default; you have to create your own controls afterward and place them on the page (by setting their Parent properties to the Surface property of the <tt><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></tt> instance returned by this function).</p></description>
-        <example><p>See <i>CodeClasses.iss</i> and <i>AllPagesExample.iss</i> example scripts in the <tt>Examples</tt> subdirectory in your Inno Setup directory for examples.</p></example>
+        <example><p>See <tt>CodeClasses.iss</tt> and <tt>AllPagesExample.iss</tt> example scripts in the <tt>Examples</tt> subdirectory in your Inno Setup directory for examples.</p></example>
         <seealso><p><tt><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></tt></p></seealso>
       </function>
     </subcategory>
@@ -3023,7 +3023,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 </pre></example>
 <p>The same applies to the <tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> properties, which were writable properties before version 6.6.0, but are now specified as parameters when calling <tt>CreateCustomForm</tt> and are read-only properties afterwards.</p>
 </remarks>
-        <example><p>See <i>CodeClasses.iss</i> for an example.</p></example>
+        <example><p>See <tt>CodeClasses.iss</tt> for an example.</p></example>
         <seealso><p><tt><link topic="scriptclasses" anchor="TForm">TForm</link></tt><br />
 <tt><link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link></tt></p></seealso>
       </function>

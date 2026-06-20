@@ -2289,7 +2289,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <keyword value="BeveledLabel" anchor="BeveledLabel" />
 <body>
 
-<p>A <tt>[Messages]</tt> section is used to define the messages displayed by the Setup program and uninstaller. Normally, you need not create a <tt>[Messages]</tt> section in your script file, since all messages are, by default, pulled in from the file <a name="Default.isl"><i>Default.isl</i></a> included with Inno Setup (or whichever file is specified by a <sn>[Languages]</sn> section entry).</p>
+<p>A <tt>[Messages]</tt> section is used to define the messages displayed by the Setup program and uninstaller. Normally, you need not create a <tt>[Messages]</tt> section in your script file, since all messages are, by default, pulled in from the file <tt><a name="Default.isl">Default.isl</a></tt> included with Inno Setup (or whichever file is specified by a <sn>[Languages]</sn> section entry).</p>
 
 <p>However, particular messages can be overridden by creating a <tt>[Messages]</tt> section in your script file. To do this, first you will need to know the ID of the message you want to change. This can be easily found by searching <tt>Default.isl</tt>. For example, say you wanted to change the "&amp;Next" button on the wizard to read "&amp;Forward". The ID of this message is "ButtonNext", so you would create a <tt>[Messages]</tt> section like this:</p>
 
@@ -2300,7 +2300,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 
 <p>Some messages take arguments such as %1 and %2. You can rearrange the order of the arguments (i.e. move the %2 before a %1) and also duplicate arguments if needed (i.e. "%1 ... %1 %2"). On messages with arguments, use two consecutive "%" characters to embed a single "%". "%n" creates a line break.</p>
 
-<p>If you wish to translate all of Inno Setup's text to another language, instead of modifying <tt>Default.isl</tt> or overriding each message in every script you create, make a copy of <tt>Default.isl</tt> with another name like <i>MyTranslation.isl.</i> On any installation you wish to use <tt>MyTranslation.isl</tt>, create a <sn>[Languages]</sn> section entry pointing to the file.</p>
+<p>If you wish to translate all of Inno Setup's text to another language, instead of modifying <tt>Default.isl</tt> or overriding each message in every script you create, make a copy of <tt>Default.isl</tt> with another name like <tt>MyTranslation.isl</tt>. On any installation you wish to use <tt>MyTranslation.isl</tt>, create a <sn>[Languages]</sn> section entry pointing to the file.</p>
 
 <p>In cases where there are multiple <sn>[Languages]</sn> section entries, specifying a <tt>[Messages]</tt> section entry in your script (as opposed to an <tt>.isl</tt> file) will by default override that message for all languages. To apply a <tt>[Messages]</tt> section entry to only one language, prefix it with the language's internal name followed by a period. For example:</p>
 
@@ -2408,7 +2408,7 @@ nl.<key>CreateDesktopIcon</key>=Maak een snelkoppeling op het &amp;bureaublad
 <keyword value="fonts" />
 <body>
 
-<p>A <tt><a name="LangOptions">[LangOptions]</a></tt> section is used to define the language-specific settings, such as fonts, used by the Setup program and uninstaller. Normally, you need not create a <tt>[LangOptions]</tt> section in your script file, since the language-specific settings are, by default, pulled in from the file <i>Default.isl</i> included with Inno Setup (or whichever file is specified by a <sn>[Languages]</sn> section entry).</p>
+<p>A <tt><a name="LangOptions">[LangOptions]</a></tt> section is used to define the language-specific settings, such as fonts, used by the Setup program and uninstaller. Normally, you need not create a <tt>[LangOptions]</tt> section in your script file, since the language-specific settings are, by default, pulled in from the file <tt>Default.isl</tt> included with Inno Setup (or whichever file is specified by a <sn>[Languages]</sn> section entry).</p>
 
 <p>The following is an example of a <tt>[LangOptions]</tt> section. (The settings listed below are the defaults.)</p>
 
@@ -3040,7 +3040,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
   <ul>
   <li>In 32-bit installers, type <tt>Extended</tt> is 10 bytes, while in 64-bit installers it is 8 bytes and just an alias for type <tt>Double</tt>.</li>
   <li>In 32-bit installers, types <tt>NativeInt</tt> and <tt>NativeUInt</tt> are 4 bytes, while in 64-bit installers they are 8 bytes. The same is true for all types derived from them, such as <tt>HWND</tt>.<br/>
-      Example script <i>CodeDll.iss</i> demonstrates how to support both 32-bit and 64-bit installers from a single script.<br/>
+      Example script <tt>CodeDll.iss</tt> demonstrates how to support both 32-bit and 64-bit installers from a single script.<br/>
       Please note: Even though types like <tt>HWND</tt> are 8 bytes (64-bit) in 64-bit processes, <extlink href="https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication">64-bit Windows uses 32-bit handle values for interoperability</extlink>. When sharing a handle between 32-bit and 64-bit applications, only the lower 32 bits are significant, so it is safe to truncate from 64-bit to 32-bit or sign extend from 32-bit to 64-bit.</li>
   <li>In both 32-bit and 64-bit installers, Pascal Script records are always "packed". When calling a Windows API or external DLL function that expects aligned records, you may need to add manual padding fields. Even if this was not needed in a 32-bit installer, it may be needed in a 64-bit installer because alignment rules and field sizes differ.</li>
   <li>You cannot load 32-bit DLLs in 64-bit installers because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). However, you can always launch both 32-bit and 64-bit EXEs using the <isxfunc>Exec</isxfunc> function or the <sn>[Run]</sn> section.</li>
@@ -3208,7 +3208,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 </ul>
 
-<p>See the <i>AllPagesExample.iss</i> example script for an example which shows all these pages.</p>
+<p>See the <tt>AllPagesExample.iss</tt> example script for an example which shows all these pages.</p>
 
 </body>
 </topic>
@@ -5276,7 +5276,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>The compiler verifies precompiled files before using them. For certain files, you can disable verification if necessary. Use this directive to specify the list of files that should not be verified.</p>
-<p><tt>setupldr</tt> applies to both <i>setupldr.e32</i> and <i>setupldr.e64</i>. <tt>is7z</tt> applies not only to <i>isz7.dll</i>, but also to both <i>is7zxr.dll</i> and <i>is7zxa.dll</i>. <tt>islzma</tt> applies to both <i>islzma32.exe</i> and <i>islzma64.exe</i>.</p>
+<p><tt>setupldr</tt> applies to both <tt>setupldr.e32</tt> and <tt>setupldr.e64</tt>. <tt>is7z</tt> applies not only to <tt>isz7.dll</tt>, but also to both <tt>is7zxr.dll</tt> and <tt>is7zxa.dll</tt>. <tt>islzma</tt> applies to both <tt>islzma32.exe</tt> and <tt>islzma64.exe</tt>.</p>
 </body>
 </setuptopic>
 
