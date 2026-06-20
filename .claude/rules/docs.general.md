@@ -65,11 +65,10 @@ Additional vocabulary rules:
 - **"etc." is acceptable** but use sparingly.
 - **Colons** before examples and lists.
 
-## Code Formatting
+## Formatting
 
-- `<tt>` for all code identifiers: section names, directive names, parameter names, flag names, constant names, type names, function names, file names, values like `yes`/`no`/`True`/`False`.
-- An actual path value goes in double quotes as plain text, not `<tt>`.
-- `<i>` for emphasis, wizard page names (such as *Select Destination Location*), UI element names, and file titles.
+- `<tt>` for all code identifiers: section names, directive names, parameter names, flag names, constant names, type names, function names, file names, directory names, path values, and values like `yes`/`no`/`True`/`False`.
+- `<i>` for emphasis, wizard page names (such as *Select Destination Location*), and UI element names.
 - `<b>` sparingly, for important warnings or the word "NOTE:".
 
 ## Syntax Highlighting

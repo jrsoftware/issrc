@@ -3,15 +3,15 @@ paths: ["ISHelp/isetup.xml", "ISHelp/isx.xml", "ISHelp/isxfunc.xml", "ISHelp/isx
 ---
 # ISHelp documentation conventions
 
-## Formatting
+## Additional formatting
 
 - `<precode>` for syntax-highlighted section-level and topic-level script examples (such as showing a full [Run] section).
 - `<example><pre>` for syntax-highlighted parameter and function examples, which can also be multi-line.
-- Always link to related topics when mentioning directives, sections, or functions. Do not leave them as plain text if a help topic exists.
 
 ## Cross-references
 
 - Within the same help system: `<link topic="topicname">Display Text</link>`.
+- Always link to related topics when mentioning directives, sections, or functions. Do not leave them as plain text if a help topic exists.
 - Use the `<sd>Directive</sd>`, `<sn>[Section]</sn>`, and `<isxfunc>FunctionName</isxfunc>` shorthands instead of a `<link>` to a [Setup] directive, section, or support function.
 - To specific anchors: `<link topic="topicname" anchor="anchorname">Display Text</link>`.
 - External links: `<extlink href="url">Display Text</extlink>`.

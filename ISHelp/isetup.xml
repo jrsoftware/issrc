@@ -412,11 +412,11 @@ This " contains " embedded " quotes
 <keyword value="{wizardhwnd}" anchor="wizardhwnd" />
 <body>
 
-<p>The majority of the script entries can have <i>constants</i> embedded in them. These are predefined strings enclosed in brace characters <tt>{ }</tt>. Setup or Uninstall translates the constants to their literal values, depending on the user's choices and system configuration. For example, <tt>{win}</tt>, as described below, would translate to "C:\Windows" on most systems.</p>
+<p>The majority of the script entries can have <i>constants</i> embedded in them. These are predefined strings enclosed in brace characters <tt>{ }</tt>. Setup or Uninstall translates the constants to their literal values, depending on the user's choices and system configuration. For example, <tt>{win}</tt>, as described below, would translate to <tt>C:\Windows</tt> on most systems.</p>
 
 <p>A "{" character is treated as the start of the constant. If you want to use that actual character in a place where constants are supported, you must use two consecutive "{" characters. (You do not need to double "}" characters.)</p>
 
-<p>When a backslash immediately follows a constant, Setup or Uninstall will automatically remove the backslash if the value of the constant ends in a backslash already. Thus, if the value of a particular constant is "C:\", <tt>{<i>constantname</i>}\file</tt> will translate to "C:\file", not "C:\\file". If you want to prevent this from happening, enclose the backslash in <tt>{ }</tt> characters, e.g. <tt>{app}{\}</tt>.</p>
+<p>When a backslash immediately follows a constant, Setup or Uninstall will automatically remove the backslash if the value of the constant ends in a backslash already. Thus, if the value of a particular constant is <tt>C:\</tt>, <tt>{<i>constantname</i>}\file</tt> will translate to <tt>C:\file</tt>, not <tt>C:\\file</tt>. If you want to prevent this from happening, enclose the backslash in <tt>{ }</tt> characters, e.g. <tt>{app}{\}</tt>.</p>
 
 <p>The following is the list of supported constants.</p>
 
@@ -427,19 +427,19 @@ This " contains " embedded " quotes
 <dt><b><a name="app">{app}</a></b></dt>
 <dd>
 <p>The application directory, which the user selects on the <i>Select Destination Location</i> page of the wizard.<br/>
-For example: If you used <tt>{app}\MyProg.exe</tt> on an entry and the user selected "C:\MyProg" as the application directory, Setup will translate it to "C:\MyProg\MyProg.exe".</p>
+For example: If you used <tt>{app}\MyProg.exe</tt> on an entry and the user selected <tt>C:\MyProg</tt> as the application directory, Setup will translate it to <tt>C:\MyProg\MyProg.exe</tt>.</p>
 </dd>
 
 <dt><b><a name="win">{win}</a></b></dt>
 <dd>
 <p>The system's Windows directory.<br/>
-For example: If you used <tt>{win}\MyProg.ini</tt> on an entry and the system's Windows directory is "C:\Windows", Setup or Uninstall will translate it to "C:\Windows\MyProg.ini".</p>
+For example: If you used <tt>{win}\MyProg.ini</tt> on an entry and the system's Windows directory is <tt>C:\Windows</tt>, Setup or Uninstall will translate it to <tt>C:\Windows\MyProg.ini</tt>.</p>
 </dd>
 
 <dt><b><a name="sys">{sys}</a></b></dt>
 <dd>
 <p>The system's System32 directory.<br/>
-For example: If you used <tt>{sys}\CTL3D32.dll</tt> on an entry and the system's Windows System directory is "C:\Windows\System32", Setup or Uninstall will translate it to "C:\Windows\System32\CTL3D32.dll".</p>
+For example: If you used <tt>{sys}\CTL3D32.dll</tt> on an entry and the system's Windows System directory is <tt>C:\Windows\System32</tt>, Setup or Uninstall will translate it to <tt>C:\Windows\System32\CTL3D32.dll</tt>.</p>
 <p>On 64-bit Windows, by default, the System32 path returned by this constant maps to the directory containing 32-bit system files, just like on 32-bit Windows. (This can be overridden by enabling <link topic="32vs64bitinstalls">64-bit install mode</link>.)</p>
 </dd>
 
@@ -451,19 +451,19 @@ For example: If you used <tt>{sys}\CTL3D32.dll</tt> on an entry and the system's
 
 <dt><b><a name="syswow64">{syswow64}</a></b></dt>
 <dd>
-<p>On 64-bit Windows, the system's SysWOW64 directory, typically "C:\Windows\SysWOW64". This is the actual directory in which 32-bit system files reside. On 32-bit Windows, 32-bit system files do not reside in a separate SysWOW64 directory, so this constant will resolve to the same directory as <tt>{sys}</tt> if used there.</p>
+<p>On 64-bit Windows, the system's SysWOW64 directory, typically <tt>C:\Windows\SysWOW64</tt>. This is the actual directory in which 32-bit system files reside. On 32-bit Windows, 32-bit system files do not reside in a separate SysWOW64 directory, so this constant will resolve to the same directory as <tt>{sys}</tt> if used there.</p>
 <p>Do not use this constant unless you have a specific need to obtain the name of the actual directory in which 32-bit system files reside. Gratuitously using <tt>{syswow64}</tt> in places where <tt>{sys}</tt> will suffice may cause problems. (See the documentation for the <sn>[Files]</sn> section's <tt>sharedfile</tt> flag for one example.)</p>
 </dd>
 
 <dt><b><a name="src">{src}</a></b></dt>
 <dd>
 <p>The directory in which the Setup files are located.<br/>
-For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is installing from "S:\", Setup will translate it to "S:\MyProg.exe".</p>
+For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is installing from <tt>S:\</tt>, Setup will translate it to <tt>S:\MyProg.exe</tt>.</p>
 </dd>
 
 <dt><b><a name="sd">{sd}</a></b></dt>
 <dd>
-<p>System Drive. The drive Windows is installed on, typically "C:". This directory constant is equivalent to the <i>SystemDrive</i> environment variable.</p>
+<p>System Drive. The drive Windows is installed on, typically <tt>C:</tt>. This directory constant is equivalent to the <i>SystemDrive</i> environment variable.</p>
 </dd>
 
 <dt><b><a name="commonpf">{commonpf}</a></b></dt>
@@ -473,12 +473,12 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="commonpf32">{commonpf32}</a></b></dt>
 <dd>
-<p>32-bit Program Files. The path of the system's 32-bit Program Files directory, typically "C:\Program Files" on 32-bit Windows and "C:\Program Files (x86)" on 64-bit Windows.</p>
+<p>32-bit Program Files. The path of the system's 32-bit Program Files directory, typically <tt>C:\Program Files</tt> on 32-bit Windows and <tt>C:\Program Files (x86)</tt> on 64-bit Windows.</p>
 </dd>
 
 <dt><b><a name="commonpf64">{commonpf64}</a></b></dt>
 <dd>
-<p>64-bit Windows only: 64-bit Program Files. The path of the system's 64-bit Program Files directory, typically "C:\Program Files". An exception will be raised if an attempt is made to expand this constant on 32-bit Windows.</p>
+<p>64-bit Windows only: 64-bit Program Files. The path of the system's 64-bit Program Files directory, typically <tt>C:\Program Files</tt>. An exception will be raised if an attempt is made to expand this constant on 32-bit Windows.</p>
 </dd>
 
 <dt><b><a name="commoncf">{commoncf}</a></b></dt>
@@ -488,17 +488,17 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="commoncf32">{commoncf32}</a></b></dt>
 <dd>
-<p>32-bit Common Files. The path of the system's 32-bit Common Files directory, typically "C:\Program Files\Common Files" on 32-bit Windows and "C:\Program Files (x86)\Common Files" on 64-bit Windows.</p>
+<p>32-bit Common Files. The path of the system's 32-bit Common Files directory, typically <tt>C:\Program Files\Common Files</tt> on 32-bit Windows and <tt>C:\Program Files (x86)\Common Files</tt> on 64-bit Windows.</p>
 </dd>
 
 <dt><b><a name="commoncf64">{commoncf64}</a></b></dt>
 <dd>
-<p>64-bit Windows only: 64-bit Common Files. The path of the system's 64-bit Common Files directory, typically "C:\Program Files\Common Files". An exception will be raised if an attempt is made to expand this constant on 32-bit Windows.</p>
+<p>64-bit Windows only: 64-bit Common Files. The path of the system's 64-bit Common Files directory, typically <tt>C:\Program Files\Common Files</tt>. An exception will be raised if an attempt is made to expand this constant on 32-bit Windows.</p>
 </dd>
 
 <dt><b><a name="tmp">{tmp}</a></b></dt>
 <dd>
-<p>Temporary directory used by Setup or Uninstall. This is <i>not</i> the value of the user's TEMP environment variable. It is a subdirectory of the user's temporary directory which is created by Setup or Uninstall at startup (with a name like "C:\Windows\Temp\IS-xxxxx.tmp"). All files and subdirectories in this directory are deleted when Setup or Uninstall exits. During Setup, this is primarily useful for extracting files that are to be executed in the <sn>[Run]</sn> section but aren't needed after the installation.</p>
+<p>Temporary directory used by Setup or Uninstall. This is <i>not</i> the value of the user's TEMP environment variable. It is a subdirectory of the user's temporary directory which is created by Setup or Uninstall at startup (with a name like <tt>C:\Windows\Temp\IS-xxxxx.tmp</tt>). All files and subdirectories in this directory are deleted when Setup or Uninstall exits. During Setup, this is primarily useful for extracting files that are to be executed in the <sn>[Run]</sn> section but aren't needed after the installation.</p>
 </dd>
 
 <dt><b><a name="commonfonts">{commonfonts}</a></b></dt>
@@ -726,7 +726,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="drive">{drive:<i>Path</i>}</a></b></dt>
 <dd>
-<p>Extracts and returns the drive letter and colon (e.g. "C:") from the specified path. In the case of a UNC path, it returns the server and share name (e.g. "\\SERVER\SHARE").</p>
+<p>Extracts and returns the drive letter and colon (e.g. <tt>C:</tt>) from the specified path. In the case of a UNC path, it returns the server and share name (e.g. <tt>\\SERVER\SHARE</tt>).</p>
 <ul>
 <li><i>Path</i> specifies the path.</li>
 <li>If you wish to include a comma, vertical bar ("|"), or closing brace ("}") inside the constant, you must escape it via "%-encoding." Replace the character with a "%" character, followed by its two-digit hex code. A comma is "%2c", a vertical bar is "%7c", and a closing brace is "%7d". If you want to include an actual "%" character, use "%25".</li>
@@ -827,12 +827,12 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="srcexe">{srcexe}</a></b></dt>
 <dd>
-<p>The full pathname of the Setup program file, e.g. "C:\Setup.exe".</p>
+<p>The full pathname of the Setup program file, e.g. <tt>C:\Setup.exe</tt>.</p>
 </dd>
 
 <dt><b><a name="uninstallexe">{uninstallexe}</a></b></dt>
 <dd>
-<p>The full pathname of the uninstall program extracted by Setup, e.g. "C:\Program Files\My Program\unins000.exe". This constant is typically used in an <sn>[Icons]</sn> section entry for creating an Uninstall icon. It is only valid if <sd>Uninstallable</sd> is <tt>yes</tt> (the default setting).</p>
+<p>The full pathname of the uninstall program extracted by Setup, e.g. <tt>C:\Program Files\My Program\unins000.exe</tt>. This constant is typically used in an <sn>[Icons]</sn> section entry for creating an Uninstall icon. It is only valid if <sd>Uninstallable</sd> is <tt>yes</tt> (the default setting).</p>
 </dd>
 
 <dt><b><a name="sysuserinfoname">{sysuserinfoname}</a></b><br/>
@@ -5143,8 +5143,8 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>The value of this required directive is used for the default directory name, which is used in the <i>Select Destination Location</i> page of the wizard. Normally it is prefixed by a directory constant.</p>
 <p>For example:</p>
 <ul>
-<li>If you used <tt><key>DefaultDirName</key>=<con>{sd}</con>\MyProg</tt>, Setup would typically display "C:\MyProg".</li>
-<li>If you used <tt><key>DefaultDirName</key>=<con>{autopf}</con>\My Program</tt>, Setup would typically display "C:\Program Files\My Program".</li>
+<li>If you used <tt><key>DefaultDirName</key>=<con>{sd}</con>\MyProg</tt>, Setup would typically display <tt>C:\MyProg</tt>.</li>
+<li>If you used <tt><key>DefaultDirName</key>=<con>{autopf}</con>\My Program</tt>, Setup would typically display <tt>C:\Program Files\My Program</tt>.</li>
 </ul>
 <p>If <sd>UsePreviousAppDir</sd> is <tt>yes</tt> (the default) and Setup finds a previous version of the <link topic="sameappnotes">same application</link> is already installed, it will substitute the default directory name with the directory selected previously.</p>
 </body>
@@ -5809,7 +5809,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>When set to <tt>no</tt>, the default, the user will not be allowed to enter a root directory (such as "C:\") on the <i>Select Destination Location</i> page of the wizard.</p>
+<p>When set to <tt>no</tt>, the default, the user will not be allowed to enter a root directory (such as <tt>C:\</tt>) on the <i>Select Destination Location</i> page of the wizard.</p>
 </body>
 </setuptopic>
 
@@ -5817,7 +5817,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If set to <tt>no</tt>, the user will not be allowed to enter a UNC path (such as "\\server\share") on the <i>Select Destination Location</i> page of the wizard.</p>
+<p>If set to <tt>no</tt>, the user will not be allowed to enter a UNC path (such as <tt>\\server\share</tt>) on the <i>Select Destination Location</i> page of the wizard.</p>
 <p>To fully disallow installation to network locations, you must also set <sd>AllowNetworkDrive</sd> to <tt>no</tt>.</p>
 </body>
 </setuptopic>
@@ -6680,7 +6680,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>By default, when a folder in the dialog displayed by the <i>Browse...</i> button on the <i>Select Destination Location</i> wizard page is clicked, Setup automatically appends the last component of <sd>DefaultDirName</sd> onto the new path. For example, if <sd>DefaultDirName</sd> is <tt>{autopf}\My Program</tt> and "Z:\" is clicked, the new path will become "Z:\My Program".</p>
+<p>By default, when a folder in the dialog displayed by the <i>Browse...</i> button on the <i>Select Destination Location</i> wizard page is clicked, Setup automatically appends the last component of <sd>DefaultDirName</sd> onto the new path. For example, if <sd>DefaultDirName</sd> is <tt>{autopf}\My Program</tt> and <tt>Z:\</tt> is clicked, the new path will become <tt>Z:\My Program</tt>.</p>
 <p>Setting this directive to <tt>no</tt> disables the aforementioned behavior. In addition, it causes a <i>Make New Folder</i> button to appear on the dialog.</p>
 </body>
 </setuptopic>
@@ -6904,8 +6904,8 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <body>
 <p>Specifies whether the compiler should set the "Terminal Services aware" flag in the headers of the Setup and Uninstall programs.</p>
 <p>Most importantly, the "Terminal Services aware" flag affects the behavior of the {win} constant (and <isxfunc>GetWinDir</isxfunc> support function) on servers with Terminal Services installed in application mode.</p>
-<p>When the flag is set, {win} will consistently return the system's real Windows directory, typically "C:\Windows", just as on systems that do not have Terminal Services installed.</p>
-<p>When the flag is not set, Windows runs the program in compatibility mode, where {win} may return either the real Windows directory or a user-specific Windows directory, such as "C:\Documents and Settings\&lt;user name&gt;\WINDOWS". Which one you get depends on the name of the program's EXE file and how it is launched. If the program is named setup.exe or install.exe, or if it is launched from the <i>Add/Remove Programs</i> Control Panel applet, then Windows will put the system in "install mode", which effectively makes the program (and all other programs running in the session) behave as if the "Terminal Services aware" flag were set. Otherwise, the program is treated as a legacy application and is given a private Windows directory. (This is true even if the user running the program has full administrative privileges.)</p>
+<p>When the flag is set, {win} will consistently return the system's real Windows directory, typically <tt>C:\Windows</tt>, just as on systems that do not have Terminal Services installed.</p>
+<p>When the flag is not set, Windows runs the program in compatibility mode, where {win} may return either the real Windows directory or a user-specific Windows directory, such as <tt>C:\Documents and Settings\&lt;user name&gt;\WINDOWS</tt>. Which one you get depends on the name of the program's EXE file and how it is launched. If the program is named setup.exe or install.exe, or if it is launched from the <i>Add/Remove Programs</i> Control Panel applet, then Windows will put the system in "install mode", which effectively makes the program (and all other programs running in the session) behave as if the "Terminal Services aware" flag were set. Otherwise, the program is treated as a legacy application and is given a private Windows directory. (This is true even if the user running the program has full administrative privileges.)</p>
 <p>Because the behavior that results from setting <tt>TerminalServicesAware</tt> to <tt>no</tt> is inconsistent and hard to predict, it is recommended that you use the default setting of <tt>yes</tt>. Only use <tt>no</tt> as a temporary fix if you encounter troubles on systems with Terminal Services after upgrading from a previous Inno Setup version.</p>
 </body>
 </setuptopic>

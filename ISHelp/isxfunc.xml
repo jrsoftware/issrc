@@ -1189,7 +1189,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>RemoveBackslashUnlessRoot</name>
         <prototype>function RemoveBackslashUnlessRoot(const S: String): String;</prototype>
-        <description><p>Returns the specified string with any trailing slashes/backslashes removed, unless the string specifies the root directory of a drive (e.g. "C:\" or "\"), in which case it leaves 1 slash.</p></description>
+        <description><p>Returns the specified string with any trailing slashes/backslashes removed, unless the string specifies the root directory of a drive (e.g. <tt>C:\</tt> or "\"), in which case it leaves 1 slash.</p></description>
       </function>
       <function>
         <name>RemoveBackslash</name>
@@ -1206,7 +1206,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>PathHasInvalidCharacters</name>
         <prototype>function PathHasInvalidCharacters(const S: String; const AllowDriveLetterColon: Boolean): Boolean;</prototype>
         <description><p>Returns <tt>True</tt> if the specified string contains characters that are never allowed in paths, or characters and path components that are accepted by the system but might present a security problem (such as '..' and sometimes ':'). Set <tt>AllowDriveLetterColon</tt> to <tt>True</tt> when the first character may be a drive letter followed by a colon.</p></description>
-        <remarks><p>Extended-length paths that start with a "\\?\" prefix are rejected because the '?' is treated as an invalid character.</p></remarks>
+        <remarks><p>Extended-length paths that start with a <tt>\\?\</tt> prefix are rejected because the '?' is treated as an invalid character.</p></remarks>
       </function>
       <function>
         <name>PathIsRooted</name>
