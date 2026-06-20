@@ -1893,7 +1893,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <p>Use the <isxfunc>ShellExec</isxfunc> function instead if you need to launch a file that is not an executable or batch file.</p>
 <p>Do not include quotes in the <tt>Filename</tt> parameter; the function will add them automatically.</p>
 <p>The <tt>WorkingDir</tt> parameter can be an empty string, in which case it will try to extract a pathname from the <tt>Filename</tt> parameter and use that as the initial current directory for the process. If no pathname was specified in <tt>Filename</tt>, a default directory will be used.</p>
-<p>If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass <tt>'>'</tt> in the <tt>Filename</tt> parameter, and the full command line in the <tt>Params</tt> parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
+<p>If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass <tt>'>'</tt> in the <tt>Filename</tt> parameter, and the full command line in the <tt>Params</tt> parameter. (Note that when this is done, the function's special platform-independent support for <tt>.bat</tt> and <tt>.cmd</tt> files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
 <p>To execute a 64-bit System32 binary from a 32-bit installer, use <tt>{sysnative}</tt> or <isxfunc>ApplyPathRedirRulesForCurrentProcess</isxfunc> to rewrite the path. In a 64-bit installer the rewrite is not needed.</p>
 <p>Can't be used to execute Setup itself until the installation has started.</p>
 <p><i>Note: compared to ISPP's Exec the ShowCmd and Wait parameters are swapped!</i></p></remarks>
@@ -2083,8 +2083,8 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>DownloadTemporaryFileWithISSigVerify</name>
         <prototype>function DownloadTemporaryFileWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
-        <description><p>Like <isxfunc>DownloadTemporaryFile</isxfunc>, but downloads an .issig signature file first from the specified second URL and uses it to verify the main file downloaded from the first URL.</p>
-<p>If the second URL is an empty string, Setup will instead append ".issig" (without quotes) to the path portion of the first URL. It will then use the result as the URL to download the .issig signature file from.</p>
+        <description><p>Like <isxfunc>DownloadTemporaryFile</isxfunc>, but downloads an <tt>.issig</tt> signature file first from the specified second URL and uses it to verify the main file downloaded from the first URL.</p>
+<p>If the second URL is an empty string, Setup will instead append <tt>.issig</tt> (without quotes) to the path portion of the first URL. It will then use the result as the URL to download the <tt>.issig</tt> signature file from.</p>
 <p>Verification uses the specified allowed keys, looked up using <sn>[ISSigKeys]</sn> section parameter <tt>RuntimeID</tt>. To allow all keys set <tt>AllowedKeysRuntimeIDs</tt> to <tt>nil</tt>.</p>
 <p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded for the main file from the first URL. Returns 0 if the main file was already downloaded and still verified.</p></description>
         <seealso><p><isxfunc>DownloadTemporaryFile</isxfunc><br/>
@@ -2134,7 +2134,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>procedure ExtractArchive(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);</prototype>
         <description><p>Extracts the specified archive to the specified directory, with or without preserving full path names.</p>
 <p>An exception will be raised if there was an error.</p>
-<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <sn>[Setup]</sn> section directive.</p>
+<p>The supported archive formats, beyond <tt>.7z</tt>, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <sn>[Setup]</sn> section directive.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <isxfunc>MapArchiveExtensions</isxfunc>.</p>
 <p>Set <tt>OnExtractionProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p><tt>TOnExtractionProgress</tt> is defined as:</p>
@@ -2150,9 +2150,9 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>MapArchiveExtensions</name>
         <prototype>procedure MapArchiveExtensions(const DestExt, SourceExt: String);</prototype>
-        <description><p>Allows files with a specified destination extension, such as .exe, to be treated as if they have a different source extension, such as .7z, for extraction purposes.</p>
+        <description><p>Allows files with a specified destination extension, such as <tt>.exe</tt>, to be treated as if they have a different source extension, such as <tt>.7z</tt>, for extraction purposes.</p>
 <p>An exception will be raised if there was an error.</p></description>
-        <remarks><p>Calls to this function are ignored if the <sd>ArchiveExtraction</sd> <sn>[Setup]</sn> section directive is set to <tt>basic</tt>. In this case files are always extracted as .7z, regardless of the extension.</p></remarks>
+        <remarks><p>Calls to this function are ignored if the <sd>ArchiveExtraction</sd> <sn>[Setup]</sn> section directive is set to <tt>basic</tt>. In this case files are always extracted as <tt>.7z</tt>, regardless of the extension.</p></remarks>
         <seealso><p><isxfunc>ExtractArchive</isxfunc><br/>
 <isxfunc>CreateExtractionPage</isxfunc></p></seealso>
         <example><pre>
@@ -2333,9 +2333,9 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>CreateShellLink</name>
         <prototype>function CreateShellLink(const Filename, Description, ShortcutTo, Parameters, WorkingDir, IconFilename: String; const IconIndex, ShowCmd: Integer): String;</prototype>
-        <description><p>Creates a shortcut to a file or folder. Returns the resulting filename of the link, which may differ from <tt>Filename</tt> if it ended up creating a .pif file instead of a .lnk file. On failure, an exception will be raised.</p>
+        <description><p>Creates a shortcut to a file or folder. Returns the resulting filename of the link, which may differ from <tt>Filename</tt> if it ended up creating a <tt>.pif</tt> file instead of a <tt>.lnk</tt> file. On failure, an exception will be raised.</p>
 <p><b>Parameters:</b><br />
-<i>Filename</i><br /><tt>Filename</tt> of the shortcut file to be created. This should be the full path and must end with ".lnk".<br />
+<i>Filename</i><br /><tt>Filename</tt> of the shortcut file to be created. This should be the full path and must end with <tt>.lnk</tt>.<br />
 <i>Description</i><br /><tt>Description</tt> of the link. This will be displayed on a supporting OS when the user hovers the mouse over the file or shows the properties.<br />
 <i>ShortcutTo</i><br />Target file for the shortcut. This must be the full path to the file. Double quotation marks to surround the path will be added automatically.<br />
 <i>Parameters</i><br /><tt>Parameters</tt> to pass to the target file of the shortcut. <tt>Parameters</tt> which may include spaces should have double quote marks surrounding them. e.g. <tt><isxfunc>ExpandConstant</isxfunc>('"{app}\foo"')</tt><br />
@@ -2424,7 +2424,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ModifyPifFile</name>
         <prototype>function ModifyPifFile(const Filename: String; const CloseOnExit: Boolean): Boolean;</prototype>
-        <description><p>Changes the "Close on exit" setting of a .pif file. Returns <tt>True</tt> if it was able to make the change.</p></description>
+        <description><p>Changes the "Close on exit" setting of a <tt>.pif</tt> file. Returns <tt>True</tt> if it was able to make the change.</p></description>
       </function>
     </subcategory>
   </category>
@@ -2974,7 +2974,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <name>CreateExtractionPage</name>
         <prototype>function CreateExtractionPage(const ACaption, ADescription: String; const OnExtractionProgress: TOnExtractionProgress): TExtractionWizardPage;</prototype>
         <description><p>Creates a wizard page to extract archives and show progress.</p>
-<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <sn>[Setup]</sn> section directive.</p>
+<p>The supported archive formats, beyond <tt>.7z</tt>, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <sn>[Setup]</sn> section directive.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <isxfunc>MapArchiveExtensions</isxfunc>.</p>
 <p>Set <tt>OnExtractionProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>
 <p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
