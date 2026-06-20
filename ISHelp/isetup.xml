@@ -256,24 +256,24 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <link topic="consts">Constants</link><br/>
 <link topic="commonparams">Common Parameters</link><br/>
 <link topic="componentstasksparams">Components and Tasks Parameters</link><br/>
-<link topic="setupsection">[Setup] section</link><br/>
-<link topic="typessection">[Types] section</link><br/>
-<link topic="componentssection">[Components] section</link><br/>
-<link topic="taskssection">[Tasks] section</link><br/>
-<link topic="dirssection">[Dirs] section</link><br/>
-<link topic="filessection">[Files] section</link><br/>
-<link topic="iconssection">[Icons] section</link><br/>
-<link topic="inisection">[INI] section</link><br/>
-<link topic="installdeletesection">[InstallDelete] section</link><br/>
-<link topic="languagessection">[Languages] section</link><br/>
-<link topic="messagessection">[Messages] section</link><br/>
-<link topic="custommessagessection">[CustomMessages] section</link><br/>
-<link topic="langoptionssection">[LangOptions] section</link><br/>
-<link topic="registrysection">[Registry] section</link><br/>
-<link topic="runsection">[Run] section</link><br/>
-<link topic="uninstalldeletesection">[UninstallDelete] section</link><br/>
-<link topic="runsection">[UninstallRun] section</link><br/>
-<link topic="issigkeyssection">[ISSigKeys] section</link><br/>
+<sn>[Setup]</sn> section<br/>
+<sn>[Types]</sn> section<br/>
+<sn>[Components]</sn> section<br/>
+<sn>[Tasks]</sn> section<br/>
+<sn>[Dirs]</sn> section<br/>
+<sn>[Files]</sn> section<br/>
+<sn>[Icons]</sn> section<br/>
+<sn>[INI]</sn> section<br/>
+<sn>[InstallDelete]</sn> section<br/>
+<sn>[Languages]</sn> section<br/>
+<sn>[Messages]</sn> section<br/>
+<sn>[CustomMessages]</sn> section<br/>
+<sn>[LangOptions]</sn> section<br/>
+<sn>[Registry]</sn> section<br/>
+<sn>[Run]</sn> section<br/>
+<sn>[UninstallDelete]</sn> section<br/>
+<sn>[UninstallRun]</sn> section<br/>
+<sn>[ISSigKeys]</sn> section<br/>
 <link topic="scriptintro">Pascal Scripting: Introduction</link><br/>
 <link topic="isppoverview">Inno Setup Preprocessor: Introduction</link>
 </p>
@@ -452,7 +452,7 @@ For example: If you used <tt>{sys}\CTL3D32.dll</tt> on an entry and the system's
 <dt><b><a name="syswow64">{syswow64}</a></b></dt>
 <dd>
 <p>On 64-bit Windows, the system's SysWOW64 directory, typically "C:\Windows\SysWOW64". This is the actual directory in which 32-bit system files reside. On 32-bit Windows, 32-bit system files do not reside in a separate SysWOW64 directory, so this constant will resolve to the same directory as <tt>{sys}</tt> if used there.</p>
-<p>Do not use this constant unless you have a specific need to obtain the name of the actual directory in which 32-bit system files reside. Gratuitously using <tt>{syswow64}</tt> in places where <tt>{sys}</tt> will suffice may cause problems. (See the documentation for the <tt><link topic="filessection">[Files]</link></tt> section's <tt>sharedfile</tt> flag for one example.)</p>
+<p>Do not use this constant unless you have a specific need to obtain the name of the actual directory in which 32-bit system files reside. Gratuitously using <tt>{syswow64}</tt> in places where <tt>{sys}</tt> will suffice may cause problems. (See the documentation for the <sn>[Files]</sn> section's <tt>sharedfile</tt> flag for one example.)</p>
 </dd>
 
 <dt><b><a name="src">{src}</a></b></dt>
@@ -774,7 +774,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="language">{language}</a></b></dt>
 <dd>
-<p>The internal name of the selected language. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
+<p>The internal name of the selected language. See the <sn>[Languages]</sn> section documentation for more information.</p>
 </dd>
 
 <dt><b><a name="cm">{cm:<i>MessageName</i>}</a></b><br/>
@@ -782,7 +782,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <dd>
 <p>Embeds a custom message value based on the active language.</p>
 <ul>
-<li><i>MessageName</i> specifies the name of custom message to read from. See the <link topic="custommessagessection">[CustomMessages] section</link> documentation for more information.</li>
+<li><i>MessageName</i> specifies the name of custom message to read from. See the <sn>[CustomMessages]</sn> section documentation for more information.</li>
 <li><i>Arguments</i> optionally specifies a comma separated list of arguments to the message value.</li>
 <li>If you wish to include a comma, vertical bar ("|"), or closing brace ("}") inside the constant, you must escape it via "%-encoding." Replace the character with a "%" character, followed by its two-digit hex code. A comma is "%2c", a vertical bar is "%7c", and a closing brace is "%7d". If you want to include an actual "%" character, use "%25".</li>
 <li>Each argument in <i>Arguments</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
@@ -797,7 +797,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <dd>
 <p>Embeds a registry value.</p>
 <ul>
-<li>HK<i>xx</i> specifies the root key; see the <tt><link topic="registrysection">[Registry]</link></tt> section documentation for a list of possible root keys.</li>
+<li>HK<i>xx</i> specifies the root key; see the <sn>[Registry]</sn> section documentation for a list of possible root keys.</li>
 <li><i>SubkeyName</i> specifies the name of the subkey to read from.</li>
 <li><i>ValueName</i> specifies the name of the value to read; leave <i>ValueName</i> blank if you wish to read the "default" value of a key.</li>
 <li><i>DefaultValue</i> determines the string to embed if the specified registry value does not exist, or is not a string type (REG_SZ or REG_EXPAND_SZ) and also not a REG_DWORD-type.</li>
@@ -1200,7 +1200,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 <keyword value="Types" />
 <body>
 
-<p>This section is optional. It defines all of the setup types Setup will show on the <i>Select Components</i> page of the wizard. During compilation a set of default setup types is created if you define components in a <link topic="componentssection">[Components] section</link> but don't define types. If you are using the default (English) messages file, these types are the same as the types in the example below.</p>
+<p>This section is optional. It defines all of the setup types Setup will show on the <i>Select Components</i> page of the wizard. During compilation a set of default setup types is created if you define components in a <sn>[Components]</sn> section but don't define types. If you are using the default (English) messages file, these types are the same as the types in the example below.</p>
 
 <p>Here is an example of a <tt>[Types]</tt> section:</p>
 
@@ -1683,7 +1683,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 </param>
 
 <param name="ISSigAllowedKeys">
-<p>A space separated list of key names or group names from the <link topic="issigkeyssection">[ISSigKeys] section</link>, specifying which keys are allowed for the verification done by the <tt>issigverify</tt> flag.</p>
+<p>A space separated list of key names or group names from the <sn>[ISSigKeys]</sn> section, specifying which keys are allowed for the verification done by the <tt>issigverify</tt> flag.</p>
 <example>
 <pre><key>ISSigAllowedKeys</key>: "exesigner bosskey"</pre>
 </example>
@@ -1796,7 +1796,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag cannot be combined with <tt>replacesameversion</tt>.</p>
 </flag>
 <flag name="issigverify">
-<p>Instructs the compiler or Setup to verify the source file's signature using a key from the <link topic="issigkeyssection">[ISSigKeys] section</link>, allowing all keys by default. Use the <tt>ISSigAllowedKeys</tt> parameter to limit the allowed keys.</p>
+<p>Instructs the compiler or Setup to verify the source file's signature using a key from the <sn>[ISSigKeys]</sn> section, allowing all keys by default. Use the <tt>ISSigAllowedKeys</tt> parameter to limit the allowed keys.</p>
 <p>The verification requires an <tt>.issig</tt> signature file to be present in the same directory as the source file, created using the <link topic="issigtool">Inno Setup Signature Tool</link>. If flag <tt>download</tt> is set then the <tt>.issig</tt> signature file will be downloaded instead. See the <tt>DownloadISSigSource</tt> parameter description for more information.</p>
 <p>The precise effect of this flag depends on whether it is combined with the <tt>external</tt> flag:</p>
 <ul>
@@ -2198,7 +2198,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <keyword value="InstallDelete" />
 <body>
 
-<p>This optional section is identical in format to the <tt><link topic="uninstalldeletesection">[UninstallDelete]</link></tt> section, except its entries are processed as the first step of <i>installation.</i></p>
+<p>This optional section is identical in format to the <sn>[UninstallDelete]</sn> section, except its entries are processed as the first step of <i>installation.</i></p>
 
 </body>
 </topic>
@@ -2221,7 +2221,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <li>If no match is found, it defaults to the first language specified in the <tt>[Languages]</tt> section.</li>
 </ol>
 
-<p>If the <sd>ShowLanguageDialog</sd> <tt>[Setup]</tt> section directive is set to <tt>yes</tt> (the default), a <i>Select Language</i> dialog will be displayed which gives the user an opportunity to override the language Setup chose. See the <link topic="langoptionssection">[LangOptions] section</link> help topic for details.</p>
+<p>If the <sd>ShowLanguageDialog</sd> <tt>[Setup]</tt> section directive is set to <tt>yes</tt> (the default), a <i>Select Language</i> dialog will be displayed which gives the user an opportunity to override the language Setup chose. See the <sn>[LangOptions]</sn> section help topic for details.</p>
 
 <p>The following is an example of a <tt>[Languages]</tt> section. It defines two languages: English, based on the standard Default.isl file, and Dutch, based on a third-party translation.</p>
 
@@ -2242,7 +2242,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 
 <param name="MessagesFile" required="yes">
 <p>Specifies the name(s) of the .isl file(s) to read the default messages from. The file(s) must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>Each message file may contain a <link topic="langoptionssection">[LangOptions] section</link>, a <link topic="messagessection">[Messages] section</link>, and a <link topic="custommessagessection">[CustomMessages] section.</link></p>
+<p>Each message file may contain a <sn>[LangOptions]</sn> section, a <sn>[Messages]</sn> section, and a <sn>[CustomMessages]</sn> section.</p>
 <p>When multiple files are specified, they are read in the order they are specified, thus the last message file overrides any language options or messages from previous files. Any language options or messages in the main script override the ones from message files.</p>
 <p>The file is recommended to be UTF-8 encoded, without a BOM.</p>
 <examples>
@@ -2300,7 +2300,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 
 <p>Some messages take arguments such as %1 and %2. You can rearrange the order of the arguments (i.e. move the %2 before a %1) and also duplicate arguments if needed (i.e. "%1 ... %1 %2"). On messages with arguments, use two consecutive "%" characters to embed a single "%". "%n" creates a line break.</p>
 
-<p>If you wish to translate all of Inno Setup's text to another language, instead of modifying Default.isl or overriding each message in every script you create, make a copy of Default.isl with another name like <i>MyTranslation.isl.</i> On any installation you wish to use MyTranslation.isl, create a <link topic="languagessection">[Languages] section</link> entry pointing to the file.</p>
+<p>If you wish to translate all of Inno Setup's text to another language, instead of modifying Default.isl or overriding each message in every script you create, make a copy of Default.isl with another name like <i>MyTranslation.isl.</i> On any installation you wish to use MyTranslation.isl, create a <sn>[Languages]</sn> section entry pointing to the file.</p>
 
 <p>In cases where there are multiple <tt>[Languages]</tt> section entries, specifying a <tt>[Messages]</tt> section entry in your script (as opposed to an .isl file) will by default override that message for all languages. To apply a <tt>[Messages]</tt> section entry to only one language, prefix it with the language's internal name followed by a period. For example:</p>
 
@@ -2918,7 +2918,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <keyword value="ISSigKeys" />
 <body>
 
-<p>This optional section defines any keys the compiler and Setup can use to verify files using <tt><link topic="filessection">[Files]</link></tt> section's <tt>issigverify</tt> flag.</p>
+<p>This optional section defines any keys the compiler and Setup can use to verify files using <sn>[Files]</sn> section's <tt>issigverify</tt> flag.</p>
 
 <p>Here are two examples of an <tt>[ISSigKeys]</tt> section:</p>
 
@@ -3166,17 +3166,17 @@ Shown if <sd>DisableDirPage</sd> is set to <tt>no</tt> or <tt>auto</tt>.
 
 <li>
 <b>Select Components</b><br/>
-Shown if there are any <tt><link topic="componentssection">[Components]</link></tt> entries.
+Shown if there are any <sn>[Components]</sn> entries.
 </li>
 
 <li>
 <b>Select Start Menu Folder</b><br/>
-Shown if there are any <tt><link topic="iconssection">[Icons]</link></tt> entries and if <sd>DisableProgramGroupPage</sd> is set to <tt>no</tt> or <tt>auto</tt>.
+Shown if there are any <sn>[Icons]</sn> entries and if <sd>DisableProgramGroupPage</sd> is set to <tt>no</tt> or <tt>auto</tt>.
 </li>
 
 <li>
 <b>Select Tasks</b><br/>
-Shown if there are any <tt><link topic="taskssection">[Tasks]</link></tt> entries, unless the <tt>[Tasks]</tt> entries are all tied to components that were not selected on the <i>Select Components</i> page.
+Shown if there are any <sn>[Tasks]</sn> entries, unless the <tt>[Tasks]</tt> entries are all tied to components that were not selected on the <i>Select Components</i> page.
 </li>
 
 <li>
@@ -3225,33 +3225,33 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 <li>If <sd>CloseApplications</sd> was set to <tt>yes</tt>, Setup closes applications using files that need to be updated.</li>
 
-<li><tt><link topic="installdeletesection">[InstallDelete]</link></tt> is processed.</li>
+<li><sn>[InstallDelete]</sn> is processed.</li>
 
-<li>The entries in <tt><link topic="uninstalldeletesection">[UninstallDelete]</link></tt> are stored in the uninstall log (which, at this stage, is stored in memory).</li>
+<li>The entries in <sn>[UninstallDelete]</sn> are stored in the uninstall log (which, at this stage, is stored in memory).</li>
 
 <li>The application directory is created, if necessary.</li>
 
-<li><tt><link topic="dirssection">[Dirs]</link></tt> is processed.</li>
+<li><sn>[Dirs]</sn> is processed.</li>
 
 <li>A filename for the uninstall log is reserved, if necessary.</li>
 
-<li><tt><link topic="filessection">[Files]</link></tt> is processed. (File registration does not happen yet.)</li>
+<li><sn>[Files]</sn> is processed. (File registration does not happen yet.)</li>
 
-<li><tt><link topic="iconssection">[Icons]</link></tt> is processed.</li>
+<li><sn>[Icons]</sn> is processed.</li>
 
-<li><tt><link topic="inisection">[INI]</link></tt> is processed.</li>
+<li><sn>[INI]</sn> is processed.</li>
 
-<li><tt><link topic="registrysection">[Registry]</link></tt> is processed.</li>
+<li><sn>[Registry]</sn> is processed.</li>
 
 <li>Files that needed to be registered are now registered, unless the system needs to be restarted, in which case no files are registered until the system is restarted.</li>
 
 <li>The <i>Add/Remove Programs</i> entry for the program is created, if necessary.</li>
 
-<li>The entries in <tt><link topic="runsection">[UninstallRun]</link></tt> are stored in the uninstall log.</li>
+<li>The entries in <sn>[UninstallRun]</sn> are stored in the uninstall log.</li>
 
 <li>The uninstaller EXE and log are finalized and saved to disk. After this is done, the user is forbidden from cancelling the install, and any subsequent errors will not cause what was installed before to be rolled back.</li>
 
-<li><tt><link topic="runsection">[Run]</link></tt> is processed, except for entries with the <tt>postinstall</tt> flag, which get processed after the <i>Setup Completed</i> wizard page is shown.</li>
+<li><sn>[Run]</sn> is processed, except for entries with the <tt>postinstall</tt> flag, which get processed after the <i>Setup Completed</i> wizard page is shown.</li>
 
 <li>If <sd>RestartApplications</sd> was set to <tt>yes</tt>, Setup restarts closed applications which support being restarted.</li>
 
@@ -3378,12 +3378,12 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <th>How to override</th>
 </tr>
 <tr>
-  <td><tt><link topic="dirssection">[Dirs]</link></tt></td>
+  <td><sn>[Dirs]</sn></td>
   <td><tt>Name</tt> parameter: <link topic="pathredir">System path redirection</link></td>
   <td>Not possible</td>
 </tr>
 <tr>
-  <td><tt><link topic="filessection">[Files]</link></tt></td>
+  <td><sn>[Files]</sn></td>
   <td>
     <ul appearance="compact">
       <li><tt>Source</tt> and <tt>DestDir</tt> parameters: <link topic="pathredir">System path redirection</link></li>
@@ -3395,22 +3395,22 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Include the <tt>32bit</tt> or <tt>64bit</tt> flag</td>
 </tr>
 <tr>
-  <td><tt><link topic="iconssection">[Icons]</link></tt></td>
+  <td><sn>[Icons]</sn></td>
   <td><tt>useapppaths</tt> flag: Which registry view is accessed</td>
   <td>Not possible</td>
 </tr>
 <tr>
-  <td><tt><link topic="installdeletesection">[InstallDelete]</link></tt><br/><tt><link topic="uninstalldeletesection">[UninstallDelete]</link></tt></td>
+  <td><sn>[InstallDelete]</sn><br/><sn>[UninstallDelete]</sn></td>
   <td><tt>Name</tt> parameter: <link topic="pathredir">System path redirection</link></td>
   <td>Not possible</td>
 </tr>
 <tr>
-  <td><tt><link topic="registrysection">[Registry]</link></tt></td>
+  <td><sn>[Registry]</sn></td>
   <td>Which registry view is accessed</td>
   <td>On the <tt>Root</tt> parameter, include a <tt>32</tt> or <tt>64</tt> suffix</td>
 </tr>
 <tr>
-  <td><tt><link topic="runsection">[Run]</link></tt><br/><tt><link topic="runsection">[UninstallRun]</link></tt></td>
+  <td><sn>[Run]</sn><br/><sn>[UninstallRun]</sn></td>
   <td><tt>Filename</tt> and <tt>WorkingDir</tt> parameters: <link topic="pathredir">System path redirection</link></td>
   <td>Include the <tt>32bit</tt> or <tt>64bit</tt> flag</td>
 </tr>
@@ -4127,7 +4127,7 @@ issigtool --key-file="MyKey.isprivatekey" sign "MyFile.txt"
 </li>
 
 <li>
-<p>Inside your Inno Setup script, add an <link topic="issigkeyssection">[ISSigKeys] section</link> entry linking to your key file, and a <link topic="filessection">[Files] section</link> entry for <tt>MyFile.txt</tt> that includes the <tt>issigverify</tt> flag:</p>
+<p>Inside your Inno Setup script, add an <sn>[ISSigKeys]</sn> section entry linking to your key file, and a <sn>[Files]</sn> section entry for <tt>MyFile.txt</tt> that includes the <tt>issigverify</tt> flag:</p>
 <precode>
 <sec>[ISSigKeys]</sec>
 <key>Name</key>: MyKey; <key>KeyFile</key>: "MyKey.isprivatekey"
@@ -4185,7 +4185,7 @@ Signature is not valid for source file "MyFile.txt": file hash incorrect.
 <ul>
 
 <li>
-<p>Although an <link topic="issigkeyssection">[ISSigKeys] section</link> entry's <tt>KeyFile</tt> parameter can point to a private key file as demonstrated above, it is recommended that a <i>public</i> key file be specified instead whenever possible. Unlike a private key file, a public key file does not have to be kept secret, and <i>can</i> be safely committed into a version control repository.</p>
+<p>Although an <sn>[ISSigKeys]</sn> section entry's <tt>KeyFile</tt> parameter can point to a private key file as demonstrated above, it is recommended that a <i>public</i> key file be specified instead whenever possible. Unlike a private key file, a public key file does not have to be kept secret, and <i>can</i> be safely committed into a version control repository.</p>
 <p>To create a public key file (<tt>MyKey.ispublickey</tt>) from an existing private key file (<tt>MyKey.isprivatekey</tt>), run this command:</p>
 <precode>
 issigtool --key-file="MyKey.isprivatekey" export-public-key "MyKey.ispublickey"
@@ -4767,7 +4767,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="Unsafe Files" />
 <body>
 
-<p>As a convenience to new users who are unfamiliar with which files they should and should not distribute, the compiler will display an error message if one attempts to install certain "unsafe" files using the <link topic="filessection">[Files] section</link>. These files are listed below.</p>
+<p>As a convenience to new users who are unfamiliar with which files they should and should not distribute, the compiler will display an error message if one attempts to install certain "unsafe" files using the <sn>[Files]</sn> section. These files are listed below.</p>
 
 <p>(Note: It is possible to disable the error message by using a certain flag on the <tt>[Files]</tt> section entry, but this is NOT recommended.)</p>
 
@@ -5298,7 +5298,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 
 <setuptopic directive="AlwaysCreateUninstallIcon">
 <body>
-<p><i>Obsolete in 3.0.</i> This directive is no longer supported. If you wish to create an Uninstall icon, use the new <tt>{uninstallexe}</tt> constant in the <tt>Filename</tt> parameter of an <tt><link topic="iconssection">[Icons]</link></tt> section entry.</p>
+<p><i>Obsolete in 3.0.</i> This directive is no longer supported. If you wish to create an Uninstall icon, use the new <tt>{uninstallexe}</tt> constant in the <tt>Filename</tt> parameter of an <sn>[Icons]</sn> section entry.</p>
 </body>
 </setuptopic>
 
@@ -5653,7 +5653,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 
 <setuptopic directive="UninstallIconName">
 <body>
-<p><i>Obsolete in 3.0.</i> This directive is no longer supported. If you wish to create an Uninstall icon, use the new <tt>{uninstallexe}</tt> constant in the <tt>Filename</tt> parameter of an <tt><link topic="iconssection">[Icons]</link></tt> section entry.</p>
+<p><i>Obsolete in 3.0.</i> This directive is no longer supported. If you wish to create an Uninstall icon, use the new <tt>{uninstallexe}</tt> constant in the <tt>Filename</tt> parameter of an <sn>[Icons]</sn> section entry.</p>
 </body>
 </setuptopic>
 
@@ -5853,14 +5853,14 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 
 <setuptopic directive="MessagesFile">
 <body>
-<p><i>Obsolete in 4.0.</i> This directive is no longer supported. Use the new <link topic="languagessection">[Languages] section</link> to specify a custom messages file.</p>
+<p><i>Obsolete in 4.0.</i> This directive is no longer supported. Use the new <sn>[Languages]</sn> section to specify a custom messages file.</p>
 </body>
 </setuptopic>
 
 <setuptopic directive="LicenseFile">
 <body>
 <p>Specifies the name of an optional license agreement file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>If the user selects a language for which the <tt>LicenseFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
+<p>If the user selects a language for which the <tt>LicenseFile</tt> parameter is set, this directive is effectively ignored. See the <sn>[Languages]</sn> section documentation for more information.</p>
 <p>If a Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <p>If using a .rtf file with custom colors, be mindful of contrast ratios, especially if supporting a <link topic="setup_wizardstyle">dark style</link>. Aim for at least an AA pass for normal text, using a <extlink href="https://webaim.org/resources/contrastchecker">contrast checker</extlink>. Example colors that pass on both light and dark backgrounds include: red #eb0000, green #008a00, and blue #6161ff.</p>
 <example><pre><key>LicenseFile</key>=license.txt</pre></example>
@@ -5873,7 +5873,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setuptopic directive="InfoBeforeFile">
 <body>
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed before the user selects the destination directory for the program. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
-<p>If the user selects a language for which the <tt>InfoBeforeFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
+<p>If the user selects a language for which the <tt>InfoBeforeFile</tt> parameter is set, this directive is effectively ignored. See the <sn>[Languages]</sn> section documentation for more information.</p>
 <p>If a Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <p>If using a .rtf file with custom colors, see <sd>LicenseFile</sd> for special considerations.</p>
 <example><pre><key>InfoBeforeFile</key>=infobefore.txt</pre></example>
@@ -5887,7 +5887,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <body>
 <p>Specifies the name of an optional "readme" file, in .txt or .rtf (rich text) format, which is displayed after a successful install. This file must be located in your installation's <link topic="sourcedirectorynotes">source directory</link> when running the compiler, unless a fully qualified pathname is specified or the pathname is prefixed by "compiler:", in which case it looks for the file in the compiler directory.</p>
 <p>This differs from <tt>isreadme</tt> files in that this text is displayed as a page of the wizard, instead of in a separate Notepad window.</p>
-<p>If the user selects a language for which the <tt>InfoAfterFile</tt> parameter is set, this directive is effectively ignored. See the <link topic="languagessection">[Languages] section</link> documentation for more information.</p>
+<p>If the user selects a language for which the <tt>InfoAfterFile</tt> parameter is set, this directive is effectively ignored. See the <sn>[Languages]</sn> section documentation for more information.</p>
 <p>If a Unicode .txt file is used, it must be UTF-8 (with or without a BOM) or UTF-16LE encoded.</p>
 <p>If using a .rtf file with custom colors, see <sd>LicenseFile</sd> for special considerations.</p>
 <example><pre><key>InfoAfterFile</key>=infoafter.txt</pre></example>
@@ -5938,7 +5938,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>When this directive is <tt>yes</tt>, the default, at startup Setup will look in the registry to see if the <link topic="sameappnotes">same application</link> is already installed, and if so, it will use the language of the previous installation as the default language presented to the user in the wizard.</p>
-<p>Note that this directive does not change the language used by the <i>Select Language</i> dialog itself. See the <link topic="languagessection">[Languages] section</link> help topic for details on which language the <i>Select Language</i> dialog uses by default.</p>
+<p>Note that this directive does not change the language used by the <i>Select Language</i> dialog itself. See the <sn>[Languages]</sn> section help topic for details on which language the <i>Select Language</i> dialog uses by default.</p>
 <p>Also note that Setup cannot re-use settings from a previous installation that had <sd>Uninstallable</sd> set to <tt>no</tt>, since the registry entries it looks for are not created when <sd>Uninstallable</sd> is <tt>no</tt>.</p>
 <p><tt>UsePreviousLanguage</tt> must be set to <tt>no</tt> when <sd>AppId</sd> includes constants.</p>
 </body>
@@ -6543,7 +6543,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setuptopic directive="DefaultDialogFontName">
 <setupdefault><tt>Segoe UI</tt></setupdefault>
 <body>
-<p>Specifies the name of the font that should be used in dialogs on languages that do not set <tt>DialogFontName</tt> in their <link topic="langoptionssection">[LangOptions] section</link>.</p>
+<p>Specifies the name of the font that should be used in dialogs on languages that do not set <tt>DialogFontName</tt> in their <sn>[LangOptions]</sn> section.</p>
 <p>If the specified font name does not exist on the user's system or is an empty string, 9-point <i>Segoe UI</i> will be substituted.</p>
 </body>
 </setuptopic>
@@ -6552,7 +6552,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt>, <tt>no</tt></link>, or <tt>auto</tt></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt> and there are multiple <link topic="languagessection">[Languages] section</link> entries, a <i>Select Language</i> dialog will be displayed to give the user an opportunity to override the language Setup chose by default. See the <tt>[Languages]</tt> section documentation for more information.</p>
+<p>When set to <tt>yes</tt> and there are multiple <sn>[Languages]</sn> section entries, a <i>Select Language</i> dialog will be displayed to give the user an opportunity to override the language Setup chose by default. See the <tt>[Languages]</tt> section documentation for more information.</p>
 <p>When set to <tt>no</tt>, the dialog will never be displayed.</p>
 <p>When set to <tt>auto</tt>, the dialog will only be displayed if Setup does not find a language identifier match.</p>
 <p><b>See also:</b><br/>
@@ -6981,7 +6981,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <ul appearance="compact">
 <li>Setup</li>
 <li>Uninstall if <sd>SignedUninstaller</sd> is set to <tt>yes</tt></li>
-<li>Original source files if the <tt><link topic="filessection">[Files]</link></tt> section's <tt>sign</tt> or <tt>signonce</tt> flag is used</li>
+<li>Original source files if the <sn>[Files]</sn> section's <tt>sign</tt> or <tt>signonce</tt> flag is used</li>
 </ul>
 <p>When Setup has a valid digital signature, users will not see an "unidentified program" warning when launching it.</p>
 <p>The specified Sign Tool name and its command have to be defined in the Compiler IDE (via the <i>Tools | Configure Sign Tools...</i> menu) or on the <link topic="compilercmdline">compiler command line</link> (via the <tt>--signtool</tt> or <tt>-s</tt> option), else an error will occur.</p>

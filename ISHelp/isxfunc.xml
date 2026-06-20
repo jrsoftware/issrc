@@ -2084,7 +2084,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>function DownloadTemporaryFileWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList; const OnDownloadProgress: TOnDownloadProgress): Int64;</prototype>
         <description><p>Like <isxfunc>DownloadTemporaryFile</isxfunc>, but downloads an .issig signature file first from the specified second URL and uses it to verify the main file downloaded from the first URL.</p>
 <p>If the second URL is an empty string, Setup will instead append ".issig" (without quotes) to the path portion of the first URL. It will then use the result as the URL to download the .issig signature file from.</p>
-<p>Verification uses the specified allowed keys, looked up using <link topic="issigkeyssection">[ISSigKeys] section</link> parameter <tt>RuntimeID</tt>. To allow all keys set <tt>AllowedKeysRuntimeIDs</tt> to <tt>nil</tt>.</p>
+<p>Verification uses the specified allowed keys, looked up using <sn>[ISSigKeys]</sn> section parameter <tt>RuntimeID</tt>. To allow all keys set <tt>AllowedKeysRuntimeIDs</tt> to <tt>nil</tt>.</p>
 <p>An exception will be raised if there was an error. Otherwise, returns the number of bytes downloaded for the main file from the first URL. Returns 0 if the main file was already downloaded and still verified.</p></description>
         <seealso><p><isxfunc>DownloadTemporaryFile</isxfunc><br/>
 <link topic="issig">.issig Signatures: Introduction</link><br/>
@@ -2188,7 +2188,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ISSigVerify</name>
         <prototype>function ISSigVerify(const AllowedKeysRuntimeIDs: TStringList; const Filename: String; const VerifyFilename: Boolean; const KeepOpen: Boolean): TFileStream;</prototype>
-        <description><p>Verifies the signature of the specified file using the specified allowed keys, looked up using <link topic="issigkeyssection">[ISSigKeys] section</link> parameter <tt>RuntimeID</tt>. To allow all keys set <tt>AllowedKeysRuntimeIDs</tt> to <tt>nil</tt>. An exception will be raised upon failure.</p>
+        <description><p>Verifies the signature of the specified file using the specified allowed keys, looked up using <sn>[ISSigKeys]</sn> section parameter <tt>RuntimeID</tt>. To allow all keys set <tt>AllowedKeysRuntimeIDs</tt> to <tt>nil</tt>. An exception will be raised upon failure.</p>
 <p>If <tt>VerifyFilename</tt> is set to <tt>False</tt> the verification allows signatures for a different filename. It is recommended that you only set it to <tt>False</tt> if you don't know the name the file had when the signature was created. The size and hash of the file must always match.</p>
 <p>Returns a handle to the still open file if <tt>KeepOpen</tt> is set to <tt>True</tt>, <tt>nil</tt> otherwise. It is recommended that you always set it to <tt>True</tt> if you plan to use the file for anything after verification. Otherwise, you risk creating a Time-Of-Check to Time-Of-Use (TOCTOU) problem.</p></description>
         <example><pre><key>var</key>
@@ -3661,7 +3661,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
      <values>IDOK, IDCANCEL, IDABORT, IDRETRY, IDIGNORE, IDYES, IDNO</values>
   </enum>
   <enum>
-     <description>Reg* - RootKey values (also see the <tt><link topic="registrysection" window="main">[Registry]</link></tt> section documentation)</description>
+     <description>Reg* - RootKey values (also see the <sn>[Registry]</sn> section documentation)</description>
      <values>HKEY_AUTO, HKEY_AUTO_32, HKEY_AUTO_64,<br />HKEY_CLASSES_ROOT, HKEY_CLASSES_ROOT_32, HKEY_CLASSES_ROOT_64,<br />HKEY_CURRENT_USER, HKEY_CURRENT_USER_32, HKEY_CURRENT_USER_64,<br />HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE_32, HKEY_LOCAL_MACHINE_64,<br />HKEY_USERS, HKEY_USERS_32, HKEY_USERS_64,<br />HKEY_PERFORMANCE_DATA,<br />HKEY_CURRENT_CONFIG, HKEY_CURRENT_CONFIG_32, HKEY_CURRENT_CONFIG_64,<br />HKEY_DYN_DATA,<br />HKA, HKA32, HKA64, HKCR, HKCR32, HKCR64, HKCU, HKCU32, HKCU64, HKLM, HKLM32, HKLM64, HKU, HKU32, HKU64, HKCC, HKCC32, HKCC64</values>
   </enum>
 </isxenums>

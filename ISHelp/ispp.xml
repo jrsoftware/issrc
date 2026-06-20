@@ -1109,7 +1109,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> SetupSetting(<b>str</b> DirectiveName)</line></pre>
 				</section>
 				<description>
-					<p>Parses the <link href="setupsection">[Setup] section</link> in &curtrans; to find the directive whose name is specified as the function parameter. The function returns the value of that directive if it's found, or an empty string otherwise.</p>
+					<p>Parses the <sn>[Setup]</sn> section in &curtrans; to find the directive whose name is specified as the function parameter. The function returns the value of that directive if it's found, or an empty string otherwise.</p>
 				</description>
 			</topic>
 			<topic id="SetSetupSetting">
