@@ -3,8 +3,8 @@
 <p>Below is the list of support classes that can be used from within the Pascal script. There are also two support objects available globally:</p>
 
 <ul>
-<li><tt><a name="WizardForm">WizardForm</a></tt> of type <anchorlink name="TWizardForm">TWizardForm</anchorlink>.</li>
-<li><tt><a name="UninstallProgressForm">UninstallProgressForm</a></tt> of type <anchorlink name="TUninstallProgressForm">TUninstallProgressForm</anchorlink>.</li>
+<li><tt><a name="WizardForm">WizardForm</a></tt> of type <tt><anchorlink name="TWizardForm">TWizardForm</anchorlink></tt>.</li>
+<li><tt><a name="UninstallProgressForm">UninstallProgressForm</a></tt> of type <tt><anchorlink name="TUninstallProgressForm">TUninstallProgressForm</anchorlink></tt>.</li>
 </ul>
 
 <p>Parameter type <tt>AnyString</tt> means both <tt>String</tt> and <tt>AnsiString</tt> can be used.</p>

@@ -858,8 +858,8 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 <isxfunc>IsX64OS</isxfunc><br/>
 <isxfunc>IsX86Compatible</isxfunc><br/>
 <isxfunc>IsX86OS</isxfunc><br/><br/>
-<link topic="isxfunc_IsX64OS">IsX64</link> (alias for IsX64OS; deprecated)<br/>
-<link topic="isxfunc_IsX86OS">IsX86</link> (alias for IsX86OS)<br/><br/></p>
+<tt><link topic="isxfunc_IsX64OS">IsX64</link></tt> (alias for <tt>IsX64OS</tt>; deprecated)<br/>
+<tt><link topic="isxfunc_IsX86OS">IsX86</link></tt> (alias for <tt>IsX86OS</tt>)<br/><br/></p>
 <p><b>See also:</b><br/>
 <isxfunc>ProcessorArchitecture</isxfunc></p>
 </body>

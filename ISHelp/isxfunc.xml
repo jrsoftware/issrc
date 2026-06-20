@@ -233,13 +233,13 @@
         <name>GetWizardForm</name>
         <prototype>function GetWizardForm: TWizardForm;</prototype>
         <description><p>Returns the <tt>WizardForm</tt> support object, or raises an internal error if the object has not yet been created.</p></description>
-        <seealso><p><link topic="scriptclasses" anchor="WizardForm">WizardForm</link></p></seealso>
+        <seealso><p><tt><link topic="scriptclasses" anchor="WizardForm">WizardForm</link></tt></p></seealso>
       </function>
       <function>
         <name>GetUninstallProgressForm</name>
         <prototype>function GetUninstallProgressForm: TUninstallProgressForm;</prototype>
         <description><p>Returns the <tt>UninstallProgressForm</tt> support object, or raises an internal error if the object has not yet been created.</p></description>
-        <seealso><p><link topic="scriptclasses" anchor="UninstallProgressForm">UninstallProgressForm</link></p></seealso>
+        <seealso><p><tt><link topic="scriptclasses" anchor="UninstallProgressForm">UninstallProgressForm</link></tt></p></seealso>
       </function>
     </subcategory>
   </category>
@@ -363,7 +363,7 @@ CurStepChanged(ssInstall)</tt></p>
 <p><tt>InitializeUninstall<br />
 CurUninstallStepChanged(usAppMutexCheck)<br />
 CurUninstallStepChanged(usUninstall)</tt></p></remarks>
-        <seealso><p><link topic="scriptevents" anchor="PrepareToInstall">PrepareToInstall</link></p></seealso>
+        <seealso><p><tt><link topic="scriptevents" anchor="PrepareToInstall">PrepareToInstall</link></tt></p></seealso>
       </function>
       <function>
         <name>RaiseException</name>
@@ -563,7 +563,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>IsWin64</name>
         <prototype>function IsWin64: Boolean;</prototype>
         <description><p>Returns <tt>True</tt> if the system is running a 64-bit version of Windows. If <tt>False</tt> is returned, you cannot use any of Inno Setup's 64-bit-only features.</p>
-<p>Another way to describe this function is: Returns <tt>True</tt> if the system matches architecture identifier <link topic="archidentifiers">win64</link>.</p>
+<p>Another way to describe this function is: Returns <tt>True</tt> if the system matches architecture identifier <tt><link topic="archidentifiers">win64</link></tt>.</p>
 <p>Do not use this function to detect <link topic="32vs64bitinstalls">64-bit install mode</link>, use <isxfunc>Is64BitInstallMode</isxfunc> instead.</p></description>
         <example><pre><key>begin</key>
   <com>// Check IsWin64 before using a 64-bit-only feature to</com>
@@ -611,51 +611,51 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
   <key>end</key>;
   MsgBox(<str>'Windows architecture: '</str> + S, mbInformation, MB_OK);
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like <tt>IsX64Compatible</tt></link><br />
 <isxfunc>Is64BitInstallMode</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsArm32Compatible</name>
         <prototype>function IsArm32Compatible: Boolean;</prototype>
-        <description><p>Returns <tt>True</tt> if the system matches architecture identifier <link topic="archidentifiers">arm32compatible</link>.</p></description>
-        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+        <description><p>Returns <tt>True</tt> if the system matches architecture identifier <tt><link topic="archidentifiers">arm32compatible</link></tt>.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like <tt>IsX64Compatible</tt></link><br />
 <isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsArm64</name>
         <prototype>function IsArm64: Boolean;</prototype>
-        <description><p>Returns <tt>True</tt> if the system matches architecture identifier <link topic="archidentifiers">arm64</link>.</p></description>
-        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+        <description><p>Returns <tt>True</tt> if the system matches architecture identifier <tt><link topic="archidentifiers">arm64</link></tt>.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like <tt>IsX64Compatible</tt></link><br />
 <isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsX64Compatible</name>
         <prototype>function IsX64Compatible: Boolean;</prototype>
-        <description><p>Returns <tt>True</tt> if the system matches architecture identifier <link topic="archidentifiers">x64compatible</link>.</p></description>
-        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+        <description><p>Returns <tt>True</tt> if the system matches architecture identifier <tt><link topic="archidentifiers">x64compatible</link></tt>.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like <tt>IsX64Compatible</tt></link><br />
 <isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsX64OS</name>
         <prototype>function IsX64OS: Boolean;</prototype>
-        <description><p>Returns <tt>True</tt> if the system matches architecture identifier <link topic="archidentifiers">x64os</link>.</p>
+        <description><p>Returns <tt>True</tt> if the system matches architecture identifier <tt><link topic="archidentifiers">x64os</link></tt>.</p>
 <p>Before Inno Setup 6.3, <tt>IsX64OS</tt> was named <tt>IsX64</tt>. The compiler still accepts <tt>IsX64</tt> as an alias for <tt>IsX64OS</tt>, but will emit a deprecation warning when used.</p></description>
-        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like <tt>IsX64Compatible</tt></link><br />
 <isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsX86Compatible</name>
         <prototype>function IsX86Compatible: Boolean;</prototype>
-        <description><p>Returns <tt>True</tt> if the system matches architecture identifier <link topic="archidentifiers">x86compatible</link>.</p></description>
-        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+        <description><p>Returns <tt>True</tt> if the system matches architecture identifier <tt><link topic="archidentifiers">x86compatible</link></tt>.</p></description>
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like <tt>IsX64Compatible</tt></link><br />
 <isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
       </function>
       <function>
         <name>IsX86OS</name>
         <prototype>function IsX86OS: Boolean;</prototype>
-        <description><p>Returns <tt>True</tt> if the system matches architecture identifier <link topic="archidentifiers">x86os</link>.</p>
+        <description><p>Returns <tt>True</tt> if the system matches architecture identifier <tt><link topic="archidentifiers">x86os</link></tt>.</p>
 <p>Before Inno Setup 6.3, <tt>IsX86OS</tt> was named <tt>IsX86</tt>. The compiler still accepts <tt>IsX86</tt> as an alias for <tt>IsX86OS</tt>.</p></description>
-        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+        <seealso><p><link topic="isarchidentifier">Architecture Identifier Matchers like <tt>IsX64Compatible</tt></link><br />
 <isxfunc>ProcessorArchitecture</isxfunc></p></seealso>
       </function>
       <function>
@@ -1488,7 +1488,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>function MinimizePathName(const Filename: String; const Font: TFont; MaxLen: Integer): String;</prototype>
         <description><p>Returns a minimized filename that will not take more than <tt>MaxLen</tt> pixels to display with the given font. The minimizing is done by replacing the middle part with '...' as needed.</p></description>
         <example><pre>MyLabel.Caption := MinimizePathName(MyPathName, MyLabel.Font, MyLabel.Width);</pre></example>
-        <seealso><p><link topic="scriptclasses" anchor="TFont">TFont</link></p></seealso>
+        <seealso><p><tt><link topic="scriptclasses" anchor="TFont">TFont</link></tt></p></seealso>
       </function>
     </subcategory>
   </category>
@@ -2795,7 +2795,7 @@ UserName := Page.Values[<num>0</num>];
 UserCompany := Page.Values[<num>1</num>];
 </pre>
 <p>See <i>AllPagesExample.iss</i> for another example.</p></example>
-        <seealso><p><link topic="scriptclasses" anchor="TInputQueryWizardPage">TInputQueryWizardPage</link></p></seealso>
+        <seealso><p><tt><link topic="scriptclasses" anchor="TInputQueryWizardPage">TInputQueryWizardPage</link></tt></p></seealso>
       </function>
       <function>
         <name>CreateInputOptionPage</name>
@@ -2827,7 +2827,7 @@ Page.Values[<num>0</num>] := False;
 IsRegisteredUser := Page.Values[<num>0</num>];
 </pre>
 <p>See <i>AllPagesExample.iss</i> for another example.</p></example>
-        <seealso><p><link topic="scriptclasses" anchor="TInputOptionWizardPage">TInputOptionWizardPage</link></p></seealso>
+        <seealso><p><tt><link topic="scriptclasses" anchor="TInputOptionWizardPage">TInputOptionWizardPage</link></tt></p></seealso>
       </function>
       <function>
         <name>CreateInputDirPage</name>
@@ -2859,7 +2859,7 @@ Page.Values[<num>0</num>] := ExpandConstant(<str>'{userappdata}\My Company\My Pr
 DataDir := Page.Values[<num>0</num>];
 </pre>
 <p>See <i>AllPagesExample.iss</i> for another example.</p></example>
-        <seealso><p><link topic="scriptclasses" anchor="TInputDirWizardPage">TInputDirWizardPage</link></p></seealso>
+        <seealso><p><tt><link topic="scriptclasses" anchor="TInputDirWizardPage">TInputDirWizardPage</link></tt></p></seealso>
       </function>
       <function>
         <name>CreateInputFilePage</name>
@@ -2892,7 +2892,7 @@ Page.Values[<num>0</num>] := ExpandConstant(<str>'{win}\notepad.exe'</str>);
 NotepadLocation := Page.Values[<num>0</num>];
 </pre>
 <p>See <i>AllPagesExample.iss</i> for another example.</p></example>
-        <seealso><p><link topic="scriptclasses" anchor="TInputFileWizardPage">TInputFileWizardPage</link></p></seealso>
+        <seealso><p><tt><link topic="scriptclasses" anchor="TInputFileWizardPage">TInputFileWizardPage</link></tt></p></seealso>
       </function>
       <function>
         <name>CreateOutputMsgPage</name>
@@ -2909,7 +2909,7 @@ Page := CreateOutputMsgPage(wpWelcome,
   <str>'Blah blah blah.'</str>);
 </pre>
 <p>See <i>AllPagesExample.iss</i> for another example.</p></example>
-        <seealso><p><link topic="scriptclasses" anchor="TOutputMsgWizardPage">TOutputMsgWizardPage</link></p></seealso>
+        <seealso><p><tt><link topic="scriptclasses" anchor="TOutputMsgWizardPage">TOutputMsgWizardPage</link></tt></p></seealso>
       </function>
       <function>
         <name>CreateOutputMsgMemoPage</name>
@@ -2927,7 +2927,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
   <str>'Blah blah blah.'</str>);
 </pre>
 <p>See <i>AllPagesExample.iss</i> for another example.</p></example>
-        <seealso><p><link topic="scriptclasses" anchor="TOutputMsgMemoWizardPage">TOutputMsgMemoWizardPage</link></p></seealso>
+        <seealso><p><tt><link topic="scriptclasses" anchor="TOutputMsgMemoWizardPage">TOutputMsgMemoWizardPage</link></tt></p></seealso>
       </function>
       <function>
         <name>CreateOutputProgressPage</name>
@@ -2939,7 +2939,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>To set the text on the page, call the <tt>SetText</tt> method. <tt>SetText</tt> takes two string parameters: use the first to tell the user what you're doing, and the second to display a file or directory name. Either parameter may be blank.</p>
 <p>To show or update the progress bar, call the <tt>SetProgress</tt> method. <tt>SetProgress</tt> takes two integer parameters: the first specifies the position of the progress bar (zero-based), and the second specifies the highest possible position. If the second parameter is 0, the progress bar will be hidden.</p></remarks>
         <example><p>See <i>CodeDlg.iss</i> and <i>AllPagesExample.iss</i> example scripts in the "Examples" subdirectory in your Inno Setup directory for examples.</p></example>
-        <seealso><p><link topic="scriptclasses" anchor="TOutputProgressWizardPage">TOutputProgressWizardPage</link><br />
+        <seealso><p><tt><link topic="scriptclasses" anchor="TOutputProgressWizardPage">TOutputProgressWizardPage</link></tt><br />
 <isxfunc>CreateOutputMarqueeProgressPage</isxfunc></p></seealso>
       </function>
       <function>
@@ -2949,7 +2949,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>See <isxfunc>CreateOutputProgressPage</isxfunc> for information on how to work with progress pages.</p></description>
         <remarks><p>To animate the progress bar, call the <tt>Animate</tt> method. Do not call the <tt>SetProgress</tt> method, it will raise an internal error.</p></remarks>
         <example><p>See <i>AllPagesExample.iss</i> for an example.</p></example>
-        <seealso><p><link topic="scriptclasses" anchor="TOutputMarqueeProgressWizardPage">TOutputMarqueeProgressWizardPage</link></p></seealso>
+        <seealso><p><tt><link topic="scriptclasses" anchor="TOutputMarqueeProgressWizardPage">TOutputMarqueeProgressWizardPage</link></tt></p></seealso>
       </function>
       <function>
         <name>CreateDownloadPage</name>
@@ -2965,7 +2965,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>See <isxfunc>DownloadTemporaryFile</isxfunc> for other considerations and the definition of <tt>TOnDownloadProgress</tt>.</p>
 <p>See <i>CodeDownloadFiles.iss</i> for an example.</p>
 <p>See <i>DownloadFiles.iss</i> for an example of file download using just a <sn>[Files]</sn> entry instead.</p></remarks>
-        <seealso><p><link topic="scriptclasses" anchor="TDownloadWizardPage">TDownloadWizardPage</link><br />
+        <seealso><p><tt><link topic="scriptclasses" anchor="TDownloadWizardPage">TDownloadWizardPage</link></tt><br />
 <isxfunc>DownloadTemporaryFile</isxfunc><br />
 <isxfunc>CreateOutputProgressPage</isxfunc></p></seealso>
       </function>
@@ -2986,7 +2986,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <isxfunc>CreateDownloadPage</isxfunc> which works very similar to <tt>CreateExtractionPage</tt>.</p>
 <p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a <sn>[Files]</sn> entry instead.</p>
 </example>
-        <seealso><p><link topic="scriptclasses" anchor="TExtractionWizardPage">TExtractionWizardPage</link><br />
+        <seealso><p><tt><link topic="scriptclasses" anchor="TExtractionWizardPage">TExtractionWizardPage</link></tt><br />
 <isxfunc>ExtractArchive</isxfunc><br />
 <isxfunc>MapArchiveExtensions</isxfunc><br />
 <isxfunc>CreateOutputProgressPage</isxfunc></p></seealso>
@@ -2994,17 +2994,17 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
       <function>
         <name>CreateCustomPage</name>
         <prototype>function CreateCustomPage(const AfterID: Integer; const ACaption, ADescription: String): TWizardPage;</prototype>
-        <description><p>Creates a custom wizard page. The page is empty by default; you have to create your own controls afterward and place them on the page (by setting their Parent properties to the Surface property of the <link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link> instance returned by this function).</p></description>
+        <description><p>Creates a custom wizard page. The page is empty by default; you have to create your own controls afterward and place them on the page (by setting their Parent properties to the Surface property of the <tt><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></tt> instance returned by this function).</p></description>
         <example><p>See <i>CodeClasses.iss</i> and <i>AllPagesExample.iss</i> example scripts in the "Examples" subdirectory in your Inno Setup directory for examples.</p></example>
-        <seealso><p><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></p></seealso>
+        <seealso><p><tt><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></tt></p></seealso>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>CreateCustomForm</name>
         <prototype>function CreateCustomForm(const ClientWidth, ClientHeight: Integer; const KeepSizeX, KeepSizeY: Boolean): TSetupForm;</prototype>
-        <description><p>Creates a form. The form is empty by default; you have to create your own controls afterward and place them on the form (by setting their Parent properties to the <link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link> instance returned by this function).</p></description>
-        <remarks><p>You should call this function instead of creating <link topic="scriptclasses" anchor="TForm">TForm</link> or <link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link> instances directly. This function automatically initializes the font and other properties of the created form to be like Setup's other dialogs.</p>
+        <description><p>Creates a form. The form is empty by default; you have to create your own controls afterward and place them on the form (by setting their Parent properties to the <tt><link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link></tt> instance returned by this function).</p></description>
+        <remarks><p>You should call this function instead of creating <tt><link topic="scriptclasses" anchor="TForm">TForm</link></tt> or <tt><link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link></tt> instances directly. This function automatically initializes the font and other properties of the created form to be like Setup's other dialogs.</p>
 <p>The <sn>[LangOptions]</sn> section's <tt>DialogFontName</tt> and <tt>DialogFontSize</tt> directives determine the font used by the form and, by default, any child controls created on the form.</p>
 <p>You should use <isxfunc>ScaleX</isxfunc> and <isxfunc>ScaleY</isxfunc> to scale the desired client width and height to appropriate values. A form's client width and height are the form's full width and height minus its borders.</p>
 <p><tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> specify whether the form is allowed to grow horizontally and vertically as the client area is resized, for <sn>[Setup]</sn> section directive <sd>WizardSizePercent</sd>.</p>
@@ -3023,15 +3023,15 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>The same applies to the <tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> properties, which were writable properties before version 6.6.0, but are now specified as parameters when calling <tt>CreateCustomForm</tt> and are read-only properties afterwards.</p>
 </remarks>
         <example><p>See <i>CodeClasses.iss</i> for an example.</p></example>
-        <seealso><p><link topic="scriptclasses" anchor="TForm">TForm</link><br />
-<link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link></p></seealso>
+        <seealso><p><tt><link topic="scriptclasses" anchor="TForm">TForm</link></tt><br />
+<tt><link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link></tt></p></seealso>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>PageFromID</name>
         <prototype>function PageFromID(const ID: Integer): TWizardPage;</prototype>
-        <description><p>Given a page <tt>ID</tt>, returns a <link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link> instance. Call this if, for example, you need to get at the surface of a page and only know its <tt>ID</tt>.</p>
+        <description><p>Given a page <tt>ID</tt>, returns a <tt><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></tt> instance. Call this if, for example, you need to get at the surface of a page and only know its <tt>ID</tt>.</p>
 <p>An exception will be raised if an invalid page <tt>ID</tt> is specified.</p></description>
         <example><pre><key>var</key>
   Page: TWizardPage;
@@ -3039,7 +3039,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
   Page := PageFromID(wpWelcome);
   Page.Surface.Color := clBlue;
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></p></seealso>
+        <seealso><p><tt><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></tt></p></seealso>
       </function>
       <function>
         <name>PageIndexFromID</name>

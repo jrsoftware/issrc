@@ -185,11 +185,11 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <keyword value="Creating Installations" />
 <body>
 
-<p>Installations are created by means of <i>scripts</i>, which are ASCII or Unicode (UTF-8 encoded) text files with a format somewhat similar to .INI files. (No, it's not as complicated as you might be thinking!).</p>
+<p>Installations are created by means of <i>scripts</i>, which are ASCII or Unicode (UTF-8 encoded) text files with a format somewhat similar to <tt>.ini</tt> files. (No, it's not as complicated as you might be thinking!).</p>
 
-<p>Scripts have an ".iss" (meaning Inno Setup Script) extension. The script controls every aspect of the installation. It specifies which files are to be installed and where, what shortcuts are to be created and what they are to be named, and so on.</p>
+<p>Scripts have an <tt>.iss</tt> (meaning Inno Setup Script) extension. The script controls every aspect of the installation. It specifies which files are to be installed and where, what shortcuts are to be created and what they are to be named, and so on.</p>
 
-<p>Script files are usually edited from inside the "Inno Setup Compiler" Compiler IDE program. After you have finished writing the script, the next and final step is to select "Compile" in the Compiler IDE. What this does is create a complete, ready-to-run Setup program based on your script. By default, this is created in a directory named "Output" under the directory containing the script.</p>
+<p>Script files are usually edited from inside the "Inno Setup Compiler" Compiler IDE program. After you have finished writing the script, the next and final step is to select "Compile" in the Compiler IDE. What this does is create a complete, ready-to-run Setup program based on your script. By default, this is created in a directory named <tt>Output</tt> under the directory containing the script.</p>
 
 <p>To give you an idea of how this all works, start the Compiler IDE, click <i>File | Open</i>, and select one of the script files in the Examples subdirectory located under the Inno Setup directory. (It may be helpful to use the sample scripts as a template for your own scripts.)</p>
 
@@ -716,7 +716,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="cmd">{cmd}</a></b></dt>
 <dd>
-<p>The full pathname of the system's standard command interpreter, <i>Windows\System32\</i>cmd.exe. Note that the COMSPEC environment variable is not used when expanding this constant.</p>
+<p>The full pathname of the system's standard command interpreter, <tt><i>Windows\System32\</i>cmd.exe</tt>. Note that the COMSPEC environment variable is not used when expanding this constant.</p>
 </dd>
 
 <dt><b><a name="computername">{computername}</a></b></dt>
@@ -3009,7 +3009,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <keyword value="Example Scripts" />
 <body>
 
-<p>The Inno Setup Example Scripts are located in a separate folder. Please click the "Inno Setup Example Scripts" shortcut created in the Start Menu when you installed Inno Setup, or open the "Examples" folder in your Inno Setup directory.</p>
+<p>The Inno Setup Example Scripts are located in a separate folder. Please click the "Inno Setup Example Scripts" shortcut created in the Start Menu when you installed Inno Setup, or open the <tt>Examples</tt> folder in your Inno Setup directory.</p>
 
 </body>
 </topic>
@@ -3187,7 +3187,7 @@ Shown by default, but can be disabled via <sd>DisableReadyPage</sd>.
 <li>
 <b>Preparing to Install</b><br/>
 Normally, Setup will never stop or pause on this page. The only time it will is if Setup determines it can't continue or if it detects applications using files that need to be updated.<br/><br/>
-The former can happen if the <link topic="scriptevents" anchor="PrepareToInstall"><tt>PrepareToInstall</tt></link> event function returned an error or if one or more files specified in the <sn>[Files]</sn> and <sn>[InstallDelete]</sn> sections were queued (by some other installation) to be replaced or deleted on the next restart. In this case, it tells the user they need to restart their computer and then run Setup again. Note that this check is performed on silent installations too, but any messages are displayed in a message box instead of inside a wizard page.<br/><br/>
+The former can happen if the <tt><link topic="scriptevents" anchor="PrepareToInstall">PrepareToInstall</link></tt> event function returned an error or if one or more files specified in the <sn>[Files]</sn> and <sn>[InstallDelete]</sn> sections were queued (by some other installation) to be replaced or deleted on the next restart. In this case, it tells the user they need to restart their computer and then run Setup again. Note that this check is performed on silent installations too, but any messages are displayed in a message box instead of inside a wizard page.<br/><br/>
 The latter can happen if <sd>CloseApplications</sd> is set to <tt>yes</tt> or <tt>force</tt>.
 </li>
 
@@ -3818,20 +3818,20 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <table>
 <tr><th>Escape Sequence</th><th>Meaning</th></tr>
 <tr>
-  <td>$1 through $9 or \1 through \9</td><td>Contents of the corresponding capture group</td>
+  <td><tt>$1</tt> through <tt>$9</tt> or <tt>\1</tt> through <tt>\9</tt></td><td>Contents of the corresponding capture group</td>
 </tr>
 <tr>
-  <td>$&amp; or \0</td><td>Complete match contents</td>
+  <td><tt>$&amp;</tt> or <tt>\0</tt></td><td>Complete match contents</td>
 </tr>
 <tr>
-  <td>$$</td><td>A literal '$' character</td>
+  <td><tt>$$</tt></td><td>A literal <tt>$</tt> character</td>
 </tr>
 <tr>
-  <td>\\, \a, \b, \f, \r, \n, \t, \v</td><td>A literal '\', '\a', '\b', etc. character</td>
+  <td><tt>\\</tt>, <tt>\a</tt>, <tt>\b</tt>, <tt>\f</tt>, <tt>\r</tt>, <tt>\n</tt>, <tt>\t</tt>, <tt>\v</tt></td><td>A literal <tt>\</tt>, <tt>\a</tt>, <tt>\b</tt>, etc. character</td>
 </tr>
 </table>
 
-<p>For example, if the search string was (Ex)(ample) and the replace string was $2$1, when applied to a script saying "Examples" this would modify the script to say "ampleExs". Or if the replace string was $1\r\n$2 this would put a newline between "Ex" and "amples".</p>
+<p>For example, if the search string was <tt>(Ex)(ample)</tt> and the replace string was <tt>$2$1</tt>, when applied to a script saying <tt>Examples</tt> this would modify the script to say <tt>ampleExs</tt>. Or if the replace string was <tt>$1\r\n$2</tt> this would put a newline between <tt>Ex</tt> and <tt>amples</tt>.</p>
 
 </body>
 </topic>
@@ -6351,7 +6351,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setuptopic directive="OutputDir">
 <setupdefault><tt>Output</tt></setupdefault>
 <body>
-<p>Specifies the "output" directory for the script, which is where the compiler will place the resulting Setup.* files. By default, it creates a directory named "Output" under the directory containing the script for this.</p>
+<p>Specifies the "output" directory for the script, which is where the compiler will place the resulting <tt>Setup.*</tt> files. By default, it creates a directory named <tt>Output</tt> under the directory containing the script for this.</p>
 <p>If <tt>OutputDir</tt> is not a fully-qualified pathname, it will be treated as being relative to <sd>SourceDir</sd>, unless the pathname is prefixed by "userdocs:", in which case it will be treated as being relative to the My Documents folder of the currently logged-in user. Setting <tt>OutputDir</tt> to <tt>.</tt> will result in the files being placed in the source directory.</p>
 <example><pre><key>OutputDir</key>=c:\output</pre></example>
 </body>
