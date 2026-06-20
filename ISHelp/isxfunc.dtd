@@ -43,7 +43,7 @@
 <!ELEMENT i %Inline;>
 <!ELEMENT tt %InlineWithHighlight;>
 <!ELEMENT link %InlineExceptLink;>
-<!ATTLIST link topic CDATA #REQUIRED anchor CDATA #IMPLIED window CDATA #IMPLIED>
+<!ATTLIST link topic CDATA #REQUIRED anchor CDATA #IMPLIED>
 <!ELEMENT extlink %InlineExceptLink;>
 <!ATTLIST extlink href CDATA #REQUIRED>
 <!ELEMENT sd %InlineExceptLink;>

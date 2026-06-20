@@ -118,7 +118,7 @@
       <function>
         <name>WizardIsComponentSelected</name>
         <prototype>function WizardIsComponentSelected(const Components: String): Boolean;</prototype>
-        <description><p>Returns <tt>True</tt> if the specified component is selected. Multiple components may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Components parameter</link>.</p></description>
+        <description><p>Returns <tt>True</tt> if the specified component is selected. Multiple components may be specified in the same manner as in a <link topic="componentstasksparams">Components parameter</link>.</p></description>
         <seealso><p><isxfunc>WizardSelectedComponents</isxfunc><br />
 <isxfunc>WizardSelectComponents</isxfunc></p></seealso>
         <example><pre><key>begin</key>
@@ -136,7 +136,7 @@
       <function>
         <name>WizardIsTaskSelected</name>
         <prototype>function WizardIsTaskSelected(const Tasks: String): Boolean;</prototype>
-        <description><p>Returns <tt>True</tt> if the specified task is selected. Multiple tasks may be specified in the same manner as in a <link topic="componentstasksparams" window="main">Tasks parameter</link>.</p></description>
+        <description><p>Returns <tt>True</tt> if the specified task is selected. Multiple tasks may be specified in the same manner as in a <link topic="componentstasksparams">Tasks parameter</link>.</p></description>
         <seealso><p><isxfunc>WizardSelectedTasks</isxfunc><br />
 <isxfunc>WizardSelectTasks</isxfunc></p></seealso>
         <example><pre><key>begin</key>
@@ -3188,7 +3188,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>SuppressibleMsgBox</name>
         <prototype>function SuppressibleMsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons, Default: Integer): Integer;</prototype>
-        <description><p>Displays a suppressible message box. If message boxes are being suppressed (see <link topic="setupcmdline" window="main">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, <tt>SuppressibleMsgBox</tt> acts the same as the regular <isxfunc>MsgBox</isxfunc>.</p></description>
+        <description><p>Displays a suppressible message box. If message boxes are being suppressed (see <link topic="setupcmdline">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, <tt>SuppressibleMsgBox</tt> acts the same as the regular <isxfunc>MsgBox</isxfunc>.</p></description>
       </function>
       <function>
         <name>TaskDialogMsgBox</name>
@@ -3224,7 +3224,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>SuppressibleTaskDialogMsgBox</name>
         <prototype>function SuppressibleTaskDialogMsgBox(const Instruction, Text: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer; const Default: Integer): Integer;</prototype>
-        <description><p>Displays a suppressible message box using a task dialog. If message boxes are being suppressed (see <link topic="setupcmdline" window="main">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, <tt>SuppressibleTaskDialogMsgBox</tt> acts the same as the regular <isxfunc>TaskDialogMsgBox</isxfunc>.</p></description>
+        <description><p>Displays a suppressible message box using a task dialog. If message boxes are being suppressed (see <link topic="setupcmdline">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, <tt>SuppressibleTaskDialogMsgBox</tt> acts the same as the regular <isxfunc>TaskDialogMsgBox</isxfunc>.</p></description>
       </function>
       <function>
         <name>GetOpenFileName</name>
@@ -3308,12 +3308,12 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>CreateOleObject</name>
         <prototype>function CreateOleObject(const ClassName: String): IDispatch;</prototype>
-        <description><p>See the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
+        <description><p>See the <link topic="scriptautomation">Using COM Automation objects</link> topic.</p></description>
       </function>
       <function>
         <name>GetActiveOleObject</name>
         <prototype>function GetActiveOleObject(const ClassName: String): IDispatch;</prototype>
-        <description><p>See the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
+        <description><p>See the <link topic="scriptautomation">Using COM Automation objects</link> topic.</p></description>
       </function>
       <function>
         <name>IDispatchInvoke</name>
@@ -3330,30 +3330,30 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
   <com>// Get a property or call a method named 'Type'</com>
   AType := IDispatchInvoke(AObject, False, <str>'Type'</str>, [<str>''</str>]);
 <key>end</key>;</pre></example>
-        <seealso><p><link topic="scriptautomation" window="main">Using COM Automation objects</link></p></seealso>
+        <seealso><p><link topic="scriptautomation">Using COM Automation objects</link></p></seealso>
       </function>
       <function>
         <name>CreateComObject</name>
         <prototype>function CreateComObject(const ClassID: TGUID): IUnknown;</prototype>
-        <description><p>See the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
+        <description><p>See the <link topic="scriptautomation">Using COM Automation objects</link> topic.</p></description>
       </function>
       <function>
         <name>StringToGUID</name>
         <prototype>function StringToGUID(const S: String): TGUID;</prototype>
         <description><p><tt>StringToGUID</tt> converts the string representation of a GUID into a 'real' GUID. An exception will be raised upon failure.</p></description>
-        <seealso><p><link topic="scriptautomation" window="main">Using COM Automation objects</link></p></seealso>
+        <seealso><p><link topic="scriptautomation">Using COM Automation objects</link></p></seealso>
       </function>
       <function>
         <name>OleCheck</name>
         <prototype>procedure OleCheck(Result: HResult);</prototype>
         <description><p>Use <tt>OleCheck</tt> to wrap any <tt>IUnknown</tt> based COM methods you call, so that if that method fails, an exception will be raised.</p>
 <p><tt>OleCheck</tt> is called automatically when the method declaration specifies the <tt>safecall</tt> calling convention.</p></description>
-        <seealso><p><link topic="scriptautomation" window="main">Using COM Automation objects</link></p></seealso>
+        <seealso><p><link topic="scriptautomation">Using COM Automation objects</link></p></seealso>
       </function>
       <function>
         <name>CoFreeUnusedLibraries</name>
         <prototype>procedure CoFreeUnusedLibraries;</prototype>
-        <description><p>See the <link topic="scriptautomation" window="main">Using COM Automation objects</link> topic.</p></description>
+        <description><p>See the <link topic="scriptautomation">Using COM Automation objects</link> topic.</p></description>
       </function>
     </subcategory>
   </category>
@@ -3616,20 +3616,20 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <name>LoadDLL</name>
         <prototype>function LoadDLL(const DLLName: String; var ErrorCode: Integer): HMODULE;</prototype>
         <description><p>Loads the specified DLL. Returns the DLL handle if the DLL was loaded successfully, zero otherwise. If zero is returned then <tt>ErrorCode</tt> specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ErrorCode)</tt> to get a description of the error.</p></description>
-        <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p>
+        <remarks><p>This function is deprecated. See the <link topic="scriptdll">Using DLLs</link> topic.</p>
 <p>Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</extlink>.</p></remarks>
       </function>
       <function>
         <name>CallDLLProc</name>
         <prototype>function CallDLLProc(const DLLHandle: HMODULE; const ProcName: String; const Param1, Param2: NativeInt; var Result: NativeInt): Boolean;</prototype>
         <description><p>Calls the specified function in a DLL specified using the DLL handle returned by <isxfunc>LoadDLL</isxfunc>. Returns <tt>True</tt> if the procedure was called successfully, <tt>False</tt> otherwise.<br />The function must use the standard calling convention, accept two <tt>NativeInt</tt> parameters and return a <tt>NativeInt</tt> result.</p></description>
-        <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
+        <remarks><p>This function is deprecated. See the <link topic="scriptdll">Using DLLs</link> topic.</p></remarks>
       </function>
       <function>
         <name>FreeDLL</name>
         <prototype>function FreeDLL(const DLLHandle: HMODULE): Boolean;</prototype>
         <description><p>Unloads a DLL specified using the DLL handle returned by <isxfunc>LoadDLL</isxfunc>.</p></description>
-        <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
+        <remarks><p>This function is deprecated. See the <link topic="scriptdll">Using DLLs</link> topic.</p></remarks>
       </function>
     </subcategory>
     <subcategory>
@@ -3637,13 +3637,13 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <name>CastStringToInteger</name>
         <prototype>function CastStringToInteger(var S: String): NativeInt;</prototype>
         <description><p>Casts a string to an integer so that a string can be passed to a DLL using CallDllProc.</p></description>
-        <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
+        <remarks><p>This function is deprecated. See the <link topic="scriptdll">Using DLLs</link> topic.</p></remarks>
       </function>
       <function>
         <name>CastIntegerToString</name>
         <prototype>function CastIntegerToString(const L: NativeInt): String;</prototype>
         <description><p>Casts an integer to a string so that a string can be received from a DLL using CallDllProc.</p></description>
-        <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
+        <remarks><p>This function is deprecated. See the <link topic="scriptdll">Using DLLs</link> topic.</p></remarks>
       </function>
     </subcategory>
   </category>
