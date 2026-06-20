@@ -144,7 +144,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <li>Creation of <link topic="iconssection">shortcuts</link> anywhere, including in the Start Menu and on the desktop.</li>
 
-<li>Creation of <link topic="registrysection">registry</link> and <link topic="inisection">.INI</link> entries.</li>
+<li>Creation of <link topic="registrysection">registry</link> and <tt><link topic="inisection">.ini</link></tt> file entries.</li>
 
 <li><link topic="runsection">Running</link> other programs before, during or after install.</li>
 
@@ -172,7 +172,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 </ul>
 
-<p>Inno Setup is copyrighted software. There are some restrictions on distribution and use; see the <extlink href="https://jrsoftware.org/files/is/license.txt">LICENSE.TXT</extlink> file for details.</p>
+<p>Inno Setup is copyrighted software. There are some restrictions on distribution and use; see the <extlink href="https://jrsoftware.org/files/is/license.txt"><tt>LICENSE.TXT</tt></extlink> file for details.</p>
 
 <p>All commercial users of Inno Setup are requested to <extlink href="https://jrsoftware.org/isorder.php">purchase a commercial license</extlink>.</p>
 
@@ -4016,7 +4016,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 <p>Additionally, an integrated signature-verification capability is included that can be used to detect corruption or tampering in your files at compile time, before files are included in an installer being built, or during installation, before Setup copies external files onto a user's system. This capability is protected against the Time-Of-Check to Time-Of-Use (TOCTOU) problem throughout, and uses strong cryptography.</p>
 
-<p>See <link topic="issig">.issig Signatures: Introduction</link> for more information.</p>
+<p>See <link topic="issig"><tt>.issig</tt> Signatures: Introduction</link> for more information.</p>
 
 <p>Setup also uses SHA-256 hashes to verify various components, and you can use these yourself as well. Older hashing algorithms are available, but not used for security purposes by Setup.</p>
 
@@ -4033,7 +4033,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <ul>
 <li>Expired and self-signed certificates are never accepted.</li>
 <li>TLS 1.0 and TLS 1.1 are never accepted. Both TLS 1.2 and TLS 1.3 are supported.</li>
-<li>Downloaded files can be verified using SHA-256 hash or an <link topic="issig">.issig signature</link>. Using the latter has the benefit that your script does not need to be changed when the downloaded file or archive changes, so any installers built will also keep working (they are "evergreen").</li>
+<li>Downloaded files can be verified using SHA-256 hash or an <link topic="issig"><tt>.issig</tt> signature</link>. Using the latter has the benefit that your script does not need to be changed when the downloaded file or archive changes, so any installers built will also keep working (they are "evergreen").</li>
 <li>Passwords in URLs are automatically excluded from Setup's log.</li>
 </ul>
 
@@ -4048,7 +4048,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <p>Compiler:</p>
 
 <ul>
-<li>The compiler itself uses <link topic="issig">.issig signature</link> files to detect corruption or tampering with components such as Setup, before using them to build your installer.</li>
+<li>The compiler itself uses <link topic="issig"><tt>.issig</tt> signature</link> files to detect corruption or tampering with components such as Setup, before using them to build your installer.</li>
 <li>The compiler doesn't allow <tt>.isl</tt> message files specified in the <sn>[Languages]</sn> section to contain compiler directives such as <tt>#include</tt>. This stops any translations from injecting unexpected content.</li>
 <li>The <sn>[Files]</sn> section supports a <tt>notimestamp</tt> flag to prevent files from being stored with a timestamp. Use this flag to help make builds reproducible, even if you cannot preserve timestamps on source files.</li>
 </ul>
@@ -4066,9 +4066,9 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <ul>
 <li>Releases are built on a dedicated machine only used for this purpose. Signing keys are not stored on other machines.</li>
 <li>The Inno Setup source code is self-contained and no external dependencies are pulled in when a release is built.</li>
-<li>Precompiled files included in Inno Setup's source code are code signed and are accompanied with <link topic="issig">.issig signature</link> files to detect corruption or tampering before using them to build a release.</li>
+<li>Precompiled files included in Inno Setup's source code are code signed and are accompanied with <link topic="issig"><tt>.issig</tt> signature</link> files to detect corruption or tampering before using them to build a release.</li>
 <li>Vendor updates of third-party source code (7-Zip, LZMA SDK, zlib, bzip2, Scintilla) are reviewed before being applied. An <extlink href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json">SPDX Software Bill of Materials</extlink> (SBOM) is available. Of the named sources, only LZMA SDK is an integral part of the Setup program, and only in a reduced form.</li>
-<li>Release binaries are made available through <extlink href="https://github.com/jrsoftware/issrc/releases">immutable GitHub releases</extlink> and accompanied with <link topic="issig">.issig signature</link> files you can use to detect corruption or tampering before running them. For more details, see <extlink href="https://jrsoftware.org/isdl-verify.php">Verifying Inno Setup Downloads</extlink>.</li>
+<li>Release binaries are made available through <extlink href="https://github.com/jrsoftware/issrc/releases">immutable GitHub releases</extlink> and accompanied with <link topic="issig"><tt>.issig</tt> signature</link> files you can use to detect corruption or tampering before running them. For more details, see <extlink href="https://jrsoftware.org/isdl-verify.php">Verifying Inno Setup Downloads</extlink>.</li>
 <li>Our GitHub repositories require signed commits on all branches, have GitHub Actions disabled, and do not allow any workflows to run.</li>
 </ul>
 
@@ -5342,7 +5342,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>When <tt>auto</tt> is specified, the compiler automatically selects the appropriate method based on entries in the <sn>[Files]</sn> section. If it selects <tt>basic</tt> because no entry uses the <tt>extractarchive</tt> flag, but you still use the aforementioned support functions, you must manually set the correct method.</p>
 <p>All methods overwrite read-only files which already exist in the destination directory without prompting the user.</p>
 <p>All methods restore the following file properties from the archive, if available: creation time, last modified time, attributes.</p>
-<p>When using the <tt>full</tt> method to extract a compressed archive, such as <i>archive.tar.gz</i>, the output will be the archive file itself (e.g., <i>archive.tar</i>) rather than the individual files contained within it.</p>
+<p>When using the <tt>full</tt> method to extract a compressed archive, such as <tt>archive.tar.gz</tt>, the output will be the archive file itself (e.g., <tt>archive.tar</tt>) rather than the individual files contained within it.</p>
 <p>The <tt>basic</tt> method has the following additional limitations, as written by Igor Pavlov in the LZMA SDK:</p>
 <ul>
 <li>It does not support PPMd and BZip2 methods.</li>

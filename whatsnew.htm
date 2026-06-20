@@ -44,7 +44,7 @@
 
 <p>Copyright © 1997-2026 <a href="./">Jordan Russell</a>. All rights reserved.<br />
 Portions Copyright © 2000-2026 Martijn Laan. All rights reserved.<br />
-For conditions of distribution and use, see <a href="files/is/license.txt">LICENSE.TXT</a>.
+For conditions of distribution and use, see <tt><a href="files/is/license.txt">LICENSE.TXT</a></tt>.
 </p>
 
 <p><b>Want to be notified by e-mail of new Inno Setup releases?</b> <a href="ismail.php">Subscribe</a> to the Inno Setup Mailing List!</p>
@@ -611,10 +611,10 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
   <ul>
     <li>Added support functions <tt>InitializeBitmapButtonFromStockIcon</tt> and <tt>InitializeBitmapImageFromStockIcon</tt>. Can be used to display various high-quality, system-defined icons, on all versions of Windows.<br/>
         See <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> for an example, and <a href="https://learn.microsoft.com/en-us/windows/win32/api/shellapi/ne-shellapi-shstockiconid#constants">Microsoft Learn</a> for an overview of all available icons.<br/>
-        <a href="https://jrsoftware.org/images/is-codeclasses-stockicons-125.png">Example screenshot of the new CodeClasses.iss example, at 125% DPI and in dark mode</a>.
+        <a href="https://jrsoftware.org/images/is-codeclasses-stockicons-125.png">Example screenshot of the new <tt>CodeClasses.iss</tt> example, at 125% DPI and in dark mode</a>.
     </li>
     <li>Wizard form sizing for <tt>WizardSizePercent</tt> is now done before event function <tt>InitializeWizard</tt> is called, instead of after, consistent with scaling for system DPI or for a custom <tt>DialogFontSize</tt>.<br/>
-         If you have custom controls that must grow with <tt>WizardSizePercent</tt>, and those controls use the <tt>Anchors</tt> property to achieve this (that is, they have both <tt>akLeft</tt> and <tt>akRight</tt> set, or both <tt>akTop</tt> and <tt>akBottom</tt> set), and they do not use <tt>SurfaceWidth</tt> or <tt>SurfaceHeight</tt>, you must either start using the new <tt>SurfaceExtraWidth</tt> and <tt>SurfaceExtraHeight</tt> properties (as demonstrated by the updated <a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a> example script), or switch to using <tt>SurfaceWidth</tt> and <tt>SurfaceHeight</tt>.<br/>
+         If you have custom controls that must grow with <tt>WizardSizePercent</tt>, and those controls use the <tt>Anchors</tt> property to achieve this (that is, they have both <tt>akLeft</tt> and <tt>akRight</tt> set, or both <tt>akTop</tt> and <tt>akBottom</tt> set), and they do not use <tt>SurfaceWidth</tt> or <tt>SurfaceHeight</tt>, you must either start using the new <tt>SurfaceExtraWidth</tt> and <tt>SurfaceExtraHeight</tt> properties (as demonstrated by the updated <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> example script), or switch to using <tt>SurfaceWidth</tt> and <tt>SurfaceHeight</tt>.<br/>
          Existing custom code that assigns the <tt>Anchors</tt> property can be removed from your scripts.
     </li>
     <li>The prototype of support function <tt>CreateCustomForm</tt> has changed. Support class <tt>TSetupForm</tt> has changed as well: function <tt>FlipSizeAndCenterIfNeeded</tt> has been renamed to <tt>FlipAndCenterIfNeeded</tt>, property <tt>SizeAndCenterOnShow</tt> has been renamed to <tt>CenterOnShow</tt>, and property <tt>KeepSizeX</tt> is now read-only. See <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> for an updated <tt>CreateCustomForm</tt>/<tt>TSetupForm</tt> example.
@@ -825,7 +825,7 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
     <li>Requires an <tt>.issig</tt> signature file to be present in the same directory as the source file. Signature files are human-readable files and can be created using the Inno Setup Signature Tool.</li>
     <li>Has little performance impact since verification occurs while source files are being compressed/copied and each file's contents are only read once; the only extra I/O comes from reading the tiny <tt>.issig</tt> files. Only archives and downloaded files are read a second time.</li>
     <li>The verification process is protected against the Time-Of-Check to Time-Of-Use (TOCTOU) problem.</li>
-    <li>Can be used to verify downloaded files, offering flexibility over SHA-256 checks as script changes aren't needed for file updates. See the new <a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/DownloadFiles.iss">DownloadFiles.iss</a> example script for an example.</li>
+    <li>Can be used to verify downloaded files, offering flexibility over SHA-256 checks as script changes aren't needed for file updates. See the new <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/DownloadFiles.iss">DownloadFiles.iss</a></tt> example script for an example.</li>
     <li>Added a new and optional <tt>ISSigAllowedKeys</tt> parameter to restrict which keys or groups of keys from the <tt>[ISSigKeys]</tt> section are permitted for signature verification using the <tt>issigverify</tt> flag.</li>
     <li>Note: The <tt>issigverify</tt> flag cannot be combined with the <tt>sign</tt> or <tt>signonce</tt> flags. Use <tt>signcheck</tt> instead.</li>
     <li>Example section:
@@ -860,7 +860,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
   <ul>
     <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=issigkeyssection">[ISSigKeys] section</a> topic.</li>
     <li>Updated <a href="https://jrsoftware.org/ishelp/index.php?topic=filessection">[Files] section</a> topic.</li>
-    <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=issig">.issig Signatures: Introduction</a> topic.</li>
+    <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=issig"><tt>.issig</tt> Signatures: Introduction</a> topic.</li>
     <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=issigtool">Inno Setup Signature Tool</a> topic.</li>
   </ul>
   </li>
@@ -878,7 +878,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
     <li>Pascal Scripting:
       <ul>
         <li>Added new <tt>ISSigVerify</tt> and <tt>DownloadTemporaryFileWithISSigVerify</tt> support functions.</li>
-        <li>Added new <tt>AddWithISSigVerify</tt> and <tt>AddExWithISSigVerify</tt> functions to support class <tt>TDownloadWizardPage</tt>. See updated example script <a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeDownloadFiles.iss">CodeDownloadFiles.iss</a> for an example.</li>
+        <li>Added new <tt>AddWithISSigVerify</tt> and <tt>AddExWithISSigVerify</tt> functions to support class <tt>TDownloadWizardPage</tt>. See updated example script <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeDownloadFiles.iss">CodeDownloadFiles.iss</a></tt> for an example.</li>
       </ul>
     </li>
   </ul>
@@ -909,7 +909,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
   </li>
   <li>Pascal Scripting changes:
     <ul>
-      <li>Added new <tt>TBitmapButton</tt> support class which works just like <tt>TBitmapImage</tt>, but is accessible by keyboard and compatible with screen readers. Make sure to set the <tt>Caption</tt> property, even if it isn't visible. See updated example script <a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a> for an example.</li>
+      <li>Added new <tt>TBitmapButton</tt> support class which works just like <tt>TBitmapImage</tt>, but is accessible by keyboard and compatible with screen readers. Make sure to set the <tt>Caption</tt> property, even if it isn't visible. See updated example script <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> for an example.</li>
       <li>Added new <tt>InitializeBitmapButtonFromIcon</tt> and <tt>GetSHA256OfStream</tt> support functions.</li>
       <li>Added new <tt>LastBaseNameOrUrl</tt> property to support class <tt>TDownloadWizardPage</tt>. See updated example script <tt>CodeDownloadFiles.iss</tt> for an example.</li>
       <li><i>Fix:</i> Event function <tt>CurPageChanged</tt> is now always only triggered when the current page actually changes. Before it was called twice in a row for <tt>wpPreparing</tt> when the script had a <tt>PrepareToInstall</tt> event function which returned a non empty string to instruct Setup to stop.</li>
@@ -923,7 +923,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
   <li>Minor tweaks.</li>
 </ul>
 
-<p>Some messages have been added and removed in this version: (<a href="https://github.com/jrsoftware/issrc/commit/a1d6aecc">View differences in Default.isl</a>.)</p>
+<p>Some messages have been added and removed in this version: (<a href="https://github.com/jrsoftware/issrc/commit/a1d6aecc">View differences in <tt>Default.isl</tt></a>.)</p>
 <ul>
   <li><b>New messages:</b>
   <ul>
@@ -1076,7 +1076,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
 
 <p>Thanks to Neil Hodgson and Igor Pavlov for their continued work on Scintilla and the LZMA SDK!</p>
 
-<p>Some messages have been added and changed in this version: (<a href="https://github.com/jrsoftware/issrc/commit/d18bab1c9234aa8bba6c8e277121e562724d331c">View differences in Default.isl</a>.)</p>
+<p>Some messages have been added and changed in this version: (<a href="https://github.com/jrsoftware/issrc/commit/d18bab1c9234aa8bba6c8e277121e562724d331c">View differences in <tt>Default.isl</tt></a>.)</p>
 <ul>
   <li><b>New messages:</b>
   <ul>

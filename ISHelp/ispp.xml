@@ -27,7 +27,7 @@
  <!ENTITY expr    '<tt>expr</tt>'> <!-- refers to expression parameters, not the #expr directive -->
  <!ENTITY curtrans '<link href="current-translation">current preprocessor output</link>'>
  <!ENTITY translation '<link href="translation">preprocessor output</link>'>
- <!ENTITY builtins '<link href="builtinsiss">ISPPBuiltins.iss</link>'>
+ <!ENTITY builtins '<tt><link href="builtinsiss">ISPPBuiltins.iss</link></tt>'>
  <!ENTITY dash "&#8211;">
 ]>
 <yasyx>
