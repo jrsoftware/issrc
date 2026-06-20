@@ -4932,7 +4932,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link> or <tt>x86</tt> or <tt>x64</tt></setupvalid>
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
-<p>This tells the compiler which type of Setup to create. If this is <tt>no</tt>, it compiles the setup data into at least three files: <tt>setup.exe</tt>, <tt>setup-0.bin</tt>, and <tt>setup-1.bin</tt>. The <b>only</b> reason you would probably want to use <tt>no</tt> is for debugging purposes. Otherwise, it compiles all setup data into a single EXE</p>
+<p>This tells the compiler which type of Setup to create. If this is <tt>no</tt>, it compiles the setup data into at least three files: <tt>Setup.exe</tt>, <tt>Setup-0.bin</tt>, and <tt>Setup-1.bin</tt>. The <b>only</b> reason you would probably want to use <tt>no</tt> is for debugging purposes. Otherwise, it compiles all setup data into a single EXE</p>
 <p>When all setup data is compiled into a single EXE, a "Setup Loader" program is used, called SetupLdr. When using <tt>yes</tt> or <tt>x86</tt>, a 32-bit version of SetupLdr is used which runs on systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64 Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
 <p>Otherwise, when using <tt>x64</tt>, a 64-bit version of SetupLdr is used which runs on systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation.</p>
 <p>Matches the value of <sd>SetupArchitecture</sd> by default.</p>
@@ -5276,7 +5276,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>The compiler verifies precompiled files before using them. For certain files, you can disable verification if necessary. Use this directive to specify the list of files that should not be verified.</p>
-<p><tt>setupldr</tt> applies to both <tt>setupldr.e32</tt> and <tt>setupldr.e64</tt>. <tt>is7z</tt> applies not only to <tt>isz7.dll</tt>, but also to both <tt>is7zxr.dll</tt> and <tt>is7zxa.dll</tt>. <tt>islzma</tt> applies to both <tt>islzma32.exe</tt> and <tt>islzma64.exe</tt>.</p>
+<p><tt>setupldr</tt> applies to both <tt>SetupLdr.e32</tt> and <tt>SetupLdr.e64</tt>. <tt>is7z</tt> applies not only to <tt>isz7.dll</tt>, but also to both <tt>is7zxr.dll</tt> and <tt>is7zxa.dll</tt>. <tt>islzma</tt> applies to both <tt>islzma32.exe</tt> and <tt>islzma64.exe</tt>.</p>
 </body>
 </setuptopic>
 
