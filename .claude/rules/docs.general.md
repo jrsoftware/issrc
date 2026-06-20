@@ -67,7 +67,10 @@ Additional vocabulary rules:
 
 ## Formatting
 
-- `<tt>` for all code identifiers: section names, directive names, parameter names, flag names, constant names, type names, function names, file names, directory names, path values, registry key names, and values like `yes`/`no`/`True`/`False`.
+- Code identifiers should render as monospace: section names, directive names, parameter names, flag names, constant names, type names, function names, file names, directory names, path values, registry key names, and values like `yes`/`no`/`True`/`False`. In prose, use `<tt>` for this. Inside already-monospace contexts, such as `<pre>`, `<precode>`, or ISPP `<line>` elements, no extra `<tt>` is needed.
+- When a code identifier is in a prose link's display text, still make it monospace with `<tt>`:
+  - For an internal `<link>`: outside the link if the identifier is the whole display text, inside otherwise.
+  - For an `<extlink>`: always inside, because external links get an icon added that must not appear inside the `<tt>` pill.
 - `<i>` for emphasis, wizard page names (such as *Select Destination Location*), and UI element names.
 - `<b>` sparingly, for important warnings or the word "NOTE:".
 
@@ -95,7 +98,7 @@ When reviewing documentation, check for:
 2. **Factual accuracy.** Does the documentation match the actual code behavior?
 3. **Completeness.** Are all parameters, flags, return values, and error conditions documented?
 4. **Cross-references.** Are related topics linked?
-5. **Code formatting.** Are identifiers wrapped in `<tt>`? Are examples provided?
+5. **Code formatting.** Are code identifiers in prose wrapped in `<tt>`? Are examples provided?
 6. **Style violations.** Check for: em/en dashes, "e.g.", "i.e.", synonym rotation, missing Oxford commas, "can not" instead of "cannot", "utilize" instead of "use".
 7. **Clarity for non-native speakers.** Avoid idioms, complex subordinate clauses, and uncommon vocabulary.
 8. **Do not nitpick** about subjective style matters in existing text that is not being changed. Only flag style issues in new or modified text.

@@ -54,7 +54,10 @@ Under `ISHelp/ISHelpGen/`:
 
 ## Documentation Conventions
 - `whatsnew.htm`, `ISHelp/isetup.xml`, `ISHelp/ispp.xml`, `ISHelp/isx.xml`, `ISHelp/isxfunc.xml`, `ISHelp/isxclasses.header*`, `ISHelp/isxclasses.footer`: see `.claude/rules/docs.general.md`.
-- `ISHelp/isetup.xml`, `ISHelp/isx.xml`, `ISHelp/isxfunc.xml`, `ISHelp/isxclasses.header*`, `ISHelp/isxclasses.footer`: see `.claude/rules/docs.ishelp.md`.
+- `ISHelp/isetup.xml`, `ISHelp/isx.xml`, `ISHelp/isxfunc.xml`, `ISHelp/isxclasses.header*`, `ISHelp/isxclasses.footer`, `ISHelp/ispp.xml`: see `.claude/rules/docs.ishelp.md`.
+- `ISHelp/isetup.xml`: see `.claude/rules/docs.ishelp.isetup.md`.
+- `ISHelp/isxfunc.xml`: see `.claude/rules/docs.ishelp.isxfunc.md`.
+- `ISHelp/ispp.xml`: see `.claude/rules/docs.ishelp.ispp.md`.
 - `whatsnew.htm`: see `.claude/rules/docs.whatsnew.md`.
 
 ## Docs
