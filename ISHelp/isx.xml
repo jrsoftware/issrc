@@ -357,7 +357,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 <keyword value="{code:...}" />
 <body>
 
-<p>The Pascal script can contain several functions which are called when Setup wants to know the value of a scripted <tt>{code:...}</tt> constant. The called function must have 1 String parameter named <tt>Param</tt>, and must return a String or a Boolean value depending on where the constant is used.</p>
+<p>The Pascal script can contain several functions which are called when Setup wants to know the value of a scripted <tt>{code:...}</tt> constant. The called function must have 1 <tt>String</tt> parameter named <tt>Param</tt>, and must return a <tt>String</tt> or a <tt>Boolean</tt> value depending on where the constant is used.</p>
 
 <p>The syntax of a <tt>{code:...}</tt> constant is: <tt>{code:<i>FunctionName</i>|<i>Param</i>}</tt></p>
 
@@ -415,7 +415,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 <param name="Check">
 <p>The name of a check function that determines whether an entry has to be processed or not. The function must either be a custom function in the <tt>[Code]</tt> section or a <link topic="scriptfunctions">support function</link>.</p>
 <p>Besides a single name, you may also use boolean expressions. See <link topic="componentstasksparams">Components and Tasks parameters</link> for examples of boolean expressions.</p>
-<p>For each check function, you may include a comma separated list of parameters that Setup should pass to the check function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <isxfunc>ExpandConstant</isxfunc>.</p>
+<p>For each check function, you may include a comma separated list of parameters that Setup should pass to the check function. Allowed parameter types are <tt>String</tt>, <tt>Integer</tt> and <tt>Boolean</tt>. <tt>String</tt> parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <isxfunc>ExpandConstant</isxfunc>.</p>
 <example>
 <pre><sec>[Files]</sec>
 <key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"; <key>Check</key>: MyProgCheck
@@ -426,7 +426,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 </paramlist>
 
-<p>All check functions must have a Boolean return value. If a check function (or the boolean expression) returns True, the entry is processed otherwise it's skipped.</p>
+<p>All check functions must have a <tt>Boolean</tt> return value. If a check function (or the boolean expression) returns True, the entry is processed otherwise it's skipped.</p>
 
 <p>For all sections except <tt>[Types]</tt> and <tt>[Components]</tt>, Setup might call each check function several times, even if there's only one entry that uses the check function. If your function performs a lengthy piece of code, you can optimize it by performing the code only once and 'caching' the result in a global variable.</p>
 
@@ -474,7 +474,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <param name="BeforeInstall">
 <p>The name of a function that is to be called once just before an entry is installed. The function must either be a custom function in the <tt>[Code]</tt> section or a <link topic="scriptfunctions">support function</link>.</p>
-<p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <isxfunc>ExpandConstant</isxfunc>.</p>
+<p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are <tt>String</tt>, <tt>Integer</tt> and <tt>Boolean</tt>. <tt>String</tt> parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <isxfunc>ExpandConstant</isxfunc>.</p>
 <example>
 <pre><sec>[Files]</sec>
 <key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"; <key>BeforeInstall</key>: MyBeforeInstall
@@ -486,7 +486,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <param name="AfterInstall">
 <p>The name of a function that is to be called once just after an entry is installed. The function must either be a custom function in the <tt>[Code]</tt> section or a <link topic="scriptfunctions">support function</link>.</p>
-<p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are String, Integer and Boolean. String parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <isxfunc>ExpandConstant</isxfunc>.</p>
+<p>May include a comma separated list of parameters that Setup should pass to the function. Allowed parameter types are <tt>String</tt>, <tt>Integer</tt> and <tt>Boolean</tt>. <tt>String</tt> parameters may include constants. These constants will not be automatically expanded. If you want to pass an expanded constant, there's one special <link topic="scriptfunctions">support function</link> that may be called from within a parameter list for this: <isxfunc>ExpandConstant</isxfunc>.</p>
 <example>
 <pre><sec>[Files]</sec>
 <key>Source</key>: "MyProg.exe"; <key>DestDir</key>: "<con>{app}</con>"; <key>AfterInstall</key>: MyAfterInstall
@@ -730,7 +730,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <dd>
 
-<p>There are two support functions to initialize IDispatch based COM Automation objects: <isxfunc>CreateOleObject</isxfunc> and <isxfunc>GetActiveOleObject</isxfunc>.</p>
+<p>There are two support functions to initialize <tt>IDispatch</tt> based COM Automation objects: <isxfunc>CreateOleObject</isxfunc> and <isxfunc>GetActiveOleObject</isxfunc>.</p>
 
 <p>Use <isxfunc>CreateOleObject</isxfunc> to create a new COM object with the specified class name. This function returns a variable of type <tt>IDispatch</tt> if successful and throws an exception otherwise.</p>
 
@@ -740,7 +740,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>To access a property or method whose name is a reserved word, use <isxfunc>IDispatchInvoke</isxfunc>.</p>
 
-<p>Open the "CodeAutomation.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using IDispatch based COM Automation objects.</p>
+<p>Open the "CodeAutomation.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using <tt>IDispatch</tt> based COM Automation objects.</p>
 
 <p>If you're using a .NET COM object and loading it fails since Inno Setup 5.5.9 try putting this line in your script before creating the COM object: <tt><isxfunc>LoadDLL</isxfunc>(<isxfunc>ExpandConstant</isxfunc>('{sys}\mscoree.dll'), ErrorCode);</tt> and add a variable <tt>ErrorCode</tt> of type <tt>Integer</tt>.</p>
 
@@ -750,17 +750,17 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <dd>
 
-<p>If the IDispatch interface isn't implemented by the object, you can use the IUnknown based COM support.</p>
+<p>If the <tt>IDispatch</tt> interface isn't implemented by the object, you can use the <tt>IUnknown</tt> based COM support.</p>
 
-<p>To initialize IUnknown based COM Automation objects use <isxfunc>CreateComObject</isxfunc>.</p>
+<p>To initialize <tt>IUnknown</tt> based COM Automation objects use <isxfunc>CreateComObject</isxfunc>.</p>
 
-<p>The value returned by <isxfunc>CreateComObject</isxfunc> can then be used to access the methods of the COM object after casting it to the desired interface. The access is done via 'early binding' which means the desired interface needs to be defined in the script, unlike for IDispatch based COM support.</p>
+<p>The value returned by <isxfunc>CreateComObject</isxfunc> can then be used to access the methods of the COM object after casting it to the desired interface. The access is done via 'early binding' which means the desired interface needs to be defined in the script, unlike for <tt>IDispatch</tt> based COM support.</p>
 
 <p><isxfunc>StringToGUID</isxfunc> can be used to convert the string representation of a GUID into a 'real' GUID. Use <isxfunc>OleCheck</isxfunc> to check the return values of any method you call, or specify the <tt>safecall</tt> calling convention instead.</p>
 
 <p>If you copy the interface definition from any existing Delphi source code, remove the brackets around the interface GUID string. Also remove any calling conventions except <tt>safecall</tt>; Inno Setup assumes <tt>stdcall</tt>. If the interface contains any functions you won't call, you can replace these by dummies to avoid having to define any special types used by them.</p>
 
-<p>Open the "CodeAutomation2.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using IUnknown based COM Automation objects.</p>
+<p>Open the "CodeAutomation2.iss" file in the "Examples" subdirectory in your Inno Setup directory for an example script using <tt>IUnknown</tt> based COM Automation objects.</p>
 
 </dd>
 

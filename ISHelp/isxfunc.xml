@@ -74,7 +74,7 @@
         <name>SetupMessage</name>
         <prototype>function SetupMessage(const ID: TSetupMessageID): String;</prototype>
         <description><p>Returns the value of the specified message.</p>
-<p>TSetupMessageID is defined as:</p>
+<p><tt>TSetupMessageID</tt> is defined as:</p>
 <p>'msg' + the message name. Example: <i>SetupMessage(msgSetupAppTitle)</i></p></description>
         <example><pre><key>var</key>
   S: String;
@@ -489,7 +489,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>GetWindowsVersionEx</name>
         <prototype>procedure GetWindowsVersionEx(var Version: TWindowsVersion);</prototype>
         <description><p>Returns extended information about the version of Windows in a record.</p>
-<p>TWindowsVersion is defined as:</p>
+<p><tt>TWindowsVersion</tt> is defined as:</p>
 <pre>
   TWindowsVersion = <key>record</key>
     Major: Cardinal;             <com>// Major version number</com>
@@ -670,7 +670,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <prototype>function InstallOnThisVersion(const MinVersion, OnlyBelowVersion: String): Boolean;</prototype>
         <description><p>This function is deprecated. Returns True if an entry with the specified <tt>MinVersion</tt> and <tt>OnlyBelowVersion</tt> parameters should be installed. If an invalid version string is passed, an exception will be raised.</p>
 <p>This function is provided for backward compatibility only, and may be removed in a future release. New scripts should use <isxfunc>GetWindowsVersion</isxfunc> or <isxfunc>GetWindowsVersionEx</isxfunc> instead.</p></description>
-        <remarks><p>Prior to Inno Setup 5.5.0, this function returned <tt>irInstall</tt> rather than a Boolean True value. <tt>irInstall</tt> is now defined as an alias for True.</p></remarks>
+        <remarks><p>Prior to Inno Setup 5.5.0, this function returned <tt>irInstall</tt> rather than a <tt>Boolean</tt> True value. <tt>irInstall</tt> is now defined as an alias for True.</p></remarks>
         <example><pre><com>// Old method, deprecated</com>
 <key>function</key> IsWindows8OrLater: Boolean;
 <key>begin</key>
@@ -689,7 +689,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>IsDotNetInstalled</name>
         <prototype>function IsDotNetInstalled(const MinVersion: TDotNetVersion; const MinServicePack: Cardinal): Boolean;</prototype>
         <description><p>Returns True if the .NET Framework with the specified <tt>MinVersion</tt> and <tt>MinServicePack</tt> parameters is installed.</p>
-<p>TDotNetVersion is defined as:</p>
+<p><tt>TDotNetVersion</tt> is defined as:</p>
 <p><tt>TDotNetVersion = (net11, net20, net30, net35, net4Client, net4Full, net45, net451, net452, net46, net461, net462, net47, net471, net472, net48, net481);</tt></p></description>
         <example><pre><key>function</key> <evt>InitializeSetup</evt>: Boolean;
 <key>begin</key>
@@ -1085,7 +1085,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>StringSplit</name>
         <prototype>function StringSplit(const S: String; const Separators: TArrayOfString; const Typ: TSplitType): TArrayOfString;</prototype>
         <description><p>Splits the given string into substrings, using the given characters or strings to be used as separator. Empty substrings can be ignored.</p>
-<p>TSplitType is defined as:</p>
+<p><tt>TSplitType</tt> is defined as:</p>
 <p><tt>TSplitType = (stAll, stExcludeEmpty, stExcludeLastEmpty);</tt></p></description>
         <example><pre><key>var</key>
   A: <key>array</key> <key>of</key> String;
@@ -1101,7 +1101,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>StringSplitEx</name>
         <prototype>function StringSplitEx(const S: String; const Separators: TArrayOfString; const Quote: Char; const Typ: TSplitType): TArrayOfString;</prototype>
         <description><p>Splits the given string into substrings, using the given characters or strings to be used as separator. Empty substrings can be ignored. Use the <tt>Quote</tt> parameter to specify the start and end character of a quoted part of the string where separators are ignored.</p>
-<p>TSplitType is defined as:</p>
+<p><tt>TSplitType</tt> is defined as:</p>
 <p><tt>TSplitType = (stAll, stExcludeEmpty, stExcludeLastEmpty);</tt></p></description>
         <example><pre><key>var</key>
   A: <key>array</key> <key>of</key> String;
@@ -1680,7 +1680,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>FindFirst</name>
         <prototype>function FindFirst(const FileName: String; var FindRec: TFindRec): Boolean;</prototype>
         <description><p>Retrieves information about the first file matching the wildcard specified by <tt>FileName</tt>. Returns True if successful.</p>
-<p>TFindRec is defined as:</p>
+<p><tt>TFindRec</tt> is defined as:</p>
 <pre>
   TFindRec = <key>record</key>
     Name: String;               <com>// name of the found file (no path)</com>
@@ -1694,7 +1694,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
     FindHandle: THandle;        <com>// used internally</com>
   <key>end</key>;
 </pre>
-<p>TFileTime is defined as:</p>
+<p><tt>TFileTime</tt> is defined as:</p>
 <pre>
   TFileTime = <key>record</key>
     dwLowDateTime: DWORD;
@@ -1863,7 +1863,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <description><p>Applies <link topic="pathredir">system path redirection</link> to the specified path and returns the rewritten path.</p>
 <p>Before rewriting, the path is expanded using <isxfunc>ExpandFileName</isxfunc> and converted to an extended-length path (also known as a super path).</p>
 <p>Path expansion and conversion to extended-length path always occurs, even if nothing is rewritten.</p></description>
-        <remarks><p>TPathRedirTargetProcess is defined as:</p>
+        <remarks><p><tt>TPathRedirTargetProcess</tt> is defined as:</p>
 <p><tt>TPathRedirTargetProcess = (tpCurrent, tpNativeBit, tp32Bit, tp32BitPreferSystem32);</tt></p></remarks>
         <seealso><p><isxfunc>ApplyPathRedirRulesForCurrentProcess</isxfunc><br/>
 <isxfunc>PathConvertSuperToNormal</isxfunc></p></seealso>
@@ -1887,7 +1887,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <description><p>Executes the specified executable or batch file, using the same credentials as Setup/Uninstall. The <tt>Wait</tt> parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was executed successfully, False otherwise.</p>
 <p>If True is returned and <tt>Wait</tt> is ewWaitUntilTerminated then <tt>ResultCode</tt> returns the exit code of the process.</p>
 <p>If False is returned then <tt>ResultCode</tt> specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ResultCode)</tt> to get a description of the error.</p></description>
-        <remarks><p>TExecWait is defined as:</p>
+        <remarks><p><tt>TExecWait</tt> is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
 <p>Use the <isxfunc>ShellExec</isxfunc> function instead if you need to launch a file that is not an executable or batch file.</p>
 <p>Do not include quotes in the <tt>Filename</tt> parameter; the function will add them automatically.</p>
@@ -1925,7 +1925,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>ShellExec</name>
         <prototype>function ShellExec(const Verb, Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ErrorCode: Integer): Boolean;</prototype>
         <description><p>Opens the specified file or performs another action specified by <tt>Verb</tt>, using the same credentials as Setup/Uninstall. The filename can be an executable file, a document file, a folder, or a URL. <tt>Verb</tt> may be an empty string, in which case the default verb for the file type is used (usually "open"). The <tt>Wait</tt> parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns True if the specified file was opened successfully, False otherwise. If False is returned then <tt>ErrorCode</tt> specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ErrorCode)</tt> to get a description of the error.</p></description>
-        <remarks><p>TExecWait is defined as:</p>
+        <remarks><p><tt>TExecWait</tt> is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
 <p>Note that passing a <tt>Wait</tt> value other than <tt>ewNoWait</tt> will have no effect if a new process isn't spawned (for example, if the file is opened inside an already-running instance of the program that handles the file type).</p>
 <p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p>
@@ -2044,7 +2044,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <p>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</p>
 <p>For basic authentication use <isxfunc>SetDownloadCredentials</isxfunc>.</p>
 <p>Set <tt>OnDownloadProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
-        <remarks><p>TOnDownloadProgress is defined as:</p>
+        <remarks><p><tt>TOnDownloadProgress</tt> is defined as:</p>
 <p><tt>TOnDownloadProgress = function(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>ProgressMax will be 0 if the file size is still unknown. Return True to allow the download to continue, False otherwise.</p></remarks>
         <example><pre>
@@ -2136,7 +2136,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <tt>[Setup]</tt> section directive.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <isxfunc>MapArchiveExtensions</isxfunc>.</p>
 <p>Set <tt>OnExtractionProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
-        <remarks><p>TOnExtractionProgress is defined as:</p>
+        <remarks><p><tt>TOnExtractionProgress</tt> is defined as:</p>
 <p><tt>TOnExtractionProgress = function(const ArchiveName, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>Return True to allow the extraction to continue, False otherwise.</p></remarks>
         <example><p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a <tt>[Files]</tt> entry.</p></example>
@@ -2718,29 +2718,29 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>GetIniBool</name>
         <prototype>function GetIniBool(const Section, Key: String; const Default: Boolean; const Filename: String): Boolean;</prototype>
-        <description><p>Reads a Boolean from an INI file.</p></description>
+        <description><p>Reads a <tt>Boolean</tt> from an INI file.</p></description>
       </function>
       <function>
         <name>GetIniInt</name>
         <prototype>function GetIniInt(const Section, Key: String; const Default, Min, Max: LongInt; const Filename: String): LongInt;</prototype>
-        <description><p>Reads a LongInt from an INI file. If the LongInt read is not between <tt>Min</tt>/<tt>Max</tt> then it returns <tt>Default</tt>. If <tt>Min</tt>=<tt>Max</tt> then <tt>Min</tt>/<tt>Max</tt> are ignored.</p></description>
+        <description><p>Reads a <tt>LongInt</tt> from an INI file. If the <tt>LongInt</tt> read is not between <tt>Min</tt>/<tt>Max</tt> then it returns <tt>Default</tt>. If <tt>Min</tt>=<tt>Max</tt> then <tt>Min</tt>/<tt>Max</tt> are ignored.</p></description>
       </function>
       <function>
         <name>GetIniString</name>
         <prototype>function GetIniString(const Section, Key, Default, Filename: String): String;</prototype>
-        <description><p>Reads a String from an INI file.</p></description>
+        <description><p>Reads a <tt>String</tt> from an INI file.</p></description>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>SetIniBool</name>
         <prototype>function SetIniBool(const Section, Key: String; const Value: Boolean; const Filename: String): Boolean;</prototype>
-        <description><p>Writes a Boolean to an INI file.</p></description>
+        <description><p>Writes a <tt>Boolean</tt> to an INI file.</p></description>
       </function>
       <function>
         <name>SetIniInt</name>
         <prototype>function SetIniInt(const Section, Key: String; const Value: LongInt; const Filename: String): Boolean;</prototype>
-        <description><p>Writes a LongInt to an INI file.</p></description>
+        <description><p>Writes a <tt>LongInt</tt> to an INI file.</p></description>
       </function>
       <function>
         <name>SetIniString</name>
@@ -3159,7 +3159,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <name>MsgBox</name>
         <prototype>function MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;</prototype>
         <description><p>Displays a message box. <tt>Text</tt> specifies the message to display. <tt>Typ</tt> specifies which icon to display in the message box. <tt>Buttons</tt> specifies which buttons to include in the message box. Returns an ID* constant indicating the button the user clicked, or 0 if the function fails (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
-        <remarks><p>TMsgBoxType is defined as:</p>
+        <remarks><p><tt>TMsgBoxType</tt> is defined as:</p>
 <p><tt>TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);</tt></p>
 <p>Supported flags for <tt>Buttons</tt> are:</p>
 <p><tt>MB_OK, MB_OKCANCEL, MB_ABORTRETRYIGNORE, MB_YESNOCANCEL, MB_YESNO, MB_RETRYCANCEL, MB_DEFBUTTON1, MB_DEFBUTTON2, MB_DEFBUTTON3, MB_SETFOREGROUND</tt></p>
@@ -3200,7 +3200,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
 <tt>ButtonLabels</tt> specifies which custom button labels to use. If set to an empty array, the system's default button labels will be used. If a label consists of two strings separated by a newline, then the first string specifies the button label and the second string specifies the button note. If <tt>Buttons</tt> is set to <tt>MB_OKCANCEL</tt>, <tt>MB_YESNOCANCEL</tt>, or <tt>MB_RETRYCANCEL</tt>, specifying a label for the Cancel button as the last element in the array is optional.<br />
 <tt>ShieldButton</tt> specifies which button to display a shield icon on. If set to 0, no shield icon will be displayed.</p>
 <p>Returns an ID* constant indicating the button the user clicked, or 0 if the function fails (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
-        <remarks><p>TMsgBoxType is defined as:</p>
+        <remarks><p><tt>TMsgBoxType</tt> is defined as:</p>
 <p><tt>TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);</tt></p>
 <p>Supported values for <tt>Buttons</tt> are:</p>
 <p><tt>MB_OK, MB_OKCANCEL, MB_YESNOCANCEL, MB_YESNO, MB_RETRYCANCEL, MB_ABORTRETRYIGNORE</tt></p>
@@ -3345,7 +3345,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>OleCheck</name>
         <prototype>procedure OleCheck(Result: HResult);</prototype>
-        <description><p>Use <tt>OleCheck</tt> to wrap any IUnknown based COM methods you call, so that if that method fails, an exception will be raised.</p>
+        <description><p>Use <tt>OleCheck</tt> to wrap any <tt>IUnknown</tt> based COM methods you call, so that if that method fails, an exception will be raised.</p>
 <p><tt>OleCheck</tt> is called automatically when the method declaration specifies the <tt>safecall</tt> calling convention.</p></description>
         <seealso><p><link topic="scriptautomation" window="main">Using COM Automation objects</link></p></seealso>
       </function>
@@ -3388,7 +3388,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
 <p>Console programs are always hidden and the <tt>ShowCmd</tt> parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> instead of <tt>SW_HIDE</tt> is recommended.</p>
 <p>An exception will be raised if there was an error setting up output redirection (which should be very rare).</p></description>
         <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
-<p>TExecOutput is defined as:</p>
+<p><tt>TExecOutput</tt> is defined as:</p>
 <pre>
   TExecOutput = <key>record</key>
     StdOut: TArrayOfString;
@@ -3427,7 +3427,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
 <p>If <tt>OnLog</tt> is not set to <tt>nil</tt> then the output is sent to the specified function, line by line.</p>
 <p>An exception will be raised if there was an error setting up output redirection (which should be very rare).</p></description>
         <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
-<p>TOnLog is defined as:</p>
+<p><tt>TOnLog</tt> is defined as:</p>
 <p><tt>TOnLog = procedure(const S: String; const Error, FirstLine: Boolean);</tt></p>
 <p>Parameter S is the output line when Error is False, otherwise an error message. FirstLine is True if this is the first line of output from the program, otherwise False.</p>
 <p>Error will be True if reading the output failed (which should be very rare), or if the output is too big. There is no further output after an error.</p>
@@ -3621,7 +3621,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>CallDLLProc</name>
         <prototype>function CallDLLProc(const DLLHandle: HMODULE; const ProcName: String; const Param1, Param2: NativeInt; var Result: NativeInt): Boolean;</prototype>
-        <description><p>Calls the specified function in a DLL specified using the DLL handle returned by <isxfunc>LoadDLL</isxfunc>. Returns True if the procedure was called successfully, False otherwise.<br />The function must use the standard calling convention, accept two NativeInt parameters and return a NativeInt result.</p></description>
+        <description><p>Calls the specified function in a DLL specified using the DLL handle returned by <isxfunc>LoadDLL</isxfunc>. Returns True if the procedure was called successfully, False otherwise.<br />The function must use the standard calling convention, accept two <tt>NativeInt</tt> parameters and return a <tt>NativeInt</tt> result.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll" window="main">Using DLLs</link> topic.</p></remarks>
       </function>
       <function>

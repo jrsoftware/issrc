@@ -3093,13 +3093,13 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <li>Existing installations made by non Unicode installers can be updated by Unicode installers without issues, and vice versa.</li>
 <li>Unicode Pascal Scripting notes:
   <ul>
-  <li>The Unicode compiler sees type 'String' as a Unicode string, and 'Char' as a Unicode character. Its 'AnsiString' type hasn't changed and still is an ANSI string. Its 'PChar' type has been renamed to 'PAnsiChar', and using it is generally discouraged now.</li>
+  <li>The Unicode compiler sees type <tt>String</tt> as a Unicode string, and <tt>Char</tt> as a Unicode character. Its <tt>AnsiString</tt> type hasn't changed and still is an ANSI string. Its <tt>PChar</tt> type has been renamed to <tt>PAnsiChar</tt>, and using it is generally discouraged now.</li>
   <li>The Unicode compiler is more strict about correct ';' usage: it no longer accepts certain missing ';' characters.</li>
-  <li>Some support functions had their prototype changed: some parameters of <isxfunc>CreateOutputMsgMemoPage</isxfunc>, <isxfunc>RegQueryBinaryValue</isxfunc>, <isxfunc>RegWriteBinaryValue</isxfunc>, <isxfunc>OemToCharBuff</isxfunc>, <isxfunc>CharToOemBuff</isxfunc>, <isxfunc>LoadStringFromFile</isxfunc>, <isxfunc>SaveStringToFile</isxfunc>, and <isxfunc>GetMD5OfString</isxfunc> are of type AnsiString now instead of String.</li>
+  <li>Some support functions had their prototype changed: some parameters of <isxfunc>CreateOutputMsgMemoPage</isxfunc>, <isxfunc>RegQueryBinaryValue</isxfunc>, <isxfunc>RegWriteBinaryValue</isxfunc>, <isxfunc>OemToCharBuff</isxfunc>, <isxfunc>CharToOemBuff</isxfunc>, <isxfunc>LoadStringFromFile</isxfunc>, <isxfunc>SaveStringToFile</isxfunc>, and <isxfunc>GetMD5OfString</isxfunc> are of type <tt>AnsiString</tt> now instead of <tt>String</tt>.</li>
   <li>Added new <isxfunc>SaveStringsToUTF8File</isxfunc>, and <isxfunc>GetMD5OfUnicodeString</isxfunc> support functions.</li>
-  <li>Added new 'Int64' type, supported by <isxfunc>IntToStr</isxfunc>. Also added new <isxfunc>StrToInt64</isxfunc>, <isxfunc>StrToInt64Def</isxfunc>, and <isxfunc>GetSpaceOnDisk64</isxfunc> support functions.</li>
+  <li>Added new <tt>Int64</tt> type, supported by <isxfunc>IntToStr</isxfunc>. Also added new <isxfunc>StrToInt64</isxfunc>, <isxfunc>StrToInt64Def</isxfunc>, and <isxfunc>GetSpaceOnDisk64</isxfunc> support functions.</li>
   <li>Added new <tt>TStringStream</tt> class.</li>
-  <li>If you want to compile an existing script that imports ANSI Windows API calls with the Unicode compiler, either upgrade to the 'W' Unicode API calls and use 'String' parameters, or keep the 'A' ANSI API calls and start using 'AnsiString' parameters.</li>
+  <li>If you want to compile an existing script that imports ANSI Windows API calls with the Unicode compiler, either upgrade to the 'W' Unicode API calls and use <tt>String</tt> parameters, or keep the 'A' ANSI API calls and start using <tt>AnsiString</tt> parameters.</li>
   </ul>
 </li>
 </ul>
