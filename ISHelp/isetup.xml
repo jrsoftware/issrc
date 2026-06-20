@@ -3520,7 +3520,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 <p>After starting setup.exe, exit your application as soon as possible. Note that to avoid problems with updating your .exe, Setup has an auto retry feature.</p>
 
-<p>Optionally you could also use the <tt>skipifsilent</tt> and <tt>skipifnotsilent</tt> flags and make your application aware of a '/updated' parameter to for example show a nice message box to inform the user that the update has completed.</p>
+<p>Optionally you could also use the <tt>skipifsilent</tt> and <tt>skipifnotsilent</tt> flags and make your application aware of a custom '/updated' parameter to for example show a nice message box to inform the user that the update has completed.</p>
 </li>
 
 <li>
