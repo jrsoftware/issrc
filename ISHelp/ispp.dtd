@@ -1,5 +1,19 @@
+<!--
+  Inno Setup Preprocessor
+  Copyright (C) 2001-2002 Alex Yackimoff
+  
+  Inno Setup
+  Copyright (C) 1997-2026 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
 
-<!ENTITY % highlight "sec|evt|key|com|con|str|num|ispp">
+  Document Type Definition for ispp.xml
+-->
+
+<!ENTITY % _inlineExceptLink "b | br | i | tt">
+<!ENTITY % _highlight "sec|evt|key|com|con|str|num|ispp">
+
+<!ENTITY % InlineExceptLink "(#PCDATA | %_inlineExceptLink;)*">
 
 <!ELEMENT yasyx     (topic)*>
 <!ELEMENT topic     (title|subtopicstitle|keywords|syntax|description|(topic|section)*)+>
@@ -24,28 +38,29 @@
 
 <!ELEMENT p         (#PCDATA|tt|i|link|extlink|sd|sn)*>
 <!ELEMENT pre       (line)*>
-<!ELEMENT line      (#PCDATA|link|b|%highlight;)*>
+<!ELEMENT line      (#PCDATA|link|b|%_highlight;)*>
 <!ELEMENT tt        (#PCDATA|b|i|link|extlink)*>
-<!ELEMENT link      (#PCDATA)*>
+<!ELEMENT link      %InlineExceptLink;>
 <!ATTLIST link
   href    CDATA     #IMPLIED
   popup   (yes|no)  "no">
-<!ELEMENT extlink   (#PCDATA)*>
+<!ELEMENT extlink   %InlineExceptLink;>
 <!ATTLIST extlink
   href    CDATA     #REQUIRED>
 <!ELEMENT i         (#PCDATA)*>
 <!ELEMENT b         (#PCDATA)*>
+<!ELEMENT br        EMPTY>
 <!ELEMENT sd        (#PCDATA)*>
 <!ELEMENT sn        (#PCDATA)*>
 
-<!ELEMENT sec       (#PCDATA|%highlight;)*>
-<!ELEMENT evt       (#PCDATA|%highlight;)*>
-<!ELEMENT key       (#PCDATA|%highlight;)*>
-<!ELEMENT com       (#PCDATA|%highlight;)*>
-<!ELEMENT con       (#PCDATA|%highlight;)*>
-<!ELEMENT str       (#PCDATA|%highlight;)*>
-<!ELEMENT num       (#PCDATA|%highlight;)*>
-<!ELEMENT ispp      (#PCDATA|%highlight;)*>
+<!ELEMENT sec       (#PCDATA|%_highlight;)*>
+<!ELEMENT evt       (#PCDATA|%_highlight;)*>
+<!ELEMENT key       (#PCDATA|%_highlight;)*>
+<!ELEMENT com       (#PCDATA|%_highlight;)*>
+<!ELEMENT con       (#PCDATA|%_highlight;)*>
+<!ELEMENT str       (#PCDATA|%_highlight;)*>
+<!ELEMENT num       (#PCDATA|%_highlight;)*>
+<!ELEMENT ispp      (#PCDATA|%_highlight;)*>
 
 <!ELEMENT syntax (define)*>
 
