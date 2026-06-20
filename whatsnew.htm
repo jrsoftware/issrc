@@ -142,8 +142,13 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <ul>
   <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=securitymeasures">Security Measures</a> help topic, which also includes a <a href="https://jrsoftware.org/ishelp/index.php?topic=securitymeasures&amp;anchor=supplychain">Supply-chain security</a> section and links to our <a href="https://jrsoftware.org/isdl-verify.php">Verifying Inno Setup Downloads</a> page.<br/>
       The security measures, the supply-chain security, and the download verification are not new, but they are now documented and linked in one place.</li>
-  <li>Reading the script from standard input by specifying <tt>-</tt> as the script name is now documented again in the help file. Such a script is now assumed to be UTF-8 encoded.</li>
-  <li><i>Fix:</i> Extracting a <tt>.cab</tt> archive always failed with an error (broken since its introduction in 6.5.0).</li>
+  <li><i>Fixes:</i>
+  <ul>
+    <li>Reading the script from standard input by specifying <tt>-</tt> as the script name is now documented again in the help file. Such a script is now assumed to be UTF-8 encoded.</li>
+    <li>Extracting a <tt>.cab</tt> archive no longer always fails with an error (broken since its introduction in 6.5.0).</li>
+    <li>Pascal Scripting: Selected <tt>TNewCheckListBox</tt> items with a custom <tt>ItemFontStyle</tt> or <tt>SubItemFontStyle</tt> no longer become unreadable after the list loses focus (broken since its introduction in 6.2.0). Thanks to Sergii Leonov for contributing this fix.</li>
+  </ul>
+  </li>
 </ul>
 
 <p><a name="7.0.1"></a><span class="ver">7.0.1-beta </span><span class="date">(2026-05-26)</span></p>

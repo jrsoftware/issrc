@@ -250,7 +250,10 @@ function TFile.GetCanSeek: Boolean;
 begin
   { Seek/GetPosition use SetFilePointerEx, which requires a GetFileType check first, see
     https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfilepointerex }
-  Result := GetFileType(FHandle) = FILE_TYPE_DISK;
+  const FileType = GetFileType(FHandle);
+  if (FileType = FILE_TYPE_UNKNOWN) and (GetLastError <> NO_ERROR) then
+    RaiseLastError;
+  Result := (FileType = FILE_TYPE_DISK);
 end;
 
 function TFile.GetSize: Int64;

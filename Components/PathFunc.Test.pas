@@ -878,11 +878,17 @@ begin
   TestPathCharIsDriveLetter('1', False);
 end;
 
+function IsRunningUnderWine: Boolean;
+begin
+  Result := GetProcAddress(GetModuleHandle('ntdll.dll'),
+    PAnsiChar('wine_get_version')) <> nil;
+end;
+
 {$IFDEF DEBUG}
 {$IFNDEF ISTESTTOOLPROJ}
 initialization
   try
-    PathFuncRunTests(False);
+    PathFuncRunTests(not IsRunningUnderWine);
   except on E: Exception do
     begin
       MessageBox(0, PChar(E.Message), '', MB_OK);
