@@ -159,7 +159,7 @@
 
 <dt><tt>function <a name="InitializeSetup">InitializeSetup</a>: Boolean;</tt></dt>
 <dd>
-<p>Called during Setup's initialization. Return False to abort Setup, True otherwise.</p>
+<p>Called during Setup's initialization. Return <tt>False</tt> to abort Setup, <tt>True</tt> otherwise.</p>
 </dd>
 
 <dt><tt>procedure <a name="InitializeWizard">InitializeWizard</a>;</tt></dt>
@@ -185,23 +185,23 @@
 
 <dt><tt>function <a name="NextButtonClick">NextButtonClick</a>(<anchorlink name="PageID">CurPageID</anchorlink>: Integer): Boolean;</tt></dt>
 <dd>
-<p>Called when the user clicks the Next button. If you return True, the wizard will move to the next page; if you return False, it will remain on the current page (specified by CurPageID).</p>
-<p>Note that this function is called on silent installs as well, even though there is no Next button that the user can click. Setup instead simulates "clicks" on the Next button. On a silent install, if your <tt>NextButtonClick</tt> function returns False prior to installation starting, Setup will exit automatically.</p>
+<p>Called when the user clicks the Next button. If you return <tt>True</tt>, the wizard will move to the next page; if you return <tt>False</tt>, it will remain on the current page (specified by CurPageID).</p>
+<p>Note that this function is called on silent installs as well, even though there is no Next button that the user can click. Setup instead simulates "clicks" on the Next button. On a silent install, if your <tt>NextButtonClick</tt> function returns <tt>False</tt> prior to installation starting, Setup will exit automatically.</p>
 </dd>
 
 <dt><tt>function <a name="BackButtonClick">BackButtonClick</a>(<anchorlink name="PageID">CurPageID</anchorlink>: Integer): Boolean;</tt></dt>
 <dd>
-<p>Called when the user clicks the Back button. If you return True, the wizard will move to the previous page; if you return False, it will remain on the current page (specified by CurPageID).</p>
+<p>Called when the user clicks the Back button. If you return <tt>True</tt>, the wizard will move to the previous page; if you return <tt>False</tt>, it will remain on the current page (specified by CurPageID).</p>
 </dd>
 
 <dt><tt>procedure <a name="CancelButtonClick">CancelButtonClick</a>(<anchorlink name="PageID">CurPageID</anchorlink>: Integer; var Cancel, Confirm: Boolean);</tt></dt>
 <dd>
-<p>Called when the user clicks the Cancel button or clicks the window's Close button. The <tt>Cancel</tt> parameter specifies whether normal cancel processing should occur; it defaults to True. The <tt>Confirm</tt> parameter specifies whether an "Exit Setup?" message box should be displayed; it usually defaults to True. If <tt>Cancel</tt> is set to False, then the value of <tt>Confirm</tt> is ignored.</p>
+<p>Called when the user clicks the Cancel button or clicks the window's Close button. The <tt>Cancel</tt> parameter specifies whether normal cancel processing should occur; it defaults to <tt>True</tt>. The <tt>Confirm</tt> parameter specifies whether an "Exit Setup?" message box should be displayed; it usually defaults to <tt>True</tt>. If <tt>Cancel</tt> is set to <tt>False</tt>, then the value of <tt>Confirm</tt> is ignored.</p>
 </dd>
 
 <dt><tt>function <a name="ShouldSkipPage">ShouldSkipPage</a>(<anchorlink name="PageID">PageID</anchorlink>: Integer): Boolean;</tt></dt>
 <dd>
-<p>The wizard calls this event function to determine whether or not a particular page (specified by PageID) should be shown at all. If you return True, the page will be skipped; if you return False, the page may be shown.</p>
+<p>The wizard calls this event function to determine whether or not a particular page (specified by PageID) should be shown at all. If you return <tt>True</tt>, the page will be skipped; if you return <tt>False</tt>, the page may be shown.</p>
 <p>Note: This event function isn't called for the wpPreparing, and wpInstalling pages, nor for pages that Setup has already determined should be skipped (for example, wpSelectComponents in an install containing no components).</p>
 </dd>
 
@@ -212,7 +212,7 @@
 
 <dt><tt>function <a name="CheckPassword">CheckPassword</a>(Password: String): Boolean;</tt></dt>
 <dd>
-<p>If Setup finds the <tt>CheckPassword</tt> event function in the Pascal script, it automatically displays the <i>Password</i> page and calls <tt>CheckPassword</tt> to check passwords. Return True to accept the password and False to reject it.</p>
+<p>If Setup finds the <tt>CheckPassword</tt> event function in the Pascal script, it automatically displays the <i>Password</i> page and calls <tt>CheckPassword</tt> to check passwords. Return <tt>True</tt> to accept the password and <tt>False</tt> to reject it.</p>
 <p>To avoid storing the actual password inside the compiled <tt>[Code]</tt> section which is stored inside Setup, you should use comparisons by hash only: calculate the SHA-256 hash of your salted password yourself and then compare that to <tt><isxfunc>GetSHA256OfString</isxfunc>(Password)</tt>. This way the actual value of the password is better protected.</p>
 <p>Note: If Setup is run with a /PASSWORD= <link topic="setupcmdline" anchor="PASSWORD">command line parameter</link>, your <tt>CheckPassword</tt> function will be called <i>before</i> any other event function is called, including <tt><anchorlink name="InitializeSetup">InitializeSetup</anchorlink></tt>.</p>
 <p>Also note: If <sd>Encryption</sd> is set to <tt>yes</tt> and your <tt>CheckPassword</tt> function accepts passwords different from the one used for the encryption, make sure to only extract non encrypted files.</p>
@@ -220,7 +220,7 @@
 
 <dt><tt>function <a name="NeedRestart">NeedRestart</a>: Boolean;</tt></dt>
 <dd>
-<p>Return True to instruct Setup to prompt the user to restart the system at the end of a successful installation, False otherwise.</p>
+<p>Return <tt>True</tt> to instruct Setup to prompt the user to restart the system at the end of a successful installation, <tt>False</tt> otherwise.</p>
 </dd>
 
 <dt><tt>function <a name="UpdateReadyMemo">UpdateReadyMemo</a>(Space, NewLine, MemoUserInfoInfo, MemoDirInfo, MemoTypeInfo, MemoComponentsInfo, MemoGroupInfo, MemoTasksInfo: String): String;</tt></dt>
@@ -235,7 +235,7 @@
 
 <dt><tt>function <a name="CheckSerial">CheckSerial</a>(Serial: String): Boolean;</tt></dt>
 <dd>
-<p>If Setup finds the <tt>CheckSerial</tt> event function in the Pascal script, a serial number field will automatically appear on the User Info wizard page (which must be enabled using <tt><sd>UserInfoPage</sd>=yes</tt> in your <tt>[Setup]</tt> section!). Return True to accept the serial number and False to reject it. When using serial numbers, it's important to keep in mind that since no encryption is used and the source code to Inno Setup is freely available, it would not be too difficult for an experienced individual to remove the serial number protection from an installation. Use this only as a convenience to the end user and double check the entered serial number (stored in the <tt>{userinfoserial}</tt> constant) in your application.</p>
+<p>If Setup finds the <tt>CheckSerial</tt> event function in the Pascal script, a serial number field will automatically appear on the User Info wizard page (which must be enabled using <tt><sd>UserInfoPage</sd>=yes</tt> in your <tt>[Setup]</tt> section!). Return <tt>True</tt> to accept the serial number and <tt>False</tt> to reject it. When using serial numbers, it's important to keep in mind that since no encryption is used and the source code to Inno Setup is freely available, it would not be too difficult for an experienced individual to remove the serial number protection from an installation. Use this only as a convenience to the end user and double check the entered serial number (stored in the <tt>{userinfoserial}</tt> constant) in your application.</p>
 </dd>
 
 <dt><tt>function <a name="GetCustomSetupExitCode">GetCustomSetupExitCode</a>: Integer;</tt></dt>
@@ -246,7 +246,7 @@
 <dt><tt>function <a name="PrepareToInstall">PrepareToInstall</a>(var NeedsRestart: Boolean): String;</tt></dt>
 <dd>
 <p>You can use this event function to detect and install missing prerequisites and/or to shutdown any application which is about to be updated.</p>
-<p>Return a non empty string to instruct Setup to stop at the <link topic="wizardpages">Preparing to Install</link> wizard page, showing the returned string as the error message. Set <tt>NeedsRestart</tt> to True (and return a non empty string) if a restart is needed. If Setup is stopped this way, it will exit with a dedicated exit code as described in <link topic="setupexitcodes">Setup Exit Codes</link>. Any custom exit code set by the /RESTARTEXITCODE= <link topic="setupcmdline" anchor="RESTARTEXITCODE">command line parameter</link> will not be used in this case.</p>
+<p>Return a non empty string to instruct Setup to stop at the <link topic="wizardpages">Preparing to Install</link> wizard page, showing the returned string as the error message. Set <tt>NeedsRestart</tt> to <tt>True</tt> (and return a non empty string) if a restart is needed. If Setup is stopped this way, it will exit with a dedicated exit code as described in <link topic="setupexitcodes">Setup Exit Codes</link>. Any custom exit code set by the /RESTARTEXITCODE= <link topic="setupcmdline" anchor="RESTARTEXITCODE">command line parameter</link> will not be used in this case.</p>
 <p>This function is called before Setup checks for files being in-use if <sd>CloseApplications</sd> is set to <tt>yes</tt>.</p>
 <p>This function is only called if Setup didn't already determine it can't continue because one or more files specified in the <tt>[Files]</tt> and <tt>[InstallDelete]</tt> sections were queued (by some other installation) to be replaced or deleted on the next restart.</p>
 </dd>
@@ -266,7 +266,7 @@
 
 <dt><tt>function <a name="InitializeUninstall">InitializeUninstall</a>: Boolean;</tt></dt>
 <dd>
-<p>Return False to abort Uninstall, True otherwise.</p>
+<p>Return <tt>False</tt> to abort Uninstall, <tt>True</tt> otherwise.</p>
 </dd>
 
 <dt><tt>procedure <a name="InitializeUninstallProgressForm">InitializeUninstallProgressForm</a>;</tt></dt>
@@ -282,7 +282,7 @@
 
 <dt><tt>function <a name="UninstallNeedRestart">UninstallNeedRestart</a>: Boolean;</tt></dt>
 <dd>
-<p>Return True to instruct Uninstall to prompt the user to restart the system at the end of a successful uninstallation, False otherwise.</p>
+<p>Return <tt>True</tt> to instruct Uninstall to prompt the user to restart the system at the end of a successful uninstallation, <tt>False</tt> otherwise.</p>
 </dd>
 
 </dl>
@@ -336,8 +336,8 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 <li>The implementations will be called in order of their definition except that any main implementation (=the implementation without an event attribute) will be called last.</li>
 <li>Event attributes may be used for all event functions. If the event function has a return value then lazy evaluation is performed:</li>
 <ul>
-<li><tt>InitializeSetup</tt>, <tt>BackButtonClick</tt>, <tt>NextButtonClick</tt>, <tt>InitializeUninstall</tt>: All implementations must return True for the event function to be treated as returning True and an implementation returning False stops the calls to the other implementations.</li>
-<li><tt>CheckPassword</tt>, <tt>CheckSerial</tt>, <tt>ShouldSkipPage</tt>, <tt>NeedRestart</tt>, <tt>UninstallNeedRestart</tt>: All implementations must return False for the event function to be treated as returning False and an implementation returning True stops the calls to the other implementations.</li>
+<li><tt>InitializeSetup</tt>, <tt>BackButtonClick</tt>, <tt>NextButtonClick</tt>, <tt>InitializeUninstall</tt>: All implementations must return <tt>True</tt> for the event function to be treated as returning <tt>True</tt> and an implementation returning <tt>False</tt> stops the calls to the other implementations.</li>
+<li><tt>CheckPassword</tt>, <tt>CheckSerial</tt>, <tt>ShouldSkipPage</tt>, <tt>NeedRestart</tt>, <tt>UninstallNeedRestart</tt>: All implementations must return <tt>False</tt> for the event function to be treated as returning <tt>False</tt> and an implementation returning <tt>True</tt> stops the calls to the other implementations.</li>
 <li><tt>UpdateReadyMemo</tt>, <tt>PrepareToInstall</tt>: All implementations must return an empty string for the event function to be treated as returning an empty string and an implementation returning a non empty string stops the calls to the other implementations.</li>
 <li><tt>GetCustomSetupExitCode</tt>: All implementations must return zero for the event function to be treated as returning zero and an implementation returning a non zero number stops the calls to the other implementations.</li>
 </ul>
@@ -426,7 +426,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 </paramlist>
 
-<p>All check functions must have a <tt>Boolean</tt> return value. If a check function (or the boolean expression) returns True, the entry is processed otherwise it's skipped.</p>
+<p>All check functions must have a <tt>Boolean</tt> return value. If a check function (or the boolean expression) returns <tt>True</tt>, the entry is processed otherwise it's skipped.</p>
 
 <p>For all sections except <tt>[Types]</tt> and <tt>[Components]</tt>, Setup might call each check function several times, even if there's only one entry that uses the check function. If your function performs a lengthy piece of code, you can optimize it by performing the code only once and 'caching' the result in a global variable.</p>
 
