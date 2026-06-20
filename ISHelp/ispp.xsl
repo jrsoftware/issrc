@@ -122,10 +122,6 @@
   <td><xsl:copy-of select="@nowrap"/><xsl:apply-templates/></td>
 </xsl:template>
 
-<xsl:template match="code">
-  <tt><xsl:apply-templates/></tt>
-</xsl:template>
-
 <xsl:template match="keywords">
 </xsl:template>
 

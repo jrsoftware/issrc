@@ -25,8 +25,7 @@
 <!ELEMENT p         (#PCDATA|tt|i|link|extlink|sd|sn)*>
 <!ELEMENT pre       (line)*>
 <!ELEMENT line      (#PCDATA|link|b|%highlight;)*>
-<!ELEMENT tt        (#PCDATA|i|link|extlink)*>
-<!ELEMENT code      (#PCDATA|b|i|link)*>
+<!ELEMENT tt        (#PCDATA|b|i|link|extlink)*>
 <!ELEMENT link      (#PCDATA)*>
 <!ATTLIST link
   href    CDATA     #IMPLIED
@@ -80,10 +79,10 @@
 
 <!ELEMENT table       (tr)*>
 <!ELEMENT tr          (th|td)*>
-<!ELEMENT th          (#PCDATA)>
+<!ELEMENT th          (#PCDATA|tt)*>
 <!ATTLIST th
   nowrap CDATA #IMPLIED>
-<!ELEMENT td          (#PCDATA|b|i|link|extlink|table|code)*>
+<!ELEMENT td          (#PCDATA|b|i|link|extlink|table|tt)*>
 <!ATTLIST td
   nowrap CDATA #IMPLIED>
 
