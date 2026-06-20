@@ -3297,14 +3297,14 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <li>The <tt>{group}</tt> folder is created in the <i>All Users</i> profile.</li>
 <li>The "auto" form of the directory and Shell Folder constants is mapped to the "common" form.</li>
 <li>The "user" form of these constants should NOT be used: user-level files and settings must be handled by the application itself, and never in an administrative install mode installer.</li>
-<li>The <link topic="registrysection">HKA</link>, uninstall info, and font install root keys will be HKEY_LOCAL_MACHINE.</li>
+<li>The <tt><link topic="registrysection">HKA</link></tt>, uninstall info, and font install root keys will be HKEY_LOCAL_MACHINE.</li>
 </ul>
 
 <p>In non administrative install mode:</p>
 <ul>
 <li>The <tt>{group}</tt> folder is created in the current user's profile.</li>
 <li>The "auto" form of the directory and Shell Folder constants is mapped to the "user" form.</li>
-<li>The <link topic="registrysection">HKA</link>, uninstall info, and font install root keys will be HKEY_CURRENT_USER.</li>
+<li>The <tt><link topic="registrysection">HKA</link></tt>, uninstall info, and font install root keys will be HKEY_CURRENT_USER.</li>
 </ul>
 
 <p><b>Notes:</b></p>
@@ -4837,7 +4837,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Martijn Laan: Rich Edit 2.0 &amp; URL detection support (1.3.13); Silent uninstallation (1.3.25); System image list support in drive and directory lists (1.3.25); Silent installation (2.0); The <sn>[Types]</sn>, <sn>[Components]</sn> and <sn>[Tasks]</sn> sections (2.0); The <tt>postinstall</tt> flag (2.0); The <sn>[Code]</sn> section (4.0); Subcomponents and subtasks support (4.0); Many other features after 4.0.</li>
 
-<li>Alex Yackimoff: Portions of <link topic="scriptclasses" anchor="TNewCheckListBox">TNewCheckListBox</link> (4.0); ISPP (5.4.1).</li>
+<li>Alex Yackimoff: Portions of <tt><link topic="scriptclasses" anchor="TNewCheckListBox">TNewCheckListBox</link></tt> (4.0); ISPP (5.4.1).</li>
 
 <li>Carlo Kok: <extlink href="http://www.remobjects.com/ps">RemObjects Pascal Script</extlink> (4.0).</li>
 
@@ -5202,7 +5202,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>This directive lets you disable the missing RunOnceIds warning. See <link topic="runsection" anchor="RunOnceId">RunOnceId</link> for more information.</p>
+<p>This directive lets you disable the missing RunOnceIds warning. See <tt><link topic="runsection" anchor="RunOnceId">RunOnceId</link></tt> for more information.</p>
 </body>
 </setuptopic>
 
@@ -5322,7 +5322,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <tt>full</tt></setupvalid>
 <setupdefault><tt>auto</tt></setupdefault>
 <body>
-<p>This specifies the method of archive extraction used by <sn>[Files]</sn> section flag <link topic="filessection" anchor="extractarchive">extractarchive</link> and support functions <isxfunc>ExtractArchive</isxfunc> and <isxfunc>CreateExtractionPage</isxfunc>.</p>
+<p>This specifies the method of archive extraction used by <sn>[Files]</sn> section flag <tt><link topic="filessection" anchor="extractarchive">extractarchive</link></tt> and support functions <isxfunc>ExtractArchive</isxfunc> and <isxfunc>CreateExtractionPage</isxfunc>.</p>
 <p><tt>basic</tt> uses an embedded version of the "7z ANSI-C Decoder" from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements. It only supports .7z archives that are not password-protected.</p>
 <p><tt>enhanced/nopassword</tt> internally uses 7zxr.dll from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled, code-signed, and renamed to is7zxr.dll. Compared to <tt>basic</tt>, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</p>
 <p><tt>enhanced</tt> uses 7zxa.dll instead of 7zxr.dll, recompiled, code-signed, and renamed to is7zxa.dll. It still only supports .7z archives, but they may be password-protected.</p>
@@ -5559,7 +5559,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>If this is set to <tt>yes</tt>, Setup will show a <i>User Information</i> wizard page which asks for the user's name, organization and possibly a serial number. The values the user enters are stored in the <tt>{userinfoname}</tt>, <tt>{userinfoorg}</tt> and <tt>{userinfoserial}</tt> constants. You can use these constants in <sn>[Registry]</sn> or <sn>[INI]</sn> entries to save their values for later use.</p>
-<p>For the serial number field to appear, a <link topic="scriptevents" anchor="CheckSerial">CheckSerial</link> event function must be present.</p>
+<p>For the serial number field to appear, a <tt><link topic="scriptevents" anchor="CheckSerial">CheckSerial</link></tt> event function must be present.</p>
 <p>The <sd>DefaultUserInfoName</sd>, <sd>DefaultUserInfoOrg</sd> and <sd>DefaultUserInfoSerial</sd> directives determine the default name, organization and serial number shown. If <sd>UsePreviousUserInfo</sd> is <tt>yes</tt> (the default) and Setup finds that a previous version of the <link topic="sameappnotes">same application</link> is already installed, it will use the name, organization and serial number entered previously instead.</p>
 <p>On silent installs, the default user name, organization, and serial number values will be assumed. Setup will not check whether the user name is blank (since the user has no way of correcting it), however it will still check the serial number.</p>
 </body>
@@ -6337,7 +6337,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <p>Note: Some windows such as the <i>Select Language</i> dialog will only increase in size horizontally.</p>
 <p><b>See also:</b><br/>
 <sd>WizardKeepAspectRatio</sd><br/>
-<link topic="langoptionssection" anchor="DialogFontSize">DialogFontSize</link></p>
+<tt><link topic="langoptionssection" anchor="DialogFontSize">DialogFontSize</link></tt></p>
 </body>
 </setuptopic>
 
@@ -6819,7 +6819,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 
 </dl>
 <p><b>See also:</b><br/>
-<link topic="isarchidentifier">Architecture Identifier Matchers like IsX64Compatible</link><br />
+<link topic="isarchidentifier">Architecture Identifier Matchers like <tt>IsX64Compatible</tt></link><br />
 <isxfunc>ProcessorArchitecture</isxfunc></p>
 </body>
 </topic>
@@ -7168,7 +7168,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <p>Note: Setup uses Windows <extlink href="https://docs.microsoft.com/en-us/windows/win32/rstmgr/about-restart-manager">Restart Manager</extlink> to detect, close, and restart applications.</p>
 <p><b>See also:</b><br/>
 <sd>CloseApplicationsFilter</sd><br/>
-<link topic="scriptevents" anchor="RegisterExtraCloseApplicationsResources">RegisterExtraCloseApplicationsResources</link><br/>
+<tt><link topic="scriptevents" anchor="RegisterExtraCloseApplicationsResources">RegisterExtraCloseApplicationsResources</link></tt><br/>
 <sd>RestartApplications</sd><br/>
 <sd>AppMutex</sd></p>
 </body>
