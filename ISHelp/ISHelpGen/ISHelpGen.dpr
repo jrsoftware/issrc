@@ -317,7 +317,9 @@ end;
 
 function GenerateSectionNameTopicName(const SectionName: String): String;
 begin
-  if SameText(SectionName, 'UninstallRun') then
+  if SameText(SectionName, 'Code') then
+    Result := 'scriptcreating'
+  else if SameText(SectionName, 'UninstallRun') then
     Result := 'runsection'
   else
     Result := Lowercase(SectionName) + 'section';

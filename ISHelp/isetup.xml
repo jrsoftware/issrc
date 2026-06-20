@@ -213,7 +213,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <p>Inno Setup Scripts are arranged into <i>sections</i>. Each section controls a different aspect of the installation. A section is started by specifying the name of the section enclosed in square brackets <tt>[]</tt>. Inside each section is any number of <i>entries</i>.</p>
 
-<p>There are two different main types of sections: those such as <tt>[Setup]</tt> whose entries contain directive names and values (in the form <tt>Directive=Value</tt>), and those such as <tt>[Files]</tt> whose entries are divided into <link topic="params">parameters</link>.</p>
+<p>There are two different main types of sections: those such as <sn>[Setup]</sn> whose entries contain directive names and values (in the form <tt>Directive=Value</tt>), and those such as <sn>[Files]</sn> whose entries are divided into <link topic="params">parameters</link>.</p>
 
 <p>Here is an example:</p>
 
@@ -287,7 +287,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 <keyword value="Parameters in Sections" />
 <body>
 
-<p>All of the sections in a script, with the exception of <tt>[Setup]</tt>, <tt>[Messages]</tt>, <tt>[CustomMessages]</tt>, <tt>[LangOptions]</tt>, and <tt>[Code]</tt>, contain lines separated into <i>parameters</i>. The following is an example of a <tt>[Files]</tt> section:</p>
+<p>All of the sections in a script, with the exception of <sn>[Setup]</sn>, <sn>[Messages]</sn>, <sn>[CustomMessages]</sn>, <sn>[LangOptions]</sn>, and <sn>[Code]</sn>, contain lines separated into <i>parameters</i>. The following is an example of a <sn>[Files]</sn> section:</p>
 
 <precode>
 <sec>[Files]</sec>
@@ -498,7 +498,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="tmp">{tmp}</a></b></dt>
 <dd>
-<p>Temporary directory used by Setup or Uninstall. This is <i>not</i> the value of the user's TEMP environment variable. It is a subdirectory of the user's temporary directory which is created by Setup or Uninstall at startup (with a name like "C:\Windows\Temp\IS-xxxxx.tmp"). All files and subdirectories in this directory are deleted when Setup or Uninstall exits. During Setup, this is primarily useful for extracting files that are to be executed in the <tt>[Run]</tt> section but aren't needed after the installation.</p>
+<p>Temporary directory used by Setup or Uninstall. This is <i>not</i> the value of the user's TEMP environment variable. It is a subdirectory of the user's temporary directory which is created by Setup or Uninstall at startup (with a name like "C:\Windows\Temp\IS-xxxxx.tmp"). All files and subdirectories in this directory are deleted when Setup or Uninstall exits. During Setup, this is primarily useful for extracting files that are to be executed in the <sn>[Run]</sn> section but aren't needed after the installation.</p>
 </dd>
 
 <dt><b><a name="commonfonts">{commonfonts}</a></b></dt>
@@ -832,7 +832,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="uninstallexe">{uninstallexe}</a></b></dt>
 <dd>
-<p>The full pathname of the uninstall program extracted by Setup, e.g. "C:\Program Files\My Program\unins000.exe". This constant is typically used in an <tt>[Icons]</tt> section entry for creating an Uninstall icon. It is only valid if <sd>Uninstallable</sd> is <tt>yes</tt> (the default setting).</p>
+<p>The full pathname of the uninstall program extracted by Setup, e.g. "C:\Program Files\My Program\unins000.exe". This constant is typically used in an <sn>[Icons]</sn> section entry for creating an Uninstall icon. It is only valid if <sd>Uninstallable</sd> is <tt>yes</tt> (the default setting).</p>
 </dd>
 
 <dt><b><a name="sysuserinfoname">{sysuserinfoname}</a></b><br/>
@@ -845,7 +845,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <b><a name="userinfoorg">{userinfoorg}</a></b><br/>
 <b><a name="userinfoserial">{userinfoserial}</a></b></dt>
 <dd>
-<p>The name, organization and serial number, respectively, that the user entered on the <i>User Information</i> wizard page (which can be enabled via the <sd>UserInfoPage</sd> directive). Typically, these constants are used in <tt>[Registry]</tt> or <tt>[INI]</tt> entries to save their values for later use.</p>
+<p>The name, organization and serial number, respectively, that the user entered on the <i>User Information</i> wizard page (which can be enabled via the <sd>UserInfoPage</sd> directive). Typically, these constants are used in <sn>[Registry]</sn> or <sn>[INI]</sn> entries to save their values for later use.</p>
 </dd>
 
 <dt><b><a name="username">{username}</a></b></dt>
@@ -883,7 +883,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 </param>
 
 <param name="MinVersion">
-<p>A minimum <link topic="winvernotes">Windows version</link> for the entry to be processed. If you use <tt>0</tt> then the entry will never be processed. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <sd>MinVersion</sd> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>A minimum <link topic="winvernotes">Windows version</link> for the entry to be processed. If you use <tt>0</tt> then the entry will never be processed. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <sd>MinVersion</sd> directive in the script's <sn>[Setup]</sn> section.</p>
 <p>An entry without a <tt>MinVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
 <pre><key>MinVersion</key>: 6.2</pre>
@@ -891,7 +891,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 </param>
 
 <param name="OnlyBelowVersion">
-<p>Essentially the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows version</link> for the entry <i>not</i> to be processed. For example, if you use <tt>6.2</tt> and the user is running Windows 7, the entry <i>will</i> be processed, but if the user is running Windows 8 (which reports its version as 6.2) or later, it will <i>not</i> be processed. Putting <tt>0</tt> means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <sd>OnlyBelowVersion</sd> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>Essentially the opposite of <tt>MinVersion</tt>. Specifies the minimum <link topic="winvernotes">Windows version</link> for the entry <i>not</i> to be processed. For example, if you use <tt>6.2</tt> and the user is running Windows 7, the entry <i>will</i> be processed, but if the user is running Windows 8 (which reports its version as 6.2) or later, it will <i>not</i> be processed. Putting <tt>0</tt> means there is no upper version limit. <link topic="buildnumnotes">Build numbers and/or service pack levels</link> may be included. This overrides any <sd>OnlyBelowVersion</sd> directive in the script's <sn>[Setup]</sn> section.</p>
 <p>If <tt>0</tt> is not used: should be higher than <tt>6.1</tt> otherwise the entry is never processed. (Windows Vista/Server 2008 are no longer supported.)</p>
 <p>An entry without an <tt>OnlyBelowVersion</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
@@ -915,7 +915,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <paramlist>
 
 <param name="Components">
-<p>Supported by all sections except <tt>[Types]</tt> and <tt>[Components]</tt>.</p>
+<p>Supported by all sections except <sn>[Types]</sn> and <sn>[Components]</sn>.</p>
 <p>A space separated list of component names, telling Setup to which components the entry belongs. If the end user selects a component from this list, the entry is processed (for example: the file is installed).</p>
 <p>An entry without a <tt>Components</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
 <example>
@@ -929,10 +929,10 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 </param>
 
 <param name="Tasks">
-<p>Supported by all sections except <tt>[Types]</tt>, <tt>[Components]</tt> and <tt>[Tasks]</tt>.</p>
+<p>Supported by all sections except <sn>[Types]</sn>, <sn>[Components]</sn> and <sn>[Tasks]</sn>.</p>
 <p>A space separated list of task names, telling Setup to which task the entry belongs. If the end user selects a task from this list, the entry is processed (for example: the file is installed).</p>
 <p>An entry without a <tt>Tasks</tt> parameter is always processed, unless other parameters say it shouldn't be.</p>
-<p>Note that the <i>Don't create a Start Menu folder</i> checkbox on the <i>Select Start Menu Folder</i> wizard page doesn't affect <tt>[Icons]</tt> entries that have <tt>Tasks</tt> parameters since they have their own checkboxes.</p>
+<p>Note that the <i>Don't create a Start Menu folder</i> checkbox on the <i>Select Start Menu Folder</i> wizard page doesn't affect <sn>[Icons]</sn> entries that have <tt>Tasks</tt> parameters since they have their own checkboxes.</p>
 <example>
 <pre>
 <sec>[Icons]</sec>
@@ -1216,7 +1216,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 <paramlist>
 
 <param name="Name" required="yes">
-<p>The internal name of the type. Used as parameter for components in the <tt>[Components]</tt> section to instruct Setup to which types a component belongs.</p>
+<p>The internal name of the type. Used as parameter for components in the <sn>[Components]</sn> section to instruct Setup to which types a component belongs.</p>
 <example>
 <pre><key>Name</key>: "full"</pre>
 </example>
@@ -1305,7 +1305,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 </param>
 
 <param name="ExtraDiskSpaceRequired">
-<p>The extra disk space required by this component, similar to the <sd>ExtraDiskSpaceRequired</sd> directive for the <tt>[Setup]</tt> section.</p>
+<p>The extra disk space required by this component, similar to the <sd>ExtraDiskSpaceRequired</sd> directive for the <sn>[Setup]</sn> section.</p>
 <p>Supports digit separators and set in bytes. (1048576 bytes = 1 megabyte)</p>
 <example>
 <pre><key>ExtraDiskSpaceRequired</key>: 1_048_576</pre>
@@ -1329,11 +1329,11 @@ Besides space separated lists, you may also use boolean expressions containing c
 <p>Instructs Setup that this component cannot be manually selected or unselected by the end user during installation.</p>
 </flag>
 <flag name="restart">
-<p>Instructs Setup to ask the user to restart the system if this component is installed, regardless of whether this is necessary (for example because of <tt>[Files]</tt> section entries with the <tt>restartreplace</tt> flag). Like <sd>AlwaysRestart</sd> but per component.</p>
+<p>Instructs Setup to ask the user to restart the system if this component is installed, regardless of whether this is necessary (for example because of <sn>[Files]</sn> section entries with the <tt>restartreplace</tt> flag). Like <sd>AlwaysRestart</sd> but per component.</p>
 </flag>
 <flag name="disablenouninstallwarning">
 <p>Instructs Setup not to warn the user that this component won't be uninstalled if they deselect it when it's already installed on the user's system.</p>
-<p>Depending on the complexity of your components, you can try to use the <tt>[InstallDelete]</tt> section and this flag to automatically 'uninstall' deselected components.</p>
+<p>Depending on the complexity of your components, you can try to use the <sn>[InstallDelete]</sn> section and this flag to automatically 'uninstall' deselected components.</p>
 </flag>
 </flaglist>
 
@@ -1425,7 +1425,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 <p>Instructs Setup that this task is mutually exclusive with sibling tasks that also have the <tt>exclusive</tt> flag.</p>
 </flag>
 <flag name="restart">
-<p>Instructs Setup to ask the user to restart the system at the end of installation if this task is selected, regardless of whether it is necessary (for example because of <tt>[Files]</tt> section entries with the <tt>restartreplace</tt> flag). Like <sd>AlwaysRestart</sd> but per task.</p>
+<p>Instructs Setup to ask the user to restart the system at the end of installation if this task is selected, regardless of whether it is necessary (for example because of <sn>[Files]</sn> section entries with the <tt>restartreplace</tt> flag). Like <sd>AlwaysRestart</sd> but per task.</p>
 </flag>
 <flag name="unchecked">
 <p>Instructs Setup that this task should be unchecked initially.</p>
@@ -1516,7 +1516,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 
 <flaglist>
 <flag name="deleteafterinstall">
-<p>Instructs Setup to create the directory as usual, but then delete it once the installation is completed (or aborted) if it's empty. This can be useful when extracting temporary data needed by a program executed in the script's <tt>[Run]</tt> section.</p>
+<p>Instructs Setup to create the directory as usual, but then delete it once the installation is completed (or aborted) if it's empty. This can be useful when extracting temporary data needed by a program executed in the script's <sn>[Run]</sn> section.</p>
 <p>This flag will not cause directories that already existed before installation to be deleted.</p>
 </flag>
 <flag name="setntfscompression">
@@ -1697,7 +1697,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 </param>
 
 <param name="ExtractArchivePassword">
-<p>Specifies the password of the archive, which can include constants. Please be aware that this password is stored in an unencrypted form in the resulting Setup file(s), even if you have enabled encryption (using the <tt>[Setup]</tt> section directive <sd>Encryption</sd>).</p>
+<p>Specifies the password of the archive, which can include constants. Please be aware that this password is stored in an unencrypted form in the resulting Setup file(s), even if you have enabled encryption (using the <sn>[Setup]</sn> section directive <sd>Encryption</sd>).</p>
 <p>This parameter is ignored if the <tt>extractarchive</tt> flag isn't also specified.</p>
 </param>
 
@@ -1713,7 +1713,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 </param>
 
 <param name="DownloadPassword">
-<p>Specifies the basic authentication password to use for the file download, which can include constants. Please be aware that this password is stored in an unencrypted form in the resulting Setup file(s), even if you have enabled encryption (using the <tt>[Setup]</tt> section directive <sd>Encryption</sd>).</p>
+<p>Specifies the basic authentication password to use for the file download, which can include constants. Please be aware that this password is stored in an unencrypted form in the resulting Setup file(s), even if you have enabled encryption (using the <sn>[Setup]</sn> section directive <sd>Encryption</sd>).</p>
 <p>This parameter is ignored if the <tt>download</tt> flag isn't also specified.</p>
 </param>
 
@@ -1748,16 +1748,16 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>Always ask the user to confirm before replacing an existing file.</p>
 </flag>
 <flag name="createallsubdirs">
-<p>By default the compiler skips empty directories when it recurses subdirectories searching for the <tt>Source</tt> filename/wildcard. This flag causes these directories to be created at install time (just like if you created <tt>[Dirs]</tt> entries for them).</p>
+<p>By default the compiler skips empty directories when it recurses subdirectories searching for the <tt>Source</tt> filename/wildcard. This flag causes these directories to be created at install time (just like if you created <sn>[Dirs]</sn> entries for them).</p>
 <p>This flag must be combined with <tt>recursesubdirs</tt>.</p>
 </flag>
 <flag name="deleteafterinstall">
-<p>Instructs Setup to install the file as usual, but then delete it once the installation is completed (or aborted). This can be useful for extracting temporary data needed by a program executed in the script's <tt>[Run]</tt> section.</p>
+<p>Instructs Setup to install the file as usual, but then delete it once the installation is completed (or aborted). This can be useful for extracting temporary data needed by a program executed in the script's <sn>[Run]</sn> section.</p>
 <p>This flag will not cause existing files that weren't replaced during installation to be deleted.</p>
 <p>This flag cannot be combined with the <tt>isreadme</tt>, <tt>regserver</tt>, <tt>regtypelib</tt>, <tt>restartreplace</tt>, <tt>sharedfile</tt>, or <tt>uninsneveruninstall</tt> flags.</p>
 </flag>
 <flag name="dontcopy">
-<p>Don't copy the file to the user's system during the normal file copying stage but do statically compile the file into the installation. This flag is useful if the file is handled by the <tt>[Code]</tt> section exclusively and extracted using <isxfunc>ExtractTemporaryFile</isxfunc>, and in that case should be combined with <tt>noencryption</tt>.</p>
+<p>Don't copy the file to the user's system during the normal file copying stage but do statically compile the file into the installation. This flag is useful if the file is handled by the <sn>[Code]</sn> section exclusively and extracted using <isxfunc>ExtractTemporaryFile</isxfunc>, and in that case should be combined with <tt>noencryption</tt>.</p>
 </flag>
 <flag name="dontverifychecksum">
 <p>Prevents Setup from verifying the file checksum after extraction. Use this flag on files you wish to modify while already compiled into Setup.</p>
@@ -1776,7 +1776,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="extractarchive">
 <p>This flag instructs Setup not to copy an existing archive file, but instead to extract it. Optionally use the <tt>ExtractArchivePassword</tt> parameter to specify a password.</p>
-<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <tt>[Setup]</tt> section directive, that must not be set to <tt>basic</tt>.</p>
+<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <sn>[Setup]</sn> section directive, that must not be set to <tt>basic</tt>.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <isxfunc>MapArchiveExtensions</isxfunc>.</p>
 <p>This flag must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
 <p>This flag is usually combined with the <tt>recursesubdirs</tt> and <tt>createallsubdirs</tt> flags.</p>
@@ -1810,14 +1810,14 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="isreadme">
 <p>File is the "README" file. Only <i>one</i> file in an installation can have this flag. When a file has this flag, the user will be asked if they would like to view the README file after the installation has completed. If Yes is chosen, Setup will open the file, using the default program for the file type. For this reason, the README file should always end with an extension like .txt, .wri, or .doc.</p>
-<p>Note that if Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <sd>AlwaysRestart</sd> <tt>[Setup]</tt> section directive is <tt>yes</tt>), the user will not be given an option to view the README file.</p>
+<p>Note that if Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <sd>AlwaysRestart</sd> <sn>[Setup]</sn> section directive is <tt>yes</tt>), the user will not be given an option to view the README file.</p>
 </flag>
 <flag name="nocompression">
 <p>Prevents the compiler from attempting to compress the file. Use this flag on file types that you know can't benefit from compression (for example, JPEG images) to speed up the compilation process and save a few bytes in the resulting installation.</p>
 <p>This flag has no effect if combined with the <tt>external</tt> flag.</p>
 </flag>
 <flag name="noencryption">
-<p>Prevents the file from being stored encrypted. Use this flag if you have enabled encryption (using the <tt>[Setup]</tt> section directive <sd>Encryption</sd>) but want to be able to extract the file using the <tt>[Code]</tt> section support function <isxfunc>ExtractTemporaryFile</isxfunc> before the user has entered the correct password.</p>
+<p>Prevents the file from being stored encrypted. Use this flag if you have enabled encryption (using the <sn>[Setup]</sn> section directive <sd>Encryption</sd>) but want to be able to extract the file using the <sn>[Code]</sn> section support function <isxfunc>ExtractTemporaryFile</isxfunc> before the user has entered the correct password.</p>
 <p>This flag has no effect if combined with the <tt>external</tt> flag.</p>
 </flag>
 <flag name="notimestamp">
@@ -1863,7 +1863,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="restartreplace">
 <p>When an existing file needs to be replaced, and it is in use (locked) by another running process, Setup will by default display an error message. This flag tells Setup to instead register the file to be replaced the next time the system is restarted (by calling MoveFileEx or by creating an entry in WININIT.INI). When this happens, the user will be prompted to restart their computer at the end of the installation process.</p>
-<p><b>NOTE:</b> This flag has no effect if the user does not have administrative privileges. Therefore, when using this flag, it is recommended that you leave the <sd>PrivilegesRequired</sd> <tt>[Setup]</tt> section directive at the default setting of <tt>admin</tt>.</p>
+<p><b>NOTE:</b> This flag has no effect if the user does not have administrative privileges. Therefore, when using this flag, it is recommended that you leave the <sd>PrivilegesRequired</sd> <sn>[Setup]</sn> section directive at the default setting of <tt>admin</tt>.</p>
 </flag>
 <flag name="setntfscompression">
 <p>Instructs Setup to enable NTFS compression on the file (even if it didn't replace the file). If it fails to set the compression state for any reason (for example, if compression is not supported by the file system), no error message will be displayed.</p>
@@ -1871,19 +1871,19 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="sharedfile">
 <p>Specifies that the file is shared among multiple applications, and should only be removed at uninstall time if no other applications are using it. Most files installed to the Windows System directory should use this flag, including .OCX, .BPL, and .DPL files.</p>
 <p>Windows' standard shared file reference-counting mechanism (located in the registry under HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\SharedDLLs) is used to keep track of how many applications depend on the file. Each time the file is installed, the reference count for the file is incremented. (This happens regardless of whether the installer actually replaces the file on disk.) When an application using the file is uninstalled, the reference count is decremented. If the count reaches zero, the file is deleted (with the user's confirmation, unless the <tt>uninsnosharedfileprompt</tt> flag is also specified).</p>
-<p>If Setup is run more than once, the reference count for the file will be incremented more than once. The uninstaller will decrement the reference count the same number of times, however, so no references are leaked (provided the <sd>UninstallLogMode</sd> <tt>[Setup]</tt> section directive isn't changed from its default setting of <tt>append</tt>).</p>
+<p>If Setup is run more than once, the reference count for the file will be incremented more than once. The uninstaller will decrement the reference count the same number of times, however, so no references are leaked (provided the <sd>UninstallLogMode</sd> <sn>[Setup]</sn> section directive isn't changed from its default setting of <tt>append</tt>).</p>
 <p>On 64-bit Windows, there are separate <tt>SharedDLLs</tt> registry keys for 32-bit and 64-bit applications. The <link topic="entrybitness">entry's bitness</link> determines whether the 32-bit or 64-bit <tt>SharedDLLs</tt> key is updated. The default bitness can be overridden with the <tt>32bit</tt> and <tt>64bit</tt> flags.</p>
 <p>When this flag is used, do not specify <tt>{syswow64}</tt> in the <tt>DestDir</tt> parameter; use <tt>{sys}</tt> instead. Even though <tt>{sys}</tt> and <tt>{syswow64}</tt> map to the same underlying directory in <link topic="32vs64bitinstalls">32-bit install mode</link>, the path name must exactly match what every other existing installer is using; otherwise, a second reference count for the file would be created, which could result in the file being removed prematurely. If you need to install a shared file to the 32-bit System directory in <link topic="32vs64bitinstalls">64-bit install mode</link>, specify <tt>{sys}</tt> in the <tt>DestDir</tt> parameter and additionally include the <tt>32bit</tt> flag.</p>
 </flag>
 <flag name="sign">
-<p>This flag instructs the compiler to digitally sign the original source files before storing them. Ignored if <tt>[Setup]</tt> section directive <sd>SignTool</sd> is not set.</p>
+<p>This flag instructs the compiler to digitally sign the original source files before storing them. Ignored if <sn>[Setup]</sn> section directive <sd>SignTool</sd> is not set.</p>
 <p>This flag cannot be combined with the <tt>issigverify</tt> flag. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="signcheck">
 <p>This flag instructs the compiler to check the original source files for a digital signature before storing them.</p>
 </flag>
 <flag name="signonce">
-<p>This flag instructs the compiler to digitally sign the original source files before storing them, but only if the files are not already signed. Ignored if <tt>[Setup]</tt> section directive <sd>SignTool</sd> is not set.</p>
+<p>This flag instructs the compiler to digitally sign the original source files before storing them, but only if the files are not already signed. Ignored if <sn>[Setup]</sn> section directive <sd>SignTool</sd> is not set.</p>
 <p>This flag cannot be combined with the <tt>issigverify</tt> flag. Use <tt>signcheck</tt> instead.</p>
 </flag>
 <flag name="skipifsourcedoesntexist">
@@ -1899,7 +1899,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag instructs the compiler to compress the found files sorted by name before it sorts by path name. This potentially decreases the size of Setup if <link topic="setup_solidcompression">solid compression</link> is also used. If <tt>sortfilesbyextension</tt> is also used, files are first sorted by extension.</p>
 </flag>
 <flag name="touch">
-<p>This flag causes Setup to set the time/date stamp of the installed file(s) to that which is specified by the <sd>TouchDate</sd> and <sd>TouchTime</sd> <tt>[Setup]</tt> section directives.</p>
+<p>This flag causes Setup to set the time/date stamp of the installed file(s) to that which is specified by the <sd>TouchDate</sd> and <sd>TouchTime</sd> <sn>[Setup]</sn> section directives.</p>
 <p>This flag has no effect if combined with the <tt>external</tt> flag.</p>
 </flag>
 <flag name="uninsnosharedfileprompt">
@@ -1945,7 +1945,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 
 <p>If Setup is unable to replace an existing file because it is in use by another process, it will make up to 4 additional attempts to replace the file, delaying one second before each attempt. If all attempts fail, an error message will be displayed.</p>
 
-<p>Setup registers all files with the <tt>regserver</tt> or <tt>regtypelib</tt> flags as the last step of installation. However, if the <tt>[Setup]</tt> section directive <sd>AlwaysRestart</sd> is <tt>yes</tt>, or if there are files with the <tt>restartreplace</tt> flag, all files get registered on the next reboot (by creating an entry in Windows' <i>RunOnce</i> registry key).</p>
+<p>Setup registers all files with the <tt>regserver</tt> or <tt>regtypelib</tt> flags as the last step of installation. However, if the <sn>[Setup]</sn> section directive <sd>AlwaysRestart</sd> is <tt>yes</tt>, or if there are files with the <tt>restartreplace</tt> flag, all files get registered on the next reboot (by creating an entry in Windows' <i>RunOnce</i> registry key).</p>
 
 <p>When files with a .HLP extension (Windows help files) are uninstalled, the corresponding .GID and .FTS files are automatically deleted as well. Similarly, when a .CHM (HTML Help) file is deleted, any .CHW (generated index) file is automatically deleted.</p>
 
@@ -2216,12 +2216,12 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>Setup determines the default language to use for its messages in the following order:</p>
 
 <ol>
-<li>It searches for a language whose <tt>LanguageID</tt> setting (normally specified in the <tt>[LangOptions]</tt> section of the language's .isl file) matches both the primary language identifier and sublanguage identifier of the current user's UI language or locale (depending on the setting of <sd>LanguageDetectionMethod</sd>).</li>
+<li>It searches for a language whose <tt>LanguageID</tt> setting (normally specified in the <sn>[LangOptions]</sn> section of the language's .isl file) matches both the primary language identifier and sublanguage identifier of the current user's UI language or locale (depending on the setting of <sd>LanguageDetectionMethod</sd>).</li>
 <li>If no match is found, it searches for just a primary language identifier match. If two or more available languages have the same primary language identifier, it selects the first one listed in the <tt>[Languages]</tt> section.<br />Exception: Simplified Chinese is excluded from consideration in this step if the user's UI language or locale (depending on the setting of <sd>LanguageDetectionMethod</sd>) is Traditional Chinese, and vice versa.</li>
 <li>If no match is found, it defaults to the first language specified in the <tt>[Languages]</tt> section.</li>
 </ol>
 
-<p>If the <sd>ShowLanguageDialog</sd> <tt>[Setup]</tt> section directive is set to <tt>yes</tt> (the default), a <i>Select Language</i> dialog will be displayed which gives the user an opportunity to override the language Setup chose. See the <sn>[LangOptions]</sn> section help topic for details.</p>
+<p>If the <sd>ShowLanguageDialog</sd> <sn>[Setup]</sn> section directive is set to <tt>yes</tt> (the default), a <i>Select Language</i> dialog will be displayed which gives the user an opportunity to override the language Setup chose. See the <sn>[LangOptions]</sn> section help topic for details.</p>
 
 <p>The following is an example of a <tt>[Languages]</tt> section. It defines two languages: English, based on the standard Default.isl file, and Dutch, based on a third-party translation.</p>
 
@@ -2234,7 +2234,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <paramlist>
 
 <param name="Name" required="yes">
-<p>The internal name of the language, which you can set to anything you like. This can used as a prefix on <tt>[LangOptions]</tt> or <tt>[Messages]</tt> section entries to have the entries apply to only one language. The {language} constant returns the internal name of the selected language.</p>
+<p>The internal name of the language, which you can set to anything you like. This can used as a prefix on <sn>[LangOptions]</sn> or <sn>[Messages]</sn> section entries to have the entries apply to only one language. The {language} constant returns the internal name of the selected language.</p>
 <example>
 <pre><key>Name</key>: "en"</pre>
 </example>
@@ -2254,21 +2254,21 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </param>
 
 <param name="LicenseFile">
-<p>Specifies the name of an optional license agreement file, overriding the <sd>LicenseFile</sd> <tt>[Setup]</tt> section directive.</p>
+<p>Specifies the name of an optional license agreement file, overriding the <sd>LicenseFile</sd> <sn>[Setup]</sn> section directive.</p>
 <example>
 <pre><key>LicenseFile</key>: "license-Dutch.txt"</pre>
 </example>
 </param>
 
 <param name="InfoBeforeFile">
-<p>Specifies the name of an optional "readme" file, overriding the <sd>InfoBeforeFile</sd> <tt>[Setup]</tt> section directive.</p>
+<p>Specifies the name of an optional "readme" file, overriding the <sd>InfoBeforeFile</sd> <sn>[Setup]</sn> section directive.</p>
 <example>
 <pre><key>InfoBeforeFile</key>: "infobefore-Dutch.txt"</pre>
 </example>
 </param>
 
 <param name="InfoAfterFile">
-<p>Specifies the name of an optional "readme" file, overriding the <sd>InfoAfterFile</sd> <tt>[Setup]</tt> section directive.</p>
+<p>Specifies the name of an optional "readme" file, overriding the <sd>InfoAfterFile</sd> <sn>[Setup]</sn> section directive.</p>
 <example>
 <pre><key>InfoAfterFile</key>: "infoafter-Dutch.txt"</pre>
 </example>
@@ -2289,7 +2289,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <keyword value="BeveledLabel" anchor="BeveledLabel" />
 <body>
 
-<p>A <tt>[Messages]</tt> section is used to define the messages displayed by the Setup program and uninstaller. Normally, you need not create a <tt>[Messages]</tt> section in your script file, since all messages are, by default, pulled in from the file <a name="Default.isl"><i>Default.isl</i></a> included with Inno Setup (or whichever file is specified by a <tt>[Languages]</tt> section entry).</p>
+<p>A <tt>[Messages]</tt> section is used to define the messages displayed by the Setup program and uninstaller. Normally, you need not create a <tt>[Messages]</tt> section in your script file, since all messages are, by default, pulled in from the file <a name="Default.isl"><i>Default.isl</i></a> included with Inno Setup (or whichever file is specified by a <sn>[Languages]</sn> section entry).</p>
 
 <p>However, particular messages can be overridden by creating a <tt>[Messages]</tt> section in your script file. To do this, first you will need to know the ID of the message you want to change. This can be easily found by searching Default.isl. For example, say you wanted to change the "&amp;Next" button on the wizard to read "&amp;Forward". The ID of this message is "ButtonNext", so you would create a <tt>[Messages]</tt> section like this:</p>
 
@@ -2302,7 +2302,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 
 <p>If you wish to translate all of Inno Setup's text to another language, instead of modifying Default.isl or overriding each message in every script you create, make a copy of Default.isl with another name like <i>MyTranslation.isl.</i> On any installation you wish to use MyTranslation.isl, create a <sn>[Languages]</sn> section entry pointing to the file.</p>
 
-<p>In cases where there are multiple <tt>[Languages]</tt> section entries, specifying a <tt>[Messages]</tt> section entry in your script (as opposed to an .isl file) will by default override that message for all languages. To apply a <tt>[Messages]</tt> section entry to only one language, prefix it with the language's internal name followed by a period. For example:</p>
+<p>In cases where there are multiple <sn>[Languages]</sn> section entries, specifying a <tt>[Messages]</tt> section entry in your script (as opposed to an .isl file) will by default override that message for all languages. To apply a <tt>[Messages]</tt> section entry to only one language, prefix it with the language's internal name followed by a period. For example:</p>
 
 <precode>
 en.<key>ButtonNext</key>=&amp;Forward
@@ -2352,7 +2352,7 @@ en.<key>ButtonNext</key>=&amp;Forward
 
 <p>Messages may take arguments, from %1 up to %9. You can rearrange the order of the arguments (i.e. move the %2 before a %1) and also duplicate arguments if needed (i.e. "%1 ... %1 %2"). On messages with arguments, use two consecutive "%" characters to embed a single "%". "%n" creates a line break.</p>
 
-<p>In cases where there are multiple <tt>[Languages]</tt> section entries, specifying a <tt>[CustomMessages]</tt> section entry in your script (as opposed to an .isl file) will by default override that message for all languages. To apply a <tt>[CustomMessages]</tt> section entry to only one language, prefix it with the language's internal name followed by a period. For example:</p>
+<p>In cases where there are multiple <sn>[Languages]</sn> section entries, specifying a <tt>[CustomMessages]</tt> section entry in your script (as opposed to an .isl file) will by default override that message for all languages. To apply a <tt>[CustomMessages]</tt> section entry to only one language, prefix it with the language's internal name followed by a period. For example:</p>
 
 <precode>
 nl.<key>CreateDesktopIcon</key>=Maak een snelkoppeling op het &amp;bureaublad
@@ -2408,7 +2408,7 @@ nl.<key>CreateDesktopIcon</key>=Maak een snelkoppeling op het &amp;bureaublad
 <keyword value="fonts" />
 <body>
 
-<p>A <tt><a name="LangOptions">[LangOptions]</a></tt> section is used to define the language-specific settings, such as fonts, used by the Setup program and uninstaller. Normally, you need not create a <tt>[LangOptions]</tt> section in your script file, since the language-specific settings are, by default, pulled in from the file <i>Default.isl</i> included with Inno Setup (or whichever file is specified by a <tt>[Languages]</tt> section entry).</p>
+<p>A <tt><a name="LangOptions">[LangOptions]</a></tt> section is used to define the language-specific settings, such as fonts, used by the Setup program and uninstaller. Normally, you need not create a <tt>[LangOptions]</tt> section in your script file, since the language-specific settings are, by default, pulled in from the file <i>Default.isl</i> included with Inno Setup (or whichever file is specified by a <sn>[Languages]</sn> section entry).</p>
 
 <p>The following is an example of a <tt>[LangOptions]</tt> section. (The settings listed below are the defaults.)</p>
 
@@ -2430,12 +2430,12 @@ nl.<key>CreateDesktopIcon</key>=Maak een snelkoppeling op het &amp;bureaublad
 
 <p><b><a name="LanguageID">LanguageID</a></b> is the numeric "language identifier" of the language. Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/dd318693.aspx">list of valid language identifiers on MSDN</extlink>. This, along with <tt>LanguageCodePage</tt>, is used for the purpose of auto-detecting the most appropriate language to use by default, so be sure it is set correctly. It should always begin with a "$" sign, since language identifiers are in hexadecimal. If no language identifier currently exists for the language, set this to zero.</p>
 
-<p><b><a name="LanguageCodePage">LanguageCodePage</a></b> specifies the "code page" (character set) used by the compiler to convert any non-Unicode text in the language's files to Unicode text. Note that any text in the .iss file such as a <tt>[CustomMessages]</tt> entry for the language is never converted and should be in Unicode already.<br/>
+<p><b><a name="LanguageCodePage">LanguageCodePage</a></b> specifies the "code page" (character set) used by the compiler to convert any non-Unicode text in the language's files to Unicode text. Note that any text in the .iss file such as a <sn>[CustomMessages]</sn> entry for the language is never converted and should be in Unicode already.<br/>
 If no code page currently exists for the language, set <tt>LanguageCodePage</tt> to zero and only use Unicode text (UTF-8) in the languages's files.<br/>
 If the language only uses ASCII characters (like English), set <tt>LanguageCodePage</tt> to zero as well.<br/>
 If <tt>LanguageCodePage</tt> is set to zero but non-Unicode text is used in one of the language's files, the system code page will be used to convert the text in the file to Unicode.</p>
 
-<p><b><a name="DialogFontName">DialogFontName</a></b>, <b><a name="DialogFontSize">DialogFontSize</a></b>, <b><a name="DialogFontBaseScaleWidth">DialogFontBaseScaleWidth</a></b>, and <b><a name="DialogFontBaseScaleHeight">DialogFontBaseScaleHeight</a></b> specify the font name and point size to use in dialogs. If no <tt>DialogFontName</tt> setting is present, then the value of the <sd>DefaultDialogFontName</sd> <tt>[Setup]</tt> section directive is used for the font name. If the specified font name does not exist on the user's system or is an empty string, 9-point <i>Segoe UI</i> will be substituted.</p>
+<p><b><a name="DialogFontName">DialogFontName</a></b>, <b><a name="DialogFontSize">DialogFontSize</a></b>, <b><a name="DialogFontBaseScaleWidth">DialogFontBaseScaleWidth</a></b>, and <b><a name="DialogFontBaseScaleHeight">DialogFontBaseScaleHeight</a></b> specify the font name and point size to use in dialogs. If no <tt>DialogFontName</tt> setting is present, then the value of the <sd>DefaultDialogFontName</sd> <sn>[Setup]</sn> section directive is used for the font name. If the specified font name does not exist on the user's system or is an empty string, 9-point <i>Segoe UI</i> will be substituted.</p>
 
 <p>Before Inno Setup 6.6, the default font was 8-point <i>Tahoma</i> instead of 9-point <i>Segoe UI</i>. To use this font again without changes in scaling, use:</p>
 
@@ -2467,7 +2467,7 @@ If <tt>LanguageCodePage</tt> is set to zero but non-Unicode text is used in one 
 <p><b><a name="RightToLeft">RightToLeft</a></b> specifies whether the language is written from right to left. If set to <tt>yes</tt>, text alignment and reading order will be reversed (with some intentional exceptions), and controls will be arranged from right to left ("flipped").</p>
 
 <p><br/>
-In cases where there are multiple <tt>[Languages]</tt> section entries, specifying a <tt>[LangOptions]</tt> section directive in your script (as opposed to an .isl file) will by default override that directive for all languages. To apply a <tt>[LangOptions]</tt> section directive to only one language, prefix it with the language's internal name followed by a period. For example:</p>
+In cases where there are multiple <sn>[Languages]</sn> section entries, specifying a <tt>[LangOptions]</tt> section directive in your script (as opposed to an .isl file) will by default override that directive for all languages. To apply a <tt>[LangOptions]</tt> section directive to only one language, prefix it with the language's internal name followed by a period. For example:</p>
 
 <precode>
 en.<key>LanguageName</key>=English
@@ -2757,7 +2757,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 </param>
 
 <param name="OnLog">
-<p>Valid only in a <tt>[Run]</tt> section. The name of a <tt>[Code]</tt> procedure to be called for each line of the program's output. Must be combined with the <tt>logoutput</tt> flag. See <link topic="scriptonlog">Pascal Scripting: OnLog Parameters</link> for more information.</p>
+<p>Valid only in a <tt>[Run]</tt> section. The name of a <sn>[Code]</sn> procedure to be called for each line of the program's output. Must be combined with the <tt>logoutput</tt> flag. See <link topic="scriptonlog">Pascal Scripting: OnLog Parameters</link> for more information.</p>
 <example>
 <pre><key>OnLog</key>: MyOnLog</pre>
 </example>
@@ -2791,8 +2791,8 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 </flag>
 <flag name="postinstall">
 <p>Valid only in a <tt>[Run]</tt> section. Instructs Setup to create a checkbox on the <i>Setup Completed</i> wizard page. The user can uncheck or check this checkbox and thereby choose whether this entry should be processed or not. Previously this flag was called <tt>showcheckbox</tt>.</p>
-<p>If Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <sd>AlwaysRestart</sd> <tt>[Setup]</tt> section directive is <tt>yes</tt>), there will not be an opportunity for the checkbox to be displayed and therefore the entry will never be processed.</p>
-<p>The <tt>isreadme</tt> flag for entries in the <tt>[Files]</tt> section is now obsolete. If the compiler detects an entry with an <tt>isreadme</tt> flag, it strips the <tt>isreadme</tt> flag from the <tt>[Files]</tt> entry and inserts a generated <tt>[Run]</tt> entry at the head of the list of <tt>[Run]</tt> entries. This generated <tt>[Run]</tt> entry runs the README file and has flags <tt>shellexec</tt>, <tt>skipifdoesntexist</tt>, <tt>postinstall</tt>, and <tt>skipifsilent</tt>.</p>
+<p>If Setup has to restart the user's computer (as a result of installing a file with the flag <tt>restartreplace</tt> or if the <sd>AlwaysRestart</sd> <sn>[Setup]</sn> section directive is <tt>yes</tt>), there will not be an opportunity for the checkbox to be displayed and therefore the entry will never be processed.</p>
+<p>The <tt>isreadme</tt> flag for entries in the <sn>[Files]</sn> section is now obsolete. If the compiler detects an entry with an <tt>isreadme</tt> flag, it strips the <tt>isreadme</tt> flag from the <sn>[Files]</sn> entry and inserts a generated <tt>[Run]</tt> entry at the head of the list of <tt>[Run]</tt> entries. This generated <tt>[Run]</tt> entry runs the README file and has flags <tt>shellexec</tt>, <tt>skipifdoesntexist</tt>, <tt>postinstall</tt>, and <tt>skipifsilent</tt>.</p>
 </flag>
 <flag name="runascurrentuser">
 <p>If this flag is specified, the spawned process will inherit Setup/Uninstall's user credentials (typically, full administrative privileges).</p>
@@ -2862,7 +2862,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <keyword value="UninstallDelete" />
 <body>
 
-<p>This optional section defines any additional files or directories you want the uninstaller to delete, besides those that were installed/created using <tt>[Files]</tt> or <tt>[Dirs]</tt> section entries. Deleting .INI files created by your application is one common use for this section. The uninstaller processes these entries as the last step of uninstallation.</p>
+<p>This optional section defines any additional files or directories you want the uninstaller to delete, besides those that were installed/created using <sn>[Files]</sn> or <sn>[Dirs]</sn> section entries. Deleting .INI files created by your application is one common use for this section. The uninstaller processes these entries as the last step of uninstallation.</p>
 
 <p>Here is an example of a <tt>[UninstallDelete]</tt> section:</p>
 
@@ -3043,7 +3043,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
       Example script <i>CodeDll.iss</i> demonstrates how to support both 32-bit and 64-bit installers from a single script.<br/>
       Please note: Even though types like <tt>HWND</tt> are 8 bytes (64-bit) in 64-bit processes, <extlink href="https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication">64-bit Windows uses 32-bit handle values for interoperability</extlink>. When sharing a handle between 32-bit and 64-bit applications, only the lower 32 bits are significant, so it is safe to truncate from 64-bit to 32-bit or sign extend from 32-bit to 64-bit.</li>
   <li>In both 32-bit and 64-bit installers, Pascal Script records are always "packed". When calling a Windows API or external DLL function that expects aligned records, you may need to add manual padding fields. Even if this was not needed in a 32-bit installer, it may be needed in a 64-bit installer because alignment rules and field sizes differ.</li>
-  <li>You cannot load 32-bit DLLs in 64-bit installers because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). However, you can always launch both 32-bit and 64-bit EXEs using the <isxfunc>Exec</isxfunc> function or the <tt>[Run]</tt> section.</li>
+  <li>You cannot load 32-bit DLLs in 64-bit installers because Windows does not allow 64-bit processes to load 32-bit DLLs (and vice versa). However, you can always launch both 32-bit and 64-bit EXEs using the <isxfunc>Exec</isxfunc> function or the <sn>[Run]</sn> section.</li>
   <li>In 32-bit installers, <isxfunc>CreateCallback</isxfunc> does not support callback parameters passed by value when their type is larger than 4 bytes, such as <tt>Int64</tt>, <tt>UInt64</tt>, <tt>Double</tt>, <tt>Extended</tt>, and <tt>Currency</tt>. In 64-bit installers, larger by-value parameter types are supported.</li>
   </ul>
 </li>
@@ -3067,7 +3067,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <li>Both editions can be installed side by side and include the same examples and help files.</li>
 <li>64-bit compilers generally achieve faster LZMA compression while maintaining full compatibility with existing scripts.<br/>
     On Arm64-based Windows 11, they use an ARM64EC binary (<tt>islzma-Arm64EC.dll</tt>) for native performance.</li>
-<li>The <tt>[Setup]</tt> directive <sd>LZMAUseSeparateProcess</sd> is ignored by 64-bit compilers, because 64-bit processes can directly allocate more memory, eliminating the need for an out-of-process compressor.</li>
+<li>The <sn>[Setup]</sn> directive <sd>LZMAUseSeparateProcess</sd> is ignored by 64-bit compilers, because 64-bit processes can directly allocate more memory, eliminating the need for an out-of-process compressor.</li>
 </ul>
 
 </body>
@@ -3086,10 +3086,10 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <ul>
 <li>Unicode Inno Setup supports UTF-8 encoded .iss and .isl files. Starting with Inno Setup 6.3, a BOM is no longer required. UTF-16 is not supported.</li>
 <li>Any existing ANSI .isl language files are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
-<li>Any <tt>[Messages]</tt> and <tt>[CustomMessages]</tt> entries in existing ANSI .iss script files must be converted to Unicode manually if the language used a special <tt>LanguageCodePage</tt>.</li>
+<li>Any <sn>[Messages]</sn> and <sn>[CustomMessages]</sn> entries in existing ANSI .iss script files must be converted to Unicode manually if the language used a special <tt>LanguageCodePage</tt>.</li>
 <li>Unicode Inno Setup supports UTF-8 and UTF-16LE encoded .txt files for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt>. Starting with Inno Setup 6.3, a BOM is no longer required.</li>
 <li>Any language specific plain text ANSI files used for <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, or <tt>InfoAfterFile</tt> are automatically converted during compilation using the <tt>LanguageCodePage</tt> setting of the language.</li>
-<li>The <tt>[Setup]</tt> directive <tt>ShowUndisplayableLanguages</tt> is ignored by Unicode Inno Setup.</li>
+<li>The <sn>[Setup]</sn> directive <tt>ShowUndisplayableLanguages</tt> is ignored by Unicode Inno Setup.</li>
 <li>Existing installations made by non Unicode installers can be updated by Unicode installers without issues, and vice versa.</li>
 <li>Unicode Pascal Scripting notes:
   <ul>
@@ -3176,7 +3176,7 @@ Shown if there are any <sn>[Icons]</sn> entries and if <sd>DisableProgramGroupPa
 
 <li>
 <b>Select Tasks</b><br/>
-Shown if there are any <sn>[Tasks]</sn> entries, unless the <tt>[Tasks]</tt> entries are all tied to components that were not selected on the <i>Select Components</i> page.
+Shown if there are any <sn>[Tasks]</sn> entries, unless the <sn>[Tasks]</sn> entries are all tied to components that were not selected on the <i>Select Components</i> page.
 </li>
 
 <li>
@@ -3187,7 +3187,7 @@ Shown by default, but can be disabled via <sd>DisableReadyPage</sd>.
 <li>
 <b>Preparing to Install</b><br/>
 Normally, Setup will never stop or pause on this page. The only time it will is if Setup determines it can't continue or if it detects applications using files that need to be updated.<br/><br/>
-The former can happen if the <link topic="scriptevents" anchor="PrepareToInstall"><tt>PrepareToInstall</tt></link> event function returned an error or if one or more files specified in the <tt>[Files]</tt> and <tt>[InstallDelete]</tt> sections were queued (by some other installation) to be replaced or deleted on the next restart. In this case, it tells the user they need to restart their computer and then run Setup again. Note that this check is performed on silent installations too, but any messages are displayed in a message box instead of inside a wizard page.<br/><br/>
+The former can happen if the <link topic="scriptevents" anchor="PrepareToInstall"><tt>PrepareToInstall</tt></link> event function returned an error or if one or more files specified in the <sn>[Files]</sn> and <sn>[InstallDelete]</sn> sections were queued (by some other installation) to be replaced or deleted on the next restart. In this case, it tells the user they need to restart their computer and then run Setup again. Note that this check is performed on silent installations too, but any messages are displayed in a message box instead of inside a wizard page.<br/><br/>
 The latter can happen if <sd>CloseApplications</sd> is set to <tt>yes</tt> or <tt>force</tt>.
 </li>
 
@@ -3277,7 +3277,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 <p>the installer will first record the data for first entry's <tt>uninsdeletesectionifempty</tt> flag in the uninstall log, create the key of the second entry, and then record the data for the <tt>uninsdeleteentry</tt> flag in the uninstall log. When the program is uninstalled, the uninstaller will first process the <tt>uninsdeleteentry</tt> flag, deleting the entry, and then the <tt>uninsdeletesectionifempty</tt> flag, deleting the section.</p>
 
-<p>Note that the uninstaller processes <tt>[UninstallRun]</tt> and <tt>[UninstallDelete]</tt> entries in the same order they appear in the script (not in reverse order).</p>
+<p>Note that the uninstaller processes <sn>[UninstallRun]</sn> and <sn>[UninstallDelete]</sn> entries in the same order they appear in the script (not in reverse order).</p>
 
 </body>
 </topic>
@@ -3290,7 +3290,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <keyword value="install mode" />
 <body>
 
-<p>An installation can run in one of two modes: administrative or non administrative. Which mode is selected is specified by the <sd>PrivilegesRequired</sd> and <sd>PrivilegesRequiredOverridesAllowed</sd> <tt>[Setup]</tt> section directives.</p>
+<p>An installation can run in one of two modes: administrative or non administrative. Which mode is selected is specified by the <sd>PrivilegesRequired</sd> and <sd>PrivilegesRequiredOverridesAllowed</sd> <sn>[Setup]</sn> section directives.</p>
 
 <p>In administrative install mode:</p>
 <ul>
@@ -3309,7 +3309,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 <p><b>Notes:</b></p>
 <p>Regardless of the version of Windows, if the installation is running in administrative install mode then you should be careful about making any per-user area changes: user-level files and settings must be handled by the application itself, and never in an administrative install mode installer. The compiler will warn you about this, which can be disabled using <sd>UsedUserAreasWarning</sd>.</p>
-<p>If the installation is running in non administrative install mode, but administrative privileges are available anyway then Setup or the <tt>[Code]</tt> section might still make use of these privileges. For this reason the uninstaller will always be marked as requiring administrative privileges in this case, just as if the installation was running in administrative install mode.</p>
+<p>If the installation is running in non administrative install mode, but administrative privileges are available anyway then Setup or the <sn>[Code]</sn> section might still make use of these privileges. For this reason the uninstaller will always be marked as requiring administrative privileges in this case, just as if the installation was running in administrative install mode.</p>
 
 </body>
 </topic>
@@ -3340,7 +3340,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <li>The <tt>{commonpf}</tt> constant is equivalent to <tt>{commonpf32}</tt>.</li>
 <li>The <tt>{commoncf}</tt> constant is equivalent to <tt>{commoncf32}</tt>.</li>
 <li>The <tt>{reg:...}</tt> constant reads the 32-bit view by default.</li>
-<li>The <tt>Reg*</tt> <tt>[Code]</tt> support functions access the 32-bit view by default.</li>
+<li>The <tt>Reg*</tt> <sn>[Code]</sn> support functions access the 32-bit view by default.</li>
 <li>The Uninstall key is created in the 32-bit view of the registry.</li>
 </ul>
 
@@ -3351,7 +3351,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <li>The <tt>{commonpf}</tt> constant is equivalent to <tt>{commonpf64}</tt>.</li>
 <li>The <tt>{commoncf}</tt> constant is equivalent to <tt>{commoncf64}</tt>.</li>
 <li>The <tt>{reg:...}</tt> constant reads the 64-bit view by default.</li>
-<li>The <tt>Reg*</tt> <tt>[Code]</tt> support functions access the 64-bit view by default.</li>
+<li>The <tt>Reg*</tt> <sn>[Code]</sn> support functions access the 64-bit view by default.</li>
 <li>The Uninstall key is created in the 64-bit view of the registry.</li>
 </ul>
 
@@ -3764,7 +3764,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Select autocompletion</td><td>Tab or Enter</td>
 </tr>
 <tr>
-  <td>Fillup autocompletion</td><td>Space for ISPP directives, for <tt>[Setup]</tt> section values, and for Flags and Type parameters<br />\ for constants<br />: for constants and section parameters<br />] for sections<br />= for section directives</td>
+  <td>Fillup autocompletion</td><td>Space for ISPP directives, for <sn>[Setup]</sn> section values, and for Flags and Type parameters<br />\ for constants<br />: for constants and section parameters<br />] for sections<br />= for section directives</td>
 </tr>
 <tr>
   <td>Invoke parameter hint or show next definition</td><td>Ctrl+Shift+Space</td>
@@ -4002,7 +4002,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 <p>The setup loader program always uses an <tt>asInvoker</tt> manifest regardless of the <sd>PrivilegesRequired</sd> setting, and Setup requests elevation only when needed.</p>
 
-<p>When launching other programs for the user, like post-install from the <tt>[Run]</tt> section, or when the user clicks on a link, Setup ensures these programs are launched unelevated by default, even if Setup itself is running elevated. It achieves this by requesting the setup loader to perform the launch, instead of directly launching the other program itself.</p>
+<p>When launching other programs for the user, like post-install from the <sn>[Run]</sn> section, or when the user clicks on a link, Setup ensures these programs are launched unelevated by default, even if Setup itself is running elevated. It achieves this by requesting the setup loader to perform the launch, instead of directly launching the other program itself.</p>
 
 <p>Also, when launching other programs and creating shortcuts, Setup ensures the working directory is never left unspecified.</p>
 
@@ -4028,7 +4028,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 <heading>Download security</heading>
 
-<p>Setup can securely download files from remote servers, and verify their integrity, without using any <tt>[Code]</tt>. It uses these protections:</p>
+<p>Setup can securely download files from remote servers, and verify their integrity, without using any <sn>[Code]</sn>. It uses these protections:</p>
 
 <ul>
 <li>Expired and self-signed certificates are never accepted.</li>
@@ -4042,15 +4042,15 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <p>Setup:</p>
 
 <ul>
-<li>The <tt>[Run]</tt> and <tt>[UninstallRun]</tt> sections support a <tt>dontlogparameters</tt> flag to prevent parameters from being included in Setup's log.</li>
+<li>The <sn>[Run]</sn> and <sn>[UninstallRun]</sn> sections support a <tt>dontlogparameters</tt> flag to prevent parameters from being included in Setup's log.</li>
 </ul>
 
 <p>Compiler:</p>
 
 <ul>
 <li>The compiler itself uses <link topic="issig">.issig signature</link> files to detect corruption or tampering with components such as Setup, before using them to build your installer.</li>
-<li>The compiler doesn't allow .isl message files specified in the <tt>[Languages]</tt> section to contain compiler directives such as <tt>#include</tt>. This stops any translations from injecting unexpected content.</li>
-<li>The <tt>[Files]</tt> section supports a <tt>notimestamp</tt> flag to prevent files from being stored with a timestamp. Use this flag to help make builds reproducible, even if you cannot preserve timestamps on source files.</li>
+<li>The compiler doesn't allow .isl message files specified in the <sn>[Languages]</sn> section to contain compiler directives such as <tt>#include</tt>. This stops any translations from injecting unexpected content.</li>
+<li>The <sn>[Files]</sn> section supports a <tt>notimestamp</tt> flag to prevent files from being stored with a timestamp. Use this flag to help make builds reproducible, even if you cannot preserve timestamps on source files.</li>
 </ul>
 
 <p>IDE:</p>
@@ -4167,7 +4167,7 @@ Signature is not valid for source file "MyFile.txt": file hash incorrect.
 <ul>
 
 <li>
-<p>The <tt>[Files]</tt> section entry would include a path in the <tt>Source</tt> parameter, and include the <tt>external</tt> flag:</p>
+<p>The <sn>[Files]</sn> section entry would include a path in the <tt>Source</tt> parameter, and include the <tt>external</tt> flag:</p>
 <precode>
 <sec>[Files]</sec>
 <key>Source</key>: "<con>{src}</con>\MyFile.txt"; <key>DestDir</key>: "<con>{app}</con>"; <key>Flags</key>: external issigverify
@@ -4369,12 +4369,12 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="HELP">/HELP</a>, <a name="HELP2">/?</a></b></dt>
 <dd>
-<p>Shows a summary of this information. Ignored if the <sd>UseSetupLdr</sd> <tt>[Setup]</tt> section directive was set to <tt>no</tt>.</p>
+<p>Shows a summary of this information. Ignored if the <sd>UseSetupLdr</sd> <sn>[Setup]</sn> section directive was set to <tt>no</tt>.</p>
 </dd>
 
 <dt><b><a name="SP-">/SP-</a></b></dt>
 <dd>
-<p>Disables the <i>This will install... Do you wish to continue?</i> prompt at the beginning of Setup. Of course, this will have no effect if the <sd>DisableStartupPrompt</sd> <tt>[Setup]</tt> section directive was set to <tt>yes</tt>.</p>
+<p>Disables the <i>This will install... Do you wish to continue?</i> prompt at the beginning of Setup. Of course, this will have no effect if the <sd>DisableStartupPrompt</sd> <sn>[Setup]</sn> section directive was set to <tt>yes</tt>.</p>
 </dd>
 
 <dt><b><a name="SILENT">/SILENT</a>, <a name="VERYSILENT">/VERYSILENT</a></b></dt>
@@ -4407,23 +4407,23 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <li>The Exit Setup? message box.</li>
 <li>The FileNotInDir2 message box displayed when Setup requires a new disk to be inserted and the disk was not found.</li>
 <li>Any (error) message box displayed before Setup (or Uninstall) could read the command line parameters.</li>
-<li>Any task dialog or message box displayed by <tt>[Code]</tt> support functions <isxfunc>TaskDialogMsgBox</isxfunc> and <isxfunc>MsgBox</isxfunc> (use <isxfunc>SuppressibleTaskDialogMsgBox</isxfunc> and <isxfunc>SuppressibleMsgBox</isxfunc> instead).</li>
+<li>Any task dialog or message box displayed by <sn>[Code]</sn> support functions <isxfunc>TaskDialogMsgBox</isxfunc> and <isxfunc>MsgBox</isxfunc> (use <isxfunc>SuppressibleTaskDialogMsgBox</isxfunc> and <isxfunc>SuppressibleMsgBox</isxfunc> instead).</li>
 </ul>
 </dd>
 
 <dt><b><a name="ALLUSERS">/ALLUSERS</a></b></dt>
 <dd>
-<p>Instructs Setup to install in <link topic="admininstallmode">administrative install</link> mode. Only has an effect when the <tt>[Setup]</tt> section directive <sd>PrivilegesRequiredOverridesAllowed</sd> allows the <tt>commandline</tt> override.</p>
+<p>Instructs Setup to install in <link topic="admininstallmode">administrative install</link> mode. Only has an effect when the <sn>[Setup]</sn> section directive <sd>PrivilegesRequiredOverridesAllowed</sd> allows the <tt>commandline</tt> override.</p>
 </dd>
 
 <dt><b><a name="CURRENTUSER">/CURRENTUSER</a></b></dt>
 <dd>
-<p>Instructs Setup to install in <link topic="admininstallmode">non administrative install</link> mode. Only has an effect when the <tt>[Setup]</tt> section directive <sd>PrivilegesRequiredOverridesAllowed</sd> allows the <tt>commandline</tt> override.</p>
+<p>Instructs Setup to install in <link topic="admininstallmode">non administrative install</link> mode. Only has an effect when the <sn>[Setup]</sn> section directive <sd>PrivilegesRequiredOverridesAllowed</sd> allows the <tt>commandline</tt> override.</p>
 </dd>
 
 <dt><b><a name="LOG">/LOG</a></b></dt>
 <dd>
-<p>Causes Setup to create a log file in the user's TEMP directory detailing file installation and <tt>[Run]</tt> actions taken during the installation process. This can be a helpful debugging aid. For example, if you suspect a file isn't being replaced when you believe it should be (or vice versa), the log file will tell you if the file was really skipped, and why.</p>
+<p>Causes Setup to create a log file in the user's TEMP directory detailing file installation and <sn>[Run]</sn> actions taken during the installation process. This can be a helpful debugging aid. For example, if you suspect a file isn't being replaced when you believe it should be (or vice versa), the log file will tell you if the file was really skipped, and why.</p>
 <p>The log file is created with a unique name based on the current date. (It will not overwrite or append to existing files.)</p>
 <p>The information contained in the log file is technical in nature and therefore not intended to be understandable by end users. Nor is it designed to be machine-parsable; the format of the file is subject to change without notice.</p>
 </dd>
@@ -4507,7 +4507,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="LANG">/LANG=</a><i>language</i></b></dt>
 <dd>
-<p>Specifies the language to use. <i>language</i> specifies the internal name of the language as specified in a <tt>[Languages]</tt> section entry.</p>
+<p>Specifies the language to use. <i>language</i> specifies the internal name of the language as specified in a <sn>[Languages]</sn> section entry.</p>
 <p>When a valid /LANG parameter is used, the <i>Select Language</i> dialog will be suppressed.</p>
 </dd>
 
@@ -4518,7 +4518,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="GROUP">/GROUP=</a>"<i>folder name</i>"</b></dt>
 <dd>
-<p>Overrides the default folder name displayed on the <i>Select Start Menu Folder</i> wizard page. May include an "expand:" prefix, see '/DIR='. If the <tt>[Setup]</tt> section directive <sd>DisableProgramGroupPage</sd> was set to <tt>yes</tt>, this command line parameter is ignored.</p>
+<p>Overrides the default folder name displayed on the <i>Select Start Menu Folder</i> wizard page. May include an "expand:" prefix, see '/DIR='. If the <sn>[Setup]</sn> section directive <sd>DisableProgramGroupPage</sd> was set to <tt>yes</tt>, this command line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="NOICONS">/NOICONS</a></b></dt>
@@ -4579,7 +4579,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b><a name="PASSWORD">/PASSWORD=</a><i>password</i></b></dt>
 <dd>
-<p>Specifies the password to use. If the <tt>[Setup]</tt> section directive <sd>Password</sd> was not set, this command line parameter is ignored.</p>
+<p>Specifies the password to use. If the <sn>[Setup]</sn> section directive <sd>Password</sd> was not set, this command line parameter is ignored.</p>
 <p>When an invalid password is specified, this command line parameter is also ignored.</p>
 </dd>
 
@@ -4716,7 +4716,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b><a name="LOG">/LOG</a></b></dt>
 <dd>
-<p>Causes Uninstall to create a log file in the user's TEMP directory detailing file uninstallation and <tt>[UninstallRun]</tt> actions taken during the uninstallation process. This can be a helpful debugging aid.</p>
+<p>Causes Uninstall to create a log file in the user's TEMP directory detailing file uninstallation and <sn>[UninstallRun]</sn> actions taken during the uninstallation process. This can be a helpful debugging aid.</p>
 <p>The log file is created with a unique name based on the current date. (It will not overwrite or append to existing files.)</p>
 <p>The information contained in the log file is technical in nature and therefore not intended to be understandable by end users. Nor is it designed to be machine-parsable; the format of the file is subject to change without notice.</p>
 </dd>
@@ -4769,7 +4769,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <p>As a convenience to new users who are unfamiliar with which files they should and should not distribute, the compiler will display an error message if one attempts to install certain "unsafe" files using the <sn>[Files]</sn> section. These files are listed below.</p>
 
-<p>(Note: It is possible to disable the error message by using a certain flag on the <tt>[Files]</tt> section entry, but this is NOT recommended.)</p>
+<p>(Note: It is possible to disable the error message by using a certain flag on the <sn>[Files]</sn> section entry, but this is NOT recommended.)</p>
 
 <dl>
 
@@ -4792,7 +4792,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b>COMCTL32.dll</b></dt>
 <dd>
-<p>Microsoft does not allow separate redistribution of COMCTL32.dll (and for good reason - the file differs between platforms), so you should never place COMCTL32.dll in a script's <tt>[Files]</tt> section. You can however direct your users to <extlink href="http://www.microsoft.com/downloads/details.aspx?FamilyID=cb2cf3a2-8025-4e8f-8511-9b476a8d35d2&amp;DisplayLang=en">download the COMCTL32 update from Microsoft</extlink>, or distribute the COMCTL32 update along with your program.</p>
+<p>Microsoft does not allow separate redistribution of COMCTL32.dll (and for good reason - the file differs between platforms), so you should never place COMCTL32.dll in a script's <sn>[Files]</sn> section. You can however direct your users to <extlink href="http://www.microsoft.com/downloads/details.aspx?FamilyID=cb2cf3a2-8025-4e8f-8511-9b476a8d35d2&amp;DisplayLang=en">download the COMCTL32 update from Microsoft</extlink>, or distribute the COMCTL32 update along with your program.</p>
 </dd>
 
 <dt><b>SHDOCVW.dll, SHLWAPI.dll, URLMON.dll, WININET.dll</b></dt>
@@ -4829,13 +4829,13 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Igor Pavlov: Creator of the <extlink href="https://7-zip.org/">7-Zip</extlink> and <extlink href="http://www.7-zip.org/sdk.html">LZMA SDK</extlink> libraries that Inno Setup uses.</li>
 
-<li>Vince Valenti: Most of the code for the "Window" <tt>[Setup]</tt> section directives (1.12.4 - 6.3.3).</li>
+<li>Vince Valenti: Most of the code for the "Window" <sn>[Setup]</sn> section directives (1.12.4 - 6.3.3).</li>
 
-<li>Joe White: Code for ChangesAssociations <tt>[Setup]</tt> section directive (1.2).</li>
+<li>Joe White: Code for ChangesAssociations <sn>[Setup]</sn> section directive (1.2).</li>
 
 <li>Jason Olsen: Most of the code for <link topic="appendnotes">appending to existing uninstall logs</link> (1.3).</li>
 
-<li>Martijn Laan: Rich Edit 2.0 &amp; URL detection support (1.3.13); Silent uninstallation (1.3.25); System image list support in drive and directory lists (1.3.25); Silent installation (2.0); The <tt>[Types]</tt>, <tt>[Components]</tt> and <tt>[Tasks]</tt> sections (2.0); The <tt>postinstall</tt> flag (2.0); The <tt>[Code]</tt> section (4.0); Subcomponents and subtasks support (4.0); Many other features after 4.0.</li>
+<li>Martijn Laan: Rich Edit 2.0 &amp; URL detection support (1.3.13); Silent uninstallation (1.3.25); System image list support in drive and directory lists (1.3.25); Silent installation (2.0); The <sn>[Types]</sn>, <sn>[Components]</sn> and <sn>[Tasks]</sn> sections (2.0); The <tt>postinstall</tt> flag (2.0); The <sn>[Code]</sn> section (4.0); Subcomponents and subtasks support (4.0); Many other features after 4.0.</li>
 
 <li>Alex Yackimoff: Portions of <link topic="scriptclasses" anchor="TNewCheckListBox">TNewCheckListBox</link> (4.0); ISPP (5.4.1).</li>
 
@@ -4987,7 +4987,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <p>The value of <tt>AppId</tt> is stored inside uninstall log files (unins???.dat), and is checked by subsequent installations to determine whether it may <link topic="appendnotes">append to a particular existing uninstall log</link>. Setup will only append to an uninstall log if the <tt>AppId</tt> of the existing uninstall log is the same as the current installation's <tt>AppId</tt>. For a practical example, say you have two installations -- one entitled <i>My Program</i> and the other entitled <i>My Program 1.1 Update.</i> To get My Program 1.1 Update to append to My Program's uninstall log, you would have to set <tt>AppId</tt> to the same value in both installations.</p>
 <p><tt>AppId</tt> also determines the actual name of the Uninstall registry key, to which Inno Setup tacks on "_is1" at the end. (Therefore, if <tt>AppId</tt> is "MyProgram", the key will be named "MyProgram_is1".) Pre-1.3 versions of Inno Setup based the key name on the value of <sd>AppVerName</sd>.</p>
 <p><tt>AppId</tt> isn't used for display anywhere, so feel free to make it as cryptic as you desire. The value may include constants.</p>
-<p>If you use a {code:..} constant to allow your user to customize <tt>AppId</tt>, you do not need to return the real value until just before the installation starts: if necessary you may return an empty or generic value at earlier times. If not empty, this value will only be used to attempt to restore previous install settings (like the settings stored by <tt>[Setup]</tt> section directive <sd>UsePreviousAppDir</sd>). If empty, it isn't used for anything.</p>
+<p>If you use a {code:..} constant to allow your user to customize <tt>AppId</tt>, you do not need to return the real value until just before the installation starts: if necessary you may return an empty or generic value at earlier times. If not empty, this value will only be used to attempt to restore previous install settings (like the settings stored by <sn>[Setup]</sn> section directive <sd>UsePreviousAppDir</sd>). If empty, it isn't used for anything.</p>
 <p>The length of <tt>AppId</tt> with all constants evaluated should never exceed 127 characters.</p>
 <example><pre><key>AppId</key>=MyProgram</pre></example>
 </body>
@@ -5305,7 +5305,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setuptopic directive="ExtraDiskSpaceRequired">
 <setupdefault><tt>0</tt></setupdefault>
 <body>
-<p>Normally, the disk space requirement displayed on the wizard is calculated by adding up the size of all the files in the <tt>[Files]</tt> section. If you want to increase the disk space display for whatever reason, set <tt>ExtraDiskSpaceRequired</tt> to the amount of bytes you wish to add to this figure. (1048576 bytes = 1 megabyte)</p>
+<p>Normally, the disk space requirement displayed on the wizard is calculated by adding up the size of all the files in the <sn>[Files]</sn> section. If you want to increase the disk space display for whatever reason, set <tt>ExtraDiskSpaceRequired</tt> to the amount of bytes you wish to add to this figure. (1048576 bytes = 1 megabyte)</p>
 <p>Supports digit separators and set in bytes. (1048576 bytes = 1 megabyte)</p>
 <example><pre><sec>[Setup]</sec>
 <key>ExtraDiskSpaceRequired</key>=1_048_576</pre></example>
@@ -5322,7 +5322,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <tt>full</tt></setupvalid>
 <setupdefault><tt>auto</tt></setupdefault>
 <body>
-<p>This specifies the method of archive extraction used by <tt>[Files]</tt> section flag <link topic="filessection" anchor="extractarchive">extractarchive</link> and support functions <isxfunc>ExtractArchive</isxfunc> and <isxfunc>CreateExtractionPage</isxfunc>.</p>
+<p>This specifies the method of archive extraction used by <sn>[Files]</sn> section flag <link topic="filessection" anchor="extractarchive">extractarchive</link> and support functions <isxfunc>ExtractArchive</isxfunc> and <isxfunc>CreateExtractionPage</isxfunc>.</p>
 <p><tt>basic</tt> uses an embedded version of the "7z ANSI-C Decoder" from the LZMA SDK by Igor Pavlov, as-is, except that Unicode support and error messages were improved and that it outputs memory requirements. It only supports .7z archives that are not password-protected.</p>
 <p><tt>enhanced/nopassword</tt> internally uses 7zxr.dll from the 7-Zip source code by Igor Pavlov, as-is, except that it was recompiled, code-signed, and renamed to is7zxr.dll. Compared to <tt>basic</tt>, it has lower memory requirements for archives that contain large files but increases the size of the Setup file(s). It still only supports .7z archives that are not password-protected.</p>
 <p><tt>enhanced</tt> uses 7zxa.dll instead of 7zxr.dll, recompiled, code-signed, and renamed to is7zxa.dll. It still only supports .7z archives, but they may be password-protected.</p>
@@ -5339,7 +5339,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>* = When using a <link topic="64bit">32-bit installer</link>.<br/>
 ** = When extracting a file, at least enough memory will always be allocated to hold the <b>entire</b> file, regardless of the block size. For example, extracting a 1 GB file using the <tt>basic</tt> method requires at least 1 GB of RAM. Consider using a different method for .7z archives that contain large files: their memory requirements depend on the dictionary size only.</p>
 </indent>
-<p>When <tt>auto</tt> is specified, the compiler automatically selects the appropriate method based on entries in the <tt>[Files]</tt> section. If it selects <tt>basic</tt> because no entry uses the <tt>extractarchive</tt> flag, but you still use the aforementioned support functions, you must manually set the correct method.</p>
+<p>When <tt>auto</tt> is specified, the compiler automatically selects the appropriate method based on entries in the <sn>[Files]</sn> section. If it selects <tt>basic</tt> because no entry uses the <tt>extractarchive</tt> flag, but you still use the aforementioned support functions, you must manually set the correct method.</p>
 <p>All methods overwrite read-only files which already exist in the destination directory without prompting the user.</p>
 <p>All methods restore the following file properties from the archive, if available: creation time, last modified time, attributes.</p>
 <p>When using the <tt>full</tt> method to extract a compressed archive, such as <i>archive.tar.gz</i>, the output will be the archive file itself (e.g., <i>archive.tar</i>) rather than the individual files contained within it.</p>
@@ -5441,7 +5441,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>If <tt>yes</tt>, solid compression will be enabled. This causes all files to be compressed at once instead of separately. This can result in a much greater overall compression ratio if your installation contains many files with common content, such as text files, especially if such common content files are grouped together within the <tt>[Files]</tt> section.</p>
+<p>If <tt>yes</tt>, solid compression will be enabled. This causes all files to be compressed at once instead of separately. This can result in a much greater overall compression ratio if your installation contains many files with common content, such as text files, especially if such common content files are grouped together within the <sn>[Files]</sn> section.</p>
 <p>The disadvantage to using solid compression is that because all files are compressed into a single compressed stream, Setup can no longer randomly access the files. This can decrease performance. If a certain file isn't going to be extracted on the user's system, it has to decompress the data for that file anyway (into memory) before it can decompress the next file. And if, for example, there was an error while extracting a particular file and the user clicks Retry, it can't just seek to the beginning of that file's compressed data; since all files are stored in one stream, it has seek to the very beginning. If disk spanning was enabled, the user would have to re-insert disk 1.</p>
 </body>
 </setuptopic>
@@ -5499,8 +5499,8 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>If this is set to <tt>yes</tt>, Setup will not show the <i>Setup Completed</i> wizard page, and instead will immediately close the Setup program once the installation process finishes. This may be useful if you execute a program in the <tt>[Run]</tt> section using the <tt>nowait</tt> flag, and don't want the <i>Setup Completed</i> window to remain in the background after the other program has started.</p>
-<p>Note that the <tt>DisableFinishedPage</tt> directive is ignored if a restart of the computer is deemed necessary, or if a file is assigned to the <sd>InfoAfterFile</sd> <tt>[Setup]</tt> section directive. In those cases, the <i>Setup Completed</i> wizard page will still be displayed.</p>
+<p>If this is set to <tt>yes</tt>, Setup will not show the <i>Setup Completed</i> wizard page, and instead will immediately close the Setup program once the installation process finishes. This may be useful if you execute a program in the <sn>[Run]</sn> section using the <tt>nowait</tt> flag, and don't want the <i>Setup Completed</i> window to remain in the background after the other program has started.</p>
+<p>Note that the <tt>DisableFinishedPage</tt> directive is ignored if a restart of the computer is deemed necessary, or if a file is assigned to the <sd>InfoAfterFile</sd> <sn>[Setup]</sn> section directive. In those cases, the <i>Setup Completed</i> wizard page will still be displayed.</p>
 </body>
 </setuptopic>
 
@@ -5558,7 +5558,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>If this is set to <tt>yes</tt>, Setup will show a <i>User Information</i> wizard page which asks for the user's name, organization and possibly a serial number. The values the user enters are stored in the <tt>{userinfoname}</tt>, <tt>{userinfoorg}</tt> and <tt>{userinfoserial}</tt> constants. You can use these constants in <tt>[Registry]</tt> or <tt>[INI]</tt> entries to save their values for later use.</p>
+<p>If this is set to <tt>yes</tt>, Setup will show a <i>User Information</i> wizard page which asks for the user's name, organization and possibly a serial number. The values the user enters are stored in the <tt>{userinfoname}</tt>, <tt>{userinfoorg}</tt> and <tt>{userinfoserial}</tt> constants. You can use these constants in <sn>[Registry]</sn> or <sn>[INI]</sn> entries to save their values for later use.</p>
 <p>For the serial number field to appear, a <link topic="scriptevents" anchor="CheckSerial">CheckSerial</link> event function must be present.</p>
 <p>The <sd>DefaultUserInfoName</sd>, <sd>DefaultUserInfoOrg</sd> and <sd>DefaultUserInfoSerial</sd> directives determine the default name, organization and serial number shown. If <sd>UsePreviousUserInfo</sd> is <tt>yes</tt> (the default) and Setup finds that a previous version of the <link topic="sameappnotes">same application</link> is already installed, it will use the name, organization and serial number entered previously instead.</p>
 <p>On silent installs, the default user name, organization, and serial number values will be assumed. Setup will not check whether the user name is blank (since the user has no way of correcting it), however it will still check the serial number.</p>
@@ -5636,7 +5636,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 
 <setuptopic directive="UninstallDisplayName">
 <body>
-<p>This lets you specify a custom name for the program's entry in the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants. If this directive is not specified or is blank, Setup will use the value of <tt>[Setup]</tt> section directive <sd>AppVerName</sd> for the name.</p>
+<p>This lets you specify a custom name for the program's entry in the <i>Add/Remove Programs</i> Control Panel applet. The value may include constants. If this directive is not specified or is blank, Setup will use the value of <sn>[Setup]</sn> section directive <sd>AppVerName</sd> for the name.</p>
 <example><pre><key>UninstallDisplayName</key>=My Program</pre></example>
 <p><b>See also:</b><br/>
 <link topic="sidebyside">Side-by-side installation</link></p>
@@ -5683,7 +5683,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt>, the uninstaller will always prompt the user to restart the system at the end of a successful uninstallation, regardless of whether it is necessary (e.g., because of <tt>[Files]</tt> section entries with the <tt>uninsrestartdelete</tt> flag).</p>
+<p>When set to <tt>yes</tt>, the uninstaller will always prompt the user to restart the system at the end of a successful uninstallation, regardless of whether it is necessary (e.g., because of <sn>[Files]</sn> section entries with the <tt>uninsrestartdelete</tt> flag).</p>
 </body>
 </setuptopic>
 
@@ -5718,7 +5718,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, the disk spanning feature will be enabled. Instead of storing all the compressed file data inside Setup.exe, the compiler will split it into multiple Setup-*.bin files -- known as "slices" -- suitable for copying onto separate CD-ROMs or DVD-ROMs. Each generated slice contains a number in its name which indicates the disk onto which it should be copied. (For example, Setup-2.bin should be placed on disk 2.) The generated Setup.exe always goes on disk 1 along with the Setup-1*.bin file.</p>
-<p>The size of each slice and the number of slices to create for each disk are determined by the values of the <sd>DiskSliceSize</sd> and <sd>SlicesPerDisk</sd> <tt>[Setup]</tt> section directives, respectively. Other disk spanning-related directives that you may want to tweak include <sd>DiskClusterSize</sd> and <sd>ReserveBytes</sd>.</p>
+<p>The size of each slice and the number of slices to create for each disk are determined by the values of the <sd>DiskSliceSize</sd> and <sd>SlicesPerDisk</sd> <sn>[Setup]</sn> section directives, respectively. Other disk spanning-related directives that you may want to tweak include <sd>DiskClusterSize</sd> and <sd>ReserveBytes</sd>.</p>
 <p>Note that it is required that you set this directive to <tt>yes</tt> if the compressed size of your installation exceeds 4,200,000,000 bytes, even if you don't intend to place the installation onto multiple disks. (The installation will still function correctly if all the Setup-*.bin files are placed on the same disk.)</p>
 </body>
 </setuptopic>
@@ -5727,8 +5727,8 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><tt>262144</tt> through <tt>9223372036800000000</tt>, or <tt>max</tt></setupvalid>
 <setupdefault><tt>2100000000</tt></setupdefault>
 <body>
-<p>This specifies the maximum number of bytes per disk slice (Setup-*.bin file). Normally, this should be set to the total number of bytes available on the disk media divided by the value of the <sd>SlicesPerDisk</sd> <tt>[Setup]</tt> section directive, which defaults to 1.</p>
-<p>This directive is ignored if disk spanning is not enabled using the <sd>DiskSpanning</sd> <tt>[Setup]</tt> section directive.</p>
+<p>This specifies the maximum number of bytes per disk slice (Setup-*.bin file). Normally, this should be set to the total number of bytes available on the disk media divided by the value of the <sd>SlicesPerDisk</sd> <sn>[Setup]</sn> section directive, which defaults to 1.</p>
+<p>This directive is ignored if disk spanning is not enabled using the <sd>DiskSpanning</sd> <sn>[Setup]</sn> section directive.</p>
 <p>To optimally fill 4.7 GB recordable DVDs, use:</p>
 <precode>
 <key>SlicesPerDisk</key>=3
@@ -5751,7 +5751,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><tt>512</tt></setupdefault>
 <body>
 <p>This specifies the cluster size of the disk media. The compiler needs to know this in order to properly fill each disk to capacity.</p>
-<p>This directive is ignored if disk spanning is not enabled using the <sd>DiskSpanning</sd> <tt>[Setup]</tt> section directive.</p>
+<p>This directive is ignored if disk spanning is not enabled using the <sd>DiskSpanning</sd> <sn>[Setup]</sn> section directive.</p>
 </body>
 </setuptopic>
 
@@ -5768,7 +5768,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <body>
 <p>This specifies the minimum number of free bytes to reserve on the first disk. This is useful if you have to copy other files onto the first disk that aren't part of the setup program, such as a Readme file.</p>
 <p>The compiler rounds this number up to the nearest cluster.</p>
-<p>This directive is ignored if disk spanning is not enabled using the <sd>DiskSpanning</sd> <tt>[Setup]</tt> section directive.</p>
+<p>This directive is ignored if disk spanning is not enabled using the <sd>DiskSpanning</sd> <sn>[Setup]</sn> section directive.</p>
 </body>
 </setuptopic>
 
@@ -5801,7 +5801,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>When set to <tt>yes</tt>, Setup will display a <i>Don't create a Start Menu folder</i> check box on the <i>Select Start Menu Folder</i> wizard page, which allows the user to skip creation of program shortcuts on the Start Menu.</p>
-<p>Only <tt>[Icons]</tt> entries that have a <tt>Name</tt> parameter starting with <tt>{group}\</tt> and no <tt>Tasks</tt> parameter are affected by default. To force the check box to have an effect on a particular <tt>[Icons]</tt> entry, add a <tt>Check: not <isxfunc>WizardNoIcons</isxfunc></tt> parameter.</p>
+<p>Only <sn>[Icons]</sn> entries that have a <tt>Name</tt> parameter starting with <tt>{group}\</tt> and no <tt>Tasks</tt> parameter are affected by default. To force the check box to have an effect on a particular <sn>[Icons]</sn> entry, add a <tt>Check: not <isxfunc>WizardNoIcons</isxfunc></tt> parameter.</p>
 </body>
 </setuptopic>
 
@@ -5837,7 +5837,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt>, Setup will always prompt the user to restart the system at the end of a successful installation, regardless of whether this is necessary (for example, because of <tt>[Files]</tt> section entries with the <tt>restartreplace</tt> flag).</p>
+<p>When set to <tt>yes</tt>, Setup will always prompt the user to restart the system at the end of a successful installation, regardless of whether this is necessary (for example, because of <sn>[Files]</sn> section entries with the <tt>restartreplace</tt> flag).</p>
 </body>
 </setuptopic>
 
@@ -5847,7 +5847,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt>, and a program executed in the <tt>[Run]</tt> section queues files to be replaced on the next reboot (by calling MoveFileEx or by modifying wininit.ini), Setup will detect this and prompt the user to restart the computer at the end of installation.</p>
+<p>When set to <tt>yes</tt>, and a program executed in the <sn>[Run]</sn> section queues files to be replaced on the next reboot (by calling MoveFileEx or by modifying wininit.ini), Setup will detect this and prompt the user to restart the computer at the end of installation.</p>
 </body>
 </setuptopic>
 
@@ -6552,7 +6552,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt>, <tt>no</tt></link>, or <tt>auto</tt></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt> and there are multiple <sn>[Languages]</sn> section entries, a <i>Select Language</i> dialog will be displayed to give the user an opportunity to override the language Setup chose by default. See the <tt>[Languages]</tt> section documentation for more information.</p>
+<p>When set to <tt>yes</tt> and there are multiple <sn>[Languages]</sn> section entries, a <i>Select Language</i> dialog will be displayed to give the user an opportunity to override the language Setup chose by default.</p>
 <p>When set to <tt>no</tt>, the dialog will never be displayed.</p>
 <p>When set to <tt>auto</tt>, the dialog will only be displayed if Setup does not find a language identifier match.</p>
 <p><b>See also:</b><br/>
@@ -6566,7 +6566,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <body>
 <p>When set to <tt>uilanguage</tt>, Setup will determine the default language to use by checking the user's "UI language" (by calling GetUserDefaultUILanguage()). This is the method that Microsoft recommends. The "UI language" is the language used in Windows' own dialogs. Thus, on an English edition of Windows, English will be the default, while on a Dutch edition of Windows, Dutch will be the default. On the MUI edition of Windows, the default will be the currently selected UI language.</p>
 <p>When set to <tt>locale</tt>, Setup will determine the default language to use by calling GetUserDefaultLangID(). This function returns the setting of "Your locale" in Control Panel's Regional Options. It should however be noted that the "Your locale" option is not intended to affect languages; it is only documented to affect "numbers, currencies, times, and dates".</p>
-<p>When set to <tt>none</tt>, Setup will use the first language specified in the <tt>[Languages]</tt> section as the default language.</p>
+<p>When set to <tt>none</tt>, Setup will use the first language specified in the <sn>[Languages]</sn> section as the default language.</p>
 </body>
 </setuptopic>
 
@@ -6574,7 +6574,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupvalid><tt>0</tt> through <tt>60</tt></setupvalid>
 <setupdefault><tt>2</tt></setupdefault>
 <body>
-<p>By default, time stamps on files referenced by non <tt>external</tt> <tt>[Files]</tt> section entries are rounded down to the nearest 2-second boundary. FAT partitions have only a 2-second time stamp resolution, so this ensures that time stamps are set the same way on both FAT and NTFS partitions.</p>
+<p>By default, time stamps on files referenced by non <tt>external</tt> <sn>[Files]</sn> section entries are rounded down to the nearest 2-second boundary. FAT partitions have only a 2-second time stamp resolution, so this ensures that time stamps are set the same way on both FAT and NTFS partitions.</p>
 <p>The rounding can be altered or disabled by setting the <tt>TimeStampRounding</tt> directive. Setting it to <tt>0</tt> will disable the rounding. Setting it to a number between <tt>1</tt> and <tt>60</tt> will cause time stamps to be rounded down to the nearest <tt>TimeStampRounding</tt>-second boundary.</p>
 </body>
 </setuptopic>
@@ -6698,7 +6698,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupvalid><tt>current</tt>, <tt>none</tt>, or <tt><i>YYYY</i>-<i>MM</i>-<i>DD</i></tt></setupvalid>
 <setupdefault><tt>current</tt></setupdefault>
 <body>
-<p>The date used in the time/date stamp of files referenced by <tt>[Files]</tt> section entries that include the <tt>touch</tt> flag.</p>
+<p>The date used in the time/date stamp of files referenced by <sn>[Files]</sn> section entries that include the <tt>touch</tt> flag.</p>
 <p>A value of <tt>current</tt> causes the current system date (at compile time) to be used. A value of <tt>none</tt> leaves the date as-is. Otherwise, <tt>TouchDate</tt> is interpreted as an explicit date in <tt><i>YYYY</i>-<i>MM</i>-<i>DD</i></tt> (ISO 8601) format. If <sd>TimeStampsInUTC</sd> is set to <tt>yes</tt>, the date is assumed to be a UTC date.</p>
 <example><pre><key>TouchDate</key>=2004-01-31</pre></example>
 </body>
@@ -6708,7 +6708,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupvalid><tt>current</tt>, <tt>none</tt>, <tt><i>HH</i>:<i>MM</i></tt>, or <tt><i>HH</i>:<i>MM</i>:<i>SS</i></tt></setupvalid>
 <setupdefault><tt>current</tt></setupdefault>
 <body>
-<p>The time used in the time/date stamp of files referenced by <tt>[Files]</tt> section entries that include the <tt>touch</tt> flag.</p>
+<p>The time used in the time/date stamp of files referenced by <sn>[Files]</sn> section entries that include the <tt>touch</tt> flag.</p>
 <p>A value of <tt>current</tt> causes the current system time (at compile time) to be used. A value of <tt>none</tt> leaves the time as-is. Otherwise, <tt>TouchTime</tt> is interpreted as an explicit time in <tt><i>HH</i>:<i>MM</i></tt> or <tt><i>HH</i>:<i>MM</i>:<i>SS</i></tt> format. If <sd>TimeStampsInUTC</sd> is set to <tt>yes</tt>, the time is assumed to be a UTC time.</p>
 <example><pre><key>TouchTime</key>=13:00</pre></example>
 </body>
@@ -6718,9 +6718,9 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link> or <tt>full</tt></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>If set to <tt>yes</tt>, files that are compiled into the installation (via <tt>[Files]</tt> section entries) will be encrypted using XChaCha20 encryption.</p>
+<p>If set to <tt>yes</tt>, files that are compiled into the installation (via <sn>[Files]</sn> section entries) will be encrypted using XChaCha20 encryption.</p>
 <p>If set to <tt>full</tt>, the entire installation will be encrypted, and the password must be specified using the <link topic="setupcmdline" anchor="PASSWORD">/PASSWORD=</link> command line parameter.</p>
-<p>If set to <tt>yes</tt> or <tt>full</tt> and you call the <isxfunc>ExtractTemporaryFile</isxfunc> function from the <tt>[Code]</tt> section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the <tt>[Files]</tt> section entry for the file.</p>
+<p>If set to <tt>yes</tt> or <tt>full</tt> and you call the <isxfunc>ExtractTemporaryFile</isxfunc> function from the <sn>[Code]</sn> section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the <sn>[Files]</sn> section entry for the file.</p>
 <p>If set to <tt>yes</tt> or <tt>full</tt> the 256-bit XChaCha20 encryption key is derived from the value of <sd>Password</sd> using the function specified by <sd>EncryptionKeyDerivation</sd>.</p>
 <p>The 192-bit XChaCha20 encryption nonce is a random base nonce, appending the index of the first file in the chunk for unique encryption nonces.</p>
 <p><b>See also:</b><br/>
@@ -6787,7 +6787,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <dt><b>win64</b></dt>
 <dd>
 <p>Matches systems running 64-bit Windows, regardless of OS architecture.</p>
-<p>This may be useful in an installer that doesn't ship any architecture-specific binaries, but requires access to something 64-bit, like <tt>HKLM64</tt> in the <tt>[Registry]</tt> section, or the native 64-bit Program Files directory.</p>
+<p>This may be useful in an installer that doesn't ship any architecture-specific binaries, but requires access to something 64-bit, like <tt>HKLM64</tt> in the <sn>[Registry]</sn> section, or the native 64-bit Program Files directory.</p>
 </dd>
 
 <dt><b>x64compatible</b></dt>
@@ -6915,7 +6915,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>Specifies whether the compiler should set the "NX Compatible" flag in the headers of the Setup and Uninstall programs to mark them compatible with data execution prevention (DEP).</p>
-<p>Setting this to <tt>no</tt> might be needed if you're using a buggy third-party DLL from <tt>[Code]</tt>.</p>
+<p>Setting this to <tt>no</tt> might be needed if you're using a buggy third-party DLL from <sn>[Code]</sn>.</p>
 </body>
 </setuptopic>
 
@@ -6954,7 +6954,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
   <li>You will then be prompted to attach a digital signature to this file using an external code-signing tool (such as Microsoft's <tt>signtool.exe</tt>).</li>
   <li>On subsequent compiles, the signature from the file will be embedded into the compiled installations' uninstallers, without prompting you.</li>
   <li>If you delete the file, you will be prompted again if necessary on the next compile.</li>
-  <li>Upgrading to a newer version of Inno Setup, or changing certain <tt>[Setup]</tt> section directives that affect the contents of the uninstaller EXE file (such as <sd>SetupIconFile</sd>, <sd>WizardStyle</sd> and VersionInfo directives), will cause a new file to be created under a different name.</li>
+  <li>Upgrading to a newer version of Inno Setup, or changing certain <sn>[Setup]</sn> section directives that affect the contents of the uninstaller EXE file (such as <sd>SetupIconFile</sd>, <sd>WizardStyle</sd> and VersionInfo directives), will cause a new file to be created under a different name.</li>
 </ul>
 <p>When the uninstaller has a digital signature, Setup will write the messages from the active language into a separate file (unins???.msg). It cannot embed the messages into the EXE file because doing so would invalidate the digital signature.</p>
 <p>Details on obtaining signing certificates and using code-signing tools are beyond the scope of this documentation.</p>
@@ -7162,7 +7162,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <setupvalid><tt>force</tt>, <link topic="yesnonotes"><tt>yes</tt>, or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If set to <tt>yes</tt> or <tt>force</tt> and Setup is not running silently, Setup will pause on the <i>Preparing to Install</i> wizard page if it detects applications using files that need to be updated by the <tt>[Files]</tt> or <tt>[InstallDelete]</tt> section, showing the applications and asking the user if Setup should automatically close the applications and restart them after the installation has completed.</p>
+<p>If set to <tt>yes</tt> or <tt>force</tt> and Setup is not running silently, Setup will pause on the <i>Preparing to Install</i> wizard page if it detects applications using files that need to be updated by the <sn>[Files]</sn> or <sn>[InstallDelete]</sn> section, showing the applications and asking the user if Setup should automatically close the applications and restart them after the installation has completed.</p>
 <p>If set to <tt>yes</tt> or <tt>force</tt> and Setup is running silently, Setup will always close and restart such applications, unless told not to via the command line.</p>
 <p>If set to <tt>force</tt> Setup will force close when closing applications, unless told not to via the command line. Use with care since this may cause the user to lose unsaved work.</p>
 <p>Note: Setup uses Windows <extlink href="https://docs.microsoft.com/en-us/windows/win32/rstmgr/about-restart-manager">Restart Manager</extlink> to detect, close, and restart applications.</p>
@@ -7178,7 +7178,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <setupvalid>A list of file name wildcards, separated by commas</setupvalid>
 <setupdefault><tt>*.exe,*.dll,*.chm</tt></setupdefault>
 <body>
-<p>Limits which <tt>[Files]</tt> and <tt>[InstallDelete]</tt> entries Setup will check for being in use. Only files matching one of the wildcards will be checked.</p>
+<p>Limits which <sn>[Files]</sn> and <sn>[InstallDelete]</sn> entries Setup will check for being in use. Only files matching one of the wildcards will be checked.</p>
 <p>Setting this to <tt>*.*</tt> can provide better checking at the expense of speed.</p>
 <p><b>See also:</b><br/>
 <sd>CloseApplications</sd><br/>
@@ -7190,7 +7190,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <setuptopic directive="CloseApplicationsFilterExcludes">
 <setupvalid>A list of file name wildcards, separated by commas</setupvalid>
 <body>
-<p>Limits which <tt>[Files]</tt> and <tt>[InstallDelete]</tt> entries Setup will check for being in use. Files matching one of the wildcards will not be checked even if they match <sd>CloseApplicationsFilter</sd>.</p>
+<p>Limits which <sn>[Files]</sn> and <sn>[InstallDelete]</sn> entries Setup will check for being in use. Files matching one of the wildcards will not be checked even if they match <sd>CloseApplicationsFilter</sd>.</p>
 <p>For example, to check all files except MyProg.exe:</p>
 <example><pre><sec>[Setup]</sec>
 <key>CloseApplicationsFilter</key>=*.*
@@ -7233,7 +7233,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <p>A value of <tt>yes</tt> enables the use of a 64-bit process on 64-bit Windows (x64), and a 32-bit process on 32-bit Windows.</p>
 <p>A value of <tt>x86</tt> enables the use of a 32-bit process only (normally only useful for debugging purposes).</p>
 <p>A value of <tt>no</tt> disables the use of a separate process for LZMA compression.</p>
-<p>Note that this directive only affects the compression of files specified in the <tt>[Files]</tt> section; compression of Setup's internal structures is always performed inside the main compiler process.</p>
+<p>Note that this directive only affects the compression of files specified in the <sn>[Files]</sn> section; compression of Setup's internal structures is always performed inside the main compiler process.</p>
 </body>
 </setuptopic>
 
@@ -7242,8 +7242,8 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <body>
 <p>When a new version of an application is installed over an existing version, instead of creating a new uninstall log file (unins???.dat), Setup will by default look for and append to an existing uninstall log file that belongs to the <link topic="sameappnotes">same application</link> and is in the same directory. This way, when the application is uninstalled, changes made by all the different installations will be undone (starting with the most recent installation).</p>
 <p>The uninstaller will use the <link topic="messagessection">messages</link> from the most recent installation of the application. However, there is an exception: if an installation was built with an older version of Inno Setup that included an older version of the uninstaller than the existing one on the user's system, neither the existing uninstaller nor its messages will be replaced. In this case the uninstall log will still be appended to, though, since the file format is backward compatible.</p>
-<p>The application name displayed in the uninstaller will be the same as the value of the <tt>[Setup]</tt> section directive <sd>AppName</sd> from the most recent installation, unless <sd>UpdateUninstallLogAppName</sd> is set to <tt>no</tt>.</p>
-<p>To disable the uninstall log-appending feature set the <tt>[Setup]</tt> section directive <sd>UninstallLogMode</sd>.</p>
+<p>The application name displayed in the uninstaller will be the same as the value of the <sn>[Setup]</sn> section directive <sd>AppName</sd> from the most recent installation, unless <sd>UpdateUninstallLogAppName</sd> is set to <tt>no</tt>.</p>
+<p>To disable the uninstall log-appending feature set the <sn>[Setup]</sn> section directive <sd>UninstallLogMode</sd>.</p>
 </body>
 </topic>
 
@@ -7267,7 +7267,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <topic name="sourcedirectorynotes" title="Source Directory">
 <keyword value="Source Directory" />
 <body>
-<p>By default, the compiler expects to find files referenced in the script's <tt>[Files]</tt> section <tt>Source</tt> parameters, and files referenced in the <tt>[Setup]</tt> section, under the same directory the script file is located if they do not contain fully qualified pathnames. To specify a different source directory, create a <sd>SourceDir</sd> directive in the script's <tt>[Setup]</tt> section.</p>
+<p>By default, the compiler expects to find files referenced in the script's <sn>[Files]</sn> section <tt>Source</tt> parameters, and files referenced in the <sn>[Setup]</sn> section, under the same directory the script file is located if they do not contain fully qualified pathnames. To specify a different source directory, create a <sd>SourceDir</sd> directive in the script's <sn>[Setup]</sn> section.</p>
 </body>
 </topic>
 

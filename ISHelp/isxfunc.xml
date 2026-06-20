@@ -44,7 +44,7 @@
       <function>
         <name>CustomMessage</name>
         <prototype>function CustomMessage(const MsgName: String): String;</prototype>
-        <description><p>Returns the value of the <tt>[CustomMessages]</tt> entry with the specified name. If an entry with the specified name does not exist, an exception will be raised.</p></description>
+        <description><p>Returns the value of the <sn>[CustomMessages]</sn> entry with the specified name. If an entry with the specified name does not exist, an exception will be raised.</p></description>
         <example><pre><key>var</key>
   S: String;
 <key>begin</key>
@@ -166,13 +166,13 @@
         <name>CurrentFilename</name>
         <prototype>function CurrentFilename: String;</prototype>
         <description><p>Returns the destination file name of the <sn>[Files]</sn> entry that is currently being processed. The returned name may include constants.</p>
-<p>Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a <tt>[Files]</tt> entry.</p></description>
+<p>Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a <sn>[Files]</sn> entry.</p></description>
       </function>
       <function>
         <name>CurrentSourceFilename</name>
         <prototype>function CurrentSourceFilename: String;</prototype>
-        <description><p>Returns the source file name of the <tt>[Files]</tt> entry that is currently being processed. The returned name may include constants.</p>
-<p>Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a <tt>[Files]</tt> entry with the "external" flag.</p></description>
+        <description><p>Returns the source file name of the <sn>[Files]</sn> entry that is currently being processed. The returned name may include constants.</p>
+<p>Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a <sn>[Files]</sn> entry with the "external" flag.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -419,7 +419,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>ShowExceptionMessage</name>
         <prototype>procedure ShowExceptionMessage;</prototype>
         <description><p>Shows the message associated with the current exception in a message box. This function should only be called from within an <tt>except</tt> section, or a function called from an <tt>except</tt> section.</p></description>
-        <remarks><p>If logging is enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <sd>SetupLogging</sd> <tt>[Setup]</tt> section directive or the <sd>UninstallLogging</sd> <tt>[Setup]</tt> section directive or debugging from the Compiler IDE) the message will be recorded in the log file and/or in the Compiler IDE's "Debug Output" view in addition to being shown.</p></remarks>
+        <remarks><p>If logging is enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <sd>SetupLogging</sd> <sn>[Setup]</sn> section directive or the <sd>UninstallLogging</sd> <sn>[Setup]</sn> section directive or debugging from the Compiler IDE) the message will be recorded in the log file and/or in the Compiler IDE's "Debug Output" view in addition to being shown.</p></remarks>
         <example><pre><key>var</key>
   I: Integer;
 <key>begin</key>
@@ -523,7 +523,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
   VER_SUITE_TERMINAL
 </pre>
 <p>VER_SUITE_PERSONAL, for example, is set on Home edition of Windows XP, and VER_SUITE_BLADE is set on the Web edition of Windows Server 2003.</p></description>
-        <example><p>The following example demonstrates how you can disallow installation on certain editions of Windows, and check service pack levels on multiple operating system versions. (Neither of these things are possible with the <tt>MinVersion</tt> <tt>[Setup]</tt> section directive.)</p>
+        <example><p>The following example demonstrates how you can disallow installation on certain editions of Windows, and check service pack levels on multiple operating system versions. (Neither of these things are possible with the <tt>MinVersion</tt> <sn>[Setup]</sn> section directive.)</p>
 <pre><key>function</key> <evt>InitializeSetup</evt>: Boolean;
 <key>var</key>
   Version: TWindowsVersion;
@@ -857,7 +857,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>UnloadDLL</name>
         <prototype>procedure UnloadDLL(Filename: String);</prototype>
-        <description><p>Unloads the specified DLL that was loaded by the <tt>[Code]</tt> section using an "external" keyword. This can be useful if you need to delete the DLL.</p>
+        <description><p>Unloads the specified DLL that was loaded by the <sn>[Code]</sn> section using an "external" keyword. This can be useful if you need to delete the DLL.</p>
 <p>The case of the filename and any path name must exactly match that of the function import. You will need to expand any constants in the filename yourself before passing it to <tt>UnloadDLL</tt>.</p>
 <p>If the function import used a "files:" prefix, prepend the value of the <tt>{tmp}</tt> constant to the filename (e.g. <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}\filename.dll')</tt>).</p></description>
         <remarks><p>It's not recommended that you try this, but if you attempt to call a function in a DLL that has been unloaded, the DLL will be re-loaded.</p></remarks>
@@ -1917,7 +1917,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ExecAsOriginalUser</name>
         <prototype>function ExecAsOriginalUser(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer): Boolean;</prototype>
-        <description><p>Executes the specified executable or batch file, using the (normally non-elevated) credentials of the user that started Setup initially. See <isxfunc>Exec</isxfunc> and the <tt>[Run]</tt> section flag <tt>runasoriginaluser</tt> for more information.</p></description>
+        <description><p>Executes the specified executable or batch file, using the (normally non-elevated) credentials of the user that started Setup initially. See <isxfunc>Exec</isxfunc> and the <sn>[Run]</sn> section flag <tt>runasoriginaluser</tt> for more information.</p></description>
         <remarks><p>This function is not supported at uninstall time.</p>
 <p>In very unusual failure cases (e.g. if the initial Setup process died unexpectedly), it is possible for this function to raise an exception instead of just returning <tt>False</tt>.</p></remarks>
       </function>
@@ -1944,7 +1944,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ShellExecAsOriginalUser</name>
         <prototype>function ShellExecAsOriginalUser(const Verb, Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ErrorCode: Integer): Boolean;</prototype>
-        <description><p>Opens the specified file or performs another action specified by <tt>Verb</tt>, using the (normally non-elevated) credentials of the user that started Setup initially. See <isxfunc>ShellExec</isxfunc> and the <tt>[Run]</tt> section flag <tt>runasoriginaluser</tt> for more information.</p></description>
+        <description><p>Opens the specified file or performs another action specified by <tt>Verb</tt>, using the (normally non-elevated) credentials of the user that started Setup initially. See <isxfunc>ShellExec</isxfunc> and the <sn>[Run]</sn> section flag <tt>runasoriginaluser</tt> for more information.</p></description>
         <remarks><p>This function is not supported at uninstall time.</p>
 <p>In very unusual failure cases (e.g. if the initial Setup process died unexpectedly), it is possible for this function to raise an exception instead of just returning <tt>False</tt>.</p>
 <p>Refer to the <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</a>.</p></remarks>
@@ -1974,12 +1974,12 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ExtractTemporaryFile</name>
         <prototype>procedure ExtractTemporaryFile(const FileName: String);</prototype>
-        <description><p>Extracts the specified file from the <tt>[Files]</tt> section to a temporary directory. To find the location of the temporary directory, use <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}')</tt>.</p>
+        <description><p>Extracts the specified file from the <sn>[Files]</sn> section to a temporary directory. To find the location of the temporary directory, use <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}')</tt>.</p>
 <p>The extracted files are automatically deleted when Setup exits.</p>
 <p>An exception will be raised if the file wasn't extracted successfully, if the file wasn't found, or if the file was found but couldn't be processed because of its MinVersion and/or OnlyBelowVersion parameters.</p></description>
-        <remarks><p>Use <tt>Flags: dontcopy noencryption</tt> in the <tt>[Files]</tt> section to tell Setup to skip the file during the normal file copying stage, and to ensure it can be extracted before the password is known.</p>
-<p>Use <tt>Flags: noencryption</tt> in the <tt>[Files]</tt> section if encryption is enabled and you call the <tt>ExtractTemporaryFile</tt> function prior to the user entering the correct password.</p>
-<p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the <tt>[Files]</tt> section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the <tt>[Files]</tt> section.</p></remarks>
+        <remarks><p>Use <tt>Flags: dontcopy noencryption</tt> in the <sn>[Files]</sn> section to tell Setup to skip the file during the normal file copying stage, and to ensure it can be extracted before the password is known.</p>
+<p>Use <tt>Flags: noencryption</tt> in the <sn>[Files]</sn> section if encryption is enabled and you call the <tt>ExtractTemporaryFile</tt> function prior to the user entering the correct password.</p>
+<p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the <sn>[Files]</sn> section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the <sn>[Files]</sn> section.</p></remarks>
         <seealso><p><isxfunc>ExtractTemporaryFiles</isxfunc><br />
 <isxfunc>DownloadTemporaryFile</isxfunc></p></seealso>
         <example><pre><sec>[Files]</sec>
@@ -2003,11 +2003,11 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ExtractTemporaryFiles</name>
         <prototype>function ExtractTemporaryFiles(const Pattern: String): Integer;</prototype>
-        <description><p>Extracts the files matching the wildcard specified by <tt>Pattern</tt> from the <tt>[Files]</tt> section to a temporary directory. Returns the number of extracted files. To find the location of the temporary directory, use <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}')</tt>.</p>
+        <description><p>Extracts the files matching the wildcard specified by <tt>Pattern</tt> from the <sn>[Files]</sn> section to a temporary directory. Returns the number of extracted files. To find the location of the temporary directory, use <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}')</tt>.</p>
 <p>The extracted files are automatically deleted when Setup exits.</p>
 <p>An exception will be raised if no files were extracted successfully, no files were found, or if files were found but none could be processed because of their MinVersion and/or OnlyBelowVersion parameters.</p></description>
-        <remarks><p>Use <tt>Flags: dontcopy noencryption</tt> in the <tt>[Files]</tt> section to tell Setup to skip the file during the normal file copying stage, and to ensure it can be extracted before the password is known.</p>
-<p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the <tt>[Files]</tt> section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the <tt>[Files]</tt> section.</p></remarks>
+        <remarks><p>Use <tt>Flags: dontcopy noencryption</tt> in the <sn>[Files]</sn> section to tell Setup to skip the file during the normal file copying stage, and to ensure it can be extracted before the password is known.</p>
+<p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the <sn>[Files]</sn> section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the <sn>[Files]</sn> section.</p></remarks>
         <seealso><p><isxfunc>ExtractTemporaryFile</isxfunc></p></seealso>
         <example><pre><sec>[Files]</sec>
 <key>Source</key>: "Readme.txt"; <key>Flags</key>: dontcopy noencryption
@@ -2070,7 +2070,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
   <key>end</key>;
 <key>end</key>;</pre>
 <p>See <i>CodeDownloadFiles.iss</i> for another example which uses <isxfunc>CreateDownloadPage</isxfunc> instead.</p>
-<p>See <i>DownloadFiles.iss</i> for an example of file download using just a <tt>[Files]</tt> entry.</p></example>
+<p>See <i>DownloadFiles.iss</i> for an example of file download using just a <sn>[Files]</sn> entry.</p></example>
         <seealso><p><isxfunc>SetDownloadCredentials</isxfunc><br />
 <isxfunc>DownloadTemporaryFileWithISSigVerify</isxfunc><br />
 <isxfunc>DownloadTemporaryFileSize</isxfunc><br />
@@ -2133,13 +2133,13 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>procedure ExtractArchive(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean; const OnExtractionProgress: TOnExtractionProgress);</prototype>
         <description><p>Extracts the specified archive to the specified directory, with or without preserving full path names.</p>
 <p>An exception will be raised if there was an error.</p>
-<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <tt>[Setup]</tt> section directive.</p>
+<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <sn>[Setup]</sn> section directive.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <isxfunc>MapArchiveExtensions</isxfunc>.</p>
 <p>Set <tt>OnExtractionProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p><tt>TOnExtractionProgress</tt> is defined as:</p>
 <p><tt>TOnExtractionProgress = function(const ArchiveName, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
 <p>Return <tt>True</tt> to allow the extraction to continue, <tt>False</tt> otherwise.</p></remarks>
-        <example><p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a <tt>[Files]</tt> entry.</p></example>
+        <example><p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a <sn>[Files]</sn> entry.</p></example>
         <seealso><p><isxfunc>CreateExtractionPage</isxfunc><br />
 <isxfunc>MapArchiveExtensions</isxfunc><br />
 <isxfunc>CreateDownloadPage</isxfunc><br />
@@ -2151,7 +2151,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>procedure MapArchiveExtensions(const DestExt, SourceExt: String);</prototype>
         <description><p>Allows files with a specified destination extension, such as .exe, to be treated as if they have a different source extension, such as .7z, for extraction purposes.</p>
 <p>An exception will be raised if there was an error.</p></description>
-        <remarks><p>Calls to this function are ignored if the <sd>ArchiveExtraction</sd> <tt>[Setup]</tt> section directive is set to <tt>basic</tt>. In this case files are always extracted as .7z, regardless of the extension.</p></remarks>
+        <remarks><p>Calls to this function are ignored if the <sd>ArchiveExtraction</sd> <sn>[Setup]</sn> section directive is set to <tt>basic</tt>. In this case files are always extracted as .7z, regardless of the extension.</p></remarks>
         <seealso><p><isxfunc>ExtractArchive</isxfunc><br/>
 <isxfunc>CreateExtractionPage</isxfunc></p></seealso>
         <example><pre>
@@ -2216,7 +2216,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>CopyFile</name>
         <prototype>function CopyFile(const ExistingFile, NewFile: String; const FailIfExists: Boolean): Boolean;</prototype>
         <description><p>Copies <tt>ExistingFile</tt> to <tt>NewFile</tt>, preserving time stamp and file attributes.<br />If <tt>FailIfExists</tt> is <tt>True</tt> it will fail if <tt>NewFile</tt> already exists, otherwise it will overwrite it.<br />Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p>
-<p>Files copied using <tt>CopyFile</tt> are not automatically uninstalled. Consider using a <tt>[Files]</tt> entry with the <tt>external</tt> flag set instead.</p></description>
+<p>Files copied using <tt>CopyFile</tt> are not automatically uninstalled. Consider using a <sn>[Files]</sn> entry with the <tt>external</tt> flag set instead.</p></description>
         <remarks><p>Can't be used to copy Setup itself until the installation has started.</p></remarks>
       </function>
       <function>
@@ -2964,7 +2964,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>Set the <tt>ShowBaseNameInsteadOfUrl</tt> property to <tt>True</tt> to show the base name of the file which is being downloaded to the user instead of the URL.</p>
 <p>See <isxfunc>DownloadTemporaryFile</isxfunc> for other considerations and the definition of <tt>TOnDownloadProgress</tt>.</p>
 <p>See <i>CodeDownloadFiles.iss</i> for an example.</p>
-<p>See <i>DownloadFiles.iss</i> for an example of file download using just a <tt>[Files]</tt> entry instead.</p></remarks>
+<p>See <i>DownloadFiles.iss</i> for an example of file download using just a <sn>[Files]</sn> entry instead.</p></remarks>
         <seealso><p><link topic="scriptclasses" anchor="TDownloadWizardPage">TDownloadWizardPage</link><br />
 <isxfunc>DownloadTemporaryFile</isxfunc><br />
 <isxfunc>CreateOutputProgressPage</isxfunc></p></seealso>
@@ -2973,7 +2973,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <name>CreateExtractionPage</name>
         <prototype>function CreateExtractionPage(const ACaption, ADescription: String; const OnExtractionProgress: TOnExtractionProgress): TExtractionWizardPage;</prototype>
         <description><p>Creates a wizard page to extract archives and show progress.</p>
-<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <tt>[Setup]</tt> section directive.</p>
+<p>The supported archive formats, beyond .7z, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <sn>[Setup]</sn> section directive.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <isxfunc>MapArchiveExtensions</isxfunc>.</p>
 <p>Set <tt>OnExtractionProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p>
 <p>Unlike the other types of wizard pages, progress pages are not displayed as part of the normal page sequence (note that there is no <tt>AfterID</tt> parameter). A progress page can only be displayed programmatically by calling its <tt>Show</tt> method.</p></description>
@@ -2984,7 +2984,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
 <p>Set the <tt>ShowArchiveInsteadOfFile</tt> property to <tt>True</tt> to show the name of the archive which is being extracted to the user instead of the names of the files inside the archive.</p>
 <p>See <isxfunc>ExtractArchive</isxfunc> for the definition of <tt>TOnExtractionProgress</tt>.</p></remarks>
         <example><p>See <i>CodeDownloadFiles.iss</i> for an example of <isxfunc>CreateDownloadPage</isxfunc> which works very similar to <tt>CreateExtractionPage</tt>.</p>
-<p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a <tt>[Files]</tt> entry instead.</p>
+<p>See <i>DownloadFiles.iss</i> for an example of archive extraction using just a <sn>[Files]</sn> entry instead.</p>
 </example>
         <seealso><p><link topic="scriptclasses" anchor="TExtractionWizardPage">TExtractionWizardPage</link><br />
 <isxfunc>ExtractArchive</isxfunc><br />
@@ -3005,9 +3005,9 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
         <prototype>function CreateCustomForm(const ClientWidth, ClientHeight: Integer; const KeepSizeX, KeepSizeY: Boolean): TSetupForm;</prototype>
         <description><p>Creates a form. The form is empty by default; you have to create your own controls afterward and place them on the form (by setting their Parent properties to the <link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link> instance returned by this function).</p></description>
         <remarks><p>You should call this function instead of creating <link topic="scriptclasses" anchor="TForm">TForm</link> or <link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link> instances directly. This function automatically initializes the font and other properties of the created form to be like Setup's other dialogs.</p>
-<p>The <tt>[LangOptions]</tt> section's <tt>DialogFontName</tt> and <tt>DialogFontSize</tt> directives determine the font used by the form and, by default, any child controls created on the form.</p>
+<p>The <sn>[LangOptions]</sn> section's <tt>DialogFontName</tt> and <tt>DialogFontSize</tt> directives determine the font used by the form and, by default, any child controls created on the form.</p>
 <p>You should use <isxfunc>ScaleX</isxfunc> and <isxfunc>ScaleY</isxfunc> to scale the desired client width and height to appropriate values. A form's client width and height are the form's full width and height minus its borders.</p>
-<p><tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> specify whether the form is allowed to grow horizontally and vertically as the client area is resized, for <tt>[Setup]</tt> section directive <sd>WizardSizePercent</sd>.</p>
+<p><tt>KeepSizeX</tt> and <tt>KeepSizeY</tt> specify whether the form is allowed to grow horizontally and vertically as the client area is resized, for <sn>[Setup]</sn> section directive <sd>WizardSizePercent</sd>.</p>
 <p>The signature of the <tt>CreateCustomForm</tt> function has changed as of version 6.6.0. The width and height must now be specified upfront (they are now read-only properties once the form is constructed). Previously, your code might have looked like this:</p>
 <example><pre>
   Form := CreateCustomForm;
@@ -3363,7 +3363,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <name>Log</name>
         <prototype>procedure Log(const S: String);</prototype>
         <description><p>Logs the specified string in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p></description>
-        <remarks><p>Calls to this function are ignored if logging is not enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <sd>SetupLogging</sd> <tt>[Setup]</tt> section directive or the <sd>UninstallLogging</sd> <tt>[Setup]</tt> section directive or debugging from the Compiler IDE).</p></remarks>
+        <remarks><p>Calls to this function are ignored if logging is not enabled (via the <link topic="setupcmdline">/LOG</link> command line parameter or the <sd>SetupLogging</sd> <sn>[Setup]</sn> section directive or the <sd>UninstallLogging</sd> <sn>[Setup]</sn> section directive or debugging from the Compiler IDE).</p></remarks>
         <seealso><p><isxfunc>LogFmt</isxfunc></p></seealso>
       </function>
       <function>
