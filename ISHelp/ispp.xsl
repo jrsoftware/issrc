@@ -214,7 +214,7 @@
   <xsl:choose>
     <xsl:when test="ancestor::topic/@id=@href">
         <xsl:choose>
-        <xsl:when test="text()">
+        <xsl:when test="node()">
           <xsl:apply-templates/>
         </xsl:when>
         <xsl:otherwise>
@@ -232,7 +232,7 @@
     <xsl:otherwise>
       <link topic="{translate(@href,$ucletters,$lcletters)}">
         <xsl:choose>
-        <xsl:when test="text()">
+        <xsl:when test="node()">
           <xsl:apply-templates/>
         </xsl:when>
         <xsl:otherwise>
