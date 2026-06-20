@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.36';
+  Version = '1.37';
 
   XMLFileVersion = '1';
 
@@ -67,6 +67,7 @@ type
     elSetupValid,
     elSetupTopic,
     elSmall,
+    elSN,
     elStr, { script string literal in Pascal/ISPP contexts }
     elSup,
     elTable,
@@ -314,6 +315,14 @@ begin
   Result := 'setup_' + Lowercase(Directive);
 end;
 
+function GenerateSectionNameTopicName(const SectionName: String): String;
+begin
+  if SameText(SectionName, 'UninstallRun') then
+    Result := 'runsection'
+  else
+    Result := Lowercase(SectionName) + 'section';
+end;
+
 procedure CreateKeyword(const AKeyword, ATopicName, AAnchorName: String);
 var
   KeywordInfo: TKeywordInfo;
@@ -325,11 +334,11 @@ begin
   Keywords.AddObject(AKeyword, KeywordInfo);
 end;
 
-function GenerateSdOrIsxFuncTopicLinkHTML(const Node: IXMLNode; const ElementName,
-  TopicName, InnerContents: String): String;
+function GenerateSdSnOrIsxFuncTopicLinkHTML(const Node: IXMLNode; const ElementName,
+  TopicName, InnerContents: String; const ExtraAllowedChars: TSysCharSet): String;
 begin
   for var C in InnerContents do
-    if not CharInSet(C, ['A'..'Z', 'a'..'z', '0'..'9']) then
+    if not CharInSet(C, ['A'..'Z', 'a'..'z', '0'..'9'] + ExtraAllowedChars) then
       raise Exception.CreateFmt('<%s> inner content is invalid', [ElementName]);
   Result := '';
   const NeedTT = (ElementFromNode(Node.ParentNode) <> elTT);
@@ -453,14 +462,24 @@ begin
       elSD:
         begin
           const DirectiveName = ParseFormattedText(Node);
-          Result := Result + GenerateSdOrIsxFuncTopicLinkHTML(Node, 'sd',
-            GenerateSetupDirectiveTopicName(DirectiveName), DirectiveName);
+          Result := Result + GenerateSdSnOrIsxFuncTopicLinkHTML(Node, 'sd',
+            GenerateSetupDirectiveTopicName(DirectiveName), DirectiveName, []);
+        end;
+      elSN:
+        begin
+          const BracketedSectionName = ParseFormattedText(Node);
+          const N = Length(BracketedSectionName);
+          if (N < 3) or (BracketedSectionName[1] <> '[') or (BracketedSectionName[N] <> ']') then
+            raise Exception.Create('<sn> inner content is invalid');
+          const SectionName = Copy(BracketedSectionName, 2, N-2);
+          Result := Result + GenerateSdSnOrIsxFuncTopicLinkHTML(Node, 'sn',
+            GenerateSectionNameTopicName(SectionName), BracketedSectionName, ['[', ']']);
         end;
       elISXFunc:
         begin
           const FunctionName = ParseFormattedText(Node);
-          Result := Result + GenerateSdOrIsxFuncTopicLinkHTML(Node, 'isxfunc',
-            'isxfunc_' + FunctionName, FunctionName);
+          Result := Result + GenerateSdSnOrIsxFuncTopicLinkHTML(Node, 'isxfunc',
+            'isxfunc_' + FunctionName, FunctionName, []);
         end;
       elSmall:
         Result := Result + '<span class="small">' + ParseFormattedText(Node) + '</span>';

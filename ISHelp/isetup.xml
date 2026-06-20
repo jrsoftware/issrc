@@ -1454,7 +1454,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 
 <p>This optional section defines any additional directories Setup is to create <i>besides</i> the application directory the user chooses, which is created automatically. Creating subdirectories underneath the main application directory is a common use for this section.</p>
 
-<p>Note that you aren't required to explicitly create directories before installing files to them using the <tt>[Files]</tt> section, so this section is primarily useful for creating empty directories.</p>
+<p>Note that you aren't required to explicitly create directories before installing files to them using the <sn>[Files]</sn> section, so this section is primarily useful for creating empty directories.</p>
 
 <p>Here is an example of a <tt>[Dirs]</tt> section:</p>
 

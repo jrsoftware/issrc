@@ -165,7 +165,7 @@
       <function>
         <name>CurrentFilename</name>
         <prototype>function CurrentFilename: String;</prototype>
-        <description><p>Returns the destination file name of the <tt>[Files]</tt> entry that is currently being processed. The returned name may include constants.</p>
+        <description><p>Returns the destination file name of the <sn>[Files]</sn> entry that is currently being processed. The returned name may include constants.</p>
 <p>Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a <tt>[Files]</tt> entry.</p></description>
       </function>
       <function>

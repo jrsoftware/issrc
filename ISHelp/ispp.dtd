@@ -22,7 +22,7 @@
 <!ATTLIST section
   title  CDATA      #REQUIRED>
 
-<!ELEMENT p         (#PCDATA|tt|i|link|extlink|sd)*>
+<!ELEMENT p         (#PCDATA|tt|i|link|extlink|sd|sn)*>
 <!ELEMENT pre       (line)*>
 <!ELEMENT line      (#PCDATA|link|b|%highlight;)*>
 <!ELEMENT tt        (#PCDATA|i|link|extlink)*>
@@ -37,6 +37,7 @@
 <!ELEMENT i         (#PCDATA)*>
 <!ELEMENT b         (#PCDATA)*>
 <!ELEMENT sd        (#PCDATA)*>
+<!ELEMENT sn        (#PCDATA)*>
 
 <!ELEMENT sec       (#PCDATA|%highlight;)*>
 <!ELEMENT evt       (#PCDATA|%highlight;)*>

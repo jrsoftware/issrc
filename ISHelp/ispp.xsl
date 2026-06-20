@@ -161,6 +161,10 @@
   <sd><xsl:apply-templates/></sd>
 </xsl:template>
 
+<xsl:template match="sn">
+  <sn><xsl:apply-templates/></sn>
+</xsl:template>
+
 <xsl:template match="sec">
   <sec><xsl:apply-templates/></sec>
 </xsl:template>

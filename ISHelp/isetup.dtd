@@ -19,7 +19,7 @@
 <!ENTITY ge     "&#x2265;">
 
 <!ENTITY % _inlineExceptLink "b | br | i | sup | tt | u">
-<!ENTITY % _inline "%_inlineExceptLink; | link | extlink | img | a | anchorlink | sd | isxfunc">
+<!ENTITY % _inline "%_inlineExceptLink; | link | extlink | img | a | anchorlink | sd | sn | isxfunc">
 <!ENTITY % _block "p | heading | pre | precode | example | examples | indent | ul | ol | dl | paramlist | flaglist | table">
 <!ENTITY % _highlight "sec | evt | key | com | con | str | num | ispp">
 
@@ -71,6 +71,7 @@
 <!ELEMENT anchorlink %InlineExceptLink;>
 <!ATTLIST anchorlink name CDATA #REQUIRED>
 <!ELEMENT sd %InlineExceptLink;>
+<!ELEMENT sn %InlineExceptLink;>
 <!ELEMENT isxfunc %InlineExceptLink;>
 
 <!-- Syntax highlighting elements -->

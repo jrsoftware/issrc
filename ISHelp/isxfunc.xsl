@@ -145,6 +145,9 @@
 <xsl:template match="sd">
 <sd><xsl:apply-templates/></sd></xsl:template>
 
+<xsl:template match="sn">
+<sn><xsl:apply-templates/></sn></xsl:template>
+
 <xsl:template match="isxfunc">
 <isxfunc><xsl:apply-templates/></isxfunc></xsl:template>
 

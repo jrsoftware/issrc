@@ -22,6 +22,7 @@ paths: ["**/*.pas", "**/*.dpr", "**/*.inc"]
 - Class methods should be static when possible.
 - Do not shorten descriptive names. Write `Expression`, not `Expr`; `MultiFileHandler`, not `MFH`. Conventional short names (`I`, `J`, `S`, `Res`) and established identifiers (`HiWord`) are fine.
 - Comments should be short and match the style of existing comments in the file. Prefer using `{` and `}`, and do not end one-sentence comments with a period.
+- Watch for duplicated logic or a repeated expression: prefer factoring shared code into a routine, or binding the expression to an inline const.
 # Code editing guidelines
 - Do not modify existing comments unless the code they describe is also being changed.
 - When modifying code that calls Windows APIs, read the actual documentation before writing code. Do not assume parameter semantics based on similar APIs.

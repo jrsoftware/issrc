@@ -268,7 +268,7 @@
 				<description>
 					<p>Replaces the directive with the name of a temporary file containing the &translation; of the specified file. When compilation finishes, the temporary file is automatically deleted. If a Unicode file is used, it must be UTF-8 (with or without a BOM) encoded.</p>
 					<p>Including a file using this directive creates a new independent instance of the preprocessor, passing it the options currently in effect and all declared identifiers. If the included file modifies options in some way, they are not propagated back.</p>
-					<p>When using this directive in Inno Setup's Source parameter of the <tt>[Files]</tt> section, specify a DestName parameter too, otherwise the file will not be installed with the original name.</p>
+					<p>When using this directive in Inno Setup's Source parameter of the <sn>[Files]</sn> section, specify a DestName parameter too, otherwise the file will not be installed with the original name.</p>
 					<p>This directive can only be used <link href="directives">inline</link>.</p>
 				</description>
 				<section title="Examples">
