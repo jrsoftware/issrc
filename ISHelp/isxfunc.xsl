@@ -121,7 +121,7 @@
 <xsl:template match="example">
 <xsl:for-each select="*">
 <xsl:choose>
-<xsl:when test="self::pre or self::precode">
+<xsl:when test="self::pre">
 <example><xsl:apply-templates select="."/></example>
 </xsl:when>
 <xsl:otherwise>
