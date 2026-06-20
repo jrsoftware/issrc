@@ -758,9 +758,9 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="ini">{ini:<i>Filename</i>,<i>Section</i>,<i>Key</i>|<i>DefaultValue</i>}</a></b></dt>
 <dd>
-<p>Embeds a value from an .INI file.</p>
+<p>Embeds a value from an <tt>.ini</tt> file.</p>
 <ul>
-<li><i>Filename</i> specifies the name of the .INI file to read from.</li>
+<li><i>Filename</i> specifies the name of the <tt>.ini</tt> file to read from.</li>
 <li><i>Section</i> specifies the name of the section to read from.</li>
 <li><i>Key</i> specifies the name of the key to read.</li>
 <li><i>DefaultValue</i> determines the string to embed if the specified key does not exist.</li>
@@ -1664,7 +1664,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 </param>
 
 <param name="FontInstall">
-<p>Tells Setup the file is a font that needs to be installed. The value of this parameter is the name of the font as stored in the registry or WIN.INI. This must be exactly the same name as you see when you double-click the font file in Explorer. Note that Setup will automatically append " (TrueType)" to the end of the name.</p>
+<p>Tells Setup the file is a font that needs to be installed. The value of this parameter is the name of the font as stored in the registry or <tt>win.ini</tt>. This must be exactly the same name as you see when you double-click the font file in Explorer. Note that Setup will automatically append " (TrueType)" to the end of the name.</p>
 <p>If the file is not a TrueType font, you must specify the flag <tt>fontisnttruetype</tt> in the Flags parameter.</p>
 <p>It's recommended that you use the flags <tt>onlyifdoesntexist</tt> and <tt>uninsneveruninstall</tt> when installing fonts to the <tt>{autofonts}</tt> directory.</p>
 <p>If the installation is running in <link topic="admininstallmode">non administrative install mode</link>, Windows 10 Version 1803 or later is required to successfully install a font.</p>
@@ -1862,14 +1862,14 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag cannot be combined with <tt>ignoreversion</tt>.</p>
 </flag>
 <flag name="restartreplace">
-<p>When an existing file needs to be replaced, and it is in use (locked) by another running process, Setup will by default display an error message. This flag tells Setup to instead register the file to be replaced the next time the system is restarted (by calling MoveFileEx or by creating an entry in WININIT.INI). When this happens, the user will be prompted to restart their computer at the end of the installation process.</p>
+<p>When an existing file needs to be replaced, and it is in use (locked) by another running process, Setup will by default display an error message. This flag tells Setup to instead register the file to be replaced the next time the system is restarted (by calling MoveFileEx or by creating an entry in <tt>wininit.ini</tt>). When this happens, the user will be prompted to restart their computer at the end of the installation process.</p>
 <p><b>NOTE:</b> This flag has no effect if the user does not have administrative privileges. Therefore, when using this flag, it is recommended that you leave the <sd>PrivilegesRequired</sd> <sn>[Setup]</sn> section directive at the default setting of <tt>admin</tt>.</p>
 </flag>
 <flag name="setntfscompression">
 <p>Instructs Setup to enable NTFS compression on the file (even if it didn't replace the file). If it fails to set the compression state for any reason (for example, if compression is not supported by the file system), no error message will be displayed.</p>
 </flag>
 <flag name="sharedfile">
-<p>Specifies that the file is shared among multiple applications, and should only be removed at uninstall time if no other applications are using it. Most files installed to the Windows System directory should use this flag, including .OCX, .BPL, and .DPL files.</p>
+<p>Specifies that the file is shared among multiple applications, and should only be removed at uninstall time if no other applications are using it. Most files installed to the Windows System directory should use this flag, including <tt>.ocx</tt>, <tt>.bpl</tt>, and <tt>.dpl</tt> files.</p>
 <p>Windows' standard shared file reference-counting mechanism (located in the registry under <tt>HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\SharedDLLs</tt>) is used to keep track of how many applications depend on the file. Each time the file is installed, the reference count for the file is incremented. (This happens regardless of whether the installer actually replaces the file on disk.) When an application using the file is uninstalled, the reference count is decremented. If the count reaches zero, the file is deleted (with the user's confirmation, unless the <tt>uninsnosharedfileprompt</tt> flag is also specified).</p>
 <p>If Setup is run more than once, the reference count for the file will be incremented more than once. The uninstaller will decrement the reference count the same number of times, however, so no references are leaked (provided the <sd>UninstallLogMode</sd> <sn>[Setup]</sn> section directive isn't changed from its default setting of <tt>append</tt>).</p>
 <p>On 64-bit Windows, there are separate <tt>SharedDLLs</tt> registry keys for 32-bit and 64-bit applications. The <link topic="entrybitness">entry's bitness</link> determines whether the 32-bit or 64-bit <tt>SharedDLLs</tt> key is updated. The default bitness can be overridden with the <tt>32bit</tt> and <tt>64bit</tt> flags.</p>
@@ -1947,7 +1947,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 
 <p>Setup registers all files with the <tt>regserver</tt> or <tt>regtypelib</tt> flags as the last step of installation. However, if the <sn>[Setup]</sn> section directive <sd>AlwaysRestart</sd> is <tt>yes</tt>, or if there are files with the <tt>restartreplace</tt> flag, all files get registered on the next reboot (by creating an entry in Windows' <i>RunOnce</i> registry key).</p>
 
-<p>When files with a .HLP extension (Windows help files) are uninstalled, the corresponding .GID and .FTS files are automatically deleted as well. Similarly, when a .CHM (HTML Help) file is deleted, any .CHW (generated index) file is automatically deleted.</p>
+<p>When files with a <tt>.hlp</tt> extension (Windows help files) are uninstalled, the corresponding <tt>.gid</tt> and <tt>.fts</tt> files are automatically deleted as well. Similarly, when a <tt>.chm</tt> (HTML Help) file is deleted, any <tt>.chw</tt> (generated index) file is automatically deleted.</p>
 
 </body>
 </topic>
@@ -2116,7 +2116,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <keyword value="INI" />
 <body>
 
-<p>This optional section defines any .INI file entries you would like Setup to set on the user's system.</p>
+<p>This optional section defines any <tt>.ini</tt> file entries you would like Setup to set on the user's system.</p>
 
 <p>Here is an example of an <tt>[INI]</tt> section:</p>
 
@@ -2131,7 +2131,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <paramlist>
 
 <param name="Filename" required="yes">
-<p>The name of the .INI file you want Setup to modify, which can include constants. If this parameter does not include a path, it will write to the Windows directory. If this parameter is blank, it will write to WIN.INI in the Windows directory.</p>
+<p>The name of the <tt>.ini</tt> file you want Setup to modify, which can include constants. If this parameter does not include a path, it will write to the Windows directory. If this parameter is blank, it will write to <tt>win.ini</tt> in the Windows directory.</p>
 <example>
 <pre><key>Filename</key>: "<con>{app}</con>\MyProg.ini"</pre>
 </example>
@@ -2169,7 +2169,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>Delete the entry when the program is uninstalled. This can be combined with the <tt>uninsdeletesectionifempty</tt> flag.</p>
 </flag>
 <flag name="uninsdeletesection">
-<p>When the program is uninstalled, delete the entire section in which the entry is located. It obviously wouldn't be a good idea to use this on a section that is used by Windows itself (like some of the sections in WIN.INI). You should only use this on sections private to your application.</p>
+<p>When the program is uninstalled, delete the entire section in which the entry is located. It obviously wouldn't be a good idea to use this on a section that is used by Windows itself (like some of the sections in <tt>win.ini</tt>). You should only use this on sections private to your application.</p>
 </flag>
 <flag name="uninsdeletesectionifempty">
 <p>Same as <tt>uninsdeletesection</tt>, but deletes the section only if there are no keys left in it. This can be combined with the <tt>uninsdeleteentry</tt> flag.</p>
@@ -2862,7 +2862,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <keyword value="UninstallDelete" />
 <body>
 
-<p>This optional section defines any additional files or directories you want the uninstaller to delete, besides those that were installed/created using <sn>[Files]</sn> or <sn>[Dirs]</sn> section entries. Deleting .INI files created by your application is one common use for this section. The uninstaller processes these entries as the last step of uninstallation.</p>
+<p>This optional section defines any additional files or directories you want the uninstaller to delete, besides those that were installed/created using <sn>[Files]</sn> or <sn>[Dirs]</sn> section entries. Deleting <tt>.ini</tt> files created by your application is one common use for this section. The uninstaller processes these entries as the last step of uninstallation.</p>
 
 <p>Here is an example of a <tt>[UninstallDelete]</tt> section:</p>
 

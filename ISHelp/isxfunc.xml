@@ -819,7 +819,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>MakePendingFileRenameOperationsChecksum</name>
         <prototype>function MakePendingFileRenameOperationsChecksum: String;</prototype>
-        <description><p>Calculates a checksum of the current PendingFileRenameOperations registry value. The caller can use this checksum to determine if PendingFileRenameOperations or WININIT.INI was changed (perhaps by another program).</p></description>
+        <description><p>Calculates a checksum of the current <tt>PendingFileRenameOperations</tt> registry value. The caller can use this checksum to determine if <tt>PendingFileRenameOperations</tt> or <tt>wininit.ini</tt> was changed (perhaps by another program).</p></description>
         <example><pre><key>var</key>
   ChecksumBefore, ChecksumAfter: String;
 <key>begin</key>
@@ -827,7 +827,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
   <com>// ...run a program...</com>
   ChecksumAfter := MakePendingFileRenameOperationsChecksum;
   <key>if</key> ChecksumAfter &lt;&gt; ChecksumBefore <key>then</key>
-    <com>// PendingFileRenameOperations or WININIT.INI changed</com>
+    <com>// PendingFileRenameOperations or wininit.ini changed</com>
 <key>end</key>;</pre></example>
       </function>
     </subcategory>
