@@ -85,7 +85,7 @@
 
 <p>The <tt>[Code]</tt> section is an optional section that specifies a Pascal script. A Pascal script can be used to customize Setup or Uninstall in many ways. Note that creating a Pascal script is not easy and requires experience with Inno Setup and knowledge about programming in Pascal or at least a similar programming language.</p>
 
-<p>The <i>Code*.iss</i>, <i>UninstallCode*.iss</i>, and <i>AllPagesExample.iss</i> example scripts in the "Examples" subdirectory in your Inno Setup directory contain various example <tt>[Code]</tt> sections. Please study them carefully before trying to create your own Pascal script.</p>
+<p>The <i>Code*.iss</i>, <i>UninstallCode*.iss</i>, and <i>AllPagesExample.iss</i> example scripts in the <tt>Examples</tt> subdirectory in your Inno Setup directory contain various example <tt>[Code]</tt> sections. Please study them carefully before trying to create your own Pascal script.</p>
 
 <p>Note: to learn more about the Pascal programming language you may find it useful to refer to Marco Cant&#249;'s free Essential Pascal book. See <extlink href="http://www.marcocantu.com/epascal/">http://www.marcocantu.com/epascal/</extlink> and <extlink href="https://www.marcocantu.com/epascal/EssentialPascal.zip">https://www.marcocantu.com/epascal/EssentialPascal.zip</extlink>.</p>
 
@@ -594,7 +594,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 <keyword value="Pascal Scripting: Examples" />
 <body>
 
-<p>The Pascal Scripting example scripts are located in separate files. Open one of the <i>Code*.iss</i>, <i>UninstallCode*.iss</i>, or <i>AllPagesExample.iss</i> example scripts in the "Examples" subdirectory in your Inno Setup directory.</p>
+<p>The Pascal Scripting example scripts are located in separate files. Open one of the <i>Code*.iss</i>, <i>UninstallCode*.iss</i>, or <i>AllPagesExample.iss</i> example scripts in the <tt>Examples</tt> subdirectory in your Inno Setup directory.</p>
 
 </body>
 </topic>
@@ -618,7 +618,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>At any time during Setup you can retrieve the values entered by the user either by using the special properties of the pre-built pages, or by using the properties of the controls you created yourself.</p>
 
-<p>Open the <tt>CodeDlg.iss</tt> script in the "Examples" subdirectory of your Inno Setup directory for an example of how to use pre-built custom wizard pages and event functions. Open the <tt>CodeClasses.iss</tt> script for an example of how to use completely custom wizard pages and controls.</p>
+<p>Open the <tt>CodeDlg.iss</tt> script in the <tt>Examples</tt> subdirectory of your Inno Setup directory for an example of how to use pre-built custom wizard pages and event functions. Open the <tt>CodeClasses.iss</tt> script for an example of how to use completely custom wizard pages and controls.</p>
 
 </body>
 </topic>
@@ -632,9 +632,9 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>The Pascal script can call functions inside external DLLs. This includes both standard Windows API functions inside standard Windows DLLs and custom functions in custom made DLLs.</p>
 
-<p>Open the <tt>CodeDll.iss</tt> file in the "Examples" subdirectory in your Inno Setup directory for an example script using DLLs.</p>
+<p>Open the <tt>CodeDll.iss</tt> file in the <tt>Examples</tt> subdirectory in your Inno Setup directory for an example script using DLLs.</p>
 
-<p>The "Examples" subdirectory also contains two custom DLL example projects, one for Microsoft Visual C++, and one for Embarcadero Delphi.</p>
+<p>The <tt>Examples</tt> subdirectory also contains two custom DLL example projects, one for Microsoft Visual C++, and one for Embarcadero Delphi.</p>
 
 <p>To be able to call a DLL function you should first write the function prototype as normal but instead of then writing the function body, you use the 'external' keyword to specify a DLL. If your function has for example prototype <tt>function A(B: Integer): Integer;</tt>, the following three forms are supported:</p>
 
@@ -740,7 +740,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>To access a property or method whose name is a reserved word, use <isxfunc>IDispatchInvoke</isxfunc>.</p>
 
-<p>Open the <tt>CodeAutomation.iss</tt> file in the "Examples" subdirectory in your Inno Setup directory for an example script using <tt>IDispatch</tt> based COM Automation objects.</p>
+<p>Open the <tt>CodeAutomation.iss</tt> file in the <tt>Examples</tt> subdirectory in your Inno Setup directory for an example script using <tt>IDispatch</tt> based COM Automation objects.</p>
 
 <p>If you're using a .NET COM object and loading it fails since Inno Setup 5.5.9 try putting this line in your script before creating the COM object: <tt><isxfunc>LoadDLL</isxfunc>(<isxfunc>ExpandConstant</isxfunc>('{sys}\mscoree.dll'), ErrorCode);</tt> and add a variable <tt>ErrorCode</tt> of type <tt>Integer</tt>.</p>
 
@@ -760,7 +760,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>If you copy the interface definition from any existing Delphi source code, remove the brackets around the interface GUID string. Also remove any calling conventions except <tt>safecall</tt>; Inno Setup assumes <tt>stdcall</tt>. If the interface contains any functions you won't call, you can replace these by dummies to avoid having to define any special types used by them.</p>
 
-<p>Open the <tt>CodeAutomation2.iss</tt> file in the "Examples" subdirectory in your Inno Setup directory for an example script using <tt>IUnknown</tt> based COM Automation objects.</p>
+<p>Open the <tt>CodeAutomation2.iss</tt> file in the <tt>Examples</tt> subdirectory in your Inno Setup directory for an example script using <tt>IUnknown</tt> based COM Automation objects.</p>
 
 </dd>
 

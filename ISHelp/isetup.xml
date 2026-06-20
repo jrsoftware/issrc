@@ -191,7 +191,7 @@ Includes integrated support for "deflate", bzip2, and 7-Zip LZMA/LZMA2 file <lin
 
 <p>Script files are usually edited from inside the "Inno Setup Compiler" Compiler IDE program. After you have finished writing the script, the next and final step is to select "Compile" in the Compiler IDE. What this does is create a complete, ready-to-run Setup program based on your script. By default, this is created in a directory named <tt>Output</tt> under the directory containing the script.</p>
 
-<p>To give you an idea of how this all works, start the Compiler IDE, click <i>File | Open</i>, and select one of the script files in the Examples subdirectory located under the Inno Setup directory. (It may be helpful to use the sample scripts as a template for your own scripts.)</p>
+<p>To give you an idea of how this all works, start the Compiler IDE, click <i>File | Open</i>, and select one of the script files in the <tt>Examples</tt> subdirectory located under the Inno Setup directory. (It may be helpful to use the sample scripts as a template for your own scripts.)</p>
 
 <p><b>See also:</b><br/>
 <link topic="scriptformatoverview">Script Format Overview</link>
@@ -3009,7 +3009,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <keyword value="Example Scripts" />
 <body>
 
-<p>The Inno Setup Example Scripts are located in a separate folder. Please click the "Inno Setup Example Scripts" shortcut created in the Start Menu when you installed Inno Setup, or open the <tt>Examples</tt> folder in your Inno Setup directory.</p>
+<p>The Inno Setup Example Scripts are located in a separate folder. Please click the "Inno Setup Example Scripts" shortcut created in the Start Menu when you installed Inno Setup, or open the <tt>Examples</tt> subdirectory in your Inno Setup directory.</p>
 
 </body>
 </topic>
