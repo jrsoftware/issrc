@@ -484,7 +484,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
       Using <tt>x64</tt> anyway has several benefits: your installer initially presents itself as a native 64-bit executable, and the 64-bit loader has high-entropy ASLR enabled. Additionally, it can help satisfy policy or third-party requirements that mandate 64-bit installers, even while the main Setup program is still 32-bit.<br/>
       The downside is that your installer will no longer load on systems running x86 Windows.
   </li>
-  <li>If Inno Setup is not already installed, the installer will again prompt you to choose the installation mode (all users or current user only) using a suppressible dialog. Since version 6.1.1, this choice was only available via the '/ALLUSERS' and '/CURRENTUSER' command-line parameters.</li>
+  <li>If Inno Setup is not already installed, the installer will again prompt you to choose the installation mode (all users or current user only) using a suppressible dialog. Since version 6.1.1, this choice was only available via the <tt>/ALLUSERS</tt> and <tt>/CURRENTUSER</tt> command-line parameters.</li>
   <li>Other minor improvements.</li>
 </ul>
 
@@ -568,7 +568,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     </li>
   </ul>
   </li>
-  <li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme or when new command line parameter '/NOSTYLE' is used.</li>
+  <li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme or when new command line parameter <tt>/NOSTYLE</tt> is used.</li>
   <li>Compiler IDE: Added a new <i>Wizard Style</i> page to the New Script Wizard, allowing to choose a style and view example screenshots.</li>
   <li>Pascal Scripting:
   <ul>
@@ -639,7 +639,7 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
   </ul>
   </li>
   <li><tt>[Setup]</tt> section directive <tt>WizardImageBackColor</tt> and the other three <tt>BackColor</tt> directives now accept the <tt>#rrggbb</tt> color format in addition to <tt>$bbggrr</tt>.</li>
-  <li>Setup command line parameter '/SUPPRESSMSGBOXES' can now suppress additional early fatal error messages and the final restart error message. The parameter still only has an effect when combined with '/SILENT' or '/VERYSILENT'.</li>
+  <li>Setup command line parameter <tt>/SUPPRESSMSGBOXES</tt> can now suppress additional early fatal error messages and the final restart error message. The parameter still only has an effect when combined with <tt>/SILENT</tt> or <tt>/VERYSILENT</tt>.</li>
   <li>Pascal Scripting:
   <ul>
     <li>Added support for command link buttons (the button style used in task dialogs). See <tt><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/Examples/CodeClasses.iss">CodeClasses.iss</a></tt> for an example.</li>
@@ -704,7 +704,7 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
 <li>Compiler IDE:
 <ul>
   <li>Added new <i>Automatically reload files</i> and <i>Allow Undo after reload</i> options. Both are enabled by default, consistent with most other modern editors, and improving integration with tools like Claude Code.</li>
-  <li>Added dark mode support for command line options /cc and /wizard.</li>
+  <li>Added dark mode support for command line options <tt>/cc</tt> and <tt>/wizard</tt>.</li>
 </ul>
 </li>
 <li>Pascal Scripting: Added new <tt>HighContrastActive</tt> and <tt>LogFmt</tt> support functions.</li>
@@ -714,7 +714,7 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
 <p><a name="6.5.1"></a><span class="ver">6.5.1 </span><span class="date">(2025-08-18)</span></p>
 <ul>
 <li>Downloads are now performed from a secondary thread, just as was first introduced for archive extraction in the previous version. This ensures Setup stays responsive, even if the system fails to report progress.</li>
-<li><i>Fix:</i> Using the /cc command line option of the Compiler IDE to compile a script no longer causes an error.</li>
+<li><i>Fix:</i> Using the <tt>/cc</tt> command line option of the Compiler IDE to compile a script no longer causes an error.</li>
 <li>Minor tweaks.</li>
 </ul>
 
@@ -895,7 +895,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
       <li>Improved support for screen readers.</li>
     </ul>
   </li>
-  <li><tt>[Setup]</tt> section directive <tt>Encryption</tt> can now be set to <tt>full</tt>, which will encrypt the entire installation and requires the password to be specified using the /PASSWORD= command line parameter.</li>
+  <li><tt>[Setup]</tt> section directive <tt>Encryption</tt> can now be set to <tt>full</tt>, which will encrypt the entire installation and requires the password to be specified using the <tt>/PASSWORD=</tt> command line parameter.</li>
   <li>Increased the maximum value of <tt>[Setup]</tt> section directive <tt>LZMANumBlockThreads</tt> from 32 to 256.</li>
   <li><tt>[Files]</tt> section parameter <tt>Excludes</tt> can now be combined with the <tt>external</tt> flag.</li>
   <li>Parameters <tt>ExternalSize</tt>, <tt>ExtraDiskSpaceRequired</tt>, and <tt>UninstallDisplaySize</tt> now support digit separators. Example: <tt>UninstallDisplaySize=1_073_741_824</tt>.</li>
@@ -1264,7 +1264,7 @@ position is not in the <tt>[Code]</tt> section.</li>
 <p><span class="head2">Support for logging improved</span></p>
 <ul>
   <li>Added new <tt>[Run]</tt> and <tt>[UninstallRun]</tt> section flag <tt>logoutput</tt>. Instructs Setup and Uninstall to log the output of the executed program or batch file. Cannot be combined with the <tt>nowait</tt>, <tt>runasoriginaluser</tt>, <tt>shellexec</tt>, and <tt>waituntilidle</tt> flags. Has no effect if logging is not enabled.</li>
-  <li>Added new <tt>[Setup]</tt> section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing /LOG on the command line.</li>
+  <li>Added new <tt>[Setup]</tt> section directive <tt>UninstallLogging</tt>, which defaults to <tt>no</tt>. If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing <tt>/LOG</tt> on the command line.</li>
   <li>Digital signing change: Sign Tool output is now always logged in
 the Compiler IDE's <i>Compiler Output</i> view, making it easier to debug
 issues. Because of this, sign tools that are console programs will now

@@ -67,7 +67,7 @@ Additional vocabulary rules:
 
 ## Formatting
 
-- Code identifiers should render as monospace: section names, directive names, parameter names, flag names, constant names, type names, function names, file names, directory names, path values, registry key names, and values like `yes`/`no`/`True`/`False`. In prose, use `<tt>` for this. Inside already-monospace contexts, such as `<pre>`, `<precode>`, or ISPP `<line>` elements, no extra `<tt>` is needed.
+- Code identifiers should render as monospace: section names, directive names, parameter names, flag names, constant names, type names, function names, file names, directory names, path values, registry key names, command-line switches, and values like `yes`/`no`/`True`/`False`. In prose, use `<tt>` for this. Inside already-monospace contexts, such as `<pre>`, `<precode>`, or ISPP `<line>` elements, no extra `<tt>` is needed.
 - When a code identifier is in a prose link's display text, still make it monospace with `<tt>`:
   - For an internal `<link>`: outside the link if the identifier is the whole display text, inside otherwise.
   - For an `<extlink>`: always inside, because external links get an icon added that must not appear inside the `<tt>` pill.

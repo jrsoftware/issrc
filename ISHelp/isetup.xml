@@ -2319,7 +2319,7 @@ en.<key>ButtonNext</key>=&amp;Forward
 <key>BeveledLabel</key>=Inno Setup
 </precode>
 
-<p>The <tt>HelpTextNote</tt> message can be used to specify one or more lines of text that are added to the list of parameters in the summary shown when passing <link topic="setupcmdline" anchor="HELP">/HELP</link> on the command line. The following is an example:</p>
+<p>The <tt>HelpTextNote</tt> message can be used to specify one or more lines of text that are added to the list of parameters in the summary shown when passing <tt><link topic="setupcmdline" anchor="HELP">/HELP</link></tt> on the command line. The following is an example:</p>
 
 <precode>
 <sec>[Messages]</sec>
@@ -3520,11 +3520,11 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 <p>After starting <tt>setup.exe</tt>, exit your application as soon as possible. Note that to avoid problems with updating your <tt>.exe</tt>, Setup has an auto retry feature.</p>
 
-<p>Optionally you could also use the <tt>skipifsilent</tt> and <tt>skipifnotsilent</tt> flags and make your application aware of a custom '/updated' parameter to for example show a nice message box to inform the user that the update has completed.</p>
+<p>Optionally you could also use the <tt>skipifsilent</tt> and <tt>skipifnotsilent</tt> flags and make your application aware of a custom <tt>/updated</tt> parameter to for example show a nice message box to inform the user that the update has completed.</p>
 </li>
 
 <li>
-<p>Inno Setup's own installers accept an additional /PORTABLE=1 command line parameter to enable portable mode which causes the installers to install to the desktop by default and to not create an uninstaller nor an entry in the Add/Remove Programs Control Panel applet. For example:</p>
+<p>Inno Setup's own installers accept an additional <tt>/PORTABLE=1</tt> command line parameter to enable portable mode which causes the installers to install to the desktop by default and to not create an uninstaller nor an entry in the Add/Remove Programs Control Panel applet. For example:</p>
 
 <precode>
 /portable=1 /silent /currentuser
@@ -4379,8 +4379,8 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="SILENT">/SILENT</a>, <a name="VERYSILENT">/VERYSILENT</a></b></dt>
 <dd>
-<p>Instructs Setup to be silent or very silent. When Setup is silent the wizard and the background window are not displayed but the installation progress window is. When a setup is very silent this installation progress window is not displayed. Everything else is normal so for example error messages during installation are displayed (if you haven't disabled them with the '/SUPPRESSMSGBOXES' command line option explained below) and the startup prompt is (if you haven't disabled it with <sd>DisableStartupPrompt</sd> or the '/SP-' command line option explained above).</p>
-<p>If a restart is necessary and the '/NORESTART' command isn't used (see below) and Setup is silent, it will display a <i>Reboot now?</i> message box. If it's very silent it will reboot without asking.</p>
+<p>Instructs Setup to be silent or very silent. When Setup is silent the wizard and the background window are not displayed but the installation progress window is. When a setup is very silent this installation progress window is not displayed. Everything else is normal so for example error messages during installation are displayed (if you haven't disabled them with the <tt>/SUPPRESSMSGBOXES</tt> command line option explained below) and the startup prompt is (if you haven't disabled it with <sd>DisableStartupPrompt</sd> or the <tt>/SP-</tt> command line option explained above).</p>
+<p>If a restart is necessary and the <tt>/NORESTART</tt> command isn't used (see below) and Setup is silent, it will display a <i>Reboot now?</i> message box. If it's very silent it will reboot without asking.</p>
 </dd>
 
 <dt><b><a name="NOSTYLE">/NOSTYLE</a></b></dt>
@@ -4390,7 +4390,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="SUPPRESSMSGBOXES">/SUPPRESSMSGBOXES</a></b></dt>
 <dd>
-<p>Instructs Setup to suppress message boxes. Only has an effect when combined with '/SILENT' or '/VERYSILENT'.</p>
+<p>Instructs Setup to suppress message boxes. Only has an effect when combined with <tt>/SILENT</tt> or <tt>/VERYSILENT</tt>.</p>
 <p>The default response in situations where there's a choice is:</p>
 <ul appearance="compact">
 <li>Yes in a 'Keep newer file?' situation.</li>
@@ -4430,22 +4430,22 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="LOG2">/LOG=</a>"<i>filename</i>"</b></dt>
 <dd>
-<p>Same as /LOG, except it allows you to specify a fixed path/filename to use for the log file. If a file with the specified name already exists it will be overwritten. If the file cannot be created, Setup will abort with an error message.</p>
+<p>Same as <tt>/LOG</tt>, except it allows you to specify a fixed path/filename to use for the log file. If a file with the specified name already exists it will be overwritten. If the file cannot be created, Setup will abort with an error message.</p>
 </dd>
 
 <dt><b><a name="NOCANCEL">/NOCANCEL</a></b></dt>
 <dd>
-<p>Prevents the user from cancelling during the installation process, by disabling the Cancel button and ignoring clicks on the close button. Useful along with '/SILENT' or '/VERYSILENT'.</p>
+<p>Prevents the user from cancelling during the installation process, by disabling the Cancel button and ignoring clicks on the close button. Useful along with <tt>/SILENT</tt> or <tt>/VERYSILENT</tt>.</p>
 </dd>
 
 <dt><b><a name="NORESTART">/NORESTART</a></b></dt>
 <dd>
-<p>Prevents Setup from restarting the system following a successful installation, or after a <i>Preparing to Install</i> failure that requests a restart. Typically used along with /SILENT or /VERYSILENT.</p>
+<p>Prevents Setup from restarting the system following a successful installation, or after a <i>Preparing to Install</i> failure that requests a restart. Typically used along with <tt>/SILENT</tt> or <tt>/VERYSILENT</tt>.</p>
 </dd>
 
 <dt><b><a name="RESTARTEXITCODE">/RESTARTEXITCODE=</a><i>exit code</i></b></dt>
 <dd>
-<p>Specifies a custom exit code that Setup is to return when the system needs to be restarted following a successful installation. (By default, 0 is returned in this case.) Typically used along with /NORESTART. See also: <link topic="setupexitcodes">Setup Exit Codes</link></p>
+<p>Specifies a custom exit code that Setup is to return when the system needs to be restarted following a successful installation. (By default, 0 is returned in this case.) Typically used along with <tt>/NORESTART</tt>. See also: <link topic="setupexitcodes">Setup Exit Codes</link></p>
 </dd>
 
 <dt><b><a name="CLOSEAPPLICATIONS">/CLOSEAPPLICATIONS</a></b></dt>
@@ -4455,7 +4455,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="NOCLOSEAPPLICATIONS">/NOCLOSEAPPLICATIONS</a></b></dt>
 <dd>
-<p>Prevents Setup from closing applications using files that need to be updated by Setup. If /CLOSEAPPLICATIONS was also used, this command line parameter is ignored.</p>
+<p>Prevents Setup from closing applications using files that need to be updated by Setup. If <tt>/CLOSEAPPLICATIONS</tt> was also used, this command line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="FORCECLOSEAPPLICATIONS">/FORCECLOSEAPPLICATIONS</a></b></dt>
@@ -4465,7 +4465,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="NOFORCECLOSEAPPLICATIONS">/NOFORCECLOSEAPPLICATIONS</a></b></dt>
 <dd>
-<p>Prevents Setup from force closing when closing applications. If /FORCECLOSEAPPLICATIONS was also used, this command line parameter is ignored.</p>
+<p>Prevents Setup from force closing when closing applications. If <tt>/FORCECLOSEAPPLICATIONS</tt> was also used, this command line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="LOGCLOSEAPPLICATIONS">/LOGCLOSEAPPLICATIONS</a></b></dt>
@@ -4480,7 +4480,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="NORESTARTAPPLICATIONS">/NORESTARTAPPLICATIONS</a></b></dt>
 <dd>
-<p>Prevents Setup from restarting applications. If /RESTARTAPPLICATIONS was also used, this command line parameter is ignored.</p>
+<p>Prevents Setup from restarting applications. If <tt>/RESTARTAPPLICATIONS</tt> was also used, this command line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="REDIRECTIONGUARD">/REDIRECTIONGUARD</a></b></dt>
@@ -4490,12 +4490,12 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="NOREDIRECTIONGUARD">/NOREDIRECTIONGUARD</a></b></dt>
 <dd>
-<p>Prevents Setup from enabling RedirectionGuard. If /REDIRECTIONGUARD was also used, this command line parameter is ignored.</p>
+<p>Prevents Setup from enabling RedirectionGuard. If <tt>/REDIRECTIONGUARD</tt> was also used, this command line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="LOADINF">/LOADINF=</a>"<i>filename</i>"</b></dt>
 <dd>
-<p>Instructs Setup to load the settings from the specified file after having checked the command line. This file can be prepared using the '/SAVEINF=' command as explained below.</p>
+<p>Instructs Setup to load the settings from the specified file after having checked the command line. This file can be prepared using the <tt>/SAVEINF=</tt> command as explained below.</p>
 <p>Don't forget to use quotes if the filename contains spaces.</p>
 </dd>
 
@@ -4508,7 +4508,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <dt><b><a name="LANG">/LANG=</a><i>language</i></b></dt>
 <dd>
 <p>Specifies the language to use. <i>language</i> specifies the internal name of the language as specified in a <sn>[Languages]</sn> section entry.</p>
-<p>When a valid /LANG parameter is used, the <i>Select Language</i> dialog will be suppressed.</p>
+<p>When a valid <tt>/LANG</tt> parameter is used, the <i>Select Language</i> dialog will be suppressed.</p>
 </dd>
 
 <dt><b><a name="DIR">/DIR=</a>"<i>x</i>:\<i>dirname</i>"</b></dt>
@@ -4518,7 +4518,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="GROUP">/GROUP=</a>"<i>folder name</i>"</b></dt>
 <dd>
-<p>Overrides the default folder name displayed on the <i>Select Start Menu Folder</i> wizard page. May include an "expand:" prefix, see '/DIR='. If the <sn>[Setup]</sn> section directive <sd>DisableProgramGroupPage</sd> was set to <tt>yes</tt>, this command line parameter is ignored.</p>
+<p>Overrides the default folder name displayed on the <i>Select Start Menu Folder</i> wizard page. May include an "expand:" prefix, see <tt>/DIR=</tt>. If the <sn>[Setup]</sn> section directive <sd>DisableProgramGroupPage</sd> was set to <tt>yes</tt>, this command line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="NOICONS">/NOICONS</a></b></dt>
@@ -4529,7 +4529,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <dt><b><a name="TYPE">/TYPE=</a><i>type name</i></b></dt>
 <dd>
 <p>Overrides the default <link topic="typessection">setup type</link>.</p>
-<p>If the specified type exists and isn't a custom type, then any /COMPONENTS parameter will be ignored.</p>
+<p>If the specified type exists and isn't a custom type, then any <tt>/COMPONENTS</tt> parameter will be ignored.</p>
 </dd>
 
 <dt><b><a name="COMPONENTS">/COMPONENTS=</a>"<i>comma separated list of component names</i>"</b></dt>
@@ -4551,7 +4551,7 @@ Deselect all components, then select a parent component and all of its children 
 <dt><b><a name="TASKS">/TASKS=</a>"<i>comma separated list of task names</i>"</b></dt>
 <dd>
 <p>Specifies a list of <link topic="taskssection">tasks</link> that should be initially selected.</p>
-<p>Only the specified tasks will be selected; the rest will be deselected. Use the /MERGETASKS parameter instead if you want to keep the default set of tasks and only select/deselect some of them.</p>
+<p>Only the specified tasks will be selected; the rest will be deselected. Use the <tt>/MERGETASKS</tt> parameter instead if you want to keep the default set of tasks and only select/deselect some of them.</p>
 <p>If a task name is prefixed with a "*" character, any child tasks will be selected as well (except for those that include the <tt>dontinheritcheck</tt> flag). If a task name is prefixed with a "!" character, the task will be deselected.</p>
 <example>
 Deselect all tasks, then select the "desktopicon" and "fileassoc" tasks:<br/>
@@ -4565,7 +4565,7 @@ Deselect all tasks, then select a parent task and all of its children with the e
 
 <dt><b><a name="MERGETASKS">/MERGETASKS=</a>"<i>comma separated list of task names</i>"</b></dt>
 <dd>
-<p>Like the /TASKS parameter, except the specified tasks will be merged with the set of tasks that would have otherwise been selected by default.</p>
+<p>Like the <tt>/TASKS</tt> parameter, except the specified tasks will be merged with the set of tasks that would have otherwise been selected by default.</p>
 <p>If <sd>UsePreviousTasks</sd> is set to <tt>yes</tt>, the specified tasks will be selected/deselected after any previous tasks are restored.</p>
 <example>
 Keep the default set of selected tasks, but additionally select the "desktopicon" and "fileassoc" tasks:<br/>
@@ -4604,7 +4604,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <tr>
 <td><b>0</b></td>
 <td>
-<p>Setup was successfully run to completion or the /HELP or /? command line parameter was used.</p>
+<p>Setup was successfully run to completion or the <tt>/HELP</tt> or <tt>/?</tt> command line parameter was used.</p>
 </td>
 </tr>
 
@@ -4700,8 +4700,8 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b><a name="SILENT">/SILENT</a>, <a name="VERYSILENT">/VERYSILENT</a></b></dt>
 <dd>
-<p>When specified, the uninstaller will not ask the user for startup confirmation or display a message stating that uninstall is complete. Shared files that are no longer in use are deleted automatically without prompting. Any critical error messages will still be shown on the screen. When '/VERYSILENT' is specified, the uninstallation progress window is not displayed.</p>
-<p>If a restart is necessary and the '/NORESTART' command isn't used (see below) and '/VERYSILENT' is specified, the uninstaller will reboot without asking.</p>
+<p>When specified, the uninstaller will not ask the user for startup confirmation or display a message stating that uninstall is complete. Shared files that are no longer in use are deleted automatically without prompting. Any critical error messages will still be shown on the screen. When <tt>/VERYSILENT</tt> is specified, the uninstallation progress window is not displayed.</p>
+<p>If a restart is necessary and the <tt>/NORESTART</tt> command isn't used (see below) and <tt>/VERYSILENT</tt> is specified, the uninstaller will reboot without asking.</p>
 </dd>
 
 <dt><b><a name="NOSTYLE">/NOSTYLE</a></b></dt>
@@ -4711,7 +4711,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b><a name="SUPPRESSMSGBOXES">/SUPPRESSMSGBOXES</a></b></dt>
 <dd>
-<p>Instructs the uninstaller to suppress message boxes. Only has an effect when combined with '/SILENT' and '/VERYSILENT'. See '/SUPPRESSMSGBOXES' under <link topic="setupcmdline" anchor="SUPPRESSMSGBOXES">Setup Command Line Parameters</link> for more details.</p>
+<p>Instructs the uninstaller to suppress message boxes. Only has an effect when combined with <tt>/SILENT</tt> and <tt>/VERYSILENT</tt>. See <tt>/SUPPRESSMSGBOXES</tt> under <link topic="setupcmdline" anchor="SUPPRESSMSGBOXES">Setup Command Line Parameters</link> for more details.</p>
 </dd>
 
 <dt><b><a name="LOG">/LOG</a></b></dt>
@@ -4723,7 +4723,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b><a name="LOG2">/LOG=</a>"<i>filename</i>"</b></dt>
 <dd>
-<p>Same as /LOG, except it allows you to specify a fixed path/filename to use for the log file. If a file with the specified name already exists it will be overwritten. If the file cannot be created, Uninstall will abort with an error message.</p>
+<p>Same as <tt>/LOG</tt>, except it allows you to specify a fixed path/filename to use for the log file. If a file with the specified name already exists it will be overwritten. If the file cannot be created, Uninstall will abort with an error message.</p>
 </dd>
 
 <dt><b><a name="NORESTART">/NORESTART</a></b></dt>
@@ -4738,7 +4738,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b><a name="NOREDIRECTIONGUARD">/NOREDIRECTIONGUARD</a></b></dt>
 <dd>
-<p>Prevents the uninstaller from enabling RedirectionGuard. If /REDIRECTIONGUARD was also used, this command line parameter is ignored.</p>
+<p>Prevents the uninstaller from enabling RedirectionGuard. If <tt>/REDIRECTIONGUARD</tt> was also used, this command line parameter is ignored.</p>
 </dd>
 
 </dl>
@@ -4756,7 +4756,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <p>The uninstaller will return a non-zero exit code if the user cancels or a fatal error is encountered. Programs checking the exit code to detect failure should not check for a specific non-zero value; any non-zero exit code indicates that the uninstaller was not run to completion.</p>
 
-<p>Note that at the moment you get an exit code back from the uninstaller, some code related to uninstallation might still be running. Because Windows doesn't allow programs to delete their own EXEs, the uninstaller creates and spawns a copy of itself in the TEMP directory. This "clone" performs the actual uninstallation, and at the end, terminates the original uninstaller EXE (at which point you get an exit code back), deletes it, then displays the "uninstall complete" message box (if it hasn't been suppressed with /SILENT or /VERYSILENT).</p>
+<p>Note that at the moment you get an exit code back from the uninstaller, some code related to uninstallation might still be running. Because Windows doesn't allow programs to delete their own EXEs, the uninstaller creates and spawns a copy of itself in the TEMP directory. This "clone" performs the actual uninstallation, and at the end, terminates the original uninstaller EXE (at which point you get an exit code back), deletes it, then displays the "uninstall complete" message box (if it hasn't been suppressed with <tt>/SILENT</tt> or <tt>/VERYSILENT</tt>).</p>
 
 </body>
 </topic>
@@ -5246,7 +5246,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Can be set to one or more overrides which allow the end user to override the script's default <sd>PrivilegesRequired</sd> setting.</p>
-<p>If override <tt>commandline</tt> is allowed then Setup will support two additional command line parameters to override the script's default <sd>PrivilegesRequired</sd> setting: /ALLUSERS and /CURRENTUSER. See <link topic="setupcmdline" anchor="ALLUSERS">Setup Command Line Parameters</link> for more details.</p>
+<p>If override <tt>commandline</tt> is allowed then Setup will support two additional command line parameters to override the script's default <sd>PrivilegesRequired</sd> setting: <tt>/ALLUSERS</tt> and <tt>/CURRENTUSER</tt>. See <link topic="setupcmdline" anchor="ALLUSERS">Setup Command Line Parameters</link> for more details.</p>
 <p>If override <tt>dialog</tt> is allowed then Setup will ask the user to choose the install mode based on the script's default <sd>PrivilegesRequired</sd> setting using a suppressible dialog. Allowing <tt>dialog</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</p>
 <p><b>See also:</b><br/>
 <sd>UsePreviousPrivileges</sd></p>
@@ -5661,7 +5661,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing <link topic="uninstcmdline" anchor="LOG">/LOG</link> on the command line.</p>
+<p>If set to <tt>yes</tt>, the uninstaller will always create a log file if it is launched from the <i>Add/Remove Programs</i> Control Panel applet. Equivalent to passing <tt><link topic="uninstcmdline" anchor="LOG">/LOG</link></tt> on the command line.</p>
 <p>This directive has no effect if <sd>CreateUninstallRegKey</sd> is not set to <tt>yes</tt>.</p>
 <p><b>See also:</b><br/>
 <sd>SetupLogging</sd></p>
@@ -5792,7 +5792,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>Setting this to <tt>no</tt> prevents the user from cancelling during the actual installation process, by disabling the Cancel button and ignoring clicks on the close button. This has the same effect as passing /NOCANCEL to Setup on the command line.</p>
+<p>Setting this to <tt>no</tt> prevents the user from cancelling during the actual installation process, by disabling the Cancel button and ignoring clicks on the close button. This has the same effect as passing <tt>/NOCANCEL</tt> to Setup on the command line.</p>
 </body>
 </setuptopic>
 
@@ -6431,7 +6431,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <heading>Other Considerations</heading>
 <ul>
 <li>The default style can be customized by specifying a VCL Styles file using the <sd>WizardStyleFile</sd> directive. When forced light (<tt>light</tt>) or dynamic light (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
-<li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme or when command line parameter '/NOSTYLE' is used.</li>
+<li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme or when command line parameter <tt>/NOSTYLE</tt> is used.</li>
 <li>When a custom style (including the built-in custom dark style) is active, three additional things occur. First, all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent instead of opaque. Second, Setup and Uninstall use a custom implementation of Windows message boxes and task dialogs. Third, color properties set through Pascal Scripting are usually ignored, with the style's colors taking precedence.</li>
 <li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 220 KB. Enabling dynamic dark (<tt>dynamic</tt>) adds approximately 75 KB more. Enabling dynamic dark and including a custom light style as well (for example, <tt>dynamic windows11</tt>) adds approximately 110 KB more.</li>
 <li>Messages displayed by the so-called "setup loader" will never be styled. Normally no such messages are displayed, unless you enabled the startup prompt using <sd>DisableStartupPrompt</sd>.</li>
@@ -6719,7 +6719,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, files that are compiled into the installation (via <sn>[Files]</sn> section entries) will be encrypted using XChaCha20 encryption.</p>
-<p>If set to <tt>full</tt>, the entire installation will be encrypted, and the password must be specified using the <link topic="setupcmdline" anchor="PASSWORD">/PASSWORD=</link> command line parameter.</p>
+<p>If set to <tt>full</tt>, the entire installation will be encrypted, and the password must be specified using the <tt><link topic="setupcmdline" anchor="PASSWORD">/PASSWORD=</link></tt> command line parameter.</p>
 <p>If set to <tt>yes</tt> or <tt>full</tt> and you call the <isxfunc>ExtractTemporaryFile</isxfunc> function from the <sn>[Code]</sn> section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the <sn>[Files]</sn> section entry for the file.</p>
 <p>If set to <tt>yes</tt> or <tt>full</tt> the 256-bit XChaCha20 encryption key is derived from the value of <sd>Password</sd> using the function specified by <sd>EncryptionKeyDerivation</sd>.</p>
 <p>The 192-bit XChaCha20 encryption nonce is a random base nonce, appending the index of the first file in the chunk for unique encryption nonces.</p>
@@ -6933,7 +6933,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
-<p>If set to <tt>yes</tt>, Setup will always create a log file. Equivalent to passing <link topic="setupcmdline" anchor="LOG">/LOG</link> on the command line.</p>
+<p>If set to <tt>yes</tt>, Setup will always create a log file. Equivalent to passing <tt><link topic="setupcmdline" anchor="LOG">/LOG</link></tt> on the command line.</p>
 <p><b>See also:</b><br/>
 <sd>UninstallLogging</sd></p>
 </body>
