@@ -76,7 +76,7 @@
         <prototype>function SetupMessage(const ID: TSetupMessageID): String;</prototype>
         <description><p>Returns the value of the specified message.</p>
 <p><tt>TSetupMessageID</tt> is defined as:</p>
-<p>'msg' + the message name. Example: <i>SetupMessage(msgSetupAppTitle)</i></p></description>
+<p><tt>msg</tt> + the message name. Example: <tt>SetupMessage(msgSetupAppTitle)</tt></p></description>
         <example><pre><key>var</key>
   S: String;
 <key>begin</key>
@@ -118,7 +118,7 @@
       <function>
         <name>WizardIsComponentSelected</name>
         <prototype>function WizardIsComponentSelected(const Components: String): Boolean;</prototype>
-        <description><p>Returns <tt>True</tt> if the specified component is selected. Multiple components may be specified in the same manner as in a <link topic="componentstasksparams">Components parameter</link>.</p></description>
+        <description><p>Returns <tt>True</tt> if the specified component is selected. Multiple components may be specified in the same manner as in a <link topic="componentstasksparams"><tt>Components</tt> parameter</link>.</p></description>
         <seealso><p><isxfunc>WizardSelectedComponents</isxfunc><br />
 <isxfunc>WizardSelectComponents</isxfunc></p></seealso>
         <example><pre><key>begin</key>
@@ -136,7 +136,7 @@
       <function>
         <name>WizardIsTaskSelected</name>
         <prototype>function WizardIsTaskSelected(const Tasks: String): Boolean;</prototype>
-        <description><p>Returns <tt>True</tt> if the specified task is selected. Multiple tasks may be specified in the same manner as in a <link topic="componentstasksparams">Tasks parameter</link>.</p></description>
+        <description><p>Returns <tt>True</tt> if the specified task is selected. Multiple tasks may be specified in the same manner as in a <link topic="componentstasksparams"><tt>Tasks</tt> parameter</link>.</p></description>
         <seealso><p><isxfunc>WizardSelectedTasks</isxfunc><br />
 <isxfunc>WizardSelectTasks</isxfunc></p></seealso>
         <example><pre><key>begin</key>
@@ -167,13 +167,13 @@
         <name>CurrentFilename</name>
         <prototype>function CurrentFilename: String;</prototype>
         <description><p>Returns the destination file name of the <sn>[Files]</sn> entry that is currently being processed. The returned name may include constants.</p>
-<p>Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a <sn>[Files]</sn> entry.</p></description>
+<p>Do not attempt to call this function from outside a <tt>Check</tt>, <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> event function belonging to a <sn>[Files]</sn> entry.</p></description>
       </function>
       <function>
         <name>CurrentSourceFilename</name>
         <prototype>function CurrentSourceFilename: String;</prototype>
         <description><p>Returns the source file name of the <sn>[Files]</sn> entry that is currently being processed. The returned name may include constants.</p>
-<p>Do not attempt to call this function from outside a Check, BeforeInstall or AfterInstall event function belonging to a <sn>[Files]</sn> entry with the "external" flag.</p></description>
+<p>Do not attempt to call this function from outside a <tt>Check</tt>, <tt>BeforeInstall</tt> or <tt>AfterInstall</tt> event function belonging to a <sn>[Files]</sn> entry with the <tt>external</tt> flag.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -199,7 +199,7 @@
       <function>
         <name>SetPreviousData</name>
         <prototype>function SetPreviousData(const PreviousDataKey: Integer; const ValueName, ValueData: String): Boolean;</prototype>
-        <description><p>Sets a value that can be restored later using <isxfunc>GetPreviousData</isxfunc>. Call <tt>SetPreviousData</tt> inside a RegisterPreviousData event function, once per setting.</p></description>
+        <description><p>Sets a value that can be restored later using <isxfunc>GetPreviousData</isxfunc>. Call <tt>SetPreviousData</tt> inside a <tt>RegisterPreviousData</tt> event function, once per setting.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -251,7 +251,7 @@
         <name>WizardSelectComponents</name>
         <prototype>procedure WizardSelectComponents(const Components: String);</prototype>
         <description><p>Selects the specified comma separated list of component names.</p>
-<p>If a component name is prefixed with a "*" character, any child components will be selected as well (except for those that include the <tt>dontinheritcheck</tt> flag). If a component name is prefixed with a "!" character, the component will be deselected.</p>
+<p>If a component name is prefixed with a <tt>*</tt> character, any child components will be selected as well (except for those that include the <tt>dontinheritcheck</tt> flag). If a component name is prefixed with a <tt>!</tt> character, the component will be deselected.</p>
 <p>This function does not change the state of unspecified components. This function can change the state of specified components that include the <tt>fixed</tt> flag.</p>
 </description>
         <seealso><p><isxfunc>WizardSelectedComponents</isxfunc><br />
@@ -265,7 +265,7 @@
         <name>WizardSelectTasks</name>
         <prototype>procedure WizardSelectTasks(const Tasks: String);</prototype>
         <description><p>Selects the specified comma separated list of task names.</p>
-<p>If a task name is prefixed with a "!" character, the task will be deselected.</p>
+<p>If a task name is prefixed with a <tt>!</tt> character, the task will be deselected.</p>
 <p>This function does not change the state of unspecified tasks.</p>
 </description>
         <seealso><p><isxfunc>WizardSelectedTasks</isxfunc><br />
@@ -478,7 +478,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>GetWindowsVersion</name>
         <prototype>function GetWindowsVersion: Cardinal;</prototype>
-        <description><p>Returns the version number of Windows packed into a single integer. The upper 8 bits specify the major version; the following 8 bits specify the minor version; the lower 16 bits specify the build number. For example, this function will return $0A002800 on Windows 10 Version 1507, which is version 10.0.10240.</p>
+        <description><p>Returns the version number of Windows packed into a single integer. The upper 8 bits specify the major version; the following 8 bits specify the minor version; the lower 16 bits specify the build number. For example, this function will return <tt>$0A002800</tt> on Windows 10 Version 1507, which is version 10.0.10240.</p>
 <p>To retrieve just the major version number, use: <tt>GetWindowsVersion shr 24</tt>. To retrieve just the minor version number, use: <tt>(GetWindowsVersion shr 16) and $FF</tt>. To retrieve just the build number, use: <tt>GetWindowsVersion and $FFFF</tt>.</p></description>
         <example><pre><key>function</key> IsWindows8OrLater: Boolean;
 <key>begin</key>
@@ -503,14 +503,14 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
     SuiteMask: Word;             <com>// Product suites installed (see below)</com>
   <key>end</key>;
 </pre>
-<p>The ProductType field can be one of the following values:</p>
+<p>The <tt>ProductType</tt> field can be one of the following values:</p>
 <pre>
   VER_NT_WORKSTATION
   VER_NT_DOMAIN_CONTROLLER
   VER_NT_SERVER
 </pre>
-<p>It can also be zero if the product type could not be determined (unlikely). VER_NT_WORKSTATION indicates a non-server edition of Windows (e.g. Workstation, Professional, or Home).</p>
-<p>The SuiteMask field can be a combination of the following values:</p>
+<p>It can also be zero if the product type could not be determined (unlikely). <tt>VER_NT_WORKSTATION</tt> indicates a non-server edition of Windows (e.g. Workstation, Professional, or Home).</p>
+<p>The <tt>SuiteMask</tt> field can be a combination of the following values:</p>
 <pre>
   VER_SUITE_BACKOFFICE
   VER_SUITE_BLADE
@@ -523,7 +523,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
   VER_SUITE_SMALLBUSINESS_RESTRICTED
   VER_SUITE_TERMINAL
 </pre>
-<p>VER_SUITE_PERSONAL, for example, is set on Home edition of Windows XP, and VER_SUITE_BLADE is set on the Web edition of Windows Server 2003.</p></description>
+<p><tt>VER_SUITE_PERSONAL</tt>, for example, is set on Home edition of Windows XP, and <tt>VER_SUITE_BLADE</tt> is set on the Web edition of Windows Server 2003.</p></description>
         <example><p>The following example demonstrates how you can disallow installation on certain editions of Windows, and check service pack levels on multiple operating system versions. (Neither of these things are possible with the <tt>MinVersion</tt> <sn>[Setup]</sn> section directive.)</p>
 <pre><key>function</key> <evt>InitializeSetup</evt>: Boolean;
 <key>var</key>
@@ -556,7 +556,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>GetWindowsVersionString</name>
         <prototype>function GetWindowsVersionString: String;</prototype>
-        <description><p>Returns the version number of Windows in string form. On Windows 2000, for example, this function will return "5.00.2195".</p></description>
+        <description><p>Returns the version number of Windows in string form. On Windows 2000, for example, this function will return <tt>'5.00.2195'</tt>.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -727,14 +727,14 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>GetComputerNameString</name>
         <prototype>function GetComputerNameString: String;</prototype>
-        <description><p>Retrieves the name of the computer the Setup or Uninstall program is running on (as returned by the Windows <i>GetComputerName</i> function).</p></description>
+        <description><p>Retrieves the name of the computer the Setup or Uninstall program is running on (as returned by the Windows <tt>GetComputerName</tt> function).</p></description>
       </function>
     </subcategory>
     <subcategory>
       <function>
         <name>GetUILanguage</name>
         <prototype>function GetUILanguage: Integer;</prototype>
-        <description><p>Returns the language identifier (LANGID) of the current user's UI language, which is either the language of Windows itself, or in the case of a MUI edition of Windows, the user interface language chosen in Control Panel's Regional Options. Returns 0 if the function fails (unlikely).</p></description>
+        <description><p>Returns the language identifier (<tt>LANGID</tt>) of the current user's UI language, which is either the language of Windows itself, or in the case of a MUI edition of Windows, the user interface language chosen in Control Panel's Regional Options. Returns 0 if the function fails (unlikely).</p></description>
         <remarks><p>Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/dd318693.aspx">list of valid language identifiers on MSDN</extlink>.</p></remarks>
         <example><pre><key>begin</key>
   <key>if</key> GetUILanguage = <num>$0409</num> <key>then</key>
@@ -858,9 +858,9 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>UnloadDLL</name>
         <prototype>procedure UnloadDLL(Filename: String);</prototype>
-        <description><p>Unloads the specified DLL that was loaded by the <sn>[Code]</sn> section using an "external" keyword. This can be useful if you need to delete the DLL.</p>
+        <description><p>Unloads the specified DLL that was loaded by the <sn>[Code]</sn> section using an <tt>external</tt> keyword. This can be useful if you need to delete the DLL.</p>
 <p>The case of the filename and any path name must exactly match that of the function import. You will need to expand any constants in the filename yourself before passing it to <tt>UnloadDLL</tt>.</p>
-<p>If the function import used a "files:" prefix, prepend the value of the <tt>{tmp}</tt> constant to the filename (e.g. <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}\filename.dll')</tt>).</p></description>
+<p>If the function import used a <tt>files:</tt> prefix, prepend the value of the <tt>{tmp}</tt> constant to the filename (e.g. <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}\filename.dll')</tt>).</p></description>
         <remarks><p>It's not recommended that you try this, but if you attempt to call a function in a DLL that has been unloaded, the DLL will be re-loaded.</p></remarks>
         <example><pre><key>procedure</key> DllFunc; <key>external</key> <str>'DllFunc@{app}\MyDll.dll stdcall uninstallonly'</str>;
 
@@ -881,7 +881,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>DLLGetLastError</name>
         <prototype>function DLLGetLastError: LongInt;</prototype>
         <description><p>Returns the value the last error code had right after the most recent DLL function call you made. Useful after calling Windows API functions (if the function sets the last error code).</p></description>
-        <remarks><p>It's recommended to use this function instead of directly calling the GetLastError Windows API function since Setup or Uninstall makes API calls of its own, so the last error code could be overwritten at any time.</p>
+        <remarks><p>It's recommended to use this function instead of directly calling the <tt>GetLastError</tt> Windows API function since Setup or Uninstall makes API calls of its own, so the last error code could be overwritten at any time.</p>
 <p>Refer to the <extlink href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms681381.aspx">system error codes on MSDN</extlink>.</p></remarks>
         <example><pre><key>function</key> MessageBox(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal): Integer; <key>external</key> <str>'MessageBoxA@user32.dll stdcall'</str>;
 
@@ -919,12 +919,12 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>LowerCase</name>
         <prototype>function LowerCase(S: AnyString): String;</prototype>
-        <description><p>Returns a copy of the string <tt>S</tt>, but with all 7-bit ASCII characters between 'A' and 'Z' converted to lowercase. To convert 8-bit international characters, use <isxfunc>AnsiLowerCase</isxfunc> instead.</p></description>
+        <description><p>Returns a copy of the string <tt>S</tt>, but with all 7-bit ASCII characters between <tt>'A'</tt> and <tt>'Z'</tt> converted to lowercase. To convert 8-bit international characters, use <isxfunc>AnsiLowerCase</isxfunc> instead.</p></description>
       </function>
       <function>
         <name>UpperCase</name>
         <prototype>function UpperCase(S: AnyString): String;</prototype>
-        <description><p>Returns a copy of the string <tt>S</tt>, but with all 7-bit ASCII characters between 'a' and 'z' converted to uppercase. To convert 8-bit international characters, use <isxfunc>AnsiUpperCase</isxfunc> instead.</p></description>
+        <description><p>Returns a copy of the string <tt>S</tt>, but with all 7-bit ASCII characters between <tt>'a'</tt> and <tt>'z'</tt> converted to uppercase. To convert 8-bit international characters, use <isxfunc>AnsiUpperCase</isxfunc> instead.</p></description>
       </function>
       <function>
         <name>AnsiLowerCase</name>
@@ -954,7 +954,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>StringChange</name>
         <prototype>function StringChange(var S: String; const FromStr, ToStr: String): Integer;</prototype>
-        <description><p>This function is deprecated. It is equivalent to calling <isxfunc>StringChangeEx</isxfunc> with the SupportDBCS parameter set to <tt>False</tt>.</p></description>
+        <description><p>This function is deprecated. It is equivalent to calling <isxfunc>StringChangeEx</isxfunc> with the <tt>SupportDBCS</tt> parameter set to <tt>False</tt>.</p></description>
       </function>
       <function>
         <name>StringChangeEx</name>
@@ -1190,7 +1190,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>RemoveBackslashUnlessRoot</name>
         <prototype>function RemoveBackslashUnlessRoot(const S: String): String;</prototype>
-        <description><p>Returns the specified string with any trailing slashes/backslashes removed, unless the string specifies the root directory of a drive (e.g. <tt>C:\</tt> or "\"), in which case it leaves 1 slash.</p></description>
+        <description><p>Returns the specified string with any trailing slashes/backslashes removed, unless the string specifies the root directory of a drive (e.g. <tt>C:\</tt> or <tt>\</tt>), in which case it leaves 1 slash.</p></description>
       </function>
       <function>
         <name>RemoveBackslash</name>
@@ -1206,8 +1206,8 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>PathHasInvalidCharacters</name>
         <prototype>function PathHasInvalidCharacters(const S: String; const AllowDriveLetterColon: Boolean): Boolean;</prototype>
-        <description><p>Returns <tt>True</tt> if the specified string contains characters that are never allowed in paths, or characters and path components that are accepted by the system but might present a security problem (such as '..' and sometimes ':'). Set <tt>AllowDriveLetterColon</tt> to <tt>True</tt> when the first character may be a drive letter followed by a colon.</p></description>
-        <remarks><p>Extended-length paths that start with a <tt>\\?\</tt> prefix are rejected because the '?' is treated as an invalid character.</p></remarks>
+        <description><p>Returns <tt>True</tt> if the specified string contains characters that are never allowed in paths, or characters and path components that are accepted by the system but might present a security problem (such as <tt>'..'</tt> and sometimes <tt>':'</tt>). Set <tt>AllowDriveLetterColon</tt> to <tt>True</tt> when the first character may be a drive letter followed by a colon.</p></description>
+        <remarks><p>Extended-length paths that start with a <tt>\\?\</tt> prefix are rejected because the <tt>'?'</tt> is treated as an invalid character.</p></remarks>
       </function>
       <function>
         <name>PathIsRooted</name>
@@ -1332,39 +1332,39 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <prototype>function GetDateTimeString(const DateTimeFormat: String; const DateSeparator, TimeSeparator: Char): String;</prototype>
         <description><p>Returns the current date and time as a string using the specified formatting. The following format specifiers are supported:<br />
 <br />
-d	Displays the day as a number without a leading zero (1-31).<br />
-dd	Displays the day as a number with a leading zero (01-31).<br />
-ddd	Displays the day as an abbreviation (Sun-Sat).<br />
-dddd	Displays the day as a full name (Sunday-Saturday).<br />
-ddddd	Displays the date using the system's short date format.<br />
-dddddd	Displays the date using the system's long date format.<br />
-m	Displays the month as a number without a leading zero (1-12).<br />
-	If the m specifier immediately follows an h or hh specifier, the minute rather than the month is displayed.<br />
-mm	Displays the month as a number with a leading zero (01-12).<br />
-	If the mm specifier immediately follows an h or hh specifier, the minute rather than the month is displayed.<br />
-mmm	Displays the month as an abbreviation (Jan-Dec).<br />
-mmmm	Displays the month as a full name (January-December).<br />
-yy	Displays the year as a two-digit number (00-99).<br />
-yyyy	Displays the year as a four-digit number (0000-9999).<br />
-h	Displays the hour without a leading zero (0-23).<br />
-hh	Displays the hour with a leading zero (00-23).<br />
-n	Displays the minute without a leading zero (0-59).<br />
-nn	Displays the minute with a leading zero (00-59).<br />
-s	Displays the second without a leading zero (0-59).<br />
-ss	Displays the second with a leading zero (00-59).<br />
-t	Displays the time using the system's short time format.<br />
-tt	Displays the time using the system's long time format.<br />
-am/pm	Uses the 12-hour clock for the preceding h or hh specifier.<br />
+<tt>d</tt>	Displays the day as a number without a leading zero (1-31).<br />
+<tt>dd</tt>	Displays the day as a number with a leading zero (01-31).<br />
+<tt>ddd</tt>	Displays the day as an abbreviation (Sun-Sat).<br />
+<tt>dddd</tt>	Displays the day as a full name (Sunday-Saturday).<br />
+<tt>ddddd</tt>	Displays the date using the system's short date format.<br />
+<tt>dddddd</tt>	Displays the date using the system's long date format.<br />
+<tt>m</tt>	Displays the month as a number without a leading zero (1-12).<br />
+	If the <tt>m</tt> specifier immediately follows an <tt>h</tt> or <tt>hh</tt> specifier, the minute rather than the month is displayed.<br />
+<tt>mm</tt>	Displays the month as a number with a leading zero (01-12).<br />
+	If the <tt>mm</tt> specifier immediately follows an <tt>h</tt> or <tt>hh</tt> specifier, the minute rather than the month is displayed.<br />
+<tt>mmm</tt>	Displays the month as an abbreviation (Jan-Dec).<br />
+<tt>mmmm</tt>	Displays the month as a full name (January-December).<br />
+<tt>yy</tt>	Displays the year as a two-digit number (00-99).<br />
+<tt>yyyy</tt>	Displays the year as a four-digit number (0000-9999).<br />
+<tt>h</tt>	Displays the hour without a leading zero (0-23).<br />
+<tt>hh</tt>	Displays the hour with a leading zero (00-23).<br />
+<tt>n</tt>	Displays the minute without a leading zero (0-59).<br />
+<tt>nn</tt>	Displays the minute with a leading zero (00-59).<br />
+<tt>s</tt>	Displays the second without a leading zero (0-59).<br />
+<tt>ss</tt>	Displays the second with a leading zero (00-59).<br />
+<tt>t</tt>	Displays the time using the system's short time format.<br />
+<tt>tt</tt>	Displays the time using the system's long time format.<br />
+<tt>am/pm</tt>	Uses the 12-hour clock for the preceding <tt>h</tt> or <tt>hh</tt> specifier.<br />
 	Displays 'am' for any hour before noon, and 'pm' for any hour after noon.<br />
-	The am/pm specifier can use lower, upper, or mixed case, and the result is displayed accordingly.<br />
-a/p	Uses the 12-hour clock for the preceding h or hh specifier.<br />
+	The <tt>am/pm</tt> specifier can use lower, upper, or mixed case, and the result is displayed accordingly.<br />
+<tt>a/p</tt>	Uses the 12-hour clock for the preceding <tt>h</tt> or <tt>hh</tt> specifier.<br />
 	Displays 'a' for any hour before noon, and 'p' for any hour after noon.<br />
-	The a/p specifier can use lower, upper, or mixed case, and the result is displayed accordingly.<br />
-/	Displays the date separator character given by the <tt>DateSeparator</tt> parameter.<br />
+	The <tt>a/p</tt> specifier can use lower, upper, or mixed case, and the result is displayed accordingly.<br />
+<tt>/</tt>	Displays the date separator character given by the <tt>DateSeparator</tt> parameter.<br />
 	If <tt>DateSeparator</tt> is set to #0, the system's date separator character will be used instead.<br />
-:	Displays the time separator character given by the <tt>TimeSeparator</tt> parameter.<br />
+<tt>:</tt>	Displays the time separator character given by the <tt>TimeSeparator</tt> parameter.<br />
 	If <tt>TimeSeparator</tt> is set to #0, the system's time separator character will be used instead.<br />
-'xx'/"xx"	Characters enclosed in single or double quotes are displayed as-is, and do not affect formatting.<br />
+<tt>'xx'/"xx"</tt>	Characters enclosed in single or double quotes are displayed as-is, and do not affect formatting.<br />
 <br />
 Format specifiers may be written in upper case as well as in lower case letters. Both produce the same result.</p></description>
         <example><pre>
@@ -1487,7 +1487,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>MinimizePathName</name>
         <prototype>function MinimizePathName(const Filename: String; const Font: TFont; MaxLen: Integer): String;</prototype>
-        <description><p>Returns a minimized filename that will not take more than <tt>MaxLen</tt> pixels to display with the given font. The minimizing is done by replacing the middle part with '...' as needed.</p></description>
+        <description><p>Returns a minimized filename that will not take more than <tt>MaxLen</tt> pixels to display with the given font. The minimizing is done by replacing the middle part with <tt>'...'</tt> as needed.</p></description>
         <example><pre>MyLabel.Caption := MinimizePathName(MyPathName, MyLabel.Font, MyLabel.Width);</pre></example>
         <seealso><p><tt><link topic="scriptclasses" anchor="TFont">TFont</link></tt></p></seealso>
       </function>
@@ -1549,13 +1549,13 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>VarIsNull</name>
         <prototype>function VarIsNull(const V: Variant): Boolean;</prototype>
-        <description><p>Returns <tt>True</tt> if the specified variant has a value of Null assigned.</p></description>
+        <description><p>Returns <tt>True</tt> if the specified variant has a value of <tt>Null</tt> assigned.</p></description>
       </function>
       <function>
         <name>VarType</name>
         <prototype>function VarType(const V: Variant): TVarType;</prototype>
         <description><p>Returns the type code of the specified variant.</p>
-<p>The lower twelve bits of a variant type code (the bits defined by the varTypeMask bit mask) define the type of the variant. The varArray bit is set if the variant is an array of the given type. The varByRef bit is set if the variant is a reference to a value of the given type as opposed to an actual value.</p>
+<p>The lower twelve bits of a variant type code (the bits defined by the <tt>varTypeMask</tt> bit mask) define the type of the variant. The <tt>varArray</tt> bit is set if the variant is an array of the given type. The <tt>varByRef</tt> bit is set if the variant is a reference to a value of the given type as opposed to an actual value.</p>
 <p>The following variant type code constants are defined:</p>
 <pre>
 <key>const</key>
@@ -1784,7 +1784,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>GetSysWow64Dir</name>
         <prototype>function GetSysWow64Dir: String;</prototype>
-        <description><p>64-bit Windows only: returns fully qualified path of the SysWOW64 directory. This is the actual directory in which 32-bit system files reside. An empty string is returned if this function is called on 32-bit Windows, or if for some reason it fails to retrieve the path on 64-bit Windows (unlikely).</p></description>
+        <description><p>64-bit Windows only: returns fully qualified path of the <tt>SysWOW64</tt> directory. This is the actual directory in which 32-bit system files reside. An empty string is returned if this function is called on 32-bit Windows, or if for some reason it fails to retrieve the path on 64-bit Windows (unlikely).</p></description>
         <example><pre><key>var</key>
   S: String;
 <key>begin</key>
@@ -1800,19 +1800,19 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>GetSysNativeDir</name>
         <prototype>function GetSysNativeDir: String;</prototype>
-        <description><p>Returns the special Sysnative alias, without trailing backslash. An empty string is returned if there is no Sysnative alias.</p>
-<p>The Sysnative alias is not accessible to <link topic="64bit">64-bit installers</link> or any other 64-bit applications, so use its value only to, for example, pass it to a 32-bit application.</p></description>
+        <description><p>Returns the special <tt>Sysnative</tt> alias, without trailing backslash. An empty string is returned if there is no <tt>Sysnative</tt> alias.</p>
+<p>The <tt>Sysnative</tt> alias is not accessible to <link topic="64bit">64-bit installers</link> or any other 64-bit applications, so use its value only to, for example, pass it to a 32-bit application.</p></description>
       </function>
       <function>
         <name>GetTempDir</name>
         <prototype>function GetTempDir: String;</prototype>
-        <description><p>Returns fully qualified path of the temporary directory, with trailing backslash. Uses the Win32 function GetTempPath2 if available, and GetTempPath otherwise.</p></description>
+        <description><p>Returns fully qualified path of the temporary directory, with trailing backslash. Uses the Win32 function <tt>GetTempPath2</tt> if available, and <tt>GetTempPath</tt> otherwise.</p></description>
       </function>
       <function>
         <name>GetShellFolderByCSIDL</name>
         <prototype>function GetShellFolderByCSIDL(const Folder: Integer; const Create: Boolean): String;</prototype>
-        <description><p>Gets the path of the specified shell folder. <tt>Folder</tt> specifies the value of a CSIDL constant (a complete list of which can be found in ShlObj.h). If <tt>Create</tt> is <tt>True</tt>, the folder will be created if it does not exist. On failure, an empty string is returned.</p></description>
-        <remarks><p>It is recommended that you always specify <tt>True</tt> in the <tt>Create</tt> parameter. Otherwise, the function may fail if the CSIDL value is valid but the directory does not currently exist. (This is a Windows issue.)</p></remarks>
+        <description><p>Gets the path of the specified shell folder. <tt>Folder</tt> specifies the value of a <tt>CSIDL</tt> constant (a complete list of which can be found in <tt>ShlObj.h</tt>). If <tt>Create</tt> is <tt>True</tt>, the folder will be created if it does not exist. On failure, an empty string is returned.</p></description>
+        <remarks><p>It is recommended that you always specify <tt>True</tt> in the <tt>Create</tt> parameter. Otherwise, the function may fail if the <tt>CSIDL</tt> value is valid but the directory does not currently exist. (This is a Windows issue.)</p></remarks>
         <example><pre><key>const</key>
   CSIDL_MYPICTURES = <num>$0027</num>;
 
@@ -1893,10 +1893,10 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <p>Use the <isxfunc>ShellExec</isxfunc> function instead if you need to launch a file that is not an executable or batch file.</p>
 <p>Do not include quotes in the <tt>Filename</tt> parameter; the function will add them automatically.</p>
 <p>The <tt>WorkingDir</tt> parameter can be an empty string, in which case it will try to extract a pathname from the <tt>Filename</tt> parameter and use that as the initial current directory for the process. If no pathname was specified in <tt>Filename</tt>, a default directory will be used.</p>
-<p>If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass <tt>'>'</tt> in the <tt>Filename</tt> parameter, and the full command line in the <tt>Params</tt> parameter. (Note that when this is done, the function's special platform-independent support for <tt>.bat</tt> and <tt>.cmd</tt> files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
-<p>To execute a 64-bit System32 binary from a 32-bit installer, use <tt>{sysnative}</tt> or <isxfunc>ApplyPathRedirRulesForCurrentProcess</isxfunc> to rewrite the path. In a 64-bit installer the rewrite is not needed.</p>
+<p>If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass <tt>'>'</tt> in the <tt>Filename</tt> parameter, and the full command line in the <tt>Params</tt> parameter. (Note that when this is done, the function's special platform-independent support for <tt>.bat</tt> and <tt>.cmd</tt> files is disabled; it simply passes the specified command line to <tt>CreateProcess</tt> without any processing.)</p>
+<p>To execute a 64-bit <tt>System32</tt> binary from a 32-bit installer, use <tt>{sysnative}</tt> or <isxfunc>ApplyPathRedirRulesForCurrentProcess</isxfunc> to rewrite the path. In a 64-bit installer the rewrite is not needed.</p>
 <p>Can't be used to execute Setup itself until the installation has started.</p>
-<p><i>Note: compared to ISPP's Exec the ShowCmd and Wait parameters are swapped!</i></p></remarks>
+<p><i>Note: compared to ISPP's <tt>Exec</tt> the <tt>ShowCmd</tt> and <tt>Wait</tt> parameters are swapped!</i></p></remarks>
         <example><pre><key>var</key>
   ResultCode: Integer;
 <key>begin</key>
@@ -1925,7 +1925,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>ShellExec</name>
         <prototype>function ShellExec(const Verb, Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ErrorCode: Integer): Boolean;</prototype>
-        <description><p>Opens the specified file or performs another action specified by <tt>Verb</tt>, using the same credentials as Setup/Uninstall. The filename can be an executable file, a document file, a folder, or a URL. <tt>Verb</tt> may be an empty string, in which case the default verb for the file type is used (usually "open"). The <tt>Wait</tt> parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns <tt>True</tt> if the specified file was opened successfully, <tt>False</tt> otherwise. If <tt>False</tt> is returned then <tt>ErrorCode</tt> specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ErrorCode)</tt> to get a description of the error.</p></description>
+        <description><p>Opens the specified file or performs another action specified by <tt>Verb</tt>, using the same credentials as Setup/Uninstall. The filename can be an executable file, a document file, a folder, or a URL. <tt>Verb</tt> may be an empty string, in which case the default verb for the file type is used (usually <tt>'open'</tt>). The <tt>Wait</tt> parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns <tt>True</tt> if the specified file was opened successfully, <tt>False</tt> otherwise. If <tt>False</tt> is returned then <tt>ErrorCode</tt> specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ErrorCode)</tt> to get a description of the error.</p></description>
         <remarks><p><tt>TExecWait</tt> is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
 <p>Note that passing a <tt>Wait</tt> value other than <tt>ewNoWait</tt> will have no effect if a new process isn't spawned (for example, if the file is opened inside an already-running instance of the program that handles the file type).</p>
@@ -1956,7 +1956,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>ExecWithNativeSysDir</name>
         <prototype>function ExecWithNativeSysDir(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer): Boolean;</prototype>
         <description><p>Use this function instead of <isxfunc>Exec</isxfunc> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
-<p>This function avoids the problem that <isxfunc>Exec</isxfunc> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
+<p>This function avoids the problem that <isxfunc>Exec</isxfunc> in a 32-bit installer can only launch such an executable using the <tt>Sysnative</tt> alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
         <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <isxfunc>Exec</isxfunc>.</p></remarks>
         <example><pre><key>var</key>
   ResultCode: Integer;
@@ -1977,7 +1977,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>procedure ExtractTemporaryFile(const FileName: String);</prototype>
         <description><p>Extracts the specified file from the <sn>[Files]</sn> section to a temporary directory. To find the location of the temporary directory, use <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}')</tt>.</p>
 <p>The extracted files are automatically deleted when Setup exits.</p>
-<p>An exception will be raised if the file wasn't extracted successfully, if the file wasn't found, or if the file was found but couldn't be processed because of its MinVersion and/or OnlyBelowVersion parameters.</p></description>
+<p>An exception will be raised if the file wasn't extracted successfully, if the file wasn't found, or if the file was found but couldn't be processed because of its <tt>MinVersion</tt> and/or <tt>OnlyBelowVersion</tt> parameters.</p></description>
         <remarks><p>Use <tt>Flags: dontcopy noencryption</tt> in the <sn>[Files]</sn> section to tell Setup to skip the file during the normal file copying stage, and to ensure it can be extracted before the password is known.</p>
 <p>Use <tt>Flags: noencryption</tt> in the <sn>[Files]</sn> section if encryption is enabled and you call the <tt>ExtractTemporaryFile</tt> function prior to the user entering the correct password.</p>
 <p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the <sn>[Files]</sn> section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the <sn>[Files]</sn> section.</p></remarks>
@@ -2006,7 +2006,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <prototype>function ExtractTemporaryFiles(const Pattern: String): Integer;</prototype>
         <description><p>Extracts the files matching the wildcard specified by <tt>Pattern</tt> from the <sn>[Files]</sn> section to a temporary directory. Returns the number of extracted files. To find the location of the temporary directory, use <tt><isxfunc>ExpandConstant</isxfunc>('{tmp}')</tt>.</p>
 <p>The extracted files are automatically deleted when Setup exits.</p>
-<p>An exception will be raised if no files were extracted successfully, no files were found, or if files were found but none could be processed because of their MinVersion and/or OnlyBelowVersion parameters.</p></description>
+<p>An exception will be raised if no files were extracted successfully, no files were found, or if files were found but none could be processed because of their <tt>MinVersion</tt> and/or <tt>OnlyBelowVersion</tt> parameters.</p></description>
         <remarks><p>Use <tt>Flags: dontcopy noencryption</tt> in the <sn>[Files]</sn> section to tell Setup to skip the file during the normal file copying stage, and to ensure it can be extracted before the password is known.</p>
 <p>When solid compression is enabled, be sure to list your temporary files at (or near) the top of the <sn>[Files]</sn> section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the <sn>[Files]</sn> section.</p></remarks>
         <seealso><p><isxfunc>ExtractTemporaryFile</isxfunc></p></seealso>
@@ -2047,7 +2047,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <p>Set <tt>OnDownloadProgress</tt> to a function to be informed of progress, or <tt>nil</tt> otherwise.</p></description>
         <remarks><p><tt>TOnDownloadProgress</tt> is defined as:</p>
 <p><tt>TOnDownloadProgress = function(const Url, FileName: String; const Progress, ProgressMax: Int64): Boolean;</tt></p>
-<p>ProgressMax will be 0 if the file size is still unknown. Return <tt>True</tt> to allow the download to continue, <tt>False</tt> otherwise.</p></remarks>
+<p><tt>ProgressMax</tt> will be 0 if the file size is still unknown. Return <tt>True</tt> to allow the download to continue, <tt>False</tt> otherwise.</p></remarks>
         <example><pre>
 <sec>[Code]</sec>
 <key>function</key> OnDownloadProgress(<key>const</key> Url, Filename: String; <key>const</key> Progress, ProgressMax: Int64): Boolean;
@@ -2342,7 +2342,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <i>WorkingDir</i><br />Working directory for the target file. This should be set to an absolute directory.<br />
 <i>IconFilename</i><br />Path to file to supply the icon. If this is left as the empty string then the system default icon for the target file will be used.<br />
 <i>IconIndex</i><br />Zero-based index of the icon.<br />
-<i>ShowCmd</i><br />One of the SW_* constants</p></description>
+<i>ShowCmd</i><br />One of the <tt>SW_*</tt> constants</p></description>
         <remarks><p>You will most likely want to remove this shortcut on uninstall. Do this by adding an entry to the <tt>UninstallDelete</tt> section.</p></remarks>
         <example><pre>CreateShellLink(
   ExpandConstant(<str>'{app}\config\Open licence database.lnk'</str>),
@@ -2446,7 +2446,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>GetVersionNumbersString</name>
         <prototype>function GetVersionNumbersString(const Filename: String; var Version: String): Boolean;</prototype>
-        <description><p>Gets the version of the specified file as a string (in '0.0.0.0' format). Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p></description>
+        <description><p>Gets the version of the specified file as a string (in <tt>0.0.0.0</tt> format). Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p></description>
         <remarks><p>Uses the binary file version from the fixed block of the specified file's version information resource, and not the textual file version from the language specific block.</p></remarks>
       </function>
       <function>
@@ -2509,7 +2509,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>VersionToStr</name>
         <prototype>function VersionToStr(const Version: Int64): String;</prototype>
-        <description><p>Returns the specified packed version as a string (in '0.0.0.0' format).</p></description>
+        <description><p>Returns the specified packed version as a string (in <tt>0.0.0.0</tt> format).</p></description>
         <seealso><p><isxfunc>StrToVersion</isxfunc><br />
 <isxfunc>UnpackVersionNumbers</isxfunc><br />
 <isxfunc>UnpackVersionComponents</isxfunc></p></seealso>
@@ -2517,7 +2517,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>StrToVersion</name>
         <prototype>function StrToVersion(const VersionString: String; var Version: Int64): Boolean;</prototype>
-        <description><p>Returns the specified string (in '0.0.0.0' format) as a packed version. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p>
+        <description><p>Returns the specified string (in <tt>0.0.0.0</tt> format) as a packed version. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p>
 <p>Partial version numbers (for example, '1.5') are allowed. Missing numbers will be appended as zeros. Extra numbers are ignored.</p>
 </description>
         <seealso><p><isxfunc>VersionToStr</isxfunc><br />
@@ -2594,7 +2594,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>RegQueryStringValue</name>
         <prototype>function RegQueryStringValue(const RootKey: HKEY; const SubKeyName, ValueName: String; var ResultStr: String): Boolean;</prototype>
-        <description><p>Queries the specified REG_SZ- or REG_EXPAND_SZ-type value, and returns the data in <tt>ResultStr</tt>. Returns <tt>True</tt> if successful. When <tt>False</tt> is returned, <tt>ResultStr</tt> is unmodified.</p></description>
+        <description><p>Queries the specified <tt>REG_SZ</tt>- or <tt>REG_EXPAND_SZ</tt>-type value, and returns the data in <tt>ResultStr</tt>. Returns <tt>True</tt> if successful. When <tt>False</tt> is returned, <tt>ResultStr</tt> is unmodified.</p></description>
         <example><pre><key>var</key>
   Country: String;
 <key>begin</key>
@@ -2609,13 +2609,13 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>RegQueryMultiStringValue</name>
         <prototype>function RegQueryMultiStringValue(const RootKey: HKEY; const SubKeyName, ValueName: String; var ResultStr: String): Boolean;</prototype>
-        <description><p>Queries the specified REG_MULTI_SZ-type registry value, and returns the data in <tt>ResultStr</tt>. Returns <tt>True</tt> if successful. When <tt>False</tt> is returned, <tt>ResultStr</tt> is unmodified.</p></description>
-        <remarks><p>In a REG_MULTI_SZ-type value, each string is separated by a null character (<tt>#0</tt>).</p></remarks>
+        <description><p>Queries the specified <tt>REG_MULTI_SZ</tt>-type registry value, and returns the data in <tt>ResultStr</tt>. Returns <tt>True</tt> if successful. When <tt>False</tt> is returned, <tt>ResultStr</tt> is unmodified.</p></description>
+        <remarks><p>In a <tt>REG_MULTI_SZ</tt>-type value, each string is separated by a null character (<tt>#0</tt>).</p></remarks>
       </function>
       <function>
         <name>RegQueryDWordValue</name>
         <prototype>function RegQueryDWordValue(const RootKey: HKEY; const SubKeyName, ValueName: String; var ResultDWord: Cardinal): Boolean;</prototype>
-        <description><p>Queries the specified REG_DWORD-type registry value, and returns the data in <tt>ResultDWord</tt>. Returns <tt>True</tt> if successful. When <tt>False</tt> is returned, <tt>ResultDWord</tt> is unmodified.</p></description>
+        <description><p>Queries the specified <tt>REG_DWORD</tt>-type registry value, and returns the data in <tt>ResultDWord</tt>. Returns <tt>True</tt> if successful. When <tt>False</tt> is returned, <tt>ResultDWord</tt> is unmodified.</p></description>
         <example><pre><key>var</key>
   HistoryBufferSize: Cardinal;
 <key>begin</key>
@@ -2638,8 +2638,8 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>RegWriteStringValue</name>
         <prototype>function RegWriteStringValue(const RootKey: HKEY; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
-        <description><p>Writes the specified REG_SZ-type registry value. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p></description>
-        <remarks><p>If the value already exists and is of type REG_EXPAND_SZ, the new value will also be of type REG_EXPAND_SZ. Otherwise, a REG_SZ-type value will be created.</p></remarks>
+        <description><p>Writes the specified <tt>REG_SZ</tt>-type registry value. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p></description>
+        <remarks><p>If the value already exists and is of type <tt>REG_EXPAND_SZ</tt>, the new value will also be of type <tt>REG_EXPAND_SZ</tt>. Otherwise, a <tt>REG_SZ</tt>-type value will be created.</p></remarks>
         <example><pre><key>begin</key>
   RegWriteStringValue(HKEY_AUTO, <str>'Software\My Company\My Program'</str>,
     <str>'Language'</str>, ExpandConstant(<str>'{language}'</str>));
@@ -2648,7 +2648,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>RegWriteExpandStringValue</name>
         <prototype>function RegWriteExpandStringValue(const RootKey: HKEY; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
-        <description><p>Writes the specified REG_EXPAND_SZ-type registry value. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p></description>
+        <description><p>Writes the specified <tt>REG_EXPAND_SZ</tt>-type registry value. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p></description>
         <example><pre><key>begin</key>
   RegWriteExpandStringValue(HKEY_CURRENT_USER, <str>'Software\My Company\My Program'</str>,
     <str>'UserName'</str>, <str>'%UserName%'</str>);
@@ -2657,8 +2657,8 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>RegWriteMultiStringValue</name>
         <prototype>function RegWriteMultiStringValue(const RootKey: HKEY; const SubKeyName, ValueName, Data: String): Boolean;</prototype>
-        <description><p>Writes the specified REG_MULTI_SZ-type registry value. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p></description>
-        <remarks><p>In a REG_MULTI_SZ-type value, each string is separated by a null character (<tt>#0</tt>).</p></remarks>
+        <description><p>Writes the specified <tt>REG_MULTI_SZ</tt>-type registry value. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p></description>
+        <remarks><p>In a <tt>REG_MULTI_SZ</tt>-type value, each string is separated by a null character (<tt>#0</tt>).</p></remarks>
         <example><pre><key>begin</key>
   RegWriteMultiStringValue(HKEY_AUTO, <str>'Software\My Company\My Program'</str>,
     <str>'MultiStringTest'</str>, <str>'String1'</str> + <str>#0</str> + <str>'String2'</str> + <str>#0</str> + <str>'String3'</str>);
@@ -2667,7 +2667,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>RegWriteDWordValue</name>
         <prototype>function RegWriteDWordValue(const RootKey: HKEY; const SubKeyName, ValueName: String; const Data: Cardinal): Boolean;</prototype>
-        <description><p>Writes the specified REG_DWORD-type registry value. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p></description>
+        <description><p>Writes the specified <tt>REG_DWORD</tt>-type registry value. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p></description>
         <example><pre><key>begin</key>
   RegWriteDWordValue(HKEY_AUTO, <str>'Software\My Company\My Program'</str>,
     <str>'ShowToolbar'</str>, <num>1</num>);
@@ -2676,7 +2676,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
       <function>
         <name>RegWriteBinaryValue</name>
         <prototype>function RegWriteBinaryValue(const RootKey: HKEY; const SubKeyName, ValueName: String; const Data: AnsiString): Boolean;</prototype>
-        <description><p>Writes the specified REG_BINARY-type registry value. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p></description>
+        <description><p>Writes the specified <tt>REG_BINARY</tt>-type registry value. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p></description>
         <example><pre><key>begin</key>
   RegWriteBinaryValue(HKEY_AUTO, <str>'Software\My Company\My Program'</str>,
     <str>'BinaryTest'</str>, <str>'Whatever'</str> + <str>#1#2#3#4</str>);
@@ -2769,7 +2769,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>CreateInputQueryPage</name>
         <prototype>function CreateInputQueryPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String): TInputQueryWizardPage;</prototype>
         <description><p>Creates a wizard page containing edit boxes.</p></description>
-        <remarks><p>To create edit boxes on the page, call the Add method. Use the Values property to get/set the text of the edit boxes.</p></remarks>
+        <remarks><p>To create edit boxes on the page, call the <tt>Add</tt> method. Use the <tt>Values</tt> property to get/set the text of the edit boxes.</p></remarks>
         <example><pre><key>var</key>
   Page: TInputQueryWizardPage;
   UserName, UserCompany: String;
@@ -2803,7 +2803,7 @@ UserCompany := Page.Values[<num>1</num>];
         <prototype>function CreateInputOptionPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; Exclusive, ListBox: Boolean): TInputOptionWizardPage;</prototype>
         <description><p>Creates a wizard page containing check boxes or radio buttons.</p>
 <p>If <tt>Exclusive</tt> is <tt>True</tt>, radio buttons are displayed instead of check boxes, and only one item in the list may be selected at a time. If <tt>ListBox</tt> is <tt>True</tt>, the check boxes or radio buttons are placed inside a scrollable list box.</p></description>
-        <remarks><p>To create check boxes / radio buttons on the page, call the Add method. Use the Values property to get/set the checked state of items. On pages created with <tt>Exclusive</tt> set to <tt>True</tt>, you can get/set the index of the one selected item via the SelectedValueIndex property.</p></remarks>
+        <remarks><p>To create check boxes / radio buttons on the page, call the <tt>Add</tt> method. Use the <tt>Values</tt> property to get/set the checked state of items. On pages created with <tt>Exclusive</tt> set to <tt>True</tt>, you can get/set the index of the one selected item via the <tt>SelectedValueIndex</tt> property.</p></remarks>
         <example><pre><key>var</key>
   Page: TInputOptionWizardPage;
   IsRegisteredUser: Boolean;
@@ -2834,7 +2834,7 @@ IsRegisteredUser := Page.Values[<num>0</num>];
         <name>CreateInputDirPage</name>
         <prototype>function CreateInputDirPage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String; AAppendDir: Boolean; ANewFolderName: String): TInputDirWizardPage;</prototype>
         <description><p>Creates a wizard page that contains edit boxes and Browse buttons for selecting directories. If <tt>AAppendDir</tt> is <tt>True</tt>, the value of <tt>ANewFolderName</tt> will be appended onto any folder name the user clicks. If <tt>AAppendDir</tt> is <tt>False</tt> and <tt>ANewFolderName</tt> is not empty, a Make New Folder button will be shown that creates a new folder with the specified default name.</p></description>
-        <remarks><p>To create directory selection boxes on the page, call the Add method. Use the Values property to get/set the items' values.</p></remarks>
+        <remarks><p>To create directory selection boxes on the page, call the <tt>Add</tt> method. Use the <tt>Values</tt> property to get/set the items' values.</p></remarks>
         <example><pre><key>var</key>
   Page: TInputDirWizardPage;
   DataDir: String;
@@ -2866,7 +2866,7 @@ DataDir := Page.Values[<num>0</num>];
         <name>CreateInputFilePage</name>
         <prototype>function CreateInputFilePage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String): TInputFileWizardPage;</prototype>
         <description><p>Creates a wizard page that contains edit boxes and Browse buttons for selecting files.</p></description>
-        <remarks><p>To create file selection boxes on the page, call the Add method. Use the Values property to get/set the items' values.</p>
+        <remarks><p>To create file selection boxes on the page, call the <tt>Add</tt> method. Use the <tt>Values</tt> property to get/set the items' values.</p>
 <p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
         <example><pre><key>var</key>
   Page: TInputFileWizardPage;
@@ -2995,7 +2995,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
       <function>
         <name>CreateCustomPage</name>
         <prototype>function CreateCustomPage(const AfterID: Integer; const ACaption, ADescription: String): TWizardPage;</prototype>
-        <description><p>Creates a custom wizard page. The page is empty by default; you have to create your own controls afterward and place them on the page (by setting their Parent properties to the Surface property of the <tt><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></tt> instance returned by this function).</p></description>
+        <description><p>Creates a custom wizard page. The page is empty by default; you have to create your own controls afterward and place them on the page (by setting their <tt>Parent</tt> properties to the <tt>Surface</tt> property of the <tt><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></tt> instance returned by this function).</p></description>
         <example><p>See <tt>CodeClasses.iss</tt> and <tt>AllPagesExample.iss</tt> example scripts in the <tt>Examples</tt> subdirectory in your Inno Setup directory for examples.</p></example>
         <seealso><p><tt><link topic="scriptclasses" anchor="TWizardPage">TWizardPage</link></tt></p></seealso>
       </function>
@@ -3004,7 +3004,7 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
       <function>
         <name>CreateCustomForm</name>
         <prototype>function CreateCustomForm(const ClientWidth, ClientHeight: Integer; const KeepSizeX, KeepSizeY: Boolean): TSetupForm;</prototype>
-        <description><p>Creates a form. The form is empty by default; you have to create your own controls afterward and place them on the form (by setting their Parent properties to the <tt><link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link></tt> instance returned by this function).</p></description>
+        <description><p>Creates a form. The form is empty by default; you have to create your own controls afterward and place them on the form (by setting their <tt>Parent</tt> properties to the <tt><link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link></tt> instance returned by this function).</p></description>
         <remarks><p>You should call this function instead of creating <tt><link topic="scriptclasses" anchor="TForm">TForm</link></tt> or <tt><link topic="scriptclasses" anchor="TSetupForm">TSetupForm</link></tt> instances directly. This function automatically initializes the font and other properties of the created form to be like Setup's other dialogs.</p>
 <p>The <sn>[LangOptions]</sn> section's <tt>DialogFontName</tt> and <tt>DialogFontSize</tt> directives determine the font used by the form and, by default, any child controls created on the form.</p>
 <p>You should use <isxfunc>ScaleX</isxfunc> and <isxfunc>ScaleY</isxfunc> to scale the desired client width and height to appropriate values. A form's client width and height are the form's full width and height minus its borders.</p>
@@ -3097,13 +3097,13 @@ Page := CreateOutputMsgMemoPage(wpWelcome,
       <function>
         <name>InitializeBitmapButtonFromStockIcon</name>
         <prototype>function InitializeBitmapButtonFromStockIcon(const BitmapButton: TBitmapButton; const Siid: Integer; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;</prototype>
-        <description><p>Initializes the given bitmap button with a system-defined stock icon from the given stock icon id (siid) using the given background color for transparent parts.</p>
+        <description><p>Initializes the given bitmap button with a system-defined stock icon from the given stock icon id (<tt>Siid</tt>) using the given background color for transparent parts.</p>
 <p>See <isxfunc>InitializeBitmapImageFromStockIcon</isxfunc> for more information.</p></description>
       </function>
       <function>
         <name>InitializeBitmapImageFromStockIcon</name>
         <prototype>function InitializeBitmapImageFromStockIcon(const BitmapImage: TBitmapImage; const Siid: Integer; const BkColor: TColor; const AscendingTrySizes: TArrayOfInteger): Boolean;</prototype>
-        <description><p>Initializes the given bitmap image with a system-defined stock icon from the given stock icon id (siid) using the given background color for transparent parts.</p>
+        <description><p>Initializes the given bitmap image with a system-defined stock icon from the given stock icon id (<tt>Siid</tt>) using the given background color for transparent parts.</p>
 <p>The bitmap image should be scaled already and the function will load the largest fitting icon which has a size from the given array of sizes. After loading the function will set the size of the bitmap image to the loaded size.</p>
 <p>The array must be sorted already from smallest to highest size.</p>
 <p>If no match is found in the array (for example, because it is empty), the minimum of the bitmap image's width and height will be used as the size.</p>
@@ -3159,7 +3159,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>MsgBox</name>
         <prototype>function MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;</prototype>
-        <description><p>Displays a message box. <tt>Text</tt> specifies the message to display. <tt>Typ</tt> specifies which icon to display in the message box. <tt>Buttons</tt> specifies which buttons to include in the message box. Returns an ID* constant indicating the button the user clicked, or 0 if the function fails (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
+        <description><p>Displays a message box. <tt>Text</tt> specifies the message to display. <tt>Typ</tt> specifies which icon to display in the message box. <tt>Buttons</tt> specifies which buttons to include in the message box. Returns an <tt>ID*</tt> constant indicating the button the user clicked, or 0 if the function fails (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
         <remarks><p><tt>TMsgBoxType</tt> is defined as:</p>
 <p><tt>TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);</tt></p>
 <p>Supported flags for <tt>Buttons</tt> are:</p>
@@ -3200,7 +3200,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
 <tt>Buttons</tt> specifies which buttons to include in the task dialog.<br />
 <tt>ButtonLabels</tt> specifies which custom button labels to use. If set to an empty array, the system's default button labels will be used. If a label consists of two strings separated by a newline, then the first string specifies the button label and the second string specifies the button note. If <tt>Buttons</tt> is set to <tt>MB_OKCANCEL</tt>, <tt>MB_YESNOCANCEL</tt>, or <tt>MB_RETRYCANCEL</tt>, specifying a label for the Cancel button as the last element in the array is optional.<br />
 <tt>ShieldButton</tt> specifies which button to display a shield icon on. If set to 0, no shield icon will be displayed.</p>
-<p>Returns an ID* constant indicating the button the user clicked, or 0 if the function fails (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
+<p>Returns an <tt>ID*</tt> constant indicating the button the user clicked, or 0 if the function fails (which shouldn't happen unless an invalid parameter is specified or system resources are exhausted).</p></description>
         <remarks><p><tt>TMsgBoxType</tt> is defined as:</p>
 <p><tt>TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);</tt></p>
 <p>Supported values for <tt>Buttons</tt> are:</p>
@@ -3385,7 +3385,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <name>ExecAndCaptureOutput</name>
         <prototype>function ExecAndCaptureOutput(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; var Output: TExecOutput): Boolean;</prototype>
         <description><p>Identical to <isxfunc>Exec</isxfunc> except:</p>
-<p>Program output from the stdout and stderr streams is captured. This is different from <isxfunc>ExecAndLogOutput</isxfunc> which merges the streams.</p>
+<p>Program output from the <tt>stdout</tt> and <tt>stderr</tt> streams is captured. This is different from <isxfunc>ExecAndLogOutput</isxfunc> which merges the streams.</p>
 <p>Console programs are always hidden and the <tt>ShowCmd</tt> parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> instead of <tt>SW_HIDE</tt> is recommended.</p>
 <p>An exception will be raised if there was an error setting up output redirection (which should be very rare).</p></description>
         <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
@@ -3397,7 +3397,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
     Error: Boolean;
   <key>end</key>;
 </pre>
-<p>Error will be <tt>True</tt> if there was an error reading the output (which should be very rare) or if the output is too big. The error is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view. There is no further output after an error.</p>
+<p><tt>Error</tt> will be <tt>True</tt> if there was an error reading the output (which should be very rare) or if the output is too big. The error is logged in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view. There is no further output after an error.</p>
 <p><tt>Output</tt> is limited to a total size of 10 million bytes or a maximum of 1 million lines.</p></remarks>
         <example><pre><key>var</key>
   ResultCode: Integer;
@@ -3430,8 +3430,8 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <remarks><p>Parameter <tt>Wait</tt> must always be set to <tt>ewWaitUntilTerminated</tt> when calling this function.</p>
 <p><tt>TOnLog</tt> is defined as:</p>
 <p><tt>TOnLog = procedure(const S: String; const Error, FirstLine: Boolean);</tt></p>
-<p>Parameter S is the output line when Error is <tt>False</tt>, otherwise an error message. FirstLine is <tt>True</tt> if this is the first line of output from the program, otherwise <tt>False</tt>.</p>
-<p>Error will be <tt>True</tt> if reading the output failed (which should be very rare), or if the output is too big. There is no further output after an error.</p>
+<p>Parameter <tt>S</tt> is the output line when <tt>Error</tt> is <tt>False</tt>, otherwise an error message. <tt>FirstLine</tt> is <tt>True</tt> if this is the first line of output from the program, otherwise <tt>False</tt>.</p>
+<p><tt>Error</tt> will be <tt>True</tt> if reading the output failed (which should be very rare), or if the output is too big. There is no further output after an error.</p>
 <p>Output is limited to a total size of 10 million bytes or a maximum of 1 million lines.</p></remarks>
         <example><pre><key>var</key>
   Line: String;
@@ -3465,14 +3465,14 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <name>ExecAndCaptureOutputWithNativeSysDir</name>
         <prototype>function ExecAndCaptureOutputWithNativeSysDir(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; var Output: TExecOutput): Boolean;</prototype>
         <description><p>Use this function instead of <isxfunc>ExecAndCaptureOutput</isxfunc> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
-<p>This function avoids the problem that <isxfunc>ExecAndCaptureOutput</isxfunc> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
+<p>This function avoids the problem that <isxfunc>ExecAndCaptureOutput</isxfunc> in a 32-bit installer can only launch such an executable using the <tt>Sysnative</tt> alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
         <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <isxfunc>ExecAndCaptureOutput</isxfunc>.</p></remarks>
       </function>
       <function>
         <name>ExecAndLogOutputWithNativeSysDir</name>
         <prototype>function ExecAndLogOutputWithNativeSysDir(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer; const OnLog: TOnLog): Boolean;</prototype>
         <description><p>Use this function instead of <isxfunc>ExecAndLogOutput</isxfunc> to launch an executable located in the 64-bit System directory from a 32-bit installer.</p>
-<p>This function avoids the problem that <isxfunc>ExecAndLogOutput</isxfunc> in a 32-bit installer can only launch such an executable using the Sysnative alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
+<p>This function avoids the problem that <isxfunc>ExecAndLogOutput</isxfunc> in a 32-bit installer can only launch such an executable using the <tt>Sysnative</tt> alias, while that alias is not available to 64-bit applications. To achieve this, the function temporarily disables WOW64 file system redirection.</p></description>
         <remarks><p>On 32-bit Windows or in a 64-bit installer, this function is just an alias for <isxfunc>ExecAndLogOutput</isxfunc>.</p></remarks>
       </function>
     </subcategory>
@@ -3558,7 +3558,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>Assigned</name>
         <prototype>function Assigned(var X): Boolean;</prototype>
-        <description><p>Returns <tt>True</tt> if <tt>X</tt> is not nil. For strings and <tt>PChar</tt> values, returns <tt>True</tt> if <tt>X</tt> isn't empty. Returns <tt>False</tt> otherwise.</p></description>
+        <description><p>Returns <tt>True</tt> if <tt>X</tt> is not <tt>nil</tt>. For strings and <tt>PChar</tt> values, returns <tt>True</tt> if <tt>X</tt> isn't empty. Returns <tt>False</tt> otherwise.</p></description>
       </function>
     </subcategory>
     <subcategory>
@@ -3636,13 +3636,13 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>CastStringToInteger</name>
         <prototype>function CastStringToInteger(var S: String): NativeInt;</prototype>
-        <description><p>Casts a string to an integer so that a string can be passed to a DLL using CallDllProc.</p></description>
+        <description><p>Casts a string to an integer so that a string can be passed to a DLL using <tt>CallDLLProc</tt>.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll">Using DLLs</link> topic.</p></remarks>
       </function>
       <function>
         <name>CastIntegerToString</name>
         <prototype>function CastIntegerToString(const L: NativeInt): String;</prototype>
-        <description><p>Casts an integer to a string so that a string can be received from a DLL using CallDllProc.</p></description>
+        <description><p>Casts an integer to a string so that a string can be received from a DLL using <tt>CallDLLProc</tt>.</p></description>
         <remarks><p>This function is deprecated. See the <link topic="scriptdll">Using DLLs</link> topic.</p></remarks>
       </function>
     </subcategory>

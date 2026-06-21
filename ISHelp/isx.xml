@@ -175,7 +175,7 @@
 <dt><tt>procedure <a name="CurStepChanged">CurStepChanged</a>(CurStep: <anchorlink name="TSetupStep">TSetupStep</anchorlink>);</tt></dt>
 <dd>
 <p>You can use this event function to perform your own pre-install and post-install tasks.</p>
-<p>Called with CurStep=ssInstall just before the actual installation starts, with CurStep=ssPostInstall just after the actual installation finishes, and with CurStep=ssDone just before Setup terminates after a successful install.</p>
+<p>Called with <tt>CurStep=ssInstall</tt> just before the actual installation starts, with <tt>CurStep=ssPostInstall</tt> just after the actual installation finishes, and with <tt>CurStep=ssDone</tt> just before Setup terminates after a successful install.</p>
 </dd>
 
 <dt><tt>procedure <a name="CurInstallProgressChanged">CurInstallProgressChanged</a>(CurProgress, MaxProgress: Integer);</tt></dt>
@@ -185,13 +185,13 @@
 
 <dt><tt>function <a name="NextButtonClick">NextButtonClick</a>(<anchorlink name="PageID">CurPageID</anchorlink>: Integer): Boolean;</tt></dt>
 <dd>
-<p>Called when the user clicks the Next button. If you return <tt>True</tt>, the wizard will move to the next page; if you return <tt>False</tt>, it will remain on the current page (specified by CurPageID).</p>
+<p>Called when the user clicks the Next button. If you return <tt>True</tt>, the wizard will move to the next page; if you return <tt>False</tt>, it will remain on the current page (specified by <tt>CurPageID</tt>).</p>
 <p>Note that this function is called on silent installs as well, even though there is no Next button that the user can click. Setup instead simulates "clicks" on the Next button. On a silent install, if your <tt>NextButtonClick</tt> function returns <tt>False</tt> prior to installation starting, Setup will exit automatically.</p>
 </dd>
 
 <dt><tt>function <a name="BackButtonClick">BackButtonClick</a>(<anchorlink name="PageID">CurPageID</anchorlink>: Integer): Boolean;</tt></dt>
 <dd>
-<p>Called when the user clicks the Back button. If you return <tt>True</tt>, the wizard will move to the previous page; if you return <tt>False</tt>, it will remain on the current page (specified by CurPageID).</p>
+<p>Called when the user clicks the Back button. If you return <tt>True</tt>, the wizard will move to the previous page; if you return <tt>False</tt>, it will remain on the current page (specified by <tt>CurPageID</tt>).</p>
 </dd>
 
 <dt><tt>procedure <a name="CancelButtonClick">CancelButtonClick</a>(<anchorlink name="PageID">CurPageID</anchorlink>: Integer; var Cancel, Confirm: Boolean);</tt></dt>
@@ -201,13 +201,13 @@
 
 <dt><tt>function <a name="ShouldSkipPage">ShouldSkipPage</a>(<anchorlink name="PageID">PageID</anchorlink>: Integer): Boolean;</tt></dt>
 <dd>
-<p>The wizard calls this event function to determine whether or not a particular page (specified by PageID) should be shown at all. If you return <tt>True</tt>, the page will be skipped; if you return <tt>False</tt>, the page may be shown.</p>
-<p>Note: This event function isn't called for the wpPreparing, and wpInstalling pages, nor for pages that Setup has already determined should be skipped (for example, wpSelectComponents in an install containing no components).</p>
+<p>The wizard calls this event function to determine whether or not a particular page (specified by <tt>PageID</tt>) should be shown at all. If you return <tt>True</tt>, the page will be skipped; if you return <tt>False</tt>, the page may be shown.</p>
+<p>Note: This event function isn't called for the <tt>wpPreparing</tt>, and <tt>wpInstalling</tt> pages, nor for pages that Setup has already determined should be skipped (for example, <tt>wpSelectComponents</tt> in an install containing no components).</p>
 </dd>
 
 <dt><tt>procedure <a name="CurPageChanged">CurPageChanged</a>(<anchorlink name="PageID">CurPageID</anchorlink>: Integer);</tt></dt>
 <dd>
-<p>Called after a new wizard page (specified by CurPageID) is shown.</p>
+<p>Called after a new wizard page (specified by <tt>CurPageID</tt>) is shown.</p>
 </dd>
 
 <dt><tt>function <a name="CheckPassword">CheckPassword</a>(Password: String): Boolean;</tt></dt>
@@ -235,12 +235,12 @@
 
 <dt><tt>function <a name="CheckSerial">CheckSerial</a>(Serial: String): Boolean;</tt></dt>
 <dd>
-<p>If Setup finds the <tt>CheckSerial</tt> event function in the Pascal script, a serial number field will automatically appear on the User Info wizard page (which must be enabled using <tt><sd>UserInfoPage</sd>=yes</tt> in your <sn>[Setup]</sn> section!). Return <tt>True</tt> to accept the serial number and <tt>False</tt> to reject it. When using serial numbers, it's important to keep in mind that since no encryption is used and the source code to Inno Setup is freely available, it would not be too difficult for an experienced individual to remove the serial number protection from an installation. Use this only as a convenience to the end user and double check the entered serial number (stored in the <tt>{userinfoserial}</tt> constant) in your application.</p>
+<p>If Setup finds the <tt>CheckSerial</tt> event function in the Pascal script, a serial number field will automatically appear on the <i>User Info</i> wizard page (which must be enabled using <tt><sd>UserInfoPage</sd>=yes</tt> in your <sn>[Setup]</sn> section!). Return <tt>True</tt> to accept the serial number and <tt>False</tt> to reject it. When using serial numbers, it's important to keep in mind that since no encryption is used and the source code to Inno Setup is freely available, it would not be too difficult for an experienced individual to remove the serial number protection from an installation. Use this only as a convenience to the end user and double check the entered serial number (stored in the <tt>{userinfoserial}</tt> constant) in your application.</p>
 </dd>
 
 <dt><tt>function <a name="GetCustomSetupExitCode">GetCustomSetupExitCode</a>: Integer;</tt></dt>
 <dd>
-<p>Return a non zero number to instruct Setup to return a custom exit code. This function is only called if Setup was successfully run to completion and the exit code would have been 0. Also see <link topic="setupexitcodes">Setup Exit Codes</link>.</p>
+<p>Return a non-zero number to instruct Setup to return a custom exit code. This function is only called if Setup was successfully run to completion and the exit code would have been <tt>0</tt>. Also see <link topic="setupexitcodes">Setup Exit Codes</link>.</p>
 </dd>
 
 <dt><tt>function <a name="PrepareToInstall">PrepareToInstall</a>(var NeedsRestart: Boolean): String;</tt></dt>
@@ -294,13 +294,13 @@
 <ul>
 
 <li><i><a name="TSetupStep">TSetupStep values</a></i><br />
-ssPreInstall, ssInstall, ssPostInstall, ssDone</li>
+<tt>ssPreInstall</tt>, <tt>ssInstall</tt>, <tt>ssPostInstall</tt>, <tt>ssDone</tt></li>
 
 <li><i><a name="TUninstallStep">TUninstallStep value</a>s</i><br />
-usAppMutexCheck, usUninstall, usPostUninstall, usDone</li>
+<tt>usAppMutexCheck</tt>, <tt>usUninstall</tt>, <tt>usPostUninstall</tt>, <tt>usDone</tt></li>
 
 <li><i><a name="PageID">PageID</a> values for predefined <link topic="wizardpages">wizard pages</link></i><br />
-wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelectComponents, wpSelectProgramGroup, wpSelectTasks, wpReady, wpPreparing, wpInstalling, wpInfoAfter, wpFinished</li>
+<tt>wpWelcome</tt>, <tt>wpLicense</tt>, <tt>wpPassword</tt>, <tt>wpInfoBefore</tt>, <tt>wpUserInfo</tt>, <tt>wpSelectDir</tt>, <tt>wpSelectComponents</tt>, <tt>wpSelectProgramGroup</tt>, <tt>wpSelectTasks</tt>, <tt>wpReady</tt>, <tt>wpPreparing</tt>, <tt>wpInstalling</tt>, <tt>wpInfoAfter</tt>, <tt>wpFinished</tt></li>
 
 </ul>
 
@@ -636,7 +636,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>The <tt>Examples</tt> subdirectory also contains two custom DLL example projects, one for Microsoft Visual C++, and one for Embarcadero Delphi.</p>
 
-<p>To be able to call a DLL function you should first write the function prototype as normal but instead of then writing the function body, you use the 'external' keyword to specify a DLL. If your function has for example prototype <tt>function A(B: Integer): Integer;</tt>, the following three forms are supported:</p>
+<p>To be able to call a DLL function you should first write the function prototype as normal but instead of then writing the function body, you use the <tt>external</tt> keyword to specify a DLL. If your function has for example prototype <tt>function A(B: Integer): Integer;</tt>, the following three forms are supported:</p>
 
 <precode>
 <sec>[Code]</sec>
@@ -652,7 +652,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 
 <p>The first form specifies that the DLL function uses the default calling convention.</p>
 
-<p>The second form specifies that the DLL function uses a specific calling convention. Valid calling conventions are: 'stdcall' (default), 'cdecl', 'pascal', and 'register'. All standard 32-bit Windows API functions use 'stdcall', as do many custom 32-bit DLL functions. For 64-bit Windows API functions and custom DLL files, the calling convention may still be specified, but is ignored since all 64-bit functions always use the same calling convention.</p>
+<p>The second form specifies that the DLL function uses a specific calling convention. Valid calling conventions are: <tt>stdcall</tt> (default), <tt>cdecl</tt>, <tt>pascal</tt>, and <tt>register</tt>. All standard 32-bit Windows API functions use <tt>stdcall</tt>, as do many custom 32-bit DLL functions. For 64-bit Windows API functions and custom DLL files, the calling convention may still be specified, but is ignored since all 64-bit functions always use the same calling convention.</p>
 
 <p>The third form specifies one or more additional options for loading the DLL, separated by spaces:</p>
 
@@ -660,11 +660,11 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 <flaglist>
 
 <flag name="delayload">
-<p>Specifies that the DLL should be delay loaded. Normally the Pascal script checks at startup whether the DLL function can be called and if not, refuses to run. This does not happen if you specify delay loading using 'delayload'. Use delay loading if you want to call a DLL function for which you don't know whether it will actually be available at runtime: if the DLL function can't be called, the Pascal script will still run but throw an exception when you try to call the DLL function which you can catch to handle the absence of the DLL function.</p>
+<p>Specifies that the DLL should be delay loaded. Normally the Pascal script checks at startup whether the DLL function can be called and if not, refuses to run. This does not happen if you specify delay loading using <tt>delayload</tt>. Use delay loading if you want to call a DLL function for which you don't know whether it will actually be available at runtime: if the DLL function can't be called, the Pascal script will still run but throw an exception when you try to call the DLL function which you can catch to handle the absence of the DLL function.</p>
 </flag>
 
 <flag name="loadwithalteredsearchpath">
-<p>Specifies that the DLL should be loaded using the Windows flag LOAD_WITH_ALTERED_SEARCH_PATH, which, in essence, causes the loader to search for any dependent DLLs in the directory containing the DLL.</p>
+<p>Specifies that the DLL should be loaded using the Windows flag <tt>LOAD_WITH_ALTERED_SEARCH_PATH</tt>, which, in essence, causes the loader to search for any dependent DLLs in the directory containing the DLL.</p>
 </flag>
 
 <flag name="setuponly">
@@ -678,7 +678,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 </flaglist>
 </indent>
 
-<p>An example (of the second form) if the DLL function has name 'A2' inside the DLL, the DLL has name <tt>MyDll.dll</tt> and the DLL function uses the 'stdcall' calling convention:</p>
+<p>An example (of the second form) if the DLL function has name <tt>A2</tt> inside the DLL, the DLL has name <tt>MyDll.dll</tt> and the DLL function uses the <tt>stdcall</tt> calling convention:</p>
 
 <precode>
 <sec>[Code]</sec>
@@ -687,7 +687,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 </precode>
 
 <p>Constants may be used in the DLL filename.</p>
-<p>During Setup, a special 'files:' prefix may also be used to instruct Setup to automatically extract one or more DLLs from the <sn>[Files]</sn> section before loading the first DLL. For example:</p>
+<p>During Setup, a special <tt>files:</tt> prefix may also be used to instruct Setup to automatically extract one or more DLLs from the <sn>[Files]</sn> section before loading the first DLL. For example:</p>
 
 <precode>
 <sec>[Files]</sec>
@@ -703,7 +703,7 @@ wpWelcome, wpLicense, wpPassword, wpInfoBefore, wpUserInfo, wpSelectDir, wpSelec
 <key>external</key> <str>'ADllFunc@files:A.dll,B.dll stdcall loadwithalteredsearchpath'</str>; <com>//A.dll depends on B.dll</com>
 </precode>
 
-<p>If you use a 'files:' prefix and <link topic="setup_solidcompression">solid compression</link> is enabled, be sure to list your DLLs at (or near) the top of the <sn>[Files]</sn> section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the <sn>[Files]</sn> section.</p>
+<p>If you use a <tt>files:</tt> prefix and <link topic="setup_solidcompression">solid compression</link> is enabled, be sure to list your DLLs at (or near) the top of the <sn>[Files]</sn> section. In order to extract an arbitrary file in a solid-compressed installation, Setup must first decompress all prior files (to a temporary buffer in memory). This can result in a substantial delay if a number of other files are listed above the specified file in the <sn>[Files]</sn> section.</p>
 
 <p>Use <isxfunc>CreateCallback</isxfunc> to be able to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script.</p>
 

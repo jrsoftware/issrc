@@ -414,7 +414,7 @@ This " contains " embedded " quotes
 
 <p>The majority of the script entries can have <i>constants</i> embedded in them. These are predefined strings enclosed in brace characters <tt>{ }</tt>. Setup or Uninstall translates the constants to their literal values, depending on the user's choices and system configuration. For example, <tt>{win}</tt>, as described below, would translate to <tt>C:\Windows</tt> on most systems.</p>
 
-<p>A "{" character is treated as the start of the constant. If you want to use that actual character in a place where constants are supported, you must use two consecutive "{" characters. (You do not need to double "}" characters.)</p>
+<p>A <tt>{</tt> character is treated as the start of the constant. If you want to use that actual character in a place where constants are supported, you must use two consecutive <tt>{</tt> characters. (You do not need to double <tt>}</tt> characters.)</p>
 
 <p>When a backslash immediately follows a constant, Setup or Uninstall will automatically remove the backslash if the value of the constant ends in a backslash already. Thus, if the value of a particular constant is <tt>C:\</tt>, <tt>{<i>constantname</i>}\file</tt> will translate to <tt>C:\file</tt>, not <tt>C:\\file</tt>. If you want to prevent this from happening, enclose the backslash in <tt>{ }</tt> characters, e.g. <tt>{app}{\}</tt>.</p>
 
@@ -438,9 +438,9 @@ For example: If you used <tt>{win}\MyProg.ini</tt> on an entry and the system's 
 
 <dt><b><a name="sys">{sys}</a></b></dt>
 <dd>
-<p>The system's System32 directory.<br/>
+<p>The system's <tt>System32</tt> directory.<br/>
 For example: If you used <tt>{sys}\ctl3d32.dll</tt> on an entry and the system's Windows System directory is <tt>C:\Windows\System32</tt>, Setup or Uninstall will translate it to <tt>C:\Windows\System32\ctl3d32.dll</tt>.</p>
-<p>On 64-bit Windows, by default, the System32 path returned by this constant maps to the directory containing 32-bit system files, just like on 32-bit Windows. (This can be overridden by enabling <link topic="32vs64bitinstalls">64-bit install mode</link>.)</p>
+<p>On 64-bit Windows, by default, the <tt>System32</tt> path returned by this constant maps to the directory containing 32-bit system files, just like on 32-bit Windows. (This can be overridden by enabling <link topic="32vs64bitinstalls">64-bit install mode</link>.)</p>
 </dd>
 
 <dt><b><a name="sysnative">{sysnative}</a></b></dt>
@@ -451,7 +451,7 @@ For example: If you used <tt>{sys}\ctl3d32.dll</tt> on an entry and the system's
 
 <dt><b><a name="syswow64">{syswow64}</a></b></dt>
 <dd>
-<p>On 64-bit Windows, the system's SysWOW64 directory, typically <tt>C:\Windows\SysWOW64</tt>. This is the actual directory in which 32-bit system files reside. On 32-bit Windows, 32-bit system files do not reside in a separate SysWOW64 directory, so this constant will resolve to the same directory as <tt>{sys}</tt> if used there.</p>
+<p>On 64-bit Windows, the system's <tt>SysWOW64</tt> directory, typically <tt>C:\Windows\SysWOW64</tt>. This is the actual directory in which 32-bit system files reside. On 32-bit Windows, 32-bit system files do not reside in a separate <tt>SysWOW64</tt> directory, so this constant will resolve to the same directory as <tt>{sys}</tt> if used there.</p>
 <p>Do not use this constant unless you have a specific need to obtain the name of the actual directory in which 32-bit system files reside. Gratuitously using <tt>{syswow64}</tt> in places where <tt>{sys}</tt> will suffice may cause problems. (See the documentation for the <sn>[Files]</sn> section's <tt>sharedfile</tt> flag for one example.)</p>
 </dd>
 
@@ -463,7 +463,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="sd">{sd}</a></b></dt>
 <dd>
-<p>System Drive. The drive Windows is installed on, typically <tt>C:</tt>. This directory constant is equivalent to the <i>SystemDrive</i> environment variable.</p>
+<p>System Drive. The drive Windows is installed on, typically <tt>C:</tt>. This directory constant is equivalent to the <tt>SystemDrive</tt> environment variable.</p>
 </dd>
 
 <dt><b><a name="commonpf">{commonpf}</a></b></dt>
@@ -498,12 +498,12 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="tmp">{tmp}</a></b></dt>
 <dd>
-<p>Temporary directory used by Setup or Uninstall. This is <i>not</i> the value of the user's TEMP environment variable. It is a subdirectory of the user's temporary directory which is created by Setup or Uninstall at startup (with a name like <tt>C:\Windows\Temp\IS-xxxxx.tmp</tt>). All files and subdirectories in this directory are deleted when Setup or Uninstall exits. During Setup, this is primarily useful for extracting files that are to be executed in the <sn>[Run]</sn> section but aren't needed after the installation.</p>
+<p>Temporary directory used by Setup or Uninstall. This is <i>not</i> the value of the user's <tt>TEMP</tt> environment variable. It is a subdirectory of the user's temporary directory which is created by Setup or Uninstall at startup (with a name like <tt>C:\Windows\Temp\IS-xxxxx.tmp</tt>). All files and subdirectories in this directory are deleted when Setup or Uninstall exits. During Setup, this is primarily useful for extracting files that are to be executed in the <sn>[Run]</sn> section but aren't needed after the installation.</p>
 </dd>
 
 <dt><b><a name="commonfonts">{commonfonts}</a></b></dt>
 <dd>
-<p>Fonts directory. Normally named "Fonts" under the Windows directory.</p>
+<p>Fonts directory. Normally named <tt>Fonts</tt> under the <tt>Windows</tt> directory.</p>
 </dd>
 
 <dt><b><a name="dao">{dao}</a></b></dt>
@@ -716,12 +716,12 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="cmd">{cmd}</a></b></dt>
 <dd>
-<p>The full pathname of the system's standard command interpreter, <tt><i>Windows\System32\</i>cmd.exe</tt>. Note that the COMSPEC environment variable is not used when expanding this constant.</p>
+<p>The full pathname of the system's standard command interpreter, <tt><i>Windows\System32\</i>cmd.exe</tt>. Note that the <tt>COMSPEC</tt> environment variable is not used when expanding this constant.</p>
 </dd>
 
 <dt><b><a name="computername">{computername}</a></b></dt>
 <dd>
-<p>The name of the computer the Setup or Uninstall program is running on (as returned by the Windows <i>GetComputerName</i> function).</p>
+<p>The name of the computer the Setup or Uninstall program is running on (as returned by the Windows <tt>GetComputerName</tt> function).</p>
 </dd>
 
 <dt><b><a name="drive">{drive:<i>Path</i>}</a></b></dt>
@@ -800,10 +800,10 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 <li>HK<i>xx</i> specifies the root key; see the <sn>[Registry]</sn> section documentation for a list of possible root keys.</li>
 <li><i>SubkeyName</i> specifies the name of the subkey to read from.</li>
 <li><i>ValueName</i> specifies the name of the value to read; leave <i>ValueName</i> blank if you wish to read the "default" value of a key.</li>
-<li><i>DefaultValue</i> determines the string to embed if the specified registry value does not exist, or is not a string type (REG_SZ or REG_EXPAND_SZ) and also not a REG_DWORD-type.</li>
+<li><i>DefaultValue</i> determines the string to embed if the specified registry value does not exist, or is not a string type (<tt>REG_SZ</tt> or <tt>REG_EXPAND_SZ</tt>) and also not a <tt>REG_DWORD</tt>-type.</li>
 <li>If you wish to include a comma, vertical bar (<tt>|</tt>), or closing brace (<tt>}</tt>) inside the constant, you must escape it via "%-encoding." Replace the character with a <tt>%</tt> character, followed by its two-digit hex code. A comma is <tt>%2c</tt>, a vertical bar is <tt>%7c</tt>, and a closing brace is <tt>%7d</tt>. If you want to include an actual <tt>%</tt> character, use <tt>%25</tt>.</li>
 <li><i>SubkeyName, ValueName,</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
-<li>If the value is not a string type (REG_SZ or REG_EXPAND_SZ) but a REG_DWORD-type then its value as a decimal string is embedded.</li>
+<li>If the value is not a string type (<tt>REG_SZ</tt> or <tt>REG_EXPAND_SZ</tt>) but a <tt>REG_DWORD</tt>-type then its value as a decimal string is embedded.</li>
 </ul>
 <example>
 <pre><con>{reg:HKA\Software\My Program,Path|{autopf}\My Program}</con></pre>
@@ -850,7 +850,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="username">{username}</a></b></dt>
 <dd>
-<p>The name of the user who is running Setup or Uninstall program (as returned by the <i>GetUserName</i> function).</p>
+<p>The name of the user who is running Setup or Uninstall program (as returned by the <tt>GetUserName</tt> function).</p>
 </dd>
 
 <dt><b><a name="log">{log}</a></b></dt>
@@ -1401,7 +1401,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 </param>
 
 <param name="Components">
-<p>A space separated list of components this task belongs to. If the end user selects a component from this list, this task will be shown. A task entry without a Components parameter is always shown.</p>
+<p>A space separated list of components this task belongs to. If the end user selects a component from this list, this task will be shown. A task entry without a <tt>Components</tt> parameter is always shown.</p>
 <example>
 <pre><key>Components</key>: main</pre>
 </example>
@@ -1665,7 +1665,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 
 <param name="FontInstall">
 <p>Tells Setup the file is a font that needs to be installed. The value of this parameter is the name of the font as stored in the registry or <tt>win.ini</tt>. This must be exactly the same name as you see when you double-click the font file in Explorer. Note that Setup will automatically append " (TrueType)" to the end of the name.</p>
-<p>If the file is not a TrueType font, you must specify the flag <tt>fontisnttruetype</tt> in the Flags parameter.</p>
+<p>If the file is not a TrueType font, you must specify the flag <tt>fontisnttruetype</tt> in the <tt>Flags</tt> parameter.</p>
 <p>It's recommended that you use the flags <tt>onlyifdoesntexist</tt> and <tt>uninsneveruninstall</tt> when installing fonts to the <tt>{autofonts}</tt> directory.</p>
 <p>If the installation is running in <link topic="admininstallmode">non administrative install mode</link>, Windows 10 Version 1803 or later is required to successfully install a font.</p>
 <p>For compatibility with 64-bit Windows, fonts should not be installed to the <tt>{sys}</tt> directory. Use <tt>{autofonts}</tt> as the destination directory instead.</p>
@@ -1844,12 +1844,12 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>Instructs the compiler or Setup to also search for the <tt>Source</tt> filename/wildcard in subdirectories under the <tt>Source</tt> directory.</p>
 </flag>
 <flag name="regserver">
-<p>Register the DLL/OCX file. With this flag set, Setup will call the DllRegisterServer function exported by the DLL/OCX file, and the uninstaller will call DllUnregisterServer prior to removing the file. When used in combination with <tt>sharedfile</tt>, the DLL/OCX file will only be unregistered when the reference count reaches zero.</p>
+<p>Register the DLL/OCX file. With this flag set, Setup will call the <tt>DllRegisterServer</tt> function exported by the DLL/OCX file, and the uninstaller will call <tt>DllUnregisterServer</tt> prior to removing the file. When used in combination with <tt>sharedfile</tt>, the DLL/OCX file will only be unregistered when the reference count reaches zero.</p>
 <p>The <link topic="entrybitness">entry's bitness</link> determines whether the 32-bit or 64-bit <tt>regsvr32.exe</tt> is used to register/unregister the file. The default bitness can be overridden with the <tt>32bit</tt> and <tt>64bit</tt> flags.</p>
 <p>See the <i>Remarks</i> at the bottom of this topic for more information.</p>
 </flag>
 <flag name="regtypelib">
-<p>Register the type library (.tlb). The uninstaller will unregister the type library (unless the flag <tt>uninsneveruninstall</tt> is specified). As with the <tt>regserver</tt> flag, when used in combination with <tt>sharedfile</tt>, the file will only be unregistered by the uninstaller when the reference count reaches zero.</p>
+<p>Register the type library (<tt>.tlb</tt>). The uninstaller will unregister the type library (unless the flag <tt>uninsneveruninstall</tt> is specified). As with the <tt>regserver</tt> flag, when used in combination with <tt>sharedfile</tt>, the file will only be unregistered by the uninstaller when the reference count reaches zero.</p>
 <p>Type libraries can be registered in either the 32-bit or 64-bit registry view, which are used by 32-bit and 64-bit applications respectively. The <link topic="entrybitness">entry's bitness</link> determines which registry view is used. The default bitness can be overridden with the <tt>32bit</tt> and <tt>64bit</tt> flags.</p>
 <p>In Inno Setup &ge;7.0, <link topic="64bit">32-bit Setup/Uninstall</link> can only register/unregister type libraries in the 32-bit registry view, and <link topic="64bit">64-bit Setup/Uninstall</link> can only register/unregister type libraries in the 64-bit registry view. In previous versions, 32-bit installers could register type libraries in the 64-bit registry view, but that now requires a 64-bit installer.</p>
 <p>The compiler tries to detect and report bitness mismatches. If a mismatch isn't caught by the compile-time check (which is possible with some custom <sd>ArchitecturesInstallIn64BitMode</sd> settings), Setup will display an error when attempting to register the type library. When the <tt>32bit</tt> or <tt>64bit</tt> flag is specified, any mismatch will always be caught at compile time.</p>
@@ -1862,7 +1862,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>This flag cannot be combined with <tt>ignoreversion</tt>.</p>
 </flag>
 <flag name="restartreplace">
-<p>When an existing file needs to be replaced, and it is in use (locked) by another running process, Setup will by default display an error message. This flag tells Setup to instead register the file to be replaced the next time the system is restarted (by calling MoveFileEx or by creating an entry in <tt>wininit.ini</tt>). When this happens, the user will be prompted to restart their computer at the end of the installation process.</p>
+<p>When an existing file needs to be replaced, and it is in use (locked) by another running process, Setup will by default display an error message. This flag tells Setup to instead register the file to be replaced the next time the system is restarted (by calling <tt>MoveFileEx</tt> or by creating an entry in <tt>wininit.ini</tt>). When this happens, the user will be prompted to restart their computer at the end of the installation process.</p>
 <p><b>NOTE:</b> This flag has no effect if the user does not have administrative privileges. Therefore, when using this flag, it is recommended that you leave the <sd>PrivilegesRequired</sd> <sn>[Setup]</sn> section directive at the default setting of <tt>admin</tt>.</p>
 </flag>
 <flag name="setntfscompression">
@@ -1945,7 +1945,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 
 <p>If Setup is unable to replace an existing file because it is in use by another process, it will make up to 4 additional attempts to replace the file, delaying one second before each attempt. If all attempts fail, an error message will be displayed.</p>
 
-<p>Setup registers all files with the <tt>regserver</tt> or <tt>regtypelib</tt> flags as the last step of installation. However, if the <sn>[Setup]</sn> section directive <sd>AlwaysRestart</sd> is <tt>yes</tt>, or if there are files with the <tt>restartreplace</tt> flag, all files get registered on the next reboot (by creating an entry in Windows' <i>RunOnce</i> registry key).</p>
+<p>Setup registers all files with the <tt>regserver</tt> or <tt>regtypelib</tt> flags as the last step of installation. However, if the <sn>[Setup]</sn> section directive <sd>AlwaysRestart</sd> is <tt>yes</tt>, or if there are files with the <tt>restartreplace</tt> flag, all files get registered on the next reboot (by creating an entry in Windows' <tt>RunOnce</tt> registry key).</p>
 
 <p>When files with a <tt>.hlp</tt> extension (Windows help files) are uninstalled, the corresponding <tt>.gid</tt> and <tt>.fts</tt> files are automatically deleted as well. Similarly, when a <tt>.chm</tt> (HTML Help) file is deleted, any <tt>.chw</tt> (generated index) file is automatically deleted.</p>
 
@@ -1989,7 +1989,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 
 <param name="Filename" required="yes">
 <p>The command line filename for the shortcut, which normally begins with a directory constant.</p>
-<p>In addition to file and folder names, URLs (web site addresses) may also be specified. When a URL is specified, Setup will create an "Internet Shortcut" (.url) file, and ignore the <tt>Parameters</tt>, <tt>WorkingDir</tt>, <tt>HotKey</tt>, and <tt>Comment</tt> parameters.</p>
+<p>In addition to file and folder names, URLs (web site addresses) may also be specified. When a URL is specified, Setup will create an "Internet Shortcut" (<tt>.url</tt>) file, and ignore the <tt>Parameters</tt>, <tt>WorkingDir</tt>, <tt>HotKey</tt>, and <tt>Comment</tt> parameters.</p>
 <p>On 64-bit Windows, note that the <tt>{sys}</tt> constant will map to the native 64-bit System directory when the shortcut is launched by a 64-bit process, such as Windows Explorer. This is true regardless of whether the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>. To create a shortcut that always points to the 32-bit System directory, use <tt>{syswow64}</tt> instead. (The same applies to the <tt>WorkingDir</tt> and <tt>IconFilename</tt> parameters.)</p>
 <examples>
 <pre>
@@ -2234,7 +2234,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <paramlist>
 
 <param name="Name" required="yes">
-<p>The internal name of the language, which you can set to anything you like. This can used as a prefix on <sn>[LangOptions]</sn> or <sn>[Messages]</sn> section entries to have the entries apply to only one language. The {language} constant returns the internal name of the selected language.</p>
+<p>The internal name of the language, which you can set to anything you like. This can used as a prefix on <sn>[LangOptions]</sn> or <sn>[Messages]</sn> section entries to have the entries apply to only one language. The <tt>{language}</tt> constant returns the internal name of the selected language.</p>
 <example>
 <pre><key>Name</key>: "en"</pre>
 </example>
@@ -2291,7 +2291,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 
 <p>A <tt>[Messages]</tt> section is used to define the messages displayed by the Setup program and uninstaller. Normally, you need not create a <tt>[Messages]</tt> section in your script file, since all messages are, by default, pulled in from the file <tt><a name="Default.isl">Default.isl</a></tt> included with Inno Setup (or whichever file is specified by a <sn>[Languages]</sn> section entry).</p>
 
-<p>However, particular messages can be overridden by creating a <tt>[Messages]</tt> section in your script file. To do this, first you will need to know the ID of the message you want to change. This can be easily found by searching <tt>Default.isl</tt>. For example, say you wanted to change the "&amp;Next" button on the wizard to read "&amp;Forward". The ID of this message is "ButtonNext", so you would create a <tt>[Messages]</tt> section like this:</p>
+<p>However, particular messages can be overridden by creating a <tt>[Messages]</tt> section in your script file. To do this, first you will need to know the ID of the message you want to change. This can be easily found by searching <tt>Default.isl</tt>. For example, say you wanted to change the "&amp;Next" button on the wizard to read "&amp;Forward". The ID of this message is <tt>ButtonNext</tt>, so you would create a <tt>[Messages]</tt> section like this:</p>
 
 <precode>
 <sec>[Messages]</sec>
@@ -2338,9 +2338,9 @@ en.<key>ButtonNext</key>=&amp;Forward
 <keyword value="CustomMessages" />
 <body>
 
-<p>A <tt>[CustomMessages]</tt> section is used to define the custom message values for {cm:...} constants. See the <link topic="consts" anchor="cm">Constants</link> documentation for more information.</p>
+<p>A <tt>[CustomMessages]</tt> section is used to define the custom message values for <tt>{cm:...}</tt> constants. See the <link topic="consts" anchor="cm">Constants</link> documentation for more information.</p>
 
-<p>An example of a task with a description taken from the <tt>[CustomMessages]</tt> section using a {cm:...} constant:</p>
+<p>An example of a task with a description taken from the <tt>[CustomMessages]</tt> section using a <tt>{cm:...}</tt> constant:</p>
 
 <precode>
 <sec>[CustomMessages]</sec>
@@ -2570,12 +2570,12 @@ dword<br/>
 qword<br/>
 binary</tt></p></indent>
 <p>If <tt>none</tt> (the default setting) is specified, Setup will create the key but <i>not</i> a value. In this case the <tt>ValueData</tt> parameter is ignored.<br/>
-If <tt>string</tt> is specified, Setup will create a string (REG_SZ) value.<br/>
-If <tt>expandsz</tt> is specified, Setup will create an expand-string (REG_EXPAND_SZ) value.<br/>
-If <tt>multisz</tt> is specified, Setup will create a multi-string (REG_MULTI_SZ) value.<br/>
-If <tt>dword</tt> is specified, Setup will create a 32-bit integer (REG_DWORD) value.<br/>
-If <tt>qword</tt> is specified, Setup will create a 64-bit integer (REG_QWORD) value.<br/>
-If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.</p>
+If <tt>string</tt> is specified, Setup will create a string (<tt>REG_SZ</tt>) value.<br/>
+If <tt>expandsz</tt> is specified, Setup will create an expand-string (<tt>REG_EXPAND_SZ</tt>) value.<br/>
+If <tt>multisz</tt> is specified, Setup will create a multi-string (<tt>REG_MULTI_SZ</tt>) value.<br/>
+If <tt>dword</tt> is specified, Setup will create a 32-bit integer (<tt>REG_DWORD</tt>) value.<br/>
+If <tt>qword</tt> is specified, Setup will create a 64-bit integer (<tt>REG_QWORD</tt>) value.<br/>
+If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>) value.</p>
 <example>
 <pre><key>ValueType</key>: string</pre>
 </example>
@@ -2590,7 +2590,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 
 <param name="ValueData">
 <p>The data for the value. If the <tt>ValueType</tt> parameter is <tt>string</tt>, <tt>expandsz</tt>, or <tt>multisz</tt>, this is a string that can include constants. If the data type is <tt>dword</tt> or <tt>qword</tt>, this can be a decimal integer (e.g. "123"), a hexadecimal integer (e.g. "$7B"), or a constant which resolves to an integer. If the data type is <tt>binary</tt>, this is a sequence of hexadecimal bytes in the form: "00 ff 12 34". If the data type is <tt>none</tt>, this is ignored.</p>
-<p>On a <tt>string</tt>, <tt>expandsz</tt>, or <tt>multisz</tt> type value, you may use a special constant called <tt>{olddata}</tt> in this parameter. <tt>{olddata}</tt> is replaced with the previous data of the registry value. The <tt>{olddata}</tt> constant can be useful if you need to append a string to an existing value, for example, <tt>{olddata};{app}</tt>. If the value does not exist or the existing value isn't a string type, the {olddata} constant is silently removed. {olddata} will also be silently removed if the value being created is a <tt>multisz</tt> type but the existing value is not a multi-string type (i.e. it's REG_SZ or REG_EXPAND_SZ), and vice versa.</p>
+<p>On a <tt>string</tt>, <tt>expandsz</tt>, or <tt>multisz</tt> type value, you may use a special constant called <tt>{olddata}</tt> in this parameter. <tt>{olddata}</tt> is replaced with the previous data of the registry value. The <tt>{olddata}</tt> constant can be useful if you need to append a string to an existing value, for example, <tt>{olddata};{app}</tt>. If the value does not exist or the existing value isn't a string type, the {olddata} constant is silently removed. {olddata} will also be silently removed if the value being created is a <tt>multisz</tt> type but the existing value is not a multi-string type (i.e. it's <tt>REG_SZ</tt> or <tt>REG_EXPAND_SZ</tt>), and vice versa.</p>
 <p>On a <tt>multisz</tt> type value, you may use a special constant called <tt>{break}</tt> in this parameter to embed line breaks (nulls).</p>
 <example>
 <pre><key>ValueData</key>: "1.0"</pre>
@@ -2643,10 +2643,10 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <p>Don't display an error message if Setup fails to create the key or value for any reason.</p>
 </flag>
 <flag name="preservestringtype">
-<p>This is only applicable when the <tt>ValueType</tt> parameter is <tt>string</tt> or <tt>expandsz</tt>. When this flag is specified and the value did not already exist or the existing value isn't a string type (REG_SZ or REG_EXPAND_SZ), it will be created with the type specified by <tt>ValueType</tt>. If the value did exist and is a string type, it will be replaced with the same value type as the pre-existing value.</p>
+<p>This is only applicable when the <tt>ValueType</tt> parameter is <tt>string</tt> or <tt>expandsz</tt>. When this flag is specified and the value did not already exist or the existing value isn't a string type (<tt>REG_SZ</tt> or <tt>REG_EXPAND_SZ</tt>), it will be created with the type specified by <tt>ValueType</tt>. If the value did exist and is a string type, it will be replaced with the same value type as the pre-existing value.</p>
 </flag>
 <flag name="uninsclearvalue">
-<p>When the program is uninstalled, set the value's data to a null string (type REG_SZ). This flag cannot be combined with the <tt>uninsdeletekey</tt> or <tt>uninsdeletevalue</tt> flags.</p>
+<p>When the program is uninstalled, set the value's data to a null string (type <tt>REG_SZ</tt>). This flag cannot be combined with the <tt>uninsdeletekey</tt> or <tt>uninsdeletevalue</tt> flags.</p>
 </flag>
 <flag name="uninsdeletekey">
 <p>When the program is uninstalled, delete the entire key, including all values and subkeys in it. It obviously wouldn't be a good idea to use this on a key that is used by Windows itself. You should only use this on keys private to your application.</p>
@@ -2690,7 +2690,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 
 <p>Programs are executed in the order they appear in the script. By default, when processing a <tt>[Run]</tt>/<tt>[UninstallRun]</tt> entry, Setup/Uninstall will wait until the program has terminated before proceeding to the next one, unless the <tt>nowait</tt>, <tt>shellexec</tt>, or <tt>waituntilidle</tt> flags are used.</p>
 
-<p>Note that by default, if a program executed in the <tt>[Run]</tt> section queues files to be replaced on the next reboot (by calling MoveFileEx or by modifying <tt>wininit.ini</tt>), Setup will detect this and prompt the user to restart the computer at the end of installation. If you don't want this, set the <sd>RestartIfNeededByRun</sd> directive to <tt>no</tt>.</p>
+<p>Note that by default, if a program executed in the <tt>[Run]</tt> section queues files to be replaced on the next reboot (by calling <tt>MoveFileEx</tt> or by modifying <tt>wininit.ini</tt>), Setup will detect this and prompt the user to restart the computer at the end of installation. If you don't want this, set the <sd>RestartIfNeededByRun</sd> directive to <tt>no</tt>.</p>
 
 <p>The following is an example of a <tt>[Run]</tt> section.</p>
 
@@ -2833,7 +2833,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <p>Valid only in a <tt>[Run]</tt> section. Instructs Setup to initially uncheck the checkbox. The user can still check the checkbox if they wish to process the entry. This flag is ignored if the <tt>postinstall</tt> flag isn't also specified.</p>
 </flag>
 <flag name="waituntilidle">
-<p>If this flag is specified, it will wait until the process is waiting for user input with no input pending, instead of waiting for the process to terminate. (This calls the <i>WaitForInputIdle</i> Win32 function.) Cannot be combined with <tt>nowait</tt> or <tt>waituntilterminated</tt>.</p>
+<p>If this flag is specified, it will wait until the process is waiting for user input with no input pending, instead of waiting for the process to terminate. (This calls the <tt>WaitForInputIdle</tt> Win32 function.) Cannot be combined with <tt>nowait</tt> or <tt>waituntilterminated</tt>.</p>
 </flag>
 <flag name="waituntilterminated">
 <p>If this flag is specified, it will wait until the process has completely terminated. Note that this is the default behavior (i.e. you don't need to specify this flag) unless you're using <tt>shellexec</tt> flag, in which case you do need to specify this flag if you want it to wait. Cannot be combined with <tt>nowait</tt> or <tt>waituntilidle</tt>.</p>
@@ -2896,7 +2896,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <param name="Name" required="yes">
 <p>Name of the file or directory to delete.</p>
 <p><link topic="pathredir">System path redirection</link> is applied to the specified path.</p>
-<p><b>NOTE:</b> Don't be tempted to use a wildcard here to delete all files in the {app} directory. Doing this is strongly recommended against for two reasons. First, users usually don't appreciate having their data files they put in the application directory deleted without warning (they might only be uninstalling it because they want to move it to a different drive, for example). It's better to leave it up to the end users to manually remove them if they want. Also, if the user happened to install the program in the wrong directory by mistake (for example, <tt>C:\Windows</tt>) and then went to uninstall it there could be disastrous consequences. So again, <b>DON'T DO THIS!</b></p>
+<p><b>NOTE:</b> Don't be tempted to use a wildcard here to delete all files in the <tt>{app}</tt> directory. Doing this is strongly recommended against for two reasons. First, users usually don't appreciate having their data files they put in the application directory deleted without warning (they might only be uninstalling it because they want to move it to a different drive, for example). It's better to leave it up to the end users to manually remove them if they want. Also, if the user happened to install the program in the wrong directory by mistake (for example, <tt>C:\Windows</tt>) and then went to uninstall it there could be disastrous consequences. So again, <b>DON'T DO THIS!</b></p>
 <example>
 <pre><key>Name</key>: "<con>{win}</con>\MyProg.ini"</pre>
 </example>
@@ -3047,10 +3047,10 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
   <li>In 32-bit installers, <isxfunc>CreateCallback</isxfunc> does not support callback parameters passed by value when their type is larger than 4 bytes, such as <tt>Int64</tt>, <tt>UInt64</tt>, <tt>Double</tt>, <tt>Extended</tt>, and <tt>Currency</tt>. In 64-bit installers, larger by-value parameter types are supported.</li>
   </ul>
 </li>
-<li>64-bit type libraries (.tlb) can only be (un)registered by 64-bit installers, and 32-bit type libraries only by 32-bit installers.<br/>
+<li>64-bit type libraries (<tt>.tlb</tt>) can only be (un)registered by 64-bit installers, and 32-bit type libraries only by 32-bit installers.<br/>
     Support for (un)registering 64-bit type libraries from a 32-bit installer has been dropped.</li>
 <li><tt>{sysnative}</tt> is not accessible to 64-bit installers or any other 64-bit applications, so use its value only to, for example, pass it to a 32-bit application.</li>
-<li>In our tests on 'Windows Server 2016 Datacenter Server Core' and 'Windows Server 2025 Datacenter: Azure Edition Core', with all WOW64 features disabled and removed using DISM, 64-bit installers still function correctly, even when run in 32-bit install mode.</li>
+<li>In our tests on 'Windows Server 2016 Datacenter Server Core' and 'Windows Server 2025 Datacenter: Azure Edition Core', with all WOW64 features disabled and removed using <tt>Dism.exe</tt>, 64-bit installers still function correctly, even when run in 32-bit install mode.</li>
 </ul>
 
 <p><b>64-bit Compiler IDE and ISCC:</b></p>
@@ -3117,7 +3117,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <keyword value="BDE installation" />
 <body>
 
-<p>The Frequently Asked Questions is now located in a separate document. Please click the "Inno Setup FAQ" shortcut created in the Start Menu when you installed Inno Setup, or open the "isfaq.url" file in your Inno Setup directory.</p>
+<p>The Frequently Asked Questions is now located in a separate document. Please click the "Inno Setup FAQ" shortcut created in the Start Menu when you installed Inno Setup, or open the <tt>isfaq.url</tt> file in your Inno Setup directory.</p>
 
 <p>For the most recent Frequently Asked Questions, go to <extlink href="https://jrsoftware.org/isfaq.php">https://jrsoftware.org/isfaq.php</extlink></p>
 
@@ -3297,14 +3297,14 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <li>The <tt>{group}</tt> folder is created in the <i>All Users</i> profile.</li>
 <li>The "auto" form of the directory and Shell Folder constants is mapped to the "common" form.</li>
 <li>The "user" form of these constants should NOT be used: user-level files and settings must be handled by the application itself, and never in an administrative install mode installer.</li>
-<li>The <tt><link topic="registrysection">HKA</link></tt>, uninstall info, and font install root keys will be HKEY_LOCAL_MACHINE.</li>
+<li>The <tt><link topic="registrysection">HKA</link></tt>, uninstall info, and font install root keys will be <tt>HKEY_LOCAL_MACHINE</tt>.</li>
 </ul>
 
 <p>In non administrative install mode:</p>
 <ul>
 <li>The <tt>{group}</tt> folder is created in the current user's profile.</li>
 <li>The "auto" form of the directory and Shell Folder constants is mapped to the "user" form.</li>
-<li>The <tt><link topic="registrysection">HKA</link></tt>, uninstall info, and font install root keys will be HKEY_CURRENT_USER.</li>
+<li>The <tt><link topic="registrysection">HKA</link></tt>, uninstall info, and font install root keys will be <tt>HKEY_CURRENT_USER</tt>.</li>
 </ul>
 
 <p><b>Notes:</b></p>
@@ -3552,7 +3552,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 <p>A single dash (-) means there's no shortcut available for this command in the key map.</p>
 
-<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for VK_OEM_1, . for VK_OEM_PERIOD, / for VK_OEM_2, [ for VK_OEM_4, \ for VK_OEM_5, and ] for VK_OEM_6. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p>
+<p>Note: a few of the shortcuts below use string representations for special virtual keys. More precisely: ; for <tt>VK_OEM_1</tt>, . for <tt>VK_OEM_PERIOD</tt>, / for <tt>VK_OEM_2</tt>, [ for <tt>VK_OEM_4</tt>, \ for <tt>VK_OEM_5</tt>, and ] for <tt>VK_OEM_6</tt>. Different keyboard layouts usually reposition these special virtual keys or change the characters produced when they are pressed. In the <i>Edit</i> menu these shortcuts are shown using the current system's keyboard layout. For example, when using a French AZERTY keyboard layout the <i>Toggle Line Comment</i> shortcut is shown as Ctrl+: instead of Ctrl+/. If the keyboard layout doesn't support the virtual key then no shortcut will be shown.</p>
 
 <table>
 <tr><th>Command</th><th>Classic shortcut</th><th>Visual Studio Code shortcut</th></tr>
@@ -3948,7 +3948,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 <p>Many of these security measures add defense-in-depth; they do not address specific vulnerabilities.</p>
 
-<p>This topic lists the security measures, focusing on Setup. In general, anything applying to Setup also applies to Uninstall, and the setup loader program (SetupLdr).</p>
+<p>This topic lists the security measures, focusing on Setup. In general, anything applying to Setup also applies to Uninstall, and the setup loader program (<tt>SetupLdr</tt>).</p>
 
 <heading>DLL hijacking protection</heading>
 
@@ -3963,9 +3963,9 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 <heading>Temporary directory security</heading>
 
-<p>SetupLdr, Setup, and Uninstall create subdirectories under the user's top-level temporary directory (typically <tt>%LOCALAPPDATA%\Temp</tt> for users other than SYSTEM).</p>
+<p><tt>SetupLdr</tt>, Setup, and Uninstall create subdirectories under the user's top-level temporary directory (typically <tt>%LOCALAPPDATA%\Temp</tt> for users other than SYSTEM).</p>
 
-<p>The actual Setup program is extracted to and runs from the subdirectory created by SetupLdr. Storing the file in a subdirectory ensures that Setup cannot unintentionally make use of DLLs or other files that exist in the top-level directory.</p>
+<p>The actual Setup program is extracted to and runs from the subdirectory created by <tt>SetupLdr</tt>. Storing the file in a subdirectory ensures that Setup cannot unintentionally make use of DLLs or other files that exist in the top-level directory.</p>
 
 <p>The creation of the subdirectories is secured in several ways:</p>
 
@@ -4397,15 +4397,15 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <li>No in a 'File exists, confirm overwrite.' situation.</li>
 <li>Abort in Abort/Retry situations.</li>
 <li>Cancel in Retry/Cancel situations.</li>
-<li>Yes (=continue) in a DiskSpaceWarning/DirExists/DirDoesntExist/NoUninstallWarning/ExitSetupMessage/ConfirmUninstall situation.</li>
-<li>Yes (=restart) in a FinishedRestartMessage/UninstalledAndNeedsRestart situation.</li>
+<li>Yes (=continue) in a <tt>DiskSpaceWarning</tt>/<tt>DirExists</tt>/<tt>DirDoesntExist</tt>/<tt>NoUninstallWarning</tt>/<tt>ExitSetupMessage</tt>/<tt>ConfirmUninstall</tt> situation.</li>
+<li>Yes (=restart) in a <tt>FinishedRestartMessage</tt>/<tt>UninstalledAndNeedsRestart</tt> situation.</li>
 <li>The recommended choice in a <tt><sd>PrivilegesRequiredOverridesAllowed</sd>=dialog</tt> situation.</li>
 </ul>
 <p>5 message boxes are not suppressible:</p>
 <ul appearance="compact">
 <li>The About Setup message box.</li>
 <li>The Exit Setup? message box.</li>
-<li>The FileNotInDir2 message box displayed when Setup requires a new disk to be inserted and the disk was not found.</li>
+<li>The <tt>FileNotInDir2</tt> message box displayed when Setup requires a new disk to be inserted and the disk was not found.</li>
 <li>Any (error) message box displayed before Setup (or Uninstall) could read the command line parameters.</li>
 <li>Any task dialog or message box displayed by <sn>[Code]</sn> support functions <isxfunc>TaskDialogMsgBox</isxfunc> and <isxfunc>MsgBox</isxfunc> (use <isxfunc>SuppressibleTaskDialogMsgBox</isxfunc> and <isxfunc>SuppressibleMsgBox</isxfunc> instead).</li>
 </ul>
@@ -4423,7 +4423,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="LOG">/LOG</a></b></dt>
 <dd>
-<p>Causes Setup to create a log file in the user's TEMP directory detailing file installation and <sn>[Run]</sn> actions taken during the installation process. This can be a helpful debugging aid. For example, if you suspect a file isn't being replaced when you believe it should be (or vice versa), the log file will tell you if the file was really skipped, and why.</p>
+<p>Causes Setup to create a log file in the user's <tt>TEMP</tt> directory detailing file installation and <sn>[Run]</sn> actions taken during the installation process. This can be a helpful debugging aid. For example, if you suspect a file isn't being replaced when you believe it should be (or vice versa), the log file will tell you if the file was really skipped, and why.</p>
 <p>The log file is created with a unique name based on the current date. (It will not overwrite or append to existing files.)</p>
 <p>The information contained in the log file is technical in nature and therefore not intended to be understandable by end users. Nor is it designed to be machine-parsable; the format of the file is subject to change without notice.</p>
 </dd>
@@ -4513,12 +4513,12 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="DIR">/DIR=</a>"<i>x</i>:\<i>dirname</i>"</b></dt>
 <dd>
-<p>Overrides the default directory name displayed on the <i>Select Destination Location</i> wizard page. A fully qualified pathname must be specified. May include an "expand:" prefix which instructs Setup to expand any constants in the name. For example: <tt>/DIR=expand:{autopf}\My Program</tt>.</p>
+<p>Overrides the default directory name displayed on the <i>Select Destination Location</i> wizard page. A fully qualified pathname must be specified. May include an "<tt>expand:</tt>" prefix which instructs Setup to expand any constants in the name. For example: <tt>/DIR=expand:{autopf}\My Program</tt>.</p>
 </dd>
 
 <dt><b><a name="GROUP">/GROUP=</a>"<i>folder name</i>"</b></dt>
 <dd>
-<p>Overrides the default folder name displayed on the <i>Select Start Menu Folder</i> wizard page. May include an "expand:" prefix, see <tt>/DIR=</tt>. If the <sn>[Setup]</sn> section directive <sd>DisableProgramGroupPage</sd> was set to <tt>yes</tt>, this command line parameter is ignored.</p>
+<p>Overrides the default folder name displayed on the <i>Select Start Menu Folder</i> wizard page. May include an "<tt>expand:</tt>" prefix, see <tt>/DIR=</tt>. If the <sn>[Setup]</sn> section directive <sd>DisableProgramGroupPage</sd> was set to <tt>yes</tt>, this command line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="NOICONS">/NOICONS</a></b></dt>
@@ -4716,7 +4716,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b><a name="LOG">/LOG</a></b></dt>
 <dd>
-<p>Causes Uninstall to create a log file in the user's TEMP directory detailing file uninstallation and <sn>[UninstallRun]</sn> actions taken during the uninstallation process. This can be a helpful debugging aid.</p>
+<p>Causes Uninstall to create a log file in the user's <tt>TEMP</tt> directory detailing file uninstallation and <sn>[UninstallRun]</sn> actions taken during the uninstallation process. This can be a helpful debugging aid.</p>
 <p>The log file is created with a unique name based on the current date. (It will not overwrite or append to existing files.)</p>
 <p>The information contained in the log file is technical in nature and therefore not intended to be understandable by end users. Nor is it designed to be machine-parsable; the format of the file is subject to change without notice.</p>
 </dd>
@@ -4756,7 +4756,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <p>The uninstaller will return a non-zero exit code if the user cancels or a fatal error is encountered. Programs checking the exit code to detect failure should not check for a specific non-zero value; any non-zero exit code indicates that the uninstaller was not run to completion.</p>
 
-<p>Note that at the moment you get an exit code back from the uninstaller, some code related to uninstallation might still be running. Because Windows doesn't allow programs to delete their own EXEs, the uninstaller creates and spawns a copy of itself in the TEMP directory. This "clone" performs the actual uninstallation, and at the end, terminates the original uninstaller EXE (at which point you get an exit code back), deletes it, then displays the "uninstall complete" message box (if it hasn't been suppressed with <tt>/SILENT</tt> or <tt>/VERYSILENT</tt>).</p>
+<p>Note that at the moment you get an exit code back from the uninstaller, some code related to uninstallation might still be running. Because Windows doesn't allow programs to delete their own EXEs, the uninstaller creates and spawns a copy of itself in the <tt>TEMP</tt> directory. This "clone" performs the actual uninstallation, and at the end, terminates the original uninstaller EXE (at which point you get an exit code back), deletes it, then displays the "uninstall complete" message box (if it hasn't been suppressed with <tt>/SILENT</tt> or <tt>/VERYSILENT</tt>).</p>
 
 </body>
 </topic>
@@ -4792,7 +4792,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b>comctl32.dll</b></dt>
 <dd>
-<p>Microsoft does not allow separate redistribution of <tt>comctl32.dll</tt> (and for good reason - the file differs between platforms), so you should never place <tt>comctl32.dll</tt> in a script's <sn>[Files]</sn> section. You can however direct your users to <extlink href="http://www.microsoft.com/downloads/details.aspx?FamilyID=cb2cf3a2-8025-4e8f-8511-9b476a8d35d2&amp;DisplayLang=en">download the COMCTL32 update from Microsoft</extlink>, or distribute the COMCTL32 update along with your program.</p>
+<p>Microsoft does not allow separate redistribution of <tt>comctl32.dll</tt> (and for good reason - the file differs between platforms), so you should never place <tt>comctl32.dll</tt> in a script's <sn>[Files]</sn> section. You can however direct your users to <extlink href="http://www.microsoft.com/downloads/details.aspx?FamilyID=cb2cf3a2-8025-4e8f-8511-9b476a8d35d2&amp;DisplayLang=en">download the <tt>COMCTL32</tt> update from Microsoft</extlink>, or distribute the <tt>COMCTL32</tt> update along with your program.</p>
 </dd>
 
 <dt><b>shdocvw.dll, shlwapi.dll, urlmon.dll, wininet.dll</b></dt>
@@ -4831,7 +4831,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Vince Valenti: Most of the code for the "Window" <sn>[Setup]</sn> section directives (1.12.4 - 6.3.3).</li>
 
-<li>Joe White: Code for ChangesAssociations <sn>[Setup]</sn> section directive (1.2).</li>
+<li>Joe White: Code for <sd>ChangesAssociations</sd> <sn>[Setup]</sn> section directive (1.2).</li>
 
 <li>Jason Olsen: Most of the code for <link topic="appendnotes">appending to existing uninstall logs</link> (1.3).</li>
 
@@ -4861,11 +4861,11 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Cristoph Nahr: Code for the .NET version detection (6.0.4).</li>
 
-<li>Sergii Leonov: Code for the Compiler IDE's MsgBox tool (6.1.0) and initial work on its [Registry] tool (6.3.0).</li>
+<li>Sergii Leonov: Code for the Compiler IDE's MsgBox tool (6.1.0) and initial work on its <sn>[Registry]</sn> tool (6.3.0).</li>
 
 <li>Jens Geyer: Initial work on closeable tabs in the Compiler IDE (6.3.0).</li>
 
-<li>ser163: Code for the Compiler IDE's [Files] tool (6.3.0).</li>
+<li>ser163: Code for the Compiler IDE's <sn>[Files]</sn> tool (6.3.0).</li>
 
 </ul>
 
@@ -4933,10 +4933,10 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <setupdefault><i>(see below)</i></setupdefault>
 <body>
 <p>This tells the compiler which type of Setup to create. If this is <tt>no</tt>, it compiles the setup data into at least three files: <tt>Setup.exe</tt>, <tt>Setup-0.bin</tt>, and <tt>Setup-1.bin</tt>. The <b>only</b> reason you would probably want to use <tt>no</tt> is for debugging purposes. Otherwise, it compiles all setup data into a single EXE.</p>
-<p>When all setup data is compiled into a single EXE, a "Setup Loader" program is used, called SetupLdr. When using <tt>yes</tt> or <tt>x86</tt>, a 32-bit version of SetupLdr is used which runs on systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64 Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
-<p>Otherwise, when using <tt>x64</tt>, a 64-bit version of SetupLdr is used which runs on systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation.</p>
+<p>When all setup data is compiled into a single EXE, a "Setup Loader" program is used, called <tt>SetupLdr</tt>. When using <tt>yes</tt> or <tt>x86</tt>, a 32-bit version of <tt>SetupLdr</tt> is used which runs on systems capable of running 32-bit x86 binaries. This includes systems running x86 Windows, x64 Windows, and also Arm64 Windows 10 and 11 systems, which have the ability to run x86 binaries via emulation.</p>
+<p>Otherwise, when using <tt>x64</tt>, a 64-bit version of <tt>SetupLdr</tt> is used which runs on systems capable of running x64 binaries. This includes systems running x64 Windows, and also Arm64-based Windows 11 systems, which have the ability to run x64 binaries via emulation.</p>
 <p>Matches the value of <sd>SetupArchitecture</sd> by default.</p>
-<p><i>Note:</i> Do not use <tt>no</tt> on an installation which uses disk spanning (<tt><sd>DiskSpanning</sd>=yes</tt>). When using <tt>yes</tt>, the setup program is copied to and run from the user's TEMP directory. This does not happen when using <tt>no</tt>, and could result in errors if Windows tries to locate the <tt>Setup.exe</tt> file on the disk and can't find it because a different disk is in the drive.</p>
+<p><i>Note:</i> Do not use <tt>no</tt> on an installation which uses disk spanning (<tt><sd>DiskSpanning</sd>=yes</tt>). When using <tt>yes</tt>, the setup program is copied to and run from the user's <tt>TEMP</tt> directory. This does not happen when using <tt>no</tt>, and could result in errors if Windows tries to locate the <tt>Setup.exe</tt> file on the disk and can't find it because a different disk is in the drive.</p>
 <p><i>Note:</i> Do not use <tt>no</tt> to avoid digital signature verification startup delays on a large Setup, use disk spanning instead. See <sd>SignTool</sd> for more information. Also note that digitally signing Setup when using <tt>no</tt> will lead to an invalid digital signature for Uninstall.</p>
 </body>
 </setuptopic>
@@ -4985,9 +4985,9 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <setupdefault><sd>AppName</sd></setupdefault>
 <body>
 <p>The value of <tt>AppId</tt> is stored inside uninstall log files (<tt>unins???.dat</tt>), and is checked by subsequent installations to determine whether it may <link topic="appendnotes">append to a particular existing uninstall log</link>. Setup will only append to an uninstall log if the <tt>AppId</tt> of the existing uninstall log is the same as the current installation's <tt>AppId</tt>. For a practical example, say you have two installations -- one entitled <i>My Program</i> and the other entitled <i>My Program 1.1 Update.</i> To get My Program 1.1 Update to append to My Program's uninstall log, you would have to set <tt>AppId</tt> to the same value in both installations.</p>
-<p><tt>AppId</tt> also determines the actual name of the Uninstall registry key, to which Inno Setup tacks on "_is1" at the end. (Therefore, if <tt>AppId</tt> is "MyProgram", the key will be named "MyProgram_is1".) Pre-1.3 versions of Inno Setup based the key name on the value of <sd>AppVerName</sd>.</p>
+<p><tt>AppId</tt> also determines the actual name of the Uninstall registry key, to which Inno Setup tacks on "<tt>_is1</tt>" at the end. (Therefore, if <tt>AppId</tt> is "<tt>MyProgram</tt>", the key will be named "<tt>MyProgram_is1</tt>".) Pre-1.3 versions of Inno Setup based the key name on the value of <sd>AppVerName</sd>.</p>
 <p><tt>AppId</tt> isn't used for display anywhere, so feel free to make it as cryptic as you desire. The value may include constants.</p>
-<p>If you use a {code:..} constant to allow your user to customize <tt>AppId</tt>, you do not need to return the real value until just before the installation starts: if necessary you may return an empty or generic value at earlier times. If not empty, this value will only be used to attempt to restore previous install settings (like the settings stored by <sn>[Setup]</sn> section directive <sd>UsePreviousAppDir</sd>). If empty, it isn't used for anything.</p>
+<p>If you use a <tt>{code:..}</tt> constant to allow your user to customize <tt>AppId</tt>, you do not need to return the real value until just before the installation starts: if necessary you may return an empty or generic value at earlier times. If not empty, this value will only be used to attempt to restore previous install settings (like the settings stored by <sn>[Setup]</sn> section directive <sd>UsePreviousAppDir</sd>). If empty, it isn't used for anything.</p>
 <p>The length of <tt>AppId</tt> with all constants evaluated should never exceed 127 characters.</p>
 <example><pre><key>AppId</key>=MyProgram</pre></example>
 </body>
@@ -5020,7 +5020,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>It is not necessary to explicitly destroy the mutex object upon your application's termination; the system will do this automatically. Nor is it recommended that you do so, because ideally the mutex object should exist until the process completely terminates.</p>
 <p>Note that mutex name comparison in Windows is <i>case sensitive.</i></p>
 <p>To specify a mutex name containing a comma, escape the comma with a backslash.</p>
-<p>See the topic for CreateMutex in the MS SDK help for more information on mutexes.</p>
+<p>See the topic for <tt>CreateMutex</tt> in the MS SDK help for more information on mutexes.</p>
 <example><pre><key>AppMutex</key>=MyProgramsMutexName,Global\MyProgramsMutexName</pre></example>
 <p><b>See also:</b><br/>
 <sd>SetupMutex</sd><br/>
@@ -5032,7 +5032,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <body>
 <p>This directive is used to prevent Setup from running while Setup is already running. It specifies the names of one or more named mutexes (multiple mutexes are separated by commas), which Setup will check for at startup. If any exist, Setup will display the message: "Setup has detected that Setup is currently running. Please close all instances of it now, then click OK to continue, or Cancel to exit." If none exist, Setup will create the mutex(es) and continue normally. The value may include constants.</p>
 <p>To specify a mutex name containing a comma, escape the comma with a backslash.</p>
-<p>See the topic for CreateMutex in the MS SDK help for more information on mutexes.</p>
+<p>See the topic for <tt>CreateMutex</tt> in the MS SDK help for more information on mutexes.</p>
 <example><pre><key>SetupMutex</key>=MySetupsMutexName,Global\MySetupsMutexName</pre></example>
 <p><b>See also:</b><br/>
 <sd>AppMutex</sd>
@@ -5202,7 +5202,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>This directive lets you disable the missing RunOnceIds warning. See <tt><link topic="runsection" anchor="RunOnceId">RunOnceId</link></tt> for more information.</p>
+<p>This directive lets you disable the missing <tt>RunOnceIds</tt> warning. See <tt><link topic="runsection" anchor="RunOnceId">RunOnceId</link></tt> for more information.</p>
 </body>
 </setuptopic>
 
@@ -5458,7 +5458,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>If this is set to <tt>no</tt>, no directory for the application will be created, the <i>Select Destination Location</i> wizard page will not be displayed, and the {app} directory constant is equivalent to the {win} directory constant. If the uninstall feature is enabled when <tt>CreateAppDir</tt> is <tt>no</tt>, the uninstall data files are created in the system's Windows directory.</p>
+<p>If this is set to <tt>no</tt>, no directory for the application will be created, the <i>Select Destination Location</i> wizard page will not be displayed, and the <tt>{app}</tt> directory constant is equivalent to the <tt>{win}</tt> directory constant. If the uninstall feature is enabled when <tt>CreateAppDir</tt> is <tt>no</tt>, the uninstall data files are created in the system's Windows directory.</p>
 </body>
 </setuptopic>
 
@@ -5847,7 +5847,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>When set to <tt>yes</tt>, and a program executed in the <sn>[Run]</sn> section queues files to be replaced on the next reboot (by calling MoveFileEx or by modifying <tt>wininit.ini</tt>), Setup will detect this and prompt the user to restart the computer at the end of installation.</p>
+<p>When set to <tt>yes</tt>, and a program executed in the <sn>[Run]</sn> section queues files to be replaced on the next reboot (by calling <tt>MoveFileEx</tt> or by modifying <tt>wininit.ini</tt>), Setup will detect this and prompt the user to restart the computer at the end of installation.</p>
 </body>
 </setuptopic>
 
@@ -6564,8 +6564,8 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupvalid><tt>uilanguage</tt>, <tt>locale</tt>, <tt>none</tt></setupvalid>
 <setupdefault><tt>uilanguage</tt></setupdefault>
 <body>
-<p>When set to <tt>uilanguage</tt>, Setup will determine the default language to use by checking the user's "UI language" (by calling GetUserDefaultUILanguage()). This is the method that Microsoft recommends. The "UI language" is the language used in Windows' own dialogs. Thus, on an English edition of Windows, English will be the default, while on a Dutch edition of Windows, Dutch will be the default. On the MUI edition of Windows, the default will be the currently selected UI language.</p>
-<p>When set to <tt>locale</tt>, Setup will determine the default language to use by calling GetUserDefaultLangID(). This function returns the setting of "Your locale" in Control Panel's Regional Options. It should however be noted that the "Your locale" option is not intended to affect languages; it is only documented to affect "numbers, currencies, times, and dates".</p>
+<p>When set to <tt>uilanguage</tt>, Setup will determine the default language to use by checking the user's "UI language" (by calling <tt>GetUserDefaultUILanguage()</tt>). This is the method that Microsoft recommends. The "UI language" is the language used in Windows' own dialogs. Thus, on an English edition of Windows, English will be the default, while on a Dutch edition of Windows, Dutch will be the default. On the MUI edition of Windows, the default will be the currently selected UI language.</p>
+<p>When set to <tt>locale</tt>, Setup will determine the default language to use by calling <tt>GetUserDefaultLangID()</tt>. This function returns the setting of "Your locale" in Control Panel's Regional Options. It should however be noted that the "Your locale" option is not intended to affect languages; it is only documented to affect "numbers, currencies, times, and dates".</p>
 <p>When set to <tt>none</tt>, Setup will use the first language specified in the <sn>[Languages]</sn> section as the default language.</p>
 </body>
 </setuptopic>
@@ -6689,7 +6689,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupvalid><link topic="yesnonotes"><tt>yes</tt> or <tt>no</tt></link></setupvalid>
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
-<p>By default, when a folder in the dialog displayed by the <i>Browse...</i> button on the <i>Select Start Menu Folder</i> wizard page is clicked, Setup automatically appends the last component of <sd>DefaultGroupName</sd> onto the new path. For example, if <sd>DefaultGroupName</sd> is <tt>My Program</tt> and "Accessories" is clicked, the new path will become <tt>Accessories\My Program</tt>.</p>
+<p>By default, when a folder in the dialog displayed by the <i>Browse...</i> button on the <i>Select Start Menu Folder</i> wizard page is clicked, Setup automatically appends the last component of <sd>DefaultGroupName</sd> onto the new path. For example, if <sd>DefaultGroupName</sd> is <tt>My Program</tt> and <tt>Accessories</tt> is clicked, the new path will become <tt>Accessories\My Program</tt>.</p>
 <p>Setting this directive to <tt>no</tt> disables the aforementioned behavior. In addition, it causes a <i>Make New Folder</i> button to appear on the dialog.</p>
 </body>
 </setuptopic>
@@ -6903,9 +6903,9 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <setupdefault><tt>yes</tt></setupdefault>
 <body>
 <p>Specifies whether the compiler should set the "Terminal Services aware" flag in the headers of the Setup and Uninstall programs.</p>
-<p>Most importantly, the "Terminal Services aware" flag affects the behavior of the {win} constant (and <isxfunc>GetWinDir</isxfunc> support function) on servers with Terminal Services installed in application mode.</p>
-<p>When the flag is set, {win} will consistently return the system's real Windows directory, typically <tt>C:\Windows</tt>, just as on systems that do not have Terminal Services installed.</p>
-<p>When the flag is not set, Windows runs the program in compatibility mode, where {win} may return either the real Windows directory or a user-specific Windows directory, such as <tt>C:\Documents and Settings\&lt;user name&gt;\WINDOWS</tt>. Which one you get depends on the name of the program's EXE file and how it is launched. If the program is named <tt>setup.exe</tt> or <tt>install.exe</tt>, or if it is launched from the <i>Add/Remove Programs</i> Control Panel applet, then Windows will put the system in "install mode", which effectively makes the program (and all other programs running in the session) behave as if the "Terminal Services aware" flag were set. Otherwise, the program is treated as a legacy application and is given a private Windows directory. (This is true even if the user running the program has full administrative privileges.)</p>
+<p>Most importantly, the "Terminal Services aware" flag affects the behavior of the <tt>{win}</tt> constant (and <isxfunc>GetWinDir</isxfunc> support function) on servers with Terminal Services installed in application mode.</p>
+<p>When the flag is set, <tt>{win}</tt> will consistently return the system's real Windows directory, typically <tt>C:\Windows</tt>, just as on systems that do not have Terminal Services installed.</p>
+<p>When the flag is not set, Windows runs the program in compatibility mode, where <tt>{win}</tt> may return either the real Windows directory or a user-specific Windows directory, such as <tt>C:\Documents and Settings\&lt;user name&gt;\WINDOWS</tt>. Which one you get depends on the name of the program's EXE file and how it is launched. If the program is named <tt>setup.exe</tt> or <tt>install.exe</tt>, or if it is launched from the <i>Add/Remove Programs</i> Control Panel applet, then Windows will put the system in "install mode", which effectively makes the program (and all other programs running in the session) behave as if the "Terminal Services aware" flag were set. Otherwise, the program is treated as a legacy application and is given a private Windows directory. (This is true even if the user running the program has full administrative privileges.)</p>
 <p>Because the behavior that results from setting <tt>TerminalServicesAware</tt> to <tt>no</tt> is inconsistent and hard to predict, it is recommended that you use the default setting of <tt>yes</tt>. Only use <tt>no</tt> as a temporary fix if you encounter troubles on systems with Terminal Services after upgrading from a previous Inno Setup version.</p>
 </body>
 </setuptopic>
@@ -7036,7 +7036,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <keyword value="code signing" />
 <setupdefault><tt>0</tt></setupdefault>
 <body>
-<p>If not set to 0, specifies the minimum number of milliseconds that should have elapsed between consecutive digital signing actions by the compiler. For example, if set to 5000 then the compiler will perform 1 digital signing per 5 seconds at most. Can be used to avoid being rejected by rate limiting timestamp services.</p>
+<p>If not set to <tt>0</tt>, specifies the minimum number of milliseconds that should have elapsed between consecutive digital signing actions by the compiler. For example, if set to <tt>5000</tt> then the compiler will perform 1 digital signing per 5 seconds at most. Can be used to avoid being rejected by rate limiting timestamp services.</p>
 <p><b>See also:</b><br/>
 <sd>SignTool</sd></p>
 </body>
@@ -7140,7 +7140,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <body>
 <p>When compressing a large file, the LZMA2 compressor has the ability to divide its data into "blocks" and compress two or more of these blocks in parallel through the use of additional threads (provided sufficient processor power is available). This directive specifies the maximum number of threads to use -- that is, the maximum number of blocks that the LZMA2 compressor may compress in parallel. Using a high maximum requires a very large file before this maximum is fully used.</p>
 <p>The memory required during compression when multiple block threads are used is roughly:</p>
-<indent><p>LZMANumBlockThreads * (<link topic="setup_compression">Normal memory usage</link> + (<sd>LZMABlockSize</sd> * 2))</p></indent>
+<indent><p><tt>LZMANumBlockThreads</tt> * (<link topic="setup_compression">Normal memory usage</link> + (<sd>LZMABlockSize</sd> * 2))</p></indent>
 <p>Since LZMA2 (and LZMA) uses two threads for match-finding by default (see <sd>CompressionThreads</sd>), there ideally should be two processor cores available for each block thread. Thus, to see the maximum benefit from a value of <tt>2</tt>, four cores are needed.</p>
 <p>Dividing the data into multiple blocks can reduce the compression ratio, as the compressor cannot find matches across blocks. Using a large <link topic="setup_lzmablocksize">block size</link> can help to mitigate this.</p>
 <p><link topic="64bit">32-bit compiler</link>: If an "Out of memory" error is seen when multiple block threads are enabled in combination with a compression level that uses a large dictionary size (such as <tt>ultra64</tt>), <sd>LZMAUseSeparateProcess</sd> may need to be set.</p>
@@ -7251,7 +7251,7 @@ Or, a boolean expression containing <link topic="archidentifiers">architecture i
 <keyword value="Same Application" />
 <body>
 <p>"Same application" refers to two separate installation runs that share the same <sd>AppId</sd> setting (or if <sd>AppId</sd> is not set, the same <sd>AppName</sd> setting), and the same <link topic="admininstallmode">administrative or non administrative install mode</link>, and the same <link topic="32vs64bitinstalls">32-bit or 64-bit install mode</link>*. Two of such installation runs will usually lead to only one actual installation of the files.</p>
-<p>(* = This requirement does not apply to any same application information retrieved from the registry in non administrative install mode since the HKEY_CURRENT_USER key is shared between the 32-bit and 64-bit registry. It does however always apply to the uninstall log since the 32-bit and 64-bit uninstall logs are kept separate, even in non administrative install mode. In practice this means you should avoid offering both a 32-bit and a 64-bit non administrative installer to your users without giving these installers different <sd>AppId</sd>, <sd>DefaultDirName</sd>, <sd>DefaultGroupName</sd>, and <sd>UninstallDisplayName</sd> settings.)</p>
+<p>(* = This requirement does not apply to any same application information retrieved from the registry in non administrative install mode since the <tt>HKEY_CURRENT_USER</tt> key is shared between the 32-bit and 64-bit registry. It does however always apply to the uninstall log since the 32-bit and 64-bit uninstall logs are kept separate, even in non administrative install mode. In practice this means you should avoid offering both a 32-bit and a 64-bit non administrative installer to your users without giving these installers different <sd>AppId</sd>, <sd>DefaultDirName</sd>, <sd>DefaultGroupName</sd>, and <sd>UninstallDisplayName</sd> settings.)</p>
 <p><b>See also:</b><br/>
 <link topic="sidebyside">Side-by-side installation</link></p>
 </body>

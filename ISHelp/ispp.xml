@@ -241,9 +241,9 @@
 				</syntax>
 				<description>
 					<p>Includes the &translation; of the specified file. If a Unicode file is used, it must be UTF-8 (with or without a BOM) encoded.</p>
-					<p>If the filename is enclosed in quotes, ISPP first searches for the file in the directory where the current file resides, then in the directory where the file that included the current file resides, and so on. If the file is not found, ISPP searches for it on the current include path, set via &pragma;, then on the path specified by the INCLUDE environment variable.</p>
+					<p>If the filename is enclosed in quotes, ISPP first searches for the file in the directory where the current file resides, then in the directory where the file that included the current file resides, and so on. If the file is not found, ISPP searches for it on the current include path, set via &pragma;, then on the path specified by the <tt>INCLUDE</tt> environment variable.</p>
 					<p>If the filename is an expression or specified in angle brackets, ISPP searches for it on the current include path only.</p>
-          <p>The filename may be prefixed by "compiler:", in which case it looks for the file in the Compiler directory.</p>
+          <p>The filename may be prefixed by <tt>compiler:</tt>, in which case it looks for the file in the Compiler directory.</p>
 					<p>This directive can't be used inline.</p>
 				</description>
 				<section title="Examples">
@@ -268,7 +268,7 @@
 				<description>
 					<p>Replaces the directive with the name of a temporary file containing the &translation; of the specified file. When compilation finishes, the temporary file is automatically deleted. If a Unicode file is used, it must be UTF-8 (with or without a BOM) encoded.</p>
 					<p>Including a file using this directive creates a new independent instance of the preprocessor, passing it the options currently in effect and all declared identifiers. If the included file modifies options in some way, they are not propagated back.</p>
-					<p>When using this directive in Inno Setup's Source parameter of the <sn>[Files]</sn> section, specify a DestName parameter too, otherwise the file will not be installed with the original name.</p>
+					<p>When using this directive in Inno Setup's <tt>Source</tt> parameter of the <sn>[Files]</sn> section, specify a <tt>DestName</tt> parameter too, otherwise the file will not be installed with the original name.</p>
 					<p>This directive can only be used <link href="directives">inline</link>.</p>
 				</description>
 				<section title="Examples">
@@ -695,11 +695,11 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<section title="Verbose levels">
 					<table>
 						<tr><td>0</td><td>Messages about changes to the verbosity level</td></tr>
-						<tr><td>1</td><td>Messages about any temporary files created by #file</td></tr>
-						<tr><td>2</td><td>#insert and #append messages</td></tr>
-						<tr><td>4</td><td>#dim, #define, and #undef messages</td></tr>
+						<tr><td>1</td><td>Messages about any temporary files created by <tt>#file</tt></td></tr>
+						<tr><td>2</td><td><tt>#insert</tt> and <tt>#append</tt> messages</td></tr>
+						<tr><td>4</td><td><tt>#dim</tt>, <tt>#define</tt>, and <tt>#undef</tt> messages</td></tr>
 						<tr><td>6</td><td>Conditional inclusion messages</td></tr>
-						<tr><td>8</td><td>#emit messages</td></tr>
+						<tr><td>8</td><td><tt>#emit</tt> messages</td></tr>
 						<tr><td>9</td><td>Function call messages</td></tr>
 						<tr><td>10</td><td><tt>Local</tt> array allocation messages</td></tr>
 					</table>
@@ -748,7 +748,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 		<topic id="funcs">
 			<title>Support Functions Reference</title>
 			<description header="no">
-				<p>There are a number of built-in support functions which you can use to perform compile-time actions and change your script. For example, the following uses ISPP function <link href="GetVersionNumbersString">GetVersionNumbersString</link> to read version info from an EXE and uses the return value of the function to set the <sd>AppVersion</sd> <sn>[Setup]</sn> section directive using directive &emit;:</p>
+				<p>There are a number of built-in support functions which you can use to perform compile-time actions and change your script. For example, the following uses ISPP function <tt><link href="GetVersionNumbersString">GetVersionNumbersString</link></tt> to read version info from an EXE and uses the return value of the function to set the <sd>AppVersion</sd> <sn>[Setup]</sn> section directive using directive &emit;:</p>
         <pre>
           <line><ispp>#define</ispp> MyAppVer <link href="getversionnumbersstring">GetVersionNumbersString</link>(<link href="addbackslash">AddBackslash</link>(<link href="predefinedvars">SourcePath</link>) + <str>"MyProg.exe"</str>)</line>
           <line></line>
@@ -780,7 +780,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<description>
 					<p>Retrieves a string from the version information resource of the specified file (first parameter).</p>
 					<p>The second parameter is the name of the version info string-value.</p>
-					<p>The third, optional parameter should specify the language and charset identifier. For example: 0x04E40409 stands for "English (United States)". If this parameter is omitted, the function scans all available version info blocks to find the value.</p>
+					<p>The third, optional parameter should specify the language and charset identifier. For example: <tt>0x04E40409</tt> stands for "English (United States)". If this parameter is omitted, the function scans all available version info blocks to find the value.</p>
 					<p>The function returns null (void) if it was unable to retrieve the value.</p>
 				</description>
 				<section title="See also">
@@ -828,7 +828,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns the file version string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, FILE_VERSION)</tt>.</p>
-					<p>Also see <link href="GetVersionNumbersString">GetVersionNumbersString</link>, which can also be used to retrieve the file version. The difference is that <tt>GetVersionNumbersString</tt> gets the binary file version from the fixed block of the specified file's version information resource, while <tt>GetFileVersionString</tt> gets the textual file version from the language specific block.</p>
+					<p>Also see <tt><link href="GetVersionNumbersString">GetVersionNumbersString</link></tt>, which can also be used to retrieve the file version. The difference is that <tt>GetVersionNumbersString</tt> gets the binary file version from the fixed block of the specified file's version information resource, while <tt>GetFileVersionString</tt> gets the textual file version from the language specific block.</p>
 					<p>The function returns null (void) if it was unable to retrieve the value.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
@@ -936,7 +936,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Creates all the directories along the specified directory path. If the first directories in the path already exist, but the latter ones don't, ForceDirectories creates just the ones that don't exist. Returns non-zero if successful.</p>
+					<p>Creates all the directories along the specified directory path. If the first directories in the path already exist, but the latter ones don't, <tt>ForceDirectories</tt> creates just the ones that don't exist. Returns non-zero if successful.</p>
 				</description>
 			</topic>
 			<topic id="FileSize">
@@ -975,7 +975,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>any</b> ReadReg(<b>int</b> RootKey, <b>str</b> SubKey, <b>str</b>? Name, <b>any</b>? Default)</line></pre>
 				</section>
 				<description>
-					<p>Reads the value of the specified registry key. The first parameter is the root key, such as HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE_32, or HKEY_LOCAL_MACHINE_64. Constants for use with this parameter are declared in &builtins; accompanying ISPP. The second parameter specifies a subkey. The third parameter specifies the name of the value to read; if it is omitted or empty, the key's default (unnamed) value is read. The last optional parameter specifies the value to return on failure.</p>
+					<p>Reads the value of the specified registry key. The first parameter is the root key, such as <tt>HKEY_LOCAL_MACHINE</tt>, <tt>HKEY_LOCAL_MACHINE_32</tt>, or <tt>HKEY_LOCAL_MACHINE_64</tt>. Constants for use with this parameter are declared in &builtins; accompanying ISPP. The second parameter specifies a subkey. The third parameter specifies the name of the value to read; if it is omitted or empty, the key's default (unnamed) value is read. The last optional parameter specifies the value to return on failure.</p>
 					<p>Note that this function can return a value of any type depending on the type of actual value in the registry.</p>
 					<p>A compiler error will be raised if an invalid root key is specified or if 64-bit registry keys are requested on 32-bit Windows.</p>
 				</description>
@@ -987,13 +987,13 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Executes the specified executable or batch file.</p>
-					<p>The Filename parameter specifies the filename of the executable or batch file. If this does not include quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (such as a command line obtained from an UninstallString registry value), you need not separate them yourself. Instead, just pass '>' in this parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for <tt>.bat</tt> and <tt>.cmd</tt> files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
-					<p>The Params parameter may be used to specify parameters for the process.</p>
-					<p>The WorkingDir parameter may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process.</p>
-					<p>The Wait parameter may be set to zero if you don't wish to wait for the process to finish, and non-zero otherwise. By default, non-zero is assumed.</p>
-					<p>The ShowCmd parameter may be any of the <tt>SW_*</tt> constants defined in &builtins;. Console programs are always hidden and the ShowCmd parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> (the default) instead of <tt>SW_HIDE</tt> is recommended.</p>
-					<p>If the Wait parameter is omitted or is non-zero, the function returns the exit code of the process. Otherwise, the function result indicates whether the process has been successfully launched (non-zero for success).</p>
-          <p>Note: compared to Pascal Scripting's Exec, the Wait and ShowCmd parameters are swapped.</p>
+					<p>The <tt>Filename</tt> parameter specifies the filename of the executable or batch file. If this does not include quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (such as a command line obtained from an <tt>UninstallString</tt> registry value), you need not separate them yourself. Instead, just pass <tt>></tt> in this parameter, and the full command line in the <tt>Params</tt> parameter. (Note that when this is done, the function's special platform-independent support for <tt>.bat</tt> and <tt>.cmd</tt> files is disabled; it simply passes the specified command line to <tt>CreateProcess</tt> without any processing.)</p>
+					<p>The <tt>Params</tt> parameter may be used to specify parameters for the process.</p>
+					<p>The <tt>WorkingDir</tt> parameter may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the <tt>Filename</tt> parameter and use that as the initial current directory for the process.</p>
+					<p>The <tt>Wait</tt> parameter may be set to zero if you don't wish to wait for the process to finish, and non-zero otherwise. By default, non-zero is assumed.</p>
+					<p>The <tt>ShowCmd</tt> parameter may be any of the <tt>SW_*</tt> constants defined in &builtins;. Console programs are always hidden and the <tt>ShowCmd</tt> parameter only affects GUI programs, so always using <tt>SW_SHOWNORMAL</tt> (the default) instead of <tt>SW_HIDE</tt> is recommended.</p>
+					<p>If the <tt>Wait</tt> parameter is omitted or is non-zero, the function returns the exit code of the process. Otherwise, the function result indicates whether the process has been successfully launched (non-zero for success).</p>
+          <p>Note: compared to Pascal Scripting's <tt>Exec</tt>, the <tt>Wait</tt> and <tt>ShowCmd</tt> parameters are swapped.</p>
 				</description>
 				<section title="See also">
 					<p><tt><link href="ExecAndGetFirstLine">ExecAndGetFirstLine</link></tt></p>
@@ -1006,9 +1006,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Executes the specified executable or batch file and reads the first non-empty line from its output.</p>
-					<p>The Filename parameter specifies the filename of the executable or batch file. If this does not include quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (such as a command line obtained from an UninstallString registry value), you need not separate them yourself. Instead, just pass '>' in this parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for <tt>.bat</tt> and <tt>.cmd</tt> files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
-					<p>The Params parameter may be used to specify parameters for the process.</p>
-					<p>The WorkingDir parameter may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process.</p>
+					<p>The <tt>Filename</tt> parameter specifies the filename of the executable or batch file. If this does not include quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (such as a command line obtained from an <tt>UninstallString</tt> registry value), you need not separate them yourself. Instead, just pass <tt>></tt> in this parameter, and the full command line in the <tt>Params</tt> parameter. (Note that when this is done, the function's special platform-independent support for <tt>.bat</tt> and <tt>.cmd</tt> files is disabled; it simply passes the specified command line to <tt>CreateProcess</tt> without any processing.)</p>
+					<p>The <tt>Params</tt> parameter may be used to specify parameters for the process.</p>
+					<p>The <tt>WorkingDir</tt> parameter may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the <tt>Filename</tt> parameter and use that as the initial current directory for the process.</p>
 				</description>
 				<section title="See also">
 					<p><tt><link href="Exec">Exec</link></tt></p>
@@ -1029,7 +1029,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>int</b> Pos(<b>str</b> SubStr, <b>str</b> S)</line></pre>
 				</section>
 				<description>
-					<p>Searches for SubStr within S and returns the first index of SubStr within S, 1-based. If SubStr is not found, <tt>Pos</tt> returns zero. The <tt>Pos</tt> function is case-sensitive.</p>
+					<p>Searches for <tt>SubStr</tt> within <tt>S</tt> and returns the first index of <tt>SubStr</tt> within <tt>S</tt>, 1-based. If <tt>SubStr</tt> is not found, <tt>Pos</tt> returns zero. The <tt>Pos</tt> function is case-sensitive.</p>
 				</description>
 			</topic>
 			<topic id="RPos">
@@ -1038,7 +1038,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>int</b> RPos(<b>str</b> SubStr, <b>str</b> S)</line></pre>
 				</section>
 				<description>
-					<p>Searches for SubStr within S and returns the last index of SubStr within S, 1-based. If SubStr is not found, <tt>RPos</tt> returns zero. The <tt>RPos</tt> function is case-sensitive.</p>
+					<p>Searches for <tt>SubStr</tt> within <tt>S</tt> and returns the last index of <tt>SubStr</tt> within <tt>S</tt>, 1-based. If <tt>SubStr</tt> is not found, <tt>RPos</tt> returns zero. The <tt>RPos</tt> function is case-sensitive.</p>
 				</description>
 			</topic>
 			<topic id="Len">
@@ -1129,8 +1129,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> LowerCase(<b>str</b> S)</line></pre>
 				</section>
 				<description>
-					<p>Returns a string with the same text as the string passed in its parameter, but with all letters converted to lowercase. The conversion affects only 7-bit ASCII characters between 'A' and 'Z'.</p>
-					<p>Note: String comparison operators are case-insensitive, so calling LowerCase on strings before comparing is not necessary.</p>
+					<p>Returns a string with the same text as the string passed in its parameter, but with all letters converted to lowercase. The conversion affects only 7-bit ASCII characters between <tt>A</tt> and <tt>Z</tt>.</p>
+					<p>Note: String comparison operators are case-insensitive, so calling <tt>LowerCase</tt> on strings before comparing is not necessary.</p>
 				</description>
 			</topic>
 			<topic id="UpperCase">
@@ -1139,7 +1139,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> UpperCase(<b>str</b> S)</line></pre>
 				</section>
 				<description>
-					<p>Returns a string with the same text as the string passed in its parameter, but with all letters converted to uppercase. The conversion affects only 7-bit ASCII characters between 'A' and 'Z'.</p>
+					<p>Returns a string with the same text as the string passed in its parameter, but with all letters converted to uppercase. The conversion affects only 7-bit ASCII characters between <tt>A</tt> and <tt>Z</tt>.</p>
 				</description>
 			</topic>
 			<topic id="EntryCount">
@@ -1187,7 +1187,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>int</b> CopyFile(<b>str</b> ExistingFile, <b>str</b> NewFile)</line></pre>
 				</section>
 				<description>
-					<p>Copies ExistingFile to NewFile, preserving the time stamp and file attributes. If NewFile already exists, it will be overwritten. Returns non-zero if successful.</p>
+					<p>Copies <tt>ExistingFile</tt> to <tt>NewFile</tt>, preserving the time stamp and file attributes. If <tt>NewFile</tt> already exists, it will be overwritten. Returns non-zero if successful.</p>
 				</description>
 			</topic>
 			<topic id="FindFirst">
@@ -1196,7 +1196,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>int</b> FindFirst(<b>str</b> Pattern, <b>int</b> Attrs)</line></pre>
 				</section>
 				<description>
-					<p>Searches for the first file matching the file name mask specified by the first parameter and the attributes specified by the second parameter. If a file is found, the result is a find handle to be used in subsequent calls to the <tt><link href="FindGetFileName">FindGetFileName</link></tt>, <tt><link href="FindNext">FindNext</link></tt>, and <tt><link href="FindClose"/></tt> functions, otherwise the return value is 0.</p>
+					<p>Searches for the first file matching the file name mask specified by the first parameter and the attributes specified by the second parameter. If a file is found, the result is a find handle to be used in subsequent calls to the <tt><link href="FindGetFileName">FindGetFileName</link></tt>, <tt><link href="FindNext">FindNext</link></tt>, and <tt><link href="FindClose">FindClose</link></tt> functions, otherwise the return value is 0.</p>
 					<p>The first parameter is the directory and file name mask, including wildcard characters. For example, <tt>'.\*.*'</tt> specifies all files in the current directory.</p>
 					<p>The second parameter specifies the special files to include in addition to all normal files. Choose from these file attribute constants defined in &builtins; when specifying this parameter:</p>
 					<table>
@@ -1339,9 +1339,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>int</b> SaveStringToFile(<b>str</b> Filename, <b>str</b> S, <b>int</b>? Append, <b>int</b>? UTF8)</line></pre>
 				</section>
 				<description>
-          <p>Saves the specified string to the specified file. If Append is non-zero or omitted and the specified file already exists, it will be appended to instead of overwritten. If UTF8 is non-zero or omitted, the string will be saved with UTF-8 encoding and a BOM instead of ASCII encoding. Returns non-zero if successful, or zero if the file can't be opened for writing.</p>
+          <p>Saves the specified string to the specified file. If <tt>Append</tt> is non-zero or omitted and the specified file already exists, it will be appended to instead of overwritten. If <tt>UTF8</tt> is non-zero or omitted, the string will be saved with UTF-8 encoding and a BOM instead of ASCII encoding. Returns non-zero if successful, or zero if the file can't be opened for writing.</p>
           <p>A compiler error will be raised if writing to the file fails after it has been opened.</p>
-          <p>This function does not automatically write a line break before or after the string. If Append is non-zero or omitted and the existing file did not end in a line break, the function will effectively append to the existing last line. To avoid this you can put line break characters (using <tt><link href="predefinedvars">NewLine</link></tt>) before or after your string.</p>
+          <p>This function does not automatically write a line break before or after the string. If <tt>Append</tt> is non-zero or omitted and the existing file did not end in a line break, the function will effectively append to the existing last line. To avoid this you can put line break characters (using <tt><link href="predefinedvars">NewLine</link></tt>) before or after your string.</p>
 				</description>
 				<section title="Example">
 					<pre>
@@ -1359,34 +1359,34 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns the current date and time as a string using the specified formatting.</p>
-					<p>The first parameter is the format string. The second and third parameters are optional and denote the DateSeparator and TimeSeparator parameters explained below.</p>
+					<p>The first parameter is the format string. The second and third parameters are optional and denote the <tt>DateSeparator</tt> and <tt>TimeSeparator</tt> parameters explained below.</p>
 					<p>The following format specifiers are supported:</p>
 					<table>
-						<tr><td>d</td><td>Displays the day as a number without a leading zero (1-31).</td></tr>
-						<tr><td>dd</td><td>Displays the day as a number with a leading zero (01-31).</td></tr>
-						<tr><td>ddd</td><td>Displays the day as an abbreviation (Sun-Sat).</td></tr>
-						<tr><td>dddd</td><td>Displays the day as a full name (Sunday-Saturday).</td></tr>
-						<tr><td>ddddd</td><td>Displays the date using the system's short date format.</td></tr>
-						<tr><td>dddddd</td><td>Displays the date using the system's long date format.</td></tr>
-						<tr><td>m</td><td>Displays the month as a number without a leading zero (1-12). If the m specifier immediately follows an h or hh specifier, the minute rather than the month is displayed.</td></tr>
-						<tr><td>mm</td><td>Displays the month as a number with a leading zero (01-12). If the mm specifier immediately follows an h or hh specifier, the minute rather than the month is displayed.</td></tr>
-						<tr><td>mmm</td><td>Displays the month as an abbreviation (Jan-Dec).</td></tr>
-						<tr><td>mmmm</td><td>Displays the month as a full name (January-December).</td></tr>
-						<tr><td>yy</td><td>Displays the year as a two-digit number (00-99).</td></tr>
-						<tr><td>yyyy</td><td>Displays the year as a four-digit number (0000-9999).</td></tr>
-						<tr><td>h</td><td>Displays the hour without a leading zero (0-23).</td></tr>
-						<tr><td>hh</td><td>Displays the hour with a leading zero (00-23).</td></tr>
-						<tr><td>n</td><td>Displays the minute without a leading zero (0-59).</td></tr>
-						<tr><td>nn</td><td>Displays the minute with a leading zero (00-59).</td></tr>
-						<tr><td>s</td><td>Displays the second without a leading zero (0-59).</td></tr>
-						<tr><td>ss</td><td>Displays the second with a leading zero (00-59).</td></tr>
-						<tr><td>t</td><td>Displays the time using the system's short time format.</td></tr>
-						<tr><td>tt</td><td>Displays the time using the system's long time format.</td></tr>
-						<tr><td>am/pm</td><td>Uses the 12-hour clock for the preceding h or hh specifier. Displays 'am' for any hour before noon, and 'pm' for any hour after noon. The am/pm specifier can use lower, upper, or mixed case, and the result is displayed accordingly.</td></tr>
-						<tr><td>a/p</td><td>Uses the 12-hour clock for the preceding h or hh specifier. Displays 'a' for any hour before noon, and 'p' for any hour after noon. The a/p specifier can use lower, upper, or mixed case, and the result is displayed accordingly.</td></tr>
-						<tr><td>/</td><td>Displays the date separator character given by the DateSeparator parameter. If DateSeparator is set to an empty string, the system's date separator character will be used instead.</td></tr>
-						<tr><td>:</td><td>Displays the time separator character given by the TimeSeparator parameter. If TimeSeparator is set to an empty string, the system's time separator character will be used instead.</td></tr>
-						<tr><td>'xx'/"xx"</td><td>Characters enclosed in single or double quotes are displayed as-is, and do not affect formatting.</td></tr>
+						<tr><td><tt>d</tt></td><td>Displays the day as a number without a leading zero (1-31).</td></tr>
+						<tr><td><tt>dd</tt></td><td>Displays the day as a number with a leading zero (01-31).</td></tr>
+						<tr><td><tt>ddd</tt></td><td>Displays the day as an abbreviation (Sun-Sat).</td></tr>
+						<tr><td><tt>dddd</tt></td><td>Displays the day as a full name (Sunday-Saturday).</td></tr>
+						<tr><td><tt>ddddd</tt></td><td>Displays the date using the system's short date format.</td></tr>
+						<tr><td><tt>dddddd</tt></td><td>Displays the date using the system's long date format.</td></tr>
+						<tr><td><tt>m</tt></td><td>Displays the month as a number without a leading zero (1-12). If the <tt>m</tt> specifier immediately follows an <tt>h</tt> or <tt>hh</tt> specifier, the minute rather than the month is displayed.</td></tr>
+						<tr><td><tt>mm</tt></td><td>Displays the month as a number with a leading zero (01-12). If the <tt>mm</tt> specifier immediately follows an <tt>h</tt> or <tt>hh</tt> specifier, the minute rather than the month is displayed.</td></tr>
+						<tr><td><tt>mmm</tt></td><td>Displays the month as an abbreviation (Jan-Dec).</td></tr>
+						<tr><td><tt>mmmm</tt></td><td>Displays the month as a full name (January-December).</td></tr>
+						<tr><td><tt>yy</tt></td><td>Displays the year as a two-digit number (00-99).</td></tr>
+						<tr><td><tt>yyyy</tt></td><td>Displays the year as a four-digit number (0000-9999).</td></tr>
+						<tr><td><tt>h</tt></td><td>Displays the hour without a leading zero (0-23).</td></tr>
+						<tr><td><tt>hh</tt></td><td>Displays the hour with a leading zero (00-23).</td></tr>
+						<tr><td><tt>n</tt></td><td>Displays the minute without a leading zero (0-59).</td></tr>
+						<tr><td><tt>nn</tt></td><td>Displays the minute with a leading zero (00-59).</td></tr>
+						<tr><td><tt>s</tt></td><td>Displays the second without a leading zero (0-59).</td></tr>
+						<tr><td><tt>ss</tt></td><td>Displays the second with a leading zero (00-59).</td></tr>
+						<tr><td><tt>t</tt></td><td>Displays the time using the system's short time format.</td></tr>
+						<tr><td><tt>tt</tt></td><td>Displays the time using the system's long time format.</td></tr>
+						<tr><td><tt>am/pm</tt></td><td>Uses the 12-hour clock for the preceding <tt>h</tt> or <tt>hh</tt> specifier. Displays 'am' for any hour before noon, and 'pm' for any hour after noon. The <tt>am/pm</tt> specifier can use lower, upper, or mixed case, and the result is displayed accordingly.</td></tr>
+						<tr><td><tt>a/p</tt></td><td>Uses the 12-hour clock for the preceding <tt>h</tt> or <tt>hh</tt> specifier. Displays 'a' for any hour before noon, and 'p' for any hour after noon. The <tt>a/p</tt> specifier can use lower, upper, or mixed case, and the result is displayed accordingly.</td></tr>
+						<tr><td><tt>/</tt></td><td>Displays the date separator character given by the <tt>DateSeparator</tt> parameter. If <tt>DateSeparator</tt> is set to an empty string, the system's date separator character will be used instead.</td></tr>
+						<tr><td><tt>:</tt></td><td>Displays the time separator character given by the <tt>TimeSeparator</tt> parameter. If <tt>TimeSeparator</tt> is set to an empty string, the system's time separator character will be used instead.</td></tr>
+						<tr><td><tt>'xx'/"xx"</tt></td><td>Characters enclosed in single or double quotes are displayed as-is, and do not affect formatting.</td></tr>
 					</table>
 					<p>Format specifiers may be written in upper case as well as in lower case letters. Both produce the same result.</p>
 				</description>
@@ -1408,7 +1408,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns the date and time of the specified file as a string using the specified formatting.</p>
-					<p>The first parameter is the file name. The second parameter denotes the format string. The third and fourth parameters are optional and denote the DateSeparator and TimeSeparator parameters as explained in the <link href="GetDateTimeString">GetDateTimeString</link> topic.</p>
+					<p>The first parameter is the file name. The second parameter denotes the format string. The third and fourth parameters are optional and denote the <tt>DateSeparator</tt> and <tt>TimeSeparator</tt> parameters as explained in the <tt><link href="GetDateTimeString">GetDateTimeString</link></tt> topic.</p>
 					<p>A compiler error will be raised if the date and time of the specified file can't be read.</p>
 				</description>
 				<section title="Example">
@@ -1546,7 +1546,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<pre><line><b>str</b> Format(<b>str</b> Format, ...)</line></pre>
 				</section>
 				<description>
-					<p>Formats the string Format using the series of arguments that follow it. Formatting is controlled by the format string Format; the results are returned as a string. Each argument must be an integer or a string.</p>
+					<p>Formats the string <tt>Format</tt> using the series of arguments that follow it. Formatting is controlled by the format string <tt>Format</tt>; the results are returned as a string. Each argument must be an integer or a string.</p>
 					<p>A compiler error will be raised if an invalid format string is specified, too few arguments are passed, or if any arguments are of the wrong type.</p>
 					<p>Note: unlike Pascal Scripting's <tt>Format</tt> function, arguments are passed directly instead of in an array.</p>
 				</description>
@@ -1634,7 +1634,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the type of the given expression as one of the predefined <tt>TYPE_</tt> constants. Unlike <link href="TypeOf">TypeOf</link>, which only accepts an identifier, this function accepts any expression, including array elements.</p>
+					<p>Returns the type of the given expression as one of the predefined <tt>TYPE_</tt> constants. Unlike <tt><link href="TypeOf">TypeOf</link></tt>, which only accepts an identifier, this function accepts any expression, including array elements.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -1665,7 +1665,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the version numbers of the specified file as a string (in "0.0.0.0" format) if successful, an empty string otherwise.</p>
+					<p>Returns the version numbers of the specified file as a string (in <tt>0.0.0.0</tt> format) if successful, an empty string otherwise.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -1680,7 +1680,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the individual version components of the specified file as a string (in "0.0.0.0" format) if successful, an empty string otherwise.</p>
+					<p>Returns the individual version components of the specified file as a string (in <tt>0.0.0.0</tt> format) if successful, an empty string otherwise.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -1695,8 +1695,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the version of the specified file as a string (in "0.0.0.0" format) if successful, null (void) otherwise.</p>
-					<p>Also see <link href="GetFileVersionString">GetFileVersionString</link>, which can also be used to retrieve the file version. The difference is that <tt>GetVersionNumbersString</tt> gets the binary file version from the fixed block of the specified file's version information resource, while <tt>GetFileVersionString</tt> gets the textual file version from the language specific block.</p>
+					<p>Returns the version of the specified file as a string (in <tt>0.0.0.0</tt> format) if successful, null (void) otherwise.</p>
+					<p>Also see <tt><link href="GetFileVersionString">GetFileVersionString</link></tt>, which can also be used to retrieve the file version. The difference is that <tt>GetVersionNumbersString</tt> gets the binary file version from the fixed block of the specified file's version information resource, while <tt>GetFileVersionString</tt> gets the textual file version from the language specific block.</p>
 				</description>
 			</topic>
 			<topic id="GetPackedVersion">
@@ -1707,7 +1707,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the packed version of the specified file as a string (in "0.0.0.0" format) if successful, an empty string otherwise.</p>
+					<p>Returns the packed version of the specified file as a string (in <tt>0.0.0.0</tt> format) if successful, an empty string otherwise.</p>
           <p>Always use <tt><link href="ComparePackedVersion">ComparePackedVersion</link></tt> or <tt><link href="SamePackedVersion">SamePackedVersion</link></tt> to compare packed versions.</p>
           <p>Declared in &builtins;.</p>
 				</description>
@@ -1755,7 +1755,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Compares Version1 to Version2. The return value is less than 0 if Version1 is less than Version2, 0 if Version1 equals Version2, or greater than 0 if Version1 is greater than Version2.</p>
+					<p>Compares <tt>Version1</tt> to <tt>Version2</tt>. The return value is less than 0 if <tt>Version1</tt> is less than <tt>Version2</tt>, 0 if <tt>Version1</tt> equals <tt>Version2</tt>, or greater than 0 if <tt>Version1</tt> is greater than <tt>Version2</tt>.</p>
 				</description>
 			</topic>
 			<topic id="SamePackedVersion">
@@ -1766,7 +1766,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Compares the packed versions Version1 and Version2 and returns non-zero if they are equal.</p>
+					<p>Compares the packed versions <tt>Version1</tt> and <tt>Version2</tt> and returns non-zero if they are equal.</p>
 				</description>
 			</topic>
 			<topic id="UnpackVersionNumbers">
@@ -1807,7 +1807,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the specified packed version as a string (in "0.0.0.0" format).</p>
+					<p>Returns the specified packed version as a string (in <tt>0.0.0.0</tt> format).</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -1822,7 +1822,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the specified string (in "0.0.0.0" format) as a packed version.</p>
+					<p>Returns the specified string (in <tt>0.0.0.0</tt> format) as a packed version.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -1849,7 +1849,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the given 32 bit integer encoded version decoded to its string representation. The Digits parameter indicates how many elements to show (if the fourth element is 0, it won't be shown anyway).</p>
+					<p>Returns the given 32 bit integer encoded version decoded to its string representation. The <tt>Digits</tt> parameter indicates how many elements to show (if the fourth element is 0, it won't be shown anyway).</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1885,7 +1885,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the 0-based index of the line following either the <sn>[Code]</sn> section header, or the "program" keyword, if any. Returns less than 0 if neither is found.</p>
+					<p>Returns the 0-based index of the line following either the <sn>[Code]</sn> section header, or the <tt>program</tt> keyword, if any. Returns less than 0 if neither is found.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1897,7 +1897,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the directory portion of the given filename, including a trailing backslash. If PathName doesn't contain a directory portion, the result is an empty string.</p>
+					<p>Returns the directory portion of the given filename, including a trailing backslash. If <tt>PathName</tt> doesn't contain a directory portion, the result is an empty string.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -1912,7 +1912,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the directory portion of the given filename, excluding a trailing backslash (unless it is a root directory). If PathName doesn't contain a directory portion, the result is an empty string.</p>
+					<p>Returns the directory portion of the given filename, excluding a trailing backslash (unless it is a root directory). If <tt>PathName</tt> doesn't contain a directory portion, the result is an empty string.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -1939,7 +1939,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the name portion of the given filename. If PathName ends with a backslash, the result is an empty string.</p>
+					<p>Returns the name portion of the given filename. If <tt>PathName</tt> ends with a backslash, the result is an empty string.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1951,7 +1951,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Changes the extension in FileName with NewExt. NewExt must not contain a period.</p>
+					<p>Changes the extension in <tt>FileName</tt> with <tt>NewExt</tt>. <tt>NewExt</tt> must not contain a period.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 			</topic>
@@ -1999,7 +1999,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Deletes the specified number of characters beginning with Index from S. S is passed by reference (and is therefore modified).</p>
+					<p>Deletes the specified number of characters beginning with <tt>Index</tt> from <tt>S</tt>. <tt>S</tt> is passed by reference (and is therefore modified).</p>
           <p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -2014,7 +2014,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Inserts the specified Substr into S at the position given by Index. S is passed by reference (and is therefore modified).</p>
+					<p>Inserts the specified <tt>Substr</tt> into <tt>S</tt> at the position given by <tt>Index</tt>. <tt>S</tt> is passed by reference (and is therefore modified).</p>
 					<p>Unrelated to &insert;.</p>
           <p>Declared in &builtins;.</p>
 				</description>
@@ -2030,7 +2030,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns non-zero if the given string is "yes", "true", or "1".</p>
+					<p>Returns non-zero if the given string is <tt>yes</tt>, <tt>true</tt>, or <tt>1</tt>.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -2045,7 +2045,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns non-zero if the given <sn>[Setup]</sn> section directive is set to "yes", "true", or "1".</p>
+					<p>Returns non-zero if the given <sn>[Setup]</sn> section directive is set to <tt>yes</tt>, <tt>true</tt>, or <tt>1</tt>.</p>
           <p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -2152,7 +2152,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Adds a quote (&quot;) character to the left and right sides of the string if the string contains a space and does not already have quotes. This is primarily used when spawning another process with a long filename as one of the parameters.</p>
+					<p>Adds a quote (<tt>&quot;</tt>) character to the left and right sides of the string if the string contains a space and does not already have quotes. This is primarily used when spawning another process with a long filename as one of the parameters.</p>
 				</description>
 			</topic>
 			<topic id="Is64BitPEImage">
@@ -2345,11 +2345,11 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<p>There are a number of predefined variables provided by ISPP:</p>
 				<table>
 					<tr><td><tt>__COUNTER__</tt></td><td><tt><b>int</b></tt>. Automatically increments each time it is used (afterwards).</td></tr>
-					<tr><td><tt>__FILENAME__</tt></td><td><tt><b>str</b></tt>. Similar to __PATHFILENAME__, but returns only the filename portion.</td></tr>
+					<tr><td><tt>__FILENAME__</tt></td><td><tt><b>str</b></tt>. Similar to <tt>__PATHFILENAME__</tt>, but returns only the filename portion.</td></tr>
 					<tr><td><tt>__INCLUDE__</tt></td><td><tt><b>str</b></tt>. Returns the current include path (or paths delimited with semicolons) set via <tt>#pragma include</tt>.</td></tr>
 					<tr><td><tt>__LINE__</tt></td><td><tt><b>int</b></tt>. Returns the number of the line in the current file.</td></tr>
 					<tr><td><tt>__OPT_X__</tt></td><td><tt><b>void</b></tt>. Defined if specified option set via <tt>#pragma option -x+</tt> is in effect. In place of "X" may be any letter from "A" to "Z". Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
-					<tr><td><tt>__DIR__</tt></td><td><tt><b>str</b></tt>. Similar to __PATHFILENAME__, but returns only the directory portion, excluding a trailing backslash (unless it is a root directory).</td></tr>
+					<tr><td><tt>__DIR__</tt></td><td><tt><b>str</b></tt>. Similar to <tt>__PATHFILENAME__</tt>, but returns only the directory portion, excluding a trailing backslash (unless it is a root directory).</td></tr>
 					<tr><td><tt>__PATHFILENAME__</tt></td><td><tt><b>str</b></tt>. Returns the full path of the current include file. Empty string for the root script file.</td></tr>
 					<tr><td><tt>__POPT_X__</tt></td><td><tt><b>void</b></tt>. Defined if specified parser option set via <tt>#pragma parseroption -x+</tt> is in effect. In place of "X" may be any letter from "A" to "Z". Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
 					<tr><td><tt>__WIN32__</tt></td><td><tt><b>void</b></tt>. Always defined.</td></tr>
@@ -2359,9 +2359,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<tr><td><tt>WINDOWS</tt></td><td><tt><b>void</b></tt>. Always defined.</td></tr>
 					<tr><td><tt>UNICODE</tt></td><td><tt><b>void</b></tt>. Always defined.</td></tr>
 					<tr><td><tt>CompilerPath</tt></td><td><tt><b>str</b></tt>. Points to the directory where the compiler is located.</td></tr>
-					<tr><td><tt>SourcePath</tt></td><td><tt><b>str</b></tt>. Points to the directory where the root script file is located, or the My Documents directory if the script has not yet been saved.</td></tr>
+					<tr><td><tt>SourcePath</tt></td><td><tt><b>str</b></tt>. Points to the directory where the root script file is located, or the <tt>My Documents</tt> directory if the script has not yet been saved.</td></tr>
 					<tr><td><tt>SysPath</tt></td><td><tt><b>str</b></tt>. In a 64-bit compiler, the directory containing 64-bit system files. In a 32-bit compiler, the directory containing 32-bit system files.</td></tr>
-					<tr><td><tt>Ver</tt></td><td><tt><b>int</b></tt>. Same as PREPROCVER.</td></tr>
+					<tr><td><tt>Ver</tt></td><td><tt><b>int</b></tt>. Same as <tt>PREPROCVER</tt>.</td></tr>
 					<tr><td><tt>NewLine</tt></td><td><tt><b>str</b></tt>. Returns the newline character. Declared in &builtins;.</td></tr>
 					<tr><td><tt>Tab</tt></td><td><tt><b>str</b></tt>. Returns the tab character. Declared in &builtins;.</td></tr>
 				</table>
@@ -2387,7 +2387,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			</keywords>
 			<title>Visibility of Identifiers</title>
 			<description header="no">
-				<p>Variables (as well as user defined functions, read "variable or user defined function" anywhere it says "variable" below) can be explicitly defined as "public", "protected", or "private". To define such a variable, its name in its &define; directive should be prepended with one of the visibility keywords:</p>
+				<p>Variables (as well as user defined functions, read "variable or user defined function" anywhere it says "variable" below) can be explicitly defined as <tt>public</tt>, <tt>protected</tt>, or <tt>private</tt>. To define such a variable, its name in its &define; directive should be prepended with one of the visibility keywords:</p>
 				<pre>
 					<line><ispp>#define</ispp> <ispp>public</ispp> MyVar <num>12</num></line>
 					<line><ispp>#define</ispp> <ispp>protected</ispp> MyVar <num>13</num></line>

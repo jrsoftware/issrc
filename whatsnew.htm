@@ -81,11 +81,11 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Added new <tt>--no-signing</tt> (<tt>-ns</tt>) option to disable signing (overrides <tt>SignTool</tt> and <tt>SignedUninstaller</tt>).</li>
     <li>Added new <tt>--no-signcheck</tt> (<tt>-nsc</tt>) option to disable <tt>signcheck</tt> validation.</li>
     <li>Added new <tt>--no-ide-signtools</tt> (<tt>-ni</tt>) option to not auto-specify Sign Tools configured using the Compiler IDE.</li>
-    <li>Added new <tt>--preprocess</tt> (<tt>-e</tt>) option to preprocess to stdout and suppress compilation.</li>
+    <li>Added new <tt>--preprocess</tt> (<tt>-e</tt>) option to preprocess to <tt>stdout</tt> and suppress compilation.</li>
     <li>Added new <tt>--messages-jsonl</tt> (<tt>-mj</tt>) option to output errors and warnings in JSONL format, making them easier to parse by tools and scripts. Warnings are not suppressed by <tt>--quiet</tt> when <tt>--messages-jsonl</tt> is active.</li>
     <li>Added new <tt>--version</tt> option to print the compiler engine version.</li>
     <li>Improved the <tt>--quiet-progress</tt> (<tt>-qp</tt>) option, especially progress not updating when the screen is full in Windows Terminal.</li>
-    <li>Warnings are now always written to stderr instead of stdout, consistent with other tools.</li>
+    <li>Warnings are now always written to <tt>stderr</tt> instead of <tt>stdout</tt>, consistent with other tools.</li>
     <li><i>Fix:</i> A script read from standard input without a BOM no longer loses data after the first 4096 bytes.</li>
     <li><i>Fix:</i> ISPP option <tt>e</tt> (emit empty lines) now defaults to on, just like when compiling from the Compiler IDE and like the documentation said.</li>
     <li>Other minor fixes.</li>
@@ -180,7 +180,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
 
 <span class="head2">64-bit Installers</span>
 
-<p>Building 32-bit installers is the default in both editions. Set new <tt>[Setup]</tt> section directive <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_setuparchitecture">SetupArchitecture</a> to <tt>x64</tt> to build a 64-bit x64 installer instead of a 32-bit x86 installer. This also changes the default values of <tt>ArchitecturesAllowed</tt> and <tt>ArchitecturesInstallIn64BitMode</tt> to <tt>x64compatible</tt>, making 64-bit installers default to <a href="https://jrsoftware.org/ishelp/index.php?topic=32vs64bitinstalls">64-bit install mode</a>.</p>
+<p>Building 32-bit installers is the default in both editions. Set new <tt>[Setup]</tt> section directive <tt><a href="https://jrsoftware.org/ishelp/index.php?topic=setup_setuparchitecture">SetupArchitecture</a></tt> to <tt>x64</tt> to build a 64-bit x64 installer instead of a 32-bit x86 installer. This also changes the default values of <tt>ArchitecturesAllowed</tt> and <tt>ArchitecturesInstallIn64BitMode</tt> to <tt>x64compatible</tt>, making 64-bit installers default to <a href="https://jrsoftware.org/ishelp/index.php?topic=32vs64bitinstalls">64-bit install mode</a>.</p>
 
 <p>Key benefits and differences:</p>
 <ul>
@@ -199,10 +199,10 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>In 32-bit installers, <tt>CreateCallback</tt> does not support callback parameters passed by value when their type is larger than 4 bytes, such as <tt>Int64</tt>, <tt>UInt64</tt>, <tt>Double</tt>, <tt>Extended</tt>, and <tt>Currency</tt>. In 64-bit installers, larger by-value parameter types are supported.</li>
   </ul>
   </li>
-  <li>64-bit type libraries (.tlb) can now only be (un)registered by 64-bit installers, and 32-bit type libraries only by 32-bit installers.<br/>
+  <li>64-bit type libraries (<tt>.tlb</tt>) can now only be (un)registered by 64-bit installers, and 32-bit type libraries only by 32-bit installers.<br/>
       Support for (un)registering 64-bit type libraries from a 32-bit installer has been dropped.</li>
   <li><tt>{sysnative}</tt> is not accessible to 64-bit installers or any other 64-bit applications, so use its value only to, for example, pass it to a 32-bit application.</li>
-  <li>In our tests on 'Windows Server 2016 Datacenter Server Core' and 'Windows Server 2025 Datacenter: Azure Edition Core', with all WOW64 features disabled and removed using DISM, 64-bit installers still function correctly, even when run in 32-bit install mode.</li>
+  <li>In our tests on 'Windows Server 2016 Datacenter Server Core' and 'Windows Server 2025 Datacenter: Azure Edition Core', with all WOW64 features disabled and removed using <tt>Dism.exe</tt>, 64-bit installers still function correctly, even when run in 32-bit install mode.</li>
 </ul>
 
 <p>Related changes made in both editions:</p>
@@ -353,7 +353,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   </li>
   <li>Setup:
     <ul>
-      <li>Improved enumeration of the Windows <i>PendingFileRenameOperations</i> registry value.<br/>
+      <li>Improved enumeration of the Windows <tt>PendingFileRenameOperations</tt> registry value.<br/>
           If you use <tt>restartreplace</tt> flags in your <tt>[Files]</tt> section, updating is recommended.</li>
       <li>Edit controls that take paths to directories now exclude names of files from their AutoComplete lists.</li>
       <li>Added workaround for slower folder browsing on Windows 11 25H2.</li>
@@ -528,7 +528,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
         <a href="https://jrsoftware.org/images/is-taskdialog-dark-org-125.png">Example screenshot of a task dialog using the built-in dark style, at 125% DPI</a>.<br/>
         <a href="https://jrsoftware.org/images/is-taskdialog-dark-org-125-rtl.png">Includes full right-to-left support</a>.
     </li>
-    <li>See the updated <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardstyle">WizardStyle</a> help topic for more information, special considerations, and example screenshots.</li>
+    <li>See the updated <tt><a href="https://jrsoftware.org/ishelp/index.php?topic=setup_wizardstyle">WizardStyle</a></tt> help topic for more information, special considerations, and example screenshots.</li>
   </ul>
   </li>
   <li>Added four new <tt>DynamicDark</tt> directives to the <tt>[Setup]</tt> section, for specifying separate custom images and colors used specifically when dynamic mode switches to dark appearance:
@@ -739,7 +739,7 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
         <li><tt>enhanced</tt> uses <tt>7zxa.dll</tt> instead of <tt>7zxr.dll</tt>, recompiled, code-signed, and renamed to <tt>is7zxa.dll</tt>. It still only supports <tt>.7z</tt> archives, but they may be password-protected.</li>
         <li><tt>full</tt> uses <tt>7z.dll</tt> instead of <tt>7zxa.dll</tt>, recompiled, code-signed, and renamed to <tt>is7z.dll</tt>. It supports multiple archive formats (<tt>.7z</tt>, <tt>.zip</tt>, <tt>.rar</tt>, and more), although not as many as the original <tt>7z.dll</tt>, to reduce its size. Additionally, it supports multi-volume archives.</li>
       </ul>
-      New documentation topic <a href="https://jrsoftware.org/ishelp/index.php?topic=setup_archiveextraction">ArchiveExtraction</a> has a table summarizing the differences between these methods.
+      New documentation topic <tt><a href="https://jrsoftware.org/ishelp/index.php?topic=setup_archiveextraction">ArchiveExtraction</a></tt> has a table summarizing the differences between these methods.
     </li>
     <li>Added new <tt>[Files]</tt> section flag <tt>extractarchive</tt> and parameter <tt>ExtractArchivePassword</tt>, intended to enable the seamless integration and extraction of archives.
       <ul>
@@ -858,8 +858,8 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
   </li>
   <li>Updated documentation:
   <ul>
-    <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=issigkeyssection">[ISSigKeys] section</a> topic.</li>
-    <li>Updated <a href="https://jrsoftware.org/ishelp/index.php?topic=filessection">[Files] section</a> topic.</li>
+    <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=issigkeyssection"><tt>[ISSigKeys]</tt> section</a> topic.</li>
+    <li>Updated <a href="https://jrsoftware.org/ishelp/index.php?topic=filessection"><tt>[Files]</tt> section</a> topic.</li>
     <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=issig"><tt>.issig</tt> Signatures: Introduction</a> topic.</li>
     <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=issigtool">Inno Setup Signature Tool</a> topic.</li>
   </ul>
@@ -915,7 +915,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
       <li><i>Fix:</i> Event function <tt>CurPageChanged</tt> is now always only triggered when the current page actually changes. Before it was called twice in a row for <tt>wpPreparing</tt> when the script had a <tt>PrepareToInstall</tt> event function which returned a non empty string to instruct Setup to stop.</li>
     </ul>
   </li>
-  <li>When available, Setup now retrieves the temporary directory path using the <tt>GetTempPath2</tt> API, which was first introduced in Windows 11 and later backported to Windows 10 and Windows Server 2016 via monthly updates. When running under the SYSTEM account, <tt>GetTempPath2</tt> returns a private directory (typically <tt>C:\Windows\SystemTemp</tt>), potentially enhancing security. On older versions of Windows or systems that haven't been updated, Setup falls back to the original <tt>GetTempPath</tt> API. (This change adds defense-in-depth; it does not address a known vulnerability.)</li>
+  <li>When available, Setup now retrieves the temporary directory path using the <tt>GetTempPath2</tt> API, which was first introduced in Windows 11 and later backported to Windows 10 and Windows Server 2016 via monthly updates. When running under the <tt>SYSTEM</tt> account, <tt>GetTempPath2</tt> returns a private directory (typically <tt>C:\Windows\SystemTemp</tt>), potentially enhancing security. On older versions of Windows or systems that haven't been updated, Setup falls back to the original <tt>GetTempPath</tt> API. (This change adds defense-in-depth; it does not address a known vulnerability.)</li>
   <li>Inno Setup 6.4.3 increased the maximum width of all task dialogs by about 50%, which helps to keep long paths from being truncated with ellipses. It now only does this if the task dialog's content actually contains a path.</li>
   <li>All official translations which still had an UTF-8 BOM had their BOM removed. Using a BOM in UTF-8 encoded files is not needed and not recommended since Inno Setup 6.3.0.</li>
   <li>Inno Setup is now built using Delphi 12.3 Athens instead of Delphi 12.1 Athens. Thanks to Ian Barker from Embarcadero for providing us with a license!</li>
@@ -927,18 +927,18 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
 <ul>
   <li><b>New messages:</b>
   <ul>
-    <li>DownloadingLabel2, ExtractingLabel.</li>
-    <li>ArchiveIncorrectPassword, ArchiveIsCorrupted, ArchiveUnsupportedFormat.</li>
-    <li>RetryCancelSelectAction, RetryCancelRetry, RetryCancelCancel.</li>
-    <li>StatusDownloadFiles.</li>
-    <li>SourceVerificationFailed, VerificationSignatureDoesntExist, VerificationSignatureInvalid, VerificationKeyNotFound, VerificationFileNameIncorrect, VerificationFileTagIncorrect, VerificationFileSizeIncorrect, VerificationFileHashIncorrect.</li>
-    <li>ErrorDownloading, ErrorExtracting.</li>
+    <li><tt>DownloadingLabel2</tt>, <tt>ExtractingLabel</tt>.</li>
+    <li><tt>ArchiveIncorrectPassword</tt>, <tt>ArchiveIsCorrupted</tt>, <tt>ArchiveUnsupportedFormat</tt>.</li>
+    <li><tt>RetryCancelSelectAction</tt>, <tt>RetryCancelRetry</tt>, <tt>RetryCancelCancel</tt>.</li>
+    <li><tt>StatusDownloadFiles</tt>.</li>
+    <li><tt>SourceVerificationFailed</tt>, <tt>VerificationSignatureDoesntExist</tt>, <tt>VerificationSignatureInvalid</tt>, <tt>VerificationKeyNotFound</tt>, <tt>VerificationFileNameIncorrect</tt>, <tt>VerificationFileTagIncorrect</tt>, <tt>VerificationFileSizeIncorrect</tt>, <tt>VerificationFileHashIncorrect</tt>.</li>
+    <li><tt>ErrorDownloading</tt>, <tt>ErrorExtracting</tt>.</li>
   </ul>
   </li>
   <li><b>Removed messages:</b>
   <ul>
-    <li>ErrorFileHash1, ErrorFileHash2.</li>
-    <li>DownloadingLabel, ExtractionLabel.</li>
+    <li><tt>ErrorFileHash1</tt>, <tt>ErrorFileHash2</tt>.</li>
+    <li><tt>DownloadingLabel</tt>, <tt>ExtractionLabel</tt>.</li>
   </ul>
   </li>
 </ul>
@@ -952,7 +952,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
 <p><a name="6.4.3"></a><span class="ver">6.4.3 </span><span class="date">(2025-05-03)</span></p>
 <ul>
   <li>Compiler IDE change: The editor now restores selections on undo and redo.</li>
-  <li>Inno Setup now includes a new command-line tool, <tt>ISSigTool.exe</tt>. This tool is designed to sign files using ECDSA P-256 cryptographic signatures. Compil32, ISCC, and ISCmplr use these signatures to verify a number of DLL files before loading them. This is a &quot;technology preview&quot; that is subject to change (e.g., any signatures you create now may have to be recreated when upgrading to the next version).<br />Note: <tt>ISSigTool.exe</tt> does not replace Microsoft's <tt>signtool.exe</tt> in any way and is in fact not related to Authenticode Code Signing at all.</li>
+  <li>Inno Setup now includes a new command-line tool, <tt>ISSigTool.exe</tt>. This tool is designed to sign files using ECDSA P-256 cryptographic signatures. <tt>Compil32.exe</tt>, <tt>ISCC.exe</tt>, and <tt>ISCmplr.dll</tt> use these signatures to verify a number of DLL files before loading them. This is a &quot;technology preview&quot; that is subject to change (e.g., any signatures you create now may have to be recreated when upgrading to the next version).<br />Note: <tt>ISSigTool.exe</tt> does not replace Microsoft's <tt>signtool.exe</tt> in any way and is in fact not related to Authenticode Code Signing at all.</li>
   <li><i>Fix:</i> Autocomplete support for parameter names in the <tt>[Components]</tt> and <tt>[Dirs]</tt> sections was broken since 6.1.1.</li>
   <li><i>Fix:</i> Pascal Scripting support function <tt>Extract7ZipArchive</tt> which was introduced by 6.4.0 would fail with error 11 on older versions of Windows, at least Windows 8.1 and Windows Server 2016.</li>
   <li>The maximum width of all task dialogs was increased by about 50%, which helps to keep long paths from being truncated with ellipses. This was done by setting Windows' <tt>TDF_SIZE_TO_CONTENT</tt> flag.</li>
@@ -975,7 +975,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
 </ul>
 <p><span class="head2">Other changes</span></p>
 <ul>
-  <li>{reg:...} constants can now also embed REG_DWORD-type registry values.</li>
+  <li><tt>{reg:...}</tt> constants can now also embed <tt>REG_DWORD</tt>-type registry values.</li>
   <li><i>Fix:</i> In 6.4.0, using &quot;Shift+&quot; in a <tt>HotKey</tt> parameter in the <tt>[Icons]</tt> section didn't work and required &quot;Shift&quot; instead, so for example &quot;Ctrl+ShiftM&quot; instead of &quot;Ctrl+Shift+M&quot;.</li>
   <li><i>Fix:</i> In 6.4.0, a custom form shown using <tt>[Code]</tt> didn't have a taskbar button if Setup's wizard was not visible at the time.</li>
   <li>Added official Arabic translation.</li>
@@ -1009,10 +1009,10 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
   <li>Added parameter hints and autocompletion support for all Pascal Scripting support class members and properties. Both always show all classes' members and properties instead of just those of the current object's class.</li>
   <li>Added autocompletion support for all Pascal Scripting event function parameters. Always shows all parameters instead of just those of the current event function.</li>
   <li>Added autocompletion support for the <tt>[Messages]</tt> section.</li>
-  <li>Improved autocompletion support for all Flags parameters: now works for multiple flags instead of for the first only.</li>
+  <li>Improved autocompletion support for all <tt>Flags</tt> parameters: now works for multiple flags instead of for the first only.</li>
   <li>Added new <i>Enable section folding</i> option which allows you to temporarily hide sections while editing by clicking the new minus or plus icons in the editor's gutter or by using the new keyboard shortcuts (Ctrl+Shift+[ to fold and Ctrl+Shift+] to unfold) or menu items. Enabled by default.</li>
   <li>The editor's gutter now shows change history to keep track of saved and unsaved modifications. Always enabled.</li>
-  <li>The editor's font now defaults to Consolas if available, consistent with most other modern editors.</li>
+  <li>The editor's font now defaults to <i>Consolas</i> if available, consistent with most other modern editors.</li>
   <li>The editor can now be scrolled horizontally instead of vertically by holding the Shift key while rotating the mouse wheel. Horizontal scroll wheels are now also supported.</li>
   <li>Cut (Ctrl+X or Shift+Delete) and Copy (Ctrl+C or Ctrl+Insert) now cut or copy the entire line if there's no selection, consistent with most other modern editors.</li>
   <li>Added new shortcuts to move selected lines up or down (Alt+Up and Alt+Down).</li>
@@ -1054,7 +1054,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
   <li>Pascal Scripting changes:
   <ul>
     <li>Added new <tt>Extract7ZipArchive</tt> support function to extract a 7-Zip archive, based on the &quot;7z ANSI-C Decoder&quot; from the LZMA SDK by Igor Pavlov. See the new <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_extract7ziparchive">help topic</a> for information about its limitations.<br />Added new <tt>CreateExtractionPage</tt> support function to easily show the extraction progress to the user.</li>
-    <li>Added new <tt>ExecAndCaptureOutput</tt> support function to execute a program or batch file and capture its <i>stdout</i> and <i>stderr</i> outputs separately.</li>
+    <li>Added new <tt>ExecAndCaptureOutput</tt> support function to execute a program or batch file and capture its <tt>stdout</tt> and <tt>stderr</tt> outputs separately.</li>
     <li>Added new <tt>StringJoin</tt>, <tt>StringSplit</tt>, and <tt>StringSplitEx</tt> support functions.</li>
     <li>Output logging now raises an exception if there was an error setting up output redirection (which should be very rare). The <tt>PowerShell.iss</tt> example script has been updated to catch the exception.</li>
     <li>Added new <tt>NewFolderName</tt> property to support class <tt>TInputDirWizardPage</tt> update the initial value passed to <tt>CreateInputDirPage</tt>.</li>
@@ -1080,7 +1080,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"</code></pre>
 <ul>
   <li><b>New messages:</b>
   <ul>
-    <li>ExtractionLabel, ButtonStopExtraction, StopExtraction, ErrorExtractionAborted, ErrorExtractionFailed.</li>
+    <li><tt>ExtractionLabel</tt>, <tt>ButtonStopExtraction</tt>, <tt>StopExtraction</tt>, <tt>ErrorExtractionAborted</tt>, <tt>ErrorExtractionFailed</tt>.</li>
   </ul>
   </li>
 </ul>
@@ -1310,11 +1310,11 @@ platform-independent support for <tt>.bat</tt> and <tt>.cmd</tt> files, both jus
     <ul>
     <li>Added support functions <tt>Utf8Encode</tt> and <tt>Utf8Decode</tt> to encode a Unicode string into a UTF-8 encoded ANSI string and vice versa.</li>
     <li>Added support functions <tt>LoadStringFromLockedFile</tt> and <tt>LoadStringsFromLockedFile</tt> to read strings from a file even if it's already opened for writing by another program.</li>
-    <li>Added support class <tt>TNewLinkLabel</tt> which can display multi-line text with embedded links and internally uses a Windows SysLink control. See the <tt>CodeClasses.iss</tt> example script for examples.</li>
+    <li>Added support class <tt>TNewLinkLabel</tt> which can display multi-line text with embedded links and internally uses a Windows <tt>SysLink</tt> control. See the <tt>CodeClasses.iss</tt> example script for examples.</li>
     <li><tt>TWizardForm</tt>: Added new <tt>AdjustLinkLabelHeight</tt> function.</li>
     <li><tt>TDownloadWizardPage</tt>: Added new <tt>ShowBaseNameInsteadOfUrl</tt> property.</li>
     <li>It is now possible to write <tt>var S: set of AnsiChar; begin S := ['a', 'b']; end;</tt>. In previous versions this would result in a type mismatch error.
-    </li><li>It is now possible to write <tt>Stream.ReadBuffer(S, Length(S));</tt> when S is of type <tt>AnsiString</tt>. In previous versions this would compile but not work at run time. Same applies to <tt>Read</tt>, <tt>Write</tt>, and <tt>WriteBuffer</tt>: all four functions now accept any type of string.</li>
+    </li><li>It is now possible to write <tt>Stream.ReadBuffer(S, Length(S));</tt> when <tt>S</tt> is of type <tt>AnsiString</tt>. In previous versions this would compile but not work at run time. Same applies to <tt>Read</tt>, <tt>Write</tt>, and <tt>WriteBuffer</tt>: all four functions now accept any type of string.</li>
     <li>Added example which downloads and unzips a Zip file to the <tt>CodeAutomation.iss</tt> example script.</li>
     <li>Type <tt>TShellFolderID</tt> was removed because it wasn't used by any support function.</li>
     </ul>

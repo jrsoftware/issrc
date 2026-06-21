@@ -34,8 +34,8 @@ Each parameter follows this pattern:
 ## Conditional behavior
 
 Use the pattern: "If [value] is specified, Setup will [action]." Repeat for each value. Example:
-> If <tt>string</tt> is specified, Setup will create a string (REG_SZ) value.
-> If <tt>dword</tt> is specified, Setup will create a 32-bit integer (REG_DWORD) value.
+> If <tt>string</tt> is specified, Setup will create a string (<tt>REG_SZ</tt>) value.
+> If <tt>dword</tt> is specified, Setup will create a 32-bit integer (<tt>REG_DWORD</tt>) value.
 
 ## Default values
 
