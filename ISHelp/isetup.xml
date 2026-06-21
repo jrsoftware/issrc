@@ -439,7 +439,7 @@ For example: If you used <tt>{win}\MyProg.ini</tt> on an entry and the system's 
 <dt><b><a name="sys">{sys}</a></b></dt>
 <dd>
 <p>The system's System32 directory.<br/>
-For example: If you used <tt>{sys}\CTL3D32.dll</tt> on an entry and the system's Windows System directory is <tt>C:\Windows\System32</tt>, Setup or Uninstall will translate it to <tt>C:\Windows\System32\CTL3D32.dll</tt>.</p>
+For example: If you used <tt>{sys}\ctl3d32.dll</tt> on an entry and the system's Windows System directory is <tt>C:\Windows\System32</tt>, Setup or Uninstall will translate it to <tt>C:\Windows\System32\ctl3d32.dll</tt>.</p>
 <p>On 64-bit Windows, by default, the System32 path returned by this constant maps to the directory containing 32-bit system files, just like on 32-bit Windows. (This can be overridden by enabling <link topic="32vs64bitinstalls">64-bit install mode</link>.)</p>
 </dd>
 
@@ -2709,7 +2709,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (REG_BINARY) value.<
 <p>The program to execute, or file/folder to open. If <tt>Filename</tt> is not an executable (<tt>.exe</tt> or <tt>.com</tt>) or batch file (<tt>.bat</tt> or <tt>.cmd</tt>), you <i>must</i> use the <tt>shellexec</tt> flag on the entry. This parameter can include constants.</p>
 <p><link topic="pathredir">System path redirection</link> is applied to the specified path when the <tt>shellexec</tt> flag is <i>not</i> specified. Any extended-length paths, also known as super paths, are always converted back to normal paths.</p>
 <example>
-<pre><key>Filename</key>: "<con>{app}</con>\INIT.EXE"</pre>
+<pre><key>Filename</key>: "<con>{app}</con>\Init.exe"</pre>
 </example>
 </param>
 
@@ -4780,27 +4780,27 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <p>If you have a DLL residing in the Windows System directory that you are <b>absolutely sure</b> is redistributable, copy it to your script's source directory and deploy it from there instead.</p>
 </dd>
 
-<dt><b>ADVAPI32.dll, COMDLG32.dll, GDI32.dll, KERNEL32.dll, RICHED32.dll, SHELL32.dll, USER32.dll, UXTHEME.dll</b></dt>
+<dt><b>advapi32.dll, comdlg32.dll, gdi32.dll, kernel32.dll, riched32.dll, shell32.dll, user32.dll, uxtheme.dll</b></dt>
 <dd>
 <p>These are all core components of Windows and must never be deployed with an installation. Users may only get new versions of these DLLs by installing a new version of Windows or a service pack or hotfix for Windows.</p>
 </dd>
 
-<dt><i>(Special case)</i> <b>COMCAT.dll, MSVBVM50.dll, MSVBVM60.dll, OLEAUT32.dll, OLEPRO32.dll, STDOLE2.TLB</b></dt>
+<dt><i>(Special case)</i> <b>comcat.dll, msvbvm50.dll, msvbvm60.dll, oleaut32.dll, olepro32.dll, stdole2.tlb</b></dt>
 <dd>
 <p>If <tt>DestDir</tt> is set to a location <i>other</i> than <tt>{sys}</tt> and the <tt>regserver</tt> or <tt>regtypelib</tt> flag is used, then the above files will be considered "unsafe". These files must never be deployed to and registered in a directory other than <tt>{sys}</tt> because doing so can potentially cause <i>all</i> programs on the system to use them in favor of the files in <tt>{sys}</tt>. Problems would result if your copies of the files are older than the ones in <tt>{sys}</tt>. Also, if your copies of the files were removed, other applications would break.</p>
 </dd>
 
-<dt><b>COMCTL32.dll</b></dt>
+<dt><b>comctl32.dll</b></dt>
 <dd>
-<p>Microsoft does not allow separate redistribution of <tt>COMCTL32.dll</tt> (and for good reason - the file differs between platforms), so you should never place <tt>COMCTL32.dll</tt> in a script's <sn>[Files]</sn> section. You can however direct your users to <extlink href="http://www.microsoft.com/downloads/details.aspx?FamilyID=cb2cf3a2-8025-4e8f-8511-9b476a8d35d2&amp;DisplayLang=en">download the COMCTL32 update from Microsoft</extlink>, or distribute the COMCTL32 update along with your program.</p>
+<p>Microsoft does not allow separate redistribution of <tt>comctl32.dll</tt> (and for good reason - the file differs between platforms), so you should never place <tt>comctl32.dll</tt> in a script's <sn>[Files]</sn> section. You can however direct your users to <extlink href="http://www.microsoft.com/downloads/details.aspx?FamilyID=cb2cf3a2-8025-4e8f-8511-9b476a8d35d2&amp;DisplayLang=en">download the COMCTL32 update from Microsoft</extlink>, or distribute the COMCTL32 update along with your program.</p>
 </dd>
 
-<dt><b>SHDOCVW.dll, SHLWAPI.dll, URLMON.dll, WININET.dll</b></dt>
+<dt><b>shdocvw.dll, shlwapi.dll, urlmon.dll, wininet.dll</b></dt>
 <dd>
 <p>These are core components of Internet Explorer and are also used by Windows Explorer. Replacing them may prevent Explorer from starting. If your application depends on these DLLs, or a recent version of them, then your users will need to install a recent version of Internet Explorer to get them.</p>
 </dd>
 
-<dt><b>MSCOREE.dll</b></dt>
+<dt><b>mscoree.dll</b></dt>
 <dd>
 <p>This file is part of the Microsoft .NET Framework. You cannot safely install or update the .NET Framework by including this file with your installation. Call or direct your users to <tt>dotnetfx.exe</tt> instead.</p>
 </dd>
