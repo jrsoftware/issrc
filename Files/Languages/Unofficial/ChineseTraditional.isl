@@ -14,7 +14,7 @@
 ; Submit webpage: https://jrsoftware.org/files/istrans/
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=繁體中文
 ; About LanguageID, to reference link:
@@ -43,7 +43,7 @@ UninstallAppTitle=解除安裝
 UninstallAppFullTitle=解除安裝 %1
 
 ; *** Misc. common
-InformationTitle=訊息
+InformationTitle=資訊
 ConfirmTitle=確認
 ErrorTitle=錯誤
 
@@ -140,10 +140,10 @@ LicenseAccepted=我同意 (&A)
 LicenseNotAccepted=我不同意 (&D)
 
 ; *** "Information" wizard pages
-WizardInfoBefore=訊息
+WizardInfoBefore=資訊
 InfoBeforeLabel=在繼續安裝之前請閱讀以下重要資訊。
 InfoBeforeClickLabel=當您準備好繼續安裝，請按 「下一步」。
-WizardInfoAfter=訊息
+WizardInfoAfter=資訊
 InfoAfterLabel=在繼續安裝之前請閱讀以下重要資訊。
 InfoAfterClickLabel=當您準備好繼續安裝，請按 「下一步」。
 
@@ -226,17 +226,17 @@ StopDownload=您確定要停止下載嗎？
 ErrorDownloadAborted=已停止下載
 ErrorDownloadFailed=下載失敗：%1 %2
 ErrorDownloadSizeFailed=取得檔案大小失敗：%1 %2
-ErrorProgress=進度無效：%1 之 %2
+ErrorProgress=進度無效：%1 / %2
 ErrorFileSize=檔案大小無效：必須為 %1，收到 %2
 
-; *** TExtractionWizardPage 精靈頁面與 ExtractArchive
+; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=正在解壓縮檔案...
 ButtonStopExtraction=停止解壓縮 (&S)
 StopExtraction=您確定要停止解壓縮嗎？
 ErrorExtractionAborted=解壓縮已中止
 ErrorExtractionFailed=解壓縮失敗：%1
 
-; *** 壓縮檔解壓縮失敗詳情
+; *** Archive extraction failure details
 ArchiveIncorrectPassword=壓縮檔密碼不正確
 ArchiveIsCorrupted=壓縮檔已損壞
 ArchiveUnsupportedFormat=不支援的壓縮檔格式
@@ -247,7 +247,7 @@ PreparingDesc=安裝程式準備將 [name] 安裝到您的電腦上。
 PreviousInstallNotCompleted=先前的安裝／解除安裝尚未完成，您必須重新啟動電腦以完成該安裝。%n%n在重新啟動電腦之後，請再次執行安裝程式以完成 [name] 的安裝。
 CannotContinue=安裝程式無法繼續。請按 「取消」 離開。
 ApplicationsFound=下面的應用程式正在使用安裝程式所需要更新的檔案。建議您允許安裝程式自動關閉這些應用程式。
-ApplicationsFound2=下面的應用程式正在使用安裝程式所需要更新的檔案。建議您允許安裝程式自動關閉這些應用程式。當安裝過程結束後，本安裝程式將會嘗試重新啟動該應用程式。
+ApplicationsFound2=下面的應用程式正在使用安裝程式所需要更新的檔案。建議您允許安裝程式自動關閉這些應用程式。當安裝過程結束後，安裝程式將會嘗試重新啟動這些應用程式。
 CloseApplications=自動關閉應用程式 (&A)
 DontCloseApplications=不要關閉應用程式 (&D)
 ErrorCloseApplications=安裝程式無法自動關閉所有應用程式。建議您在繼續前先關閉所有正在使用安裝程式所需更新檔案的應用程式。
@@ -255,7 +255,7 @@ PrepareToInstallNeedsRestart=安裝程式必須重新啟動您的電腦。重新
 
 ; *** "Installing" wizard page
 WizardInstalling=正在安裝
-InstallingLabel=請稍候，安裝程式正在將 [name] 安裝到您的電腦上
+InstallingLabel=請稍候，安裝程式正在將 [name] 安裝到您的電腦上。
 
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel=[name] 安裝完成
@@ -272,7 +272,7 @@ RunEntryExec=執行 %1
 ; used for example as 'View Readme.txt'
 RunEntryShellExec=檢視 %1
 
-; *** "Setup Needs the Next Disk" 
+; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=安裝程式需要下一張磁片
 SelectDiskLabel2=請插入磁片 %1，然後按 「確定」。%n%n如果檔案不在以下所顯示的資料夾之中，請輸入正確的資料夾名稱或按 「瀏覽」 選取。
 PathLabel=路徑 (&P)：
@@ -297,8 +297,8 @@ StatusDownloadFiles=正在下載檔案...
 StatusCreateIcons=正在建立捷徑...
 StatusCreateIniEntries=正在寫入 INI 檔案的項目...
 StatusCreateRegistryEntries=正在更新系統登錄...
-StatusRegisterFiles=正在登錄檔案...
-StatusSavingUninstall=儲存解除安裝資訊...
+StatusRegisterFiles=正在註冊檔案...
+StatusSavingUninstall=正在儲存解除安裝資訊...
 StatusRunProgram=正在完成安裝...
 StatusRestartingApplications=正在重新啟動應用程式...
 StatusRollback=正在復原變更...
