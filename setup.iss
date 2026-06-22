@@ -199,10 +199,10 @@ Name: "{group}\Inno Setup Revision History"; Filename: "{app}\whatsnew.htm"
 Name: "{autodesktop}\Inno Setup Compiler"; Filename: "{app}\ISIDE.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.7{#dasharch}"; Tasks: desktopicon
 
 [Run]
-; The /ASSOC line will be automatically skipped on portable mode, because of the fileassoc task being removed
-Filename: "{app}\ISIDE.exe"; Parameters: "/ASSOC"; StatusMsg: "{cm:AssocingFileExtension,Inno Setup,.iss}"; Tasks: fileassoc
+; The -assoc line will be automatically skipped on portable mode, because of the fileassoc task being removed
+Filename: "{app}\ISIDE.exe"; Parameters: "-assoc"; StatusMsg: "{cm:AssocingFileExtension,Inno Setup,.iss}"; Tasks: fileassoc
 Filename: "{app}\ISIDE.exe"; WorkingDir: "{app}"; Description: "{cm:LaunchProgram,Inno Setup}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-; The /UNASSOC line will be automatically skipped on portable mode, because of Uninstallable being set to no
-Filename: "{app}\ISIDE.exe"; Parameters: "/UNASSOC"; RunOnceId: "RemoveISSAssoc"
+; The -unassoc line will be automatically skipped on portable mode, because of Uninstallable being set to no
+Filename: "{app}\ISIDE.exe"; Parameters: "-unassoc"; RunOnceId: "RemoveISSAssoc"

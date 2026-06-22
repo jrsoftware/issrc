@@ -3910,12 +3910,15 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <li>
 <p>Alternatively, scripts can also be compiled by the Compiler IDE from the command line. Command line usage is as follows:</p>
 
-<precode>iside /cc <i>&lt;script name&gt;</i></precode>
+<precode>iside -cc <i>&lt;script name&gt;</i>
+iside --compile <i>&lt;script name&gt;</i></precode>
 <indent>
-<example><pre>iside /cc "c:\isetup\samples\my script.iss"</pre></example>
+<example><pre>iside -cc "c:\isetup\samples\my script.iss"</pre></example>
 </indent>
 
 <p>As shown in the example above, filenames that include spaces must be enclosed in quotes.</p>
+
+<p>Short options accept both <tt>-</tt> and <tt>/</tt> as a prefix and are case-insensitive. Long <tt>--</tt> options are case-sensitive and do not accept <tt>//</tt> as a prefix.</p>
 
 <p>Running the Compiler IDE from the command line does not suppress the normal progress display or any error messages. The Compiler IDE will return an exit code of 0 if the compile was successful, 1 if the command line parameters were invalid, or 2 if the compile failed.</p>
 </li>
@@ -3923,12 +3926,15 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <li>
 <p>The Setup Script Wizard can be started from the command line. Command line usage is as follows:</p>
 
-<precode>iside /wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></precode>
+<precode>iside -wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i>
+iside --new-script-wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></precode>
 <indent>
-<example><pre>iside /wizard "MyProg Script Wizard" "c:\temp.iss"</pre></example>
+<example><pre>iside -wizard "MyProg Script Wizard" "c:\temp.iss"</pre></example>
 </indent>
 
 <p>As shown in the example above, wizard names and filenames that include spaces must be enclosed in quotes.</p>
+
+<p>Short options accept both <tt>-</tt> and <tt>/</tt> as a prefix and are case-insensitive. Long <tt>--</tt> options are case-sensitive and do not accept <tt>//</tt> as a prefix.</p>
 
 <p>Running the wizard from the command line does not suppress any error messages. The Setup Script Wizard will return an exit code of 0 if there was no error and additionally it will save the generated script file to the specified filename, 1 if the command line parameters were invalid, or 2 if the generated script file could not be saved. If the user cancelled the Setup Script Wizard, an exit code of 0 is returned and no script file is saved.</p>
 </li>

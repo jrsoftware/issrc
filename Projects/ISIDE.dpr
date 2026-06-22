@@ -145,13 +145,13 @@ begin
       relative path names but Restart Manager doesn't restore the working
       directory. }
     if CommandLineWizard then
-      CommandLine := '/WIZARD "' + CommandLineWizardName + '" "' + CommandLineFilename + '"'
+      CommandLine := '-wizard "' + CommandLineWizardName + '" "' + CommandLineFilename + '"'
     else begin
       CommandLine := CommandLineFilename;
       if CommandLine <> '' then
         CommandLine := '"' + CommandLine + '"';
       if CommandLineCompile then
-        CommandLine := '/CC ' + CommandLine;
+        CommandLine := '-cc ' + CommandLine;
     end;
 
     if Length(CommandLine) > RESTART_MAX_CMD_LINE then
@@ -184,12 +184,13 @@ procedure CheckParams;
   procedure Error;
   begin
     const CommandLineHelp = '%s' + SNewLine2 +
-      'iside /cc <%s>' + SNewLine +
-      'iside /wizard <%s> <%1:s>' + SNewLine2 +
+      'iside -cc <%s>' + SNewLine +
+      'iside --compile <%1:s>' + SNewLine +
+      'iside -wizard <%s> <%1:s>' + SNewLine +
+      'iside --new-script-wizard <%2:s> <%1:s>' + SNewLine2 +
       '%3:s' + SNewLine +
-      'iside /cc c:\isetup\sample32\sample1.iss' + SNewLine +
-      'iside /cc "C:\Inno Setup\Sample32\%s.iss"' + SNewLine +
-      'iside /wizard "%s" c:\temp.iss';
+      'iside -cc "C:\Inno Setup\Sample32\%s.iss"' + SNewLine +
+      'iside -wizard "%s" c:\temp.iss';
     MessageBox(0, PChar(Format(CommandLineHelp,
       [LFmtMessage(SCompilerCommandLineHelpUsage), LFmtMessage(SCompilerCommandLineHelpScriptFile),
        LFmtMessage(SCompilerCommandLineHelpWizardName), LFmtMessage(SCompilerCommandLineHelpExamples),
@@ -198,6 +199,12 @@ procedure CheckParams;
       PChar(LFmtMessage(SCompilerFormCaption)),
       MB_OK or MB_ICONEXCLAMATION);
     Halt(1);
+  end;
+
+  function IsParam(const S, ShortParam, LongParam: String): Boolean;
+  begin
+    Result := SameText(S, '/' + ShortParam) or SameText(S, '-' + ShortParam) or
+              ((LongParam <> '') and (SameStr(S, '--' + LongParam)));
   end;
 
 var
@@ -209,16 +216,16 @@ begin
   I := 1;
   while I <= P do begin
     S := NewParamStr(I);
-    if CompareText(S, '/CC') = 0 then
+    if IsParam(S, 'cc', 'compile') then
       CommandLineCompile := True
-    else if CompareText(S, '/WIZARD') = 0 then begin
+    else if IsParam(S, 'wizard', 'new-script-wizard') then begin
       if I = P then
         Error;
       CommandLineWizard := True;
       CommandLineWizardName := NewParamStr(I+1);
       Inc(I);
     end
-    else if CompareText(S, '/ASSOC') = 0 then begin
+    else if IsParam(S, 'assoc', 'associate') then begin
       try
         RegisterISSFileAssociation(False, Dummy);
       except
@@ -227,7 +234,7 @@ begin
       end;
       Halt;
     end
-    else if CompareText(S, '/UNASSOC') = 0 then begin
+    else if IsParam(S, 'unassoc', 'unassociate') then begin
       try
         UnregisterISSFileAssociation(True);
       except
@@ -236,7 +243,7 @@ begin
       end;
       Halt;
     end
-    else if (S = '') or (S[1] = '/') or (CommandLineFilename <> '') then
+    else if (S = '') or (S[1] = '/') or (S[1] = '-') or (CommandLineFilename <> '') then
       Error
     else
       CommandLineFilename := PathExpand(PathCombine(InitialCurDir, S));

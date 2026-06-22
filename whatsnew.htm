@@ -71,7 +71,13 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Compiler errors are now also shown in the <i>Compiler Output</i> view, instead of only in a message box.</li>
     <li>The status bar now shows information about the current selection when text is selected, instead of only the caret position.</li>
     <li><i>Fix:</i> <i>Find in Files</i> now works correctly on lines containing non-ASCII text.</li>
-    <li><i>Fix:</i> When using the <tt>/cc</tt> option, the IDE caption now shows the file being compiled.</li>
+    <li>Compiler IDE command line:
+    <ul>
+      <li>Options are now documented with a <tt>-</tt> prefix and in lowercase (for example <tt>-wizard</tt> instead of <tt>/WIZARD</tt>). Both forms are accepted, so existing use is not affected.</li>
+      <li>Options now have long-form alternatives (for example <tt>--compile</tt> for <tt>-cc</tt>).</li>
+      <li><i>Fix:</i> When using the <tt>-cc</tt> option, the IDE caption now shows the file being compiled.</li>
+    </ul>
+    </li>
   </ul>
   </li>
   <li>Command-Line Compiler (ISCC):
