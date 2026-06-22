@@ -1,7 +1,7 @@
 ---
 paths: ["Files/Languages/*.isl", "Files/Languages/Unofficial/*.isl"]
 ---
-# Conventions for Inno Setup translation files (.isl)
+# Conventions for Inno Setup translation files
 
 These files translate `Files/Default.isl` into another language. `Default.isl` is the English baseline and the source of truth for the message set; it changes between Inno Setup versions, so always work from the most recent `Default.isl`, read it fresh, and treat its `[Messages]` and `[CustomMessages]` IDs as authoritative. A translation must stay faithful to its English counterpart: the English is the fixed reference and the ceiling, not something to clarify, complete, or improve.
 
