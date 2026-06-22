@@ -56,7 +56,7 @@
 </ul>
 
 <p><br/><b>See also:</b><br/>
-<link topic="scriptcreating">Creating the [Code] section</link><br/>
+<link topic="scriptcreating">Creating the <tt>[Code]</tt> section</link><br/>
 <link topic="scriptevents">Event Functions</link><br/>
 <link topic="scriptconstants">Scripted Constants</link><br/>
 <link topic="scriptcheck">Check Parameters</link><br/>

@@ -1281,7 +1281,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 
 <param name="Name" required="yes">
 <p>The internal name of the component.</p>
-<p>The total number of \ or / characters in the name of the component is called the level of the component. Any component with a level of 1 or more is a child component. The component listed before the child component with a level of 1 less than the child component, is the parent component. Other components with the same parent component as the child component are sibling components.</p>
+<p>The total number of <tt>\</tt> or <tt>/</tt> characters in the name of the component is called the level of the component. Any component with a level of 1 or more is a child component. The component listed before the child component with a level of 1 less than the child component, is the parent component. Other components with the same parent component as the child component are sibling components.</p>
 <p>A child component can't be selected if its parent component isn't selected. A parent component can't be selected if none of its children are selected, unless a <tt>Components</tt> parameter directly references the parent component or the parent component includes the <tt>checkablealone</tt> flag.</p>
 <p>If sibling components have the <tt>exclusive</tt> flag, only one of them can be selected.</p>
 <example>
@@ -1378,7 +1378,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 
 <param name="Name" required="yes">
 <p>The internal name of the task.</p>
-<p>The total number of \ or / characters in the name of the task is called the level of the task. Any task with a level of 1 or more is a child task. The task listed before the child task with a level of 1 less than the child task, is the parent task. Other tasks with the same parent task as the child task are sibling tasks.</p>
+<p>The total number of <tt>\</tt> or <tt>/</tt> characters in the name of the task is called the level of the task. Any task with a level of 1 or more is a child task. The task listed before the child task with a level of 1 less than the child task, is the parent task. Other tasks with the same parent task as the child task are sibling tasks.</p>
 <p>A child task can't be selected if its parent task isn't selected. A parent task can't be selected if none of its children are selected, unless a <tt>Tasks</tt> parameter directly references the parent task or the parent task includes the <tt>checkablealone</tt> flag.</p>
 <p>If sibling tasks have the <tt>exclusive</tt> flag, only one of them can be selected.</p>
 <example>
@@ -2298,7 +2298,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <key>ButtonNext</key>=&amp;Forward
 </precode>
 
-<p>Some messages take arguments such as %1 and %2. You can rearrange the order of the arguments (i.e. move the %2 before a %1) and also duplicate arguments if needed (i.e. "%1 ... %1 %2"). On messages with arguments, use two consecutive "%" characters to embed a single "%". "%n" creates a line break.</p>
+<p>Some messages take arguments such as <tt>%1</tt> and <tt>%2</tt>. You can rearrange the order of the arguments (i.e. move the <tt>%2</tt> before a <tt>%1</tt>) and also duplicate arguments if needed (i.e. "<tt>%1</tt> ... <tt>%1</tt> <tt>%2</tt>"). On messages with arguments, use two consecutive <tt>%</tt> characters to embed a single <tt>%</tt>. <tt>%n</tt> creates a line break.</p>
 
 <p>If you wish to translate all of Inno Setup's text to another language, instead of modifying <tt>Default.isl</tt> or overriding each message in every script you create, make a copy of <tt>Default.isl</tt> with another name like <tt>MyTranslation.isl</tt>. On any installation you wish to use <tt>MyTranslation.isl</tt>, create a <sn>[Languages]</sn> section entry pointing to the file.</p>
 
@@ -2350,7 +2350,7 @@ en.<key>ButtonNext</key>=&amp;Forward
 <key>Name</key>: desktopicon; <key>Description</key>: "<con>{cm:CreateDesktopIcon}</con>"
 </precode>
 
-<p>Messages may take arguments, from %1 up to %9. You can rearrange the order of the arguments (i.e. move the %2 before a %1) and also duplicate arguments if needed (i.e. "%1 ... %1 %2"). On messages with arguments, use two consecutive "%" characters to embed a single "%". "%n" creates a line break.</p>
+<p>Messages may take arguments, from <tt>%1</tt> up to <tt>%9</tt>. You can rearrange the order of the arguments (i.e. move the <tt>%2</tt> before a <tt>%1</tt>) and also duplicate arguments if needed (i.e. "<tt>%1</tt> ... <tt>%1</tt> <tt>%2</tt>"). On messages with arguments, use two consecutive <tt>%</tt> characters to embed a single <tt>%</tt>. <tt>%n</tt> creates a line break.</p>
 
 <p>In cases where there are multiple <sn>[Languages]</sn> section entries, specifying a <tt>[CustomMessages]</tt> section entry in your script (as opposed to an <tt>.isl</tt> file) will by default override that message for all languages. To apply a <tt>[CustomMessages]</tt> section entry to only one language, prefix it with the language's internal name followed by a period. For example:</p>
 
