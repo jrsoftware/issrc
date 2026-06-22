@@ -180,8 +180,8 @@
 					</define>
 				</syntax>
 				<description>
-					<p>Use &dim; to define an array variable, set its dimension and optionally initialize it. All uninitialized elements of the array are initialized to null (void). To assign an element value after declaring the array, use &define;. Instead of assigning element values with &define;, it is also possible to set an element value by using it as the left operand of an assignment.</p>
-					<p>Use &redim; to increase or decrease the dimension of an existing array variable. All new elements of the array are initialized to null (void) and existing elements are left unchanged. Identical to &dim; if <tt>ident</tt> isn't an existing array variable.</p>
+					<p>Use &dim; to define an array variable, set its dimension and optionally initialize it. All uninitialized elements of the array are initialized to <tt>NULL</tt> (<tt>void</tt>). To assign an element value after declaring the array, use &define;. Instead of assigning element values with &define;, it is also possible to set an element value by using it as the left operand of an assignment.</p>
+					<p>Use &redim; to increase or decrease the dimension of an existing array variable. All new elements of the array are initialized to <tt>NULL</tt> (<tt>void</tt>) and existing elements are left unchanged. Identical to &dim; if <tt>ident</tt> isn't an existing array variable.</p>
 				</description>
 				<section title="Examples">
 					<pre>
@@ -689,7 +689,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 						<tr><td>b</td><td>Short-circuit boolean evaluation. Defaults to on.</td></tr>
 						<tr><td>m</td><td>Short-circuit multiplication evaluation. (In "<tt>0 * A</tt>", <tt>A</tt> won't be evaluated because the result of the expression is known to be zero.) Defaults to off.</td></tr>
 						<tr><td>p</td><td>Pascal-style string literals. When off, uses C-style string literals (with escape sequences). Defaults to on.</td></tr>
-						<tr><td>u</td><td>Allow undeclared identifiers. If an undefined identifier is encountered, ISPP raises an error unless this option is turned on, in which case a standalone identifier (one that doesn't look like a function call) is considered a void value. Defaults to off.</td></tr>
+						<tr><td>u</td><td>Allow undeclared identifiers. If an undefined identifier is encountered, ISPP raises an error unless this option is turned on, in which case a standalone identifier (one that doesn't look like a function call) is considered a <tt>void</tt> value. Defaults to off.</td></tr>
 					</table>
 				</section>
 				<section title="Verbose levels">
@@ -781,7 +781,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<p>Retrieves a string from the version information resource of the specified file (first parameter).</p>
 					<p>The second parameter is the name of the version info string-value.</p>
 					<p>The third, optional parameter should specify the language and charset identifier. For example: <tt>0x04E40409</tt> stands for "English (United States)". If this parameter is omitted, the function scans all available version info blocks to find the value.</p>
-					<p>The function returns null (void) if it was unable to retrieve the value.</p>
+					<p>The function returns <tt>NULL</tt> (<tt>void</tt>) if it was unable to retrieve the value.</p>
 				</description>
 				<section title="See also">
 					<p><tt><link href="GetFileCompanyString">GetFileCompanyString</link></tt>, <tt><link href="GetFileDescriptionString">GetFileDescriptionString</link></tt>, <tt><link href="GetFileVersionString">GetFileVersionString</link></tt>, <tt><link href="GetFileCopyrightString">GetFileCopyrightString</link></tt>, <tt><link href="GetFileOriginalFilenameString">GetFileOriginalFilenameString</link></tt>, <tt><link href="GetFileProductVersionString">GetFileProductVersionString</link></tt></p>
@@ -796,7 +796,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns the company name string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, COMPANY_NAME)</tt>.</p>
-					<p>The function returns null (void) if it was unable to retrieve the value.</p>
+					<p>The function returns <tt>NULL</tt> (<tt>void</tt>) if it was unable to retrieve the value.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -812,7 +812,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns the file description string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, FILE_DESCRIPTION)</tt>.</p>
-					<p>The function returns null (void) if it was unable to retrieve the value.</p>
+					<p>The function returns <tt>NULL</tt> (<tt>void</tt>) if it was unable to retrieve the value.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -829,7 +829,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<description>
 					<p>Returns the file version string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, FILE_VERSION)</tt>.</p>
 					<p>Also see <tt><link href="GetVersionNumbersString">GetVersionNumbersString</link></tt>, which can also be used to retrieve the file version. The difference is that <tt>GetVersionNumbersString</tt> gets the binary file version from the fixed block of the specified file's version information resource, while <tt>GetFileVersionString</tt> gets the textual file version from the language specific block.</p>
-					<p>The function returns null (void) if it was unable to retrieve the value.</p>
+					<p>The function returns <tt>NULL</tt> (<tt>void</tt>) if it was unable to retrieve the value.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -845,7 +845,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns the legal copyright string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, LEGAL_COPYRIGHT)</tt>.</p>
-					<p>The function returns null (void) if it was unable to retrieve the value.</p>
+					<p>The function returns <tt>NULL</tt> (<tt>void</tt>) if it was unable to retrieve the value.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -861,7 +861,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns the original filename string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, ORIGINAL_FILENAME)</tt>.</p>
-					<p>The function returns null (void) if it was unable to retrieve the value.</p>
+					<p>The function returns <tt>NULL</tt> (<tt>void</tt>) if it was unable to retrieve the value.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -877,7 +877,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Returns the product version string from the specified file's version information resource. Equivalent to calling <tt>GetStringFileInfo(FileName, PRODUCT_VERSION)</tt>.</p>
-					<p>The function returns null (void) if it was unable to retrieve the value.</p>
+					<p>The function returns <tt>NULL</tt> (<tt>void</tt>) if it was unable to retrieve the value.</p>
 					<p>Declared in &builtins;.</p>
 				</description>
 				<section title="See also">
@@ -892,7 +892,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Converts an expression (first parameter) to its integer representation. If the expression is an integer, the result of the function is the expression value. If the expression is void, the result is 0. If the expression is a string, ISPP tries to convert it to an integer; if such an attempt fails, an error is raised unless the second parameter specifies the default result.</p>
+					<p>Converts an expression (first parameter) to its integer representation. If the expression is an <tt>integer</tt>, the result of the function is the expression value. If the expression is <tt>void</tt>, the result is 0. If the expression is a <tt>string</tt>, ISPP tries to convert it to an <tt>integer</tt>; if such an attempt fails, an error is raised unless the second parameter specifies the default result.</p>
 				</description>
 			</topic>
 			<topic id="Str">
@@ -903,7 +903,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Converts an expression to a string. If the expression is an integer, the result is its string representation. If the expression is void, the result is an empty string. Otherwise the result is the value of the expression.</p>
+					<p>Converts an expression to a <tt>string</tt>. If the expression is an <tt>integer</tt>, the result is its string representation. If the expression is <tt>void</tt>, the result is an empty string. Otherwise the result is the value of the expression.</p>
 				</description>
 			</topic>
 			<topic id="FileExists">
@@ -1695,7 +1695,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					</pre>
 				</section>
 				<description>
-					<p>Returns the version of the specified file as a string (in <tt>0.0.0.0</tt> format) if successful, null (void) otherwise.</p>
+					<p>Returns the version of the specified file as a string (in <tt>0.0.0.0</tt> format) if successful, <tt>NULL</tt> (<tt>void</tt>) otherwise.</p>
 					<p>Also see <tt><link href="GetFileVersionString">GetFileVersionString</link></tt>, which can also be used to retrieve the file version. The difference is that <tt>GetVersionNumbersString</tt> gets the binary file version from the fixed block of the specified file's version information resource, while <tt>GetFileVersionString</tt> gets the textual file version from the language specific block.</p>
 				</description>
 			</topic>
@@ -2254,9 +2254,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</ul>
 			</section>
 			<section title="Data types">
-				<p>There are three types in ISPP: void, integer, and string. A variable of void type is declared by specifying its name after the &define; directive without any value. Such variables should be used with the &ifdef; directive or the <tt><link href="Defined">Defined</link></tt> function.</p>
-				<p>If the "allow undeclared identifiers" parser option is off (the default state, see &pragma;), an error is raised when an undefined variable is mentioned. Otherwise, it will be treated as a value of type void.</p>
-				<p>Void is compatible with integer and string in expressions. For example, you can use the addition operator with void and integer operands, in this case the void operand will be treated as zero. In conjunction with a string, the void operand is treated as an empty string.</p>
+				<p>There are three types in ISPP: <tt>void</tt>, <tt>integer</tt>, and <tt>string</tt>. A variable of <tt>void</tt> type is declared by specifying its name after the &define; directive without any value. Such variables should be used with the &ifdef; directive or the <tt><link href="Defined">Defined</link></tt> function.</p>
+				<p>If the "allow undeclared identifiers" parser option is off (the default state, see &pragma;), an error is raised when an undefined variable is mentioned. Otherwise, it will be treated as a value of type <tt>void</tt>.</p>
+				<p><tt>void</tt> is compatible with <tt>integer</tt> and <tt>string</tt> in expressions. For example, you can use the addition operator with <tt>void</tt> and <tt>integer</tt> operands. In this case, the <tt>void</tt> operand will be treated as zero. In conjunction with a <tt>string</tt>, the <tt>void</tt> operand is treated as an empty string.</p>
 				<p>String comparison operators are case-insensitive.</p>
 			</section>
 			<section title="Comments">
@@ -2375,7 +2375,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
           <line><ispp>#define</ispp> MyAppName \</line>
           <line>&dsp;<str>"My Program"</str></line>
         </pre>
-        <p>The default line spanning symbol is "\" which can be changed using &pragma;.</p>
+        <p>The default line spanning symbol is <tt>\</tt> which can be changed using &pragma;.</p>
       </description>
     </topic>
 		<topic id="visibility">

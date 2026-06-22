@@ -1886,14 +1886,14 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>Exec</name>
         <prototype>function Exec(const Filename, Params, WorkingDir: String; const ShowCmd: Integer; const Wait: TExecWait; var ResultCode: Integer): Boolean;</prototype>
         <description><p>Executes the specified executable or batch file, using the same credentials as Setup/Uninstall. The <tt>Wait</tt> parameter specifies whether the function should return immediately or wait until the launched process has terminated or is idle. Returns <tt>True</tt> if the specified file was executed successfully, <tt>False</tt> otherwise.</p>
-<p>If <tt>True</tt> is returned and <tt>Wait</tt> is ewWaitUntilTerminated then <tt>ResultCode</tt> returns the exit code of the process.</p>
+<p>If <tt>True</tt> is returned and <tt>Wait</tt> is <tt>ewWaitUntilTerminated</tt> then <tt>ResultCode</tt> returns the exit code of the process.</p>
 <p>If <tt>False</tt> is returned then <tt>ResultCode</tt> specifies the error that occurred. Use <tt><isxfunc>SysErrorMessage</isxfunc>(ResultCode)</tt> to get a description of the error.</p></description>
         <remarks><p><tt>TExecWait</tt> is defined as:</p>
 <p><tt>TExecWait = (ewNoWait, ewWaitUntilTerminated, ewWaitUntilIdle);</tt></p>
 <p>Use the <isxfunc>ShellExec</isxfunc> function instead if you need to launch a file that is not an executable or batch file.</p>
 <p>Do not include quotes in the <tt>Filename</tt> parameter; the function will add them automatically.</p>
 <p>The <tt>WorkingDir</tt> parameter can be an empty string, in which case it will try to extract a pathname from the <tt>Filename</tt> parameter and use that as the initial current directory for the process. If no pathname was specified in <tt>Filename</tt>, a default directory will be used.</p>
-<p>If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass <tt>'>'</tt> in the <tt>Filename</tt> parameter, and the full command line in the <tt>Params</tt> parameter. (Note that when this is done, the function's special platform-independent support for <tt>.bat</tt> and <tt>.cmd</tt> files is disabled; it simply passes the specified command line to <tt>CreateProcess</tt> without any processing.)</p>
+<p>If you have a single string containing both a filename and parameters (e.g. a command line obtained from an <tt>UninstallString</tt> registry value), you need not separate them yourself; just pass <tt>'>'</tt> in the <tt>Filename</tt> parameter, and the full command line in the <tt>Params</tt> parameter. (Note that when this is done, the function's special platform-independent support for <tt>.bat</tt> and <tt>.cmd</tt> files is disabled; it simply passes the specified command line to <tt>CreateProcess</tt> without any processing.)</p>
 <p>To execute a 64-bit <tt>System32</tt> binary from a 32-bit installer, use <tt>{sysnative}</tt> or <isxfunc>ApplyPathRedirRulesForCurrentProcess</isxfunc> to rewrite the path. In a 64-bit installer the rewrite is not needed.</p>
 <p>Can't be used to execute Setup itself until the installation has started.</p>
 <p><i>Note: compared to ISPP's <tt>Exec</tt> the <tt>ShowCmd</tt> and <tt>Wait</tt> parameters are swapped!</i></p></remarks>
@@ -2518,7 +2518,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
         <name>StrToVersion</name>
         <prototype>function StrToVersion(const VersionString: String; var Version: Int64): Boolean;</prototype>
         <description><p>Returns the specified string (in <tt>0.0.0.0</tt> format) as a packed version. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p>
-<p>Partial version numbers (for example, '1.5') are allowed. Missing numbers will be appended as zeros. Extra numbers are ignored.</p>
+<p>Partial version numbers (for example, <tt>'1.5'</tt>) are allowed. Missing numbers will be appended as zeros. Extra numbers are ignored.</p>
 </description>
         <seealso><p><isxfunc>VersionToStr</isxfunc><br />
 <isxfunc>PackVersionNumbers</isxfunc><br />
@@ -2867,7 +2867,7 @@ DataDir := Page.Values[<num>0</num>];
         <prototype>function CreateInputFilePage(const AfterID: Integer; const ACaption, ADescription, ASubCaption: String): TInputFileWizardPage;</prototype>
         <description><p>Creates a wizard page that contains edit boxes and Browse buttons for selecting files.</p></description>
         <remarks><p>To create file selection boxes on the page, call the <tt>Add</tt> method. Use the <tt>Values</tt> property to get/set the items' values.</p>
-<p>An example Filter: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
+<p>An example <tt>Filter</tt>: <tt>'Text files (*.txt)|*.txt|All files (*.*)|*.*'</tt></p></remarks>
         <example><pre><key>var</key>
   Page: TInputFileWizardPage;
   NotepadLocation: String;
@@ -3230,7 +3230,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <name>GetOpenFileName</name>
         <prototype>function GetOpenFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
         <description><p>Displays a dialog box that enables the user to select an existing file. Returns <tt>True</tt> if the user selected a file, <tt>False</tt> otherwise. The name of the selected file is returned in the <tt>FileName</tt> string.</p></description>
-        <remarks><p>An example <tt>Filter</tt>: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
+        <remarks><p>An example <tt>Filter</tt>: <tt>'Text files (*.txt)|*.txt|All files (*.*)|*.*'</tt></p></remarks>
         <example><pre><key>var</key>
   FileName: String;
 <key>begin</key>
@@ -3248,7 +3248,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <name>GetOpenFileNameMulti</name>
         <prototype>function GetOpenFileNameMulti(const Prompt: String; const FileNameList: TStrings; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
         <description><p>Displays a dialog box that enables the user to select one or more existing file(s). Returns <tt>True</tt> if the user selected a file, <tt>False</tt> otherwise. The name of the selected file(s) is returned in the <tt>FileNameList</tt> list.</p></description>
-        <remarks><p>An example <tt>Filter</tt>: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
+        <remarks><p>An example <tt>Filter</tt>: <tt>'Text files (*.txt)|*.txt|All files (*.*)|*.*'</tt></p></remarks>
         <example><pre><key>var</key>
   FileNameList: TStrings;
 <key>begin</key>
@@ -3270,7 +3270,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <name>GetSaveFileName</name>
         <prototype>function GetSaveFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;</prototype>
         <description><p>Displays a dialog box that enables the user to select a new file. Returns <tt>True</tt> if the user selected a file, <tt>False</tt> otherwise. The name of the selected file is returned in the <tt>FileName</tt> string.</p></description>
-        <remarks><p>An example <tt>Filter</tt>: 'Text files (*.txt)|*.txt|All files (*.*)|*.*'</p></remarks>
+        <remarks><p>An example <tt>Filter</tt>: <tt>'Text files (*.txt)|*.txt|All files (*.*)|*.*'</tt></p></remarks>
         <example><pre><key>var</key>
   Filename: String;
 <key>begin</key>
@@ -3650,11 +3650,11 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
 </isxfuncs>
 <isxenums>
   <enum>
-     <description><isxfunc>Exec</isxfunc> and <isxfunc>ShellExec</isxfunc> - ShowCmd values</description>
+     <description><isxfunc>Exec</isxfunc> and <isxfunc>ShellExec</isxfunc> - <tt>ShowCmd</tt> values</description>
      <values>SW_SHOW, SW_SHOWNORMAL, SW_SHOWMAXIMIZED, SW_SHOWMINIMIZED, SW_SHOWMINNOACTIVE, SW_HIDE</values>
   </enum>
   <enum>
-     <description><isxfunc>MsgBox</isxfunc> - Buttons flags</description>
+     <description><isxfunc>MsgBox</isxfunc> - <tt>Buttons</tt> flags</description>
      <values>MB_OK, MB_OKCANCEL, MB_ABORTRETRYIGNORE, MB_YESNOCANCEL, MB_YESNO, MB_RETRYCANCEL, MB_DEFBUTTON1, MB_DEFBUTTON2, MB_DEFBUTTON3, MB_SETFOREGROUND</values>
   </enum>
   <enum>
@@ -3662,7 +3662,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
      <values>IDOK, IDCANCEL, IDABORT, IDRETRY, IDIGNORE, IDYES, IDNO</values>
   </enum>
   <enum>
-     <description>Reg* - RootKey values (also see the <sn>[Registry]</sn> section documentation)</description>
+     <description><tt>Reg*</tt> - <tt>RootKey</tt> values (also see the <sn>[Registry]</sn> section documentation)</description>
      <values>HKEY_AUTO, HKEY_AUTO_32, HKEY_AUTO_64,<br />HKEY_CLASSES_ROOT, HKEY_CLASSES_ROOT_32, HKEY_CLASSES_ROOT_64,<br />HKEY_CURRENT_USER, HKEY_CURRENT_USER_32, HKEY_CURRENT_USER_64,<br />HKEY_LOCAL_MACHINE, HKEY_LOCAL_MACHINE_32, HKEY_LOCAL_MACHINE_64,<br />HKEY_USERS, HKEY_USERS_32, HKEY_USERS_64,<br />HKEY_PERFORMANCE_DATA,<br />HKEY_CURRENT_CONFIG, HKEY_CURRENT_CONFIG_32, HKEY_CURRENT_CONFIG_64,<br />HKEY_DYN_DATA,<br />HKA, HKA32, HKA64, HKCR, HKCR32, HKCR64, HKCU, HKCU32, HKCU64, HKLM, HKLM32, HKLM64, HKU, HKU32, HKU64, HKCC, HKCC32, HKCC64</values>
   </enum>
 </isxenums>
