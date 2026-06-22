@@ -199,7 +199,7 @@ MustEnterGroupName=Πρέπει να εισαγάγετε ένα όνομα φα
 GroupNameTooLong=Το όνομα ή η διαδρομή του φακέλου είναι πολύ μεγάλη.
 InvalidGroupName=Το όνομα του φακέλου δεν είναι έγκυρο.
 BadGroupName=Το όνομα του φακέλου δεν μπορεί να περιλαμβάνει κανέναν από τους παρακάτω χαρακτήρες:%n%n%1
-NoProgramGroupCheck2=&Χωρίς δημιουργία φακέλου στο μενού Έναρξης.
+NoProgramGroupCheck2=&Χωρίς δημιουργία φακέλου στο μενού Έναρξης
 
 ; *** "Ready to Install" wizard page
 WizardReady=Έτοιμα για Εγκατάσταση
