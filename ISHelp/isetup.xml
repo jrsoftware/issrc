@@ -946,7 +946,7 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 </paramlist>
 
 <p><br/>
-Besides space separated lists, you may also use boolean expressions containing component or task names as Components and Tasks parameters. Supported operators include <tt>not</tt>, <tt>and</tt>, and <tt>or</tt>. For example:</p>
+Besides space separated lists, you may also use boolean expressions containing component or task names as <tt>Components</tt> and <tt>Tasks</tt> parameters. Supported operators include <tt>not</tt>, <tt>and</tt>, and <tt>or</tt>. For example:</p>
 
 <precode>
 <sec>[Components]</sec>
@@ -2590,7 +2590,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 
 <param name="ValueData">
 <p>The data for the value. If the <tt>ValueType</tt> parameter is <tt>string</tt>, <tt>expandsz</tt>, or <tt>multisz</tt>, this is a string that can include constants. If the data type is <tt>dword</tt> or <tt>qword</tt>, this can be a decimal integer (e.g. "123"), a hexadecimal integer (e.g. "$7B"), or a constant which resolves to an integer. If the data type is <tt>binary</tt>, this is a sequence of hexadecimal bytes in the form: "00 ff 12 34". If the data type is <tt>none</tt>, this is ignored.</p>
-<p>On a <tt>string</tt>, <tt>expandsz</tt>, or <tt>multisz</tt> type value, you may use a special constant called <tt>{olddata}</tt> in this parameter. <tt>{olddata}</tt> is replaced with the previous data of the registry value. The <tt>{olddata}</tt> constant can be useful if you need to append a string to an existing value, for example, <tt>{olddata};{app}</tt>. If the value does not exist or the existing value isn't a string type, the {olddata} constant is silently removed. {olddata} will also be silently removed if the value being created is a <tt>multisz</tt> type but the existing value is not a multi-string type (i.e. it's <tt>REG_SZ</tt> or <tt>REG_EXPAND_SZ</tt>), and vice versa.</p>
+<p>On a <tt>string</tt>, <tt>expandsz</tt>, or <tt>multisz</tt> type value, you may use a special constant called <tt>{olddata}</tt> in this parameter. <tt>{olddata}</tt> is replaced with the previous data of the registry value. The <tt>{olddata}</tt> constant can be useful if you need to append a string to an existing value, for example, <tt>{olddata};{app}</tt>. If the value does not exist or the existing value isn't a string type, the <tt>{olddata}</tt> constant is silently removed. <tt>{olddata}</tt> will also be silently removed if the value being created is a <tt>multisz</tt> type but the existing value is not a multi-string type (i.e. it's <tt>REG_SZ</tt> or <tt>REG_EXPAND_SZ</tt>), and vice versa.</p>
 <p>On a <tt>multisz</tt> type value, you may use a special constant called <tt>{break}</tt> in this parameter to embed line breaks (nulls).</p>
 <example>
 <pre><key>ValueData</key>: "1.0"</pre>
@@ -3341,7 +3341,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <li>The <tt>{commoncf}</tt> constant is equivalent to <tt>{commoncf32}</tt>.</li>
 <li>The <tt>{reg:...}</tt> constant reads the 32-bit view by default.</li>
 <li>The <tt>Reg*</tt> <sn>[Code]</sn> support functions access the 32-bit view by default.</li>
-<li>The Uninstall key is created in the 32-bit view of the registry.</li>
+<li>The <tt>Uninstall</tt> key is created in the 32-bit view of the registry.</li>
 </ul>
 
 <p><b>64-bit install mode</b></p>
@@ -3352,7 +3352,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <li>The <tt>{commoncf}</tt> constant is equivalent to <tt>{commoncf64}</tt>.</li>
 <li>The <tt>{reg:...}</tt> constant reads the 64-bit view by default.</li>
 <li>The <tt>Reg*</tt> <sn>[Code]</sn> support functions access the 64-bit view by default.</li>
-<li>The Uninstall key is created in the 64-bit view of the registry.</li>
+<li>The <tt>Uninstall</tt> key is created in the 64-bit view of the registry.</li>
 </ul>
 
 </body>
@@ -3518,7 +3518,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 /SP- /silent /noicons "/dir=expand:{autopf}\My Program"
 </precode>
 
-<p>After starting <tt>setup.exe</tt>, exit your application as soon as possible. Note that to avoid problems with updating your <tt>.exe</tt>, Setup has an auto retry feature.</p>
+<p>After starting <tt>Setup.exe</tt>, exit your application as soon as possible. Note that to avoid problems with updating your <tt>.exe</tt>, Setup has an auto retry feature.</p>
 
 <p>Optionally you could also use the <tt>skipifsilent</tt> and <tt>skipifnotsilent</tt> flags and make your application aware of a custom <tt>/updated</tt> parameter to for example show a nice message box to inform the user that the update has completed.</p>
 </li>
@@ -3764,7 +3764,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Select autocompletion</td><td>Tab or Enter</td>
 </tr>
 <tr>
-  <td>Fillup autocompletion</td><td>Space for ISPP directives, for <sn>[Setup]</sn> section values, and for Flags and Type parameters<br />\ for constants<br />: for constants and section parameters<br />] for sections<br />= for section directives</td>
+  <td>Fillup autocompletion</td><td>Space for ISPP directives, for <sn>[Setup]</sn> section values, and for <tt>Flags</tt> and <tt>Type</tt> parameters<br />\ for constants<br />: for constants and section parameters<br />] for sections<br />= for section directives</td>
 </tr>
 <tr>
   <td>Invoke parameter hint or show next definition</td><td>Ctrl+Shift+Space</td>

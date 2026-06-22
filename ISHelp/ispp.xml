@@ -243,7 +243,7 @@
 					<p>Includes the &translation; of the specified file. If a Unicode file is used, it must be UTF-8 (with or without a BOM) encoded.</p>
 					<p>If the filename is enclosed in quotes, ISPP first searches for the file in the directory where the current file resides, then in the directory where the file that included the current file resides, and so on. If the file is not found, ISPP searches for it on the current include path, set via &pragma;, then on the path specified by the <tt>INCLUDE</tt> environment variable.</p>
 					<p>If the filename is an expression or specified in angle brackets, ISPP searches for it on the current include path only.</p>
-          <p>The filename may be prefixed by <tt>compiler:</tt>, in which case it looks for the file in the Compiler directory.</p>
+          <p>The filename may be prefixed by <tt>compiler:</tt>, in which case it looks for the file in the compiler directory.</p>
 					<p>This directive can't be used inline.</p>
 				</description>
 				<section title="Examples">
@@ -1382,8 +1382,8 @@ The first group of options (<tt>option</tt>) controls the general options, while
 						<tr><td><tt>ss</tt></td><td>Displays the second with a leading zero (00-59).</td></tr>
 						<tr><td><tt>t</tt></td><td>Displays the time using the system's short time format.</td></tr>
 						<tr><td><tt>tt</tt></td><td>Displays the time using the system's long time format.</td></tr>
-						<tr><td><tt>am/pm</tt></td><td>Uses the 12-hour clock for the preceding <tt>h</tt> or <tt>hh</tt> specifier. Displays 'am' for any hour before noon, and 'pm' for any hour after noon. The <tt>am/pm</tt> specifier can use lower, upper, or mixed case, and the result is displayed accordingly.</td></tr>
-						<tr><td><tt>a/p</tt></td><td>Uses the 12-hour clock for the preceding <tt>h</tt> or <tt>hh</tt> specifier. Displays 'a' for any hour before noon, and 'p' for any hour after noon. The <tt>a/p</tt> specifier can use lower, upper, or mixed case, and the result is displayed accordingly.</td></tr>
+						<tr><td><tt>am/pm</tt></td><td>Uses the 12-hour clock for the preceding <tt>h</tt> or <tt>hh</tt> specifier. Displays <tt>am</tt> for any hour before noon, and <tt>pm</tt> for any hour after noon. The <tt>am/pm</tt> specifier can use lower, upper, or mixed case, and the result is displayed accordingly.</td></tr>
+						<tr><td><tt>a/p</tt></td><td>Uses the 12-hour clock for the preceding <tt>h</tt> or <tt>hh</tt> specifier. Displays <tt>a</tt> for any hour before noon, and <tt>p</tt> for any hour after noon. The <tt>a/p</tt> specifier can use lower, upper, or mixed case, and the result is displayed accordingly.</td></tr>
 						<tr><td><tt>/</tt></td><td>Displays the date separator character given by the <tt>DateSeparator</tt> parameter. If <tt>DateSeparator</tt> is set to an empty string, the system's date separator character will be used instead.</td></tr>
 						<tr><td><tt>:</tt></td><td>Displays the time separator character given by the <tt>TimeSeparator</tt> parameter. If <tt>TimeSeparator</tt> is set to an empty string, the system's time separator character will be used instead.</td></tr>
 						<tr><td><tt>'xx'/"xx"</tt></td><td>Characters enclosed in single or double quotes are displayed as-is, and do not affect formatting.</td></tr>
@@ -2348,10 +2348,10 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<tr><td><tt>__FILENAME__</tt></td><td><tt><b>str</b></tt>. Similar to <tt>__PATHFILENAME__</tt>, but returns only the filename portion.</td></tr>
 					<tr><td><tt>__INCLUDE__</tt></td><td><tt><b>str</b></tt>. Returns the current include path (or paths delimited with semicolons) set via <tt>#pragma include</tt>.</td></tr>
 					<tr><td><tt>__LINE__</tt></td><td><tt><b>int</b></tt>. Returns the number of the line in the current file.</td></tr>
-					<tr><td><tt>__OPT_X__</tt></td><td><tt><b>void</b></tt>. Defined if specified option set via <tt>#pragma option -x+</tt> is in effect. In place of "X" may be any letter from "A" to "Z". Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
+					<tr><td><tt>__OPT_X__</tt></td><td><tt><b>void</b></tt>. Defined if specified option set via <tt>#pragma option -x+</tt> is in effect. In place of "X" may be any letter from "A" to "Z". Use <tt><link href="defined">Defined</link></tt> function to test whether the variable is defined.</td></tr>
 					<tr><td><tt>__DIR__</tt></td><td><tt><b>str</b></tt>. Similar to <tt>__PATHFILENAME__</tt>, but returns only the directory portion, excluding a trailing backslash (unless it is a root directory).</td></tr>
 					<tr><td><tt>__PATHFILENAME__</tt></td><td><tt><b>str</b></tt>. Returns the full path of the current include file. Empty string for the root script file.</td></tr>
-					<tr><td><tt>__POPT_X__</tt></td><td><tt><b>void</b></tt>. Defined if specified parser option set via <tt>#pragma parseroption -x+</tt> is in effect. In place of "X" may be any letter from "A" to "Z". Use <link href="defined">Defined</link> function to test whether the variable is defined.</td></tr>
+					<tr><td><tt>__POPT_X__</tt></td><td><tt><b>void</b></tt>. Defined if specified parser option set via <tt>#pragma parseroption -x+</tt> is in effect. In place of "X" may be any letter from "A" to "Z". Use <tt><link href="defined">Defined</link></tt> function to test whether the variable is defined.</td></tr>
 					<tr><td><tt>__WIN32__</tt></td><td><tt><b>void</b></tt>. Always defined.</td></tr>
 					<tr><td><tt>ISPP_INVOKED</tt></td><td><tt><b>void</b></tt>. Always defined.</td></tr>
 					<tr><td><tt>ISCC_INVOKED</tt></td><td><tt><b>void</b></tt>. Defined if compilation was invoked using the console-mode compiler, <tt>ISCC.exe</tt>.</td></tr>
@@ -2403,7 +2403,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<p>Each file can set a default visibility, the visibility that will be used when no resolution clause is specified in a variable declaration. This can be done using the &define; directive, for example:</p>
 				<pre><line><ispp>#define</ispp> <ispp>protected</ispp></line></pre>
 				<p>sets protected visibility by default.</p>
-				<p>The default visibility isn't used when evaluating expressions, it is only used when a variable is defined or undefined without explicitly specifying its visibility. When default visibility is not set, public is assumed by default. Setting default visibility is not propagated on included or parent files.</p>
+				<p>The default visibility isn't used when evaluating expressions, it is only used when a variable is defined or undefined without explicitly specifying its visibility. When default visibility is not set, <tt>public</tt> is assumed by default. Setting default visibility is not propagated on included or parent files.</p>
 				<p>In user defined function expressions, avoid using identifiers of lower visibility than the one the user defined function is declared in. This may cause "Undeclared identifier" errors if the user defined function is called from another file.</p>
 				<p>It is recommended that you use appropriate visibility when declaring variables to avoid problems with unexpected redefinition of a variable (for example in an included third-party file). If no included files depend on a variable, declare it as private. If they do, but the parent file doesn't, declare it as protected. Declare it as public otherwise. If you're unsure, protected visibility is usually the safe choice.</p>
 			</description>

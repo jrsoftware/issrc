@@ -682,7 +682,7 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
 <ul>
 <li>Added support for <tt>.png</tt> files to <tt>[Setup]</tt> section directives <tt>WizardImageFile</tt> and <tt>WizardSmallImageFile</tt>.</li>
 <li>Improved support for stretching 32-bit <tt>.bmp</tt> files with transparency.</li>
-<li>The built-in wizard images and icons now have transparent backgrounds, allowing their background colors to be customized again using Setup section directives <tt>WizardImageBackColor</tt> and <tt>WizardSmallImageBackColor</tt>, which are no longer obsolete.<br/>
+<li>The built-in wizard images and icons now have transparent backgrounds, allowing their background colors to be customized again using <tt>[Setup]</tt> section directives <tt>WizardImageBackColor</tt> and <tt>WizardSmallImageBackColor</tt>, which are no longer obsolete.<br/>
     The default values of these directives match previously used colors, so the appearance of all images and icons remains unchanged by default.</li>
 <li>Pascal Scripting:
 <ul>
@@ -702,7 +702,7 @@ If you were already using 9-point <i>Segoe UI</i>, you will notice a change in s
 <span class="head2">Improved downloading and archive extraction</span>
 <ul>
 <li>All download functionality now supports TLS 1.3 when available. Support for TLS 1.0 and 1.1 has been removed on all versions of Windows.</li>
-<li>Archive extraction now supports the RAR5 format. Requires <tt>Setup</tt> section directive <tt>ArchiveExtraction</tt> to be set to <tt>full</tt>.</li>
+<li>Archive extraction now supports the RAR5 format. Requires <tt>[Setup]</tt> section directive <tt>ArchiveExtraction</tt> to be set to <tt>full</tt>.</li>
 <li>Compiler IDE: The New Script Wizard and the <i>Generate [Files] Entries</i> tool now support adding files to be downloaded. They will prompt you if the downloaded file is an archive that should be extracted.</li>
 <li><i>Fix:</i> Using <tt>[Files]</tt> section flags <tt>download</tt> and <tt>extractarchive</tt> on an entry that also has a <tt>Tasks</tt> parameter now works as expected.</li>
 </ul>
@@ -1327,7 +1327,7 @@ platform-independent support for <tt>.bat</tt> and <tt>.cmd</tt> files, both jus
     </ul>
   </li>
   <li>Improved the icons used by the <i>Select Language</i> dialog and the <i>Select Destination Location</i>, <i>Select Start Menu Folder</i>, and <i>Preparing to Install</i> wizard pages at 150% DPI and at 200% DPI.</li>
-  <li>Added modern icons to the MyProg example executables, now compiled with Visual Studio 2022.</li>
+  <li>Added modern icons to the <tt>MyProg</tt> example executables, now compiled with Visual Studio 2022.</li>
   <li>Added official Korean translation.</li>
   <li>Inno Setup is now built using Delphi 11.3 Alexandria instead of Delphi 10.3 Rio.</li>
   <li>Inno Setup's Delphi projects have been recreated as new clean projects and have been added to a <tt>Projects\Projects.groupproj</tt>

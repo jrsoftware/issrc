@@ -1355,10 +1355,10 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
 <tt>t</tt>	Displays the time using the system's short time format.<br />
 <tt>tt</tt>	Displays the time using the system's long time format.<br />
 <tt>am/pm</tt>	Uses the 12-hour clock for the preceding <tt>h</tt> or <tt>hh</tt> specifier.<br />
-	Displays 'am' for any hour before noon, and 'pm' for any hour after noon.<br />
+	Displays <tt>am</tt> for any hour before noon, and <tt>pm</tt> for any hour after noon.<br />
 	The <tt>am/pm</tt> specifier can use lower, upper, or mixed case, and the result is displayed accordingly.<br />
 <tt>a/p</tt>	Uses the 12-hour clock for the preceding <tt>h</tt> or <tt>hh</tt> specifier.<br />
-	Displays 'a' for any hour before noon, and 'p' for any hour after noon.<br />
+	Displays <tt>a</tt> for any hour before noon, and <tt>p</tt> for any hour after noon.<br />
 	The <tt>a/p</tt> specifier can use lower, upper, or mixed case, and the result is displayed accordingly.<br />
 <tt>/</tt>	Displays the date separator character given by the <tt>DateSeparator</tt> parameter.<br />
 	If <tt>DateSeparator</tt> is set to #0, the system's date separator character will be used instead.<br />
@@ -2343,7 +2343,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <i>IconFilename</i><br />Path to file to supply the icon. If this is left as the empty string then the system default icon for the target file will be used.<br />
 <i>IconIndex</i><br />Zero-based index of the icon.<br />
 <i>ShowCmd</i><br />One of the <tt>SW_*</tt> constants</p></description>
-        <remarks><p>You will most likely want to remove this shortcut on uninstall. Do this by adding an entry to the <tt>UninstallDelete</tt> section.</p></remarks>
+        <remarks><p>You will most likely want to remove this shortcut on uninstall. Do this by adding an entry to the <sn>[UninstallDelete]</sn> section.</p></remarks>
         <example><pre>CreateShellLink(
   ExpandConstant(<str>'{app}\config\Open licence database.lnk'</str>),
   <str>'Opens the licence database in SQLite'</str>,
