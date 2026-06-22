@@ -172,9 +172,9 @@ DirNameTooLong=資料夾名稱或路徑太長。
 InvalidDirName=資料夾名稱不正確。
 BadDirName32=資料夾名稱不得包含以下特殊字元：%n%n%1
 DirExistsTitle=資料夾已經存在
-DirExists=資料夾：%n%n%1%n%n 已經存在。仍要安裝到該資料夾嗎？
+DirExists=資料夾：%n%n%1%n%n已經存在。仍要安裝到該資料夾嗎？
 DirDoesntExistTitle=資料夾不存在
-DirDoesntExist=資料夾：%n%n%1%n%n 不存在。要建立該資料夾嗎？
+DirDoesntExist=資料夾：%n%n%1%n%n不存在。要建立該資料夾嗎？
 
 ; *** "Select Components" wizard page
 WizardSelectComponents=選擇元件
