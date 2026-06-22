@@ -83,7 +83,7 @@ begin
     '"' + SelfName + '" "%1"');
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile', nil, LFmtMessage(SAssocInnoSetupScriptCompile));
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile\command', nil,
-    '"' + SelfName + '" -cc "%1"');
+    '"' + SelfName + '" /cc "%1"');
 
   { If we just associated for all users, remove our existing association for the current user if it exists. }
   if AllUsers then
