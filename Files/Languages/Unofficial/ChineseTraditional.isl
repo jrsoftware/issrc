@@ -60,8 +60,8 @@ SetupFileCorrupt=安裝檔案已經損毀。請重新取得此軟體。
 SetupFileCorruptOrWrongVer=安裝檔案已經損毀，或與安裝程式的版本不符。請重新取得此軟體。
 InvalidParameter=某個無效的參數已傳遞至命令列：%n%n%1
 SetupAlreadyRunning=安裝程式已經在執行。
-WindowsVersionNotSupported=本安裝程式並不支援目前在電腦所運行的 Windows 版本。
-WindowsServicePackRequired=本安裝程式需要 %1 Service Pack %2 或更新。
+WindowsVersionNotSupported=這個程式並不支援目前在電腦所執行的 Windows 版本。
+WindowsServicePackRequired=這個程式需要 %1 Service Pack %2 或更新。
 NotOnThisPlatform=這個程式無法在 %1 執行。
 OnlyOnThisPlatform=這個程式必須在 %1 執行。
 OnlyOnTheseArchitectures=這個程式只能在專門為以下處理器架構而設計的 Windows 上安裝：%n%n%1
@@ -244,13 +244,13 @@ ArchiveUnsupportedFormat=不支援的壓縮檔格式
 ; *** "Preparing to Install" wizard page
 WizardPreparing=準備安裝程式
 PreparingDesc=安裝程式準備將 [name] 安裝到您的電腦上。
-PreviousInstallNotCompleted=先前的安裝／解除安裝尚未完成，您必須重新啟動電腦以完成該安裝。%n%n在重新啟動電腦之後，請再執行這個程式來安裝 [name]。
+PreviousInstallNotCompleted=先前的安裝／解除安裝尚未完成，您必須重新啟動電腦以完成該安裝。%n%n在重新啟動電腦之後，請再次執行安裝程式以完成 [name] 的安裝。
 CannotContinue=安裝程式無法繼續。請按 「取消」 離開。
 ApplicationsFound=下面的應用程式正在使用安裝程式所需要更新的檔案。建議您允許安裝程式自動關閉這些應用程式。
 ApplicationsFound2=下面的應用程式正在使用安裝程式所需要更新的檔案。建議您允許安裝程式自動關閉這些應用程式。當安裝過程結束後，本安裝程式將會嘗試重新啟動該應用程式。
 CloseApplications=自動關閉應用程式 (&A)
 DontCloseApplications=不要關閉應用程式 (&D)
-ErrorCloseApplications=安裝程式無法自動關閉所有應用程式。建議您在繼續前先關閉所有應用程式使用的檔案。
+ErrorCloseApplications=安裝程式無法自動關閉所有應用程式。建議您在繼續前先關閉所有正在使用安裝程式所需更新檔案的應用程式。
 PrepareToInstallNeedsRestart=安裝程式必須重新啟動您的電腦。重新啟動後，請再次執行安裝程式以完成 [name] 的安裝。%n%n您想要現在重新啟動電腦嗎？
 
 ; *** "Installing" wizard page
@@ -281,8 +281,8 @@ SelectDirectoryLabel=請指定下一張磁片的位置。
 
 ; *** Installation phase messages
 SetupAborted=安裝沒有完成。%n%n請更正問題後重新安裝一次。
-AbortRetryIgnoreSelectAction=選取動作
-AbortRetryIgnoreRetry=請再試一次 (&T)
+AbortRetryIgnoreSelectAction=選擇操作
+AbortRetryIgnoreRetry=重試 (&T)
 AbortRetryIgnoreIgnore=略過錯誤並繼續 (&I)
 AbortRetryIgnoreCancel=取消安裝
 RetryCancelSelectAction=選擇操作
