@@ -288,7 +288,7 @@ AbortRetryIgnoreIgnore=忽略错误并继续(&I)
 AbortRetryIgnoreCancel=关闭安装程序
 RetryCancelSelectAction=选择操作
 RetryCancelRetry=重试(&T)
-RetryCancelCancel=取消(&C)
+RetryCancelCancel=取消
 
 ; *** 安装状态消息
 StatusClosingApplications=正在关闭应用程序...
@@ -375,7 +375,7 @@ ErrorRestartingComputer=安装程序无法重启电脑，请手动重启。
 
 ; *** 卸载消息
 UninstallNotFound=文件“%1”不存在。无法卸载。
-UninstallOpenError=文件“%1”不能被打开。无法卸载。
+UninstallOpenError=文件“%1”不能被打开。无法卸载
 UninstallUnsupportedVer=此版本的卸载程序无法识别卸载日志文件“%1”的格式。无法卸载
 UninstallUnknownEntry=卸载日志中遇到一个未知条目 (%1)
 ConfirmUninstall=您确认要完全移除 %1 及其所有组件吗？

@@ -51,6 +51,7 @@ Under `ISHelp/ISHelpGen/`:
 - `**/*.pas`, `**/*.dpr`, `**/*.inc`: see `.claude/rules/pascal.md`.
 - `**/*Test.pas`, `**/*Test.iss`: see `.claude/rules/test.md`.
 - `Components/UniPs/**`: see `.claude/rules/unips.md`.
+- `Files/Languages/*.isl`, `Files/Languages/Unofficial/*.isl`: see `.claude/rules/isl.md`.
 
 ## Documentation Conventions
 - `whatsnew.htm`, `ISHelp/isetup.xml`, `ISHelp/ispp.xml`, `ISHelp/isx.xml`, `ISHelp/isxfunc.xml`, `ISHelp/isxclasses.header*`, `ISHelp/isxclasses.footer`: see `.claude/rules/docs.general.md`.
