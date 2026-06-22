@@ -22,7 +22,7 @@ LanguageName=繁體中文
 LanguageID=$0404
 ; About CodePage, to reference link:
 ; https://docs.microsoft.com/en-us/windows/win32/intl/code-page-identifiers
-LanguageCodepage=950
+LanguageCodePage=950
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
 DialogFontName=Arial
@@ -164,7 +164,7 @@ DiskSpaceGBLabel=最少需要 [gb] GB 磁碟空間。
 DiskSpaceMBLabel=最少需要 [mb] MB 磁碟空間。
 CannotInstallToNetworkDrive=安裝程式無法安裝於網路磁碟機。
 CannotInstallToUNCPath=安裝程式無法安裝於 UNC 路徑。
-InvalidPath=您必須輸入完整的路徑名稱及磁碟機代碼，例如：%n%nC:\APP%n%n或是 UNC 路徑格式：%n%n\\伺服器\共用資料夾
+InvalidPath=您必須輸入完整的路徑名稱及磁碟機代碼，例如：%n%nC:\App%n%n或是 UNC 路徑格式：%n%n\\伺服器\共用資料夾
 InvalidDrive=您選取的磁碟機或 UNC 名稱不存在或無法存取，請選擇其他的目的地。
 DiskSpaceWarningTitle=磁碟空間不足
 DiskSpaceWarning=安裝程式需要至少 %1 KB 的磁碟空間，您所選取的磁碟只有 %2 KB 可用空間。%n%n您要繼續安裝嗎？
