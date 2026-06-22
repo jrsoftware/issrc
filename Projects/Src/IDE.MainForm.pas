@@ -1585,18 +1585,26 @@ begin
 end;
 
 procedure TMainForm.UpdateCaption;
-var
-  NewCaption: String;
-begin
-  if FMainMemo.Filename = '' then
-    NewCaption := GetFileTitle(FMainMemo.Filename)
-  else begin
-    if FOptions.FullPathInTitleBar then
-      NewCaption := FMainMemo.Filename
+
+  function GetCaptionFilename: String;
+  begin
+    var Filename: String;
+    if CommandLineCompile then
+      Filename := CommandLineFilename
     else
-      NewCaption := GetDisplayFilename(FMainMemo.Filename);
+      Filename := FMainMemo.Filename;
+    if Filename = '' then
+      Result := GetFileTitle(Filename)
+    else begin
+      if FOptions.FullPathInTitleBar then
+        Result := Filename
+      else
+        Result := GetDisplayFilename(Filename);
+    end;
   end;
-  NewCaption := NewCaption + ' '#$2013' ' + LFmtMessage(SCompilerFormCaption) + ' ' +
+
+begin
+  var NewCaption := GetCaptionFilename + ' '#$2013' ' + LFmtMessage(SCompilerFormCaption) + ' ' +
     String(FCompilerVersion.Version) {$IFNDEF WIN64} + ' ' + LFmtMessage(SCompilerCaption32Bit) {$ENDIF} +
     ' '#$2013' ' + GetLicenseeDescription;
   if FCompiling then
