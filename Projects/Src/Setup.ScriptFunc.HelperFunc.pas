@@ -603,6 +603,7 @@ begin
   try
     F := TTextFileReader.Create(FileName, fdOpenExisting, faRead, Sharing);
     try
+      F.AllowInvalidChars := True;
       var ArrayBuilder := Stack.InitArrayBuilder(ItemNo);
       while not F.Eof do
         ArrayBuilder.Add(F.ReadLine);
