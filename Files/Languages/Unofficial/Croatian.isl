@@ -48,7 +48,7 @@ LdrCannotExecTemp=Nije moguće pokrenuti datoteku u privremenoj mapi. Instalacij
 HelpTextNote=
 
 ; *** Startup error messages
-LastErrorMessage=%1.%n%nnGreška %2: %3
+LastErrorMessage=%1.%n%nGreška %2: %3
 SetupFileMissing=Datoteka %1 se ne nalazi u mapi instalacije. Ispravi problem ili nabavi novu kopiju programa.
 SetupFileCorrupt=Datoteke instalacije su oštećene. Nabavi novu kopiju programa.
 SetupFileCorruptOrWrongVer=Datoteke instalacije su oštećene ili nisu kompatibilne s ovom verzijom instalacije. Ispravi problem ili nabavi novu kopiju programa.
@@ -204,7 +204,7 @@ NoProgramGroupCheck2=&Ne stvaraj mapu u "Start" izborniku
 ; *** "Ready to Install" wizard page
 WizardReady=Sve je spremno za instaliranje
 ReadyLabel1=Instalacija je spremna za instaliranje programa [name].
-ReadyLabel2a=Pritisni "Instaliraj", ako želiš instalirati program. Pritisni "Natrag", ako želiš pregledati ili promijeniti postavke
+ReadyLabel2a=Pritisni "Instaliraj", ako želiš instalirati program. Pritisni "Natrag", ako želiš pregledati ili promijeniti postavke.
 ReadyLabel2b=Pritisni "Instaliraj", ako želiš instalirati program.
 ReadyMemoUserInfo=Korisnički podaci:
 ReadyMemoDir=Odredišno mjesto:
@@ -260,7 +260,7 @@ FinishedRestartLabel=Za završavanje instaliranja programa [name], instalacija m
 FinishedRestartMessage=Za završavanje instaliranja programa [name], instalacija mora ponovo pokrenuti računalo.%n%nŽeliš li sada ponovo pokrenuti računalo?
 ShowReadmeCheck=Da, želim pročitati README datoteku
 YesRadio=&Da, sada ponovo pokrenuti računalo
-NoRadio=&Ne, računalo ću kasnije ponovo pokrenuti 
+NoRadio=&Ne, računalo ću kasnije ponovo pokrenuti
 ; used for example as 'Run MyProg.exe'
 RunEntryExec=Pokreni %1
 ; used for example as 'View Readme.txt'
