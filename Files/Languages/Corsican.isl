@@ -246,7 +246,7 @@ ErrorExtractionFailed=Fiascu di l’estrazzione : %1
 
 ; *** Archive extraction failure details
 ArchiveIncorrectPassword=A parolla d’intesa hè incurretta
-ArchiveIsCorrupted=L’archiviu hè deteriuratu
+ArchiveIsCorrupted=L’archiviu hè alteratu
 ArchiveUnsupportedFormat=U furmatu di l’archiviu ùn hè micca accettatu
 
 ; *** "Preparing to Install" wizard page
@@ -255,10 +255,10 @@ PreparingDesc=L’assistente appronta l’installazione di [name] nant’à l’
 PreviousInstallNotCompleted=L’installazione o a cacciatura di un prugramma precedente ùn s’hè micca compia bè. Ci vulerà à rilancià l’urdinatore per compie st’installazione.%n%nDopu, ci vulerà à rilancià l’assistente per compie l’installazione di [name].
 CannotContinue=L’assistente ùn pò micca cuntinuà. Sceglie Abbandunà per esce.
 ApplicationsFound=St’appiecazioni impieganu schedarii chì devenu esse mudificati da l’assistente. Hè ricumandatu di permette à l’assistente di chjode autumaticamente st’appiecazioni.
-ApplicationsFound2=St’appiecazioni impieganu schedarii chì devenu esse mudificati da l’assistente. Hè ricumandatu di permette à l’assistente di chjode autumaticamente st’appiecazioni. S’è l’installazione si compie bè, l’assistente pruverà di rilancià l’appiecazioni.
+ApplicationsFound2=St’appiecazioni impieganu schedarii chì devenu esse mudificati da l’assistente. Hè ricumandatu di permette à l’assistente di chjode autumaticamente st’appiecazioni. Quandu l’installazione serà compia, l’assistente pruverà di rilancià l’appiecazioni.
 CloseApplications=Chjode &autumaticamente l’appiecazioni
 DontCloseApplications=Ùn chjode &micca l’appiecazioni
-ErrorCloseApplications=L’assistente ùn hà micca pussutu chjode autumaticamente tutti l’appiecazioni. Nanzu di cuntinuà, hè ricumandatu di chjode tutti l’appiecazioni chì impieganu schedarii chì devenu esse mudificati da l’assistente durante l’installazione.
+ErrorCloseApplications=L’assistente ùn hà micca pussutu chjode autumaticamente tutte l’appiecazioni. Prima di cuntinuà, hè ricumandatu di chjode tutte l’appiecazioni chì impieganu schedarii chì devenu esse mudificati da l’assistente.
 PrepareToInstallNeedsRestart=L’assistente deve rilancià l’urdinatore. Dopu, ci vulerà à rilancià l’assistente per compie l’installazione di [name].%n%nVulete rilancià l’urdinatore subitu ?
 
 ; *** "Installing" wizard page
