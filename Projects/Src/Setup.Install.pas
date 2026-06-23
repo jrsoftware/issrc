@@ -604,29 +604,41 @@ procedure ProcessFileEntry(const UninstLog: TUninstallLog; const ExpandedAppId: 
     while True do begin
       try
         var GacFile: String;
-        if TempFile <> '' then begin
-          { InstallAssembly is not sensitive to the path and the file can even be deleted
-            after installing, but it is sensitive to the filename. See for example
-            https://sourceforge.net/p/wix/bugs/1301 So we need to make a copy with the
-            original filename. }
-          const TempGacDir = GenerateUniqueName(TempInstallDir, '.tmp');
-          const DestFileName = PathExtractName(DestFile);
-          LogFmt('Creating temporary copy with original name: %s', [DestFileName]);
-          GacFile := AddBackslash(TempGacDir) + DestFileName;
-          if not CreateDirectory(PChar(TempGacDir), nil) then
-            Win32ErrorMsg('CreateDirectory');
-          if not CopyFile(PChar(TempFile), PChar(GacFile), False) then
-            Win32ErrorMsg('CopyFile');
-        end else
-          GacFile := DestFile;
-        const AssemblyCacheInfo = TAssemblyCacheInfo.Create(rvDefault);
+        var TempGacDir := False;
+        var TempGacFile := False;
         try
-          { PathConvertSuperToNormal because it is not known where InstallAssembly supports
-            super paths. It might do now (not tested), but this might not have always been
-            the case. }
-          AssemblyCacheInfo.InstallAssembly(PathConvertSuperToNormal(GacFile));
+          if TempFile <> '' then begin
+            { InstallAssembly is not sensitive to the path and the file can even be deleted
+              after installing, but it is sensitive to the filename. See for example
+              https://sourceforge.net/p/wix/bugs/1301 So we need to make a copy with the
+              original filename. }
+            const GacDir = GenerateUniqueName(TempInstallDir, '.tmp');
+            const DestFileName = PathExtractName(DestFile);
+            LogFmt('Creating temporary copy with original name: %s', [DestFileName]);
+            GacFile := AddBackslash(GacDir) + DestFileName;
+            if not CreateDirectory(PChar(GacDir), nil) then
+              Win32ErrorMsg('CreateDirectory');
+            TempGacDir := True;
+            if not CopyFile(PChar(TempFile), PChar(GacFile), False) then
+              Win32ErrorMsg('CopyFile');
+            TempGacFile := True;
+          end else
+            GacFile := DestFile;
+          const AssemblyCacheInfo = TAssemblyCacheInfo.Create(rvDefault);
+          try
+            { PathConvertSuperToNormal because it is not known where InstallAssembly supports
+              super paths. It might do now (not tested), but this might not have always been
+              the case. }
+            AssemblyCacheInfo.InstallAssembly(PathConvertSuperToNormal(GacFile));
+          finally
+            AssemblyCacheInfo.Free;
+          end;
         finally
-          AssemblyCacheInfo.Free;
+          { Cleanup right now instead of at shutdown. Do ignore errors. }
+          if TempGacFile then
+            Windows.DeleteFile(PChar(GacFile));
+          if TempGacDir then
+            RemoveDirectory(PChar(PathExtractDir(GacFile)));
         end;
         Result := True;
         Break;
