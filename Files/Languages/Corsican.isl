@@ -8,13 +8,14 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 
-; Created and maintained by Patriccollu di Santa Maria è Sichè, 2011-2025
+; Created and maintained by Patriccollu di Santa Maria è Sichè, 2011-2026
 ; Schedariu di traduzzione in lingua corsa creatu è mantenutu da Patriccollu
 ;
 ; Latest update of Corsican translation file is available here:
 ;	https://github.com/jrsoftware/issrc/blob/main/Files/Languages/Corsican.isl
 ;
 ; History of Corsican translation for InnoSetup:
+;	- Updated in 2026 by Patriccollu di Santa Maria è Sichè: June 23rd (7.0.1)
 ;	- Updated in 2025 by Patriccollu di Santa Maria è Sichè: June 6th (6.4.4), June 8th (6.5.0), June 19th (6.5.0)
 ;	- Updated in 2024 by Patriccollu di Santa Maria è Sichè: February 11th (6.3.0), November 18th (6.4.0)
 ;	- Updated in 2020 by Patriccollu di Santa Maria è Sichè: July 1st (6.0.5+), July 25th (6.1.0), November 14th (6.1.2)
@@ -56,7 +57,7 @@ ErrorTitle=Sbagliu
 
 ; *** SetupLdr messages
 SetupLdrStartupMessage=St’assistente hà da installà %1. Vulete cuntinuà ?
-LdrCannotCreateTemp=Impussibule di creà un cartulare timpurariu. Assistente d’installazione interrottu
+LdrCannotCreateTemp=Impussibule di creà un schedariu timpurariu. Assistente d’installazione interrottu
 LdrCannotExecTemp=Impussibule d’eseguisce u schedariu in u cartulare timpurariu. Assistente d’installazione interrottu
 HelpTextNote=
 
@@ -126,7 +127,7 @@ ClickNext=Sceglie Seguente per cuntinuà, o Abbandunà per compie l’assistente
 BeveledLabel=
 BrowseDialogTitle=Navigà nant’à u cartulare
 BrowseDialogLabel=Selezziunà un cartulare in a lista inghjò, eppò sceglie Vai.
-NewFolderName=Novu cartulare
+NewFolderName=Cartulare novu
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Benvenuta in l’assistente d’installazione di [name]
@@ -171,7 +172,7 @@ DiskSpaceGBLabel=Hè richiestu omancu [gb] Go di spaziu liberu di discu.
 DiskSpaceMBLabel=Hè richiestu omancu [mb] Mo di spaziu liberu di discu.
 CannotInstallToNetworkDrive=L’assistente ùn pò micca installà nant’à un discu di a reta.
 CannotInstallToUNCPath=L’assistente ùn pò micca installà in un chjassu UNC.
-InvalidPath=Ci vole à stampittà un chjassu cumplettu cù a lettera di u lettore ; per indettu :%n%nC:\APP%n%no un chjassu UNC in a forma :%n%n\\servitore\spartu
+InvalidPath=Ci vole à stampittà un chjassu cumplettu cù a lettera di u lettore ; per indettu :%n%nC:\App%n%no un chjassu UNC in a forma :%n%n\\servitore\spartu
 InvalidDrive=U lettore o u chjassu UNC spartu ùn esiste micca o ùn hè micca accessibule. Ci vole à selezziunane un altru.
 DiskSpaceWarningTitle=Ùn basta u spaziu discu
 DiskSpaceWarning=L’assistente richiede omancu %1 Ko di spaziu liberu per installà, ma u lettore selezziunatu hà solu %2 Ko dispunibule.%n%nVulete cuntinuà quantunque ?
@@ -386,11 +387,11 @@ UninstallUnsupportedVer=U ghjurnale di disinstallazione « %1 » hè in una fo
 UninstallUnknownEntry=Un elementu scunisciutu (%1) hè statu trovu in u ghjurnale di disinstallazione
 ConfirmUninstall=Da veru, vulete caccià cumpletamente %1 è tutti i so cumpunenti ?
 UninstallOnlyOnWin64=St’appiecazione pò esse disinstallata solu nant’à una versione Windows 64-bit.
-OnlyAdminCanUninstall=St’appiecazione pò esse disinstallata solu da un utilizatore di u gruppu d’amministratori.
-UninstallStatusLabel=Ci vole à aspettà chì %1 sia cacciatu di l’urdinatore.
+OnlyAdminCanUninstall=St’appiecazione pò esse disinstallata solu da un utilizatore cù i privileghji d’amministratore.
+UninstallStatusLabel=Ci vole à aspettà chì %1 sia cacciatu da l’urdinatore.
 UninstalledAll=%1 hè statu cacciatu bè da l’urdinatore.
 UninstalledMost=A disinstallazione di %1 hè compia.%n%nQualchì elementu ùn pò micca esse cacciatu. Ci vole à cacciallu manualmente.
-UninstalledAndNeedsRestart=Per compie a disinstallazione di %1, l’urdinatore deve esse ridimarratu.%n%nVulete rilancià l’urdinatore subitu ?
+UninstalledAndNeedsRestart=Per compie a disinstallazione di %1, l’urdinatore deve esse rilanciatu.%n%nVulete rilancià l’urdinatore subitu ?
 UninstallDataCorrupted=U schedariu « %1 » hè alteratu. Impussibule di disinstallà
 
 ; *** Uninstallation phase messages
