@@ -14,20 +14,20 @@
       <function>
         <name>GetCmdTail</name>
         <prototype>function GetCmdTail: String;</prototype>
-        <description><p>Returns all command line parameters passed to Setup or Uninstall as a single string, including undocumented internal parameters used by Setup and Uninstall.</p></description>
+        <description><p>Returns all command-line parameters passed to Setup or Uninstall as a single string, including undocumented internal parameters used by Setup and Uninstall.</p></description>
         <seealso><p><isxfunc>ParamStr</isxfunc></p></seealso>
       </function>
       <function>
         <name>ParamCount</name>
         <prototype>function ParamCount: Integer;</prototype>
-        <description><p>Returns the number of command line parameters passed to Setup or Uninstall, excluding undocumented internal parameters used by Setup and Uninstall.</p></description>
+        <description><p>Returns the number of command-line parameters passed to Setup or Uninstall, excluding undocumented internal parameters used by Setup and Uninstall.</p></description>
         <seealso><p><isxfunc>ParamStr</isxfunc><br />
 <isxfunc>GetCmdTail</isxfunc></p></seealso>
       </function>
       <function>
         <name>ParamStr</name>
         <prototype>function ParamStr(Index: Integer): String;</prototype>
-        <description><p>Returns the <tt>Index</tt>-th command line parameter passed to Setup or Uninstall, excluding undocumented internal parameters used by Setup and Uninstall.</p>
+        <description><p>Returns the <tt>Index</tt>-th command-line parameter passed to Setup or Uninstall, excluding undocumented internal parameters used by Setup and Uninstall.</p>
 <p>Parameter number zero is the full file name with which Setup or Uninstall was started.</p>
 <p>If <tt>Index</tt> is invalid, <tt>ParamStr</tt> returns an empty string.</p></description>
         <seealso><p><isxfunc>ParamCount</isxfunc><br />
@@ -420,7 +420,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>ShowExceptionMessage</name>
         <prototype>procedure ShowExceptionMessage;</prototype>
         <description><p>Shows the message associated with the current exception in a message box. This function should only be called from within an <tt>except</tt> section, or a function called from an <tt>except</tt> section.</p></description>
-        <remarks><p>If logging is enabled (via the <tt><link topic="setupcmdline">/LOG</link></tt> command line parameter or the <sd>SetupLogging</sd> <sn>[Setup]</sn> section directive or the <sd>UninstallLogging</sd> <sn>[Setup]</sn> section directive or debugging from the Compiler IDE) the message will be recorded in the log file and/or in the Compiler IDE's "Debug Output" view in addition to being shown.</p></remarks>
+        <remarks><p>If logging is enabled (via the <tt><link topic="setupcmdline">/LOG</link></tt> command-line parameter or the <sd>SetupLogging</sd> <sn>[Setup]</sn> section directive or the <sd>UninstallLogging</sd> <sn>[Setup]</sn> section directive or debugging from the Compiler IDE) the message will be recorded in the log file and/or in the Compiler IDE's "Debug Output" view in addition to being shown.</p></remarks>
         <example><pre><key>var</key>
   I: Integer;
 <key>begin</key>
@@ -3188,7 +3188,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>SuppressibleMsgBox</name>
         <prototype>function SuppressibleMsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons, Default: Integer): Integer;</prototype>
-        <description><p>Displays a suppressible message box. If message boxes are being suppressed (see <link topic="setupcmdline">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, <tt>SuppressibleMsgBox</tt> acts the same as the regular <isxfunc>MsgBox</isxfunc>.</p></description>
+        <description><p>Displays a suppressible message box. If message boxes are being suppressed (see <link topic="setupcmdline">Setup Command-Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, <tt>SuppressibleMsgBox</tt> acts the same as the regular <isxfunc>MsgBox</isxfunc>.</p></description>
       </function>
       <function>
         <name>TaskDialogMsgBox</name>
@@ -3224,7 +3224,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
       <function>
         <name>SuppressibleTaskDialogMsgBox</name>
         <prototype>function SuppressibleTaskDialogMsgBox(const Instruction, Text: String; const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: TArrayOfString; const ShieldButton: Integer; const Default: Integer): Integer;</prototype>
-        <description><p>Displays a suppressible message box using a task dialog. If message boxes are being suppressed (see <link topic="setupcmdline">Setup Command Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, <tt>SuppressibleTaskDialogMsgBox</tt> acts the same as the regular <isxfunc>TaskDialogMsgBox</isxfunc>.</p></description>
+        <description><p>Displays a suppressible message box using a task dialog. If message boxes are being suppressed (see <link topic="setupcmdline">Setup Command-Line Parameters</link>), <tt>Default</tt> is returned. Otherwise, <tt>SuppressibleTaskDialogMsgBox</tt> acts the same as the regular <isxfunc>TaskDialogMsgBox</isxfunc>.</p></description>
       </function>
       <function>
         <name>GetOpenFileName</name>
@@ -3364,7 +3364,7 @@ SIID_MEDIABDROM, SIID_MEDIABDR, SIID_MEDIABDRE, SIID_CLUSTEREDDRIVE</tt></p></re
         <name>Log</name>
         <prototype>procedure Log(const S: String);</prototype>
         <description><p>Logs the specified string in Setup's or Uninstall's log file and/or in the Compiler IDE's "Debug Output" view.</p></description>
-        <remarks><p>Calls to this function are ignored if logging is not enabled (via the <tt><link topic="setupcmdline">/LOG</link></tt> command line parameter or the <sd>SetupLogging</sd> <sn>[Setup]</sn> section directive or the <sd>UninstallLogging</sd> <sn>[Setup]</sn> section directive or debugging from the Compiler IDE).</p></remarks>
+        <remarks><p>Calls to this function are ignored if logging is not enabled (via the <tt><link topic="setupcmdline">/LOG</link></tt> command-line parameter or the <sd>SetupLogging</sd> <sn>[Setup]</sn> section directive or the <sd>UninstallLogging</sd> <sn>[Setup]</sn> section directive or debugging from the Compiler IDE).</p></remarks>
         <seealso><p><isxfunc>LogFmt</isxfunc></p></seealso>
       </function>
       <function>

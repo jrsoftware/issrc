@@ -16,7 +16,7 @@ uses
 
 const
   JapaneseIDETranslations: array [0..898] of TTranslationPair = (
-    (English: 'Command line usage:'; Localized: 'コマンドラインの使用法:'),
+    (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
     (English: 'wizard name'; Localized: 'ウィザード名'),
@@ -29,7 +29,7 @@ const
     (English: 'Untitled'; Localized: '無題'),
     (English: 'Preprocessor Output'; Localized: 'プリプロセッサー出力'),
     (English: 'Run Parameters'; Localized: '実行パラメーター'),
-    (English: 'Command line parameters for %1 and %2:'; Localized: '%1 と %2 のコマンドラインパラメーター:'),
+    (English: 'Command-line parameters for %1 and %2:'; Localized: '%1 と %2 のコマンドラインパラメーター:'),
     (English: 'Inno Setup Script files'; Localized: 'Inno Setup スクリプトファイル'),
     (English: 'All files'; Localized: 'すべてのファイル'),
     (English: 'Application files'; Localized: 'アプリケーションファイル'),

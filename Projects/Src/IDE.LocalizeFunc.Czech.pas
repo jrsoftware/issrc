@@ -16,7 +16,7 @@ uses
 
 const
   CzechIDETranslations: array [0..898] of TTranslationPair = (
-    (English: 'Command line usage:'; Localized: 'Použití příkazového řádku:'),
+    (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
     (English: 'wizard name'; Localized: 'název průvodce'),
@@ -29,7 +29,7 @@ const
     (English: 'Untitled'; Localized: 'Bez názvu'),
     (English: 'Preprocessor Output'; Localized: 'Výstup preprocesoru'),
     (English: 'Run Parameters'; Localized: 'Parametry spuštění'),
-    (English: 'Command line parameters for %1 and %2:'; Localized: 'Parametry příkazového řádku pro %1 a %2:'),
+    (English: 'Command-line parameters for %1 and %2:'; Localized: 'Parametry příkazového řádku pro %1 a %2:'),
     (English: 'Inno Setup Script files'; Localized: 'Soubory skriptů Inno Setup'),
     (English: 'All files'; Localized: 'Všechny soubory'),
     (English: 'Application files'; Localized: 'Soubory aplikace'),

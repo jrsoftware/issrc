@@ -214,7 +214,7 @@
 <dd>
 <p>If Setup finds the <tt>CheckPassword</tt> event function in the Pascal script, it automatically displays the <i>Password</i> page and calls <tt>CheckPassword</tt> to check passwords. Return <tt>True</tt> to accept the password and <tt>False</tt> to reject it.</p>
 <p>To avoid storing the actual password inside the compiled <sn>[Code]</sn> section which is stored inside Setup, you should use comparisons by hash only: calculate the SHA-256 hash of your salted password yourself and then compare that to <tt><isxfunc>GetSHA256OfString</isxfunc>(Password)</tt>. This way the actual value of the password is better protected.</p>
-<p>Note: If Setup is run with a <tt>/PASSWORD=</tt> <link topic="setupcmdline" anchor="PASSWORD">command line parameter</link>, your <tt>CheckPassword</tt> function will be called <i>before</i> any other event function is called, including <tt><anchorlink name="InitializeSetup">InitializeSetup</anchorlink></tt>.</p>
+<p>Note: If Setup is run with a <tt>/PASSWORD=</tt> <link topic="setupcmdline" anchor="PASSWORD">command-line parameter</link>, your <tt>CheckPassword</tt> function will be called <i>before</i> any other event function is called, including <tt><anchorlink name="InitializeSetup">InitializeSetup</anchorlink></tt>.</p>
 <p>Also note: If <sd>Encryption</sd> is set to <tt>yes</tt> and your <tt>CheckPassword</tt> function accepts passwords different from the one used for the encryption, make sure to only extract non encrypted files.</p>
 </dd>
 
@@ -246,7 +246,7 @@
 <dt><tt>function <a name="PrepareToInstall">PrepareToInstall</a>(var NeedsRestart: Boolean): String;</tt></dt>
 <dd>
 <p>You can use this event function to detect and install missing prerequisites and/or to shutdown any application which is about to be updated.</p>
-<p>Return a non empty string to instruct Setup to stop at the <link topic="wizardpages">Preparing to Install</link> wizard page, showing the returned string as the error message. Set <tt>NeedsRestart</tt> to <tt>True</tt> (and return a non empty string) if a restart is needed. If Setup is stopped this way, it will exit with a dedicated exit code as described in <link topic="setupexitcodes">Setup Exit Codes</link>. Any custom exit code set by the <tt>/RESTARTEXITCODE=</tt> <link topic="setupcmdline" anchor="RESTARTEXITCODE">command line parameter</link> will not be used in this case.</p>
+<p>Return a non empty string to instruct Setup to stop at the <link topic="wizardpages">Preparing to Install</link> wizard page, showing the returned string as the error message. Set <tt>NeedsRestart</tt> to <tt>True</tt> (and return a non empty string) if a restart is needed. If Setup is stopped this way, it will exit with a dedicated exit code as described in <link topic="setupexitcodes">Setup Exit Codes</link>. Any custom exit code set by the <tt>/RESTARTEXITCODE=</tt> <link topic="setupcmdline" anchor="RESTARTEXITCODE">command-line parameter</link> will not be used in this case.</p>
 <p>This function is called before Setup checks for files being in-use if <sd>CloseApplications</sd> is set to <tt>yes</tt>.</p>
 <p>This function is only called if Setup didn't already determine it can't continue because one or more files specified in the <sn>[Files]</sn> and <sn>[InstallDelete]</sn> sections were queued (by some other installation) to be replaced or deleted on the next restart.</p>
 </dd>

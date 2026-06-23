@@ -16,7 +16,7 @@ uses
 
 const
   DutchIDETranslations: array [0..898] of TTranslationPair = (
-    (English: 'Command line usage:'; Localized: 'Opdrachtregelgebruik:'),
+    (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
     (English: 'wizard name'; Localized: 'wizardnaam'),
@@ -29,7 +29,7 @@ const
     (English: 'Untitled'; Localized: 'Naamloos'),
     (English: 'Preprocessor Output'; Localized: 'Preprocessor-uitvoer'),
     (English: 'Run Parameters'; Localized: 'Uitvoeringsparameters'),
-    (English: 'Command line parameters for %1 and %2:'; Localized: 'Opdrachtregelparameters voor %1 en %2:'),
+    (English: 'Command-line parameters for %1 and %2:'; Localized: 'Opdrachtregelparameters voor %1 en %2:'),
     (English: 'Inno Setup Script files'; Localized: 'Inno Setup-scriptbestanden'),
     (English: 'All files'; Localized: 'Alle bestanden'),
     (English: 'Application files'; Localized: 'Toepassingsbestanden'),

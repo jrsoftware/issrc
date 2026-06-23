@@ -432,7 +432,7 @@ begin
 end;
 
 function GetCmdTail: String;
-{ Returns all command line parameters passed to the process as a single
+{ Returns all command-line parameters passed to the process as a single
   string. }
 var
   S: String;
@@ -441,7 +441,7 @@ begin
 end;
 
 function GetCmdTailEx(StartIndex: Integer): String;
-{ Returns all command line parameters passed to the process as a single
+{ Returns all command-line parameters passed to the process as a single
   string, starting with StartIndex (one-based). }
 var
   P: PChar;
@@ -469,7 +469,7 @@ begin
 end;
 
 function NewParamStr(Index: Integer): string;
-{ Returns the Indexth command line parameter, or an empty string if Index is
+{ Returns the Indexth command-line parameter, or an empty string if Index is
   out of range.
   Differences from Delphi's ParamStr:
   - No limits on parameter length

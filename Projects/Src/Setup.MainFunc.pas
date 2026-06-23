@@ -67,7 +67,7 @@ const
   CodeRunnerNamingAttribute = 'Event';
 
 var
-  { Variables for command line parameters }
+  { Variables for command-line parameters }
   SetupLdrMode: Boolean;
   SetupLdrOriginalFilename: String;
   SetupLdrOffset0, SetupLdrOffset1: Int64;
@@ -3095,7 +3095,7 @@ var
         { Ask user. Doesn't log since logging hasn't started yet. Also doesn't
           use ExpandedAppName since it isn't set yet. Afterwards we need to tell
           any respawned Setup(Ldr) about the user choice (and avoid asking again).
-          Will use the command line parameter for this. Allowing proDialog forces
+          Will use the command-line parameter for this. Allowing proDialog forces
           allowing proCommandLine, so we can count on the parameter to work. }
         if shAppNameHasConsts in SetupHeader.Options then
           AppName := PathChangeExt(PathExtractName(SetupLdrOriginalFilename), '')

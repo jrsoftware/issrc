@@ -2354,7 +2354,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 					<tr><td><tt>__POPT_X__</tt></td><td><tt><b>void</b></tt>. Defined if specified parser option set via <tt>#pragma parseroption -x+</tt> is in effect. In place of "X" may be any letter from "A" to "Z". Use <tt><link href="defined">Defined</link></tt> function to test whether the variable is defined.</td></tr>
 					<tr><td><tt>__WIN32__</tt></td><td><tt><b>void</b></tt>. Always defined.</td></tr>
 					<tr><td><tt>ISPP_INVOKED</tt></td><td><tt><b>void</b></tt>. Always defined.</td></tr>
-					<tr><td><tt>ISCC_INVOKED</tt></td><td><tt><b>void</b></tt>. Defined if compilation was invoked using the console-mode compiler, <tt>ISCC.exe</tt>.</td></tr>
+					<tr><td><tt>ISCC_INVOKED</tt></td><td><tt><b>void</b></tt>. Defined if compilation was invoked using the Command-Line Compiler, <tt>ISCC.exe</tt>.</td></tr>
 					<tr><td><tt>PREPROCVER</tt></td><td><tt><b>int</b></tt>. Returns the 32-bit encoded version of Inno Setup. Highest byte holds the major version, second highest byte holds the minor version, third highest byte holds the revision, and lowest byte holds the build number.</td></tr>
 					<tr><td><tt>WINDOWS</tt></td><td><tt><b>void</b></tt>. Always defined.</td></tr>
 					<tr><td><tt>UNICODE</tt></td><td><tt><b>void</b></tt>. Always defined.</td></tr>
@@ -2422,9 +2422,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 			</description>
 		</topic>
 		<topic id="isppcc">
-			<title>Extended Command Line Compiler</title>
+			<title>Extended Command-Line Compiler</title>
 			<description header="no">
-				<p>The <link href="compilercmdline">console-mode compiler</link> (<tt>ISCC.exe</tt>) provides extra options to control Inno Setup Preprocessor:</p>
+				<p>The <link href="compilercmdline">Command-Line Compiler</link> (<tt>ISCC.exe</tt>) provides extra options to control Inno Setup Preprocessor:</p>
 				<table>
 					<tr><th>Option</th><th>Meaning</th></tr>
 					<tr><td nowrap=""><tt>--define=<i>&lt;name&gt;</i>[=<i>&lt;value&gt;</i>]</tt>, <tt>-d<i>&lt;name&gt;</i>[=<i>&lt;value&gt;</i>]</tt></td><td>Emulates <tt><link href="define">#define</link> public <i>&lt;name&gt; &lt;value&gt;</i></tt> (variable-definition).</td></tr>

@@ -32,7 +32,7 @@ const
   SLitAllFilesFilter = '%s|*.*';
 
   { Compiler-specific messages }
-  SCompilerCommandLineHelpUsage = 'Command line usage:';
+  SCompilerCommandLineHelpUsage = 'Command-line usage:';
   SCompilerCommandLineHelpExamples = 'Examples:';
   SCompilerCommandLineHelpScriptFile = 'script file';
   SCompilerCommandLineHelpWizardName = 'wizard name';
@@ -47,7 +47,7 @@ const
   SCompilerUntitledFile = 'Untitled';
   SCompilerPreprocessorOutput = 'Preprocessor Output';
   SCompilerRunParametersTitle = 'Run Parameters';
-  SCompilerRunParametersPrompt = 'Command line parameters for %1 and %2:';
+  SCompilerRunParametersPrompt = 'Command-line parameters for %1 and %2:';
 
   { File filter names }
   SIssFiles = 'Inno Setup Script files';

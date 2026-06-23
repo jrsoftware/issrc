@@ -161,7 +161,7 @@ const
   SCompilerBadEnvConst = 'Invalid environment constant "%s"';
   SCompilerBadRegConst = 'Invalid registry constant "%s"';
   SCompilerBadIniConst = 'Invalid INI constant "%s"';
-  SCompilerBadParamConst = 'Invalid command line parameter constant "%s"';
+  SCompilerBadParamConst = 'Invalid command-line parameter constant "%s"';
   SCompilerBadCodeConst = 'Invalid code constant "%s"';
   SCompilerBadDriveConst = 'Invalid drive constant "%s"';
   SCompilerBadCustomMessageConst = 'Invalid custom message constant "%s"';

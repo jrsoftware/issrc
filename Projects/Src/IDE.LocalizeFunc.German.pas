@@ -16,7 +16,7 @@ uses
 
 const
   GermanIDETranslations: array [0..898] of TTranslationPair = (
-    (English: 'Command line usage:'; Localized: 'Befehlszeilenverwendung:'),
+    (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
     (English: 'wizard name'; Localized: 'Assistentenname'),
@@ -29,7 +29,7 @@ const
     (English: 'Untitled'; Localized: 'Unbenannt'),
     (English: 'Preprocessor Output'; Localized: 'Präprozessor-Ausgabe'),
     (English: 'Run Parameters'; Localized: 'Ausführungsparameter'),
-    (English: 'Command line parameters for %1 and %2:'; Localized: 'Befehlszeilenparameter für %1 und %2:'),
+    (English: 'Command-line parameters for %1 and %2:'; Localized: 'Befehlszeilenparameter für %1 und %2:'),
     (English: 'Inno Setup Script files'; Localized: 'Inno Setup-Skriptdateien'),
     (English: 'All files'; Localized: 'Alle Dateien'),
     (English: 'Application files'; Localized: 'Anwendungsdateien'),

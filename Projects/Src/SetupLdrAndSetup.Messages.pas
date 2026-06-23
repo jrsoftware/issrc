@@ -48,7 +48,7 @@ const
   SMsgsFileMissing = 'Messages file "%s" is missing. Please correct ' +
     'the problem or obtain a new copy of the program.';
   { These currently always occur before the messages file is loaded }
-  SMissingPassword = 'Please specify the password using the /PASSWORD= command line parameter.';
+  SMissingPassword = 'Please specify the password using the /PASSWORD= command-line parameter.';
   SIncorrectPassword = 'The password you specified is not correct. Please try again.';
 
 implementation

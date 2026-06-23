@@ -2335,7 +2335,7 @@ begin
       end;
     end;
     AFilename := FMainMemo.Filename;
-  end; {else: Command line compile, AFilename already set. }
+  end; {else: Command-line compile, AFilename already set. }
 
   DestroyDebugInfo;
   OldActiveMemo := FActiveMemo;

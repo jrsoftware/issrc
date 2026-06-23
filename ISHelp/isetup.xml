@@ -68,7 +68,7 @@
     <contentstopic title="Visibility of Identifiers" topic="visibility" />
     <contentstopic title="Example Script" topic="example" />
     <contentstopic title="ISPPBuiltins.iss" topic="builtinsiss" />
-    <contentstopic title="Extended Command Line Compiler" topic="isppcc" />
+    <contentstopic title="Extended Command-Line Compiler" topic="isppcc" />
   </contentsheading>
   <contentsheading title="Other Information">
     <contentstopic title="Purchase Inno Setup" topic="purchase" />
@@ -83,9 +83,9 @@
     <contentstopic title="Wizard Pages" topic="wizardpages" />
     <contentstopic title="Installation Order" topic="installorder" />
     <contentstopic title="Unsafe Files" topic="unsafefiles" />
-    <contentstopic title="Compiler Command Line Execution" topic="compilercmdline" />
-    <contentstopic title="Setup Command Line Parameters" topic="setupcmdline" />
-    <contentstopic title="Uninstaller Command Line Parameters" topic="uninstcmdline" />
+    <contentstopic title="Compiler Command-Line Execution" topic="compilercmdline" />
+    <contentstopic title="Setup Command-Line Parameters" topic="setupcmdline" />
+    <contentstopic title="Uninstaller Command-Line Parameters" topic="uninstcmdline" />
     <contentstopic title="Setup Exit Codes" topic="setupexitcodes" />
     <contentstopic title="Uninstaller Exit Codes" topic="uninstexitcodes" />
     <contentstopic title="Compiler IDE Keyboard And Mouse Commands" topic="compformshortcuts" />
@@ -812,10 +812,10 @@ For example: If you used <tt>{src}\MyProg.exe</tt> on an entry and the user is i
 
 <dt><b><a name="param">{param:<i>ParamName</i>|<i>DefaultValue</i>}</a></b></dt>
 <dd>
-<p>Embeds a command line parameter value.</p>
+<p>Embeds a command-line parameter value.</p>
 <ul>
-<li><i>ParamName</i> specifies the name of the command line parameter to read from.</li>
-<li><i>DefaultValue</i> determines the string to embed if the specified command line parameter does not exist, or its value could not be determined.</li>
+<li><i>ParamName</i> specifies the name of the command-line parameter to read from.</li>
+<li><i>DefaultValue</i> determines the string to embed if the specified command-line parameter does not exist, or its value could not be determined.</li>
 <li>If you wish to include a comma, vertical bar (<tt>|</tt>), or closing brace (<tt>}</tt>) inside the constant, you must escape it via "%-encoding." Replace the character with a <tt>%</tt> character, followed by its two-digit hex code. A comma is <tt>%2c</tt>, a vertical bar is <tt>%7c</tt>, and a closing brace is <tt>%7d</tt>. If you want to include an actual <tt>%</tt> character, use <tt>%25</tt>.</li>
 <li><i>ParamName</i> and <i>DefaultValue</i> may include constants. Note that you do <i>not</i> need to escape the closing brace of a constant as described above; that is only necessary when the closing brace is used elsewhere.</li>
 </ul>
@@ -1988,7 +1988,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </param>
 
 <param name="Filename" required="yes">
-<p>The command line filename for the shortcut, which normally begins with a directory constant.</p>
+<p>The command-line filename for the shortcut, which normally begins with a directory constant.</p>
 <p>In addition to file and folder names, URLs (web site addresses) may also be specified. When a URL is specified, Setup will create an "Internet Shortcut" (<tt>.url</tt>) file, and ignore the <tt>Parameters</tt>, <tt>WorkingDir</tt>, <tt>HotKey</tt>, and <tt>Comment</tt> parameters.</p>
 <p>On 64-bit Windows, note that the <tt>{sys}</tt> constant will map to the native 64-bit System directory when the shortcut is launched by a 64-bit process, such as Windows Explorer. This is true regardless of whether the install is running in <link topic="32vs64bitinstalls">64-bit install mode</link>. To create a shortcut that always points to the 32-bit System directory, use <tt>{syswow64}</tt> instead. (The same applies to the <tt>WorkingDir</tt> and <tt>IconFilename</tt> parameters.)</p>
 <examples>
@@ -2002,7 +2002,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </param>
 
 <param name="Parameters">
-<p>Optional command line parameters for the shortcut, which can include constants.</p>
+<p>Optional command-line parameters for the shortcut, which can include constants.</p>
 <example>
 <pre><key>Parameters</key>: "/play filename.mid"</pre>
 </example>
@@ -2721,7 +2721,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 </param>
 
 <param name="Parameters">
-<p>Optional command line parameters for the program, which can include constants.</p>
+<p>Optional command-line parameters for the program, which can include constants.</p>
 <example>
 <pre><key>Parameters</key>: "/x"</pre>
 </example>
@@ -2777,7 +2777,7 @@ If <tt>binary</tt> is specified, Setup will create a binary (<tt>REG_BINARY</tt>
 <p>This flag cannot be combined with the <tt>shellexec</tt> flag.</p>
 </flag>
 <flag name="dontlogparameters">
-<p>If this flag is specified, the command line parameters for the program will not be included in the log file.</p>
+<p>If this flag is specified, the command-line parameters for the program will not be included in the log file.</p>
 </flag>
 <flag name="hidewizard">
 <p>If this flag is specified, the wizard will be hidden while the program is running.</p>
@@ -3524,7 +3524,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 </li>
 
 <li>
-<p>Inno Setup's own installers accept an additional <tt>/PORTABLE=1</tt> command line parameter to enable portable mode which causes the installers to install to the desktop by default and to not create an uninstaller nor an entry in the Add/Remove Programs Control Panel applet. For example:</p>
+<p>Inno Setup's own installers accept an additional <tt>/PORTABLE=1</tt> command-line parameter to enable portable mode which causes the installers to install to the desktop by default and to not create an uninstaller nor an entry in the Add/Remove Programs Control Panel applet. For example:</p>
 
 <precode>
 /portable=1 /silent /currentuser
@@ -3838,9 +3838,9 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 
 
-<topic name="compilercmdline" title="Command Line Compiler Execution">
-<keyword value="Command Line Compiler Execution" />
-<keyword value="command line parameters" />
+<topic name="compilercmdline" title="Command-Line Compiler Execution">
+<keyword value="Command-Line Compiler Execution" />
+<keyword value="command-line parameters" />
 <keyword value="ISIDE" />
 <keyword value="ISCC" />
 <body>
@@ -3848,7 +3848,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <ul>
 
 <li>
-<p>You can compile scripts from the command line using the console-mode compiler, <tt>ISCC.exe</tt>. Command line usage is as follows:</p>
+<p>You can compile scripts from the command line using the Command-Line Compiler, <tt>ISCC.exe</tt>. Command-line usage is as follows:</p>
 
 <precode>iscc <i>[options]</i> <i>&lt;script name&gt;</i></precode>
 <indent>
@@ -3884,7 +3884,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 <p>Short options accept both <tt>-</tt> and <tt>/</tt> as a prefix and are case-insensitive. Long <tt>--</tt> options are case-sensitive and do not accept <tt>//</tt> as a prefix.</p>
 
-<p>Also see <link topic="isppcc">Inno Setup Preprocessor: Command Line Compiler</link> for additional options.</p>
+<p>Also see <link topic="isppcc">Inno Setup Preprocessor: Command-Line Compiler</link> for additional options.</p>
 
 <p>Exit codes:</p>
 
@@ -3897,7 +3897,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 </tr>
 <tr>
 <td>1</td>
-<td>Command line parameters were invalid or a fatal error occurred</td>
+<td>Command-line parameters were invalid or a fatal error occurred</td>
 </tr>
 <tr>
 <td>2</td>
@@ -3908,7 +3908,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 </li>
 
 <li>
-<p>Alternatively, scripts can also be compiled by the Compiler IDE from the command line. Command line usage is as follows:</p>
+<p>Alternatively, scripts can also be compiled by the Compiler IDE from the command line. Command-line usage is as follows:</p>
 
 <precode>iside -cc <i>&lt;script name&gt;</i>
 iside --compile <i>&lt;script name&gt;</i></precode>
@@ -3920,11 +3920,11 @@ iside --compile <i>&lt;script name&gt;</i></precode>
 
 <p>Short options accept both <tt>-</tt> and <tt>/</tt> as a prefix and are case-insensitive. Long <tt>--</tt> options are case-sensitive and do not accept <tt>//</tt> as a prefix.</p>
 
-<p>Running the Compiler IDE from the command line does not suppress the normal progress display or any error messages. The Compiler IDE will return an exit code of 0 if the compile was successful, 1 if the command line parameters were invalid, or 2 if the compile failed.</p>
+<p>Running the Compiler IDE from the command line does not suppress the normal progress display or any error messages. The Compiler IDE will return an exit code of 0 if the compile was successful, 1 if the command-line parameters were invalid, or 2 if the compile failed.</p>
 </li>
 
 <li>
-<p>The Setup Script Wizard can be started from the command line. Command line usage is as follows:</p>
+<p>The Setup Script Wizard can be started from the command line. Command-line usage is as follows:</p>
 
 <precode>iside -wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i>
 iside --new-script-wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></precode>
@@ -3936,7 +3936,7 @@ iside --new-script-wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></precod
 
 <p>Short options accept both <tt>-</tt> and <tt>/</tt> as a prefix and are case-insensitive. Long <tt>--</tt> options are case-sensitive and do not accept <tt>//</tt> as a prefix.</p>
 
-<p>Running the wizard from the command line does not suppress any error messages. The Setup Script Wizard will return an exit code of 0 if there was no error and additionally it will save the generated script file to the specified filename, 1 if the command line parameters were invalid, or 2 if the generated script file could not be saved. If the user cancelled the Setup Script Wizard, an exit code of 0 is returned and no script file is saved.</p>
+<p>Running the wizard from the command line does not suppress any error messages. The Setup Script Wizard will return an exit code of 0 if there was no error and additionally it will save the generated script file to the specified filename, 1 if the command-line parameters were invalid, or 2 if the generated script file could not be saved. If the user cancelled the Setup Script Wizard, an exit code of 0 is returned and no script file is saved.</p>
 </li>
 
 </ul>
@@ -4231,7 +4231,7 @@ issigtool verify "MyFile.txt"
 
 <p>Inno Setup includes a command-line utility, <tt>ISSigTool.exe</tt>. This utility is designed to sign files using ECDSA P-256 cryptographic <link topic="issig">signatures</link>.</p>
 
-<p>Command line usage is as follows:</p>
+<p>Command-line usage is as follows:</p>
 
 <precode>
 issigtool <i>[options]</i> <i>&lt;command&gt;</i> <i>&lt;arguments&gt;</i>
@@ -4309,7 +4309,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 </tr>
 <tr>
 <td>2</td>
-<td>Command line parameters were invalid or a fatal error occurred</td>
+<td>Command-line parameters were invalid or a fatal error occurred</td>
 </tr>
 </table>
 </indent>
@@ -4326,9 +4326,9 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 
 
-<topic name="setupcmdline" title="Setup Command Line Parameters">
-<keyword value="Setup Command Line Parameters" />
-<keyword value="command line parameters" />
+<topic name="setupcmdline" title="Setup Command-Line Parameters">
+<keyword value="Setup Command-Line Parameters" />
+<keyword value="command-line parameters" />
 <keyword value="/HELP" anchor="HELP" />
 <keyword value="/?" anchor="HELP2" />
 <keyword value="/SP-" anchor="SP-" />
@@ -4367,9 +4367,9 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <keyword value="logging" />
 <body>
 
-<p>The Setup program accepts optional command line parameters. These can be useful to system administrators, and to other programs calling the Setup program.</p>
+<p>The Setup program accepts optional command-line parameters. These can be useful to system administrators, and to other programs calling the Setup program.</p>
 
-<p>Also see <link topic="uninstcmdline">Uninstaller Command Line Parameters</link>.</p>
+<p>Also see <link topic="uninstcmdline">Uninstaller Command-Line Parameters</link>.</p>
 
 <dl>
 
@@ -4385,7 +4385,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="SILENT">/SILENT</a>, <a name="VERYSILENT">/VERYSILENT</a></b></dt>
 <dd>
-<p>Instructs Setup to be silent or very silent. When Setup is silent the wizard and the background window are not displayed but the installation progress window is. When a setup is very silent this installation progress window is not displayed. Everything else is normal so for example error messages during installation are displayed (if you haven't disabled them with the <tt>/SUPPRESSMSGBOXES</tt> command line option explained below) and the startup prompt is (if you haven't disabled it with <sd>DisableStartupPrompt</sd> or the <tt>/SP-</tt> command line option explained above).</p>
+<p>Instructs Setup to be silent or very silent. When Setup is silent the wizard and the background window are not displayed but the installation progress window is. When a setup is very silent this installation progress window is not displayed. Everything else is normal so for example error messages during installation are displayed (if you haven't disabled them with the <tt>/SUPPRESSMSGBOXES</tt> command-line option explained below) and the startup prompt is (if you haven't disabled it with <sd>DisableStartupPrompt</sd> or the <tt>/SP-</tt> command-line option explained above).</p>
 <p>If a restart is necessary and the <tt>/NORESTART</tt> command isn't used (see below) and Setup is silent, it will display a <i>Reboot now?</i> message box. If it's very silent it will reboot without asking.</p>
 </dd>
 
@@ -4412,7 +4412,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 <li>The About Setup message box.</li>
 <li>The Exit Setup? message box.</li>
 <li>The <tt>FileNotInDir2</tt> message box displayed when Setup requires a new disk to be inserted and the disk was not found.</li>
-<li>Any (error) message box displayed before Setup (or Uninstall) could read the command line parameters.</li>
+<li>Any (error) message box displayed before Setup (or Uninstall) could read the command-line parameters.</li>
 <li>Any task dialog or message box displayed by <sn>[Code]</sn> support functions <isxfunc>TaskDialogMsgBox</isxfunc> and <isxfunc>MsgBox</isxfunc> (use <isxfunc>SuppressibleTaskDialogMsgBox</isxfunc> and <isxfunc>SuppressibleMsgBox</isxfunc> instead).</li>
 </ul>
 </dd>
@@ -4461,7 +4461,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="NOCLOSEAPPLICATIONS">/NOCLOSEAPPLICATIONS</a></b></dt>
 <dd>
-<p>Prevents Setup from closing applications using files that need to be updated by Setup. If <tt>/CLOSEAPPLICATIONS</tt> was also used, this command line parameter is ignored.</p>
+<p>Prevents Setup from closing applications using files that need to be updated by Setup. If <tt>/CLOSEAPPLICATIONS</tt> was also used, this command-line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="FORCECLOSEAPPLICATIONS">/FORCECLOSEAPPLICATIONS</a></b></dt>
@@ -4471,7 +4471,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="NOFORCECLOSEAPPLICATIONS">/NOFORCECLOSEAPPLICATIONS</a></b></dt>
 <dd>
-<p>Prevents Setup from force closing when closing applications. If <tt>/FORCECLOSEAPPLICATIONS</tt> was also used, this command line parameter is ignored.</p>
+<p>Prevents Setup from force closing when closing applications. If <tt>/FORCECLOSEAPPLICATIONS</tt> was also used, this command-line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="LOGCLOSEAPPLICATIONS">/LOGCLOSEAPPLICATIONS</a></b></dt>
@@ -4486,7 +4486,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="NORESTARTAPPLICATIONS">/NORESTARTAPPLICATIONS</a></b></dt>
 <dd>
-<p>Prevents Setup from restarting applications. If <tt>/RESTARTAPPLICATIONS</tt> was also used, this command line parameter is ignored.</p>
+<p>Prevents Setup from restarting applications. If <tt>/RESTARTAPPLICATIONS</tt> was also used, this command-line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="REDIRECTIONGUARD">/REDIRECTIONGUARD</a></b></dt>
@@ -4496,7 +4496,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="NOREDIRECTIONGUARD">/NOREDIRECTIONGUARD</a></b></dt>
 <dd>
-<p>Prevents Setup from enabling RedirectionGuard. If <tt>/REDIRECTIONGUARD</tt> was also used, this command line parameter is ignored.</p>
+<p>Prevents Setup from enabling RedirectionGuard. If <tt>/REDIRECTIONGUARD</tt> was also used, this command-line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="LOADINF">/LOADINF=</a>"<i>filename</i>"</b></dt>
@@ -4524,7 +4524,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="GROUP">/GROUP=</a>"<i>folder name</i>"</b></dt>
 <dd>
-<p>Overrides the default folder name displayed on the <i>Select Start Menu Folder</i> wizard page. May include an "<tt>expand:</tt>" prefix, see <tt>/DIR=</tt>. If the <sn>[Setup]</sn> section directive <sd>DisableProgramGroupPage</sd> was set to <tt>yes</tt>, this command line parameter is ignored.</p>
+<p>Overrides the default folder name displayed on the <i>Select Start Menu Folder</i> wizard page. May include an "<tt>expand:</tt>" prefix, see <tt>/DIR=</tt>. If the <sn>[Setup]</sn> section directive <sd>DisableProgramGroupPage</sd> was set to <tt>yes</tt>, this command-line parameter is ignored.</p>
 </dd>
 
 <dt><b><a name="NOICONS">/NOICONS</a></b></dt>
@@ -4540,7 +4540,7 @@ issigtool --key-file="MyKey.ispublickey" verify "MyProg.dll"
 
 <dt><b><a name="COMPONENTS">/COMPONENTS=</a>"<i>comma separated list of component names</i>"</b></dt>
 <dd>
-<p>Overrides the default <link topic="componentssection">component</link> settings. Using this command line parameter causes Setup to automatically select a custom type. If no custom type is defined, this parameter is ignored.</p>
+<p>Overrides the default <link topic="componentssection">component</link> settings. Using this command-line parameter causes Setup to automatically select a custom type. If no custom type is defined, this parameter is ignored.</p>
 <p>Only the specified components will be selected; the rest will be deselected.</p>
 <p>If a component name is prefixed with a "*" character, any child components will be selected as well (except for those that include the <tt>dontinheritcheck</tt> flag). If a component name is prefixed with a "!" character, the component will be deselected.</p>
 <p>This parameter does not change the state of components that include the <tt>fixed</tt> flag.</p>
@@ -4585,8 +4585,8 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b><a name="PASSWORD">/PASSWORD=</a><i>password</i></b></dt>
 <dd>
-<p>Specifies the password to use. If the <sn>[Setup]</sn> section directive <sd>Password</sd> was not set, this command line parameter is ignored.</p>
-<p>When an invalid password is specified, this command line parameter is also ignored.</p>
+<p>Specifies the password to use. If the <sn>[Setup]</sn> section directive <sd>Password</sd> was not set, this command-line parameter is ignored.</p>
+<p>When an invalid password is specified, this command-line parameter is also ignored.</p>
 </dd>
 
 </dl>
@@ -4610,7 +4610,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <tr>
 <td><b>0</b></td>
 <td>
-<p>Setup was successfully run to completion or the <tt>/HELP</tt> or <tt>/?</tt> command line parameter was used.</p>
+<p>Setup was successfully run to completion or the <tt>/HELP</tt> or <tt>/?</tt> command-line parameter was used.</p>
 </td>
 </tr>
 
@@ -4682,9 +4682,9 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 
 
-<topic name="uninstcmdline" title="Uninstaller Command Line Parameters">
-<keyword value="Uninstaller Command Line Parameters" />
-<keyword value="command line parameters" />
+<topic name="uninstcmdline" title="Uninstaller Command-Line Parameters">
+<keyword value="Uninstaller Command-Line Parameters" />
+<keyword value="command-line parameters" />
 <keyword value="/SILENT" anchor="SILENT" />
 <keyword value="/VERYSILENT" anchor="VERYSILENT" />
 <keyword value="/NORESTART" anchor="NORESTART" />
@@ -4698,9 +4698,9 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 <keyword value="logging" />
 <body>
 
-<p>The uninstaller program (<tt>unins???.exe</tt>) accepts optional command line parameters. These can be useful to system administrators, and to other programs calling the uninstaller program.</p>
+<p>The uninstaller program (<tt>unins???.exe</tt>) accepts optional command-line parameters. These can be useful to system administrators, and to other programs calling the uninstaller program.</p>
 
-<p>Also see <link topic="setupcmdline">Setup Command Line Parameters</link>.</p>
+<p>Also see <link topic="setupcmdline">Setup Command-Line Parameters</link>.</p>
 
 <dl>
 
@@ -4717,7 +4717,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b><a name="SUPPRESSMSGBOXES">/SUPPRESSMSGBOXES</a></b></dt>
 <dd>
-<p>Instructs the uninstaller to suppress message boxes. Only has an effect when combined with <tt>/SILENT</tt> and <tt>/VERYSILENT</tt>. See <tt>/SUPPRESSMSGBOXES</tt> under <link topic="setupcmdline" anchor="SUPPRESSMSGBOXES">Setup Command Line Parameters</link> for more details.</p>
+<p>Instructs the uninstaller to suppress message boxes. Only has an effect when combined with <tt>/SILENT</tt> and <tt>/VERYSILENT</tt>. See <tt>/SUPPRESSMSGBOXES</tt> under <link topic="setupcmdline" anchor="SUPPRESSMSGBOXES">Setup Command-Line Parameters</link> for more details.</p>
 </dd>
 
 <dt><b><a name="LOG">/LOG</a></b></dt>
@@ -4744,7 +4744,7 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <dt><b><a name="NOREDIRECTIONGUARD">/NOREDIRECTIONGUARD</a></b></dt>
 <dd>
-<p>Prevents the uninstaller from enabling RedirectionGuard. If <tt>/REDIRECTIONGUARD</tt> was also used, this command line parameter is ignored.</p>
+<p>Prevents the uninstaller from enabling RedirectionGuard. If <tt>/REDIRECTIONGUARD</tt> was also used, this command-line parameter is ignored.</p>
 </dd>
 
 </dl>
@@ -5252,8 +5252,8 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <setupdefault><i>(blank)</i></setupdefault>
 <body>
 <p>Can be set to one or more overrides which allow the end user to override the script's default <sd>PrivilegesRequired</sd> setting.</p>
-<p>If override <tt>commandline</tt> is allowed then Setup will support two additional command line parameters to override the script's default <sd>PrivilegesRequired</sd> setting: <tt>/ALLUSERS</tt> and <tt>/CURRENTUSER</tt>. See <link topic="setupcmdline" anchor="ALLUSERS">Setup Command Line Parameters</link> for more details.</p>
-<p>If override <tt>dialog</tt> is allowed then Setup will ask the user to choose the install mode based on the script's default <sd>PrivilegesRequired</sd> setting using a suppressible dialog. Allowing <tt>dialog</tt> automatically allows <tt>commandline</tt> and when one of the command line parameters is used then Setup will not ask the user.</p>
+<p>If override <tt>commandline</tt> is allowed then Setup will support two additional command-line parameters to override the script's default <sd>PrivilegesRequired</sd> setting: <tt>/ALLUSERS</tt> and <tt>/CURRENTUSER</tt>. See <link topic="setupcmdline" anchor="ALLUSERS">Setup Command-Line Parameters</link> for more details.</p>
+<p>If override <tt>dialog</tt> is allowed then Setup will ask the user to choose the install mode based on the script's default <sd>PrivilegesRequired</sd> setting using a suppressible dialog. Allowing <tt>dialog</tt> automatically allows <tt>commandline</tt> and when one of the command-line parameters is used then Setup will not ask the user.</p>
 <p><b>See also:</b><br/>
 <sd>UsePreviousPrivileges</sd></p>
 </body>
@@ -5272,8 +5272,8 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <p>Setup and Uninstall both support <tt>/NOREDIRECTIONGUARD</tt> and <tt>/REDIRECTIONGUARD</tt> parameters to override this setting from the command line.</p>
 <p>RedirectionGuard status is logged, so you can verify whether the mitigation was active during installation/uninstallation.</p>
 <p><b>See also:</b><br/>
-<link topic="setupcmdline">Setup Command Line Parameters</link><br/>
-<link topic="uninstcmdline">Uninstaller Command Line Parameters</link></p>
+<link topic="setupcmdline">Setup Command-Line Parameters</link><br/>
+<link topic="uninstcmdline">Uninstaller Command-Line Parameters</link></p>
 </body>
 </setuptopic>
 
@@ -6437,7 +6437,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <heading>Other Considerations</heading>
 <ul>
 <li>The default style can be customized by specifying a VCL Styles file using the <sd>WizardStyleFile</sd> directive. When forced light (<tt>light</tt>) or dynamic light (<tt>dynamic</tt> with Windows in light mode) is active, the default style is the system's native light style. Otherwise, the default style is a built-in custom dark style.</li>
-<li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme or when command line parameter <tt>/NOSTYLE</tt> is used.</li>
+<li>Custom styles (including the built-in custom dark style) are <i>not</i> activated when the user's system is set to a high-contrast theme or when command-line parameter <tt>/NOSTYLE</tt> is used.</li>
 <li>When a custom style (including the built-in custom dark style) is active, three additional things occur. First, all text labels, except for the label associated with the <tt>BeveledLabel</tt> message, are transparent instead of opaque. Second, Setup and Uninstall use a custom implementation of Windows message boxes and task dialogs. Third, color properties set through Pascal Scripting are usually ignored, with the style's colors taking precedence.</li>
 <li>Enabling forced dark (<tt>dark</tt>) increases the size of Setup by approximately 220 KB. Enabling dynamic dark (<tt>dynamic</tt>) adds approximately 75 KB more. Enabling dynamic dark and including a custom light style as well (for example, <tt>dynamic windows11</tt>) adds approximately 110 KB more.</li>
 <li>Messages displayed by the so-called "setup loader" will never be styled. Normally no such messages are displayed, unless you enabled the startup prompt using <sd>DisableStartupPrompt</sd>.</li>
@@ -6725,7 +6725,7 @@ Otherwise, it defaults to <tt>none</tt>.</p>
 <setupdefault><tt>no</tt></setupdefault>
 <body>
 <p>If set to <tt>yes</tt>, files that are compiled into the installation (via <sn>[Files]</sn> section entries) will be encrypted using XChaCha20 encryption.</p>
-<p>If set to <tt>full</tt>, the entire installation will be encrypted, and the password must be specified using the <tt><link topic="setupcmdline" anchor="PASSWORD">/PASSWORD=</link></tt> command line parameter.</p>
+<p>If set to <tt>full</tt>, the entire installation will be encrypted, and the password must be specified using the <tt><link topic="setupcmdline" anchor="PASSWORD">/PASSWORD=</link></tt> command-line parameter.</p>
 <p>If set to <tt>yes</tt> or <tt>full</tt> and you call the <isxfunc>ExtractTemporaryFile</isxfunc> function from the <sn>[Code]</sn> section prior to the user entering the correct password, the function will fail unless the <tt>noencryption</tt> flag is used on the <sn>[Files]</sn> section entry for the file.</p>
 <p>If set to <tt>yes</tt> or <tt>full</tt> the 256-bit XChaCha20 encryption key is derived from the value of <sd>Password</sd> using the function specified by <sd>EncryptionKeyDerivation</sd>.</p>
 <p>The 192-bit XChaCha20 encryption nonce is a random base nonce, appending the index of the first file in the chunk for unique encryption nonces.</p>

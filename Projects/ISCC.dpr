@@ -767,7 +767,7 @@ begin
       const IDESignTools = TStringList.Create;
       try
         { Also automatically read and add SignTools defined using the IDE. Adding
-          these after the command line SignTools so that the latter are always
+          these after the command-line SignTools so that the latter are always
           found first by the compiler. }
         ReadSignTools(IDESignTools);
         for I := 0 to IDESignTools.Count-1 do
