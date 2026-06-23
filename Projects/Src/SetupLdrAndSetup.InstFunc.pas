@@ -347,7 +347,7 @@ begin
 end;
 
 procedure SplitNewParamStr(const Index: Integer; var AName, AValue: String);
-{ Reads a command line parameter. If it is in the form "/PARAM=VALUE" then
+{ Reads a command-line parameter. If it is in the form "/PARAM=VALUE" then
   AName is set to "/PARAM=" and AValue is set to "VALUE". Otherwise, the full
   parameter is stored in AName, and AValue is set to an empty string. }
 var

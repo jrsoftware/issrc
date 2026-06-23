@@ -16,10 +16,11 @@ interface
 uses
   SysUtils, Classes,
   Forms, Controls, StdCtrls, ExtCtrls,
-  IDE.Wizard.WizardFormRegistryHelper, NewStaticText, BitmapButton;
+  NewStaticText, BitmapButton,
+  IDE.Wizard.WizardFormRegistryHelper, IDE.IDEForm;
 
 type
-  TRegistryDesignerForm = class(TForm)
+  TRegistryDesignerForm = class(TIDEForm)
     Panel1: TPanel;
     Bevel1: TBevel;
     InsertButton: TButton;
@@ -52,24 +53,30 @@ implementation
 {$R *.dfm}
 
 uses
-  IDE.HelperFunc, IDE.Messages;
+  Shared.CommonFunc, IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc;
 
 procedure TRegistryDesignerForm.SetPrivilegesRequired(
   const Value: TPrivilegesRequired);
 begin
   if Value = prAdmin then
-    PrivilegesRequiredLabel.Caption := Format(SRegistryDesignerScriptHas, ['PrivilegesRequired=admin'])
+    PrivilegesRequiredLabel.Caption := RemoveAccelChar(LFmtMessage(SDesignerScriptHas, ['PrivilegesRequired=admin']))
   else if Value = prLowest then
-    PrivilegesRequiredLabel.Caption := Format(SRegistryDesignerScriptHas, ['PrivilegesRequired=lowest'])
+    PrivilegesRequiredLabel.Caption := RemoveAccelChar(LFmtMessage(SDesignerScriptHas, ['PrivilegesRequired=lowest']))
   else
-    PrivilegesRequiredLabel.Caption := Format(SRegistryDesignerScriptHasSet, ['PrivilegesRequiredOverridesAllowed']);
+    PrivilegesRequiredLabel.Caption := LFmtMessage(SRegistryDesignerScriptHasSet, ['PrivilegesRequiredOverridesAllowed']);
   FRegistryHelper.PrivilegesRequired := Value;
 end;
 
 procedure TRegistryDesignerForm.FormCreate(Sender: TObject);
 begin
-  InitFormFont(Self);
-  InitFormTheme(Self);
+  { Finish localization }
+  Caption := LFmtMessage(Caption, ['[Registry]']);
+  AppRegistryFileLabel.Caption := LFmtMessage(AppRegistryFileLabel.Caption, [SLitRegExt]);
+  SizeBottomButtons(InsertButton, CancelButton);
+  const OldW = AppRegistryFileButton.Width;
+  const W = SizeSideButtons([AppRegistryFileButton], [AppRegistryFileEdit, AppRegistryMinVerEdit]);
+  const Diff = W - OldW;
+  AppRegistryMinVerDocBitBtn.Left := AppRegistryMinVerDocBitBtn.Left - Diff;
 
   FRegistryHelper := TWizardFormRegistryHelper.Create(Self, AppRegistryFileEdit,
     AppRegistryFileButton, AppRegistryUninsDeleteKeyCheck,

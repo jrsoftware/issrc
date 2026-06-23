@@ -47,7 +47,7 @@ implementation
 uses
   Windows, ShLwApi, Classes, SysUtils, StrUtils, TypInfo, Graphics, UITypes,
   ComCtrls, BrowseFunc,
-  IDE.MainForm, IDE.ImagesModule, IDE.HelperFunc, IDE.Messages, Shared.CommonFunc, IDE.HtmlHelpFunc;
+  IDE.MainForm, IDE.ImagesModule, IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc, Shared.CommonFunc, IDE.HtmlHelpFunc;
 
 { TWizardFormRegistryHelper }
 
@@ -88,6 +88,8 @@ begin
   UninsDeleteKeyIfEmptyCheck.OnClick := UninsDeleteKeyIfEmptyCheckClick;
   MinVerCheck.OnClick := MinVerCheckClick;
   MinVerCheck.OnClick(nil);
+  MinVerDocBitBtn.Caption := RemoveAccelChar(MainForm.HMenu.Caption);
+  MinVerDocBitBtn.Hint := MinVerDocBitBtn.Caption;
   MinVerDocBitBtn.OnClick := MinVerDocBitBtnClick;
   MinVerDocBitBtn.Cursor := crHandPoint;
 
@@ -105,7 +107,9 @@ end;
 procedure TWizardFormRegistryHelper.FileButtonClick(Sender: TObject);
 begin
   var FileName: String := FFileEdit.Text;
-  if NewGetOpenFileName('', FileName, '', SWizardAppRegFilter, SWizardAppRegDefaultExt, FForm.Handle) then
+  if NewGetOpenFileName('', FileName, '',
+       Format(SLitExtAndAllFilter, [LFmtMessage(SRegFiles), SLitRegExt, LFmtMessage(SAllFiles)]),
+       SLitRegExt, FForm.Handle) then
     FFileEdit.Text := FileName;
 end;
 
@@ -316,21 +320,21 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
 
   function TextHeader: String;
   begin
-    Result := ';' + Format(SWizardScriptCommentRegistryDataFromFile, [ExtractFileName(FFileEdit.Text)]);
+    Result := ';' + LFmtMessage(SWizardScriptCommentRegistryDataFromFile, [ExtractFileName(FFileEdit.Text)]);
   end;
 
   function TextBadHeader: String;
   begin
-    Result := ';' + Format(SWizardScriptCommentCouldNotImport, [ExtractFileName(FFileEdit.Text)]);
+    Result := ';' + LFmtMessage(SWizardScriptCommentCouldNotImport, [ExtractFileName(FFileEdit.Text)]);
   end;
 
   function TextFooter(const HadFilteredKeys, HadUnsupportedValueTypes: Boolean): String;
   begin
-    Result := ';' + Format(SWizardScriptCommentEndOfRegistryDataFromFile, [ExtractFileName(FFileEdit.Text)]);
+    Result := ';' + LFmtMessage(SWizardScriptCommentEndOfRegistryDataFromFile, [ExtractFileName(FFileEdit.Text)]);
     if HadFilteredKeys then
-      Result := Result + SNewLine + ';' + SWizardScriptCommentKeysFilteredDuePrivilegesRequired;
+      Result := Result + SNewLine + ';' + LFmtMessage(SWizardScriptCommentKeysFilteredDuePrivilegesRequired, ['PRIVILEGESREQUIRED']);
     if HadUnsupportedValueTypes then
-      Result := Result + SNewLine + ';' + SWizardScriptCommentValuesWithUnsupportedTypesSkipped
+      Result := Result + SNewLine + ';' + LFmtMessage(SWizardScriptCommentValuesWithUnsupportedTypesSkipped)
   end;
 
 begin
@@ -349,7 +353,7 @@ begin
     const Header = 'Windows Registry Editor Version 5.00'; { don't localize }
     if (Lines.Count = 0) or (Lines[0] <> Header) then begin
       if AllowException then
-        raise Exception.Create(SRegistryDesignerInvalidFileFormat)
+        raise Exception.Create(LFmtMessage(SRegistryDesignerInvalidFileFormat))
       else begin
         Registry := Registry + TextBadHeader + SNewLine;
         Exit;

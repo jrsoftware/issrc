@@ -210,7 +210,7 @@ var
   Op: TTokenKind;
   ParenthesesUsed: Boolean;
 begin
-  FillChar(Result, SizeOf(Result), 0);
+  Result := Default(TIsppVariant);
   case NextTokenExpect(ExpressionStartTokens) of
     tkOpenParen:
       begin

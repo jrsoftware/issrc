@@ -406,9 +406,6 @@ end;
   of a TCustomStaticText or TStaticText, and that it uses the control's
   Color property }
 
-type
-  TControlAccess = class(TControl);
-
 constructor TNewStaticTextStyleHook.Create(AControl: TWinControl);
 begin
   inherited;

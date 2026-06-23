@@ -124,6 +124,11 @@
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\IDE.HelperFunc.pas"/>
         <DCCReference Include="Src\IDE.Messages.pas"/>
+        <DCCReference Include="Src\IDE.LocalizeFunc.pas"/>
+        <DCCReference Include="Src\IDE.LocalizeFunc.Czech.pas"/>
+        <DCCReference Include="Src\IDE.LocalizeFunc.Dutch.pas"/>
+        <DCCReference Include="Src\IDE.LocalizeFunc.German.pas"/>
+        <DCCReference Include="Src\IDE.LocalizeFunc.Japanese.pas"/>
         <DCCReference Include="Src\Shared.CompilerInt.pas"/>
         <DCCReference Include="Src\Shared.CompilerInt.Struct.pas"/>
         <DCCReference Include="Src\IDE.OptionsForm.pas">
@@ -152,8 +157,8 @@
         <DCCReference Include="Src\IDE.LicenseKeyForm.pas">
             <Form>LicenseKeyForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\IDE.InputQueryComboForm.pas">
-            <Form>InputQueryComboForm</Form>
+        <DCCReference Include="Src\IDE.InputQueryForm.pas">
+            <Form>InputQueryForm</Form>
         </DCCReference>
         <DCCReference Include="Src\IDE.InputQueryMemoForm.pas">
             <Form>InputQueryMemoForm</Form>
@@ -183,6 +188,7 @@
         <DCCReference Include="..\Components\TaskbarProgressFunc.pas"/>
         <DCCReference Include="Src\IDE.HtmlHelpFunc.pas"/>
         <DCCReference Include="..\Components\UIStateForm.pas"/>
+        <DCCReference Include="Src\IDE.IDEForm.pas"/>
         <DCCReference Include="Src\Shared.LangOptionsSectionDirectives.pas"/>
         <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
         <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>

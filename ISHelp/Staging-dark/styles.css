@@ -145,6 +145,29 @@ TT {
 	margin-bottom: 0.5em;
 }
 
+/* Syntax highlighting in script examples */
+.sec {
+	font-weight: bold;
+}
+.evt {
+	font-weight: bold;
+}
+.key {
+	color: #0088f0;
+}
+.com {
+	color: #339933;
+}
+.con {
+	color: #a278b5;
+}
+.str, .num {
+	color: #f09060;
+}
+.ispp {
+	color: #d95e6c;
+}
+
 
 dl.paramlist > dd {
 	margin-top: 0.5em;

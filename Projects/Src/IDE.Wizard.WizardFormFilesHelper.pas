@@ -49,9 +49,9 @@ type
 implementation
 
 uses
-  SysUtils, UITypes, Dialogs,
+  SysUtils, UITypes,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, BrowseFunc, PathFunc,
-  IDE.Messages;
+  IDE.InputQueryForm, IDE.Messages, IDE.LocalizeFunc;
 
 constructor TWizardFormFilesHelper.Create(const Form: TForm;
   const NotCreateAppDirCheck: TCheckBox; const FilesListBox: TDropListBox;
@@ -163,7 +163,9 @@ var
 begin
   FileList := TStringList.Create;
   try
-    if NewGetOpenFileNameMulti('', FileList, '', SWizardAllFilesFilter, '', FForm.Handle) then begin
+    if NewGetOpenFileNameMulti('', FileList, '',
+         Format(SLitAllFilesFilter, [LFmtMessage(SAllFiles)]),
+         '', FForm.Handle) then begin
       FileList.Sort;
       for I := 0 to FileList.Count-1 do
         AddWizardFile(FileList[I], []);
@@ -181,8 +183,8 @@ var
   Recurse: Boolean;
 begin
   Path := '';
-  if BrowseForFolder(SWizardAppFiles3, Path, FForm.Handle, False) then begin
-    case MsgBox(Format(SWizardAppFilesSubDirsMessage, [Path]), '', mbConfirmation, MB_YESNOCANCEL) of
+  if BrowseForFolder(LFmtMessage(SWizardAppFiles3), Path, FForm.Handle) then begin
+    case MsgBox(LFmtMessage(SWizardAppFilesSubDirsMessage, [Path]), '', mbConfirmation, MB_YESNOCANCEL) of
       IDYES: Recurse := True;
       IDNO: Recurse := False;
     else
@@ -205,21 +207,21 @@ const
 begin
   var Source := 'https://www.example.com/MyProg.7z';
   repeat
-    if not InputQuery(FForm.Caption, SWizardAppFilesDownloadSourcePrompt, Source)  then
+    if not InputQueryEdit(FForm.Caption, LFmtMessage(SWizardAppFilesDownloadSourcePrompt), Source)  then
       Exit;
   until Source <> '';
-  const ExtractArchive = MsgBox(SWizardAppFilesDownloadExtractArchiveMessage, '', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES;
+  const ExtractArchive = MsgBox(LFmtMessage(SWizardAppFilesDownloadExtractArchiveMessage), '', mbConfirmation, MB_YESNO or MB_DEFBUTTON2) = IDYES;
   var DestName := 'MyProg.7z';
   repeat
-    if not InputQuery(FForm.Caption, DestNamePrompts[ExtractArchive], DestName)  then
+    if not InputQueryEdit(FForm.Caption, LFmtMessage(DestNamePrompts[ExtractArchive]), DestName)  then
       Exit;
   until DestName <> '';
   var ExternalSizeAsString := '';
   var ExternalSize: Extended;
   repeat
-    if not InputQuery(FForm.Caption, SWizardAppFilesDownloadExternalSizePrompt, ExternalSizeAsString)  then
+    if not InputQueryEdit(FForm.Caption, LFmtMessage(SWizardAppFilesDownloadExternalSizePrompt), ExternalSizeAsString)  then
       Exit;
-  until TryStrToFloat(ExternalSizeAsString, ExternalSize);
+  until TryStrToFloat(ExternalSizeAsString, ExternalSize) and (ExternalSize > 0);
 
   var Options: TWizardFileOptions := [foDownload];
   if ExtractArchive then
@@ -275,7 +277,7 @@ begin
     WizardFile := FWizardFiles[I];
 
     if (foDownload in WizardFile.Options) and not AddedVerificationNote then begin
-      Files := Files + '; ' + SWizardScriptCommentVerifyDownloads + SNewLine;
+      Files := Files + SLitComment + LFmtMessage(SWizardScriptCommentVerifyDownloads, ['issigverify', 'Hash']) + SNewLine;
       AddedVerificationNote := True;
     end;
 

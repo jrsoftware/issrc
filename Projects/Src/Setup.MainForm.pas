@@ -159,7 +159,7 @@ function TMainForm.Install: Boolean;
 
   procedure RestartApplications;
   const
-    ERROR_FAIL_RESTART = 353;
+    ERROR_FAIL_RESTART = 352;
   var
     Error: DWORD;
     WindowDisabler: TWindowDisabler;

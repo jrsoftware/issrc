@@ -396,7 +396,7 @@ object WizardForm: TWizardForm
         Height = 53
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
-        Caption = 'Welcome to the [name]'
+        Caption = 'Welcome to the %1'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -16
@@ -411,30 +411,19 @@ object WizardForm: TWizardForm
         Left = 214
         Top = 76
         Width = 362
-        Height = 57
+        Height = 278
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 
           'This wizard will guide you through the process of creating a new' +
           ' Inno Setup script file. The results will be used to generate a ' +
           'new script file which can be compiled directly or saved on disk ' +
-          'for later use.'
+          'for later use.%n%nNot all features of Inno Setup are covered by ' +
+          'this wizard. See the documentation for details on creating Inno ' +
+          'Setup script files.%n%nClick Next to continue, or Cancel to exit' +
+          ' this wizard.'
         ShowAccelChar = False
         TabOrder = 1
-        WordWrap = True
-      end
-      object WelcomeLabel3: TNewStaticText
-        Left = 214
-        Top = 140
-        Width = 362
-        Height = 77
-        Anchors = [akLeft, akTop, akRight]
-        AutoSize = False
-        Caption = 
-          'Not all features of Inno Setup are covered by this wizard. See t' +
-          'he documentation for details on creating Inno Setup script files' +
-          '.'#13#13'Click Next to continue, or Cancel to exit this wizard.'
-        TabOrder = 2
         WordWrap = True
       end
       object EmptyCheck: TCheckBox
@@ -444,7 +433,7 @@ object WizardForm: TWizardForm
         Height = 17
         Anchors = [akLeft, akRight, akBottom]
         Caption = 'Create a new &empty script file'
-        TabOrder = 3
+        TabOrder = 2
       end
     end
     object MainPage: TNewNotebookPage
@@ -682,7 +671,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = '&Add file(s)...'
+            Caption = '&Add File(s)...'
             TabOrder = 7
           end
           object AppFilesEditButton: TButton
@@ -736,7 +725,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'Add fol&der...'
+            Caption = 'Add Fol&der...'
             TabOrder = 8
           end
           object NoAppExeCheck: TCheckBox
@@ -755,7 +744,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'D&ownload...'
+            Caption = 'Add D&ownload...'
             TabOrder = 9
           end
         end
@@ -871,7 +860,7 @@ object WizardForm: TWizardForm
           object DesktopIconCheck: TCheckBox
             Left = 36
             Top = 180
-            Width = 356
+            Width = 524
             Height = 17
             Anchors = [akLeft, akTop, akRight]
             Caption = 'Allow user to create a deskto&p shortcut'
@@ -880,7 +869,7 @@ object WizardForm: TWizardForm
           object CreateUninstallIconCheck: TCheckBox
             Left = 36
             Top = 136
-            Width = 400
+            Width = 524
             Height = 17
             Anchors = [akLeft, akTop, akRight]
             Caption = 'Create an &Uninstall shortcut in the Start Menu folder'
@@ -889,7 +878,7 @@ object WizardForm: TWizardForm
           object CreateURLIconCheck: TCheckBox
             Left = 36
             Top = 116
-            Width = 400
+            Width = 524
             Height = 17
             Anchors = [akLeft, akTop, akRight]
             Caption = 'Create an &Internet shortcut in the Start Menu folder'
@@ -901,9 +890,7 @@ object WizardForm: TWizardForm
             Width = 524
             Height = 17
             Anchors = [akLeft, akTop, akRight]
-            Caption = 
-              '&Create a shortcut to the main executable in the Start Menu Prog' +
-              'rams folder'
+            Caption = '&Create a Start Menu shortcut but no folder'
             TabOrder = 0
             OnClick = UseAutoProgramsCheckClick
           end
@@ -980,7 +967,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'Br&owse...'
+            Caption = '*'
             TabOrder = 5
             OnClick = FileButtonClick
           end
@@ -998,7 +985,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'Bro&wse...'
+            Caption = '*'
             TabOrder = 8
             OnClick = FileButtonClick
           end
@@ -1066,7 +1053,6 @@ object WizardForm: TWizardForm
             Width = 20
             Height = 20
             Anchors = [akTop, akRight]
-            Caption = 'Help'
             TabOrder = 9
           end
           object AppRegistryFileLabel: TNewStaticText
@@ -1076,7 +1062,7 @@ object WizardForm: TWizardForm
             Height = 16
             Anchors = [akLeft, akTop, akRight]
             AutoSize = False
-            Caption = '&Windows registry file (.reg) to import:'
+            Caption = '&Windows registry file (.%1) to import:'
             FocusControl = AppRegistryFileEdit
             TabOrder = 0
           end
@@ -1140,7 +1126,7 @@ object WizardForm: TWizardForm
             Top = 160
             Width = 245
             Height = 17
-            Caption = 'Create only if Windows'#39' version is at least:'
+            Caption = 'Minimum Windows version:'
             TabOrder = 7
           end
           object AppRegistryMinVerEdit: TEdit
@@ -1183,7 +1169,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = '&Select all'
+            Caption = 'Select &All'
             TabOrder = 2
             OnClick = AllLanguagesButtonClick
           end
@@ -1193,7 +1179,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = '&Deselect all'
+            Caption = '&Deselect All'
             TabOrder = 3
             OnClick = NoLanguagesButtonClick
           end
@@ -1289,7 +1275,7 @@ object WizardForm: TWizardForm
             Width = 89
             Height = 23
             Anchors = [akTop, akRight]
-            Caption = 'Bro&wse...'
+            Caption = '*'
             TabOrder = 7
             OnClick = FileButtonClick
           end
@@ -1355,13 +1341,8 @@ object WizardForm: TWizardForm
             Style = csDropDownList
             Anchors = [akLeft, akTop, akRight]
             DropDownCount = 12
-            ItemIndex = 1
             TabOrder = 1
-            Text = 'modern'
             OnChange = WizardStyleComboBoxChange
-            Items.Strings = (
-              'classic'
-              'modern')
           end
           object WizardStyleDarkComboBox: TComboBox
             Left = 173
@@ -1371,14 +1352,8 @@ object WizardForm: TWizardForm
             Style = csDropDownList
             Anchors = [akTop, akRight]
             DropDownCount = 12
-            ItemIndex = 2
             TabOrder = 2
-            Text = 'dynamic'
             OnChange = WizardStyleComboBoxChange
-            Items.Strings = (
-              'light'
-              'dark'
-              'dynamic')
           end
           object WizardStyleSubStyleComboBox: TComboBox
             Left = 311
@@ -1388,17 +1363,8 @@ object WizardForm: TWizardForm
             Style = csDropDownList
             Anchors = [akTop, akRight]
             DropDownCount = 12
-            ItemIndex = 0
             TabOrder = 3
-            Text = 'default'
             OnChange = WizardStyleComboBoxChange
-            Items.Strings = (
-              'default'
-              'polar'
-              'slate'
-              'stellar'
-              'windows11'
-              'zircon')
           end
         end
         object ISPPPage: TNewNotebookPage
@@ -1640,12 +1606,12 @@ object WizardForm: TWizardForm
         Left = 214
         Top = 16
         Width = 362
-        Height = 121
+        Height = 353
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 
-          'You have successfully completed the [name].'#13#13'To close this wizar' +
-          'd and generate the new script file, click Finish.'
+          'You have successfully completed the %1.%n%nTo close this wizard ' +
+          'and generate the new script file, click Finish.'
         ShowAccelChar = False
         TabOrder = 0
         WordWrap = True

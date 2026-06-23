@@ -15,10 +15,12 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewGroupBox, NewStaticText, ComCtrls, pngimage, BitmapImage;
+  StdCtrls, ExtCtrls, ComCtrls, pngimage,
+  NewGroupBox, NewStaticText, BitmapImage,
+  IDE.IDEForm;
 
 type
-  TMsgBoxDesignerForm = class(TUIStateForm)
+  TMsgBoxDesignerForm = class(TIDEForm)
     IMGmbInformation: TBitmapImage;
     IMGmbConfirmation: TBitmapImage;
     IMGmbError: TBitmapImage;
@@ -52,9 +54,9 @@ type
     cb_IDIGNORE: TCheckBox;
     GroupBox5: TNewGroupBox;
     cb_MB_SETFOREGROUND: TCheckBox;
-    NewStaticText1: TNewStaticText;
-    NewEdit1: TEdit;
-    UpDown1: TUpDown;
+    DefaultButtonLabel: TNewStaticText;
+    DefaultButtonEdit: TEdit;
+    DefaultButtonUpDown: TUpDown;
     GroupBox6: TNewGroupBox;
     cb_MsgBox: TRadioButton;
     cb_TaskDialogMsgBox: TRadioButton;
@@ -110,14 +112,51 @@ implementation
 
 uses
   ShellAPI,
-  Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, Shared.TaskDialogFunc, IDE.Messages;
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, Shared.TaskDialogFunc, IDE.Messages, IDE.LocalizeFunc;
 
 {$R *.DFM}
 
+function GroupBox4Caption(const IncludeShield, IncludeDefault: Boolean): String;
+begin
+  Result := LFmtMessage(SMsgBoxDesignerReturnValues);
+  if IncludeShield then
+    Result := Result + ' / ' + LFmtMessage(SMsgBoxDesignerReturnValuesShield);
+  if IncludeDefault then
+    Result := Result + ' / ' + LFmtMessage(SMsgBoxDesignerReturnValuesDefault);
+  Result := ' ' + Result + ' ';
+end;
+
 procedure TMsgBoxDesignerForm.FormCreate(Sender: TObject);
 begin
-  InitFormFont(Self);
-  InitFormTheme(Self);
+  { Finish localization }
+  Caption := LFmtMessage(Caption, ['MsgBox/TaskDialogMsgBox']);
+  GroupBox1.Caption := ' ' + TaskMessageLabel.Caption + ' ';
+  GroupBox3.Caption := ' ' + Button1Label.Caption + ' ';
+  const W = SizeBottomButtons(MBDButtonOK, MBDButtonCancel, [MBDButtonPreview]);
+  MBDButtonPreview.Width := W;
+  DefaultButtonLabel.Caption := DefaultButtonLabel.Caption + ' ';
+  DefaultButtonEdit.Left := DefaultButtonLabel.Left + DefaultButtonLabel.Width;
+  { Also, all these should not be localized, so are kept out of the .dfm }
+  cb_MsgBox.Caption := 'MsgBox';
+  cb_TaskDialogMsgBox.Caption := 'TaskDialogMsgBox';
+  cb_MB_SETFOREGROUND.Caption := 'MB_SETFOREGROUND';
+  rb_mbInformation.Caption := 'mbInformation';
+  rb_mbConfirmation.Caption := 'mbConfirmation';
+  rb_mbError.Caption := 'mbError';
+  rb_mbCriticalError.Caption := 'mbCriticalError';
+  rbMB_OK.Caption := 'MB_OK';
+  rbMB_OKCANCEL.Caption := 'MB_OKCANCEL';
+  rbMB_YESNO.Caption := 'MB_YESNO';
+  rbMB_YESNOCANCEL.Caption := 'MB_YESNOCANCEL';
+  rbMB_RETRYCANCEL.Caption := 'MB_RETRYCANCEL';
+  rbMB_ABORTRETRYIGNORE.Caption := 'MB_ABORTRETRYIGNORE';
+  cb_IDOK.Caption := 'IDOK';
+  cb_IDCANCEL.Caption := 'IDCANCEL';
+  cb_IDYES.Caption := 'IDYES';
+  cb_IDNO.Caption := 'IDNO';
+  cb_IDABORT.Caption := 'IDABORT';
+  cb_IDRETRY.Caption := 'IDRETRY';
+  cb_IDIGNORE.Caption := 'IDIGNORE';
 
   IMGmbInformation.InitializeFromStockIcon(SIID_INFO, clNone, [32, 48, 64]);
   IMGmbConfirmation.InitializeFromStockIcon(SIID_HELP, clNone, [32, 48, 64]);
@@ -125,7 +164,7 @@ begin
   IMGmbCriticalError.InitializeFromStockIcon(SIID_ERROR, clNone, [32, 48, 64]);
 
   cb_Suppressible.Checked := True;
-  MSGText.Text := SMsgBoxDesignerDefaultInputText;
+  MSGText.Text := '<' + LFmtMessage(SMsgBoxDesignerDefaultInputText) + '>';
   MSGText.SelectAll;
   cb_IDCANCEL.Enabled := False;
   cb_IDABORT.Enabled := False;
@@ -133,9 +172,9 @@ begin
   cb_IDIGNORE.Enabled := False;
   cb_IDYES.Enabled := False;
   cb_IDNO.Enabled := False;
-  NewStaticText1.Enabled := False;
-  NewEdit1.Enabled := False;
-  UpDown1.Enabled := False;
+  DefaultButtonLabel.Enabled := False;
+  DefaultButtonEdit.Enabled := False;
+  DefaultButtonUpDown.Enabled := False;
   TaskInstructionLabel.Visible := False;
   TaskMessageLabel.Visible := False;
   TaskInstructionText.Visible := False;
@@ -164,10 +203,10 @@ begin
   cb_IDIGNORE.Enabled := False;
   cb_IDYES.Enabled := False;
   cb_IDNO.Enabled := False;
-  NewStaticText1.Enabled := False;
-  NewEdit1.Enabled := False;
-  NewEdit1.Text := '1';
-  UpDown1.Enabled := False;
+  DefaultButtonLabel.Enabled := False;
+  DefaultButtonEdit.Enabled := False;
+  DefaultButtonEdit.Text := '1';
+  DefaultButtonUpDown.Enabled := False;
   if cb_TaskDialogMsgBox.Checked then begin
      rb_IDOK.Enabled := True;
      rb_IDCANCEL.Enabled := False;
@@ -189,7 +228,7 @@ begin
      Button2Label.Enabled := False;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
-     Button1Text.Text := SMsgBoxDesignerButtonOK;
+     Button1Text.Text := LFmtMessage(SMsgBoxDesignerButtonOK);
      Button2Text.Text := '';
      Button3Text.Text := '';
   end;
@@ -228,11 +267,11 @@ begin
   cb_IDYES.Enabled := True;
   cb_IDNO.Enabled := True;
   if not cb_TaskDialogMsgBox.Checked then begin
-     NewStaticText1.Enabled := True;
-     NewEdit1.Enabled := True;
-     NewEdit1.Text := '1';
-     UpDown1.Max := 2;
-     UpDown1.Enabled := True;
+     DefaultButtonLabel.Enabled := True;
+     DefaultButtonEdit.Enabled := True;
+     DefaultButtonEdit.Text := '1';
+     DefaultButtonUpDown.Max := 2;
+     DefaultButtonUpDown.Enabled := True;
   end;
   if cb_TaskDialogMsgBox.Checked then begin
      rb_IDOK.Enabled := False;
@@ -255,8 +294,8 @@ begin
      Button2Label.Enabled := True;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
-     Button1Text.Text := SMsgBoxDesignerButtonYes;
-     Button2Text.Text := SMsgBoxDesignerButtonNo;
+     Button1Text.Text := LFmtMessage(SMsgBoxDesignerButtonYes);
+     Button2Text.Text := LFmtMessage(SMsgBoxDesignerButtonNo);
      Button3Text.Text := '';
   end;
   if cb_Suppressible.Checked then begin
@@ -294,11 +333,11 @@ begin
   cb_IDYES.Enabled := False;
   cb_IDNO.Enabled := False;
   if not cb_TaskDialogMsgBox.Checked then begin
-     NewStaticText1.Enabled := True;
-     NewEdit1.Enabled := True;
-     NewEdit1.Text := '1';
-     UpDown1.Max := 2;
-     UpDown1.Enabled := True;
+     DefaultButtonLabel.Enabled := True;
+     DefaultButtonEdit.Enabled := True;
+     DefaultButtonEdit.Text := '1';
+     DefaultButtonUpDown.Max := 2;
+     DefaultButtonUpDown.Enabled := True;
   end;
   if cb_TaskDialogMsgBox.Checked then begin
      rb_IDOK.Enabled := True;
@@ -321,8 +360,8 @@ begin
      Button2Label.Enabled := True;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
-     Button1Text.Text := SMsgBoxDesignerButtonOK;
-     Button2Text.Text := SMsgBoxDesignerButtonCancel;
+     Button1Text.Text := LFmtMessage(SMsgBoxDesignerButtonOK);
+     Button2Text.Text := LFmtMessage(SMsgBoxDesignerButtonCancel);
      Button3Text.Text := '';
   end;
   if cb_Suppressible.Checked then begin
@@ -360,11 +399,11 @@ begin
   cb_IDYES.Enabled := False;
   cb_IDNO.Enabled := False;
   if not cb_TaskDialogMsgBox.Checked then begin
-     NewStaticText1.Enabled := True;
-     NewEdit1.Enabled := True;
-     NewEdit1.Text := '1';
-     UpDown1.Max := 2;
-     UpDown1.Enabled := True;
+     DefaultButtonLabel.Enabled := True;
+     DefaultButtonEdit.Enabled := True;
+     DefaultButtonEdit.Text := '1';
+     DefaultButtonUpDown.Max := 2;
+     DefaultButtonUpDown.Enabled := True;
   end;
   if cb_TaskDialogMsgBox.Checked then begin
      rb_IDOK.Enabled := False;
@@ -387,8 +426,8 @@ begin
      Button2Label.Enabled := True;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
-     Button1Text.Text := SMsgBoxDesignerButtonRetry;
-     Button2Text.Text := SMsgBoxDesignerButtonCancel;
+     Button1Text.Text := LFmtMessage(SMsgBoxDesignerButtonRetry);
+     Button2Text.Text := LFmtMessage(SMsgBoxDesignerButtonCancel);
      Button3Text.Text := '';
   end;
   if cb_Suppressible.Checked then begin
@@ -426,11 +465,11 @@ begin
   cb_IDYES.Enabled := True;
   cb_IDNO.Enabled := True;
   if not cb_TaskDialogMsgBox.Checked then begin
-     NewStaticText1.Enabled := True;
-     NewEdit1.Enabled := True;
-     NewEdit1.Text := '1';
-     UpDown1.Max := 3;
-     UpDown1.Enabled := True;
+     DefaultButtonLabel.Enabled := True;
+     DefaultButtonEdit.Enabled := True;
+     DefaultButtonEdit.Text := '1';
+     DefaultButtonUpDown.Max := 3;
+     DefaultButtonUpDown.Enabled := True;
   end;
   if cb_TaskDialogMsgBox.Checked then begin
      rb_IDOK.Enabled := False;
@@ -453,9 +492,9 @@ begin
      Button2Label.Enabled := True;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
-     Button1Text.Text := SMsgBoxDesignerButtonYes;
-     Button2Text.Text := SMsgBoxDesignerButtonNo;
-     Button3Text.Text := SMsgBoxDesignerButtonCancel;
+     Button1Text.Text := LFmtMessage(SMsgBoxDesignerButtonYes);
+     Button2Text.Text := LFmtMessage(SMsgBoxDesignerButtonNo);
+     Button3Text.Text := LFmtMessage(SMsgBoxDesignerButtonCancel);
   end;
   if cb_Suppressible.Checked then begin
      cb_DefIDOK.Checked := False;
@@ -492,11 +531,11 @@ begin
   cb_IDYES.Enabled := False;
   cb_IDNO.Enabled := False;
   if not cb_TaskDialogMsgBox.Checked then begin
-     NewStaticText1.Enabled := True;
-     NewEdit1.Enabled := True;
-     NewEdit1.Text := '1';
-     UpDown1.Max := 3;
-     UpDown1.Enabled := True;
+     DefaultButtonLabel.Enabled := True;
+     DefaultButtonEdit.Enabled := True;
+     DefaultButtonEdit.Text := '1';
+     DefaultButtonUpDown.Max := 3;
+     DefaultButtonUpDown.Enabled := True;
   end;
   if cb_TaskDialogMsgBox.Checked then begin
      rb_IDOK.Enabled := False;
@@ -519,9 +558,9 @@ begin
      Button2Label.Enabled := True;
      Button1Text.Enabled := True;
      Button1Label.Enabled := True;
-     Button1Text.Text := SMsgBoxDesignerButtonRetry;  //this order is not a mistake
-     Button2Text.Text := SMsgBoxDesignerButtonIgnore; //
-     Button3Text.Text := SMsgBoxDesignerButtonAbort;  //
+     Button1Text.Text := LFmtMessage(SMsgBoxDesignerButtonRetry);  //this order is not a mistake
+     Button2Text.Text := LFmtMessage(SMsgBoxDesignerButtonIgnore); //
+     Button3Text.Text := LFmtMessage(SMsgBoxDesignerButtonAbort);  //
   end;
   if cb_Suppressible.Checked then begin
      cb_DefIDOK.Checked := False;
@@ -548,7 +587,7 @@ begin
    cb_MB_SETFOREGROUND.Checked := False;
    GroupBox1.Visible := True;
    if not cb_Suppressible.Checked then begin
-      GroupBox4.Caption := SMsgBoxDesignerReturnValues;
+      GroupBox4.Caption := GroupBox4Caption(False, False);
       cb_DefIDOK.Visible := False;
       cb_DefIDCANCEL.Visible := False;
       cb_DefIDYES.Visible := False;
@@ -558,7 +597,7 @@ begin
       cb_DefIDIGNORE.Visible := False;
    end
    else begin
-     GroupBox4.Caption := SMsgBoxDesignerReturnValuesDefault;
+     GroupBox4.Caption := GroupBox4Caption(False, True);
      cb_DefIDOK.Visible := True;
      cb_DefIDCANCEL.Visible := True;
      cb_DefIDYES.Visible := True;
@@ -607,9 +646,9 @@ begin
      cb_DefIDRETRY.Visible := True;
      cb_DefIDIGNORE.Visible := True;
      if cb_MsgBox.Checked then
-        GroupBox4.Caption := SMsgBoxDesignerReturnValuesDefault;
+        GroupBox4.Caption := GroupBox4Caption(False, True);
      if cb_TaskDialogMsgBox.Checked then
-        GroupBox4.Caption := SMsgBoxDesignerReturnValuesShieldDefault;
+        GroupBox4.Caption := GroupBox4Caption(True, True);
    end
    else begin
      cb_DefIDOK.Checked := False;
@@ -627,9 +666,9 @@ begin
      cb_DefIDRETRY.Visible := False;
      cb_DefIDIGNORE.Visible := False;
      if cb_MsgBox.Checked then
-        GroupBox4.Caption := SMsgBoxDesignerReturnValues;
+        GroupBox4.Caption := GroupBox4Caption(False, False);
      if cb_TaskDialogMsgBox.Checked then
-        GroupBox4.Caption := SMsgBoxDesignerReturnValuesShield;
+        GroupBox4.Caption := GroupBox4Caption(True, False);
    end;
    if rbMB_OK.Checked then rbMB_OKClick(Self);
    if rbMB_OKCANCEL.Checked then rbMB_OKCANCELClick(Self);
@@ -646,7 +685,7 @@ begin
    cb_MB_SETFOREGROUND.Checked := False;
    GroupBox1.Visible := False;
    if not cb_Suppressible.Checked then begin
-     GroupBox4.Caption := SMsgBoxDesignerReturnValuesShield;
+     GroupBox4.Caption := GroupBox4Caption(True, False);
       cb_DefIDOK.Visible := False;
       cb_DefIDCANCEL.Visible := False;
       cb_DefIDYES.Visible := False;
@@ -656,7 +695,7 @@ begin
       cb_DefIDIGNORE.Visible := False;
    end
    else begin
-     GroupBox4.Caption := SMsgBoxDesignerReturnValuesShieldDefault;
+     GroupBox4.Caption := GroupBox4Caption(True, True);
      cb_DefIDOK.Visible := True;
      cb_DefIDCANCEL.Visible := True;
      cb_DefIDYES.Visible := True;
@@ -697,8 +736,8 @@ begin
     Button1Label.Visible := True;
     Button2Label.Visible := True;
     Button3Label.Visible := True;
-   TaskInstructionText.Text := SMsgBoxDesignerInstructionText;
-   TaskMessageText.Text := SMsgBoxDesignerMessageText;
+   TaskInstructionText.Text := LFmtMessage(SMsgBoxDesignerInstructionText);
+   TaskMessageText.Text := LFmtMessage(SMsgBoxDesignerMessageText);
    rbMB_OK.Checked := True;
    rbMB_OKClick(Self);
 end;
@@ -782,15 +821,15 @@ begin
 
   if cb_MsgBox.Checked then begin
     if MSGText.GetTextLen = 0 then
-      MSGText.Lines.Add(SMsgBoxDesignerDefaultText);
+      MSGText.Lines.Add(LFmtMessage(SMsgBoxDesignerDefaultText));
     if cb_MB_SETFOREGROUND.Checked then
       Buttons := Buttons or MB_SETFOREGROUND;
-    if NewEdit1.Text = '1' then
-      MsgBox(MSGText.Lines.Text, SMsgBoxDesignerPreviewCaption, Typ, Buttons);
-    if NewEdit1.Text = '2' then
-      MsgBox(MSGText.Lines.Text, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON2);
-    if NewEdit1.Text = '3' then
-      MsgBox(MSGText.Lines.Text, SMsgBoxDesignerPreviewCaption, Typ, Buttons or MB_DEFBUTTON3);
+    if DefaultButtonEdit.Text = '1' then
+      MsgBox(MSGText.Lines.Text, LFmtMessage(SMsgBoxDesignerPreviewCaption), Typ, Buttons);
+    if DefaultButtonEdit.Text = '2' then
+      MsgBox(MSGText.Lines.Text, LFmtMessage(SMsgBoxDesignerPreviewCaption), Typ, Buttons or MB_DEFBUTTON2);
+    if DefaultButtonEdit.Text = '3' then
+      MsgBox(MSGText.Lines.Text, LFmtMessage(SMsgBoxDesignerPreviewCaption), Typ, Buttons or MB_DEFBUTTON3);
   end else if cb_TaskDialogMsgBox.Checked then begin
      { create ButtonLabels array - also see GetText}
      var ButtonLabels: TArray<string>;
@@ -825,7 +864,7 @@ begin
      if rbMB_ABORTRETRYIGNORE.Checked and rb_IDIGNORE.Checked then ShieldButton := IDIGNORE;
 
      { TaskDialogMsgBox(Icon, Instruction, Text, Caption, Typ, Buttons, ButtonLabels, ShieldButton) }
-     TaskDialogMsgBox('', TaskInstructionText.Text, TaskMessageText.Text, SMsgBoxDesignerPreviewCaption,
+     TaskDialogMsgBox('', TaskInstructionText.Text, TaskMessageText.Text, LFmtMessage(SMsgBoxDesignerPreviewCaption),
                       Typ, Buttons, ButtonLabels, ShieldButton);
   end;
 end;
@@ -856,7 +895,7 @@ function TMsgBoxDesignerForm.GetText(TabWidth: Integer; UseTabCharacter: Boolean
 
   function TextUserClicked(IDButton: String): String;
   begin
-    Result := Format(SMsgBoxDesignerUserClicked, [StringReplace(IDButton, 'ID', '', [])])
+    Result := LFmtMessage(SMsgBoxDesignerUserClicked, [StringReplace(IDButton, 'ID', '', [])])
   end;
 
   function TextCase(IDButton: String): String;
@@ -967,52 +1006,52 @@ begin
      if (rbMB_OK.Checked) and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_OK or MB_SETFOREGROUND';
 
-     if (rbMB_OKCANCEL.Checked) and (NewEdit1.Text = '2') then
+     if (rbMB_OKCANCEL.Checked) and (DefaultButtonEdit.Text = '2') then
         Buttons := 'MB_OKCANCEL or MB_DEFBUTTON2';
      { MessageBox with DefButton and Flag MB_SETFOREGROUND }
      if (rbMB_OKCANCEL.Checked) and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_OKCANCEL or MB_SETFOREGROUND';
-     if (rbMB_OKCANCEL.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
+     if (rbMB_OKCANCEL.Checked) and (DefaultButtonEdit.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_OKCANCEL or MB_DEFBUTTON2 or MB_SETFOREGROUND';
 
-     if (rbMB_YESNO.Checked) and (NewEdit1.Text = '2') then
+     if (rbMB_YESNO.Checked) and (DefaultButtonEdit.Text = '2') then
         Buttons := 'MB_YESNO or MB_DEFBUTTON2';
      { MessageBox with DefButton and Flag MB_SETFOREGROUND }
      if (rbMB_YESNO.Checked) and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_YESNO or MB_SETFOREGROUND';
-     if (rbMB_YESNO.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
+     if (rbMB_YESNO.Checked) and (DefaultButtonEdit.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_YESNO or MB_DEFBUTTON2 or MB_SETFOREGROUND';
 
-     if (rbMB_RETRYCANCEL.Checked) and (NewEdit1.Text = '2') then
+     if (rbMB_RETRYCANCEL.Checked) and (DefaultButtonEdit.Text = '2') then
         Buttons := 'MB_RETRYCANCEL or MB_DEFBUTTON2';
      { MessageBox with DefButton and Flag MB_SETFOREGROUND }
      if (rbMB_RETRYCANCEL.Checked) and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_RETRYCANCEL or MB_SETFOREGROUND';
-     if (rbMB_RETRYCANCEL.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
+     if (rbMB_RETRYCANCEL.Checked) and (DefaultButtonEdit.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_RETRYCANCEL or MB_DEFBUTTON2 or MB_SETFOREGROUND';
 
-     if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '2') then
+     if (rbMB_YESNOCANCEL.Checked) and (DefaultButtonEdit.Text = '2') then
         Buttons := 'MB_YESNOCANCEL or MB_DEFBUTTON2';
-     if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '3') then
+     if (rbMB_YESNOCANCEL.Checked) and (DefaultButtonEdit.Text = '3') then
         Buttons := 'MB_YESNOCANCEL or MB_DEFBUTTON3';
      { MessageBox with DefButton and Flag MB_SETFOREGROUND }
      if (rbMB_YESNOCANCEL.Checked) and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_YESNOCANCEL or MB_SETFOREGROUND';
-     if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
+     if (rbMB_YESNOCANCEL.Checked) and (DefaultButtonEdit.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_YESNOCANCEL or MB_DEFBUTTON2 or MB_SETFOREGROUND';
-     if (rbMB_YESNOCANCEL.Checked) and (NewEdit1.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
+     if (rbMB_YESNOCANCEL.Checked) and (DefaultButtonEdit.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_YESNOCANCEL or MB_DEFBUTTON3 or MB_SETFOREGROUND';
 
-     if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '2') then
+     if (rbMB_ABORTRETRYIGNORE.Checked) and (DefaultButtonEdit.Text = '2') then
         Buttons := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON2';
-     if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '3') then
+     if (rbMB_ABORTRETRYIGNORE.Checked) and (DefaultButtonEdit.Text = '3') then
         Buttons := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON3';
      { MessageBox with DefButton and Flag MB_SETFOREGROUND }
      if (rbMB_ABORTRETRYIGNORE.Checked) and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_ABORTRETRYIGNORE or MB_SETFOREGROUND';
-     if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
+     if (rbMB_ABORTRETRYIGNORE.Checked) and (DefaultButtonEdit.Text = '2') and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON2 or MB_SETFOREGROUND';
-     if (rbMB_ABORTRETRYIGNORE.Checked) and (NewEdit1.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
+     if (rbMB_ABORTRETRYIGNORE.Checked) and (DefaultButtonEdit.Text = '3') and (cb_MB_SETFOREGROUND.Checked) then
         Buttons := 'MB_ABORTRETRYIGNORE or MB_DEFBUTTON3 or MB_SETFOREGROUND';
 
      { Suppressible msg }
@@ -1265,7 +1304,7 @@ begin
   var SL := TStringList.Create;
   try
     SL.Text := Text;
-    SL.Insert(0, SMsgBoxDesignerCommentDisplayMessageBox);
+    SL.Insert(0, SLitCodeComment + LFmtMessage(SMsgBoxDesignerCommentDisplayMessageBox));
     for var I := 0 to SL.Count-1 do
       SL[I] := TextTab + SL[I];
     Result := SL.Text;

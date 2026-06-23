@@ -334,7 +334,7 @@ initialization
 
   ScriptFuncTables[sftBrowseFunc] :=
   [
-    'function BrowseForFolder(const Prompt: String; var Directory: String; const NewFolderButton: Boolean): Boolean;',
+    'function BrowseForFolder(const Prompt: String; var Directory: String; const Reserved: Boolean): Boolean;',
     'function GetOpenFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;',
     'function GetOpenFileNameMulti(const Prompt: String; const FileNameList: TStrings; const InitialDirectory, Filter, DefaultExtension: String): Boolean;',
     'function GetSaveFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;'

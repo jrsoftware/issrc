@@ -2,7 +2,7 @@ unit IDE.InputQueryMemoForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -14,10 +14,12 @@ unit IDE.InputQueryMemoForm;
 interface
 
 uses
-  Classes, Controls, StdCtrls, UIStateForm, ExtCtrls, BitmapButton;
+  Classes, Controls, StdCtrls, ExtCtrls,
+  BitmapButton,
+  IDE.IDEForm;
 
 type
-  TInputQueryMemoForm = class(TUIStateForm)
+  TInputQueryMemoForm = class(TIDEForm)
     OKButton: TButton;
     CancelButton: TButton;
     PromptLabel: TLabel;
@@ -51,6 +53,7 @@ implementation
 
 uses
   Windows, Messages, Forms, Graphics, ComCtrls,
+  Shared.CommonFunc,
   IDE.HelperFunc, IDE.ImagesModule, IDE.MainForm;
 
 {$R *.DFM}
@@ -61,8 +64,8 @@ begin
   with TInputQueryMemoForm.Create(Application) do try
     Caption := ACaption;
     Prompt := APrompt;
-    Value := AValue;
     SingleLine := ASingleLine;
+    Value := AValue;
     DocBitBtnClick := ADocBitBtnClick;
     if ShowModal = mrOk then begin
       AValue := Value;
@@ -76,8 +79,11 @@ end;
 
 procedure TInputQueryMemoForm.FormCreate(Sender: TObject);
 begin
-  InitFormFont(Self);
-  InitFormTheme(Self);
+  { Finish localization }
+  SizeBottomButtons(OKButton, CancelButton);
+
+  DocBitBtn.Caption := RemoveAccelChar(MainForm.HMenu.Caption);
+  DocBitBtn.Hint := DocBitBtn.Caption;
   UpdateImages;
 end;
 

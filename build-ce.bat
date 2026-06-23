@@ -20,7 +20,7 @@ rem  Once done the installer can be found in Output
 
 setlocal
 
-set VER=7.0.1-beta
+set VER=7.0.2
 
 echo Building Inno Setup %VER%...
 echo.
@@ -56,12 +56,12 @@ call .\issig.bat embed
 if errorlevel 1 goto failed
 echo ISSigTool embed done
 
-if not exist files\ishelpgen.exe (
+if not exist ishelp\ishelpgen\ishelpgen.exe (
   echo Missing ISHelpGen
   echo Now open Projects\Projects.groupproj and build the ISHelpGen project and its Win64 target in Release mode
 
   echo - Waiting for file...
-  call :waitforfile files\ishelpgen.exe
+  call :waitforfile ishelp\ishelpgen\ishelpgen.exe
   echo Compiling ISHelpGen done
 )
 

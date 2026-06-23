@@ -347,6 +347,8 @@ begin
           Options.Quiet := True;
         end else if S.StartsWith('--key-file=') then begin
           Options.KeyFile := S.Substring(Length('--key-file='));
+          if Options.KeyFile = '' then
+            RaiseFatalErrorFmt('"%s" option requires a value', [S]);
         end else
           RaiseFatalErrorFmt('Unknown option "%s"', [S]);
         ArgList.Delete(J);

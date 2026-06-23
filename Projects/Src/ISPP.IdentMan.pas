@@ -604,7 +604,7 @@ type
     procedure SetAsInt(Value: Int64); stdcall;
     procedure SetAsString(Value: PChar); stdcall;
     procedure SetAsNull; stdcall;
-    procedure Error(Message: PChar); stdcall;
+    procedure RaiseError(Message: PChar); stdcall;
     { ICallContext }
     procedure Add(const Name: string; const Value: TIsppVariant);
     function Call: TIsppVariant;
@@ -662,39 +662,39 @@ begin
   VerboseMsg(9, SSuccessfullyCalledFunction, [FFunc.Name]);
 end;
 
-procedure TFuncCallContext.Error(Message: PChar);
+procedure TFuncCallContext.RaiseError(Message: PChar);
 begin
-  raise Exception.Create(Message)
+  raise Exception.Create(Message);
 end;
 
 function TFuncCallContext.GetCount: NativeInt;
 begin
-  Result := FParams.Count
+  Result := FParams.Count;
 end;
 
 function TFuncCallContext.Get(Index: NativeInt): PIsppVariant;
 begin
-  Result := FParams[Index]
+  Result := FParams[Index];
 end;
 
 function TFuncCallContext.ResPtr: PIsppVariant;
 begin
-  Result := @FResult
+  Result := @FResult;
 end;
 
 procedure TFuncCallContext.SetAsInt(Value: Int64);
 begin
-  MakeInt(FResult, Value)
+  MakeInt(FResult, Value);
 end;
 
 procedure TFuncCallContext.SetAsNull;
 begin
-  FResult := NULL
+  FResult := NULL;
 end;
 
 procedure TFuncCallContext.SetAsString(Value: PChar);
 begin
-  MakeStr(FResult, Value)
+  MakeStr(FResult, Value);
 end;
 
 { TIdentManager }
@@ -717,7 +717,7 @@ end;
 
 function TIdentManager.Defined(const Name: string): Boolean;
 begin
-  Result := Find(Name, dsAny) <> nil
+  Result := Find(Name, dsAny) <> nil;
 end;
 
 procedure TIdentManager.DefineFunction(const Name: string;

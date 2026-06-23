@@ -149,7 +149,6 @@ type
     function GetCaretLine: Integer;
     function GetCaretLineText: String;
     function GetCaretPosition: Integer;
-    function GetCaretPositionInLine: Integer;
     function GetCaretVirtualSpace: Integer;
     function GetInsertMode: Boolean;
     function GetLineEndings: TScintLineEndings;
@@ -391,7 +390,6 @@ type
     property CaretLine: Integer read GetCaretLine write SetCaretLine;
     property CaretLineText: String read GetCaretLineText;
     property CaretPosition: Integer read GetCaretPosition write SetCaretPosition;
-    property CaretPositionInLine: Integer read GetCaretPositionInLine;
     property CaretPositionWithSelectFromAnchor: Integer write SetCaretPositionWithSelectFromAnchor;
     property CaretVirtualSpace: Integer read GetCaretVirtualSpace write SetCaretVirtualSpace;
     property EffectiveCodePage: Word read FEffectiveCodePage;
@@ -582,9 +580,6 @@ uses
 
 { TScintEdit }
 
-const
-  AUTOCSETSEPARATOR = #9;
-
 constructor TScintEdit.Create(AOwner: TComponent);
 begin
   inherited;
@@ -675,6 +670,7 @@ begin
     Selections := TScintCaretAndAnchorList.Create;
     VirtualSpaces := TScintCaretAndAnchorList.Create;
     GetSelections(Selections, VirtualSpaces);
+    const MainSel = MainSelection;
     for var I := 0 to Selections.Count-1 do begin
       if VirtualSpaces[I].CaretPos = 0 then begin
         var Pos := Selections[I].CaretPos;
@@ -686,7 +682,7 @@ begin
         if MatchPos <> -1 then begin
           SelectionCaretPosition[I] := MatchPos;
           SelectionAnchorPosition[I] := MatchPos;
-          if I = 0 then
+          if I = MainSel then
             ScrollCaretIntoView;
         end;
       end;
@@ -1108,13 +1104,6 @@ end;
 function TScintEdit.GetCaretPosition: Integer;
 begin
   Result := Call(SCI_GETCURRENTPOS, 0, 0);
-end;
-
-function TScintEdit.GetCaretPositionInLine: Integer;
-begin
-  var Caret := CaretPosition;
-  var LineStart := GetPositionFromLine(GetLineFromPosition(Caret));
-  Result := Caret - LineStart;
 end;
 
 function TScintEdit.GetCaretVirtualSpace: Integer;
@@ -1735,6 +1724,7 @@ begin
 end;
 
 procedure TScintEdit.ScrollCaretIntoView;
+{ Works on the main selection }
 begin
   Call(SCI_SCROLLCARET, 0, 0);
 end;
@@ -1929,8 +1919,8 @@ procedure TScintEdit.SetEmptySelections;
 { Makes all selections empty without scrolling the caret into view }
 begin
   for var Selection := 0 to SelectionCount-1 do begin
-    var Pos := SelectionCaretPosition[Selection];
-    SelectionAnchorPosition[Selection] := Pos;
+    SelectionAnchorPosition[Selection] := SelectionCaretPosition[Selection];
+    SelectionAnchorVirtualSpace[Selection] := SelectionCaretVirtualSpace[Selection];
   end;
 end;
 
@@ -2742,7 +2732,10 @@ var
   StartPos, EndPos: Integer;
 begin
   CheckIndexRange(Index);
-  StartPos := FEdit.GetPositionFromLine(Index);
+  if (Index > 0) and (Index = GetCount - 1) then
+    StartPos := FEdit.GetLineEndPosition(Index - 1)
+  else
+    StartPos := FEdit.GetPositionFromLine(Index);
   EndPos := FEdit.GetPositionFromLine(Index + 1);
   FEdit.ReplaceRawTextRange(StartPos, EndPos, '');
 end;

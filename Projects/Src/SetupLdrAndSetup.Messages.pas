@@ -48,7 +48,7 @@ const
   SMsgsFileMissing = 'Messages file "%s" is missing. Please correct ' +
     'the problem or obtain a new copy of the program.';
   { These currently always occur before the messages file is loaded }
-  SMissingPassword = 'Please specify the password using the /PASSWORD= command line parameter.';
+  SMissingPassword = 'Please specify the password using the /PASSWORD= command-line parameter.';
   SIncorrectPassword = 'The password you specified is not correct. Please try again.';
 
 implementation
@@ -57,19 +57,17 @@ uses
   Windows, SysUtils, Compression.Base, Shared.CommonFunc, Shared.FileClass;
 
 function FmtMessage(S: PChar; const Args: array of String): String;
-var
-  P: PChar;
-  Z: String;
 begin
   Result := '';
   if S = nil then Exit;
   while True do begin
-    P := StrScan(S, '%');
+    var P := StrScan(S, '%');
     if P = nil then begin
       Result := Result + S;
       Break;
     end;
     if P <> S then begin
+      var Z: String;
       SetString(Z, S, P - S);
       Result := Result + Z;
       S := P;
@@ -78,8 +76,7 @@ begin
     if CharInSet(P^, ['1'..'9']) and (Ord(P^) - Ord('1') <= High(Args)) then begin
       Result := Result + Args[Ord(P^) - Ord('1')];
       Inc(S, 2);
-    end
-    else begin
+    end else begin
       Result := Result + '%';
       Inc(S);
       if P^ = '%' then

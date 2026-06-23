@@ -322,7 +322,7 @@ var
     RegisterScriptFunc('BROWSEFORFOLDER', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var S := Stack.GetString(PStart-2);
-      Stack.SetBool(PStart, BrowseForFolder(Stack.GetString(PStart-1), S, GetOwnerWndForMessageBox, Stack.GetBool(PStart-3)));
+      Stack.SetBool(PStart, BrowseForFolder(Stack.GetString(PStart-1), S, GetOwnerWndForMessageBox));
       Stack.SetString(PStart-2, S);
     end);
     RegisterScriptFunc('GETOPENFILENAME', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)

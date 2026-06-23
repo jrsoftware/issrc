@@ -408,7 +408,6 @@ end;
 procedure TCustomFolderTreeView.CreateParams(var Params: TCreateParams);
 const
   TVS_TRACKSELECT = $0200;
-  TVS_SINGLEEXPAND = $0400;
 begin
   InitCommonControls;
   inherited;

@@ -13,10 +13,14 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewGroupBox, NewStaticText;
+  StdCtrls, ExtCtrls,
+  NewGroupBox, NewStaticText,
+  IDE.IDEForm;
 
 type
-  TOptionsForm = class(TUIStateForm)
+  TOptionsFormDropDown = (odNone, odMemoKeyMapping, odLanguage);
+
+  TOptionsForm = class(TIDEForm)
     OKButton: TButton;
     CancelButton: TButton;
     GroupBox1: TNewGroupBox;
@@ -61,6 +65,8 @@ type
     UndoAfterReloadCheck: TCheckBox;
     AutoHideNewIncludedFilesCheck: TCheckBox;
     SmartHomeCheck: TCheckBox;
+    Label6: TNewStaticText;
+    LanguageComboBox: TComboBox;
     procedure AssocButtonClick(Sender: TObject);
     procedure ChangeFontButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -68,46 +74,67 @@ type
     procedure FormShow(Sender: TObject);
   private
     class var
-      FDropDownMemoKeyMappingComboBoxOnNextShow: Boolean;
+      FDropDownOnNextShow: TOptionsFormDropDown;
     var
       {}
   public
-    class property DropDownMemoKeyMappingComboBoxOnNextShow: Boolean write FDropDownMemoKeyMappingComboBoxOnNextShow;
+    class property DropDownOnNextShow: TOptionsFormDropDown write FDropDownOnNextShow;
   end;
 
 implementation
 
 uses
-  Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, IDE.FileAssocFunc, IDE.Messages;
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, IDE.FileAssocFunc, IDE.Messages, IDE.LocalizeFunc;
 
 {$R *.DFM}
 
 procedure TOptionsForm.FormCreate(Sender: TObject);
 begin
-  InitFormFont(Self);
-  InitFormTheme(Self);
+  { Finish localization }
+  OpenIncludedFilesCheck.Caption := LFmtMessage(OpenIncludedFilesCheck.Caption, ['#include']);
+  AutoHideNewIncludedFilesCheck.Caption := LFmtMessage(AutoHideNewIncludedFilesCheck.Caption, ['#include']);
+  AssocButton.Caption := LFmtMessage(AssocButton.Caption, [SLitIssExt]);
+  AssocButton.Width := CalculateButtonWidth([AssocButton.Caption]);
+  const W = SizeBottomButtons(OKButton, CancelButton, [ChangeFontButton]);
+  const Diff = W - ChangeFontButton.Width;
+  ChangeFontButton.Left := ChangeFontButton.Left - Diff;
+  ChangeFontButton.Width := W;
+  FontPanel.Width := FontPanel.Width - Diff;
 
   { Order must match IDE.HelperFunc.TKeyMappingType }
-  KeyMappingComboBox.Items.Add(SOptionsKeyMappingDelphi);
-  KeyMappingComboBox.Items.Add(SOptionsKeyMappingVisualStudio);
+  KeyMappingComboBox.Items.Add(LFmtMessage(SOptionsKeyMappingDelphi));
+  KeyMappingComboBox.Items.Add(LFmtMessage(SOptionsKeyMappingVisualStudio));
 
   { Order must match TIDEScintKeyMappingType }
-  MemoKeyMappingComboBox.Items.Add(SOptionsMemoKeyMappingDefault);
-  MemoKeyMappingComboBox.Items.Add(SOptionsMemoKeyMappingVSCode);
+  MemoKeyMappingComboBox.Items.Add(LFmtMessage(SOptionsMemoKeyMappingDefault));
+  MemoKeyMappingComboBox.Items.Add(LFmtMessage(SOptionsMemoKeyMappingVSCode));
 
   { Order must match TThemeType }
-  ThemeComboBox.Items.Add(SOptionsThemeLight);
-  ThemeComboBox.Items.Add(SOptionsThemeDark);
-  ThemeComboBox.Items.Add(SOptionsThemeClassic);
+  ThemeComboBox.Items.Add(LFmtMessage(SOptionsThemeLight));
+  ThemeComboBox.Items.Add(LFmtMessage(SOptionsThemeDark));
+  ThemeComboBox.Items.Add(LFmtMessage(SOptionsThemeClassic));
+
+  { Order must match TIDELanguage }
+  LanguageComboBox.Items.Add('English');
+  LanguageComboBox.Items.Add(#$010C'e'#$0161'tina');
+  LanguageComboBox.Items.Add('Nederlands');
+  LanguageComboBox.Items.Add('Deutsch');
+  LanguageComboBox.Items.Add(#$65E5#$672C#$8A9E);
 end;
 
 procedure TOptionsForm.FormShow(Sender: TObject);
 begin
-  if FDropDownMemoKeyMappingComboBoxOnNextShow then begin
-    ActiveControl := MemoKeyMappingComboBox;
-    MemoKeyMappingComboBox.DroppedDown := True;
-    FDropDownMemoKeyMappingComboBoxOnNextShow := False;
+  case FDropDownOnNextShow of
+    odMemoKeyMapping: begin
+      ActiveControl := MemoKeyMappingComboBox;
+      MemoKeyMappingComboBox.DroppedDown := True;
+    end;
+    odLanguage: begin
+      ActiveControl := LanguageComboBox;
+      LanguageComboBox.DroppedDown := True;
+    end;
   end;
+  FDropDownOnNextShow := odNone;
 end;
 
 procedure TOptionsForm.AssocButtonClick(Sender: TObject);
@@ -117,7 +144,8 @@ var
   AllUsers: Boolean;
 begin
   if RegisterISSFileAssociation(True, AllUsers) then
-    MsgBox(Format(SuccessMessages[AllUsers], [NewParamStr(0)]), SAssocTitle, mbInformation, MB_OK);
+    MsgBox(LFmtMessage(SuccessMessages[AllUsers], [SLitIssExt, NewParamStr(0)]),
+      LFmtMessage(SAssocTitle), mbInformation, MB_OK);
 end;
 
 procedure TOptionsForm.ChangeFontButtonClick(Sender: TObject);

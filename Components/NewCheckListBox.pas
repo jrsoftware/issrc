@@ -956,6 +956,7 @@ begin
     begin
       const DrawTextFormat = UDrawTextBiDiModeFlags(Self, DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE or DT_VCENTER);
       Font.Style := ItemState.SubItemFontStyle;
+      Font.Color := NewTextColor; { Setting Font.Style may invalidate the font, requiring us to reset Color regardless of the SetTextColor call above }
       SetRectEmpty(SubItemRect);
       InternalDrawText(ItemState.SubItem, SubItemRect, DrawTextFormat or
         DT_CALCRECT, False);
@@ -980,6 +981,7 @@ begin
       DrawTextFormat := DrawTextFormat or DT_HIDEPREFIX;
     DrawTextFormat := UDrawTextBiDiModeFlags(Self, DrawTextFormat);
     Font.Style := ItemState.ItemFontStyle;
+    Font.Color := NewTextColor; { See above }
     { When you call DrawText with the DT_CALCRECT flag and there's a word wider
       than the rectangle width, it increases the rectangle width and wraps
       at the new Right point. On the other hand, when you call DrawText
@@ -1234,7 +1236,7 @@ begin
     var ScrollBarInfo: TScrollBarInfo;
     ScrollBarInfo.cbSize := SizeOf(ScrollBarInfo);
     if GetScrollBarInfo(Handle, Integer(OBJID_VSCROLL), ScrollBarInfo) and
-       (ScrollBarInfo.rgstate[0] <> STATE_SYSTEM_INVISIBLE) then
+       (ScrollBarInfo.rgstate[0] and STATE_SYSTEM_INVISIBLE = 0) then
       InvalidateRect(Handle, nil, True);
   end;
 end;
@@ -1511,9 +1513,8 @@ function TNewCheckListBox.CheckItem(const Index: Integer;
   begin
     while True do begin
       I := FindCheckedSibling(AIndex);
-      if I = -1 then
+      if (I = -1) or not RecursiveCheck(I, coUncheck) then
         Break;
-      RecursiveCheck(I, coUncheck);
     end;
   end;
 
@@ -1964,8 +1965,14 @@ begin
         Exit;
       end;
     end;
-    Message.Result := LresultFromObjectFunc(IID_IAccessible, Message.WParam,
-      TAccObject(FAccObjectInstance));
+    const AccObject = TAccObject(FAccObjectInstance);
+    AccObject.AddRef; { Add our own reference to ensure release even if LresultFromObjectFunc fails }
+    try
+      Message.Result := LresultFromObjectFunc(IID_IAccessible, Message.WParam,
+        AccObject);
+    finally
+      AccObject.Release;
+    end;
   end
   else
     inherited;

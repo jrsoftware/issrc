@@ -496,7 +496,7 @@ begin
   FCallTipState.CurrentCallTip := 0;
   FCallTipState.CurrentCallTipWord := '';
   var LineText := AMemo.RawCaretLineText;
-  var Current := AMemo.CaretPositionInLine;
+  var Current := AMemo.CaretColumn;
   var CallTipWordCharacters := AMemo.WordCharsAsSet;
   if ISPPExpressionContext then
     Exclude(CallTipWordCharacters, '['); { Also see InitiateAutoComplete }
@@ -550,7 +550,7 @@ begin
   { Based on SciTE 5.50's SciTEBase::ContinueCallTip }
 
   const Line = AMemo.RawCaretLineText;
-  const Current = AMemo.CaretPositionInLine;
+  const Current = AMemo.CaretColumn;
 
   Braces := 0;
   Commas := 0;

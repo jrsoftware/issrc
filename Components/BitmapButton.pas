@@ -2,7 +2,7 @@ unit BitmapButton;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -37,6 +37,7 @@ type
     procedure SetReplaceColor(Value: TColor);
     procedure SetReplaceWithColor(Value: TColor);
     procedure SetStretch(Value: Boolean);
+    procedure CMTextChanged(var Message: TMessage); message CM_TEXTCHANGED;
     procedure WMSetFocus(var Message: TWMSetFocus); message WM_SETFOCUS;
     procedure WMKillFocus(var Message: TWMKillFocus); message WM_KILLFOCUS;
     procedure CNCommand(var Message: TWMCommand); message CN_COMMAND;
@@ -205,6 +206,12 @@ begin
 end;
 
 procedure TBitmapButton.WMKillFocus(var Message: TWMKillFocus);
+begin
+  inherited;
+  Invalidate;
+end;
+
+procedure TBitmapButton.CMTextChanged(var Message: TMessage);
 begin
   inherited;
   Invalidate;

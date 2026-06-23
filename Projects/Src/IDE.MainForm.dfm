@@ -129,10 +129,10 @@ object MainForm: TMainForm
         Align = alBottom
         TabIndex = 0
         Tabs.Strings = (
-          'Compiler Output'
-          'Debug Output'
-          'Debug Call Stack'
-          'Find Results')
+          '*'
+          '*'
+          '*'
+          '*')
         OnClick = OutputTabSetClick
       end
     end
@@ -146,30 +146,27 @@ object MainForm: TMainForm
       item
         Alignment = taCenter
         Bevel = pbNone
-        Text = '   1:   1'
-        Width = 64
+        Width = 96
       end
       item
         Alignment = taCenter
         Bevel = pbNone
-        Width = 64
+        Width = 88
       end
       item
         Alignment = taCenter
         Bevel = pbNone
-        Text = 'Insert'
-        Width = 64
+        Width = 96
       end
       item
         Alignment = taCenter
         Bevel = pbNone
-        Text = '.*'
         Width = 23
       end
       item
         Bevel = pbNone
         Style = psOwnerDraw
-        Width = 110
+        Width = 192
       end
       item
         Bevel = pbNone
@@ -235,7 +232,7 @@ object MainForm: TMainForm
       object NewMainFileButton: TToolButton
         Left = 54
         Top = 0
-        Hint = 'New Main Script (Ctrl+N)'
+        Hint = 'New Main Script (%1)'
         ImageIndex = 0
         ImageName = 'document-new'
         OnClick = FNewMainFileClick
@@ -243,7 +240,7 @@ object MainForm: TMainForm
       object OpenMainFileButton: TToolButton
         Left = 77
         Top = 0
-        Hint = 'Open Main Script (Ctrl+O)'
+        Hint = 'Open Main Script (%1)'
         ImageIndex = 1
         ImageName = 'folder-open-filled-arrow-down-right'
         OnClick = FOpenMainFileClick
@@ -251,7 +248,7 @@ object MainForm: TMainForm
       object SaveButton: TToolButton
         Left = 100
         Top = 0
-        Hint = 'Save (Ctrl+S)'
+        Hint = 'Save (%1)'
         ImageIndex = 2
         ImageName = 'save-filled'
         OnClick = FSaveClick
@@ -272,7 +269,7 @@ object MainForm: TMainForm
       object StopCompileButton: TToolButton
         Left = 154
         Top = 0
-        Hint = 'Stop Compile (Esc)'
+        Hint = 'Stop Compile (%1)'
         Enabled = False
         ImageIndex = 4
         ImageName = 'build-cancel-2'
@@ -294,7 +291,6 @@ object MainForm: TMainForm
       object PauseButton: TToolButton
         Left = 208
         Top = 0
-        Hint = 'Pause'
         Enabled = False
         ImageIndex = 6
         ImageName = 'debug-break-all-filled'
@@ -317,7 +313,7 @@ object MainForm: TMainForm
       object TargetSetupButton: TToolButton
         Left = 262
         Top = 0
-        Hint = 'Target Setup (Ctrl+Q)'
+        Hint = 'Target Setup (%1)'
         Grouped = True
         ImageIndex = 7
         ImageName = 'install'
@@ -327,7 +323,7 @@ object MainForm: TMainForm
       object TargetUninstallButton: TToolButton
         Left = 285
         Top = 0
-        Hint = 'Target Uninstall (Alt+Q)'
+        Hint = 'Target Uninstall (%1)'
         Grouped = True
         ImageIndex = 8
         ImageName = 'uninstall'
@@ -343,7 +339,7 @@ object MainForm: TMainForm
       object HelpButton: TToolButton
         Left = 316
         Top = 0
-        Hint = 'Help (F1)'
+        Hint = 'Help (%1)'
         ImageIndex = 9
         ImageName = 'button-help'
         OnClick = HDocClick
@@ -399,7 +395,6 @@ object MainForm: TMainForm
       Margins.Right = 0
       Margins.Bottom = 8
       Align = alRight
-      Caption = 'Donate'
       ParentShowHint = False
       ShowHint = True
       TabOrder = 2
@@ -408,11 +403,9 @@ object MainForm: TMainForm
     object UpdateLinkLabel: TLinkLabel
       Left = 13
       Top = 13
-      Width = 303
+      Width = 8
       Height = 17
-      Caption = 
-        'Your version of Inno Setup has been updated! <a id="hwhatsnew">S' +
-        'ee what'#39's new</a>.'
+      Caption = '*'
       TabOrder = 0
       OnLinkClick = UpdateLinkLabelLinkClick
     end
@@ -785,7 +778,7 @@ object MainForm: TMainForm
       Caption = '&Run'
       OnClick = RMenuClick
       object RRun: TMenuItem
-        Caption = '&Run'
+        Caption = '&Run...'
         OnClick = RRunClick
       end
       object RParameters: TMenuItem
@@ -884,17 +877,17 @@ object MainForm: TMainForm
         OnClick = TGenerateGUIDClick
       end
       object TFilesDesigner: TMenuItem
-        Caption = 'Generate [F&iles] Entries...'
+        Caption = 'Generate %1 Entries...'
         ShortCut = 24649
         OnClick = TFilesDesignerClick
       end
       object TRegistryDesigner: TMenuItem
-        Caption = 'Generate [&Registry] Entries...'
+        Caption = 'Generate %1 Entries...'
         ShortCut = 24658
         OnClick = TRegistryDesignerClick
       end
       object TMsgBoxDesigner: TMenuItem
-        Caption = 'Generate &MsgBox/TaskDialogMsgBox Call...'
+        Caption = 'Generate %1 Call...'
         ShortCut = 24653
         OnClick = TMsgBoxDesignerClick
       end

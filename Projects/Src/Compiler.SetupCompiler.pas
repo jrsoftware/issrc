@@ -8556,7 +8556,7 @@ begin
     LineNumber := SetupDirectiveLines[ssChangesAssociations];
     CheckCodeParameter('ChangesAssociations', SetupHeader.ChangesAssociations, cpkDirectiveCheck);
     if Output and (OutputDir = '') then begin
-      LineNumber := SetupDirectiveLines[ssOutput];
+      LineNumber := SetupDirectiveLines[ssOutputDir];
       AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'OutputDir']);
     end;
     if (Output and (OutputBaseFileName = '')) or (PathLastDelimiter(BadFileNameChars + '\', OutputBaseFileName) <> 0) then begin

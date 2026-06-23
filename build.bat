@@ -22,14 +22,14 @@ rem  Once done the installer can be found in Output
 
 setlocal
 
-set VER=7.0.1-beta
+set VER=7.0.2
 
 echo Building Inno Setup %VER%...
 echo.
 
 cd /d %~dp0
 
-call .\compile.bat x64 issigtool
+call .\compile.bat x64 ISSigTool
 if errorlevel 1 goto failed
 echo Compiling ISSigTool done
 
@@ -50,7 +50,7 @@ call .\issig.bat embed
 if errorlevel 1 goto failed
 echo ISSigTool embed done
 
-call .\compile.bat x64 ishelpgen
+call .\compile.bat x64 ISHelpGen
 if errorlevel 1 goto failed
 echo Compiling ISHelpGen done
 

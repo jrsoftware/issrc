@@ -1,4 +1,4 @@
 #pragma option -e+
-{#AppName} version {#AppVersion} License
+{#AppName} {#AppVersion} License
 
 Bla bla bla

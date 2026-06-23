@@ -47,7 +47,6 @@ object SignToolsForm: TSignToolsForm
       Height = 23
       Anchors = [akTop, akRight]
       Caption = '&Add...'
-      Default = True
       TabOrder = 1
       OnClick = AddButtonClick
     end

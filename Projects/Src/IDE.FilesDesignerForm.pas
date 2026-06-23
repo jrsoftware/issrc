@@ -2,7 +2,7 @@ unit IDE.FilesDesignerForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -13,10 +13,11 @@ interface
 
 uses
   Classes, Controls, Forms, Dialogs, ExtCtrls, StdCtrls,
-  UIStateForm, NewStaticText, DropListBox, IDE.Wizard.WizardFormFilesHelper;
+  NewStaticText, DropListBox,
+  IDE.Wizard.WizardFormFilesHelper, IDE.Messages, IDE.LocalizeFunc, IDE.IDEForm;
 
 type
-  TFilesDesignerForm = class(TUIStateForm)
+  TFilesDesignerForm = class(TIDEForm)
     Panel1: TPanel;
     InsertButton: TButton;
     CancelButton: TButton;
@@ -45,13 +46,14 @@ implementation
 
 {$R *.dfm}
 
-uses
-  IDE.HelperFunc;
-
 procedure TFilesDesignerForm.FormCreate(Sender: TObject);
 begin
-  InitFormFont(Self);
-  InitFormTheme(Self);
+  { Finish localization }
+  Caption := LFmtMessage(Caption, ['[Files]']);
+  NotCreateAppDirCheck.Caption := LFmtMessage(SDesignerScriptHas, ['CreateAppDir=no']);
+  SizeSideButtons([AppFilesAddButton, AppFilesAddDirButton,
+    AppFilesAddDownloadButton, AppFilesEditButton, AppFilesRemoveButton], AppFilesListBox);
+  SizeBottomButtons(InsertButton, CancelButton);
 
   FFilesHelper := TWizardFormFilesHelper.Create(Self,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,

@@ -82,7 +82,7 @@ ExitSetupTitle=Exit Setup
 ExitSetupMessage=Setup is not complete. If you exit now, the program will not be installed.%n%nYou may run Setup again at another time to complete the installation.%n%nExit Setup?
 AboutSetupMenuItem=&About Setup...
 AboutSetupTitle=About Setup
-AboutSetupMessage=%1 version %2%n%3%n%n%1 home page:%n%4
+AboutSetupMessage=%1 %2%n%3%n%n%1 home page:%n%4
 AboutSetupNote=
 TranslatorNote=
 
@@ -155,7 +155,7 @@ DiskSpaceGBLabel=At least [gb] GB of free disk space is required.
 DiskSpaceMBLabel=At least [mb] MB of free disk space is required.
 CannotInstallToNetworkDrive=Setup cannot install to a network drive.
 CannotInstallToUNCPath=Setup cannot install to a UNC path.
-InvalidPath=You must enter a full path with drive letter; for example:%n%nC:\APP%n%nor a UNC path in the form:%n%n\\server\share
+InvalidPath=You must enter a full path with drive letter; for example:%n%nC:\App%n%nor a UNC path in the form:%n%n\\server\share
 InvalidDrive=The drive or UNC share you selected does not exist or is not accessible. Please select another.
 DiskSpaceWarningTitle=Not Enough Disk Space
 DiskSpaceWarning=Setup requires at least %1 KB of free space to install, but the selected drive only has %2 KB available.%n%nDo you want to continue anyway?

@@ -43,8 +43,8 @@ ErrorTitle=Greška
 
 ; *** SetupLdr messages
 SetupLdrStartupMessage=Instaliraćete %1. Želite li da nastavite?
-LdrCannotCreateTemp=Ne mogu da napravim privremenu datoteku. Instalacija je prekinuta.
-LdrCannotExecTemp=Ne mogu da pokrenem datoteku u privremenoj fascikli. Instalacija je prekinuta.
+LdrCannotCreateTemp=Ne mogu da napravim privremenu datoteku. Instalacija je prekinuta
+LdrCannotExecTemp=Ne mogu da pokrenem datoteku u privremenoj fascikli. Instalacija je prekinuta
 HelpTextNote=
 
 ; *** Startup error messages
@@ -52,7 +52,7 @@ LastErrorMessage=%1.%n%nGreška %2: %3
 SetupFileMissing=Datoteka %1 nedostaje u instalacionoj fascikli. Ispravite problem ili nabavite novi primerak programa.
 SetupFileCorrupt=Instalacione datoteke su oštećene. Nabavite novi primerak programa.
 SetupFileCorruptOrWrongVer=Instalacione datoteke su oštećene ili nisu saglasne s ovom verzijom instalacije. Ispravite problem ili nabavite novi primerak programa.
-InvalidParameter=Neispravan parametar je prenet na komandnu liniju: %n%n%1
+InvalidParameter=Neispravan parametar je prenet na komandnu liniju:%n%n%1
 SetupAlreadyRunning=Instalacija je već pokrenuta.
 WindowsVersionNotSupported=Program ne podržava izdanje Windows-a koje koristite.
 WindowsServicePackRequired=Program zahteva %1 servisni paket %2 ili noviji.
@@ -77,8 +77,8 @@ PrivilegesRequiredOverrideCurrentUser=Instaliraj samo za &mene
 PrivilegesRequiredOverrideCurrentUserRecommended=Instaliraj samo za &mene (preporučeno)
 
 ; *** Misc. errors
-ErrorCreatingDir=Ne mogu da napravim fasciklu „%1“.
-ErrorTooManyFilesInDir=Ne mogu da napravim datoteku u fascikli „%1“ jer sadrži previše datoteka.
+ErrorCreatingDir=Ne mogu da napravim fasciklu „%1“
+ErrorTooManyFilesInDir=Ne mogu da napravim datoteku u fascikli „%1“ jer sadrži previše datoteka
 
 ; *** Setup common messages
 ExitSetupTitle=Napuštanje instalacije
@@ -93,8 +93,8 @@ TranslatorNote=
 ButtonBack=< &Nazad
 ButtonNext=&Dalje >
 ButtonInstall=&Instaliraj
-ButtonOK=&U redu
-ButtonCancel=&Otkaži
+ButtonOK=U redu
+ButtonCancel=Otkaži
 ButtonYes=&Da
 ButtonYesToAll=D&a za sve
 ButtonNo=&Ne
@@ -262,7 +262,7 @@ ShowReadmeCheck=Da, želim da pogledam tekstualnu datoteku
 YesRadio=&Da, ponovo pokreni računar
 NoRadio=&Ne, kasnije ću ga pokrenuti
 ; used for example as 'Run MyProg.exe'
-RunEntryExec=&Pokreni %1
+RunEntryExec=Pokreni %1
 ; used for example as 'View Readme.txt'
 RunEntryShellExec=Pogledaj %1
 
@@ -318,9 +318,9 @@ FileAbortRetryIgnoreIgnoreNotRecommended=&Zanemari grešku i nastavi (ne preporu
 SourceIsCorrupted=Izvorna datoteka je oštećena
 SourceDoesntExist=Izvorna datoteka „%1“ ne postoji
 SourceVerificationFailed=Verifikacija izvorne datoteke nije uspela: %1
-VerificationSignatureDoesntExist=Datoteka potpisa "%1" ne postoji
-VerificationSignatureInvalid=Datoteka potpisa "%1" je nevažeća
-VerificationKeyNotFound=Datoteka potpisa "%1" koristi nepoznat ključ
+VerificationSignatureDoesntExist=Datoteka potpisa „%1“ ne postoji
+VerificationSignatureInvalid=Datoteka potpisa „%1“ je nevažeća
+VerificationKeyNotFound=Datoteka potpisa „%1“ koristi nepoznat ključ
 VerificationFileNameIncorrect=Naziv datoteke nije tačan
 VerificationFileTagIncorrect=Oznaka datoteke nije tačna
 VerificationFileSizeIncorrect=Veličina datoteke nije tačna
@@ -368,9 +368,9 @@ ErrorRestartingComputer=Ne mogu ponovo da pokrenem računar. Uradite to sami.
 
 ; *** Uninstaller messages
 UninstallNotFound=Datoteka „%1“ ne postoji. Ne mogu da deinstaliram program.
-UninstallOpenError=Datoteka „%1“ ne može da se otvori. Ne mogu da deinstaliram program.
-UninstallUnsupportedVer=Izveštaj „%1“ je u neprepoznatljivom formatu. Ne mogu da deinstaliram program.
-UninstallUnknownEntry=Nepoznat unos (%1) se pojavio u izveštaju deinstalacije.
+UninstallOpenError=Datoteka „%1“ ne može da se otvori. Ne mogu da deinstaliram program
+UninstallUnsupportedVer=Izveštaj „%1“ je u neprepoznatljivom formatu. Ne mogu da deinstaliram program
+UninstallUnknownEntry=Nepoznat unos (%1) se pojavio u izveštaju deinstalacije
 ConfirmUninstall=Želite li da deinstalirate %1 i sve njegove komponente?
 UninstallOnlyOnWin64=Program se može deinstalirati samo na 64-bitnom vindousu.
 OnlyAdminCanUninstall=Program može deinstalirati samo korisnik s administratorskim pravima.
@@ -378,7 +378,7 @@ UninstallStatusLabel=Sačekajte da se %1 deinstalira sa računara.
 UninstalledAll=%1 je deinstaliran sa računara.
 UninstalledMost=%1 je deinstaliran.%n%nNeke komponente ipak morati sami obrisati.
 UninstalledAndNeedsRestart=Potrebno je ponovno pokretanje računara da bi se instalacija završila.%n%nŽelite li da ponovo pokrenete računar?
-UninstallDataCorrupted=Datoteka „%1“ je oštećena. Ne mogu da deinstaliram program.
+UninstallDataCorrupted=Datoteka „%1“ je oštećena. Ne mogu da deinstaliram program
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Brisanje deljene datoteke

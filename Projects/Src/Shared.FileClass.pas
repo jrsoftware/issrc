@@ -47,11 +47,13 @@ type
   private
     FHandle: THandle;
     FHandleCreated: Boolean;
+    function GetCanSeek: Boolean;
   protected
     function CreateHandle(const AFilename: String;
       ACreateDisposition: TFileCreateDisposition; AAccess: TFileAccess;
       ASharing: TFileSharing): THandle; virtual;
     function GetPosition: Int64; override;
+    property CanSeek: Boolean read GetCanSeek;
     function GetSize: Int64; override;
   public
     constructor Create(const AFilename: String;
@@ -97,11 +99,13 @@ type
     FSawFirstLine: Boolean;
     FCodePage: Word;
     function DoReadLine(const UTF8: Boolean): AnsiString;
+    function GetCanDetectUTF8WithoutBOM: Boolean;
     function GetEof: Boolean;
     procedure FillBuffer;
   public
     function ReadLine: String;
     function ReadAnsiLine: AnsiString;
+    property CanDetectUTF8WithoutBOM: Boolean read GetCanDetectUTF8WithoutBOM;
     property CodePage: Word write FCodePage;
     property Eof: Boolean read GetEof;
   end;
@@ -121,20 +125,6 @@ type
     procedure WriteLine(const S: String);
     procedure WriteAnsi(const S: AnsiString);
     procedure WriteAnsiLine(const S: AnsiString);
-  end;
-
-  TFileMapping = class
-  private
-    FMemory: Pointer;
-    FMapSize: Cardinal;
-    FMappingHandle: THandle;
-  public
-    constructor Create(AFile: TFile; AWritable: Boolean);
-    destructor Destroy; override;
-    procedure Commit;
-    procedure ReraiseInPageErrorAsFileException;
-    property MapSize: Cardinal read FMapSize;
-    property Memory: Pointer read FMemory;
   end;
 
   EFileError = class(Exception)
@@ -254,6 +244,16 @@ function TFile.GetPosition: Int64;
 begin
   if not SetFilePointerEx(FHandle, 0, @Result, FILE_CURRENT) then
     RaiseLastError;
+end;
+
+function TFile.GetCanSeek: Boolean;
+begin
+  { Seek/GetPosition use SetFilePointerEx, which requires a GetFileType check first, see
+    https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-setfilepointerex }
+  const FileType = GetFileType(FHandle);
+  if (FileType = FILE_TYPE_UNKNOWN) and (GetLastError <> NO_ERROR) then
+    RaiseLastError;
+  Result := (FileType = FILE_TYPE_DISK);
 end;
 
 function TFile.GetSize: Int64;
@@ -414,6 +414,12 @@ begin
     FEof := True;
 end;
 
+function TTextFileReader.GetCanDetectUTF8WithoutBOM: Boolean;
+begin
+  { DoReadLine requires Seek support to detect BOM-less UTF-8 }
+  Result := CanSeek;
+end;
+
 function TTextFileReader.GetEof: Boolean;
 begin
   FillBuffer;
@@ -484,10 +490,11 @@ begin
       if (Length(S) > 2) and (S[1] = #$EF) and (S[2] = #$BB) and (S[3] = #$BF) then begin
         Delete(S, 1, 3);
         FCodePage := CP_UTF8;
-      end else begin
-        var OldPosition := GetPosition;
+      end else if CanSeek then begin
+        { Detect BOM-less UTF8, also see GetCanDetectUTF8WithoutBOM }
+        const OldPosition = GetPosition;
         try
-          var CappedSize := GetCappedSize; //can't be 0
+          const CappedSize = GetCappedSize; //can't be 0
           Seek(0);
           var S2: AnsiString;
           SetLength(S2, CappedSize);
@@ -570,92 +577,6 @@ end;
 procedure TTextFileWriter.WriteAnsiLine(const S: AnsiString);
 begin
   WriteAnsi(S + #13#10);
-end;
-
-{ TFileMapping }
-
-var
-  _RtlNtStatusToDosError: function(Status: NTSTATUS): ULONG; stdcall;
-
-constructor TFileMapping.Create(AFile: TFile; AWritable: Boolean);
-const
-  Protect: array[Boolean] of DWORD = (PAGE_READONLY, PAGE_READWRITE);
-  DesiredAccess: array[Boolean] of DWORD = (FILE_MAP_READ, FILE_MAP_WRITE);
-begin
-  inherited Create;
-
-  if not Assigned(_RtlNtStatusToDosError) then
-    _RtlNtStatusToDosError := GetProcAddress(GetModuleHandle('ntdll.dll'),
-      'RtlNtStatusToDosError');
-
-  FMapSize := AFile.CappedSize;
-
-  FMappingHandle := CreateFileMapping(AFile.Handle, nil, Protect[AWritable], 0,
-    FMapSize, nil);
-  if FMappingHandle = 0 then
-    TFile.RaiseLastError;
-
-  FMemory := MapViewOfFile(FMappingHandle, DesiredAccess[AWritable], 0, 0,
-    FMapSize);
-  if FMemory = nil then
-    TFile.RaiseLastError;
-end;
-
-destructor TFileMapping.Destroy;
-begin
-  if Assigned(FMemory) then
-    UnmapViewOfFile(FMemory);
-  if FMappingHandle <> 0 then
-    CloseHandle(FMappingHandle);
-  inherited;
-end;
-
-procedure TFileMapping.Commit;
-{ Flushes modified pages to disk. To avoid silent data loss, this should
-  always be called prior to destroying a writable TFileMapping instance -- but
-  _not_ from a 'finally' section, as this method will raise an exception on
-  failure. }
-begin
-  if not FlushViewOfFile(FMemory, 0) then
-    TFile.RaiseLastError;
-end;
-
-procedure TFileMapping.ReraiseInPageErrorAsFileException;
-{ In Delphi, when an I/O error occurs while accessing a memory-mapped file --
-  known as an "inpage error" -- the user will see an exception message of
-  "External exception C0000006" by default.
-  This method examines the current exception to see if it's an inpage error
-  that occurred while accessing our mapped view, and if so, it raises a new
-  exception of type EFileError with a more friendly and useful message, like
-  you'd see when doing non-memory-mapped I/O with TFile. }
-var
-  E: TObject;
-begin
-  E := ExceptObject;
-  if E is EExternalException then begin
-    const ExceptionRecord = EExternalException(E).ExceptionRecord;
-    if (ExceptionRecord.ExceptionCode = EXCEPTION_IN_PAGE_ERROR) and
-       (Cardinal(ExceptionRecord.NumberParameters) >= Cardinal(2)) then begin
-      const MemoryStart: PByte = PByte(FMemory);
-      const MemoryEnd: PByte = MemoryStart + FMapSize;
-      const FaultAddress: PByte = PByte(ExceptionRecord.ExceptionInformation[1]);
-      if (FaultAddress >= MemoryStart) and (FaultAddress < MemoryEnd) then begin
-        { There should be a third parameter containing the NT status code of the error
-          condition that caused the exception. Convert that into a Win32 error code
-          and use it to generate our error message. }
-        if (Cardinal(ExceptionRecord.NumberParameters) >= Cardinal(3)) and
-           Assigned(_RtlNtStatusToDosError) then
-          TFile.RaiseError(_RtlNtStatusToDosError(NTSTATUS(ExceptionRecord.ExceptionInformation[2])))
-        else begin
-          { Use generic "The system cannot [read|write] to the specified device" errors }
-          if ExceptionRecord.ExceptionInformation[0] = 0 then
-            TFile.RaiseError(ERROR_READ_FAULT)
-          else
-            TFile.RaiseError(ERROR_WRITE_FAULT);
-        end;
-      end;
-    end;
-  end;
 end;
 
 end.

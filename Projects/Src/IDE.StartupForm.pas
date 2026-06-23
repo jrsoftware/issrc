@@ -13,13 +13,15 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, BitmapButton, BitmapImage, NewGroupBox;
+  StdCtrls, ExtCtrls,
+  BitmapButton, BitmapImage, NewGroupBox,
+  IDE.IDEForm;
 
 type
   TStartupFormResult = (srNone, srEmpty, srWizard, srOpenFile, srOpenDialog,
     srOpenDialogExamples);
 
-  TStartupForm = class(TUIStateForm)
+  TStartupForm = class(TIDEForm)
     OKButton: TButton;
     CancelButton: TButton;
     GroupBox1: TNewGroupBox;
@@ -63,7 +65,7 @@ implementation
 uses
   ComCtrls,
   Shared.LicenseFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc,
-  IDE.Messages, IDE.HelperFunc, IDE.MainForm, IDE.ImagesModule;
+  IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.MainForm, IDE.ImagesModule;
 
 {$R *.DFM}
 
@@ -99,18 +101,20 @@ end;
 
 procedure TStartupForm.FormCreate(Sender: TObject);
 begin
-  FResult := srNone;
+  { Finish localization }
+  SizeBottomButtons(OKButton, CancelButton, StartupCheck);
 
-  InitFormFont(Self);
-  InitFormTheme(Self);
+  FResult := srNone;
 
   if IsLicensed then begin
     DonateBitBtn.Visible := False;
     const DiffX = MailingListBitBtn.Left - DonateBitBtn.Left;
     MailingListBitBtn.Left := MailingListBitBtn.Left - DiffX;
     StartupCheck.Left := StartupCheck.Left - DiffX;
-  end else
-	  DonateBitBtn.Hint := MainForm.UpdatePanelDonateBitBtn.Hint;
+  end else begin
+    DonateBitBtn.Caption := MainForm.UpdatePanelDonateBitBtn.Caption;
+    DonateBitBtn.Hint := MainForm.UpdatePanelDonateBitBtn.Hint;
+  end;
 
   if InitFormThemeIsDark then begin
     if DonateBitBtn.Visible then
@@ -120,8 +124,8 @@ begin
 
   UpdateImages;
 
-  OpenListBox.Items.Add(SCompilerExampleScripts);
-  OpenListBox.Items.Add(SCompilerMoreFiles);
+  OpenListBox.Items.Add(LFmtMessage(SCompilerExampleScripts));
+  OpenListBox.Items.Add(LFmtMessage(SCompilerMoreFiles));
   OpenListBox.ItemIndex := 0;
   UpdateHorizontalExtent(OpenListBox);
 

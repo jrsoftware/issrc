@@ -13,9 +13,10 @@ interface
 
 uses
   Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
-  UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
-  IDE.Wizard.WizardFormFilesHelper, IDE.Wizard.WizardFormRegistryHelper, BitmapButton,
-  Vcl.BaseImageCollection, Vcl.ImageCollection, BitmapImage;
+  Vcl.BaseImageCollection, Vcl.ImageCollection,
+  NewStaticText, DropListBox, NewCheckListBox, NewNotebook, BitmapButton, BitmapImage, 
+  IDE.Wizard.WizardFormFilesHelper, IDE.Wizard.WizardFormRegistryHelper,
+  IDE.IDEForm;
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppAssoc, wpAppIcons,
@@ -24,7 +25,7 @@ type
 
   TWizardFormResult = (wrNone, wrEmpty, wrComplete);
 
-  TWizardForm = class(TUIStateForm)
+  TWizardForm = class(TIDEForm)
     CancelButton: TButton;
     NextButton: TButton;
     BackButton: TButton;
@@ -55,7 +56,6 @@ type
     FinishedImage: TBitmapImage;
     WelcomeLabel2: TNewStaticText;
     EmptyCheck: TCheckBox;
-    WelcomeLabel3: TNewStaticText;
     AppNameLabel: TNewStaticText;
     AppNameEdit: TEdit;
     AppVersionLabel: TNewStaticText;
@@ -209,7 +209,7 @@ uses
   SysUtils, ShlObj, ActiveX, UITypes,
   PathFunc, BrowseFunc,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.LicenseFunc,
-  IDE.HelperFunc, IDE.Messages, IDE.Wizard.WizardFileForm;
+  IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc, IDE.Wizard.WizardFileForm;
 
 type
   TConstant = record
@@ -290,12 +290,48 @@ procedure TWizardForm.FormCreate(Sender: TObject);
     end;
   end;
 
+  procedure SetWidestNextCaption;
+  begin
+    { CurPageChanged will override this again }
+    const FinishCaption = LFmtMessage(SWizardFinishButton);
+    const NextCaption = LFmtMessage(SWizardNextButton);
+    if CalculateButtonWidth([FinishCaption]) > CalculateButtonWidth([NextCaption]) then
+      NextButton.Caption := FinishCaption
+    else
+      NextButton.Caption := NextCaption;
+  end;
+
 var
   I: Integer;
 begin
+  { Finish localization - also done per page below }
+  WelcomeLabel1.Caption := LFmtMessage(WelcomeLabel1.Caption, ['[name]']);
+  FinishedLabel.Caption := LFmtMessage(FinishedLabel.Caption, ['[name]']);
+  SetWidestNextCaption;
+  var W := SizeBottomButtons(NextButton, CancelButton, [BackButton]);
+  BackButton.Width := W;
+  BackButton.Left := NextButton.Left - W;
+  { Size all browse buttons and resize all page-wide edits and comboboxes to keep a
+    consistent right edge }
+  const OldW = AppRegistryFileButton.Width;
+  W := SizeSideButtons([AppExeButton, AppLicenseFileButton, AppInfoBeforeFileButton,
+    AppInfoAfterFileButton, AppRegistryFileButton, SetupIconFileButton, OutputDirButton],
+    [AppNameEdit, AppVersionEdit, AppPublisherEdit, AppURLEdit, AppRootDirComboBox,
+    AppRootDirEdit, AppDirNameEdit, AppExeEdit, AppAssocNameEdit, AppAssocExtEdit,
+    AppGroupNameEdit, AppLicenseFileEdit, AppInfoBeforeFileEdit, AppInfoAfterFileEdit,
+    AppRegistryFileEdit, AppRegistryMinVerEdit, OutputDirEdit, OutputBaseFileNameEdit,
+    SetupIconFileEdit, PasswordEdit]);
+  const Diff = W - OldW;
+  AppRegistryMinVerDocBitBtn.Left := AppRegistryMinVerDocBitBtn.Left - Diff;
+  { These are not set in the .dfm because that would duplicate a message,
+    one with and one without the accel char }
+  AppInfoBeforeFileButton.Caption := RemoveAccelChar(AppLicenseFileButton.Caption);
+  AppInfoAfterFileButton.Caption := RemoveAccelChar(AppLicenseFileButton.Caption);
+  SetupIconFileButton.Caption := RemoveAccelChar(OutputDirButton.Caption);
+
   FResult := wrNone;
 
-  FWizardName := SWizardDefaultName;
+  FWizardName := LFmtMessage(SWizardDefaultName);
   FFilesHelper := TWizardFormFilesHelper.Create(Self,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,
     AppFilesAddDownloadButton, AppFilesEditButton, AppFilesRemoveButton);
@@ -310,8 +346,7 @@ begin
   FLanguages.Sorted := False;
   FLanguages.Insert(0, LanguagesDefaultIsl);
 
-  InitFormFont(Self);
-  if not InitFormTheme(Self) then
+  if not FormThemeActive then
     OuterNotebook.Color := InitFormThemeGetBkColor(True);
 
   if FontExists('Segoe UI') then begin
@@ -345,21 +380,23 @@ begin
     BackButton.Left := BackButton.Left - 2;
 
   { AppInfo }
-  AppNameEdit.Text := SWizardDefaultAppName;
+  AppNameEdit.Text := LFmtMessage(SWizardDefaultAppName);
   AppVersionEdit.Text := '1.5';
-  AppPublisherEdit.Text := SWizardDefaultAppPublisher;
+  AppPublisherEdit.Text := LFmtMessage(SWizardDefaultAppPublisher);
   AppURLEdit.Text := 'https://www.example.com/';
 
   { AppDir }
   for I := Low(AppRootDirs) to High(AppRootDirs) do
-    AppRootDirComboBox.Items.Add(AppRootDirs[I].Description);
-  AppRootDirComboBox.Items.Add(SWizardDirCustom);
+    AppRootDirComboBox.Items.Add(LFmtMessage(AppRootDirs[I].Description));
+  AppRootDirComboBox.Items.Add(LFmtMessage(SWizardDirCustom));
   AppRootDirComboBox.ItemIndex := 0;
   AppRootDirEdit.Enabled := False;
   AppRootDirEdit.Color := clBtnFace;
   NotDisableDirPageCheck.Checked := True;
 
   { AppFiles }
+  SizeSideButtons([AppFilesAddButton, AppFilesAddDirButton,
+    AppFilesAddDownloadButton, AppFilesEditButton, AppFilesRemoveButton], AppFilesListBox);
   AppExeEdit.Text := PathExtractPath(NewParamStr(0)) + 'Examples\MyProg-x64.exe';
   AppExeRunCheck.Checked := True;
 
@@ -374,8 +411,12 @@ begin
 
   { PrivilegesRequired }
   PrivilegesRequiredAdminRadioButton.Checked := True;
+  
+  { AppRegistry }
+  AppRegistryFileLabel.Caption := LFmtMessage(AppRegistryFileLabel.Caption, [SLitRegExt]);
 
   { Languages }
+  SizeSideButtons([AllLanguagesButton, NoLanguagesButton], LanguagesList);
   for I := 0 to FLanguages.Count-1 do begin
     if FLanguages[I] <> LanguagesDefaultIsl then
       LanguagesList.AddCheckBox(SpaceLanguageName(PathChangeExt(FLanguages[I], '')), '', 0, False, True, False, True, TObject(I))
@@ -388,9 +429,17 @@ begin
   EncryptionCheck.Checked := True;
   EncryptionCheck.Enabled := False;
 
+  { WizardStyle }
+  WizardStyleMainComboBox.Items.AddStrings(['classic', 'modern']);
+  WizardStyleMainComboBox.ItemIndex := 1;
+  WizardStyleDarkComboBox.Items.AddStrings(['light', 'dark', 'dynamic']);
+  WizardStyleDarkComboBox.ItemIndex := 2;
+  WizardStyleSubStyleComboBox.Items.AddStrings(['default', 'polar', 'slate', 'stellar', 'windows11', 'zircon']);
+  WizardStyleSubStyleComboBox.ItemIndex := 0;
+
   { ISPP }
-  ISPPLabel.Caption := FixLabel(SWizardISPPLabel);
-  ISPPCheck.Caption := SWizardISPPCheck;
+  ISPPLabel.Caption := FixLabel(LFmtMessage(SWizardISPPLabel, ['[name]', '#define']));
+  ISPPCheck.Caption := LFmtMessage(SWizardISPPCheck, ['#define']);
   ISPPCheck.Checked := ISPPInstalled;
 
   FCurPage := Low(TWizardPage);
@@ -408,7 +457,7 @@ procedure TWizardForm.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
   if ModalResult = mrCancel then
-    CanClose := MsgBox(FixLabel(SWizardCancelMessage), FWizardName, mbConfirmation, MB_YESNO) = idYes;
+    CanClose := MsgBox(FixLabel(LFmtMessage(SWizardCancelMessage, ['[name]'])), FWizardName, mbConfirmation, MB_YESNO) = idYes;
 end;
 
 procedure TWizardForm.FormDestroy(Sender: TObject);
@@ -430,16 +479,16 @@ begin
   { Set button visibility and captions }
   BackButton.Visible := not (FCurPage = wpWelcome);
   if FCurPage = wpFinished then
-    NextButton.Caption := SWizardFinishButton
+    NextButton.Caption := LFmtMessage(SWizardFinishButton)
   else
-    NextButton.Caption := SWizardNextButton;
+    NextButton.Caption := LFmtMessage(SWizardNextButton);
 
   RequiredLabel1.Visible := RequiredLabelVisibles[FCurPage];
   RequiredLabel2.Visible := RequiredLabel1.Visible;
 
   { Set the Caption to match the current page's title }
-  PageNameLabel.Caption := PageCaptions[FCurPage];
-  PageDescriptionLabel.Caption := PageDescriptions[FCurPage];
+  PageNameLabel.Caption := LFmtMessage(PageCaptions[FCurPage]);
+  PageDescriptionLabel.Caption := LFmtMessage(PageDescriptions[FCurPage], True);
 
   { Adjust focus }
   case FCurPage of
@@ -505,10 +554,10 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     Result := False;
 
     if AppNameEdit.Text = '' then begin
-      MsgBox(SWizardAppNameError, '',  mbError, MB_OK);
+      MsgBox(LFmtMessage(SWizardAppNameError), '',  mbError, MB_OK);
       ActiveControl := AppNameEdit;
     end else if AppVersionEdit.Text = '' then begin
-      MsgBox(SWizardAppVersionError, '',  mbError, MB_OK);
+      MsgBox(LFmtMessage(SWizardAppVersionError), '',  mbError, MB_OK);
       ActiveControl := AppVersionEdit;
     end else
       Result := True;
@@ -521,10 +570,10 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     if not NotCreateAppDirCheck.Checked and
        (AppRootDirComboBox.ItemIndex = AppRootDirComboBox.Items.Count-1) and
        (AppRootDirEdit.Text = '') then begin
-      MsgBox(SWizardAppRootDirError, '',  mbError, MB_OK);
+      MsgBox(LFmtMessage(SWizardAppRootDirError), '',  mbError, MB_OK);
       ActiveControl := AppRootDirEdit;
     end else if not NotCreateAppDirCheck.Checked and (AppDirNameEdit.Text = '') then begin
-      MsgBox(SWizardAppDirNameError, '', mbError, MB_OK);
+      MsgBox(LFmtMessage(SWizardAppDirNameError), '', mbError, MB_OK);
       ActiveControl := AppDirNameEdit;
     end else
       Result := True;
@@ -535,7 +584,10 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     Result := False;
 
     if AppExeEdit.Enabled and (AppExeEdit.Text = '') then begin
-      MsgBox(SWizardAppExeError, '', mbError, MB_OK);
+      MsgBox(LFmtMessage(SWizardAppExeError), '', mbError, MB_OK);
+      ActiveControl := AppExeEdit;
+    end else if AppExeEdit.Enabled and not NewFileExists(AppExeEdit.Text) then begin
+      MsgBox(LFmtMessage(SWizardAppExeNotExistError), '', mbError, MB_OK);
       ActiveControl := AppExeEdit;
     end else
       Result := True;
@@ -546,7 +598,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
     Result := False;
 
     if AppGroupNameEdit.Text = '' then begin
-      MsgBox(SWizardAppGroupNameError, '', mbError, MB_OK);
+      MsgBox(LFmtMessage(SWizardAppGroupNameError), '', mbError, MB_OK);
       ActiveControl := AppGroupNameEdit;
     end else
       Result := True;
@@ -565,7 +617,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
        end;
     end;
 
-    MsgBox(SWizardLanguagesSelError, '', mbError, MB_OK);
+    MsgBox(LFmtMessage(SWizardLanguagesSelError), '', mbError, MB_OK);
     ActiveControl := LanguagesList;
   end;
 
@@ -600,7 +652,7 @@ begin
     { Even if we're skipping a page, we should still update it }
     case FCurPage of
       wpAppDir: if AppDirNameEdit.Text = '' then AppDirNameEdit.Text := AppNameEdit.Text;
-      wpAppAssoc: if AppAssocNameEdit.Text = '' then AppAssocNameEdit.Text := Format(SWizardAppAssocDefaultName, [AppNameEdit.Text]);
+      wpAppAssoc: if AppAssocNameEdit.Text = '' then AppAssocNameEdit.Text := LFmtMessage(SWizardAppAssocDefaultName, [AppNameEdit.Text]);
       wpAppIcons: if AppGroupNameEdit.Text = '' then AppGroupNameEdit.Text := AppNameEdit.Text;
     end;
   until not SkipCurPage;
@@ -766,7 +818,9 @@ var
   FileName: String;
 begin
   FileName := AppExeEdit.Text;
-  if NewGetOpenFileName('', FileName, PathExtractPath(FileName), SWizardAppExeFilter, SWizardAppExeDefaultExt, Handle) then
+  if NewGetOpenFileName('', FileName, PathExtractPath(FileName),
+       Format(SLitExtAndAllFilter, [LFmtMessage(SExeFiles), SLitExeExt, LFmtMessage(SAllFiles)]),
+       SLitExeExt, Handle) then
     AppExeEdit.Text := FileName;
 end;
 
@@ -808,11 +862,11 @@ begin
     Edit := SetupIconFileEdit;
 
   if Sender <> SetupIconFileButton then begin
-    Filter := SWizardAppDocsFilter;
-    DefaultExt := SWizardAppDocsDefaultExt;
+    Filter := Format(SLitDocsAndAllFilter, [LFmtMessage(SDocFiles), LFmtMessage(SAllFiles)]);
+    DefaultExt := SLitRtfExt;
   end else begin
-    Filter := SWizardCompilerSetupIconFileFilter;
-    DefaultExt := SWizardCompilerSetupIconFileDefaultExt;
+    Filter := Format(SLitExtAndAllFilter, [LFmtMessage(SIcoFiles), SLitIcoExt, LFmtMessage(SAllFiles)]);
+    DefaultExt := SLitIcoExt;
   end;
 
   FileName := Edit.Text;
@@ -827,7 +881,7 @@ begin
   Path := OutputDirEdit.Text;
   if PathDrivePartLength(Path) = 0 then
     Path := '';  { don't pass in a relative path to BrowseForFolder }
-  if BrowseForFolder(SWizardCompilerOutputDir, Path, Handle, True) then
+  if BrowseForFolder(LFmtMessage(SWizardCompilerOutputDir), Path, Handle) then
     OutputDirEdit.Text := Path;
 end;
 
@@ -936,16 +990,27 @@ begin
 end;
 
 procedure TWizardForm.GenerateScript;
+
+  function EscapeConstArgument(const S: String): String;
+  begin
+    Result := S;
+    StringChange(Result, '%', '%25');
+    StringChange(Result, ',', '%2c');
+    StringChange(Result, '}', '%7d');
+  end;
+
 var
   Script, ISPP, Setup, Languages, Tasks, Files, Registry, INI, Icons, Run, UninstallDelete: String;
   I: Integer;
-  AppExeName, AppName, AppAmpEscapedName, AppAssocKey, LanguageName, LanguageMessagesFile: String;
+  AppExeName, AppName, AppAmpEscapedName, AppConstEscapedName, AppConstEscapedVersion, AppAssocKey, LanguageName, LanguageMessagesFile: String;
 begin
   Script := '';
 
   AppExeName := PathExtractName(AppExeEdit.Text);
   AppName := AppNameEdit.Text;
   AppAmpEscapedName := DoubleAmp(AppName);
+  AppConstEscapedName := EscapeConstArgument(AppName);
+  AppConstEscapedVersion := EscapeConstArgument(AppVersionEdit.Text);
 
   if ISPPCheck.Checked then begin
     { Setup ISPP usage. Change the edits to reflect ISPP usage. A bit ugly but for now it works. }
@@ -957,8 +1022,10 @@ begin
     if AppGroupNameEdit.Text = AppNameEdit.Text then
       AppGroupNameEdit.Text := '{#MyAppName}';
     AppNameEdit.Text := '{#MyAppName}';
-    AppAmpEscapedName := '{#StringChange(MyAppName, ''&'', ''&&'')}';
+    AppAmpEscapedName := '{#DoubleAmp(MyAppName)}';
+    AppConstEscapedName := '{#EscapeConstArgument(MyAppName)}';
     AppVersionEdit.Text := '{#MyAppVersion}';
+    AppConstEscapedVersion := '{#EscapeConstArgument(MyAppVersion)}';
 
     if AppPublisherEdit.Text <> '' then begin
       ISPP := ISPP + '#define MyAppPublisher "' + AppPublisherEdit.Text + '"' + SNewLine;
@@ -971,7 +1038,7 @@ begin
     end;
 
     { Special ones }
-    if not NoAppExeCheck.Checked then begin
+    if NoAppExeCheck.Enabled and not NoAppExeCheck.Checked then begin
       ISPP := ISPP + '#define MyAppExeName "' + AppExeName + '"' + SNewLine;
       AppExeName := '{#MyAppExeName}';
     end;
@@ -987,6 +1054,11 @@ begin
       ISPP := ISPP + '#define MyAppAssocKey StringChange(MyAppAssocName, " ", "") + MyAppAssocExt' + SNewLine;
       AppAssocKey := '{#MyAppAssocKey}';
     end;
+
+    if not NotCreateAppDirCheck.Checked and not NoAppExeCheck.Checked and AppExeRunCheck.Checked then
+      ISPP := ISPP + '#define DoubleAmp(Value) StringChange(Value, "&", "&&")' + SNewLine;
+
+    ISPP := ISPP + '#define EscapeConstArgument(Value) StringChange(StringChange(StringChange(Value, "%", "%25"), ",", "%2c"), "}", "%7d")' + SNewLine;
   end else begin
     ISPP := '';
     AppAssocKey := StringReplace(AppAssocNameEdit.Text, ' ', '', [rfReplaceAll]) + AppAssocExtEdit.Text;
@@ -1003,13 +1075,13 @@ begin
   UninstallDelete := '[UninstallDelete]' + SNewLine;
 
   if not EmptyCheck.Checked then begin
-    Setup := Setup + '; ' + SWizardScriptCommentUniqueAppId + SNewLine +
-      '; ' + SWizardScriptCommentGenerateGuid + SNewLine;
+    Setup := Setup + SLitComment + LFmtMessage(SWizardScriptCommentUniqueAppId, ['AppId']) + SNewLine +
+      SLitComment + LFmtMessage(SWizardScriptCommentGenerateGuid) + SNewLine;
     Setup := Setup + 'AppId={' + GenerateGuid + SNewLine;
     { AppInfo }
     Setup := Setup + 'AppName=' + AppNameEdit.Text + SNewLine;
     Setup := Setup + 'AppVersion=' + AppVersionEdit.Text + SNewLine;
-    Setup := Setup + ';AppVerName=' + AppNameEdit.Text + ' ' + AppVersionEdit.Text + SNewLine;
+    Setup := Setup + ';AppVerName={cm:NameAndVersion,' + AppConstEscapedName + ',' + AppConstEscapedVersion + '}' + SNewLine;
     if AppPublisherEdit.Text <> '' then
       Setup := Setup + 'AppPublisher=' + AppPublisherEdit.Text + SNewLine;
     if AppURLEdit.Text <> '' then begin
@@ -1043,23 +1115,12 @@ begin
       if AppExeIsReallyExe then
         Setup := Setup + 'UninstallDisplayIcon={app}\' + AppExeName + SNewLine;
       if Is64BitPEImage(AppExeEdit.Text) then begin
-        if SWizardScriptCommentArchitecturesAllowed1 <> '' then
-          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesAllowed1 + SNewLine;
-        if SWizardScriptCommentArchitecturesAllowed2 <> '' then
-          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesAllowed2 + SNewLine;
-        if SWizardScriptCommentArchitecturesAllowed3 <> '' then
-          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesAllowed3 + SNewLine;
+        Setup := Setup + SLitComment + LFmtMessage(SWizardScriptCommentArchitecturesAllowed, ['ArchitecturesAllowed=x64compatible']) + SNewLine;
         Setup := Setup + 'ArchitecturesAllowed=x64compatible' + SNewLine;
-        if SWizardScriptCommentArchitecturesInstallIn64BitMode1 <> '' then
-          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesInstallIn64BitMode1 + SNewLine;
-        if SWizardScriptCommentArchitecturesInstallIn64BitMode2 <> '' then
-          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesInstallIn64BitMode2 + SNewLine;
-        if SWizardScriptCommentArchitecturesInstallIn64BitMode3 <> '' then
-          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesInstallIn64BitMode3 + SNewLine;
-        if SWizardScriptCommentArchitecturesInstallIn64BitMode4 <> '' then
-          Setup := Setup + '; ' + SWizardScriptCommentArchitecturesInstallIn64BitMode4 + SNewLine;
+        Setup := Setup + SLitComment + LFmtMessage(SWizardScriptCommentArchitecturesInstallIn64BitMode1, ['ArchitecturesInstallIn64BitMode=x64compatible']) + SNewLine;
+        Setup := Setup + SLitComment + LFmtMessage(SWizardScriptCommentArchitecturesInstallIn64BitMode2) + SNewLine;
         Setup := Setup + 'ArchitecturesInstallIn64BitMode=x64compatible' + SNewLine;
-        Setup := Setup + '; ' + SWizardScriptCommentChangeTo64BitInstaller + SNewLine;
+        Setup := Setup + SLitComment + LFmtMessage(SWizardScriptCommentChangeTo64BitInstaller) + SNewLine;
         Setup := Setup + ';SetupArchitecture=x64' + SNewLine;
       end;
     end;
@@ -1068,8 +1129,8 @@ begin
     FFilesHelper.AddScript(Files, HasExtractArchive);
     if HasExtractArchive then begin
       Setup := Setup + 'ArchiveExtraction=full' + SNewLine;
-      Setup := Setup + '; ' + SWizardScriptCommentArchiveExtractionEnhanced + SNewLine;
-      Setup := Setup + '; ' + SWizardScriptCommentArchiveExtractionEnhancedNoPassword + SNewLine;
+      Setup := Setup + SLitComment + LFmtMessage(SWizardScriptCommentArchiveExtractionEnhanced, ['ArchiveExtraction=enhanced', SLit7zExt]) + SNewLine;
+      Setup := Setup + SLitComment + LFmtMessage(SWizardScriptCommentArchiveExtractionEnhancedNoPassword, ['ArchiveExtraction=enhanced/nopassword']) + SNewLine;
     end;
 
     { AppAssocation }
@@ -1115,9 +1176,9 @@ begin
 
     { PrivilegesRequired }
     if PrivilegesRequiredAdminRadioButton.Checked then
-      Setup := Setup + '; ' + SWizardScriptCommentChangeToLowest + SNewLine + ';'
+      Setup := Setup + SLitComment + LFmtMessage(SWizardScriptCommentChangeToLowest) + SNewLine + ';'
     else
-      Setup := Setup + '; ' + SWizardScriptCommentChangeToAdmin + SNewLine;
+      Setup := Setup + SLitComment + LFmtMessage(SWizardScriptCommentChangeToAdmin) + SNewLine;
     Setup := Setup + 'PrivilegesRequired=lowest' + SNewLine; { Note how previous made sure this is outputted as comment if needed. }
     if PrivilegesRequiredOverridesAllowedDialogCheckbox.Checked then
       Setup := Setup + 'PrivilegesRequiredOverridesAllowed=dialog' + SNewLine
@@ -1187,7 +1248,7 @@ begin
     if Length(Tasks) > Length('[Tasks]')+2 then
       Script := Script + Tasks + SNewLine;
     if Length(Files) > Length('[Files]')+2 then
-      Script := Script + Files + '; ' + SWizardScriptCommentSharedSystemFiles + SNewLine2;
+      Script := Script + Files + SLitComment + LFmtMessage(SWizardScriptCommentSharedSystemFiles, ['Flags: ignoreversion']) + SNewLine2;
     if Length(Registry) > Length('[Registry]')+2 then
       Script := Script + Registry + SNewLine;
     if Length(INI) > Length('[INI]')+2 then
@@ -1205,9 +1266,10 @@ begin
     FResult := wrEmpty;
   end;
 
-  FResultScript := FixLabel(SWizardScriptHeader) + SNewLine;
+  FResultScript := SLitComment + FixLabel(LFmtMessage(SWizardScriptHeader1, ['[name]'])) + SNewLine +
+    SLitComment + LFmtMessage(SWizardScriptHeader2) + SNewLine;
   if (FResult = wrComplete) and not IsLicensed then
-    FResultScript := FResultScript + '; ' + AddPeriod(GetLicenseeDescription) + SNewLine;
+    FResultScript := FResultScript + SLitComment + AddPeriod(GetLicenseeDescription) + SNewLine;
   FResultScript := FResultScript + SNewLine + Script;
 end;
 

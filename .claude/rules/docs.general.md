@@ -40,6 +40,8 @@ Use the established Inno Setup terms consistently. Never substitute synonyms:
 | Pascal Scripting | the scripting engine (for the feature/topic name; "Pascal Script" is acceptable when referring to the RemObjects Pascal Script engine itself) |
 | extended-length paths | long paths (use "also known as super paths" parenthetically on first mention within a topic; don't use "super paths" as a standalone term) |
 | menu item | menu option |
+| without a BOM | BOM-less, BOMless |
+| the help file | the help |
 
 Additional vocabulary rules:
 - "Setup or Uninstall" or "the Setup program and uninstaller" when a feature applies to both. Not "the installer or uninstaller".
@@ -63,11 +65,30 @@ Additional vocabulary rules:
 - **"etc." is acceptable** but use sparingly.
 - **Colons** before examples and lists.
 
-## Code Formatting
+## Formatting
 
-- `<tt>` for all code identifiers: section names, directive names, parameter names, flag names, constant names, type names, function names, file names, values like `yes`/`no`/`True`/`False`.
-- `<i>` for emphasis, wizard page names (such as *Select Destination Location*), UI element names, and file titles.
+- Code identifiers should render as monospace: section names, directive names, parameter names, flag names, constant names, type names, function names, file names, directory names, path values, registry key and value type names, environment variable names, command-line switches, and values like `yes`/`no`/`True`/`False`. In prose, use `<tt>` for this. Inside already-monospace contexts, such as `<pre>`, `<precode>`, or ISPP `<line>` elements, no extra `<tt>` is needed.
+- When a code identifier is in a prose link's display text, still make it monospace with `<tt>`:
+  - For an internal `<link>`: outside the link if the identifier is the whole display text, inside otherwise.
+  - For an `<extlink>`: always inside, because external links get an icon added that must not appear inside the `<tt>` pill.
+- `<i>` for emphasis, wizard page names (such as *Select Destination Location*), UI element names, and font names.
 - `<b>` sparingly, for important warnings or the word "NOTE:".
+
+## Syntax Highlighting
+
+The IDE styler (`Projects/Src/IDE.ScintStylerInnoSetup.pas`) is the source of truth for which token gets which
+category. Five non-obvious rules:
+
+- Use `<sec>`, `<evt>`, `<key>`, `<com>`, `<con>`, `<str>`, `<num>`, and `<ispp>` for syntax-highlighted script examples.
+- Use `<str>` and `<num>` only in Pascal Script and ISPP contexts. Section directive and parameter string
+  values stay plain, with only their inner constants using `<con>`. Number literals include ISPP array indices.
+- Use of `<con>` depends on context. Use it for a regular constant (`{app}`) inside a section directive or parameter
+  value, including inside a parameter value such as `ExpandConstant('<con>{app}</con>\...')`,
+  but not inside a Pascal string literal, where the whole literal stays `<str>`. An ISPP inline constant
+  (`{#...}`) is the exception: it always uses `<ispp>` on the `{#...}` delimiters and directive name (the inner
+  expression keeps its own styling), even inside a string literal, because ISPP pre-styles it.
+- `<evt>` applies only to the fixed `BasicEventFunctions` set; functions named via event attributes are not bolded.
+- `[Messages]`/`[CustomMessages]`/`[LangOptions]`: only the message name is `<key>`; a language prefix is not.
 
 ## Review Guidelines
 
@@ -77,7 +98,7 @@ When reviewing documentation, check for:
 2. **Factual accuracy.** Does the documentation match the actual code behavior?
 3. **Completeness.** Are all parameters, flags, return values, and error conditions documented?
 4. **Cross-references.** Are related topics linked?
-5. **Code formatting.** Are identifiers wrapped in `<tt>`? Are examples provided?
+5. **Code formatting.** Are code identifiers in prose wrapped in `<tt>`? Are examples provided?
 6. **Style violations.** Check for: em/en dashes, "e.g.", "i.e.", synonym rotation, missing Oxford commas, "can not" instead of "cannot", "utilize" instead of "use".
 7. **Clarity for non-native speakers.** Avoid idioms, complex subordinate clauses, and uncommon vocabulary.
 8. **Do not nitpick** about subjective style matters in existing text that is not being changed. Only flag style issues in new or modified text.

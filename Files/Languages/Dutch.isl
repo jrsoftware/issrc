@@ -47,8 +47,8 @@ SetupAppRunningError=Setup heeft vastgesteld dat %1 op dit moment actief is.%n%n
 UninstallAppRunningError=Het verwijderprogramma heeft vastgesteld dat %1 op dit moment actief is.%n%nSluit alle vensters hiervan, en klik daarna op OK om verder te gaan, of op Annuleren om het verwijderen af te breken.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Selecteer installatie modus voor Setup
-PrivilegesRequiredOverrideInstruction=Selecteer installatie modus
+PrivilegesRequiredOverrideTitle=Selecteer installatiemodus voor Setup
+PrivilegesRequiredOverrideInstruction=Selecteer installatiemodus
 PrivilegesRequiredOverrideText1=%1 kan geïnstalleerd worden voor alle gebruikers (vereist aanmelding als een systeembeheerder), of voor u alleen.
 PrivilegesRequiredOverrideText2=%1 kan geïnstalleerd worden voor u alleen, of voor alle gebruikers (vereist aanmelding als een systeembeheerder).
 PrivilegesRequiredOverrideAllUsers=Installeer voor &alle gebruikers
@@ -65,7 +65,7 @@ ExitSetupTitle=Setup afsluiten
 ExitSetupMessage=Setup is niet voltooid. Als u nu afsluit, wordt het programma niet geïnstalleerd.%n%nU kunt Setup later opnieuw uitvoeren om de installatie te voltooien.%n%nSetup afsluiten?
 AboutSetupMenuItem=&Over Setup...
 AboutSetupTitle=Over Setup
-AboutSetupMessage=%1 versie %2%n%3%n%n%1-homepage:%n%4
+AboutSetupMessage=%1 %2%n%3%n%n%1-homepage:%n%4
 AboutSetupNote=
 TranslatorNote=Dutch translation maintained by Martijn Laan (mlaan@innosetup.nl)
 
@@ -138,7 +138,7 @@ DiskSpaceGBLabel=Er is ten minste [gb] GB vrije schijfruimte vereist.
 DiskSpaceMBLabel=Er is ten minste [mb] MB vrije schijfruimte vereist.
 CannotInstallToNetworkDrive=Setup kan niet installeren naar een netwerkstation.
 CannotInstallToUNCPath=Setup kan niet installeren naar een UNC-pad.
-InvalidPath=U moet een volledig pad met stationsletter invoeren; bijvoorbeeld:%nC:\APP%n%nof een UNC-pad zoals:%n%n\\server\share
+InvalidPath=U moet een volledig pad met stationsletter invoeren; bijvoorbeeld:%nC:\App%n%nof een UNC-pad zoals:%n%n\\server\share
 InvalidDrive=Het geselecteerde station bestaat niet. Kies een ander station.
 DiskSpaceWarningTitle=Onvoldoende schijfruimte
 DiskSpaceWarning=Setup vereist ten minste %1 kB vrije schijfruimte voor het installeren, maar het geselecteerde station heeft slechts %2 kB beschikbaar.%n%nWilt u toch doorgaan?

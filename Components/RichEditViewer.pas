@@ -387,11 +387,9 @@ begin
   inherited;
   UpdateBackgroundColor;
   if FUseRichEdit then begin
-    if RichEditVersion >= 2 then begin
-      const Mask = ENM_LINK or SendMessage(Handle, EM_GETEVENTMASK, 0, 0);
-      SendMessage(Handle, EM_SETEVENTMASK, 0, LPARAM(Mask));
-      SendMessage(Handle, EM_AUTOURLDETECT, WPARAM(True), 0);
-    end;
+    const Mask = ENM_LINK or SendMessage(Handle, EM_GETEVENTMASK, 0, 0);
+    SendMessage(Handle, EM_SETEVENTMASK, 0, LPARAM(Mask));
+    SendMessage(Handle, EM_AUTOURLDETECT, WPARAM(True), 0);
     SendMessage(Handle, EM_SETOLECALLBACK, 0, LPARAM(FCallback));
   end;
 end;
@@ -594,11 +592,9 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
             Break;
           Inc(EndPos);
         end;
-        if StartPos < EndPos then begin
-          SetSelection(StartPos, EndPos);
-          SendMessage(Handle, EM_SETCHARFORMAT, SCF_SELECTION, LPARAM(@NewTextColorFormat));
-          StartPos := EndPos;
-        end;
+        SetSelection(StartPos, EndPos);
+        SendMessage(Handle, EM_SETCHARFORMAT, SCF_SELECTION, LPARAM(@NewTextColorFormat));
+        StartPos := EndPos;
       end;
     finally
       SendMessage(Handle, EM_EXSETSEL, 0, LPARAM(@SaveSel));
@@ -755,17 +751,15 @@ begin
         if (CharRange.cpMin >= 0) and (CharRange.cpMax > CharRange.cpMin) then begin
           Len := CharRange.cpMax - CharRange.cpMin;
           Inc(Len);  { for null terminator }
-          if Len > 1 then begin
-            SetLength(URL, Len);
-            TextRange.chrg := CharRange;
-            TextRange.lpstrText := PChar(URL);
-            SetLength(URL, SendMessage(Handle, EM_GETTEXTRANGE, 0, LParam(@TextRange)));
-            if URL <> '' then begin
-              if Assigned(FCustomShellExecute) then
-                FCustomShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL)
-              else
-                ShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
-            end;
+          SetLength(URL, Len);
+          TextRange.chrg := CharRange;
+          TextRange.lpstrText := PChar(URL);
+          SetLength(URL, SendMessage(Handle, EM_GETTEXTRANGE, 0, LParam(@TextRange)));
+          if URL <> '' then begin
+            if Assigned(FCustomShellExecute) then
+              FCustomShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL)
+            else
+              ShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
           end;
         end;
       end;

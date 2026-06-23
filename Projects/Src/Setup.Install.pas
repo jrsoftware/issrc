@@ -430,7 +430,7 @@ end;
 
 procedure ApplyNTFSCompression(const Filename: String; const FilenameIsDirectory, Compress: Boolean);
 const
-  SSet: array [Boolean] of String = ('Setting', 'Unsetting');
+  SSet: array [Boolean] of String = ('Unsetting', 'Setting');
   SFileDir: array [Boolean] of String = ('file', 'directory');
 begin
   LogFmt('%s NTFS compression on %s: %s', [SSet[Compress], SFileDir[FilenameIsDirectory], Filename]);
@@ -1608,7 +1608,6 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
               if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
               if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
               MakeDir(UninstLog, DestDir + FindData.cFileName, Flags);
-              Result := True;
             end;
           until not ArchiveFindNextFile(H, FindData);
         finally

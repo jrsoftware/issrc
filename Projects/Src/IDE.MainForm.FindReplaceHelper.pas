@@ -46,7 +46,7 @@ uses
   Classes, SysUtils, StrUtils,  Menus,
   ScintEdit,
   Shared.CommonFunc, Shared.CommonFunc.Vcl,
-  IDE.Messages, IDE.HelperFunc, IDE.ScintStylerInnoSetup;
+  IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.ScintStylerInnoSetup;
 
 const
   OldFindReplaceWndProcProp = 'OldFindReplaceWndProc';
@@ -85,6 +85,11 @@ begin
     SetProp(FindDialog.Handle, OldFindReplaceWndProcProp, THandle(GetWindowLongPtr(FindDialog.Handle, GWLP_WNDPROC)));
     SetWindowLongPtr(FindDialog.Handle, GWLP_WNDPROC, LONG_PTR(@FindReplaceWndProc));
   end;
+end;
+
+function FindResultLinePrefix(const LineNumber: Integer): String;
+begin
+  Result := '  ' + LFmtMessage(SFindResultLinePrefix, [LineNumber]) + ' ';
 end;
 
 {  TMainFormFindReplaceHelper }
@@ -154,7 +159,7 @@ begin
      FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) then
     FActiveMemo.SelectAndEnsureVisible(Range)
   else
-    MsgBoxFmt(SFindNotFound, [FLastFindText], SCompilerFormCaption,
+    MsgBox(LFmtMessage(SFindNotFound, [FLastFindText]), LFmtMessage(SCompilerFormCaption),
       mbInformation, MB_OK);
 end;
 
@@ -182,7 +187,7 @@ begin
   if FLastFindRegEx then begin
     Result := FActiveMemo.TestRegularExpression(FLastFindText);
     if not Result then
-      MsgBoxFmt(SFindInvalidRegEx, [FLastFindText], SCompilerFormCaption,
+      MsgBox(LFmtMessage(SFindInvalidRegEx, [FLastFindText]), LFmtMessage(SCompilerFormCaption),
         mbError, MB_OK);
   end else
     Result := True;
@@ -223,7 +228,7 @@ begin
               FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) do begin
         { Also see UpdateFindResult }
         var Line := Memo.GetLineFromPosition(Range.StartPos);
-        var Prefix := Format(SFindResultLinePrefix, [Line+1]);
+        var Prefix := FindResultLinePrefix(Line+1);
         var FindResult := TFindResult.Create;
         FindResult.Filename := Memo.Filename;
         FindResult.Line := Line;
@@ -242,15 +247,15 @@ begin
           StartPos := Memo.GetPositionAfter(StartPos);
         end;
       end;
-      Inc(Files);
       if FileHits > 0 then begin
+        Inc(Files);
         Inc(Hits, FileHits);
-        FindResultsList.Items.Insert(FindResultsList.Count-FileHits, Format(SFindResultFileHeader, [Memo.Filename, FileHits]));
+        FindResultsList.Items.Insert(FindResultsList.Count-FileHits, LFmtMessage(SFindResultFileHeader, [Memo.Filename, FileHits]));
       end;
     end;
   end;
 
-  FindResultsList.Items.Insert(0, Format(SFindResultSummary, [FindInFilesDialog.FindText, Hits, Files]));
+  FindResultsList.Items.Insert(0, LFmtMessage(SFindResultSummary, [FindInFilesDialog.FindText, Hits, Files]));
 
   FindInFilesDialog.CloseDialog;
 
@@ -262,9 +267,9 @@ procedure TMainFormFindReplaceHelper.UpdateFindResult(const FindResult: TFindRes
   const NewLine, NewLineStartPos: Integer);
 begin
   { Also see DoFindInFilesDialogFind }
-  const OldPrefix = Format(SFindResultLinePrefix, [FindResult.Line+1]);
+  const OldPrefix = FindResultLinePrefix(FindResult.Line+1);
   FindResult.Line := NewLine;
-  const NewPrefix = Format(SFindResultLinePrefix, [FindResult.Line+1]);
+  const NewPrefix = FindResultLinePrefix(FindResult.Line+1);
   FindResultsList.Items[ItemIndex] := NewPrefix + Copy(FindResultsList.Items[ItemIndex], Length(OldPrefix)+1, MaxInt);
   const PosChange = NewLineStartPos - FindResult.LineStartPos;
   FindResult.LineStartPos := NewLineStartPos;
@@ -360,10 +365,10 @@ begin
       FActiveMemo.EndUndoAction;
     end;
     if ReplaceCount = 0 then
-      MsgBoxFmt(SFindNotFound, [FLastFindText], SCompilerFormCaption,
+      MsgBox(LFmtMessage(SFindNotFound, [FLastFindText]), LFmtMessage(SCompilerFormCaption),
         mbInformation, MB_OK)
     else
-      MsgBoxFmt(SReplaceCount, [ReplaceCount], SCompilerFormCaption,
+      MsgBox(LFmtMessage(SReplaceCount, [ReplaceCount]), LFmtMessage(SCompilerFormCaption),
         mbInformation, MB_OK);
   end
   else begin

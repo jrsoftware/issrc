@@ -4,7 +4,7 @@ object WizardFileForm: TWizardFileForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Script Wizard File'
-  ClientHeight = 345
+  ClientHeight = 385
   ClientWidth = 420
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -16,11 +16,11 @@ object WizardFileForm: TWizardFileForm
   OnCreate = FormCreate
   DesignSize = (
     420
-    345)
+    385)
   TextHeight = 13
   object RequiredLabel1: TNewStaticText
     Left = 8
-    Top = 319
+    Top = 359
     Width = 21
     Height = 14
     Anchors = [akLeft, akBottom]
@@ -30,7 +30,7 @@ object WizardFileForm: TWizardFileForm
   end
   object RequiredLabel2: TNewStaticText
     Left = 36
-    Top = 319
+    Top = 359
     Width = 51
     Height = 14
     Anchors = [akLeft, akBottom]
@@ -40,7 +40,7 @@ object WizardFileForm: TWizardFileForm
   end
   object OKButton: TButton
     Left = 258
-    Top = 313
+    Top = 353
     Width = 73
     Height = 23
     Anchors = [akRight, akBottom]
@@ -52,7 +52,7 @@ object WizardFileForm: TWizardFileForm
   end
   object CancelButton: TButton
     Left = 338
-    Top = 313
+    Top = 353
     Width = 73
     Height = 23
     Anchors = [akRight, akBottom]
@@ -63,10 +63,10 @@ object WizardFileForm: TWizardFileForm
   end
   object GroupBox2: TNewGroupBox
     Left = 8
-    Top = 108
+    Top = 148
     Width = 403
     Height = 197
-    Anchors = [akLeft, akTop, akRight]
+    Anchors = [akLeft, akRight, akBottom]
     Caption = ' Destination '
     TabOrder = 0
     DesignSize = (
@@ -139,13 +139,13 @@ object WizardFileForm: TWizardFileForm
     Left = 8
     Top = 8
     Width = 403
-    Height = 93
-    Anchors = [akLeft, akTop, akRight]
+    Height = 133
+    Anchors = [akLeft, akTop, akRight, akBottom]
     Caption = ' Source '
     TabOrder = 3
     DesignSize = (
       403
-      93)
+      133)
     object SourceLabel: TNewStaticText
       Left = 12
       Top = 20
@@ -168,24 +168,24 @@ object WizardFileForm: TWizardFileForm
     object RecurseSubDirsCheck: TCheckBox
       Left = 12
       Top = 68
-      Width = 125
+      Width = 379
       Height = 17
       Caption = '&Recurse subfolders'
       TabOrder = 2
       OnClick = CheckClick
     end
     object CreateAllSubDirsCheck: TCheckBox
-      Left = 138
-      Top = 68
-      Width = 151
+      Left = 12
+      Top = 88
+      Width = 379
       Height = 17
       Caption = '&Include empty subfolders'
       TabOrder = 3
     end
     object ExtractArchiveCheck: TCheckBox
-      Left = 290
-      Top = 68
-      Width = 111
+      Left = 12
+      Top = 108
+      Width = 379
       Height = 17
       Caption = '&Extract archive'
       TabOrder = 4

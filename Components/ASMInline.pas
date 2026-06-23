@@ -53,7 +53,6 @@ type
 
   TMemoryAddress = record
     Size: TMemSize;
-    UseBase: Boolean;
     Base, Index: TRegister32;
     Offset: Integer;
     Scale: Byte;
@@ -91,9 +90,9 @@ type
     function GetReloc(index: Integer): TReloc;
     function RelocCount: Integer;
     property Relocs[index: Integer]: TReloc read GetReloc;
-    procedure WriteRegRef(reg: byte; base: TRegister32; deref: Boolean; index: TRegister32; Offset: Integer; Scale: byte; usebase: Boolean); overload;
+    procedure WriteRegRef(reg: byte; base: TRegister32; deref: Boolean; index: TRegister32; Offset: Integer; Scale: byte); overload;
     procedure WriteRegRef(mem: TMemoryAddress; reg: TRegister32); overload;
-    procedure WriteRegRef(reg: TRegister32; base: TRegister32; deref: Boolean; index: TRegister32 = EAX; Offset: Integer = 0; Scale: byte = 0; usebase: Boolean = true); overload;
+    procedure WriteRegRef(reg: TRegister32; base: TRegister32; deref: Boolean; index: TRegister32 = EAX; Offset: Integer = 0; Scale: byte = 0); overload;
     procedure Relocate(base: pointer);
 {$ELSE}
     function RegCode(const R: TRegister64): Byte;
@@ -296,7 +295,6 @@ begin
   result.scale := 0; //don't use Index
   result.offset := offset;
   result.size := size;
-  result.usebase := true;
 end;
 
 procedure TASMInline.Pop(reg: TRegister32);
@@ -318,17 +316,17 @@ end;
 
 procedure TASMInline.WriteRegRef(mem: TMemoryAddress; reg: TRegister32);
 begin
-  writeregref(reg, mem.base, true, mem.index, mem.offset, mem.scale, mem.usebase);
+  writeregref(reg, mem.base, true, mem.index, mem.offset, mem.scale);
 end;
 
 //Write the MODR/M and SIB byte for the given register or memory reference
 
-procedure TASMInline.WriteRegRef(reg: TRegister32; base: TRegister32; deref: boolean; index: TRegister32 = EAX; Offset: integer = 0; Scale: byte = 0; usebase: boolean = true);
+procedure TASMInline.WriteRegRef(reg: TRegister32; base: TRegister32; deref: boolean; index: TRegister32 = EAX; Offset: integer = 0; Scale: byte = 0);
 begin
-  WriteRegRef(regnum(reg), base, deref, index, Offset, scale, usebase);
+  WriteRegRef(regnum(reg), base, deref, index, Offset, scale);
 end;
 
-procedure TASMInline.WriteRegRef(reg: byte; base: TRegister32; deref: boolean; index: TRegister32; Offset: integer; Scale: byte; usebase: boolean);
+procedure TASMInline.WriteRegRef(reg: byte; base: TRegister32; deref: boolean; index: TRegister32; Offset: integer; Scale: byte);
 type TOffSize = (osNone, os8, os32);
 var mode: TModMode;
   offsize: TOffSize;
@@ -339,22 +337,17 @@ begin
     mode := mmNaked;
     offsize := osNone;
   end else
-    if usebase = false then begin
-      offsize := os32;
+    if Offset = 0 then begin
       mode := mmDeref;
-      base := EBP; //the "no base" value
+      offsize := osNone;
     end else
-      if Offset = 0 then begin
-        mode := mmDeref;
-        offsize := osNone;
-      end else
-        if (offset >= -128) and (offset < 128) then begin //signed byte
-          mode := mmDisp8;
-          offsize := os8;
-        end else begin
-          mode := mmDisp32;
-          offsize := os32;
-        end;
+      if (offset >= -128) and (offset < 128) then begin //signed byte
+        mode := mmDisp8;
+        offsize := os8;
+      end else begin
+        mode := mmDisp32;
+        offsize := os32;
+      end;
 
   if (mode <> mmnaked) then begin
     usesib := (Scale > 0) or (base = ESP);
