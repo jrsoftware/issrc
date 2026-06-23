@@ -83,7 +83,7 @@
     <contentstopic title="Wizard Pages" topic="wizardpages" />
     <contentstopic title="Installation Order" topic="installorder" />
     <contentstopic title="Unsafe Files" topic="unsafefiles" />
-    <contentstopic title="Compiler Command-Line Execution" topic="compilercmdline" />
+    <contentstopic title="Compiler Command-Line Parameters" topic="compilercmdline" />
     <contentstopic title="Setup Command-Line Parameters" topic="setupcmdline" />
     <contentstopic title="Uninstaller Command-Line Parameters" topic="uninstcmdline" />
     <contentstopic title="Setup Exit Codes" topic="setupexitcodes" />
@@ -3838,8 +3838,8 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 
 
 
-<topic name="compilercmdline" title="Command-Line Compiler Execution">
-<keyword value="Command-Line Compiler Execution" />
+<topic name="compilercmdline" title="Compiler Command-Line Parameters">
+<keyword value="Command-Line Compiler" />
 <keyword value="command-line parameters" />
 <keyword value="ISIDE" />
 <keyword value="ISCC" />
