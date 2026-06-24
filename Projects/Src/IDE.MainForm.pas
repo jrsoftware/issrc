@@ -5689,6 +5689,7 @@ begin
     RichEditForm.StyleName := TStyleManager.ActiveStyle.Name;
     {$ENDIF}
     InitFormTheme(RichEditForm, True);
+    RichEditForm.UpdateToolbarTheme;
   end;
 
   ToolbarPanel.Color := FTheme.Colors[tcToolBack];

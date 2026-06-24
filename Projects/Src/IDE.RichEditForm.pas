@@ -12,12 +12,23 @@ unit IDE.RichEditForm;
 interface
 
 uses
-  Classes, Controls, ComCtrls, ActnList, Actions, StdActns, Forms,
+  Classes, Controls, ComCtrls, ExtCtrls, ActnList, Actions, StdActns, Forms,
+  VirtualImageList, ImageList, ImgList, ToolWin,
   RichEditOleCallback,
   IDE.IDEForm;
 
 type
   TRichEditForm = class(TIDEForm)
+    ToolBarPanel: TPanel;
+    ToolBar: TToolBar;
+    UndoButton: TToolButton;
+    RedoButton: TToolButton;
+    ToolButton1: TToolButton;
+    CutButton: TToolButton;
+    CopyButton: TToolButton;
+    PasteButton: TToolButton;
+    ToolButton2: TToolButton;
+    SelectAllButton: TToolButton;
     ActionList: TActionList;
     UndoAction: TEditUndo;
     RedoAction: TAction;
@@ -25,6 +36,7 @@ type
     CopyAction: TEditCopy;
     PasteAction: TEditPaste;
     SelectAllAction: TEditSelectAll;
+    ThemedToolbarVirtualImageList: TVirtualImageList;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -38,6 +50,7 @@ type
       Button: TMouseButton);
   public
     constructor Create(AOwner: TComponent); override;
+    procedure UpdateToolbarTheme;
   end;
 
 var
@@ -47,9 +60,9 @@ implementation
 
 uses
   Windows, ShellApi,
-  Graphics, StdCtrls, RichEdit, {$IF RtlVersion >= 36.0} Themes, {$ENDIF}
+  Graphics, StdCtrls, Menus, RichEdit, {$IF RtlVersion >= 36.0} Themes, {$ENDIF}
   Shared.CommonFunc,
-  IDE.HelperFunc, IDE.MainForm;
+  IDE.ImagesModule, IDE.HelperFunc, IDE.LocalizeFunc, IDE.MainForm;
 
 {$R *.dfm}
 
@@ -73,8 +86,26 @@ procedure TRichEditForm.FormCreate(Sender: TObject);
 begin
   { Finish localization }
   Caption := RemoveAccelChar(MainForm.TRichEditor.Caption);
+  { See MainForm }
+  UndoButton.Hint := LFmtMessage(UndoButton.Hint, [NewShortCutToText(ShortCut(Ord('Z'), [ssCtrl]))]);
+  RedoButton.Hint := LFmtMessage(RedoButton.Hint, [NewShortCutToText(ShortCut(Ord('Y'), [ssCtrl]))]);
+  CutButton.Hint := LFmtMessage(CutButton.Hint, [NewShortCutToText(ShortCut(Ord('X'), [ssCtrl]))]);
+  CopyButton.Hint := LFmtMessage(CopyButton.Hint, [NewShortCutToText(ShortCut(Ord('C'), [ssCtrl]))]);
+  PasteButton.Hint := LFmtMessage(PasteButton.Hint, [NewShortCutToText(ShortCut(Ord('V'), [ssCtrl]))]);
+  SelectAllButton.Hint := LFmtMessage(SelectAllButton.Hint, [NewShortCutToText(ShortCut(Ord('A'), [ssCtrl]))]);
 
+  { See MainForm }
+  ToolBarPanel.ParentBackground := False;
+
+  UpdateToolbarTheme;
   CreateRichEditControl;
+end;
+
+procedure TRichEditForm.UpdateToolbarTheme;
+begin
+  { See MainForm }
+  ToolBarPanel.Color := InitFormThemeGetBkColor(False);
+  ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.ToolBarImageCollection[InitFormThemeIsDark];
 end;
 
 procedure TRichEditForm.CreateRichEditControl;
