@@ -813,24 +813,27 @@ begin
   if ConfigIni = nil then
     ConfigIni := TConfigIniFile.Create;
   try
-    Form.Position := poDesigned;
-    var WindowPlacement: TWindowPlacement;
-    WindowPlacement.length := SizeOf(WindowPlacement);
-    GetWindowPlacement(Form.Handle, @WindowPlacement);
-    WindowPlacement.showCmd := SW_HIDE;  { the form isn't Visible yet }
-    WindowPlacement.rcNormalPosition.Left := ConfigIni.ReadInteger(Section,
-      'WindowLeft', WindowPlacement.rcNormalPosition.Left);
-    WindowPlacement.rcNormalPosition.Top := ConfigIni.ReadInteger(Section,
-      'WindowTop', WindowPlacement.rcNormalPosition.Top);
-    WindowPlacement.rcNormalPosition.Right := ConfigIni.ReadInteger(Section,
-      'WindowRight', WindowPlacement.rcNormalPosition.Left + Form.Width);
-    WindowPlacement.rcNormalPosition.Bottom := ConfigIni.ReadInteger(Section,
-      'WindowBottom', WindowPlacement.rcNormalPosition.Top + Form.Height);
-    SetWindowPlacement(Form.Handle, @WindowPlacement);
-    { Note: Must set WindowState *after* calling SetWindowPlacement, since
-      TCustomForm.WMSize resets WindowState }
-    if ConfigIni.ReadBool(Section, 'WindowMaximized', False) then
-      Form.WindowState := wsMaximized;
+    if ConfigIni.KeyExists(Section) then begin
+      if Form.Position <> poDesigned then
+        Form.Position := poDesigned;
+      var WindowPlacement: TWindowPlacement;
+      WindowPlacement.length := SizeOf(WindowPlacement);
+      GetWindowPlacement(Form.Handle, @WindowPlacement);
+      WindowPlacement.showCmd := SW_HIDE;  { the form isn't Visible yet }
+      WindowPlacement.rcNormalPosition.Left := ConfigIni.ReadInteger(Section,
+        'WindowLeft', WindowPlacement.rcNormalPosition.Left);
+      WindowPlacement.rcNormalPosition.Top := ConfigIni.ReadInteger(Section,
+        'WindowTop', WindowPlacement.rcNormalPosition.Top);
+      WindowPlacement.rcNormalPosition.Right := ConfigIni.ReadInteger(Section,
+        'WindowRight', WindowPlacement.rcNormalPosition.Left + Form.Width);
+      WindowPlacement.rcNormalPosition.Bottom := ConfigIni.ReadInteger(Section,
+        'WindowBottom', WindowPlacement.rcNormalPosition.Top + Form.Height);
+      SetWindowPlacement(Form.Handle, @WindowPlacement);
+      { Note: Must set WindowState *after* calling SetWindowPlacement, since
+        TCustomForm.WMSize resets WindowState }
+      if ConfigIni.ReadBool(Section, 'WindowMaximized', False) then
+        Form.WindowState := wsMaximized;
+    end;
   finally
     if ConfigIni <> Ini then
       ConfigIni.Free;
