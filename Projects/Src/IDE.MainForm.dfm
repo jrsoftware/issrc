@@ -891,12 +891,12 @@ object MainForm: TMainForm
         ShortCut = 24653
         OnClick = TMsgBoxDesignerClick
       end
+      object N7: TMenuItem
+        Caption = '-'
+      end
       object TRichEditor: TMenuItem
         Caption = '&RTF Editor...'
         OnClick = TRichEditorClick
-      end
-      object N7: TMenuItem
-        Caption = '-'
       end
       object TSignTools: TMenuItem
         Caption = '&Configure Sign Tools...'
