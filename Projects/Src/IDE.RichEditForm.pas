@@ -19,6 +19,7 @@ type
   TRichEditForm = class(TIDEForm)
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDestroy(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
   public
     constructor Create(AOwner: TComponent); override;
   end;
@@ -32,7 +33,8 @@ uses
 {$IF RtlVersion >= 36.0}
   Themes,
 {$ENDIF}
-  IDE.HelperFunc;
+  Shared.CommonFunc,
+  IDE.HelperFunc, IDE.MainForm;
 
 {$R *.dfm}
 
@@ -48,6 +50,12 @@ begin
   StyleName := TStyleManager.ActiveStyle.Name;
   {$ENDIF}
   LoadWindowState(Self, 'RichEditState');
+end;
+
+procedure TRichEditForm.FormCreate(Sender: TObject);
+begin
+  { Finish localization }
+  Caption := RemoveAccelChar(MainForm.TRichEditor.Caption);
 end;
 
 procedure TRichEditForm.FormClose(Sender: TObject; var Action: TCloseAction);

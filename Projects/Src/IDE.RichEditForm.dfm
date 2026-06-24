@@ -2,7 +2,7 @@ object RichEditForm: TRichEditForm
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu, biMaximize]
-  Caption = 'RTF Editor'
+  Caption = '*'
   ClientHeight = 500
   ClientWidth = 700
   Color = clBtnFace
@@ -14,6 +14,7 @@ object RichEditForm: TRichEditForm
   Position = poScreenCenter
   StyleElements = []
   OnClose = FormClose
+  OnCreate = FormCreate
   OnDestroy = FormDestroy
   TextHeight = 13
 end
