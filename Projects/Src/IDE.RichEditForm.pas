@@ -28,10 +28,11 @@ var
 
 implementation
 
-{$IF RtlVersion >= 36.0}
 uses
-  Themes;
+{$IF RtlVersion >= 36.0}
+  Themes,
 {$ENDIF}
+  IDE.HelperFunc;
 
 {$R *.dfm}
 
@@ -46,6 +47,7 @@ begin
   { See MainForm }
   StyleName := TStyleManager.ActiveStyle.Name;
   {$ENDIF}
+  LoadWindowState(Self, 'RichEditState');
 end;
 
 procedure TRichEditForm.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -55,8 +57,11 @@ end;
 
 procedure TRichEditForm.FormDestroy(Sender: TObject);
 begin
-  if RichEditForm = Self then
+  if RichEditForm = Self then begin
+    if HandleAllocated then
+      SaveWindowState(Self, 'RichEditState');
     RichEditForm := nil;
+  end;
 end;
 
 end.
