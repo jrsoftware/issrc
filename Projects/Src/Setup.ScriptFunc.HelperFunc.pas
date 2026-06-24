@@ -605,6 +605,7 @@ begin
   try
     const F = TTextFileReader.Create(FileName, fdOpenExisting, faRead, Sharing);
     try
+			F.AllowInvalidChars := True;
       const ArrayBuilder = Stack.InitArrayBuilder(ItemNo);
       try
         while not F.Eof do

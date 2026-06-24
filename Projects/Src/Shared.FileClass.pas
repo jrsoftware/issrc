@@ -95,6 +95,7 @@ type
   private
     FBufferOffset, FBufferSize: Cardinal;
     FEof: Boolean;
+    FAllowInvalidChars: Boolean;
     FBuffer: array[0..4095] of AnsiChar;
     FSawFirstLine: Boolean;
     FCodePage: Word;
@@ -105,8 +106,9 @@ type
   public
     function ReadLine: String;
     function ReadAnsiLine: AnsiString;
+    property AllowInvalidChars: Boolean read FAllowInvalidChars write FAllowInvalidChars;
     property CanDetectUTF8WithoutBOM: Boolean read GetCanDetectUTF8WithoutBOM;
-    property CodePage: Word write FCodePage;
+    property CodePage: Word read FCodePage write FCodePage;
     property Eof: Boolean read GetEof;
   end;
 
@@ -427,14 +429,35 @@ begin
 end;
 
 function TTextFileReader.ReadLine: String;
-var
- S: RawByteString;
 begin
- S := DoReadLine(True);
- if FCodePage <> 0 then
-   SetCodePage(S, FCodePage, False);
- Result := String(S);
-end; 
+  const SrcStr = DoReadLine(True);
+  if SrcStr = '' then
+    Exit('');
+
+  var MBFlags: DWORD := MB_ERR_INVALID_CHARS;
+  if FAllowInvalidChars then
+    MBFlags := 0;
+
+  const DestLen = MultiByteToWideChar(FCodePage, MBFlags, Pointer(SrcStr),
+    Length(SrcStr), nil, 0);
+  if DestLen = 0 then
+    RaiseLastError;
+  { Return value should never be negative, but check anyway }
+  if DestLen < 0 then
+    RaiseError(ERROR_NO_UNICODE_TRANSLATION);
+
+  var DestStr: UnicodeString;
+  SetLength(DestStr, DestLen);
+  const WrittenLen = MultiByteToWideChar(FCodePage, MBFlags, Pointer(SrcStr),
+    Length(SrcStr), Pointer(DestStr), DestLen);
+  { Return value should always be the same as the first call }
+  if WrittenLen = 0 then
+    RaiseLastError;
+  if WrittenLen <> DestLen then
+    RaiseError(ERROR_NO_UNICODE_TRANSLATION);
+
+  Result := DestStr;
+end;
 
 function TTextFileReader.ReadAnsiLine: AnsiString;
 begin
