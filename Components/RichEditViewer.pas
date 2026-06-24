@@ -302,40 +302,38 @@ end;
 type
   PStreamLoadData = ^TStreamLoadData;
   TStreamLoadData = record
-    Buf: PByte;
+    Buffer: PByte;
     BytesLeft: Integer;
   end;
 
 function StreamLoad(dwCookie: DWORD_PTR; pbBuff: PByte;
   cb: Integer; var pcb: Integer): Integer; stdcall;
 begin
+  const Data = PStreamLoadData(dwCookie);
+  if cb > Data.BytesLeft then
+    cb := Data.BytesLeft;
+  Move(Data.Buffer^, pbBuff^, cb);
+  Inc(Data.Buffer, cb);
+  Dec(Data.BytesLeft, cb);
+  pcb := cb;
   Result := 0;
-  with PStreamLoadData(dwCookie)^ do begin
-    if cb > BytesLeft then
-      cb := BytesLeft;
-    Move(Buf^, pbBuff^, cb);
-    Inc(Buf, cb);
-    Dec(BytesLeft, cb);
-    pcb := cb;
-  end;
 end;
 
 function TRichEditViewer.SetRTFText(const Value: AnsiString): Integer;
 
   function StreamIn(AFormat: WPARAM): Integer;
-  var
-    Data: TStreamLoadData;
-    EditStream: TEditStream;
   begin
-    Data.Buf := PByte(@Value[1]);
+    var Data: TStreamLoadData;
+    Data.Buffer := PByte(@Value[1]);
     Data.BytesLeft := Length(Value);
     { Check for UTF-16 BOM }
     if (AFormat and SF_TEXT <> 0) and (Data.BytesLeft >= 2) and
        (PWord(Pointer(Value))^ = $FEFF) then begin
       AFormat := AFormat or SF_UNICODE;
-      Inc(Data.Buf, 2);
+      Inc(Data.Buffer, 2);
       Dec(Data.BytesLeft, 2);
     end;
+    var EditStream: TEditStream;
     EditStream.dwCookie := DWORD_PTR(@Data);
     EditStream.dwError := 0;
     EditStream.pfnCallback := StreamLoad;

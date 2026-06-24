@@ -679,6 +679,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function IsShortCut(var Message: TWMKey): Boolean; override;
+    property FullPathInTitleBar: Boolean read FOptions.FullPathInTitleBar;
   published
     property BorderStyle: TFormBorderStyle read GetBorderStyle write SetBorderStyle;
   end;
@@ -1971,15 +1972,13 @@ function TMainForm.SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolea
     GetLastWriteTimeOfFile(FN, @AMemo.FileLastWriteTime);
   end;
 
-var
-  FN: String;
 begin
   Result := False;
   var OldName := AMemo.Filename;
   if SaveAs or (AMemo.Filename = '') then begin
     if AMemo <> FMainMemo then
       raise Exception.Create('Internal error: AMemo <> FMainMemo');
-    FN := AMemo.Filename;
+    var FN := AMemo.Filename;
     if not NewGetSaveFileName('', FN, '',
              Format(SLitExtAndAllFilter, [LFmtMessage(SIssFiles), SLitIssExt, LFmtMessage(SAllFiles)]),
              SLitIssExt, Handle) then
@@ -2506,9 +2505,8 @@ begin
 end;
 
 procedure TMainForm.ShowOpenMainFileDialog(const Examples: Boolean);
-var
-  InitialDir, Filename: String;
 begin
+  var InitialDir, Filename: String;
   if Examples then begin
     InitialDir := PathExtractPath(NewParamStr(0)) + 'Examples';
     Filename := PathExtractPath(NewParamStr(0)) + 'Examples\Example1.iss';

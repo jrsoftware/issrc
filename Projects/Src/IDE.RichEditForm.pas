@@ -21,6 +21,11 @@ type
   TRichEditForm = class(TIDEForm)
     ToolBarPanel: TPanel;
     ToolBar: TToolBar;
+    NewButton: TToolButton;
+    OpenButton: TToolButton;
+    SaveButton: TToolButton;
+    SaveAsButton: TToolButton;
+    ToolButton3: TToolButton;
     UndoButton: TToolButton;
     RedoButton: TToolButton;
     ToolButton1: TToolButton;
@@ -30,6 +35,10 @@ type
     ToolButton2: TToolButton;
     SelectAllButton: TToolButton;
     ActionList: TActionList;
+    NewAction: TAction;
+    OpenAction: TAction;
+    SaveAction: TAction;
+    SaveAsAction: TAction;
     UndoAction: TEditUndo;
     RedoAction: TAction;
     CutAction: TEditCut;
@@ -42,12 +51,20 @@ type
     procedure FormCreate(Sender: TObject);
     procedure RedoActionExecute(Sender: TObject);
     procedure RedoActionUpdate(Sender: TObject);
+    procedure NewActionExecute(Sender: TObject);
+    procedure OpenActionExecute(Sender: TObject);
+    procedure SaveActionExecute(Sender: TObject);
   private
     FRichEdit: TRichEdit;
     FCallback: IRichEditOleCallback;
+    FFilename: String;
     procedure CreateRichEditControl;
     procedure RichEditLinkClick(Sender: TCustomRichEdit; const URL: String;
       Button: TMouseButton);
+    procedure NewDocument;
+    procedure LoadDocument(const AFilename: String);
+    function SaveDocument(const ASaveAs: Boolean): Boolean;
+    procedure UpdateCaption;
   public
     constructor Create(AOwner: TComponent); override;
     procedure UpdateToolbarTheme;
@@ -60,11 +77,48 @@ implementation
 
 uses
   Windows, ShellApi,
-  Graphics, StdCtrls, Menus, RichEdit, {$IF RtlVersion >= 36.0} Themes, {$ENDIF}
-  Shared.CommonFunc,
-  IDE.ImagesModule, IDE.HelperFunc, IDE.LocalizeFunc, IDE.MainForm;
+  SysUtils, Graphics, StdCtrls, Menus, RichEdit, {$IF RtlVersion >= 36.0} Themes, {$ENDIF}
+  PathFunc, BrowseFunc,
+  Shared.CommonFunc, Shared.FileClass,
+  IDE.Messages, IDE.ImagesModule, IDE.HelperFunc, IDE.LocalizeFunc, IDE.MainForm;
 
 {$R *.dfm}
+
+type
+  PStreamLoadData = ^TStreamLoadData;
+  TStreamLoadData = record
+    Buffer: PByte;
+    BytesLeft: Integer;
+  end;
+
+  PStreamSaveData = ^TStreamSaveData;
+  TStreamSaveData = record
+    Buffer: AnsiString;
+  end;
+
+function StreamLoad(dwCookie: DWORD_PTR; pbBuff: PByte; cb: Integer;
+  var pcb: Integer): Integer; stdcall;
+begin
+  const Data = PStreamLoadData(dwCookie);
+  if cb > Data.BytesLeft then
+    cb := Data.BytesLeft;
+  Move(Data.Buffer^, pbBuff^, cb);
+  Inc(Data.Buffer, cb);
+  Dec(Data.BytesLeft, cb);
+  pcb := cb;
+  Result := 0;
+end;
+
+function StreamSave(dwCookie: DWORD_PTR; pbBuff: PByte; cb: Integer;
+  var pcb: Integer): Integer; stdcall;
+begin
+  const Data = PStreamSaveData(dwCookie);
+  const OldLength = Length(Data.Buffer);
+  SetLength(Data.Buffer, OldLength + cb);
+  Move(pbBuff^, Data.Buffer[OldLength + 1], cb);
+  pcb := cb;
+  Result := 0;
+end;
 
 { TRichEditForm }
 
@@ -85,8 +139,9 @@ end;
 procedure TRichEditForm.FormCreate(Sender: TObject);
 begin
   { Finish localization }
-  Caption := RemoveAccelChar(MainForm.TRichEditor.Caption);
-  { See MainForm }
+  NewButton.Hint := LFmtMessage(NewButton.Hint, [NewShortCutToText(NewAction.ShortCut)]);
+  OpenButton.Hint := LFmtMessage(OpenButton.Hint, [NewShortCutToText(OpenAction.ShortCut)]);
+  SaveButton.Hint := LFmtMessage(SaveButton.Hint, [NewShortCutToText(SaveAction.ShortCut)]);
   UndoButton.Hint := LFmtMessage(UndoButton.Hint, [NewShortCutToText(ShortCut(Ord('Z'), [ssCtrl]))]);
   RedoButton.Hint := LFmtMessage(RedoButton.Hint, [NewShortCutToText(ShortCut(Ord('Y'), [ssCtrl]))]);
   CutButton.Hint := LFmtMessage(CutButton.Hint, [NewShortCutToText(ShortCut(Ord('X'), [ssCtrl]))]);
@@ -99,13 +154,6 @@ begin
 
   UpdateToolbarTheme;
   CreateRichEditControl;
-end;
-
-procedure TRichEditForm.UpdateToolbarTheme;
-begin
-  { See MainForm }
-  ToolBarPanel.Color := InitFormThemeGetBkColor(False);
-  ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.ToolBarImageCollection[InitFormThemeIsDark];
 end;
 
 procedure TRichEditForm.CreateRichEditControl;
@@ -123,17 +171,10 @@ begin
   FCallback := TBasicRichEditOleCallback.Create;
   SendMessage(FRichEdit.Handle, EM_SETOLECALLBACK, 0, LPARAM(FCallback));
 
-  { Start a new document, same default font & size as Setup uses }
-  FRichEdit.DefAttributes.Name := 'Segoe UI';
-  FRichEdit.DefAttributes.Size := 9;
-  FRichEdit.DefAttributes.Color := clWindowText;   { Automatic }
-  FRichEdit.DefAttributes.BackColor := clWindow;   { Automatic }
-  FRichEdit.SelAttributes.Assign(FRichEdit.DefAttributes);
-  FRichEdit.Modified := False;
+  NewDocument;
 
   {$IFDEF DEBUG}
-  FRichEdit.Lines.LoadFromFile('Colortest.rtf');
-  FRichEdit.Modified := False;
+  LoadDocument('Colortest.rtf');
   {$ENDIF}
 end;
 
@@ -151,11 +192,134 @@ begin
   end;
 end;
 
+procedure TRichEditForm.UpdateToolbarTheme;
+begin
+  { See MainForm }
+  ToolBarPanel.Color := InitFormThemeGetBkColor(False);
+  ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.ToolBarImageCollection[InitFormThemeIsDark];
+end;
+
 procedure TRichEditForm.RichEditLinkClick(Sender: TCustomRichEdit; const URL: String;
   Button: TMouseButton);
 begin
   if (Button = mbLeft) and (GetKeyState(VK_CONTROL) < 0) then
     ShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
+end;
+
+procedure TRichEditForm.NewDocument;
+begin
+  FRichEdit.Lines.Clear;
+  { Start a new document, same default font & size as Setup uses }
+  FRichEdit.DefAttributes.Name := 'Segoe UI';
+  FRichEdit.DefAttributes.Size := 9;
+  FRichEdit.DefAttributes.Color := clWindowText;   { Automatic }
+  FRichEdit.DefAttributes.BackColor := clWindow;   { Automatic }
+  FRichEdit.SelAttributes.Assign(FRichEdit.DefAttributes);
+  FFilename := '';
+  FRichEdit.Modified := False;
+  UpdateCaption;
+end;
+
+procedure TRichEditForm.LoadDocument(const AFilename: String);
+
+  function StreamIn(const Buffer: AnsiString): Integer;
+  begin
+    var Data: TStreamLoadData;
+    Data.Buffer := PByte(Buffer);
+    Data.BytesLeft := Length(Buffer);
+    var EditStream: TEditStream;
+    EditStream.dwCookie := DWORD_PTR(@Data);
+    EditStream.dwError := 0;
+    EditStream.pfnCallback := StreamLoad;
+    SendMessage(FRichEdit.Handle, EM_EXLIMITTEXT, 0, LPARAM($7FFFFFFE));
+    SendMessage(FRichEdit.Handle, EM_STREAMIN, SF_RTF, LPARAM(@EditStream));
+    Result := EditStream.dwError;
+  end;
+
+begin
+  var Buffer: AnsiString;
+  const F = TFile.Create(AFilename, fdOpenExisting, faRead, fsRead);
+  try
+    const Size = F.CappedSize;
+    SetLength(Buffer, Size);
+    F.ReadBuffer(Buffer[1], Size);
+  finally
+    F.Free;
+  end;
+  StreamIn(Buffer);
+  FFilename := AFilename;
+  FRichEdit.Modified := False;
+  UpdateCaption;
+end;
+
+function TRichEditForm.SaveDocument(const ASaveAs: Boolean): Boolean;
+
+  function StreamOut: AnsiString;
+  begin
+    var Data: TStreamSaveData;
+    var EditStream: TEditStream;
+    EditStream.dwCookie := DWORD_PTR(@Data);
+    EditStream.dwError := 0;
+    EditStream.pfnCallback := StreamSave;
+    SendMessage(FRichEdit.Handle, EM_STREAMOUT, SF_RTF, LPARAM(@EditStream));
+    Result := Data.Buffer;
+  end;
+
+begin
+  Result := False;
+  var Filename := FFilename;
+  if ASaveAs or (Filename = '') then begin
+    if not NewGetSaveFileName('', Filename, '',
+             Format(SLitExtAndAllFilter, [LFmtMessage(SRtfFiles), SLitRtfExt, LFmtMessage(SAllFiles)]),
+             SLitRtfExt, Handle) then
+      Exit;
+    Filename := PathExpand(Filename);
+  end;
+  const F = TFile.Create(Filename, fdCreateAlways, faWrite, fsNone);
+  try
+    F.WriteAnsiString(StreamOut);
+  finally
+    F.Free;
+  end;
+  FFilename := Filename;
+  FRichEdit.Modified := False;
+  UpdateCaption;
+  Result := True;
+end;
+
+procedure TRichEditForm.UpdateCaption;
+
+  function GetCaptionFilename: String;
+  begin
+    if FFilename = '' then
+      Result := GetFileTitle(FFilename)
+    else if MainForm.FullPathInTitleBar then
+      Result := FFilename
+    else
+      Result := GetDisplayFilename(FFilename);
+  end;
+
+begin
+  Caption := GetCaptionFilename + ' '#$2013' ' + RemoveAccelChar(MainForm.TRichEditor.Caption);
+end;
+
+procedure TRichEditForm.NewActionExecute(Sender: TObject);
+begin
+  NewDocument;
+end;
+
+procedure TRichEditForm.OpenActionExecute(Sender: TObject);
+begin
+  var Filename := FFilename;
+  if NewGetOpenFileName('', Filename, '',
+       Format(SLitExtAndAllFilter, [LFmtMessage(SRtfFiles), SLitRtfExt, LFmtMessage(SAllFiles)]),
+       SLitRtfExt, Handle) then
+    LoadDocument(PathExpand(Filename));
+end;
+
+procedure TRichEditForm.SaveActionExecute(Sender: TObject);
+begin
+  SaveDocument(Sender = SaveAsAction);
 end;
 
 procedure TRichEditForm.RedoActionExecute(Sender: TObject);

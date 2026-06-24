@@ -54,6 +54,7 @@ const
   SAllFiles = 'All files';
   SExeFiles = 'Application files';
   SDocFiles = 'Documentation files';
+  SRtfFiles = 'Rich Text Format files';
   SRegFiles = 'Registry files';
   SIcoFiles = 'Icon files';
 

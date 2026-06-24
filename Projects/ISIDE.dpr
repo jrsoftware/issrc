@@ -312,6 +312,10 @@ begin
     does it support our fake shortcuts set with SetFakeShortCut. }
   TStyleManager.SystemHooks := TStyleManager.SystemHooks - [shMenus]; { This keeps shDialogs and shTooltips }
 
+  { VCL can auto-append shortcut in hints for actions, but we don't want or
+    need that. Instead we append them ourselves, using our own NewShortCutToText  }
+  Application.HintShortCuts := False;
+
   Application.CreateForm(TImagesModule, ImagesModule);
   Application.CreateForm(TMainForm, MainForm);
   Application.Run;

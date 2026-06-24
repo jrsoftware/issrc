@@ -40,8 +40,46 @@ object RichEditForm: TRichEditForm
       ShowHint = True
       TabOrder = 0
       Transparent = True
-      object UndoButton: TToolButton
+      object NewButton: TToolButton
         Left = 0
+        Top = 0
+        Hint = 'New (%1)'
+        Action = NewAction
+        ImageIndex = 0
+        ImageName = 'document-new'
+      end
+      object OpenButton: TToolButton
+        Left = 23
+        Top = 0
+        Hint = 'Open (%1)'
+        Action = OpenAction
+        ImageIndex = 1
+        ImageName = 'folder-open-filled-arrow-down-right'
+      end
+      object SaveButton: TToolButton
+        Left = 46
+        Top = 0
+        Hint = 'Save (%1)'
+        Action = SaveAction
+        ImageIndex = 2
+        ImageName = 'save-filled'
+      end
+      object SaveAsButton: TToolButton
+        Left = 69
+        Top = 0
+        Hint = 'Save As'
+        Action = SaveAsAction
+        ImageIndex = 11
+        ImageName = 'save-as-filled'
+      end
+      object ToolButton3: TToolButton
+        Left = 92
+        Top = 0
+        Width = 8
+        Style = tbsSeparator
+      end
+      object UndoButton: TToolButton
+        Left = 100
         Top = 0
         Hint = 'Undo (%1)'
         Action = UndoAction
@@ -49,7 +87,7 @@ object RichEditForm: TRichEditForm
         ImageName = 'command-undo-1'
       end
       object RedoButton: TToolButton
-        Left = 23
+        Left = 123
         Top = 0
         Hint = 'Redo (%1)'
         Action = RedoAction
@@ -57,13 +95,13 @@ object RichEditForm: TRichEditForm
         ImageName = 'command-redo-1'
       end
       object ToolButton1: TToolButton
-        Left = 46
+        Left = 146
         Top = 0
         Width = 8
         Style = tbsSeparator
       end
       object CutButton: TToolButton
-        Left = 54
+        Left = 154
         Top = 0
         Hint = 'Cut (%1)'
         Action = CutAction
@@ -71,7 +109,7 @@ object RichEditForm: TRichEditForm
         ImageName = 'clipboard-cut'
       end
       object CopyButton: TToolButton
-        Left = 77
+        Left = 177
         Top = 0
         Hint = 'Copy (%1)'
         Action = CopyAction
@@ -79,7 +117,7 @@ object RichEditForm: TRichEditForm
         ImageName = 'clipboard-copy'
       end
       object PasteButton: TToolButton
-        Left = 100
+        Left = 200
         Top = 0
         Hint = 'Paste (%1)'
         Action = PasteAction
@@ -87,13 +125,13 @@ object RichEditForm: TRichEditForm
         ImageName = 'clipboard-paste'
       end
       object ToolButton2: TToolButton
-        Left = 123
+        Left = 223
         Top = 0
         Width = 8
         Style = tbsSeparator
       end
       object SelectAllButton: TToolButton
-        Left = 131
+        Left = 231
         Top = 0
         Hint = 'Select All (%1)'
         Action = SelectAllAction
@@ -105,6 +143,25 @@ object RichEditForm: TRichEditForm
   object ActionList: TActionList
     Left = 24
     Top = 48
+    object NewAction: TAction
+      Caption = '&New'
+      ShortCut = 16462
+      OnExecute = NewActionExecute
+    end
+    object OpenAction: TAction
+      Caption = '&Open...'
+      ShortCut = 16463
+      OnExecute = OpenActionExecute
+    end
+    object SaveAction: TAction
+      Caption = '&Save'
+      ShortCut = 16467
+      OnExecute = SaveActionExecute
+    end
+    object SaveAsAction: TAction
+      Caption = 'Save &As...'
+      OnExecute = SaveActionExecute
+    end
     object UndoAction: TEditUndo
       Caption = '&Undo'
     end
