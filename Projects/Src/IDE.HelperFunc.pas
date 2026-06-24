@@ -814,8 +814,8 @@ begin
     ConfigIni := TConfigIniFile.Create;
   try
     if ConfigIni.KeyExists(Section) then begin
-      if Form.Position <> poDesigned then
-        Form.Position := poDesigned;
+      if Form.Position in [poScreenCenter, poDesktopCenter, poMainFormCenter, poOwnerFormCenter] then
+        Form.Position := poDesigned; { Stop Delphi from updating the loaded state by centering }
       var WindowPlacement: TWindowPlacement;
       WindowPlacement.length := SizeOf(WindowPlacement);
       GetWindowPlacement(Form.Handle, @WindowPlacement);
