@@ -97,7 +97,7 @@ type
       out AColor: TColor): Boolean;
   public
     constructor Create(AOwner: TComponent); override;
-    procedure UpdateToolbarTheme;
+    procedure UpdateTheme;
     function ConfirmCloseFile: Boolean;
   end;
 
@@ -188,8 +188,8 @@ begin
   { See MainForm }
   ToolBarPanel.ParentBackground := False;
 
-  UpdateToolbarTheme;
   CreateRichEditControl;
+  UpdateTheme;
 end;
 
 procedure TRichEditForm.CreateRichEditControl;
@@ -237,10 +237,11 @@ begin
   end;
 end;
 
-procedure TRichEditForm.UpdateToolbarTheme;
+procedure TRichEditForm.UpdateTheme;
 begin
   { See MainForm }
   ToolBarPanel.Color := InitFormThemeGetBkColor(False);
+  SetControlWindowTheme(FRichEdit, InitFormThemeIsDark);
   ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.ToolBarImageCollection[InitFormThemeIsDark];
 end;
 
