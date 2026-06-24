@@ -12,17 +12,26 @@ unit IDE.RichEditForm;
 interface
 
 uses
-  Classes, Controls, ComCtrls, Forms,
+  Classes, Controls, ComCtrls, ActnList, Actions, StdActns, Forms,
   RichEditOleCallback,
   IDE.IDEForm;
 
 type
   TRichEditForm = class(TIDEForm)
+    ActionList: TActionList;
+    UndoAction: TEditUndo;
+    RedoAction: TAction;
+    CutAction: TEditCut;
+    CopyAction: TEditCopy;
+    PasteAction: TEditPaste;
+    SelectAllAction: TEditSelectAll;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure RedoActionExecute(Sender: TObject);
+    procedure RedoActionUpdate(Sender: TObject);
   private
-    FRichEdit: TCustomRichEdit;
+    FRichEdit: TRichEdit;
     FCallback: IRichEditOleCallback;
     procedure CreateRichEditControl;
     procedure RichEditLinkClick(Sender: TCustomRichEdit; const URL: String;
@@ -70,15 +79,14 @@ end;
 
 procedure TRichEditForm.CreateRichEditControl;
 begin
-  const RichEditControl = TRichEdit.Create(Self);
-  FRichEdit := RichEditControl;
-  RichEditControl.Parent := Self;
-  RichEditControl.Align := alClient;
-  RichEditControl.WordWrap := True;
-  RichEditControl.ScrollBars := ssVertical;
-  RichEditControl.EnableURLs := True;
-  RichEditControl.OnLinkClick := RichEditLinkClick;
-  RichEditControl.StyleName := 'Windows'; { We do not support dark mode editing atm }
+  FRichEdit := TRichEdit.Create(Self);
+  FRichEdit.Parent := Self;
+  FRichEdit.Align := alClient;
+  FRichEdit.WordWrap := True;
+  FRichEdit.ScrollBars := ssVertical;
+  FRichEdit.EnableURLs := True;
+  FRichEdit.OnLinkClick := RichEditLinkClick;
+  FRichEdit.StyleName := 'Windows'; { We do not support dark mode editing atm }
 
   { For images }
   FCallback := TBasicRichEditOleCallback.Create;
@@ -91,6 +99,11 @@ begin
   FRichEdit.DefAttributes.BackColor := clWindow;   { Automatic }
   FRichEdit.SelAttributes.Assign(FRichEdit.DefAttributes);
   FRichEdit.Modified := False;
+
+  {$IFDEF DEBUG}
+  FRichEdit.Lines.LoadFromFile('Colortest.rtf');
+  FRichEdit.Modified := False;
+  {$ENDIF}
 end;
 
 procedure TRichEditForm.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -112,6 +125,18 @@ procedure TRichEditForm.RichEditLinkClick(Sender: TCustomRichEdit; const URL: St
 begin
   if (Button = mbLeft) and (GetKeyState(VK_CONTROL) < 0) then
     ShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
+end;
+
+procedure TRichEditForm.RedoActionExecute(Sender: TObject);
+begin
+  SendMessage(FRichEdit.Handle, EM_REDO, 0, 0);
+end;
+
+procedure TRichEditForm.RedoActionUpdate(Sender: TObject);
+begin
+  { Checks Focused just like VCL's standard actions }
+  RedoAction.Enabled := (FRichEdit <> nil) and FRichEdit.Focused and
+    not FRichEdit.ReadOnly and (SendMessage(FRichEdit.Handle, EM_CANREDO, 0, 0) <> 0);
 end;
 
 end.
