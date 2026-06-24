@@ -12,8 +12,8 @@ unit IDE.RichEditForm;
 interface
 
 uses
-  Classes, Controls, ComCtrls, ExtCtrls, ActnList, Actions, StdActns, Forms,
-  VirtualImageList, ImageList, ImgList, ToolWin,
+  Classes, UITypes, Controls, ComCtrls, ExtCtrls, ActnList, Actions, StdActns,
+  ExtActns, Dialogs, Forms, VirtualImageList, ImageList, ImgList, ToolWin,
   RichEditOleCallback,
   IDE.IDEForm;
 
@@ -34,6 +34,17 @@ type
     PasteButton: TToolButton;
     ToolButton2: TToolButton;
     SelectAllButton: TToolButton;
+    ToolButton4: TToolButton;
+    BoldButton: TToolButton;
+    ItalicButton: TToolButton;
+    UnderlineButton: TToolButton;
+    ToolButton5: TToolButton;
+    FontButton: TToolButton;
+    IncreaseFontSizeButton: TToolButton;
+    DecreaseFontSizeButton: TToolButton;
+    ToolButton6: TToolButton;
+    TextColorButton: TToolButton;
+    BackgroundColorButton: TToolButton;
     ActionList: TActionList;
     NewAction: TAction;
     OpenAction: TAction;
@@ -45,7 +56,17 @@ type
     CopyAction: TEditCopy;
     PasteAction: TEditPaste;
     SelectAllAction: TEditSelectAll;
+    BoldAction: TRichEditBold;
+    ItalicAction: TRichEditItalic;
+    UnderlineAction: TRichEditUnderline;
+    FontAction: TAction;
+    IncreaseFontSizeAction: TAction;
+    DecreaseFontSizeAction: TAction;
+    TextColorAction: TAction;
+    BackgroundColorAction: TAction;
     ThemedToolbarVirtualImageList: TVirtualImageList;
+    FontDialog: TFontDialog;
+    ColorDialog: TColorDialog;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormDestroy(Sender: TObject);
@@ -55,6 +76,11 @@ type
     procedure NewActionExecute(Sender: TObject);
     procedure OpenActionExecute(Sender: TObject);
     procedure SaveActionExecute(Sender: TObject);
+    procedure FontActionExecute(Sender: TObject);
+    procedure ChangeFontSizeActionExecute(Sender: TObject);
+    procedure TextColorActionExecute(Sender: TObject);
+    procedure BackgroundColorActionExecute(Sender: TObject);
+    procedure ActionUpdate(Sender: TObject);
   private
     FBaseCaption: String;
     FRichEdit: TRichEdit;
@@ -63,10 +89,12 @@ type
     procedure CreateRichEditControl;
     procedure RichEditLinkClick(Sender: TCustomRichEdit; const URL: String;
       Button: TMouseButton);
+    procedure UpdateCaption;
     procedure NewFile;
     procedure OpenFile(const AFilename: String);
     function SaveFile(const ASaveAs: Boolean): Boolean;
-    procedure UpdateCaption;
+    function ChooseColor(const ACurrentColor, AAutoColor: TColor;
+      out AColor: TColor): Boolean;
   public
     constructor Create(AOwner: TComponent); override;
     procedure UpdateToolbarTheme;
@@ -81,7 +109,7 @@ implementation
 uses
   Windows, ShellApi,
   SysUtils, Graphics, StdCtrls, Menus, RichEdit, {$IF RtlVersion >= 36.0} Themes, {$ENDIF}
-  PathFunc, BrowseFunc,
+  PathFunc, BrowseFunc, ModernColors,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.FileClass,
   IDE.Messages, IDE.ImagesModule, IDE.HelperFunc, IDE.LocalizeFunc, IDE.MainForm;
 
@@ -151,6 +179,9 @@ begin
   CopyButton.Hint := LFmtMessage(CopyButton.Hint, [NewShortCutToText(ShortCut(Ord('C'), [ssCtrl]))]);
   PasteButton.Hint := LFmtMessage(PasteButton.Hint, [NewShortCutToText(ShortCut(Ord('V'), [ssCtrl]))]);
   SelectAllButton.Hint := LFmtMessage(SelectAllButton.Hint, [NewShortCutToText(ShortCut(Ord('A'), [ssCtrl]))]);
+  BoldButton.Hint := LFmtMessage(BoldButton.Hint, [NewShortCutToText(ShortCut(Ord('B'), [ssCtrl]))]);
+  ItalicButton.Hint := LFmtMessage(ItalicButton.Hint, [NewShortCutToText(ShortCut(Ord('I'), [ssCtrl]))]);
+  UnderlineButton.Hint := LFmtMessage(UnderlineButton.Hint, [NewShortCutToText(ShortCut(Ord('U'), [ssCtrl]))]);
 
   FBaseCaption := Caption;
 
@@ -220,13 +251,29 @@ begin
     ShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
 end;
 
+procedure TRichEditForm.UpdateCaption;
+
+  function GetCaptionFilename: String;
+  begin
+    if FFilename = '' then
+      Result := GetFileTitle(FFilename)
+    else if MainForm.FullPathInTitleBar then
+      Result := FFilename
+    else
+      Result := GetDisplayFilename(FFilename);
+  end;
+
+begin
+  Caption := GetCaptionFilename + ' '#$2013' ' + FBaseCaption;
+end;
+
 procedure TRichEditForm.NewFile;
 begin
   FRichEdit.Lines.Clear;
   { Start a new document, same default font & size as Setup uses }
   FRichEdit.DefAttributes.Name := 'Segoe UI';
   FRichEdit.DefAttributes.Size := 9;
-  FRichEdit.DefAttributes.Color := clWindowText; { Changed to CFE_AUTCOLOR by VCL }
+  FRichEdit.DefAttributes.Color := clWindowText; { Changed to CFE_AUTOCOLOR by VCL }
   FRichEdit.DefAttributes.BackColor := clWindow; { Changed to CFE_AUTOBACKCOLOR by VCL }
   FRichEdit.SelAttributes.Assign(FRichEdit.DefAttributes);
   FFilename := '';
@@ -301,22 +348,6 @@ begin
   Result := True;
 end;
 
-procedure TRichEditForm.UpdateCaption;
-
-  function GetCaptionFilename: String;
-  begin
-    if FFilename = '' then
-      Result := GetFileTitle(FFilename)
-    else if MainForm.FullPathInTitleBar then
-      Result := FFilename
-    else
-      Result := GetDisplayFilename(FFilename);
-  end;
-
-begin
-  Caption := GetCaptionFilename + ' '#$2013' ' + FBaseCaption;
-end;
-
 function TRichEditForm.ConfirmCloseFile: Boolean;
 begin
   { Just like MainForm }
@@ -359,11 +390,84 @@ begin
   SendMessage(FRichEdit.Handle, EM_REDO, 0, 0);
 end;
 
+procedure TRichEditForm.ActionUpdate(Sender: TObject);
+begin
+  { Just like VCL's standard actions }
+  (Sender as TAction).Enabled := (FRichEdit <> nil) and FRichEdit.Focused and
+    not FRichEdit.ReadOnly;
+end;
+
 procedure TRichEditForm.RedoActionUpdate(Sender: TObject);
 begin
-  { Checks Focused just like VCL's standard actions }
-  RedoAction.Enabled := (FRichEdit <> nil) and FRichEdit.Focused and
-    not FRichEdit.ReadOnly and (SendMessage(FRichEdit.Handle, EM_CANREDO, 0, 0) <> 0);
+  ActionUpdate(Sender);
+  if RedoAction.Enabled then
+    RedoAction.Enabled := SendMessage(FRichEdit.Handle, EM_CANREDO, 0, 0) <> 0;
+end;
+
+procedure TRichEditForm.FontActionExecute(Sender: TObject);
+begin
+  FontDialog.Font.Name := FRichEdit.SelAttributes.Name;
+  FontDialog.Font.Size := FRichEdit.SelAttributes.Size;
+  FontDialog.Font.Style := FRichEdit.SelAttributes.Style * [fsBold, fsItalic]; { No fdEffects in Options so only bold and italic are offered }
+  if FontDialog.Execute(Handle) then begin
+    FRichEdit.SelAttributes.Name := FontDialog.Font.Name;
+    FRichEdit.SelAttributes.Size := FontDialog.Font.Size;
+    FRichEdit.SelAttributes.Style := FRichEdit.SelAttributes.Style -
+      [fsBold, fsItalic] + (FontDialog.Font.Style * [fsBold, fsItalic]); { See above }
+  end;
+end;
+
+procedure TRichEditForm.ChangeFontSizeActionExecute(Sender: TObject);
+begin
+  const CurrentSize = FRichEdit.SelAttributes.Size;
+  if Sender = IncreaseFontSizeAction then
+    FRichEdit.SelAttributes.Size := CurrentSize + 1
+  else if CurrentSize > 1 then
+    FRichEdit.SelAttributes.Size := CurrentSize - 1;
+end;
+
+function TRichEditForm.ChooseColor(const ACurrentColor, AAutoColor: TColor;
+  out AColor: TColor): Boolean;
+const
+  PaletteColors: array[0..7] of TThemeColor =
+    (tcRed, tcGreen, tcBlue, tcOrange, tcReallyOrange, tcPurple, tcTeal, tcGray);
+begin
+  { Offer both automatic colors and the theme palette as custom colors, using
+    the light theme because the content area is always light }
+  ColorDialog.CustomColors.Clear;
+  ColorDialog.CustomColors.Add(Format('ColorA=%.6x', [ColorToRGB(clWindowText)]));
+  ColorDialog.CustomColors.Add(Format('ColorB=%.6x', [ColorToRGB(clWindow)]));
+  const Theme = TTheme.Create;
+  try
+    Theme.Typ := ttModernLight; { Currently always light }
+    for var I := 0 to High(PaletteColors) do
+      ColorDialog.CustomColors.Add(Format('Color%s=%.6x',
+        [Chr(Ord('C') + I), ColorToRGB(Theme.Colors[PaletteColors[I]])]));
+  finally
+    Theme.Free;
+  end;
+  ColorDialog.Color := ACurrentColor;
+  Result := ColorDialog.Execute(Handle);
+  if Result then begin
+    if ColorDialog.Color = ColorToRGB(AAutoColor) then
+      AColor := AAutoColor { Changed to CFE_AUTO(BACK)COLOR by VCL }
+    else
+      AColor := ColorDialog.Color;
+  end;
+end;
+
+procedure TRichEditForm.TextColorActionExecute(Sender: TObject);
+begin
+  var NewColor: TColor;
+  if ChooseColor(FRichEdit.SelAttributes.Color, clWindowText, NewColor) then
+    FRichEdit.SelAttributes.Color := NewColor;
+end;
+
+procedure TRichEditForm.BackgroundColorActionExecute(Sender: TObject);
+begin
+  var NewColor: TColor;
+  if ChooseColor(FRichEdit.SelAttributes.BackColor, clWindow, NewColor) then
+    FRichEdit.SelAttributes.BackColor := NewColor;
 end;
 
 end.

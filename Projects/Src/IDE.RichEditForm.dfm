@@ -139,6 +139,84 @@ object RichEditForm: TRichEditForm
         ImageIndex = 19
         ImageName = 'select-all'
       end
+      object ToolButton4: TToolButton
+        Left = 254
+        Top = 0
+        Width = 8
+        Style = tbsSeparator
+      end
+      object BoldButton: TToolButton
+        Left = 262
+        Top = 0
+        Hint = 'Bold (%1)'
+        Action = BoldAction
+        ImageName = 'text-bold'
+        Style = tbsCheck
+      end
+      object ItalicButton: TToolButton
+        Left = 285
+        Top = 0
+        Hint = 'Italic (%1)'
+        Action = ItalicAction
+        ImageName = 'text-italic'
+        Style = tbsCheck
+      end
+      object UnderlineButton: TToolButton
+        Left = 308
+        Top = 0
+        Hint = 'Underline (%1)'
+        Action = UnderlineAction
+        ImageName = 'text-underline'
+        Style = tbsCheck
+      end
+      object ToolButton5: TToolButton
+        Left = 331
+        Top = 0
+        Width = 8
+        Style = tbsSeparator
+      end
+      object FontButton: TToolButton
+        Left = 339
+        Top = 0
+        Hint = 'Font'
+        Action = FontAction
+        ImageIndex = 62
+        ImageName = 'document-font'
+      end
+      object IncreaseFontSizeButton: TToolButton
+        Left = 362
+        Top = 0
+        Hint = 'Increase Font Size'
+        Action = IncreaseFontSizeAction
+        ImageName = 'font-increase'
+      end
+      object DecreaseFontSizeButton: TToolButton
+        Left = 385
+        Top = 0
+        Hint = 'Decrease Font Size'
+        Action = DecreaseFontSizeAction
+        ImageName = 'font-decrease'
+      end
+      object ToolButton6: TToolButton
+        Left = 408
+        Top = 0
+        Width = 8
+        Style = tbsSeparator
+      end
+      object TextColorButton: TToolButton
+        Left = 416
+        Top = 0
+        Hint = 'Text Color'
+        Action = TextColorAction
+        ImageName = 'text-color'
+      end
+      object BackgroundColorButton: TToolButton
+        Left = 439
+        Top = 0
+        Hint = 'Background Color'
+        Action = BackgroundColorAction
+        ImageName = 'text-background-color'
+      end
     end
   end
   object ActionList: TActionList
@@ -182,6 +260,43 @@ object RichEditForm: TRichEditForm
     end
     object SelectAllAction: TEditSelectAll
       Caption = 'Select &All'
+    end
+    object BoldAction: TRichEditBold
+      AutoCheck = True
+      Caption = '&Bold'
+    end
+    object ItalicAction: TRichEditItalic
+      AutoCheck = True
+      Caption = '&Italic'
+    end
+    object UnderlineAction: TRichEditUnderline
+      AutoCheck = True
+      Caption = '&Underline'
+    end
+    object FontAction: TAction
+      Caption = '&Font...'
+      OnExecute = FontActionExecute
+      OnUpdate = ActionUpdate
+    end
+    object IncreaseFontSizeAction: TAction
+      Caption = '&Increase Font Size'
+      OnExecute = ChangeFontSizeActionExecute
+      OnUpdate = ActionUpdate
+    end
+    object DecreaseFontSizeAction: TAction
+      Caption = '&Decrease Font Size'
+      OnExecute = ChangeFontSizeActionExecute
+      OnUpdate = ActionUpdate
+    end
+    object TextColorAction: TAction
+      Caption = 'Text &Color...'
+      OnExecute = TextColorActionExecute
+      OnUpdate = ActionUpdate
+    end
+    object BackgroundColorAction: TAction
+      Caption = '&Background Color...'
+      OnExecute = BackgroundColorActionExecute
+      OnUpdate = ActionUpdate
     end
   end
   object ThemedToolbarVirtualImageList: TVirtualImageList
@@ -505,5 +620,19 @@ object RichEditForm: TRichEditForm
     ImageCollection = ImagesModule.LightToolBarImageCollection
     Left = 24
     Top = 120
+  end
+  object FontDialog: TFontDialog
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -11
+    Font.Name = 'MS Sans Serif'
+    Font.Style = []
+    Options = [fdForceFontExist]
+    Left = 24
+    Top = 192
+  end
+  object ColorDialog: TColorDialog
+    Left = 24
+    Top = 248
   end
 end
