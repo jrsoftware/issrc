@@ -2,7 +2,7 @@ object RichEditForm: TRichEditForm
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu, biMaximize]
-  Caption = '*'
+  Caption = 'RTF Editor'
   ClientHeight = 500
   ClientWidth = 700
   Color = clBtnFace

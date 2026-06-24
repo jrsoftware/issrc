@@ -899,7 +899,7 @@ object MainForm: TMainForm
         OnClick = TSignToolsClick
       end
       object TRichEditor: TMenuItem
-        Caption = '&RTF Editor...'
+        Caption = 'R&TF Editor...'
         OnClick = TRichEditorClick
       end
       object N16: TMenuItem

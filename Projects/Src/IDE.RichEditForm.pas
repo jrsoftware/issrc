@@ -55,6 +55,7 @@ type
     procedure OpenActionExecute(Sender: TObject);
     procedure SaveActionExecute(Sender: TObject);
   private
+    FBaseCaption: String;
     FRichEdit: TRichEdit;
     FCallback: IRichEditOleCallback;
     FFilename: String;
@@ -148,6 +149,8 @@ begin
   CopyButton.Hint := LFmtMessage(CopyButton.Hint, [NewShortCutToText(ShortCut(Ord('C'), [ssCtrl]))]);
   PasteButton.Hint := LFmtMessage(PasteButton.Hint, [NewShortCutToText(ShortCut(Ord('V'), [ssCtrl]))]);
   SelectAllButton.Hint := LFmtMessage(SelectAllButton.Hint, [NewShortCutToText(ShortCut(Ord('A'), [ssCtrl]))]);
+
+  FBaseCaption := Caption;
 
   { See MainForm }
   ToolBarPanel.ParentBackground := False;
@@ -300,7 +303,7 @@ procedure TRichEditForm.UpdateCaption;
   end;
 
 begin
-  Caption := GetCaptionFilename + ' '#$2013' ' + RemoveAccelChar(MainForm.TRichEditor.Caption);
+  Caption := GetCaptionFilename + ' '#$2013' ' + FBaseCaption;
 end;
 
 procedure TRichEditForm.NewActionExecute(Sender: TObject);
