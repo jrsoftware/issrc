@@ -894,13 +894,13 @@ object MainForm: TMainForm
       object N7: TMenuItem
         Caption = '-'
       end
-      object TRichEditor: TMenuItem
-        Caption = '&RTF Editor...'
-        OnClick = TRichEditorClick
-      end
       object TSignTools: TMenuItem
         Caption = '&Configure Sign Tools...'
         OnClick = TSignToolsClick
+      end
+      object TRichEditor: TMenuItem
+        Caption = '&RTF Editor...'
+        OnClick = TRichEditorClick
       end
       object N16: TMenuItem
         Caption = '-'
@@ -1313,6 +1313,11 @@ object MainForm: TMainForm
         CollectionIndex = 61
         CollectionName = 'shopping-cart'
         Name = 'shopping-cart'
+      end
+      item
+        CollectionIndex = 62
+        CollectionName = 'document-font'
+        Name = 'document-font'
       end>
     ImageCollection = ImagesModule.LightToolBarImageCollection
     Left = 80

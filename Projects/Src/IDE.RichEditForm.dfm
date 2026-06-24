@@ -495,6 +495,11 @@ object RichEditForm: TRichEditForm
         CollectionIndex = 61
         CollectionName = 'shopping-cart'
         Name = 'shopping-cart'
+      end
+      item
+        CollectionIndex = 62
+        CollectionName = 'document-font'
+        Name = 'document-font'
       end>
     ImageCollection = ImagesModule.LightToolBarImageCollection
     Left = 24
