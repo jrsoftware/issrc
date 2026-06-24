@@ -14,6 +14,7 @@ object RichEditForm: TRichEditForm
   Position = poScreenCenter
   StyleElements = []
   OnClose = FormClose
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   TextHeight = 13

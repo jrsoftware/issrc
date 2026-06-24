@@ -47,6 +47,7 @@ type
     SelectAllAction: TEditSelectAll;
     ThemedToolbarVirtualImageList: TVirtualImageList;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure RedoActionExecute(Sender: TObject);
@@ -62,13 +63,14 @@ type
     procedure CreateRichEditControl;
     procedure RichEditLinkClick(Sender: TCustomRichEdit; const URL: String;
       Button: TMouseButton);
-    procedure NewDocument;
-    procedure LoadDocument(const AFilename: String);
-    function SaveDocument(const ASaveAs: Boolean): Boolean;
+    procedure NewFile;
+    procedure OpenFile(const AFilename: String);
+    function SaveFile(const ASaveAs: Boolean): Boolean;
     procedure UpdateCaption;
   public
     constructor Create(AOwner: TComponent); override;
     procedure UpdateToolbarTheme;
+    function ConfirmCloseFile: Boolean;
   end;
 
 var
@@ -80,7 +82,7 @@ uses
   Windows, ShellApi,
   SysUtils, Graphics, StdCtrls, Menus, RichEdit, {$IF RtlVersion >= 36.0} Themes, {$ENDIF}
   PathFunc, BrowseFunc,
-  Shared.CommonFunc, Shared.FileClass,
+  Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.FileClass,
   IDE.Messages, IDE.ImagesModule, IDE.HelperFunc, IDE.LocalizeFunc, IDE.MainForm;
 
 {$R *.dfm}
@@ -174,16 +176,25 @@ begin
   FCallback := TBasicRichEditOleCallback.Create;
   SendMessage(FRichEdit.Handle, EM_SETOLECALLBACK, 0, LPARAM(FCallback));
 
-  NewDocument;
+  NewFile;
 
   {$IFDEF DEBUG}
-  LoadDocument('Colortest.rtf');
+  OpenFile('Colortest.rtf');
   {$ENDIF}
 end;
 
 procedure TRichEditForm.FormClose(Sender: TObject; var Action: TCloseAction);
 begin
   Action := caFree;
+end;
+
+procedure TRichEditForm.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+begin
+  { Just like MainForm }
+  if IsWindowEnabled(Handle) then
+    CanClose := ConfirmCloseFile
+  else
+    CanClose := False;
 end;
 
 procedure TRichEditForm.FormDestroy(Sender: TObject);
@@ -209,21 +220,21 @@ begin
     ShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
 end;
 
-procedure TRichEditForm.NewDocument;
+procedure TRichEditForm.NewFile;
 begin
   FRichEdit.Lines.Clear;
   { Start a new document, same default font & size as Setup uses }
   FRichEdit.DefAttributes.Name := 'Segoe UI';
   FRichEdit.DefAttributes.Size := 9;
-  FRichEdit.DefAttributes.Color := clWindowText;   { Automatic }
-  FRichEdit.DefAttributes.BackColor := clWindow;   { Automatic }
+  FRichEdit.DefAttributes.Color := clWindowText; { Changed to CFE_AUTCOLOR by VCL }
+  FRichEdit.DefAttributes.BackColor := clWindow; { Changed to CFE_AUTOBACKCOLOR by VCL }
   FRichEdit.SelAttributes.Assign(FRichEdit.DefAttributes);
   FFilename := '';
   FRichEdit.Modified := False;
   UpdateCaption;
 end;
 
-procedure TRichEditForm.LoadDocument(const AFilename: String);
+procedure TRichEditForm.OpenFile(const AFilename: String);
 
   function StreamIn(const Buffer: AnsiString): Integer;
   begin
@@ -255,7 +266,7 @@ begin
   UpdateCaption;
 end;
 
-function TRichEditForm.SaveDocument(const ASaveAs: Boolean): Boolean;
+function TRichEditForm.SaveFile(const ASaveAs: Boolean): Boolean;
 
   function StreamOut: AnsiString;
   begin
@@ -306,23 +317,41 @@ begin
   Caption := GetCaptionFilename + ' '#$2013' ' + FBaseCaption;
 end;
 
+function TRichEditForm.ConfirmCloseFile: Boolean;
+begin
+  { Just like MainForm }
+  Result := True;
+  if FRichEdit.Modified then begin
+    case MsgBox(LFmtMessage(SCompilerFileChangedSavePrompt, [GetFileTitle(FFilename)]),
+       FBaseCaption, mbError, MB_YESNOCANCEL) of
+      IDYES: Result := SaveFile(False);
+      IDNO: ;
+    else
+      Result := False;
+    end;
+  end;
+end;
+
 procedure TRichEditForm.NewActionExecute(Sender: TObject);
 begin
-  NewDocument;
+  if ConfirmCloseFile then
+    NewFile;
 end;
 
 procedure TRichEditForm.OpenActionExecute(Sender: TObject);
 begin
+  if not ConfirmCloseFile then
+    Exit;
   var Filename := FFilename;
   if NewGetOpenFileName('', Filename, '',
        Format(SLitExtAndAllFilter, [LFmtMessage(SRtfFiles), SLitRtfExt, LFmtMessage(SAllFiles)]),
        SLitRtfExt, Handle) then
-    LoadDocument(PathExpand(Filename));
+    OpenFile(PathExpand(Filename));
 end;
 
 procedure TRichEditForm.SaveActionExecute(Sender: TObject);
 begin
-  SaveDocument(Sender = SaveAsAction);
+  SaveFile(Sender = SaveAsAction);
 end;
 
 procedure TRichEditForm.RedoActionExecute(Sender: TObject);

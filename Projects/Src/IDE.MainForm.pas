@@ -1297,7 +1297,8 @@ procedure TMainForm.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
   if IsWindowEnabled(Handle) then
-    CanClose := ConfirmCloseFile(True)
+    CanClose := ConfirmCloseFile(True) and
+      ((RichEditForm = nil) or RichEditForm.ConfirmCloseFile)
   else
     { CloseQuery is also called by the VCL when a WM_QUERYENDSESSION message
       is received. Don't display message box if a modal dialog is already
