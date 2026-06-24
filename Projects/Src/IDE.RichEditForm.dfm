@@ -73,36 +73,14 @@ object RichEditForm: TRichEditForm
         ImageIndex = 11
         ImageName = 'save-as-filled'
       end
-      object ToolButton3: TToolButton
+      object ToolButton1: TToolButton
         Left = 92
         Top = 0
         Width = 8
         Style = tbsSeparator
       end
-      object UndoButton: TToolButton
-        Left = 100
-        Top = 0
-        Hint = 'Undo (%1)'
-        Action = UndoAction
-        ImageIndex = 14
-        ImageName = 'command-undo-1'
-      end
-      object RedoButton: TToolButton
-        Left = 123
-        Top = 0
-        Hint = 'Redo (%1)'
-        Action = RedoAction
-        ImageIndex = 15
-        ImageName = 'command-redo-1'
-      end
-      object ToolButton1: TToolButton
-        Left = 146
-        Top = 0
-        Width = 8
-        Style = tbsSeparator
-      end
       object CutButton: TToolButton
-        Left = 154
+        Left = 100
         Top = 0
         Hint = 'Cut (%1)'
         Action = CutAction
@@ -110,7 +88,7 @@ object RichEditForm: TRichEditForm
         ImageName = 'clipboard-cut'
       end
       object CopyButton: TToolButton
-        Left = 177
+        Left = 123
         Top = 0
         Hint = 'Copy (%1)'
         Action = CopyAction
@@ -118,7 +96,7 @@ object RichEditForm: TRichEditForm
         ImageName = 'clipboard-copy'
       end
       object PasteButton: TToolButton
-        Left = 200
+        Left = 146
         Top = 0
         Hint = 'Paste (%1)'
         Action = PasteAction
@@ -126,27 +104,35 @@ object RichEditForm: TRichEditForm
         ImageName = 'clipboard-paste'
       end
       object ToolButton2: TToolButton
+        Left = 169
+        Top = 0
+        Width = 8
+        Style = tbsSeparator
+      end
+      object UndoButton: TToolButton
+        Left = 177
+        Top = 0
+        Hint = 'Undo (%1)'
+        Action = UndoAction
+        ImageIndex = 14
+        ImageName = 'command-undo-1'
+      end
+      object RedoButton: TToolButton
+        Left = 200
+        Top = 0
+        Hint = 'Redo (%1)'
+        Action = RedoAction
+        ImageIndex = 15
+        ImageName = 'command-redo-1'
+      end
+      object ToolButton3: TToolButton
         Left = 223
         Top = 0
         Width = 8
         Style = tbsSeparator
       end
-      object SelectAllButton: TToolButton
-        Left = 231
-        Top = 0
-        Hint = 'Select All (%1)'
-        Action = SelectAllAction
-        ImageIndex = 19
-        ImageName = 'select-all'
-      end
-      object ToolButton4: TToolButton
-        Left = 254
-        Top = 0
-        Width = 8
-        Style = tbsSeparator
-      end
       object BoldButton: TToolButton
-        Left = 262
+        Left = 231
         Top = 0
         Hint = 'Bold (%1)'
         Action = BoldAction
@@ -155,7 +141,7 @@ object RichEditForm: TRichEditForm
         Style = tbsCheck
       end
       object ItalicButton: TToolButton
-        Left = 285
+        Left = 254
         Top = 0
         Hint = 'Italic (%1)'
         Action = ItalicAction
@@ -164,7 +150,7 @@ object RichEditForm: TRichEditForm
         Style = tbsCheck
       end
       object UnderlineButton: TToolButton
-        Left = 308
+        Left = 277
         Top = 0
         Hint = 'Underline (%1)'
         Action = UnderlineAction
@@ -172,14 +158,14 @@ object RichEditForm: TRichEditForm
         ImageName = 'format-underlined'
         Style = tbsCheck
       end
-      object ToolButton5: TToolButton
-        Left = 331
+      object ToolButton4: TToolButton
+        Left = 300
         Top = 0
         Width = 8
         Style = tbsSeparator
       end
       object FontButton: TToolButton
-        Left = 339
+        Left = 308
         Top = 0
         Hint = 'Font'
         Action = FontAction
@@ -187,7 +173,7 @@ object RichEditForm: TRichEditForm
         ImageName = 'format-size'
       end
       object IncreaseFontSizeButton: TToolButton
-        Left = 362
+        Left = 331
         Top = 0
         Hint = 'Increase Font Size'
         Action = IncreaseFontSizeAction
@@ -195,21 +181,21 @@ object RichEditForm: TRichEditForm
         ImageName = 'text-increase'
       end
       object DecreaseFontSizeButton: TToolButton
-        Left = 385
+        Left = 354
         Top = 0
         Hint = 'Decrease Font Size'
         Action = DecreaseFontSizeAction
         ImageIndex = 74
         ImageName = 'text-decrease'
       end
-      object ToolButton6: TToolButton
-        Left = 408
+      object ToolButton5: TToolButton
+        Left = 377
         Top = 0
         Width = 8
         Style = tbsSeparator
       end
       object TextColorButton: TToolButton
-        Left = 416
+        Left = 385
         Top = 0
         Hint = 'Text Color'
         Action = TextColorAction
@@ -217,7 +203,7 @@ object RichEditForm: TRichEditForm
         ImageName = 'format-color-text'
       end
       object BackgroundColorButton: TToolButton
-        Left = 439
+        Left = 408
         Top = 0
         Hint = 'Background Color'
         Action = BackgroundColorAction
@@ -264,9 +250,6 @@ object RichEditForm: TRichEditForm
     end
     object PasteAction: TEditPaste
       Caption = '&Paste'
-    end
-    object SelectAllAction: TEditSelectAll
-      Caption = 'Select &All'
     end
     object BoldAction: TRichEditBold
       AutoCheck = True
