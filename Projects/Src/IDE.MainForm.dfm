@@ -1316,8 +1316,73 @@ object MainForm: TMainForm
       end
       item
         CollectionIndex = 62
-        CollectionName = 'document-font'
-        Name = 'document-font'
+        CollectionName = 'control-rich-text-edit-filled'
+        Name = 'control-rich-text-edit-filled'
+      end
+      item
+        CollectionIndex = 63
+        CollectionName = 'format-align-center'
+        Name = 'format-align-center'
+      end
+      item
+        CollectionIndex = 64
+        CollectionName = 'format-align-left'
+        Name = 'format-align-left'
+      end
+      item
+        CollectionIndex = 65
+        CollectionName = 'format-align-right'
+        Name = 'format-align-right'
+      end
+      item
+        CollectionIndex = 66
+        CollectionName = 'format-bold'
+        Name = 'format-bold'
+      end
+      item
+        CollectionIndex = 67
+        CollectionName = 'format-color-fill'
+        Name = 'format-color-fill'
+      end
+      item
+        CollectionIndex = 68
+        CollectionName = 'format-color-text'
+        Name = 'format-color-text'
+      end
+      item
+        CollectionIndex = 69
+        CollectionName = 'format-indent-decrease'
+        Name = 'format-indent-decrease'
+      end
+      item
+        CollectionIndex = 70
+        CollectionName = 'format-indent-increase'
+        Name = 'format-indent-increase'
+      end
+      item
+        CollectionIndex = 71
+        CollectionName = 'format-italic'
+        Name = 'format-italic'
+      end
+      item
+        CollectionIndex = 72
+        CollectionName = 'format-size'
+        Name = 'format-size'
+      end
+      item
+        CollectionIndex = 73
+        CollectionName = 'format-underlined'
+        Name = 'format-underlined'
+      end
+      item
+        CollectionIndex = 74
+        CollectionName = 'text-decrease'
+        Name = 'text-decrease'
+      end
+      item
+        CollectionIndex = 75
+        CollectionName = 'text-increase'
+        Name = 'text-increase'
       end>
     ImageCollection = ImagesModule.LightToolBarImageCollection
     Left = 80

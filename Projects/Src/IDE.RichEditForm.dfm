@@ -150,7 +150,8 @@ object RichEditForm: TRichEditForm
         Top = 0
         Hint = 'Bold (%1)'
         Action = BoldAction
-        ImageName = 'text-bold'
+        ImageIndex = 66
+        ImageName = 'format-bold'
         Style = tbsCheck
       end
       object ItalicButton: TToolButton
@@ -158,7 +159,8 @@ object RichEditForm: TRichEditForm
         Top = 0
         Hint = 'Italic (%1)'
         Action = ItalicAction
-        ImageName = 'text-italic'
+        ImageIndex = 71
+        ImageName = 'format-italic'
         Style = tbsCheck
       end
       object UnderlineButton: TToolButton
@@ -166,7 +168,8 @@ object RichEditForm: TRichEditForm
         Top = 0
         Hint = 'Underline (%1)'
         Action = UnderlineAction
-        ImageName = 'text-underline'
+        ImageIndex = 73
+        ImageName = 'format-underlined'
         Style = tbsCheck
       end
       object ToolButton5: TToolButton
@@ -180,22 +183,24 @@ object RichEditForm: TRichEditForm
         Top = 0
         Hint = 'Font'
         Action = FontAction
-        ImageIndex = 62
-        ImageName = 'document-font'
+        ImageIndex = 72
+        ImageName = 'format-size'
       end
       object IncreaseFontSizeButton: TToolButton
         Left = 362
         Top = 0
         Hint = 'Increase Font Size'
         Action = IncreaseFontSizeAction
-        ImageName = 'font-increase'
+        ImageIndex = 75
+        ImageName = 'text-increase'
       end
       object DecreaseFontSizeButton: TToolButton
         Left = 385
         Top = 0
         Hint = 'Decrease Font Size'
         Action = DecreaseFontSizeAction
-        ImageName = 'font-decrease'
+        ImageIndex = 74
+        ImageName = 'text-decrease'
       end
       object ToolButton6: TToolButton
         Left = 408
@@ -208,14 +213,16 @@ object RichEditForm: TRichEditForm
         Top = 0
         Hint = 'Text Color'
         Action = TextColorAction
-        ImageName = 'text-color'
+        ImageIndex = 68
+        ImageName = 'format-color-text'
       end
       object BackgroundColorButton: TToolButton
         Left = 439
         Top = 0
         Hint = 'Background Color'
         Action = BackgroundColorAction
-        ImageName = 'text-background-color'
+        ImageIndex = 67
+        ImageName = 'format-color-fill'
       end
     end
   end
@@ -614,8 +621,73 @@ object RichEditForm: TRichEditForm
       end
       item
         CollectionIndex = 62
-        CollectionName = 'document-font'
-        Name = 'document-font'
+        CollectionName = 'control-rich-text-edit-filled'
+        Name = 'control-rich-text-edit-filled'
+      end
+      item
+        CollectionIndex = 63
+        CollectionName = 'format-align-center'
+        Name = 'format-align-center'
+      end
+      item
+        CollectionIndex = 64
+        CollectionName = 'format-align-left'
+        Name = 'format-align-left'
+      end
+      item
+        CollectionIndex = 65
+        CollectionName = 'format-align-right'
+        Name = 'format-align-right'
+      end
+      item
+        CollectionIndex = 66
+        CollectionName = 'format-bold'
+        Name = 'format-bold'
+      end
+      item
+        CollectionIndex = 67
+        CollectionName = 'format-color-fill'
+        Name = 'format-color-fill'
+      end
+      item
+        CollectionIndex = 68
+        CollectionName = 'format-color-text'
+        Name = 'format-color-text'
+      end
+      item
+        CollectionIndex = 69
+        CollectionName = 'format-indent-decrease'
+        Name = 'format-indent-decrease'
+      end
+      item
+        CollectionIndex = 70
+        CollectionName = 'format-indent-increase'
+        Name = 'format-indent-increase'
+      end
+      item
+        CollectionIndex = 71
+        CollectionName = 'format-italic'
+        Name = 'format-italic'
+      end
+      item
+        CollectionIndex = 72
+        CollectionName = 'format-size'
+        Name = 'format-size'
+      end
+      item
+        CollectionIndex = 73
+        CollectionName = 'format-underlined'
+        Name = 'format-underlined'
+      end
+      item
+        CollectionIndex = 74
+        CollectionName = 'text-decrease'
+        Name = 'text-decrease'
+      end
+      item
+        CollectionIndex = 75
+        CollectionName = 'text-increase'
+        Name = 'text-increase'
       end>
     ImageCollection = ImagesModule.LightToolBarImageCollection
     Left = 24

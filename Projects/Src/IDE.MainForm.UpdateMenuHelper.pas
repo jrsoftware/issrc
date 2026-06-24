@@ -180,7 +180,7 @@ begin
           NM(TRegistryDesigner, 'control-tree-script-filled'),
           NM(TMsgBoxDesigner, 'comment-text-script-filled'),
           NM(TSignTools, 'padlock-filled'),
-          NM(TRichEditor, 'document-font'),
+          NM(TRichEditor, 'control-rich-text-edit-filled'),
           NM(TOptions, 'gear-filled'),
           NM(HPurchase, 'shopping-cart'),
           NM(HRegister, 'key-filled'),
