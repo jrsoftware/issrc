@@ -28,6 +28,11 @@ var
 
 implementation
 
+{$IF RtlVersion >= 36.0}
+uses
+  Themes;
+{$ENDIF}
+
 {$R *.dfm}
 
 constructor TRichEditForm.Create(AOwner: TComponent);
@@ -37,6 +42,10 @@ begin
   PopupMode := pmExplicit;
   PopupParent := Application.MainForm;
   inherited;
+  {$IF RtlVersion >= 36.0}
+  { See MainForm }
+  StyleName := TStyleManager.ActiveStyle.Name;
+  {$ENDIF}
 end;
 
 procedure TRichEditForm.FormClose(Sender: TObject; var Action: TCloseAction);

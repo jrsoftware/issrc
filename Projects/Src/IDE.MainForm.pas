@@ -699,7 +699,7 @@ uses
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.GotoFileForm,
-  IDE.InputQueryForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper,
+  IDE.InputQueryForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper, IDE.RichEditForm,
   Shared.ConfigIniFile, Shared.SignToolsFunc, Shared.CompilerInt, Shared.LicenseFunc;
 
 {$R *.DFM}
@@ -5699,7 +5699,7 @@ begin
     TStyleManager.TrySetStyle('Windows11 Modern Dark')
   else
     TStyleManager.TrySetStyle('Windows');
-  { For some reason only MainForm needs this: with StyleName set to an empty string, dialog boxes
+  { Because StyleElements is empty it needs this: with StyleName set to an empty string, dialog boxes
     it opens, such as MsgBox, look broken }
   StyleName := TStyleManager.ActiveStyle.Name;
   {$ENDIF}
@@ -5709,7 +5709,14 @@ begin
 
   SetHelpFileDark(FTheme.Dark);
 
-  InitFormTheme(Self);
+  InitFormTheme(Self, True);
+  if RichEditForm <> nil then begin
+    {$IF RtlVersion >= 36.0}
+    { See above }
+    RichEditForm.StyleName := TStyleManager.ActiveStyle.Name;
+    {$ENDIF}
+    InitFormTheme(RichEditForm, True);
+  end;
 
   ToolbarPanel.Color := FTheme.Colors[tcToolBack];
 

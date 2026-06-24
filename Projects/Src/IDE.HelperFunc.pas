@@ -24,7 +24,7 @@ type
 procedure InitFormFont(Form: TForm);
 procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boolean);
 procedure InitFormThemeInit(const Theme: TTheme);
-function InitFormTheme(const Form: TForm): Boolean;
+function InitFormTheme(const Form: TForm; const AlwaysStyle: Boolean = False): Boolean;
 function InitFormThemeGetBkColor(const WindowColor: Boolean): TColor;
 function InitFormThemeIsDark: Boolean;
 function GetDisplayFilename(const Filename: String): String;
@@ -124,7 +124,7 @@ begin
   FormTheme := Theme;
 end;
 
-function InitFormTheme(const Form: TForm): Boolean;
+function InitFormTheme(const Form: TForm; const AlwaysStyle: Boolean): Boolean;
 
 {$IF RtlVersion >= 36.0}
   procedure HideGroupBoxFrames(const ParentControl: TWinControl);
@@ -140,11 +140,11 @@ function InitFormTheme(const Form: TForm): Boolean;
   end;
 {$ENDIF}
 
-{ Assumes forms other then MainForm call this function only once during creation, and assumes they
-  don't need any styling if the theme is non dark. Always styles MainForm. Returns True if it did
+{ Modal forms should call this function only once during creation with AlwaysStyle set to False.
+  It then assumes they don't need any styling if the theme is non dark. Returns True if it did
   style, False otherwise. }
 begin
-  Result := (Form = MainForm) or FormTheme.Dark;
+  Result := AlwaysStyle or FormTheme.Dark;
   if Result then begin
     Form.Color := InitFormThemeGetBkColor(Form = MainForm); { Prevents some flicker, but not all }
     SetDarkTitleBar(Form, FormTheme.Dark);

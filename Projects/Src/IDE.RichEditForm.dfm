@@ -12,6 +12,7 @@ object RichEditForm: TRichEditForm
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   Position = poScreenCenter
+  StyleElements = []
   OnClose = FormClose
   OnDestroy = FormDestroy
   TextHeight = 13
