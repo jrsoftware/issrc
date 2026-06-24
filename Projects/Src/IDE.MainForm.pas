@@ -837,7 +837,6 @@ constructor TMainForm.Create(AOwner: TComponent);
   procedure ReadAndApplyConfig;
   var
     Ini: TConfigIniFile;
-    WindowPlacement: TWindowPlacement;
     I: Integer;
     Memo: TIDEScintEdit;
   begin
@@ -954,22 +953,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       UpdateFindRegExUI;
 
       { Window state }
-      WindowPlacement.length := SizeOf(WindowPlacement);
-      GetWindowPlacement(Handle, @WindowPlacement);
-      WindowPlacement.showCmd := SW_HIDE;  { the form isn't Visible yet }
-      WindowPlacement.rcNormalPosition.Left := Ini.ReadInteger('State',
-        'WindowLeft', WindowPlacement.rcNormalPosition.Left);
-      WindowPlacement.rcNormalPosition.Top := Ini.ReadInteger('State',
-        'WindowTop', WindowPlacement.rcNormalPosition.Top);
-      WindowPlacement.rcNormalPosition.Right := Ini.ReadInteger('State',
-        'WindowRight', WindowPlacement.rcNormalPosition.Left + Width);
-      WindowPlacement.rcNormalPosition.Bottom := Ini.ReadInteger('State',
-        'WindowBottom', WindowPlacement.rcNormalPosition.Top + Height);
-      SetWindowPlacement(Handle, @WindowPlacement);
-      { Note: Must set WindowState *after* calling SetWindowPlacement, since
-        TCustomForm.WMSize resets WindowState }
-      if Ini.ReadBool('State', 'WindowMaximized', False) then
-        WindowState := wsMaximized;
+      LoadWindowState(Self, 'State', Ini);
       { Note: Don't call UpdateStatusPanelHeight here since it clips to the
         current form height, which hasn't been finalized yet }
 
@@ -1191,7 +1175,6 @@ destructor TMainForm.Destroy;
   procedure SaveConfig;
   var
     Ini: TConfigIniFile;
-    WindowPlacement: TWindowPlacement;
   begin
     Ini := TConfigIniFile.Create;
     try
@@ -1204,17 +1187,7 @@ destructor TMainForm.Destroy;
       Ini.WriteBool('Options', 'LowPriorityDuringCompile', FOptions.LowPriorityDuringCompile);
 
       { Window state }
-      WindowPlacement.length := SizeOf(WindowPlacement);
-      GetWindowPlacement(Handle, @WindowPlacement);
-      Ini.WriteInteger('State', 'WindowLeft', WindowPlacement.rcNormalPosition.Left);
-      Ini.WriteInteger('State', 'WindowTop', WindowPlacement.rcNormalPosition.Top);
-      Ini.WriteInteger('State', 'WindowRight', WindowPlacement.rcNormalPosition.Right);
-      Ini.WriteInteger('State', 'WindowBottom', WindowPlacement.rcNormalPosition.Bottom);
-      { The GetWindowPlacement docs claim that "flags" is always zero.
-        Fortunately, that's wrong. WPF_RESTORETOMAXIMIZED is set when the
-        window is either currently maximized, or currently minimized from a
-        previous maximized state. }
-      Ini.WriteBool('State', 'WindowMaximized', WindowPlacement.flags and WPF_RESTORETOMAXIMIZED <> 0);
+      SaveWindowState(Self, 'State', Ini);
       Ini.WriteInteger('State', 'StatusPanelHeight', FromCurrentPPI(StatusPanel.Height));
 
       { Zoom state }

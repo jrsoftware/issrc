@@ -15,6 +15,7 @@ uses
   Windows,
   Classes, Forms, Dialogs, Menus, Controls, StdCtrls, Graphics,
   ScintEdit, ModernColors,
+  Shared.ConfigIniFile,
   IDE.IDEScintEdit, IDE.LocalizeFunc;
 
 type
@@ -74,6 +75,10 @@ function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
 function CreateBitmapInfo(const Width, Height: Integer; const BitCount: Word): TBitmapInfo;
 function GetPreferredMemoFont: String;
 function DoubleAmp(const S: String): String;
+procedure LoadWindowState(const Form: TForm;
+  const Section: String; const Ini: TConfigIniFile = nil);
+procedure SaveWindowState(const Form: TForm;
+  const Section: String; const Ini: TConfigIniFile = nil);
 
 implementation
 
@@ -81,7 +86,7 @@ uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils,
   Messages,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme,
-  IDE.MainForm, IDE.Messages, Shared.ConfigIniFile;
+  IDE.MainForm, IDE.Messages;
 
 procedure InitFormFont(Form: TForm);
 begin
@@ -799,6 +804,63 @@ begin
   for var I := Length(Result) downto 1 do
     if Result[I] = '&' then
       Insert('&', Result, I + 1);
+end;
+
+procedure LoadWindowState(const Form: TForm;
+  const Section: String; const Ini: TConfigIniFile);
+begin
+  var ConfigIni := Ini;
+  if ConfigIni = nil then
+    ConfigIni := TConfigIniFile.Create;
+  try
+    Form.Position := poDesigned;
+    var WindowPlacement: TWindowPlacement;
+    WindowPlacement.length := SizeOf(WindowPlacement);
+    GetWindowPlacement(Form.Handle, @WindowPlacement);
+    WindowPlacement.showCmd := SW_HIDE;  { the form isn't Visible yet }
+    WindowPlacement.rcNormalPosition.Left := ConfigIni.ReadInteger(Section,
+      'WindowLeft', WindowPlacement.rcNormalPosition.Left);
+    WindowPlacement.rcNormalPosition.Top := ConfigIni.ReadInteger(Section,
+      'WindowTop', WindowPlacement.rcNormalPosition.Top);
+    WindowPlacement.rcNormalPosition.Right := ConfigIni.ReadInteger(Section,
+      'WindowRight', WindowPlacement.rcNormalPosition.Left + Form.Width);
+    WindowPlacement.rcNormalPosition.Bottom := ConfigIni.ReadInteger(Section,
+      'WindowBottom', WindowPlacement.rcNormalPosition.Top + Form.Height);
+    SetWindowPlacement(Form.Handle, @WindowPlacement);
+    { Note: Must set WindowState *after* calling SetWindowPlacement, since
+      TCustomForm.WMSize resets WindowState }
+    if ConfigIni.ReadBool(Section, 'WindowMaximized', False) then
+      Form.WindowState := wsMaximized;
+  finally
+    if ConfigIni <> Ini then
+      ConfigIni.Free;
+  end;
+end;
+
+procedure SaveWindowState(const Form: TForm;
+  const Section: String; const Ini: TConfigIniFile);
+begin
+  var ConfigIni := Ini;
+  if ConfigIni = nil then
+    ConfigIni := TConfigIniFile.Create;
+  try
+    var WindowPlacement: TWindowPlacement;
+    WindowPlacement.length := SizeOf(WindowPlacement);
+    GetWindowPlacement(Form.Handle, @WindowPlacement);
+    ConfigIni.WriteInteger(Section, 'WindowLeft', WindowPlacement.rcNormalPosition.Left);
+    ConfigIni.WriteInteger(Section, 'WindowTop', WindowPlacement.rcNormalPosition.Top);
+    ConfigIni.WriteInteger(Section, 'WindowRight', WindowPlacement.rcNormalPosition.Right);
+    ConfigIni.WriteInteger(Section, 'WindowBottom', WindowPlacement.rcNormalPosition.Bottom);
+    { The GetWindowPlacement docs claim that "flags" is always zero.
+      Fortunately, that's wrong. WPF_RESTORETOMAXIMIZED is set when the
+      window is either currently maximized, or currently minimized from a
+      previous maximized state. }
+    ConfigIni.WriteBool(Section, 'WindowMaximized',
+      WindowPlacement.flags and WPF_RESTORETOMAXIMIZED <> 0);
+  finally
+    if ConfigIni <> Ini then
+      ConfigIni.Free;
+  end;
 end;
 
 initialization
