@@ -239,6 +239,7 @@ type
     HWhatsNew: TMenuItem;
     TGenerateGUID: TMenuItem;
     TSignTools: TMenuItem;
+    TRichEditor: TMenuItem;
     N16: TMenuItem;
     HExamples: TMenuItem;
     N17: TMenuItem;
@@ -403,6 +404,7 @@ type
     procedure HWhatsNewClick(Sender: TObject);
     procedure TGenerateGUIDClick(Sender: TObject);
     procedure TSignToolsClick(Sender: TObject);
+    procedure TRichEditorClick(Sender: TObject);
     procedure HExamplesClick(Sender: TObject);
     procedure BOpenOutputFolderClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
@@ -3918,6 +3920,11 @@ end;
 procedure TMainForm.TSignToolsClick(Sender: TObject);
 begin
   ShowSignToolsForm;
+end;
+
+procedure TMainForm.TRichEditorClick(Sender: TObject);
+begin
+  ShowRichEditForm;
 end;
 
 procedure TMainForm.TOptionsClick(Sender: TObject);

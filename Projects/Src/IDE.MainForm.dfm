@@ -894,6 +894,10 @@ object MainForm: TMainForm
       object N7: TMenuItem
         Caption = '-'
       end
+      object TRichEditor: TMenuItem
+        Caption = '&RTF Editor...'
+        OnClick = TRichEditorClick
+      end
       object TSignTools: TMenuItem
         Caption = '&Configure Sign Tools...'
         OnClick = TSignToolsClick

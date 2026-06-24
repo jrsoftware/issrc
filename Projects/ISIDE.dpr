@@ -42,6 +42,7 @@ uses
   IDE.LicenseKeyForm in 'Src\IDE.LicenseKeyForm.pas' {LicenseKeyForm},
   IDE.InputQueryForm in 'Src\IDE.InputQueryForm.pas' {InputQueryForm},
   IDE.InputQueryMemoForm in 'Src\IDE.InputQueryMemoForm.pas' {InputQueryMemoForm},
+  IDE.RichEditForm in 'Src\IDE.RichEditForm.pas' {RichEditForm},
   ScintInt in '..\Components\ScintInt.pas',
   ScintEdit in '..\Components\ScintEdit.pas',
   IDE.ScintStylerInnoSetup in 'Src\IDE.ScintStylerInnoSetup.pas',
