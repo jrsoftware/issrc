@@ -225,7 +225,6 @@ object RichEditForm: TRichEditForm
       object AlignLeftButton: TToolButton
         Left = 462
         Top = 0
-        Hint = 'Align Left (%1)'
         Action = AlignLeftAction
         ImageIndex = 64
         ImageName = 'format-align-left'
@@ -234,7 +233,6 @@ object RichEditForm: TRichEditForm
       object AlignCenterButton: TToolButton
         Left = 485
         Top = 0
-        Hint = 'Center (%1)'
         Action = AlignCenterAction
         ImageIndex = 63
         ImageName = 'format-align-center'
@@ -243,7 +241,6 @@ object RichEditForm: TRichEditForm
       object AlignRightButton: TToolButton
         Left = 508
         Top = 0
-        Hint = 'Align Right (%1)'
         Action = AlignRightAction
         ImageIndex = 65
         ImageName = 'format-align-right'

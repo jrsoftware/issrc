@@ -197,11 +197,11 @@ begin
   NewButton.Hint := LFmtMessage(NewButton.Hint, [NewShortCutToText(NewAction.ShortCut)]);
   OpenButton.Hint := LFmtMessage(OpenButton.Hint, [NewShortCutToText(OpenAction.ShortCut)]);
   SaveButton.Hint := LFmtMessage(SaveButton.Hint, [NewShortCutToText(SaveAction.ShortCut)]);
-  UndoButton.Hint := LFmtMessage(UndoButton.Hint, [NewShortCutToText(ShortCut(Ord('Z'), [ssCtrl]))]);
-  RedoButton.Hint := LFmtMessage(RedoButton.Hint, [NewShortCutToText(ShortCut(Ord('Y'), [ssCtrl]))]);
   CutButton.Hint := LFmtMessage(CutButton.Hint, [NewShortCutToText(ShortCut(Ord('X'), [ssCtrl]))]);
   CopyButton.Hint := LFmtMessage(CopyButton.Hint, [NewShortCutToText(ShortCut(Ord('C'), [ssCtrl]))]);
   PasteButton.Hint := LFmtMessage(PasteButton.Hint, [NewShortCutToText(ShortCut(Ord('V'), [ssCtrl]))]);
+  UndoButton.Hint := LFmtMessage(UndoButton.Hint, [NewShortCutToText(ShortCut(Ord('Z'), [ssCtrl]))]);
+  RedoButton.Hint := LFmtMessage(RedoButton.Hint, [NewShortCutToText(ShortCut(Ord('Y'), [ssCtrl]))]);
   BoldButton.Hint := LFmtMessage(BoldButton.Hint, [NewShortCutToText(ShortCut(Ord('B'), [ssCtrl]))]);
   ItalicButton.Hint := LFmtMessage(ItalicButton.Hint, [NewShortCutToText(ShortCut(Ord('I'), [ssCtrl]))]);
   UnderlineButton.Hint := LFmtMessage(UnderlineButton.Hint, [NewShortCutToText(ShortCut(Ord('U'), [ssCtrl]))]);
@@ -209,6 +209,9 @@ begin
   IncreaseFontSizeButton.Hint := RemoveAccelChar(IncreaseFontSizeAction.Caption);
   DecreaseFontSizeButton.Hint := RemoveAccelChar(DecreaseFontSizeAction.Caption);
   ResetColorsButton.Hint := RemoveAccelChar(ResetColorsAction.Caption);
+  AlignLeftButton.Hint := RemoveAccelChar(AlignLeftButton.Caption);
+  AlignCenterButton.Hint := RemoveAccelChar(AlignCenterButton.Caption);
+  AlignRightButton.Hint := RemoveAccelChar(AlignRightButton.Caption);
   BulletsButton.Hint := RemoveAccelChar(BulletsAction.Caption);
   OutdentButton.Hint := RemoveAccelChar(OutdentAction.Caption);
   IndentButton.Hint := RemoveAccelChar(IndentAction.Caption);
