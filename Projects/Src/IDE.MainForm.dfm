@@ -19,6 +19,7 @@ object MainForm: TMainForm
   OnCloseQuery = FormCloseQuery
   OnKeyDown = FormKeyDown
   OnResize = FormResize
+  OnShow = FormShow
   TextHeight = 13
   object Bevel1: TBevel
     Left = 0
@@ -192,7 +193,6 @@ object MainForm: TMainForm
     Width = 361
     Height = 29
     Align = alTop
-    AutoSize = True
     BevelOuter = bvNone
     TabOrder = 0
     StyleName = 'Windows'

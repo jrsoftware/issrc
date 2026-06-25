@@ -17,6 +17,7 @@ object RichEditForm: TRichEditForm
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
+  OnShow = FormShow
   TextHeight = 13
   object ToolBarPanel: TPanel
     Left = 0
@@ -24,7 +25,6 @@ object RichEditForm: TRichEditForm
     Width = 700
     Height = 29
     Align = alTop
-    AutoSize = True
     BevelOuter = bvNone
     TabOrder = 0
     StyleName = 'Windows'

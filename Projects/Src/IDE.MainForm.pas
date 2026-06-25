@@ -417,6 +417,7 @@ type
       Rect: TRect; State: TOwnerDrawState);
     procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
       NewDPI: Integer);
+    procedure FormShow(Sender: TObject);
     procedure POutputListSelectAllClick(Sender: TObject);
     procedure DebugCallStackListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
       State: TOwnerDrawState);
@@ -1288,6 +1289,14 @@ begin
        Application.MainForm.HandleAllocated then
       AHandle := GetLastActivePopup(Application.MainFormHandle);
   end;
+end;
+
+procedure TMainForm.FormShow(Sender: TObject);
+begin
+  { Having AutoSize on True in the .dfm doesn't trigger auto sizing (for
+    toolbar wrapping) during form creation. A delay until the form shows is
+    needed to make it work. }
+  ToolBarPanel.AutoSize := True;
 end;
 
 procedure TMainForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,

@@ -85,6 +85,7 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure RedoActionExecute(Sender: TObject);
     procedure RedoActionUpdate(Sender: TObject);
     procedure NewActionExecute(Sender: TObject);
@@ -254,6 +255,12 @@ begin
     except
     end;
   end;
+end;
+
+procedure TRichEditForm.FormShow(Sender: TObject);
+begin
+  { Just like MainForm }
+  ToolBarPanel.AutoSize := True;
 end;
 
 procedure TRichEditForm.FormClose(Sender: TObject; var Action: TCloseAction);
