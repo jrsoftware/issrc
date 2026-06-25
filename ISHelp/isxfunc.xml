@@ -1875,30 +1875,30 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <tr><td><tt>tp32Bit</tt></td><td>32-bit</td></tr>
 <tr><td><tt>tp32BitPreferSystem32</tt></td><td>32-bit, with <tt>System32</tt> instead of <tt>SysWOW64</tt> in the resulting path (see <link topic="pathredir">System Path Redirection</link> for details)</td></tr>
 </table></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   InPath, OutPath: String;
-begin
-  InPath := ExpandConstant('{sys}\MyLibrary.dll');
+<key>begin</key>
+  InPath := ExpandConstant(<str>'{sys}\MyLibrary.dll'</str>);
   Log(InPath);
-  // Typically logs: C:\Windows\System32\MyLibrary.dll
+  <com>// Typically logs: C:\Windows\System32\MyLibrary.dll</com>
 
-  // Convert 64-bit path to path accessible in current process
-  if IsWin64 then
-  begin
+  <com>// Convert 64-bit path to path accessible in current process</com>
+  <key>if</key> IsWin64 <key>then</key>
+  <key>begin</key>
     OutPath := ApplyPathRedirRules(True, InPath, tpCurrent);
     Log(OutPath);
-    // In 32-bit Setup, logs: \\?\C:\Windows\Sysnative\MyLibrary.dll
-    // In 64-bit Setup, logs: \\?\C:\Windows\System32\MyLibrary.dll
-  end;
+    <com>// In 32-bit Setup, logs: \\?\C:\Windows\Sysnative\MyLibrary.dll</com>
+    <com>// In 64-bit Setup, logs: \\?\C:\Windows\System32\MyLibrary.dll</com>
+  <key>end</key>;
 
-  // Convert 32-bit path to path accessible in current process
+  <com>// Convert 32-bit path to path accessible in current process</com>
   OutPath := ApplyPathRedirRules(False, InPath, tpCurrent);
   Log(OutPath);
-  // In 32-bit Setup, logs: \\?\C:\Windows\SysWOW64\MyLibrary.dll
-  // In 64-bit Setup, logs: \\?\C:\Windows\SysWOW64\MyLibrary.dll
-end;</pre></example>
-        <seealso><p><link topic="isxfunc_ApplyPathRedirRulesForCurrentProcess">ApplyPathRedirRulesForCurrentProcess</link><br/>
-<link topic="isxfunc_PathConvertSuperToNormal">PathConvertSuperToNormal</link></p></seealso>
+  <com>// In 32-bit Setup, logs: \\?\C:\Windows\SysWOW64\MyLibrary.dll</com>
+  <com>// In 64-bit Setup, logs: \\?\C:\Windows\SysWOW64\MyLibrary.dll</com>
+<key>end</key>;</pre></example>
+        <seealso><p><isxfunc>ApplyPathRedirRulesForCurrentProcess</isxfunc><br/>
+<isxfunc>PathConvertSuperToNormal</isxfunc></p></seealso>
       </function>
       <function>
         <name>EnableFsRedirection</name>
