@@ -138,6 +138,11 @@ uses
 
 {$R *.dfm}
 
+{$IF RtlVersion >= 35.0}
+  {$DEFINE HAVEBACKCOLOR}
+  {$DEFINE HAVEURLS}
+{$ENDIF}
+
 const
   { Status bar panel indexes }
   spCaretPos = 0;
@@ -227,6 +232,10 @@ begin
 
   CreateRichEditControl;
   UpdateTheme;
+
+  {$IFNDEF HAVEBACKCOLOR}
+  BackgroundColorAction.Visible := False;
+  {$ENDIF}
 end;
 
 procedure TRichEditForm.CreateRichEditControl;
@@ -236,8 +245,10 @@ begin
   FRichEdit.Align := alClient;
   FRichEdit.WordWrap := True;
   FRichEdit.ScrollBars := ssVertical;
+  {$IFDEF HAVEURLS}
   FRichEdit.EnableURLs := True;
   FRichEdit.OnLinkClick := RichEditLinkClick;
+  {$ENDIF}
   FRichEdit.OnChange := RichEditStateChange;
   FRichEdit.OnSelectionChange := RichEditStateChange;
   FRichEdit.StyleName := 'Windows'; { We do not support dark mode editing atm }
@@ -381,7 +392,9 @@ begin
   FRichEdit.DefAttributes.Name := 'Segoe UI';
   FRichEdit.DefAttributes.Size := 9;
   FRichEdit.DefAttributes.Color := clWindowText; { Changed to CFE_AUTOCOLOR by VCL }
+  {$IFDEF HAVEBACKCOLOR}
   FRichEdit.DefAttributes.BackColor := clWindow; { Changed to CFE_AUTOBACKCOLOR by VCL }
+  {$ENDIF}
   FRichEdit.SelAttributes.Assign(FRichEdit.DefAttributes);
   FFilename := '';
   FMainScriptFilename := MainForm.MainFilename;
@@ -610,15 +623,19 @@ end;
 
 procedure TRichEditForm.BackgroundColorActionExecute(Sender: TObject);
 begin
+  {$IFDEF HAVEBACKCOLOR}
   var NewColor: TColor;
   if ChooseColor(FRichEdit.SelAttributes.BackColor, clWindow, NewColor) then
     FRichEdit.SelAttributes.BackColor := NewColor;
+  {$ENDIF}
 end;
 
 procedure TRichEditForm.ResetColorsActionExecute(Sender: TObject);
 begin
   FRichEdit.SelAttributes.Color := clWindowText; { Changed to CFE_AUTOCOLOR by VCL }
+  {$IFDEF HAVEBACKCOLOR}
   FRichEdit.SelAttributes.BackColor := clWindow; { Changed to CFE_AUTOBACKCOLOR by VCL }
+  {$ENDIF}
 end;
 
 end.
