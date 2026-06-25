@@ -205,6 +205,13 @@ begin
   BoldButton.Hint := LFmtMessage(BoldButton.Hint, [NewShortCutToText(ShortCut(Ord('B'), [ssCtrl]))]);
   ItalicButton.Hint := LFmtMessage(ItalicButton.Hint, [NewShortCutToText(ShortCut(Ord('I'), [ssCtrl]))]);
   UnderlineButton.Hint := LFmtMessage(UnderlineButton.Hint, [NewShortCutToText(ShortCut(Ord('U'), [ssCtrl]))]);
+  { Just like MainForm }
+  IncreaseFontSizeButton.Hint := RemoveAccelChar(IncreaseFontSizeAction.Caption);
+  DecreaseFontSizeButton.Hint := RemoveAccelChar(DecreaseFontSizeAction.Caption);
+  ResetColorsButton.Hint := RemoveAccelChar(ResetColorsAction.Caption);
+  BulletsButton.Hint := RemoveAccelChar(BulletsAction.Caption);
+  OutdentButton.Hint := RemoveAccelChar(OutdentAction.Caption);
+  IndentButton.Hint := RemoveAccelChar(IndentAction.Caption);
 
   FBaseCaption := Caption;
 

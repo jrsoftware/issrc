@@ -176,7 +176,6 @@ object RichEditForm: TRichEditForm
       object IncreaseFontSizeButton: TToolButton
         Left = 331
         Top = 0
-        Hint = 'Increase Font Size'
         Action = IncreaseFontSizeAction
         ImageIndex = 75
         ImageName = 'text-increase'
@@ -184,7 +183,6 @@ object RichEditForm: TRichEditForm
       object DecreaseFontSizeButton: TToolButton
         Left = 354
         Top = 0
-        Hint = 'Decrease Font Size'
         Action = DecreaseFontSizeAction
         ImageIndex = 74
         ImageName = 'text-decrease'
@@ -214,7 +212,6 @@ object RichEditForm: TRichEditForm
       object ResetColorsButton: TToolButton
         Left = 431
         Top = 0
-        Hint = 'Reset Colors'
         Action = ResetColorsAction
         ImageIndex = 76
         ImageName = 'format-color-reset-filled'
@@ -261,7 +258,6 @@ object RichEditForm: TRichEditForm
       object BulletsButton: TToolButton
         Left = 539
         Top = 0
-        Hint = 'Bullets'
         Action = BulletsAction
         ImageIndex = 77
         ImageName = 'format-list-bulleted'
@@ -270,7 +266,6 @@ object RichEditForm: TRichEditForm
       object OutdentButton: TToolButton
         Left = 562
         Top = 0
-        Hint = 'Decrease Indent'
         Action = OutdentAction
         ImageIndex = 69
         ImageName = 'format-indent-decrease'
@@ -278,7 +273,6 @@ object RichEditForm: TRichEditForm
       object IndentButton: TToolButton
         Left = 585
         Top = 0
-        Hint = 'Increase Indent'
         Action = IndentAction
         ImageIndex = 70
         ImageName = 'format-indent-increase'
