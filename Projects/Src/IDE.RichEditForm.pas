@@ -242,6 +242,14 @@ begin
   FRichEdit.OnSelectionChange := RichEditStateChange;
   FRichEdit.StyleName := 'Windows'; { We do not support dark mode editing atm }
 
+  { Remove ugly WS_EX_CLIENTEDGE }
+  FRichEdit.BorderStyle := bsNone;
+  { Replace it with RichEdit's native support for a border }
+  const Margin = MulDiv(2, CurrentPPI, 96);
+  var R := FRichEdit.ClientRect;
+  InflateRect(R, -Margin, -Margin);
+  SendMessage(FRichEdit.Handle, EM_SETRECT, 0, LPARAM(@R));
+
   { For images }
   FCallback := TBasicRichEditOleCallback.Create;
   SendMessage(FRichEdit.Handle, EM_SETOLECALLBACK, 0, LPARAM(FCallback));
