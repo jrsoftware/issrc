@@ -1855,17 +1855,48 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
     <subcategory>
       <function>
         <name>ApplyPathRedirRulesForCurrentProcess</name>
-        <prototype>function ApplyPathRedirRulesForCurrentProcess(const A64Bit: Boolean; const APath: String): String;</prototype>
+        <prototype>function ApplyPathRedirRulesForCurrentProcess(const Path64Bit: Boolean; const Path: String): String;</prototype>
         <description><p>Calls <isxfunc>ApplyPathRedirRules</isxfunc> function with the current process as the target process.</p></description>
       </function>
       <function>
         <name>ApplyPathRedirRules</name>
-        <prototype>function ApplyPathRedirRules(const A64Bit: Boolean; const APath: String; const ATargetProcess: TPathRedirTargetProcess): String;</prototype>
+        <prototype>function ApplyPathRedirRules(const Path64Bit: Boolean; const Path: String; const TargetProcess: TPathRedirTargetProcess): String;</prototype>
         <description><p>Applies <link topic="pathredir">system path redirection</link> to the specified path and returns the rewritten path.</p>
+<p><tt>Path64Bit</tt> specifies the current bitness of <tt>Path</tt> — <tt>True</tt> for 64-bit, or <tt>False</tt> for 32-bit. <tt>TargetProcess</tt> specifies the bitness of the process where the rewritten path will ultimately be accessed. In the <link topic="pathredir">System Path Redirection</link> topic's table, these are the "entry bitness" and "target process bitness", respectively.</p>
 <p>Before rewriting, the path is expanded using <isxfunc>ExpandFileName</isxfunc> and converted to an extended-length path (also known as a super path).</p>
 <p>Path expansion and conversion to extended-length path always occurs, even if nothing is rewritten.</p></description>
-        <remarks><p><tt>TPathRedirTargetProcess</tt> is defined as:</p>
-<p><tt>TPathRedirTargetProcess = (tpCurrent, tpNativeBit, tp32Bit, tp32BitPreferSystem32);</tt></p></remarks>
+        <remarks><p>On systems running 32-bit Windows, <tt>Path64Bit</tt> must be <tt>False</tt>, otherwise an exception will be raised.</p>
+<p><tt>TPathRedirTargetProcess</tt> is an enumerated type, defined as:</p>
+<p><tt>TPathRedirTargetProcess = (tpCurrent, tpNativeBit, tp32Bit, tp32BitPreferSystem32);</tt></p>
+<table>
+<tr><th>Value</th><th>Target process bitness</th></tr>
+<tr><td><tt>tpCurrent</tt></td><td>64-bit in <link topic="64bit">64-bit Setup/Uninstall</link>, or 32-bit in 32-bit Setup/Uninstall</td></tr>
+<tr><td><tt>tpNativeBit</tt></td><td>64-bit when running on 64-bit Windows, or 32-bit on 32-bit Windows</td></tr>
+<tr><td><tt>tp32Bit</tt></td><td>32-bit</td></tr>
+<tr><td><tt>tp32BitPreferSystem32</tt></td><td>32-bit, with <tt>System32</tt> instead of <tt>SysWOW64</tt> in the resulting path (see <link topic="pathredir">System Path Redirection</link> for details)</td></tr>
+</table></remarks>
+        <example><pre><key>var</key>
+  InPath, OutPath: String;
+<key>begin</key>
+  InPath := ExpandConstant(<str>'{sys}\MyLibrary.dll'</str>);
+  Log(InPath);
+  <com>// Typically logs: C:\Windows\System32\MyLibrary.dll</com>
+
+  <com>// Convert 64-bit path to path accessible in current process</com>
+  <key>if</key> IsWin64 <key>then</key>
+  <key>begin</key>
+    OutPath := ApplyPathRedirRules(True, InPath, tpCurrent);
+    Log(OutPath);
+    <com>// In 32-bit Setup, logs: \\?\C:\Windows\Sysnative\MyLibrary.dll</com>
+    <com>// In 64-bit Setup, logs: \\?\C:\Windows\System32\MyLibrary.dll</com>
+  <key>end</key>;
+
+  <com>// Convert 32-bit path to path accessible in current process</com>
+  OutPath := ApplyPathRedirRules(False, InPath, tpCurrent);
+  Log(OutPath);
+  <com>// In 32-bit Setup, logs: \\?\C:\Windows\SysWOW64\MyLibrary.dll</com>
+  <com>// In 64-bit Setup, logs: \\?\C:\Windows\SysWOW64\MyLibrary.dll</com>
+<key>end</key>;</pre></example>
         <seealso><p><isxfunc>ApplyPathRedirRulesForCurrentProcess</isxfunc><br/>
 <isxfunc>PathConvertSuperToNormal</isxfunc></p></seealso>
       </function>

@@ -1239,8 +1239,19 @@ begin
   Result := S;
   I := 1;
   while I <= Length(Result) do begin
-    if Result[I] = '&' then
-      Delete(Result, I, 1);
+    if Result[I] = '&' then begin
+      { Just like Vcl.Menus.StripHotkey. Note that its SysLocale.FarEast check
+        is always True on UNICODE. }
+      if (I > 1) and (Length(Result)-I >= 2) and
+         (Result[I-1] = '(') and (Result[I+2] = ')') then begin
+        Delete(Result, I-1, 4);
+        { Unlike StripHotkey also remove a space in front of the accelerator,
+          used by for example Chinese Traditional }
+        if (I > 2) and (Result[I-2] = ' ') then
+          Delete(Result, I-2, 1);
+      end else
+        Delete(Result, I, 1);
+    end;
     Inc(I);
   end;
 end;
