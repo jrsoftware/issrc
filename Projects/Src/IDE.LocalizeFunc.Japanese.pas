@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..942] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..939] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),

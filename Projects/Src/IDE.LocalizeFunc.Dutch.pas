@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..942] of TTranslationPair = (
+  DutchIDETranslations: array [0..939] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
