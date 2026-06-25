@@ -3336,7 +3336,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <p><b>32-bit install mode</b></p>
 
 <ul>
-<li>Entries are 32-bit by default &mdash; refer to <link topic="entrybitness">Entry Bitness</link> for details.</li>
+<li>Entries are 32-bit by default. Refer to <link topic="entrybitness">Entry Bitness</link> for details on what this affects.</li>
 <li>The <tt>{commonpf}</tt> constant is equivalent to <tt>{commonpf32}</tt>.</li>
 <li>The <tt>{commoncf}</tt> constant is equivalent to <tt>{commoncf32}</tt>.</li>
 <li>The <tt>{reg:...}</tt> constant reads the 32-bit view by default.</li>
@@ -3347,7 +3347,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <p><b>64-bit install mode</b></p>
 
 <ul>
-<li>Entries are 64-bit by default &mdash; refer to <link topic="entrybitness">Entry Bitness</link> for details.</li>
+<li>Entries are 64-bit by default. Refer to <link topic="entrybitness">Entry Bitness</link> for details on what this affects.</li>
 <li>The <tt>{commonpf}</tt> constant is equivalent to <tt>{commonpf64}</tt>.</li>
 <li>The <tt>{commoncf}</tt> constant is equivalent to <tt>{commoncf64}</tt>.</li>
 <li>The <tt>{reg:...}</tt> constant reads the 64-bit view by default.</li>
@@ -3437,8 +3437,9 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <sec>[Files]</sec>
 <key>Source</key>: "MyLibrary.dll"; <key>DestDir</key>: "<con>{sys}</con>"; <key>Flags</key>: 64bit
 </precode>
-<p>the file is installed to <tt>System32</tt> (64-bit). Behind the scenes, however, <link topic="64bit">32-bit installers</link> access the directory under the alias <tt>Sysnative</tt> (see table below).</p>
-<p>No rewriting occurs on systems running 32-bit Windows, as <tt>System32</tt> is the only System directory. <tt>SysWOW64</tt> doesn't exist, and the <tt>Sysnative</tt> alias isn't supported.</p>
+<p>the file is installed to <tt>System32</tt> (64-bit). Behind the scenes, however, <link topic="64bit">32-bit installers</link> access the directory under the alias <tt>Sysnative</tt> (as shown in the table below).</p>
+<p>No rewriting occurs on systems running 32-bit Windows. <tt>SysWOW64</tt> doesn't exist, and the <tt>Sysnative</tt> alias isn't supported.</p>
+<p>In the <sn>[Code]</sn> section, the <isxfunc>ApplyPathRedirRules</isxfunc> support function may be used to programmatically apply redirection to strings containing paths.</p>
 <p>Paths are rewritten according to the following rules:</p>
 <indent>
 <table>
@@ -3497,7 +3498,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   </td>
 </tr>
 </table>
-<p><sup>[1]</sup> With the <isxfunc>ApplyPathRedirRules</isxfunc> support function, the <tt>A64Bit</tt> parameter specifies the "entry bitness".</p>
+<p><sup>[1]</sup> With the <isxfunc>ApplyPathRedirRules</isxfunc> support function, the <tt>Path64Bit</tt> parameter specifies the "entry bitness".</p>
 <p><sup>[2]</sup> "Target process" is the process where the rewritten path will ultimately be accessed. In most cases, paths are accessed by Setup/Uninstall itself, so the target process bitness is Setup/Uninstall's bitness (as set by <sd>SetupArchitecture</sd>).</p>
 </indent>
 </body>
