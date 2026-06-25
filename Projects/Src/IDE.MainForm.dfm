@@ -1383,6 +1383,21 @@ object MainForm: TMainForm
         CollectionIndex = 75
         CollectionName = 'text-increase'
         Name = 'text-increase'
+      end
+      item
+        CollectionIndex = 76
+        CollectionName = 'format-color-reset-filled'
+        Name = 'format-color-reset-filled'
+      end
+      item
+        CollectionIndex = 77
+        CollectionName = 'format-list-bulleted'
+        Name = 'format-list-bulleted'
+      end
+      item
+        CollectionIndex = 78
+        CollectionName = 'unused\format-list-numbered'
+        Name = 'unused\format-list-numbered'
       end>
     ImageCollection = ImagesModule.LightToolBarImageCollection
     Left = 80

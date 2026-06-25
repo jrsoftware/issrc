@@ -210,7 +210,100 @@ object RichEditForm: TRichEditForm
         ImageIndex = 67
         ImageName = 'format-color-fill'
       end
+      object ResetColorsButton: TToolButton
+        Left = 431
+        Top = 0
+        Hint = 'Reset Colors'
+        Action = ResetColorsAction
+        ImageIndex = 76
+        ImageName = 'format-color-reset-filled'
+      end
+      object ToolButton6: TToolButton
+        Left = 454
+        Top = 0
+        Width = 8
+        Style = tbsSeparator
+      end
+      object AlignLeftButton: TToolButton
+        Left = 462
+        Top = 0
+        Hint = 'Align Left (%1)'
+        Action = AlignLeftAction
+        ImageIndex = 64
+        ImageName = 'format-align-left'
+        Style = tbsCheck
+      end
+      object AlignCenterButton: TToolButton
+        Left = 485
+        Top = 0
+        Hint = 'Center (%1)'
+        Action = AlignCenterAction
+        ImageIndex = 63
+        ImageName = 'format-align-center'
+        Style = tbsCheck
+      end
+      object AlignRightButton: TToolButton
+        Left = 508
+        Top = 0
+        Hint = 'Align Right (%1)'
+        Action = AlignRightAction
+        ImageIndex = 65
+        ImageName = 'format-align-right'
+        Style = tbsCheck
+      end
+      object ToolButton7: TToolButton
+        Left = 531
+        Top = 0
+        Width = 8
+        Style = tbsSeparator
+      end
+      object BulletsButton: TToolButton
+        Left = 539
+        Top = 0
+        Hint = 'Bullets'
+        Action = BulletsAction
+        ImageIndex = 77
+        ImageName = 'format-list-bulleted'
+        Style = tbsCheck
+      end
+      object OutdentButton: TToolButton
+        Left = 562
+        Top = 0
+        Hint = 'Decrease Indent'
+        Action = OutdentAction
+        ImageIndex = 69
+        ImageName = 'format-indent-decrease'
+      end
+      object IndentButton: TToolButton
+        Left = 585
+        Top = 0
+        Hint = 'Increase Indent'
+        Action = IndentAction
+        ImageIndex = 70
+        ImageName = 'format-indent-increase'
+      end
     end
+  end
+  object StatusBar: TStatusBar
+    Left = 0
+    Top = 481
+    Width = 700
+    Height = 19
+    Panels = <
+      item
+        Alignment = taCenter
+        Bevel = pbNone
+        Width = 96
+      end
+      item
+        Alignment = taCenter
+        Bevel = pbNone
+        Width = 88
+      end
+      item
+        Bevel = pbNone
+        Width = 50
+      end>
   end
   object ActionList: TActionList
     Left = 24
@@ -250,6 +343,7 @@ object RichEditForm: TRichEditForm
     end
     object PasteAction: TEditPaste
       Caption = '&Paste'
+      OnUpdate = PasteActionUpdate
     end
     object BoldAction: TRichEditBold
       AutoCheck = True
@@ -286,6 +380,37 @@ object RichEditForm: TRichEditForm
     object BackgroundColorAction: TAction
       Caption = '&Background Color...'
       OnExecute = BackgroundColorActionExecute
+      OnUpdate = ActionUpdate
+    end
+    object ResetColorsAction: TAction
+      Caption = 'Reset &Colors'
+      OnExecute = ResetColorsActionExecute
+      OnUpdate = ActionUpdate
+    end
+    object AlignLeftAction: TRichEditAlignLeft
+      AutoCheck = True
+      Caption = 'Align &Left'
+    end
+    object AlignCenterAction: TRichEditAlignCenter
+      AutoCheck = True
+      Caption = '&Center'
+    end
+    object AlignRightAction: TRichEditAlignRight
+      AutoCheck = True
+      Caption = 'Align &Right'
+    end
+    object BulletsAction: TRichEditBullets
+      AutoCheck = True
+      Caption = 'Bulle&ts'
+    end
+    object IndentAction: TAction
+      Caption = 'Increase &Indent'
+      OnExecute = IndentActionExecute
+      OnUpdate = ActionUpdate
+    end
+    object OutdentAction: TAction
+      Caption = 'Decrease Inden&t'
+      OnExecute = IndentActionExecute
       OnUpdate = ActionUpdate
     end
   end
@@ -671,6 +796,21 @@ object RichEditForm: TRichEditForm
         CollectionIndex = 75
         CollectionName = 'text-increase'
         Name = 'text-increase'
+      end
+      item
+        CollectionIndex = 76
+        CollectionName = 'format-color-reset-filled'
+        Name = 'format-color-reset-filled'
+      end
+      item
+        CollectionIndex = 77
+        CollectionName = 'format-list-bulleted'
+        Name = 'format-list-bulleted'
+      end
+      item
+        CollectionIndex = 78
+        CollectionName = 'unused\format-list-numbered'
+        Name = 'unused\format-list-numbered'
       end>
     ImageCollection = ImagesModule.LightToolBarImageCollection
     Left = 24

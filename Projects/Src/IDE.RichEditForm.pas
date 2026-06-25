@@ -43,6 +43,15 @@ type
     ToolButton5: TToolButton;
     TextColorButton: TToolButton;
     BackgroundColorButton: TToolButton;
+    ResetColorsButton: TToolButton;
+    ToolButton6: TToolButton;
+    AlignLeftButton: TToolButton;
+    AlignCenterButton: TToolButton;
+    AlignRightButton: TToolButton;
+    ToolButton7: TToolButton;
+    BulletsButton: TToolButton;
+    IndentButton: TToolButton;
+    OutdentButton: TToolButton;
     ActionList: TActionList;
     NewAction: TAction;
     OpenAction: TAction;
@@ -61,9 +70,17 @@ type
     DecreaseFontSizeAction: TAction;
     TextColorAction: TAction;
     BackgroundColorAction: TAction;
+    ResetColorsAction: TAction;
+    AlignLeftAction: TRichEditAlignLeft;
+    AlignCenterAction: TRichEditAlignCenter;
+    AlignRightAction: TRichEditAlignRight;
+    BulletsAction: TRichEditBullets;
+    IndentAction: TAction;
+    OutdentAction: TAction;
     ThemedToolbarVirtualImageList: TVirtualImageList;
     FontDialog: TFontDialog;
     ColorDialog: TColorDialog;
+    StatusBar: TStatusBar;
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FormDestroy(Sender: TObject);
@@ -78,6 +95,9 @@ type
     procedure TextColorActionExecute(Sender: TObject);
     procedure BackgroundColorActionExecute(Sender: TObject);
     procedure ActionUpdate(Sender: TObject);
+    procedure IndentActionExecute(Sender: TObject);
+    procedure PasteActionUpdate(Sender: TObject);
+    procedure ResetColorsActionExecute(Sender: TObject);
   private
     FBaseCaption: String;
     FRichEdit: TRichEdit;
@@ -86,7 +106,9 @@ type
     procedure CreateRichEditControl;
     procedure RichEditLinkClick(Sender: TCustomRichEdit; const URL: String;
       Button: TMouseButton);
+    procedure RichEditStateChange(Sender: TObject);
     procedure UpdateCaption;
+    procedure UpdateStatusBar;
     procedure NewFile;
     procedure OpenFile(const AFilename: String);
     function SaveFile(const ASaveAs: Boolean): Boolean;
@@ -105,12 +127,17 @@ implementation
 
 uses
   Windows, ShellApi,
-  SysUtils, Graphics, StdCtrls, Menus, RichEdit, {$IF RtlVersion >= 36.0} Themes, {$ENDIF}
+  SysUtils, Graphics, StdCtrls, Menus, Clipbrd, RichEdit, {$IF RtlVersion >= 36.0} Themes, {$ENDIF}
   PathFunc, BrowseFunc, ModernColors,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.FileClass,
   IDE.Messages, IDE.ImagesModule, IDE.HelperFunc, IDE.LocalizeFunc, IDE.MainForm;
 
 {$R *.dfm}
+
+const
+  { Status bar panel indexes }
+  spCaretPos = 0;
+  spModified = 1;
 
 type
   PStreamLoadData = ^TStreamLoadData;
@@ -197,6 +224,8 @@ begin
   FRichEdit.ScrollBars := ssVertical;
   FRichEdit.EnableURLs := True;
   FRichEdit.OnLinkClick := RichEditLinkClick;
+  FRichEdit.OnChange := RichEditStateChange;
+  FRichEdit.OnSelectionChange := RichEditStateChange;
   FRichEdit.StyleName := 'Windows'; { We do not support dark mode editing atm }
 
   { For images }
@@ -248,6 +277,11 @@ begin
     ShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
 end;
 
+procedure TRichEditForm.RichEditStateChange(Sender: TObject);
+begin
+  UpdateStatusBar;
+end;
+
 procedure TRichEditForm.UpdateCaption;
 
   function GetCaptionFilename: String;
@@ -264,6 +298,41 @@ begin
   Caption := GetCaptionFilename + ' '#$2013' ' + FBaseCaption;
 end;
 
+procedure TRichEditForm.UpdateStatusBar;
+
+  function GetSelectionLineCount: Integer;
+  begin
+    const SelText = FRichEdit.SelText;
+    const L = Length(SelText);
+    Result := 1;
+    for var I := 1 to L do
+      if SelText[I] = #13 then
+        Inc(Result);
+    { A selection ending with a line break does not count for that line }
+    if (Result > 1) and ((SelText[L] = #13) or (SelText[L] = #10)) then
+      Dec(Result);
+  end;
+
+begin
+  if FRichEdit = nil then
+    Exit;
+
+  { Just like MainForm }
+  if FRichEdit.SelLength > 0 then
+    StatusBar.Panels[spCaretPos].Text :=
+      Format('%4d|%4d', [FRichEdit.SelLength, GetSelectionLineCount])
+  else begin
+    const Caret = FRichEdit.CaretPos;
+    StatusBar.Panels[spCaretPos].Text :=
+      Format('%4d:%4d', [Caret.Y + 1, Caret.X + 1]);
+  end;
+
+  if FRichEdit.Modified then
+    StatusBar.Panels[spModified].Text := LFmtMessage(SStatusModified)
+  else
+    StatusBar.Panels[spModified].Text := '';
+end;
+
 procedure TRichEditForm.NewFile;
 begin
   FRichEdit.Lines.Clear;
@@ -276,6 +345,7 @@ begin
   FFilename := '';
   FRichEdit.Modified := False;
   UpdateCaption;
+  UpdateStatusBar;
 end;
 
 procedure TRichEditForm.OpenFile(const AFilename: String);
@@ -308,6 +378,7 @@ begin
   FFilename := AFilename;
   FRichEdit.Modified := False;
   UpdateCaption;
+  UpdateStatusBar;
 end;
 
 function TRichEditForm.SaveFile(const ASaveAs: Boolean): Boolean;
@@ -342,6 +413,7 @@ begin
   FFilename := Filename;
   FRichEdit.Modified := False;
   UpdateCaption;
+  UpdateStatusBar;
   Result := True;
 end;
 
@@ -394,6 +466,14 @@ begin
     not FRichEdit.ReadOnly;
 end;
 
+procedure TRichEditForm.PasteActionUpdate(Sender: TObject);
+begin
+  { Like TEditPaste, but also knows about images. Note: Ctrl+V will work irregardless. }
+  ActionUpdate(Sender);
+  if PasteAction.Enabled then
+    PasteAction.Enabled := (Clipboard.HasFormat(CF_TEXT) or Clipboard.HasFormat(CF_BITMAP) or Clipboard.HasFormat(CF_DIB));
+end;
+
 procedure TRichEditForm.RedoActionUpdate(Sender: TObject);
 begin
   ActionUpdate(Sender);
@@ -421,6 +501,25 @@ begin
     FRichEdit.SelAttributes.Size := CurrentSize + 1
   else if CurrentSize > 1 then
     FRichEdit.SelAttributes.Size := CurrentSize - 1;
+end;
+
+procedure TRichEditForm.IndentActionExecute(Sender: TObject);
+const
+  { Sees ComCtrls }
+  PointsPerInch = 72;
+  TwipsPerPoint = 20;
+  { One default tab stop: half an inch, in points }
+  IndentStep = ((TwipsPerPoint * PointsPerInch) div 2) div TwipsPerPoint;
+begin
+  var NewIndent := FRichEdit.Paragraph.FirstIndent;
+  if Sender = IndentAction then
+    Inc(NewIndent, IndentStep)
+  else begin
+    Dec(NewIndent, IndentStep);
+    if NewIndent < 0 then
+      NewIndent := 0;
+  end;
+  FRichEdit.Paragraph.FirstIndent := NewIndent;
 end;
 
 function TRichEditForm.ChooseColor(const ACurrentColor, AAutoColor: TColor;
@@ -465,6 +564,12 @@ begin
   var NewColor: TColor;
   if ChooseColor(FRichEdit.SelAttributes.BackColor, clWindow, NewColor) then
     FRichEdit.SelAttributes.BackColor := NewColor;
+end;
+
+procedure TRichEditForm.ResetColorsActionExecute(Sender: TObject);
+begin
+  FRichEdit.SelAttributes.Color := clWindowText; { Changed to CFE_AUTOCOLOR by VCL }
+  FRichEdit.SelAttributes.BackColor := clWindow; { Changed to CFE_AUTOBACKCOLOR by VCL }
 end;
 
 end.
