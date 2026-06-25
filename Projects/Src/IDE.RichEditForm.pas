@@ -288,39 +288,6 @@ begin
   end;
 end;
 
-procedure TRichEditForm.UpdateTheme;
-begin
-  { See MainForm }
-  ToolBarPanel.Color := InitFormThemeGetBkColor(False);
-  SetControlWindowTheme(FRichEdit, InitFormThemeIsDark);
-  ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.ToolBarImageCollection[InitFormThemeIsDark];
-end;
-
-procedure TRichEditForm.NotifyMainScriptRenamed(const AOldFilename, ANewFilename: String);
-begin
-  if PathSame(FMainScriptFilename, AOldFilename) then
-    FMainScriptFilename := ANewFilename;
-end;
-
-procedure TRichEditForm.CMAppSysCommand(var Message: TMessage);
-begin
-  { Prevent TCustomForm.CMAppSysCommand from forwarding Alt+X menu messages
-    to MainForm if a RichEditForm has focus. }
-  Message.Result := 0;
-end;
-
-procedure TRichEditForm.RichEditLinkClick(Sender: TCustomRichEdit; const URL: String;
-  Button: TMouseButton);
-begin
-  if (Button = mbLeft) and (GetKeyState(VK_CONTROL) < 0) then
-    ShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
-end;
-
-procedure TRichEditForm.RichEditStateChange(Sender: TObject);
-begin
-  UpdateStatusBar;
-end;
-
 procedure TRichEditForm.UpdateCaption;
 
   function GetCaptionFilename: String;
@@ -370,6 +337,33 @@ begin
     StatusBar.Panels[spModified].Text := LFmtMessage(SStatusModified)
   else
     StatusBar.Panels[spModified].Text := '';
+end;
+
+procedure TRichEditForm.UpdateTheme;
+begin
+  { See MainForm }
+  ToolBarPanel.Color := InitFormThemeGetBkColor(False);
+  SetControlWindowTheme(FRichEdit, InitFormThemeIsDark);
+  ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.ToolBarImageCollection[InitFormThemeIsDark];
+end;
+
+procedure TRichEditForm.CMAppSysCommand(var Message: TMessage);
+begin
+  { Prevent TCustomForm.CMAppSysCommand from forwarding Alt+X menu messages
+    to MainForm if a RichEditForm has focus. }
+  Message.Result := 0;
+end;
+
+procedure TRichEditForm.RichEditLinkClick(Sender: TCustomRichEdit; const URL: String;
+  Button: TMouseButton);
+begin
+  if (Button = mbLeft) and (GetKeyState(VK_CONTROL) < 0) then
+    ShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
+end;
+
+procedure TRichEditForm.RichEditStateChange(Sender: TObject);
+begin
+  UpdateStatusBar;
 end;
 
 procedure TRichEditForm.NewFile;
@@ -456,6 +450,12 @@ begin
   UpdateCaption;
   UpdateStatusBar;
   Result := True;
+end;
+
+procedure TRichEditForm.NotifyMainScriptRenamed(const AOldFilename, ANewFilename: String);
+begin
+  if PathSame(FMainScriptFilename, AOldFilename) then
+    FMainScriptFilename := ANewFilename;
 end;
 
 function TRichEditForm.ConfirmCloseFile: Boolean;
