@@ -12,9 +12,9 @@ unit IDE.RichEditForm;
 interface
 
 uses
-  Classes, UITypes, Controls, ComCtrls, ExtCtrls, ActnList, Actions, StdActns,
-  ExtActns, Dialogs, Forms, VirtualImageList, ImageList, ImgList, ToolWin,
-  RichEditOleCallback,
+  Messages, Classes, UITypes, Controls, ComCtrls, ExtCtrls, ActnList, Actions,
+  StdActns, ExtActns, Dialogs, Forms, VirtualImageList, ImageList, ImgList,
+  ToolWin, RichEditOleCallback,
   IDE.IDEForm;
 
 type
@@ -106,6 +106,7 @@ type
     FFilename: String;
     FMainScriptFilename: String;
     procedure CreateRichEditControl;
+    procedure CMAppSysCommand(var Message: TMessage); message CM_APPSYSCOMMAND;
     procedure RichEditLinkClick(Sender: TCustomRichEdit; const URL: String;
       Button: TMouseButton);
     procedure RichEditStateChange(Sender: TObject);
@@ -299,6 +300,13 @@ procedure TRichEditForm.NotifyMainScriptRenamed(const AOldFilename, ANewFilename
 begin
   if PathSame(FMainScriptFilename, AOldFilename) then
     FMainScriptFilename := ANewFilename;
+end;
+
+procedure TRichEditForm.CMAppSysCommand(var Message: TMessage);
+begin
+  { Prevent TCustomForm.CMAppSysCommand from forwarding Alt+X menu messages
+    to MainForm if a RichEditForm has focus. }
+  Message.Result := 0;
 end;
 
 procedure TRichEditForm.RichEditLinkClick(Sender: TCustomRichEdit; const URL: String;
