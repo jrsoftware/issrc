@@ -49,7 +49,9 @@ procedure OpenDonateSite;
 procedure OpenMailingListSite;
 procedure LoadKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 procedure SaveKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
-procedure DeleteKnownIncludedAndHiddenFiles(const AFilename: String);
+function LoadKnownRichEditFile(const AFilename: String): String;
+procedure SaveKnownRichEditFile(const AFilename, ARichEditFilename: String);
+procedure DeleteKnownIncludedHiddenAndRichEditFiles(const AFilename: String);
 procedure LoadBreakPointLines(const AFilename: String; const BreakPointLines: TStringList);
 procedure SaveBreakPointLines(const AFilename: String; const BreakPointLines: TStringList);
 procedure DeleteBreakPointLines(const AFilename: String);
@@ -392,12 +394,41 @@ begin
   end;
 end;
 
-procedure DeleteKnownIncludedAndHiddenFiles(const AFilename: String);
+function LoadKnownRichEditFile(const AFilename: String): String;
+begin
+  Result := '';
+  if AFilename = '' then
+    Exit;
+  var Ini := TConfigIniFile.Create;
+  try
+    Result := Ini.ReadString('RichEditFilesHistory', AFilename, '');
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure SaveKnownRichEditFile(const AFilename, ARichEditFilename: String);
+begin
+  if AFilename = '' then
+    Exit;
+  var Ini := TConfigIniFile.Create;
+  try
+    if ARichEditFilename = '' then
+      Ini.DeleteKey('RichEditFilesHistory', AFilename)
+    else
+      Ini.WriteString('RichEditFilesHistory', AFilename, ARichEditFilename);
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure DeleteKnownIncludedHiddenAndRichEditFiles(const AFilename: String);
 begin
   var Ini := TConfigIniFile.Create;
   try
     DeleteConfigIniList(Ini, 'IncludedFilesHistory', AFilename);
     DeleteConfigIniList(Ini, 'HiddenFilesHistory', AFilename);
+    DeleteConfigIniList(Ini, 'RichEditFilesHistory', AFilename);
   finally
     Ini.Free;
   end;

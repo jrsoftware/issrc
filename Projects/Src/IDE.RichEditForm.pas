@@ -103,6 +103,7 @@ type
     FRichEdit: TRichEdit;
     FCallback: IRichEditOleCallback;
     FFilename: String;
+    FMainScriptFilename: String;
     procedure CreateRichEditControl;
     procedure RichEditLinkClick(Sender: TCustomRichEdit; const URL: String;
       Button: TMouseButton);
@@ -117,6 +118,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     procedure UpdateTheme;
+    procedure NotifyMainScriptRenamed(const AOldFilename, ANewFilename: String);
     function ConfirmCloseFile: Boolean;
   end;
 
@@ -244,9 +246,14 @@ begin
 
   NewFile;
 
-  {$IFDEF DEBUG}
-  OpenFile('Colortest.rtf');
-  {$ENDIF}
+  { Reopen the .rtf last edited for the current main script, ignoring errors }
+  const KnownRichEditFile = LoadKnownRichEditFile(FMainScriptFilename);
+  if KnownRichEditFile <> '' then begin
+    try
+      OpenFile(KnownRichEditFile);
+    except
+    end;
+  end;
 end;
 
 procedure TRichEditForm.FormClose(Sender: TObject; var Action: TCloseAction);
@@ -268,6 +275,7 @@ begin
   if RichEditForm = Self then begin
     if HandleAllocated then
       SaveWindowState(Self, 'RichEditState');
+    SaveKnownRichEditFile(FMainScriptFilename, FFilename); { This clears if FFilename = '' }
     RichEditForm := nil;
   end;
 end;
@@ -278,6 +286,12 @@ begin
   ToolBarPanel.Color := InitFormThemeGetBkColor(False);
   SetControlWindowTheme(FRichEdit, InitFormThemeIsDark);
   ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.ToolBarImageCollection[InitFormThemeIsDark];
+end;
+
+procedure TRichEditForm.NotifyMainScriptRenamed(const AOldFilename, ANewFilename: String);
+begin
+  if PathSame(FMainScriptFilename, AOldFilename) then
+    FMainScriptFilename := ANewFilename;
 end;
 
 procedure TRichEditForm.RichEditLinkClick(Sender: TCustomRichEdit; const URL: String;
@@ -353,6 +367,7 @@ begin
   FRichEdit.DefAttributes.BackColor := clWindow; { Changed to CFE_AUTOBACKCOLOR by VCL }
   FRichEdit.SelAttributes.Assign(FRichEdit.DefAttributes);
   FFilename := '';
+  FMainScriptFilename := MainForm.MainFilename;
   FRichEdit.Modified := False;
   UpdateCaption;
   UpdateStatusBar;
@@ -386,6 +401,7 @@ begin
   end;
   StreamIn(Buffer);
   FFilename := AFilename;
+  FMainScriptFilename := MainForm.MainFilename;
   FRichEdit.Modified := False;
   UpdateCaption;
   UpdateStatusBar;

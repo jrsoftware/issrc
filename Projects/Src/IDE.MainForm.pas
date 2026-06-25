@@ -537,6 +537,7 @@ type
       out Output: String): Integer;
     procedure FinishLocalization;
     function GetBorderStyle: TFormBorderStyle;
+    function GetMainFilename: String;
     procedure Go(const AStepMode: TStepMode);
     procedure HideError;
     function InitializeFileMemo(const Memo: TIDEScintFileEdit; const PopupMenu: TPopupMenu): TIDEScintFileEdit;
@@ -680,6 +681,7 @@ type
     destructor Destroy; override;
     function IsShortCut(var Message: TWMKey): Boolean; override;
     property FullPathInTitleBar: Boolean read FOptions.FullPathInTitleBar;
+    property MainFilename: String read GetMainFilename;
   published
     property BorderStyle: TFormBorderStyle read GetBorderStyle write SetBorderStyle;
   end;
@@ -1235,6 +1237,11 @@ end;
 function TMainForm.GetBorderStyle: TFormBorderStyle;
 begin
   Result := inherited BorderStyle;
+end;
+
+function TMainForm.GetMainFilename: String;
+begin
+  Result := FMainMemo.Filename;
 end;
 
 procedure TMainForm.SetBorderStyle(Value: TFormBorderStyle);
@@ -1925,7 +1932,7 @@ begin
     if MsgBox(LFmtMessage(SCompilerOpenFileErrorRemoveFromMRU), LFmtMessage(SCompilerFormCaption), mbError, MB_YESNO) = IDYES then begin
       ModifyMRUMainFilesList(AFilename, False);
       DeleteBreakPointLines(AFilename);
-      DeleteKnownIncludedAndHiddenFiles(AFilename);
+      DeleteKnownIncludedHiddenAndRichEditFiles(AFilename);
     end;
   end;
 end;
@@ -1998,8 +2005,12 @@ begin
     ModifyMRUMainFilesList(AMemo.Filename, True);
     if not PathSame(AMemo.Filename, OldName) then begin
       if OldName <> '' then begin
+        const OldKnownRichEditFile = LoadKnownRichEditFile(OldName);
         DeleteBreakPointLines(OldName);
-        DeleteKnownIncludedAndHiddenFiles(OldName);
+        DeleteKnownIncludedHiddenAndRichEditFiles(OldName);
+        SaveKnownRichEditFile(AMemo.Filename, OldKnownRichEditFile);
+        if RichEditForm <> nil then
+          RichEditForm.NotifyMainScriptRenamed(OldName, AMemo.Filename);
       end;
       BuildAndSaveBreakPointLines(AMemo);
       BuildAndSaveKnownIncludedAndHiddenFiles;
