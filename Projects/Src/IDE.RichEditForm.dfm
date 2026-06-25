@@ -24,6 +24,7 @@ object RichEditForm: TRichEditForm
     Width = 700
     Height = 29
     Align = alTop
+    AutoSize = True
     BevelOuter = bvNone
     TabOrder = 0
     StyleName = 'Windows'
@@ -32,10 +33,10 @@ object RichEditForm: TRichEditForm
       Left = 7
       Top = 4
       Width = 690
-      Height = 25
+      Height = 22
       Margins.Left = 7
       Margins.Top = 4
-      Margins.Bottom = 0
+      AutoSize = True
       Images = ThemedToolbarVirtualImageList
       ParentShowHint = False
       ShowHint = True
