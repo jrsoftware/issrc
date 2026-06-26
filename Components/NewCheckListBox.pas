@@ -1765,6 +1765,7 @@ begin
       ItemState := FStateList[I];
       FStateList.Delete(I);
       ItemState.Free;
+      FThreadsUpToDate := False;
     end;
   end;
 end;
@@ -1774,12 +1775,14 @@ var
   ItemState: TItemState;
 begin
   inherited;
-  if FDisableItemStateDeletion = 0 then
+  if (FDisableItemStateDeletion = 0) and (FStateList.Count > 0) then begin
     for var I := FStateList.Count-1 downto 0 do begin
       ItemState := FStateList[I];
       FStateList.Delete(I);
       ItemState.Free;
     end;
+    FThreadsUpToDate := False;
+  end;
 end;
 
 procedure TNewCheckListBox.WMGetDlgCode(var Message: TWMGetDlgCode);
