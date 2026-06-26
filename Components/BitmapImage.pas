@@ -24,6 +24,7 @@ type
   TBitmapImageImplementation = record
   private
     FControl: TControl;
+    FStretching: Boolean;
   public
     AutoSize: Boolean;
     AutoSizeExtraWidth, AutoSizeExtraHeight: Integer;
@@ -271,6 +272,8 @@ end;
 
 procedure TBitmapImageImplementation.BitmapChanged(Sender: TObject);
 begin
+  if FStretching then
+    Exit;
   StretchedBitmapValid := False;
   if AutoSize and (Bitmap.Width > 0) and (Bitmap.Height > 0) then
     FControl.SetBounds(FControl.Left, FControl.Top, Bitmap.Width + AutoSizeExtraWidth,
@@ -362,6 +365,17 @@ begin
 end;
 
 procedure TBitmapImageImplementation.Paint(const Sender: TObject; const Canvas: TCanvas; var R: TRect);
+
+  function DoStretchBmp(const W, H: Integer; const Is32bit: Boolean): Boolean;
+  begin
+    FStretching := True; { StretchBmp may fire OnChange due to PixelFormat changing }
+    try
+      Result := StretchBmp(Bitmap, StretchedBitmap, W, H, Is32bit);
+    finally
+      FStretching := False;
+    end;
+  end;
+
 begin
   const Is32bit = Bitmap.SupportsPartialTransparency;
 
@@ -378,7 +392,7 @@ begin
         StretchedBitmap.Assign(Bitmap)
       else begin
         StretchedBitmap.Assign(nil);
-        if not StretchBmp(Bitmap, StretchedBitmap, W, H, Is32bit) then begin
+        if not DoStretchBmp(W, H, Is32bit) then begin
           if Is32bit then begin
             StretchedBitmapValid := False;
             Bmp := Bitmap;
