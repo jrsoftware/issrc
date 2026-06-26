@@ -405,7 +405,7 @@ end;
 
 procedure TRichEditForm.OpenFile(const AFilename: String);
 
-  function StreamIn(const Buffer: AnsiString): Integer;
+  procedure StreamIn(const Buffer: AnsiString);
   begin
     var Data: TStreamLoadData;
     Data.Buffer := PByte(Buffer);
@@ -416,7 +416,8 @@ procedure TRichEditForm.OpenFile(const AFilename: String);
     EditStream.pfnCallback := StreamLoad;
     SendMessage(FRichEdit.Handle, EM_EXLIMITTEXT, 0, LPARAM($7FFFFFFE));
     SendMessage(FRichEdit.Handle, EM_STREAMIN, SF_RTF, LPARAM(@EditStream));
-    Result := EditStream.dwError;
+    if EditStream.dwError <> 0 then { dwError is not a Win32 error code }
+      raise Exception.Create(LFmtMessage(SRichEditStreamInError, [EditStream.dwError]));
   end;
 
 begin
@@ -429,7 +430,12 @@ begin
   finally
     F.Free;
   end;
-  StreamIn(Buffer);
+  try
+    StreamIn(Buffer);
+  except
+    NewFile; { EM_STREAMIN failure also screws current contents, so need to start fresh }
+    raise;
+  end;
   FFilename := AFilename;
   FMainScriptFilename := MainForm.MainFilename;
   FRichEdit.Modified := False;
@@ -447,6 +453,8 @@ function TRichEditForm.SaveFile(const ASaveAs: Boolean): Boolean;
     EditStream.dwError := 0;
     EditStream.pfnCallback := StreamSave;
     SendMessage(FRichEdit.Handle, EM_STREAMOUT, SF_RTF, LPARAM(@EditStream));
+    if EditStream.dwError <> 0 then { dwError is not a Win32 error code }
+      raise Exception.Create(LFmtMessage(SRichEditStreamOutError, [EditStream.dwError]));
     Result := Data.Buffer;
   end;
 
@@ -460,9 +468,10 @@ begin
       Exit;
     Filename := PathExpand(Filename);
   end;
+  const RtfText = StreamOut;
   const F = TFile.Create(Filename, fdCreateAlways, faWrite, fsNone);
   try
-    F.WriteAnsiString(StreamOut);
+    F.WriteAnsiString(RtfText);
   finally
     F.Free;
   end;

@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..939] of TTranslationPair = (
+  CzechIDETranslations: array [0..941] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -224,6 +224,8 @@ const
     (English: 'File not opened.'; Localized: 'Soubor nebyl otevřen.'),
     (English: 'Go to Line'; Localized: 'Přejít na řádek'),
     (English: 'Line number:'; Localized: 'Číslo řádku:'),
+    (English: 'Could not load file (code %1)'; Localized: 'Soubor nelze načíst (kód %1)'),
+    (English: 'Could not save file (code %1)'; Localized: 'Soubor nelze uložit (kód %1)'),
     (English: 'Do you want to copy your current license key to the clipboard before opening our order page? You will need it to be able to renew it.'; Localized: 'Chcete před otevřením naší objednávkové stránky zkopírovat svůj aktuální licenční klíč do schránky? Budete jej potřebovat k obnovení licence.'),
     (English: 'New commercial license key has been registered:%n%n%1%n%nThanks for your support!'; Localized: 'Nový komerční licenční klíč byl zaregistrován:%n%n%1%n%nDěkujeme za vaši podporu!'),
     (English: 'Are you sure you want to remove your commercial license key and revert to non-commercial use only?'; Localized: 'Opravdu chcete odebrat svůj komerční licenční klíč a vrátit se pouze k nekomerčnímu použití?'),

@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..939] of TTranslationPair = (
+  GermanIDETranslations: array [0..941] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -224,6 +224,8 @@ const
     (English: 'File not opened.'; Localized: 'Datei nicht geöffnet.'),
     (English: 'Go to Line'; Localized: 'Gehe zu Zeile'),
     (English: 'Line number:'; Localized: 'Zeilennummer:'),
+    (English: 'Could not load file (code %1)'; Localized: 'Datei konnte nicht geladen werden (Code %1)'),
+    (English: 'Could not save file (code %1)'; Localized: 'Datei konnte nicht gespeichert werden (Code %1)'),
     (English: 'Do you want to copy your current license key to the clipboard before opening our order page? You will need it to be able to renew it.'; Localized: 'Möchten Sie Ihren aktuellen Lizenzschlüssel in die Zwischenablage kopieren, bevor Sie unsere Bestellseite öffnen? Sie benötigen ihn, um ihn verlängern zu können.'),
     (English: 'New commercial license key has been registered:%n%n%1%n%nThanks for your support!'; Localized: 'Neuer kommerzieller Lizenzschlüssel wurde registriert:%n%n%1%n%nVielen Dank für Ihre Unterstützung!'),
     (English: 'Are you sure you want to remove your commercial license key and revert to non-commercial use only?'; Localized: 'Möchten Sie Ihren kommerziellen Lizenzschlüssel wirklich entfernen und nur zur nicht kommerziellen Nutzung zurückkehren?'),

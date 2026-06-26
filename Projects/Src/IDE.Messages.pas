@@ -287,6 +287,8 @@ const
   SCompilerFileNotOpened = 'File not opened.';
   SGotoLineTitle = 'Go to Line';
   SGotoLinePrompt = 'Line number:';
+  SRichEditStreamInError = 'Could not load file (code %1)';
+  SRichEditStreamOutError = 'Could not save file (code %1)';
 
   { License }
   SCompilerCopyLicenseKeyBeforePurchase = 'Do you want to copy your current license key to the clipboard before opening our order page? You will need it to be able to renew it.';

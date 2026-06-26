@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..939] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..941] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -224,6 +224,8 @@ const
     (English: 'File not opened.'; Localized: 'ファイルが開かれていません。'),
     (English: 'Go to Line'; Localized: '行へ移動'),
     (English: 'Line number:'; Localized: '行番号:'),
+    (English: 'Could not load file (code %1)'; Localized: 'ファイルを読み込めませんでした (コード %1)'),
+    (English: 'Could not save file (code %1)'; Localized: 'ファイルを保存できませんでした (コード %1)'),
     (English: 'Do you want to copy your current license key to the clipboard before opening our order page? You will need it to be able to renew it.'; Localized: '注文ページを開く前に、現在のライセンスキーをクリップボードにコピーしますか？更新の際に必要になります。'),
     (English: 'New commercial license key has been registered:%n%n%1%n%nThanks for your support!'; Localized: '新しい商用ライセンスキーが登録されました:%n%n%1%n%nご支援ありがとうございます！'),
     (English: 'Are you sure you want to remove your commercial license key and revert to non-commercial use only?'; Localized: '商用ライセンスキーを削除して、非商用利用のみに戻してもよろしいですか？'),
@@ -502,7 +504,8 @@ const
     (English: '&Include empty subfolders'; Localized: '空のサブフォルダーを含める(&I)'),
     (English: '&Extract archive'; Localized: 'アーカイブを展開(&E)'),
     (English: 'Welcome to the %1'; Localized: '%1 へようこそ'),
-    (English: 'This wizard will guide you through the process of creating a new Inno Setup script file. The results will be used to generate a new script file which can be compiled directly or saved on disk for later use.%n%n'+'Not all features of Inno Setup are covered by this wizard. See the documentation for details on creating Inno Setup script files.%n%nClick Next to continue, or Cancel to exit this wizard.'; Localized: 'このウィザードは、新しい Inno Setup スクリプトファイルを作成する手順をご案内します。入力内容は、直接コンパイルすることも、後で使用するためにディスクに保存することもできる新しいスクリプトファイルの生成に使用されます。%n%n'+'Inno Setup のすべての機能がこのウィザードでカバーされているわけではありません。Inno Setup スクリプトファイルの作成方法の詳細については、ドキュメントを参照してください。%n%n続行するには「次へ」を、このウィザードを終了するには「キャンセル」をクリックしてください。'),
+    (English: 'This wizard will guide you through the process of creating a new Inno Setup script file. The results will be used to generate a new script file which can be compiled directly or saved on disk for later use.%n%n'+'Not all features of Inno Setup are covered by this wizard. See the documentation for details on creating Inno Setup script files.%n%nClick Next to continue, or Cancel to exit this wizard.';
+     Localized: 'このウィザードは、新しい Inno Setup スクリプトファイルを作成する手順をご案内します。入力内容は、直接コンパイルすることも、後で使用するためにディスクに保存することもできる新しいスクリプトファイルの生成に使用されます。%n%n'+'Inno Setup のすべての機能がこのウィザードでカバーされているわけではありません。Inno Setup スクリプトファイルの作成方法の詳細については、ドキュメントを参照してください。%n%n続行するには「次へ」を、このウィザードを終了するには「キャンセル」をクリックしてください。'),
     (English: 'Application na&me:'; Localized: 'アプリケーション名(&M):'),
     (English: 'Application &version:'; Localized: 'アプリケーションのバージョン(&V):'),
     (English: 'Application &publisher:'; Localized: 'アプリケーションの発行元(&P):'),
