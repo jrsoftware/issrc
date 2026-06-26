@@ -595,24 +595,13 @@ end;
 
 function TRichEditForm.ChooseColor(const ACurrentColor, AAutoColor: TColor;
   out AColor: TColor): Boolean;
-const
-  PaletteColors: array[0..7] of TThemeColor =
-    (tcRed, tcGreen, tcBlue, tcOrange, tcReallyOrange, tcPurple, tcTeal, tcGray);
 begin
-  { Offer both automatic colors and the theme palette as custom colors, using
-    the light theme because the content area is always light }
   ColorDialog.CustomColors.Clear;
-  ColorDialog.CustomColors.Add(Format('ColorA=%.6x', [ColorToRGB(clWindowText)]));
-  ColorDialog.CustomColors.Add(Format('ColorB=%.6x', [ColorToRGB(clWindow)]));
-  const Theme = TTheme.Create;
-  try
-    Theme.Typ := ttModernLight; { Currently always light }
-    for var I := 0 to High(PaletteColors) do
-      ColorDialog.CustomColors.Add(Format('Color%s=%.6x',
-        [Chr(Ord('C') + I), ColorToRGB(Theme.Colors[PaletteColors[I]])]));
-  finally
-    Theme.Free;
-  end;
+  { Add the auto color + R/G/B with proper contrast on both light and dark backgrounds }
+  ColorDialog.CustomColors.Add(Format('ColorA=%.6x', [ColorToRGB(AAutoColor)]));
+  ColorDialog.CustomColors.Add(Format('ColorB=%.6x', [ColorToRGB(SwapRB($eb0000))]));
+  ColorDialog.CustomColors.Add(Format('ColorC=%.6x', [ColorToRGB(SwapRB($008a00))]));
+  ColorDialog.CustomColors.Add(Format('ColorD=%.6x', [ColorToRGB(SwapRB($6161ff))]));
   ColorDialog.Color := ACurrentColor;
   Result := ColorDialog.Execute(Handle);
   if Result then begin
