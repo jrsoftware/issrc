@@ -2018,11 +2018,11 @@ begin
         DeleteBreakPointLines(OldName);
         DeleteKnownIncludedHiddenAndRichEditFiles(OldName);
         SaveKnownRichEditFile(AMemo.Filename, OldKnownRichEditFile);
-        if RichEditForm <> nil then
-          RichEditForm.NotifyMainScriptRenamed(OldName, AMemo.Filename);
       end;
       BuildAndSaveBreakPointLines(AMemo);
       BuildAndSaveKnownIncludedAndHiddenFiles;
+      if RichEditForm <> nil then
+        RichEditForm.NotifyMainScriptRenamed(OldName, AMemo.Filename);
     end;
   end;
 end;
