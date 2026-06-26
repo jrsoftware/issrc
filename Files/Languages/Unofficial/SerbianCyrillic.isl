@@ -14,7 +14,7 @@
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
 ; understand the '[LangOptions] section' topic in the help file.
-LanguageName=<0421><0440><043F><0441><043A><0438>
+LanguageName=Српски
 LanguageID=$0C1A
 ; LanguageCodePage should always be set if possible, even if this file is Unicode
 ; For English it's set to zero anyway because English only uses ASCII characters
@@ -54,11 +54,11 @@ SetupFileCorrupt=Инсталационе датотеке су оштећене
 SetupFileCorruptOrWrongVer=Инсталационе датотеке су оштећене или нису сагласне с овом верзијом инсталације. Исправите проблем или набавите нови примерак програма.
 InvalidParameter=Неисправан параметар је пренет на командну линију:%n%n%1
 SetupAlreadyRunning=Инсталација је већ покренута.
-WindowsVersionNotSupported=Програм не подржава издање виндоуса које користите.
+WindowsVersionNotSupported=Програм не подржава издање Windows-а које користите.
 WindowsServicePackRequired=Програм захтева %1 сервисни пакет %2 или новији.
 NotOnThisPlatform=Програм неће радити на %1.
 OnlyOnThisPlatform=Овај програм може да ради само на %1.
-OnlyOnTheseArchitectures=Програм се може инсталирати само на издањима виндоуса који раде на следећим архитектурама процесора:%n%n%1
+OnlyOnTheseArchitectures=Програм се може инсталирати само на издањима Windows-а који раде на следећим архитектурама процесора:%n%n%1
 WinVersionTooLowError=Програм захтева %1, издање %2 или новије.
 WinVersionTooHighError=Програм не можете инсталирати на %1 издању %2 или новијем.
 AdminPrivilegesRequired=Морате бити пријављени као администратор да бисте инсталирали програм.
@@ -158,7 +158,7 @@ DiskSpaceGBLabel=Потребно је најмање [gb] GB слободног
 DiskSpaceMBLabel=Потребно је најмање [mb] MB слободног простора на диску.
 CannotInstallToNetworkDrive=Не могу да инсталирам на мрежну јединицу.
 CannotInstallToUNCPath=Не могу да инсталирам на UNC путању.
-InvalidPath=Морате навести пуну путању с обележјем диска (нпр.%n%nC:\APP%n%nили путања у облику%n%n\\server\shаre)
+InvalidPath=Морате навести пуну путању с обележјем диска (нпр.%n%nC:\APP%n%nили путања у облику%n%n\\server\share)
 InvalidDrive=Диск који сте изабрали не постоји или није доступан. Изаберите неки други.
 DiskSpaceWarningTitle=Недовољно простора на диску
 DiskSpaceWarning=Програм захтева најмање %1 kB слободног простора, а изабрани диск на располагању има само %2 kB.%n%nЖелите ли ипак да наставите?
@@ -277,7 +277,7 @@ SelectDirectoryLabel=Изаберите место следећег диска.
 SetupAborted=Инсталација није завршена.%n%nИсправите проблем и покрените је поново.
 AbortRetryIgnoreSelectAction=Одаберите радњу
 AbortRetryIgnoreRetry=&Покушај опет
-AbortRetryIgnoreIgnore=&Занемари грешку и наставу
+AbortRetryIgnoreIgnore=&Занемари грешку и настави
 AbortRetryIgnoreCancel=Прекини инсталацију
 RetryCancelSelectAction=Одаберите радњу
 RetryCancelRetry=&Покушај поново
