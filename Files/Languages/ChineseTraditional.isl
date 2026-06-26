@@ -113,7 +113,7 @@ SelectLanguageTitle=選擇安裝語言
 SelectLanguageLabel=選擇在安裝過程中使用的語言：
 
 ; *** Common wizard text
-ClickNext=按 「下一步」 繼續安裝，或按 「取消」 結束安裝程式。
+ClickNext=按 「下一步」 繼續，或按 「取消」 結束安裝程式。
 BeveledLabel=
 BrowseDialogTitle=瀏覽資料夾
 BrowseDialogLabel=在下面的資料夾清單中選擇一個資料夾，然後按 「確定」。
@@ -236,7 +236,7 @@ ErrorExtractionFailed=解壓縮失敗：%1
 
 ; *** Archive extraction failure details
 ArchiveIncorrectPassword=壓縮檔密碼不正確
-ArchiveIsCorrupted=壓縮檔已損壞
+ArchiveIsCorrupted=壓縮檔已損毀
 ArchiveUnsupportedFormat=不支援的壓縮檔格式
 
 ; *** "Preparing to Install" wizard page
