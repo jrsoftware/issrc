@@ -926,8 +926,8 @@ begin
           StateId := ButtonStateIds[ItemState.State][cb2Hot]
         else
           StateId := ButtonStateIds[ItemState.State][cb2Normal];
-        GetThemePartSize(FThemeData, Handle, PartId, StateId, @CheckRect, TS_TRUE, Size);
-        if (Size.cx <> FCheckWidth) or (Size.cy <> FCheckHeight) then begin
+        if ((GetThemePartSize(FThemeData, Handle, PartId, StateId, @CheckRect, TS_TRUE, Size)) = S_OK) and
+           ((Size.cx <> FCheckWidth) or (Size.cy <> FCheckHeight)) then begin
           CheckRect := Bounds(Rect.Left - (Size.cx + FOffset),
             Rect.Top + ((Rect.Bottom - Rect.Top - Size.cy) div 2),
             Size.cx, Size.cy);
