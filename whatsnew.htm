@@ -139,7 +139,6 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   </ul>
   </li>
   <li>The time stamps of files shown in Setup's log are now in UTC instead of local time, consistent with <tt>TimeStampsInUTC</tt> defaulting to <tt>yes</tt>.</li>
-  <li><i>Fix:</i> In Japanese, Korean, and Chinese, Setup no longer shows the accelerator key as literal text, such as &quot;(&amp;R)&quot;, in a few places.</li>
   <li>Updated the Scintilla source code used by Inno Setup to the latest version.</li>
   <li>Throughout the help file, all script examples are now syntax highlighted, all code identifiers are now monospaced, and all <tt>[Setup]</tt> section directives, section names, and Pascal Scripting support functions are now linked to their documentation.</li>
   <li>Other minor improvements and fixes.</li>
@@ -154,6 +153,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   <li><i>Fixes:</i>
   <ul>
     <li>Reading the script from standard input by specifying <tt>-</tt> as the script name is now documented again in the help file. Such a script is now assumed to be UTF-8 encoded.</li>
+	  <li>In Japanese, Korean, and Chinese, Setup no longer shows the accelerator key as literal text, such as &quot;(&amp;R)&quot;, in a few places.</li>
     <li>Extracting a <tt>.cab</tt> archive no longer always fails with an error (broken since its introduction in 6.5.0).</li>
     <li>Pascal Scripting: Selected <tt>TNewCheckListBox</tt> items with a custom <tt>ItemFontStyle</tt> or <tt>SubItemFontStyle</tt> no longer become unreadable after the list loses focus (broken since its introduction in 6.2.0). Thanks to Sergii Leonov for contributing this fix.</li>
   </ul>
