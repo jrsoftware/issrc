@@ -16,6 +16,7 @@ uses
   Windows,
   SysUtils,
   Messages,
+  RichEditOleCallback in '..\Components\RichEditOleCallback.pas',
   RichEditViewer in '..\Components\RichEditViewer.pas',
   Shared.CommonFunc.Vcl in 'Src\Shared.CommonFunc.Vcl.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',

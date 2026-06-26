@@ -42,6 +42,8 @@ uses
   IDE.LicenseKeyForm in 'Src\IDE.LicenseKeyForm.pas' {LicenseKeyForm},
   IDE.InputQueryForm in 'Src\IDE.InputQueryForm.pas' {InputQueryForm},
   IDE.InputQueryMemoForm in 'Src\IDE.InputQueryMemoForm.pas' {InputQueryMemoForm},
+  RichEditOleCallback in '..\Components\RichEditOleCallback.pas',
+  IDE.RichEditForm in 'Src\IDE.RichEditForm.pas' {RichEditForm},
   ScintInt in '..\Components\ScintInt.pas',
   ScintEdit in '..\Components\ScintEdit.pas',
   IDE.ScintStylerInnoSetup in 'Src\IDE.ScintStylerInnoSetup.pas',
@@ -309,6 +311,10 @@ begin
     TSysPopupStyleHook does not support our use of bitmaps set using MIIM_BITMAP on a TMenuItem, nor
     does it support our fake shortcuts set with SetFakeShortCut. }
   TStyleManager.SystemHooks := TStyleManager.SystemHooks - [shMenus]; { This keeps shDialogs and shTooltips }
+
+  { VCL can auto-append shortcut in hints for actions, but we don't want or
+    need that. Instead we append them ourselves, using our own NewShortCutToText  }
+  Application.HintShortCuts := False;
 
   Application.CreateForm(TImagesModule, ImagesModule);
   Application.CreateForm(TMainForm, MainForm);

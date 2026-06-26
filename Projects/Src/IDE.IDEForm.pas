@@ -23,6 +23,8 @@ type
   private
     FFormThemeActive: Boolean;
     function ScalePixelsX(const N: Integer): Integer;
+  protected
+    procedure CreateWnd; override;
   public
     constructor Create(AOwner: TComponent); override;
     function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
@@ -41,7 +43,8 @@ implementation
 
 uses
   Windows,
-  Shared.CommonFunc,
+  Themes,
+  Shared.CommonFunc, Shared.CommonFunc.Vcl,
   IDE.HelperFunc, IDE.LocalizeFunc;
 
 constructor TIDEForm.Create(AOwner: TComponent);
@@ -50,6 +53,13 @@ begin
   LocalizeComponent(Self);
   InitFormFont(Self);
   FFormThemeActive := InitFormTheme(Self);
+end;
+
+procedure TIDEForm.CreateWnd;
+begin
+  inherited;
+  if (TStyleManager.FormBorderStyle = fbsSystemStyle) or not (seBorder in StyleElements) then
+    SetDarkTitleBar(Self, InitFormThemeIsDark);
 end;
 
 function TIDEForm.ScalePixelsX(const N: Integer): Integer;

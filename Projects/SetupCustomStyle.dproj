@@ -118,6 +118,7 @@
         </DelphiCompile>
         <DCCReference Include="..\Components\SafeDLLPath.pas"/>
         <DCCReference Include="Src\SetupLdrAndSetup.XPTheme.pas"/>
+        <DCCReference Include="..\Components\RichEditOleCallback.pas"/>
         <DCCReference Include="..\Components\RichEditViewer.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.Vcl.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>

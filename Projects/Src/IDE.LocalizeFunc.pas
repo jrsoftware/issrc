@@ -36,7 +36,7 @@ procedure LocalizeComponent(const Component: TComponent);
 implementation
 
 uses
-  SysUtils, Controls, StdCtrls, Menus, Generics.Collections,
+  SysUtils, Actions, Controls, StdCtrls, Menus, Generics.Collections,
   NewTabSet, ScintEdit,
   IDE.LocalizeFunc.Czech, IDE.LocalizeFunc.Dutch, IDE.LocalizeFunc.German,
   IDE.LocalizeFunc.Japanese;
@@ -269,6 +269,12 @@ begin
       MenuItem.Caption := LFmtMessage(MenuItem.Caption);
     if MenuItem.Hint <> '' then
       MenuItem.Hint := LFmtMessage(MenuItem.Hint);
+  end else if Component is TContainedAction then begin
+    const Action = TContainedAction(Component);
+    if Action.Caption <> '' then
+      Action.Caption := LFmtMessage(Action.Caption);
+    if Action.Hint <> '' then
+      Action.Hint := LFmtMessage(Action.Hint);
   end;
 
   for var I := 0 to Component.ComponentCount-1 do

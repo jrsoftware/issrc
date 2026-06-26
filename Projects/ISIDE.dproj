@@ -163,6 +163,10 @@
         <DCCReference Include="Src\IDE.InputQueryMemoForm.pas">
             <Form>InputQueryMemoForm</Form>
         </DCCReference>
+        <DCCReference Include="..\Components\RichEditOleCallback.pas"/>
+        <DCCReference Include="Src\IDE.RichEditForm.pas">
+            <Form>RichEditForm</Form>
+        </DCCReference>
         <DCCReference Include="..\Components\ScintInt.pas"/>
         <DCCReference Include="..\Components\ScintEdit.pas"/>
         <DCCReference Include="Src\IDE.ScintStylerInnoSetup.pas"/>

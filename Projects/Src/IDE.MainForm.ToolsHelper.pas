@@ -26,6 +26,7 @@ type
     procedure ShowRegistryDesignerForm(const AMemo: TScintEdit);
     procedure ShowFilesDesignerForm(const AMemo: TScintEdit);
     procedure ShowSignToolsForm;
+    procedure ShowRichEditForm;
   end;
 
 implementation
@@ -36,7 +37,7 @@ uses
   PathFunc,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.ConfigIniFile,
   IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.SignToolsForm, IDE.MsgBoxDesignerForm,
-  IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.Wizard.WizardFormRegistryHelper;
+  IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.RichEditForm, IDE.Wizard.WizardFormRegistryHelper;
 
 {$IFNDEF WIN64}
 function Wow64DisableWow64FsRedirection_static(var OldValue: PVOID): BOOL; stdcall;
@@ -168,6 +169,13 @@ begin
   finally
     SignToolsForm.Free;
   end;
+end;
+
+procedure TMainFormToolsHelper.ShowRichEditForm;
+begin
+  if RichEditForm = nil then
+    RichEditForm := TRichEditForm.Create(Application);
+  RichEditForm.Show;
 end;
 
 end.

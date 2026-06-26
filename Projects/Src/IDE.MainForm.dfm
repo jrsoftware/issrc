@@ -19,6 +19,7 @@ object MainForm: TMainForm
   OnCloseQuery = FormCloseQuery
   OnKeyDown = FormKeyDown
   OnResize = FormResize
+  OnShow = FormShow
   TextHeight = 13
   object Bevel1: TBevel
     Left = 0
@@ -200,10 +201,10 @@ object MainForm: TMainForm
       Left = 7
       Top = 4
       Width = 351
-      Height = 25
+      Height = 22
       Margins.Left = 7
       Margins.Top = 4
-      Margins.Bottom = 0
+      AutoSize = True
       Images = ThemedToolbarVirtualImageList
       ParentShowHint = False
       ShowHint = True
@@ -898,6 +899,10 @@ object MainForm: TMainForm
         Caption = '&Configure Sign Tools...'
         OnClick = TSignToolsClick
       end
+      object TRichEditor: TMenuItem
+        Caption = 'R&TF Editor...'
+        OnClick = TRichEditorClick
+      end
       object N16: TMenuItem
         Caption = '-'
       end
@@ -1309,6 +1314,91 @@ object MainForm: TMainForm
         CollectionIndex = 61
         CollectionName = 'shopping-cart'
         Name = 'shopping-cart'
+      end
+      item
+        CollectionIndex = 62
+        CollectionName = 'control-rich-text-edit-filled'
+        Name = 'control-rich-text-edit-filled'
+      end
+      item
+        CollectionIndex = 63
+        CollectionName = 'format-align-center'
+        Name = 'format-align-center'
+      end
+      item
+        CollectionIndex = 64
+        CollectionName = 'format-align-left'
+        Name = 'format-align-left'
+      end
+      item
+        CollectionIndex = 65
+        CollectionName = 'format-align-right'
+        Name = 'format-align-right'
+      end
+      item
+        CollectionIndex = 66
+        CollectionName = 'format-bold'
+        Name = 'format-bold'
+      end
+      item
+        CollectionIndex = 67
+        CollectionName = 'format-color-fill'
+        Name = 'format-color-fill'
+      end
+      item
+        CollectionIndex = 68
+        CollectionName = 'format-color-text'
+        Name = 'format-color-text'
+      end
+      item
+        CollectionIndex = 69
+        CollectionName = 'format-indent-decrease'
+        Name = 'format-indent-decrease'
+      end
+      item
+        CollectionIndex = 70
+        CollectionName = 'format-indent-increase'
+        Name = 'format-indent-increase'
+      end
+      item
+        CollectionIndex = 71
+        CollectionName = 'format-italic'
+        Name = 'format-italic'
+      end
+      item
+        CollectionIndex = 72
+        CollectionName = 'format-size'
+        Name = 'format-size'
+      end
+      item
+        CollectionIndex = 73
+        CollectionName = 'format-underlined'
+        Name = 'format-underlined'
+      end
+      item
+        CollectionIndex = 74
+        CollectionName = 'text-decrease'
+        Name = 'text-decrease'
+      end
+      item
+        CollectionIndex = 75
+        CollectionName = 'text-increase'
+        Name = 'text-increase'
+      end
+      item
+        CollectionIndex = 76
+        CollectionName = 'format-color-reset-filled'
+        Name = 'format-color-reset-filled'
+      end
+      item
+        CollectionIndex = 77
+        CollectionName = 'format-list-bulleted'
+        Name = 'format-list-bulleted'
+      end
+      item
+        CollectionIndex = 78
+        CollectionName = 'unused\format-list-numbered'
+        Name = 'unused\format-list-numbered'
       end>
     ImageCollection = ImagesModule.LightToolBarImageCollection
     Left = 80

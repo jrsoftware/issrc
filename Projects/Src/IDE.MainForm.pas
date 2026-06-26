@@ -239,6 +239,7 @@ type
     HWhatsNew: TMenuItem;
     TGenerateGUID: TMenuItem;
     TSignTools: TMenuItem;
+    TRichEditor: TMenuItem;
     N16: TMenuItem;
     HExamples: TMenuItem;
     N17: TMenuItem;
@@ -403,6 +404,7 @@ type
     procedure HWhatsNewClick(Sender: TObject);
     procedure TGenerateGUIDClick(Sender: TObject);
     procedure TSignToolsClick(Sender: TObject);
+    procedure TRichEditorClick(Sender: TObject);
     procedure HExamplesClick(Sender: TObject);
     procedure BOpenOutputFolderClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
@@ -415,6 +417,7 @@ type
       Rect: TRect; State: TOwnerDrawState);
     procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
       NewDPI: Integer);
+    procedure FormShow(Sender: TObject);
     procedure POutputListSelectAllClick(Sender: TObject);
     procedure DebugCallStackListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
       State: TOwnerDrawState);
@@ -535,6 +538,7 @@ type
       out Output: String): Integer;
     procedure FinishLocalization;
     function GetBorderStyle: TFormBorderStyle;
+    function GetMainFilename: String;
     procedure Go(const AStepMode: TStepMode);
     procedure HideError;
     function InitializeFileMemo(const Memo: TIDEScintFileEdit; const PopupMenu: TPopupMenu): TIDEScintFileEdit;
@@ -677,6 +681,8 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function IsShortCut(var Message: TWMKey): Boolean; override;
+    property FullPathInTitleBar: Boolean read FOptions.FullPathInTitleBar;
+    property MainFilename: String read GetMainFilename;
   published
     property BorderStyle: TFormBorderStyle read GetBorderStyle write SetBorderStyle;
   end;
@@ -697,7 +703,7 @@ uses
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.GotoFileForm,
-  IDE.InputQueryForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper,
+  IDE.InputQueryForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper, IDE.RichEditForm,
   Shared.ConfigIniFile, Shared.SignToolsFunc, Shared.CompilerInt, Shared.LicenseFunc;
 
 {$R *.DFM}
@@ -835,7 +841,6 @@ constructor TMainForm.Create(AOwner: TComponent);
   procedure ReadAndApplyConfig;
   var
     Ini: TConfigIniFile;
-    WindowPlacement: TWindowPlacement;
     I: Integer;
     Memo: TIDEScintEdit;
   begin
@@ -952,22 +957,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       UpdateFindRegExUI;
 
       { Window state }
-      WindowPlacement.length := SizeOf(WindowPlacement);
-      GetWindowPlacement(Handle, @WindowPlacement);
-      WindowPlacement.showCmd := SW_HIDE;  { the form isn't Visible yet }
-      WindowPlacement.rcNormalPosition.Left := Ini.ReadInteger('State',
-        'WindowLeft', WindowPlacement.rcNormalPosition.Left);
-      WindowPlacement.rcNormalPosition.Top := Ini.ReadInteger('State',
-        'WindowTop', WindowPlacement.rcNormalPosition.Top);
-      WindowPlacement.rcNormalPosition.Right := Ini.ReadInteger('State',
-        'WindowRight', WindowPlacement.rcNormalPosition.Left + Width);
-      WindowPlacement.rcNormalPosition.Bottom := Ini.ReadInteger('State',
-        'WindowBottom', WindowPlacement.rcNormalPosition.Top + Height);
-      SetWindowPlacement(Handle, @WindowPlacement);
-      { Note: Must set WindowState *after* calling SetWindowPlacement, since
-        TCustomForm.WMSize resets WindowState }
-      if Ini.ReadBool('State', 'WindowMaximized', False) then
-        WindowState := wsMaximized;
+      LoadWindowState(Self, 'State', Ini);
       { Note: Don't call UpdateStatusPanelHeight here since it clips to the
         current form height, which hasn't been finalized yet }
 
@@ -1189,7 +1179,6 @@ destructor TMainForm.Destroy;
   procedure SaveConfig;
   var
     Ini: TConfigIniFile;
-    WindowPlacement: TWindowPlacement;
   begin
     Ini := TConfigIniFile.Create;
     try
@@ -1202,17 +1191,7 @@ destructor TMainForm.Destroy;
       Ini.WriteBool('Options', 'LowPriorityDuringCompile', FOptions.LowPriorityDuringCompile);
 
       { Window state }
-      WindowPlacement.length := SizeOf(WindowPlacement);
-      GetWindowPlacement(Handle, @WindowPlacement);
-      Ini.WriteInteger('State', 'WindowLeft', WindowPlacement.rcNormalPosition.Left);
-      Ini.WriteInteger('State', 'WindowTop', WindowPlacement.rcNormalPosition.Top);
-      Ini.WriteInteger('State', 'WindowRight', WindowPlacement.rcNormalPosition.Right);
-      Ini.WriteInteger('State', 'WindowBottom', WindowPlacement.rcNormalPosition.Bottom);
-      { The GetWindowPlacement docs claim that "flags" is always zero.
-        Fortunately, that's wrong. WPF_RESTORETOMAXIMIZED is set when the
-        window is either currently maximized, or currently minimized from a
-        previous maximized state. }
-      Ini.WriteBool('State', 'WindowMaximized', WindowPlacement.flags and WPF_RESTORETOMAXIMIZED <> 0);
+      SaveWindowState(Self, 'State', Ini);
       Ini.WriteInteger('State', 'StatusPanelHeight', FromCurrentPPI(StatusPanel.Height));
 
       { Zoom state }
@@ -1261,6 +1240,11 @@ begin
   Result := inherited BorderStyle;
 end;
 
+function TMainForm.GetMainFilename: String;
+begin
+  Result := FMainMemo.Filename;
+end;
+
 procedure TMainForm.SetBorderStyle(Value: TFormBorderStyle);
 begin
   { Hack: To stop the Delphi IDE from adding Explicit* properties to the .dfm
@@ -1307,6 +1291,14 @@ begin
   end;
 end;
 
+procedure TMainForm.FormShow(Sender: TObject);
+begin
+  { Having AutoSize on True in the .dfm doesn't trigger auto sizing (for
+    toolbar wrapping) during form creation. A delay until the form shows is
+    needed to make it work. }
+  ToolBarPanel.AutoSize := True;
+end;
+
 procedure TMainForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
   NewDPI: Integer);
 begin
@@ -1321,7 +1313,8 @@ procedure TMainForm.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
   if IsWindowEnabled(Handle) then
-    CanClose := ConfirmCloseFile(True)
+    CanClose := ConfirmCloseFile(True) and
+      ((RichEditForm = nil) or RichEditForm.ConfirmCloseFile)
   else
     { CloseQuery is also called by the VCL when a WM_QUERYENDSESSION message
       is received. Don't display message box if a modal dialog is already
@@ -1948,7 +1941,7 @@ begin
     if MsgBox(LFmtMessage(SCompilerOpenFileErrorRemoveFromMRU), LFmtMessage(SCompilerFormCaption), mbError, MB_YESNO) = IDYES then begin
       ModifyMRUMainFilesList(AFilename, False);
       DeleteBreakPointLines(AFilename);
-      DeleteKnownIncludedAndHiddenFiles(AFilename);
+      DeleteKnownIncludedHiddenAndRichEditFiles(AFilename);
     end;
   end;
 end;
@@ -1996,15 +1989,13 @@ function TMainForm.SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolea
     GetLastWriteTimeOfFile(FN, @AMemo.FileLastWriteTime);
   end;
 
-var
-  FN: String;
 begin
   Result := False;
   var OldName := AMemo.Filename;
   if SaveAs or (AMemo.Filename = '') then begin
     if AMemo <> FMainMemo then
       raise Exception.Create('Internal error: AMemo <> FMainMemo');
-    FN := AMemo.Filename;
+    var FN := AMemo.Filename;
     if not NewGetSaveFileName('', FN, '',
              Format(SLitExtAndAllFilter, [LFmtMessage(SIssFiles), SLitIssExt, LFmtMessage(SAllFiles)]),
              SLitIssExt, Handle) then
@@ -2023,11 +2014,15 @@ begin
     ModifyMRUMainFilesList(AMemo.Filename, True);
     if not PathSame(AMemo.Filename, OldName) then begin
       if OldName <> '' then begin
+        const OldKnownRichEditFile = LoadKnownRichEditFile(OldName);
         DeleteBreakPointLines(OldName);
-        DeleteKnownIncludedAndHiddenFiles(OldName);
+        DeleteKnownIncludedHiddenAndRichEditFiles(OldName);
+        SaveKnownRichEditFile(AMemo.Filename, OldKnownRichEditFile);
       end;
       BuildAndSaveBreakPointLines(AMemo);
       BuildAndSaveKnownIncludedAndHiddenFiles;
+      if RichEditForm <> nil then
+        RichEditForm.NotifyMainScriptRenamed(OldName, AMemo.Filename);
     end;
   end;
 end;
@@ -2531,9 +2526,8 @@ begin
 end;
 
 procedure TMainForm.ShowOpenMainFileDialog(const Examples: Boolean);
-var
-  InitialDir, Filename: String;
 begin
+  var InitialDir, Filename: String;
   if Examples then begin
     InitialDir := PathExtractPath(NewParamStr(0)) + 'Examples';
     Filename := PathExtractPath(NewParamStr(0)) + 'Examples\Example1.iss';
@@ -3918,6 +3912,11 @@ end;
 procedure TMainForm.TSignToolsClick(Sender: TObject);
 begin
   ShowSignToolsForm;
+end;
+
+procedure TMainForm.TRichEditorClick(Sender: TObject);
+begin
+  ShowRichEditForm;
 end;
 
 procedure TMainForm.TOptionsClick(Sender: TObject);
@@ -5692,7 +5691,7 @@ begin
     TStyleManager.TrySetStyle('Windows11 Modern Dark')
   else
     TStyleManager.TrySetStyle('Windows');
-  { For some reason only MainForm needs this: with StyleName set to an empty string, dialog boxes
+  { Because StyleElements is empty it needs this: with StyleName set to an empty string, dialog boxes
     it opens, such as MsgBox, look broken }
   StyleName := TStyleManager.ActiveStyle.Name;
   {$ENDIF}
@@ -5702,7 +5701,15 @@ begin
 
   SetHelpFileDark(FTheme.Dark);
 
-  InitFormTheme(Self);
+  InitFormTheme(Self, True);
+  if RichEditForm <> nil then begin
+    {$IF RtlVersion >= 36.0}
+    { See above }
+    RichEditForm.StyleName := TStyleManager.ActiveStyle.Name;
+    {$ENDIF}
+    InitFormTheme(RichEditForm, True);
+    RichEditForm.UpdateTheme;
+  end;
 
   ToolbarPanel.Color := FTheme.Colors[tcToolBack];
 
