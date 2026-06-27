@@ -27,7 +27,7 @@ type
     FStretching: Boolean;
   public
     AutoSize: Boolean;
-    AutoSizeExtraWidth, AutoSizeExtraHeight: Integer;
+    ExtraWidth, ExtraHeight: Integer;
     BackColor: TColor;
     Bitmap: TBitmap;
     Center: Boolean;
@@ -39,8 +39,8 @@ type
     StretchedBitmap: TBitmap;
     StretchedBitmapValid: Boolean;
     OnPaint: TPaintEvent;
-    procedure Init(const AControl: TControl; const AAutoSizeExtraWidth: Integer = 0;
-      const AAutoSizeExtraHeight: Integer = 0);
+    procedure Init(const AControl: TControl; const AExtraWidth: Integer = 0;
+      const AExtraHeight: Integer = 0);
     procedure DeInit;
     class function AdjustColorForStyle(const Control: TControl; const Color: TColor): TColor; static;
     function GetInitializeSize(const AscendingTrySizes: array of Integer): Integer;
@@ -130,11 +130,11 @@ end;
 { TBitmapImageImplementation }
 
 procedure TBitmapImageImplementation.Init(const AControl: TControl;
-  const AAutoSizeExtraWidth, AAutoSizeExtraHeight: Integer);
+  const AExtraWidth, AExtraHeight: Integer);
 begin
   FControl := AControl;
-  AutoSizeExtraWidth := AAutoSizeExtraWidth;
-  AutoSizeExtraHeight := AAutoSizeExtraHeight;
+  ExtraWidth := AExtraWidth;
+  ExtraHeight := AExtraHeight;
   BackColor := clNone;
   Bitmap := TBitmap.Create;
   Bitmap.OnChange := BitmapChanged;
@@ -201,8 +201,8 @@ begin
       Icon.Handle := Handle;
 
       { Set sizes (overrides any scaling) }
-      FControl.Width := Icon.Width;
-      FControl.Height := Icon.Height;
+      FControl.Width := Icon.Width + ExtraWidth;
+      FControl.Height := Icon.Height + ExtraHeight;
 
       { Set bitmap }
       AutoSize := False;
@@ -252,8 +252,8 @@ begin
           Icon.Handle := Handle;
 
           { Set sizes (overrides any scaling) }
-          FControl.Width := Size;
-          FControl.Height := Size;
+          FControl.Width := Size + ExtraWidth;
+          FControl.Height := Size + ExtraHeight;
 
           { Set bitmap }
           AutoSize := False;
@@ -276,8 +276,8 @@ begin
     Exit;
   StretchedBitmapValid := False;
   if AutoSize and (Bitmap.Width > 0) and (Bitmap.Height > 0) then
-    FControl.SetBounds(FControl.Left, FControl.Top, Bitmap.Width + AutoSizeExtraWidth,
-      Bitmap.Height + AutoSizeExtraHeight);
+    FControl.SetBounds(FControl.Left, FControl.Top, Bitmap.Width + ExtraWidth,
+      Bitmap.Height + ExtraHeight);
   FControl.Invalidate;
 end;
 
