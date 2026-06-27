@@ -11,6 +11,14 @@ HTML {
 	/* Ensure that anchor targets don't get hidden underneath the sticky header.
 	   This is the height of .topicheading plus an extra 2rem of breathing room. */
 	scroll-padding-block-start: calc((20rem/16) * 1.5 + 8px + 2rem);
+	/* Set a dark color for the scrollbar in dark mode for the Help */
+	scrollbar-face-color: #606060;
+	scrollbar-shadow-color: #1f1f1f;
+	scrollbar-highlight-color: #a0a0a0;
+	scrollbar-3dlight-color: #1f1f1f;
+	scrollbar-darkshadow-color: #1f1f1f;
+	scrollbar-track-color: #1f1f1f;
+	scrollbar-arrow-color: #606060;
 }
 BODY {
 	font: calc(14rem/16)/1.5 "Segoe UI", sans-serif;
