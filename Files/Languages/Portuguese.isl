@@ -5,7 +5,7 @@
 ; Last modified: 01 April 2026 by BlackSpirits
 
 [LangOptions]
-LanguageName=Portugu<00EA>s (Portugal)
+LanguageName=Português (Portugal)
 LanguageID=$0816
 LanguageCodePage=1252
 
@@ -44,8 +44,8 @@ WinVersionTooLowError=Este programa necessita do %1 versão %2 ou mais recente.
 WinVersionTooHighError=Este programa não pode ser instalado no %1 versão %2 ou mais recente.
 AdminPrivilegesRequired=Deve iniciar sessão como administrador para instalar este programa.
 PowerUserPrivilegesRequired=Deve iniciar sessão como administrador ou membro do grupo de Utilizadores Avançados para instalar este programa.
-SetupAppRunningError=O Assistente de Instalação detetou que o %1 está em execução. Feche-o e de seguida clique em OK para continuar, ou clique em Cancelar para cancelar a instalação.
-UninstallAppRunningError=O Assistente de Desinstalação detetou que o %1 está em execução. Feche-o e de seguida clique em OK para continuar, ou clique em Cancelar para cancelar a desinstalação.
+SetupAppRunningError=O Assistente de Instalação detetou que o %1 está em execução.%n%nFeche-o e de seguida clique em OK para continuar, ou clique em Cancelar para cancelar a instalação.
+UninstallAppRunningError=O Assistente de Desinstalação detetou que o %1 está em execução.%n%nFeche-o e de seguida clique em OK para continuar, ou clique em Cancelar para cancelar a desinstalação.
 
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=Selecione o modo de instalação
@@ -349,9 +349,9 @@ ErrorRestartingComputer=O Assistente de Instalação não consegue reiniciar o c
 
 ; *** Uninstaller messages
 UninstallNotFound=O ficheiro "%1" não existe. Não é possível desinstalar.
-UninstallOpenError=Não foi possível abrir o ficheiro "%1". Não é possível desinstalar.
-UninstallUnsupportedVer=O ficheiro de registo de desinstalação "%1" está num formato que não é reconhecido por esta versão do desinstalador. Não é possível desinstalar.
-UninstallUnknownEntry=Foi encontrada uma entrada desconhecida (%1) no ficheiro de registo de desinstalação.
+UninstallOpenError=Não foi possível abrir o ficheiro "%1". Não é possível desinstalar
+UninstallUnsupportedVer=O ficheiro de registo de desinstalação "%1" está num formato que não é reconhecido por esta versão do desinstalador. Não é possível desinstalar
+UninstallUnknownEntry=Foi encontrada uma entrada desconhecida (%1) no ficheiro de registo de desinstalação
 ConfirmUninstall=Tem a certeza que deseja remover completamente o %1 e todos os seus componentes?
 UninstallOnlyOnWin64=Esta desinstalação só pode ser realizada na versão de 64 bits do Windows.
 OnlyAdminCanUninstall=Esta desinstalação só pode ser realizada por um utilizador com privilégios administrativos.

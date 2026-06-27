@@ -11,7 +11,7 @@
 ; two periods being displayed).
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Magyar
 LanguageID=$040E
@@ -40,8 +40,8 @@ ErrorTitle=Hiba
 
 ; *** SetupLdr messages
 SetupLdrStartupMessage=%1 telepítve lesz. Szeretné folytatni?
-LdrCannotCreateTemp=Átmeneti fájl létrehozása nem lehetséges. A telepítés megszakítva.
-LdrCannotExecTemp=Fájl futtatása nem lehetséges az átmeneti könyvtárban. A telepítés megszakítva.
+LdrCannotCreateTemp=Átmeneti fájl létrehozása nem lehetséges. A telepítés megszakítva
+LdrCannotExecTemp=Fájl futtatása nem lehetséges az átmeneti könyvtárban. A telepítés megszakítva
 HelpTextNote=
 
 ; *** Startup error messages
@@ -79,7 +79,7 @@ ErrorTooManyFilesInDir=Nem hozható létre újabb fájl a(z) "%1" könyvtárban,
 
 ; *** Setup common messages
 ExitSetupTitle=Kilépés a telepítőből
-ExitSetupMessage=A telepítés még folyamatban van. Ha most kilép, a program telepítése megszakad.%n%nA telepítő újbóli futtatásával később is a befejezheti telepítést.%n%nKilép a telepítőből?
+ExitSetupMessage=A telepítés még folyamatban van. Ha most kilép, a program telepítése megszakad.%n%nA telepítő újbóli futtatásával később is befejezheti a telepítést.%n%nKilép a telepítőből?
 AboutSetupMenuItem=&Névjegy...
 AboutSetupTitle=Telepítő névjegye
 AboutSetupMessage=%1 %2 verzió%n%3%n%nA(z) %1 honlapja:%n%4
@@ -113,8 +113,8 @@ BrowseDialogLabel=Válasszon egy könyvtárat az alábbi listából, majd kattin
 NewFolderName=Új könyvtár
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Üdvözli a(z) [name] telepítővarázslója.
-WelcomeLabel2=A(z) [name/ver] telepítésre kerül a számítógépén.%n%nAjánlott minden, egyéb futó alkalmazás bezárása a folytatás előtt.
+WelcomeLabel1=Üdvözli a(z) [name] telepítővarázslója
+WelcomeLabel2=A(z) [name/ver] telepítésre kerül a számítógépén.%n%nAjánlott minden egyéb futó alkalmazás bezárása a folytatás előtt.
 
 ; *** "Password" wizard page
 WizardPassword=Jelszó
@@ -150,7 +150,7 @@ UserInfoNameRequired=Meg kell adnia egy nevet!
 WizardSelectDir=Válasszon célkönyvtárat
 SelectDirDesc=Hova települjön a(z) [name]?
 SelectDirLabel3=A(z) [name] az alábbi könyvtárba lesz telepítve.
-SelectDirBrowseLabel=A folytatáshoz, kattintson a 'Tovább'-ra. Ha másik könyvtárat választana, kattintson a 'Tallózás'-ra.
+SelectDirBrowseLabel=A folytatáshoz kattintson a 'Tovább'-ra. Ha másik könyvtárat választana, kattintson a 'Tallózás'-ra.
 DiskSpaceGBLabel=Legalább [gb] GB szabad területre van szükség.
 DiskSpaceMBLabel=Legalább [mb] MB szabad területre van szükség.
 CannotInstallToNetworkDrive=A telepítő nem tud hálózati meghajtóra telepíteni.
@@ -176,7 +176,7 @@ FullInstallation=Teljes telepítés
 CompactInstallation=Szokásos telepítés
 CustomInstallation=Egyéni telepítés
 NoUninstallWarningTitle=Létező összetevő
-NoUninstallWarning=A telepítő úgy találta, hogy a következő összetevők már telepítve vannak a számítógépre:%n%n%1%n%nEzen összetevők kijelölésének törlése, nem távolítja el azokat a számítógépről.%n%nMindenképpen folytatja?
+NoUninstallWarning=A telepítő úgy találta, hogy a következő összetevők már telepítve vannak a számítógépre:%n%n%1%n%nEzen összetevők kijelölésének törlése nem távolítja el azokat a számítógépről.%n%nMindenképpen folytatja?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
 ComponentsDiskSpaceGBLabel=A jelenlegi kijelölés legalább [gb] GB lemezterületet igényel.
@@ -220,7 +220,7 @@ ErrorDownloadSizeFailed=Hiba a fájlméret lekérése során: %1 %2
 ErrorProgress=Érvénytelen folyamat: %1 : %2
 ErrorFileSize=Érvénytelen fájlméret, várt méret: %1, számított: %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=Fájlok kicsomagolása...
 ButtonStopExtraction=&Kicsomagolás megszakítása
 StopExtraction=Biztosan meg akarja szakítani a kicsomagolást?
@@ -314,7 +314,7 @@ FileAbortRetryIgnoreSkipNotRecommended=&Fájl kihagyása (nem ajánlott)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Hiba elvetése és folytatás (nem ajánlott)
 SourceIsCorrupted=A forrásfájl megsérült
 SourceDoesntExist=A(z) "%1" forrásfájl nem létezik
-SourceVerificationFailed=A(z) "%1" forrásfájl ellenőrzése meghiúsult
+SourceVerificationFailed=A forrásfájl ellenőrzése meghiúsult: %1
 VerificationSignatureDoesntExist=A(z) "%1" digitálisaláírás-fájl nem létezik
 VerificationSignatureInvalid=A(z) "%1" digitálisaláírás-fájl érvénytelen
 VerificationKeyNotFound=A(z) "%1" digitálisaláírás-fájl egy ismeretlen kulcsot használ
@@ -332,7 +332,7 @@ FileExistsOverwriteExisting=A &létező fájl felülírása
 FileExistsKeepExisting=A &már létező fájl megtartása
 FileExistsOverwriteOrKeepAll=&Tegyük ezt, a következő fájlütközések esetén is
 ExistingFileNewerSelectAction=Mit kíván tenni?
-ExistingFileNewer2=A létező fájl újabb a telepítésre kerülőnél
+ExistingFileNewer2=A létező fájl újabb a telepítésre kerülőnél.
 ExistingFileNewerOverwriteExisting=A &létező fájl felülírása
 ExistingFileNewerKeepExisting=&Tartsuk meg a létező fájlt (ajánlott)
 ExistingFileNewerOverwriteOrKeepAll=&Tegyük ezt, a következő fájlütközések esetén is
@@ -340,7 +340,7 @@ ErrorChangingAttr=Hiba lépett fel a következő fájl attribútumának módosí
 ErrorCreatingTemp=Hiba lépett fel a következő fájl telepítési könyvtárban történő létrehozása közben:
 ErrorReadingSource=Hiba lépett fel a következő forrásfájl olvasása közben:
 ErrorCopying=Hiba lépett fel a következő fájl másolása közben:
-ErrorDownloading=Hiba lépett fel a következő archívum fájl letöltése közben:
+ErrorDownloading=Hiba lépett fel a következő fájl letöltése közben:
 ErrorExtracting=Hiba lépett fel a következő archívum kicsomagolása közben:
 ErrorReplacingExistingFile=Hiba lépett fel a következő, már létező fájl cseréje közben:
 ErrorRestartReplace=A következő fájl cseréje sikertelen volt az újraindítás után:
@@ -365,17 +365,17 @@ ErrorRestartingComputer=A telepítő nem tudta újraindítani a számítógépet
 
 ; *** Uninstaller messages
 UninstallNotFound=A(z) "%1" fájl nem létezik. Nem távolítható el.
-UninstallOpenError=A(z) "%1" fájl nem nyitható meg. Nem távolítható el.
-UninstallUnsupportedVer=A(z) "%1" eltávolítási naplófájl formátumát nem tudja felismerni az eltávolító jelen verziója. Az eltávolítás nem folytatható.
-UninstallUnknownEntry=Egy ismeretlen bejegyzés (%1) található az eltávolítási naplófájlban.
+UninstallOpenError=A(z) "%1" fájl nem nyitható meg. Nem távolítható el
+UninstallUnsupportedVer=A(z) "%1" eltávolítási naplófájl formátumát nem tudja felismerni az eltávolító jelen verziója. Az eltávolítás nem folytatható
+UninstallUnknownEntry=Egy ismeretlen bejegyzés (%1) található az eltávolítási naplófájlban
 ConfirmUninstall=Biztosan el kívánja távolítani a(z) %1 programot és minden összetevőjét?
 UninstallOnlyOnWin64=Ezt a telepítést csak 64-bites Windows operációs rendszerről lehet eltávolítani.
 OnlyAdminCanUninstall=Ezt a telepítést csak adminisztrációs jogokkal rendelkező felhasználó távolíthatja el.
 UninstallStatusLabel=Legyen türelemmel, amíg a(z) %1 számítógépéről történő eltávolítása befejeződik.
 UninstalledAll=A(z) %1 sikeresen el lett távolítva a számítógépről.
-UninstalledMost=A(z) %1 eltávolítása befejeződött.%n%nNéhány elemet nem lehetettet eltávolítani. Törölje kézileg.
+UninstalledMost=A(z) %1 eltávolítása befejeződött.%n%nNéhány elemet nem lehetett eltávolítani. Törölje kézileg.
 UninstalledAndNeedsRestart=A(z) %1 eltávolításának befejezéséhez újra kell indítania a számítógépét.%n%nÚjraindítja most?
-UninstallDataCorrupted=A(z) "%1" fájl sérült. Nem távolítható el.
+UninstallDataCorrupted=A(z) "%1" fájl sérült. Nem távolítható el
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Törli a megosztott fájlt?

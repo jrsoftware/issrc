@@ -74,19 +74,19 @@ WindowsVersionNotSupported=Ce programme n'est pas prévu pour fonctionner avec l
 WindowsServicePackRequired=Ce programme a besoin de %1 Service Pack %2 ou d'une version plus récente.
 NotOnThisPlatform=Ce programme ne fonctionne pas sous %1.
 OnlyOnThisPlatform=Ce programme ne peut fonctionner que sous %1.
-OnlyOnTheseArchitectures=Ce programme ne peut être installé que sur des versions de Windows qui supportent ces architectures : %n%n%1
+OnlyOnTheseArchitectures=Ce programme ne peut être installé que sur des versions de Windows qui supportent ces architectures :%n%n%1
 WinVersionTooLowError=Ce programme requiert la version %2 ou supérieure de %1.
 WinVersionTooHighError=Ce programme ne peut pas être installé sous %1 version %2 ou supérieure.
 AdminPrivilegesRequired=Vous devez disposer des droits d'administration de cet ordinateur pour installer ce programme.
 PowerUserPrivilegesRequired=Vous devez disposer des droits d'administration ou faire partie du groupe « Utilisateurs avec pouvoir » de cet ordinateur pour installer ce programme.
 SetupAppRunningError=L'assistant d'installation a détecté que %1 est actuellement en cours d'exécution.%n%nVeuillez fermer toutes les instances de cette application puis cliquer sur OK pour continuer, ou bien cliquer sur Annuler pour abandonner l'installation.
-UninstallAppRunningError=La procédure de désinstallation a détecté que %1 est actuellement en cours d'exécution.%n%nVeuillez fermer toutes les instances de cette application  puis cliquer sur OK pour continuer, ou bien cliquer sur Annuler pour abandonner la désinstallation.
+UninstallAppRunningError=La procédure de désinstallation a détecté que %1 est actuellement en cours d'exécution.%n%nVeuillez fermer toutes les instances de cette application puis cliquer sur OK pour continuer, ou bien cliquer sur Annuler pour abandonner la désinstallation.
 
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=Choix du Mode d'Installation
 PrivilegesRequiredOverrideInstruction=Choisissez le mode d'installation
 PrivilegesRequiredOverrideText1=%1 peut être installé pour tous les utilisateurs (nécessite des privilèges administrateur), ou seulement pour vous.
-PrivilegesRequiredOverrideText2=%1 peut-être installé seulement pour vous, ou pour tous les utilisateurs (nécessite des privilèges administrateur).
+PrivilegesRequiredOverrideText2=%1 peut être installé seulement pour vous, ou pour tous les utilisateurs (nécessite des privilèges administrateur).
 PrivilegesRequiredOverrideAllUsers=Installer pour &tous les utilisateurs
 PrivilegesRequiredOverrideAllUsersRecommended=Installer pour &tous les utilisateurs (recommandé)
 PrivilegesRequiredOverrideCurrentUser=Installer seulement pour &moi
@@ -184,7 +184,7 @@ BadDirName32=Le nom du dossier ne doit contenir aucun des caractères suivants :
 DirExistsTitle=Dossier existant
 DirExists=Le dossier :%n%n%1%n%nexiste déjà. Souhaitez-vous installer dans ce dossier malgré tout ?
 DirDoesntExistTitle=Le dossier n'existe pas
-DirDoesntExist=Le dossier %n%n%1%n%nn'existe pas. Souhaitez-vous que ce dossier soit créé ?
+DirDoesntExist=Le dossier :%n%n%1%n%nn'existe pas. Souhaitez-vous que ce dossier soit créé ?
 
 ; *** "Select Components" wizard page
 WizardSelectComponents=Composants à installer
@@ -246,7 +246,7 @@ StopExtraction=Êtes-vous sûr de vouloir arrêter l'extraction ?
 ErrorExtractionAborted=Extraction annulée
 ErrorExtractionFailed=L'extraction a échoué : %1
 
-; *** Archive extraction failure detailsAdd commentMore actions
+; *** Archive extraction failure details
 ArchiveIncorrectPassword=Le mot de passe n'est pas correct
 ArchiveIsCorrupted=L'archive est corrompue
 ArchiveUnsupportedFormat=Le format de l'archive n'est pas supporté
@@ -368,7 +368,7 @@ ErrorRegisterServer=Impossible d'enregistrer la bibliothèque DLL/OCX : %1
 ErrorRegSvr32Failed=RegSvr32 a échoué et a retourné le code d'erreur %1
 ErrorRegisterTypeLib=Impossible d'enregistrer la bibliothèque de type : %1
 
-; *** Nom d'affichage pour la désinstallaton
+; *** Nom d'affichage pour la désinstallation
 ; par exemple 'Mon Programme (32-bit)'
 UninstallDisplayNameMark=%1 (%2)
 ; ou par exemple 'Mon Programme (32-bit, Tous les utilisateurs)'
@@ -394,7 +394,7 @@ UninstallStatusLabel=Veuillez patienter pendant que %1 est retiré de votre ordi
 UninstalledAll=%1 a été correctement désinstallé de cet ordinateur.
 UninstalledMost=La désinstallation de %1 est terminée.%n%nCertains éléments n'ont pas pu être supprimés automatiquement. Vous pouvez les supprimer manuellement.
 UninstalledAndNeedsRestart=Vous devez redémarrer l'ordinateur pour terminer la désinstallation de %1.%n%nVoulez-vous redémarrer maintenant ?
-UninstallDataCorrupted=Le ficher "%1" est altéré. Impossible de désinstaller
+UninstallDataCorrupted=Le fichier "%1" est altéré. Impossible de désinstaller
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Supprimer les fichiers partagés ?
@@ -408,7 +408,7 @@ StatusUninstalling=Désinstallation de %1...
 ShutdownBlockReasonInstallingApp=Installe %1.
 ShutdownBlockReasonUninstallingApp=Désinstalle %1.
 
-; Les messages personnalisés suivants ne sont pas utilisé par l'installation
+; Les messages personnalisés suivants ne sont pas utilisés par l'installation
 ; elle-même, mais si vous les utilisez dans vos scripts, vous devez les
 ; traduire
 
