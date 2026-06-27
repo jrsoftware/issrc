@@ -14,7 +14,7 @@ paths: ["**/*.pas", "**/*.dpr", "**/*.inc"]
 - `if` and `begin` should be on the same line.
 - `else` and `begin` should be on the same line.
 - A `Result` assignment followed by an `Exit` statement should be combined into a single statement. For example: `Exit(ResultValue);`
-- Do not use `begin..end` for single one-line statement blocks, but always use it when the block's single statement spans multiple lines (such as a multi-line `for`).
+- Do not use `begin..end` for single one-line statement blocks, but always use it when the block spans multiple lines. This includes when the block's single statement spans multiple lines (such as a multi-line `for`), and when a comment on its own line accompanies the statement (such an own-line comment counts as a block line; a trailing comment on the statement's line does not).
 - Do not use `Longint` or `LongWord`, use `Integer` or `Cardinal` instead.
 - Use two spaces for indentation, not tabs.
 - Mark read-only parameters as `const`.

@@ -565,7 +565,14 @@ begin
       if I >= 0 then
       begin
         SetFocus;
-        if (FCaptureIndex <> I) or FSpaceDown then EndCapture(not FSpaceDown);
+        if FCaptureIndex = I then
+          EndCapture(True) { We're about to toggle the captured item, so end capture, else it will be toggled twice }
+        else begin
+          { We're about to toggle an item which is not the captured item. Before we do
+            that, toggle the other item if space is down (same as KeyUp), else cancel
+            capture (=dont toggle, same as MouseUp). }
+          EndCapture(not FSpaceDown); { Does nothing if there was no capture active }
+        end;
         ItemIndex := I;
         Toggle(I);
         Result := 1

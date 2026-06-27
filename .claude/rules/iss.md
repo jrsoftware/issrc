@@ -24,7 +24,7 @@ These are hard constraints of the ROPS compiler. Violating them causes compile e
 - Do not use `with` statements.
 - `if` and `begin` should be on the same line.
 - `else` and `begin` should be on the same line.
-- Do not use `begin..end` for single statement blocks.
+- Do not use `begin..end` for single one-line statement blocks, but always use it when the block spans multiple lines. This includes when the block's single statement spans multiple lines, and when a comment on its own line accompanies the statement (such an own-line comment counts as a block line; a trailing comment on the statement's line does not).
 - Do not use `Longint` or `LongWord`; use `Integer` or `Cardinal` instead.
 - Use two spaces for indentation, not tabs.
 - Mark read-only parameters as `const`.
