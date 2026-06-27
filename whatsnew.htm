@@ -62,6 +62,7 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
     <li>In Japanese, Korean, and Chinese, Setup no longer shows the accelerator key as literal text, such as &quot;(&amp;R)&quot;, in a few places.</li>
     <li>Extracting a <tt>.cab</tt> archive no longer always fails with an error (broken since its introduction in 6.5.0).</li>
     <li>Pascal Scripting: Selected <tt>TNewCheckListBox</tt> items with a custom <tt>ItemFontStyle</tt> or <tt>SubItemFontStyle</tt> no longer become unreadable after the list loses focus (broken since its introduction in 6.2.0). Thanks to Sergii Leonov for contributing this fix.</li>
+    <li>In previous 7.0 releases, when a 64-bit installer performed a 32-bit DLL registration or shared file reference count operation on a file under <tt>{sys}</tt>, a <tt>SysWOW64</tt> path was erroneously used instead of a <tt>System32</tt> path.</li>
   </ul>
   </li>
   <li>Added official Simplified Chinese and Traditional Chinese translations.</li>

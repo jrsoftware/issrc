@@ -68,33 +68,36 @@ begin
     tp32BitPreferSystem32. Both a 64-bit and a 32-bit target hit this rewrite. }
   TestRedir(True, False, Sys32 + '\foo.exe', tpNativeBit, [], SuperWow64 + '\foo.exe');
   TestRedir(True, False, Sys32 + '\foo.exe', tp32Bit, [], SuperWow64 + '\foo.exe');
+  TestRedir(True, False, Sys32 + '\foo.exe', tp32BitPreferSystem32, [], SuperSys32 + '\foo.exe');
 
   { Case-insensitive prefix match: input is matched against System32 regardless
     of case, and the canonical case from the stored prefix is used in the result }
   TestRedir(True, False, Sys32OtherCase + '\foo.exe', tpNativeBit, [],
     SuperWow64 + '\foo.exe');
 
-  { A64Bit=False, tp32BitPreferSystem32: SysWOW64 -> System32 (special case),
-    while a System32 input is left alone (the System32 -> SysWOW64 rule is not active here) }
-  TestRedir(True, False, Wow64 + '\foo.exe', tp32BitPreferSystem32, [], SuperSys32 + '\foo.exe');
-  TestRedir(True, False, Sys32 + '\foo.exe', tp32BitPreferSystem32, [], SuperSys32 + '\foo.exe');
-
   { A64Bit=True (64-bit path): System32 -> Sysnative when the target is 32-bit.
-    tp32BitPreferSystem32 behaves as a plain 32-bit target here (its special
-    SysWOW64 -> System32 rewrite only fires for A64Bit=False) }
+    When the target is 64-bit, System32 is left alone. }
+  TestRedir(True, True, Sys32 + '\foo.exe', tpNativeBit, [], SuperSys32 + '\foo.exe');
   TestRedir(True, True, Sys32 + '\foo.exe', tp32Bit, [], SuperNative + '\foo.exe');
   TestRedir(True, True, Sys32 + '\foo.exe', tp32BitPreferSystem32, [], SuperNative + '\foo.exe');
 
-  { A64Bit=True with a 64-bit target leaves System32 alone }
-  TestRedir(True, True, Sys32 + '\foo.exe', tpNativeBit, [], SuperSys32 + '\foo.exe');
+  { SysWOW64 -> System32 fires for tp32BitPreferSystem32, regardless of A64Bit.
+    For all other targets, SysWOW64 is left alone. }
+  TestRedir(True, True, Wow64 + '\foo.exe', tpNativeBit, [], SuperWow64 + '\foo.exe');
+  TestRedir(True, False, Wow64 + '\foo.exe', tpNativeBit, [], SuperWow64 + '\foo.exe');
+  TestRedir(True, True, Wow64 + '\foo.exe', tp32Bit, [], SuperWow64 + '\foo.exe');
+  TestRedir(True, False, Wow64 + '\foo.exe', tp32Bit, [], SuperWow64 + '\foo.exe');
+  TestRedir(True, True, Wow64 + '\foo.exe', tp32BitPreferSystem32, [], SuperSys32 + '\foo.exe');
+  TestRedir(True, False, Wow64 + '\foo.exe', tp32BitPreferSystem32, [], SuperSys32 + '\foo.exe');
 
-  { Sysnative -> System32 fires for any 64-bit target, regardless of A64Bit
-    (the Sysnative alias does not work in 64-bit processes) }
+  { Sysnative -> System32 fires for any 64-bit target, regardless of A64Bit.
+    When the target is 32-bit, Sysnative is left alone. }
   TestRedir(True, True, Native + '\foo.exe', tpNativeBit, [], SuperSys32 + '\foo.exe');
   TestRedir(True, False, Native + '\foo.exe', tpNativeBit, [], SuperSys32 + '\foo.exe');
-
-  { Sysnative is left alone when the target is 32-bit }
   TestRedir(True, True, Native + '\foo.exe', tp32Bit, [], SuperNative + '\foo.exe');
+  TestRedir(True, False, Native + '\foo.exe', tp32Bit, [], SuperNative + '\foo.exe');
+  TestRedir(True, True, Native + '\foo.exe', tp32BitPreferSystem32, [], SuperNative + '\foo.exe');
+  TestRedir(True, False, Native + '\foo.exe', tp32BitPreferSystem32, [], SuperNative + '\foo.exe');
 
   { Boundary: a path equal to the system directory itself (no trailing chars)
     is rewritten - the SubstitutePath check accepts PathLen = FromDirLen }
