@@ -531,6 +531,7 @@ begin
     begin
       M2 := 'expression';
       Expected := Expected - ExpressionStartTokens;
+      Inc(C);
     end;
     for I := Low(TTokenKind) to High(TTokenKind) do
       if I in Expected then
