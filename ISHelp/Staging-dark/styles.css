@@ -11,6 +11,15 @@ HTML {
 	/* Ensure that anchor targets don't get hidden underneath the sticky header.
 	   This is the height of .topicheading plus an extra 2rem of breathing room. */
 	scroll-padding-block-start: calc((20rem/16) * 1.5 + 8px + 2rem);
+	/* Ensure dark scrollbar */
+	scrollbar-face-color: #696969;   /* thumb (Windows 7: also arrow background) */
+	scrollbar-shadow-color: #1f1f1f; /* thumb border */
+	scrollbar-track-color: #1f1f1f;  /* track */
+	scrollbar-arrow-color: #d6d6d6;  /* arrows (these use the track color as background, except on Windows 7) */
+	/* For Windows 7 */
+	scrollbar-highlight-color: #1f1f1f;
+	scrollbar-3dlight-color: #1f1f1f;
+	scrollbar-darkshadow-color: #1f1f1f;
 }
 BODY {
 	font: calc(14rem/16)/1.5 "Segoe UI", sans-serif;
