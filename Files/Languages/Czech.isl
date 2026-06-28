@@ -168,7 +168,7 @@ SelectComponentsLabel2=Zaškrtněte součásti, které mají být nainstalovány
 FullInstallation=Úplná instalace
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Kompaktní instalace
-CustomInstallation=Volitelná instalace
+CustomInstallation=Vlastní instalace
 NoUninstallWarningTitle=Součásti existují
 NoUninstallWarning=Průvodce instalací zjistil, že následující součásti jsou již na Vašem počítači nainstalovány:%n%n%1%n%nNezahrnete-li tyto součásti do výběru, nebudou odinstalovány.%n%nChcete přesto pokračovat?
 ComponentSize1=%1 KB
