@@ -236,7 +236,7 @@ ErrorCloseApplications=Hệ thống không thể tự động đóng tất cả 
 PrepareToInstallNeedsRestart=Cần khởi động lại máy tính. Sau khi máy tính khởi động xong, hãy chạy lại tệp này để hoàn tất cài đặt [name].%n%nBạn có muốn khởi động lại ngay bây giờ không?
 
 ; *** "Installing" wizard page
-WizardInstalling=Đang cài đặt...
+WizardInstalling=Đang cài đặt
 InstallingLabel=Vui lòng đợi trong giây lát, [name] đang được cài đặt vào máy tính của bạn.
 
 ; *** "Setup Completed" wizard page
