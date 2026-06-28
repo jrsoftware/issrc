@@ -168,24 +168,10 @@ var
     end;
   end;
 
-  function IncludeBuiltinsAndParseIncludeFiles(BuiltinsDir: String; IncludeFiles: PChar; Options: TOptions): Boolean;
-
-    function Escape(const S: string): string;
-    var
-      I: Integer;
-    begin
-      Result := '';
-      for I := 1 to Length(S) do
-      begin
-        Result := Result + S[I];
-        if S[I] = '\' then Result := Result + '\';
-      end;
-    end;
+  function IncludeBuiltinsAndParseIncludeFiles(BuiltinsDir: String; IncludeFiles: PChar): Boolean;
 
     procedure Include(FileName: String; Builtins: Boolean);
     begin
-      if not (optPascalStrings in Options) then
-        FileName := Escape(FileName);
       Preprocessor.IncludeFile(FileName, Builtins, False, True);
     end;
 
@@ -262,8 +248,7 @@ begin
       Preprocessor.VarMan.DefineVariable('Ver', -1, V, dsPublic);
 
       if not ParseDefinitions(PChar(Definitions), Preprocessor.VarMan) or
-         not IncludeBuiltinsAndParseIncludeFiles(Params.CompilerPath, PChar(IncludeFiles),
-           Preprocessor.FOptions.ParserOptions.Options) then
+         not IncludeBuiltinsAndParseIncludeFiles(Params.CompilerPath, PChar(IncludeFiles)) then
       begin
         Result := ispeInvalidParam;
         FreeAndNil(Preprocessor); { This also calls PopPreproc }
