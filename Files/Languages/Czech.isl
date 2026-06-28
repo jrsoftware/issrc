@@ -33,7 +33,7 @@ ConfirmTitle=Potvrzení
 ErrorTitle=Chyba
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Vítá Vás průvodce instalací produktu %1. Chcete pokračovat?
+SetupLdrStartupMessage=Tímto bude nainstalován produkt %1. Chcete pokračovat?
 LdrCannotCreateTemp=Nelze vytvořit dočasný soubor. Průvodce instalací bude ukončen
 LdrCannotExecTemp=Nelze spustit soubor v dočasné složce. Průvodce instalací bude ukončen
 HelpTextNote=
@@ -54,14 +54,14 @@ WinVersionTooLowError=Tento produkt vyžaduje %1 verzi %2 nebo vyšší.
 WinVersionTooHighError=Tento produkt nelze nainstalovat ve %1 verzi %2 nebo vyšší.
 AdminPrivilegesRequired=K instalaci tohoto produktu musíte být přihlášeni s oprávněními správce.
 PowerUserPrivilegesRequired=K instalaci tohoto produktu musíte být přihlášeni s oprávněními správce nebo člena skupiny Power Users.
-SetupAppRunningError=Průvodce instalací zjistil, že produkt %1 je nyní spuštěn.%n%nZavřete prosím všechny instance tohoto produktu a pak pokračujte klepnutím na tlačítko OK, nebo ukončete instalaci tlačítkem Zrušit.
-UninstallAppRunningError=Průvodce odinstalací zjistil, že produkt %1 je nyní spuštěn.%n%nZavřete prosím všechny instance tohoto produktu a pak pokračujte klepnutím na tlačítko OK, nebo ukončete odinstalaci tlačítkem Zrušit.
+SetupAppRunningError=Průvodce instalací zjistil, že produkt %1 je nyní spuštěn.%n%nZavřete prosím všechny instance tohoto produktu a pak pokračujte kliknutím na tlačítko OK, nebo ukončete instalaci tlačítkem Zrušit.
+UninstallAppRunningError=Průvodce odinstalací zjistil, že produkt %1 je nyní spuštěn.%n%nZavřete prosím všechny instance tohoto produktu a pak pokračujte kliknutím na tlačítko OK, nebo ukončete odinstalaci tlačítkem Zrušit.
 
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=Výběr režimu průvodce instalací
 PrivilegesRequiredOverrideInstruction=Zvolte režim instalace
-PrivilegesRequiredOverrideText1=Produkt %1 lze nainstalovat pro všechny uživatele (musíte být přihlášeni s oprávněními správce), nebo pouze pro Vás.
-PrivilegesRequiredOverrideText2=Produkt %1 lze nainstalovat pouze pro Vás, nebo pro všechny uživatele (musíte být přihlášeni s oprávněními správce).
+PrivilegesRequiredOverrideText1=Produkt %1 lze nainstalovat pro všechny uživatele (vyžaduje oprávnění správce), nebo pouze pro Vás.
+PrivilegesRequiredOverrideText2=Produkt %1 lze nainstalovat pouze pro Vás, nebo pro všechny uživatele (vyžaduje oprávnění správce).
 PrivilegesRequiredOverrideAllUsers=Nainstalovat pro &všechny uživatele
 PrivilegesRequiredOverrideAllUsersRecommended=Nainstalovat pro &všechny uživatele (doporučuje se)
 PrivilegesRequiredOverrideCurrentUser=Nainstalovat pouze pro &mě
@@ -73,7 +73,7 @@ ErrorTooManyFilesInDir=Nelze vytvořit soubor ve složce "%1", protože tato slo
 
 ; *** Setup common messages
 ExitSetupTitle=Ukončit průvodce instalací
-ExitSetupMessage=Instalace nebyla zcela dokončena. Jestliže nyní průvodce instalací ukončíte, produkt nebude nainstalován.%n%nPrůvodce instalací můžete znovu spustit kdykoliv jindy a instalaci dokončit.%n%nChcete průvodce instalací ukončit?
+ExitSetupMessage=Instalace nebyla dokončena. Jestliže nyní průvodce instalací ukončíte, produkt nebude nainstalován.%n%nPrůvodce instalací můžete znovu spustit kdykoliv jindy a instalaci dokončit.%n%nChcete průvodce instalací ukončit?
 AboutSetupMenuItem=&O průvodci instalací...
 AboutSetupTitle=O průvodci instalací
 AboutSetupMessage=%1 verze %2%n%3%n%n%1 domovská stránka:%n%4
@@ -100,20 +100,20 @@ SelectLanguageTitle=Výběr jazyka průvodce instalací
 SelectLanguageLabel=Zvolte jazyk, který se má použít během instalace.
 
 ; *** Common wizard text
-ClickNext=Pokračujte klepnutím na tlačítko Další, nebo ukončete průvodce instalací tlačítkem Zrušit.
+ClickNext=Pokračujte kliknutím na tlačítko Další, nebo ukončete průvodce instalací tlačítkem Zrušit.
 BeveledLabel=
 BrowseDialogTitle=Zvolte složku
-BrowseDialogLabel=Z níže uvedeného seznamu vyberte složku a klepněte na tlačítko OK.
+BrowseDialogLabel=Z níže uvedeného seznamu vyberte složku a klikněte na tlačítko OK.
 NewFolderName=Nová složka
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Vítá Vás průvodce instalací produktu [name]
-WelcomeLabel2=Produkt [name/ver] bude nainstalován na Váš počítač.%n%nDříve než budete pokračovat, doporučuje se zavřít veškeré spuštěné aplikace.
+WelcomeLabel2=Produkt [name/ver] bude nainstalován na Váš počítač.%n%nDříve než budete pokračovat, doporučuje se zavřít veškeré ostatní aplikace.
 
 ; *** "Password" wizard page
 WizardPassword=Heslo
 PasswordLabel1=Tato instalace je chráněna heslem.
-PasswordLabel3=Zadejte prosím heslo a pokračujte klepnutím na tlačítko Další. Při zadávání hesla rozlišujte malá a velká písmena.
+PasswordLabel3=Zadejte prosím heslo a pokračujte kliknutím na tlačítko Další. Při zadávání hesla rozlišujte malá a velká písmena.
 PasswordEditLabel=&Heslo:
 IncorrectPassword=Zadané heslo není správné. Zkuste to prosím znovu.
 
@@ -127,10 +127,10 @@ LicenseNotAccepted=&Nesouhlasím s podmínkami licenční smlouvy
 ; *** "Information" wizard pages
 WizardInfoBefore=Informace
 InfoBeforeLabel=Dříve než budete pokračovat, přečtěte si prosím následující důležité informace.
-InfoBeforeClickLabel=Pokračujte v instalaci klepnutím na tlačítko Další.
+InfoBeforeClickLabel=Až budete připraveni pokračovat v instalaci, klikněte na tlačítko Další.
 WizardInfoAfter=Informace
 InfoAfterLabel=Dříve než budete pokračovat, přečtěte si prosím následující důležité informace.
-InfoAfterClickLabel=Pokračujte v instalaci klepnutím na tlačítko Další.
+InfoAfterClickLabel=Až budete připraveni pokračovat v instalaci, klikněte na tlačítko Další.
 
 ; *** "User Information" wizard page
 WizardUserInfo=Informace o uživateli
@@ -144,13 +144,13 @@ UserInfoNameRequired=Musíte zadat uživatelské jméno.
 WizardSelectDir=Zvolte cílové umístění
 SelectDirDesc=Kam má být produkt [name] nainstalován?
 SelectDirLabel3=Průvodce nainstaluje produkt [name] do následující složky.
-SelectDirBrowseLabel=Pokračujte klepnutím na tlačítko Další. Chcete-li zvolit jinou složku, klepněte na tlačítko Procházet.
+SelectDirBrowseLabel=Pokračujte kliknutím na tlačítko Další. Chcete-li zvolit jinou složku, klikněte na tlačítko Procházet.
 DiskSpaceGBLabel=Instalace vyžaduje nejméně [gb] GB volného místa na disku.
 DiskSpaceMBLabel=Instalace vyžaduje nejméně [mb] MB volného místa na disku.
 CannotInstallToNetworkDrive=Průvodce instalací nemůže instalovat do síťové jednotky.
 CannotInstallToUNCPath=Průvodce instalací nemůže instalovat do cesty UNC.
 InvalidPath=Musíte zadat úplnou cestu včetně písmene jednotky; například:%n%nC:\Aplikace%n%nnebo cestu UNC ve tvaru:%n%n\\server\sdílená složka
-InvalidDrive=Vámi zvolená jednotka nebo cesta UNC neexistuje nebo není dostupná. Zvolte prosím jiné umístění.
+InvalidDrive=Vámi zvolená jednotka nebo sdílená položka UNC neexistuje nebo není dostupná. Zvolte prosím jiné umístění.
 DiskSpaceWarningTitle=Nedostatek místa na disku
 DiskSpaceWarning=Průvodce instalací vyžaduje nejméně %1 KB volného místa pro instalaci produktu, ale na zvolené jednotce je dostupných pouze %2 KB.%n%nChcete přesto pokračovat?
 DirNameTooLong=Název složky nebo cesta jsou příliš dlouhé.
@@ -164,13 +164,13 @@ DirDoesntExist=Složka:%n%n%1%n%nneexistuje. Má být tato složka vytvořena?
 ; *** "Select Components" wizard page
 WizardSelectComponents=Zvolte součásti
 SelectComponentsDesc=Jaké součásti mají být nainstalovány?
-SelectComponentsLabel2=Zaškrtněte součásti, které mají být nainstalovány; součásti, které se nemají instalovat, ponechte nezaškrtnuté. Pokračujte klepnutím na tlačítko Další.
+SelectComponentsLabel2=Zaškrtněte součásti, které mají být nainstalovány; součásti, které se nemají instalovat, ponechte nezaškrtnuté. Až budete připraveni pokračovat, klikněte na tlačítko Další.
 FullInstallation=Úplná instalace
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Kompaktní instalace
 CustomInstallation=Volitelná instalace
 NoUninstallWarningTitle=Součásti existují
-NoUninstallWarning=Průvodce instalací zjistil, že následující součásti jsou již na Vašem počítači nainstalovány:%n%n%1%n%nNezahrnete-li tyto součásti do výběru, nebudou nyní odinstalovány.%n%nChcete přesto pokračovat?
+NoUninstallWarning=Průvodce instalací zjistil, že následující součásti jsou již na Vašem počítači nainstalovány:%n%n%1%n%nNezahrnete-li tyto součásti do výběru, nebudou odinstalovány.%n%nChcete přesto pokračovat?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
 ComponentsDiskSpaceGBLabel=Vybrané součásti vyžadují nejméně [gb] GB místa na disku.
@@ -179,13 +179,13 @@ ComponentsDiskSpaceMBLabel=Vybrané součásti vyžadují nejméně [mb] MB mís
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Zvolte další úlohy
 SelectTasksDesc=Které další úlohy mají být provedeny?
-SelectTasksLabel2=Zvolte další úlohy, které mají být provedeny v průběhu instalace produktu [name], a pak pokračujte klepnutím na tlačítko Další.
+SelectTasksLabel2=Zvolte další úlohy, které mají být provedeny v průběhu instalace produktu [name], a pak pokračujte kliknutím na tlačítko Další.
 
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Vyberte složku v nabídce Start
 SelectStartMenuFolderDesc=Kam má průvodce instalací umístit zástupce aplikace?
 SelectStartMenuFolderLabel3=Průvodce instalací vytvoří zástupce aplikace v následující složce nabídky Start.
-SelectStartMenuFolderBrowseLabel=Pokračujte klepnutím na tlačítko Další. Chcete-li zvolit jinou složku, klepněte na tlačítko Procházet.
+SelectStartMenuFolderBrowseLabel=Pokračujte kliknutím na tlačítko Další. Chcete-li zvolit jinou složku, klikněte na tlačítko Procházet.
 MustEnterGroupName=Musíte zadat název složky.
 GroupNameTooLong=Název složky nebo cesta jsou příliš dlouhé.
 InvalidGroupName=Název složky není platný.
@@ -195,8 +195,8 @@ NoProgramGroupCheck2=&Nevytvářet složku v nabídce Start
 ; *** "Ready to Install" wizard page
 WizardReady=Instalace je připravena
 ReadyLabel1=Průvodce instalací je nyní připraven nainstalovat produkt [name] na Váš počítač.
-ReadyLabel2a=Pokračujte v instalaci klepnutím na tlačítko Instalovat. Přejete-li si zkontrolovat nebo změnit některá nastavení instalace, klepněte na tlačítko Zpět.
-ReadyLabel2b=Pokračujte v instalaci klepnutím na tlačítko Instalovat.
+ReadyLabel2a=Pokračujte v instalaci kliknutím na tlačítko Instalovat. Přejete-li si zkontrolovat nebo změnit některá nastavení instalace, klikněte na tlačítko Zpět.
+ReadyLabel2b=Pokračujte v instalaci kliknutím na tlačítko Instalovat.
 ReadyMemoUserInfo=Informace o uživateli:
 ReadyMemoDir=Cílové umístění:
 ReadyMemoType=Typ instalace:
@@ -229,8 +229,8 @@ ArchiveUnsupportedFormat=Formát archivu není podporován
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Příprava k instalaci
 PreparingDesc=Průvodce instalací připravuje instalaci produktu [name] na Váš počítač.
-PreviousInstallNotCompleted=Instalace/odinstalace předchozího produktu nebyla zcela dokončena. Aby mohla být dokončena, musíte restartovat Váš počítač.%n%nPo restartování Vašeho počítače spusťte znovu průvodce instalací, aby bylo možné dokončit instalaci produktu [name].
-CannotContinue=Průvodce instalací nemůže pokračovat. Ukončete prosím průvodce instalací klepnutím na tlačítko Zrušit.
+PreviousInstallNotCompleted=Instalace/odinstalace předchozího produktu nebyla dokončena. Aby mohla být dokončena, musíte restartovat Váš počítač.%n%nPo restartování Vašeho počítače spusťte znovu průvodce instalací, aby bylo možné dokončit instalaci produktu [name].
+CannotContinue=Průvodce instalací nemůže pokračovat. Ukončete prosím průvodce instalací kliknutím na tlačítko Zrušit.
 ApplicationsFound=Následující aplikace přistupují k souborům, které je třeba během instalace aktualizovat. Doporučuje se povolit průvodci instalací, aby tyto aplikace automaticky zavřel.
 ApplicationsFound2=Následující aplikace přistupují k souborům, které je třeba během instalace aktualizovat. Doporučuje se povolit průvodci instalací, aby tyto aplikace automaticky zavřel. Po dokončení instalace se průvodce instalací pokusí aplikace restartovat.
 CloseApplications=Zavřít aplikace &automaticky
@@ -246,7 +246,7 @@ InstallingLabel=Čekejte prosím, dokud průvodce instalací nedokončí instala
 FinishedHeadingLabel=Dokončuje se instalace produktu [name]
 FinishedLabelNoIcons=Průvodce instalací dokončil instalaci produktu [name] na Váš počítač.
 FinishedLabel=Průvodce instalací dokončil instalaci produktu [name] na Váš počítač. Produkt lze spustit pomocí nainstalovaných zástupců.
-ClickFinish=Ukončete průvodce instalací klepnutím na tlačítko Dokončit.
+ClickFinish=Ukončete průvodce instalací kliknutím na tlačítko Dokončit.
 FinishedRestartLabel=K dokončení instalace produktu [name] je nezbytné, aby průvodce instalací restartoval Váš počítač. Chcete jej restartovat nyní?
 FinishedRestartMessage=K dokončení instalace produktu [name] je nezbytné, aby průvodce instalací restartoval Váš počítač.%n%nChcete jej restartovat nyní?
 ShowReadmeCheck=Ano, chci zobrazit dokument "ČTIMNE"
@@ -259,13 +259,13 @@ RunEntryShellExec=Zobrazit %1
 
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=Průvodce instalací vyžaduje další disk
-SelectDiskLabel2=Vložte prosím disk %1 a klepněte na tlačítko OK.%n%nPokud se soubory na tomto disku nacházejí v jiné složce než v té, která je zobrazena níže, pak zadejte správnou cestu nebo ji zvolte klepnutím na tlačítko Procházet.
+SelectDiskLabel2=Vložte prosím disk %1 a klikněte na tlačítko OK.%n%nPokud se soubory na tomto disku nacházejí v jiné složce než v té, která je zobrazena níže, pak zadejte správnou cestu nebo ji zvolte kliknutím na tlačítko Procházet.
 PathLabel=&Cesta:
 FileNotInDir2=Soubor "%1" nelze najít v "%2". Vložte prosím správný disk nebo zvolte jinou složku.
 SelectDirectoryLabel=Specifikujte prosím umístění dalšího disku.
 
 ; *** Installation phase messages
-SetupAborted=Instalace nebyla zcela dokončena.%n%nOpravte prosím chybu a spusťte průvodce instalací znovu.
+SetupAborted=Instalace nebyla dokončena.%n%nOpravte prosím chybu a spusťte průvodce instalací znovu.
 AbortRetryIgnoreSelectAction=Zvolte akci
 AbortRetryIgnoreRetry=&Zopakovat akci
 AbortRetryIgnoreIgnore=&Ignorovat chybu a pokračovat
@@ -315,7 +315,7 @@ VerificationKeyNotFound=Podpisový soubor "%1" používá neznámý klíč
 VerificationFileNameIncorrect=Název souboru se neshoduje
 VerificationFileTagIncorrect=Značka souboru se neshoduje
 VerificationFileSizeIncorrect=Velikost souboru se neshoduje
-VerificationFileHashIncorrect=Kontrolní součet souboru se neshoduje
+VerificationFileHashIncorrect=Hash souboru se neshoduje
 ExistingFileReadOnly2=Nelze nahradit existující soubor, protože je určen pouze pro čtení.
 ExistingFileReadOnlyRetry=&Odstranit atribut "pouze pro čtení" a zopakovat akci
 ExistingFileReadOnlyKeepExisting=&Ponechat existující soubor
@@ -360,20 +360,20 @@ ErrorRestartingComputer=Průvodci instalací se nepodařilo restartovat Váš po
 ; *** Uninstaller messages
 UninstallNotFound=Soubor "%1" neexistuje. Produkt nelze odinstalovat.
 UninstallOpenError=Soubor "%1" nelze otevřít. Produkt nelze odinstalovat
-UninstallUnsupportedVer=Formát souboru se záznamy k odinstalaci produktu "%1" nebyl touto verzí průvodce odinstalací rozpoznán. Produkt nelze odinstalovat
+UninstallUnsupportedVer=Formát souboru "%1" se záznamy k odinstalaci produktu nebyl touto verzí průvodce odinstalací rozpoznán. Produkt nelze odinstalovat
 UninstallUnknownEntry=V souboru obsahujícím informace k odinstalaci produktu byla zjištěna neznámá položka (%1)
-ConfirmUninstall=Určitě chcete produkt %1 a všechny jeho součásti odinstalovat?
-UninstallOnlyOnWin64=Tento produkt lze odinstalovat pouze v 64-bitových verzích MS Windows.
-OnlyAdminCanUninstall=K odinstalaci tohoto produktu musíte být přihlášeni s oprávněními správce.
+ConfirmUninstall=Určitě chcete produkt %1 a všechny jeho součásti zcela odinstalovat?
+UninstallOnlyOnWin64=Tento produkt lze odinstalovat pouze v 64bitových verzích MS Windows.
+OnlyAdminCanUninstall=Tento produkt může odinstalovat pouze uživatel s oprávněními správce.
 UninstallStatusLabel=Čekejte prosím, dokud produkt %1 nebude odinstalován z Vašeho počítače.
 UninstalledAll=Produkt %1 byl z Vašeho počítače úspěšně odinstalován.
-UninstalledMost=Produkt %1 byl odinstalován.%n%nNěkteré jeho součásti se odinstalovat nepodařilo. Můžete je však odstranit ručně.
-UninstalledAndNeedsRestart=K dokončení odinstalace produktu %1 je nezbytné, aby průvodce odinstalací restartoval Váš počítač.%n%nChcete jej restartovat nyní?
+UninstalledMost=Produkt %1 byl odinstalován.%n%nNěkteré prvky se odinstalovat nepodařilo. Můžete je však odstranit ručně.
+UninstalledAndNeedsRestart=K dokončení odinstalace produktu %1 je nezbytné restartovat Váš počítač.%n%nChcete jej restartovat nyní?
 UninstallDataCorrupted=Soubor "%1" je poškozen. Produkt nelze odinstalovat
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Odebrat sdílený soubor?
-ConfirmDeleteSharedFile2=Systém indikuje, že následující sdílený soubor není používán žádnými jinými aplikacemi. Má být tento sdílený soubor průvodcem odinstalací odstraněn?%n%nPokud některé aplikace tento soubor používají, pak po jeho odstranění nemusejí pracovat správně. Pokud si nejste jisti, zvolte Ne. Ponechání tohoto souboru ve Vašem systému nezpůsobí žádnou škodu.
+ConfirmDeleteSharedFile2=Systém indikuje, že následující sdílený soubor již není používán žádnými aplikacemi. Má být tento sdílený soubor průvodcem odinstalací odstraněn?%n%nPokud některé aplikace tento soubor používají, pak po jeho odstranění nemusejí pracovat správně. Pokud si nejste jisti, zvolte Ne. Ponechání tohoto souboru ve Vašem systému nezpůsobí žádnou škodu.
 SharedFileNameLabel=Název souboru:
 SharedFileLocationLabel=Umístění:
 WizardUninstalling=Stav odinstalace
