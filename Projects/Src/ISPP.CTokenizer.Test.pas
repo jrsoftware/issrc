@@ -283,6 +283,15 @@ begin
     Tokenizer.Free;
   end;
 
+  { TokenInt returns Int64, so it handles values above 32-bit MaxInt }
+  Tokenizer := NewTokenizer('4294967296');
+  try
+    Assert(Tokenizer.NextToken = tkNumber);
+    Assert(Tokenizer.TokenInt = 4294967296);
+  finally
+    Tokenizer.Free;
+  end;
+
   { NextTokenExpect accepts tkSemicolon }
   Tokenizer := NewTokenizer('foo;');
   try

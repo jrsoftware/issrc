@@ -101,7 +101,7 @@ type
     procedure SkipBlanks;
     function NextToken: TTokenKind;
     function NextTokenExpect(Expected: TTokenKinds): TTokenKind;
-    function TokenInt: Integer;
+    function TokenInt: Int64;
     function PeekAtNextToken: TTokenKind;
     function PeekAtNextTokenString: string;
     procedure Store;
@@ -416,7 +416,7 @@ begin
   Result := FNextIdent;
 end;
 
-function TCTokenizer.TokenInt: Integer;
+function TCTokenizer.TokenInt: Int64;
 var
   E: Integer;
 begin
