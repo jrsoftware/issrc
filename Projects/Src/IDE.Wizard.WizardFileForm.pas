@@ -206,6 +206,9 @@ begin
   end else if not CustomDestRootDir and (DestRootDirs[DestRootDirIndex].Constant = '{app}') and not FAllowAppDestRootDir then begin
     MsgBox(LFmtMessage(SWizardFileAppDestRootDirError), '',  mbError, MB_OK);
     ActiveControl := DestRootDirComboBox;
+  end else if (foDownload in FWizardFile.Options) and (DestNameEdit.Text = '') then begin
+    MsgBox(LFmtMessage(SWizardFileDestNameError), '',  mbError, MB_OK);
+    ActiveControl := DestNameEdit;
   end else
     ModalResult := mrOk;
 
