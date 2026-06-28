@@ -190,7 +190,6 @@ function TCTokenizer.InternalNextToken: TTokenKind;
       Inc(FExpr);
       Unterminated;
       case FExpr^ of
-        #0: Unterminated;
         '0'..'7':// octal 400 = $100
           begin
             var C: Byte := 0;
