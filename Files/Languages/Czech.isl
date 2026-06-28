@@ -119,24 +119,24 @@ IncorrectPassword=Zadané heslo není správné. Zkuste to prosím znovu.
 
 ; *** "License Agreement" wizard page
 WizardLicense=Licenční smlouva
-LicenseLabel=Dříve než budete pokračovat, přečtěte si prosím pozorně následující důležité informace.
+LicenseLabel=Dříve než budete pokračovat, přečtěte si prosím následující důležité informace.
 LicenseLabel3=Přečtěte si prosím následující licenční smlouvu. Aby instalace mohla pokračovat, musíte souhlasit s podmínkami této smlouvy.
 LicenseAccepted=&Souhlasím s podmínkami licenční smlouvy
 LicenseNotAccepted=&Nesouhlasím s podmínkami licenční smlouvy
 
 ; *** "Information" wizard pages
 WizardInfoBefore=Informace
-InfoBeforeLabel=Dříve než budete pokračovat, přečtěte si prosím pozorně následující důležité informace.
+InfoBeforeLabel=Dříve než budete pokračovat, přečtěte si prosím následující důležité informace.
 InfoBeforeClickLabel=Pokračujte v instalaci klepnutím na tlačítko Další.
 WizardInfoAfter=Informace
-InfoAfterLabel=Dříve než budete pokračovat, přečtěte si prosím pozorně následující důležité informace.
+InfoAfterLabel=Dříve než budete pokračovat, přečtěte si prosím následující důležité informace.
 InfoAfterClickLabel=Pokračujte v instalaci klepnutím na tlačítko Další.
 
 ; *** "User Information" wizard page
 WizardUserInfo=Informace o uživateli
 UserInfoDesc=Zadejte prosím požadované údaje.
 UserInfoName=&Uživatelské jméno:
-UserInfoOrg=&Společnost:
+UserInfoOrg=&Organizace:
 UserInfoSerial=Sé&riové číslo:
 UserInfoNameRequired=Musíte zadat uživatelské jméno.
 
@@ -195,7 +195,7 @@ NoProgramGroupCheck2=&Nevytvářet složku v nabídce Start
 ; *** "Ready to Install" wizard page
 WizardReady=Instalace je připravena
 ReadyLabel1=Průvodce instalací je nyní připraven nainstalovat produkt [name] na Váš počítač.
-ReadyLabel2a=Pokračujte v instalaci klepnutím na tlačítko Instalovat. Přejete-li si změnit některá nastavení instalace, klepněte na tlačítko Zpět.
+ReadyLabel2a=Pokračujte v instalaci klepnutím na tlačítko Instalovat. Přejete-li si zkontrolovat nebo změnit některá nastavení instalace, klepněte na tlačítko Zpět.
 ReadyLabel2b=Pokračujte v instalaci klepnutím na tlačítko Instalovat.
 ReadyMemoUserInfo=Informace o uživateli:
 ReadyMemoDir=Cílové umístění:
@@ -233,7 +233,7 @@ PreviousInstallNotCompleted=Instalace/odinstalace předchozího produktu nebyla 
 CannotContinue=Průvodce instalací nemůže pokračovat. Ukončete prosím průvodce instalací klepnutím na tlačítko Zrušit.
 ApplicationsFound=Následující aplikace přistupují k souborům, které je třeba během instalace aktualizovat. Doporučuje se povolit průvodci instalací, aby tyto aplikace automaticky zavřel.
 ApplicationsFound2=Následující aplikace přistupují k souborům, které je třeba během instalace aktualizovat. Doporučuje se povolit průvodci instalací, aby tyto aplikace automaticky zavřel. Po dokončení instalace se průvodce instalací pokusí aplikace restartovat.
-CloseApplications=&Zavřít aplikace automaticky
+CloseApplications=Zavřít aplikace &automaticky
 DontCloseApplications=&Nezavírat aplikace
 ErrorCloseApplications=Průvodci instalací se nepodařilo automaticky zavřít všechny aplikace. Dříve než budete pokračovat, doporučuje se zavřít veškeré aplikace přistupující k souborům, které je třeba během instalace aktualizovat.
 PrepareToInstallNeedsRestart=Průvodce instalací musí restartovat Váš počítač. Po restartování Vašeho počítače spusťte průvodce instalací znovu, aby bylo možné dokončit instalaci produktu [name].%n%nChcete jej restartovat nyní?
