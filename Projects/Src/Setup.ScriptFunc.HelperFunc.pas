@@ -136,6 +136,7 @@ procedure TestInnerfuse_RaiseException;
 procedure TestCreateCallback_Invoke0(Callback: NativeInt);
 procedure TestCreateCallback_Invoke5(Callback: NativeInt; const S: String; A, B, C, D: Integer);
 procedure TestCreateCallback_InvokeFloat4(Callback: NativeInt; A, B, C: Integer; D: Double);
+procedure TestCreateCallback_InvokeExtended4(Callback: NativeInt; A, B, C: Integer; D: Extended);
 function TestCreateCallback_InvokeReturnInteger(Callback: NativeInt; A, B: Integer): Integer;
 function TestCreateCallback_InvokeReturnDouble(Callback: NativeInt; A, B: Integer): Double;
 
@@ -716,7 +717,7 @@ begin
       Delete(e, 1, 1);
       const cpt = Caller.GetTypeNo(Cardinal(StrToInt(e)));
       if not ParamAsVariable(fmod, cpt) then
-        Param4IsFloatByValue := cpt.BaseType in [btSingle, btDouble];
+        Param4IsFloatByValue := cpt.BaseType in [btSingle, btDouble, btExtended];
     end else
 {$ENDIF}
       GRFW(S);
@@ -968,6 +969,7 @@ type
   TStdCallProc0 = procedure; stdcall;
   TStdCallProc5 = procedure(S: String; A, B, C, D: Integer); stdcall;
   TStdCallProcFloat4 = procedure(A, B, C: Integer; D: Double); stdcall;
+  TStdCallProcExtended4 = procedure(A, B, C: Integer; D: Extended); stdcall;
   TStdCallFuncReturnInteger = function(A, B: Integer): Integer; stdcall;
   TStdCallFuncReturnDouble = function(A, B: Integer): Double; stdcall;
 
@@ -984,6 +986,11 @@ end;
 procedure TestCreateCallback_InvokeFloat4(Callback: NativeInt; A, B, C: Integer; D: Double);
 begin
   TStdCallProcFloat4(Callback)(A, B, C, D);
+end;
+
+procedure TestCreateCallback_InvokeExtended4(Callback: NativeInt; A, B, C: Integer; D: Extended);
+begin
+  TStdCallProcExtended4(Callback)(A, B, C, D);
 end;
 
 function TestCreateCallback_InvokeReturnInteger(Callback: NativeInt; A, B: Integer): Integer;

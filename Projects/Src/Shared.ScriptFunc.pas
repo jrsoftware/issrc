@@ -60,6 +60,7 @@ var
     'procedure TestCreateCallback_Invoke0(Callback: NativeInt);',
     'procedure TestCreateCallback_Invoke5(Callback: NativeInt; const S: String; A, B, C, D: Integer);',
     'procedure TestCreateCallback_InvokeFloat4(Callback: NativeInt; A, B, C: Integer; D: Double);',
+    'procedure TestCreateCallback_InvokeExtended4(Callback: NativeInt; A, B, C: Integer; D: Extended);',
     'function TestCreateCallback_InvokeReturnInteger(Callback: NativeInt; A, B: Integer): Integer;',
     'function TestCreateCallback_InvokeReturnDouble(Callback: NativeInt; A, B: Integer): Double;'
   ];

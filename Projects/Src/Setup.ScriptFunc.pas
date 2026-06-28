@@ -2122,6 +2122,7 @@ begin
   RegisterDelphiFunction(@TestCreateCallback_Invoke0, 'TestCreateCallback_Invoke0');
   RegisterDelphiFunction(@TestCreateCallback_Invoke5, 'TestCreateCallback_Invoke5');
   RegisterDelphiFunction(@TestCreateCallback_InvokeFloat4, 'TestCreateCallback_InvokeFloat4');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeExtended4, 'TestCreateCallback_InvokeExtended4');
   RegisterDelphiFunction(@TestCreateCallback_InvokeReturnInteger, 'TestCreateCallback_InvokeReturnInteger');
   RegisterDelphiFunction(@TestCreateCallback_InvokeReturnDouble, 'TestCreateCallback_InvokeReturnDouble');
   {$IFDEF DEBUG}

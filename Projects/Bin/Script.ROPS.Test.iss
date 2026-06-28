@@ -2248,6 +2248,7 @@ end;
 var
   Test_CreateCallback_Result: String;
   Test_CreateCallback_FloatResult: Double;
+  Test_CreateCallback_ExtendedResult: Extended;
 
 procedure Test_CreateCallback_CBNoParams;
 begin
@@ -2263,6 +2264,12 @@ procedure Test_CreateCallback_CBFloat4(A, B, C: Integer; D: Double);
 begin
   Test_CreateCallback_Result := IntToStr(A) + ',' + IntToStr(B) + ',' + IntToStr(C);
   Test_CreateCallback_FloatResult := D;
+end;
+
+procedure Test_CreateCallback_CBExtended4(A, B, C: Integer; D: Extended);
+begin
+  Test_CreateCallback_Result := IntToStr(A) + ',' + IntToStr(B) + ',' + IntToStr(C);
+  Test_CreateCallback_ExtendedResult := D;
 end;
 
 function Test_CreateCallback_CBReturnInteger(A, B: Integer): Integer;
@@ -2305,6 +2312,13 @@ begin
   TestCreateCallback_InvokeFloat4(CreateCallback(@Test_CreateCallback_CBFloat4), 10, 20, 30, 4.5);
   CheckEqualsString('10,20,30', Test_CreateCallback_Result);
   CheckEqualsFloat(4.5, Test_CreateCallback_FloatResult, 0.0);
+
+  { Extended at position 4: Param4IsFloatByValue must treat btExtended like btDouble }
+  Test_CreateCallback_Result := '';
+  Test_CreateCallback_ExtendedResult := 0.0;
+  TestCreateCallback_InvokeExtended4(CreateCallback(@Test_CreateCallback_CBExtended4), 10, 20, 30, 4.5);
+  CheckEqualsString('10,20,30', Test_CreateCallback_Result);
+  CheckEqualsFloat(4.5, Test_CreateCallback_ExtendedResult, 0.0);
 #endif
 
   CheckEqualsInt64(30, TestCreateCallback_InvokeReturnInteger(CreateCallback(@Test_CreateCallback_CBReturnInteger), 10, 20));
