@@ -48,7 +48,11 @@ type
 
   TScriptFuncs = TDictionary<AnsiString, TScriptFuncEx>;
 
-  TTestPSStackHelperProc = function(Value: Integer): Integer of object; { Internal, used only by Script.Test.iss }
+  { Internal, used only by Script.Test.iss }
+  TTestPSStackHelperProc = function(Value: Integer): Integer of object;
+  TTestHandlerExtendedProc = function(E1, E2, E3: Extended; Tail: Integer): Extended of object;
+  TTestHandlerCurrencyProc = function(C1, C2, C3: Currency; Tail: Integer): Currency of object;
+  TTestHandlerMixedProc = procedure(A: Integer; E: Extended; C: Currency; Tail: Integer) of object;
 
 var
   ScriptFuncs: TScriptFuncs;
@@ -2130,14 +2134,40 @@ begin
     raise Exception.Create('Count <> Length(TestInnerfuseScriptFuncTable)');
   {$ENDIF}
 
-  { Internal, used only by Script.Test.iss }
+  { Following are all internal, used only by Script.Test.iss }
+
   RegisterScriptFunc('TestPSStackHelper_InvokeCallback', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
   begin
-    var Method := Stack.GetProc(PStart-1, Caller);
+    const Method = Stack.GetProc(PStart-1, Caller);
     if Method.Code <> nil then
       Stack.SetInt(PStart, TTestPSStackHelperProc(Method)(Stack.GetInt(PStart-2)))
     else
       Stack.SetInt(PStart, -1);
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeExtended', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then
+      Stack.SetReal(PStart, TTestHandlerExtendedProc(Method)(1.5, 2.5, 3.5, 4))
+    else
+      Stack.SetReal(PStart, 0);
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeCurrency', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then
+      Stack.SetCurrency(PStart, TTestHandlerCurrencyProc(Method)(-1.5, -2.5, -3.5, -4))
+    else
+      Stack.SetCurrency(PStart, 0);
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeMixed', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart, Caller);
+    if Method.Code <> nil then
+      TTestHandlerMixedProc(Method)(10, 11.5, 12.5, 13);
   end);
 end;
 

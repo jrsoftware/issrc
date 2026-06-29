@@ -2325,6 +2325,78 @@ begin
   CheckEqualsFloat(5.3, TestCreateCallback_InvokeReturnDouble(CreateCallback(@Test_CreateCallback_CBReturnDouble), 3, 5), 1e-9);
 end;
 
+var
+  Test_MyAllMethodsHandlerByValue_Extended1, Test_MyAllMethodsHandlerByValue_Extended2, Test_MyAllMethodsHandlerByValue_Extended3: Extended;
+  Test_MyAllMethodsHandlerByValue_Currency1, Test_MyAllMethodsHandlerByValue_Currency2, Test_MyAllMethodsHandlerByValue_Currency3: Currency;
+  Test_MyAllMethodsHandlerByValue_IntParams: String;
+
+{ The Extended and Currency receivers record their by-value parameters in globals
+  and return the sum, so a single call also exercises the matching result path. }
+function Test_MyAllMethodsHandlerByValue_ReceiveExtended(E1, E2, E3: Extended; Tail: Integer): Extended;
+begin
+  Test_MyAllMethodsHandlerByValue_Extended1 := E1;
+  Test_MyAllMethodsHandlerByValue_Extended2 := E2;
+  Test_MyAllMethodsHandlerByValue_Extended3 := E3;
+  Test_MyAllMethodsHandlerByValue_IntParams := IntToStr(Tail);
+  Result := E1 + E2 + E3;
+end;
+
+function Test_MyAllMethodsHandlerByValue_ReceiveCurrency(C1, C2, C3: Currency; Tail: Integer): Currency;
+begin
+  Test_MyAllMethodsHandlerByValue_Currency1 := C1;
+  Test_MyAllMethodsHandlerByValue_Currency2 := C2;
+  Test_MyAllMethodsHandlerByValue_Currency3 := C3;
+  Test_MyAllMethodsHandlerByValue_IntParams := IntToStr(Tail);
+  Result := C1 + C2 + C3;
+end;
+
+procedure Test_MyAllMethodsHandlerByValue_ReceiveMixed(A: Integer; E: Extended; C: Currency; Tail: Integer);
+begin
+  Test_MyAllMethodsHandlerByValue_Extended1 := E;
+  Test_MyAllMethodsHandlerByValue_Currency1 := C;
+  Test_MyAllMethodsHandlerByValue_IntParams := IntToStr(A) + ',' + IntToStr(Tail);
+end;
+
+procedure Test_MyAllMethodsHandlerByValue;
+begin
+  { These reach MyAllMethodsHandler through a register-convention TMethod, not a
+    CreateCallback thunk. }
+
+  { Extended by value at positions 1-3 (XMM1/XMM2/XMM3 on x64); the returned sum
+    also checks the Extended result path }
+  Test_MyAllMethodsHandlerByValue_Extended1 := 0.0;
+  Test_MyAllMethodsHandlerByValue_Extended2 := 0.0;
+  Test_MyAllMethodsHandlerByValue_Extended3 := 0.0;
+  Test_MyAllMethodsHandlerByValue_IntParams := '';
+  CheckEqualsFloat(1.5 + 2.5 + 3.5, TestHandler_InvokeExtended(@Test_MyAllMethodsHandlerByValue_ReceiveExtended), 0.0);
+  CheckEqualsFloat(1.5, Test_MyAllMethodsHandlerByValue_Extended1, 0.0);
+  CheckEqualsFloat(2.5, Test_MyAllMethodsHandlerByValue_Extended2, 0.0);
+  CheckEqualsFloat(3.5, Test_MyAllMethodsHandlerByValue_Extended3, 0.0);
+  CheckEqualsString('4', Test_MyAllMethodsHandlerByValue_IntParams);
+
+  { Currency by value at positions 1-3 (RDX/R8/R9 on x64); the returned sum also
+    checks the Currency result path (RAX on x64) }
+  Test_MyAllMethodsHandlerByValue_Currency1 := 0.0;
+  Test_MyAllMethodsHandlerByValue_Currency2 := 0.0;
+  Test_MyAllMethodsHandlerByValue_Currency3 := 0.0;
+  Test_MyAllMethodsHandlerByValue_IntParams := '';
+  CheckEqualsFloat(-1.5 - 2.5 - 3.5, TestHandler_InvokeCurrency(@Test_MyAllMethodsHandlerByValue_ReceiveCurrency), 0.0);
+  CheckEqualsFloat(-1.5, Test_MyAllMethodsHandlerByValue_Currency1, 0.0);
+  CheckEqualsFloat(-2.5, Test_MyAllMethodsHandlerByValue_Currency2, 0.0);
+  CheckEqualsFloat(-3.5, Test_MyAllMethodsHandlerByValue_Currency3, 0.0);
+  CheckEqualsString('-4', Test_MyAllMethodsHandlerByValue_IntParams);
+
+  { Mixed Integer/Extended/Currency: interleaved types, so the handler must pick
+    XMM vs a general-purpose register per slot }
+  Test_MyAllMethodsHandlerByValue_Extended1 := 0.0;
+  Test_MyAllMethodsHandlerByValue_Currency1 := 0.0;
+  Test_MyAllMethodsHandlerByValue_IntParams := '';
+  TestHandler_InvokeMixed(@Test_MyAllMethodsHandlerByValue_ReceiveMixed);
+  CheckEqualsFloat(11.5, Test_MyAllMethodsHandlerByValue_Extended1, 0.0);
+  CheckEqualsFloat(12.5, Test_MyAllMethodsHandlerByValue_Currency1, 0.0);
+  CheckEqualsString('10,13', Test_MyAllMethodsHandlerByValue_IntParams);
+end;
+
 procedure Test_TypelessParamFunctions;
 var
   S: String;
@@ -2765,6 +2837,7 @@ begin
   Test_TryFinallyExcept;
   Test_RaiseLastException;
   Test_CreateCallback;
+  Test_MyAllMethodsHandlerByValue;
   Test_TypelessParamFunctions;
   Test_DefProcFloatToInt;
   Test_AnyStringFunctions;

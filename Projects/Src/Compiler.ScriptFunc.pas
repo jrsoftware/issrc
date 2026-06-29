@@ -169,6 +169,12 @@ begin
   RegisterDelphiFunctionTable(TestInnerfuseScriptFuncTable);
   RegisterType('TTestPSStackHelperProc', 'function(Value: Integer): Integer;');
   ScriptCompiler.AddFunction('function TestPSStackHelper_InvokeCallback(const Callback: TTestPSStackHelperProc; const Value: Integer): Integer;');
+  RegisterType('TTestHandlerExtendedProc', 'function(E1, E2, E3: Extended; Tail: Integer): Extended;');
+  RegisterType('TTestHandlerCurrencyProc', 'function(C1, C2, C3: Currency; Tail: Integer): Currency;');
+  RegisterType('TTestHandlerMixedProc', 'procedure(A: Integer; E: Extended; C: Currency; Tail: Integer);');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeExtended(const Callback: TTestHandlerExtendedProc): Extended;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeCurrency(const Callback: TTestHandlerCurrencyProc): Currency;');
+  ScriptCompiler.AddFunction('procedure TestHandler_InvokeMixed(const Callback: TTestHandlerMixedProc);');
 
   ObsoleteFunctionWarnings.Add('IsAdminLoggedOn', Format(SCompilerCodeFunctionRenamedWithAlternative, ['IsAdminLoggedOn', 'IsAdmin', 'IsAdminInstallMode']));
   ObsoleteFunctionWarnings.Add('IsComponentSelected', Format(SCompilerCodeFunctionRenamed, ['IsComponentSelected', 'WizardIsComponentSelected']));
