@@ -752,13 +752,16 @@ _XMM0: Double;
           end;
         btRecord:
           begin
+            { In the by-value cases below, StoreReg(IPointer(fvar.dta^)) reads a
+              full 8-byte IPointer even when RealSize is smaller. The callee uses
+              only the low RealSize bytes, so reading past the record is harmless. }
             {$IFDEF WINDOWS}
             {$IFDEF DELPHI}
             { Delphi Win64 ABI: a record is passed by value (in a register)
               at sizes 1, 2, or 4 and for stdcall/cdecl/safecall also at size 8.
-              See System.Rtti.PassByRef. All other sizes (3, 5, 6, 7, and > 8) are
-              passed by reference, except: before Rio 10.3 the register convention
-              additionally passed sizes 5, 6, 7, and 8 by value, see
+              All other sizes (3, 5, 6, 7, and > 8) are passed by reference,
+              except: before Rio 10.3 the register convention additionally passed
+              sizes 5, 6, 7, and 8 by value, see
               https://blogs.embarcadero.com/abi-changes-in-rad-studio-10-3/ }
             if (fvar^.aType.RealSize in [1, 2, 4]) or
                ((fvar^.aType.RealSize = 8) and (CallingConv in [cdCdecl, cdStdCall, cdSafeCall]))
