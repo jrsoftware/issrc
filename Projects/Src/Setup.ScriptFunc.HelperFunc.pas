@@ -752,7 +752,8 @@ begin
       Limitation: this reversal code treats every parameter as a single
       4-byte stack slot. So on x86 CreateCallback does not support
       callback parameters passed by value when their type is larger than
-      4 bytes (Int64, UInt64, Double, Extended, Currency). }
+      4 bytes (such as Int64, UInt64, Double, Extended, Currency, or a
+      record larger than 4 bytes). }
     while SwapLast > SwapFirst do begin
       Inliner.Mov(ECX, Inliner.Addr(ESP, SwapFirst * 4)); //load the first item of the pair
       Inliner.Mov(EDX, Inliner.Addr(ESP, SwapLast * 4)); //load the last item of the pair

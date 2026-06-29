@@ -2304,8 +2304,8 @@ begin
   CheckEqualsString('one,2,3,4,5', Test_CreateCallback_Result);
 
   { Note: on x86 CreateCallback does not support callback parameters
-    passed by value when their type is larger than 4 bytes (Int64, UInt64,
-    Double, Extended, Currency) }
+    passed by value when their type is larger than 4 bytes (such as Int64,
+    UInt64, Double, Extended, Currency, or a record larger than 4 bytes) }
 #if arch == "x64"
   Test_CreateCallback_Result := '';
   Test_CreateCallback_FloatResult := 0.0;
