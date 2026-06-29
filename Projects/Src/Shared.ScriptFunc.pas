@@ -41,6 +41,8 @@ var
     'function TestInnerfuse_EchoCurrency(Value: Currency): Currency;',
     'function TestInnerfuse_EchoInt64(Value: Int64): Int64;',
     'function TestInnerfuse_EchoSmallRec(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec;',
+    'function TestInnerfuse_SumRec8(Value: TTestHandlerRec8): Integer;',
+    'function TestInnerfuse_SumRec8StdCall(Value: TTestHandlerRec8): Integer;',
     'function TestInnerfuse_EchoLargeRec(Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;',
     'function TestInnerfuse_EchoPAnsiChar(Value: PAnsiChar): String;',
     'function TestInnerfuse_EchoSingleStdCall(Value: Single): Single;',
@@ -62,7 +64,8 @@ var
     'procedure TestCreateCallback_InvokeFloat4(Callback: NativeInt; A, B, C: Integer; D: Double);',
     'procedure TestCreateCallback_InvokeExtended4(Callback: NativeInt; A, B, C: Integer; D: Extended);',
     'function TestCreateCallback_InvokeReturnInteger(Callback: NativeInt; A, B: Integer): Integer;',
-    'function TestCreateCallback_InvokeReturnDouble(Callback: NativeInt; A, B: Integer): Double;'
+    'function TestCreateCallback_InvokeReturnDouble(Callback: NativeInt; A, B: Integer): Double;',
+    'procedure TestCreateCallback_InvokeRec8(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer);'
   ];
 
 {$IFDEF ISIDEPROJ}

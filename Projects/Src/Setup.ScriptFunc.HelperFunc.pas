@@ -65,6 +65,13 @@ type
     B: String;
   end;
 
+  { Must keep this in synch with Compiler.ScriptFunc.pas - Internal, used only by Script.Test.iss }
+  TTestHandlerRec3 = record A, B, C: Byte; end;
+  TTestHandlerRec4 = record A, B: Word; end;
+  TTestHandlerRec6 = record A, B, C: Word; end;
+  TTestHandlerRec8 = record A, B, C, D: Word; end;
+  TTestHandlerRec10 = record A, B, C, D, E: Word; end;
+
 var
   OrigScaleBaseUnitX, OrigScaleBaseUnitY: Integer;
   ScaleBaseUnitX, ScaleBaseUnitY: Integer;
@@ -117,6 +124,8 @@ function TestInnerfuse_EchoExtended(Value: Extended): Extended;
 function TestInnerfuse_EchoCurrency(Value: Currency): Currency;
 function TestInnerfuse_EchoInt64(Value: Int64): Int64;
 function TestInnerfuse_EchoSmallRec(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec;
+function TestInnerfuse_SumRec8(Value: TTestHandlerRec8): Integer;
+function TestInnerfuse_SumRec8StdCall(Value: TTestHandlerRec8): Integer; stdcall;
 function TestInnerfuse_EchoLargeRec(Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;
 function TestInnerfuse_EchoPAnsiChar(Value: PAnsiChar): String;
 function TestInnerfuse_EchoSingleStdCall(Value: Single): Single; stdcall;
@@ -139,6 +148,7 @@ procedure TestCreateCallback_InvokeFloat4(Callback: NativeInt; A, B, C: Integer;
 procedure TestCreateCallback_InvokeExtended4(Callback: NativeInt; A, B, C: Integer; D: Extended);
 function TestCreateCallback_InvokeReturnInteger(Callback: NativeInt; A, B: Integer): Integer;
 function TestCreateCallback_InvokeReturnDouble(Callback: NativeInt; A, B: Integer): Double;
+procedure TestCreateCallback_InvokeRec8(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer);
 
 implementation
 
@@ -919,6 +929,16 @@ begin
   Result := Value;
 end;
 
+function TestInnerfuse_SumRec8(Value: TTestHandlerRec8): Integer;
+begin
+  Result := Value.A + Value.B + Value.C + Value.D;
+end;
+
+function TestInnerfuse_SumRec8StdCall(Value: TTestHandlerRec8): Integer; stdcall;
+begin
+  Result := Value.A + Value.B + Value.C + Value.D;
+end;
+
 function TestInnerfuse_EchoLargeRec(Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;
 begin
   Result := Value;
@@ -1010,6 +1030,7 @@ type
   TStdCallProcExtended4 = procedure(A, B, C: Integer; D: Extended); stdcall;
   TStdCallFuncReturnInteger = function(A, B: Integer): Integer; stdcall;
   TStdCallFuncReturnDouble = function(A, B: Integer): Double; stdcall;
+  TStdCallProcRec8 = procedure(R: TTestHandlerRec8; Tail: Integer); stdcall;
 
 procedure TestCreateCallback_Invoke0(Callback: NativeInt);
 begin
@@ -1039,6 +1060,11 @@ end;
 function TestCreateCallback_InvokeReturnDouble(Callback: NativeInt; A, B: Integer): Double;
 begin
   Result := TStdCallFuncReturnDouble(Callback)(A, B);
+end;
+
+procedure TestCreateCallback_InvokeRec8(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer);
+begin
+  TStdCallProcRec8(Callback)(R, Tail);
 end;
 
 end.

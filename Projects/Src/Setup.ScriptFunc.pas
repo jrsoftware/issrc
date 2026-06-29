@@ -53,11 +53,6 @@ type
   TTestHandlerExtendedProc = function(E1, E2, E3: Extended; Tail: Integer): Extended of object;
   TTestHandlerCurrencyProc = function(C1, C2, C3: Currency; Tail: Integer): Currency of object;
   TTestHandlerMixedProc = procedure(A: Integer; E: Extended; C: Currency; Tail: Integer) of object;
-  TTestHandlerRec3 = record A, B, C: Byte; end;
-  TTestHandlerRec4 = record A, B: Word; end;
-  TTestHandlerRec6 = record A, B, C: Word; end;
-  TTestHandlerRec8 = record A, B, C, D: Word; end;
-  TTestHandlerRec10 = record A, B, C, D, E: Word; end;
   TTestHandlerRecProc = function(R1: TTestHandlerRec4; R2: TTestHandlerRec6; R3: TTestHandlerRec8; Tail: Integer): Integer of object;
   TTestHandlerRecProc2 = function(R1: TTestHandlerRec3; R2: TTestHandlerRec10; Tail: Integer): Integer of object;
 
@@ -2114,6 +2109,8 @@ begin
   RegisterDelphiFunction(@TestInnerfuse_EchoCurrency, 'TestInnerfuse_EchoCurrency');
   RegisterDelphiFunction(@TestInnerfuse_EchoInt64, 'TestInnerfuse_EchoInt64');
   RegisterDelphiFunction(@TestInnerfuse_EchoSmallRec, 'TestInnerfuse_EchoSmallRec');
+  RegisterDelphiFunction(@TestInnerfuse_SumRec8, 'TestInnerfuse_SumRec8');
+  RegisterDelphiFunction(@TestInnerfuse_SumRec8StdCall, 'TestInnerfuse_SumRec8StdCall', cdStdCall);
   RegisterDelphiFunction(@TestInnerfuse_EchoLargeRec, 'TestInnerfuse_EchoLargeRec');
   RegisterDelphiFunction(@TestInnerfuse_EchoPAnsiChar, 'TestInnerfuse_EchoPAnsiChar');
   RegisterDelphiFunction(@TestInnerfuse_EchoSingleStdCall, 'TestInnerfuse_EchoSingleStdCall', cdStdCall);
@@ -2136,6 +2133,7 @@ begin
   RegisterDelphiFunction(@TestCreateCallback_InvokeExtended4, 'TestCreateCallback_InvokeExtended4');
   RegisterDelphiFunction(@TestCreateCallback_InvokeReturnInteger, 'TestCreateCallback_InvokeReturnInteger');
   RegisterDelphiFunction(@TestCreateCallback_InvokeReturnDouble, 'TestCreateCallback_InvokeReturnDouble');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeRec8, 'TestCreateCallback_InvokeRec8');
   {$IFDEF DEBUG}
   if Count <> Length(TestInnerfuseScriptFuncTable) then
     raise Exception.Create('Count <> Length(TestInnerfuseScriptFuncTable)');

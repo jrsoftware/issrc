@@ -1745,6 +1745,7 @@ end;
 procedure Test_InnerfuseCallParamTypes;
 var
   SmallRec: TTestInnerfuseSmallRec;
+  Rec8: TTestHandlerRec8;
   LargeRec: TTestInnerfuseLargeRec;
 begin
   { Exercises InnerfuseCall parameter and return type marshalling using the
@@ -1753,7 +1754,9 @@ begin
     passing and return value paths in x86.inc/x64.inc:
     - Single/Double/Extended/Currency: different float handling per platform
     - Int64: 8 bytes on stack (x86) vs one 64-bit register (x64)
-    - Small record: by value if <= pointer size, else by pointer
+    - Small record: by value for small sizes (x64: 1, 2, or 4; x86: <= 4), else by pointer
+    - 8-byte record: by reference under the register convention on Win64, because
+      of Delphi's special rule: https://blogs.embarcadero.com/abi-changes-in-rad-studio-10-3/
     - Large record: hidden var-param return path for records > pointer size
     - Mixed Single+Double: tests per-slot SingleBits indexing on x64
     - PAnsiChar empty string: tests nil -> EmptyPchar substitution
@@ -1772,6 +1775,12 @@ begin
   CheckEqualsInt64(42, SmallRec.A);
   CheckEqualsInt64(99, SmallRec.B);
 
+  Rec8.A := 30;
+  Rec8.B := 31;
+  Rec8.C := 32;
+  Rec8.D := 33;
+  CheckEqualsInt64(126, TestInnerfuse_SumRec8(Rec8));
+
   LargeRec.A := 42;
   LargeRec.B := 'hello';
   LargeRec := TestInnerfuse_EchoLargeRec(LargeRec);
@@ -1788,13 +1797,18 @@ end;
 procedure Test_InnerfuseCallParamTypesStdCall;
 var
   SmallRec: TTestInnerfuseSmallRec;
+#if arch == "x64"
+  Rec8: TTestHandlerRec8;
+#endif
   LargeRec: TTestInnerfuseLargeRec;
 begin
   { Repeats the echo tests from Test_InnerfuseCallParamTypes using the stdcall
     calling convention. On x86 this exercises RealCall_Other /
     RealFloatCall_Other (all params on stack) instead of RealCall_Register
-    (params in EAX/EDX/ECX then stack). On x64 both conventions use the same
-    Microsoft x64 ABI so the code paths are identical.
+    (params in EAX/EDX/ECX then stack). On x64 both conventions share the
+    Microsoft x64 ABI, so the code paths are identical except for a by-value
+    8-byte record, which Delphi passes by value under stdcall but by reference
+    under the register convention (see TestInnerfuse_SumRec8StdCall below).
     MixedFloats is omitted because its purpose (per-slot SingleBits indexing) is
     x64-specific, where stdcall is identical to register. EchoPAnsiChar is
     omitted because nil-to-EmptyPchar substitution is calling-convention-
@@ -1812,6 +1826,16 @@ begin
   SmallRec := TestInnerfuse_EchoSmallRecStdCall(SmallRec);
   CheckEqualsInt64(42, SmallRec.A);
   CheckEqualsInt64(99, SmallRec.B);
+
+#if arch == "x64"
+  { On x64, an 8-byte record under stdcall is passed by value, unlike under the
+    register convention where Delphi passes it by reference }
+  Rec8.A := 30;
+  Rec8.B := 31;
+  Rec8.C := 32;
+  Rec8.D := 33;
+  CheckEqualsInt64(126, TestInnerfuse_SumRec8StdCall(Rec8));
+#endif
 
   LargeRec.A := 42;
   LargeRec.B := 'hello';
@@ -2282,7 +2306,20 @@ begin
   Result := A * 0.1 + B;
 end;
 
+var
+  Test_CreateCallback_Rec8Fields: String;
+
+procedure Test_CreateCallback_CBRec8(R: TTestHandlerRec8; Tail: Integer);
+begin
+  Test_CreateCallback_Rec8Fields :=
+    IntToStr(R.A) + ',' + IntToStr(R.B) + ',' + IntToStr(R.C) + ',' + IntToStr(R.D) + ';' + IntToStr(Tail);
+end;
+
 procedure Test_CreateCallback;
+#if arch == "x64"
+var
+  R: TTestHandlerRec8;
+#endif
 begin
   { Tests CreateCallback, which generates platform-specific machine code
     (TASMInline) to bridge external stdcall callers to ROPS' register-convention
@@ -2319,6 +2356,13 @@ begin
   TestCreateCallback_InvokeExtended4(CreateCallback(@Test_CreateCallback_CBExtended4), 10, 20, 30, 4.5);
   CheckEqualsString('10,20,30', Test_CreateCallback_Result);
   CheckEqualsFloat(4.5, Test_CreateCallback_ExtendedResult, 0.0);
+
+  { An unmanaged 8-byte record by value at position 1 must be bridged to a pointer
+    for MyAllMethodsHandler }
+  R.A := 30; R.B := 31; R.C := 32; R.D := 33;
+  Test_CreateCallback_Rec8Fields := '';
+  TestCreateCallback_InvokeRec8(CreateCallback(@Test_CreateCallback_CBRec8), R, 99);
+  CheckEqualsString('30,31,32,33;99', Test_CreateCallback_Rec8Fields);
 #endif
 
   CheckEqualsInt64(30, TestCreateCallback_InvokeReturnInteger(CreateCallback(@Test_CreateCallback_CBReturnInteger), 10, 20));
