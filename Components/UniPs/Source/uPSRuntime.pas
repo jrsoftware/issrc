@@ -12357,9 +12357,7 @@ begin
     btSingle,
     btDouble,
     btExtended,
-{$IFDEF CPU64}
     btCurrency,
-{$ENDIF}
     btU8,
     bts8,
     bts16,
@@ -12435,6 +12433,12 @@ asm
   fld tbyte ptr [ft]
 
 end;
+
+procedure PutOnFPUStackCurrency(cu: currency);
+asm
+  fild qword ptr [cu]
+end;
+
 {$IFDEF CPU64}
 function MyAllMethodsHandler64(Self: PScriptMethodInfo; _RDX, _R8, _R9:Pointer; Stack: PPointer;  _XMM1, _XMM2, _XMM3: Pointer; {$IFDEF DELPHI} ResPtr: Pointer {$ENDIF}): Integer;
 var
@@ -12772,7 +12776,8 @@ begin
           btSingle: PutOnFPUStackExtended(PPSVariantSingle(res).Data);
           btDouble: PutOnFPUStackExtended(PPSVariantDouble(res).Data);
           btExtended: PutOnFPUStackExtended(PPSVariantExtended(res).Data);
-          btCurrency: PutOnFPUStackExtended(PPSVariantCurrency(res).Data);
+          { Currency is returned on the FPU stack as its scaled integer backing (FILD), not its logical value }
+          btCurrency: PutOnFPUStackCurrency(PPSVariantCurrency(res).Data);
         end;
         DestroyHeapVariant(Res);
         Res := nil;
