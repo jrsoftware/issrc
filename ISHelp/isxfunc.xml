@@ -836,7 +836,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <name>CreateCallback</name>
         <prototype>function CreateCallback(Method: AnyMethod): NativeInt;</prototype>
         <description><p>Allows you to perform direct callbacks from DLL functions (like Windows API functions) to functions in your script.</p></description>
-        <remarks><p>In a <link topic="64bit">32-bit installer</link>, callback parameters passed by value are not supported when their type is larger than 4 bytes, such as <tt>Int64</tt>, <tt>Double</tt>, <tt>Extended</tt>, and <tt>Currency</tt>. <link topic="64bit">64-bit installers</link> have no such limitation.</p></remarks>
+        <remarks><p>In a <link topic="64bit">32-bit installer</link>, callback parameters passed by value are not supported when their type is larger than 4 bytes, such as <tt>Int64</tt>, <tt>Double</tt>, <tt>Extended</tt>, and <tt>Currency</tt>, or a record larger than 4 bytes. <link topic="64bit">64-bit installers</link> have no such limitation.</p></remarks>
         <example><pre><key>function</key> SetTimer(hWnd: HWND; nIDEvent: UINT_PTR; uElapse: UINT; lpTimerFunc: NativeInt): UINT_PTR;
 <key>external</key> <str>'SetTimer@user32.dll stdcall'</str>;
 
