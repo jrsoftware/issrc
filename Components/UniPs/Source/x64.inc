@@ -752,10 +752,39 @@ _XMM0: Double;
           end;
         btRecord:
           begin
+            {$IFDEF WINDOWS}
+            {$IFDEF DELPHI}
+            { Delphi Win64 ABI: a record is passed by value (in a register)
+              at sizes 1, 2, or 4 and for stdcall/cdecl/safecall also at size 8.
+              See System.Rtti.PassByRef. All other sizes (3, 5, 6, 7, and > 8) are
+              passed by reference, except: before Rio 10.3 the register convention
+              additionally passed sizes 5, 6, 7, and 8 by value, see
+              https://blogs.embarcadero.com/abi-changes-in-rad-studio-10-3/ }
+            if (fvar^.aType.RealSize in [1, 2, 4]) or
+               ((fvar^.aType.RealSize = 8) and (CallingConv in [cdCdecl, cdStdCall, cdSafeCall]))
+               {$IFNDEF DELPHI_RIO_UP}
+               or ((fvar^.aType.RealSize in [5, 6, 7, 8]) and not (CallingConv in [cdCdecl, cdStdCall, cdSafeCall]))
+               {$ENDIF}
+               then
+              StoreReg(IPointer(fvar.dta^))
+            else
+              StoreReg(IPointer(fVar.Dta));
+            {$ELSE}
+            { FPC Win64 ABI: a record is passed by value (in a register) only at
+              sizes 1, 2, 4, or 8, for all calling conventions; all other sizes are
+              passed by reference. See aggregate_in_registers_win64 in the FPC
+              compiler's x86_64/cpupara.pas. }
+            if fvar^.aType.RealSize in [1, 2, 4, 8] then
+              StoreReg(IPointer(fvar.dta^))
+            else
+              StoreReg(IPointer(fVar.Dta));
+            {$ENDIF}
+            {$ELSE}
             if fvar^.aType.RealSize <= sizeof(IPointer) then
               StoreReg(IPointer(fvar.dta^))
             else
               StoreReg(IPointer(fVar.Dta));
+            {$ENDIF}
           end;
         btVariant
         , btStaticArray:

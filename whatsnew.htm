@@ -137,6 +137,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   <ul>
     <li>Previously undocumented support functions <tt>Abs</tt>, <tt>Low</tt>, <tt>High</tt>, <tt>SizeOf</tt>, <tt>Assigned</tt>, <tt>Inc</tt>, <tt>Dec</tt>, <tt>Succ</tt>, <tt>Pred</tt>, <tt>Include</tt>, <tt>Exclude</tt>, and <tt>RaiseLastException</tt> are now all documented and recognized by the Compiler IDE.</li>
     <li><i>Fix:</i> A callback created with <tt>CreateCallback</tt> now receives the correct values for by-value <tt>Extended</tt> and <tt>Currency</tt> parameters in the first three positions in 64-bit installers, and now returns the correct value for a <tt>Currency</tt> result in both 32-bit and 64-bit installers.</li>
+    <li><i>Fix:</i> A callback created with <tt>CreateCallback</tt> now receives the correct value for a by-value record parameter of 8 bytes or smaller in 64-bit installers.</li>
   </ul>
   </li>
   <li>The time stamps of files shown in Setup's log are now in UTC instead of local time, consistent with <tt>TimeStampsInUTC</tt> defaulting to <tt>yes</tt>.</li>
