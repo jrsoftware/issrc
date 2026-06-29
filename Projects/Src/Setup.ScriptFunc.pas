@@ -53,6 +53,13 @@ type
   TTestHandlerExtendedProc = function(E1, E2, E3: Extended; Tail: Integer): Extended of object;
   TTestHandlerCurrencyProc = function(C1, C2, C3: Currency; Tail: Integer): Currency of object;
   TTestHandlerMixedProc = procedure(A: Integer; E: Extended; C: Currency; Tail: Integer) of object;
+  TTestHandlerRec3 = record A, B, C: Byte; end;
+  TTestHandlerRec4 = record A, B: Word; end;
+  TTestHandlerRec6 = record A, B, C: Word; end;
+  TTestHandlerRec8 = record A, B, C, D: Word; end;
+  TTestHandlerRec10 = record A, B, C, D, E: Word; end;
+  TTestHandlerRecProc = function(R1: TTestHandlerRec4; R2: TTestHandlerRec6; R3: TTestHandlerRec8; Tail: Integer): Integer of object;
+  TTestHandlerRecProc2 = function(R1: TTestHandlerRec3; R2: TTestHandlerRec10; Tail: Integer): Integer of object;
 
 var
   ScriptFuncs: TScriptFuncs;
@@ -2168,6 +2175,29 @@ begin
     const Method = Stack.GetProc(PStart, Caller);
     if Method.Code <> nil then
       TTestHandlerMixedProc(Method)(10, 11.5, 12.5, 13);
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeRec', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      var R1: TTestHandlerRec4; R1.A := 10; R1.B := 11;
+      var R2: TTestHandlerRec6; R2.A := 20; R2.B := 21; R2.C := 22;
+      var R3: TTestHandlerRec8; R3.A := 30; R3.B := 31; R3.C := 32; R3.D := 33;
+      Stack.SetInt(PStart, TTestHandlerRecProc(Method)(R1, R2, R3, 99));
+    end else
+      Stack.SetInt(PStart, -1);
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeRec2', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      var R1: TTestHandlerRec3; R1.A := 10; R1.B := 11; R1.C := 12;
+      var R2: TTestHandlerRec10; R2.A := 100; R2.B := 101; R2.C := 102; R2.D := 103; R2.E := 104;
+      Stack.SetInt(PStart, TTestHandlerRecProc2(Method)(R1, R2, 99));
+    end else
+      Stack.SetInt(PStart, -1);
   end);
 end;
 

@@ -175,6 +175,15 @@ begin
   ScriptCompiler.AddFunction('function TestHandler_InvokeExtended(const Callback: TTestHandlerExtendedProc): Extended;');
   ScriptCompiler.AddFunction('function TestHandler_InvokeCurrency(const Callback: TTestHandlerCurrencyProc): Currency;');
   ScriptCompiler.AddFunction('procedure TestHandler_InvokeMixed(const Callback: TTestHandlerMixedProc);');
+  RegisterType('TTestHandlerRec3', 'record A: Byte; B: Byte; C: Byte; end');
+  RegisterType('TTestHandlerRec4', 'record A: Word; B: Word; end');
+  RegisterType('TTestHandlerRec6', 'record A: Word; B: Word; C: Word; end');
+  RegisterType('TTestHandlerRec8', 'record A: Word; B: Word; C: Word; D: Word; end');
+  RegisterType('TTestHandlerRec10', 'record A: Word; B: Word; C: Word; D: Word; E: Word; end');
+  RegisterType('TTestHandlerRecProc', 'function(R1: TTestHandlerRec4; R2: TTestHandlerRec6; R3: TTestHandlerRec8; Tail: Integer): Integer;');
+  RegisterType('TTestHandlerRecProc2', 'function(R1: TTestHandlerRec3; R2: TTestHandlerRec10; Tail: Integer): Integer;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeRec(const Callback: TTestHandlerRecProc): Integer;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeRec2(const Callback: TTestHandlerRecProc2): Integer;');
 
   ObsoleteFunctionWarnings.Add('IsAdminLoggedOn', Format(SCompilerCodeFunctionRenamedWithAlternative, ['IsAdminLoggedOn', 'IsAdmin', 'IsAdminInstallMode']));
   ObsoleteFunctionWarnings.Add('IsComponentSelected', Format(SCompilerCodeFunctionRenamed, ['IsComponentSelected', 'WizardIsComponentSelected']));

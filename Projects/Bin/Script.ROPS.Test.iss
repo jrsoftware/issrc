@@ -2397,6 +2397,43 @@ begin
   CheckEqualsString('10,13', Test_MyAllMethodsHandlerByValue_IntParams);
 end;
 
+var
+  Test_MyAllMethodsHandlerByValueRecord_Fields: String;
+
+function Test_MyAllMethodsHandlerByValueRecord_Receive(R1: TTestHandlerRec4; R2: TTestHandlerRec6; R3: TTestHandlerRec8; Tail: Integer): Integer;
+begin
+  Test_MyAllMethodsHandlerByValueRecord_Fields :=
+    IntToStr(R1.A) + ',' + IntToStr(R1.B) + ';' +
+    IntToStr(R2.A) + ',' + IntToStr(R2.B) + ',' + IntToStr(R2.C) + ';' +
+    IntToStr(R3.A) + ',' + IntToStr(R3.B) + ',' + IntToStr(R3.C) + ',' + IntToStr(R3.D) + ';' + IntToStr(Tail);
+  Result := R1.A + R2.A + R3.A;
+end;
+
+function Test_MyAllMethodsHandlerByValueRecord_Receive2(R1: TTestHandlerRec3; R2: TTestHandlerRec10; Tail: Integer): Integer;
+begin
+  Test_MyAllMethodsHandlerByValueRecord_Fields :=
+    IntToStr(R1.A) + ',' + IntToStr(R1.B) + ',' + IntToStr(R1.C) + ';' +
+    IntToStr(R2.A) + ',' + IntToStr(R2.B) + ',' + IntToStr(R2.C) + ',' + IntToStr(R2.D) + ',' + IntToStr(R2.E) + ';' + IntToStr(Tail);
+  Result := R1.A + R2.A;
+end;
+
+procedure Test_MyAllMethodsHandlerByValueRecord;
+begin
+  { Exercise by-value record parameters at positions 1-3: a 4-byte record
+    passed directly in a register, a 6-byte record passed as a pointer, and
+    an 8-byte record passed as a pointer under the register convention }
+  Test_MyAllMethodsHandlerByValueRecord_Fields := '';
+  CheckEqualsInt64(10 + 20 + 30, TestHandler_InvokeRec(@Test_MyAllMethodsHandlerByValueRecord_Receive));
+  CheckEqualsString('10,11;20,21,22;30,31,32,33;99', Test_MyAllMethodsHandlerByValueRecord_Fields);
+
+  { 3-byte record at position 1 (the size where the conventions disagree: by
+    value on the stack on Win32, by reference on Win64) and a 10-byte record
+    at position 2 (always by reference) }
+  Test_MyAllMethodsHandlerByValueRecord_Fields := '';
+  CheckEqualsInt64(10 + 100, TestHandler_InvokeRec2(@Test_MyAllMethodsHandlerByValueRecord_Receive2));
+  CheckEqualsString('10,11,12;100,101,102,103,104;99', Test_MyAllMethodsHandlerByValueRecord_Fields);
+end;
+
 procedure Test_TypelessParamFunctions;
 var
   S: String;
@@ -2838,6 +2875,7 @@ begin
   Test_RaiseLastException;
   Test_CreateCallback;
   Test_MyAllMethodsHandlerByValue;
+  Test_MyAllMethodsHandlerByValueRecord;
   Test_TypelessParamFunctions;
   Test_DefProcFloatToInt;
   Test_AnyStringFunctions;
