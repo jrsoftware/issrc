@@ -706,21 +706,25 @@ begin
   var ParamCount := 0;
 {$IFDEF CPUX64}
   var Param4IsFloatByValue := False;
+  var RecordParamPositions: TArray<Integer>; { Positions (1-based) of by-value 8-byte record params }
 {$ENDIF}
   while S <> '' do begin
     Inc(ParamCount);
 {$IFDEF CPUX64}
-    if ParamCount = 4 then begin
-      { Same code as in MyAllMethodsHandler64 }
-      var e := GRFW(S);
-      const fmod = e[1];
-      Delete(e, 1, 1);
-      const cpt = Caller.GetTypeNo(Cardinal(StrToInt(e)));
-      if not ParamAsVariable(fmod, cpt) then
-        Param4IsFloatByValue := cpt.BaseType in [btSingle, btDouble, btExtended];
-    end else
+    { Same code as in MyAllMethodsHandler64 }
+    var e := GRFW(S);
+    const fmod = e[1];
+    Delete(e, 1, 1);
+    const cpt = Caller.GetTypeNo(Cardinal(StrToInt(e)));
+    if (ParamCount = 4) and not ParamAsVariable(fmod, cpt) then
+      Param4IsFloatByValue := cpt.BaseType in [btSingle, btDouble, btExtended];
+    { Assume by-value 8-byte records are unmanaged; a managed one is by reference
+      under stdcall (no bridging needed) but never reaches a native callback }
+    if (fmod <> '%') and (fmod <> '!') and (cpt.BaseType = btRecord) and (cpt.RealSize = 8) then
+      RecordParamPositions := RecordParamPositions + [ParamCount];
+{$ELSE}
+    GRFW(S);
 {$ENDIF}
-      GRFW(S);
   end;
 
   { Turn our proc into a callable TMethod - its Code will point to
@@ -808,7 +812,8 @@ begin
     var ExtraParams := ParamCount - 3;
     if ExtraParams < 0 then
       ExtraParams := 0;
-    var FrameSize := 32 + ExtraParams * SizeOf(Pointer);
+    const RecordTempBase = 32 + ExtraParams * SizeOf(Pointer);
+    var FrameSize := RecordTempBase + Length(RecordParamPositions) * SizeOf(Pointer);
     if (FrameSize and $F) = 0 then
       Inc(FrameSize, 8); { keep RSP 16-byte aligned at call site }
     Inliner.SubRsp(FrameSize);
@@ -837,6 +842,38 @@ begin
       Inliner.MovRegReg(R8, R10); { param2: saved RDX->R8 }
     if ParamCount >= 3 then
       Inliner.MovRegReg(R9, RAX); { param3: saved R8->R9 }
+
+    { Bridge by-value 8-byte records: the slot holds the record value (stdcall)
+      but the handler (register) reads it as a pointer, so copy each to its temp
+      and put the temp's address in the slot. }
+    for var I := 0 to High(RecordParamPositions) do begin
+      const Position = RecordParamPositions[I];
+      const TempOffset = RecordTempBase + I * SizeOf(Pointer);
+      case Position of
+        1:
+          begin
+            Inliner.MovMemRSPReg(TempOffset, RDX);
+            Inliner.LeaRegMemRSP(RDX, TempOffset);
+          end;
+        2:
+          begin
+            Inliner.MovMemRSPReg(TempOffset, R8);
+            Inliner.LeaRegMemRSP(R8, TempOffset);
+          end;
+        3:
+          begin
+            Inliner.MovMemRSPReg(TempOffset, R9);
+            Inliner.LeaRegMemRSP(R9, TempOffset);
+          end;
+      else begin
+          const SlotOffset = 32 + (Position - 4) * SizeOf(Pointer);
+          Inliner.MovRegMemRSP(RAX, SlotOffset);
+          Inliner.MovMemRSPReg(TempOffset, RAX);
+          Inliner.LeaRegMemRSP(RAX, TempOffset);
+          Inliner.MovMemRSPReg(SlotOffset, RAX);
+        end;
+      end;
+    end;
 
     Inliner.MovRegImm64(R10, NativeUInt(Method.Code));
     Inliner.CallReg(R10); { Call the wrapped proc }

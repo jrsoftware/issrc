@@ -128,6 +128,7 @@ type
     procedure MovRegReg(const Dest, Src: TRegister64);
     procedure MovRegImm64(const Dest: TRegister64; const Value: UInt64);
     procedure MovRegMemRSP(const Dest: TRegister64; const Disp: Integer);
+    procedure LeaRegMemRSP(const Dest: TRegister64; const Disp: Integer);
     procedure MovMemRSPReg(const Disp: Integer; const Src: TRegister64);
     procedure SubRsp(const Amount: Integer);
     procedure AddRsp(const Amount: Integer);
@@ -454,6 +455,16 @@ begin
   const DestCode = RegCode(Dest);
   WriteREX(True, DestCode >= 8, False, False);
   WriteByte($8B);
+  WriteByte(Byte($84 or ((DestCode and 7) shl 3)));
+  WriteByte($24);
+  WriteInteger(Disp);
+end;
+
+procedure TASMInline.LeaRegMemRSP(const Dest: TRegister64; const Disp: Integer);
+begin
+  const DestCode = RegCode(Dest);
+  WriteREX(True, DestCode >= 8, False, False);
+  WriteByte($8D);
   WriteByte(Byte($84 or ((DestCode and 7) shl 3)));
   WriteByte($24);
   WriteInteger(Disp);
