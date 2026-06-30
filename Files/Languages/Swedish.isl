@@ -1,7 +1,7 @@
 ; *** Inno Setup version 6.5.0+ Swedish messages ***
 ;
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/files/istrans/
+;   https://jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -9,15 +9,15 @@
 ; two periods being displayed).
 ;
 ; Translated by stefan@bodingh.se (Stefan Bodingh)
-; Reviewed and updated by info@danielnylander.se (Daniel Nylander) 
+; Reviewed and updated by info@danielnylander.se (Daniel Nylander)
 ;
 
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 
 
 [LangOptions]
-LanguageName=Svenska	
+LanguageName=Svenska
 LanguageID=$041D
 LanguageCodePage=1252
 ; If the language you are translating to requires special font faces or
@@ -89,14 +89,14 @@ ExitSetupMessage=Installationen är inte färdig. Om du avslutar nu så kommer p
 AboutSetupMenuItem=&Om installationsprogrammet...
 AboutSetupTitle=Om installationsprogrammet
 AboutSetupMessage=%1 version %2%n%3%n%n%1 webbsida:%n%4
-AboutSetupNote=Svensk översättning är gjord av dickg@go.to 1999, 2002%n%nUppdatering till 3.0.2+ av peter@peterandlinda.com, 4.+ av stefan@bodingh.se, 6.4+ info@danielnylander.se
-TranslatorNote=
+AboutSetupNote=
+TranslatorNote=Svensk översättning är gjord av dickg@go.to 1999, 2002%n%nUppdatering till 3.0.2+ av peter@peterandlinda.com, 4.+ av stefan@bodingh.se, 6.4+ info@danielnylander.se
 
 ; *** Buttons
 ButtonBack=< &Tillbaka
 ButtonNext=&Nästa >
 ButtonInstall=&Installera
-ButtonOK=Ok
+ButtonOK=OK
 ButtonCancel=Avbryt
 ButtonYes=&Ja
 ButtonYesToAll=Ja till &allt
@@ -119,7 +119,7 @@ BrowseDialogLabel=Välj en mapp i listan nedan, klicka sedan på OK.
 NewFolderName=Ny mapp
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Välkommen till installationsprogrammet för [name].
+WelcomeLabel1=Välkommen till installationsprogrammet för [name]
 WelcomeLabel2=Detta kommer att installera [name/ver] på din dator.%n%nDet rekommenderas att du avslutar alla andra program innan du fortsätter.
 
 ; *** "Password" wizard page
@@ -155,7 +155,7 @@ UserInfoNameRequired=Du måste fylla i ett namn.
 ; *** "Select Destination Directory" wizard page
 WizardSelectDir=Välj installationsplats
 SelectDirDesc=Var skall [name] installeras?
-SelectDirLabel3=Installationsprogrammet kommer att installera [name] i följande mapp
+SelectDirLabel3=Installationsprogrammet kommer att installera [name] i följande mapp.
 SelectDirBrowseLabel=För att fortsätta klickar du på Nästa. Om du vill välja en annan mapp så klickar du på Bläddra.
 DiskSpaceGBLabel=Programmet kräver minst [gb] GB hårddiskutrymme.
 DiskSpaceMBLabel=Programmet kräver minst [mb] MB hårddiskutrymme.
@@ -182,7 +182,7 @@ FullInstallation=Fullständig installation
 CompactInstallation=Kompakt installation
 CustomInstallation=Anpassad installation
 NoUninstallWarningTitle=Komponenter finns
-NoUninstallWarning=Installationsprogrammet har upptäckt att följande komponenter redan finns installerade på din dator:%n%n%1%n%nAtt  avmarkera dessa komponenter kommer inte att avinstallera dom.%n%nVill du fortsätta ändå?
+NoUninstallWarning=Installationsprogrammet har upptäckt att följande komponenter redan finns installerade på din dator:%n%n%1%n%nAtt avmarkera dessa komponenter kommer inte att avinstallera dom.%n%nVill du fortsätta ändå?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
 ComponentsDiskSpaceGBLabel=Aktuella val kräver minst [gb] GB diskutrymme.
@@ -247,7 +247,7 @@ ApplicationsFound=Följande program använder filer som måste uppdateras av ins
 ApplicationsFound2=Följande program använder filer som måste uppdateras av installationsprogrammet. Vi rekommenderar att du låter installationsprogrammet automatiskt stänga dessa program. Efter installationen kommer Setup att försöka starta programmen igen.
 CloseApplications=S&täng programmen automatiskt
 DontCloseApplications=&Stäng inte programmen
-ErrorCloseApplications=Installationsprogrammet kunde inte stänga alla program. Innan installationen fortsätter rekommenderar vi att du stänger alla program som använder filer som installationsprogrammet behöver uppdatera. 
+ErrorCloseApplications=Installationsprogrammet kunde inte stänga alla program. Innan installationen fortsätter rekommenderar vi att du stänger alla program som använder filer som installationsprogrammet behöver uppdatera.
 PrepareToInstallNeedsRestart=Installationen måste starta om din dator. När du har startat om datorn kör du installationsprogrammet igen för att slutföra installationen av [name].%n%nVill du starta om nu?
 
 ; *** "Installing" wizard page
@@ -385,7 +385,7 @@ UninstallDataCorrupted=Filen "%1" är skadad. Kan inte avinstallera
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Ta bort delad fil?
-ConfirmDeleteSharedFile2=Systemet indikerar att följande delade fil inte längre används av några program. Vill du ta bort den delade filen?%n%n%1%n%nOm något program fortfarande använder denna fil och den raderas, kommer programmet kanske att sluta fungera. Om du är osäker, välj Nej. Att låta filen ligga kvar i systemet kommer inte att orsaka någon skada.
+ConfirmDeleteSharedFile2=Systemet indikerar att följande delade fil inte längre används av några program. Vill du ta bort den delade filen?%n%nOm något program fortfarande använder denna fil och den raderas, kommer programmet kanske att sluta fungera. Om du är osäker, välj Nej. Att låta filen ligga kvar i systemet kommer inte att orsaka någon skada.
 SharedFileNameLabel=Filnamn:
 SharedFileLocationLabel=Plats:
 WizardUninstalling=Avinstallationsstatus

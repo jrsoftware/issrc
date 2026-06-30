@@ -128,21 +128,21 @@ InfoBeforeLabel=Llegiu la informació següent abans de continuar.
 InfoBeforeClickLabel=Quan estigueu preparat per a continuar, premeu Següent.
 WizardInfoAfter=Informació
 InfoAfterLabel=Llegiu la informació següent abans de continuar.
-InfoAfterClickLabel=Quan estigueu preparat per a continuar, premeu Següent
+InfoAfterClickLabel=Quan estigueu preparat per a continuar, premeu Següent.
 
 ; *** "User Information" wizard page
 WizardUserInfo=Informació sobre l'usuari
 UserInfoDesc=Introduïu la vostra informació.
 UserInfoName=&Nom de l'usuari:
-UserInfoOrg=&Organització
+UserInfoOrg=&Organització:
 UserInfoSerial=&Número de sèrie:
-UserInfoNameRequired=Cal que hi introduïu un nom
+UserInfoNameRequired=Cal que hi introduïu un nom.
 
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Trieu Carpeta de Destinació
 SelectDirDesc=On s'ha d'instal·lar [name]?
 SelectDirLabel3=El programa d'instal·lació instal·larà [name] a la carpeta següent.
-SelectDirBrowseLabel=Per a continuar, premeu Següent. Si desitgeu triar una altra capeta, premeu Cerca.
+SelectDirBrowseLabel=Per a continuar, premeu Següent. Si desitgeu triar una altra carpeta, premeu Cerca.
 DiskSpaceGBLabel=Aquest programa necessita un mínim de [gb] GB d'espai a disc.
 DiskSpaceMBLabel=Aquest programa necessita un mínim de [mb] MB d'espai a disc.
 CannotInstallToNetworkDrive=La instal·lació no es pot fer en un disc de xarxa.
@@ -169,10 +169,10 @@ CompactInstallation=Instal·lació compacta
 CustomInstallation=Instal·lació personalitzada
 NoUninstallWarningTitle=Els components Existeixen
 NoUninstallWarning=El programa d'instal·lació ha detectat que els components següents ja es troben al vostre ordinador:%n%n%1%n%nSi no estan seleccionats no seran desinstal·lats.%n%nVoleu continuar igualment?
-ComponentSize1=%1 Kb
-ComponentSize2=%1 Mb
+ComponentSize1=%1 KB
+ComponentSize2=%1 MB
 ComponentsDiskSpaceGBLabel=Aquesta selecció requereix un mínim de [gb] GB d'espai al disc.
-ComponentsDiskSpaceMBLabel=Aquesta selecció requereix un mínim de [mb] Mb d'espai al disc.
+ComponentsDiskSpaceMBLabel=Aquesta selecció requereix un mínim de [mb] MB d'espai al disc.
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Trieu tasques addicionals
@@ -234,7 +234,7 @@ ApplicationsFound2=Les següents aplicacions estan fent servir fitxers que neces
 CloseApplications=&Tanca automàticament les aplicacions
 DontCloseApplications=&No tanquis les aplicacions
 ErrorCloseApplications=El programa d'instal·lació no ha pogut tancar automàticament totes les aplicacions. Es recomana que abans de continuar tanqueu totes les aplicacions que estan usant fitxers que han de ser actualitzats pel programa d'instal·lació.
-PrepareToInstallNeedsRestart=El programa d'instal·lació ha de reiniciar l'ordinador. Després del reinici, executeu de nou l'instal·lador per tal de completar la instal·lació de [name].%n%nVoleu reiniciar-lo ara? 
+PrepareToInstallNeedsRestart=El programa d'instal·lació ha de reiniciar l'ordinador. Després del reinici, executeu de nou l'instal·lador per tal de completar la instal·lació de [name].%n%nVoleu reiniciar-lo ara?
 
 ; *** "Installing" wizard page
 WizardInstalling=Instal·lant
@@ -246,7 +246,7 @@ FinishedLabelNoIcons=El programa ha finalitzat la instal·lació de [name] al vo
 FinishedLabel=El programa ha finalitzat la instal·lació de [name] al vostre ordinador. L'aplicació pot ser iniciada seleccionant les icones instal·lades.
 ClickFinish=Premeu Finalitza per a sortir de la instal·lació.
 FinishedRestartLabel=Per a completar la instal·lació de [name] cal reiniciar l'ordinador. Voleu fer-ho ara?
-FinishedRestartMessage=Per a completar la instal·lació de [name] cal reiniciar l'ordinador. Voleu fer-ho ara?
+FinishedRestartMessage=Per a completar la instal·lació de [name] cal reiniciar l'ordinador.%n%nVoleu fer-ho ara?
 ShowReadmeCheck=Sí, vull visualitzar el fitxer LLEGIUME.TXT
 YesRadio=&Sí, reiniciar l'ordinador ara
 NoRadio=&No, reiniciaré l'ordinador més tard
@@ -257,13 +257,13 @@ RunEntryShellExec=Visualitza %1
 
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=El programa d'instal·lació necessita el disc següent
-SelectDiskLabel2=Introduiu el disc %1 i premeu Continua.%n%nSi els fitxers d'aquest disc es poden trobar en una carpeta diferent de la indicada tot seguit, introduïu-ne la ruta correcta o bé premeu Explora.
+SelectDiskLabel2=Introduïu el disc %1 i premeu Continua.%n%nSi els fitxers d'aquest disc es poden trobar en una carpeta diferent de la indicada tot seguit, introduïu-ne la ruta correcta o bé premeu Explora.
 PathLabel=&Ruta:
 FileNotInDir2=El fitxer "%1" no s'ha pogut trobar a "%2". Introduïu el disc correcte o trieu una altra carpeta.
 SelectDirectoryLabel=Indiqueu on es troba el disc següent.
 
 ; *** Installation phase messages
-SetupAborted=La instal·lació no s'ha completat.%n%n%Resoleu el problema i executeu de nou el programa d'instal·lació.
+SetupAborted=La instal·lació no s'ha completat.%n%nResoleu el problema i executeu de nou el programa d'instal·lació.
 AbortRetryIgnoreSelectAction=Trieu acció
 AbortRetryIgnoreRetry=&Torna-ho a intentar
 AbortRetryIgnoreIgnore=&Ignora l'error i continua
@@ -307,7 +307,7 @@ FileAbortRetryIgnoreIgnoreNotRecommended=&Ignora l'error i continua (no recomana
 SourceIsCorrupted=El fitxer d'origen està corromput
 SourceDoesntExist=El fitxer d'origen "%1" no existeix
 SourceVerificationFailed=Ha fallat la verificació del fitxer d'origen: %1
-VerificationSignatureDoesntExist=El fitxer de signatura "%1" no eixsteix
+VerificationSignatureDoesntExist=El fitxer de signatura "%1" no existeix
 VerificationSignatureInvalid=El fitxer de signatura "%1" no és vàlid
 VerificationKeyNotFound=El fitxer de signatura "%1" utilitza una clau desconeguda
 VerificationFileNameIncorrect=El nom del fitxer no és correcte
@@ -357,7 +357,7 @@ ErrorRestartingComputer=El programa d'instal·lació no ha pogut reiniciar l'ord
 UninstallNotFound=El fitxer "%1" no existeix. No es pot desinstal·lar.
 UninstallOpenError=El fitxer "%1" no pot ser obert. No es pot desinstal·lar
 UninstallUnsupportedVer=El fitxer de desinstal·lació "%1" està en un format no reconegut per aquesta versió del desinstal·lador. No es pot desinstal·lar
-UninstallUnknownEntry=S'ha trobat una entrada desconeguda (%1) al fitxer de desinstal·lació.
+UninstallUnknownEntry=S'ha trobat una entrada desconeguda (%1) al fitxer de desinstal·lació
 ConfirmUninstall=Esteu segur de voler eliminar completament %1 i tots els seus components?
 UninstallOnlyOnWin64=Aquest programa només pot ser desinstal·lat en Windows de 64 bits.
 OnlyAdminCanUninstall=Aquest programa només pot ser desinstal·lat per un usuari amb privilegis d'administrador.
@@ -365,7 +365,7 @@ UninstallStatusLabel=Espereu mentre s'elimina %1 del vostre ordinador.
 UninstalledAll=%1 ha estat desinstal·lat correctament del vostre ordinador.
 UninstalledMost=Desinstal·lació de %1 completada.%n%nAlguns elements no s'han pogut eliminar. Poden ser eliminats manualment.
 UninstalledAndNeedsRestart=Per completar la instal·lació de %1, cal reiniciar el vostre ordinador.%n%nVoleu fer-ho ara?
-UninstallDataCorrupted=El fitxer "%1" està corromput. No es pot desinstal·lar.
+UninstallDataCorrupted=El fitxer "%1" està corromput. No es pot desinstal·lar
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Eliminar fitxer compartit?

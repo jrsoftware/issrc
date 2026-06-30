@@ -15,7 +15,7 @@
 ; *******************************************************
 
 [LangOptions]
-LanguageName=<010C>e<0161>tina
+LanguageName=Čeština
 LanguageID=$0405
 LanguageCodePage=1250
 
@@ -107,7 +107,7 @@ BrowseDialogLabel=Z níže uvedeného seznamu vyberte složku a klepněte na tla
 NewFolderName=Nová složka
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Vítá Vás průvodce instalací produktu [name].
+WelcomeLabel1=Vítá Vás průvodce instalací produktu [name]
 WelcomeLabel2=Produkt [name/ver] bude nainstalován na Váš počítač.%n%nDříve než budete pokračovat, doporučuje se zavřít veškeré spuštěné aplikace.
 
 ; *** "Password" wizard page
@@ -211,7 +211,7 @@ StopDownload=Určitě chcete stahování zastavit?
 ErrorDownloadAborted=Stahování přerušeno
 ErrorDownloadFailed=Stahování selhalo: %1 %2
 ErrorDownloadSizeFailed=Nepodařilo se zjistit velikost: %1 %2
-ErrorProgress=Neplatný průběh: %1 of %2
+ErrorProgress=Neplatný průběh: %1 z %2
 ErrorFileSize=Neplatná velikost souboru: očekáváno %1, nalezeno %2
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
@@ -359,7 +359,7 @@ ErrorRestartingComputer=Průvodci instalací se nepodařilo restartovat Váš po
 
 ; *** Uninstaller messages
 UninstallNotFound=Soubor "%1" neexistuje. Produkt nelze odinstalovat.
-UninstallOpenError=Soubor "%1" nelze otevřít. Produkt nelze odinstalovat.
+UninstallOpenError=Soubor "%1" nelze otevřít. Produkt nelze odinstalovat
 UninstallUnsupportedVer=Formát souboru se záznamy k odinstalaci produktu "%1" nebyl touto verzí průvodce odinstalací rozpoznán. Produkt nelze odinstalovat
 UninstallUnknownEntry=V souboru obsahujícím informace k odinstalaci produktu byla zjištěna neznámá položka (%1)
 ConfirmUninstall=Určitě chcete produkt %1 a všechny jeho součásti odinstalovat?

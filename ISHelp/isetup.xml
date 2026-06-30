@@ -3467,19 +3467,10 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <tr>
   <td>32-bit</td>
   <td>32-bit</td>
-  <td nowrap="">
-    <p>Usually:<br/><tt>System32</tt> &rarr; <tt>SysWOW64</tt></p>
-    <p>In special cases:<br/><tt>SysWOW64</tt> &rarr; <tt>System32</tt></p>
-  </td>
+  <td nowrap=""><tt>System32</tt> &rarr; <tt>SysWOW64</tt><br/>(except in special cases)</td>
   <td>
     <p>In 32-bit processes, <extlink href="https://learn.microsoft.com/en-us/windows/win32/winprog64/file-system-redirector">WOW64 file system redirection</extlink> already routes <tt>System32</tt> to <tt>SysWOW64</tt>, but certain subdirectories are exempt (one example: <tt>System32\drivers\etc</tt>). Explicitly changing <tt>System32</tt> &rarr; <tt>SysWOW64</tt> bypasses those exemptions, keeping the redirection consistent with the 64-bit target process rule above.</p>
-    <p>In a few special cases, the rule is flipped to <tt>SysWOW64</tt> &rarr; <tt>System32</tt>. These cases are:</p>
-    <ul appearance="compact">
-      <li>when setting values in the 32-bit <tt>SharedDLLs</tt> registry key, because <tt>SysWOW64</tt> isn't used there</li>
-      <li>when passing paths to the 32-bit <tt>regsvr32.exe</tt>, because DLLs are traditionally registered with a <tt>System32</tt> path</li>
-      <li>when registering/unregistering type libraries in 32-bit Setup/Uninstall, because type libraries are traditionally registered with a <tt>System32</tt> path</li>
-      <li>when the <isxfunc>ApplyPathRedirRules</isxfunc> support function is called with <tt>tp32BitPreferSystem32</tt> in the target process parameter</li>
-    </ul>
+    <p>In a few special cases, this rule is disabled, and a <tt>SysWOW64</tt> &rarr; <tt>System32</tt> substitution is performed instead. See below for that rule.</p>
   </td>
 </tr>
 <tr>
@@ -3487,6 +3478,20 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>64-bit</td>
   <td nowrap=""><tt>System32</tt> &rarr; <i>no change</i></td>
   <td><tt>System32</tt> is correct as-is when the entry and target process are both 64-bit.</td>
+</tr>
+<tr>
+  <td>Any</td>
+  <td>32-bit</td>
+  <td nowrap="">In special cases only:<br/><tt>SysWOW64</tt> &rarr; <tt>System32</tt></td>
+  <td>
+    <p>This rule is applied in certain special cases. These cases are:</p>
+    <ul appearance="compact">
+      <li>when setting values in the 32-bit <tt>SharedDLLs</tt> registry key, because <tt>SysWOW64</tt> isn't used there</li>
+      <li>when passing paths to the 32-bit <tt>regsvr32.exe</tt>, because DLLs are traditionally registered with a <tt>System32</tt> path</li>
+      <li>when registering/unregistering type libraries in 32-bit Setup/Uninstall, because type libraries are traditionally registered with a <tt>System32</tt> path</li>
+      <li>when the <isxfunc>ApplyPathRedirRules</isxfunc> support function is called with <tt>tp32BitPreferSystem32</tt> in the target process parameter</li>
+    </ul>
+  </td>
 </tr>
 <tr>
   <td>Any</td>

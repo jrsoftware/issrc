@@ -192,21 +192,24 @@ begin
         SubstitutePath(NewPath, FSystem32Path, FSysNativePath);
     end else begin
       { It's a 32-bit path (i.e., System32 means 32-bit system directory).
-        SysWOW64 -> System32: In special tp32BitPreferSystem32 case only.
-        System32 -> SysWOW64: Otherwise.
-        If you're wondering why it does the latter not only for a 64-bit
-        target process but also for a 32-bit target process:
+        System32 -> SysWOW64: For both 64-bit and 32-bit target processes,
+        except in the special tp32BitPreferSystem32 case.
+        If you're wondering why it does this not only for a 64-bit target
+        process but also for a 32-bit target process:
         - GenerateUninstallInfoFilename makes use of this rewrite, see its
           comments.
         - It also helps 32-bit target processes avoid some exceptions that
           apply to System32 but not to SysWOW64. For example: certain
           System32 subdirectories are exempt from redirection. This is not
           the case for SysWOW64. }
-      if ATargetProcess = tp32BitPreferSystem32 then
-        SubstitutePath(NewPath, FSysWow64Path, FSystem32Path)
-      else
+      if ATargetProcess <> tp32BitPreferSystem32 then
         SubstitutePath(NewPath, FSystem32Path, FSysWow64Path);
     end;
+
+    { SysWOW64 -> System32: In special tp32BitPreferSystem32 case only,
+      regardless of path bitness. }
+    if ATargetProcess = tp32BitPreferSystem32 then
+      SubstitutePath(NewPath, FSysWow64Path, FSystem32Path);
 
     { Sysnative -> System32: When process is 64-bit, regardless of path
       bitness (because the Sysnative alias never works in 64-bit processes). }

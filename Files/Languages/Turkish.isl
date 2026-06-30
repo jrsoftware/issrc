@@ -11,7 +11,7 @@
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
 ; understand the '[LangOptions] section' topic in the help file.
-LanguageName=T<00FC>rk<00E7>e
+LanguageName=Türkçe
 LanguageID=$041f
 ; LanguageCodePage should always be set if possible, even if this file is Unicode
 ; For English it's set to zero anyway because English only uses ASCII characters
@@ -57,7 +57,7 @@ NotOnThisPlatform=Bu uygulama, %1 üzerinde çalışmaz.
 OnlyOnThisPlatform=Bu uygulama, %1 üzerinde çalıştırılmalıdır.
 OnlyOnTheseArchitectures=Bu uygulama, yalnızca şu işlemci mimarileri için tasarlanmış Windows sürümleriyle çalışır:%n%n%1
 WinVersionTooLowError=Bu uygulama için %1 sürüm %2 ya da üzeri gereklidir.
-WinVersionTooHighError=Bu uygulama, '%1' sürüm '%2' ya da üzerine kurulamaz.
+WinVersionTooHighError=Bu uygulama, %1 sürüm %2 ya da üzerine kurulamaz.
 AdminPrivilegesRequired=Bu uygulamayı kurmak için Yönetici yetkileri olan bir kullanıcı ile oturum açılmış olmalıdır.
 PowerUserPrivilegesRequired=Bu uygulamayı kurarken, Yönetici ya da Güçlü Kullanıcılar grubundaki bir kullanıcı ile oturum açılmış olması gereklidir.
 SetupAppRunningError=Kurulum yardımcısı %1 uygulamasının çalışmakta olduğunu algıladı.%n%nLütfen uygulamanın çalışan tüm kopyalarını kapatıp, ilerlemek için Tamam, kurulum yardımcısından çıkmak için İptal üzerine tıklayın.
@@ -74,7 +74,7 @@ PrivilegesRequiredOverrideCurrentUser=&Yalnızca geçerli kullanıcı için kuru
 PrivilegesRequiredOverrideCurrentUserRecommended=&Yalnızca geçerli kullanıcı için kurulsun (önerilir)
 
 ; *** Çeşitli hata metinleri
-ErrorCreatingDir=Kurulum yardımcısı "%1" klasörünü oluşturamadı.
+ErrorCreatingDir=Kurulum yardımcısı "%1" klasörünü oluşturamadı
 ErrorTooManyFilesInDir="%1" klasörü içinde çok sayıda dosya olduğundan bir dosya oluşturulamadı
 
 ; *** Ortak kurulum iletileri
@@ -110,10 +110,10 @@ ClickNext=İlerlemek için Sonraki, çıkmak için İptal üzerine tıklayın.
 BeveledLabel=
 BrowseDialogTitle=Klasöre göz at
 BrowseDialogLabel=Aşağıdaki listeden bir klasör seçip, Tamam üzerine tıklayın.
-NewFolderName=Yeni klasör 
+NewFolderName=Yeni klasör
 
 ; *** "Karşılama" sayfası
-WelcomeLabel1=[name] Kurulum yardımcısına hoş geldiniz.
+WelcomeLabel1=[name] Kurulum yardımcısına hoş geldiniz
 WelcomeLabel2=Bilgisayarınıza [name/ver] uygulaması kurulacak.%n%nİlerlemeden önce çalışan diğer tüm uygulamaları kapatmanız önerilir.
 
 ; *** "Parola" sayfası
@@ -127,8 +127,8 @@ IncorrectPassword=Yazdığınız parola doğru değil. Lütfen yeniden deneyin.
 WizardLicense=Lisans anlaşması
 LicenseLabel=Lütfen ilerlemeden önce aşağıdaki önemli bilgileri okuyun.
 LicenseLabel3=Lütfen aşağıdaki lisans anlaşmasını okuyun. Uygulamayı kurmak için bu anlaşmayı kabul etmelisiniz.
-LicenseAccepted=Anlaşmayı kabul &ediyorum.
-LicenseNotAccepted=Anlaşmayı kabul et&miyorum.
+LicenseAccepted=Anlaşmayı kabul &ediyorum
+LicenseNotAccepted=Anlaşmayı kabul et&miyorum
 
 ; *** "Bilgiler" sayfası
 WizardInfoBefore=Bilgiler
@@ -150,12 +150,12 @@ UserInfoNameRequired=Bir ad yazmalısınız.
 WizardSelectDir=Kurulum konumunu seçin
 SelectDirDesc=[name] nereye kurulsun?
 SelectDirLabel3=[name] uygulaması şu klasöre kurulacak.
-SelectDirBrowseLabel=İlerlemek icin Sonraki üzerine tıklayın. Farklı bir klasör seçmek için Göz at üzerine tıklayın.
+SelectDirBrowseLabel=İlerlemek için Sonraki üzerine tıklayın. Farklı bir klasör seçmek için Göz at üzerine tıklayın.
 DiskSpaceGBLabel=En az [gb] GB boş disk alanı gereklidir.
 DiskSpaceMBLabel=En az [mb] MB boş disk alanı gereklidir.
 CannotInstallToNetworkDrive=Uygulama bir ağ sürücüsü üzerine kurulamaz.
 CannotInstallToUNCPath=Uygulama bir UNC yolu üzerine (\\yol gibi) kurulamaz.
-InvalidPath=Sürücü adı ile tam yolu yazmalısınız. Örnek: %n%nC:\APP%n%n ya da şu şekilde bir UNC yolu:%n%n\\sunucu\paylaşım
+InvalidPath=Sürücü adı ile tam yolu yazmalısınız. Örnek:%n%nC:\APP%n%nya da şu şekilde bir UNC yolu:%n%n\\sunucu\paylaşım
 InvalidDrive=Sürücü ya da UNC paylaşımı yok ya da erişilemiyor. Lütfen başka bir tane seçin.
 DiskSpaceWarningTitle=Yeterli boş disk alanı yok
 DiskSpaceWarning=Kurulum için %1 KB boş alan gerekli, ancak seçilmiş sürücüde yalnızca %2 KB boş alan var.%n%nGene de ilerlemek istiyor musunuz?
@@ -165,7 +165,7 @@ BadDirName32=Klasör adlarında şu karakterler bulunamaz:%n%n%1
 DirExistsTitle=Klasör zaten var
 DirExists=Klasör:%n%n%1%n%nzaten var. Kurulum için bu klasörü kullanmak ister misiniz?
 DirDoesntExistTitle=Klasör bulunamadı
-DirDoesntExist=Klasör:%n%n%1%n%nbulunamadı.Klasörün oluşturmasını ister misiniz?
+DirDoesntExist=Klasör:%n%n%1%n%nbulunamadı. Klasörün oluşturulmasını ister misiniz?
 
 ; *** "Bileşenleri seçin" sayfası
 WizardSelectComponents=Bileşenleri seçin
@@ -176,7 +176,7 @@ FullInstallation=Tam kurulum
 CompactInstallation=Normal kurulum
 CustomInstallation=Özel kurulum
 NoUninstallWarningTitle=Bileşenler zaten var
-NoUninstallWarning=Şu bileşenlerin bilgisayarınızda zaten kurulu olduğu algılandı:%n%n%1%n%n Bu bileşenlerin işaretlerinin kaldırılması bileşenleri kaldırmaz.%n%nGene de ilerlemek istiyor musunuz?
+NoUninstallWarning=Şu bileşenlerin bilgisayarınızda zaten kurulu olduğu algılandı:%n%n%1%n%nBu bileşenlerin işaretlerinin kaldırılması bileşenleri kaldırmaz.%n%nGene de ilerlemek istiyor musunuz?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
 ComponentsDiskSpaceGBLabel=Seçilmiş bileşenler için diskte en az [gb] GB boş alan bulunması gerekli.
@@ -220,7 +220,7 @@ ErrorDownloadSizeFailed=Boyut alınamadı: %1 %2
 ErrorProgress=Adım geçersiz: %1 / %2
 ErrorFileSize=Dosya boyutu geçersiz: %1 olması gerekirken %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=Ek dosyalar ayıklanıyor...
 ButtonStopExtraction=Ayıklamayı &durdur
 StopExtraction=Ayıklamayı durdurmak istediğinize emin misiniz?
@@ -255,7 +255,7 @@ FinishedLabel=Bilgisayarınıza [name] kurulumu tamamlandı. Simgeleri yüklemey
 ClickFinish=Kurulum yardımcısından çıkmak için Bitti üzerine tıklayın.
 FinishedRestartLabel=[name] kurulumunun tamamlanması için, bilgisayarınız yeniden başlatılmalı. Şimdi yeniden başlatmak ister misiniz?
 FinishedRestartMessage=[name] kurulumunun tamamlanması için, bilgisayarınız yeniden başlatılmalı.%n%nŞimdi yeniden başlatmak ister misiniz?
-ShowReadmeCheck=Evet README dosyası görüntülensin
+ShowReadmeCheck=Evet, README dosyası görüntülensin
 YesRadio=&Evet, bilgisayar şimdi yeniden başlatılsın
 NoRadio=&Hayır, bilgisayarı daha sonra yeniden başlatacağım
 ; used for example as 'Run MyProg.exe'
@@ -296,15 +296,15 @@ StatusRollback=Değişiklikler geri alınıyor...
 
 ; *** Çeşitli hata iletileri
 ErrorInternal2=İç hata: %1
-ErrorFunctionFailedNoCode=%1 tamamlanamadı.
+ErrorFunctionFailedNoCode=%1 tamamlanamadı
 ErrorFunctionFailed=%1 tamamlanamadı; kod %2
 ErrorFunctionFailedWithMessage=%1 tamamlanamadı; kod %2.%n%3
 ErrorExecutingProgram=Şu dosya yürütülemedi:%n%1
 
 ; *** Kayıt defteri hataları
-ErrorRegOpenKey=Kayıt defteri anahtarı açılırken bir sorun çıktı:%n%1%2
-ErrorRegCreateKey=Kayıt defteri anahtarı eklenirken bir sorun çıktı:%n%1%2
-ErrorRegWriteKey=Kayıt defteri anahtarı yazılırken bir sorun çıktı:%n%1%2
+ErrorRegOpenKey=Kayıt defteri anahtarı açılırken bir sorun çıktı:%n%1\%2
+ErrorRegCreateKey=Kayıt defteri anahtarı eklenirken bir sorun çıktı:%n%1\%2
+ErrorRegWriteKey=Kayıt defteri anahtarı yazılırken bir sorun çıktı:%n%1\%2
 
 ; *** INI hataları
 ErrorIniEntry="%1" dosyasına INI kaydı eklenirken bir sorun çıktı.
@@ -325,7 +325,7 @@ VerificationFileHashIncorrect=Dosyanın karma değeri yanlış
 ExistingFileReadOnly2=Var olan dosya salt okunabilir olarak işaretlenmiş olduğundan üzerine yazılamadı.
 ExistingFileReadOnlyRetry=&Salt okunur işareti kaldırılıp yeniden denensin
 ExistingFileReadOnlyKeepExisting=&Var olan dosya korunsun
-ErrorReadingExistingDest=Var olan dosya okunmaya çalışılırken bir sorun çıktı.
+ErrorReadingExistingDest=Var olan dosya okunmaya çalışılırken bir sorun çıktı:
 FileExistsSelectAction=Yapılacak işlemi seçin
 FileExists2=Dosya zaten var.
 FileExistsOverwriteExisting=&Var olan dosyanın üzerine yazılsın
@@ -365,9 +365,9 @@ ErrorRestartingComputer=Kurulum yardımcısı bilgisayarınızı yeniden başlat
 
 ; *** Kaldırma yardımcısı iletileri
 UninstallNotFound="%1" dosyası bulunamadı. Uygulama kaldırılamıyor.
-UninstallOpenError="%1" dosyası açılamadı. Uygulama kaldırılamıyor.
-UninstallUnsupportedVer="%1" uygulama kaldırma günlük dosyasının biçimi, bu kaldırma yardımcısı sürümü tarafından anlaşılamadı. Uygulama kaldırılamıyor.
-UninstallUnknownEntry=Kaldırma günlüğünde bilinmeyen bir kayıt (%1) bulundu.
+UninstallOpenError="%1" dosyası açılamadı. Uygulama kaldırılamıyor
+UninstallUnsupportedVer="%1" uygulama kaldırma günlük dosyasının biçimi, bu kaldırma yardımcısı sürümü tarafından anlaşılamadı. Uygulama kaldırılamıyor
+UninstallUnknownEntry=Kaldırma günlüğünde bilinmeyen bir kayıt (%1) bulundu
 ConfirmUninstall=%1 uygulamasını tüm bileşenleri ile birlikte tamamen kaldırmak istediğinize emin misiniz?
 UninstallOnlyOnWin64=Bu kurulum yalnızca 64 bit Windows üzerinden kaldırılabilir.
 OnlyAdminCanUninstall=Bu kurulum yalnızca yönetici yetkileri olan bir kullanıcı tarafından kaldırılabilir.
@@ -375,7 +375,7 @@ UninstallStatusLabel=Lütfen %1 uygulaması bilgisayarınızdan kaldırılırken
 UninstalledAll=%1 uygulaması bilgisayarınızdan kaldırıldı.
 UninstalledMost=%1 uygulaması kaldırıldı.%n%nBazı bileşenler kaldırılamadı. Bunları el ile silebilirsiniz.
 UninstalledAndNeedsRestart=%1 kaldırma işleminin tamamlanması için bilgisayarınızın yeniden başlatılması gerekli.%n%nŞimdi yeniden başlatmak ister misiniz?
-UninstallDataCorrupted="%1" dosyası bozulmuş. Kaldırılamıyor.
+UninstallDataCorrupted="%1" dosyası bozulmuş. Kaldırılamıyor
 
 ; *** Kaldırma aşaması iletileri
 ConfirmDeleteSharedFileTitle=Paylaşılan dosya silinsin mi?

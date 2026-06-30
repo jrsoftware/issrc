@@ -427,7 +427,7 @@ begin
   { Main and preprocessor memos can't be hidden }
   VCloseCurrentTab2.Enabled := (FActiveMemo <> FMainMemo) and (FActiveMemo <> FPreprocessorOutputMemo);
 
-  VReopenTab2.Visible := FHiddenFiles.Count > 0;
+  VReopenTab2.Visible := FOptions.OpenIncludedFiles and (FHiddenFiles.Count > 0);
   if VReopenTab2.Visible then
     _UpdateReopenTabMenu(VReopenTab2);
   VReopenTabs2.Visible := VReopenTab2.Visible;

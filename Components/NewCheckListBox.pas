@@ -27,7 +27,7 @@ type
   TItemType = (itGroup, itCheck, itRadio);
   TCheckBoxState2 = (cb2Normal, cb2Hot, cb2Pressed, cb2Disabled);
 
-  TItemState = class (TObject)
+  TItemState = class(TObject)
   public
     Enabled: Boolean;
     HasInternalChildren: Boolean;
@@ -47,7 +47,7 @@ type
   TCheckItemOperation = (coUncheck, coCheck, coCheckWithChildren); 
   TEnumChildrenProc = procedure(Index: Integer; HasChildren: Boolean; Ext: NativeInt) of object;
 
-  TNewCheckListBox = class (TCustomListBox)
+  TNewCheckListBox = class(TCustomListBox)
   private
     FAccObjectInstance: TObject;
     FCaptureIndex: Integer;
@@ -268,7 +268,7 @@ const
     D1:$618736e0; D2:$3c3d; D3:$11cf; D4:($81,$0c,$00,$aa,$00,$38,$9b,$71));
 
 type
-  TWinControlAccess = class (TWinControl);
+  TWinControlAccess = class(TWinControl);
 
   { Note: We have to use TVariantArg for Delphi 2 compat., because D2 passes
     Variant parameters by reference (wrong), unlike D3+ which pass
@@ -364,7 +364,7 @@ type
     constructor Create(AControl: TNewCheckListBox);
     destructor Destroy; override;
     procedure ControlDestroying;
- end;
+  end;
 
 function CoDisconnectObject(unk: TIUnknown; dwReserved: DWORD): HRESULT;
   stdcall; external 'ole32.dll';
@@ -634,7 +634,7 @@ begin
   if ((X xor Y) and 1) = 0 then
   begin
     Canvas.MoveTo(X, Y);
-    Canvas.LineTo(X + 1, Y)
+    Canvas.LineTo(X + 1, Y);
   end;
 end;
 
@@ -706,7 +706,7 @@ begin
       DrawText(Canvas.Handle, PChar(ItemState.SubItem), Length(ItemState.SubItem),
         SubItemRect, DrawTextFormat);
       SubItemWidth := SubItemRect.Right + 2 * FOffset;
-      Dec(Rect.Right, SubItemWidth)
+      Dec(Rect.Right, SubItemWidth);
     end else
       Dec(Rect.Right, FOffset);
 
@@ -919,7 +919,7 @@ begin
           uState := uState or DFCS_INACTIVE;
         if (FCaptureIndex = Index) and (FSpaceDown or (FLastMouseMoveIndex = Index)) then
           uState := uState or DFCS_PUSHED;
-        DrawFrameControl(Handle, CheckRect, DFC_BUTTON, uState)
+        DrawFrameControl(Handle, CheckRect, DFC_BUTTON, uState);
       end else begin
         PartId := ButtonPartIds[ItemState.ItemType];
         if ItemDisabled then
@@ -1816,7 +1816,7 @@ begin
     VK_TAB:
       begin
         GoForward := GetKeyState(VK_SHIFT) >= 0;
-        Arrows := False
+        Arrows := False;
       end;
     VK_DOWN, VK_RIGHT: GoForward := True;
     VK_UP, VK_LEFT: GoForward := False
@@ -2011,11 +2011,11 @@ end;
 procedure TNewCheckListBoxStyleHook.WndProc(var Message: TMessage);
 begin
   if (Message.Msg = WM_ERASEBKGND) and (Control.StyleName <> '') then begin
-  	const WantTabs = (Control is TNewCheckListBox) and TNewCheckListBox(Control).WantTabs;
-  	if not FStyleColorsChecked or (FStyleColorsCheckedWantTabs <> WantTabs) then begin
-    	FStyleColorsChecked := True;
-    	FStyleColorsCheckedWantTabs := WantTabs;
-    	UpdateColors;
+    const WantTabs = (Control is TNewCheckListBox) and TNewCheckListBox(Control).WantTabs;
+    if not FStyleColorsChecked or (FStyleColorsCheckedWantTabs <> WantTabs) then begin
+      FStyleColorsChecked := True;
+      FStyleColorsCheckedWantTabs := WantTabs;
+      UpdateColors;
     end;
   end;
 
@@ -2058,7 +2058,7 @@ begin
   const WantTabs = (Control is TNewCheckListBox) and TNewCheckListBox(Control).WantTabs;
   const LStyle = StyleServices;
 
-	{ Also see color initialization in TNewCheckListBox.DrawItem }
+  { Also see color initialization in TNewCheckListBox.DrawItem }
   if WantTabs then
     Brush.Color := LStyle.GetStyleColor(scWindow)
   else
@@ -2069,7 +2069,7 @@ begin
     else
       FontColor := LStyle.GetStyleFontColor(ListItemFontColorStates[Control.Enabled])
   end else
-  	FontColor := TWinControlAccess(Control).Font.Color;
+    FontColor := TWinControlAccess(Control).Font.Color;
 end;
 
 procedure TNewCheckListBoxStyleHook.WMKillFocus(var Message: TMessage);

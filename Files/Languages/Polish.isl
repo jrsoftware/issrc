@@ -39,7 +39,7 @@ HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nBłąd %2: %3
-SetupFileMissing=W folderze instalacyjnym brakuje pliku %1.%nProszę o przywrócenie brakujących plików lub uzyskanie nowej kopii programu instalacyjnego.
+SetupFileMissing=W folderze instalacyjnym brakuje pliku %1. Proszę o przywrócenie brakujących plików lub uzyskanie nowej kopii programu instalacyjnego.
 SetupFileCorrupt=Pliki instalacyjne są uszkodzone. Zaleca się uzyskanie nowej kopii programu instalacyjnego.
 SetupFileCorruptOrWrongVer=Pliki instalacyjne są uszkodzone lub niezgodne z tą wersją instalatora. Proszę rozwiązać problem lub uzyskać nową kopię programu instalacyjnego.
 InvalidParameter=W linii komend przekazano nieprawidłowy parametr:%n%n%1
@@ -72,7 +72,7 @@ ErrorTooManyFilesInDir=Nie można utworzyć pliku w folderze "%1", ponieważ zaw
 
 ; *** Setup common messages
 ExitSetupTitle=Zakończ instalację
-ExitSetupMessage=Instalacja nie została zakończona. Jeżeli przerwiesz ją teraz, aplikacja nie zostanie zainstalowana. Można ponowić instalację później poprzez uruchamianie instalatora.%n%nCzy chcesz przerwać instalację?
+ExitSetupMessage=Instalacja nie została zakończona. Jeżeli przerwiesz ją teraz, aplikacja nie zostanie zainstalowana.%n%nMożna ponowić instalację później poprzez uruchamianie instalatora.%n%nCzy chcesz przerwać instalację?
 AboutSetupMenuItem=&O instalatorze...
 AboutSetupTitle=O instalatorze
 AboutSetupMessage=%1 wersja %2%n%3%n%nStrona domowa %1:%n%4
@@ -228,7 +228,7 @@ ArchiveUnsupportedFormat=Format archiwum nie jest wspierany
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Przygotowanie do instalacji
 PreparingDesc=Instalator przygotowuje instalację aplikacji [name] na komputerze.
-PreviousInstallNotCompleted=Instalacja/dezinstalacja poprzedniej wersji aplikacji nie została zakończona. Aby zakończyć instalację, należy ponownie uruchomić komputer. %n%nNastępnie ponownie uruchom instalator, aby zakończyć instalację aplikacji [name].
+PreviousInstallNotCompleted=Instalacja/dezinstalacja poprzedniej wersji aplikacji nie została zakończona. Aby zakończyć instalację, należy ponownie uruchomić komputer.%n%nNastępnie ponownie uruchom instalator, aby zakończyć instalację aplikacji [name].
 CannotContinue=Instalator nie może kontynuować. Kliknij przycisk Anuluj, aby przerwać instalację.
 ApplicationsFound=Poniższe aplikacje używają plików, które muszą zostać uaktualnione przez instalator. Zaleca się zezwolić na automatyczne zamknięcie tych aplikacji przez program instalacyjny.
 ApplicationsFound2=Poniższe aplikacje używają plików, które muszą zostać uaktualnione przez instalator. Zaleca się zezwolić na automatyczne zamknięcie tych aplikacji przez program instalacyjny. Po zakończonej instalacji instalator podejmie próbę ich ponownego uruchomienia.
@@ -358,8 +358,8 @@ ErrorRestartingComputer=Instalator nie mógł ponownie uruchomić tego komputera
 
 ; *** Uninstaller messages
 UninstallNotFound=Plik "%1" nie istnieje. Nie można przeprowadzić dezinstalacji.
-UninstallOpenError=Plik "%1" nie mógł zostać otwarty. Nie można przeprowadzić dezinstalacji.
-UninstallUnsupportedVer=Ta wersja programu dezinstalacyjnego nie rozpoznaje formatu logu dezinstalacji w pliku "%1". Nie można przeprowadzić dezinstalacji.
+UninstallOpenError=Plik "%1" nie mógł zostać otwarty. Nie można przeprowadzić dezinstalacji
+UninstallUnsupportedVer=Ta wersja programu dezinstalacyjnego nie rozpoznaje formatu logu dezinstalacji w pliku "%1". Nie można przeprowadzić dezinstalacji
 UninstallUnknownEntry=Napotkano nieznany wpis (%1) w logu dezinstalacji
 ConfirmUninstall=Czy na pewno chcesz usunąć aplikację %1 i wszystkie jej składniki?
 UninstallOnlyOnWin64=Ta aplikacja może być odinstalowana tylko w 64-bitowej wersji systemu Windows.
@@ -368,7 +368,7 @@ UninstallStatusLabel=Poczekaj, aż aplikacja %1 zostanie usunięta z komputera.
 UninstalledAll=Aplikacja %1 została usunięta z komputera.
 UninstalledMost=Dezinstalacja aplikacji %1 zakończyła się.%n%nNiektóre elementy nie mogły zostać usunięte. Należy usunąć je samodzielnie.
 UninstalledAndNeedsRestart=Komputer musi zostać ponownie uruchomiony, aby zakończyć proces dezinstalacji aplikacji %1.%n%nCzy chcesz teraz ponownie uruchomić komputer?
-UninstallDataCorrupted=Plik "%1" jest uszkodzony. Nie można przeprowadzić dezinstalacji.
+UninstallDataCorrupted=Plik "%1" jest uszkodzony. Nie można przeprowadzić dezinstalacji
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Usunąć plik współdzielony?

@@ -2,7 +2,7 @@ unit Setup.TaskDialogForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -57,7 +57,7 @@ type
     procedure UpdateHeight;
     procedure UpdateMainButtonsAndBorderIcons(const CommonButtons: Cardinal;
       const ButtonLabels: array of String; const ButtonIDs: array of Integer; const ShieldButton: Integer);
-    procedure UpdateVerificationText(const VerificationText: String; const pfVerificationFlagChecked: PBOOL);
+    procedure UpdateVerificationText(const VerificationText: String);
   public
     constructor Create(AOwner: TComponent; const ACopyFormat: TCopyFormat; const ASetForeground: Boolean); reintroduce;
   end;
@@ -89,7 +89,7 @@ begin
     Form.UpdateInstructionAndText(Instruction, Text);
     Form.UpdateIcon(Icon);
     Form.UpdateCommonButtons(CommonButtons);
-    Form.UpdateVerificationText(VerificationText, pfVerificationFlagChecked);
+    Form.UpdateVerificationText(VerificationText);
 
     if (Pos(':\', Text) <> 0) or (Pos('\\', Text) <> 0) then
       Form.Width := MulDiv(Form.Width, 125, 100);
@@ -324,14 +324,11 @@ begin
   end;
 end;
 
-procedure TTaskDialogForm.UpdateVerificationText(const VerificationText: String;
-  const pfVerificationFlagChecked: PBOOL);
+procedure TTaskDialogForm.UpdateVerificationText(const VerificationText: String);
 begin
-  if VerificationText <> '' then begin
-    VerificationCheck.Caption := VerificationText;
-    if pfVerificationFlagChecked <> nil then
-      VerificationCheck.Checked := pfVerificationFlagChecked^;
-  end else
+  if VerificationText <> '' then
+    VerificationCheck.Caption := VerificationText
+  else
     BottomPanel2.Visible := False;
 end;
 

@@ -53,7 +53,7 @@ WindowsVersionNotSupported=Este programa não suporta a versão do Windows que s
 WindowsServicePackRequired=Este programa requer o %1 Service Pack %2 ou superior.
 NotOnThisPlatform=Este programa não executará no %1.
 OnlyOnThisPlatform=Este programa deve ser executado no %1.
-OnlyOnTheseArchitectures=Este programa só pode ser instalado em versões do Windows projetadas para as seguintes arquiteturas de processadores:%n%n% 1
+OnlyOnTheseArchitectures=Este programa só pode ser instalado em versões do Windows projetadas para as seguintes arquiteturas de processadores:%n%n%1
 WinVersionTooLowError=Este programa requer a %1 versão %2 ou superior.
 WinVersionTooHighError=Este programa não pode ser instalado na %1 versão %2 ou superior.
 AdminPrivilegesRequired=Você deve estar logado como administrador quando instalar este programa.
@@ -101,7 +101,7 @@ ButtonNewFolder=&Criar Nova Pasta
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Selecione o Idioma do Instalador
-SelectLanguageLabel=Selecione o idioma pra usar durante a instalação:
+SelectLanguageLabel=Selecione o idioma pra usar durante a instalação.
 
 ; *** Common wizard text
 ClickNext=Clique em Avançar pra continuar ou em Cancelar pra sair do instalador.
