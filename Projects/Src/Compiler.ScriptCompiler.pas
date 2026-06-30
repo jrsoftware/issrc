@@ -127,28 +127,34 @@ begin
         Result := False;
       end else begin
         AttrValue := String(GetString(Attr.Values[0], B));
-        var I := ScriptCompiler.FindExport(AttrValue, String(Sender.MakeDecl(TPSInternalProcedure(aProc).Decl)), -1);
-        if I <> -1 then begin
-          { The name from the attribute and the function prototype are both ok. }
-          ScriptExport := ScriptCompiler.FExports[I];
-          if not ScriptExport.AllowNamingAttribute then begin
-            with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute value "%s" not allowed', [ScriptCompiler.FNamingAttribute, AttrValue]))) do
-              SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
-            Result := False;
-          end else begin
-            ScriptExport.Exported := True;
-            Result := True;
-          end;
-        end else if ScriptCompiler.FindExport(AttrValue, '', -1) <> -1 then begin
-          { The name from the attribute is ok but the function prototype is not. }
-          with Sender.MakeError('', ecCustomError, tbtstring(Format('Invalid function or procedure prototype for attribute value "%s"', [AttrValue]))) do
-            SetCustomPos(TPSInternalProcedure(aProc).DeclarePos, TPSInternalProcedure(aProc).DeclareRow, TPSInternalProcedure(aProc).DeclareCol);
-          Result := False;
-        end else begin
-          { The name from the attribute is not ok. } 
-          with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute value "%s" invalid', [ScriptCompiler.FNamingAttribute, AttrValue]))) do
+        if AttrValue = '' then begin
+          with Sender.MakeError('', ecCustomError, tbtstring(Format('Empty "%s" attribute value not allowed', [ScriptCompiler.FNamingAttribute]))) do
             SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
           Result := False;
+        end else begin
+          var I := ScriptCompiler.FindExport(AttrValue, String(Sender.MakeDecl(TPSInternalProcedure(aProc).Decl)), -1);
+          if I <> -1 then begin
+            { The name from the attribute and the function prototype are both ok. }
+            ScriptExport := ScriptCompiler.FExports[I];
+            if not ScriptExport.AllowNamingAttribute then begin
+              with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute value "%s" not allowed', [ScriptCompiler.FNamingAttribute, AttrValue]))) do
+                SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
+              Result := False;
+            end else begin
+              ScriptExport.Exported := True;
+              Result := True;
+            end;
+          end else if ScriptCompiler.FindExport(AttrValue, '', -1) <> -1 then begin
+            { The name from the attribute is ok but the function prototype is not. }
+            with Sender.MakeError('', ecCustomError, tbtstring(Format('Invalid function or procedure prototype for attribute value "%s"', [AttrValue]))) do
+              SetCustomPos(TPSInternalProcedure(aProc).DeclarePos, TPSInternalProcedure(aProc).DeclareRow, TPSInternalProcedure(aProc).DeclareCol);
+            Result := False;
+          end else begin
+            { The name from the attribute is not ok. } 
+            with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute value "%s" invalid', [ScriptCompiler.FNamingAttribute, AttrValue]))) do
+              SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
+            Result := False;
+          end;
         end;
       end;
     end;
