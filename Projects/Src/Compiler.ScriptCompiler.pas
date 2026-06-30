@@ -85,13 +85,13 @@ begin
   P := Pos(' setuponly ', S);
   if P > 0 then begin
     Delete(S, P+1, Length('setuponly '));
-    Insert('setup:', S, Pos('@', S)+1);
+    Insert('setup:', S, rpos('@', tbtstring(S))+1);
   end
   else begin
     P := Pos(' uninstallonly ', S);
     if P > 0 then begin
       Delete(S, P+1, Length('uninstallonly '));
-      Insert('uninstall:', S, Pos('@', S)+1);
+      Insert('uninstall:', S, rpos('@', tbtstring(S))+1);
     end;
   end;
   if Pos('@uninstall:files:', S) <> 0 then begin
