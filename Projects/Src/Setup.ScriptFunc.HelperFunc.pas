@@ -824,7 +824,7 @@ begin
     if ExtraParams < 0 then
       ExtraParams := 0;
     const RecordTempBase = 32 + ExtraParams * SizeOf(Pointer);
-    var FrameSize := RecordTempBase + Length(RecordParamPositions) * SizeOf(Pointer);
+    var FrameSize := RecordTempBase + Integer(Length(RecordParamPositions)) * SizeOf(Pointer);
     if (FrameSize and $F) = 0 then
       Inc(FrameSize, 8); { keep RSP 16-byte aligned at call site }
     Inliner.SubRsp(FrameSize);
@@ -859,7 +859,7 @@ begin
       and put the temp's address in the slot. }
     for var I := 0 to High(RecordParamPositions) do begin
       const Position = RecordParamPositions[I];
-      const TempOffset = RecordTempBase + I * SizeOf(Pointer);
+      const TempOffset = RecordTempBase + Integer(I) * SizeOf(Pointer);
       case Position of
         1:
           begin
