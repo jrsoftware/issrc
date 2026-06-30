@@ -3,10 +3,29 @@
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
 ;
-; Note: When translating this text, do not add periods (.) to the end of
-; messages that didn't have them already, because on those messages Inno
-; Setup adds the periods automatically (appending a period would result in
-; two periods being displayed).
+; Note: When translating this text:
+; - All translations should back-translate to the same meaning.
+; - Do not add to or change the meaning of messages to suit your personal taste.
+; - Do not add or remove sentences, or add or omit information within sentences.
+; - Do not remove these words: all, only, automatically, now, later, may, must, and not.
+; - Do not add periods (.) or colons (:) or ellipses (...) to the end of messages that didn't have them already.
+; - Do not remove periods or colons or ellipses or question marks from the end of messages.
+; - Do not replace periods with colons (:). Replacing '...' with '…' is allowed.
+; - Do not add or remove placeholders (%1, %2, etc.). Changing the order is allowed.
+; - Do not add or remove line breaks (%n).
+; - Do not add accelerators (&) or create collisions. Remove an accelerator only if it cannot be moved to another letter.
+; - Do not add new custom messages to the [CustomMessages] section.
+; - Keep AboutSetupNote empty.
+; Before you start, decide how you will translate each of these recurring terms:
+; - Setup, Uninstall (the program), uninstall (the verb), Cannot uninstall,
+;   program, application, component, task,
+;   shortcut, Start Menu, folder, directory, drive,
+;   existing file, source file, registry, INI entries, README,
+;   computer, Windows, version, administrator, all users, current user,
+;   Downloading files, Extracting files, aborted, corrupted, close (applications), restart,
+;   Select action, try again, anyway, at least,
+;   and the button captions OK, Cancel, Yes, No, Next, Back, Install, Browse, Finish.
+; Removing this section from your translation is allowed, but do not disregard it.
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and
@@ -59,7 +78,9 @@ OnlyOnTheseArchitectures=This program can only be installed on versions of Windo
 WinVersionTooLowError=This program requires %1 version %2 or later.
 WinVersionTooHighError=This program cannot be installed on %1 version %2 or later.
 AdminPrivilegesRequired=You must be logged in as an administrator when installing this program.
+; 'Power Users group' is an outdated term but should still be translated, not dropped or modernized
 PowerUserPrivilegesRequired=You must be logged in as an administrator or as a member of the Power Users group when installing this program.
+; 'instance' may also be translated as 'copy'
 SetupAppRunningError=Setup has detected that %1 is currently running.%n%nPlease close all instances of it now, then click OK to continue, or Cancel to exit.
 UninstallAppRunningError=Uninstall has detected that %1 is currently running.%n%nPlease close all instances of it now, then click OK to continue, or Cancel to exit.
 
@@ -171,8 +192,9 @@ DirDoesntExist=The folder:%n%n%1%n%ndoes not exist. Would you like the folder to
 WizardSelectComponents=Select Components
 SelectComponentsDesc=Which components should be installed?
 SelectComponentsLabel2=Select the components you want to install; clear the components you do not want to install. Click Next when you are ready to continue.
+; don't translate 'Full' as 'Normal' or 'Default'
 FullInstallation=Full installation
-; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
+; don't translate 'Compact' as 'Minimal' or 'Default'
 CompactInstallation=Compact installation
 CustomInstallation=Custom installation
 NoUninstallWarningTitle=Components Exist
@@ -343,6 +365,7 @@ ErrorCopying=An error occurred while trying to copy a file:
 ErrorDownloading=An error occurred while trying to download a file:
 ErrorExtracting=An error occurred while trying to extract an archive:
 ErrorReplacingExistingFile=An error occurred while trying to replace the existing file:
+; 'RestartReplace' is an internal name, you may keep it as is
 ErrorRestartReplace=RestartReplace failed:
 ErrorRenamingTemp=An error occurred while trying to rename a file in the destination directory:
 ErrorRegisterServer=Unable to register the DLL/OCX: %1
