@@ -2264,10 +2264,9 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				<pre>
 					<line><ispp>#emit</ispp> Var1 <com>/* this is a comment */</com> + Var2 <com>/* this is also a comment */</com></line>
 				</pre>
-				<p>Comments may also be placed at the end of an expression by using a semicolon or two slashes. For example:</p>
+				<p>Comments may also be placed at the end of an expression by using a semicolon. For example:</p>
 				<pre>
 					<line><ispp>#emit</ispp> Var1 + Var2 <com>; this is a comment</com></line>
-					<line><ispp>#emit</ispp> Var1 + Var2 <com>// this is also comment</com></line>
 				</pre>
 				<p>Note that the line spanning feature is triggered before any further processing, so this is also a valid comment:</p>
 				<pre>
