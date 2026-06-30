@@ -445,7 +445,10 @@ begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
+    begin
       TPreprocessor(Ext).SaveToFile(PrependPath(Ext, Get(0).AsStr));
+      ResPtr^ := NULL;
+    end;
   except
     on E: Exception do
       FuncResult.RaiseError(PChar(E.Message));
@@ -1114,6 +1117,7 @@ begin
       FindClose(PSearchRec(Get(0).AsInt64)^);
       Dispose(PSearchRec(Get(0).AsInt64));
       TPreprocessor(Ext).UncollectGarbage(Pointer(Get(0).AsInt64));
+      ResPtr^ := NULL;
     end;
   except
     on E: Exception do
