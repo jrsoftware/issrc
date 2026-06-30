@@ -146,6 +146,24 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
       Result := ''; { Official .reg files must end with a blank line so should never get here but we support ones without }
   end;
 
+  function ReadValueDataLines(ValueData: String; const Lines: TStrings;
+    var LineIndex: Integer): String;
+  begin
+    var HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
+    if HasMoreLines then
+      Delete(ValueData, ValueData.Length, 1);
+    Result := ValueData;
+
+    while HasMoreLines do
+    begin
+      ValueData := NextLine(Lines, LineIndex).TrimLeft;
+      HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
+      if HasMoreLines then
+        Delete(ValueData, ValueData.Length, 1);
+      Result := Result + ValueData;
+    end;
+  end;
+
   function CutStrBeginEnd(S: String; CharCount: Integer): String;
   begin
     Result := Copy(S, CharCount + 1, S.Length - 2 * CharCount);
@@ -423,21 +441,7 @@ begin
                 vtSzAsList, vtExpandSz, vtMultiSz, vtBinary:
                   begin
                     P := Pos(':', ValueTypeAndData);
-                    var ValueData := Copy(ValueTypeAndData, P + 1, MaxInt);
-
-                    var HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
-                    if HasMoreLines then
-                      Delete(ValueData, ValueData.Length, 1);
-                    Entry.ValueData := ValueData;
-
-                    while HasMoreLines do
-                    begin
-                      ValueData := NextLine(Lines, LineIndex).TrimLeft;
-                      HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
-                      if HasMoreLines then
-                        Delete(ValueData, ValueData.Length, 1);
-                      Entry.ValueData := Entry.ValueData + ValueData;
-                    end;
+                    Entry.ValueData := ReadValueDataLines(Copy(ValueTypeAndData, P + 1, MaxInt), Lines, LineIndex);
 
                     Entry.ValueData := Entry.ValueData.Replace(',', ' ');
                     if ValueType <> vtBinary then
@@ -465,7 +469,7 @@ begin
                 vtDWord, vtDWordAsList, vtQWord:
                   begin
                     P := Pos(':', ValueTypeAndData);
-                    Entry.ValueData := Copy(ValueTypeAndData, P + 1, MaxInt);
+                    Entry.ValueData := ReadValueDataLines(Copy(ValueTypeAndData, P + 1, MaxInt), Lines, LineIndex);
 
                     if ValueType in [vtDWordAsList, vtQWord] then
                     begin
@@ -483,6 +487,12 @@ begin
                   end;
                 vtNone, vtDelete:
                   begin
+                    if ValueType = vtNone then begin
+                      { REG_NONE 'hex(0):' can wrap too, so we must read data even if we throw it away.
+                        regedit.exe doesn't actually throw it away, but Setup doesnt support none+data. }
+                      P := Pos(':', ValueTypeAndData);
+                      ReadValueDataLines(Copy(ValueTypeAndData, P + 1, MaxInt), Lines, LineIndex);
+                    end;
                     Entry.ValueType := 'none';
                     Entry.ValueData := ''; { value doesn't matter }
                   end;
