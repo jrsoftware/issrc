@@ -393,6 +393,10 @@ begin
           Line := NextLine(Lines, LineIndex);
 
           while Line <> '' do begin
+            if Line[1] = '[' then begin
+              Dec(LineIndex); { New section started without a preceding blank line. Regedit supports such an import so must handle. }
+              Break;
+            end;
             if not FilterKey and not DeleteKey and (Line[1] <> ';') then begin
               P := FindValueNameSeparator(Line);
               if (P = 2) and (Line[1] = '@') then
