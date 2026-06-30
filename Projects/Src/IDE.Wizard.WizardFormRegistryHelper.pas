@@ -346,163 +346,165 @@ begin
   try
     Lines := TStringList.Create;
     OutLines := TStringList.Create;
-    Lines.LoadFromFile(FFileEdit.Text);
+    try
+      Lines.LoadFromFile(FFileEdit.Text);
 
-    { Official .reg files must have blank lines as second and last lines but we
-      don't require that so we just check for the header on the first line }
-    const Header = 'Windows Registry Editor Version 5.00'; { don't localize }
-    if (Lines.Count = 0) or (Lines[0] <> Header) then begin
-      if AllowException then
-        raise Exception.Create(LFmtMessage(SRegistryDesignerInvalidFileFormat))
-      else begin
-        Registry := Registry + TextBadHeader + SNewLine;
-        Exit;
-      end;
-    end;
+      { Official .reg files must have blank lines as second and last lines but we
+        don't require that so we just check for the header on the first line }
+      const Header = 'Windows Registry Editor Version 5.00'; { don't localize }
+      if (Lines.Count = 0) or (Lines[0] <> Header) then
+        raise Exception.Create(LFmtMessage(SRegistryDesignerInvalidFileFormat));
 
-    var LineIndex := 1;
-    var HadFilteredKeys := False;
-    var HadUnsupportedValueTypes := False;
-    while LineIndex <= Lines.Count-1 do
-    begin
-      var Line := Lines[LineIndex];
-      if (Length(Line) > 2) and (Line[1] = '[') and (Line[Line.Length] = ']') then
+      var LineIndex := 1;
+      var HadFilteredKeys := False;
+      var HadUnsupportedValueTypes := False;
+      while LineIndex <= Lines.Count-1 do
       begin
-        { Got a new section, first handle the key }
-        Line := CutStrBeginEnd(Line, 1);
-        var DeleteKey := Line.StartsWith('-');
-        if DeleteKey then
-          Delete(Line, 1, 1);
-        var P := Pos('\', Line);
+        var Line := Lines[LineIndex];
+        if (Length(Line) > 2) and (Line[1] = '[') and (Line[Line.Length] = ']') then
+        begin
+          { Got a new section, first handle the key }
+          Line := CutStrBeginEnd(Line, 1);
+          var DeleteKey := Line.StartsWith('-');
+          if DeleteKey then
+            Delete(Line, 1, 1);
+          var P := Pos('\', Line);
 
-        var Entry: TRegistryEntry;
-        Entry.Root := StrRootRename(Copy(Line, 1, P - 1));
-        var Subkey := Copy(Line, P + 1, MaxInt);
-        if Entry.Root = 'HKCR' then begin
-          Entry.Root := 'HKA';
-          Subkey := 'Software\Classes\' + Subkey;
-        end;
-        Entry.QuotedSubkey := Subkey.Replace('\WOW6432Node', '')
-                                    .Replace('{', '{{')
-                                    .QuotedString('"');
+          var Entry: TRegistryEntry;
+          Entry.Root := StrRootRename(Copy(Line, 1, P - 1));
+          var Subkey := Copy(Line, P + 1, MaxInt);
+          if Entry.Root = 'HKCR' then begin
+            Entry.Root := 'HKA';
+            Subkey := 'Software\Classes\' + Subkey;
+          end;
+          Entry.QuotedSubkey := Subkey.Replace('\WOW6432Node', '')
+                                      .Replace('{', '{{')
+                                      .QuotedString('"');
 
-        var FilterKey := ((FPrivilegesRequired = prAdmin) and RequiresNotAdminInstallMode(Entry)) or
-                         ((FPrivilegesRequired = prLowest) and RequiresAdminInstallMode(Entry));
+          var FilterKey := ((FPrivilegesRequired = prAdmin) and RequiresNotAdminInstallMode(Entry)) or
+                           ((FPrivilegesRequired = prLowest) and RequiresAdminInstallMode(Entry));
 
-        if not FilterKey then
-          OutLines.Add(TextKeyEntry(Entry, DeleteKey))
-        else
-          HadFilteredKeys := True;
+          if not FilterKey then
+            OutLines.Add(TextKeyEntry(Entry, DeleteKey))
+          else
+            HadFilteredKeys := True;
 
-        { Key done, handle values }
-        Line := NextLine(Lines, LineIndex);
+          { Key done, handle values }
+          Line := NextLine(Lines, LineIndex);
 
-        while Line <> '' do begin
-          if not FilterKey and not DeleteKey and (Line[1] <> ';') then begin
-            P := FindValueNameSeparator(Line);
-            if (P = 2) and (Line[1] = '@') then
-              Entry.QuotedValueName := '""'
-            else begin
-              const ValueName = CutStrBeginEnd(Copy(Line, 1, P - 1), 1);
-              Entry.QuotedValueName := ValueName.Replace('\\', '\')
-                                                .Replace('\"', '"')
-                                                .Replace('{', '{{')
-                                                .QuotedString('"');
-            end;
-            var ValueTypeAndData := Copy(Line, P + 1, MaxInt);
-            var ValueType := GetValueType(ValueTypeAndData);
-            case ValueType of
-              vtSz:
-                begin
-                  Entry.ValueData := CutStrBeginEnd(ValueTypeAndData, 1);
-                  Entry.ValueData := Entry.ValueData.Replace('\\', '\')
-                                                    .Replace('\"', '"')
-                                                    .Replace('{', '{{')
-                                                    .QuotedString('"');
-                  Entry.ValueType := 'string';
-                end;
-              vtSzAsList, vtExpandSz, vtMultiSz, vtBinary:
-                begin
-                  P := Pos(':', ValueTypeAndData);
-                  var ValueData := Copy(ValueTypeAndData, P + 1, MaxInt);
-
-                  var HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
-                  if HasMoreLines then
-                    Delete(ValueData, ValueData.Length, 1);
-                  Entry.ValueData := ValueData;
-
-                  while HasMoreLines do
+          while Line <> '' do begin
+            if not FilterKey and not DeleteKey and (Line[1] <> ';') then begin
+              P := FindValueNameSeparator(Line);
+              if (P = 2) and (Line[1] = '@') then
+                Entry.QuotedValueName := '""'
+              else begin
+                const ValueName = CutStrBeginEnd(Copy(Line, 1, P - 1), 1);
+                Entry.QuotedValueName := ValueName.Replace('\\', '\')
+                                                  .Replace('\"', '"')
+                                                  .Replace('{', '{{')
+                                                  .QuotedString('"');
+              end;
+              var ValueTypeAndData := Copy(Line, P + 1, MaxInt);
+              var ValueType := GetValueType(ValueTypeAndData);
+              case ValueType of
+                vtSz:
                   begin
-                    ValueData := NextLine(Lines, LineIndex).TrimLeft;
-                    HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
+                    Entry.ValueData := CutStrBeginEnd(ValueTypeAndData, 1);
+                    Entry.ValueData := Entry.ValueData.Replace('\\', '\')
+                                                      .Replace('\"', '"')
+                                                      .Replace('{', '{{')
+                                                      .QuotedString('"');
+                    Entry.ValueType := 'string';
+                  end;
+                vtSzAsList, vtExpandSz, vtMultiSz, vtBinary:
+                  begin
+                    P := Pos(':', ValueTypeAndData);
+                    var ValueData := Copy(ValueTypeAndData, P + 1, MaxInt);
+
+                    var HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
                     if HasMoreLines then
                       Delete(ValueData, ValueData.Length, 1);
-                    Entry.ValueData := Entry.ValueData + ValueData;
+                    Entry.ValueData := ValueData;
+
+                    while HasMoreLines do
+                    begin
+                      ValueData := NextLine(Lines, LineIndex).TrimLeft;
+                      HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
+                      if HasMoreLines then
+                        Delete(ValueData, ValueData.Length, 1);
+                      Entry.ValueData := Entry.ValueData + ValueData;
+                    end;
+
+                    Entry.ValueData := Entry.ValueData.Replace(',', ' ');
+                    if ValueType <> vtBinary then
+                    begin
+                      Entry.ValueData := Entry.ValueData.Replace(' ', '');
+                      Entry.ValueData := UTF16LEHexStrToStr(Entry.ValueData);
+                    end;
+
+                    if ValueType in [vtSzAsList, vtExpandSz] then
+                    begin
+                      Entry.ValueData := Entry.ValueData.Replace(#0, '')
+                                                        .Replace('{', '{{');
+                      Entry.ValueType := IfThen(ValueType = vtSzAsList, 'string', 'expandsz');
+                    end else if ValueType = vtMultiSz then
+                    begin
+                      Entry.ValueData := Entry.ValueData.TrimEnd([#0])
+                                                        .Replace('{', '{{')
+                                                        .Replace(#0, '{break}');
+                      Entry.ValueType := 'multisz';
+                    end else
+                      Entry.ValueType := 'binary';
+
+                    Entry.ValueData := Entry.ValueData.QuotedString('"');
+                 end;
+                vtDWord, vtDWordAsList, vtQWord:
+                  begin
+                    P := Pos(':', ValueTypeAndData);
+                    Entry.ValueData := Copy(ValueTypeAndData, P + 1, MaxInt);
+
+                    if ValueType in [vtDWordAsList, vtQWord] then
+                    begin
+                      { ValueData is in reverse order, fix this }
+                      var ReverseValueData := Entry.ValueData.Replace(',', '');
+                      Entry.ValueData := '';
+                      for var I := 0 to ReverseValueData.Length div 2 - 1 do
+                        Entry.ValueData := Copy(ReverseValueData, (I * 2) + 1, 2) + Entry.ValueData;
+
+                      Entry.ValueType := IfThen(ValueType = vtDWordAsList, 'dword', 'qword');
+                    end else
+                      Entry.ValueType := 'dword';
+
+                    Entry.ValueData := '$' + Entry.ValueData;
                   end;
-
-                  Entry.ValueData := Entry.ValueData.Replace(',', ' ');
-                  if ValueType <> vtBinary then
+                vtNone, vtDelete:
                   begin
-                    Entry.ValueData := Entry.ValueData.Replace(' ', '');
-                    Entry.ValueData := UTF16LEHexStrToStr(Entry.ValueData);
+                    Entry.ValueType := 'none';
+                    Entry.ValueData := ''; { value doesn't matter }
                   end;
+              end;
 
-                  if ValueType in [vtSzAsList, vtExpandSz] then
-                  begin
-                    Entry.ValueData := Entry.ValueData.Replace(#0, '')
-                                                      .Replace('{', '{{');
-                    Entry.ValueType := IfThen(ValueType = vtSzAsList, 'string', 'expandsz');
-                  end else if ValueType = vtMultiSz then
-                  begin
-                    Entry.ValueData := Entry.ValueData.TrimEnd([#0])
-                                                      .Replace('{', '{{')
-                                                      .Replace(#0, '{break}');
-                    Entry.ValueType := 'multisz';
-                  end else
-                    Entry.ValueType := 'binary';
-
-                  Entry.ValueData := Entry.ValueData.QuotedString('"');
-               end;
-              vtDWord, vtDWordAsList, vtQWord:
-                begin
-                  P := Pos(':', ValueTypeAndData);
-                  Entry.ValueData := Copy(ValueTypeAndData, P + 1, MaxInt);
-
-                  if ValueType in [vtDWordAsList, vtQWord] then
-                  begin
-                    { ValueData is in reverse order, fix this }
-                    var ReverseValueData := Entry.ValueData.Replace(',', '');
-                    Entry.ValueData := '';
-                    for var I := 0 to ReverseValueData.Length div 2 - 1 do
-                      Entry.ValueData := Copy(ReverseValueData, (I * 2) + 1, 2) + Entry.ValueData;
-
-                    Entry.ValueType := IfThen(ValueType = vtDWordAsList, 'dword', 'qword');
-                  end else
-                    Entry.ValueType := 'dword';
-
-                  Entry.ValueData := '$' + Entry.ValueData;
-                end;
-              vtNone, vtDelete:
-                begin
-                  Entry.ValueType := 'none';
-                  Entry.ValueData := ''; { value doesn't matter }
-                end;
+              if ValueType <> vtUnsupported then
+                OutLines.Add(TextValueEntry(Entry, ValueType))
+              else
+                HadUnsupportedValueTypes := True;
             end;
 
-            if ValueType <> vtUnsupported then
-              OutLines.Add(TextValueEntry(Entry, ValueType))
-            else
-              HadUnsupportedValueTypes := True;
-          end;
-
-          Line := NextLine(Lines, LineIndex); { Go to the next line - should be the next value or a comment }
-        end; { Out of values }
+            Line := NextLine(Lines, LineIndex); { Go to the next line - should be the next value or a comment }
+          end; { Out of values }
+        end;
+        Inc(LineIndex); { Go to the next line - should be the next key section or a comment }
       end;
-      Inc(LineIndex); { Go to the next line - should be the next key section or a comment }
+      OutLines.Insert(0, TextHeader);
+      OutLines.Add(TextFooter(HadFilteredKeys, HadUnsupportedValueTypes));
+      Registry := Registry + OutLines.Text;
+    except
+      { When AllowException is False (the wizard path), report any import failure
+        as a bad header comment instead of letting the exception escape }
+      if AllowException then
+        raise;
+      Registry := Registry + TextBadHeader + SNewLine;
     end;
-    OutLines.Insert(0, TextHeader);
-    OutLines.Add(TextFooter(HadFilteredKeys, HadUnsupportedValueTypes));
-    Registry := Registry + OutLines.Text;
   finally
     OutLines.Free;
     Lines.Free;
