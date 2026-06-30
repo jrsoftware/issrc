@@ -51,7 +51,7 @@ WindowsVersionNotSupported=Dette programmet støtter ikke Windows-versjonen på 
 WindowsServicePackRequired=Dette programmet krever %1 Service Pack %2 eller nyere.
 NotOnThisPlatform=Dette programmet kjører ikke på %1.
 OnlyOnThisPlatform=Dette programmet kjører kun på %1.
-OnlyOnTheseArchitectures=Dette programmet kan kun installeres i Windows-versjoner som er beregnet på følgende prossessorarkitekturer:%n%n%1
+OnlyOnTheseArchitectures=Dette programmet kan kun installeres i Windows-versjoner som er beregnet på følgende prosessorarkitekturer:%n%n%1
 WinVersionTooLowError=Dette programmet krever %1 versjon %2 eller nyere.
 WinVersionTooHighError=Dette programmet kan ikke installeres på %1 versjon %2 eller nyere.
 AdminPrivilegesRequired=Administrator-rettigheter kreves for å installere dette programmet.
@@ -109,7 +109,7 @@ BrowseDialogLabel=Velg en mappe fra listen nedenfor, klikk deretter OK.
 NewFolderName=Ny mappe
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Velkommen til installasjonsprogrammet for [name].
+WelcomeLabel1=Velkommen til installasjonsprogrammet for [name]
 WelcomeLabel2=Dette vil installere [name/ver] på din maskin.%n%nDet anbefales at du avslutter alle programmer som kjører før du fortsetter.
 
 ; *** "Password" wizard page
@@ -121,7 +121,7 @@ IncorrectPassword=Det angitte passordet er feil, vennligst prøv igjen.
 
 ; *** "License Agreement" wizard page
 WizardLicense=Lisensbetingelser
-LicenseLabel=Vennligst les følgende viktig informasjon før du fortsetter.
+LicenseLabel=Vennligst les følgende viktige informasjon før du fortsetter.
 LicenseLabel3=Vennligst les følgende lisensbetingelser. Du må godta innholdet i lisensbetingelsene før du fortsetter med installasjonen.
 LicenseAccepted=Jeg &aksepterer lisensbetingelsene
 LicenseNotAccepted=Jeg aksepterer &ikke lisensbetingelsene
@@ -143,18 +143,18 @@ UserInfoSerial=&Serienummer:
 UserInfoNameRequired=Du må angi et navn.
 
 ; *** "Select Destination Location" wizard page
-WizardSelectDir=Velg mappen hvor filene skal installeres:
+WizardSelectDir=Velg mappen hvor filene skal installeres
 SelectDirDesc=Hvor skal [name] installeres?
 SelectDirLabel3=Installasjonsprogrammet vil installere [name] i følgende mappe.
 SelectDirBrowseLabel=Klikk på Neste for å fortsette. Klikk på Bla gjennom hvis du vil velge en annen mappe.
 DiskSpaceGBLabel=Programmet krever minst [gb] GB med diskplass.
 DiskSpaceMBLabel=Programmet krever minst [mb] MB med diskplass.
 CannotInstallToNetworkDrive=Kan ikke installere på en nettverksstasjon.
-CannotInstallToUNCPath=Kan ikke installere på en UNC-bane. Du må tilordne nettverksstasjonen hvis du vil installere i et nettverk.
-InvalidPath=Du må angi en full bane med stasjonsbokstav, for eksempel:%n%nC:\APP%n%Du kan ikke bruke formen:%n%n\\server\share
-InvalidDrive=Den valgte stasjonen eller UNC-delingen finnes ikke, eller er ikke tilgjengelig. Vennligst velg en annen
+CannotInstallToUNCPath=Kan ikke installere på en UNC-bane.
+InvalidPath=Du må angi en full bane med stasjonsbokstav, for eksempel:%n%nC:\APP%n%nDu kan ikke bruke formen:%n%n\\server\share
+InvalidDrive=Den valgte stasjonen eller UNC-delingen finnes ikke, eller er ikke tilgjengelig. Vennligst velg en annen.
 DiskSpaceWarningTitle=For lite diskplass
-DiskSpaceWarning=Installasjonprogrammet krever minst %1 KB med ledig diskplass, men det er bare %2 KB ledig på den valgte stasjonen.%n%nvil du fortsette likevel?
+DiskSpaceWarning=Installasjonsprogrammet krever minst %1 KB med ledig diskplass, men det er bare %2 KB ledig på den valgte stasjonen.%n%nVil du fortsette likevel?
 DirNameTooLong=Det er for langt navn på mappen eller banen.
 InvalidDirName=Navnet på mappen er ugyldig.
 BadDirName32=Mappenavn må ikke inneholde noen av følgende tegn:%n%n%1
@@ -197,7 +197,7 @@ NoProgramGroupCheck2=&Ikke legg til mappe på start-menyen
 ; *** "Ready to Install" wizard page
 WizardReady=Klar til å installere
 ReadyLabel1=Installasjonsprogrammet er nå klar til å installere [name] på din maskin.
-ReadyLabel2a=Klikk Installer for å fortsette, eller Tilbake for å se på eller forandre instillingene.
+ReadyLabel2a=Klikk Installer for å fortsette, eller Tilbake for å se på eller forandre innstillingene.
 ReadyLabel2b=Klikk Installer for å fortsette.
 ReadyMemoUserInfo=Brukerinformasjon:
 ReadyMemoDir=Installer i mappen:
@@ -213,8 +213,8 @@ StopDownload=Er du sikker på at du vil stoppe nedlastingen?
 ErrorDownloadAborted=Nedlasting avbrutt
 ErrorDownloadFailed=Nedlasting feilet: %1 %2
 ErrorDownloadSizeFailed=Kunne ikke finne filstørrelse: %1 %2
-ErrorProgress=Ugyldig fremdrift: %1 of %2
-ErrorFileSize=Ugyldig fil størrelse: forventet %1, fant %2
+ErrorProgress=Ugyldig fremdrift: %1 av %2
+ErrorFileSize=Ugyldig filstørrelse: forventet %1, fant %2
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=Pakker ut filer...
@@ -237,7 +237,7 @@ ApplicationsFound=Disse applikasjonene bruker filer som vil oppdateres av instal
 ApplicationsFound2=Disse applikasjonene bruker filer som vil oppdateres av installasjonen. Det anbefales å la installasjonen automatisk avslutte disse applikasjonene. Installasjonen vil prøve å starte applikasjonene på nytt etter at installasjonen er avsluttet.
 CloseApplications=Lukk applikasjonene &automatisk
 DontCloseApplications=&Ikke lukk applikasjonene
-ErrorCloseApplications=Installasjonsprogrammet kunne ikke lukke alle applikasjonene &automatisk. Det anbefales å lukke alle applikasjoner som bruker filer som installasjonsprogrammet trenger å oppdatere før du fortsetter installasjonen.
+ErrorCloseApplications=Installasjonsprogrammet kunne ikke lukke alle applikasjonene automatisk. Det anbefales å lukke alle applikasjoner som bruker filer som installasjonsprogrammet trenger å oppdatere før du fortsetter installasjonen.
 PrepareToInstallNeedsRestart=Installasjonsprogrammet må gjøre omstart av maskinen. Etter omstart av maskinen, kjør installasjonsprogrammet på nytt for å ferdigstille installasjonen av [name].%n%nVil du gjøre omstart av maskinen nå?
 
 ; *** "Installing" wizard page
@@ -269,7 +269,7 @@ SelectDirectoryLabel=Vennligst angi hvor den neste disketten er.
 ; *** Installation phase messages
 SetupAborted=Installasjonen ble avbrutt.%n%nVennligst korriger problemet og prøv igjen.
 AbortRetryIgnoreSelectAction=Velg aksjon
-AbortRetryIgnoreRetry=&Prøv Igjen
+AbortRetryIgnoreRetry=&Prøv igjen
 AbortRetryIgnoreIgnore=&Ignorer feil og fortsett
 AbortRetryIgnoreCancel=Avbryt installasjon
 RetryCancelSelectAction=Velg aksjon
@@ -282,7 +282,7 @@ StatusCreateDirs=Lager mapper...
 StatusExtractFiles=Pakker ut filer...
 StatusDownloadFiles=Laster ned filer...
 StatusCreateIcons=Lager programikoner...
-StatusCreateIniEntries=Lager INI-instillinger...
+StatusCreateIniEntries=Lager INI-innstillinger...
 StatusCreateRegistryEntries=Lager innstillinger i registeret...
 StatusRegisterFiles=Registrerer filer...
 StatusSavingUninstall=Lagrer info for avinstallering...
@@ -291,7 +291,7 @@ StatusRestartingApplications=Restarter applikasjoner...
 StatusRollback=Tilbakestiller forandringer...
 
 ; *** Misc. errors
-ErrorInternal2=Intern feil %1
+ErrorInternal2=Intern feil: %1
 ErrorFunctionFailedNoCode=%1 gikk galt
 ErrorFunctionFailed=%1 gikk galt; kode %2
 ErrorFunctionFailedWithMessage=%1 gikk galt; kode %2.%n%3
@@ -310,14 +310,14 @@ FileAbortRetryIgnoreSkipNotRecommended=&Hopp over denne filen (ikke anbefalt)
 FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorer feilen og fortsett (ikke anbefalt)
 SourceIsCorrupted=Kildefilen er ødelagt
 SourceDoesntExist=Kildefilen "%1" finnes ikke
-SourceVerificationFailed=Verifiserign av kilde filen feilet: %1
-VerificationSignatureDoesntExist=Signatur filen "%1" finnes ikke
-VerificationSignatureInvalid=Signatur filen "%1" er ugyldig
-VerificationKeyNotFound=Signatur filen "%1" har en ukjent nøkkel
+SourceVerificationFailed=Verifisering av kildefilen feilet: %1
+VerificationSignatureDoesntExist=Signaturfilen "%1" finnes ikke
+VerificationSignatureInvalid=Signaturfilen "%1" er ugyldig
+VerificationKeyNotFound=Signaturfilen "%1" har en ukjent nøkkel
 VerificationFileNameIncorrect=Filnavnet er feil
 VerificationFileTagIncorrect=Filens markør er feil
 VerificationFileSizeIncorrect=Filstørrelsen er feil
-VerificationFileHashIncorrect=Filens hash verdi er feil
+VerificationFileHashIncorrect=Filens hashverdi er feil
 ExistingFileReadOnly2=Den eksisterende filen er skrivebeskyttet og kan ikke erstattes.
 ExistingFileReadOnlyRetry=&Fjern skrivebeskyttelse og prøv igjen
 ExistingFileReadOnlyKeepExisting=&Behold eksisterende fil
@@ -359,7 +359,7 @@ ErrorRestartingComputer=Installasjonsprogrammet kunne ikke starte maskinen på n
 
 ; *** Uninstaller messages
 UninstallNotFound=Filen "%1" finnes ikke. Kan ikke avinstallere.
-UninstallOpenError=Filen "%1" kunne ikke åpnes. Kan ikke avinstallere.
+UninstallOpenError=Filen "%1" kunne ikke åpnes. Kan ikke avinstallere
 UninstallUnsupportedVer=Kan ikke avinstallere. Avinstallasjons-loggfilen "%1" har et format som ikke gjenkjennes av denne versjonen av avinstallasjons-programmet
 UninstallUnknownEntry=Et ukjent parameter (%1) ble funnet i Avinstallasjons-loggfilen
 ConfirmUninstall=Er du sikker på at du helt vil fjerne %1 og alle tilhørende komponenter?
@@ -369,14 +369,14 @@ UninstallStatusLabel=Vennligst vent mens %1 fjernes fra maskinen.
 UninstalledAll=Avinstallasjonen av %1 var vellykket
 UninstalledMost=Avinstallasjonen av %1 er ferdig.%n%nEnkelte elementer kunne ikke fjernes. Disse kan fjernes manuelt.
 UninstalledAndNeedsRestart=Du må starte maskinen på nytt for å fullføre installasjonen av %1.%n%nVil du starte på nytt nå?
-UninstallDataCorrupted="%1"-filen er ødelagt. Kan ikke avinstallere.
+UninstallDataCorrupted="%1"-filen er ødelagt. Kan ikke avinstallere
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Fjerne delte filer?
 ConfirmDeleteSharedFile2=Systemet indikerer at den følgende filen ikke lengre brukes av andre programmer. Vil du at avinstalleringsprogrammet skal fjerne den delte filen?%n%nHvis andre programmer bruker denne filen, kan du risikere at de ikke lengre vil virke som de skal. Velg Nei hvis du er usikker. Det vil ikke gjøre noen skade hvis denne filen ligger på din maskin.
 SharedFileNameLabel=Filnavn:
 SharedFileLocationLabel=Plassering:
-WizardUninstalling=Avinstallerings-status:
+WizardUninstalling=Avinstallerings-status
 StatusUninstalling=Avinstallerer %1...
 
 ; *** Shutdown block reasons

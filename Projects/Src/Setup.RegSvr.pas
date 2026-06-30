@@ -86,7 +86,7 @@ begin
   end;
 end;
 
-procedure DeleteSelf;
+procedure DeleteSelfUsingRestartReplace;
 var
   SelfFilename, NewFilename: String;
 begin
@@ -142,6 +142,14 @@ begin
   try
     MsgFilename := PathChangeExt(NewParamStr(0), '.msg');
     ListFilename := PathChangeExt(NewParamStr(0), '.lst');
+
+    { Init main constants, not depending on GetShellFolderPath. This also
+      initializes the Setup.PathRedir unit. Currently it actually only needs
+      the Setup.PathRedir unit initialization, but init everything always anyway.
+      Must be done even if ListFilename doesn't exist, because
+      DeleteSelfUsingRestartReplace always runs and needs Setup.PathRedir. }
+    InitMainNonGetShellFolderPathConstsAndPathRedir;
+
     { The .lst file may not exist at this point, if we were already run
       previously, but the RunOnce entry could not be removed due to lack of
       admin privileges. }
@@ -151,11 +159,6 @@ begin
       LoadSetupMessages(MsgFilename, 0, True);
       SetMessageBoxRightToLeft(lfRightToLeft in MessagesLangOptions.Flags);
       Application.Title := SetupMessages[msgSetupAppTitle];
-
-      { Init main constants, not depending on GetShellFolderPath. This also
-        initializes the Setup.PathRedir unit. Currently it actually only needs
-        the Setup.PathRedir unit initialization, but init everything always anyway. }
-      InitMainNonGetShellFolderPathConstsAndPathRedir;
 
       F := TTextFileReader.Create(ListFilename, fdOpenExisting, faRead, fsRead);
       try
@@ -198,7 +201,7 @@ begin
     DeleteFile(MsgFilename);
 
     try
-      DeleteSelf;
+      DeleteSelfUsingRestartReplace;
     except
       { ignore exceptions }
     end;
