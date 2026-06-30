@@ -1,7 +1,7 @@
 ; *** Inno Setup version 6.5.0+ Slovenian messages ***
 ;
 ; To download user-contributed translations of this file, go to:
-;   http://www.jrsoftware.org/is3rdparty.php
+;   https://jrsoftware.org/files/istrans/
 ;
 ; Note: When translating this text, do not add periods (.) to the end of
 ; messages that didn't have them already, because on those messages Inno
@@ -11,11 +11,11 @@
 ; Maintained by Jernej Simoncic (jernej+s-innosetup@eternallybored.org)
 
 [LangOptions]
-LanguageName=Slovenski
+LanguageName=Slovenščina
 LanguageID=$0424
 LanguageCodePage=1250
 
-DialogFontName=
+;DialogFontName=
 [Messages]
 
 ; *** Application titles
@@ -103,7 +103,7 @@ BrowseDialogLabel=Izberite mapo s spiska, nato kliknite V redu.
 NewFolderName=Nova mapa
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Dobrodošli v namestitev programa [name].
+WelcomeLabel1=Dobrodošli v namestitev programa [name]
 WelcomeLabel2=V računalnik boste namestili program [name/ver].%n%nPriporočljivo je, da pred začetkom namestitve zaprete vse odprte programe.
 
 ; *** "Password" wizard page
@@ -115,7 +115,7 @@ IncorrectPassword=Vneseno geslo ni pravilno. Poizkusite ponovno.
 
 ; *** "License Agreement" wizard page
 WizardLicense=Licenčna pogodba
-LicenseLabel=Pred nadaljevanjem preberite licenčno pogodbo za uporabo programa.
+LicenseLabel=Pred nadaljevanjem preberite naslednje pomembne informacije.
 LicenseLabel3=Preberite licenčno pogodbo za uporabo programa. Program lahko namestite le, če se s pogodbo v celoti strinjate.
 LicenseAccepted=&Da, sprejemam vse pogoje licenčne pogodbe
 LicenseNotAccepted=N&e, pogojev licenčne pogodbe ne sprejmem
@@ -155,7 +155,7 @@ BadDirName32=Ime mape ne sme vsebovati naslednjih znakov:%n%n%1
 DirExistsTitle=Mapa že obstaja
 DirExists=Mapa%n%n%1%n%nže obstaja. Želite program vseeno namestiti v to mapo?
 DirDoesntExistTitle=Mapa ne obstaja
-DirDoesntExist=Mapa %n%n%1%n%nne obstaja. Ali jo želite ustvariti?
+DirDoesntExist=Mapa%n%n%1%n%nne obstaja. Ali jo želite ustvariti?
 
 ; *** "Select Components" wizard page
 WizardSelectComponents=Izbira komponent
@@ -182,10 +182,10 @@ WizardSelectProgramGroup=Izbira mape v meniju »Začetek«
 SelectStartMenuFolderDesc=Kje naj namestitveni program ustvari bližnjice?
 SelectStartMenuFolderLabel3=Namestitveni program bo ustvaril bližnjice v naslednji mapi v meniju »Start«.
 SelectStartMenuFolderBrowseLabel=Za nadaljevanje kliknite Naprej. Če želite izbrati drugo mapo, kliknite Prebrskaj.
-MustEnterGroupName=Ime skupine mora biti vpisano.
+MustEnterGroupName=Ime mape mora biti vpisano.
 GroupNameTooLong=Ime mape ali poti je predolgo.
 InvalidGroupName=Ime mape ni veljavno.
-BadGroupName=Ime skupine ne sme vsebovati naslednjih znakov:%n%n%1
+BadGroupName=Ime mape ne sme vsebovati naslednjih znakov:%n%n%1
 NoProgramGroupCheck2=&Ne ustvari mape v meniju »Start«
 
 ; *** "Ready to Install" wizard page
@@ -201,7 +201,7 @@ ReadyMemoGroup=Mapa v meniju »Začetek«:
 ReadyMemoTasks=Dodatna opravila:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel2=Prenašam datoteke...
+DownloadingLabel2=Prenašanje datotek...
 ButtonStopDownload=Prekini preno&s
 StopDownload=Ali res želite prekiniti prenos?
 ErrorDownloadAborted=Prenos prekinjen
@@ -245,7 +245,7 @@ FinishedLabelNoIcons=Program [name] je nameščen v vaš računalnik.
 FinishedLabel=Program [name] je nameščen v vaš računalnik. Program zaženete tako, da odprete pravkar ustvarjene programske ikone.
 ClickFinish=Kliknite tipko Končaj za zaključek namestitve.
 FinishedRestartLabel=Za dokončanje namestitve programa [name] morate računalnik znova zagnati. Ali ga želite znova zagnati zdaj?
-FinishedRestartMessage=Za dokončanje namestitve programa [name] morate računalnik znova zagnati. %n%nAli ga želite znova zagnati zdaj?
+FinishedRestartMessage=Za dokončanje namestitve programa [name] morate računalnik znova zagnati.%n%nAli ga želite znova zagnati zdaj?
 ShowReadmeCheck=Želim prebrati datoteko BERIME
 YesRadio=&Da, računalnik znova zaženi zdaj
 NoRadio=&Ne, računalnik bom znova zagnal pozneje
@@ -290,7 +290,7 @@ StatusRollback=Obnavljanje prvotnega stanja...
 ErrorInternal2=Interna napaka: %1
 ErrorFunctionFailedNoCode=%1 ni uspel(a)
 ErrorFunctionFailed=%1 ni uspel(a); koda %2
-ErrorFunctionFailedWithMessage=%1 ni uspela; koda %2.%n%3
+ErrorFunctionFailedWithMessage=%1 ni uspel(a); koda %2.%n%3
 ErrorExecutingProgram=Ne morem zagnati programa:%n%1
 
 ; *** Registry errors
@@ -321,12 +321,12 @@ ErrorReadingExistingDest=Pri branju obstoječe datoteke je prišlo do napake:
 FileExistsSelectAction=Izberite dejanje
 FileExists2=Datoteka že obstaja.
 FileExistsOverwriteExisting=&Prepiši obstoječo datoteko
-FileExistsKeepExisting=&Ohrani trenutno datoteko
+FileExistsKeepExisting=&Ohrani obstoječo datoteko
 FileExistsOverwriteOrKeepAll=&To naredite za preostale spore
 ExistingFileNewerSelectAction=Izberite dejanje
 ExistingFileNewer2=Obstoječa datoteka je novejša, kot datoteka, ki se namešča.
 ExistingFileNewerOverwriteExisting=&Prepiši obstoječo datoteko
-ExistingFileNewerKeepExisting=&Ohrani trenutno datoteko (priporočeno)
+ExistingFileNewerKeepExisting=&Ohrani obstoječo datoteko (priporočeno)
 ExistingFileNewerOverwriteOrKeepAll=&To naredite za preostale spore
 ErrorChangingAttr=Pri poskusu spremembe lastnosti datoteke je prišlo do napake:
 ErrorCreatingTemp=Pri ustvarjanju datoteke v ciljni mapi je prišlo do napake:

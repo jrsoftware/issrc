@@ -158,7 +158,7 @@ DiskSpaceWarningTitle=Недостаточно места на диске
 DiskSpaceWarning=Установка требует не менее %1 Кб свободного места, а на выбранном вами диске доступно только %2 Кб.%n%nВы желаете тем не менее продолжить установку?
 DirNameTooLong=Имя папки или путь к ней превышают допустимую длину.
 InvalidDirName=Указанное имя папки недопустимо.
-BadDirName32=Имя папки не может содержать символов: %n%n%1
+BadDirName32=Имя папки не может содержать символов:%n%n%1
 DirExistsTitle=Папка существует
 DirExists=Папка%n%n%1%n%nуже существует. Всё равно установить в эту папку?
 DirDoesntExistTitle=Папка не существует
@@ -217,7 +217,7 @@ ErrorDownloadSizeFailed=Ошибка получения размера: %1 %2
 ErrorProgress=Ошибка выполнения: %1 из %2
 ErrorFileSize=Неверный размер файла: ожидался %1, получен %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=Распаковка файлов...
 ButtonStopExtraction=О&становить распаковку
 StopExtraction=Вы уверены, что хотите остановить распаковку?
@@ -312,7 +312,7 @@ FileAbortRetryIgnoreIgnoreNotRecommended=&Игнорировать ошибку 
 SourceIsCorrupted=Исходный файл поврежден
 SourceDoesntExist=Исходный файл "%1" не существует
 SourceVerificationFailed=Исходный файл не прошёл проверку: %1
-VerificationSignatureDoesntExist=Файл подписи "%1" does не существует
+VerificationSignatureDoesntExist=Файл подписи "%1" не существует
 VerificationSignatureInvalid=Файл подписи "%1" неверен
 VerificationKeyNotFound=Файл подписи "%1" использует неизвестный ключ
 VerificationFileNameIncorrect=Неверное имя файла
