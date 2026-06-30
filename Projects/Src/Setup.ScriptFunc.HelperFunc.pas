@@ -704,6 +704,10 @@ begin
 end;
 
 function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): NativeInt;
+{$IFDEF CPUX64}
+const
+  RecordParamRegisters: array [1..3] of TRegister64 = (RDX, R8, R9);
+{$ENDIF}
 begin
   { ProcNo 0 means nil was passed by the script }
   if P.ProcNo = 0 then
@@ -860,29 +864,16 @@ begin
     for var I := 0 to High(RecordParamPositions) do begin
       const Position = RecordParamPositions[I];
       const TempOffset = RecordTempBase + Integer(I) * SizeOf(Pointer);
-      case Position of
-        1:
-          begin
-            Inliner.MovMemRSPReg(TempOffset, RDX);
-            Inliner.LeaRegMemRSP(RDX, TempOffset);
-          end;
-        2:
-          begin
-            Inliner.MovMemRSPReg(TempOffset, R8);
-            Inliner.LeaRegMemRSP(R8, TempOffset);
-          end;
-        3:
-          begin
-            Inliner.MovMemRSPReg(TempOffset, R9);
-            Inliner.LeaRegMemRSP(R9, TempOffset);
-          end;
-      else begin
-          const SlotOffset = 32 + (Position - 4) * SizeOf(Pointer);
-          Inliner.MovRegMemRSP(RAX, SlotOffset);
-          Inliner.MovMemRSPReg(TempOffset, RAX);
-          Inliner.LeaRegMemRSP(RAX, TempOffset);
-          Inliner.MovMemRSPReg(SlotOffset, RAX);
-        end;
+      if Position in [1, 2, 3] then begin
+        const Reg = RecordParamRegisters[Position];
+        Inliner.MovMemRSPReg(TempOffset, Reg);
+        Inliner.LeaRegMemRSP(Reg, TempOffset);
+      end else begin
+        const SlotOffset = 32 + (Position - 4) * SizeOf(Pointer);
+        Inliner.MovRegMemRSP(RAX, SlotOffset);
+        Inliner.MovMemRSPReg(TempOffset, RAX);
+        Inliner.LeaRegMemRSP(RAX, TempOffset);
+        Inliner.MovMemRSPReg(SlotOffset, RAX);
       end;
     end;
 
