@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 02.05.2026  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 01.07.2026  by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -47,8 +47,8 @@ ErrorTitle=Errore
 
 ; *** SetupLdr messages
 SetupLdrStartupMessage=Questa è l'installazione di %1.%n%nVuoi continuare?
-LdrCannotCreateTemp=Impossibile creare un file temporaneo.%n%nInstallazione annullata
-LdrCannotExecTemp=Impossibile eseguire un file nella cartella temporanea.%n%nInstallazione annullata
+LdrCannotCreateTemp=Impossibile creare un file temporaneo.%n%nInstallazione annullata.
+LdrCannotExecTemp=Impossibile eseguire un file nella cartella temporanea.%n%nInstallazione annullata.
 HelpTextNote=
 
 ; *** Startup error messages
