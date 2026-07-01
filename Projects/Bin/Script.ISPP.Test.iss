@@ -870,6 +870,8 @@
 #call CheckEqualsInt(8, NamedParamFunc(A = 5, B = 3))
 #call CheckEqualsInt(8, NamedParamFunc(B = 3, A = 5))
 #call CheckEqualsInt(15, NamedParamFunc(A = 5))
+// A trailing comma (omitted argument) after a named one should be allowed
+#call CheckEqualsInt(15, NamedParamFunc(A = 5,))
 #undef NamedParamFunc
 //
 // Directive shorthands and the echo alias

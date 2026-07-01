@@ -161,6 +161,7 @@ function TParser.Factor(DoEval: Boolean): TIsppVariant;
             begin
               NextToken;
               CallContext.Add(ArgName, V);
+              ArgName := '';
               V := NULL;
               T := PeekAtNextToken;
             end;
