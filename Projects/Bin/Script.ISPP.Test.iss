@@ -769,6 +769,15 @@
 #endsub
 #call OuterSubTestsInnerRestore()
 #call CheckFalse(Defined(AfterInnerCall))
+// #sub called from within an expression returns NULL, not an undefined type
+#sub SubExprNullResult
+  #emit '; SUB_EXPR_NULL_MARKER'
+#endsub
+#define SubExprResultHolder = SubExprNullResult()
+#call CheckEqualsInt(TYPE_NULL, TypeOf(SubExprResultHolder))
+#call CheckTrue(Find(0, 'SUB_EXPR_NULL_MARKER', FIND_CONTAINS) >= 0)
+#undef SubExprResultHolder
+#undef SubExprNullResult
 #undef SimpleSub
 #undef SubArgValue
 #undef SubWithVariable

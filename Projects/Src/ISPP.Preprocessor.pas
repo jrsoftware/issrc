@@ -1827,6 +1827,7 @@ begin
     FPreproc.FIdentManager.EndLocal;
     FPreproc.SetDefaultScope(SavedScope);
   end;
+  Result := NULL;
 end;
 
 procedure TProcCallContext.Clone(out NewContext: ICallContext);
