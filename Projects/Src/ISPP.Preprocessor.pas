@@ -192,7 +192,7 @@ end;
 function ParsePreprocCommand(var P: PChar; ExtraTerminator: Char): TPreprocessorCommand;
 begin
   for Result := TPreprocessorCommand(1) to High(TPreprocessorCommand) do begin
-    if (P^ = PpCmdSynonyms[Result]) then
+    if (PpCmdSynonyms[Result] <> #0) and (P^ = PpCmdSynonyms[Result]) then
       Inc(P)
     else if (StrLIComp(P, @PreprocCommands[Result][1], ULength(PreprocCommands[Result])) = 0) and
             CharInSet(P[Length(PreprocCommands[Result])], [#0..#32, ExtraTerminator]) then
