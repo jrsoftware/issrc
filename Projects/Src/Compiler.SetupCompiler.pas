@@ -541,6 +541,7 @@ begin
         for I := 0 to AFilesList.Count-1 do begin
           Filename := PrependSourceDirName(AFilesList[I]);
           if IsWildcard(FileName) then begin
+            var FileFound := False;
             H := FindFirstFile(PChar(Filename), FindData);
             if H <> INVALID_HANDLE_VALUE then begin
               try
@@ -548,12 +549,15 @@ begin
                 repeat
                   if FindData.dwFileAttributes and (FILE_ATTRIBUTE_DIRECTORY or FILE_ATTRIBUTE_HIDDEN) <> 0 then
                     Continue;
-                   AddFile(SearchSubDir + FindData.cFilename);
+                  AddFile(SearchSubDir + FindData.cFilename);
+                  FileFound := True;
                 until not FindNextFile(H, FindData);
               finally
                 Windows.FindClose(H);
               end;
             end;
+            if not FileFound then
+              AbortCompileFmt(SCompilerFilesWildcardNotMatched, [Filename]);
           end else
             AddFile(Filename);  { use the case specified in the script }
         end;
