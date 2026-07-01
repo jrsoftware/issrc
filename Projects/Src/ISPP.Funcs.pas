@@ -870,8 +870,8 @@ begin
       begin
         GetMem(Buf, Size);
         try
-          GetFileVersionInfo(PChar(Filename), VersionHandle, Size, Buf);
-          if VerQueryValue(Buf, '\', Pointer(FI), S) then
+          if GetFileVersionInfo(PChar(Filename), VersionHandle, Size, Buf) and
+             VerQueryValue(Buf, '\', Pointer(FI), S) then
           begin
             MakeStr(ResPtr^,
               IntToStr((FI.dwFileVersionMS and $FFFF0000) shr 16) + '.' +
@@ -920,8 +920,7 @@ begin
   end;
 end;
 
-{str GetStringFileInfo(str FileName, str StringName, int Lang)}
-function GetFileVersionInfoItem(Ext: NativeInt; const Params: IIsppFuncParams;
+function GetStringFileInfoFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   Buf: Pointer;
@@ -960,27 +959,29 @@ begin
       begin
         GetMem(Buf, Size);
         try
-          GetFileVersionInfo(PChar(Filename), VersionHandle, Size, Buf);
-          if GetCount > 2 then
+          if GetFileVersionInfo(PChar(Filename), VersionHandle, Size, Buf) then
           begin
-            Lang := Get(2).AsCardinal;
-            Success := GetStringFileInfo(Lang, Get(1).AsStr, Value);
-          end
-          else
-          begin
-            if VerQueryValue(Buf, PChar('\VarFileInfo\Translation'), Pointer(Langs),
-              LangsSize) then
+            if GetCount > 2 then
             begin
-              const LangCount = LangsSize div 4;
-              for var I := 0 to LangCount - 1 do
+              Lang := Get(2).AsCardinal;
+              Success := GetStringFileInfo(Lang, Get(1).AsStr, Value);
+            end
+            else
+            begin
+              if VerQueryValue(Buf, PChar('\VarFileInfo\Translation'), Pointer(Langs),
+                LangsSize) then
               begin
-                Success := GetStringFileInfo(Langs[I], Get(1).AsStr, Value);
-                if Success then Break;
+                const LangCount = LangsSize div 4;
+                for var I := 0 to LangCount - 1 do
+                begin
+                  Success := GetStringFileInfo(Langs[I], Get(1).AsStr, Value);
+                  if Success then Break;
+                end;
               end;
             end;
+            if Success then
+              MakeStr(ResPtr^, Value);
           end;
-          if Success then
-            MakeStr(ResPtr^, Value);
         finally
           FreeMem(Buf)
         end;
@@ -1869,7 +1870,7 @@ begin
     RegisterFunction('GetVersionNumbersString', GetVersionNumbersStringFunc, -1);
     RegisterFunction('ComparePackedVersion', ComparePackedVersionFunc, -1);
     RegisterFunction('SamePackedVersion', SamePackedVersionFunc, -1);
-    RegisterFunction('GetStringFileInfo', GetFileVersionInfoItem, -1);
+    RegisterFunction('GetStringFileInfo', GetStringFileInfoFunc, -1);
     RegisterFunction('SaveToFile', ISPP.Funcs.SaveToFile, -1);
     RegisterFunction('Find', FindLine, -1);
     RegisterFunction('SetupSetting', SetupSetting, -1);
