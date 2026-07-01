@@ -524,7 +524,7 @@ begin
       else
         if LineStack.Include then
           case Command of
-            pcInclude, pcInsert..pcEndSub:
+            pcInclude, pcInsert..pcEndSub, pcReDim:
               RaiseError(Format(SDirectiveCannotBeInline,
                 [PreprocCommands[Command]]));
             pcEmit, pcEnv, pcFile:
