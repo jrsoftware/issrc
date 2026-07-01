@@ -2399,40 +2399,40 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <p><tt>Is64Bit</tt> specifies whether the DLL/OCX is 64-bit (<tt>True</tt>) or 32-bit (<tt>False</tt>).</p>
 <p>Parameter <tt>Reserved</tt> is ignored, but must be specified anyway.</p></description>
         <remarks><p><tt>Filename</tt> must be reachable <i>in the current process</i>. This means, for example, that a 32-bit installer wanting to register a DLL in the native 64-bit <tt>{sys}</tt> directory must pass a <tt>Sysnative</tt> path. Use <tt>ApplyPathRedirRules</tt> as shown in the example below to make that adjustment automatically. (Calling <tt>ApplyPathRedirRules</tt> for DLLs outside of <tt>{sys}</tt> isn't necessary, but it doesn't hurt.)</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   File64Bit: Boolean;
-begin
-  // Register hhctrl.ocx located in the System directory.
+<key>begin</key>
+  <com>// Register hhctrl.ocx located in the System directory.</com>
 
-  // Setting File64Bit to...
-  // - False will register the 32-bit OCX in the 32-bit System directory
-  // - True will register the 64-bit OCX in the 64-bit System directory
-  // - Is64BitInstallMode will use Setup's install mode to determine which one to register
+  <com>// Setting File64Bit to...</com>
+  <com>// - False will register the 32-bit OCX in the 32-bit System directory</com>
+  <com>// - True will register the 64-bit OCX in the 64-bit System directory</com>
+  <com>// - Is64BitInstallMode will use Setup's install mode to determine which one to register</com>
   File64Bit := Is64BitInstallMode;
 
   RegisterServer(File64Bit,
-    ApplyPathRedirRules(File64Bit, ExpandConstant('{sys}\hhctrl.ocx'), tpCurrent),
+    ApplyPathRedirRules(File64Bit, ExpandConstant(<str>'{sys}\hhctrl.ocx'</str>), tpCurrent),
     False);
-end;</pre></example>
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>UnregisterServer</name>
         <prototype>function UnregisterServer(const Is64Bit: Boolean; const Filename: String; const Reserved: Boolean): Boolean;</prototype>
         <description><p>Unregisters the DLL/OCX with the specified filename. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p>
-<p>See <tt><isxfunc>RegisterServer</isxfunc> for usage details.</p></description>
+<p>See <isxfunc>RegisterServer</isxfunc> for usage details.</p></description>
       </function>
       <function>
         <name>RegisterTypeLibrary</name>
         <prototype>procedure RegisterTypeLibrary(const Is64Bit: Boolean; const Filename: String);</prototype>
         <description><p>Registers the type library with the specified filename. Raises an exception if not successful.</p>
 <p><tt>Is64Bit</tt> specifies whether the type library should be registered in the 64-bit registry view (<tt>True</tt>) or 32-bit registry view (<tt>False</tt>). In Inno Setup ≥7.0, this must match the <link topic="64bit">Setup/Uninstall bitness</link>, so <tt>IsCurrentProcess64Bit</tt> should be passed.</p></description>
-        <example><pre>begin
-  // Register stdole2.tlb located in the System directory.
-  // - When SetupArchitecture=x64, this will register in the 64-bit registry view.
-  // - When SetupArchitecture=x86, this will register in the 32-bit registry view.
+        <example><pre><key>begin</key>
+  <com>// Register stdole2.tlb located in the System directory.</com>
+  <com>// - When SetupArchitecture=x64, this will register in the 64-bit registry view.</com>
+  <com>// - When SetupArchitecture=x86, this will register in the 32-bit registry view.</com>
 
-  RegisterTypeLibrary(IsCurrentProcess64Bit, ExpandConstant('{sys}\stdole2.tlb'));
-end;</pre></example>
+  RegisterTypeLibrary(IsCurrentProcess64Bit, ExpandConstant(<str>'{sys}\stdole2.tlb'</str>));
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>UnregisterTypeLibrary</name>
@@ -2449,24 +2449,24 @@ end;</pre></example>
 <p>Pass <tt>True</tt> in the <tt>AlreadyExisted</tt> parameter if the file already exists; in this case the initial reference count for the file will be 2 if the value for the file doesn't already exist in the registry. (This behavior is in line with Microsoft's requirements.)</p>
 <p>An exception will be raised if the registry key cannot be opened for write access.</p></description>
         <remarks><p><tt>Filename</tt> must be reachable <i>in the current process</i>. This means, for example, that a 32-bit installer passing <tt>True</tt> in the <tt>Is64Bit</tt> parameter must pass a <tt>Sysnative</tt> path if the file is located under <tt>{sys}</tt>. Use <tt>ApplyPathRedirRules</tt> as shown in the example below to make that adjustment automatically. (Calling <tt>ApplyPathRedirRules</tt> for files outside of <tt>{sys}</tt> isn't necessary, but it doesn't hurt.)</p></remarks>
-        <example><pre>var
+        <example><pre><key>var</key>
   File64Bit, AlreadyExisted: Boolean;
-begin
-  // Increment count of TestIncSharedCount.dll located in the System directory.
+<key>begin</key>
+  <com>// Increment count of TestIncSharedCount.dll located in the System directory.</com>
 
-  // Setting File64Bit to...
-  // - False will update the 32-bit SharedDLLs key
-  // - True will update the 64-bit SharedDLLs key
-  // - Is64BitInstallMode will use Setup's install mode to determine which key to update
+  <com>// Setting File64Bit to...</com>
+  <com>// - False will update the 32-bit SharedDLLs key</com>
+  <com>// - True will update the 64-bit SharedDLLs key</com>
+  <com>// - Is64BitInstallMode will use Setup's install mode to determine which key to update</com>
   File64Bit := Is64BitInstallMode;
 
-  // AlreadyExisted should be True if the file existed before installation
+  <com>// AlreadyExisted should be True if the file existed before installation</com>
   AlreadyExisted := False;
 
   IncrementSharedCount(File64Bit,
-    ApplyPathRedirRules(File64Bit, ExpandConstant('{sys}\TestIncSharedCount.dll'), tpCurrent),
+    ApplyPathRedirRules(File64Bit, ExpandConstant(<str>'{sys}\TestIncSharedCount.dll'</str>), tpCurrent),
     AlreadyExisted);
-end;</pre></example>
+<key>end</key>;</pre></example>
       </function>
       <function>
         <name>DecrementSharedCount</name>
