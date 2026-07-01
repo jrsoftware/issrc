@@ -261,12 +261,12 @@ begin
   SlashPathLen := Length(SlashPath);
   if SlashPathLen > 0 then begin   { ...sanity check }
     for I := 0 to List.Count-1 do begin
-      if List[I] = Path then begin
+      if PathSame(List[I], Path) then begin
         Result := True;
         Exit;
       end;
       if (Length(List[I]) > SlashPathLen) and
-         CompareMem(Pointer(List[I]), Pointer(SlashPath), SlashPathLen * SizeOf(SlashPath[1])) then begin
+         PathStartsWith(List[I], SlashPath) then begin
         Result := True;
         Exit;
       end;
