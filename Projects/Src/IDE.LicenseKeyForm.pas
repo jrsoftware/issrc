@@ -35,6 +35,11 @@ uses
 
 procedure TLicenseKeyForm.FormCreate(Sender: TObject);
 begin
+  { Finish localization }
+  const W = CalculateButtonWidth([CancelButton.Caption]);
+  CancelButton.Left := CancelButton.Left - (W - CancelButton.Width);
+  CancelButton.Width := W;
+
   LicenseKeyMemo.Font.Name := GetPreferredMemoFont;
   LicenseKeyMemo.Font.Size := 10;
 end;
