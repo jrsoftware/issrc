@@ -322,6 +322,27 @@
 #call CheckEqualsInt(2, TernaryCounter)
 #undef TernaryCounter
 //
+// Skipped subexpressions must not materialize or validate literals or arguments
+//
+// Ternary: an unevaluated operand must not raise, even for an out-of-range index
+// or a non-numeric string index that would fail if it were evaluated
+#dim SkipDeadArray[3]
+#call CheckEqualsInt(1, 0 ? SkipDeadArray[5] : 1)
+#call CheckEqualsInt(2, 1 ? 2 : SkipDeadArray[9])
+#call CheckEqualsInt(3, 0 ? SkipDeadArray['x'] : 3)
+#undef SkipDeadArray
+// Short-circuit: a wrong-typed or undeclared argument in the skipped operand of
+// a macro call must be ignored (short-circuit boolean evaluation is on by default)
+#define SkipDeadIntParam(int X) X
+#call CheckFalse(0 && SkipDeadIntParam('not an int'))
+#call CheckTrue(1 || SkipDeadIntParam('not an int'))
+#undef SkipDeadIntParam
+#pragma parseroption -u+
+#define SkipDeadUndeclaredArg(X) X
+#call CheckFalse(0 && SkipDeadUndeclaredArg(UndeclaredIdentifier_SkipDeadArg_Test))
+#undef SkipDeadUndeclaredArg
+#pragma parseroption -u-
+//
 // Comma operator
 //
 #call CheckEqualsInt(3, (1, 2, 3))

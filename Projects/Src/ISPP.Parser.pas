@@ -235,8 +235,11 @@ begin
             if (optAllowUndeclared in FOptions.Options) and not
               (PeekAtNextToken in [tkOpenParen, tkOpenBracket, tkOpenBrace]) then
             begin
-              Result.Typ := evNull;
-              WarningMsg(SUndeclaredIdentifier, [TokenString]);
+              if DoEval then
+              begin
+                Result.Typ := evNull;
+                WarningMsg(SUndeclaredIdentifier, [TokenString]);
+              end;
             end
             else
               ErrorFmt(SUndeclaredIdentifier, [TokenString]);
@@ -276,12 +279,13 @@ begin
         end;
       end;
     tkNumber:
+      if DoEval then
       begin
         if not TryStrToInt64(TokenString, I) then
           ErrorFmt(SCannotConvertToInteger, [TokenString]);
         MakeInt(Result, I);
       end;
-    tkString: MakeStr(Result, TokenString);
+    tkString: if DoEval then MakeStr(Result, TokenString);
     opInc, opDec:
       begin
         Op := Token;
