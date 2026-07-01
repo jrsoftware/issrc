@@ -1004,6 +1004,17 @@
 #undef IncludeSeesMainPrivate
 #undef IncludePathFilename
 //
+// #include directive split by a span mid-file: the directive ends with the span
+// symbol, so it is queued and only flushed when the next line arrives. Flushing
+// it re-enters the include machinery, which must not see the stale span queue
+//
+#include \
+"Script.ISPP.Include.Test.iss"
+#call CheckTrue(Defined(IncludePathFilename))
+#undef IncludeSeesMainProtected
+#undef IncludeSeesMainPrivate
+#undef IncludePathFilename
+//
 // String functions
 //
 #call CheckEqualsString('ell', Copy('hello', 2, 3))
