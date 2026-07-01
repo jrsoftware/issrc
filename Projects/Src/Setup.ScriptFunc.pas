@@ -1671,12 +1671,14 @@ var
     RegisterScriptFunc('OEMTOCHARBUFF', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var S := Stack.GetAnsiString(PStart);
+      UniqueString(S);
       OemToCharBuffA(PAnsiChar(S), PAnsiChar(S), ULength(S));
       Stack.SetAnsiString(PStart, S);
     end);
     RegisterScriptFunc('CHARTOOEMBUFF', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var S := Stack.GetAnsiString(PStart);
+      UniqueString(S);
       CharToOemBuffA(PAnsiChar(S), PAnsiChar(S), ULength(S));
       Stack.SetAnsiString(PStart, S);
     end);
