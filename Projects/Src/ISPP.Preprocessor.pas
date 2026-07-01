@@ -1393,6 +1393,7 @@ type
     procedure EnsureLocals;
   public
     constructor Create(Proprocessor: TPreprocessor; ProcBody: TStrings);
+    destructor Destroy; override;
     procedure Add(const Name: String; const Value: TIsppVariant);
     function Call: TIsppVariant;
     procedure Clone(out NewContext: ICallContext);
@@ -1848,6 +1849,7 @@ begin
     FPreproc.ExecProc(FBody);
   finally
     FPreproc.FIdentManager.EndLocal;
+    FLocalsEnsured := False;
     FPreproc.SetDefaultScope(SavedScope);
   end;
   Result := NULL;
@@ -1863,6 +1865,13 @@ constructor TProcCallContext.Create(Proprocessor: TPreprocessor;
 begin
   FPreproc := Proprocessor;
   FBody := ProcBody
+end;
+
+destructor TProcCallContext.Destroy;
+begin
+  if FLocalsEnsured then
+    FPreproc.FIdentManager.EndLocal; { The call was parsed but never evaluated }
+  inherited;
 end;
 
 function TProcCallContext.GroupingStyle: TArgGroupingStyle;

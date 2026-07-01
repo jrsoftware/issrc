@@ -1007,6 +1007,21 @@
 #undef IncludeSeesMainPrivate
 #undef IncludePathFilename
 //
+// A sub called with arguments in a short-circuited expression inside an include
+// must not leak the include's private and protected defines into this script
+//
+#sub ScopeLeakSub
+#endsub
+#define public CheckIncludeScopeLeak
+#include "Script.ISPP.Include.Test.iss"
+#call CheckFalse(Defined(IncludeProtectedVar))
+#call CheckFalse(Defined(IncludePrivateVar))
+#undef CheckIncludeScopeLeak
+#undef ScopeLeakSub
+#undef IncludeSeesMainProtected
+#undef IncludeSeesMainPrivate
+#undef IncludePathFilename
+//
 // Directive shorthand for #include
 //
 #+ "Script.ISPP.Include.Test.iss"
