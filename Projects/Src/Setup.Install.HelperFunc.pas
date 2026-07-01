@@ -479,10 +479,10 @@ begin
         const Path = ApplyPathRedirRules(InstallDefault64Bit, ExpandConst(Name), tpCurrent);
         case DeleteType of
           dfFiles, dfFilesAndOrSubdirs:
-            DelTree(Path, False, True, DeleteType = dfFilesAndOrSubdirs, False,
+            DelTree(Path, False, True, True, DeleteType = dfFilesAndOrSubdirs, False,
               nil, nil, nil);
           dfDirIfEmpty:
-            DelTree(Path, True, False, False, False, nil, nil, nil);
+            DelTree(Path, True, True, False, False, False, nil, nil, nil);
         end;
         NotifyAfterInstallEntry(AfterInstall);
       end;
