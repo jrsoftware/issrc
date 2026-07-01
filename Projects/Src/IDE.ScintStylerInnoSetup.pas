@@ -1151,7 +1151,10 @@ begin
   var SL := TStringList.Create;
   try
     for var Constant in Constants do
-      AddWordToList(SL, '{' + Constant + '}', awtConstant);
+      if Constant = '{' then
+        AddWordToList(SL, '{{', awtConstant)
+      else
+        AddWordToList(SL, '{' + Constant + '}', awtConstant);
     if ISPPInstalled then begin
       AddWordToList(SL, '{#', awtConstant);
       AddWordToList(SL, '{#file ', awtConstant);
