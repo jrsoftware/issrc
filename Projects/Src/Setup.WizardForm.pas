@@ -1985,6 +1985,8 @@ var
   ProcessInfos: PArrayofProcessInfo;
   AppName: String;
 begin
+  Result := '';
+
   { Clear existing registered resources if we get here a second time (user clicked Back after first time). There
     doesn't seem to be function to do this directly, so restart the session instead. }
   if RmRegisteredFilesCount <> 0 then begin
