@@ -1229,6 +1229,19 @@ AppContact={#% ISTESTTOOLPROJ_TEST_ENV}
 #pragma inlinestart "{#"
 #pragma inlineend "}"
 #call CheckTrue(Find(0, 'CUSTOM_INLINE_MARKER', FIND_CONTAINS) >= 0)
+//
+// Multi-character inline end, overlapping match: the closing quote of the
+// emitted string and the inline end together form an overlapping run (such as
+// '"">'), so the scanner must not skip the real end delimiter at offset 1
+//
+#pragma inlineend '">'
+{#emit "; INLINE_END_2CH"">
+#pragma inlineend "}"
+#call CheckTrue(Find(0, 'INLINE_END_2CH', FIND_CONTAINS) >= 0)
+#pragma inlineend '"->'
+{#emit "; INLINE_END_3CH""->
+#pragma inlineend "}"
+#call CheckTrue(Find(0, 'INLINE_END_3CH', FIND_CONTAINS) >= 0)
 #define SavedIncludePath = __INCLUDE__
 #pragma include "."
 #pragma include SavedIncludePath

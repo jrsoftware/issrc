@@ -439,8 +439,6 @@ var
   LineStart, P1, DStart, DEnd: PChar;
 
   function ScanForInlineStart(var P, D: PChar): Boolean;
-  var
-    I: Integer;
   begin
     Result := False;
     while P^ <> #0 do
@@ -449,7 +447,7 @@ var
       begin
         D := P;
         Result := True;
-        for I := 2 to Length(FOptions.InlineStart) do
+        for var I := 2 to Length(FOptions.InlineStart) do
         begin
           Inc(D);
           if D^ <> FOptions.InlineStart[I] then
@@ -466,27 +464,30 @@ var
   end;
 
   function ScanForInlineEnd(var P: PChar): PChar;
-  var
-    I: Integer;
   begin
     Result := nil;
     while P^ <> #0 do
     begin
       if P^ = FOptions.InlineEnd[1] then
       begin
+        var D := P;
         Result := P;
-        for I := 2 to Length(FOptions.InlineEnd) do
+        for var I := 2 to Length(FOptions.InlineEnd) do
         begin
-          Inc(P);
-          if P^ <> FOptions.InlineEnd[I] then
+          Inc(D);
+          if D^ <> FOptions.InlineEnd[I] then
           begin
             Result := nil;
             Break;
           end;
         end;
-        Inc(P);
+        if Result <> nil then
+        begin
+          Inc(D);
+          P := D;
+          Exit;
+        end;
       end;
-      if Result <> nil then Exit;
       Inc(P);
     end;
     RaiseError(SUnterminatedPreprocessorDirectiv);
