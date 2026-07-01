@@ -41,6 +41,7 @@ begin
     Preprocessor.QueueLine(LineTextStr);
     Inc(I);
   end;
+  Preprocessor.FlushQueuedLine;
 end;
 
 function CleanupProc(CleanupProcData: Pointer): Integer; stdcall;

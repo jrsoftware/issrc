@@ -992,6 +992,18 @@
 #undef IncludeSeesMainPrivate
 #undef IncludePathFilename
 //
+// #include with a span at end of file: the include file's last two lines each
+// end with the span symbol, so the whole pending span must be flushed within
+// the include (in full and in order), and not glued onto the next line here
+//
+#include "Script.ISPP.Include.Test.iss"
+#emit '; SPAN_EOF_PARENT_NEXTLINE'
+#call CheckTrue(Find(0, '; SPAN_EOF_INCLUDE_PART1 SPAN_EOF_INCLUDE_PART2', FIND_MATCH | FIND_TRIM) >= 0)
+#call CheckTrue(Find(0, '; SPAN_EOF_PARENT_NEXTLINE', FIND_MATCH) >= 0)
+#undef IncludeSeesMainProtected
+#undef IncludeSeesMainPrivate
+#undef IncludePathFilename
+//
 // String functions
 //
 #call CheckEqualsString('ell', Copy('hello', 2, 3))
@@ -1346,3 +1358,11 @@ AppContact={#% ISTESTTOOLPROJ_TEST_ENV}
 //
 #call CheckEqualsInt(4, Len(GetDateTimeString('yyyy')))
 #call CheckTrue(Pos('-', GetDateTimeString('yyyy/mm', '-')) > 0)
+//
+// Re-entrant span flush at end of file: this last line is a #include that ends
+// with the span symbol, so the directive is queued and only flushed at end of
+// file. Flushing it re-enters the include machinery, which must not see this
+// file's stale span queue. Keep it last, keep the trailing '\', and do not add
+// any line after it.
+//
+#include "Script.ISPP.Include.Test.iss" \

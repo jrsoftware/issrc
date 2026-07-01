@@ -105,6 +105,7 @@ type
       NonISS: Boolean);
     function InternalQueueLine(const LineRead: string; FileIndex, LineNo: Integer;
       NonISS: Boolean): Integer;
+    procedure InternalFlushQueuedLine(FileIndex, LineNo: Integer);
     function ParseFormalParams(Parser: TParser; var ParamList: PParamList): Integer;
     { IUnknown }
     function QueryInterface(const IID: TGUID; out Obj): HRESULT; stdcall;
@@ -135,6 +136,7 @@ type
     procedure GetNextOutputLineReset;
     procedure IncludeFile(FileName: string; Builtins, UseIncludePathOnly, ResetCurrentFile: Boolean);
     procedure QueueLine(const LineRead: string);
+    procedure FlushQueuedLine;
     function PrependDirName(const FileName, Dir: string): string;
     procedure RegisterFunction(const Name: string; Handler: TIsppFunction; Ext: NativeInt);
     procedure RaiseError(const Message: string);
@@ -883,6 +885,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
             ALine := F.ReadLine;
             Preprocessor.QueueLine(ALine);
           end;
+          Preprocessor.FlushQueuedLine;
         finally
           F.Free;
         end;
@@ -1049,10 +1052,12 @@ begin
   else
     if FQueuedLineCount > 0 then
     begin
-      InternalAddLine(FQueuedLine + TrimLeft(LineRead), FileIndex, LineNo, NonISS);
-      FQueuedLine := '';
+      { Clear the queue before adding the line because adding it may reenter }
+      const QueuedLine = FQueuedLine + TrimLeft(LineRead);
       Result := FQueuedLineCount + 1;
+      FQueuedLine := '';
       FQueuedLineCount := 0;
+      InternalAddLine(QueuedLine, FileIndex, LineNo, NonISS);
     end
     else
     begin
@@ -1064,6 +1069,22 @@ end;
 procedure TPreprocessor.QueueLine(const LineRead: string);
 begin
   Inc(FMainCounter, InternalQueueLine(LineRead, 0, FMainCounter, False));
+end;
+
+procedure TPreprocessor.InternalFlushQueuedLine(FileIndex, LineNo: Integer);
+begin
+  if FQueuedLineCount > 0 then
+  begin
+    const QueuedLine = FQueuedLine; { See above }
+    FQueuedLine := '';
+    FQueuedLineCount := 0;
+    InternalAddLine(QueuedLine, FileIndex, LineNo, False);
+  end;
+end;
+
+procedure TPreprocessor.FlushQueuedLine;
+begin
+  InternalFlushQueuedLine(0, FMainCounter);
 end;
 
 procedure TPreprocessor.RegisterFunction(const Name: string; Handler: TIsppFunction; Ext: NativeInt);
@@ -1703,6 +1724,7 @@ begin
           Inc(J, InternalQueueLine(LineTextStr, FileIndex, J, False));
           Inc(I);
         end;
+        InternalFlushQueuedLine(FileIndex, J);
       finally
         FIdentManager.EndLocal
       end;
