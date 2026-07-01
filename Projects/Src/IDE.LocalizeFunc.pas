@@ -48,8 +48,7 @@ var
 
 function TranslateMessage(const Str: String): String;
 begin
-  if not Assigned(TranslationDictionary) or
-     not TranslationDictionary.TryGetValue(Str, Result) then
+  if not TranslationDictionary.TryGetValue(Str, Result) then
     Result := Str;
 end;
 

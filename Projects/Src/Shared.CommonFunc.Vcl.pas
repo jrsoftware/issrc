@@ -276,15 +276,6 @@ var
 function MsgBox(const Text, Caption: PChar; Flags: Cardinal): Integer;
 
 {$IFDEF USETASKDIALOGFORM}
-  procedure DoInternalError(const Msg: String);
-  begin
-    {$IFDEF SETUPPROJ}
-      InternalError(Msg);
-    {$ELSE}
-      raise Exception.Create(Msg);
-    {$ENDIF}
-  end;
-
   procedure MsgBoxFlagsDecode(const Flags: Cardinal; out Icon: PChar;
     out TDCommonButtons: Cardinal; out DefCommonButton: Integer; out SetForeground: Boolean);
   begin
@@ -304,7 +295,7 @@ function MsgBox(const Text, Caption: PChar; Flags: Cardinal): Integer;
       MB_YESNO: TDCommonButtons := TDCBF_YES_BUTTON or TDCBF_NO_BUTTON;
       MB_RETRYCANCEL: TDCommonButtons := TDCBF_RETRY_BUTTON or TDCBF_CANCEL_BUTTON;
     else
-      DoInternalError('MsgBoxFlagsDecode: Invalid Flags');
+      InternalError('MsgBoxFlagsDecode: Invalid Flags');
     end;
 
     if (Flags and MB_DEFBUTTON2) <> 0 then

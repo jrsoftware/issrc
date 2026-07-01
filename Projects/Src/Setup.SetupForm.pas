@@ -27,7 +27,7 @@ unit Setup.SetupForm;
 interface
 
 uses
-  Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, MultiMon, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
   UIStateForm,
   Setup.MainFunc;
 
@@ -283,35 +283,15 @@ procedure TSetupForm.CenterInsideRect(const InsideRect: TRect);
 
   function GetRectOfMonitorContainingRect(const R: TRect): TRect;
   { Returns bounding rectangle of monitor containing or nearest to R }
-  type
-    HMONITOR = type THandle;
-    TMonitorInfo = record
-      cbSize: DWORD;
-      rcMonitor: TRect;
-      rcWork: TRect;
-      dwFlags: DWORD;
-    end;
-  const
-    MONITOR_DEFAULTTONEAREST = $00000002;
   var
-    Module: HMODULE;
-    MonitorFromRect: function(const lprc: TRect; dwFlags: DWORD): HMONITOR; stdcall;
-    GetMonitorInfo: function(hMonitor: HMONITOR; var lpmi: TMonitorInfo): BOOL; stdcall;
-    M: HMONITOR;
     Info: TMonitorInfo;
   begin
-    Module := GetModuleHandle(user32);
-    MonitorFromRect := GetProcAddress(Module, 'MonitorFromRect');
-    GetMonitorInfo := GetProcAddress(Module, 'GetMonitorInfoA');
-    if Assigned(MonitorFromRect) and Assigned(GetMonitorInfo) then begin
-      M := MonitorFromRect(R, MONITOR_DEFAULTTONEAREST);
-      Info.cbSize := SizeOf(Info);
-      if GetMonitorInfo(M, Info) then begin
-        Result := Info.rcWork;
-        Exit;
-      end;
-    end;
-    Result := GetRectOfPrimaryMonitor(True);
+    const M = MonitorFromRect(@R, MONITOR_DEFAULTTONEAREST);
+    Info.cbSize := SizeOf(Info);
+    if GetMonitorInfo(M, @Info) then
+      Result := Info.rcWork
+    else
+      Result := GetRectOfPrimaryMonitor(True);
   end;
 
 var

@@ -38,7 +38,7 @@ type
     FPreproc: TPreprocessor;
     FCache: Boolean;
     FCacheValid: Boolean;
-    procedure VerboseMsg(Msg: TConditionalVerboseMsg; Eval: Boolean);
+    procedure VerboseMsg(Msg: TConditionalVerboseMsg);
   protected
     function Last: TConditionalBlockInfo;
     procedure UpdateLast(const Value: TConditionalBlockInfo);
@@ -1217,7 +1217,7 @@ begin
   A.HadElse := False;
   PushItem(A);
   FCacheValid := False;
-  VerboseMsg(cvmIf, Eval);
+  VerboseMsg(cvmIf);
 end;
 
 procedure TConditionalTranslationStack.ElseIfInstruction(Eval: Boolean);
@@ -1233,7 +1233,7 @@ begin
       FCacheValid := False;
     end;
     UpdateLast(A);
-    VerboseMsg(cvmElif, Eval);
+    VerboseMsg(cvmElif);
   end else
     FPreproc.RaiseError(SElseWithoutIf);
 end;
@@ -1252,7 +1252,7 @@ begin
       FCacheValid := False;
     end;
     UpdateLast(A);
-    VerboseMsg(cvmElse, False);
+    VerboseMsg(cvmElse);
   end else
     FPreproc.RaiseError(SElseWithoutIf);
 end;
@@ -1262,7 +1262,7 @@ begin
   if AtLeast(1) then begin
     PopItem;
     FCacheValid := False;
-    VerboseMsg(cvmEndif, False);
+    VerboseMsg(cvmEndif);
   end else
     FPreproc.RaiseError(SEndifWithoutIf);
 end;
@@ -1311,9 +1311,7 @@ begin
 end;
 
 procedure TConditionalTranslationStack.VerboseMsg(
-  Msg: TConditionalVerboseMsg; Eval: Boolean);
-const
-  B: array[Boolean] of string = ('false', 'true');
+  Msg: TConditionalVerboseMsg);
 var
   M: string;
 begin
@@ -1888,11 +1886,5 @@ begin
     FLocalsEnsured := True;
   end;
 end;
-
-initialization
-  { The code above stuffs TConditionalBlockInfo records in a TList without additional allocations.
-    In other words, TConditionalBlockInfo must fit into a Pointer. }
-  if SizeOf(TConditionalBlockInfo) > SizeOf(Pointer) then
-    raise Exception.Create('SizeOf(TConditionalBlockInfo) > SizeOf(Pointer)');
 
 end.

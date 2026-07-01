@@ -366,7 +366,7 @@ type
   TFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
   PFileLocationEntryExtraInfo = ^TFileLocationEntryExtraInfo;
   TFileLocationEntryExtraInfo = record
-    Flags: set of (floVersionInfoNotValid, floIsUninstExe, floTouch,
+    Flags: set of (floVersionInfoNotValid, floTouch,
       floSolidBreak, floNoTimeStamp);
     Sign: TFileLocationSign;
     Verification: TSetupFileVerification;
@@ -5355,8 +5355,6 @@ type
           FileLocationEntryExtraInfos.Add(NewFileLocationEntryExtraInfo);
           FileLocationEntryFilenames.Add(SourceFile);
           NewFileEntry^.LocationEntry := Integer(FileLocationEntries.Count-1);
-          if NewFileEntry^.FileType = ftUninstExe then
-            Include(NewFileLocationEntryExtraInfo^.Flags, floIsUninstExe);
           Inc(TotalBytesToCompress, FileListRec.Size);
           if SetupHeader.CompressMethod <> cmStored then
             Include(NewFileLocationEntry^.Flags, floChunkCompressed);
