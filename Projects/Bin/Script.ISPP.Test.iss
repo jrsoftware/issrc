@@ -337,6 +337,12 @@
 #call CheckFalse(0 && SkipDeadIntParam('not an int'))
 #call CheckTrue(1 || SkipDeadIntParam('not an int'))
 #undef SkipDeadIntParam
+// Same for a @ argument of the wrong kind (an array where a func is expected)
+#define SkipDeadFuncParam(func Callback) Callback()
+#dim SkipDeadArrayArg[1]
+#call CheckFalse(0 && SkipDeadFuncParam(@SkipDeadArrayArg))
+#undef SkipDeadFuncParam
+#undef SkipDeadArrayArg
 #pragma parseroption -u+
 #define SkipDeadUndeclaredArg(X) X
 #call CheckFalse(0 && SkipDeadUndeclaredArg(UndeclaredIdentifier_SkipDeadArg_Test))

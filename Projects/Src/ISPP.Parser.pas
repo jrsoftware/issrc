@@ -221,10 +221,13 @@ begin
     tkPtr:
       begin
         NextTokenExpect([tkIdent]);
-        Result.Typ := evCallContext;
-        if not (FIdentMan.GetIdent(TokenString, Result.AsCallContext) in
-          [itVariable, itMacro, itFunc]) then
-          Error('Variable, macro, or function required');
+        if DoEval then
+        begin
+          Result.Typ := evCallContext;
+          if not (FIdentMan.GetIdent(TokenString, Result.AsCallContext) in
+            [itVariable, itMacro, itFunc]) then
+            Error('Variable, macro, or function required');
+        end;
       end;
     tkIdent:
       begin
