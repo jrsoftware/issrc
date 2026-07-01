@@ -431,11 +431,18 @@ begin
   { This is for multi-volume archives: when the archive is opened 7-Zip only receives a stream. It
     will then use this callback to find the name of the archive (like archive.7z.001) to figure out
     the name of other volumes (like archive.7z.002) }
-  if propID = kpidName then
-    value := FArchiveFilename
-  else
-    value := Unassigned; { Not sure if this is really needed }
-  Result := S_OK;
+  try
+    if propID = kpidName then
+      value := FArchiveFilename
+    else
+      value := Unassigned; { Not sure if this is really needed }
+    Result := S_OK;
+  except
+    on E: EAbort do
+      Result := E_ABORT
+    else
+      Result := E_FAIL;
+  end;
 end;
 
 function TArchiveOpenFileCallback.GetStream(const name: PChar; var inStream: IInStream): HRESULT;
