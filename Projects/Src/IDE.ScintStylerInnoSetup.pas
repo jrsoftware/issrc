@@ -381,18 +381,20 @@ const
   ];
 
   Constants: array of AnsiString = [
-    { Doesnt include constants with non words chars }
+    { Doesnt include constants with non words chars.
+      Also doesnt include the *32 and *64 variants like commonpf32 or dotnet2064 }
     '{', 'app', 'win', 'sys', 'sysnative', 'syswow64', 'src', 'sd', 'commonpf',
     'commoncf', 'tmp', 'commonfonts', 'dao', 'dotnet11', 'dotnet20', 'dotnet40',
     'group', 'localappdata', 'userappdata', 'commonappdata', 'usercf',
     'userdesktop', 'commondesktop', 'userdocs', 'commondocs', 'userfavorites',
     'userfonts', 'userpf', 'userprograms', 'commonprograms', 'usersavedgames',
-    'userstartmenu', 'commonstartmenu', 'userstartup', 'commonstartup',
-    'usertemplates', 'commontemplates', 'autoappdata', 'autocf', 'autodesktop',
-    'autodocs', 'autofonts', 'autopf', 'autoprograms', 'autostartmenu', 'cmd',
-    'computername', 'groupname', 'wizardhwnd', 'language', 'srcexe',
-    'uninstallexe', 'sysuserinfoname', 'sysuserinfoorg', 'userinfoname',
-    'userinfoorg', 'userinfoserial', 'username', 'log'
+    'usersendto', 'userstartmenu', 'commonstartmenu', 'userstartup',
+    'commonstartup', 'usertemplates', 'commontemplates', 'autoappdata',
+    'autocf', 'autodesktop', 'autodocs', 'autofonts', 'autopf', 'autoprograms',
+    'autostartmenu', 'autostartup', 'autotemplates', 'cmd', 'computername',
+    'groupname', 'wizardhwnd', 'language', 'srcexe', 'uninstallexe',
+    'sysuserinfoname', 'sysuserinfoorg', 'userinfoname', 'userinfoorg',
+    'userinfoserial', 'username', 'log'
   ];
 
   ISPPPredefinedVariables: array of AnsiString = [
