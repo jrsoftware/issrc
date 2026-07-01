@@ -77,8 +77,8 @@ begin
   Assert(StringChange(S, '.', '...') = 2);
   Assert(S = 'a...b...c');
 
-  { Binary-safe: an embedded #0 in S, FromStr, or ToStr is honoured because
-    matching is char-by-char rather than via Pos }
+  { Binary-safe: an embedded #0 in S, FromStr, or ToStr is handled like any
+    other character }
   S := 'a'#0'b'#0'c';
   Assert(StringChange(S, #0, '-') = 2);
   Assert(S = 'a-b-c');
