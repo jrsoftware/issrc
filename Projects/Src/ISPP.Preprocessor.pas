@@ -512,7 +512,6 @@ begin
       SetString(S, DStart, ScanForInlineEnd(DEnd) - DStart);
 
       case Command of
-        pcError: RaiseError(SUnknownPreprocessorDirective);
         pcIf..pcIfNExist:
           LineStack.IfInstruction(LineStack.Include and
             ProcessPreprocCommand(Command, S, DStart - LineStart));
