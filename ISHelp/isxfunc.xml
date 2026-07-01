@@ -2376,34 +2376,50 @@ end;</pre></example>
       <function>
         <name>RegisterServer</name>
         <prototype>procedure RegisterServer(const Is64Bit: Boolean; const Filename: String; const Reserved: Boolean);</prototype>
-        <description><p>Registers the DLL/OCX with the specified filename. If Is64Bit is True, the DLL/OCX will be loaded as a 64-bit image and registered in a 64-bit process. Raises an exception if not successful.</p>
-<p>Parameter Reserved is ignored, but must be specified anyway.</p></description>
-        <example><pre>begin
+        <description><p>Registers the DLL/OCX with the specified filename. Raises an exception if not successful.</p>
+<p><tt>Is64Bit</tt> specifies whether the DLL/OCX is 64-bit (<tt>True</tt>) or 32-bit (<tt>False</tt>).</p>
+<p>Parameter <tt>Reserved</tt> is ignored, but must be specified anyway.</p></description>
+        <remarks><p><tt>Filename</tt> must be reachable <i>in the current process</i>. This means, for example, that a 32-bit installer wanting to register a DLL in the native 64-bit <tt>{sys}</tt> directory must pass a <tt>Sysnative</tt> path. Use <tt>ApplyPathRedirRules</tt> as shown in the example below to make that adjustment automatically. (Calling <tt>ApplyPathRedirRules</tt> for DLLs outside of <tt>{sys}</tt> isn't necessary, but it doesn't hurt.)</p></remarks>
+        <example><pre>var
+  File64Bit: Boolean;
+begin
   // Register hhctrl.ocx located in the System directory.
-  RegisterServer(Is64BitInstallMode, ExpandConstant('{sys}\hhctrl.ocx'), False);
-end;</pre>
-<p>Because we specify Is64BitInstallMode in the first parameter, it will register the 64-bit OCX in the 64-bit System directory when Setup is running in 64-bit install mode. Otherwise, it will register the 32-bit OCX in the 32-bit System directory.</p></example>
+
+  // Setting File64Bit to...
+  // - False will register the 32-bit OCX in the 32-bit System directory
+  // - True will register the 64-bit OCX in the 64-bit System directory
+  // - Is64BitInstallMode will use Setup's install mode to determine which one to register
+  File64Bit := Is64BitInstallMode;
+
+  RegisterServer(File64Bit,
+    ApplyPathRedirRules(File64Bit, ExpandConstant('{sys}\hhctrl.ocx'), tpCurrent),
+    False);
+end;</pre></example>
       </function>
       <function>
         <name>UnregisterServer</name>
         <prototype>function UnregisterServer(const Is64Bit: Boolean; const Filename: String; const Reserved: Boolean): Boolean;</prototype>
-        <description><p>Unregisters the DLL/OCX with the specified filename. If Is64Bit is True, the DLL/OCX will be loaded as a 64-bit image and unregistered in a 64-bit process. Returns True if successful, False otherwise.</p>
-<p>Parameter Reserved is ignored, but must be specified anyway.</p></description>
+        <description><p>Unregisters the DLL/OCX with the specified filename. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p>
+<p>See <tt><link topic="isxfunc_RegisterServer">RegisterServer</link></tt> for usage details.</p></description>
       </function>
       <function>
         <name>RegisterTypeLibrary</name>
         <prototype>procedure RegisterTypeLibrary(const Is64Bit: Boolean; const Filename: String);</prototype>
-        <description><p>Registers the type library with the specified filename. If Is64Bit is True, the type library will be registered in a 64-bit process. Raises an exception if not successful.</p></description>
+        <description><p>Registers the type library with the specified filename. Raises an exception if not successful.</p>
+<p><tt>Is64Bit</tt> specifies whether the type library should be registered in the 64-bit registry view (<tt>True</tt>) or 32-bit registry view (<tt>False</tt>). In Inno Setup ≥7.0, this must match the <link topic="64bit">Setup/Uninstall bitness</link>, so <tt>IsCurrentProcess64Bit</tt> should be passed.</p></description>
         <example><pre>begin
   // Register stdole2.tlb located in the System directory.
-  RegisterTypeLibrary(Is64BitInstallMode, ExpandConstant('{sys}\stdole2.tlb'));
-end;</pre>
-<p>Because we specify Is64BitInstallMode in the first parameter, it will register the 64-bit type library in the 64-bit System directory when Setup is running in 64-bit install mode. Otherwise, it will register the 32-bit type library in the 32-bit System directory.</p></example>
+  // - When SetupArchitecture=x64, this will register in the 64-bit registry view.
+  // - When SetupArchitecture=x86, this will register in the 32-bit registry view.
+
+  RegisterTypeLibrary(IsCurrentProcess64Bit, ExpandConstant('{sys}\stdole2.tlb'));
+end;</pre></example>
       </function>
       <function>
         <name>UnregisterTypeLibrary</name>
         <prototype>function UnregisterTypeLibrary(const Is64Bit: Boolean; const Filename: String): Boolean;</prototype>
-        <description><p>Unregisters the type library with the specified filename. If Is64Bit is True, the type library will be unregistered in a 64-bit process. Returns True if successful, False otherwise.</p></description>
+        <description><p>Unregisters the type library with the specified filename. Returns <tt>True</tt> if successful, <tt>False</tt> otherwise.</p>
+<p>See <tt><link topic="isxfunc_RegisterTypeLibrary">RegisterTypeLibrary</link></tt> for usage details.</p></description>
       </function>
       <function>
         <name>IncrementSharedCount</name>
@@ -2413,6 +2429,25 @@ end;</pre>
 <p>64-bit versions of Windows have two separate SharedDLLs keys, one for 64-bit files and one for 32-bit files. If Is64Bit is True, the 64-bit SharedDLLs key will be updated, otherwise the 32-bit SharedDLLs key will be updated. The setting of this parameter should correspond to the bitness of the file; for example, if it is a 32-bit DLL located in the 32-bit System directory, you should specify False. You may also specify <tt>Is64BitInstallMode</tt> in which case it will use the current install mode to determine which key to open.</p>
 <p>Pass True in the AlreadyExisted parameter if the file already exists; in this case the initial reference count for the file will be 2 if the value for the file doesn't already exist in the registry. (This behavior is in line with Microsoft's requirements.)</p>
 <p>An exception will be raised if the registry key cannot be opened for write access.</p></description>
+        <remarks><p><tt>Filename</tt> must be reachable <i>in the current process</i>. This means, for example, that a 32-bit installer passing <tt>True</tt> in the <tt>Is64Bit</tt> parameter must pass a <tt>Sysnative</tt> path if the file is located under <tt>{sys}</tt>. Use <tt>ApplyPathRedirRules</tt> as shown in the example below to make that adjustment automatically. (Calling <tt>ApplyPathRedirRules</tt> for files outside of <tt>{sys}</tt> isn't necessary, but it doesn't hurt.)</p></remarks>
+        <example><pre>var
+  File64Bit, AlreadyExisted: Boolean;
+begin
+  // Increment count of TestIncSharedCount.dll located in the System directory.
+
+  // Setting File64Bit to...
+  // - False will update the 32-bit SharedDLLs key
+  // - True will update the 64-bit SharedDLLs key
+  // - Is64BitInstallMode will use Setup's install mode to determine which key to update
+  File64Bit := Is64BitInstallMode;
+
+  // AlreadyExisted should be True if the file existed before installation
+  AlreadyExisted := False;
+
+  IncrementSharedCount(File64Bit,
+    ApplyPathRedirRules(File64Bit, ExpandConstant('{sys}\TestIncSharedCount.dll'), tpCurrent),
+    AlreadyExisted);
+end;</pre></example>
       </function>
       <function>
         <name>DecrementSharedCount</name>
