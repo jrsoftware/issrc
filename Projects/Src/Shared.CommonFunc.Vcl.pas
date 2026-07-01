@@ -298,12 +298,12 @@ function MsgBox(const Text, Caption: PChar; Flags: Cardinal): Integer;
       InternalError('MsgBoxFlagsDecode: Invalid Flags');
     end;
 
-    if (Flags and MB_DEFBUTTON2) <> 0 then
-      DefCommonButton := 2
-    else if (Flags and MB_DEFBUTTON3) <> 0 then
-      DefCommonButton := 3
+    case Flags and MB_DEFMASK of
+      MB_DEFBUTTON2: DefCommonButton := 2;
+      MB_DEFBUTTON3: DefCommonButton := 3;
     else
       DefCommonButton := 0;
+    end;
 
     SetForeground := Flags and MB_SETFOREGROUND <> 0;
   end;
