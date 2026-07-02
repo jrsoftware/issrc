@@ -1,19 +1,38 @@
 ; *** Inno Setup version 6.5.0+ Korean messages ***
 
-; ▒ Contributors:
 ; ▒ 6.3.0 ~ 6.5.0 Translator: VenusGirl (venusgirl@outlook.com)
 ; ▒ 6.2.0 Translator: Logan.Hwang (logan.hwang@blueant.kr)
 ; ▒ 6.0.3 Translator: SungDong Kim (acroedit@gmail.com)
 ; ▒ 5.5.3 Translator: Domddol (domddol@gmail.com)
+
 ; ▒ 이 번역은 한국어 맞춤법을 준수합니다.
 ;
 ; 이 파일의 사용자 기여 번역을 다운로드하려면 다음으로 이동하세요:
 ;   https://jrsoftware.org/files/istrans/
-
-; 참고: 이 텍스트를 번역할 때는 Inno Setup 메시지에
-; 마침표가 자동으로 추가되므로 아직 없는 메시지의 끝에
-; 마침표(.)를 추가하지 마세요 (마침표를 추가하면
-; 두 개의 마침표가 표시됩니다).
+;
+; 참고: 이 텍스트를 번역할 때:
+; 모든 번역은 동일한 의미로 역번역되어야 합니다.
+; - 개인의 취향에 맞게 메시지의 의미를 추가하거나 변경하지 마세요.
+; - 문장을 추가하거나 삭제하거나 문장 내에 정보를 추가하거나 생략하지 마세요.
+; - 이 단어들을 제거하지 마세요: all, only, automatically, now, later, may, must, not.
+; - 메시지 끝에 마침표 (.)나 콜론 (:) 또는 타원 (...)을 추가하지 마세요.
+; - 메시지 끝에서 마침표, 콜론, 타원 또는 물음표를 제거하지 마세요.
+; - 마침표를 콜론 (:)으로 대체하지 마세요. '...'를 '…'로 대체하는 것은 허용됩니다.
+; - 자리 표시자 (%1, %2 등)를 추가하거나 제거하지 마세요. 순서 변경은 허용됩니다.
+; - 줄 바꿈 (%n)을 추가하거나 제거하지 마세요.
+; - 단축키 (&)를 추가하거나 충돌을 일으키지 마세요. 단축키를 다른 문자로 이동할 수 없는 경우에만 제거하세요.
+; - [CustomMessages] 섹션에 새 사용자 지정 메시지를 추가하지 마세요.
+; - AboutSetupNote를 비워두세요.
+; 시작하기 전에 이러한 반복되는 각 용어를 어떻게 번역할지 결정하세요:
+; - Setup, Uninstall (프로그램), uninstall (동사), Cannot uninstall,
+;   program, application, component, task,
+;   shortcut, Start Menu, folder, directory, drive,
+;   existing file, source file, registry, INI entries, README,
+;   computer, Windows, version, administrator, all users, current user,
+;   Downloading files, Extracting files, aborted, corrupted, close (applications), restart,
+;   Select action, try again, anyway, at least,
+;   그리고 버튼 문구인 OK, Cancel, Yes, No, Next, Back, Install, Browse, Finish.
+; 번역에서 이 섹션을 삭제하는 것은 허용되지만, 이를 무시하지 마세요.
 
 [LangOptions]
 ; 다음 세 항목은 매우 중요합니다. 도움말 파일의
@@ -66,7 +85,9 @@ OnlyOnTheseArchitectures=이 프로그램은 다음 프로세서 아키텍처용
 WinVersionTooLowError=이 프로그램에는 %1 버전 %2 이상이 필요합니다.
 WinVersionTooHighError=%1 버전 %2 이상에 이 프로그램을 설치할 수 없습니다.
 AdminPrivilegesRequired=이 프로그램을 설치할 때 관리자로 로그인해야 합니다.
+; 'Power Users group'은 구식 용어이지만 여전히 번역해야 하며, 삭제하거나 현대화해서는 안 됩니다
 PowerUserPrivilegesRequired=이 프로그램을 설치할 때 관리자 또는 Power Users 그룹의 구성원으로 로그인해야 합니다.
+; 'instance'는 '복사본'으로도 번역될 수 있습니다
 SetupAppRunningError=설치에서 %1이(가) 현재 실행 중임을 감지했습니다.%n%n지금 모든 인스턴스를 닫은 다음 확인을 클릭하여 계속하거나 취소를 클릭하여 종료하세요.
 UninstallAppRunningError=제거에서 %1이(가) 현재 실행 중임을 감지했습니다.%n%n지금 모든 인스턴스를 닫은 다음 확인을 클릭하여 계속하거나 취소를 클릭하여 종료하세요.
 
@@ -178,8 +199,9 @@ DirDoesntExist=폴더%n%n%1%n%n이(가) 존재하지 않습니다, 폴더를 만
 WizardSelectComponents=구성 요소 선택
 SelectComponentsDesc=어떤 구성 요소를 설치하시겠습니까?
 SelectComponentsLabel2=설치하려는 구성 요소를 선택합니다; 설치하지 않으려는 구성 요소의 선택을 취소합니다. 계속할 준비가 되면 다음을 클릭합니다.
+; 'Full'를 '일반' 또는 '기본값'으로 번역하지 마세요.
 FullInstallation=전체 설치
-; 가능하면 'Compact'를 '작은'으로 번역하지 마세요 (귀하의 언어로 '최소'를 의미합니다).
+; 'Compact'를 '작은' 또는 '기본값'으로 번역하지 마세요
 CompactInstallation=최소 설치
 CustomInstallation=사용자 지정 설치
 NoUninstallWarningTitle=구성 요소가 존재합니다
@@ -350,6 +372,7 @@ ErrorCopying=파일을 복사하는 동안 오류 발생:
 ErrorDownloading=파일을 다운로드하는 동안 오류 발생:
 ErrorExtracting=압축파일을 추출하는 동안 오류 발생:
 ErrorReplacingExistingFile=기존 파일을 교체하는 동안 오류 발생:
+; 'RestartReplace'는 내부 이름이므로 그대로 유지할 수 있습니다
 ErrorRestartReplace=RestartReplace 실패:
 ErrorRenamingTemp=대상 디렉터리 내의 파일 이름을 바꾸는 동안 오류 발생:
 ErrorRegisterServer=DLL/OCX를 등록할 수 없습니다: %1
@@ -413,4 +436,3 @@ AssocingFileExtension=%1을(를) %2 파일 확장자와 연결하는 중...
 AutoStartProgramGroupDescription=시작:
 AutoStartProgram=%1 자동 시작
 AddonHostProgramNotFound=%1을(를) 선택한 폴더에서 찾을 수 없습니다.%n%n계속하시겠습니까?
-
