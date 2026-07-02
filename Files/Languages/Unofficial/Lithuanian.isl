@@ -34,7 +34,7 @@
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
 ; understand the '[LangOptions] section' topic in the help file.
-LanguageName=Lietuvi<0173>
+LanguageName=Lietuvių
 LanguageID=$0427
 ; LanguageCodePage should always be set if possible, even if this file is Unicode
 ; For English it's set to zero anyway because English only uses ASCII characters
@@ -188,9 +188,9 @@ DirNameTooLong=Katalogo pavadinimas ar kelias iki jo per ilgas.
 InvalidDirName=Nekorektiškas katalogo pavadinimas.
 BadDirName32=Katalogo pavadinime neturi būti simbolių:%n%n%1
 DirExistsTitle=Tokio katalogo nėra
-DirExists=Katalogas:%n%n%1%n%n jau yra. Vis tiek norite diegti programą tame kataloge?
-DirDoesntExistTitle=Tokio katalogo nėra.
-DirDoesntExist=Katalogas:%n%n%1%n%n neegzistuoja. Norite kad katalogas būtų sukurtas?
+DirExists=Katalogas:%n%n%1%n%njau yra. Vis tiek norite diegti programą tame kataloge?
+DirDoesntExistTitle=Tokio katalogo nėra
+DirDoesntExist=Katalogas:%n%n%1%n%nneegzistuoja. Norite kad katalogas būtų sukurtas?
 
 ; *** "Select Components" wizard page
 WizardSelectComponents=Komponentų pasirinkimas
@@ -405,7 +405,7 @@ UninstallDataCorrupted=„%1“ failas yra sugadintas. Programos pašalinti neį
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Ištrinti bendruosius failus?
-ConfirmDeleteSharedFile2=Aptikta, kad jokia programa nenaudoja bendrųjų failų. Norite ištrinti bendruosius failus? %n%nJeigu kurios nors programos naudoja šiuos failus, ir jie bus ištrinti, tos programos gali veikti neteisingai. Jeigu nesate tikras - spauskite „Ne“. Failo palikimas Jūsų kompiuteryje nesukels jokių problemų.
+ConfirmDeleteSharedFile2=Aptikta, kad jokia programa nenaudoja bendrųjų failų. Norite ištrinti bendruosius failus?%n%nJeigu kurios nors programos naudoja šiuos failus, ir jie bus ištrinti, tos programos gali veikti neteisingai. Jeigu nesate tikras - spauskite „Ne“. Failo palikimas Jūsų kompiuteryje nesukels jokių problemų.
 SharedFileNameLabel=Failo vardas:
 SharedFileLocationLabel=Vieta:
 WizardUninstalling=Pašalinimo eiga
