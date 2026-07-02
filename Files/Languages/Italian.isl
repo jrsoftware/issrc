@@ -120,8 +120,8 @@ BrowseDialogLabel=Seleziona una cartella nell'elenco, e quindi seleziona "OK".
 NewFolderName=Nuova cartella
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Installazione di [name]
-WelcomeLabel2=[name/ver] sarà installato sul computer.%n%nPrima di procedere chiudi tutte le applicazioni attive.
+WelcomeLabel1=Benvenuto nell'installazione guidata di [name]
+WelcomeLabel2=[name/ver] sarà installato sul computer.%n%nPrima di procedere ti consigliamo di chiudere tutte le altre applicazioni.
 
 ; *** "Password" wizard page
 WizardPassword=Password
@@ -132,7 +132,7 @@ IncorrectPassword=La password inserita non è corretta. Riprova.
 
 ; *** "License Agreement" wizard page
 WizardLicense=Contratto di licenza
-LicenseLabel=Prima di procedere leggi con attenzione le informazioni che seguono.
+LicenseLabel=Prima di procedere leggi le importanti informazioni che seguono.
 LicenseLabel3=Leggi il seguente contratto di licenza.%nPer procedere con l'installazione è necessario accettare tutti i termini del contratto.
 LicenseAccepted=Accetto i termini del &contratto di licenza
 LicenseNotAccepted=&Non accetto i termini del contratto di licenza
@@ -149,8 +149,8 @@ InfoAfterClickLabel=Quando sei pronto per proseguire, seleziona "Avanti".
 WizardUserInfo=Informazioni utente
 UserInfoDesc=Inserisci le seguenti informazioni.
 UserInfoName=&Nome:
-UserInfoOrg=&Società:
-UserInfoSerial=&Numero di serie:
+UserInfoOrg=&Organizzazione:
+UserInfoSerial=N&umero di serie:
 UserInfoNameRequired=È necessario inserire un nome.
 
 ; *** "Select Destination Location" wizard page
@@ -160,10 +160,10 @@ SelectDirLabel3=[name] sarà installato nella seguente cartella.
 SelectDirBrowseLabel=Per continuare seleziona "Avanti".%nPer scegliere un'altra cartella seleziona "Sfoglia".
 DiskSpaceGBLabel=Sono richiesti almeno [gb] GB di spazio libero nel disco.
 DiskSpaceMBLabel=Sono richiesti almeno [mb] MB di spazio libero nel disco.
-CannotInstallToNetworkDrive=Non è possibile effettuare l'installazione in un disco in rete.
+CannotInstallToNetworkDrive=Non è possibile effettuare l'installazione in un'unità di rete.
 CannotInstallToUNCPath=Non è possibile effettuare l'installazione in un percorso UNC.
-InvalidPath=Va inserito un percorso completo di lettera di unità; per esempio:%n%nC:\APP%n%no un percorso di rete nella forma:%n%n\\server\condivisione
-InvalidDrive=L'unità o il percorso di rete selezionato non esiste o non è accessibile.%n%nSelezionane un altro.
+InvalidPath=Va inserito un percorso completo di lettera di unità; per esempio:%n%nC:\APP%n%no un percorso UNC nella forma:%n%n\\server\condivisione
+InvalidDrive=L'unità o la condivisione UNC selezionata non esiste o non è accessibile.%n%nSelezionane un altro.
 DiskSpaceWarningTitle=Spazio su disco insufficiente
 DiskSpaceWarning=L'installazione richiede per eseguire l'installazione almeno %1 KB di spazio libero, ma l'unità selezionata ha solo %2 KB disponibili.%n%nVuoi continuare comunque?
 DirNameTooLong=Il nome della cartella o il percorso sono troppo lunghi.
@@ -182,7 +182,7 @@ FullInstallation=Installazione completa
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
 CompactInstallation=Installazione compatta
 CustomInstallation=Installazione personalizzata
-NoUninstallWarningTitle=Componente esistente
+NoUninstallWarningTitle=Componenti esistenti
 NoUninstallWarning=I seguenti componenti sono già installati nel computer:%n%n%1%n%nDeselezionando questi componenti essi non verranno rimossi.%n%nVuoi continuare comunque?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
@@ -219,7 +219,7 @@ ReadyMemoTasks=Processi aggiuntivi:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
 DownloadingLabel2=Download file...
-ButtonStopDownload=&Stop download
+ButtonStopDownload=Interrompi &download
 StopDownload=Sei sicuro di voler interrompere il download?
 ErrorDownloadAborted=Download annullato
 ErrorDownloadFailed=Download fallito: %1 %2
@@ -236,7 +236,7 @@ ErrorExtractionFailed=Estrazione fallita: %1
 
 ; *** Archive extraction failure details
 ArchiveIncorrectPassword=La password non è corretta
-ArchiveIsCorrupted=L'archivio non è integro
+ArchiveIsCorrupted=L'archivio è danneggiato
 ArchiveUnsupportedFormat=Questo formato archivio non è supportato
 
 ; *** "Preparing to Install" wizard page
@@ -256,9 +256,9 @@ WizardInstalling=Installazione in corso
 InstallingLabel=Attendi il completamento dell'installazione di [name] nel computer.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=Installazione di [name] completata
+FinishedHeadingLabel=Completamento dell'installazione guidata di [name]
 FinishedLabelNoIcons=Installazione di [name] completata.
-FinishedLabel=Installazione di [name] completata.%n%nL'applicazione può essere eseguita selezionando le relative icone.
+FinishedLabel=Installazione di [name] completata.%n%nL'applicazione può essere eseguita selezionando i relativi collegamenti.
 ClickFinish=Seleziona "Fine" per uscire dall'installazione.
 FinishedRestartLabel=Per completare l'installazione di [name], è necessario riavviare il sistema.%n%nVuoi riavviare il sistema?
 FinishedRestartMessage=Per completare l'installazione di [name], è necessario riavviare il sistema.%n%nVuoi riavviare il sistema?
@@ -292,14 +292,14 @@ StatusClosingApplications=Chiusura applicazioni...
 StatusCreateDirs=Creazione cartelle...
 StatusExtractFiles=Estrazione file...
 StatusDownloadFiles=Download file...
-StatusCreateIcons=Creazione icone...
+StatusCreateIcons=Creazione collegamenti...
 StatusCreateIniEntries=Creazione voci nei file INI...
 StatusCreateRegistryEntries=Creazione voci di registro...
 StatusRegisterFiles=Registrazione file...
 StatusSavingUninstall=Salvataggio delle informazioni di disinstallazione...
 StatusRunProgram=Termine dell'installazione...
 StatusRestartingApplications=Riavvio applicazioni...
-StatusRollback=Recupero delle modifiche...
+StatusRollback=Annullamento delle modifiche...
 
 ; *** Misc. errors
 ErrorInternal2=Errore interno: %1
@@ -322,7 +322,7 @@ FileAbortRetryIgnoreIgnoreNotRecommended=&Ignora questo errore e continua (non s
 SourceIsCorrupted=Il file sorgente è danneggiato
 SourceDoesntExist=Il file sorgente "%1" non esiste
 SourceVerificationFailed=Verifica del file sorgente non riuscita: %1
-VerificationSignatureDoesntExist=File firma "%1" non disponibile
+VerificationSignatureDoesntExist=Il file firma "%1" non esiste
 VerificationSignatureInvalid=Il file firma "%1" non è valido
 VerificationKeyNotFound=Il file firma "%1" usa una chiave sconosciuta
 VerificationFileNameIncorrect=Il nome del file non è corretto
@@ -380,13 +380,13 @@ UninstallOnlyOnWin64=Questa applicazione può essere disinstallata solo in Windo
 OnlyAdminCanUninstall=Questa applicazione può essere disinstallata solo da un utente con privilegi di amministratore.
 UninstallStatusLabel=Attendi fino a che %1 è stato rimosso dal computer.
 UninstalledAll=Disinstallazione di %1 completata.
-UninstalledMost=Disinstallazione di %1 completata.%n%nAlcuni elementi non possono essere rimossi.%n%nDovranno essere rimossi manualmente.
+UninstalledMost=Disinstallazione di %1 completata.%n%nNon è stato possibile rimuovere alcuni elementi.%n%nPossono essere rimossi manualmente.
 UninstalledAndNeedsRestart=Per completare la disinstallazione di %1, è necessario riavviare il sistema.%n%nVuoi riavviare il sistema?
 UninstallDataCorrupted=Il file "%1" è danneggiato. Impossibile disinstallare
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Vuoi rimuovere il file condiviso?
-ConfirmDeleteSharedFile2=Il sistema indica che il seguente file condiviso non è più usato da nessun programma.%nVuoi rimuovere questo file condiviso?%nSe qualche programma usasse questo file, potrebbe non funzionare più correttamente.%nSe non sei sicuro, seleziona "No".%nLasciare il file nel sistema non può causare danni.
+ConfirmDeleteSharedFile2=Il sistema indica che il seguente file condiviso non è più usato da nessun programma.%nVuoi rimuovere questo file condiviso?%nSe qualche programma usasse ancora questo file e questo venisse rimosso, potrebbe non funzionare più correttamente.%nSe non sei sicuro, seleziona "No".%nLasciare il file nel sistema non può causare danni.
 SharedFileNameLabel=Nome del file:
 SharedFileLocationLabel=Percorso:
 WizardUninstalling=Stato disinstallazione
@@ -402,9 +402,9 @@ ShutdownBlockReasonUninstallingApp=Disinstallazione di %1.
 [CustomMessages]
 
 NameAndVersion=%1 versione %2
-AdditionalIcons=Icone aggiuntive:
-CreateDesktopIcon=Crea un'icona sul &desktop
-CreateQuickLaunchIcon=Crea un'icona nella &barra 'Avvio veloce'
+AdditionalIcons=Collegamenti aggiuntivi:
+CreateDesktopIcon=Crea un collegamento sul &desktop
+CreateQuickLaunchIcon=Crea un collegamento nella &barra 'Avvio veloce'
 ProgramOnTheWeb=Sito web di %1
 UninstallProgram=Disinstalla %1
 LaunchProgram=Esegui %1
