@@ -6,7 +6,7 @@
   "documentNamespace": "https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json#7.0.2",
   "comment": "Scope: dependencies for Inno Setup projects (some components are optional).",
   "creationInfo": {
-    "created": "2026-06-29T00:00:00Z",
+    "created": "2026-07-13T00:00:00Z",
     "creators": [
       "Organization: JRSoftware"
     ]
