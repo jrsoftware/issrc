@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 02.05.2026  by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 01.07.2026 by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -47,8 +47,8 @@ ErrorTitle=Errore
 
 ; *** SetupLdr messages
 SetupLdrStartupMessage=Questa è l'installazione di %1.%n%nVuoi continuare?
-LdrCannotCreateTemp=Impossibile creare un file temporaneo.%n%nInstallazione annullata
-LdrCannotExecTemp=Impossibile eseguire un file nella cartella temporanea.%n%nInstallazione annullata
+LdrCannotCreateTemp=Impossibile creare un file temporaneo.%n%nInstallazione annullata.
+LdrCannotExecTemp=Impossibile eseguire un file nella cartella temporanea.%n%nInstallazione annullata.
 HelpTextNote=
 
 ; *** Startup error messages
@@ -227,7 +227,7 @@ ErrorDownloadSizeFailed=Rilevamento dimensione fallito: %1 %2
 ErrorProgress=Progresso non valido: %1 di %2
 ErrorFileSize=Dimensione file non valida: attesa %1, trovata %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=Estrazione file...
 ButtonStopExtraction=Interrompi e&strazione
 StopExtraction=Sei sicuro di voler interrompere l'estrazione?

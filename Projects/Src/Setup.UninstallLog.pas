@@ -1016,7 +1016,7 @@ begin
                 if CurRec^.ExtraData and utDeleteFile_SharedFile <> 0 then
                   DecrementSharedCount(
                     CurRec^.ExtraData and utDeleteFile_SharedFileIn64BitKey <> 0,
-                    Filename);
+                    ApplyPathRedirRules(Is64Bit, CurRecData[0], tpCurrent));
                 { Delete file only if it's a temp file }
                 if IsTempFile then
                   if not LoggedFileDelete(Filename,

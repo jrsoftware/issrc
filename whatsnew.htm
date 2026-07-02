@@ -148,12 +148,13 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   <li>Many other minor improvements and fixes.</li>
 </ul>
 
-<p><a name="7.0.2"></a><span class="ver">7.0.2 </span><span class="date">(2026-06-29)</span></p>
+<p><a name="7.0.2"></a><span class="ver">7.0.2 </span><span class="date">(2026-07-13)</span></p>
 
 <ul>
   <li>Added new <a href="https://jrsoftware.org/ishelp/index.php?topic=securitymeasures">Security Measures</a> help topic, which also includes a <a href="https://jrsoftware.org/ishelp/index.php?topic=securitymeasures&amp;anchor=supplychain">Supply-chain security</a> section and links to our <a href="https://jrsoftware.org/isdl-verify.php">Verifying Inno Setup Downloads</a> page.<br/>
       The security measures, the supply-chain security, and the download verification are not new, but they are now documented and linked in one place.</li>
   <li>Compilation will now fail with an error if an <tt>.iss</tt>/<tt>.isl</tt> file contains a byte value or sequence that is not valid in the file's code page (character set). Previously, invalid bytes were interpreted as <tt>U+FFFD</tt> characters (the Unicode "replacement character").</li>
+  <li>Pascal Scripting: Improved documentation of support functions <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_registerserver">RegisterServer</a>, <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_registertypelibrary">RegisterTypeLibrary</a>, <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_incrementsharedcount">IncrementSharedCount</a> and <a href="https://jrsoftware.org/ishelp/index.php?topic=isxfunc_applypathredirrules">ApplyPathRedirRules</a> with updated explanations and examples.</li>
   <li><i>Fixes:</i>
   <ul>
     <li>ISCC: Reading the script from standard input by specifying <tt>-</tt> as the script name is now documented again in the help file. Such a script is now assumed to be UTF-8 encoded.</li>
