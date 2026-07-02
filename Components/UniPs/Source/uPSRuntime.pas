@@ -12220,7 +12220,8 @@ begin
     btVariant: Result := true;
     btSet: Result := atype.RealSize > PointerSize;
 {$IFDEF CPU64}
-    btRecord: Result := not (atype.RealSize in [1, 2, 4]);
+    { See the btRecord comment in x64.inc }
+    btRecord: Result := not (atype.RealSize in [1, 2, 4{$IFDEF DELPHI}{$IFNDEF DELPHI_RIO_UP}, 5, 6, 7, 8{$ENDIF}{$ENDIF}]);
 {$ELSE}
     btRecord: Result := atype.RealSize > PointerSize;
 {$ENDIF}
@@ -12421,7 +12422,8 @@ begin
     btSet: Result := b.RealSize <= PointerSize;
     btStaticArray: Result := b.RealSize <= PointerSize;
 {$IFDEF DELPHI}
-    btRecord: Result := b.RealSize in [1, 2, 4];
+    { See the btRecord comment in x64.inc }
+    btRecord: Result := b.RealSize in [1, 2, 4{$IFDEF CPU64}{$IFNDEF DELPHI_RIO_UP}, 5, 6, 7, 8{$ENDIF}{$ENDIF}];
 {$ENDIF}
 {$IFDEF CPU64}
     btSingle,

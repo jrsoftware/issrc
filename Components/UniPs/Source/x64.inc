@@ -657,6 +657,15 @@ _XMM0: Double;
     end;
   end;
   {$ENDIF}
+
+  procedure StoreRegBytes(const Data: Pointer; const Size: Longint);
+  var
+    RegData: IPointer;
+  begin
+    RegData := 0;
+    Move(Data^, RegData, Size);
+    StoreReg(RegData);
+  end;
   
   {$IFDEF DELPHI}
   type
@@ -723,8 +732,9 @@ _XMM0: Double;
             case TPSTypeRec_Set(fvar.aType).aByteSize of
               1: StoreReg(IPointer(byte(fvar.dta^)));
               2: StoreReg(IPointer(word(fvar.dta^)));
-              3, 4: StoreReg(IPointer(cardinal(fvar.dta^)));
-              5,6,7,8: StoreReg(IPointer(fVar.Dta^));
+              4: StoreReg(IPointer(cardinal(fvar.dta^)));
+              8: StoreReg(IPointer(fVar.Dta^));
+              3, 5, 6, 7: StoreRegBytes(fvar.Dta, TPSTypeRec_Set(fvar.aType).aByteSize);
               else
                 StoreReg(IPointer(fvar.Dta));
             end;
@@ -752,9 +762,6 @@ _XMM0: Double;
           end;
         btRecord:
           begin
-            { In the by-value cases below, StoreReg(IPointer(fvar.dta^)) reads a
-              full 8-byte IPointer even when RealSize is smaller. The callee uses
-              only the low RealSize bytes, so reading past the record is harmless. }
             {$IFDEF WINDOWS}
             {$IFDEF DELPHI}
             { Delphi Win64 ABI: a record is passed by value (in a register)
@@ -769,7 +776,7 @@ _XMM0: Double;
                or ((fvar^.aType.RealSize in [5, 6, 7, 8]) and not (CallingConv in [cdCdecl, cdStdCall, cdSafeCall]))
                {$ENDIF}
                then
-              StoreReg(IPointer(fvar.dta^))
+              StoreRegBytes(fvar.Dta, fvar^.aType.RealSize)
             else
               StoreReg(IPointer(fVar.Dta));
             {$ELSE}
@@ -778,13 +785,13 @@ _XMM0: Double;
               passed by reference. See aggregate_in_registers_win64 in the FPC
               compiler's x86_64/cpupara.pas. }
             if fvar^.aType.RealSize in [1, 2, 4, 8] then
-              StoreReg(IPointer(fvar.dta^))
+              StoreRegBytes(fvar.Dta, fvar^.aType.RealSize)
             else
               StoreReg(IPointer(fVar.Dta));
             {$ENDIF}
             {$ELSE}
             if fvar^.aType.RealSize <= sizeof(IPointer) then
-              StoreReg(IPointer(fvar.dta^))
+              StoreRegBytes(fvar.Dta, fvar^.aType.RealSize)
             else
               StoreReg(IPointer(fVar.Dta));
             {$ENDIF}
@@ -974,9 +981,9 @@ begin
             case res.aType.RealSize of
               1: byte(res.Dta^) := _RAX;
               2: word(res.Dta^) := _RAX;
-              3,
               4: Longint(res.Dta^) := _RAX;
-              5,6,7,8: IPointer(res.dta^) := _RAX;
+              8: IPointer(res.dta^) := _RAX;
+              3, 5, 6, 7: Move(_RAX, res.Dta^, res.aType.RealSize);
               {$IFNDEF WINDOWS}
               9..16:
                 begin
