@@ -244,6 +244,8 @@ end;
 const
   EmptyPchar: array[0..0] of char = #0;
 
+{$IFDEF DELPHI}{$IFDEF MSWINDOWS}{$DEFINE DELPHI_and_MSWINDOWS}{$ENDIF}{$ENDIF}
+
 function TPSExec.InnerfuseCall(_Self, Address: Pointer; CallingConv: TPSCallingConvention; Params: TPSList; res: PPSVariantIFC): Boolean;
 var
   Stack: ansistring;
@@ -355,13 +357,48 @@ var
               DataSize := TPSTypeRec_Set(fvar.aType).aByteSize
             else
               DataSize := fvar^.aType.RealSize;
-            tempstr := StringOfChar(AnsiChar(#0),4);
-            case DataSize of
-              1: Byte((@tempstr[1])^) := byte(fvar.dta^);
-              2: word((@tempstr[1])^) := word(fvar.dta^);
-              3, 4: cardinal((@tempstr[1])^) := cardinal(fvar.dta^);
-              else
-                pointer((@tempstr[1])^) := fvar.dta;
+            {$IFDEF DELPHI_and_MSWINDOWS}
+            { Delphi Win32 ABI: under the register and pascal conventions a
+              record is passed by value at sizes 1, 2, and 4 (in a register
+              when one is free), by value on the stack at size 3, and by
+              reference at 5 and up. Under stdcall/cdecl/safecall a record is
+              passed by value on the stack at every size, rounded up to whole
+              4-byte slots; except that when it contains managed data the
+              caller must reference count the pushed copy, which is not
+              implemented here, so a pointer is passed instead and the native
+              side must declare the parameter as const to match (a const
+              record of 5 bytes and up is passed by reference). A set is by
+              value at its native size of 1, 2, or 4 bytes (a 3-byte ROPS set
+              is a native 4-byte set, copied with zero extension) and by
+              reference at 5 and up, under all conventions. For static arrays
+              see the btVariant/btStaticArray branch below }
+            if (fVar^.aType.BaseType = btRecord) and (DataSize > 4) and
+               (CallingConv in [cdCdecl, cdStdCall, cdSafeCall]) and
+               not IsManagedType(fVar^.aType) then
+            begin
+              UseReg := False;
+              tempstr := StringOfChar(AnsiChar(#0), ((DataSize + 3) div 4) * 4);
+              Move(fvar.dta^, tempstr[1], DataSize);
+            end else
+            {$ENDIF}
+            begin
+              tempstr := StringOfChar(AnsiChar(#0),4);
+              case DataSize of
+                1: Byte((@tempstr[1])^) := byte(fvar.dta^);
+                2: word((@tempstr[1])^) := word(fvar.dta^);
+                {$IFDEF DELPHI_and_MSWINDOWS}
+                3: begin
+                    Move(fvar.dta^, tempstr[1], 3);
+                    if fVar^.aType.BaseType = btRecord then
+                      UseReg := False;
+                  end;
+                4: cardinal((@tempstr[1])^) := cardinal(fvar.dta^);
+                {$ELSE}
+                3, 4: cardinal((@tempstr[1])^) := cardinal(fvar.dta^);
+                {$ENDIF}
+                else
+                  pointer((@tempstr[1])^) := fvar.dta;
+              end;
             end;
           end;
         btArray:
@@ -405,8 +442,26 @@ var
           end;
         btVariant, btStaticArray:
           begin
-            TempStr := StringOfChar(AnsiChar(#0),4);
-            Pointer((@TempStr[1])^) := Pointer(fvar.Dta);
+            {$IFDEF DELPHI_and_MSWINDOWS}
+            { Delphi Win32 ABI: a static array of 1-4 bytes is passed by value
+              like a record of that size (1, 2, and 4 in a register when one is
+              free, 3 always by value on the stack; see the btSet/btRecord
+              branch above), and by reference at 5 and up, under all
+              conventions }
+            if (fVar^.aType.BaseType = btStaticArray) and
+               (fvar^.aType.RealSize <= 4) then
+            begin
+              DataSize := fvar^.aType.RealSize;
+              tempstr := StringOfChar(AnsiChar(#0),4);
+              Move(fvar.dta^, tempstr[1], DataSize);
+              if DataSize = 3 then
+                UseReg := False;
+            end else
+            {$ENDIF}
+            begin
+              TempStr := StringOfChar(AnsiChar(#0),4);
+              Pointer((@TempStr[1])^) := Pointer(fvar.Dta);
+            end;
           end;
         btDouble: {8 bytes} begin
             TempStr := StringOfChar(AnsiChar(#0),8);

@@ -1885,6 +1885,40 @@ type
   end;
   PDynArrayRec = ^TDynArrayRec;
 
+{ True when the type is managed and needs reference counting or finalization,
+  so cannot simply be copied. Unlike NeedFinalization this looks inside records
+  and static arrays. Matches what Delphi considers managed, with btPointer as
+  an exception. btPointer has no native counterpart but it can own and destroy
+  the data it points to, see FinalizeVariant, so cannot simply be copied. }
+function IsManagedType(aType: TPSTypeRec): Boolean;
+var
+  t: TPSTypeRec;
+  i: Longint;
+begin
+  case aType.BaseType of
+    btString, {$IFNDEF PS_NOWIDESTRING} btUnicodeString, btWideString, {$ENDIF}
+    {$IFNDEF PS_NOINTERFACES} btInterface, {$ENDIF} btArray, btPointer, btVariant:
+      Result := True;
+    btRecord:
+      begin
+        for i := 0 to TPSTypeRec_Record(aType).FieldTypes.Count -1 do
+        begin
+          t := TPSTypeRec_Record(aType).FieldTypes[i];
+          if IsManagedType(t) then
+          begin
+            Result := True;
+            exit;
+          end;
+        end;
+        Result := False;
+      end;
+    btStaticArray:
+      Result := IsManagedType(TPSTypeRec_Array(aType).ArrayType);
+  else
+    Result := False;
+  end;
+end;
+
 procedure FinalizeVariant(p: Pointer; aType: TPSTypeRec);
 var
   t: TPSTypeRec;
