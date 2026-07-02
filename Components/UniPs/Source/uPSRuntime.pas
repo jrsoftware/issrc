@@ -12382,6 +12382,13 @@ begin
     btChar,
     btclass,
     btEnum: Result := true;
+{$IFDEF DELPHI}
+    { The Delphi x64 ABI returns a record of 1, 2, or 4 bytes in RAX, and
+      the x86 ABI a record of 1 or 2 bytes in AL/AX (see System.Rtti's
+      UseResultPointer). Records of these sizes never contain a managed
+      field, so no managed check is needed. }
+    btRecord: Result := b.RealSize in [1, 2{$IFDEF CPU64}, 4{$ENDIF}];
+{$ENDIF}
     btSet: Result := b.RealSize <= PointerSize;
     btStaticArray: Result := b.RealSize <= PointerSize;
   else
