@@ -2402,10 +2402,29 @@ begin
     IntToStr(R.A) + ',' + IntToStr(R.B) + ',' + IntToStr(R.C) + ',' + IntToStr(R.D) + ';' + IntToStr(Tail);
 end;
 
+var
+  Test_CreateCallback_Set8Fields: String;
+  Test_CreateCallback_Arr8Fields: String;
+
+procedure Test_CreateCallback_CBSet8(S: TTestHandlerSet8; Tail: Integer);
+begin
+  { Stores '0' or '1' for the '.. in ..' result. Should all be '1'. }
+  Test_CreateCallback_Set8Fields :=
+    IntToStr(Ord(TTestHandlerSet8Base(3) in S)) + IntToStr(Ord(TTestHandlerSet8Base(60) in S)) + ';' + IntToStr(Tail);
+end;
+
+procedure Test_CreateCallback_CBArr8(A: TTestHandlerArr8; Tail: Integer);
+begin
+  Test_CreateCallback_Arr8Fields :=
+    IntToStr(A[0]) + ',' + IntToStr(A[7]) + ';' + IntToStr(Tail);
+end;
+
 procedure Test_CreateCallback;
 #if arch == "x64"
 var
   R: TTestHandlerRec8;
+  S: TTestHandlerSet8;
+  A: TTestHandlerArr8;
 #endif
 begin
   { Tests CreateCallback, which generates platform-specific machine code
@@ -2450,6 +2469,20 @@ begin
   Test_CreateCallback_Rec8Fields := '';
   TestCreateCallback_InvokeRec8(CreateCallback(@Test_CreateCallback_CBRec8), R, 99);
   CheckEqualsString('30,31,32,33;99', Test_CreateCallback_Rec8Fields);
+
+  { An 8-byte set at position 1 needs no bridging: stdcall passes it by
+    reference, already the pointer MyAllMethodsHandler expects }
+  S := [TTestHandlerSet8Base(3), TTestHandlerSet8Base(60)];
+  Test_CreateCallback_Set8Fields := '';
+  TestCreateCallback_InvokeSet8(CreateCallback(@Test_CreateCallback_CBSet8), S, 99);
+  CheckEqualsString('11;99', Test_CreateCallback_Set8Fields);
+
+  { An 8-byte static array by value at position 1 must be bridged to a pointer
+    for MyAllMethodsHandler, like the record above }
+  A[0] := 30; A[1] := 31; A[2] := 32; A[3] := 33; A[4] := 34; A[5] := 35; A[6] := 36; A[7] := 37;
+  Test_CreateCallback_Arr8Fields := '';
+  TestCreateCallback_InvokeArray8(CreateCallback(@Test_CreateCallback_CBArr8), A, 99);
+  CheckEqualsString('30,37;99', Test_CreateCallback_Arr8Fields);
 #endif
 
   CheckEqualsInt64(30, TestCreateCallback_InvokeReturnInteger(CreateCallback(@Test_CreateCallback_CBReturnInteger), 10, 20));

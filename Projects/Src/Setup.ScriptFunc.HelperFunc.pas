@@ -164,6 +164,8 @@ procedure TestCreateCallback_InvokeExtended4(Callback: NativeInt; A, B, C: Integ
 function TestCreateCallback_InvokeReturnInteger(Callback: NativeInt; A, B: Integer): Integer;
 function TestCreateCallback_InvokeReturnDouble(Callback: NativeInt; A, B: Integer): Double;
 procedure TestCreateCallback_InvokeRec8(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer);
+procedure TestCreateCallback_InvokeSet8(Callback: NativeInt; const S: TTestHandlerSet8; Tail: Integer);
+procedure TestCreateCallback_InvokeArray8(Callback: NativeInt; const A: TTestHandlerArr8; Tail: Integer);
 
 implementation
 
@@ -721,7 +723,7 @@ end;
 function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): NativeInt;
 {$IFDEF CPUX64}
 const
-  RecordParamRegisters: array [1..3] of TRegister64 = (RDX, R8, R9);
+  BridgedParamRegisters: array [1..3] of TRegister64 = (RDX, R8, R9);
 {$ENDIF}
 begin
   { ProcNo 0 means nil was passed by the script }
@@ -735,7 +737,7 @@ begin
   var ParamCount := 0;
 {$IFDEF CPUX64}
   var Param4IsFloatByValue := False;
-  var RecordParamPositions: TArray<Integer>; { Positions (1-based) of by-value 8-byte record params }
+  var BridgedParamPositions: TArray<Integer>; { Positions (1-based) of by-value 8-byte record and static array params }
 {$ENDIF}
   while S <> '' do begin
     Inc(ParamCount);
@@ -747,10 +749,13 @@ begin
     const cpt = Caller.GetTypeNo(Cardinal(StrToInt(e)));
     if (ParamCount = 4) and not ParamAsVariable(fmod, cpt) then
       Param4IsFloatByValue := cpt.BaseType in [btSingle, btDouble, btExtended];
-    { Assume by-value 8-byte records are unmanaged; a managed one is by reference
-      under stdcall (no bridging needed) but never reaches a native callback }
-    if (fmod <> '%') and (fmod <> '!') and (cpt.BaseType = btRecord) and (cpt.RealSize = 8) then
-      RecordParamPositions := RecordParamPositions + [ParamCount];
+    { Under stdcall an 8-byte record or static array param is passed by value,
+      even when it contains managed types (verified on Delphi 10.4 and 12.3),
+      but the handler (register convention) expects a pointer, so bridge it
+      below. An 8-byte set needs no bridging: stdcall passes it by reference,
+      see the btSet/btRecord/btStaticArray comment in x64.inc }
+    if (fmod <> '%') and (fmod <> '!') and (cpt.BaseType in [btRecord, btStaticArray]) and (cpt.RealSize = 8) then
+      BridgedParamPositions := BridgedParamPositions + [ParamCount];
 {$ELSE}
     GRFW(S);
 {$ENDIF}
@@ -842,8 +847,8 @@ begin
     var ExtraParams := ParamCount - 3;
     if ExtraParams < 0 then
       ExtraParams := 0;
-    const RecordTempBase = 32 + ExtraParams * SizeOf(Pointer);
-    var FrameSize := RecordTempBase + Integer(Length(RecordParamPositions)) * SizeOf(Pointer);
+    const BridgedParamTempBase = 32 + ExtraParams * SizeOf(Pointer);
+    var FrameSize := BridgedParamTempBase + Integer(Length(BridgedParamPositions)) * SizeOf(Pointer);
     if (FrameSize and $F) = 0 then
       Inc(FrameSize, 8); { keep RSP 16-byte aligned at call site }
     Inliner.SubRsp(FrameSize);
@@ -873,14 +878,14 @@ begin
     if ParamCount >= 3 then
       Inliner.MovRegReg(R9, RAX); { param3: saved R8->R9 }
 
-    { Bridge by-value 8-byte records: the slot holds the record value (stdcall)
-      but the handler (register) reads it as a pointer, so copy each to its temp
-      and put the temp's address in the slot. }
-    for var I := 0 to High(RecordParamPositions) do begin
-      const Position = RecordParamPositions[I];
-      const TempOffset = RecordTempBase + Integer(I) * SizeOf(Pointer);
+    { Bridge by-value 8-byte records and static arrays: the slot holds the
+      value (stdcall) but the handler (register) reads it as a pointer, so copy
+      each to its temp and put the temp's address in the slot. }
+    for var I := 0 to High(BridgedParamPositions) do begin
+      const Position = BridgedParamPositions[I];
+      const TempOffset = BridgedParamTempBase + Integer(I) * SizeOf(Pointer);
       if Position in [1, 2, 3] then begin
-        const Reg = RecordParamRegisters[Position];
+        const Reg = BridgedParamRegisters[Position];
         Inliner.MovMemRSPReg(TempOffset, Reg);
         Inliner.LeaRegMemRSP(Reg, TempOffset);
       end else begin
@@ -1067,6 +1072,8 @@ type
   TStdCallFuncReturnInteger = function(A, B: Integer): Integer; stdcall;
   TStdCallFuncReturnDouble = function(A, B: Integer): Double; stdcall;
   TStdCallProcRec8 = procedure(R: TTestHandlerRec8; Tail: Integer); stdcall;
+  TStdCallProcSet8 = procedure(S: TTestHandlerSet8; Tail: Integer); stdcall;
+  TStdCallProcArr8 = procedure(A: TTestHandlerArr8; Tail: Integer); stdcall;
 
 procedure TestCreateCallback_Invoke0(Callback: NativeInt);
 begin
@@ -1101,6 +1108,16 @@ end;
 procedure TestCreateCallback_InvokeRec8(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer);
 begin
   TStdCallProcRec8(Callback)(R, Tail);
+end;
+
+procedure TestCreateCallback_InvokeSet8(Callback: NativeInt; const S: TTestHandlerSet8; Tail: Integer);
+begin
+  TStdCallProcSet8(Callback)(S, Tail);
+end;
+
+procedure TestCreateCallback_InvokeArray8(Callback: NativeInt; const A: TTestHandlerArr8; Tail: Integer);
+begin
+  TStdCallProcArr8(Callback)(A, Tail);
 end;
 
 end.

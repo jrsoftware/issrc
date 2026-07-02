@@ -2144,6 +2144,8 @@ begin
   RegisterDelphiFunction(@TestCreateCallback_InvokeReturnInteger, 'TestCreateCallback_InvokeReturnInteger');
   RegisterDelphiFunction(@TestCreateCallback_InvokeReturnDouble, 'TestCreateCallback_InvokeReturnDouble');
   RegisterDelphiFunction(@TestCreateCallback_InvokeRec8, 'TestCreateCallback_InvokeRec8');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeSet8, 'TestCreateCallback_InvokeSet8');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeArray8, 'TestCreateCallback_InvokeArray8');
   {$IFDEF DEBUG}
   if Count <> Length(TestInnerfuseScriptFuncTable) then
     raise Exception.Create('Count <> Length(TestInnerfuseScriptFuncTable)');
