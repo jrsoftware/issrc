@@ -2,7 +2,7 @@ unit Compression.LZMADecompressor;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -34,23 +34,13 @@ type
     procedure Reset; override;
   end;
 
-const
-  {$IFNDEF WIN64}
-  TLZMA1StateSize = 100;
-  TLZMA2StateSize = 116;
-  {$ELSE}
-  TLZMA1StateSize = 128;
-  TLZMA2StateSize = 144;
-  {$ENDIF}
-
 type
-  { Internally-used records }
-  TLZMA1InternalDecoderState = array[0..TLZMA1StateSize div SizeOf(UInt32) - 1] of UInt32;
-  TLZMA2InternalDecoderState = array[0..TLZMA2StateSize div SizeOf(UInt32) - 1] of UInt32;
+  { Internally-used record }
+  TLZMAInternalDecoderState = array[0..31] of UInt64;
 
   TLZMA1Decompressor = class(TLZMACustomDecompressor)
   private
-    FDecoderState: TLZMA1InternalDecoderState;
+    FDecoderState: TLZMAInternalDecoderState;
   protected
     function DecodeToBuf(var Dest; var DestLen: Cardinal; const Src;
       var SrcLen: Cardinal; var Status: Integer): Integer; override;
@@ -60,7 +50,7 @@ type
 
   TLZMA2Decompressor = class(TLZMACustomDecompressor)
   private
-    FDecoderState: TLZMA2InternalDecoderState;
+    FDecoderState: TLZMAInternalDecoderState;
   protected
     function DecodeToBuf(var Dest; var DestLen: Cardinal; const Src;
       var SrcLen: Cardinal; var Status: Integer): Integer; override;
@@ -120,24 +110,24 @@ const
 {$L Src\Compression.LZMADecompressor\Lzma2Decode\ISLzmaDec-x64.obj}
 {$ENDIF}
 
-function IS_LzmaDec_Init(var state: TLZMA1InternalDecoderState;
+function IS_LzmaDec_Init(var state: TLZMAInternalDecoderState;
   stateSize: NativeUInt; const props; propsSize: Cardinal;
   const alloc: TLZMAISzAlloc): TLZMASRes; cdecl; external name {$IFNDEF WIN64} '_IS_LzmaDec_Init' {$ELSE} 'IS_LzmaDec_Init'{$ENDIF};
 function IS_LzmaDec_StateSize: NativeUInt; cdecl; external name {$IFNDEF WIN64} '_IS_LzmaDec_StateSize' {$ELSE} 'IS_LzmaDec_StateSize'{$ENDIF};
-function LzmaDec_DecodeToBuf(var state: TLZMA1InternalDecoderState; var dest;
+function LzmaDec_DecodeToBuf(var state: TLZMAInternalDecoderState; var dest;
   var destLen: NativeUInt; const src; var srcLen: NativeUInt; finishMode: Integer;
   var status: Integer): TLZMASRes; cdecl; external name {$IFNDEF WIN64} '_LzmaDec_DecodeToBuf' {$ELSE} 'LzmaDec_DecodeToBuf'{$ENDIF};
-procedure LzmaDec_Free(var state: TLZMA1InternalDecoderState;
+procedure LzmaDec_Free(var state: TLZMAInternalDecoderState;
   const alloc: TLZMAISzAlloc); cdecl; external name {$IFNDEF WIN64} '_LzmaDec_Free' {$ELSE} 'LzmaDec_Free'{$ENDIF};
 
-function IS_Lzma2Dec_Init(var state: TLZMA2InternalDecoderState;
+function IS_Lzma2Dec_Init(var state: TLZMAInternalDecoderState;
   stateSize: NativeUInt; prop: Byte; const alloc: TLZMAISzAlloc): TLZMASRes; cdecl;
   external name {$IFNDEF WIN64} '_IS_Lzma2Dec_Init' {$ELSE} 'IS_Lzma2Dec_Init'{$ENDIF};
 function IS_Lzma2Dec_StateSize: NativeUInt; cdecl; external name {$IFNDEF WIN64} '_IS_Lzma2Dec_StateSize' {$ELSE} 'IS_Lzma2Dec_StateSize'{$ENDIF};
-function Lzma2Dec_DecodeToBuf(var state: TLZMA2InternalDecoderState; var dest;
+function Lzma2Dec_DecodeToBuf(var state: TLZMAInternalDecoderState; var dest;
   var destLen: NativeUInt; const src; var srcLen: NativeUInt; finishMode: Integer;
   var status: Integer): TLZMASRes; cdecl; external name {$IFNDEF WIN64} '_Lzma2Dec_DecodeToBuf' {$ELSE} 'Lzma2Dec_DecodeToBuf'{$ENDIF};
-procedure IS_Lzma2Dec_Free(var state: TLZMA2InternalDecoderState;
+procedure IS_Lzma2Dec_Free(var state: TLZMAInternalDecoderState;
   const alloc: TLZMAISzAlloc); cdecl; external name {$IFNDEF WIN64} '_IS_Lzma2Dec_Free' {$ELSE} 'IS_Lzma2Dec_Free'{$ENDIF};
 
 
@@ -257,7 +247,7 @@ begin
 
   var StateSize := IS_LzmaDec_StateSize;
   var DecoderStateSize := SizeOf(FDecoderState);
-  if StateSize <> DecoderStateSize then
+  if StateSize > DecoderStateSize then
     LZMADecompDataError(-Integer(StateSize));
 
   { Note: IS_LzmaDec_Init will re-use already-allocated memory if it can.
@@ -311,7 +301,7 @@ begin
 
   var StateSize := IS_Lzma2Dec_StateSize;
   var DecoderStateSize := SizeOf(FDecoderState);
-  if StateSize <> DecoderStateSize then
+  if StateSize > DecoderStateSize then
     LZMADecompDataError(-Integer(StateSize));
 
   { Note: IS_Lzma2Dec_Init will re-use already-allocated memory if it can.
