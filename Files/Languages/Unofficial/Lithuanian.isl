@@ -3,13 +3,33 @@
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
 ;
-; Note: When translating this text, do not add periods (.) to the end of
-; messages that didn't have them already, because on those messages Inno
-; Setup adds the periods automatically (appending a period would result in
-; two periods being displayed).
+; Note: When translating this text:
+; - All translations should back-translate to the same meaning.
+; - Do not add to or change the meaning of messages to suit your personal taste.
+; - Do not add or remove sentences, or add or omit information within sentences.
+; - Do not remove these words: all, only, automatically, now, later, may, must, and not.
+; - Do not add periods (.) or colons (:) or ellipses (...) to the end of messages that didn't have them already.
+; - Do not remove periods or colons or ellipses or question marks from the end of messages.
+; - Do not replace periods with colons (:). Replacing '...' with '…' is allowed.
+; - Do not add or remove placeholders (%1, %2, etc.). Changing the order is allowed.
+; - Do not add or remove line breaks (%n).
+; - Do not add accelerators (&) or create collisions. Remove an accelerator only if it cannot be moved to another letter.
+; - Do not add new custom messages to the [CustomMessages] section.
+; - Keep AboutSetupNote empty.
+; Before you start, decide how you will translate each of these recurring terms:
+; - Setup, Uninstall (the program), uninstall (the verb), Cannot uninstall,
+;   program, application, component, task,
+;   shortcut, Start Menu, folder, directory, drive,
+;   existing file, source file, registry, INI entries, README,
+;   computer, Windows, version, administrator, all users, current user,
+;   Downloading files, Extracting files, aborted, corrupted, close (applications), restart,
+;   Select action, try again, anyway, at least,
+;   and the button captions OK, Cancel, Yes, No, Next, Back, Install, Browse, Finish.
+; Removing this section from your translation is allowed, but do not disregard it.
+;
 ; Translated by Robertas Rimas (Loptar AT takas DOT lt)
 ; Corrected and updated by Rolandas Rudomanskis (rolandasr AT gmail DOT com)
-; Corrected and updated to version 6.5.0+ by Dalius Guzauskas (aka Tichij) (tichij AT mail DOT com)
+; Corrected and updated to version 6.5.0+ by Dalius Gužauskas (aka Tichij) (tichij AT mail DOT com)
 
 [LangOptions]
 ; The following three entries are very important. Be sure to read and 
@@ -62,7 +82,9 @@ OnlyOnTheseArchitectures=Ši programa gali būti įdiegta tik Windows versijose,
 WinVersionTooLowError=Ši programa reikalauja %1 %2 ar vėlesnės versijos.
 WinVersionTooHighError=Ši programa negali būti įdiegta %1 %2 ar vėlesnės versijos aplinkoje.
 AdminPrivilegesRequired=Šios programos diegimui privalote būti prisijungęs Administratoriaus teisėmis.
+; 'Power Users group' is an outdated term but should still be translated, not dropped or modernized
 PowerUserPrivilegesRequired=Šios programos diegimui privalote būti prisijungęs Administratoriaus arba „Power Users“ grupės nario teisėmis.
+; 'instance' may also be translated as 'copy'
 SetupAppRunningError=Diegimo programa aptiko, kad yra paleista „%1“.%n%nUždarykite visas paleistas šios programos kopijas ir, jei norite tęsti, paspauskite „Gerai“ arba „Nutraukti“, jei norite nutraukti diegimą.
 UninstallAppRunningError=Pašalinimo programa aptiko, kad yra paleista „%1“.%n%nUždarykite visas paleistas šios programos kopijas ir, jei norite tęsti, paspauskite „Gerai“ arba „Nutraukti“, jei norite nutraukti diegimą.
 
@@ -117,7 +139,7 @@ NewFolderName=Naujas katalogas
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Sveiki! Čia „[name]“ diegimo programa.
-WelcomeLabel2=Diegimo programa įdiegs „[name]“ Jūsų kompiuteryje.%n%nPrieš tęsiant diegimą, rekomenduojama uždaryti visas nereikalingas programas.
+WelcomeLabel2=Diegimo programa įdiegs „[name/ver]“ Jūsų kompiuteryje.%n%nPrieš tęsiant diegimą, rekomenduojama uždaryti visas nereikalingas programas.
 
 ; *** "Password" wizard page
 WizardPassword=Slaptažodis
@@ -174,8 +196,9 @@ DirDoesntExist=Katalogas:%n%n%1%n%n neegzistuoja. Norite kad katalogas būtų su
 WizardSelectComponents=Komponentų pasirinkimas
 SelectComponentsDesc=Kurie komponentai turi būti įdiegti?
 SelectComponentsLabel2=Pažymėkite komponentus, kuriuos norite įdiegti; nuimkite žymes nuo komponentų, kurių nenorite diegti. Kai būsite pasiruošęs tęsti, spauskite „Pirmyn“.
+; don't translate 'Full' as 'Normal' or 'Default'
 FullInstallation=Pilnas visų komponentų diegimas
-; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
+; don't translate 'Compact' as 'Minimal' or 'Default'
 CompactInstallation=Glaustas diegimas
 CustomInstallation=Pasirinktinis diegimas
 NoUninstallWarningTitle=Komponentai egzistuoja
