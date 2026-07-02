@@ -981,6 +981,7 @@ begin
               const Is64Bit = CurRec^.ExtraData and utDeleteDirOrFiles_Is64Bit <> 0;
               const Path = ApplyPathRedirRules(Is64Bit, CurRecData[0], tpCurrent);
               if DelTree(Path, CurRec^.ExtraData and utDeleteDirOrFiles_IsDir <> 0,
+                 True,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteFiles <> 0,
                  CurRec^.ExtraData and utDeleteDirOrFiles_DeleteSubdirsAlso <> 0,
                  False, LoggedDeleteDirProc, LoggedDeleteFileProc, @DeleteDirData) then begin

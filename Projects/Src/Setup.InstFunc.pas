@@ -64,7 +64,7 @@ function CheckForMutexes(const Mutexes: String): Boolean;
 procedure CreateMutexes(const Mutexes: String);
 function DecrementSharedCount(const Key64Bit: Boolean; const Filename: String): Boolean;
 function DelTree(const Path: String;
-  const IsDir, DeleteFiles, DeleteSubdirsAlso, BreakOnError: Boolean;
+  const IsDir, StripReadOnly, DeleteFiles, DeleteSubdirsAlso, BreakOnError: Boolean;
   const DeleteDirProc: TDeleteDirProc; const DeleteFileProc: TDeleteFileProc;
   const Param: Pointer): Boolean;
 procedure EnumFileReplaceOperationsFilenames(const EnumFunc: TEnumFROFilenamesProc;
@@ -232,14 +232,16 @@ begin
 end;
 
 function DelTree(const Path: String;
-  const IsDir, DeleteFiles, DeleteSubdirsAlso, BreakOnError: Boolean;
+  const IsDir, StripReadOnly, DeleteFiles, DeleteSubdirsAlso, BreakOnError: Boolean;
   const DeleteDirProc: TDeleteDirProc; const DeleteFileProc: TDeleteFileProc;
   const Param: Pointer): Boolean;
 { Deletes the specified directory including all files and subdirectories in
   it (including those with hidden, system, and read-only attributes). Returns
   True if it was able to successfully remove everything. If BreakOnError is
   set to True it will stop and return False the first time a delete failed or
-  DeleteDirProc/DeleteFileProc returned False.  }
+  DeleteDirProc/DeleteFileProc returned False. If StripReadOnly is True then
+  read-only attributes are stripped from matched files and directories before
+  deletion or calling DeleteDirProc/DeleteFileProc. }
 var
   BasePath, FindSpec: String;
   H: THandle;
@@ -263,7 +265,7 @@ begin
         repeat
           S := FindData.cFileName;
           if (S <> '.') and (S <> '..') then begin
-            if FindData.dwFileAttributes and FILE_ATTRIBUTE_READONLY <> 0 then begin
+            if StripReadOnly and (FindData.dwFileAttributes and FILE_ATTRIBUTE_READONLY <> 0) then begin
               { Strip the read-only attribute if this is a file, or if it's a
                 directory and we're deleting subdirectories also }
               if (FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0) or DeleteSubdirsAlso then
@@ -282,8 +284,8 @@ begin
             end
             else begin
               if DeleteSubdirsAlso then
-                if not DelTree(BasePath + S, True, True, True, BreakOnError,
-                   DeleteDirProc, DeleteFileProc, Param) then
+                if not DelTree(BasePath + S, True, StripReadOnly, True, True,
+                   BreakOnError, DeleteDirProc, DeleteFileProc, Param) then
                   Result := False;
             end;
           end;
