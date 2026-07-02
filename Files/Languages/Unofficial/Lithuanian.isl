@@ -190,7 +190,7 @@ BadDirName32=Aplanko pavadinime neturi būti simbolių:%n%n%1
 DirExistsTitle=Aplankas egzistuoja
 DirExists=Aplankas:%n%n%1%n%njau yra. Vis tiek norite diegti programą tame aplanke?
 DirDoesntExistTitle=Tokio aplanko nėra
-DirDoesntExist=Aplankas:%n%n%1%n%nneegzistuoja. Norite kad aplankas būtų sukurtas?
+DirDoesntExist=Aplankas:%n%n%1%n%nneegzistuoja. Norite, kad aplankas būtų sukurtas?
 
 ; *** "Select Components" wizard page
 WizardSelectComponents=Komponentų pasirinkimas
@@ -211,7 +211,7 @@ ComponentsDiskSpaceMBLabel=Dabartinis Jūsų pasirinkimas reikalauja mažiausiai
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Nurodykite papildomus veiksmus
 SelectTasksDesc=Kokius papildomus veiksmus reikia atlikti?
-SelectTasksLabel2=Nurodykite papildomus veiksmus, kuriuos diegimo programa turės atlikti „[name]“ diegimo metu. Kai būsite pasiruošęs tęsti diegimą, spauskite „Pirmyn“.
+SelectTasksLabel2=Nurodykite papildomus veiksmus, kuriuos diegimo programa turės atlikti „[name]“ diegimo metu, tada spauskite „Pirmyn“.
 
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Nurodykite „Start Menu“ aplanką
@@ -265,14 +265,14 @@ PreviousInstallNotCompleted=Ankstesnės programos diegimas/šalinimas buvo neuž
 CannotContinue=Diegimas negali būti tęsiamas. Paspauskite „Atšaukti“, kad išeitumėte.
 ApplicationsFound=Šios programos naudoja failus, kurie turi būti perrašyti diegimo metu. Rekomenduojama leisti diegimo programai automatiškai uždaryti šias programas.
 ApplicationsFound2=Šios programos naudoja failus, kurie turi būti perrašyti diegimo metu. Rekomenduojama leisti diegimo programai automatiškai uždaryti šias programas. Po to, kai diegimas bus baigtas, diegimo programa bandys iš naujo paleisti šias programas.
-CloseApplications=&Automatiškai uždaryti programas
+CloseApplications=Automatiškai &uždaryti programas
 DontCloseApplications=&Neuždarinėti programų
 ErrorCloseApplications=Diegimo programai nepavyko automatiškai uždaryti visų programų. Prieš tęsiant diegimą, rekomenduojama uždaryti visas programas, naudojančias failus, kurie turi būti perrašyti diegimo metu.
 PrepareToInstallNeedsRestart=Diegimo programai reikia perkrauti kompiuterį. Po perkrovimo, vėl paleiskite diegimo programą „[name]“ diegimo užbaigimui.%n%nNorite perkrauti jį dabar?
 
 ; *** "Installing" wizard page
 WizardInstalling=Vyksta diegimas
-InstallingLabel=Palaukite kol diegimo programa įdiegs „[name]“ Jūsų kompiuteryje.
+InstallingLabel=Palaukite, kol diegimo programa įdiegs „[name]“ Jūsų kompiuteryje.
 
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel=„[name]“ diegimas baigtas
@@ -423,12 +423,12 @@ ShutdownBlockReasonUninstallingApp=Šalinama „%1“.
 NameAndVersion=%1 versija %2
 AdditionalIcons=Papildomos nuorodos:
 CreateDesktopIcon=Sukurti nuorodą &Darbalaukyje
-CreateQuickLaunchIcon=Sukurti Sparčiosios &Paleisties nuorodą
+CreateQuickLaunchIcon=Sukurti &Sparčiosios Paleisties nuorodą
 ProgramOnTheWeb=„%1“ žiniatinklyje
 UninstallProgram=Pašalinti „%1“
 LaunchProgram=Paleisti „%1“
 AssocFileExtension=&Susieti „%1“ programą su failo plėtiniu %2
 AssocingFileExtension=„%1“ programa susiejama su failo plėtiniu %2...
-AutoStartProgramGroupDescription=Automatinė paleistis:
+AutoStartProgramGroupDescription=Paleistis:
 AutoStartProgram=Automatiškai paleisti „%1“
 AddonHostProgramNotFound=„%1“ nerasta Jūsų nurodytame aplanke.%n%nVis tiek norite tęsti?
