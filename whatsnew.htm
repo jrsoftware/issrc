@@ -139,12 +139,13 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Support functions <tt>TaskDialogMsgBox</tt> and <tt>SuppressibleTaskDialogMsgBox</tt> now wrap long instruction text onto multiple lines even when a custom style is active.</li>
     <li><i>Fix:</i> A callback created with <tt>CreateCallback</tt> now receives the correct values for by-value <tt>Extended</tt> and <tt>Currency</tt> parameters in the first three positions in 64-bit installers, and now returns the correct value for a <tt>Currency</tt> result in both 32-bit and 64-bit installers.</li>
     <li><i>Fix:</i> A callback created with <tt>CreateCallback</tt> now receives the correct value for a by-value record parameter of 8 bytes or smaller in 64-bit installers.</li>
+    <li><i>Fix:</i> Importing a DLL function using the <tt>setuponly</tt> or <tt>uninstallonly</tt> option no longer fails when the function name contains an <tt>@</tt> (such as the decorated name <tt>_MyFunc@8</tt>).</li>
   </ul>
   </li>
   <li>The time stamps of files shown in Setup's log are now in UTC instead of local time, consistent with <tt>TimeStampsInUTC</tt> defaulting to <tt>yes</tt>.</li>
   <li>Updated the Scintilla source code used by Inno Setup to the latest version.</li>
   <li>Throughout the help file, all script examples are now syntax highlighted, all code identifiers are now monospaced, and all <tt>[Setup]</tt> section directives, section names, and Pascal Scripting support functions are now linked to their documentation.</li>
-  <li>Other minor improvements and fixes.</li>
+  <li>Many other minor improvements and fixes.</li>
 </ul>
 
 <p><a name="7.0.2"></a><span class="ver">7.0.2 </span><span class="date">(2026-06-29)</span></p>
