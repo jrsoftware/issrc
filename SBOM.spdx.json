@@ -141,7 +141,7 @@
       "licenseDeclared": "LZMA-SDK-9.22",
       "copyrightText": "Public domain",
       "supplier": "Person: Igor Pavlov",
-      "versionInfo": "26.01"
+      "versionInfo": "26.02"
     },
     {
       "name": "LZMA SDK (Size-optimized)",
@@ -186,9 +186,9 @@
       "filesAnalyzed": false,
       "licenseConcluded": "LGPL-2.1-or-later AND LicenseRef-unRAR-restriction AND BSD-3-Clause AND BSD-2-Clause AND LicenseRef-7zip-Public-Domain",
       "licenseDeclared": "LGPL-2.1-or-later AND LicenseRef-unRAR-restriction AND BSD-3-Clause AND BSD-2-Clause AND LicenseRef-7zip-Public-Domain",
-      "copyrightText": "Copyright (C) 1999-2025 Igor Pavlov",
+      "copyrightText": "Copyright (C) 1999-2026 Igor Pavlov",
       "supplier": "Person: Igor Pavlov",
-      "versionInfo": "26.01",
+      "versionInfo": "26.02",
       "comment": "Optional decompression; is7z/is7zxa/is7zxr DLLs are compiled from 7-Zip source code (see README.md). License details in Is7z/DOC/License.txt describe LGPL-2.1-or-later with unRAR restriction, plus BSD-3-Clause/BSD-2-Clause and public domain files."
     },
     {
