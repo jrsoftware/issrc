@@ -7,6 +7,8 @@ paths: ["Components/UniPs/**"]
 
 These files are copies of the RemObjects Pascal Script `stable` branch (see `rev.txt` for the commit hash). Do not refactor upstream code style to match Inno Setup conventions. Keep changes minimal and focused.
 
+Don't edit or inspect `rev.txt` as it is an auto-generated bookkeeping file.
+
 ## Registration: compile-time (uPSC_) vs runtime (uPSR_)
 
 Pascal Script has two registration layers that must stay in sync:
