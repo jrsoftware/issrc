@@ -11,7 +11,7 @@
 SRes IS_LzmaDec_Init(CLzmaDec *state, size_t stateSize, const Byte *props,
 	unsigned propsSize, ISzAlloc *alloc)
 {
-	if (stateSize != sizeof(*state)) {
+	if (stateSize < sizeof(*state)) {
 		return SZ_ERROR_PARAM;
 	}
 
@@ -32,7 +32,7 @@ size_t IS_LzmaDec_StateSize()
 SRes IS_Lzma2Dec_Init(CLzma2Dec *state, size_t stateSize, Byte prop,
 	ISzAlloc *alloc)
 {
-	if (stateSize != sizeof(*state)) {
+	if (stateSize < sizeof(*state)) {
 		return SZ_ERROR_PARAM;
 	}
 
