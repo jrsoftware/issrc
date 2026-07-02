@@ -227,7 +227,7 @@ ErrorDownloadSizeFailed=Rilevamento dimensione fallito: %1 %2
 ErrorProgress=Progresso non valido: %1 di %2
 ErrorFileSize=Dimensione file non valida: attesa %1, trovata %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=Estrazione file...
 ButtonStopExtraction=Interrompi e&strazione
 StopExtraction=Sei sicuro di voler interrompere l'estrazione?
