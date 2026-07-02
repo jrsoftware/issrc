@@ -59,6 +59,10 @@ type
   TTestHandlerSetProc2 = function(S1: TTestHandlerSet3; S2: TTestHandlerSet10; Tail: Integer): Integer of object;
   TTestHandlerArrProc = function(A1: TTestHandlerArr4; A2: TTestHandlerArr6; A3: TTestHandlerArr8; Tail: Integer): Integer of object;
   TTestHandlerArrProc2 = function(A1: TTestHandlerArr3; A2: TTestHandlerArr10; Tail: Integer): Integer of object;
+  TTestHandlerRecRet1Proc = function(A, B: Integer): TTestHandlerRec1 of object;
+  TTestHandlerRecRet3Proc = function(A, B: Integer): TTestHandlerRec3 of object;
+  TTestHandlerRecRet4Proc = function(A, B: Integer): TTestHandlerRec4 of object;
+  TTestHandlerRecRet8Proc = function(A, B: Integer): TTestHandlerRec8 of object;
 
 var
   ScriptFuncs: TScriptFuncs;
@@ -2115,10 +2119,15 @@ begin
   RegisterDelphiFunction(@TestInnerfuse_EchoCurrency, 'TestInnerfuse_EchoCurrency');
   RegisterDelphiFunction(@TestInnerfuse_EchoInt64, 'TestInnerfuse_EchoInt64');
   RegisterDelphiFunction(@TestInnerfuse_EchoSmallRec, 'TestInnerfuse_EchoSmallRec');
+  RegisterDelphiFunction(@TestInnerfuse_SumRec3, 'TestInnerfuse_SumRec3');
+  RegisterDelphiFunction(@TestInnerfuse_SumRec6StdCall, 'TestInnerfuse_SumRec6StdCall', cdStdCall);
   RegisterDelphiFunction(@TestInnerfuse_SumRec8, 'TestInnerfuse_SumRec8');
   RegisterDelphiFunction(@TestInnerfuse_SumRec8StdCall, 'TestInnerfuse_SumRec8StdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_SumSet3, 'TestInnerfuse_SumSet3');
   RegisterDelphiFunction(@TestInnerfuse_SumSet8, 'TestInnerfuse_SumSet8');
   RegisterDelphiFunction(@TestInnerfuse_SumSet8StdCall, 'TestInnerfuse_SumSet8StdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_SumArray3, 'TestInnerfuse_SumArray3');
+  RegisterDelphiFunction(@TestInnerfuse_SumArray4, 'TestInnerfuse_SumArray4');
   RegisterDelphiFunction(@TestInnerfuse_SumArray8, 'TestInnerfuse_SumArray8');
   RegisterDelphiFunction(@TestInnerfuse_SumArray8StdCall, 'TestInnerfuse_SumArray8StdCall', cdStdCall);
   RegisterDelphiFunction(@TestInnerfuse_EchoLargeRec, 'TestInnerfuse_EchoLargeRec');
@@ -2258,12 +2267,53 @@ begin
       Stack.SetInt(PStart, -1);
   end);
 
+  RegisterScriptFunc('TestHandler_InvokeRecRet1', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const R = TTestHandlerRecRet1Proc(Method)(10, 20);
+      Stack.SetString(PStart, IntToStr(R.A));
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeRecRet3', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const R = TTestHandlerRecRet3Proc(Method)(10, 20);
+      Stack.SetString(PStart, IntToStr(R.A) + ',' + IntToStr(R.B) + ',' + IntToStr(R.C));
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeRecRet4', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const R = TTestHandlerRecRet4Proc(Method)(10, 20);
+      Stack.SetString(PStart, IntToStr(R.A) + ',' + IntToStr(R.B));
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeRecRet8', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const R = TTestHandlerRecRet8Proc(Method)(10, 20);
+      Stack.SetString(PStart, IntToStr(R.A) + ',' + IntToStr(R.B) + ',' + IntToStr(R.C) + ',' + IntToStr(R.D));
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
   RegisterScriptFunc('TestTypes_NativeSizeOf', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
   begin
     const TypeName = Stack.GetString(PStart-1);
     var Size := -1;
     if TypeName = 'TTestInnerfuseSmallRec' then Size := SizeOf(TTestInnerfuseSmallRec)
     else if TypeName = 'TTestInnerfuseLargeRec' then Size := SizeOf(TTestInnerfuseLargeRec)
+    else if TypeName = 'TTestHandlerRec1' then Size := SizeOf(TTestHandlerRec1)
     else if TypeName = 'TTestHandlerRec3' then Size := SizeOf(TTestHandlerRec3)
     else if TypeName = 'TTestHandlerRec4' then Size := SizeOf(TTestHandlerRec4)
     else if TypeName = 'TTestHandlerRec6' then Size := SizeOf(TTestHandlerRec6)

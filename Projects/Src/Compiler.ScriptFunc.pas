@@ -185,6 +185,7 @@ begin
   { These are internal, used only by Script.Test.iss }
   RegisterType('TTestInnerfuseSmallRec', 'record A: Byte; B: Byte; end');
   RegisterType('TTestInnerfuseLargeRec', 'record A: Integer; B: String; end');
+  RegisterType('TTestHandlerRec1', 'record A: Byte; end');
   RegisterType('TTestHandlerRec3', 'record A: Byte; B: Byte; C: Byte; end');
   RegisterType('TTestHandlerRec4', 'record A: Word; B: Word; end');
   RegisterType('TTestHandlerRec6', 'record A: Word; B: Word; C: Word; end');
@@ -221,6 +222,14 @@ begin
   RegisterType('TTestHandlerArrProc2', 'function(A1: TTestHandlerArr3; A2: TTestHandlerArr10; Tail: Integer): Integer;');
   ScriptCompiler.AddFunction('function TestHandler_InvokeArray(const Callback: TTestHandlerArrProc): Integer;');
   ScriptCompiler.AddFunction('function TestHandler_InvokeArray2(const Callback: TTestHandlerArrProc2): Integer;');
+  RegisterType('TTestHandlerRecRet1Proc', 'function(A, B: Integer): TTestHandlerRec1;');
+  RegisterType('TTestHandlerRecRet3Proc', 'function(A, B: Integer): TTestHandlerRec3;');
+  RegisterType('TTestHandlerRecRet4Proc', 'function(A, B: Integer): TTestHandlerRec4;');
+  RegisterType('TTestHandlerRecRet8Proc', 'function(A, B: Integer): TTestHandlerRec8;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeRecRet1(const Callback: TTestHandlerRecRet1Proc): String;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeRecRet3(const Callback: TTestHandlerRecRet3Proc): String;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeRecRet4(const Callback: TTestHandlerRecRet4Proc): String;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeRecRet8(const Callback: TTestHandlerRecRet8Proc): String;');
   ScriptCompiler.AddFunction('function TestTypes_NativeSizeOf(const TypeName: String): Integer;');
 
   ObsoleteFunctionWarnings.Add('IsAdminLoggedOn', Format(SCompilerCodeFunctionRenamedWithAlternative, ['IsAdminLoggedOn', 'IsAdmin', 'IsAdminInstallMode']));

@@ -66,12 +66,14 @@ type
   end;
 
   { Must keep this in synch with Compiler.ScriptFunc.pas - Internal, used only by Script.Test.iss }
+  TTestHandlerRec1 = record A: Byte; end;
   TTestHandlerRec3 = record A, B, C: Byte; end;
   TTestHandlerRec4 = record A, B: Word; end;
   TTestHandlerRec6 = record A, B, C: Word; end;
   TTestHandlerRec8 = record A, B, C, D: Word; end;
   TTestHandlerRec10 = record A, B, C, D, E: Word; end;
-  TTestHandlerSet3 = set of 0..23;
+  TTestHandlerSet3Item = 0..23;
+  TTestHandlerSet3 = set of TTestHandlerSet3Item;
   TTestHandlerSet4 = set of 0..31;
   TTestHandlerSet6 = set of 0..47;
   TTestHandlerSet8Item = 0..63;
@@ -135,10 +137,15 @@ function TestInnerfuse_EchoExtended(Value: Extended): Extended;
 function TestInnerfuse_EchoCurrency(Value: Currency): Currency;
 function TestInnerfuse_EchoInt64(Value: Int64): Int64;
 function TestInnerfuse_EchoSmallRec(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec;
+function TestInnerfuse_SumRec3(Value: TTestHandlerRec3): Integer;
+function TestInnerfuse_SumRec6StdCall(Value: TTestHandlerRec6): Integer; stdcall;
 function TestInnerfuse_SumRec8(Value: TTestHandlerRec8): Integer;
 function TestInnerfuse_SumRec8StdCall(Value: TTestHandlerRec8): Integer; stdcall;
+function TestInnerfuse_SumSet3(Value: TTestHandlerSet3): Integer;
 function TestInnerfuse_SumSet8(Value: TTestHandlerSet8): Integer;
 function TestInnerfuse_SumSet8StdCall(Value: TTestHandlerSet8): Integer; stdcall;
+function TestInnerfuse_SumArray3(Value: TTestHandlerArr3): Integer;
+function TestInnerfuse_SumArray4(Value: TTestHandlerArr4): Integer;
 function TestInnerfuse_SumArray8(Value: TTestHandlerArr8): Integer;
 function TestInnerfuse_SumArray8StdCall(Value: TTestHandlerArr8): Integer; stdcall;
 function TestInnerfuse_EchoLargeRec(Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;
@@ -940,6 +947,16 @@ begin
   Result := Value;
 end;
 
+function TestInnerfuse_SumRec3(Value: TTestHandlerRec3): Integer;
+begin
+  Result := Value.A + Value.B + Value.C;
+end;
+
+function TestInnerfuse_SumRec6StdCall(Value: TTestHandlerRec6): Integer; stdcall;
+begin
+  Result := Value.A + Value.B + Value.C;
+end;
+
 function TestInnerfuse_SumRec8(Value: TTestHandlerRec8): Integer;
 begin
   Result := Value.A + Value.B + Value.C + Value.D;
@@ -947,7 +964,15 @@ end;
 
 function TestInnerfuse_SumRec8StdCall(Value: TTestHandlerRec8): Integer; stdcall;
 begin
-  Result := Value.A + Value.B + Value.C + Value.D;
+  Result := TestInnerfuse_SumRec8(Value);
+end;
+
+function TestInnerfuse_SumSet3(Value: TTestHandlerSet3): Integer;
+begin
+  Result := 0;
+  for var I := 0 to High(TTestHandlerSet3Item) do
+    if I in Value then
+      Inc(Result, I);
 end;
 
 function TestInnerfuse_SumSet8(Value: TTestHandlerSet8): Integer;
@@ -960,10 +985,21 @@ end;
 
 function TestInnerfuse_SumSet8StdCall(Value: TTestHandlerSet8): Integer; stdcall;
 begin
+  Result := TestInnerfuse_SumSet8(Value);
+end;
+
+function TestInnerfuse_SumArray3(Value: TTestHandlerArr3): Integer;
+begin
   Result := 0;
-  for var I := 0 to High(TTestHandlerSet8Item) do
-    if I in Value then
-      Inc(Result, I);
+  for var I := 0 to High(Value) do
+    Inc(Result, Value[I]);
+end;
+
+function TestInnerfuse_SumArray4(Value: TTestHandlerArr4): Integer;
+begin
+  Result := 0;
+  for var I := 0 to High(Value) do
+    Inc(Result, Value[I]);
 end;
 
 function TestInnerfuse_SumArray8(Value: TTestHandlerArr8): Integer;
@@ -975,9 +1011,7 @@ end;
 
 function TestInnerfuse_SumArray8StdCall(Value: TTestHandlerArr8): Integer; stdcall;
 begin
-  Result := 0;
-  for var I := 0 to High(Value) do
-    Inc(Result, Value[I]);
+  Result := TestInnerfuse_SumArray8(Value);
 end;
 
 function TestInnerfuse_EchoLargeRec(Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;
@@ -992,39 +1026,39 @@ end;
 
 function TestInnerfuse_EchoSingleStdCall(Value: Single): Single; stdcall;
 begin
-  Result := Value;
+  Result := TestInnerfuse_EchoSingle(Value);
 end;
 
 function TestInnerfuse_EchoDoubleStdCall(Value: Double): Double; stdcall;
 begin
-  Result := Value;
+  Result := TestInnerfuse_EchoDouble(Value);
 end;
 
 function TestInnerfuse_EchoExtendedStdCall(Value: Extended): Extended; stdcall;
 begin
-  Result := Value;
+  Result := TestInnerfuse_EchoExtended(Value);
 end;
 
 function TestInnerfuse_EchoCurrencyStdCall(Value: Currency): Currency; stdcall;
 begin
-  Result := Value;
+  Result := TestInnerfuse_EchoCurrency(Value);
 end;
 
 function TestInnerfuse_EchoInt64StdCall(Value: Int64): Int64; stdcall;
 begin
-  Result := Value;
+  Result := TestInnerfuse_EchoInt64(Value);
 end;
 
 function TestInnerfuse_EchoSmallRecStdCall(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec; stdcall;
 begin
-  Result := Value;
+  Result := TestInnerfuse_EchoSmallRec(Value);
 end;
 
-{ const: ROPS pushes a pointer for large records, which only matches Delphi's
-  stdcall when the parameter is const/var (passed by reference) }
+{ On Win32, ROPS requires const for large managed records under
+  stdcall/cdecl/safecall, see x86.inc; on Win64 const makes no difference here }
 function TestInnerfuse_EchoLargeRecStdCall(const Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec; stdcall;
 begin
-  Result := Value;
+  Result := TestInnerfuse_EchoLargeRec(Value);
 end;
 
 function TestInnerfuse_MixedFloats(A: Single; B: Double; C: Single): Double;
@@ -1039,7 +1073,7 @@ end;
 
 function TestInnerfuse_SixParamsStdCall(A, B, C, D, E, F: Integer): Int64; stdcall;
 begin
-  Result := Int64(A) + B + C + D + E + F;
+  Result := TestInnerfuse_SixParams(A, B, C, D, E, F);
 end;
 
 function TestInnerfuse_OpenArray(const Values: array of Integer): Integer;
