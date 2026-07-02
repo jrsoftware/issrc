@@ -71,6 +71,17 @@ type
   TTestHandlerRec6 = record A, B, C: Word; end;
   TTestHandlerRec8 = record A, B, C, D: Word; end;
   TTestHandlerRec10 = record A, B, C, D, E: Word; end;
+  TTestHandlerSet3 = set of 0..23;
+  TTestHandlerSet4 = set of 0..31;
+  TTestHandlerSet6 = set of 0..47;
+  TTestHandlerSet8Item = 0..63;
+  TTestHandlerSet8 = set of TTestHandlerSet8Item;
+  TTestHandlerSet10 = set of 0..79;
+  TTestHandlerArr3 = array[0..2] of Byte;
+  TTestHandlerArr4 = array[0..3] of Byte;
+  TTestHandlerArr6 = array[0..5] of Byte;
+  TTestHandlerArr8 = array[0..7] of Byte;
+  TTestHandlerArr10 = array[0..9] of Byte;
 
 var
   OrigScaleBaseUnitX, OrigScaleBaseUnitY: Integer;
@@ -126,6 +137,10 @@ function TestInnerfuse_EchoInt64(Value: Int64): Int64;
 function TestInnerfuse_EchoSmallRec(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec;
 function TestInnerfuse_SumRec8(Value: TTestHandlerRec8): Integer;
 function TestInnerfuse_SumRec8StdCall(Value: TTestHandlerRec8): Integer; stdcall;
+function TestInnerfuse_SumSet8(Value: TTestHandlerSet8): Integer;
+function TestInnerfuse_SumSet8StdCall(Value: TTestHandlerSet8): Integer; stdcall;
+function TestInnerfuse_SumArray8(Value: TTestHandlerArr8): Integer;
+function TestInnerfuse_SumArray8StdCall(Value: TTestHandlerArr8): Integer; stdcall;
 function TestInnerfuse_EchoLargeRec(Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;
 function TestInnerfuse_EchoPAnsiChar(Value: PAnsiChar): String;
 function TestInnerfuse_EchoSingleStdCall(Value: Single): Single; stdcall;
@@ -928,6 +943,36 @@ end;
 function TestInnerfuse_SumRec8StdCall(Value: TTestHandlerRec8): Integer; stdcall;
 begin
   Result := Value.A + Value.B + Value.C + Value.D;
+end;
+
+function TestInnerfuse_SumSet8(Value: TTestHandlerSet8): Integer;
+begin
+  Result := 0;
+  for var I := 0 to High(TTestHandlerSet8Item) do
+    if I in Value then
+      Inc(Result, I);
+end;
+
+function TestInnerfuse_SumSet8StdCall(Value: TTestHandlerSet8): Integer; stdcall;
+begin
+  Result := 0;
+  for var I := 0 to High(TTestHandlerSet8Item) do
+    if I in Value then
+      Inc(Result, I);
+end;
+
+function TestInnerfuse_SumArray8(Value: TTestHandlerArr8): Integer;
+begin
+  Result := 0;
+  for var I := 0 to High(Value) do
+    Inc(Result, Value[I]);
+end;
+
+function TestInnerfuse_SumArray8StdCall(Value: TTestHandlerArr8): Integer; stdcall;
+begin
+  Result := 0;
+  for var I := 0 to High(Value) do
+    Inc(Result, Value[I]);
 end;
 
 function TestInnerfuse_EchoLargeRec(Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;

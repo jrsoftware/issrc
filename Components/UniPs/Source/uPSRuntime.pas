@@ -12218,14 +12218,13 @@ function AlwaysAsVariable(aType: TPSTypeRec): Boolean;
 begin
   case atype.BaseType of
     btVariant: Result := true;
-    btSet: Result := atype.RealSize > PointerSize;
 {$IFDEF CPU64}
-    { See the btRecord comment in x64.inc }
-    btRecord: Result := not (atype.RealSize in [1, 2, 4{$IFDEF DELPHI}{$IFNDEF DELPHI_RIO_UP}, 5, 6, 7, 8{$ENDIF}{$ENDIF}]);
+    { See the btSet/btRecord/btStaticArray comment in x64.inc }
+    btSet: Result := not (atype.RealSize in [1, 2, 3, 4{$IFDEF DELPHI}{$IFNDEF DELPHI_RIO_UP}, 5, 6, 7, 8{$ENDIF}{$ENDIF}]);
+    btRecord, btStaticArray: Result := not (atype.RealSize in [1, 2, 4{$IFDEF DELPHI}{$IFNDEF DELPHI_RIO_UP}, 5, 6, 7, 8{$ENDIF}{$ENDIF}]);
 {$ELSE}
-    btRecord: Result := atype.RealSize > PointerSize;
+    btSet, btRecord, btStaticArray: Result := atype.RealSize > PointerSize;
 {$ENDIF}
-    btStaticArray: Result := atype.RealSize > PointerSize;
   else
     Result := false;
   end;
@@ -12419,11 +12418,16 @@ begin
     btChar,
     btArray,
     btEnum: Result := true;
+{$IFDEF DELPHI}
+    { See the btSet/btRecord/btStaticArray comment in x64.inc. Delphi's set
+      storage rounding needs a case here only when it crosses the by-value/
+      by-reference boundary: 3 (by reference) rounds to 4 (by value), while
+      the rounding of 5-7 to 8 does not (all by reference) }
+    btSet: Result := b.RealSize in [1, 2, 3, 4{$IFDEF CPU64}{$IFNDEF DELPHI_RIO_UP}, 5, 6, 7, 8{$ENDIF}{$ENDIF}];
+    btRecord, btStaticArray: Result := b.RealSize in [1, 2, 4{$IFDEF CPU64}{$IFNDEF DELPHI_RIO_UP}, 5, 6, 7, 8{$ENDIF}{$ENDIF}];
+{$ELSE}
     btSet: Result := b.RealSize <= PointerSize;
     btStaticArray: Result := b.RealSize <= PointerSize;
-{$IFDEF DELPHI}
-    { See the btRecord comment in x64.inc }
-    btRecord: Result := b.RealSize in [1, 2, 4{$IFDEF CPU64}{$IFNDEF DELPHI_RIO_UP}, 5, 6, 7, 8{$ENDIF}{$ENDIF}];
 {$ENDIF}
 {$IFDEF CPU64}
     btSingle,
