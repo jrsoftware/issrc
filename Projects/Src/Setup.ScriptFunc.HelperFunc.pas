@@ -72,6 +72,7 @@ type
   TTestHandlerRec6 = record A, B, C: Word; end;
   TTestHandlerRec8 = record A, B, C, D: Word; end;
   TTestHandlerRec10 = record A, B, C, D, E: Word; end;
+  TTestHandlerRecString = record S: String; end;
   TTestHandlerSet3Item = 0..23;
   TTestHandlerSet3 = set of TTestHandlerSet3Item;
   TTestHandlerSet4 = set of 0..31;

@@ -63,6 +63,7 @@ type
   TTestHandlerRecRet3Proc = function(A, B: Integer): TTestHandlerRec3 of object;
   TTestHandlerRecRet4Proc = function(A, B: Integer): TTestHandlerRec4 of object;
   TTestHandlerRecRet8Proc = function(A, B: Integer): TTestHandlerRec8 of object;
+  TTestHandlerRecRetStringProc = function(A, B: Integer): TTestHandlerRecString of object;
 
 var
   ScriptFuncs: TScriptFuncs;
@@ -2307,6 +2308,16 @@ begin
       Stack.SetString(PStart, '');
   end);
 
+  RegisterScriptFunc('TestHandler_InvokeRecRetString', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const R = TTestHandlerRecRetStringProc(Method)(10, 20);
+      Stack.SetString(PStart, R.S);
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
   RegisterScriptFunc('TestTypes_NativeSizeOf', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
   begin
     const TypeName = Stack.GetString(PStart-1);
@@ -2319,6 +2330,7 @@ begin
     else if TypeName = 'TTestHandlerRec6' then Size := SizeOf(TTestHandlerRec6)
     else if TypeName = 'TTestHandlerRec8' then Size := SizeOf(TTestHandlerRec8)
     else if TypeName = 'TTestHandlerRec10' then Size := SizeOf(TTestHandlerRec10)
+    else if TypeName = 'TTestHandlerRecString' then Size := SizeOf(TTestHandlerRecString)
     else if TypeName = 'TTestHandlerSet3' then Size := SizeOf(TTestHandlerSet3)
     else if TypeName = 'TTestHandlerSet4' then Size := SizeOf(TTestHandlerSet4)
     else if TypeName = 'TTestHandlerSet6' then Size := SizeOf(TTestHandlerSet6)
