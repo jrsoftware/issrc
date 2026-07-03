@@ -2156,6 +2156,10 @@ begin
   RegisterDelphiFunction(@TestCreateCallback_InvokeRec8, 'TestCreateCallback_InvokeRec8');
   RegisterDelphiFunction(@TestCreateCallback_InvokeSet8, 'TestCreateCallback_InvokeSet8');
   RegisterDelphiFunction(@TestCreateCallback_InvokeArray8, 'TestCreateCallback_InvokeArray8');
+  RegisterDelphiFunction(@TestInnerfuse_RecStringLength, 'TestInnerfuse_RecStringLength');
+  RegisterDelphiFunction(@TestInnerfuse_RecStringLengthStdCall, 'TestInnerfuse_RecStringLengthStdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_ArrStringLength, 'TestInnerfuse_ArrStringLength');
+  RegisterDelphiFunction(@TestInnerfuse_ArrStringLengthStdCall, 'TestInnerfuse_ArrStringLengthStdCall', cdStdCall);
   {$IFDEF DEBUG}
   if Count <> Length(TestInnerfuseScriptFuncTable) then
     raise Exception.Create('Count <> Length(TestInnerfuseScriptFuncTable)');
@@ -2318,6 +2322,12 @@ begin
       Stack.SetString(PStart, '');
   end);
 
+  RegisterScriptFunc('TestRefCount_StringRefCount', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    { The -1 hides the reference GetString itself adds }
+    Stack.SetInt(PStart, TestStringRefCount(Stack.GetString(PStart-1)) - 1);
+  end);
+
   RegisterScriptFunc('TestTypes_NativeSizeOf', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
   begin
     const TypeName = Stack.GetString(PStart-1);
@@ -2340,7 +2350,8 @@ begin
     else if TypeName = 'TTestHandlerArr4' then Size := SizeOf(TTestHandlerArr4)
     else if TypeName = 'TTestHandlerArr6' then Size := SizeOf(TTestHandlerArr6)
     else if TypeName = 'TTestHandlerArr8' then Size := SizeOf(TTestHandlerArr8)
-    else if TypeName = 'TTestHandlerArr10' then Size := SizeOf(TTestHandlerArr10);
+    else if TypeName = 'TTestHandlerArr10' then Size := SizeOf(TTestHandlerArr10)
+    else if TypeName = 'TTestHandlerArrString' then Size := SizeOf(TTestHandlerArrString);
     Stack.SetInt(PStart, Size);
   end);
 end;

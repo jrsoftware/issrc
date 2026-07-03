@@ -246,6 +246,17 @@ const
 
 {$IFDEF DELPHI}{$IFDEF MSWINDOWS}{$DEFINE DELPHI_and_MSWINDOWS}{$ENDIF}{$ENDIF}
 
+{$IFDEF DELPHI_and_MSWINDOWS}
+{ Delphi Win32 passes a by-value record or static array of 4 bytes
+  containing managed data (such as record S: String end) without reference
+  counting the raw copy, like a by-value string parameter. Older versions are
+  the exception: under stdcall/cdecl/safecall the caller must pass a
+  reference counted copy that the callee finalizes at exit. It is unknown
+  exactly when this changed, only that it is off in 10.4 and on in 12.2, so
+  Delphi 12 is used as the boundary. }
+{$IFDEF DELPHI_ATHENS_UP}{$DEFINE DELPHI_SMALL_MANAGED_BORROW}{$ENDIF}
+{$ENDIF}
+
 function TPSExec.InnerfuseCall(_Self, Address: Pointer; CallingConv: TPSCallingConvention; Params: TPSList; res: PPSVariantIFC): Boolean;
 var
   Stack: ansistring;
@@ -364,14 +375,17 @@ var
               reference at 5 and up. Under stdcall/cdecl/safecall a record is
               passed by value on the stack at every size, rounded up to whole
               4-byte slots; except that when it contains managed data the
-              caller must reference count the pushed copy, which is not
-              implemented here, so a pointer is passed instead and the native
-              side must declare the parameter as const to match (a const
-              record of 5 bytes and up is passed by reference). A set is by
-              value at its native size of 1, 2, or 4 bytes (a 3-byte ROPS set
-              is a native 4-byte set, copied with zero extension) and by
-              reference at 5 and up, under all conventions. For static arrays
-              see the btVariant/btStaticArray branch below }
+              caller must reference count the pushed copy. For a 4-byte
+              managed record this is done in the size-4 case below (older
+              Delphi only; see DELPHI_SMALL_MANAGED_BORROW); for a larger
+              managed record it is not implemented, so a pointer is passed
+              instead and the native side must declare the parameter as const
+              to match (a const record of 5 bytes and up is passed by
+              reference). A set is by value at its native size of 1, 2, or 4
+              bytes (a 3-byte ROPS set is a native 4-byte set, copied with
+              zero extension) and by reference at 5 and up, under all
+              conventions. For static arrays see the btVariant/btStaticArray
+              branch below }
             if (fVar^.aType.BaseType = btRecord) and (DataSize > 4) and
                (CallingConv in [cdCdecl, cdStdCall, cdSafeCall]) and
                not IsManagedType(fVar^.aType) then
@@ -392,7 +406,17 @@ var
                     if fVar^.aType.BaseType = btRecord then
                       UseReg := False;
                   end;
-                4: cardinal((@tempstr[1])^) := cardinal(fvar.dta^);
+                4: begin
+                    {$IFNDEF DELPHI_SMALL_MANAGED_BORROW}
+                    if (fVar^.aType.BaseType = btRecord) and
+                       (CallingConv in [cdCdecl, cdStdCall, cdSafeCall]) and
+                       IsManagedType(fVar^.aType) then
+                      { Reference counted copy that the callee finalizes }
+                      CopyArrayContents(@tempstr[1], fvar.dta, 1, fVar^.aType)
+                    else
+                    {$ENDIF}
+                      cardinal((@tempstr[1])^) := cardinal(fvar.dta^);
+                  end;
                 {$ELSE}
                 3, 4: cardinal((@tempstr[1])^) := cardinal(fvar.dta^);
                 {$ENDIF}
@@ -453,7 +477,14 @@ var
             begin
               DataSize := fvar^.aType.RealSize;
               tempstr := StringOfChar(AnsiChar(#0),4);
-              Move(fvar.dta^, tempstr[1], DataSize);
+              {$IFNDEF DELPHI_SMALL_MANAGED_BORROW}
+              if (CallingConv in [cdCdecl, cdStdCall, cdSafeCall]) and
+                 IsManagedType(fVar^.aType) then
+                { Reference counted copy that the callee finalizes }
+                CopyArrayContents(@tempstr[1], fvar.dta, 1, fVar^.aType)
+              else
+              {$ENDIF}
+                Move(fvar.dta^, tempstr[1], DataSize);
               if DataSize = 3 then
                 UseReg := False;
             end else

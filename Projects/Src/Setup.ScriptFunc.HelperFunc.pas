@@ -85,6 +85,7 @@ type
   TTestHandlerArr6 = array[0..5] of Byte;
   TTestHandlerArr8 = array[0..7] of Byte;
   TTestHandlerArr10 = array[0..9] of Byte;
+  TTestHandlerArrString = array[0..0] of String;
 
 var
   OrigScaleBaseUnitX, OrigScaleBaseUnitY: Integer;
@@ -149,6 +150,10 @@ function TestInnerfuse_SumArray3(Value: TTestHandlerArr3): Integer;
 function TestInnerfuse_SumArray4(Value: TTestHandlerArr4): Integer;
 function TestInnerfuse_SumArray8(Value: TTestHandlerArr8): Integer;
 function TestInnerfuse_SumArray8StdCall(Value: TTestHandlerArr8): Integer; stdcall;
+function TestInnerfuse_RecStringLength(Value: TTestHandlerRecString): Integer;
+function TestInnerfuse_RecStringLengthStdCall(Value: TTestHandlerRecString): Integer; stdcall;
+function TestInnerfuse_ArrStringLength(Value: TTestHandlerArrString): Integer;
+function TestInnerfuse_ArrStringLengthStdCall(Value: TTestHandlerArrString): Integer; stdcall;
 function TestInnerfuse_EchoLargeRec(Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;
 function TestInnerfuse_EchoPAnsiChar(Value: PAnsiChar): String;
 function TestInnerfuse_EchoSingleStdCall(Value: Single): Single; stdcall;
@@ -174,6 +179,7 @@ function TestCreateCallback_InvokeReturnDouble(Callback: NativeInt; A, B: Intege
 procedure TestCreateCallback_InvokeRec8(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer);
 procedure TestCreateCallback_InvokeSet8(Callback: NativeInt; const S: TTestHandlerSet8; Tail: Integer);
 procedure TestCreateCallback_InvokeArray8(Callback: NativeInt; const A: TTestHandlerArr8; Tail: Integer);
+function TestStringRefCount(const S: String): Integer;
 
 implementation
 
@@ -1015,6 +1021,26 @@ begin
   Result := TestInnerfuse_SumArray8(Value);
 end;
 
+function TestInnerfuse_RecStringLength(Value: TTestHandlerRecString): Integer;
+begin
+  Result := Length(Value.S);
+end;
+
+function TestInnerfuse_RecStringLengthStdCall(Value: TTestHandlerRecString): Integer; stdcall;
+begin
+  Result := TestInnerfuse_RecStringLength(Value);
+end;
+
+function TestInnerfuse_ArrStringLength(Value: TTestHandlerArrString): Integer;
+begin
+  Result := Length(Value[0]);
+end;
+
+function TestInnerfuse_ArrStringLengthStdCall(Value: TTestHandlerArrString): Integer; stdcall;
+begin
+  Result := TestInnerfuse_ArrStringLength(Value);
+end;
+
 function TestInnerfuse_EchoLargeRec(Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;
 begin
   Result := Value;
@@ -1153,6 +1179,16 @@ end;
 procedure TestCreateCallback_InvokeArray8(Callback: NativeInt; const A: TTestHandlerArr8; Tail: Integer);
 begin
   TStdCallProcArr8(Callback)(A, Tail);
+end;
+
+function TestStringRefCount(const S: String): Integer;
+begin
+  { The refcount field of a UnicodeString sits 8 bytes before the character
+    data, on 32 bit and 64 bit alike (StrRec in System.pas) }
+  if Pointer(S) = nil then
+    Result := 0
+  else
+    Result := PInteger(PByte(Pointer(S)) - 8)^;
 end;
 
 end.

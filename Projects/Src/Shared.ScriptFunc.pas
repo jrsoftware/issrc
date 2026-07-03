@@ -76,7 +76,11 @@ var
     'function TestCreateCallback_InvokeReturnDouble(Callback: NativeInt; A, B: Integer): Double;',
     'procedure TestCreateCallback_InvokeRec8(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer);',
     'procedure TestCreateCallback_InvokeSet8(Callback: NativeInt; const S: TTestHandlerSet8; Tail: Integer);',
-    'procedure TestCreateCallback_InvokeArray8(Callback: NativeInt; const A: TTestHandlerArr8; Tail: Integer);'
+    'procedure TestCreateCallback_InvokeArray8(Callback: NativeInt; const A: TTestHandlerArr8; Tail: Integer);',
+    'function TestInnerfuse_RecStringLength(Value: TTestHandlerRecString): Integer;',
+    'function TestInnerfuse_RecStringLengthStdCall(Value: TTestHandlerRecString): Integer;',
+    'function TestInnerfuse_ArrStringLength(Value: TTestHandlerArrString): Integer;',
+    'function TestInnerfuse_ArrStringLengthStdCall(Value: TTestHandlerArrString): Integer;'
   ];
 
 {$IFDEF ISIDEPROJ}

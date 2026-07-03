@@ -198,6 +198,7 @@ begin
   RegisterType('TTestHandlerArr6', 'array[0..5] of Byte');
   RegisterType('TTestHandlerArr8', 'array[0..7] of Byte');
   RegisterType('TTestHandlerArr10', 'array[0..9] of Byte');
+  RegisterType('TTestHandlerArrString', 'array[0..0] of String');
   RegisterDelphiFunctionTable(TestInnerfuseScriptFuncTable);
   RegisterType('TTestPSStackHelperProc', 'function(Value: Integer): Integer;');
   ScriptCompiler.AddFunction('function TestPSStackHelper_InvokeCallback(const Callback: TTestPSStackHelperProc; const Value: Integer): Integer;');
@@ -229,6 +230,7 @@ begin
   ScriptCompiler.AddFunction('function TestHandler_InvokeRecRet4(const Callback: TTestHandlerRecRet4Proc): String;');
   ScriptCompiler.AddFunction('function TestHandler_InvokeRecRet8(const Callback: TTestHandlerRecRet8Proc): String;');
   ScriptCompiler.AddFunction('function TestHandler_InvokeRecRetString(const Callback: TTestHandlerRecRetStringProc): String;');
+  ScriptCompiler.AddFunction('function TestRefCount_StringRefCount(const S: String): Integer;');
   ScriptCompiler.AddFunction('function TestTypes_NativeSizeOf(const TypeName: String): Integer;');
 
   ObsoleteFunctionWarnings.Add('IsAdminLoggedOn', Format(SCompilerCodeFunctionRenamedWithAlternative, ['IsAdminLoggedOn', 'IsAdmin', 'IsAdminInstallMode']));

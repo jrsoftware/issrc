@@ -1763,6 +1763,7 @@ var
   Arr6: TTestHandlerArr6;
   Arr8: TTestHandlerArr8;
   Arr10: TTestHandlerArr10;
+  ArrString: TTestHandlerArrString;
 begin
   CheckEqualsInt64(2, SizeOf(SmallRec));
 #if arch == "x64"
@@ -1791,6 +1792,11 @@ begin
   CheckEqualsInt64(6, SizeOf(Arr6));
   CheckEqualsInt64(8, SizeOf(Arr8));
   CheckEqualsInt64(10, SizeOf(Arr10));
+#if arch == "x64"
+  CheckEqualsInt64(8, SizeOf(ArrString));
+#else
+  CheckEqualsInt64(4, SizeOf(ArrString));
+#endif
 
   CheckEqualsInt64(2, TestTypes_NativeSizeOf('TTestInnerfuseSmallRec'));
 #if arch == "x64"
@@ -1823,6 +1829,11 @@ begin
   CheckEqualsInt64(6, TestTypes_NativeSizeOf('TTestHandlerArr6'));
   CheckEqualsInt64(8, TestTypes_NativeSizeOf('TTestHandlerArr8'));
   CheckEqualsInt64(10, TestTypes_NativeSizeOf('TTestHandlerArr10'));
+#if arch == "x64"
+  CheckEqualsInt64(8, TestTypes_NativeSizeOf('TTestHandlerArrString'));
+#else
+  CheckEqualsInt64(4, TestTypes_NativeSizeOf('TTestHandlerArrString'));
+#endif
 end;
 
 procedure Test_InnerfuseCallParamTypes;
@@ -1965,6 +1976,34 @@ begin
   LargeRec := TestInnerfuse_EchoLargeRecStdCall(LargeRec);
   CheckEqualsInt64(42, LargeRec.A);
   CheckEqualsString('hello', LargeRec.B);
+end;
+
+procedure Test_InnerfuseCallPointerSizeManagedByValueRecordArray;
+var
+  R: TTestHandlerRecString;
+  A: TTestHandlerArrString;
+  S: String;
+  RefCountBefore: Integer;
+begin
+  { A record and a static array with a String field, passed by value under
+    the register and stdcall conventions. The string's refcount should remain
+    unchanged: see the DELPHI_SMALL_MANAGED_BORROW comment in x86.inc }
+  S := 'refcount' + IntToStr(9999);
+  R.S := S;
+  A[0] := S;
+  RefCountBefore := TestRefCount_StringRefCount(S);
+
+  CheckEqualsInt64(Length(S), TestInnerfuse_RecStringLength(R));
+  CheckEqualsInt64(RefCountBefore, TestRefCount_StringRefCount(S));
+
+  CheckEqualsInt64(Length(S), TestInnerfuse_RecStringLengthStdCall(R));
+  CheckEqualsInt64(RefCountBefore, TestRefCount_StringRefCount(S));
+
+  CheckEqualsInt64(Length(S), TestInnerfuse_ArrStringLength(A));
+  CheckEqualsInt64(RefCountBefore, TestRefCount_StringRefCount(S));
+
+  CheckEqualsInt64(Length(S), TestInnerfuse_ArrStringLengthStdCall(A));
+  CheckEqualsInt64(RefCountBefore, TestRefCount_StringRefCount(S));
 end;
 
 procedure Test_InnerfuseCallSafeCall;
@@ -3185,6 +3224,7 @@ begin
   Test_InnerfuseCallHelperTypeSizes;
   Test_InnerfuseCallParamTypes;
   Test_InnerfuseCallParamTypesStdCall;
+  Test_InnerfuseCallPointerSizeManagedByValueRecordArray;
   Test_InnerfuseCallSafeCall;
   Test_InnerfuseCallSafeCallException;
   Test_InnerfuseCallException;
