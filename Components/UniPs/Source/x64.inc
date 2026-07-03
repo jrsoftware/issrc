@@ -535,6 +535,24 @@ _XMM0: Double;
     end;
     Result := p;
   end;
+
+  function ResultUsesResultPointer(res: PPSVariantIFC): Boolean;
+  begin
+    {$IFDEF WINDOWS}
+    {$IFDEF DELPHI}
+    { Delphi Win64 ABI: a record result is returned in RAX at sizes 1, 2, and
+      4, and at size 8 only when the record contains no managed field; all
+      other sizes (3, 5, 6, 7, and > 8) and the managed 8-byte record are
+      written through a hidden result pointer (see System.Rtti's
+      UseResultPointer). }
+    if res^.aType.BaseType = btRecord then
+      Result := not (res^.aType.RealSize in [1, 2, 4]) and
+        ((res^.aType.RealSize <> 8) or IsManagedType(res^.aType))
+    else
+    {$ENDIF}
+    {$ENDIF}
+      Result := res^.aType.RealSize > PointerSize;
+  end;
 {$IFDEF WINDOWS}
   procedure StoreReg(data: IPointer);   overload;
   var p: Pointer;
@@ -938,7 +956,7 @@ begin
       btRecord,
       btSet:
         begin
-          if res.aType.RealSize > PointerSize then GetPtr(res);
+          if ResultUsesResultPointer(res) then GetPtr(res);
         end;
     end;
    end;
@@ -960,7 +978,7 @@ begin
         btRecord,
         btSet:
           begin
-            if res.aType.RealSize > PointerSize then GetPtr(res);
+            if ResultUsesResultPointer(res) then GetPtr(res);
           end;
       end;
 {$ENDIF}
@@ -980,19 +998,27 @@ begin
       case res^.aType.BaseType of
         btRecord, btSet:
           begin
-            case res.aType.RealSize of
-              1: byte(res.Dta^) := _RAX;
-              2: word(res.Dta^) := _RAX;
-              4: Longint(res.Dta^) := _RAX;
-              8: IPointer(res.dta^) := _RAX;
-              3, 5, 6, 7: Move(_RAX, res.Dta^, res.aType.RealSize);
-              {$IFNDEF WINDOWS}
-              9..16:
-                begin
-                  Move(_RAX, res.Dta^, 8);
-                  Move(Registers._RDX, Pointer(IPointer(res.Dta) + 8)^, res.aType.RealSize - 8);
-                end;
-              {$ENDIF}
+            {$IFDEF WINDOWS}
+            {$IFDEF DELPHI}
+            { A result that used the hidden result pointer is already in place }
+            if not ResultUsesResultPointer(res) then
+            {$ENDIF}
+            {$ENDIF}
+            begin
+              case res.aType.RealSize of
+                1: byte(res.Dta^) := _RAX;
+                2: word(res.Dta^) := _RAX;
+                4: Longint(res.Dta^) := _RAX;
+                8: IPointer(res.dta^) := _RAX;
+                3, 5, 6, 7: Move(_RAX, res.Dta^, res.aType.RealSize);
+                {$IFNDEF WINDOWS}
+                9..16:
+                  begin
+                    Move(_RAX, res.Dta^, 8);
+                    Move(Registers._RDX, Pointer(IPointer(res.Dta) + 8)^, res.aType.RealSize - 8);
+                  end;
+                {$ENDIF}
+              end;
             end;
           end;
         btSingle:      tbtsingle(res.Dta^) := _XMM0;

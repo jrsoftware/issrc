@@ -2006,6 +2006,38 @@ begin
   CheckEqualsInt64(RefCountBefore, TestRefCount_StringRefCount(S));
 end;
 
+procedure Test_InnerfuseCallRecordReturn;
+var
+  Rec3: TTestHandlerRec3;
+  Rec4: TTestHandlerRec4;
+  Rec8: TTestHandlerRec8;
+  RecString: TTestHandlerRecString;
+  Set6: TTestHandlerSet6;
+begin
+  Rec3 := TestInnerfuse_ReturnRec3(30);
+  CheckEqualsInt64(30, Rec3.A);
+  CheckEqualsInt64(31, Rec3.B);
+  CheckEqualsInt64(32, Rec3.C);
+
+  Rec4 := TestInnerfuse_ReturnRec4(300);
+  CheckEqualsInt64(300, Rec4.A);
+  CheckEqualsInt64(301, Rec4.B);
+
+  Rec8 := TestInnerfuse_ReturnRec8(300);
+  CheckEqualsInt64(300, Rec8.A);
+  CheckEqualsInt64(301, Rec8.B);
+  CheckEqualsInt64(302, Rec8.C);
+  CheckEqualsInt64(303, Rec8.D);
+
+  RecString := TestInnerfuse_ReturnRecString(310, 311);
+  CheckEqualsString('310,311', RecString.S);
+
+  Set6 := TestInnerfuse_ReturnSet6(1, 42);
+  CheckTrue(TTestHandlerSet6Base(1) in Set6);
+  CheckTrue(TTestHandlerSet6Base(42) in Set6);
+  CheckFalse(TTestHandlerSet6Base(0) in Set6);
+end;
+
 procedure Test_InnerfuseCallSafeCall;
 begin
   { A single echo function is enough to verify the safecall code path in
@@ -3225,6 +3257,7 @@ begin
   Test_InnerfuseCallParamTypes;
   Test_InnerfuseCallParamTypesStdCall;
   Test_InnerfuseCallPointerSizeManagedByValueRecordArray;
+  Test_InnerfuseCallRecordReturn;
   Test_InnerfuseCallSafeCall;
   Test_InnerfuseCallSafeCallException;
   Test_InnerfuseCallException;

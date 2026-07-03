@@ -80,7 +80,12 @@ var
     'function TestInnerfuse_RecStringLength(Value: TTestHandlerRecString): Integer;',
     'function TestInnerfuse_RecStringLengthStdCall(Value: TTestHandlerRecString): Integer;',
     'function TestInnerfuse_ArrStringLength(Value: TTestHandlerArrString): Integer;',
-    'function TestInnerfuse_ArrStringLengthStdCall(Value: TTestHandlerArrString): Integer;'
+    'function TestInnerfuse_ArrStringLengthStdCall(Value: TTestHandlerArrString): Integer;',
+    'function TestInnerfuse_ReturnRec3(Base: Integer): TTestHandlerRec3;',
+    'function TestInnerfuse_ReturnRec4(Base: Integer): TTestHandlerRec4;',
+    'function TestInnerfuse_ReturnRec8(Base: Integer): TTestHandlerRec8;',
+    'function TestInnerfuse_ReturnRecString(A, B: Integer): TTestHandlerRecString;',
+    'function TestInnerfuse_ReturnSet6(A, B: Integer): TTestHandlerSet6;'
   ];
 
 {$IFDEF ISIDEPROJ}

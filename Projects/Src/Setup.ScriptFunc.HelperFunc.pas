@@ -76,7 +76,8 @@ type
   TTestHandlerSet3Item = 0..23;
   TTestHandlerSet3 = set of TTestHandlerSet3Item;
   TTestHandlerSet4 = set of 0..31;
-  TTestHandlerSet6 = set of 0..47;
+  TTestHandlerSet6Item = 0..47;
+  TTestHandlerSet6 = set of TTestHandlerSet6Item;
   TTestHandlerSet8Item = 0..63;
   TTestHandlerSet8 = set of TTestHandlerSet8Item;
   TTestHandlerSet10 = set of 0..79;
@@ -170,6 +171,11 @@ function TestInnerfuse_OpenArray(const Values: array of Integer): Integer;
 function TestInnerfuse_EchoIntegerSafeCall(Value: Integer): Integer; safecall;
 procedure TestInnerfuse_RaiseExceptionSafeCall; safecall;
 procedure TestInnerfuse_RaiseException;
+function TestInnerfuse_ReturnRec3(Base: Integer): TTestHandlerRec3;
+function TestInnerfuse_ReturnRec4(Base: Integer): TTestHandlerRec4;
+function TestInnerfuse_ReturnRec8(Base: Integer): TTestHandlerRec8;
+function TestInnerfuse_ReturnRecString(A, B: Integer): TTestHandlerRecString;
+function TestInnerfuse_ReturnSet6(A, B: Integer): TTestHandlerSet6;
 procedure TestCreateCallback_Invoke0(Callback: NativeInt);
 procedure TestCreateCallback_Invoke5(Callback: NativeInt; const S: String; A, B, C, D: Integer);
 procedure TestCreateCallback_InvokeFloat4(Callback: NativeInt; A, B, C: Integer; D: Double);
@@ -1123,6 +1129,37 @@ end;
 procedure TestInnerfuse_RaiseException;
 begin
   raise Exception.Create('InnerfuseCall test exception');
+end;
+
+function TestInnerfuse_ReturnRec3(Base: Integer): TTestHandlerRec3;
+begin
+  Result.A := Base;
+  Result.B := Base + 1;
+  Result.C := Base + 2;
+end;
+
+function TestInnerfuse_ReturnRec4(Base: Integer): TTestHandlerRec4;
+begin
+  Result.A := Base;
+  Result.B := Base + 1;
+end;
+
+function TestInnerfuse_ReturnRec8(Base: Integer): TTestHandlerRec8;
+begin
+  Result.A := Base;
+  Result.B := Base + 1;
+  Result.C := Base + 2;
+  Result.D := Base + 3;
+end;
+
+function TestInnerfuse_ReturnRecString(A, B: Integer): TTestHandlerRecString;
+begin
+  Result.S := IntToStr(A) + ',' + IntToStr(B);
+end;
+
+function TestInnerfuse_ReturnSet6(A, B: Integer): TTestHandlerSet6;
+begin
+  Result := [TTestHandlerSet6Item(A), TTestHandlerSet6Item(B)];
 end;
 
 type

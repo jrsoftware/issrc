@@ -286,6 +286,28 @@ var
     Result := p;
   end;
 
+  function ResultUsesResultPointer(res: PPSVariantIFC): Boolean;
+  begin
+    {$IFDEF DELPHI_and_MSWINDOWS}
+    { Delphi Win32 ABI: a record result is returned in AL/AX at sizes 1 and 2,
+      and in EAX at size 4 only when the record contains no managed field;
+      size 3, every size above 4, and the managed 4-byte record are written
+      through a hidden result pointer (see System.Rtti's UseResultPointer).
+      The rule does not depend on the calling convention. }
+    if res^.aType.BaseType = btRecord then
+      Result := not (res^.aType.RealSize in [1, 2]) and
+        ((res^.aType.RealSize <> 4) or IsManagedType(res^.aType))
+    else
+    {$ENDIF}
+    begin
+      {$IFDEF MSWINDOWS}
+      Result := res^.aType.RealSize > 4;
+      {$ELSE}
+      Result := True;
+      {$ENDIF}
+    end;
+  end;
+
   function GetPtr(fVar: PPSVariantIFC): Boolean;
   var
     varPtr: Pointer;
@@ -659,11 +681,7 @@ begin
               btInterface, {$IFNDEF FPC} btArray, {$ENDIF}{$IFNDEF PS_FPCSTRINGWORKAROUND}btstring, {$ENDIF}btVariant, btStaticArray: GetPtr(res);
               btRecord:
                 begin
-                  {$IFDEF MSWINDOWS}
-                  if res.aType.RealSize > 4 then GetPtr(res);
-                  {$ELSE}
-                  GetPtr(res);
-                  {$ENDIF}
+                  if ResultUsesResultPointer(res) then GetPtr(res);
                 end;
               btSet:
                 begin
@@ -721,8 +739,7 @@ begin
               btStaticArray{$IFNDEF FPC}, btArray{$ENDIF}{$IFNDEF PS_FPCSTRINGWORKAROUND}, btstring{$ENDIF}: RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
               btRecord:
                 begin
-                  {$IFDEF MSWINDOWS}
-                  if res.aType.RealSize <= 4 then
+                  if not ResultUsesResultPointer(res) then
                     case res.aType.RealSize of
                       1: PByte(res.Dta)^ := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 1, nil);
                       2: PWord(res.Dta)^ := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 2, nil);
@@ -731,9 +748,6 @@ begin
                     end
                   else
                     RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
-                  {$ELSE}
-                  RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
-                  {$ENDIF}
                 end;
               {$IFDEF PS_FPCSTRINGWORKAROUND}
               btstring: begin
@@ -764,11 +778,7 @@ begin
               {$IFNDEF PS_NOWIDESTRING}btWideString, btUnicodeString, {$ENDIF}btInterface, btArray, btString, btVariant: GetPtr(res);
               btRecord:
                 begin
-                  {$IFDEF MSWINDOWS}
-                  if res.aType.RealSize > 4 then GetPtr(res);
-                  {$ELSE}
-                  GetPtr(res);
-                  {$ENDIF}
+                  if ResultUsesResultPointer(res) then GetPtr(res);
                 end;
             end;
           end;
@@ -804,8 +814,7 @@ begin
               btInterface, btArray, btstring: RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
               btRecord:
                 begin
-                  {$IFDEF MSWINDOWS}
-                  if res.aType.RealSize <= 4 then
+                  if not ResultUsesResultPointer(res) then
                     case res.aType.RealSize of
                       1: PByte(res.Dta)^ := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 1, nil);
                       2: PWord(res.Dta)^ := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 2, nil);
@@ -814,9 +823,6 @@ begin
                     end
                   else
                     RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
-                  {$ELSE}
-                  RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
-                  {$ENDIF}
                 end;
             else
               exit;
@@ -883,8 +889,7 @@ begin
               btInterface, btArray, btstring: begin GetPtr(res); RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil); end;
               btRecord:
                 begin
-                  {$IFDEF MSWINDOWS}
-                  if res.aType.RealSize > 4 then
+                  if ResultUsesResultPointer(res) then
                   begin
                     GetPtr(res);
                     RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
@@ -896,10 +901,6 @@ begin
                     else
                       PCardinal(res.Dta)^ := RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
                     end;
-                  {$ELSE}
-                  GetPtr(res);
-                  RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
-                  {$ENDIF}
                 end;
             else
               exit;
@@ -941,8 +942,7 @@ begin
               btInterface, btArray, btstring: begin GetPtr(res); RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil); end;
               btRecord:
                 begin
-                  {$IFDEF MSWINDOWS}
-                  if res.aType.RealSize > 4 then
+                  if ResultUsesResultPointer(res) then
                   begin
                     GetPtr(res);
                     RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
@@ -954,10 +954,6 @@ begin
                     else
                       PCardinal(res.Dta)^ := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
                     end;
-                  {$ELSE}
-                  GetPtr(res);
-                  RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
-                  {$ENDIF}
                 end;
             else
               exit;

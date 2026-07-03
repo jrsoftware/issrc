@@ -2160,6 +2160,11 @@ begin
   RegisterDelphiFunction(@TestInnerfuse_RecStringLengthStdCall, 'TestInnerfuse_RecStringLengthStdCall', cdStdCall);
   RegisterDelphiFunction(@TestInnerfuse_ArrStringLength, 'TestInnerfuse_ArrStringLength');
   RegisterDelphiFunction(@TestInnerfuse_ArrStringLengthStdCall, 'TestInnerfuse_ArrStringLengthStdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnRec3, 'TestInnerfuse_ReturnRec3');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnRec4, 'TestInnerfuse_ReturnRec4');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnRec8, 'TestInnerfuse_ReturnRec8');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnRecString, 'TestInnerfuse_ReturnRecString');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet6, 'TestInnerfuse_ReturnSet6');
   {$IFDEF DEBUG}
   if Count <> Length(TestInnerfuseScriptFuncTable) then
     raise Exception.Create('Count <> Length(TestInnerfuseScriptFuncTable)');
