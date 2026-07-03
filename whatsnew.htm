@@ -137,9 +137,23 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   <ul>
     <li>Previously undocumented support functions <tt>Abs</tt>, <tt>Low</tt>, <tt>High</tt>, <tt>SizeOf</tt>, <tt>Assigned</tt>, <tt>Inc</tt>, <tt>Dec</tt>, <tt>Succ</tt>, <tt>Pred</tt>, <tt>Include</tt>, <tt>Exclude</tt>, and <tt>RaiseLastException</tt> are now all documented and recognized by the Compiler IDE.</li>
     <li>Support functions <tt>TaskDialogMsgBox</tt> and <tt>SuppressibleTaskDialogMsgBox</tt> now wrap long instruction text onto multiple lines even when a custom style is active.</li>
-    <li><i>Fix:</i> A callback created with <tt>CreateCallback</tt> now receives the correct values for by-value <tt>Extended</tt> and <tt>Currency</tt> parameters in the first three positions in 64-bit installers, and now returns the correct value for a <tt>Currency</tt> result in both 32-bit and 64-bit installers.</li>
-    <li><i>Fix:</i> A callback created with <tt>CreateCallback</tt> now receives the correct value for a by-value record, set, or static array parameter of 8 bytes or smaller in 64-bit installers. In 32-bit installers, this also fixes 3-byte static array parameters.</li>
-    <li><i>Fix:</i> Importing a DLL function using the <tt>setuponly</tt> or <tt>uninstallonly</tt> option no longer fails when the function name contains an <tt>@</tt> (such as the decorated name <tt>_MyFunc@8</tt>).</li>
+    <li><i>Fixes:</i> Support function <tt>CreateCallback</tt> has been improved for some edge cases:
+    <ul>
+      <li>In 32-bit installers, a by-value 3-byte static array parameter now receives the correct value.</li>
+      <li>In 64-bit installers, a by-value record, set, or static array parameter of 8 bytes or smaller, or an <tt>Extended</tt> or <tt>Currency</tt> parameter in one of the first three positions, now receives the correct value.</li>
+      <li>In 32-bit installers, an <tt>Int64</tt> or <tt>UInt64</tt> result is now returned correctly.</li>
+      <li>In both 32-bit and 64-bit installers, a <tt>Currency</tt> result is now returned correctly.</li>
+    </ul>
+    </li>
+    <li><i>Fixes:</i> Using DLL files has been improved for some edge cases:
+    <ul>
+      <li>In 32-bit installers, a by-value record larger than 4 bytes under the <tt>cdecl</tt> or <tt>stdcall</tt> convention, or a static array of 4 bytes or smaller under any convention, is now passed correctly.</li>
+      <li>In 64-bit installers, a by-value record, set, or static array parameter of 8 bytes or smaller is now passed correctly.</li>
+      <li>A by-value record result is now received correctly: of 3 bytes, or a managed 4-byte one, in 32-bit installers, and of 3, 5, 6, or 7 bytes, or a managed 8-byte one, in 64-bit installers.</li>
+      <li>A by-value static array result is now received correctly: of 1 or 2 bytes, or an unmanaged 4-byte one, in 32-bit installers, and of 1, 2, or 4 bytes, or an unmanaged 8-byte one, in 64-bit installers. Also, calling a DLL function that returns a static array under the <tt>pascal</tt>, <tt>cdecl</tt>, or <tt>stdcall</tt> convention no longer fails in 32-bit installers.</li>
+      <li>Importing a DLL function using the <tt>setuponly</tt> or <tt>uninstallonly</tt> option no longer fails when the function name contains an <tt>@</tt> (such as the decorated name <tt>_MyFunc@8</tt>).</li>
+    </ul>
+    </li>
   </ul>
   </li>
   <li>The time stamps of files shown in Setup's log are now in UTC instead of local time, consistent with <tt>TimeStampsInUTC</tt> defaulting to <tt>yes</tt>.</li>
