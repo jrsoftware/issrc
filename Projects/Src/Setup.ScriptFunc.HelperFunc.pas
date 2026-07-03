@@ -188,6 +188,7 @@ procedure TestCreateCallback_InvokeFloat4(Callback: NativeInt; A, B, C: Integer;
 procedure TestCreateCallback_InvokeExtended4(Callback: NativeInt; A, B, C: Integer; D: Extended);
 function TestCreateCallback_InvokeReturnInteger(Callback: NativeInt; A, B: Integer): Integer;
 function TestCreateCallback_InvokeReturnDouble(Callback: NativeInt; A, B: Integer): Double;
+function TestCreateCallback_InvokeReturnInt64(Callback: NativeInt; A, B: Integer): Int64;
 procedure TestCreateCallback_InvokeRec8(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer);
 procedure TestCreateCallback_InvokeSet8(Callback: NativeInt; const S: TTestHandlerSet8; Tail: Integer);
 procedure TestCreateCallback_InvokeArray8(Callback: NativeInt; const A: TTestHandlerArr8; Tail: Integer);
@@ -1214,6 +1215,7 @@ type
   TStdCallProcExtended4 = procedure(A, B, C: Integer; D: Extended); stdcall;
   TStdCallFuncReturnInteger = function(A, B: Integer): Integer; stdcall;
   TStdCallFuncReturnDouble = function(A, B: Integer): Double; stdcall;
+  TStdCallFuncReturnInt64 = function(A, B: Integer): Int64; stdcall;
   TStdCallProcRec8 = procedure(R: TTestHandlerRec8; Tail: Integer); stdcall;
   TStdCallProcSet8 = procedure(S: TTestHandlerSet8; Tail: Integer); stdcall;
   TStdCallProcArr8 = procedure(A: TTestHandlerArr8; Tail: Integer); stdcall;
@@ -1246,6 +1248,11 @@ end;
 function TestCreateCallback_InvokeReturnDouble(Callback: NativeInt; A, B: Integer): Double;
 begin
   Result := TStdCallFuncReturnDouble(Callback)(A, B);
+end;
+
+function TestCreateCallback_InvokeReturnInt64(Callback: NativeInt; A, B: Integer): Int64;
+begin
+  Result := TStdCallFuncReturnInt64(Callback)(A, B);
 end;
 
 procedure TestCreateCallback_InvokeRec8(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer);

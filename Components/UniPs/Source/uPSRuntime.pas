@@ -12289,7 +12289,7 @@ end;
 {$IFDEF CPU64}
 function MyAllMethodsHandler64(Self: PScriptMethodInfo; _RDX, _R8, _R9:Pointer; Stack: PPointer;  _XMM1, _XMM2, _XMM3: Pointer; {$IFDEF DELPHI} ResPtr: Pointer {$ENDIF}): Integer; forward;
 {$ELSE}
-function MyAllMethodsHandler32(Self: PScriptMethodInfo; const Stack: PPointer; _EDX, _ECX: Pointer): Integer; forward;
+function MyAllMethodsHandler32(Self: PScriptMethodInfo; const Stack: PPointer; _EDX, _ECX: Pointer{$IFDEF DELPHI}; ResPtr: Pointer{$ENDIF}): Integer; forward;
 {$ENDIF}
 
 procedure MyAllMethodsHandler;
@@ -12373,6 +12373,29 @@ end;
 //     EAX = Self pointer
 //     EDX, ECX = param1 and param2
 //     STACK = param3... paramcount
+{$IFDEF DELPHI}
+asm
+  // Like the Win64 stub: the stub owns an 8-byte result slot and passes its
+  // address to MyAllMethodsHandler32 as ResPtr, so that an Int64/UInt64
+  // result also fits; the slot is loaded into EDX:EAX below
+  push 0                // result slot, high dword
+  push 0                // result slot, low dword
+  push ecx              // _ECX stack arg
+  mov ecx, edx          // _EDX register arg
+  lea edx, [esp+4]
+  push edx              // ResPtr stack arg
+  lea edx, [esp+20]     // Stack register arg: the caller's stack params
+  call MyAllMethodsHandler32
+  // EAX = byte count of the caller's stack params, popped callee-style below
+  // Stack now: result slot (2 dwords), return address, caller's stack params
+  mov edx, [esp+8]
+  mov [esp+eax+8], edx  // park the return address just below the params' end
+  mov ecx, [esp]
+  mov edx, [esp+4]
+  lea esp, [esp+eax+8]  // pop the slot, old return address and params
+  mov eax, ecx
+end;
+{$ELSE}
 asm
   push 0
   push ecx
@@ -12387,6 +12410,7 @@ asm
   mov [esp], edx
   mov eax, ecx
 end;
+{$ENDIF}
 {$endif CPU64}
 
 function ResultAsRegister(b: TPSTypeRec): Boolean;
@@ -12681,7 +12705,7 @@ begin
   end;
 end;
 {$ELSE}
-function MyAllMethodsHandler32(Self: PScriptMethodInfo; const Stack: PPointer; _EDX, _ECX: Pointer): Integer;
+function MyAllMethodsHandler32(Self: PScriptMethodInfo; const Stack: PPointer; _EDX, _ECX: Pointer{$IFDEF DELPHI}; ResPtr: Pointer{$ENDIF}): Integer;
 var
   Decl: tbtString;
   I, C, regno: Integer;
@@ -12843,10 +12867,14 @@ begin
         Res := nil;
       end else
       begin
+{$IFDEF DELPHI}
+        CopyArrayContents(ResPtr, @PPSVariantData(res)^.Data, 1, Res^.FType);
+{$ELSE}
 {$IFNDEF PS_NOINT64}
   if (res^.FType.BaseType <> btS64) and (res^.FType.BaseType <> btU64) then
 {$ENDIF}
           CopyArrayContents(Pointer(IPointer(Stack)-PointerSize2), @PPSVariantData(res)^.Data, 1, Res^.FType);
+{$ENDIF}
       end;
     end;
     DestroyHeapVariant(res);

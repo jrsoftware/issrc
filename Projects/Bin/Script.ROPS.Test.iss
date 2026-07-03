@@ -2531,6 +2531,12 @@ begin
   Result := A * 0.1 + B;
 end;
 
+function Test_CreateCallback_CBReturnInt64(A, B: Integer): Int64;
+begin
+  { 6000000000 exceeds 32 bits, so both halves of the result are checked }
+  Result := 6000000000 + A + B;
+end;
+
 var
   Test_CreateCallback_Rec8Fields: String;
 
@@ -2625,6 +2631,9 @@ begin
 
   CheckEqualsInt64(30, TestCreateCallback_InvokeReturnInteger(CreateCallback(@Test_CreateCallback_CBReturnInteger), 10, 20));
   CheckEqualsFloat(5.3, TestCreateCallback_InvokeReturnDouble(CreateCallback(@Test_CreateCallback_CBReturnDouble), 3, 5), 1e-9);
+
+  { Int64 return value: tests return via EDX:EAX (x86) / RAX (x64) }
+  CheckEqualsInt64(6000000015, TestCreateCallback_InvokeReturnInt64(CreateCallback(@Test_CreateCallback_CBReturnInt64), 10, 5));
 end;
 
 var
