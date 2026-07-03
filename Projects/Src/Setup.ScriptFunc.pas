@@ -2169,6 +2169,12 @@ begin
   RegisterDelphiFunction(@TestInnerfuse_ReturnRec8, 'TestInnerfuse_ReturnRec8');
   RegisterDelphiFunction(@TestInnerfuse_ReturnRecString, 'TestInnerfuse_ReturnRecString');
   RegisterDelphiFunction(@TestInnerfuse_ReturnSet6, 'TestInnerfuse_ReturnSet6');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr3, 'TestInnerfuse_ReturnArr3');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr4, 'TestInnerfuse_ReturnArr4');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr8, 'TestInnerfuse_ReturnArr8');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArrString, 'TestInnerfuse_ReturnArrString');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr4StdCall, 'TestInnerfuse_ReturnArr4StdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArrStringStdCall, 'TestInnerfuse_ReturnArrStringStdCall', cdStdCall);
   {$IFDEF DEBUG}
   if Count <> Length(TestInnerfuseScriptFuncTable) then
     raise Exception.Create('Count <> Length(TestInnerfuseScriptFuncTable)');
@@ -2286,7 +2292,7 @@ begin
     const Method = Stack.GetProc(PStart-1, Caller);
     if Method.Code <> nil then begin
       const R = TTestHandlerRecRet1Proc(Method)(10, 20);
-      Stack.SetString(PStart, IntToStr(R.A));
+      Stack.SetString(PStart, SysUtils.IntToStr(R.A));
     end else
       Stack.SetString(PStart, '');
   end);
@@ -2296,7 +2302,7 @@ begin
     const Method = Stack.GetProc(PStart-1, Caller);
     if Method.Code <> nil then begin
       const R = TTestHandlerRecRet3Proc(Method)(10, 20);
-      Stack.SetString(PStart, IntToStr(R.A) + ',' + IntToStr(R.B) + ',' + IntToStr(R.C));
+      Stack.SetString(PStart, SysUtils.IntToStr(R.A) + ',' + SysUtils.IntToStr(R.B) + ',' + SysUtils.IntToStr(R.C));
     end else
       Stack.SetString(PStart, '');
   end);
@@ -2306,7 +2312,7 @@ begin
     const Method = Stack.GetProc(PStart-1, Caller);
     if Method.Code <> nil then begin
       const R = TTestHandlerRecRet4Proc(Method)(10, 20);
-      Stack.SetString(PStart, IntToStr(R.A) + ',' + IntToStr(R.B));
+      Stack.SetString(PStart, SysUtils.IntToStr(R.A) + ',' + SysUtils.IntToStr(R.B));
     end else
       Stack.SetString(PStart, '');
   end);
@@ -2316,7 +2322,7 @@ begin
     const Method = Stack.GetProc(PStart-1, Caller);
     if Method.Code <> nil then begin
       const R = TTestHandlerRecRet8Proc(Method)(10, 20);
-      Stack.SetString(PStart, IntToStr(R.A) + ',' + IntToStr(R.B) + ',' + IntToStr(R.C) + ',' + IntToStr(R.D));
+      Stack.SetString(PStart, SysUtils.IntToStr(R.A) + ',' + SysUtils.IntToStr(R.B) + ',' + SysUtils.IntToStr(R.C) + ',' + SysUtils.IntToStr(R.D));
     end else
       Stack.SetString(PStart, '');
   end);
@@ -2336,7 +2342,7 @@ begin
     const Method = Stack.GetProc(PStart-1, Caller);
     if Method.Code <> nil then begin
       const A = TTestHandlerArrRet3Proc(Method)(10, 20);
-      Stack.SetString(PStart, IntToStr(A[0]) + ',' + IntToStr(A[1]) + ',' + IntToStr(A[2]));
+      Stack.SetString(PStart, SysUtils.IntToStr(A[0]) + ',' + SysUtils.IntToStr(A[1]) + ',' + SysUtils.IntToStr(A[2]));
     end else
       Stack.SetString(PStart, '');
   end);
@@ -2346,7 +2352,7 @@ begin
     const Method = Stack.GetProc(PStart-1, Caller);
     if Method.Code <> nil then begin
       const A = TTestHandlerArrRet4Proc(Method)(10, 20);
-      Stack.SetString(PStart, IntToStr(A[0]) + ',' + IntToStr(A[1]) + ',' + IntToStr(A[2]) + ',' + IntToStr(A[3]));
+      Stack.SetString(PStart, SysUtils.IntToStr(A[0]) + ',' + SysUtils.IntToStr(A[1]) + ',' + SysUtils.IntToStr(A[2]) + ',' + SysUtils.IntToStr(A[3]));
     end else
       Stack.SetString(PStart, '');
   end);
@@ -2356,7 +2362,7 @@ begin
     const Method = Stack.GetProc(PStart-1, Caller);
     if Method.Code <> nil then begin
       const A = TTestHandlerArrRet8Proc(Method)(10, 20);
-      Stack.SetString(PStart, IntToStr(A[0]) + ',' + IntToStr(A[7]));
+      Stack.SetString(PStart, SysUtils.IntToStr(A[0]) + ',' + SysUtils.IntToStr(A[7]));
     end else
       Stack.SetString(PStart, '');
   end);

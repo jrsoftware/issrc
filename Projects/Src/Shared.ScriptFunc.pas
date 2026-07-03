@@ -81,11 +81,17 @@ var
     'function TestInnerfuse_RecStringLengthStdCall(Value: TTestHandlerRecString): Integer;',
     'function TestInnerfuse_ArrStringLength(Value: TTestHandlerArrString): Integer;',
     'function TestInnerfuse_ArrStringLengthStdCall(Value: TTestHandlerArrString): Integer;',
-    'function TestInnerfuse_ReturnRec3(Base: Integer): TTestHandlerRec3;',
-    'function TestInnerfuse_ReturnRec4(Base: Integer): TTestHandlerRec4;',
-    'function TestInnerfuse_ReturnRec8(Base: Integer): TTestHandlerRec8;',
+    'function TestInnerfuse_ReturnRec3(Base: Byte): TTestHandlerRec3;',
+    'function TestInnerfuse_ReturnRec4(Base: Word): TTestHandlerRec4;',
+    'function TestInnerfuse_ReturnRec8(Base: Word): TTestHandlerRec8;',
     'function TestInnerfuse_ReturnRecString(A, B: Integer): TTestHandlerRecString;',
-    'function TestInnerfuse_ReturnSet6(A, B: Integer): TTestHandlerSet6;'
+    'function TestInnerfuse_ReturnSet6(A, B: Integer): TTestHandlerSet6;',
+    'function TestInnerfuse_ReturnArr3(Base: Byte): TTestHandlerArr3;',
+    'function TestInnerfuse_ReturnArr4(Base: Byte): TTestHandlerArr4;',
+    'function TestInnerfuse_ReturnArr8(Base: Byte): TTestHandlerArr8;',
+    'function TestInnerfuse_ReturnArrString(A, B: Integer): TTestHandlerArrString;',
+    'function TestInnerfuse_ReturnArr4StdCall(Base: Byte): TTestHandlerArr4;',
+    'function TestInnerfuse_ReturnArrStringStdCall(A, B: Integer): TTestHandlerArrString;'
   ];
 
 {$IFDEF ISIDEPROJ}

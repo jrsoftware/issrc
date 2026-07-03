@@ -293,8 +293,9 @@ var
       and in EAX at size 4 only when the record contains no managed field;
       size 3, every size above 4, and the managed 4-byte record are written
       through a hidden result pointer (see System.Rtti's UseResultPointer).
-      The rule does not depend on the calling convention. }
-    if res^.aType.BaseType = btRecord then
+      The rule does not depend on the calling convention. Static arrays follow
+      the same rule: UseResultPointer treats tkArray like tkRecord. }
+    if res^.aType.BaseType in [btRecord, btStaticArray] then
       Result := not (res^.aType.RealSize in [1, 2]) and
         ((res^.aType.RealSize <> 4) or IsManagedType(res^.aType))
     else
@@ -678,8 +679,8 @@ begin
           if assigned(res) then begin
             case res^.aType.BaseType of
               {$IFNDEF PS_NOWIDESTRING}btWideString, btUnicodeString, {$ENDIF}
-              btInterface, {$IFNDEF FPC} btArray, {$ENDIF}{$IFNDEF PS_FPCSTRINGWORKAROUND}btstring, {$ENDIF}btVariant, btStaticArray: GetPtr(res);
-              btRecord:
+              btInterface, {$IFNDEF FPC} btArray, {$ENDIF}{$IFNDEF PS_FPCSTRINGWORKAROUND}btstring, {$ENDIF}btVariant{$IFNDEF DELPHI_and_MSWINDOWS}, btStaticArray{$ENDIF}: GetPtr(res);
+              btRecord{$IFDEF DELPHI_and_MSWINDOWS}, btStaticArray{$ENDIF}:
                 begin
                   if ResultUsesResultPointer(res) then GetPtr(res);
                 end;
@@ -734,10 +735,9 @@ begin
               {$ENDIF}
               btCurrency:    tbtCurrency(res.Dta^) := RealFloatCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4) / 10000;
               btInterface,
-              btVariant,
               {$IFNDEF PS_NOWIDESTRING}btWidestring,btUnicodestring, {$ENDIF}
-              btStaticArray{$IFNDEF FPC}, btArray{$ENDIF}{$IFNDEF PS_FPCSTRINGWORKAROUND}, btstring{$ENDIF}: RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
-              btRecord:
+              btVariant{$IFNDEF DELPHI_and_MSWINDOWS}, btStaticArray{$ENDIF}{$IFNDEF FPC}, btArray{$ENDIF}{$IFNDEF PS_FPCSTRINGWORKAROUND}, btstring{$ENDIF}: RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
+              btRecord{$IFDEF DELPHI_and_MSWINDOWS}, btStaticArray{$ENDIF}:
                 begin
                   if not ResultUsesResultPointer(res) then
                     case res.aType.RealSize of
@@ -776,7 +776,7 @@ begin
           if assigned(res) then begin
             case res^.aType.BaseType of
               {$IFNDEF PS_NOWIDESTRING}btWideString, btUnicodeString, {$ENDIF}btInterface, btArray, btString, btVariant: GetPtr(res);
-              btRecord:
+              btRecord{$IFDEF DELPHI_and_MSWINDOWS}, btStaticArray{$ENDIF}:
                 begin
                   if ResultUsesResultPointer(res) then GetPtr(res);
                 end;
@@ -812,7 +812,7 @@ begin
               {$ENDIF}
               btVariant, {$IFNDEF PS_NOWIDESTRING}btUnicodeString, btWideString, {$ENDIF}
               btInterface, btArray, btstring: RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
-              btRecord:
+              btRecord{$IFDEF DELPHI_and_MSWINDOWS}, btStaticArray{$ENDIF}:
                 begin
                   if not ResultUsesResultPointer(res) then
                     case res.aType.RealSize of
@@ -887,7 +887,7 @@ begin
               {$ENDIF}
               btVariant, {$IFNDEF PS_NOWIDESTRING}btUnicodeString, btWideString, {$ENDIF}
               btInterface, btArray, btstring: begin GetPtr(res); RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil); end;
-              btRecord:
+              btRecord{$IFDEF DELPHI_and_MSWINDOWS}, btStaticArray{$ENDIF}:
                 begin
                   if ResultUsesResultPointer(res) then
                   begin
@@ -940,7 +940,7 @@ begin
               {$ENDIF}
               btVariant, {$IFNDEF PS_NOWIDESTRING}btUnicodeString, btWideString, {$ENDIF}
               btInterface, btArray, btstring: begin GetPtr(res); RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil); end;
-              btRecord:
+              btRecord{$IFDEF DELPHI_and_MSWINDOWS}, btStaticArray{$ENDIF}:
                 begin
                   if ResultUsesResultPointer(res) then
                   begin

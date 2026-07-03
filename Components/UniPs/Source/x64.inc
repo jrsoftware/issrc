@@ -503,6 +503,8 @@ asm
 end;
 {$ENDIF}
 
+{$IFDEF DELPHI}{$IFDEF WINDOWS}{$DEFINE DELPHI_and_WINDOWS}{$ENDIF}{$ENDIF}
+
 function TPSExec.InnerfuseCall(_Self, Address: Pointer; CallingConv: TPSCallingConvention; Params: TPSList; res: PPSVariantIFC): Boolean;
 var
   Stack: array of Byte;
@@ -538,18 +540,17 @@ _XMM0: Double;
 
   function ResultUsesResultPointer(res: PPSVariantIFC): Boolean;
   begin
-    {$IFDEF WINDOWS}
-    {$IFDEF DELPHI}
+    {$IFDEF DELPHI_and_WINDOWS}
     { Delphi Win64 ABI: a record result is returned in RAX at sizes 1, 2, and
       4, and at size 8 only when the record contains no managed field; all
       other sizes (3, 5, 6, 7, and > 8) and the managed 8-byte record are
       written through a hidden result pointer (see System.Rtti's
-      UseResultPointer). }
-    if res^.aType.BaseType = btRecord then
+      UseResultPointer). Static arrays follow the same rule: UseResultPointer
+      treats tkArray like tkRecord. }
+    if res^.aType.BaseType in [btRecord, btStaticArray] then
       Result := not (res^.aType.RealSize in [1, 2, 4]) and
         ((res^.aType.RealSize <> 8) or IsManagedType(res^.aType))
     else
-    {$ENDIF}
     {$ENDIF}
       Result := res^.aType.RealSize > PointerSize;
   end;
@@ -951,10 +952,10 @@ begin
       {$IFDEF x64_string_result_as_varparameter}
       btstring, btWideString, btUnicodeString,
       {$ENDIF}
-      btInterface, btArray, btVariant, btStaticArray:
+      btInterface, btArray, btVariant{$IFNDEF DELPHI_and_WINDOWS}, btStaticArray{$ENDIF}:
         GetPtr(res);
       btRecord,
-      btSet:
+      btSet{$IFDEF DELPHI_and_WINDOWS}, btStaticArray{$ENDIF}:
         begin
           if ResultUsesResultPointer(res) then GetPtr(res);
         end;
@@ -973,10 +974,10 @@ begin
         {$IFDEF x64_string_result_as_varparameter}
         btstring, btWideString, btUnicodeString,
         {$ENDIF}
-        btInterface, btArray, btVariant, btStaticArray:
+        btInterface, btArray, btVariant{$IFNDEF DELPHI_and_WINDOWS}, btStaticArray{$ENDIF}:
           GetPtr(res);
         btRecord,
-        btSet:
+        btSet{$IFDEF DELPHI_and_WINDOWS}, btStaticArray{$ENDIF}:
           begin
             if ResultUsesResultPointer(res) then GetPtr(res);
           end;
@@ -996,13 +997,11 @@ begin
       x64call(Address, _RAX, Registers, pp, Length(Stack) div 8, _XMM0);
 {$ENDIF}
       case res^.aType.BaseType of
-        btRecord, btSet:
+        btRecord, btSet{$IFDEF DELPHI_and_WINDOWS}, btStaticArray{$ENDIF}:
           begin
-            {$IFDEF WINDOWS}
-            {$IFDEF DELPHI}
+            {$IFDEF DELPHI_and_WINDOWS}
             { A result that used the hidden result pointer is already in place }
             if not ResultUsesResultPointer(res) then
-            {$ENDIF}
             {$ENDIF}
             begin
               case res.aType.RealSize of
@@ -1039,7 +1038,7 @@ begin
         {$IFDEF x64_string_result_as_varparameter}
         btWidestring,btUnicodestring, btstring ,
         {$ENDIF}
-        btStaticArray, btArray:;
+        {$IFNDEF DELPHI_and_WINDOWS}btStaticArray, {$ENDIF}btArray:;
         {$IFNDEF x64_string_result_as_varparameter}
         btUnicodeString, btWideString, btstring:  Int64(res.dta^) := _RAX;
         {$ENDIF}

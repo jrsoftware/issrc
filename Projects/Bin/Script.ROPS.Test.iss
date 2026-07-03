@@ -2006,13 +2006,17 @@ begin
   CheckEqualsInt64(RefCountBefore, TestRefCount_StringRefCount(S));
 end;
 
-procedure Test_InnerfuseCallRecordReturn;
+procedure Test_InnerfuseCallRecordArrayReturn;
 var
   Rec3: TTestHandlerRec3;
   Rec4: TTestHandlerRec4;
   Rec8: TTestHandlerRec8;
   RecString: TTestHandlerRecString;
   Set6: TTestHandlerSet6;
+  Arr3: TTestHandlerArr3;
+  Arr4: TTestHandlerArr4;
+  Arr8: TTestHandlerArr8;
+  ArrString: TTestHandlerArrString;
 begin
   Rec3 := TestInnerfuse_ReturnRec3(30);
   CheckEqualsInt64(30, Rec3.A);
@@ -2036,6 +2040,33 @@ begin
   CheckTrue(TTestHandlerSet6Base(1) in Set6);
   CheckTrue(TTestHandlerSet6Base(42) in Set6);
   CheckFalse(TTestHandlerSet6Base(0) in Set6);
+
+  Arr3 := TestInnerfuse_ReturnArr3(30);
+  CheckEqualsInt64(30, Arr3[0]);
+  CheckEqualsInt64(31, Arr3[1]);
+  CheckEqualsInt64(32, Arr3[2]);
+
+  Arr4 := TestInnerfuse_ReturnArr4(40);
+  CheckEqualsInt64(40, Arr4[0]);
+  CheckEqualsInt64(41, Arr4[1]);
+  CheckEqualsInt64(42, Arr4[2]);
+  CheckEqualsInt64(43, Arr4[3]);
+
+  Arr8 := TestInnerfuse_ReturnArr8(80);
+  CheckEqualsInt64(80, Arr8[0]);
+  CheckEqualsInt64(87, Arr8[7]);
+
+  ArrString := TestInnerfuse_ReturnArrString(310, 311);
+  CheckEqualsString('310,311', ArrString[0]);
+
+  Arr4 := TestInnerfuse_ReturnArr4StdCall(50);
+  CheckEqualsInt64(50, Arr4[0]);
+  CheckEqualsInt64(51, Arr4[1]);
+  CheckEqualsInt64(52, Arr4[2]);
+  CheckEqualsInt64(53, Arr4[3]);
+
+  ArrString := TestInnerfuse_ReturnArrStringStdCall(312, 313);
+  CheckEqualsString('312,313', ArrString[0]);
 end;
 
 procedure Test_InnerfuseCallSafeCall;
@@ -3311,7 +3342,7 @@ begin
   Test_InnerfuseCallParamTypes;
   Test_InnerfuseCallParamTypesStdCall;
   Test_InnerfuseCallPointerSizeManagedByValueRecordArray;
-  Test_InnerfuseCallRecordReturn;
+  Test_InnerfuseCallRecordArrayReturn;
   Test_InnerfuseCallSafeCall;
   Test_InnerfuseCallSafeCallException;
   Test_InnerfuseCallException;
