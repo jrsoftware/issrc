@@ -1887,7 +1887,7 @@ type
 
 { True when the type is managed and needs reference counting or finalization,
   so cannot simply be copied. Unlike NeedFinalization this looks inside records
-  and static arrays. Matches what Delphi considers managed, with btPointer as
+  and static arrays. Matches what Delphi/FPC considers managed, with btPointer as
   an exception. btPointer has no native counterpart but it can own and destroy
   the data it points to, see FinalizeVariant, so cannot simply be copied. }
 function IsManagedType(aType: TPSTypeRec): Boolean;
@@ -12420,8 +12420,11 @@ begin
     { The Delphi x64 ABI returns a record of 1, 2, or 4 bytes in RAX, and
       the x86 ABI a record of 1 or 2 bytes in AL/AX (see System.Rtti's
       UseResultPointer). Records of these sizes never contain a managed
-      field, so no managed check is needed. }
-    btRecord: Result := b.RealSize in [1, 2{$IFDEF CPU64}, 4{$ENDIF}];
+      field, so no managed check is needed. A record of pointer size is
+      also returned in RAX/EAX, but only when it contains no managed
+      field. }
+    btRecord: Result := (b.RealSize in [1, 2{$IFDEF CPU64}, 4{$ENDIF}]) or
+      ((b.RealSize = PointerSize) and not IsManagedType(b));
 {$ENDIF}
     btSet: Result := b.RealSize <= PointerSize;
     btStaticArray: Result := b.RealSize <= PointerSize;
