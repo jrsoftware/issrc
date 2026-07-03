@@ -193,6 +193,8 @@ begin
   RegisterTestSetType('TTestHandlerSet6', 6);
   RegisterTestSetType('TTestHandlerSet8', 8);
   RegisterTestSetType('TTestHandlerSet10', 10);
+  RegisterType('TTestHandlerArr1', 'array[0..0] of Byte');
+  RegisterType('TTestHandlerArr2', 'array[0..1] of Byte');
   RegisterType('TTestHandlerArr3', 'array[0..2] of Byte');
   RegisterType('TTestHandlerArr4', 'array[0..3] of Byte');
   RegisterType('TTestHandlerArr6', 'array[0..5] of Byte');

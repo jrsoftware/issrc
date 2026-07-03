@@ -2170,10 +2170,16 @@ begin
   RegisterDelphiFunction(@TestInnerfuse_ReturnRec8, 'TestInnerfuse_ReturnRec8');
   RegisterDelphiFunction(@TestInnerfuse_ReturnRecString, 'TestInnerfuse_ReturnRecString');
   RegisterDelphiFunction(@TestInnerfuse_ReturnSet6, 'TestInnerfuse_ReturnSet6');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr1, 'TestInnerfuse_ReturnArr1');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr2, 'TestInnerfuse_ReturnArr2');
   RegisterDelphiFunction(@TestInnerfuse_ReturnArr3, 'TestInnerfuse_ReturnArr3');
   RegisterDelphiFunction(@TestInnerfuse_ReturnArr4, 'TestInnerfuse_ReturnArr4');
   RegisterDelphiFunction(@TestInnerfuse_ReturnArr8, 'TestInnerfuse_ReturnArr8');
   RegisterDelphiFunction(@TestInnerfuse_ReturnArrString, 'TestInnerfuse_ReturnArrString');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr4Pascal, 'TestInnerfuse_ReturnArr4Pascal', cdPascal);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArrStringPascal, 'TestInnerfuse_ReturnArrStringPascal', cdPascal);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr4Cdecl, 'TestInnerfuse_ReturnArr4Cdecl', cdCdecl);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArrStringCdecl, 'TestInnerfuse_ReturnArrStringCdecl', cdCdecl);
   RegisterDelphiFunction(@TestInnerfuse_ReturnArr4StdCall, 'TestInnerfuse_ReturnArr4StdCall', cdStdCall);
   RegisterDelphiFunction(@TestInnerfuse_ReturnArrStringStdCall, 'TestInnerfuse_ReturnArrStringStdCall', cdStdCall);
   {$IFDEF DEBUG}
@@ -2402,6 +2408,8 @@ begin
     else if TypeName = 'TTestHandlerSet6' then Size := SizeOf(TTestHandlerSet6)
     else if TypeName = 'TTestHandlerSet8' then Size := SizeOf(TTestHandlerSet8)
     else if TypeName = 'TTestHandlerSet10' then Size := SizeOf(TTestHandlerSet10)
+    else if TypeName = 'TTestHandlerArr1' then Size := SizeOf(TTestHandlerArr1)
+    else if TypeName = 'TTestHandlerArr2' then Size := SizeOf(TTestHandlerArr2)
     else if TypeName = 'TTestHandlerArr3' then Size := SizeOf(TTestHandlerArr3)
     else if TypeName = 'TTestHandlerArr4' then Size := SizeOf(TTestHandlerArr4)
     else if TypeName = 'TTestHandlerArr6' then Size := SizeOf(TTestHandlerArr6)

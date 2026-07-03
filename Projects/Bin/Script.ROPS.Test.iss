@@ -1758,6 +1758,8 @@ var
   Set6: TTestHandlerSet6;
   Set8: TTestHandlerSet8;
   Set10: TTestHandlerSet10;
+  Arr1: TTestHandlerArr1;
+  Arr2: TTestHandlerArr2;
   Arr3: TTestHandlerArr3;
   Arr4: TTestHandlerArr4;
   Arr6: TTestHandlerArr6;
@@ -1787,6 +1789,8 @@ begin
   CheckEqualsInt64(6, SizeOf(Set6));
   CheckEqualsInt64(8, SizeOf(Set8));
   CheckEqualsInt64(10, SizeOf(Set10));
+  CheckEqualsInt64(1, SizeOf(Arr1));
+  CheckEqualsInt64(2, SizeOf(Arr2));
   CheckEqualsInt64(3, SizeOf(Arr3));
   CheckEqualsInt64(4, SizeOf(Arr4));
   CheckEqualsInt64(6, SizeOf(Arr6));
@@ -1824,6 +1828,8 @@ begin
 #endif
   CheckEqualsInt64(8, TestTypes_NativeSizeOf('TTestHandlerSet8'));
   CheckEqualsInt64(10, TestTypes_NativeSizeOf('TTestHandlerSet10'));
+  CheckEqualsInt64(1, TestTypes_NativeSizeOf('TTestHandlerArr1'));
+  CheckEqualsInt64(2, TestTypes_NativeSizeOf('TTestHandlerArr2'));
   CheckEqualsInt64(3, TestTypes_NativeSizeOf('TTestHandlerArr3'));
   CheckEqualsInt64(4, TestTypes_NativeSizeOf('TTestHandlerArr4'));
   CheckEqualsInt64(6, TestTypes_NativeSizeOf('TTestHandlerArr6'));
@@ -2013,6 +2019,8 @@ var
   Rec8: TTestHandlerRec8;
   RecString: TTestHandlerRecString;
   Set6: TTestHandlerSet6;
+  Arr1: TTestHandlerArr1;
+  Arr2: TTestHandlerArr2;
   Arr3: TTestHandlerArr3;
   Arr4: TTestHandlerArr4;
   Arr8: TTestHandlerArr8;
@@ -2041,6 +2049,13 @@ begin
   CheckTrue(TTestHandlerSet6Base(42) in Set6);
   CheckFalse(TTestHandlerSet6Base(0) in Set6);
 
+  Arr1 := TestInnerfuse_ReturnArr1(10);
+  CheckEqualsInt64(10, Arr1[0]);
+
+  Arr2 := TestInnerfuse_ReturnArr2(20);
+  CheckEqualsInt64(20, Arr2[0]);
+  CheckEqualsInt64(21, Arr2[1]);
+
   Arr3 := TestInnerfuse_ReturnArr3(30);
   CheckEqualsInt64(30, Arr3[0]);
   CheckEqualsInt64(31, Arr3[1]);
@@ -2059,14 +2074,32 @@ begin
   ArrString := TestInnerfuse_ReturnArrString(310, 311);
   CheckEqualsString('310,311', ArrString[0]);
 
-  Arr4 := TestInnerfuse_ReturnArr4StdCall(50);
+  Arr4 := TestInnerfuse_ReturnArr4Pascal(50);
   CheckEqualsInt64(50, Arr4[0]);
   CheckEqualsInt64(51, Arr4[1]);
   CheckEqualsInt64(52, Arr4[2]);
   CheckEqualsInt64(53, Arr4[3]);
 
-  ArrString := TestInnerfuse_ReturnArrStringStdCall(312, 313);
+  ArrString := TestInnerfuse_ReturnArrStringPascal(312, 313);
   CheckEqualsString('312,313', ArrString[0]);
+
+  Arr4 := TestInnerfuse_ReturnArr4Cdecl(60);
+  CheckEqualsInt64(60, Arr4[0]);
+  CheckEqualsInt64(61, Arr4[1]);
+  CheckEqualsInt64(62, Arr4[2]);
+  CheckEqualsInt64(63, Arr4[3]);
+
+  ArrString := TestInnerfuse_ReturnArrStringCdecl(314, 315);
+  CheckEqualsString('314,315', ArrString[0]);
+
+  Arr4 := TestInnerfuse_ReturnArr4StdCall(70);
+  CheckEqualsInt64(70, Arr4[0]);
+  CheckEqualsInt64(71, Arr4[1]);
+  CheckEqualsInt64(72, Arr4[2]);
+  CheckEqualsInt64(73, Arr4[3]);
+
+  ArrString := TestInnerfuse_ReturnArrStringStdCall(316, 317);
+  CheckEqualsString('316,317', ArrString[0]);
 end;
 
 procedure Test_InnerfuseCallSafeCall;
