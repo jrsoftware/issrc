@@ -12422,12 +12422,15 @@ begin
       UseResultPointer). Records of these sizes never contain a managed
       field, so no managed check is needed. A record of pointer size is
       also returned in RAX/EAX, but only when it contains no managed
-      field. }
-    btRecord: Result := (b.RealSize in [1, 2{$IFDEF CPU64}, 4{$ENDIF}]) or
+      field. Static arrays follow the same rule: UseResultPointer treats
+      tkArray like tkRecord. }
+    btRecord, btStaticArray: Result := (b.RealSize in [1, 2{$IFDEF CPU64}, 4{$ENDIF}]) or
       ((b.RealSize = PointerSize) and not IsManagedType(b));
 {$ENDIF}
     btSet: Result := b.RealSize <= PointerSize;
+{$IFNDEF DELPHI}
     btStaticArray: Result := b.RealSize <= PointerSize;
+{$ENDIF}
   else
     Result := false;
   end;

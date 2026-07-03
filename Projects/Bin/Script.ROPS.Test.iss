@@ -2805,7 +2805,45 @@ begin
   Result.S := '310,' + IntToStr(311);
 end;
 
-procedure Test_MyAllMethodsHandlerRecordReturn;
+var
+  Test_MyAllMethodsHandlerArrayReturn_Params: String;
+
+{ The following 4 functions also store their parameters, because a result bug
+  can also show up as bad parameters }
+function Test_MyAllMethodsHandlerArrayReturn_Receive3(A, B: Integer): TTestHandlerArr3;
+begin
+  Test_MyAllMethodsHandlerArrayReturn_Params := IntToStr(A) + ',' + IntToStr(B);
+  Result[0] := 30;
+  Result[1] := 31;
+  Result[2] := 32;
+end;
+
+function Test_MyAllMethodsHandlerArrayReturn_Receive4(A, B: Integer): TTestHandlerArr4;
+begin
+  Test_MyAllMethodsHandlerArrayReturn_Params := IntToStr(A) + ',' + IntToStr(B);
+  Result[0] := 40;
+  Result[1] := 41;
+  Result[2] := 42;
+  Result[3] := 43;
+end;
+
+function Test_MyAllMethodsHandlerArrayReturn_Receive8(A, B: Integer): TTestHandlerArr8;
+var
+  I: Integer;
+begin
+  Test_MyAllMethodsHandlerArrayReturn_Params := IntToStr(A) + ',' + IntToStr(B);
+  for I := 0 to High(Result) do
+    Result[I] := 80 + I;
+end;
+
+function Test_MyAllMethodsHandlerArrayReturn_ReceiveString(A, B: Integer): TTestHandlerArrString;
+begin
+  Test_MyAllMethodsHandlerArrayReturn_Params := IntToStr(A) + ',' + IntToStr(B);
+  { Force real reference counting }
+  Result[0] := '310,' + IntToStr(311);
+end;
+
+procedure Test_MyAllMethodsHandlerRecordArrayReturn;
 begin
   Test_MyAllMethodsHandlerRecordReturn_Params := '';
   CheckEqualsString('30', TestHandler_InvokeRecRet1(@Test_MyAllMethodsHandlerRecordReturn_Receive1));
@@ -2826,6 +2864,22 @@ begin
   Test_MyAllMethodsHandlerRecordReturn_Params := '';
   CheckEqualsString('310,311', TestHandler_InvokeRecRetString(@Test_MyAllMethodsHandlerRecordReturn_ReceiveString));
   CheckEqualsString('10,20', Test_MyAllMethodsHandlerRecordReturn_Params);
+
+  Test_MyAllMethodsHandlerArrayReturn_Params := '';
+  CheckEqualsString('30,31,32', TestHandler_InvokeArrRet3(@Test_MyAllMethodsHandlerArrayReturn_Receive3));
+  CheckEqualsString('10,20', Test_MyAllMethodsHandlerArrayReturn_Params);
+
+  Test_MyAllMethodsHandlerArrayReturn_Params := '';
+  CheckEqualsString('40,41,42,43', TestHandler_InvokeArrRet4(@Test_MyAllMethodsHandlerArrayReturn_Receive4));
+  CheckEqualsString('10,20', Test_MyAllMethodsHandlerArrayReturn_Params);
+
+  Test_MyAllMethodsHandlerArrayReturn_Params := '';
+  CheckEqualsString('80,87', TestHandler_InvokeArrRet8(@Test_MyAllMethodsHandlerArrayReturn_Receive8));
+  CheckEqualsString('10,20', Test_MyAllMethodsHandlerArrayReturn_Params);
+
+  Test_MyAllMethodsHandlerArrayReturn_Params := '';
+  CheckEqualsString('310,311', TestHandler_InvokeArrRetString(@Test_MyAllMethodsHandlerArrayReturn_ReceiveString));
+  CheckEqualsString('10,20', Test_MyAllMethodsHandlerArrayReturn_Params);
 end;
 
 procedure Test_TypelessParamFunctions;
@@ -3273,7 +3327,7 @@ begin
   Test_CreateCallback;
   Test_MyAllMethodsHandlerByValue;
   Test_MyAllMethodsHandlerByValueRecordSetArray;
-  Test_MyAllMethodsHandlerRecordReturn;
+  Test_MyAllMethodsHandlerRecordArrayReturn;
   Test_TypelessParamFunctions;
   Test_DefProcFloatToInt;
   Test_AnyStringFunctions;

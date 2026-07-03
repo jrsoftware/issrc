@@ -64,6 +64,10 @@ type
   TTestHandlerRecRet4Proc = function(A, B: Integer): TTestHandlerRec4 of object;
   TTestHandlerRecRet8Proc = function(A, B: Integer): TTestHandlerRec8 of object;
   TTestHandlerRecRetStringProc = function(A, B: Integer): TTestHandlerRecString of object;
+  TTestHandlerArrRet3Proc = function(A, B: Integer): TTestHandlerArr3 of object;
+  TTestHandlerArrRet4Proc = function(A, B: Integer): TTestHandlerArr4 of object;
+  TTestHandlerArrRet8Proc = function(A, B: Integer): TTestHandlerArr8 of object;
+  TTestHandlerArrRetStringProc = function(A, B: Integer): TTestHandlerArrString of object;
 
 var
   ScriptFuncs: TScriptFuncs;
@@ -2270,7 +2274,7 @@ begin
     if Method.Code <> nil then begin
       var A1: TTestHandlerArr3; A1[0] := 10; A1[1] := 11; A1[2] := 12;
       var A2: TTestHandlerArr10;
-      for var I := 0 to 9 do
+      for var I := 0 to High(A2) do
         A2[I] := Byte(100 + I);
       Stack.SetInt(PStart, TTestHandlerArrProc2(Method)(A1, A2, 99));
     end else
@@ -2323,6 +2327,46 @@ begin
     if Method.Code <> nil then begin
       const R = TTestHandlerRecRetStringProc(Method)(10, 20);
       Stack.SetString(PStart, R.S);
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeArrRet3', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const A = TTestHandlerArrRet3Proc(Method)(10, 20);
+      Stack.SetString(PStart, IntToStr(A[0]) + ',' + IntToStr(A[1]) + ',' + IntToStr(A[2]));
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeArrRet4', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const A = TTestHandlerArrRet4Proc(Method)(10, 20);
+      Stack.SetString(PStart, IntToStr(A[0]) + ',' + IntToStr(A[1]) + ',' + IntToStr(A[2]) + ',' + IntToStr(A[3]));
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeArrRet8', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const A = TTestHandlerArrRet8Proc(Method)(10, 20);
+      Stack.SetString(PStart, IntToStr(A[0]) + ',' + IntToStr(A[7]));
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeArrRetString', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const A = TTestHandlerArrRetStringProc(Method)(10, 20);
+      Stack.SetString(PStart, A[0]);
     end else
       Stack.SetString(PStart, '');
   end);

@@ -230,6 +230,14 @@ begin
   ScriptCompiler.AddFunction('function TestHandler_InvokeRecRet4(const Callback: TTestHandlerRecRet4Proc): String;');
   ScriptCompiler.AddFunction('function TestHandler_InvokeRecRet8(const Callback: TTestHandlerRecRet8Proc): String;');
   ScriptCompiler.AddFunction('function TestHandler_InvokeRecRetString(const Callback: TTestHandlerRecRetStringProc): String;');
+  RegisterType('TTestHandlerArrRet3Proc', 'function(A, B: Integer): TTestHandlerArr3;');
+  RegisterType('TTestHandlerArrRet4Proc', 'function(A, B: Integer): TTestHandlerArr4;');
+  RegisterType('TTestHandlerArrRet8Proc', 'function(A, B: Integer): TTestHandlerArr8;');
+  RegisterType('TTestHandlerArrRetStringProc', 'function(A, B: Integer): TTestHandlerArrString;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeArrRet3(const Callback: TTestHandlerArrRet3Proc): String;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeArrRet4(const Callback: TTestHandlerArrRet4Proc): String;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeArrRet8(const Callback: TTestHandlerArrRet8Proc): String;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeArrRetString(const Callback: TTestHandlerArrRetStringProc): String;');
   ScriptCompiler.AddFunction('function TestRefCount_StringRefCount(const S: String): Integer;');
   ScriptCompiler.AddFunction('function TestTypes_NativeSizeOf(const TypeName: String): Integer;');
 
