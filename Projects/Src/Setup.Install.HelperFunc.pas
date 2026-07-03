@@ -267,7 +267,7 @@ function FileTimeToStr(const AFileTime: TFileTime): String;
 begin
   var ST: TSystemTime;
   if FileTimeToSystemTime(AFileTime, ST) then
-    Result := Format('%.4u-%.2u-%.2u %.2u:%.2u:%.2u.%.3u',
+    Result := Format('%.4u-%.2u-%.2uT%.2u:%.2u:%.2u.%.3uZ',
       [ST.wYear, ST.wMonth, ST.wDay, ST.wHour, ST.wMinute, ST.wSecond,
        ST.wMilliseconds])
   else
