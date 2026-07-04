@@ -2169,6 +2169,8 @@ begin
   RegisterDelphiFunction(@TestInnerfuse_ReturnRec4, 'TestInnerfuse_ReturnRec4');
   RegisterDelphiFunction(@TestInnerfuse_ReturnRec8, 'TestInnerfuse_ReturnRec8');
   RegisterDelphiFunction(@TestInnerfuse_ReturnRecString, 'TestInnerfuse_ReturnRecString');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet3, 'TestInnerfuse_ReturnSet3');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet4, 'TestInnerfuse_ReturnSet4');
   RegisterDelphiFunction(@TestInnerfuse_ReturnSet6, 'TestInnerfuse_ReturnSet6');
   RegisterDelphiFunction(@TestInnerfuse_ReturnArr1, 'TestInnerfuse_ReturnArr1');
   RegisterDelphiFunction(@TestInnerfuse_ReturnArr2, 'TestInnerfuse_ReturnArr2');
@@ -2178,10 +2180,16 @@ begin
   RegisterDelphiFunction(@TestInnerfuse_ReturnArrString, 'TestInnerfuse_ReturnArrString');
   RegisterDelphiFunction(@TestInnerfuse_ReturnArr4Pascal, 'TestInnerfuse_ReturnArr4Pascal', cdPascal);
   RegisterDelphiFunction(@TestInnerfuse_ReturnArrStringPascal, 'TestInnerfuse_ReturnArrStringPascal', cdPascal);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet3Pascal, 'TestInnerfuse_ReturnSet3Pascal', cdPascal);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet6Pascal, 'TestInnerfuse_ReturnSet6Pascal', cdPascal);
   RegisterDelphiFunction(@TestInnerfuse_ReturnArr4Cdecl, 'TestInnerfuse_ReturnArr4Cdecl', cdCdecl);
   RegisterDelphiFunction(@TestInnerfuse_ReturnArrStringCdecl, 'TestInnerfuse_ReturnArrStringCdecl', cdCdecl);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet3Cdecl, 'TestInnerfuse_ReturnSet3Cdecl', cdCdecl);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet6Cdecl, 'TestInnerfuse_ReturnSet6Cdecl', cdCdecl);
   RegisterDelphiFunction(@TestInnerfuse_ReturnArr4StdCall, 'TestInnerfuse_ReturnArr4StdCall', cdStdCall);
   RegisterDelphiFunction(@TestInnerfuse_ReturnArrStringStdCall, 'TestInnerfuse_ReturnArrStringStdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet3StdCall, 'TestInnerfuse_ReturnSet3StdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet6StdCall, 'TestInnerfuse_ReturnSet6StdCall', cdStdCall);
   {$IFDEF DEBUG}
   if Count <> Length(TestInnerfuseScriptFuncTable) then
     raise Exception.Create('Count <> Length(TestInnerfuseScriptFuncTable)');

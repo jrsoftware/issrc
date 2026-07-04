@@ -700,7 +700,10 @@ begin
                   case TPSTypeRec_Set(res.aType).aByteSize  of
                     1: byte(res.Dta^) := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 1, nil);
                     2: word(res.Dta^) := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 2, nil);
-                    3,
+                    3: begin
+                        EAX := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
+                        Move(EAX, res.Dta^, 3);
+                      end;
                     4: Longint(res.Dta^) := RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
                     else RealCall_Register(Address, EAX, EDX, ECX, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil)
                   end;
@@ -780,6 +783,12 @@ begin
                 begin
                   if ResultUsesResultPointer(res) then GetPtr(res);
                 end;
+              {$IFDEF DELPHI_and_MSWINDOWS}
+              btSet:
+                begin
+                  if TPSTypeRec_Set(res.aType).aByteSize > 4 then GetPtr(res);
+                end;
+              {$ENDIF}
             end;
           end;
           if assigned(_Self) then begin
@@ -824,6 +833,21 @@ begin
                   else
                     RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
                 end;
+              {$IFDEF DELPHI_and_MSWINDOWS}
+              btSet:
+                begin
+                  case TPSTypeRec_Set(res.aType).aByteSize of
+                    1: PByte(res.Dta)^ := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 1, nil);
+                    2: PWord(res.Dta)^ := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 2, nil);
+                    3: begin
+                        EAX := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
+                        Move(EAX, res.Dta^, 3);
+                      end;
+                    4: PCardinal(res.Dta)^ := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
+                    else RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil)
+                  end;
+                end;
+              {$ENDIF}
             else
               exit;
             end;
@@ -902,6 +926,24 @@ begin
                       PCardinal(res.Dta)^ := RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
                     end;
                 end;
+              {$IFDEF DELPHI_and_MSWINDOWS}
+              btSet:
+                begin
+                  case TPSTypeRec_Set(res.aType).aByteSize of
+                    1: PByte(res.Dta)^ := RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 1, nil);
+                    2: PWord(res.Dta)^ := RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 2, nil);
+                    3: begin
+                        EAX := RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
+                        Move(EAX, res.Dta^, 3);
+                      end;
+                    4: PCardinal(res.Dta)^ := RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
+                    else begin
+                      GetPtr(res);
+                      RealCall_Cdecl(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
+                    end;
+                  end;
+                end;
+              {$ENDIF}
             else
               exit;
             end;
@@ -955,6 +997,24 @@ begin
                       PCardinal(res.Dta)^ := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
                     end;
                 end;
+              {$IFDEF DELPHI_and_MSWINDOWS}
+              btSet:
+                begin
+                  case TPSTypeRec_Set(res.aType).aByteSize of
+                    1: PByte(res.Dta)^ := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 1, nil);
+                    2: PWord(res.Dta)^ := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 2, nil);
+                    3: begin
+                        EAX := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
+                        Move(EAX, res.Dta^, 3);
+                      end;
+                    4: PCardinal(res.Dta)^ := RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 4, nil);
+                    else begin
+                      GetPtr(res);
+                      RealCall_Other(Address, @Stack[Length(Stack)-3], Length(Stack) div 4, 0, nil);
+                    end;
+                  end;
+                end;
+              {$ENDIF}
             else
               exit;
             end;

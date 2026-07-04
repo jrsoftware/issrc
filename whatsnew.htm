@@ -148,6 +148,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li><i>Fixes:</i> Using DLL files has been improved for some edge cases:
     <ul>
       <li>In 32-bit installers, a by-value record larger than 4 bytes under the <tt>cdecl</tt> or <tt>stdcall</tt> convention, or a static array of 4 bytes or smaller under any convention, is now passed correctly.</li>
+      <li>In 32-bit installers, a by-value set result of 3 bytes no longer does an out-of-bounds write of 1 byte. Also, calling a DLL function that returns a set under the <tt>pascal</tt>, <tt>cdecl</tt>, or <tt>stdcall</tt> convention no longer fails in 32-bit installers.</li>
       <li>In 64-bit installers, a by-value record, set, or static array parameter of 8 bytes or smaller is now passed correctly.</li>
       <li>A by-value record result is now received correctly: of 3 bytes, or a managed 4-byte one, in 32-bit installers, and of 3, 5, 6, or 7 bytes, or a managed 8-byte one, in 64-bit installers.</li>
       <li>A by-value static array result is now received correctly: of 1 or 2 bytes, or an unmanaged 4-byte one, in 32-bit installers, and of 1, 2, or 4 bytes, or an unmanaged 8-byte one, in 64-bit installers. Also, calling a DLL function that returns a static array under the <tt>pascal</tt>, <tt>cdecl</tt>, or <tt>stdcall</tt> convention no longer fails in 32-bit installers.</li>

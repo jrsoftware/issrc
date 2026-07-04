@@ -2018,6 +2018,8 @@ var
   Rec4: TTestHandlerRec4;
   Rec8: TTestHandlerRec8;
   RecString: TTestHandlerRecString;
+  Set3Pair: array[0..1] of TTestHandlerSet3;
+  Set4: TTestHandlerSet4;
   Set6: TTestHandlerSet6;
   Arr1: TTestHandlerArr1;
   Arr2: TTestHandlerArr2;
@@ -2043,6 +2045,22 @@ begin
 
   RecString := TestInnerfuse_ReturnRecString(310, 311);
   CheckEqualsString('310,311', RecString.S);
+
+  { A 3-byte ROPS set is a native 4-byte set returned in EAX on x86: check
+    ROPS really writes only 3 bytes. If it didn't then Set3Pair[1] would
+    get corrupted. Verified this indeed happened before it was fixed. }
+  Set3Pair[1] := [TTestHandlerSet3Base(2), TTestHandlerSet3Base(20)];
+  Set3Pair[0] := TestInnerfuse_ReturnSet3(1, 10);
+  CheckTrue(TTestHandlerSet3Base(1) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(10) in Set3Pair[0]);
+  CheckFalse(TTestHandlerSet3Base(0) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(2) in Set3Pair[1]);
+  CheckTrue(TTestHandlerSet3Base(20) in Set3Pair[1]);
+
+  Set4 := TestInnerfuse_ReturnSet4(3, 25);
+  CheckTrue(TTestHandlerSet4Base(3) in Set4);
+  CheckTrue(TTestHandlerSet4Base(25) in Set4);
+  CheckFalse(TTestHandlerSet4Base(0) in Set4);
 
   Set6 := TestInnerfuse_ReturnSet6(1, 42);
   CheckTrue(TTestHandlerSet6Base(1) in Set6);
@@ -2083,6 +2101,20 @@ begin
   ArrString := TestInnerfuse_ReturnArrStringPascal(312, 313);
   CheckEqualsString('312,313', ArrString[0]);
 
+  { Same overwrite check as the register convention Set3 test above }
+  Set3Pair[1] := [TTestHandlerSet3Base(2), TTestHandlerSet3Base(20)];
+  Set3Pair[0] := TestInnerfuse_ReturnSet3Pascal(1, 10);
+  CheckTrue(TTestHandlerSet3Base(1) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(10) in Set3Pair[0]);
+  CheckFalse(TTestHandlerSet3Base(0) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(2) in Set3Pair[1]);
+  CheckTrue(TTestHandlerSet3Base(20) in Set3Pair[1]);
+
+  Set6 := TestInnerfuse_ReturnSet6Pascal(3, 43);
+  CheckTrue(TTestHandlerSet6Base(3) in Set6);
+  CheckTrue(TTestHandlerSet6Base(43) in Set6);
+  CheckFalse(TTestHandlerSet6Base(0) in Set6);
+
   Arr4 := TestInnerfuse_ReturnArr4Cdecl(60);
   CheckEqualsInt64(60, Arr4[0]);
   CheckEqualsInt64(61, Arr4[1]);
@@ -2092,6 +2124,20 @@ begin
   ArrString := TestInnerfuse_ReturnArrStringCdecl(314, 315);
   CheckEqualsString('314,315', ArrString[0]);
 
+  { Same overwrite check as the register convention Set3 test above }
+  Set3Pair[1] := [TTestHandlerSet3Base(2), TTestHandlerSet3Base(20)];
+  Set3Pair[0] := TestInnerfuse_ReturnSet3Cdecl(1, 10);
+  CheckTrue(TTestHandlerSet3Base(1) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(10) in Set3Pair[0]);
+  CheckFalse(TTestHandlerSet3Base(0) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(2) in Set3Pair[1]);
+  CheckTrue(TTestHandlerSet3Base(20) in Set3Pair[1]);
+
+  Set6 := TestInnerfuse_ReturnSet6Cdecl(4, 44);
+  CheckTrue(TTestHandlerSet6Base(4) in Set6);
+  CheckTrue(TTestHandlerSet6Base(44) in Set6);
+  CheckFalse(TTestHandlerSet6Base(0) in Set6);
+
   Arr4 := TestInnerfuse_ReturnArr4StdCall(70);
   CheckEqualsInt64(70, Arr4[0]);
   CheckEqualsInt64(71, Arr4[1]);
@@ -2100,6 +2146,20 @@ begin
 
   ArrString := TestInnerfuse_ReturnArrStringStdCall(316, 317);
   CheckEqualsString('316,317', ArrString[0]);
+
+  { Same overwrite check as the register convention Set3 test above }
+  Set3Pair[1] := [TTestHandlerSet3Base(2), TTestHandlerSet3Base(20)];
+  Set3Pair[0] := TestInnerfuse_ReturnSet3StdCall(1, 10);
+  CheckTrue(TTestHandlerSet3Base(1) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(10) in Set3Pair[0]);
+  CheckFalse(TTestHandlerSet3Base(0) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(2) in Set3Pair[1]);
+  CheckTrue(TTestHandlerSet3Base(20) in Set3Pair[1]);
+
+  Set6 := TestInnerfuse_ReturnSet6StdCall(5, 45);
+  CheckTrue(TTestHandlerSet6Base(5) in Set6);
+  CheckTrue(TTestHandlerSet6Base(45) in Set6);
+  CheckFalse(TTestHandlerSet6Base(0) in Set6);
 end;
 
 procedure Test_InnerfuseCallSafeCall;

@@ -75,7 +75,8 @@ type
   TTestHandlerRecString = record S: String; end;
   TTestHandlerSet3Item = 0..23;
   TTestHandlerSet3 = set of TTestHandlerSet3Item;
-  TTestHandlerSet4 = set of 0..31;
+  TTestHandlerSet4Item = 0..31;
+  TTestHandlerSet4 = set of TTestHandlerSet4Item;
   TTestHandlerSet6Item = 0..47;
   TTestHandlerSet6 = set of TTestHandlerSet6Item;
   TTestHandlerSet8Item = 0..63;
@@ -177,6 +178,8 @@ function TestInnerfuse_ReturnRec3(Base: Byte): TTestHandlerRec3;
 function TestInnerfuse_ReturnRec4(Base: Word): TTestHandlerRec4;
 function TestInnerfuse_ReturnRec8(Base: Word): TTestHandlerRec8;
 function TestInnerfuse_ReturnRecString(A, B: Integer): TTestHandlerRecString;
+function TestInnerfuse_ReturnSet3(A, B: Integer): TTestHandlerSet3;
+function TestInnerfuse_ReturnSet4(A, B: Integer): TTestHandlerSet4;
 function TestInnerfuse_ReturnSet6(A, B: Integer): TTestHandlerSet6;
 function TestInnerfuse_ReturnArr1(Base: Byte): TTestHandlerArr1;
 function TestInnerfuse_ReturnArr2(Base: Byte): TTestHandlerArr2;
@@ -186,10 +189,16 @@ function TestInnerfuse_ReturnArr8(Base: Byte): TTestHandlerArr8;
 function TestInnerfuse_ReturnArrString(A, B: Integer): TTestHandlerArrString;
 function TestInnerfuse_ReturnArr4Pascal(Base: Byte): TTestHandlerArr4; pascal;
 function TestInnerfuse_ReturnArrStringPascal(A, B: Integer): TTestHandlerArrString; pascal;
+function TestInnerfuse_ReturnSet3Pascal(A, B: Integer): TTestHandlerSet3; pascal;
+function TestInnerfuse_ReturnSet6Pascal(A, B: Integer): TTestHandlerSet6; pascal;
 function TestInnerfuse_ReturnArr4Cdecl(Base: Byte): TTestHandlerArr4; cdecl;
 function TestInnerfuse_ReturnArrStringCdecl(A, B: Integer): TTestHandlerArrString; cdecl;
+function TestInnerfuse_ReturnSet3Cdecl(A, B: Integer): TTestHandlerSet3; cdecl;
+function TestInnerfuse_ReturnSet6Cdecl(A, B: Integer): TTestHandlerSet6; cdecl;
 function TestInnerfuse_ReturnArr4StdCall(Base: Byte): TTestHandlerArr4; stdcall;
 function TestInnerfuse_ReturnArrStringStdCall(A, B: Integer): TTestHandlerArrString; stdcall;
+function TestInnerfuse_ReturnSet3StdCall(A, B: Integer): TTestHandlerSet3; stdcall;
+function TestInnerfuse_ReturnSet6StdCall(A, B: Integer): TTestHandlerSet6; stdcall;
 procedure TestCreateCallback_Invoke0(Callback: NativeInt);
 procedure TestCreateCallback_Invoke5(Callback: NativeInt; const S: String; A, B, C, D: Integer);
 procedure TestCreateCallback_InvokeFloat4(Callback: NativeInt; A, B, C: Integer; D: Double);
@@ -1172,6 +1181,16 @@ begin
   Result.S := SysUtils.IntToStr(A) + ',' + SysUtils.IntToStr(B);
 end;
 
+function TestInnerfuse_ReturnSet3(A, B: Integer): TTestHandlerSet3;
+begin
+  Result := [TTestHandlerSet3Item(A), TTestHandlerSet3Item(B)];
+end;
+
+function TestInnerfuse_ReturnSet4(A, B: Integer): TTestHandlerSet4;
+begin
+  Result := [TTestHandlerSet4Item(A), TTestHandlerSet4Item(B)];
+end;
+
 function TestInnerfuse_ReturnSet6(A, B: Integer): TTestHandlerSet6;
 begin
   Result := [TTestHandlerSet6Item(A), TTestHandlerSet6Item(B)];
@@ -1227,6 +1246,16 @@ begin
   Result[0] := SysUtils.IntToStr(A) + ',' + SysUtils.IntToStr(B);
 end;
 
+function TestInnerfuse_ReturnSet3Pascal(A, B: Integer): TTestHandlerSet3; pascal;
+begin
+  Result := [TTestHandlerSet3Item(A), TTestHandlerSet3Item(B)];
+end;
+
+function TestInnerfuse_ReturnSet6Pascal(A, B: Integer): TTestHandlerSet6; pascal;
+begin
+  Result := [TTestHandlerSet6Item(A), TTestHandlerSet6Item(B)];
+end;
+
 function TestInnerfuse_ReturnArr4Cdecl(Base: Byte): TTestHandlerArr4; cdecl;
 begin
   Result[0] := Base;
@@ -1240,6 +1269,16 @@ begin
   Result[0] := SysUtils.IntToStr(A) + ',' + SysUtils.IntToStr(B);
 end;
 
+function TestInnerfuse_ReturnSet3Cdecl(A, B: Integer): TTestHandlerSet3; cdecl;
+begin
+  Result := [TTestHandlerSet3Item(A), TTestHandlerSet3Item(B)];
+end;
+
+function TestInnerfuse_ReturnSet6Cdecl(A, B: Integer): TTestHandlerSet6; cdecl;
+begin
+  Result := [TTestHandlerSet6Item(A), TTestHandlerSet6Item(B)];
+end;
+
 function TestInnerfuse_ReturnArr4StdCall(Base: Byte): TTestHandlerArr4; stdcall;
 begin
   Result[0] := Base;
@@ -1251,6 +1290,16 @@ end;
 function TestInnerfuse_ReturnArrStringStdCall(A, B: Integer): TTestHandlerArrString; stdcall;
 begin
   Result[0] := SysUtils.IntToStr(A) + ',' + SysUtils.IntToStr(B);
+end;
+
+function TestInnerfuse_ReturnSet3StdCall(A, B: Integer): TTestHandlerSet3; stdcall;
+begin
+  Result := [TTestHandlerSet3Item(A), TTestHandlerSet3Item(B)];
+end;
+
+function TestInnerfuse_ReturnSet6StdCall(A, B: Integer): TTestHandlerSet6; stdcall;
+begin
+  Result := [TTestHandlerSet6Item(A), TTestHandlerSet6Item(B)];
 end;
 
 type
