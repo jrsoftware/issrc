@@ -257,6 +257,42 @@ For conditions of distribution and use, see <a href="files/is/license.txt">LICEN
 <details>
 <summary>Inno Setup 6.7</summary>
 
+<p><a name="6.7.3"></a><span class="ver">6.7.3 </span><span class="date">(2026-05-26)</span></p>
+
+<ul>
+  <li>Changes backported from <a href="https://jrsoftware.org/isdl.php#v7">Inno Setup 7</a>:
+  <ul>
+    <li>Improved the Wine RichEdit workaround added in 6.7.2 to prevent a startup delay when very large texts are used in combination with a dark custom wizard style.</li>
+    <li><i>Fix:</i> Example script <i><a href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/tags/is-6_7_3/Examples/PowerShell.iss">PowerShell.iss</a></i> now uses an absolute path to load <tt>powershell.exe</tt>, for security reasons. If you used the demonstrated technique in your own scripts, <b>you should make the same changes</b>.</li>
+    <li>ISPP:
+    <ul>
+      <li><i>Fix:</i> A user defined function which has no parameters compiles again (broken in 6.7.2). Example: <tt>#define MyAppName() "My Program"</tt>.</li>
+      <li>Added new predefined variable <tt>SysPath</tt>.</li>
+    </ul>
+    </li>
+  </ul>
+  </li>
+</ul>
+
+<p><a name="6.7.2"></a><span class="ver">6.7.2 </span><span class="date">(2026-05-18)</span></p>
+
+<ul>
+  <li>Fixes backported from <a href="https://jrsoftware.org/isdl.php#v7">Inno Setup 7</a>:
+  <ul>
+    <li>Compiler IDE: Fixed autocompletion for section names, constants, and ISPP directives breaking after the mouse hovered over the <tt>[Code]</tt> section.</li>
+    <li>Compiler IDE: <i>Find in Files</i>, <i>Replace All</i>, and <i>Select All Find Matches</i> could enter an infinite loop, or miss a valid match at the end of the text, when using a regular expression that matches zero-length text (for example <tt>^</tt> or <tt>\b</tt>).</li>
+    <li>Updated ISCC to no longer create the Inno Setup registry key when only reading from it.</li>
+    <li><tt>[Files]</tt> section entries with the <tt>extractarchive</tt> flag could fail to extract any files from an archive if the first entry in the archive didn't match.<br/>
+        For example, if the archive contained a file in a subdirectory as its first entry (for example, <tt>subdir\file1.txt</tt> followed by <tt>file2.txt</tt>) and <tt>recursesubdirs</tt> was not used, no files would be extracted at all, not even <tt>file2.txt</tt>.</li>
+    <li>ISPP: Fixed handling of relative filenames by support functions <tt>ReadIni</tt>, <tt>WriteIni</tt>, and <tt>Is64BitPEImage</tt> to be the same as other file-related support functions.</li>
+    <li>Pascal Scripting: Fixed support functions <tt>InitializeBitmapButtonFromIcon</tt> (broken since its introduction) and <tt>InitializeBitmapImageFromIcon</tt> (broken since 6.5.0).</li>
+    <li>Setup: Added workaround for limitations in Wine's RichEdit implementation that caused text displayed by the <tt>[Setup]</tt> section directives <tt>LicenseFile</tt>, <tt>InfoBeforeFile</tt>, and <tt>InfoAfterFile</tt> to show with unchanged foreground colors when a custom wizard style is active.</li>
+    <li>Other minor fixes.</li>
+  </ul>
+  </li>
+  <li>Compiler IDE: Added a banner that will appear starting July 2026, reminding you of the Inno Setup 7 release. <a href="https://jrsoftware.org/isdl.php#v7">Inno Setup 7</a> can be installed side-by-side with Inno Setup 6.</li>
+</ul>
+
 <p><a name="6.7.1"></a><span class="ver">6.7.1 </span><span class="date">(2026-02-17)</span></p>
 
 <span class="head2">General improvements</span>
