@@ -83,7 +83,7 @@ WinVersionTooLowError=Ši programa reikalauja %1 %2 ar vėlesnės versijos.
 WinVersionTooHighError=Ši programa negali būti įdiegta %1 %2 ar vėlesnės versijos aplinkoje.
 AdminPrivilegesRequired=Šios programos diegimui privalote būti prisijungęs administratoriaus teisėmis.
 ; 'Power Users group' is an outdated term but should still be translated, not dropped or modernized
-PowerUserPrivilegesRequired=Šios programos diegimui privalote būti prisijungęs administratoriaus arba „Patyrę naudotojai“ grupės nario teisėmis.
+PowerUserPrivilegesRequired=Šios programos diegimui privalote būti prisijungęs administratoriaus arba „valdančiųjų vartotojų“ grupės nario teisėmis.
 ; 'instance' may also be translated as 'copy'
 SetupAppRunningError=Diegimo programa aptiko, kad yra paleista „%1“.%n%nDabar uždarykite visas paleistas šios programos kopijas ir, jei norite tęsti, paspauskite „Gerai“ arba „Atšaukti“, jei norite išeiti.
 UninstallAppRunningError=Pašalinimo programa aptiko, kad yra paleista „%1“.%n%nDabar uždarykite visas paleistas šios programos kopijas ir, jei norite tęsti, paspauskite „Gerai“ arba „Atšaukti“, jei norite išeiti.
@@ -144,7 +144,7 @@ WelcomeLabel2=Diegimo programa įdiegs „[name/ver]“ Jūsų kompiuteryje.%n%n
 ; *** "Password" wizard page
 WizardPassword=Slaptažodis
 PasswordLabel1=Šis diegimas yra apsaugotas slaptažodžiu.
-PasswordLabel3=Įveskite slaptažodį ir spauskite „Pirmyn“, jei norite tęsti diegimą. Didžiosios ir mažosios raidės vertinamos skirtingai.
+PasswordLabel3=Įveskite slaptažodį ir spauskite „Pirmyn“, jei norite tęsti diegimą. Slaptažodžiuose didžiosios ir mažosios raidės vertinamos skirtingai.
 PasswordEditLabel=&Slaptažodis:
 IncorrectPassword=Įvestas slaptažodis yra neteisingas. Pabandykite iš naujo.
 
@@ -172,14 +172,14 @@ UserInfoSerial=&Serijinis numeris:
 UserInfoNameRequired=Jūs privalote įvesti vardą.
 
 ; *** "Select Destination Location" wizard page
-WizardSelectDir=Pasirinkite diegimo katalogą
+WizardSelectDir=Pasirinkite diegimo vietą
 SelectDirDesc=Kur turi būti įdiegta „[name]“?
 SelectDirLabel3=Diegimo programa įdiegs „[name]“ į nurodytą aplanką.
 SelectDirBrowseLabel=Norėdami tęsti diegimą spauskite „Pirmyn“. Jei norite pasirinkti kitą aplanką, spauskite „Nurodyti“.
 DiskSpaceGBLabel=Reikia mažiausiai [gb] GB laisvos vietos kietajame diske.
 DiskSpaceMBLabel=Reikia mažiausiai [mb] MB laisvos vietos kietajame diske.
 CannotInstallToNetworkDrive=Diegimo programa negali diegti į tinklinį diską.
-CannotInstallToUNCPath=Diegimo programa negali diegti į UNC tipo katalogą.
+CannotInstallToUNCPath=Diegimo programa negali diegti į UNC kelią.
 InvalidPath=Jūs privalote įrašyti pilną kelią su disko raide; pavyzdžiui:%n%nC:\APP%n%narba UNC kelią tokiu pavidalu:%n%n\\Serveris\share
 InvalidDrive=Diskas ar UNC bendrinys, kurį nurodėte, neegzistuoja arba yra neprieinamas. Nurodykite kitą.
 DiskSpaceWarningTitle=Nepakanka laisvos vietos diske
@@ -187,10 +187,10 @@ DiskSpaceWarning=Diegimui reikia bent %1 KB laisvos vietos, bet nurodytame diske
 DirNameTooLong=Aplanko pavadinimas ar kelias iki jo per ilgas.
 InvalidDirName=Aplanko pavadinimas yra nekorektiškas.
 BadDirName32=Aplanko pavadinime neturi būti simbolių:%n%n%1
-DirExistsTitle=Aplankas egzistuoja
+DirExistsTitle=Toks aplankas yra
 DirExists=Aplankas:%n%n%1%n%njau yra. Vis tiek norite diegti programą tame aplanke?
 DirDoesntExistTitle=Tokio aplanko nėra
-DirDoesntExist=Aplankas:%n%n%1%n%nneegzistuoja. Norite, kad aplankas būtų sukurtas?
+DirDoesntExist=Aplanko:%n%n%1%n%nnėra. Norite, kad aplankas būtų sukurtas?
 
 ; *** "Select Components" wizard page
 WizardSelectComponents=Komponentų pasirinkimas
@@ -214,15 +214,15 @@ SelectTasksDesc=Kokius papildomus veiksmus reikia atlikti?
 SelectTasksLabel2=Nurodykite papildomus veiksmus, kuriuos diegimo programa turės atlikti „[name]“ diegimo metu, tada spauskite „Pirmyn“.
 
 ; *** "Select Start Menu Folder" wizard page
-WizardSelectProgramGroup=Nurodykite „Start Menu“ aplanką
+WizardSelectProgramGroup=Nurodykite „Pradžios meniu“ aplanką
 SelectStartMenuFolderDesc=Kur diegimo programa turėtų sukurti nuorodas?
-SelectStartMenuFolderLabel3=Nuorodos bus sukurtos šiame „Start Menu“ aplanke.
+SelectStartMenuFolderLabel3=Nuorodos bus sukurtos šiame „Pradžios meniu“ aplanke.
 SelectStartMenuFolderBrowseLabel=Norėdami tęsti diegimą spauskite „Pirmyn“. Jei norite pasirinkti kitą aplanką, spauskite „Nurodyti“.
 MustEnterGroupName=Jūs privalote įvesti aplanko pavadinimą.
 GroupNameTooLong=Aplanko pavadinimas ar kelias iki jo per ilgas.
 InvalidGroupName=Aplanko pavadinimas yra nekorektiškas.
 BadGroupName=Aplanko pavadinime neturi būti simbolių:%n%n%1
-NoProgramGroupCheck2=&Nekurti „Start Menu“ aplanko
+NoProgramGroupCheck2=&Nekurti „Pradžios meniu“ aplanko
 
 ; *** "Ready to Install" wizard page
 WizardReady=Pasirengta diegimui
@@ -230,10 +230,10 @@ ReadyLabel1=Diegimo programa dabar pasirengusi diegti „[name]“ Jūsų kompiu
 ReadyLabel2a=Spauskite „Įdiegti“, jei norite tęsti diegimą, arba „Atgal“, jeigu norite peržiūrėti nustatymus arba juos pakeisti.
 ReadyLabel2b=Spauskite „Įdiegti“, jei norite tęsti diegimą.
 ReadyMemoUserInfo=Naudotojo informacija:
-ReadyMemoDir=Katalogas diegimui:
+ReadyMemoDir=Diegimo vieta:
 ReadyMemoType=Diegimo tipas:
 ReadyMemoComponents=Pasirinkti komponentai:
-ReadyMemoGroup=„Start Menu“ aplankas:
+ReadyMemoGroup=„Pradžios meniu“ aplankas:
 ReadyMemoTasks=Papildomi veiksmai:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
@@ -293,7 +293,7 @@ RunEntryShellExec=Peržiūrėti „%1“
 ChangeDiskTitle=Diegimo programai reikia kito disko
 SelectDiskLabel2=Įdėkite diską %1 ir spauskite „Gerai“.%n%nJeigu reikiami failai gali būti rasti kitame aplanke, nei pavaizduota žemiau, įveskite teisingą kelią arba spauskite „Nurodyti“.
 PathLabel=&Kelias:
-FileNotInDir2=„%1“ failas nerastas „%2“ kataloge. Įdėkite teisingą diską arba pasirinkite kitą aplanką.
+FileNotInDir2=„%1“ failas nerastas „%2“ aplanke. Įdėkite teisingą diską arba pasirinkite kitą aplanką.
 SelectDirectoryLabel=Nurodykite kito disko vietą.
 
 ; *** Installation phase messages
