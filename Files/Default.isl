@@ -10,8 +10,9 @@
 ; - Do not remove these words: all, only, automatically, now, later, may, must, and not.
 ; - Do not add periods (.) or colons (:) or ellipses (...) to the end of messages that didn't have them already.
 ; - Do not remove periods or colons or ellipses or question marks from the end of messages.
-; - Do not replace periods with colons (:). Replacing '...' with '…' is allowed.
-; - Do not add or remove placeholders (%1, %2, etc.). Changing the order is allowed.
+; - Do not replace periods with colons. Replacing '...' with '…' is allowed.
+; - Do not add or remove number placeholders (%1, %2, etc.). Changing the order is allowed.
+; - Do not add or remove named placeholders ([name], [name/ver], etc.). Do not replace one with another.
 ; - Do not add or remove line breaks (%n).
 ; - Do not add accelerators (&) or create collisions. Remove an accelerator only if it cannot be moved to another letter.
 ; - Do not add new custom messages to the [CustomMessages] section.
