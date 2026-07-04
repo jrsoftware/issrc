@@ -2161,6 +2161,10 @@ begin
   RegisterDelphiFunction(@TestCreateCallback_InvokeRec8, 'TestCreateCallback_InvokeRec8');
   RegisterDelphiFunction(@TestCreateCallback_InvokeSet8, 'TestCreateCallback_InvokeSet8');
   RegisterDelphiFunction(@TestCreateCallback_InvokeArray8, 'TestCreateCallback_InvokeArray8');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeRecRet3, 'TestCreateCallback_InvokeRecRet3');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeRecRet5, 'TestCreateCallback_InvokeRecRet5');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeRecRetFloat3, 'TestCreateCallback_InvokeRecRetFloat3');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeRec8RecRet, 'TestCreateCallback_InvokeRec8RecRet');
   RegisterDelphiFunction(@TestInnerfuse_RecStringLength, 'TestInnerfuse_RecStringLength');
   RegisterDelphiFunction(@TestInnerfuse_RecStringLengthStdCall, 'TestInnerfuse_RecStringLengthStdCall', cdStdCall);
   RegisterDelphiFunction(@TestInnerfuse_ArrStringLength, 'TestInnerfuse_ArrStringLength');

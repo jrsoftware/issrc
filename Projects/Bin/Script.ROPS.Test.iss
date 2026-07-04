@@ -2656,6 +2656,26 @@ begin
     IntToStr(A[0]) + ',' + IntToStr(A[7]) + ';' + IntToStr(Tail);
 end;
 
+function Test_CreateCallback_CBRecRet3(A, B, C: Integer): TTestHandlerRec10;
+begin
+  Result.A := A; Result.B := B; Result.C := C; Result.D := A + C; Result.E := B + C;
+end;
+
+function Test_CreateCallback_CBRecRet5(A, B, C, D, E: Integer): TTestHandlerRec10;
+begin
+  Result.A := A; Result.B := B; Result.C := C; Result.D := D; Result.E := E;
+end;
+
+function Test_CreateCallback_CBRecRetFloat3(A, B: Integer; D: Double): TTestHandlerRec10;
+begin
+  Result.A := A; Result.B := B; Result.C := Trunc(D * 10); Result.D := A + B; Result.E := B + 1;
+end;
+
+function Test_CreateCallback_CBRec8RecRet(R: TTestHandlerRec8; Tail: Integer): TTestHandlerRec10;
+begin
+  Result.A := R.A; Result.B := R.B; Result.C := R.C; Result.D := R.D; Result.E := Tail;
+end;
+
 procedure Test_CreateCallback;
 #if arch == "x64"
 var
@@ -2666,27 +2686,28 @@ var
 begin
   { Tests CreateCallback, which generates platform-specific machine code
     (TASMInline) to bridge external stdcall callers to ROPS' register-convention
-    MyAllMethodsHandler. Each test exercises different asm code paths:
-    - 0 params: basic stub correctness (x86: pop/push retaddr, load Self;
-      x64: load Self->RCX, call)
-    - 5 params: on x86 tests parameter reversal and register pops;
-      on x64 tests register shifting, param4 spill, and stack-to-stack copy
-    - 4th param a float (x64 only): tests Param4IsFloatByValue path
-    - integer return value: tests return via EAX (x86) / RAX (x64)
-    - double return value: tests return via ST(0) (x86) / XMM0 (x64) }
+    MyAllMethodsHandler. Each test exercises different asm code paths, see
+    the comments below. }
 
+  { 0 params: basic stub correctness (x86: pop/push retaddr, load Self;
+    x64: load Self->RCX, call) }
   Test_CreateCallback_Result := '';
   TestCreateCallback_Invoke0(CreateCallback(@Test_CreateCallback_CBNoParams));
   CheckEqualsString('called', Test_CreateCallback_Result);
 
+  { 5 params: on x86 tests parameter reversal and register pops;
+    on x64 tests register shifting, param4 spill, and stack-to-stack copy }
   Test_CreateCallback_Result := '';
   TestCreateCallback_Invoke5(CreateCallback(@Test_CreateCallback_CBFiveParams), 'one', 2, 3, 4, 5);
   CheckEqualsString('one,2,3,4,5', Test_CreateCallback_Result);
 
   { Note: on x86 CreateCallback does not support callback parameters
     passed by value when their type is larger than 4 bytes (such as Int64,
-    UInt64, Double, Extended, Currency, or a record larger than 4 bytes) }
+    UInt64, Double, Extended, Currency, or a record larger than 4 bytes),
+    and also does not support result types which use a hidden result
+    pointer (such as a record larger than 4 bytes) }
 #if arch == "x64"
+  { 4th param a float (x64 only): tests Param4IsFloatByValue path }
   Test_CreateCallback_Result := '';
   Test_CreateCallback_FloatResult := 0.0;
   TestCreateCallback_InvokeFloat4(CreateCallback(@Test_CreateCallback_CBFloat4), 10, 20, 30, 4.5);
@@ -2720,9 +2741,19 @@ begin
   Test_CreateCallback_Arr8Fields := '';
   TestCreateCallback_InvokeArray8(CreateCallback(@Test_CreateCallback_CBArr8), A, 99);
   CheckEqualsString('30,37;99', Test_CreateCallback_Arr8Fields);
+
+  { Hidden result pointers: each test exercises different part of
+    CreateCallback's handling of the shifted parameters }
+  CheckEqualsString('10,20,30,40,50', TestCreateCallback_InvokeRecRet3(CreateCallback(@Test_CreateCallback_CBRecRet3), 10, 20, 30));
+  CheckEqualsString('1,2,3,4,5', TestCreateCallback_InvokeRecRet5(CreateCallback(@Test_CreateCallback_CBRecRet5), 1, 2, 3, 4, 5));
+  CheckEqualsString('10,20,32,30,21', TestCreateCallback_InvokeRecRetFloat3(CreateCallback(@Test_CreateCallback_CBRecRetFloat3), 10, 20, 3.25));
+  CheckEqualsString('30,31,32,33,99', TestCreateCallback_InvokeRec8RecRet(CreateCallback(@Test_CreateCallback_CBRec8RecRet), R, 99));
 #endif
 
+  { Integer return value: tests return via EAX (x86) / RAX (x64) }
   CheckEqualsInt64(30, TestCreateCallback_InvokeReturnInteger(CreateCallback(@Test_CreateCallback_CBReturnInteger), 10, 20));
+
+  { Double return value: tests return via ST(0) (x86) / XMM0 (x64) }
   CheckEqualsFloat(5.3, TestCreateCallback_InvokeReturnDouble(CreateCallback(@Test_CreateCallback_CBReturnDouble), 3, 5), 1e-9);
 
   { Int64 return value: tests return via EDX:EAX (x86) / RAX (x64) }

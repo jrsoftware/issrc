@@ -209,6 +209,10 @@ function TestCreateCallback_InvokeReturnInt64(Callback: NativeInt; A, B: Integer
 procedure TestCreateCallback_InvokeRec8(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer);
 procedure TestCreateCallback_InvokeSet8(Callback: NativeInt; const S: TTestHandlerSet8; Tail: Integer);
 procedure TestCreateCallback_InvokeArray8(Callback: NativeInt; const A: TTestHandlerArr8; Tail: Integer);
+function TestCreateCallback_InvokeRecRet3(Callback: NativeInt; A, B, C: Integer): String;
+function TestCreateCallback_InvokeRecRet5(Callback: NativeInt; A, B, C, D, E: Integer): String;
+function TestCreateCallback_InvokeRecRetFloat3(Callback: NativeInt; A, B: Integer; D: Double): String;
+function TestCreateCallback_InvokeRec8RecRet(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer): String;
 function TestStringRefCount(const S: String): Integer;
 
 implementation
@@ -777,11 +781,19 @@ begin
   { Calculate parameter count of our proc, will need this later. }
   const ProcRec = Caller.GetProcNo(P.ProcNo) as TPSInternalProcRec;
   var S := ProcRec.ExportDecl;
-  GRFW(S);
+  {$IFDEF CPUX64} const ResultTypeField = {$ENDIF} GRFW(S);
   var ParamCount := 0;
 {$IFDEF CPUX64}
+  { Check for hidden result pointer, shifting every parameter one slot,
+    matching what MyAllMethodsHandler expects after the shift below, so
+    count it as an extra leading param. }
+  if ResultTypeField <> '-1' then begin
+    const ResultType = Caller.GetTypeNo(Cardinal(StrToInt(ResultTypeField)));
+    if not ResultAsRegister(ResultType) then
+      Inc(ParamCount);
+  end;
   var Param4IsFloatByValue := False;
-  var BridgedParamPositions: TArray<Integer>; { Positions (1-based) of by-value 8-byte record and static array params }
+  var BridgedParamPositions: TArray<Integer>; { Positions (1-based, counting a hidden result pointer slot if present) of by-value 8-byte record and static array params }
 {$ENDIF}
   while S <> '' do begin
     Inc(ParamCount);
@@ -827,11 +839,13 @@ begin
     var SwapLast := ParamCount-1;
 
     { Reverse the order of parameters from param3 onwards in the stack
-      Limitation: this reversal code treats every parameter as a single
+      Limitation 1: this reversal code treats every parameter as a single
       4-byte stack slot. So on x86 CreateCallback does not support
       callback parameters passed by value when their type is larger than
       4 bytes (such as Int64, UInt64, Double, Extended, Currency, or a
-      record larger than 4 bytes). }
+      record larger than 4 bytes).
+      Limitation 2: does not support hidden result pointers. So on x86
+      CreateCallback does not support result types using those. }
     while SwapLast > SwapFirst do begin
       Inliner.Mov(ECX, Inliner.Addr(ESP, SwapFirst * 4)); //load the first item of the pair
       Inliner.Mov(EDX, Inliner.Addr(ESP, SwapLast * 4)); //load the last item of the pair
@@ -1313,6 +1327,10 @@ type
   TStdCallProcRec8 = procedure(R: TTestHandlerRec8; Tail: Integer); stdcall;
   TStdCallProcSet8 = procedure(S: TTestHandlerSet8; Tail: Integer); stdcall;
   TStdCallProcArr8 = procedure(A: TTestHandlerArr8; Tail: Integer); stdcall;
+  TStdCallFuncRecRet3 = function(A, B, C: Integer): TTestHandlerRec10; stdcall;
+  TStdCallFuncRecRet5 = function(A, B, C, D, E: Integer): TTestHandlerRec10; stdcall;
+  TStdCallFuncRecRetFloat3 = function(A, B: Integer; D: Double): TTestHandlerRec10; stdcall;
+  TStdCallFuncRec8RecRet = function(R: TTestHandlerRec8; Tail: Integer): TTestHandlerRec10; stdcall;
 
 procedure TestCreateCallback_Invoke0(Callback: NativeInt);
 begin
@@ -1362,6 +1380,31 @@ end;
 procedure TestCreateCallback_InvokeArray8(Callback: NativeInt; const A: TTestHandlerArr8; Tail: Integer);
 begin
   TStdCallProcArr8(Callback)(A, Tail);
+end;
+
+function TestHandlerRec10ToString(const R: TTestHandlerRec10): String;
+begin
+  Result := Format('%d,%d,%d,%d,%d', [R.A, R.B, R.C, R.D, R.E]);
+end;
+
+function TestCreateCallback_InvokeRecRet3(Callback: NativeInt; A, B, C: Integer): String;
+begin
+  Result := TestHandlerRec10ToString(TStdCallFuncRecRet3(Callback)(A, B, C));
+end;
+
+function TestCreateCallback_InvokeRecRet5(Callback: NativeInt; A, B, C, D, E: Integer): String;
+begin
+  Result := TestHandlerRec10ToString(TStdCallFuncRecRet5(Callback)(A, B, C, D, E));
+end;
+
+function TestCreateCallback_InvokeRecRetFloat3(Callback: NativeInt; A, B: Integer; D: Double): String;
+begin
+  Result := TestHandlerRec10ToString(TStdCallFuncRecRetFloat3(Callback)(A, B, D));
+end;
+
+function TestCreateCallback_InvokeRec8RecRet(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer): String;
+begin
+  Result := TestHandlerRec10ToString(TStdCallFuncRec8RecRet(Callback)(R, Tail));
 end;
 
 function TestStringRefCount(const S: String): Integer;
