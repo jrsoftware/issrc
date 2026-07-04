@@ -139,10 +139,11 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Support functions <tt>TaskDialogMsgBox</tt> and <tt>SuppressibleTaskDialogMsgBox</tt> now wrap long instruction text onto multiple lines even when a custom style is active.</li>
     <li><i>Fixes:</i> Support function <tt>CreateCallback</tt> has been improved for some edge cases:
     <ul>
-      <li>In 32-bit installers, a by-value 3-byte static array parameter now receives the correct value.</li>
+      <li>In 32-bit installers, a by-value 3-byte record, set, or static array parameter now receives the correct value.</li>
       <li>In 64-bit installers, a by-value record, set, or static array parameter of 8 bytes or smaller, or an <tt>Extended</tt> or <tt>Currency</tt> parameter in one of the first three positions, now receives the correct value.</li>
       <li>In 32-bit installers, an <tt>Int64</tt> or <tt>UInt64</tt> result is now returned correctly.</li>
       <li>In both 32-bit and 64-bit installers, a <tt>Currency</tt> result is now returned correctly.</li>
+      <li>A by-value record result is now returned correctly: of 1 or 2 bytes, or an unmanaged 4-byte one, in 32-bit installers, and of 1, 2, or 4 bytes, or an unmanaged 8-byte one, in 64-bit installers.</li>
     </ul>
     </li>
     <li><i>Fixes:</i> Using DLL files has been improved for some edge cases:
