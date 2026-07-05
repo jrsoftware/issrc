@@ -53,6 +53,7 @@ function MsgBoxFmt(const Text: String; const Args: array of const;
 procedure SetMessageBoxRightToLeft(const ARightToLeft: Boolean);
 function GetMessageBoxRightToLeft: Boolean;
 procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: NativeInt);
+procedure GetMessageBoxCallbackFunc(out AFunc: TMsgBoxCallbackFunc; out AParam: NativeInt);
 procedure TriggerMessageBoxCallbackFunc(const Flags: Cardinal; const After: Boolean);
 function GetOwnerWndForMessageBox: HWND;
 function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
@@ -197,6 +198,12 @@ procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const APar
 begin
   MessageBoxCallbackFunc := AFunc;
   MessageBoxCallbackParam := AParam;
+end;
+
+procedure GetMessageBoxCallbackFunc(out AFunc: TMsgBoxCallbackFunc; out AParam: NativeInt);
+begin
+  AFunc := MessageBoxCallbackFunc;
+  AParam := MessageBoxCallbackParam;
 end;
 
 procedure TriggerMessageBoxCallbackFunc(const Flags: Cardinal; const After: Boolean);
