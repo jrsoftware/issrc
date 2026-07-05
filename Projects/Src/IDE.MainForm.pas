@@ -2450,8 +2450,11 @@ begin
     UpdateCaption;
     UpdatePreprocMemos;
     if AppData.DebugInfo <> nil then begin
-      ParseDebugInfo(AppData.DebugInfo); { Must be called after UpdateIncludedFilesMemos }
-      FreeMem(AppData.DebugInfo);
+      try
+        ParseDebugInfo(AppData.DebugInfo); { Must be called after UpdateIncludedFilesMemos }
+      finally
+        FreeMem(AppData.DebugInfo);
+      end;
     end;
     InvalidateStatusPanel(spCompileIcon);
     InvalidateStatusPanel(spCompileProgress);
