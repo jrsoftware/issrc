@@ -194,6 +194,7 @@ const
   SDesignerScriptHas = '&Script has %1';
   SRegistryDesignerScriptHasSet = 'Script has %1 set';
   SRegistryDesignerInvalidFileFormat = 'Invalid file format.';
+  SRegistryDesignerFileNotExistError = 'The specified registry file does not exist.';
 
   { MsgBox Designer }
   SMsgBoxDesignerPreviewCaption = 'Setup';

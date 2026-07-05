@@ -39,6 +39,7 @@ type
         UninsDeleteKeyIfEmptyCheck, UninsDeleteValueCheck, MinVerCheck: TCheckBox;
         const MinVerEdit: TEdit; const MinVerDocBitBtn: TBitmapButton);
       procedure AddScript(var Registry: String; const AllowException: Boolean);
+      function ValidateOptionalFile: Boolean;
       property PrivilegesRequired: TPrivilegesRequired write SetPrivilegesRequired;
     end;
 
@@ -47,7 +48,8 @@ implementation
 uses
   Windows, ShLwApi, Classes, SysUtils, StrUtils, TypInfo, Graphics, UITypes,
   ComCtrls, BrowseFunc,
-  IDE.MainForm, IDE.ImagesModule, IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc, Shared.CommonFunc, IDE.HtmlHelpFunc;
+  Shared.CommonFunc, Shared.CommonFunc.Vcl,
+  IDE.MainForm, IDE.ImagesModule, IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc, IDE.HtmlHelpFunc;
 
 { TWizardFormRegistryHelper }
 
@@ -132,6 +134,15 @@ procedure TWizardFormRegistryHelper.MinVerDocBitBtnClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
     HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, DWORD_PTR(PChar('topic_winvernotes.htm')));
+end;
+
+function TWizardFormRegistryHelper.ValidateOptionalFile: Boolean;
+begin
+  Result := (FFileEdit.Text = '') or NewFileExists(FFileEdit.Text);
+  if not Result then begin
+    MsgBox(LFmtMessage(SRegistryDesignerFileNotExistError), '', mbError, MB_OK);
+    FForm.ActiveControl := FFileEdit;
+  end;
 end;
 
 procedure TWizardFormRegistryHelper.AddScript(var Registry: String;

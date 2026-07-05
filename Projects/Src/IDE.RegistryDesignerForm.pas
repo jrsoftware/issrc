@@ -97,8 +97,10 @@ end;
 
 procedure TRegistryDesignerForm.InsertButtonClick(Sender: TObject);
 begin
-  if not FileExists(AppRegistryFileEdit.Text) then
-    ModalResult := mrCancel;
+  if AppRegistryFileEdit.Text = '' then
+    ModalResult := mrCancel
+  else if not FRegistryHelper.ValidateOptionalFile then
+    ModalResult := mrNone;
 end;
 
 end.

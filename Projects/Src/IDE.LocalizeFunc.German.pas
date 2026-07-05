@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..942] of TTranslationPair = (
+  GermanIDETranslations: array [0..943] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -152,6 +152,7 @@ const
     (English: '&Script has %1'; Localized: '&Skript enthält %1'),
     (English: 'Script has %1 set'; Localized: 'Im Skript ist %1 gesetzt'),
     (English: 'Invalid file format.'; Localized: 'Ungültiges Dateiformat.'),
+    (English: 'The specified registry file does not exist.'; Localized: 'Die angegebene Registry-Datei ist nicht vorhanden.'),
     (English: 'Setup'; Localized: 'Setup'),
     (English: 'Your message text.'; Localized: 'Ihr Meldungstext.'),
     (English: 'Enter your text here...'; Localized: 'Geben Sie hier Ihren Text ein...'),

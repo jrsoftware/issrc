@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..942] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..943] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -152,6 +152,7 @@ const
     (English: '&Script has %1'; Localized: 'スクリプトに %1 があります(&S)'),
     (English: 'Script has %1 set'; Localized: 'スクリプトに %1 が設定されています'),
     (English: 'Invalid file format.'; Localized: '無効なファイル形式です。'),
+    (English: 'The specified registry file does not exist.'; Localized: '指定されたレジストリファイルは存在しません。'),
     (English: 'Setup'; Localized: 'セットアップ'),
     (English: 'Your message text.'; Localized: 'メッセージのテキスト。'),
     (English: 'Enter your text here...'; Localized: 'ここにテキストを入力してください...'),

@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..942] of TTranslationPair = (
+  DutchIDETranslations: array [0..943] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -152,6 +152,7 @@ const
     (English: '&Script has %1'; Localized: '&Script heeft %1'),
     (English: 'Script has %1 set'; Localized: 'In het script is %1 ingesteld'),
     (English: 'Invalid file format.'; Localized: 'Ongeldige bestandsindeling.'),
+    (English: 'The specified registry file does not exist.'; Localized: 'Het opgegeven registerbestand bestaat niet.'),
     (English: 'Setup'; Localized: 'Setup'),
     (English: 'Your message text.'; Localized: 'Uw berichttekst.'),
     (English: 'Enter your text here...'; Localized: 'Voer hier uw tekst in...'),

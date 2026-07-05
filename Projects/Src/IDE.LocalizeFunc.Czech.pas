@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..942] of TTranslationPair = (
+  CzechIDETranslations: array [0..943] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -152,6 +152,7 @@ const
     (English: '&Script has %1'; Localized: '&Skript obsahuje %1'),
     (English: 'Script has %1 set'; Localized: 'Skript má nastaveno %1'),
     (English: 'Invalid file format.'; Localized: 'Neplatný formát souboru.'),
+    (English: 'The specified registry file does not exist.'; Localized: 'Zadaný soubor registru neexistuje.'),
     (English: 'Setup'; Localized: 'Setup'),
     (English: 'Your message text.'; Localized: 'Text vaší zprávy.'),
     (English: 'Enter your text here...'; Localized: 'Sem zadejte text...'),

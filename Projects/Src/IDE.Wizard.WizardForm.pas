@@ -627,6 +627,7 @@ begin
     wpAppDir: if not CheckAppDirPage then Exit;
     wpAppFiles: if not CheckAppFilesPage then Exit;
     wpAppIcons: if not CheckAppIconsPage then Exit;
+    wpAppRegistry: if not FRegistryHelper.ValidateOptionalFile then Exit;
     wpLanguages: if not CheckLanguagesPage then Exit;
   end;
 
