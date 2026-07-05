@@ -179,7 +179,7 @@ function ReadUninstallLogFlags(const F: TFile; const Filename: String): TUninsta
 implementation
 
 uses
-  Messages, ShlObj, AnsiStrings,
+  Messages, ShlObj, AnsiStrings, Character,
   UnsignedFunc, PathFunc,
   Shared.Struct, Shared.SetupTypes, Shared.SetupMessageIDs,
   SetupLdrAndSetup.Messages,
@@ -1160,7 +1160,8 @@ class function TUninstallLog.WriteSafeHeaderString(Dest: PAnsiChar;
  const Source: String; MaxDestBytes: Cardinal): Cardinal;
 { Copies a string into a PAnsiChar including null terminator, either directly
   if Source only contains ASCII characters, or else UTF-8-encoded with a special
-  #1 marker. If MaxDestBytes = 0 it returns the amount of bytes needed. }
+  #1 marker. Truncates if the result does not fit. If MaxDestBytes = 0 it
+  returns the amount of bytes needed. }
 begin
   const N = ULength(Source);
   { Only UTF-8-encode when non-ASCII characters are present }
@@ -1171,7 +1172,19 @@ begin
         Inc(Dest);
         Dec(MaxDestBytes);
       end;
-      Result := SizeOf(Dest^) + UnicodeToUtf8(Dest, MaxDestBytes, PWideChar(Source), N + 1);
+      var Source2 := Source;
+      var N2 := N;
+      var Bytes: Cardinal;
+      repeat
+        Bytes := UnicodeToUtf8(Dest, MaxDestBytes, PWideChar(Source2), N2 + 1);
+        if Bytes = 0 then begin
+          Dec(N2);
+          if (N2 > 0) and Source2[N2].IsHighSurrogate then
+            Dec(N2);
+          SetLength(Source2, N2);
+        end;
+      until Bytes <> 0;
+      Result := SizeOf(Dest^) + Bytes;
       Exit;
     end;
   end;
