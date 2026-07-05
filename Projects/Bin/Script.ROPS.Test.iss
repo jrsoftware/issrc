@@ -2748,6 +2748,9 @@ begin
   CheckEqualsString('1,2,3,4,5', TestCreateCallback_InvokeRecRet5(CreateCallback(@Test_CreateCallback_CBRecRet5), 1, 2, 3, 4, 5));
   CheckEqualsString('10,20,32,30,21', TestCreateCallback_InvokeRecRetFloat3(CreateCallback(@Test_CreateCallback_CBRecRetFloat3), 10, 20, 3.25));
   CheckEqualsString('30,31,32,33,99', TestCreateCallback_InvokeRec8RecRet(CreateCallback(@Test_CreateCallback_CBRec8RecRet), R, 99));
+
+  { Hidden result pointer must also be returned in RAX }
+  CheckEqualsString('RAX=buffer,10,20,30,40,50', TestCreateCallback_InvokeRecRet3RAX(CreateCallback(@Test_CreateCallback_CBRecRet3)));
 #endif
 
   { Integer return value: tests return via EAX (x86) / RAX (x64) }

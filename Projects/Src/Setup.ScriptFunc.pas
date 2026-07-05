@@ -2165,6 +2165,9 @@ begin
   RegisterDelphiFunction(@TestCreateCallback_InvokeRecRet5, 'TestCreateCallback_InvokeRecRet5');
   RegisterDelphiFunction(@TestCreateCallback_InvokeRecRetFloat3, 'TestCreateCallback_InvokeRecRetFloat3');
   RegisterDelphiFunction(@TestCreateCallback_InvokeRec8RecRet, 'TestCreateCallback_InvokeRec8RecRet');
+{$IFDEF CPUX64}
+  RegisterDelphiFunction(@TestCreateCallback_InvokeRecRet3RAX, 'TestCreateCallback_InvokeRecRet3RAX');
+{$ENDIF}
   RegisterDelphiFunction(@TestInnerfuse_RecStringLength, 'TestInnerfuse_RecStringLength');
   RegisterDelphiFunction(@TestInnerfuse_RecStringLengthStdCall, 'TestInnerfuse_RecStringLengthStdCall', cdStdCall);
   RegisterDelphiFunction(@TestInnerfuse_ArrStringLength, 'TestInnerfuse_ArrStringLength');

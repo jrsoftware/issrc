@@ -213,6 +213,9 @@ function TestCreateCallback_InvokeRecRet3(Callback: NativeInt; A, B, C: Integer)
 function TestCreateCallback_InvokeRecRet5(Callback: NativeInt; A, B, C, D, E: Integer): String;
 function TestCreateCallback_InvokeRecRetFloat3(Callback: NativeInt; A, B: Integer; D: Double): String;
 function TestCreateCallback_InvokeRec8RecRet(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer): String;
+{$IFDEF CPUX64}
+function TestCreateCallback_InvokeRecRet3RAX(Callback: NativeInt): String;
+{$ENDIF}
 function TestStringRefCount(const S: String): Integer;
 
 implementation
@@ -1406,6 +1409,35 @@ function TestCreateCallback_InvokeRec8RecRet(Callback: NativeInt; const R: TTest
 begin
   Result := TestHandlerRec10ToString(TStdCallFuncRec8RecRet(Callback)(R, Tail));
 end;
+
+{$IFDEF CPUX64}
+{ Calls a TStdCallFuncRecRet3 callback with arguments 10, 20, 30 and returns
+  the value the callback left in RAX. Uses asm because when calling normally
+  Delphi discards RAX. }
+function CallRecRet3ForRAX(const Callback: Pointer; const ResultBuffer: Pointer): Pointer;
+asm
+  .PARAMS 4
+  mov r10, rcx // Callback
+  mov rcx, rdx // ResultBuffer -> hidden result pointer
+  mov edx, 10  // Param 1 to callback
+  mov r8d, 20  // Param 2
+  mov r9d, 30  //Param 3
+  call r10
+end;
+
+function TestCreateCallback_InvokeRecRet3RAX(Callback: NativeInt): String;
+{ Calls the callback like a C caller and returns what RAX held. In the Win64 ABI,
+  large/managed results are returned via a caller-allocated buffer passed as the
+  first argument and the callee must return that same hidden pointer in RAX. }
+begin
+  var Rec: TTestHandlerRec10;
+  const RAXValue = CallRecRet3ForRAX(Pointer(Callback), @Rec); { @Rec = the buffer mentioned above }
+  if RAXValue = @Rec then { RAXValue = hidden pointer in RAX mentioned above }
+    Result := 'RAX=buffer,' + TestHandlerRec10ToString(Rec)
+  else
+    Result := 'RAX=bad,' + TestHandlerRec10ToString(Rec);
+end;
+{$ENDIF}
 
 function TestStringRefCount(const S: String): Integer;
 begin

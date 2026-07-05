@@ -12689,7 +12689,10 @@ begin
         CopyArrayContents(Pointer(IPointer(Stack)-IPointer(PointerSize2)), @PPSVariantData(res)^.Data, 1, Res^.FType);
       end;
 {$ENDIF}
-    end;
+    end{$IFDEF DELPHI} else begin
+      { The Win64 ABI requires returning the hidden result pointer in RAX }
+      PPointer(ResPtr)^ := PPSVariantPointer(Res).DataDest;
+    end{$ENDIF};
     DestroyHeapVariant(res);
   end;
   for i := 0 to Params.Count - 1 do

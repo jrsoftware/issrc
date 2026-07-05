@@ -82,6 +82,9 @@ var
     'function TestCreateCallback_InvokeRecRet5(Callback: NativeInt; A, B, C, D, E: Integer): String;',
     'function TestCreateCallback_InvokeRecRetFloat3(Callback: NativeInt; A, B: Integer; D: Double): String;',
     'function TestCreateCallback_InvokeRec8RecRet(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer): String;',
+{$IFDEF CPUX64}
+    'function TestCreateCallback_InvokeRecRet3RAX(Callback: NativeInt): String;',
+{$ENDIF}
     'function TestInnerfuse_RecStringLength(Value: TTestHandlerRecString): Integer;',
     'function TestInnerfuse_RecStringLengthStdCall(Value: TTestHandlerRecString): Integer;',
     'function TestInnerfuse_ArrStringLength(Value: TTestHandlerArrString): Integer;',
