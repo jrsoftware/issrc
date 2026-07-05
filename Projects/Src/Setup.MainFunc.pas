@@ -2095,7 +2095,7 @@ end;
 function PreviousInstallCompleted(const WizardComponents, WizardTasks: TStringList): Boolean;
 begin
   Result := True;
-  if Entries[seFile].Count = 0 then
+  if (Entries[seFile].Count = 0) and (Entries[seInstallDelete].Count = 0) then
     Exit;
   CheckForFileSL := TStringList.Create;
   try
