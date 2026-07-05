@@ -101,7 +101,7 @@ begin
   else
     User := CustomUser;
   if CustomPass = '' then
-    Pass := TNetEncoding.URL.Decode(Uri.Password, [TURLEncoding.TDecodeOption.PlusAsSpaces])
+    Pass := TNetEncoding.URL.Decode(Uri.Password)
   else
     Pass := CustomPass;
   Uri.Username := '';
