@@ -405,17 +405,13 @@ begin
 end;
 
 function TScriptCompiler.FindExport(const Name, Decl: String; const IgnoreIndex: NativeInt): NativeInt;
-var
-  ScriptExport: TScriptExport;
 begin
   for var I := 0 to FExports.Count-1 do begin
-    ScriptExport := FExports[I];
-    if ((Name = '') or (CompareText(ScriptExport.Name, Name) = 0)) and
-       ((Decl = '') or (CompareText(ScriptExport.Decl, Decl) = 0)) and
-       ((IgnoreIndex = -1) or (I <> IgnoreIndex)) then begin
-      Result := I;
-      Exit;
-    end;
+    const ScriptExport: TScriptExport = FExports[I];
+    if ((Name = '') or SameText(ScriptExport.Name, Name)) and
+       ((Decl = '') or SameText(ScriptExport.Decl, Decl)) and
+       ((IgnoreIndex = -1) or (I <> IgnoreIndex)) then
+      Exit(I);
   end;
   Result := -1;
 end;
@@ -430,8 +426,7 @@ begin
     ScriptExport := FExports[I];
     if ScriptExport.Required and not ScriptExport.Exported then begin
       if Assigned(FOnError) then begin
-        { Either the function wasn't present or it was present but matched another export }
-        if FindExport(ScriptExport.Name, '', I) <> -1 then
+        if FunctionFound(ScriptExport.Name) then
           Msg := Format('Required function or procedure ''%s'' found but not with a compatible prototype', [ScriptExport.Name])
         else
           Msg := Format('Required function or procedure ''%s'' not found', [ScriptExport.Name]);
@@ -527,16 +522,11 @@ begin
 end;
 
 function TScriptCompiler.FunctionFound(const Name: String): Boolean;
-var
-  I: Integer;
 begin
+  for var I := 0 to FFunctionsFound.Count-1 do
+    if SameText(FFunctionsFound[I], Name) then
+      Exit(True);
   Result := False;
-  for I := 0 to FFunctionsFound.Count-1 do begin
-    if CompareText(FFunctionsFound[I], Name) = 0 then begin
-      Result := True;
-      Break;
-    end;
-  end;
 end;
 
 function TScriptCompiler.GetExportCount: NativeInt;
