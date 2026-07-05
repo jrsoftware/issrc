@@ -597,7 +597,7 @@ procedure TWizardForm.NextButtonClick(Sender: TObject);
   begin
     Result := False;
 
-    if AppGroupNameEdit.Text = '' then begin
+    if AppGroupNameEdit.Enabled and (AppGroupNameEdit.Text = '') then begin
       MsgBox(LFmtMessage(SWizardAppGroupNameError), '', mbError, MB_OK);
       ActiveControl := AppGroupNameEdit;
     end else
