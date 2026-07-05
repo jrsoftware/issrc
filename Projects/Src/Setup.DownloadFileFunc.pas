@@ -97,11 +97,11 @@ function GetCredentialsAndCleanUrl(const Url, CustomUser, CustomPass: String; va
 begin
   const Uri = TUri.Create(Url); { This is a record so no need to free }
   if CustomUser = '' then
-    User := TNetEncoding.URL.Decode(Uri.Username)
+    User := TNetEncoding.URL.Decode(Uri.Username, [])
   else
     User := CustomUser;
   if CustomPass = '' then
-    Pass := TNetEncoding.URL.Decode(Uri.Password)
+    Pass := TNetEncoding.URL.Decode(Uri.Password, [])
   else
     Pass := CustomPass;
   Uri.Username := '';
