@@ -5864,6 +5864,8 @@ begin
           AbortCompileFmt(SCompilerParamFlagMissing, ['nocompression', 'dontverifychecksum']);
 
         if ExternalFile then begin
+          if ReadmeFile and (ADestName = '') then
+            AbortCompileFmt(SCompilerParamFlagMissingParam2, [ParamFilesDestName, 'external', 'isreadme']);
           if Sign <> fsNoSetting then
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, 'external', SignFlags[Sign]]);

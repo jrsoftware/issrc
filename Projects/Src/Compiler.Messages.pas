@@ -205,6 +205,7 @@ const
   SCompilerParamFlagMissing2 = 'Flag "%s" must be used if parameter "%s" is used';
   SCompilerParamFlagMissing3 = 'Flag "%s" must be used if flags "%s" and "%s" are both used';
   SCompilerParamFlagMissingParam = 'Parameter "%s" must be specified if flag "%s" is used';
+  SCompilerParamFlagMissingParam2 = 'Parameter "%s" must be specified if flags "%s" and "%s" are both used';
 
   { Types, components, tasks, check, beforeinstall, afterinstall }
   SCompilerParamUnknownType = 'Parameter "%s" includes an unknown type';
