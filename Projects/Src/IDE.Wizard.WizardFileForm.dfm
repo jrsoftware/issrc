@@ -47,7 +47,7 @@ object WizardFileForm: TWizardFileForm
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 1
+    TabOrder = 2
     OnClick = OKButtonClick
   end
   object CancelButton: TButton
@@ -59,7 +59,7 @@ object WizardFileForm: TWizardFileForm
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 2
+    TabOrder = 3
   end
   object GroupBox2: TNewGroupBox
     Left = 8
@@ -68,7 +68,7 @@ object WizardFileForm: TWizardFileForm
     Height = 197
     Anchors = [akLeft, akRight, akBottom]
     Caption = ' Destination '
-    TabOrder = 0
+    TabOrder = 1
     DesignSize = (
       403
       197)
@@ -142,7 +142,7 @@ object WizardFileForm: TWizardFileForm
     Height = 133
     Anchors = [akLeft, akTop, akRight, akBottom]
     Caption = ' Source '
-    TabOrder = 3
+    TabOrder = 0
     DesignSize = (
       403
       133)

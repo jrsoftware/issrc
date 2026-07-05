@@ -216,9 +216,9 @@ begin
     FWizardFile.Options := FWizardFile.Options * [foDownload];
     if ExtractArchiveCheck.Checked then
       Include(FWizardFile.Options, foExtractArchive);
-    if RecurseSubDirsCheck.Checked then
+    if RecurseSubDirsCheck.Enabled and RecurseSubDirsCheck.Checked then
       Include(FWizardFile.Options, foRecurseSubDirs);
-    if CreateAllSubDirsCheck.Checked then
+    if CreateAllSubDirsCheck.Enabled and CreateAllSubDirsCheck.Checked then
       Include(FWizardFile.Options, foCreateAllSubDirs);
     if CustomDestRootDir then begin
       FWizardFile.DestRootDir := DestRootDirEdit.Text;
