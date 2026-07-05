@@ -284,7 +284,8 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
   function RequiresAdminInstallMode(AEntry: TRegistryEntry): Boolean;
   begin
     Result := (AEntry.Root = 'HKLM') or (AEntry.Root = 'HKCC') or
-              ((AEntry.Root = 'HKU') and SameText(AEntry.QuotedSubkey, '".Default"'));
+              ((AEntry.Root = 'HKU') and
+               (SameText(AEntry.QuotedSubkey, '".Default"') or StartsText('".Default\', AEntry.QuotedSubkey)));
   end;
 
    function RequiresNotAdminInstallMode(AEntry: TRegistryEntry): Boolean;
