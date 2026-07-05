@@ -1752,7 +1752,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <flag name="deleteafterinstall">
 <p>Instructs Setup to install the file as usual, but then delete it once the installation is completed (or aborted). This can be useful for extracting temporary data needed by a program executed in the script's <sn>[Run]</sn> section.</p>
 <p>This flag will not cause existing files that weren't replaced during installation to be deleted.</p>
-<p>This flag cannot be combined with the <tt>isreadme</tt>, <tt>regserver</tt>, <tt>regtypelib</tt>, <tt>restartreplace</tt>, <tt>sharedfile</tt>, or <tt>uninsneveruninstall</tt> flags.</p>
+<p>This flag cannot be combined with the <tt>isreadme</tt>, <tt>gacinstall</tt>, <tt>regserver</tt>, <tt>regtypelib</tt>, <tt>restartreplace</tt>, <tt>sharedfile</tt>, or <tt>uninsneveruninstall</tt> flags.</p>
 </flag>
 <flag name="dontcopy">
 <p>Don't copy the file to the user's system during the normal file copying stage but do statically compile the file into the installation. This flag is useful if the file is handled by the <sn>[Code]</sn> section exclusively and extracted using <isxfunc>ExtractTemporaryFile</isxfunc>, and in that case should be combined with <tt>noencryption</tt>.</p>

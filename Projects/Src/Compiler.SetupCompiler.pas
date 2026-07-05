@@ -5821,6 +5821,8 @@ begin
         if (ADestDir = '{tmp}') or (Copy(ADestDir, 1, Length('{tmp}\')) = '{tmp}\') then
           Include(Options, foDeleteAfterInstall);
         if foDeleteAfterInstall in Options then begin
+          if ReadmeFile then
+            AbortCompileFmt(SCompilerFilesTmpBadFlag, ['isreadme']);
           if foRestartReplace in Options then
             AbortCompileFmt(SCompilerFilesTmpBadFlag, ['restartreplace']);
           if foUninsNeverUninstall in Options then
