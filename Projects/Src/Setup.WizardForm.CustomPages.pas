@@ -1144,6 +1144,8 @@ begin
 
   try
     for var I := 0 to FFiles.Count-1 do begin
+      if FThrottler <> nil then
+        FThrottler.Reset;
       { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before downloading since we already process messages ourselves }
       const F = FFiles[I];
       FLastBaseNameOrUrl := IfThen(FShowBaseNameInsteadOfUrl, PathExtractName(F.BaseName), F.Url);
@@ -1289,6 +1291,8 @@ begin
 
   try
     for var A in FArchives do begin
+      if FThrottler <> nil then
+        FThrottler.Reset;
       { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before extraction since we already process messages ourselves }
       if SetupHeader.SevenZipLibraryName <> '' then
         ExtractArchive(A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress)
