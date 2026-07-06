@@ -16,16 +16,19 @@
 ; - Do not add or remove line breaks (%n).
 ; - Do not add accelerators (&) or create collisions. Remove an accelerator only if it cannot be moved to another letter.
 ; - Do not add new custom messages to the [CustomMessages] section.
+; - Do not translate comments like these.
 ; - Keep AboutSetupNote empty.
 ; Before you start, decide how you will translate each of these recurring terms:
 ; - Setup, Uninstall (the program), uninstall (the verb), Cannot uninstall,
 ;   program, application, component, task,
-;   shortcut, Start Menu, folder, directory, drive,
+;   shortcut, Start Menu, folder, directory, path, location, drive,
 ;   existing file, source file, registry, INI entries, README,
 ;   computer, Windows, version, administrator, all users, current user,
 ;   Downloading files, Extracting files, aborted, corrupted, close (applications), restart,
 ;   Select action, try again, anyway, at least,
 ;   and the button captions OK, Cancel, Yes, No, Next, Back, Install, Browse, Finish.
+; - When in doubt, use Microsoft Terminology Search from:
+;   https://msit.powerbi.com/view?r=eyJrIjoiODJmYjU4Y2YtM2M0ZC00YzYxLWE1YTktNzFjYmYxNTAxNjQ0IiwidCI6IjcyZjk4OGJmLTg2ZjEtNDFhZi05MWFiLTJkN2NkMDExZGI0NyIsImMiOjV9
 ; Removing this section from your translation is allowed, but do not disregard it.
 
 [LangOptions]
