@@ -1421,7 +1421,7 @@ asm
   mov rcx, rdx // ResultBuffer -> hidden result pointer
   mov edx, 10  // Param 1 to callback
   mov r8d, 20  // Param 2
-  mov r9d, 30  //Param 3
+  mov r9d, 30  // Param 3
   call r10
 end;
 
@@ -1432,10 +1432,8 @@ function TestCreateCallback_InvokeRecRet3RAX(Callback: NativeInt): String;
 begin
   var Rec: TTestHandlerRec10;
   const RAXValue = CallRecRet3ForRAX(Pointer(Callback), @Rec); { @Rec = the buffer mentioned above }
-  if RAXValue = @Rec then { RAXValue = hidden pointer in RAX mentioned above }
-    Result := 'RAX=buffer,' + TestHandlerRec10ToString(Rec)
-  else
-    Result := 'RAX=bad,' + TestHandlerRec10ToString(Rec);
+  { RAXValue = hidden pointer in RAX mentioned above }
+  Result := IntToStr(Ord(RAXValue = @Rec)) + ',' + TestHandlerRec10ToString(Rec);
 end;
 {$ENDIF}
 

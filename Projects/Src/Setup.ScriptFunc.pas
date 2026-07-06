@@ -2242,9 +2242,18 @@ begin
   begin
     const Method = Stack.GetProc(PStart-1, Caller);
     if Method.Code <> nil then begin
-      var R1: TTestHandlerRec4; R1.A := 10; R1.B := 11;
-      var R2: TTestHandlerRec6; R2.A := 20; R2.B := 21; R2.C := 22;
-      var R3: TTestHandlerRec8; R3.A := 30; R3.B := 31; R3.C := 32; R3.D := 33;
+      var R1: TTestHandlerRec4;
+      R1.A := 10;
+      R1.B := 11;
+      var R2: TTestHandlerRec6;
+      R2.A := 20;
+      R2.B := 21;
+      R2.C := 22;
+      var R3: TTestHandlerRec8;
+      R3.A := 30;
+      R3.B := 31;
+      R3.C := 32;
+      R3.D := 33;
       Stack.SetInt(PStart, TTestHandlerRecProc(Method)(R1, R2, R3, 99));
     end else
       Stack.SetInt(PStart, -1);
@@ -2254,8 +2263,16 @@ begin
   begin
     const Method = Stack.GetProc(PStart-1, Caller);
     if Method.Code <> nil then begin
-      var R1: TTestHandlerRec3; R1.A := 10; R1.B := 11; R1.C := 12;
-      var R2: TTestHandlerRec10; R2.A := 100; R2.B := 101; R2.C := 102; R2.D := 103; R2.E := 104;
+      var R1: TTestHandlerRec3;
+      R1.A := 10;
+      R1.B := 11;
+      R1.C := 12;
+      var R2: TTestHandlerRec10;
+      R2.A := 100;
+      R2.B := 101;
+      R2.C := 102;
+      R2.D := 103;
+      R2.E := 104;
       Stack.SetInt(PStart, TTestHandlerRecProc2(Method)(R1, R2, 99));
     end else
       Stack.SetInt(PStart, -1);
@@ -2288,9 +2305,15 @@ begin
   begin
     const Method = Stack.GetProc(PStart-1, Caller);
     if Method.Code <> nil then begin
-      var A1: TTestHandlerArr4; A1[0] := 10; A1[1] := 11; A1[2] := 12; A1[3] := 13;
-      var A2: TTestHandlerArr6; A2[0] := 20; A2[1] := 21; A2[2] := 22; A2[3] := 23; A2[4] := 24; A2[5] := 25;
-      var A3: TTestHandlerArr8; A3[0] := 30; A3[1] := 31; A3[2] := 32; A3[3] := 33; A3[4] := 34; A3[5] := 35; A3[6] := 36; A3[7] := 37;
+      var A1: TTestHandlerArr4;
+      for var I := 0 to High(A1) do
+        A1[I] := Byte(10 + I);
+      var A2: TTestHandlerArr6;
+      for var I := 0 to High(A2) do
+        A2[I] := Byte(20 + I);
+      var A3: TTestHandlerArr8;
+      for var I := 0 to High(A3) do
+        A3[I] := Byte(30 + I);
       Stack.SetInt(PStart, TTestHandlerArrProc(Method)(A1, A2, A3, 99));
     end else
       Stack.SetInt(PStart, -1);
@@ -2300,7 +2323,9 @@ begin
   begin
     const Method = Stack.GetProc(PStart-1, Caller);
     if Method.Code <> nil then begin
-      var A1: TTestHandlerArr3; A1[0] := 10; A1[1] := 11; A1[2] := 12;
+      var A1: TTestHandlerArr3;
+      for var I := 0 to High(A1) do
+        A1[I] := Byte(10 + I);
       var A2: TTestHandlerArr10;
       for var I := 0 to High(A2) do
         A2[I] := Byte(100 + I);
