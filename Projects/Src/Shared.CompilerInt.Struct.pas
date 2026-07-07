@@ -37,6 +37,8 @@ const
   isceInvalidParam = 1;    { Bad parameters passed to function }
   isceCompileFailure = 2;  { There was an error compiling or it was aborted
                              by the application }
+  isceConcurrentCall = 3;  { Compilation is already in progress; concurrent
+                             calls within the same process are not allowed }
 
 type
   { TCompilerCallbackData is a record passed to the callback function. The

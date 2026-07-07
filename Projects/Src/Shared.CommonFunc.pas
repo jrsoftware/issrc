@@ -17,6 +17,15 @@ uses
   Windows, SysUtils, Classes;
 
 type
+  TSimpleLock = record
+  strict private
+    [volatile] FLockValue: Integer;
+  public
+    class function Create: TSimpleLock; static;
+    procedure Release;
+    function TryAcquire: Boolean;
+  end;
+
   TOneShotTimer = record
   private
     FLastElapsed: Cardinal;
@@ -1780,6 +1789,23 @@ begin
     Result := rv64Bit
   else
     Result := rv32Bit;
+end;
+
+{ TSimpleLock }
+
+class function TSimpleLock.Create: TSimpleLock;
+begin
+  Result.FLockValue := 0;
+end;
+
+procedure TSimpleLock.Release;
+begin
+  AtomicExchange(FLockValue, 0);
+end;
+
+function TSimpleLock.TryAcquire: Boolean;
+begin
+  AtomicCmpExchange(FLockValue, 1, 0, Result);
 end;
 
 { TOneShotTimer }

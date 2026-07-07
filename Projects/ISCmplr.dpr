@@ -195,8 +195,11 @@ exports
   ISDllGetVersion;
 
 begin
-  { The user might call ISDllCompileScript from multiple threads
-    simultaneously, so set our instance of the Delphi memory manager to
-    thread-safe mode }
+  { Always enable thread-safe mode on the Delphi memory manager. Originally,
+    this was done in case a user called ISDllCompileScript from multiple
+    threads concurrently, but that is now explicitly disallowed (compilation
+    fails with isceConcurrentCall). Keeping it anyway just to be extra safe.
+    Calls to BeginThread (like in TLZMAWorkerThread) will also set it to True,
+    but direct calls to CreateThread won't (though there shouldn't be any). }
   IsMultiThread := True;
 end.
