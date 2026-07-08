@@ -4,6 +4,10 @@
   Changes:
   - jvcl.inc replaced by a minimal Inno Setup version
   - the JVCL/JCL dependencies replaced by JvInspectorSupport.pas
+  - the DotNET painter's row separator lines now follow DividerColor instead
+    of hard-coded clBtnFace
+  - its category divider lines now follow the new CategoryDividerColor
+    property instead of hard-coded clBtnShadow
   - ItemHeight and the built-in expand/collapse buttons and the boolean check
     boxes now scale to the inspector's current dpi
   - the ItemHeight default was raised from 16 to 18 so the default font's
@@ -627,6 +631,7 @@ type
     FButtonImage: TBitmap;
     FCanvas: TCanvas;
     FCategoryColor: TColor;
+    FCategoryDividerColor: TColor;
     FDividerColor: TColor;
     FInitializing: Boolean;
     FInspector: TJvCustomInspector;
@@ -662,6 +667,7 @@ type
     procedure DoPaint; virtual;
     function GetBackgroundColor: TColor; virtual;
     function GetCategoryColor: TColor; virtual;
+    function GetCategoryDividerColor: TColor; virtual;
     function GetCategoryFont: TFont; virtual;
     function GetHideSelectFont: TFont; virtual;
     function GetNameFont: TFont; virtual;
@@ -687,6 +693,7 @@ type
     procedure ScaleFonts(const M, D: Integer); virtual;
     procedure SetBackgroundColor(const Value: TColor); virtual;
     procedure SetCategoryColor(const Value: TColor); virtual;
+    procedure SetCategoryDividerColor(const Value: TColor); virtual;
     procedure SetCategoryFont(const Value: TFont); virtual;
     procedure SetDividerColor(const Value: TColor); virtual;
     procedure SetHideSelectColor(const Value: TColor); virtual;
@@ -723,6 +730,7 @@ type
   published
     property BackgroundColor: TColor read GetBackgroundColor write SetBackgroundColor;
     property CategoryColor: TColor read GetCategoryColor write SetCategoryColor;
+    property CategoryDividerColor: TColor read GetCategoryDividerColor write SetCategoryDividerColor;
     property CategoryFont: TFont read GetCategoryFont write SetCategoryFont;
     property DividerColor: TColor read GetDividerColor write SetDividerColor;
     property NameFont: TFont read GetNameFont write SetNameFont;
@@ -794,6 +802,7 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
   published
+    property CategoryDividerColor default clBtnShadow;
     property DividerColor default clBtnFace;
     property HideSelectColor default clBtnFace;
     property HideSelectFont;
@@ -4338,6 +4347,11 @@ begin
   Result := FCategoryColor;
 end;
 
+function TJvInspectorPainter.GetCategoryDividerColor: TColor;
+begin
+  Result := FCategoryDividerColor;
+end;
+
 function TJvInspectorPainter.GetCategoryFont: TFont;
 begin
   Result := FCategoryFont;
@@ -4659,6 +4673,16 @@ begin
   if Value <> CategoryColor then
   begin
     FCategoryColor := Value;
+    if not Initializing and not Loading and Assigned(Inspector) then
+      Inspector.Invalidate;
+  end;
+end;
+
+procedure TJvInspectorPainter.SetCategoryDividerColor(const Value: TColor);
+begin
+  if Value <> CategoryDividerColor then
+  begin
+    FCategoryDividerColor := Value;
     if not Initializing and not Loading and Assigned(Inspector) then
       Inspector.Invalidate;
   end;
@@ -5210,9 +5234,9 @@ begin
   SaveIdx := SaveCanvasState(Canvas);
   if EndOfCat or ((Item.IsCategory) and
     (Item.Level = 0)) then
-    Canvas.Pen.Color := clBtnShadow
+    Canvas.Pen.Color := CategoryDividerColor
   else
-    Canvas.Pen.Color := clBtnFace;
+    Canvas.Pen.Color := DividerColor;
   if not EndOfList and not EndOfCat then
     LeftX := Rects[iprItem].Left + RealButtonAreaWidth
   else
@@ -5223,7 +5247,7 @@ begin
   if Item <> Item.BaseCategory then
   begin
     if Item.BaseCategory <> nil then
-      Canvas.Pen.Color := clBtnShadow
+      Canvas.Pen.Color := CategoryDividerColor
     else
       Canvas.Pen.Color := CategoryColor;
     Canvas.MoveTo(Rects[iprItem].Left + RealButtonAreaWidth, Rects[iprItem].Top);
@@ -5236,7 +5260,7 @@ procedure TJvInspectorDotNETPainter.InitializeColors;
 begin
   inherited InitializeColors;
 
-  SetDefaultProp(Self, ['HideSelectColor']);
+  SetDefaultProp(Self, ['HideSelectColor', 'CategoryDividerColor']);
 
   HideSelectFont.Color := clHighlightText;
   SelectedFont.Color := clHighlightText;
