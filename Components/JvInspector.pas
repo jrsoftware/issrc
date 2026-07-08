@@ -1,3 +1,10 @@
+{ Modification notice: this unit was taken from JVCL
+  (github.com/project-jedi/jvcl), commit
+  b045b99e132c325a25b28769ae5db1b81b2234ef, for inclusion with Inno Setup.
+  Changes:
+  - jvcl.inc replaced by a minimal Inno Setup version
+  - the JVCL/JCL dependencies replaced by JvInspectorSupport.pas }
+
 {-----------------------------------------------------------------------------
 
  Project JEDI Visible Component Library (J-VCL)
@@ -170,8 +177,7 @@ uses
   {$ENDIF UNITVERSIONING}
   SysUtils, Classes, Contnrs, TypInfo, IniFiles,
   Windows, Messages, Graphics, Controls, StdCtrls, ExtCtrls,
-  JvExControls, JvAutoComplete, JvJVCLUtils,
-  JvComponentBase, JvComponent, JvTypes, JvConsts;
+  JvAutoComplete, JvInspectorSupport;
 
 const
   { Inspector Row Size constants }
@@ -2102,9 +2108,7 @@ uses
   {$IFDEF HAS_UNIT_SYSTEM_UITYPES}
   System.UITypes,
   {$ENDIF HAS_UNIT_SYSTEM_UITYPES}
-  RTLConsts, Types, Variants, Consts, Dialogs, Forms, Buttons,
-  JclRTTI, JclLogic, JclStrings,
-  JvJCLUtils, JvThemes, JvResources, JclSysUtils;
+  RTLConsts, Types, Variants, Consts, Dialogs, Forms, Buttons, Themes;
 
 // BCB Type Info support
 var

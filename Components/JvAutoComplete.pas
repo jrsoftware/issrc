@@ -1,3 +1,9 @@
+{ Modification notice: this unit was taken from JVCL
+  (github.com/project-jedi/jvcl), commit
+  b045b99e132c325a25b28769ae5db1b81b2234ef, for inclusion with Inno Setup.
+  Changes: jvcl.inc replaced by a minimal Inno Setup version and the JVCL
+  dependencies replaced by JvInspectorSupport.pas }
+
 {-----------------------------------------------------------------------------
 The contents of this file are subject to the Mozilla Public License
 Version 1.1 (the "License"); you may not use this file except in compliance
@@ -248,10 +254,7 @@ implementation
 
 uses
   StrUtils,
-  {$IFNDEF COMPILER12_UP}
-  JvJCLUtils,
-  {$ENDIF ~COMPILER12_UP}
-  JvConsts, JvJVCLUtils;
+  JvInspectorSupport;
 
 //=== { TJvControlAutoComplete } =============================================
 
