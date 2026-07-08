@@ -4857,6 +4857,8 @@ Keep the default set of selected tasks, but deselect the "desktopicon" task:<br/
 
 <li>Creators of <extlink href="http://www.scintilla.org/">Scintilla</extlink>: The syntax-highlighting editor used in the Compiler IDE (5.4).</li>
 
+<li>Creators of <extlink href="https://github.com/project-jedi/jvcl">TJvInspector</extlink>: The inspector control used in the Compiler IDE (7.1).</li>
+
 <li>Zaher Dirkey: Initial work on improved right-to-left languages support (5.2.3).</li>
 
 <li>Evgeny Karpov of RemObjects Software: Initial work on Unicode support (5.3).</li>
