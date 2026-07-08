@@ -16,8 +16,17 @@
     instead of hard-coded black on white
   - the boolean check boxes are now drawn themed through
     DrawThemedFrameControl and centered in the row
+  - the in-place editor is now borderless, follows the painter's background and
+    value-font colors instead of hard-coded clWindow/clWindowText, and keeps its
+    bounds in sync with the current layout
+  - clicking a value now moves the caret to the clicked character instead of
+    leaving the entire text selected
+  - Alt key combinations the drop-down logic does not consume, such as
+    Alt+F4, now keep their system meaning while an in-place editor is focused
   - the inspector now rescales its divider, band width and the painters'
-    fonts when its dpi changes }
+    fonts when its dpi changes
+  - a boolean check box now toggles on a double-click's second click so two
+    quick clicks toggle it twice }
 
 {-----------------------------------------------------------------------------
 
@@ -3218,6 +3227,7 @@ var
   ItemIndex: Integer;
   ItemRect: TRect;
   Item: TJvCustomInspectorItem;
+  CharPos: Integer;
 begin
   inherited MouseDown(Button, Shift, X, Y);
   if UseBands then
@@ -3298,6 +3308,21 @@ begin
     if (Item <> nil) and (PtInRect(Item.Rects[iprNameArea], Point(X, Y)) or
       PtInRect(Item.Rects[iprValueArea], Point(X, Y))) then
       Item.MouseDown(Button, Shift, X, Y);
+    // A click on the value of an item that was not being edited yet leaves
+    // the edit control's text fully selected; move the caret to the clicked
+    // character instead, like the Delphi object inspector (when the item was
+    // already being edited the click lands on the edit control itself and
+    // never gets here)
+    if not (ssDouble in Shift) and not DraggingDivider and not RowSizing and
+      not BandSizing and (Item <> nil) and Item.Editing and
+      (Item.EditCtrl <> nil) and Item.EditCtrl.HandleAllocated and
+      PtInRect(Item.Rects[iprEditValue], Point(X, Y)) then
+    begin
+      CharPos := Item.EditCtrl.Perform(EM_CHARFROMPOS, 0,
+        PointToLParam(Point(X - Item.EditCtrl.Left, Y - Item.EditCtrl.Top)));
+      if CharPos <> -1 then
+        Item.EditCtrl.Perform(EM_SETSEL, Word(CharPos), Word(CharPos));
+    end;
   end;
 
   if Assigned(Item) and Assigned(FOnEditorMouseDown) then
@@ -6024,9 +6049,12 @@ begin
           begin
             if DroppedDown then
               SendMessage(ListBox.Handle, Msg.Msg, Msg.WParam, Msg.LParam);
-            if not (iifAllowNonListValues in Flags) or
+            // Alt keys the drop-down logic did not consume must keep their
+            // system meaning, such as Alt+F4 (upstream swallowed them here)
+            if (Msg.Msg <> WM_SYSKEYDOWN) and
+              (not (iifAllowNonListValues in Flags) or
               ((Msg.Msg = WM_KEYDOWN) and
-              (TWMKeyDown(Msg).CharCode in [VK_UP, VK_DOWN])) then
+              (TWMKeyDown(Msg).CharCode in [VK_UP, VK_DOWN]))) then
               ExecInherited := False;
           end;
         end;
@@ -7044,7 +7072,12 @@ begin
   ARect := Rects[iprValue];
   SafeColor := ACanvas.Brush.Color;
   if Editing then
-    ACanvas.Brush.Color := clWindow;
+  begin
+    if Inspector.ActivePainter <> nil then
+      ACanvas.Brush.Color := Inspector.ActivePainter.BackgroundColor
+    else
+      ACanvas.Brush.Color := clWindow;
+  end;
   try
     if not Editing then
     begin
@@ -7058,8 +7091,11 @@ begin
     else
     begin
       ARect := Rects[iprValueArea];
-      Inc(ARect.Top);
       ACanvas.FillRect(ARect);
+      // Reposition the editor if the layout changed since InitEdit placed it,
+      // for example when InitEdit ran before the item was first painted
+      if (EditCtrl <> nil) and (EditCtrl.BoundsRect <> Rects[iprEditValue]) then
+        EditCtrl.BoundsRect := Rects[iprEditValue];
       DrawEditor(ACanvas);
     end;
   finally
@@ -7225,8 +7261,12 @@ begin
       TCustomEditAccessProtected(EditCtrl).TabStop := False;
       TCustomEditAccessProtected(EditCtrl).Color := Inspector.Canvas.Brush.Color;
     end
+    else if Inspector.ActivePainter <> nil then
+      TCustomEditAccessProtected(EditCtrl).Color := Inspector.ActivePainter.BackgroundColor
     else
       TCustomEditAccessProtected(EditCtrl).Color := clWindow;
+    if EditCtrl is TJvInspectorEdit then
+      TJvInspectorEdit(EditCtrl).BorderStyle := bsNone;
     FEditWndPrc := EditCtrl.WindowProc;
     EditCtrl.WindowProc := Edit_WndProc;
     TCustomEditAccessProtected(EditCtrl).AutoSize := False;
@@ -7251,7 +7291,13 @@ begin
       TListBox(ListBox).OnMeasureItem := DoMeasureListItem;
       TListBox(ListBox).OnExit := ListExit;
     end;
-    TCustomEditAccessProtected(EditCtrl).Font.Assign(Inspector.Font);
+    // The editor shows the text the value was painted with, so it must use
+    // the exact font it was painted with: any metric difference makes the
+    // text visibly shift when editing starts or ends
+    if Inspector.ActivePainter <> nil then
+      TCustomEditAccessProtected(EditCtrl).Font.Assign(Inspector.ActivePainter.ValueFont)
+    else
+      TCustomEditAccessProtected(EditCtrl).Font.Assign(Inspector.Font);
     EditCtrl.BoundsRect := Rects[iprEditValue];
     TCustomEditAccessProtected(EditCtrl).OnKeyDown := EditKeyDown;
     TCustomEditAccessProtected(EditCtrl).OnKeyPress := EditKeyPress;
@@ -9024,6 +9070,11 @@ begin
     Bool := not (Data.AsOrdinal <> Ord(False))
   else
     Bool := True;
+  // Treat the second click of a double-click as a normal click, so two quick
+  // clicks toggle the box twice like a standard Windows check box (upstream
+  // dropped the double-click's message, leaving the box toggled only once)
+  if (ssDouble in Shift) and ShowAsCheckBox then
+    Shift := Shift - [ssDouble];
   if PtInRect(FCheckRect, Point(X, Y)) and (Shift = [ssLeft]) and
     Editing and ShowAsCheckBox then
   begin
@@ -9032,8 +9083,6 @@ begin
   end
   else
   begin
-    if (ssDouble in Shift) and ShowAsCheckBox then
-      Shift := Shift - [ssDouble];
     if not ShowAsCheckBox then
       inherited MouseDown(Button, Shift, X, Y);
   end;
@@ -9082,7 +9131,12 @@ begin
       Bool := False;
 
     if Editing and Data.IsAssigned then
-      ACanvas.Brush.Color := clWindow;
+    begin
+      if Inspector.ActivePainter <> nil then
+        ACanvas.Brush.Color := Inspector.ActivePainter.BackgroundColor
+      else
+        ACanvas.Brush.Color := clWindow;
+    end;
     ACanvas.FillRect(Rects[iprValueArea]);
     // The check box is drawn themed, scaled to the inspector's current dpi,
     // and centered in the row (upstream hand-drew a fixed 13x13 check box in
