@@ -9,6 +9,8 @@ paths: ["**/*.pas", "**/*.dpr", "**/*.inc"]
   Inline constants use `=` as the assignment operator instead of `:=`. Examples:
   `const MaxCount = MinCount * 2;`
   `const ExpandedFilename = PathExpand(Filenames[I]);`
+- Prefer factoring shared code into a routine, or binding the expression to an inline const.
+- A routine used only by a single caller should be a local (nested) routine of that caller, and not a separate standalone routine. No exceptions, except routines assigned to an event or property.
 - Do not use `with` statements.
 - `if` and `begin` should be on the same line.
 - `else` and `begin` should be on the same line.
