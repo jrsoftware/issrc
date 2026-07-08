@@ -21,9 +21,9 @@
   - BeforeEdit now fires after the in-place editor's font has been assigned
     (instead of just after the editor was created), so a handler can customize
     that font without it being overwritten
-  - the in-place editor is now borderless, follows the painter's background and
-    value-font colors instead of hard-coded clWindow/clWindowText, and keeps its
-    bounds in sync with the current layout
+  - the in-place editor now follows the painter's background and value-font
+    colors instead of hard-coded clWindow/clWindowText, and keeps its bounds in
+    sync with the current layout
   - clicking a value now moves the caret to the clicked character instead of
     leaving the entire text selected
   - Alt key combinations the drop-down logic does not consume, such as
@@ -7264,8 +7264,6 @@ begin
       TCustomEditAccessProtected(EditCtrl).Color := Inspector.ActivePainter.BackgroundColor
     else
       TCustomEditAccessProtected(EditCtrl).Color := clWindow;
-    if EditCtrl is TJvInspectorEdit then
-      TJvInspectorEdit(EditCtrl).BorderStyle := bsNone;
     FEditWndPrc := EditCtrl.WindowProc;
     EditCtrl.WindowProc := Edit_WndProc;
     TCustomEditAccessProtected(EditCtrl).AutoSize := False;
