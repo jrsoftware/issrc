@@ -3,7 +3,17 @@
   b045b99e132c325a25b28769ae5db1b81b2234ef, for inclusion with Inno Setup.
   Changes:
   - jvcl.inc replaced by a minimal Inno Setup version
-  - the JVCL/JCL dependencies replaced by JvInspectorSupport.pas }
+  - the JVCL/JCL dependencies replaced by JvInspectorSupport.pas
+  - ItemHeight and the built-in expand/collapse buttons and the boolean check
+    boxes now scale to the inspector's current dpi
+  - the ItemHeight default was raised from 16 to 18 so the default font's
+    descenders and bracket glyphs fit
+  - the built-in expand/collapse buttons now follow the painter's colors
+    instead of hard-coded black on white
+  - the boolean check boxes are now drawn themed through
+    DrawThemedFrameControl and centered in the row
+  - the inspector now rescales its divider, band width and the painters'
+    fonts when its dpi changes }
 
 {-----------------------------------------------------------------------------
 
@@ -378,6 +388,7 @@ type
     function CalcImageHeight: Integer; virtual;
     function CalcItemIndex(X, Y: Integer; var Rect: TRect): Integer; virtual;
     function CalcItemRect(const Item: TJvCustomInspectorItem): TRect; virtual;
+    procedure ChangeScale(M, D: Integer; isDpiChange: Boolean); override;
     procedure CMActivate(var Msg: TCMActivate); message CM_ACTIVATE;
     procedure CMDeactivate(var Msg: TCMActivate); message CM_DEACTIVATE;
     procedure DoAfterDataCreate(const Data: TJvCustomInspectorData); virtual;
@@ -619,6 +630,9 @@ type
     FDividerColor: TColor;
     FInitializing: Boolean;
     FInspector: TJvCustomInspector;
+    FInternalButtonBackgroundColor: TColor;
+    FInternalButtonPenColor: TColor;
+    FInternalButtonSize: Integer;
     FInternalCollapseButton: TBitmap;
     FInternalExpandButton: TBitmap;
     FItem: TJvCustomInspectorItem;
@@ -669,6 +683,8 @@ type
     procedure PaintDivider(const X, YTop, YBottom: Integer); virtual;
     procedure PaintItem(var ARect: TRect; const AItemIndex: Integer); overload; virtual;
     procedure PaintItem(const AItem: TJvCustomInspectorItem); overload; virtual;
+    procedure PrepareInternalImages; virtual;
+    procedure ScaleFonts(const M, D: Integer); virtual;
     procedure SetBackgroundColor(const Value: TColor); virtual;
     procedure SetCategoryColor(const Value: TColor); virtual;
     procedure SetCategoryFont(const Value: TFont); virtual;
@@ -771,6 +787,7 @@ type
     procedure DoPaint; override;
     procedure InitializeColors; override;
     procedure PaintDivider(const X, YTop, YBottom: Integer); override;
+    procedure ScaleFonts(const M, D: Integer); override;
     procedure SetHideSelectColor(const Value: TColor); override;
     procedure SetHideSelectFont(const Value: TFont); override;
   public
@@ -2534,7 +2551,9 @@ begin
   FBandStartsNoSB := TList.Create;
   FBandStartsSB := TList.Create;
   FSortNotificationList := TList.Create;
-  FItemHeight := 16;
+  // Upstream used 16, tuned for the old 8pt MS Sans Serif default font;
+  // with Segoe UI that cuts off descenders and bracket glyphs
+  FItemHeight := 18;
   DoubleBuffered := True;
   FVisibleList := TStringList.Create;
   FRoot := TJvCustomInspectorItem.Create(nil, nil);
@@ -2642,6 +2661,26 @@ end;
 function TJvCustomInspector.CalcItemRect(const Item: TJvCustomInspectorItem): TRect;
 begin
   Result := Item.Rects[iprItem];
+end;
+
+procedure TJvCustomInspector.ChangeScale(M, D: Integer; isDpiChange: Boolean);
+begin
+  inherited ChangeScale(M, D, isDpiChange);
+  if M <> D then
+  begin
+    // ItemHeight needs no scaling here: it stores a 96 dpi value which
+    // GetItemHeight scales on read
+    if not RelativeDivider then
+      FDivider := MulDiv(FDivider, M, D);
+    FBandWidth := MulDiv(FBandWidth, M, D);
+    // The painters' fonts are sized for the dpi the inspector had before
+    // this change (they start out at the process's startup dpi through
+    // DefFontData)
+    if FPainter <> nil then
+      FPainter.ScaleFonts(M, D);
+    if FStylePainter <> nil then
+      FStylePainter.ScaleFonts(M, D);
+  end;
 end;
 
 procedure TJvCustomInspector.CMActivate(var Msg: TCMActivate);
@@ -2822,7 +2861,8 @@ end;
 
 function TJvCustomInspector.GetItemHeight: Integer;
 begin
-  Result := FItemHeight;
+  // FItemHeight holds a value for 96 dpi; scale it to the current dpi
+  Result := MulDiv(FItemHeight, CurrentPPI, 96);
 end;
 
 function TJvCustomInspector.GetLastFullVisible: Integer;
@@ -4216,28 +4256,8 @@ begin
   finally
     Initializing := False;
   end;
-  with FInternalCollapseButton do
-  begin
-    Width := 9;
-    Height := 9;
-    Canvas.Brush.Color := clWhite;
-    Canvas.Pen.Color := clBlack;
-    Canvas.Rectangle(0, 0, 9, 9);
-    Canvas.MoveTo(2, 4);
-    Canvas.LineTo(7, 4);
-  end;
-  with FInternalExpandButton do
-  begin
-    Width := 9;
-    Height := 9;
-    Canvas.Brush.Color := clWhite;
-    Canvas.Pen.Color := clBlack;
-    Canvas.Rectangle(0, 0, 9, 9);
-    Canvas.MoveTo(2, 4);
-    Canvas.LineTo(7, 4);
-    Canvas.MoveTo(4, 2);
-    Canvas.LineTo(4, 7);
-  end;
+  // FInternalCollapseButton and FInternalExpandButton are rendered on demand
+  // by PrepareInternalImages
 end;
 
 procedure TJvInspectorPainter.DefineProperties(Filer: TFiler);
@@ -4323,12 +4343,68 @@ begin
   Result := FCategoryFont;
 end;
 
+procedure TJvInspectorPainter.PrepareInternalImages;
+var
+  Size: Integer;
+
+  procedure PrepareImage(const Image: TBitmap; const Expand: Boolean);
+  var
+    Margin: Integer;
+    Mid: Integer;
+  begin
+    Margin := MulDiv(2, Size, 9);
+    Mid := Size div 2;
+    Image.SetSize(Size, Size);
+    Image.Canvas.Brush.Color := BackgroundColor;
+    Image.Canvas.Pen.Color := NameFont.Color;
+    Image.Canvas.Rectangle(0, 0, Size, Size);
+    Image.Canvas.MoveTo(Margin, Mid);
+    Image.Canvas.LineTo(Size - Margin, Mid);
+    if Expand then
+    begin
+      Image.Canvas.MoveTo(Mid, Margin);
+      Image.Canvas.LineTo(Mid, Size - Margin);
+    end;
+  end;
+
+begin
+  // Renders the built-in expand/collapse buttons at the inspector's current
+  // dpi using the painter's colors (upstream used fixed 9x9 black on white
+  // bitmaps, which are wrong at high dpi and in dark mode), keeping the last
+  // rendering until the size or the colors change
+  Size := MulDiv(9, Inspector.CurrentPPI, 96);
+  if not Odd(Size) then
+    Dec(Size);
+  if (Size = FInternalButtonSize) and
+    (BackgroundColor = FInternalButtonBackgroundColor) and
+    (NameFont.Color = FInternalButtonPenColor) then
+    Exit;
+  FInternalButtonSize := Size;
+  FInternalButtonBackgroundColor := BackgroundColor;
+  FInternalButtonPenColor := NameFont.Color;
+  PrepareImage(FInternalCollapseButton, False);
+  PrepareImage(FInternalExpandButton, True);
+end;
+
+procedure TJvInspectorPainter.ScaleFonts(const M, D: Integer);
+begin
+  // Called when the inspector's dpi changes: the fonts scale the same way
+  // TControl.ChangeScale scales a control's font
+  FCategoryFont.Height := MulDiv(FCategoryFont.Height, M, D);
+  FNameFont.Height := MulDiv(FNameFont.Height, M, D);
+  FValueFont.Height := MulDiv(FValueFont.Height, M, D);
+  FSelectedFont.Height := MulDiv(FSelectedFont.Height, M, D);
+end;
+
 function TJvInspectorPainter.GetCollapseImage: TBitmap;
 begin
   if not Inspector.CollapseButton.Empty then
     Result := Inspector.CollapseButton
   else
+  begin
+    PrepareInternalImages;
     Result := FInternalCollapseButton;
+  end;
 end;
 
 function TJvInspectorPainter.GetDividerColor: TColor;
@@ -4341,7 +4417,10 @@ begin
   if not Inspector.ExpandButton.Empty then
     Result := Inspector.ExpandButton
   else
+  begin
+    PrepareInternalImages;
     Result := FInternalExpandButton;
+  end;
 end;
 
 function TJvInspectorPainter.GetHideSelectColor: TColor;
@@ -5171,6 +5250,12 @@ begin
     MoveTo(X, YTop);
     LineTo(X, YBottom);
   end
+end;
+
+procedure TJvInspectorDotNETPainter.ScaleFonts(const M, D: Integer);
+begin
+  inherited ScaleFonts(M, D);
+  FHideSelectFont.Height := MulDiv(FHideSelectFont.Height, M, D);
 end;
 
 procedure TJvInspectorDotNETPainter.SetHideSelectColor(const Value: TColor);
@@ -6858,7 +6943,7 @@ begin
         else
         if Pressed then
           BFlags := DFCS_FLAT or DFCS_PUSHED;
-        DrawThemedFrameControl(ACanvas.Handle, R, DFC_SCROLL, BFlags or DFCS_SCROLLCOMBOBOX);
+        DrawThemedFrameControl(ACanvas.Handle, R, DFC_SCROLL, BFlags or DFCS_SCROLLCOMBOBOX, Inspector.CurrentPPI);
       end
       else
       if iifEditButton in Flags then
@@ -8960,6 +9045,8 @@ var
   Rgn, SaveRgn: HRGN;
   HasRgn: Boolean;
   ClipRect: TRect;
+  BoxSize: Integer;
+  BFlags: UINT;
 begin
   if not ShowAsCheckBox then
     inherited DrawValue(ACanvas)
@@ -8973,46 +9060,30 @@ begin
     if Editing and Data.IsAssigned then
       ACanvas.Brush.Color := clWindow;
     ACanvas.FillRect(Rects[iprValueArea]);
-    ARect := Rects[iprValue];
-    OffsetRect(ARect, 2, 0);
-    ARect.Right := ARect.Left + 13;
-    ARect.Bottom := ARect.Top + 13;
+    // The check box is drawn themed, scaled to the inspector's current dpi,
+    // and centered in the row (upstream hand-drew a fixed 13x13 check box in
+    // raw system colors at the top of the row, which is wrong at high dpi
+    // and in dark mode)
+    BoxSize := MulDiv(13, Inspector.CurrentPPI, 96);
+    ARect := Rects[iprValueArea];
+    Inc(ARect.Left, MulDiv(2, Inspector.CurrentPPI, 96));
+    Inc(ARect.Top, (RectHeight(ARect) - BoxSize) div 2);
+    ARect.Right := ARect.Left + BoxSize;
+    ARect.Bottom := ARect.Top + BoxSize;
     { Remember current clipping region }
     SaveRgn := CreateRectRgn(0, 0, 1, 1);
     HasRgn := GetClipRgn(ACanvas.Handle, SaveRgn) > 0;
     { Clip all outside of the item rectangle }
-    IntersectRect(ClipRect, ARect, Rects[iprValue]);
+    IntersectRect(ClipRect, ARect, Rects[iprValueArea]);
     FCheckRect := ClipRect;
     Rgn := CreateRectRgn(ClipRect.Left, ClipRect.Top, ClipRect.Right, ClipRect.Bottom);
     SelectClipRgn(ACanvas.Handle, Rgn);
     DeleteObject(Rgn);
     try
-      { Paint the 3d checkbox: Frame }
-{      Frame3D(ACanvas, ARect, clBlack, clWhite, 1);
-      Frame3D(ACanvas, ARect, clBlack, cl3DLight, 1);}
-
-      ACanvas.Pen.Color := clActiveBorder;
-      ACanvas.Pen.Width := 1;
-      ACanvas.Rectangle(ARect);
-      InflateRect(ARect, -1, -1);
-
+      BFlags := DFCS_BUTTONCHECK;
       if Bool then
-        with ACanvas do
-        begin
-          InflateRect(ARect, -1, -1);
-          { Paint the 3d checkbox: Draw the checkmark }
-          Pen.Color := clWindowText;
-          Pen.Width := 1;
-          MoveTo(ARect.Left + 1, ARect.Top + 3);
-          LineTo(ARect.Left + 3, ARect.Top + 5);
-          LineTo(ARect.Left + 8, ARect.Top);
-          MoveTo(ARect.Left + 1, ARect.Top + 4);
-          LineTo(ARect.Left + 3, ARect.Top + 6);
-          LineTo(ARect.Left + 8, ARect.Top + 1);
-          MoveTo(ARect.Left + 1, ARect.Top + 5);
-          LineTo(ARect.Left + 3, ARect.Top + 7);
-          LineTo(ARect.Left + 8, ARect.Top + 2);
-        end;
+        BFlags := BFlags or DFCS_CHECKED;
+      DrawThemedFrameControl(ACanvas.Handle, ARect, DFC_BUTTON, BFlags, Inspector.CurrentPPI);
     finally
       { restore previous clipping region }
       if HasRgn then
