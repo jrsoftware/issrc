@@ -16,6 +16,11 @@
     instead of hard-coded black on white
   - the boolean check boxes are now drawn themed through
     DrawThemedFrameControl and centered in the row
+  - the boolean check boxes now draw a yes/no label after the box, using the
+    canvas font so a painter's OnSetItemColors handler can bold it
+  - BeforeEdit now fires after the in-place editor's font has been assigned
+    (instead of just after the editor was created), so a handler can customize
+    that font without it being overwritten
   - the in-place editor is now borderless, follows the painter's background and
     value-font colors instead of hard-coded clWindow/clWindowText, and keeps its
     bounds in sync with the current layout
@@ -7238,9 +7243,6 @@ begin
       Memo.OnExit := EditFocusLost;
       TJvInspectorMemo(Memo).OnKillFocus := EditKillFocus;
       SetEditCtrl(Memo);
-
-     if Assigned(Inspector.BeforeEdit) then
-       Inspector.BeforeEdit(Inspector as TObject, Self, TCustomEdit(Memo));
     end
     else
     begin
@@ -7251,9 +7253,6 @@ begin
       Edit.OnExit := EditFocusLost;
       TJvInspectorEdit(Edit).OnKillFocus := EditKillFocus;
       SetEditCtrl(Edit);
-
-      if Assigned(Inspector.BeforeEdit) then
-        Inspector.BeforeEdit(Inspector as TObject, Self, Edit as TCustomEdit);
     end;
     if iifEditFixed in Flags then
     begin
@@ -7298,6 +7297,11 @@ begin
       TCustomEditAccessProtected(EditCtrl).Font.Assign(Inspector.ActivePainter.ValueFont)
     else
       TCustomEditAccessProtected(EditCtrl).Font.Assign(Inspector.Font);
+    // BeforeEdit is fired here, after the editor's font has been assigned, so a
+    // handler can still customize that font (moved down from just after the
+    // editor was created, where any font change was overwritten just above)
+    if Assigned(Inspector.BeforeEdit) then
+      Inspector.BeforeEdit(Inspector as TObject, Self, EditCtrl);
     EditCtrl.BoundsRect := Rects[iprEditValue];
     TCustomEditAccessProtected(EditCtrl).OnKeyDown := EditKeyDown;
     TCustomEditAccessProtected(EditCtrl).OnKeyPress := EditKeyPress;
@@ -9120,6 +9124,8 @@ var
   ClipRect: TRect;
   BoxSize: Integer;
   BFlags: UINT;
+  LabelText: string;
+  LabelRect: TRect;
 begin
   if not ShowAsCheckBox then
     inherited DrawValue(ACanvas)
@@ -9169,6 +9175,24 @@ begin
       else
         SelectClipRgn(ACanvas.Handle, 0);
       DeleteObject(SaveRgn);
+    end;
+    // Draw a yes/no label after the check box, vertically centered like the box
+    // and drawn with the canvas font so it picks up any bold style the painter
+    // applied for a value present in the script (like the Delphi object
+    // inspector's True/False label after its check box)
+    if Bool then
+      LabelText := 'yes'
+    else
+      LabelText := 'no';
+    LabelRect := Rects[iprValueArea];
+    LabelRect.Left := ARect.Right + MulDiv(4, Inspector.CurrentPPI, 96);
+    ACanvas.Brush.Style := bsClear;
+    try
+      ACanvas.TextOut(LabelRect.Left,
+        LabelRect.Top + (RectHeight(LabelRect) - ACanvas.TextHeight(LabelText)) div 2,
+        LabelText);
+    finally
+      ACanvas.Brush.Style := bsSolid;
     end;
   end;
 end;
