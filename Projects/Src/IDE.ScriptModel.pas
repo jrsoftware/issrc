@@ -9,11 +9,16 @@ unit IDE.ScriptModel;
   Script model which can parse and store a single entry of a parameter
   section.
   
-  Uses the InnoIDE storage technique: an entry is an ordered list
-  of named parameters where everything parsed (known or unknown) is
-  preserved and edits touch only what changed. Parsing has no error
-  path and creates a structure which can always be serialized back
-  into the parsed lines, byte-identical.
+  Uses the InnoIDE storage technique:
+  - Parameter sections: a section entry is an ordered list of
+    named parameters where everything parsed (known or unknown) is
+    preserved and edits touch only what changed. Parsing has no error
+    path and creates a structure which can always be serialized back
+    into the parsed lines, byte-identical. Editing keeps line spanning.
+  - Directive sections: a section occurrence is an ordered list of
+    its logical lines, so after joining physical lines for line
+    spanning. Editing does not keep line spanning. Does keep whitespace
+    and quotes.
 
   Supports an OnChange event to get notified of changes.
 }
@@ -25,11 +30,15 @@ uses
   IDE.ScriptModel.Metadata;
 
 type
+  EScriptModelError = class(Exception);
+
+  TScriptLineKind = (slkBlank, slkComment, slkISPPDirective, slkActual);
+
   { A single parameter of an entry in a parameter section. In other words:
     a chunk of text between ';' separators }
   TScriptEntryParameter = class
   private
-    FRawText: String; { The original unmodified text }
+    FRawText: String; { The original text }
     FName: String;    { May be empty }
     FValueStartIndex: Integer; { Index in FRawText of the first character after the ':', or 0 }
     procedure SetRawText(const ARawText: String);
@@ -99,10 +108,60 @@ type
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
 
+  TScriptDirectiveLineKind = (sdlDirective, sdlOther);
+
+  { A single logical line in a directive section: either a Name=Value or
+    another kind of line (comment, ISPP directive, blank, or anything else) }
+  TScriptDirectiveSectionLine = class
+  private
+    FKind: TScriptDirectiveLineKind;
+    FOriginalLines: TArray<String>; { The original lines }
+    FNameText: String;              { Original name }
+    FName: String;                  { Trimmed name }
+    FRawValue: String;              { Original value }
+    FModified: Boolean;
+    function GetDisplayValue: String;
+  public
+    property Kind: TScriptDirectiveLineKind read FKind;
+    property Name: String read FName;
+    property RawValue: String read FRawValue;
+    property DisplayValue: String read GetDisplayValue;
+  end;
+
+  { A single occurrence of a directive-style section }
+  TScriptDirectiveSection = class
+  private
+    FLines: TObjectList<TScriptDirectiveSectionLine>;
+    FOnChange: TNotifyEvent;
+    FQuoteNewValues: Boolean;
+    procedure Changed;
+    function GetDirectiveSectionLine(const AIndex: Integer): TScriptDirectiveSectionLine;
+    function GetLine(Index: Integer): TScriptDirectiveSectionLine;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Parse(const ALines: array of String);
+    function GetLines: TArray<String>;
+    function Count: Integer;
+    function IndexOfDirective(const AName: String): Integer;
+    function TryGetDirectiveValue(const AName: String; out AValue: String): Boolean;
+    procedure SetDirectiveValue(const AIndex: Integer; const AValue: String);
+    function AddDirective(const AName, AValue: String): Integer;
+    procedure RemoveDirective(const AIndex: Integer);
+    property Lines[Index: Integer]: TScriptDirectiveSectionLine read GetLine; default;
+    property QuoteNewValues: Boolean read FQuoteNewValues write FQuoteNewValues;
+    property OnChange: TNotifyEvent read FOnChange write FOnChange;
+  end;
+
 function ScriptLineSpans(const S: String): Boolean;
+function ClassifyScriptLine(const S: String): TScriptLineKind;
+function JoinSpannedScriptLines(const ALines: array of String): String;
 function UnquoteScriptParameterValue(const S: String): String;
 function QuoteScriptParameterValueIfNeeded(const S: String;
   const AAlwaysQuote: Boolean = False): String;
+function GetScriptDirectiveDisplayValue(const S: String): String;
+function TryParseScriptDirectiveLine(const S: String;
+  out ANameText, ARawValue: String): Boolean;
 
 implementation
 
@@ -125,6 +184,43 @@ function ScriptValueEndsInContinuation(const S: String): Boolean;
 begin
   const L = Length(S);
   Result := (L > 0) and (S[L] = '\') and ((L = 1) or (S[L-1] <= ' '));
+end;
+
+function ScriptValueIsQuoted(const S: String): Boolean;
+begin
+  const Trimmed = Trim(S);
+  Result := (Length(Trimmed) >= 2) and (Trimmed[1] = '"') and
+    (Trimmed[Length(Trimmed)] = '"');
+end;
+
+function ClassifyScriptLine(const S: String): TScriptLineKind;
+begin
+  { Matches TInnoSetupStyler.StyleNeeded's order of checks at the start of a line }
+  const T = TrimLeft(S);
+  if T = '' then
+    Result := slkBlank
+  else if T[1] = ';' then
+    Result := slkComment
+  else if (Length(T) >= 2) and (T[1] = '/') and (T[2] = '/') then
+    Result := slkComment
+  else if T[1] = '#' then
+    Result := slkISPPDirective
+  else
+    Result := slkActual;
+end;
+
+function JoinSpannedScriptLines(const ALines: array of String): String;
+begin
+  if Length(ALines) = 1 then
+    Exit(ALines[0]);
+  { Matches ISPP's TPreprocessor.InternalQueueLine }
+  Result := '';
+  for var I := 0 to High(ALines) do begin
+    var S := ALines[I];
+    if (I < High(ALines)) and ScriptLineSpans(S) then
+      SetLength(S, Length(S)-1);
+    Result := Result + TrimLeft(S);
+  end;
 end;
 
 function UnquoteScriptParameterValue(const S: String): String;
@@ -164,11 +260,40 @@ begin
     Result := S;
 end;
 
-function ScriptValueIsDoubleQuoted(const S: String): Boolean;
+function QuoteScriptDirectiveValueIfNeeded(const AValue: String;
+  const AAlwaysQuote: Boolean = False): String;
 begin
-  const Trimmed = Trim(S);
-  Result := (Length(Trimmed) >= 2) and (Trimmed[1] = '"') and
-    (Trimmed[Length(Trimmed)] = '"');
+  { Directive values only need quotes to keep leading or trailing whitespace,
+    to keep a value that itself looks quoted from losing those quotes on
+    read-back, or to keep a trailing '\' from being read back as a line
+    continuation }
+  if AAlwaysQuote or (AValue <> Trim(AValue)) or
+     ScriptValueIsQuoted(AValue) or
+     ScriptValueEndsInContinuation(AValue) then
+    Result := '"' + AValue + '"'
+  else
+    Result := AValue;
+end;
+
+function GetScriptDirectiveDisplayValue(const S: String): String;
+begin
+  Result := Trim(S);
+  { If the value is surrounded in quotes, remove them, just like
+    TSetupCompiler.SeparateDirective. Unlike parameter values, embedded
+    quotes are not doubled so there is nothing else to do }
+  if ScriptValueIsQuoted(Result) then
+    Result := Copy(Result, 2, Length(Result)-2);
+end;
+
+function TryParseScriptDirectiveLine(const S: String;
+  out ANameText, ARawValue: String): Boolean;
+begin
+  const P = Pos('=', S);
+  Result := (P > 0) and (Trim(Copy(S, 1, P-1)) <> '');
+  if Result then begin
+    ANameText := Copy(S, 1, P-1);
+    ARawValue := Copy(S, P+1, MaxInt);
+  end;
 end;
 
 function LeadingWhitespace(const S: String): String;
@@ -310,7 +435,7 @@ begin
     Joined := Joined + S;
   end;
 
-  { Split the joined text into chunks at ';', respecting double-quoted values
+  { Split the joined text into chunks at ';', respecting quoted values
     like TInnoSetupStyler.HandleParameterSection (a doubled '""' toggles twice,
     so it needs no special handling) }
   const ChunkStartOffsets = TList<Integer>.Create;
@@ -500,7 +625,7 @@ begin
     const Parameter = FParameters[I];
     const OldRawValue = Parameter.RawValue;
     const NewValueText = QuoteScriptParameterValueIfNeeded(AValue,
-      ScriptValueIsDoubleQuoted(OldRawValue));
+      ScriptValueIsQuoted(OldRawValue));
     const Leading = LeadingWhitespace(OldRawValue);
     { Trailing whitespace is scanned after the leading whitespace so an
       all-whitespace old value is not written twice }
@@ -648,6 +773,157 @@ function TScriptParameterEntry.TryGetParameterDefinition(const AName: String;
   out ADefinition: TScriptParameterDefinition): Boolean;
 begin
   Result := (FMetadata <> nil) and FMetadata.TryGetParameter(AName, ADefinition);
+end;
+
+{ TScriptDirectiveSectionLine }
+
+function TScriptDirectiveSectionLine.GetDisplayValue: String;
+begin
+  Result := GetScriptDirectiveDisplayValue(FRawValue);
+end;
+
+{ TScriptDirectiveSection }
+
+constructor TScriptDirectiveSection.Create;
+begin
+  inherited Create;
+  FLines := TObjectList<TScriptDirectiveSectionLine>.Create;
+  FQuoteNewValues := False;
+end;
+
+destructor TScriptDirectiveSection.Destroy;
+begin
+  FLines.Free;
+  inherited;
+end;
+
+procedure TScriptDirectiveSection.Changed;
+begin
+  if Assigned(FOnChange) then
+    FOnChange(Self);
+end;
+
+procedure TScriptDirectiveSection.Parse(const ALines: array of String);
+begin
+  FLines.Clear;
+  var I := 0;
+  while I <= High(ALines) do begin
+    { Join the physical lines like ISPP's TPreprocessor.InternalQueueLine does }
+    var Last := I;
+    while (Last < High(ALines)) and ScriptLineSpans(ALines[Last]) do
+      Inc(Last);
+    const Line = TScriptDirectiveSectionLine.Create;
+    SetLength(Line.FOriginalLines, Last-I+1);
+    for var J := I to Last do
+      Line.FOriginalLines[J-I] := ALines[J];
+    const Joined = JoinSpannedScriptLines(Line.FOriginalLines);
+    Line.FKind := sdlOther;
+    if ClassifyScriptLine(Joined) = slkActual then begin
+      var NameText, RawValue: String;
+      if TryParseScriptDirectiveLine(Joined, NameText, RawValue) then begin
+        Line.FKind := sdlDirective;
+        Line.FNameText := NameText;
+        Line.FName := Trim(NameText);
+        Line.FRawValue := RawValue;
+      end;
+    end;
+    FLines.Add(Line);
+    I := Last+1;
+  end;
+end;
+
+function TScriptDirectiveSection.GetLines: TArray<String>;
+begin
+  const LineList = TList<String>.Create;
+  try
+    for var Line in FLines do begin
+      if Line.FModified then
+        LineList.Add(Line.FNameText + '=' + Line.FRawValue) { Does not keep line spanning }
+      else
+        LineList.AddRange(Line.FOriginalLines);
+    end;
+    Result := LineList.ToArray;
+  finally
+    LineList.Free;
+  end;
+end;
+
+function TScriptDirectiveSection.Count: Integer;
+begin
+  Result := Integer(FLines.Count);
+end;
+
+function TScriptDirectiveSection.GetLine(Index: Integer): TScriptDirectiveSectionLine;
+begin
+  Result := FLines[Index];
+end;
+
+function TScriptDirectiveSection.IndexOfDirective(const AName: String): Integer;
+begin
+  { With duplicate directives the last one wins, like the compiler. Matches
+    TScriptParser.TryGetSetupDirectiveValue, which applies the same rule
+    across multiple section occurrences }
+  Result := -1;
+  for var I := 0 to Count-1 do
+    if (FLines[I].Kind = sdlDirective) and SameText(FLines[I].Name, AName) then
+      Result := I;
+end;
+
+function TScriptDirectiveSection.TryGetDirectiveValue(const AName: String;
+  out AValue: String): Boolean;
+begin
+  const I = IndexOfDirective(AName);
+  Result := I >= 0;
+  if Result then
+    AValue := FLines[I].DisplayValue;
+end;
+
+function TScriptDirectiveSection.GetDirectiveSectionLine(
+  const AIndex: Integer): TScriptDirectiveSectionLine;
+begin
+  Result := FLines[AIndex];
+  if Result.Kind <> sdlDirective then
+    raise EScriptModelError.Create('Line is not a directive');
+end;
+
+procedure TScriptDirectiveSection.SetDirectiveValue(const AIndex: Integer;
+  const AValue: String);
+begin
+  const Line = GetDirectiveSectionLine(AIndex);
+  { Keep any whitespace between the '=' and the old value, and keep quotes }
+  Line.FRawValue := LeadingWhitespace(Line.FRawValue) +
+    QuoteScriptDirectiveValueIfNeeded(AValue, ScriptValueIsQuoted(Line.FRawValue));
+  Line.FModified := True;
+  Changed;
+end;
+
+function TScriptDirectiveSection.AddDirective(const AName,
+  AValue: String): Integer;
+begin
+  const Line = TScriptDirectiveSectionLine.Create;
+  Line.FKind := sdlDirective;
+  Line.FNameText := AName;
+  Line.FName := AName;
+  { A newly added directive is quoted according to the section's option }
+  Line.FRawValue := QuoteScriptDirectiveValueIfNeeded(AValue, FQuoteNewValues);
+  Line.FModified := True;
+  { Insert after the last directive so trailing comments or blank lines stay
+    at the end. With no directives yet, append at the end. }
+  Result := Count;
+  for var I := Count-1 downto 0 do
+    if FLines[I].Kind = sdlDirective then begin
+      Result := I+1;
+      Break;
+    end;
+  FLines.Insert(Result, Line);
+  Changed;
+end;
+
+procedure TScriptDirectiveSection.RemoveDirective(const AIndex: Integer);
+begin
+  GetDirectiveSectionLine(AIndex);
+  FLines.Delete(AIndex);
+  Changed;
 end;
 
 end.

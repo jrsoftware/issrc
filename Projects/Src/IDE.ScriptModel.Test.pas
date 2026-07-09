@@ -44,6 +44,25 @@ begin
   Assert(not ScriptLineSpans('abc'));
   Assert(not ScriptLineSpans(''));
 
+  { ClassifyScriptLine }
+  Assert(ClassifyScriptLine('') = slkBlank);
+  Assert(ClassifyScriptLine('   ') = slkBlank);
+  Assert(ClassifyScriptLine('; comment') = slkComment);
+  Assert(ClassifyScriptLine('  ; comment') = slkComment);
+  Assert(ClassifyScriptLine('// comment') = slkComment);
+  Assert(ClassifyScriptLine(' #define X 1') = slkISPPDirective);
+  Assert(ClassifyScriptLine(';#define X 1') = slkComment);
+  Assert(ClassifyScriptLine('Source: a') = slkActual);
+  Assert(ClassifyScriptLine('[Files]') = slkActual);
+
+  { JoinSpannedScriptLines: single lines are untouched, spanned groups lose
+    the backslash (keeping the whitespace before it) and each line's leading
+    whitespace }
+  Assert(JoinSpannedScriptLines(['  x']) = '  x');
+  Assert(JoinSpannedScriptLines(['Source: "a"; \', '  DestDir: "b"']) =
+    'Source: "a"; DestDir: "b"');
+  Assert(JoinSpannedScriptLines(['A=1 \', ' 2 \', ' 3']) = 'A=1 2 3');
+
   { Quoting helpers }
   Assert(UnquoteScriptParameterValue(' "a""b" ') = 'a"b');
   Assert(UnquoteScriptParameterValue('x') = 'x');
@@ -63,6 +82,14 @@ begin
   { Forced quoting still doubles embedded quotes }
   Assert(QuoteScriptParameterValueIfNeeded('x y', True) = '"x y"');
   Assert(QuoteScriptParameterValueIfNeeded('a"b', True) = '"a""b"');
+
+  { Directive line helpers }
+  var NameText, RawValue: String;
+  Assert(TryParseScriptDirectiveLine('AppName = Foo', NameText, RawValue));
+  Assert((NameText = 'AppName ') and (RawValue = ' Foo'));
+  Assert(not TryParseScriptDirectiveLine('No directive here', NameText, RawValue));
+  Assert(not TryParseScriptDirectiveLine(' = Foo', NameText, RawValue));
+  Assert(GetScriptDirectiveDisplayValue(' "My ""quoted"" App" ') = 'My ""quoted"" App');
 end;
 
 procedure TestEntryParseAndSerialize;
@@ -342,6 +369,147 @@ begin
   end;
 end;
 
+procedure TestDirectiveSection;
+begin
+  const Counter = TChangeCounter.Create;
+  const Section = TScriptDirectiveSection.Create;
+  try
+    { Duplicates are both kept; the value scan returns the last occurrence;
+      unknown directives, comments, blank lines and ISPP lines are opaque }
+    Section.Parse([
+      '; comment',
+      'AppName=Foo',
+      '',
+      'AppName = Bar ',
+      'Unknown=1',
+      '#define X 1']);
+    Assert(Section.Count = 6);
+    Assert(Section[0].Kind = sdlOther);
+    Assert(Section[1].Kind = sdlDirective);
+    Assert(Section[1].Name = 'AppName');
+    Assert(Section[2].Kind = sdlOther);
+    Assert(Section[3].Kind = sdlDirective);
+    Assert(Section[3].DisplayValue = 'Bar');
+    Assert(Section[4].Kind = sdlDirective);
+    Assert(Section[5].Kind = sdlOther);
+    var Value: String;
+    Assert(Section.TryGetDirectiveValue('appname', Value));
+    Assert(Value = 'Bar'); { Last occurrence }
+    Assert(not Section.TryGetDirectiveValue('AppVersion', Value));
+    Assert(Section.IndexOfDirective('AppName') = 3);
+
+    { Untouched sections round-trip byte-identical }
+    var Lines := Section.GetLines;
+    Assert(Length(Lines) = 6);
+    Assert(Lines[0] = '; comment');
+    Assert(Lines[3] = 'AppName = Bar ');
+    Assert(Lines[5] = '#define X 1');
+
+    { Directive values keep surrounding quotes out of the display value,
+      without treating embedded quotes as doubled }
+    Section.Parse(['AppName="My ""quoted"" App"']);
+    Assert(Section[0].DisplayValue = 'My ""quoted"" App');
+
+    { Editing a directive only rewrites that line, keeping the name and the
+      whitespace around the '=' as written }
+    Section.Parse(['; c', 'AppName = Foo', 'Other=1']);
+    Section.OnChange := Counter.HandleChange;
+    Section.SetDirectiveValue(1, 'Bar');
+    Assert(Counter.Count = 1);
+    Lines := Section.GetLines;
+    Assert(Length(Lines) = 3);
+    Assert(Lines[0] = '; c');
+    Assert(Lines[1] = 'AppName = Bar');
+    Assert(Lines[2] = 'Other=1');
+
+    { A value needing whitespace gets quotes }
+    Section.SetDirectiveValue(1, 'B ');
+    Lines := Section.GetLines;
+    Assert(Lines[1] = 'AppName = "B "');
+
+    { Adding inserts after the last directive; removing removes only that
+      line }
+    Assert(Section.AddDirective('AppVersion', '1.0') = 3);
+    Lines := Section.GetLines;
+    Assert(Length(Lines) = 4);
+    Assert(Lines[3] = 'AppVersion=1.0');
+    Section.RemoveDirective(1);
+    Lines := Section.GetLines;
+    Assert(Length(Lines) = 3);
+    Assert(Lines[0] = '; c');
+    Assert(Lines[1] = 'Other=1');
+    Assert(Lines[2] = 'AppVersion=1.0');
+
+    {$IFDEF ISTESTTOOLPROJ}
+    { Opaque lines cannot be edited or removed; comments must survive }
+    var Caught := False;
+    try
+      Section.RemoveDirective(0);
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Caught := False;
+    try
+      Section.SetDirectiveValue(0, 'x');
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    {$ENDIF}
+
+    { With no directives yet, adding appends at the end }
+    Section.Parse(['; only comment']);
+    Assert(Section.AddDirective('A', '1') = 1);
+    Lines := Section.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[1] = 'A=1');
+
+    { Editing a directive keeps its own quoting: a quoted value stays quoted }
+    Section.Parse(['AppName="Foo"']);
+    Section.SetDirectiveValue(0, 'Bar');
+    Lines := Section.GetLines;
+    Assert(Lines[0] = 'AppName="Bar"');
+
+    { A value ending in whitespace + '\' gets quotes so the written line is
+      not read back as an ISPP line continuation }
+    Section.Parse(['AppName=Foo']);
+    Section.SetDirectiveValue(0, 'Bar \');
+    Lines := Section.GetLines;
+    Assert(Lines[0] = 'AppName="Bar \"');
+
+    { A value that itself looks quoted gets surrounding quotes so the literal
+      quotes survive read-back, both when editing and when adding }
+    Section.Parse(['AppName=Foo']);
+    Section.SetDirectiveValue(0, '"Bar"');
+    Lines := Section.GetLines;
+    Assert(Lines[0] = 'AppName=""Bar""');
+    Assert(Section[0].DisplayValue = '"Bar"');
+    Section.Parse(['; c']);
+    Section.AddDirective('AppName', '"Foo"');
+    Lines := Section.GetLines;
+    Assert(Lines[1] = 'AppName=""Foo""');
+    Assert(Section[1].DisplayValue = '"Foo"');
+
+    { A new directive is left bare by default (QuoteNewValues off for
+      directive-style sections) and quoted when the option is turned on }
+    Section.Parse(['; c']);
+    Assert(not Section.QuoteNewValues);
+    Section.AddDirective('AppName', 'Foo');
+    Lines := Section.GetLines;
+    Assert(Lines[1] = 'AppName=Foo');
+    Section.Parse(['; c']);
+    Section.QuoteNewValues := True;
+    Section.AddDirective('AppName', 'Foo');
+    Lines := Section.GetLines;
+    Assert(Lines[1] = 'AppName="Foo"');
+    Section.QuoteNewValues := False;
+  finally
+    Section.Free;
+    Counter.Free;
+  end;
+end;
+
 procedure IDEScriptModelRunTests;
 begin
   TestLineHelpers;
@@ -349,6 +517,7 @@ begin
   TestEntryFlags;
   TestEntryMetadata;
   TestEntryRules;
+  TestDirectiveSection;
 end;
 
 {$IFDEF DEBUG}
