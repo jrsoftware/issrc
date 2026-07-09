@@ -510,6 +510,99 @@ begin
   end;
 end;
 
+procedure TestEntrySpanning;
+begin
+  const Entry = TScriptParameterEntry.Create(nil);
+  try
+    { A spanned entry parses from its physical lines and remembers the break
+      at parameter granularity }
+    Entry.Parse(['Source: "a"; \', '  DestDir: "b"; Flags: x']);
+    Assert(Entry.ParameterCount = 3);
+    Assert(Entry.GetValue('DestDir') = 'b');
+    Assert(Entry.BreakCount = 1);
+    Assert(Entry.BreakParameterIndexes[0] = 1);
+
+    { Untouched spanned entries round-trip byte-identical }
+    var Lines := Entry.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[0] = 'Source: "a"; \');
+    Assert(Lines[1] = '  DestDir: "b"; Flags: x');
+
+    { Editing a middle parameter keeps the author's line structure, and its
+      quoting (DestDir was quoted) }
+    Entry.SetValue('DestDir', 'c');
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[0] = 'Source: "a"; \');
+    Assert(Lines[1] = '  DestDir: "c"; Flags: x');
+
+    { Editing the first parameter also keeps the break, and its quoting }
+    Entry.Parse(['Source: "a"; \', '  DestDir: "b"; Flags: x']);
+    Entry.SetValue('Source', 'z');
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[0] = 'Source: "z"; \');
+    Assert(Lines[1] = '  DestDir: "b"; Flags: x');
+
+    { When the parameter at a break point is removed, that break is dropped
+      and the remainder goes to the last surviving line }
+    Entry.Parse(['Source: "a"; \', '  DestDir: "b"; Flags: x']);
+    Assert(Entry.RemoveParameter('DestDir'));
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 1);
+    Assert(Lines[0] = 'Source: "a"; Flags: x');
+
+    { Three physical lines, edit in the middle }
+    Entry.Parse(['A: 1; \', 'B: 2; \', 'C: 3']);
+    Assert(Entry.BreakCount = 2);
+    Entry.SetValue('B', '22');
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 3);
+    Assert(Lines[0] = 'A: 1; \');
+    Assert(Lines[1] = 'B: 22; \');
+    Assert(Lines[2] = 'C: 3');
+
+    { Removing a middle parameter drops its own break and shifts the following
+      break back onto its now-earlier parameter }
+    Entry.Parse(['A: 1; \', 'B: 2; \', 'C: 3']);
+    Assert(Entry.RemoveParameter('B'));
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[0] = 'A: 1; \');
+    Assert(Lines[1] = 'C: 3');
+
+    { Unusual whitespace around the break reconstructs exactly }
+    Entry.Parse(['Source: a ;  \', '   DestDir: b']);
+    Entry.SetValue('Source', 'z');
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[0] = 'Source: z ;  \');
+    Assert(Lines[1] = '   DestDir: b');
+  finally
+    Entry.Free;
+  end;
+
+  { A spanned directive line is joined for parsing and collapses to one
+    physical line when edited }
+  const Section = TScriptDirectiveSection.Create;
+  try
+    Section.Parse(['AppName=Foo \', 'Bar']);
+    Assert(Section.Count = 1);
+    Assert(Section[0].Kind = sdlDirective);
+    Assert(Section[0].DisplayValue = 'Foo Bar');
+    var Lines := Section.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[0] = 'AppName=Foo \');
+    Assert(Lines[1] = 'Bar');
+    Section.SetDirectiveValue(0, 'X');
+    Lines := Section.GetLines;
+    Assert(Length(Lines) = 1);
+    Assert(Lines[0] = 'AppName=X');
+  finally
+    Section.Free;
+  end;
+end;
+
 procedure IDEScriptModelRunTests;
 begin
   TestLineHelpers;
@@ -518,6 +611,7 @@ begin
   TestEntryMetadata;
   TestEntryRules;
   TestDirectiveSection;
+  TestEntrySpanning;
 end;
 
 {$IFDEF DEBUG}

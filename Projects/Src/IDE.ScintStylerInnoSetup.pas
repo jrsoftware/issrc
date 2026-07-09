@@ -172,6 +172,8 @@ type
     class function IsISPPIdentChar(const C: AnsiChar): Boolean; static;
     class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean; static;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean; static;
+    class function LineSectionHeader(const LineState: TScintLineState; out Section: TInnoSetupStylerSection): Boolean; static;
+    class function LineSpans(const S: TScintRawString): Boolean; static;
     function GetISPPFunctionDefinition(const Name: String;
       const Index: Integer; out Count: Integer): TFunctionDefinition;
     function GetScriptFunctionDefinition(const ClassMember: Boolean;
@@ -1904,13 +1906,32 @@ begin
   Result := Style = Ord(stSymbol);
 end;
 
-function TInnoSetupStyler.LineTextSpans(const S: TScintRawString): Boolean;
+class function TInnoSetupStyler.LineSectionHeader(const LineState: TScintLineState;
+  out Section: TInnoSetupStylerSection): Boolean;
+{ Returns True if the line opens a section for the lines after it, also
+  returning that section (scNone if it does not). A line starting a section
+  has NextLineSection <> scNone. Exception: a code-block begin line inside
+  [Code] has NextLineSection = scCodeBlock without being a section header }
+begin
+  Section := TInnoSetupStylerLineState(LineState).NextLineSection;
+  Result := not (Section in [scNone, scCodeBlock]);
+  if not Result then
+    Section := scNone;
+end;
+
+class function TInnoSetupStyler.LineSpans(const S: TScintRawString): Boolean;
 var
   I: Integer;
 begin
   { Note: To match ISPP behavior, require length of at least 3 }
   I := Length(S);
   Result := (I > 2) and (S[I] = '\') and (S[I-1] in WhitespaceChars);
+end;
+
+{ Having a LineTextSpans is required by TScintCustomStyler }
+function TInnoSetupStyler.LineTextSpans(const S: TScintRawString): Boolean;
+begin
+  Result := LineSpans(S);
 end;
 
 procedure TInnoSetupStyler.PreStyleInlineISPPDirectives;
