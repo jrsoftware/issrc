@@ -228,11 +228,52 @@ begin
   end;
 end;
 
+procedure TestEntryMetadata;
+begin
+  var Metadata: TScriptSectionMetadata;
+  Assert(TryGetScriptSectionMetadata('files', Metadata)); { Case-insensitive }
+  Assert(Metadata.SectionName = 'Files');
+  Assert(not TryGetScriptSectionMetadata('Setup', Metadata));
+  Assert(TryGetScriptSectionMetadata('Files', Metadata));
+
+  const Entry = TScriptParameterEntry.Create(Metadata);
+  try
+    Entry.Parse(['Source: a; ExternalSize: 1_048_576; Unknown: u']);
+
+    { Typed access driven by metadata }
+    var IntegerValue: Int64;
+    Assert(Entry.TryGetIntegerValue('ExternalSize', IntegerValue));
+    Assert(IntegerValue = 1048576);
+    Assert(not Entry.TryGetIntegerValue('Source', IntegerValue));
+    Entry.SetIntegerValue('ExternalSize', 456);
+
+    var Definition: TScriptParameterDefinition;
+    Assert(Entry.TryGetParameterDefinition('flags', Definition));
+    Assert(Definition.ValueKind = pvkFlags);
+    var FoundFlagName := False;
+    for var FlagName in Definition.FlagNames do
+      if FlagName = 'ignoreversion' then
+        FoundFlagName := True;
+    Assert(FoundFlagName);
+    Assert(Entry.TryGetParameterDefinition('ExternalSize', Definition));
+    Assert(Definition.ValueKind = pvkInteger);
+    Assert(Entry.TryGetParameterDefinition('MinVersion', Definition));
+    Assert(Definition.ValueKind = pvkVersion);
+
+    { Unknown parameters remain accessible as raw text }
+    Assert(not Entry.TryGetParameterDefinition('Unknown', Definition));
+    Assert(Entry.GetValue('Unknown') = 'u');
+  finally
+    Entry.Free;
+  end;
+end;
+
 procedure IDEScriptModelRunTests;
 begin
   TestLineHelpers;
   TestEntryParseAndSerialize;
   TestEntryFlags;
+  TestEntryMetadata;
 end;
 
 {$IFDEF DEBUG}

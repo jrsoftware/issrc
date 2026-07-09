@@ -84,9 +84,13 @@ type
     function GetValue(const AName: String): String;
     procedure SetValue(const AName, AValue: String);
     function RemoveParameter(const AName: String): Boolean;
+    function TryGetIntegerValue(const AName: String; out AValue: Int64): Boolean;
+    procedure SetIntegerValue(const AName: String; const AValue: Int64);
     function FlagIncluded(const AParameterName, AFlagName: String): Boolean;
     procedure SetFlag(const AParameterName, AFlagName: String;
       const AInclude: Boolean);
+    function TryGetParameterDefinition(const AName: String;
+      out ADefinition: TScriptParameterDefinition): Boolean;
     function BreakCount: Integer;
     property BreakParameterIndexes[Index: Integer]: Integer read GetBreakParameterIndex;
     property Indent: String read FIndent;
@@ -555,6 +559,22 @@ begin
   end;
 end;
 
+function TScriptParameterEntry.TryGetIntegerValue(const AName: String;
+  out AValue: Int64): Boolean;
+begin
+  { The compiler's StrToInteger64 accepts digit separators ('_') in integer
+    values such as ExternalSize, so strip them before converting }
+  var Value: String;
+  Result := TryGetValue(AName, Value) and
+    TryStrToInt64(StringReplace(Value, '_', '', [rfReplaceAll]), AValue);
+end;
+
+procedure TScriptParameterEntry.SetIntegerValue(const AName: String;
+  const AValue: Int64);
+begin
+  SetValue(AName, IntToStr(AValue));
+end;
+
 function TScriptParameterEntry.FlagIncluded(const AParameterName,
   AFlagName: String): Boolean;
 begin
@@ -613,6 +633,12 @@ begin
   finally
     EndUpdate;
   end;
+end;
+
+function TScriptParameterEntry.TryGetParameterDefinition(const AName: String;
+  out ADefinition: TScriptParameterDefinition): Boolean;
+begin
+  Result := (FMetadata <> nil) and FMetadata.TryGetParameter(AName, ADefinition);
 end;
 
 end.

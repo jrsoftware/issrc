@@ -13,7 +13,7 @@ unit IDE.ScriptModel.Metadata;
 interface
 
 type
-  TScriptParameterValueKind = (pvkString, pvkBoolean, pvkInteger, pvkVersion,
+  TScriptParameterValueKind = (pvkString, pvkInteger, pvkVersion,
     pvkChoice, pvkFlags);
 
   TScriptParameterDefinition = record
@@ -108,8 +108,90 @@ begin
   Result := False;
 end;
 
+function PD(const AName: String; const AValueKind: TScriptParameterValueKind;
+  const AFlagNames: TArray<String> = nil;
+  const AObsolete: Boolean = False): TScriptParameterDefinition;
+begin
+  Result.Name := AName;
+  Result.ValueKind := AValueKind;
+  Result.FlagNames := AFlagNames;
+  Result.Obsolete := AObsolete;
+end;
+
+function FIR(const AParameterName, AFlagName: String;
+  const AAlsoIncludedFlagNames: TArray<String>): TScriptFlagIncludesRule;
+begin
+  Result.ParameterName := AParameterName;
+  Result.FlagName := AFlagName;
+  Result.AlsoIncludedFlagNames := AAlsoIncludedFlagNames;
+end;
+
+function PIF(const AParameterName, AFlagParameterName,
+  AFlagName: String): TScriptParameterIncludesFlagRule;
+begin
+  Result.ParameterName := AParameterName;
+  Result.FlagParameterName := AFlagParameterName;
+  Result.FlagName := AFlagName;
+end;
+
+procedure InitializeSectionMetadata;
+begin
+  { Parameter names match TInnoSetupStyler's per-section lists, value kinds
+    follow the documentation in ISHelp\isetup.xml }
+
+  const AttribsFlagNames: TArray<String> = ['readonly', 'hidden', 'system',
+    'notcontentindexed'];
+
+  const FilesFlagNames: TArray<String> = [
+    '32bit', '64bit', 'allowunsafefiles', 'comparetimestamp', 'confirmoverwrite',
+    'createallsubdirs', 'deleteafterinstall', 'dontcopy', 'dontverifychecksum', 'download',
+    'external', 'extractarchive', 'fontisnttruetype', 'gacinstall', 'ignoreversion',
+    'isreadme', 'issigverify', 'nocompression', 'noencryption', 'notimestamp', 'noregerror',
+    'onlyifdestfileexists', 'onlyifdoesntexist', 'overwritereadonly', 'promptifolder',
+    'recursesubdirs', 'regserver', 'regtypelib', 'replacesameversion', 'restartreplace',
+    'setntfscompression', 'sharedfile', 'sign', 'signcheck', 'signonce',
+    'skipifsourcedoesntexist', 'solidbreak', 'sortfilesbyextension',
+    'sortfilesbyname', 'touch', 'uninsnosharedfileprompt', 'uninsremovereadonly',
+    'uninsrestartdelete', 'uninsneveruninstall', 'unsetntfscompression'];
+
+  SectionMetadataList.Add(TScriptSectionMetadata.Create('Files',
+    [PD('AfterInstall', pvkString),
+     PD('Attribs', pvkFlags, AttribsFlagNames),
+     PD('BeforeInstall', pvkString),
+     PD('Check', pvkString),
+     PD('Components', pvkString),
+     PD('CopyMode', pvkString, nil, True),
+     PD('DestDir', pvkString),
+     PD('DestName', pvkString),
+     PD('DownloadISSigSource', pvkString),
+     PD('DownloadPassword', pvkString),
+     PD('DownloadUserName', pvkString),
+     PD('Excludes', pvkString),
+     PD('ExternalSize', pvkInteger),
+     PD('ExtractArchivePassword', pvkString),
+     PD('Flags', pvkFlags, FilesFlagNames),
+     PD('FontInstall', pvkString),
+     PD('Hash', pvkString),
+     PD('ISSigAllowedKeys', pvkString),
+     PD('Languages', pvkString),
+     PD('MinVersion', pvkVersion),
+     PD('OnlyBelowVersion', pvkVersion),
+     PD('Permissions', pvkString),
+     PD('Source', pvkString),
+     PD('StrongAssemblyName', pvkString),
+     PD('Tasks', pvkString)],
+    [FIR('Flags', 'extractarchive', ['external', 'ignoreversion']),
+     FIR('Flags', 'download', ['external', 'ignoreversion']),
+     FIR('Flags', 'createallsubdirs', ['recursesubdirs']),
+     FIR('Flags', 'dontverifychecksum', ['nocompression']),
+     FIR('Flags', 'uninsnosharedfileprompt', ['sharedfile'])],
+    [PIF('ExternalSize', 'Flags', 'external'),
+     PIF('ISSigAllowedKeys', 'Flags', 'issigverify')]));
+end;
+
 initialization
   SectionMetadataList := TObjectList<TScriptSectionMetadata>.Create;
+  InitializeSectionMetadata;
 finalization
   SectionMetadataList.Free;
 end.
