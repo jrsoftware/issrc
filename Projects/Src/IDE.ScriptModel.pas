@@ -84,8 +84,6 @@ type
     function GetValue(const AName: String): String;
     procedure SetValue(const AName, AValue: String);
     function RemoveParameter(const AName: String): Boolean;
-    function TryGetIntegerValue(const AName: String; out AValue: Int64): Boolean;
-    procedure SetIntegerValue(const AName: String; const AValue: Int64);
     function FlagIncluded(const AParameterName, AFlagName: String): Boolean;
     procedure SetFlag(const AParameterName, AFlagName: String;
       const AInclude: Boolean);
@@ -524,10 +522,22 @@ begin
 end;
 
 procedure TScriptParameterEntry.SetValue(const AName, AValue: String);
+
+  procedure ApplyParameterFlagRules(const AParameterName, AValue: String);
+  begin
+    { Clearing the value leaves the flag in place }
+    if (FMetadata = nil) or (Trim(AValue) = '') then
+      Exit;
+    for var Rule in FMetadata.ParameterIncludesFlagRules do
+      if SameText(Rule.ParameterName, AParameterName) then
+        SetFlagInternal(Rule.FlagParameterName, Rule.FlagName, True);
+  end;
+
 begin
   BeginUpdate;
   try
     SetValueInternal(AName, AValue, FQuoteNewValues);
+    ApplyParameterFlagRules(AName, AValue);
   finally
     EndUpdate;
   end;
@@ -559,22 +569,6 @@ begin
   end;
 end;
 
-function TScriptParameterEntry.TryGetIntegerValue(const AName: String;
-  out AValue: Int64): Boolean;
-begin
-  { The compiler's StrToInteger64 accepts digit separators ('_') in integer
-    values such as ExternalSize, so strip them before converting }
-  var Value: String;
-  Result := TryGetValue(AName, Value) and
-    TryStrToInt64(StringReplace(Value, '_', '', [rfReplaceAll]), AValue);
-end;
-
-procedure TScriptParameterEntry.SetIntegerValue(const AName: String;
-  const AValue: Int64);
-begin
-  SetValue(AName, IntToStr(AValue));
-end;
-
 function TScriptParameterEntry.FlagIncluded(const AParameterName,
   AFlagName: String): Boolean;
 begin
@@ -585,6 +579,20 @@ end;
 
 procedure TScriptParameterEntry.SetFlagInternal(const AParameterName,
   AFlagName: String; const AInclude: Boolean);
+
+  procedure ApplyFlagRules(const AParameterName, AIncludedFlagName: String);
+  begin
+    if FMetadata = nil then
+      Exit;
+    for var Rule in FMetadata.FlagIncludesRules do begin
+      if SameText(Rule.ParameterName, AParameterName) and
+         SameText(Rule.FlagName, AIncludedFlagName) then begin
+        for var ImpliedFlagName in Rule.AlsoIncludedFlagNames do
+          SetFlagInternal(AParameterName, ImpliedFlagName, True);
+      end;
+    end;
+  end;
+
 begin
   const OldValue = GetValue(AParameterName);
   var StartIndex, TokenLength: Integer;
@@ -596,6 +604,7 @@ begin
     if NewValue <> '' then
       NewValue := NewValue + ' ';
     SetValueInternal(AParameterName, NewValue + AFlagName, False);
+    ApplyFlagRules(AParameterName, AFlagName);
   end else begin
     if not Found then
       Exit;

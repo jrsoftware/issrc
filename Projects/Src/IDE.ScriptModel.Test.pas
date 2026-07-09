@@ -23,6 +23,17 @@ uses
 
 {$C+}
 
+type
+  TChangeCounter = class
+    Count: Integer;
+    procedure HandleChange(Sender: TObject);
+  end;
+
+procedure TChangeCounter.HandleChange(Sender: TObject);
+begin
+  Inc(Count);
+end;
+
 procedure TestLineHelpers;
 begin
   { ScriptLineSpans: length of at least 3, ending in '\' preceded by whitespace }
@@ -240,12 +251,10 @@ begin
   try
     Entry.Parse(['Source: a; ExternalSize: 1_048_576; Unknown: u']);
 
-    { Typed access driven by metadata }
-    var IntegerValue: Int64;
-    Assert(Entry.TryGetIntegerValue('ExternalSize', IntegerValue));
-    Assert(IntegerValue = 1048576);
-    Assert(not Entry.TryGetIntegerValue('Source', IntegerValue));
-    Entry.SetIntegerValue('ExternalSize', 456);
+    Entry.SetValue('ExternalSize', '456');
+    const Lines = Entry.GetLines;
+    { The ExternalSize parameter-includes-flag rule also checks external }
+    Assert(Lines[0] = 'Source: a; ExternalSize: 456; Unknown: u; Flags: external');
 
     var Definition: TScriptParameterDefinition;
     Assert(Entry.TryGetParameterDefinition('flags', Definition));
@@ -268,12 +277,78 @@ begin
   end;
 end;
 
+procedure TestEntryRules;
+begin
+  var Metadata: TScriptSectionMetadata;
+  Assert(TryGetScriptSectionMetadata('Files', Metadata));
+
+  const Counter = TChangeCounter.Create;
+  var Entry := TScriptParameterEntry.Create(Metadata);
+  try
+    { Checking extractarchive also checks external and ignoreversion, in one
+      change notification, with unknown tokens preserved }
+    Entry.Parse(['Source: a; Flags: foo']);
+    Entry.OnChange := Counter.HandleChange;
+    Entry.SetFlag('Flags', 'extractarchive', True);
+    Assert(Counter.Count = 1);
+    Assert(Entry.FlagIncluded('Flags', 'extractarchive'));
+    Assert(Entry.FlagIncluded('Flags', 'external'));
+    Assert(Entry.FlagIncluded('Flags', 'ignoreversion'));
+    Assert(Entry.FlagIncluded('Flags', 'foo'));
+    var Lines := Entry.GetLines;
+    Assert(Lines[0] = 'Source: a; Flags: foo extractarchive external ignoreversion');
+
+    { The rule does not run when the flags are already present }
+    Counter.Count := 0;
+    Entry.SetFlag('Flags', 'extractarchive', True);
+    Assert(Counter.Count = 0);
+
+    { Excluding does not fire the rule }
+    Entry.SetFlag('Flags', 'extractarchive', False);
+    Assert(Entry.FlagIncluded('Flags', 'external'));
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'Source: a; Flags: foo external ignoreversion');
+
+    { The other [Files] flag-includes rules from the help }
+    Entry.Parse(['Source: a']);
+    Entry.SetFlag('Flags', 'createallsubdirs', True);
+    Assert(Entry.FlagIncluded('Flags', 'recursesubdirs'));
+    Entry.Parse(['Source: a']);
+    Entry.SetFlag('Flags', 'dontverifychecksum', True);
+    Assert(Entry.FlagIncluded('Flags', 'nocompression'));
+    Entry.Parse(['Source: a']);
+    Entry.SetFlag('Flags', 'uninsnosharedfileprompt', True);
+    Assert(Entry.FlagIncluded('Flags', 'sharedfile'));
+
+    { The [Files] parameter-includes-flag rules from the help: an ExternalSize
+      value checks external and an ISSigAllowedKeys value checks issigverify }
+    Entry.Parse(['Source: a']);
+    Entry.SetValue('ExternalSize', '123');
+    Assert(Entry.FlagIncluded('Flags', 'external'));
+    Entry.Parse(['Source: a']);
+    Entry.SetValue('ISSigAllowedKeys', 'mykey');
+    Assert(Entry.FlagIncluded('Flags', 'issigverify'));
+
+    { Without metadata there are no rules }
+    Entry.Free;
+    Entry := TScriptParameterEntry.Create(nil);
+    Entry.Parse(['Source: a']);
+    Entry.SetFlag('Flags', 'extractarchive', True);
+    Assert(Entry.FlagIncluded('Flags', 'extractarchive'));
+    Assert(not Entry.FlagIncluded('Flags', 'external'));
+  finally
+    Entry.Free;
+    Counter.Free;
+  end;
+end;
+
 procedure IDEScriptModelRunTests;
 begin
   TestLineHelpers;
   TestEntryParseAndSerialize;
   TestEntryFlags;
   TestEntryMetadata;
+  TestEntryRules;
 end;
 
 {$IFDEF DEBUG}

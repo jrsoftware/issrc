@@ -225,6 +225,9 @@
         <DCCReference Include="..\Components\JvInspectorSupport.pas"/>
         <DCCReference Include="..\Components\JvAutoComplete.pas"/>
         <DCCReference Include="..\Components\JvInspector.pas"/>
+        <DCCReference Include="Src\IDE.ScriptModel.pas"/>
+        <DCCReference Include="Src\IDE.ScriptModel.Metadata.pas"/>
+        <DCCReference Include="Src\IDE.ScriptModel.Test.pas"/>
         <DCCReference Include="Src\IDE.MainForm.MRUHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.UAHHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.NavigationHelper.pas"/>
