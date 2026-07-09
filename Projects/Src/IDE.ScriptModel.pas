@@ -861,7 +861,7 @@ end;
 function TScriptDirectiveSection.IndexOfDirective(const AName: String): Integer;
 begin
   { With duplicate directives the last one wins, like the compiler. Matches
-    TScriptParser.TryGetSetupDirectiveValue, which applies the same rule
+    TLiveScriptObjectFactory.TryGetSetupDirectiveValue, which applies the same rule
     across multiple section occurrences }
   Result := -1;
   for var I := 0 to Count-1 do
