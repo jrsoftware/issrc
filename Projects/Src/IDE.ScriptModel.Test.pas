@@ -164,10 +164,75 @@ begin
   end;
 end;
 
+procedure TestEntryFlags;
+begin
+  const Entry = TScriptParameterEntry.Create(nil);
+  try
+    { Toggling a known flag amid unknown ones only edits that token }
+    Entry.Parse(['Flags: foo ignoreversion bar']);
+    Assert(Entry.FlagIncluded('Flags', 'IGNOREVERSION'));
+    Assert(not Entry.FlagIncluded('Flags', 'missing'));
+    Entry.SetFlag('Flags', 'ignoreversion', False);
+    var Lines := Entry.GetLines;
+    Assert(Lines[0] = 'Flags: foo bar');
+    Entry.SetFlag('Flags', 'solidbreak', True);
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'Flags: foo bar solidbreak');
+    Entry.SetFlag('Flags', 'solidbreak', False);
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'Flags: foo bar');
+
+    { Excluding the last token removes the whole parameter }
+    Entry.Parse(['Source: s; Flags: x']);
+    Entry.SetFlag('Flags', 'x', False);
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'Source: s');
+    Assert(not Entry.HasParameter('Flags'));
+
+    { Including a flag that is already there changes nothing }
+    Entry.Parse(['Flags: a']);
+    Entry.SetFlag('Flags', 'a', True);
+    Assert(not Entry.Modified);
+
+    { Setting a flag on an absent parameter creates it, unquoted even when the
+      new-value quoting option is on (flags are never quoted) }
+    Entry.Parse(['Source: s']);
+    Assert(Entry.QuoteNewValues);
+    Entry.SetFlag('Flags', 'touch', True);
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'Source: s; Flags: touch');
+
+    { Excluding a flag also removes author-written duplicates of it }
+    Entry.Parse(['Flags: ignoreversion foo ignoreversion']);
+    Entry.SetFlag('Flags', 'ignoreversion', False);
+    Assert(not Entry.FlagIncluded('Flags', 'ignoreversion'));
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'Flags: foo');
+    Entry.Parse(['Source: s; Flags: x x']);
+    Entry.SetFlag('Flags', 'x', False);
+    Assert(not Entry.HasParameter('Flags'));
+
+    { Tokens are delimited by literal spaces and trimmed, like the compiler's
+      ExtractFlag: a tab alone does not delimit, a tab next to a space does }
+    Entry.Parse(['Flags: a'#9'b']);
+    Assert(not Entry.FlagIncluded('Flags', 'a'));
+    Assert(not Entry.FlagIncluded('Flags', 'b'));
+    Entry.Parse(['Flags: a'#9' b']);
+    Assert(Entry.FlagIncluded('Flags', 'a'));
+    Assert(Entry.FlagIncluded('Flags', 'b'));
+    Entry.SetFlag('Flags', 'a', False);
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'Flags: b');
+  finally
+    Entry.Free;
+  end;
+end;
+
 procedure IDEScriptModelRunTests;
 begin
   TestLineHelpers;
   TestEntryParseAndSerialize;
+  TestEntryFlags;
 end;
 
 {$IFDEF DEBUG}

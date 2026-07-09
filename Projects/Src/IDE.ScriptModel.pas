@@ -68,6 +68,8 @@ type
     function GetBreakParameterIndex(Index: Integer): Integer;
     function GetParameter(Index: Integer): TScriptEntryParameter;
     procedure MarkModified;
+    procedure SetFlagInternal(const AParameterName, AFlagName: String;
+      const AInclude: Boolean);
     procedure SetValueInternal(const AName, AValue: String;
       const AQuoteNewValue: Boolean);
   public
@@ -82,6 +84,9 @@ type
     function GetValue(const AName: String): String;
     procedure SetValue(const AName, AValue: String);
     function RemoveParameter(const AName: String): Boolean;
+    function FlagIncluded(const AParameterName, AFlagName: String): Boolean;
+    procedure SetFlag(const AParameterName, AFlagName: String;
+      const AInclude: Boolean);
     function BreakCount: Integer;
     property BreakParameterIndexes[Index: Integer]: Integer read GetBreakParameterIndex;
     property Indent: String read FIndent;
@@ -178,6 +183,36 @@ begin
   while (I >= 1) and (S[I] <= ' ') do
     Dec(I);
   Result := Copy(S, I+1, MaxInt);
+end;
+
+{ Finds a whole token in a delimited value such as Flags, case-insensitively.
+  Tokens are delimited by literal spaces and trimmed of remaining whitespace,
+  matching the compiler's ExtractFlag }
+function FindScriptFlagToken(const AValue, AFlagName: String;
+  out AStartIndex, ALength: Integer): Boolean;
+begin
+  const L = Length(AValue);
+  var I := 1;
+  while I <= L do begin
+    while (I <= L) and (AValue[I] = ' ') do
+      Inc(I);
+    const ChunkStart = I;
+    while (I <= L) and (AValue[I] <> ' ') do
+      Inc(I);
+    var TokenStart := ChunkStart;
+    while (TokenStart < I) and (AValue[TokenStart] <= ' ') do
+      Inc(TokenStart);
+    var TokenEnd := I; { Exclusive }
+    while (TokenEnd > TokenStart) and (AValue[TokenEnd-1] <= ' ') do
+      Dec(TokenEnd);
+    if (TokenEnd > TokenStart) and
+       SameText(Copy(AValue, TokenStart, TokenEnd-TokenStart), AFlagName) then begin
+      AStartIndex := TokenStart;
+      ALength := TokenEnd-TokenStart;
+      Exit(True);
+    end;
+  end;
+  Result := False;
 end;
 
 { TScriptEntryParameter }
@@ -517,6 +552,66 @@ begin
     finally
       EndUpdate;
     end;
+  end;
+end;
+
+function TScriptParameterEntry.FlagIncluded(const AParameterName,
+  AFlagName: String): Boolean;
+begin
+  var StartIndex, TokenLength: Integer;
+  Result := FindScriptFlagToken(GetValue(AParameterName), AFlagName,
+    StartIndex, TokenLength);
+end;
+
+procedure TScriptParameterEntry.SetFlagInternal(const AParameterName,
+  AFlagName: String; const AInclude: Boolean);
+begin
+  const OldValue = GetValue(AParameterName);
+  var StartIndex, TokenLength: Integer;
+  const Found = FindScriptFlagToken(OldValue, AFlagName, StartIndex, TokenLength);
+  if AInclude then begin
+    if Found then
+      Exit;
+    var NewValue := OldValue;
+    if NewValue <> '' then
+      NewValue := NewValue + ' ';
+    SetValueInternal(AParameterName, NewValue + AFlagName, False);
+  end else begin
+    if not Found then
+      Exit;
+    { Duplicates of the flag are all removed so it really ends up excluded }
+    var NewValue := OldValue;
+    repeat
+      { Remove only the token itself plus one adjacent whitespace run, so other
+        tokens keep their spacing }
+      var RemoveEnd := StartIndex + TokenLength - 1;
+      if RemoveEnd < Length(NewValue) then begin
+        while (RemoveEnd < Length(NewValue)) and (NewValue[RemoveEnd+1] <= ' ') do
+          Inc(RemoveEnd);
+      end else begin
+        while (StartIndex > 1) and (NewValue[StartIndex-1] <= ' ') do
+          Dec(StartIndex);
+      end;
+      NewValue := Copy(NewValue, 1, StartIndex-1) +
+        Copy(NewValue, RemoveEnd+1, MaxInt);
+    until not FindScriptFlagToken(NewValue, AFlagName, StartIndex, TokenLength);
+    { Excluding the last token removes the whole parameter instead of leaving
+      an empty one behind }
+    if Trim(NewValue) = '' then
+      RemoveParameter(AParameterName)
+    else
+      SetValueInternal(AParameterName, NewValue, False);
+  end;
+end;
+
+procedure TScriptParameterEntry.SetFlag(const AParameterName,
+  AFlagName: String; const AInclude: Boolean);
+begin
+  BeginUpdate;
+  try
+    SetFlagInternal(AParameterName, AFlagName, AInclude);
+  finally
+    EndUpdate;
   end;
 end;
 
