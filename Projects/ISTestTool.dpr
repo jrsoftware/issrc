@@ -26,6 +26,9 @@ uses
   ChaCha20.Test in '..\Components\ChaCha20.Test.pas',
   Compiler.StringLists in 'Src\Compiler.StringLists.pas',
   Compiler.StringLists.Test in 'Src\Compiler.StringLists.Test.pas',
+  IDE.ScriptModel in 'Src\IDE.ScriptModel.pas',
+  IDE.ScriptModel.Metadata in 'Src\IDE.ScriptModel.Metadata.pas',
+  IDE.ScriptModel.Test in 'Src\IDE.ScriptModel.Test.pas',
   ISPP.CTokenizer in 'Src\ISPP.CTokenizer.pas',
   ISPP.CTokenizer.Test in 'Src\ISPP.CTokenizer.Test.pas',
   ISSigFunc in '..\Components\ISSigFunc.pas',
@@ -346,6 +349,7 @@ begin
     BidiUtilsRunTests;
     ChaCha20RunTests;
     CompilerStringListsRunTests;
+    IDEScriptModelRunTests;
     ISPPCTokenizerRunTests;
     ISSigFuncRunTests;
     MD5RunTests;

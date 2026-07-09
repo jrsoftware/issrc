@@ -124,6 +124,9 @@
         <DCCReference Include="..\Components\ChaCha20.Test.pas"/>
         <DCCReference Include="Src\Compiler.StringLists.pas"/>
         <DCCReference Include="Src\Compiler.StringLists.Test.pas"/>
+        <DCCReference Include="Src\IDE.ScriptModel.pas"/>
+        <DCCReference Include="Src\IDE.ScriptModel.Metadata.pas"/>
+        <DCCReference Include="Src\IDE.ScriptModel.Test.pas"/>
         <DCCReference Include="Src\ISPP.CTokenizer.pas"/>
         <DCCReference Include="Src\ISPP.CTokenizer.Test.pas"/>
         <DCCReference Include="..\Components\ISSigFunc.pas"/>
