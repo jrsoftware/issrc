@@ -61,6 +61,18 @@ type
     property Section: TInnoSetupStylerSection read FSection;
   end;
 
+  { A single occurrence of a directive-style section }
+  TLiveScriptDirectiveSection = class(TLiveScriptObject)
+  private
+    FSection: TScriptDirectiveSection;
+    constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
+      ALastLine: Integer; const ALines: TArray<String>);
+    procedure SectionChange(Sender: TObject);
+  public
+    destructor Destroy; override;
+    property Section: TScriptDirectiveSection read FSection;
+  end;
+
   TLiveScriptObjectFactory = class
   private
     FMemo: TScintEdit;
@@ -93,6 +105,9 @@ type
     function TryGetSetupDirectiveValue(const ADirectiveName: String;
       out AValue: String): Boolean;
     function TryCreateEntry(const ALine: Integer; out AEntry: TLiveScriptEntry;
+      out ARefusalReason: String): Boolean;
+    function TryCreateDirectiveSection(const ASectionIndex: Integer;
+      out ASection: TLiveScriptDirectiveSection;
       out ARefusalReason: String): Boolean;
     property Sections[Index: Integer]: TLiveScriptSection read GetSection;
     property Styler: TInnoSetupStyler read FStyler;
@@ -175,6 +190,29 @@ begin
     FFactory.WriteBackChange(Self, FEntry.GetLines, FCreatedFromBlankLine);
     FCreatedFromBlankLine := False; { An entry created from a blank line inserts itself above that line }
   end;
+end;
+
+{ TLiveScriptDirectiveSection }
+
+constructor TLiveScriptDirectiveSection.Create(const AFactory: TLiveScriptObjectFactory;
+  const AFirstLine, ALastLine: Integer; const ALines: TArray<String>);
+begin
+  inherited Create(AFactory, AFirstLine, ALastLine);
+  FSection := TScriptDirectiveSection.Create;
+  FSection.Parse(ALines);
+  FSection.OnChange := SectionChange;
+end;
+
+destructor TLiveScriptDirectiveSection.Destroy;
+begin
+  FSection.Free;
+  inherited;
+end;
+
+procedure TLiveScriptDirectiveSection.SectionChange(Sender: TObject);
+begin
+  if (FFactory <> nil) and FValid then
+    FFactory.WriteBackChange(Self, FSection.GetLines);
 end;
 
 { TLiveScriptObjectFactory }
@@ -580,32 +618,91 @@ begin
   Result := True;
 end;
 
+function TLiveScriptObjectFactory.TryCreateDirectiveSection(const ASectionIndex: Integer;
+  out ASection: TLiveScriptDirectiveSection;
+  out ARefusalReason: String): Boolean;
+begin
+  ASection := nil;
+  Result := False;
+  EnsureIndex;
+  EnsureStyled;
+
+  if (ASectionIndex < 0) or (ASectionIndex >= FSections.Count) then begin
+    ARefusalReason := 'The section index is out of range';
+    Exit;
+  end;
+  if not (FSections[ASectionIndex].Section in [scSetup, scMessages, scCustomMessages, scLangOptions]) then begin
+    ARefusalReason := 'The section is not a directive-style section';
+    Exit;
+  end;
+
+  var FirstLine, LastLine: Integer;
+  GetSectionLines(ASectionIndex, FirstLine, LastLine);
+  var SectionLines: TArray<String>;
+  if LastLine >= FirstLine then
+    SectionLines := GetLinesText(FirstLine, LastLine)
+  else
+    SectionLines := nil;
+  ASection := TLiveScriptDirectiveSection.Create(Self, FirstLine, LastLine,
+    SectionLines);
+  Result := True;
+end;
+
 procedure TLiveScriptObjectFactory.WriteBackChange(const ALiveScriptObject: TLiveScriptObject;
   const ALines: TArray<String>; const ACreatedFromBlankLine: Boolean);
 { Updates the object's lines to the new text, directly in the memo attached to this factory }
 begin
+  { Sanity checks }
   if ALiveScriptObject.FFactory <> Self then
     raise Exception.Create('Internal error: WriteBackChange: FFactory <> Self');
   if not ALiveScriptObject.FValid then
     raise Exception.Create('Internal error: WriteBackChange: not FValid');
+  for var Line in ALines do
+    if ContainsLineBreak(Line) then
+      raise Exception.Create('Internal error: WriteBackChange: ALines element contains a line break');
+  if (Length(ALines) = 0) and not (ALiveScriptObject is TLiveScriptDirectiveSection) then
+    raise Exception.Create('Internal error: WriteBackChange: empty ALines but not a directive section');
+
   const LineEnding = String(FMemo.LineEndingString);
   const Text = String.Join(LineEnding, ALines);
   FWritingBackObject := ALiveScriptObject; { Make sure Change doesn't update the object's FFirst/LastLine, we set FLastLine below instead }
   FMemo.BeginUndoAction;
   try
     if ACreatedFromBlankLine and (Length(ALines) > 0) then begin
+      { Insert the new lines plus a line ending at the start of the blank
+        line, which itself ends up below the inserted lines }
       const Pos = FMemo.GetPositionFromLine(ALiveScriptObject.FFirstLine);
       FMemo.ReplaceTextRange(Pos, Pos, Text + LineEnding);
-      ALiveScriptObject.FLastLine := ALiveScriptObject.FFirstLine + Integer(Length(ALines)) - 1;
     end else if ALiveScriptObject.FLastLine >= ALiveScriptObject.FFirstLine then begin
+      { Replace all of the object's lines' text, from the start of the first line
+        to the end of the last line but excluding its line ending, with the new
+        lines, so an empty ALines leaves a single empty line behind }
       FMemo.ReplaceTextRange(
         FMemo.GetPositionFromLine(ALiveScriptObject.FFirstLine),
-        FMemo.GetLineEndPosition(ALiveScriptObject.FLastLine), Text, srmMinimal);
-      if Length(ALines) = 0 then
-        ALiveScriptObject.FLastLine := ALiveScriptObject.FFirstLine
-      else
-        ALiveScriptObject.FLastLine := ALiveScriptObject.FFirstLine + Integer(Length(ALines)) - 1;
+        FMemo.GetLineEndPosition(ALiveScriptObject.FLastLine), Text,
+        srmMinimal);
+    end else if Length(ALines) > 0 then begin
+      { The object has no lines yet (a directive-style section without lines):
+        there is nothing to replace, so the new lines are inserted }
+      if ALiveScriptObject.FFirstLine <= FMemo.Lines.Count-1 then begin
+        { Insert the new lines plus a line ending at the start of the line
+          following the section header, pushing that line and the rest of the
+          document down }
+        const Pos = FMemo.GetPositionFromLine(ALiveScriptObject.FFirstLine);
+        FMemo.ReplaceTextRange(Pos, Pos, Text + LineEnding);
+      end else begin
+        { There is no line following the section header. Append a line ending
+          plus the new lines after the header. }
+        const Pos = FMemo.RawTextLength;
+        FMemo.ReplaceTextRange(Pos, Pos, LineEnding + Text);
+      end;
     end;
+    { The object now covers one line per element of ALines, or the single empty
+      line left behind when ALines is empty }
+    if Length(ALines) = 0 then
+      ALiveScriptObject.FLastLine := ALiveScriptObject.FFirstLine
+    else
+      ALiveScriptObject.FLastLine := ALiveScriptObject.FFirstLine + Integer(Length(ALines)) - 1;
   finally
     FMemo.EndUndoAction;
     FWritingBackObject := nil;

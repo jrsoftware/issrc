@@ -365,6 +365,62 @@ begin
       Context.Free;
     end;
   end;
+
+  { TryCreateDirectiveSection on a populated [Setup]: edit one directive and see
+    it written back; refuse a parameter section and an out-of-range index }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Setup]',
+      'AppName=Foo',
+      'AppVersion=1.0',
+      '[Files]',
+      'Source: a']);
+    try
+      const Factory = Context.Factory;
+      var DirectiveSection: TLiveScriptDirectiveSection;
+      var Reason: String;
+      Assert(Factory.TryCreateDirectiveSection(0, DirectiveSection, Reason));
+      try
+        const List = DirectiveSection.Section;
+        List.SetDirectiveValue(List.IndexOfDirective('AppName'), 'Edited');
+        Assert(AMemo.Lines[1] = 'AppName=Edited');
+        Assert(AMemo.Lines[2] = 'AppVersion=1.0'); { Other directive untouched }
+      finally
+        DirectiveSection.Free;
+      end;
+      Assert(not Factory.TryCreateDirectiveSection(1, DirectiveSection, Reason));
+      Assert(Reason = 'The section is not a directive-style section');
+      Assert(not Factory.TryCreateDirectiveSection(99, DirectiveSection, Reason));
+      Assert(Reason = 'The section index is out of range');
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { An empty directive-style section (a header with no body): adding a directive
+    inserts it into the empty range }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Messages]',
+      '[Files]',
+      'Source: a']);
+    try
+      var DirectiveSection: TLiveScriptDirectiveSection;
+      var Reason: String;
+      Assert(Context.Factory.TryCreateDirectiveSection(0, DirectiveSection, Reason));
+      try
+        Assert(DirectiveSection.Section.Count = 0);
+        DirectiveSection.Section.AddDirective('MyMsg', 'Hello');
+        Assert(AMemo.Lines.Count = 4);
+        Assert(AMemo.Lines[1] = 'MyMsg=Hello');
+        Assert(AMemo.Lines[2] = '[Files]');
+      finally
+        DirectiveSection.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
 end;
 
 { Edit tracking: the factory only learns of edits through Change }

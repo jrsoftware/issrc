@@ -162,6 +162,7 @@ function QuoteScriptParameterValueIfNeeded(const S: String;
 function GetScriptDirectiveDisplayValue(const S: String): String;
 function TryParseScriptDirectiveLine(const S: String;
   out ANameText, ARawValue: String): Boolean;
+function ContainsLineBreak(const S: String): Boolean;
 
 implementation
 
