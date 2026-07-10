@@ -26,7 +26,7 @@ uses
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.IDEScintEdit,
   Shared.DebugStruct, Shared.CompilerInt.Struct, NewUxTheme, ImageList, ImgList, ToolWin,
-  IDE.HelperFunc, IDE.LocalizeFunc, IDE.LiveScriptObjectFactory,
+  IDE.HelperFunc, IDE.LocalizeFunc, IDE.Inspector, IDE.LiveScriptObjectFactory,
   VirtualImageList, BaseImageCollection, BitmapButton;
 
 const
@@ -245,6 +245,7 @@ type
     N17: TMenuItem;
     BOpenOutputFolder: TMenuItem;
     N8: TMenuItem;
+    VInspector: TMenuItem;
     VZoom: TMenuItem;
     VZoomIn: TMenuItem;
     VZoomOut: TMenuItem;
@@ -470,6 +471,7 @@ type
     procedure UpdatePanelDonateBitBtnClick(Sender: TObject);
     procedure HMenuClick(Sender: TObject);
     procedure EGotoFileClick(Sender: TObject);
+    procedure VInspectorClick(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -663,6 +665,7 @@ type
     FMenuDarkHotOrSelectedBrush: TBrush;
     FMenuThemeData: HTHEME;
     FNavStacks: TIDEScintEditNavStacks;
+    FInspector: TInspector;
     FLiveScriptObjectFactories: TObjectDictionary<TScintEdit, TLiveScriptObjectFactory>;
     FOptions: TOptions;
     FPaused: Boolean;
@@ -677,6 +680,7 @@ type
     procedure ReopenTabClick(Sender: TObject);
     function LiveScriptObjectFactoryForMemo(const AMemo: TScintEdit): TLiveScriptObjectFactory;
     procedure InvalidateIndexForMemo(const AMemo: TScintEdit);
+    procedure SetInspectorVisible(const AVisible: Boolean);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     { Other }
     procedure WndProc(var Message: TMessage); override;
@@ -701,7 +705,7 @@ implementation
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Themes, DateUtils,
   Math, StrUtils, WideStrUtils, TypInfo,
-  PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc, UnsignedFunc,
+  PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc, UnsignedFunc, JvInspector,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.ScriptFunc,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
@@ -1238,6 +1242,7 @@ begin
     GlobalFree(FDevNames);
 
   FUpdatePanelMessages.Free;
+  FInspector.Free;
   FNavStacks.Free;
   FKeyMappedMenus.Free;
   FMenuBitmaps.Free;
@@ -3136,6 +3141,37 @@ begin
   ReopenTabOrTabs(Integer((Sender as TMenuItem).Tag), True);
 end;
 
+procedure TMainForm.SetInspectorVisible(const AVisible: Boolean);
+
+  function CreateJvInspector: TJvInspector;
+  begin
+    Result := TJvInspector.Create(Self);
+    Result.Parent := BodyPanel;
+    Result.Align := alRight;
+    Result.Width := MulDiv(350, Result.CurrentPPI, 96);
+    Result.Divider := MulDiv(200, Result.CurrentPPI, 96);
+    Result.BevelKind := bkNone;
+    Result.Painter := TJvInspectorDotNETPainter.Create(Result);
+  end;
+
+begin
+  const Visible = FInspector <> nil;
+  if AVisible <> Visible then begin
+    if AVisible then begin
+      FInspector := TInspector.Create(CreateJvInspector,
+        LiveScriptObjectFactoryForMemo(FActiveMemo));
+      FInspector.UpdateFromCaret;
+    end else
+      FreeAndNil(FInspector);
+  end;
+  VInspector.Checked := AVisible;
+end;
+
+procedure TMainForm.VInspectorClick(Sender: TObject);
+begin
+  SetInspectorVisible(FInspector = nil);
+end;
+
 procedure TMainForm.VReopenTabsClick(Sender: TObject);
 begin
   ReopenTabOrTabs(-1, True);
@@ -3556,6 +3592,9 @@ begin
     UpdateCaretPosPanelAndBackNavStack;
     UpdateEditModeStatusPanel;
     UpdateModifiedStatusPanel;
+
+    if FInspector <> nil then
+      FInspector.SetActiveFactory(LiveScriptObjectFactoryForMemo(FActiveMemo));
   end;
 end;
 
@@ -4670,6 +4709,9 @@ begin
   UpdateBraceHighlighting(Memo);
   CallTipsHandleUpdateUI(Memo);
   UpdateOccurrenceIndicators(Memo);
+
+  if (FInspector <> nil) and (Memo = FActiveMemo) then
+    FInspector.UpdateFromCaret;
 end;
 
 procedure TMainForm.MemoModifiedChange(Sender: TObject);

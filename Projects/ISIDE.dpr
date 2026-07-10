@@ -97,6 +97,7 @@ uses
   IDE.ScriptModel.Test in 'Src\IDE.ScriptModel.Test.pas',
   IDE.LiveScriptObjectFactory in 'Src\IDE.LiveScriptObjectFactory.pas',
   IDE.LiveScriptObjectFactory.Test in 'Src\IDE.LiveScriptObjectFactory.Test.pas',
+  IDE.Inspector in 'Src\IDE.Inspector.pas',
   VCL.Styles,
   VCL.Themes,
   IDE.MainForm.MRUHelper in 'Src\IDE.MainForm.MRUHelper.pas',

@@ -109,6 +109,7 @@ type
     function TryCreateDirectiveSection(const ASectionIndex: Integer;
       out ASection: TLiveScriptDirectiveSection;
       out ARefusalReason: String): Boolean;
+    property Memo: TScintEdit read FMemo;
     property Sections[Index: Integer]: TLiveScriptSection read GetSection;
     property Styler: TInnoSetupStyler read FStyler;
   end;
