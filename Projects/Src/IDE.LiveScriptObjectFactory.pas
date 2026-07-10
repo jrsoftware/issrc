@@ -43,9 +43,11 @@ type
     procedure GetSectionContentRange(const ASectionIndex: Integer;
       out AFirstLine, ALastLine: Integer);
     function LineSpans(const ALine: Integer): Boolean;
+    procedure MarkLinesDirty(const AFirstLine, ALastLine: Integer);
   public
     constructor Create(const AMemo: TScintEdit; const AStyler: TInnoSetupStyler);
     destructor Destroy; override;
+    procedure Change(const Info: TScintEditChangeInfo);
     procedure InvalidateIndex;
     function SectionCount: Integer;
     function TryGetSectionAtLine(const ALine: Integer;
@@ -137,9 +139,71 @@ procedure TLiveScriptObjectFactory.EnsureIndex;
     FDirtyLastLine := -1;
   end;
 
+  procedure UpdateIndexForDirtyLines;
+  begin
+    var FirstLine := FDirtyFirstLine;
+    var LastLine := FDirtyLastLine;
+    FDirtyFirstLine := -1;
+    FDirtyLastLine := -1;
+
+    const LineCount = FMemo.Lines.Count;
+    if FirstLine < 0 then
+      FirstLine := 0;
+    if FirstLine > LineCount-1 then
+      FirstLine := LineCount-1;
+    if LastLine < FirstLine then
+      LastLine := FirstLine
+    else if LastLine > LineCount-1 then
+      LastLine := LineCount-1;
+
+    { Extend to whole logical (spanned) lines, plus one following logical line:
+      an edit can detach that line from a span without its own text being edited }
+    while (FirstLine > 0) and LineSpans(FirstLine-1) do
+      Dec(FirstLine);
+    while (LastLine < LineCount-1) and LineSpans(LastLine) do
+      Inc(LastLine);
+    if LastLine < LineCount-1 then begin
+      Inc(LastLine);
+      while (LastLine < LineCount-1) and LineSpans(LastLine) do
+        Inc(LastLine);
+    end;
+
+    { Restyle the affected lines to refresh their per-line section state }
+    FMemo.RestyleLine(FirstLine);
+    if LastLine > FirstLine then begin
+      var EndPos: Integer;
+      if LastLine >= LineCount-1 then
+        EndPos := FMemo.RawTextLength
+      else
+        EndPos := FMemo.GetPositionFromLine(LastLine+1);
+      FMemo.StyleNeeded(EndPos);
+    end;
+
+    { Rescan the affected lines, replacing that slice of the index }
+    for var I := Integer(FSections.Count)-1 downto 0 do
+      if (FSections[I].Line >= FirstLine) and (FSections[I].Line <= LastLine) then
+        FSections.Delete(I);
+    var InsertAt := 0;
+    while (InsertAt < FSections.Count) and (FSections[InsertAt].Line < FirstLine) do
+      Inc(InsertAt);
+    var PreviousLineSpans := False; { FirstLine was extended back to the start of a group }
+    for var I := FirstLine to LastLine do begin
+      if not PreviousLineSpans then begin
+        var Section: TLiveScriptSection;
+        if GetHeaderSection(I, Section) then begin
+          FSections.Insert(InsertAt, Section);
+          Inc(InsertAt);
+        end;
+      end;
+      PreviousLineSpans := LineSpans(I);
+    end;
+  end;
+
 begin
   if not FIndexValid then
     BuildIndex
+  else if FDirtyFirstLine >= 0 then
+    UpdateIndexForDirtyLines;
 end;
 
 procedure TLiveScriptObjectFactory.EnsureStyled;
@@ -153,6 +217,78 @@ begin
   FDirtyFirstLine := -1;
   FDirtyLastLine := -1;
   FSections.Clear;
+end;
+
+procedure TLiveScriptObjectFactory.MarkLinesDirty(const AFirstLine, ALastLine: Integer);
+begin
+  if FDirtyFirstLine < 0 then begin
+    FDirtyFirstLine := AFirstLine;
+    FDirtyLastLine := ALastLine;
+  end else begin
+    if AFirstLine < FDirtyFirstLine then
+      FDirtyFirstLine := AFirstLine;
+    if ALastLine > FDirtyLastLine then
+      FDirtyLastLine := ALastLine;
+  end;
+end;
+
+procedure TLiveScriptObjectFactory.Change(const Info: TScintEditChangeInfo);
+begin
+  if not FIndexValid then
+    Exit;
+
+  { Also see TMainForm.MemoChange }
+
+  var FirstLine := FMemo.GetLineFromPosition(Info.StartPos);
+  const FirstAffectedLine = FirstLine;
+  { If the change does not start on the first character of the line, the
+    line itself keeps its number (same convention as TMainForm.MemoChange) }
+  if Info.StartPos > FMemo.GetPositionFromLine(FirstLine) then
+    Inc(FirstLine);
+
+  if Info.LinesDelta > 0 then begin
+    const Count = Info.LinesDelta;
+    for var I := 0 to Integer(FSections.Count)-1 do begin
+      if FSections[I].Line >= FirstLine then begin
+        var Section := FSections[I];
+        Inc(Section.Line, Count);
+        FSections[I] := Section;
+      end;
+    end;
+    if FDirtyFirstLine >= 0 then begin
+      if FDirtyFirstLine >= FirstLine then
+        Inc(FDirtyFirstLine, Count);
+      if FDirtyLastLine >= FirstLine then
+        Inc(FDirtyLastLine, Count);
+    end;
+    MarkLinesDirty(FirstAffectedLine, FirstAffectedLine + Count);
+  end else if Info.LinesDelta < 0 then begin
+    const Count = -Info.LinesDelta;
+    const DeleteFirst = FirstLine;
+    const DeleteLast = FirstLine + Count - 1;
+    for var I := Integer(FSections.Count)-1 downto 0 do begin
+      if FSections[I].Line > DeleteLast then begin
+        var Section := FSections[I];
+        Dec(Section.Line, Count);
+        FSections[I] := Section;
+      end else if FSections[I].Line >= DeleteFirst then
+        FSections.Delete(I);
+    end;
+    if FDirtyFirstLine >= 0 then begin
+      if FDirtyFirstLine > DeleteLast then
+        Dec(FDirtyFirstLine, Count)
+      else if FDirtyFirstLine >= DeleteFirst then
+        FDirtyFirstLine := FirstAffectedLine;
+      if FDirtyLastLine > DeleteLast then
+        Dec(FDirtyLastLine, Count)
+      else if FDirtyLastLine >= DeleteFirst then
+        FDirtyLastLine := FirstAffectedLine;
+      if FDirtyLastLine < FDirtyFirstLine then
+        FDirtyLastLine := FDirtyFirstLine;
+    end;
+    MarkLinesDirty(FirstAffectedLine, FirstAffectedLine);
+  end else
+    MarkLinesDirty(FirstAffectedLine, FirstAffectedLine);
 end;
 
 function TLiveScriptObjectFactory.SectionCount: Integer;

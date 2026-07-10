@@ -4779,22 +4779,19 @@ procedure TMainForm.MemoChange(Sender: TObject; const Info: TScintEditChangeInfo
   end;
 
   procedure MemoLinesInsertedOrDeleted(Memo: TIDEScintFileEdit);
-  var
-    FirstAffectedLine, Line, LinePos: Integer;
   begin
-    Line := Memo.GetLineFromPosition(Info.StartPos);
-    LinePos := Memo.GetPositionFromLine(Line);
-    FirstAffectedLine := Line;
+    var FirstLine := Memo.GetLineFromPosition(Info.StartPos);
+    const FirstAffectedLine = FirstLine;
     { If the deletion/insertion does not start on the first character of Line,
       then we consider the first deleted/inserted line to be the following
       line (Line+1). This way, if you press Del at the end of line 1, the dot
       on line 2 is removed, while line 1's dot stays intact. }
-    if Info.StartPos > LinePos then
-      Inc(Line);
+    if Info.StartPos > Memo.GetPositionFromLine(FirstLine) then
+      Inc(FirstLine);
     if Info.LinesDelta > 0 then
-      MemoLinesInserted(Memo, Line, Info.LinesDelta)
+      MemoLinesInserted(Memo, FirstLine, Info.LinesDelta)
     else
-      MemoLinesDeleted(Memo, Line, -Info.LinesDelta, FirstAffectedLine);
+      MemoLinesDeleted(Memo, FirstLine, -Info.LinesDelta, FirstAffectedLine);
   end;
 
 var
