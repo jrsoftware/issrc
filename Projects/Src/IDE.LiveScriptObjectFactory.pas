@@ -19,7 +19,7 @@ interface
 uses
   Classes, Generics.Collections,
   ScintEdit,
-  IDE.ScintStylerInnoSetup;
+  IDE.ScintStylerInnoSetup, IDE.ScriptModel;
 
 type
   TLiveScriptSection = record
@@ -39,6 +39,7 @@ type
     procedure EnsureStyled;
     function GetHeaderSection(const ALine: Integer;
       out ASection: TLiveScriptSection): Boolean;
+    function GetLineRangeText(const AFirstLine, ALastLine: Integer): TArray<String>;
     function GetSection(Index: Integer): TLiveScriptSection;
     procedure GetSectionContentRange(const ASectionIndex: Integer;
       out AFirstLine, ALastLine: Integer);
@@ -52,6 +53,8 @@ type
     function SectionCount: Integer;
     function TryGetSectionAtLine(const ALine: Integer;
       out ASectionIndex: Integer): Boolean;
+    function TryGetSetupDirectiveValue(const ADirectiveName: String;
+      out AValue: String): Boolean;
     property Sections[Index: Integer]: TLiveScriptSection read GetSection;
     property Styler: TInnoSetupStyler read FStyler;
   end;
@@ -307,7 +310,7 @@ function TLiveScriptObjectFactory.TryGetSectionAtLine(const ALine: Integer;
   out ASectionIndex: Integer): Boolean;
 begin
   EnsureIndex;
-  EnsureStyled;
+  EnsureStyled; { For GetSectionContentRange }
   Result := False;
   for var I := Integer(FSections.Count)-1 downto 0 do begin
     if FSections[I].Line <= ALine then begin
@@ -324,7 +327,7 @@ end;
 
 procedure TLiveScriptObjectFactory.GetSectionContentRange(const ASectionIndex: Integer;
   out AFirstLine, ALastLine: Integer);
-{ The returned range can be empty (ALastLine < AFirstLine) }
+{ Requires the lines to be styled already. The returned range can be empty (ALastLine < AFirstLine) }
 begin
   const Header = FSections[ASectionIndex];
   const LineCount = FMemo.Lines.Count;
@@ -337,6 +340,45 @@ begin
         (TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[L]) = Header.Section) do
     Inc(L);
   ALastLine := L-1;
+end;
+
+function TLiveScriptObjectFactory.GetLineRangeText(const AFirstLine,
+  ALastLine: Integer): TArray<String>;
+begin
+  if ALastLine < AFirstLine then
+    Exit(nil);
+  SetLength(Result, ALastLine-AFirstLine+1);
+  for var I := AFirstLine to ALastLine do
+    Result[I-AFirstLine] := FMemo.Lines[I];
+end;
+
+function TLiveScriptObjectFactory.TryGetSetupDirectiveValue(const ADirectiveName: String;
+  out AValue: String): Boolean;
+begin
+  { Walk all [Setup] sections in order and return the last occurrence found.
+    Not-found is distinct from an empty value }
+  EnsureIndex;
+  EnsureStyled; { For GetSectionContentRange }
+  Result := False;
+  for var I := 0 to Integer(FSections.Count)-1 do begin
+    if FSections[I].Section = scSetup then begin
+      var FirstLine, LastLine: Integer;
+      GetSectionContentRange(I, FirstLine, LastLine);
+      if LastLine >= FirstLine then begin
+        const Section = TScriptDirectiveSection.Create;
+        try
+          Section.Parse(GetLineRangeText(FirstLine, LastLine));
+          var Value: String;
+          if Section.TryGetDirectiveValue(ADirectiveName, Value) then begin
+            AValue := Value;
+            Result := True;
+          end;
+        finally
+          Section.Free;
+        end;
+      end;
+    end;
+  end;
 end;
 
 end.

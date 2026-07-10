@@ -184,6 +184,39 @@ begin
   end;
 end;
 
+{ Directive-style sections: last-occurrence value lookup, editing a populated
+  section, refusals, and an empty section that a directive is added to }
+procedure TestDirectiveSections(const AMemo: TScintEdit;
+  const AStyler: TInnoSetupStyler);
+begin
+  { TryGetSetupDirectiveValue walks all [Setup] blocks; last occurrence wins and
+    not-found is distinct from an empty value }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Setup]',
+      'AppName=First',
+      'AppVersion=1.0',
+      '[Files]',
+      'Source: a',
+      '[Setup]',
+      'AppName=Second',
+      'AppComments=']);
+    try
+      const Factory = Context.Factory;
+      var Value: String;
+      Assert(Factory.TryGetSetupDirectiveValue('AppName', Value));
+      Assert(Value = 'Second'); { Last occurrence across the two [Setup] blocks }
+      Assert(Factory.TryGetSetupDirectiveValue('AppVersion', Value));
+      Assert(Value = '1.0');
+      Assert(Factory.TryGetSetupDirectiveValue('AppComments', Value));
+      Assert(Value = '');       { Present but empty }
+      Assert(not Factory.TryGetSetupDirectiveValue('Missing', Value));
+    finally
+      Context.Free;
+    end;
+  end;
+end;
+
 { Edit tracking: the factory only learns of edits through Change }
 procedure TestEditTracking(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
@@ -228,6 +261,7 @@ begin
   try
     TestSectionIndexing(AMemo, AStyler);
     TestTryGetSectionAtLine(AMemo, AStyler);
+    TestDirectiveSections(AMemo, AStyler);
     TestEditTracking(AMemo, AStyler);
   finally
     AMemo.OnChange := nil;

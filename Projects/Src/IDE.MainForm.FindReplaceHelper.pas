@@ -26,10 +26,6 @@ type
     procedure DoFindInFilesDialogFind;
     procedure UpdateFindResult(const FindResult: TFindResult; const ItemIndex: Integer;
       const NewLine, NewLineStartPos: Integer);
-    function FindSetupDirectiveValue(const DirectiveName,
-      DefaultValue: String): String; overload;
-    function FindSetupDirectiveValue(const DirectiveName: String;
-      DefaultValue: Boolean): Boolean; overload;
     procedure ShowReplaceDialog;
     procedure DoReplaceDialogReplace;
     { Private }
@@ -43,7 +39,7 @@ implementation
 
 uses
   Windows, Messages,
-  Classes, SysUtils, StrUtils,  Menus,
+  Classes, SysUtils,  Menus,
   ScintEdit,
   Shared.CommonFunc, Shared.CommonFunc.Vcl,
   IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.ScintStylerInnoSetup;
@@ -278,49 +274,6 @@ begin
   const PrefixChange = Length(NewPrefix) - Length(OldPrefix);
   FindResult.StartIndex := FindResult.StartIndex + PrefixChange;
   FindResult.EndIndex := FindResult.EndIndex + PrefixChange;
-end;
-
-function TMainFormFindReplaceHelper.FindSetupDirectiveValue(const DirectiveName,
-  DefaultValue: String): String;
-begin
-  Result := DefaultValue;
-
-  var Memo := FMainMemo; { This function only searches the main file }
-  var StartPos := 0;
-  var EndPos := Memo.RawTextLength;
-  var Range: TScintRange;
-
-  { We rely on the styler to identify [Setup] section lines, but we
-    may be searching into areas that haven't been styled yet }
-  Memo.StyleNeeded(EndPos);
-
-  while (StartPos < EndPos) and
-        Memo.FindText(StartPos, EndPos, DirectiveName, [sfoWholeWord], Range) do begin
-    var Line := Memo.GetLineFromPosition(Range.StartPos);
-    if TInnoSetupStyler.GetSectionFromLineState(Memo.Lines.State[Line]) = scSetup then begin
-      var LineValue := Memo.Lines[Line].Trim; { LineValue can't be empty }
-      if LineValue[1] <> ';' then begin
-        var LineParts := LineValue.Split(['=']);
-        if (Length(LineParts) = 2) and SameText(LineParts[0].Trim, DirectiveName) then begin
-          Result := LineParts[1].Trim;
-          { If Result is surrounded in quotes, remove them, just like TSetupCompiler.SeparateDirective }
-          if (Length(Result) >= 2) and
-             (Result[1] = '"') and (Result[Length(Result)] = '"') then
-            Result := Copy(Result, 2, Length(Result)-2);
-          Exit; { Compiler doesn't allow a directive to be specified twice so we can exit now }
-        end;
-      end;
-    end;
-    StartPos := Range.EndPos;
-  end;
-end;
-
-function TMainFormFindReplaceHelper.FindSetupDirectiveValue(const DirectiveName: String;
-  DefaultValue: Boolean): Boolean;
-begin
-  var Value := FindSetupDirectiveValue(DirectiveName, IfThen(DefaultValue, '1', '0'));
-  if not TryStrToBoolean(Value, Result) then
-    Result := DefaultValue;
 end;
 
 procedure TMainFormFindReplaceHelper.ShowReplaceDialog;
