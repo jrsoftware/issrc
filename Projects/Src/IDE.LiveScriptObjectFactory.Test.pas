@@ -157,7 +157,7 @@ procedure TestTryGetSectionAtLine(const AMemo: TScintEdit;
 
 begin
   const Context = TFactoryTestContext.Create(AMemo, AStyler, [
-    '; comment before any section',   { 0 }
+    '; comment before any section',   { 0, belongs to no section }
     '[Setup]',                        { 1 }
     'AppName=x',                      { 2 }
     '',                               { 3, blank inside [Setup] }
