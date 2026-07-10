@@ -8,7 +8,8 @@ paths: ["Components/JvInspector.pas", "Components/JvAutoComplete.pas", "Componen
 These files are extracted from JVCL, for inclusion with Inno Setup. Only
 the inspector is extracted: the rest of JVCL is not present.
 
-- `JvInspector.pas` and `JvAutoComplete.pas`: extracted and improved upstream units.
+- `JvInspector.pas`: extracted and improved upstream unit.
+- `JvAutoComplete.pas`: extracted but otherwise unchanged upstream unit.
 - `JvInspectorSupport.pas`: a small Inno Setup unit that replaces the JVCL dependencies the two units needed.
 - `jvcl.inc`: a minimal Inno Setup version of the upstream include file.
 

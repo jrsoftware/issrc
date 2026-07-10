@@ -197,6 +197,43 @@ begin
     Assert(not Entry.RemoveParameter('B'));
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'A: 1; C: 3');
+
+    {$IFDEF ISTESTTOOLPROJ}
+    { Values with line breaks and malformed parameter names raise, leaving the
+      entry untouched: such text would break apart on the next parse }
+    Entry.Parse(['A: 1']);
+    var Caught := False;
+    try
+      Entry.SetValue('A', 'x'#13#10'y');
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Caught := False;
+    try
+      Entry.SetValue('', 'x');
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Caught := False;
+    try
+      Entry.SetValue('B;C', 'x');
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Caught := False;
+    try
+      Entry.SetValue('B C', 'x');
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Assert(not Entry.Modified);
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'A: 1');
+    {$ENDIF}
   finally
     Entry.Free;
   end;
@@ -261,6 +298,34 @@ begin
     Entry.SetFlag('Flags', 'a', False);
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'Flags: b');
+
+    {$IFDEF ISTESTTOOLPROJ}
+    { Flag names that cannot be a single unquoted token raise, leaving the
+      entry untouched }
+    Entry.Parse(['Flags: a']);
+    var Caught := False;
+    try
+      Entry.SetFlag('Flags', '', True);
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Caught := False;
+    try
+      Entry.SetFlag('Flags', 'x y', True);
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Caught := False;
+    try
+      Entry.SetFlag('Flags', 'x"y', True);
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Assert(not Entry.Modified);
+    {$ENDIF}
   finally
     Entry.Free;
   end;
@@ -287,8 +352,8 @@ begin
     Assert(Entry.TryGetParameterDefinition('flags', Definition));
     Assert(Definition.ValueKind = pvkFlags);
     var FoundFlagName := False;
-    for var FlagName in Definition.FlagNames do
-      if FlagName = 'ignoreversion' then
+    for var KnownValue in Definition.KnownValues do
+      if KnownValue = 'ignoreversion' then
         FoundFlagName := True;
     Assert(FoundFlagName);
     Assert(Entry.TryGetParameterDefinition('ExternalSize', Definition));
@@ -504,6 +569,57 @@ begin
     Lines := Section.GetLines;
     Assert(Lines[1] = 'AppName="Foo"');
     Section.QuoteNewValues := False;
+
+    {$IFDEF ISTESTTOOLPROJ}
+    { Values with line breaks and names that would not read back as the same
+      directive raise, leaving the section untouched }
+    Section.Parse(['AppName=Foo']);
+    Caught := False;
+    try
+      Section.SetDirectiveValue(0, 'a'#13#10'b');
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Caught := False;
+    try
+      Section.AddDirective('', 'x');
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Caught := False;
+    try
+      Section.AddDirective('A=B', 'x');
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Caught := False;
+    try
+      Section.AddDirective('; comment', 'x');
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Caught := False;
+    try
+      Section.AddDirective('AppName ', 'x');
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Caught := False;
+    try
+      Section.AddDirective('AppName', 'a'#10'b');
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Lines := Section.GetLines;
+    Assert(Length(Lines) = 1);
+    Assert(Lines[0] = 'AppName=Foo');
+    {$ENDIF}
   finally
     Section.Free;
     Counter.Free;

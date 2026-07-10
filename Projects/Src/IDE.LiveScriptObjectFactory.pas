@@ -19,13 +19,46 @@ interface
 uses
   Classes, Generics.Collections,
   ScintEdit,
-  IDE.ScintStylerInnoSetup, IDE.ScriptModel;
+  IDE.ScintStylerInnoSetup, IDE.ScriptModel, IDE.ScriptModel.Metadata;
 
 type
+  TLiveScriptObjectFactory = class;
+
   TLiveScriptSection = record
     Line: Integer;
     Section: TInnoSetupStylerSection;
     Name: String;
+  end;
+
+  TLiveScriptObject = class
+  private
+    FFactory: TLiveScriptObjectFactory;
+    FFirstLine, FLastLine: Integer; { The lines for which the object was created, always up-to-date }
+    FValid: Boolean; { False if some or all of the object's lines were deleted since creation }
+    constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
+      ALastLine: Integer);
+  public
+    destructor Destroy; override;
+    property FirstLine: Integer read FFirstLine;
+    property LastLine: Integer read FLastLine;
+    property Valid: Boolean read FValid;
+  end;
+
+  { An entry of a parameter section }
+  TLiveScriptEntry = class(TLiveScriptObject)
+  private
+    FEntry: TScriptParameterEntry;
+    FSection: TInnoSetupStylerSection;
+    FCreatedFromBlankLine: Boolean;
+    constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
+      ALastLine: Integer; const ASection: TInnoSetupStylerSection;
+      const AMetadata: TScriptSectionMetadata; const ALines: TArray<String>;
+      const ACreatedFromBlankLine: Boolean);
+    procedure EntryChange(Sender: TObject);
+  public
+    destructor Destroy; override;
+    property Entry: TScriptParameterEntry read FEntry;
+    property Section: TInnoSetupStylerSection read FSection;
   end;
 
   TLiveScriptObjectFactory = class
@@ -35,16 +68,20 @@ type
     FSections: TList<TLiveScriptSection>; { Includes scUnknown/scThirdParty section }
     FIndexValid: Boolean;
     FDirtyFirstLine, FDirtyLastLine: Integer; { -1 when nothing is dirty }
+    FLiveScriptObjects: TList<TLiveScriptObject>;
+    FWritingBackObject: TLiveScriptObject;
     procedure EnsureIndex;
     procedure EnsureStyled;
     function GetHeaderSection(const ALine: Integer;
       out ASection: TLiveScriptSection): Boolean;
-    function GetLineRangeText(const AFirstLine, ALastLine: Integer): TArray<String>;
+    function GetLinesText(const AFirstLine, ALastLine: Integer): TArray<String>;
     function GetSection(Index: Integer): TLiveScriptSection;
-    procedure GetSectionContentRange(const ASectionIndex: Integer;
+    procedure GetSectionLines(const ASectionIndex: Integer;
       out AFirstLine, ALastLine: Integer);
     function LineSpans(const ALine: Integer): Boolean;
     procedure MarkLinesDirty(const AFirstLine, ALastLine: Integer);
+    procedure WriteBackChange(const ALiveScriptObject: TLiveScriptObject;
+      const ALines: TArray<String>; const ACreatedFromBlankLine: Boolean = False);
   public
     constructor Create(const AMemo: TScintEdit; const AStyler: TInnoSetupStyler);
     destructor Destroy; override;
@@ -55,14 +92,90 @@ type
       out ASectionIndex: Integer): Boolean;
     function TryGetSetupDirectiveValue(const ADirectiveName: String;
       out AValue: String): Boolean;
+    function TryCreateEntry(const ALine: Integer; out AEntry: TLiveScriptEntry;
+      out ARefusalReason: String): Boolean;
     property Sections[Index: Integer]: TLiveScriptSection read GetSection;
     property Styler: TInnoSetupStyler read FStyler;
   end;
+
+function ParameterSectionToSectionName(const ASection: TInnoSetupStylerSection): String;
 
 implementation
 
 uses
   SysUtils;
+
+function ParameterSectionToSectionName(const ASection: TInnoSetupStylerSection): String;
+{ Returns an empty string for sections which aren't parameter sections }
+begin
+  case ASection of
+    scComponents: Result := 'Components';
+    scDirs: Result := 'Dirs';
+    scFiles: Result := 'Files';
+    scIcons: Result := 'Icons';
+    scINI: Result := 'INI';
+    scInstallDelete: Result := 'InstallDelete';
+    scISSigKeys: Result := 'ISSigKeys';
+    scLanguages: Result := 'Languages';
+    scRegistry: Result := 'Registry';
+    scRun: Result := 'Run';
+    scTasks: Result := 'Tasks';
+    scTypes: Result := 'Types';
+    scUninstallDelete: Result := 'UninstallDelete';
+    scUninstallRun: Result := 'UninstallRun';
+  else
+    Result := '';
+  end;
+end;
+
+{ TLiveScriptObject }
+
+constructor TLiveScriptObject.Create(const AFactory: TLiveScriptObjectFactory;
+  const AFirstLine, ALastLine: Integer);
+begin
+  inherited Create;
+  FFactory := AFactory;
+  FFirstLine := AFirstLine;
+  FLastLine := ALastLine;
+  FValid := True;
+  FFactory.FLiveScriptObjects.Add(Self);
+end;
+
+destructor TLiveScriptObject.Destroy;
+begin
+  if FFactory <> nil then
+    FFactory.FLiveScriptObjects.Remove(Self);
+  inherited;
+end;
+
+{ TLiveScriptEntry }
+
+constructor TLiveScriptEntry.Create(const AFactory: TLiveScriptObjectFactory;
+  const AFirstLine, ALastLine: Integer; const ASection: TInnoSetupStylerSection;
+  const AMetadata: TScriptSectionMetadata; const ALines: TArray<String>;
+  const ACreatedFromBlankLine: Boolean);
+begin
+  inherited Create(AFactory, AFirstLine, ALastLine);
+  FSection := ASection;
+  FCreatedFromBlankLine := ACreatedFromBlankLine;
+  FEntry := TScriptParameterEntry.Create(AMetadata);
+  FEntry.Parse(ALines);
+  FEntry.OnChange := EntryChange;
+end;
+
+destructor TLiveScriptEntry.Destroy;
+begin
+  FEntry.Free;
+  inherited;
+end;
+
+procedure TLiveScriptEntry.EntryChange(Sender: TObject);
+begin
+  if (FFactory <> nil) and FValid then begin
+    FFactory.WriteBackChange(Self, FEntry.GetLines, FCreatedFromBlankLine);
+    FCreatedFromBlankLine := False; { An entry created from a blank line inserts itself above that line }
+  end;
+end;
 
 { TLiveScriptObjectFactory }
 
@@ -73,12 +186,17 @@ begin
   FMemo := AMemo;
   FStyler := AStyler;
   FSections := TList<TLiveScriptSection>.Create;
+  FLiveScriptObjects := TList<TLiveScriptObject>.Create;
   FDirtyFirstLine := -1;
   FDirtyLastLine := -1;
 end;
 
 destructor TLiveScriptObjectFactory.Destroy;
 begin
+  if FLiveScriptObjects <> nil then
+    for var LiveScriptObject in FLiveScriptObjects do
+      LiveScriptObject.FFactory := nil;
+  FLiveScriptObjects.Free;
   FSections.Free;
   inherited;
 end;
@@ -93,14 +211,13 @@ function TLiveScriptObjectFactory.GetHeaderSection(const ALine: Integer;
 
   function ExtractSectionHeaderName(const S: String): String;
   begin
-    { Matches the styler's section header recognition in
-      TInnoSetupStyler.StyleNeeded: '[' + AlphaUnderscoreChars + ']' }
+    { See TInnoSetupStyler.StyleNeeded }
     Result := '';
     const P = Pos('[', S);
     if P = 0 then
       Exit;
     var I := P+1;
-    while (I <= Length(S)) and CharInSet(S[I], ['A'..'Z', 'a'..'z', '_']) do
+    while (I <= Length(S)) and CharInSet(S[I], AlphaUnderscoreChars) do
       Inc(I);
     if (I <= Length(S)) and (S[I] = ']') then
       Result := Copy(S, P+1, I-P-1);
@@ -108,10 +225,10 @@ function TLiveScriptObjectFactory.GetHeaderSection(const ALine: Integer;
 
 begin
   { ISPP's line continuation (see LineSpans) joins physical lines into one
-    logical line, and the styler gives them all the same line state, so a
-    spanned header's continuation lines would also report the header, even
-    if such a header doesn't compile. Callers must pass only the first
-    physical line of a spanned header. }
+    logical line, and the styler gives them all the same line state. This
+    also applies to spanned headers, regardless of the fact that those
+    don't compile. There's no detection for this issue and callers must
+    just pass only the first physical line of a spanned header. }
   var Section: TInnoSetupStylerSection;
   Result := TInnoSetupStyler.LineSectionHeader(FMemo.Lines.State[ALine], Section);
   if Result then begin
@@ -220,6 +337,8 @@ begin
   FDirtyFirstLine := -1;
   FDirtyLastLine := -1;
   FSections.Clear;
+  for var LiveScriptObject in FLiveScriptObjects do
+    LiveScriptObject.FValid := False;
 end;
 
 procedure TLiveScriptObjectFactory.MarkLinesDirty(const AFirstLine, ALastLine: Integer);
@@ -241,11 +360,8 @@ begin
     Exit;
 
   { Also see TMainForm.MemoChange }
-
   var FirstLine := FMemo.GetLineFromPosition(Info.StartPos);
   const FirstAffectedLine = FirstLine;
-  { If the change does not start on the first character of the line, the
-    line itself keeps its number (same convention as TMainForm.MemoChange) }
   if Info.StartPos > FMemo.GetPositionFromLine(FirstLine) then
     Inc(FirstLine);
 
@@ -256,6 +372,15 @@ begin
         var Section := FSections[I];
         Inc(Section.Line, Count);
         FSections[I] := Section;
+      end;
+    end;
+    for var LiveScriptObject in FLiveScriptObjects do begin
+      if LiveScriptObject.FValid and (LiveScriptObject <> FWritingBackObject) then begin
+        if LiveScriptObject.FFirstLine >= FirstLine then begin
+          Inc(LiveScriptObject.FFirstLine, Count);
+          Inc(LiveScriptObject.FLastLine, Count);
+        end else if LiveScriptObject.FLastLine >= FirstLine then
+          Inc(LiveScriptObject.FLastLine, Count);
       end;
     end;
     if FDirtyFirstLine >= 0 then begin
@@ -276,6 +401,17 @@ begin
         FSections[I] := Section;
       end else if FSections[I].Line >= DeleteFirst then
         FSections.Delete(I);
+    end;
+    for var LiveScriptObject in FLiveScriptObjects do begin
+      if LiveScriptObject.FValid and (LiveScriptObject <> FWritingBackObject) then begin
+        if (LiveScriptObject.FFirstLine <= DeleteLast) and
+           (LiveScriptObject.FLastLine >= DeleteFirst) then
+          LiveScriptObject.FValid := False { Some or all of the object's lines were deleted }
+        else if LiveScriptObject.FFirstLine > DeleteLast then begin
+          Dec(LiveScriptObject.FFirstLine, Count);
+          Dec(LiveScriptObject.FLastLine, Count);
+        end;
+      end;
     end;
     if FDirtyFirstLine >= 0 then begin
       if FDirtyFirstLine > DeleteLast then
@@ -310,12 +446,12 @@ function TLiveScriptObjectFactory.TryGetSectionAtLine(const ALine: Integer;
   out ASectionIndex: Integer): Boolean;
 begin
   EnsureIndex;
-  EnsureStyled; { For GetSectionContentRange }
+  EnsureStyled; { For GetSectionLines }
   Result := False;
   for var I := Integer(FSections.Count)-1 downto 0 do begin
     if FSections[I].Line <= ALine then begin
       var FirstLine, LastLine: Integer;
-      GetSectionContentRange(I, FirstLine, LastLine);
+      GetSectionLines(I, FirstLine, LastLine);
       if (ALine < FirstLine) or (ALine <= LastLine) then begin
         ASectionIndex := I;
         Result := True;
@@ -325,7 +461,7 @@ begin
   end;
 end;
 
-procedure TLiveScriptObjectFactory.GetSectionContentRange(const ASectionIndex: Integer;
+procedure TLiveScriptObjectFactory.GetSectionLines(const ASectionIndex: Integer;
   out AFirstLine, ALastLine: Integer);
 { Requires the lines to be styled already. The returned range can be empty (ALastLine < AFirstLine) }
 begin
@@ -342,7 +478,7 @@ begin
   ALastLine := L-1;
 end;
 
-function TLiveScriptObjectFactory.GetLineRangeText(const AFirstLine,
+function TLiveScriptObjectFactory.GetLinesText(const AFirstLine,
   ALastLine: Integer): TArray<String>;
 begin
   if ALastLine < AFirstLine then
@@ -355,19 +491,20 @@ end;
 function TLiveScriptObjectFactory.TryGetSetupDirectiveValue(const ADirectiveName: String;
   out AValue: String): Boolean;
 begin
-  { Walk all [Setup] sections in order and return the last occurrence found.
-    Not-found is distinct from an empty value }
+  { Returns the last occurrence found. The compiler does not accept duplicate
+    directives (except SignTool), but it only sees the script after preprocessing.
+    Before preprocessing having duplicates does not always mean there's an error. }
   EnsureIndex;
-  EnsureStyled; { For GetSectionContentRange }
+  EnsureStyled; { For GetSectionLines }
   Result := False;
   for var I := 0 to Integer(FSections.Count)-1 do begin
     if FSections[I].Section = scSetup then begin
       var FirstLine, LastLine: Integer;
-      GetSectionContentRange(I, FirstLine, LastLine);
+      GetSectionLines(I, FirstLine, LastLine);
       if LastLine >= FirstLine then begin
         const Section = TScriptDirectiveSection.Create;
         try
-          Section.Parse(GetLineRangeText(FirstLine, LastLine));
+          Section.Parse(GetLinesText(FirstLine, LastLine));
           var Value: String;
           if Section.TryGetDirectiveValue(ADirectiveName, Value) then begin
             AValue := Value;
@@ -378,6 +515,100 @@ begin
         end;
       end;
     end;
+  end;
+end;
+
+function TLiveScriptObjectFactory.TryCreateEntry(const ALine: Integer;
+  out AEntry: TLiveScriptEntry; out ARefusalReason: String): Boolean;
+begin
+  AEntry := nil;
+  Result := False;
+  EnsureIndex;
+  EnsureStyled;
+
+  const LineCount = FMemo.Lines.Count;
+  if (ALine < 0) or (ALine >= LineCount) then begin
+    ARefusalReason := 'The line number is out of range';
+    Exit;
+  end;
+
+  const Section = TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[ALine]);
+  if Section = scNone then begin
+    ARefusalReason := 'The line is not inside a section';
+    Exit;
+  end;
+  if Section = scCode then begin
+    ARefusalReason := 'The line is in the [Code] section';
+    Exit;
+  end;
+  if Section in [scUnknown, scThirdParty] then begin
+    ARefusalReason := 'The line is in an unrecognized section';
+    Exit;
+  end;
+  if not TInnoSetupStyler.IsParamSection(Section) then begin
+    ARefusalReason := 'The line is in a directive-style section';
+    Exit;
+  end;
+
+  var FirstLine := ALine;
+  while (FirstLine > 0) and LineSpans(FirstLine-1) do
+    Dec(FirstLine);
+  var LastLine := ALine;
+  while (LastLine < LineCount-1) and LineSpans(LastLine) do
+    Inc(LastLine);
+
+  const EntryLines = GetLinesText(FirstLine, LastLine);
+  const LineKind = ClassifyScriptLine(JoinSpannedScriptLines(EntryLines));
+  case LineKind of
+  { slkBlank is not refused. This is so a new entry can be created on a blank line. }
+    slkComment:
+      begin
+        ARefusalReason := 'The line is a comment';
+        Exit;
+      end;
+    slkISPPDirective:
+      begin
+        ARefusalReason := 'The line is an ISPP directive';
+        Exit;
+      end;
+  end;
+
+  var Metadata: TScriptSectionMetadata := nil;
+  TryGetScriptSectionMetadata(ParameterSectionToSectionName(Section), Metadata);
+  AEntry := TLiveScriptEntry.Create(Self, FirstLine, LastLine, Section,
+    Metadata, EntryLines, LineKind = slkBlank);
+  Result := True;
+end;
+
+procedure TLiveScriptObjectFactory.WriteBackChange(const ALiveScriptObject: TLiveScriptObject;
+  const ALines: TArray<String>; const ACreatedFromBlankLine: Boolean);
+{ Updates the object's lines to the new text, directly in the memo attached to this factory }
+begin
+  if ALiveScriptObject.FFactory <> Self then
+    raise Exception.Create('Internal error: WriteBackChange: FFactory <> Self');
+  if not ALiveScriptObject.FValid then
+    raise Exception.Create('Internal error: WriteBackChange: not FValid');
+  const LineEnding = String(FMemo.LineEndingString);
+  const Text = String.Join(LineEnding, ALines);
+  FWritingBackObject := ALiveScriptObject; { Make sure Change doesn't update the object's FFirst/LastLine, we set FLastLine below instead }
+  FMemo.BeginUndoAction;
+  try
+    if ACreatedFromBlankLine and (Length(ALines) > 0) then begin
+      const Pos = FMemo.GetPositionFromLine(ALiveScriptObject.FFirstLine);
+      FMemo.ReplaceTextRange(Pos, Pos, Text + LineEnding);
+      ALiveScriptObject.FLastLine := ALiveScriptObject.FFirstLine + Integer(Length(ALines)) - 1;
+    end else if ALiveScriptObject.FLastLine >= ALiveScriptObject.FFirstLine then begin
+      FMemo.ReplaceTextRange(
+        FMemo.GetPositionFromLine(ALiveScriptObject.FFirstLine),
+        FMemo.GetLineEndPosition(ALiveScriptObject.FLastLine), Text, srmMinimal);
+      if Length(ALines) = 0 then
+        ALiveScriptObject.FLastLine := ALiveScriptObject.FFirstLine
+      else
+        ALiveScriptObject.FLastLine := ALiveScriptObject.FFirstLine + Integer(Length(ALines)) - 1;
+    end;
+  finally
+    FMemo.EndUndoAction;
+    FWritingBackObject := nil;
   end;
 end;
 

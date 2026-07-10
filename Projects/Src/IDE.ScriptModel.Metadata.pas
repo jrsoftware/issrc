@@ -19,9 +19,8 @@ type
   TScriptParameterDefinition = record
     Name: String;
     ValueKind: TScriptParameterValueKind;
-    FlagNames: TArray<String>; { For pvkFlags: the known tokens; for
-                                 pvkChoice: the known single values }
-    Obsolete: Boolean;         { Documented as obsolete: to be hidden unless explicitly present in the script }
+    KnownValues: TArray<String>; { For pvkFlags: the known tokens; for pvkChoice: the known single values }
+    Obsolete: Boolean;      { Documented as obsolete: to be hidden unless explicitly present in the script }
   end;
 
   { Rule: including a flag in a delimited parameter must also include other flags,
@@ -89,32 +88,34 @@ end;
 function TScriptSectionMetadata.TryGetParameter(const AName: String;
   out ADefinition: TScriptParameterDefinition): Boolean;
 begin
-  for var Parameter in FParameters do
+  for var Parameter in FParameters do begin
     if SameText(Parameter.Name, AName) then begin
       ADefinition := Parameter;
       Exit(True);
     end;
+  end;
   Result := False;
 end;
 
 function TryGetScriptSectionMetadata(const ASectionName: String;
   out AMetadata: TScriptSectionMetadata): Boolean;
 begin
-  for var Metadata in SectionMetadataList do
+  for var Metadata in SectionMetadataList do begin
     if SameText(Metadata.SectionName, ASectionName) then begin
       AMetadata := Metadata;
       Exit(True);
     end;
+  end;
   Result := False;
 end;
 
 function PD(const AName: String; const AValueKind: TScriptParameterValueKind;
-  const AFlagNames: TArray<String> = nil;
+  const AKnownValues: TArray<String> = nil;
   const AObsolete: Boolean = False): TScriptParameterDefinition;
 begin
   Result.Name := AName;
   Result.ValueKind := AValueKind;
-  Result.FlagNames := AFlagNames;
+  Result.KnownValues := AKnownValues;
   Result.Obsolete := AObsolete;
 end;
 

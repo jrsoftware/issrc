@@ -184,6 +184,156 @@ begin
   end;
 end;
 
+{ TryCreateEntry: every refusal reason plus the two accept paths (a real
+  parameter line, and a blank line yielding an empty entry) }
+procedure TestTryCreateEntry(const AMemo: TScintEdit;
+  const AStyler: TInnoSetupStyler);
+
+  procedure AssertRefusal(const AFactory: TLiveScriptObjectFactory; const ALine: Integer;
+    const AExpectedReason: String);
+  begin
+    var Entry: TLiveScriptEntry;
+    var Reason: String;
+    Assert(not AFactory.TryCreateEntry(ALine, Entry, Reason));
+    Assert(Entry = nil);
+    Assert(Reason = AExpectedReason);
+  end;
+
+begin
+  const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+    '; before any section',                 { 0 }
+    '[Setup]',                              { 1 }
+    'AppName=x',                            { 2 }
+    '[Files]',                              { 3 }
+    'Source: "a.txt"; DestDir: "{app}"',    { 4 }
+    '; a comment in files',                 { 5 }
+    '#define MyDef 1',                      { 6 }
+    '',                                     { 7, blank inside [Files] }
+    'Source: "b.txt"',                      { 8 }
+    '[Code]',                              { 9 }
+    'procedure R; begin end;',              { 10 }
+    '[_Third]',                             { 11 }
+    'tpdata']);                             { 12 }
+  try
+    const Factory = Context.Factory;
+    { Refusals }
+    AssertRefusal(Factory, -1, 'The line number is out of range');
+    AssertRefusal(Factory, 13, 'The line number is out of range');
+    AssertRefusal(Factory, 0, 'The line is not inside a section');
+    AssertRefusal(Factory, 2, 'The line is in a directive-style section');
+    AssertRefusal(Factory, 5, 'The line is a comment');
+    AssertRefusal(Factory, 6, 'The line is an ISPP directive');
+    AssertRefusal(Factory, 10, 'The line is in the [Code] section');
+    AssertRefusal(Factory, 12, 'The line is in an unrecognized section');
+
+    { Accept: a real parameter line, parameters readable }
+    var Entry: TLiveScriptEntry;
+    var Reason: String;
+    Assert(Factory.TryCreateEntry(4, Entry, Reason));
+    try
+      Assert(Entry.Section = scFiles);
+      Assert(Entry.Entry.GetValue('Source') = 'a.txt');
+      Assert(Entry.Entry.GetValue('DestDir') = '{app}');
+    finally
+      Entry.Free;
+    end;
+
+    { Accept: a blank line inside a section yields an empty entry }
+    Assert(Factory.TryCreateEntry(7, Entry, Reason));
+    try
+      Assert(Entry.Entry.ParameterCount = 0);
+    finally
+      Entry.Free;
+    end;
+  finally
+    Context.Free;
+  end;
+end;
+
+{ Editing an entry's value through the model writes back to the memo. Covers
+  a single-line entry (with one undo restoring it), a spanned entry whose line
+  breaks are preserved, and a blank-line entry that inserts itself above the
+  blank }
+procedure TestEntryRoundTrip(const AMemo: TScintEdit;
+  const AStyler: TInnoSetupStyler);
+begin
+  { Single-line entry, edit a value, then a single undo restores the original }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"; DestDir: "{app}"',
+      'Source: "keep.txt"']);
+    try
+      var Entry: TLiveScriptEntry;
+      var Reason: String;
+      Assert(Context.Factory.TryCreateEntry(1, Entry, Reason));
+      try
+        Entry.Entry.SetValue('DestDir', '{tmp}');
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{tmp}"');
+        Assert(AMemo.Lines[2] = 'Source: "keep.txt"'); { Neighbor untouched }
+        AMemo.Undo; { Write-back is a single undo action }
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{app}"');
+      finally
+        Entry.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { Spanned entry: the author's line break is preserved on write-back }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"; \',
+      '  DestDir: "{app}"; Flags: ignoreversion']);
+    try
+      var Entry: TLiveScriptEntry;
+      var Reason: String;
+      Assert(Context.Factory.TryCreateEntry(1, Entry, Reason));
+      try
+        Entry.Entry.SetValue('DestDir', '{tmp}');
+        Assert(AMemo.Lines.Count = 3);
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; \');
+        Assert(AMemo.Lines[2] = '  DestDir: "{tmp}"; Flags: ignoreversion');
+      finally
+        Entry.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { Blank-line entry: the new lines are inserted above the blank, keeping it as
+    a separator }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"',
+      '',
+      'Source: "c.txt"']);
+    try
+      var Entry: TLiveScriptEntry;
+      var Reason: String;
+      Assert(Context.Factory.TryCreateEntry(2, Entry, Reason));
+      try
+        Entry.Entry.SetValue('Source', 'b.txt');
+        Assert(AMemo.Lines.Count = 5);
+        Assert(AMemo.Lines[2] = 'Source: "b.txt"');
+        Assert(AMemo.Lines[3] = '');            { The old blank, now a separator }
+        Assert(AMemo.Lines[4] = 'Source: "c.txt"');
+        AMemo.Undo;
+        Assert(AMemo.Lines.Count = 4);
+        Assert(AMemo.Lines[2] = '');
+      finally
+        Entry.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+end;
+
 { Directive-style sections: last-occurrence value lookup, editing a populated
   section, refusals, and an empty section that a directive is added to }
 procedure TestDirectiveSections(const AMemo: TScintEdit;
@@ -223,6 +373,70 @@ procedure TestEditTracking(const AMemo: TScintEdit;
 begin
   const EOL = String(AMemo.LineEndingString);
 
+  { Inserting lines above a live entry shifts its range and the section index,
+    and the entry stays valid }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"']);
+    try
+      const Factory = Context.Factory;
+      Assert(Factory.SectionCount = 1); { Build the index before editing }
+      var Entry: TLiveScriptEntry;
+      var Reason: String;
+      Assert(Factory.TryCreateEntry(1, Entry, Reason));
+      try
+        Assert(Entry.FirstLine = 1);
+        Assert(Entry.LastLine = 1);
+        AMemo.ReplaceTextRange(0, 0, 'X' + EOL); { Insert a line at the top }
+        Assert(Entry.Valid);
+        Assert(Entry.FirstLine = 2);
+        Assert(Entry.LastLine = 2);
+        Assert(Factory.SectionCount = 1);
+        Assert(Factory.Sections[0].Line = 1); { [Files] header shifted down }
+      finally
+        Entry.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { Deleting the lines an entry occupies invalidates it, and the factory keeps
+    working for the lines that remain }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"',
+      'Source: "b.txt"',
+      'Source: "c.txt"']);
+    try
+      const Factory = Context.Factory;
+      Assert(Factory.SectionCount = 1);
+      var Entry: TLiveScriptEntry;
+      var Reason: String;
+      Assert(Factory.TryCreateEntry(2, Entry, Reason));
+      try
+        Assert(Entry.FirstLine = 2);
+        AMemo.ReplaceTextRange(AMemo.GetPositionFromLine(2),
+          AMemo.GetPositionFromLine(3), ''); { Delete line 2 }
+        Assert(not Entry.Valid);
+      finally
+        Entry.Free;
+      end;
+      { Line 2 now holds the former line 3 and is still parseable }
+      var NewEntry: TLiveScriptEntry;
+      Assert(Factory.TryCreateEntry(2, NewEntry, Reason));
+      try
+        Assert(NewEntry.Entry.GetValue('Source') = 'c.txt');
+      finally
+        NewEntry.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
   { Adding and removing a section header updates SectionCount and the index }
   begin
     const Context = TFactoryTestContext.Create(AMemo, AStyler, [
@@ -249,6 +463,30 @@ begin
       Context.Free;
     end;
   end;
+
+  { InvalidateIndex (a simulated file reload) invalidates outstanding range
+    objects }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: a']);
+    try
+      const Factory = Context.Factory;
+      Assert(Factory.SectionCount = 1);
+      var Entry: TLiveScriptEntry;
+      var Reason: String;
+      Assert(Factory.TryCreateEntry(1, Entry, Reason));
+      try
+        Assert(Entry.Valid);
+        Factory.InvalidateIndex;
+        Assert(not Entry.Valid);
+      finally
+        Entry.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
 end;
 
 procedure IDELiveScriptObjectFactoryRunTests(const AMemo: TScintEdit;
@@ -261,6 +499,8 @@ begin
   try
     TestSectionIndexing(AMemo, AStyler);
     TestTryGetSectionAtLine(AMemo, AStyler);
+    TestTryCreateEntry(AMemo, AStyler);
+    TestEntryRoundTrip(AMemo, AStyler);
     TestDirectiveSections(AMemo, AStyler);
     TestEditTracking(AMemo, AStyler);
   finally

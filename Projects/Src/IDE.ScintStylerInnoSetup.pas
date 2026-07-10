@@ -16,6 +16,9 @@ uses
   ScintEdit, ModernColors, Shared.ScriptFunc, Shared.SetupSectionDirectives;
 
 const
+  AlphaChars = ['A'..'Z', 'a'..'z'];
+  AlphaUnderscoreChars = AlphaChars + ['_'];
+
   InnoSetupStylerWordListSeparator = #9;
   InnoSetupStylerWordListTypeSeparator = '!'; { Must sort before numbers - so the default '?' is not ok }
 
@@ -758,10 +761,8 @@ const
   inPendingSquiggly = 1;
 
   WhitespaceChars = [#0..' '];
-  AlphaChars = ['A'..'Z', 'a'..'z'];
   DigitChars = ['0'..'9'];
   HexDigitChars = DigitChars + ['A'..'F', 'a'..'f'];
-  AlphaUnderscoreChars = AlphaChars + ['_'];
   AlphaDigitChars = AlphaChars + DigitChars;
   AlphaDigitUnderscoreChars = AlphaChars + DigitChars + ['_'];
 

@@ -312,6 +312,14 @@ begin
   Result := Copy(S, I+1, MaxInt);
 end;
 
+function ContainsLineBreak(const S: String): Boolean;
+begin
+  for var I := 1 to Length(S) do
+    if CharInSet(S[I], [#13, #10]) then
+      Exit(True);
+  Result := False;
+end;
+
 { Finds a whole token in a delimited value such as Flags, case-insensitively.
   Tokens are delimited by literal spaces and trimmed of remaining whitespace,
   matching the compiler's ExtractFlag }
@@ -351,7 +359,7 @@ begin
   FValueStartIndex := 0;
   { Parse any 'Name: Value' shape: optional whitespace, a name of letters and
     digits (matching TInnoSetupStyler.HandleParameterSection), optional
-    whitespace, then ':' }
+    whitespace, then ':'. Also see IsValidScriptParameterName. }
   const L = Length(FRawText);
   var I := 1;
   while (I <= L) and (FRawText[I] <= ' ') do
@@ -616,7 +624,25 @@ end;
 
 procedure TScriptParameterEntry.SetValueInternal(const AName, AValue: String;
   const AQuoteNewValue: Boolean);
+
+  { See TScriptEntryParameter.SetRawText }
+  function IsValidScriptParameterName(const S: String): Boolean;
+  begin
+    if S = '' then
+      Exit(False);
+    for var I := 1 to Length(S) do
+      if not CharInSet(S[I], ['A'..'Z', 'a'..'z', '0'..'9']) then
+        Exit(False);
+    Result := True;
+  end;
+
 begin
+  { Sanity checks }
+  if not IsValidScriptParameterName(AName) then
+    raise EScriptModelError.Create('Invalid parameter name');
+  if ContainsLineBreak(AValue) then
+    raise EScriptModelError.Create('Value must not contain line breaks');
+
   const I = IndexOfParameter(AName);
   if I >= 0 then begin
     { Preserve the chunk's text through the colon and the whitespace around
@@ -718,7 +744,21 @@ procedure TScriptParameterEntry.SetFlagInternal(const AParameterName,
     end;
   end;
 
+  function IsValidScriptFlagName(const S: String): Boolean;
+  begin
+    if S = '' then
+      Exit(False);
+    for var I := 1 to Length(S) do
+      if (S[I] <= ' ') or CharInSet(S[I], [';', '"']) then
+        Exit(False);
+    Result := True;
+  end;
+
 begin
+  { Sanity check }
+  if not IsValidScriptFlagName(AFlagName) then
+    raise EScriptModelError.Create('Invalid flag name');
+
   const OldValue = GetValue(AParameterName);
   var StartIndex, TokenLength: Integer;
   const Found = FindScriptFlagToken(OldValue, AFlagName, StartIndex, TokenLength);
@@ -889,6 +929,8 @@ end;
 procedure TScriptDirectiveSection.SetDirectiveValue(const AIndex: Integer;
   const AValue: String);
 begin
+  if ContainsLineBreak(AValue) then
+    raise EScriptModelError.Create('Value must not contain line breaks');
   const Line = GetDirectiveSectionLine(AIndex);
   { Keep any whitespace between the '=' and the old value, and keep quotes }
   Line.FRawValue := LeadingWhitespace(Line.FRawValue) +
@@ -900,6 +942,13 @@ end;
 function TScriptDirectiveSection.AddDirective(const AName,
   AValue: String): Integer;
 begin
+  { Sanity checks }
+  if (AName <> Trim(AName)) or ContainsLineBreak(AName) or
+     (Pos('=', AName) > 0) or (ClassifyScriptLine(AName) <> slkActual) then
+    raise EScriptModelError.Create('Invalid directive name');
+  if ContainsLineBreak(AValue) then
+    raise EScriptModelError.Create('Value must not contain line breaks');
+
   const Line = TScriptDirectiveSectionLine.Create;
   Line.FKind := sdlDirective;
   Line.FNameText := AName;
