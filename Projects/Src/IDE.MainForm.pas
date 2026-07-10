@@ -26,7 +26,7 @@ uses
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.IDEScintEdit,
   Shared.DebugStruct, Shared.CompilerInt.Struct, NewUxTheme, ImageList, ImgList, ToolWin,
-  IDE.HelperFunc, IDE.LocalizeFunc,
+  IDE.HelperFunc, IDE.LocalizeFunc, IDE.LiveScriptObjectFactory,
   VirtualImageList, BaseImageCollection, BitmapButton;
 
 const
@@ -663,6 +663,7 @@ type
     FMenuDarkHotOrSelectedBrush: TBrush;
     FMenuThemeData: HTHEME;
     FNavStacks: TIDEScintEditNavStacks;
+    FLiveScriptObjectFactories: TObjectDictionary<TScintEdit, TLiveScriptObjectFactory>;
     FOptions: TOptions;
     FPaused: Boolean;
     FSignTools: TStringList;
@@ -674,6 +675,8 @@ type
       const AlwaysResetColumnEvenIfOnRequestedLineAlready: Boolean;
       const IsPosition: Boolean = False; const PositionVirtualSpace: Integer = 0);
     procedure ReopenTabClick(Sender: TObject);
+    function LiveScriptObjectFactoryForMemo(const AMemo: TScintEdit): TLiveScriptObjectFactory;
+    procedure InvalidateIndexForMemo(const AMemo: TScintEdit);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     { Other }
     procedure WndProc(var Message: TMessage); override;
@@ -704,6 +707,7 @@ uses
   IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.GotoFileForm,
   IDE.InputQueryForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper, IDE.RichEditForm,
+  {$IFDEF DEBUG} IDE.LiveScriptObjectFactory.Test, {$ENDIF}
   Shared.ConfigIniFile, Shared.SignToolsFunc, Shared.CompilerInt, Shared.LicenseFunc;
 
 {$R *.DFM}
@@ -816,6 +820,20 @@ begin
   InitializeMemoBase(Memo, PopupMenu);
   Memo.ReadOnly := True;
   Result := Memo;
+end;
+
+function TMainForm.LiveScriptObjectFactoryForMemo(const AMemo: TScintEdit): TLiveScriptObjectFactory;
+begin
+  Result := nil;
+  if FLiveScriptObjectFactories <> nil then
+    FLiveScriptObjectFactories.TryGetValue(AMemo, Result);
+end;
+
+procedure TMainForm.InvalidateIndexForMemo(const AMemo: TScintEdit);
+begin
+  const Factory = LiveScriptObjectFactoryForMemo(AMemo);
+  if Factory <> nil then
+    Factory.InvalidateIndex;
 end;
 
 constructor TMainForm.Create(AOwner: TComponent);
@@ -1090,6 +1108,10 @@ begin
   FStepMemo := FMainMemo;
   UpdateMarginsAndSquigglyAndCaretWidths;
 
+  FLiveScriptObjectFactories := TObjectDictionary<TScintEdit, TLiveScriptObjectFactory>.Create([doOwnsValues]);
+  for Memo in FMemos do
+    FLiveScriptObjectFactories.Add(Memo, TLiveScriptObjectFactory.Create(Memo, FMemosStyler));
+
   FMemosStyler.Theme := FTheme;
 
   MemosTabSet.PopupMenu := TMainFormPopupMenu.Create(Self, MemosTabSetPopupMenu);
@@ -1228,6 +1250,7 @@ begin
   FSignTools.Free;
   FMRUParametersList.Free;
   FMRUMainFilesList.Free;
+  FLiveScriptObjectFactories.Free;
   FFileMemos.Free;
   FHiddenFiles.Free;
   FMemos.Free;
@@ -1638,6 +1661,7 @@ begin
   FModifiedAnySinceLastCompile := True;
   FPreprocessorOutput := '';
   FIncludedFiles.Clear;
+  InvalidateIndexForMemo(FMainMemo);
   UpdatePreprocMemos(IsReload);
   if not IsReload then
     FMainMemo.ClearUndo;
@@ -1886,6 +1910,7 @@ begin
       if AMemo = FMainMemo then
         NewMainFile(IsReload)
       else begin
+        InvalidateIndexForMemo(AMemo);
         AMemo.BreakPoints.Clear;
         if DestroyLineState(AMemo) then
           UpdateAllMemoLineMarkers(AMemo);
@@ -3429,6 +3454,25 @@ end;
 
 procedure TMainForm.WMStartNormally(var Message: TMessage);
 
+  {$IFDEF DEBUG}
+  { Run the live script object factory self-test now that the form is up (it
+    needs a live, VCL-parented memo, so unlike the model test it cannot run at
+    unit initialization). It runs against the preprocessor output memo, which is
+    empty scratch at startup: this keeps the test clear of the main memo, so its
+    edits can neither mask a real main-memo bug nor disturb the user's script.
+    Silent on success, surfacing only on failure }
+  procedure RunLiveScriptObjectFactorySelfTest;
+  begin
+    try
+      IDELiveScriptObjectFactoryRunTests(FPreprocessorOutputMemo, FMemosStyler);
+    except
+      on E: Exception do
+        MessageBox(Handle, PChar(E.Message), 'Live Script Object Factory Self-Test Failed',
+          MB_OK or MB_ICONSTOP);
+    end;
+  end;
+  {$ENDIF}
+
   procedure ShowStartupForm;
   var
     StartupForm: TStartupForm;
@@ -3469,6 +3513,10 @@ procedure TMainForm.WMStartNormally(var Message: TMessage);
   end;
 
 begin
+  {$IFDEF DEBUG}
+  RunLiveScriptObjectFactorySelfTest;
+  {$ENDIF}
+
   if CommandLineFilename = '' then begin
     if FOptions.ShowStartupForm then
       ShowStartupForm;
@@ -4378,6 +4426,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
       NewTabs.Add(LFmtMessage(SCompilerPreprocessorOutput));
       NewHints.Add('');
       NewCloseButtons.Add(False);
+      InvalidateIndexForMemo(FPreprocessorOutputMemo);
       FPreprocessorOutputMemo.ReadOnly := False;
       try
         FPreprocessorOutputMemo.Lines.Text := FPreprocessorOutput;
@@ -4815,6 +4864,10 @@ begin
 
   if Info.LinesDelta <> 0 then
     MemoLinesInsertedOrDeleted(Memo);
+
+  const Factory = LiveScriptObjectFactoryForMemo(Memo);
+  if Factory <> nil then
+    Factory.Change(Info);
 
   if Memo = FErrorMemo then begin
     { When the Delete key is pressed, the caret doesn't move, so reset
