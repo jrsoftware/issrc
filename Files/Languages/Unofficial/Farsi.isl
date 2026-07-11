@@ -220,7 +220,7 @@ ErrorDownloadAborted=دانلود متوقف شد
 ErrorDownloadFailed=دانلود ناموفق بود: %1 %2
 ErrorDownloadSizeFailed=دریافت حجم ناموفق بود: %1 %2
 ErrorProgress=پیشرفت نامعتبر: %1 از %2
-ErrorFileSize=اندازه فایل نامعتبر: مورد انتظار %، پیدا شده %2
+ErrorFileSize=اندازه فایل نامعتبر: مورد انتظار %1، پیدا شده %2
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=در حال استخراج فایل ها...
