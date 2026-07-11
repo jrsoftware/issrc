@@ -9,13 +9,15 @@ unit IDE.Inspector;
   TJvInspector wrapper, attached to a TLiveScriptObjectFactory, following
   the caret, creating new live objects for it, showing them in the inspector,
   and forwarding edits from it to the factory.
+
+  The painter must be a TJvInspectorDotNETPainter.
 }
 
 interface
 
 uses
   Generics.Collections,
-  JvInspector,
+  JvInspector, ModernColors,
   IDE.LiveScriptObjectFactory, IDE.ScriptModel.Metadata;
 
 type
@@ -33,6 +35,7 @@ type
   TInspector = class
   private
     FJvInspector: TJvInspector;
+    FPainter: TJvInspectorDotNETPainter;
     FFactory: TLiveScriptObjectFactory;
     FEntry: TLiveScriptEntry;
     FRows: TList<TInspectorRow>;
@@ -40,7 +43,11 @@ type
     FRowSetSignature: String;
     FDebugStatusRowString: String;
     FInEdit: Boolean;
+    function GetDividerWidth: Integer;
+    function GetWidth: Integer;
     procedure DebugSectionsRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
+    procedure SetDividerWidth(const Value: Integer);
+    procedure SetWidth(const Value: Integer);
     procedure DebugStatusRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
   public
     constructor Create(const AJvInspector: TJvInspector;
@@ -48,12 +55,17 @@ type
     destructor Destroy; override;
     procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory);
     procedure UpdateFromCaret;
+    procedure UpdateTheme(const ATheme: TTheme);
+    property JvInspector: TJvInspector read FJvInspector;
+    property Width: Integer read GetWidth write SetWidth;
+    property DividerWidth: Integer read GetDividerWidth write SetDividerWidth;
   end;
 
 implementation
 
 uses
-  SysUtils;
+  SysUtils, Themes,
+  NewUxTheme;
 
 { TInspector }
 
@@ -69,6 +81,7 @@ begin
   FRowsByData := TDictionary<TJvInspectorEventData, Integer>.Create;
 
   FJvInspector := AJvInspector;
+  FPainter := FJvInspector.Painter as TJvInspectorDotNETPainter;
   FJvInspector.Root.SortKind := iskNone;
 end;
 
@@ -183,6 +196,53 @@ begin
       Value := Value + ', ';
     Value := Value + Section.Name + '@' + IntToStr(Section.Line+1);
   end;
+end;
+
+function TInspector.GetWidth: Integer;
+begin
+  Result := FJvInspector.Width;
+end;
+
+function TInspector.GetDividerWidth: Integer;
+begin
+  Result := FJvInspector.Divider;
+end;
+
+procedure TInspector.SetDividerWidth(const Value: Integer);
+begin
+  FJvInspector.Divider := Value;
+end;
+
+procedure TInspector.SetWidth(const Value: Integer);
+begin
+  FJvInspector.Width := Value;
+end;
+
+procedure TInspector.UpdateTheme(const ATheme: TTheme);
+begin
+  FPainter.BackgroundColor := ATheme.Colors[tcBack];
+  FPainter.NameFont.Color := ATheme.Colors[tcFore];
+  FPainter.ValueFont.Color := ATheme.Colors[tcFore];
+  FPainter.CategoryColor := ATheme.Colors[tcToolBack];
+  FPainter.CategoryFont.Color := ATheme.Colors[tcFore];
+  FPainter.DividerColor := ATheme.Colors[tcToolBack];
+  FPainter.CategoryDividerColor := FPainter.DividerColor;
+  FPainter.SelectedColor := ATheme.Colors[tcSelBack];
+  FPainter.SelectedFont.Color := ATheme.Colors[tcFore];
+  FPainter.HideSelectColor := ATheme.Colors[tcToolBack];
+  FPainter.HideSelectFont.Color := ATheme.Colors[tcFore];
+
+  { Calling SetWindowTheme manually because our SetControlWindowTheme
+    would remove all VCL styling, but we still need it to theme the
+    inspector's in-place editor and dropdown }
+  if UseThemes then begin
+    if ATheme.Dark then
+      SetWindowTheme(FJvInspector.Handle, 'DarkMode_Explorer', nil)
+    else
+      SetWindowTheme(FJvInspector.Handle, nil, nil);
+  end;
+
+  FJvInspector.Invalidate;
 end;
 
 end.
