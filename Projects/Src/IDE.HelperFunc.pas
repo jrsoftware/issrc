@@ -66,6 +66,7 @@ procedure AddLines(const ListBox: TListBox; const S: String; const AObject: TObj
 procedure SetLowPriority(ALowPriority: Boolean; var SavePriorityClass: DWORD);
 procedure SetHelpFileDark(const Dark: Boolean);
 function GetHelpFile: String;
+procedure ShowHelp(const Keyword: String);
 function FindOptionsToSearchOptions(const FindOptions: TFindOptions;
   const RegEx: Boolean): TScintFindOptions; overload;
 function FindOptionsToSearchOptions(const MatchCase: Boolean;
@@ -88,7 +89,7 @@ uses
   ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils,
   Messages,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme,
-  IDE.MainForm, IDE.Messages;
+  IDE.HtmlHelpFunc, IDE.MainForm, IDE.Messages;
 
 procedure InitFormFont(Form: TForm);
 begin
@@ -723,6 +724,22 @@ end;
 function GetHelpFile: String;
 begin
   Result := Format('%sisetup%s.chm', [PathExtractPath(NewParamStr(0)) {$IFDEF DEBUG} + '..\..\Files\' {$ENDIF}, IfThen(HelpFileDark, '-dark', '')]);
+end;
+
+procedure ShowHelp(const Keyword: String);
+begin
+  if Assigned(HtmlHelp) then begin
+    const HelpFile = GetHelpFile;
+    HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_DISPLAY_TOPIC, 0);
+    if Keyword <> '' then begin
+      var KLink: THH_AKLINK;
+      FillChar(KLink, SizeOf(KLink), 0);
+      KLink.cbStruct := SizeOf(KLink);
+      KLink.pszKeywords := PChar(Keyword);
+      KLink.fIndexOnFail := True;
+      HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD_PTR(@KLink));
+    end;
+  end;
 end;
 
 function FindOptionsToSearchOptions(const FindOptions: TFindOptions;

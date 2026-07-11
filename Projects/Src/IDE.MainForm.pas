@@ -1460,19 +1460,7 @@ begin
 
   if Key = VK_F1 then begin
     Key := 0;
-    var HelpFile := GetHelpFile;
-    if Assigned(HtmlHelp) then begin
-      HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_DISPLAY_TOPIC, 0);
-      var S := FActiveMemo.WordAtCaret;
-      if S <> '' then begin
-        var KLink: THH_AKLINK;
-        FillChar(KLink, SizeOf(KLink), 0);
-        KLink.cbStruct := SizeOf(KLink);
-        KLink.pszKeywords := PChar(S);
-        KLink.fIndexOnFail := True;
-        HtmlHelp(GetDesktopWindow, PChar(HelpFile), HH_KEYWORD_LOOKUP, DWORD_PTR(@KLink));
-      end;
-    end;
+    ShowHelp(FActiveMemo.WordAtCaret);
   end else if ((Key = Ord('V')) or (Key = VK_INSERT)) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssCtrl]) then begin
     if FActiveMemo.CanPaste then
       if MultipleSelectionPasteFromClipboard(FActiveMemo) then
