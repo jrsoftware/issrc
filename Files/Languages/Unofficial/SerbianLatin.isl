@@ -42,7 +42,7 @@ ConfirmTitle=Potvrda
 ErrorTitle=Greška
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Instaliraćete %1. Želite li da nastavite?
+SetupLdrStartupMessage=Ovim će se instalirati %1. Želite li da nastavite?
 LdrCannotCreateTemp=Ne mogu da napravim privremenu datoteku. Instalacija je prekinuta
 LdrCannotExecTemp=Ne mogu da pokrenem datoteku u privremenoj fascikli. Instalacija je prekinuta
 HelpTextNote=
@@ -144,7 +144,7 @@ InfoAfterClickLabel=Kada budete spremni da nastavite instalaciju, kliknite na �
 ; *** "User Information" wizard page
 WizardUserInfo=Korisnički podaci
 UserInfoDesc=Unesite svoje podatke.
-UserInfoName=&Korisničko ime:
+UserInfoName=&Ime korisnika:
 UserInfoOrg=&Organizacija:
 UserInfoSerial=&Serijski broj:
 UserInfoNameRequired=Morate navesti ime.
@@ -161,7 +161,7 @@ CannotInstallToUNCPath=Instalacioni program ne može da izvrši instalaciju na U
 InvalidPath=Morate uneti punu putanju sa slovom disk jedinice; na primer:%n%nC:\APP%n%nili UNC putanju u obliku:%n%n\\server\share
 InvalidDrive=Disk jedinica ili UNC deljenje koje ste izabrali ne postoji ili nije dostupno. Izaberite drugo.
 DiskSpaceWarningTitle=Nedovoljno prostora na disku
-DiskSpaceWarning=Program zahteva najmanje %1 kB slobodnog prostora, a izabrani disk na raspolaganju ima samo %2 kB.%n%nŽelite li ipak da nastavite?
+DiskSpaceWarning=Instalacioni program zahteva najmanje %1 kB slobodnog prostora za instalaciju, ali izabrani disk ima samo %2 kB slobodnog prostora.%n%nŽelite li ipak da nastavite?
 DirNameTooLong=Naziv fascikle ili putanja je predugačka.
 InvalidDirName=Naziv fascikle nije ispravan.
 BadDirName32=Naziv fascikle ne sme da sadrži nijedan od sledećih znakova:%n%n%1
@@ -404,8 +404,8 @@ CreateQuickLaunchIcon=Napravi prečicu na traci za &brzo pokretanje
 ProgramOnTheWeb=%1 na internetu
 UninstallProgram=Deinstaliraj %1
 LaunchProgram=Pokreni %1
-AssocFileExtension=&Poveži %1 sa oznakom tipa datoteke %2
-AssocingFileExtension=Povezivanje programa %1 sa oznakom tipa datoteke %2...
+AssocFileExtension=&Poveži %1 sa ekstenzijom datoteke %2
+AssocingFileExtension=Povezivanje programa %1 sa ekstenzijom datoteke %2...
 AutoStartProgramGroupDescription=Pokretanje:
 AutoStartProgram=Automatski pokreni %1
 AddonHostProgramNotFound=%1 se ne nalazi u izabranoj fascikli.%n%nŽelite li ipak da nastavite?
