@@ -110,7 +110,7 @@ IncorrectPassword=A palavra-passe que introduziu não está correta. Tente novam
 ; *** "License Agreement" wizard page
 WizardLicense=Contrato de licença
 LicenseLabel=É importante que leia as seguintes informações antes de continuar.
-LicenseLabel3=Leia atentamente o seguinte contrato de licença. Deve aceitar os termos do contrato antes de continuar a instalação.
+LicenseLabel3=Leia o seguinte contrato de licença. Deve aceitar os termos deste contrato antes de continuar a instalação.
 LicenseAccepted=A&ceito o contrato
 LicenseNotAccepted=&Não aceito o contrato
 
@@ -380,7 +380,7 @@ ShutdownBlockReasonUninstallingApp=A desinstalar %1.
 
 NameAndVersion=%1 versão %2
 AdditionalIcons=Atalhos adicionais:
-CreateDesktopIcon=Criar um atalho no &Ambiente de Trabalho
+CreateDesktopIcon=Criar um atalho no A&mbiente de Trabalho
 CreateQuickLaunchIcon=&Criar atalho na barra de Iniciação Rápida
 ProgramOnTheWeb=%1 na Web
 UninstallProgram=Desinstalar o %1
