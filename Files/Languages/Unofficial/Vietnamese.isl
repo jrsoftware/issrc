@@ -46,17 +46,17 @@ WindowsVersionNotSupported=Phần mềm này không hỗ trợ phiên bản Wind
 WindowsServicePackRequired=Phần mềm này yêu cầu %1 Service Pack %2 hoặc mới hơn.
 NotOnThisPlatform=Phần mềm này sẽ không hoạt động trên %1.
 OnlyOnThisPlatform=Phần mềm này chỉ có thể hoạt động trên %1.
-OnlyOnTheseArchitectures=Phần mềm này chỉ có thể cài đặt trên các phiên bản Windows hỗ trợ cấu trúc vi xử lý sau:%n%n%1
+OnlyOnTheseArchitectures=Phần mềm này chỉ có thể được cài đặt trên các phiên bản Windows được thiết kế cho những kiến trúc bộ xử lý sau:%n%n%1
 WinVersionTooLowError=Phần mềm này yêu cầu %1 phiên bản %2 hoặc mới hơn.
 WinVersionTooHighError=Không thể cài phần mềm này trên %1 phiên bản %2 hoặc mới hơn.
 AdminPrivilegesRequired=Bạn cần đăng nhập bằng tài khoản Quản trị viên (Administrator) để cài đặt phần mềm này.
 PowerUserPrivilegesRequired=Bạn cần đăng nhập bằng tài khoản Quản trị viên (Administrator) hoặc thuộc nhóm Power Users để cài đặt phần mềm này.
-SetupAppRunningError=Trình cài đặt phát hiện %1 hiện đang chạy.%n%nVui lòng đóng tất cả các cửa sổ của ứng dụng đó lại, sau đó nhấn OK để tiếp tục, hoặc nhấn Hủy để thoát.
-UninstallAppRunningError=Trình gỡ cài đặt phát hiện %1 hiện đang chạy.%n%nVui lòng đóng tất cả các cửa sổ của ứng dụng đó lại, sau đó nhấn OK để tiếp tục, hoặc nhấn Hủy để thoát.
+SetupAppRunningError=Trình cài đặt phát hiện %1 hiện đang chạy.%n%nVui lòng đóng tất cả các bản sao đang chạy của ứng dụng ngay bây giờ, sau đó nhấn OK để tiếp tục hoặc nhấn Hủy để thoát.
+UninstallAppRunningError=Trình gỡ cài đặt phát hiện %1 hiện đang chạy.%n%nVui lòng đóng tất cả các bản sao đang chạy của ứng dụng ngay bây giờ, sau đó nhấn OK để tiếp tục hoặc nhấn Hủy để thoát.
 
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=Chọn Chế độ Cài đặt
-PrivilegesRequiredOverrideInstruction=Bạn muốn cài đặt theo chế độ nào?
+PrivilegesRequiredOverrideInstruction=Chọn chế độ cài đặt
 PrivilegesRequiredOverrideText1=Bạn có thể cài đặt %1 cho tất cả mọi người dùng chung máy tính này (yêu cầu quyền Quản trị viên), hoặc chỉ cài cho riêng bạn.
 PrivilegesRequiredOverrideText2=Bạn có thể cài đặt %1 cho riêng bạn, hoặc cài cho tất cả mọi người dùng chung máy tính này (yêu cầu quyền Quản trị viên).
 PrivilegesRequiredOverrideAllUsers=Cài đặt cho &tất cả người dùng
@@ -97,27 +97,27 @@ SelectLanguageTitle=Chọn ngôn ngữ cài đặt
 SelectLanguageLabel=Vui lòng chọn ngôn ngữ bạn muốn sử dụng trong quá trình cài đặt.
 
 ; *** Common wizard text
-ClickNext=Nhấn 'Tiếp theo' để tiếp tục, hoặc 'Hủy' để thoát.
+ClickNext=Nhấn 'Tiếp theo' để tiếp tục hoặc 'Hủy' để thoát trình cài đặt.
 BeveledLabel=
 BrowseDialogTitle=Chọn thư mục
 BrowseDialogLabel=Vui lòng chọn một thư mục trong danh sách bên dưới, sau đó nhấn OK.
 NewFolderName=Thư mục mới
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Chào mừng bạn đến với Cài đặt [name]
+WelcomeLabel1=Chào mừng bạn đến với Trình hướng dẫn cài đặt [name]
 WelcomeLabel2=Chương trình sẽ cài đặt [name/ver] lên máy tính của bạn.%n%nBạn nên đóng tất cả các ứng dụng khác trước khi tiếp tục.
 
 ; *** "Password" wizard page
 WizardPassword=Mật khẩu
 PasswordLabel1=Bộ cài đặt này được bảo vệ bằng mật khẩu.
-PasswordLabel3=Vui lòng nhập mật khẩu, sau đó nhấn 'Tiếp theo'. Lưu ý: Mật khẩu có phân biệt chữ hoa và chữ thường.
+PasswordLabel3=Vui lòng nhập mật khẩu, sau đó nhấn 'Tiếp theo' để tiếp tục. Mật khẩu có phân biệt chữ hoa và chữ thường.
 PasswordEditLabel=&Mật khẩu:
 IncorrectPassword=Mật khẩu bạn nhập chưa đúng. Vui lòng thử lại.
 
 ; *** "License Agreement" wizard page
 WizardLicense=Thỏa thuận Cấp phép
 LicenseLabel=Vui lòng đọc kỹ các thông tin quan trọng dưới đây trước khi tiếp tục.
-LicenseLabel3=Vui lòng đọc Thỏa thuận Cấp phép sau đây. Bạn cần đồng ý với các điều khoản này để tiếp tục cài đặt.
+LicenseLabel3=Vui lòng đọc Thỏa thuận Cấp phép sau đây. Bạn phải chấp nhận các điều khoản của thỏa thuận này trước khi tiếp tục cài đặt.
 LicenseAccepted=Tôi &đồng ý với các điều khoản trên
 LicenseNotAccepted=Tôi &không đồng ý
 
@@ -134,7 +134,7 @@ WizardUserInfo=Thông tin người dùng
 UserInfoDesc=Vui lòng điền thông tin của bạn.
 UserInfoName=Tên người &dùng:
 UserInfoOrg=Tổ &chức:
-UserInfoSerial=&Mã bản quyền (Serial Number):
+UserInfoSerial=&Số sê-ri:
 UserInfoNameRequired=Bạn không được để trống tên.
 
 ; *** "Select Destination Location" wizard page
@@ -167,7 +167,7 @@ FullInstallation=Cài đặt đầy đủ
 CompactInstallation=Cài đặt thu gọn
 CustomInstallation=Cài đặt tùy chỉnh
 NoUninstallWarningTitle=Thành phần đã tồn tại
-NoUninstallWarning=Trình cài đặt phát hiện các thành phần sau đã có sẵn trên máy tính của bạn:%n%n%1%n%nViệc bỏ chọn các thành phần này sẽ KHÔNG gỡ cài đặt chúng.%n%nBạn có vẫn muốn tiếp tục không?
+NoUninstallWarning=Trình cài đặt phát hiện các thành phần sau đã được cài đặt trên máy tính của bạn:%n%n%1%n%nViệc bỏ chọn các thành phần này sẽ KHÔNG gỡ cài đặt chúng.%n%nBạn có vẫn muốn tiếp tục không?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
 ComponentsDiskSpaceGBLabel=Các mục bạn chọn yêu cầu ít nhất [gb] GB dung lượng trống.
@@ -180,8 +180,8 @@ SelectTasksLabel2=Chọn các tác vụ bổ sung mà bạn muốn thực hiện
 
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Chọn thư mục trên Start Menu
-SelectStartMenuFolderDesc=Bạn muốn đặt lối tắt của ứng dụng ở đâu?
-SelectStartMenuFolderLabel3=Chương trình sẽ tạo các lối tắt ứng dụng trong thư mục Start Menu dưới đây.
+SelectStartMenuFolderDesc=Bạn muốn trình cài đặt đặt các lối tắt của chương trình ở đâu?
+SelectStartMenuFolderLabel3=Trình cài đặt sẽ tạo các lối tắt của chương trình trong thư mục Start Menu dưới đây.
 SelectStartMenuFolderBrowseLabel=Nhấn 'Tiếp theo' để tiếp tục. Nếu bạn muốn chọn thư mục khác, hãy nhấn 'Duyệt'.
 MustEnterGroupName=Bạn cần nhập một tên cho thư mục.
 GroupNameTooLong=Tên thư mục hoặc đường dẫn quá dài.
@@ -191,7 +191,7 @@ NoProgramGroupCheck2=&Không tạo thư mục trên Start Menu
 
 ; *** "Ready to Install" wizard page
 WizardReady=Sẵn sàng Cài đặt
-ReadyLabel1=Mọi thứ đã sẵn sàng. Chương trình sẽ bắt đầu cài đặt [name] lên máy tính của bạn.
+ReadyLabel1=Trình cài đặt hiện đã sẵn sàng bắt đầu cài đặt [name] trên máy tính của bạn.
 ReadyLabel2a=Nhấn 'Cài đặt' để bắt đầu, hoặc nhấn 'Quay lại' nếu bạn muốn xem lại hoặc thay đổi các thiết lập.
 ReadyLabel2b=Nhấn 'Cài đặt' để bắt đầu quá trình.
 ReadyMemoUserInfo=Thông tin người dùng:
@@ -240,7 +240,7 @@ WizardInstalling=Đang cài đặt
 InstallingLabel=Vui lòng đợi trong giây lát, [name] đang được cài đặt vào máy tính của bạn.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=Hoàn tất Cài đặt [name]
+FinishedHeadingLabel=Hoàn tất Trình hướng dẫn cài đặt [name]
 FinishedLabelNoIcons=Trình cài đặt đã cài đặt xong [name] lên máy tính của bạn.
 FinishedLabel=Trình cài đặt đã cài đặt xong [name] lên máy tính của bạn. Bạn có thể mở ứng dụng bằng các lối tắt vừa được tạo.
 ClickFinish=Nhấn 'Hoàn tất' để thoát khỏi chương trình cài đặt.
@@ -286,7 +286,7 @@ StatusRestartingApplications=Đang khởi động lại ứng dụng...
 StatusRollback=Đang khôi phục lại các thay đổi...
 
 ; *** Misc. errors
-ErrorInternal2=Lỗi hệ thống nội bộ: %1
+ErrorInternal2=Lỗi nội bộ: %1
 ErrorFunctionFailedNoCode=%1 đã thất bại
 ErrorFunctionFailed=%1 đã thất bại; mã lỗi %2
 ErrorFunctionFailedWithMessage=%1 đã thất bại; mã lỗi %2.%n%3
@@ -308,7 +308,7 @@ SourceDoesntExist=Tệp nguồn "%1" không tồn tại
 SourceVerificationFailed=Không thể xác minh tệp nguồn: %1
 VerificationSignatureDoesntExist=Không tìm thấy tệp chữ ký (signature) "%1"
 VerificationSignatureInvalid=Tệp chữ ký "%1" không hợp lệ
-VerificationKeyNotFound=Tệp chữ ký "%1" sử dụng một khóa lạ không xác định được
+VerificationKeyNotFound=Tệp chữ ký "%1" sử dụng một khóa không xác định
 VerificationFileNameIncorrect=Tên tệp không đúng
 VerificationFileTagIncorrect=Thẻ (tag) của tệp không đúng
 VerificationFileSizeIncorrect=Dung lượng tệp không đúng
@@ -334,7 +334,7 @@ ErrorCopying=Đã xảy ra lỗi khi cố gắng sao chép một tệp:
 ErrorDownloading=Đã xảy ra lỗi trong quá trình tải tệp xuống:
 ErrorExtracting=Đã xảy ra lỗi trong quá trình giải nén một tệp nén:
 ErrorReplacingExistingFile=Đã xảy ra lỗi khi cố gắng thay thế tệp hiện có:
-ErrorRestartReplace=Hành động khởi động lại và thay thế (RestartReplace) thất bại:
+ErrorRestartReplace=RestartReplace thất bại:
 ErrorRenamingTemp=Đã xảy ra lỗi khi cố gắng đổi tên một tệp trong thư mục đích:
 ErrorRegisterServer=Không thể đăng ký tệp DLL/OCX: %1
 ErrorRegSvr32Failed=Lệnh RegSvr32 đã thất bại với mã thoát: %1
