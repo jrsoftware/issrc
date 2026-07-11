@@ -16,9 +16,9 @@ unit IDE.Inspector;
 interface
 
 uses
-  Generics.Collections, TypInfo,
+  Classes, Generics.Collections, TypInfo,
   JvInspector, ModernColors,
-  IDE.LiveScriptObjectFactory, IDE.ScriptModel.Metadata;
+  IDE.LiveScriptObjectFactory, IDE.ScriptModel, IDE.ScriptModel.Metadata;
 
 type
   TInspectorRowKind = (irkEntryValue, irkEntryFlag, irkDirective);
@@ -44,11 +44,14 @@ type
     FDebugStatusRowString: String;
     FInEdit: Boolean;
     function TryGetRow(const Sender: TJvInspectorEventData;
-      out ARow: TInspectorRow): Boolean;
+      out ARow: TInspectorRow): Boolean; overload;
+    function TryGetRow(const AItem: TJvCustomInspectorItem;
+      out ARow: TInspectorRow): Boolean; overload;
     procedure RowGetAsOrdinal(Sender: TJvInspectorEventData; var Value: Int64);
     procedure RowGetAsString(Sender: TJvInspectorEventData; var Value: String);
     procedure RowSetAsOrdinal(Sender: TJvInspectorEventData; var Value: Int64);
     procedure RowSetAsString(Sender: TJvInspectorEventData; var Value: String);
+    procedure ChoiceRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
     procedure DebugStatusRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
     procedure DebugSectionsRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
     function GetDividerWidth: Integer;
@@ -71,7 +74,8 @@ implementation
 
 uses
   SysUtils, Themes,
-  NewUxTheme;
+  NewUxTheme,
+  IDE.Messages, IDE.LocalizeFunc;
 
 { TInspector }
 
@@ -116,7 +120,7 @@ procedure TInspector.UpdateFromCaret;
   function NewCategory(const AName: String): TJvCustomInspectorItem;
   begin
     Result := TJvInspectorCustomCategoryItem.Create(FJvInspector.Root, nil);
-    Result.DisplayName := AName;
+    Result.DisplayName := LFmtMessage(AName); { These are localizable, see IDE.Messages }
     Result.Expanded := True;
   end;
 
@@ -147,6 +151,13 @@ procedure TInspector.UpdateFromCaret;
     end;
   end;
 
+  procedure MakeDropDown(const AItem: TJvCustomInspectorItem;
+    const AOnGetValueList: TInspectorItemGetValueListEvent);
+  begin
+    AItem.Flags := AItem.Flags + [iifValueList, iifAllowNonListValues];
+    AItem.OnGetValueList := AOnGetValueList;
+  end;
+
   function AddEntryValueRow(const AParent: TJvCustomInspectorItem;
     const AParameterName: String): TJvCustomInspectorItem;
   begin
@@ -173,9 +184,11 @@ procedure TInspector.UpdateFromCaret;
     const ADefinition: TScriptParameterDefinition);
   begin
     const Item = AddEntryValueRow(AParent, ADefinition.Name);
-    if ADefinition.ValueKind = pvkFlags then
+    if ADefinition.ValueKind = pvkFlags then begin
       for var FlagName in ADefinition.KnownValues do
         AddEntryFlagRow(Item, ADefinition.Name, FlagName); { Adds a child to Item }
+    end else if ADefinition.ValueKind = pvkChoice then
+      MakeDropDown(Item, ChoiceRowGetValueList);
   end;
 
   procedure AddEntryRows;
@@ -292,6 +305,13 @@ begin
     ARow := FRows[Index];
 end;
 
+function TInspector.TryGetRow(const AItem: TJvCustomInspectorItem;
+  out ARow: TInspectorRow): Boolean;
+begin
+  Result := (AItem.Data is TJvInspectorEventData) and
+    TryGetRow(TJvInspectorEventData(AItem.Data), ARow);
+end;
+
 procedure TInspector.RowGetAsOrdinal(Sender: TJvInspectorEventData;
   var Value: Int64);
 begin
@@ -356,6 +376,16 @@ begin
     case Row.Kind of
       irkEntryValue:
         if (FEntry <> nil) and FEntry.Valid then begin
+          var Definition: TScriptParameterDefinition;
+          if (Value <> '') and (Pos('{', Value) = 0) and
+             FEntry.Entry.TryGetParameterDefinition(Row.Name, Definition) and
+             (Definition.ValueKind = pvkInteger) then begin
+            { Validate if the value is a valid integer. Strips underscore digit
+              separators because the compiler accepts them for some values. }
+            var IntegerValue: Int64;
+            if not TryStrToInt64(StringReplace(Value, '_', '', [rfReplaceAll]), IntegerValue) then
+              raise EScriptModelError.Create(LFmtMessage(SInspectorIntegerValueError, [Row.Name]));
+          end;
           FEntry.Entry.SetValue(Row.Name, Value);
         end;
     else
@@ -365,6 +395,19 @@ begin
     FInEdit := False;
   end;
   FJvInspector.Invalidate;
+end;
+
+procedure TInspector.ChoiceRowGetValueList(Item: TJvCustomInspectorItem;
+  Values: TStrings);
+begin
+  var Row: TInspectorRow;
+  if TryGetRow(Item, Row) and (FEntry <> nil) and FEntry.Valid then begin
+    var Definition: TScriptParameterDefinition;
+    if not FEntry.Entry.TryGetParameterDefinition(Row.Name, Definition) then
+      raise Exception.Create('Internal error: ChoiceRowGetValueList: unknown parameter');
+    for var ChoiceName in Definition.KnownValues do
+      Values.Add(ChoiceName);
+  end;
 end;
 
 procedure TInspector.DebugStatusRowGetAsString(Sender: TJvInspectorEventData;

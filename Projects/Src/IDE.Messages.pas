@@ -222,6 +222,16 @@ const
   SSignToolCommandPrompt = 'Command of the Sign Tool:';
   SSignToolInvalidCommand = 'Invalid command.';
 
+  { Inspector }
+  SInspectorIntegerValueError = '%1 must be an integer value';
+
+  { Inspector category display names, must match IDE.ScriptModel.Metadata's category tables }
+  SInspectorCategoryCompiler = 'Compiler';
+  SInspectorCategoryCompression = 'Compression';
+  SInspectorCategoryInstaller = 'Installer';
+  SInspectorCategoryCosmetic = 'Cosmetic';
+  SInspectorCategoryCommon = 'Common';
+
   { Tools }
   SToolsInsertGuidConfirm = 'The generated GUID will be inserted into the editor at the cursor position. Continue?';
   SToolsNotInCodeSectionConfirm = 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the %1 section. Continue anyway?';

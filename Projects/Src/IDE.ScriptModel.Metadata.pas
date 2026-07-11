@@ -295,7 +295,8 @@ begin
      PD('Check', pvkString),
      PD('Components', pvkString),
      PD('CopyMode', pvkString, nil, True),
-     PD('DestDir', pvkString),
+     { Order must match IDE.Wizard.WizardFileForm! }
+     PD('DestDir', pvkChoice, ['{app}', '{autopf}', '{autocf}', '{win}', '{sys}', '{src}', '{sd}']),
      PD('DestName', pvkString),
      PD('DownloadISSigSource', pvkString),
      PD('DownloadPassword', pvkString),
