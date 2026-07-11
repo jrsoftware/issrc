@@ -25,7 +25,7 @@ RightToLeft=yes
 ;DialogFontName=
 ;DialogFontSize=9
 ;DialogFontBaseScaleWidth=7
-;DialogFontBaseScaleHeight=vvvvvvvv
+;DialogFontBaseScaleHeight=15
 ;WelcomeFontName=Segoe UI
 ;WelcomeFontSize=14
 
