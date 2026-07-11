@@ -84,14 +84,11 @@ type
     FWritingBackObject: TLiveScriptObject;
     procedure EnsureIndex;
     procedure EnsureStyled;
-    function GetHeaderSection(const ALine: Integer;
-      out ASection: TLiveScriptSection): Boolean;
     function GetLinesText(const AFirstLine, ALastLine: Integer): TArray<String>;
     function GetSection(Index: Integer): TLiveScriptSection;
     procedure GetSectionLines(const ASectionIndex: Integer;
       out AFirstLine, ALastLine: Integer);
     function LineSpans(const ALine: Integer): Boolean;
-    procedure MarkLinesDirty(const AFirstLine, ALastLine: Integer);
     procedure WriteBackChange(const ALiveScriptObject: TLiveScriptObject;
       const ALines: TArray<String>; const ACreatedFromBlankLine: Boolean = False);
   public
@@ -245,8 +242,7 @@ begin
   Result := TInnoSetupStyler.LineSpans(FMemo.Lines.RawLines[ALine]);
 end;
 
-function TLiveScriptObjectFactory.GetHeaderSection(const ALine: Integer;
-  out ASection: TLiveScriptSection): Boolean;
+procedure TLiveScriptObjectFactory.EnsureIndex;
 
   function ExtractSectionHeaderName(const S: String): String;
   begin
@@ -262,22 +258,22 @@ function TLiveScriptObjectFactory.GetHeaderSection(const ALine: Integer;
       Result := Copy(S, P+1, I-P-1);
   end;
 
-begin
-  { ISPP's line continuation (see LineSpans) joins physical lines into one
-    logical line, and the styler gives them all the same line state. This
-    also applies to spanned headers, regardless of the fact that those
-    don't compile. There's no detection for this issue and callers must
-    just pass only the first physical line of a spanned header. }
-  var Section: TInnoSetupStylerSection;
-  Result := TInnoSetupStyler.LineSectionHeader(FMemo.Lines.State[ALine], Section);
-  if Result then begin
-    ASection.Line := ALine;
-    ASection.Section := Section;
-    ASection.Name := ExtractSectionHeaderName(FMemo.Lines[ALine]);
+  function GetHeaderSection(const ALine: Integer;
+    out ASection: TLiveScriptSection): Boolean;
+  begin
+    { ISPP's line continuation (see LineSpans) joins physical lines into one
+      logical line, and the styler gives them all the same line state. This
+      also applies to spanned headers, regardless of the fact that those
+      don't compile. There's no detection for this issue and callers must
+      just pass only the first physical line of a spanned header. }
+    var Section: TInnoSetupStylerSection;
+    Result := TInnoSetupStyler.LineSectionHeader(FMemo.Lines.State[ALine], Section);
+    if Result then begin
+      ASection.Line := ALine;
+      ASection.Section := Section;
+      ASection.Name := ExtractSectionHeaderName(FMemo.Lines[ALine]);
+    end;
   end;
-end;
-
-procedure TLiveScriptObjectFactory.EnsureIndex;
 
   procedure BuildIndex;
   begin
@@ -380,20 +376,21 @@ begin
     LiveScriptObject.FValid := False;
 end;
 
-procedure TLiveScriptObjectFactory.MarkLinesDirty(const AFirstLine, ALastLine: Integer);
-begin
-  if FDirtyFirstLine < 0 then begin
-    FDirtyFirstLine := AFirstLine;
-    FDirtyLastLine := ALastLine;
-  end else begin
-    if AFirstLine < FDirtyFirstLine then
-      FDirtyFirstLine := AFirstLine;
-    if ALastLine > FDirtyLastLine then
-      FDirtyLastLine := ALastLine;
-  end;
-end;
-
 procedure TLiveScriptObjectFactory.Change(const Info: TScintEditChangeInfo);
+
+  procedure MarkLinesDirty(const AFirstLine, ALastLine: Integer);
+  begin
+    if FDirtyFirstLine < 0 then begin
+      FDirtyFirstLine := AFirstLine;
+      FDirtyLastLine := ALastLine;
+    end else begin
+      if AFirstLine < FDirtyFirstLine then
+        FDirtyFirstLine := AFirstLine;
+      if ALastLine > FDirtyLastLine then
+        FDirtyLastLine := ALastLine;
+    end;
+  end;
+
 begin
   if not FIndexValid then
     Exit;

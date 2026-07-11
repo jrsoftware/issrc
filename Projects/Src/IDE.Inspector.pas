@@ -16,7 +16,7 @@ unit IDE.Inspector;
 interface
 
 uses
-  Generics.Collections,
+  Generics.Collections, TypInfo,
   JvInspector, ModernColors,
   IDE.LiveScriptObjectFactory, IDE.ScriptModel.Metadata;
 
@@ -39,16 +39,22 @@ type
     FFactory: TLiveScriptObjectFactory;
     FEntry: TLiveScriptEntry;
     FRows: TList<TInspectorRow>;
-    FRowsByData: TDictionary<TJvInspectorEventData, Integer>;
+    FRowsByData: TDictionary<TJvInspectorEventData, Integer>; { Reverse lookup of a FRows index }
     FRowSetSignature: String;
     FDebugStatusRowString: String;
     FInEdit: Boolean;
+    function TryGetRow(const Sender: TJvInspectorEventData;
+      out ARow: TInspectorRow): Boolean;
+    procedure RowGetAsOrdinal(Sender: TJvInspectorEventData; var Value: Int64);
+    procedure RowGetAsString(Sender: TJvInspectorEventData; var Value: String);
+    procedure RowSetAsOrdinal(Sender: TJvInspectorEventData; var Value: Int64);
+    procedure RowSetAsString(Sender: TJvInspectorEventData; var Value: String);
+    procedure DebugStatusRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
+    procedure DebugSectionsRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
     function GetDividerWidth: Integer;
     function GetWidth: Integer;
-    procedure DebugSectionsRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
     procedure SetDividerWidth(const Value: Integer);
     procedure SetWidth(const Value: Integer);
-    procedure DebugStatusRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
   public
     constructor Create(const AJvInspector: TJvInspector;
       const AFactory: TLiveScriptObjectFactory);
@@ -107,30 +113,127 @@ end;
 
 procedure TInspector.UpdateFromCaret;
 
+  function NewCategory(const AName: String): TJvCustomInspectorItem;
+  begin
+    Result := TJvInspectorCustomCategoryItem.Create(FJvInspector.Root, nil);
+    Result.DisplayName := AName;
+    Result.Expanded := True;
+  end;
+
+  procedure AddDebugRow(const AParent: TJvCustomInspectorItem;
+    const ADisplayName: String; const AOnGetAsString: TJvInspAsString);
+  begin
+    const Item = TJvInspectorEventData.New(AParent, ADisplayName,
+      TypeInfo(String));
+    TJvInspectorEventData(Item.Data).OnGetAsString := AOnGetAsString;
+    Item.Flags := Item.Flags + [iifReadonly];
+  end;
+
+  function AddRow(const AParent: TJvCustomInspectorItem;
+    const ADisplayName: String; const ATypeInfo: PTypeInfo;
+    const ARow: TInspectorRow): TJvCustomInspectorItem;
+  begin
+    Result := TJvInspectorEventData.New(AParent, ADisplayName, ATypeInfo);
+    const Data = TJvInspectorEventData(Result.Data);
+    FRows.Add(ARow);
+    FRowsByData.Add(Data, Integer(FRows.Count)-1);
+    if ATypeInfo = TypeInfo(Boolean) then begin
+      Data.OnGetAsOrdinal := RowGetAsOrdinal;
+      Data.OnSetAsOrdinal := RowSetAsOrdinal;
+      (Result as TJvInspectorBooleanItem).ShowAsCheckBox := True;
+    end else begin
+      Data.OnGetAsString := RowGetAsString;
+      Data.OnSetAsString := RowSetAsString;
+    end;
+  end;
+
+  function AddEntryValueRow(const AParent: TJvCustomInspectorItem;
+    const AParameterName: String): TJvCustomInspectorItem;
+  begin
+    var Row: TInspectorRow;
+    Row.Kind := irkEntryValue;
+    Row.Name := AParameterName;
+    Row.FlagName := '';
+    Row.DirectiveIndex := -1;
+    Result := AddRow(AParent, AParameterName, TypeInfo(String), Row);
+  end;
+
+  procedure AddEntryFlagRow(const AParent: TJvCustomInspectorItem;
+    const AParameterName, AFlagName: String);
+  begin
+    var Row: TInspectorRow;
+    Row.Kind := irkEntryFlag;
+    Row.Name := AParameterName;
+    Row.FlagName := AFlagName;
+    Row.DirectiveIndex := -1;
+    AddRow(AParent, AFlagName, TypeInfo(Boolean), Row);
+  end;
+
+  procedure AddParameterRow(const AParent: TJvCustomInspectorItem;
+    const ADefinition: TScriptParameterDefinition);
+  begin
+    const Item = AddEntryValueRow(AParent, ADefinition.Name);
+    if ADefinition.ValueKind = pvkFlags then
+      for var FlagName in ADefinition.KnownValues do
+        AddEntryFlagRow(Item, ADefinition.Name, FlagName); { Adds a child to Item }
+  end;
+
+  procedure AddEntryRows;
+  begin
+    const Entry = FEntry.Entry;
+
+    { Known and uncategorized parameters first, in metadata order }
+    if Entry.Metadata <> nil then begin
+      const SectionName = Entry.Metadata.SectionName;
+      for var Definition in Entry.Metadata.Parameters do begin
+        if Definition.Obsolete and not Entry.HasParameter(Definition.Name) then
+          Continue; { Hide obsolete and unspecified }
+        var CategoryName: String;
+        if not TryGetScriptCategory(SectionName, Definition.Name, CategoryName) then
+          AddParameterRow(FJvInspector.Root, Definition);
+      end;
+    end;
+
+    { Named but unknown parameters }
+    for var I := 0 to Entry.ParameterCount-1 do begin
+      const Parameter = Entry.Parameters[I];
+      if Parameter.HasName then begin
+        var Definition: TScriptParameterDefinition;
+        if not Entry.TryGetParameterDefinition(Parameter.Name, Definition) then
+          AddEntryValueRow(FJvInspector.Root, Parameter.Name);
+      end;
+    end;
+
+    { Known and categorized parameters, in metadata order }
+    if Entry.Metadata <> nil then begin
+      const SectionName = Entry.Metadata.SectionName;
+      for var CategoryName in ScriptCategoryNames do begin
+        var CategoryItem: TJvCustomInspectorItem := nil;
+        for var Definition in Entry.Metadata.Parameters do begin
+          if Definition.Obsolete and not Entry.HasParameter(Definition.Name) then
+            Continue;
+          var DefinitionCategory: String;
+          if TryGetScriptCategory(SectionName, Definition.Name, DefinitionCategory) and
+             SameText(DefinitionCategory, CategoryName) then begin
+            if CategoryItem = nil then
+              CategoryItem := NewCategory(CategoryName);
+            AddParameterRow(CategoryItem, Definition);
+          end;
+        end;
+      end;
+    end;
+  end;
+
   procedure RebuildRows;
-
-    function NewCategory(const AName: String): TJvCustomInspectorItem;
-    begin
-      Result := TJvInspectorCustomCategoryItem.Create(FJvInspector.Root, nil);
-      Result.DisplayName := AName;
-      Result.Expanded := True;
-    end;
-
-    procedure AddDebugRow(const AParent: TJvCustomInspectorItem;
-      const ADisplayName: String; const AOnGetAsString: TJvInspAsString);
-    begin
-      const Item = TJvInspectorEventData.New(AParent, ADisplayName,
-        TypeInfo(String));
-      TJvInspectorEventData(Item.Data).OnGetAsString := AOnGetAsString;
-      Item.Flags := Item.Flags + [iifReadonly];
-    end;
-
   begin
     FJvInspector.BeginUpdate;
     try
       FJvInspector.Clear;
       FRows.Clear;
       FRowsByData.Clear;
+
+      if FEntry <> nil then
+        AddEntryRows;
 
       const DebugCategory = NewCategory('Debug');
       AddDebugRow(DebugCategory, 'Status', DebugStatusRowGetAsString);
@@ -177,6 +280,90 @@ begin
     RebuildRows;
   end; { else: Row set stayed same, just need to Invalidate to show updated values }
 
+  FJvInspector.Invalidate;
+end;
+
+function TInspector.TryGetRow(const Sender: TJvInspectorEventData;
+  out ARow: TInspectorRow): Boolean;
+begin
+  var Index: Integer;
+  Result := FRowsByData.TryGetValue(Sender, Index);
+  if Result then
+    ARow := FRows[Index];
+end;
+
+procedure TInspector.RowGetAsOrdinal(Sender: TJvInspectorEventData;
+  var Value: Int64);
+begin
+  Value := 0;
+  var Row: TInspectorRow;
+  if not TryGetRow(Sender, Row) then
+    Exit;
+  case Row.Kind of
+    irkEntryFlag:
+      if (FEntry <> nil) and FEntry.Valid and FEntry.Entry.FlagIncluded(Row.Name, Row.FlagName) then
+        Value := 1;
+  end;
+end;
+
+procedure TInspector.RowGetAsString(Sender: TJvInspectorEventData;
+  var Value: String);
+begin
+  Value := '';
+  var Row: TInspectorRow;
+  if not TryGetRow(Sender, Row) then
+    Exit;
+  case Row.Kind of
+    irkEntryValue:
+      if (FEntry <> nil) and FEntry.Valid then
+        Value := FEntry.Entry.GetValue(Row.Name);
+  end;
+end;
+
+procedure TInspector.RowSetAsOrdinal(Sender: TJvInspectorEventData;
+  var Value: Int64);
+begin
+  var Row: TInspectorRow;
+  if not TryGetRow(Sender, Row) then
+    raise Exception.Create('Internal error: RowSetAsOrdinal: unknown row');
+  if FFactory.Memo.ReadOnly then
+    raise Exception.Create('Internal error: RowSetAsOrdinal: memo is read-only');
+  FInEdit := True;
+  try
+    case Row.Kind of
+      irkEntryFlag:
+        if (FEntry <> nil) and FEntry.Valid then
+          FEntry.Entry.SetFlag(Row.Name, Row.FlagName, Value <> 0); { May adjust related flags as well }
+    else
+      raise Exception.Create('Internal error: RowSetAsOrdinal: unexpected row kind');
+    end;
+  finally
+    FInEdit := False;
+  end;
+  FJvInspector.Invalidate;
+end;
+
+procedure TInspector.RowSetAsString(Sender: TJvInspectorEventData;
+  var Value: String);
+begin
+  var Row: TInspectorRow;
+  if not TryGetRow(Sender, Row) then
+    raise Exception.Create('Internal error: RowSetAsString: unknown row');
+  if FFactory.Memo.ReadOnly then
+    raise Exception.Create('Internal error: RowSetAsString: memo is read-only');
+  FInEdit := True;
+  try
+    case Row.Kind of
+      irkEntryValue:
+        if (FEntry <> nil) and FEntry.Valid then begin
+          FEntry.Entry.SetValue(Row.Name, Value);
+        end;
+    else
+      raise Exception.Create('Internal error: RowSetAsString: unexpected row kind');
+    end;
+  finally
+    FInEdit := False;
+  end;
   FJvInspector.Invalidate;
 end;
 

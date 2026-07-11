@@ -369,6 +369,64 @@ begin
   end;
 end;
 
+procedure TestScriptCategories;
+begin
+  { The categories are shown in this order: the section-specific groups first,
+    then Common (the inspector shows the Debug group after these) }
+  const Names = ScriptCategoryNames;
+  Assert(Length(Names) = 5);
+  Assert(Names[0] = 'Compiler');
+  Assert(Names[1] = 'Compression');
+  Assert(Names[2] = 'Installer');
+  Assert(Names[3] = 'Cosmetic');
+  Assert(Names[4] = 'Common');
+
+  { Membership maps a name to its category, case-insensitively. Common applies
+    to the parameter sections only, so the unrelated [Setup] directive of the
+    same name groups with the other [Setup] directives instead }
+  var CategoryName: String;
+  Assert(TryGetScriptCategory('Files', 'minversion', CategoryName) and
+    (CategoryName = 'Common'));
+  Assert(TryGetScriptCategory('Setup', 'minversion', CategoryName) and
+    (CategoryName = 'Installer'));
+  Assert(not TryGetScriptCategory('Setup', 'Check', CategoryName));
+
+  { A category applies only in the sections it lists, so a user-chosen name in
+    a section without a fixed name set (such as [CustomMessages]) cannot group }
+  Assert(not TryGetScriptCategory('CustomMessages', 'Tasks', CategoryName));
+  Assert(not TryGetScriptCategory('CustomMessages', 'AppName', CategoryName));
+
+  { The [Setup] directive categories apply only in [Setup] }
+  Assert(TryGetScriptCategory('Setup', 'SolidCompression', CategoryName) and
+    (CategoryName = 'Compression'));
+  Assert(TryGetScriptCategory('Setup', 'LZMADictionarySize', CategoryName) and
+    (CategoryName = 'Compression'));
+  Assert(TryGetScriptCategory('Setup', 'SignTool', CategoryName) and
+    (CategoryName = 'Compiler'));
+  Assert(TryGetScriptCategory('Setup', 'AppName', CategoryName) and
+    (CategoryName = 'Installer'));
+  Assert(TryGetScriptCategory('Setup', 'wizardstyle', CategoryName) and
+    (CategoryName = 'Cosmetic'));
+
+  { A name shared between a [Setup] directive and a parameter of another section
+    groups only in [Setup] }
+  Assert(TryGetScriptCategory('Setup', 'ExtraDiskSpaceRequired', CategoryName) and
+    (CategoryName = 'Installer'));
+  Assert(not TryGetScriptCategory('Components', 'ExtraDiskSpaceRequired', CategoryName));
+  Assert(not TryGetScriptCategory('Languages', 'LicenseFile', CategoryName));
+  Assert(not TryGetScriptCategory('Files', 'AppName', CategoryName));
+  Assert(not TryGetScriptCategory('Files', 'Source', CategoryName));
+
+  { Obsolete parameters are flagged in the metadata }
+  var Metadata: TScriptSectionMetadata;
+  Assert(TryGetScriptSectionMetadata('Files', Metadata));
+  var Definition: TScriptParameterDefinition;
+  Assert(Metadata.TryGetParameter('CopyMode', Definition));
+  Assert(Definition.Obsolete);
+  Assert(Metadata.TryGetParameter('Source', Definition));
+  Assert(not Definition.Obsolete);
+end;
+
 procedure TestEntryRules;
 begin
   var Metadata: TScriptSectionMetadata;
@@ -725,6 +783,7 @@ begin
   TestEntryParseAndSerialize;
   TestEntryFlags;
   TestEntryMetadata;
+  TestScriptCategories;
   TestEntryRules;
   TestDirectiveSection;
   TestEntrySpanning;
