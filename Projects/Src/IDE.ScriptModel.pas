@@ -34,19 +34,21 @@ type
 
   TScriptLineKind = (slkBlank, slkComment, slkISPPDirective, slkActual);
 
-  { A single parameter of an entry in a parameter section. In other words:
-    a chunk of text between ';' separators }
+  TScriptEntryParameterKind = (sepParameter, sepOther);
+
+  { A single parameter of an entry in a parameter section: either a Name: Value
+    or another kind of chunk of text between ';' separators }
   TScriptEntryParameter = class
   private
     FRawText: String; { The original text }
     FName: String;    { May be empty }
     FValueStartIndex: Integer; { Index in FRawText of the first character after the ':', or 0 }
     procedure SetRawText(const ARawText: String);
-    function GetHasName: Boolean;
+    function GetKind: TScriptEntryParameterKind;
     function GetRawValue: String;
     function GetValue: String;
   public
-    property HasName: Boolean read GetHasName;
+    property Kind: TScriptEntryParameterKind read GetKind;
     property Name: String read FName;
     property RawText: String read FRawText;
     property RawValue: String read GetRawValue;
@@ -72,31 +74,39 @@ type
     FUpdateLevel: Integer;
     FPendingChange: Boolean;
     FQuoteNewValues: Boolean;
+    procedure ApplyFlagRules(const AParameterName, AIncludedFlagName: String);
+    procedure ApplyParameterFlagRules(const AParameterName, AValue: String);
+    function AppendParameterInternal(const AName, AValue: String;
+      const AQuoteNewValue: Boolean): Integer;
     procedure BeginUpdate;
     procedure EndUpdate;
     function GetBreakParameterIndex(Index: Integer): Integer;
+    function GetNamedParameter(const AIndex: Integer): TScriptEntryParameter;
     function GetParameter(Index: Integer): TScriptEntryParameter;
     procedure MarkModified;
     procedure SetFlagInternal(const AParameterName, AFlagName: String;
-      const AInclude: Boolean);
-    procedure SetValueInternal(const AName, AValue: String;
-      const AQuoteNewValue: Boolean);
+      const AInclude: Boolean); overload;
+    procedure SetFlagInternal(const AIndex: Integer; const AFlagName: String;
+      const AInclude: Boolean); overload;
+    procedure SetValueInternal(const AIndex: Integer; const AValue: String);
   public
     constructor Create(const AMetadata: TScriptSectionMetadata);
     destructor Destroy; override;
     procedure Parse(const ALines: array of String);
     function GetLines: TArray<String>;
-    function ParameterCount: Integer;
-    function IndexOfParameter(const AName: String): Integer;
-    function HasParameter(const AName: String): Boolean;
+    function Count: Integer;
+    function IndexOf(const AName: String): Integer;
+    function Has(const AName: String): Boolean;
+    function TryResolve(const AName: String;
+      var AIndex: Integer): Boolean;
     function TryGetValue(const AName: String; out AValue: String): Boolean;
-    function GetValue(const AName: String): String;
-    procedure SetValue(const AName, AValue: String);
-    function RemoveParameter(const AName: String): Boolean;
-    function FlagIncluded(const AParameterName, AFlagName: String): Boolean;
-    procedure SetFlag(const AParameterName, AFlagName: String;
+    procedure SetValue(const AIndex: Integer; const AValue: String);
+    function Add(const AName, AValue: String): Integer;
+    procedure Remove(const AIndex: Integer);
+    function FlagIncluded(const AIndex: Integer; const AFlagName: String): Boolean;
+    procedure SetFlag(const AIndex: Integer; const AFlagName: String;
       const AInclude: Boolean);
-    function TryGetParameterDefinition(const AName: String;
+    function TryGetDefinition(const AName: String;
       out ADefinition: TScriptParameterDefinition): Boolean;
     function BreakCount: Integer;
     property BreakParameterIndexes[Index: Integer]: Integer read GetBreakParameterIndex;
@@ -145,7 +155,6 @@ type
     function GetLines: TArray<String>;
     function Count: Integer;
     function IndexOf(const AName: String): Integer;
-    function Has(const AName: String): Boolean;
     function TryResolve(const AName: String;
       var AIndex: Integer): Boolean;
     function TryGetValue(const AName: String; out AValue: String): Boolean;
@@ -396,9 +405,12 @@ begin
   end;
 end;
 
-function TScriptEntryParameter.GetHasName: Boolean;
+function TScriptEntryParameter.GetKind: TScriptEntryParameterKind;
 begin
-  Result := FName <> '';
+  if FName <> '' then
+    Result := sepParameter
+  else
+    Result := sepOther;
 end;
 
 function TScriptEntryParameter.GetRawValue: String;
@@ -573,7 +585,7 @@ begin
   end;
 end;
 
-function TScriptParameterEntry.ParameterCount: Integer;
+function TScriptParameterEntry.Count: Integer;
 begin
   Result := Integer(FParameters.Count);
 end;
@@ -581,6 +593,14 @@ end;
 function TScriptParameterEntry.GetParameter(Index: Integer): TScriptEntryParameter;
 begin
   Result := FParameters[Index];
+end;
+
+function TScriptParameterEntry.GetNamedParameter(
+  const AIndex: Integer): TScriptEntryParameter;
+begin
+  Result := FParameters[AIndex];
+  if Result.Kind <> sepParameter then
+    raise EScriptModelError.Create('Internal error: Parameter has no name');
 end;
 
 function TScriptParameterEntry.BreakCount: Integer;
@@ -593,32 +613,38 @@ begin
   Result := FBreaks[Index].ParameterIndex;
 end;
 
-function TScriptParameterEntry.IndexOfParameter(const AName: String): Integer;
+function TScriptParameterEntry.IndexOf(const AName: String): Integer;
+{ With duplicate parameters the first one wins }
 begin
-  for var I := 0 to ParameterCount-1 do
-    if FParameters[I].HasName and SameText(FParameters[I].Name, AName) then
+  for var I := 0 to Count-1 do
+    if (FParameters[I].Kind = sepParameter) and SameText(FParameters[I].Name, AName) then
       Exit(I);
   Result := -1;
 end;
 
-function TScriptParameterEntry.HasParameter(const AName: String): Boolean;
+function TScriptParameterEntry.Has(const AName: String): Boolean;
 begin
-  Result := IndexOfParameter(AName) >= 0;
+  Result := IndexOf(AName) >= 0;
+end;
+
+function TScriptParameterEntry.TryResolve(const AName: String;
+  var AIndex: Integer): Boolean;
+{ Pass -1 as AIndex to look the parameter up by name }
+begin
+  if AIndex < 0 then
+    AIndex := IndexOf(AName);
+  Result := (AIndex >= 0) and (AIndex < Count) and
+    (FParameters[AIndex].Kind = sepParameter) and
+    SameText(FParameters[AIndex].Name, AName);
 end;
 
 function TScriptParameterEntry.TryGetValue(const AName: String;
   out AValue: String): Boolean;
 begin
-  const I = IndexOfParameter(AName);
+  const I = IndexOf(AName);
   Result := I >= 0;
   if Result then
     AValue := FParameters[I].Value;
-end;
-
-function TScriptParameterEntry.GetValue(const AName: String): String;
-begin
-  if not TryGetValue(AName, Result) then
-    Result := '';
 end;
 
 procedure TScriptParameterEntry.BeginUpdate;
@@ -642,8 +668,25 @@ begin
   FPendingChange := True;
 end;
 
-procedure TScriptParameterEntry.SetValueInternal(const AName, AValue: String;
-  const AQuoteNewValue: Boolean);
+procedure TScriptParameterEntry.SetValueInternal(const AIndex: Integer;
+  const AValue: String);
+{ Keeps quotes and surrounding whitespace }
+begin
+  if ContainsLineBreak(AValue) then
+    raise EScriptModelError.Create('Internal error: Value must not contain line breaks');
+  const Parameter = GetNamedParameter(AIndex);
+  const OldRawValue = Parameter.RawValue;
+  const NewValueText = QuoteScriptParameterValueIfNeeded(AValue,
+    ScriptValueIsQuoted(OldRawValue));
+  const Leading = LeadingWhitespace(OldRawValue);
+  const Trailing = TrailingWhitespace(Copy(OldRawValue, Length(Leading)+1, MaxInt));
+  Parameter.SetRawText(Copy(Parameter.RawText, 1, Parameter.FValueStartIndex-1) +
+    Leading + NewValueText + Trailing);
+  MarkModified;
+end;
+
+function TScriptParameterEntry.AppendParameterInternal(const AName,
+  AValue: String; const AQuoteNewValue: Boolean): Integer;
 
   { See TScriptEntryParameter.SetRawText }
   function IsValidScriptParameterName(const S: String): Boolean;
@@ -659,127 +702,137 @@ procedure TScriptParameterEntry.SetValueInternal(const AName, AValue: String;
 begin
   { Sanity checks }
   if not IsValidScriptParameterName(AName) then
-    raise EScriptModelError.Create('Invalid parameter name');
+    raise EScriptModelError.Create('Internal error: Invalid parameter name');
   if ContainsLineBreak(AValue) then
-    raise EScriptModelError.Create('Value must not contain line breaks');
+    raise EScriptModelError.Create('Internal error: Value must not contain line breaks');
 
-  const I = IndexOfParameter(AName);
-  if I >= 0 then begin
-    { Preserve the chunk's text through the colon and the whitespace around
-      the old value; only the edited value itself is rewritten. Keep the value
-      quoted if it already was, even when the new value would not need it }
-    const Parameter = FParameters[I];
-    const OldRawValue = Parameter.RawValue;
-    const NewValueText = QuoteScriptParameterValueIfNeeded(AValue,
-      ScriptValueIsQuoted(OldRawValue));
-    const Leading = LeadingWhitespace(OldRawValue);
-    { Trailing whitespace is scanned after the leading whitespace so an
-      all-whitespace old value is not written twice }
-    const Trailing = TrailingWhitespace(Copy(OldRawValue, Length(Leading)+1, MaxInt));
-    Parameter.SetRawText(Copy(Parameter.RawText, 1, Parameter.FValueStartIndex-1) +
-      Leading + NewValueText + Trailing);
-  end else begin
-    { A newly added parameter is quoted when the caller asks for it (flag-list
-      writes never do, as flags are unquoted space-separated tokens) }
-    const NewValueText = QuoteScriptParameterValueIfNeeded(AValue, AQuoteNewValue);
-    var RawText := AName + ': ' + NewValueText;
-    if FParameters.Count > 0 then
-      RawText := ' ' + RawText;
-    const Parameter = TScriptEntryParameter.Create;
-    Parameter.SetRawText(RawText);
-    FParameters.Add(Parameter);
-  end;
+  const NewValueText = QuoteScriptParameterValueIfNeeded(AValue, AQuoteNewValue);
+  var RawText := AName + ': ' + NewValueText;
+  if FParameters.Count > 0 then
+    RawText := ' ' + RawText;
+  const Parameter = TScriptEntryParameter.Create;
+  Parameter.SetRawText(RawText);
+  FParameters.Add(Parameter);
   MarkModified;
+  Result := Integer(FParameters.Count)-1;
 end;
 
-procedure TScriptParameterEntry.SetValue(const AName, AValue: String);
+procedure TScriptParameterEntry.ApplyParameterFlagRules(const AParameterName,
+  AValue: String);
+begin
+  { Clearing the value leaves the flag in place }
+  if (FMetadata = nil) or (Trim(AValue) = '') then
+    Exit;
+  for var Rule in FMetadata.ParameterIncludesFlagRules do
+    if SameText(Rule.ParameterName, AParameterName) then
+      SetFlagInternal(Rule.FlagParameterName, Rule.FlagName, True);
+end;
 
-  procedure ApplyParameterFlagRules(const AParameterName, AValue: String);
-  begin
-    { Clearing the value leaves the flag in place }
-    if (FMetadata = nil) or (Trim(AValue) = '') then
-      Exit;
-    for var Rule in FMetadata.ParameterIncludesFlagRules do
-      if SameText(Rule.ParameterName, AParameterName) then
-        SetFlagInternal(Rule.FlagParameterName, Rule.FlagName, True);
-  end;
-
+procedure TScriptParameterEntry.SetValue(const AIndex: Integer;
+  const AValue: String);
 begin
   BeginUpdate;
   try
-    SetValueInternal(AName, AValue, FQuoteNewValues);
+    const Name = GetNamedParameter(AIndex).Name;
+    SetValueInternal(AIndex, AValue);
+    ApplyParameterFlagRules(Name, AValue);
+  finally
+    EndUpdate;
+  end;
+end;
+
+function TScriptParameterEntry.Add(const AName, AValue: String): Integer;
+begin
+  BeginUpdate;
+  try
+    Result := AppendParameterInternal(AName, AValue,
+      ShouldQuoteNewValue(FQuoteNewValues, FMetadata, AName));
     ApplyParameterFlagRules(AName, AValue);
   finally
     EndUpdate;
   end;
 end;
 
-function TScriptParameterEntry.RemoveParameter(const AName: String): Boolean;
+procedure TScriptParameterEntry.Remove(const AIndex: Integer);
 begin
-  const I = IndexOfParameter(AName);
-  Result := I >= 0;
-  if Result then begin
-    BeginUpdate;
-    try
-      FParameters.Delete(I);
-      { Breaks at the removed parameter can no longer be honored and are
-        dropped; breaks after it shift along }
-      for var B := FBreaks.Count-1 downto 0 do begin
-        if FBreaks[B].ParameterIndex = I then
-          FBreaks.Delete(B)
-        else if FBreaks[B].ParameterIndex > I then begin
-          var EntryBreak := FBreaks[B];
-          Dec(EntryBreak.ParameterIndex);
-          FBreaks[B] := EntryBreak;
-        end;
+  GetNamedParameter(AIndex); { This is a sanity check: GetNamedParameter raises if not named }
+  BeginUpdate;
+  try
+    FParameters.Delete(AIndex);
+    { Update breaks }
+    for var B := FBreaks.Count-1 downto 0 do begin
+      if FBreaks[B].ParameterIndex = AIndex then
+        FBreaks.Delete(B)
+      else if FBreaks[B].ParameterIndex > AIndex then begin
+        var EntryBreak := FBreaks[B];
+        Dec(EntryBreak.ParameterIndex);
+        FBreaks[B] := EntryBreak;
       end;
-      MarkModified;
-    finally
-      EndUpdate;
     end;
+    if (AIndex = 0) and (FParameters.Count > 0) then
+      FParameters[0].SetRawText(TrimLeft(FParameters[0].RawText)); { Make sure leftover whitespace is removed }
+    MarkModified;
+  finally
+    EndUpdate;
   end;
 end;
 
-function TScriptParameterEntry.FlagIncluded(const AParameterName,
-  AFlagName: String): Boolean;
+function IsValidScriptFlagName(const S: String): Boolean;
+begin
+  if S = '' then
+    Exit(False);
+  for var I := 1 to Length(S) do
+    if (S[I] <= ' ') or CharInSet(S[I], [';', '"']) then
+      Exit(False);
+  Result := True;
+end;
+
+function TScriptParameterEntry.FlagIncluded(const AIndex: Integer;
+  const AFlagName: String): Boolean;
 begin
   var StartIndex, TokenLength: Integer;
-  Result := FindScriptFlagToken(GetValue(AParameterName), AFlagName,
+  Result := FindScriptFlagToken(GetNamedParameter(AIndex).Value, AFlagName,
     StartIndex, TokenLength);
+end;
+
+procedure TScriptParameterEntry.ApplyFlagRules(const AParameterName,
+  AIncludedFlagName: String);
+begin
+  if FMetadata = nil then
+    Exit;
+  for var Rule in FMetadata.FlagIncludesRules do begin
+    if SameText(Rule.ParameterName, AParameterName) and
+       SameText(Rule.FlagName, AIncludedFlagName) then begin
+      for var ImpliedFlagName in Rule.AlsoIncludedFlagNames do
+        SetFlagInternal(AParameterName, ImpliedFlagName, True);
+    end;
+  end;
 end;
 
 procedure TScriptParameterEntry.SetFlagInternal(const AParameterName,
   AFlagName: String; const AInclude: Boolean);
-
-  procedure ApplyFlagRules(const AParameterName, AIncludedFlagName: String);
-  begin
-    if FMetadata = nil then
-      Exit;
-    for var Rule in FMetadata.FlagIncludesRules do begin
-      if SameText(Rule.ParameterName, AParameterName) and
-         SameText(Rule.FlagName, AIncludedFlagName) then begin
-        for var ImpliedFlagName in Rule.AlsoIncludedFlagNames do
-          SetFlagInternal(AParameterName, ImpliedFlagName, True);
-      end;
-    end;
+begin
+  const I = IndexOf(AParameterName);
+  if I >= 0 then
+    SetFlagInternal(I, AFlagName, AInclude)
+  else if AInclude then begin
+    { Sanity check }
+    if not IsValidScriptFlagName(AFlagName) then
+      raise EScriptModelError.Create('Internal error: Invalid flag name');
+    AppendParameterInternal(AParameterName, AFlagName, False);
+    ApplyFlagRules(AParameterName, AFlagName);
   end;
+end;
 
-  function IsValidScriptFlagName(const S: String): Boolean;
-  begin
-    if S = '' then
-      Exit(False);
-    for var I := 1 to Length(S) do
-      if (S[I] <= ' ') or CharInSet(S[I], [';', '"']) then
-        Exit(False);
-    Result := True;
-  end;
-
+procedure TScriptParameterEntry.SetFlagInternal(const AIndex: Integer;
+  const AFlagName: String; const AInclude: Boolean);
 begin
   { Sanity check }
   if not IsValidScriptFlagName(AFlagName) then
-    raise EScriptModelError.Create('Invalid flag name');
+    raise EScriptModelError.Create('Internal error: Invalid flag name');
 
-  const OldValue = GetValue(AParameterName);
+  const Parameter = GetNamedParameter(AIndex);
+  const OldValue = Parameter.Value;
   var StartIndex, TokenLength: Integer;
   const Found = FindScriptFlagToken(OldValue, AFlagName, StartIndex, TokenLength);
   if AInclude then begin
@@ -788,16 +841,15 @@ begin
     var NewValue := OldValue;
     if NewValue <> '' then
       NewValue := NewValue + ' ';
-    SetValueInternal(AParameterName, NewValue + AFlagName, False);
-    ApplyFlagRules(AParameterName, AFlagName);
+    SetValueInternal(AIndex, NewValue + AFlagName);
+    ApplyFlagRules(Parameter.Name, AFlagName);
   end else begin
     if not Found then
       Exit;
     { Duplicates of the flag are all removed so it really ends up excluded }
     var NewValue := OldValue;
     repeat
-      { Remove only the token itself plus one adjacent whitespace run, so other
-        tokens keep their spacing }
+      { Remove only the token itself plus one adjacent whitespace run }
       var RemoveEnd := StartIndex + TokenLength - 1;
       if RemoveEnd < Length(NewValue) then begin
         while (RemoveEnd < Length(NewValue)) and (NewValue[RemoveEnd+1] <= ' ') do
@@ -809,27 +861,25 @@ begin
       NewValue := Copy(NewValue, 1, StartIndex-1) +
         Copy(NewValue, RemoveEnd+1, MaxInt);
     until not FindScriptFlagToken(NewValue, AFlagName, StartIndex, TokenLength);
-    { Excluding the last token removes the whole parameter instead of leaving
-      an empty one behind }
     if Trim(NewValue) = '' then
-      RemoveParameter(AParameterName)
+      Remove(AIndex) { Nothing left so remove the whole parameter }
     else
-      SetValueInternal(AParameterName, NewValue, False);
+      SetValueInternal(AIndex, NewValue);
   end;
 end;
 
-procedure TScriptParameterEntry.SetFlag(const AParameterName,
-  AFlagName: String; const AInclude: Boolean);
+procedure TScriptParameterEntry.SetFlag(const AIndex: Integer;
+  const AFlagName: String; const AInclude: Boolean);
 begin
   BeginUpdate;
   try
-    SetFlagInternal(AParameterName, AFlagName, AInclude);
+    SetFlagInternal(AIndex, AFlagName, AInclude);
   finally
     EndUpdate;
   end;
 end;
 
-function TScriptParameterEntry.TryGetParameterDefinition(const AName: String;
+function TScriptParameterEntry.TryGetDefinition(const AName: String;
   out ADefinition: TScriptParameterDefinition): Boolean;
 begin
   Result := (FMetadata <> nil) and FMetadata.TryGetParameter(AName, ADefinition);
@@ -929,11 +979,6 @@ begin
       Result := I;
 end;
 
-function TScriptDirectiveSection.Has(const AName: String): Boolean;
-begin
-  Result := IndexOf(AName) >= 0;
-end;
-
 function TScriptDirectiveSection.TryResolve(const AName: String;
   var AIndex: Integer): Boolean;
 { Pass -1 as AIndex to look the directive up by name }
@@ -959,14 +1004,14 @@ function TScriptDirectiveSection.GetNamedLine(
 begin
   Result := FLines[AIndex];
   if Result.Kind <> sdlDirective then
-    raise EScriptModelError.Create('Line is not a directive');
+    raise EScriptModelError.Create('Internal error: Line is not a directive');
 end;
 
 procedure TScriptDirectiveSection.SetValue(const AIndex: Integer;
   const AValue: String);
 begin
   if ContainsLineBreak(AValue) then
-    raise EScriptModelError.Create('Value must not contain line breaks');
+    raise EScriptModelError.Create('Internal error: Value must not contain line breaks');
   const Line = GetNamedLine(AIndex);
   { Keep any whitespace between the '=' and the old value, and keep quotes }
   Line.FRawValue := LeadingWhitespace(Line.FRawValue) +
@@ -981,9 +1026,9 @@ begin
   { Sanity checks }
   if (AName <> Trim(AName)) or ContainsLineBreak(AName) or
      (Pos('=', AName) > 0) or (ClassifyScriptLine(AName) <> slkActual) then
-    raise EScriptModelError.Create('Invalid directive name');
+    raise EScriptModelError.Create('Internal error: Invalid directive name');
   if ContainsLineBreak(AValue) then
-    raise EScriptModelError.Create('Value must not contain line breaks');
+    raise EScriptModelError.Create('Internal error: Value must not contain line breaks');
 
   const Line = TScriptDirectiveSectionLine.Create;
   Line.FKind := sdlDirective;

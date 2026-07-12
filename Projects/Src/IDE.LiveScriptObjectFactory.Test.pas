@@ -232,8 +232,9 @@ begin
     Assert(Factory.TryCreateEntry(4, Entry, Reason));
     try
       Assert(Entry.Section = scFiles);
-      Assert(Entry.Entry.GetValue('Source') = 'a.txt');
-      Assert(Entry.Entry.GetValue('DestDir') = '{app}');
+      var Value: String;
+      Assert(Entry.Entry.TryGetValue('Source', Value) and (Value = 'a.txt'));
+      Assert(Entry.Entry.TryGetValue('DestDir', Value) and (Value = '{app}'));
     finally
       Entry.Free;
     end;
@@ -241,7 +242,7 @@ begin
     { Accept: a blank line inside a section yields an empty entry }
     Assert(Factory.TryCreateEntry(7, Entry, Reason));
     try
-      Assert(Entry.Entry.ParameterCount = 0);
+      Assert(Entry.Entry.Count = 0);
     finally
       Entry.Free;
     end;
@@ -268,7 +269,7 @@ begin
       var Reason: String;
       Assert(Context.Factory.TryCreateEntry(1, Entry, Reason));
       try
-        Entry.Entry.SetValue('DestDir', '{tmp}');
+        Entry.Entry.SetValue(1, '{tmp}');
         Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{tmp}"');
         Assert(AMemo.Lines[2] = 'Source: "keep.txt"'); { Neighbor untouched }
         AMemo.Undo; { Write-back is a single undo action }
@@ -292,7 +293,7 @@ begin
       var Reason: String;
       Assert(Context.Factory.TryCreateEntry(1, Entry, Reason));
       try
-        Entry.Entry.SetValue('DestDir', '{tmp}');
+        Entry.Entry.SetValue(1, '{tmp}');
         Assert(AMemo.Lines.Count = 3);
         Assert(AMemo.Lines[1] = 'Source: "a.txt"; \');
         Assert(AMemo.Lines[2] = '  DestDir: "{tmp}"; Flags: ignoreversion');
@@ -317,7 +318,7 @@ begin
       var Reason: String;
       Assert(Context.Factory.TryCreateEntry(2, Entry, Reason));
       try
-        Entry.Entry.SetValue('Source', 'b.txt');
+        Entry.Entry.Add('Source', 'b.txt');
         Assert(AMemo.Lines.Count = 5);
         Assert(AMemo.Lines[2] = 'Source: "b.txt"');
         Assert(AMemo.Lines[3] = '');            { The old blank, now a separator }
@@ -484,7 +485,8 @@ begin
       var NewEntry: TLiveScriptEntry;
       Assert(Factory.TryCreateEntry(2, NewEntry, Reason));
       try
-        Assert(NewEntry.Entry.GetValue('Source') = 'c.txt');
+        var Value: String;
+        Assert(NewEntry.Entry.TryGetValue('Source', Value) and (Value = 'c.txt'));
       finally
         NewEntry.Free;
       end;

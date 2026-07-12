@@ -19,13 +19,12 @@ type
   TScriptParameterDefinition = record
     Name: String;
     ValueKind: TScriptParameterValueKind;
-    KnownValues: TArray<String>; { For pvkFlags: the known tokens; for pvkChoice: the known single values }
-    Obsolete: Boolean;      { Documented as obsolete: to be hidden unless explicitly present in the script }
+    KnownValues: TArray<String>; { For pvkFlags: the known flags; for pvkChoice: the known choices }
+    Obsolete: Boolean; { To be hidden unless explicitly present in the script }
   end;
 
-  { Rule: including a flag in a delimited parameter must also include other flags,
-    for example checking extractarchive on a [Files] entry also checks
-    external and ignoreversion }
+  { Rule: including a flag must also include other flags, for example checking
+    extractarchive on a [Files] entry also requires external and ignoreversion }
   TScriptFlagIncludesRule = record
     ParameterName: String;
     FlagName: String;
@@ -33,7 +32,7 @@ type
   end;
 
   { Rule: giving a parameter a non-empty value must also include a flag, for example
-    setting Verb on a [Run] entry also checks the shellexec flag }
+    setting Verb on a [Run] entry also requires the shellexec flag }
   TScriptParameterIncludesFlagRule = record
     ParameterName: String;      { the parameter whose value triggers the rule }
     FlagParameterName: String;  { the flag-list parameter that holds the flag }
@@ -63,16 +62,8 @@ type
 function TryGetScriptSectionMetadata(const ASectionName: String;
   out AMetadata: TScriptSectionMetadata): Boolean;
 
-{ The inspector shows a named group of parameters or directives as a
-  collapsible category. Membership is by parameter or directive name within the
-  category's own sections: Common spans the parameter sections, while the
-  Compiler, Installer, Compression and Cosmetic groups apply to [Setup] only.
-  Growing or adding a category is a table edit in InitializeScriptCategories }
+function ScriptCategoryNamesOrdered: TArray<String>;
 
-{ The category names in the order they should be shown }
-function ScriptCategoryNames: TArray<String>;
-{ The category a parameter or directive name belongs to in the given section,
-  if any }
 function TryGetScriptCategory(const ASectionName, AName: String;
   out ACategoryName: String): Boolean;
 
@@ -83,11 +74,6 @@ uses
 
 var
   SectionMetadataList: TObjectList<TScriptSectionMetadata>;
-  { The category names, in the order they should be shown }
-  ScriptCategoryNameOrderedList: TArray<String>;
-  { Category name per member, keyed by section and member name: the inspector
-    looks a category up for every row it builds, on every caret move }
-  ScriptCategoryDictionary: TDictionary<String, String>;
 
 { TScriptSectionMetadata }
 
@@ -127,15 +113,18 @@ begin
   Result := False;
 end;
 
-{ Key into ScriptCategoryDictionary, which is case-insensitive like the other
-  metadata lookups. Section, parameter and directive names are identifiers, so a
-  dot cannot occur in either half and the key is unambiguous }
-function ScriptCategoryKey(const ASectionName, AName: String): String;
+var
+  ScriptCategoryDictionary: TDictionary<String, String>;
+
+function ScriptCategoryDictionaryKey(const ASectionName, AName: String): String;
 begin
   Result := ASectionName + '.' + AName;
 end;
 
-function ScriptCategoryNames: TArray<String>;
+var
+  ScriptCategoryNameOrderedList: TArray<String>;
+
+function ScriptCategoryNamesOrdered: TArray<String>;
 begin
   Result := Copy(ScriptCategoryNameOrderedList);
 end;
@@ -144,7 +133,7 @@ function TryGetScriptCategory(const ASectionName, AName: String;
   out ACategoryName: String): Boolean;
 begin
   Result := ScriptCategoryDictionary.TryGetValue(
-    ScriptCategoryKey(ASectionName, AName), ACategoryName);
+    ScriptCategoryDictionaryKey(ASectionName, AName), ACategoryName);
 end;
 
 procedure InitializeScriptCategories;
@@ -153,31 +142,19 @@ procedure InitializeScriptCategories;
     const ASectionNames: TArray<String>);
   begin
     if Length(ASectionNames) = 0 then
-      raise Exception.CreateFmt('Category %s has no section names', [AName]);
+      raise Exception.CreateFmt('Internal error: Category %s has no section names', [AName]);
     ScriptCategoryNameOrderedList := ScriptCategoryNameOrderedList + [AName];
     for var SectionName in ASectionNames do begin
       for var MemberName in AMemberNames do begin
-        { Add raises on a duplicate key, so a name cannot end up in two categories
-          for the same section }
-        ScriptCategoryDictionary.Add(ScriptCategoryKey(SectionName, MemberName),
+        ScriptCategoryDictionary.Add(ScriptCategoryDictionaryKey(SectionName, MemberName),
           AName);
       end;
     end;
   end;
 
 begin
-  { Common groups the parameters shared across the parameter sections so the
-    section-specific parameters stand out; it spans every parameter section but
-    not [Setup], whose directives are all divided over Compiler, Installer,
-    Compression and Cosmetic the way isetup.xml does, including the MinVersion
-    and OnlyBelowVersion directives, which are unrelated to the parameters of
-    the same name. Those four are scoped to [Setup] so a directive name that is
-    also a parameter name elsewhere (such as ExtraDiskSpaceRequired in
-    [Components] or LicenseFile in [Languages]) does not group under them there }
-  const SetupOnly: TArray<String> = ['Setup'];
-  const CommonSections: TArray<String> = ['Components', 'Dirs', 'Files',
-    'Icons', 'INI', 'InstallDelete', 'ISSigKeys', 'Languages', 'Registry',
-    'Run', 'Tasks', 'Types', 'UninstallDelete', 'UninstallRun'];
+  const SetupSection: TArray<String> = ['Setup'];
+
   CD('Compiler', ['ASLRCompatible', 'DEPCompatible',
     'DisablePrecompiledFileVerifications', 'DiskClusterSize', 'DiskSliceSize',
     'DiskSpanning', 'Encryption', 'EncryptionKeyDerivation',
@@ -191,12 +168,15 @@ begin
     'VersionInfoCopyright', 'VersionInfoDescription',
     'VersionInfoOriginalFileName', 'VersionInfoProductName',
     'VersionInfoProductTextVersion', 'VersionInfoProductVersion',
-    'VersionInfoTextVersion', 'VersionInfoVersion'], SetupOnly);
+    'VersionInfoTextVersion', 'VersionInfoVersion'],
+    SetupSection);
+
   CD('Compression', ['Compression', 'CompressionThreads',
     'InternalCompressLevel', 'LZMAAlgorithm', 'LZMABlockSize',
     'LZMADictionarySize', 'LZMAMatchFinder', 'LZMANumBlockThreads',
     'LZMANumFastBytes', 'LZMAUseSeparateProcess', 'SolidCompression'],
-    SetupOnly);
+    SetupSection);
+
   CD('Installer', ['AllowCancelDuringInstall', 'AllowNetworkDrive',
     'AllowNoIcons', 'AllowRootDirectory', 'AllowUNCPath', 'AlwaysRestart',
     'AlwaysShowComponentsList', 'AlwaysShowDirOnReadyPage',
@@ -225,7 +205,9 @@ begin
     'UninstallLogMode', 'UninstallRestartComputer', 'UpdateUninstallLogAppName',
     'UsePreviousAppDir', 'UsePreviousGroup', 'UsePreviousLanguage',
     'UsePreviousPrivileges', 'UsePreviousSetupType', 'UsePreviousTasks',
-    'UsePreviousUserInfo', 'UserInfoPage'], SetupOnly);
+    'UsePreviousUserInfo', 'UserInfoPage'],
+    SetupSection);
+
   CD('Cosmetic', ['AppCopyright', 'FlatComponentsList', 'SetupIconFile',
     'ShowComponentSizes', 'ShowTasksTreeLines', 'WizardBackColor',
     'WizardBackColorDynamicDark', 'WizardBackImageFile',
@@ -236,9 +218,16 @@ begin
     'WizardKeepAspectRatio', 'WizardSizePercent', 'WizardSmallImageBackColor',
     'WizardSmallImageBackColorDynamicDark', 'WizardSmallImageFile',
     'WizardSmallImageFileDynamicDark', 'WizardStyle', 'WizardStyleFile',
-    'WizardStyleFileDynamicDark'], SetupOnly);
+    'WizardStyleFileDynamicDark'],
+    SetupSection);
+
+  const CommonSections: TArray<String> = ['Components', 'Dirs', 'Files',
+    'Icons', 'INI', 'InstallDelete', 'ISSigKeys', 'Languages', 'Registry',
+    'Run', 'Tasks', 'Types', 'UninstallDelete', 'UninstallRun'];
+
   CD('Common', ['Check', 'Components', 'Tasks', 'Languages', 'MinVersion',
-    'OnlyBelowVersion', 'BeforeInstall', 'AfterInstall'], CommonSections);
+    'OnlyBelowVersion', 'BeforeInstall', 'AfterInstall'],
+    CommonSections);
 end;
 
 procedure InitializeSectionMetadata;
@@ -270,9 +259,6 @@ procedure InitializeSectionMetadata;
   end;
 
 begin
-  { Parameter names match TInnoSetupStyler's per-section lists, value kinds
-    follow the documentation in ISHelp\isetup.xml }
-
   const AttribsFlagNames: TArray<String> = ['readonly', 'hidden', 'system',
     'notcontentindexed'];
 
@@ -290,38 +276,38 @@ begin
 
   SectionMetadataList.Add(TScriptSectionMetadata.Create('Files',
     [PD('AfterInstall', pvkString),
-     PD('Attribs', pvkFlags, AttribsFlagNames),
-     PD('BeforeInstall', pvkString),
-     PD('Check', pvkString),
-     PD('Components', pvkString),
-     PD('CopyMode', pvkString, nil, True),
-     { Order must match IDE.Wizard.WizardFileForm! }
-     PD('DestDir', pvkChoice, ['{app}', '{autopf}', '{autocf}', '{win}', '{sys}', '{src}', '{sd}']),
-     PD('DestName', pvkString),
-     PD('DownloadISSigSource', pvkString),
-     PD('DownloadPassword', pvkString),
-     PD('DownloadUserName', pvkString),
-     PD('Excludes', pvkString),
-     PD('ExternalSize', pvkInteger),
-     PD('ExtractArchivePassword', pvkString),
-     PD('Flags', pvkFlags, FilesFlagNames),
-     PD('FontInstall', pvkString),
-     PD('Hash', pvkString),
-     PD('ISSigAllowedKeys', pvkString),
-     PD('Languages', pvkString),
-     PD('MinVersion', pvkVersion),
-     PD('OnlyBelowVersion', pvkVersion),
-     PD('Permissions', pvkString),
-     PD('Source', pvkString),
-     PD('StrongAssemblyName', pvkString),
-     PD('Tasks', pvkString)],
+    PD('Attribs', pvkFlags, AttribsFlagNames),
+    PD('BeforeInstall', pvkString),
+    PD('Check', pvkString),
+    PD('Components', pvkString),
+    PD('CopyMode', pvkString, nil, True),
+    { Order must match IDE.Wizard.WizardFileForm! }
+    PD('DestDir', pvkChoice, ['{app}', '{autopf}', '{autocf}', '{win}', '{sys}', '{src}', '{sd}']),
+    PD('DestName', pvkString),
+    PD('DownloadISSigSource', pvkString),
+    PD('DownloadPassword', pvkString),
+    PD('DownloadUserName', pvkString),
+    PD('Excludes', pvkString),
+    PD('ExternalSize', pvkInteger),
+    PD('ExtractArchivePassword', pvkString),
+    PD('Flags', pvkFlags, FilesFlagNames),
+    PD('FontInstall', pvkString),
+    PD('Hash', pvkString),
+    PD('ISSigAllowedKeys', pvkString),
+    PD('Languages', pvkString),
+    PD('MinVersion', pvkVersion),
+    PD('OnlyBelowVersion', pvkVersion),
+    PD('Permissions', pvkString),
+    PD('Source', pvkString),
+    PD('StrongAssemblyName', pvkString),
+    PD('Tasks', pvkString)],
     [FIR('Flags', 'extractarchive', ['external', 'ignoreversion']),
-     FIR('Flags', 'download', ['external', 'ignoreversion']),
-     FIR('Flags', 'createallsubdirs', ['recursesubdirs']),
-     FIR('Flags', 'dontverifychecksum', ['nocompression']),
-     FIR('Flags', 'uninsnosharedfileprompt', ['sharedfile'])],
+    FIR('Flags', 'download', ['external', 'ignoreversion']),
+    FIR('Flags', 'createallsubdirs', ['recursesubdirs']),
+    FIR('Flags', 'dontverifychecksum', ['nocompression']),
+    FIR('Flags', 'uninsnosharedfileprompt', ['sharedfile'])],
     [PIF('ExternalSize', 'Flags', 'external'),
-     PIF('ISSigAllowedKeys', 'Flags', 'issigverify')]));
+    PIF('ISSigAllowedKeys', 'Flags', 'issigverify')]));
 end;
 
 initialization

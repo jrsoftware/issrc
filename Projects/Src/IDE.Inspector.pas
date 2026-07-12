@@ -28,8 +28,9 @@ type
     Name: String;            { irkEntryValue and irkEntryFlag: parameter name,
                                irkDirective: directive name }
     FlagName: String;        { irkEntryFlag }
-    DirectiveIndex: Integer; { irkDirective: line index in the section model,
-                               -1 for an unspecified known directive }
+    NameIndex: Integer;      { irkDirective: line index,
+                               irkEntryValue and irkEntryFlag: parameter index
+                               -1 if known but not present in the script }
   end;
 
   TInspector = class
@@ -37,7 +38,7 @@ type
     FJvInspector: TJvInspector;
     FPainter: TJvInspectorDotNETPainter;
     FFactory: TLiveScriptObjectFactory;
-    FEntry: TLiveScriptEntry;
+    FLiveEntry: TLiveScriptEntry;
     FRows: TList<TInspectorRow>;
     FRowsByData: TDictionary<TJvInspectorEventData, Integer>; { Reverse lookup of a FRows index }
     FRowSetSignature: String;
@@ -47,6 +48,8 @@ type
       out ARow: TInspectorRow): Boolean; overload;
     function TryGetRow(const AItem: TJvCustomInspectorItem;
       out ARow: TInspectorRow): Boolean; overload;
+    function TryGetRow(const ARow: TInspectorRow;
+      out AEntry: TScriptParameterEntry; out AIndex: Integer): Boolean; overload;
     procedure RowGetAsOrdinal(Sender: TJvInspectorEventData; var Value: Int64);
     procedure RowGetAsString(Sender: TJvInspectorEventData; var Value: String);
     procedure RowSetAsOrdinal(Sender: TJvInspectorEventData; var Value: Int64);
@@ -99,10 +102,22 @@ destructor TInspector.Destroy;
 begin
   { Free the inspector before the objects its rows read from }
   FJvInspector.Free;
-  FEntry.Free;
+  FLiveEntry.Free;
   FRowsByData.Free;
   FRows.Free;
   inherited;
+end;
+
+function TInspector.TryGetRow(const ARow: TInspectorRow;
+  out AEntry: TScriptParameterEntry; out AIndex: Integer): Boolean;
+begin
+  AEntry := nil;
+  AIndex := -1;
+  if (FLiveEntry = nil) or not FLiveEntry.Valid then
+    Exit(False);
+  AEntry := FLiveEntry.Entry;
+  AIndex := ARow.NameIndex;
+  Result := AEntry.TryResolve(ARow.Name, AIndex);
 end;
 
 procedure TInspector.SetActiveFactory(const AFactory: TLiveScriptObjectFactory);
@@ -159,78 +174,96 @@ procedure TInspector.UpdateFromCaret;
   end;
 
   function AddEntryValueRow(const AParent: TJvCustomInspectorItem;
-    const AParameterName: String): TJvCustomInspectorItem;
+    const AParameterName: String; const ANameIndex: Integer): TJvCustomInspectorItem;
   begin
     var Row: TInspectorRow;
     Row.Kind := irkEntryValue;
     Row.Name := AParameterName;
     Row.FlagName := '';
-    Row.DirectiveIndex := -1;
+    Row.NameIndex := ANameIndex;
     Result := AddRow(AParent, AParameterName, TypeInfo(String), Row);
   end;
 
   procedure AddEntryFlagRow(const AParent: TJvCustomInspectorItem;
-    const AParameterName, AFlagName: String);
+    const AParameterName, AFlagName: String; const ANameIndex: Integer);
   begin
     var Row: TInspectorRow;
     Row.Kind := irkEntryFlag;
     Row.Name := AParameterName;
     Row.FlagName := AFlagName;
-    Row.DirectiveIndex := -1;
+    Row.NameIndex := ANameIndex;
     AddRow(AParent, AFlagName, TypeInfo(Boolean), Row);
   end;
 
   procedure AddParameterRow(const AParent: TJvCustomInspectorItem;
-    const ADefinition: TScriptParameterDefinition);
+    const ADefinition: TScriptParameterDefinition; const ANameIndex: Integer);
   begin
-    const Item = AddEntryValueRow(AParent, ADefinition.Name);
+    const Item = AddEntryValueRow(AParent, ADefinition.Name, ANameIndex);
     if ADefinition.ValueKind = pvkFlags then begin
       for var FlagName in ADefinition.KnownValues do
-        AddEntryFlagRow(Item, ADefinition.Name, FlagName); { Adds a child to Item }
+        AddEntryFlagRow(Item, ADefinition.Name, FlagName, ANameIndex); { Adds a child to Item }
     end else if ADefinition.ValueKind = pvkChoice then
       MakeDropDown(Item, ChoiceRowGetValueList);
   end;
 
+  procedure AddParameterRows(const AParent: TJvCustomInspectorItem;
+    const ADefinition: TScriptParameterDefinition);
+  begin
+    { Normally a parameter will be present only once, but duplicates are still
+      handled here, even though that doesn't compile }
+    const Entry = FLiveEntry.Entry;
+    var Found := False;
+    for var I := 0 to Entry.Count-1 do begin
+      if (Entry.Parameters[I].Kind = sepParameter) and
+         SameText(Entry.Parameters[I].Name, ADefinition.Name) then begin
+        AddParameterRow(AParent, ADefinition, I);
+        Found := True;
+      end;
+    end;
+    if not Found then
+      AddParameterRow(AParent, ADefinition, -1);
+  end;
+
   procedure AddEntryRows;
   begin
-    const Entry = FEntry.Entry;
+    const Entry = FLiveEntry.Entry;
 
     { Known and uncategorized parameters first, in metadata order }
     if Entry.Metadata <> nil then begin
       const SectionName = Entry.Metadata.SectionName;
       for var Definition in Entry.Metadata.Parameters do begin
-        if Definition.Obsolete and not Entry.HasParameter(Definition.Name) then
+        if Definition.Obsolete and not Entry.Has(Definition.Name) then
           Continue; { Hide obsolete and unspecified }
         var CategoryName: String;
         if not TryGetScriptCategory(SectionName, Definition.Name, CategoryName) then
-          AddParameterRow(FJvInspector.Root, Definition);
+          AddParameterRows(FJvInspector.Root, Definition);
       end;
     end;
 
-    { Named but unknown parameters }
-    for var I := 0 to Entry.ParameterCount-1 do begin
+    { Present but unknown parameters }
+    for var I := 0 to Entry.Count-1 do begin
       const Parameter = Entry.Parameters[I];
-      if Parameter.HasName then begin
+      if Parameter.Kind = sepParameter then begin
         var Definition: TScriptParameterDefinition;
-        if not Entry.TryGetParameterDefinition(Parameter.Name, Definition) then
-          AddEntryValueRow(FJvInspector.Root, Parameter.Name);
+        if not Entry.TryGetDefinition(Parameter.Name, Definition) then
+          AddEntryValueRow(FJvInspector.Root, Parameter.Name, I);
       end;
     end;
 
     { Known and categorized parameters, in metadata order }
     if Entry.Metadata <> nil then begin
       const SectionName = Entry.Metadata.SectionName;
-      for var CategoryName in ScriptCategoryNames do begin
+      for var CategoryName in ScriptCategoryNamesOrdered do begin
         var CategoryItem: TJvCustomInspectorItem := nil;
         for var Definition in Entry.Metadata.Parameters do begin
-          if Definition.Obsolete and not Entry.HasParameter(Definition.Name) then
+          if Definition.Obsolete and not Entry.Has(Definition.Name) then
             Continue;
           var DefinitionCategory: String;
           if TryGetScriptCategory(SectionName, Definition.Name, DefinitionCategory) and
              SameText(DefinitionCategory, CategoryName) then begin
             if CategoryItem = nil then
               CategoryItem := NewCategory(CategoryName);
-            AddParameterRow(CategoryItem, Definition);
+            AddParameterRows(CategoryItem, Definition);
           end;
         end;
       end;
@@ -245,7 +278,7 @@ procedure TInspector.UpdateFromCaret;
       FRows.Clear;
       FRowsByData.Clear;
 
-      if FEntry <> nil then
+      if FLiveEntry <> nil then
         AddEntryRows;
 
       const DebugCategory = NewCategory('Debug');
@@ -259,7 +292,7 @@ procedure TInspector.UpdateFromCaret;
 begin
   if FInEdit then
     Exit;
-  FreeAndNil(FEntry);
+  FreeAndNil(FLiveEntry);
 
   { Build row set signature for the selected entry or section }
   const CaretLine = FFactory.Memo.CaretLine;
@@ -267,20 +300,16 @@ begin
   var Entry: TLiveScriptEntry;
   var EntryRefusalReason: String;
   if FFactory.TryCreateEntry(CaretLine, Entry, EntryRefusalReason) then begin
-    FEntry := Entry;
-    const SectionName = ParameterSectionToSectionName(FEntry.Section);
+    FLiveEntry := Entry;
+    const SectionName = ParameterSectionToSectionName(FLiveEntry.Section);
     FDebugStatusRowString := Format('[%s] entry at lines %d-%d',
-      [SectionName, FEntry.FirstLine+1, FEntry.LastLine+1]);
-    { Only unknown parameters and obsolete ones change which rows are shown }
+      [SectionName, FLiveEntry.FirstLine+1, FLiveEntry.LastLine+1]);
+    { Rows address parameters by index, so the signature includes the indexes }
     RowSetSignature := 'E|' + SectionName;
-    for var I := 0 to FEntry.Entry.ParameterCount-1 do begin
-      const Parameter = FEntry.Entry.Parameters[I];
-      if Parameter.HasName then begin
-        var Definition: TScriptParameterDefinition;
-        if not FEntry.Entry.TryGetParameterDefinition(Parameter.Name, Definition) or
-           Definition.Obsolete then
-          RowSetSignature := RowSetSignature + '|' + Parameter.Name;
-      end;
+    for var I := 0 to FLiveEntry.Entry.Count-1 do begin
+      const Parameter = FLiveEntry.Entry.Parameters[I];
+      if Parameter.Kind = sepParameter then
+        RowSetSignature := RowSetSignature + '|' + IntToStr(I) + ':' + Parameter.Name;
     end;
   end else begin
     FDebugStatusRowString := EntryRefusalReason;
@@ -321,8 +350,13 @@ begin
     Exit;
   case Row.Kind of
     irkEntryFlag:
-      if (FEntry <> nil) and FEntry.Valid and FEntry.Entry.FlagIncluded(Row.Name, Row.FlagName) then
-        Value := 1;
+      begin
+        var Entry: TScriptParameterEntry;
+        var Index: Integer;
+        if TryGetRow(Row, Entry, Index) and
+           Entry.FlagIncluded(Index, Row.FlagName) then
+          Value := 1;
+      end;
   end;
 end;
 
@@ -335,8 +369,13 @@ begin
     Exit;
   case Row.Kind of
     irkEntryValue:
-      if (FEntry <> nil) and FEntry.Valid then
-        Value := FEntry.Entry.GetValue(Row.Name);
+      begin
+        var Entry: TScriptParameterEntry;
+        var Index: Integer;
+        if TryGetRow(Row, Entry, Index) then
+          Value := Entry.Parameters[Index].Value;
+        { else: a parameter not present in the script shows empty }
+      end;
   end;
 end;
 
@@ -352,8 +391,21 @@ begin
   try
     case Row.Kind of
       irkEntryFlag:
-        if (FEntry <> nil) and FEntry.Valid then
-          FEntry.Entry.SetFlag(Row.Name, Row.FlagName, Value <> 0); { May adjust related flags as well }
+        begin
+          var Entry: TScriptParameterEntry;
+          var Index: Integer;
+          if TryGetRow(Row, Entry, Index) then
+            Entry.SetFlag(Index, Row.FlagName, Value <> 0) { May adjust related flags as well }
+          else if (Entry <> nil) and (Row.NameIndex < 0) and (Value <> 0) then begin
+            { Group Add's and SetFlag's writes into a single undo action }
+            FFactory.Memo.BeginUndoAction;
+            try
+              Entry.SetFlag(Entry.Add(Row.Name, ''), Row.FlagName, True);
+            finally
+              FFactory.Memo.EndUndoAction;
+            end;
+          end;
+        end;
     else
       raise Exception.Create('Internal error: RowSetAsOrdinal: unexpected row kind');
     end;
@@ -375,18 +427,26 @@ begin
   try
     case Row.Kind of
       irkEntryValue:
-        if (FEntry <> nil) and FEntry.Valid then begin
-          var Definition: TScriptParameterDefinition;
-          if (Value <> '') and (Pos('{', Value) = 0) and
-             FEntry.Entry.TryGetParameterDefinition(Row.Name, Definition) and
-             (Definition.ValueKind = pvkInteger) then begin
-            { Validate if the value is a valid integer. Strips underscore digit
-              separators because the compiler accepts them for some values. }
-            var IntegerValue: Int64;
-            if not TryStrToInt64(StringReplace(Value, '_', '', [rfReplaceAll]), IntegerValue) then
-              raise EScriptModelError.Create(LFmtMessage(SInspectorIntegerValueError, [Row.Name]));
+        begin
+          var Entry: TScriptParameterEntry;
+          var Index: Integer;
+          const Found = TryGetRow(Row, Entry, Index);
+          if Entry <> nil then begin
+            var Definition: TScriptParameterDefinition;
+            if (Value <> '') and (Pos('{', Value) = 0) and
+               Entry.TryGetDefinition(Row.Name, Definition) and
+               (Definition.ValueKind = pvkInteger) then begin
+              { Validate if the value is a valid integer. Strips underscore digit
+                separators because the compiler accepts them for some values. }
+              var IntegerValue: Int64;
+              if not TryStrToInt64(StringReplace(Value, '_', '', [rfReplaceAll]), IntegerValue) then
+                raise EScriptModelError.Create(LFmtMessage(SInspectorIntegerValueError, [Row.Name]));
+            end;
+            if Found then
+              Entry.SetValue(Index, Value)
+            else if (Row.NameIndex < 0) and (Value <> '') then
+              Entry.Add(Row.Name, Value);
           end;
-          FEntry.Entry.SetValue(Row.Name, Value);
         end;
     else
       raise Exception.Create('Internal error: RowSetAsString: unexpected row kind');
@@ -401,9 +461,9 @@ procedure TInspector.ChoiceRowGetValueList(Item: TJvCustomInspectorItem;
   Values: TStrings);
 begin
   var Row: TInspectorRow;
-  if TryGetRow(Item, Row) and (FEntry <> nil) and FEntry.Valid then begin
+  if TryGetRow(Item, Row) and (FLiveEntry <> nil) and FLiveEntry.Valid then begin
     var Definition: TScriptParameterDefinition;
-    if not FEntry.Entry.TryGetParameterDefinition(Row.Name, Definition) then
+    if not FLiveEntry.Entry.TryGetDefinition(Row.Name, Definition) then
       raise Exception.Create('Internal error: ChoiceRowGetValueList: unknown parameter');
     for var ChoiceName in Definition.KnownValues do
       Values.Add(ChoiceName);

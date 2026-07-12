@@ -98,14 +98,14 @@ begin
   try
     { Basic parse of known and unknown parameters }
     Entry.Parse(['Source: "My Prog.exe"; DestDir: "{app}"; Flags: ignoreversion']);
-    Assert(Entry.ParameterCount = 3);
+    Assert(Entry.Count = 3);
     Assert(Entry.Parameters[0].Name = 'Source');
-    Assert(Entry.Parameters[0].HasName);
+    Assert(Entry.Parameters[0].Kind = sepParameter);
     Assert(Entry.Parameters[0].Value = 'My Prog.exe');
-    Assert(Entry.GetValue('destdir') = '{app}'); { Case-insensitive }
-    Assert(Entry.HasParameter('Flags'));
-    Assert(not Entry.HasParameter('Missing'));
     var Value: String;
+    Assert(Entry.TryGetValue('destdir', Value) and (Value = '{app}')); { Case-insensitive }
+    Assert(Entry.Has('Flags'));
+    Assert(not Entry.Has('Missing'));
     Assert(not Entry.TryGetValue('Missing', Value));
     Assert(not Entry.Modified);
 
@@ -116,29 +116,29 @@ begin
 
     { Doubled quotes in values }
     Entry.Parse(['Name: "a""b"']);
-    Assert(Entry.GetValue('Name') = 'a"b');
+    Assert(Entry.TryGetValue('Name', Value) and (Value = 'a"b'));
 
     { Empty value and a trailing semicolon (which parses as an opaque empty
       chunk) survive }
     Entry.Parse(['DestName: ; Foo: 1;']);
     Assert(Entry.TryGetValue('DestName', Value) and (Value = ''));
-    Assert(Entry.GetValue('Foo') = '1');
-    Assert(Entry.ParameterCount = 3);
-    Assert(not Entry.Parameters[2].HasName);
+    Assert(Entry.TryGetValue('Foo', Value) and (Value = '1'));
+    Assert(Entry.Count = 3);
+    Assert(Entry.Parameters[2].Kind = sepOther);
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'DestName: ; Foo: 1;');
 
     { Writing to a parameter whose old value is empty keeps the whitespace
       after the colon once: an all-whitespace raw value is all leading, not
       leading plus trailing }
-    Entry.SetValue('DestName', 'x');
+    Entry.SetValue(0, 'x');
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'DestName: x; Foo: 1;');
 
     { Garbage input is kept as opaque raw text }
     Entry.Parse(['%$#@!']);
-    Assert(Entry.ParameterCount = 1);
-    Assert(not Entry.Parameters[0].HasName);
+    Assert(Entry.Count = 1);
+    Assert(Entry.Parameters[0].Kind = sepOther);
     Lines := Entry.GetLines;
     Assert(Lines[0] = '%$#@!');
 
@@ -146,20 +146,20 @@ begin
       quoted even when the new value would not need it, and untouched
       parameters keep their raw text }
     Entry.Parse(['A: "x"; B: "y"']);
-    Entry.SetValue('A', 'new');
+    Entry.SetValue(0, 'new');
     Assert(Entry.Modified);
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'A: "new"; B: "y"');
-    Entry.SetValue('B', 'a;b');
+    Entry.SetValue(1, 'a;b');
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'A: "new"; B: "a;b"');
-    Entry.SetValue('B', ' x');
+    Entry.SetValue(1, ' x');
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'A: "new"; B: " x"');
 
     { An unquoted value stays unquoted when the new value needs no quotes }
     Entry.Parse(['A: x']);
-    Entry.SetValue('A', 'y');
+    Entry.SetValue(0, 'y');
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'A: y');
 
@@ -167,36 +167,62 @@ begin
       parameter sections) and left bare when it is off }
     Entry.Parse(['A: 1']);
     Assert(Entry.QuoteNewValues);
-    Entry.SetValue('B', '2');
+    Entry.Add('B', '2');
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'A: 1; B: "2"');
     Entry.Parse(['A: 1']);
     Entry.QuoteNewValues := False;
-    Entry.SetValue('B', '2');
+    Entry.Add('B', '2');
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'A: 1; B: 2');
     Entry.QuoteNewValues := True;
 
     { Whitespace around names and values is preserved on edit }
     Entry.Parse(['Source :  x  ; B: y']);
-    Assert(Entry.GetValue('Source') = 'x');
-    Entry.SetValue('Source', 'z');
+    Assert(Entry.TryGetValue('Source', Value) and (Value = 'x'));
+    Entry.SetValue(0, 'z');
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'Source :  z  ; B: y');
 
     { The first line's indentation is preserved }
     Entry.Parse(['  Source: a']);
     Assert(Entry.Indent = '  ');
-    Entry.SetValue('Source', 'b');
+    Entry.SetValue(0, 'b');
     Lines := Entry.GetLines;
     Assert(Lines[0] = '  Source: b');
 
     { Removing a parameter }
     Entry.Parse(['A: 1; B: 2; C: 3']);
-    Assert(Entry.RemoveParameter('B'));
-    Assert(not Entry.RemoveParameter('B'));
+    Entry.Remove(1);
+    Assert(not Entry.Has('B'));
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'A: 1; C: 3');
+
+    { Removing the first parameter also removes the separator whitespace the
+      next chunk carried, so no stray leading space serializes }
+    Entry.Parse(['A: 1; B: 2']);
+    Entry.Remove(0);
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'B: 2');
+
+    { A duplicated parameter is invalid script, but each occurrence is
+      addressable and editable on its own }
+    Entry.Parse(['A: B; A: C']);
+    Assert(Entry.Count = 2);
+    Assert(Entry.Parameters[0].Value = 'B');
+    Assert(Entry.Parameters[1].Value = 'C');
+    Assert(Entry.IndexOf('A') = 0); { By-name lookup resolves to the first occurrence }
+    var Index := -1;
+    Assert(Entry.TryResolve('A', Index) and (Index = 0)); { -1 resolves by name }
+    Index := 1;
+    Assert(Entry.TryResolve('a', Index) and (Index = 1)); { A given index is kept }
+    Index := 0;
+    Assert(not Entry.TryResolve('B', Index)); { Name mismatch }
+    Index := 2;
+    Assert(not Entry.TryResolve('A', Index)); { Out of range }
+    Entry.SetValue(1, 'D');
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'A: B; A: D');
 
     {$IFDEF ISTESTTOOLPROJ}
     { Values with line breaks and malformed parameter names raise, leaving the
@@ -204,28 +230,28 @@ begin
     Entry.Parse(['A: 1']);
     var Caught := False;
     try
-      Entry.SetValue('A', 'x'#13#10'y');
+      Entry.SetValue(0, 'x'#13#10'y');
     except
       on EScriptModelError do Caught := True;
     end;
     Assert(Caught);
     Caught := False;
     try
-      Entry.SetValue('', 'x');
+      Entry.Add('', 'x');
     except
       on EScriptModelError do Caught := True;
     end;
     Assert(Caught);
     Caught := False;
     try
-      Entry.SetValue('B;C', 'x');
+      Entry.Add('B;C', 'x');
     except
       on EScriptModelError do Caught := True;
     end;
     Assert(Caught);
     Caught := False;
     try
-      Entry.SetValue('B C', 'x');
+      Entry.Add('B C', 'x');
     except
       on EScriptModelError do Caught := True;
     end;
@@ -233,6 +259,16 @@ begin
     Assert(not Entry.Modified);
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'A: 1');
+    { Index access requires a named parameter }
+    Entry.Parse(['A: 1; ; B: 2']);
+    Caught := False;
+    try
+      Entry.SetValue(1, 'x'); { The middle chunk has no name }
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Assert(not Entry.Modified);
     {$ENDIF}
   finally
     Entry.Free;
@@ -245,57 +281,63 @@ begin
   try
     { Toggling a known flag amid unknown ones only edits that token }
     Entry.Parse(['Flags: foo ignoreversion bar']);
-    Assert(Entry.FlagIncluded('Flags', 'IGNOREVERSION'));
-    Assert(not Entry.FlagIncluded('Flags', 'missing'));
-    Entry.SetFlag('Flags', 'ignoreversion', False);
+    Assert(Entry.FlagIncluded(0, 'IGNOREVERSION'));
+    Assert(not Entry.FlagIncluded(0, 'missing'));
+    Entry.SetFlag(0, 'ignoreversion', False);
     var Lines := Entry.GetLines;
     Assert(Lines[0] = 'Flags: foo bar');
-    Entry.SetFlag('Flags', 'solidbreak', True);
+    Entry.SetFlag(0, 'solidbreak', True);
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'Flags: foo bar solidbreak');
-    Entry.SetFlag('Flags', 'solidbreak', False);
+    Entry.SetFlag(0, 'solidbreak', False);
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'Flags: foo bar');
 
     { Excluding the last token removes the whole parameter }
     Entry.Parse(['Source: s; Flags: x']);
-    Entry.SetFlag('Flags', 'x', False);
+    Entry.SetFlag(1, 'x', False);
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'Source: s');
-    Assert(not Entry.HasParameter('Flags'));
+    Assert(not Entry.Has('Flags'));
+
+    { Also when the removed parameter is the entry's first }
+    Entry.Parse(['Flags: x; Source: s']);
+    Entry.SetFlag(0, 'x', False);
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'Source: s');
 
     { Including a flag that is already there changes nothing }
     Entry.Parse(['Flags: a']);
-    Entry.SetFlag('Flags', 'a', True);
+    Entry.SetFlag(0, 'a', True);
     Assert(not Entry.Modified);
 
-    { Setting a flag on an absent parameter creates it, unquoted even when the
-      new-value quoting option is on (flags are never quoted) }
+    { Setting a flag on an absent parameter: without metadata the added
+      parameter is presumed text, so the new-value quoting option applies }
     Entry.Parse(['Source: s']);
     Assert(Entry.QuoteNewValues);
-    Entry.SetFlag('Flags', 'touch', True);
+    Entry.SetFlag(Entry.Add('Flags', ''), 'touch', True);
     Lines := Entry.GetLines;
-    Assert(Lines[0] = 'Source: s; Flags: touch');
+    Assert(Lines[0] = 'Source: s; Flags: "touch"');
 
     { Excluding a flag also removes author-written duplicates of it }
     Entry.Parse(['Flags: ignoreversion foo ignoreversion']);
-    Entry.SetFlag('Flags', 'ignoreversion', False);
-    Assert(not Entry.FlagIncluded('Flags', 'ignoreversion'));
+    Entry.SetFlag(0, 'ignoreversion', False);
+    Assert(not Entry.FlagIncluded(0, 'ignoreversion'));
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'Flags: foo');
     Entry.Parse(['Source: s; Flags: x x']);
-    Entry.SetFlag('Flags', 'x', False);
-    Assert(not Entry.HasParameter('Flags'));
+    Entry.SetFlag(1, 'x', False);
+    Assert(not Entry.Has('Flags'));
 
     { Tokens are delimited by literal spaces and trimmed, like the compiler's
       ExtractFlag: a tab alone does not delimit, a tab next to a space does }
     Entry.Parse(['Flags: a'#9'b']);
-    Assert(not Entry.FlagIncluded('Flags', 'a'));
-    Assert(not Entry.FlagIncluded('Flags', 'b'));
+    Assert(not Entry.FlagIncluded(0, 'a'));
+    Assert(not Entry.FlagIncluded(0, 'b'));
     Entry.Parse(['Flags: a'#9' b']);
-    Assert(Entry.FlagIncluded('Flags', 'a'));
-    Assert(Entry.FlagIncluded('Flags', 'b'));
-    Entry.SetFlag('Flags', 'a', False);
+    Assert(Entry.FlagIncluded(0, 'a'));
+    Assert(Entry.FlagIncluded(0, 'b'));
+    Entry.SetFlag(0, 'a', False);
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'Flags: b');
 
@@ -305,21 +347,21 @@ begin
     Entry.Parse(['Flags: a']);
     var Caught := False;
     try
-      Entry.SetFlag('Flags', '', True);
+      Entry.SetFlag(0, '', True);
     except
       on EScriptModelError do Caught := True;
     end;
     Assert(Caught);
     Caught := False;
     try
-      Entry.SetFlag('Flags', 'x y', True);
+      Entry.SetFlag(0, 'x y', True);
     except
       on EScriptModelError do Caught := True;
     end;
     Assert(Caught);
     Caught := False;
     try
-      Entry.SetFlag('Flags', 'x"y', True);
+      Entry.SetFlag(0, 'x"y', True);
     except
       on EScriptModelError do Caught := True;
     end;
@@ -343,27 +385,37 @@ begin
   try
     Entry.Parse(['Source: a; ExternalSize: 1_048_576; Unknown: u']);
 
-    Entry.SetValue('ExternalSize', '456');
+    Entry.SetValue(1, '456');
     const Lines = Entry.GetLines;
     { The ExternalSize parameter-includes-flag rule also checks external }
     Assert(Lines[0] = 'Source: a; ExternalSize: 456; Unknown: u; Flags: external');
 
     var Definition: TScriptParameterDefinition;
-    Assert(Entry.TryGetParameterDefinition('flags', Definition));
+    Assert(Entry.TryGetDefinition('flags', Definition));
     Assert(Definition.ValueKind = pvkFlags);
     var FoundFlagName := False;
     for var KnownValue in Definition.KnownValues do
       if KnownValue = 'ignoreversion' then
         FoundFlagName := True;
     Assert(FoundFlagName);
-    Assert(Entry.TryGetParameterDefinition('ExternalSize', Definition));
+    Assert(Entry.TryGetDefinition('ExternalSize', Definition));
     Assert(Definition.ValueKind = pvkInteger);
-    Assert(Entry.TryGetParameterDefinition('MinVersion', Definition));
+    Assert(Entry.TryGetDefinition('MinVersion', Definition));
     Assert(Definition.ValueKind = pvkVersion);
 
     { Unknown parameters remain accessible as raw text }
-    Assert(not Entry.TryGetParameterDefinition('Unknown', Definition));
-    Assert(Entry.GetValue('Unknown') = 'u');
+    Assert(not Entry.TryGetDefinition('Unknown', Definition));
+    var Value: String;
+    Assert(Entry.TryGetValue('Unknown', Value) and (Value = 'u'));
+
+    { Only text parameters are quoted by default when added: a pvkVersion
+      value is written bare, a pvkString value is quoted }
+    Entry.Parse(['Source: a']);
+    Assert(Entry.QuoteNewValues);
+    Entry.Add('MinVersion', '6.2');
+    Entry.Add('DestName', 'x');
+    const AddedLines = Entry.GetLines;
+    Assert(AddedLines[0] = 'Source: a; MinVersion: 6.2; DestName: "x"');
   finally
     Entry.Free;
   end;
@@ -373,7 +425,7 @@ procedure TestScriptCategories;
 begin
   { The categories are shown in this order: the section-specific groups first,
     then Common (the inspector shows the Debug group after these) }
-  const Names = ScriptCategoryNames;
+  const Names = ScriptCategoryNamesOrdered;
   Assert(Length(Names) = 5);
   Assert(Names[0] = 'Compiler');
   Assert(Names[1] = 'Compression');
@@ -439,53 +491,58 @@ begin
       change notification, with unknown tokens preserved }
     Entry.Parse(['Source: a; Flags: foo']);
     Entry.OnChange := Counter.HandleChange;
-    Entry.SetFlag('Flags', 'extractarchive', True);
+    Entry.SetFlag(1, 'extractarchive', True);
     Assert(Counter.Count = 1);
-    Assert(Entry.FlagIncluded('Flags', 'extractarchive'));
-    Assert(Entry.FlagIncluded('Flags', 'external'));
-    Assert(Entry.FlagIncluded('Flags', 'ignoreversion'));
-    Assert(Entry.FlagIncluded('Flags', 'foo'));
+    Assert(Entry.FlagIncluded(1, 'extractarchive'));
+    Assert(Entry.FlagIncluded(1, 'external'));
+    Assert(Entry.FlagIncluded(1, 'ignoreversion'));
+    Assert(Entry.FlagIncluded(1, 'foo'));
     var Lines := Entry.GetLines;
     Assert(Lines[0] = 'Source: a; Flags: foo extractarchive external ignoreversion');
 
     { The rule does not run when the flags are already present }
     Counter.Count := 0;
-    Entry.SetFlag('Flags', 'extractarchive', True);
+    Entry.SetFlag(1, 'extractarchive', True);
     Assert(Counter.Count = 0);
 
     { Excluding does not fire the rule }
-    Entry.SetFlag('Flags', 'extractarchive', False);
-    Assert(Entry.FlagIncluded('Flags', 'external'));
+    Entry.SetFlag(1, 'extractarchive', False);
+    Assert(Entry.FlagIncluded(1, 'external'));
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'Source: a; Flags: foo external ignoreversion');
 
-    { The other [Files] flag-includes rules from the help }
+    { The other [Files] flag-includes rules from the help. The rules also fire
+      on a just-added Flags parameter }
     Entry.Parse(['Source: a']);
-    Entry.SetFlag('Flags', 'createallsubdirs', True);
-    Assert(Entry.FlagIncluded('Flags', 'recursesubdirs'));
+    Entry.SetFlag(Entry.Add('Flags', ''), 'createallsubdirs', True);
+    Assert(Entry.FlagIncluded(1, 'recursesubdirs'));
+    { Flags is pvkFlags, so the quoting option does not apply }
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'Source: a; Flags: createallsubdirs recursesubdirs');
     Entry.Parse(['Source: a']);
-    Entry.SetFlag('Flags', 'dontverifychecksum', True);
-    Assert(Entry.FlagIncluded('Flags', 'nocompression'));
+    Entry.SetFlag(Entry.Add('Flags', ''), 'dontverifychecksum', True);
+    Assert(Entry.FlagIncluded(1, 'nocompression'));
     Entry.Parse(['Source: a']);
-    Entry.SetFlag('Flags', 'uninsnosharedfileprompt', True);
-    Assert(Entry.FlagIncluded('Flags', 'sharedfile'));
+    Entry.SetFlag(Entry.Add('Flags', ''), 'uninsnosharedfileprompt', True);
+    Assert(Entry.FlagIncluded(1, 'sharedfile'));
 
     { The [Files] parameter-includes-flag rules from the help: an ExternalSize
-      value checks external and an ISSigAllowedKeys value checks issigverify }
+      value checks external and an ISSigAllowedKeys value checks issigverify,
+      with the rule-created Flags parameter appended after the added one }
     Entry.Parse(['Source: a']);
-    Entry.SetValue('ExternalSize', '123');
-    Assert(Entry.FlagIncluded('Flags', 'external'));
+    Entry.Add('ExternalSize', '123');
+    Assert(Entry.FlagIncluded(2, 'external'));
     Entry.Parse(['Source: a']);
-    Entry.SetValue('ISSigAllowedKeys', 'mykey');
-    Assert(Entry.FlagIncluded('Flags', 'issigverify'));
+    Entry.Add('ISSigAllowedKeys', 'mykey');
+    Assert(Entry.FlagIncluded(2, 'issigverify'));
 
     { Without metadata there are no rules }
     Entry.Free;
     Entry := TScriptParameterEntry.Create(nil);
     Entry.Parse(['Source: a']);
-    Entry.SetFlag('Flags', 'extractarchive', True);
-    Assert(Entry.FlagIncluded('Flags', 'extractarchive'));
-    Assert(not Entry.FlagIncluded('Flags', 'external'));
+    Entry.SetFlag(Entry.Add('Flags', ''), 'extractarchive', True);
+    Assert(Entry.FlagIncluded(1, 'extractarchive'));
+    Assert(not Entry.FlagIncluded(1, 'external'));
   finally
     Entry.Free;
     Counter.Free;
@@ -526,6 +583,8 @@ begin
     Assert(Section.TryResolve('AppName', Index) and (Index = 1)); { A given index is kept }
     Index := 0;
     Assert(not Section.TryResolve('AppName', Index)); { A comment line is not a directive }
+    Index := 4;
+    Assert(not Section.TryResolve('AppName', Index)); { Name mismatch }
     Index := 6;
     Assert(not Section.TryResolve('AppName', Index)); { Out of range }
 
@@ -699,8 +758,9 @@ begin
     { A spanned entry parses from its physical lines and remembers the break
       at parameter granularity }
     Entry.Parse(['Source: "a"; \', '  DestDir: "b"; Flags: x']);
-    Assert(Entry.ParameterCount = 3);
-    Assert(Entry.GetValue('DestDir') = 'b');
+    Assert(Entry.Count = 3);
+    var Value: String;
+    Assert(Entry.TryGetValue('DestDir', Value) and (Value = 'b'));
     Assert(Entry.BreakCount = 1);
     Assert(Entry.BreakParameterIndexes[0] = 1);
 
@@ -712,7 +772,7 @@ begin
 
     { Editing a middle parameter keeps the author's line structure, and its
       quoting (DestDir was quoted) }
-    Entry.SetValue('DestDir', 'c');
+    Entry.SetValue(1, 'c');
     Lines := Entry.GetLines;
     Assert(Length(Lines) = 2);
     Assert(Lines[0] = 'Source: "a"; \');
@@ -720,7 +780,7 @@ begin
 
     { Editing the first parameter also keeps the break, and its quoting }
     Entry.Parse(['Source: "a"; \', '  DestDir: "b"; Flags: x']);
-    Entry.SetValue('Source', 'z');
+    Entry.SetValue(0, 'z');
     Lines := Entry.GetLines;
     Assert(Length(Lines) = 2);
     Assert(Lines[0] = 'Source: "z"; \');
@@ -729,7 +789,7 @@ begin
     { When the parameter at a break point is removed, that break is dropped
       and the remainder goes to the last surviving line }
     Entry.Parse(['Source: "a"; \', '  DestDir: "b"; Flags: x']);
-    Assert(Entry.RemoveParameter('DestDir'));
+    Entry.Remove(1);
     Lines := Entry.GetLines;
     Assert(Length(Lines) = 1);
     Assert(Lines[0] = 'Source: "a"; Flags: x');
@@ -737,7 +797,7 @@ begin
     { Three physical lines, edit in the middle }
     Entry.Parse(['A: 1; \', 'B: 2; \', 'C: 3']);
     Assert(Entry.BreakCount = 2);
-    Entry.SetValue('B', '22');
+    Entry.SetValue(1, '22');
     Lines := Entry.GetLines;
     Assert(Length(Lines) = 3);
     Assert(Lines[0] = 'A: 1; \');
@@ -747,7 +807,7 @@ begin
     { Removing a middle parameter drops its own break and shifts the following
       break back onto its now-earlier parameter }
     Entry.Parse(['A: 1; \', 'B: 2; \', 'C: 3']);
-    Assert(Entry.RemoveParameter('B'));
+    Entry.Remove(1);
     Lines := Entry.GetLines;
     Assert(Length(Lines) = 2);
     Assert(Lines[0] = 'A: 1; \');
@@ -755,7 +815,7 @@ begin
 
     { Unusual whitespace around the break reconstructs exactly }
     Entry.Parse(['Source: a ;  \', '   DestDir: b']);
-    Entry.SetValue('Source', 'z');
+    Entry.SetValue(0, 'z');
     Lines := Entry.GetLines;
     Assert(Length(Lines) = 2);
     Assert(Lines[0] = 'Source: z ;  \');
