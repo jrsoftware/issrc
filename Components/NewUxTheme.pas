@@ -272,7 +272,7 @@ type
 //  iPartId             - part number to retrieve size for
 //  iStateId            - state number (of the part)
 //  prc                 - (optional) rect for part drawing destination
-//  eSize               - the type of size to be retreived
+//  eSize               - the type of size to be retrieved
 //  psz                 - receives the specified size of the part
 //----------------------------------------------------------------------------------------------------------------------
 
