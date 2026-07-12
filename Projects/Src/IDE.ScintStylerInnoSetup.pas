@@ -381,8 +381,8 @@ const
   ];
 
   Constants: array of AnsiString = [
-    { Doesn't include constants with non-word chars }
-      Also doesnt include the *32 and *64 variants like commonpf32 or dotnet2064 }
+    { Doesn't include constants with non-word chars.
+      Also doesn't include the *32 and *64 variants like commonpf32 or dotnet2064 }
     '{', 'app', 'win', 'sys', 'sysnative', 'syswow64', 'src', 'sd', 'commonpf',
     'commoncf', 'tmp', 'commonfonts', 'dao', 'dotnet11', 'dotnet20', 'dotnet40',
     'group', 'localappdata', 'userappdata', 'commonappdata', 'usercf',
