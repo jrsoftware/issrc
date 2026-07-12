@@ -382,7 +382,7 @@ begin
       Assert(Factory.TryCreateDirectiveSection(0, DirectiveSection, Reason));
       try
         const List = DirectiveSection.Section;
-        List.SetDirectiveValue(List.IndexOfDirective('AppName'), 'Edited');
+        List.SetValue(List.IndexOf('AppName'), 'Edited');
         Assert(AMemo.Lines[1] = 'AppName=Edited');
         Assert(AMemo.Lines[2] = 'AppVersion=1.0'); { Other directive untouched }
       finally
@@ -410,7 +410,7 @@ begin
       Assert(Context.Factory.TryCreateDirectiveSection(0, DirectiveSection, Reason));
       try
         Assert(DirectiveSection.Section.Count = 0);
-        DirectiveSection.Section.AddDirective('MyMsg', 'Hello');
+        DirectiveSection.Section.Add('MyMsg', 'Hello');
         Assert(AMemo.Lines.Count = 4);
         Assert(AMemo.Lines[1] = 'MyMsg=Hello');
         Assert(AMemo.Lines[2] = '[Files]');

@@ -89,7 +89,7 @@ begin
   Assert((NameText = 'AppName ') and (RawValue = ' Foo'));
   Assert(not TryParseScriptDirectiveLine('No directive here', NameText, RawValue));
   Assert(not TryParseScriptDirectiveLine(' = Foo', NameText, RawValue));
-  Assert(GetScriptDirectiveDisplayValue(' "My ""quoted"" App" ') = 'My ""quoted"" App');
+  Assert(UnquoteScriptDirectiveValue(' "My ""quoted"" App" ') = 'My ""quoted"" App');
 end;
 
 procedure TestEntryParseAndSerialize;
@@ -495,7 +495,7 @@ end;
 procedure TestDirectiveSection;
 begin
   const Counter = TChangeCounter.Create;
-  const Section = TScriptDirectiveSection.Create;
+  const Section = TScriptDirectiveSection.Create(nil);
   try
     { Duplicates are both kept; the value scan returns the last occurrence;
       unknown directives, comments, blank lines and ISPP lines are opaque }
@@ -507,19 +507,27 @@ begin
       'Unknown=1',
       '#define X 1']);
     Assert(Section.Count = 6);
-    Assert(Section[0].Kind = sdlOther);
-    Assert(Section[1].Kind = sdlDirective);
-    Assert(Section[1].Name = 'AppName');
-    Assert(Section[2].Kind = sdlOther);
-    Assert(Section[3].Kind = sdlDirective);
-    Assert(Section[3].DisplayValue = 'Bar');
-    Assert(Section[4].Kind = sdlDirective);
-    Assert(Section[5].Kind = sdlOther);
+    Assert(Section.Lines[0].Kind = sdlOther);
+    Assert(Section.Lines[1].Kind = sdlDirective);
+    Assert(Section.Lines[1].Name = 'AppName');
+    Assert(Section.Lines[2].Kind = sdlOther);
+    Assert(Section.Lines[3].Kind = sdlDirective);
+    Assert(Section.Lines[3].Value = 'Bar');
+    Assert(Section.Lines[4].Kind = sdlDirective);
+    Assert(Section.Lines[5].Kind = sdlOther);
     var Value: String;
-    Assert(Section.TryGetDirectiveValue('appname', Value));
+    Assert(Section.TryGetValue('appname', Value));
     Assert(Value = 'Bar'); { Last occurrence }
-    Assert(not Section.TryGetDirectiveValue('AppVersion', Value));
-    Assert(Section.IndexOfDirective('AppName') = 3);
+    Assert(not Section.TryGetValue('AppVersion', Value));
+    Assert(Section.IndexOf('AppName') = 3);
+    var Index := -1;
+    Assert(Section.TryResolve('appname', Index) and (Index = 3)); { -1 resolves by name }
+    Index := 1;
+    Assert(Section.TryResolve('AppName', Index) and (Index = 1)); { A given index is kept }
+    Index := 0;
+    Assert(not Section.TryResolve('AppName', Index)); { A comment line is not a directive }
+    Index := 6;
+    Assert(not Section.TryResolve('AppName', Index)); { Out of range }
 
     { Untouched sections round-trip byte-identical }
     var Lines := Section.GetLines;
@@ -531,13 +539,13 @@ begin
     { Directive values keep surrounding quotes out of the display value,
       without treating embedded quotes as doubled }
     Section.Parse(['AppName="My ""quoted"" App"']);
-    Assert(Section[0].DisplayValue = 'My ""quoted"" App');
+    Assert(Section.Lines[0].Value = 'My ""quoted"" App');
 
     { Editing a directive only rewrites that line, keeping the name and the
       whitespace around the '=' as written }
     Section.Parse(['; c', 'AppName = Foo', 'Other=1']);
     Section.OnChange := Counter.HandleChange;
-    Section.SetDirectiveValue(1, 'Bar');
+    Section.SetValue(1, 'Bar');
     Assert(Counter.Count = 1);
     Lines := Section.GetLines;
     Assert(Length(Lines) = 3);
@@ -546,17 +554,17 @@ begin
     Assert(Lines[2] = 'Other=1');
 
     { A value needing whitespace gets quotes }
-    Section.SetDirectiveValue(1, 'B ');
+    Section.SetValue(1, 'B ');
     Lines := Section.GetLines;
     Assert(Lines[1] = 'AppName = "B "');
 
     { Adding inserts after the last directive; removing removes only that
       line }
-    Assert(Section.AddDirective('AppVersion', '1.0') = 3);
+    Assert(Section.Add('AppVersion', '1.0') = 3);
     Lines := Section.GetLines;
     Assert(Length(Lines) = 4);
     Assert(Lines[3] = 'AppVersion=1.0');
-    Section.RemoveDirective(1);
+    Section.Remove(1);
     Lines := Section.GetLines;
     Assert(Length(Lines) = 3);
     Assert(Lines[0] = '; c');
@@ -567,14 +575,14 @@ begin
     { Opaque lines cannot be edited or removed; comments must survive }
     var Caught := False;
     try
-      Section.RemoveDirective(0);
+      Section.Remove(0);
     except
       on EScriptModelError do Caught := True;
     end;
     Assert(Caught);
     Caught := False;
     try
-      Section.SetDirectiveValue(0, 'x');
+      Section.SetValue(0, 'x');
     except
       on EScriptModelError do Caught := True;
     end;
@@ -583,47 +591,47 @@ begin
 
     { With no directives yet, adding appends at the end }
     Section.Parse(['; only comment']);
-    Assert(Section.AddDirective('A', '1') = 1);
+    Assert(Section.Add('A', '1') = 1);
     Lines := Section.GetLines;
     Assert(Length(Lines) = 2);
     Assert(Lines[1] = 'A=1');
 
     { Editing a directive keeps its own quoting: a quoted value stays quoted }
     Section.Parse(['AppName="Foo"']);
-    Section.SetDirectiveValue(0, 'Bar');
+    Section.SetValue(0, 'Bar');
     Lines := Section.GetLines;
     Assert(Lines[0] = 'AppName="Bar"');
 
     { A value ending in whitespace + '\' gets quotes so the written line is
       not read back as an ISPP line continuation }
     Section.Parse(['AppName=Foo']);
-    Section.SetDirectiveValue(0, 'Bar \');
+    Section.SetValue(0, 'Bar \');
     Lines := Section.GetLines;
     Assert(Lines[0] = 'AppName="Bar \"');
 
     { A value that itself looks quoted gets surrounding quotes so the literal
       quotes survive read-back, both when editing and when adding }
     Section.Parse(['AppName=Foo']);
-    Section.SetDirectiveValue(0, '"Bar"');
+    Section.SetValue(0, '"Bar"');
     Lines := Section.GetLines;
     Assert(Lines[0] = 'AppName=""Bar""');
-    Assert(Section[0].DisplayValue = '"Bar"');
+    Assert(Section.Lines[0].Value = '"Bar"');
     Section.Parse(['; c']);
-    Section.AddDirective('AppName', '"Foo"');
+    Section.Add('AppName', '"Foo"');
     Lines := Section.GetLines;
     Assert(Lines[1] = 'AppName=""Foo""');
-    Assert(Section[1].DisplayValue = '"Foo"');
+    Assert(Section.Lines[1].Value = '"Foo"');
 
     { A new directive is left bare by default (QuoteNewValues off for
       directive-style sections) and quoted when the option is turned on }
     Section.Parse(['; c']);
     Assert(not Section.QuoteNewValues);
-    Section.AddDirective('AppName', 'Foo');
+    Section.Add('AppName', 'Foo');
     Lines := Section.GetLines;
     Assert(Lines[1] = 'AppName=Foo');
     Section.Parse(['; c']);
     Section.QuoteNewValues := True;
-    Section.AddDirective('AppName', 'Foo');
+    Section.Add('AppName', 'Foo');
     Lines := Section.GetLines;
     Assert(Lines[1] = 'AppName="Foo"');
     Section.QuoteNewValues := False;
@@ -634,42 +642,42 @@ begin
     Section.Parse(['AppName=Foo']);
     Caught := False;
     try
-      Section.SetDirectiveValue(0, 'a'#13#10'b');
+      Section.SetValue(0, 'a'#13#10'b');
     except
       on EScriptModelError do Caught := True;
     end;
     Assert(Caught);
     Caught := False;
     try
-      Section.AddDirective('', 'x');
+      Section.Add('', 'x');
     except
       on EScriptModelError do Caught := True;
     end;
     Assert(Caught);
     Caught := False;
     try
-      Section.AddDirective('A=B', 'x');
+      Section.Add('A=B', 'x');
     except
       on EScriptModelError do Caught := True;
     end;
     Assert(Caught);
     Caught := False;
     try
-      Section.AddDirective('; comment', 'x');
+      Section.Add('; comment', 'x');
     except
       on EScriptModelError do Caught := True;
     end;
     Assert(Caught);
     Caught := False;
     try
-      Section.AddDirective('AppName ', 'x');
+      Section.Add('AppName ', 'x');
     except
       on EScriptModelError do Caught := True;
     end;
     Assert(Caught);
     Caught := False;
     try
-      Section.AddDirective('AppName', 'a'#10'b');
+      Section.Add('AppName', 'a'#10'b');
     except
       on EScriptModelError do Caught := True;
     end;
@@ -758,17 +766,17 @@ begin
 
   { A spanned directive line is joined for parsing and collapses to one
     physical line when edited }
-  const Section = TScriptDirectiveSection.Create;
+  const Section = TScriptDirectiveSection.Create(nil);
   try
     Section.Parse(['AppName=Foo \', 'Bar']);
     Assert(Section.Count = 1);
-    Assert(Section[0].Kind = sdlDirective);
-    Assert(Section[0].DisplayValue = 'Foo Bar');
+    Assert(Section.Lines[0].Kind = sdlDirective);
+    Assert(Section.Lines[0].Value = 'Foo Bar');
     var Lines := Section.GetLines;
     Assert(Length(Lines) = 2);
     Assert(Lines[0] = 'AppName=Foo \');
     Assert(Lines[1] = 'Bar');
-    Section.SetDirectiveValue(0, 'X');
+    Section.SetValue(0, 'X');
     Lines := Section.GetLines;
     Assert(Length(Lines) = 1);
     Assert(Lines[0] = 'AppName=X');

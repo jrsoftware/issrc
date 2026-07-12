@@ -120,35 +120,42 @@ type
     FName: String;                  { Trimmed name }
     FRawValue: String;              { Original value }
     FModified: Boolean;
-    function GetDisplayValue: String;
+    function GetValue: String;
   public
     property Kind: TScriptDirectiveLineKind read FKind;
     property Name: String read FName;
     property RawValue: String read FRawValue;
-    property DisplayValue: String read GetDisplayValue;
+    property Value: String read GetValue;
   end;
 
   { A single occurrence of a directive-style section }
   TScriptDirectiveSection = class
   private
+    FMetadata: TScriptSectionMetadata; { May be nil }
     FLines: TObjectList<TScriptDirectiveSectionLine>;
     FOnChange: TNotifyEvent;
     FQuoteNewValues: Boolean;
     procedure Changed;
-    function GetDirectiveSectionLine(const AIndex: Integer): TScriptDirectiveSectionLine;
+    function GetNamedLine(const AIndex: Integer): TScriptDirectiveSectionLine;
     function GetLine(Index: Integer): TScriptDirectiveSectionLine;
   public
-    constructor Create;
+    constructor Create(const AMetadata: TScriptSectionMetadata);
     destructor Destroy; override;
     procedure Parse(const ALines: array of String);
     function GetLines: TArray<String>;
     function Count: Integer;
-    function IndexOfDirective(const AName: String): Integer;
-    function TryGetDirectiveValue(const AName: String; out AValue: String): Boolean;
-    procedure SetDirectiveValue(const AIndex: Integer; const AValue: String);
-    function AddDirective(const AName, AValue: String): Integer;
-    procedure RemoveDirective(const AIndex: Integer);
-    property Lines[Index: Integer]: TScriptDirectiveSectionLine read GetLine; default;
+    function IndexOf(const AName: String): Integer;
+    function Has(const AName: String): Boolean;
+    function TryResolve(const AName: String;
+      var AIndex: Integer): Boolean;
+    function TryGetValue(const AName: String; out AValue: String): Boolean;
+    procedure SetValue(const AIndex: Integer; const AValue: String);
+    function Add(const AName, AValue: String): Integer;
+    procedure Remove(const AIndex: Integer);
+    function TryGetDefinition(const AName: String;
+      out ADefinition: TScriptParameterDefinition): Boolean;
+    property Lines[Index: Integer]: TScriptDirectiveSectionLine read GetLine;
+    property Metadata: TScriptSectionMetadata read FMetadata;
     property QuoteNewValues: Boolean read FQuoteNewValues write FQuoteNewValues;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
@@ -159,7 +166,7 @@ function JoinSpannedScriptLines(const ALines: array of String): String;
 function UnquoteScriptParameterValue(const S: String): String;
 function QuoteScriptParameterValueIfNeeded(const S: String;
   const AAlwaysQuote: Boolean = False): String;
-function GetScriptDirectiveDisplayValue(const S: String): String;
+function UnquoteScriptDirectiveValue(const S: String): String;
 function TryParseScriptDirectiveLine(const S: String;
   out ANameText, ARawValue: String): Boolean;
 function ContainsLineBreak(const S: String): Boolean;
@@ -276,7 +283,19 @@ begin
     Result := AValue;
 end;
 
-function GetScriptDirectiveDisplayValue(const S: String): String;
+function ShouldQuoteNewValue(const AQuoteNewValues: Boolean;
+  const AMetadata: TScriptSectionMetadata; const AName: String): Boolean;
+begin
+  if not AQuoteNewValues then
+    Exit(False);
+  var Definition: TScriptParameterDefinition;
+  if (AMetadata <> nil) and AMetadata.TryGetParameter(AName, Definition) then
+    Result := Definition.ValueKind in [pvkString, pvkChoice]
+  else
+    Result := True;
+end;
+
+function UnquoteScriptDirectiveValue(const S: String): String;
 begin
   Result := Trim(S);
   { If the value is surrounded in quotes, remove them, just like
@@ -818,16 +837,17 @@ end;
 
 { TScriptDirectiveSectionLine }
 
-function TScriptDirectiveSectionLine.GetDisplayValue: String;
+function TScriptDirectiveSectionLine.GetValue: String;
 begin
-  Result := GetScriptDirectiveDisplayValue(FRawValue);
+  Result := UnquoteScriptDirectiveValue(FRawValue);
 end;
 
 { TScriptDirectiveSection }
 
-constructor TScriptDirectiveSection.Create;
+constructor TScriptDirectiveSection.Create(const AMetadata: TScriptSectionMetadata);
 begin
   inherited Create;
+  FMetadata := AMetadata;
   FLines := TObjectList<TScriptDirectiveSectionLine>.Create;
   FQuoteNewValues := False;
 end;
@@ -899,27 +919,42 @@ begin
   Result := FLines[Index];
 end;
 
-function TScriptDirectiveSection.IndexOfDirective(const AName: String): Integer;
+function TScriptDirectiveSection.IndexOf(const AName: String): Integer;
+{ With duplicate directives the last one wins. Also see
+  TLiveScriptObjectFactory.TryGetSetupDirectiveValue which does the same. }
 begin
-  { With duplicate directives the last one wins, like the compiler. Matches
-    TLiveScriptObjectFactory.TryGetSetupDirectiveValue, which applies the same rule
-    across multiple section occurrences }
   Result := -1;
   for var I := 0 to Count-1 do
     if (FLines[I].Kind = sdlDirective) and SameText(FLines[I].Name, AName) then
       Result := I;
 end;
 
-function TScriptDirectiveSection.TryGetDirectiveValue(const AName: String;
-  out AValue: String): Boolean;
+function TScriptDirectiveSection.Has(const AName: String): Boolean;
 begin
-  const I = IndexOfDirective(AName);
-  Result := I >= 0;
-  if Result then
-    AValue := FLines[I].DisplayValue;
+  Result := IndexOf(AName) >= 0;
 end;
 
-function TScriptDirectiveSection.GetDirectiveSectionLine(
+function TScriptDirectiveSection.TryResolve(const AName: String;
+  var AIndex: Integer): Boolean;
+{ Pass -1 as AIndex to look the directive up by name }
+begin
+  if AIndex < 0 then
+    AIndex := IndexOf(AName);
+  Result := (AIndex >= 0) and (AIndex < Count) and
+    (FLines[AIndex].Kind = sdlDirective) and
+    SameText(FLines[AIndex].Name, AName);
+end;
+
+function TScriptDirectiveSection.TryGetValue(const AName: String;
+  out AValue: String): Boolean;
+begin
+  const I = IndexOf(AName);
+  Result := I >= 0;
+  if Result then
+    AValue := FLines[I].Value;
+end;
+
+function TScriptDirectiveSection.GetNamedLine(
   const AIndex: Integer): TScriptDirectiveSectionLine;
 begin
   Result := FLines[AIndex];
@@ -927,12 +962,12 @@ begin
     raise EScriptModelError.Create('Line is not a directive');
 end;
 
-procedure TScriptDirectiveSection.SetDirectiveValue(const AIndex: Integer;
+procedure TScriptDirectiveSection.SetValue(const AIndex: Integer;
   const AValue: String);
 begin
   if ContainsLineBreak(AValue) then
     raise EScriptModelError.Create('Value must not contain line breaks');
-  const Line = GetDirectiveSectionLine(AIndex);
+  const Line = GetNamedLine(AIndex);
   { Keep any whitespace between the '=' and the old value, and keep quotes }
   Line.FRawValue := LeadingWhitespace(Line.FRawValue) +
     QuoteScriptDirectiveValueIfNeeded(AValue, ScriptValueIsQuoted(Line.FRawValue));
@@ -940,7 +975,7 @@ begin
   Changed;
 end;
 
-function TScriptDirectiveSection.AddDirective(const AName,
+function TScriptDirectiveSection.Add(const AName,
   AValue: String): Integer;
 begin
   { Sanity checks }
@@ -955,7 +990,8 @@ begin
   Line.FNameText := AName;
   Line.FName := AName;
   { A newly added directive is quoted according to the section's option }
-  Line.FRawValue := QuoteScriptDirectiveValueIfNeeded(AValue, FQuoteNewValues);
+  Line.FRawValue := QuoteScriptDirectiveValueIfNeeded(AValue,
+    ShouldQuoteNewValue(FQuoteNewValues, FMetadata, AName));
   Line.FModified := True;
   { Insert after the last directive so trailing comments or blank lines stay
     at the end. With no directives yet, append at the end. }
@@ -969,11 +1005,17 @@ begin
   Changed;
 end;
 
-procedure TScriptDirectiveSection.RemoveDirective(const AIndex: Integer);
+procedure TScriptDirectiveSection.Remove(const AIndex: Integer);
 begin
-  GetDirectiveSectionLine(AIndex);
+  GetNamedLine(AIndex);
   FLines.Delete(AIndex);
   Changed;
+end;
+
+function TScriptDirectiveSection.TryGetDefinition(const AName: String;
+  out ADefinition: TScriptParameterDefinition): Boolean;
+begin
+  Result := (FMetadata <> nil) and FMetadata.TryGetParameter(AName, ADefinition);
 end;
 
 end.

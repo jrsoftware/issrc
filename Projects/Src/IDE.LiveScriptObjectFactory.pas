@@ -66,7 +66,8 @@ type
   private
     FSection: TScriptDirectiveSection;
     constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
-      ALastLine: Integer; const ALines: TArray<String>);
+      ALastLine: Integer; const AMetadata: TScriptSectionMetadata;
+      const ALines: TArray<String>);
     procedure SectionChange(Sender: TObject);
   public
     destructor Destroy; override;
@@ -193,10 +194,11 @@ end;
 { TLiveScriptDirectiveSection }
 
 constructor TLiveScriptDirectiveSection.Create(const AFactory: TLiveScriptObjectFactory;
-  const AFirstLine, ALastLine: Integer; const ALines: TArray<String>);
+  const AFirstLine, ALastLine: Integer; const AMetadata: TScriptSectionMetadata;
+  const ALines: TArray<String>);
 begin
   inherited Create(AFactory, AFirstLine, ALastLine);
-  FSection := TScriptDirectiveSection.Create;
+  FSection := TScriptDirectiveSection.Create(AMetadata);
   FSection.Parse(ALines);
   FSection.OnChange := SectionChange;
 end;
@@ -538,11 +540,11 @@ begin
       var FirstLine, LastLine: Integer;
       GetSectionLines(I, FirstLine, LastLine);
       if LastLine >= FirstLine then begin
-        const Section = TScriptDirectiveSection.Create;
+        const Section = TScriptDirectiveSection.Create(nil); { Just reading, metadata not needed }
         try
           Section.Parse(GetLinesText(FirstLine, LastLine));
           var Value: String;
-          if Section.TryGetDirectiveValue(ADirectiveName, Value) then begin
+          if Section.TryGetValue(ADirectiveName, Value) then begin
             AValue := Value;
             Result := True;
           end;
@@ -641,8 +643,10 @@ begin
     SectionLines := GetLinesText(FirstLine, LastLine)
   else
     SectionLines := nil;
+  var Metadata: TScriptSectionMetadata := nil;
+  TryGetScriptSectionMetadata(FSections[ASectionIndex].Name, Metadata);
   ASection := TLiveScriptDirectiveSection.Create(Self, FirstLine, LastLine,
-    SectionLines);
+    Metadata, SectionLines);
   Result := True;
 end;
 
