@@ -254,7 +254,7 @@ end;
 
 procedure TNewTabSet.WMThemeChanged(var Message: TMessage);
 begin
-  { Don't Run to Cursor into this function, it will interrupt up the theme change }
+  { Do not use Run to Cursor inside this function, it will interrupt the theme change }
   UpdateThemeData(True);
   inherited;
 end;

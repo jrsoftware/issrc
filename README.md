@@ -379,7 +379,6 @@ any artifacts. It uses workflow **build2.yml**.
 [Examples\MyDll]: <Examples/MyDll/Delphi>
 [Examples\MyProg]: <Examples/MyProg>
 [Projects\Src]: <Projects/Src>
-[Projects\Src\ISIDE]: <Projects/Src/ISIDE>
 [Projects\Src\Compression.LZMADecompressor\Lzma2Decode]: <Projects/Src/Compression.LZMADecompressor/Lzma2Decode>
 [Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode]: <Projects/Src/Compression.LZMA1SmallDecompressor/LzmaDecode>
 [Projects\Src\Compression.SevenZipDecoder\7zDecode]: <Projects/Src/Compression.SevenZipDecoder/7zDecode>

@@ -9,7 +9,7 @@ unit Setup.Install.HelperFunc;
   Installation helper functions which don't need install state such as UninstLog and RegisterFileList
 
   Only to be called by Setup.Install: if you want to reuse any of these functions from another unit
-  you should move the function so somewhere else, like Setup.InstFunc
+  you should move the function somewhere else, like Setup.InstFunc
 }
 
 interface
@@ -211,7 +211,7 @@ begin
 end;
 
 procedure ProcessEvents;
-{ Processes any waiting events. Must call this this periodically or else
+{ Processes any waiting events. Must call this periodically or else
   events like clicking the Cancel button won't be processed.
   Calls Abort if NeedToAbortInstall is True, which is usually the result of
   the user clicking Cancel and the form closing. }

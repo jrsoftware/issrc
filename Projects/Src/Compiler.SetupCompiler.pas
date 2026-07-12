@@ -8783,7 +8783,7 @@ begin
 
       ReadMessagesFromScript is called and this will first call CreateDefaultLanguageEntry
       if no languages have been defined. CreateDefaultLanguageEntry first creates a language
-      with all settings set to the default, and then it calles ReadMessagesFromFiles for
+      with all settings set to the default, and then it calls ReadMessagesFromFiles for
       Default.isl for this language. ReadMessagesFromFiles works as described above.
       Note this is just like the script creator creating an entry for Default.isl.
 
