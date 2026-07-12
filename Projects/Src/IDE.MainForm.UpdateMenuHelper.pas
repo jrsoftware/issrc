@@ -246,7 +246,7 @@ begin
     a DPI change and this seems like a minor issue only.
 
     For TPopupMenu: calling ApplyMenuBitmaps(PopupMenu.Items) does work but makes
-    the popup only shows icons without text. This seems to be a limitation of menus
+    the popup only show icons without text. This seems to be a limitation of menus
     created by CreatePopupMenu instead of CreateMenu. This is why our popups with
     icons are all menu items popped using TMainFormPopupMenu. These menu items
     are hidden in the main menu and temporarily shown on popup. Popping an always

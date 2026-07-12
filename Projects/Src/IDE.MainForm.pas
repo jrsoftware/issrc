@@ -6215,7 +6215,7 @@ end;
 
 procedure TMainForm.WMThemeChanged(var Message: TMessage);
 begin
-  { Do not use Run to Cursor inside this function; it will interrupt the theme change. }
+  { Do not use Run to Cursor inside this function, it will interrupt the theme change }
   UpdateThemeData(True);
   inherited;
 end;
