@@ -211,7 +211,7 @@ begin
 end;
 
 procedure ProcessEvents;
-{ Processes any waiting events. Must call this this periodically or else
+{ Processes any waiting events. Must call this periodically or else
   events like clicking the Cancel button won't be processed.
   Calls Abort if NeedToAbortInstall is True, which is usually the result of
   the user clicking Cancel and the form closing. }
