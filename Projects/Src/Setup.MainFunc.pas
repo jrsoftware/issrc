@@ -3360,7 +3360,7 @@ begin
           and its parent TSetupForm use LangOptions and SetupMessages.
           Note: when debugging Setup.e32/64 or SetupCustomStyle.e32/64 it will see the default resources,
           instead of the ones prepared by the compiler. This is because the .e32/64 is started, and
-          not the .exe prepared by the compiler. This is not noticable except for the VCL style
+          not the .exe prepared by the compiler. This is not noticeable except for the VCL style
           resources: the MYSTYLE1 and MYSTYLE1_DARK styles will always be missing. In this case
           it will use the ZIRCON style, see below. This does *not* mean Uninstall will then
           also use ZIRCON. To test Uninstall styling use a real Setup compiled by the

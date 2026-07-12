@@ -167,7 +167,7 @@
 					</define>
 				</syntax>
 				<description>
-					<p>Use &dim; to define an array variable, set its dimension and optionally intialize it. All unitialized elements of the array are initialized to null (void). To assign an element value after declaring the array, use &define;. Instead of assigning element values with &define;, it is also possible to set an element value by using it as the left operand of an assignment.</p>
+					<p>Use &dim; to define an array variable, set its dimension and optionally initialize it. All uninitialized elements of the array are initialized to null (void). To assign an element value after declaring the array, use &define;. Instead of assigning element values with &define;, it is also possible to set an element value by using it as the left operand of an assignment.</p>
 					<p>Use &redim; to increase or decrease the dimension of an existing array variable. All new elements of the array are initialized to null (void) and existing elements are left unchanged. Identical to &dim; if <tt>ident</tt> isn't an existing array variable.</p>
 				</description>
 				<section title="Examples">
@@ -921,7 +921,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Executes specified executable or batch file.</p>
-					<p>The Filename parameter specifies the filename of the executable or batch file. If this does not includes quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass '>' in this parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
+					<p>The Filename parameter specifies the filename of the executable or batch file. If this does not include quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass '>' in this parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
 					<p>The Params parameter may be used to specify parameters for the process.</p>
 					<p>The WorkingDir parameter may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process.</p>
 					<p>The Wait parameter may be set to zero if you don't wish to wait for the process to finish, and non-zero otherwise. By default, non-zero value is assumed.</p>
@@ -940,7 +940,7 @@ The first group of options (<tt>option</tt>) controls the general options, while
 				</section>
 				<description>
 					<p>Executes specified executable or batch file and reads the first non-empty line from its output.</p>
-					<p>The Filename parameter specifies the filename of the executable or batch file. If this does not includes quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass '>' in this parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
+					<p>The Filename parameter specifies the filename of the executable or batch file. If this does not include quotes then the function will add them automatically. If you have a single string containing both a filename and parameters (e.g. a command line obtained from an UninstallString registry value), you need not separate them yourself; just pass '>' in this parameter, and the full command line in the Params parameter. (Note that when this is done, the function's special platform-independent support for .bat and .cmd files is disabled; it simply passes the specified command line to CreateProcess without any processing.)</p>
 					<p>The Params parameter may be used to specify parameters for the process.</p>
 					<p>The WorkingDir parameter may be used to specify the working directory of the process. If this is omitted or empty it will try to extract a pathname from the Filename parameter and use that as the initial current directory for the process.</p>
 				</description>

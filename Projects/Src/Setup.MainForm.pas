@@ -240,7 +240,7 @@ begin
 
     SetStep(ssPostInstall, True);
 
-    { Notify Windows of assocations/environment changes *after* ssPostInstall
+    { Notify Windows of associations/environment changes *after* ssPostInstall
       since user might set more stuff there }
     if ChangesAssociations then
       SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nil, nil);

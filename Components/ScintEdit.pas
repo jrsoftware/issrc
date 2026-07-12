@@ -3082,7 +3082,7 @@ begin
       SetNextPixmapLine(FPixmap, Index, Line);
     end;
 
-    { Add terminating nil pointer - Scintilla doesnt really need it but setting it anyway }
+    { Add terminating nil pointer - Scintilla doesn't really need it but setting it anyway }
     SetNextPixmapLine(FPixmap, Index, '');
   finally
     Colors.Free;
