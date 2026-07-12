@@ -215,7 +215,7 @@ begin
   FCenterOnShow := True;
   inherited;
    { Setting BidiMode before inherited causes an AV when TControl tries to
-     send CM_BIDIMODECHANGED. This is why we have additonal RTL code in
+     send CM_BIDIMODECHANGED. This is why we have additional RTL code in
      CreateParams below. }
   if FRightToLeft then
     BiDiMode := bdRightToLeft;
