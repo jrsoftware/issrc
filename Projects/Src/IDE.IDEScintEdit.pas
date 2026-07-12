@@ -205,7 +205,7 @@ begin
   inherited;
 
   { Some notes about Scintilla versions:
-    -What about using Calltips and SCN_DWELLSTART to show variable evalutions?
+    -What about using Calltips and SCN_DWELLSTART to show variable evaluations?
     -5.2.3: "Applications should move to SCI_GETTEXTRANGEFULL, SCI_FINDTEXTFULL,
             and SCI_FORMATRANGEFULL from their predecessors as they will be
             deprecated." So our use of SCI_GETTEXTRANGE and SCI_FORMATRANGE needs
@@ -627,7 +627,7 @@ begin
   { Turn two entries for the same memo and line which are next to each other
     into one entry, ignoring column differences (like Visual Studio 2022)
     Note: doesn't yet look at CompForm's FCurrentNavItem to see if a stack's top
-    item is the same so it doesnt optimize that situation atm }
+    item is the same so it doesn't optimize that situation atm }
   for var I := Count-1 downto 1 do
     if Items[I].EqualMemoAndLine(Items[I-1]) then
       Delete(I);

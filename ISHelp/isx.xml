@@ -581,7 +581,7 @@
 
 <p>There is one thing that's important to be aware of when designing code to be executed at uninstall time: In cases where multiple versions of an application are installed over each other, only <i>one</i> Pascal script is run at uninstall time. Ordinarily, the script from the most recent install will be chosen. If, however, you were to <i>downgrade</i> your version of Inno Setup in a new version of your application, the script from the install built with the most recent Inno Setup version may be chosen instead. A similar situation can occur if a user installs an older version of your application over a newer one.</p>
 
-<p>When producing an installation that is a "patch" for another install, and the patch install shares the same uninstall log as the original install (i.e. <sd>Uninstallable</sd> is set to <tt>yes</tt> and <sd>AppId</sd> is set the same as the original install), make sure the patch includes a copy of the full <sn>[Code]</sn> section from the original install. Otherwise, no code would be run at uninstall time.</p>
+<p>When producing an installation that is a "patch" for another install, and the patch install shares the same uninstall log as the original install (i.e. <sd>Uninstallable</sd> is set to <tt>yes</tt> and <sd>AppId</sd> is set to the same value as the original install), make sure the patch includes a copy of the full <sn>[Code]</sn> section from the original install. Otherwise, no code would be run at uninstall time.</p>
 
 <p>If, however, the patch install has <sd>Uninstallable</sd> set to <tt>no</tt> then Setup will not touch the existing uninstaller EXE or uninstall log; in this case, the patch install need not contain a copy of the <sn>[Code]</sn> section from the original install.</p>
 

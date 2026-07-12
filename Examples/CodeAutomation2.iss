@@ -260,7 +260,7 @@ begin
   PF := IPersistFile(Obj2);
   PF.Save('', True);
 
-  MsgBox('Created a daily task named named ''CodeAutomation2 Test''.' + #13#13 + 'Note: Account information not set so the task won''t actually run, uncomment the SetAccountInfo call and provide actual user info to get a runnable task.', mbInformation, mb_Ok);
+  MsgBox('Created a daily task named ''CodeAutomation2 Test''.' + #13#13 + 'Note: Account information not set so the task won''t actually run, uncomment the SetAccountInfo call and provide actual user info to get a runnable task.', mbInformation, mb_Ok);
 end;
 
 {---}

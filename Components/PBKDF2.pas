@@ -32,7 +32,7 @@ begin
   try
 
     if Length(WorkingPassword) > Hash.GetBlockSize then begin
-      { Pre-hash password so THashSHA2.GetHMACAsBytes wont do this over and over again }
+      { Pre-hash password so THashSHA2.GetHMACAsBytes won't do this over and over again }
       Hash.Update(WorkingPassword);
       const NewPassword = Hash.HashAsBytes;
       { Security: don't leave the old copy on the heap }

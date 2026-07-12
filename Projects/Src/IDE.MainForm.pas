@@ -633,7 +633,7 @@ type
     FMemos: TList<TIDEScintEdit>;             { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above
                                                 Note that hidden files also use a memo }
     FMainMemo: TIDEScintFileEdit;             { Doesn't change }
-    FPreprocessorOutputMemo: TIDEScintEdit;   { Doesn't change and is the only memo which isnt a TIDEScint*File*Edit}
+    FPreprocessorOutputMemo: TIDEScintEdit;   { Doesn't change and is the only memo which isn't a TIDEScint*File*Edit}
     FFileMemos: TList<TIDEScintFileEdit>;     { All memos except FPreprocessorOutputMemo, including those without a tab }
     FHiddenFiles: TStringList;                { List of files which *do* use a memo but are hidden by the user and have no tab }
     FActiveMemo: TIDEScintEdit;               { Changes depending on user input }
@@ -1500,7 +1500,7 @@ begin
       (just like in Visual Studio Code) our alternative code completion character
       because Ctrl+Space is used by the Chinese IME and Alt+Right is used for the
       forward button. So that's why we handle #9 here. Doesn't mean Ctrl+Tab
-      doesn't work: it doesnt trigger KeyPress, even if it wasn't a menu
+      doesn't work: it doesn't trigger KeyPress, even if it wasn't a menu
       shortcut for Next Tab (which it is). }
     InitiateAutoComplete(FActiveMemo, #0);
     Key := #0;
@@ -3856,7 +3856,7 @@ procedure TMainForm.UpdateMarginsAndSquigglyAndCaretWidths;
 begin
   var IconMarkersWidth := ToCurrentPPI(18); { 3 pixel margin on both sides of the icon }
   var BaseChangeHistoryWidth := ToCurrentPPI(6); { 6 = 2 pixel bar with 2 pixel margin on both sides because: "SC_MARK_BAR ... takes ... 1/3 of the margin width" }
-  var FolderMarkersWidth := ToCurrentPPI(14); { 1 pixel margin on boths side of the icon }
+  var FolderMarkersWidth := ToCurrentPPI(14); { 1 pixel margin on both sides of the icon }
   var LeftBlankMarginWidth := ToCurrentPPI(2); { 2 pixel margin between gutter and the main text }
   var SquigglyWidth := ToCurrentPPI(100); { 100 = 1 pixel }
   var CaretWidth := ToCurrentPPI(2);
@@ -6416,7 +6416,7 @@ end;
 
 procedure TMainForm.WMThemeChanged(var Message: TMessage);
 begin
-  { Don't Run to Cursor into this function, it will interrupt up the theme change }
+  { Do not use Run to Cursor inside this function, it will interrupt the theme change }
   UpdateThemeData(True);
   inherited;
 end;

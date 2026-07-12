@@ -129,8 +129,8 @@
       "copyrightText": "Copyright (C) 2000-2014 by Carlo Kok and RemObjects Software, LLC",
       "supplier": "Organization: RemObjects Software, LLC",
       "versionInfo": "NOASSERTION",
-      "comment": "Optional feature; tracked as a git submodule and required revision is recorded in the Inno Setup repo.",
-      "sourceInfo": "Submodule path Components/UniPs; revision is recorded via .gitmodules and the repo's submodule metadata."
+      "comment": "Optional feature; source is included in Components/UniPs and the required upstream revision is recorded in Components/UniPs/rev.txt.",
+      "sourceInfo": "Source path: Components/UniPs; upstream revision: Components/UniPs/rev.txt."
     },
     {
       "name": "LZMA SDK",

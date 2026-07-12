@@ -246,15 +246,15 @@ begin
     managed the hotkeys ourselves anyway and .AutoLineReduction was also set to
     maManual and we now manage that ourselves as well.
 
-    This just leave an issue with the bitmaps not appearing on the first popup after
+    This just leaves an issue with the bitmaps not appearing on the first popup after
     a DPI change and this seems like a minor issue only.
 
     For TPopupMenu: calling this function on PopupMenu.Items does work but makes
-    the popup only show bitmaps without text. This seems to be a limitiation of menus
+    the popup only show bitmaps without text. This seems to be a limitation of menus
     created by CreatePopupMenu instead of CreateMenu. This is why our popups with
     bitmaps are all menu items popped using TMainFormPopupMenu. These menu items
     are hidden in the main menu and temporarily shown on popup. Popping an always
-    hidden menu item (or a visible one as a child of a hidden parent) doesnt work.
+    hidden menu item (or a visible one as a child of a hidden parent) doesn't work.
 
     About shortcut text:
 
