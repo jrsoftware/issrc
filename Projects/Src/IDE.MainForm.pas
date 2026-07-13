@@ -1475,7 +1475,7 @@ begin
     { Key is not cleared to allow Scintilla to do the actual handling }
   end;
 
-  if Key = VK_F1 then begin
+  if (Key = VK_F1) and (Shift * [ssShift, ssAlt, ssCtrl] = []) then begin
     Key := 0;
     ShowHelp(FActiveMemo.WordAtCaret);
   end else if ((Key = Ord('V')) or (Key = VK_INSERT)) and (Shift * [ssShift, ssAlt, ssCtrl] = [ssCtrl]) then begin
@@ -3173,7 +3173,7 @@ procedure TMainForm.SetInspectorVisible(const AVisible: Boolean);
     Result.Align := alRight;
     const Ini = TConfigIniFile.Create;
     try
-      Result.Width := ToCurrentPPI(Ini.ReadInteger('State', 'InspectorWidth', 350));
+      Result.Width := ToCurrentPPI(Ini.ReadInteger('State', 'InspectorWidth', 400));
       Result.Divider := ToCurrentPPI(Ini.ReadInteger('State', 'InspectorDividerWidth', 200));
     finally
       Ini.Free;

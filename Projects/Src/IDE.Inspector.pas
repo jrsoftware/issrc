@@ -73,6 +73,8 @@ type
       Canvas: TCanvas);
     procedure JvInspectorBeforeEdit(Sender: TObject;
       Item: TJvCustomInspectorItem; Edit: TCustomEdit);
+    procedure JvInspectorKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
     function GetDividerWidth: Integer;
     function GetWidth: Integer;
     procedure SetDividerWidth(const Value: Integer);
@@ -98,10 +100,10 @@ type
 implementation
 
 uses
-  SysUtils, UITypes, Themes,
+  Windows, SysUtils, UITypes, Themes,
   NewUxTheme,
   Shared.CommonFunc,
-  IDE.Messages, IDE.LocalizeFunc;
+  IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc;
 
 { TInspector }
 
@@ -122,6 +124,8 @@ begin
   FPainter := FJvInspector.Painter as TJvInspectorDotNETPainter;
   FPainter.OnSetItemColors := PainterSetItemColors;
   FJvInspector.BeforeEdit := JvInspectorBeforeEdit;
+  FJvInspector.OnKeyDown := JvInspectorKeyDown;
+  FJvInspector.OnEditorKeyDown := JvInspectorKeyDown;
   FJvInspector.Root.SortKind := iskNone;
 end;
 
@@ -212,6 +216,31 @@ begin
   { Bold the in-place editor's font as well }
   if ItemValueIsFromScript(Item) then
     TControlAccess(Edit).Font.Style := TControlAccess(Edit).Font.Style + [fsBold];
+end;
+
+procedure TInspector.JvInspectorKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+
+  function GetSelectedHelpKeyword: String;
+  begin
+    Result := '';
+    const Item = FJvInspector.Selected;
+    var Row: TInspectorRow;
+    if (Item <> nil) and TryGetRow(Item, Row) then begin
+      case Row.Kind of
+        irkEntryValue, irkDirective:
+          Result := Row.Name;
+        irkEntryFlag:
+          Result := Row.FlagName;
+      end;
+    end;
+  end;
+
+begin
+  if (Key = VK_F1) and (Shift * [ssShift, ssAlt, ssCtrl] = []) then begin
+    Key := 0;
+    ShowHelp(GetSelectedHelpKeyword);
+  end;
 end;
 
 procedure TInspector.SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
@@ -620,6 +649,11 @@ begin
       RowSetSignature := 'N|' + EntryRefusalReason;
     end;
   end;
+
+  { Re-sync any open in-place editor. Done before any rebuild: RebuildRows'
+    Clear deselects, and a deselect applies a stale editor's text back over
+    the memo edit unless the editor was re-synced first }
+  FJvInspector.RefreshValues;
 
   if RowSetSignature <> FRowSetSignature then begin
     { Row set changes, need to rebuild the inspector's rows }
