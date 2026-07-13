@@ -11,7 +11,7 @@ paths: ["**/*.pas", "**/*.dpr", "**/*.inc"]
   `const MaxCount = MinCount * 2;`
   `const ExpandedFilename = PathExpand(Filenames[I]);`
 - Prefer factoring shared code into a routine, or binding the expression to an inline const.
-- A routine used only by a single caller should be a local (nested) routine of that caller, and not a separate standalone routine. No exceptions, except routines assigned to an event or property.
+- A routine whose callers all sit inside one routine belongs nested in it, not as a method or a unit-level routine. Keep such helpers siblings at a single level: never nest a helper inside another helper. No exceptions, except a routine assigned to an event stays a method.
 - Do not use `with` statements.
 - `if` and `begin` should be on the same line.
 - `else` and `begin` should be on the same line.
@@ -24,7 +24,6 @@ paths: ["**/*.pas", "**/*.dpr", "**/*.inc"]
 - Class methods should be static when possible.
 - Do not shorten descriptive names. Write `Expression`, not `Expr`; `MultiFileHandler`, not `MFH`. Conventional short names (`I`, `J`, `S`, `Res`) and established identifiers (`HiWord`) are fine.
 - Comments should be short and match the style of existing comments in the file. Prefer using `{` and `}`, and do not end one-sentence comments with a period.
-- Watch for duplicated logic or a repeated expression: prefer factoring shared code into a routine, or binding the expression to an inline const.
 # Code editing guidelines
 - Do not modify existing comments unless the code they describe is also being changed.
 - When modifying code that calls Windows APIs, read the actual documentation before writing code. Do not assume parameter semantics based on similar APIs.
