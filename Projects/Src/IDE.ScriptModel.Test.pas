@@ -536,6 +536,168 @@ begin
   Assert(not TryGetScriptSectionMetadata('CustomMessages', Metadata));
 end;
 
+procedure TestSectionMetadataTables;
+begin
+  { All parameter sections have a table }
+  const SectionNames: TArray<String> = [
+    'Components', 'Dirs', 'Files', 'Icons', 'INI', 'InstallDelete',
+    'ISSigKeys', 'Languages', 'Registry', 'Run', 'Tasks', 'Types',
+    'UninstallDelete', 'UninstallRun'];
+  var Metadata: TScriptSectionMetadata;
+  for var SectionName in SectionNames do begin
+    Assert(TryGetScriptSectionMetadata(SectionName, Metadata));
+    Assert(Metadata.SectionName = SectionName);
+    Assert(Length(Metadata.Parameters) > 0);
+  end;
+  Assert(not TryGetScriptSectionMetadata('Code', Metadata));
+
+  { [Registry] value types differ from [Files]: Root/ValueType/ValueData }
+  Assert(TryGetScriptSectionMetadata('Registry', Metadata));
+  const RegistryEntry = TScriptParameterEntry.Create(Metadata);
+  try
+    RegistryEntry.Parse(['Root: HKA; Subkey: "Software\My Company"; ' +
+      'ValueType: string; ValueName: "Path"; ValueData: "{app}"; ' +
+      'Flags: uninsdeletekey']);
+    var Value: String;
+    Assert(RegistryEntry.TryGetValue('Root', Value) and (Value = 'HKA'));
+    Assert(RegistryEntry.TryGetValue('ValueData', Value) and (Value = '{app}'));
+    Assert(RegistryEntry.FlagIncluded(5, 'uninsdeletekey'));
+    var Definition: TScriptParameterDefinition;
+    Assert(RegistryEntry.TryGetDefinition('Flags', Definition));
+    Assert(Definition.ValueKind = pvkFlags);
+    var FoundFlagName := False;
+    for var KnownValue in Definition.KnownValues do
+      if KnownValue = 'preservestringtype' then
+        FoundFlagName := True;
+    Assert(FoundFlagName);
+    { No rules registered for [Registry]: toggling runs no implications }
+    RegistryEntry.SetFlag(5, 'deletevalue', True);
+    const Lines = RegistryEntry.GetLines;
+    Assert(Lines[0] = 'Root: HKA; Subkey: "Software\My Company"; ' +
+      'ValueType: string; ValueName: "Path"; ValueData: "{app}"; ' +
+      'Flags: uninsdeletekey deletevalue');
+  finally
+    RegistryEntry.Free;
+  end;
+
+  { [Run] flags }
+  Assert(TryGetScriptSectionMetadata('Run', Metadata));
+  const RunEntry = TScriptParameterEntry.Create(Metadata);
+  try
+    RunEntry.Parse(['Filename: "{app}\MyProg.exe"; Flags: nowait postinstall skipifsilent']);
+    Assert(RunEntry.FlagIncluded(1, 'postinstall'));
+    RunEntry.SetFlag(1, 'postinstall', False);
+    const Lines = RunEntry.GetLines;
+    Assert(Lines[0] = 'Filename: "{app}\MyProg.exe"; Flags: nowait skipifsilent');
+    var Definition: TScriptParameterDefinition;
+    Assert(RunEntry.TryGetDefinition('Flags', Definition));
+    var FoundFlagName := False;
+    for var KnownValue in Definition.KnownValues do
+      if KnownValue = 'runasoriginaluser' then
+        FoundFlagName := True;
+    Assert(FoundFlagName);
+  finally
+    RunEntry.Free;
+  end;
+
+  { [Components] has an integer parameter }
+  Assert(TryGetScriptSectionMetadata('Components', Metadata));
+  var Definition: TScriptParameterDefinition;
+  Assert(Metadata.TryGetParameter('ExtraDiskSpaceRequired', Definition));
+  Assert(Definition.ValueKind = pvkInteger);
+
+  { Single-choice parameters carry their known values }
+  Assert(TryGetScriptSectionMetadata('Registry', Metadata));
+  Assert(Metadata.TryGetParameter('Root', Definition));
+  Assert(Definition.ValueKind = pvkChoice);
+  Assert(Length(Definition.KnownValues) > 0);
+  Assert(Metadata.TryGetParameter('ValueType', Definition));
+  Assert(Definition.ValueKind = pvkChoice);
+  Assert(TryGetScriptSectionMetadata('InstallDelete', Metadata));
+  Assert(Metadata.TryGetParameter('Type', Definition));
+  Assert(Definition.ValueKind = pvkChoice);
+end;
+
+procedure TestMetadataConsistency;
+
+  function InNames(const Names: TArray<String>; const Name: String): Boolean;
+  begin
+    Result := False;
+    for var KnownName in Names do
+      if SameText(KnownName, Name) then
+        Exit(True);
+  end;
+
+begin
+  { Structural checks over every parameter section's table. They catch a
+    mistyped rule or flag that the behavioral tests would only find if they
+    happened to exercise that exact token }
+  const SectionNames: TArray<String> = [
+    'Components', 'Dirs', 'Files', 'Icons', 'INI', 'InstallDelete',
+    'ISSigKeys', 'Languages', 'Registry', 'Run', 'Tasks', 'Types',
+    'UninstallDelete', 'UninstallRun'];
+  const CommonMemberNames: TArray<String> = ['Check', 'Components', 'Tasks',
+    'Languages', 'MinVersion', 'OnlyBelowVersion', 'BeforeInstall',
+    'AfterInstall'];
+  for var SectionName in SectionNames do begin
+    var Metadata: TScriptSectionMetadata;
+    Assert(TryGetScriptSectionMetadata(SectionName, Metadata));
+
+    { Every parameter has a unique name, and only flags and choices carry
+      tokens, which are themselves non-empty and unique (and lowercase for
+      flags) }
+    for var I := 0 to High(Metadata.Parameters) do begin
+      const Parameter = Metadata.Parameters[I];
+      Assert(Parameter.Name <> '');
+      for var J := 0 to I-1 do
+        Assert(not SameText(Metadata.Parameters[J].Name, Parameter.Name));
+      if Parameter.ValueKind in [pvkFlags, pvkChoice] then begin
+        Assert(Length(Parameter.KnownValues) > 0);
+        for var K := 0 to High(Parameter.KnownValues) do begin
+          const Token = Parameter.KnownValues[K];
+          Assert(Token <> '');
+          for var L := 0 to K-1 do
+            Assert(not SameText(Parameter.KnownValues[L], Token));
+          if Parameter.ValueKind = pvkFlags then
+            Assert(Token = LowerCase(Token));
+        end;
+      end else
+        Assert(Length(Parameter.KnownValues) = 0);
+
+      { A parameter shared with the Common category groups under it, so a
+        section cannot be forgotten in Common's section list }
+      if InNames(CommonMemberNames, Parameter.Name) then begin
+        var CategoryName: String;
+        Assert(TryGetScriptCategory(SectionName, Parameter.Name, CategoryName) and
+          (CategoryName = 'Common'));
+      end;
+    end;
+
+    { Every flag-includes rule points at a real flag parameter and names only
+      flags that exist, so it cannot silently never fire }
+    for var Rule in Metadata.FlagIncludesRules do begin
+      var Definition: TScriptParameterDefinition;
+      Assert(Metadata.TryGetParameter(Rule.ParameterName, Definition));
+      Assert(Definition.ValueKind = pvkFlags);
+      Assert(InNames(Definition.KnownValues, Rule.FlagName));
+      Assert(Length(Rule.AlsoIncludedFlagNames) > 0);
+      for var FlagName in Rule.AlsoIncludedFlagNames do
+        Assert(InNames(Definition.KnownValues, FlagName));
+    end;
+
+    { Every parameter-includes-flag rule references a real trigger parameter
+      and a real flag in a real flag parameter }
+    for var Rule in Metadata.ParameterIncludesFlagRules do begin
+      var Definition: TScriptParameterDefinition;
+      Assert(Metadata.TryGetParameter(Rule.ParameterName, Definition));
+      var FlagDefinition: TScriptParameterDefinition;
+      Assert(Metadata.TryGetParameter(Rule.FlagParameterName, FlagDefinition));
+      Assert(FlagDefinition.ValueKind = pvkFlags);
+      Assert(InNames(FlagDefinition.KnownValues, Rule.FlagName));
+    end;
+  end;
+end;
+
 procedure TestScriptCategories;
 begin
   { The categories are shown in this order: the section-specific groups first,
@@ -592,6 +754,9 @@ begin
   Assert(Definition.Obsolete);
   Assert(Metadata.TryGetParameter('Source', Definition));
   Assert(not Definition.Obsolete);
+  Assert(TryGetScriptSectionMetadata('UninstallRun', Metadata));
+  Assert(Metadata.TryGetParameter('StatusMsg', Definition));
+  Assert(Definition.Obsolete);
 end;
 
 procedure TestEntryRules;
@@ -650,6 +815,34 @@ begin
     Entry.Parse(['Source: a']);
     Entry.Add('ISSigAllowedKeys', 'mykey');
     Assert(Entry.FlagIncluded(2, 'issigverify'));
+
+    { A parameter value can also include a flag: setting Verb on a [Run] entry
+      checks shellexec and setting OnLog checks logoutput, each in one change }
+    Assert(TryGetScriptSectionMetadata('Run', Metadata));
+    Entry.Free;
+    Entry := TScriptParameterEntry.Create(Metadata);
+    Entry.Parse(['Filename: a']);
+    Entry.OnChange := Counter.HandleChange;
+    Counter.Count := 0;
+    Entry.Add('Verb', 'open');
+    Assert(Counter.Count = 1);
+    Assert(Entry.FlagIncluded(2, 'shellexec'));
+    Entry.Add('OnLog', 'MyOnLog');
+    Assert(Entry.FlagIncluded(2, 'logoutput'));
+
+    { Clearing the value leaves the included flag in place }
+    Entry.SetValue(1, '');
+    Assert(Entry.FlagIncluded(2, 'shellexec'));
+
+    { The rule is section-scoped: UninstallRun has the Verb rule but not OnLog }
+    Assert(TryGetScriptSectionMetadata('UninstallRun', Metadata));
+    Entry.Free;
+    Entry := TScriptParameterEntry.Create(Metadata);
+    Entry.Parse(['Filename: a']);
+    Entry.Add('Verb', 'open');
+    Assert(Entry.FlagIncluded(2, 'shellexec'));
+    Entry.Add('OnLog', 'MyOnLog');
+    Assert(not Entry.FlagIncluded(2, 'logoutput'));
 
     { Without metadata there are no rules }
     Entry.Free;
@@ -967,6 +1160,8 @@ begin
   TestEntryFlags;
   TestEntryMetadata;
   TestDirectiveSectionMetadata;
+  TestSectionMetadataTables;
+  TestMetadataConsistency;
   TestScriptCategories;
   TestEntryRules;
   TestDirectiveSection;
