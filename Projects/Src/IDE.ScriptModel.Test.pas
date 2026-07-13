@@ -436,8 +436,13 @@ begin
   Assert(Definition.ValueKind = pvkString);
   Assert(not Definition.Obsolete);
   Assert(Definition.DefaultValue = '');
+  { A yes/no directive still lists its two values, for the drop-down of the
+    inspector's text-row fallback when the value isn't yes/no }
   Assert(Metadata.TryGetParameter('SolidCompression', Definition));
   Assert(Definition.ValueKind = pvkYesNo);
+  Assert(Length(Definition.KnownValues) = 2);
+  Assert(Definition.KnownValues[0] = 'yes');
+  Assert(Definition.KnownValues[1] = 'no');
   Assert(Definition.DefaultValue = 'no');
   Assert(Metadata.TryGetParameter('AllowNetworkDrive', Definition));
   Assert(Definition.ValueKind = pvkYesNo);
@@ -518,6 +523,9 @@ begin
   Assert(Metadata.Parameters[0].Obsolete);
   Assert(Metadata.TryGetParameter('RightToLeft', Definition));
   Assert(Definition.ValueKind = pvkYesNo);
+  Assert(Length(Definition.KnownValues) = 2); { Like SolidCompression above }
+  Assert(Definition.KnownValues[0] = 'yes');
+  Assert(Definition.KnownValues[1] = 'no');
   Assert(Definition.DefaultValue = 'no');
   Assert(Metadata.TryGetParameter('LanguageName', Definition));
   Assert(Definition.DefaultValue = 'English');

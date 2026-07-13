@@ -28,7 +28,8 @@ type
     Name: String;
     ValueKind: TScriptParameterValueKind;
     KnownValues: TArray<String>; { For pvkFlags: the known flags
-                                   For pvkChoice: the known choices (other choices might still be valid, like a scripted expression) }
+                                   For pvkChoice: the known choices (other choices might still be valid, like a scripted expression)
+                                   For pvkYesNo: 'yes' and 'no' (other values might still be valid, like an ISPP inline directive) }
     DefaultValue: String; { The default of a directive, empty for parameters }
     Obsolete: Boolean;    { To be hidden unless explicitly present in the script }
   end;
@@ -389,9 +390,10 @@ procedure InitializeSectionMetadata;
     for var Directive := Low(TSetupSectionDirective) to High(TSetupSectionDirective) do begin
       var ValueKind := pvkString;
       var KnownValues: TArray<String> := nil;
-      if Directive in SetupSectionDirectivesYesNo then
-        ValueKind := pvkYesNo
-      else if Directive in SetupSectionDirectivesYesNoOrScripted then begin
+      if Directive in SetupSectionDirectivesYesNo then begin
+        ValueKind := pvkYesNo;
+        KnownValues := [SYes, SNo]; { For AddDirectiveRow's fallback }
+      end else if Directive in SetupSectionDirectivesYesNoOrScripted then begin
         ValueKind := pvkChoice; { Also allows free typing }
         KnownValues := [SYes, SNo];
       end else if Directive in SetupSectionDirectivesAutoYesNo then begin
@@ -433,12 +435,15 @@ procedure InitializeSectionMetadata;
     SetLength(Definitions, Ord(High(TLangOptionsSectionDirective))+1);
     for var Directive := Low(TLangOptionsSectionDirective) to High(TLangOptionsSectionDirective) do begin
       var ValueKind := pvkString;
-      if Directive in LangOptionsSectionDirectivesYesNo then
+      var KnownValues: TArray<String> := nil;
+      if Directive in LangOptionsSectionDirectivesYesNo then begin
         ValueKind := pvkYesNo;
+        KnownValues := [SYes, SNo]; { See AddSetupSectionMetadata }
+      end;
       Definitions[Ord(Directive)] := PD(
         Copy(GetEnumName(TypeInfo(TLangOptionsSectionDirective), Ord(Directive)),
           LangOptionsSectionDirectivePrefixLength+1, MaxInt),
-        ValueKind, nil, Directive in LangOptionsSectionDirectivesObsolete,
+        ValueKind, KnownValues, Directive in LangOptionsSectionDirectivesObsolete,
         LangOptionsSectionDirectiveDefaultValue(Directive));
     end;
     SectionMetadataList.Add(TScriptSectionMetadata.Create('LangOptions', Definitions, nil));

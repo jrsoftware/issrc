@@ -406,16 +406,27 @@ procedure TInspector.UpdateFromCaret;
     Result.NameIndex := ANameIndex;
   end;
 
+  function DirectiveRowIsCheckBox(const ADefinition: TScriptParameterDefinition;
+    const ANameIndex: Integer): Boolean;
+  { A yes/no directive gets a true checkbox row only if its value is a simple yes/no and
+    not something like an ISPP inline directive, else it falls back to a text & dropdown row. }
+  begin
+    var BoolValue := False;
+    Result := (ADefinition.ValueKind = pvkYesNo) and
+      ((ANameIndex < 0) or { Don't check unspecified directives, they don't have a value }
+       TryStrToBoolean(FLiveDirectiveSection.Section.Lines[ANameIndex].Value, BoolValue));
+  end;
+
   procedure AddDirectiveRow(const AParent: TJvCustomInspectorItem;
     const ARow: TInspectorRow);
   begin
     var Definition: TScriptParameterDefinition;
     const Known = FLiveDirectiveSection.Section.TryGetDefinition(ARow.Name, Definition);
-    if Known and (Definition.ValueKind = pvkYesNo) then
+    if Known and DirectiveRowIsCheckBox(Definition, ARow.NameIndex) then
       AddRow(AParent, ARow.Name, TypeInfo(Boolean), ARow)
     else begin
       const Item = AddRow(AParent, ARow.Name, TypeInfo(String), ARow);
-      if Known and (Definition.ValueKind = pvkChoice) then
+      if Known and (Definition.ValueKind in [pvkChoice, pvkYesNo]) then
         MakeDropDown(Item, ChoiceRowGetValueList);
     end;
   end;
@@ -644,9 +655,16 @@ begin
       RowSetSignature := 'D|' + IntToStr(OccurrenceCount) + '|' +
         IntToStr(Ord(FShowAllKnownDirectives)) + '|' + Header.Name;
       const Model = FLiveDirectiveSection.Section;
-      for var I := 0 to Model.Count-1 do
-        if Model.Lines[I].Kind = sdlDirective then
+      for var I := 0 to Model.Count-1 do begin
+        if Model.Lines[I].Kind = sdlDirective then begin
           RowSetSignature := RowSetSignature + '|' + IntToStr(I) + ':' + Model.Lines[I].Name;
+          { Put AddDirectiveRow's decision into the structure }
+          var Definition: TScriptParameterDefinition;
+          if Model.TryGetDefinition(Model.Lines[I].Name, Definition) and
+             DirectiveRowIsCheckBox(Definition, I) then
+            RowSetSignature := RowSetSignature + '!';
+        end;
+      end;
     end else begin
       { Prefer the entry refusal: it explains the caret line, while a failed
         TryCreateDirectiveSection could only say the section is not
