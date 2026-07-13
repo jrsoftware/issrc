@@ -51,6 +51,8 @@ uses
   Shared.CommonFunc.Test in 'Src\Shared.CommonFunc.Test.pas',
   Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
   Shared.EncryptionFunc.Test in 'Src\Shared.EncryptionFunc.Test.pas',
+  Shared.LangOptionsSectionDirectives in 'Src\Shared.LangOptionsSectionDirectives.pas',
+  Shared.SetupSectionDirectives in 'Src\Shared.SetupSectionDirectives.pas',
   Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',
   Shared.VerInfoFunc.Test in 'Src\Shared.VerInfoFunc.Test.pas',
   SimpleExpression in '..\Components\SimpleExpression.pas',

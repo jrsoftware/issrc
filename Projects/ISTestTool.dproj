@@ -149,6 +149,8 @@
         <DCCReference Include="Src\Shared.CommonFunc.Test.pas"/>
         <DCCReference Include="Src\Shared.EncryptionFunc.pas"/>
         <DCCReference Include="Src\Shared.EncryptionFunc.Test.pas"/>
+        <DCCReference Include="Src\Shared.LangOptionsSectionDirectives.pas"/>
+        <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.Test.pas"/>
         <DCCReference Include="..\Components\SimpleExpression.pas"/>

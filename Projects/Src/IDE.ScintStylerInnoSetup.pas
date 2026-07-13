@@ -205,7 +205,8 @@ implementation
 uses
   Generics.Defaults,
   Shared.SetupMessageIDs, ScintInt, Shared.LangOptionsSectionDirectives,
-  Shared.CommonFunc.Vcl, Shared.SetupSteps, Shared.Struct, Shared.DotNetVersion, isxclasses_wordlists_generated;
+  Shared.CommonFunc.Vcl, Shared.SetupSteps, Shared.Struct, Shared.DotNetVersion,
+  IDE.ScriptModel.Metadata, isxclasses_wordlists_generated;
 
 type
   { Size must be <= SizeOf(TScintLineState) }
@@ -720,32 +721,6 @@ const
     'MemoTasksInfo', 'PreviousDataKey', 'Serial', 'NeedsRestart',
     'CurUninstallStep'
   ];
-
-  SetupSectionDirectivesYesNo = [
-    ssAllowCancelDuringInstall, ssAllowNetworkDrive, ssAllowNoIcons, ssAllowRootDirectory,
-    ssAllowUNCPath, ssAlwaysRestart, ssAlwaysShowComponentsList, ssAlwaysShowDirOnReadyPage,
-    ssAlwaysShowGroupOnReadyPage, ssAlwaysUsePersonalGroup, ssAppendDefaultDirName,
-    ssAppendDefaultGroupName, ssASLRCompatible, ssCreateAppDir, ssDEPCompatible,
-    ssDisableFinishedPage, ssDisableReadyMemo, ssDisableReadyPage, ssDisableStartupPrompt,
-    ssDisableWelcomePage, ssDiskSpanning, ssDontMergeDuplicateFiles, ssEnableDirDoesntExistWarning,
-    ssFlatComponentsList, ssMergeDuplicateFiles, ssMissingMessagesWarning,
-    ssMissingRunOnceIdsWarning, ssNotRecognizedMessagesWarning, ssOutput, ssRedirectionGuard,
-    ssRestartApplications, ssRestartIfNeededByRun, ssSetupLogging, ssShowComponentSizes,
-    ssShowTasksTreeLines, ssSignedUninstaller, ssSignToolRunMinimized, ssSolidCompression,
-    ssTerminalServicesAware, ssTimeStampsInUTC, ssUpdateUninstallLogAppName, ssUninstallLogging,
-    ssUninstallRestartComputer, ssUsedUserAreasWarning, ssUsePreviousLanguage, ssUsePreviousPrivileges,
-    ssUserInfoPage, ssWizardImageStretch, ssWizardKeepAspectRatio];
-
-  SetupSectionDirectivesYesNoOrScripted = [ssChangesAssociations, ssChangesEnvironment,
-    ssCreateUninstallRegKey, ssUninstallable, ssUsePreviousAppDir, ssUsePreviousGroup,
-    ssUsePreviousSetupType, ssUsePreviousTasks, ssUsePreviousUserInfo];
-
-  SetupSectionDirectivesAutoYesNo = [
-    ssDirExistsWarning, ssDisableDirPage, ssDisableProgramGroupPage, ssShowLanguageDialog];
-
-  SYes = 'yes';
-  SNo = 'no';
-  SAuto = 'auto';
 
 type
   TSetupSectionDirectiveValue = record

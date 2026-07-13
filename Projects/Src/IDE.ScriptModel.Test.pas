@@ -19,6 +19,7 @@ implementation
 
 uses
   {$IFDEF DEBUG} Winapi.Windows, {$ENDIF} System.SysUtils,
+  Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives,
   IDE.ScriptModel, IDE.ScriptModel.Metadata;
 
 {$C+}
@@ -378,7 +379,7 @@ begin
   var Metadata: TScriptSectionMetadata;
   Assert(TryGetScriptSectionMetadata('files', Metadata)); { Case-insensitive }
   Assert(Metadata.SectionName = 'Files');
-  Assert(not TryGetScriptSectionMetadata('Setup', Metadata));
+  Assert(not TryGetScriptSectionMetadata('Code', Metadata));
   Assert(TryGetScriptSectionMetadata('Files', Metadata));
 
   const Entry = TScriptParameterEntry.Create(Metadata);
@@ -419,6 +420,112 @@ begin
   finally
     Entry.Free;
   end;
+end;
+
+procedure TestDirectiveSectionMetadata;
+begin
+  { The [Setup] and [LangOptions] tables are generated from the compiler's
+    enums: every directive present, in canonical enum order }
+  var Metadata: TScriptSectionMetadata;
+  Assert(TryGetScriptSectionMetadata('Setup', Metadata));
+  Assert(Metadata.SectionName = 'Setup');
+  Assert(Length(Metadata.Parameters) = Ord(High(TSetupSectionDirective))+1);
+  Assert(Metadata.Parameters[0].Name = 'AllowCancelDuringInstall');
+  var Definition: TScriptParameterDefinition;
+  Assert(Metadata.TryGetParameter('AppName', Definition));
+  Assert(Definition.ValueKind = pvkString);
+  Assert(not Definition.Obsolete);
+  Assert(Definition.DefaultValue = '');
+  Assert(Metadata.TryGetParameter('SolidCompression', Definition));
+  Assert(Definition.ValueKind = pvkYesNo);
+  Assert(Definition.DefaultValue = 'no');
+  Assert(Metadata.TryGetParameter('AllowNetworkDrive', Definition));
+  Assert(Definition.ValueKind = pvkYesNo);
+  Assert(Definition.DefaultValue = 'yes');
+  { The auto/yes/no and yes/no-or-scripted directives allow other values, so
+    they are choices and not yes/no, and each kind has exceptions to its usual
+    default }
+  Assert(Metadata.TryGetParameter('DisableDirPage', Definition));
+  Assert(Definition.ValueKind = pvkChoice);
+  Assert(Length(Definition.KnownValues) = 3);
+  Assert(Definition.KnownValues[0] = 'auto');
+  Assert(Definition.KnownValues[1] = 'yes');
+  Assert(Definition.KnownValues[2] = 'no');
+  Assert(Definition.DefaultValue = 'auto');
+  Assert(Metadata.TryGetParameter('ShowLanguageDialog', Definition));
+  Assert(Definition.DefaultValue = 'yes');
+  Assert(Metadata.TryGetParameter('Uninstallable', Definition));
+  Assert(Definition.ValueKind = pvkChoice);
+  Assert(Length(Definition.KnownValues) = 2);
+  Assert(Definition.KnownValues[0] = 'yes');
+  Assert(Definition.KnownValues[1] = 'no');
+  Assert(Definition.DefaultValue = 'yes');
+  Assert(Metadata.TryGetParameter('ChangesAssociations', Definition));
+  Assert(Definition.DefaultValue = 'no');
+  Assert(Metadata.TryGetParameter('ChangesEnvironment', Definition));
+  Assert(Definition.DefaultValue = 'no');
+  Assert(Metadata.TryGetParameter('Compression', Definition));
+  Assert(Definition.ValueKind = pvkString);
+  Assert(Definition.DefaultValue = 'lzma2/max');
+  Assert(Metadata.TryGetParameter('LZMAUseSeparateProcess', Definition));
+  Assert(Definition.ValueKind = pvkString);
+  Assert(Definition.DefaultValue = 'no');
+  Assert(Metadata.TryGetParameter('DefaultGroupName', Definition));
+  Assert(Definition.ValueKind = pvkString);
+  Assert(Definition.DefaultValue = '(Default)');
+  Assert(Metadata.TryGetParameter('UninstallStyle', Definition));
+  Assert(Definition.Obsolete);
+  { Every directive of a yes/no kind has a default: none was left out of the
+    generator's default-yes, default-no, and default-auto sets }
+  for var Directive := Low(TSetupSectionDirective) to High(TSetupSectionDirective) do begin
+    if (Directive in SetupSectionDirectivesYesNo) or
+       (Directive in SetupSectionDirectivesAutoYesNo) or
+       (Directive in SetupSectionDirectivesYesNoOrScripted) then
+      Assert(Metadata.Parameters[Ord(Directive)].DefaultValue <> '');
+  end;
+
+  { The section model exposes the definitions like the entry model does }
+  const Section = TScriptDirectiveSection.Create(Metadata);
+  try
+    Assert(Section.Metadata = Metadata);
+    Assert(Section.TryGetDefinition('solidcompression', Definition)); { Case-insensitive }
+    Assert(Definition.ValueKind = pvkYesNo);
+    Assert(not Section.TryGetDefinition('NoSuchDirective', Definition));
+
+    { With the quoting option on, only text directives are quoted: a yes/no
+      value is written bare }
+    Section.QuoteNewValues := True;
+    Section.Add('SolidCompression', 'yes');
+    Section.Add('AppName', 'My App');
+    const Lines = Section.GetLines;
+    Assert(Lines[0] = 'SolidCompression=yes');
+    Assert(Lines[1] = 'AppName="My App"');
+  finally
+    Section.Free;
+  end;
+  const SectionWithoutMetadata = TScriptDirectiveSection.Create(nil);
+  try
+    Assert(SectionWithoutMetadata.Metadata = nil);
+    Assert(not SectionWithoutMetadata.TryGetDefinition('AppName', Definition));
+  finally
+    SectionWithoutMetadata.Free;
+  end;
+
+  Assert(TryGetScriptSectionMetadata('LangOptions', Metadata));
+  Assert(Metadata.SectionName = 'LangOptions');
+  Assert(Length(Metadata.Parameters) = Ord(High(TLangOptionsSectionDirective))+1);
+  Assert(Metadata.Parameters[0].Name = 'CopyrightFontName');
+  Assert(Metadata.Parameters[0].Obsolete);
+  Assert(Metadata.TryGetParameter('RightToLeft', Definition));
+  Assert(Definition.ValueKind = pvkYesNo);
+  Assert(Definition.DefaultValue = 'no');
+  Assert(Metadata.TryGetParameter('LanguageName', Definition));
+  Assert(Definition.DefaultValue = 'English');
+
+  { [Messages] names are localized message identifiers and [CustomMessages]
+    names are user-defined, so neither has a table }
+  Assert(not TryGetScriptSectionMetadata('Messages', Metadata));
+  Assert(not TryGetScriptSectionMetadata('CustomMessages', Metadata));
 end;
 
 procedure TestScriptCategories;
@@ -851,6 +958,7 @@ begin
   TestEntryParseAndSerialize;
   TestEntryFlags;
   TestEntryMetadata;
+  TestDirectiveSectionMetadata;
   TestScriptCategories;
   TestEntryRules;
   TestDirectiveSection;

@@ -6,21 +6,31 @@ unit IDE.ScriptModel.Metadata;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Per-section metadata tables for the script model: parameter names, value
-  kinds, and flag lists, plus the rules layer registrations.
+  Per-section metadata tables for the script model: parameter and directive
+  names, value kinds, and flag lists, plus the rules layer registrations.
+
+  Tables for [Setup] and [LangOptions] are generated from enums at startup,
+  and are enriched with default values. [Messages] and [CustomMessages] do
+  not have tables.
 }
 
 interface
 
+uses
+  Generics.Collections,
+  Shared.SetupSectionDirectives;
+
 type
   TScriptParameterValueKind = (pvkString, pvkInteger, pvkVersion,
-    pvkChoice, pvkFlags);
+    pvkChoice, pvkFlags, pvkYesNo);
 
   TScriptParameterDefinition = record
     Name: String;
     ValueKind: TScriptParameterValueKind;
-    KnownValues: TArray<String>; { For pvkFlags: the known flags; for pvkChoice: the known choices }
-    Obsolete: Boolean; { To be hidden unless explicitly present in the script }
+    KnownValues: TArray<String>; { For pvkFlags: the known flags
+                                   For pvkChoice: the known choices (other choices might still be valid, like a scripted expression) }
+    DefaultValue: String; { The default of a directive, empty for parameters }
+    Obsolete: Boolean;    { To be hidden unless explicitly present in the script }
   end;
 
   { Rule: including a flag must also include other flags, for example checking
@@ -43,6 +53,7 @@ type
   private
     FSectionName: String;
     FParameters: TArray<TScriptParameterDefinition>;
+    FParametersByName: TDictionary<String, Integer>; { FParameters index by name }
     FFlagIncludesRules: TArray<TScriptFlagIncludesRule>;
     FParameterIncludesFlagRules: TArray<TScriptParameterIncludesFlagRule>;
   public
@@ -50,6 +61,7 @@ type
       const AParameters: TArray<TScriptParameterDefinition>;
       const AFlagIncludesRules: TArray<TScriptFlagIncludesRule>;
       const AParameterIncludesFlagRules: TArray<TScriptParameterIncludesFlagRule> = nil);
+    destructor Destroy; override;
     function TryGetParameter(const AName: String;
       out ADefinition: TScriptParameterDefinition): Boolean;
     property SectionName: String read FSectionName;
@@ -58,6 +70,33 @@ type
     property ParameterIncludesFlagRules: TArray<TScriptParameterIncludesFlagRule>
       read FParameterIncludesFlagRules;
   end;
+
+const
+  SetupSectionDirectivesYesNo = [
+    ssAllowCancelDuringInstall, ssAllowNetworkDrive, ssAllowNoIcons, ssAllowRootDirectory,
+    ssAllowUNCPath, ssAlwaysRestart, ssAlwaysShowComponentsList, ssAlwaysShowDirOnReadyPage,
+    ssAlwaysShowGroupOnReadyPage, ssAlwaysUsePersonalGroup, ssAppendDefaultDirName,
+    ssAppendDefaultGroupName, ssASLRCompatible, ssCreateAppDir, ssDEPCompatible,
+    ssDisableFinishedPage, ssDisableReadyMemo, ssDisableReadyPage, ssDisableStartupPrompt,
+    ssDisableWelcomePage, ssDiskSpanning, ssDontMergeDuplicateFiles, ssEnableDirDoesntExistWarning,
+    ssFlatComponentsList, ssMergeDuplicateFiles, ssMissingMessagesWarning,
+    ssMissingRunOnceIdsWarning, ssNotRecognizedMessagesWarning, ssOutput, ssRedirectionGuard,
+    ssRestartApplications, ssRestartIfNeededByRun, ssSetupLogging, ssShowComponentSizes,
+    ssShowTasksTreeLines, ssSignedUninstaller, ssSignToolRunMinimized, ssSolidCompression,
+    ssTerminalServicesAware, ssTimeStampsInUTC, ssUpdateUninstallLogAppName, ssUninstallLogging,
+    ssUninstallRestartComputer, ssUsedUserAreasWarning, ssUsePreviousLanguage, ssUsePreviousPrivileges,
+    ssUserInfoPage, ssWizardImageStretch, ssWizardKeepAspectRatio];
+
+  SetupSectionDirectivesYesNoOrScripted = [ssChangesAssociations, ssChangesEnvironment,
+    ssCreateUninstallRegKey, ssUninstallable, ssUsePreviousAppDir, ssUsePreviousGroup,
+    ssUsePreviousSetupType, ssUsePreviousTasks, ssUsePreviousUserInfo];
+
+  SetupSectionDirectivesAutoYesNo = [
+    ssDirExistsWarning, ssDisableDirPage, ssDisableProgramGroupPage, ssShowLanguageDialog];
+
+  SYes = 'yes';
+  SNo = 'no';
+  SAuto = 'auto';
 
 function TryGetScriptSectionMetadata(const ASectionName: String;
   out AMetadata: TScriptSectionMetadata): Boolean;
@@ -70,7 +109,8 @@ function TryGetScriptCategory(const ASectionName, AName: String;
 implementation
 
 uses
-  SysUtils, Generics.Collections, Generics.Defaults;
+  SysUtils, TypInfo, Generics.Defaults,
+  Shared.LangOptionsSectionDirectives;
 
 var
   SectionMetadataList: TObjectList<TScriptSectionMetadata>;
@@ -85,20 +125,26 @@ begin
   inherited Create;
   FSectionName := ASectionName;
   FParameters := AParameters;
+  FParametersByName := TDictionary<String, Integer>.Create(TIStringComparer.Ordinal);
+  for var I := 0 to High(FParameters) do
+    FParametersByName.Add(FParameters[I].Name, Integer(I)); { Add raises on a duplicate name }
   FFlagIncludesRules := AFlagIncludesRules;
   FParameterIncludesFlagRules := AParameterIncludesFlagRules;
+end;
+
+destructor TScriptSectionMetadata.Destroy;
+begin
+  FParametersByName.Free;
+  inherited;
 end;
 
 function TScriptSectionMetadata.TryGetParameter(const AName: String;
   out ADefinition: TScriptParameterDefinition): Boolean;
 begin
-  for var Parameter in FParameters do begin
-    if SameText(Parameter.Name, AName) then begin
-      ADefinition := Parameter;
-      Exit(True);
-    end;
-  end;
-  Result := False;
+  var I: Integer;
+  Result := FParametersByName.TryGetValue(AName, I);
+  if Result then
+    ADefinition := FParameters[I];
 end;
 
 function TryGetScriptSectionMetadata(const ASectionName: String;
@@ -234,12 +280,14 @@ procedure InitializeSectionMetadata;
 
   function PD(const AName: String; const AValueKind: TScriptParameterValueKind;
     const AKnownValues: TArray<String> = nil;
-    const AObsolete: Boolean = False): TScriptParameterDefinition;
+    const AObsolete: Boolean = False;
+    const ADefaultValue: String = ''): TScriptParameterDefinition;
   begin
     Result.Name := AName;
     Result.ValueKind := AValueKind;
     Result.KnownValues := AKnownValues;
     Result.Obsolete := AObsolete;
+    Result.DefaultValue := ADefaultValue;
   end;
 
   function FIR(const AParameterName, AFlagName: String;
@@ -256,6 +304,144 @@ procedure InitializeSectionMetadata;
     Result.ParameterName := AParameterName;
     Result.FlagParameterName := AFlagParameterName;
     Result.FlagName := AFlagName;
+  end;
+
+  function SetupSectionDirectiveDefaultValue(
+    const SetupSectionDirective: TSetupSectionDirective): String;
+  const
+    SetupSectionDirectivesDefaultYes = [
+      ssAllowCancelDuringInstall, ssAllowNetworkDrive, ssAllowUNCPath,
+      ssAlwaysShowComponentsList, ssAppendDefaultDirName, ssAppendDefaultGroupName,
+      ssASLRCompatible, ssCloseApplications, ssCreateAppDir, ssCreateUninstallRegKey,
+      ssDEPCompatible, ssDisableStartupPrompt, ssDisableWelcomePage,
+      ssFlatComponentsList, ssMergeDuplicateFiles, ssMissingMessagesWarning,
+      ssMissingRunOnceIdsWarning, ssNotRecognizedMessagesWarning, ssOutput,
+      ssRedirectionGuard, ssRestartApplications, ssRestartIfNeededByRun,
+      ssShowComponentSizes, ssShowLanguageDialog, ssSignedUninstaller,
+      ssTerminalServicesAware, ssTimeStampsInUTC, ssUninstallable,
+      ssUpdateUninstallLogAppName, ssUsedUserAreasWarning, ssUsePreviousAppDir,
+      ssUsePreviousGroup, ssUsePreviousLanguage, ssUsePreviousPrivileges,
+      ssUsePreviousSetupType, ssUsePreviousTasks, ssUsePreviousUserInfo,
+      ssWizardImageStretch, ssWizardKeepAspectRatio];
+
+    SetupSectionDirectivesDefaultNo = [
+      ssAllowNoIcons, ssAllowRootDirectory, ssAlwaysRestart,
+      ssAlwaysShowDirOnReadyPage, ssAlwaysShowGroupOnReadyPage,
+      ssAlwaysUsePersonalGroup, ssChangesAssociations, ssChangesEnvironment,
+      ssDisableFinishedPage, ssDisableReadyMemo, ssDisableReadyPage, ssDiskSpanning,
+      ssDontMergeDuplicateFiles, ssEnableDirDoesntExistWarning, ssEncryption,
+      ssLZMAUseSeparateProcess, ssSetupLogging, ssShowTasksTreeLines,
+      ssSignToolRunMinimized, ssSolidCompression, ssUninstallLogging,
+      ssUninstallRestartComputer, ssUserInfoPage];
+
+    SetupSectionDirectivesDefaultAuto = [
+      ssArchiveExtraction, ssCompressionThreads, ssDirExistsWarning,
+      ssDisableDirPage, ssDisableProgramGroupPage];
+  begin
+    if SetupSectionDirective in SetupSectionDirectivesDefaultYes then
+      Exit(SYes);
+    if SetupSectionDirective in SetupSectionDirectivesDefaultNo then
+      Exit(SNo);
+    if SetupSectionDirective in SetupSectionDirectivesDefaultAuto then
+      Exit(SAuto);
+    case SetupSectionDirective of
+      { directives with a fixed value-list default }
+      ssCompression: Result := 'lzma2/max';
+      ssInternalCompressLevel: Result := 'normal';
+      ssEncryptionKeyDerivation: Result := 'pbkdf2/220000';
+      ssPrivilegesRequired: Result := 'admin';
+      ssUninstallLogMode: Result := 'append';
+      ssLanguageDetectionMethod: Result := 'uilanguage';
+      ssSetupArchitecture: Result := 'x86';
+      ssWizardStyle: Result := 'classic';
+      ssWizardImageAlphaFormat: Result := 'none';
+      { directives with a fixed text or numeric default }
+      ssOutputBaseFilename: Result := 'mysetup';
+      ssOutputDir: Result := 'Output';
+      ssDefaultGroupName: Result := '(Default)';
+      ssUninstallFilesDir: Result := '{app}';
+      ssDefaultUserInfoName: Result := '{sysuserinfoname}';
+      ssDefaultUserInfoOrg: Result := '{sysuserinfoorg}';
+      ssDefaultDialogFontName: Result := 'Segoe UI';
+      ssCloseApplicationsFilter: Result := '*.exe,*.dll,*.chm';
+      ssExtraDiskSpaceRequired, ssReserveBytes, ssSignToolMinimumTimeBetween,
+        ssOnlyBelowVersion: Result := '0';
+      ssDiskClusterSize: Result := '512';
+      ssSlicesPerDisk, ssLZMANumBlockThreads: Result := '1';
+      ssDiskSliceSize: Result := '2100000000';
+      ssTimeStampRounding: Result := '2';
+      ssTouchDate, ssTouchTime: Result := 'current';
+      ssSignToolRetryCount: Result := '2';
+      ssSignToolRetryDelay: Result := '500';
+      ssWizardImageOpacity, ssWizardBackImageOpacity: Result := '255';
+      ssWizardSizePercent: Result := '120,120';
+      ssVersionInfoVersion: Result := '0.0.0.0';
+      ssMinVersion: Result := '6.1sp1';
+    else
+      Result := '';
+    end;
+  end;
+
+  procedure AddSetupSectionMetadata;
+  begin
+    var Definitions: TArray<TScriptParameterDefinition>;
+    SetLength(Definitions, Ord(High(TSetupSectionDirective))+1);
+    for var Directive := Low(TSetupSectionDirective) to High(TSetupSectionDirective) do begin
+      var ValueKind := pvkString;
+      var KnownValues: TArray<String> := nil;
+      if Directive in SetupSectionDirectivesYesNo then
+        ValueKind := pvkYesNo
+      else if Directive in SetupSectionDirectivesYesNoOrScripted then begin
+        ValueKind := pvkChoice; { Also allows free typing }
+        KnownValues := [SYes, SNo];
+      end else if Directive in SetupSectionDirectivesAutoYesNo then begin
+        ValueKind := pvkChoice; { See above }
+        KnownValues := [SAuto, SYes, SNo];
+      end;
+      Definitions[Ord(Directive)] := PD(
+        Copy(GetEnumName(TypeInfo(TSetupSectionDirective), Ord(Directive)),
+          Length(SetupSectionDirectivePrefix)+1, MaxInt),
+        ValueKind, KnownValues, Directive in SetupSectionDirectivesObsolete,
+        SetupSectionDirectiveDefaultValue(Directive));
+    end;
+    SectionMetadataList.Add(TScriptSectionMetadata.Create('Setup', Definitions, nil));
+  end;
+
+  function LangOptionsSectionDirectiveDefaultValue(
+    const LangOptionsSectionDirective: TLangOptionsSectionDirective): String;
+  begin
+    case LangOptionsSectionDirective of
+      lsRightToLeft: Result := SNo;
+      lsLanguageName: Result := 'English';
+      lsLanguageID: Result := '$0409';
+      lsLanguageCodePage: Result := '0';
+      lsDialogFontSize: Result := '9';
+      lsDialogFontBaseScaleWidth: Result := '7';
+      lsDialogFontBaseScaleHeight: Result := '15';
+      lsWelcomeFontName: Result := 'Segoe UI';
+      lsWelcomeFontSize: Result := '14';
+    else
+      Result := ''; { lsDialogFontName has no default, same for all obsolete }
+    end;
+  end;
+
+  procedure AddLangOptionsSectionMetadata;
+  const
+    LangOptionsSectionDirectivesYesNo = [lsRightToLeft];
+  begin
+    var Definitions: TArray<TScriptParameterDefinition>;
+    SetLength(Definitions, Ord(High(TLangOptionsSectionDirective))+1);
+    for var Directive := Low(TLangOptionsSectionDirective) to High(TLangOptionsSectionDirective) do begin
+      var ValueKind := pvkString;
+      if Directive in LangOptionsSectionDirectivesYesNo then
+        ValueKind := pvkYesNo;
+      Definitions[Ord(Directive)] := PD(
+        Copy(GetEnumName(TypeInfo(TLangOptionsSectionDirective), Ord(Directive)),
+          LangOptionsSectionDirectivePrefixLength+1, MaxInt),
+        ValueKind, nil, Directive in LangOptionsSectionDirectivesObsolete,
+        LangOptionsSectionDirectiveDefaultValue(Directive));
+    end;
+    SectionMetadataList.Add(TScriptSectionMetadata.Create('LangOptions', Definitions, nil));
   end;
 
 begin
@@ -308,6 +494,9 @@ begin
     FIR('Flags', 'uninsnosharedfileprompt', ['sharedfile'])],
     [PIF('ExternalSize', 'Flags', 'external'),
     PIF('ISSigAllowedKeys', 'Flags', 'issigverify')]));
+
+  AddSetupSectionMetadata;
+  AddLangOptionsSectionMetadata;
 end;
 
 initialization

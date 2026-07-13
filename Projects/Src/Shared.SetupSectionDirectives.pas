@@ -2,7 +2,7 @@ unit Shared.SetupSectionDirectives;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -193,7 +193,14 @@ type
     ssWizardStyle,
     ssWizardStyleFile,
     ssWizardStyleFileDynamicDark);
-    
+
+const
+  SetupSectionDirectivesObsolete: set of TSetupSectionDirective = [
+    ssBackColor, ssBackColor2, ssBackColorDirection, ssBackSolid,
+    ssDontMergeDuplicateFiles, ssMessagesFile, ssShowUndisplayableLanguages,
+    ssUninstallIconFile, ssUninstallStyle, ssWindowResizable, ssWindowShowCaption,
+    ssWindowStartMaximized, ssWindowVisible, ssWizardResizable];
+
 implementation
 
 end.
