@@ -2384,6 +2384,8 @@ begin
     for Memo in FFileMemos do
       Memo.ReadOnly := True;
     UpdateEditModeStatusPanel;
+    if FInspector <> nil then
+      FInspector.UpdateReadOnly;
     HideError;
     CompilerOutputList.Clear;
     SendMessage(CompilerOutputList.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
@@ -2481,6 +2483,8 @@ begin
     for Memo in FFileMemos do
       Memo.ReadOnly := False;
     UpdateEditModeStatusPanel;
+    if FInspector <> nil then
+      FInspector.UpdateReadOnly;
     UpdateRunMenuItems;
     UpdateCaption;
     UpdatePreprocMemos;

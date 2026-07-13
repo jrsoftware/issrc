@@ -18,6 +18,9 @@
     DrawThemedFrameControl and centered in the row
   - the boolean check boxes now draw a yes/no label after the box, using the
     canvas font so a painter's OnSetItemColors handler can bold it
+  - the DotNET painter fires OnSetItemColors before drawing a row's name as
+    well (upstream fired it only before the value), so a handler can style
+    the name column too
   - BeforeEdit now fires after the in-place editor's font has been assigned
     (instead of just after the editor was created), so a handler can customize
     that font without it being overwritten
@@ -5250,6 +5253,8 @@ begin
   Canvas.FillRect(PreNameRect);
   ApplyNameFont;
   Canvas.FillRect(Rects[iprNameArea]);
+  if Assigned(FOnSetItemColors) then
+    FOnSetItemColors(Item, Canvas);
   Item.DrawName(Canvas);
   ApplyCanvasState(Canvas, SaveIdx);
   ApplyValueFont;

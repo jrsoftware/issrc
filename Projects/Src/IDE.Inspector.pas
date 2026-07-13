@@ -16,7 +16,7 @@ unit IDE.Inspector;
 interface
 
 uses
-  Classes, Generics.Collections, TypInfo,
+  Classes, Graphics, Controls, StdCtrls, Generics.Collections, TypInfo,
   JvInspector, ModernColors,
   IDE.LiveScriptObjectFactory, IDE.ScriptModel, IDE.ScriptModel.Metadata;
 
@@ -56,10 +56,10 @@ type
       out ARow: TInspectorRow): Boolean; overload;
     function TryGetRow(const AItem: TJvCustomInspectorItem;
       out ARow: TInspectorRow): Boolean; overload;
-    function TryGetRow(const ARow: TInspectorRow;
-      out AEntry: TScriptParameterEntry; out AIndex: Integer): Boolean; overload;
-    function TryGetRow(const ARow: TInspectorRow;
-      out ASection: TScriptDirectiveSection; out AIndex: Integer): Boolean; overload;
+    function TryGetRowParameterEntry(const ARow: TInspectorRow;
+      out AEntry: TScriptParameterEntry; out AIndex: Integer): Boolean;
+    function TryGetRowDirectiveSection(const ARow: TInspectorRow;
+      out ASection: TScriptDirectiveSection; out AIndex: Integer): Boolean;
     procedure RowGetAsOrdinal(Sender: TJvInspectorEventData; var Value: Int64);
     procedure RowGetAsString(Sender: TJvInspectorEventData; var Value: String);
     procedure RowSetAsOrdinal(Sender: TJvInspectorEventData; var Value: Int64);
@@ -68,6 +68,11 @@ type
     procedure DebugStatusRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
     procedure DebugSectionsRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
     procedure DebugEarlyExitsRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
+    function ItemValueIsFromScript(const AItem: TJvCustomInspectorItem): Boolean;
+    procedure PainterSetItemColors(Item: TJvCustomInspectorItem;
+      Canvas: TCanvas);
+    procedure JvInspectorBeforeEdit(Sender: TObject;
+      Item: TJvCustomInspectorItem; Edit: TCustomEdit);
     function GetDividerWidth: Integer;
     function GetWidth: Integer;
     procedure SetDividerWidth(const Value: Integer);
@@ -81,6 +86,7 @@ type
     procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
       const AAllowShowAllKnownDirectives: Boolean);
     procedure UpdateFromCaret;
+    procedure UpdateReadOnly;
     procedure UpdateTheme(const ATheme: TTheme);
     property ShowAllKnownDirectives: Boolean read FShowAllKnownDirectives
       write SetShowAllKnownDirectives;
@@ -92,7 +98,7 @@ type
 implementation
 
 uses
-  SysUtils, Themes,
+  SysUtils, UITypes, Themes,
   NewUxTheme,
   Shared.CommonFunc,
   IDE.Messages, IDE.LocalizeFunc;
@@ -114,6 +120,8 @@ begin
 
   FJvInspector := AJvInspector;
   FPainter := FJvInspector.Painter as TJvInspectorDotNETPainter;
+  FPainter.OnSetItemColors := PainterSetItemColors;
+  FJvInspector.BeforeEdit := JvInspectorBeforeEdit;
   FJvInspector.Root.SortKind := iskNone;
 end;
 
@@ -128,7 +136,41 @@ begin
   inherited;
 end;
 
-function TInspector.TryGetRow(const ARow: TInspectorRow;
+function TInspector.ItemValueIsFromScript(
+  const AItem: TJvCustomInspectorItem): Boolean;
+
+  function RowValueIsFromScript(const ARow: TInspectorRow): Boolean;
+  begin
+    Result := False;
+    case ARow.Kind of
+      irkEntryValue:
+        begin
+          var Entry: TScriptParameterEntry;
+          var Index: Integer;
+          Result := TryGetRowParameterEntry(ARow, Entry, Index);
+        end;
+      irkEntryFlag:
+        begin
+          var Entry: TScriptParameterEntry;
+          var Index: Integer;
+          Result := TryGetRowParameterEntry(ARow, Entry, Index) and
+            Entry.FlagIncluded(Index, ARow.FlagName);
+        end;
+      irkDirective:
+        begin
+          var Section: TScriptDirectiveSection;
+          var Index: Integer;
+          Result := TryGetRowDirectiveSection(ARow, Section, Index);
+        end;
+    end;
+  end;
+
+begin
+  var Row: TInspectorRow;
+  Result := TryGetRow(AItem, Row) and RowValueIsFromScript(Row);
+end;
+
+function TInspector.TryGetRowParameterEntry(const ARow: TInspectorRow;
   out AEntry: TScriptParameterEntry; out AIndex: Integer): Boolean;
 begin
   AEntry := nil;
@@ -140,7 +182,7 @@ begin
   Result := AEntry.TryResolve(ARow.Name, AIndex);
 end;
 
-function TInspector.TryGetRow(const ARow: TInspectorRow;
+function TInspector.TryGetRowDirectiveSection(const ARow: TInspectorRow;
   out ASection: TScriptDirectiveSection; out AIndex: Integer): Boolean;
 begin
   ASection := nil;
@@ -150,6 +192,26 @@ begin
   ASection := FLiveDirectiveSection.Section;
   AIndex := ARow.NameIndex;
   Result := ASection.TryResolve(ARow.Name, AIndex);
+end;
+
+procedure TInspector.PainterSetItemColors(Item: TJvCustomInspectorItem;
+  Canvas: TCanvas);
+begin
+  { Called by the DotNET painter just before it draws each row's name and again
+    just before its value }
+  if ItemValueIsFromScript(Item) then
+    Canvas.Font.Style := Canvas.Font.Style + [fsBold];
+end;
+
+type
+  TControlAccess = class(TControl);
+
+procedure TInspector.JvInspectorBeforeEdit(Sender: TObject;
+  Item: TJvCustomInspectorItem; Edit: TCustomEdit);
+begin
+  { Bold the in-place editor's font as well }
+  if ItemValueIsFromScript(Item) then
+    TControlAccess(Edit).Font.Style := TControlAccess(Edit).Font.Style + [fsBold];
 end;
 
 procedure TInspector.SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
@@ -469,6 +531,8 @@ begin
   if FInEdit then
     Exit;
 
+  FJvInspector.ReadOnly := FFactory.Memo.ReadOnly;
+
   const CaretLine = FFactory.Memo.CaretLine;
 
   { Without a memo change or a forced rebuild, a caret move within the same
@@ -566,6 +630,11 @@ begin
   FJvInspector.Invalidate;
 end;
 
+procedure TInspector.UpdateReadOnly;
+begin
+  FJvInspector.ReadOnly := FFactory.Memo.ReadOnly;
+end;
+
 function TInspector.TryGetRow(const Sender: TJvInspectorEventData;
   out ARow: TInspectorRow): Boolean;
 begin
@@ -594,7 +663,7 @@ begin
       begin
         var Entry: TScriptParameterEntry;
         var Index: Integer;
-        if TryGetRow(Row, Entry, Index) and
+        if TryGetRowParameterEntry(Row, Entry, Index) and
            Entry.FlagIncluded(Index, Row.FlagName) then
           Value := 1;
       end;
@@ -602,7 +671,7 @@ begin
       begin
         var Section: TScriptDirectiveSection;
         var Index: Integer;
-        if TryGetRow(Row, Section, Index) then begin
+        if TryGetRowDirectiveSection(Row, Section, Index) then begin
           var BoolValue := False;
           if TryStrToBoolean(Section.Lines[Index].Value, BoolValue) and BoolValue then
             Value := 1;
@@ -625,7 +694,7 @@ begin
       begin
         var Entry: TScriptParameterEntry;
         var Index: Integer;
-        if TryGetRow(Row, Entry, Index) then
+        if TryGetRowParameterEntry(Row, Entry, Index) then
           Value := Entry.Parameters[Index].Value;
         { else: Not present in the script: show empty }
       end;
@@ -633,7 +702,7 @@ begin
       begin
         var Section: TScriptDirectiveSection;
         var Index: Integer;
-        if TryGetRow(Row, Section, Index) then
+        if TryGetRowDirectiveSection(Row, Section, Index) then
           Value := Section.Lines[Index].Value
         else if Section <> nil then
           Value := Section.DefaultValue(Row.Name); { Not present in the script: show the compiler default }
@@ -648,7 +717,7 @@ begin
   if not TryGetRow(Sender, Row) then
     raise Exception.Create('Internal error: RowSetAsOrdinal: unknown row');
   if FFactory.Memo.ReadOnly then
-    raise Exception.Create('Internal error: RowSetAsOrdinal: memo is read-only');
+    raise Exception.Create(LFmtMessage(SInspectorReadOnlyError));
   FInEdit := True;
   try
     case Row.Kind of
@@ -656,7 +725,7 @@ begin
         begin
           var Entry: TScriptParameterEntry;
           var Index: Integer;
-          if TryGetRow(Row, Entry, Index) then
+          if TryGetRowParameterEntry(Row, Entry, Index) then
             Entry.SetFlag(Index, Row.FlagName, Value <> 0) { May adjust related flags as well }
           else if (Entry <> nil) and (Row.NameIndex < 0) and (Value <> 0) then begin
             { Group Add's and SetFlag's writes into a single undo action }
@@ -675,7 +744,7 @@ begin
           var NewValue := SNo;
           if Value <> 0 then
             NewValue := SYes;
-          if TryGetRow(Row, Section, Index) then
+          if TryGetRowDirectiveSection(Row, Section, Index) then
             Section.SetValue(Index, NewValue)
           else if (Section <> nil) and (Row.NameIndex < 0) and
                   not SameText(NewValue, Section.DefaultValue(Row.Name)) then { Skip unchanged from default, also see below }
@@ -697,7 +766,7 @@ begin
   if not TryGetRow(Sender, Row) then
     raise Exception.Create('Internal error: RowSetAsString: unknown row');
   if FFactory.Memo.ReadOnly then
-    raise Exception.Create('Internal error: RowSetAsString: memo is read-only');
+    raise Exception.Create(LFmtMessage(SInspectorReadOnlyError));
   FInEdit := True;
   try
     case Row.Kind of
@@ -705,7 +774,7 @@ begin
         begin
           var Entry: TScriptParameterEntry;
           var Index: Integer;
-          const Found = TryGetRow(Row, Entry, Index);
+          const Found = TryGetRowParameterEntry(Row, Entry, Index);
           if Entry <> nil then begin
             var Definition: TScriptParameterDefinition;
             if (Value <> '') and (Pos('{', Value) = 0) and
@@ -727,7 +796,7 @@ begin
         begin
           var Section: TScriptDirectiveSection;
           var Index: Integer;
-          if TryGetRow(Row, Section, Index) then
+          if TryGetRowDirectiveSection(Row, Section, Index) then
             Section.SetValue(Index, Value)
           else if (Section <> nil) and (Row.NameIndex < 0) and (Value <> '') and
                   (Value <> Section.DefaultValue(Row.Name)) then { See above }
