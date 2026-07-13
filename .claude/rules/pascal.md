@@ -3,6 +3,7 @@ paths: ["**/*.pas", "**/*.dpr", "**/*.inc"]
 ---
 # Coding conventions for Pascal source files
 - Always use inline variables instead of pre-declaring them at the start of the function.
+  Exception: Delphi 10.4 does not support anonymous array types in inline variable or constant declarations, so pre-declare them.
 - Prefer inline constants over inline variables, even for run-time values and not just for compile-time constants.
   Exception: inline constants cannot be passed as `var` parameters, so use an inline variable in that case.
   Inline constants which are an object can still have their properties modified.
@@ -10,12 +11,12 @@ paths: ["**/*.pas", "**/*.dpr", "**/*.inc"]
   `const MaxCount = MinCount * 2;`
   `const ExpandedFilename = PathExpand(Filenames[I]);`
 - Prefer factoring shared code into a routine, or binding the expression to an inline const.
-- A routine used only by a single caller should be a local (nested) routine of that caller, and not a separate standalone routine. No exceptions, except routines assigned to an event or property.
+- A routine whose callers all sit inside one routine belongs nested in it, not as a method or a unit-level routine. Keep such helpers siblings at a single level: never nest a helper inside another helper. No exceptions, except a routine assigned to an event stays a method.
 - Do not use `with` statements.
 - `if` and `begin` should be on the same line.
 - `else` and `begin` should be on the same line.
 - A `Result` assignment followed by an `Exit` statement should be combined into a single statement. For example: `Exit(ResultValue);`
-- Do not use `begin..end` for single one-line statement blocks, but always use it when the block's single statement spans multiple lines (such as a multi-line `for`).
+- Do not use `begin..end` for single one-line statement blocks, but always use it when the block spans multiple lines. This includes when the block's single statement spans multiple lines (such as a multi-line `for`), and when a comment on its own line accompanies the statement (such an own-line comment counts as a block line; a trailing comment on the statement's line does not).
 - Do not use `Longint` or `LongWord`, use `Integer` or `Cardinal` instead.
 - Use two spaces for indentation, not tabs.
 - Mark read-only parameters as `const`.
@@ -34,7 +35,7 @@ paths: ["**/*.pas", "**/*.dpr", "**/*.inc"]
 - Be alert for `out` parameters: an `out` parameter, like a `var` parameter, is passed by reference. However, with an `out` parameter, the initial value of the referenced variable for managed types, such as strings or arrays, is discarded by the caller before it is passed to the routine. Meanwhile, the initial value for unmanaged types, such as integers or pointers, is ignored. Therefore, for unmanaged types, it is not guaranteed that the initial value of the referenced variable will be overwritten in the routine to which it is passed.
 - Be alert for functions not assigning a value to Result: if a function exits without assigning a value to Result or the function name, then the function's return value is undefined, even for managed types.
 - Be alert for dynamic-array aliasing: assigning one dynamic array (e.g. `TBytes`) to another makes both reference the same buffer. Unlike strings and static arrays, copy-on-write is not employed, so writes through one alias (including `FillChar`) are visible through the other. Use `Copy(Source)` when an independent buffer is needed.
-- Code must be compatible with Delphi 10.4 Sydney and later.
+- Code must be compatible with Delphi 10.4 and later.
 - Code must be compatible with 32-bit and 64-bit builds.
 - Code must be compatible with Windows 7 and later.
 - Do not suggest applying coding conventions to unchanged code.
