@@ -83,6 +83,7 @@ type
     FDirtyFirstLine, FDirtyLastLine: Integer; { -1 when nothing is dirty }
     FLiveScriptObjects: TList<TLiveScriptObject>;
     FWritingBackObject: TLiveScriptObject;
+    FChangeCount: Int64;
     procedure EnsureIndex;
     procedure EnsureStyled;
     function GetLinesText(const AFirstLine, ALastLine: Integer): TArray<String>;
@@ -109,6 +110,9 @@ type
     function TryCreateDirectiveSection(const ASectionIndex: Integer;
       out ASection: TLiveScriptDirectiveSection;
       out ARefusalReason: String): Boolean;
+    { Bumped on every Change call, so a consumer can tell whether the memo
+      changed since it last read something }
+    property ChangeCount: Int64 read FChangeCount;
     property Memo: TScintEdit read FMemo;
     property Sections[Index: Integer]: TLiveScriptSection read GetSection;
     property Styler: TInnoSetupStyler read FStyler;
@@ -396,6 +400,8 @@ procedure TLiveScriptObjectFactory.Change(const Info: TScintEditChangeInfo);
   end;
 
 begin
+  Inc(FChangeCount);
+
   if not FIndexValid then
     Exit;
 

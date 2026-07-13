@@ -42,10 +42,13 @@ type
     FLiveDirectiveSection: TLiveScriptDirectiveSection;
     FLiveDirectiveSectionName: String;
     FLiveDirectiveSectionHasSiblingOccurrences: Boolean;
+    FLiveDirectiveSectionIndex: Integer; { Factory section index it was created for }
+    FChangeCountAtCreation: Int64; { Factory ChangeCount at the live object's creation }
     FRows: TList<TInspectorRow>;
     FRowsByData: TDictionary<TJvInspectorEventData, Integer>; { Reverse lookup of a FRows index }
     FRowSetSignature: String;
     FDebugStatusRowString: String;
+    FUpdateFromCaretEarlyExitCount: Integer;
     FInEdit: Boolean;
     FShowAllKnownDirectives: Boolean;
     FAllowShowAllKnownDirectives: Boolean;
@@ -64,6 +67,7 @@ type
     procedure ChoiceRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
     procedure DebugStatusRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
     procedure DebugSectionsRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
+    procedure DebugEarlyExitsRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
     function GetDividerWidth: Integer;
     function GetWidth: Integer;
     procedure SetDividerWidth(const Value: Integer);
@@ -161,6 +165,47 @@ begin
 end;
 
 procedure TInspector.UpdateFromCaret;
+
+  function LiveObjectTextChanged: Boolean;
+  begin
+    if FFactory.ChangeCount < FChangeCountAtCreation then
+      raise Exception.Create('Internal error: LiveObjectTextChanged: ChangeCount decreased');
+    Result := FFactory.ChangeCount > FChangeCountAtCreation;
+  end;
+
+  function ExpandedStateKey(const AItem: TJvCustomInspectorItem): String;
+  begin
+    if AItem is TJvInspectorCustomCategoryItem then
+      Result := 'C|' + AItem.DisplayName
+    else
+      Result := 'R|' + AItem.DisplayName;
+  end;
+
+  procedure SaveExpandedStates(const AStates: TDictionary<String, Boolean>;
+    const AParent: TJvCustomInspectorItem);
+  begin
+    for var I := 0 to AParent.Count-1 do begin
+      const Item = AParent.Items[I];
+      if Item.Count > 0 then begin
+        AStates.AddOrSetValue(ExpandedStateKey(Item), Item.Expanded);
+        SaveExpandedStates(AStates, Item);
+      end;
+    end;
+  end;
+
+  procedure RestoreExpandedStates(const AStates: TDictionary<String, Boolean>;
+    const AParent: TJvCustomInspectorItem);
+  begin
+    for var I := 0 to AParent.Count-1 do begin
+      const Item = AParent.Items[I];
+      if Item.Count > 0 then begin
+        var Expanded: Boolean;
+        if AStates.TryGetValue(ExpandedStateKey(Item), Expanded) then
+          Item.Expanded := Expanded;
+        RestoreExpandedStates(AStates, Item);
+      end;
+    end;
+  end;
 
   function NewCategory(const AName: String): TJvCustomInspectorItem;
   begin
@@ -393,18 +438,27 @@ procedure TInspector.UpdateFromCaret;
   begin
     FJvInspector.BeginUpdate;
     try
-      FJvInspector.Clear;
-      FRows.Clear;
-      FRowsByData.Clear;
+      const ExpandedStates = TDictionary<String, Boolean>.Create;
+      try
+        SaveExpandedStates(ExpandedStates, FJvInspector.Root);
+        FJvInspector.Clear;
+        FRows.Clear;
+        FRowsByData.Clear;
 
-      if FLiveEntry <> nil then
-        AddEntryRows
-      else if FLiveDirectiveSection <> nil then
-        AddDirectiveRows;
+        if FLiveEntry <> nil then
+          AddEntryRows
+        else if FLiveDirectiveSection <> nil then
+          AddDirectiveRows;
 
-      const DebugCategory = NewCategory('Debug');
-      AddDebugRow(DebugCategory, 'Status', DebugStatusRowGetAsString);
-      AddDebugRow(DebugCategory, 'Sections', DebugSectionsRowGetAsString);
+        const DebugCategory = NewCategory('Debug');
+        AddDebugRow(DebugCategory, 'Status', DebugStatusRowGetAsString);
+        AddDebugRow(DebugCategory, 'Sections', DebugSectionsRowGetAsString);
+        AddDebugRow(DebugCategory, 'Early exits', DebugEarlyExitsRowGetAsString);
+
+        RestoreExpandedStates(ExpandedStates, FJvInspector.Root);
+      finally
+        ExpandedStates.Free;
+      end;
     finally
       FJvInspector.EndUpdate;
     end;
@@ -413,16 +467,45 @@ procedure TInspector.UpdateFromCaret;
 begin
   if FInEdit then
     Exit;
+
+  const CaretLine = FFactory.Memo.CaretLine;
+
+  { Without a memo change or a forced rebuild, a caret move within the same
+    entry or directive section changes nothing, so keep the model and the rows.
+    The signature check must precede LiveObjectTextChanged: right after
+    SetActiveFactory the live object still belongs to the previous factory. }
+  if (FLiveEntry <> nil) and FLiveEntry.Valid and
+     (FRowSetSignature <> '') and not LiveObjectTextChanged and
+     (CaretLine >= FLiveEntry.FirstLine) and
+     (CaretLine <= FLiveEntry.LastLine) then begin
+    Inc(FUpdateFromCaretEarlyExitCount);
+    FJvInspector.Invalidate; { Repaint the early exit count }
+    Exit;
+  end;
+  if (FLiveDirectiveSection <> nil) and FLiveDirectiveSection.Valid and
+     (FRowSetSignature <> '') and not LiveObjectTextChanged then begin
+    { Resolved by section index instead of the entry's line-range test above:
+      the section's range covers the body only, so it misses the header line }
+    var SectionIndex: Integer;
+    if FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
+       (SectionIndex = FLiveDirectiveSectionIndex) then begin
+      Inc(FUpdateFromCaretEarlyExitCount);
+      FJvInspector.Invalidate; { See above }
+      Exit;
+    end;
+  end;
+
   FreeAndNil(FLiveEntry);
   FreeAndNil(FLiveDirectiveSection);
+  FUpdateFromCaretEarlyExitCount := 0;
 
   { Build row set signature for the selected entry or section }
-  const CaretLine = FFactory.Memo.CaretLine;
   var RowSetSignature: String; { The actual value this gets doesn't matter, as long as it's unique for any unique row set }
   var Entry: TLiveScriptEntry;
   var EntryRefusalReason: String;
   if FFactory.TryCreateEntry(CaretLine, Entry, EntryRefusalReason) then begin
     FLiveEntry := Entry;
+    FChangeCountAtCreation := FFactory.ChangeCount;
     const SectionName = ParameterSectionToSectionName(FLiveEntry.Section);
     FDebugStatusRowString := Format('[%s] entry at lines %d-%d',
       [SectionName, FLiveEntry.FirstLine+1, FLiveEntry.LastLine+1]);
@@ -442,6 +525,8 @@ begin
          SectionRefusalReason) then begin
       const Header = FFactory.Sections[SectionIndex];
       FLiveDirectiveSection := DirectiveSection;
+      FLiveDirectiveSectionIndex := SectionIndex;
+      FChangeCountAtCreation := FFactory.ChangeCount;
       FLiveDirectiveSectionName := Header.Name;
       FDebugStatusRowString := Format('[%s] section at line %d',
         [Header.Name, Header.Line+1]);
@@ -693,6 +778,12 @@ begin
   end;
 end;
 
+procedure TInspector.DebugEarlyExitsRowGetAsString(Sender: TJvInspectorEventData;
+  var Value: String);
+begin
+  Value := IntToStr(FUpdateFromCaretEarlyExitCount);
+end;
+
 function TInspector.GetWidth: Integer;
 begin
   Result := FJvInspector.Width;
@@ -712,6 +803,7 @@ procedure TInspector.SetShowAllKnownDirectives(const Value: Boolean);
 begin
   if Value <> FShowAllKnownDirectives then begin
     FShowAllKnownDirectives := Value;
+    FRowSetSignature := ''; { Force a rebuild, see UpdateFromCaret's early exit }
     UpdateFromCaret;
   end;
 end;

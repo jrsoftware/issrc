@@ -440,7 +440,7 @@ begin
   const EOL = String(AMemo.LineEndingString);
 
   { Inserting lines above a live entry shifts its range and the section index,
-    and the entry stays valid }
+    the entry stays valid, and the change bumps the factory's ChangeCount }
   begin
     const Context = TFactoryTestContext.Create(AMemo, AStyler, [
       '[Files]',
@@ -454,7 +454,9 @@ begin
       try
         Assert(Entry.FirstLine = 1);
         Assert(Entry.LastLine = 1);
+        const ChangeCountBefore = Factory.ChangeCount;
         AMemo.ReplaceTextRange(0, 0, 'X' + EOL); { Insert a line at the top }
+        Assert(Factory.ChangeCount > ChangeCountBefore);
         Assert(Entry.Valid);
         Assert(Entry.FirstLine = 2);
         Assert(Entry.LastLine = 2);
