@@ -163,6 +163,7 @@ type
     procedure Remove(const AIndex: Integer);
     function TryGetDefinition(const AName: String;
       out ADefinition: TScriptParameterDefinition): Boolean;
+    function DefaultValue(const AName: String): String;
     property Lines[Index: Integer]: TScriptDirectiveSectionLine read GetLine;
     property Metadata: TScriptSectionMetadata read FMetadata;
     property QuoteNewValues: Boolean read FQuoteNewValues write FQuoteNewValues;
@@ -1061,6 +1062,14 @@ function TScriptDirectiveSection.TryGetDefinition(const AName: String;
   out ADefinition: TScriptParameterDefinition): Boolean;
 begin
   Result := (FMetadata <> nil) and FMetadata.TryGetParameter(AName, ADefinition);
+end;
+
+function TScriptDirectiveSection.DefaultValue(const AName: String): String;
+begin
+  Result := '';
+  var Definition: TScriptParameterDefinition;
+  if TryGetDefinition(AName, Definition) then
+    Result := Definition.DefaultValue;
 end;
 
 end.

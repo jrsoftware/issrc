@@ -39,17 +39,24 @@ type
     FPainter: TJvInspectorDotNETPainter;
     FFactory: TLiveScriptObjectFactory;
     FLiveEntry: TLiveScriptEntry;
+    FLiveDirectiveSection: TLiveScriptDirectiveSection;
+    FLiveDirectiveSectionName: String;
+    FLiveDirectiveSectionHasSiblingOccurrences: Boolean;
     FRows: TList<TInspectorRow>;
     FRowsByData: TDictionary<TJvInspectorEventData, Integer>; { Reverse lookup of a FRows index }
     FRowSetSignature: String;
     FDebugStatusRowString: String;
     FInEdit: Boolean;
+    FShowAllKnownDirectives: Boolean;
+    FAllowShowAllKnownDirectives: Boolean;
     function TryGetRow(const Sender: TJvInspectorEventData;
       out ARow: TInspectorRow): Boolean; overload;
     function TryGetRow(const AItem: TJvCustomInspectorItem;
       out ARow: TInspectorRow): Boolean; overload;
     function TryGetRow(const ARow: TInspectorRow;
       out AEntry: TScriptParameterEntry; out AIndex: Integer): Boolean; overload;
+    function TryGetRow(const ARow: TInspectorRow;
+      out ASection: TScriptDirectiveSection; out AIndex: Integer): Boolean; overload;
     procedure RowGetAsOrdinal(Sender: TJvInspectorEventData; var Value: Int64);
     procedure RowGetAsString(Sender: TJvInspectorEventData; var Value: String);
     procedure RowSetAsOrdinal(Sender: TJvInspectorEventData; var Value: Int64);
@@ -60,14 +67,19 @@ type
     function GetDividerWidth: Integer;
     function GetWidth: Integer;
     procedure SetDividerWidth(const Value: Integer);
+    procedure SetShowAllKnownDirectives(const Value: Boolean);
     procedure SetWidth(const Value: Integer);
   public
     constructor Create(const AJvInspector: TJvInspector;
-      const AFactory: TLiveScriptObjectFactory);
+      const AFactory: TLiveScriptObjectFactory;
+      const AAllowShowAllKnownDirectives: Boolean);
     destructor Destroy; override;
-    procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory);
+    procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
+      const AAllowShowAllKnownDirectives: Boolean);
     procedure UpdateFromCaret;
     procedure UpdateTheme(const ATheme: TTheme);
+    property ShowAllKnownDirectives: Boolean read FShowAllKnownDirectives
+      write SetShowAllKnownDirectives;
     property JvInspector: TJvInspector read FJvInspector;
     property Width: Integer read GetWidth write SetWidth;
     property DividerWidth: Integer read GetDividerWidth write SetDividerWidth;
@@ -78,17 +90,20 @@ implementation
 uses
   SysUtils, Themes,
   NewUxTheme,
+  Shared.CommonFunc,
   IDE.Messages, IDE.LocalizeFunc;
 
 { TInspector }
 
 constructor TInspector.Create(const AJvInspector: TJvInspector;
-  const AFactory: TLiveScriptObjectFactory);
+  const AFactory: TLiveScriptObjectFactory;
+  const AAllowShowAllKnownDirectives: Boolean);
 { Takes ownership of AJvInspector }
 begin
   inherited Create;
 
   FFactory := AFactory;
+  FAllowShowAllKnownDirectives := AAllowShowAllKnownDirectives;
   FDebugStatusRowString := 'Not updated yet';
   FRows := TList<TInspectorRow>.Create;
   FRowsByData := TDictionary<TJvInspectorEventData, Integer>.Create;
@@ -103,6 +118,7 @@ begin
   { Free the inspector before the objects its rows read from }
   FJvInspector.Free;
   FLiveEntry.Free;
+  FLiveDirectiveSection.Free;
   FRowsByData.Free;
   FRows.Free;
   inherited;
@@ -120,12 +136,26 @@ begin
   Result := AEntry.TryResolve(ARow.Name, AIndex);
 end;
 
-procedure TInspector.SetActiveFactory(const AFactory: TLiveScriptObjectFactory);
+function TInspector.TryGetRow(const ARow: TInspectorRow;
+  out ASection: TScriptDirectiveSection; out AIndex: Integer): Boolean;
+begin
+  ASection := nil;
+  AIndex := -1;
+  if (FLiveDirectiveSection = nil) or not FLiveDirectiveSection.Valid then
+    Exit(False);
+  ASection := FLiveDirectiveSection.Section;
+  AIndex := ARow.NameIndex;
+  Result := ASection.TryResolve(ARow.Name, AIndex);
+end;
+
+procedure TInspector.SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
+  const AAllowShowAllKnownDirectives: Boolean);
 begin
   if AFactory = FFactory then
     Exit;
   { Attach to a different factory = different memo = different tab }
   FFactory := AFactory;
+  FAllowShowAllKnownDirectives := AAllowShowAllKnownDirectives;
   FRowSetSignature := ''; { Force rebuild even if row set stayed same }
   UpdateFromCaret;
 end;
@@ -224,6 +254,29 @@ procedure TInspector.UpdateFromCaret;
       AddParameterRow(AParent, ADefinition, -1);
   end;
 
+  function MakeDirectiveRow(const AName: String;
+    const ANameIndex: Integer): TInspectorRow;
+  begin
+    Result.Kind := irkDirective;
+    Result.Name := AName;
+    Result.FlagName := '';
+    Result.NameIndex := ANameIndex;
+  end;
+
+  procedure AddDirectiveRow(const AParent: TJvCustomInspectorItem;
+    const ARow: TInspectorRow);
+  begin
+    var Definition: TScriptParameterDefinition;
+    const Known = FLiveDirectiveSection.Section.TryGetDefinition(ARow.Name, Definition);
+    if Known and (Definition.ValueKind = pvkYesNo) then
+      AddRow(AParent, ARow.Name, TypeInfo(Boolean), ARow)
+    else begin
+      const Item = AddRow(AParent, ARow.Name, TypeInfo(String), ARow);
+      if Known and (Definition.ValueKind = pvkChoice) then
+        MakeDropDown(Item, ChoiceRowGetValueList);
+    end;
+  end;
+
   procedure AddEntryRows;
   begin
     const Entry = FLiveEntry.Entry;
@@ -270,6 +323,72 @@ procedure TInspector.UpdateFromCaret;
     end;
   end;
 
+  procedure AddDirectiveRows;
+  begin
+    const Section = FLiveDirectiveSection.Section;
+
+    var LineWillBeShown: TArray<Boolean>;
+    SetLength(LineWillBeShown, Section.Count);
+
+    const DirectivesToShow = TList<TInspectorRow>.Create;
+    try
+      { First determine the directives to show and their order: with
+        ShowAllKnownDirectives, show every known directive in metadata
+        order. A repeated directive gets a row per line. }
+      if FShowAllKnownDirectives and FAllowShowAllKnownDirectives and
+         (Section.Metadata <> nil) then begin
+        for var Definition in Section.Metadata.Parameters do begin
+          var Found := False;
+          for var I := 0 to Section.Count-1 do begin
+            if (Section.Lines[I].Kind = sdlDirective) and
+               SameText(Section.Lines[I].Name, Definition.Name) then begin
+              DirectivesToShow.Add(MakeDirectiveRow(Section.Lines[I].Name, I));
+              LineWillBeShown[I] := True;
+              Found := True;
+            end;
+          end;
+          { An unspecified directive gets a row showing the compiler default,
+            unless it is obsolete or another occurrence of the section might
+            set it. Other occurrences aren't parsed/live so we can't check. }
+          if not Found and not Definition.Obsolete and
+             not FLiveDirectiveSectionHasSiblingOccurrences then
+            DirectivesToShow.Add(MakeDirectiveRow(Definition.Name, -1));
+        end;
+      end;
+
+      { The remaining directives, in script order }
+      for var I := 0 to Section.Count-1 do begin
+        if (Section.Lines[I].Kind = sdlDirective) and not LineWillBeShown[I] then
+          DirectivesToShow.Add(MakeDirectiveRow(Section.Lines[I].Name, I));
+      end;
+
+      { Determination done. Add by category the same way as entry rows are. }
+
+      { Uncategorized first, in the order determined above }
+      for var Row in DirectivesToShow do begin
+        var CategoryName: String;
+        if not TryGetScriptCategory(FLiveDirectiveSectionName, Row.Name, CategoryName) then
+          AddDirectiveRow(FJvInspector.Root, Row);
+      end;
+
+      { Categorized directives, also in the order determined above }
+      for var CategoryName in ScriptCategoryNamesOrdered do begin
+        var CategoryItem: TJvCustomInspectorItem := nil;
+        for var Row in DirectivesToShow do begin
+          var DirectiveCategory: String;
+          if TryGetScriptCategory(FLiveDirectiveSectionName, Row.Name, DirectiveCategory) and
+             SameText(DirectiveCategory, CategoryName) then begin
+            if CategoryItem = nil then
+              CategoryItem := NewCategory(CategoryName);
+            AddDirectiveRow(CategoryItem, Row);
+          end;
+        end;
+      end;
+    finally
+      DirectivesToShow.Free;
+    end;
+  end;
+
   procedure RebuildRows;
   begin
     FJvInspector.BeginUpdate;
@@ -279,7 +398,9 @@ procedure TInspector.UpdateFromCaret;
       FRowsByData.Clear;
 
       if FLiveEntry <> nil then
-        AddEntryRows;
+        AddEntryRows
+      else if FLiveDirectiveSection <> nil then
+        AddDirectiveRows;
 
       const DebugCategory = NewCategory('Debug');
       AddDebugRow(DebugCategory, 'Status', DebugStatusRowGetAsString);
@@ -293,6 +414,7 @@ begin
   if FInEdit then
     Exit;
   FreeAndNil(FLiveEntry);
+  FreeAndNil(FLiveDirectiveSection);
 
   { Build row set signature for the selected entry or section }
   const CaretLine = FFactory.Memo.CaretLine;
@@ -312,8 +434,41 @@ begin
         RowSetSignature := RowSetSignature + '|' + IntToStr(I) + ':' + Parameter.Name;
     end;
   end else begin
-    FDebugStatusRowString := EntryRefusalReason;
-    RowSetSignature := 'N|' + EntryRefusalReason;
+    var SectionIndex: Integer;
+    var DirectiveSection: TLiveScriptDirectiveSection;
+    var SectionRefusalReason: String;
+    if FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
+       FFactory.TryCreateDirectiveSection(SectionIndex, DirectiveSection,
+         SectionRefusalReason) then begin
+      const Header = FFactory.Sections[SectionIndex];
+      FLiveDirectiveSection := DirectiveSection;
+      FLiveDirectiveSectionName := Header.Name;
+      FDebugStatusRowString := Format('[%s] section at line %d',
+        [Header.Name, Header.Line+1]);
+      { With duplicate sections, say which occurrence this is }
+      var OccurrenceIndex, OccurrenceCount: Integer;
+      FFactory.GetSectionOccurrence(SectionIndex, OccurrenceIndex, OccurrenceCount);
+      FLiveDirectiveSectionHasSiblingOccurrences := OccurrenceCount > 1;
+      if FLiveDirectiveSectionHasSiblingOccurrences then
+        FDebugStatusRowString := FDebugStatusRowString + Format(' (occurrence %d of %d)',
+          [OccurrenceIndex, OccurrenceCount]);
+      { Like the entry signature above, plus the occurrence count and
+        whether unspecified known directives are offered, which also
+        decide the row set }
+      RowSetSignature := 'D|' + IntToStr(OccurrenceCount) + '|' +
+        IntToStr(Ord(FShowAllKnownDirectives and FAllowShowAllKnownDirectives)) +
+        '|' + Header.Name;
+      const Model = FLiveDirectiveSection.Section;
+      for var I := 0 to Model.Count-1 do
+        if Model.Lines[I].Kind = sdlDirective then
+          RowSetSignature := RowSetSignature + '|' + IntToStr(I) + ':' + Model.Lines[I].Name;
+    end else begin
+      { Prefer the entry refusal: it explains the caret line, while a failed
+        TryCreateDirectiveSection could only say the section is not
+        directive-style }
+      FDebugStatusRowString := EntryRefusalReason;
+      RowSetSignature := 'N|' + EntryRefusalReason;
+    end;
   end;
 
   if RowSetSignature <> FRowSetSignature then begin
@@ -357,6 +512,18 @@ begin
            Entry.FlagIncluded(Index, Row.FlagName) then
           Value := 1;
       end;
+    irkDirective:
+      begin
+        var Section: TScriptDirectiveSection;
+        var Index: Integer;
+        if TryGetRow(Row, Section, Index) then begin
+          var BoolValue := False;
+          if TryStrToBoolean(Section.Lines[Index].Value, BoolValue) and BoolValue then
+            Value := 1;
+        end else if (Section <> nil) and
+                    SameText(Section.DefaultValue(Row.Name), SYes) then
+          Value := 1;
+      end;
   end;
 end;
 
@@ -374,7 +541,16 @@ begin
         var Index: Integer;
         if TryGetRow(Row, Entry, Index) then
           Value := Entry.Parameters[Index].Value;
-        { else: a parameter not present in the script shows empty }
+        { else: Not present in the script: show empty }
+      end;
+    irkDirective:
+      begin
+        var Section: TScriptDirectiveSection;
+        var Index: Integer;
+        if TryGetRow(Row, Section, Index) then
+          Value := Section.Lines[Index].Value
+        else if Section <> nil then
+          Value := Section.DefaultValue(Row.Name); { Not present in the script: show the compiler default }
       end;
   end;
 end;
@@ -405,6 +581,19 @@ begin
               FFactory.Memo.EndUndoAction;
             end;
           end;
+        end;
+      irkDirective:
+        begin
+          var Section: TScriptDirectiveSection;
+          var Index: Integer;
+          var NewValue := SNo;
+          if Value <> 0 then
+            NewValue := SYes;
+          if TryGetRow(Row, Section, Index) then
+            Section.SetValue(Index, NewValue)
+          else if (Section <> nil) and (Row.NameIndex < 0) and
+                  not SameText(NewValue, Section.DefaultValue(Row.Name)) then { Skip unchanged from default, also see below }
+            Section.Add(Row.Name, NewValue);
         end;
     else
       raise Exception.Create('Internal error: RowSetAsOrdinal: unexpected row kind');
@@ -448,6 +637,16 @@ begin
               Entry.Add(Row.Name, Value);
           end;
         end;
+      irkDirective:
+        begin
+          var Section: TScriptDirectiveSection;
+          var Index: Integer;
+          if TryGetRow(Row, Section, Index) then
+            Section.SetValue(Index, Value)
+          else if (Section <> nil) and (Row.NameIndex < 0) and (Value <> '') and
+                  (Value <> Section.DefaultValue(Row.Name)) then { See above }
+            Section.Add(Row.Name, Value);
+        end;
     else
       raise Exception.Create('Internal error: RowSetAsString: unexpected row kind');
     end;
@@ -461,13 +660,19 @@ procedure TInspector.ChoiceRowGetValueList(Item: TJvCustomInspectorItem;
   Values: TStrings);
 begin
   var Row: TInspectorRow;
-  if TryGetRow(Item, Row) and (FLiveEntry <> nil) and FLiveEntry.Valid then begin
-    var Definition: TScriptParameterDefinition;
+  if not TryGetRow(Item, Row) then
+    Exit;
+  var Definition: TScriptParameterDefinition;
+  if (FLiveEntry <> nil) and FLiveEntry.Valid then begin
     if not FLiveEntry.Entry.TryGetDefinition(Row.Name, Definition) then
       raise Exception.Create('Internal error: ChoiceRowGetValueList: unknown parameter');
-    for var ChoiceName in Definition.KnownValues do
-      Values.Add(ChoiceName);
-  end;
+  end else if (FLiveDirectiveSection <> nil) and FLiveDirectiveSection.Valid then begin
+    if not FLiveDirectiveSection.Section.TryGetDefinition(Row.Name, Definition) then
+      raise Exception.Create('Internal error: ChoiceRowGetValueList: unknown directive');
+  end else
+    Exit;
+  for var ChoiceName in Definition.KnownValues do
+    Values.Add(ChoiceName);
 end;
 
 procedure TInspector.DebugStatusRowGetAsString(Sender: TJvInspectorEventData;
@@ -501,6 +706,14 @@ end;
 procedure TInspector.SetDividerWidth(const Value: Integer);
 begin
   FJvInspector.Divider := Value;
+end;
+
+procedure TInspector.SetShowAllKnownDirectives(const Value: Boolean);
+begin
+  if Value <> FShowAllKnownDirectives then begin
+    FShowAllKnownDirectives := Value;
+    UpdateFromCaret;
+  end;
 end;
 
 procedure TInspector.SetWidth(const Value: Integer);

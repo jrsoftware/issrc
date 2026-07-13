@@ -519,6 +519,7 @@ type
     FHighContrastActive: Boolean;
     FDonateImageMenuItem: TMenuItem;
     FInspector: TInspector;
+    FInspectorShowAllKnownDirectives: Boolean;
     FLiveScriptObjectFactories: TObjectDictionary<TScintEdit, TLiveScriptObjectFactory>;
     FInspectorSplitPanel: TPanel;
     procedure AppOnActivate(Sender: TObject);
@@ -873,6 +874,9 @@ constructor TMainForm.Create(AOwner: TComponent);
   begin
     Ini := TConfigIniFile.Create;
     try
+      { Inspector configuration options - loaded early for SetInspectorVisible }
+      FInspectorShowAllKnownDirectives := Ini.ReadBool('Options', 'InspectorShowAllKnownDirectives', True);
+
       { Menu check boxes state }
       ToolbarPanel.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
       StatusBar.Visible := Ini.ReadBool('Options', 'ShowStatusBar', True);
@@ -3197,8 +3201,9 @@ begin
       const JvInspector = CreateJvInspector;
       FInspectorSplitPanel := CreateSplitPanel(JvInspector);
       FInspector := TInspector.Create(JvInspector,
-        LiveScriptObjectFactoryForMemo(FActiveMemo));
+        LiveScriptObjectFactoryForMemo(FActiveMemo), FActiveMemo = FMainMemo);
       UpdateInspectorWidth(FInspector.Width);
+      FInspector.ShowAllKnownDirectives := FInspectorShowAllKnownDirectives;
       FInspector.UpdateTheme(FTheme);
       FInspector.UpdateFromCaret;
     end else begin
@@ -3637,7 +3642,8 @@ begin
     UpdateModifiedStatusPanel;
 
     if FInspector <> nil then
-      FInspector.SetActiveFactory(LiveScriptObjectFactoryForMemo(FActiveMemo));
+      FInspector.SetActiveFactory(LiveScriptObjectFactoryForMemo(FActiveMemo),
+        FActiveMemo = FMainMemo);
   end;
 end;
 
@@ -4210,6 +4216,7 @@ begin
       Ini.WriteString('Options', 'EditorFontName', FMainMemo.Font.Name);
       Ini.WriteInteger('Options', 'EditorFontSize', FMainMemo.Font.Size);
       Ini.WriteInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset);
+      Ini.WriteBool('Options', 'InspectorShowAllKnownDirectives', FInspectorShowAllKnownDirectives);
     finally
       Ini.Free;
     end;

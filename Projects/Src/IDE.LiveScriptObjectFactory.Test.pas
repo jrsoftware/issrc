@@ -362,6 +362,15 @@ begin
       Assert(Factory.TryGetSetupDirectiveValue('AppComments', Value));
       Assert(Value = '');       { Present but empty }
       Assert(not Factory.TryGetSetupDirectiveValue('Missing', Value));
+
+      { Occurrence numbering across the duplicate [Setup] blocks }
+      var OccurrenceIndex, OccurrenceCount: Integer;
+      Factory.GetSectionOccurrence(0, OccurrenceIndex, OccurrenceCount);
+      Assert((OccurrenceIndex = 1) and (OccurrenceCount = 2));
+      Factory.GetSectionOccurrence(2, OccurrenceIndex, OccurrenceCount);
+      Assert((OccurrenceIndex = 2) and (OccurrenceCount = 2));
+      Factory.GetSectionOccurrence(1, OccurrenceIndex, OccurrenceCount);
+      Assert((OccurrenceIndex = 1) and (OccurrenceCount = 1)); { [Files] }
     finally
       Context.Free;
     end;

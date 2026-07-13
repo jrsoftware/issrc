@@ -100,6 +100,8 @@ type
     function SectionCount: Integer;
     function TryGetSectionAtLine(const ALine: Integer;
       out ASectionIndex: Integer): Boolean;
+    procedure GetSectionOccurrence(const ASectionIndex: Integer;
+      out AOccurrenceIndex, AOccurrenceCount: Integer);
     function TryGetSetupDirectiveValue(const ADirectiveName: String;
       out AValue: String): Boolean;
     function TryCreateEntry(const ALine: Integer; out AEntry: TLiveScriptEntry;
@@ -495,6 +497,22 @@ begin
         Result := True;
       end;
       Exit;
+    end;
+  end;
+end;
+
+procedure TLiveScriptObjectFactory.GetSectionOccurrence(const ASectionIndex: Integer;
+  out AOccurrenceIndex, AOccurrenceCount: Integer);
+{ Does not include special support for scUnknown/scThirdParty }
+begin
+  const Section = Sections[ASectionIndex].Section;
+  AOccurrenceIndex := 0;
+  AOccurrenceCount := 0;
+  for var I := 0 to SectionCount-1 do begin
+    if Sections[I].Section = Section then begin
+      Inc(AOccurrenceCount);
+      if I = ASectionIndex then
+        AOccurrenceIndex := AOccurrenceCount;
     end;
   end;
 end;
