@@ -1433,7 +1433,7 @@ begin
   var Rec: TTestHandlerRec10;
   const RAXValue = CallRecRet3ForRAX(Pointer(Callback), @Rec); { @Rec = the buffer mentioned above }
   { RAXValue = hidden pointer in RAX mentioned above }
-  Result := IntToStr(Ord(RAXValue = @Rec)) + ',' + TestHandlerRec10ToString(Rec);
+  Result := SysUtils.IntToStr(Ord(RAXValue = @Rec)) + ',' + TestHandlerRec10ToString(Rec);
 end;
 {$ENDIF}
 
