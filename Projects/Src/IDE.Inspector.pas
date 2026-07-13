@@ -839,7 +839,7 @@ begin
           if TryGetRowDirectiveSection(Row, Section, Index) then
             Section.SetValue(Index, Value)
           else if (Section <> nil) and (Row.NameIndex < 0) and (Value <> '') and
-                  (Value <> Section.DefaultValue(Row.Name)) then { See above }
+                  (Value <> Section.DefaultValue(Row.Name)) then { Same as above, but case sensitive }
             Section.Add(Row.Name, Value);
         end;
     else

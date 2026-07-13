@@ -3789,7 +3789,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Close current tab</td><td>Ctrl+F4 or Ctrl+W</td>
 </tr>
 <tr>
-  <td>Switch between the active memo, the active bottom pane, and the active banner</td><td>F6</td>
+  <td>Switch between the active memo, the active bottom pane, the Inspector, and the active banner</td><td>F6</td>
 </tr>
 </table>
 

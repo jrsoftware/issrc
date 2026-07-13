@@ -226,7 +226,9 @@ const
   SInspectorIntegerValueError = '%1 must be an integer value';
   SInspectorReadOnlyError = 'The script cannot be edited because it is read-only';
 
-  { Inspector category display names, must match IDE.ScriptModel.Metadata's category tables }
+  { Inspector category display names, must match IDE.ScriptModel.Metadata's
+    category tables. These are not referenced by the code but must still be
+    present here, to ensure localization. }
   SInspectorCategoryCompiler = 'Compiler';
   SInspectorCategoryCompression = 'Compression';
   SInspectorCategoryInstaller = 'Installer';
