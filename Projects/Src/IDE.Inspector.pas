@@ -212,6 +212,7 @@ procedure TInspector.UpdateFromCaret;
     Result := TJvInspectorCustomCategoryItem.Create(FJvInspector.Root, nil);
     Result.DisplayName := LFmtMessage(AName); { These are localizable, see IDE.Messages }
     Result.Expanded := True;
+    Result.SortKind := FJvInspector.Root.SortKind;
   end;
 
   procedure AddDebugRow(const AParent: TJvCustomInspectorItem;
