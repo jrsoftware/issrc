@@ -51,7 +51,8 @@ type
     FUpdateFromCaretEarlyExitCount: Integer;
     FInEdit: Boolean;
     FShowAllKnownDirectives: Boolean;
-    FAllowShowAllKnownDirectives: Boolean;
+    FQuoteNewParameterValues: Boolean;
+    FQuoteNewDirectiveValues: Boolean;
     function TryGetRow(const Sender: TJvInspectorEventData;
       out ARow: TInspectorRow): Boolean; overload;
     function TryGetRow(const AItem: TJvCustomInspectorItem;
@@ -83,15 +84,20 @@ type
   public
     constructor Create(const AJvInspector: TJvInspector;
       const AFactory: TLiveScriptObjectFactory;
-      const AAllowShowAllKnownDirectives: Boolean);
+      const AShowAllKnownDirectives: Boolean);
     destructor Destroy; override;
     procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
-      const AAllowShowAllKnownDirectives: Boolean);
+      const AShowAllKnownDirectives: Boolean);
     procedure UpdateFromCaret;
     procedure UpdateReadOnly;
     procedure UpdateTheme(const ATheme: TTheme);
     property ShowAllKnownDirectives: Boolean read FShowAllKnownDirectives
       write SetShowAllKnownDirectives;
+    { These only apply to text values }
+    property QuoteNewParameterValues: Boolean read FQuoteNewParameterValues
+      write FQuoteNewParameterValues;
+    property QuoteNewDirectiveValues: Boolean read FQuoteNewDirectiveValues
+      write FQuoteNewDirectiveValues;
     property JvInspector: TJvInspector read FJvInspector;
     property Width: Integer read GetWidth write SetWidth;
     property DividerWidth: Integer read GetDividerWidth write SetDividerWidth;
@@ -109,13 +115,13 @@ uses
 
 constructor TInspector.Create(const AJvInspector: TJvInspector;
   const AFactory: TLiveScriptObjectFactory;
-  const AAllowShowAllKnownDirectives: Boolean);
+  const AShowAllKnownDirectives: Boolean);
 { Takes ownership of AJvInspector }
 begin
   inherited Create;
 
   FFactory := AFactory;
-  FAllowShowAllKnownDirectives := AAllowShowAllKnownDirectives;
+  FShowAllKnownDirectives := AShowAllKnownDirectives;
   FDebugStatusRowString := 'Not updated yet';
   FRows := TList<TInspectorRow>.Create;
   FRowsByData := TDictionary<TJvInspectorEventData, Integer>.Create;
@@ -244,13 +250,13 @@ begin
 end;
 
 procedure TInspector.SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
-  const AAllowShowAllKnownDirectives: Boolean);
+  const AShowAllKnownDirectives: Boolean);
 begin
   if AFactory = FFactory then
     Exit;
   { Attach to a different factory = different memo = different tab }
   FFactory := AFactory;
-  FAllowShowAllKnownDirectives := AAllowShowAllKnownDirectives;
+  FShowAllKnownDirectives := AShowAllKnownDirectives;
   FRowSetSignature := ''; { Force rebuild even if row set stayed same }
   UpdateFromCaret;
 end;
@@ -472,8 +478,7 @@ procedure TInspector.UpdateFromCaret;
       { First determine the directives to show and their order: with
         ShowAllKnownDirectives, show every known directive in metadata
         order. A repeated directive gets a row per line. }
-      if FShowAllKnownDirectives and FAllowShowAllKnownDirectives and
-         (Section.Metadata <> nil) then begin
+      if FShowAllKnownDirectives and (Section.Metadata <> nil) then begin
         for var Definition in Section.Metadata.Parameters do begin
           var Found := False;
           for var I := 0 to Section.Count-1 do begin
@@ -600,6 +605,7 @@ begin
   if FFactory.TryCreateEntry(CaretLine, Entry, EntryRefusalReason) then begin
     FLiveEntry := Entry;
     FChangeCountAtCreation := FFactory.ChangeCount;
+    FLiveEntry.Entry.QuoteNewValues := FQuoteNewParameterValues;
     const SectionName = ParameterSectionToSectionName(FLiveEntry.Section);
     FDebugStatusRowString := Format('[%s] entry at lines %d-%d',
       [SectionName, FLiveEntry.FirstLine+1, FLiveEntry.LastLine+1]);
@@ -621,6 +627,7 @@ begin
       FLiveDirectiveSection := DirectiveSection;
       FLiveDirectiveSectionIndex := SectionIndex;
       FChangeCountAtCreation := FFactory.ChangeCount;
+      FLiveDirectiveSection.Section.QuoteNewValues := FQuoteNewDirectiveValues;
       FLiveDirectiveSectionName := Header.Name;
       FDebugStatusRowString := Format('[%s] section at line %d',
         [Header.Name, Header.Line+1]);
@@ -635,8 +642,7 @@ begin
         whether unspecified known directives are offered, which also
         decide the row set }
       RowSetSignature := 'D|' + IntToStr(OccurrenceCount) + '|' +
-        IntToStr(Ord(FShowAllKnownDirectives and FAllowShowAllKnownDirectives)) +
-        '|' + Header.Name;
+        IntToStr(Ord(FShowAllKnownDirectives)) + '|' + Header.Name;
       const Model = FLiveDirectiveSection.Section;
       for var I := 0 to Model.Count-1 do
         if Model.Lines[I].Kind = sdlDirective then

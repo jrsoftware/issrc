@@ -520,6 +520,8 @@ type
     FDonateImageMenuItem: TMenuItem;
     FInspector: TInspector;
     FInspectorShowAllKnownDirectives: Boolean;
+    FInspectorQuoteNewParameterValues: Boolean;
+    FInspectorQuoteNewDirectiveValues: Boolean;
     FLiveScriptObjectFactories: TObjectDictionary<TScintEdit, TLiveScriptObjectFactory>;
     FInspectorSplitPanel: TPanel;
     procedure AppOnActivate(Sender: TObject);
@@ -876,6 +878,8 @@ constructor TMainForm.Create(AOwner: TComponent);
     try
       { Inspector configuration options - loaded early for SetInspectorVisible }
       FInspectorShowAllKnownDirectives := Ini.ReadBool('Options', 'InspectorShowAllKnownDirectives', True);
+      FInspectorQuoteNewParameterValues := Ini.ReadBool('Options', 'InspectorQuoteNewParameterValues', True);
+      FInspectorQuoteNewDirectiveValues := Ini.ReadBool('Options', 'InspectorQuoteNewDirectiveValues', False);
 
       { Menu check boxes state }
       ToolbarPanel.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
@@ -3205,9 +3209,11 @@ begin
       const JvInspector = CreateJvInspector;
       FInspectorSplitPanel := CreateSplitPanel(JvInspector);
       FInspector := TInspector.Create(JvInspector,
-        LiveScriptObjectFactoryForMemo(FActiveMemo), FActiveMemo = FMainMemo);
+        LiveScriptObjectFactoryForMemo(FActiveMemo),
+        FInspectorShowAllKnownDirectives and (FActiveMemo = FMainMemo));
       UpdateInspectorWidth(FInspector.Width);
-      FInspector.ShowAllKnownDirectives := FInspectorShowAllKnownDirectives;
+      FInspector.QuoteNewParameterValues := FInspectorQuoteNewParameterValues;
+      FInspector.QuoteNewDirectiveValues := FInspectorQuoteNewDirectiveValues;
       FInspector.UpdateTheme(FTheme);
       FInspector.UpdateFromCaret;
     end else begin
@@ -3647,7 +3653,7 @@ begin
 
     if FInspector <> nil then
       FInspector.SetActiveFactory(LiveScriptObjectFactoryForMemo(FActiveMemo),
-        FActiveMemo = FMainMemo);
+        FInspectorShowAllKnownDirectives and (FActiveMemo = FMainMemo));
   end;
 end;
 
@@ -4221,6 +4227,8 @@ begin
       Ini.WriteInteger('Options', 'EditorFontSize', FMainMemo.Font.Size);
       Ini.WriteInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset);
       Ini.WriteBool('Options', 'InspectorShowAllKnownDirectives', FInspectorShowAllKnownDirectives);
+      Ini.WriteBool('Options', 'InspectorQuoteNewParameterValues', FInspectorQuoteNewParameterValues);
+      Ini.WriteBool('Options', 'InspectorQuoteNewDirectiveValues', FInspectorQuoteNewDirectiveValues);
     finally
       Ini.Free;
     end;
