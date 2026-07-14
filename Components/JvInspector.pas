@@ -82,7 +82,6 @@ type
     iifAllowNonListValues, iifOwnerDrawListFixed, iifOwnerDrawListVariable,
     iifEditButton, iifEditFixed, iifOwnerDrawListMaxHeight);
   TInspectorItemFlags = set of TInspectorItemFlag;
-  TJvInspectorStyle = (isBorland, isDotNet, isItemPainter);
 
   TInspectorPaintRect = (iprItem, iprButtonArea, iprBtnSrcRect, iprBtnDstRect,
     iprNameArea, iprName, iprValueArea, iprValue, iprEditValue, iprEditButton,
@@ -146,17 +145,11 @@ type
   private
     FAfterDataCreate: TInspectorDataEvent;
     FAfterItemCreate: TInspectorItemEvent;
-    FBandSizing: Boolean;
-    FBandSizingBand: Integer;
-    FBandStartsSB: TList;
-    FBandStartsNoSB: TList;
-    FBandWidth: Integer;
     FBeforeItemCreate: TInspectorItemBeforeCreateEvent;
     FBeforeSelection: TInspectorItemBeforeSelectEvent;
     FCollapseButton: TBitmap;
     FDivider: Integer;
     FDraggingDivider: Boolean;
-    FDividerDragBandX: Integer;
     FExpandButton: TBitmap;
     FImageHeight: Integer;
     FItemHeight: Integer;
@@ -177,7 +170,6 @@ type
     FSelectedIndex: Integer;
     FSelecting: Boolean;
     FTopIndex: Integer;
-    FUseBands: Boolean;
     FVisibleList: TStringList;
     FWantTabs: Boolean;
     FAutoComplete: Boolean;
@@ -208,12 +200,7 @@ type
     // Also, If you want the event that occurs when the user clicks the ellipsis
     // button, you want OnItemEdit, not BeforeEdit.
     FBeforeEdit: TInspectorBeforeEditEvent;
-    FStyle: TJvInspectorStyle;
-    FStylePainter: TJvInspectorPainter;
-    FSettingStyle: Boolean;
     FMouseWheelRecursion: Boolean;
-    procedure SetStyle(const Value: TJvInspectorStyle);
-    function GetActivePainter: TJvInspectorPainter;
     //    FOnMouseDown: TInspectorMouseDownEvent;
   protected
     function CalcImageHeight: Integer; virtual;
@@ -234,9 +221,6 @@ type
     function DoItemValueError(Item: TJvCustomInspectorItem): Boolean; virtual;
     function GetAfterDataCreate: TInspectorDataEvent; virtual;
     function GetAfterItemCreate: TInspectorItemEvent; virtual;
-    function GetBandFor(const ItemIdx: Integer): Integer; virtual;
-    function GetBandStarts: TList; virtual;
-    function GetBandWidth: Integer; virtual;
     function GetBeforeItemCreate: TInspectorItemBeforeCreateEvent; virtual;
     function GetBeforeSelection: TInspectorItemBeforeSelectEvent; virtual;
     function GetButtonRect(const ItemIndex: Integer): TRect; virtual;
@@ -256,11 +240,9 @@ type
     function GetSelected: TJvCustomInspectorItem; virtual;
     function GetSelectedIndex: Integer; virtual;
     function GetTopIndex: Integer; virtual;
-    function GetUseBands: Boolean; virtual;
     function GetVisibleCount: Integer; virtual;
     function GetVisibleItems(const I: Integer): TJvCustomInspectorItem; virtual;
     function GetWantTabs: Boolean; virtual;
-    procedure HandleBandResize(X: Integer); virtual;
     function IdxToY(const Index: Integer): Integer; virtual;
     procedure IncPaintGeneration; virtual;
     procedure InvalidateHeight; virtual;
@@ -281,7 +263,6 @@ type
     function ScrollFactorV: Extended; virtual;
     procedure SetAfterDataCreate(const Value: TInspectorDataEvent); virtual;
     procedure SetAfterItemCreate(const Value: TInspectorItemEvent); virtual;
-    procedure SetBandWidth(Value: Integer); virtual;
     procedure SetBeforeItemCreate(const Value: TInspectorItemBeforeCreateEvent); virtual;
     procedure SetBeforeSelection(const Value: TInspectorItemBeforeSelectEvent); virtual;
     procedure SetCollapseButton(const Value: TBitmap); virtual;
@@ -291,19 +272,16 @@ type
     procedure SetItemHeight(Value: Integer); virtual;
     procedure SetLockCount(const Value: Integer); virtual;
     procedure SetOnItemSelected(const Value: TNotifyEvent); virtual;
-    procedure SetPainter(const Value: TJvInspectorPainter); virtual;
     procedure SetReadOnly(const Value: Boolean); virtual;
     procedure SetRelativeDivider(Value: Boolean); virtual;
     procedure SetSelected(const Value: TJvCustomInspectorItem); virtual;
     procedure SetSelectedIndex(Value: Integer); virtual;
     procedure SetTopIndex(Value: Integer); virtual;
-    procedure SetUseBands(Value: Boolean); virtual;
     procedure SetWantTabs(Value: Boolean); virtual;
     procedure UpdateScrollBars; virtual;
     function ViewHeight: Integer;
     function ViewRect: TRect; virtual;
     function ViewWidth: Integer;
-    procedure WMHScroll(var Msg: TWMScroll); message WM_HSCROLL;
     procedure WMVScroll(var Msg: TWMScroll); message WM_VSCROLL;
     procedure GetDlgCode(var Code: TDlgCodes); override;
     procedure FocusSet(PrevWnd: THandle); override;
@@ -313,16 +291,11 @@ type
     function YToIdx(const Y: Integer): Integer; virtual;
     property AutoComplete: Boolean read FAutoComplete write FAutoComplete;
     property AutoDropDown: Boolean read FAutoDropDown write FAutoDropDown;
-    property BandSizing: Boolean read FBandSizing write FBandSizing;
-    property BandSizingBand: Integer read FBandSizingBand write FBandSizingBand;
-    property BandStarts: TList read GetBandStarts;
-    property BandWidth: Integer read GetBandWidth write SetBandWidth;
     property CollapseButton: TBitmap read GetCollapseButton write SetCollapseButton;
     property ExpandButton: TBitmap read GetExpandButton write SetExpandButton;
     property Divider: Integer read GetDivider write SetDivider;
     property DividerAbs: Integer read GetDividerAbs write SetDividerAbs;
     property DraggingDivider: Boolean read FDraggingDivider write FDraggingDivider;
-    property DividerDragBandX: Integer read FDividerDragBandX write FDividerDragBandX;
     property ItemHeight: Integer read GetItemHeight write SetItemHeight;
     property ImageHeight: Integer read GetImageHeight;
     property LockCount: Integer read GetLockCount;
@@ -338,7 +311,7 @@ type
     property BeforeItemCreate: TInspectorItemBeforeCreateEvent read GetBeforeItemCreate write SetBeforeItemCreate;
     property BevelKind default bkTile;
     property BeforeSelection: TInspectorItemBeforeSelectEvent read GetBeforeSelection write SetBeforeSelection;
-    property Painter: TJvInspectorPainter read GetPainter write SetPainter;
+    property Painter: TJvInspectorPainter read GetPainter;
     property PaintGeneration: Integer read FPaintGen;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly;
     property RelativeDivider: Boolean read GetRelativeDivider write SetRelativeDivider;
@@ -348,9 +321,7 @@ type
     property Selected: TJvCustomInspectorItem read GetSelected;
     property SelectedIndex: Integer read GetSelectedIndex write SetSelectedIndex;
     property Selecting: Boolean read FSelecting write FSelecting;
-    property Style: TJvInspectorStyle read FStyle write SetStyle default isBorland;
     property TopIndex: Integer read GetTopIndex write SetTopIndex;
-    property UseBands: Boolean read GetUseBands write SetUseBands;
     property VisibleCount: Integer read GetVisibleCount;
     property VisibleItems[const I: Integer]: TJvCustomInspectorItem read GetVisibleItems;
     property WantTabs: Boolean read GetWantTabs write SetWantTabs;
@@ -376,7 +347,6 @@ type
     procedure RefreshValues;
     procedure SaveValues;
     procedure Clear;
-    property ActivePainter: TJvInspectorPainter read GetActivePainter;
   end;
 
   {$IFDEF RTL230_UP}
@@ -392,12 +362,10 @@ type
     property VisibleCount;
     property VisibleItems;
   published
-    property Style;  // Must be BEFORE painter to ensure everithing is read correctly
     property Align;
     property Anchors;
     property AutoComplete default True;
     property AutoDropDown default False;
-    property BandWidth default 150;
     property BevelEdges;
     property BevelKind;
     property BevelInner default bvNone;
@@ -413,7 +381,6 @@ type
     property Painter;
     property PopupMenu;
     property ReadOnly default False;
-    property UseBands default False;
     property WantTabs default False;
     property AfterDataCreate;
     property AfterItemCreate;
@@ -469,17 +436,10 @@ type
     FPaintRect: TRect;
     FSelectedColor: TColor;
     FDrawNameEndEllipsis: Boolean;
-    FCategoryFont: TFont;
-    FValueFont: TFont;
-    FNameFont: TFont;
-    FSelectedFont: TFont;
-    procedure FontChange(Sender: TObject);
-
-    procedure ReadCategoryTextColor(Reader: TReader);
-    procedure ReadNameColor(Reader: TReader);
-    procedure ReadValueColor(Reader: TReader);
-    procedure ReadSelectedTextColor(Reader: TReader);
-    procedure ReadHideSelectTextColor(Reader: TReader);
+    FCategoryTextColor: TColor;
+    FValueColor: TColor;
+    FNameColor: TColor;
+    FSelectedTextColor: TColor;
   protected
     procedure ApplyNameFont; virtual;
     procedure ApplyValueFont; virtual;
@@ -492,11 +452,11 @@ type
     function GetBackgroundColor: TColor; virtual;
     function GetCategoryColor: TColor; virtual;
     function GetCategoryDividerColor: TColor; virtual;
-    function GetCategoryFont: TFont; virtual;
-    function GetHideSelectFont: TFont; virtual;
-    function GetNameFont: TFont; virtual;
-    function GetSelectedFont: TFont; virtual;
-    function GetValueFont: TFont; virtual;
+    function GetCategoryTextColor: TColor; virtual;
+    function GetHideSelectTextColor: TColor; virtual;
+    function GetNameColor: TColor; virtual;
+    function GetSelectedTextColor: TColor; virtual;
+    function GetValueColor: TColor; virtual;
     function GetCollapseImage: TBitmap; virtual;
     function GetDividerColor: TColor; virtual;
     function GetExpandImage: TBitmap; virtual;
@@ -514,22 +474,21 @@ type
     procedure PaintItem(var ARect: TRect; const AItemIndex: Integer); overload; virtual;
     procedure PaintItem(const AItem: TJvCustomInspectorItem); overload; virtual;
     procedure PrepareInternalImages; virtual;
-    procedure ScaleFonts(const M, D: Integer); virtual;
     procedure SetBackgroundColor(const Value: TColor); virtual;
     procedure SetCategoryColor(const Value: TColor); virtual;
     procedure SetCategoryDividerColor(const Value: TColor); virtual;
-    procedure SetCategoryFont(const Value: TFont); virtual;
+    procedure SetCategoryTextColor(const Value: TColor); virtual;
     procedure SetDividerColor(const Value: TColor); virtual;
     procedure SetHideSelectColor(const Value: TColor); virtual;
-    procedure SetHideSelectFont(const Value: TFont); virtual;
-    procedure SetNameFont(const Value: TFont); virtual;
+    procedure SetHideSelectTextColor(const Value: TColor); virtual;
+    procedure SetNameColor(const Value: TColor); virtual;
     procedure SetRects(const Index: TInspectorPaintRect; const ARect: TRect); virtual;
     procedure SetSelectedColor(const Value: TColor); virtual;
-    procedure SetSelectedFont(const Value: TFont); virtual;
+    procedure SetSelectedTextColor(const Value: TColor); virtual;
     procedure Setup(const ACanvas: TCanvas); virtual;
     procedure SetupItem; virtual;
     procedure SetupRects; virtual;
-    procedure SetValueFont(const Value: TFont); virtual;
+    procedure SetValueColor(const Value: TColor); virtual;
     procedure SetDrawNameEndEllipsis(Value: Boolean); virtual;
     procedure TeardownItem; virtual;
     property ButtonImage: TBitmap read FButtonImage write FButtonImage;
@@ -545,20 +504,19 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure DefineProperties(Filer: TFiler); override;
     procedure SetInspector(const AInspector: TJvCustomInspector); virtual;
     property HideSelectColor: TColor read GetHideSelectColor write SetHideSelectColor;
-    property HideSelectFont: TFont read GetHideSelectFont write SetHideSelectFont;
+    property HideSelectTextColor: TColor read GetHideSelectTextColor write SetHideSelectTextColor;
     property SelectedColor: TColor read GetSelectedColor write SetSelectedColor;
-    property SelectedFont: TFont read GetSelectedFont write SetSelectedFont;
+    property SelectedTextColor: TColor read GetSelectedTextColor write SetSelectedTextColor;
   published
     property BackgroundColor: TColor read GetBackgroundColor write SetBackgroundColor;
     property CategoryColor: TColor read GetCategoryColor write SetCategoryColor;
     property CategoryDividerColor: TColor read GetCategoryDividerColor write SetCategoryDividerColor;
-    property CategoryFont: TFont read GetCategoryFont write SetCategoryFont;
+    property CategoryTextColor: TColor read GetCategoryTextColor write SetCategoryTextColor;
     property DividerColor: TColor read GetDividerColor write SetDividerColor;
-    property NameFont: TFont read GetNameFont write SetNameFont;
-    property ValueFont: TFont read GetValueFont write SetValueFont;
+    property NameColor: TColor read GetNameColor write SetNameColor;
+    property ValueColor: TColor read GetValueColor write SetValueColor;
     property DrawNameEndEllipsis: Boolean read GetDrawNameEndEllipsis write SetDrawNameEndEllipsis;
   end;
 
@@ -583,55 +541,27 @@ type
   {$IFDEF RTL230_UP}
   [ComponentPlatformsAttribute(pidWin32 or pidWin64{$IFDEF RTL360_UP} or pidWin64x{$ENDIF RTL360_UP})]
   {$ENDIF RTL230_UP}
-  TJvInspectorBorlandPainter = class(TJvInspectorBorlandNETBasePainter)
-  private
-    FDividerLightColor: TColor;
-    FOnSetItemColors: TOnJvInspectorSetItemColors;
-  protected
-    function DividerWidth: Integer; override;
-    procedure DoPaint; override;
-    function GetDividerLightColor: TColor; virtual;
-    function GetSelectedColor: TColor; override;
-    function GetSelectedFont: TFont; override;
-    procedure InitializeColors; override;
-    procedure PaintDivider(const X, YTop, YBottom: Integer); override;
-    procedure SetDividerLightColor(const Value: TColor); virtual;
-    procedure Setup(const ACanvas: TCanvas); override;
-  published
-    property BackgroundColor default clBtnFace;
-    property DividerColor default clBtnShadow;
-    property DividerLightColor: TColor read GetDividerLightColor write SetDividerLightColor default clBtnHighlight;
-    property OnSetItemColors: TOnJvInspectorSetItemColors read FOnSetItemColors write FOnSetItemColors;
-  end;
-
-  {$IFDEF RTL230_UP}
-  [ComponentPlatformsAttribute(pidWin32 or pidWin64{$IFDEF RTL360_UP} or pidWin64x{$ENDIF RTL360_UP})]
-  {$ENDIF RTL230_UP}
   TJvInspectorDotNETPainter = class(TJvInspectorBorlandNETBasePainter)
   private
     FHideSelectColor: TColor;
-    FHideSelectFont: TFont;
+    FHideSelectTextColor: TColor;
     FOnSetItemColors: TOnJvInspectorSetItemColors;
   protected
     procedure ApplyNameFont; override;
     function GetHideSelectColor: TColor; override;
-    function GetHideSelectFont: TFont; override;
+    function GetHideSelectTextColor: TColor; override;
     procedure DoPaint; override;
     procedure InitializeColors; override;
     procedure PaintDivider(const X, YTop, YBottom: Integer); override;
-    procedure ScaleFonts(const M, D: Integer); override;
     procedure SetHideSelectColor(const Value: TColor); override;
-    procedure SetHideSelectFont(const Value: TFont); override;
-  public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
+    procedure SetHideSelectTextColor(const Value: TColor); override;
   published
     property CategoryDividerColor default clBtnShadow;
     property DividerColor default clBtnFace;
     property HideSelectColor default clBtnFace;
-    property HideSelectFont;
+    property HideSelectTextColor;
     property SelectedColor default clHighlight;
-    property SelectedFont;
+    property SelectedTextColor;
     property OnSetItemColors: TOnJvInspectorSetItemColors read FOnSetItemColors write FOnSetItemColors;
   end;
 
@@ -1240,16 +1170,6 @@ uses
   {$ENDIF HAS_UNIT_SYSTEM_UITYPES}
   RTLConsts, Types, Variants, Consts, Dialogs, Forms, Buttons, Themes;
 
-function CreatePainterFromStyle(Style: TJvInspectorStyle): TJvInspectorPainter;
-begin
-  case Style of
-    isDotNet:
-      Result := TJvInspectorDotNETPainter.Create(nil);
-  else
-    Result := TJvInspectorBorlandPainter.Create(nil);
-  end;
-end;
-
 //============================================================================
 
 type
@@ -1611,8 +1531,6 @@ begin
   FExpandButton := TBitmap.Create;
   FCollapseButton := TBitmap.Create;
 
-  FBandStartsNoSB := TList.Create;
-  FBandStartsSB := TList.Create;
   FSortNotificationList := TList.Create;
   // Upstream used 16, tuned for the old 8pt MS Sans Serif default font;
   // with Segoe UI that cuts off descenders and bracket glyphs
@@ -1630,14 +1548,11 @@ begin
   Width := 300;
   Height := 100;
   Divider := 75;
-  BandWidth := 150;
   AutoComplete := True;
   AutoDropDown := False;
 
-  // An easy and 'dirty' way to force Style to take into account its value
-  // and have the setter do its job
-  FStyle := isItemPainter;
-  Style := isBorland;
+  FPainter := TJvInspectorDotNETPainter.Create(Self);
+  FPainter.SetInspector(Self);
 
   if not (csDesigning in ComponentState) then
     GlobalInspReg.RegInspector(Self);
@@ -1645,69 +1560,19 @@ end;
 
 function TJvCustomInspector.CalcImageHeight: Integer;
 var
-  BandHeightNoSB: Integer;
-  BandHeightSB: Integer;
-  ClHeightNoSB: Integer;
-  ClHeightSB: Integer;
-  WinStyle: Longint;
   I: Integer;
 begin
-  BandHeightNoSB := 0;
-  BandHeightSB := 0;
   FImageHeight := 0;
-  FBandStartsNoSB.Clear;
-  FBandStartsNoSB.Add(Pointer(0));
-  FBandStartsSB.Clear;
-  FBandStartsSB.Add(Pointer(0));
-  ClHeightNoSB := ClientHeight;
-  WinStyle := GetWindowLong(Handle, GWL_STYLE);
-  if (WinStyle and WS_HSCROLL) <> 0 then
-  begin
-    ClHeightSB := ClHeightNoSB;
-    Inc(ClHeightNoSB, GetSystemMetrics(SM_CYHSCROLL));
-  end
-  else
-  begin
-    ClHeightSB := ClHeightNoSB;
-    Dec(ClHeightSB, GetSystemMetrics(SM_CYHSCROLL));
-  end;
   for I := 0 to Pred(VisibleCount) do
-  begin
     Inc(FImageHeight, VisibleItems[I].Height);
-    if UseBands then
-    begin
-      if ((BandHeightSB + VisibleItems[I].Height) > ClHeightSB) and (BandHeightSB > 0) then
-      begin
-        FBandStartsSB.Add(Pointer(I));
-        BandHeightSB := 0;
-      end;
-      if ((BandHeightNoSB + VisibleItems[I].Height) > ClHeightNoSB) and (BandHeightNoSB > 0) then
-      begin
-        FBandStartsNoSB.Add(Pointer(I));
-        BandHeightNoSB := 0;
-      end;
-    end;
-    Inc(BandHeightNoSB, VisibleItems[I].Height);
-    Inc(BandHeightSB, VisibleItems[I].Height);
-  end;
   Result := FImageHeight;
 end;
 
 function TJvCustomInspector.CalcItemIndex(X, Y: Integer; var Rect: TRect): Integer;
 var
-  BandIdx: Integer;
   MaxIdx: Integer;
 begin
-  if UseBands then
-  begin
-    BandIdx := X div BandWidth + BandStarts.IndexOf(Pointer(TopIndex));
-    if BandIdx < BandStarts.Count then
-      Result := Integer(BandStarts[BandIdx])
-    else
-      Result := -1;
-  end
-  else
-    Result := TopIndex;
+  Result := TopIndex;
   MaxIdx := VisibleCount;
   while (Result <> -1) and (Result < MaxIdx) and not PtInRect(VisibleItems[Result].Rects[iprItem], Point(X, Y)) do
     Inc(Result);
@@ -1731,14 +1596,6 @@ begin
     // GetItemHeight scales on read
     if not RelativeDivider then
       FDivider := MulDiv(FDivider, M, D);
-    FBandWidth := MulDiv(FBandWidth, M, D);
-    // The painters' fonts are sized for the dpi the inspector had before
-    // this change (they start out at the process's startup dpi through
-    // DefFontData)
-    if FPainter <> nil then
-      FPainter.ScaleFonts(M, D);
-    if FStylePainter <> nil then
-      FStylePainter.ScaleFonts(M, D);
   end;
 end;
 
@@ -1818,14 +1675,6 @@ begin
     Result := False;
 end;
 
-function TJvCustomInspector.GetActivePainter: TJvInspectorPainter;
-begin
-  if Style = isItemPainter then
-    Result := Painter
-  else
-    Result := FStylePainter;
-end;
-
 function TJvCustomInspector.GetAfterDataCreate: TInspectorDataEvent;
 begin
   Result := FAfterDataCreate;
@@ -1834,26 +1683,6 @@ end;
 function TJvCustomInspector.GetAfterItemCreate: TInspectorItemEvent;
 begin
   Result := FAfterItemCreate;
-end;
-
-function TJvCustomInspector.GetBandFor(const ItemIdx: Integer): Integer;
-begin
-  Result := Pred(BandStarts.Count);
-  while (Result > -1) and (Integer(BandStarts[Result]) > ItemIdx) do
-    Dec(Result);
-end;
-
-function TJvCustomInspector.GetBandStarts: TList;
-begin
-  if FBandStartsNoSB.Count > (ClientWidth div BandWidth) then
-    Result := FBandStartsSB
-  else
-    Result := FBandStartsNoSB;
-end;
-
-function TJvCustomInspector.GetBandWidth: Integer;
-begin
-  Result := FBandWidth;
 end;
 
 function TJvCustomInspector.GetBeforeItemCreate: TInspectorItemBeforeCreateEvent;
@@ -1894,9 +1723,6 @@ function TJvCustomInspector.GetDividerAbs: Integer;
 begin
   if RelativeDivider then
   begin
-    if UseBands then
-      Result := (FDivider * BandWidth) div 100
-    else
     if HandleAllocated then
       Result := (FDivider * ClientWidth) div 100
     else
@@ -1982,11 +1808,6 @@ begin
   Result := FTopIndex;
 end;
 
-function TJvCustomInspector.GetUseBands: Boolean;
-begin
-  Result := FUseBands;
-end;
-
 function TJvCustomInspector.GetVisibleCount: Integer;
 begin
   Result := FVisibleList.Count;
@@ -2003,16 +1824,6 @@ end;
 function TJvCustomInspector.GetWantTabs: Boolean;
 begin
   Result := FWantTabs;
-end;
-
-procedure TJvCustomInspector.HandleBandResize(X: Integer);
-var
-  BSize: Integer;
-begin
-  BSize := X div Succ(BandSizingBand);
-  if BSize < 100 then
-    BSize := 100;
-  BandWidth := BSize;
 end;
 
 function TJvCustomInspector.IdxToY(const Index: Integer): Integer;
@@ -2033,8 +1844,7 @@ end;
 procedure TJvCustomInspector.InvalidateHeight;
 begin
   FImageHeight := 0;
-  if not BandSizing then
-    TopIndex := TopIndex; // Adapt position
+  TopIndex := TopIndex; // Adapt position
 end;
 
 procedure TJvCustomInspector.InvalidateItem;
@@ -2196,8 +2006,6 @@ end;
 procedure TJvCustomInspector.MouseDown(Button: TMouseButton; Shift: TShiftState;
   X, Y: Integer);
 var
-  BWidth: Integer;
-  BandIdx: Integer;
   XB: Integer;
   ItemIndex: Integer;
   ItemRect: TRect;
@@ -2205,17 +2013,7 @@ var
   CharPos: Integer;
 begin
   inherited MouseDown(Button, Shift, X, Y);
-  if UseBands then
-  begin
-    BWidth := BandWidth;
-    BandIdx := X div BWidth + BandStarts.IndexOf(Pointer(TopIndex));
-  end
-  else
-  begin
-    BWidth := ClientWidth;
-    BandIdx := -1;
-  end;
-  XB := X mod BWidth;
+  XB := X;
   ItemIndex := CalcItemIndex(X, Y, ItemRect);
   if (ItemIndex < VisibleCount) and (ItemIndex >= 0) then
     Item := VisibleItems[ItemIndex]
@@ -2230,10 +2028,7 @@ begin
   begin
     // Check divider dragging
     if (XB >= Pred(DividerAbs)) and (XB <= Succ(DividerAbs)) then
-    begin
-      DraggingDivider := True;
-      DividerDragBandX := BandIdx * BWidth;
-    end
+      DraggingDivider := True
     // Check row sizing
     else
     if (Item <> nil) and (Y >= Pred(ItemRect.Bottom)) and
@@ -2243,14 +2038,6 @@ begin
       RowSizing := True;
       RowSizingItem := Item;
     end
-    // Check band sizing
-    else
-    if (UseBands and (XB >= BWidth - 3)) and (not UseBands or
-      (BandIdx < BandStarts.Count)) then
-    begin
-      BandSizing := True;
-      BandSizingBand := BandIdx - BandStarts.IndexOf(Pointer(TopIndex));
-    end
     // Check selecting
     else
     if (Item <> nil) and (ItemIndex <> SelectedIndex) then
@@ -2259,7 +2046,7 @@ begin
       if ItemIndex >= 0 then
         Item := VisibleItems[ItemIndex];
     end;
-    if not DraggingDivider and not RowSizing and not BandSizing then
+    if not DraggingDivider and not RowSizing then
       Selecting := True;
   end;
   if Button in [mbLeft, mbRight] then
@@ -2289,7 +2076,7 @@ begin
     // already being edited the click lands on the edit control itself and
     // never gets here)
     if not (ssDouble in Shift) and not DraggingDivider and not RowSizing and
-      not BandSizing and (Item <> nil) and Item.Editing and
+      (Item <> nil) and Item.Editing and
       (Item.EditCtrl <> nil) and Item.EditCtrl.HandleAllocated and
       PtInRect(Item.Rects[iprEditValue], Point(X, Y)) then
     begin
@@ -2306,40 +2093,17 @@ end;
 
 procedure TJvCustomInspector.MouseMove(Shift: TShiftState; X, Y: Integer);
 var
-  BWidth: Integer;
-  BandIdx: Integer;
   XB: Integer;
   ItemIndex: Integer;
   ItemRect: TRect;
   Item: TJvCustomInspectorItem;
 begin
   inherited MouseMove(Shift, X, Y);
-  if UseBands then
-  begin
-    BWidth := BandWidth;
-    BandIdx := X div BWidth + BandStarts.IndexOf(Pointer(TopIndex));
-  end
-  else
-  begin
-    BWidth := ClientWidth;
-    BandIdx := -1;
-  end;
-  if UseBands and not DraggingDivider then
-    XB := X mod BWidth
-  else
-  if UseBands and DraggingDivider then
-    XB := X - DividerDragBandX
-  else
-    XB := X;
+  XB := X;
   if DraggingDivider then
     DividerAbs := XB
   else
-  if BandSizing then
-    HandleBandResize(X)
-  else
-  if (((XB >= Pred(DividerAbs)) and (XB <= Succ(DividerAbs))) or
-    (UseBands and (XB >= BWidth - 3))) and (not UseBands or
-    (BandIdx < BandStarts.Count)) then
+  if (XB >= Pred(DividerAbs)) and (XB <= Succ(DividerAbs)) then
     Cursor := crHSplit
   else
   begin
@@ -2405,12 +2169,6 @@ begin
     if RowSizing then
       RowSizing := False
     else
-    if BandSizing then
-    begin
-      BandSizing := False;
-      TopIndex := TopIndex; // resync position
-    end
-    else
     if Selecting then
       Selecting := False;
   end;
@@ -2432,8 +2190,6 @@ begin
   begin
     if (AComponent = Painter) then
       FPainter := nil;
-    if AComponent = FStylePainter then
-      FStylePainter := nil;
   end;
 end;
 
@@ -2453,13 +2209,13 @@ begin
   PaintRect := ClientRect;
 
 
-  if ActivePainter <> nil then
+  if Painter <> nil then
   begin
     if NeedRebuild then
       InvalidateList;
     IncPaintGeneration;
-    ActivePainter.Setup(Canvas);
-    ActivePainter.Paint;
+    Painter.Setup(Canvas);
+    Painter.Paint;
   end
   else
   begin
@@ -2540,14 +2296,8 @@ begin
   inherited BoundsChanged;
   if csCreating in ControlState then
     Exit;
-  if not BandSizing then
-  begin
-    FImageHeight := 0; // Force recalculation of bands
-    if (ImageHeight <= ClientHeight) and UseBands then
-      TopIndex := 0
-    else
-      TopIndex := TopIndex;
-  end;
+  FImageHeight := 0; // Force recalculation of the image height
+  TopIndex := TopIndex; // Adapt position
   if HandleAllocated then
     UpdateScrollBars;
 end;
@@ -2568,21 +2318,6 @@ end;
 procedure TJvCustomInspector.SetAfterItemCreate(const Value: TInspectorItemEvent);
 begin
   FAfterItemCreate := Value;
-end;
-
-procedure TJvCustomInspector.SetBandWidth(Value: Integer);
-begin
-  if Value <> BandWidth then
-  begin
-    FBandWidth := Value;
-    if not RelativeDivider then
-      DividerAbs := DividerAbs;
-    if HandleAllocated then
-    begin
-      CalcImageHeight;
-      UpdateScrollBars;
-    end;
-  end;
 end;
 
 procedure TJvCustomInspector.SetBeforeItemCreate(const Value: TInspectorItemBeforeCreateEvent);
@@ -2610,9 +2345,6 @@ begin
   if FDivider <> Value then
     if RelativeDivider then
     begin
-      if UseBands then
-        DividerAbs := (Value * BandWidth) div 100
-      else
       if HandleAllocated then
         DividerAbs := (Value * ClientWidth) div 100
       else
@@ -2626,9 +2358,6 @@ procedure TJvCustomInspector.SetDividerAbs(Value: Integer);
 var
   W: Integer;
 begin
-  if UseBands then
-    W := BandWidth
-  else
   if HandleAllocated then
     W := ClientWidth
   else
@@ -2639,9 +2368,6 @@ begin
     Value := 2 * ItemHeight;
   if RelativeDivider then
   begin
-    if UseBands then
-      FDivider := (Value * 100) div BandWidth
-    else
     if HandleAllocated then
       FDivider := (Value * 100) div ClientWidth
     else
@@ -2689,35 +2415,6 @@ end;
 procedure TJvCustomInspector.SetOnItemSelected(const Value: TNotifyEvent);
 begin
   FOnItemSelected := Value;
-end;
-
-procedure TJvCustomInspector.SetPainter(const Value: TJvInspectorPainter);
-begin
-  if Value <> Painter then
-  begin
-    if Value <> nil then
-      if (Value.Inspector <> nil) and (Value.Inspector <> Self) then
-        raise EJvInspector.CreateRes(@RsEJvInspPaintOnlyUsedOnce);
-
-    if Painter <> nil then
-      Painter.SetInspector(nil);
-
-    ReplaceComponentReference(Self, Value, TComponent(FPainter));
-
-    if Painter <> nil then
-    begin
-      Style := isItemPainter;
-      Painter.SetInspector(Self);
-
-      if HandleAllocated then
-        UpdateScrollBars;
-    end
-    else
-    begin
-      if not FSettingStyle then
-        Style := isBorland;
-    end;
-  end;
 end;
 
 procedure TJvCustomInspector.SetReadOnly(const Value: Boolean);
@@ -2779,88 +2476,20 @@ begin
   end;
 end;
 
-procedure TJvCustomInspector.SetStyle(const Value: TJvInspectorStyle);
-begin
-  if FStyle <> Value then
-  begin
-    FSettingStyle := True;
-    try
-      // Prevent changing the style if getting isItemPainter without a Painter
-      // (Mantis 3847)
-      if (Value <> isItemPainter) or (Painter <> nil) then
-        FStyle := Value;
-
-      // Always remove the current painter
-      if FStylePainter <> nil then
-      begin
-        FStylePainter.SetInspector(nil);
-        FStylePainter.Free;
-        FStylePainter := nil;
-      end;
-
-      if (Style <> isItemPainter) or (Painter = nil) then
-      begin
-        Painter := nil;
-
-        FStylePainter := CreatePainterFromStyle(Value);
-        FStylePainter.SetInspector(Self);
-
-        if HandleAllocated then
-          UpdateScrollBars;
-      end;
-    finally
-      FSettingStyle := False;
-    end;
-  end;
-end;
-
 procedure TJvCustomInspector.SetTopIndex(Value: Integer);
 var
   MaxIdx: Integer;
 begin
-  if UseBands then
-  begin
-    MaxIdx := BandStarts.Count - (ClientWidth div BandWidth);
-    if MaxIdx < 0 then
-      MaxIdx := 0;
-    if MaxIdx >= BandStarts.Count then
-      MaxIdx := BandStarts.Count - 1;
-    if MaxIdx <> -1 then
-      MaxIdx := Integer(BandStarts[MaxIdx]);
-  end
-  else
-    MaxIdx := Succ(YToIdx(ImageHeight - ClientHeight));
+  MaxIdx := Succ(YToIdx(ImageHeight - ClientHeight));
   if MaxIdx < 0 then
     MaxIdx := 0;
   if Value > MaxIdx then
     Value := MaxIdx;
   if Value < 0 then
     Value := 0;
-  if UseBands and (BandStarts.IndexOf(Pointer(Value)) > -1) then
-  begin
-    MaxIdx := Pred(BandStarts.Count);
-    while (MaxIdx > -1) and (Integer(BandStarts[MaxIdx]) > Value) do
-      Dec(MaxIdx);
-    if MaxIdx <= -1 then
-      raise EJvInspector.CreateRes(@RsEJvAssertSetTopIndex);
-    Value := Integer(BandStarts[MaxIdx]);
-  end;
   if TopIndex <> Value then
   begin
     FTopIndex := Value;
-    if HandleAllocated then
-      UpdateScrollBars;
-  end;
-end;
-
-procedure TJvCustomInspector.SetUseBands(Value: Boolean);
-begin
-  if UseBands <> Value then
-  begin
-    FUseBands := Value;
-    if not RelativeDivider then
-      DividerAbs := DividerAbs;
-    FImageHeight := 0;
     if HandleAllocated then
       UpdateScrollBars;
   end;
@@ -2881,10 +2510,7 @@ var
   ClHeight: Integer;
   ScFactor: Extended;
   ScrollInfo: TScrollInfo;
-  BCount: Integer;
-  BPerPage: Integer;
   ShowVertSB: Boolean;
-  ShowHorzSB: Boolean;
 begin
   if csDestroying in ComponentState then
     Exit;
@@ -2892,56 +2518,28 @@ begin
   if not HandleAllocated then
     Exit;
 
-  if not UseBands then
+  // Cache the image height, client height and scroll factor
+  DrawHeight := ImageHeight;
+  ClHeight := ClientHeight;
+  ScFactor := ScrollFactorV;
+  { Needed to redisplay the scrollbar after it's hidden in the CloseUp method
+    of an enumerated item's combobox }
+  ShowVertSB := Round((DrawHeight) / ScFactor) >= Round(ClHeight / ScFactor);
+  if ShowVertSB then
   begin
-    ShowScrollBars(SB_HORZ, False);
-    // Cache the image height, client height and scroll factor
-    DrawHeight := ImageHeight;
-    ClHeight := ClientHeight;
-    ScFactor := ScrollFactorV;
-    { Needed to redisplay the scrollbar after it's hidden in the CloseUp method
-      of an enumerated item's combobox }
-    ShowVertSB := Round((DrawHeight) / ScFactor) >= Round(ClHeight / ScFactor);
-    if ShowVertSB then
+    with ScrollInfo do
     begin
-      with ScrollInfo do
-      begin
-        cbSize := SizeOf(ScrollInfo);
-        fMask := SIF_ALL;
-        nMin := 0;
-        nMax := Round((IdxToY(Succ(YToIdx(ImageHeight - ClientHeight))) + ClientHeight) / ScFactor);
-        nPage := Round(ClHeight / ScFactor);
-        nPos := Round(IdxToY(TopIndex) / ScFactor);
-        nTrackPos := 0;
-      end;
-      SetScrollInfo(Handle, SB_VERT, ScrollInfo, True);
+      cbSize := SizeOf(ScrollInfo);
+      fMask := SIF_ALL;
+      nMin := 0;
+      nMax := Round((IdxToY(Succ(YToIdx(ImageHeight - ClientHeight))) + ClientHeight) / ScFactor);
+      nPage := Round(ClHeight / ScFactor);
+      nPos := Round(IdxToY(TopIndex) / ScFactor);
+      nTrackPos := 0;
     end;
-    ShowScrollBars(SB_VERT, ShowVertSB);
-  end
-  else
-  begin
-    ShowScrollBars(SB_VERT, False);
-    { Needed to redisplay the scrollbar after it's hidden in the CloseUp method
-      of an enumerated item's combobox }
-    BCount := BandStarts.Count;
-    BPerPage := ClientWidth div BandWidth;
-    ShowHorzSB := BCount > BPerPage;
-    if ShowHorzSB then
-    begin
-      with ScrollInfo do
-      begin
-        cbSize := SizeOf(ScrollInfo);
-        fMask := SIF_ALL;
-        nMin := 0;
-        nMax := BCount - 1;
-        nPage := BPerPage;
-        nPos := GetBandFor(TopIndex);
-        nTrackPos := 0;
-      end;
-      SetScrollInfo(Handle, SB_HORZ, ScrollInfo, True);
-    end;
-    ShowScrollBars(SB_HORZ, ShowHorzSB);
+    SetScrollInfo(Handle, SB_VERT, ScrollInfo, True);
   end;
+  ShowScrollBars(SB_VERT, ShowVertSB);
   Invalidate;
 end;
 
@@ -2979,42 +2577,6 @@ procedure TJvCustomInspector.FocusKilled(NextWnd: THandle);
 begin
   inherited FocusKilled(NextWnd);
   Invalidate;
-end;
-
-procedure TJvCustomInspector.WMHScroll(var Msg: TWMScroll);
-var
-  CurBand: Integer;
-  Delta: Integer;
-begin
-  CurBand := BandStarts.IndexOf(Pointer(TopIndex));
-  case Msg.ScrollCode of
-    SB_BOTTOM:
-      Delta := BandStarts.Count - 1 - CurBand;
-    SB_ENDSCROLL:
-      Delta := 0;
-    SB_LINEDOWN:
-      Delta := 1;
-    SB_LINEUP:
-      Delta := -1;
-    SB_PAGEDOWN:
-      Delta := ClientWidth div BandWidth;
-    SB_PAGEUP:
-      Delta := -ClientWidth div BandWidth;
-    SB_THUMBPOSITION:
-      Delta := Msg.Pos - CurBand;
-    SB_THUMBTRACK:
-      Delta := Msg.Pos - CurBand;
-    SB_TOP:
-      Delta := -CurBand;
-  else
-    Delta := 0;
-  end;
-  CurBand := CurBand + Delta;
-  if CurBand < 0 then
-    CurBand := 0;
-  if CurBand >= BandStarts.Count then
-    CurBand := BandStarts.Count - 1;
-  TopIndex := Integer(BandStarts[CurBand]);
 end;
 
 procedure TJvCustomInspector.WMVScroll(var Msg: TWMScroll);
@@ -3070,15 +2632,11 @@ begin
   inherited BeforeDestruction;
   if not (csDesigning in ComponentState) then
     GlobalInspReg.UnRegInspector(Self);
-  Painter := nil;
   FRoot.Free;
-  FBandStartsSB.Free;
-  FBandStartsNoSB.Free;
   FSortNotificationList.Free;
   FVisibleList.Free;
   FExpandButton.Free;
   FCollapseButton.Free;
-  FStylePainter.Free;
 end;
 
 function TJvCustomInspector.BeginUpdate: Integer;
@@ -3214,15 +2772,6 @@ begin
   FInternalCollapseButton := TBitmap.Create;
   FInternalExpandButton := TBitmap.Create;
 
-  FCategoryFont := TFont.Create;
-  FCategoryFont.OnChange := FontChange;
-  FNameFont := TFont.Create;
-  FNameFont.OnChange := FontChange;
-  FValueFont := TFont.Create;
-  FValueFont.OnChange := FontChange;
-  FSelectedFont := TFont.Create;
-  FSelectedFont.OnChange := FontChange;
-
   Initializing := True;
   try
     InitializeColors;
@@ -3233,41 +2782,26 @@ begin
   // by PrepareInternalImages
 end;
 
-procedure TJvInspectorPainter.DefineProperties(Filer: TFiler);
-begin
-  // Here to allow transparent reading of old DFMs following changes
-  // introduced for Mantis 1715
-  Filer.DefineProperty('CategoryTextColor', ReadCategoryTextColor, nil, False);
-  Filer.DefineProperty('NameColor', ReadNameColor, nil, False);
-  Filer.DefineProperty('ValueColor', ReadValueColor, nil, False);
-  Filer.DefineProperty('SelectedTextColor', ReadSelectedTextColor, nil, False);
-  Filer.DefineProperty('HideSelectTextColor', ReadHideSelectTextColor, nil, False);
-
-  inherited DefineProperties(Filer);
-end;
-
 destructor TJvInspectorPainter.Destroy;
 begin
   FInternalCollapseButton.Free;
   FInternalExpandButton.Free;
-  FCategoryFont.Free;
-  FNameFont.Free;
-  FValueFont.Free;
-  FSelectedFont.Free;
   inherited Destroy;
 end;
 
 procedure TJvInspectorPainter.ApplyNameFont;
 begin
+  Canvas.Font := Inspector.Font;
   if Assigned(Item) and Item.IsCategory then
-    Canvas.Font := CategoryFont
+    Canvas.Font.Color := CategoryTextColor
   else
-    Canvas.Font := NameFont;
+    Canvas.Font.Color := NameColor;
 end;
 
 procedure TJvInspectorPainter.ApplyValueFont;
 begin
-  Canvas.Font := ValueFont;
+  Canvas.Font := Inspector.Font;
+  Canvas.Font.Color := ValueColor;
 end;
 
 procedure TJvInspectorPainter.CalcButtonBasedRects;
@@ -3284,12 +2818,6 @@ end;
 
 procedure TJvInspectorPainter.CalcValueBasedRects;
 begin
-end;
-
-procedure TJvInspectorPainter.FontChange(Sender: TObject);
-begin
-  if not Initializing and not Loading and Assigned(Inspector) then
-    Inspector.Invalidate;
 end;
 
 function TJvInspectorPainter.DividerWidth: Integer;
@@ -3316,9 +2844,9 @@ begin
   Result := FCategoryDividerColor;
 end;
 
-function TJvInspectorPainter.GetCategoryFont: TFont;
+function TJvInspectorPainter.GetCategoryTextColor: TColor;
 begin
-  Result := FCategoryFont;
+  Result := FCategoryTextColor;
 end;
 
 procedure TJvInspectorPainter.PrepareInternalImages;
@@ -3334,7 +2862,7 @@ var
     Mid := Size div 2;
     Image.SetSize(Size, Size);
     Image.Canvas.Brush.Color := BackgroundColor;
-    Image.Canvas.Pen.Color := NameFont.Color;
+    Image.Canvas.Pen.Color := NameColor;
     Image.Canvas.Rectangle(0, 0, Size, Size);
     Image.Canvas.MoveTo(Margin, Mid);
     Image.Canvas.LineTo(Size - Margin, Mid);
@@ -3355,23 +2883,13 @@ begin
     Dec(Size);
   if (Size = FInternalButtonSize) and
     (BackgroundColor = FInternalButtonBackgroundColor) and
-    (NameFont.Color = FInternalButtonPenColor) then
+    (NameColor = FInternalButtonPenColor) then
     Exit;
   FInternalButtonSize := Size;
   FInternalButtonBackgroundColor := BackgroundColor;
-  FInternalButtonPenColor := NameFont.Color;
+  FInternalButtonPenColor := NameColor;
   PrepareImage(FInternalCollapseButton, False);
   PrepareImage(FInternalExpandButton, True);
-end;
-
-procedure TJvInspectorPainter.ScaleFonts(const M, D: Integer);
-begin
-  // Called when the inspector's dpi changes: the fonts scale the same way
-  // TControl.ChangeScale scales a control's font
-  FCategoryFont.Height := MulDiv(FCategoryFont.Height, M, D);
-  FNameFont.Height := MulDiv(FNameFont.Height, M, D);
-  FValueFont.Height := MulDiv(FValueFont.Height, M, D);
-  FSelectedFont.Height := MulDiv(FSelectedFont.Height, M, D);
 end;
 
 function TJvInspectorPainter.GetCollapseImage: TBitmap;
@@ -3406,14 +2924,14 @@ begin
   Result := SelectedColor;
 end;
 
-function TJvInspectorPainter.GetHideSelectFont: TFont;
+function TJvInspectorPainter.GetHideSelectTextColor: TColor;
 begin
-  Result := SelectedFont;
+  Result := SelectedTextColor;
 end;
 
-function TJvInspectorPainter.GetNameFont: TFont;
+function TJvInspectorPainter.GetNameColor: TColor;
 begin
-  Result := FNameFont;
+  Result := FNameColor;
 end;
 
 function TJvInspectorPainter.GetNameHeight(const AItem: TJvCustomInspectorItem): Integer;
@@ -3446,9 +2964,9 @@ begin
   Result := FSelectedColor;
 end;
 
-function TJvInspectorPainter.GetSelectedFont: TFont;
+function TJvInspectorPainter.GetSelectedTextColor: TColor;
 begin
-  Result := FSelectedFont;
+  Result := FSelectedTextColor;
 end;
 
 function TJvInspectorPainter.GetDrawNameEndEllipsis: Boolean;
@@ -3456,9 +2974,9 @@ begin
   Result := FDrawNameEndEllipsis;
 end;
 
-function TJvInspectorPainter.GetValueFont: TFont;
+function TJvInspectorPainter.GetValueColor: TColor;
 begin
-  Result := FValueFont;
+  Result := FValueColor;
 end;
 
 function TJvInspectorPainter.GetValueHeight(const AItem: TJvCustomInspectorItem): Integer;
@@ -3499,51 +3017,18 @@ var
   Rect: TRect;
   ItemIdx: Integer;
   MaxItemIdx: Integer;
-  BandIdx: Integer;
-  MaxBandItemIdx: Integer;
 begin
   SelItemVisible := False;
   Rect := Inspector.ViewRect;
   Canvas.FillRect(Rect);
   ItemIdx := Inspector.TopIndex;
   MaxItemIdx := Inspector.VisibleCount;
-  if not Inspector.UseBands then
+  // Loop through the visible list
+  while (Rect.Top < Rect.Bottom) and (ItemIdx < MaxItemIdx) do
   begin
-    // Loop through the visible list
-    while (Rect.Top < Rect.Bottom) and (ItemIdx < MaxItemIdx) do
-    begin
-      SelItemVisible := SelItemVisible or (ItemIdx = Inspector.SelectedIndex);
-      PaintItem(Rect, ItemIdx);
-      Inc(ItemIdx);
-    end;
-  end
-  else // if UseBands
-  begin
-    BandIdx := Inspector.BandStarts.IndexOf(Pointer(ItemIdx));
-    Rect.Right := Rect.Left + Inspector.BandWidth - 4;
-    while (ItemIdx < MaxItemIdx) and (Rect.Left < Inspector.ClientWidth) do
-    begin
-      Inc(BandIdx);
-      if BandIdx < Inspector.BandStarts.Count then
-        MaxBandItemIdx := Integer(Inspector.BandStarts[BandIdx])
-      else
-        MaxBandItemIdx := MaxItemIdx;
-      while (Rect.Top < Rect.Bottom) and (ItemIdx < MaxBandItemIdx) do
-      begin
-        SelItemVisible := SelItemVisible or (ItemIdx = Inspector.SelectedIndex);
-        PaintItem(Rect, ItemIdx);
-        Inc(ItemIdx);
-      end;
-      MaxBandItemIdx := Rect.Right + 4;
-      Rect := Inspector.ClientRect;
-      Rect.Left := MaxBandItemIdx;
-      Rect.Right := Rect.Left + Inspector.BandWidth - 4;
-      Canvas.Pen.Color := clBtnShadow;
-      Canvas.MoveTo(Rect.Left - 3, Rect.Top);
-      Canvas.LineTo(Rect.Left - 3, Rect.Bottom);
-      Canvas.MoveTo(Rect.Left - 1, Rect.Top);
-      Canvas.LineTo(Rect.Left - 1, Rect.Bottom);
-    end;
+    SelItemVisible := SelItemVisible or (ItemIdx = Inspector.SelectedIndex);
+    PaintItem(Rect, ItemIdx);
+    Inc(ItemIdx);
   end;
   if not SelItemVisible and (Inspector.Selected <> nil) then
     HideEditor;
@@ -3597,31 +3082,6 @@ begin
   end;
 end;
 
-procedure TJvInspectorPainter.ReadCategoryTextColor(Reader: TReader);
-begin
-  CategoryFont.Color := StringToColor(Reader.ReadIdent);
-end;
-
-procedure TJvInspectorPainter.ReadHideSelectTextColor(Reader: TReader);
-begin
-  HideSelectFont.Color := StringToColor(Reader.ReadIdent);
-end;
-
-procedure TJvInspectorPainter.ReadNameColor(Reader: TReader);
-begin
-  NameFont.Color := StringToColor(Reader.ReadIdent);
-end;
-
-procedure TJvInspectorPainter.ReadSelectedTextColor(Reader: TReader);
-begin
-  SelectedFont.Color := StringToColor(Reader.ReadIdent);
-end;
-
-procedure TJvInspectorPainter.ReadValueColor(Reader: TReader);
-begin
-  ValueFont.Color := StringToColor(Reader.ReadIdent);
-end;
-
 procedure TJvInspectorPainter.SetBackgroundColor(const Value: TColor);
 begin
   if Value <> BackgroundColor then
@@ -3652,9 +3112,14 @@ begin
   end;
 end;
 
-procedure TJvInspectorPainter.SetCategoryFont(const Value: TFont);
+procedure TJvInspectorPainter.SetCategoryTextColor(const Value: TColor);
 begin
-  FCategoryFont.Assign(Value);
+  if Value <> CategoryTextColor then
+  begin
+    FCategoryTextColor := Value;
+    if not Initializing and not Loading and Assigned(Inspector) then
+      Inspector.Invalidate;
+  end;
 end;
 
 procedure TJvInspectorPainter.SetDividerColor(const Value: TColor);
@@ -3671,13 +3136,18 @@ procedure TJvInspectorPainter.SetHideSelectColor(const Value: TColor);
 begin
 end;
 
-procedure TJvInspectorPainter.SetHideSelectFont(const Value: TFont);
+procedure TJvInspectorPainter.SetHideSelectTextColor(const Value: TColor);
 begin
 end;
 
-procedure TJvInspectorPainter.SetNameFont(const Value: TFont);
+procedure TJvInspectorPainter.SetNameColor(const Value: TColor);
 begin
-  FNameFont.Assign(Value);
+  if Value <> NameColor then
+  begin
+    FNameColor := Value;
+    if not Initializing and not Loading and Assigned(Inspector) then
+      Inspector.Invalidate;
+  end;
 end;
 
 procedure TJvInspectorPainter.SetRects(const Index: TInspectorPaintRect;
@@ -3697,9 +3167,14 @@ begin
   end;
 end;
 
-procedure TJvInspectorPainter.SetSelectedFont(const Value: TFont);
+procedure TJvInspectorPainter.SetSelectedTextColor(const Value: TColor);
 begin
-  FSelectedFont.Assign(Value);
+  if Value <> SelectedTextColor then
+  begin
+    FSelectedTextColor := Value;
+    if not Initializing and not Loading and Assigned(Inspector) then
+      Inspector.Invalidate;
+  end;
 end;
 
 procedure TJvInspectorPainter.Setup(const ACanvas: TCanvas);
@@ -3739,9 +3214,14 @@ begin
     PaintRect.Right, Pred(PaintRect.Top + Item.Height));
 end;
 
-procedure TJvInspectorPainter.SetValueFont(const Value: TFont);
+procedure TJvInspectorPainter.SetValueColor(const Value: TColor);
 begin
-  FValueFont.Assign(Value);
+  if Value <> ValueColor then
+  begin
+    FValueColor := Value;
+    if not Initializing and not Loading and Assigned(Inspector) then
+      Inspector.Invalidate;
+  end;
 end;
 
 procedure TJvInspectorPainter.SetDrawNameEndEllipsis(Value: Boolean);
@@ -3767,14 +3247,7 @@ end;
 
 procedure TJvInspectorPainter.SetInspector(const AInspector: TJvCustomInspector);
 begin
-  if (AInspector <> nil) and (AInspector.ActivePainter <> Self) then
-    raise EJvInspector.CreateRes(@RsEJvInspPaintNotActive);
-  if AInspector <> Inspector then
-  begin
-    if (Inspector <> nil) and (AInspector <> nil) then
-      raise EJvInspector.CreateRes(@RsEJvInspPaintOnlyUsedOnce);
-    FInspector := AInspector;
-  end;
+  FInspector := AInspector;
 end;
 
 //=== { TJvInspectorBorlandNETBasePainter } ==================================
@@ -3919,9 +3392,9 @@ procedure TJvInspectorBorlandNETBasePainter.InitializeColors;
 begin
   inherited InitializeColors;
 
-  CategoryFont.Color := clBtnText;
-  NameFont.Color := clWindowText;
-  ValueFont.Color := clWindowText;
+  CategoryTextColor := clBtnText;
+  NameColor := clWindowText;
+  ValueColor := clWindowText;
 end;
 
 procedure TJvInspectorBorlandNETBasePainter.SetupRects;
@@ -3963,112 +3436,6 @@ begin
   CalcValueBasedRects;
 end;
 
-//=== { TJvInspectorBorlandPainter } =========================================
-
-function TJvInspectorBorlandPainter.DividerWidth: Integer;
-begin
-  Result := 2;
-end;
-
-procedure TJvInspectorBorlandPainter.DoPaint;
-var
-  TmpRect: TRect;
-  X: Integer;
-  MaxX: Integer;
-begin
-  TmpRect := Rects[iprItem];
-  if Item = Inspector.Selected then
-  begin
-    // Selected frame
-    InflateRect(TmpRect, 0, 1);
-    Dec(TmpRect.Top);
-    Inc(TmpRect.Right);
-    Frame3D(Canvas, TmpRect, clGray, clWhite, 1);
-    Frame3D(Canvas, TmpRect, clGray, cl3DLight, 1);
-  end
-  else
-  begin
-    // Dotted line
-    X := TmpRect.Left;
-    MaxX := TmpRect.Right;
-    Canvas.Pen.Color := clGray;
-    while X < MaxX do
-    begin
-      Canvas.Pixels[X, TmpRect.Bottom] := clGray;
-      Inc(X, 2);
-    end;
-  end;
-
-  if not Item.IsCategory then
-  begin
-    // Draw divider line
-    TmpRect := Rects[iprItem];
-    PaintDivider(TmpRect.Left + Inspector.DividerAbs, Pred(TmpRect.Top), TmpRect.Bottom);
-  end;
-
-  ApplyNameFont;
-  Item.DrawName(Canvas);
-  ApplyValueFont;
-  if Assigned(FOnSetItemColors) then
-    FOnSetItemColors(Item, Canvas); // Custom colors for canvas and font for cells depending on values.
-
-  Item.DrawValue(Canvas);
-
-  if ButtonImage <> nil then
-    Canvas.CopyRect(Rects[iprBtnDstRect], ButtonImage.Canvas, Rects[iprBtnSrcRect]);
-end;
-
-function TJvInspectorBorlandPainter.GetDividerLightColor: TColor;
-begin
-  Result := FDividerLightColor;
-end;
-
-function TJvInspectorBorlandPainter.GetSelectedColor: TColor;
-begin
-  Result := BackgroundColor;
-end;
-
-function TJvInspectorBorlandPainter.GetSelectedFont: TFont;
-begin
-  Result := NameFont;
-end;
-
-procedure TJvInspectorBorlandPainter.InitializeColors;
-begin
-  inherited InitializeColors;
-  SetDefaultProp(Self, 'DividerLightColor');
-  ValueFont.Color := clNavy;
-end;
-
-procedure TJvInspectorBorlandPainter.PaintDivider(const X, YTop, YBottom: Integer);
-begin
-  with Canvas do
-  begin
-    Canvas.Pen.Color := DividerColor;
-    MoveTo(X, YTop);
-    LineTo(X, YBottom);
-    Pen.Color := DividerLightColor;
-    MoveTo(Succ(X), YBottom);
-    LineTo(Succ(X), YTop);
-  end;
-end;
-
-procedure TJvInspectorBorlandPainter.SetDividerLightColor(const Value: TColor);
-begin
-  if DividerLightColor <> Value then
-  begin
-    FDividerLightColor := Value;
-    if not Initializing and not Loading and Assigned(Inspector) then
-      Inspector.Invalidate;
-  end;
-end;
-
-procedure TJvInspectorBorlandPainter.Setup(const ACanvas: TCanvas);
-begin
-  inherited Setup(ACanvas);
-  Canvas.Brush.Color := clBtnFace;
-end;
-
 //=== { TJvInspectorDotNETPainter } ==========================================
 
 procedure TJvInspectorDotNETPainter.ApplyNameFont;
@@ -4079,12 +3446,12 @@ begin
     if Inspector.Focused then
     begin
       Canvas.Brush.Color := SelectedColor;
-      Canvas.Font := SelectedFont;
+      Canvas.Font.Color := SelectedTextColor;
     end
     else
     begin
       Canvas.Brush.Color := HideSelectColor;
-      Canvas.Font := HideSelectFont;
+      Canvas.Font.Color := HideSelectTextColor;
     end;
   end
   else
@@ -4099,25 +3466,9 @@ begin
   Result := FHideSelectColor;
 end;
 
-function TJvInspectorDotNETPainter.GetHideSelectFont: TFont;
+function TJvInspectorDotNETPainter.GetHideSelectTextColor: TColor;
 begin
-  Result := FHideSelectFont;
-end;
-
-constructor TJvInspectorDotNETPainter.Create(AOwner: TComponent);
-begin
-  // inherited Create will call Initialize colors which will use this font.
-  FHideSelectFont := TFont.Create;
-  FHideSelectFont.OnChange := FontChange;
-
-  inherited Create(AOwner);
-end;
-
-destructor TJvInspectorDotNETPainter.Destroy;
-begin
-  FHideSelectFont.Free;
-
-  inherited Destroy;
+  Result := FHideSelectTextColor;
 end;
 
 procedure TJvInspectorDotNETPainter.DoPaint;
@@ -4226,8 +3577,8 @@ begin
 
   SetDefaultProp(Self, ['HideSelectColor', 'CategoryDividerColor']);
 
-  HideSelectFont.Color := clHighlightText;
-  SelectedFont.Color := clHighlightText;
+  HideSelectTextColor := clHighlightText;
+  SelectedTextColor := clHighlightText;
 end;
 
 procedure TJvInspectorDotNETPainter.PaintDivider(const X, YTop, YBottom: Integer);
@@ -4240,12 +3591,6 @@ begin
   end
 end;
 
-procedure TJvInspectorDotNETPainter.ScaleFonts(const M, D: Integer);
-begin
-  inherited ScaleFonts(M, D);
-  FHideSelectFont.Height := MulDiv(FHideSelectFont.Height, M, D);
-end;
-
 procedure TJvInspectorDotNETPainter.SetHideSelectColor(const Value: TColor);
 begin
   if Value <> HideSelectColor then
@@ -4256,9 +3601,14 @@ begin
   end;
 end;
 
-procedure TJvInspectorDotNETPainter.SetHideSelectFont(const Value: TFont);
+procedure TJvInspectorDotNETPainter.SetHideSelectTextColor(const Value: TColor);
 begin
-  FHideSelectFont.Assign(Value);
+  if Value <> HideSelectTextColor then
+  begin
+    FHideSelectTextColor := Value;
+    if not Initializing and not Loading and Assigned(Inspector) then
+      Inspector.Invalidate;
+  end;
 end;
 
 //=== { TJvInspectorItemSizing } =============================================
@@ -5174,9 +4524,9 @@ begin
   begin
     case RowSizing.MinHeight of
       irsNameHeight:
-        Result := Inspector.ActivePainter.GetNameHeight(Self);
+        Result := Inspector.Painter.GetNameHeight(Self);
       irsValueHeight:
-        Result := Inspector.ActivePainter.GetValueHeight(Self);
+        Result := Inspector.Painter.GetValueHeight(Self);
       irsItemHeight:
         Result := Inspector.ItemHeight;
     else
@@ -5184,9 +4534,9 @@ begin
     end;
     case RowSizing.SizingFactor of
       irsNameHeight:
-        Result := Result + HeightFactor * Inspector.ActivePainter.GetNameHeight(Self);
+        Result := Result + HeightFactor * Inspector.Painter.GetNameHeight(Self);
       irsValueHeight:
-        Result := Result + HeightFactor * Inspector.ActivePainter.GetValueHeight(Self);
+        Result := Result + HeightFactor * Inspector.Painter.GetValueHeight(Self);
       irsItemHeight:
         Result := Result + HeightFactor * Inspector.ItemHeight;
     else
@@ -5607,9 +4957,9 @@ var
 begin
   case RowSizing.MinHeight of
     irsNameHeight:
-      Dec(Value, Inspector.ActivePainter.GetNameHeight(Self));
+      Dec(Value, Inspector.Painter.GetNameHeight(Self));
     irsValueHeight:
-      Dec(Value, Inspector.ActivePainter.GetValueHeight(Self));
+      Dec(Value, Inspector.Painter.GetValueHeight(Self));
     irsItemHeight:
       Dec(Value, Inspector.ItemHeight);
   else
@@ -5621,9 +4971,9 @@ begin
     irsNoReSize:
       Factor := 0;
     irsNameHeight:
-      Factor := Value div Inspector.ActivePainter.GetNameHeight(Self);
+      Factor := Value div Inspector.Painter.GetNameHeight(Self);
     irsValueHeight:
-      Factor := Value div Inspector.ActivePainter.GetValueHeight(Self);
+      Factor := Value div Inspector.Painter.GetValueHeight(Self);
     irsItemHeight:
       Factor := Value div Inspector.ItemHeight;
   else
@@ -5965,7 +5315,7 @@ var
   ARect: TRect;
 begin
   ARect := Rects[iprName];
-  if (Inspector.ActivePainter <> nil) and (Inspector.ActivePainter.DrawNameEndEllipsis) then
+  if (Inspector.Painter <> nil) and (Inspector.Painter.DrawNameEndEllipsis) then
   begin
     ARect.Right := ARect.Right - 2;
     DrawText(ACanvas, PChar(DisplayName), -1, ARect, DT_END_ELLIPSIS);
@@ -6004,8 +5354,8 @@ begin
   SafeColor := ACanvas.Brush.Color;
   if Editing then
   begin
-    if Inspector.ActivePainter <> nil then
-      ACanvas.Brush.Color := Inspector.ActivePainter.BackgroundColor
+    if Inspector.Painter <> nil then
+      ACanvas.Brush.Color := Inspector.Painter.BackgroundColor
     else
       ACanvas.Brush.Color := clWindow;
   end;
@@ -6186,8 +5536,8 @@ begin
       TCustomEditAccessProtected(EditCtrl).TabStop := False;
       TCustomEditAccessProtected(EditCtrl).Color := Inspector.Canvas.Brush.Color;
     end
-    else if Inspector.ActivePainter <> nil then
-      TCustomEditAccessProtected(EditCtrl).Color := Inspector.ActivePainter.BackgroundColor
+    else if Inspector.Painter <> nil then
+      TCustomEditAccessProtected(EditCtrl).Color := Inspector.Painter.BackgroundColor
     else
       TCustomEditAccessProtected(EditCtrl).Color := clWindow;
     FEditWndPrc := EditCtrl.WindowProc;
@@ -6217,10 +5567,9 @@ begin
     // The editor shows the text the value was painted with, so it must use
     // the exact font it was painted with: any metric difference makes the
     // text visibly shift when editing starts or ends
-    if Inspector.ActivePainter <> nil then
-      TCustomEditAccessProtected(EditCtrl).Font.Assign(Inspector.ActivePainter.ValueFont)
-    else
-      TCustomEditAccessProtected(EditCtrl).Font.Assign(Inspector.Font);
+    TCustomEditAccessProtected(EditCtrl).Font.Assign(Inspector.Font);
+    if Inspector.Painter <> nil then
+      TCustomEditAccessProtected(EditCtrl).Font.Color := Inspector.Painter.ValueColor;
     // BeforeEdit is fired here, after the editor's font has been assigned, so a
     // handler can still customize that font (moved down from just after the
     // editor was created, where any font change was overwritten just above)
@@ -6285,9 +5634,6 @@ var
   ViewIdx: Integer;
   Item: TJvCustomInspectorItem;
   YDelta: Integer;
-  BandIdx: Integer;
-  FirstBand: Integer;
-  BandsVisible: Integer;
 begin
   if not Assigned(Inspector) then
     Exit;
@@ -6311,39 +5657,20 @@ begin
   end;
   if ViewIdx > -1 then
   begin
-    if not Inspector.UseBands then
-    begin
-      if Inspector.TopIndex > ViewIdx then
-        Inspector.TopIndex := ViewIdx
-      else
-      if (Inspector.IdxToY(ViewIdx) - Inspector.IdxToY(Inspector.TopIndex) + Height) > Inspector.ClientHeight then
-      begin
-        YDelta := (Inspector.IdxToY(ViewIdx) + Height - Inspector.ClientHeight - Inspector.IdxToY(Inspector.TopIndex));
-        ViewIdx := Inspector.TopIndex;
-        while (YDelta > 0) and (ViewIdx < Inspector.VisibleCount) do
-        begin
-          Dec(YDelta, Inspector.VisibleItems[ViewIdx].Height);
-          Inc(ViewIdx);
-        end;
-        if ViewIdx < Inspector.VisibleCount then
-          Inspector.TopIndex := ViewIdx;
-      end;
-    end
+    if Inspector.TopIndex > ViewIdx then
+      Inspector.TopIndex := ViewIdx
     else
+    if (Inspector.IdxToY(ViewIdx) - Inspector.IdxToY(Inspector.TopIndex) + Height) > Inspector.ClientHeight then
     begin
-      // Find band and scroll that band into the view
-      BandIdx := Inspector.GetBandFor(ViewIdx);
-      FirstBand := Inspector.GetBandFor(Inspector.TopIndex);
-      BandsVisible := Inspector.ClientWidth div Inspector.BandWidth;
-      if (BandIdx < FirstBand) or (BandIdx >= (FirstBand + BandsVisible)) then
-        if BandIdx < FirstBand then
-          Inspector.TopIndex := Integer(Inspector.BandStarts[BandIdx])
-        else
-        begin
-          FirstBand := BandIdx - BandsVisible + 1;
-          if (FirstBand > -1) and (FirstBand < Inspector.BandStarts.Count) then
-            Inspector.TopIndex := Integer(Inspector.BandStarts[FirstBand]);
-        end;
+      YDelta := (Inspector.IdxToY(ViewIdx) + Height - Inspector.ClientHeight - Inspector.IdxToY(Inspector.TopIndex));
+      ViewIdx := Inspector.TopIndex;
+      while (YDelta > 0) and (ViewIdx < Inspector.VisibleCount) do
+      begin
+        Dec(YDelta, Inspector.VisibleItems[ViewIdx].Height);
+        Inc(ViewIdx);
+      end;
+      if ViewIdx < Inspector.VisibleCount then
+        Inspector.TopIndex := ViewIdx;
     end;
   end;
 end;
@@ -6542,8 +5869,8 @@ begin
 
     if Editing and Data.IsAssigned then
     begin
-      if Inspector.ActivePainter <> nil then
-        ACanvas.Brush.Color := Inspector.ActivePainter.BackgroundColor
+      if Inspector.Painter <> nil then
+        ACanvas.Brush.Color := Inspector.Painter.BackgroundColor
       else
         ACanvas.Brush.Color := clWindow;
     end;

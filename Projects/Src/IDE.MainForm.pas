@@ -3183,7 +3183,6 @@ procedure TMainForm.SetInspectorVisible(const AVisible: Boolean);
       Ini.Free;
     end;
     Result.BevelKind := bkNone;
-    Result.Painter := TJvInspectorDotNETPainter.Create(Result);
   end;
 
   function CreateSplitPanel(const AJvInspector: TJvInspector): TPanel;

@@ -999,16 +999,16 @@ end;
 procedure TInspector.UpdateTheme(const ATheme: TTheme);
 begin
   FPainter.BackgroundColor := ATheme.Colors[tcBack];
-  FPainter.NameFont.Color := ATheme.Colors[tcFore];
-  FPainter.ValueFont.Color := ATheme.Colors[tcFore];
+  FPainter.NameColor := ATheme.Colors[tcFore];
+  FPainter.ValueColor := ATheme.Colors[tcFore];
   FPainter.CategoryColor := ATheme.Colors[tcToolBack];
-  FPainter.CategoryFont.Color := ATheme.Colors[tcFore];
+  FPainter.CategoryTextColor := ATheme.Colors[tcFore];
   FPainter.DividerColor := ATheme.Colors[tcToolBack];
   FPainter.CategoryDividerColor := FPainter.DividerColor;
   FPainter.SelectedColor := ATheme.Colors[tcSelBack];
-  FPainter.SelectedFont.Color := ATheme.Colors[tcFore];
+  FPainter.SelectedTextColor := ATheme.Colors[tcFore];
   FPainter.HideSelectColor := ATheme.Colors[tcToolBack];
-  FPainter.HideSelectFont.Color := ATheme.Colors[tcFore];
+  FPainter.HideSelectTextColor := ATheme.Colors[tcFore];
 
   { Calling SetWindowTheme manually because our SetControlWindowTheme
     would remove all VCL styling, but we still need it to theme the
