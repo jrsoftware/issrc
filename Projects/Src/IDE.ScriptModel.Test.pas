@@ -469,12 +469,47 @@ begin
   Assert(Definition.DefaultValue = 'no');
   Assert(Metadata.TryGetParameter('ChangesEnvironment', Definition));
   Assert(Definition.DefaultValue = 'no');
+  { The choice directives list their values, including Compression's computed
+    list }
   Assert(Metadata.TryGetParameter('Compression', Definition));
-  Assert(Definition.ValueKind = pvkString);
+  Assert(Definition.ValueKind = pvkChoice);
+  Assert(Length(Definition.KnownValues) = 33); { none + zip and bzip with 9 levels each + lzma and lzma2 with 5 levels each }
+  Assert(Definition.KnownValues[0] = 'none');
+  Assert(Definition.KnownValues[1] = 'zip');
+  Assert(Definition.KnownValues[2] = 'zip/1');
+  Assert(Definition.KnownValues[32] = 'lzma2/ultra64');
   Assert(Definition.DefaultValue = 'lzma2/max');
   Assert(Metadata.TryGetParameter('LZMAUseSeparateProcess', Definition));
-  Assert(Definition.ValueKind = pvkString);
+  Assert(Definition.ValueKind = pvkChoice);
+  Assert(Length(Definition.KnownValues) = 3);
+  Assert(Definition.KnownValues[0] = 'x86');
   Assert(Definition.DefaultValue = 'no');
+  Assert(Metadata.TryGetParameter('UninstallLogMode', Definition));
+  Assert(Definition.ValueKind = pvkChoice);
+  Assert(Length(Definition.KnownValues) = 3);
+  Assert(Definition.KnownValues[0] = 'append');
+  { The multi-value and expression directives are not choices: their word
+    lists are editor autocomplete data, kept by the styler }
+  Assert(Metadata.TryGetParameter('ArchitecturesAllowed', Definition));
+  Assert(Definition.ValueKind = pvkString);
+  Assert(Metadata.TryGetParameter('WizardStyle', Definition));
+  Assert(Definition.ValueKind = pvkString);
+  { The integer directives, but not the ones with richer forms like
+    DiskSliceSize's 'max' and CompressionThreads' 'auto', and the version
+    directives like their parameter-table counterparts }
+  Assert(Metadata.TryGetParameter('ReserveBytes', Definition));
+  Assert(Definition.ValueKind = pvkInteger);
+  Assert(Definition.DefaultValue = '0');
+  Assert(Metadata.TryGetParameter('UninstallDisplaySize', Definition));
+  Assert(Definition.ValueKind = pvkInteger);
+  Assert(Definition.DefaultValue = ''); { Calculated automatically when not set }
+  Assert(Metadata.TryGetParameter('DiskSliceSize', Definition));
+  Assert(Definition.ValueKind = pvkString);
+  Assert(Metadata.TryGetParameter('CompressionThreads', Definition));
+  Assert(Definition.ValueKind = pvkString);
+  Assert(Metadata.TryGetParameter('MinVersion', Definition));
+  Assert(Definition.ValueKind = pvkVersion);
+  Assert(Definition.DefaultValue = '6.1sp1');
   Assert(Metadata.TryGetParameter('DefaultGroupName', Definition));
   Assert(Definition.ValueKind = pvkString);
   Assert(Definition.DefaultValue = '(Default)');
@@ -498,13 +533,15 @@ begin
     Assert(not Section.TryGetDefinition('NoSuchDirective', Definition));
 
     { With the quoting option on, only text directives are quoted: a yes/no
-      value is written bare }
+      or integer value is written bare }
     Section.QuoteNewValues := True;
     Section.Add('SolidCompression', 'yes');
     Section.Add('AppName', 'My App');
+    Section.Add('ReserveBytes', '4096');
     const Lines = Section.GetLines;
     Assert(Lines[0] = 'SolidCompression=yes');
     Assert(Lines[1] = 'AppName="My App"');
+    Assert(Lines[2] = 'ReserveBytes=4096');
   finally
     Section.Free;
   end;
@@ -528,7 +565,16 @@ begin
   Assert(Definition.KnownValues[1] = 'no');
   Assert(Definition.DefaultValue = 'no');
   Assert(Metadata.TryGetParameter('LanguageName', Definition));
+  Assert(Definition.ValueKind = pvkString);
   Assert(Definition.DefaultValue = 'English');
+  { The integer directives, including LanguageID whose '$'-prefixed hex form
+    is still a plain integer }
+  Assert(Metadata.TryGetParameter('LanguageID', Definition));
+  Assert(Definition.ValueKind = pvkInteger);
+  Assert(Definition.DefaultValue = '$0409');
+  Assert(Metadata.TryGetParameter('DialogFontSize', Definition));
+  Assert(Definition.ValueKind = pvkInteger);
+  Assert(Definition.DefaultValue = '9');
 
   { [Messages] names are localized message identifiers and [CustomMessages]
     names are user-defined, so neither has a table }

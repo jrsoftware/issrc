@@ -10,8 +10,8 @@ unit IDE.ScriptModel.Metadata;
   names, value kinds, and flag lists, plus the rules layer registrations.
 
   Tables for [Setup] and [LangOptions] are generated from enums at startup,
-  and are enriched with default values. [Messages] and [CustomMessages] do
-  not have tables.
+  and are enriched with value kinds, choice values, and default values.
+  [Messages] and [CustomMessages] do not have tables.
 }
 
 interface
@@ -99,6 +99,7 @@ const
   SetupSectionDirectivesAutoYesNo = [
     ssDirExistsWarning, ssDisableDirPage, ssDisableProgramGroupPage, ssShowLanguageDialog];
 
+  { We don't list true/false/1/0 }
   SYes = 'yes';
   SNo = 'no';
   SAuto = 'auto';
@@ -389,7 +390,64 @@ procedure InitializeSectionMetadata;
     end;
   end;
 
+const
+  LZMALevels: TArray<String> = ['fast', 'normal', 'max', 'ultra', 'ultra64'];
+
+  function CompressionValues: TArray<String>;
+  const
+    ZipAlgos: TArray<String> = ['zip', 'bzip'];
+    LZMAAlgos: TArray<String> = ['lzma', 'lzma2'];
+  begin
+    Result := ['none'];
+    for var Algo in ZipAlgos do begin
+      Result := Result + [Algo];
+      for var Level := 1 to 9 do
+        Result := Result + [Algo + '/' + Level.ToString];
+    end;
+    for var Algo in LZMAAlgos do begin
+      Result := Result + [Algo];
+      for var Level in LZMALevels do
+        Result := Result + [Algo + '/' + Level];
+    end;
+  end;
+
+  function SetupSectionDirectiveChoiceValues(
+    const SetupSectionDirective: TSetupSectionDirective): TArray<String>;
+  { Multi-value directives like WizardStyle and expression directives like
+    ArchitecturesAllowed are not included here }
+  begin
+    case SetupSectionDirective of
+      ssArchiveExtraction: Result := ['auto', 'basic', 'enhanced/nopassword', 'enhanced', 'full'];
+      ssCloseApplications: Result := ['force', SYes, SNo];
+      ssCompression: Result := CompressionValues;
+      ssEncryption: Result := ['full', SYes, SNo];
+      ssInternalCompressLevel: Result := ['none'] + LZMALevels; { We don't list 0 }
+      ssLanguageDetectionMethod: Result := ['uilanguage', 'locale', 'none'];
+      ssLZMAAlgorithm: Result := ['0', '1'];
+      ssLZMAMatchFinder: Result := ['BT', 'HC'];
+      ssLZMAUseSeparateProcess: Result := ['x86', SYes, SNo];
+      ssPrivilegesRequired: Result := ['admin', 'lowest']; { We don't list none/poweruser }
+      ssSetupArchitecture: Result := ['x86', 'x64'];
+      ssUninstallLogMode: Result := ['append', 'new', 'overwrite'];
+      ssUseSetupLdr: Result := ['x86', 'x64', SYes, SNo];
+      ssWizardImageAlphaFormat: Result := ['none', 'defined', 'premultiplied'];
+    else
+      Result := nil;
+    end;
+  end;
+
   procedure AddSetupSectionMetadata;
+  const
+    { Directives with a plain integer value only. Directives with richer forms
+      like DiskSliceSize's 'max' and CompressionThreads' 'auto' are not included
+      here }
+    SetupSectionDirectivesInteger = [
+      ssDiskClusterSize, ssExtraDiskSpaceRequired, ssLZMABlockSize,
+      ssLZMADictionarySize, ssLZMANumBlockThreads, ssLZMANumFastBytes,
+      ssReserveBytes, ssSignToolMinimumTimeBetween, ssSignToolRetryCount,
+      ssSignToolRetryDelay, ssSlicesPerDisk, ssTimeStampRounding,
+      ssUninstallDisplaySize, ssWizardBackImageOpacity, ssWizardImageOpacity];
+    SetupSectionDirectivesVersion = [ssMinVersion, ssOnlyBelowVersion];
   begin
     var Definitions: TArray<TScriptParameterDefinition>;
     SetLength(Definitions, Ord(High(TSetupSectionDirective))+1);
@@ -403,8 +461,16 @@ procedure InitializeSectionMetadata;
         ValueKind := pvkChoice; { Also allows free typing }
         KnownValues := [SYes, SNo];
       end else if Directive in SetupSectionDirectivesAutoYesNo then begin
-        ValueKind := pvkChoice; { See above }
+        ValueKind := pvkChoice; { Also allows free typing }
         KnownValues := [SAuto, SYes, SNo];
+      end else if Directive in SetupSectionDirectivesInteger then
+        ValueKind := pvkInteger
+      else if Directive in SetupSectionDirectivesVersion then
+        ValueKind := pvkVersion
+      else begin
+        KnownValues := SetupSectionDirectiveChoiceValues(Directive);
+        if KnownValues <> nil then
+          ValueKind := pvkChoice;
       end;
       Definitions[Ord(Directive)] := PD(
         Copy(GetEnumName(TypeInfo(TSetupSectionDirective), Ord(Directive)),
@@ -436,6 +502,9 @@ procedure InitializeSectionMetadata;
   procedure AddLangOptionsSectionMetadata;
   const
     LangOptionsSectionDirectivesYesNo = [lsRightToLeft];
+    LangOptionsSectionDirectivesInteger = [lsDialogFontBaseScaleHeight,
+      lsDialogFontBaseScaleWidth, lsDialogFontSize, lsLanguageCodePage,
+      lsLanguageID, lsWelcomeFontSize];
   begin
     var Definitions: TArray<TScriptParameterDefinition>;
     SetLength(Definitions, Ord(High(TLangOptionsSectionDirective))+1);
@@ -444,8 +513,9 @@ procedure InitializeSectionMetadata;
       var KnownValues: TArray<String> := nil;
       if Directive in LangOptionsSectionDirectivesYesNo then begin
         ValueKind := pvkYesNo;
-        KnownValues := [SYes, SNo]; { See AddSetupSectionMetadata }
-      end;
+        KnownValues := [SYes, SNo]; { For AddDirectiveRow's fallback }
+      end else if Directive in LangOptionsSectionDirectivesInteger then
+        ValueKind := pvkInteger;
       Definitions[Ord(Directive)] := PD(
         Copy(GetEnumName(TypeInfo(TLangOptionsSectionDirective), Ord(Directive)),
           LangOptionsSectionDirectivePrefixLength+1, MaxInt),

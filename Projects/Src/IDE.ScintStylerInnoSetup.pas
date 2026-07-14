@@ -108,8 +108,6 @@ type
     FScriptFunctionsByName: array[Boolean] of TFunctionDefinitionsByName;
     FScriptWordList: array[Boolean] of AnsiString;
     FSectionsWordList: AnsiString;
-    FSetupSectionDirectiveValueAutoYesNoWordList: AnsiString;
-    FSetupSectionDirectiveValueYesNoWordList: AnsiString;
     FSetupSectionDirectiveValueWordList: array[TSetupSectionDirective] of AnsiString;
     FISPPInstalled: Boolean;
     FTheme: TTheme;
@@ -887,9 +885,21 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
 
   procedure BuildSetupDirectiveValueWordLists;
   begin
-    { Yes/no directives: we don't list true/false/1/0 }
-    FSetupSectionDirectiveValueYesNoWordList := BuildWordList([SYes, SNo]);
-    FSetupSectionDirectiveValueAutoYesNoWordList := BuildWordList([SAuto, SYes, SNo]);
+    var Metadata: TScriptSectionMetadata;
+    if not TryGetScriptSectionMetadata('Setup', Metadata) then
+      raise Exception.Create('Internal error: BuildSetupDirectiveValueWordLists: no metadata');
+    for var Directive := Low(TSetupSectionDirective) to High(TSetupSectionDirective) do begin
+      const KnownValues = Metadata.Parameters[Ord(Directive)].KnownValues;
+      if KnownValues <> nil then begin
+        var Values: TArray<TScintRawString>;
+        SetLength(Values, Length(KnownValues));
+        for var I := 0 to High(KnownValues) do
+          Values[I] := TScintRawString(KnownValues[I]);
+        FSetupSectionDirectiveValueWordList[Directive] := BuildWordList(Values);
+      end;
+    end;
+
+    { Multi-value directives }
     for var Item in SetupSectionDirectivesValues do
       FSetupSectionDirectiveValueWordList[Item.Directive] := BuildWordList(Item.Values);
   end;
@@ -1293,13 +1303,7 @@ end;
 function TInnoSetupStyler.GetSetupSectionDirectiveValueWordList(
   SetupSectionDirective: TSetupSectionDirective): AnsiString;
 begin
-  if SetupSectionDirective in SetupSectionDirectivesAutoYesNo then
-    Result := FSetupSectionDirectiveValueAutoYesNoWordList
-  else if (SetupSectionDirective in SetupSectionDirectivesYesNo) or
-          (SetupSectionDirective in SetupSectionDirectivesYesNoOrScripted) then
-    Result := FSetupSectionDirectiveValueYesNoWordList
-  else
-    Result := FSetupSectionDirectiveValueWordList[SetupSectionDirective];
+  Result := FSetupSectionDirectiveValueWordList[SetupSectionDirective];
 end;
 
 procedure TInnoSetupStyler.GetStyleAttributes(const Style: Integer;
@@ -2158,41 +2162,6 @@ begin
   Result.Values := Values;
 end;
 
-type
-  TZipLevel = 1..9;
-
-const
-  LZMALevels: TArray<TScintRawString> = ['fast', 'normal', 'max', 'ultra', 'ultra64'];
-
-function GetCompressionValues: TArray<TScintRawString>;
-
-  procedure SetResult(var I: Integer; const S: TScintRawString);
-  begin
-    Result[I] := S;
-    Inc(I);
-  end;
-
-const
-  ZipAlgos: TArray<TScintRawString> = ['zip', 'bzip'];
-  LZMAAlgos: TArray<TScintRawString> = ['lzma', 'lzma2'];
-begin
-  SetLength(Result, 1 +
-    Length(ZipAlgos) + Length(ZipAlgos) * (High(TZipLevel) - Low(TZipLevel) + 1) +
-    Length(LZMAAlgos) + Length(LZMAAlgos) * Length(LZMALevels));
-  var I := 0;
-  SetResult(I, 'none');
-  for var Algo in ZipAlgos do begin
-    SetResult(I, Algo);
-    for var Level := Low(TZipLevel) to High(TZipLevel) do
-      SetResult(I, TScintRawString(String(Algo) + '/' + Level.ToString));
-  end;
-  for var Algo in LZMAAlgos do begin
-    SetResult(I, Algo);
-    for var Level in  LZMALevels do
-      SetResult(I, TScintRawString(Algo + '/' + Level));
-  end;
-end;
-
 initialization
   SectionMap := [
     SMI('Code', scCode),
@@ -2259,25 +2228,13 @@ initialization
     'x64', 'x64os', 'x64compatible',
     'x86', 'x86os', 'x86compatible'];
 
+  { The multi-value directives only, others come from the metadata
+    definitions, see BuildSetupDirectiveValueWordLists }
   SetupSectionDirectivesValues := [
     SSDV(ssArchitecturesAllowed, ArchitecturesExpressionValues),
     SSDV(ssArchitecturesInstallIn64BitMode, ArchitecturesExpressionValues),
-    SSDV(ssArchiveExtraction, ['auto', 'basic', 'enhanced/nopassword', 'enhanced', 'full']),
-    SSDV(ssCloseApplications, ['force', SYes, SNo]),
-    SSDV(ssCompression, GetCompressionValues),
     SSDV(ssDisablePrecompiledFileVerifications, ['setup', 'setupcustomstyle', 'setupldr', 'is7z', 'isbunzip', 'isunzlib', 'islzma']),
-    SSDV(ssEncryption, ['full', SYes, SNo]),
-    SSDV(ssInternalCompressLevel, ['none'] + LZMALevels), { We don't list 0 }
-    SSDV(ssLanguageDetectionMethod, ['uilanguage', 'locale', 'none']),
-    SSDV(ssLZMAAlgorithm, ['0', '1']),
-    SSDV(ssLZMAMatchFinder, ['BT', 'HC']),
-    SSDV(ssLZMAUseSeparateProcess, ['x86', SYes, SNo]),
-    SSDV(ssPrivilegesRequired, ['admin', 'lowest']), { We don't list none/poweruser }
     SSDV(ssPrivilegesRequiredOverridesAllowed, ['commandline', 'dialog']),
-    SSDV(ssSetupArchitecture, ['x86', 'x64']),
-    SSDV(ssUninstallLogMode, ['append', 'new', 'overwrite']),
-    SSDV(ssUseSetupLdr, ['x86', 'x64', SYes, SNo]),
-    SSDV(ssWizardImageAlphaFormat, ['none', 'defined', 'premultiplied']),
     SSDV(ssWizardStyle, ['classic', 'modern', 'light', 'dark', 'dynamic', 'excludelightbuttons', 'excludelightcontrols', 'includetitlebar', 'hidebevels', 'polar', 'slate', 'stellar', 'windows11', 'zircon'])];
 
 end.
