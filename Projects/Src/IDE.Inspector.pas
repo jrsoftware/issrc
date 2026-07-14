@@ -859,6 +859,20 @@ end;
 
 procedure TInspector.RowSetAsString(Sender: TJvInspectorEventData;
   var Value: String);
+
+  procedure ValidateValue(const ARowName, AValue: String;
+    const ADefinition: TScriptParameterDefinition);
+  begin
+    if (AValue <> '') and (Pos('{', AValue) = 0) and
+       (ADefinition.ValueKind = pvkInteger) then begin
+      { Validate if the value is a valid integer. Strips underscore digit
+        separators because the compiler accepts them for some values. }
+      var IntegerValue: Int64;
+      if not TryStrToInt64(StringReplace(AValue, '_', '', [rfReplaceAll]), IntegerValue) then
+        raise EScriptModelError.Create(LFmtMessage(SInspectorIntegerValueError, [ARowName]));
+    end;
+  end;
+
 begin
   var Row: TInspectorRow;
   if not TryGetRow(Sender, Row) then
@@ -875,15 +889,8 @@ begin
           const Found = TryGetRowParameterEntry(Row, Entry, Index);
           if Entry <> nil then begin
             var Definition: TScriptParameterDefinition;
-            if (Value <> '') and (Pos('{', Value) = 0) and
-               Entry.TryGetDefinition(Row.Name, Definition) and
-               (Definition.ValueKind = pvkInteger) then begin
-              { Validate if the value is a valid integer. Strips underscore digit
-                separators because the compiler accepts them for some values. }
-              var IntegerValue: Int64;
-              if not TryStrToInt64(StringReplace(Value, '_', '', [rfReplaceAll]), IntegerValue) then
-                raise EScriptModelError.Create(LFmtMessage(SInspectorIntegerValueError, [Row.Name]));
-            end;
+            if Entry.TryGetDefinition(Row.Name, Definition) then
+              ValidateValue(Row.Name, Value, Definition);
             if Found then
               Entry.SetValue(Index, Value)
             else if (Row.NameIndex < 0) and (Value <> '') then
@@ -894,11 +901,17 @@ begin
         begin
           var Section: TScriptDirectiveSection;
           var Index: Integer;
-          if TryGetRowDirectiveSection(Row, Section, Index) then
-            Section.SetValue(Index, Value)
-          else if (Section <> nil) and (Row.NameIndex < 0) and (Value <> '') and
-                  (Value <> Section.DefaultValue(Row.Name)) then { Same as above, but case sensitive }
-            Section.Add(Row.Name, Value);
+          const Found = TryGetRowDirectiveSection(Row, Section, Index);
+          if Section <> nil then begin
+            var Definition: TScriptParameterDefinition;
+            if Section.TryGetDefinition(Row.Name, Definition) then
+              ValidateValue(Row.Name, Value, Definition);
+            if Found then
+              Section.SetValue(Index, Value)
+            else if (Row.NameIndex < 0) and (Value <> '') and
+                    (Value <> Section.DefaultValue(Row.Name)) then { Same as above, but case sensitive }
+              Section.Add(Row.Name, Value);
+          end;
         end;
     else
       raise Exception.Create('Internal error: RowSetAsString: unexpected row kind');
