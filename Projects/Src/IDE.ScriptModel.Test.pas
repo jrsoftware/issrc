@@ -690,8 +690,8 @@ begin
     Assert(TryGetScriptSectionMetadata(SectionName, Metadata));
 
     { Every parameter has a unique name, and only flags and choices carry
-      tokens, which are themselves non-empty and unique (and lowercase for
-      flags) }
+      tokens, which are themselves non-empty and unique (and lowercase and
+      sorted for flags) }
     for var I := 0 to High(Metadata.Parameters) do begin
       const Parameter = Metadata.Parameters[I];
       Assert(Parameter.Name <> '');
@@ -704,8 +704,15 @@ begin
           Assert(Token <> '');
           for var L := 0 to K-1 do
             Assert(not SameText(Parameter.KnownValues[L], Token));
-          if Parameter.ValueKind = pvkFlags then
+          if Parameter.ValueKind = pvkFlags then begin
             Assert(Token = LowerCase(Token));
+            { The inspector gives a flag parameter one child row per flag, in
+              table order, so the table decides the order the flags are shown in.
+              Choices are not checked: they fill a dropdown, where the table's
+              order is meaningful, such as the default first }
+            if K > 0 then
+              Assert(CompareText(Parameter.KnownValues[K-1], Token) < 0);
+          end;
         end;
       end else
         Assert(Length(Parameter.KnownValues) = 0);

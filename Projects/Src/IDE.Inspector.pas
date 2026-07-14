@@ -138,7 +138,6 @@ begin
   FJvInspector.BeforeEdit := JvInspectorBeforeEdit;
   FJvInspector.OnKeyDown := JvInspectorKeyDown;
   FJvInspector.OnEditorKeyDown := JvInspectorKeyDown;
-  FJvInspector.Root.SortKind := iskNone;
 end;
 
 destructor TInspector.Destroy;
@@ -315,7 +314,6 @@ procedure TInspector.UpdateFromCaret;
     Result := TJvInspectorCustomCategoryItem.Create(FJvInspector.Root, nil);
     Result.DisplayName := LFmtMessage(AName); { These are localizable, see IDE.Messages }
     Result.Expanded := True;
-    Result.SortKind := FJvInspector.Root.SortKind;
   end;
 
   {$IFDEF DEBUG}
@@ -357,7 +355,6 @@ procedure TInspector.UpdateFromCaret;
     if ATypeInfo = TypeInfo(Boolean) then begin
       Data.OnGetAsOrdinal := RowGetAsOrdinal;
       Data.OnSetAsOrdinal := RowSetAsOrdinal;
-      (Result as TJvInspectorBooleanItem).ShowAsCheckBox := True;
     end else begin
       Data.OnGetAsString := RowGetAsString;
       Data.OnSetAsString := RowSetAsString;

@@ -526,8 +526,8 @@ const
   end;
 
 begin
-  const AttribsFlagNames: TArray<String> = ['readonly', 'hidden', 'system',
-    'notcontentindexed'];
+  const AttribsFlagNames: TArray<String> = ['hidden', 'notcontentindexed',
+    'readonly', 'system'];
 
   const FilesFlagNames: TArray<String> = [
     '32bit', '64bit', 'allowunsafefiles', 'comparetimestamp', 'confirmoverwrite',

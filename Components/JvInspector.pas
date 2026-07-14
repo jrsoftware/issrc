@@ -91,8 +91,6 @@ type
 
   TItemRowSizing = type Integer;
 
-  TInspectorItemSortKind = (iskNone, iskName, iskManual, iskCustom);
-
   TJvInspectorItemClass = class of TJvCustomInspectorItem;
   TJvInspectorDataClass = class of TJvCustomInspectorData;
   TJvInspectorPainterClass = class of TJvInspectorPainter;
@@ -101,7 +99,6 @@ type
   TJvInspectorDataInstances = array of TJvCustomInspectorData;
 
   TInspectorItemGetValueListEvent = procedure(Item: TJvCustomInspectorItem; Values: TStrings) of object;
-  TInspectorItemSortCompare = function(Item1, Item2: TJvCustomInspectorItem): Integer of object;
   TJvInspAsFloat = procedure(Sender: TJvInspectorEventData; var Value: Extended) of object;
   TJvInspAsInt64 = procedure(Sender: TJvInspectorEventData; var Value: Int64) of object;
   TJvInspAsMethod = procedure(Sender: TJvInspectorEventData; var Value: TMethod) of object;
@@ -480,14 +477,12 @@ type
     FInspector: TJvCustomInspector;
     FItems: TObjectList;
     FListBox: TCustomListBox;
-    FOnCompare: TInspectorItemSortCompare;
     FOnGetValueList: TInspectorItemGetValueListEvent;
     FParent: TJvCustomInspectorItem;
     FLastPaintGen: Integer;
     FPressed: Boolean;
     FRects: array [TInspectorPaintRect] of TRect;
     FRowSizing: TJvInspectorItemSizing;
-    FSortKind: TInspectorItemSortKind;
     FTracking: Boolean;
     FUserData: Pointer;
     FDropDownCount: Integer;
@@ -495,15 +490,12 @@ type
     FLastEditCtrlText: string;
   protected
     function GetName: string; virtual; // NEW: Warren added.
-    procedure AlphaSort;
     procedure Apply; virtual;
     procedure ApplyDisplayIndices(const ItemList: TList); virtual;
     procedure BuildDisplayableList(const ItemList: TList); virtual;
     function CanEdit: Boolean; virtual;
     procedure CloseUp(Accept: Boolean); virtual;
-    procedure DataSort;
     procedure Deactivate; dynamic;
-    function DoCompare(const Item: TJvCustomInspectorItem): Integer; virtual;
     procedure DoDefaultDrawListItem(ACanvas: TCanvas; Rect: TRect; const AText: string); virtual;
     procedure DoDrawListItem(Control: TWinControl; Index: Integer; Rect: TRect;
       State: TOwnerDrawState); virtual;
@@ -557,7 +549,6 @@ type
     function GetReadOnly: Boolean; virtual;
     function GetRects(const RectKind: TInspectorPaintRect): TRect; virtual;
     function GetRowSizing: TJvInspectorItemSizing; virtual;
-    function GetSortKind: TInspectorItemSortKind; virtual;
     function GetSortName: string; virtual;
     procedure GetValueList(const Strings: TStrings); virtual;
     function GetVisible: Boolean; virtual;
@@ -592,13 +583,11 @@ type
     procedure SetHidden(Value: Boolean); virtual;
     procedure SetInspector(const AInspector: TJvCustomInspector); virtual;
     procedure SetMultiline(const Value: Boolean); virtual;
-    procedure SetOnCompare(const Value: TInspectorItemSortCompare); virtual;
     procedure SetParent(const Value: TJvCustomInspectorItem); virtual;
     procedure SetQualifiedNames(const Value: Boolean); virtual;
     procedure SetReadOnly(const Value: Boolean); virtual;
     procedure SetRects(const RectKind: TInspectorPaintRect; Value: TRect); virtual;
     procedure SetRowSizing(Value: TJvInspectorItemSizing); virtual;
-    procedure SetSortKind(Value: TInspectorItemSortKind); virtual;
     procedure SetVisible(Value: Boolean); virtual;
     procedure StopTracking; dynamic;
     procedure TrackButton(X, Y: Integer); dynamic;
@@ -637,7 +626,6 @@ type
     procedure DoneEdit(const CancelEdits: Boolean = False); dynamic;
     procedure Insert(const Index: Integer; const Item: TJvCustomInspectorItem);
     procedure ScrollInView;
-    procedure Sort;
     function GetEditorText: string;
     property AutoUpdate: Boolean read GetAutoUpdate write SetAutoUpdate;
     property Count: Integer read GetCount;
@@ -662,10 +650,8 @@ type
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly;
     property Rects[const RectKind: TInspectorPaintRect]: TRect read GetRects write SetRects;
     property RowSizing: TJvInspectorItemSizing read GetRowSizing write SetRowSizing;
-    property SortKind: TInspectorItemSortKind read GetSortKind write SetSortKind;
     property UserData: Pointer read FUserData write FUserData;
     property Visible: Boolean read GetVisible write SetVisible;
-    property OnCompare: TInspectorItemSortCompare read FOnCompare write SetOnCompare;
     property OnGetValueList: TInspectorItemGetValueListEvent read FOnGetValueList write FOnGetValueList;
     property DropDownCount: Integer read FDropDownCount write FDropDownCount;
   end;
@@ -683,9 +669,6 @@ type
 
   TJvInspectorEnumItem = class(TJvCustomInspectorItem)
   protected
-    function GetDisplayValue: string; override;
-    procedure GetValueList(const Strings: TStrings); override;
-    procedure SetDisplayValue(const Value: string); override;
     procedure SetFlags(const Value: TInspectorItemFlags); override;
   end;
 
@@ -698,18 +681,14 @@ type
   TJvInspectorBooleanItem = class(TJvInspectorEnumItem)
   private
     FCheckRect: TRect;
-    FShowAsCheckBox: Boolean;
   protected
-    function GetShowAsCheckBox: Boolean; virtual;
     procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer); override;
-    procedure SetShowAsCheckBox(Value: Boolean); virtual;
   public
     procedure DoneEdit(const CancelEdits: Boolean = False); override;
     procedure DrawValue(const ACanvas: TCanvas); override;
     procedure InitEdit; override;
-    property ShowAsCheckBox: Boolean read GetShowAsCheckBox write SetShowAsCheckBox;
   end;
 
   TJvCustomInspectorData = class(TPersistent)
@@ -1901,7 +1880,7 @@ end;
 procedure TJvCustomInspector.NotifySort(const Item: TJvCustomInspectorItem);
 begin
   if LockCount = 0 then
-    Item.Sort
+    Item.NaturalSort
   else
   if (Item <> nil) and (SortNotificationList.IndexOf(Item) = -1) then
     SortNotificationList.Add(Item);
@@ -3317,23 +3296,6 @@ end;
 
 { Item sorting functions }
 
-function AlphaSortCompare(Item1, Item2: Pointer): Integer;
-begin
-  Result := AnsiCompareText(TJvCustomInspectorItem(Item1).DisplayName,
-    TJvCustomInspectorItem(Item2).DisplayName);
-end;
-
-var // maybe a threadvar would be better? OTOH, VCL is not threadsafe anyway so why bother?
-  DataSortCompareEvent: TInspectorItemSortCompare;
-
-function DataSortCompare(Item1, Item2: Pointer): Integer;
-begin
-  if Assigned(DataSortCompareEvent) then
-    Result := DataSortCompareEvent(Item1, Item2)
-  else
-    Result := 0;
-end;
-
 function DisplayIndexSortCompare(Item1, Item2: Pointer): Integer;
 var
   Idx1: Integer;
@@ -3403,7 +3365,6 @@ begin
   FItems := TObjectList.Create(True);
   Flags := [iifVisible];
   FRowSizing := TJvInspectorItemSizing.Create(Self);
-  FSortKind := iskName;
   FDisplayIndex := -1;
   if AData <> nil then
     FDisplayName := AData.Name;
@@ -3420,20 +3381,6 @@ destructor TJvCustomInspectorItem.Destroy;
 begin
   FAutoComplete.Free;
   inherited Destroy;
-end;
-
-procedure TJvCustomInspectorItem.AlphaSort;
-var
-  ItemList: TList;
-begin
-  ItemList := TList.Create;
-  try
-    BuildDisplayableList(ItemList);
-    ItemList.Sort(AlphaSortCompare);
-    ApplyDisplayIndices(ItemList);
-  finally
-    ItemList.Free;
-  end;
 end;
 
 procedure TJvCustomInspectorItem.Apply;
@@ -3551,33 +3498,10 @@ begin
   end;
 end;
 
-procedure TJvCustomInspectorItem.DataSort;
-var
-  ItemList: TList;
-begin
-  ItemList := TList.Create;
-  try
-    BuildDisplayableList(ItemList);
-    DataSortCompareEvent := OnCompare;
-    ItemList.Sort(DataSortCompare);
-    ApplyDisplayIndices(ItemList);
-  finally
-    ItemList.Free;
-  end;
-end;
-
 procedure TJvCustomInspectorItem.Deactivate;
 begin
   if DroppedDown then
     CloseUp(False);
-end;
-
-function TJvCustomInspectorItem.DoCompare(const Item: TJvCustomInspectorItem): Integer;
-begin
-  if Assigned(FOnCompare) then
-    Result := OnCompare(Self, Item)
-  else
-    Result := 0;
 end;
 
 procedure TJvCustomInspectorItem.DoDefaultDrawListItem(ACanvas: TCanvas; Rect: TRect; const AText: string);
@@ -4181,11 +4105,6 @@ begin
   Result := FRowSizing;
 end;
 
-function TJvCustomInspectorItem.GetSortKind: TInspectorItemSortKind;
-begin
-  Result := FSortKind;
-end;
-
 function TJvCustomInspectorItem.GetSortName: string;
 var
   DisplayParent: TJvCustomInspectorItem;
@@ -4224,8 +4143,7 @@ begin
     Inspector.NotifySort(Self)
   else
   begin
-    if SortKind in [iskNone, iskName, iskCustom] then
-      Sort;
+    NaturalSort;
     if Inspector.LockCount = 0 then // LockCount will be -1 if called from EndUpdate
       InvalidateList;
   end;
@@ -4373,7 +4291,6 @@ begin
     if DisplayParent <> nil then
       DisplayParent.UpdateDisplayOrder(Self, Value);
   end;
-  SortKind := iskManual;
 end;
 
 procedure TJvCustomInspectorItem.SetDisplayIndexValue(const Value: Integer);
@@ -4553,17 +4470,6 @@ begin
       Flags := Flags - [iifMultiLine];
 end;
 
-procedure TJvCustomInspectorItem.SetOnCompare(const Value: TInspectorItemSortCompare);
-begin
-  if @Value <> @OnCompare then
-  begin
-    FOnCompare := Value;
-    if @Value = nil then
-      SortKind := iskNone;
-    InvalidateSort;
-  end;
-end;
-
 procedure TJvCustomInspectorItem.SetParent(const Value: TJvCustomInspectorItem);
 begin
   if Parent <> Value then
@@ -4611,17 +4517,6 @@ procedure TJvCustomInspectorItem.SetRowSizing(Value: TJvInspectorItemSizing);
 begin
   if (Value <> nil) and (Value <> RowSizing) then
     RowSizing.Assign(Value);
-end;
-
-procedure TJvCustomInspectorItem.SetSortKind(Value: TInspectorItemSortKind);
-begin
-  if (Value = iskCustom) and (@OnCompare = nil) then
-    Value := iskNone;
-  if Value <> SortKind then
-  begin
-    FSortKind := Value;
-    InvalidateSort;
-  end;
 end;
 
 procedure TJvCustomInspectorItem.SetVisible(Value: Boolean);
@@ -5205,18 +5100,6 @@ begin
   end;
 end;
 
-procedure TJvCustomInspectorItem.Sort;
-begin
-  case SortKind of
-    iskNone:
-      NaturalSort;
-    iskName:
-      AlphaSort;
-    iskCustom:
-      DataSort;
-  end;
-end;
-
 //=== { TJvInspectorCustomCategoryItem } =====================================
 
 function TJvInspectorCustomCategoryItem.GetName: string;
@@ -5241,45 +5124,6 @@ end;
 
 //=== { TJvInspectorEnumItem } ===============================================
 
-function TJvInspectorEnumItem.GetDisplayValue: string;
-var
-  IntVal: Integer;
-begin
-  IntVal := Ord(Data.AsOrdinal);
-  if IntVal < 0 then // prevent GetEnumName crash. WAP.
-    Result := IntToStr(IntVal)
-  else
-    Result := GetEnumName(Data.TypeInfo, IntVal);
-end;
-
-procedure TJvInspectorEnumItem.GetValueList(const Strings: TStrings);
-var
-  EnumInfo: IJclEnumerationTypeInfo;
-  I: Integer;
-begin
-  EnumInfo := JclTypeInfo(Data.TypeInfo) as IJclEnumerationTypeInfo;
-  for I := EnumInfo.MinValue to EnumInfo.MaxValue do
-    if Trim(EnumInfo.Names[I]) <> '' then
-      Strings.Add(EnumInfo.Names[I]);
-end;
-
-procedure TJvInspectorEnumItem.SetDisplayValue(const Value: string);
-var
-  OrdVal: Integer;
-begin
-  OrdVal := GetEnumValue(Data.TypeInfo, Value);
-  if OrdVal <> -1 then
-    Data.AsOrdinal := GetEnumValue(Data.TypeInfo, Value)
-  else
-  begin
-    OrdVal := StrToIntDef(Value, -1);
-    if (OrdVal >= 0) and (Length(GetEnumName(Data.TypeInfo, OrdVal)) > 0) then
-      Data.AsOrdinal := OrdVal
-    else
-      raise EJvInspectorItem.CreateResFmt(@RsEJvInspItemInvalidPropValue, [AnsiQuotedStr(Value, '''')]);
-  end;
-end;
-
 procedure TJvInspectorEnumItem.SetFlags(const Value: TInspectorItemFlags);
 var
   TmpFlags: TInspectorItemFlags;
@@ -5303,27 +5147,17 @@ end;
 
 //=== { TJvInspectorBooleanItem } ============================================
 
-function TJvInspectorBooleanItem.GetShowAsCheckBox: Boolean;
-begin
-  Result := FShowAsCheckBox;
-end;
-
 procedure TJvInspectorBooleanItem.EditKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 var
   Bool: Boolean;
 begin
-  if ShowAsCheckBox then
+  Bool := not (Data.AsOrdinal <> Ord(False));
+  if Editing and (Shift = []) and (Key = VK_SPACE) then
   begin
-    Bool := not (Data.AsOrdinal <> Ord(False));
-    if Editing and (Shift = []) and (Key = VK_SPACE) then
-    begin
-      Data.AsOrdinal := Ord(Bool);
-      InvalidateItem;
-    end;
-  end
-  else
-    inherited EditKeyDown(Sender, Key, Shift)
+    Data.AsOrdinal := Ord(Bool);
+    InvalidateItem;
+  end;
 end;
 
 procedure TJvInspectorBooleanItem.MouseDown(Button: TMouseButton;
@@ -5338,42 +5172,18 @@ begin
   // Treat the second click of a double-click as a normal click, so two quick
   // clicks toggle the box twice like a standard Windows check box (upstream
   // dropped the double-click's message, leaving the box toggled only once)
-  if (ssDouble in Shift) and ShowAsCheckBox then
+  if ssDouble in Shift then
     Shift := Shift - [ssDouble];
-  if PtInRect(FCheckRect, Point(X, Y)) and (Shift = [ssLeft]) and
-    Editing and ShowAsCheckBox then
+  if PtInRect(FCheckRect, Point(X, Y)) and (Shift = [ssLeft]) and Editing then
   begin
     Data.AsOrdinal := Ord(Bool);
     InvalidateItem;
-  end
-  else
-  begin
-    if not ShowAsCheckBox then
-      inherited MouseDown(Button, Shift, X, Y);
-  end;
-end;
-
-procedure TJvInspectorBooleanItem.SetShowAsCheckBox(Value: Boolean);
-var
-  WasEditing: Boolean;
-begin
-  if Value <> ShowAsCheckBox then
-  begin
-    WasEditing := Editing;
-    DoneEdit(False);
-    FShowAsCheckBox := Value;
-    InvalidateMetaData;
-    if WasEditing then
-      InitEdit;
   end;
 end;
 
 procedure TJvInspectorBooleanItem.DoneEdit(const CancelEdits: Boolean = False);
 begin
-  if ShowAsCheckBox then
-    SetEditing(False)
-  else
-    inherited DoneEdit(CancelEdits);
+  SetEditing(False);
 end;
 
 procedure TJvInspectorBooleanItem.DrawValue(const ACanvas: TCanvas);
@@ -5388,82 +5198,74 @@ var
   LabelText: string;
   LabelRect: TRect;
 begin
-  if not ShowAsCheckBox then
-    inherited DrawValue(ACanvas)
+  if Data.IsInitialized and Data.IsAssigned and Data.HasValue then
+    Bool := Data.AsOrdinal <> Ord(False)
   else
-  begin
-    if Data.IsInitialized and Data.IsAssigned and Data.HasValue then
-      Bool := Data.AsOrdinal <> Ord(False)
-    else
-      Bool := False;
+    Bool := False;
 
-    if Editing and Data.IsAssigned then
-    begin
-      if Inspector.Painter <> nil then
-        ACanvas.Brush.Color := Inspector.Painter.BackgroundColor
-      else
-        ACanvas.Brush.Color := clWindow;
-    end;
-    ACanvas.FillRect(Rects[iprValueArea]);
-    // The check box is drawn themed, scaled to the inspector's current dpi,
-    // and centered in the row (upstream hand-drew a fixed 13x13 check box in
-    // raw system colors at the top of the row, which is wrong at high dpi
-    // and in dark mode)
-    BoxSize := MulDiv(13, Inspector.CurrentPPI, 96);
-    ARect := Rects[iprValueArea];
-    Inc(ARect.Left, MulDiv(2, Inspector.CurrentPPI, 96));
-    Inc(ARect.Top, (RectHeight(ARect) - BoxSize) div 2);
-    ARect.Right := ARect.Left + BoxSize;
-    ARect.Bottom := ARect.Top + BoxSize;
-    { Remember current clipping region }
-    SaveRgn := CreateRectRgn(0, 0, 1, 1);
-    HasRgn := GetClipRgn(ACanvas.Handle, SaveRgn) > 0;
-    { Clip all outside of the item rectangle }
-    IntersectRect(ClipRect, ARect, Rects[iprValueArea]);
-    FCheckRect := ClipRect;
-    Rgn := CreateRectRgn(ClipRect.Left, ClipRect.Top, ClipRect.Right, ClipRect.Bottom);
-    SelectClipRgn(ACanvas.Handle, Rgn);
-    DeleteObject(Rgn);
-    try
-      BFlags := DFCS_BUTTONCHECK;
-      if Bool then
-        BFlags := BFlags or DFCS_CHECKED;
-      DrawThemedFrameControl(ACanvas.Handle, ARect, DFC_BUTTON, BFlags, Inspector.CurrentPPI);
-    finally
-      { restore previous clipping region }
-      if HasRgn then
-        SelectClipRgn(ACanvas.Handle, SaveRgn)
-      else
-        SelectClipRgn(ACanvas.Handle, 0);
-      DeleteObject(SaveRgn);
-    end;
-    // Draw a yes/no label after the check box, vertically centered like the box
-    // and drawn with the canvas font so it picks up any bold style the painter
-    // applied for a value present in the script (like the Delphi object
-    // inspector's True/False label after its check box)
-    if Bool then
-      LabelText := 'yes'
+  if Editing and Data.IsAssigned then
+  begin
+    if Inspector.Painter <> nil then
+      ACanvas.Brush.Color := Inspector.Painter.BackgroundColor
     else
-      LabelText := 'no';
-    LabelRect := Rects[iprValueArea];
-    LabelRect.Left := ARect.Right + MulDiv(4, Inspector.CurrentPPI, 96);
-    ACanvas.Brush.Style := bsClear;
-    try
-      ACanvas.TextOut(LabelRect.Left,
-        LabelRect.Top + (RectHeight(LabelRect) - ACanvas.TextHeight(LabelText)) div 2,
-        LabelText);
-    finally
-      ACanvas.Brush.Style := bsSolid;
-    end;
+      ACanvas.Brush.Color := clWindow;
+  end;
+  ACanvas.FillRect(Rects[iprValueArea]);
+  // The check box is drawn themed, scaled to the inspector's current dpi,
+  // and centered in the row (upstream hand-drew a fixed 13x13 check box in
+  // raw system colors at the top of the row, which is wrong at high dpi
+  // and in dark mode)
+  BoxSize := MulDiv(13, Inspector.CurrentPPI, 96);
+  ARect := Rects[iprValueArea];
+  Inc(ARect.Left, MulDiv(2, Inspector.CurrentPPI, 96));
+  Inc(ARect.Top, (RectHeight(ARect) - BoxSize) div 2);
+  ARect.Right := ARect.Left + BoxSize;
+  ARect.Bottom := ARect.Top + BoxSize;
+  { Remember current clipping region }
+  SaveRgn := CreateRectRgn(0, 0, 1, 1);
+  HasRgn := GetClipRgn(ACanvas.Handle, SaveRgn) > 0;
+  { Clip all outside of the item rectangle }
+  IntersectRect(ClipRect, ARect, Rects[iprValueArea]);
+  FCheckRect := ClipRect;
+  Rgn := CreateRectRgn(ClipRect.Left, ClipRect.Top, ClipRect.Right, ClipRect.Bottom);
+  SelectClipRgn(ACanvas.Handle, Rgn);
+  DeleteObject(Rgn);
+  try
+    BFlags := DFCS_BUTTONCHECK;
+    if Bool then
+      BFlags := BFlags or DFCS_CHECKED;
+    DrawThemedFrameControl(ACanvas.Handle, ARect, DFC_BUTTON, BFlags, Inspector.CurrentPPI);
+  finally
+    { restore previous clipping region }
+    if HasRgn then
+      SelectClipRgn(ACanvas.Handle, SaveRgn)
+    else
+      SelectClipRgn(ACanvas.Handle, 0);
+    DeleteObject(SaveRgn);
+  end;
+  // Draw a yes/no label after the check box, vertically centered like the box
+  // and drawn with the canvas font so it picks up any bold style the painter
+  // applied for a value present in the script (like the Delphi object
+  // inspector's True/False label after its check box)
+  if Bool then
+    LabelText := 'yes'
+  else
+    LabelText := 'no';
+  LabelRect := Rects[iprValueArea];
+  LabelRect.Left := ARect.Right + MulDiv(4, Inspector.CurrentPPI, 96);
+  ACanvas.Brush.Style := bsClear;
+  try
+    ACanvas.TextOut(LabelRect.Left,
+      LabelRect.Top + (RectHeight(LabelRect) - ACanvas.TextHeight(LabelText)) div 2,
+      LabelText);
+  finally
+    ACanvas.Brush.Style := bsSolid;
   end;
 end;
 
 procedure TJvInspectorBooleanItem.InitEdit;
 begin
-  if ShowAsCheckBox then
-    SetEditing(CanEdit)
-  else
-    inherited InitEdit;
+  SetEditing(CanEdit);
 end;
 
 //=== { TJvCustomInspectorData } =============================================
@@ -6423,15 +6225,8 @@ begin
     {$IFDEF UNICODE}
     Add(TJvInspectorTypeKindRegItem.Create(TJvInspectorStringItem, tkUString));
     {$ENDIF UNICODE}
-    Add(TJvInspectorTypeKindRegItem.Create(TJvInspectorStringItem, tkLString));
-    Add(TJvInspectorTypeKindRegItem.Create(TJvInspectorStringItem, tkWString));
-    Add(TJvInspectorTypeKindRegItem.Create(TJvInspectorStringItem, tkString));
-    Add(TJvInspectorTypeKindRegItem.Create(TJvInspectorEnumItem, tkEnumeration));
     Add(TJvInspectorTCaptionRegItem.Create(TJvInspectorStringItem, TypeInfo(TCaption)));
     Add(TJvInspectorTypeInfoRegItem.Create(TJvInspectorBooleanItem, TypeInfo(Boolean)));
-    Add(TJvInspectorTypeInfoRegItem.Create(TJvInspectorBooleanItem, TypeInfo(ByteBool)));
-    Add(TJvInspectorTypeInfoRegItem.Create(TJvInspectorBooleanItem, TypeInfo(WordBool)));
-    Add(TJvInspectorTypeInfoRegItem.Create(TJvInspectorBooleanItem, TypeInfo(LongBool)));
   end;
 end;
 
