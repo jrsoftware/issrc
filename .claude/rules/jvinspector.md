@@ -19,5 +19,5 @@ updated from JVCL, so diffability against upstream does not matter.
 
 - Do not refactor the code style to match Inno Setup conventions. The Inno Setup Pascal conventions in `pascal.md` do not apply here; keep the upstream style.
 - Removing code the Inno Setup IDE does not need is welcome and reducing the line count is a goal. No modification notices are maintained, so do not record changes in the unit headers.
-- Keep the MPL license blocks and the Initial Developer attribution in the unit headers.
+- Keep the MPL license blocks and the Initial Developer attribution in the unit headers, and keep the one-line notice above them stating the file is not the original.
 - The code only has to be correct for how Inno Setup uses it: Delphi 10.4 and later, on Windows, with the VCL, in both 32- and 64-bit.
