@@ -859,7 +859,14 @@ begin
         'WindowRight', WindowPlacement.rcNormalPosition.Left + Form.Width);
       WindowPlacement.rcNormalPosition.Bottom := ConfigIni.ReadInteger(Section,
         'WindowBottom', WindowPlacement.rcNormalPosition.Top + Form.Height);
+      const OldPPI = Form.CurrentPPI;
       SetWindowPlacement(Form.Handle, @WindowPlacement);
+      if Form.CurrentPPI <> OldPPI then begin
+        { Restore was to a monitor with another DPI. This makes Windows send
+          WM_DPICHANGED, which makes VCL resize the form, but our rect was
+          already correct for that other monitor. So must restore once more. }
+        SetWindowPlacement(Form.Handle, @WindowPlacement);
+      end;
       { Note: Must set WindowState *after* calling SetWindowPlacement, since
         TCustomForm.WMSize resets WindowState }
       if ConfigIni.ReadBool(Section, 'WindowMaximized', False) then
