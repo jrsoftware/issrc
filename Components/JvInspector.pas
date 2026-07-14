@@ -163,7 +163,6 @@ type
     FPainter: TJvInspectorPainter;
     FPaintGen: Integer;
     FReadOnly: Boolean;
-    FRelativeDivider: Boolean;
     FRoot: TJvCustomInspectorItem;
     FRowSizing: Boolean;
     FRowSizingItem: TJvCustomInspectorItem;
@@ -171,9 +170,6 @@ type
     FSelecting: Boolean;
     FTopIndex: Integer;
     FVisibleList: TStringList;
-    FWantTabs: Boolean;
-    FAutoComplete: Boolean;
-    FAutoDropDown: Boolean; // depends on AutoComplete
     FOnEditorContextPopup: TContextPopupEvent;
     FOnEditorKeyDown: TKeyEvent;
     FOnEditorKeyPress: TKeyPressEvent;
@@ -226,7 +222,6 @@ type
     function GetButtonRect(const ItemIndex: Integer): TRect; virtual;
     function GetCollapseButton: TBitmap; virtual;
     function GetDivider: Integer; virtual;
-    function GetDividerAbs: Integer; virtual;
     function GetExpandButton: TBitmap; virtual;
     function GetImageHeight: Integer; virtual;
     function GetItemHeight: Integer; virtual;
@@ -235,14 +230,12 @@ type
     function GetOnItemSelected: TNotifyEvent; virtual;
     function GetPainter: TJvInspectorPainter; virtual;
     function GetReadOnly: Boolean; virtual;
-    function GetRelativeDivider: Boolean; virtual;
     function GetRoot: TJvCustomInspectorItem; virtual;
     function GetSelected: TJvCustomInspectorItem; virtual;
     function GetSelectedIndex: Integer; virtual;
     function GetTopIndex: Integer; virtual;
     function GetVisibleCount: Integer; virtual;
     function GetVisibleItems(const I: Integer): TJvCustomInspectorItem; virtual;
-    function GetWantTabs: Boolean; virtual;
     function IdxToY(const Index: Integer): Integer; virtual;
     procedure IncPaintGeneration; virtual;
     procedure InvalidateHeight; virtual;
@@ -267,17 +260,14 @@ type
     procedure SetBeforeSelection(const Value: TInspectorItemBeforeSelectEvent); virtual;
     procedure SetCollapseButton(const Value: TBitmap); virtual;
     procedure SetDivider(Value: Integer); virtual;
-    procedure SetDividerAbs(Value: Integer); virtual;
     procedure SetExpandButton(const Value: TBitmap); virtual;
     procedure SetItemHeight(Value: Integer); virtual;
     procedure SetLockCount(const Value: Integer); virtual;
     procedure SetOnItemSelected(const Value: TNotifyEvent); virtual;
     procedure SetReadOnly(const Value: Boolean); virtual;
-    procedure SetRelativeDivider(Value: Boolean); virtual;
     procedure SetSelected(const Value: TJvCustomInspectorItem); virtual;
     procedure SetSelectedIndex(Value: Integer); virtual;
     procedure SetTopIndex(Value: Integer); virtual;
-    procedure SetWantTabs(Value: Boolean); virtual;
     procedure UpdateScrollBars; virtual;
     function ViewHeight: Integer;
     function ViewRect: TRect; virtual;
@@ -289,12 +279,9 @@ type
     function DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean; override;
     procedure ShowScrollBars(Bar: Integer; Visible: Boolean); virtual;
     function YToIdx(const Y: Integer): Integer; virtual;
-    property AutoComplete: Boolean read FAutoComplete write FAutoComplete;
-    property AutoDropDown: Boolean read FAutoDropDown write FAutoDropDown;
     property CollapseButton: TBitmap read GetCollapseButton write SetCollapseButton;
     property ExpandButton: TBitmap read GetExpandButton write SetExpandButton;
     property Divider: Integer read GetDivider write SetDivider;
-    property DividerAbs: Integer read GetDividerAbs write SetDividerAbs;
     property DraggingDivider: Boolean read FDraggingDivider write FDraggingDivider;
     property ItemHeight: Integer read GetItemHeight write SetItemHeight;
     property ImageHeight: Integer read GetImageHeight;
@@ -314,7 +301,6 @@ type
     property Painter: TJvInspectorPainter read GetPainter;
     property PaintGeneration: Integer read FPaintGen;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly;
-    property RelativeDivider: Boolean read GetRelativeDivider write SetRelativeDivider;
     property Root: TJvCustomInspectorItem read GetRoot;
     property RowSizing: Boolean read FRowSizing write FRowSizing;
     property RowSizingItem: TJvCustomInspectorItem read FRowSizingItem write FRowSizingItem;
@@ -324,7 +310,6 @@ type
     property TopIndex: Integer read GetTopIndex write SetTopIndex;
     property VisibleCount: Integer read GetVisibleCount;
     property VisibleItems[const I: Integer]: TJvCustomInspectorItem read GetVisibleItems;
-    property WantTabs: Boolean read GetWantTabs write SetWantTabs;
     property BeforeEdit: TInspectorBeforeEditEvent read FBeforeEdit write FBeforeEdit;
     { Standard TCustomControl events - these are really events fired by
       the TEdit control used when editing in a cell!}
@@ -364,16 +349,12 @@ type
   published
     property Align;
     property Anchors;
-    property AutoComplete default True;
-    property AutoDropDown default False;
     property BevelEdges;
     property BevelKind;
     property BevelInner default bvNone;
     property BevelOuter;
     property BevelWidth;
     property CollapseButton;
-    // (rom) this is usually handled in an overwritten Loaded
-    property RelativeDivider default False; // Must be defined before Divider
     property Divider default 75;
     property ExpandButton;
     property Font;
@@ -381,7 +362,6 @@ type
     property Painter;
     property PopupMenu;
     property ReadOnly default False;
-    property WantTabs default False;
     property AfterDataCreate;
     property AfterItemCreate;
     property BeforeItemCreate;
@@ -1548,8 +1528,6 @@ begin
   Width := 300;
   Height := 100;
   Divider := 75;
-  AutoComplete := True;
-  AutoDropDown := False;
 
   FPainter := TJvInspectorDotNETPainter.Create(Self);
   FPainter.SetInspector(Self);
@@ -1594,8 +1572,7 @@ begin
   begin
     // ItemHeight needs no scaling here: it stores a 96 dpi value which
     // GetItemHeight scales on read
-    if not RelativeDivider then
-      FDivider := MulDiv(FDivider, M, D);
+    FDivider := MulDiv(FDivider, M, D);
   end;
 end;
 
@@ -1719,19 +1696,6 @@ begin
   Result := FDivider;
 end;
 
-function TJvCustomInspector.GetDividerAbs: Integer;
-begin
-  if RelativeDivider then
-  begin
-    if HandleAllocated then
-      Result := (FDivider * ClientWidth) div 100
-    else
-      Result := (FDivider * Width) div 100;
-  end
-  else
-    Result := FDivider;
-end;
-
 function TJvCustomInspector.GetExpandButton: TBitmap;
 begin
   Result := FExpandButton;
@@ -1763,11 +1727,6 @@ end;
 function TJvCustomInspector.GetLockCount: Integer;
 begin
   Result := FLockCount;
-end;
-
-function TJvCustomInspector.GetRelativeDivider: Boolean;
-begin
-  Result := FRelativeDivider;
 end;
 
 function TJvCustomInspector.GetRoot: TJvCustomInspectorItem;
@@ -1819,11 +1778,6 @@ begin
     Result := nil
   else
     Result := TJvCustomInspectorItem(FVisibleList.Objects[I]);
-end;
-
-function TJvCustomInspector.GetWantTabs: Boolean;
-begin
-  Result := FWantTabs;
 end;
 
 function TJvCustomInspector.IdxToY(const Index: Integer): Integer;
@@ -1925,35 +1879,12 @@ begin
             SelectedIndex := TmpIdx;
           end;
         end;
-      VK_TAB:
-        if WantTabs then
-        begin
-          if SelectedIndex < Pred(VisibleCount) then
-            SelectedIndex := SelectedIndex + 1;
-        end;
       VK_ADD:
         if Item.HasViewableItems and not Item.Expanded then
           Item.Expanded := True;
       VK_SUBTRACT:
         if Item.Expanded then
           Item.Expanded := False;
-    else
-      IgnoreKey := False;
-    end;
-    if IgnoreKey then
-      Key := 0;
-  end
-  else
-  if Shift = [ssShift] then
-  begin
-    IgnoreKey := True;
-    case Key of
-      VK_TAB:
-        if WantTabs then
-        begin
-          if SelectedIndex > 0 then
-            SelectedIndex := SelectedIndex - 1;
-        end;
     else
       IgnoreKey := False;
     end;
@@ -1997,9 +1928,8 @@ end;
 
 procedure TJvCustomInspector.KeyUp(var Key: Word; Shift: TShiftState);
 begin
-  if ((Shift = []) and ((Key = VK_DOWN) or (Key = VK_UP) or (Key = VK_ADD) or
-    (Key = VK_SUBTRACT) or (Key = VK_PRIOR) or (Key = VK_NEXT))) or
-    ((Key = VK_TAB) and WantTabs) then
+  if (Shift = []) and ((Key = VK_DOWN) or (Key = VK_UP) or (Key = VK_ADD) or
+    (Key = VK_SUBTRACT) or (Key = VK_PRIOR) or (Key = VK_NEXT)) then
     Key := 0;
 end;
 
@@ -2027,7 +1957,7 @@ begin
   if Button = mbLeft then
   begin
     // Check divider dragging
-    if (XB >= Pred(DividerAbs)) and (XB <= Succ(DividerAbs)) then
+    if (XB >= Pred(Divider)) and (XB <= Succ(Divider)) then
       DraggingDivider := True
     // Check row sizing
     else
@@ -2056,7 +1986,7 @@ begin
       (iifExpanded in Item.Flags)) then
     begin
       if PtInRect(Item.Rects[iprBtnDstRect], Point(X, Y)) or
-        ((ssDouble in Shift) and (Item.IsCategory or (XB < Pred(DividerAbs)))) then
+        ((ssDouble in Shift) and (Item.IsCategory or (XB < Pred(Divider)))) then
       begin
         Item.Expanded := not Item.Expanded;
         Selecting := False;
@@ -2101,9 +2031,9 @@ begin
   inherited MouseMove(Shift, X, Y);
   XB := X;
   if DraggingDivider then
-    DividerAbs := XB
+    Divider := XB
   else
-  if (XB >= Pred(DividerAbs)) and (XB <= Succ(DividerAbs)) then
+  if (XB >= Pred(Divider)) and (XB <= Succ(Divider)) then
     Cursor := crHSplit
   else
   begin
@@ -2341,20 +2271,6 @@ begin
 end;
 
 procedure TJvCustomInspector.SetDivider(Value: Integer);
-begin
-  if FDivider <> Value then
-    if RelativeDivider then
-    begin
-      if HandleAllocated then
-        DividerAbs := (Value * ClientWidth) div 100
-      else
-        DividerAbs := (Value * Width) div 100;
-    end
-    else
-      DividerAbs := Value;
-end;
-
-procedure TJvCustomInspector.SetDividerAbs(Value: Integer);
 var
   W: Integer;
 begin
@@ -2366,15 +2282,7 @@ begin
     Value := W - 2 * ItemHeight;
   if Value < (2 * ItemHeight) then
     Value := 2 * ItemHeight;
-  if RelativeDivider then
-  begin
-    if HandleAllocated then
-      FDivider := (Value * 100) div ClientWidth
-    else
-      FDivider := (Value * 100) div Width;
-  end
-  else
-    FDivider := Value;
+  FDivider := Value;
   if HandleAllocated then
     UpdateScrollBars;
 end;
@@ -2420,18 +2328,6 @@ end;
 procedure TJvCustomInspector.SetReadOnly(const Value: Boolean);
 begin
   FReadOnly := Value;
-end;
-
-procedure TJvCustomInspector.SetRelativeDivider(Value: Boolean);
-var
-  OrgPos: Integer;
-begin
-  if Value <> RelativeDivider then
-  begin
-    OrgPos := DividerAbs;
-    FRelativeDivider := Value;
-    DividerAbs := OrgPos;
-  end;
 end;
 
 procedure TJvCustomInspector.SetSelected(const Value: TJvCustomInspectorItem);
@@ -2495,15 +2391,6 @@ begin
   end;
 end;
 
-procedure TJvCustomInspector.SetWantTabs(Value: Boolean);
-begin
-  if Value <> WantTabs then
-  begin
-    FWantTabs := Value;
-    RecreateWnd;
-  end;
-end;
-
 procedure TJvCustomInspector.UpdateScrollBars;
 var
   DrawHeight: Integer;
@@ -2561,8 +2448,6 @@ end;
 procedure TJvCustomInspector.GetDlgCode(var Code: TDlgCodes);
 begin
   Code := [dcWantArrows];
-  if WantTabs then
-    Include(Code, dcWantTab);
 end;
 
 procedure TJvCustomInspector.FocusSet(PrevWnd: THandle);
@@ -3407,13 +3292,13 @@ begin
   TmpRect := Rect(ItemRect2.Left + (Item.Level * Inspector.ItemHeight), ItemRect2.Top,
     ItemRect2.Left + (Succ(Item.Level) * Inspector.ItemHeight), ItemRect2.Bottom);
   RealButtonAreaWidth := RectWidth(TmpRect);
-  if not Item.IsCategory and (TmpRect.Left > Pred(Inspector.DividerAbs)) then
+  if not Item.IsCategory and (TmpRect.Left > Pred(Inspector.Divider)) then
   begin
     TmpRect.Left := 0;
     TmpRect.Right := 0;
   end;
-  if not Item.IsCategory and (TmpRect.Right > Pred(Inspector.DividerAbs)) then
-    TmpRect.Right := Pred(Inspector.DividerAbs);
+  if not Item.IsCategory and (TmpRect.Right > Pred(Inspector.Divider)) then
+    TmpRect.Right := Pred(Inspector.Divider);
   Rects[iprButtonArea] := TmpRect;
   TmpRect := ItemRect2;
   TmpRect.Left := ItemRect2.Left + (Succ(Item.Level) * Inspector.ItemHeight);
@@ -3422,13 +3307,13 @@ begin
     Rects[iprValueArea] := Rect(0, 0, 0, 0)
   else
   begin
-    if TmpRect.Left > Pred(Inspector.DividerAbs) then
+    if TmpRect.Left > Pred(Inspector.Divider) then
       TmpRect := Rect(0, 0, 0, 0)
     else
-      TmpRect.Right := ItemRect2.Left + Pred(Inspector.DividerAbs);
+      TmpRect.Right := ItemRect2.Left + Pred(Inspector.Divider);
     Rects[iprNameArea] := TmpRect;
     TmpRect := ItemRect2;
-    TmpRect.Left := ItemRect2.Left + Inspector.DividerAbs + DividerWidth;
+    TmpRect.Left := ItemRect2.Left + Inspector.Divider + DividerWidth;
     Rects[iprValueArea] := TmpRect;
   end;
   CalcButtonBasedRects;
@@ -3496,13 +3381,13 @@ begin
 
   PreNameRect := Rects[iprItem];
   PreNameRect.Left := PreNameRect.Left + (Item.Level * Inspector.ItemHeight) + RealButtonAreaWidth;
-  if PreNameRect.Left > Pred(Inspector.DividerAbs) then
+  if PreNameRect.Left > Pred(Inspector.Divider) then
     PreNameRect := Rect(0, 0, 0, 0)
   else
   begin
     PreNameRect.Right := PreNameRect.Left + RealButtonAreaWidth;
-    if PreNameRect.Right > Pred(Inspector.DividerAbs) then
-      PreNameRect.Right := Pred(Inspector.DividerAbs);
+    if PreNameRect.Right > Pred(Inspector.Divider) then
+      PreNameRect.Right := Pred(Inspector.Divider);
   end;
   Inc(PreNameRect.Right);
 
@@ -3517,7 +3402,7 @@ begin
   end;
 
   if not (Item.IsCategory) then
-    PaintDivider(Rects[iprItem].Left + Inspector.DividerAbs, Pred(Rects[iprItem].Top),
+    PaintDivider(Rects[iprItem].Left + Inspector.Divider, Pred(Rects[iprItem].Top),
       Rects[iprItem].Bottom);
 
   if (Item.IsCategory) and (Item.Level = 0) then
@@ -4200,20 +4085,15 @@ end;
 
 procedure TJvCustomInspectorItem.AutoCompleteStart(Sender: TObject);
 begin
-  if Inspector.AutoDropDown and not DroppedDown then
-    DropDown
-  else
-  begin
-    ListBox.Items.Clear;
-    GetValueList(ListBox.Items);
-  end;
+  ListBox.Items.Clear;
+  GetValueList(ListBox.Items);
 end;
 
 procedure TJvCustomInspectorItem.EditKeyPress(Sender: TObject; var Key: Char);
 begin
   if Assigned(Inspector.FOnEditorKeyPress) then
     Inspector.FOnEditorKeyPress(Inspector, Key);
-  if Inspector.AutoComplete and (iifValueList in Flags) and not ReadOnly then
+  if (iifValueList in Flags) and not ReadOnly then
   begin
     if not Assigned(FAutoComplete) then
     begin
@@ -4321,11 +4201,6 @@ var
     Result := False;
   end;
 
-  function TabNavigate: Boolean;
-  begin
-    Result := Inspector.WantTabs and (Msg.WParam = VK_TAB);
-  end;
-
 begin
   ExecInherited := True;
   case Msg.Msg of
@@ -4350,7 +4225,7 @@ begin
         PostToInsp :=
           (Msg.Msg = WM_KEYDOWN) and ((KeyDataToShiftState(Msg.LParam) = []) and
           ((Msg.WParam in [VK_NEXT, VK_PRIOR]) or
-            (not DroppedDown and (Msg.WParam in [VK_DOWN, VK_UP])) or LeftRightCanNavigate)) or TabNavigate;
+            (not DroppedDown and (Msg.WParam in [VK_DOWN, VK_UP])) or LeftRightCanNavigate));
         if PostToInsp then
         begin
           PostMessage(Inspector.Handle, Msg.Msg, Msg.WParam, Msg.LParam);
@@ -4375,19 +4250,12 @@ begin
   end;
   if ExecInherited and (@EditWndPrc <> nil) then
     EditWndPrc(Msg);
-  case Msg.Msg of
-    WM_GETDLGCODE:
-      begin
-        if Inspector.WantTabs then
-          Msg.Result := Msg.Result or DLGC_WANTTAB;
-      end;
-    WM_SETFOCUS:
-      begin
-        { Changing the focus to another Control in the same form via Mouse-Click, if a
-          property-editor is active has no effect until you clicked twice on the control.
-          Telling the VCL that this control has the focus, fixes the problem. } 
-        SetFocus;
-      end;
+  if Msg.Msg = WM_SETFOCUS then
+  begin
+    { Changing the focus to another Control in the same form via Mouse-Click, if a
+      property-editor is active has no effect until you clicked twice on the control.
+      Telling the VCL that this control has the focus, fixes the problem. }
+    SetFocus;
   end;
 end;
 

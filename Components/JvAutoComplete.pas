@@ -181,10 +181,6 @@ begin
   case Key of
     Esc {VK_ESCAPE}:
       Exit;
-    Tab {VK_TAB}:
-      begin
-        DoDropDown;
-      end;
     BackSpace {VK_BACK}:
       begin
         if HasSelectedText(StartPos, EndPos) then
