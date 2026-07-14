@@ -47,8 +47,10 @@ type
     FRows: TList<TInspectorRow>;
     FRowsByData: TDictionary<TJvInspectorEventData, Integer>; { Reverse lookup of a FRows index }
     FRowSetSignature: String;
+    {$IFDEF DEBUG}
     FDebugStatusRowString: String;
     FUpdateFromCaretEarlyExitCount: Integer;
+    {$ENDIF}
     FInEdit: Boolean;
     FShowAllKnownDirectives: Boolean;
     FQuoteNewParameterValues: Boolean;
@@ -66,9 +68,11 @@ type
     procedure RowSetAsOrdinal(Sender: TJvInspectorEventData; var Value: Int64);
     procedure RowSetAsString(Sender: TJvInspectorEventData; var Value: String);
     procedure ChoiceRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
+    {$IFDEF DEBUG}
     procedure DebugStatusRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
     procedure DebugSectionsRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
     procedure DebugEarlyExitsRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
+    {$ENDIF}
     function ItemValueIsFromScript(const AItem: TJvCustomInspectorItem): Boolean;
     procedure PainterSetItemColors(Item: TJvCustomInspectorItem;
       Canvas: TCanvas);
@@ -122,7 +126,9 @@ begin
 
   FFactory := AFactory;
   FShowAllKnownDirectives := AShowAllKnownDirectives;
+  {$IFDEF DEBUG}
   FDebugStatusRowString := 'Not updated yet';
+  {$ENDIF}
   FRows := TList<TInspectorRow>.Create;
   FRowsByData := TDictionary<TJvInspectorEventData, Integer>.Create;
 
@@ -312,6 +318,7 @@ procedure TInspector.UpdateFromCaret;
     Result.SortKind := FJvInspector.Root.SortKind;
   end;
 
+  {$IFDEF DEBUG}
   procedure AddDebugRow(const AParent: TJvCustomInspectorItem;
     const ADisplayName: String; const AOnGetAsString: TJvInspAsString);
   begin
@@ -320,6 +327,24 @@ procedure TInspector.UpdateFromCaret;
     TJvInspectorEventData(Item.Data).OnGetAsString := AOnGetAsString;
     Item.Flags := Item.Flags + [iifReadonly];
   end;
+
+  function RefusalReasonToString(const ARefusalReason: TLiveScriptRefusalReason): String;
+  begin
+    case ARefusalReason of
+      rrLineOutOfRange: Result := 'The line number is out of range';
+      rrNotInsideSection: Result := 'The line is not inside a section';
+      rrInCodeSection: Result := 'The line is in the [Code] section';
+      rrUnrecognizedSection: Result := 'The line is in an unrecognized section';
+      rrDirectiveStyleSection: Result := 'The line is in a directive-style section';
+      rrComment: Result := 'The line is a comment';
+      rrISPPDirective: Result := 'The line is an ISPP directive';
+      rrSectionIndexOutOfRange: Result := 'The section index is out of range';
+      rrNotDirectiveStyleSection: Result := 'The section is not a directive-style section';
+    else
+      Result := '';
+    end;
+  end;
+  {$ENDIF}
 
   function AddRow(const AParent: TJvCustomInspectorItem;
     const ADisplayName: String; const ATypeInfo: PTypeInfo;
@@ -558,10 +583,12 @@ procedure TInspector.UpdateFromCaret;
         else if FLiveDirectiveSection <> nil then
           AddDirectiveRows;
 
+        {$IFDEF DEBUG}
         const DebugCategory = NewCategory('Debug');
         AddDebugRow(DebugCategory, 'Status', DebugStatusRowGetAsString);
         AddDebugRow(DebugCategory, 'Sections', DebugSectionsRowGetAsString);
         AddDebugRow(DebugCategory, 'Early exits', DebugEarlyExitsRowGetAsString);
+        {$ENDIF}
 
         RestoreExpandedStates(ExpandedStates, FJvInspector.Root);
       finally
@@ -588,8 +615,10 @@ begin
      (FRowSetSignature <> '') and not LiveObjectTextChanged and
      (CaretLine >= FLiveEntry.FirstLine) and
      (CaretLine <= FLiveEntry.LastLine) then begin
+    {$IFDEF DEBUG}
     Inc(FUpdateFromCaretEarlyExitCount);
     FJvInspector.Invalidate; { Repaint the early exit count }
+    {$ENDIF}
     Exit;
   end;
   if (FLiveDirectiveSection <> nil) and FLiveDirectiveSection.Valid and
@@ -599,27 +628,33 @@ begin
     var SectionIndex: Integer;
     if FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
        (SectionIndex = FLiveDirectiveSectionIndex) then begin
+      {$IFDEF DEBUG}
       Inc(FUpdateFromCaretEarlyExitCount);
       FJvInspector.Invalidate; { See above }
+      {$ENDIF}
       Exit;
     end;
   end;
 
   FreeAndNil(FLiveEntry);
   FreeAndNil(FLiveDirectiveSection);
+  {$IFDEF DEBUG}
   FUpdateFromCaretEarlyExitCount := 0;
+  {$ENDIF}
 
   { Build row set signature for the selected entry or section }
   var RowSetSignature: String; { The actual value this gets doesn't matter, as long as it's unique for any unique row set }
   var Entry: TLiveScriptEntry;
-  var EntryRefusalReason: String;
+  var EntryRefusalReason: TLiveScriptRefusalReason;
   if FFactory.TryCreateEntry(CaretLine, Entry, EntryRefusalReason) then begin
     FLiveEntry := Entry;
     FChangeCountAtCreation := FFactory.ChangeCount;
     FLiveEntry.Entry.QuoteNewValues := FQuoteNewParameterValues;
     const SectionName = ParameterSectionToSectionName(FLiveEntry.Section);
+    {$IFDEF DEBUG}
     FDebugStatusRowString := Format('[%s] entry at lines %d-%d',
       [SectionName, FLiveEntry.FirstLine+1, FLiveEntry.LastLine+1]);
+    {$ENDIF}
     { Rows address parameters by index, so the signature includes the indexes }
     RowSetSignature := 'E|' + SectionName;
     for var I := 0 to FLiveEntry.Entry.Count-1 do begin
@@ -630,7 +665,7 @@ begin
   end else begin
     var SectionIndex: Integer;
     var DirectiveSection: TLiveScriptDirectiveSection;
-    var SectionRefusalReason: String;
+    var SectionRefusalReason: TLiveScriptRefusalReason;
     if FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
        FFactory.TryCreateDirectiveSection(SectionIndex, DirectiveSection,
          SectionRefusalReason) then begin
@@ -640,15 +675,18 @@ begin
       FChangeCountAtCreation := FFactory.ChangeCount;
       FLiveDirectiveSection.Section.QuoteNewValues := FQuoteNewDirectiveValues;
       FLiveDirectiveSectionName := Header.Name;
+      {$IFDEF DEBUG}
       FDebugStatusRowString := Format('[%s] section at line %d',
         [Header.Name, Header.Line+1]);
-      { With duplicate sections, say which occurrence this is }
+      {$ENDIF}
       var OccurrenceIndex, OccurrenceCount: Integer;
       FFactory.GetSectionOccurrence(SectionIndex, OccurrenceIndex, OccurrenceCount);
       FLiveDirectiveSectionHasSiblingOccurrences := OccurrenceCount > 1;
+      {$IFDEF DEBUG}
       if FLiveDirectiveSectionHasSiblingOccurrences then
         FDebugStatusRowString := FDebugStatusRowString + Format(' (occurrence %d of %d)',
           [OccurrenceIndex, OccurrenceCount]);
+      {$ENDIF}
       { Like the entry signature above, plus the occurrence count and
         whether unspecified known directives are offered, which also
         decide the row set }
@@ -669,8 +707,10 @@ begin
       { Prefer the entry refusal: it explains the caret line, while a failed
         TryCreateDirectiveSection could only say the section is not
         directive-style }
-      FDebugStatusRowString := EntryRefusalReason;
-      RowSetSignature := 'N|' + EntryRefusalReason;
+      {$IFDEF DEBUG}
+      FDebugStatusRowString := RefusalReasonToString(EntryRefusalReason);
+      {$ENDIF}
+      RowSetSignature := 'N|' + IntToStr(Ord(EntryRefusalReason));
     end;
   end;
 
@@ -888,6 +928,7 @@ begin
     Values.Add(ChoiceName);
 end;
 
+{$IFDEF DEBUG}
 procedure TInspector.DebugStatusRowGetAsString(Sender: TJvInspectorEventData;
   var Value: String);
 begin
@@ -911,6 +952,7 @@ procedure TInspector.DebugEarlyExitsRowGetAsString(Sender: TJvInspectorEventData
 begin
   Value := IntToStr(FUpdateFromCaretEarlyExitCount);
 end;
+{$ENDIF}
 
 function TInspector.GetWidth: Integer;
 begin

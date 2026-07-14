@@ -24,6 +24,11 @@ uses
 type
   TLiveScriptObjectFactory = class;
 
+  { Why TryCreateEntry or TryCreateDirectiveSection refused to create an object }
+  TLiveScriptRefusalReason = (rrLineOutOfRange, rrNotInsideSection,
+    rrInCodeSection, rrUnrecognizedSection, rrDirectiveStyleSection, rrComment,
+    rrISPPDirective, rrSectionIndexOutOfRange, rrNotDirectiveStyleSection);
+
   TLiveScriptSection = record
     Line: Integer;
     Section: TInnoSetupStylerSection;
@@ -105,11 +110,12 @@ type
       out AOccurrenceIndex, AOccurrenceCount: Integer);
     function TryGetSetupDirectiveValue(const ADirectiveName: String;
       out AValue: String): Boolean;
+    { ARefusalReason is only set when the result is False }
     function TryCreateEntry(const ALine: Integer; out AEntry: TLiveScriptEntry;
-      out ARefusalReason: String): Boolean;
+      out ARefusalReason: TLiveScriptRefusalReason): Boolean;
     function TryCreateDirectiveSection(const ASectionIndex: Integer;
       out ASection: TLiveScriptDirectiveSection;
-      out ARefusalReason: String): Boolean;
+      out ARefusalReason: TLiveScriptRefusalReason): Boolean;
     { Bumped on every Change call, so a consumer can tell whether the memo
       changed since it last read something }
     property ChangeCount: Int64 read FChangeCount;
@@ -581,7 +587,7 @@ begin
 end;
 
 function TLiveScriptObjectFactory.TryCreateEntry(const ALine: Integer;
-  out AEntry: TLiveScriptEntry; out ARefusalReason: String): Boolean;
+  out AEntry: TLiveScriptEntry; out ARefusalReason: TLiveScriptRefusalReason): Boolean;
 begin
   AEntry := nil;
   Result := False;
@@ -590,25 +596,25 @@ begin
 
   const LineCount = FMemo.Lines.Count;
   if (ALine < 0) or (ALine >= LineCount) then begin
-    ARefusalReason := 'The line number is out of range';
+    ARefusalReason := rrLineOutOfRange;
     Exit;
   end;
 
   const Section = TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[ALine]);
   if Section = scNone then begin
-    ARefusalReason := 'The line is not inside a section';
+    ARefusalReason := rrNotInsideSection;
     Exit;
   end;
   if Section = scCode then begin
-    ARefusalReason := 'The line is in the [Code] section';
+    ARefusalReason := rrInCodeSection;
     Exit;
   end;
   if Section in [scUnknown, scThirdParty] then begin
-    ARefusalReason := 'The line is in an unrecognized section';
+    ARefusalReason := rrUnrecognizedSection;
     Exit;
   end;
   if not TInnoSetupStyler.IsParamSection(Section) then begin
-    ARefusalReason := 'The line is in a directive-style section';
+    ARefusalReason := rrDirectiveStyleSection;
     Exit;
   end;
 
@@ -625,12 +631,12 @@ begin
   { slkBlank is not refused. This is so a new entry can be created on a blank line. }
     slkComment:
       begin
-        ARefusalReason := 'The line is a comment';
+        ARefusalReason := rrComment;
         Exit;
       end;
     slkISPPDirective:
       begin
-        ARefusalReason := 'The line is an ISPP directive';
+        ARefusalReason := rrISPPDirective;
         Exit;
       end;
   end;
@@ -644,7 +650,7 @@ end;
 
 function TLiveScriptObjectFactory.TryCreateDirectiveSection(const ASectionIndex: Integer;
   out ASection: TLiveScriptDirectiveSection;
-  out ARefusalReason: String): Boolean;
+  out ARefusalReason: TLiveScriptRefusalReason): Boolean;
 begin
   ASection := nil;
   Result := False;
@@ -652,11 +658,11 @@ begin
   EnsureStyled;
 
   if (ASectionIndex < 0) or (ASectionIndex >= FSections.Count) then begin
-    ARefusalReason := 'The section index is out of range';
+    ARefusalReason := rrSectionIndexOutOfRange;
     Exit;
   end;
   if not (FSections[ASectionIndex].Section in [scSetup, scMessages, scCustomMessages, scLangOptions]) then begin
-    ARefusalReason := 'The section is not a directive-style section';
+    ARefusalReason := rrNotDirectiveStyleSection;
     Exit;
   end;
 

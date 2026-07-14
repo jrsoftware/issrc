@@ -190,10 +190,10 @@ procedure TestTryCreateEntry(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
 
   procedure AssertRefusal(const AFactory: TLiveScriptObjectFactory; const ALine: Integer;
-    const AExpectedReason: String);
+    const AExpectedReason: TLiveScriptRefusalReason);
   begin
     var Entry: TLiveScriptEntry;
-    var Reason: String;
+    var Reason: TLiveScriptRefusalReason;
     Assert(not AFactory.TryCreateEntry(ALine, Entry, Reason));
     Assert(Entry = nil);
     Assert(Reason = AExpectedReason);
@@ -217,18 +217,18 @@ begin
   try
     const Factory = Context.Factory;
     { Refusals }
-    AssertRefusal(Factory, -1, 'The line number is out of range');
-    AssertRefusal(Factory, 13, 'The line number is out of range');
-    AssertRefusal(Factory, 0, 'The line is not inside a section');
-    AssertRefusal(Factory, 2, 'The line is in a directive-style section');
-    AssertRefusal(Factory, 5, 'The line is a comment');
-    AssertRefusal(Factory, 6, 'The line is an ISPP directive');
-    AssertRefusal(Factory, 10, 'The line is in the [Code] section');
-    AssertRefusal(Factory, 12, 'The line is in an unrecognized section');
+    AssertRefusal(Factory, -1, rrLineOutOfRange);
+    AssertRefusal(Factory, 13, rrLineOutOfRange);
+    AssertRefusal(Factory, 0, rrNotInsideSection);
+    AssertRefusal(Factory, 2, rrDirectiveStyleSection);
+    AssertRefusal(Factory, 5, rrComment);
+    AssertRefusal(Factory, 6, rrISPPDirective);
+    AssertRefusal(Factory, 10, rrInCodeSection);
+    AssertRefusal(Factory, 12, rrUnrecognizedSection);
 
     { Accept: a real parameter line, parameters readable }
     var Entry: TLiveScriptEntry;
-    var Reason: String;
+    var Reason: TLiveScriptRefusalReason;
     Assert(Factory.TryCreateEntry(4, Entry, Reason));
     try
       Assert(Entry.Section = scFiles);
@@ -266,7 +266,7 @@ begin
       'Source: "keep.txt"']);
     try
       var Entry: TLiveScriptEntry;
-      var Reason: String;
+      var Reason: TLiveScriptRefusalReason;
       Assert(Context.Factory.TryCreateEntry(1, Entry, Reason));
       try
         Entry.Entry.SetValue(1, '{tmp}');
@@ -290,7 +290,7 @@ begin
       '  DestDir: "{app}"; Flags: ignoreversion']);
     try
       var Entry: TLiveScriptEntry;
-      var Reason: String;
+      var Reason: TLiveScriptRefusalReason;
       Assert(Context.Factory.TryCreateEntry(1, Entry, Reason));
       try
         Entry.Entry.SetValue(1, '{tmp}');
@@ -315,7 +315,7 @@ begin
       'Source: "c.txt"']);
     try
       var Entry: TLiveScriptEntry;
-      var Reason: String;
+      var Reason: TLiveScriptRefusalReason;
       Assert(Context.Factory.TryCreateEntry(2, Entry, Reason));
       try
         Entry.Entry.Add('Source', 'b.txt');
@@ -388,7 +388,7 @@ begin
     try
       const Factory = Context.Factory;
       var DirectiveSection: TLiveScriptDirectiveSection;
-      var Reason: String;
+      var Reason: TLiveScriptRefusalReason;
       Assert(Factory.TryCreateDirectiveSection(0, DirectiveSection, Reason));
       try
         const List = DirectiveSection.Section;
@@ -399,9 +399,9 @@ begin
         DirectiveSection.Free;
       end;
       Assert(not Factory.TryCreateDirectiveSection(1, DirectiveSection, Reason));
-      Assert(Reason = 'The section is not a directive-style section');
+      Assert(Reason = rrNotDirectiveStyleSection);
       Assert(not Factory.TryCreateDirectiveSection(99, DirectiveSection, Reason));
-      Assert(Reason = 'The section index is out of range');
+      Assert(Reason = rrSectionIndexOutOfRange);
     finally
       Context.Free;
     end;
@@ -416,7 +416,7 @@ begin
       'Source: a']);
     try
       var DirectiveSection: TLiveScriptDirectiveSection;
-      var Reason: String;
+      var Reason: TLiveScriptRefusalReason;
       Assert(Context.Factory.TryCreateDirectiveSection(0, DirectiveSection, Reason));
       try
         Assert(DirectiveSection.Section.Count = 0);
@@ -449,7 +449,7 @@ begin
       const Factory = Context.Factory;
       Assert(Factory.SectionCount = 1); { Build the index before editing }
       var Entry: TLiveScriptEntry;
-      var Reason: String;
+      var Reason: TLiveScriptRefusalReason;
       Assert(Factory.TryCreateEntry(1, Entry, Reason));
       try
         Assert(Entry.FirstLine = 1);
@@ -482,7 +482,7 @@ begin
       const Factory = Context.Factory;
       Assert(Factory.SectionCount = 1);
       var Entry: TLiveScriptEntry;
-      var Reason: String;
+      var Reason: TLiveScriptRefusalReason;
       Assert(Factory.TryCreateEntry(2, Entry, Reason));
       try
         Assert(Entry.FirstLine = 2);
@@ -543,7 +543,7 @@ begin
       const Factory = Context.Factory;
       Assert(Factory.SectionCount = 1);
       var Entry: TLiveScriptEntry;
-      var Reason: String;
+      var Reason: TLiveScriptRefusalReason;
       Assert(Factory.TryCreateEntry(1, Entry, Reason));
       try
         Assert(Entry.Valid);
