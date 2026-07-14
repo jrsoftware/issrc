@@ -110,7 +110,7 @@ type
 implementation
 
 uses
-  Windows, SysUtils, UITypes, Themes,
+  Windows, SysUtils, UITypes, Themes, Generics.Defaults,
   NewUxTheme,
   Shared.CommonFunc,
   IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc;
@@ -934,8 +934,16 @@ begin
       raise Exception.Create('Internal error: ChoiceRowGetValueList: unknown directive');
   end else
     Exit;
-  for var ChoiceName in Definition.KnownValues do
-    Values.Add(ChoiceName);
+  { Sort using same sort as autocompletion and Scintilla, so using CompareText.
+    Also see TInnoSetupStyler.BuildWordList. }
+  var KnownValues := Copy(Definition.KnownValues);
+  TArray.Sort<String>(KnownValues, TComparer<String>.Construct(
+    function(const A, B: String): Integer
+    begin
+      Result := CompareText(A, B);
+    end));
+  for var KnownValue in KnownValues do
+    Values.Add(KnownValue);
 end;
 
 {$IFDEF DEBUG}
