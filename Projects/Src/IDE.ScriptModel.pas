@@ -812,6 +812,8 @@ end;
 
 procedure TScriptParameterEntry.SetFlagInternal(const AParameterName,
   AFlagName: String; const AInclude: Boolean);
+{ Like the by-index overload below, but the flag-list parameter doesn't have to
+  exist yet. If that is the case then including adds it and excluding is a noop }
 begin
   const I = IndexOf(AParameterName);
   if I >= 0 then
@@ -827,6 +829,8 @@ end;
 
 procedure TScriptParameterEntry.SetFlagInternal(const AIndex: Integer;
   const AFlagName: String; const AInclude: Boolean);
+{ Includes or excludes a flag in an existing flag-list parameter. Including
+  also runs the flag-includes rules, so extra flags could be turned on as well. }
 begin
   { Sanity check }
   if not IsValidScriptFlagName(AFlagName) then

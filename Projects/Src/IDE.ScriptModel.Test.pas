@@ -816,6 +816,29 @@ begin
     Entry.Add('ISSigAllowedKeys', 'mykey');
     Assert(Entry.FlagIncluded(2, 'issigverify'));
 
+    { A DownloadISSigSource value checks both download and issigverify, and the
+      download flag's own flag-includes rule cascades }
+    Entry.Parse(['Source: a']);
+    Entry.Add('DownloadISSigSource', 'https://example.com/setup.bin.issig');
+    Assert(Entry.FlagIncluded(2, 'download'));
+    Assert(Entry.FlagIncluded(2, 'issigverify'));
+    Assert(Entry.FlagIncluded(2, 'external'));
+    Assert(Entry.FlagIncluded(2, 'ignoreversion'));
+
+    { The other download and extract parameters, and StrongAssemblyName }
+    Entry.Parse(['Source: a']);
+    Entry.Add('DownloadUserName', 'myuser');
+    Assert(Entry.FlagIncluded(2, 'download'));
+    Entry.Parse(['Source: a']);
+    Entry.Add('DownloadPassword', 'mypassword');
+    Assert(Entry.FlagIncluded(2, 'download'));
+    Entry.Parse(['Source: a']);
+    Entry.Add('ExtractArchivePassword', 'mypassword');
+    Assert(Entry.FlagIncluded(2, 'extractarchive'));
+    Entry.Parse(['Source: a']);
+    Entry.Add('StrongAssemblyName', 'MyAssembly');
+    Assert(Entry.FlagIncluded(2, 'gacinstall'));
+
     { A parameter value can also include a flag: setting Verb on a [Run] entry
       checks shellexec and setting OnLog checks logoutput, each in one change }
     Assert(TryGetScriptSectionMetadata('Run', Metadata));
@@ -830,11 +853,16 @@ begin
     Entry.Add('OnLog', 'MyOnLog');
     Assert(Entry.FlagIncluded(2, 'logoutput'));
 
+    { The [Run] flag-includes rule: checking unchecked also checks postinstall }
+    Entry.SetFlag(2, 'unchecked', True);
+    Assert(Entry.FlagIncluded(2, 'postinstall'));
+
     { Clearing the value leaves the included flag in place }
     Entry.SetValue(1, '');
     Assert(Entry.FlagIncluded(2, 'shellexec'));
 
-    { The rule is section-scoped: UninstallRun has the Verb rule but not OnLog }
+    { The rule is section-scoped: UninstallRun has the Verb rule but not OnLog,
+      and not the unchecked rule either }
     Assert(TryGetScriptSectionMetadata('UninstallRun', Metadata));
     Entry.Free;
     Entry := TScriptParameterEntry.Create(Metadata);
@@ -843,6 +871,8 @@ begin
     Assert(Entry.FlagIncluded(2, 'shellexec'));
     Entry.Add('OnLog', 'MyOnLog');
     Assert(not Entry.FlagIncluded(2, 'logoutput'));
+    Entry.SetFlag(2, 'unchecked', True);
+    Assert(not Entry.FlagIncluded(2, 'postinstall'));
 
     { Without metadata there are no rules }
     Entry.Free;

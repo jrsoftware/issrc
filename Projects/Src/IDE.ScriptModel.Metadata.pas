@@ -493,12 +493,18 @@ begin
     PD('StrongAssemblyName', pvkString),
     PD('Tasks', pvkString)],
     [FIR('Flags', 'extractarchive', ['external', 'ignoreversion']),
-    FIR('Flags', 'download', ['external', 'ignoreversion']),
-    FIR('Flags', 'createallsubdirs', ['recursesubdirs']),
-    FIR('Flags', 'dontverifychecksum', ['nocompression']),
-    FIR('Flags', 'uninsnosharedfileprompt', ['sharedfile'])],
-    [PIF('ExternalSize', 'Flags', 'external'),
-    PIF('ISSigAllowedKeys', 'Flags', 'issigverify')]));
+     FIR('Flags', 'download', ['external', 'ignoreversion']),
+     FIR('Flags', 'createallsubdirs', ['recursesubdirs']),
+     FIR('Flags', 'dontverifychecksum', ['nocompression']),
+     FIR('Flags', 'uninsnosharedfileprompt', ['sharedfile'])],
+    [PIF('DownloadISSigSource', 'Flags', 'download'),
+     PIF('DownloadISSigSource', 'Flags', 'issigverify'),
+     PIF('DownloadPassword', 'Flags', 'download'),
+     PIF('DownloadUserName', 'Flags', 'download'),
+     PIF('ExternalSize', 'Flags', 'external'),
+     PIF('ExtractArchivePassword', 'Flags', 'extractarchive'),
+     PIF('ISSigAllowedKeys', 'Flags', 'issigverify'),
+     PIF('StrongAssemblyName', 'Flags', 'gacinstall')]));
 
   SectionMetadataList.Add(TScriptSectionMetadata.Create('Components',
     [PD('Check', pvkString),
@@ -649,9 +655,9 @@ begin
     PD('Tasks', pvkString),
     PD('Verb', pvkString),
     PD('WorkingDir', pvkString)],
-    nil,
+    [FIR('Flags', 'unchecked', ['postinstall'])],
     [PIF('Verb', 'Flags', 'shellexec'),
-    PIF('OnLog', 'Flags', 'logoutput')]));
+     PIF('OnLog', 'Flags', 'logoutput')]));
 
   SectionMetadataList.Add(TScriptSectionMetadata.Create('Tasks',
     [PD('Check', pvkString),
