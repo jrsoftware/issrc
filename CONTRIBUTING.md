@@ -33,7 +33,7 @@ branches and make pull requests. In detail:
    throughout the project - indentation, accurate comments, etc.
 
    Do not make mass whitespace or copyright date changes to files nor anything
-   similar. The only time is it ok to make such changes is when you already needed
+   similar. The only time it is okay to make such changes is when you already need
    to change the file to implement your feature, change, or fix.
 
 7. Commit your changes to your topic branch.

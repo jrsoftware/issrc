@@ -2469,6 +2469,9 @@ var
   LineCount, PixelWidth: Integer;
   Nines: String;
 begin
+  if not HandleAllocated then
+    Exit;
+
   if FLineNumbers or FFoldLevelNumbersOrLineState then begin
     { Note: Based on SciTE's SciTEBase::SetLineNumberWidth. }
 
@@ -2636,6 +2639,7 @@ end;
 procedure TScintEdit.DpiChanged(const Message: TMessage);
 begin
   ForwardMessage(Message);
+  UpdateLineNumbersWidth;
 end;
 
 procedure TScintEdit.WMDropFiles(var Message: TWMDropFiles);
@@ -3087,7 +3091,7 @@ begin
       SetNextPixmapLine(FPixmap, Index, Line);
     end;
 
-    { Add terminating nil pointer - Scintilla doesnt really need it but setting it anyway }
+    { Add terminating nil pointer - Scintilla doesn't really need it but setting it anyway }
     SetNextPixmapLine(FPixmap, Index, '');
   finally
     Colors.Free;

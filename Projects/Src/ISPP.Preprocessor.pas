@@ -1749,8 +1749,8 @@ function TPreprocessor.ParseFormalParams(Parser: TParser;
     if NewCapacity > High(Byte) then RaiseError(STooManyFormalParams);
     NewCapacity := NewCapacity * SizeOf(TIsppMacroParam);
     ReallocMem(ParamList, NewCapacity);
-    { Initializing to zeroes is required to prevent compiler's attempts to
-      finilize not existing strings }
+    { Initializing to zeroes is required to prevent the compiler from attempting to
+      finalize nonexistent strings }
     FillChar(ParamList^[Result], NewCapacity - OldCapacity, 0)
   end;
 

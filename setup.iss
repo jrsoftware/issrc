@@ -30,7 +30,7 @@
 [Setup]
 AppName=Inno Setup
 AppId=Inno Setup 7{#spacebit}
-AppVersion=7.0.2{#spacebit}
+AppVersion=7.1.0-dev{#spacebit}
 AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
 AppSupportURL=https://www.innosetup.com/

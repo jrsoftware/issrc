@@ -2724,7 +2724,7 @@ begin
   SelectedComponents.Free();
 
   if Equals then begin
-    //select the intial type
+    //select the initial type
     TypesCombo.ItemIndex := InitialSetupTypeIndex;
   end else begin
     //select a custom type

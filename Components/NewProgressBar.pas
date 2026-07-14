@@ -10,7 +10,7 @@ unit NewProgressBar;
 
   Note: themed animated progress bars don't immediately show changes.
   This applies both to Position and State. For example if you set State while the
-  progress bar is still moving towards a new Position, the new State doesnt show until
+  progress bar is still moving towards a new Position, the new State doesn't show until
   the moving animation has finished.
 
   Define VCLSTYLES for full VCL Styles support.

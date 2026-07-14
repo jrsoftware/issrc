@@ -898,7 +898,7 @@ begin
           Detail := CheckBoxMixedStates[not ItemDisabled];
         const ElementDetails = LStyle.GetElementDetails(Detail);
         const SaveColor = Brush.Color;
-        const SaveIndex = SaveDC(Handle);
+        const SaveIndex = SaveDC(Handle); { With VCL Styles active, DrawElement changes the DC's selected objects and colors, and does not restore them }
         try
           LStyle.DrawElement(Handle, ElementDetails, CheckRect, nil, CurrentPPI);
         finally
@@ -1951,7 +1951,7 @@ end;
 
 procedure TNewCheckListBox.WMThemeChanged(var Message: TMessage);
 begin
-  { Don't Run to Cursor into this function, it will interrupt up the theme change }
+  { Do not use Run to Cursor inside this function, it will interrupt the theme change }
   UpdateThemeData(True, True);
   inherited;
 end;

@@ -272,7 +272,7 @@ type
 //  iPartId             - part number to retrieve size for
 //  iStateId            - state number (of the part)
 //  prc                 - (optional) rect for part drawing destination
-//  eSize               - the type of size to be retreived
+//  eSize               - the type of size to be retrieved
 //  psz                 - receives the specified size of the part
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -340,7 +340,7 @@ var
 
 //  Theme background segment hit test flag (default). possible return values are:
 //  HTCLIENT: hit test succeeded in the middle background segment
-//  HTTOP, HTLEFT, HTTOPLEFT, etc:  // hit test succeeded in the the respective theme background segment.
+//  HTTOP, HTLEFT, HTTOPLEFT, etc:  // hit test succeeded in the respective theme background segment.
 
 const
   HTTB_BACKGROUNDSEG         = $0000;
@@ -990,7 +990,7 @@ var
 //                        localized version of the property value is returned.
 //
 //  pszThemeFileName    - filename of the theme file to query
-//  pszPropertyName     - name of the string property to retreive a value for
+//  pszPropertyName     - name of the string property to retrieve a value for
 //  pszValueBuff        - receives the property string value
 //  cchMaxValChars      - max chars allowed in pszValueBuff
 //----------------------------------------------------------------------------------------------------------------------
@@ -1011,11 +1011,11 @@ var
 //      All functions in the Theme API not returning an HRESULT (THEMEAPI_)
 //      use the WIN32 function "SetLastError()" to record any call failures.
 //
-//      To retreive the error code of the last failure on the
-//      current thread for these type of API's, use the WIN32 function
+//      To retrieve the error code of the last failure on the
+//      current thread for these types of APIs, use the WIN32 function
 //      "GetLastError()".
 //
-//      All Theme API error codes (HRESULT's and GetLastError() values)
+//      All Theme API error codes (HRESULTs and GetLastError() values)
 //      should be normal win32 errors which can be formatted into
 //      strings using the Win32 API FormatMessage().
 //----------------------------------------------------------------------------------------------------------------------
@@ -1036,11 +1036,11 @@ var
   DrawThemeParentBackground: function(hwnd: HWND; hdc: HDC; prc: PRECT): HRESULT; stdcall;
 
 //----------------------------------------------------------------------------------------------------------------------
-//  EnableTheming()     - enables or disables themeing for the current user
+//  EnableTheming()     - enables or disables theming for the current user
 //                        in the current and future sessions.
 //
 //  fEnable             - if FALSE, disable theming & turn themes off.
-//                      - if TRUE, enable themeing and, if user previously
+//                      - if TRUE, enable theming and, if user previously
 //                        had a theme active, make it active now.
 //----------------------------------------------------------------------------------------------------------------------
 
