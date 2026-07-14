@@ -801,11 +801,27 @@ procedure TScriptParameterEntry.ApplyFlagRules(const AParameterName,
 begin
   if FMetadata = nil then
     Exit;
+  { Includes rules run in the forward direction only }
   for var Rule in FMetadata.FlagIncludesRules do begin
     if SameText(Rule.ParameterName, AParameterName) and
        SameText(Rule.FlagName, AIncludedFlagName) then begin
-      for var ImpliedFlagName in Rule.AlsoIncludedFlagNames do
+      for var ImpliedFlagName in Rule.OtherFlagNames do
         SetFlagInternal(AParameterName, ImpliedFlagName, True);
+    end;
+  end;
+  for var Rule in FMetadata.FlagExcludesRules do begin
+    if SameText(Rule.ParameterName, AParameterName) then begin
+      if SameText(Rule.FlagName, AIncludedFlagName) then begin
+        { Forward: FlagName was included, exclude the other flags }
+        for var ExcludedFlagName in Rule.OtherFlagNames do
+          SetFlagInternal(AParameterName, ExcludedFlagName, False);
+      end else begin
+        { Reverse: if a listed other flag was included, exclude
+          FlagName, but not the other listed flags }
+        for var ExcludedFlagName in Rule.OtherFlagNames do
+          if SameText(ExcludedFlagName, AIncludedFlagName) then
+            SetFlagInternal(AParameterName, Rule.FlagName, False);
+      end;
     end;
   end;
 end;
@@ -830,7 +846,7 @@ end;
 procedure TScriptParameterEntry.SetFlagInternal(const AIndex: Integer;
   const AFlagName: String; const AInclude: Boolean);
 { Includes or excludes a flag in an existing flag-list parameter. Including
-  also runs the flag-includes rules, so extra flags could be turned on as well. }
+  also runs the flag rules, so extra other flags could be turned on or off as well. }
 begin
   { Sanity check }
   if not IsValidScriptFlagName(AFlagName) then

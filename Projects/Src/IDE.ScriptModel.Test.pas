@@ -680,8 +680,8 @@ begin
       Assert(Metadata.TryGetParameter(Rule.ParameterName, Definition));
       Assert(Definition.ValueKind = pvkFlags);
       Assert(InNames(Definition.KnownValues, Rule.FlagName));
-      Assert(Length(Rule.AlsoIncludedFlagNames) > 0);
-      for var FlagName in Rule.AlsoIncludedFlagNames do
+      Assert(Length(Rule.OtherFlagNames) > 0);
+      for var FlagName in Rule.OtherFlagNames do
         Assert(InNames(Definition.KnownValues, FlagName));
     end;
 
@@ -694,6 +694,33 @@ begin
       Assert(Metadata.TryGetParameter(Rule.FlagParameterName, FlagDefinition));
       Assert(FlagDefinition.ValueKind = pvkFlags);
       Assert(InNames(FlagDefinition.KnownValues, Rule.FlagName));
+    end;
+
+    { Every flag-excludes rule points at a real flag parameter, names only
+      flags that exist, and does not exclude its own flag }
+    for var Rule in Metadata.FlagExcludesRules do begin
+      var Definition: TScriptParameterDefinition;
+      Assert(Metadata.TryGetParameter(Rule.ParameterName, Definition));
+      Assert(Definition.ValueKind = pvkFlags);
+      Assert(InNames(Definition.KnownValues, Rule.FlagName));
+      Assert(Length(Rule.OtherFlagNames) > 0);
+      for var FlagName in Rule.OtherFlagNames do begin
+        Assert(InNames(Definition.KnownValues, FlagName));
+        Assert(not SameText(FlagName, Rule.FlagName));
+      end;
+    end;
+
+    { An includes rule must not contradict an excludes rule: the flags an
+      includes rule turns on together must not exclude one another }
+    for var IncludeRule in Metadata.FlagIncludesRules do begin
+      const IncludedNames: TArray<String> =
+        [IncludeRule.FlagName] + IncludeRule.OtherFlagNames;
+      for var ExcludeRule in Metadata.FlagExcludesRules do begin
+        if SameText(IncludeRule.ParameterName, ExcludeRule.ParameterName) and
+           InNames(IncludedNames, ExcludeRule.FlagName) then
+          for var FlagName in ExcludeRule.OtherFlagNames do
+            Assert(not InNames(IncludedNames, FlagName));
+      end;
     end;
   end;
 end;
@@ -850,19 +877,21 @@ begin
     Entry.Add('Verb', 'open');
     Assert(Counter.Count = 1);
     Assert(Entry.FlagIncluded(2, 'shellexec'));
-    Entry.Add('OnLog', 'MyOnLog');
-    Assert(Entry.FlagIncluded(2, 'logoutput'));
-
-    { The [Run] flag-includes rule: checking unchecked also checks postinstall }
-    Entry.SetFlag(2, 'unchecked', True);
-    Assert(Entry.FlagIncluded(2, 'postinstall'));
 
     { Clearing the value leaves the included flag in place }
     Entry.SetValue(1, '');
     Assert(Entry.FlagIncluded(2, 'shellexec'));
 
-    { The rule is section-scoped: UninstallRun has the Verb rule but not OnLog,
-      and not the unchecked rule either }
+    { Setting OnLog checks logoutput, which excludes shellexec }
+    Entry.Add('OnLog', 'MyOnLog');
+    Assert(Entry.FlagIncluded(2, 'logoutput'));
+    Assert(not Entry.FlagIncluded(2, 'shellexec'));
+
+    { The [Run] flag-includes rule: checking unchecked also checks postinstall }
+    Entry.SetFlag(2, 'unchecked', True);
+    Assert(Entry.FlagIncluded(2, 'postinstall'));
+
+    { The rule is section-scoped: UninstallRun has the Verb rule but not OnLog }
     Assert(TryGetScriptSectionMetadata('UninstallRun', Metadata));
     Entry.Free;
     Entry := TScriptParameterEntry.Create(Metadata);
@@ -871,8 +900,6 @@ begin
     Assert(Entry.FlagIncluded(2, 'shellexec'));
     Entry.Add('OnLog', 'MyOnLog');
     Assert(not Entry.FlagIncluded(2, 'logoutput'));
-    Entry.SetFlag(2, 'unchecked', True);
-    Assert(not Entry.FlagIncluded(2, 'postinstall'));
 
     { Without metadata there are no rules }
     Entry.Free;
@@ -881,6 +908,109 @@ begin
     Entry.SetFlag(Entry.Add('Flags', ''), 'extractarchive', True);
     Assert(Entry.FlagIncluded(1, 'extractarchive'));
     Assert(not Entry.FlagIncluded(1, 'external'));
+  finally
+    Entry.Free;
+    Counter.Free;
+  end;
+end;
+
+procedure TestEntryExcludeRules;
+begin
+  var Metadata: TScriptSectionMetadata;
+  Assert(TryGetScriptSectionMetadata('Files', Metadata));
+
+  const Counter = TChangeCounter.Create;
+  var Entry := TScriptParameterEntry.Create(Metadata);
+  try
+    { Checking signonce unchecks sign, in one change notification, with
+      unknown tokens preserved }
+    Entry.Parse(['Source: a; Flags: foo sign']);
+    Entry.OnChange := Counter.HandleChange;
+    Counter.Count := 0;
+    Entry.SetFlag(1, 'signonce', True);
+    Assert(Counter.Count = 1);
+    Assert(Entry.FlagIncluded(1, 'signonce'));
+    Assert(not Entry.FlagIncluded(1, 'sign'));
+    Assert(Entry.FlagIncluded(1, 'foo'));
+    var Lines := Entry.GetLines;
+    Assert(Lines[0] = 'Source: a; Flags: foo signonce');
+
+    { The rules apply in both directions: sign's rule excludes signcheck when
+      sign is checked, and excludes sign when signcheck is checked }
+    Entry.Parse(['Source: a; Flags: signcheck']);
+    Entry.SetFlag(1, 'sign', True);
+    Assert(Entry.FlagIncluded(1, 'sign'));
+    Assert(not Entry.FlagIncluded(1, 'signcheck'));
+    Entry.Parse(['Source: a; Flags: sign']);
+    Entry.SetFlag(1, 'signcheck', True);
+    Assert(Entry.FlagIncluded(1, 'signcheck'));
+    Assert(not Entry.FlagIncluded(1, 'sign'));
+
+    { Unchecking fires no rules }
+    Entry.Parse(['Source: a; Flags: sign signonce']); { Not accepted by the compiler but the model preserves it }
+    Entry.SetFlag(1, 'sign', False);
+    Assert(Entry.FlagIncluded(1, 'signonce'));
+
+    { One-to-many in both directions: deleteafterinstall excludes sharedfile,
+      and checking sharedfile removes deleteafterinstall }
+    Entry.Parse(['Source: a; Flags: sharedfile']);
+    Entry.SetFlag(1, 'deleteafterinstall', True);
+    Assert(Entry.FlagIncluded(1, 'deleteafterinstall'));
+    Assert(not Entry.FlagIncluded(1, 'sharedfile'));
+    Entry.Parse(['Source: a; Flags: deleteafterinstall']);
+    Entry.SetFlag(1, 'sharedfile', True);
+    Assert(Entry.FlagIncluded(1, 'sharedfile'));
+    Assert(not Entry.FlagIncluded(1, 'deleteafterinstall'));
+
+    { Includes and excludes rules combine: checking download turns on external
+      and ignoreversion, and removes comparetimestamp through download's own
+      rule and replacesameversion through included ignoreversion's rule, all
+      in one change notification }
+    Entry.Parse(['Source: a; Flags: comparetimestamp replacesameversion']);
+    Counter.Count := 0;
+    Entry.SetFlag(1, 'download', True);
+    Assert(Counter.Count = 1);
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'Source: a; Flags: download external ignoreversion');
+
+    { [Run]: the three wait flags exclude each other, and shellexec and the
+      bitness flags exclude each other }
+    Assert(TryGetScriptSectionMetadata('Run', Metadata));
+    Entry.Free;
+    Entry := TScriptParameterEntry.Create(Metadata);
+    Entry.Parse(['Filename: a; Flags: nowait']);
+    Entry.SetFlag(1, 'waituntilterminated', True);
+    Assert(Entry.FlagIncluded(1, 'waituntilterminated'));
+    Assert(not Entry.FlagIncluded(1, 'nowait'));
+    Entry.Parse(['Filename: a; Flags: shellexec']);
+    Entry.SetFlag(1, '64bit', True);
+    Assert(Entry.FlagIncluded(1, '64bit'));
+    Assert(not Entry.FlagIncluded(1, 'shellexec'));
+
+    { A parameter-includes-flag rule cascades into the excludes rules: setting
+      OnLog checks logoutput which unchecks nowait }
+    Entry.Parse(['Filename: a; Flags: nowait']);
+    Entry.Add('OnLog', 'MyOnLog');
+    Assert(Entry.FlagIncluded(1, 'logoutput'));
+    Assert(not Entry.FlagIncluded(1, 'nowait'));
+
+    { The rules are section-scoped: [Dirs] has both flags of the [Files]
+      deleteafterinstall rule but not the rule, so both stay checked }
+    Assert(TryGetScriptSectionMetadata('Dirs', Metadata));
+    Entry.Free;
+    Entry := TScriptParameterEntry.Create(Metadata);
+    Entry.Parse(['Name: x; Flags: uninsneveruninstall']);
+    Entry.SetFlag(1, 'deleteafterinstall', True);
+    Assert(Entry.FlagIncluded(1, 'deleteafterinstall'));
+    Assert(Entry.FlagIncluded(1, 'uninsneveruninstall'));
+
+    { Without metadata there are no rules }
+    Entry.Free;
+    Entry := TScriptParameterEntry.Create(nil);
+    Entry.Parse(['Source: a; Flags: sign']);
+    Entry.SetFlag(1, 'signonce', True);
+    Assert(Entry.FlagIncluded(1, 'sign'));
+    Assert(Entry.FlagIncluded(1, 'signonce'));
   finally
     Entry.Free;
     Counter.Free;
@@ -1194,6 +1324,7 @@ begin
   TestMetadataConsistency;
   TestScriptCategories;
   TestEntryRules;
+  TestEntryExcludeRules;
   TestDirectiveSection;
   TestEntrySpanning;
 end;
