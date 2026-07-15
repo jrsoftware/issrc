@@ -31,9 +31,9 @@ unit JvInspectorSupport;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages,
+  Winapi.Windows,
   System.SysUtils, System.Classes, System.TypInfo,
-  Vcl.Graphics, Vcl.Controls, Vcl.StdCtrls, Vcl.Themes;
+  Vcl.Graphics, Vcl.Themes;
 
 //=== Replacements for JvTypes.pas, JvComponentBase.pas and JvConsts.pas =====
 
@@ -47,41 +47,6 @@ const
 
 const
   tkStrings: set of TTypeKind = [tkString, tkLString, tkUString, tkWString];
-
-//=== Replacements for JvExControls.pas and JvComponent.pas ==================
-
-type
-  TDlgCode =
-   (dcWantAllKeys, dcWantArrows, dcWantChars, dcButton, dcHasSetSel, dcWantTab,
-    dcNative); // if dcNative is in the set the native allowed keys are used and GetDlgCode is ignored
-  TDlgCodes = set of TDlgCode;
-
-type
-  { Minimal stand-in for JVCL's TJvExCustomControl (JvExControls.pas): only
-    the virtual hooks that JvInspector.pas actually overrides are provided,
-    wired to the corresponding window messages the same way JvExControls
-    dispatches them }
-  TJvCustomControl = class(TCustomControl)
-  private
-    function BaseWndProc(Msg: Cardinal; WParam: WPARAM = 0; LParam: LPARAM = 0): LRESULT;
-  protected
-    procedure WndProc(var Msg: TMessage); override;
-    procedure BoundsChanged; virtual;
-    procedure GetDlgCode(var Code: TDlgCodes); virtual;
-    procedure FocusSet(PrevWnd: THandle); virtual;
-    procedure FocusKilled(NextWnd: THandle); virtual;
-  end;
-
-  { From JvComponent.pas, rebased from TJvExCustomListBox onto TCustomListBox }
-  TJvPopupListBox = class(TCustomListBox)
-  private
-    FSearchText: string;
-    FSearchTickCount: Int64;
-  protected
-    procedure CreateParams(var Params: TCreateParams); override;
-    procedure CreateWnd; override;
-    procedure KeyPress(var Key: Char); override;
-  end;
 
 //=== Replacements for JvJCLUtils.pas (subset) ===============================
 
@@ -109,147 +74,6 @@ resourcestring
   RsEJvInspDataNotInit = 'Data not initialized';
 
 implementation
-
-//=== Replacements for JvExControls.pas and JvComponent.pas ==================
-
-function DlgcToDlgCodes(Value: LPARAM): TDlgCodes;
-begin
-  Result := [];
-  if (Value and DLGC_WANTARROWS) <> 0 then
-    Include(Result, dcWantArrows);
-  if (Value and DLGC_WANTTAB) <> 0 then
-    Include(Result, dcWantTab);
-  if (Value and DLGC_WANTALLKEYS) <> 0 then
-    Include(Result, dcWantAllKeys);
-  if (Value and DLGC_WANTCHARS) <> 0 then
-    Include(Result, dcWantChars);
-  if (Value and DLGC_BUTTON) <> 0 then
-    Include(Result, dcButton);
-  if (Value and DLGC_HASSETSEL) <> 0 then
-    Include(Result, dcHasSetSel);
-end;
-
-function DlgCodesToDlgc(const Value: TDlgCodes): LPARAM;
-begin
-  Result := 0;
-  if dcWantAllKeys in Value then
-    Result := Result or DLGC_WANTALLKEYS;
-  if dcWantArrows in Value then
-    Result := Result or DLGC_WANTARROWS;
-  if dcWantTab in Value then
-    Result := Result or DLGC_WANTTAB;
-  if dcWantChars in Value then
-    Result := Result or DLGC_WANTCHARS;
-  if dcButton in Value then
-    Result := Result or DLGC_BUTTON;
-  if dcHasSetSel in Value then
-    Result := Result or DLGC_HASSETSEL;
-end;
-
-//=== { TJvCustomControl } ===================================================
-
-function TJvCustomControl.BaseWndProc(Msg: Cardinal; WParam: WPARAM;
-  LParam: LPARAM): LRESULT;
-var
-  Mesg: TMessage;
-begin
-  Mesg.Msg := Msg;
-  Mesg.WParam := WParam;
-  Mesg.LParam := LParam;
-  Mesg.Result := 0;
-  inherited WndProc(Mesg);
-  Result := Mesg.Result;
-end;
-
-procedure TJvCustomControl.WndProc(var Msg: TMessage);
-var
-  DlgCodes: TDlgCodes;
-begin
-  case Msg.Msg of
-    WM_SETFOCUS:
-      FocusSet(THandle(Msg.WParam));
-    WM_KILLFOCUS:
-      FocusKilled(THandle(Msg.WParam));
-    WM_SIZE, WM_MOVE:
-      begin
-        inherited WndProc(Msg);
-        BoundsChanged;
-      end;
-    WM_GETDLGCODE:
-      begin
-        inherited WndProc(Msg);
-        DlgCodes := [dcNative] + DlgcToDlgCodes(Msg.Result);
-        GetDlgCode(DlgCodes);
-        if not (dcNative in DlgCodes) then
-          Msg.Result := DlgCodesToDlgc(DlgCodes);
-      end;
-  else
-    inherited WndProc(Msg);
-  end;
-end;
-
-procedure TJvCustomControl.BoundsChanged;
-begin
-end;
-
-procedure TJvCustomControl.GetDlgCode(var Code: TDlgCodes);
-begin
-end;
-
-procedure TJvCustomControl.FocusSet(PrevWnd: THandle);
-begin
-  BaseWndProc(WM_SETFOCUS, WPARAM(PrevWnd), 0);
-end;
-
-procedure TJvCustomControl.FocusKilled(NextWnd: THandle);
-begin
-  BaseWndProc(WM_KILLFOCUS, WPARAM(NextWnd), 0);
-end;
-
-//=== { TJvPopupListBox } ====================================================
-
-procedure TJvPopupListBox.CreateParams(var Params: TCreateParams);
-begin
-  inherited CreateParams(Params);
-  with Params do
-  begin
-    Style := Style or WS_BORDER;
-    ExStyle := WS_EX_TOOLWINDOW or WS_EX_TOPMOST;
-    AddBiDiModeExStyle(ExStyle);
-    WindowClass.Style := CS_SAVEBITS;
-  end;
-end;
-
-procedure TJvPopupListBox.CreateWnd;
-begin
-  inherited CreateWnd;
-  Winapi.Windows.SetParent(Handle, 0);
-  CallWindowProc(DefWndProc, Handle, WM_SETFOCUS, 0, 0);
-end;
-
-procedure TJvPopupListBox.KeyPress(var Key: Char);
-var
-  TickCount: Int64;
-begin
-  case Key of
-    BackSpace, Esc:
-      FSearchText := '';
-    #32..High(Char):
-      begin
-        TickCount := GetTickCount;
-        if TickCount < FSearchTickCount then
-          Inc(TickCount, $100000000); // (ahuser) reduces the overflow
-        if ((TickCount - FSearchTickCount >= 4000) and (FSearchText <> '')) then
-          FSearchText := '';
-        FSearchTickCount := TickCount;
-        if Length(FSearchText) < 32 then
-          FSearchText := FSearchText + Key;
-        SendMessage(Handle, LB_SELECTSTRING, -1, LPARAM(PChar(FSearchText)));
-        Key := #0;
-      end;
-  end;
-  inherited KeyPress(Key);
-end;
 
 //=== Replacements for JvJCLUtils.pas (subset) ===============================
 
