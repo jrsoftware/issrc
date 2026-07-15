@@ -108,6 +108,7 @@ type
     // otherwise invisible. This could be used to ill effect, so beware.
     FBeforeEdit: TInspectorBeforeEditEvent;
     FMouseWheelRecursion: Boolean;
+    function ApplicationHook(var Msg: TMessage): Boolean;
     procedure ApplyNameFont;
     procedure ApplyValueFont;
     procedure CalcButtonBasedRects;
@@ -376,11 +377,6 @@ const
   cJvInspectorOrdinal = 'Ordinal';
   cJvInspectorString = 'string';
 
-// Canvas State functions used while painting the inspector
-function SaveCanvasState(const Canvas: TCanvas): Integer;
-procedure ApplyCanvasState(const Canvas: TCanvas; const SavedIdx: Integer);
-procedure RestoreCanvasState(const Canvas: TCanvas; const SavedIdx: Integer);
-
 implementation
 
 uses
@@ -392,21 +388,10 @@ uses
 type
   TCustomEditAccessProtected = class(TCustomEdit);
 
-//=== { TCanvasStack } =======================================================
+//=== { TCanvasState } =======================================================
 
 type
-  TCanvasStack = class(TObjectList)
-  private
-    FTop: Integer;
-    procedure SetCapacity(const Value: {$IFDEF RTL360_UP}NativeInt{$ELSE}Integer{$ENDIF RTL360_UP});
-  public
-    constructor Create(const ACapacity: Integer);
-    function Push(const Canvas: TCanvas): Integer;
-    procedure Pop(const Canvas: TCanvas; Index: Integer);
-    property Capacity write SetCapacity;
-  end;
-
-  TCanvasState = class(TPersistent)
+  TCanvasState = class
   private
     FBrush: TBrush;
     FPen: TPen;
@@ -415,57 +400,7 @@ type
     constructor Create(const Canvas: TCanvas);
     destructor Destroy; override;
     procedure ApplyTo(const Canvas: TCanvas);
-    procedure SetState(const Canvas: TCanvas);
   end;
-
-var
-  GlobalCanvasStack: TCanvasStack = nil;
-
-constructor TCanvasStack.Create(const ACapacity: Integer);
-begin
-  inherited Create(True);
-  FTop := -1;
-  Capacity := ACapacity;
-end;
-
-procedure TCanvasStack.SetCapacity(const Value: {$IFDEF RTL360_UP}NativeInt{$ELSE}Integer{$ENDIF RTL360_UP});
-var
-  I: Integer;
-begin
-  if Capacity <> Value then
-  begin
-    if Value < Capacity then
-    begin
-      inherited Capacity := Value;
-      if FTop >= Capacity then
-        FTop := Capacity - 1;
-    end
-    else
-    begin
-      I := Capacity;
-      inherited Capacity := Value;
-      for I := I to Value - 1 do
-        Add(TCanvasState.Create(nil));
-    end;
-  end;
-end;
-
-function TCanvasStack.Push(const Canvas: TCanvas): Integer;
-begin
-  Inc(FTop);
-  if FTop >= Capacity then
-    Capacity := Capacity + 128;
-  Result := FTop;
-  TCanvasState(Items[Result]).SetState(Canvas);
-end;
-
-procedure TCanvasStack.Pop(const Canvas: TCanvas; Index: Integer);
-begin
-  TCanvasState(Items[Index]).ApplyTo(Canvas);
-  FTop := Pred(Index);
-end;
-
-//=== { TCanvasState } =======================================================
 
 constructor TCanvasState.Create(const Canvas: TCanvas);
 begin
@@ -473,8 +408,9 @@ begin
   FBrush := TBrush.Create;
   FPen := TPen.Create;
   FFont := TFont.Create;
-  if Canvas <> nil then
-    SetState(Canvas);
+  FBrush.Assign(Canvas.Brush);
+  FPen.Assign(Canvas.Pen);
+  FFont.Assign(Canvas.Font);
 end;
 
 destructor TCanvasState.Destroy;
@@ -492,105 +428,18 @@ begin
   Canvas.Font.Assign(FFont);
 end;
 
-procedure TCanvasState.SetState(const Canvas: TCanvas);
-begin
-  FBrush.Assign(Canvas.Brush);
-  FPen.Assign(Canvas.Pen);
-  FFont.Assign(Canvas.Font);
-end;
+//=== { TJvInspector } =================================================
 
-function CanvasStack: TCanvasStack;
-begin
-  if GlobalCanvasStack = nil then
-    GlobalCanvasStack := TCanvasStack.Create(512);
-  Result := GlobalCanvasStack;
-end;
-
-function SaveCanvasState(const Canvas: TCanvas): Integer;
-begin
-  Result := CanvasStack.Push(Canvas);
-end;
-
-procedure ApplyCanvasState(const Canvas: TCanvas; const SavedIdx: Integer);
-begin
-  TCanvasState(CanvasStack[SavedIdx]).ApplyTo(Canvas);
-end;
-
-procedure RestoreCanvasState(const Canvas: TCanvas; const SavedIdx: Integer);
-begin
-  CanvasStack.Pop(Canvas, SavedIdx);
-end;
-
-//=== { TInspReg } ===========================================================
-
-type
-  TInspReg = class(TObject)
-  private
-    FInspectors: array of TJvInspector;
-  protected
-    function ApplicationDeactivate(var Msg: TMessage): Boolean;
-    function IndexOf(const Inspector: TJvInspector): Integer;
-  public
-    procedure RegInspector(const Inspector: TJvInspector);
-    procedure UnRegInspector(const Inspector: TJvInspector);
-  end;
-
-var
-  FieldGlobalInspReg: TInspReg = nil;
-
-function GlobalInspReg: TInspReg;
-begin
-  if not Assigned(FieldGlobalInspReg) then
-    FieldGlobalInspReg := TInspReg.Create;
-  Result := FieldGlobalInspReg;
-end;
-
-function TInspReg.ApplicationDeactivate(var Msg: TMessage): Boolean;
-var
-  I: Integer;
+function TJvInspector.ApplicationHook(var Msg: TMessage): Boolean;
 begin
   Result := False;
+  // Forward the application's activate/deactivate to this inspector so the
+  // selected row repaints in its focused/unfocused style and an open dropdown
+  // closes
   if (Msg.Msg = CM_ACTIVATE) or (Msg.Msg = CM_DEACTIVATE) then
-    // Post the CM_(DE)ACTIVATE message to all registered inspectors
-    for I := High(FInspectors) downto 0 do
-      if FInspectors[I].HandleAllocated then
-        PostMessage(FInspectors[I].Handle, Msg.Msg, 0, 0);
+    if HandleAllocated then
+      PostMessage(Handle, Msg.Msg, 0, 0);
 end;
-
-function TInspReg.IndexOf(const Inspector: TJvInspector): Integer;
-begin
-  Result := High(FInspectors);
-  while (Result >= 0) and (FInspectors[Result] <> Inspector) do
-    Dec(Result);
-end;
-
-procedure TInspReg.RegInspector(const Inspector: TJvInspector);
-begin
-  if IndexOf(Inspector) = -1 then
-  begin
-    SetLength(FInspectors, Length(FInspectors) + 1);
-    FInspectors[High(FInspectors)] := Inspector;
-    if Length(FInspectors) = 1 then
-      Application.HookMainWindow(ApplicationDeactivate);
-  end;
-end;
-
-procedure TInspReg.UnRegInspector(const Inspector: TJvInspector);
-var
-  I: Integer;
-begin
-  I := IndexOf(Inspector);
-  if I <> -1 then
-  begin
-    if I < High(FInspectors) then
-      Move(FInspectors[I + 1], FInspectors[I], (High(FInspectors) - I) * SizeOf(TJvInspector));
-    SetLength(FInspectors, High(FInspectors));
-    if Length(FInspectors) = 0 then
-      Application.UnhookMainWindow(ApplicationDeactivate);
-  end;
-end;
-
-//=== { TJvInspector } =================================================
 
 constructor TJvInspector.Create(AOwner: TComponent);
 begin
@@ -624,7 +473,7 @@ begin
   FHideSelectColor := clBtnFace;
   FHideSelectTextColor := clHighlightText;
 
-  GlobalInspReg.RegInspector(Self);
+  Application.HookMainWindow(ApplicationHook);
 end;
 
 function TJvInspector.CalcImageHeight: Integer;
@@ -1252,7 +1101,7 @@ end;
 procedure TJvInspector.BeforeDestruction;
 begin
   inherited BeforeDestruction;
-  GlobalInspReg.UnRegInspector(Self);
+  Application.UnhookMainWindow(ApplicationHook);
   FRoot.Free;
   FVisibleList.Free;
   FInternalCollapseButton.Free;
@@ -1482,9 +1331,9 @@ end;
 procedure TJvInspector.PaintItem(var ARect: TRect;
   const AItemIndex: Integer);
 var
-  OrgState: Integer;
+  OrgState: TCanvasState;
 begin
-  OrgState := SaveCanvasState(Canvas);
+  OrgState := TCanvasState.Create(Canvas);
   try
     // Initialize paint variables
     FPaintRect := ARect;
@@ -1498,7 +1347,8 @@ begin
     TeardownItem;
     ARect := FPaintRect;
   finally
-    RestoreCanvasState(Canvas, OrgState);
+    OrgState.ApplyTo(Canvas);
+    OrgState.Free;
   end;
 end;
 
@@ -1615,11 +1465,11 @@ end;
 
 procedure TJvInspector.CalcNameBasedRects;
 var
-  CanvasState: Integer;
+  CanvasState: TCanvasState;
   RowHeight: Integer;
   TmpRect: TRect;
 begin
-  CanvasState := SaveCanvasState(Canvas);
+  CanvasState := TCanvasState.Create(Canvas);
   try
     ApplyNameFont;
     RowHeight := CanvasMaxTextHeight(Canvas);
@@ -1636,17 +1486,18 @@ begin
     IntersectRect(TmpRect, TmpRect, Rects[iprNameArea]);
     Rects[iprName] := TmpRect;
   finally
-    RestoreCanvasState(Canvas, CanvasState);
+    CanvasState.ApplyTo(Canvas);
+    CanvasState.Free;
   end;
 end;
 
 procedure TJvInspector.CalcValueBasedRects;
 var
-  CanvasState: Integer;
+  CanvasState: TCanvasState;
   RowHeight: Integer;
   TmpRect: TRect;
 begin
-  CanvasState := SaveCanvasState(Canvas);
+  CanvasState := TCanvasState.Create(Canvas);
   try
     ApplyValueFont;
     RowHeight := CanvasMaxTextHeight(Canvas);
@@ -1664,7 +1515,8 @@ begin
     end;
     Rects[iprValue] := TmpRect;
   finally
-    RestoreCanvasState(Canvas, CanvasState);
+    CanvasState.ApplyTo(Canvas);
+    CanvasState.Free;
   end;
   CalcEditBasedRects;
 end;
@@ -1703,95 +1555,102 @@ var
   EndOfCat: Boolean;
   PreNameRect: TRect;
   CatRect: TRect;
-  SaveIdx: Integer;
+  SaveState: TCanvasState;
   LeftX: Integer;
 begin
-  SaveIdx := SaveCanvasState(Canvas);
-
-  // Determine item type (end of list, end of a category)
-  EndOfList := Succ(FPaintItemIndex) >= VisibleCount;
-  if not EndOfList then
-  begin
-    NextItem := VisibleItems[Succ(FPaintItemIndex)];
-    EndOfCat := (NextItem.BaseCategory <> FPaintItem.BaseCategory) and
-      (FPaintItem.BaseCategory <> nil);
-  end
-  else
-    EndOfCat := FPaintItem.BaseCategory <> nil;
-
-  PreNameRect := Rects[iprItem];
-  PreNameRect.Left := PreNameRect.Left + (FPaintItem.Level * ItemHeight) + FRealButtonAreaWidth;
-  if PreNameRect.Left > Pred(Divider) then
-    PreNameRect := Rect(0, 0, 0, 0)
-  else
-  begin
-    PreNameRect.Right := PreNameRect.Left + FRealButtonAreaWidth;
-    if PreNameRect.Right > Pred(Divider) then
-      PreNameRect.Right := Pred(Divider);
-  end;
-  Inc(PreNameRect.Right);
-
-  CatRect := Rects[iprItem];
-  CatRect.Right := CatRect.Left + FRealButtonAreaWidth;
-  Inc(CatRect.Bottom);
-  if FPaintItem.BaseCategory <> nil then
-  begin
-    Canvas.Brush.Color := FCategoryColor;
-    Canvas.FillRect(CatRect);
-    ApplyCanvasState(Canvas, SaveIdx);
-  end;
-
-  if not (FPaintItem.IsCategory) then
-    PaintDivider(Rects[iprItem].Left + Divider, Pred(Rects[iprItem].Top),
-      Rects[iprItem].Bottom);
-
-  if FPaintItem.IsCategory then
-    Canvas.Brush.Color := FCategoryColor;
-  if (FPaintItem = Selected) and not FPaintItem.IsCategory then
-  begin
-    if Focused then
-      Canvas.Brush.Color := FSelectedColor
+  SaveState := TCanvasState.Create(Canvas);
+  try
+    // Determine item type (end of list, end of a category)
+    EndOfList := Succ(FPaintItemIndex) >= VisibleCount;
+    if not EndOfList then
+    begin
+      NextItem := VisibleItems[Succ(FPaintItemIndex)];
+      EndOfCat := (NextItem.BaseCategory <> FPaintItem.BaseCategory) and
+        (FPaintItem.BaseCategory <> nil);
+    end
     else
-      Canvas.Brush.Color := FHideSelectColor;
+      EndOfCat := FPaintItem.BaseCategory <> nil;
+
+    PreNameRect := Rects[iprItem];
+    PreNameRect.Left := PreNameRect.Left + (FPaintItem.Level * ItemHeight) + FRealButtonAreaWidth;
+    if PreNameRect.Left > Pred(Divider) then
+      PreNameRect := Rect(0, 0, 0, 0)
+    else
+    begin
+      PreNameRect.Right := PreNameRect.Left + FRealButtonAreaWidth;
+      if PreNameRect.Right > Pred(Divider) then
+        PreNameRect.Right := Pred(Divider);
+    end;
+    Inc(PreNameRect.Right);
+
+    CatRect := Rects[iprItem];
+    CatRect.Right := CatRect.Left + FRealButtonAreaWidth;
+    Inc(CatRect.Bottom);
+    if FPaintItem.BaseCategory <> nil then
+    begin
+      Canvas.Brush.Color := FCategoryColor;
+      Canvas.FillRect(CatRect);
+      SaveState.ApplyTo(Canvas);
+    end;
+
+    if not (FPaintItem.IsCategory) then
+      PaintDivider(Rects[iprItem].Left + Divider, Pred(Rects[iprItem].Top),
+        Rects[iprItem].Bottom);
+
+    if FPaintItem.IsCategory then
+      Canvas.Brush.Color := FCategoryColor;
+    if (FPaintItem = Selected) and not FPaintItem.IsCategory then
+    begin
+      if Focused then
+        Canvas.Brush.Color := FSelectedColor
+      else
+        Canvas.Brush.Color := FHideSelectColor;
+    end;
+    Canvas.FillRect(PreNameRect);
+    ApplyNameFont;
+    Canvas.FillRect(Rects[iprNameArea]);
+    if Assigned(FOnSetItemColors) then
+      FOnSetItemColors(FPaintItem, Canvas);
+    FPaintItem.DrawName(Canvas);
+    SaveState.ApplyTo(Canvas);
+    ApplyValueFont;
+    if Assigned(FOnSetItemColors) then
+      FOnSetItemColors(FPaintItem, Canvas); // Custom colors for canvas and font for cells depending on values.
+    FPaintItem.DrawValue(Canvas);
+    SaveState.ApplyTo(Canvas);
+  finally
+    SaveState.Free;
   end;
-  Canvas.FillRect(PreNameRect);
-  ApplyNameFont;
-  Canvas.FillRect(Rects[iprNameArea]);
-  if Assigned(FOnSetItemColors) then
-    FOnSetItemColors(FPaintItem, Canvas);
-  FPaintItem.DrawName(Canvas);
-  ApplyCanvasState(Canvas, SaveIdx);
-  ApplyValueFont;
-  if Assigned(FOnSetItemColors) then
-    FOnSetItemColors(FPaintItem, Canvas); // Custom colors for canvas and font for cells depending on values.
-  FPaintItem.DrawValue(Canvas);
-  RestoreCanvasState(Canvas, SaveIdx);
 
   if FButtonImage <> nil then
     Canvas.CopyRect(Rects[iprBtnDstRect], FButtonImage.Canvas, Rects[iprBtnSrcRect]);
 
-  SaveIdx := SaveCanvasState(Canvas);
-  if EndOfCat or FPaintItem.IsCategory then
-    Canvas.Pen.Color := FCategoryDividerColor
-  else
-    Canvas.Pen.Color := FDividerColor;
-  if not EndOfList and not EndOfCat then
-    LeftX := Rects[iprItem].Left + FRealButtonAreaWidth
-  else
-    LeftX := Rects[iprItem].Left;
-  Canvas.MoveTo(Rects[iprItem].Right, Rects[iprItem].Bottom);
-  Canvas.LineTo(Pred(LeftX), Rects[iprItem].Bottom);
-
-  if FPaintItem <> FPaintItem.BaseCategory then
-  begin
-    if FPaintItem.BaseCategory <> nil then
+  SaveState := TCanvasState.Create(Canvas);
+  try
+    if EndOfCat or FPaintItem.IsCategory then
       Canvas.Pen.Color := FCategoryDividerColor
     else
-      Canvas.Pen.Color := FCategoryColor;
-    Canvas.MoveTo(Rects[iprItem].Left + FRealButtonAreaWidth, Rects[iprItem].Top);
-    Canvas.LineTo(Rects[iprItem].Left + FRealButtonAreaWidth, Succ(Rects[iprItem].Bottom));
+      Canvas.Pen.Color := FDividerColor;
+    if not EndOfList and not EndOfCat then
+      LeftX := Rects[iprItem].Left + FRealButtonAreaWidth
+    else
+      LeftX := Rects[iprItem].Left;
+    Canvas.MoveTo(Rects[iprItem].Right, Rects[iprItem].Bottom);
+    Canvas.LineTo(Pred(LeftX), Rects[iprItem].Bottom);
+
+    if FPaintItem <> FPaintItem.BaseCategory then
+    begin
+      if FPaintItem.BaseCategory <> nil then
+        Canvas.Pen.Color := FCategoryDividerColor
+      else
+        Canvas.Pen.Color := FCategoryColor;
+      Canvas.MoveTo(Rects[iprItem].Left + FRealButtonAreaWidth, Rects[iprItem].Top);
+      Canvas.LineTo(Rects[iprItem].Left + FRealButtonAreaWidth, Succ(Rects[iprItem].Bottom));
+    end;
+    SaveState.ApplyTo(Canvas);
+  finally
+    SaveState.Free;
   end;
-  RestoreCanvasState(Canvas, SaveIdx);
 end;
 
 procedure TJvInspector.TeardownItem;
@@ -1803,25 +1662,6 @@ begin
   FPaintRect := TmpRect;
   FPaintItem := nil;
   FPaintItemIndex := -1;
-end;
-
-//=== { TJvInspectorEdit } ===================================================
-
-type
-  TJvInspectorEdit = class(TEdit)
-  private
-    FOnKillFocus: TNotifyEvent;
-  protected
-    procedure WMKillFocus(var Msg: TWMKillFocus); message WM_KILLFOCUS;
-  public
-    property OnKillFocus: TNotifyEvent read FOnKillFocus write FOnKillFocus;
-  end;
-
-procedure TJvInspectorEdit.WMKillFocus(var Msg: TWMKillFocus);
-begin
-  inherited;
-  if Assigned(FOnKillFocus) then
-    FOnKillFocus(Self);
 end;
 
 //=== { TJvCustomInspectorItem } =============================================
@@ -2187,8 +2027,10 @@ begin
     Msg.Result := 1;
     ExecInherited := False;
   end;
-  if ExecInherited and (@EditWndPrc <> nil) then
+  if ExecInherited then
     EditWndPrc(Msg);
+  if Msg.Msg = WM_KILLFOCUS then
+    EditKillFocus(Self);
   if Msg.Msg = WM_SETFOCUS then
   begin
     { Changing the focus to another Control in the same form via Mouse-Click, if a
@@ -2389,12 +2231,7 @@ begin
 
         // Following Mantis 3391, setting the Focus may set EditCtrl to nil
         if Assigned(EditCtrl) then
-        begin
-          // Mantis 3994: Only restore if we actually changed it by our own.
-          if TMethod(EditCtrl.WindowProc).Code = @EditWndPrc then
-            EditCtrl.WindowProc := FEditWndPrc; //Edit_WndProc;
           EditCtrl.Free;
-        end;
       finally
         FEditCtrlDestroying := False;
       end;
@@ -2759,10 +2596,9 @@ begin
   FEditing := CanEdit;
   if Editing and (FUpdateEditCtrl = 0) then
   begin
-    Edit := TJvInspectorEdit.Create(Inspector);
+    Edit := TEdit.Create(Inspector);
     Edit.OnKeyPress := EditKeyPress;
     Edit.OnExit := EditFocusLost;
-    TJvInspectorEdit(Edit).OnKillFocus := EditKillFocus;
     SetEditCtrl(Edit);
     TCustomEditAccessProtected(EditCtrl).Color := Inspector.BackgroundColor;
     FEditWndPrc := EditCtrl.WindowProc;
@@ -3086,11 +2922,5 @@ begin
   Result.FDisplayName := AName;
   Result.InvalidateItem;
 end;
-
-initialization
-
-finalization
-  FreeAndNil(GlobalCanvasStack);
-  FreeAndNil(FieldGlobalInspReg);
 
 end.
