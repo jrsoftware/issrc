@@ -83,9 +83,6 @@ type
     procedure KeyPress(var Key: Char); override;
   end;
 
-function DlgcToDlgCodes(Value: LPARAM): TDlgCodes;
-function DlgCodesToDlgc(const Value: TDlgCodes): LPARAM;
-
 //=== Replacements for JvJCLUtils.pas (subset) ===============================
 
 function RectWidth(R: TRect): Integer;
@@ -105,7 +102,6 @@ function DrawThemedFrameControl(DC: HDC; const Rect: TRect;
 //=== Replacements for JvResources.pas (subset) ==============================
 
 resourcestring
-  RsEInspectorInternalError = 'Internal error: two data instances pointing to the same data are registered';
   RsEJvInspItemHasParent = 'Item already assigned to another parent';
   RsJvInspItemUnInitialized = '(uninitialized)';
   RsJvInspItemNoValue = '(no value)';
@@ -113,8 +109,6 @@ resourcestring
   RsJvInspItemValueException = 'Exception ';
   RsEJvInspDataNoAccessAs = 'Data cannot be accessed as %s';
   RsEJvInspDataNotInit = 'Data not initialized';
-  RsEJvInspDataNotAssigned = 'Data not assigned';
-  RsEJvInspDataNoValue = 'Data has no value';
   RsEJvInspNoGenReg = 'Unable to create generic item registration list';
 
 implementation

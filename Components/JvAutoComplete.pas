@@ -41,7 +41,6 @@ type
     Do not register this component it is more a "TObject" than a TComponent. }
   TJvControlAutoComplete = class(TComponent)
   private
-    FFilter: string;
     FOnDropDown: TNotifyEvent;
   protected
     function GetText: TCaption; virtual; abstract;
@@ -53,7 +52,6 @@ type
     function GetItemAt(Index: Integer): string; virtual; abstract;
 
     function GetActive: Boolean; virtual;
-    procedure SetFilter(const Value: string);
 
     procedure DoDropDown; dynamic;
   public
@@ -119,11 +117,6 @@ begin
   Result := True;
 end;
 
-procedure TJvControlAutoComplete.SetFilter(const Value: string);
-begin
-  FFilter := Value;
-end;
-
 procedure TJvControlAutoComplete.DoDropDown;
 begin
   if Assigned(FOnDropDown) then
@@ -135,6 +128,7 @@ var
   StartPos, EndPos: Integer;
   SaveText, OldText: TCaption;
   LastByte: Integer;
+  Filter: string;
 
   function HasSelectedText(var StartPos, EndPos: Integer): Boolean;
   begin
@@ -178,7 +172,7 @@ begin
   if not Active then
     Exit;
 
-  FFilter := GetText;
+  Filter := GetText;
 
   case Key of
     Esc {VK_ESCAPE}:
@@ -198,13 +192,6 @@ begin
           SetItemIndex(-1);
           SetText(OldText + Copy(SaveText, EndPos + 1, MaxInt));
           SetEditSel(LastByte - 1, LastByte - 1);
-          FFilter := GetText;
-        end
-        else
-        begin
-          while ByteType(FFilter, Length(FFilter)) = mbTrailByte do
-            Delete(FFilter, Length(FFilter), 1);
-          Delete(FFilter, Length(FFilter), 1);
         end;
         Key := #0;
       end;
@@ -212,9 +199,9 @@ begin
     DoDropDown;
 
     if HasSelectedText(StartPos, EndPos) then
-      SaveText := Copy(FFilter, 1, StartPos) + Key
+      SaveText := Copy(Filter, 1, StartPos) + Key
     else
-      SaveText := FFilter + Key;
+      SaveText := Filter + Key;
 
     if SelectItem(SaveText) then
       Key := #0;
@@ -241,21 +228,13 @@ procedure TJvBaseEditListAutoComplete.Notification(AComponent: TComponent;
   Operation: TOperation);
 begin
   if (Operation = opRemove) and (AComponent = FEditCtrl) then
-  begin
     FEditCtrl := nil;
-    SetFilter('');
-  end;
   inherited Notification(AComponent, Operation);
 end;
 
 procedure TJvBaseEditListAutoComplete.SetEditCtrl(Value: TCustomEdit);
 begin
   ReplaceComponentReference(Self, Value, TComponent(FEditCtrl));
-
-  if FEditCtrl <> nil then
-    SetFilter(FEditCtrl.Text)
-  else
-    SetFilter('');
 end;
 
 type
