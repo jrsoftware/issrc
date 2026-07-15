@@ -82,7 +82,6 @@ type
     FItemHeight: Integer;
     FLockCount: Integer;
     FNeedRebuild: Boolean;
-    FSortNotificationList: TList;
     FPainter: TJvInspectorPainter;
     FPaintGen: Integer;
     FReadOnly: Boolean;
@@ -129,10 +128,8 @@ type
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
-    procedure NotifySort(const Item: TJvCustomInspectorItem); virtual;
     procedure Paint; override;
     procedure RebuildVisible; virtual;
-    procedure RemoveNotifySort(const Item: TJvCustomInspectorItem); virtual;
     procedure RemoveVisible(const Item: TJvCustomInspectorItem); virtual;
     procedure BoundsChanged; override;
     function ScrollFactorV: Extended; virtual;
@@ -156,7 +153,6 @@ type
     property ImageHeight: Integer read GetImageHeight;
     property LockCount: Integer read GetLockCount;
     property NeedRebuild: Boolean read FNeedRebuild write FNeedRebuild;
-    property SortNotificationList: TList read FSortNotificationList;
     property Painter: TJvInspectorPainter read GetPainter;
     property PaintGeneration: Integer read FPaintGen;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly;
@@ -337,7 +333,6 @@ type
   TJvCustomInspectorItem = class(TPersistent)
   private
     FData: TJvCustomInspectorData;
-    FDisplayIndex: Integer;
     FDisplayName: string;
     FDroppedDown: Boolean;
     FEditCtrlDestroying: Boolean;
@@ -358,8 +353,6 @@ type
     FUpdateEditCtrl: Integer; // Used to prevent EditCtrl destruction while in Apply().
   protected
     procedure Apply; virtual;
-    procedure ApplyDisplayIndices(const ItemList: TList); virtual;
-    procedure BuildDisplayableList(const ItemList: TList); virtual;
     function CanEdit: Boolean; virtual;
     procedure CloseUp(Accept: Boolean); virtual;
     procedure Deactivate; dynamic;
@@ -380,9 +373,7 @@ type
     function GetCategory: TJvCustomInspectorItem; virtual;
     function GetCount: Integer; virtual;
     function GetData: TJvCustomInspectorData; virtual;
-    function GetDisplayIndex: Integer; virtual;
     function GetDisplayName: string; virtual;
-    function GetDisplayParent: TJvCustomInspectorItem; virtual;
     function GetDisplayValue: string; virtual;
     function GetDroppedDown: Boolean; virtual;
     function GetEditCtrl: TCustomEdit; virtual;
@@ -401,11 +392,9 @@ type
     function GetParent: TJvCustomInspectorItem; virtual;
     function GetReadOnly: Boolean; virtual;
     function GetRects(const RectKind: TInspectorPaintRect): TRect; virtual;
-    function GetSortName: string; virtual;
     procedure GetValueList(const Strings: TStrings); virtual;
     procedure InvalidateItem; virtual;
     procedure InvalidateList; virtual;
-    procedure InvalidateSort; virtual;
     procedure InvalidateMetaData; virtual;
     function IsCategory: Boolean; virtual;
     procedure ListExit(Sender: TObject); virtual;
@@ -415,9 +404,7 @@ type
       X, Y: Integer); virtual;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); virtual;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); virtual;
-    procedure NaturalSort;
     procedure SelectValue(const Delta: Integer); virtual;
-    procedure SetDisplayIndexValue(const Value: Integer); virtual;
     procedure SetDisplayName(Value: string); virtual;
     procedure SetDisplayValue(const Value: string); virtual;
     procedure SetEditCtrl(const Value: TCustomEdit); virtual;
@@ -463,7 +450,6 @@ type
     procedure ScrollInView;
     property Count: Integer read GetCount;
     property Data: TJvCustomInspectorData read GetData;
-    property DisplayIndex: Integer read GetDisplayIndex;
     property DisplayName: string read GetDisplayName write SetDisplayName;
     property DisplayValue: string read GetDisplayValue write SetDisplayValue;
     property Editing: Boolean read GetEditing;
@@ -874,7 +860,6 @@ constructor TJvCustomInspector.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  FSortNotificationList := TList.Create;
   FItemHeight := 18;
   DoubleBuffered := True;
   FVisibleList := TStringList.Create;
@@ -1320,15 +1305,6 @@ begin
   end;
 end;
 
-procedure TJvCustomInspector.NotifySort(const Item: TJvCustomInspectorItem);
-begin
-  if LockCount = 0 then
-    Item.NaturalSort
-  else
-  if (Item <> nil) and (SortNotificationList.IndexOf(Item) = -1) then
-    SortNotificationList.Add(Item);
-end;
-
 procedure TJvCustomInspector.Paint;
 var
   PaintRect: TRect;
@@ -1351,11 +1327,6 @@ begin
   end;
 end;
 
-function ListCompare(List: TStringList; Index1, Index2: Integer): Integer;
-begin
-  Result := AnsiCompareText(List[Index1], List[Index2]);
-end;
-
 procedure TJvCustomInspector.RebuildVisible;
 var
   OldSel: TJvCustomInspectorItem;
@@ -1368,10 +1339,12 @@ begin
   Item := Root;
   ItemStack := TStack.Create;
   try
+    // Only Root is hidden, so this depth-first walk already emits rows in their
+    // final display order; the list keeps empty keys and is not re-sorted
     while Item <> nil do
     begin
       if not Item.Hidden then
-        FVisibleList.AddObject(Item.GetSortName, Item);
+        FVisibleList.AddObject('', Item);
       if Item.Expanded and (Item.Count > 0) then
       begin
         ItemStack.Push(Item);
@@ -1390,16 +1363,10 @@ begin
   finally
     ItemStack.Free;
   end;
-  FVisibleList.CustomSort(ListCompare);
   if OldSel <> nil then
     SelectedIndex := FVisibleList.IndexOfObject(OldSel);
   CalcImageHeight;
   NeedRebuild := False;
-end;
-
-procedure TJvCustomInspector.RemoveNotifySort(const Item: TJvCustomInspectorItem);
-begin
-  SortNotificationList.Remove(Item);
 end;
 
 procedure TJvCustomInspector.RemoveVisible(const Item: TJvCustomInspectorItem);
@@ -1625,7 +1592,6 @@ begin
   inherited BeforeDestruction;
   GlobalInspReg.UnRegInspector(Self);
   FRoot.Free;
-  FSortNotificationList.Free;
   FVisibleList.Free;
 end;
 
@@ -1636,32 +1602,16 @@ begin
 end;
 
 function TJvCustomInspector.EndUpdate: Integer;
-var
-  I: Integer;
 begin
   if LockCount > 0 then
     Dec(FLockCount);
   Result := LockCount;
   if Result = 0 then
   begin
-    I := 0;
-    FLockCount := -1; // Keep InvalidateSort from calling InvalidateList
-    try
-      while I < SortNotificationList.Count do
-      begin
-        TJvCustomInspectorItem(SortNotificationList[I]).InvalidateSort;
-        Inc(I);
-      end;
-    finally
-      FLockCount := 0;
-      if SortNotificationList.Count > 0 then
-        NeedRebuild := True;
-      if NeedRebuild then
-        InvalidateList
-      else
-        InvalidateItem;
-      SortNotificationList.Clear;
-    end;
+    if NeedRebuild then
+      InvalidateList
+    else
+      InvalidateItem;
   end;
 end;
 
@@ -2521,7 +2471,6 @@ begin
   FData := nil;
   FItems := TObjectList.Create(True);
   Flags := [];
-  FDisplayIndex := -1;
   if AData <> nil then
     FDisplayName := AData.Name;
   if AParent <> nil then
@@ -2578,43 +2527,6 @@ begin
       EditCtrl.Modified := False;
       EditCtrl.ClearUndo;
     end;
-  end;
-end;
-
-procedure TJvCustomInspectorItem.ApplyDisplayIndices(const ItemList: TList);
-var
-  I: Integer;
-begin
-  for I := ItemList.Count - 1 downto 0 do
-    TJvCustomInspectorItem(ItemList[I]).SetDisplayIndexValue(I);
-end;
-
-procedure TJvCustomInspectorItem.BuildDisplayableList(const ItemList: TList);
-var
-  TempList: TList;
-  I: Integer;
-  Item: TJvCustomInspectorItem;
-begin
-  TempList := TList.Create;
-  try
-    if ItemList.Capacity < 64 then
-      ItemList.Capacity := 64; // Avoid small growth steps
-    I := 0;
-    while I < Count do
-    begin
-      Item := Items[I];
-      if not Item.Hidden then
-        ItemList.Add(Item)
-      else
-      begin
-        Item.BuildDisplayableList(TempList);
-        ItemList.Assign(TempList, laOr);
-        TempList.Clear;
-      end;
-      Inc(I);
-    end;
-  finally
-    TempList.Free;
   end;
 end;
 
@@ -2979,23 +2891,9 @@ begin
   Result := FData;
 end;
 
-function TJvCustomInspectorItem.GetDisplayIndex: Integer;
-begin
-  Result := FDisplayIndex;
-end;
-
 function TJvCustomInspectorItem.GetDisplayName: string;
 begin
   Result := FDisplayName;
-end;
-
-function TJvCustomInspectorItem.GetDisplayParent: TJvCustomInspectorItem;
-begin
-  Result := Parent;
-  while (Result <> nil) and Result.Hidden do
-    Result := Result.Parent;
-  if Result = nil then
-    Result := Inspector.Root;
 end;
 
 function TJvCustomInspectorItem.GetDisplayValue: string;
@@ -3110,16 +3008,6 @@ begin
     Result := Rect(0, 0, 0, 0);
 end;
 
-function TJvCustomInspectorItem.GetSortName: string;
-var
-  DisplayParent: TJvCustomInspectorItem;
-begin
-  Result := Format('%.7d', [DisplayIndex]);
-  DisplayParent := GetDisplayParent;
-  if (DisplayParent <> nil) and (DisplayParent <> Inspector.Root) then
-    Result := DisplayParent.GetSortName + #31 + Result;
-end;
-
 procedure TJvCustomInspectorItem.GetValueList(const Strings: TStrings);
 begin
   DoGetValueList(Strings);
@@ -3135,18 +3023,6 @@ procedure TJvCustomInspectorItem.InvalidateList;
 begin
   if Inspector <> nil then
     Inspector.InvalidateList;
-end;
-
-procedure TJvCustomInspectorItem.InvalidateSort;
-begin
-  if Inspector.LockCount > 0 then
-    Inspector.NotifySort(Self)
-  else
-  begin
-    NaturalSort;
-    if Inspector.LockCount = 0 then // LockCount will be -1 if called from EndUpdate
-      InvalidateList;
-  end;
 end;
 
 procedure TJvCustomInspectorItem.InvalidateMetaData;
@@ -3223,19 +3099,6 @@ begin
   StopTracking;
 end;
 
-procedure TJvCustomInspectorItem.NaturalSort;
-var
-  ItemList: TList;
-begin
-  ItemList := TList.Create;
-  try
-    BuildDisplayableList(ItemList);
-    ApplyDisplayIndices(ItemList);
-  finally
-    ItemList.Free;
-  end;
-end;
-
 procedure TJvCustomInspectorItem.SelectValue(const Delta: Integer);
 var
   SL: TStrings;
@@ -3258,11 +3121,6 @@ begin
   finally
     SL.Free;
   end;
-end;
-
-procedure TJvCustomInspectorItem.SetDisplayIndexValue(const Value: Integer);
-begin
-  FDisplayIndex := Value;
 end;
 
 procedure TJvCustomInspectorItem.SetDisplayName(Value: string);
@@ -3445,10 +3303,7 @@ begin
   if (Inspector <> nil) and (Inspector.Root <> Self) then
     DoneEdit(True);
   if Inspector <> nil then
-  begin
-    Inspector.RemoveNotifySort(Self);
     Inspector.RemoveVisible(Self);
-  end;
   FItems.Free;
   if Data <> nil then
     FData.RemoveItem(Self);
@@ -3467,21 +3322,15 @@ begin
 end;
 
 procedure TJvCustomInspectorItem.Delete(const Index: Integer);
-var
-  Disp: TJvCustomInspectorItem;
 begin
-  Disp := Items[Index].GetDisplayParent;
   if Inspector.Selected = Items[Index] then
   begin
-    Inspector.SetSelected(Disp);
+    Inspector.SetSelected(Self);
     if Inspector.Selected = Items[Index] then
       Inspector.SelectedIndex := -1;
   end;
   FItems.Delete(Index);
-  if Disp <> nil then
-    Disp.InvalidateSort
-  else
-    InvalidateSort;
+  InvalidateList;
 end;
 
 procedure TJvCustomInspectorItem.DrawEditor(const ACanvas: TCanvas);
@@ -3760,16 +3609,10 @@ begin
 end;
 
 procedure TJvCustomInspectorItem.Insert(const Index: Integer; const Item: TJvCustomInspectorItem);
-var
-  Disp: TJvCustomInspectorItem;
 begin
   Item.SetParent(Self);
   FItems.Insert(Index, Item);
-  Disp := Item.GetDisplayParent;
-  if Disp <> nil then
-    Disp.InvalidateSort
-  else
-    InvalidateSort;
+  InvalidateList;
 end;
 
 procedure TJvCustomInspectorItem.ScrollInView;
