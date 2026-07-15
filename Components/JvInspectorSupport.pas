@@ -67,7 +67,6 @@ function DrawThemedFrameControl(DC: HDC; const Rect: TRect;
 //=== Replacements for JvResources.pas (subset) ==============================
 
 resourcestring
-  RsEJvInspItemHasParent = 'Item already assigned to another parent';
   RsJvInspItemUnInitialized = '(uninitialized)';
   RsJvInspItemValueException = 'Exception ';
   RsEJvInspDataNoAccessAs = 'Data cannot be accessed as %s';

@@ -46,8 +46,7 @@ type
   TJvInspectorCustomCategoryItem = class;
   TJvInspectorEventData = class;
 
-  TInspectorItemFlag = (iifReadonly, iifHidden, iifExpanded,
-    iifValueList);
+  TInspectorItemFlag = (iifReadonly, iifExpanded, iifValueList);
   TInspectorItemFlags = set of TInspectorItemFlag;
 
   TInspectorPaintRect = (iprItem, iprButtonArea, iprBtnSrcRect, iprBtnDstRect,
@@ -59,7 +58,6 @@ type
   TInspectorBeforeEditEvent = procedure(Sender: TObject; Item: TJvCustomInspectorItem; Edit: TCustomEdit) of object;
 
   EJvInspector = class(EJVCLException);
-  EJvInspectorItem = class(EJvInspector);
   EJvInspectorData = class(EJvInspector);
 
   TOnJvInspectorSetItemColors = procedure(Item: TJvCustomInspectorItem; Canvas: TCanvas) of object;
@@ -258,7 +256,6 @@ type
     procedure Edit_WndProc(var Msg: TMessage); virtual;
     procedure AutoCompleteStart(Sender: TObject); dynamic;
     function GetBaseCategory: TJvCustomInspectorItem; virtual;
-    function GetCategory: TJvCustomInspectorItem; virtual;
     function GetCount: Integer; virtual;
     function GetData: TJvInspectorEventData; virtual;
     function GetDisplayName: string; virtual;
@@ -270,13 +267,11 @@ type
     function GetExpanded: Boolean; virtual;
     function GetFlags: TInspectorItemFlags; virtual;
     function GetHeight: Integer; virtual;
-    function GetHidden: Boolean; virtual;
     function GetInspector: TJvInspector; virtual;
     function GetInspectorPaintGeneration: Integer;
     function GetItems(const I: Integer): TJvCustomInspectorItem; virtual;
     function GetLevel: Integer; virtual;
     function GetListBox: TCustomListBox; virtual;
-    function GetNextSibling: TJvCustomInspectorItem; virtual;
     function GetParent: TJvCustomInspectorItem; virtual;
     function GetReadOnly: Boolean; virtual;
     function GetRects(const RectKind: TInspectorPaintRect): TRect; virtual;
@@ -300,15 +295,12 @@ type
     procedure SetExpanded(Value: Boolean); virtual;
     procedure SetFlags(const Value: TInspectorItemFlags); virtual;
     procedure SetFocus; virtual;
-    procedure SetInspector(const AInspector: TJvInspector); virtual;
-    procedure SetParent(const Value: TJvCustomInspectorItem); virtual;
     procedure SetRects(const RectKind: TInspectorPaintRect; Value: TRect); virtual;
     procedure StopTracking; dynamic;
     procedure TrackButton(X, Y: Integer); dynamic;
     procedure Undo; virtual;
     procedure UpdateLastPaintGeneration;
     property BaseCategory: TJvCustomInspectorItem read GetBaseCategory;
-    property Category: TJvCustomInspectorItem read GetCategory;
     property DroppedDown: Boolean read GetDroppedDown;
     property EditCtrlDestroying: Boolean read GetEditCtrlDestroying;
     property EditCtrl: TCustomEdit read GetEditCtrl;
@@ -320,20 +312,17 @@ type
   public
     constructor Create(const AParent: TJvCustomInspectorItem; const AData: TJvInspectorEventData); virtual;
     destructor Destroy; override;
-    function Add(const Item: TJvCustomInspectorItem): Integer;
+    procedure Add(const Item: TJvCustomInspectorItem);
     procedure BeforeDestruction; override;
     procedure Clear;
-    procedure Delete(const Index: Integer); overload; virtual;
+    procedure Delete(const Index: Integer); virtual;
     procedure DrawEditor(const ACanvas: TCanvas); virtual;
     procedure DrawName(const ACanvas: TCanvas); virtual;
     procedure DrawValue(const ACanvas: TCanvas); virtual;
     function EditFocused: Boolean; dynamic;
     procedure ExpandItems(AExpand: Boolean);
-    function HasViewableItems: Boolean; virtual;
-    function IndexOf(const Item: TJvCustomInspectorItem): Integer; overload; virtual;
     procedure InitEdit; dynamic;
     procedure DoneEdit(const CancelEdits: Boolean = False); dynamic;
-    procedure Insert(const Index: Integer; const Item: TJvCustomInspectorItem);
     procedure ScrollInView;
     property Count: Integer read GetCount;
     property Data: TJvInspectorEventData read GetData;
@@ -342,7 +331,6 @@ type
     property Editing: Boolean read GetEditing;
     property Expanded: Boolean read GetExpanded write SetExpanded;
     property Flags: TInspectorItemFlags read GetFlags write SetFlags;
-    property Hidden: Boolean read GetHidden;
     property Height: Integer read GetHeight;
     property Inspector: TJvInspector read GetInspector;
     property Items[const I: Integer]: TJvCustomInspectorItem read GetItems; default;
@@ -646,8 +634,7 @@ begin
   DoubleBuffered := True;
   FVisibleList := TStringList.Create;
   FRoot := TJvCustomInspectorItem.Create(nil, nil);
-  Root.SetInspector(Self);
-  Root.Flags := [iifHidden, iifExpanded, iifReadonly];
+  FRoot.FInspector := Self;
   FSelectedIndex := -1;
   BevelKind := bkTile;
   BevelInner := bvNone;
@@ -887,7 +874,7 @@ begin
           end;
         end;
       VK_ADD:
-        if Item.HasViewableItems and not Item.Expanded then
+        if (Item.Count > 0) and not Item.Expanded then
           Item.Expanded := True;
       VK_SUBTRACT:
         if Item.Expanded then
@@ -904,13 +891,13 @@ begin
     IgnoreKey := True;
     case Key of
       VK_RIGHT:
-        if Item.HasViewableItems and not Item.Expanded then
+        if (Item.Count > 0) and not Item.Expanded then
           Item.Expanded := True;
       VK_LEFT:
         if Item.Expanded then
           Item.Expanded := False;
       VK_RETURN:
-        if Item.HasViewableItems and not Item.Expanded then
+        if (Item.Count > 0) and not Item.Expanded then
           Item.Expanded := True
         else
         if Item.Expanded then
@@ -980,8 +967,7 @@ begin
   if Button in [mbLeft, mbRight] then
   begin
     if (Item <> nil) and
-      ((Item.HasViewableItems and not (iifExpanded in Item.Flags)) or
-      (iifExpanded in Item.Flags)) then
+      ((Item.Count > 0) or (iifExpanded in Item.Flags)) then
     begin
       if PtInRect(Item.Rects[iprBtnDstRect], Point(X, Y)) or
         ((ssDouble in Shift) and (Item.IsCategory or (XB < Pred(Divider)))) then
@@ -1092,39 +1078,26 @@ end;
 procedure TJvInspector.RebuildVisible;
 var
   OldSel: TJvCustomInspectorItem;
-  Item: TJvCustomInspectorItem;
-  ItemStack: TStack;
+
+  procedure AddChildren(const Item: TJvCustomInspectorItem);
+  var
+    I: Integer;
+    Child: TJvCustomInspectorItem;
+  begin
+    for I := 0 to Item.Count - 1 do
+    begin
+      Child := Item.Items[I];
+      FVisibleList.AddObject('', Child);
+      if Child.Expanded then
+        AddChildren(Child);
+    end;
+  end;
+
 begin
   FImageHeight := 0;
   OldSel := Selected;
   FVisibleList.Clear;
-  Item := Root;
-  ItemStack := TStack.Create;
-  try
-    // Only Root is hidden, so this depth-first walk already emits rows in their
-    // final display order; the list keeps empty keys and is not re-sorted
-    while Item <> nil do
-    begin
-      if not Item.Hidden then
-        FVisibleList.AddObject('', Item);
-      if Item.Expanded and (Item.Count > 0) then
-      begin
-        ItemStack.Push(Item);
-        Item := Item.Items[0];
-      end
-      else
-      begin
-        Item := Item.GetNextSibling;
-        while (Item = nil) and (ItemStack.Count > 0) do
-        begin
-          Item := TJvCustomInspectorItem(ItemStack.Pop);
-          Item := Item.GetNextSibling;
-        end;
-      end;
-    end;
-  finally
-    ItemStack.Free;
-  end;
+  AddChildren(Root);
   if OldSel <> nil then
     SelectedIndex := FVisibleList.IndexOfObject(OldSel);
   CalcImageHeight;
@@ -1503,7 +1476,7 @@ begin
     end;
   end
   else
-  if FPaintItem.IsCategory and (FPaintItem.Level = 0) then
+  if FPaintItem.IsCategory then
     Canvas.Brush.Color := FCategoryColor
   else
     Canvas.Brush.Color := FBackgroundColor;
@@ -1632,7 +1605,7 @@ begin
     if FPaintItem.Expanded then
       FButtonImage := GetCollapseImage
     else
-    if FPaintItem.HasViewableItems then
+    if FPaintItem.Count > 0 then
       FButtonImage := GetExpandImage
     else
       FButtonImage := nil;
@@ -1826,7 +1799,7 @@ var
 begin
   SaveIdx := SaveCanvasState(Canvas);
 
-  // Determine item type (end of list, end of a level 0 category)
+  // Determine item type (end of list, end of a category)
   EndOfList := Succ(FPaintItemIndex) >= VisibleCount;
   if not EndOfList then
   begin
@@ -1863,10 +1836,9 @@ begin
     PaintDivider(Rects[iprItem].Left + Divider, Pred(Rects[iprItem].Top),
       Rects[iprItem].Bottom);
 
-  if (FPaintItem.IsCategory) and (FPaintItem.Level = 0) then
+  if FPaintItem.IsCategory then
     Canvas.Brush.Color := FCategoryColor;
-  if (FPaintItem = Selected) and
-    ((FPaintItem.Level > 0) or  not (FPaintItem.IsCategory)) then
+  if (FPaintItem = Selected) and not FPaintItem.IsCategory then
   begin
     if Focused then
       Canvas.Brush.Color := FSelectedColor
@@ -1890,8 +1862,7 @@ begin
     Canvas.CopyRect(Rects[iprBtnDstRect], FButtonImage.Canvas, Rects[iprBtnSrcRect]);
 
   SaveIdx := SaveCanvasState(Canvas);
-  if EndOfCat or ((FPaintItem.IsCategory) and
-    (FPaintItem.Level = 0)) then
+  if EndOfCat or FPaintItem.IsCategory then
     Canvas.Pen.Color := FCategoryDividerColor
   else
     Canvas.Pen.Color := FDividerColor;
@@ -2328,27 +2299,14 @@ end;
 
 function TJvCustomInspectorItem.GetBaseCategory: TJvCustomInspectorItem;
 begin
-  if IsCategory and (Level = 0) then
+  if IsCategory then
     Result := Self
   else
   begin
-    Result := Category;
-    while (Result <> nil) and (Result.Level > 0) do
-      Result := Result.Category;
+    Result := Parent;
+    while (Result <> nil) and not Result.IsCategory do
+      Result := Result.Parent;
   end;
-end;
-
-function TJvCustomInspectorItem.GetCategory: TJvCustomInspectorItem;
-var
-  ParItem: TJvCustomInspectorItem;
-begin
-  ParItem := Parent;
-  while (ParItem <> nil) and not ParItem.IsCategory do
-    ParItem := ParItem.Parent;
-  if (ParItem <> nil) and ParItem.IsCategory then
-    Result := ParItem
-  else
-    Result := nil;
 end;
 
 function TJvCustomInspectorItem.GetCount: Integer;
@@ -2406,11 +2364,6 @@ begin
   Result := Inspector.ItemHeight;
 end;
 
-function TJvCustomInspectorItem.GetHidden: Boolean;
-begin
-  Result := iifHidden in Flags;
-end;
-
 function TJvCustomInspectorItem.GetInspector: TJvInspector;
 begin
   Result := FInspector;
@@ -2430,12 +2383,11 @@ function TJvCustomInspectorItem.GetLevel: Integer;
 var
   Item: TJvCustomInspectorItem;
 begin
-  Item := Self;
   Result := -1;
+  Item := Parent;
   while Item <> nil do
   begin
-    if not (iifHidden in Item.Flags) then
-      Inc(Result);
+    Inc(Result);
     Item := Item.Parent;
   end;
 end;
@@ -2443,21 +2395,6 @@ end;
 function TJvCustomInspectorItem.GetListBox: TCustomListBox;
 begin
   Result := FListBox;
-end;
-
-function TJvCustomInspectorItem.GetNextSibling: TJvCustomInspectorItem;
-var
-  I: Integer;
-begin
-  Result := Parent;
-  if Result <> nil then
-  begin
-    I := Succ(Result.IndexOf(Self));
-    if (I = 0) or (I >= Result.Count) then
-      Result := nil
-    else
-      Result := Result.Items[I];
-  end;
 end;
 
 function TJvCustomInspectorItem.GetParent: TJvCustomInspectorItem;
@@ -2667,8 +2604,8 @@ begin
   begin
     OldFlags := Flags;
     FFlags := NewFlags;
-    OldFlags := OldFlags * [iifExpanded, iifHidden];
-    NewFlags := NewFlags * [iifExpanded, iifHidden];
+    OldFlags := OldFlags * [iifExpanded];
+    NewFlags := NewFlags * [iifExpanded];
     if NewFlags <> OldFlags then
       InvalidateList
     else
@@ -2682,21 +2619,6 @@ begin
     EditCtrl.SetFocus
   else
     Inspector.SetFocus;
-end;
-
-procedure TJvCustomInspectorItem.SetInspector(const AInspector: TJvInspector);
-begin
-  if Parent = nil then
-    FInspector := AInspector;
-end;
-
-procedure TJvCustomInspectorItem.SetParent(const Value: TJvCustomInspectorItem);
-begin
-  if Parent <> Value then
-    if Parent = nil then
-      FParent := Value
-    else
-      raise EJvInspectorItem.CreateRes(@RsEJvInspItemHasParent);
 end;
 
 procedure TJvCustomInspectorItem.SetRects(const RectKind: TInspectorPaintRect;
@@ -2757,10 +2679,11 @@ begin
   FLastPaintGen := GetInspectorPaintGeneration;
 end;
 
-function TJvCustomInspectorItem.Add(const Item: TJvCustomInspectorItem): Integer;
+procedure TJvCustomInspectorItem.Add(const Item: TJvCustomInspectorItem);
 begin
-  Result := Count;
-  Insert(Result, Item);
+  Item.FParent := Self;
+  FItems.Add(Item);
+  InvalidateList;
 end;
 
 procedure TJvCustomInspectorItem.BeforeDestruction;
@@ -2791,12 +2714,6 @@ end;
 
 procedure TJvCustomInspectorItem.Delete(const Index: Integer);
 begin
-  if Inspector.Selected = Items[Index] then
-  begin
-    Inspector.SetSelected(Self);
-    if Inspector.Selected = Items[Index] then
-      Inspector.SelectedIndex := -1;
-  end;
   FItems.Delete(Index);
   InvalidateList;
 end;
@@ -2888,32 +2805,11 @@ var
   i: Integer;
 begin
   for i := 0 to Count - 1 do
-    if Items[i].HasViewableItems then
+    if Items[i].Count > 0 then
     begin
       Items[i].Expanded := AExpand;
       Items[i].ExpandItems(AExpand);
     end;
-end;
-
-function TJvCustomInspectorItem.HasViewableItems: Boolean;
-var
-  I: Integer;
-begin
-  Result := False;
-  I := 0;
-  while (I < Count) and not Result do
-  begin
-    Result := not (iifHidden in Items[I].Flags) or
-      ((iifExpanded in Items[I].Flags) and Items[I].HasViewableItems);
-    Inc(I);
-  end;
-end;
-
-function TJvCustomInspectorItem.IndexOf(const Item: TJvCustomInspectorItem): Integer;
-begin
-  Result := Pred(Count);
-  while (Result > -1) and (Items[Result] <> Item) do
-    Dec(Result);
 end;
 
 //=== { TJvInspectorListBox } ================================================
@@ -3109,17 +3005,9 @@ begin
   FEditing := False;
 end;
 
-procedure TJvCustomInspectorItem.Insert(const Index: Integer; const Item: TJvCustomInspectorItem);
-begin
-  Item.SetParent(Self);
-  FItems.Insert(Index, Item);
-  InvalidateList;
-end;
-
 procedure TJvCustomInspectorItem.ScrollInView;
 var
   ViewIdx: Integer;
-  Item: TJvCustomInspectorItem;
   YDelta: Integer;
 begin
   if not Assigned(Inspector) then
@@ -3128,34 +3016,20 @@ begin
     Exit; // bugfix attempt. WAP.Self
 
   ViewIdx := Inspector.VisibleIndex(Self);
-  if ViewIdx < 0 then
+  if Inspector.TopIndex > ViewIdx then
+    Inspector.TopIndex := ViewIdx
+  else
+  if (Inspector.IdxToY(ViewIdx) - Inspector.IdxToY(Inspector.TopIndex) + Height) > Inspector.ClientHeight then
   begin
-    { Find visible parent }
-    Item := Parent;
-    while (Item <> nil) and (ViewIdx < 0) do
+    YDelta := (Inspector.IdxToY(ViewIdx) + Height - Inspector.ClientHeight - Inspector.IdxToY(Inspector.TopIndex));
+    ViewIdx := Inspector.TopIndex;
+    while (YDelta > 0) and (ViewIdx < Inspector.VisibleCount) do
     begin
-      ViewIdx := Inspector.VisibleIndex(Item);
-      if ViewIdx < 0 then
-        Item := Item.Parent;
+      Dec(YDelta, Inspector.VisibleItems[ViewIdx].Height);
+      Inc(ViewIdx);
     end;
-  end;
-  if ViewIdx > -1 then
-  begin
-    if Inspector.TopIndex > ViewIdx then
-      Inspector.TopIndex := ViewIdx
-    else
-    if (Inspector.IdxToY(ViewIdx) - Inspector.IdxToY(Inspector.TopIndex) + Height) > Inspector.ClientHeight then
-    begin
-      YDelta := (Inspector.IdxToY(ViewIdx) + Height - Inspector.ClientHeight - Inspector.IdxToY(Inspector.TopIndex));
-      ViewIdx := Inspector.TopIndex;
-      while (YDelta > 0) and (ViewIdx < Inspector.VisibleCount) do
-      begin
-        Dec(YDelta, Inspector.VisibleItems[ViewIdx].Height);
-        Inc(ViewIdx);
-      end;
-      if ViewIdx < Inspector.VisibleCount then
-        Inspector.TopIndex := ViewIdx;
-    end;
+    if ViewIdx < Inspector.VisibleCount then
+      Inspector.TopIndex := ViewIdx;
   end;
 end;
 
