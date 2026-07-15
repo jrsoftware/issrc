@@ -42,7 +42,6 @@ uses
 type
   // early declarations
   TJvCustomInspector = class;
-  TJvInspectorPainter = class;
   TJvCustomInspectorItem = class;
   TJvInspectorCustomCategoryItem = class;
   TJvInspectorEventData = class;
@@ -73,7 +72,28 @@ type
     FItemHeight: Integer;
     FLockCount: Integer;
     FNeedRebuild: Boolean;
-    FPainter: TJvInspectorPainter;
+    FBackgroundColor: TColor;
+    FButtonImage: TBitmap;
+    FCategoryColor: TColor;
+    FCategoryDividerColor: TColor;
+    FCategoryTextColor: TColor;
+    FDividerColor: TColor;
+    FHideSelectColor: TColor;
+    FHideSelectTextColor: TColor;
+    FInternalButtonBackgroundColor: TColor;
+    FInternalButtonPenColor: TColor;
+    FInternalButtonSize: Integer;
+    FInternalCollapseButton: TBitmap;
+    FInternalExpandButton: TBitmap;
+    FNameColor: TColor;
+    FOnSetItemColors: TOnJvInspectorSetItemColors;
+    FPaintItem: TJvCustomInspectorItem;
+    FPaintItemIndex: Integer;
+    FPaintRect: TRect;
+    FRealButtonAreaWidth: Integer;
+    FSelectedColor: TColor;
+    FSelectedTextColor: TColor;
+    FValueColor: TColor;
     FPaintGen: Integer;
     FReadOnly: Boolean;
     FRoot: TJvCustomInspectorItem;
@@ -90,6 +110,26 @@ type
     // otherwise invisible. This could be used to ill effect, so beware.
     FBeforeEdit: TInspectorBeforeEditEvent;
     FMouseWheelRecursion: Boolean;
+    procedure ApplyNameFont;
+    procedure ApplyValueFont;
+    procedure CalcButtonBasedRects;
+    procedure CalcEditBasedRects;
+    procedure CalcNameBasedRects;
+    procedure CalcValueBasedRects;
+    procedure DoPaintItem;
+    function GetCollapseImage: TBitmap;
+    function GetExpandImage: TBitmap;
+    function GetItemRects(const Index: TInspectorPaintRect): TRect;
+    procedure HideEditor;
+    procedure PaintDivider(const X, YTop, YBottom: Integer);
+    procedure PaintItem(var ARect: TRect; const AItemIndex: Integer);
+    procedure PaintItems;
+    procedure PrepareInternalImages;
+    procedure SetItemRects(const Index: TInspectorPaintRect; const ARect: TRect);
+    procedure SetupItem;
+    procedure SetupRects;
+    procedure TeardownItem;
+    property Rects[const Index: TInspectorPaintRect]: TRect read GetItemRects write SetItemRects;
   protected
     function CalcImageHeight: Integer; virtual;
     function CalcItemIndex(X, Y: Integer; var Rect: TRect): Integer; virtual;
@@ -101,7 +141,6 @@ type
     function GetItemHeight: Integer; virtual;
     function GetLastFullVisible: Integer; virtual;
     function GetLockCount: Integer; virtual;
-    function GetPainter: TJvInspectorPainter; virtual;
     function GetReadOnly: Boolean; virtual;
     function GetRoot: TJvCustomInspectorItem; virtual;
     function GetSelected: TJvCustomInspectorItem; virtual;
@@ -118,7 +157,6 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
     procedure Paint; override;
     procedure RebuildVisible; virtual;
     procedure RemoveVisible(const Item: TJvCustomInspectorItem); virtual;
@@ -144,7 +182,6 @@ type
     property ImageHeight: Integer read GetImageHeight;
     property LockCount: Integer read GetLockCount;
     property NeedRebuild: Boolean read FNeedRebuild write FNeedRebuild;
-    property Painter: TJvInspectorPainter read GetPainter;
     property PaintGeneration: Integer read FPaintGen;
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly;
     property Root: TJvCustomInspectorItem read GetRoot;
@@ -167,13 +204,24 @@ type
     function VisibleIndex(const AItem: TJvCustomInspectorItem): Integer; virtual;
     procedure RefreshValues;
     procedure Clear;
+    property BackgroundColor: TColor read FBackgroundColor write FBackgroundColor;
+    property CategoryColor: TColor read FCategoryColor write FCategoryColor;
+    property CategoryDividerColor: TColor read FCategoryDividerColor write FCategoryDividerColor;
+    property CategoryTextColor: TColor read FCategoryTextColor write FCategoryTextColor;
+    property DividerColor: TColor read FDividerColor write FDividerColor;
+    property HideSelectColor: TColor read FHideSelectColor write FHideSelectColor;
+    property HideSelectTextColor: TColor read FHideSelectTextColor write FHideSelectTextColor;
+    property NameColor: TColor read FNameColor write FNameColor;
+    property SelectedColor: TColor read FSelectedColor write FSelectedColor;
+    property SelectedTextColor: TColor read FSelectedTextColor write FSelectedTextColor;
+    property ValueColor: TColor read FValueColor write FValueColor;
+    property OnSetItemColors: TOnJvInspectorSetItemColors read FOnSetItemColors write FOnSetItemColors;
   end;
 
   TJvInspector = class(TJvCustomInspector)
   public
     property BevelKind;
     property Divider;
-    property Painter;
     property ReadOnly;
     property Root;
     property Selected;
@@ -184,141 +232,6 @@ type
 
     // Redirected editor event
     property OnEditorKeyDown;
-  end;
-
-  TJvInspectorPainter = class(TJvComponent)
-  private
-    FBackgroundColor: TColor;
-    FButtonImage: TBitmap;
-    FCanvas: TCanvas;
-    FCategoryColor: TColor;
-    FCategoryDividerColor: TColor;
-    FDividerColor: TColor;
-    FInitializing: Boolean;
-    FInspector: TJvCustomInspector;
-    FInternalButtonBackgroundColor: TColor;
-    FInternalButtonPenColor: TColor;
-    FInternalButtonSize: Integer;
-    FInternalCollapseButton: TBitmap;
-    FInternalExpandButton: TBitmap;
-    FItem: TJvCustomInspectorItem;
-    FItemIndex: Integer;
-    FPaintRect: TRect;
-    FSelectedColor: TColor;
-    FCategoryTextColor: TColor;
-    FValueColor: TColor;
-    FNameColor: TColor;
-    FSelectedTextColor: TColor;
-  protected
-    procedure ApplyNameFont; virtual;
-    procedure ApplyValueFont; virtual;
-    procedure CalcButtonBasedRects; virtual;
-    procedure CalcEditBasedRects; virtual;
-    procedure CalcNameBasedRects; virtual;
-    procedure CalcValueBasedRects; virtual;
-    function DividerWidth: Integer; virtual;
-    procedure DoPaint; virtual;
-    function GetBackgroundColor: TColor; virtual;
-    function GetCategoryColor: TColor; virtual;
-    function GetCategoryDividerColor: TColor; virtual;
-    function GetCategoryTextColor: TColor; virtual;
-    function GetHideSelectTextColor: TColor; virtual;
-    function GetNameColor: TColor; virtual;
-    function GetSelectedTextColor: TColor; virtual;
-    function GetValueColor: TColor; virtual;
-    function GetCollapseImage: TBitmap; virtual;
-    function GetDividerColor: TColor; virtual;
-    function GetExpandImage: TBitmap; virtual;
-    function GetHideSelectColor: TColor; virtual;
-    function GetRects(const Index: TInspectorPaintRect): TRect; virtual;
-    function GetSelectedColor: TColor; virtual;
-    procedure HideEditor; virtual;
-    procedure InitializeColors; virtual;
-    procedure Paint; virtual;
-    procedure PaintDivider(const X, YTop, YBottom: Integer); virtual;
-    procedure PaintItem(var ARect: TRect; const AItemIndex: Integer); virtual;
-    procedure PrepareInternalImages; virtual;
-    procedure SetBackgroundColor(const Value: TColor); virtual;
-    procedure SetCategoryColor(const Value: TColor); virtual;
-    procedure SetCategoryDividerColor(const Value: TColor); virtual;
-    procedure SetCategoryTextColor(const Value: TColor); virtual;
-    procedure SetDividerColor(const Value: TColor); virtual;
-    procedure SetHideSelectColor(const Value: TColor); virtual;
-    procedure SetHideSelectTextColor(const Value: TColor); virtual;
-    procedure SetNameColor(const Value: TColor); virtual;
-    procedure SetRects(const Index: TInspectorPaintRect; const ARect: TRect); virtual;
-    procedure SetSelectedColor(const Value: TColor); virtual;
-    procedure SetSelectedTextColor(const Value: TColor); virtual;
-    procedure Setup(const ACanvas: TCanvas); virtual;
-    procedure SetupItem; virtual;
-    procedure SetupRects; virtual;
-    procedure SetValueColor(const Value: TColor); virtual;
-    procedure TeardownItem; virtual;
-    property ButtonImage: TBitmap read FButtonImage write FButtonImage;
-    property Canvas: TCanvas read FCanvas write FCanvas;
-    property Initializing: Boolean read FInitializing write FInitializing;
-    property Inspector: TJvCustomInspector read FInspector;
-    property Item: TJvCustomInspectorItem read FItem write FItem;
-    property ItemIndex: Integer read FItemIndex write FItemIndex;
-    property PaintRect: TRect read FPaintRect write FPaintRect;
-    property Rects[const Index: TInspectorPaintRect]: TRect read GetRects write SetRects;
-  public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
-    procedure SetInspector(const AInspector: TJvCustomInspector); virtual;
-    property HideSelectColor: TColor read GetHideSelectColor write SetHideSelectColor;
-    property HideSelectTextColor: TColor read GetHideSelectTextColor write SetHideSelectTextColor;
-    property SelectedColor: TColor read GetSelectedColor write SetSelectedColor;
-    property SelectedTextColor: TColor read GetSelectedTextColor write SetSelectedTextColor;
-  published
-    property BackgroundColor: TColor read GetBackgroundColor write SetBackgroundColor;
-    property CategoryColor: TColor read GetCategoryColor write SetCategoryColor;
-    property CategoryDividerColor: TColor read GetCategoryDividerColor write SetCategoryDividerColor;
-    property CategoryTextColor: TColor read GetCategoryTextColor write SetCategoryTextColor;
-    property DividerColor: TColor read GetDividerColor write SetDividerColor;
-    property NameColor: TColor read GetNameColor write SetNameColor;
-    property ValueColor: TColor read GetValueColor write SetValueColor;
-  end;
-
-  TJvInspectorBorlandNETBasePainter = class(TJvInspectorPainter)
-  private
-    FRealButtonAreaWidth: Integer;
-  protected
-    procedure ApplyNameFont; override;
-    procedure CalcButtonBasedRects; override;
-    procedure CalcEditBasedRects; override;
-    procedure CalcNameBasedRects; override;
-    procedure CalcValueBasedRects; override;
-    procedure SetupRects; override;
-    procedure InitializeColors; override;
-    property RealButtonAreaWidth: Integer read FRealButtonAreaWidth write FRealButtonAreaWidth;
-  published
-    property BackgroundColor default clWindow;
-    property CategoryColor default clBtnFace;
-  end;
-
-  TJvInspectorDotNETPainter = class(TJvInspectorBorlandNETBasePainter)
-  private
-    FHideSelectColor: TColor;
-    FHideSelectTextColor: TColor;
-    FOnSetItemColors: TOnJvInspectorSetItemColors;
-  protected
-    procedure ApplyNameFont; override;
-    function GetHideSelectColor: TColor; override;
-    function GetHideSelectTextColor: TColor; override;
-    procedure DoPaint; override;
-    procedure InitializeColors; override;
-    procedure PaintDivider(const X, YTop, YBottom: Integer); override;
-    procedure SetHideSelectColor(const Value: TColor); override;
-    procedure SetHideSelectTextColor(const Value: TColor); override;
-  published
-    property CategoryDividerColor default clBtnShadow;
-    property DividerColor default clBtnFace;
-    property HideSelectColor default clBtnFace;
-    property HideSelectTextColor;
-    property SelectedColor default clHighlight;
-    property SelectedTextColor;
-    property OnSetItemColors: TOnJvInspectorSetItemColors read FOnSetItemColors write FOnSetItemColors;
   end;
 
   TJvCustomInspectorItem = class(TPersistent)
@@ -525,7 +438,7 @@ const
   cJvInspectorOrdinal = 'Ordinal';
   cJvInspectorString = 'string';
 
-// Canvas State functions used by TJvInspectorPainter & its descendents
+// Canvas State functions used while painting the inspector
 function SaveCanvasState(const Canvas: TCanvas): Integer;
 procedure ApplyCanvasState(const Canvas: TCanvas; const SavedIdx: Integer);
 procedure RestoreCanvasState(const Canvas: TCanvas; const SavedIdx: Integer);
@@ -670,23 +583,6 @@ begin
   CanvasStack.Pop(Canvas, SavedIdx);
 end;
 
-procedure SetDefaultProp(const Instance: TObject; const PropName: string); overload;
-var
-  Prop: PPropInfo;
-begin
-  Prop := GetPropInfo(Instance, PropName);
-  if (Prop <> nil) and (Prop.Default <> Low(Integer)) then
-    SetOrdProp(Instance, Prop, Prop.Default);
-end;
-
-procedure SetDefaultProp(const Instance: TObject; const PropNames: array of string); overload;
-var
-  I: Integer;
-begin
-  for I := Low(PropNames) to High(PropNames) do
-    SetDefaultProp(Instance, PropNames[I]);
-end;
-
 //=== { TInspReg } ===========================================================
 
 type
@@ -777,8 +673,19 @@ begin
   Height := 100;
   Divider := 75;
 
-  FPainter := TJvInspectorDotNETPainter.Create(Self);
-  FPainter.SetInspector(Self);
+  FInternalCollapseButton := TBitmap.Create;
+  FInternalExpandButton := TBitmap.Create;
+  FBackgroundColor := clWindow;
+  FCategoryColor := clBtnFace;
+  FCategoryDividerColor := clBtnShadow;
+  FCategoryTextColor := clBtnText;
+  FDividerColor := clBtnFace;
+  FNameColor := clWindowText;
+  FValueColor := clWindowText;
+  FSelectedColor := clHighlight;
+  FSelectedTextColor := clHighlightText;
+  FHideSelectColor := clBtnFace;
+  FHideSelectTextColor := clHighlightText;
 
   GlobalInspReg.RegInspector(Self);
 end;
@@ -867,11 +774,6 @@ end;
 function TJvCustomInspector.GetRoot: TJvCustomInspectorItem;
 begin
   Result := FRoot;
-end;
-
-function TJvCustomInspector.GetPainter: TJvInspectorPainter;
-begin
-  Result := FPainter;
 end;
 
 function TJvCustomInspector.GetReadOnly: Boolean;
@@ -1194,39 +1096,13 @@ begin
     Selected.StopTracking;
 end;
 
-procedure TJvCustomInspector.Notification(AComponent: TComponent; Operation: TOperation);
-begin
-  // Mantis 3424: Required for the application not to hang under BDS2006
-  // (and maybe 2005). Does not have any impact under D7 and lower.
-  inherited Notification(AComponent, Operation);
-
-  if (Operation = opRemove) then
-  begin
-    if (AComponent = Painter) then
-      FPainter := nil;
-  end;
-end;
-
 procedure TJvCustomInspector.Paint;
-var
-  PaintRect: TRect;
 begin
-  PaintRect := ClientRect;
-
-
-  if Painter <> nil then
-  begin
-    if NeedRebuild then
-      InvalidateList;
-    IncPaintGeneration;
-    Painter.Setup(Canvas);
-    Painter.Paint;
-  end
-  else
-  begin
-    Canvas.Brush.Color := Color;
-    Canvas.FillRect(PaintRect);
-  end;
+  if NeedRebuild then
+    InvalidateList;
+  IncPaintGeneration;
+  Canvas.Brush.Color := FBackgroundColor;
+  PaintItems;
 end;
 
 procedure TJvCustomInspector.RebuildVisible;
@@ -1495,6 +1371,8 @@ begin
   GlobalInspReg.UnRegInspector(Self);
   FRoot.Free;
   FVisibleList.Free;
+  FInternalCollapseButton.Free;
+  FInternalExpandButton.Free;
 end;
 
 function TJvCustomInspector.BeginUpdate: Integer;
@@ -1590,91 +1468,60 @@ begin
   ShowScrollBar(Handle, Bar, Visible);
 end;
 
-//=== { TJvInspectorPainter } ================================================
+//=== { TJvCustomInspector painting } ========================================
 
-constructor TJvInspectorPainter.Create(AOwner: TComponent);
+function TJvCustomInspector.GetItemRects(const Index: TInspectorPaintRect): TRect;
 begin
-  inherited Create(AOwner);
-  FInspector := nil;
-  FInternalCollapseButton := TBitmap.Create;
-  FInternalExpandButton := TBitmap.Create;
-
-  Initializing := True;
-  try
-    InitializeColors;
-  finally
-    Initializing := False;
-  end;
-end;
-
-destructor TJvInspectorPainter.Destroy;
-begin
-  FInternalCollapseButton.Free;
-  FInternalExpandButton.Free;
-  inherited Destroy;
-end;
-
-procedure TJvInspectorPainter.ApplyNameFont;
-begin
-  Canvas.Font := Inspector.Font;
-  if Assigned(Item) and Item.IsCategory then
-    Canvas.Font.Color := CategoryTextColor
+  if FPaintItem <> nil then
+    Result := FPaintItem.Rects[Index]
   else
-    Canvas.Font.Color := NameColor;
+    Result := Rect(0, 0, 0, 0);
 end;
 
-procedure TJvInspectorPainter.ApplyValueFont;
+procedure TJvCustomInspector.SetItemRects(const Index: TInspectorPaintRect;
+  const ARect: TRect);
 begin
-  Canvas.Font := Inspector.Font;
-  Canvas.Font.Color := ValueColor;
+  if FPaintItem <> nil then
+    FPaintItem.Rects[Index] := ARect;
 end;
 
-procedure TJvInspectorPainter.CalcButtonBasedRects;
+procedure TJvCustomInspector.ApplyNameFont;
 begin
+  Canvas.Font := Font;
+  if Assigned(FPaintItem) and FPaintItem.IsCategory then
+  begin
+    Canvas.Font.Color := FCategoryTextColor;
+    Canvas.Font.Style := Canvas.Font.Style + [fsBold];
+  end
+  else
+    Canvas.Font.Color := FNameColor;
+  if FPaintItem = Selected then
+  begin
+    if Focused then
+    begin
+      Canvas.Brush.Color := FSelectedColor;
+      Canvas.Font.Color := FSelectedTextColor;
+    end
+    else
+    begin
+      Canvas.Brush.Color := FHideSelectColor;
+      Canvas.Font.Color := FHideSelectTextColor;
+    end;
+  end
+  else
+  if FPaintItem.IsCategory and (FPaintItem.Level = 0) then
+    Canvas.Brush.Color := FCategoryColor
+  else
+    Canvas.Brush.Color := FBackgroundColor;
 end;
 
-procedure TJvInspectorPainter.CalcEditBasedRects;
+procedure TJvCustomInspector.ApplyValueFont;
 begin
+  Canvas.Font := Font;
+  Canvas.Font.Color := FValueColor;
 end;
 
-procedure TJvInspectorPainter.CalcNameBasedRects;
-begin
-end;
-
-procedure TJvInspectorPainter.CalcValueBasedRects;
-begin
-end;
-
-function TJvInspectorPainter.DividerWidth: Integer;
-begin
-  Result := 1;
-end;
-
-procedure TJvInspectorPainter.DoPaint;
-begin
-end;
-
-function TJvInspectorPainter.GetBackgroundColor: TColor;
-begin
-  Result := FBackgroundColor;
-end;
-
-function TJvInspectorPainter.GetCategoryColor: TColor;
-begin
-  Result := FCategoryColor;
-end;
-
-function TJvInspectorPainter.GetCategoryDividerColor: TColor;
-begin
-  Result := FCategoryDividerColor;
-end;
-
-function TJvInspectorPainter.GetCategoryTextColor: TColor;
-begin
-  Result := FCategoryTextColor;
-end;
-
-procedure TJvInspectorPainter.PrepareInternalImages;
+procedure TJvCustomInspector.PrepareInternalImages;
 var
   Size: Integer;
 
@@ -1686,8 +1533,8 @@ var
     Margin := MulDiv(2, Size, 9);
     Mid := Size div 2;
     Image.SetSize(Size, Size);
-    Image.Canvas.Brush.Color := BackgroundColor;
-    Image.Canvas.Pen.Color := NameColor;
+    Image.Canvas.Brush.Color := FBackgroundColor;
+    Image.Canvas.Pen.Color := FNameColor;
     Image.Canvas.Rectangle(0, 0, Size, Size);
     Image.Canvas.MoveTo(Margin, Mid);
     Image.Canvas.LineTo(Size - Margin, Mid);
@@ -1700,88 +1547,40 @@ var
 
 begin
   // Renders the built-in expand/collapse buttons at the inspector's current
-  // dpi using the painter's colors, keeping the last
+  // dpi using the inspector's colors, keeping the last
   // rendering until the size or the colors change
-  Size := MulDiv(9, Inspector.CurrentPPI, 96);
+  Size := MulDiv(9, CurrentPPI, 96);
   if not Odd(Size) then
     Dec(Size);
   if (Size = FInternalButtonSize) and
-    (BackgroundColor = FInternalButtonBackgroundColor) and
-    (NameColor = FInternalButtonPenColor) then
+    (FBackgroundColor = FInternalButtonBackgroundColor) and
+    (FNameColor = FInternalButtonPenColor) then
     Exit;
   FInternalButtonSize := Size;
-  FInternalButtonBackgroundColor := BackgroundColor;
-  FInternalButtonPenColor := NameColor;
+  FInternalButtonBackgroundColor := FBackgroundColor;
+  FInternalButtonPenColor := FNameColor;
   PrepareImage(FInternalCollapseButton, False);
   PrepareImage(FInternalExpandButton, True);
 end;
 
-function TJvInspectorPainter.GetCollapseImage: TBitmap;
+function TJvCustomInspector.GetCollapseImage: TBitmap;
 begin
   PrepareInternalImages;
   Result := FInternalCollapseButton;
 end;
 
-function TJvInspectorPainter.GetDividerColor: TColor;
-begin
-  Result := FDividerColor;
-end;
-
-function TJvInspectorPainter.GetExpandImage: TBitmap;
+function TJvCustomInspector.GetExpandImage: TBitmap;
 begin
   PrepareInternalImages;
   Result := FInternalExpandButton;
 end;
 
-function TJvInspectorPainter.GetHideSelectColor: TColor;
+procedure TJvCustomInspector.HideEditor;
 begin
-  Result := SelectedColor;
+  Selected.Rects[iprEditValue] := Rect(0, 0, 0, 0);
 end;
 
-function TJvInspectorPainter.GetHideSelectTextColor: TColor;
-begin
-  Result := SelectedTextColor;
-end;
-
-function TJvInspectorPainter.GetNameColor: TColor;
-begin
-  Result := FNameColor;
-end;
-
-function TJvInspectorPainter.GetRects(const Index: TInspectorPaintRect): TRect;
-begin
-  if Item <> nil then
-    Result := Item.Rects[Index]
-  else
-    Result := Rect(0, 0, 0, 0);
-end;
-
-function TJvInspectorPainter.GetSelectedColor: TColor;
-begin
-  Result := FSelectedColor;
-end;
-
-function TJvInspectorPainter.GetSelectedTextColor: TColor;
-begin
-  Result := FSelectedTextColor;
-end;
-
-function TJvInspectorPainter.GetValueColor: TColor;
-begin
-  Result := FValueColor;
-end;
-
-procedure TJvInspectorPainter.HideEditor;
-begin
-  Inspector.Selected.Rects[iprEditValue] := Rect(0, 0, 0, 0);
-end;
-
-procedure TJvInspectorPainter.InitializeColors;
-begin
-  SetDefaultProp(Self, ['BackgroundColor', 'DividerColor', 'CategoryColor', 'SelectedColor']);
-end;
-
-procedure TJvInspectorPainter.Paint;
+procedure TJvCustomInspector.PaintItems;
 var
   SelItemVisible: Boolean;
   Rect: TRect;
@@ -1789,225 +1588,119 @@ var
   MaxItemIdx: Integer;
 begin
   SelItemVisible := False;
-  Rect := Inspector.ViewRect;
+  Rect := ViewRect;
   Canvas.FillRect(Rect);
-  ItemIdx := Inspector.TopIndex;
-  MaxItemIdx := Inspector.VisibleCount;
+  ItemIdx := TopIndex;
+  MaxItemIdx := VisibleCount;
   // Loop through the visible list
   while (Rect.Top < Rect.Bottom) and (ItemIdx < MaxItemIdx) do
   begin
-    SelItemVisible := SelItemVisible or (ItemIdx = Inspector.SelectedIndex);
+    SelItemVisible := SelItemVisible or (ItemIdx = SelectedIndex);
     PaintItem(Rect, ItemIdx);
     Inc(ItemIdx);
   end;
-  if not SelItemVisible and (Inspector.Selected <> nil) then
+  if not SelItemVisible and (Selected <> nil) then
     HideEditor;
 end;
 
-procedure TJvInspectorPainter.PaintDivider(const X, YTop, YBottom: Integer);
-begin
-end;
-
-procedure TJvInspectorPainter.PaintItem(var ARect: TRect;
+procedure TJvCustomInspector.PaintItem(var ARect: TRect;
   const AItemIndex: Integer);
 var
   OrgState: Integer;
 begin
   OrgState := SaveCanvasState(Canvas);
   try
-    // Initialize painter variables
-    PaintRect := ARect;
-    ItemIndex := AItemIndex;
+    // Initialize paint variables
+    FPaintRect := ARect;
+    FPaintItemIndex := AItemIndex;
     SetupItem;
 
     // Do actual painting
-    DoPaint;
+    DoPaintItem;
 
     // Finalize painting
     TeardownItem;
-    ARect := PaintRect;
+    ARect := FPaintRect;
   finally
     RestoreCanvasState(Canvas, OrgState);
   end;
 end;
 
-procedure TJvInspectorPainter.SetBackgroundColor(const Value: TColor);
-begin
-  if Value <> BackgroundColor then
-  begin
-    FBackgroundColor := Value;
-    if not Initializing and Assigned(Inspector) then
-      Inspector.Invalidate;
-  end;
-end;
-
-procedure TJvInspectorPainter.SetCategoryColor(const Value: TColor);
-begin
-  if Value <> CategoryColor then
-  begin
-    FCategoryColor := Value;
-    if not Initializing and Assigned(Inspector) then
-      Inspector.Invalidate;
-  end;
-end;
-
-procedure TJvInspectorPainter.SetCategoryDividerColor(const Value: TColor);
-begin
-  if Value <> CategoryDividerColor then
-  begin
-    FCategoryDividerColor := Value;
-    if not Initializing and Assigned(Inspector) then
-      Inspector.Invalidate;
-  end;
-end;
-
-procedure TJvInspectorPainter.SetCategoryTextColor(const Value: TColor);
-begin
-  if Value <> CategoryTextColor then
-  begin
-    FCategoryTextColor := Value;
-    if not Initializing and Assigned(Inspector) then
-      Inspector.Invalidate;
-  end;
-end;
-
-procedure TJvInspectorPainter.SetDividerColor(const Value: TColor);
-begin
-  if DividerColor <> Value then
-  begin
-    FDividerColor := Value;
-    if not Initializing and Assigned(Inspector) then
-      Inspector.Invalidate;
-  end;
-end;
-
-procedure TJvInspectorPainter.SetHideSelectColor(const Value: TColor);
-begin
-end;
-
-procedure TJvInspectorPainter.SetHideSelectTextColor(const Value: TColor);
-begin
-end;
-
-procedure TJvInspectorPainter.SetNameColor(const Value: TColor);
-begin
-  if Value <> NameColor then
-  begin
-    FNameColor := Value;
-    if not Initializing and Assigned(Inspector) then
-      Inspector.Invalidate;
-  end;
-end;
-
-procedure TJvInspectorPainter.SetRects(const Index: TInspectorPaintRect;
-  const ARect: TRect);
-begin
-  if Item <> nil then
-    Item.Rects[Index] := ARect;
-end;
-
-procedure TJvInspectorPainter.SetSelectedColor(const Value: TColor);
-begin
-  if Value <> SelectedColor then
-  begin
-    FSelectedColor := Value;
-    if not Initializing and Assigned(Inspector) then
-      Inspector.Invalidate;
-  end;
-end;
-
-procedure TJvInspectorPainter.SetSelectedTextColor(const Value: TColor);
-begin
-  if Value <> SelectedTextColor then
-  begin
-    FSelectedTextColor := Value;
-    if not Initializing and Assigned(Inspector) then
-      Inspector.Invalidate;
-  end;
-end;
-
-procedure TJvInspectorPainter.Setup(const ACanvas: TCanvas);
-begin
-  Canvas := ACanvas;
-  Canvas.Brush.Color := BackgroundColor;
-end;
-
-procedure TJvInspectorPainter.SetupItem;
+procedure TJvCustomInspector.SetupItem;
 begin
   // retrieve item
-  if ItemIndex > -1 then
-    Item := Inspector.VisibleItems[ItemIndex];
+  if FPaintItemIndex > -1 then
+    FPaintItem := VisibleItems[FPaintItemIndex];
 
-  if Item <> nil then
+  if FPaintItem <> nil then
   begin
     // retrieve button image
-    if Item.Expanded then
-      ButtonImage := GetCollapseImage
+    if FPaintItem.Expanded then
+      FButtonImage := GetCollapseImage
     else
-    if Item.HasViewableItems then
-      ButtonImage := GetExpandImage
+    if FPaintItem.HasViewableItems then
+      FButtonImage := GetExpandImage
     else
-      ButtonImage := nil;
+      FButtonImage := nil;
   end
   else
-    ButtonImage := nil;
+    FButtonImage := nil;
 
   // calculate rectangles
-  if ItemIndex > -1 then
+  if FPaintItemIndex > -1 then
     SetupRects;
 end;
 
-procedure TJvInspectorPainter.SetupRects;
-begin
-  Rects[iprItem] := Rect(PaintRect.Left, PaintRect.Top,
-    PaintRect.Right, Pred(PaintRect.Top + Item.Height));
-end;
-
-procedure TJvInspectorPainter.SetValueColor(const Value: TColor);
-begin
-  if Value <> ValueColor then
-  begin
-    FValueColor := Value;
-    if not Initializing and Assigned(Inspector) then
-      Inspector.Invalidate;
-  end;
-end;
-
-procedure TJvInspectorPainter.TeardownItem;
+procedure TJvCustomInspector.SetupRects;
 var
+  ItemRect2: TRect;
   TmpRect: TRect;
 begin
-  TmpRect := PaintRect;
-  TmpRect.Top := Succ(Rects[iprItem].Bottom);
-  PaintRect := TmpRect;
-  Item := nil;
-  ItemIndex := -1;
+  Rects[iprItem] := Rect(FPaintRect.Left, FPaintRect.Top,
+    FPaintRect.Right, Pred(FPaintRect.Top + FPaintItem.Height));
+  ItemRect2 := Rects[iprItem];
+  TmpRect := Rect(ItemRect2.Left + (FPaintItem.Level * ItemHeight), ItemRect2.Top,
+    ItemRect2.Left + (Succ(FPaintItem.Level) * ItemHeight), ItemRect2.Bottom);
+  FRealButtonAreaWidth := RectWidth(TmpRect);
+  if not FPaintItem.IsCategory and (TmpRect.Left > Pred(Divider)) then
+  begin
+    TmpRect.Left := 0;
+    TmpRect.Right := 0;
+  end;
+  if not FPaintItem.IsCategory and (TmpRect.Right > Pred(Divider)) then
+    TmpRect.Right := Pred(Divider);
+  Rects[iprButtonArea] := TmpRect;
+  TmpRect := ItemRect2;
+  TmpRect.Left := ItemRect2.Left + (Succ(FPaintItem.Level) * ItemHeight);
+  Rects[iprNameArea] := TmpRect;
+  if FPaintItem.IsCategory then
+    Rects[iprValueArea] := Rect(0, 0, 0, 0)
+  else
+  begin
+    if TmpRect.Left > Pred(Divider) then
+      TmpRect := Rect(0, 0, 0, 0)
+    else
+      TmpRect.Right := ItemRect2.Left + Pred(Divider);
+    Rects[iprNameArea] := TmpRect;
+    TmpRect := ItemRect2;
+    TmpRect.Left := ItemRect2.Left + Divider + 1;
+    Rects[iprValueArea] := TmpRect;
+  end;
+  CalcButtonBasedRects;
+  CalcNameBasedRects;
+  CalcValueBasedRects;
 end;
 
-procedure TJvInspectorPainter.SetInspector(const AInspector: TJvCustomInspector);
-begin
-  FInspector := AInspector;
-end;
-
-//=== { TJvInspectorBorlandNETBasePainter } ==================================
-
-procedure TJvInspectorBorlandNETBasePainter.ApplyNameFont;
-begin
-  inherited ApplyNameFont;
-  if Assigned(Item) and Item.IsCategory then
-    Canvas.Font.Style := Canvas.Font.Style + [fsBold];
-end;
-
-procedure TJvInspectorBorlandNETBasePainter.CalcButtonBasedRects;
+procedure TJvCustomInspector.CalcButtonBasedRects;
 var
   BtnSrcRect: TRect;
   BtnDstRect: TRect;
   Y: Integer;
 begin
-  if (ButtonImage <> nil) and (RectWidth(Rects[iprButtonArea]) > 0) then
+  if (FButtonImage <> nil) and (RectWidth(Rects[iprButtonArea]) > 0) then
   begin
-    BtnSrcRect := Rect(0, 0, ButtonImage.Width, ButtonImage.Height);
-    BtnDstRect := Rect(0, 0, RealButtonAreaWidth, RectHeight(Rects[iprButtonArea]));
+    BtnSrcRect := Rect(0, 0, FButtonImage.Width, FButtonImage.Height);
+    BtnDstRect := Rect(0, 0, FRealButtonAreaWidth, RectHeight(Rects[iprButtonArea]));
     if BtnSrcRect.Right > BtnDstRect.Right then
     begin
       BtnSrcRect.Left := (BtnDstRect.Right - BtnSrcRect.Right) div 2;
@@ -2025,10 +1718,10 @@ begin
     end;
     if BtnDstRect.Bottom > RectHeight(BtnSrcRect) then
     begin
-      if (RectHeight(BtnDstRect) div Inspector.ItemHeight) < 2 then
+      if (RectHeight(BtnDstRect) div ItemHeight) < 2 then
         Y := (RectHeight(BtnDstRect) - RectHeight(BtnSrcRect)) div 2
       else
-        Y := (Inspector.ItemHeight - RectHeight(BtnSrcRect)) div 2;
+        Y := (ItemHeight - RectHeight(BtnSrcRect)) div 2;
       BtnDstRect.Top := Y;
       BtnDstRect.Bottom := BtnDstRect.Top + RectHeight(BtnSrcRect);
     end;
@@ -2044,27 +1737,7 @@ begin
   Rects[iprBtnDstRect] := BtnDstRect;
 end;
 
-procedure TJvInspectorBorlandNETBasePainter.CalcEditBasedRects;
-var
-  TmpRect: TRect;
-begin
-  if not (iifValueList in Item.Flags) then
-  begin // Value takes up entire edit value rect, there is no edit button:
-    Rects[iprEditValue] := Rects[iprValue];
-    Rects[iprEditButton] := Rect(0, 0, 0, 0);
-  end
-  else
-  begin // The edit button is on the right of the edit value area:
-    TmpRect := Rects[iprValue];
-    Dec(TmpRect.Right, Inspector.ItemHeight);
-    Rects[iprEditValue] := TmpRect;
-    TmpRect := Rects[iprValueArea];
-    TmpRect.Left := TmpRect.Right - Inspector.ItemHeight;
-    Rects[iprEditButton] := TmpRect;
-  end;
-end;
-
-procedure TJvInspectorBorlandNETBasePainter.CalcNameBasedRects;
+procedure TJvCustomInspector.CalcNameBasedRects;
 var
   CanvasState: Integer;
   RowHeight: Integer;
@@ -2075,7 +1748,7 @@ begin
     ApplyNameFont;
     RowHeight := CanvasMaxTextHeight(Canvas);
     TmpRect := Rects[iprNameArea];
-    if Item.Level = 0 then
+    if FPaintItem.Level = 0 then
       Inc(TmpRect.Left, 2);
     if RectHeight(TmpRect) div RowHeight < 2 then
       OffsetRect(TmpRect, 0, (RectHeight(TmpRect) - RowHeight) div 2)
@@ -2087,11 +1760,11 @@ begin
     IntersectRect(TmpRect, TmpRect, Rects[iprNameArea]);
     Rects[iprName] := TmpRect;
   finally
-    RestoreCanvasState(Inspector.Canvas, CanvasState);
+    RestoreCanvasState(Canvas, CanvasState);
   end;
 end;
 
-procedure TJvInspectorBorlandNETBasePainter.CalcValueBasedRects;
+procedure TJvCustomInspector.CalcValueBasedRects;
 var
   CanvasState: Integer;
   RowHeight: Integer;
@@ -2115,95 +1788,39 @@ begin
     end;
     Rects[iprValue] := TmpRect;
   finally
-    RestoreCanvasState(Inspector.Canvas, CanvasState);
+    RestoreCanvasState(Canvas, CanvasState);
   end;
   CalcEditBasedRects;
 end;
 
-procedure TJvInspectorBorlandNETBasePainter.InitializeColors;
-begin
-  inherited InitializeColors;
-
-  CategoryTextColor := clBtnText;
-  NameColor := clWindowText;
-  ValueColor := clWindowText;
-end;
-
-procedure TJvInspectorBorlandNETBasePainter.SetupRects;
+procedure TJvCustomInspector.CalcEditBasedRects;
 var
-  ItemRect2: TRect;
   TmpRect: TRect;
 begin
-  inherited SetupRects;
-  ItemRect2 := Rects[iprItem];
-  TmpRect := Rect(ItemRect2.Left + (Item.Level * Inspector.ItemHeight), ItemRect2.Top,
-    ItemRect2.Left + (Succ(Item.Level) * Inspector.ItemHeight), ItemRect2.Bottom);
-  RealButtonAreaWidth := RectWidth(TmpRect);
-  if not Item.IsCategory and (TmpRect.Left > Pred(Inspector.Divider)) then
-  begin
-    TmpRect.Left := 0;
-    TmpRect.Right := 0;
-  end;
-  if not Item.IsCategory and (TmpRect.Right > Pred(Inspector.Divider)) then
-    TmpRect.Right := Pred(Inspector.Divider);
-  Rects[iprButtonArea] := TmpRect;
-  TmpRect := ItemRect2;
-  TmpRect.Left := ItemRect2.Left + (Succ(Item.Level) * Inspector.ItemHeight);
-  Rects[iprNameArea] := TmpRect;
-  if Item.IsCategory then
-    Rects[iprValueArea] := Rect(0, 0, 0, 0)
-  else
-  begin
-    if TmpRect.Left > Pred(Inspector.Divider) then
-      TmpRect := Rect(0, 0, 0, 0)
-    else
-      TmpRect.Right := ItemRect2.Left + Pred(Inspector.Divider);
-    Rects[iprNameArea] := TmpRect;
-    TmpRect := ItemRect2;
-    TmpRect.Left := ItemRect2.Left + Inspector.Divider + DividerWidth;
-    Rects[iprValueArea] := TmpRect;
-  end;
-  CalcButtonBasedRects;
-  CalcNameBasedRects;
-  CalcValueBasedRects;
-end;
-
-//=== { TJvInspectorDotNETPainter } ==========================================
-
-procedure TJvInspectorDotNETPainter.ApplyNameFont;
-begin
-  inherited ApplyNameFont;
-  if Item = Inspector.Selected then
-  begin
-    if Inspector.Focused then
-    begin
-      Canvas.Brush.Color := SelectedColor;
-      Canvas.Font.Color := SelectedTextColor;
-    end
-    else
-    begin
-      Canvas.Brush.Color := HideSelectColor;
-      Canvas.Font.Color := HideSelectTextColor;
-    end;
+  if not (iifValueList in FPaintItem.Flags) then
+  begin // Value takes up entire edit value rect, there is no edit button:
+    Rects[iprEditValue] := Rects[iprValue];
+    Rects[iprEditButton] := Rect(0, 0, 0, 0);
   end
   else
-  if Item.IsCategory and (Item.Level = 0) then
-    Canvas.Brush.Color := CategoryColor
-  else
-    Canvas.Brush.Color := BackgroundColor;
+  begin // The edit button is on the right of the edit value area:
+    TmpRect := Rects[iprValue];
+    Dec(TmpRect.Right, ItemHeight);
+    Rects[iprEditValue] := TmpRect;
+    TmpRect := Rects[iprValueArea];
+    TmpRect.Left := TmpRect.Right - ItemHeight;
+    Rects[iprEditButton] := TmpRect;
+  end;
 end;
 
-function TJvInspectorDotNETPainter.GetHideSelectColor: TColor;
+procedure TJvCustomInspector.PaintDivider(const X, YTop, YBottom: Integer);
 begin
-  Result := FHideSelectColor;
+  Canvas.Pen.Color := FDividerColor;
+  Canvas.MoveTo(X, YTop);
+  Canvas.LineTo(X, YBottom);
 end;
 
-function TJvInspectorDotNETPainter.GetHideSelectTextColor: TColor;
-begin
-  Result := FHideSelectTextColor;
-end;
-
-procedure TJvInspectorDotNETPainter.DoPaint;
+procedure TJvCustomInspector.DoPaintItem;
 var
   EndOfList: Boolean;
   NextItem: TJvCustomInspectorItem;
@@ -2216,131 +1833,102 @@ begin
   SaveIdx := SaveCanvasState(Canvas);
 
   // Determine item type (end of list, end of a level 0 category)
-  EndOfList := Succ(ItemIndex) >= Inspector.VisibleCount;
+  EndOfList := Succ(FPaintItemIndex) >= VisibleCount;
   if not EndOfList then
   begin
-    NextItem := Inspector.VisibleItems[Succ(ItemIndex)];
-    EndOfCat := (NextItem.BaseCategory <> Item.BaseCategory) and
-      (Item.BaseCategory <> nil);
+    NextItem := VisibleItems[Succ(FPaintItemIndex)];
+    EndOfCat := (NextItem.BaseCategory <> FPaintItem.BaseCategory) and
+      (FPaintItem.BaseCategory <> nil);
   end
   else
-    EndOfCat := Item.BaseCategory <> nil;
+    EndOfCat := FPaintItem.BaseCategory <> nil;
 
   PreNameRect := Rects[iprItem];
-  PreNameRect.Left := PreNameRect.Left + (Item.Level * Inspector.ItemHeight) + RealButtonAreaWidth;
-  if PreNameRect.Left > Pred(Inspector.Divider) then
+  PreNameRect.Left := PreNameRect.Left + (FPaintItem.Level * ItemHeight) + FRealButtonAreaWidth;
+  if PreNameRect.Left > Pred(Divider) then
     PreNameRect := Rect(0, 0, 0, 0)
   else
   begin
-    PreNameRect.Right := PreNameRect.Left + RealButtonAreaWidth;
-    if PreNameRect.Right > Pred(Inspector.Divider) then
-      PreNameRect.Right := Pred(Inspector.Divider);
+    PreNameRect.Right := PreNameRect.Left + FRealButtonAreaWidth;
+    if PreNameRect.Right > Pred(Divider) then
+      PreNameRect.Right := Pred(Divider);
   end;
   Inc(PreNameRect.Right);
 
   CatRect := Rects[iprItem];
-  CatRect.Right := CatRect.Left + RealButtonAreaWidth;
+  CatRect.Right := CatRect.Left + FRealButtonAreaWidth;
   Inc(CatRect.Bottom);
-  if Item.BaseCategory <> nil then
+  if FPaintItem.BaseCategory <> nil then
   begin
-    Canvas.Brush.Color := CategoryColor;
+    Canvas.Brush.Color := FCategoryColor;
     Canvas.FillRect(CatRect);
     ApplyCanvasState(Canvas, SaveIdx);
   end;
 
-  if not (Item.IsCategory) then
-    PaintDivider(Rects[iprItem].Left + Inspector.Divider, Pred(Rects[iprItem].Top),
+  if not (FPaintItem.IsCategory) then
+    PaintDivider(Rects[iprItem].Left + Divider, Pred(Rects[iprItem].Top),
       Rects[iprItem].Bottom);
 
-  if (Item.IsCategory) and (Item.Level = 0) then
-    Canvas.Brush.Color := CategoryColor;
-  if (Item = Inspector.Selected) and
-    ((Item.Level > 0) or  not (Item.IsCategory)) then
+  if (FPaintItem.IsCategory) and (FPaintItem.Level = 0) then
+    Canvas.Brush.Color := FCategoryColor;
+  if (FPaintItem = Selected) and
+    ((FPaintItem.Level > 0) or  not (FPaintItem.IsCategory)) then
   begin
-    if Inspector.Focused then
-      Canvas.Brush.Color := SelectedColor
+    if Focused then
+      Canvas.Brush.Color := FSelectedColor
     else
-      Canvas.Brush.Color := HideSelectColor;
+      Canvas.Brush.Color := FHideSelectColor;
   end;
   Canvas.FillRect(PreNameRect);
   ApplyNameFont;
   Canvas.FillRect(Rects[iprNameArea]);
   if Assigned(FOnSetItemColors) then
-    FOnSetItemColors(Item, Canvas);
-  Item.DrawName(Canvas);
+    FOnSetItemColors(FPaintItem, Canvas);
+  FPaintItem.DrawName(Canvas);
   ApplyCanvasState(Canvas, SaveIdx);
   ApplyValueFont;
   if Assigned(FOnSetItemColors) then
-    FOnSetItemColors(Item, Canvas); // Custom colors for canvas and font for cells depending on values.
-  Item.DrawValue(Canvas);
+    FOnSetItemColors(FPaintItem, Canvas); // Custom colors for canvas and font for cells depending on values.
+  FPaintItem.DrawValue(Canvas);
   RestoreCanvasState(Canvas, SaveIdx);
 
-  if ButtonImage <> nil then
-    Canvas.CopyRect(Rects[iprBtnDstRect], ButtonImage.Canvas, Rects[iprBtnSrcRect]);
+  if FButtonImage <> nil then
+    Canvas.CopyRect(Rects[iprBtnDstRect], FButtonImage.Canvas, Rects[iprBtnSrcRect]);
 
   SaveIdx := SaveCanvasState(Canvas);
-  if EndOfCat or ((Item.IsCategory) and
-    (Item.Level = 0)) then
-    Canvas.Pen.Color := CategoryDividerColor
+  if EndOfCat or ((FPaintItem.IsCategory) and
+    (FPaintItem.Level = 0)) then
+    Canvas.Pen.Color := FCategoryDividerColor
   else
-    Canvas.Pen.Color := DividerColor;
+    Canvas.Pen.Color := FDividerColor;
   if not EndOfList and not EndOfCat then
-    LeftX := Rects[iprItem].Left + RealButtonAreaWidth
+    LeftX := Rects[iprItem].Left + FRealButtonAreaWidth
   else
     LeftX := Rects[iprItem].Left;
   Canvas.MoveTo(Rects[iprItem].Right, Rects[iprItem].Bottom);
   Canvas.LineTo(Pred(LeftX), Rects[iprItem].Bottom);
 
-  if Item <> Item.BaseCategory then
+  if FPaintItem <> FPaintItem.BaseCategory then
   begin
-    if Item.BaseCategory <> nil then
-      Canvas.Pen.Color := CategoryDividerColor
+    if FPaintItem.BaseCategory <> nil then
+      Canvas.Pen.Color := FCategoryDividerColor
     else
-      Canvas.Pen.Color := CategoryColor;
-    Canvas.MoveTo(Rects[iprItem].Left + RealButtonAreaWidth, Rects[iprItem].Top);
-    Canvas.LineTo(Rects[iprItem].Left + RealButtonAreaWidth, Succ(Rects[iprItem].Bottom));
+      Canvas.Pen.Color := FCategoryColor;
+    Canvas.MoveTo(Rects[iprItem].Left + FRealButtonAreaWidth, Rects[iprItem].Top);
+    Canvas.LineTo(Rects[iprItem].Left + FRealButtonAreaWidth, Succ(Rects[iprItem].Bottom));
   end;
   RestoreCanvasState(Canvas, SaveIdx);
 end;
 
-procedure TJvInspectorDotNETPainter.InitializeColors;
+procedure TJvCustomInspector.TeardownItem;
+var
+  TmpRect: TRect;
 begin
-  inherited InitializeColors;
-
-  SetDefaultProp(Self, ['HideSelectColor', 'CategoryDividerColor']);
-
-  HideSelectTextColor := clHighlightText;
-  SelectedTextColor := clHighlightText;
-end;
-
-procedure TJvInspectorDotNETPainter.PaintDivider(const X, YTop, YBottom: Integer);
-begin
-  with Canvas do
-  begin
-    Pen.Color := DividerColor;
-    MoveTo(X, YTop);
-    LineTo(X, YBottom);
-  end
-end;
-
-procedure TJvInspectorDotNETPainter.SetHideSelectColor(const Value: TColor);
-begin
-  if Value <> HideSelectColor then
-  begin
-    FHideSelectColor := Value;
-    if not Initializing and Assigned(Inspector) then
-      Inspector.Invalidate;
-  end;
-end;
-
-procedure TJvInspectorDotNETPainter.SetHideSelectTextColor(const Value: TColor);
-begin
-  if Value <> HideSelectTextColor then
-  begin
-    FHideSelectTextColor := Value;
-    if not Initializing and Assigned(Inspector) then
-      Inspector.Invalidate;
-  end;
+  TmpRect := FPaintRect;
+  TmpRect.Top := Succ(Rects[iprItem].Bottom);
+  FPaintRect := TmpRect;
+  FPaintItem := nil;
+  FPaintItemIndex := -1;
 end;
 
 //=== { TJvInspectorEdit } ===================================================
@@ -3276,12 +2864,7 @@ begin
   ARect := Rects[iprValue];
   SafeColor := ACanvas.Brush.Color;
   if Editing then
-  begin
-    if Inspector.Painter <> nil then
-      ACanvas.Brush.Color := Inspector.Painter.BackgroundColor
-    else
-      ACanvas.Brush.Color := clWindow;
-  end;
+    ACanvas.Brush.Color := Inspector.BackgroundColor;
   try
     if not Editing then
       ACanvas.TextRect(ARect, ARect.Left, ARect.Top, S)
@@ -3420,10 +3003,7 @@ begin
     Edit.OnExit := EditFocusLost;
     TJvInspectorEdit(Edit).OnKillFocus := EditKillFocus;
     SetEditCtrl(Edit);
-    if Inspector.Painter <> nil then
-      TCustomEditAccessProtected(EditCtrl).Color := Inspector.Painter.BackgroundColor
-    else
-      TCustomEditAccessProtected(EditCtrl).Color := clWindow;
+    TCustomEditAccessProtected(EditCtrl).Color := Inspector.BackgroundColor;
     FEditWndPrc := EditCtrl.WindowProc;
     EditCtrl.WindowProc := Edit_WndProc;
     TCustomEditAccessProtected(EditCtrl).AutoSize := False;
@@ -3444,8 +3024,7 @@ begin
     // the exact font it was painted with: any metric difference makes the
     // text visibly shift when editing starts or ends
     TCustomEditAccessProtected(EditCtrl).Font.Assign(Inspector.Font);
-    if Inspector.Painter <> nil then
-      TCustomEditAccessProtected(EditCtrl).Font.Color := Inspector.Painter.ValueColor;
+    TCustomEditAccessProtected(EditCtrl).Font.Color := Inspector.ValueColor;
     // BeforeEdit is fired here, after the editor's font has been assigned, so a
     // handler can still customize that font (moved down from just after the
     // editor was created, where any font change was overwritten just above)
@@ -3623,12 +3202,7 @@ begin
     Bool := False;
 
   if Editing and Data.IsInitialized then
-  begin
-    if Inspector.Painter <> nil then
-      ACanvas.Brush.Color := Inspector.Painter.BackgroundColor
-    else
-      ACanvas.Brush.Color := clWindow;
-  end;
+    ACanvas.Brush.Color := Inspector.BackgroundColor;
   ACanvas.FillRect(Rects[iprValueArea]);
   // The check box is drawn themed, scaled to the inspector's current dpi,
   // and centered in the row

@@ -9,8 +9,6 @@ unit IDE.Inspector;
   TJvInspector wrapper, attached to a TLiveScriptObjectFactory, following
   the caret, creating new live objects for it, showing them in the inspector,
   and forwarding edits from it to the factory.
-
-  The painter must be a TJvInspectorDotNETPainter.
 }
 
 interface
@@ -36,7 +34,6 @@ type
   TInspector = class
   private
     FJvInspector: TJvInspector;
-    FPainter: TJvInspectorDotNETPainter;
     FFactory: TLiveScriptObjectFactory;
     FLiveEntry: TLiveScriptEntry;
     FLiveDirectiveSection: TLiveScriptDirectiveSection;
@@ -133,8 +130,7 @@ begin
   FRowsByData := TDictionary<TJvInspectorEventData, Integer>.Create;
 
   FJvInspector := AJvInspector;
-  FPainter := FJvInspector.Painter as TJvInspectorDotNETPainter;
-  FPainter.OnSetItemColors := PainterSetItemColors;
+  FJvInspector.OnSetItemColors := PainterSetItemColors;
   FJvInspector.BeforeEdit := JvInspectorBeforeEdit;
   FJvInspector.OnKeyDown := JvInspectorKeyDown;
   FJvInspector.OnEditorKeyDown := JvInspectorKeyDown;
@@ -1003,17 +999,17 @@ end;
 
 procedure TInspector.UpdateTheme(const ATheme: TTheme);
 begin
-  FPainter.BackgroundColor := ATheme.Colors[tcBack];
-  FPainter.NameColor := ATheme.Colors[tcFore];
-  FPainter.ValueColor := ATheme.Colors[tcFore];
-  FPainter.CategoryColor := ATheme.Colors[tcToolBack];
-  FPainter.CategoryTextColor := ATheme.Colors[tcFore];
-  FPainter.DividerColor := ATheme.Colors[tcToolBack];
-  FPainter.CategoryDividerColor := FPainter.DividerColor;
-  FPainter.SelectedColor := ATheme.Colors[tcSelBack];
-  FPainter.SelectedTextColor := ATheme.Colors[tcFore];
-  FPainter.HideSelectColor := ATheme.Colors[tcToolBack];
-  FPainter.HideSelectTextColor := ATheme.Colors[tcFore];
+  FJvInspector.BackgroundColor := ATheme.Colors[tcBack];
+  FJvInspector.NameColor := ATheme.Colors[tcFore];
+  FJvInspector.ValueColor := ATheme.Colors[tcFore];
+  FJvInspector.CategoryColor := ATheme.Colors[tcToolBack];
+  FJvInspector.CategoryTextColor := ATheme.Colors[tcFore];
+  FJvInspector.DividerColor := ATheme.Colors[tcToolBack];
+  FJvInspector.CategoryDividerColor := FJvInspector.DividerColor;
+  FJvInspector.SelectedColor := ATheme.Colors[tcSelBack];
+  FJvInspector.SelectedTextColor := ATheme.Colors[tcFore];
+  FJvInspector.HideSelectColor := ATheme.Colors[tcToolBack];
+  FJvInspector.HideSelectTextColor := ATheme.Colors[tcFore];
 
   { Calling SetWindowTheme manually because our SetControlWindowTheme
     would remove all VCL styling, but we still need it to theme the
