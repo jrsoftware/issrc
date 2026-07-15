@@ -427,7 +427,6 @@ type
     property EditWndPrc: TWndMethod read FEditWndPrc;
     property LastPaintGeneration: Integer read FLastPaintGen;
     property ListBox: TCustomListBox read GetListBox;
-    //promoted: property OnGetValueList: TInspectorItemGetValueListEvent read FOnGetValueList write FOnGetValueList;
     property Pressed: Boolean read FPressed write FPressed;
     property Tracking: Boolean read FTracking write FTracking;
   public
@@ -2789,16 +2788,6 @@ procedure TJvCustomInspectorItem.Edit_WndProc(var Msg: TMessage);
 var
   ExecInherited: Boolean;
   PostToInsp: Boolean;
-  // Key: Word;
-
-  function LeftRightCanNavigate: Boolean;
-  begin
-{    Result :=
-      ((Msg.WParam = VK_LEFT) and ((EditCtrl.SelLength = Length(EditCtrl.Text)) or (EditCtrl.SelStart < 1))) or
-      ((Msg.WParam = VK_RIGHT) and ((EditCtrl.SelLength = Length(EditCtrl.Text)) or (EditCtrl.SelStart >= Length(EditCtrl.Text))));}
-    Result := False;
-  end;
-
 begin
   ExecInherited := True;
   case Msg.Msg of
@@ -2823,7 +2812,7 @@ begin
         PostToInsp :=
           (Msg.Msg = WM_KEYDOWN) and ((KeyDataToShiftState(Msg.LParam) = []) and
           ((Msg.WParam in [VK_NEXT, VK_PRIOR]) or
-            (not DroppedDown and (Msg.WParam in [VK_DOWN, VK_UP])) or LeftRightCanNavigate));
+            (not DroppedDown and (Msg.WParam in [VK_DOWN, VK_UP]))));
         if PostToInsp then
         begin
           PostMessage(Inspector.Handle, Msg.Msg, Msg.WParam, Msg.LParam);
