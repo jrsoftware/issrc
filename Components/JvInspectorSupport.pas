@@ -104,12 +104,9 @@ function DrawThemedFrameControl(DC: HDC; const Rect: TRect;
 resourcestring
   RsEJvInspItemHasParent = 'Item already assigned to another parent';
   RsJvInspItemUnInitialized = '(uninitialized)';
-  RsJvInspItemNoValue = '(no value)';
-  RsJvInspItemUnassigned = '(unassigned)';
   RsJvInspItemValueException = 'Exception ';
   RsEJvInspDataNoAccessAs = 'Data cannot be accessed as %s';
   RsEJvInspDataNotInit = 'Data not initialized';
-  RsEJvInspNoGenReg = 'Unable to create generic item registration list';
 
 implementation
 
