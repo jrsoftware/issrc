@@ -364,7 +364,7 @@ procedure TInspector.UpdateFromCaret;
   procedure MakeDropDown(const AItem: TJvCustomInspectorItem;
     const AOnGetValueList: TInspectorItemGetValueListEvent);
   begin
-    AItem.Flags := AItem.Flags + [iifValueList, iifAllowNonListValues];
+    AItem.Flags := AItem.Flags + [iifValueList];
     AItem.OnGetValueList := AOnGetValueList;
   end;
 

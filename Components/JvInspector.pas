@@ -48,7 +48,7 @@ type
   TJvInspectorEventData = class;
 
   TInspectorItemFlag = (iifReadonly, iifHidden, iifExpanded,
-    iifValueList, iifAllowNonListValues);
+    iifValueList);
   TInspectorItemFlags = set of TInspectorItemFlag;
 
   TInspectorPaintRect = (iprItem, iprButtonArea, iprBtnSrcRect, iprBtnDstRect,
@@ -462,18 +462,13 @@ type
     procedure SetFlags(const Value: TInspectorItemFlags); override;
   end;
 
-  TJvInspectorEnumItem = class(TJvCustomInspectorItem)
-  protected
-    procedure SetFlags(const Value: TInspectorItemFlags); override;
-  end;
-
   TJvInspectorStringItem = class(TJvCustomInspectorItem)
   protected
     function GetDisplayValue: string; override;
     procedure SetDisplayValue(const Value: string); override;
   end;
 
-  TJvInspectorBooleanItem = class(TJvInspectorEnumItem)
+  TJvInspectorBooleanItem = class(TJvCustomInspectorItem)
   private
     FCheckRect: TRect;
   protected
@@ -2705,12 +2700,11 @@ begin
           begin
             if DroppedDown then
               SendMessage(ListBox.Handle, Msg.Msg, Msg.WParam, Msg.LParam);
-            // Alt keys the drop-down logic did not consume must keep their
-            // system meaning, such as Alt+F4
-            if (Msg.Msg <> WM_SYSKEYDOWN) and
-              (not (iifAllowNonListValues in Flags) or
-              ((Msg.Msg = WM_KEYDOWN) and
-              (TWMKeyDown(Msg).CharCode in [VK_UP, VK_DOWN]))) then
+            // Only Up/Down navigate the value list; any other key the
+            // drop-down logic did not consume keeps its normal meaning, such
+            // as Alt+F4
+            if (Msg.Msg = WM_KEYDOWN) and
+              (TWMKeyDown(Msg).CharCode in [VK_UP, VK_DOWN]) then
               ExecInherited := False;
           end;
         end;
@@ -3087,8 +3081,6 @@ var
   OldFlags: TInspectorItemFlags;
 begin
   NewFlags := Value;
-  if iifAllowNonListValues in NewFlags then
-    Include(NewFlags, iifValueList);
   if Flags <> NewFlags then
   begin
     OldFlags := Flags;
@@ -3557,20 +3549,8 @@ procedure TJvInspectorCustomCategoryItem.SetFlags(const Value: TInspectorItemFla
 var
   NewFlags: TInspectorItemFlags;
 begin
-  NewFlags := Value - [iifValueList, iifAllowNonListValues] +
-    [iifReadonly];
+  NewFlags := Value - [iifValueList] + [iifReadonly];
   inherited SetFlags(NewFlags);
-end;
-
-//=== { TJvInspectorEnumItem } ===============================================
-
-procedure TJvInspectorEnumItem.SetFlags(const Value: TInspectorItemFlags);
-var
-  TmpFlags: TInspectorItemFlags;
-begin
-  TmpFlags := Value;
-  Include(TmpFlags, iifValueList);
-  inherited SetFlags(TmpFlags);
 end;
 
 //=== { TJvInspectorStringItem } =============================================
