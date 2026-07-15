@@ -33,70 +33,35 @@ uses
   SysUtils, Classes, Controls, StdCtrls;
 
 type
-  { TControlAutoComplete implements an autocomplete code for controls. It is an
-    abstract base class. After you have created an instance of a derived class
-    you must call the AutoComplete method in a KeyPress event handler.
-
-    (ahuser) 2005-01-31: changed from TObject to TComponent due to Notification()
-    Do not register this component it is more a "TObject" than a TComponent. }
-  TJvControlAutoComplete = class(TComponent)
-  private
-    FOnDropDown: TNotifyEvent;
-  protected
-    function GetText: TCaption; virtual; abstract;
-    procedure SetText(const Value: TCaption); virtual; abstract;
-    procedure GetEditSel(out StartPos, EndPos: Integer); virtual; abstract;
-    procedure SetEditSel(StartPos, EndPos: Integer); virtual; abstract;
-    procedure SetItemIndex(Index: Integer); virtual; abstract;
-    function FindItemPrefix(IndexStart: Integer; const Prefix: string): Integer; virtual; abstract;
-    function GetItemAt(Index: Integer): string; virtual; abstract;
-
-    function GetActive: Boolean; virtual;
-
-    procedure DoDropDown; dynamic;
-  public
-    constructor Create; reintroduce;
-    procedure AutoComplete(var Key: Char); virtual;
-
-    property Active: Boolean read GetActive;
-    property OnDropDown: TNotifyEvent read FOnDropDown write FOnDropDown;
-  end;
-
-  TJvBaseEditListAutoComplete = class(TJvControlAutoComplete)
-  private
-    FEditCtrl: TCustomEdit;
-    FList: TStrings;
-    procedure SetEditCtrl(Value: TCustomEdit);
-  protected
-    procedure Notification(AComponent: TComponent; Operation: TOperation); override;
-    function GetText: TCaption; override;
-    procedure SetText(const Value: TCaption); override;
-    procedure GetEditSel(out StartPos, EndPos: Integer); override;
-    procedure SetEditSel(StartPos, EndPos: Integer); override;
-    function FindItemPrefix(IndexStart: Integer; const Prefix: string): Integer; override;
-    function GetItemAt(Index: Integer): string; override;
-    function GetActive: Boolean; override;
-    property List: TStrings read FList write FList;
-  public
-    constructor Create(AEditCtrl: TCustomEdit; AList: TStrings);
-    destructor Destroy; override;
-    property EditCtrl: TCustomEdit read FEditCtrl write SetEditCtrl;
-  end;
-
   { TEditListBoxAutoComplete implements an autocomplete code for a Edit/ListBox
     pair. After you have created an instance of this class you must call the
     AutoComplete method in a KeyPress event handler. }
-  TJvEditListBoxAutoComplete = class(TJvBaseEditListAutoComplete)
+  TJvEditListBoxAutoComplete = class(TComponent)
   private
+    FOnDropDown: TNotifyEvent;
+    FEditCtrl: TCustomEdit;
+    FList: TStrings;
     FListBox: TCustomListBox;
+    procedure SetEditCtrl(Value: TCustomEdit);
     procedure SetListBox(Value: TCustomListBox);
+    function GetActive: Boolean;
+    function GetText: TCaption;
+    procedure SetText(const Value: TCaption);
+    procedure GetEditSel(out StartPos, EndPos: Integer);
+    procedure SetEditSel(StartPos, EndPos: Integer);
+    procedure SetItemIndex(Index: Integer);
+    function FindItemPrefix(const Prefix: string): Integer;
+    function GetItemAt(Index: Integer): string;
+    procedure DoDropDown;
   protected
-    procedure SetItemIndex(Index: Integer); override;
     procedure Notification(AComponent: TComponent; Operation: TOperation); override;
   public
-    constructor Create(AEditCtrl: TCustomEdit; AListBox: TCustomListBox);
+    constructor Create(AEditCtrl: TCustomEdit; AListBox: TCustomListBox); reintroduce;
     destructor Destroy; override;
+    procedure AutoComplete(var Key: Char);
+    property EditCtrl: TCustomEdit read FEditCtrl write SetEditCtrl;
     property ListBox: TCustomListBox read FListBox write SetListBox;
+    property OnDropDown: TNotifyEvent read FOnDropDown write FOnDropDown;
   end;
 
 implementation
@@ -105,25 +70,105 @@ uses
   StrUtils,
   JvInspectorSupport;
 
-//=== { TJvControlAutoComplete } =============================================
+type
+  TCustomEditAccess = class(TCustomEdit);
 
-constructor TJvControlAutoComplete.Create;
+//=== { TJvEditListBoxAutoComplete } =========================================
+
+constructor TJvEditListBoxAutoComplete.Create(AEditCtrl: TCustomEdit; AListBox: TCustomListBox);
 begin
   inherited Create(nil);
+  EditCtrl := AEditCtrl;
+  ListBox := AListBox;
 end;
 
-function TJvControlAutoComplete.GetActive: Boolean;
+destructor TJvEditListBoxAutoComplete.Destroy;
 begin
-  Result := True;
+  ListBox := nil;
+  EditCtrl := nil;
+  inherited Destroy;
 end;
 
-procedure TJvControlAutoComplete.DoDropDown;
+procedure TJvEditListBoxAutoComplete.Notification(AComponent: TComponent; Operation: TOperation);
+begin
+  if (Operation = opRemove) and (AComponent = FEditCtrl) then
+    FEditCtrl := nil;
+  if (Operation = opRemove) and (AComponent = FListBox) then
+  begin
+    FListBox := nil;
+    FList := nil;
+  end;
+  inherited Notification(AComponent, Operation);
+end;
+
+procedure TJvEditListBoxAutoComplete.SetEditCtrl(Value: TCustomEdit);
+begin
+  ReplaceComponentReference(Self, Value, TComponent(FEditCtrl));
+end;
+
+procedure TJvEditListBoxAutoComplete.SetListBox(Value: TCustomListBox);
+begin
+  ReplaceComponentReference(Self, Value, TComponent(FListBox));
+
+  if FListBox <> nil then
+    FList := FListBox.Items
+  else
+    FList := nil;
+end;
+
+function TJvEditListBoxAutoComplete.GetActive: Boolean;
+begin
+  Result := (EditCtrl <> nil) and (FList <> nil) and
+    not TCustomEditAccess(EditCtrl).ReadOnly;
+end;
+
+function TJvEditListBoxAutoComplete.GetText: TCaption;
+begin
+  Result := EditCtrl.Text;
+end;
+
+procedure TJvEditListBoxAutoComplete.SetText(const Value: TCaption);
+begin
+  EditCtrl.Text := Value;
+end;
+
+procedure TJvEditListBoxAutoComplete.GetEditSel(out StartPos, EndPos: Integer);
+begin
+  SendMessage(EditCtrl.Handle, EM_GETSEL, WPARAM(@StartPos), LPARAM(@EndPos));
+end;
+
+procedure TJvEditListBoxAutoComplete.SetEditSel(StartPos, EndPos: Integer);
+begin
+  EditCtrl.SelStart := StartPos;
+  EditCtrl.SelLength := EndPos - StartPos;
+end;
+
+procedure TJvEditListBoxAutoComplete.SetItemIndex(Index: Integer);
+begin
+  ListBox.ItemIndex := Index;
+end;
+
+function TJvEditListBoxAutoComplete.FindItemPrefix(const Prefix: string): Integer;
+begin
+  if FList <> nil then
+    for Result := 0 to FList.Count - 1 do
+      if AnsiStartsText(Prefix, FList[Result]) then
+        Exit;
+  Result := -1;
+end;
+
+function TJvEditListBoxAutoComplete.GetItemAt(Index: Integer): string;
+begin
+  Result := FList[Index];
+end;
+
+procedure TJvEditListBoxAutoComplete.DoDropDown;
 begin
   if Assigned(FOnDropDown) then
     FOnDropDown(Self);
 end;
 
-procedure TJvControlAutoComplete.AutoComplete(var Key: Char);
+procedure TJvEditListBoxAutoComplete.AutoComplete(var Key: Char);
 var
   StartPos, EndPos: Integer;
   SaveText, OldText: TCaption;
@@ -159,7 +204,7 @@ var
       SetItemIndex(-1);
       Exit;
     end;
-    Idx := FindItemPrefix(-1, AnItem);
+    Idx := FindItemPrefix(AnItem);
     if Idx < 0 then
       Exit;
     Result := True;
@@ -169,7 +214,7 @@ var
   end;
 
 begin
-  if not Active then
+  if not GetActive then
     Exit;
 
   Filter := GetText;
@@ -206,128 +251,6 @@ begin
     if SelectItem(SaveText) then
       Key := #0;
   end;
-end;
-
-//=== { TJvBaseEditListAutoComplete } ========================================
-
-constructor TJvBaseEditListAutoComplete.Create(AEditCtrl: TCustomEdit;
-  AList: TStrings);
-begin
-  inherited Create;
-  FList := AList;
-  EditCtrl := AEditCtrl;
-end;
-
-destructor TJvBaseEditListAutoComplete.Destroy;
-begin
-  EditCtrl := nil;
-  inherited Destroy;
-end;
-
-procedure TJvBaseEditListAutoComplete.Notification(AComponent: TComponent;
-  Operation: TOperation);
-begin
-  if (Operation = opRemove) and (AComponent = FEditCtrl) then
-    FEditCtrl := nil;
-  inherited Notification(AComponent, Operation);
-end;
-
-procedure TJvBaseEditListAutoComplete.SetEditCtrl(Value: TCustomEdit);
-begin
-  ReplaceComponentReference(Self, Value, TComponent(FEditCtrl));
-end;
-
-type
-  TCustomEditAccess = class(TCustomEdit);
-
-function TJvBaseEditListAutoComplete.GetText: TCaption;
-begin
-  Result := EditCtrl.Text;
-end;
-
-procedure TJvBaseEditListAutoComplete.SetText(const Value: TCaption);
-begin
-  EditCtrl.Text := Value;
-end;
-
-procedure TJvBaseEditListAutoComplete.GetEditSel(out StartPos, EndPos: Integer);
-
-begin
-  SendMessage(EditCtrl.Handle, EM_GETSEL, WPARAM(@StartPos), LPARAM(@EndPos));
-end;
-
-procedure TJvBaseEditListAutoComplete.SetEditSel(StartPos, EndPos: Integer);
-begin
-  EditCtrl.SelStart := StartPos;
-  EditCtrl.SelLength := EndPos - StartPos;
-end;
-
-function TJvBaseEditListAutoComplete.FindItemPrefix(IndexStart: Integer; const Prefix: string): Integer;
-begin
-  if List <> nil then
-  begin
-    for Result := IndexStart + 1 to List.Count - 1 do
-      if AnsiStartsText(Prefix, List[Result]) then
-        Exit;
-    for Result := 0 to IndexStart do
-      if AnsiStartsText(Prefix, List[Result]) then
-        Exit;
-  end;
-  Result := -1;
-end;
-
-function TJvBaseEditListAutoComplete.GetItemAt(Index: Integer): string;
-begin
-  Result := List[Index];
-end;
-
-
-function TJvBaseEditListAutoComplete.GetActive: Boolean;
-begin
-  Result := inherited GetActive and (EditCtrl <> nil) and (List <> nil) and
-    not TCustomEditAccess(EditCtrl).ReadOnly;
-end;
-
-//=== { TJvEditListBoxAutoComplete } =========================================
-
-constructor TJvEditListBoxAutoComplete.Create(AEditCtrl: TCustomEdit; AListBox: TCustomListBox);
-begin
-  if AListBox = nil then
-    inherited Create(AEditCtrl, nil)
-  else
-    inherited Create(AEditCtrl, AListBox.Items);
-  ListBox := AListBox;
-end;
-
-destructor TJvEditListBoxAutoComplete.Destroy;
-begin
-  ListBox := nil;
-  inherited Destroy;
-end;
-
-procedure TJvEditListBoxAutoComplete.Notification(AComponent: TComponent; Operation: TOperation);
-begin
-  if (Operation = opRemove) and (AComponent = FListBox) then
-  begin
-    FListBox := nil;
-    List := nil;
-  end;
-  inherited Notification(AComponent, Operation);
-end;
-
-procedure TJvEditListBoxAutoComplete.SetListBox(Value: TCustomListBox);
-begin
-  ReplaceComponentReference(Self, Value, TComponent(FListBox));
-
-  if FListBox <> nil then
-    List := FListBox.Items
-  else
-    List := nil;
-end;
-
-procedure TJvEditListBoxAutoComplete.SetItemIndex(Index: Integer);
-begin
-  ListBox.ItemIndex := Index;
 end;
 
 end.

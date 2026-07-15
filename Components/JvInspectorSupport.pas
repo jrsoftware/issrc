@@ -91,8 +91,8 @@ function RectHeight(R: TRect): Integer;
 //=== Replacements for JvJVCLUtils.pas (subset) ==============================
 
 function CanvasMaxTextHeight(Canvas: TCanvas): Integer;
-function ReplaceComponentReference(This, NewReference: TComponent;
-  var VarReference: TComponent): Boolean;
+procedure ReplaceComponentReference(This, NewReference: TComponent;
+  var VarReference: TComponent);
 
 //=== Replacements for JvThemes.pas (subset) =================================
 
@@ -273,11 +273,10 @@ begin
   Result := tt.tmHeight;
 end;
 
-function ReplaceComponentReference(This, NewReference: TComponent;
-  var VarReference: TComponent): Boolean;
+procedure ReplaceComponentReference(This, NewReference: TComponent;
+  var VarReference: TComponent);
 begin
-  Result := (VarReference <> NewReference) and Assigned(This);
-  if Result then
+  if (VarReference <> NewReference) and Assigned(This) then
   begin
     if Assigned(VarReference) then
       VarReference.RemoveFreeNotification(This);
