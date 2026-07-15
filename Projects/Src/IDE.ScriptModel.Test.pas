@@ -708,8 +708,9 @@ begin
             Assert(Token = LowerCase(Token));
             { The inspector gives a flag parameter one child row per flag, in
               table order, so the table decides the order the flags are shown in.
-              Choices are not checked: they fill a dropdown, where the table's
-              order is meaningful, such as the default first }
+              Choices are not checked: they fill a dropdown which sorts the
+              values itself, and a choice table's order can still be meaningful
+              elsewhere, see DestDir in IDE.Wizard.WizardFileForm.pas }
             if K > 0 then
               Assert(CompareText(Parameter.KnownValues[K-1], Token) < 0);
           end;

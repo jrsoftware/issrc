@@ -102,7 +102,7 @@ type
     FOnEditorKeyDown: TKeyEvent;
     // BeforeEdit NOTE: - WAP
     //
-    // This event fired is when creating TEdit or TMemo objects, and
+    // This event fired is when creating TEdit objects, and
     // allows end users to customize the properties of the editor
     // objects, or hook event handlers, which were
     // otherwise invisible. This could be used to ill effect, so beware.
@@ -197,7 +197,7 @@ type
     property ReadOnly: Boolean read GetReadOnly write SetReadOnly;
     property Root: TJvCustomInspectorItem read GetRoot;
     property Selected: TJvCustomInspectorItem read GetSelected;
-    property BeforeEdit: TInspectorBeforeEditEvent read FBeforeEdit write FBeforeEdit; // Low level hook for customizing TEdit/TMemo after objects are created, just before editing.
+    property BeforeEdit: TInspectorBeforeEditEvent read FBeforeEdit write FBeforeEdit; // Low level hook for customizing TEdit after objects are created, just before editing.
     property OnKeyDown; // Standard control event
     { Standard TCustomControl event - this is really an event fired by
       the TEdit control used when editing in a cell!}
