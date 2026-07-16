@@ -137,13 +137,11 @@ type
     procedure InvalidateItem;
     procedure InvalidateList;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
-    procedure KeyUp(var Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure Paint; override;
     procedure RebuildVisible;
-    procedure RemoveVisible(const Item: TJvCustomInspectorItem);
     procedure BoundsChanged;
     procedure SetDivider(Value: Integer);
     procedure SetSelectedIndex(Value: Integer);
@@ -222,7 +220,6 @@ type
     procedure Apply;
     function CanEdit: Boolean;
     procedure CloseUp(Accept: Boolean);
-    procedure Deactivate;
     procedure DoDropDownKeys(var Key: Word; Shift: TShiftState);
     procedure DropDown;
     procedure EditFocusLost(Sender: TObject);
@@ -230,8 +227,6 @@ type
     procedure EditKeyPress(Sender: TObject; var Key: Char);
     procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); dynamic;
     procedure EditMouseDown(Sender: TObject; Button: TMouseButton;
-      Shift: TShiftState; X, Y: Integer);
-    procedure EditMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure Edit_WndProc(var Msg: TMessage);
     procedure AutoCompleteStart(Sender: TObject);
@@ -495,8 +490,6 @@ end;
 procedure TJvInspector.CMDeactivate(var Msg: TCMActivate);
 begin
   inherited;
-  if Selected <> nil then
-    Selected.Deactivate;
   Invalidate;
 end;
 
@@ -666,13 +659,6 @@ begin
       Item.EditKeyDown(Self, Key, Shift);
     end;
   end;
-end;
-
-procedure TJvInspector.KeyUp(var Key: Word; Shift: TShiftState);
-begin
-  if (Shift = []) and ((Key = VK_DOWN) or (Key = VK_UP) or (Key = VK_ADD) or
-    (Key = VK_SUBTRACT) or (Key = VK_PRIOR) or (Key = VK_NEXT)) then
-    Key := 0;
 end;
 
 procedure TJvInspector.MouseDown(Button: TMouseButton; Shift: TShiftState;
@@ -845,20 +831,6 @@ begin
   if OldSel <> nil then
     SelectedIndex := FVisibleList.IndexOfObject(OldSel);
   NeedRebuild := False;
-end;
-
-procedure TJvInspector.RemoveVisible(const Item: TJvCustomInspectorItem);
-var
-  Idx: Integer;
-begin
-  Idx := FVisibleList.IndexOfObject(Item);
-  if Idx > -1 then
-  begin
-    FVisibleList.Delete(Idx);
-    if SelectedIndex >= Idx then
-      SelectedIndex := SelectedIndex - 1;
-    Invalidate;
-  end;
 end;
 
 procedure TJvInspector.BoundsChanged;
@@ -1647,12 +1619,6 @@ begin
   end;
 end;
 
-procedure TJvCustomInspectorItem.Deactivate;
-begin
-  if DroppedDown then
-    CloseUp(False);
-end;
-
 procedure TJvCustomInspectorItem.DoDropDownKeys(var Key: Word; Shift: TShiftState);
 begin
   case Key of
@@ -1852,15 +1818,6 @@ procedure TJvCustomInspectorItem.EditMouseDown(Sender: TObject;
 begin
   if (Button = mbLeft) and (ssDouble in Shift) and (iifValueList in Flags) then
     SelectValue(1);
-end;
-
-procedure TJvCustomInspectorItem.EditMouseUp(Sender: TObject;
-  Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var
-  InspCoord: TPoint;
-begin
-  InspCoord := Inspector.ScreenToClient(EditCtrl.ClientToScreen(Point(X, Y)));
-  Inspector.MouseUp(Button, Shift, InspCoord.X, InspCoord.Y);
 end;
 
 procedure TJvCustomInspectorItem.Edit_WndProc(var Msg: TMessage);
@@ -2233,8 +2190,6 @@ begin
     Parent.FItems.Remove(Self);
   if (Inspector <> nil) and (Inspector.Root <> Self) then
     DoneEdit(True);
-  if Inspector <> nil then
-    Inspector.RemoveVisible(Self);
   FItems.Free;
   if Data <> nil then
     FData.RemoveItem(Self);
@@ -2404,9 +2359,7 @@ begin
       FSearchText := '';
     #32..High(Char):
       begin
-        TickCount := GetTickCount;
-        if TickCount < FSearchTickCount then
-          Inc(TickCount, $100000000); // (ahuser) reduces the overflow
+        TickCount := GetTickCount64;
         if ((TickCount - FSearchTickCount >= 4000) and (FSearchText <> '')) then
           FSearchText := '';
         FSearchTickCount := TickCount;
@@ -2511,7 +2464,6 @@ begin
     TCustomEditAccessProtected(EditCtrl).OnKeyDown := EditKeyDown;
     TCustomEditAccessProtected(EditCtrl).OnKeyPress := EditKeyPress;
     TCustomEditAccessProtected(EditCtrl).OnMouseDown := EditMouseDown;
-    TCustomEditAccessProtected(EditCtrl).OnMouseUp := EditMouseUp;
     EditCtrl.Visible := True;
     if Data.IsInitialized then
       EditCtrl.Text := DisplayValue
