@@ -177,7 +177,8 @@ function TInspector.ItemShouldBeBold(
           Result := TryGetRowDirectiveSection(ARow, Section, Index);
         end;
       irkDirectiveFlag:
-        begin
+        { See above }
+        if FShowAllKnownDirectives then begin
           var Section: TScriptDirectiveSection;
           var Index: Integer;
           Result := TryGetRowDirectiveSection(ARow, Section, Index) and
