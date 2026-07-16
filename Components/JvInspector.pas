@@ -141,6 +141,7 @@ type
     procedure RebuildVisible;
     procedure BoundsChanged;
     procedure SetDivider(Value: Integer);
+    procedure SetSelected(const Value: TJvCustomInspectorItem);
     procedure SetSelectedIndex(Value: Integer);
     procedure SetTopIndex(Value: Integer);
     procedure UpdateScrollBars;
@@ -166,7 +167,7 @@ type
     property Divider: Integer read FDivider write SetDivider;
     property ReadOnly: Boolean read FReadOnly write FReadOnly;
     property Root: TJvCustomInspectorItem read FRoot;
-    property Selected: TJvCustomInspectorItem read GetSelected;
+    property Selected: TJvCustomInspectorItem read GetSelected write SetSelected;
     property BeforeEdit: TInspectorBeforeEditEvent read FBeforeEdit write FBeforeEdit; // Low level hook for customizing TEdit after objects are created, just before editing.
     property OnKeyDown; // Standard control event
     { Standard TCustomControl event - this is really an event fired by
@@ -601,10 +602,10 @@ begin
           end;
         end;
       VK_ADD:
-        if (Item.Count > 0) and not Item.Expanded then
+        if (Item <> nil) and (Item.Count > 0) and not Item.Expanded then
           Item.Expanded := True;
       VK_SUBTRACT:
-        if Item.Expanded then
+        if (Item <> nil) and Item.Expanded then
           Item.Expanded := False;
     else
       IgnoreKey := False;
@@ -618,16 +619,16 @@ begin
     IgnoreKey := True;
     case Key of
       VK_RIGHT:
-        if (Item.Count > 0) and not Item.Expanded then
+        if (Item <> nil) and (Item.Count > 0) and not Item.Expanded then
           Item.Expanded := True;
       VK_LEFT:
-        if Item.Expanded then
+        if (Item <> nil) and Item.Expanded then
           Item.Expanded := False;
       VK_RETURN:
-        if (Item.Count > 0) and not Item.Expanded then
+        if (Item <> nil) and (Item.Count > 0) and not Item.Expanded then
           Item.Expanded := True
         else
-        if Item.Expanded then
+        if (Item <> nil) and Item.Expanded then
           Item.Expanded := False;
     else
       IgnoreKey := False;
@@ -817,6 +818,11 @@ begin
   FDivider := Value;
   if HandleAllocated then
     UpdateScrollBars;
+end;
+
+procedure TJvInspector.SetSelected(const Value: TJvCustomInspectorItem);
+begin
+  SelectedIndex := Integer(FVisibleList.IndexOf(Value));
 end;
 
 procedure TJvInspector.SetSelectedIndex(Value: Integer);
