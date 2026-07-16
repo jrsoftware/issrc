@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..943] of TTranslationPair = (
+  DutchIDETranslations: array [0..959] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -175,6 +175,13 @@ const
     (English: 'Duplicate name.'; Localized: 'Dubbele naam.'),
     (English: 'Command of the Sign Tool:'; Localized: 'Opdracht van de ondertekeningstool:'),
     (English: 'Invalid command.'; Localized: 'Ongeldige opdracht.'),
+    (English: '%1 must be an integer value'; Localized: '%1 moet een geheel getal zijn'),
+    (English: 'The script cannot be edited because it is read-only'; Localized: 'Het script kan niet worden bewerkt omdat het alleen-lezen is'),
+    (English: 'Compiler'; Localized: 'Compiler'),
+    (English: 'Compression'; Localized: 'Compressie'),
+    (English: 'Installer'; Localized: 'Installatieprogramma'),
+    (English: 'Cosmetic'; Localized: 'Uiterlijk'),
+    (English: 'Common'; Localized: 'Algemeen'),
     (English: 'The generated GUID will be inserted into the editor at the cursor position. Continue?'; Localized: 'De gegenereerde GUID wordt op de cursorpositie in de editor ingevoegd. Doorgaan?'),
     (English: 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the %1 section. Continue anyway?'; Localized: 'Het gegenereerde Pascal-script wordt op de cursorpositie in de editor ingevoegd, maar de cursor staat niet in de sectie %1. Toch doorgaan?'),
     (English: 'Classic'; Localized: 'Klassiek'),
@@ -336,6 +343,7 @@ const
     (English: 'Zoom &Out'; Localized: '&Uitzoomen'),
     (English: '&Reset'; Localized: '&Herstellen'),
     (English: '&Toolbar'; Localized: '&Werkbalk'),
+    (English: '&Inspector'; Localized: '&Inspector'),
     (English: 'St&atus Bar'; Localized: '&Statusbalk'),
     (English: '&Next Tab'; Localized: '&Volgend tabblad'),
     (English: '&Previous Tab'; Localized: 'Vo&rig tabblad'),
@@ -443,6 +451,10 @@ const
     (English: 'Ke&ys:'; Localized: 'Toet&sen:'),
     (English: 'Show whitespace'; Localized: 'Witruimte tonen'),
     (English: 'Smart Home key'; Localized: 'Slimme Home-toets'),
+    (English: ' Inspector '; Localized: ' Inspector '),
+    (English: 'Show all known directives'; Localized: 'Alle bekende directieven tonen'),
+    (English: 'Quote new directive values'; Localized: 'Nieuwe directiefwaarden tussen aanhalingstekens plaatsen'),
+    (English: 'Quote new parameter values'; Localized: 'Nieuwe parameterwaarden tussen aanhalingstekens plaatsen'),
     (English: '&Associate .%1 files with this compiler'; Localized: '.%1-bestanden &aan deze compiler koppelen'),
     (English: '&Windows registry file (.%1) to import:'; Localized: '&Windows-registerbestand (.%1) om te importeren:'),
     (English: 'B&rowse...'; Localized: 'Bladere&n...'),
@@ -959,7 +971,11 @@ const
     (English: 'Setting bit transparency color is not allowed for png images containing alpha value for each pixel (COLOR_RGBALPHA and COLOR_GRAYSCALEALPHA)'; Localized: 'Het instellen van een bit-transparantiekleur is niet toegestaan voor PNG-afbeeldingen met een alfawaarde per pixel (COLOR_RGBALPHA en COLOR_GRAYSCALEALPHA)'),
     (English: 'This operation is not valid because the current image contains no valid header.'; Localized: 'Deze bewerking is niet geldig omdat de huidige afbeelding geen geldige header bevat.'),
     (English: 'The new size provided for image resizing is invalid.'; Localized: 'De nieuwe grootte die is opgegeven voor het wijzigen van het afbeeldingsformaat is ongeldig.'),
-    (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: 'De "Portable Network Graphics"-afbeelding kan niet worden geladen omdat deze een ongeldige bitdiepte gebruikt.'));
+    (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: 'De "Portable Network Graphics"-afbeelding kan niet worden geladen omdat deze een ongeldige bitdiepte gebruikt.'),
+    (English: '(uninitialized)'; Localized: '(niet geïnitialiseerd)'),
+    (English: 'Exception '; Localized: 'Uitzondering '),
+    (English: 'Data cannot be accessed as %s'; Localized: 'Gegevens kunnen niet als %s worden benaderd'),
+    (English: 'Data not initialized'; Localized: 'Gegevens niet geïnitialiseerd'));
 
 implementation
 

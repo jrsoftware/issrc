@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..943] of TTranslationPair = (
+  GermanIDETranslations: array [0..959] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -175,6 +175,13 @@ const
     (English: 'Duplicate name.'; Localized: 'Doppelter Name.'),
     (English: 'Command of the Sign Tool:'; Localized: 'Befehl des Signaturtools:'),
     (English: 'Invalid command.'; Localized: 'Ungültiger Befehl.'),
+    (English: '%1 must be an integer value'; Localized: '%1 muss ein ganzzahliger Wert sein'),
+    (English: 'The script cannot be edited because it is read-only'; Localized: 'Das Skript kann nicht bearbeitet werden, da es schreibgeschützt ist'),
+    (English: 'Compiler'; Localized: 'Compiler'),
+    (English: 'Compression'; Localized: 'Komprimierung'),
+    (English: 'Installer'; Localized: 'Installer'),
+    (English: 'Cosmetic'; Localized: 'Darstellung'),
+    (English: 'Common'; Localized: 'Allgemein'),
     (English: 'The generated GUID will be inserted into the editor at the cursor position. Continue?'; Localized: 'Die generierte GUID wird an der Cursorposition in den Editor eingefügt. Fortfahren?'),
     (English: 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the %1 section. Continue anyway?'; Localized: 'Das generierte Pascal-Skript wird an der Cursorposition in den Editor eingefügt, aber der Cursor befindet sich nicht im Abschnitt %1. Trotzdem fortfahren?'),
     (English: 'Classic'; Localized: 'Klassisch'),
@@ -336,6 +343,7 @@ const
     (English: 'Zoom &Out'; Localized: 'Ver&kleinern'),
     (English: '&Reset'; Localized: '&Zurücksetzen'),
     (English: '&Toolbar'; Localized: 'S&ymbolleiste'),
+    (English: '&Inspector'; Localized: '&Inspektor'),
     (English: 'St&atus Bar'; Localized: '&Statusleiste'),
     (English: '&Next Tab'; Localized: '&Nächste Registerkarte'),
     (English: '&Previous Tab'; Localized: '&Vorherige Registerkarte'),
@@ -443,6 +451,10 @@ const
     (English: 'Ke&ys:'; Localized: 'Taste&n:'),
     (English: 'Show whitespace'; Localized: 'Leerzeichen anzeigen'),
     (English: 'Smart Home key'; Localized: 'Intelligente Pos1-Taste'),
+    (English: ' Inspector '; Localized: ' Inspektor '),
+    (English: 'Show all known directives'; Localized: 'Alle bekannten Direktiven anzeigen'),
+    (English: 'Quote new directive values'; Localized: 'Neue Direktivenwerte in Anführungszeichen setzen'),
+    (English: 'Quote new parameter values'; Localized: 'Neue Parameterwerte in Anführungszeichen setzen'),
     (English: '&Associate .%1 files with this compiler'; Localized: '.%1-D&ateien diesem Compiler zuordnen'),
     (English: '&Windows registry file (.%1) to import:'; Localized: '&Windows-Registry-Datei (.%1) zum Importieren:'),
     (English: 'B&rowse...'; Localized: 'Du&rchsuchen...'),
@@ -959,7 +971,11 @@ const
     (English: 'Setting bit transparency color is not allowed for png images containing alpha value for each pixel (COLOR_RGBALPHA and COLOR_GRAYSCALEALPHA)'; Localized: 'Das Festlegen einer Bit-Transparenzfarbe ist für PNG-Bilder mit einem Alphawert pro Pixel nicht zulässig (COLOR_RGBALPHA und COLOR_GRAYSCALEALPHA)'),
     (English: 'This operation is not valid because the current image contains no valid header.'; Localized: 'Dieser Vorgang ist ungültig, da das aktuelle Bild keinen gültigen Header enthält.'),
     (English: 'The new size provided for image resizing is invalid.'; Localized: 'Die für die Bildgrößenänderung angegebene neue Größe ist ungültig.'),
-    (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: 'Das "Portable Network Graphics"-Bild konnte nicht geladen werden, da es eine ungültige Bildbittiefe verwendet.'));
+    (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: 'Das "Portable Network Graphics"-Bild konnte nicht geladen werden, da es eine ungültige Bildbittiefe verwendet.'),
+    (English: '(uninitialized)'; Localized: '(nicht initialisiert)'),
+    (English: 'Exception '; Localized: 'Ausnahme '),
+    (English: 'Data cannot be accessed as %s'; Localized: 'Auf die Daten kann nicht als %s zugegriffen werden'),
+    (English: 'Data not initialized'; Localized: 'Daten nicht initialisiert'));
 
 implementation
 

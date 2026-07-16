@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..943] of TTranslationPair = (
+  CzechIDETranslations: array [0..959] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -175,6 +175,13 @@ const
     (English: 'Duplicate name.'; Localized: 'Duplicitní název.'),
     (English: 'Command of the Sign Tool:'; Localized: 'Příkaz nástroje pro podepisování:'),
     (English: 'Invalid command.'; Localized: 'Neplatný příkaz.'),
+    (English: '%1 must be an integer value'; Localized: '%1 musí být celé číslo'),
+    (English: 'The script cannot be edited because it is read-only'; Localized: 'Skript nelze upravit, protože je pouze pro čtení'),
+    (English: 'Compiler'; Localized: 'Kompilátor'),
+    (English: 'Compression'; Localized: 'Komprese'),
+    (English: 'Installer'; Localized: 'Instalátor'),
+    (English: 'Cosmetic'; Localized: 'Vzhled'),
+    (English: 'Common'; Localized: 'Obecné'),
     (English: 'The generated GUID will be inserted into the editor at the cursor position. Continue?'; Localized: 'Vygenerovaný GUID bude vložen do editoru na pozici kurzoru. Pokračovat?'),
     (English: 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the %1 section. Continue anyway?'; Localized: 'Vygenerovaný skript Pascal bude vložen do editoru na pozici kurzoru, ale kurzor není v sekci %1. Přesto pokračovat?'),
     (English: 'Classic'; Localized: 'Klasické'),
@@ -336,6 +343,7 @@ const
     (English: 'Zoom &Out'; Localized: '&Oddálit'),
     (English: '&Reset'; Localized: 'O&bnovit'),
     (English: '&Toolbar'; Localized: 'Pa&nel nástrojů'),
+    (English: '&Inspector'; Localized: 'Insp&ektor'),
     (English: 'St&atus Bar'; Localized: '&Stavový řádek'),
     (English: '&Next Tab'; Localized: 'Další ka&rta'),
     (English: '&Previous Tab'; Localized: '&Předchozí karta'),
@@ -443,6 +451,10 @@ const
     (English: 'Ke&ys:'; Localized: 'Kláves&y:'),
     (English: 'Show whitespace'; Localized: 'Zobrazit prázdné znaky'),
     (English: 'Smart Home key'; Localized: 'Chytrá klávesa Home'),
+    (English: ' Inspector '; Localized: ' Inspektor '),
+    (English: 'Show all known directives'; Localized: 'Zobrazovat všechny známé direktivy'),
+    (English: 'Quote new directive values'; Localized: 'Uzavírat nové hodnoty direktiv do uvozovek'),
+    (English: 'Quote new parameter values'; Localized: 'Uzavírat nové hodnoty parametrů do uvozovek'),
     (English: '&Associate .%1 files with this compiler'; Localized: '&Přidružit soubory .%1 k tomuto kompilátoru'),
     (English: '&Windows registry file (.%1) to import:'; Localized: 'Soubor registru &Windows (.%1) k importu:'),
     (English: 'B&rowse...'; Localized: 'P&rocházet...'),
@@ -959,7 +971,11 @@ const
     (English: 'Setting bit transparency color is not allowed for png images containing alpha value for each pixel (COLOR_RGBALPHA and COLOR_GRAYSCALEALPHA)'; Localized: 'Nastavení bitové barvy průhlednosti není povoleno u obrázků PNG obsahujících hodnotu alfa pro každý pixel (COLOR_RGBALPHA a COLOR_GRAYSCALEALPHA)'),
     (English: 'This operation is not valid because the current image contains no valid header.'; Localized: 'Tato operace není platná, protože aktuální obrázek neobsahuje platnou hlavičku.'),
     (English: 'The new size provided for image resizing is invalid.'; Localized: 'Nová velikost zadaná pro změnu velikosti obrázku je neplatná.'),
-    (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: 'Obrázek "Portable Network Graphics" nelze načíst, protože používá neplatnou bitovou hloubku obrázku.'));
+    (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: 'Obrázek "Portable Network Graphics" nelze načíst, protože používá neplatnou bitovou hloubku obrázku.'),
+    (English: '(uninitialized)'; Localized: '(neinicializováno)'),
+    (English: 'Exception '; Localized: 'Výjimka '),
+    (English: 'Data cannot be accessed as %s'; Localized: 'K datům nelze přistupovat jako %s'),
+    (English: 'Data not initialized'; Localized: 'Data nejsou inicializována'));
 
 implementation
 

@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..943] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..959] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -175,6 +175,13 @@ const
     (English: 'Duplicate name.'; Localized: '名前が重複しています。'),
     (English: 'Command of the Sign Tool:'; Localized: '署名ツールのコマンド:'),
     (English: 'Invalid command.'; Localized: '無効なコマンドです。'),
+    (English: '%1 must be an integer value'; Localized: '%1 は整数値である必要があります'),
+    (English: 'The script cannot be edited because it is read-only'; Localized: 'スクリプトは読み取り専用のため編集できません'),
+    (English: 'Compiler'; Localized: 'コンパイラー'),
+    (English: 'Compression'; Localized: '圧縮'),
+    (English: 'Installer'; Localized: 'インストーラー'),
+    (English: 'Cosmetic'; Localized: '外観'),
+    (English: 'Common'; Localized: '共通'),
     (English: 'The generated GUID will be inserted into the editor at the cursor position. Continue?'; Localized: '生成された GUID は、エディターのカーソル位置に挿入されます。続行しますか？'),
     (English: 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the %1 section. Continue anyway?'; Localized: '生成された Pascal スクリプトは、エディターのカーソル位置に挿入されますが、カーソルは %1 セクション内にありません。それでも続行しますか？'),
     (English: 'Classic'; Localized: 'クラシック'),
@@ -336,6 +343,7 @@ const
     (English: 'Zoom &Out'; Localized: '縮小(&O)'),
     (English: '&Reset'; Localized: 'リセット(&R)'),
     (English: '&Toolbar'; Localized: 'ツール バー(&T)'),
+    (English: '&Inspector'; Localized: 'インスペクター(&I)'),
     (English: 'St&atus Bar'; Localized: 'ステータス バー(&A)'),
     (English: '&Next Tab'; Localized: '次のタブ(&N)'),
     (English: '&Previous Tab'; Localized: '前のタブ(&P)'),
@@ -443,6 +451,10 @@ const
     (English: 'Ke&ys:'; Localized: 'キー(&Y):'),
     (English: 'Show whitespace'; Localized: '空白文字を表示'),
     (English: 'Smart Home key'; Localized: 'スマート Home キー'),
+    (English: ' Inspector '; Localized: ' インスペクター '),
+    (English: 'Show all known directives'; Localized: '既知のディレクティブをすべて表示'),
+    (English: 'Quote new directive values'; Localized: 'ディレクティブの新しい値を引用符で囲む'),
+    (English: 'Quote new parameter values'; Localized: 'パラメーターの新しい値を引用符で囲む'),
     (English: '&Associate .%1 files with this compiler'; Localized: '.%1 ファイルをこのコンパイラーに関連付ける(&A)'),
     (English: '&Windows registry file (.%1) to import:'; Localized: 'インポートする Windows レジストリファイル (.%1)(&W):'),
     (English: 'B&rowse...'; Localized: '参照(&R)...'),
@@ -960,7 +972,11 @@ const
     (English: 'Setting bit transparency color is not allowed for png images containing alpha value for each pixel (COLOR_RGBALPHA and COLOR_GRAYSCALEALPHA)'; Localized: 'ピクセルごとにアルファ値を含む PNG 画像 (COLOR_RGBALPHA および COLOR_GRAYSCALEALPHA) では、ビット透過色の設定は許可されていません'),
     (English: 'This operation is not valid because the current image contains no valid header.'; Localized: '現在の画像に有効なヘッダーが含まれていないため、この操作は無効です。'),
     (English: 'The new size provided for image resizing is invalid.'; Localized: '画像のサイズ変更のために指定された新しいサイズが無効です。'),
-    (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: '"Portable Network Graphics" 画像は、無効な画像のビット深度を使用しているため読み込めませんでした。'));
+    (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: '"Portable Network Graphics" 画像は、無効な画像のビット深度を使用しているため読み込めませんでした。'),
+    (English: '(uninitialized)'; Localized: '（未初期化）'),
+    (English: 'Exception '; Localized: '例外 '),
+    (English: 'Data cannot be accessed as %s'; Localized: 'データに %s としてアクセスできません'),
+    (English: 'Data not initialized'; Localized: 'データが初期化されていません'));
 
 implementation
 
