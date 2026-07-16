@@ -89,8 +89,6 @@ uses
   StringScanner in '..\Components\StringScanner.pas',
   Resample in '..\Components\Resample.pas',
   UnsignedFunc in '..\Components\UnsignedFunc.pas',
-  JvInspectorSupport in '..\Components\JvInspectorSupport.pas',
-  JvAutoComplete in '..\Components\JvAutoComplete.pas',
   JvInspector in '..\Components\JvInspector.pas',
   IDE.ScriptModel in 'Src\IDE.ScriptModel.pas',
   IDE.ScriptModel.Metadata in 'Src\IDE.ScriptModel.Metadata.pas',
