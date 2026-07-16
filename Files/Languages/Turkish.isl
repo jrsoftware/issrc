@@ -3,13 +3,36 @@
 ; To download user-contributed translations of this file, go to:
 ;   https://jrsoftware.org/files/istrans/
 ;
-; Note: When translating this text, do not add periods (.) to the end of
-; messages that didn't have them already, because on those messages Inno
-; Setup adds the periods automatically (appending a period would result in
-; two periods being displayed).
+; Note: When translating this text:
+; - All translations should back-translate to the same meaning.
+; - Do not add to or change the meaning of messages to suit your personal taste.
+; - Do not add or remove sentences, or add or omit information within sentences.
+; - Do not remove these words: all, only, automatically, now, later, may, must, and not.
+; - Do not add periods (.) or colons (:) or ellipses (...) to the end of messages that didn't have them already.
+; - Do not remove periods or colons or ellipses or question marks from the end of messages.
+; - Do not replace periods with colons. Replacing '...' with '…' is allowed.
+; - Do not add or remove number placeholders (%1, %2, etc.). Changing the order is allowed.
+; - Do not add or remove named placeholders ([name], [name/ver], etc.). Do not replace one with another.
+; - Do not add or remove line breaks (%n).
+; - Do not add accelerators (&) or create collisions. Remove an accelerator only if it cannot be moved to another letter.
+; - Do not add new custom messages to the [CustomMessages] section.
+; - Do not translate comments like these.
+; - Keep AboutSetupNote empty.
+; Before you start, decide how you will translate each of these recurring terms:
+; - Setup, Uninstall (the program), uninstall (the verb), Cannot uninstall,
+;   program, application, component, task,
+;   shortcut, Start Menu, folder, directory, path, location, drive,
+;   existing file, source file, registry, INI entries, README,
+;   computer, Windows, version, administrator, all users, current user,
+;   Downloading files, Extracting files, aborted, corrupted, close (applications), restart,
+;   Select action, try again, anyway, at least,
+;   and the button captions OK, Cancel, Yes, No, Next, Back, Install, Browse, Finish.
+; - When in doubt, use Microsoft Terminology Search from:
+;   https://msit.powerbi.com/view?r=eyJrIjoiODJmYjU4Y2YtM2M0ZC00YzYxLWE1YTktNzFjYmYxNTAxNjQ0IiwidCI6IjcyZjk4OGJmLTg2ZjEtNDFhZi05MWFiLTJkN2NkMDExZGI0NyIsImMiOjV9
+; Removing this section from your translation is allowed, but do not disregard it.
 
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
+; The following three entries are very important. Be sure to read and
 ; understand the '[LangOptions] section' topic in the help file.
 LanguageName=Türkçe
 LanguageID=$041f
@@ -59,9 +82,11 @@ OnlyOnTheseArchitectures=Bu uygulama, yalnızca şu işlemci mimarileri için ta
 WinVersionTooLowError=Bu uygulama için %1 sürüm %2 ya da üzeri gereklidir.
 WinVersionTooHighError=Bu uygulama, %1 sürüm %2 ya da üzerine kurulamaz.
 AdminPrivilegesRequired=Bu uygulamayı kurmak için Yönetici yetkileri olan bir kullanıcı ile oturum açılmış olmalıdır.
+; 'Power Users group' is an outdated term but should still be translated, not dropped or modernized
 PowerUserPrivilegesRequired=Bu uygulamayı kurarken, Yönetici ya da Güçlü Kullanıcılar grubundaki bir kullanıcı ile oturum açılmış olması gereklidir.
-SetupAppRunningError=Kurulum yardımcısı %1 uygulamasının çalışmakta olduğunu algıladı.%n%nLütfen uygulamanın çalışan tüm kopyalarını kapatıp, ilerlemek için Tamam, kurulum yardımcısından çıkmak için İptal üzerine tıklayın.
-UninstallAppRunningError=Kaldırma yardımcısı, %1 uygulamasının çalışmakta olduğunu algıladı.%n%nLütfen uygulamanın çalışan tüm kopyalarını kapatıp, ilerlemek için Tamam ya da kaldırma yardımcısından çıkmak için İptal üzerine tıklayın.
+; 'instance' may also be translated as 'copy'
+SetupAppRunningError=Kurulum yardımcısı %1 uygulamasının açık olduğunu algıladı.%n%nLütfen uygulamanın tüm açık kopyalarını kapatıp, ilerlemek için Tamam, çıkmak için İptal üzerine tıklayın.
+UninstallAppRunningError=Kaldırma yardımcısı, %1 uygulamasının açık olduğunu algıladı.%n%nLütfen uygulamanın tüm açık kopyalarını kapatıp, ilerlemek için Tamam ya da çıkmak için İptal üzerine tıklayın.
 
 ; *** Başlangıç soruları
 PrivilegesRequiredOverrideTitle=Kurulum kipini seçin
@@ -142,7 +167,7 @@ InfoAfterClickLabel=Uygulamayı kurmaya hazır olduğunuzda Sonraki üzerine tı
 WizardUserInfo=Kullanıcı bilgileri
 UserInfoDesc=Lütfen bilgilerinizi yazın.
 UserInfoName=K&ullanıcı adı:
-UserInfoOrg=Ku&rum:
+UserInfoOrg=Ku&ruluş:
 UserInfoSerial=&Seri numarası:
 UserInfoNameRequired=Bir ad yazmalısınız.
 
@@ -171,6 +196,7 @@ DirDoesntExist=Klasör:%n%n%1%n%nbulunamadı. Klasörün oluşturulmasını iste
 WizardSelectComponents=Bileşenleri seçin
 SelectComponentsDesc=Hangi bileşenler kurulacak?
 SelectComponentsLabel2=Kurmak istediğiniz bileşenleri seçin; kurmak istemediğiniz bileşenlerin işaretini kaldırın. İlerlemeye hazır olduğunuzda Sonraki üzerine tıklayın.
+; don't translate 'Full' as 'Normal' or 'Default'
 FullInstallation=Tam kurulum
 ; Olabiliyorsa 'Compact' ifadesini kendi dilinizde 'Minimal' anlamında çevirmeyin
 CompactInstallation=Normal kurulum
@@ -343,7 +369,8 @@ ErrorCopying=Bir dosya kopyalanırken sorun çıktı:
 ErrorDownloading=Bir dosya indirilirken sorun çıktı:
 ErrorExtracting=Bir arşiv ayıklanırken sorun çıktı:
 ErrorReplacingExistingFile=Var olan dosya değiştirilirken sorun çıktı:
-ErrorRestartReplace=Yeniden başlatmada üzerine yazılamadı:
+; 'RestartReplace' bir iç adlandırmadır. Aynen kullanabilirsiniz
+ErrorRestartReplace=RestartReplace tamamlanamadı:
 ErrorRenamingTemp=Kurulum klasöründeki bir dosyanın adı değiştirilirken sorun çıktı:
 ErrorRegisterServer=DLL/OCX kayıt edilemedi: %1
 ErrorRegSvr32Failed=RegSvr32 işlemi şu kod ile tamamlanamadı: %1
