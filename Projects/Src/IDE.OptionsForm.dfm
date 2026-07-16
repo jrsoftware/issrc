@@ -5,7 +5,7 @@ object OptionsForm: TOptionsForm
   BorderStyle = bsDialog
   Caption = 'Options'
   ClientHeight = 453
-  ClientWidth = 669
+  ClientWidth = 1001
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -16,7 +16,7 @@ object OptionsForm: TOptionsForm
   OnCreate = FormCreate
   OnShow = FormShow
   DesignSize = (
-    669
+    1001
     453)
   TextHeight = 13
   object GroupBox1: TNewGroupBox
@@ -403,8 +403,44 @@ object OptionsForm: TOptionsForm
       TabOrder = 7
     end
   end
+  object GroupBox2: TNewGroupBox
+    Left = 672
+    Top = 8
+    Width = 321
+    Height = 401
+    Anchors = [akLeft, akTop, akBottom]
+    Caption = ' Inspector '
+    TabOrder = 2
+    object InspectorShowAllKnownDirectivesCheck: TCheckBox
+      Left = 8
+      Top = 16
+      Width = 305
+      Height = 17
+      Anchors = [akLeft, akTop, akRight]
+      Caption = 'Show all known directives'
+      TabOrder = 0
+    end
+    object InspectorQuoteNewDirectiveValuesCheck: TCheckBox
+      Left = 8
+      Top = 36
+      Width = 305
+      Height = 17
+      Anchors = [akLeft, akTop, akRight]
+      Caption = 'Quote new directive values'
+      TabOrder = 1
+    end
+    object InspectorQuoteNewParameterValuesCheck: TCheckBox
+      Left = 8
+      Top = 56
+      Width = 305
+      Height = 17
+      Anchors = [akLeft, akTop, akRight]
+      Caption = 'Quote new parameter values'
+      TabOrder = 2
+    end
+  end
   object OKButton: TButton
-    Left = 500
+    Left = 832
     Top = 421
     Width = 73
     Height = 23
@@ -412,10 +448,10 @@ object OptionsForm: TOptionsForm
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 2
+    TabOrder = 3
   end
   object CancelButton: TButton
-    Left = 580
+    Left = 912
     Top = 421
     Width = 73
     Height = 23
@@ -423,7 +459,7 @@ object OptionsForm: TOptionsForm
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 3
+    TabOrder = 4
   end
   object AssocButton: TButton
     Left = 16
@@ -432,7 +468,7 @@ object OptionsForm: TOptionsForm
     Height = 23
     Anchors = [akLeft, akBottom]
     Caption = '&Associate .%1 files with this compiler'
-    TabOrder = 4
+    TabOrder = 5
     OnClick = AssocButtonClick
   end
   object FontDialog: TFontDialog

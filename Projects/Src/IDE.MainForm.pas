@@ -146,6 +146,9 @@ type
     OpenIncludedFiles: Boolean;
     AutoHideNewIncludedFiles: Boolean;
     ShowCaretPosition: Boolean;
+    InspectorShowAllKnownDirectives: Boolean;
+    InspectorQuoteNewParameterValues: Boolean;
+    InspectorQuoteNewDirectiveValues: Boolean;
   end;
 
   TMainForm = class(TUIStateForm)
@@ -519,9 +522,6 @@ type
     FHighContrastActive: Boolean;
     FDonateImageMenuItem: TMenuItem;
     FInspector: TInspector;
-    FInspectorShowAllKnownDirectives: Boolean;
-    FInspectorQuoteNewParameterValues: Boolean;
-    FInspectorQuoteNewDirectiveValues: Boolean;
     FLiveScriptObjectFactories: TObjectDictionary<TScintEdit, TLiveScriptObjectFactory>;
     FInspectorSplitPanel: TPanel;
     procedure AppOnActivate(Sender: TObject);
@@ -877,9 +877,9 @@ constructor TMainForm.Create(AOwner: TComponent);
     Ini := TConfigIniFile.Create;
     try
       { Inspector configuration options - loaded early for SetInspectorVisible }
-      FInspectorShowAllKnownDirectives := Ini.ReadBool('Options', 'InspectorShowAllKnownDirectives', True);
-      FInspectorQuoteNewParameterValues := Ini.ReadBool('Options', 'InspectorQuoteNewParameterValues', True);
-      FInspectorQuoteNewDirectiveValues := Ini.ReadBool('Options', 'InspectorQuoteNewDirectiveValues', False);
+      FOptions.InspectorShowAllKnownDirectives := Ini.ReadBool('Options', 'InspectorShowAllKnownDirectives', True);
+      FOptions.InspectorQuoteNewParameterValues := Ini.ReadBool('Options', 'InspectorQuoteNewParameterValues', True);
+      FOptions.InspectorQuoteNewDirectiveValues := Ini.ReadBool('Options', 'InspectorQuoteNewDirectiveValues', False);
 
       { Menu check boxes state }
       ToolbarPanel.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
@@ -3209,10 +3209,10 @@ begin
       FInspectorSplitPanel := CreateSplitPanel(JvInspector);
       FInspector := TInspector.Create(JvInspector,
         LiveScriptObjectFactoryForMemo(FActiveMemo),
-        FInspectorShowAllKnownDirectives and (FActiveMemo = FMainMemo));
+        FOptions.InspectorShowAllKnownDirectives and (FActiveMemo = FMainMemo));
       UpdateInspectorWidth(FInspector.Width);
-      FInspector.QuoteNewParameterValues := FInspectorQuoteNewParameterValues;
-      FInspector.QuoteNewDirectiveValues := FInspectorQuoteNewDirectiveValues;
+      FInspector.QuoteNewParameterValues := FOptions.InspectorQuoteNewParameterValues;
+      FInspector.QuoteNewDirectiveValues := FOptions.InspectorQuoteNewDirectiveValues;
       FInspector.UpdateTheme(FTheme);
       FInspector.UpdateFromCaret;
     end else begin
@@ -3652,7 +3652,7 @@ begin
 
     if FInspector <> nil then
       FInspector.SetActiveFactory(LiveScriptObjectFactoryForMemo(FActiveMemo),
-        FInspectorShowAllKnownDirectives and (FActiveMemo = FMainMemo));
+        FOptions.InspectorShowAllKnownDirectives and (FActiveMemo = FMainMemo));
   end;
 end;
 
@@ -4131,6 +4131,9 @@ begin
     OptionsForm.FontPanel.Color := FMainMemo.Color;
     OptionsForm.HighlightWordAtCursorOccurrencesCheck.Checked := FOptions.HighlightWordAtCursorOccurrences;
     OptionsForm.HighlightSelTextOccurrencesCheck.Checked := FOptions.HighlightSelTextOccurrences;
+    OptionsForm.InspectorShowAllKnownDirectivesCheck.Checked := FOptions.InspectorShowAllKnownDirectives;
+    OptionsForm.InspectorQuoteNewDirectiveValuesCheck.Checked := FOptions.InspectorQuoteNewDirectiveValues;
+    OptionsForm.InspectorQuoteNewParameterValuesCheck.Checked := FOptions.InspectorQuoteNewParameterValues;
 
     const SaveLanguage = FOptions.Language;
 
@@ -4169,6 +4172,9 @@ begin
     FOptions.Language := TIDELanguage(OptionsForm.LanguageComboBox.ItemIndex);
     FOptions.HighlightWordAtCursorOccurrences := OptionsForm.HighlightWordAtCursorOccurrencesCheck.Checked;
     FOptions.HighlightSelTextOccurrences := OptionsForm.HighlightSelTextOccurrencesCheck.Checked;
+    FOptions.InspectorShowAllKnownDirectives := OptionsForm.InspectorShowAllKnownDirectivesCheck.Checked;
+    FOptions.InspectorQuoteNewDirectiveValues := OptionsForm.InspectorQuoteNewDirectiveValuesCheck.Checked;
+    FOptions.InspectorQuoteNewParameterValues := OptionsForm.InspectorQuoteNewParameterValuesCheck.Checked;
 
     UpdateCaption;
     UpdatePreprocMemos;
@@ -4185,6 +4191,11 @@ begin
     UpdateOccurrenceIndicators(FActiveMemo);
     UpdateKeyMapping;
     UpdateTheme;
+    if FInspector <> nil then begin
+      FInspector.ShowAllKnownDirectives := FOptions.InspectorShowAllKnownDirectives and (FActiveMemo = FMainMemo);
+      FInspector.QuoteNewDirectiveValues := FOptions.InspectorQuoteNewDirectiveValues;
+      FInspector.QuoteNewParameterValues := FOptions.InspectorQuoteNewParameterValues;
+    end;
 
     { Save new options }
     Ini := TConfigIniFile.Create;
@@ -4225,9 +4236,9 @@ begin
       Ini.WriteString('Options', 'EditorFontName', FMainMemo.Font.Name);
       Ini.WriteInteger('Options', 'EditorFontSize', FMainMemo.Font.Size);
       Ini.WriteInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset);
-      Ini.WriteBool('Options', 'InspectorShowAllKnownDirectives', FInspectorShowAllKnownDirectives);
-      Ini.WriteBool('Options', 'InspectorQuoteNewParameterValues', FInspectorQuoteNewParameterValues);
-      Ini.WriteBool('Options', 'InspectorQuoteNewDirectiveValues', FInspectorQuoteNewDirectiveValues);
+      Ini.WriteBool('Options', 'InspectorShowAllKnownDirectives', FOptions.InspectorShowAllKnownDirectives);
+      Ini.WriteBool('Options', 'InspectorQuoteNewParameterValues', FOptions.InspectorQuoteNewParameterValues);
+      Ini.WriteBool('Options', 'InspectorQuoteNewDirectiveValues', FOptions.InspectorQuoteNewDirectiveValues);
     finally
       Ini.Free;
     end;

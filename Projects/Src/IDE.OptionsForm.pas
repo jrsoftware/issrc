@@ -67,6 +67,10 @@ type
     SmartHomeCheck: TCheckBox;
     Label6: TNewStaticText;
     LanguageComboBox: TComboBox;
+    GroupBox2: TNewGroupBox;
+    InspectorShowAllKnownDirectivesCheck: TCheckBox;
+    InspectorQuoteNewDirectiveValuesCheck: TCheckBox;
+    InspectorQuoteNewParameterValuesCheck: TCheckBox;
     procedure AssocButtonClick(Sender: TObject);
     procedure ChangeFontButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);

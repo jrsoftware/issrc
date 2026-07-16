@@ -79,6 +79,8 @@ type
     function GetDividerWidth: Integer;
     function GetWidth: Integer;
     procedure SetDividerWidth(const Value: Integer);
+    procedure SetQuoteNewDirectiveValues(const Value: Boolean);
+    procedure SetQuoteNewParameterValues(const Value: Boolean);
     procedure SetShowAllKnownDirectives(const Value: Boolean);
     procedure SetWidth(const Value: Integer);
   public
@@ -95,9 +97,9 @@ type
       write SetShowAllKnownDirectives;
     { These only apply to text values }
     property QuoteNewParameterValues: Boolean read FQuoteNewParameterValues
-      write FQuoteNewParameterValues;
+      write SetQuoteNewParameterValues;
     property QuoteNewDirectiveValues: Boolean read FQuoteNewDirectiveValues
-      write FQuoteNewDirectiveValues;
+      write SetQuoteNewDirectiveValues;
     property JvInspector: TJvInspector read FJvInspector;
     property Width: Integer read GetWidth write SetWidth;
     property DividerWidth: Integer read GetDividerWidth write SetDividerWidth;
@@ -1029,6 +1031,20 @@ end;
 procedure TInspector.SetDividerWidth(const Value: Integer);
 begin
   FJvInspector.Divider := Value;
+end;
+
+procedure TInspector.SetQuoteNewDirectiveValues(const Value: Boolean);
+begin
+  FQuoteNewDirectiveValues := Value;
+  if FLiveDirectiveSection <> nil then
+    FLiveDirectiveSection.Section.QuoteNewValues := Value;
+end;
+
+procedure TInspector.SetQuoteNewParameterValues(const Value: Boolean);
+begin
+  FQuoteNewParameterValues := Value;
+  if FLiveEntry <> nil then
+    FLiveEntry.Entry.QuoteNewValues := Value;
 end;
 
 procedure TInspector.SetShowAllKnownDirectives(const Value: Boolean);
