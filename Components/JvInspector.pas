@@ -1776,7 +1776,7 @@ var
 begin
   if (not DroppedDown) and (ListBox <> nil) then
   begin
-    ListBox.Width := Rects[iprValueArea].Width;
+    ListBox.Width := Abs(Rects[iprValueArea].Width);
     TListBox(ListBox).Font := TCustomEditAccessProtected(EditCtrl).Font;
     ListBox.Items.Clear;
     GetValueList(ListBox.Items);
@@ -1966,7 +1966,7 @@ end;
 
 procedure TJvCustomInspectorItem.EditKeyPress(Sender: TObject; var Key: Char);
 begin
-  if (iifValueList in Flags) and not ReadOnly then
+  if (iifValueList in Flags) and not ReadOnly and (ListBox <> nil) then
     AutoComplete(Key);
 end;
 
