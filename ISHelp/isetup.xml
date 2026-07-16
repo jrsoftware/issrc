@@ -3793,6 +3793,48 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 </tr>
 </table>
 
+<p>The Inspector supports its own keyboard and mouse commands, listed below.</p>
+
+<table>
+<tr><th>Command</th><th>Keyboard or mouse</th></tr>
+<tr>
+  <td>Move between rows</td><td>Up or Down</td>
+</tr>
+<tr>
+  <td>Expand the selected category row</td><td>Ctrl+Right or Numpad +</td>
+</tr>
+<tr>
+  <td>Collapse the selected category row</td><td>Ctrl+Left or Numpad -</td>
+</tr>
+<tr>
+  <td>Expand or collapse the selected category row</td><td>Ctrl+Enter</td>
+</tr>
+<tr>
+  <td>Expand or collapse any row</td><td>Click the expand button, or DoubleClick the row's name</td>
+</tr>
+<tr>
+  <td>Commit the value being edited</td><td>Enter</td>
+</tr>
+<tr>
+  <td>Discard changes to the value being edited</td><td>Esc</td>
+</tr>
+<tr>
+  <td>Open or close the drop-down list of a choice value</td><td>Alt+Down, Alt+Up, or click the drop-down button</td>
+</tr>
+<tr>
+  <td>Change to the next value in the list</td><td>Ctrl+Down, Ctrl+Enter, or DoubleClick the value</td>
+</tr>
+<tr>
+  <td>Change to the previous value in the list</td><td>Ctrl+Up</td>
+</tr>
+<tr>
+  <td>Toggle a <tt>yes</tt>/<tt>no</tt> value</td><td>Space or click the checkbox</td>
+</tr>
+<tr>
+  <td>Show help for the selected directive, parameter, or flag</td><td>F1</td>
+</tr>
+</table>
+
 </body>
 </topic>
 
