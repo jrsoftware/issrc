@@ -69,7 +69,7 @@ type
     procedure DebugSectionsRowGetAsString(Sender: TJvCustomInspectorItem; var Value: String);
     procedure DebugEarlyExitsRowGetAsString(Sender: TJvCustomInspectorItem; var Value: String);
     {$ENDIF}
-    function ItemValueIsFromScript(const AItem: TJvCustomInspectorItem): Boolean;
+    function ItemShouldBeBold(const AItem: TJvCustomInspectorItem): Boolean;
     procedure PainterSetItemColors(Item: TJvCustomInspectorItem;
       Canvas: TCanvas);
     procedure JvInspectorBeforeEdit(Sender: TObject;
@@ -148,10 +148,10 @@ begin
   inherited;
 end;
 
-function TInspector.ItemValueIsFromScript(
+function TInspector.ItemShouldBeBold(
   const AItem: TJvCustomInspectorItem): Boolean;
 
-  function RowValueIsFromScript(const ARow: TInspectorRow): Boolean;
+  function RowShouldBeBold(const ARow: TInspectorRow): Boolean;
   begin
     Result := False;
     case ARow.Kind of
@@ -169,7 +169,9 @@ function TInspector.ItemValueIsFromScript(
             Entry.FlagIncluded(Index, ARow.FlagName);
         end;
       irkDirective:
-        begin
+        { Without ShowAllKnownDirectives only directives which are in the
+          script get a row, so bold would say nothing }
+        if FShowAllKnownDirectives then begin
           var Section: TScriptDirectiveSection;
           var Index: Integer;
           Result := TryGetRowDirectiveSection(ARow, Section, Index);
@@ -186,7 +188,7 @@ function TInspector.ItemValueIsFromScript(
 
 begin
   var Row: TInspectorRow;
-  Result := TryGetRow(AItem, Row) and RowValueIsFromScript(Row);
+  Result := TryGetRow(AItem, Row) and RowShouldBeBold(Row);
 end;
 
 function TInspector.TryGetRowParameterEntry(const ARow: TInspectorRow;
@@ -216,9 +218,8 @@ end;
 procedure TInspector.PainterSetItemColors(Item: TJvCustomInspectorItem;
   Canvas: TCanvas);
 begin
-  { Called by the DotNET painter just before it draws each row's name and again
-    just before its value }
-  if ItemValueIsFromScript(Item) then
+  { Called just before it draws each row's name and again just before its value }
+  if ItemShouldBeBold(Item) then
     Canvas.Font.Style := Canvas.Font.Style + [fsBold];
 end;
 
@@ -229,7 +230,7 @@ procedure TInspector.JvInspectorBeforeEdit(Sender: TObject;
   Item: TJvCustomInspectorItem; Edit: TCustomEdit);
 begin
   { Bold the in-place editor's font as well }
-  if ItemValueIsFromScript(Item) then
+  if ItemShouldBeBold(Item) then
     TControlAccess(Edit).Font.Style := TControlAccess(Edit).Font.Style + [fsBold];
 end;
 
