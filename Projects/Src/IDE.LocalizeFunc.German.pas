@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..959] of TTranslationPair = (
+  GermanIDETranslations: array [0..957] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -972,10 +972,8 @@ const
     (English: 'This operation is not valid because the current image contains no valid header.'; Localized: 'Dieser Vorgang ist ungültig, da das aktuelle Bild keinen gültigen Header enthält.'),
     (English: 'The new size provided for image resizing is invalid.'; Localized: 'Die für die Bildgrößenänderung angegebene neue Größe ist ungültig.'),
     (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: 'Das "Portable Network Graphics"-Bild konnte nicht geladen werden, da es eine ungültige Bildbittiefe verwendet.'),
-    (English: '(uninitialized)'; Localized: '(nicht initialisiert)'),
     (English: 'Exception '; Localized: 'Ausnahme '),
-    (English: 'Data cannot be accessed as %s'; Localized: 'Auf die Daten kann nicht als %s zugegriffen werden'),
-    (English: 'Data not initialized'; Localized: 'Daten nicht initialisiert'));
+    (English: 'Data cannot be accessed as %s'; Localized: 'Auf die Daten kann nicht als %s zugegriffen werden'));
 
 implementation
 

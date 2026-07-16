@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..959] of TTranslationPair = (
+  DutchIDETranslations: array [0..957] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -972,10 +972,8 @@ const
     (English: 'This operation is not valid because the current image contains no valid header.'; Localized: 'Deze bewerking is niet geldig omdat de huidige afbeelding geen geldige header bevat.'),
     (English: 'The new size provided for image resizing is invalid.'; Localized: 'De nieuwe grootte die is opgegeven voor het wijzigen van het afbeeldingsformaat is ongeldig.'),
     (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: 'De "Portable Network Graphics"-afbeelding kan niet worden geladen omdat deze een ongeldige bitdiepte gebruikt.'),
-    (English: '(uninitialized)'; Localized: '(niet geïnitialiseerd)'),
     (English: 'Exception '; Localized: 'Uitzondering '),
-    (English: 'Data cannot be accessed as %s'; Localized: 'Gegevens kunnen niet als %s worden benaderd'),
-    (English: 'Data not initialized'; Localized: 'Gegevens niet geïnitialiseerd'));
+    (English: 'Data cannot be accessed as %s'; Localized: 'Gegevens kunnen niet als %s worden benaderd'));
 
 implementation
 

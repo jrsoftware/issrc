@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..959] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..957] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -973,10 +973,8 @@ const
     (English: 'This operation is not valid because the current image contains no valid header.'; Localized: '現在の画像に有効なヘッダーが含まれていないため、この操作は無効です。'),
     (English: 'The new size provided for image resizing is invalid.'; Localized: '画像のサイズ変更のために指定された新しいサイズが無効です。'),
     (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: '"Portable Network Graphics" 画像は、無効な画像のビット深度を使用しているため読み込めませんでした。'),
-    (English: '(uninitialized)'; Localized: '（未初期化）'),
     (English: 'Exception '; Localized: '例外 '),
-    (English: 'Data cannot be accessed as %s'; Localized: 'データに %s としてアクセスできません'),
-    (English: 'Data not initialized'; Localized: 'データが初期化されていません'));
+    (English: 'Data cannot be accessed as %s'; Localized: 'データに %s としてアクセスできません'));
 
 implementation
 

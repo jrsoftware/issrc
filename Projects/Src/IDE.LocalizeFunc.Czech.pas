@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..959] of TTranslationPair = (
+  CzechIDETranslations: array [0..957] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -972,10 +972,8 @@ const
     (English: 'This operation is not valid because the current image contains no valid header.'; Localized: 'Tato operace není platná, protože aktuální obrázek neobsahuje platnou hlavičku.'),
     (English: 'The new size provided for image resizing is invalid.'; Localized: 'Nová velikost zadaná pro změnu velikosti obrázku je neplatná.'),
     (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: 'Obrázek "Portable Network Graphics" nelze načíst, protože používá neplatnou bitovou hloubku obrázku.'),
-    (English: '(uninitialized)'; Localized: '(neinicializováno)'),
     (English: 'Exception '; Localized: 'Výjimka '),
-    (English: 'Data cannot be accessed as %s'; Localized: 'K datům nelze přistupovat jako %s'),
-    (English: 'Data not initialized'; Localized: 'Data nejsou inicializována'));
+    (English: 'Data cannot be accessed as %s'; Localized: 'K datům nelze přistupovat jako %s'));
 
 implementation
 
