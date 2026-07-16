@@ -290,7 +290,6 @@ type
     procedure DrawName(const ACanvas: TCanvas);
     procedure DrawValue(const ACanvas: TCanvas); virtual;
     function EditFocused: Boolean;
-    procedure ExpandItems(AExpand: Boolean);
     procedure InitEdit; dynamic;
     procedure DoneEdit(const CancelEdits: Boolean = False); dynamic;
     procedure ScrollInView;
@@ -780,7 +779,7 @@ begin
     if not DraggingDivider then
       Selecting := True;
   end;
-  if Button in [mbLeft, mbRight] then
+  if Button = mbLeft then
   begin
     if (Item <> nil) and
       ((Item.Count > 0) or (iifExpanded in Item.Flags)) then
@@ -790,8 +789,6 @@ begin
       begin
         Item.Expanded := not Item.Expanded;
         Selecting := False;
-        if Button = mbRight then
-          Item.ExpandItems(Item.Expanded);
       end;
     end;
   end;
@@ -2485,16 +2482,6 @@ end;
 function TJvCustomInspectorItem.EditFocused: Boolean;
 begin
   Result := (EditCtrl <> nil) and EditCtrl.Focused;
-end;
-
-procedure TJvCustomInspectorItem.ExpandItems(AExpand: Boolean);
-begin
-  for var i := 0 to Count - 1 do
-    if Items[i].Count > 0 then
-    begin
-      Items[i].Expanded := AExpand;
-      Items[i].ExpandItems(AExpand);
-    end;
 end;
 
 //=== { TJvInspectorListBox } ================================================
