@@ -144,10 +144,18 @@ type
     FMetadata: TScriptSectionMetadata; { May be nil }
     FLines: TObjectList<TScriptDirectiveSectionLine>;
     FOnChange: TNotifyEvent;
+    FUpdateLevel: Integer;
+    FPendingChange: Boolean;
     FQuoteNewValues: Boolean;
+    procedure ApplyFlagRules(const AIndex: Integer;
+      const AIncludedFlagName: String);
+    procedure BeginUpdate;
     procedure Changed;
+    procedure EndUpdate;
     function GetNamedLine(const AIndex: Integer): TScriptDirectiveSectionLine;
     function GetLine(Index: Integer): TScriptDirectiveSectionLine;
+    procedure SetFlagInternal(const AIndex: Integer; const AFlagName: String;
+      const AInclude: Boolean);
   public
     constructor Create(const AMetadata: TScriptSectionMetadata);
     destructor Destroy; override;
@@ -161,6 +169,9 @@ type
     procedure SetValue(const AIndex: Integer; const AValue: String);
     function Add(const AName, AValue: String): Integer;
     procedure Remove(const AIndex: Integer);
+    function FlagIncluded(const AIndex: Integer; const AFlagName: String): Boolean;
+    procedure SetFlag(const AIndex: Integer; const AFlagName: String;
+      const AInclude: Boolean);
     function TryGetDefinition(const AName: String;
       out ADefinition: TScriptParameterDefinition): Boolean;
     function DefaultValue(const AName: String): String;
@@ -180,6 +191,7 @@ function UnquoteScriptDirectiveValue(const S: String): String;
 function TryParseScriptDirectiveLine(const S: String;
   out ANameText, ARawValue: String): Boolean;
 function ContainsLineBreak(const S: String): Boolean;
+function ScriptValueIncludesFlag(const AValue, AFlagName: String): Boolean;
 
 implementation
 
@@ -378,6 +390,32 @@ begin
     end;
   end;
   Result := False;
+end;
+
+function ScriptValueIncludesFlag(const AValue, AFlagName: String): Boolean;
+begin
+  var StartIndex, TokenLength: Integer;
+  Result := FindScriptFlagToken(AValue, AFlagName, StartIndex, TokenLength);
+end;
+
+function RemoveScriptFlagTokens(const AValue, AFlagName: String): String;
+begin
+  Result := AValue;
+
+  { Duplicates of the flag are all removed so it really ends up excluded }
+  var StartIndex, TokenLength: Integer;
+  while FindScriptFlagToken(Result, AFlagName, StartIndex, TokenLength) do begin
+    { Remove only the token itself plus one adjacent whitespace run }
+    var RemoveEnd := StartIndex + TokenLength - 1;
+    if RemoveEnd < Length(Result) then begin
+      while (RemoveEnd < Length(Result)) and (Result[RemoveEnd+1] <= ' ') do
+        Inc(RemoveEnd);
+    end else begin
+      while (StartIndex > 1) and (Result[StartIndex-1] <= ' ') do
+        Dec(StartIndex);
+    end;
+    Result := Copy(Result, 1, StartIndex-1) + Copy(Result, RemoveEnd+1, MaxInt);
+  end;
 end;
 
 { TScriptEntryParameter }
@@ -791,9 +829,7 @@ end;
 function TScriptParameterEntry.FlagIncluded(const AIndex: Integer;
   const AFlagName: String): Boolean;
 begin
-  var StartIndex, TokenLength: Integer;
-  Result := FindScriptFlagToken(GetNamedParameter(AIndex).Value, AFlagName,
-    StartIndex, TokenLength);
+  Result := ScriptValueIncludesFlag(GetNamedParameter(AIndex).Value, AFlagName);
 end;
 
 procedure TScriptParameterEntry.ApplyFlagRules(const AParameterName,
@@ -854,8 +890,7 @@ begin
 
   const Parameter = GetNamedParameter(AIndex);
   const OldValue = Parameter.Value;
-  var StartIndex, TokenLength: Integer;
-  const Found = FindScriptFlagToken(OldValue, AFlagName, StartIndex, TokenLength);
+  const Found = ScriptValueIncludesFlag(OldValue, AFlagName);
   if AInclude then begin
     if Found then
       Exit;
@@ -867,21 +902,7 @@ begin
   end else begin
     if not Found then
       Exit;
-    { Duplicates of the flag are all removed so it really ends up excluded }
-    var NewValue := OldValue;
-    repeat
-      { Remove only the token itself plus one adjacent whitespace run }
-      var RemoveEnd := StartIndex + TokenLength - 1;
-      if RemoveEnd < Length(NewValue) then begin
-        while (RemoveEnd < Length(NewValue)) and (NewValue[RemoveEnd+1] <= ' ') do
-          Inc(RemoveEnd);
-      end else begin
-        while (StartIndex > 1) and (NewValue[StartIndex-1] <= ' ') do
-          Dec(StartIndex);
-      end;
-      NewValue := Copy(NewValue, 1, StartIndex-1) +
-        Copy(NewValue, RemoveEnd+1, MaxInt);
-    until not FindScriptFlagToken(NewValue, AFlagName, StartIndex, TokenLength);
+    const NewValue = RemoveScriptFlagTokens(OldValue, AFlagName);
     if Trim(NewValue) = '' then
       Remove(AIndex) { Nothing left so remove the whole parameter }
     else
@@ -929,9 +950,26 @@ begin
   inherited;
 end;
 
+procedure TScriptDirectiveSection.BeginUpdate;
+begin
+  Inc(FUpdateLevel);
+end;
+
+procedure TScriptDirectiveSection.EndUpdate;
+begin
+  Dec(FUpdateLevel);
+  if (FUpdateLevel = 0) and FPendingChange then begin
+    FPendingChange := False;
+    if Assigned(FOnChange) then
+      FOnChange(Self);
+  end;
+end;
+
 procedure TScriptDirectiveSection.Changed;
 begin
-  if Assigned(FOnChange) then
+  if FUpdateLevel > 0 then
+    FPendingChange := True
+  else if Assigned(FOnChange) then
     FOnChange(Self);
 end;
 
@@ -1076,6 +1114,86 @@ begin
   GetNamedLine(AIndex);
   FLines.Delete(AIndex);
   Changed;
+end;
+
+function TScriptDirectiveSection.FlagIncluded(const AIndex: Integer;
+  const AFlagName: String): Boolean;
+begin
+  Result := ScriptValueIncludesFlag(GetNamedLine(AIndex).Value, AFlagName);
+end;
+
+procedure TScriptDirectiveSection.ApplyFlagRules(const AIndex: Integer;
+  const AIncludedFlagName: String);
+{ Like TScriptParameterEntry.ApplyFlagRules, but a directive's rules always
+  target the directive itself, so the rules work on the same line }
+begin
+  if FMetadata = nil then
+    Exit;
+  const Name = GetNamedLine(AIndex).Name;
+  { Includes rules run in the forward direction only }
+  for var Rule in FMetadata.FlagIncludesRules do begin
+    if SameText(Rule.ParameterName, Name) and
+       SameText(Rule.FlagName, AIncludedFlagName) then begin
+      for var ImpliedFlagName in Rule.OtherFlagNames do
+        SetFlagInternal(AIndex, ImpliedFlagName, True);
+    end;
+  end;
+  for var Rule in FMetadata.FlagExcludesRules do begin
+    if SameText(Rule.ParameterName, Name) then begin
+      if SameText(Rule.FlagName, AIncludedFlagName) then begin
+        { Forward: FlagName was included, exclude the other flags }
+        for var ExcludedFlagName in Rule.OtherFlagNames do
+          SetFlagInternal(AIndex, ExcludedFlagName, False);
+      end else begin
+        { Reverse: if a listed other flag was included, exclude
+          FlagName, but not the other listed flags }
+        for var ExcludedFlagName in Rule.OtherFlagNames do
+          if SameText(ExcludedFlagName, AIncludedFlagName) then
+            SetFlagInternal(AIndex, Rule.FlagName, False);
+      end;
+    end;
+  end;
+end;
+
+procedure TScriptDirectiveSection.SetFlagInternal(const AIndex: Integer;
+  const AFlagName: String; const AInclude: Boolean);
+{ Includes or excludes a flag in an existing directive's value. Including also
+  runs the flag rules, so other flags could be turned on or off as well. }
+begin
+  { Sanity check }
+  if not IsValidScriptFlagName(AFlagName) then
+    raise EScriptModelError.Create('Internal error: Invalid flag name');
+
+  const OldValue = GetNamedLine(AIndex).Value;
+  const Found = ScriptValueIncludesFlag(OldValue, AFlagName);
+  if AInclude then begin
+    if Found then
+      Exit;
+    var NewValue := OldValue;
+    if NewValue <> '' then
+      NewValue := NewValue + ' ';
+    SetValue(AIndex, NewValue + AFlagName);
+    ApplyFlagRules(AIndex, AFlagName);
+  end else begin
+    if not Found then
+      Exit;
+    const NewValue = RemoveScriptFlagTokens(OldValue, AFlagName);
+    if Trim(NewValue) = '' then
+      Remove(AIndex) { Nothing left so remove the whole directive }
+    else
+      SetValue(AIndex, NewValue);
+  end;
+end;
+
+procedure TScriptDirectiveSection.SetFlag(const AIndex: Integer;
+  const AFlagName: String; const AInclude: Boolean);
+begin
+  BeginUpdate;
+  try
+    SetFlagInternal(AIndex, AFlagName, AInclude);
+  finally
+    EndUpdate;
+  end;
 end;
 
 function TScriptDirectiveSection.TryGetDefinition(const AName: String;

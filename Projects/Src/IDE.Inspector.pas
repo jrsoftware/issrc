@@ -19,14 +19,15 @@ uses
   IDE.LiveScriptObjectFactory, IDE.ScriptModel, IDE.ScriptModel.Metadata;
 
 type
-  TInspectorRowKind = (irkEntryValue, irkEntryFlag, irkDirective);
+  TInspectorRowKind = (irkEntryValue, irkEntryFlag, irkDirective,
+    irkDirectiveFlag);
 
   TInspectorRow = record
     Kind: TInspectorRowKind;
     Name: String;            { irkEntryValue and irkEntryFlag: parameter name,
-                               irkDirective: directive name }
-    FlagName: String;        { irkEntryFlag }
-    NameIndex: Integer;      { irkDirective: line index,
+                               irkDirective and irkDirectiveFlag: directive name }
+    FlagName: String;        { irkEntryFlag and irkDirectiveFlag }
+    NameIndex: Integer;      { irkDirective and irkDirectiveFlag: line index,
                                irkEntryValue and irkEntryFlag: parameter index
                                -1 if known but not present in the script }
   end;
@@ -173,6 +174,13 @@ function TInspector.ItemValueIsFromScript(
           var Index: Integer;
           Result := TryGetRowDirectiveSection(ARow, Section, Index);
         end;
+      irkDirectiveFlag:
+        begin
+          var Section: TScriptDirectiveSection;
+          var Index: Integer;
+          Result := TryGetRowDirectiveSection(ARow, Section, Index) and
+            Section.FlagIncluded(Index, ARow.FlagName);
+        end;
     end;
   end;
 
@@ -235,8 +243,8 @@ procedure TInspector.JvInspectorKeyDown(Sender: TObject; var Key: Word;
     var Row: TInspectorRow;
     if (Item <> nil) and TryGetRow(Item, Row) then begin
       case Row.Kind of
-        irkEntryValue, irkDirective:
-          Result := Row.Name;
+        irkEntryValue, irkDirective, irkDirectiveFlag:
+          Result := Row.Name; { A directive's flags have no own help topic }
         irkEntryFlag:
           Result := Row.FlagName;
       end;
@@ -435,6 +443,17 @@ procedure TInspector.UpdateFromCaret;
        TryStrToBoolean(FLiveDirectiveSection.Section.Lines[ANameIndex].Value, BoolValue));
   end;
 
+  procedure AddDirectiveFlagRow(const AParent: TJvCustomInspectorItem;
+    const ADirectiveName, AFlagName: String; const ANameIndex: Integer);
+  begin
+    var Row: TInspectorRow;
+    Row.Kind := irkDirectiveFlag;
+    Row.Name := ADirectiveName;
+    Row.FlagName := AFlagName;
+    Row.NameIndex := ANameIndex;
+    AddRow(AParent, AFlagName, TypeInfo(Boolean), Row);
+  end;
+
   procedure AddDirectiveRow(const AParent: TJvCustomInspectorItem;
     const ARow: TInspectorRow);
   begin
@@ -444,8 +463,13 @@ procedure TInspector.UpdateFromCaret;
       AddRow(AParent, ARow.Name, TypeInfo(Boolean), ARow)
     else begin
       const Item = AddRow(AParent, ARow.Name, TypeInfo(String), ARow);
-      if Known and (Definition.ValueKind in [pvkChoice, pvkYesNo]) then
-        MakeDropDown(Item, ChoiceRowGetValueList);
+      if Known then begin
+        if Definition.ValueKind = pvkFlags then begin
+          for var FlagName in Definition.KnownValues do
+            AddDirectiveFlagRow(Item, ARow.Name, FlagName, ARow.NameIndex); { Adds a child to Item }
+        end else if Definition.ValueKind in [pvkChoice, pvkYesNo] then
+          MakeDropDown(Item, ChoiceRowGetValueList);
+      end;
     end;
   end;
 
@@ -770,6 +794,17 @@ begin
                     SameText(Section.DefaultValue(Row.Name), SYes) then
           Value := 1;
       end;
+    irkDirectiveFlag:
+      begin
+        var Section: TScriptDirectiveSection;
+        var Index: Integer;
+        if TryGetRowDirectiveSection(Row, Section, Index) then begin
+          if Section.FlagIncluded(Index, Row.FlagName) then
+            Value := 1;
+        end else if (Section <> nil) and
+                    ScriptValueIncludesFlag(Section.DefaultValue(Row.Name), Row.FlagName) then
+          Value := 1; { Not present in the script: show the compiler default }
+      end;
   end;
 end;
 
@@ -840,6 +875,25 @@ begin
           else if (Section <> nil) and (Row.NameIndex < 0) and
                   not SameText(NewValue, Section.DefaultValue(Row.Name)) then { Skip unchanged from default, also see below }
             Section.Add(Row.Name, NewValue);
+        end;
+      irkDirectiveFlag:
+        begin
+          var Section: TScriptDirectiveSection;
+          var Index: Integer;
+          if TryGetRowDirectiveSection(Row, Section, Index) then
+            Section.SetFlag(Index, Row.FlagName, Value <> 0) { May adjust related flags as well }
+          else if (Section <> nil) and (Row.NameIndex < 0) and (Value <> 0) then begin
+            { Group Add's and SetFlag's writes into a single undo action. The
+              new directive is seeded with the compiler default so the flags
+              shown as checked stay checked. }
+            FFactory.Memo.BeginUndoAction;
+            try
+              Section.SetFlag(Section.Add(Row.Name, Section.DefaultValue(Row.Name)),
+                Row.FlagName, True);
+            finally
+              FFactory.Memo.EndUndoAction;
+            end;
+          end;
         end;
     else
       raise Exception.Create('Internal error: RowSetAsOrdinal: unexpected row kind');

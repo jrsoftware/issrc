@@ -727,7 +727,7 @@ type
   end;
 
 var
-  SetupSectionDirectivesValues: array of TSetupSectionDirectiveValue; { Initialized below }
+  SetupSectionExpressionDirectivesValues: array of TSetupSectionDirectiveValue; { Initialized below }
 
 const
   inSquiggly = 0;
@@ -899,8 +899,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       end;
     end;
 
-    { Multi-value directives }
-    for var Item in SetupSectionDirectivesValues do
+    for var Item in SetupSectionExpressionDirectivesValues do
       FSetupSectionDirectiveValueWordList[Item.Directive] := BuildWordList(Item.Values);
   end;
 
@@ -2228,13 +2227,8 @@ initialization
     'x64', 'x64os', 'x64compatible',
     'x86', 'x86os', 'x86compatible'];
 
-  { The multi-value directives only, others come from the metadata
-    definitions, see BuildSetupDirectiveValueWordLists }
-  SetupSectionDirectivesValues := [
+  SetupSectionExpressionDirectivesValues := [
     SSDV(ssArchitecturesAllowed, ArchitecturesExpressionValues),
-    SSDV(ssArchitecturesInstallIn64BitMode, ArchitecturesExpressionValues),
-    SSDV(ssDisablePrecompiledFileVerifications, ['setup', 'setupcustomstyle', 'setupldr', 'is7z', 'isbunzip', 'isunzlib', 'islzma']),
-    SSDV(ssPrivilegesRequiredOverridesAllowed, ['commandline', 'dialog']),
-    SSDV(ssWizardStyle, ['classic', 'modern', 'light', 'dark', 'dynamic', 'excludelightbuttons', 'excludelightcontrols', 'includetitlebar', 'hidebevels', 'polar', 'slate', 'stellar', 'windows11', 'zircon'])];
+    SSDV(ssArchitecturesInstallIn64BitMode, ArchitecturesExpressionValues)];
 
 end.

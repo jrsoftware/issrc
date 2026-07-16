@@ -411,6 +411,25 @@ const
     end;
   end;
 
+  function SetupSectionDirectiveFlagValues(
+    const SetupSectionDirective: TSetupSectionDirective): TArray<String>;
+  { The flag-list directives: their value is a space separated list of flags,
+    with no free typing allowed. Expression directives like ArchitecturesAllowed
+    are not included here. Intentionally unsorted. }
+  begin
+    case SetupSectionDirective of
+      ssDisablePrecompiledFileVerifications: Result := ['setup',
+        'setupcustomstyle', 'setupldr', 'is7z', 'isbunzip', 'isunzlib',
+        'islzma'];
+      ssPrivilegesRequiredOverridesAllowed: Result := ['commandline', 'dialog'];
+      ssWizardStyle: Result := ['classic', 'modern', 'light', 'dark', 'dynamic',
+        'excludelightbuttons', 'excludelightcontrols', 'hidebevels',
+        'includetitlebar', 'polar', 'slate', 'stellar', 'windows11', 'zircon'];
+    else
+      Result := nil;
+    end;
+  end;
+
   function SetupSectionDirectiveChoiceValues(
     const SetupSectionDirective: TSetupSectionDirective): TArray<String>;
   { Multi-value directives like WizardStyle and expression directives like
@@ -468,9 +487,14 @@ const
       else if Directive in SetupSectionDirectivesVersion then
         ValueKind := pvkVersion
       else begin
-        KnownValues := SetupSectionDirectiveChoiceValues(Directive);
+        KnownValues := SetupSectionDirectiveFlagValues(Directive);
         if KnownValues <> nil then
-          ValueKind := pvkChoice;
+          ValueKind := pvkFlags
+        else begin
+          KnownValues := SetupSectionDirectiveChoiceValues(Directive);
+          if KnownValues <> nil then
+            ValueKind := pvkChoice;
+        end;
       end;
       Definitions[Ord(Directive)] := PD(
         Copy(GetEnumName(TypeInfo(TSetupSectionDirective), Ord(Directive)),
@@ -478,7 +502,17 @@ const
         ValueKind, KnownValues, Directive in SetupSectionDirectivesObsolete,
         SetupSectionDirectiveDefaultValue(Directive));
     end;
-    SectionMetadataList.Add(TScriptSectionMetadata.Create('Setup', Definitions));
+    SectionMetadataList.Add(TScriptSectionMetadata.Create('Setup', Definitions,
+      nil,
+      [FR('WizardStyle', 'classic', ['modern']),
+       FR('WizardStyle', 'light', ['dark', 'dynamic']),
+       FR('WizardStyle', 'dark', ['dynamic']), { Completes the mutually-exclusive theme trio }
+       FR('WizardStyle', 'excludelightbuttons', ['excludelightcontrols']),
+       FR('WizardStyle', 'polar', ['slate', 'stellar', 'windows11', 'zircon']),
+       { Complete the mutually-exclusive style quintet }
+       FR('WizardStyle', 'slate', ['stellar', 'windows11', 'zircon']),
+       FR('WizardStyle', 'stellar', ['windows11', 'zircon']),
+       FR('WizardStyle', 'windows11', ['zircon'])]));
   end;
 
   function LangOptionsSectionDirectiveDefaultValue(

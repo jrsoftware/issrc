@@ -488,12 +488,30 @@ begin
   Assert(Definition.ValueKind = pvkChoice);
   Assert(Length(Definition.KnownValues) = 3);
   Assert(Definition.KnownValues[0] = 'append');
-  { The multi-value and expression directives are not choices: their word
-    lists are editor autocomplete data, kept by the styler }
+  { The expression directives are not choices: their word lists are editor
+    autocomplete data, kept by the styler }
   Assert(Metadata.TryGetParameter('ArchitecturesAllowed', Definition));
   Assert(Definition.ValueKind = pvkString);
+  Assert(Length(Definition.KnownValues) = 0);
+  { The flag-list directives carry their flags like a parameter table's Flags
+    entry does, with WizardStyle's styles grouped like the compiler's style
+    groups instead of sorted }
   Assert(Metadata.TryGetParameter('WizardStyle', Definition));
-  Assert(Definition.ValueKind = pvkString);
+  Assert(Definition.ValueKind = pvkFlags);
+  Assert(Length(Definition.KnownValues) = 14);
+  Assert(Definition.KnownValues[0] = 'classic');
+  Assert(Definition.KnownValues[13] = 'zircon');
+  Assert(Definition.DefaultValue = 'classic');
+  Assert(Metadata.TryGetParameter('PrivilegesRequiredOverridesAllowed', Definition));
+  Assert(Definition.ValueKind = pvkFlags);
+  Assert(Length(Definition.KnownValues) = 2);
+  Assert(Definition.KnownValues[0] = 'commandline');
+  Assert(Definition.DefaultValue = '');
+  Assert(Metadata.TryGetParameter('DisablePrecompiledFileVerifications', Definition));
+  Assert(Definition.ValueKind = pvkFlags);
+  Assert(Length(Definition.KnownValues) = 7);
+  Assert(Definition.KnownValues[0] = 'setup');
+  Assert(Definition.DefaultValue = '');
   { The integer directives, but not the ones with richer forms like
     DiskSliceSize's 'max' and CompressionThreads' 'auto', and the version
     directives like their parameter-table counterparts }
@@ -1273,6 +1291,139 @@ begin
   end;
 end;
 
+procedure TestDirectiveSectionFlags;
+begin
+  const Counter = TChangeCounter.Create;
+  var Section := TScriptDirectiveSection.Create(nil);
+  try
+    { Toggling a flag amid unknown ones only edits that token }
+    Section.Parse(['WizardStyle=foo modern bar']);
+    Assert(Section.FlagIncluded(0, 'MODERN')); { Case-insensitive }
+    Assert(not Section.FlagIncluded(0, 'missing'));
+    Section.OnChange := Counter.HandleChange;
+    Section.SetFlag(0, 'modern', False);
+    Assert(Counter.Count = 1);
+    var Lines := Section.GetLines;
+    Assert(Lines[0] = 'WizardStyle=foo bar');
+    Section.SetFlag(0, 'hidebevels', True);
+    Lines := Section.GetLines;
+    Assert(Lines[0] = 'WizardStyle=foo bar hidebevels');
+
+    { Including a flag that is already there changes nothing }
+    Counter.Count := 0;
+    Section.SetFlag(0, 'hidebevels', True);
+    Assert(Counter.Count = 0);
+
+    { A quoted value keeps its quotes }
+    Section.Parse(['WizardStyle="modern dark"']);
+    Section.SetFlag(0, 'dark', False);
+    Lines := Section.GetLines;
+    Assert(Lines[0] = 'WizardStyle="modern"');
+
+    { Excluding the last flag removes the whole directive }
+    Section.Parse(['; c', 'WizardStyle=modern', 'Other=1']);
+    Section.SetFlag(1, 'modern', False);
+    Lines := Section.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[0] = '; c');
+    Assert(Lines[1] = 'Other=1');
+
+    { Excluding a flag also removes author-written duplicates of it }
+    Section.Parse(['WizardStyle=modern foo modern']);
+    Section.SetFlag(0, 'modern', False);
+    Lines := Section.GetLines;
+    Assert(Lines[0] = 'WizardStyle=foo');
+
+    { Without metadata there are no rules }
+    Section.Parse(['WizardStyle=classic']);
+    Section.SetFlag(0, 'modern', True);
+    Assert(Section.FlagIncluded(0, 'classic'));
+    Assert(Section.FlagIncluded(0, 'modern'));
+
+    {$IFDEF ISTESTTOOLPROJ}
+    { Flag names that cannot be a single unquoted token raise, leaving the
+      section untouched; index access requires a directive line }
+    Section.Parse(['; c', 'WizardStyle=modern']);
+    var Caught := False;
+    try
+      Section.SetFlag(1, 'x y', True);
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Caught := False;
+    try
+      Section.SetFlag(0, 'modern', False); { The comment line is not a directive }
+    except
+      on EScriptModelError do Caught := True;
+    end;
+    Assert(Caught);
+    Lines := Section.GetLines;
+    Assert((Length(Lines) = 2) and (Lines[1] = 'WizardStyle=modern'));
+    {$ENDIF}
+
+    { With the [Setup] metadata, WizardStyle's excludes rules mirror the
+      compiler's style groups: a style excludes the other styles of its own
+      group, in one change notification, and the other groups are untouched }
+    var Metadata: TScriptSectionMetadata;
+    Assert(TryGetScriptSectionMetadata('Setup', Metadata));
+    Section.Free;
+    Section := TScriptDirectiveSection.Create(Metadata);
+    Section.Parse(['WizardStyle=classic light excludelightbuttons polar']);
+    Section.OnChange := Counter.HandleChange;
+    Counter.Count := 0;
+    Section.SetFlag(0, 'modern', True);
+    Assert(Counter.Count = 1);
+    Lines := Section.GetLines;
+    Assert(Lines[0] = 'WizardStyle=light excludelightbuttons polar modern');
+
+    { The three-way dark-style group excludes pairwise in both directions }
+    Section.Parse(['WizardStyle=light']);
+    Section.SetFlag(0, 'dynamic', True);
+    Assert(Section.FlagIncluded(0, 'dynamic') and not Section.FlagIncluded(0, 'light'));
+    Section.SetFlag(0, 'dark', True);
+    Assert(Section.FlagIncluded(0, 'dark') and not Section.FlagIncluded(0, 'dynamic'));
+    Section.SetFlag(0, 'light', True);
+    Assert(Section.FlagIncluded(0, 'light') and not Section.FlagIncluded(0, 'dark'));
+
+    { The five-way special-style group too }
+    Section.Parse(['WizardStyle=windows11']);
+    Section.SetFlag(0, 'polar', True);
+    Assert(Section.FlagIncluded(0, 'polar') and not Section.FlagIncluded(0, 'windows11'));
+    Section.SetFlag(0, 'zircon', True);
+    Assert(Section.FlagIncluded(0, 'zircon') and not Section.FlagIncluded(0, 'polar'));
+    Section.SetFlag(0, 'slate', True);
+    Assert(Section.FlagIncluded(0, 'slate') and not Section.FlagIncluded(0, 'zircon'));
+    Section.SetFlag(0, 'stellar', True);
+    Assert(Section.FlagIncluded(0, 'stellar') and not Section.FlagIncluded(0, 'slate'));
+
+    { The light-control-styling pair }
+    Section.Parse(['WizardStyle=excludelightcontrols']);
+    Section.SetFlag(0, 'excludelightbuttons', True);
+    Assert(not Section.FlagIncluded(0, 'excludelightcontrols'));
+    Section.Parse(['WizardStyle=excludelightbuttons']);
+    Section.SetFlag(0, 'excludelightcontrols', True);
+    Assert(not Section.FlagIncluded(0, 'excludelightbuttons'));
+
+    { hidebevels and includetitlebar are alone in their groups and exclude
+      nothing }
+    Section.Parse(['WizardStyle=modern dark polar']);
+    Section.SetFlag(0, 'hidebevels', True);
+    Section.SetFlag(0, 'includetitlebar', True);
+    Lines := Section.GetLines;
+    Assert(Lines[0] = 'WizardStyle=modern dark polar hidebevels includetitlebar');
+
+    { The other flag-list directives have no rules }
+    Section.Parse(['PrivilegesRequiredOverridesAllowed=commandline']);
+    Section.SetFlag(0, 'dialog', True);
+    Lines := Section.GetLines;
+    Assert(Lines[0] = 'PrivilegesRequiredOverridesAllowed=commandline dialog');
+  finally
+    Section.Free;
+    Counter.Free;
+  end;
+end;
+
 procedure TestEntrySpanning;
 begin
   const Entry = TScriptParameterEntry.Create(nil);
@@ -1380,6 +1531,7 @@ begin
   TestEntryRules;
   TestEntryExcludeRules;
   TestDirectiveSection;
+  TestDirectiveSectionFlags;
   TestEntrySpanning;
 end;
 
