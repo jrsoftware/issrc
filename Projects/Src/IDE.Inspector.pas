@@ -67,7 +67,7 @@ type
     procedure PainterSetItemColors(Item: TJvCustomInspectorItem;
       Canvas: TCanvas);
     procedure JvInspectorBeforeEdit(Sender: TObject;
-      Item: TJvCustomInspectorItem; Edit: TCustomEdit);
+      Item: TJvCustomInspectorItem; Edit: TEdit);
     procedure JvInspectorKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     function GetDividerWidth: Integer;
@@ -221,15 +221,12 @@ begin
     Canvas.Font.Style := Canvas.Font.Style + [fsBold];
 end;
 
-type
-  TControlAccess = class(TControl);
-
 procedure TInspector.JvInspectorBeforeEdit(Sender: TObject;
-  Item: TJvCustomInspectorItem; Edit: TCustomEdit);
+  Item: TJvCustomInspectorItem; Edit: TEdit);
 begin
   { Bold the in-place editor's font as well }
   if ItemShouldBeBold(Item) then
-    TControlAccess(Edit).Font.Style := TControlAccess(Edit).Font.Style + [fsBold];
+    Edit.Font.Style := Edit.Font.Style + [fsBold];
 end;
 
 procedure TInspector.JvInspectorKeyDown(Sender: TObject; var Key: Word;
