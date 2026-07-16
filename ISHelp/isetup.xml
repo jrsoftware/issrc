@@ -3981,7 +3981,7 @@ iside --new-script-wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></precod
 
 <ul>
 <li>The top-level temporary directory path is retrieved using the <tt>GetTempPath2</tt> API when available. This means that when running under the SYSTEM user account, subdirectories will be created under the private <tt>%SystemRoot%\SystemTemp</tt> directory instead of the shared <tt>%SystemRoot%\Temp</tt> directory. <tt>GetTempPath2</tt> was first introduced in Windows 11 and later backported to Windows 10 and Windows Server 2016. On older systems, <tt>GetTempPath</tt> is used instead.</li>
-<li>The names of the subdirectories include ten base-36 digits (0&ndash;9, A&ndash;Z), randomly generated using a cryptographically secure random number generator (CSPRNG).</li>
+<li>The names of the subdirectories include ten base-36 digits (0-9 and A-Z), randomly generated using a cryptographically secure random number generator (CSPRNG).</li>
 <li><p>When the top-level temporary directory path is <tt>%SystemRoot%\Temp</tt>, subdirectories are created with a special access control list (ACL) that contains "allow" entries for only the current user, the built-in Administrators group, and the SYSTEM user. This is necessary because the default ACL on <tt>%SystemRoot%\Temp</tt> allows all unprivileged users to create files inside subdirectories.</p>
 <p>The same ACL is used when the process is running elevated and the top-level temporary directory is on a local drive (any path), except the current user's access is set to "Read &amp; Execute" rather than "Full Control". Although Microsoft does not intend for elevation to define a security boundary, this is done as a defense-in-depth measure to prevent non-elevated processes running under the same user account from writing to the subdirectory.</p></li>
 </ul>
@@ -4043,7 +4043,7 @@ iside --new-script-wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></precod
 <ul>
 <li>Expired and self-signed certificates are never accepted.</li>
 <li>TLS 1.0 and TLS 1.1 are never accepted. Both TLS 1.2 and TLS 1.3 are supported.</li>
-<li>Downloaded files can be verified using SHA-256 hash or an <link topic="issig"><tt>.issig</tt> signature</link>. Using the latter has the benefit that your script does not need to be changed when the downloaded file or archive changes, so any installers built will also keep working (they are "evergreen").</li>
+<li>Downloaded files can be verified using a SHA-256 hash or an <link topic="issig"><tt>.issig</tt> signature</link>. Using the latter has the benefit that your script does not need to be changed when the downloaded file or archive changes, so any installers built will also keep working (they are "evergreen").</li>
 <li>Passwords in URLs are automatically excluded from Setup's log.</li>
 </ul>
 
@@ -4076,9 +4076,9 @@ iside --new-script-wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></precod
 <ul>
 <li>Releases are built on a dedicated machine only used for this purpose. Signing keys are not stored on other machines.</li>
 <li>The Inno Setup source code is self-contained and no external dependencies are pulled in when a release is built.</li>
-<li>Precompiled files included in Inno Setup's source code are code signed and are accompanied with <link topic="issig"><tt>.issig</tt> signature</link> files to detect corruption or tampering before using them to build a release.</li>
+<li>Precompiled files included in Inno Setup's source code are code signed and are accompanied by <link topic="issig"><tt>.issig</tt> signature</link> files to detect corruption or tampering before using them to build a release.</li>
 <li>Vendor updates of third-party source code (7-Zip, LZMA SDK, zlib, bzip2, Scintilla) are reviewed before being applied. An <extlink href="https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json">SPDX Software Bill of Materials</extlink> (SBOM) is available. Of the named sources, only LZMA SDK is an integral part of the Setup program, and only in a reduced form.</li>
-<li>Release binaries are made available through <extlink href="https://github.com/jrsoftware/issrc/releases">immutable GitHub releases</extlink> and accompanied with <link topic="issig"><tt>.issig</tt> signature</link> files you can use to detect corruption or tampering before running them. For more details, see <extlink href="https://jrsoftware.org/isdl-verify.php">Verifying Inno Setup Downloads</extlink>.</li>
+<li>Release binaries are made available through <extlink href="https://github.com/jrsoftware/issrc/releases">immutable GitHub releases</extlink> and accompanied by <link topic="issig"><tt>.issig</tt> signature</link> files you can use to detect corruption or tampering before running them. For more details, see <extlink href="https://jrsoftware.org/isdl-verify.php">Verifying Inno Setup Downloads</extlink>.</li>
 <li>Our GitHub repositories require signed commits on all branches, have GitHub Actions disabled, and do not allow any workflows to run.</li>
 </ul>
 

@@ -63,11 +63,11 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   <ul>
     <li>Added new <i>Language</i> option to display the Compiler IDE in English (the default), German, Japanese, Czech, or Dutch.
     <ul>
-      <li>The translations cannot be edited, and additional languages are not being accepted. German, Japanese and Czech were chosen first because of the strong commercial support from their users, relative to the size of their communities. Thank you.</li>
+      <li>The translations cannot be edited, and additional languages are not being accepted. German, Japanese, and Czech were chosen first because of the strong commercial support from their users, relative to the size of their communities. Thank you.</li>
       <li>This applies to the Compiler IDE only. The command-line compiler (ISCC) and the compiler itself remain English.</li>
     </ul>
     </li>
-    <li>Added a new <i>RTF Editor</i> to the <i>Tools</i> menu for creating the RTF files Setup can display. It renders text exactly as Setup will, making it a small built-in replacement for the beloved WordPad that is no more.</li>
+    <li>Added a new <i>RTF Editor</i> to the <i>Tools</i> menu for creating the RTF files Setup can display. It renders text exactly as Setup will, making it a small built-in replacement for WordPad.</li>
     <li>Added new <i>Disable Output</i>, <i>Disable Compression</i>, <i>Disable Signing</i>, and <i>Disable Signcheck Validation</i> menu items to the <i>Build</i> menu. These are not remembered between sessions.</li>
     <li>Compiler errors are now also shown in the <i>Compiler Output</i> view, instead of only in a message box.</li>
     <li>The status bar now shows information about the current selection when text is selected, instead of only the caret position.</li>
@@ -92,9 +92,9 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Added new <tt>--preprocess</tt> (<tt>-e</tt>) option to preprocess to <tt>stdout</tt> and suppress compilation.</li>
     <li>Added new <tt>--messages-jsonl</tt> (<tt>-mj</tt>) option to output errors and warnings in JSONL format, making them easier to parse by tools and scripts. Warnings are not suppressed by <tt>--quiet</tt> when <tt>--messages-jsonl</tt> is active.</li>
     <li>Added new <tt>--version</tt> option to print the compiler engine version.</li>
-    <li>Improved the <tt>--quiet-progress</tt> (<tt>-qp</tt>) option, especially progress not updating when the screen is full in Windows Terminal.</li>
+    <li>Improved the <tt>--quiet-progress</tt> (<tt>-qp</tt>) option. Progress is now updated correctly when the screen is full in Windows Terminal.</li>
     <li>Warnings are now always written to <tt>stderr</tt> instead of <tt>stdout</tt>, consistent with other tools.</li>
-    <li><i>Fix:</i> ISPP option <tt>-$e</tt> (emit empty lines) now defaults to on, just like when compiling from the Compiler IDE and like the documentation said.</li>
+    <li><i>Fix:</i> ISPP option <tt>-$e</tt> (emit empty lines) now defaults to on, consistent with compilation from the Compiler IDE and with the documentation.</li>
     <li>Other minor fixes.</li>
   </ul>
   </li>
