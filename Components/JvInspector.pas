@@ -35,7 +35,7 @@ unit JvInspector;
 interface
 
 uses
-  SysUtils, Classes, Contnrs, TypInfo,
+  SysUtils, Classes, Contnrs,
   Windows, Messages, Graphics, Controls, StdCtrls, ExtCtrls,
   JvAutoComplete, JvInspectorSupport;
 
@@ -44,7 +44,6 @@ type
   TJvInspector = class;
   TJvCustomInspectorItem = class;
   TJvInspectorCustomCategoryItem = class;
-  TJvInspectorEventData = class;
 
   TInspectorItemFlag = (iifReadonly, iifExpanded, iifValueList);
   TInspectorItemFlags = set of TInspectorItemFlag;
@@ -53,8 +52,8 @@ type
     iprNameArea, iprName, iprValueArea, iprValue, iprEditValue, iprEditButton);
 
   TInspectorItemGetValueListEvent = procedure(Item: TJvCustomInspectorItem; Values: TStrings) of object;
-  TJvInspAsOrdinal = procedure(Sender: TJvInspectorEventData; var Value: Int64) of object;
-  TJvInspAsString = procedure(Sender: TJvInspectorEventData; var Value: string) of object;
+  TJvInspAsOrdinal = procedure(Sender: TJvCustomInspectorItem; var Value: Int64) of object;
+  TJvInspAsString = procedure(Sender: TJvCustomInspectorItem; var Value: string) of object;
   TInspectorBeforeEditEvent = procedure(Sender: TObject; Item: TJvCustomInspectorItem; Edit: TCustomEdit) of object;
 
   EJvInspector = class(EJVCLException);
@@ -197,7 +196,6 @@ type
 
   TJvCustomInspectorItem = class(TPersistent)
   private
-    FData: TJvInspectorEventData;
     FDisplayName: string;
     FDroppedDown: Boolean;
     FEditCtrlDestroying: Boolean;
@@ -209,6 +207,10 @@ type
     FInspector: TJvInspector;
     FItems: TObjectList;
     FListBox: TCustomListBox;
+    FOnGetAsOrdinal: TJvInspAsOrdinal;
+    FOnGetAsString: TJvInspAsString;
+    FOnSetAsOrdinal: TJvInspAsOrdinal;
+    FOnSetAsString: TJvInspAsString;
     FOnGetValueList: TInspectorItemGetValueListEvent;
     FParent: TJvCustomInspectorItem;
     FLastPaintGen: Integer;
@@ -219,6 +221,7 @@ type
   protected
     procedure Apply;
     function CanEdit: Boolean;
+    procedure CheckAccess;
     procedure CloseUp(Accept: Boolean);
     procedure DoDropDownKeys(var Key: Word; Shift: TShiftState);
     procedure DropDown;
@@ -230,6 +233,8 @@ type
       Shift: TShiftState; X, Y: Integer);
     procedure Edit_WndProc(var Msg: TMessage);
     procedure AutoCompleteStart(Sender: TObject);
+    function GetAsOrdinal: Int64;
+    function GetAsString: string;
     function GetBaseCategory: TJvCustomInspectorItem;
     function GetCount: Integer;
     function GetDisplayValue: string; virtual;
@@ -240,6 +245,9 @@ type
     function GetRects(const RectKind: TInspectorPaintRect): TRect;
     procedure GetValueList(const Strings: TStrings);
     procedure InvalidateItem;
+    procedure SetAsOrdinal(Value: Int64);
+    procedure SetAsString(Value: string);
+    function IsInitialized: Boolean;
     procedure InvalidateList;
     function IsCategory: Boolean; virtual;
     procedure ListExit(Sender: TObject);
@@ -259,6 +267,8 @@ type
     procedure StopTracking;
     procedure TrackButton(X, Y: Integer);
     procedure Undo;
+    property AsOrdinal: Int64 read GetAsOrdinal write SetAsOrdinal;
+    property AsString: string read GetAsString write SetAsString;
     property BaseCategory: TJvCustomInspectorItem read GetBaseCategory;
     property DroppedDown: Boolean read FDroppedDown;
     property EditCtrlDestroying: Boolean read FEditCtrlDestroying;
@@ -269,7 +279,7 @@ type
     property Pressed: Boolean read FPressed write FPressed;
     property Tracking: Boolean read FTracking write FTracking;
   public
-    constructor Create(const AParent: TJvCustomInspectorItem; const AData: TJvInspectorEventData);
+    constructor Create(const AParent: TJvCustomInspectorItem);
     destructor Destroy; override;
     procedure Add(const Item: TJvCustomInspectorItem);
     procedure BeforeDestruction; override;
@@ -284,7 +294,6 @@ type
     procedure DoneEdit(const CancelEdits: Boolean = False); dynamic;
     procedure ScrollInView;
     property Count: Integer read GetCount;
-    property Data: TJvInspectorEventData read FData;
     property DisplayName: string read FDisplayName write FDisplayName;
     property DisplayValue: string read GetDisplayValue write SetDisplayValue;
     property Editing: Boolean read FEditing;
@@ -296,6 +305,10 @@ type
     property Parent: TJvCustomInspectorItem read FParent;
     property ReadOnly: Boolean read GetReadOnly;
     property Rects[const RectKind: TInspectorPaintRect]: TRect read GetRects write SetRects;
+    property OnGetAsOrdinal: TJvInspAsOrdinal read FOnGetAsOrdinal write FOnGetAsOrdinal;
+    property OnGetAsString: TJvInspAsString read FOnGetAsString write FOnGetAsString;
+    property OnSetAsOrdinal: TJvInspAsOrdinal read FOnSetAsOrdinal write FOnSetAsOrdinal;
+    property OnSetAsString: TJvInspAsString read FOnSetAsString write FOnSetAsString;
     property OnGetValueList: TInspectorItemGetValueListEvent read FOnGetValueList write FOnGetValueList;
   end;
 
@@ -322,37 +335,6 @@ type
     procedure DoneEdit(const CancelEdits: Boolean = False); override;
     procedure DrawValue(const ACanvas: TCanvas); override;
     procedure InitEdit; override;
-  end;
-
-  TJvInspectorEventData = class(TPersistent)
-  private
-    FTypeInfo: PTypeInfo;
-    FItem: TJvCustomInspectorItem;
-    FOnGetAsOrdinal: TJvInspAsOrdinal;
-    FOnGetAsString: TJvInspAsString;
-    FOnSetAsOrdinal: TJvInspAsOrdinal;
-    FOnSetAsString: TJvInspAsString;
-  protected
-    constructor CreatePrim(ATypeInfo: PTypeInfo);
-    procedure CheckAccess;
-    function GetAsOrdinal: Int64;
-    function GetAsString: string;
-    function GetTypeInfo: PTypeInfo;
-    procedure Invalidate;
-    procedure RemoveItem(const Item: TJvCustomInspectorItem);
-    procedure SetAsOrdinal(Value: Int64);
-    procedure SetAsString(Value: string);
-  public
-    function IsInitialized: Boolean;
-    class function New(const AParent: TJvCustomInspectorItem; const AName: string; ATypeInfo: PTypeInfo):
-      TJvCustomInspectorItem;
-    property AsOrdinal: Int64 read GetAsOrdinal write SetAsOrdinal;
-    property AsString: string read GetAsString write SetAsString;
-    property TypeInfo: PTypeInfo read GetTypeInfo;
-    property OnGetAsOrdinal: TJvInspAsOrdinal read FOnGetAsOrdinal write FOnGetAsOrdinal;
-    property OnGetAsString: TJvInspAsString read FOnGetAsString write FOnGetAsString;
-    property OnSetAsOrdinal: TJvInspAsOrdinal read FOnSetAsOrdinal write FOnSetAsOrdinal;
-    property OnSetAsString: TJvInspAsString read FOnSetAsString write FOnSetAsString;
   end;
 
 // (rom) centralized the string literals
@@ -431,7 +413,7 @@ begin
   FItemHeight := 18;
   DoubleBuffered := True;
   FVisibleList := TStringList.Create;
-  FRoot := TJvCustomInspectorItem.Create(nil, nil);
+  FRoot := TJvCustomInspectorItem.Create(nil);
   FRoot.FInspector := Self;
   FSelectedIndex := -1;
   BevelKind := bkTile;
@@ -1523,11 +1505,9 @@ end;
 
 //=== { TJvCustomInspectorItem } =============================================
 
-constructor TJvCustomInspectorItem.Create(const AParent: TJvCustomInspectorItem;
-  const AData: TJvInspectorEventData);
+constructor TJvCustomInspectorItem.Create(const AParent: TJvCustomInspectorItem);
 begin
   inherited Create;
-  FData := nil;
   FItems := TObjectList.Create(True);
   Flags := [];
   if AParent <> nil then
@@ -1535,7 +1515,6 @@ begin
     FInspector := AParent.Inspector;
     AParent.Add(Self)
   end;
-  FData := AData;
 end;
 
 destructor TJvCustomInspectorItem.Destroy;
@@ -1553,7 +1532,7 @@ begin
     if Editing and (EditCtrl <> nil) then
     begin
       NewValue := EditCtrl.Text;
-      if not Data.IsInitialized or (DisplayValue <> NewValue) then
+      if not IsInitialized or (DisplayValue <> NewValue) then
       begin
         Inc(FUpdateEditCtrl);
         try
@@ -1567,7 +1546,7 @@ begin
           TmpOnChange := TCustomEditAccessProtected(EditCtrl).OnChange;
           TCustomEditAccessProtected(EditCtrl).OnChange := nil;
           try
-            if Data.IsInitialized then
+            if IsInitialized then
               EditCtrl.Text := DisplayValue
             else
               EditCtrl.Text := '';
@@ -1589,7 +1568,56 @@ end;
 
 function TJvCustomInspectorItem.CanEdit: Boolean;
 begin
-  Result := not IsCategory and not ReadOnly and not Inspector.ReadOnly and Data.IsInitialized;
+  Result := not IsCategory and not ReadOnly and not Inspector.ReadOnly and IsInitialized;
+end;
+
+procedure TJvCustomInspectorItem.CheckAccess;
+begin
+  if not IsInitialized then
+    raise EJvInspectorData.CreateRes(@RsEJvInspDataNotInit);
+end;
+
+function TJvCustomInspectorItem.GetAsOrdinal: Int64;
+begin
+  CheckAccess;
+  if Assigned(FOnGetAsOrdinal) then
+    FOnGetAsOrdinal(Self, Result)
+  else
+    raise EJvInspectorData.CreateResFmt(@RsEJvInspDataNoAccessAs, [cJvInspectorOrdinal]);
+end;
+
+function TJvCustomInspectorItem.GetAsString: string;
+begin
+  CheckAccess;
+  if Assigned(FOnGetAsString) then
+    FOnGetAsString(Self, Result)
+  else
+    raise EJvInspectorData.CreateResFmt(@RsEJvInspDataNoAccessAs, [cJvInspectorString]);
+end;
+
+procedure TJvCustomInspectorItem.SetAsOrdinal(Value: Int64);
+begin
+  CheckAccess;
+  if Assigned(FOnSetAsOrdinal) then
+    FOnSetAsOrdinal(Self, Value)
+  else
+    raise EJvInspectorData.CreateResFmt(@RsEJvInspDataNoAccessAs, [cJvInspectorOrdinal]);
+  InvalidateItem;
+end;
+
+procedure TJvCustomInspectorItem.SetAsString(Value: string);
+begin
+  CheckAccess;
+  if Assigned(FOnSetAsString) then
+    FOnSetAsString(Self, Value)
+  else
+    raise EJvInspectorData.CreateResFmt(@RsEJvInspDataNoAccessAs, [cJvInspectorString]);
+  InvalidateItem;
+end;
+
+function TJvCustomInspectorItem.IsInitialized: Boolean;
+begin
+  Result := Assigned(OnGetAsOrdinal) or Assigned(OnGetAsString);
 end;
 
 procedure TJvCustomInspectorItem.CloseUp(Accept: Boolean);
@@ -2167,7 +2195,7 @@ procedure TJvCustomInspectorItem.Undo;
 begin
   if Editing and Assigned(EditCtrl) then
   begin
-    if Data.IsInitialized then
+    if IsInitialized then
       EditCtrl.Text := DisplayValue
     else
       EditCtrl.Text := '';
@@ -2191,8 +2219,6 @@ begin
   if (Inspector <> nil) and (Inspector.Root <> Self) then
     DoneEdit(True);
   FItems.Free;
-  if Data <> nil then
-    FData.RemoveItem(Self);
   FItems := nil;
 end;
 
@@ -2255,11 +2281,8 @@ var
   ARect: TRect;
   SafeColor: TColor;
 begin
-  if Data = nil then
-    S := RsJvInspItemUnInitialized
-  else
   try
-    if not Data.IsInitialized then
+    if not IsInitialized then
       S := RsJvInspItemUnInitialized
     else
       S := DisplayValue;
@@ -2465,7 +2488,7 @@ begin
     TCustomEditAccessProtected(EditCtrl).OnKeyPress := EditKeyPress;
     TCustomEditAccessProtected(EditCtrl).OnMouseDown := EditMouseDown;
     EditCtrl.Visible := True;
-    if Data.IsInitialized then
+    if IsInitialized then
       EditCtrl.Text := DisplayValue
     else
       EditCtrl.Text := '';
@@ -2483,7 +2506,7 @@ begin
     if DroppedDown then
       CloseUp(False);
     if not CancelEdits and
-       (not Data.IsInitialized or (DisplayValue <> EditCtrl.Text)) then
+       (not IsInitialized or (DisplayValue <> EditCtrl.Text)) then
     begin
       Apply;
       InvalidateItem;
@@ -2538,12 +2561,12 @@ end;
 
 function TJvInspectorStringItem.GetDisplayValue: string;
 begin
-  Result := Data.AsString;
+  Result := AsString;
 end;
 
 procedure TJvInspectorStringItem.SetDisplayValue(const Value: string);
 begin
-  Data.AsString := Value;
+  AsString := Value;
 end;
 
 //=== { TJvInspectorBooleanItem } ============================================
@@ -2553,10 +2576,10 @@ procedure TJvInspectorBooleanItem.EditKeyDown(Sender: TObject; var Key: Word;
 var
   Bool: Boolean;
 begin
-  Bool := not (Data.AsOrdinal <> Ord(False));
+  Bool := not (AsOrdinal <> Ord(False));
   if Editing and (Shift = []) and (Key = VK_SPACE) then
   begin
-    Data.AsOrdinal := Ord(Bool);
+    AsOrdinal := Ord(Bool);
     InvalidateItem;
   end;
 end;
@@ -2566,8 +2589,8 @@ procedure TJvInspectorBooleanItem.MouseDown(Button: TMouseButton;
 var
   Bool: Boolean;
 begin
-  if Data.IsInitialized then
-    Bool := not (Data.AsOrdinal <> Ord(False))
+  if IsInitialized then
+    Bool := not (AsOrdinal <> Ord(False))
   else
     Bool := True;
   // Treat the second click of a double-click as a normal click, so two quick
@@ -2576,7 +2599,7 @@ begin
     Shift := Shift - [ssDouble];
   if PtInRect(FCheckRect, Point(X, Y)) and (Shift = [ssLeft]) and Editing then
   begin
-    Data.AsOrdinal := Ord(Bool);
+    AsOrdinal := Ord(Bool);
     InvalidateItem;
   end;
 end;
@@ -2598,12 +2621,12 @@ var
   LabelText: string;
   LabelRect: TRect;
 begin
-  if Data.IsInitialized then
-    Bool := Data.AsOrdinal <> Ord(False)
+  if IsInitialized then
+    Bool := AsOrdinal <> Ord(False)
   else
     Bool := False;
 
-  if Editing and Data.IsInitialized then
+  if Editing and IsInitialized then
     ACanvas.Brush.Color := Inspector.BackgroundColor;
   ACanvas.FillRect(Rects[iprValueArea]);
   // The check box is drawn themed, scaled to the inspector's current dpi,
@@ -2659,95 +2682,6 @@ end;
 procedure TJvInspectorBooleanItem.InitEdit;
 begin
   FEditing := CanEdit;
-end;
-
-//=== { TJvInspectorEventData } ==============================================
-
-constructor TJvInspectorEventData.CreatePrim(ATypeInfo: PTypeInfo);
-begin
-  inherited Create;
-  FTypeInfo := ATypeInfo;
-end;
-
-procedure TJvInspectorEventData.CheckAccess;
-begin
-  if not IsInitialized then
-    raise EJvInspectorData.CreateRes(@RsEJvInspDataNotInit);
-end;
-
-function TJvInspectorEventData.GetTypeInfo: PTypeInfo;
-begin
-  Result := FTypeInfo;
-end;
-
-procedure TJvInspectorEventData.Invalidate;
-begin
-  if FItem <> nil then
-    FItem.InvalidateItem;
-end;
-
-procedure TJvInspectorEventData.RemoveItem(const Item: TJvCustomInspectorItem);
-begin
-  FItem := nil;
-  Destroy;
-end;
-
-function TJvInspectorEventData.GetAsOrdinal: Int64;
-begin
-  CheckAccess;
-  if Assigned(FOnGetAsOrdinal) then
-    FOnGetAsOrdinal(Self, Result)
-  else
-    raise EJvInspectorData.CreateResFmt(@RsEJvInspDataNoAccessAs, [cJvInspectorOrdinal]);
-end;
-
-function TJvInspectorEventData.GetAsString: string;
-begin
-  CheckAccess;
-  if Assigned(FOnGetAsString) then
-    FOnGetAsString(Self, Result)
-  else
-    raise EJvInspectorData.CreateResFmt(@RsEJvInspDataNoAccessAs, [cJvInspectorString]);
-end;
-
-procedure TJvInspectorEventData.SetAsOrdinal(Value: Int64);
-begin
-  CheckAccess;
-  if Assigned(FOnSetAsOrdinal) then
-    FOnSetAsOrdinal(Self, Value)
-  else
-    raise EJvInspectorData.CreateResFmt(@RsEJvInspDataNoAccessAs, [cJvInspectorOrdinal]);
-  Invalidate;
-end;
-
-procedure TJvInspectorEventData.SetAsString(Value: string);
-begin
-  CheckAccess;
-  if Assigned(FOnSetAsString) then
-    FOnSetAsString(Self, Value)
-  else
-    raise EJvInspectorData.CreateResFmt(@RsEJvInspDataNoAccessAs, [cJvInspectorString]);
-  Invalidate;
-end;
-
-function TJvInspectorEventData.IsInitialized: Boolean;
-begin
-  Result := (TypeInfo <> nil) and (Assigned(OnGetAsOrdinal) or Assigned(OnGetAsString));
-end;
-
-class function TJvInspectorEventData.New(const AParent: TJvCustomInspectorItem;
-  const AName: string; ATypeInfo: PTypeInfo): TJvCustomInspectorItem;
-var
-  Data: TJvInspectorEventData;
-begin
-  Data := CreatePrim(ATypeInfo);
-  if ATypeInfo.Kind = tkUString then
-    Result := TJvInspectorStringItem.Create(AParent, Data)
-  else
-    Result := TJvInspectorBooleanItem.Create(AParent, Data);
-  Data.FItem := Result;
-  Result.FDisplayName := AName;
-  Result.InvalidateItem;
 end;
 
 end.

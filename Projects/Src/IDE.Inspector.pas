@@ -14,7 +14,7 @@ unit IDE.Inspector;
 interface
 
 uses
-  Classes, Graphics, Controls, StdCtrls, Generics.Collections, TypInfo,
+  Classes, Graphics, Controls, StdCtrls, Generics.Collections,
   JvInspector, ModernColors,
   IDE.LiveScriptObjectFactory, IDE.ScriptModel, IDE.ScriptModel.Metadata;
 
@@ -43,7 +43,7 @@ type
     FLiveDirectiveSectionIndex: Integer; { Factory section index it was created for }
     FChangeCountAtCreation: Int64; { Factory ChangeCount at the live object's creation }
     FRows: TList<TInspectorRow>;
-    FRowsByData: TDictionary<TJvInspectorEventData, Integer>; { Reverse lookup of a FRows index }
+    FRowsByItem: TDictionary<TJvCustomInspectorItem, Integer>; { Reverse lookup of a FRows index }
     FRowSetSignature: String;
     {$IFDEF DEBUG}
     FDebugStatusRowString: String;
@@ -53,23 +53,21 @@ type
     FShowAllKnownDirectives: Boolean;
     FQuoteNewParameterValues: Boolean;
     FQuoteNewDirectiveValues: Boolean;
-    function TryGetRow(const Sender: TJvInspectorEventData;
-      out ARow: TInspectorRow): Boolean; overload;
     function TryGetRow(const AItem: TJvCustomInspectorItem;
-      out ARow: TInspectorRow): Boolean; overload;
+      out ARow: TInspectorRow): Boolean;
     function TryGetRowParameterEntry(const ARow: TInspectorRow;
       out AEntry: TScriptParameterEntry; out AIndex: Integer): Boolean;
     function TryGetRowDirectiveSection(const ARow: TInspectorRow;
       out ASection: TScriptDirectiveSection; out AIndex: Integer): Boolean;
-    procedure RowGetAsOrdinal(Sender: TJvInspectorEventData; var Value: Int64);
-    procedure RowGetAsString(Sender: TJvInspectorEventData; var Value: String);
-    procedure RowSetAsOrdinal(Sender: TJvInspectorEventData; var Value: Int64);
-    procedure RowSetAsString(Sender: TJvInspectorEventData; var Value: String);
+    procedure RowGetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64);
+    procedure RowGetAsString(Sender: TJvCustomInspectorItem; var Value: String);
+    procedure RowSetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64);
+    procedure RowSetAsString(Sender: TJvCustomInspectorItem; var Value: String);
     procedure ChoiceRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
     {$IFDEF DEBUG}
-    procedure DebugStatusRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
-    procedure DebugSectionsRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
-    procedure DebugEarlyExitsRowGetAsString(Sender: TJvInspectorEventData; var Value: String);
+    procedure DebugStatusRowGetAsString(Sender: TJvCustomInspectorItem; var Value: String);
+    procedure DebugSectionsRowGetAsString(Sender: TJvCustomInspectorItem; var Value: String);
+    procedure DebugEarlyExitsRowGetAsString(Sender: TJvCustomInspectorItem; var Value: String);
     {$ENDIF}
     function ItemValueIsFromScript(const AItem: TJvCustomInspectorItem): Boolean;
     procedure PainterSetItemColors(Item: TJvCustomInspectorItem;
@@ -128,7 +126,7 @@ begin
   FDebugStatusRowString := 'Not updated yet';
   {$ENDIF}
   FRows := TList<TInspectorRow>.Create;
-  FRowsByData := TDictionary<TJvInspectorEventData, Integer>.Create;
+  FRowsByItem := TDictionary<TJvCustomInspectorItem, Integer>.Create;
 
   FJvInspector := AJvInspector;
   FJvInspector.OnSetItemColors := PainterSetItemColors;
@@ -143,7 +141,7 @@ begin
   FJvInspector.Free;
   FLiveEntry.Free;
   FLiveDirectiveSection.Free;
-  FRowsByData.Free;
+  FRowsByItem.Free;
   FRows.Free;
   inherited;
 end;
@@ -315,7 +313,7 @@ procedure TInspector.UpdateFromCaret;
 
   function NewCategory(const AName: String): TJvCustomInspectorItem;
   begin
-    Result := TJvInspectorCustomCategoryItem.Create(FJvInspector.Root, nil);
+    Result := TJvInspectorCustomCategoryItem.Create(FJvInspector.Root);
     Result.DisplayName := LFmtMessage(AName); { These are localizable, see IDE.Messages }
     Result.Expanded := True;
   end;
@@ -324,9 +322,9 @@ procedure TInspector.UpdateFromCaret;
   procedure AddDebugRow(const AParent: TJvCustomInspectorItem;
     const ADisplayName: String; const AOnGetAsString: TJvInspAsString);
   begin
-    const Item = TJvInspectorEventData.New(AParent, ADisplayName,
-      TypeInfo(String));
-    TJvInspectorEventData(Item.Data).OnGetAsString := AOnGetAsString;
+    const Item = TJvInspectorStringItem.Create(AParent);
+    Item.DisplayName := ADisplayName;
+    Item.OnGetAsString := AOnGetAsString;
     Item.Flags := Item.Flags + [iifReadonly];
   end;
 
@@ -349,19 +347,22 @@ procedure TInspector.UpdateFromCaret;
   {$ENDIF}
 
   function AddRow(const AParent: TJvCustomInspectorItem;
-    const ADisplayName: String; const ATypeInfo: PTypeInfo;
+    const ADisplayName: String; const ABoolean: Boolean;
     const ARow: TInspectorRow): TJvCustomInspectorItem;
   begin
-    Result := TJvInspectorEventData.New(AParent, ADisplayName, ATypeInfo);
-    const Data = TJvInspectorEventData(Result.Data);
+    if ABoolean then
+      Result := TJvInspectorBooleanItem.Create(AParent)
+    else
+      Result := TJvInspectorStringItem.Create(AParent);
+    Result.DisplayName := ADisplayName;
     FRows.Add(ARow);
-    FRowsByData.Add(Data, Integer(FRows.Count)-1);
-    if ATypeInfo = TypeInfo(Boolean) then begin
-      Data.OnGetAsOrdinal := RowGetAsOrdinal;
-      Data.OnSetAsOrdinal := RowSetAsOrdinal;
+    FRowsByItem.Add(Result, Integer(FRows.Count)-1);
+    if ABoolean then begin
+      Result.OnGetAsOrdinal := RowGetAsOrdinal;
+      Result.OnSetAsOrdinal := RowSetAsOrdinal;
     end else begin
-      Data.OnGetAsString := RowGetAsString;
-      Data.OnSetAsString := RowSetAsString;
+      Result.OnGetAsString := RowGetAsString;
+      Result.OnSetAsString := RowSetAsString;
     end;
   end;
 
@@ -380,7 +381,7 @@ procedure TInspector.UpdateFromCaret;
     Row.Name := AParameterName;
     Row.FlagName := '';
     Row.NameIndex := ANameIndex;
-    Result := AddRow(AParent, AParameterName, TypeInfo(String), Row);
+    Result := AddRow(AParent, AParameterName, False, Row);
   end;
 
   procedure AddEntryFlagRow(const AParent: TJvCustomInspectorItem;
@@ -391,7 +392,7 @@ procedure TInspector.UpdateFromCaret;
     Row.Name := AParameterName;
     Row.FlagName := AFlagName;
     Row.NameIndex := ANameIndex;
-    AddRow(AParent, AFlagName, TypeInfo(Boolean), Row);
+    AddRow(AParent, AFlagName, True, Row);
   end;
 
   procedure AddParameterRow(const AParent: TJvCustomInspectorItem;
@@ -451,7 +452,7 @@ procedure TInspector.UpdateFromCaret;
     Row.Name := ADirectiveName;
     Row.FlagName := AFlagName;
     Row.NameIndex := ANameIndex;
-    AddRow(AParent, AFlagName, TypeInfo(Boolean), Row);
+    AddRow(AParent, AFlagName, True, Row);
   end;
 
   procedure AddDirectiveRow(const AParent: TJvCustomInspectorItem;
@@ -460,9 +461,9 @@ procedure TInspector.UpdateFromCaret;
     var Definition: TScriptParameterDefinition;
     const Known = FLiveDirectiveSection.Section.TryGetDefinition(ARow.Name, Definition);
     if Known and DirectiveRowIsCheckBox(Definition, ARow.NameIndex) then
-      AddRow(AParent, ARow.Name, TypeInfo(Boolean), ARow)
+      AddRow(AParent, ARow.Name, True, ARow)
     else begin
-      const Item = AddRow(AParent, ARow.Name, TypeInfo(String), ARow);
+      const Item = AddRow(AParent, ARow.Name, False, ARow);
       if Known then begin
         if Definition.ValueKind = pvkFlags then begin
           for var FlagName in Definition.KnownValues do
@@ -593,7 +594,7 @@ procedure TInspector.UpdateFromCaret;
         SaveExpandedStates(ExpandedStates, FJvInspector.Root);
         FJvInspector.Clear;
         FRows.Clear;
-        FRowsByData.Clear;
+        FRowsByItem.Clear;
 
         if FLiveEntry <> nil then
           AddEntryRows
@@ -750,23 +751,16 @@ begin
   FJvInspector.ReadOnly := FFactory.Memo.ReadOnly;
 end;
 
-function TInspector.TryGetRow(const Sender: TJvInspectorEventData;
+function TInspector.TryGetRow(const AItem: TJvCustomInspectorItem;
   out ARow: TInspectorRow): Boolean;
 begin
   var Index: Integer;
-  Result := FRowsByData.TryGetValue(Sender, Index);
+  Result := FRowsByItem.TryGetValue(AItem, Index);
   if Result then
     ARow := FRows[Index];
 end;
 
-function TInspector.TryGetRow(const AItem: TJvCustomInspectorItem;
-  out ARow: TInspectorRow): Boolean;
-begin
-  Result := (AItem.Data is TJvInspectorEventData) and
-    TryGetRow(TJvInspectorEventData(AItem.Data), ARow);
-end;
-
-procedure TInspector.RowGetAsOrdinal(Sender: TJvInspectorEventData;
+procedure TInspector.RowGetAsOrdinal(Sender: TJvCustomInspectorItem;
   var Value: Int64);
 begin
   Value := 0;
@@ -808,7 +802,7 @@ begin
   end;
 end;
 
-procedure TInspector.RowGetAsString(Sender: TJvInspectorEventData;
+procedure TInspector.RowGetAsString(Sender: TJvCustomInspectorItem;
   var Value: String);
 begin
   Value := '';
@@ -836,7 +830,7 @@ begin
   end;
 end;
 
-procedure TInspector.RowSetAsOrdinal(Sender: TJvInspectorEventData;
+procedure TInspector.RowSetAsOrdinal(Sender: TJvCustomInspectorItem;
   var Value: Int64);
 begin
   var Row: TInspectorRow;
@@ -904,7 +898,7 @@ begin
   FJvInspector.Invalidate;
 end;
 
-procedure TInspector.RowSetAsString(Sender: TJvInspectorEventData;
+procedure TInspector.RowSetAsString(Sender: TJvCustomInspectorItem;
   var Value: String);
 
   procedure ValidateValue(const ARowName, AValue: String;
@@ -997,13 +991,13 @@ begin
 end;
 
 {$IFDEF DEBUG}
-procedure TInspector.DebugStatusRowGetAsString(Sender: TJvInspectorEventData;
+procedure TInspector.DebugStatusRowGetAsString(Sender: TJvCustomInspectorItem;
   var Value: String);
 begin
   Value := FDebugStatusRowString;
 end;
 
-procedure TInspector.DebugSectionsRowGetAsString(Sender: TJvInspectorEventData;
+procedure TInspector.DebugSectionsRowGetAsString(Sender: TJvCustomInspectorItem;
   var Value: String);
 begin
   Value := '';
@@ -1015,7 +1009,7 @@ begin
   end;
 end;
 
-procedure TInspector.DebugEarlyExitsRowGetAsString(Sender: TJvInspectorEventData;
+procedure TInspector.DebugEarlyExitsRowGetAsString(Sender: TJvCustomInspectorItem;
   var Value: String);
 begin
   Value := IntToStr(FUpdateFromCaretEarlyExitCount);
