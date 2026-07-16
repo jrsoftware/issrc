@@ -2,7 +2,7 @@ unit Setup.ScriptClasses;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -20,13 +20,32 @@ procedure ScriptClassesLibraryUpdateVars(ScriptInterpreter: TIFPSExec);
 implementation
 
 uses
-  Windows, Controls, Forms, StdCtrls, Graphics,
+  Windows, Controls, Forms, StdCtrls, Graphics, Imaging.pngimage, ExtCtrls, Classes,
   uPSR_std, uPSR_classes, uPSR_graphics, uPSR_controls, uPSR_forms,
   uPSR_stdctrls, uPSR_extctrls, uPSR_comobj,
   NewStaticText, NewCheckListBox, NewProgressBar, RichEditViewer,
-  ExtCtrls, UIStateForm, Setup.SetupForm, Setup.MainForm, Setup.WizardForm, Shared.SetupTypes, PasswordEdit,
-  FolderTreeView, BitmapImage, NewNotebook, Setup.ScriptDlg, BidiCtrls,
-  Setup.UninstallProgressForm;
+  UIStateForm, PasswordEdit, FolderTreeView, BitmapButton, BitmapImage, NewNotebook, NewCtrls,
+  Shared.SetupTypes, Shared.CommonFunc.Vcl,
+  Setup.SetupForm, Setup.MainForm, Setup.WizardForm, Setup.WizardForm.CustomPages, Setup.UninstallProgressForm;
+
+procedure TControlParentR(Self: TControl; var T: TWinControl); begin T := Self.Parent; end;
+
+procedure TControlParentW(Self: TControl; T: TWinControl);
+begin
+  TSetupForm.SetCtlParent(Self, T);
+end;
+
+procedure RegisterControl_R(Cl: TPSRuntimeClassImporter);
+begin
+  RIRegisterTControl(Cl);
+
+  with Cl.FindClass(AnsiString(TControl.ClassName)) do
+  begin
+    { This overrides the property helper added by RIRegisterTControl, because uPSRuntime's SpecImport
+      starts at the end of the FClassItems list when looking for property helpers }
+    RegisterPropertyHelper(@TControlParentR, @TControlParentW, 'Parent');
+  end;
+end;
 
 type
   TWinControlAccess = class(TWinControl);
@@ -44,6 +63,18 @@ begin
   end;
 end;
 
+procedure TPngImageCanvas_R(Self: TPngImage; var T: TCanvas); begin T := Self.Canvas; end;
+
+procedure RegisterPngImage_R(Cl: TPSRuntimeClassImporter);
+begin
+  with Cl.Add(TPngImage) do
+  begin
+    RegisterMethod(@TPngImage.LoadFromStream, 'LoadFromStream');
+    RegisterMethod(@TPngImage.SaveToStream, 'SaveToStream');
+    RegisterPropertyHelper(@TPngImageCanvas_R,nil,'Canvas');
+  end;
+end;
+
 procedure RegisterNewStaticText_R(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.Add(TNewStaticText) do
@@ -52,18 +83,18 @@ begin
   end;
 end;
 
-procedure TNewCheckListBoxChecked_R(Self: TNewCheckListBox; var T: Boolean; t1: Integer); begin T := Self.Checked[t1]; end;
-procedure TNewCheckListBoxChecked_W(Self: TNewCheckListBox; const T: Boolean; t1: Integer); begin Self.Checked[t1] := T; end;
-procedure TNewCheckListBoxState_R(Self: TNewCheckListBox; var T: TCheckBoxState; t1: Integer); begin T := Self.State[t1]; end;
-procedure TNewCheckListBoxItemCaption_R(Self: TNewCheckListBox; var T: String; t1: Integer); begin T := Self.ItemCaption[t1]; end;
-procedure TNewCheckListBoxItemCaption_W(Self: TNewCheckListBox; const T: String; t1: Integer); begin Self.ItemCaption[t1] := T; end;
-procedure TNewCheckListBoxItemEnabled_R(Self: TNewCheckListBox; var T: Boolean; t1: Integer); begin T := Self.ItemEnabled[t1]; end;
-procedure TNewCheckListBoxItemEnabled_W(Self: TNewCheckListBox; const T: Boolean; t1: Integer); begin Self.ItemEnabled[t1] := T; end;
-procedure TNewCheckListBoxItemLevel_R(Self: TNewCheckListBox; var T: Byte; t1: Integer); begin T := Self.ItemLevel[t1]; end;
-procedure TNewCheckListBoxItemObject_R(Self: TNewCheckListBox; var T: TObject; t1: Integer); begin T := Self.ItemObject[t1]; end;
-procedure TNewCheckListBoxItemObject_W(Self: TNewCheckListBox; const T: TObject; t1: Integer); begin Self.ItemObject[t1] := T; end;
-procedure TNewCheckListBoxItemSubItem_R(Self: TNewCheckListBox; var T: String; t1: Integer); begin T := Self.ItemSubItem[t1]; end;
-procedure TNewCheckListBoxItemSubItem_W(Self: TNewCheckListBox; const T: String; t1: Integer); begin Self.ItemSubItem[t1] := T; end;
+procedure TNewCheckListBoxChecked_R(Self: TNewCheckListBox; var T: Boolean; const t1: Integer); begin T := Self.Checked[t1]; end;
+procedure TNewCheckListBoxChecked_W(Self: TNewCheckListBox; const T: Boolean; const t1: Integer); begin Self.Checked[t1] := T; end;
+procedure TNewCheckListBoxState_R(Self: TNewCheckListBox; var T: TCheckBoxState; const t1: Integer); begin T := Self.State[t1]; end;
+procedure TNewCheckListBoxItemCaption_R(Self: TNewCheckListBox; var T: String; const t1: Integer); begin T := Self.ItemCaption[t1]; end;
+procedure TNewCheckListBoxItemCaption_W(Self: TNewCheckListBox; const T: String; const t1: Integer); begin Self.ItemCaption[t1] := T; end;
+procedure TNewCheckListBoxItemEnabled_R(Self: TNewCheckListBox; var T: Boolean; const t1: Integer); begin T := Self.ItemEnabled[t1]; end;
+procedure TNewCheckListBoxItemEnabled_W(Self: TNewCheckListBox; const T: Boolean; const t1: Integer); begin Self.ItemEnabled[t1] := T; end;
+procedure TNewCheckListBoxItemLevel_R(Self: TNewCheckListBox; var T: Byte; const t1: Integer); begin T := Self.ItemLevel[t1]; end;
+procedure TNewCheckListBoxItemObject_R(Self: TNewCheckListBox; var T: TObject; const t1: Integer); begin T := Self.ItemObject[t1]; end;
+procedure TNewCheckListBoxItemObject_W(Self: TNewCheckListBox; const T: TObject; const t1: Integer); begin Self.ItemObject[t1] := T; end;
+procedure TNewCheckListBoxItemSubItem_R(Self: TNewCheckListBox; var T: String; const t1: Integer); begin T := Self.ItemSubItem[t1]; end;
+procedure TNewCheckListBoxItemSubItem_W(Self: TNewCheckListBox; const T: String; const t1: Integer); begin Self.ItemSubItem[t1] := T; end;
 procedure TNewCheckListBoxItemFontStyle_R(Self: TNewCheckListBox; var T: TFontStyles; const t1: Integer); begin T := Self.ItemFontStyle[t1]; end;
 procedure TNewCheckListBoxItemFontStyle_W(Self: TNewCheckListBox; const T: TFontStyles; const t1: Integer); begin Self.ItemFontStyle[t1] := T; end;
 procedure TNewCheckListBoxSubItemFontStyle_R(Self: TNewCheckListBox; var T: TFontStyles; const t1: Integer); begin T := Self.SubItemFontStyle[t1]; end;
@@ -138,22 +169,43 @@ end;
 procedure TBitmapAlphaFormat_W(Self: TBitmap; const T: TAlphaFormat); begin Self.AlphaFormat := T; end;
 procedure TBitmapAlphaFormat_R(Self: TBitmap; var T: TAlphaFormat); begin T := Self.AlphaFormat; end;
 
-procedure RegisterBitmapImage_R(Cl: TPSRuntimeClassImporter);
+procedure TBitmapButtonBitmap_W(Self: TBitmapButton; const T: TBitmap); begin Self.Bitmap := T; end;
+procedure TBitmapButtonBitmap_R(Self: TBitmapButton; var T: TBitmap); begin T := Self.Bitmap; end;
+
+procedure RegisterBitmapButton_R(Cl: TPSRuntimeClassImporter);
 begin
   with Cl.FindClass('TBitmap') do
   begin
     RegisterPropertyHelper(@TBitmapAlphaFormat_R, @TBitmapAlphaFormat_W, 'AlphaFormat');
   end;
-  Cl.Add(TBitmapImage);
+  with Cl.Add(TBitmapButton) do
+  begin
+    RegisterPropertyHelper(@TBitmapButtonBitmap_R, @TBitmapButtonBitmap_W, 'Bitmap');
+  end;
 end;
 
-procedure RegisterBidiCtrls_R(Cl: TPSRuntimeClassImporter);
+procedure TBitmapImageBitmap_W(Self: TBitmapImage; const T: TBitmap); begin Self.Bitmap := T; end;
+procedure TBitmapImageBitmap_R(Self: TBitmapImage; var T: TBitmap); begin T := Self.Bitmap; end;
+
+procedure RegisterBitmapImage_R(Cl: TPSRuntimeClassImporter);
+begin
+  with Cl.Add(TBitmapImage) do
+  begin
+    RegisterPropertyHelper(@TBitmapImageBitmap_R, @TBitmapImageBitmap_W, 'Bitmap');
+  end;
+end;
+
+procedure RegisterNewCtrls_R(Cl: TPSRuntimeClassImporter);
 begin
   Cl.Add(TNewEdit);
+  Cl.Add(TNewPathEdit);
   Cl.Add(TNewMemo);
   Cl.Add(TNewComboBox);
   Cl.Add(TNewListBox);
-  Cl.Add(TNewButton);
+  with Cl.Add(TNewButton) do
+  begin
+    RegisterMethod(@TNewButton.AdjustHeightIfCommandLink, 'AdjustHeightIfCommandLink');
+  end;
   Cl.Add(TNewCheckBox);
   Cl.Add(TNewRadioButton);
   with Cl.Add(TNewLinkLabel) do
@@ -162,8 +214,8 @@ begin
   end;
 end;
 
-procedure TNewNotebookPages_R(Self: TNewNotebook; var T: TNewNotebookPage; const t1: Integer); begin T := Self.Pages[t1]; end;
-procedure TNewNotebookPageCount_R(Self: TNewNotebook; var T: Integer); begin T := Self.PageCount; end;
+procedure TNewNotebookPages_R(Self: TNewNotebook; var T: TNewNotebookPage; const t1: NativeInt); begin T := Self.Pages[t1]; end;
+procedure TNewNotebookPageCount_R(Self: TNewNotebook; var T: NativeInt); begin T := Self.PageCount; end;
 
 procedure RegisterNewNotebook_R(CL: TPSRuntimeClassImporter);
 begin
@@ -175,8 +227,15 @@ begin
   end;
 end;
 
-procedure TNewNotebookPageNotebook_W(Self: TNewNotebookPage; const T: TNewNotebook); begin Self.Notebook := T; end;
 procedure TNewNotebookPageNotebook_R(Self: TNewNotebookPage; var T: TNewNotebook); begin T := Self.Notebook; end;
+
+procedure TNewNotebookPageNotebook_W(Self: TNewNotebookPage; const T: TNewNotebook);
+begin
+  { Set CurrentPPI of the control to be parented to the CurrentPPI of the parent, preventing VCL
+    from scaling the control. Also see TSetupForm.CreateWnd.  }
+  Self.SetCurrentPPI(T.CurrentPPI);
+  Self.Notebook := T;
+end;
 
 procedure RegisterNewNotebookPage_R(CL: TPSRuntimeClassImporter);
 begin
@@ -198,7 +257,7 @@ begin
     RegisterMethod(@TSetupForm.CalculateButtonWidth, 'CalculateButtonWidth');
     RegisterMethod(@TSetupForm.ShouldSizeX, 'ShouldSizeX');
     RegisterMethod(@TSetupForm.ShouldSizeY, 'ShouldSizeY');
-    RegisterMethod(@TSetupForm.FlipSizeAndCenterIfNeeded, 'FlipSizeAndCenterIfNeeded');
+    RegisterMethod(@TSetupForm.FlipAndCenterIfNeeded, 'FlipAndCenterIfNeeded');
   end;
 end;
 
@@ -222,10 +281,10 @@ begin
   Cl.Add(TWizardPage);
 end;
 
-procedure TInputQueryWizardPageEdits_R(Self: TInputQueryWizardPage; var T: TPasswordEdit; const t1: Integer); begin T := Self.Edits[t1]; end;
-procedure TInputQueryWizardPagePromptLabels_R(Self: TInputQueryWizardPage; var T: TNewStaticText; const t1: Integer); begin T := Self.PromptLabels[t1]; end;
-procedure TInputQueryWizardPageValues_R(Self: TInputQueryWizardPage; var T: String; const t1: Integer); begin T := Self.Values[t1]; end;
-procedure TInputQueryWizardPageValues_W(Self: TInputQueryWizardPage; const T: String; const t1: Integer); begin Self.Values[t1] := T; end;
+procedure TInputQueryWizardPageEdits_R(Self: TInputQueryWizardPage; var T: TPasswordEdit; const t1: NativeInt); begin T := Self.Edits[t1]; end;
+procedure TInputQueryWizardPagePromptLabels_R(Self: TInputQueryWizardPage; var T: TNewStaticText; const t1: NativeInt); begin T := Self.PromptLabels[t1]; end;
+procedure TInputQueryWizardPageValues_R(Self: TInputQueryWizardPage; var T: String; const t1: NativeInt); begin T := Self.Values[t1]; end;
+procedure TInputQueryWizardPageValues_W(Self: TInputQueryWizardPage; const T: String; const t1: NativeInt); begin Self.Values[t1] := T; end;
 
 procedure RegisterInputQueryWizardPage_R(CL: TPSRuntimeClassImporter);
 begin
@@ -254,11 +313,11 @@ begin
   end;
 end;
 
-procedure TInputDirWizardPageButtons_R(Self: TInputDirWizardPage; var T: TNewButton; const t1: Integer); begin T := Self.Buttons[t1]; end;
-procedure TInputDirWizardPageEdits_R(Self: TInputDirWizardPage; var T: TEdit; const t1: Integer); begin T := Self.Edits[t1]; end;
-procedure TInputDirWizardPagePromptLabels_R(Self: TInputDirWizardPage; var T: TNewStaticText; const t1: Integer); begin T := Self.PromptLabels[t1]; end;
-procedure TInputDirWizardPageValues_W(Self: TInputDirWizardPage; const T: String; const t1: Integer); begin Self.Values[t1] := T; end;
-procedure TInputDirWizardPageValues_R(Self: TInputDirWizardPage; var T: String; const t1: Integer); begin T := Self.Values[t1]; end;
+procedure TInputDirWizardPageButtons_R(Self: TInputDirWizardPage; var T: TNewButton; const t1: NativeInt); begin T := Self.Buttons[t1]; end;
+procedure TInputDirWizardPageEdits_R(Self: TInputDirWizardPage; var T: TNewPathEdit; const t1: NativeInt); begin T := Self.Edits[t1]; end;
+procedure TInputDirWizardPagePromptLabels_R(Self: TInputDirWizardPage; var T: TNewStaticText; const t1: NativeInt); begin T := Self.PromptLabels[t1]; end;
+procedure TInputDirWizardPageValues_W(Self: TInputDirWizardPage; const T: String; const t1: NativeInt); begin Self.Values[t1] := T; end;
+procedure TInputDirWizardPageValues_R(Self: TInputDirWizardPage; var T: String; const t1: NativeInt); begin T := Self.Values[t1]; end;
 
 procedure RegisterInputDirWizardPage_R(CL: TPSRuntimeClassImporter);
 begin
@@ -272,13 +331,13 @@ begin
   end;
 end;
 
-procedure TInputFileWizardPageButtons_R(Self: TInputFileWizardPage; var T: TNewButton; const t1: Integer); begin T := Self.Buttons[t1]; end;
-procedure TInputFileWizardPagePromptLabels_R(Self: TInputFileWizardPage; var T: TNewStaticText; const t1: Integer); begin T := Self.PromptLabels[t1]; end;
-procedure TInputFileWizardPageEdits_R(Self: TInputFileWizardPage; var T: TEdit; const t1: Integer); begin T := Self.Edits[t1]; end;
-procedure TInputFileWizardPageValues_W(Self: TInputFileWizardPage; const T: String; const t1: Integer); begin Self.Values[t1] := T; end;
-procedure TInputFileWizardPageValues_R(Self: TInputFileWizardPage; var T: String; const t1: Integer); begin T := Self.Values[t1]; end;
-procedure TInputFileWizardPageIsSaveButton_W(Self: TInputFileWizardPage; const T: Boolean; const t1: Integer); begin Self.IsSaveButton[t1] := T; end;
-procedure TInputFileWizardPageIsSaveButton_R(Self: TInputFileWizardPage; var T: Boolean; const t1: Integer); begin T := Self.IsSaveButton[t1]; end;
+procedure TInputFileWizardPageButtons_R(Self: TInputFileWizardPage; var T: TNewButton; const t1: NativeInt); begin T := Self.Buttons[t1]; end;
+procedure TInputFileWizardPagePromptLabels_R(Self: TInputFileWizardPage; var T: TNewStaticText; const t1: NativeInt); begin T := Self.PromptLabels[t1]; end;
+procedure TInputFileWizardPageEdits_R(Self: TInputFileWizardPage; var T: TNewPathEdit; const t1: NativeInt); begin T := Self.Edits[t1]; end;
+procedure TInputFileWizardPageValues_W(Self: TInputFileWizardPage; const T: String; const t1: NativeInt); begin Self.Values[t1] := T; end;
+procedure TInputFileWizardPageValues_R(Self: TInputFileWizardPage; var T: String; const t1: NativeInt); begin T := Self.Values[t1]; end;
+procedure TInputFileWizardPageIsSaveButton_W(Self: TInputFileWizardPage; const T: Boolean; const t1: NativeInt); begin Self.IsSaveButton[t1] := T; end;
+procedure TInputFileWizardPageIsSaveButton_R(Self: TInputFileWizardPage; var T: Boolean; const t1: NativeInt); begin T := Self.IsSaveButton[t1]; end;
 
 procedure RegisterInputFileWizardPage_R(CL: TPSRuntimeClassImporter);
 begin
@@ -323,16 +382,41 @@ begin
   end;
 end;
 
+function DownloadWizardPageAddExHelper(Self: TDownloadWizardPage; const Url, BaseName,
+  RequiredSHA256OfFile, UserName, Password: String): NativeInt;
+begin
+  { Provides extra Data parameter which is not present in the prototype registered by
+    RegisterDownloadWizardPage_C }
+  Result := Self.AddEx(Url, BaseName, RequiredSHA256OfFile, UserName, Password, 0);
+end;
+
+function DownloadWizardPageAddExWithISSigVerifyHelper(Self: TDownloadWizardPage;
+  const Url, ISSigUrl, BaseName, UserName, Password: String;
+  const AllowedKeysRuntimeIDs: TStringList): NativeInt;
+begin
+  { Provides extra Data parameter which is not present in the prototype registered by
+    RegisterDownloadWizardPage_C }
+  Result := Self.AddExWithISSigVerify(Url, ISSigUrl, BaseName, UserName,
+    Password, AllowedKeysRuntimeIDs, 0);
+end;
+
+function DownloadWizardPageDownloadHelper(Self: TDownloadWizardPage): Int64;
+begin
+  { Provides extra OnDownloadFileCompleted parameter which is not present in the
+    prototype registered by RegisterDownloadWizardPage_C }
+  Result := Self.Download(nil);
+end;
+
 procedure RegisterDownloadWizardPage_R(CL: TPSRuntimeClassImporter);
 begin
   with CL.Add(TDownloadWizardPage) do
   begin
     RegisterMethod(@TDownloadWizardPage.Add, 'Add');
     RegisterMethod(@TDownloadWizardPage.AddWithISSigVerify, 'AddWithISSigVerify');
-    RegisterMethod(@TDownloadWizardPage.AddEx, 'AddEx');
-    RegisterMethod(@TDownloadWizardPage.AddExWithISSigVerify, 'AddExWithISSigVerify');
+    RegisterMethod(@DownloadWizardPageAddExHelper, 'AddEx');
+    RegisterMethod(@DownloadWizardPageAddExWithISSigVerifyHelper, 'AddExWithISSigVerify');
     RegisterMethod(@TDownloadWizardPage.Clear, 'Clear');
-    RegisterMethod(@TDownloadWizardPage.Download, 'Download');
+    RegisterMethod(@DownloadWizardPageDownloadHelper, 'Download');
     RegisterMethod(@TDownloadWizardPage.Show, 'Show');
   end;
 end;
@@ -385,7 +469,7 @@ begin
     RIRegisterTBitmap(Cl, True);
 
     { Controls }
-    RIRegisterTControl(Cl);
+    RegisterControl_R(Cl);
     RegisterWinControl_R(Cl);
     RIRegisterTGraphicControl(Cl);
     RIRegisterTCustomControl(Cl);
@@ -423,6 +507,8 @@ begin
     { ComObj }
     RIRegister_ComObj(ScriptInterpreter);
 
+    RegisterPngImage_R(Cl);
+
     RegisterNewStaticText_R(Cl);
     RegisterNewCheckListBox_R(Cl);
     RegisterNewProgressBar_R(Cl);
@@ -431,8 +517,9 @@ begin
     RegisterCustomFolderTreeView_R(Cl);
     RegisterFolderTreeView_R(Cl);
     RegisterStartMenuFolderTreeView_R(Cl);
+    RegisterBitmapButton_R(Cl);
     RegisterBitmapImage_R(Cl);
-    RegisterBidiCtrls_R(Cl);
+    RegisterNewCtrls_R(Cl);
 
     RegisterNewNotebook_R(Cl);
     RegisterNewNotebookPage_R(Cl);

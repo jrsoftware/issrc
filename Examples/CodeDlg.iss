@@ -8,7 +8,7 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-WizardStyle=modern
+WizardStyle=modern dynamic
 DisableWelcomePage=no
 DefaultDirName={autopf}\My Program
 DisableProgramGroupPage=yes

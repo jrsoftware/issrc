@@ -118,6 +118,8 @@ begin
       P := Pos('procedure ', S);
       if P = 0 then
         P := Pos('function ', S);
+      if P = 0 then
+        P := Pos('constructor ', S);
       if P = 0 then begin
         Typ := ssProperty;
         P := Pos('property ', S);

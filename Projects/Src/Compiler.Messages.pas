@@ -2,7 +2,7 @@ unit Compiler.Messages;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -59,6 +59,8 @@ const
   SCompilerStatusUpdatingVersionInfo = '   Updating version info (%s)';
   SCompilerStatusUpdatingManifest = '   Updating manifest (%s)';
   SCompilerStatusUpdatingIcons = '   Updating icons (%s)';
+  SCompilerStatusUpdatingIconsAndVsf = '   Updating icons and style (%s)';
+  SCompilerStatusOutputFileInUse = '   The output file appears to be in use (%d). Retrying: %s';
   SCompilerStatusCreatingDisk = '   Creating disk %d';
   SCompilerStatusError = 'ERROR:';
   SCompilerStatusWarning = 'Warning: ';
@@ -81,7 +83,7 @@ const
   { Fatal errors }
   SCompilerScriptMissing2 = 'Specified script file does not exist';
   SCompilerOutputNotEmpty2 = 'Output directory must be empty prior to ' +
-    'compilation of any non-Setup files. Files named SETUP.* are ' +
+    'compilation of any non-Setup files. Files named Setup.* are ' +
     'automatically deleted at the start of compilation.';
   SCompilerUnknownFilenamePrefix = 'Unknown filename prefix "%s"';
   SCompilerSourceFileDoesntExist = 'Source file "%s" does not exist';
@@ -100,10 +102,10 @@ const
   SCompilerCompressInternalError = 'An internal error occurred during compression: %s';
   SCompilerNotEnoughSpaceOnFirstDisk = 'There is not enough space on the first disk to copy all of the required files';
   SCompilerSetup0Mismatch = 'Internal error SC1';
-  SCompilerMustUseDiskSpanning = 'Disk spanning must be enabled in order to create an installation larger than %d bytes in size';
+  SCompilerMustUseDiskSpanning = 'Disk spanning must be enabled to create an installation larger than %d bytes in size for a single Setup.exe, as this approaches the maximum supported by Windows';
   SCompilerCompileCodeError = 'An error occurred while trying to compile the [Code] section:' + SNewLine2 + '%s';
   SCompilerFunctionFailedWithCode = '%s failed. Error %d: %s';
-  SCompilerCheckPrecompiledFileTrustError = '%s' + SNewLine2 + 'To disable this verification, set [Setup] section directive "VerifyPrecompiledFiles" to "no". Before proceding, ensure that the file is neither corrupted nor has been tampered with.';
+  SCompilerCheckPrecompiledFileTrustError = '%s' + SNewLine2 + 'To disable this verification, set [Setup] section directive "DisablePrecompiledFileVerifications". Before proceeding, ensure that the file is neither corrupted nor has been tampered with.';
 
   { [Setup] }
   SCompilerUnknownDirective = 'Unrecognized [%s] section directive "%s"';
@@ -112,6 +114,7 @@ const
   SCompilerEntryMissing2 = 'Required [%s] section directive "%s" not specified';
   SCompilerEntryInvalid2 = 'Value of [%s] section directive "%s" is invalid';
   SCompilerEntryValueUnsupported = 'Value of [%s] section directive "%s" must not be "%s" if flag "%s" is used.';
+  SCompilerEntryValueUnsupported2 = 'Value of [%s] section directive "%s" must not be "%s" if compression method "%s" is used.';
   SCompilerEntryAlreadySpecified = '[%s] section directive "%s" already specified';
   SCompilerAppVersionOrAppVerNameRequired = 'The [Setup] section must include an AppVersion or AppVerName directive';
   SCompilerMinVersionWinMustBeZero = 'Minimum non NT version specified by MinVersion must be 0. (Windows 95/98/Me are no longer supported.)';
@@ -133,6 +136,7 @@ const
   SCompilerArchitectureIdentifierInvalid = 'Architecture identifier "%s" is invalid';
   SCompilerArchitectureIdentifierDeprecatedWarning = 'Architecture identifier "%s" is deprecated. ' +
     'Substituting "%s", but note that "%s" is preferred in most cases. See the "Architecture Identifiers" topic in help file for more information.';
+  SCompilerRegTypeLibArchitectureMismatch = '%d-bit Setup cannot register type libraries in the %d-bit registry view. If you intend for the type library to be registered in the %0:d-bit registry view, add the "%0:dbit" flag';
 
   { Signing }
   SCompilerSignatureNeeded = 'Signed uninstaller mode is enabled. Using ' +
@@ -161,6 +165,7 @@ const
   SCompilerSectionBadEndTag = 'Not inside "%s" section, but an end tag for ' +
     'it was encountered';
   SCompilerTextNotInSection = 'Text is not inside a section';
+  SCompilerDirectivesNotAllowed = 'Compiler directives are not allowed in message files';
   SCompilerInvalidDirective = 'Invalid compiler directive' +
     SNewLine2 + 'To be able to use compiler directives other than ''#include'', you need Inno Setup Preprocessor (ISPP) which is currently not installed.' +
     SNewLine2 + 'To install ISPP, reinstall Inno Setup and enable the ISPP option.';
@@ -255,11 +260,11 @@ const
   { [Components], [Tasks], [Languages], [ISSigKeys] }
   SCompilerComponentsOrTasksBadName = 'Parameter "Name" includes invalid characters.' + SNewLine2 +
     'It may only include alphanumeric characters, underscores, slashes (/), and/or backslashes (\), may not start with a number and may not start or end with a slash or a backslash. Names ''not'', ''and'' and ''or'' are reserved';
-  SCompilerComponentsInvalidLevel = 'Component cannot be more than one level below the preceding component';
-  SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task';
+  SCompilerComponentsInvalidLevel = 'Component cannot be more than one level below the preceding component, or maximum number of levels reached';
+  SCompilerTasksInvalidLevel = 'Task cannot be more than one level below the preceding task, or maximum number of levels reached';
   SCompilerLanguagesOrISSigKeysBadName = 'Parameter "%s" includes invalid characters.' + SNewLine2 + 'It may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
   SCompilerLanguagesOrISSigKeysBadGroupName = 'Parameter "%s" includes a name with invalid characters.' + SNewLine2 + 'Names may only include alphanumeric characters and/or underscores, and may not start with a number. Names ''not'', ''and'' and ''or'' are reserved';
-  SCompilerISSigKeysNameOrRuntimeIDExists = '%s "%s" is already in use"';
+  SCompilerISSigKeysNameOrRuntimeIDExists = '%s "%s" is already in use';
   SCompilerISSigKeysKeyNotSpecified = 'Required parameter(s) "KeyFile" or "PublicX"/"PublicY" not specified';
   SCompilerISSigKeysBadKeyID = 'Value of parameter "KeyID" is not valid for given "KeyFile" or "PublicX"/"PublicY" values.';
   SCompilerISSigKeysBadKeyFile = 'Key file is malformed';
@@ -316,7 +321,7 @@ const
   SCompilerFilesISSigVerifyMissingISSigKeys = 'Flag "issigverify" may not be used when the "ISSigKeys" section doesn''t exist or is empty.';
   SCompilerFilesISSigAllowedKeysMissingISSigVerify = 'Flag "issigverify" must be used when the "ISSigAllowedKeys" parameter is used.';
   SCompilerFilesValueConflict = 'Parameter "%s" cannot allow different values on the same source file';
-  SCompilerFilesUnkownISSigKeyNameOrGroupName = 'Parameter "%s" includes an unknown name or group name.';
+  SCompilerFilesUnknownISSigKeyNameOrGroupName = 'Parameter "%s" includes an unknown name or group name.';
 
   { [Icons] }
   SCompilerIconsNamePathNotSpecified = 'Parameter "Name" must include a path for the icon, ' +
@@ -329,13 +334,13 @@ const
     'results would be disastrous. (You probably mean to delete a value instead.)';
 
   { [Run] }
-  SCompilerRunCantUseRunOnceId = 'Parameter "RunOnceId" can only be used in ' +
+  SCompilerRunCantUseParameter = 'Parameter "%s" can only be used in ' +
     'an [UninstallRun] section';
   SCompilerRunFlagObsolete = 'Flag "%s" is obsolete. Use "%s" instead.';
   SCompilerRunMultipleWaitFlags = 'Parameter "Flags" cannot include multiple "wait" flags';
 
   { [UninstallRun] }
-  SCompilerUninstallRunCantUseDescription = 'Parameter "Description" can only be used in ' +
+  SCompilerUninstallRunCantUseParameter = 'Parameter "%s" can only be used in ' +
     'a [Run] section';
 
 implementation

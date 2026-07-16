@@ -16,7 +16,7 @@ type
     tpsError, tpsPaused);
 
 procedure SetAppTaskbarProgressState(const State: TTaskbarProgressState);
-procedure SetAppTaskbarProgressValue(const Completed, Total: Cardinal);
+procedure SetAppTaskbarProgressValue(const Completed, Total: UInt64);
 
 implementation
 
@@ -53,7 +53,7 @@ begin
     TaskbarListInterface.SetProgressState(Application.MainForm.Handle, StateFlags[State]);
 end;
 
-procedure SetAppTaskbarProgressValue(const Completed, Total: Cardinal);
+procedure SetAppTaskbarProgressValue(const Completed, Total: UInt64);
 begin
   if InitializeTaskbarList and Assigned(Application.MainForm) and
      Application.MainForm.HandleAllocated then

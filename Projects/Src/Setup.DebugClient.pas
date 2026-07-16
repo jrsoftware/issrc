@@ -2,7 +2,7 @@ unit Setup.DebugClient;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -52,7 +52,6 @@ var
 
 procedure SetDebugServerWnd(Wnd: HWND; WantCodeText: Boolean);
 var
-  DebuggerVersion: Cardinal;
   I: Integer;
 begin
   { First, verify that the debugger/IDE is the same version as Setup.
@@ -60,7 +59,7 @@ begin
     EXE was created by an installer built with a later version of IS. We can't
     continue in such a case because the debugger would send over updated
     "compiled code text" that is incompatible with this version of Setup. }
-  DebuggerVersion := SendMessage(Wnd, WM_Debugger_QueryVersion, 0, 0);
+  const DebuggerVersion = SendMessage(Wnd, WM_Debugger_QueryVersion, 0, 0);
   if DebuggerVersion <> SetupBinVersion then
     raise Exception.CreateFmt('Cannot debug. Debugger version ($%.8x) does ' +
       'not match Setup version ($%.8x)', [DebuggerVersion, SetupBinVersion]);
@@ -94,7 +93,7 @@ end;
 
 function InternalDebugNotify(DebuggerMsg: UINT; Kind: TDebugEntryKind;
   Index: Integer; var ADebugContinueStepOver: Boolean;
-  const GetCallStack: TDebugNotifyGetCallStack = nil; const GetCallStackData: Pointer = nil): Boolean;
+  const GetCallStack: TDebugNotifyGetCallStack = nil): Boolean;
 { Returns True if the debugger paused. ADebugContinueStepOver is set to True
   if the debugger paused and the user resumed via Step Over, False otherwise. }
 var
@@ -134,7 +133,7 @@ begin
         -1: Break; { if GetMessage failed }
         0: begin
              { Repost WM_QUIT messages }
-             PostQuitMessage(Msg.WParam);
+             PostQuitMessage(Integer(Msg.WParam));
              Break;
            end;
       end;
@@ -232,7 +231,8 @@ begin
           SetForegroundWindow(HWND(Message.WParam));
         end;
       WM_COPYDATA: begin
-          case TWMCopyData(Message).CopyDataStruct.dwData of
+          const CopyDataMsg = DWORD(TWMCopyData(Message).CopyDataStruct.dwData);
+          case CopyDataMsg of
             CD_DebugClient_EvaluateConstantW: begin
                 try
                   SetString(EvaluateExp, PChar(TWMCopyData(Message).CopyDataStruct.lpData),

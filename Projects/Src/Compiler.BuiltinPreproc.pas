@@ -2,7 +2,7 @@ unit Compiler.BuiltinPreproc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -109,9 +109,15 @@ var
         Break;
       L := LineText;
       SkipWhitespace(L);
-      if L^ = '#' then
-        ProcessDirective(Filename, I + 1, L + 1)
-      else
+      if L^ = '#' then begin
+        if Params.Filename[0] = #0 then
+          ProcessDirective(Filename, I + 1, L + 1)
+        else
+          { Non-empty Params.Filename means a message file (.isl) is being
+            preprocessed. For security, we don't allow any compiler directives
+            to be used. See also SelectPreprocessor in Compiler.SetupCompiler. }
+          RaiseError(Filename, I + 1, SCompilerDirectivesNotAllowed);
+      end else
         Params.LineOutProc(Params.CompilerData, PChar(Filename), I + 1,
           LineText);
       Inc(I);

@@ -2,7 +2,7 @@ unit Setup.FileExtractor;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit Setup.FileExtractor;
 interface
 
 uses
-  Windows, SysUtils, Shared.Int64Em, Shared.FileClass, Compression.Base,
+  Windows, SysUtils, Shared.FileClass, Compression.Base,
   Shared.Struct, ChaCha20;
 
 type
@@ -23,8 +23,8 @@ type
     FDecompressor: array[Boolean] of TCustomDecompressor;
     FSourceF: TFile;
     FOpenedSlice, FChunkFirstSlice, FChunkLastSlice: Integer;
-    FChunkStartOffset: Longint;
-    FChunkBytesLeft, FChunkDecompressedBytesRead: Integer64;
+    FChunkStartOffset: Int64;
+    FChunkBytesLeft, FChunkDecompressedBytesRead: Int64;
     FNeedReset: Boolean;
     FChunkCompressed, FChunkEncrypted: Boolean;
     FCryptContext: TChaCha20Context;
@@ -32,9 +32,9 @@ type
     FCryptKeySet: Boolean;
     FEntered: Integer;
     procedure DecompressBytes(var Buffer; Count: Cardinal);
-    class function FindSliceFilename(const ASlice: Integer): String;
+    class function FindSliceFilename(const ASlice: Integer): String; static;
     procedure OpenSlice(const ASlice: Integer);
-    function ReadProc(var Buf; Count: Longint): Longint;
+    function ReadProc(var Buf; Count: Cardinal): Cardinal;
     procedure SetCryptKey(const Value: TSetupEncryptionKey);
   public
     constructor Create(ADecompressorClass: TCustomDecompressorClass);
@@ -128,6 +128,10 @@ begin
     if NewFileExists(Result) then Exit;
   end;
   Result := AddBackslash(SourceDir) + F1;
+  {$IFDEF DEBUG}
+  { Also see Setup.MainFunc's InitializeSetup }
+  Result := Result.Replace('SetupCustomStyle', 'Setup');
+  {$ENDIF}
   if NewFileExists(Result) then Exit;
   Path := SourceDir;
   LogFmt('Asking user for new disk containing "%s".', [F1]);
@@ -183,7 +187,7 @@ begin
     FNeedReset := True;
     raise;
   end;
-  Inc64(FChunkDecompressedBytesRead, Count);
+  Inc(FChunkDecompressedBytesRead, Count);
 end;
 
 procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
@@ -192,27 +196,24 @@ procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
   procedure InitDecryption;
   begin
     { Recreate the unique nonce from the base nonce }
-    var Nonce := SetupHeader.EncryptionBaseNonce;
+    var Nonce := SetupEncryptionHeader.BaseNonce;
     Nonce.RandomXorStartOffset := Nonce.RandomXorStartOffset xor FChunkStartOffset;
     Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor FChunkFirstSlice;
 
     XChaCha20Init(FCryptContext, FCryptKey[0], Length(FCryptKey), Nonce, SizeOf(Nonce), 0);
   end;
 
-  procedure Discard(Count: Integer64);
+  procedure Discard(Count: Int64);
   var
     Buf: array[0..65535] of Byte;
-    BufSize: Cardinal;
   begin
     try
-      while True do begin
-        BufSize := SizeOf(Buf);
-        if (Count.Hi = 0) and (Count.Lo < BufSize) then
-          BufSize := Count.Lo;
-        if BufSize = 0 then
-          Break;
+      while Count > 0 do begin
+        var BufSize: Cardinal := SizeOf(Buf);
+        if Count < BufSize then
+          BufSize := Cardinal(Count);
         DecompressBytes(Buf, BufSize);
-        Dec64(Count, BufSize);
+        Dec(Count, BufSize);
         if Assigned(ProgressProc) then
           ProgressProc(0);
       end;
@@ -222,9 +223,6 @@ procedure TFileExtractor.SeekTo(const FL: TSetupFileLocationEntry;
     end;
   end;
 
-var
-  TestCompID: TCompID;
-  Diff: Integer64;
 begin
   if FEntered <> 0 then
     InternalError('Cannot call file extractor recursively');
@@ -238,7 +236,7 @@ begin
       Or, did a previous decompression operation fail, necessitating a reset? }
     if (FChunkFirstSlice <> FL.FirstSlice) or
        (FChunkStartOffset <> FL.StartOffset) or
-       (Compare64(FL.ChunkSuboffset, FChunkDecompressedBytesRead) < 0) or
+       (FL.ChunkSuboffset < FChunkDecompressedBytesRead) or
        FNeedReset then begin
       FChunkFirstSlice := -1;
       FDecompressor[floChunkCompressed in FL.Flags].Reset;
@@ -247,16 +245,17 @@ begin
       OpenSlice(FL.FirstSlice);
 
       FSourceF.Seek(SetupLdrOffset1 + FL.StartOffset);
+      var TestCompID: TCompID;
       if FSourceF.Read(TestCompID, SizeOf(TestCompID)) <> SizeOf(TestCompID) then
         SourceIsCorrupted('Failed to read CompID');
-      if Longint(TestCompID) <> Longint(ZLIBID) then
+      if TestCompID <> ZLIBID then
         SourceIsCorrupted('Invalid CompID');
 
       FChunkFirstSlice := FL.FirstSlice;
       FChunkLastSlice := FL.LastSlice;
       FChunkStartOffset := FL.StartOffset;
       FChunkBytesLeft := FL.ChunkCompressedSize;
-      FChunkDecompressedBytesRead := To64(0);
+      FChunkDecompressedBytesRead := 0;
       FChunkCompressed := floChunkCompressed in FL.Flags;
       FChunkEncrypted := floChunkEncrypted in FL.Flags;
 
@@ -265,9 +264,9 @@ begin
     end;
 
     { Need to seek forward in the chunk? }
-    if Compare64(FL.ChunkSuboffset, FChunkDecompressedBytesRead) > 0 then begin
-      Diff := FL.ChunkSuboffset;
-      Dec6464(Diff, FChunkDecompressedBytesRead);
+    if FL.ChunkSuboffset > FChunkDecompressedBytesRead then begin
+      var Diff := FL.ChunkSuboffset;
+      Dec(Diff, FChunkDecompressedBytesRead);
       Discard(Diff);
     end;
   finally
@@ -275,19 +274,21 @@ begin
   end;
 end;
 
-function TFileExtractor.ReadProc(var Buf; Count: Longint): Longint;
+function TFileExtractor.ReadProc(var Buf; Count: Cardinal): Cardinal;
 var
   Buffer: Pointer;
   Left, Res: Cardinal;
 begin
+  if FChunkBytesLeft < 0 then  { sanity checks }
+    InternalError('TFileExtractor.ReadProc: Negative FChunkBytesLeft');
   Buffer := @Buf;
   Left := Count;
-  if (FChunkBytesLeft.Hi = 0) and (FChunkBytesLeft.Lo < Left) then
-    Left := FChunkBytesLeft.Lo;
+  if FChunkBytesLeft < Left then
+    Left := Cardinal(FChunkBytesLeft);
   Result := Left;
   while Left <> 0 do begin
     Res := FSourceF.Read(Buffer^, Left);
-    Dec64(FChunkBytesLeft, Res);
+    Dec(FChunkBytesLeft, Res);
 
     { Decrypt the data after reading from the file }
     if FChunkEncrypted then
@@ -297,7 +298,7 @@ begin
       Break
     else begin
       Dec(Left, Res);
-      Inc(Longint(Buffer), Res);
+      Inc(PByte(Buffer), Res);
       { Go to next disk }
       if FOpenedSlice >= FChunkLastSlice then
         { Already on the last slice, so the file must be corrupted... }
@@ -311,10 +312,8 @@ procedure TFileExtractor.DecompressFile(const FL: TSetupFileLocationEntry;
   const DestF: TFile; const ProgressProc: TExtractorProgressProc;
   const VerifyChecksum: Boolean);
 var
-  BytesLeft: Integer64;
   Context: TSHA256Context;
-  AddrOffset: LongWord;
-  BufSize: Cardinal;
+  AddrOffset: UInt32;
   Buf: array[0..65535] of Byte;
   { ^ *must* be the same buffer size used by the compiler (TCompressionHandler),
     otherwise the TransformCallInstructions call will break }
@@ -323,11 +322,13 @@ begin
     InternalError('Cannot call file extractor recursively');
   Inc(FEntered);
   try
-    BytesLeft := FL.OriginalSize;
+    var BytesLeft := FL.OriginalSize;
+    if BytesLeft < 0 then  { sanity check }
+      InternalError('TFileExtractor.DecompressFile: Negative size');
 
     { To avoid file system fragmentation, preallocate all of the bytes in the
       destination file }
-    DestF.Seek64(BytesLeft);
+    DestF.Seek(BytesLeft);
     DestF.Truncate;
     DestF.Seek(0);
 
@@ -335,19 +336,17 @@ begin
 
     try
       AddrOffset := 0;
-      while True do begin
-        BufSize := SizeOf(Buf);
-        if (BytesLeft.Hi = 0) and (BytesLeft.Lo < BufSize) then
-          BufSize := BytesLeft.Lo;
-        if BufSize = 0 then
-          Break;
+      while BytesLeft > 0 do begin
+        var BufSize: Cardinal := SizeOf(Buf);
+        if BytesLeft < BufSize then
+          BufSize := Cardinal(BytesLeft);
 
         DecompressBytes(Buf, BufSize);
         if floCallInstructionOptimized in FL.Flags then begin
           TransformCallInstructions(Buf, BufSize, False, AddrOffset);
           Inc(AddrOffset, BufSize);  { may wrap, but OK }
         end;
-        Dec64(BytesLeft, BufSize);
+        Dec(BytesLeft, BufSize);
         SHA256Update(Context, Buf, BufSize);
         DestF.WriteBuffer(Buf, BufSize);
 

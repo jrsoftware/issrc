@@ -14,14 +14,13 @@ object WizardForm: TWizardForm
   Font.Style = []
   Scaled = False
   OnClose = FormClose
-  OnResize = FormResize
   DesignSize = (
     497
     360)
   TextHeight = 13
   object FBevel: TBevel
     Left = 0
-    Top = 313
+    Top = 314
     Width = 497
     Height = 1
     Anchors = [akLeft, akRight, akBottom]
@@ -63,7 +62,7 @@ object WizardForm: TWizardForm
     Left = 0
     Top = 0
     Width = 497
-    Height = 313
+    Height = 314
     ActivePage = FInnerPage
     Anchors = [akLeft, akTop, akRight, akBottom]
     Color = clBtnFace
@@ -74,14 +73,13 @@ object WizardForm: TWizardForm
       ParentColor = False
       DesignSize = (
         497
-        313)
+        314)
       object FWizardBitmapImage: TBitmapImage
         Left = 0
         Top = 0
         Width = 164
         Height = 314
         Anchors = [akLeft, akTop, akBottom]
-        BackColor = clWindow
       end
       object FWelcomeLabel2: TNewStaticText
         Left = 176
@@ -111,7 +109,7 @@ object WizardForm: TWizardForm
     object FInnerPage: TNewNotebookPage
       DesignSize = (
         497
-        313)
+        314)
       object FBevel1: TBevel
         Left = 0
         Top = 58
@@ -352,7 +350,7 @@ object WizardForm: TWizardForm
             TabOrder = 3
             OnClick = DirBrowseButtonClick
           end
-          object FDirEdit: TEdit
+          object FDirEdit: TNewPathEdit
             Left = 0
             Top = 68
             Width = 397
@@ -653,7 +651,6 @@ object WizardForm: TWizardForm
             Anchors = [akLeft, akTop, akRight]
             Min = 0
             Max = 100
-            Style = npbstNormal
           end
         end
         object FInfoAfterPage: TNewNotebookPage
@@ -706,13 +703,12 @@ object WizardForm: TWizardForm
           Width = 58
           Height = 58
           Anchors = [akTop, akRight]
-          BackColor = clWindow
         end
         object FPageDescriptionLabel: TNewStaticText
           Left = 40
-          Top = 26
+          Top = 24
           Width = 389
-          Height = 29
+          Height = 31
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
           Caption = '*'
@@ -722,7 +718,7 @@ object WizardForm: TWizardForm
         end
         object FPageNameLabel: TNewStaticText
           Left = 24
-          Top = 10
+          Top = 8
           Width = 405
           Height = 14
           Anchors = [akLeft, akTop, akRight]
@@ -738,14 +734,13 @@ object WizardForm: TWizardForm
       ParentColor = False
       DesignSize = (
         497
-        313)
+        314)
       object FWizardBitmapImage2: TBitmapImage
         Left = 0
         Top = 0
         Width = 164
         Height = 314
         Anchors = [akLeft, akTop, akBottom]
-        BackColor = clWindow
       end
       object FRunList: TNewCheckListBox
         Left = 176
@@ -809,7 +804,7 @@ object WizardForm: TWizardForm
   end
   object FBeveledLabel: TNewStaticText
     Left = 0
-    Top = 306
+    Top = 307
     Width = 5
     Height = 14
     Anchors = [akLeft, akBottom]
@@ -817,5 +812,6 @@ object WizardForm: TWizardForm
     Enabled = False
     ShowAccelChar = False
     TabOrder = 1
+    Transparent = False
   end
 end

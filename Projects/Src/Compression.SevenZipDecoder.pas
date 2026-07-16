@@ -2,7 +2,7 @@ unit Compression.SevenZipDecoder;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -22,46 +22,50 @@ type
 
 procedure SevenZipError(const ExceptMessage: String; const LogMessage: String = '');
 
-procedure Extract7ZipArchiveRedir(const DisableFsRedir: Boolean;
-  const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
+procedure Extract7ZipArchive(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
 
 implementation
 
 uses
   Windows, Forms,
-  PathFunc,
+  PathFunc, UnsignedFunc,
   Shared.SetupMessageIDs, Shared.CommonFunc, SetupLdrAndSetup.Messages,
-  SetupLdrAndSetup.RedirFunc, Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
+  Setup.LoggingFunc, Setup.MainFunc, Setup.InstFunc;
 
 type
   TSevenZipDecodeState = record
-    DisableFsRedir: Boolean;
     ExpandedArchiveFileName, ExpandedDestDir: String;
     LogBuffer: AnsiString;
     ExtractedArchiveName: String;
     OnExtractionProgress: TOnExtractionProgress;
-    LastReportedProgress, LastReportedProgressMax: UInt64;
     Aborted: Boolean;
   end;
 
 var
   State: TSevenZipDecodeState;
 
-{ Compiled by Visual Studio 2022 using compile.bat
-  To enable source debugging recompile using compile-bcc32c.bat and turn off the VISUALSTUDIO define below
+{ Compiled by Visual Studio 2022 using compile.bat }
+{$IFNDEF WIN64}
+{ To enable source debugging recompile using compile-bcc32c.bat and turn off the VISUALSTUDIO define below
   Note that in a speed test the code produced by bcc32c was about 33% slower }
-{$L Src\Compression.SevenZipDecoder\7zDecode\IS7zDec.obj}
+{$L Src\Compression.SevenZipDecoder\7zDecode\IS7zDec-x86.obj}
+{$ELSE}
+{$L Src\Compression.SevenZipDecoder\7zDecode\IS7zDec-x64.obj}
+{$ENDIF}
+
 {$DEFINE VISUALSTUDIO}
 
-function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl; external name '_IS_7zDec';
+function IS_7zDec(const fileName: PChar; const fullPaths: Bool): Integer; cdecl; external name {$IFNDEF WIN64} '_IS_7zDec' {$ELSE} 'IS_7zDec' {$ENDIF};
 
-function __CreateDirectoryW(lpPathName: LPCWSTR;
+
+function {$IFNDEF WIN64} __CreateDirectoryW {$ELSE} _CreateDirectoryW {$ENDIF}(
+  lpPathName: LPCWSTR;
   lpSecurityAttributes: PSecurityAttributes): BOOL; cdecl;
 begin
   var ExpandedDir: String;
   if ValidateAndCombinePath(State.ExpandedDestDir, lpPathName, ExpandedDir) then
-    Result := CreateDirectoryRedir(State.DisableFsRedir, ExpandedDir, lpSecurityAttributes)
+    Result := CreateDirectory(PChar(ExpandedDir), lpSecurityAttributes)
   else begin
     Result := False;
     SetLastError(ERROR_ACCESS_DENIED);
@@ -69,7 +73,8 @@ begin
 end;
 
 { Never actually called but still required by the linker }
-function __CreateFileA(lpFileName: LPCSTR; dwDesiredAccess, dwShareMode: DWORD;
+function {$IFNDEF WIN64} __CreateFileA {$ELSE} _CreateFileA {$ENDIF}(
+  lpFileName: LPCSTR; dwDesiredAccess, dwShareMode: DWORD;
   lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
   hTemplateFile: THandle): THandle; cdecl;
 begin
@@ -79,7 +84,8 @@ begin
   SetLastError(ERROR_INVALID_FUNCTION);
 end;
 
-function __CreateFileW(lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
+function {$IFNDEF WIN64} __CreateFileW {$ELSE} _CreateFileW {$ENDIF}(
+  lpFileName: LPCWSTR; dwDesiredAccess, dwShareMode: DWORD;
   lpSecurityAttributes: PSecurityAttributes; dwCreationDisposition, dwFlagsAndAttributes: DWORD;
   hTemplateFile: THandle): THandle; cdecl;
 begin
@@ -88,12 +94,11 @@ begin
     malicious archive cannot create files outside of the destination directory. }
   var ExpandedFileName: String;
   if ((dwDesiredAccess = GENERIC_READ) and
-      PathExpand(lpFileName, ExpandedFileName) and
-      (PathCompare(ExpandedFileName, State.ExpandedArchiveFileName) = 0)) or
+      PathConvertNormalToSuper(lpFileName, ExpandedFileName) and
+      PathSame(ExpandedFileName, State.ExpandedArchiveFileName)) or
      ((dwDesiredAccess = GENERIC_WRITE) and
       ValidateAndCombinePath(State.ExpandedDestDir, lpFileName, ExpandedFileName)) then
-    Result := CreateFileRedir(State.DisableFsRedir, ExpandedFileName,
-      dwDesiredAccess, dwShareMode, lpSecurityAttributes,
+    Result := CreateFile(PChar(ExpandedFileName), dwDesiredAccess, dwShareMode, lpSecurityAttributes,
       dwCreationDisposition, dwFlagsAndAttributes, hTemplateFile)
   else begin
     Result := INVALID_HANDLE_VALUE;
@@ -103,114 +108,130 @@ end;
 
 {$IFDEF VISUALSTUDIO}
 
-function __FileTimeToLocalFileTime(lpFileTime: PFileTime; var lpLocalFileTime: TFileTime): BOOL; cdecl;
+function {$IFNDEF WIN64} __FileTimeToLocalFileTime {$ELSE} _FileTimeToLocalFileTime {$ENDIF}(
+  lpFileTime: PFileTime; var lpLocalFileTime: TFileTime): BOOL; cdecl;
 begin
   Result := FileTimeToLocalFileTime(lpFileTime, lpLocalFileTime);
 end;
 
 { Never actually called but still required by the linker }
-function __GetFileSize(hFile: THandle; lpFileSizeHigh: Pointer): DWORD; cdecl;
+function {$IFNDEF WIN64} __GetFileSize {$ELSE} _GetFileSize {$ENDIF}(
+  hFile: THandle; lpFileSizeHigh: Pointer): DWORD; cdecl;
 begin
   Result := GetFileSize(hFile, lpFileSizeHigh);
 end;
 
-function __ReadFile(hFile: THandle; var Buffer; nNumberOfBytesToRead: DWORD;
+function {$IFNDEF WIN64} __ReadFile {$ELSE} _ReadFile {$ENDIF}(
+  hFile: THandle; var Buffer; nNumberOfBytesToRead: DWORD;
   var lpNumberOfBytesRead: DWORD; lpOverlapped: POverlapped): BOOL; cdecl;
 begin
   Result := ReadFile(hFile, Buffer, nNumberOfBytesToRead, lpNumberOfBytesRead, lpOverlapped);
 end;
 
-function __GetFileAttributesW(lpFileName: LPCWSTR): DWORD; cdecl;
+function {$IFNDEF WIN64} __GetFileAttributesW {$ELSE} _GetFileAttributesW {$ENDIF}(
+  lpFileName: LPCWSTR): DWORD; cdecl;
 begin
   { See above }
   var ExpandedFileName: String;
   if ValidateAndCombinePath(State.ExpandedDestDir, lpFileName, ExpandedFileName) then
-    Result := GetFileAttributesRedir(State.DisableFsRedir, ExpandedFileName)
+    Result := GetFileAttributes(PChar(ExpandedFileName))
   else begin
     Result := INVALID_FILE_ATTRIBUTES;
     SetLastError(ERROR_ACCESS_DENIED);
   end;
 end;
 
-function __SetFileAttributesW(lpFileName: LPCWSTR; dwFileAttributes: DWORD): BOOL; cdecl;
+function {$IFNDEF WIN64} __SetFileAttributesW {$ELSE} _SetFileAttributesW {$ENDIF}(
+  lpFileName: LPCWSTR; dwFileAttributes: DWORD): BOOL; cdecl;
 begin
   { See above }
   var ExpandedFileName: String;
   if ValidateAndCombinePath(State.ExpandedDestDir, lpFileName, ExpandedFileName) then
-    Result := SetFileAttributesRedir(State.DisableFsRedir, ExpandedFileName, dwFileAttributes)
+    Result := SetFileAttributes(PChar(ExpandedFileName), dwFileAttributes)
   else begin
     Result := False;
     SetLastError(ERROR_ACCESS_DENIED);
   end;
 end;
 
-function __SetFilePointer(hFile: THandle; lDistanceToMove: Longint;
+function {$IFNDEF WIN64} __SetFilePointer {$ELSE} _SetFilePointer {$ENDIF}(
+  hFile: THandle; lDistanceToMove: Longint;
   lpDistanceToMoveHigh: Pointer; dwMoveMethod: DWORD): DWORD; cdecl;
 begin
   Result := SetFilePointer(hFile, lDistanceToMove, lpDistanceToMoveHigh, dwMoveMethod);
 end;
 
-function __SetFileTime(hFile: THandle;
+function {$IFNDEF WIN64} __SetFileTime {$ELSE} _SetFileTime {$ENDIF}(
+  hFile: THandle;
   lpCreationTime, lpLastAccessTime, lpLastWriteTime: PFileTime): BOOL; cdecl;
 begin
   Result := SetFileTime(hFile, lpCreationTime, lpLastAccessTime, lpLastWriteTime);
 end;
 
-function __WriteFile(hFile: THandle; const Buffer; nNumberOfBytesToWrite: DWORD;
+function {$IFNDEF WIN64} __WriteFile {$ELSE} _WriteFile {$ENDIF}(
+  hFile: THandle; const Buffer; nNumberOfBytesToWrite: DWORD;
   var lpNumberOfBytesWritten: DWORD; lpOverlapped: POverlapped): BOOL; cdecl;
 begin
   Result := WriteFile(hFile, Buffer, nNumberOfBytesToWrite, lpNumberOfBytesWritten, lpOverlapped);
 end;
 
-function __CloseHandle(hObject: THandle): BOOL; cdecl;
+function {$IFNDEF WIN64} __CloseHandle {$ELSE} _CloseHandle {$ENDIF}(
+  hObject: THandle): BOOL; cdecl;
 begin
   Result := CloseHandle(hObject);
 end;
 
-function __GetLastError: DWORD; cdecl;
+function {$IFNDEF WIN64} __GetLastError {$ELSE} _GetLastError {$ENDIF}: DWORD; cdecl;
 begin
   Result := GetLastError;
 end;
 
-function __LocalFree(hMem: HLOCAL): HLOCAL; cdecl;
+function {$IFNDEF WIN64} __LocalFree {$ELSE} _LocalFree {$ENDIF}(
+  hMem: HLOCAL): HLOCAL; cdecl;
 begin
   Result := LocalFree(hMem);
 end;
 
-function __FormatMessageA(dwFlags: DWORD; lpSource: Pointer; dwMessageId: DWORD; dwLanguageId: DWORD;
+function {$IFNDEF WIN64} __FormatMessageA {$ELSE} _FormatMessageA {$ENDIF}(
+  dwFlags: DWORD; lpSource: Pointer; dwMessageId: DWORD; dwLanguageId: DWORD;
   lpBuffer: LPSTR; nSize: DWORD; Arguments: Pointer): DWORD; cdecl;
 begin
   Result := FormatMessageA(dwFlags, lpSource, dwMessageId, dwLanguageId, lpBuffer, nSize, Arguments);
 end;
 
-function __WideCharToMultiByte(CodePage: UINT; dwFlags: DWORD;
-  lpWideCharStr: LPWSTR; cchWideChar: Integer; lpMultiByteStr: LPSTR;
+function {$IFNDEF WIN64} __WideCharToMultiByte {$ELSE} _WideCharToMultiByte {$ENDIF}(
+  CodePage: UINT; dwFlags: DWORD; lpWideCharStr: LPWSTR; cchWideChar: Integer; lpMultiByteStr: LPSTR;
   cchMultiByte: Integer; lpDefaultChar: LPCSTR; lpUsedDefaultChar: PBOOL): Integer; cdecl;
 begin
   Result := WideCharToMultiByte(CodePage, dwFlags, lpWideCharStr, cchWideChar, lpMultiByteStr, cchMultiByte, lpDefaultChar, lpUsedDefaultChar);
 end;
 
+{$IFNDEF WIN64}
 //https://github.com/rust-lang/compiler-builtins/issues/403
 procedure __allshl; register; external 'ntdll.dll' name '_allshl';
 procedure __aullshr; register; external 'ntdll.dll' name '_aullshr';
+{$ENDIF}
 {$ELSE}
 procedure __aullrem; stdcall; external 'ntdll.dll' name '_aullrem';
 procedure __aulldiv; stdcall; external 'ntdll.dll' name '_aulldiv';
 {$ENDIF}
 
-function _memcpy(dest, src: Pointer; n: Cardinal): Pointer; cdecl;
+function {$IFNDEF WIN64} _memcpy {$ELSE} memcpy {$ENDIF}(
+  dest, src: Pointer; n: NativeUInt): Pointer; cdecl;
 begin
-  Move(src^, dest^, n);
+  UMove(src^, dest^, n);
   Result := dest;
 end;
 
-function _memset(dest: Pointer; c: Integer; n: Cardinal): Pointer; cdecl;
+function {$IFNDEF WIN64} _memset {$ELSE} memset {$ENDIF}(
+  dest: Pointer; c: Integer; n: NativeUInt): Pointer; cdecl;
 begin
-  FillChar(dest^, n, c);
+  UFillChar(dest^, n, c);
   Result := dest;
 end;
 
-function _malloc(size: NativeUInt): Pointer; cdecl;
+function {$IFNDEF WIN64} _malloc {$ELSE} malloc {$ENDIF}(
+  size: NativeUInt): Pointer; cdecl;
 begin
   if size > NativeUInt(High(NativeInt)) then
     Result := nil
@@ -224,12 +245,13 @@ begin
   end;
 end;
 
-procedure _free(address: Pointer); cdecl;
+procedure {$IFNDEF WIN64} _free {$ELSE} free {$ENDIF}(address: Pointer); cdecl;
 begin
   FreeMem(address);
 end;
 
-function _wcscmp(string1, string2: PChar): Integer; cdecl;
+function {$IFNDEF WIN64} _wcscmp {$ELSE} wcscmp {$ENDIF}(
+  string1, string2: PChar): Integer; cdecl;
 begin
   Result := StrComp(string1, string2);
 end;
@@ -240,7 +262,8 @@ begin
     Setup.LoggingFunc.Log(UTF8ToString(S));
 end;
 
-function __fputs(str: PAnsiChar; unused: Pointer): Integer; cdecl;
+function {$IFNDEF WIN64} __fputs {$ELSE} _fputs {$ENDIF}(
+  str: PAnsiChar; unused: Pointer): Integer; cdecl;
 
   function FindNewLine(const S: AnsiString): Integer;
   begin
@@ -269,12 +292,24 @@ begin
   end;
 end;
 
-procedure _ReportProgress(const FileName: PChar; const Progress, ProgressMax: UInt64; var Abort: Bool); cdecl;
+procedure {$IFNDEF WIN64} _ReportProgress {$ELSE} ReportProgress {$ENDIF}(
+  const FileName: PChar; const Progress, ProgressMax: UInt64; var Abort: Bool); cdecl;
 begin
   try
-    if Assigned(State.OnExtractionProgress) then
-      if not State.OnExtractionProgress(State.ExtractedArchiveName, FileName, Progress, ProgressMax) then
+    if Assigned(State.OnExtractionProgress) then begin
+      const MaxInt64 = High(Int64);
+      var ReportProgress, ReportProgressMax: Int64;
+      if Progress > MaxInt64 then
+        ReportProgress := MaxInt64
+      else
+        ReportProgress := Int64(Progress);
+      if ProgressMax > MaxInt64 then
+        ReportProgressMax := MaxInt64
+      else
+        ReportProgressMax := Int64(ProgressMax);
+      if not State.OnExtractionProgress(State.ExtractedArchiveName, FileName, ReportProgress, ReportProgressMax) then
         Abort := True;
+    end;
 
     if not Abort and DownloadTemporaryFileOrExtractArchiveProcessMessages then
       Application.ProcessMessages;
@@ -296,8 +331,7 @@ begin
   raise ESevenZipError.Create(ExceptMessage);
 end;
 
-procedure Extract7ZipArchiveRedir(const DisableFsRedir: Boolean;
-  const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
+procedure Extract7ZipArchive(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean;
   const OnExtractionProgress: TOnExtractionProgress);
 
   procedure BadResultError(const Res: Integer);
@@ -317,7 +351,7 @@ procedure Extract7ZipArchiveRedir(const DisableFsRedir: Boolean;
       SZ_ERROR_DATA, SZ_ERROR_CRC, SZ_ERROR_ARCHIVE:
         SevenZipError(SetupMessages[msgArchiveIsCorrupted]);
       SZ_ERROR_MEM:
-        SevenZipError(Win32ErrorString(E_OUTOFMEMORY));
+        SevenZipError(Win32ErrorString(DWORD(E_OUTOFMEMORY)));
     else
       SevenZipError(Res.ToString);
     end;
@@ -336,17 +370,17 @@ begin
   LogFmt('Extracting 7-Zip archive %s to %s. Full paths? %s', [ArchiveFileName,
     RemoveBackslashUnlessRoot(DestDir), SYesNo[FullPaths]]);
 
-  if not ForceDirectories(DisableFsRedir, DestDir) then
+  if not NewForceDirectories(DestDir) then
     SevenZipError(FmtSetupMessage1(msgErrorCreatingDir, DestDir), 'Failed to create destination directory');
 
-  State.DisableFsRedir := DisableFsRedir;
-  State.ExpandedArchiveFileName := PathExpand(ArchiveFileName);
-  State.ExpandedDestDir := AddBackslash(PathExpand(DestDir));
+  if not PathConvertNormalToSuper(ArchiveFileName, State.ExpandedArchiveFileName) or
+     not PathConvertNormalToSuper(DestDir, State.ExpandedDestDir) then
+    InternalError('Extract7ZipArchive: PathConvertNormalToSuper failed');
+
+  State.ExpandedDestDir := AddBackslash(State.ExpandedDestDir);
   State.LogBuffer := '';
   State.ExtractedArchiveName := PathExtractName(ArchiveFileName);
   State.OnExtractionProgress := OnExtractionProgress;
-  State.LastReportedProgress := 0;
-  State.LastReportedProgressMax := 0;
   State.Aborted := False;
 
   var Res := IS_7zDec(PChar(ArchiveFileName), FullPaths);

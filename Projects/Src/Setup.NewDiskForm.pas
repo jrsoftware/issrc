@@ -13,14 +13,14 @@ interface
 
 uses
   Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  Setup.SetupForm, StdCtrls, ExtCtrls, NewStaticText, BitmapImage, BidiCtrls;
+  Setup.SetupForm, StdCtrls, ExtCtrls, NewStaticText, BitmapImage, NewCtrls;
 
 type
   TNewDiskForm = class(TSetupForm)
     DiskBitmapImage: TBitmapImage;
     SelectDiskLabel: TNewStaticText;
     PathLabel: TNewStaticText;
-    PathEdit: TEdit;
+    PathEdit: TNewPathEdit;
     BrowseButton: TNewButton;
     OKButton: TNewButton;
     CancelButton: TNewButton;
@@ -29,7 +29,6 @@ type
   private
     FFilename: string;
     function GetSanitizedPath: String;
-    procedure CMShowingChanged(var Message: TMessage); message CM_SHOWINGCHANGED;
   public
     constructor Create(AOwner: TComponent); override;
   end;
@@ -39,15 +38,17 @@ function SelectDisk(const DiskNumber: Integer; const AFilename: String; var Path
 implementation
 
 uses
-  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, BrowseFunc,
-  Setup.MainFunc, Setup.MainForm, Setup.WizardForm;
+  ShellAPI,
+  PathFunc, BrowseFunc,
+  Shared.SetupMessageIDs, Shared.CommonFunc.Vcl, Shared.CommonFunc,
+  SetupLdrAndSetup.Messages, Setup.MainFunc, Setup.MainForm, Setup.WizardForm;
 
 {$R *.DFM}
 
 function SelectDisk(const DiskNumber: Integer; const AFilename: String;
   var Path: String): Boolean;
 begin
-  Application.Restore;  { see comments in AppMessageBox }
+  Application.Restore;  { see comments in MsgBox }
 
   with TNewDiskForm.Create(Application) do
     try
@@ -69,7 +70,7 @@ constructor TNewDiskForm.Create(AOwner: TComponent);
 begin
   inherited;
 
-  InitializeFont;
+  InitializeFont(False, True);
 
   Caption := SetupMessages[msgChangeDiskTitle];
   PathLabel.Caption := SetupMessages[msgPathLabel];
@@ -77,22 +78,13 @@ begin
   OKButton.Caption := SetupMessages[msgButtonOK];
   CancelButton.Caption := SetupMessages[msgButtonCancel];
 
-  DiskBitmapImage.InitializeFromIcon(HInstance, 'Z_DISKICON', Color, [48, 64]); {don't localize}
+  DiskBitmapImage.InitializeFromStockIcon(SIID_MEDIABLANKCD, clNone, [48, 64]);
 
-  TryEnableAutoCompleteFileSystem(PathEdit.Handle);
+  SetForeground := True;
 
-  KeepSizeY := True;
   { WizardForm will not exist yet if we're being called from [Code]'s
     ExtractTemporaryFile in InitializeSetup }
-  FlipSizeAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
-end;
-
-procedure TNewDiskForm.CMShowingChanged(var Message: TMessage);
-begin
-  inherited;
-  { This usually just makes the taskbar button flash }
-  if Showing then
-    SetForegroundWindow(Handle);
+  FlipAndCenterIfNeeded(Assigned(WizardForm), WizardForm, False);
 end;
 
 function TNewDiskForm.GetSanitizedPath: String;

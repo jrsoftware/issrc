@@ -327,7 +327,7 @@ object MainForm: TMainForm
       object TargetUninstallButton: TToolButton
         Left = 285
         Top = 0
-        Hint = 'Target Uninstall (Ctrl+W)'
+        Hint = 'Target Uninstall (Alt+Q)'
         Grouped = True
         ImageIndex = 8
         ImageName = 'uninstall'
@@ -373,33 +373,37 @@ object MainForm: TMainForm
     TabOrder = 1
     Visible = False
     StyleName = 'Windows'
-    object UpdatePanelClosePaintBox: TPaintBox
+    object UpdatePanelCloseBitBtn: TBitmapButton
       AlignWithMargins = True
-      Left = 330
-      Top = 10
-      Width = 21
-      Height = 21
-      Margins.Top = 10
-      Margins.Right = 10
-      Margins.Bottom = 10
+      Left = 328
+      Top = 8
+      Width = 25
+      Height = 25
+      Margins.Top = 8
+      Margins.Right = 8
+      Margins.Bottom = 8
       Align = alRight
-      OnClick = UpdatePanelClosePaintBoxClick
-      OnPaint = UpdatePanelClosePaintBoxPaint
+      Caption = 'Close Banner'
+      TabOrder = 1
+      OnClick = UpdatePanelCloseBitBtnClick
+      OnPaint = UpdatePanelCloseBitBtnPaint
     end
-    object UpdatePanelDonateImage: TImage
+    object UpdatePanelDonateBitBtn: TBitmapButton
       AlignWithMargins = True
-      Left = 303
-      Top = 10
-      Width = 21
-      Height = 21
+      Left = 300
+      Top = 8
+      Width = 25
+      Height = 25
       Cursor = crHandPoint
-      Margins.Top = 10
-      Margins.Bottom = 10
+      Margins.Top = 8
+      Margins.Right = 0
+      Margins.Bottom = 8
       Align = alRight
-      Center = True
+      Caption = 'Donate'
       ParentShowHint = False
       ShowHint = True
-      OnClick = UpdatePanelDonateImageClick
+      TabOrder = 2
+      OnClick = UpdatePanelDonateBitBtnClick
     end
     object UpdateLinkLabel: TLinkLabel
       Left = 13
@@ -584,10 +588,14 @@ object MainForm: TMainForm
         Caption = '&Unfold Section'
         OnClick = EFoldOrUnfoldLineClick
       end
-      object EGoto: TMenuItem
+      object EGotoFile: TMenuItem
+        Caption = 'Go to File...'
+        OnClick = EGotoFileClick
+      end
+      object EGotoLine: TMenuItem
         Caption = '&Go to Line...'
         ShortCut = 16455
-        OnClick = EGotoClick
+        OnClick = EGotoLineClick
       end
       object N18: TMenuItem
         Caption = '-'
@@ -840,7 +848,7 @@ object MainForm: TMainForm
         Caption = 'Target &Uninstall'
         GroupIndex = 1
         RadioItem = True
-        ShortCut = 16471
+        ShortCut = 32849
         OnClick = RTargetClick
       end
     end
@@ -866,7 +874,6 @@ object MainForm: TMainForm
       end
       object TRegistryDesigner: TMenuItem
         Caption = 'Generate [&Registry] Entries...'
-        ImageIndex = 66
         ShortCut = 24658
         OnClick = TRegistryDesignerClick
       end
@@ -892,9 +899,21 @@ object MainForm: TMainForm
     end
     object HMenu: TMenuItem
       Caption = '&Help'
-      OnClick = SimpleMenuClick
+      OnClick = HMenuClick
+      object HPurchase: TMenuItem
+        Caption = 'Purchase or Renew Commercial &License'
+        OnClick = HPurchaseClick
+      end
+      object HRegister: TMenuItem
+        Caption = 'Enter Commercial License &Key...'
+        OnClick = HRegisterClick
+      end
+      object HUnregister: TMenuItem
+        Caption = 'Remove Commercial License Key'
+        OnClick = HUnregisterClick
+      end
       object HDonate: TMenuItem
-        Caption = '&Support Inno Setup - Thank you!'
+        Caption = '&Donate'
         OnClick = HDonateClick
       end
       object N21: TMenuItem
@@ -912,7 +931,7 @@ object MainForm: TMainForm
         Caption = '-'
       end
       object HDoc: TMenuItem
-        Caption = 'Inno Setup &Documentation'
+        Caption = 'Inno &Setup Documentation'
         OnClick = HDocClick
       end
       object HExamples: TMenuItem
@@ -962,10 +981,10 @@ object MainForm: TMainForm
     Left = 160
     Top = 120
   end
-  object CheckIfRunningTimer: TTimer
+  object CheckIfTerminatedTimer: TTimer
     Enabled = False
     Interval = 100
-    OnTimer = CheckIfRunningTimerTimer
+    OnTimer = CheckIfTerminatedTimerTimer
     Left = 160
     Top = 64
   end
@@ -1271,6 +1290,16 @@ object MainForm: TMainForm
         CollectionIndex = 59
         CollectionName = 'symbol-remove'
         Name = 'symbol-remove'
+      end
+      item
+        CollectionIndex = 60
+        CollectionName = 'padlock-filled'
+        Name = 'padlock-filled'
+      end
+      item
+        CollectionIndex = 61
+        CollectionName = 'shopping-cart'
+        Name = 'shopping-cart'
       end>
     ImageCollection = ImagesModule.LightToolBarImageCollection
     Left = 80

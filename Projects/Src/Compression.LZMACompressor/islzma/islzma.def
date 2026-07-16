@@ -1,5 +1,3 @@
-LIBRARY islzma
-
 EXPORTS
   LZMA_Init3 = LZMA_Init
   LZMA_SetProps3 = LZMA_SetProps

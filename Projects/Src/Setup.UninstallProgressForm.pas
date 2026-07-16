@@ -14,7 +14,7 @@ interface
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   Setup.SetupForm, StdCtrls, ExtCtrls, BitmapImage, NewProgressBar, NewStaticText,
-  NewNotebook, BidiCtrls;
+  NewNotebook, NewCtrls;
 
 type
   TUninstallProgressForm = class(TSetupForm)
@@ -37,7 +37,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    procedure Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean);
+    procedure Initialize(const ATitle, AAppName: String);
     procedure UpdateProgress(const AProgress, ARange: Integer);
   published
     property OuterNotebook: TNewNotebook read FOuterNotebook;
@@ -62,15 +62,18 @@ var
 implementation
 
 uses
-  TaskbarProgressFunc, Setup.MainForm, SetupLdrAndSetup.Messages,
-  Shared.SetupMessageIDs, Shared.CommonFunc.Vcl;
+  Themes,
+  TaskbarProgressFunc,
+  Shared.SetupMessageIDs, Shared.CommonFunc.Vcl, Shared.Struct,
+  SetupLdrAndSetup.Messages,
+  Setup.MainForm, Setup.MainFunc, Setup.InstFunc;
 
 {$R *.DFM}
 
 { TUninstallProgressForm }
 
-procedure UninstallMessageBoxCallback(const Flags: LongInt; const After: Boolean;
-  const Param: LongInt);
+procedure UninstallMessageBoxCallback(const Flags: Cardinal; const After: Boolean;
+  const Param: NativeInt);
 const
   States: array [TNewProgressBarState] of TTaskbarProgressState =
     (tpsNormal, tpsError, tpsPaused);
@@ -98,20 +101,37 @@ constructor TUninstallProgressForm.Create(AOwner: TComponent);
 begin
   inherited;
 
-  SetMessageBoxCallbackFunc(UninstallMessageBoxCallback, LongInt(Self));
+  SetMessageBoxCallbackFunc(UninstallMessageBoxCallback, NativeInt(Self));
+
+  var LStyle := StyleServices(Self);
+  if not LStyle.Enabled or LStyle.IsSystemStyle then
+    LStyle := nil;
+
+  if not CustomWizardBackground or (SetupHeader.WizardBackColor = clWindow) then
+    MainPanel.ParentBackGround := False;
 
   InitializeFont;
-
-  MainPanel.ParentBackGround := False;
-
   PageNameLabel.Font.Style := [fsBold];
   PageNameLabel.Caption := SetupMessages[msgWizardUninstalling];
-  if not WizardSmallBitmapImage.InitializeFromIcon(HInstance, 'Z_UNINSTALLICON', MainPanel.Color, [32, 48, 64]) then {don't localize}
-    WizardSmallBitmapImage.InitializeFromIcon(HInstance, 'MAINICON', MainPanel.Color, [32, 48, 64]); {don't localize}
+
+  { Initialize wizard style: not done here but in TUninstallProgressForm.Initialize }
+
+  { Adjust page name and description label - also see TWizardForm.Create }
+  const I = FPageNameLabel.AdjustHeight;
+  FPageDescriptionLabel.Top := FPageDescriptionLabel.Top + I;
+
+  { Initialize BeveledLabel }
   if SetupMessages[msgBeveledLabel] <> '' then begin
     BeveledLabel.Caption := ' ' + SetupMessages[msgBeveledLabel] + ' ';
+    BeveledLabel.Top := Bevel.Top - ((BeveledLabel.Height - 1) div 2);
+    if not CustomWizardBackground then begin
+      if LStyle <> nil then
+        BeveledLabel.Color := LStyle.GetStyleColor(scWindow);
+    end else
+      BeveledLabel.Color := TBitmapImageImplementation.AdjustColorForStyle(Self, SetupHeader.WizardBackColor);
     BeveledLabel.Visible := True;
   end;
+
   CancelButton.Caption := SetupMessages[msgButtonCancel];
 end;
 
@@ -123,16 +143,47 @@ begin
   inherited;
 end;
 
-procedure TUninstallProgressForm.Initialize(const ATitle, AAppName: String; const AModernStyle: Boolean);
+procedure TUninstallProgressForm.Initialize(const ATitle, AAppName: String);
 begin
+  var LStyle := StyleServices(Self);
+  if not LStyle.Enabled or LStyle.IsSystemStyle then
+    LStyle := nil;
+
   Caption := ATitle;
   PageDescriptionLabel.Caption := FmtSetupMessage1(msgUninstallStatusLabel, AAppName);
   StatusLabel.Caption := FmtSetupMessage1(msgStatusUninstalling, AAppName);
-  
-  if AModernStyle then begin
-    OuterNotebook.Color := clWindow;
+
+  { Initialize wizard style - also see TWizardForm.Create }
+  if not CustomWizardBackground then begin
+    if LStyle <> nil then begin
+      { TNewNotebook ignores VCL Styles so it needs a bit of help }
+      OuterNotebook.ParentColor := True;
+      Color := LStyle.GetStyleColor(scWindow);
+    end;
+  end else begin
+    OuterNotebook.ParentBackground := True;
+    for var I := 0 to OuterNotebook.PageCount-1 do
+      OuterNotebook.Pages[I].ParentBackground := True;
+    InnerNotebook.ParentBackground := True;
+    for var I := 0 to InnerNotebook.PageCount-1 do
+      InnerNotebook.Pages[I].ParentBackground := True;
+  end;
+  if lfWizardModern in MessagesLangOptions.Flags then begin
+    if LStyle = nil then begin
+      if CustomWizardBackground then
+        InternalError('Unexpected CustomWizardBackground value');
+      OuterNotebook.Color := clWindow;
+    end;
     Bevel1.Visible := False;
   end;
+  if lfWizardBevelsHidden in MessagesLangOptions.Flags then begin
+    Bevel1.Visible := False;
+    Bevel.Visible := False;
+  end;
+
+  { Initialize image }
+  if not WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('Z_UNINSTALLICON' + WizardIconsPostfix), clNone, [32, 48, 64]) then {don't localize}
+    WizardSmallBitmapImage.InitializeFromIcon(HInstance, PChar('MAINICON' + MainIconPostfix), clNone, [32, 48, 64]); {don't localize}
 end;
 
 procedure TUninstallProgressForm.CreateParams(var Params: TCreateParams);
@@ -148,7 +199,7 @@ begin
   NewPos := MulDiv(AProgress, ProgressBar.Max, ARange);
   if ProgressBar.Position <> NewPos then begin
     ProgressBar.Position := NewPos;
-    SetAppTaskbarProgressValue(NewPos, ProgressBar.Max);
+    SetAppTaskbarProgressValue(UInt64(NewPos), UInt64(ProgressBar.Max));
   end;
 end;
 

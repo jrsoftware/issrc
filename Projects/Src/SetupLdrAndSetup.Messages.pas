@@ -2,7 +2,7 @@ unit SetupLdrAndSetup.Messages;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -30,7 +30,7 @@ function FmtMessage(S: PChar; const Args: array of String): String;
 function FmtSetupMessage(const ID: TSetupMessageID; const Args: array of String): String;
 function FmtSetupMessage1(const ID: TSetupMessageID; const Arg1: String): String;
 procedure AssignSetupMessages(const P; const Size: Cardinal);
-procedure LoadSetupMessages(const Filename: String; const Offset: Cardinal;
+procedure LoadSetupMessages(const Filename: String; const Offset: Int64;
   const LoadMessagesLangOptions: Boolean);
 function IntToHexStr8(I: Integer): String;
 
@@ -47,14 +47,14 @@ const
     'obtain a new copy of the program.';
   SMsgsFileMissing = 'Messages file "%s" is missing. Please correct ' +
     'the problem or obtain a new copy of the program.';
+  { These currently always occur before the messages file is loaded }
+  SMissingPassword = 'Please specify the password using the /PASSWORD= command line parameter.';
+  SIncorrectPassword = 'The password you specified is not correct. Please try again.';
 
 implementation
 
 uses
   Windows, SysUtils, Compression.Base, Shared.CommonFunc, Shared.FileClass;
-
-const
-  SMsgsFileTooLarge = 'Internal error: Messages file is too large';
 
 function FmtMessage(S: PChar; const Args: array of String): String;
 var
@@ -111,37 +111,35 @@ begin
   raise Exception.Create(SSetupFileCorrupt);
 end;
 
+type
+  PMessagesHeader = ^TMessagesHeader;
+
 procedure AssignSetupMessages(const P; const Size: Cardinal);
 { Takes message data, and assigns the individual messages to SetupMessages. }
-var
-  Header: ^TMessagesHeader;
-  M, EndP: PChar;
-  I: TSetupMessageID;
-  L: Integer;
 begin
   if (Size <= SizeOf(TMessagesHdrID) + SizeOf(TMessagesHeader)) or
      (TMessagesHdrID(P) <> MessagesHdrID) then
     Corrupted;
-  Cardinal(Header) := Cardinal(@P) + SizeOf(TMessagesHdrID);
+  const Header = PMessagesHeader(PByte(@P) + SizeOf(TMessagesHdrID));
   if (Header.TotalSize <> not Header.NotTotalSize) or
-     (Cardinal(Header.TotalSize) <> Size) or
+     (Header.TotalSize <> Size) or
      (Header.NumMessages <> (Ord(High(SetupMessages)) - Ord(Low(SetupMessages)) + 1)) then
     Corrupted;
-  Cardinal(M) := Cardinal(Header) + SizeOf(TMessagesHeader);
-  Cardinal(EndP) := Cardinal(@P) + Cardinal(Header.TotalSize);
-  if (GetCRC32(M^, (EndP - M) * SizeOf(Char)) <> Header.CRCMessages) or
+  var M := PChar(PByte(Header) + SizeOf(TMessagesHeader));
+  const EndP = PChar(PByte(@P) + Header.TotalSize);
+  if (GetCRC32(M^, Cardinal((EndP - M) * SizeOf(Char))) <> Header.CRCMessages) or
      (EndP[-1] <> #0) then
     Corrupted;
-  for I := Low(SetupMessages) to High(SetupMessages) do begin
+  for var I := Low(SetupMessages) to High(SetupMessages) do begin
     if M >= EndP then
       Corrupted;
-    L := StrLen(M);
+    const L = StrLen(M);
     SetString(SetupMessages[I], M, L);
     Inc(M, L + 1);
   end;
 end;
 
-procedure LoadSetupMessages(const Filename: String; const Offset: Cardinal;
+procedure LoadSetupMessages(const Filename: String; const Offset: Int64;
   const LoadMessagesLangOptions: Boolean);
 { Loads Setup messages from an uncompressed file }
 var

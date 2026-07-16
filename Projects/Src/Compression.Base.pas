@@ -2,7 +2,7 @@ unit Compression.Base;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit Compression.Base;
 interface
 
 uses
-  Windows, SysUtils, Shared.Int64Em, Shared.FileClass;
+  Windows, SysUtils, ChaCha20, Shared.FileClass, Shared.Struct, Shared.EncryptionFunc;
 
 type
   ECompressError = class(Exception);
@@ -23,7 +23,7 @@ type
   end;
 
   TCompressorProgressProc = procedure(BytesProcessed: Cardinal) of object;
-  TCompressorWriteProc = procedure(const Buffer; Count: Longint) of object;
+  TCompressorWriteProc = procedure(const Buffer; Count: Cardinal) of object;
   TCustomCompressorClass = class of TCustomCompressor;
   TCustomCompressor = class
   private
@@ -31,7 +31,7 @@ type
     FProgressProc: TCompressorProgressProc;
     FWriteProc: TCompressorWriteProc;
   protected
-    procedure DoCompress(const Buffer; Count: Longint); virtual; abstract;
+    procedure DoCompress(const Buffer; Count: Cardinal); virtual; abstract;
     procedure DoFinish; virtual; abstract;
     property ProgressProc: TCompressorProgressProc read FProgressProc;
     property WriteProc: TCompressorWriteProc read FWriteProc;
@@ -39,11 +39,11 @@ type
     constructor Create(AWriteProc: TCompressorWriteProc;
       AProgressProc: TCompressorProgressProc; CompressionLevel: Integer;
       ACompressorProps: TCompressorProps); virtual;
-    procedure Compress(const Buffer; Count: Longint);
+    procedure Compress(const Buffer; Count: Cardinal);
     procedure Finish;
   end;
 
-  TDecompressorReadProc = function(var Buffer; Count: Longint): Longint of object;
+  TDecompressorReadProc = function(var Buffer; Count: Cardinal): Cardinal of object;
   TCustomDecompressorClass = class of TCustomDecompressor;
   TCustomDecompressor = class
   private
@@ -52,20 +52,20 @@ type
     property ReadProc: TDecompressorReadProc read FReadProc;
   public
     constructor Create(AReadProc: TDecompressorReadProc); virtual;
-    procedure DecompressInto(var Buffer; Count: Longint); virtual; abstract;
+    procedure DecompressInto(var Buffer; Count: Cardinal); virtual; abstract;
     procedure Reset; virtual; abstract;
   end;
 
   { TStoredCompressor is a compressor which doesn't actually compress }
   TStoredCompressor = class(TCustomCompressor)
   protected
-    procedure DoCompress(const Buffer; Count: Longint); override;
+    procedure DoCompress(const Buffer; Count: Cardinal); override;
     procedure DoFinish; override;
   end;
 
   TStoredDecompressor = class(TCustomDecompressor)
   public
-    procedure DecompressInto(var Buffer; Count: Longint); override;
+    procedure DecompressInto(var Buffer; Count: Cardinal); override;
     procedure Reset; override;
   end;
 
@@ -73,17 +73,21 @@ type
   private
     FCompressor: TCustomCompressor;
     FFile: TFile;
-    FStartPos: Integer64;
-    FTotalBytesStored: Cardinal;
+    FStartPos: Int64;
+    FTotalBytesStored: Int64;
     FInBufferCount, FOutBufferCount: Cardinal;
     FInBuffer, FOutBuffer: array[0..4095] of Byte;
-    procedure CompressorWriteProc(const Buffer; Count: Longint);
+    FEncrypt: Boolean;
+    FCryptContext: TChaCha20Context;
+    procedure CompressorWriteProc(const Buffer; Count: Cardinal);
     procedure DoCompress(const Buf; var Count: Cardinal);
     procedure FlushOutputBuffer;
   public
     constructor Create(AFile: TFile; ACompressorClass: TCustomCompressorClass;
       CompressionLevel: Integer; ACompressorProps: TCompressorProps);
     destructor Destroy; override;
+    procedure InitEncryption(const CryptKey: TSetupEncryptionKey;
+      const EncryptionBaseNonce: TSetupEncryptionNonce; const SpecialCryptContextType: TSpecialCryptContextType);
     procedure Finish;
     procedure Write(const Buffer; Count: Cardinal);
   end;
@@ -92,25 +96,32 @@ type
   private
     FDecompressor: TCustomDecompressor;
     FFile: TFile;
-    FInBytesLeft: Cardinal;
+    FInBytesLeft: Int64;
     FInitialized: Boolean;
     FInBufferNext: Cardinal;
     FInBufferAvail: Cardinal;
     FInBuffer: array[0..4095] of Byte;
-    function DecompressorReadProc(var Buffer; Count: Longint): Longint;
+    FDecrypt: Boolean;
+    FCryptContext: TChaCha20Context;
+    function DecompressorReadProc(var Buffer; Count: Cardinal): Cardinal;
     procedure ReadChunk;
   public
     constructor Create(AFile: TFile; ADecompressorClass: TCustomDecompressorClass);
     destructor Destroy; override;
+    procedure InitDecryption(const CryptKey: TSetupEncryptionKey;
+      const EncryptionBaseNonce: TSetupEncryptionNonce; const SpecialCryptContextType: TSpecialCryptContextType);
     procedure Read(var Buffer; Count: Cardinal);
   end;
 
-function GetCRC32(const Buf; BufSize: Cardinal): Longint;
-procedure TransformCallInstructions(var Buf; Size: Integer;
-  const Encode: Boolean; const AddrOffset: LongWord);
-function UpdateCRC32(CurCRC: Longint; const Buf; BufSize: Cardinal): Longint;
+function GetCRC32(const Buf; BufSize: Cardinal): Integer;
+procedure TransformCallInstructions(var Buf; Size: Cardinal;
+  const Encode: Boolean; const AddrOffset: UInt32);
+function UpdateCRC32(CurCRC: Integer; const Buf; BufSize: Cardinal): Integer;
 
 implementation
+
+uses
+  UnsignedFunc;
 
 const
   SCompressorStateInvalid = 'Compressor state invalid';
@@ -119,18 +130,18 @@ const
 
 var
   CRC32TableInited: BOOL;
-  CRC32Table: array[Byte] of Longint;
+  CRC32Table: array[Byte] of Integer;
 
 procedure InitCRC32Table;
 var
-  CRC: Longint;
+  CRC: Integer;
   I, N: Integer;
 begin
   for I := 0 to 255 do begin
     CRC := I;
     for N := 0 to 7 do begin
       if Odd(CRC) then
-        CRC := (CRC shr 1) xor Longint($EDB88320)
+        CRC := (CRC shr 1) xor Integer($EDB88320)
       else
         CRC := CRC shr 1;
     end;
@@ -138,15 +149,13 @@ begin
   end;
 end;
 
-function UpdateCRC32(CurCRC: Longint; const Buf; BufSize: Cardinal): Longint;
-var
-  P: ^Byte;
+function UpdateCRC32(CurCRC: Integer; const Buf; BufSize: Cardinal): Integer;
 begin
   if not CRC32TableInited then begin
     InitCRC32Table;
     InterlockedExchange(Integer(CRC32TableInited), Ord(True));
   end;
-  P := @Buf;
+  var P: PByte := @Buf;
   while BufSize <> 0 do begin
     CurCRC := CRC32Table[Lo(CurCRC) xor P^] xor (CurCRC shr 8);
     Dec(BufSize);
@@ -155,22 +164,19 @@ begin
   Result := CurCRC;
 end;
 
-function GetCRC32(const Buf; BufSize: Cardinal): Longint;
+function GetCRC32(const Buf; BufSize: Cardinal): Integer;
 begin
-  Result := UpdateCRC32(Longint($FFFFFFFF), Buf, BufSize) xor Longint($FFFFFFFF);
+  Result := UpdateCRC32(Integer($FFFFFFFF), Buf, BufSize) xor Integer($FFFFFFFF);
 end;
 
-procedure TransformCallInstructions(var Buf; Size: Integer;
-  const Encode: Boolean; const AddrOffset: LongWord);
+procedure TransformCallInstructions(var Buf; Size: Cardinal;
+  const Encode: Boolean; const AddrOffset: UInt32);
 { [Version 3] Converts relative addresses in x86/x64 CALL and JMP instructions
   to absolute addresses if Encode is True, or the inverse if Encode is False. }
-type
-  PByteArray = ^TByteArray;
-  TByteArray = array[0..$7FFFFFFE] of Byte;
 var
-  P: PByteArray;
-  I: Integer;
-  Addr, Rel: LongWord;
+  P: PByte;
+  I: Cardinal;
+  Addr, Rel: UInt32;
 begin
   if Size < 5 then
     Exit;
@@ -188,7 +194,7 @@ begin
         { Change the lower 3 bytes of the address to be relative to the
           beginning of the buffer, instead of to the next instruction. If
           decoding, do the opposite. }
-        Addr := (AddrOffset + LongWord(I) + 4) and $FFFFFF;  { may wrap, but OK }
+        Addr := (AddrOffset + I + 4) and $FFFFFF;  { may wrap, but OK }
         Rel := P[I] or (P[I+1] shl 8) or (P[I+2] shl 16);
         if not Encode then
           Dec(Rel, Addr);
@@ -222,7 +228,7 @@ begin
   FProgressProc := AProgressProc;
 end;
 
-procedure TCustomCompressor.Compress(const Buffer; Count: Longint);
+procedure TCustomCompressor.Compress(const Buffer; Count: Cardinal);
 begin
   if FEntered <> 0 then
     raise ECompressInternalError.Create(SCompressorStateInvalid);
@@ -250,7 +256,7 @@ end;
 
 { TStoredCompressor }
 
-procedure TStoredCompressor.DoCompress(const Buffer; Count: Longint);
+procedure TStoredCompressor.DoCompress(const Buffer; Count: Cardinal);
 begin
   WriteProc(Buffer, Count);
   if Assigned(ProgressProc) then
@@ -263,14 +269,11 @@ end;
 
 { TStoredDecompressor }
 
-procedure TStoredDecompressor.DecompressInto(var Buffer; Count: Longint);
-var
-  P: ^Byte;
-  NumRead: Longint;
+procedure TStoredDecompressor.DecompressInto(var Buffer; Count: Cardinal);
 begin
-  P := @Buffer;
+  var P: PByte := @Buffer;
   while Count > 0 do begin
-    NumRead := ReadProc(P^, Count);
+    var NumRead := ReadProc(P^, Count);
     if NumRead = 0 then
       raise ECompressDataError.Create(SStoredDataError);
     Inc(P, NumRead);
@@ -286,7 +289,7 @@ end;
 
 type
   TCompressedBlockHeader = packed record
-    StoredSize: LongWord;   { Total bytes written, including the CRCs }
+    StoredSize: Int64;      { Total bytes written, including the CRCs }
     Compressed: Boolean;    { True if data is compressed, False if not }
   end;
 
@@ -294,7 +297,7 @@ constructor TCompressedBlockWriter.Create(AFile: TFile;
   ACompressorClass: TCustomCompressorClass; CompressionLevel: Integer;
   ACompressorProps: TCompressorProps);
 var
-  HdrCRC: Longint;
+  HdrCRC: Integer;
   Hdr: TCompressedBlockHeader;
 begin
   inherited Create;
@@ -319,11 +322,21 @@ begin
   inherited;
 end;
 
+procedure TCompressedBlockWriter.InitEncryption(const CryptKey: TSetupEncryptionKey;
+  const EncryptionBaseNonce: TSetupEncryptionNonce; const SpecialCryptContextType: TSpecialCryptContextType);
+begin
+  InitCryptContext(CryptKey, EncryptionBaseNonce, SpecialCryptContextType, FCryptContext);
+  FEncrypt := True;
+end;
+
 procedure TCompressedBlockWriter.FlushOutputBuffer;
 { Flushes contents of FOutBuffer into the file, with a preceding CRC }
 var
-  CRC: Longint;
+  CRC: Integer;
 begin
+  if FEncrypt then
+    XChaCha20Crypt(FCryptContext, FOutBuffer, FOutBuffer, FOutBufferCount);
+
   CRC := GetCRC32(FOutBuffer, FOutBufferCount);
   FFile.WriteBuffer(CRC, SizeOf(CRC));
   Inc(FTotalBytesStored, SizeOf(CRC));
@@ -332,17 +345,14 @@ begin
   FOutBufferCount := 0;
 end;
 
-procedure TCompressedBlockWriter.CompressorWriteProc(const Buffer; Count: Longint);
-var
-  P: ^Byte;
-  Bytes: Cardinal;
+procedure TCompressedBlockWriter.CompressorWriteProc(const Buffer; Count: Cardinal);
 begin
-  P := @Buffer;
+  var P: PByte := @Buffer;
   while Count > 0 do begin
-    Bytes := Count;
+    var Bytes := Count;
     if Bytes > SizeOf(FOutBuffer) - FOutBufferCount then
       Bytes := SizeOf(FOutBuffer) - FOutBufferCount;
-    Move(P^, FOutBuffer[FOutBufferCount], Bytes);
+    UMove(P^, FOutBuffer[FOutBufferCount], Bytes);
     Inc(FOutBufferCount, Bytes);
     if FOutBufferCount = SizeOf(FOutBuffer) then
       FlushOutputBuffer;
@@ -363,18 +373,15 @@ begin
 end;
 
 procedure TCompressedBlockWriter.Write(const Buffer; Count: Cardinal);
-var
-  P: ^Byte;
-  Bytes: Cardinal;
 begin
   { Writes are buffered strictly as an optimization, to avoid feeding tiny
     blocks to the compressor }
-  P := @Buffer;
+  var P: PByte := @Buffer;
   while Count > 0 do begin
-    Bytes := Count;
+    var Bytes := Count;
     if Bytes > SizeOf(FInBuffer) - FInBufferCount then
       Bytes := SizeOf(FInBuffer) - FInBufferCount;
-    Move(P^, FInBuffer[FInBufferCount], Bytes);
+    UMove(P^, FInBuffer[FInBufferCount], Bytes);
     Inc(FInBufferCount, Bytes);
     if FInBufferCount = SizeOf(FInBuffer) then
       DoCompress(FInBuffer, FInBufferCount);
@@ -385,8 +392,7 @@ end;
 
 procedure TCompressedBlockWriter.Finish;
 var
-  Pos: Integer64;
-  HdrCRC: Longint;
+  HdrCRC: Integer;
   Hdr: TCompressedBlockHeader;
 begin
   DoCompress(FInBuffer, FInBufferCount);
@@ -395,14 +401,14 @@ begin
   if FOutBufferCount > 0 then
     FlushOutputBuffer;
 
-  Pos := FFile.Position;
-  FFile.Seek64(FStartPos);
+  var Pos := FFile.Position;
+  FFile.Seek(FStartPos);
   Hdr.StoredSize := FTotalBytesStored;
   Hdr.Compressed := Assigned(FCompressor);
   HdrCRC := GetCRC32(Hdr, SizeOf(Hdr));
   FFile.WriteBuffer(HdrCRC, SizeOf(HdrCRC));
   FFile.WriteBuffer(Hdr, SizeOf(Hdr));
-  FFile.Seek64(Pos);
+  FFile.Seek(Pos);
 end;
 
 { TCompressedBlockReader }
@@ -410,9 +416,8 @@ end;
 constructor TCompressedBlockReader.Create(AFile: TFile;
   ADecompressorClass: TCustomDecompressorClass);
 var
-  HdrCRC: Longint;
+  HdrCRC: Integer;
   Hdr: TCompressedBlockHeader;
-  P: Integer64;
 begin
   inherited Create;
 
@@ -423,9 +428,7 @@ begin
     raise ECompressDataError.Create(SCompressedBlockDataError);
   if HdrCRC <> GetCRC32(Hdr, SizeOf(Hdr)) then
     raise ECompressDataError.Create(SCompressedBlockDataError);
-  P := AFile.Position;
-  Inc64(P, Hdr.StoredSize);
-  if Compare64(P, AFile.Size) > 0 then
+  if (Hdr.StoredSize < 0) or (AFile.Position > AFile.Size - Hdr.StoredSize) then
     raise ECompressDataError.Create(SCompressedBlockDataError);
   if Hdr.Compressed then
     FDecompressor := ADecompressorClass.Create(DecompressorReadProc);
@@ -434,8 +437,6 @@ begin
 end;
 
 destructor TCompressedBlockReader.Destroy;
-var
-  P: Integer64;
 begin
   FDecompressor.Free;
   if FInitialized then begin
@@ -443,16 +444,23 @@ begin
       compressed, or if it did read everything but zlib is in a "CHECK" state
       (i.e. it didn't read and verify the trailing adler32 yet due to lack of
       input bytes). }
-    P := FFile.Position;
-    Inc64(P, FInBytesLeft);
-    FFile.Seek64(P);
+    var P := FFile.Position;
+    Inc(P, FInBytesLeft);
+    FFile.Seek(P);
   end;
   inherited;
 end;
 
+procedure TCompressedBlockReader.InitDecryption(const CryptKey: TSetupEncryptionKey;
+  const EncryptionBaseNonce: TSetupEncryptionNonce; const SpecialCryptContextType: TSpecialCryptContextType);
+begin
+  InitCryptContext(CryptKey, EncryptionBaseNonce, SpecialCryptContextType, FCryptContext);
+  FDecrypt := True;
+end;
+
 procedure TCompressedBlockReader.ReadChunk;
 var
-  CRC: Longint;
+  CRC: Integer;
   Len: Cardinal;
 begin
   { Read chunk CRC }
@@ -462,35 +470,36 @@ begin
   Dec(FInBytesLeft, SizeOf(CRC));
 
   { Read chunk data }
-  Len := FInBytesLeft;
-  if Len > SizeOf(FInBuffer) then
-    Len := SizeOf(FInBuffer);
+  if FInBytesLeft > SizeOf(FInBuffer) then
+    Len := SizeOf(FInBuffer)
+  else
+    Len := Cardinal(FInBytesLeft);
   FFile.ReadBuffer(FInBuffer, Len);
   Dec(FInBytesLeft, Len);
   FInBufferNext := 0;
   FInBufferAvail := Len;
   if CRC <> GetCRC32(FInBuffer, Len) then
     raise ECompressDataError.Create(SCompressedBlockDataError);
+
+  if FDecrypt then
+    XChaCha20Crypt(FCryptContext, FInBuffer, FInBuffer, Len);
 end;
 
 function TCompressedBlockReader.DecompressorReadProc(var Buffer;
-  Count: Longint): Longint;
-var
-  P: ^Byte;
-  Bytes: Cardinal;
+  Count: Cardinal): Cardinal;
 begin
   Result := 0;
-  P := @Buffer;
+  var P: PByte := @Buffer;
   while Count > 0 do begin
     if FInBufferAvail = 0 then begin
       if FInBytesLeft = 0 then
         Break;
       ReadChunk;
     end;
-    Bytes := Count;
+    var Bytes := Count;
     if Bytes > FInBufferAvail then
       Bytes := FInBufferAvail;
-    Move(FInBuffer[FInBufferNext], P^, Bytes);
+    UMove(FInBuffer[FInBufferNext], P^, Bytes);
     Inc(FInBufferNext, Bytes);
     Dec(FInBufferAvail, Bytes);
     Inc(P, Bytes);
@@ -505,7 +514,7 @@ begin
     FDecompressor.DecompressInto(Buffer, Count)
   else begin
     { Not compressed -- call DecompressorReadProc directly }
-    if Cardinal(DecompressorReadProc(Buffer, Count)) <> Count then
+    if DecompressorReadProc(Buffer, Count) <> Count then
       raise ECompressDataError.Create(SCompressedBlockDataError);
   end;
 end;

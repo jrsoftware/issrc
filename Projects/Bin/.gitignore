@@ -1,6 +1,11 @@
 *.dll
 *.exe
 *.e32
+*.e64
 *.issig
+*.rsm
+*.exp
+*.lib
+*.pdb
 Setup-*.bin
 Setup.log

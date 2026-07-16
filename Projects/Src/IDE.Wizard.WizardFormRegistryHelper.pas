@@ -2,7 +2,7 @@ unit IDE.Wizard.WizardFormRegistryHelper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,7 +12,7 @@ unit IDE.Wizard.WizardFormRegistryHelper;
 interface
 
 uses
-  Forms, StdCtrls, ExtCtrls;
+  Forms, StdCtrls, ExtCtrls, BitmapButton;
 
 type
   TPrivilegesRequired = (prAdmin, prLowest, prDynamic);
@@ -24,7 +24,7 @@ type
       FUninsDeleteKeyCheck, FUninsDeleteKeyIfEmptyCheck,
       FUninsDeleteValueCheck, FMinVerCheck: TCheckBox;
       FMinVerEdit: TEdit;
-      FMinVerDocImage: TImage;
+      FMinVerDocBitBtn: TBitmapButton;
       FPrivilegesRequired: TPrivilegesRequired;
       procedure SetPrivilegesRequired(const Value: TPrivilegesRequired);
       procedure UpdateImages;
@@ -32,12 +32,12 @@ type
       procedure FileButtonClick(Sender: TObject);
       procedure UninsDeleteKeyIfEmptyCheckClick(Sender: TObject);
       procedure MinVerCheckClick(Sender: TObject);
-      procedure MinVerDocImageClick(Sender: TObject);
+      procedure MinVerDocBitBtnClick(Sender: TObject);
     public
       constructor Create(const Form: TForm; const FileEdit: TEdit;
         const FileButton: TButton; const UninsDeleteKeyCheck,
         UninsDeleteKeyIfEmptyCheck, UninsDeleteValueCheck, MinVerCheck: TCheckBox;
-        const MinVerEdit: TEdit; const MinVerDocImage: TImage);
+        const MinVerEdit: TEdit; const MinVerDocBitBtn: TBitmapButton);
       procedure AddScript(var Registry: String; const AllowException: Boolean);
       property PrivilegesRequired: TPrivilegesRequired write SetPrivilegesRequired;
     end;
@@ -45,7 +45,7 @@ type
 implementation
 
 uses
-  Windows, Classes, SysUtils, StrUtils, TypInfo, Graphics, UITypes,
+  Windows, ShLwApi, Classes, SysUtils, StrUtils, TypInfo, Graphics, UITypes,
   ComCtrls, BrowseFunc,
   IDE.MainForm, IDE.ImagesModule, IDE.HelperFunc, IDE.Messages, Shared.CommonFunc, IDE.HtmlHelpFunc;
 
@@ -61,19 +61,19 @@ procedure TWizardFormRegistryHelper.UpdateImages;
 
   function GetImage(const Button: TToolButton; const WH: Integer): TWICImage;
   begin
-    Result := ImagesModule.LightToolBarImageCollection.GetSourceImage(Button.ImageIndex, WH, WH)
+    Result := ImagesModule.ToolbarImageCollection[InitFormThemeIsDark].GetSourceImage(Button.ImageIndex, WH, WH)
   end;
 
 begin
  { After a DPI change the button's Width and Height isn't yet updated, so calculate it ourselves }
   var WH := MulDiv(16, FForm.CurrentPPI, 96);
-  FMinVerDocImage.Picture.Graphic:= GetImage(MainForm.HelpButton, WH);
+  FMinVerDocBitBtn.Graphic := GetImage(MainForm.HelpButton, WH);
 end;
 
 constructor TWizardFormRegistryHelper.Create(const Form: TForm;
   const FileEdit: TEdit; const FileButton: TButton; const UninsDeleteKeyCheck,
   UninsDeleteKeyIfEmptyCheck, UninsDeleteValueCheck, MinVerCheck: TCheckBox;
-  const MinVerEdit: TEdit; const MinVerDocImage: TImage);
+  const MinVerEdit: TEdit; const MinVerDocBitBtn: TBitmapButton);
 begin
   FForm := Form;
   FFileEdit := FileEdit;
@@ -82,16 +82,16 @@ begin
   FUninsDeleteValueCheck := UninsDeleteValueCheck;
   FMinVerCheck := MinVerCheck;
   FMinVerEdit := MinVerEdit;
-  FMinVerDocImage := MinVerDocImage;
+  FMinVerDocBitBtn := MinVerDocBitBtn;
 
   FileButton.OnClick := FileButtonClick;
   UninsDeleteKeyIfEmptyCheck.OnClick := UninsDeleteKeyIfEmptyCheckClick;
   MinVerCheck.OnClick := MinVerCheckClick;
   MinVerCheck.OnClick(nil);
-  MinVerDocImage.OnClick := MinVerDocImageClick;
-  MinVerDocImage.Cursor := crHandPoint;
+  MinVerDocBitBtn.OnClick := MinVerDocBitBtnClick;
+  MinVerDocBitBtn.Cursor := crHandPoint;
 
-  TryEnableAutoCompleteFileSystem(FileEdit.Handle);
+  SHAutoComplete(FileEdit.Handle, SHACF_FILESYSTEM);
 
   Form.OnAfterMonitorDpiChanged := AfterMonitorDpiChanged;
   UpdateImages;
@@ -119,15 +119,15 @@ end;
 procedure TWizardFormRegistryHelper.MinVerCheckClick(Sender: TObject);
 begin
   FMinVerEdit.Enabled := FMinVerCheck.Checked;
-  FMinVerDocImage.Visible := FMinVerCheck.Checked;
+  FMinVerDocBitBtn.Visible := FMinVerCheck.Checked;
   if FMinVerEdit.Enabled then
     FForm.ActiveControl := FMinVerEdit;
 end;
 
-procedure TWizardFormRegistryHelper.MinVerDocImageClick(Sender: TObject);
+procedure TWizardFormRegistryHelper.MinVerDocBitBtnClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
-    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_winvernotes.htm')));
+    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, DWORD_PTR(PChar('topic_winvernotes.htm')));
 end;
 
 procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
@@ -173,7 +173,7 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
     var idx := 0;
     while i <= HexStr.Length do
     begin
-      UTF16LEBytes[idx] := StrToInt('$' + HexStr[i] + HexStr[i + 1]);
+      UTF16LEBytes[idx] := Byte(StrToInt('$' + HexStr[i] + HexStr[i + 1]));
       i := i + 2;
       idx := idx + 1;
     end;
@@ -237,13 +237,13 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
 
   type
     TRegistryEntry = record
-      Root, Subkey, ValueName, ValueData, ValueType: String;
+      Root, QuotedSubkey, QuotedValueName, ValueData, ValueType: String;
     end;
 
   function RequiresAdminInstallMode(AEntry: TRegistryEntry): Boolean;
   begin
     Result := (AEntry.Root = 'HKLM') or (AEntry.Root = 'HKCC') or
-              ((AEntry.Root = 'HKU') and SameText(AEntry.Subkey, '.Default'));
+              ((AEntry.Root = 'HKU') and SameText(AEntry.QuotedSubkey, '".Default"'));
   end;
 
    function RequiresNotAdminInstallMode(AEntry: TRegistryEntry): Boolean;
@@ -265,7 +265,7 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
   function TextKeyEntry(AEntry: TRegistryEntry; ADeleteKey: Boolean): String;
   begin
     Result := 'Root: ' + AEntry.Root +
-              '; Subkey: ' + AEntry.Subkey;
+              '; Subkey: ' + AEntry.QuotedSubkey;
     if ADeleteKey then
       Result := Result + '; ValueType: none' +
                          '; Flags: deletekey'
@@ -281,9 +281,9 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
   function TextValueEntry(AEntry: TRegistryEntry; AValueType: TValueType): String;
   begin
     Result := 'Root: ' + AEntry.Root +
-              '; Subkey: ' + AEntry.Subkey +
+              '; Subkey: ' + AEntry.QuotedSubkey +
               '; ValueType: ' + AEntry.ValueType +
-              '; ValueName: ' + AEntry.ValueName;
+              '; ValueName: ' + AEntry.QuotedValueName;
     if AValueType = vtDelete then
       Result := Result + '; Flags: deletevalue'
     else begin
@@ -318,9 +318,11 @@ begin
   if FFileEdit.Text = '' then
     Exit;
 
-  var Lines := TStringList.Create;
-  var OutLines := TStringList.Create;
+  var Lines: TStringList := nil;
+  var OutLines: TStringList := nil;
   try
+    Lines := TStringList.Create;
+    OutLines := TStringList.Create;
     Lines.LoadFromFile(FFileEdit.Text);
 
     { Official .reg files must have blank lines as second and last lines but we
@@ -352,14 +354,14 @@ begin
 
         var Entry: TRegistryEntry;
         Entry.Root := StrRootRename(Copy(Line, 1, P - 1));
-        Entry.Subkey := Copy(Line, P + 1, MaxInt);
+        var Subkey := Copy(Line, P + 1, MaxInt);
         if Entry.Root = 'HKCR' then begin
           Entry.Root := 'HKA';
-          Entry.Subkey := 'Software\Classes\' + Entry.Subkey;
+          Subkey := 'Software\Classes\' + Subkey;
         end;
-        Entry.Subkey := Entry.Subkey.Replace('\WOW6432Node', '')
-                                            .Replace('{', '{{')
-                                            .QuotedString('"');
+        Entry.QuotedSubkey := Subkey.Replace('\WOW6432Node', '')
+                                    .Replace('{', '{{')
+                                    .QuotedString('"');
 
         var FilterKey := ((FPrivilegesRequired = prAdmin) and RequiresNotAdminInstallMode(Entry)) or
                          ((FPrivilegesRequired = prLowest) and RequiresAdminInstallMode(Entry));
@@ -376,10 +378,10 @@ begin
           if not FilterKey and not DeleteKey and (Line[1] <> ';') then begin
             P := Pos('=', Line);
             if (P = 2) and (Line[1] = '@') then
-              Entry.ValueName := '""'
+              Entry.QuotedValueName := '""'
             else begin
-              Entry.ValueName := CutStrBeginEnd(Copy(Line, 1, P - 1), 1);
-              Entry.ValueName := Entry.ValueName.Replace('\\', '\')
+              const ValueName = CutStrBeginEnd(Copy(Line, 1, P - 1), 1);
+              Entry.QuotedValueName := ValueName.Replace('\\', '\')
                                                 .Replace('{', '{{')
                                                 .QuotedString('"');
             end;
@@ -399,7 +401,7 @@ begin
                   P := Pos(':', ValueTypeAndData);
                   var ValueData := Copy(ValueTypeAndData, P + 1, MaxInt);
 
-                  var HasMoreLines := ValueData[ValueData.Length] = '\';
+                  var HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
                   if HasMoreLines then
                     Delete(ValueData, ValueData.Length, 1);
                   Entry.ValueData := ValueData;
@@ -407,7 +409,7 @@ begin
                   while HasMoreLines do
                   begin
                     ValueData := NextLine(Lines, LineIndex).TrimLeft;
-                    HasMoreLines := ValueData[ValueData.Length] = '\';
+                    HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
                     if HasMoreLines then
                       Delete(ValueData, ValueData.Length, 1);
                     Entry.ValueData := Entry.ValueData + ValueData;
@@ -422,11 +424,14 @@ begin
 
                   if ValueType in [vtSzAsList, vtExpandSz] then
                   begin
-                    Entry.ValueData := Entry.ValueData.Replace(#0, '');
+                    Entry.ValueData := Entry.ValueData.Replace(#0, '')
+                                                      .Replace('{', '{{');
                     Entry.ValueType := IfThen(ValueType = vtSzAsList, 'string', 'expandsz');
                   end else if ValueType = vtMultiSz then
                   begin
-                    Entry.ValueData := Entry.ValueData.Replace(#0, '{break}');
+                    Entry.ValueData := Entry.ValueData.TrimEnd([#0])
+                                                      .Replace('{', '{{')
+                                                      .Replace(#0, '{break}');
                     Entry.ValueType := 'multisz';
                   end else
                     Entry.ValueType := 'binary';
@@ -443,7 +448,7 @@ begin
                     { ValueData is in reverse order, fix this }
                     var ReverseValueData := Entry.ValueData.Replace(',', '');
                     Entry.ValueData := '';
-                    for var I := 0 to ReverseValueData.Length div 2 do
+                    for var I := 0 to ReverseValueData.Length div 2 - 1 do
                       Entry.ValueData := Copy(ReverseValueData, (I * 2) + 1, 2) + Entry.ValueData;
 
                     Entry.ValueType := IfThen(ValueType = vtDWordAsList, 'dword', 'qword');
@@ -474,8 +479,8 @@ begin
     OutLines.Add(TextFooter(HadFilteredKeys, HadUnsupportedValueTypes));
     Registry := Registry + OutLines.Text;
   finally
-    Lines.Free;
     OutLines.Free;
+    Lines.Free;
   end;
 end;
 

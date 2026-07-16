@@ -2,7 +2,7 @@ unit Setup.ScriptRunner;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -18,9 +18,9 @@ type
   TScriptRunnerOnLog = procedure(const S: String);
   TScriptRunnerOnLogFmt = procedure(const S: String; const Args: array of const);
   TScriptRunnerOnDllImport = procedure(var DllName: String; var ForceDelayLoad: Boolean);
-  TScriptRunnerOnDebug = function(const Position: LongInt; var ContinueStepOver: Boolean): Boolean;
-  TScriptRunnerOnDebugIntermediate = function(const Position: LongInt; var ContinueStepOver: Boolean): Boolean;
-  TScriptRunnerOnException = procedure(const Exception: AnsiString; const Position: LongInt);
+  TScriptRunnerOnDebug = function(const Position: Cardinal; var ContinueStepOver: Boolean): Boolean;
+  TScriptRunnerOnDebugIntermediate = function(const Position: Cardinal; var ContinueStepOver: Boolean): Boolean;
+  TScriptRunnerOnException = procedure(const Exception: AnsiString; const Position: Cardinal);
 
   TBreakCondition = (bcNone, bcTrue, bcFalse, bcNonZero, bcNonEmpty);
 
@@ -138,9 +138,8 @@ end;
 procedure TScriptRunner.SetPSExecParameters(const Parameters: array of Const; Params: TPSList);
 var
   Param: PPSVariant;
-  I: Integer;
 begin
-  for I := High(Parameters) downto Low(Parameters) do begin
+  for var I := High(Parameters) downto Low(Parameters) do begin
     case Parameters[I].vType of
       vtAnsiString:
         begin
@@ -192,7 +191,7 @@ function EncodeDLLFilenameForROPS(const Filename: String): AnsiString;
 begin
   Result := '';
   if Filename <> '' then
-      Result := AnsiString('<utf8>') + UTF8Encode(Filename);
+      Result := AnsiString('<utf8>') + Utf8Encode(Filename);
 end;
 
 function NewUnloadDLLProc(Caller: TPSExec; Proc: TPSExternalProcRec; Global, Stack: TPSStack): Boolean;
@@ -317,7 +316,7 @@ begin
   FPSExec := TPSDebugExec.Create();
   FPSExec.ID := Self;
 
-  FPSExec.AddSpecialProcImport('dll', @PSExecOnSpecialProcImport, nil);
+  FPSExec.AddSpecialProcImport('dll', PSExecOnSpecialProcImport, nil);
   FPSExec.OnSourceLine := PSExecOnSourceLine;
   FPSExec.OnException := PSExecOnException;
 
@@ -392,26 +391,21 @@ begin
 end;
 
 procedure WriteBackParameters(const Parameters: array of Const; const Params: TPSList);
-var
-  I: Integer;
 begin
   { Write back new Boolean values to vtPointer-type parameters }
-  for I := 0 to High(Parameters) do
+  for var I := 0 to High(Parameters) do
     if Parameters[I].vType = vtPointer then
-      Boolean(Parameters[I].VPointer^) := (PPSVariantU8(Params[High(Parameters)-I]).Data = 1);
+      Boolean(Parameters[I].VPointer^) := PPSVariantU8(Params[Cardinal(High(Parameters)-I)]).Data = 1;
 end;
 
 procedure TScriptRunner.InternalRunProcedure(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute, MustExist: Boolean);
-var
-  ProcNos, Params: TPSList;
-  I: Integer;
 begin
-  ProcNos := TPSList.Create;
+  const ProcNos = TPSList.Create;
   try
     if GetProcNos(Name, CheckNamingAttribute, ProcNos) <> 0 then begin
       ScriptClassesLibraryUpdateVars(FPSExec);
-      for I := 0 to ProcNos.Count-1 do begin
-        Params := TPSList.Create();
+      for var I := 0 to ProcNos.Count-1 do begin
+        const Params = TPSList.Create;
         try
           SetPSExecParameters(Parameters, Params);
           FPSExec.RunProc(Params, Cardinal(ProcNos[I]));
@@ -442,12 +436,8 @@ begin
 end;
 
 function TScriptRunner.InternalRunBooleanFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute: Boolean; const BreakCondition: TBreakCondition; const MustExist, Default: Boolean): Boolean;
-var
-  ProcNos, Params: TPSList;
-  Res: PPSVariant;
-  I: Integer;
 begin
-  ProcNos := TPSList.Create;
+  const ProcNos = TPSList.Create;
   try
     if GetProcNos(Name, CheckNamingAttribute, ProcNos) <> 0 then begin
       if not (BreakCondition in [bcNone, bcTrue, bcFalse]) or
@@ -455,10 +445,11 @@ begin
         ShowError('Internal error: InternalRunBooleanFunction: invalid BreakCondition');
       Result := True; { Silence compiler }
       ScriptClassesLibraryUpdateVars(FPSExec);
-      for I := 0 to ProcNos.Count-1 do begin
-        Params := TPSList.Create();
+      for var I := 0 to ProcNos.Count-1 do begin
+        const Params = TPSList.Create;
         try
           SetPSExecParameters(Parameters, Params);
+          var Res: PPSVariant;
           SetPSExecReturnValue(Params, btU8, Res);
           FPSExec.RunProc(Params, Cardinal(ProcNos[I]));
           WriteBackParameters(Parameters, Params);
@@ -493,12 +484,8 @@ begin
 end;
 
 function TScriptRunner.InternalRunIntegerFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute: Boolean; const BreakCondition: TBreakCondition; const MustExist: Boolean; const Default: Integer): Integer;
-var
-  ProcNos, Params: TPSList;
-  Res: PPSVariant;
-  I: Integer;
 begin
-  ProcNos := TPSList.Create;
+  const ProcNos = TPSList.Create;
   try
     if GetProcNos(Name, CheckNamingAttribute, ProcNos) <> 0 then begin
       if not (BreakCondition in [bcNone, bcNonZero]) or
@@ -506,10 +493,11 @@ begin
         ShowError('Internal error: InternalRunIntegerFunction: invalid BreakCondition');
       Result := 0; { Silence compiler }
       ScriptClassesLibraryUpdateVars(FPSExec);
-      for I := 0 to ProcNos.Count-1 do begin
-        Params := TPSList.Create();
+      for var I := 0 to ProcNos.Count-1 do begin
+        const Params = TPSList.Create;
         try
           SetPSExecParameters(Parameters, Params);
+          var Res: PPSVariant;
           SetPSExecReturnValue(Params, btS32, Res);
           FPSExec.RunProc(Params, Cardinal(ProcNos[I]));
           WriteBackParameters(Parameters, Params);
@@ -543,12 +531,8 @@ begin
 end;
 
 function TScriptRunner.InternalRunStringFunction(const Name: AnsiString; const Parameters: array of Const; const CheckNamingAttribute: Boolean; const BreakCondition: TBreakCondition; const MustExist: Boolean; const Default: String): String;
-var
-  ProcNos, Params: TPSList;
-  Res: PPSVariant;
-  I: Integer;
 begin
-  ProcNos := TPSList.Create;
+  const ProcNos = TPSList.Create;
   try
     if GetProcNos(Name, CheckNamingAttribute, ProcNos) <> 0 then begin
       if not (BreakCondition in [bcNone, bcNonEmpty]) or
@@ -556,10 +540,11 @@ begin
         ShowError('Internal error: InternalRunStringFunction: invalid BreakCondition');
       Result := ''; { Silence compiler }
       ScriptClassesLibraryUpdateVars(FPSExec);
-      for I := 0 to ProcNos.Count-1 do begin
-        Params := TPSList.Create();
+      for var I := 0 to ProcNos.Count-1 do begin
+        const Params = TPSList.Create;
         try
           SetPSExecParameters(Parameters, Params);
+          var Res: PPSVariant;
           SetPSExecReturnValue(Params, btUnicodeString, Res);
           FPSExec.RunProc(Params, Cardinal(ProcNos[I]));
           WriteBackParameters(Parameters, Params);
@@ -617,25 +602,25 @@ begin
         Result := FPSExec.GlobalVarNames[Param3];
         if Param4 <> '' then
           Result := Result + '.' + Param4;
-        Result := Result + ' = ' + VariantToString(NewTPSVariantIFC(FPSExec.GetGlobalVar(Param3), False), Param4);
+        Result := Result + ' = ' + VariantToString(NewTPSVariantIFC(FPSExec.GetGlobalVar(Cardinal(Param3)), False), Param4);
       end;
     ivtParam:
       begin
-        if Param2 = LongInt(FPSExec.GetCurrentProcNo) then begin
+        if Param2 = Integer(FPSExec.GetCurrentProcNo) then begin
           Result := FPSExec.CurrentProcParams[Param3];
           if Param4 <> '' then
             Result := Result + '.' + Param4;
-          Result := Result + ' = ' + VariantToString(NewTPSVariantIFC(FPSExec.GetProcParam(Param3), False), Param4);
+          Result := Result + ' = ' + VariantToString(NewTPSVariantIFC(FPSExec.GetProcParam(Cardinal(Param3)), False), Param4);
         end else
           Result := '';
       end;
     ivtVariable:
       begin
-        if Param2 = LongInt(FPSExec.GetCurrentProcNo) then begin
+        if Param2 = Integer(FPSExec.GetCurrentProcNo) then begin
           Result := FPSExec.CurrentProcVars[Param3];
           if Param4 <> '' then
             Result := Result + '.' + Param4;
-          Result := Result + ' = ' + VariantToString(NewTPSVariantIFC(FPSExec.GetProcVar(Param3), False), Param4);
+          Result := Result + ' = ' + VariantToString(NewTPSVariantIFC(FPSExec.GetProcVar(Cardinal(Param3)), False), Param4);
         end else
           Result := '';
       end;

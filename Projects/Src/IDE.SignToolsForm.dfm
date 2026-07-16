@@ -18,14 +18,13 @@ object SignToolsForm: TSignToolsForm
     577
     247)
   TextHeight = 13
-  object GroupBox1: TGroupBox
+  object GroupBox1: TNewGroupBox
     Left = 8
     Top = 8
     Width = 561
     Height = 201
     Anchors = [akLeft, akTop, akRight, akBottom]
     Caption = ' Sign Tools '
-    ShowFrame = False
     TabOrder = 0
     DesignSize = (
       561

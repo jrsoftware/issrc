@@ -2,7 +2,7 @@ unit Compression.bzlib;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -18,18 +18,19 @@ function BZInitCompressFunctions(Module: HMODULE): Boolean;
 function BZInitDecompressFunctions(Module: HMODULE): Boolean;
 
 type
-  TBZAlloc = function(AppData: Pointer; Items, Size: Cardinal): Pointer; stdcall;
+  { Must keep in sync with bzlib.h }
+  TBZAlloc = function(AppData: Pointer; Items, Size: Integer): Pointer; stdcall;
   TBZFree = procedure(AppData, Block: Pointer); stdcall;
   TBZStreamRec = record
     next_in: Pointer;
-    avail_in: Integer;
-    total_in: Integer;
-    total_in_hi: Integer;
+    avail_in: Cardinal;
+    total_in: Cardinal;
+    total_in_hi: Cardinal;
 
     next_out: Pointer;
-    avail_out: Integer;
-    total_out: Integer;
-    total_out_hi: Integer;
+    avail_out: Cardinal;
+    total_out: Cardinal;
+    total_out_hi: Cardinal;
 
     State: Pointer;
 
@@ -48,7 +49,7 @@ type
     procedure FlushBuffer;
     procedure InitCompress;
   protected
-    procedure DoCompress(const Buffer; Count: Longint); override;
+    procedure DoCompress(const Buffer; Count: Cardinal); override;
     procedure DoFinish; override;
   public
     constructor Create(AWriteProc: TCompressorWriteProc;
@@ -68,7 +69,7 @@ type
   public
     constructor Create(AReadProc: TDecompressorReadProc); override;
     destructor Destroy; override;
-    procedure DecompressInto(var Buffer; Count: Longint); override;
+    procedure DecompressInto(var Buffer; Count: Cardinal); override;
     procedure Reset; override;
   end;
 
@@ -137,12 +138,12 @@ begin
   end;
 end;
 
-function BZAllocMem(AppData: Pointer; Items, Size: Cardinal): Pointer; stdcall;
+function BZAllocMem(AppData: Pointer; Items, Size: Integer): Pointer; stdcall;
 begin
   try
     GetMem(Result, Items * Size);
   except
-    { trap any exception, because zlib expects a NULL result if it's out
+    { trap any exception, because bzlib expects a NULL result if it's out
       of memory }
     Result := nil;
   end;
@@ -154,13 +155,11 @@ begin
 end;
 
 function Check(const Code: Integer; const ValidCodes: array of Integer): Integer;
-var
-  I: Integer;
 begin
   if Code = BZ_MEM_ERROR then
     OutOfMemoryError;
   Result := Code;
-  for I := Low(ValidCodes) to High(ValidCodes) do
+  for var I := Low(ValidCodes) to High(ValidCodes) do
     if ValidCodes[I] = Code then
       Exit;
   raise ECompressInternalError.CreateFmt(SBzlibInternalError, [Code]);
@@ -214,13 +213,13 @@ end;
 procedure TBZCompressor.FlushBuffer;
 begin
   if FStrm.avail_out < SizeOf(FBuffer) then begin
-    WriteProc(FBuffer, SizeOf(FBuffer) - FStrm.avail_out);
+    WriteProc(FBuffer, Cardinal(SizeOf(FBuffer) - FStrm.avail_out));
     FStrm.next_out := @FBuffer;
     FStrm.avail_out := SizeOf(FBuffer);
   end;
 end;
 
-procedure TBZCompressor.DoCompress(const Buffer; Count: Longint);
+procedure TBZCompressor.DoCompress(const Buffer; Count: Cardinal);
 begin
   InitCompress;
   FStrm.next_in := @Buffer;
@@ -268,9 +267,9 @@ const
     bzDecompress* allocate is 64116 + 3600000 bytes, when decompressing data
     compressed at level 9 }
 
-function DecompressorAllocMem(AppData: Pointer; Items, Size: Cardinal): Pointer; stdcall;
+function DecompressorAllocMem(AppData: Pointer; Items, Size: Integer): Pointer; stdcall;
 begin
-  Result := TBZDecompressor(AppData).Malloc(Items * Size);
+  Result := TBZDecompressor(AppData).Malloc(Cardinal(Items * Size));
 end;
 
 procedure DecompressorFreeMem(AppData, Block: Pointer); stdcall;
@@ -312,20 +311,20 @@ begin
 
   { Did bzlib request more memory than we reserved? This shouldn't happen
     unless this unit is used with a different version of bzlib that allocates
-    more memory. Note: The funky Cardinal casts are there to convince
-    Delphi (2) to do an unsigned compare. }
-  if Cardinal(Cardinal(FHeapNextFree) - Cardinal(FHeapBase) + Bytes) > Cardinal(DecompressorHeapSize) then
+    more memory. }
+  const HeapSize = NativeUInt(PByte(FHeapNextFree) - PByte(FHeapBase)) + Bytes;
+  if HeapSize > DecompressorHeapSize then
     raise ECompressInternalError.Create(SBzlibAllocError);
 
   if VirtualAlloc(FHeapNextFree, Bytes, MEM_COMMIT, PAGE_READWRITE) = nil then
     Result := nil
   else begin
     Result := FHeapNextFree;
-    Inc(Cardinal(FHeapNextFree), Bytes);
+    Inc(PByte(FHeapNextFree), Bytes);
   end;
 end;
 
-procedure TBZDecompressor.DecompressInto(var Buffer; Count: Longint);
+procedure TBZDecompressor.DecompressInto(var Buffer; Count: Cardinal);
 begin
   FStrm.next_out := @Buffer;
   FStrm.avail_out := Count;

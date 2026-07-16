@@ -2,7 +2,7 @@ unit Compiler.HelperFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,62 +12,57 @@ unit Compiler.HelperFunc;
 interface
 
 uses
-  Windows, Classes, SysUtils, Shared.FileClass;
-
-type
-  TColor = $7FFFFFFF-1..$7FFFFFFF;
+  Windows, Classes, SysUtils, UITypes,
+  Shared.FileClass;
 
 const
-  clScrollBar = TColor(COLOR_SCROLLBAR or $80000000);
-  clBackground = TColor(COLOR_BACKGROUND or $80000000);
-  clActiveCaption = TColor(COLOR_ACTIVECAPTION or $80000000);
-  clInactiveCaption = TColor(COLOR_INACTIVECAPTION or $80000000);
-  clMenu = TColor(COLOR_MENU or $80000000);
-  clWindow = TColor(COLOR_WINDOW or $80000000);
-  clWindowFrame = TColor(COLOR_WINDOWFRAME or $80000000);
-  clMenuText = TColor(COLOR_MENUTEXT or $80000000);
-  clWindowText = TColor(COLOR_WINDOWTEXT or $80000000);
-  clCaptionText = TColor(COLOR_CAPTIONTEXT or $80000000);
-  clActiveBorder = TColor(COLOR_ACTIVEBORDER or $80000000);
-  clInactiveBorder = TColor(COLOR_INACTIVEBORDER or $80000000);
-  clAppWorkSpace = TColor(COLOR_APPWORKSPACE or $80000000);
-  clHighlight = TColor(COLOR_HIGHLIGHT or $80000000);
-  clHighlightText = TColor(COLOR_HIGHLIGHTTEXT or $80000000);
-  clBtnFace = TColor(COLOR_BTNFACE or $80000000);
-  clBtnShadow = TColor(COLOR_BTNSHADOW or $80000000);
-  clGrayText = TColor(COLOR_GRAYTEXT or $80000000);
-  clBtnText = TColor(COLOR_BTNTEXT or $80000000);
-  clInactiveCaptionText = TColor(COLOR_INACTIVECAPTIONTEXT or $80000000);
-  clBtnHighlight = TColor(COLOR_BTNHIGHLIGHT or $80000000);
-  cl3DDkShadow = TColor(COLOR_3DDKSHADOW or $80000000);
-  cl3DLight = TColor(COLOR_3DLIGHT or $80000000);
-  clInfoText = TColor(COLOR_INFOTEXT or $80000000);
-  clInfoBk = TColor(COLOR_INFOBK or $80000000);
+  clScrollBar = TColors.SysScrollBar;
+  clBackground = TColors.SysBackground;
+  clActiveCaption = TColors.SysActiveCaption;
+  clInactiveCaption = TColors.SysInactiveCaption;
+  clMenu = TColors.SysMenu;
+  clWindow = TColors.SysWindow;
+  clWindowFrame = TColors.SysWindowFrame;
+  clMenuText = TColors.SysMenuText;
+  clWindowText = TColors.SysWindowText;
+  clCaptionText = TColors.SysCaptionText;
+  clActiveBorder = TColors.SysActiveBorder;
+  clInactiveBorder = TColors.SysInactiveBorder;
+  clAppWorkSpace = TColors.SysAppWorkSpace;
+  clHighlight = TColors.SysHighlight;
+  clHighlightText = TColors.SysHighlightText;
+  clBtnFace = TColors.SysBtnFace;
+  clBtnShadow = TColors.SysBtnShadow;
+  clGrayText = TColors.SysGrayText;
+  clBtnText = TColors.SysBtnText;
+  clInactiveCaptionText = TColors.SysInactiveCaptionText;
+  clBtnHighlight = TColors.SysBtnHighlight;
+  cl3DDkShadow = TColors.Sys3DDkShadow;
+  cl3DLight = TColors.Sys3DLight;
+  clInfoText = TColors.SysInfoText;
+  clInfoBk = TColors.SysInfoBk;
 
-  clBlack = TColor($000000);
-  clMaroon = TColor($000080);
-  clGreen = TColor($008000);
-  clOlive = TColor($008080);
-  clNavy = TColor($800000);
-  clPurple = TColor($800080);
-  clTeal = TColor($808000);
-  clGray = TColor($808080);
-  clSilver = TColor($C0C0C0);
-  clRed = TColor($0000FF);
-  clLime = TColor($00FF00);
-  clYellow = TColor($00FFFF);
-  clBlue = TColor($FF0000);
-  clFuchsia = TColor($FF00FF);
-  clAqua = TColor($FFFF00);
-  clLtGray = TColor($C0C0C0);
-  clDkGray = TColor($808080);
-  clWhite = TColor($FFFFFF);
-  clNone = TColor($1FFFFFFF);
-  clDefault = TColor($20000000);
+  clBlack = TColors.Black;
+  clMaroon = TColors.Maroon;
+  clGreen = TColors.Green;
+  clOlive = TColors.Olive;
+  clNavy = TColors.Navy;
+  clPurple = TColors.Purple;
+  clTeal = TColors.Teal;
+  clGray = TColors.Gray;
+  clSilver = TColors.Silver;
+  clRed = TColors.Red;
+  clLime = TColors.Lime;
+  clYellow = TColors.Yellow;
+  clBlue = TColors.Blue;
+  clFuchsia = TColors.Fuchsia;
+  clAqua = TColors.Aqua;
+  clLtGray = TColors.LtGray;
+  clDkGray = TColors.DkGray;
+  clWhite = TColors.White;
+  clNone = TColors.SysNone;
 
-function IdentToColor(const Ident: string; var Color: Longint): Boolean;
 function StringToColor(const S: string): TColor;
-function IsRelativePath(const Filename: String): Boolean;
 function CreateMemoryStreamFromFile(const Filename: String; const CheckTrust: Boolean = False;
   const OnCheckedTrust: TProc<Boolean> = nil): TMemoryStream;
 function FileSizeAndCRCIs(const Filename: String; const Size: Cardinal;
@@ -78,12 +73,11 @@ function IsValidIdentString(const S: String; AllowBackslash, AllowOperators: Boo
 procedure SkipWhitespace(var S: PChar);
 function ExtractWords(var S: PChar; const Sep: Char): String;
 function UnescapeBraces(const S: String): String;
-procedure GenerateRandomBytes(var Buffer; Bytes: Cardinal);
 
 implementation
 
 uses
-  TrustFunc, Shared.CommonFunc, Shared.Int64Em,
+  PathFunc, TrustFunc, Shared.CommonFunc,
   Compression.Base, Compiler.Messages;
 
 type
@@ -93,7 +87,7 @@ type
   end;
 
 const
-  Colors: array[0..41] of TColorEntry = (
+  Colors: array[0..43] of TColorEntry = (
     (Value: clBlack; Name: 'clBlack'),
     (Value: clMaroon; Name: 'clMaroon'),
     (Value: clGreen; Name: 'clGreen'),
@@ -109,6 +103,8 @@ const
     (Value: clBlue; Name: 'clBlue'),
     (Value: clFuchsia; Name: 'clFuchsia'),
     (Value: clAqua; Name: 'clAqua'),
+    (Value: clLtGray; Name: 'clLtGray'),
+    (Value: clDkGray; Name: 'clDkGray'),
     (Value: clWhite; Name: 'clWhite'),
     (Value: clScrollBar; Name: 'clScrollBar'),
     (Value: clBackground; Name: 'clBackground'),
@@ -137,35 +133,27 @@ const
     (Value: clInfoBk; Name: 'clInfoBk'),
     (Value: clNone; Name: 'clNone'));
 
-function IdentToColor(const Ident: string; var Color: Longint): Boolean;
-var
-  I: Integer;
-begin
-  for I := Low(Colors) to High(Colors) do
-    if CompareText(Colors[I].Name, Ident) = 0 then
-    begin
-      Result := True;
-      Color := Longint(Colors[I].Value);
-      Exit;
-    end;
-  Result := False;
-end;
-
 function StringToColor(const S: string): TColor;
-begin
-  if not IdentToColor(S, Longint(Result)) then
-    Result := TColor(StrToInt(S));
-end;
 
-function IsRelativePath(const Filename: String): Boolean;
-var
-  L: Integer;
-begin
-  Result := True;
-  L := Length(Filename);
-  if ((L >= 1) and (Filename[1] = '\')) or
-     ((L >= 2) and CharInSet(Filename[1], ['A'..'Z', 'a'..'z']) and (Filename[2] = ':')) then
+  function IdentToColor(Ident: string; var Color: Integer): Boolean;
+  begin
+    if not PathStartsWith(Ident, 'cl') then
+      Ident := 'cl' + Ident;
+    for var I := Low(Colors) to High(Colors) do
+      if SameText(Colors[I].Name, Ident) then begin
+        Color := Integer(Colors[I].Value);
+        Exit(True);
+      end;
     Result := False;
+  end;
+
+begin
+  if not IdentToColor(S, Integer(Result)) then begin
+    var Hex := S;
+    if (Length(Hex) = 7) and (Hex[1] = '#') then
+      Hex := '$' + Copy(Hex, 6, 2)  + Copy(Hex, 4, 2) + Copy(Hex, 2, 2);
+    Result := TColor(StrToInt(Hex));
+  end;
 end;
 
 function CreateMemoryStreamFromFile(const Filename: String; const CheckTrust: Boolean;
@@ -186,9 +174,10 @@ begin
       end;
     end else
       FS := nil;
-    if Assigned(OnCheckedTrust) then
-      OnCheckedTrust(CheckTrust);
     try
+      if Assigned(OnCheckedTrust) then
+        OnCheckedTrust(CheckTrust);
+
       { Why not use TMemoryStream.LoadFromFile here?
         1. On Delphi 2 it opens files for exclusive access (not good).
         2. It doesn't give specific error messages. }
@@ -213,15 +202,13 @@ function FileSizeAndCRCIs(const Filename: String; const Size: Cardinal;
   const CRC: Longint): Boolean;
 var
   F: TFile;
-  SizeOfFile: Integer64;
   Buf: AnsiString;
 begin
   Result := False;
   try
     F := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
     try
-      SizeOfFile := F.Size;
-      if (SizeOfFile.Lo = Size) and (SizeOfFile.Hi = 0) then begin
+      if F.Size = Size then begin
         SetLength(Buf, Size);
         F.ReadBuffer(Buf[1], Size);
         if GetCRC32(Buf[1], Size) = CRC then
@@ -263,7 +250,7 @@ begin
   Result := False;
   if F.Read(DosHeader, SizeOf(DosHeader)) = SizeOf(DosHeader) then begin
     if (DosHeader[0] = Ord('M')) and (DosHeader[1] = Ord('Z')) then begin
-      PEHeaderOffset := PLongint(@DosHeader[60])^;
+      PEHeaderOffset := PInteger(@DosHeader[60])^;
       if PEHeaderOffset > 0 then begin
         F.Seek(PEHeaderOffset);
         if F.Read(PESigAndHeader, SizeOf(PESigAndHeader)) = SizeOf(PESigAndHeader) then begin
@@ -351,49 +338,4 @@ begin
   end;
 end;
 
-type
-  HCRYPTPROV = DWORD;
-
-const
-  PROV_RSA_FULL = 1;
-  CRYPT_VERIFYCONTEXT = $F0000000;
-
-function CryptAcquireContext(var phProv: HCRYPTPROV; pszContainer: PAnsiChar;
-  pszProvider: PAnsiChar; dwProvType: DWORD; dwFlags: DWORD): BOOL;
-  stdcall; external advapi32 name 'CryptAcquireContextA';
-function CryptReleaseContext(hProv: HCRYPTPROV; dwFlags: DWORD): BOOL;
-  stdcall; external advapi32 name 'CryptReleaseContext';
-function CryptGenRandom(hProv: HCRYPTPROV; dwLen: DWORD; pbBuffer: Pointer): BOOL;
-  stdcall; external advapi32 name 'CryptGenRandom';
-
-var
-  CryptProv: HCRYPTPROV;
-
-procedure GenerateRandomBytes(var Buffer; Bytes: Cardinal);
-var
-  ErrorCode: DWORD;
-begin
-  if CryptProv = 0 then begin
-    if not CryptAcquireContext(CryptProv, nil, nil, PROV_RSA_FULL,
-       CRYPT_VERIFYCONTEXT) then begin
-      ErrorCode := GetLastError;
-      raise Exception.CreateFmt(SCompilerFunctionFailedWithCode,
-        ['CryptAcquireContext', ErrorCode, Win32ErrorString(ErrorCode)]);
-    end;
-    { Note: CryptProv is released in the 'finalization' section of this unit }
-  end;
-  FillChar(Buffer, Bytes, 0);
-  if not CryptGenRandom(CryptProv, Bytes, @Buffer) then begin
-    ErrorCode := GetLastError;
-    raise Exception.CreateFmt(SCompilerFunctionFailedWithCode,
-      ['CryptGenRandom', ErrorCode, Win32ErrorString(ErrorCode)]);
-  end;
-end;
-
-initialization
-finalization
-  if CryptProv <> 0 then begin
-    CryptReleaseContext(CryptProv, 0);
-    CryptProv := 0;
-  end;
 end.

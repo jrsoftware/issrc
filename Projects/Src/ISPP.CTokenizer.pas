@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -78,6 +78,7 @@ type
   TCTokenizer = class(TObject)
   private
     FEscapeSequences: Boolean;
+    FExpressionRef: string; { Keeps FExpr/FExprStart valid, otherwise unused }
     FExprStart: PChar;
     FIdent: string;
     FToken: TTokenKind;
@@ -90,17 +91,17 @@ type
     function InternalNextToken: TTokenKind;
   protected
     FExpr: PChar;
-    FExprOffset: Integer;
+    FExprOffset: NativeInt;
     procedure EndOfExpr;
     procedure Error(const Message: string);
     procedure ErrorFmt(const Message: string; Args: array of const);
   public
     constructor Create(const Expression: string;
-      EscapeSequences: Boolean);
+      const EscapeSequences: Boolean);
     procedure SkipBlanks;
     function NextToken: TTokenKind;
     function NextTokenExpect(Expected: TTokenKinds): TTokenKind;
-    function TokenInt: Longint;
+    function TokenInt: Integer;
     function PeekAtNextToken: TTokenKind;
     function PeekAtNextTokenString: string;
     procedure Store;
@@ -122,8 +123,9 @@ uses
 { TCTokenizer }
 
 constructor TCTokenizer.Create(const Expression: string;
-  EscapeSequences: Boolean);
+  const EscapeSequences: Boolean);
 begin
+  FExpressionRef := Expression;
   FExpr := PChar(Expression);
   FExprStart := FExpr;
   FEscapeSequences := EscapeSequences;
@@ -200,7 +202,7 @@ function TCTokenizer.InternalNextToken: TTokenKind;
             while CharInSet(FExpr^, ['0'..'7']) and (I < 3) do
             begin
               Inc(I);
-              C := (C shl 3) + (Ord(FExpr^) - Ord('0'));
+              C := Byte((C shl 3) + (Ord(FExpr^) - Ord('0')));
               Inc(FExpr);
               Unterminated;
             end;
@@ -222,12 +224,12 @@ function TCTokenizer.InternalNextToken: TTokenKind;
             while CharInSet(FExpr^, ['0'..'9', 'A'..'F', 'a'..'f']) and (I < 2) do
             begin
               Inc(I);
-              C := C shl 4;
+              C := Byte(C shl 4);
               case FExpr^ of
-                '0'..'9': C := C + (Ord(FExpr^) - Ord('0'));
-                'A'..'F': C := C + (Ord(FExpr^) - Ord('A')) + $0A;
+                '0'..'9': C := Byte(C + (Ord(FExpr^) - Ord('0')));
+                'A'..'F': C := Byte(C + (Ord(FExpr^) - Ord('A')) + $0A);
               else
-                C := C + (Ord(FExpr^) - Ord('a')) + $0A;
+                C := Byte(C + (Ord(FExpr^) - Ord('a')) + $0A);
               end;
               Inc(FExpr);
               Unterminated;
@@ -399,7 +401,7 @@ begin
   Result := FNextIdent;
 end;
 
-function TCTokenizer.TokenInt: Longint;
+function TCTokenizer.TokenInt: Integer;
 var
   E: Integer;
 begin
@@ -548,7 +550,7 @@ procedure TCTokenizer.Error(const Message: string);
 begin
   var E := EParsingError.Create(Message);
   if FExprOffset <> -1 then
-    E.Position := FExprOffset + (FExpr - FExprStart) + 1;
+    E.Position := Integer(FExprOffset + FExpr - FExprStart) + 1;
   raise E;
 end;
 
@@ -560,7 +562,7 @@ end;
 
 procedure TCTokenizer.IllegalChar(C: Char);
 begin                                             
-  raise EParsingError.CreateFmt(SIllegalChar, [C, Ord(C)]);
+  ErrorFmt(SIllegalChar, [C, Ord(C)]);
 end;
 
 procedure TCTokenizer.SetPos(NewPos: PChar);

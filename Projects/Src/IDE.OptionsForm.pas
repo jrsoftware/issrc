@@ -2,7 +2,7 @@ unit IDE.OptionsForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -13,19 +13,18 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewStaticText;
+  UIStateForm, StdCtrls, ExtCtrls, NewGroupBox, NewStaticText;
 
 type
   TOptionsForm = class(TUIStateForm)
     OKButton: TButton;
     CancelButton: TButton;
-    GroupBox1: TGroupBox;
+    GroupBox1: TNewGroupBox;
     BackupCheck: TCheckBox;
-    GroupBox2: TGroupBox;
     AssocButton: TButton;
     StartupCheck: TCheckBox;
     WizardCheck: TCheckBox;
-    GroupBox3: TGroupBox;
+    GroupBox3: TNewGroupBox;
     ChangeFontButton: TButton;
     FontPanel: TPanel;
     Label1: TNewStaticText;
@@ -58,6 +57,10 @@ type
     Label5: TNewStaticText;
     MemoKeyMappingComboBox: TComboBox;
     ShowWhiteSpaceCheck: TCheckBox;
+    AutoreloadCheck: TCheckBox;
+    UndoAfterReloadCheck: TCheckBox;
+    AutoHideNewIncludedFilesCheck: TCheckBox;
+    SmartHomeCheck: TCheckBox;
     procedure AssocButtonClick(Sender: TObject);
     procedure ChangeFontButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -75,7 +78,7 @@ type
 implementation
 
 uses
-  Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, IDE.FileAssocFunc;
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, IDE.FileAssocFunc, IDE.Messages;
 
 {$R *.DFM}
 
@@ -84,7 +87,7 @@ begin
   InitFormFont(Self);
   InitFormTheme(Self);
 
-  { Order must match CompFunc.TKeyMappingType }
+  { Order must match IDE.HelperFunc.TKeyMappingType }
   KeyMappingComboBox.Items.Add('Classic');
   KeyMappingComboBox.Items.Add('Visual Studio / Visual Studio Code');
 
@@ -114,8 +117,8 @@ var
   AllUsers: Boolean;
 begin
   if RegisterISSFileAssociation(True, AllUsers) then
-    MsgBox('The .iss extension was successfully associated for ' + UserStrings[AllUsers] + ' with:'#13#10 + NewParamStr(0),
-      'Associate', mbInformation, MB_OK);
+    MsgBox(Format(SAssocSuccess, [UserStrings[AllUsers], NewParamStr(0)]),
+      SAssocTitle, mbInformation, MB_OK);
 end;
 
 procedure TOptionsForm.ChangeFontButtonClick(Sender: TObject);

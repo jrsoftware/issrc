@@ -1,0 +1,20 @@
+name: code-review-copilot
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+    branches:
+      - copilot-review**
+
+jobs:
+  copilot-review:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write # for gh pr
+    steps:
+      - name: Request Copilot review
+        run: gh pr edit "$PR_NUMBER" --repo "$REPOSITORY" --add-reviewer @copilot
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}

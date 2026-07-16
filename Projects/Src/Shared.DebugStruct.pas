@@ -107,6 +107,9 @@ function SendCopyDataMessageStr(DestWnd, SourceWnd: HWND; CopyDataMsg: DWORD;
 
 implementation
 
+uses
+  UnsignedFunc;
+
 function EnumProc(Wnd: HWND; lParam: LPARAM): BOOL; stdcall;
 begin
   if IsWindowVisible(Wnd) then begin
@@ -139,14 +142,14 @@ function SendCopyDataMessageStr(DestWnd, SourceWnd: HWND; CopyDataMsg: DWORD;
   Data: AnsiString): LRESULT;
 begin
   Result := SendCopyDataMessage(DestWnd, SourceWnd, CopyDataMsg,
-    Pointer(Data), Length(Data)*SizeOf(Data[1]));
+    Pointer(Data), ULength(Data)*SizeOf(Data[1]));
 end;
 
 function SendCopyDataMessageStr(DestWnd, SourceWnd: HWND; CopyDataMsg: DWORD;
   Data: UnicodeString): LRESULT;
 begin
   Result := SendCopyDataMessage(DestWnd, SourceWnd, CopyDataMsg,
-    Pointer(Data), Length(Data)*SizeOf(Data[1]));
+    Pointer(Data), ULength(Data)*SizeOf(Data[1]));
 end;
 
 end.

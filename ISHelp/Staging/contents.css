@@ -1,6 +1,6 @@
 /*
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -14,7 +14,7 @@
 	--link-fg-color: light-dark(hsl(206, 100%, 37%), hsl(206, 100%, 50%));
 	--link-hover-fg-color: light-dark(hsl(206, 100%, 27%), hsl(206, 100%, 43%));
 	--header-bg-color: light-dark(#e0e0e0, #403e41);
-	--code-bg-color: light-dark(#f0f0f0, #403e41);
+	--code-bg-color: light-dark(#f0f0f0, #353135);
 	--selected-bg-color: var(--header-bg-color);
 }
 BODY {
@@ -36,26 +36,24 @@ INPUT {
 	padding-block-start: 8px;
 	padding-inline-start: 8px;
 	display: flex;
-	align-items: end;
 	overflow-x: hidden;
 
 	& > A {
 		/* Height of tabs should match topic heading */
 		line-height: calc((20rem/16) * 1.5 - 2px);
 		font-size: calc(14rem/16);
-		font-weight: bold;
 		color: inherit;
 		background-color: transparent;
 		text-decoration: none;
 		padding-inline: calc(10rem/16);
 		user-select: none;
 
-		&.selectedtab {
-			background-color: var(--main-bg-color);
-			border-block-start: 2px solid var(--link-fg-color);
+		&[aria-selected="true"] {
+			font-weight: 600;  /* semibold */
+			border-block-end: 2px solid var(--link-fg-color);
 			cursor: default;
 		}
-		&.unselectedtab:hover {
+		&:not([aria-selected="true"]):hover {
 			color: var(--link-fg-color);
 		}
 	}
@@ -64,45 +62,61 @@ INPUT {
 
 #tabbody-contents {
 	overflow: auto;
-	padding: 4px;
-}
-#tabbody-contents A {
-	/* Using inline-block because otherwise, second line of wrapped text
-	   doesn't line up with first, and on IE6, the focus rect doesn't extend
-	   all the way to the edges of Highlight area */
-	display: inline-block;
-	padding: 1px 2px;
-}
-#tabbody-contents A:link,
-#tabbody-contents A:visited {
-	color: inherit;
-	background-color: transparent;
-	text-decoration: none;
-}
-#tabbody-contents A:hover {
-	color: var(--link-hover-fg-color);
-	text-decoration: underline;
-}
-#tabbody-contents A.selectedlink:link,
-#tabbody-contents A.selectedlink:visited,
-#tabbody-contents A.focusedlink:link,
-#tabbody-contents A.focusedlink:visited {
-	color: inherit;
-	background-color: var(--selected-bg-color);
-	text-decoration: none;
-	border-radius: 4px;
-}
-#tabbody-contents TABLE {
-	border-collapse: collapse;
-}
-#tabbody-contents TD {
-	padding: 0 0 1px 0;
-}
-#tabbody-contents IMG {
-	width: 16px;
-	height: 16px;
-	border-style: none;
-	padding-right: 2px;
+
+	& > ul {
+		/* A's margin-block-end collapses with this margin */
+		margin: 4px;
+		padding: 0;
+
+		& ul {
+			margin: 0;
+			padding: 0;
+			padding-inline-start: 20px;
+		}
+	}
+	& li {
+		display: block;
+	}
+	& a:any-link, & summary {
+		display: flex;
+		inline-size: fit-content;
+		align-items: center;
+		gap: 2px;
+		margin-block-end: calc(2rem/16);
+
+		& > img, & > svg {
+			inline-size: calc(16rem/16);
+			block-size: calc(16rem/16);
+			/* Prevent SVG from shrinking when there isn't enough room for the text */
+			flex-shrink: 0;
+		}
+		& > span {
+			padding-inline: 2px;
+			padding-block: 1px;
+		}
+	}
+	& a:any-link {
+		color: inherit;
+		background-color: transparent;
+		text-decoration: none;
+
+		&:hover:not([aria-selected="true"]) {
+			color: var(--link-hover-fg-color);
+			text-decoration: underline;
+		}
+		&[aria-selected="true"] > span {
+			background-color: var(--selected-bg-color);
+			border-radius: 4px;
+		}
+	}
+	& summary {
+		cursor: pointer;
+		-webkit-user-select: none;  /* Safari doesn't support user-select */
+		user-select: none;
+	}
+	& details[open] > summary > svg {
+		transform: rotate(90deg);
+	}
 }
 
 

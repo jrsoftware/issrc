@@ -2,7 +2,7 @@ unit Setup.SecurityFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,9 +12,9 @@ unit Setup.SecurityFunc;
 interface
 
 uses
-  Windows, SysUtils, Shared.CommonFunc, Shared.Struct;
+  Windows, Shared.CommonFunc, Shared.Struct;
 
-function GrantPermissionOnFile(const DisableFsRedir: Boolean; Filename: String;
+function GrantPermissionOnFile(Filename: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer): Boolean;
 function GrantPermissionOnKey(const RegView: TRegView; const RootKey: HKEY;
   const Subkey: String; const Entries: TGrantPermissionEntry;
@@ -23,8 +23,8 @@ function GrantPermissionOnKey(const RegView: TRegView; const RootKey: HKEY;
 implementation
 
 uses
-  PathFunc, SetupLdrAndSetup.Messages, SetupLdrAndSetup.InstFunc, Setup.LoggingFunc,
-  SetupLdrAndSetup.RedirFunc, Setup.Helper;
+  SetupLdrAndSetup.Messages,
+  Setup.InstFunc, Setup.LoggingFunc;
 
 function InternalGrantPermission(const ObjectType: DWORD; const ObjectName: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer;
@@ -109,7 +109,7 @@ begin
       PSID(ExplicitAccess[I].Trustee.ptstrName) := Sid;
       Inc(E);
     end;
-    Result := SetEntriesInAclW(EntryCount, ExplicitAccess[0], Dacl, NewDacl);
+    Result := SetEntriesInAclW(ULONG(EntryCount), ExplicitAccess[0], Dacl, NewDacl);
     if Result <> ERROR_SUCCESS then
       Exit;
     try
@@ -131,33 +131,11 @@ begin
   end;
 end;
 
-function GrantPermission(const Use64BitHelper: Boolean; const ObjectType: DWORD;
-  const ObjectName: String; const Entries: TGrantPermissionEntry;
-  const EntryCount: Integer; const Inheritance: DWORD): DWORD;
-{ Invokes either the internal GrantPermission function or the one inside the
-  64-bit helper, depending on the setting of Use64BitHelper }
-begin
-  try
-    if Use64BitHelper then
-      Result := HelperGrantPermission(ObjectType, ObjectName, Entries,
-        EntryCount, Inheritance)
-    else
-      Result := InternalGrantPermission(ObjectType, ObjectName, Entries,
-        EntryCount, Inheritance);
-  except
-    { If the helper interface (or even InternalGrantPermission) raises an
-      exception, don't propagate it. Just log it and return an error code, as
-      that's what the caller is expecting on failure. }
-    Log('Exception while setting permissions:' + SNewLine + GetExceptMessage);
-    Result := ERROR_GEN_FAILURE;
-  end;
-end;
-
 const
   OBJECT_INHERIT_ACE    = 1;
   CONTAINER_INHERIT_ACE = 2;
 
-function GrantPermissionOnFile(const DisableFsRedir: Boolean; Filename: String;
+function GrantPermissionOnFile(Filename: String;
   const Entries: TGrantPermissionEntry; const EntryCount: Integer): Boolean;
 { Grants the specified access to the specified file/directory. Returns True if
   successful. On failure, the thread's last error code is set. }
@@ -166,10 +144,7 @@ const
 var
   Attr, Inheritance, ErrorCode: DWORD;
 begin
-  { Expand filename if needed because the 64-bit helper may not have the same
-    current directory as us }
-  Filename := PathExpand(Filename);
-  Attr := GetFileAttributesRedir(DisableFsRedir, Filename);
+  Attr := GetFileAttributes(PChar(Filename));
   if Attr = INVALID_FILE_ATTRIBUTES then begin
     Result := False;
     Exit;
@@ -178,7 +153,7 @@ begin
     Inheritance := OBJECT_INHERIT_ACE or CONTAINER_INHERIT_ACE
   else
     Inheritance := 0;
-  ErrorCode := GrantPermission(DisableFsRedir, SE_FILE_OBJECT, Filename, Entries,
+  ErrorCode := InternalGrantPermission(SE_FILE_OBJECT, Filename, Entries,
     EntryCount, Inheritance);
   SetLastError(ErrorCode);
   Result := (ErrorCode = ERROR_SUCCESS);
@@ -191,15 +166,24 @@ function GrantPermissionOnKey(const RegView: TRegView; const RootKey: HKEY;
   successful. On failure, the thread's last error code is set. }
 const
   SE_REGISTRY_KEY = 4;
-var
-  ObjName: String;
-  ErrorCode: DWORD;
+  SE_REGISTRY_WOW64_32KEY = 12;
+  SE_REGISTRY_WOW64_64KEY = 13;
 begin
-  case RootKey of
-    HKEY_CLASSES_ROOT: ObjName := 'CLASSES_ROOT';
-    HKEY_CURRENT_USER: ObjName := 'CURRENT_USER';
-    HKEY_LOCAL_MACHINE: ObjName := 'MACHINE';
-    HKEY_USERS: ObjName := 'USERS';
+  var ObjType: DWORD := SE_REGISTRY_KEY;
+  case RegView of
+    {$IFDEF WIN64}
+    rv32Bit: ObjType := SE_REGISTRY_WOW64_32KEY;
+    {$ELSE}
+    rv64Bit: ObjType := SE_REGISTRY_WOW64_64KEY;
+    {$ENDIF}
+  end;
+
+  var ObjName: String;
+  case RegRootKeyToUInt32(RootKey) of
+    UInt32(HKEY_CLASSES_ROOT): ObjName := 'CLASSES_ROOT';
+    UInt32(HKEY_CURRENT_USER): ObjName := 'CURRENT_USER';
+    UInt32(HKEY_LOCAL_MACHINE): ObjName := 'MACHINE';
+    UInt32(HKEY_USERS): ObjName := 'USERS';
   else
     { Other root keys are not supported by Get/SetNamedSecurityInfo }
     SetLastError(ERROR_INVALID_PARAMETER);
@@ -207,7 +191,8 @@ begin
     Exit;
   end;
   ObjName := ObjName + '\' + Subkey;
-  ErrorCode := GrantPermission(RegView = rv64Bit, SE_REGISTRY_KEY, ObjName,
+
+  const ErrorCode = InternalGrantPermission(ObjType, ObjName,
     Entries, EntryCount, CONTAINER_INHERIT_ACE);
   SetLastError(ErrorCode);
   Result := (ErrorCode = ERROR_SUCCESS);

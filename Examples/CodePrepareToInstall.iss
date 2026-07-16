@@ -7,7 +7,7 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-WizardStyle=modern
+WizardStyle=modern dynamic
 DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
@@ -15,8 +15,8 @@ OutputDir=userdocs:Inno Setup Examples Output
 
 [Files]
 ; Place any prerequisite files here, for example:
-; Source: "MyProg-Prerequisite-setup.exe"; Flags: dontcopy
-; Place any regular files here, so *after* all your prerequisites.
+; Source: "MyProg-Prerequisite-setup.exe"; Flags: dontcopy noencryption
+; Place any regular files here, so *after* all your prerequisite files.
 Source: "MyProg.exe"; DestDir: "{app}"
 Source: "MyProg.chm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme;
@@ -35,7 +35,7 @@ const
 var
   Restarted: Boolean;
 
-function InitializeSetup(): Boolean;
+function InitializeSetup: Boolean;
 begin
   Restarted := ExpandConstant('{param:restart|0}') = '1';
 
@@ -54,6 +54,7 @@ begin
 
   //<your code here>
   //extraction example: ExtractTemporaryFile('MyProg-Prerequisite-setup.exe');
+  //getting path after extraction example: ExpandConstant('{tmp}\MyProg-Prerequisite-setup.exe');
 
   Result := True;
 
@@ -69,8 +70,9 @@ end;
 
 function AddParam(const S, P, V: String): String;
 begin
+  Result := S;
   if V <> '""' then
-    Result := S + ' /' + P + '=' + V;
+    Result := Result + ' /' + P + '=' + V;
 end;
 
 function AddSimpleParam(const S, P: String): String;

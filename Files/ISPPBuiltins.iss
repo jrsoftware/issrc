@@ -1,7 +1,7 @@
 // Inno Setup Preprocessor
 //
-// Inno Setup (C) 1997-2025 Jordan Russell. All Rights Reserved.
-// Portions Copyright (C) 2000-2025 Martijn Laan. All Rights Reserved.
+// Inno Setup (C) 1997-2026 Jordan Russell. All Rights Reserved.
+// Portions Copyright (C) 2000-2026 Martijn Laan. All Rights Reserved.
 // Portions Copyright (C) 2001-2004 Alex Yackimoff. All Rights Reserved.
 //
 // See the ISPP help file for more documentation of the functions defined by this file
@@ -71,6 +71,11 @@
 #define HKEY_LOCAL_MACHINE_64   0x82000002UL
 #define HKEY_USERS_64           0x82000003UL
 #define HKEY_CURRENT_CONFIG_64  0x82000005UL
+#define HKEY_CLASSES_ROOT_32    0x81000000UL
+#define HKEY_CURRENT_USER_32    0x81000001UL
+#define HKEY_LOCAL_MACHINE_32   0x81000002UL
+#define HKEY_USERS_32           0x81000003UL
+#define HKEY_CURRENT_CONFIG_32  0x81000005UL
 
 #define HKCR               HKEY_CLASSES_ROOT
 #define HKCU               HKEY_CURRENT_USER
@@ -82,6 +87,11 @@
 #define HKLM64             HKEY_LOCAL_MACHINE_64
 #define HKU64              HKEY_USERS_64
 #define HKCC64             HKEY_CURRENT_CONFIG_64
+#define HKCR32             HKEY_CLASSES_ROOT_32
+#define HKCU32             HKEY_CURRENT_USER_32
+#define HKLM32             HKEY_LOCAL_MACHINE_32
+#define HKU32              HKEY_USERS_32
+#define HKCC32             HKEY_CURRENT_CONFIG_32
 
 // Exec constants
 
@@ -137,25 +147,45 @@
 
 // GetStringFileInfo helpers
 
-#define GetFileCompany(str FileName) GetStringFileInfo(FileName, COMPANY_NAME)
-#define GetFileDescription(str FileName) GetStringFileInfo(FileName, FILE_DESCRIPTION)
+#define GetFileCompanyString(str FileName) GetStringFileInfo(FileName, COMPANY_NAME)
+#define GetFileDescriptionString(str FileName) GetStringFileInfo(FileName, FILE_DESCRIPTION)
 #define GetFileVersionString(str FileName) GetStringFileInfo(FileName, FILE_VERSION)
-#define GetFileCopyright(str FileName) GetStringFileInfo(FileName, LEGAL_COPYRIGHT)
-#define GetFileOriginalFilename(str FileName) GetStringFileInfo(FileName, ORIGINAL_FILENAME)
-#define GetFileProductVersion(str FileName) GetStringFileInfo(FileName, PRODUCT_VERSION)
+#define GetFileCopyrightString(str FileName) GetStringFileInfo(FileName, LEGAL_COPYRIGHT)
+#define GetFileOriginalFilenameString(str FileName) GetStringFileInfo(FileName, ORIGINAL_FILENAME)
+#define GetFileProductVersionString(str FileName) GetStringFileInfo(FileName, PRODUCT_VERSION)
+
+#define GetFileCompany(str FileName) \
+  WarnRenamedVersion("GetFileCompany", "GetFileCompanyString"), \
+  GetFileCompanyString(FileName)
+
+#define GetFileDescription(str FileName) \
+  WarnRenamedVersion("GetFileDescription", "GetFileDescriptionString"), \
+  GetFileDescriptionString(FileName)
+
+#define GetFileCopyright(str FileName) \
+  WarnRenamedVersion("GetFileCopyright", "GetFileCopyrightString"), \
+  GetFileCopyrightString(FileName)
+
+#define GetFileOriginalFilename(str FileName) \
+  WarnRenamedVersion("GetFileOriginalFilename", "GetFileOriginalFilenameString"), \
+  GetFileOriginalFilenameString(FileName)
+
+#define GetFileProductVersion(str FileName) \
+  WarnRenamedVersion("GetFileProductVersion", "GetFileProductVersionString"), \
+  GetFileProductVersionString(FileName)
 
 #define DeleteToFirstPeriod(str *S) \
   Local[1] = Copy(S, 1, (Local[0] = Pos(".", S)) - 1), \
   S = Copy(S, Local[0] + 1), \
   Local[1]
 
-#define GetVersionComponents(str FileName, *Major, *Minor, *Rev, *Build) \
+#define GetVersionComponents(str FileName, *Major, *Minor, *Revision, *Build) \
   Local[1]  = Local[0] = GetVersionNumbersString(FileName), \
   Local[1] == "" ? "" : ( \
-    Major   = Int(DeleteToFirstPeriod(Local[1])), \
-    Minor   = Int(DeleteToFirstPeriod(Local[1])), \
-    Rev     = Int(DeleteToFirstPeriod(Local[1])), \
-    Build   = Int(Local[1]), \
+    Major = Int(DeleteToFirstPeriod(Local[1])), \
+    Minor = Int(DeleteToFirstPeriod(Local[1])), \
+    Revision = Int(DeleteToFirstPeriod(Local[1])), \
+    Build = Int(Local[1]), \
   Local[0])
 
 #define GetPackedVersion(str FileName, *Version) \
@@ -163,26 +193,26 @@
   Version = PackVersionComponents(Local[1], Local[2], Local[3], Local[4]), \
   Local[0]
 
-#define GetVersionNumbers(str FileName, *MS, *LS) \
+#define GetVersionNumbers(str FileName, *VersionMS, *VersionLS) \
   Local[0] = GetPackedVersion(FileName, Local[1]), \
-  UnpackVersionNumbers(Local[1], MS, LS), \
+  UnpackVersionNumbers(Local[1], VersionMS, VersionLS), \
   Local[0]
 
 #define PackVersionNumbers(int VersionMS, int VersionLS) \
   VersionMS << 32 | (VersionLS & 0xFFFFFFFF)
 
-#define PackVersionComponents(int Major, int Minor, int Rev, int Build) \
-  Major << 48 | (Minor & 0xFFFF) << 32 | (Rev & 0xFFFF) << 16 | (Build & 0xFFFF)
+#define PackVersionComponents(int Major, int Minor, int Revision, int Build) \
+  Major << 48 | (Minor & 0xFFFF) << 32 | (Revision & 0xFFFF) << 16 | (Build & 0xFFFF)
 
 #define UnpackVersionNumbers(int Version, *VersionMS, *VersionLS) \
   VersionMS = Version >> 32, \
   VersionLS = Version & 0xFFFFFFFF, \
   void
 
-#define UnpackVersionComponents(int Version, *Major, *Minor, *Rev, *Build) \
+#define UnpackVersionComponents(int Version, *Major, *Minor, *Revision, *Build) \
   Major = Version >> 48, \
   Minor = (Version >> 32) & 0xFFFF, \
-  Rev   = (Version >> 16) & 0xFFFF, \
+  Revision = (Version >> 16) & 0xFFFF, \
   Build = Version & 0xFFFF, \
   void
 
@@ -235,7 +265,7 @@
       Copy(PathName, 1, Local[1])
 
 #define ExtractFileDir(str PathName) \
-  RemoveBackslash(ExtractFilePath(PathName))
+  RemoveBackslashUnlessRoot(ExtractFilePath(PathName))
 
 #define ExtractFileExt(str PathName) \
   Local[0] = RPos(".", PathName), \
@@ -281,7 +311,7 @@
     S = Copy(S, 1, Index - 1) + SubStr + Copy(S, Index)
 
 #define YesNo(str S) \
-  (S = LowerCase(S)) == "yes" || S == "true" || S == "1"
+  S == "yes" || S == "true" || S == "1"
 
 #define IsDirSet(str SetupDirective) \
   YesNo(SetupSetting(SetupDirective))
@@ -296,9 +326,6 @@
   A > B ? A > C ? Int(A) : Int(C) : Int(B)
 
 #define SameText(str S1, str S2) \
-  LowerCase(S1) == LowerCase(S2)
-
-#define SameStr(str S1, str S2) \
   S1 == S2
 
 #define WarnRenamedVersion(str OldName, str NewName) \
@@ -311,6 +338,34 @@
 #define GetFileVersion(str FileName) \
   WarnRenamedVersion("GetFileVersion", "GetVersionNumbersString"), \
   GetVersionNumbersString(FileName)
+
+#sub GLS_ProcessFoundLanguagesFile
+  #define Filename FindGetFileName(GLS_FindHandle)
+  #define Name LowerCase(RemoveFileExt(Filename))
+  #define MessagesFile "compiler:Languages\" + Filename
+  #emit "Name: " + Name + "; MessagesFile: " + MessagesFile
+#endsub
+
+#define GLS_FindPathName
+#define GLS_FindHandle
+#define GLS_FindResult
+
+#sub GLS_DoFindFiles
+  #for {GLS_FindHandle = GLS_FindResult = FindFirst(GLS_FindPathName + "*.isl", 0); GLS_FindResult; GLS_FindResult = FindNext(GLS_FindHandle)} GLS_ProcessFoundLanguagesFile
+  #if GLS_FindHandle
+    #expr FindClose(GLS_FindHandle)
+  #endif
+#endsub
+
+#define GLS_FindFiles(str PathName) \
+  GLS_FindPathName = PathName, \
+  GLS_DoFindFiles
+
+#sub EmitLanguagesSection
+  #emit "[Languages]"
+  #emit "Name: english; MessagesFile: compiler:Default.isl"
+  #expr GLS_FindFiles(CompilerPath + "Languages\")
+#endsub
 
 #ifdef DisablePOptP
 # pragma parseroption -p-

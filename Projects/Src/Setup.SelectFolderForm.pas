@@ -13,12 +13,12 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  Setup.SetupForm, StdCtrls, FolderTreeView, NewStaticText, BidiCtrls;
+  Setup.SetupForm, StdCtrls, FolderTreeView, NewStaticText, NewCtrls;
 
 type
   TSelectFolderForm = class(TSetupForm)
     BrowseLabel: TNewStaticText;
-    PathEdit: TEdit;
+    PathEdit: TNewPathEdit;
     NewFolderButton: TNewButton;
     OKButton: TNewButton;
     CancelButton: TNewButton;
@@ -41,7 +41,7 @@ implementation
 
 uses
   PathFunc, SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.MainFunc,
-  Shared.SetupTypes, Setup.WizardForm, Shared.CommonFunc;
+  Shared.SetupTypes, Setup.WizardForm, Shared.CommonFunc.Vcl;
 
 {$R *.DFM}
 
@@ -109,7 +109,7 @@ begin
     otherwise the control's width and height get reduced later. Looks like
     a Delphi 11 bug; the problem is seen in IS 6.3 but not 6.2.2. }
   HandleNeeded;
-  FFolderTreeView.Parent := Self;
+  TSetupForm.SetCtlParent(FFolderTreeView, Self);
   PathEdit.BringToFront;     { for MSAA }
   BrowseLabel.BringToFront;  { for MSAA }
   FFolderTreeView.TabOrder := 2;
@@ -120,22 +120,21 @@ begin
   Caption := SetupMessages[msgBrowseDialogTitle];
   BrowseLabel.Caption := SetupMessages[msgBrowseDialogLabel];
   YDiff := WizardForm.AdjustLabelHeight(BrowseLabel);
+  ClientHeight := ClientHeight + YDiff;  { moves buttons down due to their anchors }
   PathEdit.Top := PathEdit.Top + YDiff;
-  TryEnableAutoCompleteFileSystem(PathEdit.Handle);
   FFolderTreeView.Top := FFolderTreeView.Top + YDiff;
+  FFolderTreeView.Height := FFolderTreeView.Height - YDiff;
   NewFolderButton.Caption := SetupMessages[msgButtonNewFolder];
-  NewFolderButton.Top := NewFolderButton.Top + YDiff;
   NewFolderButton.Width := CalculateButtonWidth([SetupMessages[msgButtonNewFolder]]);
   W := CalculateButtonWidth([SetupMessages[msgButtonOK], SetupMessages[msgButtonCancel]]);
   CancelButton.Caption := SetupMessages[msgButtonCancel];
   CancelButton.SetBounds(CancelButton.Left + CancelButton.Width - W,
-    CancelButton.Top + YDiff, W, CancelButton.Height);
+    CancelButton.Top, W, CancelButton.Height);
   OKButton.Caption := SetupMessages[msgButtonOK];
   OKButton.SetBounds(CancelButton.Left - ScalePixelsX(6) - W,
-    OKButton.Top + YDiff, W, OKButton.Height);
-  ClientHeight := ClientHeight + YDiff;
+    OKButton.Top, W, OKButton.Height);
 
-  FlipSizeAndCenterIfNeeded(True, WizardForm, False);
+  FlipAndCenterIfNeeded(True, WizardForm, False);
 end;
 
 constructor TSelectFolderForm.Create2(AOwner: TComponent; AStartMenu: Boolean);

@@ -1,9 +1,10 @@
-; *** Inno Setup version 6.4.0+ Indonesian messages ***
+; *** Inno Setup version 6.5.0+ Indonesian messages ***
 ;
 ; Untuk mengunduh terjemahan kontribusi-pengguna dari berkas ini, buka:
 ;   http://www.jrsoftware.org/files/istrans/
 ; 
 ; Alih bahasa oleh: MozaikTM (mozaik.tm@gmail.com)
+; Updated for Inno Setup 6.5.0+ by Edward Tie (famtie@freedom.nl)
 
 [LangOptions]
 LanguageName=Bahasa Indonesia
@@ -23,12 +24,13 @@ ErrorTitle=Galat
 SetupLdrStartupMessage=Kami akan memasang %1. Teruskan?
 LdrCannotCreateTemp=Tidak dapat membuat berkas sementara. Batal memasang
 LdrCannotExecTemp=Tidak dapat menjalankan berkas di direktori sementara. Batal memasang
+HelpTextNote=
 
 LastErrorMessage=%1.%n%nGalat %2: %3
 SetupFileMissing=Berkas %1 hilang dari direktori instalasi. Silakan koreksi masalah atau dapatkan salinan program yang baru.
 SetupFileCorrupt=Berkas pemandu telah rusak. Silakan dapatkan salinan program yang baru.
 SetupFileCorruptOrWrongVer=Berkas pemandu telah rusak, atau tidak cocok dengan versi pemandu ini. Silakan koreksi masalah atau dapatkan salinan program yang baru.
-InvalidParameter=Parameter tak sah terdapat pada baris perintah: %n%n%1
+InvalidParameter=Parameter tak sah terdapat pada baris perintah:%n%n%1
 SetupAlreadyRunning=Pemandu sudah berjalan.
 WindowsVersionNotSupported=Program ini tidak mendukung versi Windows yang berjalan pada komputer Anda.
 WindowsServicePackRequired=Program ini memerlukan %1 Service Pack %2 atau yang terbaru.
@@ -179,23 +181,33 @@ ReadyMemoGroup=Map Menu Start:
 ReadyMemoTasks=Tugas Tambahan:
 
 ;Inno6
-DownloadingLabel=Mengunduh berkas tambahan...
 ButtonStopDownload=&Setop Unduhan
 StopDownload=Anda yakin ingin berhenti mengunduh?
 ErrorDownloadAborted=Unduhan dibatalkan
 ErrorDownloadFailed=Gagal mengunduh: %1 %2
 ErrorDownloadSizeFailed=Gagal mendapatkan ukuran: %1 %2
-ErrorFileHash1=Ceksum berkas gagal: %1
-ErrorFileHash2=Ceksum berkas tidak sah: seharusnya %1, yang kami dapatkan %2
 ErrorProgress=Langkah tidak sah: %1 dari %2
 ErrorFileSize=Ukuran berkas tidak sah: seharusnya %1, yang kami dapatkan %2
 
+;Inno65
+DownloadingLabel2=Mengunduh berkas...
+;Inno65
+
 ; *** TExtractionWizardPage wizard page and Extract7ZipArchive
-ExtractionLabel=Mengektrasi berkas tambahan...
 ButtonStopExtraction=&Hentikan ekstrasi
 StopExtraction=Anda yakin ingin menghentikan ekstrasi?
 ErrorExtractionAborted=Ekstrasi dibatalkan
 ErrorExtractionFailed=Ekstraksi gagal: %1
+;Inno6
+
+;Inno65
+ExtractingLabel=Mengekstrak berkas...
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Kata sandi salah
+ArchiveIsCorrupted=Arsip rusak
+ArchiveUnsupportedFormat=Format arsip tidak didukung
+;Inno65
 ;Inno6
 
 WizardPreparing=Bersiap Memasang
@@ -240,9 +252,17 @@ AbortRetryIgnoreIgnore=&Abaikan galat dan teruskan
 AbortRetryIgnoreCancel=Batalkan pemasangan
 ;Inno6
 
+;Inno65
+RetryCancelSelectAction=Pilih tindakan
+RetryCancelRetry=&Coba lagi
+RetryCancelCancel=Batal
+;Inno65
+;Inno6
+
 StatusClosingApplications=Menutup aplikasi...
 StatusCreateDirs=Membuat direktori...
 StatusExtractFiles=Mengekstrak berkas...
+StatusDownloadFiles=Mengunduh berkas...
 StatusCreateIcons=Membuat pintasan...
 StatusCreateIniEntries=Membuat catatan INI...
 StatusCreateRegistryEntries=Membuat catatan Registry...
@@ -271,12 +291,19 @@ FileAbortRetryIgnoreIgnoreNotRecommended=&Abaikan galat dan teruskan (tidak disa
 
 SourceIsCorrupted=Berkas asal telah rusak
 SourceDoesntExist=Berkas asal "%1" tidak ada
+SourceVerificationFailed=Verifikasi berkas asal gagal: %1
+VerificationSignatureDoesntExist=Berkas tanda tangan "%1" tidak ada
+VerificationSignatureInvalid=Berkas tanda tangan "%1" tidak sah
+VerificationKeyNotFound=Berkas tanda tangan "%1" memakai kunci yang tidak dikenal
+VerificationFileNameIncorrect=Nama berkas tidak sah
+VerificationFileTagIncorrect=Tag berkas tidak sah
+VerificationFileSizeIncorrect=Ukuran berkas tidak sah
+VerificationFileHashIncorrect=Hash berkas tidak sah
 
 ;Inno6
 ExistingFileReadOnly2=Berkas yang sudah ada tidak bisa ditimpa karena telah ditandai hanya-baca.
 ExistingFileReadOnlyRetry=&Hapus atribut hanya-baca dan coba lagi
 ExistingFileReadOnlyKeepExisting=&Pertahankan berkas yang sudah ada
-ErrorReadingExistingDest=Terjadi galat saat berusaha membaca berkas yang sudah ada:
 FileExistsSelectAction=Pilih tindakan
 FileExists2=Berkas sudah ada.
 FileExistsOverwriteExisting=&Timpa berkas yang sudah ada
@@ -291,6 +318,8 @@ ExistingFileNewerOverwriteOrKeepAll=&Lakukan ini untuk konflik (bentrok) berikut
 ErrorReadingExistingDest=Terjadi galat saat berusaha membaca berkas yang sudah ada:
 ErrorChangingAttr=Terjadi galat saat berusaha mengubah atribusi berkas yang sudah ada:
 ErrorCreatingTemp=Terjadi galat saat berusaha membuat berkas di direktori tujuan:
+ErrorDownloading=Terjadi galat saat berusaha mengunduh berkas:
+ErrorExtracting=Terjadi galat saat berusaha mengekstrak arsip:
 ErrorReadingSource=Terjadi galat saat berusaha membaca berkas asal:
 ErrorCopying=Terjadi galat saat berusaha menyalin berkas:
 ErrorReplacingExistingFile=Terjadi galat saat berusaha menimpa berkas yang sudah ada:

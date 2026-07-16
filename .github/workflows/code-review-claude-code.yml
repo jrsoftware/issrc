@@ -1,0 +1,46 @@
+name: code-review-claude-code
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+    branches:
+      - claude-review**
+
+jobs:
+  claude-review:
+    # Only set the topic `has-claude-code-oauth-token` if the secret is available
+    if: contains(github.event.repository.topics, 'has-claude-code-oauth-token')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read       # for actions/checkout
+      pull-requests: write # for gh pr
+      id-token: write      # for OIDC token exchange of claude-code-action
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+      - name: Run Claude Code Review
+        uses: anthropics/claude-code-action@v1
+        env:
+          CLAUDE_CODE_EFFORT_LEVEL: xhigh
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            Review PR #${{ github.event.pull_request.number }} of ${{ github.repository }}.
+            Steps:
+            1. Run `gh pr diff ${{ github.event.pull_request.number }}` to get the diff.
+            2. Run `gh pr view ${{ github.event.pull_request.number }} --json commits --jq '.commits[] | {oid, committedDate, messageHeadline, messageBody}'` for commit messages.
+            3. Run `gh pr view ${{ github.event.pull_request.number }} --json comments --jq '.comments[] | {author: .author.login, body}'` for previous review comments.
+            4. Read CLAUDE.md and AGENTS.md in full for project-specific guidelines.
+            5. Analyze the diff for bugs, security issues, and style problems. Verify that changes match commit message claims. Focus only on changed lines, not pre-existing issues.
+            6. Only report issues not already present in PR comments. Do NOT report:
+            - Previously raised issues from PR comments, unless a commit claims to fix one but the diff shows otherwise. That's a new issue.
+            - Summaries, commentary, praise, or validation that code is correct.
+            If there is nothing to report, report exactly "No new issues found."
+            Format each issue like this example:
+            **Issue:** `Foo.pas:42` Off-by-one in loop bound will skip the last item.
+            Post exactly one top-level PR comment via `gh pr comment`. No inline comments.
+          claude_args: |
+            --model opus
+            --allowedTools "Read,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"

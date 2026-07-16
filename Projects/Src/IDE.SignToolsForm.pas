@@ -2,7 +2,7 @@ unit IDE.SignToolsForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,13 +12,13 @@ unit IDE.SignToolsForm;
 interface
 
 uses
-    Classes, Controls, StdCtrls, UIStateForm;
+  Classes, Controls, StdCtrls, UIStateForm, NewGroupBox;
 
 type
   TSignToolsForm = class(TUIStateForm)
     OKButton: TButton;
     CancelButton: TButton;
-    GroupBox1: TGroupBox;
+    GroupBox1: TNewGroupBox;
     SignToolsListBox: TListBox;
     AddButton: TButton;
     RemoveButton: TButton;
@@ -32,7 +32,7 @@ type
     procedure SignToolsListBoxDblClick(Sender: TObject);
   private
     FSignTools: TStringList;
-    procedure CommandDocImageClick(Sender: TObject);
+    procedure CommandDocBitBtnClick(Sender: TObject);
     procedure UpdateSignTools;
     procedure UpdateSignToolsButtons;
     procedure SetSignTools(SignTools: TStringList);
@@ -50,7 +50,7 @@ implementation
 uses
   Windows, Messages, SysUtils, Dialogs,
   Shared.CommonFunc.Vcl, IDE.InputQueryMemoForm, IDE.HelperFunc,
-  IDE.HtmlHelpFunc;
+  IDE.HtmlHelpFunc, IDE.Messages;
 
 {$R *.DFM}
 
@@ -91,10 +91,10 @@ begin
   SendMessage(Handle, WM_SETICON, ICON_BIG, 0);
 end;
 
-procedure TSignToolsForm.CommandDocImageClick(Sender: TObject);
+procedure TSignToolsForm.CommandDocBitBtnClick(Sender: TObject);
 begin
   if Assigned(HtmlHelp) then
-    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, Cardinal(PChar('topic_setup_signtool.htm')));
+    HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, DWORD_PTR(PChar('topic_setup_signtool.htm')));
 end;
 
 procedure TSignToolsForm.CreateParams(var Params: TCreateParams);
@@ -115,27 +115,27 @@ var
 begin
   Result := False;
 
-  if InputQuery(Caption, 'Name of the Sign Tool:', SignToolName) then begin
+  if InputQuery(Caption, SSignToolNamePrompt, SignToolName) then begin
     if (SignToolName = '') or (Pos('=', SignToolName) <> 0) then begin
-      AppMessageBox(PChar('Invalid name.'), PChar(Caption), MB_OK or MB_ICONSTOP);
+      MsgBox(SSignToolInvalidName, Caption, mbCriticalError, MB_OK);
       Exit;
     end;
 
     for I := 0 to FSignTools.Count-1 do begin
       if (I <> ExistingIndex) and (Pos(SignToolName + '=', FSignTools[I]) = 1) then begin
-        AppMessageBox(PChar('Duplicate name.'), PChar(Caption), MB_OK or MB_ICONSTOP);
+        MsgBox(SSignToolDuplicateName, Caption, mbCriticalError, MB_OK);
         Exit;
       end;
     end;
 
-    if InputQueryMemo(Caption, 'Command of the Sign Tool:', SignToolCommand, True, CommandDocImageClick) then begin
+    if InputQueryMemo(Caption, SSignToolCommandPrompt, SignToolCommand, True, CommandDocBitBtnClick) then begin
       if SignToolCommand = '' then begin
-        AppMessageBox(PChar('Invalid command.'), PChar(Caption), MB_OK or MB_ICONSTOP);
+        MsgBox(SSignToolInvalidCommand, Caption, mbCriticalError, MB_OK);
         Exit;
       end;
+      
+      Result := True;
     end;
-
-    Result := True;
   end;
 end;
 

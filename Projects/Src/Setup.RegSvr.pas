@@ -2,7 +2,7 @@ unit Setup.RegSvr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -18,7 +18,7 @@ implementation
 uses
   Windows, SysUtils, Classes, Forms, PathFunc, Shared.CommonFunc, Setup.InstFunc, Setup.InstFunc.Ole,
   Shared.FileClass, Shared.CommonFunc.Vcl, Shared.Struct, Setup.MainFunc,
-  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.RegDLL, Setup.Helper;
+  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.RegDLL;
 
 procedure DeleteOldTempFiles(const Path: String);
 { Removes any old isRS-???.tmp files from Path. Not strictly necessary, but
@@ -86,7 +86,7 @@ begin
   end;
 end;
 
-procedure DeleteSelf;
+procedure DeleteSelfUsingRestartReplace;
 var
   SelfFilename, NewFilename: String;
 begin
@@ -98,9 +98,9 @@ begin
   DeleteOldTempFiles(PathExtractPath(SelfFilename));
   NewFilename := RenameToNonRandomTempName(SelfFilename);
   if NewFilename <> '' then
-    RestartReplace(False, NewFilename, '')
+    RestartReplace(NewFilename, '')
   else
-    RestartReplace(False, SelfFilename, '');
+    RestartReplace(SelfFilename, '');
 end;
 
 procedure RunRegSvr;
@@ -142,6 +142,14 @@ begin
   try
     MsgFilename := PathChangeExt(NewParamStr(0), '.msg');
     ListFilename := PathChangeExt(NewParamStr(0), '.lst');
+
+    { Init main constants, not depending on GetShellFolderPath. This also
+      initializes the Setup.PathRedir unit. Currently it actually only needs
+      the Setup.PathRedir unit initialization, but init everything always anyway.
+      Must be done even if ListFilename doesn't exist, because
+      DeleteSelfUsingRestartReplace always runs and needs Setup.PathRedir. }
+    InitMainNonGetShellFolderPathConstsAndPathRedir;
+
     { The .lst file may not exist at this point, if we were already run
       previously, but the RunOnce entry could not be removed due to lack of
       admin privileges. }
@@ -152,47 +160,40 @@ begin
       SetMessageBoxRightToLeft(lfRightToLeft in MessagesLangOptions.Flags);
       Application.Title := SetupMessages[msgSetupAppTitle];
 
+      F := TTextFileReader.Create(ListFilename, fdOpenExisting, faRead, fsRead);
       try
-        { Extract the 64-bit helper }
-        CreateTempInstallDirAndExtract64BitHelper;
-
-        F := TTextFileReader.Create(ListFilename, fdOpenExisting, faRead, fsRead);
-        try
-          while not F.Eof do begin
-            L := F.ReadLine;
-            if (Length(L) > 4) and (L[1] = '[') and (L[4] = ']') then begin
-              RegFilename := Copy(L, 5, Maxint);
-              NoErrorMessages := (L[3] = 'q') or (CreatedAsAdmin and not IsAdmin);
-              try
-                case L[2] of
-                  's': RegisterServer(False, False, RegFilename, NoErrorMessages);
-                  'S': RegisterServer(False, True, RegFilename, NoErrorMessages);
-                  't': RegisterTypeLibrary(RegFilename);
-                  'T': HelperRegisterTypeLibrary(False, RegFilename);
-                end;
-              except
-                { Display the exception message (with a caption of 'Setup' so
-                  people have some clue of what generated it), and keep going.
-                  Exception: Don't display the message if the program was
-                  installed as an admin (causing the RunOnce entry to be created
-                  in HKLM) and the user isn't logged in as an admin now. That's
-                  almost certainly going to result in errors; let's not complain
-                  about it. The RunOnce entry should survive a logoff (since
-                  only admins can write to HKLM's RunOnce); once the user logs
-                  back in as an admin the files will get registered for real,
-                  and we won't suppress error messages then. }
-                if not NoErrorMessages then
-                  AppMessageBox(PChar(RegFilename + SNewLine2 +
-                    FmtSetupMessage1(msgErrorRegisterServer, GetExceptMessage)),
-                    PChar(SetupMessages[msgSetupAppTitle]), MB_OK or MB_ICONEXCLAMATION);
+        while not F.Eof do begin
+          L := F.ReadLine;
+          if (Length(L) > 4) and (L[1] = '[') and (L[4] = ']') then begin
+            RegFilename := Copy(L, 5, Maxint);
+            NoErrorMessages := (L[3] = 'q') or (CreatedAsAdmin and not IsAdmin);
+            try
+              case L[2] of
+                's': RegisterServer(False, False, RegFilename);
+                'S': RegisterServer(False, True, RegFilename);
+                {$IFNDEF WIN64} 't': RegisterTypeLibrary(RegFilename); {$ENDIF}
+                {$IFDEF WIN64} 'T': RegisterTypeLibrary(RegFilename); {$ENDIF}
               end;
+            except
+              { Display the exception message (with a caption of 'Setup' so
+                people have some clue of what generated it), and keep going.
+                Exception: Don't display the message if the program was
+                installed as an admin (causing the RunOnce entry to be created
+                in HKLM) and the user isn't logged in as an admin now. That's
+                almost certainly going to result in errors; let's not complain
+                about it. The RunOnce entry should survive a logoff (since
+                only admins can write to HKLM's RunOnce); once the user logs
+                back in as an admin the files will get registered for real,
+                and we won't suppress error messages then. }
+              if not NoErrorMessages then
+                MsgBox(RegFilename + SNewLine2 +
+                  FmtSetupMessage1(msgErrorRegisterServer, GetExceptMessage),
+                  SetupMessages[msgSetupAppTitle], mbError, MB_OK);
             end;
           end;
-        finally
-          F.Free;
         end;
       finally
-        RemoveTempInstallDir;
+        F.Free;
       end;
     end;
 
@@ -200,7 +201,7 @@ begin
     DeleteFile(MsgFilename);
 
     try
-      DeleteSelf;
+      DeleteSelfUsingRestartReplace;
     except
       { ignore exceptions }
     end;

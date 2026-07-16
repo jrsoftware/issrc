@@ -2,7 +2,7 @@ unit Compression.Zlib;
 
 {
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -20,7 +20,7 @@ function ZlibInitDecompressFunctions(Module: HMODULE): Boolean;
 type
   TZAlloc = function(AppData: Pointer; Items, Size: Cardinal): Pointer; stdcall;
   TZFree = procedure(AppData, Block: Pointer); stdcall;
-  TZStreamRec = packed record
+  TZStreamRec = record
     next_in: Pointer;     { next input byte }
     avail_in: Cardinal;   { number of bytes available at next_in }
     total_in: Cardinal;   { total nb of input bytes read so far }
@@ -51,7 +51,7 @@ type
     procedure FlushBuffer;
     procedure InitCompress;
   protected
-    procedure DoCompress(const Buffer; Count: Longint); override;
+    procedure DoCompress(const Buffer; Count: Cardinal); override;
     procedure DoFinish; override;
   public
     constructor Create(AWriteProc: TCompressorWriteProc;
@@ -69,7 +69,7 @@ type
   public
     constructor Create(AReadProc: TDecompressorReadProc); override;
     destructor Destroy; override;
-    procedure DecompressInto(var Buffer; Count: Longint); override;
+    procedure DecompressInto(var Buffer; Count: Cardinal); override;
     procedure Reset; override;
   end;
 
@@ -79,7 +79,7 @@ const
   SZlibDataError = 'zlib: Compressed data is corrupted';
   SZlibInternalError = 'zlib: Internal error. Code %d';
 
-  ZLIB_VERSION = '1.2.1';  { Do not change this! }
+  ZLIB_VERSION = '1.3.1';  { Do not change this! }
 
   Z_NO_FLUSH      = 0;
   Z_PARTIAL_FLUSH = 1;
@@ -155,13 +155,11 @@ begin
 end;
 
 function Check(const Code: Integer; const ValidCodes: array of Integer): Integer;
-var
-  I: Integer;
 begin
   if Code = Z_MEM_ERROR then
     OutOfMemoryError;
   Result := Code;
-  for I := Low(ValidCodes) to High(ValidCodes) do
+  for var I := Low(ValidCodes) to High(ValidCodes) do
     if ValidCodes[I] = Code then
       Exit;
   raise ECompressInternalError.CreateFmt(SZlibInternalError, [Code]);
@@ -223,7 +221,7 @@ begin
   end;
 end;
 
-procedure TZCompressor.DoCompress(const Buffer; Count: Longint);
+procedure TZCompressor.DoCompress(const Buffer; Count: Cardinal);
 begin
   InitCompress;
   FStrm.next_in := @Buffer;
@@ -269,7 +267,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TZDecompressor.DecompressInto(var Buffer; Count: Longint);
+procedure TZDecompressor.DecompressInto(var Buffer; Count: Cardinal);
 begin
   FStrm.next_out := @Buffer;
   FStrm.avail_out := Count;

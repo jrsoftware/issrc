@@ -2,7 +2,7 @@ unit Compiler.StringLists;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -54,23 +54,24 @@ type
   TScriptFileLines = class
   private
     FLines: TList;
-    function Get(Index: Integer): PScriptFileLine;
-    function GetCount: Integer;
+    function Get(Index: NativeInt): PScriptFileLine;
+    function GetCount: NativeInt;
     function GetText: String;
   public
     constructor Create;
     destructor Destroy; override;
     procedure Add(const LineFilename: String; const LineNumber: Integer;
       const LineText: String);
-    property Count: Integer read GetCount;
-    property Lines[Index: Integer]: PScriptFileLine read Get; default;
+    property Count: NativeInt read GetCount;
+    property Lines[Index: NativeInt]: PScriptFileLine read Get; default;
     property Text: String read GetText;
   end;
 
 implementation
 
 uses
-  PathFunc, Compression.Base;
+  PathFunc, UnsignedFunc,
+  Compression.Base;
 
 { THashStringList }
 
@@ -95,7 +96,7 @@ begin
   LS := PathLowercase(S);
   Pointer(FList[Result].Str) := nil;  { since Grow doesn't zero init }
   FList[Result].Str := S;
-  FList[Result].Hash := GetCRC32(Pointer(LS)^, Length(LS)*SizeOf(LS[1]));
+  FList[Result].Hash := GetCRC32(Pointer(LS)^, ULength(LS)*SizeOf(LS[1]));
   Inc(FCount);
 end;
 
@@ -137,7 +138,7 @@ var
   I: Integer;
 begin
   LS := PathLowercase(S);
-  Hash := GetCRC32(Pointer(LS)^, Length(LS)*SizeOf(LS[1]));
+  Hash := GetCRC32(Pointer(LS)^, ULength(LS)*SizeOf(LS[1]));
   for I := 0 to FCount-1 do
     if (FList[I].Hash = Hash) and (PathLowercase(FList[I].Str) = LS) then begin
       Result := I;
@@ -155,11 +156,9 @@ begin
 end;
 
 destructor TScriptFileLines.Destroy;
-var
-  I: Integer;
 begin
   if Assigned(FLines) then begin
-    for I := FLines.Count-1 downto 0 do
+    for var I := FLines.Count-1 downto 0 do
       Dispose(PScriptFileLine(FLines[I]));
     FLines.Free;
   end;
@@ -193,31 +192,32 @@ begin
   FLines.Add(L);
 end;
 
-function TScriptFileLines.Get(Index: Integer): PScriptFileLine;
+function TScriptFileLines.Get(Index: NativeInt): PScriptFileLine;
 begin
   Result := PScriptFileLine(FLines[Index]);
 end;
 
-function TScriptFileLines.GetCount: Integer;
+function TScriptFileLines.GetCount: NativeInt;
 begin
   Result := FLines.Count;
 end;
 
 function TScriptFileLines.GetText: String;
 var
-  I, L, Size, Count: Integer;
+  L, Size: Integer;
   P: PChar;
   S, LB: string;
 begin
-  Count := GetCount;
+  const Count = GetCount;
   Size := 0;
   LB := sLineBreak;
-  for I := 0 to Count-1 do
+  for var I := 0 to Count-1 do
     Inc(Size, Length(Get(I).LineText) + Length(LB));
-  Dec(Size, Length(LB));
+  if Count > 0 then
+    Dec(Size, Length(LB));
   SetString(Result, nil, Size);
   P := Pointer(Result);
-  for I := 0 to Count-1 do begin
+  for var I := 0 to Count-1 do begin
     S := Get(I).LineText;
     L := Length(S);
     if L <> 0 then begin

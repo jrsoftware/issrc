@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.17';
+  Version = '1.32';
 
   XMLFileVersion = '1';
 
@@ -42,6 +42,7 @@ type
     elFlagList,
     elHeading,
     elI,
+    elImg,
     elIndent,
     elKeyword,
     elLI,
@@ -52,13 +53,16 @@ type
     elParamList,
     elPre,
     elPreCode,
+    elSD,
     elSetupDefault,
     elSetupFormat,
     elSetupValid,
     elSetupTopic,
     elSmall,
+    elSup,
     elTable,
     elTD,
+    elTH,
     elTopic,
     elTR,
     elTT,
@@ -77,8 +81,6 @@ var
   Keywords, DefinedTopics, TargetTopics, SetupDirectives: TStringList;
   TopicsGenerated: Integer = 0;
   CurrentTopicName: String;
-  CurrentListIsCompact: Boolean;
-  CurrentTableColumnIndex: Integer;
 
 procedure UnexpectedElementError(const Node: IXMLNode);
 begin
@@ -126,29 +128,6 @@ begin
     Node := Node.PreviousSibling;
   until (Node = nil) or not IsWhitespace(Node);
   Result := (Node = nil);
-end;
-
-function IsLastNonWhitespaceNode(Node: IXMLNode): Boolean;
-{ Returns True if no non-whitespace sibling elements follow }
-begin
-  repeat
-    Node := Node.NextSibling;
-  until (Node = nil) or not IsWhitespace(Node);
-  Result := (Node = nil);
-end;
-
-function NodeHasChildren(Node: IXMLNode): Boolean;
-{ Returns True if the node has non-whitespace children }
-begin
-  Node := Node.GetFirstChild;
-  while Assigned(Node) do begin
-    if not IsWhitespace(Node) then begin
-      Result := True;
-      Exit;
-    end;
-    Node := Node.NextSibling;
-  end;
-  Result := False;
 end;
 
 function ListItemExists(const SL: TStrings; const S: String): Boolean;
@@ -283,7 +262,7 @@ begin
       [AnchorName, CurrentTopicName]);
   DefinedTopics.Add(S);
 
-  Result := Format('<a name="%s">%s</a>', [EscapeHTML(AnchorName), InnerContents]);
+  Result := Format('<span id="%s">%s</span>', [EscapeHTML(AnchorName), InnerContents]);
 end;
 
 function GenerateTopicLinkHTML(const TopicName, AnchorName, InnerContents: String): String;
@@ -313,6 +292,11 @@ begin
     [EscapeHTML(GenerateTopicLink(TopicName, AnchorName)), InnerContents]);
 end;
 
+function GenerateSetupDirectiveTopicName(const Directive: String): String;
+begin
+  Result := 'setup_' + Lowercase(Directive);
+end;
+
 procedure CreateKeyword(const AKeyword, ATopicName, AAnchorName: String);
 var
   KeywordInfo: TKeywordInfo;
@@ -326,8 +310,6 @@ end;
 function ParseFormattedText(Node: IXMLNode): String;
 var
   S: String;
-  I: Integer;
-  B: Boolean;
 begin
   Result := '';
   Node := Node.FirstChild;
@@ -369,23 +351,23 @@ begin
           if CurrentTopicName = '' then
             raise Exception.Create('<flag> used outside of topic');
           CreateKeyword(S, CurrentTopicName, S);
-          Result := Result + '<dt class="flaglist">' + GenerateAnchorHTML(S, EscapeHTML(S)) +
+          Result := Result + '<dt>' + GenerateAnchorHTML(S, EscapeHTML(S)) +
             '</dt>' + SNewLine + '<dd>' + ParseFormattedText(Node) +
             '</dd>';
         end;
       elFlagList:
-        Result := Result + '<dl>' + ParseFormattedText(Node) + '</dl>';
+        Result := Result + '<dl class="flaglist">' + ParseFormattedText(Node) + '</dl>';
       elI:
         Result := Result + '<i>' + ParseFormattedText(Node) + '</i>';
+      elImg:
+        begin
+          S := EscapeHTML(Node.Attributes['src']);
+          Result := Result + Format('<img src="images/%s" />', [S]);
+        end;
       elIndent:
         Result := Result + '<div class="indent">' + ParseFormattedText(Node) + '</div>';
       elLI:
-        begin
-          Result := Result + '<li';
-          if CurrentListIsCompact then
-            Result := Result + ' class="compact"';
-          Result := Result + '>' + ParseFormattedText(Node) + '</li>';
-        end;
+        Result := Result + '<li>' + ParseFormattedText(Node) + '</li>';
       elLink:
         begin
           S := Node.Attributes['topic'];
@@ -398,7 +380,7 @@ begin
           if Pos('ms-its:', S) = 1 then
             Result := Result + Format('<a href="%s">%s</a>', [S, ParseFormattedText(Node)])
           else
-            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img src="images/extlink.svg" alt=" [external link]" />',
+            Result := Result + Format('<a href="%s" target="_blank" title="%s">%s</a><img class="extlink" src="images/extlink.png" srcset="images/extlink.svg" alt=" [external link]" />',
               [S, S, ParseFormattedText(Node)]);
         end;
       elHeading:
@@ -420,74 +402,73 @@ begin
         end;
       elParam:
         begin
-          { IE doesn't support immediate-child-only selectors in CSS (e.g.
-            "DL.paramlist > DT") so we have to apply the class to each DT
-            instead of just on the DL. }
           S := Node.Attributes['name'];
           if CurrentTopicName = '' then
             raise Exception.Create('<param> used outside of topic');
           CreateKeyword(S, CurrentTopicName, S);
-          Result := Result + '<dt class="paramlist"><b>' + GenerateAnchorHTML(S, EscapeHTML(S)) + '</b>';
+          Result := Result + '<dt><b>' + GenerateAnchorHTML(S, EscapeHTML(S)) + '</b>';
           if Node.Attributes['required'] = 'yes' then
             Result := Result + ' &nbsp;<i>(Required)</i>';
-          Result := Result + '</dt><dd class="paramlist">' + ParseFormattedText(Node) + '</dd>';
+          Result := Result + '</dt><dd>' + ParseFormattedText(Node) + '</dd>';
         end;
       elParamList:
-        Result := Result + '<dl>' + ParseFormattedText(Node) + '</dl>';
+        Result := Result + '<dl class="paramlist">' + ParseFormattedText(Node) + '</dl>';
       elPre:
-        begin
-          Result := Result + '<pre';
-          { Special handling for <pre> inside example boxes: Don't include a
-            bottom margin if <pre> is the last element } 
-          if (ElementFromNode(Node.ParentNode) in [elExample, elExamples]) and
-             IsLastNonWhitespaceNode(Node) then
-            Result := Result + ' class="nomargin"';
-          Result := Result + '>' + ParseFormattedText(Node) + '</pre>';
-        end;
+        Result := Result + '<pre>' + ParseFormattedText(Node) + '</pre>';
       elPreCode:
         Result := Result + '<pre class="indent examplebox">' + ParseFormattedText(Node) + '</pre>';
+      elSD:
+        begin
+          const DirectiveName = ParseFormattedText(Node);
+          for var C in DirectiveName do
+            if not CharInSet(C, ['A'..'Z', 'a'..'z', '0'..'9']) then
+              raise Exception.Create('<sd> inner content is invalid');
+          const NeedTT = (ElementFromNode(Node.ParentNode) <> elTT);
+          if NeedTT then
+            Result := Result + '<tt>';
+          Result := Result + GenerateTopicLinkHTML(
+            GenerateSetupDirectiveTopicName(DirectiveName), '', DirectiveName);
+          if NeedTT then
+            Result := Result + '</tt>';
+        end;
       elSmall:
         Result := Result + '<span class="small">' + ParseFormattedText(Node) + '</span>';
+      elSup:
+        Result := Result + '<sup>' + ParseFormattedText(Node) + '</sup>';
       elTable:
         Result := Result + '<table>' + ParseFormattedText(Node) + '</table>';
       elTD:
         begin
           Result := Result + '<td';
-          if CurrentTableColumnIndex = 0 then
-            Result := Result + ' class="cellleft"'
-          else
-            Result := Result + ' class="cellright"';
+          if Node.HasAttribute('nowrap') then
+            Result := Result + ' class="nowrap"';
           Result := Result + '>' + ParseFormattedText(Node) + '</td>';
-          Inc(CurrentTableColumnIndex);
+        end;
+      elTH:
+        begin
+          Result := Result + '<th';
+          if Node.HasAttribute('nowrap') then
+            Result := Result + ' class="nowrap"';
+          Result := Result + '>' + ParseFormattedText(Node) + '</th>';
         end;
       elTR:
-        begin
-          I := CurrentTableColumnIndex;
-          CurrentTableColumnIndex := 0;
-          Result := Result + '<tr>' + ParseFormattedText(Node) + '</tr>';
-          CurrentTableColumnIndex := I;
-        end;
+        Result := Result + '<tr>' + ParseFormattedText(Node) + '</tr>';
       elTT:
         Result := Result + '<tt>' + ParseFormattedText(Node) + '</tt>';
       elU:
         Result := Result + '<u>' + ParseFormattedText(Node) + '</u>';
       elUL:
         begin
-          B := CurrentListIsCompact;
-          CurrentListIsCompact := (Node.HasAttribute('appearance') and (Node.Attributes['appearance'] = 'compact'));
-          Result := Result + '<ul>' + ParseFormattedText(Node) + '</ul>';
-          CurrentListIsCompact := B;
+          Result := Result + '<ul';
+          if Node.OptionalAttributes['appearance'] = 'compact' then
+            Result := Result + ' class="compact"';
+          Result := Result + '>' + ParseFormattedText(Node) + '</ul>';
         end;
     else
       UnexpectedElementError(Node);
     end;
     Node := Node.NextSibling;
   end;
-end;
-
-function GenerateSetupDirectiveTopicName(const Directive: String): String;
-begin
-  Result := 'setup_' + Lowercase(Directive);
 end;
 
 procedure ParseTopic(const TopicNode: IXMLNode; const SetupTopic: Boolean);
@@ -529,34 +510,28 @@ begin
           begin
             if not SetupTopic then
               raise Exception.Create('<setupdefault> is only valid inside <setuptopic>');
-            { <div class="margined"> is used instead of <p> since the data could
-              contain <p>'s of its own, which can't be nested.
-              NOTE: The space before </div> is intentional -- as noted in
-              styles.css, "vertical-align: baseline" doesn't work right on IE6,
-              but putting a space before </div> works around the problem, at
-              least when it comes to lining up normal text with a single line
-              of monospaced text. }
-            SetupDefaultText := '<tr><td class="setuphdrl"><p>Default value:</p></td>' +
-              '<td class="setuphdrr"><div class="margined">' + ParseFormattedText(Node) +
-               ' </div></td></tr>' + SNewLine;
+            { Margins can't be defined on table cells, so the <div> elements
+              here are styled with a bottom margin.
+              <div> is used instead of <p> since the content could contain
+              <p>'s of its own, which can't be nested. }
+            SetupDefaultText := '<tr><th><div>Default value:</div></th>' +
+              '<td><div>' + ParseFormattedText(Node) + '</div></td></tr>' + SNewLine;
           end;
         elSetupFormat:
           begin
             if not SetupTopic then
               raise Exception.Create('<setupformat> is only valid inside <setuptopic>');
-            { See comments above! }
-            SetupFormatText := '<tr><td class="setuphdrl"><p>Format:</p></td>' +
-              '<td class="setuphdrr"><div class="margined">' + ParseFormattedText(Node) +
-              ' </div></td></tr>' + SNewLine;
+            { See comment above }
+            SetupFormatText := '<tr><th><div>Format:</div></th>' +
+              '<td><div>' + ParseFormattedText(Node) + '</div></td></tr>' + SNewLine;
           end;
         elSetupValid:
           begin
             if not SetupTopic then
               raise Exception.Create('<setupvalid> is only valid inside <setuptopic>');
-            { See comments above! }
-            SetupValidText := '<tr><td class="setuphdrl"><p>Valid values:</p></td>' +
-              '<td class="setuphdrr"><div class="margined">' + ParseFormattedText(Node) +
-              ' </div></td></tr>' + SNewLine;
+            { See comment above }
+            SetupValidText := '<tr><th><div>Valid values:</div></th>' +
+              '<td><div>' + ParseFormattedText(Node) + '</div></td></tr>' + SNewLine;
           end;
       else
         UnexpectedElementError(Node);
@@ -685,12 +660,12 @@ end;
 procedure GenerateStaticContents(const ContentsNode: IXMLNode);
 var
   SL: TStringList;
-  CurHeadingID: Integer;
 
   procedure AddLeaf(const Title, TopicName: String);
   begin
-    SL.Add(Format('<tr><td><img src="images/contentstopic.svg" alt="" /></td>' +
-      '<td><a href="%s" target="bodyframe">%s</a></td></tr>',
+    SL.Add(Format('<li><a href="%s" target="bodyframe">' +
+      '<img src="images/contentstopic.svg" alt="" aria-hidden="true" />' +
+      '<span>%s</span></a></li>',
       [EscapeHTML(GenerateTopicLink(TopicName, '')), EscapeHTML(Title)]));
   end;
 
@@ -698,33 +673,29 @@ var
   var
     I: Integer;
   begin
-    SL.Add('<table>');
     for I := 0 to SetupDirectives.Count-1 do
       AddLeaf(SetupDirectives[I], GenerateSetupDirectiveTopicName(SetupDirectives[I]));
-    SL.Add('</table>');
   end;
 
   procedure HandleNode(const ParentNode: IXMLNode);
   var
     Node: IXMLNode;
   begin
-    SL.Add('<table>');
     Node := ParentNode.FirstChild;
     while Assigned(Node) do begin
       if not IsWhitespace(Node) then begin
         case ElementFromNode(Node) of
           elContentsHeading:
             begin
-              Inc(CurHeadingID);
-              SL.Add(Format('<tr id="nodecaption_%d"><td><img id="nodeimg_%d" src="images/contentsheadopen.svg" alt="&gt;&nbsp;" onclick="toggle_node(%d);" /></td>' +
-                '<td><a href="javascript:toggle_node(%d);">%s</a></td></tr>',
-                [CurHeadingID, CurHeadingID, CurHeadingID, CurHeadingID, EscapeHTML(Node.Attributes['title'])]));
-              SL.Add(Format('<tr id="nodecontent_%d"><td></td><td>', [CurHeadingID]));
+              SL.Add(Format('<li><details><summary>' +
+                '<svg aria-hidden="true"><use href="#icon-expand"></use></svg>' +
+                '<span>%s</span></summary><ul>',
+                [EscapeHTML(Node.Attributes['title'])]));
               if Node.Attributes['title'] = '[Setup] section directives' then
                 HandleSetupDirectivesNode
               else
                 HandleNode(Node);
-              SL.Add('</td></tr>');
+              SL.Add('</ul></details></li>');
             end;
           elContentsTopic:
             AddLeaf(Node.Attributes['title'], Node.Attributes['topic']);
@@ -734,7 +705,6 @@ var
       end;
       Node := Node.NextSibling;
     end;
-    SL.Add('</table>');
   end;
 
 var
@@ -743,8 +713,9 @@ var
 begin
   SL := TStringList.Create;
   try
-    CurHeadingID := 0;
+    SL.Add('<ul>');
     HandleNode(ContentsNode);
+    SL.Add('</ul>');
 
     TemplateSL := TStringList.Create;
     try
@@ -1001,6 +972,10 @@ var
   StartTime, EndTime: DWORD;
 begin
   try
+    {$IFDEF DEBUG}
+    ReportMemoryLeaksOnShutdown := True;
+    {$ENDIF}
+
     Writeln('ISHelpGen v' + Version + ' by Jordan Russell & Martijn Laan');
 
     if (ParamCount = 0) or (ParamCount > 2) then begin

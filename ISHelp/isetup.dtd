@@ -1,17 +1,25 @@
 <!--
   Inno Setup
-  Copyright (C) 1997-2006 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Document Type Definition for isetup.xml
 -->
 
-<!ENTITY nbsp "&#160;"> 
-<!ENTITY copy "&#169;"> 
+<!ENTITY nbsp   "&#x00A0;">
+<!ENTITY copy   "&#x00A9;">
+<!ENTITY times  "&#x00D7;">
+<!ENTITY divide "&#x00F7;">
+<!ENTITY ndash  "&#x2013;">
+<!ENTITY mdash  "&#x2014;">
+<!ENTITY rarr   "&#x2192;">
+<!ENTITY approx "&#x2248;">
+<!ENTITY le     "&#x2264;">
+<!ENTITY ge     "&#x2265;">
 
-<!ENTITY % _inlineExceptLink "b | br | i | tt | u">
-<!ENTITY % _inline "%_inlineExceptLink; | link | extlink | a | anchorlink">
+<!ENTITY % _inlineExceptLink "b | br | i | sup | tt | u">
+<!ENTITY % _inline "%_inlineExceptLink; | link | extlink | img | a | anchorlink | sd">
 <!ENTITY % _block "p | heading | pre | precode | example | examples | indent | ul | ol | dl | paramlist | flaglist | table">
 
 <!ENTITY % Inline "(#PCDATA | %_inline;)*">
@@ -46,16 +54,20 @@
 <!ELEMENT b %Inline;>
 <!ELEMENT br EMPTY>
 <!ELEMENT i %Inline;>
+<!ELEMENT sup %Inline;>
 <!ELEMENT tt %Inline;>
 <!ELEMENT u %Inline;>
 <!ELEMENT link %InlineExceptLink;>
 <!ATTLIST link topic CDATA #REQUIRED anchor CDATA #IMPLIED>
 <!ELEMENT extlink %InlineExceptLink;>
 <!ATTLIST extlink href CDATA #REQUIRED>
+<!ELEMENT img %InlineExceptLink;>
+<!ATTLIST img src CDATA #REQUIRED>
 <!ELEMENT a %InlineExceptLink;>
 <!ATTLIST a name CDATA #REQUIRED>
 <!ELEMENT anchorlink %InlineExceptLink;>
 <!ATTLIST anchorlink name CDATA #REQUIRED>
+<!ELEMENT sd %InlineExceptLink;>
 
 <!-- Simple block elements -->
 
@@ -90,5 +102,8 @@
 <!ATTLIST flag name CDATA #REQUIRED>
 
 <!ELEMENT table (tr*)>
-<!ELEMENT tr (td+)>
+<!ELEMENT tr (th|td)*>
+<!ELEMENT th %InlineOrBlock;>
+<!ATTLIST th nowrap CDATA #IMPLIED>
 <!ELEMENT td %InlineOrBlock;>
+<!ATTLIST td nowrap CDATA #IMPLIED>

@@ -2,7 +2,7 @@ unit IDE.Wizard.WizardForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -14,12 +14,13 @@ interface
 uses
   Windows, Forms, Classes, Graphics, StdCtrls, ExtCtrls, Controls, Dialogs, pngimage,
   UIStateForm, NewStaticText, DropListBox, NewCheckListBox, NewNotebook,
-  IDE.Wizard.WizardFormFilesHelper, IDE.Wizard.WizardFormRegistryHelper;
+  IDE.Wizard.WizardFormFilesHelper, IDE.Wizard.WizardFormRegistryHelper, BitmapButton,
+  Vcl.BaseImageCollection, Vcl.ImageCollection, BitmapImage;
 
 type
   TWizardPage = (wpWelcome, wpAppInfo, wpAppDir, wpAppFiles, wpAppAssoc, wpAppIcons,
                  wpAppDocs, wpPrivilegesRequired, wpAppRegistry, wpLanguages, wpCompiler,
-                 wpISPP, wpFinished);
+                 wpWizardStyle, wpISPP, wpFinished);
 
   TWizardFormResult = (wrNone, wrEmpty, wrComplete);
 
@@ -43,15 +44,15 @@ type
     ISPPPage: TNewNotebookPage;
     FinishedPage: TNewNotebookPage;
     Bevel: TBevel;
-    WelcomeImage: TImage;
+    WelcomeImage: TBitmapImage;
     WelcomeLabel1: TNewStaticText;
     PnlMain: TPanel;
     Bevel1: TBevel;
     PageNameLabel: TNewStaticText;
     PageDescriptionLabel: TNewStaticText;
-    InnerImage: TImage;
+    InnerImage: TBitmapImage;
     FinishedLabel: TNewStaticText;
-    FinishedImage: TImage;
+    FinishedImage: TBitmapImage;
     WelcomeLabel2: TNewStaticText;
     EmptyCheck: TCheckBox;
     WelcomeLabel3: TNewStaticText;
@@ -139,9 +140,19 @@ type
     AppRegistryUninsDeleteValueCheck: TCheckBox;
     AppRegistryMinVerCheck: TCheckBox;
     AppRegistryMinVerEdit: TEdit;
-    AppRegistryMinVerDocImage: TImage;
-    WelcomeImageDark: TImage;
-    InnerImageDark: TImage;
+    AppRegistryMinVerDocBitBtn: TBitmapButton;
+    WelcomeImageDark: TBitmapImage;
+    InnerImageDark: TBitmapImage;
+    AppFilesAddDownloadButton: TButton;
+    WizardStylePage: TNewNotebookPage;
+    WizardStyleLabel: TNewStaticText;
+    WizardStyleMainComboBox: TComboBox;
+    WizardStyleDarkComboBox: TComboBox;
+    WizardStyleSubStyleComboBox: TComboBox;
+    WizardStyleImageCollection: TImageCollection;
+    WizardStyleImage: TBitmapButton;
+    WizardStyleImage2: TBitmapImage;
+    WizardStyleImageTimer: TTimer;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -161,6 +172,9 @@ type
     procedure UseAutoProgramsCheckClick(Sender: TObject);
     procedure PrivilegesRequiredOverridesAllowedDialogCheckboxClick(Sender: TObject);
     procedure CreateAssocCheckClick(Sender: TObject);
+    procedure WizardStyleComboBoxChange(Sender: TObject);
+    procedure WizardStyleImageTimerTimer(Sender: TObject);
+    procedure WizardStyleImageClick(Sender: TObject);
   private
     FCurPage: TWizardPage;
     FWizardName: String;
@@ -176,6 +190,10 @@ type
     procedure UpdateAppExeControls;
     procedure UpdateAppAssocControls;
     procedure UpdateAppIconsControls;
+    procedure UpdateWizardStyleImages;
+    procedure WizardStyleImagePreviewKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+    procedure WizardStyleImagePreviewImageClick(Sender: TObject);
+    function GetWizardStyle: String;
     procedure GenerateScript;
   public
     property WizardName: String write SetWizardName;
@@ -188,9 +206,10 @@ implementation
 {$R *.DFM}
 
 uses
-  SysUtils, ShlObj, ActiveX, UITypes, Shared.FileClass,
-  PathFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc, BrowseFunc,
-  IDE.Messages, IDE.Wizard.WizardFileForm;
+  SysUtils, ShlObj, ActiveX, UITypes,
+  PathFunc, BrowseFunc,
+  Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.LicenseFunc,
+  IDE.HelperFunc, IDE.Messages, IDE.Wizard.WizardFileForm;
 
 type
   TConstant = record
@@ -201,20 +220,20 @@ const
   NotebookPages: array[TWizardPage, 0..1] of Integer =
     ((0, -1), (1, 0), (1, 1), (1, 2),
      (1, 3), (1, 4), (1, 5), (1, 6),
-     (1, 7), (1, 8), (1, 9), (1, 10), (2, -1));
+     (1, 7), (1, 8), (1, 9), (1, 10), (1, 11), (2, -1));
 
   PageCaptions: array[TWizardPage] of String =
     (SWizardWelcome, SWizardAppInfo, SWizardAppDir, SWizardAppFiles, SWizardAppAssoc,
      SWizardAppIcons, SWizardAppDocs, SWizardPrivilegesRequired, SWizardAppRegistry,
-     SWizardLanguages, SWizardCompiler, SWizardISPP, SWizardFinished);
+     SWizardLanguages, SWizardCompiler, SWizardWizardStyle, SWizardISPP, SWizardFinished);
 
   PageDescriptions: array[TWizardPage] of String =
     ('', SWizardAppInfo2, SWizardAppDir2, SWizardAppFiles2, SWizardAppAssoc2,
          SWizardAppIcons2, SWizardAppDocs2, SWizardPrivilegesRequired2, SWizardAppRegistry2,
-         SWizardLanguages2, SWizardCompiler2, SWizardISPP2, '');
+         SWizardLanguages2, SWizardCompiler2, SWizardWizardStyle2, SWizardISPP2, '');
 
   RequiredLabelVisibles: array[TWizardPage] of Boolean =
-    (False, True, True, True, True, True, False, True, False, True, False, False, False);
+    (False, True, True, True, True, True, False, True, False, True, False, False, False, False);
 
   AppRootDirs: array[0..0] of TConstant =
   (
@@ -225,12 +244,6 @@ const
   LanguagesDefaultIslDescription = 'English';
 
   EnabledColors: array[Boolean] of TColor = (clBtnFace, clWindow);
-
-function EscapeAmpersands(const S: String): String;
-begin
-  Result := S;
-  StringChangeEx(Result, '&', '&&', True);
-end;
 
 function TWizardForm.FixLabel(const S: String): String;
 begin
@@ -285,17 +298,15 @@ begin
   FWizardName := SWizardDefaultName;
   FFilesHelper := TWizardFormFilesHelper.Create(Self,
     NotCreateAppDirCheck, AppFilesListBox, AppFilesAddButton, AppFilesAddDirButton,
-    AppFilesEditButton, AppFilesRemoveButton);
+    AppFilesAddDownloadButton, AppFilesEditButton, AppFilesRemoveButton);
   FRegistryHelper := TWizardFormRegistryHelper.Create(Self, AppRegistryFileEdit,
     AppRegistryFileButton, AppRegistryUninsDeleteKeyCheck,
     AppRegistryUninsDeleteKeyIfEmptyCheck, AppRegistryUninsDeleteValueCheck,
-    AppRegistryMinVerCheck, AppRegistryMinVerEdit, AppRegistryMinVerDocImage);
+    AppRegistryMinVerCheck, AppRegistryMinVerEdit, AppRegistryMinVerDocBitBtn);
 
   FLanguages := TStringList.Create;
   FLanguages.Sorted := True;
-  FLanguages.Duplicates := dupIgnore; { Some systems also return .islu files when searching for *.isl }
   AddLanguages('isl');
-  AddLanguages('islu');
   FLanguages.Sorted := False;
   FLanguages.Insert(0, LanguagesDefaultIsl);
 
@@ -303,16 +314,10 @@ begin
   if not InitFormTheme(Self) then
     OuterNotebook.Color := InitFormThemeGetBkColor(True);
 
-  if Font.Name = 'Segoe UI' then begin
-    { See Setup.WizardForm.pas }
-    for I := 0 to OuterNotebook.PageCount-1 do
-      OuterNotebook.Pages[I].HandleNeeded;
-    for I := 0 to InnerNotebook.PageCount-1 do
-      InnerNotebook.Pages[I].HandleNeeded;
-    ClientWidth := MulDiv(ClientWidth, 105, 100);
+  if FontExists('Segoe UI') then begin
+    WelcomeLabel1.Font.Name := 'Segoe UI';
+    WelcomeLabel1.Font.Size := 14;
   end;
-  if FontExists('Verdana') then
-    WelcomeLabel1.Font.Name := 'Verdana';
 
   MakeBold(PageNameLabel);
   MakeBold(RequiredLabel1);
@@ -328,12 +333,16 @@ begin
   MakeBold(LanguagesLabel);
 
   if InitFormThemeIsDark then begin
-    WelcomeImage.Picture := WelcomeImageDark.Picture;
-    InnerImage.Picture := InnerImageDark.Picture;
+    WelcomeImage.Bitmap := WelcomeImageDark.Bitmap;
+    InnerImage.Bitmap := InnerImageDark.Bitmap;
   end;
-  FinishedImage.Picture := WelcomeImage.Picture;
+  FinishedImage.Bitmap := WelcomeImage.Bitmap;
 
   RequiredLabel2.Left := RequiredLabel1.Left + RequiredLabel1.Width;
+
+  { See Setup.WizardForm }
+  if IsCustomStyleActive then
+    BackButton.Left := BackButton.Left - 2;
 
   { AppInfo }
   AppNameEdit.Text := 'My Program';
@@ -468,6 +477,11 @@ begin
     wpAppRegistry: ActiveControl := AppRegistryFileEdit;
     wpLanguages: ActiveControl := LanguagesList;
     wpCompiler: ActiveControl := OutputDirEdit;
+    wpWizardStyle:
+      begin
+        ActiveControl := WizardStyleMainComboBox;
+        UpdateWizardStyleImages;
+      end;
     wpISPP: ActiveControl := ISPPCheck;
   end;
 end;
@@ -674,6 +688,33 @@ begin
     AppGroupNameLabel.Font.Style := AppGroupNameLabel.Font.Style - [fsBold];
 end;
 
+procedure TWizardForm.UpdateWizardStyleImages;
+
+  procedure UpdateWizardStyleImage(const WizardStylePngImage: TPngImage; ImageName: String);
+  begin
+    ImageName := ImageName.Replace('dark windows11', 'dark');
+    const ImageIndex = WizardStyleImageCollection.GetIndexByName(ImageName);
+    if ImageIndex = -1 then
+      raise Exception.CreateFmt('Image name ''%s'' not found', [ImageName]);
+    WizardStylePngImage.Assign(WizardStyleImageCollection.GetSourceImage(ImageIndex, 0, 0));
+  end;
+
+begin
+  var WizardStyle := GetWizardStyle;
+  const Dynamic = WizardStyle.Contains('dynamic');
+  if Dynamic then begin
+    WizardStyle := WizardStyle.Replace('dynamic', 'dark');
+    UpdateWizardStyleImage(WizardStyleImage2.PngImage, WizardStyle); { This image is always invisible }
+    WizardStyle := WizardStyle.Replace(' dark', '');
+  end;
+  UpdateWizardStyleImage(WizardStyleImage.PngImage, WizardStyle);
+
+  { To keep things simple this timer is always running but here we do reset it so the new images
+    will never be swapped too quickly }
+  WizardStyleImageTimer.Enabled := False;
+  WizardStyleImageTimer.Enabled := True;
+end;
+
 {---}
 
 procedure TWizardForm.AppRootDirComboBoxChange(Sender: TObject);
@@ -707,10 +748,10 @@ begin
 
   if Enabled then begin
     AppRootDirLabel.Font.Style := AppRootDirLabel.Font.Style + [fsBold];
-    AppDirNameLabel.Font.Style := AppRootDirLabel.Font.Style + [fsBold];
+    AppDirNameLabel.Font.Style := AppDirNameLabel.Font.Style + [fsBold];
   end else begin
     AppRootDirLabel.Font.Style := AppRootDirLabel.Font.Style - [fsBold];
-    AppDirNameLabel.Font.Style := AppRootDirLabel.Font.Style - [fsBold];
+    AppDirNameLabel.Font.Style := AppDirNameLabel.Font.Style - [fsBold];
   end;
 
   { AppFiles }
@@ -816,45 +857,82 @@ begin
     PrivilegesRequiredOverridesAllowedCommandLineCheckbox.Checked := True;
 end;
 
-{ --- }
+procedure TWizardForm.WizardStyleComboBoxChange(Sender: TObject);
+begin
+  if (WizardStyleDarkComboBox.Text <> 'light') and ((WizardStyleSubStyleComboBox.Text = 'slate') or (WizardStyleSubStyleComboBox.Text = 'stellar') or (WizardStyleSubStyleComboBox.Text = 'zircon')) then
+    WizardStyleDarkComboBox.ItemIndex := WizardStyleDarkComboBox.Items.IndexOf('light');
+  UpdateWizardStyleImages;
+end;
 
-procedure TWizardForm.GenerateScript;
+procedure TWizardForm.WizardStyleImagePreviewKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    (Sender as TForm).ModalResult := mrCancel;
+end;
 
-  function Is64BitPEImage(const Filename: String): Boolean;
-  { Returns True if the specified file is a non-32-bit PE image, False
-    otherwise. }
-  var
-    F: TFile;
-    DosHeader: packed record
-      Sig: array[0..1] of AnsiChar;
-      Other: array[0..57] of Byte;
-      PEHeaderOffset: LongWord;
-    end;
-    PESigAndHeader: packed record
-      Sig: DWORD;
-      Header: TImageFileHeader;
-      OptHeaderMagic: Word;
-    end;
-  begin
-    Result := False;
-    F := TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
+procedure TWizardForm.WizardStyleImagePreviewImageClick(Sender: TObject);
+begin
+  const F = GetParentForm(Sender as TControl);
+  if F <> nil then
+    F.ModalResult := mrOk;
+end;
+
+procedure TWizardForm.WizardStyleImageClick(Sender: TObject);
+begin
+  const PreviewForm = TForm.CreateNew(nil);
+  try
+    PreviewForm.AutoSize := True;
+    PreviewForm.BorderStyle := bsNone;
+    PreviewForm.BorderIcons := [];
+    PreviewForm.Color := clWindow;
+    PreviewForm.KeyPreview := True;
+    PreviewForm.OnKeyDown := WizardStyleImagePreviewKeyDown;
+
+    PreviewForm.Position := poDesigned;
+    const R = BoundsRect;
+    PreviewForm.Left := R.Left + MulDiv(32, CurrentPPI, 96);
+    PreviewForm.Top := R.Top + MulDiv(32, CurrentPPI, 96);
+
+    const PreviewImage = TBitmapImage.Create(PreviewForm);
+    PreviewImage.AutoSize := True;
+    PreviewImage.BackColor := clNone;
+    PreviewImage.Bitmap.Assign(WizardStyleImage.Bitmap);
+    PreviewImage.Cursor := crHandPoint;
+    PreviewImage.OnClick := WizardStyleImagePreviewImageClick;
+    PreviewImage.Parent := PreviewForm;
+
+    PreviewForm.ShowModal;
+  finally
+    PreviewForm.Free;
+  end;
+end;
+
+procedure TWizardForm.WizardStyleImageTimerTimer(Sender: TObject);
+begin
+  if (FCurPage = wpWizardStyle) and (WizardStyleDarkComboBox.Text = 'dynamic') then begin
+    const SaveBitmap = TBitmap.Create;
     try
-      if F.Read(DosHeader, SizeOf(DosHeader)) = SizeOf(DosHeader) then begin
-        if (DosHeader.Sig[0] = 'M') and (DosHeader.Sig[1] = 'Z') and
-           (DosHeader.PEHeaderOffset <> 0) then begin
-          F.Seek(DosHeader.PEHeaderOffset);
-          if F.Read(PESigAndHeader, SizeOf(PESigAndHeader)) = SizeOf(PESigAndHeader) then begin
-            if (PESigAndHeader.Sig = IMAGE_NT_SIGNATURE) and
-               (PESigAndHeader.OptHeaderMagic <> IMAGE_NT_OPTIONAL_HDR32_MAGIC) then
-              Result := True;
-          end;
-        end;
-      end;
+      SaveBitmap.Assign(WizardStyleImage.Bitmap);
+      WizardStyleImage.Bitmap.Assign(WizardStyleImage2.Bitmap);
+      WizardStyleImage2.Bitmap.Assign(SaveBitmap);
     finally
-      F.Free;
+      SaveBitmap.Free;
     end;
   end;
+end;
 
+{ --- }
+
+function TWizardForm.GetWizardStyle: String;
+begin
+  Result := WizardStyleMainComboBox.Text;
+  if WizardStyleDarkComboBox.ItemIndex <> 0 then
+    Result := Result + ' ' + WizardStyleDarkComboBox.Text;
+  if WizardStyleSubStyleComboBox.ItemIndex <> 0 then
+    Result := Result + ' ' + WizardStyleSubStyleComboBox.Text;
+end;
+
+procedure TWizardForm.GenerateScript;
 var
   Script, ISPP, Setup, Languages, Tasks, Files, Registry, INI, Icons, Run, UninstallDelete: String;
   I: Integer;
@@ -864,7 +942,7 @@ begin
 
   AppExeName := PathExtractName(AppExeEdit.Text);
   AppName := AppNameEdit.Text;
-  AppAmpEscapedName := EscapeAmpersands(AppName);
+  AppAmpEscapedName := DoubleAmp(AppName);
 
   if ISPPCheck.Checked then begin
     { Setup ISPP usage. Change the edits to reflect ISPP usage. A bit ugly but for now it works. }
@@ -971,7 +1049,17 @@ begin
         Setup := Setup + '; meaning it should use the native 64-bit Program Files directory and' + SNewLine;
         Setup := Setup + '; the 64-bit view of the registry.' + SNewLine;
         Setup := Setup + 'ArchitecturesInstallIn64BitMode=x64compatible' + SNewLine;
+        Setup := Setup + '; Uncomment the following line to use a 64-bit installer.' + SNewLine;
+        Setup := Setup + ';SetupArchitecture=x64' + SNewLine;
       end;
+    end;
+
+    var HasExtractArchive: Boolean;
+    FFilesHelper.AddScript(Files, HasExtractArchive);
+    if HasExtractArchive then begin
+      Setup := Setup + 'ArchiveExtraction=full' + SNewLine;
+      Setup := Setup + '; Use "ArchiveExtraction=enhanced" if all your archives are .7z files' + SNewLine;
+      Setup := Setup + '; Use "ArchiveExtraction=enhanced/nopassword" if all your archives are not password-protected' + SNewLine;
     end;
 
     { AppAssocation }
@@ -982,8 +1070,6 @@ begin
       Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocKey + '\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\' + AppExeName + ',0"' + SNewLine;
       Registry := Registry + 'Root: HKA; Subkey: "Software\Classes\' + AppAssocKey + '\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\' + AppExeName + '"" ""%1"""' + SNewLine;
     end;
-
-    FFilesHelper.AddScript(Files);
 
     { AppGroup }
     if not NotCreateAppDirCheck.Checked then begin
@@ -1033,17 +1119,34 @@ begin
 
     { Languages }
     if FLanguages.Count > 1 then begin
-      for I := 0 to LanguagesList.Items.Count-1 do begin
-        if LanguagesList.Checked[I] then begin
-          LanguageMessagesFile := FLanguages[Integer(LanguagesList.ItemObject[I])];
-          if LanguageMessagesFile <> LanguagesDefaultIsl then begin
-            LanguageName := LanguagesList.Items[I];
-            LanguageMessagesFile := 'Languages\' + LanguageMessagesFile;
-          end else
-            LanguageName := LanguagesDefaultIslDescription;
-          StringChange(LanguageName, ' ', '');
-          LanguageName := LowerCase(LanguageName);
-          Languages := Languages + 'Name: "' + LanguageName + '"; MessagesFile: "compiler:' + LanguageMessagesFile + '"' + SNewLine;
+      var UsingISPPEmitLanguagesSection: Boolean;
+
+      if ISPPCheck.Checked then begin
+        UsingISPPEmitLanguagesSection := True;
+        for I := 0 to LanguagesList.Items.Count-1 do begin
+          if not LanguagesList.Checked[I] then begin
+            UsingISPPEmitLanguagesSection := False;
+            Break;
+          end;
+        end;
+      end else
+        UsingISPPEmitLanguagesSection := False;
+
+      if UsingISPPEmitLanguagesSection then
+        ISPP := ISPP + '#expr EmitLanguagesSection' + SNewLine
+      else begin
+        for I := 0 to LanguagesList.Items.Count-1 do begin
+          if LanguagesList.Checked[I] then begin
+            LanguageMessagesFile := FLanguages[Integer(LanguagesList.ItemObject[I])];
+            if LanguageMessagesFile <> LanguagesDefaultIsl then begin
+              LanguageName := LanguagesList.Items[I];
+              LanguageMessagesFile := 'Languages\' + LanguageMessagesFile;
+            end else
+              LanguageName := LanguagesDefaultIslDescription;
+            StringChange(LanguageName, ' ', '');
+            LanguageName := LowerCase(LanguageName);
+            Languages := Languages + 'Name: "' + LanguageName + '"; MessagesFile: "compiler:' + LanguageMessagesFile + '"' + SNewLine;
+          end;
         end;
       end;
     end;
@@ -1063,7 +1166,7 @@ begin
 
     { Other }
     Setup := Setup + 'SolidCompression=yes' + SNewLine;
-    Setup := Setup + 'WizardStyle=modern' + SNewLine;
+    Setup := Setup + 'WizardStyle=' + GetWizardStyle + SNewLine;
 
     { Build script }
     if ISPP <> '' then
@@ -1094,7 +1197,10 @@ begin
     FResult := wrEmpty;
   end;
 
-  FResultScript := FixLabel(SWizardScriptHeader) + SNewLine2 + Script;
+  FResultScript := FixLabel(SWizardScriptHeader) + SNewLine;
+  if (FResult = wrComplete) and not IsLicensed then
+    FResultScript := FResultScript + '; ' + GetLicenseeDescription + SNewLine;
+  FResultScript := FResultScript + SNewLine + Script;
 end;
 
 { --- }

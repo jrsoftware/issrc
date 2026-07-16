@@ -1,5 +1,5 @@
 /* CpuArch.h -- CPU specific code
-2024-06-17 : Igor Pavlov : Public domain */
+Igor Pavlov : Public domain */
 
 #ifndef ZIP7_INC_CPU_ARCH_H
 #define ZIP7_INC_CPU_ARCH_H
@@ -31,7 +31,12 @@ MY_CPU_64BIT means that processor can work with 64-bit registers.
     #define MY_CPU_NAME "x32"
     #define MY_CPU_SIZEOF_POINTER 4
   #else
-    #define MY_CPU_NAME "x64"
+    #if defined(__APX_EGPR__) || defined(__EGPR__)
+      #define MY_CPU_NAME "x64-apx"
+      #define MY_CPU_AMD64_APX
+    #else
+      #define MY_CPU_NAME "x64"
+    #endif
     #define MY_CPU_SIZEOF_POINTER 8
   #endif
   #define MY_CPU_64BIT
@@ -45,6 +50,12 @@ MY_CPU_64BIT means that processor can work with 64-bit registers.
   #define MY_CPU_NAME "x86"
   /* #define MY_CPU_32BIT */
   #define MY_CPU_SIZEOF_POINTER 4
+#endif
+
+#if defined(__SSE2__) \
+    || defined(MY_CPU_AMD64) \
+    || defined(_M_IX86_FP) && (_M_IX86_FP >= 2)
+#define MY_CPU_SSE2
 #endif
 
 
@@ -243,11 +254,12 @@ MY_CPU_64BIT means that processor can work with 64-bit registers.
 #endif
 
 
+// _LITTLE_ENDIAN macro can be defined for big-endian platform with some compilers
+ 
 #if defined(MY_CPU_X86_OR_AMD64) \
     || defined(MY_CPU_ARM_LE) \
     || defined(MY_CPU_ARM64_LE) \
     || defined(MY_CPU_IA64_LE) \
-    || defined(_LITTLE_ENDIAN) \
     || defined(__LITTLE_ENDIAN__) \
     || defined(__ARMEL__) \
     || defined(__THUMBEL__) \
@@ -509,11 +521,19 @@ problem-4 : performace:
 
 #if defined(MY_CPU_LE_UNALIGN) && defined(Z7_CPU_FAST_BSWAP_SUPPORTED)
 
+#if 0
+// Z7_BSWAP16 can be slow for x86-msvc
+#define GetBe16_to32(p)  (Z7_BSWAP16 (*(const UInt16 *)(const void *)(p)))
+#else
+#define GetBe16_to32(p)  (Z7_BSWAP32 (*(const UInt16 *)(const void *)(p)) >> 16)
+#endif
+
 #define GetBe32(p)  Z7_BSWAP32 (*(const UInt32 *)(const void *)(p))
 #define SetBe32(p, v) { (*(UInt32 *)(void *)(p)) = Z7_BSWAP32(v); }
 
 #if defined(MY_CPU_LE_UNALIGN_64)
 #define GetBe64(p)  Z7_BSWAP64 (*(const UInt64 *)(const void *)(p))
+#define SetBe64(p, v) { (*(UInt64 *)(void *)(p)) = Z7_BSWAP64(v); }
 #endif
 
 #else
@@ -536,10 +556,26 @@ problem-4 : performace:
 #define GetBe64(p) (((UInt64)GetBe32(p) << 32) | GetBe32(((const Byte *)(p)) + 4))
 #endif
 
+#ifndef SetBe64
+#define SetBe64(p, v) { Byte *_ppp_ = (Byte *)(p); UInt64 _vvv_ = (v); \
+    _ppp_[0] = (Byte)(_vvv_ >> 56); \
+    _ppp_[1] = (Byte)(_vvv_ >> 48); \
+    _ppp_[2] = (Byte)(_vvv_ >> 40); \
+    _ppp_[3] = (Byte)(_vvv_ >> 32); \
+    _ppp_[4] = (Byte)(_vvv_ >> 24); \
+    _ppp_[5] = (Byte)(_vvv_ >> 16); \
+    _ppp_[6] = (Byte)(_vvv_ >> 8); \
+    _ppp_[7] = (Byte)_vvv_; }
+#endif
+
 #ifndef GetBe16
+#ifdef GetBe16_to32
+#define GetBe16(p) ( (UInt16) GetBe16_to32(p))
+#else
 #define GetBe16(p) ( (UInt16) ( \
     ((UInt16)((const Byte *)(p))[0] << 8) | \
              ((const Byte *)(p))[1] ))
+#endif
 #endif
 
 
@@ -547,10 +583,12 @@ problem-4 : performace:
 #define Z7_CONV_BE_TO_NATIVE_CONST32(v)  (v)
 #define Z7_CONV_LE_TO_NATIVE_CONST32(v)  Z7_BSWAP32_CONST(v)
 #define Z7_CONV_NATIVE_TO_BE_32(v)       (v)
+// #define Z7_GET_NATIVE16_FROM_2_BYTES(b0, b1)  ((b1) | ((b0) << 8))
 #elif defined(MY_CPU_LE)
 #define Z7_CONV_BE_TO_NATIVE_CONST32(v)  Z7_BSWAP32_CONST(v)
 #define Z7_CONV_LE_TO_NATIVE_CONST32(v)  (v)
 #define Z7_CONV_NATIVE_TO_BE_32(v)       Z7_BSWAP32(v)
+// #define Z7_GET_NATIVE16_FROM_2_BYTES(b0, b1)  ((b0) | ((b1) << 8))
 #else
 #error Stop_Compiling_Unknown_Endian_CONV
 #endif
@@ -564,8 +602,20 @@ problem-4 : performace:
 #define SetBe32a(p, v)   { *(UInt32 *)(void *)(p) = (v); }
 #define SetBe16a(p, v)   { *(UInt16 *)(void *)(p) = (v); }
 
+// gcc and clang for powerpc can transform load byte access to load reverse word access.
+// sp we can use byte access instead of word access. Z7_BSWAP64 cab be slow
+#if 1 && defined(Z7_CPU_FAST_BSWAP_SUPPORTED) && defined(MY_CPU_64BIT)
+#define GetUi64a(p)   Z7_BSWAP64 (*(const UInt64 *)(const void *)(p))
+#else
 #define GetUi64a(p)      GetUi64(p)
+#endif
+
+#if 1 && defined(Z7_CPU_FAST_BSWAP_SUPPORTED)
+#define GetUi32a(p)   Z7_BSWAP32 (*(const UInt32 *)(const void *)(p))
+#else
 #define GetUi32a(p)      GetUi32(p)
+#endif
+
 #define GetUi16a(p)      GetUi16(p)
 #define SetUi32a(p, v)   SetUi32(p, v)
 #define SetUi16a(p, v)   SetUi16(p, v)
@@ -586,6 +636,11 @@ problem-4 : performace:
 
 #else
 #error Stop_Compiling_Unknown_Endian_CPU_a
+#endif
+
+
+#ifndef GetBe16_to32
+#define GetBe16_to32(p) GetBe16(p)
 #endif
 
 
@@ -617,6 +672,7 @@ BoolInt CPU_IsSupported_SSE2(void);
 BoolInt CPU_IsSupported_SSSE3(void);
 BoolInt CPU_IsSupported_SSE41(void);
 BoolInt CPU_IsSupported_SHA(void);
+BoolInt CPU_IsSupported_SHA512(void);
 BoolInt CPU_IsSupported_PageGB(void);
 
 #elif defined(MY_CPU_ARM_OR_ARM64)
@@ -634,6 +690,7 @@ BoolInt CPU_IsSupported_SHA1(void);
 BoolInt CPU_IsSupported_SHA2(void);
 BoolInt CPU_IsSupported_AES(void);
 #endif
+BoolInt CPU_IsSupported_SHA512(void);
 
 #endif
 

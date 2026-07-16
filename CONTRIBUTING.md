@@ -1,8 +1,8 @@
 Inno Setup
 ==========
 
-Copyright (C) 1997-2025 Jordan Russell. All rights reserved.  
-Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.  
+Copyright (C) 1997-2026 Jordan Russell. All rights reserved.  
+Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.  
 For conditions of distribution and use, see LICENSE.TXT.
 
 Contributing issues
@@ -33,7 +33,7 @@ branches and make pull requests. In detail:
    throughout the project - indentation, accurate comments, etc.
 
    Do not make mass whitespace or copyright date changes to files nor anything
-   similar. The only time is it ok to make such changes is when you already needed
+   similar. The only time it is okay to make such changes is when you already need
    to change the file to implement your feature, change, or fix.
 
 7. Commit your changes to your topic branch.

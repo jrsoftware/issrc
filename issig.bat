@@ -42,9 +42,10 @@ if not exist "%ISSIGTOOL_KEY_FILE%" (
   echo Generating key file done - do not share with others!
 )
 
-if "%1"=="embed" goto embed
-if "%1"=="sign" goto signorverify
-if "%1"=="verify" goto signorverify
+if /I "%1"=="embed" goto embed
+if /I "%1"=="sign" goto signorverify
+if /I "%1"=="verify" goto signorverify
+echo Defaulting to embed
 if not "%1"=="" goto failed
 
 :embed

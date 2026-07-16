@@ -2,31 +2,38 @@ unit Setup.ScriptFunc.HelperFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Helper types and functions for the script support functions (run time - used by Setup)
+
+  Requires following globals to be set:
+  -LangOptions.DialogFontName
+  -LangOptions.DialogFontSize
+  -LangOptions.DialogFontBaseScaleWidth
+  -LangOptions.DialogFontBaseScaleHeight
+  -shWizardKeepAspectRatio in SetupHeader.Options
 }
 
 interface
 
 uses
-  Windows, Diagnostics,
+  Windows,
   uPSRuntime, MD5, SHA1,
   Shared.CommonFunc, Shared.FileClass, Setup.MainForm, Setup.WizardForm,
-  Setup.UninstallProgressForm, Setup.Install, Compression.SevenZipDecoder;
+  Setup.UninstallProgressForm;
 
 type
   { Must keep this in synch with Compiler.ScriptFunc.pas }
   TOnLog = procedure(const S: String; const Error, FirstLine: Boolean) of object;
 
   { Must keep this in synch with Compiler.ScriptFunc.pas }
-  TFindRec = record
+  TFindRec = packed record
     Name: String;
-    Attributes: LongWord;
-    SizeHigh: LongWord;
-    SizeLow: LongWord;
+    Attributes: Cardinal;
+    SizeHigh: Cardinal;
+    SizeLow: Cardinal;
     CreationTime: TFileTime;
     LastAccessTime: TFileTime;
     LastWriteTime: TFileTime;
@@ -46,46 +53,40 @@ type
     SuiteMask: Word;
   end;
 
-  { Makes sure script isn't called crazy often because that would slow the download significantly.
-    Only reports:
-      -At start or finish
-      -If at least 50 ms passed since last report }
-  TProgressThrottler = class
-  private
-    FOnDownloadProgress: TOnDownloadProgress;
-    FOnExtractionProgress: TOnExtractionProgress;
-    FStopWatch: TStopWatch;
-    FLastOkProgress: Int64;
-    function ThrottleOk(const Progress, ProgressMax: Int64): Boolean;
-  public
-    constructor Create(const OnDownloadProgress: TOnDownloadProgress); overload;
-    constructor Create(const OnExtractionProgress: TOnExtractionProgress); overload;
-    procedure Reset;
-    function OnDownloadProgress(const Url, BaseName: string; const Progress, ProgressMax: Int64): Boolean;
-    function OnExtractionProgress(const ArchiveName, FileName: string; const Progress, ProgressMax: Int64): Boolean;
+  { Must keep this in synch with Compiler.ScriptFunc.pas - Internal, used only by Script.Test.iss }
+  TTestInnerfuseSmallRec = packed record
+    A: Byte;
+    B: Byte;
+  end;
+
+  { Must keep this in synch with Compiler.ScriptFunc.pas - Internal, used only by Script.Test.iss }
+  TTestInnerfuseLargeRec = packed record
+    A: Integer;
+    B: String;
   end;
 
 var
+  OrigScaleBaseUnitX, OrigScaleBaseUnitY: Integer;
   ScaleBaseUnitX, ScaleBaseUnitY: Integer;
 
 procedure NoUninstallFuncError(const C: AnsiString); overload;
 procedure OnlyUninstallFuncError(const C: AnsiString); overload;
 function GetWizardForm: TWizardForm;
 function GetUninstallProgressForm: TUninstallProgressForm;
-function GetMsgBoxCaption: String;
 procedure InitializeScaleBaseUnits;
 function IsProtectedSrcExe(const Filename: String): Boolean;
+procedure LogFmtHelper(const S: String; const Args: array of const);
+function FmtMessageHelper(const S: String; const Args: array of String): String;
 function FindFirstHelper(const FileName: String; var FindRec: TFindRec): Boolean;
 function FindNextHelper(var FindRec: TFindRec): Boolean;
 procedure FindCloseHelper(var FindRec: TFindRec);
-function FmtMessageHelper(const S: String; const Args: array of String): String;
 procedure GetWindowsVersionExHelper(var Version: TWindowsVersion);
-procedure CrackCodeRootKey(CodeRootKey: HKEY; var RegView: TRegView;
+procedure CrackCodeRootKey(CodeRootKey: UInt32; var RegView: TRegView;
   var RootKey: HKEY);
 function GetSubkeyOrValueNames(const RegView: TRegView; const RootKey: HKEY;
   const SubKeyName: String; const Stack: TPSStack; const ItemNo: Longint; const Subkey: Boolean): Boolean;
-function GetMD5OfFile(const DisableFsRedir: Boolean; const Filename: String): TMD5Digest;
-function GetSHA1OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA1Digest;
+function GetMD5OfFile(const Filename: String): TMD5Digest;
+function GetSHA1OfFile(const Filename: String): TSHA1Digest;
 function GetMD5OfAnsiString(const S: AnsiString): TMD5Digest;
 function GetMD5OfUnicodeString(const S: UnicodeString): TMD5Digest;
 function GetSHA1OfAnsiString(const S: AnsiString): TSHA1Digest;
@@ -95,8 +96,7 @@ procedure ExecAndLogOutputLog(const S: String; const Error, FirstLine: Boolean; 
 procedure ExecAndLogOutputLogCustom(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
 function CustomMessage(const MsgName: String): String;
 function NewExtractRelativePath(BaseName, DestName: string): string;
-function NewFileSearch(const DisableFsRedir: Boolean;
-  const Name, DirList: String): String;
+function NewFileSearch(const Name, DirList: String): String;
 function GetExceptionMessage(const Caller: TPSExec): String;
 function GetCodePreviousData(const ExpandedAppID, ValueName, DefaultValueData: String): String;
 function SetCodePreviousData(const PreviousDataKey: HKEY; const ValueName, ValueData: String): Boolean;
@@ -107,15 +107,45 @@ function LoadStringsFromFile(const FileName: String; const Stack: TPSStack;
 function SaveStringToFile(const FileName: String; const S: AnsiString; Append: Boolean): Boolean;
 function SaveStringsToFile(const FileName: String; const Stack: TPSStack;
   const ItemNo: Longint; Append, UTF8, UTF8WithoutBOM: Boolean): Boolean;
-function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): LongWord;
+function GetShortName(const LongName: String): String;
+function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): NativeInt;
+
+{ Internal, used only by Script.Test.iss }
+function TestInnerfuse_EchoSingle(Value: Single): Single;
+function TestInnerfuse_EchoDouble(Value: Double): Double;
+function TestInnerfuse_EchoExtended(Value: Extended): Extended;
+function TestInnerfuse_EchoCurrency(Value: Currency): Currency;
+function TestInnerfuse_EchoInt64(Value: Int64): Int64;
+function TestInnerfuse_EchoSmallRec(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec;
+function TestInnerfuse_EchoLargeRec(Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;
+function TestInnerfuse_EchoPAnsiChar(Value: PAnsiChar): String;
+function TestInnerfuse_EchoSingleStdCall(Value: Single): Single; stdcall;
+function TestInnerfuse_EchoDoubleStdCall(Value: Double): Double; stdcall;
+function TestInnerfuse_EchoExtendedStdCall(Value: Extended): Extended; stdcall;
+function TestInnerfuse_EchoCurrencyStdCall(Value: Currency): Currency; stdcall;
+function TestInnerfuse_EchoInt64StdCall(Value: Int64): Int64; stdcall;
+function TestInnerfuse_EchoSmallRecStdCall(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec; stdcall;
+function TestInnerfuse_EchoLargeRecStdCall(const Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec; stdcall;
+function TestInnerfuse_MixedFloats(A: Single; B: Double; C: Single): Double;
+function TestInnerfuse_SixParams(A, B, C, D, E, F: Integer): Int64;
+function TestInnerfuse_SixParamsStdCall(A, B, C, D, E, F: Integer): Int64; stdcall;
+function TestInnerfuse_OpenArray(const Values: array of Integer): Integer;
+function TestInnerfuse_EchoIntegerSafeCall(Value: Integer): Integer; safecall;
+procedure TestInnerfuse_RaiseExceptionSafeCall; safecall;
+procedure TestInnerfuse_RaiseException;
+procedure TestCreateCallback_Invoke0(Callback: NativeInt);
+procedure TestCreateCallback_Invoke5(Callback: NativeInt; const S: String; A, B, C, D: Integer);
+procedure TestCreateCallback_InvokeFloat4(Callback: NativeInt; A, B, C: Integer; D: Double);
+function TestCreateCallback_InvokeReturnInteger(Callback: NativeInt; A, B: Integer): Integer;
+function TestCreateCallback_InvokeReturnDouble(Callback: NativeInt; A, B: Integer): Double;
 
 implementation
 
 uses
   Forms, SysUtils, Graphics,
-  uPSUtils, PathFunc, ASMInline, PSStackHelper,
-  Setup.MainFunc, SetupLdrAndSetup.RedirFunc, Setup.InstFunc,
-  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs,
+  uPSUtils, PathFunc, ASMInline, PSStackHelper, UnsignedFunc,
+  Setup.MainFunc, Setup.InstFunc,
+  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Shared.Struct,
   Shared.SetupTypes, Shared.SetupSteps, Setup.LoggingFunc, Setup.SetupForm;
 
 procedure NoUninstallFuncError(const C: AnsiString); overload;
@@ -142,17 +172,6 @@ begin
     InternalError('An attempt was made to access UninstallProgressForm before it has been created');
 end;
 
-function GetMsgBoxCaption: String;
-var
-  ID: TSetupMessageID;
-begin
-  if IsUninstaller then
-    ID := msgUninstallAppTitle
-  else
-    ID := msgSetupAppTitle;
-  Result := SetupMessages[ID];
-end;
-
 var
   ScaleBaseUnitsInitialized: Boolean;
 
@@ -164,9 +183,22 @@ begin
     Exit;
   Font := TFont.Create;
   try
-    SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize,
-      '', 8);
+    SetFontNameSize(Font, LangOptions.DialogFontName, LangOptions.DialogFontSize, '', 9);
+
     CalculateBaseUnitsFromFont(Font, ScaleBaseUnitX, ScaleBaseUnitY);
+
+    OrigScaleBaseUnitX := LangOptions.DialogFontBaseScaleWidth;
+    OrigScaleBaseUnitY := LangOptions.DialogFontBaseScaleHeight;
+
+    if shWizardKeepAspectRatio in SetupHeader.Options then begin
+      if ScaleBaseUnitX * OrigScaleBaseUnitY > ScaleBaseUnitY * OrigScaleBaseUnitX then begin
+        ScaleBaseUnitY := ScaleBaseUnitX;
+        OrigScaleBaseUnitY := OrigScaleBaseUnitX;
+      end else begin
+        ScaleBaseUnitX := ScaleBaseUnitY;
+        OrigScaleBaseUnitX := OrigScaleBaseUnitY;
+      end;
+    end;
   finally
     Font.Free;
   end;
@@ -176,10 +208,20 @@ end;
 function IsProtectedSrcExe(const Filename: String): Boolean;
 begin
   if (MainForm = nil) or (MainForm.CurStep < ssInstall) then begin
-    var ExpandedFilename := PathExpand(Filename);
-    Result := PathCompare(ExpandedFilename, SetupLdrOriginalFilename) = 0;
+    var ExpandedFilename := PathExpand(PathConvertSuperToNormal(Filename));
+    Result := PathSame(ExpandedFilename, SetupLdrOriginalFilename);
   end else
     Result := False;
+end;
+
+procedure LogFmtHelper(const S: String; const Args: array of const);
+begin
+  LogFmt(S, Args);
+end;
+
+function FmtMessageHelper(const S: String; const Args: array of String): String;
+begin
+  Result := FmtMessage(PChar(S), Args);
 end;
 
 procedure FindDataToFindRec(const FindData: TWin32FindData;
@@ -200,7 +242,7 @@ var
   FindHandle: THandle;
   FindData: TWin32FindData;
 begin
-  FindHandle := FindFirstFileRedir(ScriptFuncDisableFsRedir, FileName, FindData);
+  FindHandle := FindFirstFile(PChar(FileName), FindData);
   if FindHandle <> INVALID_HANDLE_VALUE then begin
     FindRec.FindHandle := FindHandle;
     FindDataToFindRec(FindData, FindRec);
@@ -229,11 +271,6 @@ begin
   end;
 end;
 
-function FmtMessageHelper(const S: String; const Args: array of String): String;
-begin
-  Result := FmtMessage(PChar(S), Args);
-end;
-
 procedure GetWindowsVersionExHelper(var Version: TWindowsVersion);
 begin
   Version.Major := WindowsVersion shr 24;
@@ -246,12 +283,12 @@ begin
   Version.SuiteMask := WindowsSuiteMask;
 end;
 
-procedure CrackCodeRootKey(CodeRootKey: HKEY; var RegView: TRegView;
+procedure CrackCodeRootKey(CodeRootKey: UInt32; var RegView: TRegView;
   var RootKey: HKEY);
 begin
   if (CodeRootKey and not CodeRootKeyValidFlags) = HKEY_AUTO then begin
     { Change HKA to HKLM or HKCU, keeping our special flag bits. }
-    CodeRootKey := (CodeRootKey and CodeRootKeyValidFlags) or InstallModeRootKey;
+    CodeRootKey := (CodeRootKey and CodeRootKeyValidFlags) or UInt32(InstallModeRootKey);
   end else begin
     { Allow only predefined key handles (8xxxxxxx). Can't accept handles to
       open keys because they might have our special flag bits set.
@@ -280,7 +317,6 @@ const
 var
   K: HKEY;
   Buf, S: String;
-  BufSize, R: DWORD;
 begin
   Result := False;
   SetString(Buf, nil, 512);
@@ -289,11 +325,12 @@ begin
   try
     var ArrayBuilder := Stack.InitArrayBuilder(ItemNo);
     while True do begin
-      BufSize := Length(Buf);
+      var BufSize := ULength(Buf);
+      var R: Integer;
       if Subkey then
-        R := RegEnumKeyEx(K, ArrayBuilder.I, @Buf[1], BufSize, nil, nil, nil, nil)
+        R := RegEnumKeyEx(K, DWORD(ArrayBuilder.I), @Buf[1], BufSize, nil, nil, nil, nil)
       else
-        R := RegEnumValue(K, ArrayBuilder.I, @Buf[1], BufSize, nil, nil, nil, nil);
+        R := RegEnumValue(K, DWORD(ArrayBuilder.I), @Buf[1], BufSize, nil, nil, nil, nil);
       case R of
         ERROR_SUCCESS: ;
         ERROR_NO_MORE_ITEMS: Break;
@@ -320,7 +357,7 @@ begin
   Result := True;
 end;
 
-function GetMD5OfFile(const DisableFsRedir: Boolean; const Filename: String): TMD5Digest;
+function GetMD5OfFile(const Filename: String): TMD5Digest;
 { Gets MD5 sum of the file Filename. An exception will be raised upon
   failure. }
 var
@@ -328,7 +365,7 @@ var
 begin
   var Context: TMD5Context;
   MD5Init(Context);
-  var F := TFileRedir.Create(DisableFsRedir, Filename, fdOpenExisting, faRead, fsReadWrite);
+  var F := TFile.Create(Filename, fdOpenExisting, faRead, fsReadWrite);
   try
     while True do begin
       var NumRead := F.Read(Buf, SizeOf(Buf));
@@ -342,7 +379,7 @@ begin
   Result := MD5Final(Context);
 end;
 
-function GetSHA1OfFile(const DisableFsRedir: Boolean; const Filename: String): TSHA1Digest;
+function GetSHA1OfFile(const Filename: String): TSHA1Digest;
 { Gets SHA-1 sum of the file Filename. An exception will be raised upon
   failure. }
 var
@@ -350,7 +387,7 @@ var
 begin
   var Context: TSHA1Context;
   SHA1Init(Context);
-  var F := TFileRedir.Create(DisableFsRedir, Filename, fdOpenExisting, faRead, fsReadWrite);
+  var F := TFile.Create(Filename, fdOpenExisting, faRead, fsReadWrite);
   try
     while True do begin
       var NumRead := F.Read(Buf, SizeOf(Buf));
@@ -366,22 +403,22 @@ end;
 
 function GetMD5OfAnsiString(const S: AnsiString): TMD5Digest;
 begin
-  Result := MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
+  Result := MD5Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]));
 end;
 
 function GetMD5OfUnicodeString(const S: UnicodeString): TMD5Digest;
 begin
-  Result := MD5Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
+  Result := MD5Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]));
 end;
 
 function GetSHA1OfAnsiString(const S: AnsiString): TSHA1Digest;
 begin
-  Result := SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
+  Result := SHA1Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]));
 end;
 
 function GetSHA1OfUnicodeString(const S: UnicodeString): TSHA1Digest;
 begin
-  Result := SHA1Buf(Pointer(S)^, Length(S)*SizeOf(S[1]));
+  Result := SHA1Buf(Pointer(S)^, ULength(S)*SizeOf(S[1]));
 end;
 
 procedure ProcessMessagesProc; far;
@@ -471,18 +508,17 @@ end;
 { Use our own FileSearch function which includes these improvements over
   Delphi's version:
   - it supports MBCS and uses Path* functions
-  - it uses NewFileExistsRedir instead of FileExists
+  - it uses NewFileExists instead of FileExists
   - it doesn't search the current directory unless it's told to
   - it always returns a fully-qualified path }
-function NewFileSearch(const DisableFsRedir: Boolean;
-  const Name, DirList: String): String;
+function NewFileSearch(const Name, DirList: String): String;
 var
   I, P, L: Integer;
 begin
   { If Name is absolute, drive-relative, or root-relative, don't search DirList }
   if PathDrivePartLengthEx(Name, True) <> 0 then begin
     Result := PathExpand(Name);
-    if NewFileExistsRedir(DisableFsRedir, Result) then
+    if NewFileExists(Result) then
       Exit;
   end
   else begin
@@ -495,9 +531,9 @@ begin
         Break;
       I := P;
       while (P <= L) and (DirList[P] <> ';') do
-        Inc(P, PathCharLength(DirList, P));
+        Inc(P);
       Result := PathExpand(PathCombine(Copy(DirList, I, P - I), Name));
-      if NewFileExistsRedir(DisableFsRedir, Result) then
+      if NewFileExists(Result) then
         Exit;
     end;
   end;
@@ -532,7 +568,7 @@ function SetCodePreviousData(const PreviousDataKey: HKEY; const ValueName, Value
 begin
   if ValueData <> '' then begin
     { do not localize or change the following string }
-    Result := RegSetValueEx(PreviousDataKey, PChar('Inno Setup CodeFile: ' + ValueName), 0, REG_SZ, PChar(ValueData), (Length(ValueData)+1)*SizeOf(ValueData[1])) = ERROR_SUCCESS
+    Result := RegSetValueEx(PreviousDataKey, PChar('Inno Setup CodeFile: ' + ValueName), 0, REG_SZ, PChar(ValueData), (ULength(ValueData)+1)*SizeOf(ValueData[1])) = ERROR_SUCCESS
   end else
     Result := True;
 end;
@@ -544,7 +580,7 @@ var
   N: Cardinal;
 begin
   try
-    F := TFileRedir.Create(ScriptFuncDisableFsRedir, FileName, fdOpenExisting, faRead, Sharing);
+    F := TFile.Create(FileName, fdOpenExisting, faRead, Sharing);
     try
       N := F.CappedSize;
       SetLength(S, N);
@@ -565,8 +601,9 @@ var
   F: TTextFileReader;
 begin
   try
-    F := TTextFileReaderRedir.Create(ScriptFuncDisableFsRedir, FileName, fdOpenExisting, faRead, Sharing);
+    F := TTextFileReader.Create(FileName, fdOpenExisting, faRead, Sharing);
     try
+      F.AllowInvalidChars := True;
       var ArrayBuilder := Stack.InitArrayBuilder(ItemNo);
       while not F.Eof do
         ArrayBuilder.Add(F.ReadLine);
@@ -586,9 +623,9 @@ var
 begin
   try
     if Append then
-      F := TFileRedir.Create(ScriptFuncDisableFsRedir, FileName, fdOpenAlways, faWrite, fsNone)
+      F := TFile.Create(FileName, fdOpenAlways, faWrite, fsNone)
     else
-      F := TFileRedir.Create(ScriptFuncDisableFsRedir, FileName, fdCreateAlways, faWrite, fsNone);
+      F := TFile.Create(FileName, fdCreateAlways, faWrite, fsNone);
     try
       F.SeekToEnd;
       F.WriteAnsiString(S);
@@ -609,9 +646,9 @@ var
 begin
   try
     if Append then
-      F := TTextFileWriterRedir.Create(ScriptFuncDisableFsRedir, FileName, fdOpenAlways, faWrite, fsNone)
+      F := TTextFileWriter.Create(FileName, fdOpenAlways, faWrite, fsNone)
     else
-      F := TTextFileWriterRedir.Create(ScriptFuncDisableFsRedir, FileName, fdCreateAlways, faWrite, fsNone);
+      F := TTextFileWriter.Create(FileName, fdCreateAlways, faWrite, fsNone);
     try
       if UTF8 and UTF8WithoutBOM then
         F.UTF8WithoutBOM := UTF8WithoutBOM;
@@ -633,35 +670,56 @@ begin
   end;
 end;
 
+function GetShortName(const LongName: String): String;
+{ Gets the short version of the specified long filename. If the file does not
+  exist, or some other error occurs, it returns LongName. }
 var
-  ASMInliners: array of Pointer;
+  Res: DWORD;
+begin
+  SetLength(Result, MAX_PATH);
+  repeat
+    Res := GetShortPathName(PChar(LongName), PChar(Result), ULength(Result));
+    if Res = 0 then begin
+      Result := LongName;
+      Break;
+    end;
+  until AdjustLength(Result, Res);
+end;
 
-function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): LongWord;
-var
-  ProcRec: TPSInternalProcRec;
-  Method: TMethod;
-  Inliner: TASMInline;
-  ParamCount, SwapFirst, SwapLast: Integer;
-  S: tbtstring;
+function CreateCallback(const Caller: TPSExec; const P: PPSVariantProcPtr): NativeInt;
 begin
   { ProcNo 0 means nil was passed by the script }
   if P.ProcNo = 0 then
     InternalError('Invalid Method value');
 
   { Calculate parameter count of our proc, will need this later. }
-  ProcRec := Caller.GetProcNo(P.ProcNo) as TPSInternalProcRec;
-  S := ProcRec.ExportDecl;
+  const ProcRec = Caller.GetProcNo(P.ProcNo) as TPSInternalProcRec;
+  var S := ProcRec.ExportDecl;
   GRFW(S);
-  ParamCount := 0;
+  var ParamCount := 0;
+{$IFDEF CPUX64}
+  var Param4IsFloatByValue := False;
+{$ENDIF}
   while S <> '' do begin
     Inc(ParamCount);
-    GRFW(S);
+{$IFDEF CPUX64}
+    if ParamCount = 4 then begin
+      { Same code as in MyAllMethodsHandler64 }
+      var e := GRFW(S);
+      const fmod = e[1];
+      Delete(e, 1, 1);
+      const cpt = Caller.GetTypeNo(Cardinal(StrToInt(e)));
+      if not ParamAsVariable(fmod, cpt) then
+        Param4IsFloatByValue := cpt.BaseType in [btSingle, btDouble];
+    end else
+{$ENDIF}
+      GRFW(S);
   end;
 
   { Turn our proc into a callable TMethod - its Code will point to
     ROPS' MyAllMethodsHandler and its Data to a record identifying our proc.
     When called, MyAllMethodsHandler will use the record to call our proc. }
-  Method := MkMethod(Caller, P.ProcNo);
+  const Method = MkMethod(Caller, P.ProcNo);
 
   { Wrap our TMethod with a dynamically generated stdcall callback which will
     do two things:
@@ -671,14 +729,19 @@ begin
     Based on InnoCallback by Sherlock Software, see
     http://www.sherlocksoftware.org/page.php?id=54 and
     https://github.com/thenickdude/InnoCallback. }
-  Inliner := TASMInline.create;
+  const Inliner = TASMInline.create;
   try
+{$IFDEF CPUX86}
     Inliner.Pop(EAX); //get the retptr off the stack
 
-    SwapFirst := 2;
-    SwapLast := ParamCount-1;
+    var SwapFirst := 2;
+    var SwapLast := ParamCount-1;
 
-    //Reverse the order of parameters from param3 onwards in the stack
+    { Reverse the order of parameters from param3 onwards in the stack
+      Limitation: this reversal code treats every parameter as a single
+      4-byte stack slot. So on x86 CreateCallback does not support
+      callback parameters passed by value when their type is larger than
+      4 bytes (Int64, UInt64, Double, Extended, Currency). }
     while SwapLast > SwapFirst do begin
       Inliner.Mov(ECX, Inliner.Addr(ESP, SwapFirst * 4)); //load the first item of the pair
       Inliner.Mov(EDX, Inliner.Addr(ESP, SwapLast * 4)); //load the last item of the pair
@@ -695,79 +758,236 @@ begin
 
     Inliner.Push(EAX); //put the retptr back onto the stack
 
-    Inliner.Mov(EAX, LongWord(Method.Data)); //Load the self ptr
+    Inliner.Mov(EAX, Cardinal(Method.Data)); //Load the self ptr
 
     Inliner.Jmp(Method.Code); //jump to the wrapped proc
+{$ELSE}
+    { RCX/XMM0, RDX/XMM1, R8/XMM2, R9/XMM3 carry the first 4 params. 32 bytes
+      of shadow space belong to the caller. ROPS' MyAllMethodsHandler expects
+      RCX=Self/Data, RDX/R8/R9 to carry the first 3 params, and the rest
+      packed on the stack.
 
-    SetLength(ASMInliners, Length(ASMInliners) + 1);
-    ASMInliners[High(ASMInliners)] := Inliner.SaveAsMemory;
-    Result := LongWord(ASMInliners[High(ASMInliners)]);
+      So the things to set and move are:
+      -Self/Data -> RCX
+      -param1: RCX/XMM0 -> RDX/XMM1
+      -param2: RDX/XMM1 -> R8/XMM2
+      -param3: R8/XMM2 -> R9/XMM3
+      -param4: R9/XMM3 -> stack
+      -remaining params (5+): stack -> stack }
+
+    { Save RCX, RDX, R8, R9/XMM3 for move later }
+    if ParamCount >= 1 then
+      Inliner.MovRegReg(R11, RCX);
+    if ParamCount >= 2 then
+      Inliner.MovRegReg(R10, RDX);
+    if ParamCount >= 3 then
+      Inliner.MovRegReg(RAX, R8);
+    if ParamCount >= 4 then begin
+      if Param4IsFloatByValue then
+        Inliner.MovqRegXmm(RDX, 3)
+      else
+        Inliner.MovRegReg(RDX, R9);
+    end;
+
+    { Move XMM0, XMM1, XMM2 to XMM1, XMM2, XMM3 now that XMM3 has been saved }
+    if ParamCount >= 3 then
+      Inliner.MovXmmXmm(3, 2); { param3: XMM2->XMM3 }
+    if ParamCount >= 2 then
+      Inliner.MovXmmXmm(2, 1); { param2: XMM1->XMM2 }
+    if ParamCount >= 1 then
+      Inliner.MovXmmXmm(1, 0); { param1: XMM0->XMM1 }
+
+    { Make our own shadow space + spill area to re-stack params for ROPS. }
+    var ExtraParams := ParamCount - 3;
+    if ExtraParams < 0 then
+      ExtraParams := 0;
+    var FrameSize := 32 + ExtraParams * SizeOf(Pointer);
+    if (FrameSize and $F) = 0 then
+      Inc(FrameSize, 8); { keep RSP 16-byte aligned at call site }
+    Inliner.SubRsp(FrameSize);
+
+    if ParamCount >= 4 then
+      Inliner.MovMemRSPReg(32, RDX); { param4: saved R9/XMM3 -> stack }
+
+    { Copy remaining params (5+) from the caller's stack to ours,
+      placed after shadow space + param4, matching the order ROPS expects. }
+    if ParamCount > 4 then begin
+      for var I := 0 to ParamCount - 5 do begin
+        const SrcOffset = FrameSize + 40 + I * SizeOf(Pointer); { 40 = return address (8) + caller shadow space (32) }
+        const DestOffset = 32 + (I + 1) * SizeOf(Pointer); { 32 = callee shadow space, + 1 to skip param4 }
+        Inliner.MovRegMemRSP(RDX, SrcOffset);
+        Inliner.MovMemRSPReg(DestOffset, RDX);
+      end;
+    end;
+
+    { Self/Data -> RCX }
+    Inliner.MovRegImm64(RCX, NativeUInt(Method.Data));
+
+    { Do the remaining moves using saved values }
+    if ParamCount >= 1 then
+      Inliner.MovRegReg(RDX, R11); { param1: saved RCX->RDX }
+    if ParamCount >= 2 then
+      Inliner.MovRegReg(R8, R10); { param2: saved RDX->R8 }
+    if ParamCount >= 3 then
+      Inliner.MovRegReg(R9, RAX); { param3: saved R8->R9 }
+
+    Inliner.MovRegImm64(R10, NativeUInt(Method.Code));
+    Inliner.CallReg(R10); { Call the wrapped proc }
+
+    Inliner.AddRsp(FrameSize);
+    Inliner.Ret;
+{$ENDIF}
+
+    Result := NativeInt(Inliner.SaveAsMemory);
   finally
     Inliner.Free;
   end;
 end;
 
-procedure FreeASMInliners;
-var
-  I: Integer;
+function TestInnerfuse_EchoSingle(Value: Single): Single;
 begin
-  for I := 0 to High(ASMInliners) do
-    FreeMem(ASMInliners[I]);
-  SetLength(ASMInliners, 0);
+  Result := Value;
 end;
 
-{ TProgressThrottler }
-
-constructor TProgressThrottler.Create(const OnDownloadProgress: TOnDownloadProgress);
+function TestInnerfuse_EchoDouble(Value: Double): Double;
 begin
-  inherited Create;
-  FOnDownloadProgress := OnDownloadProgress;
+  Result := Value;
 end;
 
-constructor TProgressThrottler.Create(const OnExtractionProgress: TOnExtractionProgress);
+function TestInnerfuse_EchoExtended(Value: Extended): Extended;
 begin
-  inherited Create;
-  FOnExtractionProgress := OnExtractionProgress;
+  Result := Value;
 end;
 
-procedure TProgressThrottler.Reset;
+function TestInnerfuse_EchoCurrency(Value: Currency): Currency;
 begin
-  FStopWatch.Stop;
+  Result := Value;
 end;
 
-function TProgressThrottler.ThrottleOk(const Progress, ProgressMax: Int64): Boolean;
+function TestInnerfuse_EchoInt64(Value: Int64): Int64;
 begin
-  if FStopWatch.IsRunning then begin
-    Result := ((Progress = ProgressMax) and (FLastOkProgress <> ProgressMax)) or (FStopWatch.ElapsedMilliseconds >= 50);
-    if Result then
-      FStopWatch.Reset;
-  end else begin
-    Result := True;
-    FStopWatch := TStopwatch.StartNew;
-  end;
-  if Result then
-    FLastOkProgress := Progress;
+  Result := Value;
 end;
 
-function TProgressThrottler.OnDownloadProgress(const Url, BaseName: string; const Progress,
-  ProgressMax: Int64): Boolean;
+function TestInnerfuse_EchoSmallRec(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec;
 begin
-  if Assigned(FOnDownloadProgress) and ThrottleOk(Progress, ProgressMax) then begin
-    Result := FOnDownloadProgress(Url, BaseName, Progress, ProgressMax)
-  end else
-    Result := True;
+  Result := Value;
 end;
 
-function TProgressThrottler.OnExtractionProgress(const ArchiveName, FileName: string;
-  const Progress, ProgressMax: Int64): Boolean;
+function TestInnerfuse_EchoLargeRec(Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;
 begin
-  if Assigned(FOnExtractionProgress) and ThrottleOk(Progress, ProgressMax) then
-    Result := FOnExtractionProgress(ArchiveName, FileName, Progress, ProgressMax)
-  else
-    Result := True;
+  Result := Value;
 end;
 
-initialization
-finalization
-  FreeASMInliners;
+function TestInnerfuse_EchoPAnsiChar(Value: PAnsiChar): String;
+begin
+  Result := String(AnsiString(Value));
+end;
+
+function TestInnerfuse_EchoSingleStdCall(Value: Single): Single; stdcall;
+begin
+  Result := Value;
+end;
+
+function TestInnerfuse_EchoDoubleStdCall(Value: Double): Double; stdcall;
+begin
+  Result := Value;
+end;
+
+function TestInnerfuse_EchoExtendedStdCall(Value: Extended): Extended; stdcall;
+begin
+  Result := Value;
+end;
+
+function TestInnerfuse_EchoCurrencyStdCall(Value: Currency): Currency; stdcall;
+begin
+  Result := Value;
+end;
+
+function TestInnerfuse_EchoInt64StdCall(Value: Int64): Int64; stdcall;
+begin
+  Result := Value;
+end;
+
+function TestInnerfuse_EchoSmallRecStdCall(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec; stdcall;
+begin
+  Result := Value;
+end;
+
+{ const: ROPS pushes a pointer for large records, which only matches Delphi's
+  stdcall when the parameter is const/var (passed by reference) }
+function TestInnerfuse_EchoLargeRecStdCall(const Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec; stdcall;
+begin
+  Result := Value;
+end;
+
+function TestInnerfuse_MixedFloats(A: Single; B: Double; C: Single): Double;
+begin
+  Result := A + B + C;
+end;
+
+function TestInnerfuse_SixParams(A, B, C, D, E, F: Integer): Int64;
+begin
+  Result := Int64(A) + B + C + D + E + F;
+end;
+
+function TestInnerfuse_SixParamsStdCall(A, B, C, D, E, F: Integer): Int64; stdcall;
+begin
+  Result := Int64(A) + B + C + D + E + F;
+end;
+
+function TestInnerfuse_OpenArray(const Values: array of Integer): Integer;
+begin
+  Result := 0;
+  for var Value in Values do
+    Inc(Result, Value);
+end;
+
+function TestInnerfuse_EchoIntegerSafeCall(Value: Integer): Integer; safecall;
+begin
+  Result := Value;
+end;
+
+procedure TestInnerfuse_RaiseExceptionSafeCall; safecall;
+begin
+  raise Exception.Create('SafeCall test exception');
+end;
+
+procedure TestInnerfuse_RaiseException;
+begin
+  raise Exception.Create('InnerfuseCall test exception');
+end;
+
+type
+  TStdCallProc0 = procedure; stdcall;
+  TStdCallProc5 = procedure(S: String; A, B, C, D: Integer); stdcall;
+  TStdCallProcFloat4 = procedure(A, B, C: Integer; D: Double); stdcall;
+  TStdCallFuncReturnInteger = function(A, B: Integer): Integer; stdcall;
+  TStdCallFuncReturnDouble = function(A, B: Integer): Double; stdcall;
+
+procedure TestCreateCallback_Invoke0(Callback: NativeInt);
+begin
+  TStdCallProc0(Callback)();
+end;
+
+procedure TestCreateCallback_Invoke5(Callback: NativeInt; const S: String; A, B, C, D: Integer);
+begin
+  TStdCallProc5(Callback)(S, A, B, C, D);
+end;
+
+procedure TestCreateCallback_InvokeFloat4(Callback: NativeInt; A, B, C: Integer; D: Double);
+begin
+  TStdCallProcFloat4(Callback)(A, B, C, D);
+end;
+
+function TestCreateCallback_InvokeReturnInteger(Callback: NativeInt; A, B: Integer): Integer;
+begin
+  Result := TStdCallFuncReturnInteger(Callback)(A, B);
+end;
+
+function TestCreateCallback_InvokeReturnDouble(Callback: NativeInt; A, B: Integer): Double;
+begin
+  Result := TStdCallFuncReturnDouble(Callback)(A, B);
+end;
+
 end.

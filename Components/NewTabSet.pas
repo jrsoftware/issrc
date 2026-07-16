@@ -2,7 +2,7 @@ unit NewTabSet;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -126,15 +126,12 @@ begin
 end;
 
 procedure HSVtoRGB(const H, S: Double; const V: Integer; var R, G, B: Integer);
-var
-  I, P, Q, T: Integer;
-  F: Double;
 begin
-  I := Trunc(H / 60);
-  F := Frac(H / 60);
-  P := Round(V * (1.0 - S));
-  Q := Round(V * (1.0 - S * F));
-  T := Round(V * (1.0 - S * (1.0 - F)));
+  const I = Integer(Trunc(H / 60));
+  const F = Frac(H / 60);
+  const P = Integer(Round(V * (1.0 - S)));
+  const Q = Integer(Round(V * (1.0 - S * F)));
+  const T = Integer(Round(V * (1.0 - S * (1.0 - F))));
   case I of
     0: begin R := V; G := t; B := p; end;
     1: begin R := q; G := V; B := p; end;
@@ -148,7 +145,7 @@ begin
   end;
 end;
 
-function LightenColor(const Color: TColorRef; const Amount: Integer): TColorRef;
+function LightenColor(const Color: Integer; const Amount: Integer): TColor;
 var
   H, S: Double;
   V, R, G, B: Integer;
@@ -257,7 +254,7 @@ end;
 
 procedure TNewTabSet.WMThemeChanged(var Message: TMessage);
 begin
-  { Don't Run to Cursor into this function, it will interrupt up the theme change }
+  { Do not use Run to Cursor inside this function, it will interrupt the theme change }
   UpdateThemeData(True);
   inherited;
 end;
@@ -371,7 +368,7 @@ begin
   if Button = mbLeft then begin
     for I := 0 to FTabs.Count-1 do begin
       R := GetTabRect(I);
-      if (X >= R.Left) and (X < R.Right) then begin
+      if (X >= R.Left) and (X < R.Right) then begin { No Y check needed }
         if ((I = TabIndex) or (I = FHotIndex)) and (I < FCloseButtons.Count) and FCloseButtons[I] then begin
           var R2 := GetCloseButtonRect(R);
           if PtInRect(R2, TPoint.Create(X, Y)) then begin
@@ -535,9 +532,11 @@ end;
 
 procedure TNewTabSet.SetCloseButtons(Value: TBoolList);
 begin
-  FCloseButtons.Clear;
-  for var V in Value do
-    FCloseButtons.Add(V);
+  if Value <> FCloseButtons then begin
+    FCloseButtons.Clear;
+    for var V in Value do
+      FCloseButtons.Add(V);
+  end;
 end;
 
 procedure TNewTabSet.SetHints(const Value: TStrings);

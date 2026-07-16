@@ -2,13 +2,13 @@ unit TrustFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Trust support functions using ISSigFunc and key texts from TrustFunc.AllowedPublicKeys.inc
 
-  In Inno Setup these functions are only used by Compil32, ISCC, and ISCmplr. Verification of
+  In Inno Setup these functions are only used by ISIDE, ISCC, and ISCmplr. Verification of
   the user's files by ISCmplr and Setup is done by calling ISSigFunc directly and uses the
   user's key texts.
 }
@@ -34,14 +34,13 @@ implementation
 uses
   Winapi.Windows, System.SysUtils {$IFNDEF TRUSTALL}, ECDSA, SHA256, ISSigFunc, PathFunc {$ENDIF};
 
-function Win32ErrorString(ErrorCode: Integer): String;
+function Win32ErrorString(ErrorCode: Cardinal): String;
 { Like SysErrorMessage but also passes the FORMAT_MESSAGE_IGNORE_INSERTS flag
   which allows the function to succeed on errors like 129 }
 var
-  Len: Integer;
   Buffer: array[0..1023] of Char;
 begin
-  Len := FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM or
+  var Len := FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM or
     FORMAT_MESSAGE_IGNORE_INSERTS or FORMAT_MESSAGE_ARGUMENT_ARRAY, nil,
     ErrorCode, 0, Buffer, SizeOf(Buffer) div SizeOf(Buffer[0]), nil);
   while (Len > 0) and ((Buffer[Len-1] <= ' ') or (Buffer[Len-1] = '.')) do
@@ -55,8 +54,10 @@ var
   AllowedKeys: array of TECDSAKey;
 {$ENDIF}
 begin
-  var Attr := GetFileAttributes(PChar(Filename));
-  if (Attr = INVALID_FILE_ATTRIBUTES) or (Attr and faDirectory <> 0) then
+  const Attr = GetFileAttributes(PChar(Filename));
+  if Attr = INVALID_FILE_ATTRIBUTES then
+    raise Exception.Create(Win32ErrorString(GetLastError));
+  if Attr and faDirectory <> 0 then
     raise Exception.Create(Win32ErrorString(ERROR_FILE_NOT_FOUND));
 {$IFNDEF TRUSTALL}
 {$IFDEF DEBUG}

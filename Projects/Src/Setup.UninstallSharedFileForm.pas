@@ -13,10 +13,10 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  Setup.SetupForm, StdCtrls, NewStaticText, BidiCtrls;
+  Setup.SetupForm, StdCtrls, NewStaticText, NewCtrls;
 
 type
-  TUninstSharedFileForm = class(TSetupForm)
+  TUninstallSharedFileForm = class(TSetupForm)
     BodyLabel: TNewStaticText;
     FilenameLabel: TNewStaticText;
     FilenameEdit: TEdit;
@@ -45,10 +45,10 @@ uses
 function ExecuteRemoveSharedFileDlg(const Filename: String;
   var AAll: Boolean): Boolean;
 var
-  Form: TUninstSharedFileForm;
+  Form: TUninstallSharedFileForm;
   Res: Integer;
 begin
-  Form := TUninstSharedFileForm.Create(nil);
+  Form := TUninstallSharedFileForm.Create(nil);
   try
     Form.FilenameEdit.Text := PathExtractName(Filename);
     Form.LocationEdit.Text := PathExtractDir(Filename);
@@ -60,13 +60,13 @@ begin
   AAll := (Res = mrYesToAll) or (Res = mrNoToAll);
 end;
 
-{ TSelectLanguageForm }
+{ TUninstallSharedFileForm }
 
-constructor TUninstSharedFileForm.Create(AOwner: TComponent);
+constructor TUninstallSharedFileForm.Create(AOwner: TComponent);
 begin
   inherited;
 
-  InitializeFont;
+  InitializeFont(False, True);
 
   Caption := SetupMessages[msgConfirmDeleteSharedFileTitle];
   BodyLabel.Caption := SetupMessages[msgConfirmDeleteSharedFile2];
@@ -76,11 +76,9 @@ begin
   YesToAllButton.Caption := SetupMessages[msgButtonYesToAll];
   NoButton.Caption := SetupMessages[msgButtonNo];
   NoToAllButton.Caption := SetupMessages[msgButtonNoToAll];
-
-  KeepSizeY := True;
 end;
 
-procedure TUninstSharedFileForm.CreateParams(var Params: TCreateParams);
+procedure TUninstallSharedFileForm.CreateParams(var Params: TCreateParams);
 begin
   inherited;
   Params.WindowClass.style := Params.WindowClass.style or CS_NOCLOSE;

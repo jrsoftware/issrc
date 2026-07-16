@@ -7,7 +7,7 @@
 AppName={cm:MyAppName}
 AppId=My Program
 AppVerName={cm:MyAppVerName,1.5}
-WizardStyle=modern
+WizardStyle=modern dynamic
 DefaultDirName={autopf}\{cm:MyAppName}
 DefaultGroupName={cm:MyAppName}
 UninstallDisplayIcon={app}\MyProg.exe

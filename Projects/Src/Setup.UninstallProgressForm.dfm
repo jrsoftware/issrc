@@ -79,7 +79,6 @@ object UninstallProgressForm: TUninstallProgressForm
             Anchors = [akLeft, akTop, akRight]
             Min = 0
             Max = 400
-            Style = npbstNormal
           end
           object FStatusLabel: TNewStaticText
             Left = 36
@@ -115,9 +114,9 @@ object UninstallProgressForm: TUninstallProgressForm
         end
         object FPageDescriptionLabel: TNewStaticText
           Left = 40
-          Top = 26
+          Top = 24
           Width = 389
-          Height = 29
+          Height = 31
           Anchors = [akLeft, akTop, akRight]
           AutoSize = False
           Caption = '*'
@@ -127,7 +126,7 @@ object UninstallProgressForm: TUninstallProgressForm
         end
         object FPageNameLabel: TNewStaticText
           Left = 24
-          Top = 10
+          Top = 8
           Width = 405
           Height = 14
           Anchors = [akLeft, akTop, akRight]
@@ -147,6 +146,7 @@ object UninstallProgressForm: TUninstallProgressForm
     Caption = '*'
     Enabled = False
     TabOrder = 1
+    Transparent = False
     Visible = False
   end
 end

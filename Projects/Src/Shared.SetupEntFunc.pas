@@ -2,7 +2,7 @@ unit Shared.SetupEntFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2004 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -24,6 +24,9 @@ procedure SECompressedBlockRead(const R: TCompressedBlockReader; var Buf;
 
 implementation
 
+uses
+  UnsignedFunc;
+
 procedure SEFreeRec(const P: Pointer; const NumStrings, NumAnsiStrings: Integer);
 var
   AnsiP: Pointer;
@@ -33,7 +36,7 @@ begin
     Finalize(String(P^), NumStrings);
   if NumAnsiStrings > 0 then begin
     AnsiP := P;
-    Inc(Cardinal(AnsiP), NumStrings*SizeOf(Pointer));
+    Inc(PByte(AnsiP), NumStrings*SizeOf(Pointer));
     Finalize(AnsiString(AnsiP^), NumAnsiStrings);
   end;
   FreeMem(P);
@@ -46,17 +49,17 @@ var
 begin
   for I := 1 to NumStrings do begin
     String(NewP^) := String(OldP^);
-    Inc(Cardinal(OldP), SizeOf(Pointer));
-    Inc(Cardinal(NewP), SizeOf(Pointer));
+    Inc(PByte(OldP), SizeOf(Pointer));
+    Inc(PByte(NewP), SizeOf(Pointer));
     Dec(Bytes, SizeOf(Pointer));
   end;
   for I := 1 to NumAnsiStrings do begin
     AnsiString(NewP^) := AnsiString(OldP^);
-    Inc(Cardinal(OldP), SizeOf(Pointer));
-    Inc(Cardinal(NewP), SizeOf(Pointer));
+    Inc(PByte(OldP), SizeOf(Pointer));
+    Inc(PByte(NewP), SizeOf(Pointer));
     Dec(Bytes, SizeOf(Pointer));
   end;
-  Move(OldP^, NewP^, Bytes);
+  UMove(OldP^, NewP^, Bytes);
 end;
 
 procedure SECompressedBlockWrite(const W: TCompressedBlockWriter; var Buf;
@@ -64,22 +67,21 @@ procedure SECompressedBlockWrite(const W: TCompressedBlockWriter; var Buf;
 var
   P: Pointer;
   I: Integer;
-  Len: Integer;
 begin
   P := @Buf;
   for I := 1 to NumStrings do begin
-    Len := Length(String(P^))*SizeOf(Char);
+    const Len = ULength(String(P^))*SizeOf(Char);
     W.Write(Len, SizeOf(Len));
     if Len <> 0 then
       W.Write(Pointer(P^)^, Len);
-    Inc(Cardinal(P), SizeOf(Pointer));
+    Inc(PByte(P), SizeOf(Pointer));
   end;
   for I := 1 to NumAnsiStrings do begin
-    Len := Length(AnsiString(P^));
+    const Len = ULength(AnsiString(P^));
     W.Write(Len, SizeOf(Len));
     if Len <> 0 then
       W.Write(Pointer(P^)^, Len);
-    Inc(Cardinal(P), SizeOf(Pointer));
+    Inc(PByte(P), SizeOf(Pointer));
   end;
   W.Write(P^, Count - (Cardinal(NumStrings + NumAnsiStrings) * SizeOf(Pointer)));
 end;
@@ -89,7 +91,7 @@ procedure SECompressedBlockRead(const R: TCompressedBlockReader; var Buf;
 var
   P: Pointer;
   I: Integer;
-  Len: Integer;
+  Len: Cardinal;
   S: String;
   AnsiS: AnsiString;
 begin
@@ -100,7 +102,7 @@ begin
     if Len <> 0 then
       R.Read(S[1], Len);
     String(P^) := S;
-    Inc(Cardinal(P), SizeOf(Pointer));
+    Inc(PByte(P), SizeOf(Pointer));
   end;
   for I := 1 to NumAnsiStrings do begin
     R.Read(Len, SizeOf(Len));
@@ -108,9 +110,11 @@ begin
     if Len <> 0 then
       R.Read(AnsiS[1], Len);
     AnsiString(P^) := AnsiS;
-    Inc(Cardinal(P), SizeOf(Pointer));
+    Inc(PByte(P), SizeOf(Pointer));
   end;
-  R.Read(P^, Count - (Cardinal(NumStrings + NumAnsiStrings) * SizeOf(Pointer)));
+  const BytesLeft = Count - (Cardinal(NumStrings + NumAnsiStrings) * SizeOf(Pointer));
+  { Unlike Count, BytesLeft should be the same in both 32-bit and 64-bit builds }
+  R.Read(P^, BytesLeft);
 end;
 
 end.

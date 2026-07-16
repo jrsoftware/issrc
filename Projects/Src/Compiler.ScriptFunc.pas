@@ -2,7 +2,7 @@ unit Compiler.ScriptFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -14,8 +14,8 @@ interface
 uses
   Generics.Collections, uPSCompiler, uPSUtils;
 
-procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
-  ObsoleteFunctionWarnings: TDictionary<String, String>);
+procedure ScriptFuncLibraryRegister_C(const ScriptCompiler: TPSPascalCompiler;
+  const ObsoleteFunctionWarnings: TDictionary<String, String>);
 
 implementation
 
@@ -29,8 +29,8 @@ uses
 type
   TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);
 
-procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
-  ObsoleteFunctionWarnings: TDictionary<String, String>);
+procedure ScriptFuncLibraryRegister_C(const ScriptCompiler: TPSPascalCompiler;
+  const ObsoleteFunctionWarnings: TDictionary<String, String>);
 
   procedure RegisterType(const Name, Value: tbtstring);
   begin
@@ -44,19 +44,17 @@ procedure ScriptFuncLibraryRegister_C(ScriptCompiler: TPSPascalCompiler;
   end;
 
   procedure RegisterDelphiFunctionTable(const FunctionTable: array of tbtstring);
-  var
-    I: Integer;
   begin
-    for I := Low(FunctionTable) to High(FunctionTable) do
+    for var I := Low(FunctionTable) to High(FunctionTable) do
       ScriptCompiler.AddDelphiFunction(FunctionTable[I]);
   end;
 
-  procedure RegisterConst(const Name: tbtstring; const Value: LongInt);
+  procedure RegisterConst(const Name: tbtstring; const Value: Integer);
   var
     C: TPSConstant;
   begin
-    C := ScriptCompiler.AddConstant(Name, ScriptCompiler.FindType('Longint'));
-    C.Value.tU32 := Value;
+    C := ScriptCompiler.AddConstant(Name, ScriptCompiler.FindType('Integer'));
+    C.Value.tS32 := Value;
   end;
 
   procedure RegisterRealEnum(const Name: tbtstring; const TypeInfo: PTypeInfo);
@@ -83,14 +81,30 @@ begin
   RegisterType('TArrayOfChar', 'array of Char');
   RegisterType('TArrayOfBoolean', 'array of Boolean');
   RegisterType('TArrayOfInteger', 'array of Integer');
+  RegisterType('TArrayOfGraphic', 'array of TGraphic');
 
-  RegisterType('DWORD', 'LongWord');
-  RegisterType('UINT', 'LongWord');
+  RegisterType('DWORD', 'Cardinal');
+  RegisterType('UINT', 'Cardinal');
   RegisterType('BOOL', 'LongBool');
-  { Note: In a native 64-bit build, these must be expanded to 64 bits }
-  RegisterType('DWORD_PTR', 'LongWord');
-  RegisterType('UINT_PTR', 'LongWord');
-  RegisterType('INT_PTR', 'Longint');
+  RegisterType('LONG', 'Integer');
+  RegisterType('ULONG', 'Cardinal');
+  RegisterType('HANDLE', 'THandle');
+  RegisterType('COLORREF', 'DWORD');
+
+  RegisterType('INT_PTR', 'NativeInt');
+  RegisterType('LONG_PTR', 'NativeInt');
+  RegisterType('DWORD_PTR', 'NativeUInt');
+  RegisterType('UINT_PTR', 'NativeUInt');
+  RegisterType('ULONG_PTR', 'NativeUInt');
+
+  RegisterType('LRESULT', 'LONG_PTR');
+  RegisterType('HKEY', 'HANDLE');
+  RegisterType('HINSTANCE', 'HANDLE');
+  RegisterType('HMODULE', 'HINSTANCE');
+  RegisterType('WPARAM', 'UINT_PTR');
+  RegisterType('LPARAM', 'LONG_PTR');
+  RegisterType('SIZE_T', 'ULONG_PTR');
+  RegisterType('SSIZE_T', 'LONG_PTR');
 
   RegisterType('TFileTime',
     'record' +
@@ -104,6 +118,7 @@ begin
   RegisterRealEnum('TUninstallStep', TypeInfo(TUninstallStep));
   RegisterRealEnum('TSetupProcessorArchitecture', TypeInfo(TSetupProcessorArchitecture));
   RegisterRealEnum('TDotNetVersion', TypeInfo(TDotNetVersion));
+  RegisterRealEnum('TPathRedirTargetProcess', TypeInfo(TPathRedirTargetProcess));
 
   RegisterType('TSplitType', '(stAll, stExcludeEmpty, stExcludeLastEmpty)'); //must be compatible with System.SysUtils.TStringSplitOptions
 
@@ -147,6 +162,14 @@ begin
   for var ScriptFuncTable in ScriptFuncTables do
     RegisterFunctionTable(ScriptFuncTable);
   RegisterDelphiFunctionTable(DelphiScriptFuncTable);
+
+  { These are internal, used only by Script.Test.iss }
+  RegisterType('TTestInnerfuseSmallRec', 'record A: Byte; B: Byte; end');
+  RegisterType('TTestInnerfuseLargeRec', 'record A: Integer; B: String; end');
+  RegisterDelphiFunctionTable(TestInnerfuseScriptFuncTable);
+  RegisterType('TTestPSStackHelperProc', 'function(Value: Integer): Integer;');
+  ScriptCompiler.AddFunction('function TestPSStackHelper_InvokeCallback(const Callback: TTestPSStackHelperProc; const Value: Integer): Integer;');
+
   ObsoleteFunctionWarnings.Add('IsAdminLoggedOn', Format(SCompilerCodeFunctionRenamedWithAlternative, ['IsAdminLoggedOn', 'IsAdmin', 'IsAdminInstallMode']));
   ObsoleteFunctionWarnings.Add('IsComponentSelected', Format(SCompilerCodeFunctionRenamed, ['IsComponentSelected', 'WizardIsComponentSelected']));
   ObsoleteFunctionWarnings.Add('IsTaskSelected', Format(SCompilerCodeFunctionRenamed, ['IsTaskSelected', 'WizardIsTaskSelected']));
@@ -194,45 +217,45 @@ begin
 
   RegisterConst('HWND_BROADCAST', HWND_BROADCAST);
 
-  RegisterConst('HKEY_AUTO', LongInt(HKEY_AUTO));
-  RegisterConst('HKEY_AUTO_32', LongInt(HKEY_AUTO or CodeRootKeyFlag32Bit));
-  RegisterConst('HKEY_AUTO_64', LongInt(HKEY_AUTO or CodeRootKeyFlag64Bit));
-  RegisterConst('HKEY_CLASSES_ROOT', LongInt(HKEY_CLASSES_ROOT));
-  RegisterConst('HKEY_CLASSES_ROOT_32', LongInt(HKEY_CLASSES_ROOT or CodeRootKeyFlag32Bit));
-  RegisterConst('HKEY_CLASSES_ROOT_64', LongInt(HKEY_CLASSES_ROOT or CodeRootKeyFlag64Bit));
-  RegisterConst('HKEY_CURRENT_USER', LongInt(HKEY_CURRENT_USER));
-  RegisterConst('HKEY_CURRENT_USER_32', LongInt(HKEY_CURRENT_USER or CodeRootKeyFlag32Bit));
-  RegisterConst('HKEY_CURRENT_USER_64', LongInt(HKEY_CURRENT_USER or CodeRootKeyFlag64Bit));
-  RegisterConst('HKEY_LOCAL_MACHINE', LongInt(HKEY_LOCAL_MACHINE));
-  RegisterConst('HKEY_LOCAL_MACHINE_32', LongInt(HKEY_LOCAL_MACHINE or CodeRootKeyFlag32Bit));
-  RegisterConst('HKEY_LOCAL_MACHINE_64', LongInt(HKEY_LOCAL_MACHINE or CodeRootKeyFlag64Bit));
-  RegisterConst('HKEY_USERS', LongInt(HKEY_USERS));
-  RegisterConst('HKEY_USERS_32', LongInt(HKEY_USERS or CodeRootKeyFlag32Bit));
-  RegisterConst('HKEY_USERS_64', LongInt(HKEY_USERS or CodeRootKeyFlag64Bit));
-  RegisterConst('HKEY_PERFORMANCE_DATA', LongInt(HKEY_PERFORMANCE_DATA));
-  RegisterConst('HKEY_CURRENT_CONFIG', LongInt(HKEY_CURRENT_CONFIG));
-  RegisterConst('HKEY_CURRENT_CONFIG_32', LongInt(HKEY_CURRENT_CONFIG or CodeRootKeyFlag32Bit));
-  RegisterConst('HKEY_CURRENT_CONFIG_64', LongInt(HKEY_CURRENT_CONFIG or CodeRootKeyFlag64Bit));
-  RegisterConst('HKEY_DYN_DATA', LongInt(HKEY_DYN_DATA));
+  RegisterConst('HKEY_AUTO', Integer(HKEY_AUTO));
+  RegisterConst('HKEY_AUTO_32', Integer(HKEY_AUTO or CodeRootKeyFlag32Bit));
+  RegisterConst('HKEY_AUTO_64', Integer(HKEY_AUTO or CodeRootKeyFlag64Bit));
+  RegisterConst('HKEY_CLASSES_ROOT', Integer(HKEY_CLASSES_ROOT));
+  RegisterConst('HKEY_CLASSES_ROOT_32', Integer(HKEY_CLASSES_ROOT or CodeRootKeyFlag32Bit));
+  RegisterConst('HKEY_CLASSES_ROOT_64', Integer(HKEY_CLASSES_ROOT or CodeRootKeyFlag64Bit));
+  RegisterConst('HKEY_CURRENT_USER', Integer(HKEY_CURRENT_USER));
+  RegisterConst('HKEY_CURRENT_USER_32', Integer(HKEY_CURRENT_USER or CodeRootKeyFlag32Bit));
+  RegisterConst('HKEY_CURRENT_USER_64', Integer(HKEY_CURRENT_USER or CodeRootKeyFlag64Bit));
+  RegisterConst('HKEY_LOCAL_MACHINE', Integer(HKEY_LOCAL_MACHINE));
+  RegisterConst('HKEY_LOCAL_MACHINE_32', Integer(HKEY_LOCAL_MACHINE or CodeRootKeyFlag32Bit));
+  RegisterConst('HKEY_LOCAL_MACHINE_64', Integer(HKEY_LOCAL_MACHINE or CodeRootKeyFlag64Bit));
+  RegisterConst('HKEY_USERS', Integer(HKEY_USERS));
+  RegisterConst('HKEY_USERS_32', Integer(HKEY_USERS or CodeRootKeyFlag32Bit));
+  RegisterConst('HKEY_USERS_64', Integer(HKEY_USERS or CodeRootKeyFlag64Bit));
+  RegisterConst('HKEY_PERFORMANCE_DATA', Integer(HKEY_PERFORMANCE_DATA));
+  RegisterConst('HKEY_CURRENT_CONFIG', Integer(HKEY_CURRENT_CONFIG));
+  RegisterConst('HKEY_CURRENT_CONFIG_32', Integer(HKEY_CURRENT_CONFIG or CodeRootKeyFlag32Bit));
+  RegisterConst('HKEY_CURRENT_CONFIG_64', Integer(HKEY_CURRENT_CONFIG or CodeRootKeyFlag64Bit));
+  RegisterConst('HKEY_DYN_DATA', Integer(HKEY_DYN_DATA));
 
-  RegisterConst('HKA', LongInt(HKEY_AUTO));
-  RegisterConst('HKA32', LongInt(HKEY_AUTO or CodeRootKeyFlag32Bit));
-  RegisterConst('HKA64', LongInt(HKEY_AUTO or CodeRootKeyFlag64Bit));
-  RegisterConst('HKCR', LongInt(HKEY_CLASSES_ROOT));
-  RegisterConst('HKCR32', LongInt(HKEY_CLASSES_ROOT or CodeRootKeyFlag32Bit));
-  RegisterConst('HKCR64', LongInt(HKEY_CLASSES_ROOT or CodeRootKeyFlag64Bit));
-  RegisterConst('HKCU', LongInt(HKEY_CURRENT_USER));
-  RegisterConst('HKCU32', LongInt(HKEY_CURRENT_USER or CodeRootKeyFlag32Bit));
-  RegisterConst('HKCU64', LongInt(HKEY_CURRENT_USER or CodeRootKeyFlag64Bit));
-  RegisterConst('HKLM', LongInt(HKEY_LOCAL_MACHINE));
-  RegisterConst('HKLM32', LongInt(HKEY_LOCAL_MACHINE or CodeRootKeyFlag32Bit));
-  RegisterConst('HKLM64', LongInt(HKEY_LOCAL_MACHINE or CodeRootKeyFlag64Bit));
-  RegisterConst('HKU', LongInt(HKEY_USERS));
-  RegisterConst('HKU32', LongInt(HKEY_USERS or CodeRootKeyFlag32Bit));
-  RegisterConst('HKU64', LongInt(HKEY_USERS or CodeRootKeyFlag64Bit));
-  RegisterConst('HKCC', LongInt(HKEY_CURRENT_CONFIG));
-  RegisterConst('HKCC32', LongInt(HKEY_CURRENT_CONFIG or CodeRootKeyFlag32Bit));
-  RegisterConst('HKCC64', LongInt(HKEY_CURRENT_CONFIG or CodeRootKeyFlag64Bit));
+  RegisterConst('HKA', Integer(HKEY_AUTO));
+  RegisterConst('HKA32', Integer(HKEY_AUTO or CodeRootKeyFlag32Bit));
+  RegisterConst('HKA64', Integer(HKEY_AUTO or CodeRootKeyFlag64Bit));
+  RegisterConst('HKCR', Integer(HKEY_CLASSES_ROOT));
+  RegisterConst('HKCR32', Integer(HKEY_CLASSES_ROOT or CodeRootKeyFlag32Bit));
+  RegisterConst('HKCR64', Integer(HKEY_CLASSES_ROOT or CodeRootKeyFlag64Bit));
+  RegisterConst('HKCU', Integer(HKEY_CURRENT_USER));
+  RegisterConst('HKCU32', Integer(HKEY_CURRENT_USER or CodeRootKeyFlag32Bit));
+  RegisterConst('HKCU64', Integer(HKEY_CURRENT_USER or CodeRootKeyFlag64Bit));
+  RegisterConst('HKLM', Integer(HKEY_LOCAL_MACHINE));
+  RegisterConst('HKLM32', Integer(HKEY_LOCAL_MACHINE or CodeRootKeyFlag32Bit));
+  RegisterConst('HKLM64', Integer(HKEY_LOCAL_MACHINE or CodeRootKeyFlag64Bit));
+  RegisterConst('HKU', Integer(HKEY_USERS));
+  RegisterConst('HKU32', Integer(HKEY_USERS or CodeRootKeyFlag32Bit));
+  RegisterConst('HKU64', Integer(HKEY_USERS or CodeRootKeyFlag64Bit));
+  RegisterConst('HKCC', Integer(HKEY_CURRENT_CONFIG));
+  RegisterConst('HKCC32', Integer(HKEY_CURRENT_CONFIG or CodeRootKeyFlag32Bit));
+  RegisterConst('HKCC64', Integer(HKEY_CURRENT_CONFIG or CodeRootKeyFlag64Bit));
 
   RegisterConst('SW_HIDE', SW_HIDE);
   RegisterConst('SW_SHOWNORMAL', SW_SHOWNORMAL);
@@ -273,6 +296,100 @@ begin
   RegisterConst('VER_SUITE_BLADE', $00000400);
   RegisterConst('VER_SUITE_EMBEDDED_RESTRICTED', $00000800);
   RegisterConst('VER_SUITE_SECURITY_APPLIANCE', $00001000);
+
+  RegisterConst('SIID_DOCNOASSOC', 0);
+  RegisterConst('SIID_DOCASSOC', 1);
+  RegisterConst('SIID_APPLICATION', 2);
+  RegisterConst('SIID_FOLDER', 3);
+  RegisterConst('SIID_FOLDEROPEN', 4);
+  RegisterConst('SIID_DRIVE525', 5);
+  RegisterConst('SIID_DRIVE35', 6);
+  RegisterConst('SIID_DRIVEREMOVE', 7);
+  RegisterConst('SIID_DRIVEFIXED', 8);
+  RegisterConst('SIID_DRIVENET', 9);
+  RegisterConst('SIID_DRIVENETDISABLED', 10);
+  RegisterConst('SIID_DRIVECD', 11);
+  RegisterConst('SIID_DRIVERAM', 12);
+  RegisterConst('SIID_WORLD', 13);
+  RegisterConst('SIID_SERVER', 15);
+  RegisterConst('SIID_PRINTER', 16);
+  RegisterConst('SIID_MYNETWORK', 17);
+  RegisterConst('SIID_FIND', 22);
+  RegisterConst('SIID_HELP', 23);
+  RegisterConst('SIID_SHARE', 28);
+  RegisterConst('SIID_LINK', 29);
+  RegisterConst('SIID_SLOWFILE', 30);
+  RegisterConst('SIID_RECYCLER', 31);
+  RegisterConst('SIID_RECYCLERFULL', 32);
+  RegisterConst('SIID_MEDIACDAUDIO', 40);
+  RegisterConst('SIID_LOCK', 47);
+  RegisterConst('SIID_AUTOLIST', 49);
+  RegisterConst('SIID_PRINTERNET', 50);
+  RegisterConst('SIID_SERVERSHARE', 51);
+  RegisterConst('SIID_PRINTERFAX', 52);
+  RegisterConst('SIID_PRINTERFAXNET', 53);
+  RegisterConst('SIID_PRINTERFILE', 54);
+  RegisterConst('SIID_STACK', 55);
+  RegisterConst('SIID_MEDIASVCD', 56);
+  RegisterConst('SIID_STUFFEDFOLDER', 57);
+  RegisterConst('SIID_DRIVEUNKNOWN', 58);
+  RegisterConst('SIID_DRIVEDVD', 59);
+  RegisterConst('SIID_MEDIADVD', 60);
+  RegisterConst('SIID_MEDIADVDRAM', 61);
+  RegisterConst('SIID_MEDIADVDRW', 62);
+  RegisterConst('SIID_MEDIADVDR', 63);
+  RegisterConst('SIID_MEDIADVDROM', 64);
+  RegisterConst('SIID_MEDIACDAUDIOPLUS', 65);
+  RegisterConst('SIID_MEDIACDRW', 66);
+  RegisterConst('SIID_MEDIACDR', 67);
+  RegisterConst('SIID_MEDIACDBURN', 68);
+  RegisterConst('SIID_MEDIABLANKCD', 69);
+  RegisterConst('SIID_MEDIACDROM', 70);
+  RegisterConst('SIID_AUDIOFILES', 71);
+  RegisterConst('SIID_IMAGEFILES', 72);
+  RegisterConst('SIID_VIDEOFILES', 73);
+  RegisterConst('SIID_MIXEDFILES', 74);
+  RegisterConst('SIID_FOLDERBACK', 75);
+  RegisterConst('SIID_FOLDERFRONT', 76);
+  RegisterConst('SIID_SHIELD', 77);
+  RegisterConst('SIID_WARNING', 78);
+  RegisterConst('SIID_INFO', 79);
+  RegisterConst('SIID_ERROR', 80);
+  RegisterConst('SIID_KEY', 81);
+  RegisterConst('SIID_SOFTWARE', 82);
+  RegisterConst('SIID_RENAME', 83);
+  RegisterConst('SIID_DELETE', 84);
+  RegisterConst('SIID_MEDIAAUDIODVD', 85);
+  RegisterConst('SIID_MEDIAMOVIEDVD', 86);
+  RegisterConst('SIID_MEDIAENHANCEDCD', 87);
+  RegisterConst('SIID_MEDIAENHANCEDDVD', 88);
+  RegisterConst('SIID_MEDIAHDDVD', 89);
+  RegisterConst('SIID_MEDIABLURAY', 90);
+  RegisterConst('SIID_MEDIAVCD', 91);
+  RegisterConst('SIID_MEDIADVDPLUSR', 92);
+  RegisterConst('SIID_MEDIADVDPLUSRW', 93);
+  RegisterConst('SIID_DESKTOPPC', 94);
+  RegisterConst('SIID_MOBILEPC', 95);
+  RegisterConst('SIID_USERS', 96);
+  RegisterConst('SIID_MEDIASMARTMEDIA', 97);
+  RegisterConst('SIID_MEDIACOMPACTFLASH', 98);
+  RegisterConst('SIID_DEVICECELLPHONE', 99);
+  RegisterConst('SIID_DEVICECAMERA', 100);
+  RegisterConst('SIID_DEVICEVIDEOCAMERA', 101);
+  RegisterConst('SIID_DEVICEAUDIOPLAYER', 102);
+  RegisterConst('SIID_NETWORKCONNECT', 103);
+  RegisterConst('SIID_INTERNET', 104);
+  RegisterConst('SIID_ZIPFILE', 105);
+  RegisterConst('SIID_SETTINGS', 106);
+  RegisterConst('SIID_DRIVEHDDVD', 132);
+  RegisterConst('SIID_DRIVEBD', 133);
+  RegisterConst('SIID_MEDIAHDDVDROM', 134);
+  RegisterConst('SIID_MEDIAHDDVDR', 135);
+  RegisterConst('SIID_MEDIAHDDVDRAM', 136);
+  RegisterConst('SIID_MEDIABDROM', 137);
+  RegisterConst('SIID_MEDIABDR', 138);
+  RegisterConst('SIID_MEDIABDRE', 139);
+  RegisterConst('SIID_CLUSTEREDDRIVE', 140);
 end;
 
 end.

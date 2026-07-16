@@ -8,14 +8,12 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-WizardStyle=modern
+WizardStyle=modern dynamic
 DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
-;Use "ArchiveExtraction=enhanced" if your archive has a password
-;Use "ArchiveExtraction=full" if your archive is not a .7z file but for example a .zip file
-ArchiveExtraction=enhanced/nopassword
+ArchiveExtraction=auto
 
 [ISSigKeys]
 Name: mykey; RuntimeID: def02; \
@@ -28,9 +26,8 @@ Name: mykey; RuntimeID: def02; \
 Source: "MyProg.exe"; DestDir: "{app}"
 Source: "MyProg.chm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
-; These files will be downloaded. If you include flag issigverify here the file will be verified
-; a second time while copying. Verification while copying is efficient, except for archives.
-Source: "{tmp}\innosetup-latest.exe"; DestDir: "{app}"; Flags: external ignoreversion issigverify
+; These files will be downloaded
+Source: "{tmp}\innosetup-latest.exe"; DestDir: "{app}"; Flags: external ignoreversion
 Source: "{tmp}\MyProg-ExtraReadmes.7z"; DestDir: "{app}"; Flags: external extractarchive recursesubdirs ignoreversion
 Source: "{tmp}\ISCrypt.dll"; DestDir: "{app}"; Flags: external ignoreversion
 

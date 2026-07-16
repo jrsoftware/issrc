@@ -23,8 +23,6 @@ object FilesDesignerForm: TFilesDesignerForm
     Align = alBottom
     BevelOuter = bvNone
     TabOrder = 0
-    ExplicitTop = 360
-    ExplicitWidth = 571
     object Bevel1: TBevel
       Left = 0
       Top = 0
@@ -57,7 +55,7 @@ object FilesDesignerForm: TFilesDesignerForm
   end
   object AppFilesEditButton: TButton
     Left = 476
-    Top = 107
+    Top = 135
     Width = 89
     Height = 23
     Caption = '&Parameters...'
@@ -65,7 +63,7 @@ object FilesDesignerForm: TFilesDesignerForm
   end
   object AppFilesRemoveButton: TButton
     Left = 476
-    Top = 135
+    Top = 162
     Width = 89
     Height = 23
     Caption = 'Remo&ve'
@@ -81,7 +79,7 @@ object FilesDesignerForm: TFilesDesignerForm
   end
   object AppFilesAddButton: TButton
     Left = 476
-    Top = 51
+    Top = 50
     Width = 89
     Height = 23
     Caption = '&Add file(s)...'
@@ -90,7 +88,7 @@ object FilesDesignerForm: TFilesDesignerForm
   object AppFilesListBox: TDropListBox
     Left = 8
     Top = 52
-    Width = 453
+    Width = 449
     Height = 297
     ItemHeight = 15
     TabOrder = 5
@@ -103,7 +101,7 @@ object FilesDesignerForm: TFilesDesignerForm
     AutoSize = False
     Caption = '&Files:'
     FocusControl = AppFilesListBox
-    TabOrder = 6
+    TabOrder = 7
     WordWrap = True
   end
   object NotCreateAppDirCheck: TCheckBox
@@ -112,6 +110,14 @@ object FilesDesignerForm: TFilesDesignerForm
     Width = 253
     Height = 17
     Caption = '&Script has CreateAppDir=no'
-    TabOrder = 7
+    TabOrder = 8
+  end
+  object AppFilesAddDownloadButton: TButton
+    Left = 476
+    Top = 106
+    Width = 89
+    Height = 23
+    Caption = 'Do&wnload...'
+    TabOrder = 6
   end
 end

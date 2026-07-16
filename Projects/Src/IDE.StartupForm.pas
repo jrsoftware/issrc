@@ -2,7 +2,7 @@ unit IDE.StartupForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls;
+  UIStateForm, StdCtrls, ExtCtrls, BitmapButton, BitmapImage, NewGroupBox;
 
 type
   TStartupFormResult = (srNone, srEmpty, srWizard, srOpenFile, srOpenDialog,
@@ -22,8 +22,8 @@ type
   TStartupForm = class(TUIStateForm)
     OKButton: TButton;
     CancelButton: TButton;
-    GroupBox1: TGroupBox;
-    GroupBox2: TGroupBox;
+    GroupBox1: TNewGroupBox;
+    GroupBox2: TNewGroupBox;
     EmptyRadioButton: TRadioButton;
     WizardRadioButton: TRadioButton;
     OpenRadioButton: TRadioButton;
@@ -31,8 +31,10 @@ type
     StartupCheck: TCheckBox;
     NewImage: TImage;
     OpenImage: TImage;
-    DonateImage: TImage;
-    MailingListImage: TImage;
+    DonateBitBtn: TBitmapButton;
+    MailingListBitBtn: TBitmapButton;
+    DonateImageDark: TBitmapImage;
+    MailingListImageDark: TBitmapImage;
     procedure RadioButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure DblClick_(Sender: TObject);
@@ -40,8 +42,8 @@ type
     procedure OKButtonClick(Sender: TObject);
     procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
       NewDPI: Integer);
-    procedure DonateImageClick(Sender: TObject);
-    procedure MailingListImageClick(Sender: TObject);
+    procedure DonateBitBtnClick(Sender: TObject);
+    procedure MailingListBitBtnClick(Sender: TObject);
   private
     FResult: TStartupFormResult;
     FResultMainFileName: TFileName;
@@ -59,8 +61,9 @@ type
 implementation
 
 uses
-  IDE.Messages, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc,
-  IDE.MainForm, IDE.ImagesModule, ComCtrls;
+  ComCtrls,
+  Shared.LicenseFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc,
+  IDE.Messages, IDE.HelperFunc, IDE.MainForm, IDE.ImagesModule;
 
 {$R *.DFM}
 
@@ -78,7 +81,7 @@ procedure TStartupForm.UpdateImages;
 
   function GetImage(const Button: TToolButton; const WH: Integer): TWICImage;
   begin
-    Result := ImagesModule.LightToolBarImageCollection.GetSourceImage(Button.ImageIndex, WH, WH)
+    Result := ImagesModule.ToolbarImageCollection[InitFormThemeIsDark].GetSourceImage(Button.ImageIndex, WH, WH)
   end;
 
 begin
@@ -101,7 +104,19 @@ begin
   InitFormFont(Self);
   InitFormTheme(Self);
 
-  DonateImage.Hint := MainForm.UpdatePanelDonateImage.Hint;
+  if IsLicensed then begin
+    DonateBitBtn.Visible := False;
+    const DiffX = MailingListBitBtn.Left - DonateBitBtn.Left;
+    MailingListBitBtn.Left := MailingListBitBtn.Left - DiffX;
+    StartupCheck.Left := StartupCheck.Left - DiffX;
+  end else
+	  DonateBitBtn.Hint := MainForm.UpdatePanelDonateBitBtn.Hint;
+
+  if InitFormThemeIsDark then begin
+    if DonateBitBtn.Visible then
+      DonateBitBtn.Bitmap := DonateImageDark.Bitmap;
+    MailingListBitBtn.Bitmap := MailingListImageDark.Bitmap;
+  end;
 
   UpdateImages;
 
@@ -152,12 +167,12 @@ begin
   OpenRadioButton.Checked := True;
 end;
 
-procedure TStartupForm.DonateImageClick(Sender: TObject);
+procedure TStartupForm.DonateBitBtnClick(Sender: TObject);
 begin
   OpenDonateSite;
 end;
 
-procedure TStartupForm.MailingListImageClick(Sender: TObject);
+procedure TStartupForm.MailingListBitBtnClick(Sender: TObject);
 begin
   OpenMailingListSite;
 end;

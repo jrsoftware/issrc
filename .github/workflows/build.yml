@@ -10,12 +10,18 @@ env:
 jobs:
   build:
     # Only set the topic `has-issrc-build-env` if the secrets are available
-    if: contains(github.event.repository.topics, 'has-issrc-build-env')
+    if: >-
+      contains(github.event.repository.topics, 'has-issrc-build-env')
+      && !startsWith(github.ref, 'refs/heads/copilot-review')
+      && !startsWith(github.ref, 'refs/heads/claude-review')
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v6
         with:
-          submodules: true
+          fetch-depth: 1
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v3
       - name: Initialize build environment
         env:
           ISSRC_BUILD_ENV_ZIP_PASSWORD: ${{ secrets.ISSRC_BUILD_ENV_ZIP_PASSWORD }}
@@ -29,35 +35,39 @@ jobs:
           }
           Remove-Item issrc-build-env.zip
           $DELPHIXEROOT = (Get-Item .\issrc-build-env).FullName
-          "DELPHIXEROOT=$DELPHIXEROOT" | Out-File -NoNewLine -Encoding ascii -Append "$env:GITHUB_ENV"
-      - name: Build issrc
+          "DELPHIXEROOT=$DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii -Append "$env:GITHUB_ENV"
+          "set BDS=$DELPHIXEROOT" | Out-File -Encoding ascii issrc-build-env\bin\rsvars.bat
+          "set BDSCOMMONDIR=$DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii -Append issrc-build-env\bin\rsvars.bat
+      - name: Configure build
         run: |
           "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -Encoding ascii compilesettings.bat
           "set ISSIGTOOL_KEY_FILE=${{github.workspace}}\mykey.isprivatekey" | Out-File -NoNewline -Encoding ascii -Append compilesettings.bat
-          "set DELPHIXEROOT=$env:DELPHIXEROOT" | Out-File -NoNewline -Encoding ascii ISHelp\ISHelpGen\compilesettings.bat
           "set HHCEXE=%ProgramFiles(x86)%\HTML Help Workshop\hhc.exe" | Out-File -NoNewline -Encoding ascii ISHelp\compilesettings.bat
+      - name: Build issrc
+        run: |
           .\build.bat
       - name: Clean up temporary files
         if: always()
         shell: bash
-        run: rm -rf mykey.isprivatekey
+        run: |
+          rm -rf mykey.isprivatekey
       - name: Copy license.txt into all artifacts
         run: |
           copy license.txt Files
           copy license.txt Output
           copy license.txt ISHelp/Staging
       - name: Upload Files/
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
-          name: Files
+          name: Files-x64
           path: Files/
       - name: Upload Output/
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: Output
           path: Output/
       - name: Upload ISHelp/
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: ISHelp
           path: |
@@ -77,13 +87,13 @@ jobs:
         run: |
           set -x &&
           ver="$(sed -n 's/^set VER=//p' <build.bat)" &&
-          mt '-inputresource:Output\innosetup-'$ver.exe -out:innosetup-$ver.manifest &&
-          cat innosetup-$ver.manifest &&
-          mkdir -p Output/innosetup-$ver.exe.Local &&
-          cp -R "$(cygpath -au "$SYSTEMROOT")"/WinSxS/x86_microsoft.windows.common-controls_* Output/innosetup-$ver.exe.Local/ &&
-          mkdir Output/innosetup-$ver.en-US &&
-          mkdir Output/innosetup-$ver.en &&
-          mkdir Output/innosetup-$ver.ENU &&
+          mt '-inputresource:Output\innosetup-'$ver-x86.exe -out:innosetup-$ver-x86.manifest &&
+          cat innosetup-$ver-x86.manifest &&
+          mkdir -p Output/innosetup-$ver-x86.exe.Local &&
+          cp -R "$(cygpath -au "$SYSTEMROOT")"/WinSxS/x86_microsoft.windows.common-controls_* Output/innosetup-$ver-x86.exe.Local/ &&
+          mkdir Output/innosetup-$ver-x86.en-US &&
+          mkdir Output/innosetup-$ver-x86.en &&
+          mkdir Output/innosetup-$ver-x86.ENU &&
           mkdir -p trace &&
           echo "$ver" >trace/ver &&
           curl -LO https://download.sysinternals.com/files/ProcessMonitor.zip &&
@@ -94,14 +104,14 @@ jobs:
           test $? = 0 &&
           ps -W &&
           ./Procmon.exe -AcceptEula -WaitForIdle &&
-          ./Output/innosetup-$ver.exe //verysilent //dir=InnoSetup //noicons \
-            //tasks= //portable=1 &&
+          ./Output/innosetup-$ver-x86.exe //verysilent //suppressmsgboxes //dir=InnoSetup //noicons \
+            //tasks= //portable=1 //currentuser &&
           test -x InnoSetup/ISCC.exe &&
           ./Procmon.exe -Terminate -Quiet &&
           powershell -command 'start-process -NoNewWindow -Wait -FilePath .\Procmon.exe -ArgumentList "-OpenLog trace\procmon.pml -SaveAs trace\procmon.csv"'
       - name: Upload trace
         if: contains(github.event.repository.topics, 'issrc-build-verify')
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: trace
           path: trace/
@@ -112,7 +122,8 @@ jobs:
           set -x &&
           curdir="$(cygpath -aw Output | sed 's/\\/&&/g')" &&
           ver="$(sed 's/\./\\&/g' <trace/ver)" &&
-          sed -ne '/"'$curdir'\\innosetup-'$ver'\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\)"/d' -e '/"'$curdir'\\/p' \
+          sed -ne '/"'$curdir'\\innosetup-'$ver'-x86\.\(exe\|exe\.Config\|en-US\|en\|ENU\|EN\)"/d' \
+            -e '/"System","[0-9]*","\(CreateFileMapping\|FASTIO_[A-Z_]*\)"/d' -e '/"'$curdir'\\/p' \
             trace/procmon.csv >trace/filtered.csv &&
           if test -s trace/filtered.csv
           then

@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -26,19 +26,13 @@ type
   TIsppOptions = record
     ParserOptions: TIsppParserOptions;
     Options: TOptions;
-    VerboseLevel: Byte;
+    VerboseLevel: Integer;
     InlineStart: String;
     InlineEnd: String;
     SpanSymbol: Char;
   end;
 
   TIsppVarType = (evSpecial, evNull, evInt, evStr, evLValue, evCallContext);
-
-  IIsppFuncParam = interface
-    function GetType: TIsppVarType; stdcall;
-    function GetAsInt: Int64; stdcall;
-    function GetAsString(Buf: PChar; BufSize: Integer): Integer; stdcall;
-  end;
 
   IIsppFuncResult = interface
     procedure SetAsInt(Value: Int64); stdcall;
@@ -48,17 +42,15 @@ type
   end;
 
   IIsppFuncParams = interface
-    function Get(Index: Integer): IIsppFuncParam; stdcall;
-    function GetCount: Integer; stdcall;
+    function GetCount: NativeInt; stdcall;
   end;
 
-  TIsppFuncResult = packed record
-    Reserved: Byte;
-    ErrParam: Word;
-    Error: Byte;
+  TIsppFuncResult = record
+    ErrParam: Integer;
+    Error: Integer;
   end;
 
-  TIsppFunction = function (Ext: Longint; const Params: IIsppFuncParams;
+  TIsppFunction = function (Ext: NativeInt; const Params: IIsppFuncParams;
     const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 
   IPreprocessor = interface
@@ -71,17 +63,17 @@ const
   { TIsppFuncResult.Error values }
 
   // Function executed successfully
-  ISPPFUNC_SUCCESS    = Byte($00);
+  ISPPFUNC_SUCCESS    = 0;
   // Unexpected failure
-  ISPPFUNC_FAIL       = Byte($01);
+  ISPPFUNC_FAIL       = 1;
   // Too many arguments passed, ErrParam contains maximal number of arguments needed
-  ISPPFUNC_MANYARGS   = Byte($02);
+  ISPPFUNC_MANYARGS   = 2;
   // Insufficient required arguments, ErrParam contains minimal number of arguments
-  ISPPFUNC_INSUFARGS  = Byte($03);
+  ISPPFUNC_INSUFARGS  = 3;
   // Wrong type of argument passed, ErrParam is the index of the argument
-  ISPPFUNC_INTWANTED  = Byte($04);
+  ISPPFUNC_INTWANTED  = 4;
   // Wrong type of argument passed, ErrParam is the index of the argument
-  ISPPFUNC_STRWANTED  = Byte($05);
+  ISPPFUNC_STRWANTED  = 5;
 
 const
 

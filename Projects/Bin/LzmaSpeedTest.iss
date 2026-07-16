@@ -1,4 +1,4 @@
-;Set Compil32 to high prio as well before doing compilation speed test (done automatically for installation speed test)
+;Set ISIDE to high prio as well before doing compilation speed test (done automatically for installation speed test)
 
 [Setup]
 AppName=My Program

@@ -1,0 +1,8 @@
+format issig-v2
+file-name "is7zxa-x64.dll"
+file-size 310176
+file-hash e055c22adf9e3f68f03c4c8c8c1bc175fffe319f8bc019c878f6edb3caf66acb
+file-tag ""
+key-id def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38
+sig-r 350ed3331c5cf42e78fef49e85d460b450eff67677ac06c5a555221142c9575c
+sig-s b6bea341e79963f1ff85ee3d6b54abd15e76d0ff464ed1b7eaa7041986ead6ca

@@ -1,4 +1,6 @@
+compilesettings.bat
 *.res
 *.dproj.local
 *.identcache
 *.exe
+*.rsm

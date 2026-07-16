@@ -1,0 +1,8 @@
+format issig-v2
+file-name "isbzip-x64.dll"
+file-size 50832
+file-hash 5d0a9370be510512aa6ce0ebdd429c54e11eb236582d9794dbc5ba42e7bd5009
+file-tag ""
+key-id def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38
+sig-r c6551413cae8d45d672afba5ea0beb795e15bed9a050522afe76ed1e7652f4f0
+sig-s 33bb6b75d7b88a3e52e27ebf6a6e55a73e62bdd6465d77f345cc6bab47fefaaf

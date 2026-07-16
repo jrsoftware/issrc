@@ -2,7 +2,7 @@ unit Setup.MainFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -12,8 +12,8 @@ unit Setup.MainFunc;
 interface
 
 uses
-  Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
-  StdCtrls, Shared.Struct, Shared.DebugStruct, Shared.Int64Em, Shared.CommonFunc.Vcl, Shared.CommonFunc,
+  Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs, Generics.Collections,
+  StdCtrls, Shared.Struct, Shared.DebugStruct, Shared.CommonFunc.Vcl, Shared.CommonFunc,
   Shared.SetupTypes, Setup.ScriptRunner, RestartManager;
 
 type
@@ -24,6 +24,8 @@ type
   TShellFolderID = (sfDesktop, sfStartMenu, sfPrograms, sfStartup, sfSendTo,  //these have common and user versions
     sfFonts, sfAppData, sfDocs, sfTemplates,                                  //
     sfFavorites, sfLocalAppData, sfUserProgramFiles, sfUserCommonFiles, sfUserSavedGames); //these only have user versions
+
+  TWizardImages = TObjectList<TGraphic>;
 
 const
   EntryStrings: array[TEntryType] of Integer = (SetupLanguageEntryStrings,
@@ -68,16 +70,16 @@ var
   { Variables for command line parameters }
   SetupLdrMode: Boolean;
   SetupLdrOriginalFilename: String;
-  SetupLdrOffset0, SetupLdrOffset1: Longint;
-  SetupNotifyWndPresent: Boolean;
-  SetupNotifyWnd: HWND;
+  SetupLdrOffset0, SetupLdrOffset1: Int64;
+  SetupLdrWnd: HWND;
+  SetupFirstProcessWnd: HWND;
   InitLang: String;
   InitDir, InitProgramGroup: String;
   InitLoadInf, InitSaveInf: String;
   InitNoIcons, InitSilent, InitVerySilent, InitNoRestart, InitCloseApplications,
     InitNoCloseApplications, InitForceCloseApplications, InitNoForceCloseApplications,
     InitLogCloseApplications, InitRestartApplications, InitNoRestartApplications,
-    InitNoCancel: Boolean;
+    InitNoCancel, InitNoStyle, InitRedirectionGuard, InitNoRedirectionGuard: Boolean;
   InitSetupType: String;
   InitComponents, InitTasks: TStringList;
   InitComponentsSpecified: Boolean;
@@ -104,12 +106,14 @@ var
   UninstallExpandedGroupName, UninstallExpandedLanguage: String;
   UninstallSilent: Boolean;
 
-  { Variables read in from the SETUP.0 file }
+  { Variables read in from the Setup.0 file }
+  SetupEncryptionHeader: TSetupEncryptionHeader;
   SetupHeader: TSetupHeader;
+  OrigSetupHeaderWizardBackColor: Integer;
   LangOptions: TSetupLanguageEntry;
   Entries: array[TEntryType] of TList;
-  WizardImages: TList;
-  WizardSmallImages: TList;
+  WizardImages, WizardSmallImages, WizardBackImages: TWizardImages;
+  MainIconPostfix, WizardIconsPostfix: String;
   CloseApplicationsFilterList, CloseApplicationsFilterExcludesList: TStringList;
   ISSigAvailableKeys: TArrayOfECDSAKey;
 
@@ -135,10 +139,11 @@ var
   { Other }
   ShowLanguageDialog, MatchedLangParameter: Boolean;
   InstallMode: (imNormal, imSilent, imVerySilent);
-  HasIcons, IsWin64, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
-    NeedPassword, NeedSerial, NeedsRestart, RestartSystem,
-    IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress: Boolean;
-  InstallDefaultDisableFsRedir, ScriptFuncDisableFsRedir: Boolean;
+  HasIcons, Is64BitInstallMode, IsAdmin, IsPowerUserOrAdmin, IsAdminInstallMode,
+    NeedPassword, NeedSerial, NeedsRestart, RestartSystem, IsWinDark, IsDarkInstallMode,
+    IsUninstaller, AllowUninstallerShutdown, AcceptedQueryEndSessionInProgress,
+    CustomWizardBackground: Boolean;
+  InstallDefault64Bit: Boolean;
   InstallDefaultRegView: TRegView = rvDefault;
   HasCustomType, HasComponents, HasTasks: Boolean;
   ProcessorArchitecture: TSetupProcessorArchitecture = paUnknown;
@@ -147,7 +152,7 @@ var
   NTServicePackLevel: Word;
   WindowsProductType: Byte;
   WindowsSuiteMask: Word;
-  MinimumSpace: Integer64;
+  MinimumSpace: Int64;
   DeleteFilesAfterInstallList, DeleteDirsAfterInstallList: TStringList;
   ExpandedAppName, ExpandedAppVerName, ExpandedAppCopyright, ExpandedAppMutex: String;
   DisableCodeConsts: Integer;
@@ -158,17 +163,26 @@ var
 
   CodeRunner: TScriptRunner;
 
+{$IFDEF WIN64}
+const
+  IsWin64 = True;
+{$ELSE}
+var
+  IsWin64: Boolean;
+{$ENDIF}
+
 procedure CodeRunnerOnLog(const S: String);
 procedure CodeRunnerOnLogFmt(const S: String; const Args: array of const);
-function CodeRunnerOnDebug(const Position: LongInt;
+function CodeRunnerOnDebug(const Position: Cardinal;
   var ContinueStepOver: Boolean): Boolean;
-function CodeRunnerOnDebugIntermediate(const Position: LongInt;
+function CodeRunnerOnDebugIntermediate(const Position: Cardinal;
   var ContinueStepOver: Boolean): Boolean;
 procedure CodeRunnerOnDllImport(var DllName: String; var ForceDelayLoad: Boolean);
-procedure CodeRunnerOnException(const Exception: AnsiString; const Position: LongInt);
-procedure CreateTempInstallDirAndExtract64BitHelper;
-procedure DebugNotifyEntry(EntryType: TEntryType; Number: Integer);
+procedure CodeRunnerOnException(const Exception: AnsiString; const Position: Cardinal);
+procedure CreateTempInstallDir;
+procedure DebugNotifyEntry(EntryType: TEntryType; Number: NativeInt);
 procedure DeinitSetup(const AllowCustomSetupExitCode: Boolean);
+procedure DeleteResidualTempUninstallDirs;
 function ExitSetupMsgBox: Boolean;
 function ExpandConst(const S: String): String;
 function ExpandConstEx(const S: String; const CustomConsts: array of String): String;
@@ -189,34 +203,34 @@ procedure LogArchiveExtractionModeOnce;
 procedure InitializeCommonVars;
 procedure InitializeSetup;
 procedure InitializeWizard;
-procedure InitMainNonSHFolderConsts;
+procedure InitMainNonGetShellFolderPathConstsAndPathRedir;
 function InstallOnThisVersion(const MinVersion: TSetupVersionData;
   const OnlyBelowVersion: TSetupVersionData): TInstallOnThisVersionResult;
+function IsEntryBitness64Bit(const Bitness: TSetupEntryBitness): Boolean;
 function IsRecurseableDirectory(const FindData: TWin32FindData): Boolean;
-procedure LoadSHFolderDLL;
-function LoggedAppMessageBox(const Text, Caption: PChar; const Flags: Longint;
-  const Suppressible: Boolean; const Default: Integer): Integer;
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer;
 function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
   const Typ: TMsgBoxType; const Buttons: Cardinal; const ButtonLabels: array of String;
   const ShieldButton: Integer; const Suppressible: Boolean; const Default: Integer;
   const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
+procedure LogSetupVersion;
 procedure LogWindowsVersion;
 procedure NotifyAfterInstallEntry(const AfterInstall: String);
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
 procedure NotifyBeforeInstallEntry(const BeforeInstall: String);
 procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
+procedure RedirectionGuardConfigure(const AEnable: Boolean);
+function RedirectionGuardEnabled: Boolean;
 function PreviousInstallCompleted(const WizardComponents, WizardTasks: TStringList): Boolean;
-function CodeRegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
+function CodeRegisterExtraCloseApplicationsResource(const AFilename: String): Boolean;
 procedure RegisterResourcesWithRestartManager(const WizardComponents, WizardTasks: TStringList);
 procedure RemoveTempInstallDir;
+procedure RestartComputerFromThisProcess;
 procedure SaveInf(const FileName: String);
 procedure SaveResourceToTempFile(const ResName, Filename: String);
 procedure SetActiveLanguage(const I: Integer);
 procedure ShellExecuteAsOriginalUser(hWnd: HWND; Operation, FileName, Parameters, Directory: LPWSTR; ShowCmd: Integer); stdcall;
-function ShouldDisableFsRedirForFileEntry(const FileEntry: PSetupFileEntry): Boolean;
-function ShouldDisableFsRedirForRunEntry(const RunEntry: PSetupRunEntry): Boolean;
 procedure ProcessRunEntry(const RunEntry: PSetupRunEntry);
 function EvalArchitectureIdentifier(const Name: String): Boolean;
 function EvalDirectiveCheck(const Expression: String): Boolean;
@@ -228,33 +242,32 @@ function ShouldProcessIconEntry(const WizardComponents, WizardTasks: TStringList
   const WizardNoIcons: Boolean; const IconEntry: PSetupIconEntry): Boolean;
 function ShouldProcessRunEntry(const WizardComponents, WizardTasks: TStringList;
   const RunEntry: PSetupRunEntry): Boolean;
-function TestPassword(const EncryptionKey: TSetupEncryptionKey): Boolean;
-procedure UnloadSHFolderDLL;
+procedure ShowExceptionMsg;
+procedure ShowExceptionMsgText(const S: String);
 function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
 function IsWindows8: Boolean;
 function IsWindows10: Boolean;
 function IsWindows11: Boolean;
+function SelectBestImage(WizardImages: TWizardImages; TargetWidth, TargetHeight: Integer): TGraphic;
 
 implementation
 
 uses
-  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, ChaCha20, ECDSA, ISSigFunc,
-  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.Install, SetupLdrAndSetup.InstFunc,
-  Setup.InstFunc, SetupLdrAndSetup.RedirFunc, PathFunc,
+  ShellAPI, ShlObj, StrUtils, ActiveX, RegStr, Imaging.pngimage, Themes,
+  ChaCha20, ECDSA, ISSigFunc, NewCtrls, PathFunc, UnsignedFunc, FormBackgroundStyleHook, RichEditViewer,
+  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
+  SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.PathRedir, {$IFNDEF WIN64} Setup.RedirFunc, {$ENDIF}
   Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
-  Shared.SetupEntFunc, Setup.SelectLanguageForm,
+  Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
-  Shared.FileClass, Setup.LoggingFunc,
-  SimpleExpression, Setup.Helper, Setup.SpawnClient, Setup.SpawnServer,
+  Shared.FileClass, Setup.LoggingFunc, StringScanner,
+  SimpleExpression, Setup.SpawnClient, Setup.SpawnServer,
   Setup.DotNetFunc, Shared.TaskDialogFunc, Setup.MainForm, Compression.SevenZipDecoder,
-  Compression.SevenZipDLLDecoder;
+  Compression.SevenZipDLLDecoder, Setup.SetupForm;
 
 var
   ShellFolders: array[Boolean, TShellFolderID] of String;
   ShellFoldersRead: array[Boolean, TShellFolderID] of Boolean;
-  SHFolderDLLHandle: HMODULE;
-  SHGetFolderPathFunc: function(hwndOwner: HWND; nFolder: Integer;
-    hToken: THandle; dwFlags: DWORD; pszPath: PChar): HRESULT; stdcall;
   SHGetKnownFolderPathFunc: function(const rfid: TGUID; dwFlags: DWORD; hToken: THandle;
     var ppszPath: PWideChar): HRESULT; stdcall;
 
@@ -278,6 +291,26 @@ type
   end;
 
 { Misc. functions }
+
+function SelectBestImage(WizardImages: TWizardImages; TargetWidth, TargetHeight: Integer): TGraphic;
+var
+  TargetArea, Difference, SmallestDifference: Integer;
+begin
+  if WizardImages.Count <> 1 then begin
+    { Find the image with the smallest area difference compared to the target area. }
+    TargetArea := TargetWidth*TargetHeight;
+    SmallestDifference := -1;
+    Result := nil;
+    for var I := 0 to WizardImages.Count-1 do begin
+      Difference := Abs(TargetArea-WizardImages[I].Width*WizardImages[I].Height);
+      if (SmallestDifference = -1) or (Difference < SmallestDifference) then begin
+        Result := WizardImages[I];
+        SmallestDifference := Difference;
+      end;
+    end;
+  end else
+    Result := WizardImages[0];
+end;
 
 function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word): Boolean;
 begin
@@ -324,7 +357,7 @@ begin
     end;
     if UseAnsiCRC32 then begin
       S := AnsiString(Result);
-      FmtStr(Result, '%.48s~%.8x', [Result, GetCRC32(S[1], Length(S)*SizeOf(S[1]))]);
+      FmtStr(Result, '%.48s~%.8x', [Result, GetCRC32(S[1], ULength(S)*SizeOf(S[1]))]);
     end;
   end;
 end;
@@ -356,36 +389,20 @@ end;
 function GetPreviousLanguage(const ExpandedAppID: String): Integer;
 var
   PrevLang: String;
-  I: Integer;
 begin
   { do not localize or change the following string }
-  PrevLang := GetPreviousData(ExpandConst(SetupHeader.AppId), 'Inno Setup: Language', '');
+  PrevLang := GetPreviousData(ExpandedAppID, 'Inno Setup: Language', '');
 
   if PrevLang <> '' then begin
-    for I := 0 to Entries[seLanguage].Count-1 do begin
+    for var I := 0 to Entries[seLanguage].Count-1 do begin
       if CompareText(PrevLang, PSetupLanguageEntry(Entries[seLanguage][I]).Name) = 0 then begin
-        Result := I;
+        Result := Integer(I);
         Exit;
       end;
     end;
   end;
   
   Result := -1;
-end;
-
-{ This function assumes EncryptionKey is based on the password }
-function TestPassword(const EncryptionKey: TSetupEncryptionKey): Boolean;
-begin
-  { Do same as compiler did in GeneratePasswordTest and compare results }
-  var Nonce := SetupHeader.EncryptionBaseNonce;
-  Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor -1;
-
-  var Context: TChaCha20Context;
-  XChaCha20Init(Context, EncryptionKey[0], Length(EncryptionKey), Nonce, SizeOf(Nonce), 0);
-  var PasswordTest := 0;
-  XChaCha20Crypt(Context, PasswordTest, PasswordTest, SizeOf(PasswordTest));
-
-  Result := PasswordTest = SetupHeader.PasswordTest;
 end;
 
 class function TDummyClass.ExpandCheckOrInstallConstant(Sender: TSimpleExpression;
@@ -444,6 +461,12 @@ end;
 
 procedure NotifyBeforeInstallFileEntry(const FileEntry: PSetupFileEntry);
 begin
+  { DestName and SourceFilename are original values, meaning no
+    ApplyPathRedirRules call has been applied. Therefore,
+    PathConvertSuperToNormal for backward compatibility is not
+    needed. Exception: downloaded archives have updated values,
+    see DownloadArchivesToExtract, but still don't need
+    ApplyPathRedirRules. }
   CheckOrInstallCurrentFilename := FileEntry.DestName;
   CheckOrInstallCurrentSourceFilename := FileEntry.SourceFilename;
   NotifyInstallEntry(FileEntry.BeforeInstall);
@@ -458,6 +481,7 @@ end;
 
 procedure NotifyAfterInstallFileEntry(const FileEntry: PSetupFileEntry);
 begin
+  { Also see NotifyBeforeInstallFileEntry }
   CheckOrInstallCurrentFilename := FileEntry.DestName;
   CheckOrInstallCurrentSourceFilename := FileEntry.SourceFilename;
   NotifyInstallEntry(FileEntry.AfterInstall);
@@ -557,7 +581,7 @@ begin
 end;
 
 function EvalExpression(const Expression: String;
-  OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier; Tag: LongInt = 0): Boolean;
+  OnEvalIdentifier: TSimpleExpressionOnEvalIdentifier; Tag: NativeInt = 0): Boolean;
 var
   SimpleExpression: TSimpleExpression;
 begin
@@ -588,12 +612,12 @@ var
 begin
   if (Components <> '') or (Tasks <> '') or (Languages <> '') or (Check <> '') then begin
     if (Components <> '') and (WizardComponents <> nil) then
-      ProcessComponent := EvalExpression(Components, TDummyClass.EvalComponentOrTaskIdentifier, LongInt(WizardComponents))
+      ProcessComponent := EvalExpression(Components, TDummyClass.EvalComponentOrTaskIdentifier, NativeInt(WizardComponents))
     else
       ProcessComponent := True;
 
     if (Tasks <> '') and (WizardTasks <> nil) then
-      ProcessTask := EvalExpression(Tasks, TDummyClass.EvalComponentOrTaskIdentifier, LongInt(WizardTasks))
+      ProcessTask := EvalExpression(Tasks, TDummyClass.EvalComponentOrTaskIdentifier, NativeInt(WizardTasks))
     else
       ProcessTask := True;
 
@@ -625,6 +649,7 @@ begin
     Result := False;
     Exit;
   end;
+  { Also see NotifyBeforeInstallFileEntry }
   CheckOrInstallCurrentFilename := FileEntry.DestName;
   CheckOrInstallCurrentSourceFilename := FileEntry.SourceFilename;
   if IgnoreCheck then
@@ -656,16 +681,23 @@ begin
     Result := ShouldProcessEntry(WizardComponents, WizardTasks, IconEntry.Components, IconEntry.Tasks, IconEntry.Languages, IconEntry.Check);
 end;
 
-function ShouldDisableFsRedirForFileEntry(const FileEntry: PSetupFileEntry): Boolean;
+function IsEntryBitness64Bit(const Bitness: TSetupEntryBitness): Boolean;
 begin
-  Result := InstallDefaultDisableFsRedir;
-  if fo32Bit in FileEntry.Options then
-    Result := False;
-  if fo64Bit in FileEntry.Options then begin
-    if not IsWin64 then
-      InternalError('Cannot install files to 64-bit locations on this version of Windows');
-    Result := True;
+  case Bitness of
+    eb32Bit:
+      Result := False;
+    eb64Bit:
+      Result := True;
+    ebNativeBit:
+      Result := IsWin64;
+    ebCurrentProcessBit:
+      Result := IsCurrentProcess64Bit;
+  else
+    { ebInstallDefault }
+    Result := InstallDefault64Bit;
   end;
+  if Result and not IsWin64 then
+    InternalError('Cannot process 64-bit entry on 32-bit Windows');
 end;
 
 function SlashesToBackslashes(const S: String): String;
@@ -712,6 +744,9 @@ begin
   InitRestartApplications := GetIniBool(Section, 'RestartApplications', InitRestartApplications, FileName);
   InitNoRestartApplications := GetIniBool(Section, 'NoRestartApplications', InitNoRestartApplications, FileName);
   InitNoCancel := GetIniBool(Section, 'NoCancel', InitNoCancel, FileName);
+  InitNoStyle := GetIniBool(Section, 'NoStyle', InitNoStyle, FileName);
+  InitRedirectionGuard := GetIniBool(Section, 'RedirectionGuard', InitRedirectionGuard, FileName);
+  InitNoRedirectionGuard := GetIniBool(Section, 'NoRedirectionGuard', InitNoRedirectionGuard, FileName);
   InitPassword := GetIniString(Section, 'Password', InitPassword, FileName);
   InitRestartExitCode := GetIniInt(Section, 'RestartExitCode', InitRestartExitCode, 0, 0, FileName);
   WantToSuppressMsgBoxes := GetIniBool(Section, 'SuppressMsgBoxes', WantToSuppressMsgBoxes, FileName);
@@ -739,11 +774,9 @@ begin
 end;
 
 function GetCustomMessageValue(const AName: String; var AValue: String): Boolean;
-var
-  I: Integer;
 begin
   Result := False;
-  for I := 0 to Entries[seCustomMessage].Count-1 do begin
+  for var I := 0 to Entries[seCustomMessage].Count-1 do begin
     with PSetupCustomMessageEntry(Entries[seCustomMessage][I])^ do begin
       if (CompareText(Name, AName) = 0) and
          ((LangIndex = -1) or (LangIndex = ActiveLanguage)) then begin
@@ -931,7 +964,7 @@ function ExpandIndividualConst(Cnst: String;
       PCount := NewParamCount();
       for I := 1 to PCount do begin
         Z := NewParamStr(I);
-        if StrLIComp(PChar(Z), PChar('/'+Param+'='), Length(Param)+2) = 0 then begin
+        if StrLIComp(PChar(Z), PChar('/'+Param+'='), ULength(Param)+2) = 0 then begin
           Delete(Z, 1, Length(Param)+2);
           Result := Z;
           Exit;
@@ -1059,9 +1092,8 @@ const
     ('commondesktop', 'commonstartmenu', 'commonprograms', 'commonstartup',
      'usersendto', 'commonfonts', 'commonappdata', 'commondocs', 'commontemplates',
      'commonfavorites' { not accepted anymore by the compiler }, '', '', '', ''));
-  NoUninstallConsts: array[0..6] of String =
-    ('src', 'srcexe', 'userinfoname', 'userinfoorg', 'userinfoserial', 'hwnd',
-     'wizardhwnd');
+  NoUninstallConsts: array[0..5] of String =
+    ('src', 'srcexe', 'userinfoname', 'userinfoorg', 'userinfoserial', 'wizardhwnd');
 var
   OriginalCnst, ShellFolder: String;
   Common: Boolean;
@@ -1183,7 +1215,7 @@ begin
   end
   else if Cnst = 'wizardhwnd' then begin
     if Assigned(WizardForm) then
-      Result := IntToStr(WizardForm.Handle)
+      Result := Format('%d', [UInt32(WizardForm.Handle)])
     else
       Result := '0';
   end
@@ -1308,7 +1340,7 @@ begin
     Result := S;
 end;
 
-procedure InitMainNonSHFolderConsts;
+procedure InitMainNonGetShellFolderPathConstsAndPathRedir;
 
   function GetPath(const RegView: TRegView; const Name: PChar): String;
   var
@@ -1351,6 +1383,7 @@ begin
   WinSystemDir := GetSystemDir;
   WinSysWow64Dir := GetSysWow64Dir;
   WinSysNativeDir := GetSysNativeDir(IsWin64);
+  InitializePathRedir(IsWin64, WinSystemDir, WinSysWow64Dir, WinSysNativeDir);
 
   { Get system drive }
   SystemDrive := GetEnv('SystemDrive');  {don't localize}
@@ -1416,12 +1449,177 @@ begin
   end;
 end;
 
-procedure CreateTempInstallDirAndExtract64BitHelper;
-{ Initializes TempInstallDir and extracts the 64-bit helper into it if needed.
-  This is called by Setup, Uninstall, and RegSvr. }
+procedure DeleteResidualTempUninstallDirs;
+var
+  SelfExeFilename: String;
+
+  function IsAttrDirectoryAndNotReparsePoint(const Attr: DWORD): Boolean;
+  begin
+    Result := (Attr and (FILE_ATTRIBUTE_DIRECTORY or FILE_ATTRIBUTE_REPARSE_POINT)) =
+      FILE_ATTRIBUTE_DIRECTORY;
+  end;
+
+  function IsRecentFileTime(const AFileTime: TFileTime): Boolean;
+  const
+    ThresholdSecs = 5 * 60;  { 5 minutes }
+  begin
+    var NowTime: TFileTime;
+    GetSystemTimeAsFileTime(NowTime);
+
+    const A = FileTimeToUInt64(AFileTime);
+    const B = FileTimeToUInt64(NowTime);
+    { Past and future times are both considered recent }
+    var Diff: UInt64;
+    if A > B then
+      Diff := A - B
+    else
+      Diff := B - A;
+    Result := Diff < ThresholdSecs * UInt64(10000000);
+  end;
+
+  function TryDeleteUninstallDir(const ADir: String): Boolean;
+  begin
+    Result := False;
+
+    const UninsExeFilename = ADir + '\_unins.tmp';
+    { Quick out if it's our own process's directory }
+    if PathSame(UninsExeFilename, SelfExeFilename) then
+      Exit;
+
+    { Open handle to the directory. This serves two purposes:
+      - Avoid TOCTOU race in the reparse point check: We checked the
+        attributes returned by FindFirstFile/FindNextFile, but it's *possible*
+        that the directory was replaced with a reparse point (or a file)
+        between then and now. By passing only FILE_SHARE_READ for the sharing
+        mode, we block other processes from deleting the directory or changing
+        it into a reparse point in-place. We can then re-check the attributes
+        with no worries of them changing afterward, as long as the handle
+        remains open.
+      - It functions like a mutex: If two processes enter this function
+        concurrently for the same directory, this CreateFile call will only
+        succeed in one of them. The other will fail with
+        ERROR_SHARING_VIOLATION, because FILE_SHARE_READ doesn't allow another
+        handle to be opened for DELETE access.
+      The docs for GetFileInformationByHandle (called below) don't specify
+      what access rights, if any, are required. Even though the function
+      succeeds with only DELETE access on Windows 11, we also include
+      FILE_READ_ATTRIBUTES to be sure we aren't depending on undocumented
+      implementation details. }
+    const DirHandle = CreateFile(PChar(ADir),
+      Windows._DELETE or FILE_READ_ATTRIBUTES, FILE_SHARE_READ, nil,
+      OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT or FILE_FLAG_BACKUP_SEMANTICS,
+      0);
+    if DirHandle <> INVALID_HANDLE_VALUE then begin
+      try
+        var Info: TByHandleFileInformation;
+        if GetFileInformationByHandle(DirHandle, Info) and
+           IsAttrDirectoryAndNotReparsePoint(Info.dwFileAttributes) then begin
+          { Try to open _unins-done.tmp, which is an empty file created by
+            Uninstall to signal to us that the directory needs deleting.
+            It also serves as a lock: if the file exists, but opening it fails
+            with ERROR_SHARING_VIOLATION, that means the Uninstall process is
+            still running, so we shouldn't try to delete the directory at this
+            time. (Uninstall holds the file open until it terminates, allowing
+            only FILE_SHARE_READ sharing, which conflicts with the request
+            for DELETE access here.) }
+          const DoneFileHandle = CreateFile(PChar(ADir + '\_unins-done.tmp'),
+            Windows._DELETE, FILE_SHARE_READ, nil, OPEN_EXISTING,
+            FILE_FLAG_OPEN_REPARSE_POINT, 0);
+          if DoneFileHandle <> INVALID_HANDLE_VALUE then begin
+            try
+              Result := Windows.DeleteFile(PChar(UninsExeFilename));
+              if Result then begin
+                LogFmt('Deleted file: %s', [UninsExeFilename]);
+                if not DeleteFileOrDirByHandle(DoneFileHandle) then
+                  LogWithLastError('Failed to delete "_unins-done.tmp".');
+              end;
+            finally
+              CloseHandle(DoneFileHandle);
+            end;
+          end;
+
+          { Try to remove the directory (if empty) in two cases:
+            - If we just deleted files from it. (Any failure is logged.)
+            - If it wasn't modified recently. It could be an empty directory
+              that this function couldn't remove before because an AV or other
+              process was holding handles to the directory or now-deleted
+              files inside. Or, it could be an empty directory that
+              Uninstall's RunFirstPhase couldn't remove because this function
+              was running concurrently in another process and had it open (an
+              unlikely race).
+              The time check prevents removal of a directory that a
+              concurrently-running Uninstall process just created (also an
+              unlikely race).
+              The time check is intentionally done first (often unnecessarily)
+              just to ensure that code path gets regularly exercised. }
+          if not IsRecentFileTime(Info.ftLastWriteTime) or Result then
+            if not DeleteFileOrDirByHandle(DirHandle) then
+              if Result then
+                LogWithLastError('Failed to remove directory.');
+        end;
+      finally
+        CloseHandle(DirHandle);
+      end;
+    end;
+  end;
+
+begin
+  Log('Cleaning up any residual temporary files from previous Uninstall runs.');
+  SelfExeFilename := NewParamStr(0);
+  var NumDirsFound: Cardinal := 0;
+  var NumDirsChecked: Cardinal := 0;
+  var NumFilesDeleted: Cardinal := 0;
+
+  const ParentDir = AddBackslash(GetTempDir);
+  var FindData: TWin32FindData;
+  const H = FindFirstFile(PChar(ParentDir + 'is-*-uninstall.tmp'), FindData);
+  if H = INVALID_HANDLE_VALUE then begin
+    if GetLastError <> ERROR_FILE_NOT_FOUND then
+      LogWithLastError('Failed to list directory.');
+  end else begin
+    try
+      var TimeLimitReached := False;
+      var TimeLimitTimer: TOneShotTimer;
+      TimeLimitTimer.Start(3000);
+      repeat
+        if IsAttrDirectoryAndNotReparsePoint(FindData.dwFileAttributes) then begin
+          const BaseName: String = FindData.cFileName;
+
+          { Scrutinize the name further }
+          const SS = TStringScanner.Create(PathLowercase(BaseName));
+          const MatchingName = SS.Consume('is-') and
+            (SS.ConsumeMulti(['0'..'9', 'a'..'z'], False, 10, 20) > 0) and
+            SS.Consume('-uninstall.tmp') and SS.ReachedEnd;
+
+          if MatchingName then begin
+            Inc(NumDirsFound);
+            if not TimeLimitReached then begin
+              if (NumDirsChecked >= 10) and TimeLimitTimer.Expired then begin
+                TimeLimitReached := True;
+                Log('Stopping cleanup because it''s taking too long (>3s).');
+              end else begin
+                Inc(NumDirsChecked);
+                if TryDeleteUninstallDir(ParentDir + BaseName) then
+                  Inc(NumFilesDeleted);
+              end;
+            end;
+          end;
+        end;
+      until not FindNextFile(H, FindData);
+    finally
+      Windows.FindClose(H);
+    end;
+  end;
+
+  LogFmt('Cleanup finished (%u directories found, %u directories checked, %u files deleted).',
+    [NumDirsFound, NumDirsChecked, NumFilesDeleted]);
+end;
+
+procedure CreateTempInstallDir;
+{ Initializes TempInstallDir. This is called by Setup, Uninstall, and RegSvr. }
 begin
   var Protected: Boolean;
-  TempInstallDir := CreateTempDir(IsAdmin and not Debugging, Protected);
+  TempInstallDir := CreateTempDir('.tmp', IsAdmin and not Debugging, Protected);
   LogFmt('Created %stemporary directory: %s', [IfThen(Protected, 'protected ', ''), TempInstallDir]);
   if Debugging then
     DebugNotifyTempDir(TempInstallDir);
@@ -1436,25 +1634,15 @@ begin
       [FmtSetupMessage1(msgErrorCreatingDir, Subdir), IntToStr(ErrorCode),
        Win32ErrorString(ErrorCode)]));
   end;
-
-  { Extract 64-bit helper EXE, if one is available for the current processor
-    architecture }
-  var ResName := GetHelperResourceName;
-  if ResName <> '' then begin
-    var Filename := Subdir + '\_setup64.tmp';
-    SaveResourceToTempFile(ResName, Filename);
-    SetHelperExeFilename(Filename);
-  end;
 end;
 
-function TempDeleteFileProc(const DisableFsRedir: Boolean;
-  const FileName: String; const Param: Pointer): Boolean;
+function TempDeleteFileProc(const FileName: String; const Param: Pointer): Boolean;
 var
   Elapsed: DWORD;
 label Retry;
 begin
 Retry:
-  Result := DeleteFileRedir(DisableFsRedir, FileName);
+  Result := Windows.DeleteFile(PChar(FileName));
   if not Result and
      (GetLastError <> ERROR_FILE_NOT_FOUND) and
      (GetLastError <> ERROR_PATH_NOT_FOUND) then begin
@@ -1476,56 +1664,21 @@ Retry:
 end;
 
 procedure RemoveTempInstallDir;
-{ Removes TempInstallDir and all its contents. Stops the 64-bit helper first
-  if necessary. }
+{ Removes TempInstallDir and all its contents. }
 begin
-  { Stop 64-bit helper if it's running }
-  StopHelper(False);
-  SetHelperExeFilename('');
-
   if TempInstallDir <> '' then begin
     if Debugging then
       DebugNotifyTempDir('');
-    if not DelTree(False, TempInstallDir, True, True, True, False, nil,
+    if not DelTree(TempInstallDir, True, True, True, True, False, nil,
        TempDeleteFileProc, Pointer(GetTickCount())) then
       Log('Failed to remove temporary directory: ' + TempInstallDir);
   end;
 end;
 
-procedure LoadSHFolderDLL;
-var
-  Filename: String;
-const
-  shfolder = 'shfolder.dll';
-begin
-  Filename := AddBackslash(GetSystemDir) + shfolder;
-  { Ensure shell32.dll is pre-loaded so it isn't loaded/freed for each
-    individual SHGetFolderPath call }
-  SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32, SEM_NOOPENFILEERRORBOX);
-  SHFolderDLLHandle := SafeLoadLibrary(Filename, SEM_NOOPENFILEERRORBOX);
-  if SHFolderDLLHandle = 0 then
-    InternalError(Format('Failed to load DLL "%s"', [Filename]));
-  @SHGetFolderPathFunc := GetProcAddress(SHFolderDLLHandle, 'SHGetFolderPathW');
-  if @SHGetFolderPathFunc = nil then
-    InternalError('Failed to get address of SHGetFolderPath function');
-end;
-
-procedure UnloadSHFolderDLL;
-begin
-  @SHGetFolderPathFunc := nil;
-  if SHFolderDLLHandle <> 0 then begin
-    FreeLibrary(SHFolderDLLHandle);
-    SHFolderDLLHandle := 0;
-  end;
-end;
-
 function GetShellFolderByCSIDL(Folder: Integer; const Create: Boolean): String;
-const
-  CSIDL_FLAG_CREATE = $8000;
-  SHGFP_TYPE_CURRENT = 0;
 var
   Res: HRESULT;
-  Buf: array[0..MAX_PATH-1] of Char;
+  Path: String;
 begin
   { Note: Must pass Create=True or else SHGetFolderPath fails if the
     specified CSIDL is valid but doesn't currently exist. }
@@ -1542,15 +1695,14 @@ begin
     flag first, it seems to permanently cache the failure code, causing future
     calls that don't include the flag to fail as well. }
   if Folder and CSIDL_FLAG_CREATE <> 0 then
-    Res := SHGetFolderPathFunc(0, Folder and not CSIDL_FLAG_CREATE, 0,
-      SHGFP_TYPE_CURRENT, Buf)
+    Res := GetShellFolderPath(Folder and not CSIDL_FLAG_CREATE, Path)
   else
     Res := E_FAIL;  { always issue the call below }
 
   if Res <> S_OK then
-    Res := SHGetFolderPathFunc(0, Folder, 0, SHGFP_TYPE_CURRENT, Buf);
+    Res := GetShellFolderPath(Folder, Path);
   if Res = S_OK then
-    Result := RemoveBackslashUnlessRoot(PathExpand(Buf))
+    Result := RemoveBackslashUnlessRoot(PathExpand(Path))
   else begin
     Result := '';
     LogFmt('Warning: SHGetFolderPath failed with code 0x%.8x on folder 0x%.4x',
@@ -1608,11 +1760,15 @@ var
   ShellFolder: String;
 begin
   if not ShellFoldersRead[Common, ID] then begin
-    if ID = sfUserProgramFiles then
-      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFiles, True)
-    else if ID = sfUserCommonFiles then
-      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFilesCommon, True)
-    else if ID = sfUserSavedGames then
+    if ID = sfUserProgramFiles then begin
+      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFiles, True);
+      if ShellFolder = '' then { should happen on Wine only }
+        ShellFolder := ExpandConst('{localappdata}\Programs'); { supply default, same as Windows }
+    end else if ID = sfUserCommonFiles then begin
+      ShellFolder := GetShellFolderByGUID(FOLDERID_UserProgramFilesCommon, True);
+      if ShellFolder = '' then { should happen on Wine only }
+        ShellFolder := ExpandConst('{localappdata}\Programs\Common'); { supply default, same as Windows }
+    end else if ID = sfUserSavedGames then
       ShellFolder := GetShellFolderByGUID(FOLDERID_SavedGames, True)
     else
       ShellFolder := GetShellFolderByCSIDL(FolderIDs[Common, ID], True);
@@ -1661,59 +1817,52 @@ begin
   end;
 end;
 
-function GetSizeOfComponent(const ComponentName: String; const ExtraDiskSpaceRequired: Integer64): Integer64;
-var
-  ComponentNameAsList: TStringList;
-  FileEntry: PSetupFileEntry;
-  I: Integer;
+function GetSizeOfComponent(const ComponentName: String; const ExtraDiskSpaceRequired: Int64): Int64;
 begin
   Result := ExtraDiskSpaceRequired;
 
-  ComponentNameAsList := TStringList.Create();
+  const ComponentNameAsList = TStringList.Create;
   try
     ComponentNameAsList.Add(ComponentName);
-    for I := 0 to Entries[seFile].Count-1 do begin
-      FileEntry := PSetupFileEntry(Entries[seFile][I]);
+    for var I := 0 to Entries[seFile].Count-1 do begin
+      const FileEntry = PSetupFileEntry(Entries[seFile][I]);
       with FileEntry^ do begin
         if (Components <> '') and
            ((Tasks = '') and (Check = '')) then begin {don't count tasks or scripted entries}
           if ShouldProcessFileEntry(ComponentNameAsList, nil, FileEntry, True) then begin
             if LocationEntry <> -1 then
-              Inc6464(Result, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
+              Inc(Result, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
             else
-              Inc6464(Result, ExternalSize);
-            end;
+              Inc(Result, ExternalSize);
+          end;
         end;
       end;
     end;
   finally
-    ComponentNameAsList.Free();
+    ComponentNameAsList.Free;
   end;
 end;
 
-function GetSizeOfType(const TypeName: String; const IsCustom: Boolean): Integer64;
-var
-  ComponentTypes: TStringList;
-  I: Integer;
+function GetSizeOfType(const TypeName: String; const IsCustom: Boolean): Int64;
 begin
-  Result := To64(0);
-  ComponentTypes := TStringList.Create();
+  Result := 0;
 
-  for I := 0 to Entries[seComponent].Count-1 do begin
-    with PSetupComponentEntry(Entries[seComponent][I])^ do begin
-      SetStringsFromCommaString(ComponentTypes, Types);
-      { For custom types, only count fixed components. Otherwise count all. }
-      if IsCustom then begin
-        if (coFixed in Options) and ListContains(ComponentTypes, TypeName) then
-          Inc6464(Result, Size);
-      end else begin
-        if ListContains(ComponentTypes, TypeName) then
-          Inc6464(Result, Size);
+  const ComponentTypes = TStringList.Create;
+  try
+    for var I := 0 to Entries[seComponent].Count-1 do begin
+      with PSetupComponentEntry(Entries[seComponent][I])^ do begin
+        SetStringsFromCommaString(ComponentTypes, Types);
+        { For custom types, only count fixed components. Otherwise count all. }
+        if IsCustom then begin
+          if (coFixed in Options) and ListContains(ComponentTypes, TypeName) then
+            Inc(Result, Size);
+        end else if ListContains(ComponentTypes, TypeName) then
+          Inc(Result, Size);
       end;
     end;
+  finally
+    ComponentTypes.Free;
   end;
-
-  ComponentTypes.Free();
 end;
 
 function IsRecurseableDirectory(const FindData: TWin32FindData): Boolean;
@@ -1728,11 +1877,9 @@ begin
 end;
 
 type
-  TEnumFilesProc = function(const DisableFsRedir: Boolean; const Filename: String;
-    const Param: Pointer): Boolean;
+  TEnumFilesProc = function(const Filename: String; const Param: Pointer): Boolean;
 
-function DummyDeleteDirProc(const DisableFsRedir: Boolean; const Filename: String;
-    const Param: Pointer): Boolean;
+function DummyDeleteDirProc(const Filename: String; const Param: Pointer): Boolean;
 begin
   { We don't actually want to delete the dir, so just return success. }
   Result := True;
@@ -1744,7 +1891,7 @@ end;
 function EnumFiles(const EnumFilesProc: TEnumFilesProc;
   const WizardComponents, WizardTasks: TStringList; const Param: Pointer): Boolean;
 
-  function RecurseExternalFiles(const DisableFsRedir: Boolean;
+  function RecurseExternalFiles(const Is64Bit: Boolean;
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
     const SourceIsWildcard: Boolean; const Excludes: TStrings; const CurFile: PSetupFileEntry): Boolean;
   begin
@@ -1753,7 +1900,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
     Result := True;
 
     var FindData: TWin32FindData;
-    var H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
+    var H := FindFirstFile(PChar(SearchBaseDir + SearchSubDir + SearchWildcard), FindData);
     if H <> INVALID_HANDLE_VALUE then begin
       try
         repeat
@@ -1773,7 +1920,8 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
               DestFile := DestFile + SearchSubDir + FindData.cFileName
             else if SearchSubDir <> '' then
               DestFile := PathExtractPath(DestFile) + SearchSubDir + PathExtractName(DestFile);
-            if not EnumFilesProc(DisableFsRedir, DestFile, Param) then begin
+            DestFile := ApplyPathRedirRules(Is64Bit, DestFile, tpCurrent);
+            if not EnumFilesProc(DestFile, Param) then begin
               Result := False;
               Exit;
             end;
@@ -1785,12 +1933,12 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
     end;
 
     if foRecurseSubDirsExternal in CurFile^.Options then begin
-      H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + '*', FindData);
+      H := FindFirstFile(PChar(SearchBaseDir + SearchSubDir + '*'), FindData);
       if H <> INVALID_HANDLE_VALUE then begin
         try
           repeat
             if IsRecurseableDirectory(FindData) then
-              if not RecurseExternalFiles(DisableFsRedir, SearchBaseDir,
+              if not RecurseExternalFiles(Is64Bit, SearchBaseDir,
                  SearchSubDir + FindData.cFileName + '\', SearchWildcard,
                  SourceIsWildcard, Excludes, CurFile) then
                 Exit(False);
@@ -1802,22 +1950,22 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
     end;
   end;
 
-  function RecurseExternalArchiveFiles(const DisableFsRedir: Boolean;
+  function RecurseExternalArchiveFiles(const Is64Bit: Boolean;
     const ArchiveFilename: String; const Excludes: TStrings;
     const CurFile: PSetupFileEntry): Boolean;
   begin
     { See above }
     Result := True;
 
-    if not NewFileExistsRedir(DisableFsRedir, ArchiveFilename) then
+    if not NewFileExists(ArchiveFilename) then
       Exit;
 
     if foCustomDestName in CurFile^.Options then
       InternalError('Unexpected CustomDestName flag');
-    const DestDir = ExpandConst(CurFile^.DestName);
+    const DestDir = ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName), tpCurrent);
 
     var FindData: TWin32FindData;
-    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename, DestDir,
+    var H := ArchiveFindFirstFile(ArchiveFilename, DestDir,
       ExpandConst(CurFile^.ExtractArchivePassword), foRecurseSubDirsExternal in CurFile^.Options,
       False, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
@@ -1829,7 +1977,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
               Continue;
 
             const DestFile = DestDir + FindData.cFileName;
-            if not EnumFilesProc(DisableFsRedir, DestFile, Param) then
+            if not EnumFilesProc(DestFile, Param) then
               Exit(False);
           end;
         until not ArchiveFindNextFile(H, FindData);
@@ -1840,9 +1988,7 @@ function EnumFiles(const EnumFilesProc: TEnumFilesProc;
   end;
 
 var
-  I: Integer;
   CurFile: PSetupFileEntry;
-  DisableFsRedir: Boolean;
   SourceWildcard: String;
 begin
   Result := True;
@@ -1853,14 +1999,14 @@ begin
     Excludes.StrictDelimiter := True;
     Excludes.Delimiter := ',';
 
-    for I := 0 to Entries[seFile].Count-1 do begin
+    for var I := 0 to Entries[seFile].Count-1 do begin
       CurFile := PSetupFileEntry(Entries[seFile][I]);
       if (CurFile^.FileType = ftUserFile) and
          ShouldProcessFileEntry(WizardComponents, WizardTasks, CurFile, False) then begin
-        DisableFsRedir := ShouldDisableFsRedirForFileEntry(CurFile);
+        const Is64Bit = IsEntryBitness64Bit(CurFile^.Bitness);
         if CurFile^.LocationEntry <> -1 then begin
           { Non-external file }
-          if not EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName), Param) then begin
+          if not EnumFilesProc(ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName), tpCurrent), Param) then begin
             Result := False;
             Exit;
           end;
@@ -1874,14 +2020,14 @@ begin
             if not(foCustomDestName in CurFile^.Options) then
               InternalError('Expected CustomDestName flag');
             { CurFile^.DestName now includes a filename, see TSetupCompiler.EnumFilesProc.ProcessFileList }
-            if not EnumFilesProc(DisableFsRedir, ExpandConst(CurFile^.DestName), Param) then
+            if not EnumFilesProc(ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName), tpCurrent), Param) then
               Exit(False);
           end else begin
-	          SourceWildcard := ExpandConst(CurFile^.SourceFilename);
+            SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.SourceFilename), tpCurrent);
 	          Excludes.DelimitedText := CurFile^.Excludes;
 	          if foExtractArchive in CurFile^.Options then begin
 	            try
-	              if not RecurseExternalArchiveFiles(DisableFsRedir, SourceWildcard,
+	              if not RecurseExternalArchiveFiles(Is64Bit, SourceWildcard,
 	                 Excludes, CurFile) then
 	                Exit(False);
 	            except on E: ESevenZipError do
@@ -1889,7 +2035,7 @@ begin
 	                installation }
 	            end;
 	          end else begin
-	            if not RecurseExternalFiles(DisableFsRedir, PathExtractPath(SourceWildcard), '',
+	            if not RecurseExternalFiles(Is64Bit, PathExtractPath(SourceWildcard), '',
 	               PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
                 Exit(False);
             end;
@@ -1902,18 +2048,19 @@ begin
   end;
 
   { [InstallDelete] }
-    for I := 0 to Entries[seInstallDelete].Count-1 do
+    for var I := 0 to Entries[seInstallDelete].Count-1 do
       with PSetupDeleteEntry(Entries[seInstallDelete][I])^ do
         if ShouldProcessEntry(WizardComponents, WizardTasks, Components, Tasks, Languages, Check) then begin
+          const Path = ApplyPathRedirRules(InstallDefault64Bit, ExpandConst(Name), tpCurrent);
           case DeleteType of
             dfFiles, dfFilesAndOrSubdirs:
-              if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), False, True, DeleteType = dfFilesAndOrSubdirs, True,
+              if not DelTree(Path, False, False, True, DeleteType = dfFilesAndOrSubdirs, True,
                  DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
               end;
             dfDirIfEmpty:
-              if not DelTree(InstallDefaultDisableFsRedir, ExpandConst(Name), True, False, False, True,
+              if not DelTree(Path, True, False, False, False, True,
                  DummyDeleteDirProc, EnumFilesProc, Param) then begin
                 Result := False;
                 Exit;
@@ -1930,17 +2077,13 @@ end;
 var
   CheckForFileSL: TStringList;
 
-function CheckForFile(const DisableFsRedir: Boolean; const AFilename: String;
-  const Param: Pointer): Boolean;
-var
-  Filename: String;
-  J: Integer;
+function CheckForFile(const AFilename: String; const Param: Pointer): Boolean;
 begin
-  Filename := AFilename;
-  if not DisableFsRedir then
-    Filename := ReplaceSystemDirWithSysWow64(Filename);
-  Filename := PathLowercase(Filename);
-  for J := 0 to CheckForFileSL.Count-1 do begin
+  { CheckForFileSL contains native-bit filenames, so AFilename needs to be
+    converted from current-process-bit to native-bit before comparing. }
+  const Filename = PathLowercase(ApplyPathRedirRules(IsCurrentProcess64Bit,
+    AFilename, tpNativeBit));
+  for var J := 0 to CheckForFileSL.Count-1 do begin
     if CheckForFileSL[J] = Filename then begin
       LogFmt('Found pending rename or delete that matches one of our files: %s', [Filename]);
       Result := False; { Break the enum, just need to know if any matches }
@@ -1975,8 +2118,7 @@ var
   RegisterFileBatchFilenames: PArrayOfPWideChar;
   RegisterFileFilenamesBatchMax, RegisterFileFilenamesBatchCount: Integer;
 
-function RegisterFile(const DisableFsRedir: Boolean; const AFilename: String;
-  const Param: Pointer): Boolean;
+function RegisterFile(const AFilename: String; const Param: Pointer): Boolean;
 var
   Filename, Text: String;
   I, Len: Integer;
@@ -2011,7 +2153,7 @@ begin
         Exit;
       end;
     end;
-    if PathCompare(Filename, SetupLdrOriginalFilename) = 0 then begin
+    if PathSame(PathConvertSuperToNormal(Filename), SetupLdrOriginalFilename) then begin
       { Don't allow self to be registered but don't return an error. }
       Result := True;
       Exit;
@@ -2022,7 +2164,7 @@ begin
     or because we're done scanning and have leftovers. }
   if ((Filename <> '') and (RegisterFileFilenamesBatchCount = RegisterFileFilenamesBatchMax)) or
      ((Filename = '') and (RegisterFileFilenamesBatchCount > 0)) then begin
-    if RmRegisterResources(RmSessionHandle, RegisterFileFilenamesBatchCount, RegisterFileBatchFilenames, 0, nil, 0, nil) = ERROR_SUCCESS then begin
+    if RmRegisterResources(RmSessionHandle, UINT(RegisterFileFilenamesBatchCount), RegisterFileBatchFilenames, 0, nil, 0, nil) = ERROR_SUCCESS then begin
       for I := 0 to RegisterFileFilenamesBatchCount-1 do
         FreeMem(RegisterFileBatchFilenames[I]);
       RegisterFileFilenamesBatchCount := 0;
@@ -2034,13 +2176,6 @@ begin
 
   { Finally: add this file to the batch. }
   if RmSessionStarted and (FileName <> '') then begin
-    { From MSDN: "Installers should not disable file system redirection before calling
-      the Restart Manager API. This means that a 32-bit installer run on 64-bit Windows
-      is unable register a file in the %windir%\system32 directory." This is incorrect,
-      we can register such files by using the Sysnative alias. }
-    if DisableFsRedir then
-      Filename := ReplaceSystemDirWithSysNative(Filename, IsWin64);
-
     if InitLogCloseApplications then
       LogFmt('Found a file to register with RestartManager: %s', [Filename]);
 
@@ -2059,10 +2194,10 @@ end;
 var
   AllowCodeRegisterExtraCloseApplicationsResource: Boolean;
 
-function CodeRegisterExtraCloseApplicationsResource(const DisableFsRedir: Boolean; const AFilename: String): Boolean;
+function CodeRegisterExtraCloseApplicationsResource(const AFilename: String): Boolean;
 begin
   if AllowCodeRegisterExtraCloseApplicationsResource then
-    Result := RegisterFile(DisableFsRedir, AFilename, Pointer(False))
+    Result := RegisterFile(AFilename, Pointer(False))
   else begin
     InternalError('Cannot call "RegisterExtraCloseApplicationsResource" function at this time');
     Result := False;
@@ -2103,7 +2238,7 @@ begin
     end;
     { Don't forget to register leftovers. }
     if RmSessionStarted then
-      RegisterFile(False, '', nil);
+      RegisterFile('', nil);
   finally
     for I := 0 to RegisterFileFilenamesBatchCount-1 do
       FreeMem(RegisterFileBatchFilenames[I]);
@@ -2111,7 +2246,7 @@ begin
   end;
 end;
 
-procedure DebugNotifyEntry(EntryType: TEntryType; Number: Integer);
+procedure DebugNotifyEntry(EntryType: TEntryType; Number: NativeInt);
 var
   Kind: TDebugEntryKind;
   B: Boolean;
@@ -2202,36 +2337,35 @@ begin
     DllName := ExpandConst(DllName);
 end;
 
-function CodeRunnerOnDebug(const Position: LongInt;
+function CodeRunnerOnDebug(const Position: Cardinal;
   var ContinueStepOver: Boolean): Boolean;
 begin
-  Result := DebugNotify(deCodeLine, Position, ContinueStepOver, CodeRunner.GetCallStack);
+  Result := DebugNotify(deCodeLine, Integer(Position), ContinueStepOver, CodeRunner.GetCallStack);
 end;
 
-function CodeRunnerOnDebugIntermediate(const Position: LongInt;
+function CodeRunnerOnDebugIntermediate(const Position: Cardinal;
   var ContinueStepOver: Boolean): Boolean;
 begin
-  Result := DebugNotifyIntermediate(deCodeLine, Position, ContinueStepOver);
+  Result := DebugNotifyIntermediate(deCodeLine, Integer(Position), ContinueStepOver);
 end;
 
-procedure CodeRunnerOnException(const Exception: AnsiString; const Position: LongInt);
+procedure CodeRunnerOnException(const Exception: AnsiString; const Position: Cardinal);
 begin
   if Debugging then
-    DebugNotifyException(String(Exception), deCodeLine, Position);
+    DebugNotifyException(String(Exception), deCodeLine, Integer(Position));
 end;
 
 procedure SetActiveLanguage(const I: Integer);
 { Activates the specified language }
 var
   LangEntry: PSetupLanguageEntry;
-  J: Integer;
 begin
   if ActiveLanguage = I then
     Exit;
 
   LangEntry := Entries[seLanguage][I];
 
-  AssignSetupMessages(LangEntry.Data[1], Length(LangEntry.Data));
+  AssignSetupMessages(LangEntry.Data[1], ULength(LangEntry.Data));
 
   { Remove outdated < and > markers from the Back and Next buttons. Done here for now to avoid a Default.isl change. }
   StringChange(SetupMessages[msgButtonBack], '< ', '');
@@ -2257,13 +2391,9 @@ begin
     ActiveInfoAfterText := SetupHeader.InfoAfterText;
 
   SetMessageBoxRightToLeft(LangOptions.RightToLeft);
-  SetMessageBoxCaption(mbInformation, PChar(SetupMessages[msgInformationTitle]));
-  SetMessageBoxCaption(mbConfirmation, PChar(SetupMessages[msgConfirmTitle]));
-  SetMessageBoxCaption(mbError, PChar(SetupMessages[msgErrorTitle]));
-  SetMessageBoxCaption(mbCriticalError, PChar(SetupMessages[msgErrorTitle]));
   Application.Title := SetupMessages[msgSetupAppTitle];
 
-  for J := 0 to Entries[seType].Count-1 do begin
+  for var J := 0 to Entries[seType].Count-1 do begin
     with PSetupTypeEntry(Entries[seType][J])^ do begin
       case Typ of
         ttDefaultFull: Description := SetupMessages[msgFullInstallation];
@@ -2273,11 +2403,11 @@ begin
     end;
   end;
 
-  { Tell the first instance to change its language too. (It's possible for
-    the first instance to display messages after Setup terminates, e.g. if it
+  { Tell SetupLdr to change its language too. (It's possible for
+    SetupLdr to display messages after Setup terminates, e.g. if it
     fails to restart the computer.) }
-  if SetupNotifyWndPresent then
-    SendNotifyMessage(SetupNotifyWnd, WM_USER + 150, 10001, I);
+  if SetupLdrMode then
+    SendNotifyMessage(SetupLdrWnd, WM_USER + 150, 10001, I);
 end;
 
 function GetLanguageEntryProc(Index: Integer; var Entry: PSetupLanguageEntry): Boolean;
@@ -2311,6 +2441,44 @@ begin
   SetActiveLanguage(I);
 end;
 
+var
+  IsRedirectionGuardEnabled: Boolean;
+
+procedure RedirectionGuardConfigure(const AEnable: Boolean);
+const
+  ProcessRedirectionTrustPolicy = TProcessMitigationPolicy(16);
+var
+  SetProcessMitigationPolicyFunc: function(MitigationPolicy: TProcessMitigationPolicy;
+    lpBuffer: PVOID; dwLength: SIZE_T): BOOL; stdcall;
+begin
+  var Status: String;
+
+  if AEnable then begin
+    SetProcessMitigationPolicyFunc := GetProcAddress(GetModuleHandle(kernel32),
+      PAnsiChar('SetProcessMitigationPolicy'));
+    if Assigned(SetProcessMitigationPolicyFunc) then begin
+      const Flags: DWORD = 1;  { = EnforceRedirectionTrust bit set }
+      if SetProcessMitigationPolicyFunc(ProcessRedirectionTrustPolicy, @Flags, SizeOf(Flags)) then begin
+        IsRedirectionGuardEnabled := True;
+        Status := 'Enabled in enforcing mode'
+      end else begin
+        const ErrorCode = GetLastError;
+        Status := Format('Could not enable (SetProcessMitigationPolicy failed with error code %u)',
+          [ErrorCode]);
+      end;
+    end else
+      Status := 'Could not enable (SetProcessMitigationPolicy unavailable)';
+  end else
+    Status := 'Not enabling';
+
+  LogFmt('RedirectionGuard status for current process: %s', [Status]);
+end;
+
+function RedirectionGuardEnabled: Boolean;
+begin
+  Result := IsRedirectionGuardEnabled;
+end;
+
 procedure LogCompatibilityMode;
 var
   S: String;
@@ -2318,6 +2486,12 @@ begin
   S := GetEnv('__COMPAT_LAYER');
   if S <> '' then
     LogFmt('Compatibility mode: %s (%s)', [SYesNo[True], S]);
+end;
+
+procedure LogSetupVersion;
+begin
+  LogFmt('Setup version: %s version %s (%d-bit)', [SetupTitle, SetupVersion,
+    BitsFrom64BitBoolean(IsCurrentProcess64Bit)]);
 end;
 
 procedure LogWindowsVersion;
@@ -2353,10 +2527,9 @@ begin
   LogFmt('Windows version: %u.%u.%u%s', [WindowsVersion shr 24,
     (WindowsVersion shr 16) and $FF, WindowsVersion and $FFFF, SP]);
 
-  var Bits := 32;
-  if IsWin64 then
-    Bits := 64;
-  LogFmt('Windows architecture: %s (%d-bit)', [SetupProcessorArchitectureNames[ProcessorArchitecture], Bits]);
+  LogFmt('Windows architecture: %s (%d-bit)',
+    [SetupProcessorArchitectureNames[ProcessorArchitecture],
+     BitsFrom64BitBoolean(IsWin64)]);
   LogFmt('Machine types supported by system: %s', [ArchitecturesToStr(MachineTypesSupportedBySystem, ' ')]);
 
   if IsAdmin then
@@ -2386,7 +2559,8 @@ end;
 
 function GetButtonsText(const Buttons: Cardinal): String;
 const
-  { We don't use this type, but end users are liable to in [Code] }
+  { We don't use this type, but end users are liable to in [Code].
+    Same applies to MB_ABORTRETRYIGNORE. }
   MB_CANCELTRYCONTINUE = $00000006;
 begin
   case Buttons and MB_TYPEMASK of
@@ -2402,43 +2576,27 @@ begin
   end;
 end;
 
-procedure LogSuppressedMessageBox(const Text: PChar; const Buttons: Cardinal;
+procedure LogSuppressedMsgBox(const Text: PChar; const Buttons: Cardinal;
   const Default: Integer);
 begin
   Log(Format('Defaulting to %s for suppressed message box (%s):' + SNewLine,
     [GetMessageBoxResultText(Default), GetButtonsText(Buttons)]) + Text);
 end;
 
-procedure LogMessageBox(const Text: PChar; const Buttons: Cardinal);
+procedure LogMsgBox(const Text: PChar; const Buttons: Cardinal);
 begin
   Log(Format('Message box (%s):' + SNewLine,
     [GetButtonsText(Buttons)]) + Text);
-end;
-
-function LoggedAppMessageBox(const Text, Caption: PChar; const Flags: Longint;
-  const Suppressible: Boolean; const Default: Integer): Integer;
-begin
-  if InitSuppressMsgBoxes and Suppressible then begin
-    LogSuppressedMessageBox(Text, Flags, Default);
-    Result := Default;
-  end else begin
-    LogMessageBox(Text, Flags);
-    Result := AppMessageBox(Text, Caption, Flags);
-    if Result <> 0 then
-      LogFmt('User chose %s.', [GetMessageBoxResultText(Result)])
-    else
-      Log('AppMessageBox failed.');
-  end;
 end;
 
 function LoggedMsgBox(const Text, Caption: String; const Typ: TMsgBoxType;
   const Buttons: Cardinal; const Suppressible: Boolean; const Default: Integer): Integer;
 begin
   if InitSuppressMsgBoxes and Suppressible then begin
-    LogSuppressedMessageBox(PChar(Text), Buttons, Default);
+    LogSuppressedMsgBox(PChar(Text), Buttons, Default);
     Result := Default;
   end else begin
-    LogMessageBox(PChar(Text), Buttons);
+    LogMsgBox(PChar(Text), Buttons);
     Result := MsgBox(Text, Caption, Typ, Buttons);
     if Result <> 0 then
       LogFmt('User chose %s.', [GetMessageBoxResultText(Result)])
@@ -2453,10 +2611,10 @@ function LoggedTaskDialogMsgBox(const Icon, Instruction, Text, Caption: String;
   const VerificationText: String = ''; const pfVerificationFlagChecked: PBOOL = nil): Integer;
 begin
   if InitSuppressMsgBoxes and Suppressible then begin
-    LogSuppressedMessageBox(PChar(Text), Buttons, Default);
+    LogSuppressedMsgBox(PChar(Text), Buttons, Default);
     Result := Default;
   end else begin
-    LogMessageBox(PChar(Text), Buttons);
+    LogMsgBox(PChar(Text), Buttons);
     Result := TaskDialogMsgBox(Icon, Instruction, Text,
       Caption, Typ, Buttons, ButtonLabels, ShieldButton, VerificationText, pfVerificationFlagChecked);
     if Result <> 0 then begin
@@ -2466,6 +2624,30 @@ begin
     end else
       Log('TaskDialogMsgBox failed.');
   end;
+end;
+
+procedure ShowExceptionMsgText(const S: String);
+begin
+  Log('Exception message:');
+  LoggedMsgBox(S, '', mbCriticalError, MB_OK, True, IDOK);
+end;
+
+procedure ShowExceptionMsg;
+{ Shows and logs the current exception.
+  Similar to calling Application.HandleException, but with these differences:
+  - EAbort exceptions are logged. (Application.HandleException ignores them
+    completely.)
+  - If an exception doesn't descend from Exception (which shouldn't happen),
+    it is still passed to our ShowExceptionMsgText function.
+    (Application.HandleException calls a different function which we can't
+    hook into, SysUtils.ShowException.)
+  - We don't include special support for exceptions raised by other modules.
+    (Application.HandleException checks class names, rather than using "is".) }
+begin
+  if ExceptObject is EAbort then
+    Log('Caught EAbort exception.')
+  else
+    ShowExceptionMsgText(GetExceptMessage);
 end;
 
 procedure RestartComputerFromThisProcess;
@@ -2484,26 +2666,21 @@ procedure RespawnSetupElevated(const AParams: String);
 var
   Cancelled: Boolean;
   Server: TSpawnServer;
-  ParamNotifyWnd: HWND;
   RespawnResults: record
-    ExitCode: DWORD;
-    NotifyRestartRequested: Boolean;
-    NotifyNewLanguage: Integer;
+    ExitCode: Integer;
   end;
 begin
   Cancelled := False;
   try
     Server := TSpawnServer.Create;
     try
-      if SetupNotifyWndPresent then
-        ParamNotifyWnd := SetupNotifyWnd
-      else
-        ParamNotifyWnd := Server.Wnd;
+      var FirstWnd := SetupLdrWnd;
+      if not SetupLdrMode then
+        FirstWnd := Server.Wnd;
+      { The UInt32 casts prevent sign extension }
       RespawnSelfElevated(SetupLdrOriginalFilename,
-        Format('/SPAWNWND=$%x /NOTIFYWND=$%x ', [Server.Wnd, ParamNotifyWnd]) +
-        AParams, RespawnResults.ExitCode);
-      RespawnResults.NotifyRestartRequested := Server.NotifyRestartRequested;
-      RespawnResults.NotifyNewLanguage := Server.NotifyNewLanguage;
+        Format('/SPAWNWND=$%x /FIRSTWND=$%x ', [UInt32(Server.Wnd), UInt32(FirstWnd)]) +
+        AParams, Server, RespawnResults.ExitCode);
     finally
       Server.Free;
     end;
@@ -2517,25 +2694,8 @@ begin
   if Cancelled then
     Halt(ecCancelledBeforeInstall);
 
-  if not SetupNotifyWndPresent then begin
-    { In the UseSetupLdr=no case, there is no notify window handle to pass to
-      RespawnSelfElevated, so it hosts one itself. Process the results. }
-    try
-      if (RespawnResults.NotifyNewLanguage >= 0) and
-         (RespawnResults.NotifyNewLanguage < Entries[seLanguage].Count) then
-        SetActiveLanguage(RespawnResults.NotifyNewLanguage);
-      if RespawnResults.NotifyRestartRequested then begin
-        { Note: Depending on the OS, this may not return if successful }
-        RestartComputerFromThisProcess;
-      end;
-    except
-      { In the unlikely event that something above raises an exception, handle
-        it here so the right exit code will still be returned below }
-      Application.HandleException(nil);
-    end;
-  end;
-
-  Halt(RespawnResults.ExitCode);
+  System.ExitCode := RespawnResults.ExitCode;
+  Halt;
 end;
 
 procedure InitializeCommonVars;
@@ -2543,7 +2703,6 @@ procedure InitializeCommonVars;
 begin
   IsAdmin := IsAdminLoggedOn;
   IsPowerUserOrAdmin := IsAdmin or IsPowerUserLoggedOn;
-  Randomize;
 end;
 
 procedure InitializeAdminInstallMode(const AAdminInstallMode: Boolean);
@@ -2561,8 +2720,7 @@ procedure Initialize64BitInstallMode(const A64BitInstallMode: Boolean);
 { Initializes Is64BitInstallMode and other global variables that depend on it }
 begin
   Is64BitInstallMode := A64BitInstallMode;
-  InstallDefaultDisableFsRedir := A64BitInstallMode;
-  ScriptFuncDisableFsRedir := A64BitInstallMode;
+  InstallDefault64Bit := A64BitInstallMode;
   if A64BitInstallMode then
     InstallDefaultRegView := rv64Bit
   else
@@ -2592,20 +2750,26 @@ procedure InitializeSetup;
 var
   DecompressorDLL, SevenZipDLL: TMemoryStream;
 
-  function ExtractLongWord(var S: String): LongWord;
-  var
-    P: Integer;
+  function ExtractInt64(var S: String): Int64;
   begin
-    P := PathPos(',', S);
+    const P = Pos(',', S);
     if P = 0 then
-      raise Exception.Create('ExtractLongWord: Missing comma');
-    Result := LongWord(StrToInt(Copy(S, 1, P-1)));
+      raise Exception.Create('Error parsing command line: Missing comma');
+    Result := StrToInt64Def(Copy(S, 1, P-1), -1);
+    if Result < 0 then
+      raise Exception.Create('Error parsing command line: Invalid value');
     Delete(S, 1, P);
   end;
 
-  procedure AbortInit(const Msg: TSetupMessageID);
+  procedure AbortInit(const Msg: TSetupMessageID); overload;
   begin
     LoggedMsgBox(SetupMessages[Msg], '', mbCriticalError, MB_OK, True, IDOK);
+    Abort;
+  end;
+
+  procedure AbortInit(const Msg: String); overload;
+  begin
+    LoggedMsgBox(Msg, '', mbCriticalError, MB_OK, True, IDOK);
     Abort;
   end;
 
@@ -2622,23 +2786,24 @@ var
     Abort;
   end;
 
-  procedure ReadFileIntoStream(const Stream: TStream;
-    const R: TCompressedBlockReader);
+  procedure ReadFileIntoStream(const Reader: TCompressedBlockReader; const Stream: TStream);
   type
     PBuffer = ^TBuffer;
     TBuffer = array[0..8191] of Byte;
   var
     Buf: PBuffer;
-    BytesLeft, Bytes: Longint;
   begin
     New(Buf);
     try
-      R.Read(BytesLeft, SizeOf(BytesLeft));
+      var BytesLeft: Integer;
+      Reader.Read(BytesLeft, SizeOf(BytesLeft));
       while BytesLeft > 0 do begin
-        Bytes := BytesLeft;
-        if Bytes > SizeOf(Buf^) then Bytes := SizeOf(Buf^);
-        R.Read(Buf^, Bytes);
-        Stream.WriteBuffer(Buf^, Bytes);
+        var Bytes := BytesLeft;
+        if Bytes > SizeOf(Buf^) then
+          Bytes := SizeOf(Buf^);
+        Reader.Read(Buf^, Cardinal(Bytes));
+        if Stream <> nil then
+          Stream.WriteBuffer(Buf^, Bytes);
         Dec(BytesLeft, Bytes);
       end;
     finally
@@ -2646,19 +2811,43 @@ var
     end;
   end;
 
-  function ReadWizardImage(const R: TCompressedBlockReader): TBitmap;
-  var
-    MemStream: TMemoryStream;
+  function ReadWizardImage(const Reader: TCompressedBlockReader): TGraphic;
   begin
-    MemStream := TMemoryStream.Create;
+    const MemStream = TMemoryStream.Create;
     try
-      ReadFileIntoStream(MemStream, R);
+      ReadFileIntoStream(Reader, MemStream);
       MemStream.Seek(0, soFromBeginning);
-      Result := TBitmap.Create;
-      Result.AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
-      Result.LoadFromStream(MemStream);
+      if TPngImage.CanLoadFromStream(MemStream) then
+        Result := TPngImage.Create
+      else begin
+        Result := TBitmap.Create;
+        TBitmap(Result).AlphaFormat := TAlphaFormat(SetupHeader.WizardImageAlphaFormat);
+      end;
+      try
+        Result.LoadFromStream(MemStream);
+      except
+        Result.Free;
+        raise;
+      end;
     finally
       MemStream.Free;
+    end;
+  end;
+
+  procedure ReadWizardImages(const Reader: TCompressedBlockReader; const WizardImages: TWizardImages;
+    const WantImages: Boolean);
+  begin
+    var Count: Integer;
+    Reader.Read(Count, SizeOf(Integer));
+    if Count = -1 then { True if DynamicDark images were same as 'regular' images }
+      Exit;
+    if WantImages then
+      WizardImages.Clear; { This is to clear 'regular' images which have been read already }
+    for var I := 0 to Count-1 do begin
+      if WantImages then
+        WizardImages.Add(ReadWizardImage(Reader))
+      else
+        ReadFileIntoStream(Reader, nil);
     end;
   end;
 
@@ -2701,11 +2890,8 @@ var
     end;
   end;
 
-var
-  Reader: TCompressedBlockReader;
-
-  procedure ReadEntriesWithoutVersion(const EntryType: TEntryType;
-    const Count: Integer; const Size: Integer);
+  procedure ReadEntriesWithoutVersion(const Reader: TCompressedBlockReader;
+    const EntryType: TEntryType; const Count: Integer; const Size: Integer);
   var
     I: Integer;
     P: Pointer;
@@ -2713,14 +2899,14 @@ var
     Entries[EntryType].Capacity := Count;
     for I := 0 to Count-1 do begin
       P := AllocMem(Size);
-      SECompressedBlockRead(Reader, P^, Size, EntryStrings[EntryType],
+      SECompressedBlockRead(Reader, P^, Cardinal(Size), EntryStrings[EntryType],
         EntryAnsiStrings[EntryType]);
       Entries[EntryType].Add(P);
     end;
   end;
 
-  procedure ReadEntries(const EntryType: TEntryType; const Count: Integer;
-    const Size: Integer; const MinVersionOfs, OnlyBelowVersionOfs: Integer);
+  procedure ReadEntries(Reader: TCompressedBlockReader; const EntryType: TEntryType;
+    const Count: Integer; const Size: Integer; const MinVersionOfs, OnlyBelowVersionOfs: Integer);
   var
     I: Integer;
     P: Pointer;
@@ -2732,11 +2918,11 @@ var
     Entries[EntryType].Capacity := Count;
     for I := 0 to Count-1 do begin
       P := AllocMem(Size);
-      SECompressedBlockRead(Reader, P^, Size, EntryStrings[EntryType],
+      SECompressedBlockRead(Reader, P^, Cardinal(Size), EntryStrings[EntryType],
         EntryAnsiStrings[Entrytype]);
       if (MinVersionOfs = -1) or
-         (InstallOnThisVersion(TSetupVersionData((@PByteArray(P)[MinVersionOfs])^),
-          TSetupVersionData((@PByteArray(P)[OnlyBelowVersionOfs])^)) = irInstall) then begin
+         (InstallOnThisVersion(PSetupVersionData(PByte(P) + MinVersionOfs)^,
+            PSetupVersionData(PByte(P) + OnlyBelowVersionOfs)^) = irInstall) then begin
         Entries[EntryType].Add(P);
         if Debugging then
           OriginalEntryIndexes[EntryType].Add(Pointer(I));
@@ -2744,6 +2930,12 @@ var
       else
         SEFreeRec(P, EntryStrings[EntryType], EntryAnsiStrings[EntryType]);
     end;
+  end;
+
+  function ShouldEnableRedirectionGuard: Boolean;
+  begin
+    Result := InitRedirectionGuard or
+      ((shRedirectionGuard in SetupHeader.Options) and not InitNoRedirectionGuard);
   end;
 
   function HandleInitPassword(const NeedPassword: Boolean): Boolean;
@@ -2756,15 +2948,15 @@ var
       var PasswordOk := False;
       var S := InitPassword;
       var CryptKey: TSetupEncryptionKey;
-      GenerateEncryptionKey(S, SetupHeader.EncryptionKDFSalt, SetupHeader.EncryptionKDFIterations, CryptKey);
+      GenerateEncryptionKey(S, SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
       if shPassword in SetupHeader.Options then
-        PasswordOk := TestPassword(CryptKey);
+        PasswordOk := TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest);
       if not PasswordOk and (CodeRunner <> nil) then
         PasswordOk := CodeRunner.RunBooleanFunctions('CheckPassword', [S], bcTrue, False, PasswordOk);
 
       if PasswordOk then begin
         Result := False;
-        if shEncryptionUsed in SetupHeader.Options then
+        if SetupEncryptionHeader.EncryptionUse = euFiles then
           FileExtractor.CryptKey := CryptKey;
       end;
     end;
@@ -2778,47 +2970,47 @@ var
       InstallMode := imSilent;
   end;
 
-  function RecurseExternalGetSizeOfFiles(const DisableFsRedir: Boolean;
+  function RecurseExternalGetSizeOfFiles(
     const SearchBaseDir, SearchSubDir, SearchWildcard: String;
     const SourceIsWildcard: Boolean; const Excludes: TStrings;
-    const RecurseSubDirs: Boolean): Integer64;
+    const RecurseSubDirs: Boolean): Int64;
   begin
     { Also see RecurseExternalFiles above and RecurseExternalCopyFiles in Setup.Install
       Also see RecurseExternalArchiveGetSizeOfFiles directly below }
-    Result := To64(0);
+    Result := 0;
 
     var FindData: TWin32FindData;
-    var H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + SearchWildcard, FindData);
+    var H := FindFirstFile(PChar(SearchBaseDir + SearchSubDir + SearchWildcard), FindData);
     if H <> INVALID_HANDLE_VALUE then begin
-      repeat
-        if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
+      try
+        repeat
+          if FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY = 0 then begin
 
-          if SourceIsWildcard then
-            if FindData.dwFileAttributes and FILE_ATTRIBUTE_HIDDEN <> 0 then
+            if SourceIsWildcard then
+              if FindData.dwFileAttributes and FILE_ATTRIBUTE_HIDDEN <> 0 then
+                Continue;
+
+            if IsExcluded(SearchSubDir + FindData.cFileName, Excludes) then
               Continue;
 
-          if IsExcluded(SearchSubDir + FindData.cFileName, Excludes) then
-            Continue;
-
-          var I: Integer64;
-          I.Hi := FindData.nFileSizeHigh;
-          I.Lo := FindData.nFileSizeLow;
-          Inc6464(Result, I);
-        end;
-      until not FindNextFile(H, FindData);
-      Windows.FindClose(H);
+            Inc(Result, FindDataFileSizeToInt64(FindData));
+          end;
+        until not FindNextFile(H, FindData);
+      finally
+        Windows.FindClose(H);
+      end;
     end;
 
     if RecurseSubDirs then begin
-      H := FindFirstFileRedir(DisableFsRedir, SearchBaseDir + SearchSubDir + '*', FindData);
+      H := FindFirstFile(PChar(SearchBaseDir + SearchSubDir + '*'), FindData);
       if H <> INVALID_HANDLE_VALUE then begin
         try
           repeat
             if IsRecurseableDirectory(FindData) then begin
-              var I := RecurseExternalGetSizeOfFiles(DisableFsRedir, SearchBaseDir,
+              var I := RecurseExternalGetSizeOfFiles(SearchBaseDir,
                 SearchSubDir + FindData.cFileName + '\', SearchWildcard,
                 SourceIsWildcard, Excludes, RecurseSubDirs);
-              Inc6464(Result, I);
+              Inc(Result, I);
             end;
           until not FindNextFile(H, FindData);
         finally
@@ -2828,18 +3020,18 @@ var
     end;
   end;
 
-  function RecurseExternalArchiveGetSizeOfFiles(const DisableFsRedir: Boolean;
+  function RecurseExternalArchiveGetSizeOfFiles(
     const ArchiveFilename, Password: String; const Excludes: TStrings;
-    const RecurseSubDirs: Boolean): Integer64;
+    const RecurseSubDirs: Boolean): Int64;
   begin
     { See above }
-    Result := To64(0);
+    Result := 0;
 
-    if not NewFileExistsRedir(DisableFsRedir, ArchiveFilename) then
+    if not NewFileExists(ArchiveFilename) then
       Exit;
 
     var FindData: TWin32FindData;
-    var H := ArchiveFindFirstFileRedir(DisableFsRedir, ArchiveFilename,
+    var H := ArchiveFindFirstFile(ArchiveFilename,
       AddBackslash(TempInstallDir), { DestDir isn't known yet, pass a placeholder }
       Password, RecurseSubDirs, False, FindData);
     if H <> INVALID_HANDLE_VALUE then begin
@@ -2850,10 +3042,7 @@ var
             if IsExcluded(FindData.cFileName, Excludes) then
               Continue;
 
-            var I: Integer64;
-            I.Hi := FindData.nFileSizeHigh;
-            I.Lo := FindData.nFileSizeLow;
-            Inc6464(Result, I);
+            Inc(Result, FindDataFileSizeToInt64(FindData));
           end;
         until not ArchiveFindNextFile(H, FindData);
       finally
@@ -2915,7 +3104,7 @@ var
         else
           AppName := SetupHeader.AppName;
         if SetupHeader.PrivilegesRequired = prLowest then begin
-          case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+          case TaskDialogMsgBox('MAINICON' + MainIconPostfix, SetupMessages[msgPrivilegesRequiredOverrideInstruction],
                  FmtSetupMessage(msgPrivilegesRequiredOverrideText2, [AppName]),
                  SetupMessages[msgPrivilegesRequiredOverrideTitle], mbInformation, MB_YESNOCANCEL,
                  [SetupMessages[msgPrivilegesRequiredOverrideCurrentUserRecommended], SetupMessages[msgPrivilegesRequiredOverrideAllUsers]], IDNO) of
@@ -2924,7 +3113,7 @@ var
             IDCANCEL: Abort;
             end;
         end else begin
-          case TaskDialogMsgBox('MAINICON', SetupMessages[msgPrivilegesRequiredOverrideInstruction],
+          case TaskDialogMsgBox('MAINICON' + MainIconPostfix, SetupMessages[msgPrivilegesRequiredOverrideInstruction],
                  FmtSetupMessage(msgPrivilegesRequiredOverrideText1, [AppName]),
                  SetupMessages[msgPrivilegesRequiredOverrideTitle], mbInformation, MB_YESNOCANCEL,
                  [SetupMessages[msgPrivilegesRequiredOverrideAllUsersRecommended], SetupMessages[msgPrivilegesRequiredOverrideCurrentUser]], IDYES) of
@@ -2952,17 +3141,13 @@ var
   ParamName, ParamValue: String;
   ParamIsAutomaticInternal: Boolean;
   StartParam: Integer;
-  I, N: Integer;
   IsRespawnedProcess, EnableLogging, WantToSuppressMsgBoxes, Res: Boolean;
   DebugServerWnd: HWND;
   LogFilename: String;
-  SetupFilename: String;
   SetupFile: TFile;
   TestID: TSetupID;
-  NameAndVersionMsg: String;
   NextAllowedLevel: Integer;
   LastShownComponentEntry, ComponentEntry: PSetupComponentEntry;
-  MinimumTypeSpace: Integer64;
   SourceWildcard: String;
   ExpandedSetupMutex, ExtraRespawnParam, RespawnParams: String;
 begin
@@ -2978,13 +3163,12 @@ begin
           <setup 1 data offset>,<original exe filename>"
   }
   SplitNewParamStr(1, ParamName, ParamValue);
-  if CompareText(ParamName, '/SL5=') = 0 then begin
+  if SameText(ParamName, '/SL5=') then begin
     StartParam := 2;
     SetupLdrMode := True;
-    SetupNotifyWnd := ExtractLongWord(ParamValue);
-    SetupNotifyWndPresent := True;
-    SetupLdrOffset0 := ExtractLongWord(ParamValue);
-    SetupLdrOffset1 := ExtractLongWord(ParamValue);
+    SetupLdrWnd := UInt32(ExtractInt64(ParamValue));
+    SetupLdrOffset0 := ExtractInt64(ParamValue);
+    SetupLdrOffset1 := ExtractInt64(ParamValue);
     SetupLdrOriginalFilename := ParamValue;
   end
   else begin
@@ -2997,86 +3181,90 @@ begin
   EnableLogging := False;
   WantToSuppressMsgBoxes := False;
   DebugServerWnd := 0;
-  for I := StartParam to NewParamCount do begin
+  for var I := StartParam to NewParamCount do begin
     SplitNewParamStr(I, ParamName, ParamValue);
     ParamIsAutomaticInternal := False;
-    if CompareText(ParamName, '/Log') = 0 then begin
+    if SameText(ParamName, '/Log') then begin
       EnableLogging := True;
       LogFilename := '';
-    end else if CompareText(ParamName, '/Log=') = 0 then begin
+    end else if SameText(ParamName, '/Log=') then begin
       EnableLogging := True;
       LogFilename := ParamValue;
-    end else if CompareText(ParamName, '/Silent') = 0 then
+    end else if SameText(ParamName, '/Silent') then
       InitSilent := True
-    else if CompareText(ParamName, '/VerySilent') = 0 then
+    else if SameText(ParamName, '/VerySilent') then
       InitVerySilent := True
-    else if CompareText(ParamName, '/NoRestart') = 0 then
+    else if SameText(ParamName, '/NoRestart') then
       InitNoRestart := True
-    else if CompareText(ParamName, '/CloseApplications') = 0 then
+    else if SameText(ParamName, '/CloseApplications') then
       InitCloseApplications := True
-    else if CompareText(ParamName, '/NoCloseApplications') = 0 then
+    else if SameText(ParamName, '/NoCloseApplications') then
       InitNoCloseApplications := True
-    else if CompareText(ParamName, '/ForceCloseApplications') = 0 then
+    else if SameText(ParamName, '/ForceCloseApplications') then
       InitForceCloseApplications := True
-    else if CompareText(ParamName, '/NoForceCloseApplications') = 0 then
+    else if SameText(ParamName, '/NoForceCloseApplications') then
       InitNoForceCloseApplications := True
-    else if CompareText(ParamName, '/LogCloseApplications') = 0 then
+    else if SameText(ParamName, '/LogCloseApplications') then
       InitLogCloseApplications := True
-    else if CompareText(ParamName, '/RestartApplications') = 0 then
+    else if SameText(ParamName, '/RestartApplications') then
       InitRestartApplications := True
-    else if CompareText(ParamName, '/NoRestartApplications') = 0 then
+    else if SameText(ParamName, '/NoRestartApplications') then
       InitNoRestartApplications := True
-    else if CompareText(ParamName, '/NoIcons') = 0 then
+    else if SameText(ParamName, '/RedirectionGuard') then
+      InitRedirectionGuard := True
+    else if SameText(ParamName, '/NoRedirectionGuard') then
+      InitNoRedirectionGuard := True
+    else if SameText(ParamName, '/NoIcons') then
       InitNoIcons := True
-    else if CompareText(ParamName, '/NoCancel') = 0 then
+    else if SameText(ParamName, '/NoCancel') then
       InitNoCancel := True
-    else if CompareText(ParamName, '/Lang=') = 0 then
+    else if SameText(ParamName, '/NoStyle') then
+      InitNoStyle := True
+    else if SameText(ParamName, '/Lang=') then
       InitLang := ParamValue
-    else if CompareText(ParamName, '/Type=') = 0 then
+    else if SameText(ParamName, '/Type=') then
       InitSetupType := ParamValue
-    else if CompareText(ParamName, '/Components=') = 0 then begin
+    else if SameText(ParamName, '/Components=') then begin
       InitComponentsSpecified := True;
       SetStringsFromCommaString(InitComponents, SlashesToBackslashes(ParamValue));
-    end else if CompareText(ParamName, '/Tasks=') = 0 then begin
+    end else if SameText(ParamName, '/Tasks=') then begin
       InitDeselectAllTasks := True;
       SetStringsFromCommaString(InitTasks, SlashesToBackslashes(ParamValue));
-    end else if CompareText(ParamName, '/MergeTasks=') = 0 then begin
+    end else if SameText(ParamName, '/MergeTasks=') then begin
       InitDeselectAllTasks := False;
       SetStringsFromCommaString(InitTasks, SlashesToBackslashes(ParamValue));
-    end else if CompareText(ParamName, '/LoadInf=') = 0 then
+    end else if SameText(ParamName, '/LoadInf=') then
       InitLoadInf := PathExpand(ParamValue)
-    else if CompareText(ParamName, '/SaveInf=') = 0 then
+    else if SameText(ParamName, '/SaveInf=') then
       InitSaveInf := PathExpand(ParamValue)
-    else if CompareText(ParamName, '/DIR=') = 0 then
+    else if SameText(ParamName, '/DIR=') then
       InitDir := ParamValue
-    else if CompareText(ParamName, '/GROUP=') = 0 then
+    else if SameText(ParamName, '/GROUP=') then
       InitProgramGroup := ParamValue
-    else if CompareText(ParamName, '/Password=') = 0 then
+    else if SameText(ParamName, '/Password=') then
       InitPassword := ParamValue
-    else if CompareText(ParamName, '/RestartExitCode=') = 0 then
+    else if SameText(ParamName, '/RestartExitCode=') then
       InitRestartExitCode := StrToIntDef(ParamValue, 0)
-    else if CompareText(ParamName, '/SuppressMsgBoxes') = 0 then
+    else if SameText(ParamName, '/SuppressMsgBoxes') then
       WantToSuppressMsgBoxes := True
-    else if CompareText(ParamName, '/DETACHEDMSG') = 0 then  { for debugging }
+    else if SameText(ParamName, '/DETACHEDMSG') then { for debugging }
       DetachedUninstMsgFile := True
-    else if CompareText(ParamName, '/SPAWNWND=') = 0 then begin
+    else if SameText(ParamName, '/SPAWNWND=') then begin
       ParamIsAutomaticInternal := True; { sent by RespawnSetupElevated }
       IsRespawnedProcess := True;
-      InitializeSpawnClient(StrToInt(ParamValue));
-    end else if CompareText(ParamName, '/NOTIFYWND=') = 0 then begin
+      InitializeSpawnClient(StrToWnd(ParamValue));
+    end else if SameText(ParamName, '/FIRSTWND=') then begin
       ParamIsAutomaticInternal := True; { sent by RespawnSetupElevated }
-      { /NOTIFYWND= takes precedence over any previously set SetupNotifyWnd }
-      SetupNotifyWnd := StrToInt(ParamValue);
-      SetupNotifyWndPresent := True;
-    end else if CompareText(ParamName, '/DebugSpawnServer') = 0 then  { for debugging }
+      SetupFirstProcessWnd := StrToWnd(ParamValue);
+    end else if SameText(ParamName, '/DebugSpawnServer') then { for debugging }
       EnterSpawnServerDebugMode  { does not return }
-    else if CompareText(ParamName, '/DEBUGWND=') = 0 then begin
+    else if SameText(ParamName, '/DEBUGWND=') then begin
       ParamIsAutomaticInternal := True; { sent by IDE.MainForm's StartProcess }
-      DebugServerWnd := StrToInt(ParamValue);
-    end else if CompareText(ParamName, '/ALLUSERS') = 0 then begin
+      DebugServerWnd := StrToWnd(ParamValue);
+    end else if SameText(ParamName, '/ALLUSERS') then begin
       InitPrivilegesRequired := prAdmin;
       HasInitPrivilegesRequired := True;
-    end else if CompareText(ParamName, '/CURRENTUSER') = 0 then begin
+    end else if SameText(ParamName, '/CURRENTUSER') then begin
       InitPrivilegesRequired := prLowest;
       HasInitPrivilegesRequired := True;
     end;
@@ -3096,8 +3284,13 @@ begin
   SetupMessages[msgSetupFileCorruptOrWrongVer] := SSetupFileCorruptOrWrongVer;
 
   { Read setup-0.bin, or from EXE }
+  var SetupFilename: String;
   if not SetupLdrMode then begin
     SetupFilename := PathChangeExt(SetupLdrOriginalFilename, '') + '-0.bin';
+    {$IFDEF DEBUG}
+    { Also see TFileExtractor.FindSliceFilename }
+    SetupFileName := SetupFileName.Replace('SetupCustomStyle', 'Setup');
+    {$ENDIF}
     if not NewFileExists(SetupFilename) then
       AbortInitFmt1(msgSetupFileMissing, PathExtractName(SetupFilename));
   end
@@ -3110,27 +3303,110 @@ begin
       AbortInit(msgSetupFileCorruptOrWrongVer);
     if TestID <> SetupID then
       AbortInit(msgSetupFileCorruptOrWrongVer);
+
+    var SetupEncryptionHeaderCRC: Longint;
+    if (SetupFile.Read(SetupEncryptionHeaderCRC, SizeOf(SetupEncryptionHeaderCRC)) <> SizeOf(SetupEncryptionHeaderCRC)) or
+       (SetupFile.Read(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader)) <> SizeOf(SetupEncryptionHeader)) then
+      AbortInit(msgSetupFileCorrupt);
+    if SetupEncryptionHeaderCRC <> GetCRC32(SetupEncryptionHeader, SizeOf(SetupEncryptionHeader)) then
+      AbortInit(msgSetupFileCorrupt);
+
+    var CryptKey: TSetupEncryptionKey;
+    if SetupEncryptionHeader.EncryptionUse = euFull then begin
+      if InitPassword = '' then
+        AbortInit(SMissingPassword);
+      GenerateEncryptionKey(InitPassword, SetupEncryptionHeader.KDFSalt, SetupEncryptionHeader.KDFIterations, CryptKey);
+      if not TestPassword(CryptKey, SetupEncryptionHeader.BaseNonce, SetupEncryptionHeader.PasswordTest) then
+        AbortInit(SIncorrectPassword);
+      { FileExtractor (a function!) requires SetupHeader.CompressMethod to be set, so delaying setting
+        FileExtractor.CryptKey until SetupHeader is read below }
+    end;
+
     try
-      Reader := TCompressedBlockReader.Create(SetupFile, TLZMA1Decompressor);
+      var Reader := TCompressedBlockReader.Create(SetupFile, TLZMA1Decompressor);
       try
+        if SetupEncryptionHeader.EncryptionUse = euFull then
+          Reader.InitDecryption(CryptKey, SetupEncryptionHeader.BaseNonce, sccCompressedBlocks1);
+
         { Header }
         SECompressedBlockRead(Reader, SetupHeader, SizeOf(SetupHeader),
           SetupHeaderStrings, SetupHeaderAnsiStrings);
+
+        if SetupEncryptionHeader.EncryptionUse = euFull then
+          FileExtractor.CryptKey := CryptKey; { See above }
+
+        { SetupHeader.WizardBackColor may be overwritten below, and we need to keep the original
+          value for Uninstall }
+        OrigSetupHeaderWizardBackColor := SetupHeader.WizardBackColor;
+
         { Language entries }
-        ReadEntriesWithoutVersion(seLanguage, SetupHeader.NumLanguageEntries,
+        ReadEntriesWithoutVersion(Reader, seLanguage, SetupHeader.NumLanguageEntries,
           SizeOf(TSetupLanguageEntry));
         { CustomMessage entries }
-        ReadEntriesWithoutVersion(seCustomMessage, SetupHeader.NumCustomMessageEntries,
+        ReadEntriesWithoutVersion(Reader, seCustomMessage, SetupHeader.NumCustomMessageEntries,
           SizeOf(TSetupCustomMessageEntry));
         { Permission entries }
-        ReadEntriesWithoutVersion(sePermission, SetupHeader.NumPermissionEntries,
+        ReadEntriesWithoutVersion(Reader, sePermission, SetupHeader.NumPermissionEntries,
           SizeOf(TSetupPermissionEntry));
         { Type entries }
-        ReadEntries(seType, SetupHeader.NumTypeEntries, SizeOf(TSetupTypeEntry),
+        ReadEntries(Reader, seType, SetupHeader.NumTypeEntries, SizeOf(TSetupTypeEntry),
           Integer(@PSetupTypeEntry(nil).MinVersion),
           Integer(@PSetupTypeEntry(nil).OnlyBelowVersion));
 
         ActivateDefaultLanguage;
+
+        { Apply style - also see Setup.Uninstall's RunSecondPhase
+          Must be ordered after ActivateDefaultLanguage since TTaskDialogForm
+          and its parent TSetupForm use LangOptions and SetupMessages.
+          Note: when debugging Setup.e32/64 or SetupCustomStyle.e32/64 it will see the default resources,
+          instead of the ones prepared by the compiler. This is because the .e32/64 is started, and
+          not the .exe prepared by the compiler. This is not noticeable except for the VCL style
+          resources: the MYSTYLE1 and MYSTYLE1_DARK styles will always be missing. In this case
+          it will use the ZIRCON style, see below. This does *not* mean Uninstall will then
+          also use ZIRCON. To test Uninstall styling use a real Setup compiled by the
+          compiler. }
+        var WantWizardImagesDynamicDark := False;
+        IsWinDark := DarkModeActive;
+        if not HighContrastActive and not InitNoStyle then begin
+          const IsDynamicDark = (SetupHeader.WizardDarkStyle = wdsDynamic) and IsWinDark;
+          const IsForcedDark = SetupHeader.WizardDarkStyle = wdsDark;
+          if IsDynamicDark then begin
+            SetupHeader.WizardImageBackColor := SetupHeader.WizardImageBackColorDynamicDark;
+            SetupHeader.WizardSmallImageBackColor := SetupHeader.WizardSmallImageBackColorDynamicDark;
+            SetupHeader.WizardBackColor := SetupHeader.WizardBackColorDynamicDark;
+            MainIconPostfix := '_DARK';
+            { If the main icon is custom, a dark version will not be available, so check for this }
+            if FindResource(HInstance, PChar('MAINICON' + MainIconPostfix), RT_GROUP_ICON) = 0 then
+              MainIconPostfix := '';
+            WantWizardImagesDynamicDark := True; { Handled below }
+          end;
+          if IsDynamicDark or IsForcedDark then begin
+            IsDarkInstallMode := True;
+            WizardIconsPostfix := '_DARK';
+          end;
+          TStyleManager.AutoDiscoverStyleResources := False;
+          { Also see comment above }
+          var StyleName := 'MYSTYLE1';
+          if IsDynamicDark then
+            StyleName := StyleName + '_DARK';
+          var Handle: TStyleManager.TStyleServicesHandle;
+          if TStyleManager.TryLoadFromResource(HInstance, StyleName, 'VCLSTYLE', Handle)
+          {$IFDEF DEBUG}
+             or TStyleManager.TryLoadFromResource(HInstance, 'ZIRCON', 'VCLSTYLE', Handle)
+             { Comment the line above to activate WINDOWSPOLARDARK instead of ZIRCON }
+             or TStyleManager.TryLoadFromResource(HInstance, 'WINDOWSPOLARDARK', 'VCLSTYLE', Handle)
+          {$ENDIF}
+          then begin
+            TStyleManager.SetStyle(Handle);
+            if not (shWizardBorderStyled in SetupHeader.Options) then
+              TStyleManager.FormBorderStyle := fbsSystemStyle;
+            CustomWizardBackground := SetupHeader.WizardBackColor <> clNone;
+            if CustomWizardBackground then begin
+              TCustomStyleEngine.RegisterStyleHook(TSetupForm, TFormBackgroundStyleHook);
+              TFormBackgroundStyleHook.BackColor := SetupHeader.WizardBackColor;
+            end;
+          end;
+        end;
 
         { Set Is64BitInstallMode if we're on Win64 and the processor architecture is
           one on which a "64-bit mode" install should be performed. Doing this early
@@ -3158,6 +3434,7 @@ begin
              SetupHeader.PrivilegesRequired <> prLowest) then begin
           FreeAndNil(Reader);
           FreeAndNil(SetupFile);
+          RedirectionGuardConfigure(ShouldEnableRedirectionGuard);
           RespawnParams := GetCmdTailEx(StartParam);
           if ExtraRespawnParam <> '' then
             RespawnParams := RespawnParams + ' ' + ExtraRespawnParam;
@@ -3187,86 +3464,89 @@ begin
             end;
           end;
         end;
-        Log('Setup version: ' + SetupTitle + ' version ' + SetupVersion);
+        LogSetupVersion;
         Log('Original Setup EXE: ' + SetupLdrOriginalFilename);
         Log('Setup command line: ' + GetCmdTail);
         LogCompatibilityMode;
         LogWindowsVersion;
 
-        NeedPassword := shPassword in SetupHeader.Options;
+        NeedPassword := (SetupEncryptionHeader.EncryptionUse <> euFull) and (shPassword in SetupHeader.Options);
         NeedSerial := False;
         NeedsRestart := shAlwaysRestart in SetupHeader.Options;
 
         { Component entries }
-        ReadEntries(seComponent, SetupHeader.NumComponentEntries, SizeOf(TSetupComponentEntry),
+        ReadEntries(Reader, seComponent, SetupHeader.NumComponentEntries, SizeOf(TSetupComponentEntry),
           -1, -1);
         { Task entries }
-        ReadEntries(seTask, SetupHeader.NumTaskEntries, SizeOf(TSetupTaskEntry),
+        ReadEntries(Reader, seTask, SetupHeader.NumTaskEntries, SizeOf(TSetupTaskEntry),
           -1, -1);
         { Dir entries }
-        ReadEntries(seDir, SetupHeader.NumDirEntries, SizeOf(TSetupDirEntry),
+        ReadEntries(Reader, seDir, SetupHeader.NumDirEntries, SizeOf(TSetupDirEntry),
           Integer(@PSetupDirEntry(nil).MinVersion),
           Integer(@PSetupDirEntry(nil).OnlyBelowVersion));
         { ISSigKey entries }
-        ReadEntriesWithoutVersion(seISSigKey, SetupHeader.NumISSigKeyEntries, SizeOf(TSetupISSigKeyEntry));
+        ReadEntriesWithoutVersion(Reader, seISSigKey, SetupHeader.NumISSigKeyEntries, SizeOf(TSetupISSigKeyEntry));
         { File entries }
-        ReadEntries(seFile, SetupHeader.NumFileEntries, SizeOf(TSetupFileEntry),
+        ReadEntries(Reader, seFile, SetupHeader.NumFileEntries, SizeOf(TSetupFileEntry),
           Integer(@PSetupFileEntry(nil).MinVersion),
           Integer(@PSetupFileEntry(nil).OnlyBelowVersion));
         { Icon entries }
-        ReadEntries(seIcon, SetupHeader.NumIconEntries, SizeOf(TSetupIconEntry),
+        ReadEntries(Reader, seIcon, SetupHeader.NumIconEntries, SizeOf(TSetupIconEntry),
           Integer(@PSetupIconEntry(nil).MinVersion),
           Integer(@PSetupIconEntry(nil).OnlyBelowVersion));
         { INI entries }
-        ReadEntries(seIni, SetupHeader.NumIniEntries, SizeOf(TSetupIniEntry),
+        ReadEntries(Reader, seIni, SetupHeader.NumIniEntries, SizeOf(TSetupIniEntry),
           Integer(@PSetupIniEntry(nil).MinVersion),
           Integer(@PSetupIniEntry(nil).OnlyBelowVersion));
         { Registry entries }
-        ReadEntries(seRegistry, SetupHeader.NumRegistryEntries, SizeOf(TSetupRegistryEntry),
+        ReadEntries(Reader, seRegistry, SetupHeader.NumRegistryEntries, SizeOf(TSetupRegistryEntry),
           Integer(@PSetupRegistryEntry(nil).MinVersion),
           Integer(@PSetupRegistryEntry(nil).OnlyBelowVersion));
         { InstallDelete entries }
-        ReadEntries(seInstallDelete, SetupHeader.NumInstallDeleteEntries, SizeOf(TSetupDeleteEntry),
+        ReadEntries(Reader, seInstallDelete, SetupHeader.NumInstallDeleteEntries, SizeOf(TSetupDeleteEntry),
           Integer(@PSetupDeleteEntry(nil).MinVersion),
           Integer(@PSetupDeleteEntry(nil).OnlyBelowVersion));
         { UninstallDelete entries }
-        ReadEntries(seUninstallDelete, SetupHeader.NumUninstallDeleteEntries, SizeOf(TSetupDeleteEntry),
+        ReadEntries(Reader, seUninstallDelete, SetupHeader.NumUninstallDeleteEntries, SizeOf(TSetupDeleteEntry),
           Integer(@PSetupDeleteEntry(nil).MinVersion),
           Integer(@PSetupDeleteEntry(nil).OnlyBelowVersion));
         { Run entries }
-        ReadEntries(seRun, SetupHeader.NumRunEntries, SizeOf(TSetupRunEntry),
+        ReadEntries(Reader, seRun, SetupHeader.NumRunEntries, SizeOf(TSetupRunEntry),
           Integer(@PSetupRunEntry(nil).MinVersion),
           Integer(@PSetupRunEntry(nil).OnlyBelowVersion));
         { UninstallRun entries }
-        ReadEntries(seUninstallRun, SetupHeader.NumUninstallRunEntries, SizeOf(TSetupRunEntry),
+        ReadEntries(Reader, seUninstallRun, SetupHeader.NumUninstallRunEntries, SizeOf(TSetupRunEntry),
           Integer(@PSetupRunEntry(nil).MinVersion),
           Integer(@PSetupRunEntry(nil).OnlyBelowVersion));
         { Wizard images }
-        Reader.Read(N, SizeOf(LongInt));
-        for I := 0 to N-1 do
-          WizardImages.Add(ReadWizardImage(Reader));
-        Reader.Read(N, SizeOf(LongInt));
-        for I := 0 to N-1 do
-          WizardSmallImages.Add(ReadWizardImage(Reader));
+        ReadWizardImages(Reader, WizardImages, True);      { If WantWizardImagesDynamicDark is True, then these might be overwritten below }
+        ReadWizardImages(Reader, WizardSmallImages, True); { Same }
+        ReadWizardImages(Reader, WizardBackImages, True);  { Same }
+        ReadWizardImages(Reader, WizardImages, WantWizardImagesDynamicDark);
+        ReadWizardImages(Reader, WizardSmallImages, WantWizardImagesDynamicDark);
+        ReadWizardImages(Reader, WizardBackImages, WantWizardImagesDynamicDark);
         { Decompressor DLL }
         DecompressorDLL := nil;
         if SetupHeader.CompressMethod in [cmZip, cmBzip] then begin
           DecompressorDLL := TMemoryStream.Create;
-          ReadFileIntoStream(DecompressorDLL, Reader);
+          ReadFileIntoStream(Reader, DecompressorDLL);
         end;
         { SevenZip DLL }
         SevenZipDLL := nil;
         if SetupHeader.SevenZipLibraryName <> '' then begin
           SevenZipDLL := TMemoryStream.Create;
-          ReadFileIntoStream(SevenZipDLL, Reader);
+          ReadFileIntoStream(Reader, SevenZipDLL);
         end;
       finally
         Reader.Free;
       end;
       Reader := TCompressedBlockReader.Create(SetupFile, TLZMA1Decompressor);
       try
+        if SetupEncryptionHeader.EncryptionUse = euFull then
+          Reader.InitDecryption(CryptKey, SetupEncryptionHeader.BaseNonce, sccCompressedBlocks2);
+
         { File location entries }
-        ReadEntriesWithoutVersion(seFileLocation, SetupHeader.NumFileLocationEntries,
+        ReadEntriesWithoutVersion(Reader, seFileLocation, SetupHeader.NumFileLocationEntries,
           SizeOf(TSetupFileLocationEntry));
       finally
         Reader.Free;
@@ -3283,6 +3563,20 @@ begin
 
   Log64BitInstallMode;
 
+  RedirectionGuardConfigure(ShouldEnableRedirectionGuard);
+
+  { Test code. Originally planned to call DeleteResidualTempUninstallDirs
+    during Setup's startup too, but decided against it; it's not really
+    necessary and could slow down the startup (slightly). }
+  (*
+  for var Z := 1 to 5 do begin
+    const TD = CreateTempDir('-uninstall.tmp', IsAdmin);
+    TFile.Create(TD + '\_unins.tmp', fdCreateNew, faWrite, fsNone).Free;
+    TFile.Create(TD + '\_unins-done.tmp', fdCreateNew, faWrite, fsNone).Free;
+  end;
+  DeleteResidualTempUninstallDirs;
+  *)
+
   { Show "Select Language" dialog if necessary - requires "64-bit mode" to be
     initialized else it might query the previous language from the wrong registry
     view }
@@ -3295,11 +3589,18 @@ begin
       { Note: if UsePreviousLanguage is set to "yes" then the compiler does not
         allow AppId to include constants but we should still call ExpandConst
         to handle any '{{'. }
-      I := GetPreviousLanguage(ExpandConst(SetupHeader.AppId));
+      const I = GetPreviousLanguage(ExpandConst(SetupHeader.AppId));
       if I <> -1 then
         SetActiveLanguage(I);
     end;
   end;
+
+  {$IFDEF WIN64}
+  { Check for WOW64, at least until we add safeguards to run safely without it.
+    Also see Setup.Uninstall. }
+  if not (paX86 in MachineTypesSupportedBySystem) then
+     AbortInit(msgWindowsVersionNotSupported);
+  {$ENDIF}
 
   { Check unsupported Itanium - must be on Windows Server 2008 R2 so remove once
     this becomes unsupported as well and Windows 8 (6.2+) becomes the new minimum }
@@ -3330,20 +3631,18 @@ begin
       if not IsAdmin then AbortInit(msgAdminPrivilegesRequired);
   end;
 
-  { Init main constants, not depending on shfolder.dll/_shfoldr.dll }
-  InitMainNonSHFolderConsts;
+  { Init main constants, not depending on GetShellFolderPath. This also
+    initializes the Setup.PathRedir unit. }
+  InitMainNonGetShellFolderPathConstsAndPathRedir;
 
-  { Create temporary directory and extract 64-bit helper EXE if necessary }
-  CreateTempInstallDirAndExtract64BitHelper;
+  { Create temporary directory }
+  CreateTempInstallDir;
 
-  { Load system's "shfolder.dll", and load it }
-  LoadSHFolderDLL;
-
-  { Extract "_isdecmp.dll" to TempInstallDir, and load it }
+  { Save DecompressorDLL stream as "_isdecmp.dll" in TempInstallDir, and load it }
   if SetupHeader.CompressMethod in [cmZip, cmBzip] then
     LoadDecompressorDLL;
 
-  { Extract "_is7z.dll" to TempInstallDir, and load it }
+  { Save SevenZipDll stream as "_is7z.dll" in TempInstallDir, and load it }
   if SetupHeader.SevenZipLibraryName <> '' then
     LoadSevenZipDLL;
 
@@ -3367,7 +3666,7 @@ begin
 
   { Init ISSigAvailableKeys }
   SetLength(ISSigAvailableKeys, Entries[seISSigKey].Count);
-  for I := 0 to Entries[seISSigKey].Count-1 do begin
+  for var I := 0 to Entries[seISSigKey].Count-1 do begin
     var ISSigKeyEntry := PSetupISSigKeyEntry(Entries[seISSigKey][I]);
     ISSigAvailableKeys[I] := TECDSAKey.Create;
     if ISSigImportPublicKey(ISSigAvailableKeys[I], '', ISSigKeyEntry.PublicX, ISSigKeyEntry.PublicY) <> ikrSuccess then
@@ -3376,6 +3675,10 @@ begin
 
   { Load and initialize code }
   if SetupHeader.CompiledCodeText <> '' then begin
+    if (SetupHeader.CompiledCodeVersion and $80000000) <> {$IFDEF WIN64} $80000000 {$ELSE} 0 {$ENDIF} then
+      InternalError('[Code] was compiled for a different bitness than this Setup');
+    if (SetupHeader.CompiledCodeVersion and $7FFFFFFF) <> SetupBinVersion then
+      InternalError('[Code] was compiled for a different version of Setup');
     CodeRunner := TScriptRunner.Create();
     try
       CodeRunner.NamingAttribute := CodeRunnerNamingAttribute;
@@ -3415,12 +3718,9 @@ begin
   ExpandedAppName := ExpandConst(SetupHeader.AppName);
   if SetupHeader.AppVerName <> '' then
     ExpandedAppVerName := ExpandConst(SetupHeader.AppVerName)
-  else begin
-    if not GetCustomMessageValue('NameAndVersion', NameAndVersionMsg) then
-      NameAndVersionMsg := '%1 %2';  { just in case }
-    ExpandedAppVerName := FmtMessage(PChar(NameAndVersionMsg),
-      [ExpandedAppName, ExpandConst(SetupHeader.AppVersion)]);
-  end;
+  else
+    ExpandedAppVerName := ExpandedAppName + ' ' +
+      ExpandConst(SetupHeader.AppVersion);
   ExpandedAppCopyright := ExpandConst(SetupHeader.AppCopyright);
   ExpandedAppMutex := ExpandConst(SetupHeader.AppMutex);
   ExpandedSetupMutex := ExpandConst(SetupHeader.SetupMutex);
@@ -3444,7 +3744,7 @@ begin
 
   { Remove types that fail their 'languages' or 'check'. Can't do this earlier
     because the InitializeSetup call above can't be done earlier. }
-  for I := 0 to Entries[seType].Count-1 do begin
+  for var I := 0 to Entries[seType].Count-1 do begin
     if not ShouldProcessEntry(nil, nil, '', '', PSetupTypeEntry(Entries[seType][I]).Languages, PSetupTypeEntry(Entries[seType][I]).CheckOnce) then begin
       SEFreeRec(Entries[seType][I], EntryStrings[seType], EntryAnsiStrings[seType]);
       { Don't delete it yet so that the entries can be processed sequentially }
@@ -3457,7 +3757,7 @@ begin
   { Remove components }
   NextAllowedLevel := 0;
   LastShownComponentEntry := nil;
-  for I := 0 to Entries[seComponent].Count-1 do begin
+  for var I := 0 to Entries[seComponent].Count-1 do begin
     ComponentEntry := PSetupComponentEntry(Entries[seComponent][I]);
     if (ComponentEntry.Level <= NextAllowedLevel) and
        (InstallOnThisVersion(ComponentEntry.MinVersion, ComponentEntry.OnlyBelowVersion) = irInstall) and
@@ -3496,7 +3796,7 @@ begin
 
   { Set misc. variables }
   HasCustomType := False;
-  for I := 0 to Entries[seType].Count-1 do begin
+  for var I := 0 to Entries[seType].Count-1 do begin
     if toIsCustom in PSetupTypeEntry(Entries[seType][I]).Options then begin
       HasCustomType := True;
       Break;
@@ -3523,43 +3823,45 @@ begin
     LExcludes.StrictDelimiter := True;
     LExcludes.Delimiter := ',';
 
-    for I := 0 to Entries[seFile].Count-1 do begin
+    for var I := 0 to Entries[seFile].Count-1 do begin
       with PSetupFileEntry(Entries[seFile][I])^ do begin
         if LocationEntry <> -1 then begin { not an "external" file }
           if Components = '' then { no types or a file that doesn't belong to any component }
             if (Tasks = '') and (Check = '') then {don't count tasks and scripted entries}
-              Inc6464(MinimumSpace, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
+              Inc(MinimumSpace, PSetupFileLocationEntry(Entries[seFileLocation][LocationEntry])^.OriginalSize)
         end else begin
           if not(foExternalSizePreset in Options) then begin
             if foDownload in Options then
               InternalError('Unexpected download flag');
             try
               LExcludes.DelimitedText := Excludes;
+              const Is64Bit = IsEntryBitness64Bit(Bitness);
               if foExtractArchive in Options then begin
                 ExternalSize := RecurseExternalArchiveGetSizeOfFiles(
-                  ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
-                  ExpandConst(SourceFilename), ExpandConst(ExtractArchivePassword), LExcludes,
+                  ApplyPathRedirRules(Is64Bit, ExpandConst(SourceFilename), tpCurrent),
+                  ExpandConst(ExtractArchivePassword), LExcludes,
                   foRecurseSubDirsExternal in Options);
               end else begin
                 if FileType <> ftUserFile then
                   SourceWildcard := NewParamStr(0)
                 else
-                  SourceWildcard := ExpandConst(SourceFilename);
+                  SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandConst(SourceFilename), tpCurrent);
                 ExternalSize := RecurseExternalGetSizeOfFiles(
-                  ShouldDisableFsRedirForFileEntry(PSetupFileEntry(Entries[seFile][I])),
                   PathExtractPath(SourceWildcard),
                   '', PathExtractName(SourceWildcard), IsWildcard(SourceWildcard),
                   LExcludes, foRecurseSubDirsExternal in Options);
               end;
             except
-              { Ignore exceptions. Two notable exceptions we want to ignore are
-                the one about "app" not being initialized and also archive errors
-                (ESevenZipError). Also see EnumFiles. }
+              { Ignore exceptions. Notable exceptions we want to ignore:
+                - "app" constant not initialized
+                - IsEntryBitness64Bit failures on 32-bit Windows
+                - archive errors (ESevenZipError)
+                Also see EnumFiles. }
             end;
           end;
           if Components = '' then { no types or a file that doesn't belong to any component }
             if (Tasks = '') and (Check = '') then {don't count tasks or scripted entries}
-              Inc6464(MinimumSpace, ExternalSize);
+              Inc(MinimumSpace, ExternalSize);
         end;
       end;
     end;
@@ -3567,19 +3869,20 @@ begin
     LExcludes.Free;
   end;
 
-  for I := 0 to Entries[seComponent].Count-1 do
+  for var I := 0 to Entries[seComponent].Count-1 do
     with PSetupComponentEntry(Entries[seComponent][I])^ do
       Size := GetSizeOfComponent(Name, ExtraDiskSpaceRequired);
 
   if Entries[seType].Count > 0 then begin
-    for I := 0 to Entries[seType].Count-1 do begin
+    var MinimumTypeSpace: Int64 := 0;
+    for var I := 0 to Entries[seType].Count-1 do begin
       with PSetupTypeEntry(Entries[seType][I])^ do begin
         Size := GetSizeOfType(Name, toIsCustom in Options);
-        if (I = 0) or (Compare64(Size, MinimumTypeSpace) < 0) then
+        if (I = 0) or (Size < MinimumTypeSpace) then
           MinimumTypeSpace := Size;
       end;
     end;
-    Inc6464(MinimumSpace, MinimumTypeSpace);
+    Inc(MinimumSpace, MinimumTypeSpace);
   end;
 end;
 
@@ -3594,7 +3897,7 @@ begin
       raise;
     end;
   end;
-  WizardForm.FlipSizeAndCenterIfNeeded(False, nil, False);
+  WizardForm.FlipAndCenterIfNeeded(False, nil, False);
   WizardForm.SetCurPage(wpWelcome);
   if InstallMode = imNormal then begin
     WizardForm.ClickToStartPage; { this won't go past wpReady  }
@@ -3605,8 +3908,54 @@ begin
 end;
 
 procedure DeinitSetup(const AllowCustomSetupExitCode: Boolean);
-var
-  I: Integer;
+
+  procedure StopNonElevatedSetupProcesses;
+  begin
+    var ProcessHandle: THandle := 0;
+    try
+      { The "first process" is usually the non-elevated SetupLdr process, but
+        if UseSetupLdr=no, it's the non-elevated Setup process. }
+      var PID: DWORD;
+      if GetWindowThreadProcessId(SetupFirstProcessWnd, PID) = 0 then
+        LogWithLastError('Failed to get PID of first process.')
+      else begin
+        ProcessHandle := OpenProcess(SYNCHRONIZE, False, PID);
+        if ProcessHandle = 0 then
+          LogWithLastError('Failed to open handle to first process.');
+      end;
+
+      { Tell the non-elevated Setup process (which hosts the spawn server) to
+        exit now, instead of waiting for its child process to terminate. Once
+        it does, the non-elevated SetupLdr process (if UseSetupLdr=yes) will
+        also exit. }
+      LogFmt('Instructing parent Setup process to exit with exit code %d.',
+        [SetupExitCode]);
+      if not StopSpawnServerProcess(DWORD(SetupExitCode)) then
+        LogWithLastError('Failed to send message.');
+
+      Log('Waiting for first process to exit.');
+      if ProcessHandle <> 0 then begin
+        const WaitResult = WaitForSingleObject(ProcessHandle, 5000);
+        case WaitResult of
+          WAIT_OBJECT_0: Log('Wait successful.');
+          WAIT_TIMEOUT: Log('Wait timed out.');
+          WAIT_FAILED: LogWithLastError('Wait failed.');
+        else
+          Log('Wait result invalid.');
+        end;
+      end else begin
+        { Shouldn't get here normally. Since we don't know if the first
+          process is running or not, only give it 2 seconds to exit (shorter
+          than the wait timeout above). }
+        Log('Unable to wait; sleeping instead.');
+        Sleep(2000);
+      end;
+    finally
+      if ProcessHandle <> 0 then
+        CloseHandle(ProcessHandle);
+    end;
+  end;
+
 begin
   Log('Deinitializing Setup.');
 
@@ -3629,16 +3978,14 @@ begin
     FreeAndNil(CodeRunner);
   end;
 
-  for I := 0 to DeleteFilesAfterInstallList.Count-1 do
-    DeleteFileRedir(DeleteFilesAfterInstallList.Objects[I] <> nil,
-      DeleteFilesAfterInstallList[I]);
+  for var Filename in DeleteFilesAfterInstallList do
+    Windows.DeleteFile(PChar(Filename));
   DeleteFilesAfterInstallList.Clear;
-  for I := DeleteDirsAfterInstallList.Count-1 downto 0 do
-    RemoveDirectoryRedir(DeleteDirsAfterInstallList.Objects[I] <> nil,
-      DeleteDirsAfterInstallList[I]);
+  for var I := DeleteDirsAfterInstallList.Count-1 downto 0 do
+    RemoveDirectory(PChar(DeleteDirsAfterInstallList[I]));
   DeleteDirsAfterInstallList.Clear;
 
-  for I := 0 to Length(ISSigAvailableKeys)-1 do
+  for var I := 0 to Length(ISSigAvailableKeys)-1 do
     ISSigAvailableKeys[I].Free;
 
   FreeFileExtractor;
@@ -3655,10 +4002,7 @@ begin
     FreeLibrary(SevenZipDLLHandle);
   end;
 
-  { Free the shfolder.dll handle }
-  UnloadSHFolderDLL;
-
-  { Remove TempInstallDir, stopping the 64-bit helper first if necessary }
+  { Remove TempInstallDir }
   RemoveTempInstallDir;
 
   { An attempt to restart while debugging is most likely an accident;
@@ -3673,11 +4017,28 @@ begin
   ShutdownBlockReasonDestroy(Application.Handle);
 
   if RestartSystem then begin
+    { On Windows Server, by default, a process can only initiate a restart if
+      it has the Administrators group in its access token. So we have to
+      initiate the restart from one of our elevated processes. But first, we
+      need to stop the non-elevated processes to ensure they don't try to
+      block the shutdown, and also to keep them from being terminated
+      uncleanly by Windows (which could leave behind temporary files).
+
+      Note, however, that if the installer never requested elevation (e.g.,
+      because PrivilegesRequired=lowest is set) and also wasn't started using
+      "Run as administrator", then the restart will fail on Windows Server for
+      standard user accounts and admin accounts that have UAC enabled (by
+      default, UAC is disabled on the built-in Administrator account). }
+    if IsSpawnServerPresent then begin
+      Log('Need to stop other Setup processes before restarting Windows.');
+      StopNonElevatedSetupProcesses;
+    end;
+
     Log('Restarting Windows.');
-    if SetupNotifyWndPresent then begin
-      { Send a special message back to the first instance telling it to
+    if SetupLdrMode then begin
+      { Send a special message back to SetupLdr telling it to
         restart the system after Setup returns }
-      SendNotifyMessage(SetupNotifyWnd, WM_USER + 150, 10000, 0);
+      SendNotifyMessage(SetupLdrWnd, WM_USER + 150, 10000, 0);
     end
     else begin
       { There is no other instance, so initiate the restart ourself.
@@ -3705,29 +4066,35 @@ begin
   Log(S);
 end;
 
-function ShouldDisableFsRedirForRunEntry(const RunEntry: PSetupRunEntry): Boolean;
+procedure RunExecLogOnLog(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
 begin
-  Result := InstallDefaultDisableFsRedir;
-  if roRun32Bit in RunEntry.Options then
-    Result := False;
-  if roRun64Bit in RunEntry.Options then begin
-    if not IsWin64 then
-      InternalError('Cannot run files in 64-bit locations on this version of Windows');
-    Result := True;
-  end;
+  CodeRunner.RunProcedure(AnsiString(PChar(Data)), [S, Error, FirstLine], True);
 end;
 
 procedure ProcessRunEntry(const RunEntry: PSetupRunEntry);
-var
-  RunAsOriginalUser: Boolean;
-  ExpandedFilename, ExpandedParameters: String;
-  Wait: TExecWait;
-  DisableFsRedir: Boolean;
-  ErrorCode: Integer;
 begin
+  { On 32-bit Setup, when the [Run] entry is 64-bit, we unfortunately cannot
+    use Sysnative and must disable WOW64 FS redirection instead, because:
+    - CreateProcess expects WorkingDir to exist in the current process,
+      otherwise it fails.
+      If we pass a Sysnative path, CreateProcess succeeds but the spawned
+      64-bit process literally uses Sysnative for its current directory (it
+      isn't changed to System32), which doesn't work because Sysnative is
+      only supported in 32-bit processes.
+      If we pass a System32 path, CreateProcess may fail because FS
+      redirection causes it to check for the directory under SysWOW64, not
+      the native System32.
+    - When a Sysnative path is passed, calling GetModuleFileName(NULL)
+      inside the 64-bit process returns a System32 path, but GetCommandLine
+      still returns a Sysnative path. That *might* break a program that
+      strictly checks its argv[0].
+    - If Filename lacks a path, and FS redirection isn't disabled, then
+      CreateProcess will search for the file in SysWOW64, not the native
+      System32. }
+
   try
     Log('-- Run entry --');
-    RunAsOriginalUser := (roRunAsOriginalUser in RunEntry.Options);
+    const RunAsOriginalUser = (roRunAsOriginalUser in RunEntry.Options);
     if RunAsOriginalUser then
       Log('Run as: Original user')
     else
@@ -3736,28 +4103,42 @@ begin
       Log('Type: Exec')
     else
       Log('Type: ShellExec');
-    ExpandedFilename := ExpandConst(RunEntry.Name);
-    Log('Filename: ' + ExpandedFilename);
-    ExpandedParameters := ExpandConst(RunEntry.Parameters);
-    if not(roDontLogParameters in RunEntry.Options) and (ExpandedParameters <> '') then
-      Log('Parameters: ' + ExpandedParameters);
 
-    Wait := ewWaitUntilTerminated;
+    const RunEntry64Bit = IsEntryBitness64Bit(RunEntry.Bitness);
+    var ExpandedFilename := ExpandConst(RunEntry.Name);
+    const ExpandedParameters = ExpandConst(RunEntry.Parameters);
+    var ExpandedWorkingDir := ExpandConst(RunEntry.WorkingDir);
+
+    const ExpandedFilenameBeforeRedir = ExpandedFilename;
+    if not(roShellExec in RunEntry.Options) then
+      ApplyRedirToRunEntryPaths(RunEntry64Bit, ExpandedFilename, ExpandedWorkingDir);
+
+    LogFmt('Filename: %s', [ExpandedFilename]);
+    if not(roDontLogParameters in RunEntry.Options) and (ExpandedParameters <> '') then
+      LogFmt('Parameters: %s', [ExpandedParameters]);
+    if ExpandedWorkingDir <> '' then
+      LogFmt('Working directory: %s', [ExpandedWorkingDir]);
+
+    var Wait := ewWaitUntilTerminated;
     case RunEntry.Wait of
       rwNoWait: Wait := ewNoWait;
       rwWaitUntilIdle: Wait := ewWaitUntilIdle;
     end;
 
     if not(roShellExec in RunEntry.Options) then begin
-      DisableFsRedir := ShouldDisableFsRedirForRunEntry(RunEntry);
       if not(roSkipIfDoesntExist in RunEntry.Options) or
-         NewFileExistsRedir(DisableFsRedir, ExpandedFilename) then begin
+         NewFileExists(ApplyPathRedirRules(RunEntry64Bit, ExpandedFilenameBeforeRedir, tpCurrent)) then begin
         var OutputReader: TCreateProcessOutputReader := nil;
         try
-          if GetLogActive and (roLogOutput in RunEntry.Options) then
-            OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
-          if not InstExecEx(RunAsOriginalUser, DisableFsRedir, ExpandedFilename,
-             ExpandedParameters, ExpandConst(RunEntry.WorkingDir),
+          if roLogOutput in RunEntry.Options then begin
+            if (RunEntry.OnLog <> '') and (CodeRunner <> nil) then
+              OutputReader := TCreateProcessOutputReader.Create(RunExecLogOnLog, NativeInt(PChar(RunEntry.OnLog)))
+            else if GetLogActive then
+              OutputReader := TCreateProcessOutputReader.Create(RunExecLog, 0);
+          end;
+          var ErrorCode: DWORD;
+          if not InstExecEx(RunAsOriginalUser, RunEntry64Bit and not IsCurrentProcess64Bit,
+             ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,
              Wait, RunEntry.ShowCmd, ProcessMessagesProc, OutputReader, ErrorCode) then
             raise Exception.Create(FmtSetupMessage1(msgErrorExecutingProgram, ExpandedFilename) +
               SNewLine2 + FmtSetupMessage(msgErrorFunctionFailedWithMessage,
@@ -3773,8 +4154,9 @@ begin
     end
     else begin
       if not(roSkipIfDoesntExist in RunEntry.Options) or FileOrDirExists(ExpandedFilename) then begin
+        var ErrorCode: DWORD;
         if not InstShellExecEx(RunAsOriginalUser, ExpandConst(RunEntry.Verb),
-           ExpandedFilename, ExpandedParameters, ExpandConst(RunEntry.WorkingDir),
+           ExpandedFilename, ExpandedParameters, ExpandedWorkingDir,
            Wait, RunEntry.ShowCmd, ProcessMessagesProc, ErrorCode) then
           raise Exception.Create(FmtSetupMessage1(msgErrorExecutingProgram, ExpandedFilename) +
             SNewLine2 + FmtSetupMessage(msgErrorFunctionFailedWithMessage,
@@ -3789,9 +4171,8 @@ begin
 end;
 
 procedure ShellExecuteAsOriginalUser(hWnd: HWND; Operation, FileName, Parameters, Directory: LPWSTR; ShowCmd: Integer); stdcall;
-var
-  ErrorCode: Integer;
 begin
+  var ErrorCode: DWORD;
   InstShellExecEx(True, Operation, Filename, Parameters, Directory, ewNoWait, ShowCmd, ProcessMessagesProc, ErrorCode);
 end;
 
@@ -3802,36 +4183,38 @@ const
   IMAGE_FILE_MACHINE_ARMNT = $01C4;
   UserEnabled = $1;
 var
-  KernelModule: HMODULE;
+{$IFNDEF WIN64}
   IsWow64ProcessFunc: function(hProcess: THandle; var Wow64Process: BOOL): BOOL; stdcall;
+{$ENDIF}
   IsWow64Process2Func: function(hProcess: THandle; var pProcessMachine, pNativeMachine: USHORT): BOOL; stdcall;
   GetMachineTypeAttributesFunc: function(Machine: USHORT; var MachineTypeAttributes: Integer): HRESULT; stdcall;
   IsWow64GuestMachineSupportedFunc: function(WowGuestMachine: USHORT; var MachineIsSupported: BOOL): HRESULT; stdcall;
-  ProcessMachine, NativeMachine: USHORT;
-  Wow64Process: BOOL;
-  SysInfo: TSystemInfo;
 begin
-  KernelModule := GetModuleHandle(kernel32);
+  const KernelModule = GetModuleHandle(kernel32);
 
-  { The system is considered a "Win64" system if all of the following
-    conditions are true:
-    1. One of the following two is true:
-       a. IsWow64Process2 is available, and returns True for the current process.
-       b. IsWow64Process is available, and returns True for the current process.
-    2. Wow64DisableWow64FsRedirection is available.
-    3. Wow64RevertWow64FsRedirection is available.
-    4. GetSystemWow64DirectoryA is available.
-    5. RegDeleteKeyExA is available.
+  { 64-bit build:
+    IsWin64 is a constant and always True. We do still need to get the
+    processor architecture, and this is done below.
+
+    32-bit build:
+    The system is considered a "Win64" system if the current process is
+    running under WOW64, according to IsWow64Process/IsWow64Process2.
     The system does not have to be one of the known 64-bit architectures
     to be considered a "Win64" system. }
 
+  {$IFNDEF WIN64}
   IsWin64 := False;
+  {$ENDIF}
 
   IsWow64Process2Func := GetProcAddress(KernelModule, 'IsWow64Process2');
+  var ProcessMachine, NativeMachine: USHORT;
   if Assigned(IsWow64Process2Func) and
-     IsWow64Process2Func(GetCurrentProcess, ProcessMachine, NativeMachine) and
-     (ProcessMachine <> IMAGE_FILE_MACHINE_UNKNOWN) then begin
-    IsWin64 := True;
+     IsWow64Process2Func(GetCurrentProcess, ProcessMachine, NativeMachine) then begin
+    {$IFNDEF WIN64}
+    if ProcessMachine <> IMAGE_FILE_MACHINE_UNKNOWN then
+      IsWin64 := True;
+    {$ENDIF}
+
     case NativeMachine of
       IMAGE_FILE_MACHINE_I386: ProcessorArchitecture := paX86;
       IMAGE_FILE_MACHINE_AMD64: ProcessorArchitecture := paX64;
@@ -3840,12 +4223,16 @@ begin
       ProcessorArchitecture := paUnknown;
     end;
   end else begin
+    {$IFNDEF WIN64}
     IsWow64ProcessFunc := GetProcAddress(KernelModule, 'IsWow64Process');
+    var Wow64Process: BOOL;
     if Assigned(IsWow64ProcessFunc) and
        IsWow64ProcessFunc(GetCurrentProcess, Wow64Process) and
        Wow64Process then
       IsWin64 := True;
+    {$ENDIF}
 
+    var SysInfo: TSystemInfo;
     GetNativeSystemInfo(SysInfo);
     case SysInfo.wProcessorArchitecture of
       PROCESSOR_ARCHITECTURE_INTEL: ProcessorArchitecture := paX86;
@@ -3856,17 +4243,11 @@ begin
     end;
   end;
 
-  if IsWin64 and
-     not (AreFsRedirectionFunctionsAvailable and
-          (GetProcAddress(KernelModule, 'GetSystemWow64DirectoryA') <> nil) and
-          (GetProcAddress(GetModuleHandle(advapi32), 'RegDeleteKeyExA') <> nil)) then
-    IsWin64 := False;
-
   { Setup MachineTypesSupportedBySystem. The result should end up being:
     - 32-bit x86: [paX86]
     - x64: [paX86, paX64]
-      (but not paX86 in a future x64 build of Inno Setup if Windows was installed
-       without support for x86 binaries (which is possible with Windows Server))
+      (but not paX86 if Windows was installed without support for x86 binaries
+       (which is possible with Windows Server))
     - Arm64 Windows 10: [paX86, paArm64, paArm32]
       (Arm32 support detected, not just assumed)
     - Arm64 Windows 11: [paX86, paX64, paArm64, paArm32]
@@ -3875,32 +4256,44 @@ begin
   {$IFDEF CPUX86}
   MachineTypesSupportedBySystem := [paX86];
   {$ELSE}
-  {$MESSAGE ERROR 'This needs updating for non-x86 builds'}
+  {$IFDEF CPUX64}
+  MachineTypesSupportedBySystem := [paX64];
+  {$ELSE}
+  {$MESSAGE ERROR 'This needs updating for non-x86/x64 builds'}
+  {$ENDIF}
   {$ENDIF}
 
   if ProcessorArchitecture <> paUnknown then
     Include(MachineTypesSupportedBySystem, ProcessorArchitecture);
 
-  { On Windows 11 we can use GetMachineTypeAttributes to check what is supported extra }
-  GetMachineTypeAttributesFunc := GetProcAddress(KernelModule, 'GetMachineTypeAttributes');
-  if Assigned(GetMachineTypeAttributesFunc) then begin
-    var MachineTypeAttributes: Integer;
-    if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_ARMNT, MachineTypeAttributes) = S_OK) and
-       ((MachineTypeAttributes and UserEnabled) <> 0) then
+  { Check if Arm32 and x86 are supported extra using IsWow64GuestMachineSupported }
+  IsWow64GuestMachineSupportedFunc := GetProcAddress(KernelModule, 'IsWow64GuestMachineSupported');
+  if Assigned(IsWow64GuestMachineSupportedFunc) then begin
+    var MachineIsSupported: BOOL;
+    if (IsWow64GuestMachineSupportedFunc(IMAGE_FILE_MACHINE_ARMNT, MachineIsSupported) = S_OK) and
+       MachineIsSupported then
       Include(MachineTypesSupportedBySystem, paArm32);
-    if not (paX64 in MachineTypesSupportedBySystem) and
-       (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_AMD64, MachineTypeAttributes) = S_OK) and
-       ((MachineTypeAttributes and UserEnabled) <> 0) then
-      Include(MachineTypesSupportedBySystem, paX64);
-  end else begin
-    { Without GetMachineTypeAttributes we can only check if Arm32 is supported extra
-      using IsWow64GuestMachineSupported }
-    IsWow64GuestMachineSupportedFunc := GetProcAddress(KernelModule, 'IsWow64GuestMachineSupported');
-    if Assigned(IsWow64GuestMachineSupportedFunc) then begin
-      var MachineIsSupported: BOOL;
-      if (IsWow64GuestMachineSupportedFunc(IMAGE_FILE_MACHINE_ARMNT, MachineIsSupported) = S_OK) and
-          MachineIsSupported then
-        Include(MachineTypesSupportedBySystem, paArm32);
+    if not (paX86 in MachineTypesSupportedBySystem) and
+       (IsWow64GuestMachineSupportedFunc(IMAGE_FILE_MACHINE_I386, MachineIsSupported) = S_OK) and
+       MachineIsSupported then
+      Include(MachineTypesSupportedBySystem, paX86);
+  end else if not (paX86 in MachineTypesSupportedBySystem) then begin
+    {$IFDEF WIN64}
+    { Detect x86 support by checking if SysWOW64\kernel32.dll exists }
+    const Dir = GetSysWow64Dir;
+    if (Dir <> '') and NewFileExists(AddBackslash(Dir) + 'kernel32.dll') then
+      Include(MachineTypesSupportedBySystem, paX86);
+    {$ENDIF}
+  end;
+
+  if not (paX64 in MachineTypesSupportedBySystem) then begin
+    { On Windows 11 we can check if x64 is supported extra using GetMachineTypeAttributes }
+    GetMachineTypeAttributesFunc := GetProcAddress(KernelModule, 'GetMachineTypeAttributes');
+    if Assigned(GetMachineTypeAttributesFunc) then begin
+      var MachineTypeAttributes: Integer;
+      if (GetMachineTypeAttributesFunc(IMAGE_FILE_MACHINE_AMD64, MachineTypeAttributes) = S_OK) and
+         ((MachineTypeAttributes and UserEnabled) <> 0) then
+        Include(MachineTypesSupportedBySystem, paX64);
     end;
   end;
 end;
@@ -3918,8 +4311,8 @@ begin
     { ^ Note: We MUST clip dwBuildNumber to 16 bits for Win9x compatibility }
     OSVersionInfoEx.dwOSVersionInfoSize := SizeOf(OSVersionInfoEx);
     if GetVersionEx(POSVersionInfo(@OSVersionInfoEx)^) then begin
-      NTServicePackLevel := (Byte(OSVersionInfoEx.wServicePackMajor) shl 8) or
-        Byte(OSVersionInfoEx.wServicePackMinor);
+      NTServicePackLevel := Word((Byte(OSVersionInfoEx.wServicePackMajor) shl 8) or
+        Byte(OSVersionInfoEx.wServicePackMinor));
       WindowsProductType := OSVersionInfoEx.wProductType;
       WindowsSuiteMask := OSVersionInfoEx.wSuiteMask;
     end;
@@ -3938,14 +4331,13 @@ procedure FreeEntryLists;
 var
   I: TEntryType;
   List: TList;
-  J: Integer;
   P: Pointer;
 begin
   for I := High(I) downto Low(I) do begin
     List := Entries[I];
     if Assigned(List) then begin
       Entries[I] := nil;
-      for J := List.Count-1 downto 0 do begin
+      for var J := List.Count-1 downto 0 do begin
         P := List[J];
         if EntryStrings[I] <> 0 then
           SEFreeRec(P, EntryStrings[I], EntryAnsiStrings[I])
@@ -3959,15 +4351,10 @@ begin
 end;
 
 procedure FreeWizardImages;
-var
-  I: Integer;
 begin
-  for I := WizardImages.Count-1 downto 0 do
-    TBitmap(WizardImages[I]).Free;
-  FreeAndNil(WizardImages);
-  for I := WizardSmallImages.Count-1 downto 0 do
-    TBitmap(WizardSmallImages[I]).Free;
+  FreeAndNil(WizardBackImages);
   FreeAndNil(WizardSmallImages);
+  FreeAndNil(WizardImages);
 end;
 
 initialization
@@ -3985,8 +4372,9 @@ initialization
   DeleteDirsAfterInstallList := TStringList.Create;
   CloseApplicationsFilterList := TStringList.Create;
   CloseApplicationsFilterExcludesList := TStringList.Create;
-  WizardImages := TList.Create;
-  WizardSmallImages := TList.Create;
+  WizardImages := TWizardImages.Create;
+  WizardSmallImages := TWizardImages.Create;
+  WizardBackImages := TWizardImages.Create;
   SHGetKnownFolderPathFunc := GetProcAddress(SafeLoadLibrary(AddBackslash(GetSystemDir) + shell32,
     SEM_NOOPENFILEERRORBOX), 'SHGetKnownFolderPath');
 

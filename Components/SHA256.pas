@@ -1,7 +1,7 @@
 unit SHA256;
 
 {
-  SHA256.pas: System.Hash.pas wrapper in the style of MD5.pas and SHA1.pas 
+  SHA256.pas: System.Hash.pas wrapper in the style of the old versions of MD5.pas and SHA1.pas
   Author: Martijn Laan
   License for SHA256.pas: Public domain, no copyright claimed
 }
@@ -9,7 +9,7 @@ unit SHA256;
 interface
 
 uses
-  SysUtils, System.Hash;
+  System.Hash;
 
 type
   TSHA256Context = record
@@ -27,6 +27,9 @@ function SHA256DigestToString(const D: TSHA256Digest): String;
 function SHA256DigestFromString(const S: String): TSHA256Digest;
 
 implementation
+
+uses
+  System.SysUtils;
 
 procedure SHA256Init(var ctx: TSHA256Context);
 begin
@@ -54,15 +57,12 @@ begin
 end;
 
 function SHA256DigestsEqual(const A, B: TSHA256Digest): Boolean;
-var
-  I: Integer;
 begin
-  for I := Low(TSHA256Digest) to High(TSHA256Digest) do
-    if A[I] <> B[I] then begin
-      Result := False;
-      Exit;
-    end;
-  Result := True;
+  { Security: constant-time comparison to prevent timing side channels }
+  var Diff: Byte := 0;
+  for var I := Low(TSHA256Digest) to High(TSHA256Digest) do
+    Diff := Diff or (A[I] xor B[I]);
+  Result := Diff = 0;
 end;
 
 function SHA256DigestToString(const D: TSHA256Digest): String;
@@ -73,7 +73,7 @@ var
   P: PChar;
   I: Integer;
 begin
-  P := @Buf;
+  P := @Buf[0];
   for I := 0 to 31 do begin
     P^ := Digits[D[I] shr 4];
     Inc(P);

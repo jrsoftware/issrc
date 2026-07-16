@@ -4,11 +4,11 @@
         <MainSource>Setup.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Debug</Config>
-        <TargetedPlatforms>1</TargetedPlatforms>
+        <TargetedPlatforms>3</TargetedPlatforms>
         <AppType>Application</AppType>
         <FrameworkType>VCL</FrameworkType>
         <ProjectVersion>20.3</ProjectVersion>
-        <Platform Condition="'$(Platform)'==''">Win32</Platform>
+        <Platform Condition="'$(Platform)'==''">Win64</Platform>
         <ProjectName Condition="'$(ProjectName)'==''">Setup</ProjectName>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Base' or '$(Base)'!=''">
@@ -19,9 +19,26 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Base)'=='true') or '$(Base_Win64)'!=''">
+        <Base_Win64>true</Base_Win64>
+        <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Release' or '$(Cfg_1)'!=''">
         <Cfg_1>true</Cfg_1>
         <CfgParent>Base</CfgParent>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win32)'!=''">
+        <Cfg_1_Win32>true</Cfg_1_Win32>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_1)'=='true') or '$(Cfg_1_Win64)'!=''">
+        <Cfg_1_Win64>true</Cfg_1_Win64>
+        <CfgParent>Cfg_1</CfgParent>
+        <Cfg_1>true</Cfg_1>
         <Base>true</Base>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Config)'=='Debug' or '$(Cfg_2)'!=''">
@@ -29,47 +46,70 @@
         <CfgParent>Base</CfgParent>
         <Base>true</Base>
     </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win32' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win32)'!=''">
+        <Cfg_2_Win32>true</Cfg_2_Win32>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
+    <PropertyGroup Condition="('$(Platform)'=='Win64' and '$(Cfg_2)'=='true') or '$(Cfg_2_Win64)'!=''">
+        <Cfg_2_Win64>true</Cfg_2_Win64>
+        <CfgParent>Cfg_2</CfgParent>
+        <Cfg_2>true</Cfg_2>
+        <Base>true</Base>
+    </PropertyGroup>
     <PropertyGroup Condition="'$(Base)'!=''">
-        <DCC_ImageBase>00400000</DCC_ImageBase>
         <DCC_AssertionsAtRuntime>false</DCC_AssertionsAtRuntime>
         <DCC_DebugInformation>1</DCC_DebugInformation>
         <DCC_SymbolReferenceInfo>1</DCC_SymbolReferenceInfo>
-        <DCC_UnitSearchPath>..\Components\UniPs\Source;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Define>SETUPPROJ;PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS;$(DCC_Define)</DCC_Define>
         <SanitizedProjectName>Setup</SanitizedProjectName>
-        <VerInfo_Locale>1043</VerInfo_Locale>
-        <VerInfo_Keys>CompanyName=;FileDescription=;FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=;ProductVersion=1.0.0.0;Comments=;CFBundleName=</VerInfo_Keys>
-        <DCC_Namespace>System;System.Win;Winapi;Vcl;$(DCC_Namespace)</DCC_Namespace>
+        <DCC_Namespace>System;Vcl;$(DCC_Namespace)</DCC_Namespace>
         <DCC_SYMBOL_DEPRECATED>false</DCC_SYMBOL_DEPRECATED>
         <DCC_SYMBOL_PLATFORM>false</DCC_SYMBOL_PLATFORM>
-        <DCC_UNSAFE_CAST>false</DCC_UNSAFE_CAST>
-        <DCC_EXPLICIT_STRING_CAST>false</DCC_EXPLICIT_STRING_CAST>
-        <DCC_EXPLICIT_STRING_CAST_LOSS>false</DCC_EXPLICIT_STRING_CAST_LOSS>
-        <DCC_IMPLICIT_INTEGER_CAST_LOSS>false</DCC_IMPLICIT_INTEGER_CAST_LOSS>
-        <DCC_IMPLICIT_CONVERSION_LOSS>false</DCC_IMPLICIT_CONVERSION_LOSS>
+        <DCC_IMPLICIT_INTEGER_CAST_LOSS>true</DCC_IMPLICIT_INTEGER_CAST_LOSS>
+        <DCC_IMPLICIT_CONVERSION_LOSS>true</DCC_IMPLICIT_CONVERSION_LOSS>
+        <DCC_COMBINING_SIGNED_UNSIGNED64>true</DCC_COMBINING_SIGNED_UNSIGNED64>
+        <DCC_TypedAtParameter>true</DCC_TypedAtParameter>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win32)'!=''">
         <BT_BuildType>Debug</BT_BuildType>
-        <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=;ProgramID=com.embarcadero.$(MSBuildProjectName)</VerInfo_Keys>
-        <VerInfo_Locale>1033</VerInfo_Locale>
         <Manifest_File>(None)</Manifest_File>
         <OutputExt>e32</OutputExt>
+        <DCC_Namespace>System.Win;Winapi;$(DCC_Namespace)</DCC_Namespace>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Base_Win64)'!=''">
+        <BT_BuildType>Debug</BT_BuildType>
+        <Manifest_File>(None)</Manifest_File>
+        <OutputExt>e64</OutputExt>
+        <DCC_Namespace>System.Win;Winapi;$(DCC_Namespace)</DCC_Namespace>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>RELEASE;$(DCC_Define)</DCC_Define>
         <DCC_DebugInformation>0</DCC_DebugInformation>
         <DCC_LocalDebugSymbols>false</DCC_LocalDebugSymbols>
-        <DCC_DcuOutput>Dcu\Release\$(MainSource)</DCC_DcuOutput>
+        <DCC_SymbolReferenceInfo>0</DCC_SymbolReferenceInfo>
         <DCC_ExeOutput>..\Files</DCC_ExeOutput>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <DCC_DcuOutput>Dcu\Win32\Release\$(MainSource)</DCC_DcuOutput>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
+        <DCC_DcuOutput>Dcu\Win64\Release\$(MainSource)</DCC_DcuOutput>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
         <DCC_Optimize>false</DCC_Optimize>
         <DCC_GenerateStackFrames>true</DCC_GenerateStackFrames>
-        <DCC_DcuOutput>Dcu\Debug\$(MainSource)</DCC_DcuOutput>
         <DCC_ExeOutput>Bin</DCC_ExeOutput>
         <Debugger_RunParams>/LOG=Setup.log</Debugger_RunParams>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
+        <DCC_DcuOutput>Dcu\Win32\Debug\$(MainSource)</DCC_DcuOutput>
+        <DCC_RemoteDebug>true</DCC_RemoteDebug>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
+        <DCC_DcuOutput>Dcu\Win64\Debug\$(MainSource)</DCC_DcuOutput>
     </PropertyGroup>
     <ItemGroup>
         <DelphiCompile Include="$(MainSource)">
@@ -80,9 +120,14 @@
         <DCCReference Include="..\Components\RichEditViewer.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.Vcl.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
+        <DCCReference Include="Src\Setup.Start.pas"/>
         <DCCReference Include="Src\Setup.MainForm.pas"/>
         <DCCReference Include="Src\Setup.MainFunc.pas"/>
         <DCCReference Include="Src\Setup.Install.pas"/>
+        <DCCReference Include="Src\Setup.Install.HelperFunc.pas"/>
+        <DCCReference Include="Src\Setup.DownloadFileFunc.pas"/>
+        <DCCReference Include="Src\Setup.ExtractFileFunc.pas"/>
+        <DCCReference Include="Src\Setup.ISSigVerifyFunc.pas"/>
         <DCCReference Include="Src\SetupLdrAndSetup.Messages.pas"/>
         <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
         <DCCReference Include="Src\Setup.UninstallLog.pas"/>
@@ -101,13 +146,12 @@
         <DCCReference Include="Src\Shared.SetupTypes.pas"/>
         <DCCReference Include="Src\Shared.SetupSteps.pas"/>
         <DCCReference Include="Src\Setup.ScriptRunner.pas"/>
-        <DCCReference Include="Src\Setup.ScriptDlg.pas"/>
+        <DCCReference Include="Src\Setup.WizardForm.CustomPages.pas"/>
         <DCCReference Include="Src\Setup.ScriptClasses.pas"/>
         <DCCReference Include="Src\Setup.SelectLanguageForm.pas">
             <Form>SelectLanguageForm</Form>
         </DCCReference>
         <DCCReference Include="Src\Setup.FileExtractor.pas"/>
-        <DCCReference Include="Src\Shared.Int64Em.pas"/>
         <DCCReference Include="Src\Setup.SelectFolderForm.pas">
             <Form>SelectFolderForm</Form>
         </DCCReference>
@@ -117,12 +161,16 @@
         <DCCReference Include="Src\Compression.LZMADecompressor.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="..\Components\MD5.pas"/>
+        <DCCReference Include="..\Components\MD5.Test.pas"/>
         <DCCReference Include="..\Components\SHA1.pas"/>
+        <DCCReference Include="..\Components\SHA1.Test.pas"/>
         <DCCReference Include="..\Components\SHA256.pas"/>
+        <DCCReference Include="..\Components\SHA256.Test.pas"/>
         <DCCReference Include="Src\Setup.LoggingFunc.pas"/>
         <DCCReference Include="Src\Setup.DebugClient.pas"/>
         <DCCReference Include="Src\Shared.DebugStruct.pas"/>
         <DCCReference Include="..\Components\ChaCha20.pas"/>
+        <DCCReference Include="..\Components\ChaCha20.Test.pas"/>
         <DCCReference Include="Src\Setup.Uninstall.pas"/>
         <DCCReference Include="Src\Setup.UninstallProgressForm.pas">
             <Form>UninstallProgressForm</Form>
@@ -131,23 +179,28 @@
             <Form>UninstallSharedFileForm</Form>
         </DCCReference>
         <DCCReference Include="..\Components\SimpleExpression.pas"/>
+        <DCCReference Include="..\Components\SimpleExpression.Test.pas"/>
         <DCCReference Include="..\Components\UIStateForm.pas"/>
         <DCCReference Include="Src\Setup.SetupForm.pas"/>
         <DCCReference Include="Src\Setup.RegSvr.pas"/>
         <DCCReference Include="..\Components\BrowseFunc.pas"/>
-        <DCCReference Include="Src\SetupLdrAndSetup.RedirFunc.pas"/>
+        <DCCReference Include="Src\Setup.PathRedir.pas"/>
+        <DCCReference Include="Src\Setup.PathRedir.Test.pas"/>
+        <DCCReference Include="Src\Setup.RedirFunc.pas"/>
         <DCCReference Include="Src\Setup.SecurityFunc.pas"/>
-        <DCCReference Include="Src\Setup.Helper.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>
+        <DCCReference Include="Src\Shared.VerInfoFunc.Test.pas"/>
         <DCCReference Include="Src\Setup.RegDLL.pas"/>
-        <DCCReference Include="Src\Shared.ResUpdateFunc.pas"/>
         <DCCReference Include="Src\Setup.SpawnCommon.pas"/>
         <DCCReference Include="Src\Setup.SpawnServer.pas"/>
         <DCCReference Include="Src\Setup.SpawnClient.pas"/>
         <DCCReference Include="Src\Shared.TaskDialogFunc.pas"/>
         <DCCReference Include="..\Components\BidiUtils.pas"/>
+        <DCCReference Include="..\Components\BidiUtils.Test.pas"/>
         <DCCReference Include="..\Components\PathFunc.pas"/>
-        <DCCReference Include="..\Components\BidiCtrls.pas"/>
+        <DCCReference Include="..\Components\PathFunc.Test.pas"/>
+        <DCCReference Include="..\Components\NewCtrls.pas"/>
+        <DCCReference Include="..\Components\BitmapButton.pas"/>
         <DCCReference Include="..\Components\BitmapImage.pas"/>
         <DCCReference Include="..\Components\FolderTreeView.pas"/>
         <DCCReference Include="..\Components\NewCheckListBox.pas"/>
@@ -166,14 +219,35 @@
         <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
         <DCCReference Include="..\Components\NewUxTheme.pas"/>
         <DCCReference Include="..\Components\PBKDF2.pas"/>
+        <DCCReference Include="..\Components\PBKDF2.Test.pas"/>
         <DCCReference Include="Src\Compression.SevenZipDecoder.pas"/>
         <DCCReference Include="..\Components\PSStackHelper.pas"/>
         <DCCReference Include="Src\Setup.ScriptFunc.HelperFunc.pas"/>
         <DCCReference Include="..\Components\ECDSA.pas"/>
         <DCCReference Include="..\Components\ISSigFunc.pas"/>
+        <DCCReference Include="..\Components\ISSigFunc.Test.pas"/>
         <DCCReference Include="..\Components\StringScanner.pas"/>
+        <DCCReference Include="..\Components\StringScanner.Test.pas"/>
         <DCCReference Include="Src\Compression.SevenZipDLLDecoder.pas"/>
         <DCCReference Include="Src\Compression.SevenZipDLLDecoder.Interfaces.pas"/>
+        <DCCReference Include="Src\Shared.EncryptionFunc.pas"/>
+        <DCCReference Include="Src\Shared.EncryptionFunc.Test.pas"/>
+        <DCCReference Include="..\Components\UnsignedFunc.pas"/>
+        <DCCReference Include="..\Components\UnsignedFunc.Test.pas"/>
+        <DCCReference Include="..\Components\Themes.pas"/>
+        <DCCReference Include="..\Components\FormBackgroundStyleHook.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSDebugger.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_classes.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_comobj.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_controls.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_dll.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_extctrls.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_forms.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_graphics.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_std.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSR_stdctrls.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSRuntime.pas"/>
+        <DCCReference Include="..\Components\UniPs\Source\uPSUtils.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
@@ -197,7 +271,7 @@
             </Delphi.Personality>
             <Platforms>
                 <Platform value="Win32">True</Platform>
-                <Platform value="Win64">False</Platform>
+                <Platform value="Win64">True</Platform>
             </Platforms>
         </BorlandProject>
         <ProjectFileVersion>12</ProjectFileVersion>

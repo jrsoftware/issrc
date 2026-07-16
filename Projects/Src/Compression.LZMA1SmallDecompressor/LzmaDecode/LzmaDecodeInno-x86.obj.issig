@@ -1,0 +1,8 @@
+format issig-v2
+file-name "LzmaDecodeInno-x86.obj"
+file-size 8111
+file-hash 25a946de5cd685e1b010293665ee04eaa24ac9a345a31afaa82217e273459b2c
+file-tag ""
+key-id def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38
+sig-r 7abfc537c619fd0bcf0333d631dc8ddf3b220cf32c6f2404b4dfd45854947b7c
+sig-s 7d5a878cb1dfa64a1f45752655809adf88e08c313dd9dbd74aa343756b1b2f59

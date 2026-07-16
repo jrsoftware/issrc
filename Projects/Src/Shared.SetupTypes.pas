@@ -2,17 +2,19 @@ unit Shared.SetupTypes;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Types and functions used by both ISCmplr-only and Setup-only units
+
+  Also used by ISTestTool
 }
 
 interface
 
 uses
-  SysUtils, Classes, ECDSA, Shared.Struct;
+  Windows, SysUtils, Classes, ECDSA, Shared.Struct;
 
 const
   { Predefined page identifiers }
@@ -42,6 +44,9 @@ type
   TVerificationError = (veSignatureMissing, veSignatureMalformed, veKeyNotFound,
     veSignatureBad, veFileNameIncorrect, veFileSizeIncorrect, veFileHashIncorrect);
 
+  TPathRedirTargetProcess = (tpCurrent, tpNativeBit, tp32Bit,
+    tp32BitPreferSystem32);
+
 const
   crHand = 1;
 
@@ -50,14 +55,12 @@ const
   CodeRootKeyFlag64Bit = $02000000;
   CodeRootKeyValidFlags = CodeRootKeyFlag32Bit or CodeRootKeyFlag64Bit;
 
-  HKEY_AUTO = 1; { Any value will work as long as it isn't 0 and doesn't match a predefined key handle (8xxxxxxx) nor includes any of the CodeRootKeyValidFlags flags. }
+  HKEY_AUTO = HKEY(1); { Any UInt32 value will work as long as it isn't 0 and doesn't match a predefined key handle (8xxxxxxx) nor includes any of the CodeRootKeyValidFlags flags. }
 
 function StringsToCommaString(const Strings: TStrings): String;
 procedure SetStringsFromCommaString(const Strings: TStrings; const Value: String);
 function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData): Boolean;
 procedure HandleRenamedConstants(var Cnst: String; const RenamedConstantCallback: TRenamedConstantCallback);
-procedure GenerateEncryptionKey(const Password: String; const Salt: TSetupKDFSalt;
-  const Iterations: Integer; out Key: TSetupEncryptionKey);
 procedure SetISSigAllowedKey(var ISSigAllowedKeys: AnsiString; const KeyIndex: Integer);
 function GetISSigAllowedKeys([ref] const ISSigAvailableKeys: TArrayOfECDSAKey;
   const ISSigAllowedKeys: AnsiString): TArrayOfECDSAKey;
@@ -66,7 +69,7 @@ function IsExcluded(Text: String; const AExcludes: TStrings): Boolean;
 implementation
 
 uses
-  PBKDF2, PathFunc, Shared.CommonFunc;
+  PathFunc, Shared.CommonFunc;
 
 function QuoteStringIfNeeded(const S: String): String;
 { Used internally by StringsToCommaString. Adds quotes around the string if
@@ -213,7 +216,7 @@ function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData):
       J := StrToInt(Copy(Z, I+2, Maxint));
       if (J < Low(Byte)) or (J > High(Byte)) then
         Abort;
-      ServicePack := J shl 8;
+      ServicePack := Word(J shl 8);
       { ^ Shift left 8 bits because we're setting the "major" service pack
         version number. This parser doesn't currently accept "minor" service
         pack version numbers. }
@@ -225,7 +228,7 @@ function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData):
       J := StrToInt(Copy(Z, 1, I-1));
       if (J < 0) or (J > 127) then
         Abort;
-      Ver.Major := J;
+      Ver.Major := Byte(J);
       Z := Copy(Z, I+1, Maxint);
       I := Pos('.', Z);
       HasBuild := I <> 0;
@@ -235,19 +238,19 @@ function StrToSetupVersionData(const S: String; var VerData: TSetupVersionData):
       Z := Copy(Z, 1, I-1);
       J := StrToInt(Z);
       if (J < 0) or (J > 99) then Abort;
-      Ver.Minor := J;
+      Ver.Minor := Byte(J);
       if HasBuild then begin
         J := StrToInt(B);
         if (J < Low(Ver.Build)) or (J > High(Ver.Build)) then
           Abort;
-        Ver.Build := J;
+        Ver.Build := Word(J);
       end;
     end
     else begin  { no minor version specified }
       J := StrToInt(Z);
       if (J < 0) or (J > 127) then
         Abort;
-      Ver.Major := J;
+      Ver.Major := Byte(J);
     end;
   end;
 var
@@ -303,18 +306,6 @@ begin
   end;
 end;
 
-procedure GenerateEncryptionKey(const Password: String; const Salt: TSetupKDFSalt;
-  const Iterations: Integer; out Key: TSetupEncryptionKey);
-begin
-  var SaltBytes: TBytes;
-  var SaltSize := SizeOf(Salt);
-  SetLength(SaltBytes, SaltSize);
-  Move(Salt[0], SaltBytes[0], SaltSize);
-  var KeyLength := SizeOf(Key);
-  var KeyBytes := PBKDF2SHA256(Password, SaltBytes, Iterations, KeyLength);
-  Move(KeyBytes[0], Key[0], KeyLength);
-end;
-
 procedure SetISSigAllowedKey(var ISSigAllowedKeys: AnsiString; const KeyIndex: Integer);
 { ISSigAllowedKeys should start out empty. If you then only use this function
   to update it, regular string comparison can be used for comparisons. }
@@ -344,7 +335,7 @@ begin
     SetLength(Result, NAvailable);
     var NAdded := 0;
     for var KeyIndex := 0 to NAvailable-1 do begin
-      if IsISSigAllowedKey(ISSigAllowedKeys, KeyIndex) then begin
+      if IsISSigAllowedKey(ISSigAllowedKeys, Integer(KeyIndex)) then begin
         Result[NAdded] := ISSigAvailableKeys[KeyIndex];
         Inc(NAdded);
       end;

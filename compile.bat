@@ -1,7 +1,7 @@
 @echo off
 
 rem  Inno Setup
-rem  Copyright (C) 1997-2025 Jordan Russell
+rem  Copyright (C) 1997-2026 Jordan Russell
 rem  Portions by Martijn Laan
 rem  For conditions of distribution and use, see LICENSE.TXT.
 rem
@@ -10,6 +10,12 @@ rem  Batch file to compile Inno Setup
 setlocal
 
 cd /d %~dp0
+
+if "%1"=="x86" goto archfound
+if "%1"=="x64" goto archfound
+echo Architecture parameter is missing or invalid. Must be "x86" or "x64".
+goto failed2
+:archfound
 
 if exist compilesettings.bat goto compilesettingsfound
 :compilesettingserror
@@ -24,71 +30,56 @@ set DELPHIXEROOT=
 call .\compilesettings.bat
 if "%DELPHIXEROOT%"=="" goto compilesettingserror
 
-set DELPHIXELIB=%DELPHIXEROOT%\lib\win32\release
-
 rem -------------------------------------------------------------------------
 
-rem  Compile each project separately because it seems Delphi
-rem  carries some settings (e.g. $APPTYPE) between projects
-rem  if multiple projects are specified on the command line.
-
-set DELPHIXEDISABLEDWARNINGS=-W-SYMBOL_DEPRECATED -W-SYMBOL_PLATFORM -W-UNSAFE_CAST -W-EXPLICIT_STRING_CAST -W-EXPLICIT_STRING_CAST_LOSS -W-IMPLICIT_INTEGER_CAST_LOSS -W-IMPLICIT_CONVERSION_LOSS
-
-set FLAGS=--no-config -Q -B -$L- -$C- -H -W %DELPHIXEDISABLEDWARNINGS% %1 -E..\Files
-set FLAGSCONSOLE=%FLAGS% -CC
-set FLAGSE32=%FLAGS% -TX.e32
-set NAMESPACES=System;System.Win;Winapi
-set DCUDIR=Dcu\Release
-
-set ROPSSRC=..\Components\UniPS\Source
-set ROPSDEF=PS_MINIVCL;PS_NOGRAPHCONST;PS_PANSICHAR;PS_NOINTERFACEGUIDBRACKETS
+call "%DELPHIXEROOT%\bin\rsvars.bat"
+if errorlevel 1 goto failed
 
 cd Projects
 if errorlevel 1 goto failed
 
-if "%1"=="issigtool" goto issigtool
-if not "%1"=="" goto failed
+set EnvOptionsWarn=false
+rem Optional: make it use rc.exe (via bin\cgrc.exe) instead of resinator.exe (via bin64\cgrc.exe)
+rem set BRCC_CompilerToUse=msrc
 
-echo - ISPP.dpr
-mkdir %DCUDIR%\ISPP.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -NS%NAMESPACES%  -U"%DELPHIXELIB%"  -NU%DCUDIR%\ISPP.dpr ISPP.dpr
-if errorlevel 1 goto failed
+if "%1"=="x64" ( set Bits=64 ) else ( set Bits=32 )
 
-echo - Compil32.dpr
-mkdir %DCUDIR%\Compil32.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES%;Vcl;Vcl.Imaging -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\Compil32.dpr -DCOMPIL32PROJ;%ROPSDEF% Compil32.dpr
-if errorlevel 1 goto failed
+set "SignFiles="
+if /I "%2"=="iscmplr" set "SignFiles=Files\ISCmplr.dll"
+if /I "%2"=="ispp" set "SignFiles=Files\ISPP.dll"
+if /I "%2"=="setup" set "SignFiles=Files\Setup.e%Bits%"
+if /I "%2"=="setupcustomstyle" set "SignFiles=Files\SetupCustomStyle.e%Bits%"
+if /I "%2"=="setupldr" set "SignFiles=Files\SetupLdr.e%Bits%"
+if "%2"=="" set "SignFiles=Files\ISCmplr.dll Files\ISPP.dll Files\Setup.e32 Files\Setup.e64 Files\SetupCustomStyle.e32 Files\SetupCustomStyle.e64 Files\SetupLdr.e32 Files\SetupLdr.e64"
 
-echo - ISCC.dpr
-mkdir %DCUDIR%\ISCC.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES% -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\ISCC.dpr -D%ROPSDEF% ISCC.dpr
-if errorlevel 1 goto failed
-
-echo - ISCmplr.dpr
-mkdir %DCUDIR%\ISCmplr.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGS% -NS%NAMESPACES% -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\ISCmplr.dpr -D%ROPSDEF% ISCmplr.dpr
-if errorlevel 1 goto failed
-
-echo - SetupLdr.dpr
-mkdir %DCUDIR%\SetupLdr.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -NS%NAMESPACES% -U"%DELPHIXELIB%" -NU%DCUDIR%\SetupLdr.dpr -DSETUPLDRPROJ SetupLdr.dpr
-if errorlevel 1 goto failed
-
-echo - Setup.dpr
-mkdir %DCUDIR%\Setup.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSE32% -NS%NAMESPACES%;Vcl -U"%DELPHIXELIB%;%ROPSSRC%" -NU%DCUDIR%\Setup.dpr -DSETUPPROJ;%ROPSDEF% Setup.dpr
-if errorlevel 1 goto failed
-
-:issigtool
-echo - ISSigTool.dpr
-mkdir %DCUDIR%\ISSigTool.dpr 2>nul
-"%DELPHIXEROOT%\bin\dcc32.exe" %FLAGSCONSOLE% -NS%NAMESPACES% -U"%DELPHIXELIB%" -NU%DCUDIR%\ISSigTool.dpr ISSigTool.dpr
+if /I "%2"=="ishelpgen" (
+  echo - ISHelpGen.exe
+  msbuild.exe ..\ISHelp\ISHelpGen\ISHelpGen.dproj /t:Build /p:Config=Release;Platform=Win64 /nologo
+) else if not "%2"=="" (
+  echo - %2
+  msbuild.exe "%2.dproj" /t:Build /p:Config=Release;Platform=Win%Bits% /nologo
+) else (
+  echo - Projects.groupproj - Release build group
+  rem This emits warning MSB4056, but that's ok since the build doesn't use COM. Modern MSBuild supports
+  rem /noWarn:MSB4056, but the version targeted by Delphi 12.3's rsvars.bat does not. Additionally Delphi's
+  rem implementation of build groups does not seem to pass through additional parameters, so even with a
+  rem modern MSBuild you cannot suppress the warning. Likewise, using /nologo or /v:q has no effect.
+  msbuild.exe Projects.groupproj /t:Build /p:BuildGroup=Release%Bits%
+)
 if errorlevel 1 goto failed
 
 cd ..
 if errorlevel 1 goto failed
 
+if defined SignFiles (
+  rem  Sign using user's private key - will be overwritten if called by build.bat
+  call .\issig.bat sign %SignFiles%
+  if errorlevel 1 goto failed2
+  echo ISSigTool sign done
+)
+
 echo Success!
+
 goto exit
 
 :failed

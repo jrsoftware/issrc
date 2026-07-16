@@ -19,14 +19,13 @@ object OptionsForm: TOptionsForm
     589
     424)
   TextHeight = 13
-  object GroupBox1: TGroupBox
+  object GroupBox1: TNewGroupBox
     Left = 8
     Top = 8
     Width = 281
-    Height = 314
+    Height = 334
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Miscellaneous '
-    ShowFrame = False
     TabOrder = 0
     object StartupCheck: TCheckBox
       Left = 8
@@ -46,59 +45,59 @@ object OptionsForm: TOptionsForm
     end
     object AutosaveCheck: TCheckBox
       Left = 8
-      Top = 96
-      Width = 265
-      Height = 17
-      Caption = 'Automatically sa&ve before compiling'
-      TabOrder = 4
-    end
-    object BackupCheck: TCheckBox
-      Left = 8
       Top = 116
       Width = 265
       Height = 17
-      Caption = 'Create &backups when saving'
+      Caption = 'Automatically sa&ve before compiling'
       TabOrder = 5
     end
-    object UndoAfterSaveCheck: TCheckBox
+    object BackupCheck: TCheckBox
       Left = 8
       Top = 136
       Width = 265
       Height = 17
-      Caption = 'Allow &Undo after save'
+      Caption = 'Create &backups when saving'
       TabOrder = 6
     end
-    object FullPathCheck: TCheckBox
+    object UndoAfterSaveCheck: TCheckBox
       Left = 8
       Top = 156
       Width = 265
       Height = 17
-      Caption = 'Display &full path in title bar'
+      Caption = 'Allow &Undo after save'
       TabOrder = 7
+    end
+    object FullPathCheck: TCheckBox
+      Left = 8
+      Top = 214
+      Width = 265
+      Height = 17
+      Caption = 'Display &full path in title bar'
+      TabOrder = 10
     end
     object PauseOnDebuggerExceptionsCheck: TCheckBox
       Left = 8
-      Top = 176
+      Top = 234
       Width = 265
       Height = 17
       Caption = '&Pause on exceptions'
-      TabOrder = 8
+      TabOrder = 11
     end
     object RunAsDifferentUserCheck: TCheckBox
       Left = 8
-      Top = 196
+      Top = 254
       Width = 265
       Height = 17
       Caption = 'Always &launch Setup/Uninstall as administrator'
-      TabOrder = 9
+      TabOrder = 12
     end
     object ColorizeCompilerOutputCheck: TCheckBox
       Left = 8
-      Top = 216
+      Top = 274
       Width = 265
       Height = 17
       Caption = 'Colori&ze "Compiler Output" view'
-      TabOrder = 10
+      TabOrder = 13
     end
     object OpenIncludedFilesCheck: TCheckBox
       Left = 8
@@ -118,54 +117,54 @@ object OptionsForm: TOptionsForm
     end
     object Label3: TNewStaticText
       Left = 8
-      Top = 243
+      Top = 301
       Width = 56
       Height = 14
       Caption = 'Menu &keys:'
       FocusControl = KeyMappingComboBox
-      TabOrder = 11
+      TabOrder = 14
     end
     object KeyMappingComboBox: TComboBox
       Left = 72
-      Top = 239
+      Top = 297
       Width = 201
       Height = 21
       Style = csDropDownList
-      TabOrder = 12
+      TabOrder = 15
+    end
+    object AutoreloadCheck: TCheckBox
+      Left = 8
+      Top = 176
+      Width = 265
+      Height = 17
+      Caption = 'Automatically reload files'
+      TabOrder = 8
+    end
+    object UndoAfterReloadCheck: TCheckBox
+      Left = 8
+      Top = 196
+      Width = 265
+      Height = 17
+      Caption = 'Allow Undo after reload'
+      TabOrder = 9
+    end
+    object AutoHideNewIncludedFilesCheck: TCheckBox
+      Left = 8
+      Top = 96
+      Width = 265
+      Height = 17
+      Caption = 'Keep new #include files closed'
+      TabOrder = 4
     end
   end
-  object GroupBox2: TGroupBox
-    Left = 8
-    Top = 323
-    Width = 281
-    Height = 57
-    Anchors = [akLeft, akBottom]
-    Caption = ' File Associations '
-    ShowFrame = False
-    TabOrder = 1
-    DesignSize = (
-      281
-      57)
-    object AssocButton: TButton
-      Left = 40
-      Top = 20
-      Width = 201
-      Height = 23
-      Anchors = [akLeft, akBottom]
-      Caption = '&Associate .iss files with this compiler'
-      TabOrder = 0
-      OnClick = AssocButtonClick
-    end
-  end
-  object GroupBox3: TGroupBox
+  object GroupBox3: TNewGroupBox
     Left = 300
     Top = 8
     Width = 281
     Height = 372
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Editor '
-    ShowFrame = False
-    TabOrder = 2
+    TabOrder = 1
     object AutoAutoCompleteCheck: TCheckBox
       Left = 8
       Top = 16
@@ -217,7 +216,7 @@ object OptionsForm: TOptionsForm
     object AutoIndentCheck: TCheckBox
       Left = 8
       Top = 136
-      Width = 265
+      Width = 130
       Height = 17
       Caption = 'Auto &indent mode'
       TabOrder = 6
@@ -228,7 +227,7 @@ object OptionsForm: TOptionsForm
       Width = 265
       Height = 17
       Caption = 'Show indentation &guides'
-      TabOrder = 7
+      TabOrder = 8
     end
     object Label1: TNewStaticText
       Left = 8
@@ -236,7 +235,7 @@ object OptionsForm: TOptionsForm
       Width = 25
       Height = 14
       Caption = 'Font:'
-      TabOrder = 15
+      TabOrder = 16
     end
     object FontPanel: TPanel
       Left = 72
@@ -246,7 +245,7 @@ object OptionsForm: TOptionsForm
       BevelKind = bkFlat
       BevelOuter = bvNone
       Caption = 'AaBbXxZz'
-      TabOrder = 16
+      TabOrder = 17
     end
     object ChangeFontButton: TButton
       Left = 200
@@ -254,7 +253,7 @@ object OptionsForm: TOptionsForm
       Width = 73
       Height = 23
       Caption = '&Change...'
-      TabOrder = 17
+      TabOrder = 18
       OnClick = ChangeFontButtonClick
     end
     object Label2: TNewStaticText
@@ -264,14 +263,14 @@ object OptionsForm: TOptionsForm
       Height = 14
       Caption = '&Tab Width:'
       FocusControl = TabWidthEdit
-      TabOrder = 18
+      TabOrder = 19
     end
     object TabWidthEdit: TEdit
       Left = 72
       Top = 337
       Width = 41
       Height = 21
-      TabOrder = 19
+      TabOrder = 20
       OnChange = TabWidthEditChange
     end
     object GutterLineNumbersCheck: TCheckBox
@@ -280,7 +279,7 @@ object OptionsForm: TOptionsForm
       Width = 265
       Height = 17
       Caption = 'Show &line numbers in gutter'
-      TabOrder = 8
+      TabOrder = 9
     end
     object Label4: TNewStaticText
       Left = 8
@@ -289,7 +288,7 @@ object OptionsForm: TOptionsForm
       Height = 14
       Caption = 'T&heme:'
       FocusControl = ThemeComboBox
-      TabOrder = 13
+      TabOrder = 14
     end
     object ThemeComboBox: TComboBox
       Left = 72
@@ -297,7 +296,7 @@ object OptionsForm: TOptionsForm
       Width = 201
       Height = 21
       Style = csDropDownList
-      TabOrder = 14
+      TabOrder = 15
     end
     object HighlightSelTextOccurrencesCheck: TCheckBox
       Left = 8
@@ -305,7 +304,7 @@ object OptionsForm: TOptionsForm
       Width = 265
       Height = 17
       Caption = 'Highlight occurrences of current selection'
-      TabOrder = 9
+      TabOrder = 10
     end
     object HighlightWordAtCursorOccurrencesCheck: TCheckBox
       Left = 8
@@ -313,7 +312,7 @@ object OptionsForm: TOptionsForm
       Width = 265
       Height = 17
       Caption = 'Highlight occurrences of current wor&d'
-      TabOrder = 10
+      TabOrder = 11
     end
     object Label5: TNewStaticText
       Left = 8
@@ -322,7 +321,7 @@ object OptionsForm: TOptionsForm
       Height = 14
       Caption = 'Ke&ys:'
       FocusControl = MemoKeyMappingComboBox
-      TabOrder = 11
+      TabOrder = 12
     end
     object MemoKeyMappingComboBox: TComboBox
       Left = 72
@@ -330,19 +329,27 @@ object OptionsForm: TOptionsForm
       Width = 201
       Height = 21
       Style = csDropDownList
-      TabOrder = 12
+      TabOrder = 13
     end
     object ShowWhiteSpaceCheck: TCheckBox
       Left = 120
-      Top = 338
+      Top = 339
       Width = 120
       Height = 17
       Caption = 'Show whitespace'
-      TabOrder = 20
+      TabOrder = 21
+    end
+    object SmartHomeCheck: TCheckBox
+      Left = 143
+      Top = 136
+      Width = 130
+      Height = 17
+      Caption = 'Smart Home key'
+      TabOrder = 7
     end
   end
   object OKButton: TButton
-    Left = 428
+    Left = 420
     Top = 392
     Width = 73
     Height = 23
@@ -350,10 +357,10 @@ object OptionsForm: TOptionsForm
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 3
+    TabOrder = 2
   end
   object CancelButton: TButton
-    Left = 508
+    Left = 500
     Top = 392
     Width = 73
     Height = 23
@@ -361,7 +368,17 @@ object OptionsForm: TOptionsForm
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
+    TabOrder = 3
+  end
+  object AssocButton: TButton
+    Left = 16
+    Top = 392
+    Width = 201
+    Height = 23
+    Anchors = [akLeft, akBottom]
+    Caption = '&Associate .iss files with this compiler'
     TabOrder = 4
+    OnClick = AssocButtonClick
   end
   object FontDialog: TFontDialog
     Font.Charset = DEFAULT_CHARSET

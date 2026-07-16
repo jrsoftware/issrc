@@ -13,7 +13,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  Setup.SetupForm, StdCtrls, ExtCtrls, NewStaticText, BitmapImage, BidiCtrls;
+  Setup.SetupForm, StdCtrls, ExtCtrls, NewStaticText, BitmapImage, NewCtrls;
 
 type
   TSelectLanguageForm = class(TSetupForm)
@@ -43,12 +43,12 @@ function AskForLanguage: Boolean;
   the selected language if the user clicks OK, or False otherwise. }
 var
   LangForm: TSelectLanguageForm;
-  I, J: Integer;
+  J: Integer;
   LangEntry: PSetupLanguageEntry;
 begin
   LangForm := AppCreateForm(TSelectLanguageForm) as TSelectLanguageForm;
   try
-    for I := 0 to Entries[seLanguage].Count-1 do begin
+    for var I := 0 to Entries[seLanguage].Count-1 do begin
       LangEntry := Entries[seLanguage][I];
       J := LangForm.LangCombo.Items.Add(LangEntry.LanguageName);
       LangForm.LangCombo.Items.Objects[J] := TObject(I);
@@ -60,7 +60,7 @@ begin
       { Note: if UsePreviousLanguage is set to "yes" then the compiler does not
         allow AppId to include constants but we should still call ExpandConst
         to handle any '{{'. }
-      I := GetPreviousLanguage(ExpandConst(SetupHeader.AppId));
+      const I = GetPreviousLanguage(ExpandConst(SetupHeader.AppId));
       if I <> -1 then
         LangForm.LangCombo.ItemIndex := LangForm.LangCombo.Items.IndexOfObject(TObject(I));
     end;
@@ -72,7 +72,7 @@ begin
     if LangForm.LangCombo.Items.Count > 1 then begin
       Result := (LangForm.ShowModal = mrOK);
       if Result then begin
-        I := LangForm.LangCombo.ItemIndex;
+        const I = LangForm.LangCombo.ItemIndex;
         if I >= 0 then
           SetActiveLanguage(Integer(LangForm.LangCombo.Items.Objects[I]));
       end;
@@ -94,18 +94,20 @@ constructor TSelectLanguageForm.Create(AOwner: TComponent);
 begin
   inherited;
 
-  MainPanel.ParentBackground := False;
+  if not CustomWizardBackground or (SetupHeader.WizardBackColor = clWindow) then
+    MainPanel.ParentBackground := False;
 
-  InitializeFont;
+  if shWizardBevelsHidden in SetupHeader.Options then
+    Bevel.Visible := False;
+
+  InitializeFont(False, True);
 
   Caption := SetupMessages[msgSelectLanguageTitle];
   SelectLabel.Caption := SetupMessages[msgSelectLanguageLabel];
   OKButton.Caption := SetupMessages[msgButtonOK];
   CancelButton.Caption := SetupMessages[msgButtonCancel];
 
-  IconBitmapImage.InitializeFromIcon(HInstance, 'MAINICON', MainPanel.Color, [32, 48, 64]);
-
-  KeepSizeY := True;
+  IconBitmapImage.InitializeFromIcon(HInstance, PChar('MAINICON' + MainIconPostfix), clNone, [32, 48, 64]);
 end;
 
 end.

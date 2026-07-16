@@ -1,29 +1,20 @@
-﻿; *** Inno Setup version 6.1.0+ Vietnamese messages ***
-; Translated by Vu Khac Hiep (email: vukhachiep@gmail.com)
-; To download user-contributed translations of this file, go to:
-;   https://jrsoftware.org/files/istrans/
+; *** Inno Setup version 6.5.0+ Vietnamese messages ***
 ;
-; Note: When translating this text, do not add periods (.) to the end of
-; messages that didn't have them already, because on those messages Inno
-; Setup adds the periods automatically (appending a period would result in
-; two periods being displayed).
-
+; Vietnamese translation by memecoder (memecoder17@gmail.com)
+; Last modification date: 2023-10-26
+;
 [LangOptions]
-; The following three entries are very important. Be sure to read and 
-; understand the '[LangOptions] section' topic in the help file.
-LanguageName=Vietnamese
+LanguageName=Tiếng Việt
 LanguageID=$042A
-LanguageCodePage=0
+LanguageCodePage=1258
 ; If the language you are translating to requires special font faces or
 ; sizes, uncomment any of the following entries and change them accordingly.
 ;DialogFontName=
-;DialogFontSize=8
-;WelcomeFontName=Verdana
-;WelcomeFontSize=12
-;TitleFontName=Arial
-;TitleFontSize=29
-;CopyrightFontName=Arial
-;CopyrightFontSize=8
+;DialogFontSize=9
+;DialogFontBaseScaleWidth=7
+;DialogFontBaseScaleHeight=15
+;WelcomeFontName=Segoe UI
+;WelcomeFontSize=14
 
 [Messages]
 
@@ -31,7 +22,7 @@ LanguageCodePage=0
 SetupAppTitle=Cài đặt
 SetupWindowTitle=Cài đặt - %1
 UninstallAppTitle=Gỡ cài đặt
-UninstallAppFullTitle=Gỡ cài đặt - %1
+UninstallAppFullTitle=Gỡ cài đặt %1
 
 ; *** Misc. common
 InformationTitle=Thông tin
@@ -39,291 +30,315 @@ ConfirmTitle=Xác nhận
 ErrorTitle=Lỗi
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Chương trình này sẽ cài đặt %1. Bạn có muốn tiếp tục không?
-LdrCannotCreateTemp=Không thể tạo tệp tạm thời. Cài đặt bị hủy bỏ
-LdrCannotExecTemp=Không thể chạy tệp trong thư mục tạm thời. Cài đặt bị hủy bỏ
+SetupLdrStartupMessage=Chương trình sẽ tiến hành cài đặt %1. Bạn có muốn tiếp tục không?
+LdrCannotCreateTemp=Không thể tạo tệp tạm thời. Đã hủy quá trình cài đặt
+LdrCannotExecTemp=Không thể mở tệp trong thư mục tạm. Đã hủy quá trình cài đặt
 HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nLỗi %2: %3
-SetupFileMissing=Tệp %1 bị thiếu trong thư mục cài đặt. Hãy sửa lỗi hoặc lấy một bản sao mới của chương trình.
-SetupFileCorrupt=Các tệp cài đặt đã bị hỏng. Hãy sửa lỗi hoặc lấy một bản sao của chương trình.
-SetupFileCorruptOrWrongVer=Các tệp cài đặt bị hỏng, hoặc không tương thích với bản cài đặt này. Hãy sửa lỗi hoặc lấy một bản sao mới của chương trình.
-InvalidParameter=Một thông số không hợp lệ đã được đưa vào dòng lệnh:%n%n%1
-SetupAlreadyRunning=Cài đặt này đang chạy.
-WindowsVersionNotSupported=Chương trình này không tương thích với phiên bản Windows bạn đang chạy.
-WindowsServicePackRequired=Chương trình này yêu cầu %1 Service Pack %2 hoặc mới hơn.
-NotOnThisPlatform=Chương trình này sẽ không chạy trên %1.
-OnlyOnThisPlatform=Chương trình này phải chạy trên %1.
-OnlyOnTheseArchitectures=Chương trình này chỉ có thể được cài đặt trên phiên bản Windows được thiết kế cho các hệ vi xử lí:%n%n%1
-WinVersionTooLowError=Chương trình này yêu cầu %1 phiên bản %2 hoặc mới hơn.
-WinVersionTooHighError=Chương trình này không thể được cài đặt trên %1 phiên bản %2 hoặc mới hơn.
-AdminPrivilegesRequired=Bạn phải được đăng nhập như người quản trị khi cài đặt chương trình này.
-PowerUserPrivilegesRequired=Bạn phải được đăng nhập như người quản trị hoặc thành viên trong nhóm Người dùng mạnh khi cài đặt chương trình này.
-SetupAppRunningError=Cài đặt phát hiện %1 đang chạy.%n%nHãy đóng tất cả các tiến trình của nó ngay, rồi click OK để tiếp tục, hoặc Hủy để thoát.
-UninstallAppRunningError=Gỡ cài đặt phát hiện %1 đang chạy.%n%nHãy đóng tất cả các tiến trình của nó ngay, rồi click OK để tiếp tục, hoặc Hủy để thoát.
+SetupFileMissing=Không tìm thấy tệp %1 trong thư mục cài đặt. Vui lòng kiểm tra lại hoặc tải một bản cài đặt mới.
+SetupFileCorrupt=Các tệp cài đặt đã bị hỏng. Vui lòng tải lại một bản cài đặt mới.
+SetupFileCorruptOrWrongVer=Các tệp cài đặt đã bị hỏng hoặc không tương thích với phiên bản hiện tại. Vui lòng tải lại một bản cài đặt mới.
+InvalidParameter=Lệnh truyền vào không hợp lệ:%n%n%1
+SetupAlreadyRunning=Chương trình cài đặt này đang được chạy rồi.
+WindowsVersionNotSupported=Phần mềm này không hỗ trợ phiên bản Windows mà máy tính của bạn đang sử dụng.
+WindowsServicePackRequired=Phần mềm này yêu cầu %1 Service Pack %2 hoặc mới hơn.
+NotOnThisPlatform=Phần mềm này sẽ không hoạt động trên %1.
+OnlyOnThisPlatform=Phần mềm này chỉ có thể hoạt động trên %1.
+OnlyOnTheseArchitectures=Phần mềm này chỉ có thể cài đặt trên các phiên bản Windows hỗ trợ cấu trúc vi xử lý sau:%n%n%1
+WinVersionTooLowError=Phần mềm này yêu cầu %1 phiên bản %2 hoặc mới hơn.
+WinVersionTooHighError=Không thể cài phần mềm này trên %1 phiên bản %2 hoặc mới hơn.
+AdminPrivilegesRequired=Bạn cần đăng nhập bằng tài khoản Quản trị viên (Administrator) để cài đặt phần mềm này.
+PowerUserPrivilegesRequired=Bạn cần đăng nhập bằng tài khoản Quản trị viên (Admin) hoặc thuộc nhóm Power Users để cài đặt phần mềm này.
+SetupAppRunningError=Hệ thống phát hiện %1 hiện đang chạy.%n%nVui lòng đóng tất cả các cửa sổ của ứng dụng đó lại, sau đó nhấn OK để tiếp tục, hoặc nhấn Hủy để thoát.
+UninstallAppRunningError=Hệ thống phát hiện %1 hiện đang chạy.%n%nVui lòng đóng tất cả các cửa sổ của ứng dụng đó lại, sau đó nhấn OK để tiếp tục, hoặc nhấn Hủy để thoát.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Select Setup Install Mode
-PrivilegesRequiredOverrideInstruction=Select install mode
-PrivilegesRequiredOverrideText1=%1 can be installed for all users (requires administrative privileges), or for you only.
-PrivilegesRequiredOverrideText2=%1 can be installed for you only, or for all users (requires administrative privileges).
-PrivilegesRequiredOverrideAllUsers=Install for &all users
-PrivilegesRequiredOverrideAllUsersRecommended=Install for &all users (recommended)
-PrivilegesRequiredOverrideCurrentUser=Install for &me only
-PrivilegesRequiredOverrideCurrentUserRecommended=Install for &me only (recommended)
+PrivilegesRequiredOverrideTitle=Chọn Chế độ Cài đặt
+PrivilegesRequiredOverrideInstruction=Bạn muốn cài đặt theo chế độ nào?
+PrivilegesRequiredOverrideText1=Bạn có thể cài đặt %1 cho tất cả mọi người dùng chung máy tính này (yêu cầu quyền Admin), hoặc chỉ cài cho riêng bạn.
+PrivilegesRequiredOverrideText2=Bạn có thể cài đặt %1 cho riêng bạn, hoặc cài cho tất cả mọi người dùng chung máy tính này (yêu cầu quyền Admin).
+PrivilegesRequiredOverrideAllUsers=Cài đặt cho &tất cả người dùng
+PrivilegesRequiredOverrideAllUsersRecommended=Cài cho &tất cả người dùng (Khuyên dùng)
+PrivilegesRequiredOverrideCurrentUser=Chỉ cài cho &riêng tôi
+PrivilegesRequiredOverrideCurrentUserRecommended=Chỉ cài cho &riêng tôi (Khuyên dùng)
 
 ; *** Misc. errors
-ErrorCreatingDir=Cài đặt không thể tạo ra thư mục "%1"
-ErrorTooManyFilesInDir=Không thể tạo một tệp trong thư mục "%1" vì nó chứa quá nhiều tệp
+ErrorCreatingDir=Không thể tạo thư mục "%1"
+ErrorTooManyFilesInDir=Không thể tạo tệp trong thư mục "%1" vì bên trong đã có quá nhiều tệp
 
 ; *** Setup common messages
-ExitSetupTitle=Thoát cài đặt
-ExitSetupMessage=Cài đặt chưa hoàn thành. Nếu bạn thoát bây giờ, chương trình sẽ không được cài đặt.%n%nBạn có thể chạy lại Cài đặt một lần khác để hoàn thành cài đặt.%n%nThoát ngay?
-AboutSetupMenuItem=&Về trình cài đặt...
-AboutSetupTitle=Về trình cài đặt
-AboutSetupMessage=%1 phiên bản %2%n%3%n%n%1 trang chủ:%n%4
+ExitSetupTitle=Thoát Cài đặt
+ExitSetupMessage=Quá trình cài đặt chưa hoàn tất. Nếu bạn thoát bây giờ, phần mềm sẽ không được cài vào máy.%n%nBạn có thể mở lại trình cài đặt này vào lúc khác.%n%nBạn có chắc chắn muốn thoát không?
+AboutSetupMenuItem=&Thông tin về trình cài đặt...
+AboutSetupTitle=Thông tin về trình cài đặt
+AboutSetupMessage=%1 phiên bản %2%n%3%n%nTrang chủ %1:%n%4
 AboutSetupNote=
-TranslatorNote=Giao diện người dùng tiếng Việt bởi: Vũ Khắc Hiệp
+TranslatorNote=Vietnamese translation by memecoder
 
 ; *** Buttons
-ButtonBack=< &Trước
-ButtonNext=T&iếp >
+ButtonBack=< &Quay lại
+ButtonNext=&Tiếp theo >
 ButtonInstall=&Cài đặt
 ButtonOK=OK
 ButtonCancel=Hủy
 ButtonYes=&Có
-ButtonYesToAll=Có c&ho tất cả
+ButtonYesToAll=Có với &Tất cả
 ButtonNo=&Không
-ButtonNoToAll=Khô&ng cho tất cả
-ButtonFinish=&Hoàn thành
+ButtonNoToAll=Khôn&g với Tất cả
+ButtonFinish=&Hoàn tất
 ButtonBrowse=&Duyệt...
 ButtonWizardBrowse=D&uyệt...
-ButtonNewFolder=Tạ&o thư mục mới
+ButtonNewFolder=&Tạo thư mục mới
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Chọn ngôn ngữ cài đặt
-SelectLanguageLabel=Chọn ngôn ngữ để sử dụng khi cài đặt:
+SelectLanguageLabel=Vui lòng chọn ngôn ngữ bạn muốn sử dụng trong quá trình cài đặt.
 
 ; *** Common wizard text
-ClickNext=Nhấn Tiếp để tiếp tục, hoặc Hủy để thoát cài đặt
+ClickNext=Nhấn 'Tiếp theo' để tiếp tục, hoặc 'Hủy' để thoát.
 BeveledLabel=
-BrowseDialogTitle=Tìm thư mục
-BrowseDialogLabel=Chọn một thư mục trong danh sách sau rồi ấn OK.
-NewFolderName=Tạo thư mục mới
+BrowseDialogTitle=Chọn thư mục
+BrowseDialogLabel=Vui lòng chọn một thư mục trong danh sách bên dưới, sau đó nhấn OK.
+NewFolderName=Thư mục mới
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Chào mừng tới trình cài đặt [name]
-WelcomeLabel2=Chương trình này sẽ cài [name/ver] trên máy tính của bạn.%n%nChúng tôi khuyên bạn đóng mọi chương trình khác lại trước khi cài đặt.
+WelcomeLabel1=Chào mừng bạn đến với Cài đặt [name]
+WelcomeLabel2=Chương trình sẽ cài đặt [name/ver] lên máy tính của bạn.%n%nBạn nên đóng tất cả các ứng dụng khác trước khi tiếp tục để đảm bảo quá trình cài đặt diễn ra suôn sẻ.
 
 ; *** "Password" wizard page
 WizardPassword=Mật khẩu
-PasswordLabel1=Việc cài đặt được bảo vệ bằng mật khẩu.
-PasswordLabel3=Hãy nhập mật khẩu, rồi nhấn Tiếp để tiếp tục. Mật khẩu phân biệt chữ hoa/thường.
+PasswordLabel1=Bộ cài đặt này được bảo vệ bằng mật khẩu.
+PasswordLabel3=Vui lòng nhập mật khẩu, sau đó nhấn 'Tiếp theo'. Lưu ý: Mật khẩu có phân biệt chữ hoa và chữ thường.
 PasswordEditLabel=&Mật khẩu:
-IncorrectPassword=Mật khẩu bạn đã nhập không đúng. Hãy thử lại.
+IncorrectPassword=Mật khẩu bạn nhập chưa đúng. Vui lòng thử lại nhé.
 
 ; *** "License Agreement" wizard page
-WizardLicense=Thỏa thuận cấp phép
-LicenseLabel=Hãy đọc những thông tin quan trọng sau trước khi tiếp tục.
-LicenseLabel3=Hãy đọc Thỏa thuận cấp phép sau. Bạn phải chấp nhận các điều khoản của cài đặt này trước khi tiếp tục.
-LicenseAccepted=Tô&i chấp nhận thỏa thuận
-LicenseNotAccepted=Tôi khôn&g chấp nhận thỏa thuận
+WizardLicense=Thỏa thuận Sử dụng
+LicenseLabel=Vui lòng đọc kỹ các thông tin quan trọng dưới đây trước khi tiếp tục.
+LicenseLabel3=Vui lòng đọc Thỏa thuận Sử dụng sau đây. Bạn cần đồng ý với các điều khoản này để tiếp tục cài đặt.
+LicenseAccepted=Tôi &đồng ý với các điều khoản trên
+LicenseNotAccepted=Tôi &không đồng ý
 
 ; *** "Information" wizard pages
 WizardInfoBefore=Thông tin
-InfoBeforeLabel=Hãy đọc những thông tin quan trọng sau trước khi tiếp tục.
-InfoBeforeClickLabel=Khi bạn đã sẵn sàng cài đặt tiếp, click Tiếp.
+InfoBeforeLabel=Vui lòng đọc kỹ các thông tin quan trọng dưới đây trước khi tiếp tục.
+InfoBeforeClickLabel=Khi bạn đã sẵn sàng tiếp tục, hãy nhấn 'Tiếp theo'.
 WizardInfoAfter=Thông tin
-InfoAfterLabel=Hãy đọc những thông tin quan trọng sau trước khi tiếp tục.
-InfoAfterClickLabel=Khi bạn đã sẵn sàng cài đặt tiếp, click Tiếp.
+InfoAfterLabel=Vui lòng đọc kỹ các thông tin quan trọng dưới đây trước khi tiếp tục.
+InfoAfterClickLabel=Khi bạn đã sẵn sàng tiếp tục, hãy nhấn 'Tiếp theo'.
 
 ; *** "User Information" wizard page
 WizardUserInfo=Thông tin người dùng
-UserInfoDesc=Hãy nhập thông tin của bạn.
-UserInfoName=Tên n&gười dùng:
-UserInfoOrg=Tổ c&hức:
-UserInfoSerial=&Số serial:
-UserInfoNameRequired=Bạn phải nhập một tên.
+UserInfoDesc=Vui lòng điền thông tin của bạn.
+UserInfoName=&Tên người dùng:
+UserInfoOrg=&Tổ chức / Công ty:
+UserInfoSerial=&Mã bản quyền (Serial Number):
+UserInfoNameRequired=Bạn không được để trống tên.
 
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Chọn vị trí cài đặt
-SelectDirDesc=[name] nên được cài đặt ở đâu?
-SelectDirLabel3=[name] sẽ được cài đặt vào thư mục sau:
-SelectDirBrowseLabel=Để tiếp tục. nhấn Tiếp. Nếu bạn muốn chọn một thư mục khác, nhấn Duyệt.
-DiskSpaceGBLabel=Cần có ít nhất [gb] GB ổ đĩa trống.
-DiskSpaceMBLabel=Cần có ít nhất [mb] MB ổ đĩa trống.
-CannotInstallToNetworkDrive=Cài đặt không thể cài vào một ổ đĩa mạng.
-CannotInstallToUNCPath=Cài đặt không thể cài vào đường dẫn UNC.
-InvalidPath=Bạn phải nhập đường dẫn đầy đủ với chữ cái ổ đĩa, ví dụ:%n%nC:\APP%n%nhoặc một đường dẫn UNC theo mẫu:%n%n\\server\share
-InvalidDrive=Ổ đĩa hoặc chia sẻ UNC bạn đã chọn không tồn tại hoặc không truy cập được. Hãy chọn cái khác.
-DiskSpaceWarningTitle=Không đủ dung lượng đĩa
-DiskSpaceWarning=Cài đặt yêu cầu ít nhất %1 KB dung lượng trống để cài đặt, nhưng ổ đĩa đã chọn chỉ còn %2KB.%n%nBạn muốn tiếp tục bằng mọi giá?
+SelectDirDesc=Bạn muốn cài đặt [name] ở đâu?
+SelectDirLabel3=Chương trình sẽ được cài đặt vào thư mục dưới đây.
+SelectDirBrowseLabel=Nhấn 'Tiếp theo' để tiếp tục. Nếu bạn muốn chọn một thư mục khác, hãy nhấn 'Duyệt'.
+DiskSpaceGBLabel=Cần ít nhất [gb] GB dung lượng trống trên ổ đĩa.
+DiskSpaceMBLabel=Cần ít nhất [mb] MB dung lượng trống trên ổ đĩa.
+CannotInstallToNetworkDrive=Không thể cài đặt phần mềm lên ổ đĩa mạng.
+CannotInstallToUNCPath=Không thể cài đặt phần mềm vào đường dẫn mạng (UNC).
+InvalidPath=Bạn cần nhập đường dẫn đầy đủ có chứa tên ổ đĩa, ví dụ:%n%nC:\APP%n%nhoặc một đường dẫn mạng có dạng:%n%n\\may-chu\thu-muc
+InvalidDrive=Ổ đĩa hoặc đường dẫn mạng bạn chọn không tồn tại hoặc không thể truy cập. Vui lòng chọn một vị trí khác.
+DiskSpaceWarningTitle=Không đủ dung lượng trống
+DiskSpaceWarning=Cần ít nhất %1 KB dung lượng trống để cài đặt, nhưng ổ đĩa bạn chọn hiện chỉ còn %2 KB.%n%nBạn có vẫn muốn tiếp tục không?
 DirNameTooLong=Tên thư mục hoặc đường dẫn quá dài.
 InvalidDirName=Tên thư mục không hợp lệ.
-BadDirName32=Tên thư mục không được chứa các kí tự sau:%n%n%1
+BadDirName32=Tên thư mục không được chứa bất kỳ ký tự nào sau đây:%n%n%1
 DirExistsTitle=Thư mục đã tồn tại
-DirExists=Thư mục:%n%n%1%n%nđã tồn tại. Bạn có muốn cài đặt vào thư mục đó bằng mọi giá?
+DirExists=Thư mục:%n%n%1%n%nđã tồn tại. Bạn có vẫn muốn cài đè vào thư mục này không?
 DirDoesntExistTitle=Thư mục không tồn tại
-DirDoesntExist=Thư mục:%n%n%1%n%nkhông tồn tại. Bạn có muốn tạo thư mục không?
+DirDoesntExist=Thư mục:%n%n%1%n%nhiện chưa có sẵn. Bạn có muốn tạo mới thư mục này không?
 
 ; *** "Select Components" wizard page
-WizardSelectComponents=Chọn các thành phần
-SelectComponentsDesc=Những thành phần nào nên được cài đặt?
-SelectComponentsLabel2=Chọn các thành phần bạn muốn cài đặt, bỏ chọn các thành phần bạn không muốn. Click Tiếp khi bạn đã sẵn sàng để tiếp tục.
+WizardSelectComponents=Chọn thành phần cài đặt
+SelectComponentsDesc=Bạn muốn cài đặt những thành phần nào?
+SelectComponentsLabel2=Đánh dấu vào các thành phần bạn muốn cài, và bỏ dấu tick ở những phần bạn không cần. Nhấn 'Tiếp theo' khi bạn đã sẵn sàng.
 FullInstallation=Cài đặt đầy đủ
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
-CompactInstallation=Cài đặt rút gọn
-CustomInstallation=Cài đặt tủy chỉnh
+CompactInstallation=Cài đặt thu gọn
+CustomInstallation=Cài đặt tùy chọn
 NoUninstallWarningTitle=Thành phần đã tồn tại
-NoUninstallWarning=Cài đặt phát hiện các thành phần sau đã được cài đặt trên máy tính của bạn:%n%n%1%n%nBỏ chọn những thành phần này sẽ không cài đặt chúng.%n%nBạn có muốn tiếp tục bằng mọi giá?
+NoUninstallWarning=Hệ thống phát hiện các thành phần sau đã có sẵn trên máy tính của bạn:%n%n%1%n%nViệc bỏ chọn các thành phần này sẽ KHÔNG gỡ cài đặt chúng.%n%nBạn có vẫn muốn tiếp tục không?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceGBLabel=Lựa chọn này yêu cầu ít nhất [gb] GB không gian đĩa.
-ComponentsDiskSpaceMBLabel=Lựa chọn này yêu cầu ít nhất [mb] MB không gian đĩa.
+ComponentsDiskSpaceGBLabel=Các mục bạn chọn yêu cầu ít nhất [gb] GB dung lượng trống.
+ComponentsDiskSpaceMBLabel=Các mục bạn chọn yêu cầu ít nhất [mb] MB dung lượng trống.
 
 ; *** "Select Additional Tasks" wizard page
-WizardSelectTasks=Chọn các tác vụ bổ sung
-SelectTasksDesc=Các tác vụ bổ sung nào nên được thực hiện?
-SelectTasksLabel2=Chọn các tác vụ bổ sung mà bạn muốn cài đặt thực hiện khi cài đặt [name], rồi nhấn Tiếp.
+WizardSelectTasks=Các thiết lập bổ sung
+SelectTasksDesc=Bạn muốn thực hiện thêm các tùy chọn nào?
+SelectTasksLabel2=Chọn các thiết lập bổ sung mà bạn muốn thực hiện khi cài đặt [name], sau đó nhấn 'Tiếp theo'.
 
 ; *** "Select Start Menu Folder" wizard page
-WizardSelectProgramGroup=Chọn thư mục bắt đầu
-SelectStartMenuFolderDesc=Các lối tắt đến chương trình nên được đặt ở đâu?
-SelectStartMenuFolderLabel3=Cài đặt sẽ tạo các lối tắt đến chương trình trong thư mục bắt đầu sau.
-SelectStartMenuFolderBrowseLabel=Để tiếp tục, click Tiếp. Nếu bạn muốn chọn thư mục khác, click Duyệt.
-MustEnterGroupName=Bạn phải nhập tên một thư mục.
+WizardSelectProgramGroup=Chọn thư mục trên Start Menu
+SelectStartMenuFolderDesc=Bạn muốn đặt biểu tượng của ứng dụng ở đâu?
+SelectStartMenuFolderLabel3=Chương trình sẽ tạo các biểu tượng ứng dụng trong thư mục Start Menu dưới đây.
+SelectStartMenuFolderBrowseLabel=Nhấn 'Tiếp theo' để tiếp tục. Nếu bạn muốn chọn thư mục khác, hãy nhấn 'Duyệt'.
+MustEnterGroupName=Bạn cần nhập một tên cho thư mục.
 GroupNameTooLong=Tên thư mục hoặc đường dẫn quá dài.
 InvalidGroupName=Tên thư mục không hợp lệ.
-BadGroupName=Tên thư mục không được chứa các kí tự sau:%n%n%1
-NoProgramGroupCheck2=&Không tạo thư mục bắt đầu
+BadGroupName=Tên thư mục không được chứa bất kỳ ký tự nào sau đây:%n%n%1
+NoProgramGroupCheck2=&Không tạo thư mục trên Start Menu
 
 ; *** "Ready to Install" wizard page
-WizardReady=Sẵn sàng cài đặt
-ReadyLabel1=[name] đã sẵn sàng để dược cài đặt trên máy tính của bạn.
-ReadyLabel2a=Click Cài đặt để tiếp tục, hoặc click Trước nếu bạn muốn xem lại/thay đổi bất kì cài đặt nào.
-ReadyLabel2b=Click Cài đặt để tiếp tục cài đặt.
+WizardReady=Sẵn sàng Cài đặt
+ReadyLabel1=Mọi thứ đã sẵn sàng. Chương trình sẽ bắt đầu cài đặt [name] lên máy tính của bạn.
+ReadyLabel2a=Nhấn 'Cài đặt' để bắt đầu, hoặc nhấn 'Quay lại' nếu bạn muốn xem lại hoặc thay đổi các thiết lập.
+ReadyLabel2b=Nhấn 'Cài đặt' để bắt đầu quá trình.
 ReadyMemoUserInfo=Thông tin người dùng:
-ReadyMemoDir=Vị trí đích:
+ReadyMemoDir=Vị trí cài đặt:
 ReadyMemoType=Kiểu cài đặt:
-ReadyMemoComponents=Các thành phần được chọn:
-ReadyMemoGroup=Thư mục bắt đầu:
-ReadyMemoTasks=Các tác vụ bổ sung:
+ReadyMemoComponents=Các thành phần đã chọn:
+ReadyMemoGroup=Thư mục Start Menu:
+ReadyMemoTasks=Thiết lập bổ sung:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
-DownloadingLabel=Đang tải các tập tin bổ sung...
+DownloadingLabel2=Đang tải tệp xuống...
 ButtonStopDownload=&Dừng tải xuống
-StopDownload=Bạn có chắc chắn muốn dừng tải xuống không?
-ErrorDownloadAborted=Tải xuống bị hủy bỏ
-ErrorDownloadFailed=Tải xuống không thành công: %1 %2
-ErrorDownloadSizeFailed=Getting size failed: %1 %2
-ErrorFileHash1=File hash failed: %1
-ErrorFileHash2=Invalid file hash: expected %1, found %2
-ErrorProgress=Invalid progress: %1 of %2
-ErrorFileSize=Invalid file size: expected %1, found %2
+StopDownload=Bạn có chắc chắn muốn dừng việc tải xuống không?
+ErrorDownloadAborted=Quá trình tải xuống đã bị hủy
+ErrorDownloadFailed=Tải xuống thất bại: %1 %2
+ErrorDownloadSizeFailed=Không thể lấy thông tin dung lượng tệp: %1 %2
+ErrorProgress=Tiến trình tải bị lỗi: %1 / %2
+ErrorFileSize=Dung lượng tệp bị lỗi: mong đợi %1, nhưng thực tế là %2
+
+; *** TExtractionWizardPage wizard page and ExtractArchive
+ExtractingLabel=Đang giải nén tệp...
+ButtonStopExtraction=&Dừng giải nén
+StopExtraction=Bạn có chắc chắn muốn dừng việc giải nén không?
+ErrorExtractionAborted=Quá trình giải nén đã bị hủy
+ErrorExtractionFailed=Giải nén thất bại: %1
+
+; *** Archive extraction failure details
+ArchiveIncorrectPassword=Mật khẩu giải nén không đúng
+ArchiveIsCorrupted=Tệp nén đã bị hỏng
+ArchiveUnsupportedFormat=Định dạng tệp nén này không được hỗ trợ
 
 ; *** "Preparing to Install" wizard page
-WizardPreparing=Chuẩn bị cài đặt
-PreparingDesc=[name] đang chuẩn bị được cài đặt trên máy tính của bạn.
-PreviousInstallNotCompleted=Việc cài đặt/gỡ bỏ một chương trình chưa được hoàn tất trước đó. Bạn sẽ phải khởi động lại máy tính để hoàn tất cài đặt đó.%n%nSau khi chởi động lại, chạy Cài đặt một lần nữa để hoàn tất cài đặt [name].
-CannotContinue=Cài đặt không thể tiếp tục. Nhấn Hủy để thoát.
-ApplicationsFound=Những chương trình sau đang sử dụng các tệp cần được cập nhật bởi trình cài đặt. Chúng tôi khuyên bạn cho phép Cài đặt đóng các chương trình này.
-ApplicationsFound2=Những chương trình sau đang sử dụng các tệp cần được cập nhật bởi trình cài đặt. Chúng tôi khuyên bạn cho phép Cài đặt đóng các chương trình này. Sau khi hoàn thành cài đặt, chúng tôi sẽ thử khởi động lại các chương trình này.
-CloseApplications=Tự độn&g đóng các chương trình này
-DontCloseApplications=Không đóng các chương t&rình này
-ErrorCloseApplications=Cài đặt không thể đóng mọi chương trình. Chúng tôi khuyên bạn đóng các chương trình đang sử dụng các tệp cần được cập nhật bởi Cài đặt một cách thủ công trước khi tiếp tục.
-PrepareToInstallNeedsRestart=Setup must restart your computer. After restarting your computer, run Setup again to complete the installation of [name].%n%nWould you like to restart now?
+WizardPreparing=Đang chuẩn bị Cài đặt
+PreparingDesc=Hệ thống đang chuẩn bị cài đặt [name] lên máy tính của bạn.
+PreviousInstallNotCompleted=Quá trình cài đặt/gỡ cài đặt của một chương trình trước đó chưa hoàn tất. Bạn cần khởi động lại máy tính để hoàn tất quá trình đó.%n%nSau khi máy tính khởi động lại, hãy chạy lại bản cài đặt này để tiếp tục cài đặt [name].
+CannotContinue=Không thể tiếp tục cài đặt. Vui lòng nhấn 'Hủy' để thoát.
+ApplicationsFound=Các ứng dụng sau đang sử dụng những tệp tin cần được cập nhật. Bạn nên cho phép tự động đóng các ứng dụng này lại để tiếp tục cài đặt.
+ApplicationsFound2=Các ứng dụng sau đang sử dụng những tệp tin cần được cập nhật. Bạn nên cho phép tự động đóng các ứng dụng này lại. Sau khi cài đặt xong, hệ thống sẽ cố gắng mở lại chúng cho bạn.
+CloseApplications=&Tự động đóng các ứng dụng trên
+DontCloseApplications=&Không đóng các ứng dụng
+ErrorCloseApplications=Hệ thống không thể tự động đóng tất cả các ứng dụng. Tốt nhất là bạn nên tự đóng các ứng dụng đang dùng chung tệp tin với bản cài đặt này trước khi tiếp tục.
+PrepareToInstallNeedsRestart=Cần khởi động lại máy tính. Sau khi máy tính khởi động xong, hãy chạy lại tệp này để hoàn tất cài đặt [name].%n%nBạn có muốn khởi động lại ngay bây giờ không?
 
 ; *** "Installing" wizard page
 WizardInstalling=Đang cài đặt
-InstallingLabel=Hãy đợi khi [name] đang được cài đặt trên máy tính của bạn.
+InstallingLabel=Vui lòng đợi trong giây lát, [name] đang được cài đặt vào máy tính của bạn.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=Hoàn thành cài đặt [name]
-FinishedLabelNoIcons=[name] đã được cài đặt xong trên máy tính của bạn.
-FinishedLabel=[name] đã được cài đặt xong trên máy tính của bạn. Chương trình có thể được khởi động bằng cách click vào lối tắt đến chương trình.
-ClickFinish=Click Hoàn thành để thoát Cài đặt.
-FinishedRestartLabel=Để hoàn thành cài đặt [name], máy tính của bạn cần đươc khởi động lại. Bạn có muốn khởi động lại ngay?
-FinishedRestartMessage=Để hoàn thành cài đặt [name], máy tính của bạn cần đươc khởi động lại.%n%nBạn có muốn khởi động lại ngay?
-ShowReadmeCheck=Có, tôi muốn xem tệp README
-YesRadio=&Có, khởi động lại máy tính ngay
-NoRadio=&Không, tôi sẽ khởi động lại máy tính sau
+FinishedHeadingLabel=Đã hoàn tất quá trình cài đặt [name]
+FinishedLabelNoIcons=Quá trình cài đặt [name] đã thành công tốt đẹp.
+FinishedLabel=Quá trình cài đặt [name] đã thành công tốt đẹp. Bạn có thể mở ứng dụng bằng các biểu tượng vừa được tạo.
+ClickFinish=Nhấn 'Hoàn tất' để thoát khỏi chương trình cài đặt.
+FinishedRestartLabel=Để việc cài đặt [name] hoàn tất 100%, máy tính của bạn cần được khởi động lại. Bạn có muốn khởi động lại ngay bây giờ không?
+FinishedRestartMessage=Để việc cài đặt [name] hoàn tất 100%, máy tính của bạn cần được khởi động lại.%n%nBạn có muốn khởi động lại ngay bây giờ không?
+ShowReadmeCheck=Có, tôi muốn xem tệp hướng dẫn (README)
+YesRadio=&Có, khởi động lại máy tính ngay bây giờ
+NoRadio=&Không, tôi sẽ tự khởi động lại sau
 ; used for example as 'Run MyProg.exe'
-RunEntryExec=Chạy %1
+RunEntryExec=Mở %1
 ; used for example as 'View Readme.txt'
-RunEntryShellExec=Xem %1
+RunEntryShellExec=Xem tệp %1
 
 ; *** "Setup Needs the Next Disk" stuff
-ChangeDiskTitle=Cài đặt cần đĩa tiếp theo
-SelectDiskLabel2=Hãy chèn đĩa %1 và click OK.%n%nNếu các tệp trên đĩa này có thể được tìm thấy trên một thư mục khác với được hiển thị dưới đây, nhập đường dẫn hoặc click Duyệt.
-PathLabel=Đườ&ng dẫn:
-FileNotInDir2=Tệp "%1" không thể được xác định trong "%2". Hãy chọn đia xđúng hoặc chọn thư mục khác.
-SelectDirectoryLabel=Hãy chọn vị trí của đĩa tiếp theo.
+ChangeDiskTitle=Cần đưa đĩa tiếp theo vào
+SelectDiskLabel2=Vui lòng đưa Đĩa số %1 vào và nhấn OK.%n%nNếu các tệp tin của đĩa này nằm ở một thư mục khác với đường dẫn bên dưới, hãy nhập lại đường dẫn cho đúng hoặc nhấn 'Duyệt'.
+PathLabel=&Đường dẫn:
+FileNotInDir2=Không tìm thấy tệp "%1" trong "%2". Vui lòng đưa đúng đĩa vào hoặc chọn thư mục khác.
+SelectDirectoryLabel=Vui lòng chỉ định vị trí chứa đĩa tiếp theo.
 
 ; *** Installation phase messages
-SetupAborted=Cài đặt không được hoàn thành.%n%nHãy sửa lỗi và chạy Cài đặt lại.
+SetupAborted=Quá trình cài đặt chưa được hoàn tất.%n%nVui lòng khắc phục sự cố và chạy lại cài đặt sau.
 AbortRetryIgnoreSelectAction=Chọn hành động
 AbortRetryIgnoreRetry=&Thử lại
-AbortRetryIgnoreIgnore=&Bỏ qua lỗi và tiếp tục
-AbortRetryIgnoreCancel=Hủy
+AbortRetryIgnoreIgnore=&Bỏ qua lỗi này và tiếp tục
+AbortRetryIgnoreCancel=Hủy quá trình cài đặt
+RetryCancelSelectAction=Chọn hành động
+RetryCancelRetry=&Thử lại
+RetryCancelCancel=Hủy
 
 ; *** Installation status messages
-StatusClosingApplications=Đang đóng các chương trình...
+StatusClosingApplications=Đang đóng các ứng dụng...
 StatusCreateDirs=Đang tạo các thư mục...
-StatusExtractFiles=Đang giải nén các tệp...
-StatusCreateIcons=Đang tạo các lối tắt...
-StatusCreateIniEntries=Đang tạo các đầu vào INI...
-StatusCreateRegistryEntries=Đang tạo các đầu vào registry...
-StatusRegisterFiles=Đang đăng kí các tệp...
-StatusSavingUninstall=Đang lưu thông tin gỡ cài đặt...
-StatusRunProgram=Đang hoàn thành cài đặt...
-StatusRestartingApplications=Đang khởi động lại các chương trình...
-StatusRollback=Đang hoàn lại các thay đổi...
+StatusExtractFiles=Đang giải nén tệp...
+StatusDownloadFiles=Đang tải tệp xuống...
+StatusCreateIcons=Đang tạo biểu tượng ứng dụng...
+StatusCreateIniEntries=Đang tạo các mục cấu hình INI...
+StatusCreateRegistryEntries=Đang thiết lập Registry...
+StatusRegisterFiles=Đang đăng ký hệ thống tệp...
+StatusSavingUninstall=Đang lưu thông tin để gỡ cài đặt sau này...
+StatusRunProgram=Đang hoàn thành những bước cuối cùng...
+StatusRestartingApplications=Đang khởi động lại ứng dụng...
+StatusRollback=Đang khôi phục lại các thay đổi...
 
 ; *** Misc. errors
-ErrorInternal2=Lỗi nội bộ: %1
-ErrorFunctionFailedNoCode=%1 thất bại
-ErrorFunctionFailed=%1 thất bại với mã lỗi %2
-ErrorFunctionFailedWithMessage=%1 thất bại với mã lỗi %2.%n%3
+ErrorInternal2=Lỗi hệ thống nội bộ: %1
+ErrorFunctionFailedNoCode=%1 đã thất bại
+ErrorFunctionFailed=%1 đã thất bại; mã lỗi %2
+ErrorFunctionFailedWithMessage=%1 đã thất bại; mã lỗi %2.%n%3
 ErrorExecutingProgram=Không thể chạy tệp:%n%1
 
 ; *** Registry errors
-ErrorRegOpenKey=Lỗi khi mở registry:%n%1\%2
-ErrorRegCreateKey=Lỗi khi tạo registry:%n%1\%2
-ErrorRegWriteKey=Lỗi khi viết registry:%n%1\%2
+ErrorRegOpenKey=Gặp lỗi khi mở khóa registry:%n%1\%2
+ErrorRegCreateKey=Gặp lỗi khi tạo khóa registry:%n%1\%2
+ErrorRegWriteKey=Gặp lỗi khi ghi dữ liệu vào khóa registry:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Lỗi tạo đầu vào INI cho tệp "%1".
+ErrorIniEntry=Gặp lỗi khi tạo mục INI trong tệp "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnoreSkipNotRecommended=&Bỏ qua tệp này (không khuyến nghị)
-FileAbortRetryIgnoreIgnoreNotRecommended=&Bỏ qua để tiếp tục bằng mọi giá (không khuyến nghị)
-SourceIsCorrupted=Tệp nguồn bị hỏng
+FileAbortRetryIgnoreSkipNotRecommended=&Bỏ qua tệp này (Không khuyên dùng)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Bỏ qua lỗi này và tiếp tục (Không khuyên dùng)
+SourceIsCorrupted=Tệp nguồn đã bị hỏng
 SourceDoesntExist=Tệp nguồn "%1" không tồn tại
-ExistingFileReadOnly2=Tệp đã tồn tại với đánh dấu chỉ đọc.
-ExistingFileReadOnlyRetry=&Xóa thuộc tính chỉ đọc và thử lại
-ExistingFileReadOnlyKeepExisting=&Giữ tập tin hiện có
-ErrorReadingExistingDest=Một lỗi đã xảy ra khi đọc tệp:
-FileExistsSelectAction=Select action
-FileExists2=Tệp đã tồn tại.
-FileExistsOverwriteExisting=G&hi đè tệp hiện có
-FileExistsKeepExisting=&Giữ tệp hiện có
-FileExistsOverwriteOrKeepAll=&Do this for the next conflicts
-ExistingFileNewerSelectAction=Select action
-ExistingFileNewer2=Tệp hiện có mới hơn tệp mà Thiết lập đang cố gắng cài đặt.
-ExistingFileNewerOverwriteExisting=&Ghi đè tệp hiện có
-ExistingFileNewerKeepExisting=&Giữ tệp hiện có (khuyến nghị)
-ExistingFileNewerOverwriteOrKeepAll=&Do this for the next conflicts
-ErrorChangingAttr=Một lỗi đã xảy ra khi thay đổi thuộc tính của tệp sau:
-ErrorCreatingTemp=Một lỗi đã xảy ra khi tạo một tệp trong thư mục đích:
-ErrorReadingSource=Một lỗi đã xảy ra khi đọc tệp nguồn:
-ErrorCopying=Một lỗi đã xảy ra khi sao chép tệp:
-ErrorReplacingExistingFile=Một lỗi đã xảy ra khi thay thế tệp:
-ErrorRestartReplace=Khởi động lại & Thay thế (RestartReplace) thất bại:
-ErrorRenamingTemp=Một lỗi đã xảy ra khi đổi tên tệp trong thư mục đích:
-ErrorRegisterServer=Không thể đăng kí DLL/OCX: %1
-ErrorRegSvr32Failed=RegSvr32 thất bại với mã thoát %1
-ErrorRegisterTypeLib=Không thể đăng kí thư viện kiểu: %1
+SourceVerificationFailed=Không thể xác minh tệp nguồn: %1
+VerificationSignatureDoesntExist=Không tìm thấy tệp chữ ký (signature) "%1"
+VerificationSignatureInvalid=Tệp chữ ký "%1" không hợp lệ
+VerificationKeyNotFound=Tệp chữ ký "%1" sử dụng một khóa lạ không xác định được
+VerificationFileNameIncorrect=Tên tệp không đúng
+VerificationFileTagIncorrect=Thẻ (tag) của tệp không đúng
+VerificationFileSizeIncorrect=Dung lượng tệp không đúng
+VerificationFileHashIncorrect=Mã băm (hash) của tệp không đúng
+ExistingFileReadOnly2=Không thể ghi đè lên tệp hiện tại vì tệp đó đang ở chế độ Chỉ đọc (Read-only).
+ExistingFileReadOnlyRetry=&Xóa thuộc tính Chỉ đọc và thử lại
+ExistingFileReadOnlyKeepExisting=&Giữ nguyên tệp hiện tại
+ErrorReadingExistingDest=Đã xảy ra lỗi khi cố gắng đọc tệp hiện có:
+FileExistsSelectAction=Chọn hành động
+FileExists2=Tệp này đã tồn tại.
+FileExistsOverwriteExisting=&Ghi đè lên tệp hiện có
+FileExistsKeepExisting=&Giữ nguyên tệp hiện tại
+FileExistsOverwriteOrKeepAll=&Áp dụng hành động này cho các xung đột tiếp theo
+ExistingFileNewerSelectAction=Chọn hành động
+ExistingFileNewer2=Tệp hiện có trên máy tính của bạn còn mới hơn cả tệp đang chuẩn bị được cài đặt.
+ExistingFileNewerOverwriteExisting=&Ghi đè lên tệp hiện có
+ExistingFileNewerKeepExisting=&Giữ nguyên tệp hiện tại (Khuyên dùng)
+ExistingFileNewerOverwriteOrKeepAll=&Áp dụng hành động này cho các xung đột tiếp theo
+ErrorChangingAttr=Đã xảy ra lỗi khi cố gắng thay đổi thuộc tính của tệp:
+ErrorCreatingTemp=Đã xảy ra lỗi khi cố gắng tạo một tệp trong thư mục đích:
+ErrorReadingSource=Đã xảy ra lỗi khi cố gắng đọc tệp nguồn:
+ErrorCopying=Đã xảy ra lỗi khi cố gắng sao chép một tệp:
+ErrorDownloading=Đã xảy ra lỗi trong quá trình tải tệp xuống:
+ErrorExtracting=Đã xảy ra lỗi trong quá trình giải nén:
+ErrorReplacingExistingFile=Đã xảy ra lỗi khi cố gắng thay thế tệp hiện tại:
+ErrorRestartReplace=Hành động khởi động lại và thay thế (RestartReplace) thất bại:
+ErrorRenamingTemp=Đã xảy ra lỗi khi cố gắng đổi tên một tệp trong thư mục cài đặt:
+ErrorRegisterServer=Không thể đăng ký tệp DLL/OCX: %1
+ErrorRegSvr32Failed=Lệnh RegSvr32 đã thất bại với mã thoát: %1
+ErrorRegisterTypeLib=Không thể đăng ký thư viện định dạng (type library): %1
 
 ; *** Uninstall display name markings
 ; used for example as 'My Program (32-bit)'
@@ -332,38 +347,38 @@ UninstallDisplayNameMark=%1 (%2)
 UninstallDisplayNameMarks=%1 (%2, %3)
 UninstallDisplayNameMark32Bit=32-bit
 UninstallDisplayNameMark64Bit=64-bit
-UninstallDisplayNameMarkAllUsers=All users
-UninstallDisplayNameMarkCurrentUser=Current user
+UninstallDisplayNameMarkAllUsers=Tất cả người dùng
+UninstallDisplayNameMarkCurrentUser=Người dùng hiện tại
 
 ; *** Post-installation errors
-ErrorOpeningReadme=Một lỗi đã xảy ra khi mở tệp README.
-ErrorRestartingComputer=Cài đặt không thể khởi động lại máy tính. Hãy làm việc này một cách thủ công.
+ErrorOpeningReadme=Đã xảy ra lỗi khi cố gắng mở tệp hướng dẫn (README).
+ErrorRestartingComputer=Hệ thống không thể tự động khởi động lại máy tính. Vui lòng tự khởi động lại bằng tay nhé.
 
 ; *** Uninstaller messages
-UninstallNotFound=Tệp "%1" không tồn tại. Không thể gỡ cài đặt.
-UninstallOpenError=Tệp "%1" không thể được mở. Không thể gỡ cài đặt
-UninstallUnsupportedVer=Tệp nhật kí gỡ cài đặt "%1" có định dạng không thể được xác định bởi phiên bản gỡ cài đặt này. Không thể gỡ cài đặt
-UninstallUnknownEntry=Một đầu vào không xác định (%1) đã bị phát hiện trong nhật kí gỡ cài đặt
-ConfirmUninstall=Bạn có muốn dỡ bỏ hoàn toàn %1 và mọi thành phần của nó?
-UninstallOnlyOnWin64=Cài đặt này chỉ có thể được gỡ bỏ trên Windows 64 bit.
-OnlyAdminCanUninstall=Cài đặt này chỉ có thể được gỡ bỏ bằng một người dùng có quyền người quản trị.
-UninstallStatusLabel=Hãy đợi khi %1 được gỡ khỏi máy tính của bạn.
-UninstalledAll=%1 đã được gỡ bỏ thành công khỏi máy tính của bạn.
-UninstalledMost=%1 đã được gỡ bỏ thành công.%n%nMột số thành phần không thể được gỡ bỏ. Hãy làm việc này một cách thủ công.
-UninstalledAndNeedsRestart=Để hoàn thành việc gỡ cài đặt %1, bạn phải khởi động lại máy tính.%n%nBạn có muốn khởi động lại ngay?
-UninstallDataCorrupted=Tệp "%1" bị hỏng. Không thể gỡ cài đặt
+UninstallNotFound=Tệp "%1" không tồn tại. Không thể thực hiện gỡ cài đặt.
+UninstallOpenError=Không thể mở tệp "%1". Không thể thực hiện gỡ cài đặt
+UninstallUnsupportedVer=Tệp nhật ký gỡ cài đặt "%1" có định dạng không tương thích với phiên bản gỡ cài đặt này. Không thể gỡ
+UninstallUnknownEntry=Phát hiện một mục lạ (%1) trong nhật ký gỡ cài đặt
+ConfirmUninstall=Bạn có chắc chắn muốn gỡ bỏ hoàn toàn %1 và tất cả các thành phần đi kèm không?
+UninstallOnlyOnWin64=Phần mềm này chỉ có thể được gỡ cài đặt trên nền tảng Windows 64-bit.
+OnlyAdminCanUninstall=Chỉ người dùng có quyền Quản trị viên (Admin) mới có thể gỡ bỏ ứng dụng này.
+UninstallStatusLabel=Vui lòng đợi trong giây lát, %1 đang được gỡ bỏ khỏi máy tính của bạn.
+UninstalledAll=%1 đã được gỡ bỏ hoàn toàn khỏi máy tính của bạn.
+UninstalledMost=Quá trình gỡ bỏ %1 đã hoàn tất.%n%nTuy nhiên có một số thành phần không thể tự động xóa được. Bạn có thể tự tìm và xóa chúng bằng tay.
+UninstalledAndNeedsRestart=Để hoàn tất việc gỡ bỏ %1, máy tính của bạn cần được khởi động lại.%n%nBạn có muốn khởi động lại ngay bây giờ không?
+UninstallDataCorrupted=Tệp "%1" đã bị hỏng. Không thể thực hiện gỡ cài đặt
 
 ; *** Uninstallation phase messages
-ConfirmDeleteSharedFileTitle=Gỡ bỏ tệp được chia sẻ?
-ConfirmDeleteSharedFile2=Hệ thống chỉ ra các tệp được chia sẻ sau không được sử dụng bởi chương trình nào. Bạn có muốn gỡ bỏ tệp này?%n%nNếu có một chương trình vẫn sử dụng tệp này mà tệp bị gỡ bỏ, chúng có thể không chạy tốt. Nếu bạn không chắc chắn, chọn Không. Để lại tệp trên hệ thống của bạn sẽ không gây ra tổn hại.
+ConfirmDeleteSharedFileTitle=Xóa các tệp dùng chung?
+ConfirmDeleteSharedFile2=Hệ thống phát hiện tệp dùng chung sau đây dường như không còn được ứng dụng nào sử dụng nữa. Bạn có muốn trình gỡ cài đặt xóa luôn tệp này không?%n%nLưu ý: Nếu vẫn còn ứng dụng khác sử dụng tệp này mà bạn lại xóa nó đi, các ứng dụng đó có thể sẽ bị lỗi. Nếu bạn không chắc chắn, hãy chọn 'Không'. Việc giữ lại tệp này trên máy tính hoàn toàn không gây hại gì cả.
 SharedFileNameLabel=Tên tệp:
 SharedFileLocationLabel=Vị trí:
 WizardUninstalling=Trạng thái gỡ cài đặt
 StatusUninstalling=Đang gỡ cài đặt %1...
 
 ; *** Shutdown block reasons
-ShutdownBlockReasonInstallingApp=Đang cài đặt %1.
-ShutdownBlockReasonUninstallingApp=Đang gỡ cài đặt %1.
+ShutdownBlockReasonInstallingApp=Đang trong quá trình cài đặt %1.
+ShutdownBlockReasonUninstallingApp=Đang trong quá trình gỡ cài đặt %1.
 
 ; The custom messages below aren't used by Setup itself, but if you make
 ; use of them in your scripts, you'll want to translate them.
@@ -371,14 +386,14 @@ ShutdownBlockReasonUninstallingApp=Đang gỡ cài đặt %1.
 [CustomMessages]
 
 NameAndVersion=%1 phiên bản %2
-AdditionalIcons=Các lối tắt bổ sung:
-CreateDesktopIcon=Tạo một &lối tắt trên Desktop
-CreateQuickLaunchIcon=Tạo một lối tắt &Khởi động nhanh
-ProgramOnTheWeb=%1 trên Web
+AdditionalIcons=Các biểu tượng tùy chọn thêm:
+CreateDesktopIcon=Tạo biểu tượng trên &Màn hình chính (Desktop)
+CreateQuickLaunchIcon=Tạo biểu tượng khởi động nhanh (&Quick Launch)
+ProgramOnTheWeb=Trang chủ %1
 UninstallProgram=Gỡ cài đặt %1
-LaunchProgram=Khởi động %1
-AssocFileExtension=&Gán %1 với đuôi tệp %2
-AssocingFileExtension=Đang gán %1 với đuôi tệp %2...
-AutoStartProgramGroupDescription=Khởi động:
-AutoStartProgram=Tự động khởi động %1
-AddonHostProgramNotFound=%1 không thể được xác định trong thư mục bạn đã chọn.%n%nBạn có muốn tiếp tục bằng mọi giá?
+LaunchProgram=Mở %1
+AssocFileExtension=&Sử dụng %1 làm phần mềm mặc định để mở các tệp %2
+AssocingFileExtension=Đang thiết lập để %1 mở các tệp %2...
+AutoStartProgramGroupDescription=Khởi động cùng máy tính:
+AutoStartProgram=Tự động chạy %1 khi mở máy
+AddonHostProgramNotFound=Không tìm thấy %1 trong thư mục bạn vừa chọn.%n%nBạn có vẫn muốn tiếp tục không?

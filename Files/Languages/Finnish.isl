@@ -96,13 +96,13 @@ BrowseDialogLabel=Valitse kansio allaolevasta listasta ja valitse sitten OK jatk
 NewFolderName=Uusi kansio
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Tervetuloa [name] -asennusohjelmaan.
-WelcomeLabel2=Tällä asennusohjelmalla koneellesi asennetaan [name/ver]. %n%nOn suositeltavaa, että suljet kaikki muut käynnissä olevat sovellukset ennen jatkamista. Tämä auttaa välttämään ristiriitatilanteita asennuksen aikana.
+WelcomeLabel1=Tervetuloa [name] -asennusohjelmaan
+WelcomeLabel2=Tällä asennusohjelmalla koneellesi asennetaan [name/ver].%n%nOn suositeltavaa, että suljet kaikki muut käynnissä olevat sovellukset ennen jatkamista.
 
 ; *** "Password" wizard page
 WizardPassword=Salasana
 PasswordLabel1=Tämä asennusohjelma on suojattu salasanalla.
-PasswordLabel3=Anna salasana ja valitse sitten Seuraava jatkaaksesi.%n%nIsot ja pienet kirjaimet ovat eriarvoisia.
+PasswordLabel3=Anna salasana ja valitse sitten Seuraava jatkaaksesi. Isot ja pienet kirjaimet ovat eriarvoisia.
 PasswordEditLabel=&Salasana:
 IncorrectPassword=Antamasi salasana oli virheellinen. Anna salasana uudelleen.
 
@@ -138,7 +138,7 @@ DiskSpaceGBLabel=Vapaata levytilaa tarvitaan vähintään [gb] Gt.
 DiskSpaceMBLabel=Vapaata levytilaa tarvitaan vähintään [mb] Mt.
 CannotInstallToNetworkDrive=Asennus ei voi asentaa ohjelmaa verkkoasemalle.
 CannotInstallToUNCPath=Asennus ei voi asentaa ohjelmaa UNC-polun alle.
-InvalidPath=Anna täydellinen polku levyaseman kirjaimen kanssa. Esimerkiksi %nC:\OHJELMA%n%ntai UNC-polku muodossa %n%n\\palvelin\resurssi
+InvalidPath=Anna täydellinen polku levyaseman kirjaimen kanssa. Esimerkiksi%n%nC:\OHJELMA%n%ntai UNC-polku muodossa%n%n\\palvelin\resurssi
 InvalidDrive=Valitsemaasi asemaa tai UNC-polkua ei ole olemassa tai sitä ei voi käyttää. Valitse toinen asema tai UNC-polku.
 DiskSpaceWarningTitle=Ei tarpeeksi vapaata levytilaa
 DiskSpaceWarning=Asennus vaatii vähintään %1 kt vapaata levytilaa, mutta valitulla levyasemalla on vain %2 kt vapaata levytilaa.%n%nHaluatko jatkaa tästä huolimatta?
@@ -245,7 +245,7 @@ RunEntryShellExec=Näytä %1
 
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=Asennus tarvitsee seuraavan levykkeen
-SelectDiskLabel2=Aseta levyke %1 asemaan ja valitse OK. %n%nJos joku toinen kansio sisältää levykkeen tiedostot, anna oikea polku tai valitse Selaa.
+SelectDiskLabel2=Aseta levyke %1 asemaan ja valitse OK.%n%nJos joku toinen kansio sisältää levykkeen tiedostot, anna oikea polku tai valitse Selaa.
 PathLabel=&Polku:
 FileNotInDir2=Tiedostoa "%1" ei löytynyt lähteestä "%2". Aseta oikea levyke asemaan tai valitse toinen kansio.
 SelectDirectoryLabel=Määritä seuraavan levykkeen sisällön sijainti.
@@ -347,7 +347,7 @@ ErrorRestartingComputer=Koneen uudelleenkäynnistäminen ei onnistunut. Suorita 
 
 ; *** Uninstaller messages
 UninstallNotFound=Tiedostoa "%1" ei löytynyt. Asennuksen poisto ei onnistu.
-UninstallOpenError=Tiedostoa "%1" ei voitu avata. Asennuksen poisto ei onnistu.
+UninstallOpenError=Tiedostoa "%1" ei voitu avata. Asennuksen poisto ei onnistu
 UninstallUnsupportedVer=Tämä versio Asennuksen poisto-ohjelmasta ei pysty lukemaan lokitiedostoa "%1". Asennuksen poisto ei onnistu
 UninstallUnknownEntry=Asennuksen poisto-ohjelman lokitiedostosta löytyi tuntematon merkintä (%1)
 ConfirmUninstall=Poistetaanko %1 ja kaikki sen osat?
@@ -356,8 +356,8 @@ OnlyAdminCanUninstall=Tämän asennuksen poistaminen vaatii järjestelmänvalvoj
 UninstallStatusLabel=Odota, kun %1 poistetaan koneeltasi.
 UninstalledAll=%1 poistettiin onnistuneesti.
 UninstalledMost=%1 poistettiin koneelta.%n%nJoitakin osia ei voitu poistaa. Voit poistaa osat itse.
-UninstalledAndNeedsRestart=Kone täytyy käynnistää uudelleen, jotta %1 voidaan poistaa kokonaan.%n%nHaluatko käynnistää koneen uudeelleen nyt?
-UninstallDataCorrupted=Tiedosto "%1" on vaurioitunut. Asennuksen poisto ei onnistu.
+UninstalledAndNeedsRestart=Kone täytyy käynnistää uudelleen, jotta %1 voidaan poistaa kokonaan.%n%nHaluatko käynnistää koneen uudelleen nyt?
+UninstallDataCorrupted=Tiedosto "%1" on vaurioitunut. Asennuksen poisto ei onnistu
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Poistetaanko jaettu tiedosto?
@@ -375,9 +375,9 @@ CreateDesktopIcon=Lu&o kuvake työpöydälle
 CreateQuickLaunchIcon=Luo kuvake &pikakäynnistyspalkkiin
 ProgramOnTheWeb=%1 Internetissä
 UninstallProgram=Poista %1
-LaunchProgram=&Käynnistä %1
+LaunchProgram=Käynnistä %1
 AssocFileExtension=&Yhdistä %1 tiedostopäätteeseen %2
-AssocingFileExtension=Yhdistetään %1 tiedostopäätteeseen %2 ...
+AssocingFileExtension=Yhdistetään %1 tiedostopäätteeseen %2...
 AutoStartProgramGroupDescription=Käynnistys:
 AutoStartProgram=Käynnistä %1 automaattisesti
 AddonHostProgramNotFound=%1 ei ole valitsemassasi kansiossa.%n%nHaluatko jatkaa tästä huolimatta?

@@ -2,7 +2,7 @@ unit NewNotebook;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -21,8 +21,8 @@ type
   private
     FActivePage: TNewNotebookPage;
     FPages: TList;
-    function GetPage(Index: Integer): TNewNotebookPage;
-    function GetPageCount: Integer;
+    function GetPage(Index: NativeInt): TNewNotebookPage;
+    function GetPageCount: NativeInt;
     procedure InsertPage(Page: TNewNotebookPage);
     procedure RemovePage(Page: TNewNotebookPage);
     procedure SetActivePage(Page: TNewNotebookPage);
@@ -35,8 +35,8 @@ type
     destructor Destroy; override;
     function FindNextPage(CurPage: TNewNotebookPage; GoForward: Boolean): TNewNotebookPage;
     procedure GetChildren(Proc: TGetChildProc; Root: TComponent); override;
-    property PageCount: Integer read GetPageCount;
-    property Pages[Index: Integer]: TNewNotebookPage read GetPage;
+    property PageCount: NativeInt read GetPageCount;
+    property Pages[Index: NativeInt]: TNewNotebookPage read GetPage;
   published
     property ActivePage: TNewNotebookPage read FActivePage write SetActivePage;
     property Align;
@@ -46,6 +46,7 @@ type
     property DragMode;
     property Enabled;
     property Font;
+    property ParentBackground default False;
     property ParentColor;
     property ParentFont;
     property ParentShowHint;
@@ -68,9 +69,9 @@ type
   TNewNotebookPage = class(TCustomControl)
   private
     FNotebook: TNewNotebook;
-    function GetPageIndex: Integer;
+    function GetPageIndex: NativeInt;
     procedure SetNotebook(ANotebook: TNewNotebook);
-    procedure SetPageIndex(Value: Integer);
+    procedure SetPageIndex(Value: NativeInt);
   protected
     procedure Paint; override;
     procedure ReadState(Reader: TReader); override;
@@ -85,7 +86,8 @@ type
     property Font;
     property Height stored False;
     property Left stored False;
-    property PageIndex: Integer read GetPageIndex write SetPageIndex stored False;
+    property PageIndex: NativeInt read GetPageIndex write SetPageIndex stored False;
+    property ParentBackground default False;
     property ParentColor;
     property ParentFont;
     property ParentShowHint;
@@ -127,7 +129,7 @@ begin
   inherited;
 end;
 
-function TNewNotebookPage.GetPageIndex: Integer;
+function TNewNotebookPage.GetPageIndex: NativeInt;
 begin
   if Assigned(FNotebook) then
     Result := FNotebook.FPages.IndexOf(Self)
@@ -163,7 +165,7 @@ begin
   end;
 end;
 
-procedure TNewNotebookPage.SetPageIndex(Value: Integer);
+procedure TNewNotebookPage.SetPageIndex(Value: NativeInt);
 begin
   if Assigned(FNotebook) then begin
     if Value >= FNotebook.FPages.Count then
@@ -185,11 +187,9 @@ begin
 end;
 
 destructor TNewNotebook.Destroy;
-var
-  I: Integer;
 begin
   if Assigned(FPages) then begin
-    for I := 0 to FPages.Count-1 do
+    for var I := 0 to FPages.Count-1 do
       TNewNotebookPage(FPages[I]).FNotebook := nil;
     FPages.Free;
   end;
@@ -225,51 +225,42 @@ end;
 
 function TNewNotebook.FindNextPage(CurPage: TNewNotebookPage;
   GoForward: Boolean): TNewNotebookPage;
-var
-  I, StartIndex: Integer;
 begin
   if FPages.Count > 0 then begin
-    StartIndex := FPages.IndexOf(CurPage);
+    var StartIndex := FPages.IndexOf(CurPage);
     if StartIndex = -1 then begin
       if GoForward then
         StartIndex := FPages.Count-1
       else
         StartIndex := 0;
     end;
-    I := StartIndex;
-    repeat
-      if GoForward then begin
-        Inc(I);
-        if I = FPages.Count then
-          I := 0;
-      end
-      else begin
-        if I = 0 then
-          I := FPages.Count;
-        Dec(I);
-      end;
-      Result := FPages[I];
-      Exit;
-    until I = StartIndex;
-  end;
-  Result := nil;
+    var I := StartIndex;
+    if GoForward then begin
+      Inc(I);
+      if I = FPages.Count then
+        I := 0;
+    end else begin
+      if I = 0 then
+        I := FPages.Count;
+      Dec(I);
+    end;
+    Result := FPages[I];
+  end else
+    Result := nil;
 end;
 
-procedure TNewNotebook.GetChildren(Proc: TGetChildProc {$IFNDEF DELPHI2} ;
-  Root: TComponent {$ENDIF});
-var
-  I: Integer;
+procedure TNewNotebook.GetChildren(Proc: TGetChildProc; Root: TComponent);
 begin
-  for I := 0 to FPages.Count-1 do
+  for var I := 0 to FPages.Count-1 do
     Proc(TNewNotebookPage(FPages[I]));
 end;
 
-function TNewNotebook.GetPage(Index: Integer): TNewNotebookPage;
+function TNewNotebook.GetPage(Index: NativeInt): TNewNotebookPage;
 begin
   Result := FPages[Index];
 end;
 
-function TNewNotebook.GetPageCount: Integer;
+function TNewNotebook.GetPageCount: NativeInt;
 begin
   Result := FPages.Count;
 end;
@@ -296,13 +287,11 @@ begin
 end;
 
 procedure TNewNotebook.SetActivePage(Page: TNewNotebookPage);
-var
-  ParentForm: {$IFDEF DELPHI2} TForm {$ELSE} TCustomForm {$ENDIF};
 begin
   if Assigned(Page) and (Page.FNotebook <> Self) then
     Exit;
   if FActivePage <> Page then begin
-    ParentForm := GetParentForm(Self);
+    const ParentForm = GetParentForm(Self);
     if Assigned(ParentForm) and Assigned(FActivePage) and
        FActivePage.ContainsControl(ParentForm.ActiveControl) then
       ParentForm.ActiveControl := FActivePage;

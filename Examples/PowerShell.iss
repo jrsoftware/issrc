@@ -2,16 +2,17 @@
 ; Demonstrates calling Powershell at compile time and at run time.
 ; At compile time it first generates a random password and then it shows it and copies it to the clipboard.
 ; At run time it shows the serial number of the system.
+; Also demonstrates the OnLog parameter for [Run] section entries.
 
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES!
 
-#define PowerShellExe "powershell.exe"
+#define PowerShellExe "WindowsPowerShell\v1.0\powershell.exe"
 #define PowerShellCommandParam "-ExecutionPolicy Bypass -Command"
 
 #define ExecPowerShell(str Command) \
   Local[0] = PowerShellCommandParam + " " + AddQuotes(Command), \
   Message("Executing PowerShell command: " + Local[0]), \
-  ExecAndGetFirstLine(PowerShellExe, Local[0])
+  ExecAndGetFirstLine(AddBackslash(SysPath) + PowerShellExe, Local[0])
 
 #define Password ExecPowerShell( \
   "Add-Type -AssemblyName 'System.Web';" + \
@@ -28,7 +29,7 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-WizardStyle=modern
+WizardStyle=modern dynamic
 DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
@@ -45,7 +46,21 @@ Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 [Icons]
 Name: "{group}\My Program"; Filename: "{app}\MyProg.exe"
 
+[Run]
+Filename: "{sys}\{#PowerShellExe}"; Parameters: "{#PowerShellCommandParam} ""Get-ChildItem -Path '{sys}\d*' | ForEach-Object {{ $_.Name }"""; \
+  StatusMsg: "Listing System32\d* files..."; OnLog: RunOnLog; Flags: runhidden logoutput
+
 [Code]
+procedure RunOnLog(const S: String; const Error, FirstLine: Boolean);
+begin
+  if not Error then begin
+    if FirstLine then
+      Log('Output:');
+    WizardForm.StatusLabel.Caption := 'Found: ' + S;
+    Log(S);
+  end;
+end;
+
 var
   Line: String;
 
@@ -74,7 +89,7 @@ var
 begin
   FullCommand := '{#PowerShellCommandParam} ' + AddQuotes(Command);
   Log('Executing PowerShell command: ' + FullCommand);
-  Result := ExecAndGetFirstLine('{#PowerShellExe}', FullCommand, '', ResultCode);
+  Result := ExecAndGetFirstLine(ExpandConstant('{sys}\{#PowerShellExe}'), FullCommand, '', ResultCode);
 end;
 
 function InitializeSetup: Boolean;

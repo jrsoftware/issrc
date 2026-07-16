@@ -1,0 +1,156 @@
+program SetupCustomStyle;
+
+{
+  Inno Setup
+  Copyright (C) 1997-2026 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
+
+  Setup program - with VCL Styles support
+}
+
+uses
+  SafeDLLPath in '..\Components\SafeDLLPath.pas',
+  SetupLdrAndSetup.XPTheme in 'Src\SetupLdrAndSetup.XPTheme.pas',
+  Forms,
+  Windows,
+  SysUtils,
+  Messages,
+  RichEditViewer in '..\Components\RichEditViewer.pas',
+  Shared.CommonFunc.Vcl in 'Src\Shared.CommonFunc.Vcl.pas',
+  Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
+  Setup.Start in 'Src\Setup.Start.pas',
+  Setup.MainForm in 'Src\Setup.MainForm.pas',
+  Setup.MainFunc in 'Src\Setup.MainFunc.pas',
+  Setup.Install in 'Src\Setup.Install.pas',
+  Setup.Install.HelperFunc in 'Src\Setup.Install.HelperFunc.pas',
+  Setup.DownloadFileFunc in 'Src\Setup.DownloadFileFunc.pas',
+  Setup.ExtractFileFunc in 'Src\Setup.ExtractFileFunc.pas',
+  Setup.ISSigVerifyFunc in 'Src\Setup.ISSigVerifyFunc.pas',
+  SetupLdrAndSetup.Messages in 'Src\SetupLdrAndSetup.Messages.pas',
+  Shared.SetupMessageIDs in 'Src\Shared.SetupMessageIDs.pas',
+  Setup.UninstallLog in 'Src\Setup.UninstallLog.pas',
+  Shared.Struct in 'Src\Shared.Struct.pas',
+  Setup.NewDiskForm in 'Src\Setup.NewDiskForm.pas' {NewDiskForm},
+  SetupLdrAndSetup.InstFunc in 'Src\SetupLdrAndSetup.InstFunc.pas',
+  Setup.InstFunc in 'Src\Setup.InstFunc.pas',
+  Setup.InstFunc.Ole in 'Src\Setup.InstFunc.Ole.pas',
+  Setup.WizardForm in 'Src\Setup.WizardForm.pas' {WizardForm},
+  Setup.ScriptFunc in 'Src\Setup.ScriptFunc.pas',
+  Shared.ScriptFunc in 'Src\Shared.ScriptFunc.pas',
+  Shared.SetupTypes in 'Src\Shared.SetupTypes.pas',
+  Shared.SetupSteps in 'Src\Shared.SetupSteps.pas',
+  Setup.ScriptRunner in 'Src\Setup.ScriptRunner.pas',
+  Setup.WizardForm.CustomPages in 'Src\Setup.WizardForm.CustomPages.pas',
+  Setup.ScriptClasses in 'Src\Setup.ScriptClasses.pas',
+  Setup.SelectLanguageForm in 'Src\Setup.SelectLanguageForm.pas' {SelectLanguageForm},
+  Setup.FileExtractor in 'Src\Setup.FileExtractor.pas',
+  Setup.SelectFolderForm in 'Src\Setup.SelectFolderForm.pas' {SelectFolderForm},
+  Compression.Base in 'Src\Compression.Base.pas',
+  Compression.Zlib in 'Src\Compression.Zlib.pas',
+  Compression.bzlib in 'Src\Compression.bzlib.pas',
+  Compression.LZMADecompressor in 'Src\Compression.LZMADecompressor.pas',
+  Shared.FileClass in 'Src\Shared.FileClass.pas',
+  MD5 in '..\Components\MD5.pas',
+  MD5.Test in '..\Components\MD5.Test.pas',
+  SHA1 in '..\Components\SHA1.pas',
+  SHA1.Test in '..\Components\SHA1.Test.pas',
+  SHA256 in '..\Components\SHA256.pas',
+  SHA256.Test in '..\Components\SHA256.Test.pas',
+  Setup.LoggingFunc in 'Src\Setup.LoggingFunc.pas',
+  Setup.DebugClient in 'Src\Setup.DebugClient.pas',
+  Shared.DebugStruct in 'Src\Shared.DebugStruct.pas',
+  ChaCha20 in '..\Components\ChaCha20.pas',
+  ChaCha20.Test in '..\Components\ChaCha20.Test.pas',
+  Setup.Uninstall in 'Src\Setup.Uninstall.pas',
+  Setup.UninstallProgressForm in 'Src\Setup.UninstallProgressForm.pas' {UninstallProgressForm},
+  Setup.UninstallSharedFileForm in 'Src\Setup.UninstallSharedFileForm.pas' {UninstallSharedFileForm},
+  SimpleExpression in '..\Components\SimpleExpression.pas',
+  SimpleExpression.Test in '..\Components\SimpleExpression.Test.pas',
+  UIStateForm in '..\Components\UIStateForm.pas',
+  Setup.SetupForm in 'Src\Setup.SetupForm.pas',
+  Setup.RegSvr in 'Src\Setup.RegSvr.pas',
+  BrowseFunc in '..\Components\BrowseFunc.pas',
+  Setup.PathRedir in 'Src\Setup.PathRedir.pas',
+  Setup.PathRedir.Test in 'Src\Setup.PathRedir.Test.pas',
+  Setup.RedirFunc in 'Src\Setup.RedirFunc.pas',
+  Setup.SecurityFunc in 'Src\Setup.SecurityFunc.pas',
+  Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',
+  Shared.VerInfoFunc.Test in 'Src\Shared.VerInfoFunc.Test.pas',
+  Setup.RegDLL in 'Src\Setup.RegDLL.pas',
+  Setup.SpawnCommon in 'Src\Setup.SpawnCommon.pas',
+  Setup.SpawnServer in 'Src\Setup.SpawnServer.pas',
+  Setup.SpawnClient in 'Src\Setup.SpawnClient.pas',
+  Shared.TaskDialogFunc in 'Src\Shared.TaskDialogFunc.pas',
+  BidiUtils in '..\Components\BidiUtils.pas',
+  BidiUtils.Test in '..\Components\BidiUtils.Test.pas',
+  PathFunc in '..\Components\PathFunc.pas',
+  PathFunc.Test in '..\Components\PathFunc.Test.pas',
+  NewCtrls in '..\Components\NewCtrls.pas',
+  BitmapButton in '..\Components\BitmapButton.pas',
+  BitmapImage in '..\Components\BitmapImage.pas',
+  FolderTreeView in '..\Components\FolderTreeView.pas',
+  NewCheckListBox in '..\Components\NewCheckListBox.pas',
+  NewNotebook in '..\Components\NewNotebook.pas',
+  NewProgressBar in '..\Components\NewProgressBar.pas',
+  NewStaticText in '..\Components\NewStaticText.pas',
+  PasswordEdit in '..\Components\PasswordEdit.pas',
+  NewUxTheme.TmSchema in '..\Components\NewUxTheme.TmSchema.pas',
+  RestartManager in '..\Components\RestartManager.pas',
+  Resample in '..\Components\Resample.pas',
+  ASMInline in '..\Components\ASMInline.pas',
+  TaskbarProgressFunc in '..\Components\TaskbarProgressFunc.pas',
+  Setup.DotNetFunc in 'Src\Setup.DotNetFunc.pas',
+  Shared.SetupEntFunc in 'Src\Shared.SetupEntFunc.pas',
+  Setup.MsiFunc in 'Src\Setup.MsiFunc.pas',
+  Shared.DotNetVersion in 'Src\Shared.DotNetVersion.pas',
+  NewUxTheme in '..\Components\NewUxTheme.pas',
+  PBKDF2 in '..\Components\PBKDF2.pas',
+  PBKDF2.Test in '..\Components\PBKDF2.Test.pas',
+  Compression.SevenZipDecoder in 'Src\Compression.SevenZipDecoder.pas',
+  PSStackHelper in '..\Components\PSStackHelper.pas',
+  Setup.ScriptFunc.HelperFunc in 'Src\Setup.ScriptFunc.HelperFunc.pas',
+  ECDSA in '..\Components\ECDSA.pas',
+  ISSigFunc in '..\Components\ISSigFunc.pas',
+  ISSigFunc.Test in '..\Components\ISSigFunc.Test.pas',
+  StringScanner in '..\Components\StringScanner.pas',
+  StringScanner.Test in '..\Components\StringScanner.Test.pas',
+  Compression.SevenZipDLLDecoder in 'Src\Compression.SevenZipDLLDecoder.pas',
+  Compression.SevenZipDLLDecoder.Interfaces in 'Src\Compression.SevenZipDLLDecoder.Interfaces.pas',
+  Shared.EncryptionFunc in 'Src\Shared.EncryptionFunc.pas',
+  Shared.EncryptionFunc.Test in 'Src\Shared.EncryptionFunc.Test.pas',
+  UnsignedFunc in '..\Components\UnsignedFunc.pas',
+  UnsignedFunc.Test in '..\Components\UnsignedFunc.Test.pas',
+  Vcl.Themes,
+  Vcl.Styles,
+  Setup.TaskDialogForm in 'Src\Setup.TaskDialogForm.pas' {TaskDialogForm},
+  FormBackgroundStyleHook in '..\Components\FormBackgroundStyleHook.pas',
+  uPSDebugger in '..\Components\UniPs\Source\uPSDebugger.pas',
+  uPSR_classes in '..\Components\UniPs\Source\uPSR_classes.pas',
+  uPSR_comobj in '..\Components\UniPs\Source\uPSR_comobj.pas',
+  uPSR_controls in '..\Components\UniPs\Source\uPSR_controls.pas',
+  uPSR_dll in '..\Components\UniPs\Source\uPSR_dll.pas',
+  uPSR_extctrls in '..\Components\UniPs\Source\uPSR_extctrls.pas',
+  uPSR_forms in '..\Components\UniPs\Source\uPSR_forms.pas',
+  uPSR_graphics in '..\Components\UniPs\Source\uPSR_graphics.pas',
+  uPSR_std in '..\Components\UniPs\Source\uPSR_std.pas',
+  uPSR_stdctrls in '..\Components\UniPs\Source\uPSR_stdctrls.pas',
+  uPSRuntime in '..\Components\UniPs\Source\uPSRuntime.pas',
+  uPSUtils in '..\Components\UniPs\Source\uPSUtils.pas';
+
+{$R *.res}
+
+{ The compiler may delete some of the resources included here }
+{$R Res\Setup.icon.dark.res}
+{$R Res\Setup.images.dark.res}
+
+{ Note: Setup.Start.pas includes more resources }
+
+begin
+  { This is a noop but makes the Delphi IDE show the Application->Appearance item in the
+    project options. Removing it also stops generation of the SetupCustomStyle.res file. }
+  if False then
+    Application.Title := 'Setup';
+
+  Start;
+end.

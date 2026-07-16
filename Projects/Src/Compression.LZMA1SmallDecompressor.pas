@@ -2,18 +2,21 @@ unit Compression.LZMA1SmallDecompressor;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
   Interface to the older, size-optimized LZMA SDK 4.43 decompression OBJ in
   Compression.LZMA1SmallDecompressor\LzmaDecode, used by SetupLdr.
+
+  This OBJ uses UInt32 for dictionary and buffer sizes, even in its 64-bit
+  build, because LZMA_SYSTEM_SIZE_T is not defined.
 }
 
 interface
 
 uses
-  Windows, SysUtils, Compression.Base, Shared.Int64Em;
+  Windows, SysUtils, Compression.Base;
 
 type
   { Internally-used record }
@@ -54,7 +57,7 @@ type
     procedure ProcessHeader;
   public
     destructor Destroy; override;
-    procedure DecompressInto(var Buffer; Count: Longint); override;
+    procedure DecompressInto(var Buffer; Count: Cardinal); override;
     procedure Reset; override;
   end;
 
@@ -80,8 +83,11 @@ end;
 
 { TLZMA1SmallDecompressor }
 
-{$L Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno.obj}
-
+{$IFNDEF WIN64}
+{$L Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno-x86.obj}
+{$ELSE}
+{$L Src\Compression.LZMA1SmallDecompressor\LzmaDecode\LzmaDecodeInno-x64.obj}
+{$ENDIF}
 type
   TLzmaInCallback = record
     Read: function(obj: Pointer; var buffer: Pointer; var bufferSize: Cardinal): Integer; cdecl;
@@ -95,12 +101,12 @@ const
 
 function LzmaMyDecodeProperties(var vs: TLZMAInternalDecoderState;
   vsSize: Integer; const propsData; propsDataSize: Integer;
-  var outPropsSize: LongWord; var outDictionarySize: LongWord): Integer; cdecl; external name '_LzmaMyDecodeProperties';
+  var outPropsSize: LongWord; var outDictionarySize: LongWord): Integer; cdecl; external name {$IFNDEF WIN64} '_LzmaMyDecodeProperties' {$ELSE} 'LzmaMyDecodeProperties' {$ENDIF};
 procedure LzmaMyDecoderInit(var vs: TLZMAInternalDecoderState;
-  probsPtr: Pointer; dictionaryPtr: Pointer); cdecl; external name '_LzmaMyDecoderInit';
+  probsPtr: Pointer; dictionaryPtr: Pointer); cdecl; external name {$IFNDEF WIN64} '_LzmaMyDecoderInit' {$ELSE} 'LzmaMyDecoderInit' {$ENDIF};
 function LzmaDecode(var vs: TLZMAInternalDecoderState;
   var inCallback: TLzmaInCallback; var outStream; outSize: Cardinal;
-  var outSizeProcessed: Cardinal): Integer; cdecl; external name '_LzmaDecode';
+  var outSizeProcessed: Cardinal): Integer; cdecl; external name {$IFNDEF WIN64} '_LzmaDecode' {$ELSE} 'LzmaDecode' {$ENDIF};
 
 type
   TLZMADecompressorCallbackData = record
@@ -145,7 +151,7 @@ end;
 procedure TLZMA1SmallDecompressor.ProcessHeader;
 var
   Props: array[0..LZMA_PROPERTIES_SIZE-1] of Byte;
-  ProbsSize, DictionarySize: LongWord;
+  ProbsSize, DictionarySize: Cardinal;
   NewHeapSize: Cardinal;
 begin
   { Read header fields }
@@ -158,7 +164,7 @@ begin
   if LzmaMyDecodeProperties(FDecoderState, SizeOf(FDecoderState), Props,
      SizeOf(Props), ProbsSize, DictionarySize) <> LZMA_RESULT_OK then
     LZMADataError(3);
-  if DictionarySize > LongWord(64 shl 20) then
+  if DictionarySize > 64 shl 20 then
     { sanity check: we only use dictionary sizes <= 64 MB }
     LZMADataError(7);
 
@@ -171,12 +177,12 @@ begin
       OutOfMemoryError;
     FHeapSize := NewHeapSize;
   end;
-  LzmaMyDecoderInit(FDecoderState, FHeapBase, Pointer(Cardinal(FHeapBase) + ProbsSize));
+  LzmaMyDecoderInit(FDecoderState, FHeapBase, PByte(FHeapBase) + ProbsSize);
 
   FHeaderProcessed := True;
 end;
 
-procedure TLZMA1SmallDecompressor.DecompressInto(var Buffer; Count: Longint);
+procedure TLZMA1SmallDecompressor.DecompressInto(var Buffer; Count: Cardinal);
 var
   CallbackData: TLZMADecompressorCallbackData;
   Code: Integer;

@@ -2,7 +2,7 @@ unit StringScanner;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -15,6 +15,8 @@ uses
   SysUtils;
 
 type
+  EStringScannerError = class(Exception);
+
   TStringScanner = record
   strict private
     FStr: String;
@@ -75,7 +77,7 @@ function TStringScanner.ConsumeMulti(const AAllowedChars: TSysCharSet;
 begin
   { AMinChars may be 0; it functions the same as 1 }
   if (AMinChars < 0) or (AMinChars > AMaxChars) then
-    raise Exception.Create('TStringScanner.ConsumeMulti: Invalid parameter');
+    raise EStringScannerError.Create('TStringScanner.ConsumeMulti: Invalid parameter');
 
   const Remain = GetRemainingCount;
   if Remain < AMinChars then

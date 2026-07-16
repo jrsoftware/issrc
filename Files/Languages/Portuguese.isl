@@ -1,72 +1,74 @@
 ; *** Inno Setup version 6.5.0+ Portuguese (Portugal) messages ***
 ;
-; Maintained by Nuno Silva (nars AT gmx.net)
+; Original translation by Nuno Silva (nars@gmx.net)
+; Revised and updated to AO90 by BlackSpirits (blackspirits@gmail.com)
+; Last modified: 11 July 2026 by BlackSpirits
 
 [LangOptions]
-LanguageName=Portugu<00EA>s (Portugal)
+LanguageName=Portugu√™s (Portugal)
 LanguageID=$0816
 LanguageCodePage=1252
 
 [Messages]
 
 ; *** Application titles
-SetupAppTitle=InstalaÁ„o
-SetupWindowTitle=%1 - InstalaÁ„o
-UninstallAppTitle=DesinstalaÁ„o
-UninstallAppFullTitle=%1 - DesinstalaÁ„o
+SetupAppTitle=Instala√ß√£o
+SetupWindowTitle=%1 - Instala√ß√£o
+UninstallAppTitle=Desinstala√ß√£o
+UninstallAppFullTitle=%1 - Desinstala√ß√£o
 
 ; *** Misc. common
-InformationTitle=InformaÁ„o
-ConfirmTitle=ConfirmaÁ„o
+InformationTitle=Informa√ß√£o
+ConfirmTitle=Confirma√ß√£o
 ErrorTitle=Erro
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Ir· ser instalado o %1. Deseja continuar?
-LdrCannotCreateTemp=N„o foi possÌvel criar um ficheiro tempor·rio. InstalaÁ„o cancelada
-LdrCannotExecTemp=N„o foi possÌvel executar um ficheiro na directoria tempor·ria. InstalaÁ„o cancelada
+SetupLdrStartupMessage=O Assistente de Instala√ß√£o ir√° instalar o programa %1. Deseja continuar?
+LdrCannotCreateTemp=N√£o foi poss√≠vel criar um ficheiro tempor√°rio. Instala√ß√£o cancelada
+LdrCannotExecTemp=N√£o foi poss√≠vel executar um ficheiro na pasta tempor√°ria. Instala√ß√£o cancelada
 HelpTextNote=
 
 ; *** Startup error messages
 LastErrorMessage=%1.%n%nErro %2: %3
-SetupFileMissing=O ficheiro %1 n„o foi encontrado na pasta de instalaÁ„o. Corrija o problema ou obtenha uma nova cÛpia do programa.
-SetupFileCorrupt=Os ficheiros de instalaÁ„o est„o corrompidos. Obtenha uma nova cÛpia do programa.
-SetupFileCorruptOrWrongVer=Os ficheiros de instalaÁ„o est„o corrompidos, ou s„o incompatÌveis com esta vers„o do Assistente de InstalaÁ„o. Corrija o problema ou obtenha uma nova cÛpia do programa.
-InvalidParameter=Foi especificado um par‚metro inv·lido na linha de comando:%n%n%1
-SetupAlreadyRunning=A instalaÁ„o j· est· em execuÁ„o.
-WindowsVersionNotSupported=Este programa n„o suporta a vers„o do Windows que est· a utilizar.
+SetupFileMissing=O ficheiro %1 n√£o foi encontrado na pasta de instala√ß√£o. Corrija o problema ou obtenha uma nova c√≥pia do programa.
+SetupFileCorrupt=Os ficheiros de instala√ß√£o est√£o corrompidos. Obtenha uma nova c√≥pia do programa.
+SetupFileCorruptOrWrongVer=Os ficheiros de instala√ß√£o est√£o corrompidos, ou s√£o incompat√≠veis com esta vers√£o do Assistente de Instala√ß√£o. Corrija o problema ou obtenha uma nova c√≥pia do programa.
+InvalidParameter=Foi especificado um par√¢metro inv√°lido na linha de comandos:%n%n%1
+SetupAlreadyRunning=A instala√ß√£o j√° est√° em execu√ß√£o.
+WindowsVersionNotSupported=Este programa n√£o suporta a vers√£o do Windows que est√° a utilizar.
 WindowsServicePackRequired=Este programa necessita de %1 Service Pack %2 ou mais recente.
-NotOnThisPlatform=Este programa n„o pode ser executado no %1.
+NotOnThisPlatform=Este programa n√£o pode ser executado no %1.
 OnlyOnThisPlatform=Este programa deve ser executado no %1.
-OnlyOnTheseArchitectures=Este programa sÛ pode ser instalado em versıes do Windows preparadas para as seguintes arquitecturas:%n%n%1
-WinVersionTooLowError=Este programa necessita do %1 vers„o %2 ou mais recente.
-WinVersionTooHighError=Este programa n„o pode ser instalado no %1 vers„o %2 ou mais recente.
-AdminPrivilegesRequired=Deve iniciar sess„o como administrador para instalar este programa.
-PowerUserPrivilegesRequired=Deve iniciar sess„o como administrador ou membro do grupo de Super Utilizadores para instalar este programa.
-SetupAppRunningError=O Assistente de InstalaÁ„o detectou que o %1 est· em execuÁ„o. Feche-o e de seguida clique em OK para continuar, ou clique em Cancelar para cancelar a instalaÁ„o.
-UninstallAppRunningError=O Assistente de DesinstalaÁ„o detectou que o %1 est· em execuÁ„o. Feche-o e de seguida clique em OK para continuar, ou clique em Cancelar para cancelar a desinstalaÁ„o.
+OnlyOnTheseArchitectures=Este programa s√≥ pode ser instalado em vers√µes do Windows preparadas para as seguintes arquiteturas de processador:%n%n%1
+WinVersionTooLowError=Este programa necessita do %1 vers√£o %2 ou mais recente.
+WinVersionTooHighError=Este programa n√£o pode ser instalado no %1 vers√£o %2 ou mais recente.
+AdminPrivilegesRequired=Deve iniciar sess√£o como administrador para instalar este programa.
+PowerUserPrivilegesRequired=Deve iniciar sess√£o como administrador ou membro do grupo de Utilizadores Avan√ßados para instalar este programa.
+SetupAppRunningError=O Assistente de Instala√ß√£o detetou que o %1 est√° em execu√ß√£o.%n%nFeche agora todas as inst√¢ncias e, em seguida, clique em OK para continuar ou em Cancelar para sair.
+UninstallAppRunningError=O Assistente de Desinstala√ß√£o detetou que o %1 est√° em execu√ß√£o.%n%nFeche agora todas as inst√¢ncias e, em seguida, clique em OK para continuar ou em Cancelar para sair.
 
 ; *** Startup questions
-PrivilegesRequiredOverrideTitle=Seleccione o Modo de InstalaÁ„o
-PrivilegesRequiredOverrideInstruction=Seleccione o Modo de InstalaÁ„o
-PrivilegesRequiredOverrideText1=%1 pode ser instalado para todos os utilizadores (necessita de privilÈgios administrativos), ou sÛ para si.
-PrivilegesRequiredOverrideText2=%1 pode ser instalado sÛ para si, ou para todos os utilizadores (necessita de privilÈgios administrativos).
+PrivilegesRequiredOverrideTitle=Selecione o modo de instala√ß√£o
+PrivilegesRequiredOverrideInstruction=Selecione o modo de instala√ß√£o
+PrivilegesRequiredOverrideText1=%1 pode ser instalado para todos os utilizadores (necessita de privil√©gios administrativos), ou s√≥ para si.
+PrivilegesRequiredOverrideText2=%1 pode ser instalado s√≥ para si, ou para todos os utilizadores (necessita de privil√©gios administrativos).
 PrivilegesRequiredOverrideAllUsers=Instalar para &todos os utilizadores
 PrivilegesRequiredOverrideAllUsersRecommended=Instalar para &todos os utilizadores (recomendado)
 PrivilegesRequiredOverrideCurrentUser=Instalar apenas para &mim
 PrivilegesRequiredOverrideCurrentUserRecommended=Instalar apenas para &mim (recomendado)
 
 ; *** Misc. errors
-ErrorCreatingDir=O Assistente de InstalaÁ„o n„o consegue criar a directoria "%1"
-ErrorTooManyFilesInDir=N„o È possÌvel criar um ficheiro na directoria "%1" porque esta contÈm demasiados ficheiros
+ErrorCreatingDir=O Assistente de Instala√ß√£o n√£o conseguiu criar a pasta "%1"
+ErrorTooManyFilesInDir=N√£o √© poss√≠vel criar um ficheiro na pasta "%1" porque esta cont√©m demasiados ficheiros
 
 ; *** Setup common messages
-ExitSetupTitle=Terminar a instalaÁ„o
-ExitSetupMessage=A instalaÁ„o n„o est· completa. Se terminar agora, o programa n„o ser· instalado.%n%nMais tarde poder· executar novamente este Assistente de InstalaÁ„o e concluir a instalaÁ„o.%n%nDeseja terminar a instalaÁ„o?
-AboutSetupMenuItem=&Acerca de...
-AboutSetupTitle=Acerca do Assistente de InstalaÁ„o
-AboutSetupMessage=%1 vers„o %2%n%3%n%n%1 home page:%n%4
+ExitSetupTitle=Terminar a instala√ß√£o
+ExitSetupMessage=A instala√ß√£o n√£o est√° completa. Se terminar agora, o programa n√£o ser√° instalado.%n%nMais tarde poder√° executar novamente este Assistente de Instala√ß√£o e concluir a instala√ß√£o.%n%nDeseja terminar a instala√ß√£o?
+AboutSetupMenuItem=&Acerca do Assistente de Instala√ß√£o...
+AboutSetupTitle=Acerca do Assistente de Instala√ß√£o
+AboutSetupMessage=%1 vers√£o %2%n%3%n%nSite do %1:%n%4
 AboutSetupNote=
-TranslatorNote=Portuguese translation maintained by NARS (nars@gmx.net)
+TranslatorNote=Tradu√ß√£o para portugu√™s (Portugal) por Nuno Silva (nars@gmx.net) e BlackSpirits (blackspirits@gmail.com)
 
 ; *** Buttons
 ButtonBack=< &Anterior
@@ -76,212 +78,212 @@ ButtonOK=OK
 ButtonCancel=Cancelar
 ButtonYes=&Sim
 ButtonYesToAll=Sim para &todos
-ButtonNo=&N„o
-ButtonNoToAll=N„&o para todos
+ButtonNo=&N√£o
+ButtonNoToAll=N√£&o para todos
 ButtonFinish=&Concluir
 ButtonBrowse=&Procurar...
 ButtonWizardBrowse=P&rocurar...
-ButtonNewFolder=&Criar Nova Pasta
+ButtonNewFolder=&Criar nova pasta
 
 ; *** "Select Language" dialog messages
-SelectLanguageTitle=Seleccione o Idioma do Assistente de InstalaÁ„o
-SelectLanguageLabel=Seleccione o idioma para usar durante a InstalaÁ„o.
+SelectLanguageTitle=Selecione o idioma do Assistente de Instala√ß√£o
+SelectLanguageLabel=Selecione o idioma a utilizar durante a instala√ß√£o.
 
 ; *** Common wizard text
-ClickNext=Clique em Seguinte para continuar ou em Cancelar para cancelar a instalaÁ„o.
+ClickNext=Clique em Seguinte para continuar ou em Cancelar para cancelar a instala√ß√£o.
 BeveledLabel=
-BrowseDialogTitle=Procurar Pasta
-BrowseDialogLabel=Seleccione uma pasta na lista abaixo e clique em OK.
-NewFolderName=Nova Pasta
+BrowseDialogTitle=Procurar pasta
+BrowseDialogLabel=Selecione uma pasta na lista abaixo e clique em OK.
+NewFolderName=Nova pasta
 
 ; *** "Welcome" wizard page
-WelcomeLabel1=Bem-vindo ao Assistente de InstalaÁ„o do [name]
-WelcomeLabel2=O Assistente de InstalaÁ„o ir· instalar o [name/ver] no seu computador.%n%n… recomendado que feche todas as outras aplicaÁıes antes de continuar.
+WelcomeLabel1=Bem-vindo ao Assistente de Instala√ß√£o do [name]
+WelcomeLabel2=O Assistente de Instala√ß√£o ir√° instalar o [name/ver] no seu computador.%n%n√â recomendado que feche todas as outras aplica√ß√µes antes de continuar.
 
 ; *** "Password" wizard page
 WizardPassword=Palavra-passe
-PasswordLabel1=Esta instalaÁ„o est· protegida por palavra-passe.
-PasswordLabel3=Insira a palavra-passe e de seguida clique em Seguinte para continuar. Na palavra-passe existe diferenÁa entre mai˙sculas e min˙sculas.
+PasswordLabel1=Esta instala√ß√£o est√° protegida por palavra-passe.
+PasswordLabel3=Introduza a palavra-passe e, em seguida, clique em Seguinte para continuar. A palavra-passe distingue mai√∫sculas de min√∫sculas.
 PasswordEditLabel=&Palavra-passe:
-IncorrectPassword=A palavra-passe que introduziu n„o est· correcta. Tente novamente.
+IncorrectPassword=A palavra-passe que introduziu n√£o est√° correta. Tente novamente.
 
 ; *** "License Agreement" wizard page
-WizardLicense=Contrato de licenÁa
-LicenseLabel=… importante que leia as seguintes informaÁıes antes de continuar.
-LicenseLabel3=Leia atentamente o seguinte contrato de licenÁa. Deve aceitar os termos do contrato antes de continuar a instalaÁ„o.
+WizardLicense=Contrato de licen√ßa
+LicenseLabel=√â importante que leia as seguintes informa√ß√µes antes de continuar.
+LicenseLabel3=Leia o seguinte contrato de licen√ßa. Deve aceitar os termos deste contrato antes de continuar a instala√ß√£o.
 LicenseAccepted=A&ceito o contrato
-LicenseNotAccepted=&N„o aceito o contrato
+LicenseNotAccepted=&N√£o aceito o contrato
 
 ; *** "Information" wizard pages
-WizardInfoBefore=InformaÁ„o
-InfoBeforeLabel=… importante que leia as seguintes informaÁıes antes de continuar.
-InfoBeforeClickLabel=Quando estiver pronto para continuar clique em Seguinte.
-WizardInfoAfter=InformaÁ„o
-InfoAfterLabel=… importante que leia as seguintes informaÁıes antes de continuar.
-InfoAfterClickLabel=Quando estiver pronto para continuar clique em Seguinte.
+WizardInfoBefore=Informa√ß√£o
+InfoBeforeLabel=√â importante que leia as seguintes informa√ß√µes antes de continuar.
+InfoBeforeClickLabel=Quando estiver pronto para continuar, clique em Seguinte.
+WizardInfoAfter=Informa√ß√£o
+InfoAfterLabel=√â importante que leia as seguintes informa√ß√µes antes de continuar.
+InfoAfterClickLabel=Quando estiver pronto para continuar, clique em Seguinte.
 
 ; *** "User Information" wizard page
-WizardUserInfo=InformaÁıes do utilizador
-UserInfoDesc=Introduza as suas informaÁıes.
+WizardUserInfo=Informa√ß√µes do utilizador
+UserInfoDesc=Introduza as suas informa√ß√µes.
 UserInfoName=Nome do &utilizador:
-UserInfoOrg=&OrganizaÁ„o:
-UserInfoSerial=&N˙mero de sÈrie:
+UserInfoOrg=&Organiza√ß√£o:
+UserInfoSerial=&N√∫mero de s√©rie:
 UserInfoNameRequired=Deve introduzir um nome.
 
 ; *** "Select Destination Location" wizard page
-WizardSelectDir=Seleccione a localizaÁ„o de destino
-SelectDirDesc=Onde dever· ser instalado o [name]?
-SelectDirLabel3=O [name] ser· instalado na seguinte pasta.
-SelectDirBrowseLabel=Para continuar, clique em Seguinte. Se desejar seleccionar uma pasta diferente, clique em Procurar.
-DiskSpaceGBLabel=… necess·rio pelo menos [gb] GB de espaÁo livre em disco.
-DiskSpaceMBLabel=… necess·rio pelo menos [mb] MB de espaÁo livre em disco.
-CannotInstallToNetworkDrive=O Assistente de InstalaÁ„o n„o pode instalar numa unidade de rede.
-CannotInstallToUNCPath=O Assistente de InstalaÁ„o n„o pode instalar num caminho UNC.
-InvalidPath=… necess·rio indicar o caminho completo com a letra de unidade; por exemplo:%n%nC:\APP%n%nou um caminho UNC no formato:%n%n\\servidor\partilha
-InvalidDrive=A unidade ou partilha UNC seleccionada n„o existe ou n„o est· acessÌvel. Seleccione outra.
-DiskSpaceWarningTitle=N„o h· espaÁo suficiente no disco
-DiskSpaceWarning=O Assistente de InstalaÁ„o necessita de pelo menos %1 KB de espaÁo livre, mas a unidade seleccionada tem apenas %2 KB disponÌveis.%n%nDeseja continuar de qualquer forma?
-DirNameTooLong=O nome ou caminho para a pasta È demasiado longo.
-InvalidDirName=O nome da pasta n„o È v·lido.
-BadDirName32=O nome da pasta n„o pode conter nenhum dos seguintes caracteres:%n%n%1
-DirExistsTitle=A pasta j· existe
-DirExists=A pasta:%n%n%1%n%nj· existe. Pretende instalar nesta pasta?
-DirDoesntExistTitle=A pasta n„o existe
-DirDoesntExist=A pasta:%n%n%1%n%nn„o existe. Pretende que esta pasta seja criada?
+WizardSelectDir=Selecione a localiza√ß√£o de destino
+SelectDirDesc=Onde dever√° ser instalado o [name]?
+SelectDirLabel3=O [name] ser√° instalado na seguinte pasta.
+SelectDirBrowseLabel=Para continuar, clique em Seguinte. Se pretender selecionar uma pasta diferente, clique em Procurar.
+DiskSpaceGBLabel=√â necess√°rio ter pelo menos [gb] GB de espa√ßo livre em disco.
+DiskSpaceMBLabel=√â necess√°rio ter pelo menos [mb] MB de espa√ßo livre em disco.
+CannotInstallToNetworkDrive=O Assistente de Instala√ß√£o n√£o pode instalar numa unidade de rede.
+CannotInstallToUNCPath=O Assistente de Instala√ß√£o n√£o pode instalar num caminho UNC.
+InvalidPath=√â necess√°rio indicar o caminho completo com a letra de unidade; por exemplo:%n%nC:\App%n%nou um caminho UNC no formato:%n%n\\servidor\partilha
+InvalidDrive=A unidade ou partilha UNC selecionada n√£o existe ou n√£o est√° acess√≠vel. Selecione outra.
+DiskSpaceWarningTitle=N√£o h√° espa√ßo suficiente no disco
+DiskSpaceWarning=O Assistente de Instala√ß√£o necessita de pelo menos %1 KB de espa√ßo livre, mas a unidade selecionada tem apenas %2 KB dispon√≠veis.%n%nDeseja continuar de qualquer forma?
+DirNameTooLong=O nome ou caminho para a pasta √© demasiado longo.
+InvalidDirName=O nome da pasta n√£o √© v√°lido.
+BadDirName32=O nome da pasta n√£o pode conter nenhum dos seguintes carateres:%n%n%1
+DirExistsTitle=A pasta j√° existe
+DirExists=A pasta:%n%n%1%n%nj√° existe. Deseja instalar nessa pasta de qualquer forma?
+DirDoesntExistTitle=A pasta n√£o existe
+DirDoesntExist=A pasta:%n%n%1%n%nn√£o existe. Deseja que esta pasta seja criada?
 
 ; *** "Select Components" wizard page
-WizardSelectComponents=Seleccione os componentes
-SelectComponentsDesc=Que componentes dever„o ser instalados?
-SelectComponentsLabel2=Seleccione os componentes que quer instalar e desseleccione os componentes que n„o quer instalar. Clique em Seguinte quando estiver pronto para continuar.
-FullInstallation=InstalaÁ„o Completa
+WizardSelectComponents=Selecione os componentes
+SelectComponentsDesc=Que componentes dever√£o ser instalados?
+SelectComponentsLabel2=Selecione os componentes que pretende instalar e desmarque os componentes que n√£o pretende instalar. Clique em Seguinte quando estiver pronto para continuar.
+FullInstallation=Instala√ß√£o completa
 ; if possible don't translate 'Compact' as 'Minimal' (I mean 'Minimal' in your language)
-CompactInstallation=InstalaÁ„o Compacta
-CustomInstallation=InstalaÁ„o Personalizada
-NoUninstallWarningTitle=Componentes Encontrados
-NoUninstallWarning=O Assistente de InstalaÁ„o detectou que os seguintes componentes est„o instalados no seu computador:%n%n%1%n%nSe desseleccionar estes componentes eles n„o ser„o desinstalados.%n%nDeseja continuar?
+CompactInstallation=Instala√ß√£o compacta
+CustomInstallation=Instala√ß√£o personalizada
+NoUninstallWarningTitle=Componentes encontrados
+NoUninstallWarning=O Assistente de Instala√ß√£o detetou que os seguintes componentes j√° est√£o instalados no seu computador:%n%n%1%n%nDesmarcar estes componentes n√£o ir√° desinstal√°-los.%n%nDeseja continuar de qualquer forma?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceGBLabel=A selecÁ„o actual necessita de pelo menos [gb] GB de espaÁo em disco.
-ComponentsDiskSpaceMBLabel=A selecÁ„o actual necessita de pelo menos [mb] MB de espaÁo em disco.
+ComponentsDiskSpaceGBLabel=A sele√ß√£o atual necessita de pelo menos [gb] GB de espa√ßo em disco.
+ComponentsDiskSpaceMBLabel=A sele√ß√£o atual necessita de pelo menos [mb] MB de espa√ßo em disco.
 
 ; *** "Select Additional Tasks" wizard page
-WizardSelectTasks=Seleccione tarefas adicionais
-SelectTasksDesc=Que tarefas adicionais dever„o ser executadas?
-SelectTasksLabel2=Seleccione as tarefas adicionais que deseja que o Assistente de InstalaÁ„o execute na instalaÁ„o do [name] e em seguida clique em Seguinte.
+WizardSelectTasks=Selecione tarefas adicionais
+SelectTasksDesc=Que tarefas adicionais dever√£o ser executadas?
+SelectTasksLabel2=Selecione as tarefas adicionais a executar pelo Assistente de Instala√ß√£o durante a instala√ß√£o do [name] e, em seguida, clique em Seguinte.
 
 ; *** "Select Start Menu Folder" wizard page
-WizardSelectProgramGroup=Seleccione a pasta do Menu Iniciar
-SelectStartMenuFolderDesc=Onde dever„o ser colocados os Ìcones de atalho do programa?
-SelectStartMenuFolderLabel3=Os Ìcones de atalho do programa ser„o criados na seguinte pasta do Menu Iniciar.
-SelectStartMenuFolderBrowseLabel=Para continuar, clique em Seguinte. Se desejar seleccionar uma pasta diferente, clique em Procurar.
-MustEnterGroupName=… necess·rio introduzir um nome para a pasta.
-GroupNameTooLong=O nome ou caminho para a pasta È demasiado longo.
-InvalidGroupName=O nome da pasta n„o È v·lido.
-BadGroupName=O nome da pasta n„o pode conter nenhum dos seguintes caracteres:%n%n%1
-NoProgramGroupCheck2=&N„o criar nenhuma pasta no Menu Iniciar
+WizardSelectProgramGroup=Selecione a pasta do Menu Iniciar
+SelectStartMenuFolderDesc=Onde dever√£o ser colocados os atalhos do programa?
+SelectStartMenuFolderLabel3=Os atalhos do programa ser√£o criados na seguinte pasta do Menu Iniciar.
+SelectStartMenuFolderBrowseLabel=Para continuar, clique em Seguinte. Se pretender selecionar uma pasta diferente, clique em Procurar.
+MustEnterGroupName=√â necess√°rio introduzir um nome para a pasta.
+GroupNameTooLong=O nome ou caminho para a pasta √© demasiado longo.
+InvalidGroupName=O nome da pasta n√£o √© v√°lido.
+BadGroupName=O nome da pasta n√£o pode conter nenhum dos seguintes carateres:%n%n%1
+NoProgramGroupCheck2=&N√£o criar uma pasta no Menu Iniciar
 
 ; *** "Ready to Install" wizard page
-WizardReady=Pronto para Instalar
-ReadyLabel1=O Assistente de InstalaÁ„o est· pronto para instalar o [name] no seu computador.
-ReadyLabel2a=Clique em Instalar para continuar a instalaÁ„o, ou clique em Anterior se desejar rever ou alterar alguma das configuraÁıes.
-ReadyLabel2b=Clique em Instalar para continuar a instalaÁ„o.
-ReadyMemoUserInfo=InformaÁıes do utilizador:
-ReadyMemoDir=LocalizaÁ„o de destino:
-ReadyMemoType=Tipo de instalaÁ„o:
-ReadyMemoComponents=Componentes seleccionados:
+WizardReady=Pronto para instalar
+ReadyLabel1=O Assistente de Instala√ß√£o est√° agora pronto para come√ßar a instalar o [name] no seu computador.
+ReadyLabel2a=Clique em Instalar para continuar a instala√ß√£o ou em Anterior se desejar rever ou alterar alguma defini√ß√£o.
+ReadyLabel2b=Clique em Instalar para continuar a instala√ß√£o.
+ReadyMemoUserInfo=Informa√ß√µes do utilizador:
+ReadyMemoDir=Localiza√ß√£o de destino:
+ReadyMemoType=Tipo de instala√ß√£o:
+ReadyMemoComponents=Componentes selecionados:
 ReadyMemoGroup=Pasta do Menu Iniciar:
 ReadyMemoTasks=Tarefas adicionais:
 
 ; *** TDownloadWizardPage wizard page and DownloadTemporaryFile
 DownloadingLabel2=A transferir ficheiros...
-ButtonStopDownload=&Parar transferÍncia
-StopDownload=Tem a certeza que deseja parar a transferÍncia?
-ErrorDownloadAborted=TransferÍncia cancelada
-ErrorDownloadFailed=Falha na transferÍncia: %1 %2
-ErrorDownloadSizeFailed=Falha ao obter tamanho: %1 %2
-ErrorProgress=Progresso inv·lido: %1 de %2
-ErrorFileSize=Tamanho de ficheiro inv·lido: experado %1, encontrado %2
+ButtonStopDownload=&Parar transfer√™ncia
+StopDownload=Tem a certeza de que pretende parar a transfer√™ncia?
+ErrorDownloadAborted=Transfer√™ncia cancelada
+ErrorDownloadFailed=Falha na transfer√™ncia: %1 %2
+ErrorDownloadSizeFailed=Falha ao obter o tamanho: %1 %2
+ErrorProgress=Progresso inv√°lido: %1 de %2
+ErrorFileSize=Tamanho de ficheiro inv√°lido: esperado %1, encontrado %2
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=A extrair ficheiros...
-ButtonStopExtraction=&Parar extracÁ„o
-StopExtraction=Tem a certeza que deseja parar a extracÁ„o?
-ErrorExtractionAborted=ExtracÁ„o cancelada
-ErrorExtractionFailed=Falha na extracÁ„o: %1
+ButtonStopExtraction=&Parar extra√ß√£o
+StopExtraction=Tem a certeza de que pretende parar a extra√ß√£o?
+ErrorExtractionAborted=Extra√ß√£o cancelada
+ErrorExtractionFailed=Falha na extra√ß√£o: %1
 
 ; *** Archive extraction failure details
-ArchiveIncorrectPassword=A palavra-passe est· incorrecta
-ArchiveIsCorrupted=O ficheiro est· corrompido
-ArchiveUnsupportedFormat=O formato do ficheiro n„o È suportado
+ArchiveIncorrectPassword=A palavra-passe est√° incorreta
+ArchiveIsCorrupted=O ficheiro comprimido est√° corrompido
+ArchiveUnsupportedFormat=Formato de ficheiro comprimido n√£o suportado
 
 ; *** "Preparing to Install" wizard page
-WizardPreparing=Preparando-se para instalar
-PreparingDesc=Preparando-se para instalar o [name] no seu computador.
-PreviousInstallNotCompleted=A instalaÁ„o/remoÁ„o de um programa anterior n„o foi completada. Necessitar· de reiniciar o computador para completar essa instalaÁ„o.%n%nDepois de reiniciar o computador, execute novamente este Assistente de InstalaÁ„o para completar a instalaÁ„o do [name].
-CannotContinue=A instalaÁ„o n„o pode continuar. Clique em Cancelar para sair.
-ApplicationsFound=As seguintes aplicaÁıes est„o a utilizar ficheiros que necessitam ser actualizados pelo Assistente de InstalaÁ„o. … recomendado que permita que o Assistente de InstalaÁ„o feche estas aplicaÁıes.
-ApplicationsFound2=As seguintes aplicaÁıes est„o a utilizar ficheiros que necessitam ser actualizados pelo Assistente de InstalaÁ„o. … recomendado que permita que o Assistente de InstalaÁ„o feche estas aplicaÁıes. Depois de completar a instalaÁ„o, o Assistente de InstalaÁ„o tentar· reiniciar as aplicaÁıes.
-CloseApplications=&Fechar as aplicaÁıes automaticamente
-DontCloseApplications=&N„o fechar as aplicaÁıes
-ErrorCloseApplications=O Assistente de InstalaÁ„o n„o conseguiu fechar todas as aplicaÁıes automaticamente. Antes de continuar È recomendado que feche todas as aplicaÁıes que utilizem ficheiros que necessitem de ser actualizados pelo Assistente de InstalaÁ„o.
-PrepareToInstallNeedsRestart=O Assistente de InstalaÁ„o necessita reiniciar o seu computador. Depois de reiniciar o computador, execute novamente o Assistente de InstalaÁ„o para completar a instalaÁ„o do [name].%n%nDeseja reiniciar agora?
+WizardPreparing=A preparar a instala√ß√£o
+PreparingDesc=A preparar a instala√ß√£o do [name] no seu computador.
+PreviousInstallNotCompleted=A instala√ß√£o/desinstala√ß√£o de um programa anterior n√£o foi conclu√≠da. Ter√° de reiniciar o computador para concluir essa instala√ß√£o.%n%nDepois de reiniciar o computador, execute novamente este Assistente de Instala√ß√£o para concluir a instala√ß√£o do [name].
+CannotContinue=A instala√ß√£o n√£o pode continuar. Clique em Cancelar para sair.
+ApplicationsFound=As seguintes aplica√ß√µes est√£o a utilizar ficheiros que necessitam de ser atualizados pelo Assistente de Instala√ß√£o. Recomenda-se que permita que o Assistente de Instala√ß√£o feche automaticamente estas aplica√ß√µes.
+ApplicationsFound2=As seguintes aplica√ß√µes est√£o a utilizar ficheiros que necessitam de ser atualizados pelo Assistente de Instala√ß√£o. Recomenda-se que permita que o Assistente de Instala√ß√£o feche automaticamente estas aplica√ß√µes. Depois de concluir a instala√ß√£o, o Assistente de Instala√ß√£o tentar√° reiniciar as aplica√ß√µes.
+CloseApplications=&Fechar as aplica√ß√µes automaticamente
+DontCloseApplications=&N√£o fechar as aplica√ß√µes
+ErrorCloseApplications=O Assistente de Instala√ß√£o n√£o conseguiu fechar automaticamente todas as aplica√ß√µes. Antes de continuar, recomenda-se que feche todas as aplica√ß√µes que utilizem ficheiros que necessitem de ser atualizados pelo Assistente de Instala√ß√£o.
+PrepareToInstallNeedsRestart=O Assistente de Instala√ß√£o tem de reiniciar o seu computador. Depois de reiniciar o computador, execute novamente o Assistente de Instala√ß√£o para concluir a instala√ß√£o do [name].%n%nDeseja reiniciar agora?
 
 ; *** "Installing" wizard page
 WizardInstalling=A instalar
-InstallingLabel=Aguarde enquanto o Assistente de InstalaÁ„o instala o [name] no seu computador.
+InstallingLabel=Aguarde enquanto o Assistente de Instala√ß√£o instala o [name] no seu computador.
 
 ; *** "Setup Completed" wizard page
-FinishedHeadingLabel=InstalaÁ„o do [name] concluÌda
-FinishedLabelNoIcons=O Assistente de InstalaÁ„o concluiu a instalaÁ„o do [name] no seu computador.
-FinishedLabel=O Assistente de InstalaÁ„o concluiu a instalaÁ„o do [name] no seu computador. A aplicaÁ„o pode ser iniciada atravÈs dos Ìcones de atalho instalados.
-ClickFinish=Clique em Concluir para finalizar o Assistente de InstalaÁ„o.
-FinishedRestartLabel=Para completar a instalaÁ„o do [name], o Assistente de InstalaÁ„o dever· reiniciar o seu computador. Deseja reiniciar agora?
-FinishedRestartMessage=Para completar a instalaÁ„o do [name], o Assistente de InstalaÁ„o dever· reiniciar o seu computador.%n%nDeseja reiniciar agora?
-ShowReadmeCheck=Sim, desejo ver o ficheiro LEIAME
+FinishedHeadingLabel=A concluir o Assistente de Instala√ß√£o do [name]
+FinishedLabelNoIcons=O Assistente de Instala√ß√£o concluiu a instala√ß√£o do [name] no seu computador.
+FinishedLabel=O Assistente de Instala√ß√£o concluiu a instala√ß√£o do [name] no seu computador. A aplica√ß√£o pode ser iniciada atrav√©s dos atalhos instalados.
+ClickFinish=Clique em Concluir para sair do Assistente de Instala√ß√£o.
+FinishedRestartLabel=Para concluir a instala√ß√£o do [name], o Assistente de Instala√ß√£o tem de reiniciar o seu computador. Deseja reiniciar agora?
+FinishedRestartMessage=Para concluir a instala√ß√£o do [name], o Assistente de Instala√ß√£o tem de reiniciar o seu computador.%n%nDeseja reiniciar agora?
+ShowReadmeCheck=Sim, desejo ver o ficheiro README
 YesRadio=&Sim, desejo reiniciar o computador agora
-NoRadio=&N„o, desejo reiniciar o computador mais tarde
+NoRadio=&N√£o, desejo reiniciar o computador mais tarde
 ; used for example as 'Run MyProg.exe'
 RunEntryExec=Executar %1
 ; used for example as 'View Readme.txt'
 RunEntryShellExec=Visualizar %1
 
 ; *** "Setup Needs the Next Disk" stuff
-ChangeDiskTitle=O Assistente de InstalaÁ„o precisa do disco seguinte
-SelectDiskLabel2=Introduza o disco %1 e clique em OK.%n%nSe os ficheiros deste disco estiverem num local diferente do mostrado abaixo, indique o caminho correcto ou clique em Procurar.
+ChangeDiskTitle=O Assistente de Instala√ß√£o precisa do disco seguinte
+SelectDiskLabel2=Introduza o disco %1 e clique em OK.%n%nSe os ficheiros deste disco estiverem num local diferente do mostrado abaixo, indique o caminho correto ou clique em Procurar.
 PathLabel=&Caminho:
-FileNotInDir2=O ficheiro "%1" n„o foi encontrado em "%2". Introduza o disco correcto ou seleccione outra pasta.
-SelectDirectoryLabel=Indique a localizaÁ„o do disco seguinte.
+FileNotInDir2=O ficheiro "%1" n√£o foi encontrado em "%2". Introduza o disco correto ou selecione outra pasta.
+SelectDirectoryLabel=Indique a localiza√ß√£o do disco seguinte.
 
 ; *** Installation phase messages
-SetupAborted=A instalaÁ„o n„o est· completa.%n%nCorrija o problema e execute o Assistente de InstalaÁ„o novamente.
-AbortRetryIgnoreSelectAction=Seleccione uma acÁ„o
+SetupAborted=A instala√ß√£o n√£o foi conclu√≠da.%n%nCorrija o problema e execute novamente o Assistente de Instala√ß√£o.
+AbortRetryIgnoreSelectAction=Selecione uma a√ß√£o
 AbortRetryIgnoreRetry=&Tentar novamente
 AbortRetryIgnoreIgnore=&Ignorar o erro e continuar
-AbortRetryIgnoreCancel=Cancelar a instalaÁ„o
-RetryCancelSelectAction=Seleccione uma acÁ„o
+AbortRetryIgnoreCancel=Cancelar a instala√ß√£o
+RetryCancelSelectAction=Selecione uma a√ß√£o
 RetryCancelRetry=&Tentar novamente
 RetryCancelCancel=Cancelar
 
 ; *** Installation status messages
-StatusClosingApplications=A fechar aplicaÁıes...
-StatusCreateDirs=A criar directorias...
+StatusClosingApplications=A fechar aplica√ß√µes...
+StatusCreateDirs=A criar pastas...
 StatusExtractFiles=A extrair ficheiros...
 StatusDownloadFiles=A transferir ficheiros...
 StatusCreateIcons=A criar atalhos...
-StatusCreateIniEntries=A criar entradas em INI...
+StatusCreateIniEntries=A criar entradas INI...
 StatusCreateRegistryEntries=A criar entradas no registo...
 StatusRegisterFiles=A registar ficheiros...
-StatusSavingUninstall=A guardar informaÁıes para desinstalaÁ„o...
-StatusRunProgram=A concluir a instalaÁ„o...
-StatusRestartingApplications=A reiniciar aplicaÁıes...
-StatusRollback=A anular as alteraÁıes...
+StatusSavingUninstall=A guardar informa√ß√µes para desinstala√ß√£o...
+StatusRunProgram=A concluir a instala√ß√£o...
+StatusRestartingApplications=A reiniciar aplica√ß√µes...
+StatusRollback=A reverter as altera√ß√µes...
 
 ; *** Misc. errors
 ErrorInternal2=Erro interno: %1
 ErrorFunctionFailedNoCode=%1 falhou
-ErrorFunctionFailed=%1 falhou; cÛdigo %2
-ErrorFunctionFailedWithMessage=%1 falhou; cÛdigo %2.%n%3
-ErrorExecutingProgram=N„o È possÌvel executar o ficheiro:%n%1
+ErrorFunctionFailed=%1 falhou; c√≥digo %2
+ErrorFunctionFailedWithMessage=%1 falhou; c√≥digo %2.%n%3
+ErrorExecutingProgram=N√£o √© poss√≠vel executar o ficheiro:%n%1
 
 ; *** Registry errors
 ErrorRegOpenKey=Erro ao abrir a chave de registo:%n%1\%2
@@ -289,82 +291,82 @@ ErrorRegCreateKey=Erro ao criar a chave de registo:%n%1\%2
 ErrorRegWriteKey=Erro ao escrever na chave de registo:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Erro ao criar entradas em INI no ficheiro "%1".
+ErrorIniEntry=Erro ao criar uma entrada INI no ficheiro "%1".
 
 ; *** File copying errors
-FileAbortRetryIgnoreSkipNotRecommended=&Ignorar este ficheiro (n„o recomendado)
-FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorar este erro e continuar (n„o recomendado)
-SourceIsCorrupted=O ficheiro de origem est· corrompido
-SourceDoesntExist=O ficheiro de origem "%1" n„o existe
-SourceVerificationFailed=VerificaÁ„o do ficheiro de origem falhou: %1
-VerificationSignatureDoesntExist=O ficheiro de assinatura "%1" n„o existe
-VerificationSignatureInvalid=O ficheiro de assinatura "%1" È inv·lido
-VerificationKeyNotFound=O ficheiro de assinatura "%1" usa uma chave desconhecida
-VerificationFileNameIncorrect=O nome do ficheiro È incorrecto
-VerificationFileTagIncorrect=A tag do ficheiro È incorrecta
-VerificationFileSizeIncorrect=O tamanho do ficheiro È incorrecto
-VerificationFileHashIncorrect=A hash do ficheiro È incorrecta
-ExistingFileReadOnly2=O ficheiro existente n„o pode ser substituÌdo porque tem o atributo "sÛ de leitura".
-ExistingFileReadOnlyRetry=&Remover o atributo "sÛ de leitura" e tentar novamente
+FileAbortRetryIgnoreSkipNotRecommended=&Omitir este ficheiro (n√£o recomendado)
+FileAbortRetryIgnoreIgnoreNotRecommended=&Ignorar o erro e continuar (n√£o recomendado)
+SourceIsCorrupted=O ficheiro de origem est√° corrompido
+SourceDoesntExist=O ficheiro de origem "%1" n√£o existe
+SourceVerificationFailed=A verifica√ß√£o do ficheiro de origem falhou: %1
+VerificationSignatureDoesntExist=O ficheiro de assinatura "%1" n√£o existe
+VerificationSignatureInvalid=O ficheiro de assinatura "%1" √© inv√°lido
+VerificationKeyNotFound=O ficheiro de assinatura "%1" utiliza uma chave desconhecida
+VerificationFileNameIncorrect=O nome do ficheiro est√° incorreto
+VerificationFileTagIncorrect=A etiqueta do ficheiro est√° incorreta
+VerificationFileSizeIncorrect=O tamanho do ficheiro est√° incorreto
+VerificationFileHashIncorrect=O hash do ficheiro est√° incorreto
+ExistingFileReadOnly2=O ficheiro existente n√£o pode ser substitu√≠do porque tem o atributo "s√≥ de leitura".
+ExistingFileReadOnlyRetry=&Remover o atributo "s√≥ de leitura" e tentar novamente
 ExistingFileReadOnlyKeepExisting=&Manter o ficheiro existente
 ErrorReadingExistingDest=Ocorreu um erro ao tentar ler o ficheiro existente:
-FileExistsSelectAction=Seleccione uma acÁ„o
-FileExists2=O ficheiro j· existe.
+FileExistsSelectAction=Selecione uma a√ß√£o
+FileExists2=O ficheiro j√° existe.
 FileExistsOverwriteExisting=&Substituir o ficheiro existente
 FileExistsKeepExisting=&Manter o ficheiro existente
-FileExistsOverwriteOrKeepAll=&Fazer isto para os prÛximos conflitos
-ExistingFileNewerSelectAction=Seleccione uma acÁ„o
-ExistingFileNewer2=O ficheiro existente È mais recente que o que est· a ser instalado.
+FileExistsOverwriteOrKeepAll=&Aplicar esta a√ß√£o aos pr√≥ximos conflitos
+ExistingFileNewerSelectAction=Selecione uma a√ß√£o
+ExistingFileNewer2=O ficheiro existente √© mais recente do que aquele que o Assistente de Instala√ß√£o est√° a tentar instalar.
 ExistingFileNewerOverwriteExisting=&Substituir o ficheiro existente
 ExistingFileNewerKeepExisting=&Manter o ficheiro existente (recomendado)
-ExistingFileNewerOverwriteOrKeepAll=&Fazer isto para os prÛximos conflitos
+ExistingFileNewerOverwriteOrKeepAll=&Aplicar esta a√ß√£o aos pr√≥ximos conflitos
 ErrorChangingAttr=Ocorreu um erro ao tentar alterar os atributos do ficheiro existente:
-ErrorCreatingTemp=Ocorreu um erro ao tentar criar um ficheiro na directoria de destino:
+ErrorCreatingTemp=Ocorreu um erro ao tentar criar um ficheiro na pasta de destino:
 ErrorReadingSource=Ocorreu um erro ao tentar ler o ficheiro de origem:
 ErrorCopying=Ocorreu um erro ao tentar copiar um ficheiro:
 ErrorDownloading=Ocorreu um erro ao tentar transferir um ficheiro:
-ErrorExtracting=Ocorreu um erro ao tentar extrair um ficheiro:
+ErrorExtracting=Ocorreu um erro ao tentar extrair um ficheiro comprimido:
 ErrorReplacingExistingFile=Ocorreu um erro ao tentar substituir o ficheiro existente:
 ErrorRestartReplace=RestartReplace falhou:
-ErrorRenamingTemp=Ocorreu um erro ao tentar mudar o nome de um ficheiro na directoria de destino:
-ErrorRegisterServer=N„o È possÌvel registar o DLL/OCX: %1
-ErrorRegSvr32Failed=O RegSvr32 falhou com o cÛdigo de saÌda %1
-ErrorRegisterTypeLib=N„o foi possÌvel registar a livraria de tipos: %1
+ErrorRenamingTemp=Ocorreu um erro ao tentar mudar o nome de um ficheiro na pasta de destino:
+ErrorRegisterServer=N√£o foi poss√≠vel registar o ficheiro DLL/OCX: %1
+ErrorRegSvr32Failed=O RegSvr32 falhou com o c√≥digo de sa√≠da %1
+ErrorRegisterTypeLib=N√£o foi poss√≠vel registar a biblioteca de tipos: %1
 
 ; *** Uninstall display name markings
 ; used for example as 'My Program (32-bit)'
 UninstallDisplayNameMark=%1 (%2)
 ; used for example as 'My Program (32-bit, All users)'
 UninstallDisplayNameMarks=%1 (%2, %3)
-UninstallDisplayNameMark32Bit=32-bit
-UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMark32Bit=32 bits
+UninstallDisplayNameMark64Bit=64 bits
 UninstallDisplayNameMarkAllUsers=Todos os utilizadores
-UninstallDisplayNameMarkCurrentUser=Utilizador actual
+UninstallDisplayNameMarkCurrentUser=Utilizador atual
 
 ; *** Post-installation errors
-ErrorOpeningReadme=Ocorreu um erro ao tentar abrir o ficheiro LEIAME.
-ErrorRestartingComputer=O Assistente de InstalaÁ„o n„o consegue reiniciar o computador. Por favor reinicie manualmente.
+ErrorOpeningReadme=Ocorreu um erro ao tentar abrir o ficheiro README.
+ErrorRestartingComputer=O Assistente de Instala√ß√£o n√£o conseguiu reiniciar o computador. Reinicie-o manualmente.
 
 ; *** Uninstaller messages
-UninstallNotFound=O ficheiro "%1" n„o existe. N„o È possÌvel desinstalar.
-UninstallOpenError=N„o foi possÌvel abrir o ficheiro "%1". N„o È possÌvel desinstalar.
-UninstallUnsupportedVer=O ficheiro log de desinstalaÁ„o "%1" est· num formato que n„o È reconhecido por esta vers„o do desinstalador. N„o È possÌvel desinstalar
-UninstallUnknownEntry=Foi encontrada uma entrada desconhecida (%1) no ficheiro log de desinstalaÁ„o
-ConfirmUninstall=Tem a certeza que deseja remover completamente o %1 e todos os seus componentes?
-UninstallOnlyOnWin64=Esta desinstalaÁ„o sÛ pode ser realizada na vers„o de 64-bit's do Windows.
-OnlyAdminCanUninstall=Esta desinstalaÁ„o sÛ pode ser realizada por um utilizador com privilÈgios administrativos.
-UninstallStatusLabel=Por favor aguarde enquanto o %1 est· a ser removido do seu computador.
+UninstallNotFound=O ficheiro "%1" n√£o existe. N√£o √© poss√≠vel desinstalar.
+UninstallOpenError=N√£o foi poss√≠vel abrir o ficheiro "%1". N√£o √© poss√≠vel desinstalar
+UninstallUnsupportedVer=O ficheiro de registo de desinstala√ß√£o "%1" est√° num formato que n√£o √© reconhecido por esta vers√£o do desinstalador. N√£o √© poss√≠vel desinstalar
+UninstallUnknownEntry=Foi encontrada uma entrada desconhecida (%1) no ficheiro de registo de desinstala√ß√£o
+ConfirmUninstall=Tem a certeza de que deseja remover completamente o %1 e todos os seus componentes?
+UninstallOnlyOnWin64=Esta desinstala√ß√£o s√≥ pode ser realizada na vers√£o de 64 bits do Windows.
+OnlyAdminCanUninstall=Esta desinstala√ß√£o s√≥ pode ser realizada por um utilizador com privil√©gios administrativos.
+UninstallStatusLabel=Aguarde enquanto o %1 √© removido do seu computador.
 UninstalledAll=O %1 foi removido do seu computador com sucesso.
-UninstalledMost=A desinstalaÁ„o do %1 est· concluÌda.%n%nAlguns elementos n„o puderam ser removidos. Estes elementos podem ser removidos manualmente.
-UninstalledAndNeedsRestart=Para completar a desinstalaÁ„o do %1, o computador deve ser reiniciado.%n%nDeseja reiniciar agora?
-UninstallDataCorrupted=O ficheiro "%1" est· corrompido. N„o È possÌvel desinstalar
+UninstalledMost=A desinstala√ß√£o do %1 est√° conclu√≠da.%n%nAlguns elementos n√£o puderam ser removidos. Estes elementos podem ser removidos manualmente.
+UninstalledAndNeedsRestart=Para concluir a desinstala√ß√£o do %1, o computador tem de ser reiniciado.%n%nDeseja reiniciar agora?
+UninstallDataCorrupted=O ficheiro "%1" est√° corrompido. N√£o √© poss√≠vel desinstalar
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Remover ficheiro partilhado?
-ConfirmDeleteSharedFile2=O sistema indica que o seguinte ficheiro partilhado j· n„o est· a ser utilizado por nenhum programa. Deseja removÍ-lo?%n%nSe algum programa ainda necessitar deste ficheiro, poder· n„o funcionar correctamente depois de o remover. Se n„o tiver a certeza, seleccione N„o. Manter o ficheiro n„o causar· nenhum problema.
+ConfirmDeleteSharedFile2=O sistema indica que o seguinte ficheiro partilhado j√° n√£o est√° a ser utilizado por nenhum programa. Deseja que o Assistente de Desinstala√ß√£o remova este ficheiro partilhado?%n%nSe algum programa ainda estiver a utilizar este ficheiro e este for removido, esse programa poder√° n√£o funcionar corretamente. Se n√£o tiver a certeza, selecione N√£o. Manter o ficheiro no sistema n√£o causar√° qualquer problema.
 SharedFileNameLabel=Nome do ficheiro:
-SharedFileLocationLabel=LocalizaÁ„o:
-WizardUninstalling=Estado da desinstalaÁ„o
+SharedFileLocationLabel=Localiza√ß√£o:
+WizardUninstalling=Estado da desinstala√ß√£o
 StatusUninstalling=A desinstalar o %1...
 
 ; *** Shutdown block reasons
@@ -376,15 +378,15 @@ ShutdownBlockReasonUninstallingApp=A desinstalar %1.
 
 [CustomMessages]
 
-NameAndVersion=%1 vers„o %2
+NameAndVersion=%1 vers√£o %2
 AdditionalIcons=Atalhos adicionais:
-CreateDesktopIcon=Criar atalho no Ambiente de &Trabalho
-CreateQuickLaunchIcon=&Criar atalho na barra de IniciaÁ„o R·pida
+CreateDesktopIcon=Criar um atalho no A&mbiente de Trabalho
+CreateQuickLaunchIcon=&Criar atalho na barra de Inicia√ß√£o R√°pida
 ProgramOnTheWeb=%1 na Web
 UninstallProgram=Desinstalar o %1
 LaunchProgram=Executar o %1
-AssocFileExtension=Associa&r o %1 aos ficheiros com a extens„o %2
-AssocingFileExtension=A associar o %1 aos ficheiros com a extens„o %2...
-AutoStartProgramGroupDescription=InicializaÁ„o Autom·tica:
+AssocFileExtension=Associa&r o %1 aos ficheiros com a extens√£o %2
+AssocingFileExtension=A associar o %1 aos ficheiros com a extens√£o %2...
+AutoStartProgramGroupDescription=Arranque:
 AutoStartProgram=Iniciar %1 automaticamente
-AddonHostProgramNotFound=N„o foi possÌvel localizar %1 na pasta seleccionada.%n%nDeseja continuar de qualquer forma?
+AddonHostProgramNotFound=N√£o foi poss√≠vel localizar %1 na pasta selecionada.%n%nDeseja continuar de qualquer forma?

@@ -2,7 +2,7 @@ program ISSigTool;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -21,14 +21,14 @@ uses
   ISSigFunc in '..\Components\ISSigFunc.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
-  Shared.Int64Em in 'Src\Shared.Int64Em.pas';
+  UnsignedFunc in '..\Components\UnsignedFunc.pas';
 
 {$APPTYPE CONSOLE}
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
-{$R Res\ISSigTool.manifest.res}
+{$R Res\ConsoleApp.manifest.res}
 {$R Res\ISSigTool.versionandicon.res}
 
 var
@@ -58,11 +58,11 @@ begin
 
   if HandleIsConsole then begin
     var CharsWritten: DWORD;
-    WriteConsole(Handle, @S[1], Length(S), CharsWritten, nil);
+    WriteConsole(Handle, @S[1], ULength(S), CharsWritten, nil);
   end else begin
     var Utf8S := Utf8Encode(S);
     var BytesWritten: DWORD;
-    WriteFile(Handle, Utf8S[1], Length(Utf8S), BytesWritten, nil);
+    WriteFile(Handle, Utf8S[1], ULength(Utf8S), BytesWritten, nil);
   end;
 end;
 
@@ -107,16 +107,21 @@ end;
 
 procedure ImportKey(const AKey: TECDSAKey; const ANeedPrivateKey: Boolean);
 begin
-  const ImportResult = ISSigImportKeyText(AKey,
-    ISSigLoadTextFromFile(Options.KeyFile), ANeedPrivateKey);
-  if ImportResult <> ikrSuccess then begin
-    case ImportResult of
-      ikrMalformed:
-        RaiseFatalError('Key file is malformed');
-      ikrNotPrivateKey:
-        RaiseFatalError('Key file must be a private key when signing');
+  var KeyText: String;
+  try
+    KeyText := ISSigLoadTextFromFile(Options.KeyFile);
+    const ImportResult = ISSigImportKeyText(AKey, KeyText, ANeedPrivateKey);
+    if ImportResult <> ikrSuccess then begin
+      case ImportResult of
+        ikrMalformed:
+          RaiseFatalError('Key file is malformed');
+        ikrNotPrivateKey:
+          RaiseFatalError('Key file must be a private key when signing');
+      end;
+      RaiseFatalError('Unknown import key result');
     end;
-    RaiseFatalError('Unknown import key result');
+  finally
+    ISSigWipeString(KeyText);
   end;
 end;
 
@@ -130,13 +135,19 @@ begin
     ISSigExportPublicKeyText(Key, PublicKeyText);
 
     if NewFileExists(AFilename) then begin
-      const ExistingText = ISSigLoadTextFromFile(AFilename);
-      if ExistingText = PublicKeyText then begin
-        PrintFmtUnlessQuiet('%s: ', [AFilename], False);
-        PrintUnlessQuiet('public key unchanged');
-        Exit;
-      end else if not Options.AllowOverwrite then
-        RaiseFatalError('File already exists');
+      var ExistingText: String;
+      try
+        ExistingText := ISSigLoadTextFromFile(AFilename);
+        if ExistingText = PublicKeyText then begin
+          PrintFmtUnlessQuiet('%s: ', [AFilename], False);
+          PrintUnlessQuiet('public key unchanged');
+          Exit;
+        end else if not Options.AllowOverwrite then
+          RaiseFatalError('File already exists');
+      finally
+        { Just in case the existing file is a private key file }
+        ISSigWipeString(ExistingText);
+      end;
     end;
 
     ISSigSaveTextToFile(AFilename, PublicKeyText);
@@ -159,9 +170,13 @@ begin
     Key.GenerateKeyPair;
 
     var PrivateKeyText: String;
-    ISSigExportPrivateKeyText(Key, PrivateKeyText);
-    ISSigSaveTextToFile(Options.KeyFile, PrivateKeyText);
-    PrintUnlessQuiet('private key written');
+    try
+      ISSigExportPrivateKeyText(Key, PrivateKeyText);
+      ISSigSaveTextToFile(Options.KeyFile, PrivateKeyText);
+      PrintUnlessQuiet('private key written');
+    finally
+      ISSigWipeString(PrivateKeyText);
+    end;
   finally
     Key.Free;
   end;
@@ -293,8 +308,8 @@ end;
 procedure ShowUsage;
 begin
   PrintErrOutput('Inno Setup Signature Tool');
-  PrintErrOutput('Copyright (C) 1997-2025 Jordan Russell. All rights reserved.');
-  PrintErrOutput('Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.');
+  PrintErrOutput('Copyright (C) 1997-2026 Jordan Russell. All rights reserved.');
+  PrintErrOutput('Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.');
   PrintErrOutput('https://www.innosetup.com');
   PrintErrOutput('');
   PrintErrOutput('Usage:  issigtool [options] sign <filenames>');
@@ -333,7 +348,7 @@ begin
         end else if S.StartsWith('--key-file=') then begin
           Options.KeyFile := S.Substring(Length('--key-file='));
         end else
-          RaiseFatalErrorFmt('Unknown option "%s".', [S]);
+          RaiseFatalErrorFmt('Unknown option "%s"', [S]);
         ArgList.Delete(J);
       end else begin
         if S = '' then
@@ -383,6 +398,10 @@ begin
 end;
 
 begin
+  {$IFDEF DEBUG}
+  ReportMemoryLeaksOnShutdown := True;
+  {$ENDIF}
+
   StdOutHandle := GetStdHandle(STD_OUTPUT_HANDLE);
   StdErrHandle := GetStdHandle(STD_ERROR_HANDLE);
   var Mode: DWORD;

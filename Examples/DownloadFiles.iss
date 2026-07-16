@@ -6,7 +6,8 @@
 ;
 ; To verify the downloaded files and archives, this script shows two methods:
 ; -For innosetup-latest.exe and MyProg-ExtraReadmes.7z: using Inno Setup
-;  Signature Tool and the [ISSigKeys] section
+;  Signature Tool, the [ISSigKeys] section, and .issig signature files which
+;  are automatically downloaded before the main file is downloaded
 ; -For iscrypt.dll: using a simple SHA-256 hash check
 ; Using the Inno Setup Signature Tool has the benefit that the script does not
 ; need to be changed when the downloaded file or archive changes, so any
@@ -15,16 +16,16 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-WizardStyle=modern
+WizardStyle=modern dynamic
 DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
-ArchiveExtraction=full
-;Use "ArchiveExtraction=enhanced" if all your archives are .7z files
-;Use "ArchiveExtraction=enhanced/nopassword" if all your archives are not password-protected
+ArchiveExtraction=auto
 
 [ISSigKeys]
+; Use Inno Setup Signature Tool (ISSigTool.exe) to create your own keys and
+; .issig signature files
 Name: mykey; RuntimeID: def02; \
   KeyID:   "def020edee3c4835fd54d85eff8b66d4d899b22a777353ca4a114b652e5e7a28"; \
   PublicX: "515dc7d6c16d4a46272ceb3d158c5630a96466ab4d948e72c2029d737c823097"; \
@@ -45,7 +46,7 @@ Source: "https://jrsoftware.org/download.php/iscrypt.dll?dontcount=1"; DestName:
 ; It is then extracted normally during the actual installation process
 Source: "https://jrsoftware.org/download.php/myprog-extrareadmes.7z"; DestName: "MyProg-ExtraReadmes.7z"; DestDir: "{app}"; \
   ExternalSize: 275; Flags: external download extractarchive recursesubdirs ignoreversion issigverify
-; This archive will be downloaded and extracted without verificaton
+; This archive will be downloaded and extracted without verification
 Source: "https://github.com/jrsoftware/issrc/archive/refs/heads/main.zip"; DestName: "issrc-main.zip"; DestDir: "{app}"; \
   ExternalSize: 15_000_000; Flags: external download extractarchive recursesubdirs ignoreversion
 

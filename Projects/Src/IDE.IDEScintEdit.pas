@@ -2,7 +2,7 @@ unit IDE.IDEScintEdit;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -55,7 +55,7 @@ type
   PLineStateArray = ^TLineStateArray;
   TLineStateArray = array[0..0] of TLineState;
   TSaveEncoding = (seAuto, seUTF8WithBOM, seUTF8WithoutBOM);
-  TIDEScintIndicatorNumber = 0..minMax;
+  TIDEScintIndicatorNumber = Low(TScintIndicatorNumber)..minMax;
 
  { Keymaps - Note: Scintilla's default keymap is the same or at least nearly
    the same as Visual Studio's }
@@ -75,6 +75,7 @@ type
       TIDEScintComplexCommandsReversed = TDictionary<TIDEScintComplexCommand, TShortCut>;
     var
       FKeyMappingType: TIDEScintKeyMappingType;
+      FSmartHome: Boolean;
       FComplexCommands: TIDEScintComplexCommands;
       FComplexCommandsReversed: TIDEScintComplexCommandsReversed;
       FUseFolding: Boolean;
@@ -87,7 +88,9 @@ type
         Command: TIDEScintComplexCommand; const AlternativeShortCut: Boolean = False);
       procedure SetUseFolding(const Value: Boolean);
       procedure SetKeyMappingType(const Value: TIDEScintKeyMappingType);
+      procedure SetSmartHome(const Value: Boolean);
       procedure UpdateComplexCommands;
+      procedure UpdateSmartHome;
   protected
     procedure CreateWnd; override;
   public
@@ -98,7 +101,7 @@ type
     property Used: Boolean read FUsed write FUsed;
     function GetComplexCommand(const ShortCut: TShortCut): TIDEScintComplexCommand;
     function GetComplexCommandShortCut(const Command: TIDEScintComplexCommand): TShortCut;
-    function GetRectExtendShiftState(const Desired: Boolean): TShiftState;
+    function GetRectExtendShiftState: TShiftState;
     procedure UpdateIndicators(const Ranges: TScintRangeList;
       const IndicatorNumber: TIDEScintIndicatorNumber);
     procedure UpdateWidthsAndSizes(const IconMarkersWidth,
@@ -107,6 +110,7 @@ type
     procedure UpdateThemeColorsAndStyleAttributes;
   published
     property KeyMappingType: TIDEScintKeyMappingType read FKeyMappingType write SetKeyMappingType default kmtDefault;
+    property SmartHome: Boolean read FSmartHome write SetSmartHome default True;
     property UseFolding: Boolean read FUseFolding write SetUseFolding default True;
   end;
 
@@ -132,7 +136,7 @@ type
   end;
 
   TIDEScintEditNavItem = record
-    Memo: TIDEScintEdit;
+    Memo: TIDEScintEdit; { May be hidden so don't use MemoToTabIndex }
     Line, Column, VirtualSpace: Integer;
     constructor Create(const AMemo: TIDEScintEdit);
     function EqualMemoAndLine(const ANavItem: TIDEScintEditNavItem): Boolean;
@@ -183,6 +187,7 @@ begin
   FComplexCommandsReversed := TIDEScintComplexCommandsReversed.Create;
 
   FKeyMappingType := kmtDefault;
+  FSmartHome := True;
   UpdateComplexCommands;
   FUseFolding := True;
 end;
@@ -200,7 +205,7 @@ begin
   inherited;
 
   { Some notes about Scintilla versions:
-    -What about using Calltips and SCN_DWELLSTART to show variable evalutions?
+    -What about using Calltips and SCN_DWELLSTART to show variable evaluations?
     -5.2.3: "Applications should move to SCI_GETTEXTRANGEFULL, SCI_FINDTEXTFULL,
             and SCI_FORMATRANGEFULL from their predecessors as they will be
             deprecated." So our use of SCI_GETTEXTRANGE and SCI_FORMATRANGE needs
@@ -321,12 +326,10 @@ begin
   Result := FComplexCommandsReversed[Command];
 end;
 
-function TIDEScintEdit.GetRectExtendShiftState(
-  const Desired: Boolean): TShiftState;
+function TIDEScintEdit.GetRectExtendShiftState: TShiftState;
 begin
   Result := [ssShift, ssAlt];
-  if ((FKeyMappingType = kmtVSCode) and Desired) or
-     ((FKeyMappingType <> kmtVSCode) and not Desired) then
+  if FKeyMappingType = kmtVSCode then
     Include(Result, ssCtrl);
 end;
 
@@ -348,8 +351,29 @@ begin
     Call(SCI_SETMOUSEMAPPING, Ord(FKeyMappingType = kmtVSCode), 0);
     ClearCmdKey('/', [ssCtrl]); { Will be used by ccToggleLinesComment }
     ClearCmdKey('\', [ssCtrl]);
+    if not FSmartHome then { Scintilla defaults to smart home (VCHOME*) }
+      UpdateSmartHome;
     UpdateComplexCommands;
   end;
+end;
+
+procedure TIDEScintEdit.SetSmartHome(const Value: Boolean);
+begin
+  if FSmartHome <> Value then begin
+    FSmartHome := Value;
+    UpdateSmartHome;
+  end;
+end;
+
+procedure TIDEScintEdit.UpdateSmartHome;
+const
+  Commands: array [Boolean] of array [0..2] of TScintCommand =
+    ((SCI_HOME, SCI_HOMEEXTEND, SCI_HOMERECTEXTEND),
+     (SCI_VCHOME, SCI_VCHOMEEXTEND, SCI_VCHOMERECTEXTEND));
+begin
+  AssignCmdKey(SCK_HOME, [], Commands[FSmartHome][0]);
+  AssignCmdKey(SCK_HOME, [ssShift], Commands[FSmartHome][1]);
+  AssignCmdKey(SCK_HOME, GetRectExtendShiftState, Commands[FSmartHome][2]);
 end;
 
 procedure TIDEScintEdit.UpdateComplexCommands;
@@ -358,9 +382,9 @@ begin
   FComplexCommandsReversed.Clear;
 
   { Normally VK_OEM_1 is ;, VK_OEM_6 is ], VK_OEM_4 is [,  VK_OEM_2 is /,  and VK_OEM_5 is \
-    See CompFunc's NewShortcutToText for how it's is handled when they are different.
+    See IDE.HelperFunc's NewShortcutToText for how it is handled when they are different.
     Note: all VK_OEM shortcuts must have a menu item so the user can see what the
-    shortcut is for their kayboard layout. }
+    shortcut is for their keyboard layout. }
 
   if FKeyMappingType = kmtVSCode then begin
     { Use freed Ctrl+D and Ctrl+Shift+L }
@@ -603,7 +627,7 @@ begin
   { Turn two entries for the same memo and line which are next to each other
     into one entry, ignoring column differences (like Visual Studio 2022)
     Note: doesn't yet look at CompForm's FCurrentNavItem to see if a stack's top
-    item is the same so it doesnt optimize that situation atm }
+    item is the same so it doesn't optimize that situation atm }
   for var I := Count-1 downto 1 do
     if Items[I].EqualMemoAndLine(Items[I-1]) then
       Delete(I);

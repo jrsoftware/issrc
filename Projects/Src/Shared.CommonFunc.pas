@@ -2,7 +2,7 @@ unit Shared.CommonFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -16,9 +16,6 @@ interface
 uses
   Windows, SysUtils, Classes;
 
-const
-  KEY_WOW64_64KEY = $0100;
-
 type
   TOneShotTimer = record
   private
@@ -31,6 +28,24 @@ type
     procedure Start(const Timeout: Cardinal);
     function TimeElapsed: Cardinal;
     function TimeRemaining: Cardinal;
+  end;
+
+  TStrongRandom = record
+  strict private
+    class var
+      FBCryptGenRandomFunc: function(hAlgorithm: THandle; var pbBuffer;
+        cbBuffer: ULONG; dwFlags: ULONG): NTSTATUS; stdcall;
+    class procedure InitBCrypt; static;
+  public
+    class procedure GenerateBytes(out Buf; const Count: Cardinal); static;
+    class function GenerateUInt32: UInt32; static;
+    class function GenerateUInt32Range(const ARange: UInt32): UInt32; static;
+    class function GenerateUInt64: UInt64; static;
+  end;
+
+  TFileTimeHelper = record helper for TFileTime
+    procedure Clear;
+    function HasTime: Boolean;
   end;
 
   TLogProc = procedure(const S: String; const Error, FirstLine: Boolean; const Data: NativeInt);
@@ -73,8 +88,18 @@ type
   end;
 
   TRegView = (rvDefault, rv32Bit, rv64Bit);
+
+  TFileOperationFailingNextAction = (naStopAndFail, naStopAndSucceed, naRetry);
+
+  TFileOperationFunc = reference to function(out LastError: Cardinal): Boolean;
+  TFileOperationFailingProc = reference to procedure(const LastError: Cardinal);
+  TFileOperationFailingExProc = reference to procedure(const LastError: Cardinal; var RetriesLeft: Integer; var NextAction: TFileOperationFailingNextAction);
+  TFileOperationFailedProc = reference to procedure(const LastError: Cardinal; var TryOnceMore: Boolean);
+
 const
-  RegViews64Bit = [rv64Bit];
+  IsCurrentProcess64Bit = {$IFDEF WIN64} True {$ELSE} False {$ENDIF};
+
+  RegViews64Bit = [{$IFDEF WIN64} rvDefault, {$ENDIF} rv64Bit];
 
 function NewFileExists(const Name: String): Boolean;
 function DirExists(const Name: String): Boolean;
@@ -97,7 +122,6 @@ function NewParamCount: Integer;
 function NewParamStr(Index: Integer): string;
 function AddQuotes(const S: String): String;
 function RemoveQuotes(const S: String): String;
-function GetShortName(const LongName: String): String;
 function GetWinDir: String;
 function GetSystemWinDir: String;
 function GetSystemDir: String;
@@ -124,7 +148,8 @@ function RegOpenKeyExView(const RegView: TRegView; hKey: HKEY; lpSubKey: PChar;
 function RegDeleteKeyView(const RegView: TRegView; const Key: HKEY; const Name: PChar): Longint;
 function RegDeleteKeyIncludingSubkeys(const RegView: TRegView; const Key: HKEY; const Name: PChar): Longint;
 function RegDeleteKeyIfEmpty(const RegView: TRegView; const RootKey: HKEY; const SubkeyName: PChar): Longint;
-function GetShellFolderPath(const FolderID: Integer): String;
+function GetShellFolderPath(const FolderID: Integer): String; overload;
+function GetShellFolderPath(const FolderID: Integer; out Path: String): HRESULT; overload;
 function GetCurrentUserSid: String;
 function IsAdminLoggedOn: Boolean;
 function IsPowerUserLoggedOn: Boolean;
@@ -136,10 +161,10 @@ function GetTextWidth(const DC: HDC; S: String; const Prefix: Boolean): Integer;
 function AddPeriod(const S: String): String;
 function GetExceptMessage: String;
 function GetPreferredUIFont: String;
-function IsWildcard(const Pattern: String): Boolean;
+function IsWildcard(const Filename: String): Boolean;
 function WildcardMatch(const Text, Pattern: PChar): Boolean;
 function IntMax(const A, B: Integer): Integer;
-function Win32ErrorString(ErrorCode: Integer): String;
+function Win32ErrorString(ErrorCode: DWORD): String;
 function DeleteDirTree(const Dir: String): Boolean;
 function SetNTFSCompression(const FileOrDir: String; Compress: Boolean): Boolean;
 procedure AddToWindowMessageFilterEx(const Wnd: HWND; const Msg: UINT);
@@ -148,51 +173,30 @@ function ShutdownBlockReasonDestroy(Wnd: HWND): Boolean;
 function TryStrToBoolean(const S: String; var BoolResult: Boolean): Boolean;
 procedure WaitMessageWithTimeout(const Milliseconds: DWORD);
 function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
-procedure TryEnableAutoCompleteFileSystem(Wnd: HWND);
 procedure CreateMutex(const MutexName: String);
+function HighContrastActive: Boolean;
+function CurrentWindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
+function DarkModeActive: Boolean;
+function DeleteFileOrDirByHandle(const H: THandle): Boolean;
+function CompareInt64(const N1, N2: Int64): Integer;
+function HighLowToInt64(const High, Low: UInt32): Int64;
+function HighLowToUInt64(const High, Low: UInt32): UInt64;
+function FindDataFileSizeToInt64(const FindData: TWin32FindData): Int64;
+function FileTimeToUInt64(const FileTime: TFileTime): UInt64;
+function StrToWnd(const S: String): HWND;
+function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRetryOnAlreadyExists: Boolean;
+  const Op: TFileOperationFunc; const Failing: TFileOperationFailingProc; const Failed: TFileOperationFailedProc): Boolean; overload;
+function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRetryOnAlreadyExists: Boolean;
+  const Op: TFileOperationFunc; const Failing: TFileOperationFailingExProc; const Failed: TFileOperationFailedProc): Boolean; overload;
+function Is64BitPEImage(const Filename: String): Boolean;
+function BitsFrom64BitBoolean(const A64Bit: Boolean): Integer; inline;
+function RegViewFrom64BitBoolean(const A64Bit: Boolean): TRegView;
 
 implementation
 
 uses
-  PathFunc;
-
-{ Avoid including Variants (via ActiveX and ShlObj) in SetupLdr (SetupLdr uses CmnFunc2), saving 26 KB. }
-
-const
-  shell32 = 'shell32.dll';
-
-type
-  PSHItemID = ^TSHItemID;
-  _SHITEMID = record
-    cb: Word;                         { Size of the ID (including cb itself) }
-    abID: array[0..0] of Byte;        { The item ID (variable length) }
-  end;
-  TSHItemID = _SHITEMID;
-  SHITEMID = _SHITEMID;
-
-  PItemIDList = ^TItemIDList;
-  _ITEMIDLIST = record
-     mkid: TSHItemID;
-   end;
-  TItemIDList = _ITEMIDLIST;
-  ITEMIDLIST = _ITEMIDLIST;
-
-  IMalloc = interface(IUnknown)
-    ['{00000002-0000-0000-C000-000000000046}']
-    function Alloc(cb: Longint): Pointer; stdcall;
-    function Realloc(pv: Pointer; cb: Longint): Pointer; stdcall;
-    procedure Free(pv: Pointer); stdcall;
-    function GetSize(pv: Pointer): Longint; stdcall;
-    function DidAlloc(pv: Pointer): Integer; stdcall;
-    procedure HeapMinimize; stdcall;
-  end;
-
-function SHGetMalloc(var ppMalloc: IMalloc): HResult; stdcall; external shell32 name 'SHGetMalloc';
-function SHGetSpecialFolderLocation(hwndOwner: HWND; nFolder: Integer;
-  var ppidl: PItemIDList): HResult; stdcall; external shell32 name 'SHGetSpecialFolderLocation';
-function SHGetPathFromIDList(pidl: PItemIDList; pszPath: PChar): BOOL; stdcall;
-  external shell32 name 'SHGetPathFromIDListW';
-
+  PathFunc, UnsignedFunc,
+  Shared.FileClass;
 
 function InternalGetFileAttr(const Name: String): DWORD;
 begin
@@ -244,7 +248,7 @@ end;
 function GetIniString(const Section, Key: String; Default: String;
   const Filename: String): String;
 var
-  BufSize, Len: Integer;
+  BufSize, Len: Cardinal;
 begin
   { On Windows 9x, Get*ProfileString can modify the lpDefault parameter, so
     make sure it's unique and not read-only }
@@ -387,7 +391,7 @@ var
 begin
   SetLength(Result, 255);
   repeat
-    Res := GetEnvironmentVariable(PChar(EnvVar), PChar(Result), Length(Result));
+    Res := GetEnvironmentVariable(PChar(EnvVar), PChar(Result), ULength(Result));
     if Res = 0 then begin
       Result := '';
       Break;
@@ -657,22 +661,6 @@ begin
   end;
 end;
 
-function GetShortName(const LongName: String): String;
-{ Gets the short version of the specified long filename. If the file does not
-  exist, or some other error occurs, it returns LongName. }
-var
-  Res: DWORD;
-begin
-  SetLength(Result, MAX_PATH);
-  repeat
-    Res := GetShortPathName(PChar(LongName), PChar(Result), Length(Result));
-    if Res = 0 then begin
-      Result := LongName;
-      Break;
-    end;
-  until AdjustLength(Result, Res);
-end;
-
 function GetWinDir: String;
 { Returns fully qualified path of the Windows directory. Only includes a
   trailing backslash if the Windows directory is the root directory. }
@@ -709,23 +697,20 @@ begin
   Result := StrPas(Buf);
 end;
 
+function GetSystemWow64Directory_static(lpBuffer: LPWSTR; uSize: UINT): UINT; stdcall;
+  external kernel32 name 'GetSystemWow64DirectoryW';
+
 function GetSysWow64Dir: String;
 { Returns fully qualified path of the SysWow64 directory on 64-bit Windows.
   Returns '' if there is no SysWow64 directory (e.g. running 32-bit Windows). }
 var
-  GetSystemWow64DirectoryFunc: function(
-    lpBuffer: PWideChar; uSize: UINT): UINT; stdcall;
-  Res: Integer;
   Buf: array[0..MAX_PATH] of Char;
 begin
-  Result := '';
-  GetSystemWow64DirectoryFunc := GetProcAddress(GetModuleHandle(kernel32),
-      'GetSystemWow64DirectoryW');
-  if Assigned(GetSystemWow64DirectoryFunc) then begin
-    Res := GetSystemWow64DirectoryFunc(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
-    if (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0])) then
-      Result := Buf;
-  end;
+  const Res = GetSystemWow64Directory_static(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
+  if (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0])) then
+    Result := Buf
+  else
+    Result := '';
 end;
 
 function GetSysNativeDir(const IsWin64: Boolean): String;
@@ -735,41 +720,69 @@ begin
   { From MSDN: 32-bit applications can access the native system directory by
     substituting %windir%\Sysnative for %windir%\System32. WOW64 recognizes
     Sysnative as a special alias used to indicate that the file system should
-    not redirect the access. }
+    not redirect the access. ... Note that 64-bit applications cannot use the
+    Sysnative alias as it is a virtual directory not a real one.
+
+    Note: even though MSDN says 64-bit applications cannot *use* the alias,
+    it is still useful for them to know it, for example to prepare a path
+    to pass to a 32-bit application, or to rewrite Sysnative paths read from
+    an uninstall log created by a 32-bit installer. }
   if IsWin64 then
-    { Note: Avoiding GetWinDir here as that might not return the real Windows
-      directory under Terminal Services }
-    Result := PathExpand(AddBackslash(GetSystemDir) + '..\Sysnative') { Do not localize }
+    Result := AddBackslash(GetSystemWinDir) + 'Sysnative' { Do not localize }
   else
     Result := '';
 end;
 
 function GetTempDir: String;
 { Returns fully qualified path of the temporary directory, with trailing
-  backslash. This does not use the Win32 function GetTempPath, due to platform
-  differences. }
-label 1;
+  backslash. }
+
+  procedure RestoreDeletedTempDirWithLogonSessionId(const DeletedTempDir: String);
+  { Restores a deleted temporary directory in the specific scenario described at
+    https://learn.microsoft.com/en-us/troubleshoot/windows-server/shell-experience/temp-folder-with-logon-session-id-deleted }
+  begin
+    const DirWithoutSlash = RemoveBackslashUnlessRoot(DeletedTempDir);
+    const BaseName = PathExtractName(DirWithoutSlash);
+    var BaseNameIsNumber := False;
+    for var I := Low(BaseName) to High(BaseName) do begin
+      BaseNameIsNumber := CharInSet(BaseName[I], ['0'..'9']);
+      if not BaseNameIsNumber then
+        Break;
+    end;
+    if BaseNameIsNumber then
+      CreateDirectory(PChar(DirWithoutSlash), nil);
+  end;
+
+var
+  GetTempPathFunc: function(nBufferLength: DWORD; lpBuffer: LPWSTR): DWORD; stdcall;
+  Buf: array[0..MAX_PATH] of Char;
 begin
-  Result := GetEnv('TMP');
-  if (Result <> '') and DirExists(Result) then
-    goto 1;
-  Result := GetEnv('TEMP');
-  if (Result <> '') and DirExists(Result) then
-    goto 1;
-  { Like Windows 2000's GetTempPath, return USERPROFILE when TMP and TEMP
-    are not set }
-  Result := GetEnv('USERPROFILE');
-  if (Result <> '') and DirExists(Result) then
-    goto 1;
-  Result := GetWinDir;
-1:Result := AddBackslash(PathExpand(Result));
+  { When available, GetTempPath2 is preferred as it returns a private
+    directory (typically C:\Windows\SystemTemp) when running as SYSTEM }
+  GetTempPathFunc := GetProcAddress(GetModuleHandle(kernel32),
+    PAnsiChar('GetTempPath2W'));
+  if not Assigned(GetTempPathFunc) then
+    GetTempPathFunc := GetTempPathW;
+
+  const Res = GetTempPathFunc(SizeOf(Buf) div SizeOf(Buf[0]), Buf);
+  if (Res > 0) and (Res < SizeOf(Buf) div SizeOf(Buf[0])) then begin
+    { The docs say the returned path is fully qualified and ends with a
+      backslash, but let's be really sure! }
+    Result := AddBackslash(PathExpand(Buf));
+    if not DirExists(Result) then
+      RestoreDeletedTempDirWithLogonSessionId(Result);
+    Exit;
+  end;
+
+  { We don't expect GetTempPath to ever fail or claim a larger buffer is
+    needed (docs say maximum possible return value is MAX_PATH+1), but if it
+    does, raise an exception as this function has no return value for failure }
+  raise Exception.CreateFmt('GetTempDir: GetTempPath failed (%u, %u)',
+    [Res, GetLastError]);
 end;
 
-function StringChangeEx(var S: String; const FromStr, ToStr: String;
-  const SupportDBCS: Boolean): Integer;
-{ Changes all occurrences in S of FromStr to ToStr. If SupportDBCS is True
-  (recommended), double-byte character sequences in S are recognized and
-  handled properly. Otherwise, the function behaves in a binary-safe manner.
+function StringChange(var S: String; const FromStr, ToStr: String): Integer;
+{ Changes all occurrences in S of FromStr to ToStr. Is binary-safe.
   Returns the number of times FromStr was matched and changed. }
 var
   FromStrLen, I, EndPos, J: Integer;
@@ -798,17 +811,15 @@ begin
       Inc(I, Length(ToStr));
       goto 1;
     end;
-    if SupportDBCS then
-      Inc(I, PathCharLength(S, I))
-    else
-      Inc(I);
+    Inc(I);
   end;
 end;
 
-function StringChange(var S: String; const FromStr, ToStr: String): Integer;
-{ Same as calling StringChangeEx with SupportDBCS=False }
+function StringChangeEx(var S: String; const FromStr, ToStr: String;
+  const SupportDBCS: Boolean): Integer;
+{ Obsolete; just calls StringChange. The SupportDBCS parameter is ignored. }
 begin
-  Result := StringChangeEx(S, FromStr, ToStr, False);
+  Result := StringChange(S, FromStr, ToStr);
 end;
 
 function AdjustLength(var S: String; const Res: Cardinal): Boolean;
@@ -823,9 +834,8 @@ function InternalRegQueryStringValue(H: HKEY; Name: PChar; var ResultStr: String
   Type1, Type2, Type3: DWORD): Boolean;
 var
   Typ, Size: DWORD;
-  Len: Integer;
   S: String;
-  ErrorCode: Longint;
+  ErrorCode: Integer;
 label 1;
 begin
   Result := False;
@@ -835,7 +845,7 @@ begin
     if Typ = REG_DWORD then begin
       var Data: DWORD;
       Size := SizeOf(Data);
-      if (RegQueryValueEx(H, Name, nil, @Typ, @Data, @Size) = ERROR_SUCCESS) and
+      if (RegQueryValueEx(H, Name, nil, @Typ, PByte(@Data), @Size) = ERROR_SUCCESS) and
          (Typ = REG_DWORD) and (Size = Sizeof(Data)) then begin
         ResultStr := Data.ToString;
         Result := True;
@@ -854,16 +864,16 @@ begin
         OutOfMemoryError;
       { Note: If Size isn't a multiple of SizeOf(S[1]), we have to round up
         here so that RegQueryValueEx doesn't overflow the buffer }
-      Len := (Size + (SizeOf(S[1]) - 1)) div SizeOf(S[1]);
+      var Len := (Size + (SizeOf(S[1]) - 1)) div SizeOf(S[1]);
       SetString(S, nil, Len);
-      ErrorCode := RegQueryValueEx(H, Name, nil, @Typ, @S[1], @Size);
+      ErrorCode := RegQueryValueEx(H, Name, nil, @Typ, PByte(@S[1]), @Size);
       if ErrorCode = ERROR_MORE_DATA then begin
         { The data must've increased in size since the first RegQueryValueEx
           call. Start over. }
         goto 1;
       end;
       if (ErrorCode = ERROR_SUCCESS) and
-         ((Typ = Type1) or (Typ = Type2) or (Typ = Type3)) then begin
+         ((Typ = Type1) or (Typ = Type2) or ((Type3 <> REG_NONE) and (Typ = Type3))) then begin
         { If Size isn't a multiple of SizeOf(S[1]), we disregard the partial
           character, like RegGetValue }
         Len := Size div SizeOf(S[1]);
@@ -917,13 +927,22 @@ begin
   Result := RegQueryValueEx(H, Name, nil, nil, nil, nil) = ERROR_SUCCESS;
 end;
 
+function RegViewToWowKeyFlag(const RegView: TRegView): REGSAM;
+begin
+  case RegView of
+    rv32Bit: Result := KEY_WOW64_32KEY;
+    rv64Bit: Result := KEY_WOW64_64KEY;
+  else
+    Result := 0;
+  end;
+end;
+
 function RegCreateKeyExView(const RegView: TRegView; hKey: HKEY; lpSubKey: PChar;
   Reserved: DWORD; lpClass: PChar; dwOptions: DWORD; samDesired: REGSAM;
   lpSecurityAttributes: PSecurityAttributes; var phkResult: HKEY;
   lpdwDisposition: PDWORD): Longint;
 begin
-  if RegView = rv64Bit then
-    samDesired := samDesired or KEY_WOW64_64KEY;
+  samDesired := samDesired or RegViewToWowKeyFlag(RegView);
   Result := RegCreateKeyEx(hKey, lpSubKey, Reserved, lpClass, dwOptions,
     samDesired, lpSecurityAttributes, phkResult, lpdwDisposition);
 end;
@@ -931,29 +950,18 @@ end;
 function RegOpenKeyExView(const RegView: TRegView; hKey: HKEY; lpSubKey: PChar;
   ulOptions: DWORD; samDesired: REGSAM; var phkResult: HKEY): Longint;
 begin
-  if RegView = rv64Bit then
-    samDesired := samDesired or KEY_WOW64_64KEY;
+  samDesired := samDesired or RegViewToWowKeyFlag(RegView);
   Result := RegOpenKeyEx(hKey, lpSubKey, ulOptions, samDesired, phkResult);
 end;
 
-var
-  RegDeleteKeyExFunc: function(hKey: HKEY;
-    lpSubKey: PWideChar; samDesired: REGSAM; Reserved: DWORD): Longint; stdcall;
+function RegDeleteKeyEx_static(hKey: HKEY; lpSubKey: LPCWSTR;
+  samDesired: REGSAM; Reserved: DWORD): Longint; stdcall;
+  external advapi32 name 'RegDeleteKeyExW';
 
 function RegDeleteKeyView(const RegView: TRegView; const Key: HKEY;
   const Name: PChar): Longint;
 begin
-  if RegView <> rv64Bit then
-    Result := RegDeleteKey(Key, Name)
-  else begin
-    if @RegDeleteKeyExFunc = nil then
-      RegDeleteKeyExFunc := GetProcAddress(GetModuleHandle(advapi32),
-          'RegDeleteKeyExW');
-    if Assigned(RegDeleteKeyExFunc) then
-      Result := RegDeleteKeyExFunc(Key, Name, KEY_WOW64_64KEY, 0)
-    else
-      Result := ERROR_PROC_NOT_FOUND;
-  end;
+  Result := RegDeleteKeyEx_static(Key, Name, RegViewToWowKeyFlag(RegView), 0);
 end;
 
 function RegDeleteKeyIncludingSubkeys(const RegView: TRegView; const Key: HKEY;
@@ -975,7 +983,7 @@ begin
       SetString(KeyName, nil, 256);
       I := 0;
       while True do begin
-        KeyNameCount := Length(KeyName);
+        KeyNameCount := ULength(KeyName);
         ErrorCode := RegEnumKeyEx(H, I, @KeyName[1], KeyNameCount, nil, nil, nil, nil);
         if ErrorCode = ERROR_MORE_DATA then begin
           { Double the size of the buffer and try again }
@@ -1023,21 +1031,35 @@ begin
     Result := ERROR_DIR_NOT_EMPTY;
 end;
 
-function GetShellFolderPath(const FolderID: Integer): String;
+function SHGetFolderPath_shell32(hwnd: HWND; csidl: Integer; hToken: THandle;
+  dwFlags: DWORD; pszPath: LPWSTR): HResult; stdcall;
+  external 'shell32.dll' name 'SHGetFolderPathW';
+
+function GetShellFolderPath(const FolderID: Integer; out Path: String): HRESULT;
+{ Gets the path of the specified folder (a CSIDL_* constant).
+  If successful, Path contains the path and the return value is S_OK.
+  On failure, Path is an empty string and the return value is not S_OK.
+  Callers can detect failure by checking for either an empty Path or a
+  non-S_OK return value; it is not necessary to check both. }
+const
+  SHGFP_TYPE_CURRENT = 0;
 var
-  pidl: PItemIDList;
-  Buffer: array[0..MAX_PATH-1] of Char;
-  Malloc: IMalloc;
+  Buf: array[0..MAX_PATH-1] of Char;
 begin
-  Result := '';
-  if FAILED(SHGetMalloc(Malloc)) then
-    Malloc := nil;
-  if SUCCEEDED(SHGetSpecialFolderLocation(0, FolderID, pidl)) then begin
-    if SHGetPathFromIDList(pidl, Buffer) then
-      Result := Buffer;
-    if Assigned(Malloc) then
-      Malloc.Free(pidl);
-  end;
+  Result := SHGetFolderPath_shell32(0, FolderID, 0, SHGFP_TYPE_CURRENT, Buf);
+  if Result = S_OK then begin
+    Path := Buf;
+    if Path = '' then  { just in case; not known to happen }
+      Result := E_FAIL;
+  end else
+    Path := '';
+end;
+
+function GetShellFolderPath(const FolderID: Integer): String;
+{ Gets the path of the specified folder (a CSIDL_* constant). On failure, an
+  empty string is returned. }
+begin
+  GetShellFolderPath(FolderID, Result);
 end;
 
 function GetCurrentUserSid: String;
@@ -1089,7 +1111,6 @@ var
   Token: THandle;
   GroupInfoSize: DWORD;
   GroupInfo: PTokenGroups;
-  I: Integer;
 begin
   Result := False;
 
@@ -1129,7 +1150,7 @@ begin
            GroupInfoSize, GroupInfoSize) then
           Exit;
 
-        for I := 0 to GroupInfo.GroupCount-1 do begin
+        for var I := 0 to GroupInfo.GroupCount-1 do begin
           if EqualSid(Sid, GroupInfo.Groups[I].Sid) and
              (GroupInfo.Groups[I].Attributes and (SE_GROUP_ENABLED or
               SE_GROUP_USE_FOR_DENY_ONLY) = SE_GROUP_ENABLED) then begin
@@ -1191,7 +1212,7 @@ begin
   Result := False;
   DC := GetDC(0);
   try
-    EnumFonts(DC, PChar(FaceName), @FontExistsCallback, @Result);
+    EnumFonts(DC, PChar(FaceName), @FontExistsCallback, LPARAM(@Result));
   finally
     ReleaseDC(0, DC);
   end;
@@ -1232,11 +1253,19 @@ begin
   I := 1;
   while I <= Length(Result) do begin
     if Result[I] = '&' then begin
-      System.Delete(Result, I, 1);
-      if I > Length(Result) then
-        Break;
+      { Just like Vcl.Menus.StripHotkey. Note that its SysLocale.FarEast check
+        is always True on UNICODE. }
+      if (I > 1) and (Length(Result)-I >= 2) and
+         (Result[I-1] = '(') and (Result[I+2] = ')') then begin
+        Delete(Result, I-1, 4);
+        { Unlike StripHotkey also remove a space in front of the accelerator,
+          used by for example Chinese Traditional }
+        if (I > 2) and (Result[I-2] = ' ') then
+          Delete(Result, I-2, 1);
+      end else
+        Delete(Result, I, 1);
     end;
-    Inc(I, PathCharLength(Result, I));
+    Inc(I);
   end;
 end;
 
@@ -1288,9 +1317,15 @@ begin
     Result := 'MS Sans Serif';
 end;
 
-function IsWildcard(const Pattern: String): Boolean;
+function IsWildcard(const Filename: String): Boolean;
 begin
-  Result := (Pos('*', Pattern) <> 0) or (Pos('?', Pattern) <> 0);
+  { To prevent a false positive result on '\\?\'-prefixed paths, only the last
+    path component is checked }
+  for var I := Low(Filename) + PathPathPartLength(Filename, True) to High(Filename) do
+    case Filename[I] of
+      '*', '?': Exit(True);
+    end;
+  Result := False;
 end;
 
 function WildcardMatch(const Text, Pattern: PChar): Boolean;
@@ -1338,7 +1373,7 @@ type
                Exit;
              end;
       else
-        if not PathCharCompare(T, P) then begin
+        if T^ <> P^ then begin
           Result := wmFalse;
           Exit;
         end;
@@ -1364,14 +1399,13 @@ begin
     Result := B;
 end;
 
-function Win32ErrorString(ErrorCode: Integer): String;
+function Win32ErrorString(ErrorCode: DWORD): String;
 { Like SysErrorMessage but also passes the FORMAT_MESSAGE_IGNORE_INSERTS flag
   which allows the function to succeed on errors like 129 }
 var
-  Len: Integer;
   Buffer: array[0..1023] of Char;
 begin
-  Len := FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM or
+  var Len := FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM or
     FORMAT_MESSAGE_IGNORE_INSERTS or FORMAT_MESSAGE_ARGUMENT_ARRAY, nil,
     ErrorCode, 0, Buffer, SizeOf(Buffer) div SizeOf(Buffer[0]), nil);
   while (Len > 0) and ((Buffer[Len-1] <= ' ') or (Buffer[Len-1] = '.')) do
@@ -1528,28 +1562,6 @@ begin
     MOVEFILE_REPLACE_EXISTING);
 end;
 
-var
-  SHAutoCompleteInitialized: Boolean;
-  SHAutoCompleteFunc: function(hwndEdit: HWND; dwFlags: dWord): LongInt; stdcall;
-
-procedure TryEnableAutoCompleteFileSystem(Wnd: HWND);
-const
-  SHACF_FILESYSTEM = $1;
-var
-  M: HMODULE;
-begin
-  if not SHAutoCompleteInitialized then begin
-    M := SafeLoadLibrary(AddBackslash(GetSystemDir) + 'shlwapi.dll',
-      SEM_NOOPENFILEERRORBOX);
-    if M <> 0 then
-      SHAutoCompleteFunc := GetProcAddress(M, 'SHAutoComplete');
-    SHAutoCompleteInitialized := True;
-  end;
-
-  if Assigned(SHAutoCompleteFunc) then
-    SHAutoCompleteFunc(Wnd, SHACF_FILESYSTEM);
-end;
-
 procedure CreateMutex(const MutexName: String);
 const
   SECURITY_DESCRIPTOR_REVISION = 1;  { Win32 constant not defined in Delphi 3 }
@@ -1567,6 +1579,220 @@ begin
   SecurityAttr.lpSecurityDescriptor := @SecurityDesc;
   SecurityAttr.bInheritHandle := False;
   Windows.CreateMutex(@SecurityAttr, False, PChar(MutexName));
+end;
+
+function HighContrastActive: Boolean;
+begin
+  var HighContrast: THighContrast;
+  HighContrast.cbSize := SizeOf(HighContrast);
+  Result := False;
+  if SystemParametersInfo(SPI_GETHIGHCONTRAST, HighContrast.cbSize, @HighContrast, 0) then
+    Result := (HighContrast.dwFlags and HCF_HIGHCONTRASTON) <> 0;
+end;
+
+var
+  WindowsVersion: Cardinal;
+  WindowsVersionRead: Boolean;
+
+function CurrentWindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
+begin
+  if not WindowsVersionRead then begin
+    var OSVersionInfo: TOSVersionInfo;
+    OSVersionInfo.dwOSVersionInfoSize := SizeOf(OSVersionInfo);
+    GetVersionEx(OSVersionInfo);
+    WindowsVersion := (Byte(OSVersionInfo.dwMajorVersion) shl 24) or (Byte(OSVersionInfo.dwMinorVersion) shl 16) or Word(OSVersionInfo.dwBuildNumber);
+    WindowsVersionRead := True;
+  end;
+  Result := WindowsVersion >= Cardinal((AMajor shl 24) or (AMinor shl 16) or ABuild);
+end;
+
+function DarkModeActive: Boolean;
+var
+  K: HKEY;
+  Size, AppsUseLightTheme: DWORD;
+begin
+  Result := False;
+  if CurrentWindowsVersionAtLeast(10, 0) and (RegOpenKeyExView(rvDefault, HKEY_CURRENT_USER, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize', 0, KEY_QUERY_VALUE, K) = ERROR_SUCCESS) then begin
+    Size := SizeOf(AppsUseLightTheme);
+    if (RegQueryValueEx(K, 'AppsUseLightTheme', nil, nil, PByte(@AppsUseLightTheme), @Size) = ERROR_SUCCESS) and (AppsUseLightTheme = 0) then
+      Result := True;
+    RegCloseKey(K);
+  end;
+end;
+
+{ FileInformationClass is really an enum type }
+function SetFileInformationByHandle(hFile: THandle; FileInformationClass: DWORD;
+  lpFileInformation: LPVOID; dwBufferSize: DWORD): BOOL; stdcall; external kernel32;
+
+function DeleteFileOrDirByHandle(const H: THandle): Boolean;
+{ Deletes a file or directory by handle. DELETE access (Windows._DELETE in
+  Delphi) must have been requested when the handle was opened.
+  If a directory isn't empty, the function fails.
+  When False is returned, call GetLastError to get the error code.
+
+  The directory entry for the file/directory doesn't disappear until all
+  handles have been closed. This function does not request "POSIX delete
+  semantics" -- which would cause the directory entry to disappear
+  immediately, as with DeleteFile -- because it's only supported on Windows 10
+  1607 and later.
+
+  NOTE: This function should generally only be used with handles opened with
+  the FILE_FLAG_OPEN_REPARSE_POINT flag. If that flag isn't used, then the
+  function will delete the *target* of a symbolic link, not the symbolic link
+  itself, which usually isn't the intention. (The DeleteFile and
+  RemoveDirectory functions delete symbolic links, not their targets.) }
+const
+  FileDispositionInfo = 4;
+type
+  TFileDispositionInfo = record
+    DeleteFile: Boolean;  { actually the Windows BOOLEAN type, also 1-byte }
+  end;
+begin
+  var Info: TFileDispositionInfo;
+  Info.DeleteFile := True;
+  Result := SetFileInformationByHandle(H, FileDispositionInfo, @Info,
+    SizeOf(Info));
+end;
+
+function CompareInt64(const N1, N2: Int64): Integer;
+begin
+  if N1 = N2 then
+    Result := 0
+  else if N1 > N2 then
+    Result := 1
+  else
+    Result := -1;
+end;
+
+function HighLowToInt64(const High, Low: UInt32): Int64;
+begin
+  Result := Int64((UInt64(High) shl 32) or Low);
+end;
+
+function HighLowToUInt64(const High, Low: UInt32): UInt64;
+begin
+  Result := (UInt64(High) shl 32) or Low;
+end;
+
+function FindDataFileSizeToInt64(const FindData: TWin32FindData): Int64;
+begin
+  Result := HighLowToInt64(FindData.nFileSizeHigh, FindData.nFileSizeLow);
+end;
+
+function FileTimeToUInt64(const FileTime: TFileTime): UInt64;
+begin
+  Result := HighLowToUInt64(FileTime.dwHighDateTime, FileTime.dwLowDateTime);
+end;
+
+function StrToWnd(const S: String): HWND;
+begin
+  Result := UInt32(StrToUInt64(S));
+end;
+
+function LastErrorIndicatesPossiblyInUse(const LastError: DWORD; const CheckAlreadyExists: Boolean): Boolean;
+begin
+  Result := (LastError = ERROR_ACCESS_DENIED) or
+            (LastError = ERROR_SHARING_VIOLATION) or
+            (CheckAlreadyExists and (LastError = ERROR_ALREADY_EXISTS));
+end;
+
+function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRetryOnAlreadyExists: Boolean;
+  const Op: TFileOperationFunc; const Failing: TFileOperationFailingProc; const Failed: TFileOperationFailedProc): Boolean;
+{ Performs a file operation Op. If it fails then calls Failing up to MaxRetries times. When no
+  retries remain, it calls Failed and returns False. Op should ensure LastError is always set on
+  failure. It is recommended that Failed throws an exception, rather than expecting the caller to
+  inspect the return value. Alternatively, Failed can set TryOnceMore to True to allow an extra retry. }
+begin
+  Result := PerformFileOperationWithRetries(MaxRetries, AlsoRetryOnAlreadyExists,
+    Op,
+    procedure(const LastError: Cardinal; var RetriesLeft: Integer; var NextAction: TFileOperationFailingNextAction)
+    begin
+      if RetriesLeft > 0 then begin
+        Failing(LastError);
+        Dec(RetriesLeft);
+        NextAction := naRetry;
+      end;
+    end,
+    Failed);
+end;
+
+function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRetryOnAlreadyExists: Boolean;
+  const Op: TFileOperationFunc; const Failing: TFileOperationFailingExProc; const Failed: TFileOperationFailedProc): Boolean;
+{ Similar to the other PerformFileOperationWithRetries, but provides fine-grained control to Failing,
+  which is now responsible for updating RetriesLeft itself, and can also request an early break.
+  Failing's NextAction defaults to *not* retry, but to stop and fail. }
+begin
+  var RetriesLeft := MaxRetries;
+  var LastError: Cardinal;
+  while not Op(LastError) do begin
+    { Does the error code indicate that it is possibly in use? }
+    if LastErrorIndicatesPossiblyInUse(LastError, AlsoRetryOnAlreadyExists) then begin
+      var NextAction := naStopAndFail;
+      Failing(LastError, RetriesLeft, NextAction);
+      if NextAction = naStopAndSucceed then
+        Break
+      else if NextAction = naRetry then
+        Continue;
+    end;
+    { Some other error occurred, or we ran out of tries }
+    SetLastError(LastError);
+    var TryOnceMore := False;
+    Failed(LastError, TryOnceMore);
+    if not TryOnceMore then
+      Exit(False);
+  end;
+  Result := True;
+end;
+
+function Is64BitPEImage(const Filename: String): Boolean;
+{ Returns True if the specified file is a non-32-bit PE image, False
+  otherwise. }
+var
+  DosHeader: packed record
+    Sig: array[0..1] of AnsiChar;
+    Other: array[0..57] of Byte;
+    PEHeaderOffset: LongWord;
+  end;
+  PESigAndHeader: packed record
+    Sig: DWORD;
+    Header: TImageFileHeader;
+    OptHeaderMagic: Word;
+  end;
+begin
+  Result := False;
+  const F = TFile.Create(Filename, fdOpenExisting, faRead, fsRead);
+  try
+    if F.Read(DosHeader, SizeOf(DosHeader)) = SizeOf(DosHeader) then begin
+      if (DosHeader.Sig[0] = 'M') and (DosHeader.Sig[1] = 'Z') and
+         (DosHeader.PEHeaderOffset <> 0) then begin
+        F.Seek(DosHeader.PEHeaderOffset);
+        if F.Read(PESigAndHeader, SizeOf(PESigAndHeader)) = SizeOf(PESigAndHeader) then begin
+          if (PESigAndHeader.Sig = IMAGE_NT_SIGNATURE) and
+             (PESigAndHeader.OptHeaderMagic <> IMAGE_NT_OPTIONAL_HDR32_MAGIC) then
+            Result := True;
+        end;
+      end;
+    end;
+  finally
+    F.Free;
+  end;
+end;
+
+function BitsFrom64BitBoolean(const A64Bit: Boolean): Integer;
+{ Returns 32 if A64Bit is False, or 64 if A64Bit is True.
+  This is intended for use with '%d-bit' in formatted log messages.
+  (This function really belongs in Setup.InstFunc, but 'inline' doesn't have
+  an effect when two units depend on each other.) }
+begin
+  Result := 32 shl Byte(A64Bit);
+end;
+
+function RegViewFrom64BitBoolean(const A64Bit: Boolean): TRegView;
+begin
+  if A64Bit then
+    Result := rv64Bit
+  else
+    Result := rv32Bit;
 end;
 
 { TOneShotTimer }
@@ -1614,6 +1840,84 @@ begin
     Result := FTimeout - Elapsed
   else
     Result := 0;
+end;
+
+{ TStrongRandom }
+
+class procedure TStrongRandom.GenerateBytes(out Buf; const Count: Cardinal);
+const
+  BCRYPT_USE_SYSTEM_PREFERRED_RNG = $00000002;
+begin
+  InitBCrypt;
+
+  { Zero-fill the buffer first to make it easier to tell if BCryptGenRandom is
+    succeeding without (entirely) filling the buffer. We don't actually expect
+    that to happen, though. (Not using FillChar here because it takes a signed
+    integer for the count.) }
+  var I := Count;
+  while I > 0 do begin
+    Dec(I);
+    PByte(@Buf)[I] := 0;
+  end;
+
+  const Status = FBCryptGenRandomFunc(0, Buf, Count, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+  if Status <> 0 then
+    raise Exception.CreateFmt('TStrongRandom: BCryptGenRandom failed (0x%x)',
+      [Status]);
+end;
+
+class function TStrongRandom.GenerateUInt32: UInt32;
+begin
+  GenerateBytes(Result, SizeOf(Result));
+end;
+
+class function TStrongRandom.GenerateUInt32Range(const ARange: UInt32): UInt32;
+{ Like Delphi's Random function, returns a number in the range 0 to ARange-1 }
+begin
+  const R = GenerateUInt32;
+  Result := UInt32((UInt64(R) * ARange) shr 32);
+end;
+
+class function TStrongRandom.GenerateUInt64: UInt64;
+begin
+  GenerateBytes(Result, SizeOf(Result));
+end;
+
+class procedure TStrongRandom.InitBCrypt;
+begin
+  if Assigned(FBCryptGenRandomFunc) then
+    Exit;
+
+  { If this function is entered by multiple threads concurrently, this will
+    call LoadLibrary more than once, but that's fine }
+  const M = LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'bcrypt.dll'));
+  if M = 0 then
+    raise Exception.Create('TStrongRandom: Failed to load bcrypt.dll');
+
+  const P = GetProcAddress(M, PAnsiChar('BCryptGenRandom'));
+  if P = nil then
+    raise Exception.Create('TStrongRandom: Failed to get address of BCryptGenRandom');
+
+  { Make sure the work of LoadLibrary is fully visible before making the
+    function pointer visible to other threads }
+  MemoryBarrier;
+  FBCryptGenRandomFunc := P;
+end;
+
+{ TFileTimeHelper }
+
+procedure TFileTimeHelper.Clear;
+begin
+  { SetFileTime regards a pointer to a FILETIME structure with both members
+    set to 0 the same as a NULL pointer and we make use of that. Note that
+    7-Zip may return a value with both members set to 0 as well. }
+  dwLowDateTime := 0;
+  dwHighDateTime := 0;
+end;
+
+function TFileTimeHelper.HasTime: Boolean;
+begin
+  Result := (dwLowDateTime <> 0) or (dwHighDateTime <> 0);
 end;
 
 { TCreateProcessOutputReader }
@@ -1788,7 +2092,7 @@ procedure TCreateProcessOutputReader.Read(const LastRead: Boolean);
         if TotalBytesAvail > FMaxTotalBytesToRead - FTotalBytesRead then
           TotalBytesAvail := FMaxTotalBytesToRead - FTotalBytesRead;
         { Append newly available data to the incomplete line we might already have }
-        var TotalBytesHave: DWORD := Length(Pipe.Buffer);
+        var TotalBytesHave := ULength(Pipe.Buffer);
         SetLength(Pipe.Buffer, TotalBytesHave+TotalBytesAvail);
         var BytesRead: DWORD;
         Pipe.OKToRead := ReadFile(Pipe.PipeRead, Pipe.Buffer[TotalBytesHave+1],

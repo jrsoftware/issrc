@@ -66,9 +66,9 @@ type
 
       iscbNotifyIdle: (
         CompressProgress: Cardinal;     { [in] Amount compressed so far
-                                          (new in 4.1.6) }
+                                          (not in bytes, new in 4.1.6) }
         CompressProgressMax: Cardinal;  { [in] Maximum value of CompressProgress
-                                          (new in 4.1.6) }
+                                          (not in bytes, new in 4.1.6) }
         SecondsRemaining: Integer;      { [in] Estimated time remaining, or -1
                                           if not known (new in 5.1.13) }
         BytesCompressedPerSecond: Cardinal); { [in] Average bytes compressed
@@ -99,7 +99,7 @@ type
   end;
 
   TCompilerCallbackProc = function(Code: Integer;
-    var Data: TCompilerCallbackData; AppData: Longint): Integer; stdcall;
+    var Data: TCompilerCallbackData; AppData: NativeInt): Integer; stdcall;
 
   PCompileScriptParamsEx = ^TCompileScriptParamsEx;
   TCompileScriptParamsEx = record
@@ -115,7 +115,7 @@ type
     CallbackProc: TCompilerCallbackProc;
                           { [in] The callback procedure which the compiler calls
                             to read the script and for status notification. }
-    AppData: Longint;     { [in] Application-defined. AppData is passed to the
+    AppData: NativeInt;   { [in] Application-defined. AppData is passed to the
                             callback function. }
     Options: PChar;       { [in] Additional options. Each option is a
                             null-terminated string, and the final option is
@@ -150,7 +150,7 @@ type
     CompilerPath: PChar;
     SourcePath: PChar;
     CallbackProc: TCompilerCallbackProc;
-    AppData: Longint;
+    AppData: NativeInt;
   end;
 
   PCompilerVersionInfo = ^TCompilerVersionInfo;

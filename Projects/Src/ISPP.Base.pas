@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2010 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -23,8 +23,12 @@ type
     Typ: TIsppVarType;
     AsStr: string;
     AsCallContext: ICallContext;
+    function AsBoolean: Boolean;
+    function AsCardinal: Cardinal;
+    function AsInteger: Integer;
+    function AsWord: Word;
     case TIsppVarType of
-      evInt: (AsInt: Int64);
+      evInt: (AsInt64: Int64);
       evLValue: (AsPtr: PIsppVariant);
   end;
 
@@ -63,6 +67,9 @@ procedure SetOption(var Options: TOptions; Option: Char; Value: Boolean);
 
 implementation
 
+uses
+  ISPP.Consts;
+
 function GetOption(const Options: TOptions; Option: Char): Boolean;
 begin
   Result := (Ord(UpCase(Option)) - Ord('A')) in Options
@@ -74,6 +81,42 @@ begin
     Include(Options, Ord(UpCase(Option)) - Ord('A'))
   else
     Exclude(Options, Ord(UpCase(Option)) - Ord('A'))
+end;
+
+{ TIsppVariant }
+
+function TIsppVariant.AsBoolean: Boolean;
+begin
+  case Typ of
+    evNull: Result := False;
+    evInt: Result := AsInt64 <> 0;
+  else
+    Result := AsStr <> '';
+  end;
+end;
+
+function TIsppVariant.AsCardinal: Cardinal;
+begin
+  const I = AsInt64;
+  if (I < Low(Result)) or (I > High(Result)) then
+    raise Exception.Create(SRangeCheckError);
+  Result := Cardinal(I);
+end;
+
+function TIsppVariant.AsInteger: Integer;
+begin
+  const I = AsInt64;
+  if (I < Low(Result)) or (I > High(Result)) then
+    raise Exception.Create(SRangeCheckError);
+  Result := Integer(I);
+end;
+
+function TIsppVariant.AsWord: Word;
+begin
+  const I = AsInt64;
+  if (I < Low(Result)) or (I > High(Result)) then
+    raise Exception.Create(SRangeCheckError);
+  Result := Word(I);
 end;
 
 end.

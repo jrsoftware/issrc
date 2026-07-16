@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
  
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -150,7 +150,6 @@ var
 
   var
     DelimPos: PChar;
-    N: Integer;
     Definition: string;
   begin
     Result := True;
@@ -160,7 +159,7 @@ var
         Result := False;
         Break;
       end;
-      N := DelimPos - Definitions;
+      const N = DelimPos - Definitions;
       if N > 0 then begin
         SetString(Definition, Definitions, N);
         ParseDefinition(Definition);
@@ -194,7 +193,6 @@ var
     SBuiltins = {$IFDEF DEBUG} '..\..\Files\ISPPBuiltins.iss' {$ELSE} 'ISPPBuiltins.iss' {$ENDIF};
   var
     DelimPos: PChar;
-    N: Integer;
     IncludeFile: String;
   begin
     Result := True;
@@ -209,7 +207,7 @@ var
         Result := False;
         Break;
       end;
-      N := DelimPos - IncludeFiles;
+      const N = DelimPos - IncludeFiles;
       if N > 0 then begin
         SetString(IncludeFile, IncludeFiles, N);
         Include(IncludeFile, False);
@@ -245,16 +243,20 @@ begin
   { Hack: push a dummy item onto the stack to defer deletion of temp. files }
   PushPreproc(nil);
   try
+    { Create the preprocessor, which also calls PushPreproc }
     Preprocessor := TPreprocessor.Create(Params, nil, ISPPOptions, SourcePath,
       CompilerPath, Params.Filename);
     try
       Preprocessor.IncludePath := IncludePath;
 
+      MakeStr(V, CompilerPath);
+      Preprocessor.VarMan.DefineVariable('CompilerPath', -1, V, dsPublic);
+
       MakeStr(V, SourcePath);
       Preprocessor.VarMan.DefineVariable('SourcePath', -1, V, dsPublic);
 
-      MakeStr(V, CompilerPath);
-      Preprocessor.VarMan.DefineVariable('CompilerPath', -1, V, dsPublic);
+      MakeStr(V, GetSystemDir);
+      Preprocessor.VarMan.DefineVariable('SysPath', -1, V, dsPublic);
 
       MakeInt(V, Params.CompilerBinVersion);
       Preprocessor.VarMan.DefineVariable('Ver', -1, V, dsPublic);
@@ -264,6 +266,8 @@ begin
            Preprocessor.FOptions.ParserOptions.Options) then
       begin
         Result := ispeInvalidParam;
+        FreeAndNil(Preprocessor); { This also calls PopPreproc }
+        PopPreproc;
         Exit;
       end;
 
@@ -294,7 +298,7 @@ begin
     begin
       Params.ErrorProc(Params.CompilerData,
         PChar(Format('Unexpected exception of class %s in ISPP.' +
-        #13#10#13#10'%s.', [E.ClassName, E.Message])), nil, 0, 0);
+        #13#10#13#10'%s', [E.ClassName, AddPeriod(E.Message)])), nil, 0, 0);
       Result := ispePreprocessError;
     end;
   end;

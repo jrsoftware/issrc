@@ -2,7 +2,7 @@ unit IDE.RegistryDesignerForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -16,7 +16,7 @@ interface
 uses
   SysUtils, Classes,
   Forms, Controls, StdCtrls, ExtCtrls,
-  IDE.Wizard.WizardFormRegistryHelper, NewStaticText;
+  IDE.Wizard.WizardFormRegistryHelper, NewStaticText, BitmapButton;
 
 type
   TRegistryDesignerForm = class(TForm)
@@ -34,7 +34,7 @@ type
     AppRegistryMinVerCheck: TCheckBox;
     AppRegistryMinVerEdit: TEdit;
     PrivilegesRequiredLabel: TNewStaticText;
-    AppRegistryMinVerDocImage: TImage;
+    AppRegistryMinVerDocBitBtn: TBitmapButton;
     procedure InsertButtonClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -52,17 +52,17 @@ implementation
 {$R *.dfm}
 
 uses
-  IDE.HelperFunc;
+  IDE.HelperFunc, IDE.Messages;
 
 procedure TRegistryDesignerForm.SetPrivilegesRequired(
   const Value: TPrivilegesRequired);
 begin
   if Value = prAdmin then
-    PrivilegesRequiredLabel.Caption := 'Script has PrivilegesRequired=admin'
+    PrivilegesRequiredLabel.Caption := Format(SRegistryDesignerScriptHas, ['PrivilegesRequired=admin'])
   else if Value = prLowest then
-    PrivilegesRequiredLabel.Caption := 'Script has PrivilegesRequired=lowest'
+    PrivilegesRequiredLabel.Caption := Format(SRegistryDesignerScriptHas, ['PrivilegesRequired=lowest'])
   else
-    PrivilegesRequiredLabel.Caption := 'Script has PrivilegesRequiredOverridesAllowed set';
+    PrivilegesRequiredLabel.Caption := Format(SRegistryDesignerScriptHasSet, ['PrivilegesRequiredOverridesAllowed']);
   FRegistryHelper.PrivilegesRequired := Value;
 end;
 
@@ -74,7 +74,7 @@ begin
   FRegistryHelper := TWizardFormRegistryHelper.Create(Self, AppRegistryFileEdit,
     AppRegistryFileButton, AppRegistryUninsDeleteKeyCheck,
     AppRegistryUninsDeleteKeyIfEmptyCheck, AppRegistryUninsDeleteValueCheck,
-    AppRegistryMinVerCheck, AppRegistryMinVerEdit, AppRegistryMinVerDocImage);
+    AppRegistryMinVerCheck, AppRegistryMinVerEdit, AppRegistryMinVerDocBitBtn);
 end;
 
 procedure TRegistryDesignerForm.FormDestroy(Sender: TObject);

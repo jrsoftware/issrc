@@ -1,7 +1,7 @@
 unit ScintInt;
 
 {
-  Delphi translation of Scintilla.h from Scintilla 5.5.0
+  Delphi translation of Scintilla.h
   created by Jordan Russell and updated by Martijn Laan
 }
 
@@ -48,6 +48,7 @@ const
   SCI_SETVIEWWS = 2021;
   SCTD_LONGARROW = 0;
   SCTD_STRIKEOUT = 1;
+  SCTD_CONTROLCHAR = 2;
   SCI_GETTABDRAWMODE = 2698;
   SCI_SETTABDRAWMODE = 2699;
   SCI_POSITIONFROMPOINT = 2022;
@@ -833,6 +834,7 @@ const
   SC_STATUS_OK = 0;
   SC_STATUS_FAILURE = 1;
   SC_STATUS_BADALLOC = 2;
+  SC_STATUS_OUTSIDE_DOCUMENT = 3;
   SC_STATUS_WARN_START = 1000;
   SC_STATUS_WARN_REGEX = 1001;
   SCI_SETSTATUS = 2382;
@@ -1165,6 +1167,8 @@ const
   SCI_RELEASELINECHARACTERINDEX = 2712;
   SCI_LINEFROMINDEXPOSITION = 2713;
   SCI_INDEXPOSITIONFROMLINE = 2714;
+  SCI_GETDRAGDROPENABLED = 2818;
+  SCI_SETDRAGDROPENABLED = 2819;
   SCI_STARTRECORD = 3001;
   SCI_STOPRECORD = 3002;
   SCI_GETLEXER = 4002;
@@ -1362,7 +1366,7 @@ type
     wParam: WPARAM; lParam: LPARAM; var Status: Integer): LRESULT; cdecl;
 
 const
-  IsscintDLL = 'isscint.dll';
+  IsscintDLL = {$IFDEF WIN64} 'isscint-x64.dll' {$ELSE} 'isscint.dll' {$ENDIF};
 
 var
   IsscintLibrary: HMODULE;

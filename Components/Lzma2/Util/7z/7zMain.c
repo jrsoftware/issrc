@@ -1,15 +1,17 @@
-/* 7zMain.c - Test application for 7z Decoder
-2024-02-28 : Igor Pavlov : Public domain */
+/* 7zMain.c - 7z archive decoding program
+: Igor Pavlov : Public domain */
 
 /* Changes by Martijn Laan for Inno Setup:
-   -Use CP_UTF8 in PrintString
-   -Fix Utf16_To_Char to handle CP_UTF7 and CP_UTF8's special rules 
+   -Use CP_UTF8 in PrintPath
+   -Fix Utf16_To_Char to handle CP_UTF7 and CP_UTF8's special rules
    -Change main to mainW to support Unicode archive names
    -Add specific error text for SZ_ERROR_DATA, SZ_ERROR_ARCHIVE, SZ_ERROR_NO_ARCHIVE, and SZ_ERROR_PROGRESS
    -Return res on errors instead of always returning 1
    -Add optional progress reporting with abort option
    -Add optional output of SzArEx_Extract's output buffer sizes
-   -Add support for overwriting read-only files
+   -Add support for overwriting read-only files by removing the read-only attribute instead of always deleting the file
+   -Add option to disable terminal checking
+   -Add option to disable path normalization to allow custom implementation by host
    Otherwise unchanged */
 
 #include "Precomp.h"
@@ -17,10 +19,11 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "../../7zFile.h"
+
 #ifndef USE_WINDOWS_FILE
-/* for mkdir */
 #ifdef _WIN32
-#include <direct.h>
+#include <direct.h> // for _mkdir()
 #else
 #include <stdlib.h>
 #include <time.h>
@@ -34,7 +37,16 @@
 #endif
 #endif
 
-#include "../../7zFile.h"
+#ifndef NO_TERMINAL_CHECK
+#ifdef _WIN32
+// for _isatty()
+#include "../../7zWindows.h"
+#include <io.h>
+#else
+#include <unistd.h> // for isatty()
+#endif
+#endif
+
 #include "../../7z.h"
 #include "../../7zAlloc.h"
 #include "../../7zBuf.h"
@@ -57,6 +69,29 @@ static void Print(const char *s)
   fputs(s, stdout);
 }
 
+
+#ifdef NO_TERMINAL_CHECK
+#define MY_IS_TERMINAL(x) False
+#else
+static Z7_FORCE_INLINE BoolInt MY_IS_TERMINAL(FILE *x)
+{
+#ifdef _WIN32
+  const int fd = _fileno(x);
+  HANDLE h;
+  DWORD st;
+  if (fd < 0)
+    return False;
+  if (!_isatty(fd))
+    return False;
+  h = (HANDLE)(_get_osfhandle(fd));
+  if (h == NULL || h == INVALID_HANDLE_VALUE)
+    return False;
+  return GetConsoleMode(h, &st) != 0;
+#else
+  return isatty(fileno(x)) != 0;
+#endif
+}
+#endif
 
 static int Buf_EnsureSize(CBuf *dest, size_t size)
 {
@@ -213,6 +248,222 @@ static SRes Utf16_To_Char(CBuf *buf, const UInt16 *s
   #endif
 }
 
+
+#ifdef NO_NORMALIZE_PATH_FOR_FS
+
+#define NORMALIZED_CHAR_PATH_SEPARATOR '/'
+
+static Z7_FORCE_INLINE
+void NormalizePath_for_FS(UInt16 *dest, UInt16 *s, BoolInt isDir)
+{
+  (void)isDir;
+  while ((*dest++ = *s++) != 0) {}
+}
+
+#else
+
+#define NORMALIZED_CHAR_PATH_SEPARATOR CHAR_PATH_SEPARATOR
+
+#ifdef _WIN32
+
+static Z7_FORCE_INLINE unsigned MyCharLower_Ascii(unsigned c)
+{
+  if (c >= 'A' && c <= 'Z')
+    return (unsigned)(c + 0x20);
+  return c;
+}
+
+static Z7_FORCE_INLINE
+BoolInt IsString1PrefixedByString2_NoCase_Ascii(const UInt16 *s1, const char *s2)
+{
+  for (;;)
+  {
+    wchar_t c1;
+    const char c2 = *s2++; if (c2 == 0) return True;
+    c1 = *s1++;
+    if (c1 != (unsigned char)c2 && MyCharLower_Ascii(c1) != MyCharLower_Ascii((unsigned char)c2))
+      return False;
+  }
+}
+
+
+static const unsigned g_ReservedWithNum_Index = 4;
+static const char * const g_ReservedNames[] =
+{
+  "CON", "PRN", "AUX", "NUL",
+  "COM", "LPT"
+};
+
+static Z7_FORCE_INLINE
+BoolInt IsReservedFsName(const UInt16 *name, size_t sLen)
+{
+  unsigned i;
+  for (i = 0; i < Z7_ARRAY_SIZE(g_ReservedNames); i++)
+  {
+    const char *reservedName = g_ReservedNames[i];
+    size_t len = strlen(reservedName);
+    if (sLen < len)
+      continue;
+    if (!IsString1PrefixedByString2_NoCase_Ascii(name, reservedName))
+      continue;
+    if (i >= g_ReservedWithNum_Index)
+    {
+      if ((unsigned)((unsigned)name[len] - (unsigned)'0') > 9)
+        continue;
+      len++;
+    }
+    for (;;)
+    {
+      unsigned c;
+      if (len >= sLen)
+        return True;
+      c = name[len++];
+      if (c == 0 || c == '.')
+        return True;
+      if (c != ' ')
+        break;
+    }
+  }
+  return False;
+}
+
+
+static Z7_FORCE_INLINE
+void Correct_FileName_for_FS(UInt16 *s, size_t size)
+{
+  while (size)
+  {
+    const unsigned c = s[--size];
+    if (c != '.' && c != ' ')
+      break;
+    s[size] = '_';
+  }
+}
+
+#endif // _WIN32
+
+
+// in: (s) uses WCHAR_PATH_SEPARATOR path separators
+static Z7_FORCE_INLINE
+void NormalizesPathParts_and_Dots(UInt16 *dest, const UInt16 *s, BoolInt isDir)
+{
+  UInt16 * const destStart = dest;
+  size_t len;
+
+  // remove absolute path prefixes
+  for (; *s == WCHAR_PATH_SEPARATOR; s++)
+  {}
+
+  len = 0;
+  for (;;)
+  {
+    const unsigned c = s[len];
+    if (c != 0 && c != WCHAR_PATH_SEPARATOR)
+    {
+      len++;
+      continue;
+    }
+    {
+      if (len == 0
+          || (len == 1 && s[len - 1] == '.')
+          || (len == 2 && s[len - 1] == '.' && s[len - 2] == '.'))
+      {
+        if (c == 0)
+        {
+          if (!isDir)
+          {
+            *dest++ = '_';
+            // if (len == 2) *dest++ = '_'; // for ".." -> "__"
+          }
+          break;
+        }
+      }
+      else
+      {
+#ifdef _WIN32
+        if (IsReservedFsName(s, len))
+          *dest++ = '_';
+#endif
+        memcpy(dest, s, sizeof(s[0]) * len);
+#ifdef _WIN32
+        Correct_FileName_for_FS(dest, len);
+#endif
+        dest += len;
+        if (c == 0)
+          break;
+        *dest++ = WCHAR_PATH_SEPARATOR;
+      }
+      s += len + 1;
+      len = 0;
+    }
+  }
+
+  if (dest != destStart && dest[-1] == WCHAR_PATH_SEPARATOR)
+  {
+    if (isDir)
+      dest--;
+    else
+      *dest++ = '_';
+  }
+ 
+  if (dest == destStart)
+    *dest++ = '_';
+  *dest = 0;
+}
+
+
+#if WCHAR_PATH_SEPARATOR != L'/'
+
+#ifdef _WIN32
+// WSL scheme
+#define WCHAR_IN_FILE_NAME_BACKSLASH_REPLACEMENT  ((unsigned)((unsigned)(0xF000) + (unsigned)'\\'))
+#else
+#define WCHAR_IN_FILE_NAME_BACKSLASH_REPLACEMENT  '_'
+#endif
+
+static Z7_FORCE_INLINE
+void Normalize_Path_from_7z_to_FS(UInt16 *s)
+{
+  // Normalize_Path_from_7z_to_FS(s);
+  for (;; s++)
+  {
+    unsigned c = *s;
+    if (c == 0)
+      break;
+    if (c == '/') // separator inside 7z archive
+      c = WCHAR_PATH_SEPARATOR;
+    else if (c == WCHAR_PATH_SEPARATOR)
+      c = WCHAR_IN_FILE_NAME_BACKSLASH_REPLACEMENT;
+#ifdef _WIN32
+    else if (c < 0x20 || c == ':' || c == '*' || c == '?' || c == '<' || c == '>' || c == '|' || c == '"')
+      c = '_';
+    else
+      continue;
+    *s = (UInt16)c;
+#endif
+  }
+}
+#endif
+
+
+// this function changes both strings: (dest) and (s),
+// but length of (s) string will not changed.
+// dest[] must provide additional space: size(dest) >= len(len) * 2 + 2
+// in:  (s) uses slash path separators (/)
+// out: (s) : temporary string
+// out: (dest) uses WCHAR_PATH_SEPARATOR path separator
+static Z7_FORCE_INLINE
+void NormalizePath_for_FS(UInt16 *dest, UInt16 *s, BoolInt isDir)
+{
+#if WCHAR_PATH_SEPARATOR != L'/'
+  Normalize_Path_from_7z_to_FS(s);
+#endif
+  NormalizesPathParts_and_Dots(dest, s , isDir);
+}
+
+#endif
+
+
 #ifdef _WIN32
   #ifndef USE_WINDOWS_FILE
     static UINT g_FileCodePage = CP_ACP;
@@ -220,6 +471,42 @@ static SRes Utf16_To_Char(CBuf *buf, const UInt16 *s
   #endif
 #else
   #define MY_FILE_CODE_PAGE_PARAM
+#endif
+
+#ifndef NO_DELETEFILEALWAYS
+
+#ifdef USE_WINDOWS_FILE
+
+static WRes My_DeleteFileAlways(const UInt16 *path)
+{
+  const DWORD attrib = GetFileAttributesW(path);
+  if (// attrib != INVALID_FILE_ATTRIBUTES &&
+      (attrib & FILE_ATTRIBUTE_DIRECTORY) == 0 &&
+      (attrib & FILE_ATTRIBUTE_READONLY))
+  {
+    if (!SetFileAttributes(path, attrib & ~(DWORD)FILE_ATTRIBUTE_READONLY))
+      return GetLastError();
+  }
+  if (DeleteFileW(path))
+    return 0;
+  return GetLastError();
+}
+
+#else
+
+static WRes My_DeleteFileAlways(const UInt16 *path)
+{
+  CBuf buf;
+  WRes res;
+  Buf_Init(&buf);
+  RINOK_WRes(Utf16_To_Char(&buf, path MY_FILE_CODE_PAGE_PARAM))
+  res = remove((const char *)buf.data) == 0 ? 0 : errno;
+  Buf_Free(&buf, &g_Alloc);
+  return res;
+}
+
+#endif
+
 #endif
 
 static WRes MyCreateDir(const UInt16 *name)
@@ -233,7 +520,7 @@ static WRes MyCreateDir(const UInt16 *name)
   CBuf buf;
   WRes res;
   Buf_Init(&buf);
-  RINOK(Utf16_To_Char(&buf, name MY_FILE_CODE_PAGE_PARAM))
+  RINOK_WRes(Utf16_To_Char(&buf, name MY_FILE_CODE_PAGE_PARAM))
 
   res =
   #ifdef _WIN32
@@ -264,12 +551,51 @@ static WRes OutFile_OpenUtf16(CSzFile *p, const UInt16 *name)
 }
 
 
-static SRes PrintString(const UInt16 *s)
+static Z7_FORCE_INLINE BoolInt IsDangerousTerminalChar(wchar_t c)
+{
+  // if (c < 0) return False; // it's not expected case
+  if (c < 0x20) return True;
+  if (c < 0x7F) return False;
+  if (c < 0x9F + 1) return True;
+  // Unicode Bidirectional (BiDi) control characters:
+  if (c < 0x202A) return False;
+  if (c < 0x202E + 1) return True;
+  if (c < 0x2066) return False;
+  if (c < 0x2069 + 1) return True;
+  return False;
+}
+
+
+// (size(dest) >= len(src) + 3), if (isDir == True)
+// s[] uses slash path separator (/)
+static SRes PrintPath(const UInt16 *s, UInt16 *dest, BoolInt isDir, BoolInt isTerminalMode)
 {
   CBuf buf;
   SRes res;
+  size_t i;
+  for (i = 0;; i++)
+  {
+    UInt16 c = s[i];
+    if (c == 0)
+      break;
+    if (isTerminalMode ? IsDangerousTerminalChar(c) :
+        (c == '\n'
+#ifdef _WIN32
+        || c == '\r'
+#endif
+        ))
+      c = '_';
+    dest[i] = c;
+  }
+
+  if (i == 0)
+    dest[i++] = '_';
+  if (isDir && dest[i - 1] != '/')
+    dest[i++] = '/';
+  dest[i] = 0;
+
   Buf_Init(&buf);
-  res = Utf16_To_Char(&buf, s
+  res = Utf16_To_Char(&buf, dest
       #ifndef MY_USE_UTF8
       , CP_UTF8
       #endif
@@ -516,7 +842,7 @@ static void PrintError_WRes(const char *message, WRes wres)
     Print(s);
   }
   // sprintf(buffer + strlen(buffer), "\nSystem error code: %d", (unsigned)wres);
-  #ifdef _WIN32
+  #ifdef USE_WINDOWS_FILE // _WIN32
   {
     char *s = NULL;
     if (FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER |
@@ -573,8 +899,6 @@ static void GetAttribString(UInt32 wa, BoolInt isDir, char *s)
 }
 
 
-// #define NUM_PARENTS_MAX 128
-
 int Z7_CDECL mainW(int numargs, WCHAR *args[])
 {
   ISzAlloc allocImp;
@@ -585,8 +909,9 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
   CSzArEx db;
   SRes res;
   UInt16 *temp = NULL;
+  UInt16 *temp2 = NULL;
   size_t tempSize = 0;
-  // UInt32 parents[NUM_PARENTS_MAX];
+  const BoolInt isTerminalMode = MY_IS_TERMINAL(stdout);
 
   Print("\n7z Decoder " MY_VERSION_CPU " : " MY_COPYRIGHT_DATE "\n\n");
 
@@ -619,7 +944,11 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
 
   {
     WRes wres =
+    #ifdef UNDER_CE
+      InFile_OpenW(&archiveStream.file, L"\test.7z"); // change it
+    #else
       InFile_OpenW(&archiveStream.file, args[2]);
+    #endif
     if (wres != 0)
     {
       PrintError_WRes("cannot open input file", wres);
@@ -710,18 +1039,26 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
         if (listCommand == 0 && isDir && !fullPaths)
           continue;
         len = SzArEx_GetFileNameUtf16(&db, i, NULL);
-        // len = SzArEx_GetFullNameLen(&db, i);
+
+        if (len > (1u << 20))
+        {
+          res = SZ_ERROR_UNSUPPORTED;
+          break;
+        }
 
         if (len > tempSize)
         {
           SzFree(NULL, temp);
           tempSize = len;
-          temp = (UInt16 *)SzAlloc(NULL, tempSize * sizeof(temp[0]));
+          // temp2 requires additional space for "_" additions for "COM1" and empty names,
+          // and up to 2 additional characters for PrintPath().
+          temp = (UInt16 *)SzAlloc(NULL, (tempSize * 3 + 16) * sizeof(temp[0]));
           if (!temp)
           {
             res = SZ_ERROR_MEM;
             break;
           }
+          temp2 = temp + tempSize;
         }
 
         SzArEx_GetFileNameUtf16(&db, i, temp);
@@ -759,25 +1096,19 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
           Print(" ");
           Print(s);
           Print("  ");
-          res = PrintString(temp);
+          res = PrintPath(temp, temp2, isDir, isTerminalMode);
           if (res != SZ_OK)
             break;
-          if (isDir)
-            Print("/");
           PrintLF();
           continue;
         }
 
-        Print(testCommand ?
-            "T ":
-            "- ");
-        res = PrintString(temp);
+        Print(testCommand ? "T ": "- ");
+        res = PrintPath(temp, temp2, isDir, isTerminalMode);
         if (res != SZ_OK)
           break;
         
-        if (isDir)
-          Print("/");
-        else
+        if (!isDir)
         {
           #ifdef REPORT_PROGRESS
           ReportProgress(temp, progress, progressMax, &abort);
@@ -786,7 +1117,7 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
             res = SZ_ERROR_PROGRESS;
             break;
           } 
-          #endif 
+          #endif
           res = SzArEx_Extract(&db, &lookStream.vt, i,
               &blockIndex, &outBuffer, &outBufferSize,
               &offset, &outSizeProcessed,
@@ -817,11 +1148,16 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
           CSzFile outFile;
           size_t processedSize;
           size_t j;
-          UInt16 *name = (UInt16 *)temp;
+
+          UInt16 *name = (UInt16 *)temp2;
           const UInt16 *destPath = (const UInt16 *)name;
- 
+
+          // memset(temp2, 0, (tempSize) * sizeof(temp[0])); // for debug
+          NormalizePath_for_FS(temp2, temp, isDir);
+          // PrintLF(); PrintPath(temp2, temp, isDir, isTerminalMode); // for debuf
+
           for (j = 0; name[j] != 0; j++)
-            if (name[j] == '/')
+            if (name[j] == NORMALIZED_CHAR_PATH_SEPARATOR)
             {
               if (fullPaths)
               {
@@ -841,6 +1177,7 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
           }
           else
           {
+            #ifdef NO_DELETEFILEALWAYS
             #ifdef USE_WINDOWS_FILE
             {
               const UInt32 existingattrib = GetFileAttributesW((LPCWSTR)destPath);
@@ -848,18 +1185,33 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
                 SetFileAttributesW((LPCWSTR)destPath, existingattrib & ~FILE_ATTRIBUTE_READONLY);
             }
             #endif
-
-            const WRes wres = OutFile_OpenUtf16(&outFile, destPath);
-            if (wres != 0)
+            #else
             {
-              PrintError_WRes("cannot open output file", wres);
-              res = SZ_ERROR_FAIL;
-              break;
+              // const WRes wres =
+              My_DeleteFileAlways(destPath);
+              /*
+              if (wres && wres != ERROR_FILE_NOT_FOUND)
+              {
+                PrintError_WRes("cannot delete output file", wres);
+                res = SZ_ERROR_FAIL;
+                break;
+              }
+              */
+            }
+            #endif
+            {
+              const WRes wres = OutFile_OpenUtf16(&outFile, destPath);
+              if (wres)
+              {
+                PrintError_WRes("cannot open output file", wres);
+                res = SZ_ERROR_FAIL;
+                break;
+              }
             }
           }
 
           processedSize = outSizeProcessed;
-
+          
           {
             const WRes wres = File_Write(&outFile, outBuffer + offset, &processedSize);
             if (wres != 0 || processedSize != outSizeProcessed)
@@ -926,7 +1278,7 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
             UInt32 attrib = db.Attribs.Vals[i];
             /* p7zip stores posix attributes in high 16 bits and adds 0x8000 as marker.
                We remove posix bits, if we detect posix mode field */
-            if ((attrib & 0xF0000000) != 0)
+            if (attrib & 0xF0000000)
               attrib &= 0x7FFF;
             SetFileAttributesW((LPCWSTR)destPath, attrib);
           }

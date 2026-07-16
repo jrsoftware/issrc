@@ -2,7 +2,7 @@ unit Compiler.ScriptClasses;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -33,16 +33,28 @@ begin
   end;
 end;
 
+procedure RegisterPngImage_C(Cl: TPSPascalCompiler);
+begin
+  with CL.AddClassN(CL.FindClass('TGraphic'),'TPngImage') do
+  begin
+    RegisterMethod('procedure LoadFromStream(Stream: TStream)');
+    RegisterMethod('procedure SaveToStream(Stream: TStream)');
+    RegisterProperty('Canvas', 'TCanvas', iptr);
+  end;
+end;
+
 procedure RegisterNewStaticText_C(Cl: TPSPascalCompiler);
 begin
   with Cl.AddClassN(Cl.FindClass('TWinControl'), 'TNewStaticText') do
   begin
     RegisterMethod('function AdjustHeight: Integer');
+    RegisterProperty('Alignment', 'TAlignment', iptrw);
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('AutoSize', 'Boolean', iptrw);
     RegisterProperty('Caption', 'String', iptrw);
     RegisterProperty('Color', 'TColor', iptrw);
     RegisterProperty('FocusControl', 'TWinControl', iptrw);
+    RegisterProperty('ForceLTRReading', 'Boolean', iptrw);
     RegisterProperty('Font', 'TFont', iptrw);
     RegisterProperty('ParentColor', 'Boolean', iptrw);
     RegisterProperty('ParentFont', 'Boolean', iptrw);
@@ -229,20 +241,22 @@ begin
   end;
 end;
 
-procedure RegisterBitmapImage_C(Cl: TPSPascalCompiler);
+procedure RegisterBitmapButton_C(Cl: TPSPascalCompiler);
 begin
   Cl.AddTypeS('TAlphaFormat', '(afIgnored, afDefined, afPremultiplied)');
   with Cl.FindClass('TBitmap') do
   begin
     RegisterProperty('AlphaFormat', 'TAlphaFormat', iptrw);
   end;
-  with Cl.AddClassN(CL.FindClass('TGraphicControl'),'TBitmapImage') do
+  with Cl.AddClassN(CL.FindClass('TCustomControl'),'TBitmapButton') do
   begin
     RegisterProperty('Anchors', 'TAnchors', iptrw);
     RegisterProperty('AutoSize', 'Boolean', iptrw);
     RegisterProperty('BackColor', 'TColor', iptrw);
-    RegisterProperty('Center', 'Boolean', iptrw);
     RegisterProperty('Bitmap', 'TBitmap', iptrw);
+    RegisterProperty('Caption', 'String', iptrw);
+    RegisterProperty('Center', 'Boolean', iptrw);
+    RegisterProperty('PngImage', 'TPngImage', iptrw);
     RegisterProperty('ReplaceColor', 'TColor', iptrw);
     RegisterProperty('ReplaceWithColor', 'TColor', iptrw);
     RegisterProperty('Stretch', 'Boolean', iptrw);
@@ -251,13 +265,38 @@ begin
   end;
 end;
 
-procedure RegisterBidiCtrls_C(Cl: TPSPascalCompiler);
+procedure RegisterBitmapImage_C(Cl: TPSPascalCompiler);
+begin
+  with Cl.AddClassN(CL.FindClass('TGraphicControl'),'TBitmapImage') do
+  begin
+    RegisterProperty('Anchors', 'TAnchors', iptrw);
+    RegisterProperty('AutoSize', 'Boolean', iptrw);
+    RegisterProperty('BackColor', 'TColor', iptrw);
+    RegisterProperty('Bitmap', 'TBitmap', iptrw);
+    RegisterProperty('Center', 'Boolean', iptrw);
+    RegisterProperty('PngImage', 'TPngImage', iptrw);
+    RegisterProperty('ReplaceColor', 'TColor', iptrw);
+    RegisterProperty('ReplaceWithColor', 'TColor', iptrw);
+    RegisterProperty('Stretch', 'Boolean', iptrw);
+    RegisterProperty('OnClick', 'TNotifyEvent', iptrw);
+    RegisterProperty('OnDblClick', 'TNotifyEvent', iptrw);
+  end;
+end;
+
+procedure RegisterNewCtrls_C(Cl: TPSPascalCompiler);
 begin
   Cl.AddClassN(Cl.FindClass('TEdit'), 'TNewEdit');
+  with Cl.AddClassN(Cl.FindClass('TNewEdit'), 'TNewPathEdit') do
+  begin
+    RegisterProperty('AutoCompleteFiles', 'Boolean', iptrw);
+  end;
   Cl.AddClassN(Cl.FindClass('TMemo'), 'TNewMemo');
   Cl.AddClassN(Cl.FindClass('TComboBox'), 'TNewComboBox');
   Cl.AddClassN(Cl.FindClass('TListBox'), 'TNewListBox');
-  Cl.AddClassN(Cl.FindClass('TButton'), 'TNewButton');
+  with Cl.AddClassN(Cl.FindClass('TButton'), 'TNewButton') do
+  begin
+    RegisterMethod('function AdjustHeightIfCommandLink: Integer');
+  end;
   Cl.AddClassN(Cl.FindClass('TCheckBox'), 'TNewCheckBox');
   Cl.AddClassN(Cl.FindClass('TRadioButton'), 'TNewRadioButton');
   with Cl.AddClassN(Cl.FindClass('TLinkLabel'), 'TNewLinkLabel') do
@@ -274,8 +313,8 @@ begin
   begin
     RegisterMethod('function FindNextPage(CurPage: TNewNotebookPage; GoForward: Boolean): TNewNotebookPage');
     RegisterProperty('Anchors', 'TAnchors', iptrw);
-    RegisterProperty('PageCount', 'Integer', iptr);
-    RegisterProperty('Pages', 'TNewNotebookPage Integer', iptr);
+    RegisterProperty('PageCount', 'NativeInt', iptr);
+    RegisterProperty('Pages', 'TNewNotebookPage NativeInt', iptr);
     RegisterProperty('ActivePage', 'TNewNotebookPage', iptrw);
   end;
 end;
@@ -286,7 +325,7 @@ begin
   begin
     RegisterProperty('Color', 'TColor', iptrw);
     RegisterProperty('Notebook', 'TNewNotebook', iptrw);
-    RegisterProperty('PageIndex', 'Integer', iptrw);
+    RegisterProperty('PageIndex', 'NativeInt', iptrw);
   end;
 end;
 
@@ -302,12 +341,15 @@ begin
     RegisterMethod('function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;');
     RegisterMethod('function ShouldSizeX: Boolean;');
     RegisterMethod('function ShouldSizeY: Boolean;');
-    RegisterMethod('procedure FlipSizeAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean)');
+    RegisterMethod('procedure FlipAndCenterIfNeeded(const ACenterInsideControl: Boolean; const CenterInsideControlCtl: TWinControl; const CenterInsideControlInsideClientArea: Boolean)');
     RegisterProperty('ControlsFlipped', 'Boolean', iptr);
+    RegisterProperty('ExtraClientWidth', 'Integer', iptr);
+    RegisterProperty('ExtraClientHeight', 'Integer', iptr);
     RegisterProperty('FlipControlsOnShow', 'Boolean', iptrw);
-    RegisterProperty('KeepSizeY', 'Boolean', iptrw);
+    RegisterProperty('KeepSizeX', 'Boolean', iptr);
+    RegisterProperty('KeepSizeY', 'Boolean', iptr);
     RegisterProperty('RightToLeft', 'Boolean', iptr);
-    RegisterProperty('SizeAndCenterOnShow', 'Boolean', iptrw);
+    RegisterProperty('CenterOnShow', 'Boolean', iptrw);
   end;
 end;
 
@@ -336,7 +378,7 @@ begin
     RegisterProperty('InstallingPage', 'TNewNotebookPage', iptr);
     RegisterProperty('InfoAfterPage', 'TNewNotebookPage', iptr);
     RegisterProperty('DiskSpaceLabel', 'TNewStaticText', iptr);
-    RegisterProperty('DirEdit', 'TEdit', iptr);
+    RegisterProperty('DirEdit', 'TNewPathEdit', iptr);
     RegisterProperty('GroupEdit', 'TNewEdit', iptr);
     RegisterProperty('NoIconsCheck', 'TNewCheckBox', iptr);
     RegisterProperty('PasswordLabel', 'TNewStaticText', iptr);
@@ -441,8 +483,10 @@ begin
     RegisterProperty('Description', 'String', iptrw);
     RegisterProperty('Surface', 'TNewNotebookPage', iptr);
     RegisterProperty('SurfaceColor', 'TColor', iptr);
-    RegisterProperty('SurfaceHeight', 'Integer', iptr);
     RegisterProperty('SurfaceWidth', 'Integer', iptr);
+    RegisterProperty('SurfaceExtraWidth', 'Integer', iptr);
+    RegisterProperty('SurfaceHeight', 'Integer', iptr);
+    RegisterProperty('SurfaceExtraHeight', 'Integer', iptr);
     RegisterProperty('OnActivate', 'TWizardPageNotifyEvent', iptrw);
     RegisterProperty('OnBackButtonClick', 'TWizardPageButtonEvent', iptrw);
     RegisterProperty('OnCancelButtonClick', 'TWizardPageCancelEvent', iptrw);
@@ -455,11 +499,11 @@ procedure RegisterInputQueryWizardPage_C(Cl: TPSPascalCompiler);
 begin
   with CL.AddClassN(Cl.FindClass('TWizardPage'),'TInputQueryWizardPage') do
   begin
-    RegisterMethod('function Add(const APrompt: String; const APassword: Boolean): Integer');
-    RegisterProperty('Edits', 'TPasswordEdit Integer', iptr);
-    RegisterProperty('PromptLabels', 'TNewStaticText Integer', iptr);
+    RegisterMethod('function Add(const APrompt: String; const APassword: Boolean): NativeInt');
+    RegisterProperty('Edits', 'TPasswordEdit NativeInt', iptr);
+    RegisterProperty('PromptLabels', 'TNewStaticText NativeInt', iptr);
     RegisterProperty('SubCaptionLabel', 'TNewStaticText', iptr);
-    RegisterProperty('Values', 'String Integer', iptrw);
+    RegisterProperty('Values', 'String NativeInt', iptrw);
   end;
 end;
 
@@ -480,13 +524,13 @@ procedure RegisterInputDirWizardPage_C(CL: TPSPascalCompiler);
 begin
   with CL.AddClassN(CL.FindClass('TWizardPage'),'TInputDirWizardPage') do
   begin
-    RegisterMethod('function Add(const APrompt: String): Integer');
-    RegisterProperty('Buttons', 'TNewButton Integer', iptr);
-    RegisterProperty('Edits', 'TEdit Integer', iptr);
+    RegisterMethod('function Add(const APrompt: String): NativeInt');
+    RegisterProperty('Buttons', 'TNewButton NativeInt', iptr);
+    RegisterProperty('Edits', 'TNewPathEdit NativeInt', iptr);
     RegisterProperty('NewFolderName', 'String', iptrw);
-    RegisterProperty('PromptLabels', 'TNewStaticText Integer', iptr);
+    RegisterProperty('PromptLabels', 'TNewStaticText NativeInt', iptr);
     RegisterProperty('SubCaptionLabel', 'TNewStaticText', iptr);
-    RegisterProperty('Values', 'String Integer', iptrw);
+    RegisterProperty('Values', 'String NativeInt', iptrw);
   end;
 end;
 
@@ -494,13 +538,13 @@ procedure RegisterInputFileWizardPage_C(Cl: TPSPascalCompiler);
 begin
   with CL.AddClassN(Cl.FindClass('TWizardPage'),'TInputFileWizardPage') do
   begin
-    RegisterMethod('function Add(const APrompt, AFilter, ADefaultExtension: String): Integer');
-    RegisterProperty('Buttons', 'TNewButton Integer', iptr);
-    RegisterProperty('Edits', 'TEdit Integer', iptr);
-    RegisterProperty('PromptLabels', 'TNewStaticText Integer', iptr);
+    RegisterMethod('function Add(const APrompt, AFilter, ADefaultExtension: String): NativeInt');
+    RegisterProperty('Buttons', 'TNewButton NativeInt', iptr);
+    RegisterProperty('Edits', 'TNewPathEdit NativeInt', iptr);
+    RegisterProperty('PromptLabels', 'TNewStaticText NativeInt', iptr);
     RegisterProperty('SubCaptionLabel', 'TNewStaticText', iptr);
-    RegisterProperty('Values', 'String Integer', iptrw);
-    RegisterProperty('IsSaveButton', 'Boolean Integer', iptrw);
+    RegisterProperty('Values', 'String NativeInt', iptrw);
+    RegisterProperty('IsSaveButton', 'Boolean NativeInt', iptrw);
   end;
 end;
 
@@ -552,10 +596,10 @@ begin
     RegisterProperty('AbortedByUser', 'Boolean', iptr);
     RegisterProperty('LastBaseNameOrUrl', 'String', iptr);
     RegisterProperty('ShowBaseNameInsteadOfUrl', 'Boolean', iptrw);
-    RegisterMethod('function Add(const Url, BaseName, RequiredSHA256OfFile: String): Integer');
-    RegisterMethod('function AddWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList): Integer;');
-    RegisterMethod('function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String): Integer');
-    RegisterMethod('function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String; const AllowedKeysRuntimeIDs: TStringList): Integer;');
+    RegisterMethod('function Add(const Url, BaseName, RequiredSHA256OfFile: String): NativeInt');
+    RegisterMethod('function AddWithISSigVerify(const Url, ISSigUrl, BaseName: String; const AllowedKeysRuntimeIDs: TStringList): NativeInt;');
+    RegisterMethod('function AddEx(const Url, BaseName, RequiredSHA256OfFile, UserName, Password: String): NativeInt');
+    RegisterMethod('function AddExWithISSigVerify(const Url, ISSigUrl, BaseName, UserName, Password: String; const AllowedKeysRuntimeIDs: TStringList): NativeInt;');
     RegisterMethod('procedure Clear');
     RegisterMethod('function Download: Int64');
     RegisterMethod('procedure Show'); { Without this TOutputProgressWizardPage's Show will be called }
@@ -569,8 +613,8 @@ begin
     RegisterProperty('AbortButton', 'TNewButton', iptr);
     RegisterProperty('AbortedByUser', 'Boolean', iptr);
     RegisterProperty('ShowArchiveInsteadOfFile', 'Boolean', iptrw);
-    RegisterMethod('function Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): Integer');
-    RegisterMethod('function AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): Integer');
+    RegisterMethod('function Add(const ArchiveFileName, DestDir: String; const FullPaths: Boolean): NativeInt');
+    RegisterMethod('function AddEx(const ArchiveFileName, DestDir, Password: String; const FullPaths: Boolean): NativeInt');
     RegisterMethod('procedure Clear');
     RegisterMethod('procedure Extract');
     RegisterMethod('procedure Show'); { Without this TOutputProgressWizardPage's Show will be called }
@@ -655,6 +699,8 @@ begin
   { ComObj }
   SIRegister_ComObj(Cl);
 
+  RegisterPngImage_C(Cl);
+
   RegisterNewStaticText_C(Cl);
   RegisterNewCheckListBox_C(Cl);
   RegisterNewProgressBar_C(Cl);
@@ -663,8 +709,9 @@ begin
   RegisterCustomFolderTreeView_C(Cl);
   RegisterFolderTreeView_C(Cl);
   RegisterStartMenuFolderTreeView_C(Cl);
+  RegisterBitmapButton_C(Cl);
   RegisterBitmapImage_C(Cl);
-  RegisterBidiCtrls_C(Cl);
+  RegisterNewCtrls_C(Cl);
 
   RegisterNewNotebook_C(Cl);
   RegisterNewNotebookPage_C(Cl);

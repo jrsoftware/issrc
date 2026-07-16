@@ -47,13 +47,12 @@ object SelectFolderForm: TSelectFolderForm
     Width = 17
     Height = 23
     Anchors = [akLeft, akBottom]
-    Cancel = True
     Caption = '*'
     Enabled = False
     TabOrder = 2
     OnClick = NewFolderButtonClick
   end
-  object PathEdit: TEdit
+  object PathEdit: TNewPathEdit
     Left = 16
     Top = 36
     Width = 317

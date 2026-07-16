@@ -2,7 +2,7 @@ unit PasswordEdit;
 
 {
   Inno Setup
-  Copyright (C) 1997-2018 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -71,9 +71,6 @@ procedure Register;
 
 implementation
 
-uses
-  BidiUtils;
-
 procedure Register;
 begin
   RegisterComponents('JR', [TPasswordEdit]);
@@ -92,7 +89,6 @@ begin
   inherited;
   if FPassword then
     Params.Style := Params.Style or ES_PASSWORD;
-  SetBiDiStyles(Self, Params);
 end;
 
 procedure TPasswordEdit.SetPassword(Value: Boolean);

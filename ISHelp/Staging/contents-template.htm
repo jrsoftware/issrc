@@ -6,18 +6,26 @@
 <link rel="stylesheet" type="text/css" href="contents.css" />
 <script type="text/javascript" src="contents.js"></script>
 </head>
-<body onload="init_contents(0);">
+<body>
 
-<div id="tabbar">
-<a id="tab-contents" class="selectedtab" href="javascript:select_tab('contents');">Contents</a>
-<a id="tab-index" class="unselectedtab" href="javascript:select_tab('index');">Index</a>
+<svg style="display: none">
+  <symbol id="icon-expand" viewBox="0 0 16 16">
+    <path d="M4.779,1.455l6.442,6.524l-6.442,6.524" fill="none" stroke="#7A7672" stroke-width="1.1" stroke-miterlimit="50"/>
+  </symbol>
+</svg>
+
+<div role="tablist" id="tabbar">
+<a role="tab" id="tab-contents" aria-selected="true" aria-controls="tabbody-contents"
+   href="javascript:select_tab('contents');">Contents</a>
+<a role="tab" id="tab-index" aria-selected="false" aria-controls="tabbody-index"
+   href="javascript:select_tab('index');">Index</a>
 </div>
 
-<div id="tabbody-contents">
+<div role="tabpanel" id="tabbody-contents" tabindex="0" aria-labelledby="tab-contents">
 %CONTENTSTABLES%
 </div>
 
-<div id="tabbody-index" style="display: none">
+<div role="tabpanel" id="tabbody-index" tabindex="0" aria-labelledby="tab-index" hidden="hidden">
 <div style="margin-top: 1em; text-align: center; color: GrayText">Loading...</div>
 </div>
 

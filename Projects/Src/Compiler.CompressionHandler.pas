@@ -13,7 +13,7 @@ interface
 
 uses
   Classes,
-  SHA256, ChaCha20, Shared.Struct, Shared.Int64Em, Shared.FileClass, Compression.Base,
+  SHA256, ChaCha20, Shared.Struct, Shared.FileClass, Compression.Base,
   Compiler.SetupCompiler;
 
 type
@@ -22,25 +22,25 @@ type
     FCachedCompressors: TList;
     FCompiler: TSetupCompiler;
     FCompressor: TCustomCompressor;
-    FChunkBytesRead: Integer64;
-    FChunkBytesWritten: Integer64;
+    FChunkBytesRead: Int64;
+    FChunkBytesWritten: Int64;
     FChunkEncrypted: Boolean;
     FChunkFirstSlice: Integer;
     FChunkStarted: Boolean;
-    FChunkStartOffset: Longint;
+    FChunkStartOffset: Int64;
     FCryptContext: TChaCha20Context;
     FCurSlice: Integer;
     FDestFile: TFile;
     FDestFileIsDiskSlice: Boolean;
-    FInitialBytesCompressedSoFar: Integer64;
-    FSliceBaseOffset: Cardinal;
-    FSliceBytesLeft: Cardinal;
+    FInitialBytesCompressedSoFar: Int64;
+    FSliceBaseOffset: Int64;
+    FSliceBytesLeft: Int64;
     procedure EndSlice;
     procedure NewSlice(const Filename: String);
   public
     constructor Create(ACompiler: TSetupCompiler; const InitialSliceFilename: String);
     destructor Destroy; override;
-    procedure CompressFile(const SourceFile: TFile; Bytes: Integer64;
+    procedure CompressFile(const SourceFile: TFile; Bytes: Int64;
       const CallOptimize: Boolean; out SHA256Sum: TSHA256Digest);
     procedure EndChunk;
     procedure Finish;
@@ -48,13 +48,13 @@ type
       const ACompressLevel: Integer; const ACompressorProps: TCompressorProps;
       const AUseEncryption: Boolean; const ACryptKey: TSetupEncryptionKey);
     procedure ProgressProc(BytesProcessed: Cardinal);
-    function ReserveBytesOnSlice(const Bytes: Cardinal): Boolean;
-    procedure WriteProc(const Buf; BufSize: Longint);
-    property ChunkBytesRead: Integer64 read FChunkBytesRead;
-    property ChunkBytesWritten: Integer64 read FChunkBytesWritten;
+    function ReserveBytesOnSlice(const Bytes: Int64): Boolean;
+    procedure WriteProc(const Buf; BufSize: Cardinal);
+    property ChunkBytesRead: Int64 read FChunkBytesRead;
+    property ChunkBytesWritten: Int64 read FChunkBytesWritten;
     property ChunkEncrypted: Boolean read FChunkEncrypted;
     property ChunkFirstSlice: Integer read FChunkFirstSlice;
-    property ChunkStartOffset: Longint read FChunkStartOffset;
+    property ChunkStartOffset: Int64 read FChunkStartOffset;
     property ChunkStarted: Boolean read FChunkStarted;
     property CurSlice: Integer read FCurSlice;
   end;
@@ -62,7 +62,7 @@ type
 implementation
 
 uses
-  SysUtils, Compiler.Messages, Compiler.HelperFunc;
+  SysUtils, Shared.EncryptionFunc, Compiler.Messages, Compiler.HelperFunc;
 
 constructor TCompressionHandler.Create(ACompiler: TSetupCompiler;
   const InitialSliceFilename: String);
@@ -75,11 +75,9 @@ begin
 end;
 
 destructor TCompressionHandler.Destroy;
-var
-  I: Integer;
 begin
   if Assigned(FCachedCompressors) then begin
-    for I := FCachedCompressors.Count-1 downto 0 do
+    for var I := FCachedCompressors.Count-1 downto 0 do
       TCustomCompressor(FCachedCompressors[I]).Free;
     FreeAndNil(FCachedCompressors);
   end;
@@ -146,11 +144,11 @@ begin
     FDestFile := TFile.Create(Filename, fdOpenExisting, faReadWrite, fsNone);
     FDestFile.SeekToEnd;
     FSliceBaseOffset := FDestFile.Position;
-    FSliceBytesLeft := Cardinal(DiskSliceSize) - FSliceBaseOffset;
+    FSliceBytesLeft := DiskSliceSize - FSliceBaseOffset;
   end;
 end;
 
-function TCompressionHandler.ReserveBytesOnSlice(const Bytes: Cardinal): Boolean;
+function TCompressionHandler.ReserveBytesOnSlice(const Bytes: Int64): Boolean;
 begin
   if FSliceBytesLeft >= Bytes then begin
     Dec(FSliceBytesLeft, Bytes);
@@ -166,14 +164,13 @@ procedure TCompressionHandler.NewChunk(const ACompressorClass: TCustomCompressor
 
   procedure SelectCompressor;
   var
-    I: Integer;
     C: TCustomCompressor;
   begin
     { No current compressor, or changing compressor classes? }
     if (FCompressor = nil) or (FCompressor.ClassType <> ACompressorClass) then begin
       FCompressor := nil;
       { Search cache for requested class }
-      for I := FCachedCompressors.Count-1 downto 0 do begin
+      for var I := FCachedCompressors.Count-1 downto 0 do begin
         C := FCachedCompressors[I];
         if C.ClassType = ACompressorClass then begin
           FCompressor := C;
@@ -187,16 +184,6 @@ procedure TCompressionHandler.NewChunk(const ACompressorClass: TCustomCompressor
         ACompressLevel, ACompressorProps);
       FCachedCompressors.Add(FCompressor);
     end;
-  end;
-
-  procedure InitEncryption;
-  begin
-    { Create a unique nonce from the base nonce }
-    var Nonce := FCompiler.GetEncryptionBaseNonce;
-    Nonce.RandomXorStartOffset := Nonce.RandomXorStartOffset xor FChunkStartOffset;
-    Nonce.RandomXorFirstSlice := Nonce.RandomXorFirstSlice xor FChunkFirstSlice;
-
-    XChaCha20Init(FCryptContext, ACryptKey[0], Length(ACryptKey), Nonce, SizeOf(Nonce), 0);
   end;
 
 var
@@ -215,15 +202,15 @@ begin
   FChunkStartOffset := FDestFile.Position - FSliceBaseOffset;
   FDestFile.WriteBuffer(ZLIBID, SizeOf(ZLIBID));
   Dec(FSliceBytesLeft, SizeOf(ZLIBID));
-  FChunkBytesRead := To64(0);
-  FChunkBytesWritten := To64(0);
+  FChunkBytesRead := 0;
+  FChunkBytesWritten := 0;
   FInitialBytesCompressedSoFar := FCompiler.GetBytesCompressedSoFar;
 
   SelectCompressor;
 
   FChunkEncrypted := AUseEncryption;
   if AUseEncryption then
-    InitEncryption;
+    InitCryptContext(ACryptKey, FCompiler.GetEncryptionBaseNonce, FChunkStartOffset, FChunkFirstSlice, FCryptContext);
 
   FChunkStarted := True;
 end;
@@ -242,27 +229,24 @@ begin
 end;
 
 procedure TCompressionHandler.CompressFile(const SourceFile: TFile;
-  Bytes: Integer64; const CallOptimize: Boolean; out SHA256Sum: TSHA256Digest);
+  Bytes: Int64; const CallOptimize: Boolean; out SHA256Sum: TSHA256Digest);
 var
   Context: TSHA256Context;
-  AddrOffset: LongWord;
-  BufSize: Cardinal;
+  AddrOffset: UInt32;
   Buf: array[0..65535] of Byte;
   { ^ *must* be the same buffer size used in Setup (TFileExtractor), otherwise
     the TransformCallInstructions call will break }
 begin
   SHA256Init(Context);
   AddrOffset := 0;
-  while True do begin
-    BufSize := SizeOf(Buf);
-    if (Bytes.Hi = 0) and (Bytes.Lo < BufSize) then
-      BufSize := Bytes.Lo;
-    if BufSize = 0 then
-      Break;
+  while Bytes > 0 do begin
+    var BufSize: Cardinal := SizeOf(Buf);
+    if Bytes < BufSize then
+      BufSize := Cardinal(Bytes);
 
     SourceFile.ReadBuffer(Buf, BufSize);
-    Inc64(FChunkBytesRead, BufSize);
-    Dec64(Bytes, BufSize);
+    Inc(FChunkBytesRead, BufSize);
+    Dec(Bytes, BufSize);
     SHA256Update(Context, Buf, BufSize);
     if CallOptimize then begin
       TransformCallInstructions(Buf, BufSize, True, AddrOffset);
@@ -273,7 +257,7 @@ begin
   SHA256Sum := SHA256Final(Context);
 end;
 
-procedure TCompressionHandler.WriteProc(const Buf; BufSize: Longint);
+procedure TCompressionHandler.WriteProc(const Buf; BufSize: Cardinal);
 var
   P, P2: Pointer;
   S: Cardinal;
@@ -284,8 +268,8 @@ begin
     S := BufSize;
     if FSliceBytesLeft = 0 then
       NewSlice('');
-    if S > Cardinal(FSliceBytesLeft) then
-      S := FSliceBytesLeft;
+    if S > FSliceBytesLeft then
+      S := Cardinal(FSliceBytesLeft);
 
     if not FChunkEncrypted then
       FDestFile.WriteBuffer(P^, S)
@@ -301,8 +285,8 @@ begin
       end;
     end;
 
-    Inc64(FChunkBytesWritten, S);
-    Inc(Cardinal(P), S);
+    Inc(FChunkBytesWritten, S);
+    Inc(PByte(P), S);
     Dec(BufSize, S);
     Dec(FSliceBytesLeft, S);
   end;

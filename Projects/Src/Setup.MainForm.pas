@@ -2,7 +2,7 @@ unit Setup.MainForm;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -24,8 +24,6 @@ type
     procedure Finish(const FromPreparingPage: Boolean);
     function Install: Boolean;
     procedure SetStep(const AStep: TSetupStep; const HandleExceptions: Boolean);
-    class procedure ShowException(Sender: TObject; E: Exception);
-    class procedure ShowExceptionMsg(const S: String);
   end;
 
 var
@@ -45,17 +43,6 @@ destructor TMainForm.Destroy;
 begin
   MainForm := nil;  { just to detect use-after-free }
   inherited;
-end;
-
-class procedure TMainForm.ShowExceptionMsg(const S: String);
-begin
-  Log('Exception message:');
-  LoggedAppMessageBox(PChar(S), PChar(Application.Title), MB_OK or MB_ICONSTOP, True, IDOK);
-end;
-
-class procedure TMainForm.ShowException(Sender: TObject; E: Exception);
-begin
-  ShowExceptionMsg(AddPeriod(E.Message));
 end;
 
 procedure TMainForm.SetStep(const AStep: TSetupStep; const HandleExceptions: Boolean);
@@ -105,7 +92,6 @@ function TMainForm.Install: Boolean;
     CheckIfRestartNeeded: Boolean;
     ChecksumBefore, ChecksumAfter: TSHA256Digest;
     WindowDisabler: TWindowDisabler;
-    I: Integer;
     RunEntry: PSetupRunEntry;
   begin
     if Entries[seRun].Count <> 0 then begin
@@ -116,7 +102,7 @@ function TMainForm.Install: Boolean;
       var WizardWasHidden := False;
       WindowDisabler := nil;
       try
-        for I := 0 to Entries[seRun].Count-1 do begin
+        for var I := 0 to Entries[seRun].Count-1 do begin
           RunEntry := PSetupRunEntry(Entries[seRun][I]);
           if not(roPostInstall in RunEntry.Options) and
              ShouldProcessRunEntry(WizardComponents, WizardTasks, RunEntry) then begin
@@ -254,7 +240,7 @@ begin
 
     SetStep(ssPostInstall, True);
 
-    { Notify Windows of assocations/environment changes *after* ssPostInstall
+    { Notify Windows of associations/environment changes *after* ssPostInstall
       since user might set more stuff there }
     if ChangesAssociations then
       SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nil, nil);

@@ -4,51 +4,64 @@
 ; at runtime and how to perform direct callbacks from these functions to functions
 ; in the script.
 
+; Remove the following line to use 32-bit DLLs
+#define x64
+
 [Setup]
 AppName=My Program
 AppVersion=1.5
-WizardStyle=modern
+WizardStyle=modern dynamic
 DefaultDirName={autopf}\My Program
 DisableProgramGroupPage=yes
 DisableWelcomePage=no
 UninstallDisplayIcon={app}\MyProg.exe
 OutputDir=userdocs:Inno Setup Examples Output
+#ifdef x64
+SetupArchitecture=x64
+#else
+SetupArchitecture=x86
+#endif
 
 [Files]
+; Install our DLL to {app} so we can access it at uninstall time.
+; Use "Flags: dontcopy noencryption" if you don't need uninstall time access.
+#ifdef x64
+Source: "MyDll-x64.dll"; DestDir: "{app}"; DestName: "MyDll.dll"
+#else
+Source: "MyDll.dll"; DestDir: "{app}"
+#endif
+; Place any regular files here, so *after* all your dontcopy DLL files.
 Source: "MyProg.exe"; DestDir: "{app}"
 Source: "MyProg.chm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
-; Install our DLL to {app} so we can access it at uninstall time.
-; Use "Flags: dontcopy" if you don't need uninstall time access.
-Source: "MyDll.dll"; DestDir: "{app}"
 
 [Code]
 const
   MB_ICONINFORMATION = $40;
 
-// Importing a Unicode Windows API function.
-function MessageBox(hWnd: Integer; lpText, lpCaption: String; uType: Cardinal): Integer;
+// Importing a Windows API function.
+function MessageBox(hWnd: HWND; lpText, lpCaption: String; uType: Cardinal): Integer;
 external 'MessageBoxW@user32.dll stdcall';
 
-// Importing an ANSI custom DLL function, first for Setup, then for uninstall.
-procedure MyDllFuncSetup(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal);
+// Importing a custom DLL function, first for Setup, then for uninstall.
+procedure MyDllFuncSetup(hWnd: HWND; lpText, lpCaption: String; uType: Cardinal);
 external 'MyDllFunc@files:MyDll.dll stdcall setuponly';
 
-procedure MyDllFuncUninstall(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal);
+procedure MyDllFuncUninstall(hWnd: HWND; lpText, lpCaption: String; uType: Cardinal);
 external 'MyDllFunc@{app}\MyDll.dll stdcall uninstallonly';
 
-// Importing an ANSI function for a DLL which might not exist at runtime.
-procedure DelayLoadedFunc(hWnd: Integer; lpText, lpCaption: AnsiString; uType: Cardinal);
+// Importing a function for a DLL which might not exist at runtime.
+procedure DelayLoadedFunc(hWnd: HWND; lpText, lpCaption: String; uType: Cardinal);
 external 'DllFunc@DllWhichMightNotExist.dll stdcall delayload';
 
 function NextButtonClick(CurPage: Integer): Boolean;
 var
-  hWnd: Integer;
+  hWnd: HWND;
 begin
   if CurPage = wpWelcome then begin
-    hWnd := StrToInt(ExpandConstant('{wizardhwnd}'));
+    hWnd := StrToInt64(ExpandConstant('{wizardhwnd}'));
 
-    MessageBox(hWnd, 'Hello from Windows API function', 'MessageBoxA', MB_OK or MB_ICONINFORMATION);
+    MessageBox(hWnd, 'Hello from Windows API function', 'MessageBoxW', MB_OK or MB_ICONINFORMATION);
 
     MyDllFuncSetup(hWnd, 'Hello from custom DLL function', 'MyDllFunc', MB_OK or MB_ICONINFORMATION);
 
@@ -76,16 +89,17 @@ end;
 
 // The following shows how to use callbacks.
 
-function SetTimer(hWnd, nIDEvent, uElapse, lpTimerFunc: Longword): Longword;
+function SetTimer(hWnd: HWND; nIDEvent: UINT_PTR; uElapse: UINT; lpTimerFunc: NativeInt): UINT_PTR;
 external 'SetTimer@user32.dll stdcall';
 
-function KillTimer(hWnd, nIDEvent: Longword): Bool;
+function KillTimer(hWnd: HWND; nIDEvent: UINT_PTR): BOOL;
 external 'KillTimer@user32.dll stdcall';
 
 var
-  TimerID, TimerCount: Integer;
+  TimerID: UINT_PTR;
+  TimerCount: Integer;
 
-procedure MyTimerProc(Arg1, Arg2, Arg3, Arg4: Longword);
+procedure MyTimerProc(Arg1: HWND; Arg2: UINT; Arg3: UINT_PTR; Arg4: DWORD);
 begin
   if WizardForm <> nil then begin
     Inc(TimerCount);

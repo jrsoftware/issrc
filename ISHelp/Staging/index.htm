@@ -6,36 +6,39 @@
 <script type="text/javascript"><!--
 
 var contentsFrameLoaded = false;
-var bodyFrameLoaded = false;
-
-// When this page is first loaded, trigger_sync_contents() isn't called
-// until both contentsframe.onload and bodyframe.onload have fired
-// (order does not matter). After that, trigger_sync_contents() is
-// called whenever further onload events come in on either frame (as
-// a result of refreshing, clicking a link, or clicking Back/Forward).
+var currentTopic = "";
 
 function trigger_sync_contents()
 {
-	window.frames["contentsframe"].sync_contents();
-}
-
-function bodyframe_loaded()
-{
-	bodyFrameLoaded = true;
-	if (contentsFrameLoaded) trigger_sync_contents();
+	if (contentsFrameLoaded && currentTopic !== "") {
+		window.frames["contentsframe"].postMessage("ishelp_sync_contents:" + currentTopic, "*");
+	}
 }
 
 function contentsframe_loaded()
 {
+	// The contents frame has either completed loading for the first time
+	// (possibly *after* the browser loaded the body frame), or was
+	// individually reloaded and now needs re-syncing.
+
 	contentsFrameLoaded = true;
-	if (bodyFrameLoaded) trigger_sync_contents();
+	trigger_sync_contents();
 }
+
+window.addEventListener("message", (event) => {
+	//console.log("index.htm message received:", event.data);
+
+	if (typeof event.data === "string" && event.data.startsWith("ishelp_topic_loaded:")) {
+		currentTopic = event.data.substring(20);
+		trigger_sync_contents();
+	}
+});
 
 --></script>
 </head>
 <frameset cols="272, *">
-  <frame name="contentsframe" src="contents.htm" onload="contentsframe_loaded();" />
-  <frame name="bodyframe" src="topic_whatisinnosetup.htm" onload="bodyframe_loaded();" />
+  <frame name="contentsframe" title="Contents/Index" src="contents.htm" onload="contentsframe_loaded();" />
+  <frame name="bodyframe" title="Topic body" src="topic_whatisinnosetup.htm" />
   <noframes>
     <body>
       <p>Your browser does not support frames.</p>

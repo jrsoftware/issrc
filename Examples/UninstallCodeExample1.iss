@@ -5,7 +5,7 @@
 [Setup]
 AppName=My Program
 AppVersion=1.5
-WizardStyle=modern
+WizardStyle=modern dynamic
 DefaultDirName={autopf}\My Program
 DefaultGroupName=My Program
 UninstallDisplayIcon={app}\MyProg.exe
@@ -17,14 +17,14 @@ Source: "MyProg.chm"; DestDir: "{app}"
 Source: "Readme.txt"; DestDir: "{app}"; Flags: isreadme
 
 [Code]
-function InitializeUninstall(): Boolean;
+function InitializeUninstall: Boolean;
 begin
   Result := MsgBox('InitializeUninstall:' #13#13 'Uninstall is initializing. Do you really want to start Uninstall?', mbConfirmation, MB_YESNO) = idYes;
   if Result = False then
     MsgBox('InitializeUninstall:' #13#13 'Ok, bye bye.', mbInformation, MB_OK);
 end;
 
-procedure DeinitializeUninstall();
+procedure DeinitializeUninstall;
 begin
   MsgBox('DeinitializeUninstall:' #13#13 'Bye bye!', mbInformation, MB_OK);
 end;

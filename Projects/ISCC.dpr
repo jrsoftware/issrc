@@ -3,7 +3,7 @@ program ISCC;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -30,17 +30,18 @@ uses
   Shared.FileClass in 'Src\Shared.FileClass.pas',
   Shared.ConfigIniFile in 'Src\Shared.ConfigIniFile.pas',
   Shared.SignToolsFunc in 'Src\Shared.SignToolsFunc.pas',
-  Shared.Int64Em in 'Src\Shared.Int64Em.pas',
+  Shared.LicenseFunc in 'Src\Shared.LicenseFunc.pas',
   SHA256 in '..\Components\SHA256.pas',
   ECDSA in '..\Components\ECDSA.pas',
   ISSigFunc in '..\Components\ISSigFunc.pas',
-  StringScanner in '..\Components\StringScanner.pas';
+  StringScanner in '..\Components\StringScanner.pas',
+  UnsignedFunc in '..\Components\UnsignedFunc.pas';
 
 {$SETPEOSVERSION 6.1}
 {$SETPESUBSYSVERSION 6.1}
 {$WEAKLINKRTTI ON}
 
-{$R Res\ISCC.manifest.res}
+{$R Res\ConsoleApp.manifest.res}
 {$R Res\ISCC.versionandicon.res}
 
 type
@@ -52,15 +53,14 @@ type
 
   TOptionID = 0..25;
 
-  TOptions = packed set of TOptionID;
+  TOptions = set of TOptionID;
 
-  TIsppOptions = packed record
+  TIsppOptions = record
     ParserOptions: TOptions;
     Options: TOptions;
-    VerboseLevel: Byte;
-    InlineStart: string[7];
-    InlineEnd: string[7];
-    SpanSymbol: AnsiChar;
+    VerboseLevel: Integer;
+    InlineStart: String;
+    InlineEnd: String;
   end;
 
 var
@@ -85,11 +85,11 @@ begin
 
   if HandleIsConsole then begin
     var CharsWritten: DWORD;
-    WriteConsole(Handle, @S[1], Length(S), CharsWritten, nil);
+    WriteConsole(Handle, @S[1], ULength(S), CharsWritten, nil);
   end else begin
     var Utf8S := Utf8Encode(S);
     var BytesWritten: DWORD;
-    WriteFile(Handle, Utf8S[1], Length(Utf8S), BytesWritten, nil);
+    WriteFile(Handle, Utf8S[1], ULength(Utf8S), BytesWritten, nil);
   end;
 end;
 
@@ -127,10 +127,13 @@ function GetCursorPos: TPoint;
 var
   CSBI: TConsoleScreenBufferInfo;
 begin
-  if not StdOutHandleIsConsole or not GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then
-    Exit;
-  Result.X := CSBI.dwCursorPosition.X;
-  Result.Y := CSBI.dwCursorPosition.Y;
+  if not StdOutHandleIsConsole or not GetConsoleScreenBufferInfo(StdOutHandle, CSBI) then begin
+    Result.X := -1;
+    Result.Y := -1;
+  end else begin
+    Result.X := CSBI.dwCursorPosition.X;
+    Result.Y := CSBI.dwCursorPosition.Y;
+  end;
 end;
 
 procedure SetCursorPos(const P: TPoint);
@@ -142,10 +145,10 @@ begin
     Exit;
   if P.X < 0 then Exit;
   if P.Y < 0 then Exit;
-  if P.X > CSBI.dwSize.X then Exit;
-  if P.Y > CSBI.dwSize.Y then Exit;
-  Coords.X := P.X;
-  Coords.Y := P.Y;
+  if P.X >= CSBI.dwSize.X then Exit;
+  if P.Y >= CSBI.dwSize.Y then Exit;
+  Coords.X := SHORT(P.X);
+  Coords.Y := SHORT(P.Y);
   SetConsoleCursorPosition(StdOutHandle, Coords);
 end;
 
@@ -216,7 +219,7 @@ begin
 end;
 
 function CompilerCallbackProc(Code: Integer; var Data: TCompilerCallbackData;
-  AppData: Longint): Integer; stdcall;
+  AppData: NativeInt): Integer; stdcall;
 
   procedure PrintProgress(Progress: String);
   var
@@ -328,7 +331,7 @@ procedure ProcessCommandLine;
     end;
 
     Definitions := 'ISCC_INVOKED'#1'ISPPCC_INVOKED'#1;
-    IncludePath := ExtractFileDir(NewParamStr(0));
+    IncludePath := PathExtractDir(NewParamStr(0));
     IncludeFiles := '';
   end;
 
@@ -364,30 +367,11 @@ procedure ProcessCommandLine;
       S := Copy(S, 2 + Length(Symbols), MaxInt);
   end;
 
-  function FindParam(var Index: Integer; Symbols: String): String;
-  var
-    I: Integer;
-    S: String;
-  begin
-    for I := Index to NewParamCount do
-    begin
-      S := NewParamStr(I);
-      if IsParam(S) and (CompareText(Copy(S, 2, Length(Symbols)), Symbols) = 0) then
-      begin
-        Result := Copy(S, 2 + Length(Symbols), MaxInt);
-        Index := I + 1;
-        Exit;
-      end;
-    end;
-    Index := MaxInt;
-    Result := '';
-  end;
-
   procedure ShowBanner;
   begin
-    WriteStdOut('Inno Setup 6 Command-Line Compiler');
-    WriteStdOut('Copyright (C) 1997-2025 Jordan Russell. All rights reserved.');
-    WriteStdOut('Portions Copyright (C) 2000-2025 Martijn Laan. All rights reserved.');
+    WriteStdOut('Inno Setup 7' {$IFNDEF WIN64} + ' (32-bit)' {$ENDIF} + ' Command-Line Compiler');
+    WriteStdOut('Copyright (C) 1997-2026 Jordan Russell. All rights reserved.');
+    WriteStdOut('Portions Copyright (C) 2000-2026 Martijn Laan. All rights reserved.');
     if IsppMode then
       WriteStdOut('Portions Copyright (C) 2001-2004 Alex Yackimoff. All rights reserved.');
     WriteStdOut('https://www.innosetup.com');
@@ -468,10 +452,10 @@ begin
         IncludeFiles := IncludeFiles + S + #1;
       end
       else if IsppMode and GetParam(S, '{#') then begin
-        if S <> '' then IsppOptions.InlineStart := AnsiString(S);
+        if S <> '' then IsppOptions.InlineStart := S;
       end
       else if IsppMode and GetParam(S, '}') then begin
-        if S <> '' then IsppOptions.InlineEnd := AnsiString(S);
+        if S <> '' then IsppOptions.InlineEnd := S;
       end
       else if IsppMode and GetParam(S, 'V') then begin
         if S <> '' then IsppOptions.VerboseLevel := StrToIntDef(S, 0);
@@ -534,8 +518,8 @@ procedure Go;
       AppendOption(S, 'ISPP:ParserOptions', ConvertOptionsToString(ParserOptions));
       AppendOption(S, 'ISPP:Options', ConvertOptionsToString(Options));
       AppendOption(S, 'ISPP:VerboseLevel', IntToStr(VerboseLevel));
-      AppendOption(S, 'ISPP:InlineStart', String(InlineStart));
-      AppendOption(S, 'ISPP:InlineEnd', String(InlineEnd));
+      AppendOption(S, 'ISPP:InlineStart', InlineStart);
+      AppendOption(S, 'ISPP:InlineEnd', InlineEnd);
     end;
 
     AppendOption(S, 'ISPP:Definitions', Definitions);
@@ -545,7 +529,7 @@ procedure Go;
 
 var
   ScriptPath: String;
-  ExitCode: Integer;
+  ExitCode: Word;
   Ver: PCompilerVersionInfo;
   F: TTextFileReader;
   Params: TCompileScriptParamsEx;
@@ -590,6 +574,8 @@ begin
       F := TTextFileReader.Create(ScriptFilename, fdOpenExisting, faRead, fsRead)
     else
       F := TTextFileReader.CreateWithExistingHandle(GetStdHandle(STD_INPUT_HANDLE));
+    if not F.CanDetectUTF8WithoutBOM then
+      F.CodePage := CP_UTF8; { Assume UTF-8 }
     try
       ReadScriptLines(F);
     finally
@@ -598,6 +584,10 @@ begin
 
     if not Quiet then begin
       WriteStdOut('Compiler engine version: ' + String(Ver.Title) + ' ' + String(Ver.Version));
+      if IsLicensed then
+        WriteStdOut('Licensee name: ' + GetLicenseeDescription)
+      else
+        WriteStdOut(GetLicenseeDescription);
       WriteStdOut('');
     end;
 
@@ -663,6 +653,10 @@ begin
 end;
 
 begin
+  {$IFDEF DEBUG}
+  ReportMemoryLeaksOnShutdown := True;
+  {$ENDIF}
+
   SignTools := TStringList.Create;
   try
     StdOutHandle := GetStdHandle(STD_OUTPUT_HANDLE);
@@ -672,6 +666,7 @@ begin
     StdErrHandleIsConsole := GetConsoleMode(StdErrHandle, Mode);
     SetConsoleCtrlHandler(@ConsoleCtrlHandler, True);
     try
+      ReadLicense;
       IsppMode := ISPPInstalled;
       ProcessCommandLine;
       Go;

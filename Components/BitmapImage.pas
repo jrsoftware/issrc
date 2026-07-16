@@ -2,38 +2,77 @@ unit BitmapImage;
 
 {
   Inno Setup
-  Copyright (C) 1997-2019 Jordan Russell
+  Copyright (C) 1997-2025 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  A TImage-like component for bitmaps without the TPicture bloat
+  A TImage-like component for bitmaps and png files without the TPicture bloat
+  
+  Also supports other TGraphic types which can be assigned to a TBitmap
+
+  Also see TBitmapButton which is the TWinControl version
 }
 
 interface
 
 uses
-  Windows, Controls, Graphics, Classes;
+  Windows, ShellAPI, Controls, Graphics, Classes, Imaging.pngimage;
 
 type
+  TPaintEvent = procedure(Sender: TObject; Canvas: TCanvas; var ARect: TRect) of object;
+
+  TBitmapImageImplementation = record
+  private
+    FControl: TControl;
+  public
+    AutoSize: Boolean;
+    AutoSizeExtraWidth, AutoSizeExtraHeight: Integer;
+    BackColor: TColor;
+    Bitmap: TBitmap;
+    Center: Boolean;
+    Opacity: Byte;
+    PngImage: TPngImage;
+    ReplaceColor: TColor;
+    ReplaceWithColor: TColor;
+    Stretch: Boolean;
+    StretchedBitmap: TBitmap;
+    StretchedBitmapValid: Boolean;
+    OnPaint: TPaintEvent;
+    procedure Init(const AControl: TControl; const AAutoSizeExtraWidth: Integer = 0;
+      const AAutoSizeExtraHeight: Integer = 0);
+    procedure DeInit;
+    class function AdjustColorForStyle(const Control: TControl; const Color: TColor): TColor; static;
+    function GetInitializeSize(const AscendingTrySizes: array of Integer): Integer;
+    function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+    function InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+    procedure BitmapChanged(Sender: TObject);
+    procedure PngImageChanged(Sender: TObject);
+    procedure SetAutoSize(Sender: TObject; Value: Boolean);
+    procedure SetBackColor(Sender: TObject; Value: TColor);
+    procedure SetBitmap(Value: TBitmap);
+    procedure SetCenter(Sender: TObject; Value: Boolean);
+    procedure SetGraphic(Value: TGraphic);
+    procedure SetOpacity(Sender: TObject; Value: Byte);
+    procedure SetPngImage(Value: TPngImage);
+    procedure SetReplaceColor(Sender: TObject; Value: TColor);
+    procedure SetReplaceWithColor(Sender: TObject; Value: TColor);
+    procedure SetStretch(Sender: TObject; Value: Boolean);
+    function GetPalette: HPALETTE;
+    procedure Paint(const Sender: TObject; const Canvas: TCanvas; var R: TRect);
+  end;
+
   TBitmapImage = class(TGraphicControl)
   private
-    FAutoSize: Boolean;
-    FBackColor: TColor;
-    FBitmap: TBitmap;
-    FCenter: Boolean;
-    FReplaceColor: TColor;
-    FReplaceWithColor: TColor;
-    FStretch: Boolean;
-    FStretchedBitmap: TBitmap;
-    FStretchedBitmapValid: Boolean;
-    procedure BitmapChanged(Sender: TObject);
+    FImpl: TBitmapImageImplementation;
     procedure SetBackColor(Value: TColor);
     procedure SetBitmap(Value: TBitmap);
     procedure SetCenter(Value: Boolean);
+    procedure SetOpacity(Value: Byte);
+    procedure SetGraphic(Value: TGraphic);
+    procedure SetPngImage(Value: TPngImage);
     procedure SetReplaceColor(Value: TColor);
     procedure SetReplaceWithColor(Value: TColor);
     procedure SetStretch(Value: Boolean);
-    function GetBitmap: TBitmap;
   protected
     function GetPalette: HPALETTE; override;
     procedure Paint; override;
@@ -42,22 +81,26 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+    function InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+    property Bitmap: TBitmap read FImpl.Bitmap write SetBitmap;
+    property Graphic: TGraphic write SetGraphic;
   published
     property Align;
     property Anchors;
-    property AutoSize: Boolean read FAutoSize write SetAutoSize default False;
-    property BackColor: TColor read FBackColor write SetBackColor default clBtnFace;
-    property Center: Boolean read FCenter write SetCenter default False;
+    property AutoSize: Boolean read FImpl.AutoSize write SetAutoSize default False;
+    property BackColor: TColor read FImpl.BackColor write SetBackColor default clBtnFace;
+    property Center: Boolean read FImpl.Center write SetCenter default False;
     property DragCursor;
     property DragMode;
     property Enabled;
+    property Opacity: Byte read FImpl.Opacity write SetOpacity default 255;
     property ParentShowHint;
-    property Bitmap: TBitmap read GetBitmap write SetBitmap;
+    property PngImage: TPngImage read FImpl.PngImage write SetPngImage;
     property PopupMenu;
     property ShowHint;
-    property Stretch: Boolean read FStretch write SetStretch default False;
-    property ReplaceColor: TColor read FReplaceColor write SetReplaceColor default clNone;
-    property ReplaceWithColor: TColor read FReplaceWithColor write SetReplaceWithColor default clNone;
+    property Stretch: Boolean read FImpl.Stretch write SetStretch default False;
+    property ReplaceColor: TColor read FImpl.ReplaceColor write SetReplaceColor default clNone;
+    property ReplaceWithColor: TColor read FImpl.ReplaceWithColor write SetReplaceWithColor default clNone;
     property Visible;
     property OnClick;
     property OnDblClick;
@@ -67,6 +110,7 @@ type
     property OnMouseDown;
     property OnMouseMove;
     property OnMouseUp;
+    property OnPaint: TPaintEvent read FImpl.OnPaint write FImpl.OnPaint;
     property OnStartDrag;
   end;
 
@@ -75,52 +119,95 @@ procedure Register;
 implementation
 
 uses
-  Math, Resample;
+  CommCtrl, SysUtils, Math, Themes, Resample;
 
 procedure Register;
 begin
   RegisterComponents('JR', [TBitmapImage]);
 end;
 
-function TBitmapImage.InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
-var
-  Flags: Cardinal;
-  Handle: THandle;
-  Icon: TIcon;
-  I, Size: Integer;
+{ TBitmapImageImplementation }
+
+procedure TBitmapImageImplementation.Init(const AControl: TControl;
+  const AAutoSizeExtraWidth, AAutoSizeExtraHeight: Integer);
+begin
+  FControl := AControl;
+  AutoSizeExtraWidth := AAutoSizeExtraWidth;
+  AutoSizeExtraHeight := AAutoSizeExtraHeight;
+  BackColor := clNone;
+  Bitmap := TBitmap.Create;
+  Bitmap.OnChange := BitmapChanged;
+  Opacity := 255;
+  PngImage := TPngImage.Create;
+  PngImage.OnChange := PngImageChanged;
+  ReplaceColor := clNone;
+  ReplaceWithColor := clNone;
+  StretchedBitmap := TBitmap.Create;
+end;
+
+procedure TBitmapImageImplementation.DeInit;
+begin
+  FreeAndNil(StretchedBitmap);
+  FreeAndNil(PngImage);
+  FreeAndNil(Bitmap);
+end;
+
+class function TBitmapImageImplementation.AdjustColorForStyle(const Control: TControl;
+  const Color: TColor): TColor;
+begin
+  Result := Color;
+  if (Result = clBtnFace) or (Result = clWindow) then begin
+    var LStyle := StyleServices(Control);
+    if not LStyle.Enabled or LStyle.IsSystemStyle then
+      LStyle := nil;
+    if LStyle <> nil then begin
+      if Result = clBtnFace then
+        Result := LStyle.GetStyleColor(scPanel)
+      else
+        Result := LStyle.GetStyleColor(scWindow);
+    end;
+  end;
+end;
+
+function TBitmapImageImplementation.GetInitializeSize(const AscendingTrySizes: array of Integer): Integer;
 begin
   { Find the largest regular icon size smaller than the scaled image }
-  Size := 0;
-  for I := Length(AscendingTrySizes)-1 downto 0 do begin
-    if (Width >= AscendingTrySizes[I]) and (Height >= AscendingTrySizes[I]) then begin
-      Size := AscendingTrySizes[I];
+  Result := 0;
+  for var I := Length(AscendingTrySizes)-1 downto 0 do begin
+    if (FControl.Width >= AscendingTrySizes[I]) and (FControl.Height >= AscendingTrySizes[I]) then begin
+      Result := AscendingTrySizes[I];
       Break;
     end;
   end;
-  if Size = 0 then
-    Size := Min(Width, Height);
+  if Result = 0 then
+    Result := Min(FControl.Width, FControl.Height);
+end;
+
+function TBitmapImageImplementation.InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+begin
+  const Size = GetInitializeSize(AscendingTrySizes);
 
   { Load the desired icon }
-  Flags := LR_DEFAULTCOLOR;
+  var Flags: UINT := LR_DEFAULTCOLOR;
   if Instance = 0 then
     Flags := Flags or LR_LOADFROMFILE;
-  Handle := LoadImage(Instance, Name, IMAGE_ICON, Size, Size, Flags);
+  var Handle := LoadImage(Instance, Name, IMAGE_ICON, Size, Size, Flags);
   if Handle = 0 then
     Handle := LoadImage(Instance, Name, IMAGE_ICON, 0, 0, Flags);
   if Handle <> 0 then begin
-    Icon := TIcon.Create;
+    const Icon = TIcon.Create;
     try
       Icon.Handle := Handle;
 
       { Set sizes (overrides any scaling) }
-      Width := Icon.Width;
-      Height := Icon.Height;
+      FControl.Width := Icon.Width;
+      FControl.Height := Icon.Height;
 
-      { Draw icon into bitmap }
-      Bitmap.Canvas.Brush.Color := BkColor;
-      Bitmap.Width := Width;
-      Bitmap.Height := Height;
-      Bitmap.Canvas.Draw(0, 0, Icon);
+      { Set bitmap }
+      AutoSize := False;
+      BackColor := BkColor;
+      Stretch := True;
+      Bitmap.Assign(Icon);
 
       Result := True;
     finally
@@ -130,173 +217,315 @@ begin
     Result := False;
 end;
 
+const
+  IID_IImageList: TGUID = '{46EB5926-582E-4017-9FDF-E8998DAA0950}';
+
+function TBitmapImageImplementation.InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+begin
+  { Currently this function always fails on Wine: SHGetStockIconInfo succeeds but simply always
+    returns -1 as iSysImageIndex, which makes ImageList_GetIcon fail }
+
+  Result := False;
+
+  var SHStockIconInfo: TSHStockIconInfo;
+  SHStockIconInfo.cbSize := SizeOf(SHStockIconInfo);
+  if Succeeded(SHGetStockIconInfo(siid, SHGSI_SYSICONINDEX, SHStockIconInfo)) then begin
+   var ImageList: HIMAGELIST;
+    { The SHGetImageList documentation remarks that SHIL_SMALL and SHIL_LARGE are DPI-aware. However
+      because this does not provide per-monitor DPI awareness, we always use SHIL_JUMBO and perform
+      scaling ourselves. It also remarks that "the IImageList pointer type, such as that returned in
+      the ppv parameter can be cast as an HIMAGELIST as needed", and we make use of that. }
+    const Size = GetInitializeSize(AscendingTrySizes);
+    var iImageList: Integer;
+    if Size > 24 then
+      iImageList := SHIL_JUMBO
+    else
+      iImageList := SHIL_EXTRALARGE; { For small images use SHIL_EXTRALARGE, which should be 48x48 at least }
+    if Succeeded(SHGetImageList(iImageList, IID_IImageList, Pointer(ImageList))) then begin
+      var Handle := ImageList_GetIcon(ImageList, SHStockIconInfo.iSysImageIndex, ILD_TRANSPARENT);
+      if Handle <> 0 then begin
+        const Icon = TIcon.Create;
+        try
+          Icon.Handle := Handle;
+
+          { Set sizes (overrides any scaling) }
+          FControl.Width := Size;
+          FControl.Height := Size;
+
+          { Set bitmap }
+          AutoSize := False;
+          BackColor := BkColor;
+          Stretch := True;
+          Bitmap.Assign(Icon);
+
+          Result := True;
+        finally
+          Icon.Free;
+        end;
+      end;
+    end;
+  end;
+end;
+
+procedure TBitmapImageImplementation.BitmapChanged(Sender: TObject);
+begin
+  StretchedBitmapValid := False;
+  if AutoSize and (Bitmap.Width > 0) and (Bitmap.Height > 0) then
+    FControl.SetBounds(FControl.Left, FControl.Top, Bitmap.Width + AutoSizeExtraWidth,
+      Bitmap.Height + AutoSizeExtraHeight);
+  FControl.Invalidate;
+end;
+
+procedure TBitmapImageImplementation.PngImageChanged(Sender: TObject);
+begin
+  Bitmap.Assign(PngImage);
+end;
+
+procedure TBitmapImageImplementation.SetAutoSize(Sender: TObject; Value: Boolean);
+begin
+  AutoSize := Value;
+  BitmapChanged(Sender);
+end;
+
+procedure TBitmapImageImplementation.SetBackColor(Sender: TObject; Value: TColor);
+begin
+  if BackColor <> Value then begin
+    BackColor := Value;
+    BitmapChanged(Sender);
+  end;
+end;
+
+procedure TBitmapImageImplementation.SetBitmap(Value: TBitmap);
+begin
+  Bitmap.Assign(Value);
+end;
+
+procedure TBitmapImageImplementation.SetCenter(Sender: TObject; Value: Boolean);
+begin
+  if Center <> Value then begin
+    Center := Value;
+    BitmapChanged(Sender);
+  end;
+end;
+
+procedure TBitmapImageImplementation.SetGraphic(Value: TGraphic);
+begin
+  if Value is TPngImage then
+    SetPngImage(Value as TPngImage)
+  else
+    Bitmap.Assign(Value);
+end;
+
+procedure TBitmapImageImplementation.SetOpacity(Sender: TObject; Value: Byte);
+begin
+  if Opacity <> Value then begin
+    Opacity := Value;
+    BitmapChanged(Sender);
+  end;
+end;
+
+procedure TBitmapImageImplementation.SetPngImage(Value: TPngImage);
+begin
+  PngImage.Assign(Value);
+end;
+
+procedure TBitmapImageImplementation.SetReplaceColor(Sender: TObject; Value: TColor);
+begin
+  if ReplaceColor <> Value then begin
+    ReplaceColor := Value;
+    BitmapChanged(Sender);
+  end;
+end;
+
+procedure TBitmapImageImplementation.SetReplaceWithColor(Sender: TObject; Value: TColor);
+begin
+  if ReplaceWithColor <> Value then begin
+    ReplaceWithColor := Value;
+    BitmapChanged(Sender);
+  end;
+end;
+
+procedure TBitmapImageImplementation.SetStretch(Sender: TObject; Value: Boolean);
+begin
+  if Stretch <> Value then begin
+    Stretch := Value;
+    StretchedBitmap.Assign(nil);
+    BitmapChanged(Sender);
+  end;
+end;
+
+function TBitmapImageImplementation.GetPalette: HPALETTE;
+begin
+  Result := Bitmap.Palette;
+end;
+
+procedure TBitmapImageImplementation.Paint(const Sender: TObject; const Canvas: TCanvas; var R: TRect);
+begin
+  const Is32bit = Bitmap.SupportsPartialTransparency;
+
+  var W, H: Integer;
+  var Bmp: TBitmap;
+  if Stretch and not Bitmap.Empty then begin
+    W := R.Width;
+    H := R.Height;
+    Bmp := StretchedBitmap;
+    if not StretchedBitmapValid or (StretchedBitmap.Width <> W) or
+        (StretchedBitmap.Height <> H) then begin
+      StretchedBitmapValid := True;
+      if (Bitmap.Width = W) and (Bitmap.Height = H) then
+        StretchedBitmap.Assign(Bitmap)
+      else begin
+        StretchedBitmap.Assign(nil);
+        if not StretchBmp(Bitmap, StretchedBitmap, W, H, Is32bit) then begin
+          if Is32bit then begin
+            StretchedBitmapValid := False;
+            Bmp := Bitmap;
+          end else begin
+            StretchedBitmap.Palette := CopyPalette(Bitmap.Palette);
+            StretchedBitmap.Width := W;
+            StretchedBitmap.Height := H;
+            StretchedBitmap.Canvas.StretchDraw(Rect(0, 0, W, H), Bitmap);
+          end;
+        end;
+      end;
+    end;
+  end else begin
+    Bmp := Bitmap;
+    W := Bmp.Width;
+    H := Bmp.Height;
+  end;
+
+  if (BackColor <> clNone) and (Is32Bit or (Bmp.Width < FControl.Width) or (Bmp.Height < FControl.Height)) then begin
+    var BrushColor := BackColor;
+    if Sender is TControl then
+      BrushColor := AdjustColorForStyle(TControl(Sender), BrushColor);
+    Canvas.Brush.Style := bsSolid;
+    Canvas.Brush.Color := BrushColor;
+    Canvas.FillRect(R);
+  end;
+
+  if csDesigning in FControl.ComponentState then begin
+    Canvas.Pen.Style := psDash;
+    Canvas.Brush.Style := bsClear;
+    Canvas.Rectangle(0, 0, FControl.Width, FControl.Height);
+  end;
+
+
+  if not Bmp.Empty then begin
+    var X := R.Left;
+    var Y := R.Top;
+    if Center then begin
+      Inc(X, (R.Width - W) div 2);
+      if X < 0 then
+        X := 0;
+      Inc(Y, (R.Height - H) div 2);
+      if Y < 0 then
+        Y := 0;
+    end;
+
+    if not Is32bit and (ReplaceColor <> clNone) and (ReplaceWithColor <> clNone) then begin
+      Canvas.Brush.Color := ReplaceWithColor;
+      Canvas.BrushCopy(Rect(X, Y, X + W, Y + H), Bmp, Rect(0, 0, Bmp.Width, Bmp.Height), ReplaceColor);
+    end else if Opacity <> 255 then
+      Canvas.Draw(X, Y, Bmp, Opacity)
+    else
+      Canvas.Draw(X, Y, Bmp);
+  end;
+
+  if Assigned(OnPaint) then
+    OnPaint(Sender, Canvas, R);
+end;
+
+{ TBitmapImage }
+
 constructor TBitmapImage.Create(AOwner: TComponent);
 begin
-  inherited Create(AOwner);
-  ControlStyle := ControlStyle + [csReplicatable];
-  FBackColor := clBtnFace;
-  FBitmap := TBitmap.Create;
-  FBitmap.OnChange := BitmapChanged;
-  FReplaceColor := clNone;
-  FReplaceWithColor := clNone;
-  FStretchedBitmap := TBitmap.Create;
-  Height := 105;
+  inherited;
+  ControlStyle := ControlStyle + [csParentBackground, csReplicatable];
+  FImpl.Init(Self);
+  if IsCustomStyleActive then
+    FImpl.BackColor := StyleServices(Self).GetStyleColor(scWindow)
+  else
+    FImpl.BackColor := clBtnFace;
   Width := 105;
+  Height := 105;
 end;
 
 destructor TBitmapImage.Destroy;
 begin
-  FStretchedBitmap.Free;
-  FBitmap.Free;
-  inherited Destroy;
+  FImpl.DeInit;
+  inherited;
 end;
 
-procedure TBitmapImage.BitmapChanged(Sender: TObject);
+function TBitmapImage.InitializeFromIcon(const Instance: HINST; const Name: PChar; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
 begin
-  FStretchedBitmapValid := False;
-  if FAutoSize and (FBitmap.Width > 0) and (FBitmap.Height > 0) then
-    SetBounds(Left, Top, FBitmap.Width, FBitmap.Height);
-  if (FBitmap.Width >= Width) and (FBitmap.Height >= Height) then
-    ControlStyle := ControlStyle + [csOpaque]
-  else
-    ControlStyle := ControlStyle - [csOpaque];
-  Invalidate;
+  Result := FImpl.InitializeFromIcon(Instance, Name, BkColor, AscendingTrySizes);
+end;
+
+function TBitmapImage.InitializeFromStockIcon(const Siid: SHSTOCKICONID; const BkColor: TColor; const AscendingTrySizes: array of Integer): Boolean;
+begin
+  Result := FImpl.InitializeFromStockIcon(siid, BkColor, AscendingTrySizes);
 end;
 
 procedure TBitmapImage.SetAutoSize(Value: Boolean);
 begin
-  FAutoSize := Value;
-  BitmapChanged(Self);
+  FImpl.SetAutoSize(Self, Value);
 end;
 
 procedure TBitmapImage.SetBackColor(Value: TColor);
 begin
-  if FBackColor <> Value then begin
-    FBackColor := Value;
-    BitmapChanged(Self);
-  end;
+  FImpl.SetBackColor(Self, Value);
 end;
 
 procedure TBitmapImage.SetBitmap(Value: TBitmap);
 begin
-  FBitmap.Assign(Value);
+  FImpl.SetBitmap(Value);
 end;
 
 procedure TBitmapImage.SetCenter(Value: Boolean);
 begin
-  if FCenter <> Value then begin
-    FCenter := Value;
-    BitmapChanged(Self);
-  end;
+  FImpl.SetCenter(Self, Value);
+end;
+
+procedure TBitmapImage.SetGraphic(Value: TGraphic);
+begin
+  FImpl.SetGraphic(Value);
+end;
+
+procedure TBitmapImage.SetOpacity(Value: Byte);
+begin
+  FImpl.SetOpacity(Self, Value);
+end;
+
+procedure TBitmapImage.SetPngImage(Value: TPngImage);
+begin
+  FImpl.SetPngImage(Value);
 end;
 
 procedure TBitmapImage.SetReplaceColor(Value: TColor);
 begin
-  if FReplaceColor <> Value then begin
-    FReplaceColor := Value;
-    BitmapChanged(Self);
-  end;
+  FImpl.SetReplaceColor(Self, Value);
 end;
 
 procedure TBitmapImage.SetReplaceWithColor(Value: TColor);
 begin
-  if FReplaceWithColor <> Value then begin
-    FReplaceWithColor := Value;
-    BitmapChanged(Self);
-  end;
+  FImpl.SetReplaceWithColor(Self, Value);
 end;
 
 procedure TBitmapImage.SetStretch(Value: Boolean);
 begin
-  if FStretch <> Value then begin
-    FStretch := Value;
-    FStretchedBitmap.Assign(nil);
-    BitmapChanged(Self);
-  end;
-end;
-
-function TBitmapImage.GetBitmap: TBitmap;
-begin
-  Result := FBitmap;
+  FImpl.SetStretch(Self, Value);
 end;
 
 function TBitmapImage.GetPalette: HPALETTE;
 begin
-  Result := FBitmap.Palette;
+  Result := FImpl.GetPalette;
 end;
 
 procedure TBitmapImage.Paint;
-var
-  R: TRect;
-  Bmp: TBitmap;
-  X, Y, W, H: Integer;
-  Is32bit: Boolean;
 begin
-  with Canvas do begin
-    R := ClientRect;
-    Is32bit := (FBitmap.PixelFormat = pf32bit) and
-      (FBitmap.AlphaFormat in [afDefined, afPremultiplied]);
-
-    if Stretch then begin
-      W := R.Right;
-      H := R.Bottom;
-      Bmp := FStretchedBitmap;
-      if not FStretchedBitmapValid or (FStretchedBitmap.Width <> W) or
-         (FStretchedBitmap.Height <> H) then begin
-        FStretchedBitmapValid := True;
-        if (FBitmap.Width = W) and (FBitmap.Height = H) then
-          FStretchedBitmap.Assign(FBitmap)
-        else begin
-          FStretchedBitmap.Assign(nil);
-          if not StretchBmp(FBitmap, FStretchedBitmap, W, H, Is32bit) then begin
-            if Is32bit then begin
-              FStretchedBitmapValid := False;
-              Bmp := FBitmap;
-            end else begin
-              FStretchedBitmap.Palette := CopyPalette(FBitmap.Palette);
-              FStretchedBitmap.Width := W;
-              FStretchedBitmap.Height := H;
-              FStretchedBitmap.Canvas.StretchDraw(R, FBitmap);
-            end;
-          end;
-        end;
-      end;
-    end else begin
-      Bmp := FBitmap;
-      W := Bmp.Width;
-      H := Bmp.Height;
-    end;
-
-    if (FBackColor <> clNone) and (Is32Bit or (Bmp.Width < Width) or (Bmp.Height < Height)) then begin
-      Brush.Style := bsSolid;
-      Brush.Color := FBackColor;
-      FillRect(R);
-    end;
-
-    if csDesigning in ComponentState then begin
-      Pen.Style := psDash;
-      Brush.Style := bsClear;
-      Rectangle(0, 0, Width, Height);
-    end;
-
-    if Center then begin
-      X := R.Left + ((R.Right - R.Left) - W) div 2;
-      if X < 0 then
-        X := 0;
-      Y := R.Top + ((R.Bottom - R.Top) - H) div 2;
-      if Y < 0 then
-        Y := 0;
-    end else begin
-      X := 0;
-      Y := 0;
-    end;
-
-    if not Is32bit and (FReplaceColor <> clNone) and (FReplaceWithColor <> clNone) then begin
-      Brush.Color := FReplaceWithColor;
-      BrushCopy(Rect(X, Y, X + W, Y + H), Bmp, Rect(0, 0, Bmp.Width, Bmp.Height), FReplaceColor);
-    end else
-      Draw(X, Y, Bmp);
-  end;
+  var R := ClientRect;
+  FImpl.Paint(Self, Canvas, R);
 end;
 
 end.

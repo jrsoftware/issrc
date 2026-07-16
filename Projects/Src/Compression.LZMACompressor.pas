@@ -2,7 +2,7 @@ unit Compression.LZMACompressor;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -40,6 +40,7 @@ type
     NumBlockThreads: Integer;
     NumFastBytes: Integer;
     NumThreads: Integer;
+    NumThreadGroups: Integer;
     WorkerProcessCheckTrust: Boolean;
     WorkerProcessOnCheckedTrust: TProc<Boolean>;
     WorkerProcessFilename: String;
@@ -56,22 +57,27 @@ type
     NumBlockThreads: Integer;
     NumFastBytes: Integer;
     NumThreads: Integer;
+    NumThreadGroups: Integer;
   end;
   TLZMACompressorRingBuffer = record
-    Count: Longint;         { updated by reader and writer using InterlockedExchangeAdd only }
-    WriterOffset: Longint;  { accessed only by writer thread }
-    ReaderOffset: Longint;  { accessed only by reader thread }
+    Count: Integer;         { updated by reader and writer using InterlockedExchangeAdd only }
+    WriterOffset: Integer;  { accessed only by writer thread }
+    ReaderOffset: Integer;  { accessed only by reader thread }
     Buf: array[0..$FFFFF] of Byte;
   end;
+  { Using 32-bit handles to ensure islzma.exe doesn't depend on our bitness. This is safe
+    because 64-bit versions of Windows use 32-bit handles for interoperability. See
+    https://learn.microsoft.com/en-us/windows/win32/winprog64/interprocess-communication }
+  TLZMAHandle32 = type UInt32;
   PLZMACompressorSharedEvents = ^TLZMACompressorSharedEvents;
   TLZMACompressorSharedEvents = record
-    TerminateWorkerEvent: THandle;
-    StartEncodeEvent: THandle;
-    EndWaitOnInputEvent: THandle;
-    EndWaitOnOutputEvent: THandle;
-    WorkerWaitingOnInputEvent: THandle;
-    WorkerWaitingOnOutputEvent: THandle;
-    WorkerEncodeFinishedEvent: THandle;
+    TerminateWorkerEvent: TLZMAHandle32;
+    StartEncodeEvent: TLZMAHandle32;
+    EndWaitOnInputEvent: TLZMAHandle32;
+    EndWaitOnOutputEvent: TLZMAHandle32;
+    WorkerWaitingOnInputEvent: TLZMAHandle32;
+    WorkerWaitingOnOutputEvent: TLZMAHandle32;
+    WorkerEncodeFinishedEvent: TLZMAHandle32;
   end;
   PLZMACompressorSharedData = ^TLZMACompressorSharedData;
   TLZMACompressorSharedData = record
@@ -83,13 +89,13 @@ type
   end;
   PLZMACompressorProcessData = ^TLZMACompressorProcessData;
   TLZMACompressorProcessData = record
-    StructSize: LongWord;
-    ParentProcess: THandle;
+    StructSize: Cardinal;
+    ParentProcess: TLZMAHandle32;
     LZMA2: BOOL;
     EncoderProps: TLZMAEncoderProps;
     Events: TLZMACompressorSharedEvents;
-    SharedDataStructSize: LongWord;
-    SharedDataMapping: THandle;
+    SharedDataStructSize: Cardinal;
+    SharedDataMapping: TLZMAHandle32;
   end;
 
   TLZMACompressor = class(TCustomCompressor)
@@ -100,22 +106,22 @@ type
     FWorker: TLZMACompressorCustomWorker;
     FEncodeStarted: Boolean;
     FEncodeFinished: Boolean;
-    FLastInputWriteCount: LongWord;
+    FLastInputWriteCount: Cardinal;
     FLastProgressBytes: Int64;
     FProgressTimer: THandle;
     FProgressTimerSignaled: Boolean;
     procedure FlushOutputBuffer(const OnlyOptimalSize: Boolean);
     procedure InitializeProps(const CompressionLevel: Integer;
       const ACompressorProps: TCompressorProps);
-    class function IsObjectSignaled(const AObject: THandle): Boolean;
-    class procedure SatisfyWorkerWait(const AWorkerEvent, AMainEvent: THandle);
+    class function IsObjectSignaled(const AObject: THandle): Boolean; static;
+    class procedure SatisfyWorkerWait(const AWorkerEvent, AMainEvent: THandle); static;
     procedure SatisfyWorkerWaitOnInput;
     procedure SatisfyWorkerWaitOnOutput;
     procedure StartEncode;
     procedure UpdateProgress;
     procedure WaitForWorkerEvent;
   protected
-    procedure DoCompress(const Buffer; Count: Longint); override;
+    procedure DoCompress(const Buffer; Count: Cardinal); override;
     procedure DoFinish; override;
   public
     constructor Create(AWriteProc: TCompressorWriteProc;
@@ -163,12 +169,12 @@ type
     FSavedFatalException: TObject;
     function CheckTerminateWorkerEvent: HRESULT;
     function FillBuffer(const AWrite: Boolean; const Data: Pointer;
-      Size: Cardinal; var ProcessedSize: Cardinal): HRESULT;
+      Size: NativeUInt; var ProcessedSize: NativeUInt): HRESULT;
     function ProgressMade(const TotalBytesProcessed: UInt64): HRESULT;
-    function Read(var Data; Size: Cardinal; var ProcessedSize: Cardinal): HRESULT;
+    function Read(var Data; Size: NativeUInt; var ProcessedSize: NativeUInt): HRESULT;
     function WakeMainAndWaitUntil(const AWakeEvent, AWaitEvent: THandle): HRESULT;
     procedure WorkerThreadProc;
-    function Write(const Data; Size: Cardinal; var ProcessedSize: Cardinal): HRESULT;
+    function Write(const Data; Size: NativeUInt; var ProcessedSize: NativeUInt): HRESULT;
   public
     constructor Create(const AEvents: PLZMACompressorSharedEvents); override;
     destructor Destroy; override;
@@ -199,12 +205,12 @@ type
 
   PLZMASeqInStream = ^TLZMASeqInStream;
   TLZMASeqInStream = record
-    Read: function(p: PLZMASeqInStream; var buf; var size: Cardinal): TLZMASRes; stdcall;
+    Read: function(p: PLZMASeqInStream; var buf; var size: NativeUInt): TLZMASRes; stdcall;
     Instance: TLZMAWorkerThread;
   end;
   PLZMASeqOutStream = ^TLZMASeqOutStream;
   TLZMASeqOutStream = record
-    Write: function(p: PLZMASeqOutStream; const buf; size: Cardinal): Cardinal; stdcall;
+    Write: function(p: PLZMASeqOutStream; const buf; size: NativeUInt): NativeUInt; stdcall;
     Instance: TLZMAWorkerThread;
   end;
   PLZMACompressProgress = ^TLZMACompressProgress;
@@ -219,7 +225,7 @@ var
   LZMA_Init: function(LZMA2: BOOL; var handle: TLZMACompressorHandle): TLZMASRes;
     stdcall;
   LZMA_SetProps: function(handle: TLZMACompressorHandle;
-    const encProps: TLZMAEncoderProps; encPropsSize: Cardinal): TLZMASRes; stdcall;
+    const encProps: TLZMAEncoderProps; encPropsSize: NativeUInt): TLZMASRes; stdcall;
   LZMA_Encode: function(handle: TLZMACompressorHandle;
     const inStream: TLZMASeqInStream; const outStream: TLZMASeqOutStream;
     const progress: TLZMACompressProgress): TLZMASRes; stdcall;
@@ -287,15 +293,15 @@ begin
     Result := False;
 end;
 
-function LZMACreateEvent(const ManualReset: BOOL): THandle;
+function LZMACreateEvent(const ManualReset: BOOL): TLZMAHandle32;
 begin
-  Result := CreateEvent(nil, ManualReset, False, nil);
+  Result := TLZMAHandle32(CreateEvent(nil, ManualReset, False, nil));
   if Result = 0 then
     LZMAWin32Error('CreateEvent');
 end;
 
 function LZMASeqInStreamReadWrapper(p: PLZMASeqInStream; var buf;
-  var size: Cardinal): TLZMASRes; stdcall;
+  var size: NativeUInt): TLZMASRes; stdcall;
 begin
   if p.Instance.Read(buf, size, size) = S_OK then
     Result := SZ_OK
@@ -304,7 +310,7 @@ begin
 end;
 
 function LZMASeqOutStreamWriteWrapper(p: PLZMASeqOutStream; const buf;
-  size: Cardinal): Cardinal; stdcall;
+  size: NativeUInt): NativeUInt; stdcall;
 begin
   if p.Instance.Write(buf, size, Result) <> S_OK then
     Result := 0;
@@ -333,11 +339,11 @@ begin
 end;
 
 function RingBufferInternalWriteOrRead(var Ring: TLZMACompressorRingBuffer;
-  const AWrite: Boolean; var Offset: Longint; const Data: Pointer;
-  Size: Longint): Longint;
+  const AWrite: Boolean; var Offset: Integer; const Data: Pointer;
+  Size: Integer): Integer;
 var
   P: ^Byte;
-  Bytes: Longint;
+  Bytes: Integer;
 begin
   Result := 0;
   P := Data;
@@ -378,23 +384,23 @@ begin
 end;
 
 function RingBufferRead(var Ring: TLZMACompressorRingBuffer; var Buf;
-  const Size: Longint): Longint;
+  const Size: Integer): Integer;
 begin
   Result := RingBufferInternalWriteOrRead(Ring, False, Ring.ReaderOffset,
     @Buf, Size);
 end;
 
 function RingBufferWrite(var Ring: TLZMACompressorRingBuffer; const Buf;
-  const Size: Longint): Longint;
+  const Size: Integer): Integer;
 begin
   Result := RingBufferInternalWriteOrRead(Ring, True, Ring.WriterOffset,
     @Buf, Size);
 end;
 
 function RingBufferReadToCallback(var Ring: TLZMACompressorRingBuffer;
-  const AWriteProc: TCompressorWriteProc; Size: Longint): Longint;
+  const AWriteProc: TCompressorWriteProc; Size: Integer): Integer;
 var
-  Bytes: Longint;
+  Bytes: Integer;
 begin
   Result := 0;
   while Size > 0 do begin
@@ -410,7 +416,7 @@ begin
       Buf content is read below (otherwise the content could be stale) }
     MemoryBarrier;
 
-    AWriteProc(Ring.Buf[Ring.ReaderOffset], Bytes);
+    AWriteProc(Ring.Buf[Ring.ReaderOffset], Cardinal(Bytes));
     InterlockedExchangeAdd(Ring.Count, -Bytes);  { full barrier }
     if Ring.ReaderOffset + Bytes = SizeOf(Ring.Buf) then
       Ring.ReaderOffset := 0
@@ -537,7 +543,7 @@ begin
 
   H[0] := FEvents.TerminateWorkerEvent;
   H[1] := FEvents.StartEncodeEvent;
-  while WaitForMultipleObjects(2, @H, False, INFINITE) = WAIT_OBJECT_0 + 1 do begin
+  while WaitForMultipleObjects(2, PWOHandleArray(@H), False, INFINITE) = WAIT_OBJECT_0 + 1 do begin
     FShared.EncodeResult := LZMA_Encode(FLZMAHandle, InStream, OutStream,
       CompressProgress);
     if not SetEvent(FEvents.WorkerEncodeFinishedEvent) then
@@ -557,7 +563,7 @@ begin
   end;
   H[0] := FEvents.TerminateWorkerEvent;
   H[1] := AWaitEvent;
-  case WaitForMultipleObjects(2, @H, False, INFINITE) of
+  case WaitForMultipleObjects(2, PWOHandleArray(@H), False, INFINITE) of
     WAIT_OBJECT_0 + 0: Result := E_ABORT;
     WAIT_OBJECT_0 + 1: Result := S_OK;
   else
@@ -578,20 +584,20 @@ begin
 end;
 
 function TLZMAWorkerThread.FillBuffer(const AWrite: Boolean;
-  const Data: Pointer; Size: Cardinal; var ProcessedSize: Cardinal): HRESULT;
+  const Data: Pointer; Size: NativeUInt; var ProcessedSize: NativeUInt): HRESULT;
 { Called from worker thread (or a thread spawned by the worker thread) }
 var
   P: ^Byte;
-  Bytes: Longint;
+  Bytes: Integer;
 begin
   ProcessedSize := 0;
   P := Data;
   while Size <> 0 do begin
-    var LimitedSize: LongInt;
-    if Size > MaxLong then
-      LimitedSize := MaxLong
+    var LimitedSize: Integer;
+    if Size > Cardinal(High(Integer)) then
+      LimitedSize := High(Integer)
     else
-      LimitedSize := Size;
+      LimitedSize := Integer(Size);
     if AWrite then
       Bytes := RingBufferWrite(FShared.OutputBuffer, P^, LimitedSize)
     else begin
@@ -630,8 +636,8 @@ begin
   Result := S_OK;
 end;
 
-function TLZMAWorkerThread.Read(var Data; Size: Cardinal;
-  var ProcessedSize: Cardinal): HRESULT;
+function TLZMAWorkerThread.Read(var Data; Size: NativeUInt;
+  var ProcessedSize: NativeUInt): HRESULT;
 { Called from worker thread (or a thread spawned by the worker thread) }
 begin
   { Sanity check: Make sure we're the only thread inside Read }
@@ -643,8 +649,8 @@ begin
   InterlockedExchange(FReadLock, 0);
 end;
 
-function TLZMAWorkerThread.Write(const Data; Size: Cardinal;
-  var ProcessedSize: Cardinal): HRESULT;
+function TLZMAWorkerThread.Write(const Data; Size: NativeUInt;
+  var ProcessedSize: NativeUInt): HRESULT;
 { Called from worker thread (or a thread spawned by the worker thread) }
 begin
   { Sanity check: Make sure we're the only thread inside Write }
@@ -721,17 +727,19 @@ procedure TLZMAWorkerProcess.SetProps(const LZMA2: Boolean;
   end;
 
   procedure DupeHandle(const SourceHandle: THandle; const DestProcess: THandle;
-    var DestHandle: THandle; const DesiredAccess: DWORD);
+    var DestHandle: TLZMAHandle32; const DesiredAccess: DWORD); overload;
   begin
+    var NativeDestHandle: THandle;
     if not DuplicateHandle(GetCurrentProcess, SourceHandle, DestProcess,
-       @DestHandle, DesiredAccess, False, 0) then
+       @NativeDestHandle, DesiredAccess, False, 0) then
       LZMAWin32Error('DuplicateHandle');
+    DestHandle := TLZMAHandle32(NativeDestHandle);
   end;
 
   procedure DupeEventHandles(const Src: TLZMACompressorSharedEvents;
     const Process: THandle; var Dest: TLZMACompressorSharedEvents);
 
-    procedure DupeEvent(const SourceHandle: THandle; var DestHandle: THandle);
+    procedure DupeEvent(const SourceHandle: TLZMAHandle32; var DestHandle: TLZMAHandle32);
     begin
       DupeHandle(SourceHandle, Process, DestHandle, SYNCHRONIZE or
         EVENT_MODIFY_STATE);
@@ -919,6 +927,7 @@ begin
       EncProps.NumFastBytes := Props.NumFastBytes;
     if Props.NumThreads <> 0 then
       EncProps.NumThreads := Props.NumThreads;
+    EncProps.NumThreadGroups := Props.NumThreadGroups;
     WorkerProcessCheckTrust := Props.WorkerProcessCheckTrust;
     WorkerProcessOnCheckedTrust := Props.WorkerProcessOnCheckedTrust;
     WorkerProcessFilename := Props.WorkerProcessFilename;
@@ -1020,7 +1029,7 @@ const
     until we've accumulated a reasonable number of bytes before flushing }
   OptimalFlushSize = $10000;  { can't exceed size of OutputBuffer.Buf }
 var
-  Bytes: Longint;
+  Bytes: Integer;
 begin
   while True do begin
     Bytes := FShared.OutputBuffer.Count;
@@ -1098,7 +1107,7 @@ begin
   H[2] := FProgressTimer;
   H[3] := FEvents.WorkerWaitingOnInputEvent;
   H[4] := FEvents.WorkerWaitingOnOutputEvent;
-  case WaitForMultipleObjects(5, @H, False, INFINITE) of
+  case WaitForMultipleObjects(5, PWOHandleArray(@H), False, INFINITE) of
     WAIT_OBJECT_0 + 0: FWorker.UnexpectedTerminationError;
     WAIT_OBJECT_0 + 1: FEncodeFinished := True;
     WAIT_OBJECT_0 + 2: FProgressTimerSignaled := True;
@@ -1109,13 +1118,16 @@ begin
   end;
 end;
 
-procedure TLZMACompressor.DoCompress(const Buffer; Count: Longint);
+procedure TLZMACompressor.DoCompress(const Buffer; Count: Cardinal);
 var
   P: ^Byte;
-  BytesWritten: Longint;
-  InputWriteCount: LongWord;
+  BytesWritten: Integer;
+  InputWriteCount: Cardinal;
 begin
   StartEncode;
+
+  if Count > Cardinal(High(Integer)) then { Because of the cast below }
+    LZMAInternalError('Compress: Unexpected Count value');
 
   P := @Buffer;
   while Count > 0 do begin
@@ -1129,7 +1141,7 @@ begin
     { Note that the progress updates that come in every ~100 ms also serve to
       keep the output buffer flushed well before it fills up. }
     FlushOutputBuffer(True);
-    BytesWritten := RingBufferWrite(FShared.InputBuffer, P^, Count);
+    BytesWritten := RingBufferWrite(FShared.InputBuffer, P^, Integer(Count)); { Also see check above }
     if BytesWritten = 0 then begin
       { Input buffer full; unblock worker Read }
       SatisfyWorkerWaitOnInput;
@@ -1144,7 +1156,7 @@ begin
 
       { Unblock the worker every 64 KB so it doesn't have to wait until the
         entire input buffer is filled to begin/continue compressing. }
-      InputWriteCount := FLastInputWriteCount + LongWord(BytesWritten);
+      InputWriteCount := FLastInputWriteCount + Cardinal(BytesWritten);
       if InputWriteCount shr 16 <> FLastInputWriteCount shr 16 then
         SatisfyWorkerWaitOnInput;
       FLastInputWriteCount := InputWriteCount;

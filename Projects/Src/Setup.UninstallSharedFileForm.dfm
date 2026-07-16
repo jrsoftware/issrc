@@ -1,9 +1,9 @@
-object UninstSharedFileForm: TUninstSharedFileForm
+object UninstallSharedFileForm: TUninstallSharedFileForm
   Left = 200
   Top = 108
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
-  Caption = 'UninstSharedFileForm'
+  Caption = 'UninstallSharedFileForm'
   ClientHeight = 225
   ClientWidth = 397
   Color = clBtnFace
