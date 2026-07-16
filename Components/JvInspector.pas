@@ -2593,8 +2593,6 @@ begin
     Bool := not (AsOrdinal <> Ord(False))
   else
     Bool := True;
-  // Treat the second click of a double-click as a normal click, so two quick
-  // clicks toggle the box twice like a standard Windows check box
   if ssDouble in Shift then
     Shift := Shift - [ssDouble];
   if PtInRect(FCheckRect, Point(X, Y)) and (Shift = [ssLeft]) and Editing then
@@ -2613,9 +2611,7 @@ procedure TJvInspectorBooleanItem.DrawValue(const ACanvas: TCanvas);
 var
   Bool: Boolean;
   ARect: TRect;
-  Rgn, SaveRgn: HRGN;
-  HasRgn: Boolean;
-  ClipRect: TRect;
+  SaveIndex: Integer;
   BoxSize: Integer;
   BFlags: UINT;
   LabelText: string;
@@ -2629,40 +2625,25 @@ begin
   if Editing and IsInitialized then
     ACanvas.Brush.Color := Inspector.BackgroundColor;
   ACanvas.FillRect(Rects[iprValueArea]);
-  // The check box is drawn themed, scaled to the inspector's current dpi,
-  // and centered in the row
   BoxSize := MulDiv(13, Inspector.CurrentPPI, 96);
   ARect := Rects[iprValueArea];
   Inc(ARect.Left, MulDiv(2, Inspector.CurrentPPI, 96));
   Inc(ARect.Top, (RectHeight(ARect) - BoxSize) div 2);
   ARect.Right := ARect.Left + BoxSize;
   ARect.Bottom := ARect.Top + BoxSize;
-  { Remember current clipping region }
-  SaveRgn := CreateRectRgn(0, 0, 1, 1);
-  HasRgn := GetClipRgn(ACanvas.Handle, SaveRgn) > 0;
   { Clip all outside of the item rectangle }
-  IntersectRect(ClipRect, ARect, Rects[iprValueArea]);
-  FCheckRect := ClipRect;
-  Rgn := CreateRectRgn(ClipRect.Left, ClipRect.Top, ClipRect.Right, ClipRect.Bottom);
-  SelectClipRgn(ACanvas.Handle, Rgn);
-  DeleteObject(Rgn);
+  IntersectRect(FCheckRect, ARect, Rects[iprValueArea]);
+  SaveIndex := SaveDC(ACanvas.Handle);
   try
+    IntersectClipRect(ACanvas.Handle, FCheckRect.Left, FCheckRect.Top,
+      FCheckRect.Right, FCheckRect.Bottom);
     BFlags := DFCS_BUTTONCHECK;
     if Bool then
       BFlags := BFlags or DFCS_CHECKED;
     DrawThemedFrameControl(ACanvas.Handle, ARect, DFC_BUTTON, BFlags, Inspector.CurrentPPI);
   finally
-    { restore previous clipping region }
-    if HasRgn then
-      SelectClipRgn(ACanvas.Handle, SaveRgn)
-    else
-      SelectClipRgn(ACanvas.Handle, 0);
-    DeleteObject(SaveRgn);
+    RestoreDC(ACanvas.Handle, SaveIndex);
   end;
-  // Draw a yes/no label after the check box, vertically centered like the box
-  // and drawn with the canvas font so it picks up any bold style the painter
-  // applied for a value present in the script (like the Delphi object
-  // inspector's True/False label after its check box)
   if Bool then
     LabelText := 'yes'
   else
