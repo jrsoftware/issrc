@@ -508,8 +508,8 @@ begin
   Result := YToIdx(IdxToY(TopIndex) + Pred(ClientHeight));
   if Result < 0 then
     Result := Pred(GetVisibleCount)
-  else if Result > Pred(ClientHeight div GetItemHeight) then
-    Result := Pred(ClientHeight div GetItemHeight);
+  else if Result > TopIndex + Pred(ClientHeight div GetItemHeight) then
+    Result := TopIndex + Pred(ClientHeight div GetItemHeight);
 end;
 
 function TJvInspector.GetSelected: TJvCustomInspectorItem;
