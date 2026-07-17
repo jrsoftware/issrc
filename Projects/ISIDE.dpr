@@ -62,6 +62,7 @@ uses
   BitmapImage in '..\Components\BitmapImage.pas',
   OleAccFunc in '..\Components\OleAccFunc.pas',
   NewCheckListBox in '..\Components\NewCheckListBox.pas',
+  NewCheckListBox.MSAA in '..\Components\NewCheckListBox.MSAA.pas',
   NewNotebook in '..\Components\NewNotebook.pas',
   TaskbarProgressFunc in '..\Components\TaskbarProgressFunc.pas',
   IDE.HtmlHelpFunc in 'Src\IDE.HtmlHelpFunc.pas',

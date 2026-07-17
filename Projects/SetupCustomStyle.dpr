@@ -94,6 +94,7 @@ uses
   FolderTreeView in '..\Components\FolderTreeView.pas',
   OleAccFunc in '..\Components\OleAccFunc.pas',
   NewCheckListBox in '..\Components\NewCheckListBox.pas',
+  NewCheckListBox.MSAA in '..\Components\NewCheckListBox.MSAA.pas',
   NewNotebook in '..\Components\NewNotebook.pas',
   NewProgressBar in '..\Components\NewProgressBar.pas',
   NewStaticText in '..\Components\NewStaticText.pas',
