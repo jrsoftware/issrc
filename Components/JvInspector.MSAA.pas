@@ -86,16 +86,17 @@ type
   end;
 
 procedure SetOrClearNameForMSAA(const AWindow: HWND; const AName: string);
+{ Annotates the name property of a control. Call this again with AName set
+  to an empty string before destroying the contol. Also see
+  https://learn.microsoft.com/en-us/windows/win32/winauto/ensure-that-ui-elements-are-named-correctly }
 begin
   var Services: IAccPropServices;
-  if CoCreateInstance(CLSID_AccPropServices, nil, CLSCTX_INPROC_SERVER,
-     IAccPropServices, Services) = S_OK then begin
+  if (CoCreateInstance(CLSID_AccPropServices, nil, CLSCTX_INPROC_SERVER,
+      IAccPropServices, Services) = S_OK) and (Services <> nil) then begin
     if AName <> '' then
       Services.SetHwndPropStr(wireHWND(AWindow)^, DWORD(OBJID_CLIENT),
-        CHILDID_SELF, PROPID_ACC_NAME, PWideChar(AName))
+        CHILDID_SELF, PROPID_ACC_NAME, PChar(AName))
     else begin
-      { Dynamic annotation does not track window destruction, so the name
-        must be removed before the window goes away }
       var PropId := PROPID_ACC_NAME;
       Services.ClearHwndProps(wireHWND(AWindow)^, DWORD(OBJID_CLIENT),
         CHILDID_SELF, PropId, 1);
@@ -488,8 +489,6 @@ begin
   if Result <> S_OK then
     Exit;
   if Index < 0 then begin
-    { The standard object would give this captionless control no name, so
-      use the name property, set by the IDE to a localized 'Inspector' }
     if FControl.AccessibleName <> '' then
       pszName := FControl.AccessibleName
     else
@@ -588,8 +587,7 @@ begin
   if Result <> S_OK then
     Exit;
   if Index < 0 then
-    { The control itself has no value }
-    Exit(S_FALSE);
+    Exit(S_FALSE); { The control itself has no value }
   try
     const Item = FControl.GetVisibleItems(Index);
     if Item is TJvInspectorBooleanItem then begin
