@@ -20,9 +20,6 @@ uses
   {$IFDEF VCLSTYLES} Vcl.Themes, {$ELSE} Themes, {$ENDIF}
   StdCtrls, NewUxTheme;
 
-const
-  WM_UPDATEUISTATE = $0128;
-
 type
   TItemType = (itGroup, itCheck, itRadio);
   TCheckBoxState2 = (cb2Normal, cb2Hot, cb2Pressed, cb2Disabled);
@@ -238,16 +235,6 @@ uses
 
 const
   sRadioCantHaveDisabledChildren = 'Radio item cannot have disabled child items';
-
-  OBM_CHECKBOXES = 32759;
-  WM_CHANGEUISTATE = $0127;
-  WM_QUERYUISTATE = $0129;
-  UIS_SET = 1;
-  UIS_CLEAR = 2;
-  UIS_INITIALIZE = 3;
-  UISF_HIDEFOCUS = $1;
-  UISF_HIDEACCEL = $2;
-  DT_HIDEPREFIX = $00100000;
 
   OBJID_CLIENT = $FFFFFFFC;
   CHILDID_SELF = 0;
