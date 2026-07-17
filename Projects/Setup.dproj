@@ -205,7 +205,9 @@
         <DCCReference Include="..\Components\BitmapButton.pas"/>
         <DCCReference Include="..\Components\BitmapImage.pas"/>
         <DCCReference Include="..\Components\FolderTreeView.pas"/>
+        <DCCReference Include="..\Components\OleAccFunc.pas"/>
         <DCCReference Include="..\Components\NewCheckListBox.pas"/>
+        <DCCReference Include="..\Components\NewCheckListBox.MSAA.pas"/>
         <DCCReference Include="..\Components\NewNotebook.pas"/>
         <DCCReference Include="..\Components\NewProgressBar.pas"/>
         <DCCReference Include="..\Components\NewStaticText.pas"/>

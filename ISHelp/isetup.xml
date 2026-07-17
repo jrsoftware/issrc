@@ -4085,7 +4085,7 @@ iside --new-script-wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></precod
 <ul>
 <li>Expired and self-signed certificates are never accepted.</li>
 <li>TLS 1.0 and TLS 1.1 are never accepted. Both TLS 1.2 and TLS 1.3 are supported.</li>
-<li>Downloaded files can be verified using SHA-256 hash or an <link topic="issig"><tt>.issig</tt> signature</link>. Using the latter has the benefit that your script does not need to be changed when the downloaded file or archive changes, so any installers built will also keep working (they are "evergreen").</li>
+<li>Downloaded files can be verified using a SHA-256 hash or an <link topic="issig"><tt>.issig</tt> signature</link>. Using the latter has the benefit that your script does not need to be changed when the downloaded file or archive changes, so any installers built will also keep working (they are "evergreen").</li>
 <li>Passwords in URLs are automatically excluded from Setup's log.</li>
 </ul>
 
