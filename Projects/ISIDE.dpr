@@ -92,6 +92,7 @@ uses
   Resample in '..\Components\Resample.pas',
   UnsignedFunc in '..\Components\UnsignedFunc.pas',
   JvInspector in '..\Components\JvInspector.pas',
+  JvInspector.MSAA in '..\Components\JvInspector.MSAA.pas',
   IDE.ScriptModel in 'Src\IDE.ScriptModel.pas',
   IDE.ScriptModel.Metadata in 'Src\IDE.ScriptModel.Metadata.pas',
   IDE.ScriptModel.Test in 'Src\IDE.ScriptModel.Test.pas',

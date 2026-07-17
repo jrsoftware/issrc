@@ -225,6 +225,7 @@
         <DCCReference Include="..\Components\Resample.pas"/>
         <DCCReference Include="..\Components\UnsignedFunc.pas"/>
         <DCCReference Include="..\Components\JvInspector.pas"/>
+        <DCCReference Include="..\Components\JvInspector.MSAA.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.Metadata.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.Test.pas"/>

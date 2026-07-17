@@ -14,6 +14,10 @@ interface
 uses
   Windows;
 
+const
+  CLSID_AccPropServices: TGUID = '{B5F8350B-0548-48B1-A6EE-88BD00B4A5E7}';
+  PROPID_ACC_NAME: TGUID = '{608D3DF8-8128-4AA7-A428-F55E49267291}';
+
 var
   NotifyWinEventFunc: procedure(event: DWORD; hwnd: HWND; idObject: DWORD;
     idChild: Integer); stdcall;

@@ -3173,6 +3173,7 @@ procedure TMainForm.SetInspectorVisible(const AVisible: Boolean);
   function CreateJvInspector: TJvInspector;
   begin
     Result := TJvInspector.Create(Self);
+    Result.AccessibleName := RemoveAccelChar(VInspector.Caption);
     Result.Parent := BodyPanel;
     Result.Align := alRight;
     const Ini = TConfigIniFile.Create;

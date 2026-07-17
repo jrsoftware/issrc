@@ -108,6 +108,7 @@ type
     // otherwise invisible. This could be used to ill effect, so beware.
     FBeforeEdit: TInspectorBeforeEditEvent;
     FMouseWheelRecursion: Boolean;
+    FAccessibleName: string;
     function ApplicationHook(var Msg: TMessage): Boolean;
     procedure ApplyNameFont;
     procedure ApplyValueFont;
@@ -120,6 +121,7 @@ type
     procedure PaintItems;
     procedure SetupRects;
   protected
+    FAccObject: IInterface;
     function CalcItemIndex(const Y: Integer): Integer;
     procedure ChangeScale(M, D: Integer; isDpiChange: Boolean); override;
     procedure CMActivate(var Msg: TCMActivate); message CM_ACTIVATE;
@@ -145,6 +147,7 @@ type
     procedure SetSelectedIndex(Value: Integer);
     procedure SetTopIndex(Value: Integer);
     procedure UpdateScrollBars;
+    procedure WMGetObject(var Msg: TMessage); message WM_GETOBJECT;
     procedure WMVScroll(var Msg: TWMScroll); message WM_VSCROLL;
     procedure WndProc(var Msg: TMessage); override;
     function DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean; override;
@@ -164,6 +167,7 @@ type
     function Focused: Boolean; override;
     procedure RefreshValues;
     procedure Clear;
+    property AccessibleName: string read FAccessibleName write FAccessibleName;
     property Divider: Integer read FDivider write SetDivider;
     property ReadOnly: Boolean read FReadOnly write FReadOnly;
     property Root: TJvCustomInspectorItem read FRoot;
@@ -303,6 +307,7 @@ type
   TJvInspectorBooleanItem = class(TJvCustomInspectorItem)
   private
     FCheckRect: TRect;
+    procedure Toggle;
   protected
     procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
@@ -338,7 +343,8 @@ implementation
 
 uses
   System.UITypes,
-  StrUtils, Types, Forms, Themes;
+  StrUtils, Types, Forms, Themes,
+  JvInspector.MSAA;
 
 const
   BackSpace = #8;
@@ -789,6 +795,7 @@ begin
   OldSel := Selected;
   FVisibleList.Clear;
   AddChildren(Root);
+  AnnounceReorderToMSAA;
   if OldSel <> nil then
     SelectedIndex := Integer(FVisibleList.IndexOf(OldSel));
   NeedRebuild := False;
@@ -845,6 +852,7 @@ begin
         Selected.InitEdit;
       end;
       InvalidateItem;
+      AnnounceSelectionToMSAA;
     end;
   end;
 end;
@@ -912,6 +920,7 @@ begin
         if (Selected <> nil) and not Selected.EditCtrlDestroying then
           Selected.SetFocus;
         Invalidate;
+        AnnounceFocusToMSAA;
       end;
     WM_KILLFOCUS:
       begin
@@ -931,6 +940,12 @@ begin
   else
     inherited WndProc(Msg);
   end;
+end;
+
+procedure TJvInspector.WMGetObject(var Msg: TMessage);
+begin
+  if not HandleMSAAGetObject(Msg) then
+    inherited;
 end;
 
 procedure TJvInspector.WMVScroll(var Msg: TWMScroll);
@@ -971,6 +986,11 @@ end;
 procedure TJvInspector.BeforeDestruction;
 begin
   inherited BeforeDestruction;
+  { The accessible object reads FRoot and FVisibleList, which are freed
+    below: clear its control pointer and disconnect it first, then release
+    our reference. A later WM_GETOBJECT will not recreate it: the inherited
+    call above set csDestroying }
+  DisconnectMSAAObject;
   Application.UnhookMainWindow(ApplicationHook);
   FRoot.Free;
   FVisibleList.Free;
@@ -1992,7 +2012,11 @@ begin
 
         // Following Mantis 3391, setting the Focus may set EditCtrl to nil
         if Assigned(EditCtrl) then
+        begin
+          if EditCtrl.HandleAllocated then
+            SetOrClearNameForMSAA(EditCtrl.Handle, '');
           EditCtrl.Free;
+        end;
       finally
         FEditCtrlDestroying := False;
       end;
@@ -2281,6 +2305,7 @@ begin
     EditCtrl.Text := DisplayValue;
     EditCtrl.Modified := False;
     EditCtrl.SelectAll;
+    SetOrClearNameForMSAA(EditCtrl.Handle, DisplayName); { Must be done before focus }
     if EditCtrl.CanFocus and Inspector.Focused then
       EditCtrl.SetFocus;
   end;
@@ -2357,32 +2382,29 @@ end;
 
 //=== { TJvInspectorBooleanItem } ============================================
 
+procedure TJvInspectorBooleanItem.Toggle;
+begin
+  const Bool = not (AsOrdinal <> Ord(False));
+  AsOrdinal := Ord(Bool);
+  InvalidateItem;
+  if Inspector <> nil then
+    Inspector.AnnounceStateChangeToMSAA(Integer(Inspector.FVisibleList.IndexOf(Self)));
+end;
+
 procedure TJvInspectorBooleanItem.EditKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
-var
-  Bool: Boolean;
 begin
   if Editing and (Shift = []) and (Key = VK_SPACE) then
-  begin
-    Bool := not (AsOrdinal <> Ord(False));
-    AsOrdinal := Ord(Bool);
-    InvalidateItem;
-  end;
+    Toggle;
 end;
 
 procedure TJvInspectorBooleanItem.MouseDown(Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
-var
-  Bool: Boolean;
 begin
   if ssDouble in Shift then
     Shift := Shift - [ssDouble];
   if PtInRect(FCheckRect, Point(X, Y)) and (Shift = [ssLeft]) and Editing then
-  begin
-    Bool := not (AsOrdinal <> Ord(False));
-    AsOrdinal := Ord(Bool);
-    InvalidateItem;
-  end;
+    Toggle;
 end;
 
 procedure TJvInspectorBooleanItem.DoneEdit(const CancelEdits: Boolean = False);
