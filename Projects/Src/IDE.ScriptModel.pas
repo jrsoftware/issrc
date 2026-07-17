@@ -181,17 +181,19 @@ type
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
 
-function ScriptLineSpans(const S: String): Boolean;
 function ClassifyScriptLine(const S: String): TScriptLineKind;
 function JoinSpannedScriptLines(const ALines: array of String): String;
+function ContainsLineBreak(const S: String): Boolean;
+function ScriptValueIncludesFlag(const AValue, AFlagName: String): Boolean;
+
+{ These are in the interface only for the Test unit }
+function ScriptLineSpans(const S: String): Boolean;
 function UnquoteScriptParameterValue(const S: String): String;
 function QuoteScriptParameterValueIfNeeded(const S: String;
   const AAlwaysQuote: Boolean = False): String;
 function UnquoteScriptDirectiveValue(const S: String): String;
 function TryParseScriptDirectiveLine(const S: String;
   out ANameText, ARawValue: String): Boolean;
-function ContainsLineBreak(const S: String): Boolean;
-function ScriptValueIncludesFlag(const AValue, AFlagName: String): Boolean;
 
 implementation
 

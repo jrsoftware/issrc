@@ -343,7 +343,7 @@ implementation
 
 uses
   System.UITypes,
-  StrUtils, Types, Forms, Themes,
+  Character, StrUtils, Types, Forms, Themes,
   JvInspector.MSAA;
 
 const
@@ -480,11 +480,7 @@ procedure TJvInspector.ChangeScale(M, D: Integer; isDpiChange: Boolean);
 begin
   inherited ChangeScale(M, D, isDpiChange);
   if M <> D then
-  begin
-    // ItemHeight needs no scaling here: it stores a 96 dpi value which
-    // GetItemHeight scales on read
     FDivider := MulDiv(FDivider, M, D);
-  end;
 end;
 
 procedure TJvInspector.CMActivate(var Msg: TCMActivate);
@@ -505,7 +501,6 @@ end;
 
 function TJvInspector.GetItemHeight: Integer;
 begin
-  // The item height is 18 at 96 dpi; scale it to the current dpi
   Result := MulDiv(18, CurrentPPI, 96);
 end;
 
@@ -1629,7 +1624,6 @@ procedure TJvCustomInspectorItem.AutoComplete(var Key: Char);
 var
   StartPos, EndPos: Integer;
   SaveText, OldText: string;
-  LastByte: Integer;
   Filter: string;
 
   function HasSelectedText(var StartPos, EndPos: Integer): Boolean;
@@ -1696,13 +1690,13 @@ begin
         if EditCtrl.Text <> '' then
         begin
           SaveText := EditCtrl.Text;
-          LastByte := StartPos;
-          while ByteType(SaveText, LastByte) = mbTrailByte do
-            Dec(LastByte);
-          OldText := Copy(SaveText, 1, LastByte - 1);
+          var LastCharIndex := StartPos;
+          while (LastCharIndex > 0) and SaveText[LastCharIndex].IsLowSurrogate do
+            Dec(LastCharIndex);
+          OldText := Copy(SaveText, 1, LastCharIndex - 1);
           ListBox.ItemIndex := -1;
           EditCtrl.Text := OldText + Copy(SaveText, EndPos + 1, MaxInt);
-          EditCtrl.SelStart := LastByte - 1;
+          EditCtrl.SelStart := LastCharIndex - 1;
           EditCtrl.SelLength := 0;
         end;
         Key := #0;
@@ -2293,8 +2287,7 @@ begin
     EditCtrl.Font.Assign(Inspector.Font);
     EditCtrl.Font.Color := Inspector.ValueColor;
     // BeforeEdit is fired here, after the editor's font has been assigned, so a
-    // handler can still customize that font (moved down from just after the
-    // editor was created, where any font change was overwritten just above)
+    // handler can still customize that font
     if Assigned(Inspector.BeforeEdit) then
       Inspector.BeforeEdit(Inspector as TObject, Self, EditCtrl);
     EditCtrl.BoundsRect := Rects[iprEditValue];
