@@ -92,6 +92,7 @@ uses
   BitmapButton in '..\Components\BitmapButton.pas',
   BitmapImage in '..\Components\BitmapImage.pas',
   FolderTreeView in '..\Components\FolderTreeView.pas',
+  OleAccFunc in '..\Components\OleAccFunc.pas',
   NewCheckListBox in '..\Components\NewCheckListBox.pas',
   NewNotebook in '..\Components\NewNotebook.pas',
   NewProgressBar in '..\Components\NewProgressBar.pas',
