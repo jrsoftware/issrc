@@ -6,7 +6,7 @@ unit OleAccFunc;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  MSAA function loading and COM initialization
+  MSAA function loading
 }
 
 interface

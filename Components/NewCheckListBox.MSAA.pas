@@ -180,7 +180,7 @@ end;
 function TAccObject.accDoDefaultAction(varChild: OleVariant): HRESULT;
 begin
   { A list box's default action is Double Click, which is useless for a
-    list of check boxes. }
+    list of check boxes }
   Result := DISP_E_MEMBERNOTFOUND;
 end;
 
@@ -222,8 +222,7 @@ end;
 function TAccObject.get_accDefaultAction(varChild: OleVariant;
   out pszDefaultAction: WideString): HRESULT;
 begin
-  { A list box's default action is Double Click, which is useless for a
-    list of check boxes. }
+  { See accDoDefaultAction }
   pszDefaultAction := '';
   Result := S_FALSE;
 end;
