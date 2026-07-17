@@ -230,141 +230,67 @@ procedure Register;
 implementation
 
 uses
-  UITypes, Types, ActiveX,
+  UITypes, Types, ActiveX, oleacc,
   NewUxTheme.TmSchema, PathFunc, BidiUtils, UnsignedFunc;
 
 const
   sRadioCantHaveDisabledChildren = 'Radio item cannot have disabled child items';
 
-  OBJID_CLIENT = $FFFFFFFC;
-  CHILDID_SELF = 0;
-  ROLE_SYSTEM_OUTLINE = $23;
-  ROLE_SYSTEM_STATICTEXT = $29;
-  ROLE_SYSTEM_CHECKBUTTON = $2c;
-  ROLE_SYSTEM_RADIOBUTTON = $2d;
-  STATE_SYSTEM_UNAVAILABLE = $1;
-  STATE_SYSTEM_CHECKED = $10;
-  STATE_SYSTEM_MIXED = $20;
-  EVENT_OBJECT_STATECHANGE = $800A;
-
-  IID_IUnknown: TGUID = (
-    D1:$00000000; D2:$0000; D3:$0000; D4:($C0,$00,$00,$00,$00,$00,$00,$46));
-  IID_IDispatch: TGUID = (
-    D1:$00020400; D2:$0000; D3:$0000; D4:($C0,$00,$00,$00,$00,$00,$00,$46));
-  IID_IAccessible: TGUID = (
-    D1:$618736e0; D2:$3c3d; D3:$11cf; D4:($81,$0c,$00,$aa,$00,$38,$9b,$71));
-
 type
   TWinControlAccess = class(TWinControl);
 
-  { Note: We have to use TVariantArg for Delphi 2 compat., because D2 passes
-    Variant parameters by reference (wrong), unlike D3+ which pass
-    Variant/OleVariant parameters by value }
-  NewOleVariant = TVariantArg;
-  NewWideString = Pointer;
-
-  TIUnknown = class
-  public
-    function QueryInterface(const iid: TIID; var obj): HRESULT; virtual; stdcall; abstract;
-    function AddRef: Longint; virtual; stdcall; abstract;
-    function Release: Longint; virtual; stdcall; abstract;
-  end;
-
-  TIDispatch = class(TIUnknown)
-  public
-    function GetTypeInfoCount(var ctinfo: Integer): HRESULT; virtual; stdcall; abstract;
-    function GetTypeInfo(itinfo: Integer; lcid: TLCID; var tinfo: ITypeInfo): HRESULT; virtual; stdcall; abstract;
-    function GetIDsOfNames(const iid: TIID; rgszNames: POleStrList;
-      cNames: Integer; lcid: TLCID; rgdispid: PDispIDList): HRESULT; virtual; stdcall; abstract;
-    function Invoke(dispIDMember: TDispID; const iid: TIID; lcid: TLCID;
-      flags: Word; var dispParams: TDispParams; varResult: PVariant;
-      excepInfo: PExcepInfo; argErr: PInteger): HRESULT; virtual; stdcall; abstract;
-  end;
-
-  TIAccessible = class(TIDispatch)
-  public
-    function get_accParent(var ppdispParent: IDispatch): HRESULT; virtual; stdcall; abstract;
-    function get_accChildCount(var pcountChildren: Integer): HRESULT; virtual; stdcall; abstract;
-    function get_accChild(varChild: NewOleVariant; var ppdispChild: IDispatch): HRESULT; virtual; stdcall; abstract;
-    function get_accName(varChild: NewOleVariant; var pszName: NewWideString): HRESULT; virtual; stdcall; abstract;
-    function get_accValue(varChild: NewOleVariant; var pszValue: NewWideString): HRESULT; virtual; stdcall; abstract;
-    function get_accDescription(varChild: NewOleVariant; var pszDescription: NewWideString): HRESULT; virtual; stdcall; abstract;
-    function get_accRole(varChild: NewOleVariant; var pvarRole: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function get_accState(varChild: NewOleVariant; var pvarState: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function get_accHelp(varChild: NewOleVariant; var pszHelp: NewWideString): HRESULT; virtual; stdcall; abstract;
-    function get_accHelpTopic(var pszHelpFile: NewWideString; varChild: NewOleVariant; var pidTopic: Integer): HRESULT; virtual; stdcall; abstract;
-    function get_accKeyboardShortcut(varChild: NewOleVariant; var pszKeyboardShortcut: NewWideString): HRESULT; virtual; stdcall; abstract;
-    function get_accFocus(var pvarID: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function get_accSelection(var pvarChildren: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function get_accDefaultAction(varChild: NewOleVariant; var pszDefaultAction: NewWideString): HRESULT; virtual; stdcall; abstract;
-    function accSelect(flagsSelect: Integer; varChild: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function accLocation(var pxLeft: Integer; var pyTop: Integer; var pcxWidth: Integer;
-      var pcyHeight: Integer; varChild: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function accNavigate(navDir: Integer; varStart: NewOleVariant; var pvarEnd: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function accHitTest(xLeft: Integer; yTop: Integer; var pvarID: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function accDoDefaultAction(varChild: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function put_accName(varChild: NewOleVariant; const pszName: NewWideString): HRESULT; virtual; stdcall; abstract;
-    function put_accValue(varChild: NewOleVariant; const pszValue: NewWideString): HRESULT; virtual; stdcall; abstract;
-  end;
-
-  TAccObject = class(TIAccessible)
+  TAccObject = class(TInterfacedObject, IDispatch, IAccessible)
   private
     FControl: TNewCheckListBox;
-    FRefCount: Integer;
-    FStdAcc: TIAccessible;
-    { TIUnknown }
-    function QueryInterface(const iid: TIID; var obj): HRESULT; override;
-    function AddRef: Longint; override;
-    function Release: Longint; override;
-    { TIDispatch }
-    function GetTypeInfoCount(var ctinfo: Integer): HRESULT; override;
-    function GetTypeInfo(itinfo: Integer; lcid: TLCID; var tinfo: ITypeInfo): HRESULT; override;
-    function GetIDsOfNames(const iid: TIID; rgszNames: POleStrList;
-      cNames: Integer; lcid: TLCID; rgdispid: PDispIDList): HRESULT; override;
-    function Invoke(dispIDMember: TDispID; const iid: TIID; lcid: TLCID;
-      flags: Word; var dispParams: TDispParams; varResult: PVariant;
-      excepInfo: PExcepInfo; argErr: PInteger): HRESULT; override;
-    { TIAccessible }
-    function get_accParent(var ppdispParent: IDispatch): HRESULT; override;
-    function get_accChildCount(var pcountChildren: Integer): HRESULT; override;
-    function get_accChild(varChild: NewOleVariant; var ppdispChild: IDispatch): HRESULT; override;
-    function get_accName(varChild: NewOleVariant; var pszName: NewWideString): HRESULT; override;
-    function get_accValue(varChild: NewOleVariant; var pszValue: NewWideString): HRESULT; override;
-    function get_accDescription(varChild: NewOleVariant; var pszDescription: NewWideString): HRESULT; override;
-    function get_accRole(varChild: NewOleVariant; var pvarRole: NewOleVariant): HRESULT; override;
-    function get_accState(varChild: NewOleVariant; var pvarState: NewOleVariant): HRESULT; override;
-    function get_accHelp(varChild: NewOleVariant; var pszHelp: NewWideString): HRESULT; override;
-    function get_accHelpTopic(var pszHelpFile: NewWideString; varChild: NewOleVariant; var pidTopic: Integer): HRESULT; override;
-    function get_accKeyboardShortcut(varChild: NewOleVariant; var pszKeyboardShortcut: NewWideString): HRESULT; override;
-    function get_accFocus(var pvarID: NewOleVariant): HRESULT; override;
-    function get_accSelection(var pvarChildren: NewOleVariant): HRESULT; override;
-    function get_accDefaultAction(varChild: NewOleVariant; var pszDefaultAction: NewWideString): HRESULT; override;
-    function accSelect(flagsSelect: Integer; varChild: NewOleVariant): HRESULT; override;
-    function accLocation(var pxLeft: Integer; var pyTop: Integer; var pcxWidth: Integer;
-      var pcyHeight: Integer; varChild: NewOleVariant): HRESULT; override;
-    function accNavigate(navDir: Integer; varStart: NewOleVariant; var pvarEnd: NewOleVariant): HRESULT; override;
-    function accHitTest(xLeft: Integer; yTop: Integer; var pvarID: NewOleVariant): HRESULT; override;
-    function accDoDefaultAction(varChild: NewOleVariant): HRESULT; override;
-    function put_accName(varChild: NewOleVariant; const pszName: NewWideString): HRESULT; override;
-    function put_accValue(varChild: NewOleVariant; const pszValue: NewWideString): HRESULT; override;
+    FStdAcc: IAccessible;
+    { IDispatch }
+    function GetTypeInfoCount(out ctinfo: Integer): HRESULT; stdcall;
+    function GetTypeInfo(itinfo: Integer; lcid: Integer; out tinfo): HRESULT; stdcall;
+    function GetIDsOfNames(const iid: TIID; rgszNames: Pointer;
+      cNames: Integer; lcid: Integer; rgdispid: Pointer): HRESULT; stdcall;
+    function Invoke(dispIDMember: TDispID; const iid: TIID; lcid: Integer;
+      flags: Word; var dispParams; varResult: Pointer;
+      excepInfo: Pointer; argErr: Pointer): HRESULT; stdcall;
+    { IAccessible }
+    function get_accParent(out ppdispParent: IDispatch): HRESULT; stdcall;
+    function get_accChildCount(out pcountChildren: Integer): HRESULT; stdcall;
+    function get_accChild(varChild: OleVariant; out ppdispChild: IDispatch): HRESULT; stdcall;
+    function get_accName(varChild: OleVariant; out pszName: WideString): HRESULT; stdcall;
+    function get_accValue(varChild: OleVariant; out pszValue: WideString): HRESULT; stdcall;
+    function get_accDescription(varChild: OleVariant; out pszDescription: WideString): HRESULT; stdcall;
+    function get_accRole(varChild: OleVariant; out pvarRole: OleVariant): HRESULT; stdcall;
+    function get_accState(varChild: OleVariant; out pvarState: OleVariant): HRESULT; stdcall;
+    function get_accHelp(varChild: OleVariant; out pszHelp: WideString): HRESULT; stdcall;
+    function get_accHelpTopic(out pszHelpFile: WideString; varChild: OleVariant; out pidTopic: Integer): HRESULT; stdcall;
+    function get_accKeyboardShortcut(varChild: OleVariant; out pszKeyboardShortcut: WideString): HRESULT; stdcall;
+    function get_accFocus(out pvarID: OleVariant): HRESULT; stdcall;
+    function get_accSelection(out pvarChildren: OleVariant): HRESULT; stdcall;
+    function get_accDefaultAction(varChild: OleVariant; out pszDefaultAction: WideString): HRESULT; stdcall;
+    function accSelect(flagsSelect: Integer; varChild: OleVariant): HRESULT; stdcall;
+    function accLocation(out pxLeft: Integer; out pyTop: Integer; out pcxWidth: Integer;
+      out pcyHeight: Integer; varChild: OleVariant): HRESULT; stdcall;
+    function accNavigate(navDir: Integer; varStart: OleVariant; out pvarEnd: OleVariant): HRESULT; stdcall;
+    function accHitTest(xLeft: Integer; yTop: Integer; out pvarID: OleVariant): HRESULT; stdcall;
+    function accDoDefaultAction(varChild: OleVariant): HRESULT; stdcall;
+    function put_accName(varChild: OleVariant; const pszName: WideString): HRESULT; stdcall;
+    function put_accValue(varChild: OleVariant; const pszValue: WideString): HRESULT; stdcall;
+    function IAccessible.Set_accName = put_accName;
+    function IAccessible.Set_accValue = put_accValue;
   public
     constructor Create(AControl: TNewCheckListBox);
     destructor Destroy; override;
     procedure ControlDestroying;
   end;
 
-function CoDisconnectObject(unk: TIUnknown; dwReserved: DWORD): HRESULT;
-  stdcall; external 'ole32.dll';
-
 var
   NotifyWinEventFunc: procedure(event: DWORD; hwnd: HWND; idObject: DWORD;
-    idChild: Longint); stdcall;
+    idChild: Integer); stdcall;
   OleAccInited: BOOL;
   OleAccAvailable: BOOL;
   LresultFromObjectFunc: function(const riid: TGUID; wParam: WPARAM;
-    pUnk: TIUnknown): LRESULT; stdcall;
-  CreateStdAccessibleObjectFunc: function(hwnd: HWND; idObject: Longint;
-    const riidInterface: TGUID; var ppvObject: Pointer): HRESULT; stdcall;
+    punk: IUnknown): LRESULT; stdcall;
+  CreateStdAccessibleObjectFunc: function(hwnd: HWND; idObject: Integer;
+    const riid: TGUID; out ppvObject: Pointer): HRESULT; stdcall;
 
 function InitializeOleAcc: Boolean;
 
@@ -376,11 +302,9 @@ function InitializeOleAcc: Boolean;
     Result := StrPas(Buf);
   end;
 
-var
-  M: HMODULE;
 begin
   if not OleAccInited then begin
-    M := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'oleacc.dll'));
+    const M = LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'oleacc.dll'));
     if M <> 0 then begin
       LresultFromObjectFunc := GetProcAddress(M, 'LresultFromObject');
       CreateStdAccessibleObjectFunc := GetProcAddress(M, 'CreateStdAccessibleObject');
@@ -1962,14 +1886,10 @@ begin
         Exit;
       end;
     end;
-    const AccObject = TAccObject(FAccObjectInstance);
-    AccObject.AddRef; { Add our own reference to ensure release even if LresultFromObjectFunc fails }
-    try
-      Message.Result := LresultFromObjectFunc(IID_IAccessible, Message.WParam,
-        AccObject);
-    finally
-      AccObject.Release;
-    end;
+    { Keep our own reference to ensure release even if LresultFromObject fails }
+    const AccObject: IAccessible = TAccObject(FAccObjectInstance);
+    Message.Result := LresultFromObjectFunc(IAccessible, Message.WParam,
+      AccObject);
   end
   else
     inherited;
@@ -2075,7 +1995,7 @@ constructor TAccObject.Create(AControl: TNewCheckListBox);
 begin
   inherited Create;
   if CreateStdAccessibleObjectFunc(AControl.Handle, Integer(OBJID_CLIENT),
-     IID_IAccessible, Pointer(FStdAcc)) <> S_OK then begin
+     IAccessible, Pointer(FStdAcc)) <> S_OK then begin
     { Note: The user will never actually see this message since the call to
       TAccObject.Create in TNewCheckListBox.WMGetObject is protected by a
       try..except. }
@@ -2092,8 +2012,6 @@ begin
     FControl.FAccObjectInstance := nil;
     FControl := nil;
   end;
-  if Assigned(FStdAcc) then
-    FStdAcc.Release;
   inherited;
 end;
 
@@ -2111,59 +2029,30 @@ begin
     destroyed. }
 end;
 
-function TAccObject.QueryInterface(const iid: TIID; var obj): HRESULT;
-begin
-  if IsEqualIID(iid, IID_IUnknown) or
-     IsEqualIID(iid, IID_IDispatch) or
-     IsEqualIID(iid, IID_IAccessible) then begin
-    Pointer(obj) := Self;
-    AddRef;
-    Result := S_OK;
-  end
-  else begin
-    Pointer(obj) := nil;
-    Result := E_NOINTERFACE;
-  end;
-end;
-
-function TAccObject.AddRef: Longint;
-begin
-  Inc(FRefCount);
-  Result := FRefCount;
-end;
-
-function TAccObject.Release: Longint;
-begin
-  Dec(FRefCount);
-  Result := FRefCount;
-  if Result = 0 then
-    Destroy;
-end;
-
-function TAccObject.GetTypeInfoCount(var ctinfo: Integer): HRESULT;
+function TAccObject.GetTypeInfoCount(out ctinfo: Integer): HRESULT;
 begin
   Result := E_NOTIMPL;
 end;
 
-function TAccObject.GetTypeInfo(itinfo: Integer; lcid: TLCID; var tinfo: ITypeInfo): HRESULT;
+function TAccObject.GetTypeInfo(itinfo: Integer; lcid: Integer; out tinfo): HRESULT;
 begin
   Result := E_NOTIMPL;
 end;
 
-function TAccObject.GetIDsOfNames(const iid: TIID; rgszNames: POleStrList;
-  cNames: Integer; lcid: TLCID; rgdispid: PDispIDList): HRESULT;
+function TAccObject.GetIDsOfNames(const iid: TIID; rgszNames: Pointer;
+  cNames: Integer; lcid: Integer; rgdispid: Pointer): HRESULT;
 begin
   Result := E_NOTIMPL;
 end;
 
-function TAccObject.Invoke(dispIDMember: TDispID; const iid: TIID; lcid: TLCID;
-  flags: Word; var dispParams: TDispParams; varResult: PVariant;
-  excepInfo: PExcepInfo; argErr: PInteger): HRESULT;
+function TAccObject.Invoke(dispIDMember: TDispID; const iid: TIID; lcid: Integer;
+  flags: Word; var dispParams; varResult: Pointer;
+  excepInfo: Pointer; argErr: Pointer): HRESULT;
 begin
   Result := E_NOTIMPL;
 end;
 
-function TAccObject.accDoDefaultAction(varChild: NewOleVariant): HRESULT;
+function TAccObject.accDoDefaultAction(varChild: OleVariant): HRESULT;
 begin
   { A list box's default action is Double Click, which is useless for a
     list of check boxes. }
@@ -2171,115 +2060,115 @@ begin
 end;
 
 function TAccObject.accHitTest(xLeft, yTop: Integer;
-  var pvarID: NewOleVariant): HRESULT;
+  out pvarID: OleVariant): HRESULT;
 begin
   Result := FStdAcc.accHitTest(xLeft, yTop, pvarID);
 end;
 
-function TAccObject.accLocation(var pxLeft, pyTop, pcxWidth,
-  pcyHeight: Integer; varChild: NewOleVariant): HRESULT;
+function TAccObject.accLocation(out pxLeft, pyTop, pcxWidth,
+  pcyHeight: Integer; varChild: OleVariant): HRESULT;
 begin
   Result := FStdAcc.accLocation(pxLeft, pyTop, pcxWidth, pcyHeight, varChild);
 end;
 
-function TAccObject.accNavigate(navDir: Integer; varStart: NewOleVariant;
-  var pvarEnd: NewOleVariant): HRESULT;
+function TAccObject.accNavigate(navDir: Integer; varStart: OleVariant;
+  out pvarEnd: OleVariant): HRESULT;
 begin
   Result := FStdAcc.accNavigate(navDir, varStart, pvarEnd);
 end;
 
 function TAccObject.accSelect(flagsSelect: Integer;
-  varChild: NewOleVariant): HRESULT;
+  varChild: OleVariant): HRESULT;
 begin
   Result := FStdAcc.accSelect(flagsSelect, varChild);
 end;
 
-function TAccObject.get_accChild(varChild: NewOleVariant;
-  var ppdispChild: IDispatch): HRESULT;
+function TAccObject.get_accChild(varChild: OleVariant;
+  out ppdispChild: IDispatch): HRESULT;
 begin
   Result := FStdAcc.get_accChild(varChild, ppdispChild);
 end;
 
-function TAccObject.get_accChildCount(var pcountChildren: Integer): HRESULT;
+function TAccObject.get_accChildCount(out pcountChildren: Integer): HRESULT;
 begin
   Result := FStdAcc.get_accChildCount(pcountChildren);
 end;
 
-function TAccObject.get_accDefaultAction(varChild: NewOleVariant;
-  var pszDefaultAction: NewWideString): HRESULT;
+function TAccObject.get_accDefaultAction(varChild: OleVariant;
+  out pszDefaultAction: WideString): HRESULT;
 begin
   { A list box's default action is Double Click, which is useless for a
     list of check boxes. }
-  pszDefaultAction := nil;
+  pszDefaultAction := '';
   Result := S_FALSE;
 end;
 
-function TAccObject.get_accDescription(varChild: NewOleVariant;
-  var pszDescription: NewWideString): HRESULT;
+function TAccObject.get_accDescription(varChild: OleVariant;
+  out pszDescription: WideString): HRESULT;
 begin
   Result := FStdAcc.get_accDescription(varChild, pszDescription);
 end;
 
-function TAccObject.get_accFocus(var pvarID: NewOleVariant): HRESULT;
+function TAccObject.get_accFocus(out pvarID: OleVariant): HRESULT;
 begin
   Result := FStdAcc.get_accFocus(pvarID);
 end;
 
-function TAccObject.get_accHelp(varChild: NewOleVariant;
-  var pszHelp: NewWideString): HRESULT;
+function TAccObject.get_accHelp(varChild: OleVariant;
+  out pszHelp: WideString): HRESULT;
 begin
   Result := FStdAcc.get_accHelp(varChild, pszHelp);
 end;
 
-function TAccObject.get_accHelpTopic(var pszHelpFile: NewWideString;
-  varChild: NewOleVariant; var pidTopic: Integer): HRESULT;
+function TAccObject.get_accHelpTopic(out pszHelpFile: WideString;
+  varChild: OleVariant; out pidTopic: Integer): HRESULT;
 begin
   Result := FStdAcc.get_accHelpTopic(pszHelpFile, varChild, pidTopic);
 end;
 
-function TAccObject.get_accKeyboardShortcut(varChild: NewOleVariant;
-  var pszKeyboardShortcut: NewWideString): HRESULT;
+function TAccObject.get_accKeyboardShortcut(varChild: OleVariant;
+  out pszKeyboardShortcut: WideString): HRESULT;
 begin
   Result := FStdAcc.get_accKeyboardShortcut(varChild, pszKeyboardShortcut);
 end;
 
-function TAccObject.get_accName(varChild: NewOleVariant;
-  var pszName: NewWideString): HRESULT;
+function TAccObject.get_accName(varChild: OleVariant;
+  out pszName: WideString): HRESULT;
 begin
   Result := FStdAcc.get_accName(varChild, pszName);
 end;
 
-function TAccObject.get_accParent(var ppdispParent: IDispatch): HRESULT;
+function TAccObject.get_accParent(out ppdispParent: IDispatch): HRESULT;
 begin
   Result := FStdAcc.get_accParent(ppdispParent);
 end;
 
-function TAccObject.get_accRole(varChild: NewOleVariant;
-  var pvarRole: NewOleVariant): HRESULT;
+function TAccObject.get_accRole(varChild: OleVariant;
+  out pvarRole: OleVariant): HRESULT;
 begin
-  pvarRole.vt := VT_EMPTY;
+  VariantInit(pvarRole);
   if FControl = nil then begin
     Result := E_FAIL;
     Exit;
   end;
-  if varChild.vt <> VT_I4 then begin
+  if TVarData(varChild).VType <> VT_I4 then begin
     Result := E_INVALIDARG;
     Exit;
   end;
-  if varChild.lVal = CHILDID_SELF then begin
-    pvarRole.lVal := ROLE_SYSTEM_OUTLINE;
-    pvarRole.vt := VT_I4;
+  if TVarData(varChild).VInteger = CHILDID_SELF then begin
+    TVarData(pvarRole).VInteger := ROLE_SYSTEM_OUTLINE;
+    TVarData(pvarRole).VType := VT_I4;
     Result := S_OK;
   end
   else begin
     try
-      case FControl.ItemStates[varChild.lVal-1].ItemType of
-        itCheck: pvarRole.lVal := ROLE_SYSTEM_CHECKBUTTON;
-        itRadio: pvarRole.lVal := ROLE_SYSTEM_RADIOBUTTON;
+      case FControl.ItemStates[TVarData(varChild).VInteger-1].ItemType of
+        itCheck: TVarData(pvarRole).VInteger := ROLE_SYSTEM_CHECKBUTTON;
+        itRadio: TVarData(pvarRole).VInteger := ROLE_SYSTEM_RADIOBUTTON;
       else
-        pvarRole.lVal := ROLE_SYSTEM_STATICTEXT;
+        TVarData(pvarRole).VInteger := ROLE_SYSTEM_STATICTEXT;
       end;
-      pvarRole.vt := VT_I4;
+      TVarData(pvarRole).VType := VT_I4;
       Result := S_OK;
     except
       Result := E_INVALIDARG;
@@ -2287,54 +2176,55 @@ begin
   end;
 end;
 
-function TAccObject.get_accSelection(var pvarChildren: NewOleVariant): HRESULT;
+function TAccObject.get_accSelection(out pvarChildren: OleVariant): HRESULT;
 begin
   Result := FStdAcc.get_accSelection(pvarChildren);
 end;
 
-function TAccObject.get_accState(varChild: NewOleVariant;
-  var pvarState: NewOleVariant): HRESULT;
+function TAccObject.get_accState(varChild: OleVariant;
+  out pvarState: OleVariant): HRESULT;
 var
   ItemState: TItemState;
 begin
   Result := FStdAcc.get_accState(varChild, pvarState);
   try
-    if (Result = S_OK) and (varChild.vt = VT_I4) and
-       (varChild.lVal <> CHILDID_SELF) and (pvarState.vt = VT_I4) and
+    if (Result = S_OK) and (TVarData(varChild).VType = VT_I4) and
+       (TVarData(varChild).VInteger <> CHILDID_SELF) and
+       (TVarData(pvarState).VType = VT_I4) and
        Assigned(FControl) then begin
-      ItemState := FControl.ItemStates[varChild.lVal-1];
+      ItemState := FControl.ItemStates[TVarData(varChild).VInteger-1];
       case ItemState.State of
-        cbChecked: pvarState.lVal := pvarState.lVal or STATE_SYSTEM_CHECKED;
-        cbGrayed: pvarState.lVal := pvarState.lVal or STATE_SYSTEM_MIXED;
+        cbChecked: TVarData(pvarState).VInteger := TVarData(pvarState).VInteger or STATE_SYSTEM_CHECKED;
+        cbGrayed: TVarData(pvarState).VInteger := TVarData(pvarState).VInteger or STATE_SYSTEM_MIXED;
       end;
       if not ItemState.Enabled then
-        pvarState.lVal := pvarState.lVal or STATE_SYSTEM_UNAVAILABLE;
+        TVarData(pvarState).VInteger := TVarData(pvarState).VInteger or STATE_SYSTEM_UNAVAILABLE;
     end;
   except
     Result := E_INVALIDARG;
   end;
 end;
 
-function TAccObject.get_accValue(varChild: NewOleVariant;
-  var pszValue: NewWideString): HRESULT;
+function TAccObject.get_accValue(varChild: OleVariant;
+  out pszValue: WideString): HRESULT;
 begin
-  pszValue := nil;
+  pszValue := '';
   if FControl = nil then begin
     Result := E_FAIL;
     Exit;
   end;
-  if varChild.vt <> VT_I4 then begin
+  if TVarData(varChild).VType <> VT_I4 then begin
     Result := E_INVALIDARG;
     Exit;
   end;
-  if varChild.lVal = CHILDID_SELF then
+  if TVarData(varChild).VInteger = CHILDID_SELF then
     Result := S_FALSE
   else begin
     { Return the level as the value, like standard tree view controls do.
       Not sure if any screen readers will actually use this, seeing as we
       aren't a real tree view control. }
     try
-      pszValue := StringToOleStr(IntToStr(FControl.ItemStates[varChild.lVal-1].Level));
+      pszValue := IntToStr(FControl.ItemStates[TVarData(varChild).VInteger-1].Level);
       Result := S_OK;
     except
       Result := E_INVALIDARG;
@@ -2342,14 +2232,14 @@ begin
   end;
 end;
 
-function TAccObject.put_accName(varChild: NewOleVariant;
-  const pszName: NewWideString): HRESULT;
+function TAccObject.put_accName(varChild: OleVariant;
+  const pszName: WideString): HRESULT;
 begin
   Result := S_FALSE;
 end;
 
-function TAccObject.put_accValue(varChild: NewOleVariant;
-  const pszValue: NewWideString): HRESULT;
+function TAccObject.put_accValue(varChild: OleVariant;
+  const pszValue: WideString): HRESULT;
 begin
   Result := S_FALSE;
 end;
