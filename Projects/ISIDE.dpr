@@ -91,6 +91,7 @@ uses
   StringScanner in '..\Components\StringScanner.pas',
   Resample in '..\Components\Resample.pas',
   UnsignedFunc in '..\Components\UnsignedFunc.pas',
+  Toolbar.Accessibility in '..\Components\Toolbar.Accessibility.pas',
   VCL.Styles,
   VCL.Themes,
   IDE.MainForm.MRUHelper in 'Src\IDE.MainForm.MRUHelper.pas',
