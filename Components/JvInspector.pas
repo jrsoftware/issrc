@@ -478,7 +478,7 @@ end;
 
 procedure TJvInspector.ChangeScale(M, D: Integer; isDpiChange: Boolean);
 begin
-  inherited ChangeScale(M, D, isDpiChange);
+  inherited;
   if M <> D then
     FDivider := MulDiv(FDivider, M, D);
 end;
@@ -496,7 +496,7 @@ end;
 
 function TJvInspector.GetImageHeight: Integer;
 begin
-  Result := Integer(GetVisibleCount) * GetItemHeight;
+  Result := GetVisibleCount * GetItemHeight;
 end;
 
 function TJvInspector.GetItemHeight: Integer;
