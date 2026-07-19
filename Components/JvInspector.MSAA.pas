@@ -18,7 +18,6 @@ uses
 type
   TJvInspectorMSAAHelper = class helper for TJvInspector
   private
-    function EditorActive: Boolean;
     function TrueFocused: Boolean;
   public
     procedure AnnounceFocusToMSAA;
@@ -112,14 +111,6 @@ begin
 end;
 
 { TJvInspectorMSAAHelper }
-
-function TJvInspectorMSAAHelper.EditorActive: Boolean;
-begin
-  { Editing cannot be used here: TJvInspectorBooleanItem.InitEdit sets
-    Editing without ever creating an editor window }
-  Result := (Selected <> nil) and
-    (TJvCustomInspectorItemAccess(Selected).EditCtrl <> nil);
-end;
 
 function TJvInspectorMSAAHelper.TrueFocused: Boolean;
 begin

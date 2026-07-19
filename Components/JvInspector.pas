@@ -133,6 +133,7 @@ type
     function GetVisibleCount: Integer;
     function GetVisibleItems(const I: Integer): TJvCustomInspectorItem;
     function IdxToY(const Index: Integer): Integer;
+    function EditorActive: Boolean;
     function InheritedFocused: Boolean;
     procedure InvalidateItem;
     procedure InvalidateList;
@@ -1011,10 +1012,17 @@ begin
   end;
 end;
 
+function TJvInspector.EditorActive: Boolean;
+{ The Editing property cannot be used here: for boolean items it
+  is True, even if there's no in-place editor control created }
+begin
+  Result := (Selected <> nil) and (Selected.EditCtrl <> nil);
+end;
+
 function TJvInspector.Focused: Boolean;
 begin
   Result := inherited Focused or
-    ((Selected <> nil) and (Selected.EditCtrl <> nil) and Selected.EditCtrl.Focused);
+    (EditorActive and Selected.EditCtrl.Focused);
 end;
 
 function TJvInspector.InheritedFocused: Boolean;
