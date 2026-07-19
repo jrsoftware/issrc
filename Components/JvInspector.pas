@@ -2268,6 +2268,17 @@ begin
     Edit.OnExit := EditFocusLost;
     SetEditCtrl(Edit);
     EditCtrl.Color := Inspector.BackgroundColor;
+    // The editor shows the text the value was painted with, so it must use
+    // the exact font it was painted with: any metric difference makes the
+    // text visibly shift when editing starts or ends
+    EditCtrl.Font.Assign(Inspector.Font);
+    EditCtrl.Font.Color := Inspector.ValueColor;
+    // BeforeEdit is fired here, after the editor's font has been assigned, so a
+    // handler can still customize that font, and before Edit_WndProc is
+    // installed, so a WindowProc set by a handler gets wrapped instead of
+    // replacing the wrapper
+    if Assigned(Inspector.BeforeEdit) then
+      Inspector.BeforeEdit(Inspector as TObject, Self, EditCtrl);
     FEditWndPrc := EditCtrl.WindowProc;
     EditCtrl.WindowProc := Edit_WndProc;
     EditCtrl.AutoSize := False;
@@ -2281,15 +2292,6 @@ begin
       ListBox.OnDeactivate := ListDeactivate;
       ListBox.Item := Self;
     end;
-    // The editor shows the text the value was painted with, so it must use
-    // the exact font it was painted with: any metric difference makes the
-    // text visibly shift when editing starts or ends
-    EditCtrl.Font.Assign(Inspector.Font);
-    EditCtrl.Font.Color := Inspector.ValueColor;
-    // BeforeEdit is fired here, after the editor's font has been assigned, so a
-    // handler can still customize that font
-    if Assigned(Inspector.BeforeEdit) then
-      Inspector.BeforeEdit(Inspector as TObject, Self, EditCtrl);
     EditCtrl.BoundsRect := Rects[iprEditValue];
     EditCtrl.OnKeyDown := EditKeyDown;
     EditCtrl.OnKeyPress := EditKeyPress;
