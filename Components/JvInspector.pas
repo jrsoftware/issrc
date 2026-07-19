@@ -133,6 +133,7 @@ type
     function GetVisibleCount: Integer;
     function GetVisibleItems(const I: Integer): TJvCustomInspectorItem;
     function IdxToY(const Index: Integer): Integer;
+    function InheritedFocused: Boolean;
     procedure InvalidateItem;
     procedure InvalidateList;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
@@ -307,11 +308,11 @@ type
   TJvInspectorBooleanItem = class(TJvCustomInspectorItem)
   private
     FCheckRect: TRect;
-    procedure Toggle;
   protected
     procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer); override;
+    procedure Toggle;
   public
     procedure DoneEdit(const CancelEdits: Boolean = False); override;
     procedure DrawValue(const ACanvas: TCanvas); override;
@@ -485,6 +486,7 @@ end;
 
 procedure TJvInspector.CMActivate(var Msg: TCMActivate);
 begin
+  inherited;
   Invalidate;
 end;
 
@@ -539,7 +541,7 @@ end;
 procedure TJvInspector.InvalidateItem;
 begin
   if (LockCount = 0) and HandleAllocated then
-    UpdateScrollBars;
+    UpdateScrollBars; { Calls Invalidate }
 end;
 
 procedure TJvInspector.InvalidateList;
@@ -1013,6 +1015,12 @@ function TJvInspector.Focused: Boolean;
 begin
   Result := inherited Focused or
     ((Selected <> nil) and (Selected.EditCtrl <> nil) and Selected.EditCtrl.Focused);
+end;
+
+function TJvInspector.InheritedFocused: Boolean;
+{ Used by JvInspector.MSAA to skip the override above }
+begin
+  Result := inherited Focused;
 end;
 
 procedure TJvInspector.RefreshValues;
@@ -2049,9 +2057,11 @@ begin
     FFlags := NewFlags;
     OldFlags := OldFlags * [iifExpanded];
     NewFlags := NewFlags * [iifExpanded];
-    if NewFlags <> OldFlags then
-      InvalidateList
-    else
+    if NewFlags <> OldFlags then begin
+      InvalidateList;
+      if Inspector <> nil then
+        Inspector.AnnounceStateChangeToMSAA(Integer(Inspector.FVisibleList.IndexOf(Self)));
+    end else
       InvalidateItem;
   end;
 end;

@@ -19,7 +19,7 @@ type
   TJvInspectorMSAAHelper = class helper for TJvInspector
   private
     function EditorActive: Boolean;
-    function WindowOwnsFocus: Boolean;
+    function TrueFocused: Boolean;
   public
     procedure AnnounceFocusToMSAA;
     procedure AnnounceReorderToMSAA;
@@ -36,9 +36,16 @@ implementation
 uses
   ActiveX, oleacc, SysUtils, Classes, Types, OleAccFunc;
 
+resourcestring
+  RsJvInspCheck = 'Check';
+  RsJvInspUncheck = 'Uncheck';
+  RsJvInspExpand = 'Expand';
+  RsJvInspCollapse = 'Collapse';
+
 type
   TJvInspectorAccess = class(TJvInspector);
   TJvCustomInspectorItemAccess = class(TJvCustomInspectorItem);
+  TJvInspectorBooleanItemAccess = class(TJvInspectorBooleanItem);
 
   TAccObject = class(TInterfacedObject, IDispatch, IAccessible)
   private
@@ -114,11 +121,12 @@ begin
     (TJvCustomInspectorItemAccess(Selected).EditCtrl <> nil);
 end;
 
-function TJvInspectorMSAAHelper.WindowOwnsFocus: Boolean;
+function TJvInspectorMSAAHelper.TrueFocused: Boolean;
 begin
   { Focused cannot be used here: it is overridden to also be True while the
-    in-place editor child owns the focus }
-  Result := HandleAllocated and (GetFocus = Handle);
+    in-place editor child owns the focus. So ask JvInspector to call the
+    true Focused. }
+  Result := InheritedFocused;
 end;
 
 procedure TJvInspectorMSAAHelper.AnnounceFocusToMSAA;
@@ -128,7 +136,7 @@ begin
     treating the container as the focused element, and for example ignores a
     later state change of the row. Skip when the in-place editor took the
     real focus: it announces itself }
-  if WindowOwnsFocus and not EditorActive and (SelectedIndex >= 0) and
+  if TrueFocused and not EditorActive and (SelectedIndex >= 0) and
      Assigned(NotifyWinEventFunc) then
     NotifyWinEventFunc(EVENT_OBJECT_FOCUS, Handle, OBJID_CLIENT,
       1 + SelectedIndex);
@@ -147,7 +155,7 @@ procedure TJvInspectorMSAAHelper.AnnounceSelectionToMSAA;
   focused and when there's no in-place editor active. }
 begin
   if HandleAllocated and Assigned(NotifyWinEventFunc) then begin
-    if WindowOwnsFocus and not EditorActive then begin
+    if TrueFocused and not EditorActive then begin
       if SelectedIndex >= 0 then
         NotifyWinEventFunc(EVENT_OBJECT_FOCUS, Handle, OBJID_CLIENT,
           1 + SelectedIndex)
@@ -169,11 +177,19 @@ end;
 procedure TJvInspectorMSAAHelper.AnnounceStateChangeToMSAA(
   const AIndex: Integer);
 { Notify MSAA of the state change. Works for NVDA, but not for Narrator;
-  it requires a focus event as well. }
+  it requires a focus event as well. Also notifies of the default action
+  change which comes with it: toggling flips Check and Uncheck, expanding
+  or collapsing flips Expand and Collapse. Skipped while locked: a rebuild
+  is pending, making the index stale, and the rebuild announces a reorder
+  when it runs }
 begin
-  if HandleAllocated and (AIndex >= 0) and Assigned(NotifyWinEventFunc) then
+  if HandleAllocated and (AIndex >= 0) and (LockCount = 0) and
+     Assigned(NotifyWinEventFunc) then begin
     NotifyWinEventFunc(EVENT_OBJECT_STATECHANGE, Handle, OBJID_CLIENT,
       1 + AIndex);
+    NotifyWinEventFunc(EVENT_OBJECT_DEFACTIONCHANGE, Handle, OBJID_CLIENT,
+      1 + AIndex);
+  end;
 end;
 
 procedure TJvInspectorMSAAHelper.DisconnectMSAAObject;
@@ -292,9 +308,31 @@ end;
 
 function TAccObject.accDoDefaultAction(varChild: OleVariant): HRESULT;
 begin
-  { The rows don't have a default action (the reader can't expand or collapse
-    them), and DISP_E_MEMBERNOTFOUND is the documented way to report that }
-  Result := DISP_E_MEMBERNOTFOUND;
+  var Index: Integer;
+  Result := CheckChild(varChild, Index);
+  if Result <> S_OK then
+    Exit;
+  { Like a standard check box, the default action of an editable boolean row
+    is to toggle it, and like a standard tree view, the default action of a
+    row with children is to expand or collapse it. Other rows and the
+    control itself have no default action, and DISP_E_MEMBERNOTFOUND is the
+    documented way to report that. }
+  if Index < 0 then
+    Exit(DISP_E_MEMBERNOTFOUND);
+  const Item = FControl.GetVisibleItems(Index);
+  try
+    if Item is TJvInspectorBooleanItem then begin
+      if TJvCustomInspectorItemAccess(Item).CanEdit then
+        TJvInspectorBooleanItemAccess(Item).Toggle
+      else
+        Result := DISP_E_MEMBERNOTFOUND;
+    end else if Item.Count > 0 then
+      Item.Expanded := not Item.Expanded
+    else
+      Result := DISP_E_MEMBERNOTFOUND;
+  except
+    Result := E_FAIL;
+  end;
 end;
 
 function TAccObject.accHitTest(xLeft, yTop: Integer;
@@ -420,9 +458,36 @@ end;
 function TAccObject.get_accDefaultAction(varChild: OleVariant;
   out pszDefaultAction: WideString): HRESULT;
 begin
-  { See accDoDefaultAction }
   pszDefaultAction := '';
-  Result := S_FALSE;
+  var Index: Integer;
+  Result := CheckChild(varChild, Index);
+  if Result <> S_OK then
+    Exit;
+  { See accDoDefaultAction. Per docs the returned string must be localized,
+    so the action names are resourcestrings. }
+  if Index >= 0 then begin
+    const Item = FControl.GetVisibleItems(Index);
+    try
+      if Item is TJvInspectorBooleanItem then begin
+        if TJvCustomInspectorItemAccess(Item).CanEdit then begin
+          if TJvCustomInspectorItemAccess(Item).AsOrdinal <> Ord(False) then
+            pszDefaultAction := RsJvInspUncheck
+          else
+            pszDefaultAction := RsJvInspCheck;
+          Exit;
+        end;
+      end else if Item.Count > 0 then begin
+        if Item.Expanded then
+          pszDefaultAction := RsJvInspCollapse
+        else
+          pszDefaultAction := RsJvInspExpand;
+        Exit;
+      end;
+    except
+      Exit(E_INVALIDARG);
+    end;
+  end;
+  Result := S_FALSE; { No default action }
 end;
 
 function TAccObject.get_accDescription(varChild: OleVariant;
@@ -438,7 +503,7 @@ begin
   VariantInit(pvarID);
   if FControl = nil then
     Exit(E_FAIL);
-  if FControl.WindowOwnsFocus then begin
+  if FControl.TrueFocused then begin
     { The selected row, or the container itself when nothing is selected;
       matches the focus event SetSelectedIndex fires }
     if FControl.SelectedIndex >= 0 then
@@ -551,7 +616,7 @@ begin
     State := State or STATE_SYSTEM_SELECTED;
     { Only claim focus when the window really owns it, so a tool querying an
       unfocused inspector does not see a row claiming focus }
-    if FControl.WindowOwnsFocus then
+    if FControl.TrueFocused then
       State := State or STATE_SYSTEM_FOCUSED;
   end;
   { Derive on/off screen from the same scroll-relative position accLocation
@@ -591,7 +656,8 @@ begin
   try
     const Item = FControl.GetVisibleItems(Index);
     if Item is TJvInspectorBooleanItem then begin
-      { Boolean rows have an empty DisplayValue }
+      { Boolean rows have an empty DisplayValue, so report the matching
+        script text, not localized }
       if TJvCustomInspectorItemAccess(Item).AsOrdinal <> Ord(False) then
         pszValue := 'yes'
       else
