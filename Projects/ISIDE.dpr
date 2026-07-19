@@ -91,6 +91,7 @@ uses
   StringScanner in '..\Components\StringScanner.pas',
   Resample in '..\Components\Resample.pas',
   UnsignedFunc in '..\Components\UnsignedFunc.pas',
+  Toolbar.Accessibility in '..\Components\Toolbar.Accessibility.pas',
   JvInspector in '..\Components\JvInspector.pas',
   JvInspector.MSAA in '..\Components\JvInspector.MSAA.pas',
   IDE.ScriptModel in 'Src\IDE.ScriptModel.pas',

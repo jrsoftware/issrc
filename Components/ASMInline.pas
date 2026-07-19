@@ -109,19 +109,10 @@ type
     function SaveAsMemory: Pointer;
 {$IFDEF CPUX86}
     function Addr(base: TRegister32; offset: Integer; size: TMemSize = ms32): TMemoryAddress; overload;
-
-    //PUSH reg
     procedure Push(reg: TRegister32); overload;
-
-    //POP reg
     procedure Pop(reg: TRegister32);
-
-    //JUMP rel32
     procedure Jmp(target: pointer); overload;
-
-    //MOV reg, imm
     procedure Mov(reg: TRegister32; b: longword); overload;
-    //MOV reg, mem and MOV mem, reg
     procedure Mov(mem: TMemoryAddress; reg: TRegister32); overload;
     procedure Mov(reg: TRegister32; mem: TMemoryAddress); overload;
 {$ELSE}

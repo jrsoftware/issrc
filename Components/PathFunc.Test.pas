@@ -844,7 +844,10 @@ begin
   TestPathConvertNormalToSuperStr('\\?\UNC\server\share\x', '\\?\UNC\server\share\x');
   TestPathConvertNormalToSuper('\\.\C:\x', '\\?\C:\x', True);
   TestPathConvertNormalToSuper('\\?\C:\x', '\\?\C:\x', True);
-  TestPathConvertNormalToSuper('sub\file', '\\?\' + AddBackslash(GetCurrentDir) + 'sub\file', True);
+  TestPathConvertNormalToSuper('C:\dir\..\dir2', '\\?\C:\dir2', True);
+  const CurrentDir = GetCurrentDir;
+  if not PathStartsWith(CurrentDir, '\\') then
+    TestPathConvertNormalToSuper('sub\file', '\\?\' + AddBackslash(CurrentDir) + 'sub\file', True);
   TestPathConvertNormalToSuper('\\', '\\?\UNC\', True);
   TestPathConvertNormalToSuper('', '', False);
 

@@ -132,7 +132,7 @@ implementation
 uses
   Windows, ShellApi,
   SysUtils, Graphics, StdCtrls, Menus, Clipbrd, RichEdit, {$IF RtlVersion >= 36.0} Themes, {$ENDIF}
-  PathFunc, BrowseFunc, ModernColors,
+  PathFunc, BrowseFunc, ModernColors, Toolbar.Accessibility,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.FileClass,
   IDE.Messages, IDE.ImagesModule, IDE.HelperFunc, IDE.LocalizeFunc, IDE.MainForm;
 
@@ -214,6 +214,7 @@ begin
   BoldButton.Hint := LFmtMessage(BoldButton.Hint, [NewShortCutToText(ShortCut(Ord('B'), [ssCtrl]))]);
   ItalicButton.Hint := LFmtMessage(ItalicButton.Hint, [NewShortCutToText(ShortCut(Ord('I'), [ssCtrl]))]);
   UnderlineButton.Hint := LFmtMessage(UnderlineButton.Hint, [NewShortCutToText(ShortCut(Ord('U'), [ssCtrl]))]);
+
   { Just like MainForm }
   IncreaseFontSizeButton.Hint := RemoveAccelChar(IncreaseFontSizeAction.Caption);
   DecreaseFontSizeButton.Hint := RemoveAccelChar(DecreaseFontSizeAction.Caption);
@@ -225,9 +226,36 @@ begin
   OutdentButton.Hint := RemoveAccelChar(OutdentAction.Caption);
   IndentButton.Hint := RemoveAccelChar(IndentAction.Caption);
 
+  { Just like MainForm - Not displayed, for TToolBarAccessibility }
+  NewButton.Caption := MainForm.NewMainFileButton.Caption;
+  OpenButton.Caption := MainForm.OpenMainFileButton.Caption;
+  SaveButton.Caption := MainForm.SaveButton.Caption;
+  SaveAsButton.Caption := LFmtMessage(SToolBarSaveAs);
+  UndoButton.Caption := RemoveAccelChar(UndoAction.Caption);
+  RedoButton.Caption := RemoveAccelChar(RedoAction.Caption);
+  CutButton.Caption := RemoveAccelChar(CutAction.Caption);
+  CopyButton.Caption := RemoveAccelChar(CopyAction.Caption);
+  PasteButton.Caption := RemoveAccelChar(PasteAction.Caption);
+  BoldButton.Caption := RemoveAccelChar(BoldAction.Caption);
+  ItalicButton.Caption := RemoveAccelChar(ItalicAction.Caption);
+  UnderlineButton.Caption := RemoveAccelChar(UnderlineAction.Caption);
+  FontButton.Caption := LFmtMessage(SToolBarFont);
+  IncreaseFontSizeButton.Caption := RemoveAccelChar(IncreaseFontSizeAction.Caption);
+  DecreaseFontSizeButton.Caption := RemoveAccelChar(DecreaseFontSizeAction.Caption);
+  TextColorButton.Caption := LFmtMessage(SToolBarTextColor);
+  BackgroundColorButton.Caption := LFmtMessage(SToolBarBackgroundColor);
+  ResetColorsButton.Caption := RemoveAccelChar(ResetColorsAction.Caption);
+  AlignLeftButton.Caption := RemoveAccelChar(AlignLeftAction.Caption);
+  AlignCenterButton.Caption := RemoveAccelChar(AlignCenterAction.Caption);
+  AlignRightButton.Caption := RemoveAccelChar(AlignRightAction.Caption);
+  BulletsButton.Caption := RemoveAccelChar(BulletsAction.Caption);
+  IndentButton.Caption := RemoveAccelChar(IndentAction.Caption);
+  OutdentButton.Caption := RemoveAccelChar(OutdentAction.Caption);
+
   FBaseCaption := Caption;
 
   { See MainForm }
+  TToolBarAccessibility.Create(ToolBar);
   ToolBarPanel.ParentBackground := False;
 
   CreateRichEditControl;

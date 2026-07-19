@@ -259,6 +259,16 @@ const
   SNavBack = 'Back (%1)';
   SNavForward = 'Forward (%1)';
 
+  { Toolbar button captions }
+  SToolBarBack = 'Back';
+  SToolBarForward = 'Forward';
+  SToolBarOpen = 'Open';
+  SToolBarRun = 'Run';
+  SToolBarSaveAs = 'Save As';
+  SToolBarFont = 'Font';
+  SToolBarTextColor = 'Text Color';
+  SToolBarBackgroundColor = 'Background Color';
+
   { Shortcuts }
   SShortCutCtrl = 'Ctrl+';
   SShortCutShift = 'Shift+';

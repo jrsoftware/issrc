@@ -713,7 +713,7 @@ implementation
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Themes, DateUtils,
   Math, StrUtils, WideStrUtils, TypInfo,
-  PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc, UnsignedFunc, JvInspector,
+  PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc, UnsignedFunc, Toolbar.Accessibility, JvInspector,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.ScriptFunc,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
@@ -1100,6 +1100,7 @@ begin
   MemosTabSet.Theme := FTheme;
   OutputTabSet.Theme := FTheme;
 
+  TToolBarAccessibility.Create(ToolBar);
   ToolBarPanel.ParentBackground := False;
   UpdatePanel.ParentBackground := False;
   UpdatePanelDonateBitBtn.Hint := RemoveAccelChar(HDonate.Caption);
@@ -1608,6 +1609,21 @@ begin
   OutputTabSet.Tabs[tiDebugOutput] := RemoveAccelChar(VDebugOutput.Caption);
   OutputTabSet.Tabs[tiDebugCallStack] := RemoveAccelChar(VDebugCallStack.Caption);
   OutputTabSet.Tabs[tiFindResults] := RemoveAccelChar(VFindResults.Caption);
+
+  { Not displayed, for TToolBarAccessibility }
+  BackNavButton.Caption := LFmtMessage(SToolBarBack);
+  ForwardNavButton.Caption := LFmtMessage(SToolBarForward);
+  NewMainFileButton.Caption := RemoveAccelChar(FNewMainFile.Caption);
+  OpenMainFileButton.Caption := LFmtMessage(SToolBarOpen);
+  SaveButton.Caption := RemoveAccelChar(FSave.Caption);
+  CompileButton.Caption := RemoveAccelChar(BCompile.Caption);
+  StopCompileButton.Caption := RemoveAccelChar(BStopCompile.Caption);
+  RunButton.Caption := LFmtMessage(SToolBarRun);
+  PauseButton.Caption := RemoveAccelChar(RPause.Caption);
+  TerminateButton.Caption := RemoveAccelChar(RTerminate.Caption);
+  TargetSetupButton.Caption := RemoveAccelChar(RTargetSetup.Caption);
+  TargetUninstallButton.Caption := RemoveAccelChar(RTargetUninstall.Caption);
+  HelpButton.Caption := RemoveAccelChar(HDoc.Caption);
 
   SetFakeShortCutText(VZoomIn, LFmtMessage(SShortCutCtrl) + LFmtMessage(SShortCutNumpad, ['+'])); { These zoom shortcuts are handled by Scintilla and only support the active memo, unlike the menu items which work on all memos }
   SetFakeShortCutText(VZoomOut, LFmtMessage(SShortCutCtrl) + LFmtMessage(SShortCutNumpad, ['-']));
