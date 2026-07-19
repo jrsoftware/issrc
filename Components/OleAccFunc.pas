@@ -12,7 +12,7 @@ unit OleAccFunc;
 interface
 
 uses
-  Windows;
+  Winapi.Windows;
 
 var
   NotifyWinEventFunc: procedure(event: DWORD; hwnd: HWND; idObject: DWORD;
@@ -27,11 +27,11 @@ function InitializeOleAcc: Boolean;
 implementation
 
 uses
-  ActiveX, SysUtils, PathFunc;
+  Winapi.ActiveX, System.SysUtils, PathFunc;
 
 var
-  OleAccInited: BOOL;
-  OleAccAvailable: BOOL;
+  OleAccInited: Boolean;
+  OleAccAvailable: Boolean;
 
 function InitializeOleAcc: Boolean;
 
