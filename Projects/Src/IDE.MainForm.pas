@@ -3298,6 +3298,10 @@ begin
       FInspector.SetActiveFactory(LiveScriptObjectFactoryForMemo(FActiveMemo),
         FOptions.InspectorShowAllKnownDirectives and (FActiveMemo = FMainMemo));
     end else begin
+      { If an in-place editor is active it will lose focus after the next
+        focus change, which causes it to show an error on bad input.
+        Call ForceFinishEdit to accept good input and reject bad input. }
+      FInspector.ForceFinishEdit;
       if InspectorPanel.ContainsControl(ActiveControl) then
         ActiveControl := FActiveMemo;
     end;
@@ -3654,7 +3658,8 @@ begin
 
   var NewActiveMemo := TabIndexToMemo(MemosTabSet.TabIndex, MemosTabSet.Tabs.Count-1);
   if NewActiveMemo <> FActiveMemo then begin
-    { Avoiding flicker by showing new before hiding old }
+    if InspectorPanel.Visible then
+      FInspector.ForceFinishEdit; { See SetInspectorVisible }
     NewActiveMemo.Visible := True;
     var OldActiveMemo := FActiveMemo;
     FActiveMemo := NewActiveMemo;

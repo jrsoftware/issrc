@@ -80,6 +80,7 @@ type
       const AFactory: TLiveScriptObjectFactory;
       const AShowAllKnownDirectives: Boolean);
     destructor Destroy; override;
+    procedure ForceFinishEdit;
     procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
       const AShowAllKnownDirectives: Boolean);
     procedure UpdateFromCaret;
@@ -99,10 +100,13 @@ type
 implementation
 
 uses
-  Windows, SysUtils, UITypes, Themes, Generics.Defaults,
+  Windows, SysUtils, UITypes, Themes, Forms, Generics.Defaults,
   NewUxTheme,
   Shared.CommonFunc,
   IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc;
+
+type
+  EInspectorValueRejected = class(EScriptModelError);
 
 { TInspector }
 
@@ -248,6 +252,29 @@ begin
   if (Key = VK_F1) and (Shift * [ssShift, ssAlt, ssCtrl] = []) then begin
     Key := 0;
     ShowHelp(GetSelectedHelpKeyword);
+  end;
+end;
+
+procedure TInspector.ForceFinishEdit;
+{ Commits a pending in-place edit, silently reverting it if its value is
+  rejected, or loudly reverting on other errors }
+begin
+  const Item = FJvInspector.Selected;
+  if (Item <> nil) and Item.Editing then begin
+    if FFactory.Memo.ReadOnly then
+      Item.DoneEdit(True)
+    else begin
+      try
+        Item.DoneEdit;
+      except
+        on EInspectorValueRejected do
+          Item.DoneEdit(True);
+        else begin
+          Application.HandleException(Self);
+          Item.DoneEdit(True);
+        end;
+      end;
+    end;
   end;
 end;
 
@@ -938,7 +965,7 @@ procedure TInspector.RowSetAsString(Sender: TJvCustomInspectorItem;
         separators because the compiler accepts them for some values. }
       var IntegerValue: Int64;
       if not TryStrToInt64(StringReplace(AValue, '_', '', [rfReplaceAll]), IntegerValue) then
-        raise EScriptModelError.Create(LFmtMessage(SInspectorIntegerValueError, [ARowName]));
+        raise EInspectorValueRejected.Create(LFmtMessage(SInspectorIntegerValueError, [ARowName]));
     end;
   end;
 
