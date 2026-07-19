@@ -506,6 +506,122 @@ begin
     end;
   end;
 
+  { Splitting the line of a one-line entry mid-line extends the range to the
+    tail fragment, and a write-back rejoins the fragments }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"; DestDir: "{app}"']);
+    try
+      const Factory = Context.Factory;
+      Assert(Factory.SectionCount = 1);
+      var Entry: TLiveScriptEntry;
+      var Reason: TLiveScriptRefusalReason;
+      Assert(Factory.TryCreateEntry(1, Entry, Reason));
+      try
+        const SplitPos = AMemo.GetPositionFromLine(1) + Length('Source: "a.txt";');
+        AMemo.ReplaceTextRange(SplitPos, SplitPos, EOL);
+        Assert(AMemo.Lines.Count = 3);
+        Assert(Entry.Valid);
+        Assert(Entry.FirstLine = 1);
+        Assert(Entry.LastLine = 2);
+        Entry.Entry.SetValue(1, '{tmp}');
+        Assert(AMemo.Lines.Count = 2);
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{tmp}"');
+      finally
+        Entry.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { Splitting a spanned entry's last physical line mid-line extends the range,
+    and a write-back rejoins the fragments, keeping the author's break }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"; \',
+      '  DestDir: "{app}"; Flags: ignoreversion']);
+    try
+      const Factory = Context.Factory;
+      Assert(Factory.SectionCount = 1);
+      var Entry: TLiveScriptEntry;
+      var Reason: TLiveScriptRefusalReason;
+      Assert(Factory.TryCreateEntry(1, Entry, Reason));
+      try
+        Assert(Entry.FirstLine = 1);
+        Assert(Entry.LastLine = 2);
+        const SplitPos = AMemo.GetPositionFromLine(2) + Length('  DestDir: "{app}";');
+        AMemo.ReplaceTextRange(SplitPos, SplitPos, EOL);
+        Assert(AMemo.Lines.Count = 4);
+        Assert(Entry.Valid);
+        Assert(Entry.FirstLine = 1);
+        Assert(Entry.LastLine = 3);
+        Entry.Entry.SetValue(1, '{tmp}');
+        Assert(AMemo.Lines.Count = 3);
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; \');
+        Assert(AMemo.Lines[2] = '  DestDir: "{tmp}"; Flags: ignoreversion');
+      finally
+        Entry.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { Inserting a line at the exact start of the line following an entry extends
+    nothing }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"',
+      'Source: "b.txt"']);
+    try
+      const Factory = Context.Factory;
+      Assert(Factory.SectionCount = 1);
+      var Entry: TLiveScriptEntry;
+      var Reason: TLiveScriptRefusalReason;
+      Assert(Factory.TryCreateEntry(1, Entry, Reason));
+      try
+        const Pos = AMemo.GetPositionFromLine(2);
+        AMemo.ReplaceTextRange(Pos, Pos, 'Source: "new.txt"' + EOL);
+        Assert(Entry.Valid);
+        Assert(Entry.FirstLine = 1);
+        Assert(Entry.LastLine = 1);
+      finally
+        Entry.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { Deleting the line ending at the end of an entry's last line joins the
+    following line's text into the covered range and invalidates the entry }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"',
+      'Source: "b.txt"']);
+    try
+      const Factory = Context.Factory;
+      Assert(Factory.SectionCount = 1);
+      var Entry: TLiveScriptEntry;
+      var Reason: TLiveScriptRefusalReason;
+      Assert(Factory.TryCreateEntry(1, Entry, Reason));
+      try
+        AMemo.ReplaceTextRange(AMemo.GetLineEndPosition(1),
+          AMemo.GetPositionFromLine(2), ''); { Join line 2 into line 1 }
+        Assert(not Entry.Valid);
+      finally
+        Entry.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
   { Adding and removing a section header updates SectionCount and the index }
   begin
     const Context = TFactoryTestContext.Create(AMemo, AStyler, [

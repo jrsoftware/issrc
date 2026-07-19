@@ -431,8 +431,14 @@ begin
         if LiveScriptObject.FFirstLine >= FirstLine then begin
           Inc(LiveScriptObject.FFirstLine, Count);
           Inc(LiveScriptObject.FLastLine, Count);
-        end else if LiveScriptObject.FLastLine >= FirstLine then
+        end else if LiveScriptObject.FLastLine >= FirstAffectedLine then begin
+          { FirstAffectedLine, not FirstLine: a line break inserted into the
+            object's last line moves the rest of that line onto a new line,
+            which still belongs to the object, but the edit's FirstLine is
+            then FLastLine + 1, so testing FirstLine would not extend the
+            range }
           Inc(LiveScriptObject.FLastLine, Count);
+        end;
       end;
     end;
     if FDirtyFirstLine >= 0 then begin
@@ -456,10 +462,14 @@ begin
     end;
     for var LiveScriptObject in FLiveScriptObjects do begin
       if LiveScriptObject.FValid and (LiveScriptObject <> FWritingBackObject) then begin
-        if (LiveScriptObject.FFirstLine <= DeleteLast) and
-           (LiveScriptObject.FLastLine >= DeleteFirst) then
-          LiveScriptObject.FValid := False { Some or all of the object's lines were deleted }
-        else if LiveScriptObject.FFirstLine > DeleteLast then begin
+        if ((LiveScriptObject.FFirstLine <= DeleteLast) and
+            (LiveScriptObject.FLastLine >= DeleteFirst)) or
+           ((FirstLine > FirstAffectedLine) and
+            (LiveScriptObject.FLastLine = FirstAffectedLine)) then begin
+          { Some or all of the object's lines were deleted, or the next line
+            was joined into the object's last line }
+          LiveScriptObject.FValid := False;
+        end else if LiveScriptObject.FFirstLine > DeleteLast then begin
           Dec(LiveScriptObject.FFirstLine, Count);
           Dec(LiveScriptObject.FLastLine, Count);
         end;
