@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..957] of TTranslationPair = (
+  CzechIDETranslations: array [0..965] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -197,6 +197,14 @@ const
     (English: '%1: %2'; Localized: '%1: %2'),
     (English: 'Back (%1)'; Localized: 'Zpět (%1)'),
     (English: 'Forward (%1)'; Localized: 'Vpřed (%1)'),
+    (English: 'Back'; Localized: 'Zpět'),
+    (English: 'Forward'; Localized: 'Vpřed'),
+    (English: 'Open'; Localized: 'Otevřít'),
+    (English: 'Run'; Localized: 'Spustit'),
+    (English: 'Save As'; Localized: 'Uložit jako'),
+    (English: 'Font'; Localized: 'Písmo'),
+    (English: 'Text Color'; Localized: 'Barva textu'),
+    (English: 'Background Color'; Localized: 'Barva pozadí'),
     (English: 'Ctrl+'; Localized: 'Ctrl+'),
     (English: 'Shift+'; Localized: 'Shift+'),
     (English: 'Alt+'; Localized: 'Alt+'),
@@ -466,7 +474,6 @@ const
     (English: 'RTF Editor'; Localized: 'Editor RTF'),
     (English: 'New (%1)'; Localized: 'Nový (%1)'),
     (English: 'Open (%1)'; Localized: 'Otevřít (%1)'),
-    (English: 'Save As'; Localized: 'Uložit jako'),
     (English: 'Cut (%1)'; Localized: 'Vyjmout (%1)'),
     (English: 'Copy (%1)'; Localized: 'Kopírovat (%1)'),
     (English: 'Paste (%1)'; Localized: 'Vložit (%1)'),
@@ -475,9 +482,6 @@ const
     (English: 'Bold (%1)'; Localized: 'Tučné (%1)'),
     (English: 'Italic (%1)'; Localized: 'Kurzíva (%1)'),
     (English: 'Underline (%1)'; Localized: 'Podtržené (%1)'),
-    (English: 'Font'; Localized: 'Písmo'),
-    (English: 'Text Color'; Localized: 'Barva textu'),
-    (English: 'Background Color'; Localized: 'Barva pozadí'),
     (English: '&Bold'; Localized: '&Tučné'),
     (English: '&Italic'; Localized: 'Ku&rzíva'),
     (English: '&Underline'; Localized: '&Podtržené'),
@@ -903,6 +907,7 @@ const
     (English: '&Password'; Localized: '&Heslo'),
     (English: '&Domain'; Localized: '&Doména'),
     (English: 'Login'; Localized: 'Přihlášení'),
+    (English: 'Expand'; Localized: 'Rozbalit'),
     (English: 'Separator'; Localized: 'Oddělovač'),
     (English: 'Error setting %s.Count'; Localized: 'Chyba při nastavování %s.Count'),
     (English: 'Listbox (%s) style must be virtual in order to set Count'; Localized: 'Styl seznamu (%s) musí být virtuální, aby bylo možné nastavit Count'),
@@ -973,7 +978,10 @@ const
     (English: 'The new size provided for image resizing is invalid.'; Localized: 'Nová velikost zadaná pro změnu velikosti obrázku je neplatná.'),
     (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: 'Obrázek "Portable Network Graphics" nelze načíst, protože používá neplatnou bitovou hloubku obrázku.'),
     (English: 'Exception '; Localized: 'Výjimka '),
-    (English: 'Data cannot be accessed as %s'; Localized: 'K datům nelze přistupovat jako %s'));
+    (English: 'Data cannot be accessed as %s'; Localized: 'K datům nelze přistupovat jako %s'),
+    (English: 'Check'; Localized: 'Zaškrtnout'),
+    (English: 'Uncheck'; Localized: 'Zrušit zaškrtnutí'),
+    (English: 'Collapse'; Localized: 'Sbalit'));
 
 implementation
 

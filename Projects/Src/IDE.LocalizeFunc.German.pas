@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..957] of TTranslationPair = (
+  GermanIDETranslations: array [0..965] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -197,6 +197,14 @@ const
     (English: '%1: %2'; Localized: '%1: %2'),
     (English: 'Back (%1)'; Localized: 'Zurück (%1)'),
     (English: 'Forward (%1)'; Localized: 'Vorwärts (%1)'),
+    (English: 'Back'; Localized: 'Zurück'),
+    (English: 'Forward'; Localized: 'Vorwärts'),
+    (English: 'Open'; Localized: 'Öffnen'),
+    (English: 'Run'; Localized: 'Ausführen'),
+    (English: 'Save As'; Localized: 'Speichern unter'),
+    (English: 'Font'; Localized: 'Schriftart'),
+    (English: 'Text Color'; Localized: 'Textfarbe'),
+    (English: 'Background Color'; Localized: 'Hintergrundfarbe'),
     (English: 'Ctrl+'; Localized: 'Strg+'),
     (English: 'Shift+'; Localized: 'Umschalt+'),
     (English: 'Alt+'; Localized: 'Alt+'),
@@ -466,7 +474,6 @@ const
     (English: 'RTF Editor'; Localized: 'RTF-Editor'),
     (English: 'New (%1)'; Localized: 'Neu (%1)'),
     (English: 'Open (%1)'; Localized: 'Öffnen (%1)'),
-    (English: 'Save As'; Localized: 'Speichern unter'),
     (English: 'Cut (%1)'; Localized: 'Ausschneiden (%1)'),
     (English: 'Copy (%1)'; Localized: 'Kopieren (%1)'),
     (English: 'Paste (%1)'; Localized: 'Einfügen (%1)'),
@@ -475,9 +482,6 @@ const
     (English: 'Bold (%1)'; Localized: 'Fett (%1)'),
     (English: 'Italic (%1)'; Localized: 'Kursiv (%1)'),
     (English: 'Underline (%1)'; Localized: 'Unterstrichen (%1)'),
-    (English: 'Font'; Localized: 'Schriftart'),
-    (English: 'Text Color'; Localized: 'Textfarbe'),
-    (English: 'Background Color'; Localized: 'Hintergrundfarbe'),
     (English: '&Bold'; Localized: 'F&ett'),
     (English: '&Italic'; Localized: 'Kurs&iv'),
     (English: '&Underline'; Localized: 'Un&terstrichen'),
@@ -903,6 +907,7 @@ const
     (English: '&Password'; Localized: '&Kennwort'),
     (English: '&Domain'; Localized: '&Domäne'),
     (English: 'Login'; Localized: 'Anmeldung'),
+    (English: 'Expand'; Localized: 'Erweitern'),
     (English: 'Separator'; Localized: 'Trennzeichen'),
     (English: 'Error setting %s.Count'; Localized: 'Fehler beim Festlegen von %s.Count'),
     (English: 'Listbox (%s) style must be virtual in order to set Count'; Localized: 'Der Stil der Listbox (%s) muss virtuell sein, um Count festzulegen'),
@@ -973,7 +978,10 @@ const
     (English: 'The new size provided for image resizing is invalid.'; Localized: 'Die für die Bildgrößenänderung angegebene neue Größe ist ungültig.'),
     (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: 'Das "Portable Network Graphics"-Bild konnte nicht geladen werden, da es eine ungültige Bildbittiefe verwendet.'),
     (English: 'Exception '; Localized: 'Ausnahme '),
-    (English: 'Data cannot be accessed as %s'; Localized: 'Auf die Daten kann nicht als %s zugegriffen werden'));
+    (English: 'Data cannot be accessed as %s'; Localized: 'Auf die Daten kann nicht als %s zugegriffen werden'),
+    (English: 'Check'; Localized: 'Aktivieren'),
+    (English: 'Uncheck'; Localized: 'Deaktivieren'),
+    (English: 'Collapse'; Localized: 'Reduzieren'));
 
 implementation
 

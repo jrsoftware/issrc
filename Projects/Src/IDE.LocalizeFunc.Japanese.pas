@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..957] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..965] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -197,6 +197,14 @@ const
     (English: '%1: %2'; Localized: '%1: %2'),
     (English: 'Back (%1)'; Localized: '戻る (%1)'),
     (English: 'Forward (%1)'; Localized: '進む (%1)'),
+    (English: 'Back'; Localized: '戻る'),
+    (English: 'Forward'; Localized: '進む'),
+    (English: 'Open'; Localized: '開く'),
+    (English: 'Run'; Localized: '実行'),
+    (English: 'Save As'; Localized: '名前を付けて保存'),
+    (English: 'Font'; Localized: 'フォント'),
+    (English: 'Text Color'; Localized: '文字の色'),
+    (English: 'Background Color'; Localized: '背景色'),
     (English: 'Ctrl+'; Localized: 'Ctrl+'),
     (English: 'Shift+'; Localized: 'Shift+'),
     (English: 'Alt+'; Localized: 'Alt+'),
@@ -466,7 +474,6 @@ const
     (English: 'RTF Editor'; Localized: 'RTF エディター'),
     (English: 'New (%1)'; Localized: '新規 (%1)'),
     (English: 'Open (%1)'; Localized: '開く (%1)'),
-    (English: 'Save As'; Localized: '名前を付けて保存'),
     (English: 'Cut (%1)'; Localized: '切り取り (%1)'),
     (English: 'Copy (%1)'; Localized: 'コピー (%1)'),
     (English: 'Paste (%1)'; Localized: '貼り付け (%1)'),
@@ -475,9 +482,6 @@ const
     (English: 'Bold (%1)'; Localized: '太字 (%1)'),
     (English: 'Italic (%1)'; Localized: '斜体 (%1)'),
     (English: 'Underline (%1)'; Localized: '下線 (%1)'),
-    (English: 'Font'; Localized: 'フォント'),
-    (English: 'Text Color'; Localized: '文字の色'),
-    (English: 'Background Color'; Localized: '背景色'),
     (English: '&Bold'; Localized: '太字(&B)'),
     (English: '&Italic'; Localized: '斜体(&I)'),
     (English: '&Underline'; Localized: '下線(&U)'),
@@ -904,6 +908,7 @@ const
     (English: '&Password'; Localized: 'パスワード(&P)'),
     (English: '&Domain'; Localized: 'ドメイン(&D)'),
     (English: 'Login'; Localized: 'ログイン'),
+    (English: 'Expand'; Localized: '展開'),
     (English: 'Separator'; Localized: '区切り'),
     (English: 'Error setting %s.Count'; Localized: '%s.Count の設定中にエラーが発生しました'),
     (English: 'Listbox (%s) style must be virtual in order to set Count'; Localized: 'Count を設定するには、リストボックス (%s) のスタイルが仮想である必要があります'),
@@ -974,7 +979,10 @@ const
     (English: 'The new size provided for image resizing is invalid.'; Localized: '画像のサイズ変更のために指定された新しいサイズが無効です。'),
     (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: '"Portable Network Graphics" 画像は、無効な画像のビット深度を使用しているため読み込めませんでした。'),
     (English: 'Exception '; Localized: '例外 '),
-    (English: 'Data cannot be accessed as %s'; Localized: 'データに %s としてアクセスできません'));
+    (English: 'Data cannot be accessed as %s'; Localized: 'データに %s としてアクセスできません'),
+    (English: 'Check'; Localized: 'オンにする'),
+    (English: 'Uncheck'; Localized: 'オフにする'),
+    (English: 'Collapse'; Localized: '折りたたみ'));
 
 implementation
 

@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..957] of TTranslationPair = (
+  DutchIDETranslations: array [0..965] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -195,8 +195,16 @@ const
     (English: '&New'; Localized: '&Nieuw'),
     (English: 'Line %1'; Localized: 'Regel %1'),
     (English: '%1: %2'; Localized: '%1: %2'),
-    (English: 'Back (%1)'; Localized: 'Vorige (%1)'),
-    (English: 'Forward (%1)'; Localized: 'Volgende (%1)'),
+    (English: 'Back (%1)'; Localized: 'Terug (%1)'),
+    (English: 'Forward (%1)'; Localized: 'Vooruit (%1)'),
+    (English: 'Back'; Localized: 'Terug'),
+    (English: 'Forward'; Localized: 'Vooruit'),
+    (English: 'Open'; Localized: 'Openen'),
+    (English: 'Run'; Localized: 'Uitvoeren'),
+    (English: 'Save As'; Localized: 'Opslaan als'),
+    (English: 'Font'; Localized: 'Lettertype'),
+    (English: 'Text Color'; Localized: 'Tekstkleur'),
+    (English: 'Background Color'; Localized: 'Achtergrondkleur'),
     (English: 'Ctrl+'; Localized: 'Ctrl+'),
     (English: 'Shift+'; Localized: 'Shift+'),
     (English: 'Alt+'; Localized: 'Alt+'),
@@ -466,7 +474,6 @@ const
     (English: 'RTF Editor'; Localized: 'RTF-editor'),
     (English: 'New (%1)'; Localized: 'Nieuw (%1)'),
     (English: 'Open (%1)'; Localized: 'Openen (%1)'),
-    (English: 'Save As'; Localized: 'Opslaan als'),
     (English: 'Cut (%1)'; Localized: 'Knippen (%1)'),
     (English: 'Copy (%1)'; Localized: 'Kopiëren (%1)'),
     (English: 'Paste (%1)'; Localized: 'Plakken (%1)'),
@@ -475,9 +482,6 @@ const
     (English: 'Bold (%1)'; Localized: 'Vet (%1)'),
     (English: 'Italic (%1)'; Localized: 'Cursief (%1)'),
     (English: 'Underline (%1)'; Localized: 'Onderstrepen (%1)'),
-    (English: 'Font'; Localized: 'Lettertype'),
-    (English: 'Text Color'; Localized: 'Tekstkleur'),
-    (English: 'Background Color'; Localized: 'Achtergrondkleur'),
     (English: '&Bold'; Localized: '&Vet'),
     (English: '&Italic'; Localized: '&Cursief'),
     (English: '&Underline'; Localized: 'On&derstrepen'),
@@ -903,6 +907,7 @@ const
     (English: '&Password'; Localized: '&Wachtwoord'),
     (English: '&Domain'; Localized: '&Domein'),
     (English: 'Login'; Localized: 'Aanmelden'),
+    (English: 'Expand'; Localized: 'Uitvouwen'),
     (English: 'Separator'; Localized: 'Scheidingsteken'),
     (English: 'Error setting %s.Count'; Localized: 'Fout bij het instellen van %s.Count'),
     (English: 'Listbox (%s) style must be virtual in order to set Count'; Localized: 'De stijl van de listbox (%s) moet virtueel zijn om Count in te stellen'),
@@ -973,7 +978,10 @@ const
     (English: 'The new size provided for image resizing is invalid.'; Localized: 'De nieuwe grootte die is opgegeven voor het wijzigen van het afbeeldingsformaat is ongeldig.'),
     (English: 'The "Portable Network Graphics" image could not be loaded because it uses an invalid image bit depth.'; Localized: 'De "Portable Network Graphics"-afbeelding kan niet worden geladen omdat deze een ongeldige bitdiepte gebruikt.'),
     (English: 'Exception '; Localized: 'Uitzondering '),
-    (English: 'Data cannot be accessed as %s'; Localized: 'Gegevens kunnen niet als %s worden benaderd'));
+    (English: 'Data cannot be accessed as %s'; Localized: 'Gegevens kunnen niet als %s worden benaderd'),
+    (English: 'Check'; Localized: 'Inschakelen'),
+    (English: 'Uncheck'; Localized: 'Uitschakelen'),
+    (English: 'Collapse'; Localized: 'Samenvouwen'));
 
 implementation
 
