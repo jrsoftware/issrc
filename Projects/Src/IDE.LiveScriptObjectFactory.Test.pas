@@ -336,7 +336,8 @@ begin
 end;
 
 { Directive-style sections: last-occurrence value lookup, editing a populated
-  section, refusals, and an empty section that a directive is added to }
+  section, refusals, an empty section that a directive is added to, and
+  removing directives up to and including the last one }
 procedure TestDirectiveSections(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
 begin
@@ -424,6 +425,74 @@ begin
         Assert(AMemo.Lines.Count = 4);
         Assert(AMemo.Lines[1] = 'MyMsg=Hello');
         Assert(AMemo.Lines[2] = '[Files]');
+      finally
+        DirectiveSection.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { Removing directives: removing one of two leaves the other line untouched,
+    and removing the last one removes the physical line instead of leaving a
+    blank line behind, after which the section is empty again and an Add
+    reinserts a line }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Setup]',
+      'AppName=Foo',
+      'AppVersion=1.0',
+      '[Files]',
+      'Source: a']);
+    try
+      var DirectiveSection: TLiveScriptDirectiveSection;
+      var Reason: TLiveScriptRefusalReason;
+      Assert(Context.Factory.TryCreateDirectiveSection(0, DirectiveSection, Reason));
+      try
+        const List = DirectiveSection.Section;
+        List.Remove(List.IndexOf('AppName'));
+        Assert(AMemo.Lines.Count = 4);
+        Assert(AMemo.Lines[1] = 'AppVersion=1.0'); { Other directive untouched }
+        Assert(AMemo.Lines[2] = '[Files]');
+        List.Remove(List.IndexOf('AppVersion'));
+        Assert(AMemo.Lines.Count = 3);
+        Assert(AMemo.Lines[1] = '[Files]');
+        { The empty range a body-less section is created with }
+        Assert(DirectiveSection.LastLine < DirectiveSection.FirstLine);
+        List.Add('AppComments', 'hi');
+        Assert(AMemo.Lines.Count = 4);
+        Assert(AMemo.Lines[1] = 'AppComments=hi');
+        Assert(AMemo.Lines[2] = '[Files]');
+      finally
+        DirectiveSection.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { The same, but with the section body ending the document: there is no line
+    ending below the last line, so the header's is taken and the header becomes
+    the document's last line }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: a',
+      '[Setup]',
+      'AppName=Foo']);
+    try
+      var DirectiveSection: TLiveScriptDirectiveSection;
+      var Reason: TLiveScriptRefusalReason;
+      Assert(Context.Factory.TryCreateDirectiveSection(1, DirectiveSection, Reason));
+      try
+        const List = DirectiveSection.Section;
+        List.Remove(List.IndexOf('AppName'));
+        Assert(AMemo.Lines.Count = 3);
+        Assert(AMemo.Lines[2] = '[Setup]');
+        Assert(DirectiveSection.LastLine < DirectiveSection.FirstLine);
+        List.Add('AppName', 'Bar');
+        Assert(AMemo.Lines.Count = 4);
+        Assert(AMemo.Lines[3] = 'AppName=Bar');
       finally
         DirectiveSection.Free;
       end;

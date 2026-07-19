@@ -716,13 +716,28 @@ begin
       const Pos = FMemo.GetPositionFromLine(ALiveScriptObject.FFirstLine);
       FMemo.ReplaceTextRange(Pos, Pos, Text + LineEnding);
     end else if ALiveScriptObject.FLastLine >= ALiveScriptObject.FFirstLine then begin
-      { Replace all of the object's lines' text, from the start of the first line
-        to the end of the last line but excluding its line ending, with the new
-        lines, so an empty ALines leaves a single empty line behind }
-      FMemo.ReplaceTextRange(
-        FMemo.GetPositionFromLine(ALiveScriptObject.FFirstLine),
-        FMemo.GetLineEndPosition(ALiveScriptObject.FLastLine), Text,
-        srmMinimal);
+      if Length(ALines) = 0 then begin
+        { Remove the object's lines entirely, taking one line ending with them
+          so no blank line is left behind: the last line's own line ending,
+          or, if that line ends the document, the line ending above the first
+          line, which leaves the section header as the last line }
+        var StartPos: Integer;
+        if ALiveScriptObject.FLastLine = FMemo.Lines.Count-1 then
+          StartPos := FMemo.GetLineEndPosition(ALiveScriptObject.FFirstLine-1)
+        else
+          StartPos := FMemo.GetPositionFromLine(ALiveScriptObject.FFirstLine);
+        FMemo.ReplaceTextRange(StartPos,
+          FMemo.GetPositionFromLine(ALiveScriptObject.FLastLine+1), '',
+          srmMinimal);
+      end else begin
+        { Replace all of the object's lines' text, from the start of the first
+          line to the end of the last line but excluding its line ending, with
+          the new lines }
+        FMemo.ReplaceTextRange(
+          FMemo.GetPositionFromLine(ALiveScriptObject.FFirstLine),
+          FMemo.GetLineEndPosition(ALiveScriptObject.FLastLine), Text,
+          srmMinimal);
+      end;
     end else if Length(ALines) > 0 then begin
       { The object has no lines yet (a directive-style section without lines):
         there is nothing to replace, so the new lines are inserted }
@@ -739,12 +754,9 @@ begin
         FMemo.ReplaceTextRange(Pos, Pos, LineEnding + Text);
       end;
     end;
-    { The object now covers one line per element of ALines, or the single empty
-      line left behind when ALines is empty }
-    if Length(ALines) = 0 then
-      ALiveScriptObject.FLastLine := ALiveScriptObject.FFirstLine
-    else
-      ALiveScriptObject.FLastLine := ALiveScriptObject.FFirstLine + Integer(Length(ALines)) - 1;
+    { The object now covers one line per element of ALines, so an empty ALines
+      leaves it with an empty range (LastLine < FirstLine) }
+    ALiveScriptObject.FLastLine := ALiveScriptObject.FFirstLine + Integer(Length(ALines)) - 1;
   finally
     FMemo.EndUndoAction;
     FWritingBackObject := nil;
