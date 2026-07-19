@@ -117,7 +117,6 @@ object StartupForm: TStartupForm
     Height = 35
     Cursor = crHandPoint
     Anchors = [akLeft, akBottom]
-    Caption = 'Donate'
     ParentShowHint = False
     PngImage.Data = {
       89504E470D0A1A0A0000000D494844520000003E0000001F080300000088EF8E

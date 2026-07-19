@@ -9,7 +9,7 @@
 
 [Setup]
 AppName=ɯɐɹƃoɹd ʎɯ
-AppVerName=ɯɐɹƃoɹd ʎɯ version 1.5
+AppVersion=1.5
 WizardStyle=modern dynamic
 DefaultDirName={autopf}\ɯɐɹƃoɹd ʎɯ
 DefaultGroupName=ɯɐɹƃoɹd ʎɯ

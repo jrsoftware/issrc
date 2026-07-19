@@ -11,33 +11,12 @@ unit RichEditViewer;
 interface
 
 uses
-  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, Messages, RichEdit, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
   {$IFDEF VCLSTYLES} Vcl.Themes, {$ELSE} Themes, {$ENDIF}
-  StdCtrls, RichEdit, ActiveX;
+  StdCtrls,
+  RichEditOleCallback;
 
 type
-  IRichEditOleCallback = interface(IUnknown)
-    ['{00020d03-0000-0000-c000-000000000046}']
-    function GetNewStorage(out stg: IStorage): HResult; stdcall;
-    function GetInPlaceContext(out Frame: IOleInPlaceFrame;
-      out Doc: IOleInPlaceUIWindow;
-      lpFrameInfo: POleInPlaceFrameInfo): HResult; stdcall;
-    function ShowContainerUI(fShow: BOOL): HResult; stdcall;
-    function QueryInsertObject(const clsid: TCLSID; const stg: IStorage;
-      cp: Integer): HResult; stdcall;
-    function DeleteObject(const oleobj: IOleObject): HResult; stdcall;
-    function QueryAcceptData(const dataobj: IDataObject;
-      var cfFormat: TClipFormat; reco: DWORD; fReally: BOOL;
-      hMetaPict: HGLOBAL): HResult; stdcall;
-    function ContextSensitiveHelp(fEnterMode: BOOL): HResult; stdcall;
-    function GetClipboardData(const chrg: TCharRange; reco: DWORD;
-      out dataobj: IDataObject): HResult; stdcall;
-    function GetDragDropEffect(fDrag: BOOL; grfKeyState: DWORD;
-      var dwEffect: DWORD): HResult; stdcall;
-    function GetContextMenu(seltype: Word; const oleobj: IOleObject;
-      const chrg: TCharRange; out menu: HMENU): HResult; stdcall;
-  end;
-
   TRichEditViewerCustomShellExecute = procedure(hWnd: HWND; Operation, FileName, Parameters, Directory: LPWSTR; ShowCmd: Integer); stdcall;
 
   TRichEditViewer = class(TMemo)
@@ -82,7 +61,7 @@ procedure Register;
 implementation
 
 uses
-  ShellApi, PathFunc, ComObj;
+  ShellApi, PathFunc;
 
 {$IF RtlVersion < 36.0}
 const
@@ -90,29 +69,6 @@ const
 {$ENDIF}
 
 type
- { Basic implementation of IRichEditOleCallback to enable the viewing of images and other objects. }
-  TBasicRichEditOleCallback = class(TInterfacedObject, IRichEditOleCallback)
-  public
-    function GetNewStorage(out stg: IStorage): HResult; stdcall;
-    function GetInPlaceContext(out Frame: IOleInPlaceFrame;
-      out Doc: IOleInPlaceUIWindow;
-      lpFrameInfo: POleInPlaceFrameInfo): HResult; stdcall;
-    function ShowContainerUI(fShow: BOOL): HResult; stdcall;
-    function QueryInsertObject(const clsid: TCLSID; const stg: IStorage;
-      cp: Integer): HResult; stdcall;
-    function DeleteObject(const oleobj: IOleObject): HResult; stdcall;
-    function QueryAcceptData(const dataobj: IDataObject;
-      var cfFormat: TClipFormat; reco: DWORD; fReally: BOOL;
-      hMetaPict: HGLOBAL): HResult; stdcall;
-    function ContextSensitiveHelp(fEnterMode: BOOL): HResult; stdcall;
-    function GetClipboardData(const chrg: TCharRange; reco: DWORD;
-      out dataobj: IDataObject): HResult; stdcall;
-    function GetDragDropEffect(fDrag: BOOL; grfKeyState: DWORD;
-      var dwEffect: DWORD): HResult; stdcall;
-    function GetContextMenu(seltype: Word; const oleobj: IOleObject;
-      const chrg: TCharRange; out menu: HMENU): HResult; stdcall;
-  end;
-
 {$IF RtlVersion < 36.0}
   PEnLink = ^TEnLink;
   TENLink = record
@@ -262,76 +218,6 @@ begin
   end;
 end;
 
-{ TBasicRichEditOleCallback }
-
-function TBasicRichEditOleCallback.GetNewStorage(out stg: IStorage): HResult; stdcall;
-var
-  LockBytes: ILockBytes;
-begin
-  try
-    OleCheck(CreateILockBytesOnHGlobal(0, True, LockBytes));
-    OleCheck(StgCreateDocfileOnILockBytes(LockBytes, STGM_READWRITE
-      or STGM_SHARE_EXCLUSIVE or STGM_CREATE, 0, stg));
-    Result := S_OK;
-  except
-    Result := E_OUTOFMEMORY;
-  end;
-end;
-
-function TBasicRichEditOleCallback.GetInPlaceContext(out Frame: IOleInPlaceFrame;
-  out Doc: IOleInPlaceUIWindow; lpFrameInfo: POleInPlaceFrameInfo): HResult;
-begin
-  Result := E_NOTIMPL;
-end;
-
-function TBasicRichEditOleCallback.ShowContainerUI(fShow: BOOL): HResult;
-begin
-  Result := E_NOTIMPL;
-end;
-
-function TBasicRichEditOleCallback.QueryInsertObject(const clsid: TCLSID; const stg: IStorage;
-  cp: Integer): HResult;
-begin
-  Result := S_OK;
-end;
-
-function TBasicRichEditOleCallback.DeleteObject(const oleobj: IOleObject): HResult;
-begin
-  if Assigned(oleobj) then
-    oleobj.Close(OLECLOSE_NOSAVE);
-  Result := S_OK;
-end;
-
-function TBasicRichEditOleCallback.QueryAcceptData(const dataobj: IDataObject;
-  var cfFormat: TClipFormat; reco: DWORD; fReally: BOOL;
-  hMetaPict: HGLOBAL): HResult;
-begin
-  Result := S_OK;
-end;
-
-function TBasicRichEditOleCallback.ContextSensitiveHelp(fEnterMode: BOOL): HResult;
-begin
-  Result := S_OK;
-end;
-
-function TBasicRichEditOleCallback.GetClipboardData(const chrg: TCharRange; reco: DWORD;
-  out dataobj: IDataObject): HResult;
-begin
-  Result := E_NOTIMPL;
-end;
-
-function TBasicRichEditOleCallback.GetDragDropEffect(fDrag: BOOL; grfKeyState: DWORD;
-  var dwEffect: DWORD): HResult;
-begin
-  Result := E_NOTIMPL;
-end;
-
-function TBasicRichEditOleCallback.GetContextMenu(seltype: Word;
-  const oleobj: IOleObject; const chrg: TCharRange; out Menu: HMENU): HResult;
-begin
-  Result := E_NOTIMPL;
-end;
-
 { TRichEditViewer }
 
 class constructor TRichEditViewer.Create;
@@ -387,11 +273,9 @@ begin
   inherited;
   UpdateBackgroundColor;
   if FUseRichEdit then begin
-    if RichEditVersion >= 2 then begin
-      const Mask = ENM_LINK or SendMessage(Handle, EM_GETEVENTMASK, 0, 0);
-      SendMessage(Handle, EM_SETEVENTMASK, 0, LPARAM(Mask));
-      SendMessage(Handle, EM_AUTOURLDETECT, WPARAM(True), 0);
-    end;
+    const Mask = ENM_LINK or SendMessage(Handle, EM_GETEVENTMASK, 0, 0);
+    SendMessage(Handle, EM_SETEVENTMASK, 0, LPARAM(Mask));
+    SendMessage(Handle, EM_AUTOURLDETECT, WPARAM(True), 0);
     SendMessage(Handle, EM_SETOLECALLBACK, 0, LPARAM(FCallback));
   end;
 end;
@@ -418,40 +302,38 @@ end;
 type
   PStreamLoadData = ^TStreamLoadData;
   TStreamLoadData = record
-    Buf: PByte;
+    Buffer: PByte;
     BytesLeft: Integer;
   end;
 
 function StreamLoad(dwCookie: DWORD_PTR; pbBuff: PByte;
   cb: Integer; var pcb: Integer): Integer; stdcall;
 begin
+  const Data = PStreamLoadData(dwCookie);
+  if cb > Data.BytesLeft then
+    cb := Data.BytesLeft;
+  Move(Data.Buffer^, pbBuff^, cb);
+  Inc(Data.Buffer, cb);
+  Dec(Data.BytesLeft, cb);
+  pcb := cb;
   Result := 0;
-  with PStreamLoadData(dwCookie)^ do begin
-    if cb > BytesLeft then
-      cb := BytesLeft;
-    Move(Buf^, pbBuff^, cb);
-    Inc(Buf, cb);
-    Dec(BytesLeft, cb);
-    pcb := cb;
-  end;
 end;
 
 function TRichEditViewer.SetRTFText(const Value: AnsiString): Integer;
 
   function StreamIn(AFormat: WPARAM): Integer;
-  var
-    Data: TStreamLoadData;
-    EditStream: TEditStream;
   begin
-    Data.Buf := PByte(@Value[1]);
+    var Data: TStreamLoadData;
+    Data.Buffer := PByte(@Value[1]);
     Data.BytesLeft := Length(Value);
     { Check for UTF-16 BOM }
     if (AFormat and SF_TEXT <> 0) and (Data.BytesLeft >= 2) and
        (PWord(Pointer(Value))^ = $FEFF) then begin
       AFormat := AFormat or SF_UNICODE;
-      Inc(Data.Buf, 2);
+      Inc(Data.Buffer, 2);
       Dec(Data.BytesLeft, 2);
     end;
+    var EditStream: TEditStream;
     EditStream.dwCookie := DWORD_PTR(@Data);
     EditStream.dwError := 0;
     EditStream.pfnCallback := StreamLoad;
@@ -594,11 +476,9 @@ procedure TRichEditViewer.RecolorAutoForegroundText(const NewTextColor: Integer)
             Break;
           Inc(EndPos);
         end;
-        if StartPos < EndPos then begin
-          SetSelection(StartPos, EndPos);
-          SendMessage(Handle, EM_SETCHARFORMAT, SCF_SELECTION, LPARAM(@NewTextColorFormat));
-          StartPos := EndPos;
-        end;
+        SetSelection(StartPos, EndPos);
+        SendMessage(Handle, EM_SETCHARFORMAT, SCF_SELECTION, LPARAM(@NewTextColorFormat));
+        StartPos := EndPos;
       end;
     finally
       SendMessage(Handle, EM_EXSETSEL, 0, LPARAM(@SaveSel));
@@ -755,17 +635,15 @@ begin
         if (CharRange.cpMin >= 0) and (CharRange.cpMax > CharRange.cpMin) then begin
           Len := CharRange.cpMax - CharRange.cpMin;
           Inc(Len);  { for null terminator }
-          if Len > 1 then begin
-            SetLength(URL, Len);
-            TextRange.chrg := CharRange;
-            TextRange.lpstrText := PChar(URL);
-            SetLength(URL, SendMessage(Handle, EM_GETTEXTRANGE, 0, LParam(@TextRange)));
-            if URL <> '' then begin
-              if Assigned(FCustomShellExecute) then
-                FCustomShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL)
-              else
-                ShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
-            end;
+          SetLength(URL, Len);
+          TextRange.chrg := CharRange;
+          TextRange.lpstrText := PChar(URL);
+          SetLength(URL, SendMessage(Handle, EM_GETTEXTRANGE, 0, LParam(@TextRange)));
+          if URL <> '' then begin
+            if Assigned(FCustomShellExecute) then
+              FCustomShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL)
+            else
+              ShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
           end;
         end;
       end;

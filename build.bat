@@ -22,7 +22,7 @@ rem  Once done the installer can be found in Output
 
 setlocal
 
-set VER=7.0.2
+set VER=7.1.0-dev
 
 echo Building Inno Setup %VER%...
 echo.
@@ -109,7 +109,7 @@ echo - %~1 Setup.exe
 if exist .\setup-sign.bat (
   call .\setup-sign.bat /D%~1
 ) else (
-  files\iscc setup.iss /D%~1
+  files\iscc setup.iss /NS /NSC /D%~1
 )
 if errorlevel 1 exit /b 1
 echo - Renaming %~1 files

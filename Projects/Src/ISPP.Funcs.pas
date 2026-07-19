@@ -42,7 +42,8 @@ begin
 end;
 
 function CheckParams(const Params: IIsppFuncParams;
-  Types: array of TIsppVarType; Minimum: Integer; var Error: TIsppFuncResult): Boolean;
+  Types: array of TIsppVarType; Minimum: Integer; var Error: TIsppFuncResult;
+  AllowManyArgs: Boolean = False): Boolean;
 begin
   FillChar(Error, SizeOf(TIsppFuncResult), 0);
   Result := False;
@@ -50,13 +51,13 @@ begin
     Error.ErrParam := Minimum;
     Error.Error := ISPPFUNC_INSUFARGS;
     Exit;
-  end else if Params.GetCount > High(Types) + 1 then begin
+  end else if not AllowManyArgs and (Params.GetCount > High(Types) + 1) then begin
     Error.ErrParam := Integer(High(Types)) + 1;
     Error.Error := ISPPFUNC_MANYARGS;
     Exit;
   end else
     with IInternalFuncParams(Params) do
-      for var I := 0 to Params.GetCount - 1 do
+      for var I := 0 to Min(Params.GetCount - 1, High(Types)) do
       begin
         if (Types[I] = evSpecial) or (Get(I)^.Typ = evNull) then
           Continue;
@@ -74,13 +75,6 @@ end;
 
 function Int(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-
-  procedure MakeError(E: Exception);
-  begin
-    FuncResult.Error(PChar(E.Message));
-    Result.Error := ISPPFUNC_FAIL;
-  end;
-
 begin
   if CheckParams(Params, [evSpecial, evInt], 1, Result) then
   try
@@ -93,10 +87,10 @@ begin
         if GetCount > 1 then
           ResPtr^ := Get(1)^
         else
-          MakeError(E);
+          FuncResult.RaiseError(PChar(E.Message));
       end;
     on E: Exception do
-      MakeError(E);
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -109,10 +103,7 @@ begin
       ResPtr^ := ToStr(Get(0)^);
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -125,10 +116,7 @@ begin
       MakeBool(ResPtr^, NewFileExists(PrependPath(Ext, Get(0).AsStr)));
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -140,10 +128,7 @@ begin
       MakeBool(ResPtr^, Shared.CommonFunc.DirExists(PrependPath(Ext, Get(0).AsStr)));
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -155,10 +140,7 @@ begin
       MakeBool(ResPtr^, ForceDirectories(PrependPath(Ext, Get(0).AsStr)));
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -182,10 +164,7 @@ begin
     end
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -207,10 +186,7 @@ begin
       end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -234,10 +210,7 @@ begin
       end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -293,6 +266,9 @@ begin
           case GetDataType(Name) of
             rdString, rdExpandString: MakeStr(ResPtr^, ReadString(Name));
             rdInteger: MakeInt(ResPtr^, ReadInteger(Name));
+            {$IF RtlVersion >= 36.0}
+            rdInt64: MakeInt(ResPtr^, ReadInt64(Name));
+            {$ENDIF}
           else
             CopyExpVar(Default, ResPtr^);
           end
@@ -304,10 +280,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -320,10 +293,7 @@ begin
       MakeStr(ResPtr^, GetEnv(Get(0).AsStr));
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -373,10 +343,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -434,10 +401,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -459,7 +423,7 @@ begin
       for I := 0 to Count - 1 do
       begin
         N := Trim(Strings[I]);
-        if (N <> '') and (N[1] <> ';') and (N[1] = '[') then
+        if (N <> '') and (N[1] = '[') then
         begin
           DoCount := CompareText(Copy(N, 2, Length(N) - 2), S) = 0;
           Continue;
@@ -470,10 +434,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -484,13 +445,13 @@ begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
+    begin
       TPreprocessor(Ext).SaveToFile(PrependPath(Ext, Get(0).AsStr));
+      ResPtr^ := NULL;
+    end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -596,10 +557,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -732,10 +690,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -788,10 +743,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -804,10 +756,7 @@ begin
       MakeInt(ResPtr^, Length(Get(0).AsStr));
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -840,10 +789,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -858,10 +804,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -874,10 +817,7 @@ begin
       MakeStr(ResPtr^, LowerCase(Get(0).AsStr));
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -890,10 +830,7 @@ begin
       MakeStr(ResPtr^, UpperCase(Get(0).AsStr));
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -908,10 +845,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -936,8 +870,8 @@ begin
       begin
         GetMem(Buf, Size);
         try
-          GetFileVersionInfo(PChar(Filename), VersionHandle, Size, Buf);
-          if VerQueryValue(Buf, '\', Pointer(FI), S) then
+          if GetFileVersionInfo(PChar(Filename), VersionHandle, Size, Buf) and
+             VerQueryValue(Buf, '\', Pointer(FI), S) then
           begin
             MakeStr(ResPtr^,
               IntToStr((FI.dwFileVersionMS and $FFFF0000) shr 16) + '.' +
@@ -953,10 +887,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -969,10 +900,7 @@ begin
       MakeInt(ResPtr^, CompareInt64(Get(0).AsInt64, Get(1).AsInt64));
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -988,15 +916,11 @@ begin
         MakeInt(ResPtr^, 0)
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
-{str GetStringFileInfo(str FileName, str StringName, int Lang)}
-function GetFileVersionInfoItem(Ext: NativeInt; const Params: IIsppFuncParams;
+function GetStringFileInfoFunc(Ext: NativeInt; const Params: IIsppFuncParams;
   const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
 var
   Buf: Pointer;
@@ -1035,27 +959,29 @@ begin
       begin
         GetMem(Buf, Size);
         try
-          GetFileVersionInfo(PChar(Filename), VersionHandle, Size, Buf);
-          if GetCount > 2 then
+          if GetFileVersionInfo(PChar(Filename), VersionHandle, Size, Buf) then
           begin
-            Lang := Get(2).AsCardinal;
-            Success := GetStringFileInfo(Lang, Get(1).AsStr, Value);
-          end
-          else
-          begin
-            if VerQueryValue(Buf, PChar('\VarFileInfo\Translation'), Pointer(Langs),
-              LangsSize) then
+            if GetCount > 2 then
             begin
-              const LangCount = LangsSize div 4;
-              for var I := 0 to LangCount - 1 do
+              Lang := Get(2).AsCardinal;
+              Success := GetStringFileInfo(Lang, Get(1).AsStr, Value);
+            end
+            else
+            begin
+              if VerQueryValue(Buf, PChar('\VarFileInfo\Translation'), Pointer(Langs),
+                LangsSize) then
               begin
-                Success := GetStringFileInfo(Langs[I], Get(1).AsStr, Value);
-                if Success then Break;
+                const LangCount = LangsSize div 4;
+                for var I := 0 to LangCount - 1 do
+                begin
+                  Success := GetStringFileInfo(Langs[I], Get(1).AsStr, Value);
+                  if Success then Break;
+                end;
               end;
             end;
+            if Success then
+              MakeStr(ResPtr^, Value);
           end;
-          if Success then
-            MakeStr(ResPtr^, Value);
         finally
           FreeMem(Buf)
         end;
@@ -1063,10 +989,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1082,10 +1005,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1095,16 +1015,10 @@ begin
   if CheckParams(Params, [evStr], 1, Result) then
   try
     with IInternalFuncParams(Params) do
-    begin
-      DeleteFile(PChar(PrependPath(Ext, Get(0).AsStr)));
-      ResPtr^.Typ := evNull;
-    end;
+      MakeBool(ResPtr^, DeleteFile(PChar(PrependPath(Ext, Get(0).AsStr))));
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1114,16 +1028,10 @@ begin
   if CheckParams(Params, [evStr, evStr], 2, Result) then
   try
     with IInternalFuncParams(Params) do
-    begin
-      CopyFile(PChar(PrependPath(Ext, Get(0).AsStr)), PChar(PrependPath(Ext, Get(1).AsStr)), False);
-      ResPtr^.Typ := evNull;
-    end;
+      MakeBool(ResPtr^, CopyFile(PChar(PrependPath(Ext, Get(0).AsStr)), PChar(PrependPath(Ext, Get(1).AsStr)), False));
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1133,7 +1041,7 @@ type
 procedure GarbageCloseFind(Item: Pointer);
 begin
   FindClose(PSearchRec(Item)^);
-  Dispose(Item);
+  Dispose(PSearchRec(Item));
 end;
 
 function FindFirstFunc(Ext: NativeInt; const Params: IIsppFuncParams;
@@ -1162,10 +1070,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1184,10 +1089,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1202,10 +1104,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1219,13 +1118,11 @@ begin
       FindClose(PSearchRec(Get(0).AsInt64)^);
       Dispose(PSearchRec(Get(0).AsInt64));
       TPreprocessor(Ext).UncollectGarbage(Pointer(Get(0).AsInt64));
+      ResPtr^ := NULL;
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1274,10 +1171,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1306,10 +1200,7 @@ begin
       MakeStr(P.ResPtr^, S);
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1329,10 +1220,7 @@ begin
       P.ResPtr^ := NULL
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1354,10 +1242,7 @@ begin
       MakeBool(P.ResPtr^, IsEof);
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1376,10 +1261,7 @@ begin
     TPreprocessor(Ext).UncollectGarbage(Pointer(F));
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1421,10 +1303,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1458,10 +1337,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1481,10 +1357,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1499,15 +1372,9 @@ begin
     end;
   except
     on E: EAccessViolation do
-    begin
-      FuncResult.Error('Invalid datetime value');
-      Result.Error := ISPPFUNC_FAIL;
-    end;
+      FuncResult.RaiseError('Invalid datetime value');
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1522,15 +1389,9 @@ begin
     end;
   except
     on E: EAccessViolation do
-    begin
-      FuncResult.Error('Invalid datetime value');
-      Result.Error := ISPPFUNC_FAIL;
-    end;
+      FuncResult.RaiseError('Invalid datetime value');
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1563,10 +1424,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1592,10 +1450,9 @@ begin
           FormatSettings.DateSeparator := NewDateSeparatorString[1];
         if NewTimeSeparatorString <> '' then
           FormatSettings.TimeSeparator := NewTimeSeparatorString[1];
-        if not FileAge(PrependPath(Ext, Get(0).AsStr), Age) then begin
-          FuncResult.Error('Invalid file name');
-          Result.Error := ISPPFUNC_FAIL
-        end else
+        if not FileAge(PrependPath(Ext, Get(0).AsStr), Age) then
+          FuncResult.RaiseError('Invalid file name')
+        else
           MakeStr(ResPtr^, FormatDateTime(Get(1).AsStr, Age));
       finally
         FormatSettings.TimeSeparator := OldTimeSeparator;
@@ -1604,10 +1461,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1637,10 +1491,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1656,10 +1507,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1675,10 +1523,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1708,10 +1553,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1727,10 +1569,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1746,10 +1585,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1779,10 +1615,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1798,10 +1631,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1817,10 +1647,51 @@ begin
     end;
   except
     on E: Exception do
+      FuncResult.RaiseError(PChar(E.Message));
+  end;
+end;
+
+function FormatFunc(Ext: NativeInt; const Params: IIsppFuncParams;
+  const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
+var
+  Args: array of TVarRec;
+  IntArgs: array of Int64;
+  StrArgs: array of string;
+begin
+  if CheckParams(Params, [evStr], 1, Result, True) then
+  try
+    with IInternalFuncParams(Params) do
     begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
+      const ArgCount = GetCount - 1;
+      SetLength(Args, ArgCount);
+      SetLength(IntArgs, ArgCount);
+      SetLength(StrArgs, ArgCount);
+      for var I := 0 to ArgCount - 1 do
+      begin
+        const Arg = Get(I + 1);
+        case Arg.Typ of
+          evInt:
+            begin
+              IntArgs[I] := Arg.AsInt64;
+              Args[I].VType := vtInt64;
+              Args[I].VInt64 := @IntArgs[I];
+            end;
+          evStr:
+            begin
+              StrArgs[I] := Arg.AsStr;
+              Args[I].VType := vtUnicodeString;
+              Args[I].VUnicodeString := Pointer(StrArgs[I]);
+            end;
+        else
+          raise Exception.CreateFmt(
+            'Format: argument %d must be an integer or string', [I + 1]);
+        end;
+      end;
+      MakeStr(ResPtr^, Format(Get(0).AsStr, Args));
     end;
+  except
+    on E: Exception do
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1833,10 +1704,7 @@ begin
       MakeStr(ResPtr^, Trim(Get(0).AsStr));
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1855,10 +1723,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1873,10 +1738,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1892,10 +1754,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1911,10 +1770,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1937,10 +1793,9 @@ begin
   except
     on E: Exception do
     begin
-      if CatchException then begin
-        FuncResult.Error(PChar(E.Message));
-        Result.Error := ISPPFUNC_FAIL
-      end else
+      if CatchException then
+        FuncResult.RaiseError(PChar(E.Message))
+      else
         raise;
     end;
   end;
@@ -1957,10 +1812,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1975,10 +1827,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -1993,10 +1842,7 @@ begin
     end;
   except
     on E: Exception do
-    begin
-      FuncResult.Error(PChar(E.Message));
-      Result.Error := ISPPFUNC_FAIL
-    end;
+      FuncResult.RaiseError(PChar(E.Message));
   end;
 end;
 
@@ -2024,7 +1870,7 @@ begin
     RegisterFunction('GetVersionNumbersString', GetVersionNumbersStringFunc, -1);
     RegisterFunction('ComparePackedVersion', ComparePackedVersionFunc, -1);
     RegisterFunction('SamePackedVersion', SamePackedVersionFunc, -1);
-    RegisterFunction('GetStringFileInfo', GetFileVersionInfoItem, -1);
+    RegisterFunction('GetStringFileInfo', GetStringFileInfoFunc, -1);
     RegisterFunction('SaveToFile', ISPP.Funcs.SaveToFile, -1);
     RegisterFunction('Find', FindLine, -1);
     RegisterFunction('SetupSetting', SetupSetting, -1);
@@ -2058,6 +1904,7 @@ begin
     RegisterFunction('GetSHA256OfFile', GetSHA256OfFile, -1);
     RegisterFunction('GetSHA256OfString', GetSHA256OfString, -1);
     RegisterFunction('GetSHA256OfUnicodeString', GetSHA256OfUnicodeString, -1);
+    RegisterFunction('Format', FormatFunc, -1);
     RegisterFunction('Trim', TrimFunc, -1);
     RegisterFunction('StringChange', StringChangeFunc, -1);
     RegisterFunction('IsWin64', IsWin64Func, -1);

@@ -2,7 +2,7 @@ library ISCmplr;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -18,6 +18,7 @@ uses
   Compiler.SetupCompiler in 'Src\Compiler.SetupCompiler.pas',
   Compiler.Messages in 'Src\Compiler.Messages.pas',
   Compiler.StringLists in 'Src\Compiler.StringLists.pas',
+  Compiler.StringLists.Test in 'Src\Compiler.StringLists.Test.pas',
   Compiler.CompressionHandler in 'Src\Compiler.CompressionHandler.pas',
   Compiler.HelperFunc in 'Src\Compiler.HelperFunc.pas',
   Compiler.BuiltinPreproc in 'Src\Compiler.BuiltinPreproc.pas',
@@ -105,14 +106,14 @@ begin
         Result := CallerParams.CallbackProc(Code, Data, CallerParams.AppData);
         if Assigned(Data.LineRead) then begin
           WrapperData.LastLineRead := String(PAnsiChar(Data.LineRead));
-          Data.LineRead := PWideChar(WrapperData.LastLineRead);
+          Data.LineRead := PChar(WrapperData.LastLineRead);
         end;
       end;
     iscbNotifyStatus:
       begin
         if Assigned(Data.StatusMsg) then begin
           AnsiStatusMsg := AnsiString(Data.StatusMsg);
-          Data.StatusMsg := PWideChar(PAnsiChar(AnsiStatusMsg));
+          Data.StatusMsg := PChar(PAnsiChar(AnsiStatusMsg));
         end;
         Result := CallerParams.CallbackProc(Code, Data, CallerParams.AppData);
       end;
@@ -120,7 +121,7 @@ begin
       begin
         if Assigned(Data.OutputExeFilename) then begin
           AnsiOutputExeFilename := AnsiString(Data.OutputExeFilename);
-          Data.OutputExeFilename := PWideChar(PAnsiChar(AnsiOutputExeFilename));
+          Data.OutputExeFilename := PChar(PAnsiChar(AnsiOutputExeFilename));
         end;
         Result := CallerParams.CallbackProc(Code, Data, CallerParams.AppData);
       end;
@@ -128,11 +129,11 @@ begin
       begin
         if Assigned(Data.ErrorMsg) then begin
           AnsiErrorMsg := AnsiString(Data.ErrorMsg);
-          Data.ErrorMsg := PWideChar(PAnsiChar(AnsiErrorMsg));
+          Data.ErrorMsg := PChar(PAnsiChar(AnsiErrorMsg));
         end;
         if Assigned(Data.ErrorFilename) then begin
           AnsiErrorFilename := AnsiString(Data.ErrorFilename);
-          Data.ErrorFilename := PWideChar(PAnsiChar(AnsiErrorFilename));
+          Data.ErrorFilename := PChar(PAnsiChar(AnsiErrorFilename));
         end;
         Result := CallerParams.CallbackProc(Code, Data, CallerParams.AppData);
       end;
@@ -147,7 +148,7 @@ var
   WrapperData: TWrapperData;
   WrapperParams: PCompileScriptParamsEx;
   P: PAnsiChar;
-  Options: String;
+  CompilerPath, SourcePath, Options: String;
 begin
   if ((Params.Size <> SizeOf(Params)) and
       (Params.Size <> SizeOf(TCompileScriptParams))) or
@@ -161,17 +162,21 @@ begin
     UMove(Params, WrapperParams^, Params.Size);
     WrapperParams.CallbackProc := WrapperCallbackProc;
     WrapperParams.AppData := NativeInt(@WrapperData);
-    if Assigned(Params.CompilerPath) then
-      WrapperParams.CompilerPath := PWideChar(String(PAnsiChar(Params.CompilerPath)));
-    if Assigned(Params.SourcePath) then
-      WrapperParams.SourcePath := PWideChar(String(PAnsiChar(Params.SourcePath)));
+    if Assigned(Params.CompilerPath) then begin
+      CompilerPath := String(PAnsiChar(Params.CompilerPath));
+      WrapperParams.CompilerPath := PChar(CompilerPath);
+    end;
+    if Assigned(Params.SourcePath) then begin
+      SourcePath := String(PAnsiChar(Params.SourcePath));
+      WrapperParams.SourcePath := PChar(SourcePath);
+    end;
     if (Params.Size <> SizeOf(TCompileScriptParams)) and Assigned(Params.Options) then begin
       P := PAnsiChar(Params.Options);
       while P^ <> #0 do begin
         Options := Options + String(P) + #0;
         Inc(P, StrLen(P) + 1);
       end;
-      WrapperParams.Options := PWideChar(Options);
+      WrapperParams.Options := PChar(Options);
     end;
     Result := ISCompileScript(WrapperParams^, False);
   finally
@@ -190,8 +195,11 @@ exports
   ISDllGetVersion;
 
 begin
-  { The user might call ISDllCompileScript from multiple threads
-    simultaneously, so set our instance of the Delphi memory manager to
-    thread-safe mode }
+  { Always enable thread-safe mode on the Delphi memory manager. Originally,
+    this was done in case a user called ISDllCompileScript from multiple
+    threads concurrently, but that is now explicitly disallowed (compilation
+    fails with isceConcurrentCall). Keeping it anyway just to be extra safe.
+    Calls to BeginThread (like in TLZMAWorkerThread) will also set it to True,
+    but direct calls to CreateThread won't (though there shouldn't be any). }
   IsMultiThread := True;
 end.

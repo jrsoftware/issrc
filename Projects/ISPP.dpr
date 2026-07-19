@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
   
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -26,6 +26,7 @@ uses
   ISPP.IdentMan in 'Src\ISPP.IdentMan.pas',
   ISPP.Sessions in 'Src\ISPP.Sessions.pas',
   ISPP.CTokenizer in 'Src\ISPP.CTokenizer.pas',
+  ISPP.CTokenizer.Test in 'Src\ISPP.CTokenizer.Test.pas',
   ISPP.Base in 'Src\ISPP.Base.pas',
   PathFunc in '..\Components\PathFunc.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
@@ -46,4 +47,7 @@ uses
 exports
   ISPreprocessScript name 'ISPreprocessScriptW';
 
+begin
+  { See ISCmplr.dpr }
+  IsMultiThread := True;
 end.

@@ -1,0 +1,3512 @@
+[Code]
+
+program Script_Test; { Test 'program' keyword parses }
+
+{ Register* coverage:
+  Function                        Test Site (uPSR_*)
+  RegisterConstructor             Test_RegisteredMethods (TStringList.Create)
+  RegisterVirtualConstructor      Test_VirtualConstructor (TComponent.Create)
+  RegisterMethod                  Test_RegisteredMethods (Add/Delete/IndexOf)
+  RegisterVirtualMethod           Test_TPersistentAssign (Assign), Test_RegisteredMethods (Find)
+  RegisterVirtualAbstractMethod   Test_TStringStream (Read/Seek), Test_RegisteredMethods (Clear/Delete)
+  RegisterPropertyHelper          Test_RegisteredMethods (Sorted/CommaText), Test_TStringStream (Position/Size)
+  RegisterEventPropertyHelper     Test_ProcVarScript (TStringList.OnChange)
+  RegisterDelphiFunction          Test_IDispatchInvoke (CreateOleObject)
+  RegisterFunctionName            Test_ExternalDll (DllGetLastError) }
+
+procedure CheckTrue(const Value: Boolean);
+begin
+  if not Value then
+    RaiseException('CheckTrue test failed');
+end;
+
+procedure CheckFalse(const Value: Boolean);
+begin
+  if Value then
+    RaiseException('CheckFalse test failed');
+end;
+
+procedure CheckEqualsInt64(const Expected, Actual: Int64);
+begin
+  if Expected <> Actual then
+    RaiseException(Format('CheckEqualsInt64 test failed: expected %d, got %d', [Expected, Actual]));
+end;
+
+procedure CheckEqualsUInt64(const Expected, Actual: UInt64);
+begin
+  if Expected <> Actual then
+    RaiseException(Format('CheckEqualsUInt64 test failed: expected %u, got %u', [Expected, Actual]));
+end;
+
+procedure CheckEqualsString(const Expected, Actual: String);
+begin
+  if Expected <> Actual then
+    RaiseException(Format('CheckEqualsString test failed: expected "%s", got "%s"', [Expected, Actual]));
+end;
+
+procedure CheckEqualsFloat(const Expected, Actual, Tolerance: Extended);
+begin
+  if Abs(Expected - Actual) > Tolerance then
+    RaiseException(Format('CheckEqualsFloat test failed: expected %g, got %g', [Expected, Actual]));
+end;
+
+{ Test 'export' keyword parses }
+procedure Test_Lexical_Export; export;
+begin
+end;
+
+{ Test attribute syntax parses }
+<event('InitializeWizard')>
+procedure Test_Lexical_Attribute;
+begin
+  { Never reached because InitializeSetup returns False before the wizard
+    is created. The test is that the attribute syntax compiles. }
+end;
+
+procedure Test_Lexical;
+begin
+  { Keywords not exercisable from [Code]:
+    unit, interface, implementation, uses, finalization, initialization, class,
+    inherited, constructor, destructor, virtual, override, private, protected,
+    public, published, '^' dereference token. }
+
+  { Numeric literals }
+  CheckEqualsInt64(255, $FF);
+  CheckEqualsInt64(255, 0 + $FF);
+  CheckEqualsFloat(1.5e2, 150.0, 0.0);
+  CheckEqualsFloat(1.5E+2, 150.0, 0.0);
+  CheckEqualsFloat(1.5E-1, 0.15, 1e-9);
+  CheckEqualsFloat(2.0, 1.0 + 1.0, 0.0);
+  { '..' range token not eaten by real-literal parser }
+  case 5 of
+    1..10: CheckTrue(True);
+  end;
+  { Strange literals which Delphi accepts }
+  CheckEqualsInt64(0, $); { note that both Delphi and ROPS don't accept # or #$ }
+  CheckEqualsFloat(1., 1.0, 0.0);
+
+  { Character literals }
+  CheckEqualsString('A', #65);
+  CheckEqualsString('A', #$41);
+  CheckEqualsString('AB', #65#66);
+  CheckEqualsString('a''b', 'a'#$27'b');
+  CheckEqualsInt64($0100, Ord(#$0100));
+
+  (* paren-star comment *)
+  // line comment
+
+  { '@' address-of token: exercised by procedural variable tests }
+  { Other keywords: exercised by other tests }
+end;
+
+procedure Test_BaseTypeSizes;
+var
+  VBoolean: Boolean;
+  VByte: Byte;
+  VShortInt: ShortInt;
+  VAnsiChar: AnsiChar;
+  VWord: Word;
+  VSmallInt: SmallInt;
+  VWideChar: WideChar;
+  VChar: Char;
+  VInteger: Integer;
+  VLongInt: LongInt;
+  VLongWord: LongWord;
+  VCardinal: Cardinal;
+  VSingle: Single;
+  VDouble: Double;
+  VInt64: Int64;
+  VUInt64: UInt64;
+  VCurrency: Currency;
+  VByteBool: ByteBool;
+  VWordBool: WordBool;
+  VLongBool: LongBool;
+begin
+  CheckEqualsInt64(1, SizeOf(VBoolean));
+  CheckEqualsInt64(1, SizeOf(VByte));
+  CheckEqualsInt64(1, SizeOf(VShortInt));
+  CheckEqualsInt64(1, SizeOf(VAnsiChar));
+  CheckEqualsInt64(2, SizeOf(VWord));
+  CheckEqualsInt64(2, SizeOf(VSmallInt));
+  CheckEqualsInt64(2, SizeOf(VWideChar));
+  CheckEqualsInt64(2, SizeOf(VChar));
+  CheckEqualsInt64(4, SizeOf(VInteger));
+  CheckEqualsInt64(4, SizeOf(VLongInt));
+  CheckEqualsInt64(4, SizeOf(VLongWord));
+  CheckEqualsInt64(4, SizeOf(VCardinal));
+  CheckEqualsInt64(4, SizeOf(VSingle));
+  CheckEqualsInt64(8, SizeOf(VDouble));
+  CheckEqualsInt64(8, SizeOf(VInt64));
+  CheckEqualsInt64(8, SizeOf(VUInt64));
+  CheckEqualsInt64(8, SizeOf(VCurrency));
+  CheckEqualsInt64(1, SizeOf(VByteBool));
+  CheckEqualsInt64(2, SizeOf(VWordBool));
+  CheckEqualsInt64(4, SizeOf(VLongBool));
+end;
+
+procedure Test_ArchDependentSizes;
+var
+  VExtended: Extended;
+  VNativeInt: NativeInt;
+  VNativeUInt: NativeUInt;
+  VAnsiString: AnsiString;
+  VString: String;
+  VWideString: WideString;
+  VUnicodeString: UnicodeString;
+  VNativeString: NativeString;
+  VPAnsiChar: PAnsiChar;
+  VDynArray: array of Integer;
+begin
+  #if arch == "x64"
+    CheckEqualsInt64(8, SizeOf(VExtended));
+    CheckEqualsInt64(8, SizeOf(VNativeInt));
+    CheckEqualsInt64(8, SizeOf(VNativeUInt));
+    CheckEqualsInt64(8, SizeOf(VAnsiString));
+    CheckEqualsInt64(8, SizeOf(VString));
+    CheckEqualsInt64(8, SizeOf(VWideString));
+    CheckEqualsInt64(8, SizeOf(VUnicodeString));
+    CheckEqualsInt64(8, SizeOf(VNativeString));
+    CheckEqualsInt64(8, SizeOf(VPAnsiChar));
+    CheckEqualsInt64(8, SizeOf(VDynArray));
+  #else
+    CheckEqualsInt64(10, SizeOf(VExtended));
+    CheckEqualsInt64(4, SizeOf(VNativeInt));
+    CheckEqualsInt64(4, SizeOf(VNativeUInt));
+    CheckEqualsInt64(4, SizeOf(VAnsiString));
+    CheckEqualsInt64(4, SizeOf(VString));
+    CheckEqualsInt64(4, SizeOf(VWideString));
+    CheckEqualsInt64(4, SizeOf(VUnicodeString));
+    CheckEqualsInt64(4, SizeOf(VNativeString));
+    CheckEqualsInt64(4, SizeOf(VPAnsiChar));
+    CheckEqualsInt64(4, SizeOf(VDynArray));
+  #endif
+end;
+
+procedure Test_IntegerBoundaries;
+var
+  VShortInt: ShortInt;
+  VSmallInt: SmallInt;
+  VInteger: Integer;
+  VInt64: Int64;
+  VByte: Byte;
+  VWord: Word;
+  VCardinal: Cardinal;
+  VUInt64: UInt64;
+  VBoolean: Boolean;
+begin
+  { Signed integer boundaries }
+  CheckEqualsInt64(-128, Low(VShortInt));
+  CheckEqualsInt64(127, High(VShortInt));
+  CheckEqualsInt64(-32768, Low(VSmallInt));
+  CheckEqualsInt64(32767, High(VSmallInt));
+  CheckEqualsInt64(-2147483648, Low(VInteger));
+  CheckEqualsInt64(2147483647, High(VInteger));
+  CheckEqualsInt64(-9223372036854775808, Low(VInt64));
+  CheckEqualsInt64(9223372036854775807, High(VInt64));
+
+  { Unsigned integer boundaries }
+  CheckEqualsUInt64(0, Low(VByte));
+  CheckEqualsUInt64(255, High(VByte));
+  CheckEqualsUInt64(0, Low(VWord));
+  CheckEqualsUInt64(65535, High(VWord));
+  CheckEqualsUInt64(0, Low(VCardinal));
+  CheckEqualsUInt64(4294967295, High(VCardinal));
+  CheckEqualsUInt64(0, Low(VUInt64));
+  CheckEqualsUInt64(18446744073709551615, High(VUInt64));
+
+  { Same boundaries using hex literals }
+  CheckEqualsInt64(-$80, Low(VShortInt));
+  CheckEqualsInt64($7F, High(VShortInt));
+  CheckEqualsInt64(-$8000, Low(VSmallInt));
+  CheckEqualsInt64($7FFF, High(VSmallInt));
+  CheckEqualsInt64(-$80000000, Low(VInteger));
+  CheckEqualsInt64($7FFFFFFF, High(VInteger));
+  CheckEqualsInt64(-$8000000000000000, Low(VInt64)); { also see special case below }
+  CheckEqualsInt64($7FFFFFFFFFFFFFFF, High(VInt64));
+  CheckEqualsUInt64($0, Low(VByte));
+  CheckEqualsUInt64($FF, High(VByte));
+  CheckEqualsUInt64($0, Low(VWord));
+  CheckEqualsUInt64($FFFF, High(VWord));
+  CheckEqualsUInt64($0, Low(VCardinal));
+  CheckEqualsUInt64($FFFFFFFF, High(VCardinal));
+  CheckEqualsUInt64($0, Low(VUInt64));
+  CheckEqualsUInt64($FFFFFFFFFFFFFFFF, High(VUInt64));
+
+  { Special case, works like this in Delphi as well }
+  CheckEqualsInt64($8000000000000000, Low(VInt64));
+
+  { Boolean value mapping }
+  VBoolean := False;
+  CheckEqualsUInt64(0, Ord(VBoolean));
+  VBoolean := True;
+  CheckEqualsUInt64(1, Ord(VBoolean));
+end;
+
+procedure Test_CurrencyPrecision;
+var
+  C: Currency;
+begin
+  C := 1.5;
+  CheckEqualsFloat(1.5, C, 0);
+  C := 0.0001;
+  CheckEqualsFloat(0.0001, C, 1e-18);
+end;
+
+procedure Test_BooleanLikeTypes;
+var
+  VByteBool: ByteBool;
+  VWordBool: WordBool;
+  VLongBool: LongBool;
+begin
+  VByteBool := True;
+  CheckTrue(VByteBool);
+  VByteBool := False;
+  CheckFalse(VByteBool);
+
+  VWordBool := True;
+  CheckTrue(VWordBool);
+  VWordBool := False;
+  CheckFalse(VWordBool);
+
+  VLongBool := False;
+  CheckFalse(VLongBool);
+  VLongBool := True;
+  CheckTrue(VLongBool);
+end;
+
+type
+  TSmall = (eA, eB, eC);
+  TByteSet = set of Byte;
+  TSmallSet = set of TSmall;
+
+function GetByteSetCount(const S: TByteSet): Integer;
+var
+  I: Byte;
+begin
+  Result := 0;
+  for I := 0 to 255 do
+    if I in S then
+      Result := Result + 1;
+end;
+
+procedure Test_EnumerationsAndSets;
+var
+  VTSmall: TSmall;
+  VTByteSet, VTByteSet2: TByteSet;
+  VTSmallSet: TSmallSet;
+begin
+  { Enumerations }
+  CheckEqualsUInt64(0, Ord(eA));
+  VTSmall := eA;
+  CheckEqualsUInt64(0, Ord(VTSmall));
+  VTSmall := eC;
+  CheckEqualsUInt64(2, Ord(VTSmall));
+  VTSmall := TSmall(2);
+  CheckEqualsUInt64(2, Ord(VTSmall));
+
+  { Sets }
+  VTByteSet := [1, 3, 5];
+  VTByteSet2 := [3, 4];
+  //CheckTrue(3 in VTByteSet); { Skipped: not supported }
+  CheckTrue(Byte(3) in VTByteSet);
+  CheckTrue(not (Byte(4) in VTByteSet));
+  CheckEqualsInt64(4, GetByteSetCount(VTByteSet + VTByteSet2));
+  CheckEqualsInt64(1, GetByteSetCount(VTByteSet * VTByteSet2));
+  CheckEqualsInt64(2, GetByteSetCount(VTByteSet - VTByteSet2));
+  CheckTrue(VTByteSet = [1, 3, 5]);
+  //CheckTrue([1, 3] <= VTByteSet); { Skipped: not supported }
+  VTByteSet2 := [1, 3];
+  CheckTrue(VTByteSet2 <= VTByteSet);
+
+  { Enum-backed sets }
+  VTSmallSet := [eA, eC];
+  CheckTrue(eA in VTSmallSet);
+  CheckTrue(not (eB in VTSmallSet));
+  Include(VTSmallSet, eB);
+  CheckTrue(eB in VTSmallSet);
+  VTSmallSet := VTSmallSet - [eA];
+  CheckFalse(eA in VTSmallSet);
+
+  { Include/Exclude }
+  VTByteSet := [];
+  Include(VTByteSet, Byte(7));
+  CheckTrue(Byte(7) in VTByteSet);
+  Exclude(VTByteSet, Byte(7));
+  CheckFalse(Byte(7) in VTByteSet);
+
+  { Enum and set sizes }
+  CheckEqualsInt64(1, SizeOf(VTSmall));
+  CheckEqualsInt64(32, SizeOf(VTByteSet));
+  CheckEqualsInt64(1, SizeOf(VTSmallSet));
+
+  { Skipped: '..' range syntax in set literals not supported }
+end;
+
+type
+  TRec = record
+    A: Integer;
+    B: String;
+    C: Double;
+  end;
+  TIntArr = array of Integer;
+  T2D = array of array of Integer;
+  { Skipped: 'type Integer' syntax not supported }
+
+procedure Test_RecordsAndArrays;
+var
+  R1, R2: TRec;
+  SA: array[-2..2] of Integer;
+  DA: array of Integer;
+  DA2: TIntArr;
+  M: T2D;
+  RA: array of TRec;
+begin
+  { Records - field layout and copy }
+  R1.A := 42;
+  R1.B := 'hello';
+  R1.C := 1.5;
+  R2 := R1;
+  CheckEqualsInt64(42, R2.A);
+  CheckEqualsString('hello', R2.B);
+  CheckEqualsFloat(1.5, R2.C, 0.0);
+  CheckTrue(R1 = R2);
+  R2.A := 43;
+  CheckTrue(R1 <> R2);
+  R2.A := 42;
+  #if arch == "x64"
+    CheckEqualsInt64(20, SizeOf(R1));
+  #else
+    CheckEqualsInt64(16, SizeOf(R1));
+  #endif
+
+  { Static arrays with non-zero low bound }
+  SA[-2] := 100;
+  SA[2] := 500;
+  CheckEqualsInt64(100, SA[-2]);
+  CheckEqualsInt64(-2, Low(SA));
+  CheckEqualsInt64(2, High(SA));
+  CheckEqualsInt64(5, Length(SA));
+
+  { Dynamic arrays }
+  CheckEqualsInt64(0, Length(DA));
+  SetLength(DA, 4);
+  CheckEqualsInt64(4, Length(DA));
+  CheckEqualsInt64(3, High(DA));
+  CheckEqualsInt64(0, Low(DA));
+  DA[2] := 7;
+  CheckEqualsInt64(7, DA[2]);
+
+  { Dynamic array grow preserves contents and zero-inits new slots }
+  SetLength(DA, 6);
+  CheckEqualsInt64(6, Length(DA));
+  CheckEqualsInt64(7, DA[2]);
+  CheckEqualsInt64(0, DA[5]);
+
+  { Dynamic array shrink to zero }
+  SetLength(DA, 0);
+  CheckEqualsInt64(0, Length(DA));
+
+  { Dynamic array literals }
+  DA2 := [10, 20, 30];
+  CheckEqualsInt64(3, Length(DA2));
+  CheckEqualsInt64(10, DA2[0]);
+  CheckEqualsInt64(30, DA2[2]);
+
+  { Multi-dimensional arrays }
+  SetLength(M, 2);
+  SetLength(M[0], 3);
+  SetLength(M[1], 3);
+  M[0][0] := 1;
+  M[0][1] := 2;
+  M[0][2] := 3;
+  M[1][0] := 4;
+  M[1][1] := 5;
+  M[1][2] := 6;
+  CheckEqualsInt64(6, M[1][2]);
+  CheckEqualsInt64(3, Length(M[0]));
+
+  { Record array grow initializes fields }
+  SetLength(RA, 1);
+  RA[0].A := 42;
+  RA[0].B := 'test';
+  SetLength(RA, 3);
+  CheckEqualsInt64(42, RA[0].A);
+  CheckEqualsString('test', RA[0].B);
+  CheckEqualsInt64(0, RA[2].A);
+  CheckEqualsInt64(0, Length(RA[2].B));
+end;
+
+type
+  TIntAlias = Integer;
+
+procedure Test_TypeAliases;
+var
+  VIntAlias: TIntAlias;
+begin
+  VIntAlias := 5;
+  CheckEqualsInt64(5, VIntAlias);
+end;
+
+procedure Test_ParameterMode_Basic(X: Integer);
+begin
+  X := 99;
+end;
+
+procedure Test_ParameterMode_Var(var X: Integer);
+begin
+  X := 99;
+end;
+
+procedure Test_ParameterMode_Out(out X: Integer);
+begin
+  { ROPS does not clear out params on entry (unlike Delphi) }
+  CheckEqualsInt64(1, X);
+  X := 99;
+end;
+
+procedure Test_ParameterMode_Const(const X: Integer);
+begin
+end;
+
+procedure Test_ParameterModes;
+var
+  V: Integer;
+begin
+  V := 1;
+  Test_ParameterMode_Basic(V);
+  CheckEqualsInt64(1, V);
+
+  V := 1;
+  Test_ParameterMode_Var(V);
+  CheckEqualsInt64(99, V);
+
+  V := 1;
+  Test_ParameterMode_Out(V);
+  CheckEqualsInt64(99, V);
+
+  V := 1;
+  Test_ParameterMode_Const(V);
+  CheckEqualsInt64(1, V);
+end;
+
+procedure Test_ImplicitTypeWidening;
+var
+  VByte: Byte;
+  VInteger: Integer;
+  VInt64: Int64;
+  VSingle: Single;
+  VDouble: Double;
+  VExtended: Extended;
+  VCurrency: Currency;
+  VChar: Char;
+  VString: String;
+begin
+  { Integer widening chain: Byte -> Integer -> Int64 }
+  VByte := 200;
+  VInteger := VByte;
+  CheckEqualsInt64(200, VInteger);
+  VInt64 := VInteger;
+  CheckEqualsInt64(200, VInt64);
+
+  { Float widening chain: Single -> Double -> Extended }
+  VSingle := 1.5;
+  VDouble := VSingle;
+  CheckEqualsFloat(1.5, VDouble, 1e-9);
+  VExtended := VDouble;
+  CheckEqualsFloat(1.5, VExtended, 1e-9);
+
+  { Integer -> float promotion in assignment context }
+  VInteger := 7;
+  VDouble := VInteger;
+  CheckEqualsFloat(7.0, VDouble, 0.0);
+  VInt64 := 123456789;
+  VExtended := VInt64;
+  CheckEqualsFloat(123456789.0, VExtended, 0.5);
+
+  { Integer -> Currency in assignment }
+  VInteger := 42;
+  VCurrency := VInteger;
+  CheckEqualsFloat(42.0, VCurrency, 0.0);
+
+  { Char -> String implicit conversion }
+  VChar := 'X';
+  VString := VChar;
+  CheckEqualsString('X', VString);
+
+  { Mixed-type comparisons }
+  VByte := 200;
+  VInt64 := 201;
+  CheckTrue(VByte < VInt64);
+  VSingle := 1.5;
+  VDouble := 2.5;
+  CheckTrue(VSingle < VDouble);
+end;
+
+procedure Test_StringTypeInteractions;
+var
+  VAnsiString, VAnsiString2: AnsiString;
+  VString: String;
+  VWideString: WideString;
+  VUnicodeString, VUnicodeString2: UnicodeString;
+  VNativeString: NativeString;
+  VPAnsiChar: PAnsiChar;
+begin
+  { String -> AnsiString and back }
+  VString := 'hello';
+  VAnsiString := VString;
+  CheckEqualsInt64(5, Length(VAnsiString));
+  VString := VAnsiString;
+  CheckEqualsString('hello', VString);
+
+  { String -> WideString and back }
+  VString := 'world';
+  VWideString := VString;
+  CheckEqualsInt64(5, Length(VWideString));
+  VString := VWideString;
+  CheckEqualsString('world', VString);
+
+  { String -> UnicodeString and back }
+  VString := 'test';
+  VUnicodeString := VString;
+  CheckEqualsInt64(4, Length(VUnicodeString));
+  VString := VUnicodeString;
+  CheckEqualsString('test', VString);
+
+  { Cross-string-type assignment }
+  VAnsiString := 'ansi';
+  VWideString := VAnsiString;
+  CheckEqualsString('ansi', VWideString);
+  VUnicodeString := VWideString;
+  CheckEqualsString('ansi', VUnicodeString);
+
+  { NativeString maps to the native Unicode string type }
+  VString := 'native';
+  VNativeString := VString;
+  CheckEqualsInt64(6, Length(VNativeString));
+  VString := VNativeString;
+  CheckEqualsString('native', VString);
+
+  { PAnsiChar -> AnsiString round-trip }
+  VAnsiString := 'pchar';
+  VPAnsiChar := VAnsiString; { ROPS needs a variable to keep the string alive }
+  VAnsiString2 := VPAnsiChar;
+  CheckEqualsString('pchar', VAnsiString2);
+
+  { UnicodeString equality }
+  VUnicodeString := 'hello';
+  VUnicodeString2 := 'hel' + 'lo';
+  CheckTrue(VUnicodeString = VUnicodeString2);
+  CheckTrue(VUnicodeString <> 'hellp');
+
+  { String comparison }
+  CheckTrue('a' = 'a');
+  CheckTrue('a' <> 'A');
+  CheckTrue('aa' < 'ab');
+  CheckTrue('aa' <= 'ab');
+  CheckTrue('z' > 'a');
+  CheckTrue('z' >= 'a');
+  VString := 'aa';
+  CheckTrue(VString < 'ab');
+  CheckTrue('ab' > VString);
+
+  { String concatenation }
+  CheckEqualsString('hello world', 'hello ' + 'world');
+  CheckEqualsString('A1', 'A' + IntToStr(1));
+end;
+
+procedure Test_SignedUnsignedBoundaries;
+var
+  VShortInt: ShortInt;
+  VInteger: Integer;
+  VInt64: Int64;
+begin
+  { Negative ShortInt -> Integer sign-extends }
+  VShortInt := -128;
+  VInteger := VShortInt;
+  CheckEqualsInt64(-128, VInteger);
+
+  { Negative Integer -> Int64 sign-extends }
+  VInteger := -2147483648;
+  VInt64 := VInteger;
+  CheckEqualsInt64(-2147483648, VInt64);
+end;
+
+procedure Test_EmptyStringEdgeCases;
+var
+  S: String;
+begin
+  CheckEqualsInt64(0, Length(''));
+  CheckEqualsInt64(0, Length(S));
+  CheckEqualsInt64(0, Pos('x', S));
+  CheckEqualsInt64(0, Pos('', 'hello'));
+  CheckEqualsString('', Copy(S, 1, 5));
+  CheckEqualsString('', Copy('hello', 1, 0));
+  CheckEqualsString('', Copy('hello', 10, 5));
+  CheckEqualsString('hello', S + 'hello');
+  CheckEqualsString('hello', 'hello' + S);
+end;
+
+procedure Test_IntegerOverflowWraparound;
+var
+  VByte: Byte;
+  VShortInt: ShortInt;
+  VSmallInt: SmallInt;
+  VInteger: Integer;
+  VInt64: Int64;
+begin
+  { Direct arithmetic overflow wraps }
+  VInteger := 2147483647;
+  VInteger := VInteger + 1;
+  CheckEqualsInt64(-2147483648, VInteger);
+
+  VInteger := -2147483648;
+  VInteger := VInteger - 1;
+  CheckEqualsInt64(2147483647, VInteger);
+
+  { Narrowing casts truncate to low bits }
+  VInt64 := 256;
+  VByte := Byte(VInt64);
+  CheckEqualsUInt64(0, VByte);
+
+  VInt64 := -1;
+  VByte := Byte(VInt64);
+  CheckEqualsUInt64(255, VByte);
+
+  VInt64 := 128;
+  VShortInt := ShortInt(VInt64);
+  CheckEqualsInt64(-128, VShortInt);
+
+  VInt64 := -129;
+  VShortInt := ShortInt(VInt64);
+  CheckEqualsInt64(127, VShortInt);
+
+  VInt64 := 32768;
+  VSmallInt := SmallInt(VInt64);
+  CheckEqualsInt64(-32768, VSmallInt);
+
+  VInt64 := -32769;
+  VSmallInt := SmallInt(VInt64);
+  CheckEqualsInt64(32767, VSmallInt);
+
+  VInt64 := 2147483648;
+  VInteger := Integer(VInt64);
+  CheckEqualsInt64(-2147483648, VInteger);
+
+  VInt64 := -2147483649;
+  VInteger := Integer(VInt64);
+  CheckEqualsInt64(2147483647, VInteger);
+end;
+
+const
+  PI_TIMES_2 = 6.283185307;
+  CA = 10;
+  CB = CA + 5;
+  CC = CA * CB div 3;
+  CD = CA > CB;
+  CE = not False;
+  CF = (CA shl 2) or $0F;
+  CG = CA mod 3;
+
+procedure Test_ConstantsAndConstantExpressions;
+begin
+  { Global constant }
+  CheckEqualsFloat(PI_TIMES_2, 2 * Pi, 1e-6);
+
+  { Constant expressions evaluated at compile time }
+  CheckEqualsInt64(15, CB);
+  CheckEqualsInt64(50, CC);
+  CheckFalse(CD);
+  CheckTrue(CE);
+  CheckEqualsInt64(47, CF);
+  CheckEqualsInt64(1, CG);
+end;
+
+var
+  GlobalVarInteger: Integer;
+  GlobalVarBoolean: Boolean;
+  GlobalVarEnum: TSmall;
+  GlobalVarSet: TSmallSet;
+  GlobalVarStaticArray: array[1..2] of Integer;
+  GlobalVarExtended: Extended;
+  GlobalVarCurrency: Currency;
+  GlobalVarString: String;
+  GlobalVarArray: array of Integer;
+
+procedure Test_CheckGlobalsAndLocalsZeroed;
+var
+  I: Integer;
+  B: Boolean;
+  E: TSmall;
+  S: TSmallSet;
+  SA: array[1..2] of Integer;
+  X: Extended;
+  C: Currency;
+  R: TRec;
+  V: Variant;
+  DA: array of Integer;
+begin
+  { Global var initial values }
+  CheckEqualsInt64(0, GlobalVarInteger);
+  CheckFalse(GlobalVarBoolean);
+  CheckEqualsInt64(0, Ord(GlobalVarEnum));
+  CheckTrue(GlobalVarSet = []);
+  CheckEqualsInt64(0, GlobalVarStaticArray[1]);
+  CheckEqualsInt64(0, GlobalVarStaticArray[2]);
+  CheckEqualsFloat(0.0, GlobalVarExtended, 0.0);
+  CheckEqualsFloat(0.0, GlobalVarCurrency, 0.0);
+  CheckEqualsInt64(0, Length(GlobalVarString));
+  CheckEqualsInt64(0, Length(GlobalVarArray));
+
+  { ROPS zero-initializes all types, unlike Delphi, so test various }
+  CheckEqualsInt64(0, I);
+  CheckFalse(B);
+  CheckEqualsInt64(0, Ord(E));
+  CheckTrue(S = []);
+  CheckEqualsInt64(0, SA[1]);
+  CheckEqualsInt64(0, SA[2]);
+  CheckEqualsFloat(0.0, X, 0.0);
+  CheckEqualsFloat(0.0, C, 0.0);
+  CheckEqualsInt64(0, R.A);
+  CheckEqualsInt64(0, Length(R.B));
+  CheckTrue(VarIsClear(V));
+  CheckEqualsInt64(0, Length(DA));
+  { String already tested in Test_EmptyStringEdgeCases }
+end;
+
+procedure Test_Variants;
+var
+  V, V1, V2: Variant;
+  S: String;
+  Caught: Boolean;
+begin
+  V := Unassigned;
+  CheckEqualsInt64(varEmpty, VarType(V));
+  V := Null;
+  CheckEqualsInt64(varNull, VarType(V));
+  V := Integer(42);
+  CheckEqualsInt64(varInteger, VarType(V));
+  V := True;
+  CheckEqualsInt64(varBoolean, VarType(V));
+  V := Double(1.5);
+  CheckEqualsInt64(varDouble, VarType(V));
+  V := Int64(42);
+  CheckEqualsInt64(varInt64, VarType(V));
+  V := 'hello';
+  CheckEqualsInt64(varUString, VarType(V));
+
+  { Variant integer addition }
+  V1 := 5;
+  V2 := 3;
+  CheckEqualsInt64(8, V1 + V2);
+
+  { Variant string concatenation }
+  V1 := 'hello';
+  V2 := ' world';
+  CheckEqualsString('hello world', V1 + V2);
+
+  { String-to-Variant round-trip via variable }
+  S := 'round-trip';
+  V := S;
+  CheckEqualsString('round-trip', V);
+
+  { VarIsNull and VarIsEmpty }
+  V := Null;
+  CheckTrue(VarIsNull(V));
+  V := Unassigned;
+  CheckTrue(VarIsEmpty(V));
+
+  { 'not' on a string variant raises an exception }
+  V := 'abc';
+  Caught := False;
+  try
+    V2 := not V;
+  except
+    Caught := True;
+    CheckTrue(GetExceptionMessage <> '');
+  end;
+  CheckTrue(Caught);
+end;
+
+procedure Test_IDispatchInvoke;
+var
+  Dict, V: Variant;
+begin
+  Dict := CreateOleObject('Scripting.Dictionary');
+  Dict.Add('key', 'value');
+  CheckEqualsInt64(1, Dict.Count);
+  CheckEqualsString('value', Dict.Item('key'));
+
+  V := Dict.Keys;
+  CheckTrue((VarType(V) and varArray) <> 0);
+  CheckEqualsString('key', V[0]);
+  CheckEqualsString('key', VarArrayGet(V, 0));
+
+  V[0] := 'changed';
+  CheckEqualsString('changed', V[0]);
+
+  VarArraySet('again', 0, V);
+  CheckEqualsString('again', V[0]);
+end;
+
+procedure Test_WithScoping;
+var
+  R1, R2: TRec;
+begin
+  R1.A := 0;
+  R1.B := '';
+  with R1 do begin
+    A := 11;
+    B := 'changed';
+  end;
+  CheckEqualsInt64(11, R1.A);
+  CheckEqualsString('changed', R1.B);
+
+  { Nested with: innermost wins }
+  R1.A := 0;
+  R2.A := 0;
+  with R1 do
+    with R2 do
+      A := 1;
+  CheckEqualsInt64(1, R2.A);
+  CheckEqualsInt64(0, R1.A);
+
+  { Comma-separated with: last wins }
+  R1.A := 0;
+  R2.A := 0;
+  with R1, R2 do
+    A := 42;
+  CheckEqualsInt64(0, R1.A);
+  CheckEqualsInt64(42, R2.A);
+end;
+
+procedure Test_IntegerArithmeticAndPrecedence;
+var
+  VInteger: Integer;
+  VExtended: Extended;
+begin
+  { Integer arithmetic }
+  CheckEqualsInt64(7, 3 + 4);
+  CheckEqualsInt64(-1, 3 - 4);
+  CheckEqualsInt64(12, 3 * 4);
+  CheckEqualsInt64(2, 5 div 2);
+  CheckEqualsInt64(1, 5 mod 2);
+  CheckEqualsInt64(8, 1 shl 3);
+  CheckEqualsInt64(2, 16 shr 3);
+  CheckEqualsInt64(14, 10 or 6);
+  CheckEqualsInt64(2, 10 and 6);
+  CheckEqualsInt64(12, 10 xor 6);
+  CheckEqualsInt64(-11, not 10);
+  CheckEqualsInt64(-10, -(10));
+  VInteger := 10;
+  CheckEqualsInt64(-10, -VInteger);
+  CheckEqualsInt64(-11, not VInteger);
+
+  { Operator precedence: multiplicative binds tighter than additive }
+  CheckEqualsInt64(14, 2 + 3 * 4);
+  CheckEqualsInt64(10, 2 * 3 + 4);
+  CheckEqualsInt64(7, 1 + 12 div 2);
+  CheckEqualsInt64(3, 1 + 8 mod 3);
+
+  { 'and' is multiplicative, 'or' is additive }
+  CheckTrue(True or True and False); {$NOWARN}
+  CheckFalse(False and True or False); {$NOWARN}
+
+  { 'not' (unary) binds tighter than 'and' (multiplicative) }
+  CheckFalse(not True and True); {$NOWARN}
+  CheckTrue(not False and True); {$NOWARN}
+
+  { Relational binds loosest }
+  CheckTrue(2 + 3 = 5);
+  CheckTrue(10 - 3 > 5);
+  CheckTrue(2 * 3 < 2 + 5);
+
+  { 'shl'/'shr' are multiplicative }
+  CheckEqualsInt64(9, 1 + 1 shl 3);
+  CheckEqualsInt64(5, 1 + 8 shr 1);
+
+  { 'xor' is additive, same level as '+'/'-'/'or' }
+  CheckEqualsInt64(4, 1 + 5 xor 2);
+  CheckEqualsInt64(16, 5 xor 2 + 3 * 3);
+
+  { Operator associativity: same-precedence operators evaluate left-to-right }
+  CheckEqualsInt64(5, 10 - 3 - 2);
+  CheckEqualsInt64(-4, 1 - 2 - 3);
+  CheckEqualsInt64(2, 100 div 10 div 5);
+  CheckEqualsInt64(0, 17 mod 5 mod 2);
+  CheckEqualsInt64(32, 1 shl 1 shl 4);
+  CheckEqualsInt64(6, 1 + 2 + 3);
+  CheckEqualsInt64(7, 1 or 2 or 4);
+
+  { Compound expressions mixing unary and binary operators }
+  CheckEqualsInt64(-9, -(1 + 2) * 3);
+  CheckEqualsInt64(7, -(-7));
+  CheckEqualsInt64(2, not (not 2));
+  CheckEqualsInt64(-3, -(1 + 2));
+  CheckEqualsInt64(15, (1 + 2) * (3 + 2));
+  CheckTrue(not (1 = 2) and (3 > 0));
+
+  { / on int operands behaves like div }
+  CheckEqualsInt64(2, 5 / 2);
+
+  { Real promotion }
+  CheckEqualsFloat(2.5, 5 / 2.0, 1e-9);
+  CheckEqualsFloat(2.5, 5.0 / 2, 1e-9);
+  VExtended := 1 + 1.5;
+  CheckEqualsFloat(2.5, VExtended, 1e-9);
+end;
+
+procedure Test_Int64Arithmetic;
+var
+  VInt64, VInt64_2,VInt64High: Int64;
+  VUInt64: UInt64;
+begin
+  { Int64 arithmetic and boundaries }
+  VInt64 := 1000000000;
+  VInt64_2 := VInt64 * VInt64;
+  CheckTrue(VInt64_2 > 0);
+  CheckEqualsInt64(0, VInt64_2 - VInt64*VInt64);
+
+  { UInt64 arithmetic and unsigned comparison }
+  VInt64High := High(VInt64);
+  VUInt64 := UInt64(VInt64High) + UInt64(2);
+  CheckTrue(VUInt64 > UInt64(VInt64High));
+  CheckEqualsInt64(2, Int64(VUInt64 - UInt64(VInt64High)));
+  CheckTrue(UInt64(0) - UInt64(1) = UInt64($FFFFFFFFFFFFFFFF));
+
+  { Int64 shifts }
+  VInt64 := Int64(1);
+  CheckEqualsInt64($100000000, VInt64 shl 32);
+  VInt64 := Int64($100000000);
+  CheckEqualsInt64(1, VInt64 shr 32);
+end;
+
+var
+  Test_BooleanShortCircuit_SideEffectCalled: Boolean;
+
+function Test_BooleanShortCircuit_SideEffect: Boolean;
+begin
+  Test_BooleanShortCircuit_SideEffectCalled := True;
+  Result := True;
+end;
+
+procedure Test_BooleanShortCircuit;
+var
+  LeftSide: Boolean;
+begin
+  { and short-circuits when LHS is False }
+  Test_BooleanShortCircuit_SideEffectCalled := False;
+  LeftSide := False;
+  if LeftSide and Test_BooleanShortCircuit_SideEffect then ;
+  CheckFalse(Test_BooleanShortCircuit_SideEffectCalled);
+
+  { or short-circuits when LHS is True }
+  Test_BooleanShortCircuit_SideEffectCalled := False;
+  LeftSide := True;
+  if LeftSide or Test_BooleanShortCircuit_SideEffect then ;
+  CheckFalse(Test_BooleanShortCircuit_SideEffectCalled);
+
+  { and evaluates RHS when LHS is True }
+  Test_BooleanShortCircuit_SideEffectCalled := False;
+  LeftSide := True;
+  if LeftSide and Test_BooleanShortCircuit_SideEffect then ;
+  CheckTrue(Test_BooleanShortCircuit_SideEffectCalled);
+
+  { or evaluates RHS when LHS is False }
+  Test_BooleanShortCircuit_SideEffectCalled := False;
+  LeftSide := False;
+  if LeftSide or Test_BooleanShortCircuit_SideEffect then ;
+  CheckTrue(Test_BooleanShortCircuit_SideEffectCalled);
+end;
+
+procedure Test_ExplicitTypeCasts;
+var
+  VInt64: Int64;
+  VByte: Byte;
+  VDouble: Double;
+  VSingle: Single;
+begin
+  { Byte -> Int64 via explicit cast }
+  VByte := 200;
+  VInt64 := Int64(VByte);
+  CheckEqualsInt64(200, VInt64);
+
+  { Double -> Single (value fits) }
+  VDouble := 1.5;
+  VSingle := Single(VDouble);
+  CheckEqualsFloat(1.5, VSingle, 1e-6);
+
+  { Single -> Double }
+  VSingle := 3.14;
+  VDouble := Double(VSingle);
+  CheckEqualsFloat(3.14, VDouble, 1e-5);
+
+  { String type casts covered by Test_StringTypeInteractions }
+end;
+
+procedure Test_ConstantExpressionCasts;
+begin
+  { integer constant narrowing }
+  CheckEqualsUInt64(42, Byte(256 + 42));
+  CheckEqualsInt64(7, Integer(Int64($100000007)));
+
+  { integer constant widening }
+  CheckEqualsInt64(200, Int64(Byte(200)));
+
+  { enum <-> integer constants }
+  CheckEqualsUInt64(2, Ord(TSmall(2)));
+  CheckEqualsInt64(2, Integer(eC));
+  CheckEqualsUInt64(0, Byte(eA));
+
+  { float constant casts }
+  CheckEqualsFloat(1.5, Double(1.5), 0.0);
+  CheckEqualsFloat(1.5, Single(1.5), 1e-6);
+end;
+
+function Test_IdentifierCaseInsensitivity_Func: Integer;
+begin
+  Result := 7;
+end;
+
+procedure Test_IdentifierCaseInsensitivity;
+var
+  FooBar: Integer;
+begin
+  { lowercase access }
+  FooBar := 42;
+  CheckEqualsInt64(42, foobar);
+
+  { uppercase write, mixed-case read }
+  FOOBAR := 99;
+  CheckEqualsInt64(99, FooBar);
+
+  { function names are case-insensitive }
+  CheckEqualsInt64(7, test_identifiercaseinsensitivity_func);
+  CheckEqualsInt64(7, TEST_IDENTIFIERCASEINSENSITIVITY_FUNC);
+end;
+
+procedure Test_IfElse;
+var
+  VTrue, VFalse: Boolean;
+  I, J: Integer;
+begin
+  VTrue := True;
+  VFalse := False;
+
+  { Basic if/then/else }
+  if True then I := 1 else I := 0;
+  CheckEqualsInt64(1, I);
+  if VTrue then I := 1 else I := 0;
+  CheckEqualsInt64(1, I);
+  if False or VFalse then I := 1 else I := 0; {$NOWARN}
+  CheckEqualsInt64(0, I);
+
+  { Dangling else binds to nearest if }
+  I := 0;
+  if True then
+    if False then
+      I := 1
+    else
+      I := 2;
+  CheckEqualsInt64(2, I);
+
+  { Outer else when outer condition is false }
+  I := 0;
+  if False then
+    if True then
+      I := 1
+    else
+      I := 2
+  else
+    I := 3;
+  CheckEqualsInt64(3, I);
+
+  { Redundant parentheses }
+  if (VTrue) then I := 1 else I := 0;
+  CheckEqualsInt64(1, I);
+  if ((VTrue)) then I := 1 else I := 0;
+  CheckEqualsInt64(1, I);
+  if (not (VFalse)) then I := 1 else I := 0;
+  CheckEqualsInt64(1, I);
+  J := 5;
+  if (J > 3) then I := 1 else I := 0;
+  CheckEqualsInt64(1, I);
+  if ((J > 3)) then I := 1 else I := 0;
+  CheckEqualsInt64(1, I);
+end;
+
+procedure Test_WhileLoop;
+var
+  I, Count: Integer;
+begin
+  I := 0;
+  Count := 0;
+  while I < 5 do begin
+    Count := Count + 1;
+    I := I + 1;
+  end;
+  CheckEqualsInt64(5, Count);
+  CheckEqualsInt64(5, I);
+
+  { False condition never enters body }
+  Count := 0;
+  while False do
+    Count := Count + 1;
+  CheckEqualsInt64(0, Count);
+end;
+
+procedure Test_RepeatUntil;
+var
+  Count: Integer;
+begin
+  { Body runs at least once even when condition starts true }
+  Count := 0;
+  repeat
+    Count := Count + 1;
+  until True;
+  CheckEqualsInt64(1, Count);
+
+  { Normal repeat until }
+  Count := 0;
+  repeat
+    Count := Count + 1;
+  until Count = 5;
+  CheckEqualsInt64(5, Count);
+end;
+
+procedure Test_ForLoop;
+var
+  I, Sum: Integer;
+begin
+  { for..to counts correctly }
+  Sum := 0;
+  for I := 1 to 5 do
+    Sum := Sum + I;
+  CheckEqualsInt64(15, Sum);
+
+  { for..downto counts correctly }
+  Sum := 0;
+  for I := 5 downto 1 do
+    Sum := Sum + I;
+  CheckEqualsInt64(15, Sum);
+
+  { for..to preserves direction }
+  Sum := 0;
+  for I := 1 to 3 do
+    Sum := Sum * 10 + I;
+  CheckEqualsInt64(123, Sum);
+
+  { for..downto preserves direction }
+  Sum := 0;
+  for I := 3 downto 1 do
+    Sum := Sum * 10 + I;
+  CheckEqualsInt64(321, Sum);
+
+  { Empty body for..to: post-loop value is final value + 1 }
+  for I := 0 to 3 do
+    ;
+  CheckEqualsInt64(4, I);
+
+  { Empty body for..downto: post-loop value is final value - 1 }
+  for I := 3 downto 0 do
+    ;
+  CheckEqualsInt64(-1, I);
+
+  { Empty range for..to: start > end, body should not execute }
+  Sum := 0;
+  for I := 5 to 3 do
+    Sum := Sum + 1;
+  CheckEqualsInt64(0, Sum);
+
+  { Empty range for..downto: start < end, body should not execute }
+  Sum := 0;
+  for I := 3 downto 5 do
+    Sum := Sum + 1;
+  CheckEqualsInt64(0, Sum);
+
+  { Single iteration: start = end }
+  Sum := 0;
+  for I := 7 to 7 do
+    Sum := Sum + 1;
+  CheckEqualsInt64(1, Sum);
+  CheckEqualsInt64(8, I);
+end;
+
+procedure Test_VariantControlFlow;
+var
+  V: Variant;
+  Sum: Integer;
+begin
+  { if Variant then }
+  V := True;
+  if V then
+    Sum := 1
+  else
+    Sum := 0;
+  CheckEqualsInt64(1, Sum);
+
+  { while Variant do }
+  V := Integer(3);
+  Sum := 0;
+  while V > 0 do begin
+    Sum := Sum + V;
+    V := V - 1;
+  end;
+  CheckEqualsInt64(6, Sum);
+
+  { repeat until Variant }
+  V := Integer(0);
+  Sum := 0;
+  repeat
+    Sum := Sum + 1;
+    V := Sum >= 3;
+  until V;
+  CheckEqualsInt64(3, Sum);
+
+  { for Variant }
+  Sum := 0;
+  for V := 1 to 5 do
+    Sum := Sum + V;
+  CheckEqualsInt64(6, V);
+  CheckEqualsInt64(15, Sum);
+end;
+
+procedure Test_CaseStatement_CaseTest(X: Integer; var S: String);
+begin
+  case X of
+    0:    S := 'zero';
+    1, 2: S := 'small';
+    3..5: S := 'mid';
+  else
+    S := 'big';
+  end;
+end;
+
+procedure Test_CaseStatement;
+var
+  S: String;
+begin
+  Test_CaseStatement_CaseTest(0, S);
+  CheckEqualsString('zero', S);
+  Test_CaseStatement_CaseTest(1, S);
+  CheckEqualsString('small', S);
+  Test_CaseStatement_CaseTest(2, S);
+  CheckEqualsString('small', S);
+  Test_CaseStatement_CaseTest(4, S);
+  CheckEqualsString('mid', S);
+  Test_CaseStatement_CaseTest(6, S);
+  CheckEqualsString('big', S);
+end;
+
+procedure Test_CaseElseMultipleStatements_CaseElseMulti(X: Integer; var Sum: Integer);
+begin
+  Sum := 0;
+  case X of
+    1: Sum := 100;
+  else
+    Sum := Sum + 10;
+    Sum := Sum + 20;
+    Sum := Sum + 30;
+  end;
+end;
+
+procedure Test_CaseElseMultipleStatements;
+var
+  R: Integer;
+begin
+  Test_CaseElseMultipleStatements_CaseElseMulti(99, R);
+  CheckEqualsInt64(60, R);
+
+  Test_CaseElseMultipleStatements_CaseElseMulti(1, R);
+  CheckEqualsInt64(100, R);
+end;
+
+procedure Test_GotoLabel;
+label SkipForward, BackLoop, SkipFromIf;
+var
+  I, Count: Integer;
+begin
+  { Forward goto }
+  I := 0;
+  goto SkipForward;
+  I := 1;
+  SkipForward:
+  CheckEqualsInt64(0, I);
+
+  { Backward goto simulating a loop }
+  Count := 0;
+  BackLoop:
+  Count := Count + 1;
+  if Count < 3 then
+    goto BackLoop;
+  CheckEqualsInt64(3, Count);
+
+  { goto out of nested if }
+  I := 0;
+  if True then begin
+    if True then
+      goto SkipFromIf;
+    I := 1;
+  end;
+  SkipFromIf:
+  CheckEqualsInt64(0, I);
+end;
+
+function Test_ExitEarlyReturn_EarlyExit(X: Integer): Integer;
+begin
+  Result := -1;
+  if X > 0 then Exit;
+  Result := X;
+end;
+
+procedure Test_ExitEarlyReturn;
+begin
+  CheckEqualsInt64(-1, Test_ExitEarlyReturn_EarlyExit(5));
+  CheckEqualsInt64(-3, Test_ExitEarlyReturn_EarlyExit(-3));
+end;
+
+{ Forward declaration: A is declared forward, B calls A before A's body }
+procedure Test_ForwardDeclarations_A; forward;
+
+procedure Test_ForwardDeclarations_B(var R: Integer);
+begin
+  Test_ForwardDeclarations_A;
+  R := 1;
+end;
+
+procedure Test_ForwardDeclarations_A;
+begin
+  { Body provided after forward declaration }
+end;
+
+procedure Test_ForwardDeclarations;
+var
+  R: Integer;
+begin
+  R := 0;
+  Test_ForwardDeclarations_B(R);
+  CheckEqualsInt64(1, R);
+  Test_ForwardDeclarations_A;
+end;
+
+function Test_FunctionResults_Int: Integer;
+begin
+  Result := 42;
+end;
+
+function Test_FunctionResults_Int64: Int64;
+begin
+  Result := 12345678901;
+end;
+
+function Test_FunctionResults_UInt64: UInt64;
+begin
+  Result := $FFFFFFFFFFFFFFFF;
+end;
+
+function Test_FunctionResults_Single: Single;
+begin
+  Result := 1.5;
+end;
+
+function Test_FunctionResults_Double: Double;
+begin
+  Result := 1.5;
+end;
+
+function Test_FunctionResults_String: String;
+begin
+  Result := 'hello';
+end;
+
+function Test_FunctionResults_AnsiString: AnsiString;
+begin
+  Result := 'a';
+end;
+
+function Test_FunctionResults_Boolean: Boolean;
+begin
+  Result := True;
+end;
+
+function Test_FunctionResults_Variant: Variant;
+begin
+  Result := 'v';
+end;
+
+function Test_FunctionResults_Rec: TRec;
+begin
+  Result.A := 1;
+  Result.B := 's';
+  Result.C := 1.0;
+end;
+
+function Test_FunctionResults_Arr: TIntArr;
+begin
+  SetLength(Result, 3);
+  Result[0] := 1;
+  Result[1] := 2;
+  Result[2] := 3;
+end;
+
+procedure Test_FunctionResults;
+var
+  Arr: TIntArr;
+  Rec: TRec;
+begin
+  CheckEqualsInt64(42, Test_FunctionResults_Int);
+  CheckEqualsInt64(12345678901, Test_FunctionResults_Int64);
+  CheckEqualsUInt64($FFFFFFFFFFFFFFFF, Test_FunctionResults_UInt64);
+  CheckEqualsFloat(1.5, Test_FunctionResults_Single, 0.0);
+  CheckEqualsFloat(1.5, Test_FunctionResults_Double, 0.0);
+  CheckEqualsString('hello', Test_FunctionResults_String);
+  CheckEqualsString('a', Test_FunctionResults_AnsiString);
+  CheckTrue(Test_FunctionResults_Boolean);
+  CheckEqualsString('v', Test_FunctionResults_Variant);
+
+  Rec := Test_FunctionResults_Rec;
+  CheckEqualsInt64(1, Rec.A);
+  CheckEqualsString('s', Rec.B);
+  CheckEqualsFloat(1.0, Rec.C, 0.0);
+
+  { Record field directly from function result }
+  if Test_FunctionResults_Rec.A = 1 then
+    CheckTrue(True)
+  else
+    RaiseException('FRec.A field comparison broken');
+  CheckEqualsString('s', Test_FunctionResults_Rec.B);
+
+  Arr := Test_FunctionResults_Arr;
+  CheckEqualsInt64(3, Length(Arr));
+  CheckEqualsInt64(1, Arr[0]);
+  CheckEqualsInt64(2, Arr[1]);
+  CheckEqualsInt64(3, Arr[2]);
+end;
+
+function Test_Recursion_Fact(N: Integer): Int64;
+begin
+  if N <= 1 then
+    Result := 1
+  else
+    Result := N * Test_Recursion_Fact(N - 1);
+end;
+
+procedure Test_Recursion;
+begin
+  CheckEqualsInt64(1, Test_Recursion_Fact(0));
+  CheckEqualsInt64(1, Test_Recursion_Fact(1));
+  CheckEqualsInt64(120, Test_Recursion_Fact(5));
+end;
+
+procedure Test_RegisteredProcs;
+begin
+  { String -> String }
+  CheckEqualsString('abc', Trim('  abc  '));
+
+  { String -> Integer }
+  CheckEqualsInt64(3, Length('abc'));
+  CheckEqualsInt64(42, StrToInt('42'));
+
+  { Integer -> String }
+  CheckEqualsString('42', IntToStr(42));
+
+  { String, String -> Integer }
+  CheckEqualsInt64(0, CompareText('abc', 'ABC'));
+
+  { Char, Integer -> String }
+  CheckEqualsString('AAA', StringOfChar('A', 3));
+
+  { String, array of const -> String }
+  CheckEqualsString('x=1 y=hi', Format('x=%d y=%s', [1, 'hi']));
+end;
+
+procedure Test_RegisteredMethods;
+var
+  List: TStringList;
+  I: Integer;
+begin
+  List := TStringList.Create;
+  try
+    { Method with String param returning Integer (Add) }
+    List.Add('cherry');
+    List.Add('apple');
+    List.Add('banana');
+
+    { Read-only Integer property (Count) }
+    CheckEqualsInt64(3, List.Count);
+
+    { Indexed String property (Strings[]) }
+    CheckEqualsString('cherry', List[0]);
+
+    { Boolean property write then read (Sorted) }
+    List.Sorted := True;
+    CheckTrue(List.Sorted);
+    CheckEqualsString('apple', List[0]);
+
+    { Method with String param returning Integer on sorted list (IndexOf) }
+    CheckEqualsInt64(2, List.IndexOf('cherry'));
+
+    { String property write then read (CommaText) }
+    CheckEqualsString('apple,banana,cherry', List.CommaText);
+
+    { Method with Integer param, no return (Delete) }
+    List.Delete(0);
+    CheckEqualsInt64(2, List.Count);
+    CheckEqualsString('banana', List[0]);
+
+    { CommaText write populates the list }
+    List.CommaText := 'a,b,c';
+    CheckEqualsInt64(3, List.Count);
+    CheckEqualsString('b', List.Strings[1]);
+
+    { Virtual method with var Integer output parameter }
+    CheckTrue(List.Find('b', I));
+    CheckEqualsInt64(1, I);
+  finally
+    List.Free;
+  end;
+end;
+
+procedure Test_IsAsOperators;
+var
+  List: TStringList;
+  Obj: TObject;
+  Stream: TStream;
+  Caught: Boolean;
+begin
+  List := TStringList.Create;
+  try
+    Obj := List;
+    CheckTrue(Obj is TStringList);
+    CheckFalse(Obj is TStream);
+
+    { Valid as cast returns object }
+    CheckTrue((Obj as TStringList) <> nil);
+
+    { Invalid as cast raises an exception }
+    Caught := False;
+    try
+      Stream := Obj as TStream; { left-hand-side required}
+    except
+      Caught := True;
+    end;
+    CheckTrue(Caught);
+  finally
+    List.Free;
+  end;
+end;
+
+var
+  GlobalForIdentRes: Integer;
+
+function Test_IdentifierResolution_ReadLocal: Integer;
+var
+  GlobalForIdentRes: Integer;
+begin
+  GlobalForIdentRes := 99;
+  Result := GlobalForIdentRes;
+end;
+
+procedure Test_IdentifierResolution;
+begin
+  GlobalForIdentRes := 1;
+  CheckEqualsInt64(99, Test_IdentifierResolution_ReadLocal);
+  { Global was not modified by the local }
+  CheckEqualsInt64(1, GlobalForIdentRes);
+end;
+
+type
+  TIntegerFunction = function(X: Integer): Integer;
+  TVoidProcedure = procedure;
+  TVarParamProcedure = procedure(var X: Integer);
+  TVarRecParamProcedure = procedure(var R: TRec);
+  TOutParamProcedure = procedure(out X: Integer);
+  TRecordResultFunction = function: TRec;
+  TSetResultFunction = function: TByteSet; { compile-only witness }
+
+function Test_ProcVarScript_Double(X: Integer): Integer;
+begin
+  Result := X * 2;
+end;
+
+function Test_ProcVarScript_Triple(X: Integer): Integer;
+begin
+  Result := X * 3;
+end;
+
+procedure Test_ProcVarScript_Increment(var X: Integer);
+begin
+  Inc(X);
+end;
+
+procedure Test_ProcVarScript_SetTo99(out X: Integer);
+begin
+  X := 99;
+end;
+
+var
+  Test_ProcVarScript_VoidCalled: Boolean;
+
+procedure Test_ProcVarScript_SetVoidCalled;
+begin
+  Test_ProcVarScript_VoidCalled := True;
+end;
+
+var
+  Test_ProcVarScript_OnChangeCount: Integer;
+
+function Test_ProcVarScript_ReturnRec: TRec;
+begin
+  Result.A := 1;
+  Result.B := 'test';
+  Result.C := 2.5;
+end;
+
+procedure Test_ProcVarScript_MutateRec(var R: TRec);
+begin
+  R.A := R.A + 10;
+  R.B := R.B + '!';
+end;
+
+procedure Test_ProcVarScript_OnChange(Sender: TObject);
+begin
+  Test_ProcVarScript_OnChangeCount := Test_ProcVarScript_OnChangeCount + 1;
+end;
+
+procedure Test_ProcVarScript;
+var
+  IntegerFunction, IntegerFunction2: TIntegerFunction;
+  VarParamProcedure: TVarParamProcedure;
+  OutParamProcedure: TOutParamProcedure;
+  VoidProcedure: TVoidProcedure;
+  RecordResultFunction: TRecordResultFunction;
+  VarRecParamProcedure: TVarRecParamProcedure;
+  X: Integer;
+  Rec: TRec;
+  List: TStringList;
+begin
+  { Script function assigned to procvar and called }
+  IntegerFunction := @Test_ProcVarScript_Double;
+  CheckEqualsInt64(6, IntegerFunction(3));
+
+  { var parameter passes through procvar }
+  VarParamProcedure := @Test_ProcVarScript_Increment;
+  X := 5;
+  VarParamProcedure(X);
+  CheckEqualsInt64(6, X);
+
+  { out parameter passes through procvar }
+  OutParamProcedure := @Test_ProcVarScript_SetTo99;
+  X := 1;
+  OutParamProcedure(X);
+  CheckEqualsInt64(99, X);
+
+  { Parameterless procedure through procvar }
+  Test_ProcVarScript_VoidCalled := False;
+  VoidProcedure := @Test_ProcVarScript_SetVoidCalled;
+  VoidProcedure(); { parentheses required }
+  CheckTrue(Test_ProcVarScript_VoidCalled);
+
+  { Record with managed String field survives procvar dispatch }
+  RecordResultFunction := @Test_ProcVarScript_ReturnRec;
+  Rec := RecordResultFunction(); { parentheses required }
+  CheckEqualsInt64(1, Rec.A);
+  CheckEqualsString('test', Rec.B);
+  CheckEqualsFloat(2.5, Rec.C, 0.0);
+
+  { var record mutation visible to caller through procvar }
+  VarRecParamProcedure := @Test_ProcVarScript_MutateRec;
+  Rec.A := 1;
+  Rec.B := 'test';
+  Rec.C := 0.0;
+  VarRecParamProcedure(Rec);
+  CheckEqualsInt64(11, Rec.A);
+  CheckEqualsString('test!', Rec.B);
+
+  { TStringList.OnChange event fires when list changes }
+  Test_ProcVarScript_OnChangeCount := 0;
+  List := TStringList.Create;
+  try
+    List.OnChange := @Test_ProcVarScript_OnChange;
+    List.Add('a');
+    List.Add('b');
+    CheckTrue(Test_ProcVarScript_OnChangeCount >= 2);
+  finally
+    List.Free;
+  end;
+
+  { Procvar equality: same target compares equal, different targets unequal }
+  IntegerFunction := @Test_ProcVarScript_Double;
+  IntegerFunction2 := @Test_ProcVarScript_Double;
+  CheckTrue(IntegerFunction = IntegerFunction2);
+  IntegerFunction2 := @Test_ProcVarScript_Triple;
+  CheckTrue(IntegerFunction <> IntegerFunction2);
+end;
+
+procedure Test_InnerfuseCallHelperTypeSizes;
+var
+  SmallRec: TTestInnerfuseSmallRec;
+  LargeRec: TTestInnerfuseLargeRec;
+  Rec1: TTestHandlerRec1;
+  Rec3: TTestHandlerRec3;
+  Rec4: TTestHandlerRec4;
+  Rec6: TTestHandlerRec6;
+  Rec8: TTestHandlerRec8;
+  Rec10: TTestHandlerRec10;
+  RecString: TTestHandlerRecString;
+  Set3: TTestHandlerSet3;
+  Set4: TTestHandlerSet4;
+  Set6: TTestHandlerSet6;
+  Set8: TTestHandlerSet8;
+  Set10: TTestHandlerSet10;
+  Arr1: TTestHandlerArr1;
+  Arr2: TTestHandlerArr2;
+  Arr3: TTestHandlerArr3;
+  Arr4: TTestHandlerArr4;
+  Arr6: TTestHandlerArr6;
+  Arr8: TTestHandlerArr8;
+  Arr10: TTestHandlerArr10;
+  ArrString: TTestHandlerArrString;
+begin
+  CheckEqualsInt64(2, SizeOf(SmallRec));
+#if arch == "x64"
+  CheckEqualsInt64(12, SizeOf(LargeRec));
+#else
+  CheckEqualsInt64(8, SizeOf(LargeRec));
+#endif
+  CheckEqualsInt64(1, SizeOf(Rec1));
+  CheckEqualsInt64(3, SizeOf(Rec3));
+  CheckEqualsInt64(4, SizeOf(Rec4));
+  CheckEqualsInt64(6, SizeOf(Rec6));
+  CheckEqualsInt64(8, SizeOf(Rec8));
+  CheckEqualsInt64(10, SizeOf(Rec10));
+#if arch == "x64"
+  CheckEqualsInt64(8, SizeOf(RecString));
+#else
+  CheckEqualsInt64(4, SizeOf(RecString));
+#endif
+  CheckEqualsInt64(3, SizeOf(Set3));
+  CheckEqualsInt64(4, SizeOf(Set4));
+  CheckEqualsInt64(6, SizeOf(Set6));
+  CheckEqualsInt64(8, SizeOf(Set8));
+  CheckEqualsInt64(10, SizeOf(Set10));
+  CheckEqualsInt64(1, SizeOf(Arr1));
+  CheckEqualsInt64(2, SizeOf(Arr2));
+  CheckEqualsInt64(3, SizeOf(Arr3));
+  CheckEqualsInt64(4, SizeOf(Arr4));
+  CheckEqualsInt64(6, SizeOf(Arr6));
+  CheckEqualsInt64(8, SizeOf(Arr8));
+  CheckEqualsInt64(10, SizeOf(Arr10));
+#if arch == "x64"
+  CheckEqualsInt64(8, SizeOf(ArrString));
+#else
+  CheckEqualsInt64(4, SizeOf(ArrString));
+#endif
+
+  CheckEqualsInt64(2, TestTypes_NativeSizeOf('TTestInnerfuseSmallRec'));
+#if arch == "x64"
+  CheckEqualsInt64(12, TestTypes_NativeSizeOf('TTestInnerfuseLargeRec'));
+#else
+  CheckEqualsInt64(8, TestTypes_NativeSizeOf('TTestInnerfuseLargeRec'));
+#endif
+  CheckEqualsInt64(1, TestTypes_NativeSizeOf('TTestHandlerRec1'));
+  CheckEqualsInt64(3, TestTypes_NativeSizeOf('TTestHandlerRec3'));
+  CheckEqualsInt64(4, TestTypes_NativeSizeOf('TTestHandlerRec4'));
+  CheckEqualsInt64(6, TestTypes_NativeSizeOf('TTestHandlerRec6'));
+  CheckEqualsInt64(8, TestTypes_NativeSizeOf('TTestHandlerRec8'));
+  CheckEqualsInt64(10, TestTypes_NativeSizeOf('TTestHandlerRec10'));
+#if arch == "x64"
+  CheckEqualsInt64(8, TestTypes_NativeSizeOf('TTestHandlerRecString'));
+#else
+  CheckEqualsInt64(4, TestTypes_NativeSizeOf('TTestHandlerRecString'));
+#endif
+  CheckEqualsInt64(4, TestTypes_NativeSizeOf('TTestHandlerSet3')); { Delphi rounds set sizes up }
+  CheckEqualsInt64(4, TestTypes_NativeSizeOf('TTestHandlerSet4'));
+#if arch == "x64"
+  CheckEqualsInt64(8, TestTypes_NativeSizeOf('TTestHandlerSet6')); { See above }
+#else
+  CheckEqualsInt64(6, TestTypes_NativeSizeOf('TTestHandlerSet6'));
+#endif
+  CheckEqualsInt64(8, TestTypes_NativeSizeOf('TTestHandlerSet8'));
+  CheckEqualsInt64(10, TestTypes_NativeSizeOf('TTestHandlerSet10'));
+  CheckEqualsInt64(1, TestTypes_NativeSizeOf('TTestHandlerArr1'));
+  CheckEqualsInt64(2, TestTypes_NativeSizeOf('TTestHandlerArr2'));
+  CheckEqualsInt64(3, TestTypes_NativeSizeOf('TTestHandlerArr3'));
+  CheckEqualsInt64(4, TestTypes_NativeSizeOf('TTestHandlerArr4'));
+  CheckEqualsInt64(6, TestTypes_NativeSizeOf('TTestHandlerArr6'));
+  CheckEqualsInt64(8, TestTypes_NativeSizeOf('TTestHandlerArr8'));
+  CheckEqualsInt64(10, TestTypes_NativeSizeOf('TTestHandlerArr10'));
+#if arch == "x64"
+  CheckEqualsInt64(8, TestTypes_NativeSizeOf('TTestHandlerArrString'));
+#else
+  CheckEqualsInt64(4, TestTypes_NativeSizeOf('TTestHandlerArrString'));
+#endif
+end;
+
+procedure Test_InnerfuseCallParamTypes;
+var
+  SmallRec: TTestInnerfuseSmallRec;
+  Rec3: TTestHandlerRec3;
+  Rec8: TTestHandlerRec8;
+  LargeRec: TTestInnerfuseLargeRec;
+  Set3: TTestHandlerSet3;
+  Set8: TTestHandlerSet8;
+  Arr3: TTestHandlerArr3;
+  Arr4: TTestHandlerArr4;
+  Arr8: TTestHandlerArr8;
+  I: Integer;
+begin
+  { Exercises InnerfuseCall parameter and return type marshalling using the
+    register (default Delphi) calling convention. Each echo function round-trips
+    a value through a registered native function, testing both the parameter
+    passing and return value paths in x86.inc/x64.inc:
+    - Single/Double/Extended/Currency: different float handling per platform
+    - Int64: 8 bytes on stack (x86) vs one 64-bit register (x64)
+    - Small record: by value for small sizes (x64: 1, 2, or 4; x86: <= 4), else by pointer
+    - 8-byte record: by reference under the register convention on Win64, because
+      of Delphi's special rule: https://blogs.embarcadero.com/abi-changes-in-rad-studio-10-3/
+    - 3-byte record and array: by value on the stack on x86, by reference on x64
+    - 3-byte set (native size 4) and 4-byte array: by value in a register
+    - Large record: hidden var-param return path for records > pointer size
+    - Mixed Single+Double: tests per-slot SingleBits indexing on x64
+    - PAnsiChar empty string: tests nil -> EmptyPchar substitution
+    - SixParams (6 integers): forces register-to-stack spill on both platforms
+    - OpenArray: tests open-array data pointer/high-bound marshalling }
+
+  CheckEqualsFloat(1.5, TestInnerfuse_EchoSingle(1.5), 0.0);
+  CheckEqualsFloat(1.5e100, TestInnerfuse_EchoDouble(1.5e100), 1e90);
+  CheckEqualsFloat(1.5, TestInnerfuse_EchoExtended(1.5), 0.0);
+  CheckEqualsFloat(1.2345, TestInnerfuse_EchoCurrency(1.2345), 0.0001);
+  CheckEqualsInt64(12345678901, TestInnerfuse_EchoInt64(12345678901));
+
+  SmallRec.A := 42;
+  SmallRec.B := 99;
+  SmallRec := TestInnerfuse_EchoSmallRec(SmallRec);
+  CheckEqualsInt64(42, SmallRec.A);
+  CheckEqualsInt64(99, SmallRec.B);
+
+  Rec3.A := 11;
+  Rec3.B := 12;
+  Rec3.C := 13;
+  CheckEqualsInt64(36, TestInnerfuse_SumRec3(Rec3));
+
+  Rec8.A := 30;
+  Rec8.B := 31;
+  Rec8.C := 32;
+  Rec8.D := 33;
+  CheckEqualsInt64(126, TestInnerfuse_SumRec8(Rec8));
+
+  Set3 := [TTestHandlerSet3Base(20), TTestHandlerSet3Base(3)];
+  CheckEqualsInt64(23, TestInnerfuse_SumSet3(Set3));
+  Set8 := [TTestHandlerSet8Base(40), TTestHandlerSet8Base(2)];
+  CheckEqualsInt64(42, TestInnerfuse_SumSet8(Set8));
+  for I := 0 to High(Arr3) do
+    Arr3[I] := 20 + I;
+  CheckEqualsInt64(20 + 21 + 22, TestInnerfuse_SumArray3(Arr3));
+  for I := 0 to High(Arr4) do
+    Arr4[I] := 30 + I;
+  CheckEqualsInt64(30 + 31 + 32 + 33, TestInnerfuse_SumArray4(Arr4));
+  for I := 0 to High(Arr8) do
+    Arr8[I] := 10 + I;
+  CheckEqualsInt64(10 + 11 + 12 + 13 + 14 + 15 + 16 + 17, TestInnerfuse_SumArray8(Arr8));
+
+  LargeRec.A := 42;
+  LargeRec.B := 'hello';
+  LargeRec := TestInnerfuse_EchoLargeRec(LargeRec);
+  CheckEqualsInt64(42, LargeRec.A);
+  CheckEqualsString('hello', LargeRec.B);
+
+  CheckEqualsFloat(4.5, TestInnerfuse_MixedFloats(1.5, 2.0, 1.0), 0.0);
+  CheckEqualsString('', TestInnerfuse_EchoPAnsiChar(''));
+  CheckEqualsString('hello', TestInnerfuse_EchoPAnsiChar('hello'));
+  CheckEqualsInt64(21, TestInnerfuse_SixParams(1, 2, 3, 4, 5, 6));
+  CheckEqualsInt64(10, TestInnerfuse_OpenArray([2, 3, 5]));
+end;
+
+procedure Test_InnerfuseCallParamTypesStdCall;
+var
+  SmallRec: TTestInnerfuseSmallRec;
+  Rec6: TTestHandlerRec6;
+  Rec8: TTestHandlerRec8;
+  Set8: TTestHandlerSet8;
+  Arr8: TTestHandlerArr8;
+  I: Integer;
+  LargeRec: TTestInnerfuseLargeRec;
+begin
+  { Repeats the echo tests from Test_InnerfuseCallParamTypes using the stdcall
+    calling convention. On x86 this exercises RealCall_Other /
+    RealFloatCall_Other (all params on stack) instead of RealCall_Register
+    (params in EAX/EDX/ECX then stack). On x64 both conventions share the
+    Microsoft x64 ABI, so the code paths are identical except for a by-value
+    8-byte record, which Delphi passes by value under stdcall but by reference
+    under the register convention (see TestInnerfuse_SumRec8StdCall below).
+    MixedFloats is omitted because its purpose (per-slot SingleBits indexing) is
+    x64-specific, where stdcall is identical to register. EchoPAnsiChar is
+    omitted because nil-to-EmptyPchar substitution is calling-convention-
+    independent. RaiseException has its own test and is not part of param types. }
+
+  CheckEqualsInt64(21, TestInnerfuse_SixParamsStdCall(1, 2, 3, 4, 5, 6));
+  CheckEqualsFloat(1.5, TestInnerfuse_EchoSingleStdCall(1.5), 0.0);
+  CheckEqualsFloat(1.5e100, TestInnerfuse_EchoDoubleStdCall(1.5e100), 1e90);
+  CheckEqualsFloat(1.5, TestInnerfuse_EchoExtendedStdCall(1.5), 0.0);
+  CheckEqualsFloat(1.2345, TestInnerfuse_EchoCurrencyStdCall(1.2345), 0.0001);
+  CheckEqualsInt64(12345678901, TestInnerfuse_EchoInt64StdCall(12345678901));
+
+  SmallRec.A := 42;
+  SmallRec.B := 99;
+  SmallRec := TestInnerfuse_EchoSmallRecStdCall(SmallRec);
+  CheckEqualsInt64(42, SmallRec.A);
+  CheckEqualsInt64(99, SmallRec.B);
+
+  { A 6-byte record under stdcall on x86 occupies two 4-byte stack slots }
+  Rec6.A := 20;
+  Rec6.B := 21;
+  Rec6.C := 22;
+  CheckEqualsInt64(63, TestInnerfuse_SumRec6StdCall(Rec6));
+
+  { An 8-byte record under stdcall is passed by value, unlike under the
+    register convention where Delphi passes it by reference }
+  Rec8.A := 30;
+  Rec8.B := 31;
+  Rec8.C := 32;
+  Rec8.D := 33;
+  CheckEqualsInt64(126, TestInnerfuse_SumRec8StdCall(Rec8));
+
+  Set8 := [TTestHandlerSet8Base(40), TTestHandlerSet8Base(2)];
+  CheckEqualsInt64(42, TestInnerfuse_SumSet8StdCall(Set8));
+  for I := 0 to High(Arr8) do
+    Arr8[I] := 10 + I;
+  CheckEqualsInt64(10 + 11 + 12 + 13 + 14 + 15 + 16 + 17, TestInnerfuse_SumArray8StdCall(Arr8));
+
+  LargeRec.A := 42;
+  LargeRec.B := 'hello';
+  LargeRec := TestInnerfuse_EchoLargeRecStdCall(LargeRec);
+  CheckEqualsInt64(42, LargeRec.A);
+  CheckEqualsString('hello', LargeRec.B);
+end;
+
+procedure Test_InnerfuseCallPointerSizeManagedByValueRecordArray;
+var
+  R: TTestHandlerRecString;
+  A: TTestHandlerArrString;
+  S: String;
+  RefCountBefore: Integer;
+begin
+  { A record and a static array with a String field, passed by value under
+    the register and stdcall conventions. The string's refcount should remain
+    unchanged: see the DELPHI_SMALL_MANAGED_BORROW comment in x86.inc }
+  S := 'refcount' + IntToStr(9999);
+  R.S := S;
+  A[0] := S;
+  RefCountBefore := TestRefCount_StringRefCount(S);
+
+  CheckEqualsInt64(Length(S), TestInnerfuse_RecStringLength(R));
+  CheckEqualsInt64(RefCountBefore, TestRefCount_StringRefCount(S));
+
+  CheckEqualsInt64(Length(S), TestInnerfuse_RecStringLengthStdCall(R));
+  CheckEqualsInt64(RefCountBefore, TestRefCount_StringRefCount(S));
+
+  CheckEqualsInt64(Length(S), TestInnerfuse_ArrStringLength(A));
+  CheckEqualsInt64(RefCountBefore, TestRefCount_StringRefCount(S));
+
+  CheckEqualsInt64(Length(S), TestInnerfuse_ArrStringLengthStdCall(A));
+  CheckEqualsInt64(RefCountBefore, TestRefCount_StringRefCount(S));
+end;
+
+procedure Test_InnerfuseCallRecordArrayReturn;
+var
+  Rec3: TTestHandlerRec3;
+  Rec4: TTestHandlerRec4;
+  Rec8: TTestHandlerRec8;
+  RecString: TTestHandlerRecString;
+  Set3Pair: array[0..1] of TTestHandlerSet3;
+  Set4: TTestHandlerSet4;
+  Set6: TTestHandlerSet6;
+  Arr1: TTestHandlerArr1;
+  Arr2: TTestHandlerArr2;
+  Arr3: TTestHandlerArr3;
+  Arr4: TTestHandlerArr4;
+  Arr8: TTestHandlerArr8;
+  ArrString: TTestHandlerArrString;
+begin
+  Rec3 := TestInnerfuse_ReturnRec3(30);
+  CheckEqualsInt64(30, Rec3.A);
+  CheckEqualsInt64(31, Rec3.B);
+  CheckEqualsInt64(32, Rec3.C);
+
+  Rec4 := TestInnerfuse_ReturnRec4(300);
+  CheckEqualsInt64(300, Rec4.A);
+  CheckEqualsInt64(301, Rec4.B);
+
+  Rec8 := TestInnerfuse_ReturnRec8(300);
+  CheckEqualsInt64(300, Rec8.A);
+  CheckEqualsInt64(301, Rec8.B);
+  CheckEqualsInt64(302, Rec8.C);
+  CheckEqualsInt64(303, Rec8.D);
+
+  RecString := TestInnerfuse_ReturnRecString(310, 311);
+  CheckEqualsString('310,311', RecString.S);
+
+  { A 3-byte ROPS set is a native 4-byte set returned in EAX on x86: check
+    ROPS really writes only 3 bytes. If it didn't then Set3Pair[1] would
+    get corrupted. Verified this indeed happened before it was fixed. }
+  Set3Pair[1] := [TTestHandlerSet3Base(2), TTestHandlerSet3Base(20)];
+  Set3Pair[0] := TestInnerfuse_ReturnSet3(1, 10);
+  CheckTrue(TTestHandlerSet3Base(1) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(10) in Set3Pair[0]);
+  CheckFalse(TTestHandlerSet3Base(0) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(2) in Set3Pair[1]);
+  CheckTrue(TTestHandlerSet3Base(20) in Set3Pair[1]);
+
+  Set4 := TestInnerfuse_ReturnSet4(3, 25);
+  CheckTrue(TTestHandlerSet4Base(3) in Set4);
+  CheckTrue(TTestHandlerSet4Base(25) in Set4);
+  CheckFalse(TTestHandlerSet4Base(0) in Set4);
+
+  Set6 := TestInnerfuse_ReturnSet6(1, 42);
+  CheckTrue(TTestHandlerSet6Base(1) in Set6);
+  CheckTrue(TTestHandlerSet6Base(42) in Set6);
+  CheckFalse(TTestHandlerSet6Base(0) in Set6);
+
+  Arr1 := TestInnerfuse_ReturnArr1(10);
+  CheckEqualsInt64(10, Arr1[0]);
+
+  Arr2 := TestInnerfuse_ReturnArr2(20);
+  CheckEqualsInt64(20, Arr2[0]);
+  CheckEqualsInt64(21, Arr2[1]);
+
+  Arr3 := TestInnerfuse_ReturnArr3(30);
+  CheckEqualsInt64(30, Arr3[0]);
+  CheckEqualsInt64(31, Arr3[1]);
+  CheckEqualsInt64(32, Arr3[2]);
+
+  Arr4 := TestInnerfuse_ReturnArr4(40);
+  CheckEqualsInt64(40, Arr4[0]);
+  CheckEqualsInt64(41, Arr4[1]);
+  CheckEqualsInt64(42, Arr4[2]);
+  CheckEqualsInt64(43, Arr4[3]);
+
+  Arr8 := TestInnerfuse_ReturnArr8(80);
+  CheckEqualsInt64(80, Arr8[0]);
+  CheckEqualsInt64(87, Arr8[7]);
+
+  ArrString := TestInnerfuse_ReturnArrString(310, 311);
+  CheckEqualsString('310,311', ArrString[0]);
+
+  Arr4 := TestInnerfuse_ReturnArr4Pascal(50);
+  CheckEqualsInt64(50, Arr4[0]);
+  CheckEqualsInt64(51, Arr4[1]);
+  CheckEqualsInt64(52, Arr4[2]);
+  CheckEqualsInt64(53, Arr4[3]);
+
+  ArrString := TestInnerfuse_ReturnArrStringPascal(312, 313);
+  CheckEqualsString('312,313', ArrString[0]);
+
+  { Same overwrite check as the register convention Set3 test above }
+  Set3Pair[1] := [TTestHandlerSet3Base(2), TTestHandlerSet3Base(20)];
+  Set3Pair[0] := TestInnerfuse_ReturnSet3Pascal(1, 10);
+  CheckTrue(TTestHandlerSet3Base(1) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(10) in Set3Pair[0]);
+  CheckFalse(TTestHandlerSet3Base(0) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(2) in Set3Pair[1]);
+  CheckTrue(TTestHandlerSet3Base(20) in Set3Pair[1]);
+
+  Set6 := TestInnerfuse_ReturnSet6Pascal(3, 43);
+  CheckTrue(TTestHandlerSet6Base(3) in Set6);
+  CheckTrue(TTestHandlerSet6Base(43) in Set6);
+  CheckFalse(TTestHandlerSet6Base(0) in Set6);
+
+  Arr4 := TestInnerfuse_ReturnArr4Cdecl(60);
+  CheckEqualsInt64(60, Arr4[0]);
+  CheckEqualsInt64(61, Arr4[1]);
+  CheckEqualsInt64(62, Arr4[2]);
+  CheckEqualsInt64(63, Arr4[3]);
+
+  ArrString := TestInnerfuse_ReturnArrStringCdecl(314, 315);
+  CheckEqualsString('314,315', ArrString[0]);
+
+  { Same overwrite check as the register convention Set3 test above }
+  Set3Pair[1] := [TTestHandlerSet3Base(2), TTestHandlerSet3Base(20)];
+  Set3Pair[0] := TestInnerfuse_ReturnSet3Cdecl(1, 10);
+  CheckTrue(TTestHandlerSet3Base(1) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(10) in Set3Pair[0]);
+  CheckFalse(TTestHandlerSet3Base(0) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(2) in Set3Pair[1]);
+  CheckTrue(TTestHandlerSet3Base(20) in Set3Pair[1]);
+
+  Set6 := TestInnerfuse_ReturnSet6Cdecl(4, 44);
+  CheckTrue(TTestHandlerSet6Base(4) in Set6);
+  CheckTrue(TTestHandlerSet6Base(44) in Set6);
+  CheckFalse(TTestHandlerSet6Base(0) in Set6);
+
+  Arr4 := TestInnerfuse_ReturnArr4StdCall(70);
+  CheckEqualsInt64(70, Arr4[0]);
+  CheckEqualsInt64(71, Arr4[1]);
+  CheckEqualsInt64(72, Arr4[2]);
+  CheckEqualsInt64(73, Arr4[3]);
+
+  ArrString := TestInnerfuse_ReturnArrStringStdCall(316, 317);
+  CheckEqualsString('316,317', ArrString[0]);
+
+  { Same overwrite check as the register convention Set3 test above }
+  Set3Pair[1] := [TTestHandlerSet3Base(2), TTestHandlerSet3Base(20)];
+  Set3Pair[0] := TestInnerfuse_ReturnSet3StdCall(1, 10);
+  CheckTrue(TTestHandlerSet3Base(1) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(10) in Set3Pair[0]);
+  CheckFalse(TTestHandlerSet3Base(0) in Set3Pair[0]);
+  CheckTrue(TTestHandlerSet3Base(2) in Set3Pair[1]);
+  CheckTrue(TTestHandlerSet3Base(20) in Set3Pair[1]);
+
+  Set6 := TestInnerfuse_ReturnSet6StdCall(5, 45);
+  CheckTrue(TTestHandlerSet6Base(5) in Set6);
+  CheckTrue(TTestHandlerSet6Base(45) in Set6);
+  CheckFalse(TTestHandlerSet6Base(0) in Set6);
+end;
+
+procedure Test_InnerfuseCallSafeCall;
+begin
+  { A single echo function is enough to verify the safecall code path in
+    x86.inc/x64.inc (HRESULT return with the actual result passed as a
+    hidden last parameter) }
+  CheckEqualsInt64(42, TestInnerfuse_EchoIntegerSafeCall(42));
+end;
+
+procedure Test_InnerfuseCallSafeCallException;
+var
+  Caught: Boolean;
+begin
+  { Unlike Test_InnerfuseCallException (below) where a Delphi exception unwinds
+    through InnerfuseCall asm stubs, safecall has no actual exception at the low
+    level: the Delphi compiler catches the exception inside the callee and
+    returns a failed HRESULT, then InnerfuseCall checks the HRESULT and raises
+    a new script exception from it }
+  Caught := False;
+  try
+    TestInnerfuse_RaiseExceptionSafeCall;
+  except
+    Caught := True;
+    CheckTrue(GetExceptionMessage <> '');
+  end;
+  CheckTrue(Caught);
+end;
+
+procedure Test_InnerfuseCallException;
+var
+  Caught: Boolean;
+begin
+  { Verifies that a Delphi exception raised inside a registered native function
+    correctly unwinds through the InnerfuseCall asm stubs and surfaces as a
+    catchable script exception. On x64, the x64call procedure has an elaborate
+    stack frame and exceptions must unwind through it without corruption. }
+
+  Caught := False;
+  try
+    TestInnerfuse_RaiseException;
+  except
+    Caught := True;
+    CheckEqualsString('InnerfuseCall test exception', GetExceptionMessage);
+  end;
+  CheckTrue(Caught);
+end;
+
+procedure Test_ProcCallException_RaiseException;
+begin
+  RaiseException('Proc test exception');
+end;
+
+procedure Test_ProcCallException;
+var
+  Caught: Boolean;
+begin
+  Caught := False;
+  try
+    Test_ProcCallException_RaiseException;
+  except
+    Caught := True;
+    CheckEqualsString('Proc test exception', GetExceptionMessage);
+  end;
+  CheckTrue(Caught);
+end;
+
+procedure Test_NilProcVarCallException;
+var
+  Caught: Boolean;
+  VoidProcedure: TVoidProcedure;
+begin
+  VoidProcedure := nil;
+  Caught := False;
+  try
+    VoidProcedure(); { parentheses required }
+  except
+    Caught := True;
+    CheckTrue(GetExceptionMessage <> '');
+  end;
+  CheckTrue(Caught);
+end;
+
+procedure Test_ScriptFuncCallException;
+var
+  Caught: Boolean;
+begin
+  Caught := False;
+  try
+    StrToFloat('zzz'); { StrToInt doesn't raise }
+  except
+    Caught := True;
+    CheckTrue(GetExceptionMessage <> '');
+  end;
+  CheckTrue(Caught);
+end;
+
+procedure Test_DivisionByZeroExceptions;
+var
+  Caught: Boolean;
+  Divisor: Integer;
+  I: Integer;
+  FloatDivisor: Extended;
+  F: Extended;
+begin
+  { Uses variables for the divisors because the compiler rejects literal
+    'div 0' and '/ 0.0' as compile-time divide-by-zero errors }
+
+  { Integer divide by zero }
+  Caught := False;
+  Divisor := 0;
+  try
+    I := 5 div Divisor;
+  except
+    Caught := True;
+  end;
+  CheckTrue(Caught);
+
+  { Float divide by zero: may raise an exception or produce INF,
+    depending on the floating-point exception mask }
+  Caught := False;
+  FloatDivisor := 0.0;
+  try
+    F := 5.0 / FloatDivisor;
+    Caught := FloatToStr(F) = 'INF';
+  except
+    Caught := True;
+  end;
+  CheckTrue(Caught);
+end;
+
+var
+  Test_TryFinally_ExitFinallyRan: Boolean;
+
+procedure Test_TryFinally_ExitFinallySetFlag;
+begin
+  Test_TryFinally_ExitFinallyRan := True;
+end;
+
+function Test_TryFinally_ExitFinallyValue: Integer;
+begin
+  Result := 7;
+end;
+
+function Test_TryFinally_ExitResultInTry(X: Integer): Integer;
+begin
+  Result := -1;
+  try
+    if X > 0 then begin
+      Result := X;
+      Exit;
+    end;
+    Result := 0;
+  finally
+    Result := Result + Test_TryFinally_ExitFinallyValue;
+  end;
+end;
+
+procedure Test_TryFinally_ExitInTry;
+begin
+  Test_TryFinally_ExitFinallyRan := False;
+  try
+    Exit;
+  finally
+    { Calls a function rather than just assigning, to test the case fixed by
+      commit 110fb8b4 where Exit in try/finally broke when finally called functions }
+    Test_TryFinally_ExitFinallySetFlag;
+  end;
+end;
+
+procedure Test_TryFinally;
+var
+  FinallyRan: Boolean;
+  Caught: Boolean;
+  I: Integer;
+begin
+  { finally runs during normal flow }
+  FinallyRan := False;
+  try
+    I := 1;
+  finally
+    FinallyRan := True;
+  end;
+  CheckTrue(FinallyRan);
+  CheckEqualsInt64(1, I);
+
+  { finally runs during exception propagation }
+  FinallyRan := False;
+  Caught := False;
+  try
+    try
+      RaiseException('inner');
+    finally
+      FinallyRan := True;
+    end;
+  except
+    Caught := True;
+  end;
+  CheckTrue(FinallyRan);
+  CheckTrue(Caught);
+
+  { finally runs when Exit is called inside try }
+  Test_TryFinally_ExitInTry;
+  CheckTrue(Test_TryFinally_ExitFinallyRan);
+
+  { finally can call a function and update Result while exiting a function }
+  CheckEqualsInt64(3 + Test_TryFinally_ExitFinallyValue, Test_TryFinally_ExitResultInTry(3));
+  CheckEqualsInt64(0 + Test_TryFinally_ExitFinallyValue, Test_TryFinally_ExitResultInTry(-1));
+end;
+
+procedure Test_NestedTryExcept;
+var
+  OuterCaught: Boolean;
+  InnerCaught: Boolean;
+begin
+  { Inner handler catches, outer does not see the exception }
+  OuterCaught := False;
+  InnerCaught := False;
+  try
+    try
+      RaiseException('inner');
+    except
+      InnerCaught := True;
+    end;
+  except
+    OuterCaught := True;
+  end;
+  CheckTrue(InnerCaught);
+  CheckFalse(OuterCaught);
+end;
+
+procedure Test_TryExceptFinally;
+var
+  ExceptRan: Boolean;
+  FinallyRan: Boolean;
+begin
+  { ROPS extension: combined try..except..finally..end in a single block }
+
+  { Exception path: except catches, then finally runs }
+  ExceptRan := False;
+  FinallyRan := False;
+  try
+    RaiseException('test');
+  except
+    ExceptRan := True;
+  finally
+    FinallyRan := True;
+  end;
+  CheckTrue(ExceptRan);
+  CheckTrue(FinallyRan);
+
+  { Normal path: except is skipped, finally runs }
+  ExceptRan := False;
+  FinallyRan := False;
+  try
+    { no exception }
+  except
+    ExceptRan := True;
+  finally
+    FinallyRan := True;
+  end;
+  CheckFalse(ExceptRan);
+  CheckTrue(FinallyRan);
+end;
+
+procedure Test_TryFinallyExcept;
+var
+  ExceptRan: Boolean;
+  FinallyRan: Boolean;
+begin
+  { ROPS extension: combined try..finally..except..end in a single block }
+
+  { Exception path: finally runs, then except catches }
+  ExceptRan := False;
+  FinallyRan := False;
+  try
+    RaiseException('test');
+  finally
+    FinallyRan := True;
+  except
+    ExceptRan := True;
+    CheckTrue(Pos('test', GetExceptionMessage) > 0);
+  end;
+  CheckTrue(FinallyRan);
+  CheckTrue(ExceptRan);
+
+  { Normal path: finally runs, except is skipped }
+  ExceptRan := False;
+  FinallyRan := False;
+  try
+    { no exception }
+  finally
+    FinallyRan := True;
+  except
+    ExceptRan := True;
+  end;
+  CheckTrue(FinallyRan);
+  CheckFalse(ExceptRan);
+end;
+
+procedure Test_RaiseLastException;
+var
+  Caught: Boolean;
+begin
+  { Re-raise from except block preserves original message }
+  Caught := False;
+  try
+    try
+      RaiseException('original');
+    except
+      RaiseLastException;
+    end;
+  except
+    Caught := True;
+    CheckTrue(Pos('original', GetExceptionMessage) > 0);
+  end;
+  CheckTrue(Caught);
+
+  { RaiseLastException outside except is a no-op }
+  RaiseLastException; { doesn't actually raise }
+end;
+
+procedure Test_BreakForLoop;
+var
+  I: Integer;
+  Sum: Integer;
+begin
+  Sum := 0;
+  for I := 1 to 100 do begin
+    if I > 5 then Break;
+    Sum := Sum + I;
+  end;
+  CheckEqualsInt64(15, Sum);
+end;
+
+procedure Test_ContinueForLoop;
+var
+  I: Integer;
+  Sum: Integer;
+begin
+  Sum := 0;
+  for I := 1 to 10 do begin
+    if I mod 2 = 0 then Continue;
+    Sum := Sum + I;
+  end;
+  CheckEqualsInt64(25, Sum);
+end;
+
+procedure Test_BreakWhileLoop;
+var
+  I: Integer;
+begin
+  I := 0;
+  while True do begin
+    Inc(I);
+    if I = 3 then Break;
+  end;
+  CheckEqualsInt64(3, I);
+end;
+
+procedure Test_ContinueRepeatUntil;
+var
+  I: Integer;
+  Sum: Integer;
+begin
+  Sum := 0;
+  I := 0;
+  repeat
+    Inc(I);
+    if I = 3 then Continue;
+    Sum := Sum + I;
+  until I >= 5;
+  CheckEqualsInt64(12, Sum);
+end;
+
+procedure Test_BreakNestedLoops;
+var
+  Outer: Integer;
+  Inner: Integer;
+  Count: Integer;
+begin
+  Count := 0;
+  for Outer := 1 to 3 do
+    for Inner := 1 to 100 do begin
+      if Inner > 2 then Break;
+      Inc(Count);
+    end;
+  CheckEqualsInt64(6, Count);
+end;
+
+procedure Test_ContinueNestedLoops;
+var
+  Outer: Integer;
+  Inner: Integer;
+  Count: Integer;
+  Sum: Integer;
+begin
+  Count := 0;
+  Sum := 0;
+  for Outer := 1 to 2 do
+    for Inner := 1 to 4 do begin
+      if Inner mod 2 = 0 then Continue;
+      Inc(Count);
+      Sum := Sum + Inner;
+    end;
+  CheckEqualsInt64(4, Count);
+  CheckEqualsInt64(8, Sum);
+end;
+
+procedure Test_ContinueInsideWith;
+var
+  R: TRec;
+  I: Integer;
+  Sum: Integer;
+begin
+  R.A := 0;
+  Sum := 0;
+  for I := 1 to 5 do begin
+    with R do begin
+      A := I;
+      if I mod 2 = 0 then Continue;
+      Sum := Sum + A;
+    end;
+  end;
+  CheckEqualsInt64(9, Sum);
+end;
+
+var
+  Test_CreateCallback_Result: String;
+  Test_CreateCallback_FloatResult: Double;
+  Test_CreateCallback_ExtendedResult: Extended;
+
+procedure Test_CreateCallback_CBNoParams;
+begin
+  Test_CreateCallback_Result := 'called';
+end;
+
+procedure Test_CreateCallback_CBFiveParams(S: String; A, B, C, D: Integer);
+begin
+  Test_CreateCallback_Result := S + ',' + IntToStr(A) + ',' + IntToStr(B) + ',' + IntToStr(C) + ',' + IntToStr(D);
+end;
+
+procedure Test_CreateCallback_CBFloat4(A, B, C: Integer; D: Double);
+begin
+  Test_CreateCallback_Result := IntToStr(A) + ',' + IntToStr(B) + ',' + IntToStr(C);
+  Test_CreateCallback_FloatResult := D;
+end;
+
+procedure Test_CreateCallback_CBExtended4(A, B, C: Integer; D: Extended);
+begin
+  Test_CreateCallback_Result := IntToStr(A) + ',' + IntToStr(B) + ',' + IntToStr(C);
+  Test_CreateCallback_ExtendedResult := D;
+end;
+
+function Test_CreateCallback_CBReturnInteger(A, B: Integer): Integer;
+begin
+  Result := A + B;
+end;
+
+function Test_CreateCallback_CBReturnDouble(A, B: Integer): Double;
+begin
+  Result := A * 0.1 + B;
+end;
+
+function Test_CreateCallback_CBReturnInt64(A, B: Integer): Int64;
+begin
+  { 6000000000 exceeds 32 bits, so both halves of the result are checked }
+  Result := 6000000000 + A + B;
+end;
+
+var
+  Test_CreateCallback_Rec8Fields: String;
+
+procedure Test_CreateCallback_CBRec8(R: TTestHandlerRec8; Tail: Integer);
+begin
+  Test_CreateCallback_Rec8Fields :=
+    IntToStr(R.A) + ',' + IntToStr(R.B) + ',' + IntToStr(R.C) + ',' + IntToStr(R.D) + ';' + IntToStr(Tail);
+end;
+
+var
+  Test_CreateCallback_Set8Fields: String;
+  Test_CreateCallback_Arr8Fields: String;
+
+procedure Test_CreateCallback_CBSet8(S: TTestHandlerSet8; Tail: Integer);
+begin
+  { Stores '0' or '1' for the '.. in ..' result. Should all be '1'. }
+  Test_CreateCallback_Set8Fields :=
+    IntToStr(Ord(TTestHandlerSet8Base(3) in S)) + IntToStr(Ord(TTestHandlerSet8Base(60) in S)) + ';' + IntToStr(Tail);
+end;
+
+procedure Test_CreateCallback_CBArr8(A: TTestHandlerArr8; Tail: Integer);
+begin
+  Test_CreateCallback_Arr8Fields :=
+    IntToStr(A[0]) + ',' + IntToStr(A[7]) + ';' + IntToStr(Tail);
+end;
+
+function Test_CreateCallback_CBRecRet3(A, B, C: Integer): TTestHandlerRec10;
+begin
+  Result.A := A; Result.B := B; Result.C := C; Result.D := A + C; Result.E := B + C;
+end;
+
+function Test_CreateCallback_CBRecRet5(A, B, C, D, E: Integer): TTestHandlerRec10;
+begin
+  Result.A := A; Result.B := B; Result.C := C; Result.D := D; Result.E := E;
+end;
+
+function Test_CreateCallback_CBRecRetFloat3(A, B: Integer; D: Double): TTestHandlerRec10;
+begin
+  Result.A := A; Result.B := B; Result.C := Trunc(D * 10); Result.D := A + B; Result.E := B + 1;
+end;
+
+function Test_CreateCallback_CBRec8RecRet(R: TTestHandlerRec8; Tail: Integer): TTestHandlerRec10;
+begin
+  Result.A := R.A; Result.B := R.B; Result.C := R.C; Result.D := R.D; Result.E := Tail;
+end;
+
+procedure Test_CreateCallback;
+#if arch == "x64"
+var
+  R: TTestHandlerRec8;
+  S: TTestHandlerSet8;
+  A: TTestHandlerArr8;
+#endif
+begin
+  { Tests CreateCallback, which generates platform-specific machine code
+    (TASMInline) to bridge external stdcall callers to ROPS' register-convention
+    MyAllMethodsHandler. Each test exercises different asm code paths, see
+    the comments below. }
+
+  { 0 params: basic stub correctness (x86: pop/push retaddr, load Self;
+    x64: load Self->RCX, call) }
+  Test_CreateCallback_Result := '';
+  TestCreateCallback_Invoke0(CreateCallback(@Test_CreateCallback_CBNoParams));
+  CheckEqualsString('called', Test_CreateCallback_Result);
+
+  { 5 params: on x86 tests parameter reversal and register pops;
+    on x64 tests register shifting, param4 spill, and stack-to-stack copy }
+  Test_CreateCallback_Result := '';
+  TestCreateCallback_Invoke5(CreateCallback(@Test_CreateCallback_CBFiveParams), 'one', 2, 3, 4, 5);
+  CheckEqualsString('one,2,3,4,5', Test_CreateCallback_Result);
+
+  { Note: on x86 CreateCallback does not support callback parameters
+    passed by value when their type is larger than 4 bytes (such as Int64,
+    UInt64, Double, Extended, Currency, or a record larger than 4 bytes),
+    and also does not support result types which use a hidden result
+    pointer (such as a record larger than 4 bytes) }
+#if arch == "x64"
+  { 4th param a float (x64 only): tests Param4IsFloatByValue path }
+  Test_CreateCallback_Result := '';
+  Test_CreateCallback_FloatResult := 0.0;
+  TestCreateCallback_InvokeFloat4(CreateCallback(@Test_CreateCallback_CBFloat4), 10, 20, 30, 4.5);
+  CheckEqualsString('10,20,30', Test_CreateCallback_Result);
+  CheckEqualsFloat(4.5, Test_CreateCallback_FloatResult, 0.0);
+
+  { Extended at position 4: Param4IsFloatByValue must treat btExtended like btDouble }
+  Test_CreateCallback_Result := '';
+  Test_CreateCallback_ExtendedResult := 0.0;
+  TestCreateCallback_InvokeExtended4(CreateCallback(@Test_CreateCallback_CBExtended4), 10, 20, 30, 4.5);
+  CheckEqualsString('10,20,30', Test_CreateCallback_Result);
+  CheckEqualsFloat(4.5, Test_CreateCallback_ExtendedResult, 0.0);
+
+  { An unmanaged 8-byte record by value at position 1 must be bridged to a pointer
+    for MyAllMethodsHandler }
+  R.A := 30; R.B := 31; R.C := 32; R.D := 33;
+  Test_CreateCallback_Rec8Fields := '';
+  TestCreateCallback_InvokeRec8(CreateCallback(@Test_CreateCallback_CBRec8), R, 99);
+  CheckEqualsString('30,31,32,33;99', Test_CreateCallback_Rec8Fields);
+
+  { An 8-byte set at position 1 needs no bridging: stdcall passes it by
+    reference, already the pointer MyAllMethodsHandler expects }
+  S := [TTestHandlerSet8Base(3), TTestHandlerSet8Base(60)];
+  Test_CreateCallback_Set8Fields := '';
+  TestCreateCallback_InvokeSet8(CreateCallback(@Test_CreateCallback_CBSet8), S, 99);
+  CheckEqualsString('11;99', Test_CreateCallback_Set8Fields);
+
+  { An 8-byte static array by value at position 1 must be bridged to a pointer
+    for MyAllMethodsHandler, like the record above }
+  A[0] := 30; A[1] := 31; A[2] := 32; A[3] := 33; A[4] := 34; A[5] := 35; A[6] := 36; A[7] := 37;
+  Test_CreateCallback_Arr8Fields := '';
+  TestCreateCallback_InvokeArray8(CreateCallback(@Test_CreateCallback_CBArr8), A, 99);
+  CheckEqualsString('30,37;99', Test_CreateCallback_Arr8Fields);
+
+  { Hidden result pointers: each test exercises different part of
+    CreateCallback's handling of the shifted parameters }
+  CheckEqualsString('10,20,30,40,50', TestCreateCallback_InvokeRecRet3(CreateCallback(@Test_CreateCallback_CBRecRet3), 10, 20, 30));
+  CheckEqualsString('1,2,3,4,5', TestCreateCallback_InvokeRecRet5(CreateCallback(@Test_CreateCallback_CBRecRet5), 1, 2, 3, 4, 5));
+  CheckEqualsString('10,20,32,30,21', TestCreateCallback_InvokeRecRetFloat3(CreateCallback(@Test_CreateCallback_CBRecRetFloat3), 10, 20, 3.25));
+  CheckEqualsString('30,31,32,33,99', TestCreateCallback_InvokeRec8RecRet(CreateCallback(@Test_CreateCallback_CBRec8RecRet), R, 99));
+
+  { Hidden result pointer must also be returned in RAX }
+  CheckEqualsString('1,10,20,30,40,50', TestCreateCallback_InvokeRecRet3RAX(CreateCallback(@Test_CreateCallback_CBRecRet3)));
+#endif
+
+  { Integer return value: tests return via EAX (x86) / RAX (x64) }
+  CheckEqualsInt64(30, TestCreateCallback_InvokeReturnInteger(CreateCallback(@Test_CreateCallback_CBReturnInteger), 10, 20));
+
+  { Double return value: tests return via ST(0) (x86) / XMM0 (x64) }
+  CheckEqualsFloat(5.3, TestCreateCallback_InvokeReturnDouble(CreateCallback(@Test_CreateCallback_CBReturnDouble), 3, 5), 1e-9);
+
+  { Int64 return value: tests return via EDX:EAX (x86) / RAX (x64) }
+  CheckEqualsInt64(6000000015, TestCreateCallback_InvokeReturnInt64(CreateCallback(@Test_CreateCallback_CBReturnInt64), 10, 5));
+end;
+
+var
+  Test_MyAllMethodsHandlerByValue_Extended1, Test_MyAllMethodsHandlerByValue_Extended2, Test_MyAllMethodsHandlerByValue_Extended3: Extended;
+  Test_MyAllMethodsHandlerByValue_Currency1, Test_MyAllMethodsHandlerByValue_Currency2, Test_MyAllMethodsHandlerByValue_Currency3: Currency;
+  Test_MyAllMethodsHandlerByValue_IntParams: String;
+
+{ The Extended and Currency receivers record their by-value parameters in globals
+  and return the sum, so a single call also exercises the matching result path. }
+function Test_MyAllMethodsHandlerByValue_ReceiveExtended(E1, E2, E3: Extended; Tail: Integer): Extended;
+begin
+  Test_MyAllMethodsHandlerByValue_Extended1 := E1;
+  Test_MyAllMethodsHandlerByValue_Extended2 := E2;
+  Test_MyAllMethodsHandlerByValue_Extended3 := E3;
+  Test_MyAllMethodsHandlerByValue_IntParams := IntToStr(Tail);
+  Result := E1 + E2 + E3;
+end;
+
+function Test_MyAllMethodsHandlerByValue_ReceiveCurrency(C1, C2, C3: Currency; Tail: Integer): Currency;
+begin
+  Test_MyAllMethodsHandlerByValue_Currency1 := C1;
+  Test_MyAllMethodsHandlerByValue_Currency2 := C2;
+  Test_MyAllMethodsHandlerByValue_Currency3 := C3;
+  Test_MyAllMethodsHandlerByValue_IntParams := IntToStr(Tail);
+  Result := C1 + C2 + C3;
+end;
+
+procedure Test_MyAllMethodsHandlerByValue_ReceiveMixed(A: Integer; E: Extended; C: Currency; Tail: Integer);
+begin
+  Test_MyAllMethodsHandlerByValue_Extended1 := E;
+  Test_MyAllMethodsHandlerByValue_Currency1 := C;
+  Test_MyAllMethodsHandlerByValue_IntParams := IntToStr(A) + ',' + IntToStr(Tail);
+end;
+
+procedure Test_MyAllMethodsHandlerByValue;
+begin
+  { These reach MyAllMethodsHandler through a register-convention TMethod, not a
+    CreateCallback thunk. }
+
+  { Extended by value at positions 1-3 (XMM1/XMM2/XMM3 on x64); the returned sum
+    also checks the Extended result path }
+  Test_MyAllMethodsHandlerByValue_Extended1 := 0.0;
+  Test_MyAllMethodsHandlerByValue_Extended2 := 0.0;
+  Test_MyAllMethodsHandlerByValue_Extended3 := 0.0;
+  Test_MyAllMethodsHandlerByValue_IntParams := '';
+  CheckEqualsFloat(1.5 + 2.5 + 3.5, TestHandler_InvokeExtended(@Test_MyAllMethodsHandlerByValue_ReceiveExtended), 0.0);
+  CheckEqualsFloat(1.5, Test_MyAllMethodsHandlerByValue_Extended1, 0.0);
+  CheckEqualsFloat(2.5, Test_MyAllMethodsHandlerByValue_Extended2, 0.0);
+  CheckEqualsFloat(3.5, Test_MyAllMethodsHandlerByValue_Extended3, 0.0);
+  CheckEqualsString('4', Test_MyAllMethodsHandlerByValue_IntParams);
+
+  { Currency by value at positions 1-3 (RDX/R8/R9 on x64); the returned sum also
+    checks the Currency result path (RAX on x64) }
+  Test_MyAllMethodsHandlerByValue_Currency1 := 0.0;
+  Test_MyAllMethodsHandlerByValue_Currency2 := 0.0;
+  Test_MyAllMethodsHandlerByValue_Currency3 := 0.0;
+  Test_MyAllMethodsHandlerByValue_IntParams := '';
+  CheckEqualsFloat(-1.5 - 2.5 - 3.5, TestHandler_InvokeCurrency(@Test_MyAllMethodsHandlerByValue_ReceiveCurrency), 0.0);
+  CheckEqualsFloat(-1.5, Test_MyAllMethodsHandlerByValue_Currency1, 0.0);
+  CheckEqualsFloat(-2.5, Test_MyAllMethodsHandlerByValue_Currency2, 0.0);
+  CheckEqualsFloat(-3.5, Test_MyAllMethodsHandlerByValue_Currency3, 0.0);
+  CheckEqualsString('-4', Test_MyAllMethodsHandlerByValue_IntParams);
+
+  { Mixed Integer/Extended/Currency: interleaved types, so the handler must pick
+    XMM vs a general-purpose register per slot }
+  Test_MyAllMethodsHandlerByValue_Extended1 := 0.0;
+  Test_MyAllMethodsHandlerByValue_Currency1 := 0.0;
+  Test_MyAllMethodsHandlerByValue_IntParams := '';
+  TestHandler_InvokeMixed(@Test_MyAllMethodsHandlerByValue_ReceiveMixed);
+  CheckEqualsFloat(11.5, Test_MyAllMethodsHandlerByValue_Extended1, 0.0);
+  CheckEqualsFloat(12.5, Test_MyAllMethodsHandlerByValue_Currency1, 0.0);
+  CheckEqualsString('10,13', Test_MyAllMethodsHandlerByValue_IntParams);
+end;
+
+var
+  Test_MyAllMethodsHandlerByValueRecord_Fields: String;
+
+function Test_MyAllMethodsHandlerByValueRecord_Receive(R1: TTestHandlerRec4; R2: TTestHandlerRec6; R3: TTestHandlerRec8; Tail: Integer): Integer;
+begin
+  Test_MyAllMethodsHandlerByValueRecord_Fields :=
+    IntToStr(R1.A) + ',' + IntToStr(R1.B) + ';' +
+    IntToStr(R2.A) + ',' + IntToStr(R2.B) + ',' + IntToStr(R2.C) + ';' +
+    IntToStr(R3.A) + ',' + IntToStr(R3.B) + ',' + IntToStr(R3.C) + ',' + IntToStr(R3.D) + ';' + IntToStr(Tail);
+  Result := R1.A + R2.A + R3.A;
+end;
+
+function Test_MyAllMethodsHandlerByValueRecord_Receive2(R1: TTestHandlerRec3; R2: TTestHandlerRec10; Tail: Integer): Integer;
+begin
+  Test_MyAllMethodsHandlerByValueRecord_Fields :=
+    IntToStr(R1.A) + ',' + IntToStr(R1.B) + ',' + IntToStr(R1.C) + ';' +
+    IntToStr(R2.A) + ',' + IntToStr(R2.B) + ',' + IntToStr(R2.C) + ',' + IntToStr(R2.D) + ',' + IntToStr(R2.E) + ';' + IntToStr(Tail);
+  Result := R1.A + R2.A;
+end;
+
+var
+  Test_MyAllMethodsHandlerByValueSet_Fields: String;
+
+function Test_MyAllMethodsHandlerByValueSet_Receive(S1: TTestHandlerSet4; S2: TTestHandlerSet6; S3: TTestHandlerSet8; Tail: Integer): Integer;
+begin
+  { This stores '0' or '1' for the '.. in ..' result. Should all be '1'. }
+  Test_MyAllMethodsHandlerByValueSet_Fields :=
+    IntToStr(Ord(TTestHandlerSet4Base(1) in S1)) + IntToStr(Ord(TTestHandlerSet4Base(30) in S1)) + ';' +
+    IntToStr(Ord(TTestHandlerSet6Base(2) in S2)) + IntToStr(Ord(TTestHandlerSet6Base(45) in S2)) + ';' +
+    IntToStr(Ord(TTestHandlerSet8Base(3) in S3)) + IntToStr(Ord(TTestHandlerSet8Base(60) in S3)) + ';' + IntToStr(Tail);
+  Result := Ord(TTestHandlerSet4Base(1) in S1) + Ord(TTestHandlerSet6Base(2) in S2) + Ord(TTestHandlerSet8Base(3) in S3);
+end;
+
+function Test_MyAllMethodsHandlerByValueSet_Receive2(S1: TTestHandlerSet3; S2: TTestHandlerSet10; Tail: Integer): Integer;
+begin
+  { See above }
+  Test_MyAllMethodsHandlerByValueSet_Fields :=
+    IntToStr(Ord(TTestHandlerSet3Base(1) in S1)) + IntToStr(Ord(TTestHandlerSet3Base(20) in S1)) + ';' +
+    IntToStr(Ord(TTestHandlerSet10Base(4) in S2)) + IntToStr(Ord(TTestHandlerSet10Base(70) in S2)) + ';' + IntToStr(Tail);
+  Result := Ord(TTestHandlerSet3Base(1) in S1) + Ord(TTestHandlerSet10Base(4) in S2);
+end;
+
+var
+  Test_MyAllMethodsHandlerByValueArray_Fields: String;
+
+function Test_MyAllMethodsHandlerByValueArray_Receive(A1: TTestHandlerArr4; A2: TTestHandlerArr6; A3: TTestHandlerArr8; Tail: Integer): Integer;
+begin
+  Test_MyAllMethodsHandlerByValueArray_Fields :=
+    IntToStr(A1[0]) + ',' + IntToStr(A1[3]) + ';' +
+    IntToStr(A2[0]) + ',' + IntToStr(A2[5]) + ';' +
+    IntToStr(A3[0]) + ',' + IntToStr(A3[7]) + ';' + IntToStr(Tail);
+  Result := A1[0] + A2[0] + A3[0];
+end;
+
+function Test_MyAllMethodsHandlerByValueArray_Receive2(A1: TTestHandlerArr3; A2: TTestHandlerArr10; Tail: Integer): Integer;
+begin
+  Test_MyAllMethodsHandlerByValueArray_Fields :=
+    IntToStr(A1[0]) + ',' + IntToStr(A1[2]) + ';' +
+    IntToStr(A2[0]) + ',' + IntToStr(A2[9]) + ';' + IntToStr(Tail);
+  Result := A1[0] + A2[0];
+end;
+
+procedure Test_MyAllMethodsHandlerByValueRecordSetArray;
+begin
+  { Exercise by-value record parameters at positions 1-3: a 4-byte record
+    passed directly in a register, a 6-byte record passed as a pointer, and
+    an 8-byte record passed as a pointer under the register convention }
+  Test_MyAllMethodsHandlerByValueRecord_Fields := '';
+  CheckEqualsInt64(10 + 20 + 30, TestHandler_InvokeRec(@Test_MyAllMethodsHandlerByValueRecord_Receive));
+  CheckEqualsString('10,11;20,21,22;30,31,32,33;99', Test_MyAllMethodsHandlerByValueRecord_Fields);
+
+  { 3-byte record at position 1 (the size where the conventions disagree: by
+    value on the stack on Win32, by reference on Win64) and a 10-byte record
+    at position 2 (always by reference) }
+  Test_MyAllMethodsHandlerByValueRecord_Fields := '';
+  CheckEqualsInt64(10 + 100, TestHandler_InvokeRec2(@Test_MyAllMethodsHandlerByValueRecord_Receive2));
+  CheckEqualsString('10,11,12;100,101,102,103,104;99', Test_MyAllMethodsHandlerByValueRecord_Fields);
+
+  { Sets, same size sweep }
+  Test_MyAllMethodsHandlerByValueSet_Fields := '';
+  CheckEqualsInt64(3, TestHandler_InvokeSet(@Test_MyAllMethodsHandlerByValueSet_Receive));
+  CheckEqualsString('11;11;11;99', Test_MyAllMethodsHandlerByValueSet_Fields);
+  Test_MyAllMethodsHandlerByValueSet_Fields := '';
+  CheckEqualsInt64(2, TestHandler_InvokeSet2(@Test_MyAllMethodsHandlerByValueSet_Receive2));
+  CheckEqualsString('11;11;99', Test_MyAllMethodsHandlerByValueSet_Fields);
+
+  { Static arrays, same size sweep }
+  Test_MyAllMethodsHandlerByValueArray_Fields := '';
+  CheckEqualsInt64(10 + 20 + 30, TestHandler_InvokeArray(@Test_MyAllMethodsHandlerByValueArray_Receive));
+  CheckEqualsString('10,13;20,25;30,37;99', Test_MyAllMethodsHandlerByValueArray_Fields);
+  Test_MyAllMethodsHandlerByValueArray_Fields := '';
+  CheckEqualsInt64(10 + 100, TestHandler_InvokeArray2(@Test_MyAllMethodsHandlerByValueArray_Receive2));
+  CheckEqualsString('10,12;100,109;99', Test_MyAllMethodsHandlerByValueArray_Fields);
+end;
+
+var
+  Test_MyAllMethodsHandlerRecordReturn_Params: String;
+
+{ The following 5 functions also store their parameters, because a result bug
+  can also show up as bad parameters }
+function Test_MyAllMethodsHandlerRecordReturn_Receive1(A, B: Integer): TTestHandlerRec1;
+begin
+  Test_MyAllMethodsHandlerRecordReturn_Params := IntToStr(A) + ',' + IntToStr(B);
+  Result.A := 30;
+end;
+
+function Test_MyAllMethodsHandlerRecordReturn_Receive3(A, B: Integer): TTestHandlerRec3;
+begin
+  Test_MyAllMethodsHandlerRecordReturn_Params := IntToStr(A) + ',' + IntToStr(B);
+  Result.A := 30;
+  Result.B := 31;
+  Result.C := 32;
+end;
+
+function Test_MyAllMethodsHandlerRecordReturn_Receive4(A, B: Integer): TTestHandlerRec4;
+begin
+  Test_MyAllMethodsHandlerRecordReturn_Params := IntToStr(A) + ',' + IntToStr(B);
+  Result.A := 300;
+  Result.B := 301;
+end;
+
+function Test_MyAllMethodsHandlerRecordReturn_Receive8(A, B: Integer): TTestHandlerRec8;
+begin
+  Test_MyAllMethodsHandlerRecordReturn_Params := IntToStr(A) + ',' + IntToStr(B);
+  Result.A := 300;
+  Result.B := 301;
+  Result.C := 302;
+  Result.D := 303;
+end;
+
+function Test_MyAllMethodsHandlerRecordReturn_ReceiveString(A, B: Integer): TTestHandlerRecString;
+begin
+  Test_MyAllMethodsHandlerRecordReturn_Params := IntToStr(A) + ',' + IntToStr(B);
+  { Force real reference counting }
+  Result.S := '310,' + IntToStr(311);
+end;
+
+var
+  Test_MyAllMethodsHandlerArrayReturn_Params: String;
+
+{ The following 4 functions also store their parameters, because a result bug
+  can also show up as bad parameters }
+function Test_MyAllMethodsHandlerArrayReturn_Receive3(A, B: Integer): TTestHandlerArr3;
+begin
+  Test_MyAllMethodsHandlerArrayReturn_Params := IntToStr(A) + ',' + IntToStr(B);
+  Result[0] := 30;
+  Result[1] := 31;
+  Result[2] := 32;
+end;
+
+function Test_MyAllMethodsHandlerArrayReturn_Receive4(A, B: Integer): TTestHandlerArr4;
+begin
+  Test_MyAllMethodsHandlerArrayReturn_Params := IntToStr(A) + ',' + IntToStr(B);
+  Result[0] := 40;
+  Result[1] := 41;
+  Result[2] := 42;
+  Result[3] := 43;
+end;
+
+function Test_MyAllMethodsHandlerArrayReturn_Receive8(A, B: Integer): TTestHandlerArr8;
+var
+  I: Integer;
+begin
+  Test_MyAllMethodsHandlerArrayReturn_Params := IntToStr(A) + ',' + IntToStr(B);
+  for I := 0 to High(Result) do
+    Result[I] := 80 + I;
+end;
+
+function Test_MyAllMethodsHandlerArrayReturn_ReceiveString(A, B: Integer): TTestHandlerArrString;
+begin
+  Test_MyAllMethodsHandlerArrayReturn_Params := IntToStr(A) + ',' + IntToStr(B);
+  { Force real reference counting }
+  Result[0] := '310,' + IntToStr(311);
+end;
+
+procedure Test_MyAllMethodsHandlerRecordArrayReturn;
+begin
+  Test_MyAllMethodsHandlerRecordReturn_Params := '';
+  CheckEqualsString('30', TestHandler_InvokeRecRet1(@Test_MyAllMethodsHandlerRecordReturn_Receive1));
+  CheckEqualsString('10,20', Test_MyAllMethodsHandlerRecordReturn_Params);
+
+  Test_MyAllMethodsHandlerRecordReturn_Params := '';
+  CheckEqualsString('30,31,32', TestHandler_InvokeRecRet3(@Test_MyAllMethodsHandlerRecordReturn_Receive3));
+  CheckEqualsString('10,20', Test_MyAllMethodsHandlerRecordReturn_Params);
+
+  Test_MyAllMethodsHandlerRecordReturn_Params := '';
+  CheckEqualsString('300,301', TestHandler_InvokeRecRet4(@Test_MyAllMethodsHandlerRecordReturn_Receive4));
+  CheckEqualsString('10,20', Test_MyAllMethodsHandlerRecordReturn_Params);
+
+  Test_MyAllMethodsHandlerRecordReturn_Params := '';
+  CheckEqualsString('300,301,302,303', TestHandler_InvokeRecRet8(@Test_MyAllMethodsHandlerRecordReturn_Receive8));
+  CheckEqualsString('10,20', Test_MyAllMethodsHandlerRecordReturn_Params);
+
+  Test_MyAllMethodsHandlerRecordReturn_Params := '';
+  CheckEqualsString('310,311', TestHandler_InvokeRecRetString(@Test_MyAllMethodsHandlerRecordReturn_ReceiveString));
+  CheckEqualsString('10,20', Test_MyAllMethodsHandlerRecordReturn_Params);
+
+  Test_MyAllMethodsHandlerArrayReturn_Params := '';
+  CheckEqualsString('30,31,32', TestHandler_InvokeArrRet3(@Test_MyAllMethodsHandlerArrayReturn_Receive3));
+  CheckEqualsString('10,20', Test_MyAllMethodsHandlerArrayReturn_Params);
+
+  Test_MyAllMethodsHandlerArrayReturn_Params := '';
+  CheckEqualsString('40,41,42,43', TestHandler_InvokeArrRet4(@Test_MyAllMethodsHandlerArrayReturn_Receive4));
+  CheckEqualsString('10,20', Test_MyAllMethodsHandlerArrayReturn_Params);
+
+  Test_MyAllMethodsHandlerArrayReturn_Params := '';
+  CheckEqualsString('80,87', TestHandler_InvokeArrRet8(@Test_MyAllMethodsHandlerArrayReturn_Receive8));
+  CheckEqualsString('10,20', Test_MyAllMethodsHandlerArrayReturn_Params);
+
+  Test_MyAllMethodsHandlerArrayReturn_Params := '';
+  CheckEqualsString('310,311', TestHandler_InvokeArrRetString(@Test_MyAllMethodsHandlerArrayReturn_ReceiveString));
+  CheckEqualsString('10,20', Test_MyAllMethodsHandlerArrayReturn_Params);
+end;
+
+procedure Test_TypelessParamFunctions;
+var
+  S: String;
+  I: Integer;
+  DA: array of Integer;
+  SA: array[0..2] of Integer;
+begin
+  { Tests typeless parameter functions: these declare parameters with no type
+    and the compiler resolves the type at the call site. Straightforward
+    functions like IntToStr, StrToInt, Sin, etc. are just typed params
+    dispatched normally and are not interesting to test here. }
+
+  { SetLength on strings (arrays already tested in Test_RecordsAndArrays) }
+  S := 'hello';
+  SetLength(S, 3);
+  CheckEqualsString('hel', S);
+  SetLength(S, 6);
+  CheckEqualsInt64(6, Length(S));
+  CheckEqualsString('hel', Copy(S, 1, 3));
+
+  { GetArrayLength on nil dynamic array }
+  CheckEqualsInt64(0, GetArrayLength(DA));
+
+  { GetArrayLength on dynamic array }
+  SetArrayLength(DA, 5);
+  CheckEqualsInt64(5, GetArrayLength(DA));
+
+  { GetArrayLength on static array }
+  CheckEqualsInt64(3, GetArrayLength(SA));
+
+  { Replicate / StringOfChar }
+  CheckEqualsString('aaa', Replicate('a', 3));
+  CheckEqualsString('aaa', StringOfChar('a', 3));
+  CheckEqualsString('', Replicate('a', 0));
+  CheckEqualsString(#0#0#0, Replicate(#0, 3));
+  CheckEqualsString(#8364#8364#8364, Replicate(#8364, 3));
+
+  { Dec (untested counterpart to Inc which is tested in Test_ProcVarScript) }
+  I := 5;
+  Dec(I);
+  CheckEqualsInt64(4, I);
+end;
+
+procedure Test_DefProcFloatToInt;
+begin
+  { Round and Trunc are the only DefProc functions returning Integer from
+    Extended input, exercising the GetReal+SetInt path (cases 18/19). }
+
+  { Round (banker's rounding: half rounds to even) }
+  CheckEqualsInt64(2, Round(1.5));
+  CheckEqualsInt64(2, Round(2.5));
+  CheckEqualsInt64(-2, Round(-1.5));
+  CheckEqualsInt64(-2, Round(-2.5));
+
+  { Trunc (truncation toward zero) }
+  CheckEqualsInt64(3, Trunc(3.9));
+  CheckEqualsInt64(-3, Trunc(-3.9));
+end;
+
+procedure Test_AnyStringFunctions;
+var
+  S: String;
+  VAnsiString: AnsiString;
+  VWideString: WideString;
+begin
+  { Tests AnyString parameter functions: these accept any string type via a
+    special AnyString type in their prototype. The interesting test is passing
+    different string types to verify the polymorphism works. }
+
+  { Copy on String }
+  CheckEqualsString('ell', Copy('hello', 2, 3));
+
+  { Copy on AnsiString - verifies AnyString polymorphism }
+  VAnsiString := 'hello';
+  CheckEqualsString('ell', Copy(VAnsiString, 2, 3));
+
+  { Delete / Insert (mutating, var AnyString) }
+  S := 'hello';
+  Delete(S, 2, 3);
+  CheckEqualsString('ho', S);
+  S := 'hello';
+  Insert('XX', S, 3);
+  CheckEqualsString('heXXllo', S);
+
+  { WStrGet / WStrSet (AnyString wide variant) }
+  VWideString := 'hello';
+  CheckEqualsString('h', WStrGet(VWideString, 1));
+  WStrSet('Y', 2, VWideString);
+  CheckEqualsString('hYllo', VWideString);
+
+  { UpperCase / LowerCase (AnyString -> AnyString) }
+  CheckEqualsString('ABCD', UpperCase('aBcD'));
+  CheckEqualsString('abcd', LowerCase('aBcD'));
+end;
+
+procedure Test_DefProcCustomExceptions;
+var
+  S: String;
+  C: Char;
+  VWideString: WideString;
+  Caught: Boolean;
+begin
+  { StrGet, StrSet, WStrGet, and WStrSet are the only DefProc functions that
+    raise catchable script exceptions via CMD_Err2 (out-of-range index).
+    All other DefProc error paths are fatal 'Could not call proc'. }
+
+  { StrGet out-of-range }
+  S := 'hello';
+  Caught := False;
+  try
+    StrGet(S, 99);
+  except
+    Caught := True;
+  end;
+  CheckTrue(Caught);
+
+  { StrSet out-of-range }
+  S := 'hello';
+  Caught := False;
+  try
+    StrSet('Y', 99, S);
+  except
+    Caught := True;
+  end;
+  CheckTrue(Caught);
+
+  { WStrGet out-of-range }
+  VWideString := 'hello';
+  Caught := False;
+  try
+    WStrGet(VWideString, 99);
+  except
+    Caught := True;
+  end;
+  CheckTrue(Caught);
+
+  { WStrSet out-of-range }
+  VWideString := 'hello';
+  Caught := False;
+  try
+    WStrSet('Y', 99, VWideString);
+  except
+    Caught := True;
+  end;
+  CheckTrue(Caught);
+
+  { Read via S[I] syntax - compiler rewrites to WStrGet }
+  S := 'abcde';
+  C := S[1];
+  CheckEqualsString('a', C);
+  C := S[5];
+  CheckEqualsString('e', C);
+
+  { Write via S[I] := C syntax - compiler rewrites to WStrSet }
+  S := 'hello';
+  S[1] := 'H';
+  CheckEqualsString('Hello', S);
+end;
+
+procedure Test_CompilerWorkaroundFunctions;
+var
+  VTSmall: TSmall;
+  List: TStringList;
+  S: String;
+begin
+  { Tests Succ, Pred, and Assigned which are special-cased in the compiler's
+    ProcessSub instead of going through DefProc. }
+
+  { Succ/Pred on integer }
+  CheckEqualsInt64(6, Succ(5));
+  CheckEqualsInt64(4, Pred(5));
+
+  { Succ/Pred on enum (the compiler checks for btEnum explicitly) }
+  VTSmall := eA;
+  VTSmall := Succ(VTSmall);
+  CheckEqualsInt64(1, Ord(VTSmall));
+  VTSmall := Pred(VTSmall);
+  CheckEqualsInt64(0, Ord(VTSmall));
+
+  { Assigned on class }
+  List := TStringList.Create;
+  try
+    CheckTrue(Assigned(List));
+  finally
+    List.Free;
+  end;
+
+  { Assigned on nil class }
+  List := nil;
+  CheckFalse(Assigned(List));
+
+  { Assigned on String }
+  S := 'hello';
+  CheckTrue(Assigned(S));
+end;
+
+function Test_PSStackHelper_DoubleValue(Value: Integer): Integer;
+begin
+  Result := Value * 2;
+end;
+
+procedure Test_PSStackHelper;
+var
+  DynArray: TArrayOfString;
+begin
+  { Tests PSStackHelper.GetStringArray, SetArray, and GetProc which marshal
+    array and callback parameters for RegisterScriptFunc-registered functions.
+    Other PSStackHelper methods (GetString, SetInt, etc.) are trivial wrappers
+    already exercised by every other RegisterScriptFunc function. }
+
+  { StringJoin exercises PSStackHelper.GetStringArray (input array of String) }
+  CheckEqualsString('a,b,c', StringJoin(',', ['a', 'b', 'c']));
+  CheckEqualsString('', StringJoin(',', []));
+  CheckEqualsString('solo', StringJoin(',', ['solo']));
+
+  { StringSplit exercises PSStackHelper.GetStringArray (separators) + SetArray (result) }
+  DynArray := StringSplit('a,b,c', [','], stAll);
+  CheckEqualsInt64(3, GetArrayLength(DynArray));
+  CheckEqualsString('a', DynArray[0]);
+  CheckEqualsString('b', DynArray[1]);
+  CheckEqualsString('c', DynArray[2]);
+
+  { Single-element split }
+  DynArray := StringSplit('hello', [','], stAll);
+  CheckEqualsInt64(1, GetArrayLength(DynArray));
+  CheckEqualsString('hello', DynArray[0]);
+
+  { TestPSStackHelper_InvokeCallback exercises PSStackHelper.GetProc }
+  CheckEqualsInt64(10, TestPSStackHelper_InvokeCallback(@Test_PSStackHelper_DoubleValue, 5));
+  CheckEqualsInt64(0, TestPSStackHelper_InvokeCallback(@Test_PSStackHelper_DoubleValue, 0));
+  CheckEqualsInt64(-6, TestPSStackHelper_InvokeCallback(@Test_PSStackHelper_DoubleValue, -3));
+
+  { nil callback returns -1 (tests GetProc nil-detection path) }
+  CheckEqualsInt64(-1, TestPSStackHelper_InvokeCallback(nil, 42));
+end;
+
+procedure Test_TStringStream;
+var
+  Stream: TStringStream;
+  S: String;
+begin
+  { TStringStream exercises the STRINGSTREAMFIX constructor wrapper in
+    uPSR_classes.pas (TStringStreamCreateString) which works around a Delphi
+    Unicode overload issue, plus the TStream property helpers for Position
+    and Size }
+
+  Stream := TStringStream.Create('hello world');
+  try
+    CheckEqualsInt64(11, Stream.Size);
+    CheckEqualsInt64(0, Stream.Position);
+
+    { Read exercises TStream.Read (RegisterVirtualAbstractMethod path) }
+    S := '           ';
+    Stream.Read(S, 5);
+    CheckEqualsInt64(5, Stream.Position);
+
+    { Seek exercises TStream.Seek }
+    Stream.Seek(0, soFromBeginning);
+    CheckEqualsInt64(0, Stream.Position);
+
+    { Position write exercises TSTREAMPOSITION_W property helper }
+    Stream.Position := 6;
+    CheckEqualsInt64(6, Stream.Position);
+
+    { Size write exercises TSTREAMSIZE_W property helper }
+    Stream.Size := 5;
+    CheckEqualsInt64(5, Stream.Size);
+  finally
+    Stream.Free;
+  end;
+end;
+
+procedure Test_CastStringToInteger;
+var
+  S: String;
+  N: NativeInt;
+begin
+  { CastStringToInteger / CastIntegerToString are special glue functions
+    that round-trip a String variable's internal PChar pointer through NativeInt }
+
+  S := 'test string';
+  N := CastStringToInteger(S);
+  CheckTrue(N <> 0);
+  CheckEqualsString('test string', CastIntegerToString(N));
+end;
+
+procedure Test_FindFirstNextClose;
+var
+  FindRec: TFindRec;
+  Found: Boolean;
+  Count: Integer;
+begin
+  { FindFirst / FindNext / FindClose are registered via RegisterDelphiFunction
+    and exercise InnerfuseCall with the script-defined TFindRec record passed as
+    a var parameter. TFindRec contains String fields, nested TFileTime records,
+    and a THandle field, making it a complex marshalling case. }
+
+  Found := FindFirst(ExpandConstant('{sys}\*'), FindRec);
+  CheckTrue(Found);
+  CheckTrue(Length(FindRec.Name) > 0);
+  CheckTrue(FindRec.Attributes <> 0);
+
+  Count := 1;
+  while FindNext(FindRec) do
+    Count := Count + 1;
+  CheckTrue(Count > 1);
+
+  FindClose(FindRec);
+end;
+
+procedure Test_TPersistentAssign;
+var
+  Source, Dest: TStringList;
+begin
+  { TPersistent.Assign is registered via RegisterVirtualMethod in uPSR_std.pas,
+    testing virtual method dispatch through the ROPS class hierarchy }
+
+  Source := TStringList.Create;
+  try
+    Dest := TStringList.Create;
+    try
+      Source.Add('alpha');
+      Source.Add('beta');
+
+      Dest.Assign(Source);
+      CheckEqualsInt64(2, Dest.Count);
+      CheckEqualsString('alpha', Dest[0]);
+      CheckEqualsString('beta', Dest[1]);
+
+      { Verify it is a copy, not a reference }
+      Source.Delete(0);
+      CheckEqualsInt64(2, Dest.Count);
+    finally
+      Dest.Free;
+    end;
+  finally
+    Source.Free;
+  end;
+end;
+
+procedure Test_VirtualConstructor;
+var
+  Component: TComponent;
+begin
+  Component := TComponent.Create(nil);
+  try
+    CheckTrue(Component <> nil);
+    CheckTrue(Component is TComponent);
+  finally
+    Component.Free;
+  end;
+end;
+
+function Test_ExternalDll_GetCurrentProcessId: Cardinal; external 'GetCurrentProcessId@kernel32.dll stdcall';
+procedure Test_ExternalDll_SetLastError(ErrorCode: Cardinal); external 'SetLastError@kernel32.dll stdcall';
+
+procedure Test_ExternalDll;
+begin
+  CheckTrue(Test_ExternalDll_GetCurrentProcessId <> 0);
+  Test_ExternalDll_SetLastError(12345);
+  CheckEqualsInt64(12345, DllGetLastError);
+end;
+
+{ Other external DLL decorators - compile-only witness, not called }
+procedure Test_ExternalDll_Default;   external 'GetLastError@kernel32.dll';
+procedure Test_ExternalDll_Register;  external 'GetLastError@kernel32.dll register';
+procedure Test_ExternalDll_Pascal;    external 'GetLastError@kernel32.dll pascal';
+procedure Test_ExternalDll_Cdecl;     external 'GetLastError@kernel32.dll cdecl';
+procedure Test_ExternalDll_Delay;     external 'GetLastError@kernel32.dll stdcall delayload';
+procedure Test_ExternalDll_AltSearch; external 'GetLastError@kernel32.dll stdcall loadwithalteredsearchpath';
+procedure Test_ExternalDll_BothOpts;  external 'GetLastError@kernel32.dll stdcall delayload loadwithalteredsearchpath';
+procedure Test_ExternalDll_QuotedDll; external 'GetLastError@"kernel32.dll" stdcall';
+
+procedure ROPS_RunAllTests;
+begin
+  Test_Lexical;
+  Test_BaseTypeSizes;
+  Test_ArchDependentSizes;
+  Test_IntegerBoundaries;
+  Test_CurrencyPrecision;
+  Test_BooleanLikeTypes;
+  Test_EnumerationsAndSets;
+  Test_RecordsAndArrays;
+  Test_TypeAliases;
+  Test_ParameterModes;
+  Test_ImplicitTypeWidening;
+  Test_StringTypeInteractions;
+  Test_SignedUnsignedBoundaries;
+  Test_EmptyStringEdgeCases;
+  Test_IntegerOverflowWraparound;
+  Test_ConstantsAndConstantExpressions;
+  Test_CheckGlobalsAndLocalsZeroed;
+  Test_Variants;
+  Test_IDispatchInvoke;
+  Test_WithScoping;
+  Test_IntegerArithmeticAndPrecedence;
+  Test_Int64Arithmetic;
+  Test_BooleanShortCircuit;
+  Test_ExplicitTypeCasts;
+  Test_ConstantExpressionCasts;
+  Test_IdentifierCaseInsensitivity;
+  Test_IfElse;
+  Test_WhileLoop;
+  Test_RepeatUntil;
+  Test_ForLoop;
+  Test_BreakForLoop;
+  Test_ContinueForLoop;
+  Test_BreakWhileLoop;
+  Test_ContinueRepeatUntil;
+  Test_BreakNestedLoops;
+  Test_ContinueNestedLoops;
+  Test_ContinueInsideWith;
+  Test_VariantControlFlow;
+  Test_CaseStatement;
+  Test_CaseElseMultipleStatements;
+  Test_GotoLabel;
+  Test_ExitEarlyReturn;
+  Test_ForwardDeclarations;
+  Test_FunctionResults;
+  Test_Recursion;
+  Test_RegisteredProcs;
+  Test_RegisteredMethods;
+  Test_IsAsOperators;
+  Test_IdentifierResolution;
+  Test_ProcVarScript;
+  Test_InnerfuseCallHelperTypeSizes;
+  Test_InnerfuseCallParamTypes;
+  Test_InnerfuseCallParamTypesStdCall;
+  Test_InnerfuseCallPointerSizeManagedByValueRecordArray;
+  Test_InnerfuseCallRecordArrayReturn;
+  Test_InnerfuseCallSafeCall;
+  Test_InnerfuseCallSafeCallException;
+  Test_InnerfuseCallException;
+  Test_ProcCallException;
+  Test_NilProcVarCallException;
+  Test_ScriptFuncCallException;
+  Test_DivisionByZeroExceptions;
+  Test_TryFinally;
+  Test_NestedTryExcept;
+  Test_TryExceptFinally;
+  Test_TryFinallyExcept;
+  Test_RaiseLastException;
+  Test_CreateCallback;
+  Test_MyAllMethodsHandlerByValue;
+  Test_MyAllMethodsHandlerByValueRecordSetArray;
+  Test_MyAllMethodsHandlerRecordArrayReturn;
+  Test_TypelessParamFunctions;
+  Test_DefProcFloatToInt;
+  Test_AnyStringFunctions;
+  Test_DefProcCustomExceptions;
+  Test_CompilerWorkaroundFunctions;
+  Test_PSStackHelper;
+  Test_TStringStream;
+  Test_CastStringToInteger;
+  Test_FindFirstNextClose;
+  Test_TPersistentAssign;
+  Test_VirtualConstructor;
+  Test_ExternalDll;
+end;
+
+[/Code]

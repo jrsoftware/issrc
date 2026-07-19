@@ -96,8 +96,8 @@ begin
         ExpectIdent := True;
         Pos := AMemo.GetPositionAfter(Pos);
       end;
-    '=' { emit } , '!' { expr }:
-      Exit(True); { #= and #! begin the expression immediately and do not require any whitespace }
+    '=' { emit }, '!' { expr }, '?' { if }:
+      Exit(True); { #=, #! and #? begin the expression immediately and do not require any whitespace }
   else
     begin
       const DirectiveEndPos = AMemo.GetWordEndPosition(Pos, True);
@@ -125,7 +125,8 @@ begin
       { Check for expression-supporting directives }
       ExpectIdent := SameText(Directive, 'define') or SameText(Directive, 'dim') or SameText(Directive, 'redim');
       if not ExpectIdent and not SameText(Directive, 'if') and not SameText(Directive, 'elif') and
-         not SameText(Directive, 'emit') and not SameText(Directive, 'expr') and
+         not SameText(Directive, 'emit') and not SameText(Directive, 'echo') and
+         not SameText(Directive, 'expr') and not SameText(Directive, 'call') and
          not SameText(Directive, 'insert') then
         Exit;
     end;
@@ -495,7 +496,7 @@ begin
   FCallTipState.CurrentCallTip := 0;
   FCallTipState.CurrentCallTipWord := '';
   var LineText := AMemo.RawCaretLineText;
-  var Current := AMemo.CaretPositionInLine;
+  var Current := AMemo.CaretColumn;
   var CallTipWordCharacters := AMemo.WordCharsAsSet;
   if ISPPExpressionContext then
     Exclude(CallTipWordCharacters, '['); { Also see InitiateAutoComplete }
@@ -549,7 +550,7 @@ begin
   { Based on SciTE 5.50's SciTEBase::ContinueCallTip }
 
   const Line = AMemo.RawCaretLineText;
-  const Current = AMemo.CaretPositionInLine;
+  const Current = AMemo.CaretColumn;
 
   Braces := 0;
   Commas := 0;

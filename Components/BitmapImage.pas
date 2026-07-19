@@ -2,7 +2,7 @@ unit BitmapImage;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -24,9 +24,10 @@ type
   TBitmapImageImplementation = record
   private
     FControl: TControl;
+    FStretching: Boolean;
   public
     AutoSize: Boolean;
-    AutoSizeExtraWidth, AutoSizeExtraHeight: Integer;
+    ExtraWidth, ExtraHeight: Integer;
     BackColor: TColor;
     Bitmap: TBitmap;
     Center: Boolean;
@@ -38,8 +39,8 @@ type
     StretchedBitmap: TBitmap;
     StretchedBitmapValid: Boolean;
     OnPaint: TPaintEvent;
-    procedure Init(const AControl: TControl; const AAutoSizeExtraWidth: Integer = 0;
-      const AAutoSizeExtraHeight: Integer = 0);
+    procedure Init(const AControl: TControl; const AExtraWidth: Integer = 0;
+      const AExtraHeight: Integer = 0);
     procedure DeInit;
     class function AdjustColorForStyle(const Control: TControl; const Color: TColor): TColor; static;
     function GetInitializeSize(const AscendingTrySizes: array of Integer): Integer;
@@ -129,11 +130,11 @@ end;
 { TBitmapImageImplementation }
 
 procedure TBitmapImageImplementation.Init(const AControl: TControl;
-  const AAutoSizeExtraWidth, AAutoSizeExtraHeight: Integer);
+  const AExtraWidth, AExtraHeight: Integer);
 begin
   FControl := AControl;
-  AutoSizeExtraWidth := AAutoSizeExtraWidth;
-  AutoSizeExtraHeight := AAutoSizeExtraHeight;
+  ExtraWidth := AExtraWidth;
+  ExtraHeight := AExtraHeight;
   BackColor := clNone;
   Bitmap := TBitmap.Create;
   Bitmap.OnChange := BitmapChanged;
@@ -200,8 +201,8 @@ begin
       Icon.Handle := Handle;
 
       { Set sizes (overrides any scaling) }
-      FControl.Width := Icon.Width;
-      FControl.Height := Icon.Height;
+      FControl.Width := Icon.Width + ExtraWidth;
+      FControl.Height := Icon.Height + ExtraHeight;
 
       { Set bitmap }
       AutoSize := False;
@@ -230,18 +231,20 @@ begin
   var SHStockIconInfo: TSHStockIconInfo;
   SHStockIconInfo.cbSize := SizeOf(SHStockIconInfo);
   if Succeeded(SHGetStockIconInfo(siid, SHGSI_SYSICONINDEX, SHStockIconInfo)) then begin
-   var ImageList: HIMAGELIST;
     { The SHGetImageList documentation remarks that SHIL_SMALL and SHIL_LARGE are DPI-aware. However
       because this does not provide per-monitor DPI awareness, we always use SHIL_JUMBO and perform
-      scaling ourselves. It also remarks that "the IImageList pointer type, such as that returned in
-      the ppv parameter can be cast as an HIMAGELIST as needed", and we make use of that. }
+      scaling ourselves. }
     const Size = GetInitializeSize(AscendingTrySizes);
     var iImageList: Integer;
     if Size > 24 then
       iImageList := SHIL_JUMBO
     else
       iImageList := SHIL_EXTRALARGE; { For small images use SHIL_EXTRALARGE, which should be 48x48 at least }
-    if Succeeded(SHGetImageList(iImageList, IID_IImageList, Pointer(ImageList))) then begin
+    var ImageListIntf: IUnknown; { Use an interface and not HIMAGELIST for proper release }
+    if Succeeded(SHGetImageList(iImageList, IID_IImageList, Pointer(ImageListIntf))) then begin
+      { The SHGetImageList documentation also remarks that "the IImageList pointer type can be cast as an
+        HIMAGELIST as needed", and we make use of that }
+      const ImageList = HIMAGELIST(Pointer(ImageListIntf));
       var Handle := ImageList_GetIcon(ImageList, SHStockIconInfo.iSysImageIndex, ILD_TRANSPARENT);
       if Handle <> 0 then begin
         const Icon = TIcon.Create;
@@ -249,8 +252,8 @@ begin
           Icon.Handle := Handle;
 
           { Set sizes (overrides any scaling) }
-          FControl.Width := Size;
-          FControl.Height := Size;
+          FControl.Width := Size + ExtraWidth;
+          FControl.Height := Size + ExtraHeight;
 
           { Set bitmap }
           AutoSize := False;
@@ -269,10 +272,12 @@ end;
 
 procedure TBitmapImageImplementation.BitmapChanged(Sender: TObject);
 begin
+  if FStretching then
+    Exit;
   StretchedBitmapValid := False;
   if AutoSize and (Bitmap.Width > 0) and (Bitmap.Height > 0) then
-    FControl.SetBounds(FControl.Left, FControl.Top, Bitmap.Width + AutoSizeExtraWidth,
-      Bitmap.Height + AutoSizeExtraHeight);
+    FControl.SetBounds(FControl.Left, FControl.Top, Bitmap.Width + ExtraWidth,
+      Bitmap.Height + ExtraHeight);
   FControl.Invalidate;
 end;
 
@@ -360,6 +365,17 @@ begin
 end;
 
 procedure TBitmapImageImplementation.Paint(const Sender: TObject; const Canvas: TCanvas; var R: TRect);
+
+  function DoStretchBmp(const W, H: Integer; const Is32bit: Boolean): Boolean;
+  begin
+    FStretching := True; { StretchBmp may fire OnChange due to PixelFormat changing }
+    try
+      Result := StretchBmp(Bitmap, StretchedBitmap, W, H, Is32bit);
+    finally
+      FStretching := False;
+    end;
+  end;
+
 begin
   const Is32bit = Bitmap.SupportsPartialTransparency;
 
@@ -376,7 +392,7 @@ begin
         StretchedBitmap.Assign(Bitmap)
       else begin
         StretchedBitmap.Assign(nil);
-        if not StretchBmp(Bitmap, StretchedBitmap, W, H, Is32bit) then begin
+        if not DoStretchBmp(W, H, Is32bit) then begin
           if Is32bit then begin
             StretchedBitmapValid := False;
             Bmp := Bitmap;
@@ -416,11 +432,11 @@ begin
     var Y := R.Top;
     if Center then begin
       Inc(X, (R.Width - W) div 2);
-      if X < 0 then
-        X := 0;
+      if X < R.Left then
+        X := R.Left;
       Inc(Y, (R.Height - H) div 2);
-      if Y < 0 then
-        Y := 0;
+      if Y < R.Top then
+        Y := R.Top;
     end;
 
     if not Is32bit and (ReplaceColor <> clNone) and (ReplaceWithColor <> clNone) then begin

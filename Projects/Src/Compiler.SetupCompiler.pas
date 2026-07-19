@@ -131,6 +131,7 @@ type
     OutputDir, OutputBaseFilename, OutputManifestFile, SignedUninstallerDir,
       ExeFilename: String;
     Output, FixedOutput, FixedOutputDir, FixedOutputBaseFilename: Boolean;
+    PreprocessOnly, FixedNoCompression, FixedNoSigning, FixedNoSignCheck: Boolean;
     CompressMethod: TSetupCompressMethod;
     InternalCompressLevel, CompressLevel: Integer;
     InternalCompressProps, CompressProps: TLZMACompressorProps;
@@ -324,6 +325,10 @@ type
     procedure SetOutput(Value: Boolean);
     procedure SetOutputBaseFilename(const Value: String);
     procedure SetOutputDir(const Value: String);
+    procedure SetPreprocessOnly(Value: Boolean);
+    procedure SetNoCompression(Value: Boolean);
+    procedure SetNoSigning(Value: Boolean);
+    procedure SetNoSignCheck(Value: Boolean);
   end;
 
 implementation
@@ -361,7 +366,7 @@ type
   TFileLocationSign = (fsNoSetting, fsYes, fsOnce, fsCheck);
   PFileLocationEntryExtraInfo = ^TFileLocationEntryExtraInfo;
   TFileLocationEntryExtraInfo = record
-    Flags: set of (floVersionInfoNotValid, floIsUninstExe, floTouch,
+    Flags: set of (floVersionInfoNotValid, floTouch,
       floSolidBreak, floNoTimeStamp);
     Sign: TFileLocationSign;
     Verification: TSetupFileVerification;
@@ -536,6 +541,7 @@ begin
         for I := 0 to AFilesList.Count-1 do begin
           Filename := PrependSourceDirName(AFilesList[I]);
           if IsWildcard(FileName) then begin
+            var FileFound := False;
             H := FindFirstFile(PChar(Filename), FindData);
             if H <> INVALID_HANDLE_VALUE then begin
               try
@@ -543,12 +549,15 @@ begin
                 repeat
                   if FindData.dwFileAttributes and (FILE_ATTRIBUTE_DIRECTORY or FILE_ATTRIBUTE_HIDDEN) <> 0 then
                     Continue;
-                   AddFile(SearchSubDir + FindData.cFilename);
+                  AddFile(SearchSubDir + FindData.cFilename);
+                  FileFound := True;
                 until not FindNextFile(H, FindData);
               finally
                 Windows.FindClose(H);
               end;
             end;
+            if not FileFound then
+              AbortCompileFmt(SCompilerFilesWildcardNotMatched, [Filename]);
           end else
             AddFile(Filename);  { use the case specified in the script }
         end;
@@ -2495,6 +2504,31 @@ begin
   FixedOutputDir := True;
 end;
 
+procedure TSetupCompiler.SetPreprocessOnly(Value: Boolean);
+begin
+  PreprocessOnly := Value;
+end;
+
+procedure TSetupCompiler.SetNoCompression(Value: Boolean);
+begin
+  if Value then begin
+    CompressMethod := cmStored;
+    CompressLevel := 0;
+    InternalCompressLevel := 0;
+  end;
+  FixedNoCompression := Value;
+end;
+
+procedure TSetupCompiler.SetNoSigning(Value: Boolean);
+begin
+  FixedNoSigning := Value;
+end;
+
+procedure TSetupCompiler.SetNoSignCheck(Value: Boolean);
+begin
+  FixedNoSignCheck := Value;
+end;
+
 procedure TSetupCompiler.EnumSetupProc(const Line: PChar; const Ext: Integer);
 var
   KeyName, Value: String;
@@ -2885,7 +2919,7 @@ begin
           AIncludes.Free;
         end;
       end;
-    ssCompression: begin
+    ssCompression: if not FixedNoCompression then begin
         Value := LowerCase(Trim(Value));
         if Value = 'none' then begin
           CompressMethod := cmStored;
@@ -3088,7 +3122,7 @@ begin
     ssInfoAfterFile: begin
         InfoAfterFile := Value;
       end;
-    ssInternalCompressLevel: begin
+    ssInternalCompressLevel: if not FixedNoCompression then begin
         Value := Trim(Value);
         if (Value = '0') or (CompareText(Value, 'none') = 0) then
           InternalCompressLevel := 0
@@ -3261,7 +3295,7 @@ begin
     ssShowUndisplayableLanguages: begin
         WarningsList.Add(Format(SCompilerEntryObsolete, ['Setup', KeyName]));
       end;
-    ssSignedUninstaller: begin
+    ssSignedUninstaller: if not FixedNoSigning then begin
         SetSetupHeaderOption(shSignedUninstaller);
       end;
     ssSignedUninstallerDir: begin
@@ -3269,7 +3303,7 @@ begin
           Invalid;
         SignedUninstallerDir := Value;
       end;
-    ssSignTool: begin
+    ssSignTool: if not FixedNoSigning then begin
         P := Pos(' ', Value);
         if (P <> 0) then begin
           SignTool := Copy(Value, 1, P-1);
@@ -5325,8 +5359,6 @@ type
           FileLocationEntryExtraInfos.Add(NewFileLocationEntryExtraInfo);
           FileLocationEntryFilenames.Add(SourceFile);
           NewFileEntry^.LocationEntry := Integer(FileLocationEntries.Count-1);
-          if NewFileEntry^.FileType = ftUninstExe then
-            Include(NewFileLocationEntryExtraInfo^.Flags, floIsUninstExe);
           Inc(TotalBytesToCompress, FileListRec.Size);
           if SetupHeader.CompressMethod <> cmStored then
             Include(NewFileLocationEntry^.Flags, floChunkCompressed);
@@ -5789,6 +5821,8 @@ begin
         if (ADestDir = '{tmp}') or (Copy(ADestDir, 1, Length('{tmp}\')) = '{tmp}\') then
           Include(Options, foDeleteAfterInstall);
         if foDeleteAfterInstall in Options then begin
+          if ReadmeFile then
+            AbortCompileFmt(SCompilerFilesTmpBadFlag, ['isreadme']);
           if foRestartReplace in Options then
             AbortCompileFmt(SCompilerFilesTmpBadFlag, ['restartreplace']);
           if foUninsNeverUninstall in Options then
@@ -5830,6 +5864,8 @@ begin
           AbortCompileFmt(SCompilerParamFlagMissing, ['nocompression', 'dontverifychecksum']);
 
         if ExternalFile then begin
+          if ReadmeFile and (ADestName = '') then
+            AbortCompileFmt(SCompilerParamFlagMissingParam2, [ParamFilesDestName, 'external', 'isreadme']);
           if Sign <> fsNoSetting then
             AbortCompileFmt(SCompilerParamErrorBadCombo2,
               [ParamCommonFlags, 'external', SignFlags[Sign]]);
@@ -7671,7 +7707,8 @@ var
         FLExtraInfo := FileLocationEntryExtraInfos[I];
         const FileLocationEntryFilename = FileLocationEntryFilenames[Integer(I)];
 
-        if FLExtraInfo.Sign <> fsNoSetting then begin
+        if (FLExtraInfo.Sign <> fsNoSetting) and
+           not ((FLExtraInfo.Sign = fsCheck) and FixedNoSignCheck) then begin
           var SignatureFound := False;
           if FLExtraInfo.Sign in [fsOnce, fsCheck] then begin
             { Check the file for a signature }
@@ -8249,10 +8286,12 @@ begin
       OutputDir := 'Output';
     if not FixedOutputBaseFilename then
       OutputBaseFilename := 'mysetup';
-    InternalCompressLevel := clLZMANormal;
+    if not FixedNoCompression then begin
+      InternalCompressLevel := clLZMANormal;
+      CompressMethod := cmLZMA2;
+      CompressLevel := clLZMAMax;
+    end;
     InternalCompressProps := TLZMACompressorProps.Create;
-    CompressMethod := cmLZMA2;
-    CompressLevel := clLZMAMax;
     CompressProps := TLZMACompressorProps.Create;
     GetActiveProcessorGroupCountFunc := GetProcAddress(GetModuleHandle(kernel32),
       'GetActiveProcessorGroupCount');
@@ -8322,6 +8361,11 @@ begin
     SetupHeader.WizardLightControlStyling := wcsAll;
     ArchiveExtraction := aeAuto;
     MinArchiveExtraction := aeBasic;
+
+    if PreprocessOnly then begin
+      ReadScriptFile('', False, 0).Free;
+      Exit;
+    end;
 
     { Read [Setup] section }
     EnumIniSection(EnumSetupProc, 'Setup', 0, True, True, '', False, False);
@@ -8518,7 +8562,7 @@ begin
     LineNumber := SetupDirectiveLines[ssChangesAssociations];
     CheckCodeParameter('ChangesAssociations', SetupHeader.ChangesAssociations, cpkDirectiveCheck);
     if Output and (OutputDir = '') then begin
-      LineNumber := SetupDirectiveLines[ssOutput];
+      LineNumber := SetupDirectiveLines[ssOutputDir];
       AbortCompileFmt(SCompilerEntryInvalid2, ['Setup', 'OutputDir']);
     end;
     if (Output and (OutputBaseFileName = '')) or (PathLastDelimiter(BadFileNameChars + '\', OutputBaseFileName) <> 0) then begin

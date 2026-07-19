@@ -1,3 +1,19 @@
+<!--
+  Inno Setup Preprocessor
+  Copyright (C) 2001-2002 Alex Yackimoff
+  
+  Inno Setup
+  Copyright (C) 1997-2026 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
+
+  Document Type Definition for ispp.xml
+-->
+
+<!ENTITY % _inlineExceptLink "b | br | i | tt">
+<!ENTITY % _highlight "sec|evt|key|com|con|str|num|ispp">
+
+<!ENTITY % InlineExceptLink "(#PCDATA | %_inlineExceptLink;)*">
 
 <!ELEMENT yasyx     (topic)*>
 <!ELEMENT topic     (title|subtopicstitle|keywords|syntax|description|(topic|section)*)+>
@@ -12,7 +28,7 @@
 <!ELEMENT keywords  (kwd)*>
 <!ELEMENT kwd       (#PCDATA)*>
 
-<!ELEMENT description (p|pre|table)*>
+<!ELEMENT description (p|pre|table|ul)*>
 <!ATTLIST description 
   header (yes|no)   "yes">
 
@@ -20,20 +36,31 @@
 <!ATTLIST section
   title  CDATA      #REQUIRED>
 
-<!ELEMENT p         (#PCDATA|tt|i|link|extlink)*>
+<!ELEMENT p         (#PCDATA|tt|i|link|extlink|sd|sn)*>
 <!ELEMENT pre       (line)*>
-<!ELEMENT line      (#PCDATA|link|b)*>
-<!ELEMENT tt        (#PCDATA|i|link|extlink)*>
-<!ELEMENT code      (#PCDATA|b)*>
-<!ELEMENT link      (#PCDATA)*>
+<!ELEMENT line      (#PCDATA|link|b|%_highlight;)*>
+<!ELEMENT tt        (#PCDATA|b|i|link|extlink)*>
+<!ELEMENT link      %InlineExceptLink;>
 <!ATTLIST link
   href    CDATA     #IMPLIED
   popup   (yes|no)  "no">
-<!ELEMENT extlink   (#PCDATA)*>
+<!ELEMENT extlink   %InlineExceptLink;>
 <!ATTLIST extlink
   href    CDATA     #REQUIRED>
 <!ELEMENT i         (#PCDATA)*>
 <!ELEMENT b         (#PCDATA)*>
+<!ELEMENT br        EMPTY>
+<!ELEMENT sd        (#PCDATA)*>
+<!ELEMENT sn        (#PCDATA)*>
+
+<!ELEMENT sec       (#PCDATA|%_highlight;)*>
+<!ELEMENT evt       (#PCDATA|%_highlight;)*>
+<!ELEMENT key       (#PCDATA|%_highlight;)*>
+<!ELEMENT com       (#PCDATA|%_highlight;)*>
+<!ELEMENT con       (#PCDATA|%_highlight;)*>
+<!ELEMENT str       (#PCDATA|%_highlight;)*>
+<!ELEMENT num       (#PCDATA|%_highlight;)*>
+<!ELEMENT ispp      (#PCDATA|%_highlight;)*>
 
 <!ELEMENT syntax (define)*>
 
@@ -66,8 +93,13 @@
 <!ELEMENT case (txt|nt|opt|cases)*>
 
 <!ELEMENT table       (tr)*>
-<!ELEMENT tr          (td)*>
-<!ELEMENT td          (#PCDATA|b|i|link|extlink|table|code)*>
+<!ELEMENT tr          (th|td)*>
+<!ELEMENT th          (#PCDATA|tt)*>
+<!ATTLIST th
+  nowrap CDATA #IMPLIED>
+<!ELEMENT td          (#PCDATA|b|i|link|extlink|table|tt)*>
+<!ATTLIST td
+  nowrap CDATA #IMPLIED>
 
 <!ELEMENT ul          (li)*>
 <!ELEMENT li          (#PCDATA|tt|link|extlink|p|pre)*>

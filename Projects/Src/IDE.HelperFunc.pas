@@ -14,7 +14,9 @@ interface
 uses
   Windows,
   Classes, Forms, Dialogs, Menus, Controls, StdCtrls, Graphics,
-  ScintEdit, IDE.IDEScintEdit, ModernColors;
+  ScintEdit, ModernColors,
+  Shared.ConfigIniFile,
+  IDE.IDEScintEdit, IDE.LocalizeFunc;
 
 type
   TAddLinesPrefix = (alpNone, alpTimestamp, alpCountdown);
@@ -23,7 +25,7 @@ type
 procedure InitFormFont(Form: TForm);
 procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boolean);
 procedure InitFormThemeInit(const Theme: TTheme);
-function InitFormTheme(const Form: TForm): Boolean;
+function InitFormTheme(const Form: TForm; const AlwaysStyle: Boolean = False): Boolean;
 function InitFormThemeGetBkColor(const WindowColor: Boolean): TColor;
 function InitFormThemeIsDark: Boolean;
 function GetDisplayFilename(const Filename: String): String;
@@ -39,6 +41,7 @@ function WindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 
 function IsWindows10: Boolean;
 function IsWindows11: Boolean;
 function GetDefaultThemeType: TThemeType;
+function GetDefaultLanguage: TIDELanguage;
 function GetDefaultKeyMappingType: TKeyMappingType;
 function GetDefaultMemoKeyMappingType: TIDEScintKeyMappingType;
 procedure LaunchFileOrURL(const AFilename: String; const AParameters: String = '');
@@ -46,7 +49,9 @@ procedure OpenDonateSite;
 procedure OpenMailingListSite;
 procedure LoadKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
 procedure SaveKnownIncludedAndHiddenFiles(const AFilename: String; const IncludedFiles, HiddenFiles: TStringList);
-procedure DeleteKnownIncludedAndHiddenFiles(const AFilename: String);
+function LoadKnownRichEditFile(const AFilename: String): String;
+procedure SaveKnownRichEditFile(const AFilename, ARichEditFilename: String);
+procedure DeleteKnownIncludedHiddenAndRichEditFiles(const AFilename: String);
 procedure LoadBreakPointLines(const AFilename: String; const BreakPointLines: TStringList);
 procedure SaveBreakPointLines(const AFilename: String; const BreakPointLines: TStringList);
 procedure DeleteBreakPointLines(const AFilename: String);
@@ -72,14 +77,18 @@ function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
 function CreateBitmapInfo(const Width, Height: Integer; const BitCount: Word): TBitmapInfo;
 function GetPreferredMemoFont: String;
 function DoubleAmp(const S: String): String;
+procedure LoadWindowState(const Form: TForm;
+  const Section: String; const Ini: TConfigIniFile = nil);
+procedure SaveWindowState(const Form: TForm;
+  const Section: String; const Ini: TConfigIniFile = nil);
 
 implementation
 
 uses
-  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils, ExtCtrls,
-  Messages, Consts, NetEncoding,
-  ECDSA, SHA256, Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme, NewNotebook,
-  IDE.MainForm, IDE.Messages, Shared.ConfigIniFile;
+  ActiveX, ShlObj, ShellApi, CommDlg, SysUtils, IOUtils, StrUtils,
+  Messages,
+  Shared.CommonFunc, Shared.CommonFunc.Vcl, PathFunc, Shared.FileClass, NewUxTheme,
+  IDE.MainForm, IDE.Messages;
 
 procedure InitFormFont(Form: TForm);
 begin
@@ -122,7 +131,7 @@ begin
   FormTheme := Theme;
 end;
 
-function InitFormTheme(const Form: TForm): Boolean;
+function InitFormTheme(const Form: TForm; const AlwaysStyle: Boolean): Boolean;
 
 {$IF RtlVersion >= 36.0}
   procedure HideGroupBoxFrames(const ParentControl: TWinControl);
@@ -138,11 +147,11 @@ function InitFormTheme(const Form: TForm): Boolean;
   end;
 {$ENDIF}
 
-{ Assumes forms other then MainForm call this function only once during creation, and assumes they
-  don't need any styling if the theme is non dark. Always styles MainForm. Returns True if it did
+{ Modal forms should call this function only once during creation with AlwaysStyle set to False.
+  It then assumes they don't need any styling if the theme is non dark. Returns True if it did
   style, False otherwise. }
 begin
-  Result := (Form = MainForm) or FormTheme.Dark;
+  Result := AlwaysStyle or FormTheme.Dark;
   if Result then begin
     Form.Color := InitFormThemeGetBkColor(Form = MainForm); { Prevents some flicker, but not all }
     SetDarkTitleBar(Form, FormTheme.Dark);
@@ -181,7 +190,7 @@ end;
 function GetFileTitle(const Filename: String): String;
 begin
   if Filename = '' then
-    Result := 'Untitled'
+    Result := LFmtMessage(SCompilerUntitledFile)
   else
     Result := Filename;
 end;
@@ -243,7 +252,7 @@ end;
 
 function IsISPPBuiltins(const Filename: String): Boolean;
 begin
-  Result := PathCompare(PathExtractName(Filename), 'ISPPBuiltins.iss') = 0;
+  Result := PathSame(PathExtractName(Filename), 'ISPPBuiltins.iss');
 end;
 
 var
@@ -270,6 +279,11 @@ begin
     Result := ttModernDark
   else
     Result := ttModernLight;
+end;
+
+function GetDefaultLanguage: TIDELanguage;
+begin
+  Result := ilEnglish;
 end;
 
 function GetDefaultKeyMappingType: TKeyMappingType;
@@ -380,12 +394,41 @@ begin
   end;
 end;
 
-procedure DeleteKnownIncludedAndHiddenFiles(const AFilename: String);
+function LoadKnownRichEditFile(const AFilename: String): String;
+begin
+  Result := '';
+  if AFilename = '' then
+    Exit;
+  var Ini := TConfigIniFile.Create;
+  try
+    Result := Ini.ReadString('RichEditFilesHistory', AFilename, '');
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure SaveKnownRichEditFile(const AFilename, ARichEditFilename: String);
+begin
+  if AFilename = '' then
+    Exit;
+  var Ini := TConfigIniFile.Create;
+  try
+    if ARichEditFilename = '' then
+      Ini.DeleteKey('RichEditFilesHistory', AFilename)
+    else
+      Ini.WriteString('RichEditFilesHistory', AFilename, ARichEditFilename);
+  finally
+    Ini.Free;
+  end;
+end;
+
+procedure DeleteKnownIncludedHiddenAndRichEditFiles(const AFilename: String);
 begin
   var Ini := TConfigIniFile.Create;
   try
     DeleteConfigIniList(Ini, 'IncludedFilesHistory', AFilename);
     DeleteConfigIniList(Ini, 'HiddenFilesHistory', AFilename);
+    DeleteConfigIniList(Ini, 'RichEditFilesHistory', AFilename);
   finally
     Ini.Free;
   end;
@@ -422,10 +465,24 @@ begin
 end;
 
 function NewShortCutToText(const ShortCut: TShortCut): String;
-{ This function is better than Delphi's ShortCutToText function because it works
-  for dead keys. A dead key is a key which waits for the user to press another
-  key so it can be combined. For example `+e=è. Pressing space after a dead key
-  produces the dead key char itself. For example `+space=`. }
+{ This function is better than Delphi's ShortCutToText function because:
+  -It works for dead keys. A dead key is a key which waits for the user to press
+   another key so it can be combined. For example `+e=è (backtick and then e
+   becomes è). Pressing space after a dead key produces the dead key char itself.
+   For example `+space=` (backtick and then space becomes backtick and no space).
+  -It uses 'Ctrl+Shift+Alt' ordering like VSCode and Visual Studio, and not
+   'Ctrl+Alt+Shift' like VCL.
+  -It supports modifier localization via LFmtMessage. }
+
+  function PrependModifiers(const KeyName: String): String;
+  begin
+    Result := '';
+    if ShortCut and scCtrl <> 0 then Result := Result + LFmtMessage(SShortCutCtrl);
+    if ShortCut and scShift <> 0 then Result := Result + LFmtMessage(SShortCutShift);
+    if ShortCut and scAlt <> 0 then Result := Result + LFmtMessage(SShortCutAlt);
+    Result := Result + KeyName;
+  end;
+
 const
   { List of chars ShortCutToText knows about and doesn't rely on Win32's
   GetKeyNameText for, taken from Vcl.Menus.pas }
@@ -456,13 +513,8 @@ begin
         ScanCode := MapVirtualKey(VK_SPACE, MAPVK_VK_TO_VSC);
         if ScanCode <> 0 then begin
           Size := ToUnicode(VK_SPACE, ScanCode, KeyboardState, @TempStr[1], TempSize, 0);
-          if Size = 1 then begin
-            var Name := TempStr[1];
-            if ShortCut and scShift <> 0 then Result := Result + SmkcShift;
-            if ShortCut and scCtrl <> 0 then Result := Result + SmkcCtrl;
-            if ShortCut and scAlt <> 0 then Result := Result + SmkcAlt;
-            Result := Result + Name;
-          end;
+          if Size = 1 then
+            Result := PrependModifiers(TempStr[1]);
         end;
       end;
     end else begin
@@ -473,8 +525,11 @@ begin
     end;
   end;
 
-  if Result = '' then
-    Result := ShortCutToText(ShortCut);
+  if Result = '' then begin
+    const KeyName = ShortCutToText(TShortCut(ShortCut and not (scCtrl or scAlt or scShift)));
+    if KeyName <> '' then
+      Result := PrependModifiers(KeyName);
+  end;
 
   { Example CompForm test code:
     SetFakeShortCut(HDonate, ShortCut(VK_OEM_1, []));
@@ -577,7 +632,9 @@ var
         end;
       alpCountdown:
         begin
-          Insert(Format('[%.2d]   ', [Cardinal(PrefixParam)-LineNumber]), S, 1);
+          if (PrefixParam < 0) or (Cardinal(PrefixParam) < LineNumber) then
+            raise Exception.Create('Unexpected PrefixParam value');
+          Insert(Format('[%.2u]   ', [Cardinal(PrefixParam)-LineNumber]), S, 1);
         end;
     end;
     try
@@ -586,7 +643,7 @@ var
       on EOutOfResources do begin
         ListBox.Clear;
         SendMessage(ListBox.Handle, LB_SETHORIZONTALEXTENT, 0, 0);
-        ListBox.Items.Add(SCompilerStatusReset);
+        ListBox.Items.Add(SLitStatusEventPrefix + LFmtMessage(SCompilerStatusReset));
         ListBox.TopIndex := ListBox.Items.AddObject(S, AObject);
       end;
     end;
@@ -778,6 +835,73 @@ begin
   for var I := Length(Result) downto 1 do
     if Result[I] = '&' then
       Insert('&', Result, I + 1);
+end;
+
+procedure LoadWindowState(const Form: TForm;
+  const Section: String; const Ini: TConfigIniFile);
+begin
+  var ConfigIni := Ini;
+  if ConfigIni = nil then
+    ConfigIni := TConfigIniFile.Create;
+  try
+    if ConfigIni.KeyExists(Section) then begin
+      if Form.Position in [poScreenCenter, poDesktopCenter, poMainFormCenter, poOwnerFormCenter] then
+        Form.Position := poDesigned; { Stop Delphi from updating the loaded state by centering }
+      var WindowPlacement: TWindowPlacement;
+      WindowPlacement.length := SizeOf(WindowPlacement);
+      GetWindowPlacement(Form.Handle, @WindowPlacement);
+      WindowPlacement.showCmd := SW_HIDE;  { the form isn't Visible yet }
+      WindowPlacement.rcNormalPosition.Left := ConfigIni.ReadInteger(Section,
+        'WindowLeft', WindowPlacement.rcNormalPosition.Left);
+      WindowPlacement.rcNormalPosition.Top := ConfigIni.ReadInteger(Section,
+        'WindowTop', WindowPlacement.rcNormalPosition.Top);
+      WindowPlacement.rcNormalPosition.Right := ConfigIni.ReadInteger(Section,
+        'WindowRight', WindowPlacement.rcNormalPosition.Left + Form.Width);
+      WindowPlacement.rcNormalPosition.Bottom := ConfigIni.ReadInteger(Section,
+        'WindowBottom', WindowPlacement.rcNormalPosition.Top + Form.Height);
+      const OldPPI = Form.CurrentPPI;
+      SetWindowPlacement(Form.Handle, @WindowPlacement);
+      if Form.CurrentPPI <> OldPPI then begin
+        { Restore was to a monitor with another DPI. This makes Windows send
+          WM_DPICHANGED, which makes VCL resize the form, but our rect was
+          already correct for that other monitor. So must restore once more. }
+        SetWindowPlacement(Form.Handle, @WindowPlacement);
+      end;
+      { Note: Must set WindowState *after* calling SetWindowPlacement, since
+        TCustomForm.WMSize resets WindowState }
+      if ConfigIni.ReadBool(Section, 'WindowMaximized', False) then
+        Form.WindowState := wsMaximized;
+    end;
+  finally
+    if ConfigIni <> Ini then
+      ConfigIni.Free;
+  end;
+end;
+
+procedure SaveWindowState(const Form: TForm;
+  const Section: String; const Ini: TConfigIniFile);
+begin
+  var ConfigIni := Ini;
+  if ConfigIni = nil then
+    ConfigIni := TConfigIniFile.Create;
+  try
+    var WindowPlacement: TWindowPlacement;
+    WindowPlacement.length := SizeOf(WindowPlacement);
+    GetWindowPlacement(Form.Handle, @WindowPlacement);
+    ConfigIni.WriteInteger(Section, 'WindowLeft', WindowPlacement.rcNormalPosition.Left);
+    ConfigIni.WriteInteger(Section, 'WindowTop', WindowPlacement.rcNormalPosition.Top);
+    ConfigIni.WriteInteger(Section, 'WindowRight', WindowPlacement.rcNormalPosition.Right);
+    ConfigIni.WriteInteger(Section, 'WindowBottom', WindowPlacement.rcNormalPosition.Bottom);
+    { The GetWindowPlacement docs claim that "flags" is always zero.
+      Fortunately, that's wrong. WPF_RESTORETOMAXIMIZED is set when the
+      window is either currently maximized, or currently minimized from a
+      previous maximized state. }
+    ConfigIni.WriteBool(Section, 'WindowMaximized',
+      WindowPlacement.flags and WPF_RESTORETOMAXIMIZED <> 0);
+  finally
+    if ConfigIni <> Ini then
+      ConfigIni.Free;
+  end;
 end;
 
 initialization

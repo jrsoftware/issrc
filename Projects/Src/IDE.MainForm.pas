@@ -25,7 +25,8 @@ uses
   Windows, Messages, SysUtils, Classes, Contnrs, Graphics, Controls, Forms, Dialogs, CommDlg,
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.IDEScintEdit,
-  Shared.DebugStruct, Shared.CompilerInt.Struct, NewUxTheme, ImageList, ImgList, ToolWin, IDE.HelperFunc,
+  Shared.DebugStruct, Shared.CompilerInt.Struct, NewUxTheme, ImageList, ImgList, ToolWin,
+  IDE.HelperFunc, IDE.LocalizeFunc,
   VirtualImageList, BaseImageCollection, BitmapButton;
 
 const
@@ -40,9 +41,6 @@ type
   TVariableDebugEntryArray = array[0..0] of TVariableDebugEntry;
   TStepMode = (smRun, smStepInto, smStepOver, smStepOut, smRunToCursor);
   TDebugTarget = (dtSetup, dtUninstall);
-
-const
-  DebugTargetStrings: array[TDebugTarget] of String = ('Setup', 'Uninstall');
 
 const
   MRUListMaxCount = 10;
@@ -80,7 +78,7 @@ type
     Filename: String;
     Line, LineStartPos: Integer;
     Range: TScintRange;
-    PrefixStringLength: Integer;
+    StartIndex, EndIndex: Integer;
   end;
 
   TFindResults = TObjectList<TFindResult>;
@@ -143,6 +141,7 @@ type
     KeyMappingType: TKeyMappingType;
     MemoKeyMappingType: TIDEScintKeyMappingType;
     ThemeType: TThemeType;
+    Language: TIDELanguage;
     ShowPreprocessorOutput: Boolean;
     OpenIncludedFiles: Boolean;
     AutoHideNewIncludedFiles: Boolean;
@@ -216,6 +215,10 @@ type
     RTerminate: TMenuItem;
     BMenu: TMenuItem;
     BLowPriority: TMenuItem;
+    BOutputDisabled: TMenuItem;
+    BNoCompression: TMenuItem;
+    BNoSigning: TMenuItem;
+    BNoSignCheck: TMenuItem;
     HPurchase: TMenuItem;
     HRegister: TMenuItem;
     HUnregister: TMenuItem;
@@ -236,6 +239,7 @@ type
     HWhatsNew: TMenuItem;
     TGenerateGUID: TMenuItem;
     TSignTools: TMenuItem;
+    TRichEditor: TMenuItem;
     N16: TMenuItem;
     HExamples: TMenuItem;
     N17: TMenuItem;
@@ -377,6 +381,10 @@ type
     procedure RTerminateClick(Sender: TObject);
     procedure BMenuClick(Sender: TObject);
     procedure BLowPriorityClick(Sender: TObject);
+    procedure BOutputDisabledClick(Sender: TObject);
+    procedure BNoCompressionClick(Sender: TObject);
+    procedure BNoSigningClick(Sender: TObject);
+    procedure BNoSignCheckClick(Sender: TObject);
     procedure StatusBarDrawPanel(StatusBar: TStatusBar;
       Panel: TStatusPanel; const Rect: TRect);
     procedure HPurchaseClick(Sender: TObject);
@@ -396,6 +404,7 @@ type
     procedure HWhatsNewClick(Sender: TObject);
     procedure TGenerateGUIDClick(Sender: TObject);
     procedure TSignToolsClick(Sender: TObject);
+    procedure TRichEditorClick(Sender: TObject);
     procedure HExamplesClick(Sender: TObject);
     procedure BOpenOutputFolderClick(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: Word;
@@ -408,6 +417,7 @@ type
       Rect: TRect; State: TOwnerDrawState);
     procedure FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
       NewDPI: Integer);
+    procedure FormShow(Sender: TObject);
     procedure POutputListSelectAllClick(Sender: TObject);
     procedure DebugCallStackListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
       State: TOwnerDrawState);
@@ -526,7 +536,9 @@ type
     function EvaluateConstant(const S: String; out Output: String): Integer;
     function EvaluateVariableEntry(const DebugEntry: PVariableDebugEntry;
       out Output: String): Integer;
+    procedure FinishLocalization;
     function GetBorderStyle: TFormBorderStyle;
+    function GetMainFilename: String;
     procedure Go(const AStepMode: TStepMode);
     procedure HideError;
     function InitializeFileMemo(const Memo: TIDEScintFileEdit; const PopupMenu: TPopupMenu): TIDEScintFileEdit;
@@ -669,6 +681,8 @@ type
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
     function IsShortCut(var Message: TWMKey): Boolean; override;
+    property FullPathInTitleBar: Boolean read FOptions.FullPathInTitleBar;
+    property MainFilename: String read GetMainFilename;
   published
     property BorderStyle: TFormBorderStyle read GetBorderStyle write SetBorderStyle;
   end;
@@ -684,17 +698,19 @@ implementation
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Themes, DateUtils,
   Math, StrUtils, WideStrUtils, TypInfo,
-  PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc, UnsignedFunc,
+  PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc, UnsignedFunc, Toolbar.Accessibility,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.ScriptFunc,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.GotoFileForm,
-  IDE.InputQueryComboForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper,
+  IDE.InputQueryForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper, IDE.RichEditForm,
   Shared.ConfigIniFile, Shared.SignToolsFunc, Shared.CompilerInt, Shared.LicenseFunc;
 
 {$R *.DFM}
 
 const
+  DebugTargetStrings: array[TDebugTarget] of String = (SDebugTargetSetup, SDebugTargetUninstall);
+
   { Memos }
   MaxMemos = 52; { Includes the main and preprocessor output memos }
   FirstIncludedFilesMemoIndex = 1; { This is an index into FFileMemos }
@@ -825,7 +841,6 @@ constructor TMainForm.Create(AOwner: TComponent);
   procedure ReadAndApplyConfig;
   var
     Ini: TConfigIniFile;
-    WindowPlacement: TWindowPlacement;
     I: Integer;
     Memo: TIDEScintEdit;
   begin
@@ -888,30 +903,36 @@ constructor TMainForm.Create(AOwner: TComponent);
       const BannerOrange = $9EB8F0; {MOrange with HSL lightness changed from 63% to 78% }
       const BannerRed = $BBB5EE; {MRed with HSL lightness changed from 58% to 82% }
       CheckUpdatePanelMessage(Ini, 'KnownVersion', 0, Integer(FCompilerVersion.BinVersion),
-        'Your version of Inno Setup has been updated! <a id="hwhatsnew">See what''s new</a>.',
-        BannerGreen, True);
+        LFmtMessage(SUpdatePanelVersionUpdated, ['hwhatsnew']), BannerGreen, True);
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
-        'VS Code-style editor shortcuts added! Use the <a id="toptions-vscode">Editor Keys option</a> in Options dialog.',
-        BannerBlue, True);
+        LFmtMessage(SUpdatePanelVSCodeShortcutsAdded, ['toptions-vscode']), BannerBlue, True);
+      if FOptions.Language = ilEnglish then begin
+        var MessageLanguage := ilEnglish;
+        case PRIMARYLANGID(GetUILanguage) of
+          LANG_CZECH: MessageLanguage := ilCzech;
+          LANG_DUTCH: MessageLanguage := ilDutch;
+          LANG_GERMAN: MessageLanguage := ilGerman;
+          LANG_JAPANESE: MessageLanguage := ilJapanese;
+        end;
+        if MessageLanguage <> ilEnglish then
+          CheckUpdatePanelMessage(Ini, 'Language', 0, 1,
+            LFmtMessage(MessageLanguage, SUpdatePanelLanguageAvailable, ['toptions-language']), BannerBlue, True);
+      end;
       { if FormatDateTime('yyyymm', Date) = '202604' then
         CheckUpdatePanelMessage(Ini, 'Ideas202604', 0, 1,
-          '<a id="ideas">Ideas board is open!</a> Share your ideas and vote on others, this month only.',
-          BannerBlue, True); }
+          LFmtMessage(SUpdatePanelIdeasBoardOpen, ['ideas']), BannerBlue, True); }
       const LicenseState = GetLicenseState;
       if LicenseState = lsExpiredButUpdated then begin
         { Complain twice per day }
         const CurrentHourAsInt = FormatDateTime('yyyymmddhh', Now).ToInteger;
         const WarnAgainHourAsInt = FormatDateTime('yyyymmddhh', IncHour(Now, 12)).ToInteger;
-        const Msg = 'Running a version released after your update entitlement ended. <a id="hpurchase">Renew license</a>, <a id="hunregister">remove key</a>, or <a id="fexit">exit</a>.';
         CheckUpdatePanelMessage(Ini, 'Purchase.ExpiredButUpdated', 0, CurrentHourAsInt, WarnAgainHourAsInt, { Also see UpdateUpdatePanel }
-          Msg, BannerRed, True);
+          LFmtMessage(SUpdatePanelRunningAfterEntitlementEnded, ['hpurchase', 'hunregister', 'fexit']), BannerRed, True);
       end else if LicenseState in [lsExpiring, lsExpired] then begin
         { Warn about expiry, once per week }
         const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
         const WarnAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(Date, 7)).ToInteger;
-        const Msg = IfThen(LicenseState = lsExpiring,
-          'Your update entitlement is ending soon. Please <a id="hpurchase">renew your license</a>. Thanks!',
-          'Your update entitlement has ended. Please <a id="hpurchase">renew your license</a>. Thanks!');
+        const Msg = LFmtMessage(IfThen(LicenseState = lsExpiring, SUpdatePanelEntitlementEndingSoon, SUpdatePanelEntitlementEnded), ['hpurchase']);
         CheckUpdatePanelMessage(Ini, 'Purchase.Renew', 0, CurrentDateAsInt, WarnAgainDateAsInt, { Also see UpdateUpdatePanel }
           Msg, BannerOrange, True);
       end else if LicenseState = lsNotLicensed then begin
@@ -919,8 +940,7 @@ constructor TMainForm.Create(AOwner: TComponent);
         const CurrentDateAsInt = FormatDateTime('yyyymmdd', Date).ToInteger;
         const AskAgainDateAsInt = FormatDateTime('yyyymmdd', IncDay(IncMonth(Date, 6), -1)).ToInteger; { Also see HUnregisterClick }
         CheckUpdatePanelMessage(Ini, 'Purchase', 0, CurrentDateAsInt, AskAgainDateAsInt, { Also see UpdateUpdatePanel and HUnregisterClick }
-          'Using Inno Setup commercially? Please <a id="hpurchase">purchase a license</a>. Thanks!',
-          BannerBlue, True);
+          LFmtMessage(SUpdatePanelUsingCommercially, ['hpurchase']), BannerBlue, True);
       end;
       UpdateUpdatePanel;
 
@@ -937,22 +957,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       UpdateFindRegExUI;
 
       { Window state }
-      WindowPlacement.length := SizeOf(WindowPlacement);
-      GetWindowPlacement(Handle, @WindowPlacement);
-      WindowPlacement.showCmd := SW_HIDE;  { the form isn't Visible yet }
-      WindowPlacement.rcNormalPosition.Left := Ini.ReadInteger('State',
-        'WindowLeft', WindowPlacement.rcNormalPosition.Left);
-      WindowPlacement.rcNormalPosition.Top := Ini.ReadInteger('State',
-        'WindowTop', WindowPlacement.rcNormalPosition.Top);
-      WindowPlacement.rcNormalPosition.Right := Ini.ReadInteger('State',
-        'WindowRight', WindowPlacement.rcNormalPosition.Left + Width);
-      WindowPlacement.rcNormalPosition.Bottom := Ini.ReadInteger('State',
-        'WindowBottom', WindowPlacement.rcNormalPosition.Top + Height);
-      SetWindowPlacement(Handle, @WindowPlacement);
-      { Note: Must set WindowState *after* calling SetWindowPlacement, since
-        TCustomForm.WMSize resets WindowState }
-      if Ini.ReadBool('State', 'WindowMaximized', False) then
-        WindowState := wsMaximized;
+      LoadWindowState(Self, 'State', Ini);
       { Note: Don't call UpdateStatusPanelHeight here since it clips to the
         current form height, which hasn't been finalized yet }
 
@@ -963,6 +968,19 @@ constructor TMainForm.Create(AOwner: TComponent);
       Ini.Free;
     end;
     FOptionsLoaded := True;
+  end;
+
+  procedure ReadAndApplyLanguage;
+  begin
+    const Ini = TConfigIniFile.Create;
+    try
+      const I = Ini.ReadInteger('Options', 'Language', Ord(GetDefaultLanguage));
+      if (I >= 0) and (I <= Ord(High(TIDELanguage))) then
+        FOptions.Language := TIDELanguage(I);
+    finally
+      Ini.Free
+    end;
+    InitLocalization(FOptions.Language);
   end;
 
   procedure ReadAndApplyTheme;
@@ -993,7 +1011,10 @@ begin
 
   FModifiedAnySinceLastCompile := True;
 
+  ReadAndApplyLanguage;
+  LocalizeComponent(Self);
   InitFormFont(Self);
+  FinishLocalization;
 
   FHighContrastActive := HighContrastActive; { Just checking once at startup }
   if FHighContrastActive then begin
@@ -1019,9 +1040,7 @@ begin
   SetFakeShortCut(EPaste, Ord('V'), [ssCtrl]);
   SetFakeShortCut(ESelectAll, Ord('A'), [ssCtrl]);
   SetFakeShortCut(EDelete, VK_DELETE, []);
-  SetFakeShortCutText(VZoomIn, SmkcCtrl + 'Num +');    { These zoom shortcuts are handled by Scintilla and only support the active memo, unlike the menu items which work on all memos }
-  SetFakeShortCutText(VZoomOut, SmkcCtrl + 'Num -');
-  SetFakeShortCutText(VZoomReset, SmkcCtrl + 'Num /');
+  { VZoom*: See FinishLocalization }
   { Use fake Esc shortcut for Stop Compile so it doesn't conflict with the
     editor's autocompletion list }
   SetFakeShortCut(BStopCompile, VK_ESCAPE, []);
@@ -1045,6 +1064,7 @@ begin
   MemosTabSet.Theme := FTheme;
   OutputTabSet.Theme := FTheme;
 
+  TToolBarAccessibility.Create(ToolBar);
   ToolBarPanel.ParentBackground := False;
   UpdatePanel.ParentBackground := False;
   UpdatePanelDonateBitBtn.Hint := RemoveAccelChar(HDonate.Caption);
@@ -1114,7 +1134,7 @@ begin
   UpdatePreprocMemos;
 
   FDebugTarget := dtSetup;
-  UpdateTargetMenu;
+  UpdateTargetMenuItems;
 
   ReadLicense;
   UpdateCaption;
@@ -1160,7 +1180,6 @@ destructor TMainForm.Destroy;
   procedure SaveConfig;
   var
     Ini: TConfigIniFile;
-    WindowPlacement: TWindowPlacement;
   begin
     Ini := TConfigIniFile.Create;
     try
@@ -1173,17 +1192,7 @@ destructor TMainForm.Destroy;
       Ini.WriteBool('Options', 'LowPriorityDuringCompile', FOptions.LowPriorityDuringCompile);
 
       { Window state }
-      WindowPlacement.length := SizeOf(WindowPlacement);
-      GetWindowPlacement(Handle, @WindowPlacement);
-      Ini.WriteInteger('State', 'WindowLeft', WindowPlacement.rcNormalPosition.Left);
-      Ini.WriteInteger('State', 'WindowTop', WindowPlacement.rcNormalPosition.Top);
-      Ini.WriteInteger('State', 'WindowRight', WindowPlacement.rcNormalPosition.Right);
-      Ini.WriteInteger('State', 'WindowBottom', WindowPlacement.rcNormalPosition.Bottom);
-      { The GetWindowPlacement docs claim that "flags" is always zero.
-        Fortunately, that's wrong. WPF_RESTORETOMAXIMIZED is set when the
-        window is either currently maximized, or currently minimized from a
-        previous maximized state. }
-      Ini.WriteBool('State', 'WindowMaximized', WindowPlacement.flags and WPF_RESTORETOMAXIMIZED <> 0);
+      SaveWindowState(Self, 'State', Ini);
       Ini.WriteInteger('State', 'StatusPanelHeight', FromCurrentPPI(StatusPanel.Height));
 
       { Zoom state }
@@ -1232,6 +1241,11 @@ begin
   Result := inherited BorderStyle;
 end;
 
+function TMainForm.GetMainFilename: String;
+begin
+  Result := FMainMemo.Filename;
+end;
+
 procedure TMainForm.SetBorderStyle(Value: TFormBorderStyle);
 begin
   { Hack: To stop the Delphi IDE from adding Explicit* properties to the .dfm
@@ -1278,6 +1292,14 @@ begin
   end;
 end;
 
+procedure TMainForm.FormShow(Sender: TObject);
+begin
+  { Having AutoSize on True in the .dfm doesn't trigger auto sizing (for
+    toolbar wrapping) during form creation. A delay until the form shows is
+    needed to make it work. }
+  ToolBarPanel.AutoSize := True;
+end;
+
 procedure TMainForm.FormAfterMonitorDpiChanged(Sender: TObject; OldDPI,
   NewDPI: Integer);
 begin
@@ -1292,7 +1314,8 @@ procedure TMainForm.FormCloseQuery(Sender: TObject;
   var CanClose: Boolean);
 begin
   if IsWindowEnabled(Handle) then
-    CanClose := ConfirmCloseFile(True)
+    CanClose := ConfirmCloseFile(True) and
+      ((RichEditForm = nil) or RichEditForm.ConfirmCloseFile)
   else
     { CloseQuery is also called by the VCL when a WM_QUERYENDSESSION message
       is received. Don't display message box if a modal dialog is already
@@ -1527,28 +1550,79 @@ begin
     Result := False;
 end;
 
-procedure TMainForm.UpdateCaption;
-var
-  NewCaption: String;
+procedure TMainForm.FinishLocalization;
 begin
-  if FMainMemo.Filename = '' then
-    NewCaption := GetFileTitle(FMainMemo.Filename)
-  else begin
-    if FOptions.FullPathInTitleBar then
-      NewCaption := FMainMemo.Filename
+  { LocalizeComponent translated every property, but some still contain an
+    unfilled %1 etc., which we now replace }
+  NewMainFileButton.Hint := LFmtMessage(NewMainFileButton.Hint, [NewShortCutToText(FNewMainFile.ShortCut)]);
+  OpenMainFileButton.Hint := LFmtMessage(OpenMainFileButton.Hint, [NewShortCutToText(FOpenMainFile.ShortCut)]);
+  SaveButton.Hint := LFmtMessage(SaveButton.Hint, [NewShortCutToText(FSave.ShortCut)]);
+  StopCompileButton.Hint := LFmtMessage(StopCompileButton.Hint, [NewShortCutToText(ShortCut(VK_ESCAPE, []))]);
+  TargetSetupButton.Hint := LFmtMessage(TargetSetupButton.Hint, [NewShortCutToText(RTargetSetup.ShortCut)]);
+  TargetUninstallButton.Hint := LFmtMessage(TargetUninstallButton.Hint, [NewShortCutToText(RTargetUninstall.ShortCut)]);
+  HelpButton.Hint := LFmtMessage(HelpButton.Hint, [NewShortCutToText(ShortCut(VK_F1, []))]);
+  TFilesDesigner.Caption := LFmtMessage(TFilesDesigner.Caption, ['[F&iles]']);
+  TRegistryDesigner.Caption := LFmtMessage(TRegistryDesigner.Caption, ['[&Registry]']);
+  TMsgBoxDesigner.Caption := LFmtMessage(TMsgBoxDesigner.Caption, ['&MsgBox/TaskDialogMsgBox']);
+  { These are not set in the .dfm because that would duplicate a message,
+    one with and one without the accel char }
+  PauseButton.Hint := RemoveAccelChar(RPause.Caption);
+  UpdatePanelDonateBitBtn.Caption := RemoveAccelChar(HDonate.Caption);
+  OutputTabSet.Tabs[tiCompilerOutput] := RemoveAccelChar(VCompilerOutput.Caption);
+  OutputTabSet.Tabs[tiDebugOutput] := RemoveAccelChar(VDebugOutput.Caption);
+  OutputTabSet.Tabs[tiDebugCallStack] := RemoveAccelChar(VDebugCallStack.Caption);
+  OutputTabSet.Tabs[tiFindResults] := RemoveAccelChar(VFindResults.Caption);
+
+  { Not displayed, for TToolBarAccessibility }
+  BackNavButton.Caption := LFmtMessage(SToolBarBack);
+  ForwardNavButton.Caption := LFmtMessage(SToolBarForward);
+  NewMainFileButton.Caption := RemoveAccelChar(FNewMainFile.Caption);
+  OpenMainFileButton.Caption := LFmtMessage(SToolBarOpen);
+  SaveButton.Caption := RemoveAccelChar(FSave.Caption);
+  CompileButton.Caption := RemoveAccelChar(BCompile.Caption);
+  StopCompileButton.Caption := RemoveAccelChar(BStopCompile.Caption);
+  RunButton.Caption := LFmtMessage(SToolBarRun);
+  PauseButton.Caption := RemoveAccelChar(RPause.Caption);
+  TerminateButton.Caption := RemoveAccelChar(RTerminate.Caption);
+  TargetSetupButton.Caption := RemoveAccelChar(RTargetSetup.Caption);
+  TargetUninstallButton.Caption := RemoveAccelChar(RTargetUninstall.Caption);
+  HelpButton.Caption := RemoveAccelChar(HDoc.Caption);
+
+  SetFakeShortCutText(VZoomIn, LFmtMessage(SShortCutCtrl) + LFmtMessage(SShortCutNumpad, ['+'])); { These zoom shortcuts are handled by Scintilla and only support the active memo, unlike the menu items which work on all memos }
+  SetFakeShortCutText(VZoomOut, LFmtMessage(SShortCutCtrl) + LFmtMessage(SShortCutNumpad, ['-']));
+  SetFakeShortCutText(VZoomReset, LFmtMessage(SShortCutCtrl) + LFmtMessage(SShortCutNumpad, ['/']));
+end;
+
+procedure TMainForm.UpdateCaption;
+
+  function GetCaptionFilename: String;
+  begin
+    var Filename: String;
+    if CommandLineCompile then
+      Filename := CommandLineFilename
     else
-      NewCaption := GetDisplayFilename(FMainMemo.Filename);
+      Filename := FMainMemo.Filename;
+    if Filename = '' then
+      Result := GetFileTitle(Filename)
+    else begin
+      if FOptions.FullPathInTitleBar then
+        Result := Filename
+      else
+        Result := GetDisplayFilename(Filename);
+    end;
   end;
-  NewCaption := NewCaption + ' '#$2013' ' + SCompilerFormCaption + ' ' +
-    String(FCompilerVersion.Version) {$IFNDEF WIN64} + ' ' + SCompilerCaption32Bit {$ENDIF} +
+
+begin
+  var NewCaption := GetCaptionFilename + ' '#$2013' ' + LFmtMessage(SCompilerFormCaption) + ' ' +
+    String(FCompilerVersion.Version) {$IFNDEF WIN64} + ' ' + LFmtMessage(SCompilerCaption32Bit) {$ENDIF} +
     ' '#$2013' ' + GetLicenseeDescription;
   if FCompiling then
-    NewCaption := NewCaption + ' '#$2013' ' + SCompilerCaptionCompiling
+    NewCaption := NewCaption + ' '#$2013' ' + LFmtMessage(SCompilerCaptionCompiling)
   else if FDebugging then begin
     if not FPaused then
-      NewCaption := NewCaption + ' '#$2013' ' + SCompilerCaptionRunning
+      NewCaption := NewCaption + ' '#$2013' ' + LFmtMessage(SCompilerCaptionRunning)
     else
-      NewCaption := NewCaption + ' '#$2013' ' + SCompilerCaptionPaused;
+      NewCaption := NewCaption + ' '#$2013' ' + LFmtMessage(SCompilerCaptionPaused);
   end;
   Caption := NewCaption;
   if not CommandLineWizard then
@@ -1563,7 +1637,7 @@ begin
   FUninstExe := '';
   if FDebugTarget <> dtSetup then begin
     FDebugTarget := dtSetup;
-    UpdateTargetMenu;
+    UpdateTargetMenuItems;
   end;
   FHiddenFiles.Clear;
   InvalidateStatusPanel(spHiddenFilesCount);
@@ -1726,7 +1800,7 @@ begin
       FMainMemo.ClearUndo;
       if WizardForm.Result = wrComplete then begin
         FMainMemo.ForceModifiedState;
-        if MsgBox(SWizardCompileNewScriptPrompt, SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
+        if MsgBox(LFmtMessage(SWizardCompileNewScriptPrompt), LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDYES then
           BCompileClick(Self);
       end;
     end;
@@ -1818,7 +1892,7 @@ begin
   AMemo.OpeningFile := True;
   try
     AFilename := PathExpand(AFilename);
-    const NameChange = PathCompare(AMemo.Filename, AFilename) <> 0;
+    const NameChange = not PathSame(AMemo.Filename, AFilename);
     const FilePosition = GetFilePosition(AMemo);
 
     Stream := TFileStream.Create(AFilename, fmOpenRead or fmShareDenyNone);
@@ -1880,11 +1954,10 @@ begin
     OpenFile(FMainMemo, AFilename, True);
   except
     Application.HandleException(Self);
-    if MsgBoxFmt(SCompilerOpenFileErrorRemoveFromMRU,
-       [AFilename], SCompilerFormCaption, mbError, MB_YESNO) = IDYES then begin
+    if MsgBox(LFmtMessage(SCompilerOpenFileErrorRemoveFromMRU), LFmtMessage(SCompilerFormCaption), mbError, MB_YESNO) = IDYES then begin
       ModifyMRUMainFilesList(AFilename, False);
       DeleteBreakPointLines(AFilename);
-      DeleteKnownIncludedAndHiddenFiles(AFilename);
+      DeleteKnownIncludedHiddenAndRichEditFiles(AFilename);
     end;
   end;
 end;
@@ -1900,8 +1973,8 @@ function TMainForm.SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolea
       way, if the system crashes or the disk runs out of space during the save,
       the existing file will still be intact. }
     if GetTempFileName(PChar(PathExtractDir(FN)), 'iss', 0, Buf) = 0 then
-      raise Exception.CreateFmt(SCompilerSaveErrorCreateFile,
-        [GetLastError]);
+      raise Exception.Create(LFmtMessage(SCompilerSaveErrorCreateFile,
+        [GetLastError]));
     TempFN := Buf;
     try
       SaveTextToFile(TempFN, AMemo.Lines.Text, AMemo.SaveEncoding);
@@ -1911,13 +1984,13 @@ function TMainForm.SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolea
         BackupFN := PathChangeExt(FN, '.~is');
         DeleteFile(BackupFN);
         if not RenameFile(FN, BackupFN) then
-          raise Exception.Create(SCompilerSaveErrorCreateBackup);
+          raise Exception.Create(LFmtMessage(SCompilerSaveErrorCreateBackup));
       end;
 
       { Delete existing file }
       if not DeleteFile(FN) and (GetLastError <> ERROR_FILE_NOT_FOUND) then
-        raise Exception.CreateFmt(SCompilerSaveErrorRemoveExisting,
-          [GetLastError]);
+        raise Exception.Create(LFmtMessage(SCompilerSaveErrorRemoveExisting,
+          [GetLastError]));
     except
       DeleteFile(TempFN);
       raise;
@@ -1927,21 +2000,22 @@ function TMainForm.SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolea
       existing file, and don't want the temp file also deleted in the unlikely
       event that the rename fails. }
     if not RenameFile(TempFN, FN) then
-      raise Exception.CreateFmt(SCompilerSaveErrorRenameTemp,
-        [GetLastError]);
+      raise Exception.Create(LFmtMessage(SCompilerSaveErrorRenameTemp,
+        [GetLastError]));
     GetLastWriteTimeOfFile(FN, @AMemo.FileLastWriteTime);
   end;
 
-var
-  FN: String;
 begin
   Result := False;
   var OldName := AMemo.Filename;
   if SaveAs or (AMemo.Filename = '') then begin
     if AMemo <> FMainMemo then
       raise Exception.Create('Internal error: AMemo <> FMainMemo');
-    FN := AMemo.Filename;
-    if not NewGetSaveFileName('', FN, '', SCompilerOpenFilter, 'iss', Handle) then Exit;
+    var FN := AMemo.Filename;
+    if not NewGetSaveFileName('', FN, '',
+             Format(SLitExtAndAllFilter, [LFmtMessage(SIssFiles), SLitIssExt, LFmtMessage(SAllFiles)]),
+             SLitIssExt, Handle) then
+      Exit;
     FN := PathExpand(FN);
     SaveMemoTo(FN);
     AMemo.Filename := FN;
@@ -1954,13 +2028,17 @@ begin
   Result := True;
   if AMemo = FMainMemo then begin
     ModifyMRUMainFilesList(AMemo.Filename, True);
-    if PathCompare(AMemo.Filename, OldName) <> 0 then begin
+    if not PathSame(AMemo.Filename, OldName) then begin
       if OldName <> '' then begin
+        const OldKnownRichEditFile = LoadKnownRichEditFile(OldName);
         DeleteBreakPointLines(OldName);
-        DeleteKnownIncludedAndHiddenFiles(OldName);
+        DeleteKnownIncludedHiddenAndRichEditFiles(OldName);
+        SaveKnownRichEditFile(AMemo.Filename, OldKnownRichEditFile);
       end;
       BuildAndSaveBreakPointLines(AMemo);
       BuildAndSaveKnownIncludedAndHiddenFiles;
+      if RichEditForm <> nil then
+        RichEditForm.NotifyMainScriptRenamed(OldName, AMemo.Filename);
     end;
   end;
 end;
@@ -1974,8 +2052,8 @@ function TMainForm.ConfirmCloseFile(const PromptToSave: Boolean): Boolean;
     Result := True;
     if AMemo.Modified then begin
       FileTitle := GetFileTitle(AMemo.Filename);
-      case MsgBox(Format(SCompilerFileChangedSavePrompt, [FileTitle]),
-         SCompilerFormCaption, mbError,
+      case MsgBox(LFmtMessage(SCompilerFileChangedSavePrompt, [FileTitle]),
+         LFmtMessage(SCompilerFormCaption), mbError,
          MB_YESNOCANCEL) of
         IDYES: Result := SaveFile(AMemo, False);
         IDNO: ;
@@ -1989,8 +2067,8 @@ var
   Memo: TIDEScintFileEdit;
 begin
   if FCompiling then begin
-    MsgBox(SCompilerStopCompileBeforeCommand,
-      SCompilerFormCaption, mbError, MB_OK);
+    MsgBox(LFmtMessage(SCompilerStopCompileBeforeCommand),
+      LFmtMessage(SCompilerFormCaption), mbError, MB_OK);
     Result := False;
     Exit;
   end;
@@ -2026,7 +2104,7 @@ procedure TMainForm.DebugShowCallStack(const CallStack: String; const CallStackC
 begin
   DebugCallStackList.Clear;
   AddLines(DebugCallStackList, CallStack, nil, True, alpCountdown, Integer(CallStackCount-1));
-  DebugCallStackList.Items.Insert(0, Format(SDebugCodeCallStack, ['Code']));
+  DebugCallStackList.Items.Insert(0, SLitStatusEventPrefix + LFmtMessage(SDebugCodeCallStack, ['[Code]']));
   DebugCallStackList.Update;
 end;
 
@@ -2205,7 +2283,7 @@ procedure TMainForm.CompileFile(AFilename: String; const ReadFromFile: Boolean);
     else begin
       if FOptions.OpenIncludedFiles then begin
         for Memo in FFileMemos do begin
-          if Memo.Used and (PathCompare(Memo.Filename, ErrorFilename) = 0) then begin
+          if Memo.Used and PathSame(Memo.Filename, ErrorFilename) then begin
             Result := Memo;
             Exit;
           end;
@@ -2226,7 +2304,7 @@ var
 begin
   if FCompiling then begin
     { Shouldn't get here, but just in case... }
-    MsgBox(SCompilerCompileAlreadyInProgress, SCompilerFormCaption, mbError, MB_OK);
+    MsgBox(LFmtMessage(SCompilerCompileAlreadyInProgress), LFmtMessage(SCompilerFormCaption), mbError, MB_OK);
     Abort;
   end;
 
@@ -2239,8 +2317,8 @@ begin
             if not SaveFile(Memo, False) then
               Abort;
           end else begin
-            case MsgBox(Format(SCompilerIncludedFileChangedSavePrompt, [Memo.Filename]),
-               SCompilerFormCaption, mbError,
+            case MsgBox(LFmtMessage(SCompilerIncludedFileChangedSavePrompt, [Memo.Filename]),
+               LFmtMessage(SCompilerFormCaption), mbError,
                MB_YESNO) of
               IDYES:
                 if not SaveFile(Memo, False) then
@@ -2257,8 +2335,8 @@ begin
       if not SaveFile(FMainMemo, False) then
         Abort;
     end else if FMainMemo.Filename = '' then begin
-      case MsgBox(SCompilerSaveScriptBeforeCompile,
-         SCompilerFormCaption, mbConfirmation, MB_YESNOCANCEL) of
+      case MsgBox(LFmtMessage(SCompilerSaveScriptBeforeCompile),
+         LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNOCANCEL) of
         IDYES:
           if not SaveFile(FMainMemo, False) then
             Abort;
@@ -2268,7 +2346,7 @@ begin
       end;
     end;
     AFilename := FMainMemo.Filename;
-  end; {else: Command line compile, AFilename already set. }
+  end; {else: Command-line compile, AFilename already set. }
 
   DestroyDebugInfo;
   OldActiveMemo := FActiveMemo;
@@ -2308,6 +2386,14 @@ begin
     Options := '';
     for I := 0 to FSignTools.Count-1 do
       Options := Options + AddSignToolParam(FSignTools[I]);
+    if BOutputDisabled.Checked then
+      Options := Options + 'Output=no' + #0;
+    if BNoCompression.Checked then
+      Options := Options + 'NoCompression=true' + #0;
+    if BNoSigning.Checked then
+      Options := Options + 'NoSigning=true' + #0;
+    if BNoSignCheck.Checked then
+      Options := Options + 'NoSignCheck=true' + #0;
     Params.Options := PChar(Options);
 
     AppData.Form := Self;
@@ -2319,15 +2405,15 @@ begin
         MoveCaretAndActivateMemo(FMainMemo, I, False);
         SetErrorLine(FMainMemo, I);
       end;
-      raise Exception.CreateFmt(SCompilerIllegalNullChar, [I + 1]);
+      raise Exception.Create(LFmtMessage(SCompilerIllegalNullChar, [I + 1]));
     end;
 
     StartTime := GetTickCount;
-    StatusMessage(smkStartEnd, Format(SCompilerStatusStarting, [TimeToStr(Time)]));
+    StatusMessage(smkStartEnd, SLitStatusEventPrefix + LFmtMessage(SCompilerStatusStarting, ['  ', TimeToStr(Time)]));
     StatusMessage(smkStartEnd, '');
     FCompiling := True;
     FCompileWantAbort := False;
-    UpdateRunMenu;
+    UpdateRunMenuItems;
     UpdateCaption;
     SetLowPriority(FOptions.LowPriorityDuringCompile, FSavePriorityClass);
 
@@ -2338,7 +2424,6 @@ begin
     {$ELSE}
     if ISCompileScript(Params, False) <> isceNoError then begin
     {$ENDIF}
-      StatusMessage(smkError, SCompilerStatusErrorAborted);
       if not ReadFromFile and (AppData.ErrorLine > 0) then begin
         Memo := GetMemoFromErrorFilename(AppData.ErrorFilename);
         if Memo <> nil then begin
@@ -2350,18 +2435,21 @@ begin
       if not AppData.Aborted then begin
         S := '';
         if AppData.ErrorFilename <> '' then
-          S := Format(SCompilerErrorFilePrefix, [AppData.ErrorFilename]) + SNewLine2;
+          S := LFmtMessage(SCompilerErrorFilePrefix, [PathExtractName(AppData.ErrorFilename)]) + SNewLine;
         if AppData.ErrorLine > 0 then
-          S := S + Format(SCompilerErrorLinePrefix, [AppData.ErrorLine]) + SNewLine;
+          S := S + LFmtMessage(SCompilerErrorLinePrefix, [AppData.ErrorLine]) + SNewLine;
         S := S + AppData.ErrorMsg;
+        StatusMessage(smkError, StringReplace(StringReplace(S, #13, '', [rfReplaceAll]), #10, ' ', [rfReplaceAll]));
+        StatusMessage(smkError, SLitStatusEventPrefix + LFmtMessage(SCompilerStatusErrorAborted));
         SetAppTaskbarProgressState(tpsError);
-        MsgBox(S, SCompilerErrorTitle, mbCriticalError, MB_OK)
-      end;
+        MsgBox(S, LFmtMessage(SCompilerErrorTitle), mbCriticalError, MB_OK)
+      end else
+        StatusMessage(smkError, SLitStatusEventPrefix + LFmtMessage(SCompilerStatusErrorAborted));
       Abort;
     end;
     ElapsedTime := GetTickCount - StartTime;
     ElapsedSeconds := ElapsedTime div 1000;
-    StatusMessage(smkStartEnd, Format(SCompilerStatusFinished, [TimeToStr(Time),
+    StatusMessage(smkStartEnd, SLitStatusEventPrefix + LFmtMessage(SCompilerStatusFinished, ['  ', TimeToStr(Time),
       Format('%.2u%s%.2u%s%.3u', [ElapsedSeconds div 60, FormatSettings.TimeSeparator,
         ElapsedSeconds mod 60, FormatSettings.DecimalSeparator, ElapsedTime mod 1000])]));
   finally
@@ -2374,12 +2462,15 @@ begin
     for Memo in FFileMemos do
       Memo.ReadOnly := False;
     UpdateEditModeStatusPanel;
-    UpdateRunMenu;
+    UpdateRunMenuItems;
     UpdateCaption;
     UpdatePreprocMemos;
     if AppData.DebugInfo <> nil then begin
-      ParseDebugInfo(AppData.DebugInfo); { Must be called after UpdateIncludedFilesMemos }
-      FreeMem(AppData.DebugInfo);
+      try
+        ParseDebugInfo(AppData.DebugInfo); { Must be called after UpdateIncludedFilesMemos }
+      finally
+        FreeMem(AppData.DebugInfo);
+      end;
     end;
     InvalidateStatusPanel(spCompileIcon);
     InvalidateStatusPanel(spCompileProgress);
@@ -2454,9 +2545,8 @@ begin
 end;
 
 procedure TMainForm.ShowOpenMainFileDialog(const Examples: Boolean);
-var
-  InitialDir, Filename: String;
 begin
+  var InitialDir, Filename: String;
   if Examples then begin
     InitialDir := PathExtractPath(NewParamStr(0)) + 'Examples';
     Filename := PathExtractPath(NewParamStr(0)) + 'Examples\Example1.iss';
@@ -2466,13 +2556,15 @@ begin
     Filename := '';
   end;
   if ConfirmCloseFile(True) then
-    if NewGetOpenFileName('', Filename, InitialDir, SCompilerOpenFilter, 'iss', Handle) then begin
+    if NewGetOpenFileName('', Filename, InitialDir,
+         Format(SLitExtAndAllFilter, [LFmtMessage(SIssFiles), SLitIssExt, LFmtMessage(SAllFiles)]),
+         SLitIssExt, Handle) then begin
       { Check if user actually wants to open tab for an included file }
       if FOptions.OpenIncludedFiles then begin
         for var IncludedFile in FIncludedFiles do begin
           if PathSame(IncludedFile.Filename, Filename) and
-             (MsgBox(SCompilerIncludedFileOpenAsTab,
-                SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES) then begin
+             (MsgBox(LFmtMessage(SCompilerIncludedFileOpenAsTab, ['#include']),
+                LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDYES) then begin
             if IncludedFile.Memo <> nil then begin
               const HiddenFileIndex = FHiddenFiles.IndexOf(Filename);
               if HiddenFileIndex <> -1 then
@@ -2481,8 +2573,8 @@ begin
                 MemosTabSet.TabIndex := MemoToTabIndex(IncludedFile.Memo);
               Exit;
             end else { We know about this file but it has no memo because MaxMemos was reached (or there was some error loading the file) }
-              if MsgBox(SCompilerIncludedFileNotAvailableAsTab,
-                   SCompilerFormCaption, mbError, MB_OKCANCEL) = IDCANCEL then
+              if MsgBox(LFmtMessage(SCompilerIncludedFileNotAvailableAsTab),
+                   LFmtMessage(SCompilerFormCaption), mbError, MB_OKCANCEL) = IDCANCEL then
                 Exit;
           end;
         end;
@@ -2739,7 +2831,7 @@ begin
       DeleteDC(hdc);
       DeleteObject(fontHeader);
       DeleteObject(fontFooter);
-      MsgBox(SCompilerPrinterDocumentStartError, SCompilerFormCaption, mbError, MB_OK);
+      MsgBox(LFmtMessage(SCompilerPrinterDocumentStartError), LFmtMessage(SCompilerFormCaption), mbError, MB_OK);
       Exit;
     end;
 
@@ -2835,8 +2927,8 @@ end;
 
 procedure TMainForm.FClearRecentClick(Sender: TObject);
 begin
-  if MsgBox(SCompilerClearRecentFilesConfirm,
-    SCompilerFormCaption, mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then
+  if MsgBox(LFmtMessage(SCompilerClearRecentFilesConfirm),
+    LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then
       ClearMRUMainFilesList;
 end;
 
@@ -3022,7 +3114,7 @@ begin
   { Activate the memo if requested }
   if Activate then begin
     for var Memo in FFileMemos do begin
-      if Memo.Used and (PathCompare(Memo.Filename, ReopenFilename) = 0) then begin
+      if Memo.Used and PathSame(Memo.Filename, ReopenFilename) then begin
         MemosTabSet.TabIndex := MemoToTabIndex(memo);
         Break;
       end;
@@ -3145,7 +3237,7 @@ procedure TMainForm.BStopCompileClick(Sender: TObject);
 begin
   SetAppTaskbarProgressState(tpsPaused);
   try
-    if MsgBox(SCompilerAbortCompileConfirm, SCompilerFormCaption,
+    if MsgBox(LFmtMessage(SCompilerAbortCompileConfirm), LFmtMessage(SCompilerFormCaption),
        mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then
       FCompileWantAbort := True;
   finally
@@ -3159,6 +3251,26 @@ begin
   { If a compile is already in progress, change the priority now }
   if FCompiling then
     SetLowPriority(FOptions.LowPriorityDuringCompile, FSavePriorityClass);
+end;
+
+procedure TMainForm.BOutputDisabledClick(Sender: TObject);
+begin
+  BOutputDisabled.Checked := not BOutputDisabled.Checked;
+end;
+
+procedure TMainForm.BNoCompressionClick(Sender: TObject);
+begin
+  BNoCompression.Checked := not BNoCompression.Checked;
+end;
+
+procedure TMainForm.BNoSigningClick(Sender: TObject);
+begin
+  BNoSigning.Checked := not BNoSigning.Checked;
+end;
+
+procedure TMainForm.BNoSignCheckClick(Sender: TObject);
+begin
+  BNoSignCheck.Checked := not BNoSignCheck.Checked;
 end;
 
 procedure TMainForm.BOpenOutputFolderClick(Sender: TObject);
@@ -3175,8 +3287,8 @@ end;
 procedure TMainForm.HPurchaseClick(Sender: TObject);
 begin
   if IsLicensed then
-    if MsgBox(SCompilerCopyLicenseKeyBeforePurchase,
-       SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
+    if MsgBox(LFmtMessage(SCompilerCopyLicenseKeyBeforePurchase),
+       LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDYES then
       ClipBoard.AsText := GetChunkedLicenseKey;
   LaunchFileOrURL('https://jrsoftware.org/isorder.php');
 end;
@@ -3190,8 +3302,8 @@ begin
       WriteLicense;
       UpdateCaption;
 
-      MsgBox(Format(SCompilerLicenseRegisterSuccess, [GetLicenseDescription('', SNewLine2)]),
-        SCompilerFormCaption, mbInformation, MB_OK);
+      MsgBox(LFmtMessage(SCompilerLicenseRegisterSuccess, [GetLicenseDescription('', SNewLine2)]),
+        LFmtMessage(SCompilerFormCaption), mbInformation, MB_OK);
     end;
   finally
     LicenseKeyForm.Free;
@@ -3200,8 +3312,8 @@ end;
 
 procedure TMainForm.HUnregisterClick(Sender: TObject);
 begin
-  if MsgBox(SCompilerRemoveLicenseConfirm,
-    SCompilerFormCaption, mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then begin
+  if MsgBox(LFmtMessage(SCompilerRemoveLicenseConfirm),
+    LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDNO then begin
 
     RemoveLicense;
     UpdateCaption;
@@ -3214,7 +3326,7 @@ begin
       Ini.Free;
     end;
  
-    MsgBox(SCompilerLicenseKeyRemoved, SCompilerFormCaption, mbInformation, MB_OK);
+    MsgBox(LFmtMessage(SCompilerLicenseKeyRemoved), LFmtMessage(SCompilerFormCaption), mbInformation, MB_OK);
   end;
 end;
 
@@ -3408,7 +3520,7 @@ begin
     OldActiveMemo.Visible := False;
 
     UpdateSaveMenuItemAndButton;
-    UpdateRunMenu;
+    UpdateRunMenuItems;
     UpdateCaretPosPanelAndBackNavStack;
     UpdateEditModeStatusPanel;
     UpdateModifiedStatusPanel;
@@ -3653,11 +3765,13 @@ type
 
     { Draw the image - the result will be in pvBits }
     if ImageList_Draw(ImageList.Handle, ImageList.GetIndexByName(ImageName), DC, 0, 0, ILD_TRANSPARENT) then begin
+      GdiFlush; { See CreateDIBSection docs }
       SwapRedBlue(pvBits, Width, Height); { Change pvBits from BGRA to RGBA like Scintilla wants }
       var Bitmap2 := TBitmapWithBits.Create;
       Bitmap2.Handle := Bitmap;
       Bitmap2.pvBits := pvBits;
       MarkerOrACBitmaps.Add(MarkerNumberOrACType, Bitmap2);
+      SelectObject(DC, OldBitmap); { Make sure the bitmap can be deleted later }
     end else begin
       SelectObject(DC, OldBitmap);
       DeleteObject(Bitmap);
@@ -3819,6 +3933,11 @@ begin
   ShowSignToolsForm;
 end;
 
+procedure TMainForm.TRichEditorClick(Sender: TObject);
+begin
+  ShowRichEditForm;
+end;
+
 procedure TMainForm.TOptionsClick(Sender: TObject);
 var
   OptionsForm: TOptionsForm;
@@ -3856,11 +3975,14 @@ begin
     OptionsForm.KeyMappingComboBox.ItemIndex := Ord(FOptions.KeyMappingType);
     OptionsForm.MemoKeyMappingComboBox.ItemIndex := Ord(FOptions.MemoKeyMappingType);
     OptionsForm.ThemeComboBox.ItemIndex := Ord(FOptions.ThemeType);
+    OptionsForm.LanguageComboBox.ItemIndex := Ord(FOptions.Language);
     OptionsForm.FontPanel.Font.Assign(FMainMemo.Font);
     OptionsForm.FontPanel.ParentBackground := False;
     OptionsForm.FontPanel.Color := FMainMemo.Color;
     OptionsForm.HighlightWordAtCursorOccurrencesCheck.Checked := FOptions.HighlightWordAtCursorOccurrences;
     OptionsForm.HighlightSelTextOccurrencesCheck.Checked := FOptions.HighlightSelTextOccurrences;
+
+    const SaveLanguage = FOptions.Language;
 
     if OptionsForm.ShowModal <> mrOK then
       Exit;
@@ -3894,6 +4016,7 @@ begin
     FOptions.KeyMappingType := TKeyMappingType(OptionsForm.KeyMappingComboBox.ItemIndex);
     FOptions.MemoKeyMappingType := TIDEScintKeyMappingType(OptionsForm.MemoKeyMappingComboBox.ItemIndex);
     FOptions.ThemeType := TThemeType(OptionsForm.ThemeComboBox.ItemIndex);
+    FOptions.Language := TIDELanguage(OptionsForm.LanguageComboBox.ItemIndex);
     FOptions.HighlightWordAtCursorOccurrences := OptionsForm.HighlightWordAtCursorOccurrencesCheck.Checked;
     FOptions.HighlightSelTextOccurrences := OptionsForm.HighlightSelTextOccurrencesCheck.Checked;
 
@@ -3948,11 +4071,42 @@ begin
       Ini.WriteInteger('Options', 'KeyMappingType', Ord(FOptions.KeyMappingType));
       Ini.WriteInteger('Options', 'MemoKeyMappingType', Ord(FOptions.MemoKeyMappingType));
       Ini.WriteInteger('Options', 'ThemeType', Ord(FOptions.ThemeType)); { Also see Destroy }
+      Ini.WriteInteger('Options', 'Language', Ord(FOptions.Language));
       Ini.WriteString('Options', 'EditorFontName', FMainMemo.Font.Name);
       Ini.WriteInteger('Options', 'EditorFontSize', FMainMemo.Font.Size);
       Ini.WriteInteger('Options', 'EditorFontCharset', FMainMemo.Font.Charset);
     finally
       Ini.Free;
+    end;
+
+    if FOptions.Language <> SaveLanguage then begin
+      {$IFDEF DEBUG}
+      { Applying the new language immediately but imperfectly is done on DEBUG to
+        quickly check translations while working on localization. It is imperfect:
+        -It does not retranslate strings into which a shortcut or argument was
+         merged, so they no longer exactly match a translation entry: toolbar and
+         help button hints which used %1, menu item captions which used %1, and
+         menu items which have a fake shortcut appended.
+        -If multiple English strings have the same translation, only one is used
+         when retranslating the translation back into to English.
+        -It does not update the UpdatePanel message text.
+        -It does not update the exit code shown in the status bar (spExtraStatus). }
+      if SaveLanguage <> ilEnglish then begin
+        InitLocalization(SaveLanguage, True);
+        LocalizeComponent(Self);
+      end;
+      InitLocalization(FOptions.Language);
+      if FOptions.Language <> ilEnglish then
+        LocalizeComponent(Self);
+      FinishLocalization;
+      UpdateCaption;
+      UpdateEditModeStatusPanel;
+      UpdateModifiedStatusPanel;
+      InvalidateStatusPanel(spHiddenFilesCount);
+      {$ELSE}
+      MsgBox(LFmtMessage(SOptionsLanguageChangeRestart),
+        LFmtMessage(SCompilerFormCaption), mbInformation, MB_OK);
+      {$ENDIF}
     end;
   finally
     OptionsForm.Free;
@@ -4033,7 +4187,7 @@ begin
         longer does at some point: look it up again }
       AMemo := nil;
       for var Memo in FFileMemos do begin
-        if Memo.Used and (PathCompare(Memo.Filename, Filename) = 0) then begin
+        if Memo.Used and PathSame(Memo.Filename, Filename) then begin
           AMemo := Memo;
           Break;
         end;
@@ -4137,9 +4291,46 @@ end;
 procedure TMainForm.UpdateCaretPosPanelAndBackNavStack;
 begin
   { Update panel }
-  var Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
-    FActiveMemo.CaretColumnExpandedForTabs + 1]);
+  var Text: String;
+  if (FActiveMemo.SelectionCount > 1) or not FActiveMemo.SelEmpty then begin
+    { Show selection info }
+    var CharacterCount, LineCount: Integer;
+    GetSelectionCharacterAndLineCounts(FActiveMemo, CharacterCount, LineCount);
+    if FActiveMemo.SelectionCount = 1 then
+      { Single non-empty selection }
+      Text := Format('%4d|%4d', [CharacterCount, LineCount])
+    else if FActiveMemo.SelectionMode in [ssmRectangular, ssmThinRectangular] then begin
+      { Rectangular selection: rows x widest row, then = when all rows are equally
+        wide or -> otherwise, then total chars }
+      const Rows = FActiveMemo.SelectionCount;
+      var MaxRowWidth := 0;
+      var AllRowsEqualWidth := True;
+      var FirstRowWidth := 0;
+      for var I := 0 to Rows-1 do begin
+        const RowWidth = FActiveMemo.GetCharacterCount(
+          FActiveMemo.SelectionStartPosition[I], FActiveMemo.SelectionEndPosition[I]);
+        if I = 0 then
+          FirstRowWidth := RowWidth
+        else if RowWidth <> FirstRowWidth then
+          AllRowsEqualWidth := False;
+        MaxRowWidth := Max(MaxRowWidth, RowWidth);
+      end;
+      var WidthSeparator: String;
+      if AllRowsEqualWidth then
+        WidthSeparator := '='
+      else
+        WidthSeparator := '->';
+      Text := Format('%4dx%4d%s%4d', [Rows, MaxRowWidth, WidthSeparator, CharacterCount]);
+    end else
+      { Multiple stream selections, including all-empty multi-carets }
+      Text := Format('%4d:%4d|%4d', [FActiveMemo.SelectionCount, CharacterCount, LineCount]);
+  end else begin
+    { Show caret line and column }
+    Text := Format('%4d:%4d', [FActiveMemo.CaretLine + 1,
+      FActiveMemo.CaretColumnExpandedForTabs + 1]);
+  end;
   if FOptions.ShowCaretPosition then begin
+    { Debug: show more caret info }
     const CaretPos = FActiveMemo.CaretPosition;
     const Section = TInnoSetupStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine], False);
     const Style = FActiveMemo.GetStyleAtPosition(CaretPos);
@@ -4155,12 +4346,12 @@ end;
 
 procedure TMainForm.UpdateEditModeStatusPanel;
 const
-  InsertText: array[Boolean] of String = ('Overwrite', 'Insert');
+  InsertText: array[Boolean] of String = (SStatusOverwrite, SStatusInsert);
 begin
   if FActiveMemo.ReadOnly then
-    StatusBar.Panels[spEditMode].Text := 'Read only'
+    StatusBar.Panels[spEditMode].Text := LFmtMessage(SStatusReadOnly)
   else
-    StatusBar.Panels[spEditMode].Text := InsertText[FActiveMemo.InsertMode];
+    StatusBar.Panels[spEditMode].Text := LFmtMessage(InsertText[FActiveMemo.InsertMode]);
 end;
 
 procedure TMainForm.UpdateFindRegExUI;
@@ -4187,7 +4378,7 @@ end;
 procedure TMainForm.UpdateModifiedStatusPanel;
 begin
   if FActiveMemo.Modified then
-    StatusBar.Panels[spModified].Text := 'Modified'
+    StatusBar.Panels[spModified].Text := LFmtMessage(SStatusModified)
   else
     StatusBar.Panels[spModified].Text := '';
 end;
@@ -4200,7 +4391,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
   begin
     if FOptions.ShowPreprocessorOutput and (FPreprocessorOutput <> '') and
        (FMainMemo.Lines.Text.TrimRight <> FPreprocessorOutput) then begin
-      NewTabs.Add('Preprocessor Output');
+      NewTabs.Add(LFmtMessage(SCompilerPreprocessorOutput));
       NewHints.Add('');
       NewCloseButtons.Add(False);
       FPreprocessorOutputMemo.ReadOnly := False;
@@ -4264,7 +4455,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
           Inc(NextMemoIndex);
         except on E: Exception do
           begin
-            StatusMessage(smkWarning, Format(SCompilerStatusFailedToOpenIncludedFile, [E.Message]));
+            StatusMessage(smkWarning, LFmtMessage(SCompilerStatusFailedToOpenIncludedFile, [E.Message]));
             IncludedFile.Memo := nil;
           end;
         end;
@@ -4290,12 +4481,27 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
     end;
   end;
 
+  function FindTabHint(const Hints: TStrings; const Hint: String): Integer;
+  begin
+    for Result := 0 to Hints.Count-1 do
+      if PathSame(Hints[Result], Hint) then
+        Exit;
+    Result := -1;
+  end;
+
 var
   NewTabs, NewHints: TStringList;
   NewCloseButtons: TBoolList;
-  I, SaveTabIndex: Integer;
-  SaveTabName: String;
 begin
+  var SavedActiveFileHint: String;
+  if FActiveMemo is TIDEScintFileEdit then
+    SavedActiveFileHint := GetFileTitle((FActiveMemo as TIDEScintFileEdit).Filename)
+  else begin
+    if FActiveMemo <> FPreprocessorOutputMemo then
+      raise Exception.Create('Unexpected non-file memo');
+    SavedActiveFileHint := '';
+  end;
+
   NewTabs := nil;
   NewHints := nil;
   NewCloseButtons := nil;
@@ -4303,20 +4509,21 @@ begin
     NewTabs := TStringList.Create;
     NewTabs.Add(MemosTabSet.Tabs[0]); { 'Main Script' }
     NewHints := TStringList.Create;
-    NewHints.Add(GetFileTitle(FMainMemo.Filename));
+    NewHints.Add(GetFileTitle(FMainMemo.Filename)); { Also see above }
     NewCloseButtons := TBoolList.Create;
     NewCloseButtons.Add(False);
 
     UpdatePreprocessorOutputMemo(NewTabs, NewHints, NewCloseButtons);
     UpdateIncludedFilesMemos(NewTabs, NewHints, NewCloseButtons);
 
-    { Set new tabs, try keep same file open }
-    SaveTabIndex := MemosTabSet.TabIndex;
-    SaveTabName := MemosTabSet.Tabs[MemosTabSet.TabIndex];
+    { Set new tabs, keeping same file open even if it moved to
+      another memo. We can use the tab hints for it: the tab we want
+      is the one with the hint that matches SavedActiveFileHint. }
+    const SaveTabIndex = MemosTabSet.TabIndex;
     MemosTabSet.Tabs := NewTabs;
     MemosTabSet.Hints := NewHints;
     MemosTabSet.CloseButtons := NewCloseButtons;
-    I := MemosTabSet.Tabs.IndexOf(SaveTabName);
+    const I = FindTabHint(MemosTabSet.Hints, SavedActiveFileHint);
     if I <> -1 then
        MemosTabSet.TabIndex := I;
     if MemosTabSet.TabIndex = SaveTabIndex then begin
@@ -4821,7 +5028,7 @@ begin
         case EvaluateVariableEntry(DebugEntry, Output) of
           1, 2: HintStr := Output;
         else
-          HintStr := 'Unknown error';
+          HintStr := LFmtMessage(SEvaluateHintUnknownError2);
         end;
       end else begin
         var ClassMember := False;
@@ -4858,10 +5065,10 @@ begin
       var HintStr := FActiveMemo.GetTextRange(ConstRange.StartPos, ConstRange.EndPos);
       var Output: String;
       case EvaluateConstant(HintStr, Output) of
-        1: HintStr := Format(SEvaluateHintSuccess, [HintStr, Output]);
-        2: HintStr := Format(SEvaluateHintException, [HintStr, Output]);
+        1: HintStr := LFmtMessage(SEvaluateHintSuccess, [HintStr, Output]);
+        2: HintStr := LFmtMessage(SEvaluateHintException, [HintStr, Output]);
       else
-        HintStr := Format(SEvaluateHintUnknownError, [HintStr]);
+        HintStr := LFmtMessage(SEvaluateHintUnknownError, [HintStr]);
       end;
       UpdateInfo(Info, HintStr, ConstRange, FActiveMemo);
     end;
@@ -4925,7 +5132,7 @@ begin
     SendCopyDataMessageStr(FDebugClientWnd, Handle, CD_DebugClient_CompiledCodeTextA, FCompiledCodeText);
   SendCopyDataMessageStr(FDebugClientWnd, Handle, CD_DebugClient_CompiledCodeDebugInfoA, FCompiledCodeDebugInfo);
 
-  UpdateRunMenu;
+  UpdateRunMenuItems;
 end;
 
 procedure TMainForm.WMDebuggerGoodbye(var Message: TMessage);
@@ -5024,7 +5231,7 @@ begin
     Message.Result := 1;
     FPaused := True;
     FPausedAtCodeLine := DebugEntry.Kind = Ord(deCodeLine);
-    UpdateRunMenu;
+    UpdateRunMenuItems;
     UpdateCaption;
   end;
 end;
@@ -5072,17 +5279,17 @@ begin
     Message.Result := 1;
     FPaused := True;
     FPausedAtCodeLine := (DebugEntry <> nil) and (DebugEntry.Kind = Ord(deCodeLine));
-    UpdateRunMenu;
+    UpdateRunMenuItems;
     UpdateCaption;
 
     ReplyMessage(Message.Result);  { so that Setup enters a paused state now }
     if LineNumber >= 0 then begin
-      S := Format(SRuntimeErrorLine, [LineNumber + 1, AddPeriod(FDebuggerException)]);
+      S := LFmtMessage(SRuntimeErrorLine, [LineNumber + 1, AddPeriod(FDebuggerException)]);
       if (Memo <> nil) and (Memo.Filename <> '') then
         S := Memo.Filename + SNewLine2 + S;
-      MsgBox(S, SRuntimeErrorTitle, mbCriticalError, mb_Ok)
+      MsgBox(S, LFmtMessage(SRuntimeErrorTitle), mbCriticalError, mb_Ok)
     end else
-      MsgBox(AddPeriod(FDebuggerException), SRuntimeErrorTitle, mbCriticalError, mb_Ok);
+      MsgBox(AddPeriod(FDebuggerException), LFmtMessage(SRuntimeErrorTitle), mbCriticalError, mb_Ok);
   end;
 end;
 
@@ -5320,17 +5527,17 @@ procedure TMainForm.DebuggingStopped(const WaitForTermination: Boolean);
             { If the high bit is set, the process was killed uncleanly (e.g.
               by a debugger). Show the exit code as hex in that case. }
             if ExitCode and $80000000 <> 0 then
-              Result := Format(SDebugExitCodeHex, [DebugTargetStrings[FDebugTarget], ExitCode])
+              Result := LFmtMessage(SDebugExitCodeHex, [LFmtMessage(DebugTargetStrings[FDebugTarget]), Format('%.8x', [ExitCode])])
             else
-              Result := Format(SDebugExitCodeDecimal, [DebugTargetStrings[FDebugTarget], ExitCode]);
+              Result := LFmtMessage(SDebugExitCodeDecimal, [LFmtMessage(DebugTargetStrings[FDebugTarget]), Format('%u', [ExitCode])]);
           end
           else
-            Result := Format(SDebugExitCodeGetFailed, [DebugTargetStrings[FDebugTarget], 'GetExitCodeProcess']);
+            Result := LFmtMessage(SDebugExitCodeGetFailed, [LFmtMessage(DebugTargetStrings[FDebugTarget]), 'GetExitCodeProcess']);
         end;
       WAIT_TIMEOUT:
-        Result := Format(SDebugExitCodeStillRunning, [DebugTargetStrings[FDebugTarget]]);
+        Result := LFmtMessage(SDebugExitCodeStillRunning, [LFmtMessage(DebugTargetStrings[FDebugTarget])]);
     else
-      Result := Format(SDebugExitCodeWaitFailed, [DebugTargetStrings[FDebugTarget], 'WaitForSingleObject']);
+      Result := LFmtMessage(SDebugExitCodeWaitFailed, [LFmtMessage(DebugTargetStrings[FDebugTarget]), 'WaitForSingleObject']);
     end;
   end;
 
@@ -5355,9 +5562,9 @@ begin
   CheckIfTerminatedTimer.Enabled := False;
   HideError;
   SetStepLine(FStepMemo, -1);
-  UpdateRunMenu;
+  UpdateRunMenuItems;
   UpdateCaption;
-  DebugLogMessage(Format(SDebugExitCodeText, [ExitCodeText]));
+  DebugLogMessage(SLitStatusEventPrefix + ExitCodeText);
   StatusBar.Panels[spExtraStatus].Text := ' ' + ExitCodeText;
 end;
 
@@ -5372,11 +5579,11 @@ end;
 function TMainForm.AskToDetachDebugger: Boolean;
 begin
   if FDebugClientWnd = 0 then begin
-    MsgBox(Format(SCompilerStopDebugTargetBeforeCommand, [DebugTargetStrings[FDebugTarget]]),
-      SCompilerFormCaption, mbError, MB_OK);
+    MsgBox(LFmtMessage(SCompilerStopDebugTargetBeforeCommand, [LFmtMessage(DebugTargetStrings[FDebugTarget])]),
+      LFmtMessage(SCompilerFormCaption), mbError, MB_OK);
     Result := False;
-  end else if MsgBox(Format(SCompilerDetachDebuggerConfirm, [DebugTargetStrings[FDebugTarget]]),
-     SCompilerFormCaption, mbError, MB_OKCANCEL) = IDOK then begin
+  end else if MsgBox(LFmtMessage(SCompilerDetachDebuggerConfirm, [LFmtMessage(DebugTargetStrings[FDebugTarget])]),
+     LFmtMessage(SCompilerFormCaption), mbError, MB_OKCANCEL) = IDOK then begin
     DetachDebugger;
     Result := True;
   end else
@@ -5385,7 +5592,7 @@ end;
 
 procedure TMainForm.RMenuClick(Sender: TObject);
 begin
-  UpdateRunMenu2(RMenu);
+  UpdateRunMenu(RMenu);
 end;
 
 procedure TMainForm.BreakPointsPopupMenuClick(Sender: TObject);
@@ -5474,9 +5681,9 @@ begin
     raise Exception.Create('Unknown FOptions.KeyMappingType');
   end;
 
-  BackNavButton.Hint := Format('Back (%s)', [NewShortCutToText(FBackNavButtonShortCut)]);
+  BackNavButton.Hint := LFmtMessage(SNavBack, [NewShortCutToText(FBackNavButtonShortCut)]);
   FKeyMappedMenus.Add(FBackNavButtonShortCut, nil);
-  ForwardNavButton.Hint := Format('Forward (%s)', [NewShortCutToText(FForwardNavButtonShortCut)]);
+  ForwardNavButton.Hint := LFmtMessage(SNavForward, [NewShortCutToText(FForwardNavButtonShortCut)]);
   FKeyMappedMenus.Add(FForwardNavButtonShortCut, nil);
 end;
 
@@ -5493,7 +5700,7 @@ procedure TMainForm.UpdateTheme;
 begin
   FTheme.Typ := FOptions.ThemeType;
 
-  {$IF RtlVersion >= 36.0 }
+  {$IF RtlVersion >= 36.0}
   { For MainForm the active style only impacts message boxes and tooltips: FMemos, ToolbarPanel,
     UpdatePanel, SplitPanel and the 4 ListBoxes all ignore it because their StyleName property is set
     to 'Windows' always, either by the .dfm or by code. Additionally, for scrollbars and StatusBar,
@@ -5503,7 +5710,7 @@ begin
     TStyleManager.TrySetStyle('Windows11 Modern Dark')
   else
     TStyleManager.TrySetStyle('Windows');
-  { For some reason only MainForm needs this: with StyleName set to an empty string, dialog boxes
+  { Because StyleElements is empty it needs this: with StyleName set to an empty string, dialog boxes
     it opens, such as MsgBox, look broken }
   StyleName := TStyleManager.ActiveStyle.Name;
   {$ENDIF}
@@ -5513,7 +5720,15 @@ begin
 
   SetHelpFileDark(FTheme.Dark);
 
-  InitFormTheme(Self);
+  InitFormTheme(Self, True);
+  if RichEditForm <> nil then begin
+    {$IF RtlVersion >= 36.0}
+    { See above }
+    RichEditForm.StyleName := TStyleManager.ActiveStyle.Name;
+    {$ENDIF}
+    InitFormTheme(RichEditForm, True);
+    RichEditForm.UpdateTheme;
+  end;
 
   ToolbarPanel.Color := FTheme.Colors[tcToolBack];
 
@@ -5624,8 +5839,8 @@ begin
 
   { Display warning if the user modified the script while running - does not support unopened included files  }
   if FDebugging and FModifiedAnySinceLastCompileAndGo then begin
-    if MsgBox(SCompilerModifiedWhileRunningWarning,
-       SCompilerFormCaption, mbError, MB_YESNO) <> IDYES then
+    if MsgBox(LFmtMessage(SCompilerModifiedWhileRunningWarning),
+       LFmtMessage(SCompilerFormCaption), mbError, MB_YESNO) <> IDYES then
       Abort;
     FModifiedAnySinceLastCompileAndGo := False;
     { The process may have terminated while the message box was up; check,
@@ -5650,11 +5865,11 @@ procedure TMainForm.Go(const AStepMode: TStepMode);
   begin
     if FDebugTarget = dtUninstall then begin
       if FUninstExe = '' then
-        raise Exception.Create(SCompilerNeedUninstExe);
+        raise Exception.Create(LFmtMessage(SCompilerNeedUninstExe));
       RunFilename := FUninstExe;
     end else begin
       if FCompiledExe = '' then
-        raise Exception.Create(SCompilerNeedCompiledExe);
+        raise Exception.Create(LFmtMessage(SCompilerNeedCompiledExe));
       RunFilename := FCompiledExe;
     end;
     { The UInt32 cast prevents sign extension }
@@ -5708,23 +5923,23 @@ procedure TMainForm.Go(const AStepMode: TStepMode);
       { Don't display error message if user clicked Cancel at UAC dialog }
       if ErrorCode = ERROR_CANCELLED then
         Abort;
-      raise Exception.CreateFmt(SCompilerExecuteSetupError2, [RunFilename,
-        ErrorCode, Win32ErrorString(ErrorCode)]);
+      raise Exception.Create(LFmtMessage(SCompilerExecuteSetupError2, [RunFilename,
+        ErrorCode, Win32ErrorString(ErrorCode)]));
     end;
     FDebugging := True;
     FPaused := False;
     FProcessHandle := Info.hProcess;
     CheckIfTerminatedTimer.Enabled := True;
-    UpdateRunMenu;
+    UpdateRunMenuItems;
     UpdateCaption;
-    DebugLogMessage(Format(SDebugTargetStarted, [DebugTargetStrings[FDebugTarget]]));
+    DebugLogMessage(SLitStatusEventPrefix + LFmtMessage(SDebugTargetStarted, [LFmtMessage(DebugTargetStrings[FDebugTarget])]));
   end;
 
   procedure ContinueProcessIfPaused(const AStepMode: TStepMode);
   begin
     if FPaused then begin
       FPaused := False;
-      UpdateRunMenu;
+      UpdateRunMenuItems;
       UpdateCaption;
       if DebugCallStackList.Items.Count > 0 then begin
         DebugCallStackList.Clear;
@@ -5777,8 +5992,8 @@ end;
 procedure TMainForm.RParametersClick(Sender: TObject);
 begin
   ReadMRUParametersList;
-  InputQueryCombo('Run Parameters', 'Command line parameters for ' + DebugTargetStrings[dtSetup] +
-    ' and ' + DebugTargetStrings[dtUninstall] + ':', FRunParameters, FMRUParametersList);
+  InputQueryCombo(LFmtMessage(SCompilerRunParametersTitle), LFmtMessage(SCompilerRunParametersPrompt,
+    [LFmtMessage(DebugTargetStrings[dtSetup]), LFmtMessage(DebugTargetStrings[dtUninstall])]), FRunParameters, FMRUParametersList);
   if FRunParameters <> '' then
     ModifyMRUParametersList(FRunParameters, True);
 end;
@@ -5791,7 +6006,7 @@ begin
       UpdateCaption;
     end
     else
-      MsgBox(SCompilerPauseAlreadyPending, SCompilerFormCaption, mbError,
+      MsgBox(LFmtMessage(SCompilerPauseAlreadyPending), LFmtMessage(SCompilerFormCaption), mbError,
         MB_OK);
   end;
 end;
@@ -5817,7 +6032,7 @@ procedure TMainForm.RRunToCursorClick(Sender: TObject);
 begin
   CompileIfNecessary;
   if not GetDebugEntryFromMemoAndLineNumber((FActiveMemo as TIDEScintFileEdit), FActiveMemo.CaretLine, FRunToCursorPoint) then begin
-    MsgBox(SCompilerNoCodeGeneratedForLine, SCompilerFormCaption,
+    MsgBox(LFmtMessage(SCompilerNoCodeGeneratedForLine), LFmtMessage(SCompilerFormCaption),
       mbError, MB_OK);
     Exit;
   end;
@@ -5846,27 +6061,27 @@ procedure TMainForm.RTerminateClick(Sender: TObject);
 var
   S, Dir: String;
 begin
-  S := Format(SCompilerTerminateProcessConfirm, [DebugTargetStrings[FDebugTarget]]);
+  S := LFmtMessage(SCompilerTerminateProcessConfirm, [LFmtMessage(DebugTargetStrings[FDebugTarget])]);
 
   if FDebugTarget = dtSetup then
-    S := S + SNewLine2 + Format(SCompilerTerminateProcessSetupNote, [DebugTargetStrings[FDebugTarget]]);
+    S := S + SNewLine2 + LFmtMessage(SCompilerTerminateProcessSetupNote, [LFmtMessage(DebugTargetStrings[FDebugTarget])]);
 
-  if MsgBox(S, SCompilerTerminateTitle, mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDYES then
+  if MsgBox(S, RemoveAccelChar(RTerminate.Caption), mbConfirmation, MB_YESNO or MB_DEFBUTTON2) <> IDYES then
     Exit;
   CheckIfTerminated;
   if FDebugging then begin
-    DebugLogMessage(SDebugTerminatingProcess);
+    DebugLogMessage(SLitStatusEventPrefix + LFmtMessage(SDebugTerminatingProcess));
     Win32Check(TerminateProcess(FDebugClientProcessHandle, 6));
     if (WaitForSingleObject(FDebugClientProcessHandle, 5000) <> WAIT_TIMEOUT) and
        (FTempDir <> '') then begin
       Dir := FTempDir;
       FTempDir := '';
-      DebugLogMessage(Format(SDebugRemovingTempDir, [Dir]));
+      DebugLogMessage(SLitStatusEventPrefix + LFmtMessage(SDebugRemovingTempDir, [Dir]));
       { Sleep for a bit to allow files to be unlocked by Windows,
         otherwise it fails intermittently (with Hyper-Threading, at least) }
       Sleep(50);
       if not DeleteDirTree(Dir) and DirExists(Dir) then
-        DebugLogMessage(SDebugFailedToRemoveTempDir);
+        DebugLogMessage(SLitStatusEventPrefix + LFmtMessage(SDebugFailedToRemoveTempDir));
     end;
     DebuggingStopped(True);
   end;
@@ -5876,13 +6091,13 @@ procedure TMainForm.REvaluateClick(Sender: TObject);
 var
   Output: String;
 begin
-  if InputQuery(SEvaluateTitle, Format(SEvaluatePrompt, ['{app}']),
+  if InputQueryEdit(LFmtMessage(SEvaluateTitle), LFmtMessage(SEvaluatePrompt, ['{app}']),
      FLastEvaluateConstantText) then begin
     case EvaluateConstant(FLastEvaluateConstantText, Output) of
-      1: MsgBox(Output, SEvaluateResultTitle, mbInformation, MB_OK);
-      2: MsgBox(Output, SEvaluateErrorTitle, mbError, MB_OK);
+      1: MsgBox(Output, LFmtMessage(SEvaluateResultTitle), mbInformation, MB_OK);
+      2: MsgBox(Output, LFmtMessage(SEvaluateErrorTitle), mbError, MB_OK);
     else
-      MsgBox(SEvaluateUnknownError, SEvaluateErrorTitle, mbError, MB_OK);
+      MsgBox(LFmtMessage(SEvaluateUnknownError), LFmtMessage(SEvaluateErrorTitle), mbError, MB_OK);
     end;
   end;
 end;
@@ -6018,7 +6233,7 @@ var
   L: Integer;
 begin
   S := IntToStr(FActiveMemo.CaretLine + 1);
-  if InputQuery(SGotoLineTitle, SGotoLinePrompt, S) then begin
+  if InputQueryEdit(LFmtMessage(SGotoLineTitle), LFmtMessage(SGotoLinePrompt), S) then begin
     L := StrToIntDef(S, Low(L));
     if L <> Low(L) then
       FActiveMemo.CaretLine := L - 1;
@@ -6066,7 +6281,7 @@ begin
           LStyle.GetElementColor(Details, ecTextColor, Color);
         end;
         Canvas.Font.Color := Color;
-        var S := Format('Tabs closed: %d', [FHiddenFiles.Count]);
+        var S := LFmtMessage(SStatusTabsClosed, [FHiddenFiles.Count]);
         Canvas.TextRect(RText, S, [tfCenter]);
       end;
     spCompileIcon:
@@ -6167,11 +6382,13 @@ begin
     InvalidateStatusPanel(spCompileIcon);
     FBuildAnimationFrame := (FBuildAnimationFrame + 1) mod 4;
     if ASecondsRemaining >= 0 then
-      StatusBar.Panels[spExtraStatus].Text := Format(
-        ' Estimated time remaining: %.2d%s%.2d%s%.2d     Average KB/sec: %.0n',
-        [(ASecondsRemaining div 60) div 60, FormatSettings.TimeSeparator,
-         (ASecondsRemaining div 60) mod 60, FormatSettings.TimeSeparator,
-         ASecondsRemaining mod 60, ABytesCompressedPerSecond / 1024])
+      StatusBar.Panels[spExtraStatus].Text := ' ' +
+        LFmtMessage(SStatusEstimatedTimeRemaining, [Format('%.2d%s%.2d%s%.2d',
+          [(ASecondsRemaining div 60) div 60, FormatSettings.TimeSeparator,
+           (ASecondsRemaining div 60) mod 60, FormatSettings.TimeSeparator,
+           ASecondsRemaining mod 60])]) +
+        '     ' + LFmtMessage(SStatusAverage,
+          [Format('%.0n', [ABytesCompressedPerSecond / 1024])])
     else
       StatusBar.Panels[spExtraStatus].Text := '';
   end;
@@ -6260,7 +6477,7 @@ begin
     FDebugTarget := NewTarget;
 
   { Update always even if the user decided not to switch so the states are restored }
-  UpdateTargetMenu;
+  UpdateTargetMenuItems;
 end;
 
 procedure TMainForm.AppOnActivate(Sender: TObject);
@@ -6290,8 +6507,8 @@ begin
     if Changed then begin
       if IsWindowEnabled(Handle) then begin
         if (not Memo.Modified and FOptions.Autoreload) or
-           (MsgBox(Format(ReloadMessages[Memo.Modified], [Memo.Filename]),
-              SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES) then
+           (MsgBox(LFmtMessage(ReloadMessages[Memo.Modified], [Memo.Filename]),
+              LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDYES) then
           if ConfirmCloseFile(False) then begin
             OpenFile(Memo, Memo.Filename, False, FOptions.UndoAfterReload);
             if Memo = FMainMemo then
@@ -6301,8 +6518,8 @@ begin
       else begin
         { When a modal dialog is up, don't offer to reload the file. Probably
           not a good idea since the dialog might be manipulating the file. }
-        MsgBox(Format(SCompilerFileModifiedOutside, [Memo.Filename]),
-          SCompilerFormCaption, mbInformation, MB_OK);
+        MsgBox(LFmtMessage(SCompilerFileModifiedOutside, [Memo.Filename]),
+          LFmtMessage(SCompilerFormCaption), mbInformation, MB_OK);
       end;
     end;
   end;
@@ -6385,7 +6602,7 @@ begin
           Exit;
         end;
       end;
-      MsgBox(SCompilerFileNotOpened, SCompilerFormCaption, mbError, MB_OK);
+      MsgBox(LFmtMessage(SCompilerFileNotOpened), LFmtMessage(SCompilerFormCaption), mbError, MB_OK);
     end;
   end;
 end;
@@ -6396,7 +6613,6 @@ var
   Canvas: TCanvas;
   S, S2: String;
   FindResult: TFindResult;
-  StartI, EndI: Integer;
   SaveColor: TColor;
 begin
   Canvas := FindResultsList.Canvas;
@@ -6409,10 +6625,8 @@ begin
     Canvas.Font.Style := [fsBold];
     Canvas.TextOut(Rect.Left, Rect.Top, S);
   end else if not (odSelected in State) then begin
-    StartI := FindResult.Range.StartPos - FindResult.LineStartPos + 1 + FindResult.PrefixStringLength;
-    EndI := FindResult.Range.EndPos - FindResult.LineStartPos + 1 + FindResult.PrefixStringLength;
-    if StartI > 1 then begin
-      Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, StartI-1));
+    if FindResult.StartIndex > 1 then begin
+      Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, FindResult.StartIndex-1));
       Rect.Left := Canvas.PenPos.X;
     end;
     SaveColor := Canvas.Brush.Color;
@@ -6420,12 +6634,12 @@ begin
       Canvas.Brush.Color := FTheme.Colors[tcRed]
     else
       Canvas.Brush.Color := FTheme.Colors[tcSelBack];
-    S2 := Copy(S, StartI, EndI-StartI);
+    S2 := Copy(S, FindResult.StartIndex, FindResult.EndIndex-FindResult.StartIndex);
     Rect.Right := Rect.Left + Canvas.TextWidth(S2);
     Canvas.TextRect(Rect, Rect.Left, Rect.Top, S2); { TextRect instead of TextOut to avoid a margin around the text }
-    if EndI <= Length(S) then begin
+    if FindResult.EndIndex <= Length(S) then begin
       Canvas.Brush.Color := SaveColor;
-      S2 := Copy(S, EndI, MaxInt);
+      S2 := Copy(S, FindResult.EndIndex, MaxInt);
       Rect.Left := Rect.Right;
       Rect.Right := Rect.Left + Canvas.TextWidth(S2);
       Canvas.TextRect(Rect, Rect.Left, Rect.Top, S2);
@@ -6586,8 +6800,11 @@ begin
   else if Link = 'hwhatsnew' then
     HWhatsNew.Click
   else if Link = 'toptions-vscode' then begin
-    TOptionsForm.DropDownMemoKeyMappingComboBoxOnNextShow := True;
-    TOptions.Click
+    TOptionsForm.DropDownOnNextShow := odMemoKeyMapping;
+    TOptions.Click;
+  end else if Link = 'toptions-language' then begin
+    TOptionsForm.DropDownOnNextShow := odLanguage;
+    TOptions.Click;
   end else if Link = 'ideas' then
     LaunchFileOrURL('https://ideas.innosetup.nl');
 end;

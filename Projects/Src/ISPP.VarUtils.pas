@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -54,14 +54,7 @@ end;
 procedure CopyExpVar(Src: TIsppVariant; var Dest: TIsppVariant);
 begin
   MakeRValue(Src);
-  if Src.Typ = evStr then
-  begin
-    Dest.Typ := evStr;
-    Dest.AsInt64 := 0;
-    Dest.AsStr := Src.AsStr;
-  end
-  else
-    Move(Src, Dest, SizeOf(TIsppVariant));
+  Dest := Src;
 end;
 
 procedure MakeInt(var Op: TIsppVariant; Value: Int64);

@@ -263,14 +263,11 @@ begin
 end;
 
 function FileTimeToStr(const AFileTime: TFileTime): String;
-{ Converts a TFileTime into a string for log purposes. }
-var
-  FT: TFileTime;
-  ST: TSystemTime;
+{ Converts a TFileTime into a string for log purposes. The time is in UTC. }
 begin
-  FileTimeToLocalFileTime(AFileTime, FT);
-  if FileTimeToSystemTime(FT, ST) then
-    Result := Format('%.4u-%.2u-%.2u %.2u:%.2u:%.2u.%.3u',
+  var ST: TSystemTime;
+  if FileTimeToSystemTime(AFileTime, ST) then
+    Result := Format('%.4u-%.2u-%.2uT%.2u:%.2u:%.2u.%.3uZ',
       [ST.wYear, ST.wMonth, ST.wDay, ST.wHour, ST.wMinute, ST.wSecond,
        ST.wMilliseconds])
   else

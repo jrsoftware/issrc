@@ -2,7 +2,7 @@ unit Shared.EncryptionFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -44,7 +44,12 @@ begin
   Move(Salt[0], SaltBytes[0], SaltSize);
   var KeyLength := SizeOf(Key);
   var KeyBytes := PBKDF2SHA256(Password, SaltBytes, Iterations, KeyLength);
-  Move(KeyBytes[0], Key[0], KeyLength);
+  try
+    Move(KeyBytes[0], Key[0], KeyLength);
+  finally
+    { Security: don't leave derived key in heap memory }
+    FillChar(KeyBytes[0], KeyLength, 0);
+  end;
 end;
 
 procedure InitCryptContext(const CryptKey: TSetupEncryptionKey;

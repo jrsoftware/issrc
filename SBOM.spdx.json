@@ -3,7 +3,7 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "Inno Setup SBOM",
-  "documentNamespace": "https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json#7.0.2",
+  "documentNamespace": "https://raw.githubusercontent.com/jrsoftware/issrc/refs/heads/main/SBOM.spdx.json#7.1.0-dev",
   "comment": "Scope: dependencies for Inno Setup projects (some components are optional).",
   "creationInfo": {
     "created": "2026-07-13T00:00:00Z",
@@ -32,7 +32,7 @@
       "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
       "primaryPackagePurpose": "APPLICATION",
       "supplier": "Organization: JRSoftware",
-      "versionInfo": "7.0.2"
+      "versionInfo": "7.1.0-dev"
     },
     {
       "name": "Inno Setup SetupCustomStyle",
@@ -44,7 +44,7 @@
       "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
       "primaryPackagePurpose": "APPLICATION",
       "supplier": "Organization: JRSoftware",
-      "versionInfo": "7.0.2"
+      "versionInfo": "7.1.0-dev"
     },
     {
       "name": "Inno Setup SetupLdr",
@@ -56,7 +56,7 @@
       "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
       "primaryPackagePurpose": "APPLICATION",
       "supplier": "Organization: JRSoftware",
-      "versionInfo": "7.0.2"
+      "versionInfo": "7.1.0-dev"
     },
     {
       "name": "Inno Setup ISSigTool",
@@ -68,7 +68,7 @@
       "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
       "primaryPackagePurpose": "APPLICATION",
       "supplier": "Organization: JRSoftware",
-      "versionInfo": "7.0.2"
+      "versionInfo": "7.1.0-dev"
     },
     {
       "name": "Inno Setup ISIDE",
@@ -80,7 +80,7 @@
       "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
       "primaryPackagePurpose": "APPLICATION",
       "supplier": "Organization: JRSoftware",
-      "versionInfo": "7.0.2"
+      "versionInfo": "7.1.0-dev"
     },
     {
       "name": "Inno Setup ISCC",
@@ -92,7 +92,7 @@
       "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
       "primaryPackagePurpose": "APPLICATION",
       "supplier": "Organization: JRSoftware",
-      "versionInfo": "7.0.2"
+      "versionInfo": "7.1.0-dev"
     },
     {
       "name": "Inno Setup ISCmplr",
@@ -104,7 +104,7 @@
       "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
       "primaryPackagePurpose": "LIBRARY",
       "supplier": "Organization: JRSoftware",
-      "versionInfo": "7.0.2"
+      "versionInfo": "7.1.0-dev"
     },
     {
       "name": "Inno Setup ISPP",
@@ -116,7 +116,7 @@
       "copyrightText": "Copyright (C) 1997-2026 Jordan Russell. Portions Copyright (C) 2000-2026 Martijn Laan.",
       "primaryPackagePurpose": "LIBRARY",
       "supplier": "Organization: JRSoftware",
-      "versionInfo": "7.0.2",
+      "versionInfo": "7.1.0-dev",
       "comment": "Optional feature; used by ISCmplr only."
     },
     {
@@ -200,7 +200,7 @@
       "licenseDeclared": "LicenseRef-Scintilla",
       "copyrightText": "Copyright 1998-2021 by Neil Hodgson",
       "supplier": "Person: Neil Hodgson",
-      "versionInfo": "5.6.2",
+      "versionInfo": "5.6.3",
       "comment": "Used by ISIDE via isscint DLL. License text in Isscint/License.txt."
     }
   ],

@@ -168,7 +168,7 @@ type
   TComboBoxExStyleHook = TStyleHook;
   TRichEditStyleHook = TStyleHook;
 
-  { OVerride Forms }
+  { Override Forms }
   TScrollingStyleHook = TStyleHook;
   TFormStyleHook = TStyleHook;
   TScrollBoxStyleHook = TStyleHook;

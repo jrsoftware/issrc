@@ -33,7 +33,7 @@
 
 <p>Parameter type <tt>Array</tt> means any array type can be used.</p>
 
-<xsl:for-each select="isxfunc//category">
+<xsl:for-each select="isxfuncs//category">
 <xsl:call-template name="category"/>
 </xsl:for-each>
 
@@ -41,13 +41,13 @@
 
 <p>Here's the list of constants used by these functions:</p>
 
-<xsl:for-each select="isxenum/enum">
+<xsl:for-each select="isxenums/enum">
 <xsl:call-template name="enum"/></xsl:for-each>
 
 </body>
 </topic>
 
-<xsl:for-each select="isxfunc//function">
+<xsl:for-each select="isxfuncs//function">
 <xsl:call-template name="function2"/>
 </xsl:for-each>
 
@@ -87,10 +87,10 @@
 <keyword value="{name}" />
 <body>
 
-<p margin="no"><b>Prototype:</b></p>
+<heading>Prototype</heading>
 <p><tt><xsl:value-of select="prototype"/></tt></p>
 
-<p margin="no"><b>Description:</b></p>
+<heading>Description</heading>
 <xsl:choose>
 <xsl:when test="description">
 <xsl:apply-templates select="description"/>
@@ -100,32 +100,35 @@
 </xsl:otherwise>
 </xsl:choose>
 
-<xsl:choose>
-<xsl:when test="remarks">
-<p margin="no"><b>Remarks:</b></p>
+<xsl:if test="remarks">
+<heading>Remarks</heading>
 <xsl:apply-templates select="remarks"/>
-</xsl:when>
-</xsl:choose>
+</xsl:if>
 
-<xsl:choose>
-<xsl:when test="example">
-<p margin="no"><b>Example:</b></p>
 <xsl:apply-templates select="example"/>
-</xsl:when>
-</xsl:choose>
 
-<xsl:choose>
-<xsl:when test="seealso">
-<p margin="no"><b>See also:</b></p>
+<xsl:if test="seealso">
+<heading>See also</heading>
 <xsl:apply-templates select="seealso"/>
-</xsl:when>
-</xsl:choose>
+</xsl:if>
 </body>
 </topic>
 </xsl:template>
 
 <xsl:template match="p">
 <p><xsl:apply-templates/></p></xsl:template>
+
+<xsl:template match="example">
+<xsl:for-each select="*">
+<xsl:choose>
+<xsl:when test="self::pre">
+<example><xsl:apply-templates select="."/></example>
+</xsl:when>
+<xsl:otherwise>
+<xsl:apply-templates select="."/>
+</xsl:otherwise>
+</xsl:choose>
+</xsl:for-each></xsl:template>
 
 <xsl:template match="pre">
 <pre><xsl:apply-templates/></pre></xsl:template>
@@ -138,6 +141,39 @@
 
 <xsl:template match="tt">
 <tt><xsl:apply-templates/></tt></xsl:template>
+
+<xsl:template match="sd">
+<sd><xsl:apply-templates/></sd></xsl:template>
+
+<xsl:template match="sn">
+<sn><xsl:apply-templates/></sn></xsl:template>
+
+<xsl:template match="isxfunc">
+<isxfunc><xsl:apply-templates/></isxfunc></xsl:template>
+
+<xsl:template match="sec">
+<sec><xsl:apply-templates/></sec></xsl:template>
+
+<xsl:template match="evt">
+<evt><xsl:apply-templates/></evt></xsl:template>
+
+<xsl:template match="key">
+<key><xsl:apply-templates/></key></xsl:template>
+
+<xsl:template match="com">
+<com><xsl:apply-templates/></com></xsl:template>
+
+<xsl:template match="con">
+<con><xsl:apply-templates/></con></xsl:template>
+
+<xsl:template match="str">
+<str><xsl:apply-templates/></str></xsl:template>
+
+<xsl:template match="num">
+<num><xsl:apply-templates/></num></xsl:template>
+
+<xsl:template match="ispp">
+<ispp><xsl:apply-templates/></ispp></xsl:template>
 
 <xsl:template match="ul">
 <ul><xsl:apply-templates/></ul></xsl:template>
@@ -172,7 +208,7 @@
 </xsl:choose>
 </xsl:template>
 
-<xsl:template match="a">
+<xsl:template match="extlink">
   <extlink href="{@href}"><xsl:apply-templates/></extlink>
 </xsl:template>
 

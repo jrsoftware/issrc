@@ -35,10 +35,21 @@ type
     property Typ: TThemeType read FType write FType;
   end;
 
+function SwapRB(const Color: TColor): TColor;
+
 implementation
 
 uses
   Winapi.Windows;
+
+function SwapRB(const Color: TColor): TColor;
+begin
+  Result := Color;
+  if Result > 0 then begin { Same check as ColorToRGB }
+    { Not a system color so change RGB to BGR }
+    Result := TColor(RGB(GetBValue(DWORD(Result)), GetGValue(DWORD(Result)), GetRValue(DWORD(Result))));
+  end;
+end;
 
 function TTheme.FGetColor(Color: TThemeColor): TColor;
 const
@@ -127,11 +138,7 @@ const
   );
   
 begin
-  Result := Colors[FType, Color];
-  if Result > 0 then begin { Same check as ColorToRGB }
-    { Not a system color so change RGB to BGR as Delphi requires }
-    Result := TColor(RGB(GetBValue(DWORD(Result)), GetGValue(DWORD(Result)), GetRValue(DWORD(Result))));
-  end;
+  Result := SwapRB(Colors[FType, Color]);
 end;
 
 function TTheme.FGetDark: Boolean;

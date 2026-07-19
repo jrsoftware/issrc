@@ -39,6 +39,7 @@ type
         UninsDeleteKeyIfEmptyCheck, UninsDeleteValueCheck, MinVerCheck: TCheckBox;
         const MinVerEdit: TEdit; const MinVerDocBitBtn: TBitmapButton);
       procedure AddScript(var Registry: String; const AllowException: Boolean);
+      function ValidateOptionalFile: Boolean;
       property PrivilegesRequired: TPrivilegesRequired write SetPrivilegesRequired;
     end;
 
@@ -47,7 +48,8 @@ implementation
 uses
   Windows, ShLwApi, Classes, SysUtils, StrUtils, TypInfo, Graphics, UITypes,
   ComCtrls, BrowseFunc,
-  IDE.MainForm, IDE.ImagesModule, IDE.HelperFunc, IDE.Messages, Shared.CommonFunc, IDE.HtmlHelpFunc;
+  Shared.CommonFunc, Shared.CommonFunc.Vcl,
+  IDE.MainForm, IDE.ImagesModule, IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc, IDE.HtmlHelpFunc;
 
 { TWizardFormRegistryHelper }
 
@@ -88,6 +90,8 @@ begin
   UninsDeleteKeyIfEmptyCheck.OnClick := UninsDeleteKeyIfEmptyCheckClick;
   MinVerCheck.OnClick := MinVerCheckClick;
   MinVerCheck.OnClick(nil);
+  MinVerDocBitBtn.Caption := RemoveAccelChar(MainForm.HMenu.Caption);
+  MinVerDocBitBtn.Hint := MinVerDocBitBtn.Caption;
   MinVerDocBitBtn.OnClick := MinVerDocBitBtnClick;
   MinVerDocBitBtn.Cursor := crHandPoint;
 
@@ -105,7 +109,9 @@ end;
 procedure TWizardFormRegistryHelper.FileButtonClick(Sender: TObject);
 begin
   var FileName: String := FFileEdit.Text;
-  if NewGetOpenFileName('', FileName, '', SWizardAppRegFilter, SWizardAppRegDefaultExt, FForm.Handle) then
+  if NewGetOpenFileName('', FileName, '',
+       Format(SLitExtAndAllFilter, [LFmtMessage(SRegFiles), SLitRegExt, LFmtMessage(SAllFiles)]),
+       SLitRegExt, FForm.Handle) then
     FFileEdit.Text := FileName;
 end;
 
@@ -130,6 +136,15 @@ begin
     HtmlHelp(GetDesktopWindow, PChar(GetHelpFile), HH_DISPLAY_TOPIC, DWORD_PTR(PChar('topic_winvernotes.htm')));
 end;
 
+function TWizardFormRegistryHelper.ValidateOptionalFile: Boolean;
+begin
+  Result := (FFileEdit.Text = '') or NewFileExists(FFileEdit.Text);
+  if not Result then begin
+    MsgBox(LFmtMessage(SRegistryDesignerFileNotExistError), '', mbError, MB_OK);
+    FForm.ActiveControl := FFileEdit;
+  end;
+end;
+
 procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
   const AllowException: Boolean);
 
@@ -142,9 +157,46 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
       Result := ''; { Official .reg files must end with a blank line so should never get here but we support ones without }
   end;
 
+  function ReadValueDataLines(ValueData: String; const Lines: TStrings;
+    var LineIndex: Integer): String;
+  begin
+    var HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
+    if HasMoreLines then
+      Delete(ValueData, ValueData.Length, 1);
+    Result := ValueData;
+
+    while HasMoreLines do
+    begin
+      ValueData := NextLine(Lines, LineIndex).TrimLeft;
+      HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
+      if HasMoreLines then
+        Delete(ValueData, ValueData.Length, 1);
+      Result := Result + ValueData;
+    end;
+  end;
+
   function CutStrBeginEnd(S: String; CharCount: Integer): String;
   begin
     Result := Copy(S, CharCount + 1, S.Length - 2 * CharCount);
+  end;
+
+  function FindValueNameSeparator(const Line: String): Integer;
+  { Returns the position of the '=' separating the value name from the value
+    data, skipping any '=' inside the quoted value name }
+  begin
+    if (Line <> '') and (Line[1] = '@') then
+      Exit(Pos('=', Line));
+    { The value name is a quoted string, which may contain '='. We need
+      to find the end before searching for the true separator. Make sure
+      an escaped \ before a quote (so: \\") doesn't confuse us. }
+    const N = Length(Line);
+    var I := 2;
+    while (I <= N) and (Line[I] <> '"') do begin
+      if Line[I] = '\' then
+        Inc(I); { skip escaped character }
+      Inc(I);
+    end;
+    Result := Pos('=', Line, I + 1);
   end;
 
   function StrRootRename(S: String): String;
@@ -243,7 +295,8 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
   function RequiresAdminInstallMode(AEntry: TRegistryEntry): Boolean;
   begin
     Result := (AEntry.Root = 'HKLM') or (AEntry.Root = 'HKCC') or
-              ((AEntry.Root = 'HKU') and SameText(AEntry.QuotedSubkey, '".Default"'));
+              ((AEntry.Root = 'HKU') and
+               (SameText(AEntry.QuotedSubkey, '".Default"') or StartsText('".Default\', AEntry.QuotedSubkey)));
   end;
 
    function RequiresNotAdminInstallMode(AEntry: TRegistryEntry): Boolean;
@@ -297,21 +350,21 @@ procedure TWizardFormRegistryHelper.AddScript(var Registry: String;
 
   function TextHeader: String;
   begin
-    Result := ';Registry data from file ' + ExtractFileName(FFileEdit.Text);
+    Result := ';' + LFmtMessage(SWizardScriptCommentRegistryDataFromFile, [ExtractFileName(FFileEdit.Text)]);
   end;
 
   function TextBadHeader: String;
   begin
-    Result := ';COULD NOT IMPORT ' + ExtractFileName(FFileEdit.Text);
+    Result := ';' + LFmtMessage(SWizardScriptCommentCouldNotImport, [ExtractFileName(FFileEdit.Text)]);
   end;
 
   function TextFooter(const HadFilteredKeys, HadUnsupportedValueTypes: Boolean): String;
   begin
-    Result := ';End of registry data from file ' + ExtractFileName(FFileEdit.Text);
+    Result := ';' + LFmtMessage(SWizardScriptCommentEndOfRegistryDataFromFile, [ExtractFileName(FFileEdit.Text)]);
     if HadFilteredKeys then
-      Result := Result + SNewLine + ';SOME KEYS FILTERED DUE TO PRIVILEGESREQUIRED SETTINGS!';
+      Result := Result + SNewLine + ';' + LFmtMessage(SWizardScriptCommentKeysFilteredDuePrivilegesRequired, ['PRIVILEGESREQUIRED']);
     if HadUnsupportedValueTypes then
-      Result := Result + SNewLine + ';SOME VALUES WITH UNSUPPORTED TYPES SKIPPED!'
+      Result := Result + SNewLine + ';' + LFmtMessage(SWizardScriptCommentValuesWithUnsupportedTypesSkipped)
   end;
 
 begin
@@ -323,161 +376,161 @@ begin
   try
     Lines := TStringList.Create;
     OutLines := TStringList.Create;
-    Lines.LoadFromFile(FFileEdit.Text);
+    try
+      Lines.LoadFromFile(FFileEdit.Text);
 
-    { Official .reg files must have blank lines as second and last lines but we
-      don't require that so we just check for the header on the first line }
-    const Header = 'Windows Registry Editor Version 5.00'; { don't localize }
-    if (Lines.Count = 0) or (Lines[0] <> Header) then begin
-      if AllowException then
-        raise Exception.Create('Invalid file format.')
-      else begin
-        Registry := Registry + TextBadHeader + SNewLine;
-        Exit;
-      end;
-    end;
+      { Official .reg files must have blank lines as second and last lines but we
+        don't require that so we just check for the header on the first line }
+      const Header = 'Windows Registry Editor Version 5.00'; { don't localize }
+      if (Lines.Count = 0) or (Lines[0] <> Header) then
+        raise Exception.Create(LFmtMessage(SRegistryDesignerInvalidFileFormat));
 
-    var LineIndex := 1;
-    var HadFilteredKeys := False;
-    var HadUnsupportedValueTypes := False;
-    while LineIndex <= Lines.Count-1 do
-    begin
-      var Line := Lines[LineIndex];
-      if (Length(Line) > 2) and (Line[1] = '[') and (Line[Line.Length] = ']') then
+      var LineIndex := 1;
+      var HadFilteredKeys := False;
+      var HadUnsupportedValueTypes := False;
+      while LineIndex <= Lines.Count-1 do
       begin
-        { Got a new section, first handle the key }
-        Line := CutStrBeginEnd(Line, 1);
-        var DeleteKey := Line.StartsWith('-');
-        if DeleteKey then
-          Delete(Line, 1, 1);
-        var P := Pos('\', Line);
+        var Line := Lines[LineIndex];
+        if (Length(Line) > 2) and (Line[1] = '[') and (Line[Line.Length] = ']') then
+        begin
+          { Got a new section, first handle the key }
+          Line := CutStrBeginEnd(Line, 1);
+          var DeleteKey := Line.StartsWith('-');
+          if DeleteKey then
+            Delete(Line, 1, 1);
+          var P := Pos('\', Line);
 
-        var Entry: TRegistryEntry;
-        Entry.Root := StrRootRename(Copy(Line, 1, P - 1));
-        var Subkey := Copy(Line, P + 1, MaxInt);
-        if Entry.Root = 'HKCR' then begin
-          Entry.Root := 'HKA';
-          Subkey := 'Software\Classes\' + Subkey;
-        end;
-        Entry.QuotedSubkey := Subkey.Replace('\WOW6432Node', '')
-                                    .Replace('{', '{{')
-                                    .QuotedString('"');
-
-        var FilterKey := ((FPrivilegesRequired = prAdmin) and RequiresNotAdminInstallMode(Entry)) or
-                         ((FPrivilegesRequired = prLowest) and RequiresAdminInstallMode(Entry));
-
-        if not FilterKey then
-          OutLines.Add(TextKeyEntry(Entry, DeleteKey))
-        else
-          HadFilteredKeys := True;
-
-        { Key done, handle values }
-        Line := NextLine(Lines, LineIndex);
-
-        while Line <> '' do begin
-          if not FilterKey and not DeleteKey and (Line[1] <> ';') then begin
-            P := Pos('=', Line);
-            if (P = 2) and (Line[1] = '@') then
-              Entry.QuotedValueName := '""'
-            else begin
-              const ValueName = CutStrBeginEnd(Copy(Line, 1, P - 1), 1);
-              Entry.QuotedValueName := ValueName.Replace('\\', '\')
-                                                .Replace('{', '{{')
-                                                .QuotedString('"');
-            end;
-            var ValueTypeAndData := Copy(Line, P + 1, MaxInt);
-            var ValueType := GetValueType(ValueTypeAndData);
-            case ValueType of
-              vtSz:
-                begin
-                  Entry.ValueData := CutStrBeginEnd(ValueTypeAndData, 1);
-                  Entry.ValueData := Entry.ValueData.Replace('\\', '\')
-                                                    .Replace('{', '{{')
-                                                    .QuotedString('"');
-                  Entry.ValueType := 'string';
-                end;
-              vtSzAsList, vtExpandSz, vtMultiSz, vtBinary:
-                begin
-                  P := Pos(':', ValueTypeAndData);
-                  var ValueData := Copy(ValueTypeAndData, P + 1, MaxInt);
-
-                  var HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
-                  if HasMoreLines then
-                    Delete(ValueData, ValueData.Length, 1);
-                  Entry.ValueData := ValueData;
-
-                  while HasMoreLines do
-                  begin
-                    ValueData := NextLine(Lines, LineIndex).TrimLeft;
-                    HasMoreLines := (ValueData <> '') and (ValueData[ValueData.Length] = '\');
-                    if HasMoreLines then
-                      Delete(ValueData, ValueData.Length, 1);
-                    Entry.ValueData := Entry.ValueData + ValueData;
-                  end;
-
-                  Entry.ValueData := Entry.ValueData.Replace(',', ' ');
-                  if ValueType <> vtBinary then
-                  begin
-                    Entry.ValueData := Entry.ValueData.Replace(' ', '');
-                    Entry.ValueData := UTF16LEHexStrToStr(Entry.ValueData);
-                  end;
-
-                  if ValueType in [vtSzAsList, vtExpandSz] then
-                  begin
-                    Entry.ValueData := Entry.ValueData.Replace(#0, '')
-                                                      .Replace('{', '{{');
-                    Entry.ValueType := IfThen(ValueType = vtSzAsList, 'string', 'expandsz');
-                  end else if ValueType = vtMultiSz then
-                  begin
-                    Entry.ValueData := Entry.ValueData.TrimEnd([#0])
-                                                      .Replace('{', '{{')
-                                                      .Replace(#0, '{break}');
-                    Entry.ValueType := 'multisz';
-                  end else
-                    Entry.ValueType := 'binary';
-
-                  Entry.ValueData := Entry.ValueData.QuotedString('"');
-               end;
-              vtDWord, vtDWordAsList, vtQWord:
-                begin
-                  P := Pos(':', ValueTypeAndData);
-                  Entry.ValueData := Copy(ValueTypeAndData, P + 1, MaxInt);
-
-                  if ValueType in [vtDWordAsList, vtQWord] then
-                  begin
-                    { ValueData is in reverse order, fix this }
-                    var ReverseValueData := Entry.ValueData.Replace(',', '');
-                    Entry.ValueData := '';
-                    for var I := 0 to ReverseValueData.Length div 2 - 1 do
-                      Entry.ValueData := Copy(ReverseValueData, (I * 2) + 1, 2) + Entry.ValueData;
-
-                    Entry.ValueType := IfThen(ValueType = vtDWordAsList, 'dword', 'qword');
-                  end else
-                    Entry.ValueType := 'dword';
-
-                  Entry.ValueData := '$' + Entry.ValueData;
-                end;
-              vtNone, vtDelete:
-                begin
-                  Entry.ValueType := 'none';
-                  Entry.ValueData := ''; { value doesn't matter }
-                end;
-            end;
-
-            if ValueType <> vtUnsupported then
-              OutLines.Add(TextValueEntry(Entry, ValueType))
-            else
-              HadUnsupportedValueTypes := True;
+          var Entry: TRegistryEntry;
+          Entry.Root := StrRootRename(Copy(Line, 1, P - 1));
+          var Subkey := Copy(Line, P + 1, MaxInt);
+          if Entry.Root = 'HKCR' then begin
+            Entry.Root := 'HKA';
+            Subkey := 'Software\Classes\' + Subkey;
           end;
+          Entry.QuotedSubkey := Subkey.Replace('\WOW6432Node', '')
+                                      .Replace('{', '{{')
+                                      .QuotedString('"');
 
-          Line := NextLine(Lines, LineIndex); { Go to the next line - should be the next value or a comment }
-        end; { Out of values }
+          var FilterKey := ((FPrivilegesRequired = prAdmin) and RequiresNotAdminInstallMode(Entry)) or
+                           ((FPrivilegesRequired = prLowest) and RequiresAdminInstallMode(Entry));
+
+          if not FilterKey then
+            OutLines.Add(TextKeyEntry(Entry, DeleteKey))
+          else
+            HadFilteredKeys := True;
+
+          { Key done, handle values }
+          Line := NextLine(Lines, LineIndex);
+
+          while Line <> '' do begin
+            if Line[1] = '[' then begin
+              Dec(LineIndex); { New section started without a preceding blank line. Regedit supports such an import so must handle. }
+              Break;
+            end;
+            if not FilterKey and not DeleteKey and (Line[1] <> ';') then begin
+              P := FindValueNameSeparator(Line);
+              if (P = 2) and (Line[1] = '@') then
+                Entry.QuotedValueName := '""'
+              else begin
+                const ValueName = CutStrBeginEnd(Copy(Line, 1, P - 1), 1);
+                Entry.QuotedValueName := ValueName.Replace('\\', '\')
+                                                  .Replace('\"', '"')
+                                                  .Replace('{', '{{')
+                                                  .QuotedString('"');
+              end;
+              var ValueTypeAndData := Copy(Line, P + 1, MaxInt);
+              var ValueType := GetValueType(ValueTypeAndData);
+              case ValueType of
+                vtSz:
+                  begin
+                    Entry.ValueData := CutStrBeginEnd(ValueTypeAndData, 1);
+                    Entry.ValueData := Entry.ValueData.Replace('\\', '\')
+                                                      .Replace('\"', '"')
+                                                      .Replace('{', '{{')
+                                                      .QuotedString('"');
+                    Entry.ValueType := 'string';
+                  end;
+                vtSzAsList, vtExpandSz, vtMultiSz, vtBinary:
+                  begin
+                    P := Pos(':', ValueTypeAndData);
+                    Entry.ValueData := ReadValueDataLines(Copy(ValueTypeAndData, P + 1, MaxInt), Lines, LineIndex);
+
+                    Entry.ValueData := Entry.ValueData.Replace(',', ' ');
+                    if ValueType <> vtBinary then
+                    begin
+                      Entry.ValueData := Entry.ValueData.Replace(' ', '');
+                      Entry.ValueData := UTF16LEHexStrToStr(Entry.ValueData);
+                    end;
+
+                    if ValueType in [vtSzAsList, vtExpandSz] then
+                    begin
+                      Entry.ValueData := Entry.ValueData.Replace(#0, '')
+                                                        .Replace('{', '{{');
+                      Entry.ValueType := IfThen(ValueType = vtSzAsList, 'string', 'expandsz');
+                    end else if ValueType = vtMultiSz then
+                    begin
+                      Entry.ValueData := Entry.ValueData.TrimEnd([#0])
+                                                        .Replace('{', '{{')
+                                                        .Replace(#0, '{break}');
+                      Entry.ValueType := 'multisz';
+                    end else
+                      Entry.ValueType := 'binary';
+
+                    Entry.ValueData := Entry.ValueData.QuotedString('"');
+                 end;
+                vtDWord, vtDWordAsList, vtQWord:
+                  begin
+                    P := Pos(':', ValueTypeAndData);
+                    Entry.ValueData := ReadValueDataLines(Copy(ValueTypeAndData, P + 1, MaxInt), Lines, LineIndex);
+
+                    if ValueType in [vtDWordAsList, vtQWord] then
+                    begin
+                      { ValueData is in reverse order, fix this }
+                      var ReverseValueData := Entry.ValueData.Replace(',', '');
+                      Entry.ValueData := '';
+                      for var I := 0 to ReverseValueData.Length div 2 - 1 do
+                        Entry.ValueData := Copy(ReverseValueData, (I * 2) + 1, 2) + Entry.ValueData;
+
+                      Entry.ValueType := IfThen(ValueType = vtDWordAsList, 'dword', 'qword');
+                    end else
+                      Entry.ValueType := 'dword';
+
+                    Entry.ValueData := '$' + Entry.ValueData;
+                  end;
+                vtNone, vtDelete:
+                  begin
+                    if ValueType = vtNone then begin
+                      { REG_NONE 'hex(0):' can wrap too, so we must read data even if we throw it away.
+                        regedit.exe doesn't actually throw it away, but Setup doesnt support none+data. }
+                      P := Pos(':', ValueTypeAndData);
+                      ReadValueDataLines(Copy(ValueTypeAndData, P + 1, MaxInt), Lines, LineIndex);
+                    end;
+                    Entry.ValueType := 'none';
+                    Entry.ValueData := ''; { value doesn't matter }
+                  end;
+              end;
+
+              if ValueType <> vtUnsupported then
+                OutLines.Add(TextValueEntry(Entry, ValueType))
+              else
+                HadUnsupportedValueTypes := True;
+            end;
+
+            Line := NextLine(Lines, LineIndex); { Go to the next line - should be the next value or a comment }
+          end; { Out of values }
+        end;
+        Inc(LineIndex); { Go to the next line - should be the next key section or a comment }
       end;
-      Inc(LineIndex); { Go to the next line - should be the next key section or a comment }
+      OutLines.Insert(0, TextHeader);
+      OutLines.Add(TextFooter(HadFilteredKeys, HadUnsupportedValueTypes));
+      Registry := Registry + OutLines.Text;
+    except
+      { When AllowException is False (the wizard path), report any import failure
+        as a bad header comment instead of letting the exception escape }
+      if AllowException then
+        raise;
+      Registry := Registry + TextBadHeader + SNewLine;
     end;
-    OutLines.Insert(0, TextHeader);
-    OutLines.Add(TextFooter(HadFilteredKeys, HadUnsupportedValueTypes));
-    Registry := Registry + OutLines.Text;
   finally
     OutLines.Free;
     Lines.Free;

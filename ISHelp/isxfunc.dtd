@@ -1,0 +1,78 @@
+<!--
+  Inno Setup
+  Copyright (C) 1997-2026 Jordan Russell
+  Portions by Martijn Laan
+  For conditions of distribution and use, see LICENSE.TXT.
+
+  Document Type Definition for isxfunc.xml
+-->
+
+<!ENTITY % _inlineExceptLink "b | br | i | tt">
+<!ENTITY % _inline "%_inlineExceptLink; | link | extlink | sd | sn | isxfunc">
+<!ENTITY % _block "p | pre | example | ul | table">
+<!ENTITY % _highlight "sec | evt | key | com | con | str | num | ispp">
+
+<!ENTITY % Inline "(#PCDATA | %_inline;)*">
+<!ENTITY % InlineExceptLink "(#PCDATA | %_inlineExceptLink;)*">
+<!ENTITY % InlineOrBlock "(#PCDATA | %_inline; | %_block;)*">
+<!ENTITY % InlineWithHighlight "(#PCDATA | %_inline; | %_highlight;)*">
+
+<!ELEMENT isxhelp (copyright, isxfuncs, isxenums)>
+<!ATTLIST isxhelp version CDATA #REQUIRED>
+<!ELEMENT copyright (#PCDATA)>
+
+<!ELEMENT isxfuncs (category*)>
+<!ELEMENT category (description, subcategory*)>
+<!ELEMENT subcategory (function*)>
+
+<!ELEMENT function (name, prototype, description?, (remarks | seealso | example)*)>
+<!ELEMENT name (#PCDATA)>
+<!ELEMENT prototype (#PCDATA)>
+<!ELEMENT description %InlineOrBlock;>
+<!ELEMENT remarks %InlineOrBlock;>
+<!ELEMENT seealso %InlineOrBlock;>
+
+<!ELEMENT isxenums (enum*)>
+<!ELEMENT enum (description, values)>
+<!ELEMENT values %Inline;>
+
+<!-- Inline elements -->
+
+<!ELEMENT b %Inline;>
+<!ELEMENT br EMPTY>
+<!ELEMENT i %Inline;>
+<!ELEMENT tt %InlineWithHighlight;>
+<!ELEMENT link %InlineExceptLink;>
+<!ATTLIST link topic CDATA #REQUIRED anchor CDATA #IMPLIED>
+<!ELEMENT extlink %InlineExceptLink;>
+<!ATTLIST extlink href CDATA #REQUIRED>
+<!ELEMENT sd %InlineExceptLink;>
+<!ELEMENT sn %InlineExceptLink;>
+<!ELEMENT isxfunc %InlineExceptLink;>
+
+<!-- Syntax highlighting elements -->
+
+<!ELEMENT sec %InlineWithHighlight;>
+<!ELEMENT evt %InlineWithHighlight;>
+<!ELEMENT key %InlineWithHighlight;>
+<!ELEMENT com %InlineWithHighlight;>
+<!ELEMENT con %InlineWithHighlight;>
+<!ELEMENT str %InlineWithHighlight;>
+<!ELEMENT num %InlineWithHighlight;>
+<!ELEMENT ispp %InlineWithHighlight;>
+
+<!-- Simple block elements -->
+
+<!ELEMENT p %Inline;>
+<!ELEMENT pre %InlineWithHighlight;>
+<!ELEMENT example %InlineOrBlock;>
+
+<!-- Fancier block elements -->
+
+<!ELEMENT ul (li|ul)*>
+<!ELEMENT li %InlineOrBlock;>
+
+<!ELEMENT table (tr*)>
+<!ELEMENT tr (th|td)*>
+<!ELEMENT th %InlineOrBlock;>
+<!ELEMENT td %InlineOrBlock;>

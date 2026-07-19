@@ -19,6 +19,7 @@ object MainForm: TMainForm
   OnCloseQuery = FormCloseQuery
   OnKeyDown = FormKeyDown
   OnResize = FormResize
+  OnShow = FormShow
   TextHeight = 13
   object Bevel1: TBevel
     Left = 0
@@ -129,10 +130,10 @@ object MainForm: TMainForm
         Align = alBottom
         TabIndex = 0
         Tabs.Strings = (
-          'Compiler Output'
-          'Debug Output'
-          'Debug Call Stack'
-          'Find Results')
+          '*'
+          '*'
+          '*'
+          '*')
         OnClick = OutputTabSetClick
       end
     end
@@ -146,30 +147,27 @@ object MainForm: TMainForm
       item
         Alignment = taCenter
         Bevel = pbNone
-        Text = '   1:   1'
-        Width = 64
+        Width = 96
       end
       item
         Alignment = taCenter
         Bevel = pbNone
-        Width = 64
+        Width = 88
       end
       item
         Alignment = taCenter
         Bevel = pbNone
-        Text = 'Insert'
-        Width = 64
+        Width = 96
       end
       item
         Alignment = taCenter
         Bevel = pbNone
-        Text = '.*'
         Width = 23
       end
       item
         Bevel = pbNone
         Style = psOwnerDraw
-        Width = 110
+        Width = 192
       end
       item
         Bevel = pbNone
@@ -203,10 +201,10 @@ object MainForm: TMainForm
       Left = 7
       Top = 4
       Width = 351
-      Height = 25
+      Height = 22
       Margins.Left = 7
       Margins.Top = 4
-      Margins.Bottom = 0
+      AutoSize = True
       Images = ThemedToolbarVirtualImageList
       ParentShowHint = False
       ShowHint = True
@@ -235,7 +233,7 @@ object MainForm: TMainForm
       object NewMainFileButton: TToolButton
         Left = 54
         Top = 0
-        Hint = 'New Main Script (Ctrl+N)'
+        Hint = 'New Main Script (%1)'
         ImageIndex = 0
         ImageName = 'document-new'
         OnClick = FNewMainFileClick
@@ -243,7 +241,7 @@ object MainForm: TMainForm
       object OpenMainFileButton: TToolButton
         Left = 77
         Top = 0
-        Hint = 'Open Main Script (Ctrl+O)'
+        Hint = 'Open Main Script (%1)'
         ImageIndex = 1
         ImageName = 'folder-open-filled-arrow-down-right'
         OnClick = FOpenMainFileClick
@@ -251,7 +249,7 @@ object MainForm: TMainForm
       object SaveButton: TToolButton
         Left = 100
         Top = 0
-        Hint = 'Save (Ctrl+S)'
+        Hint = 'Save (%1)'
         ImageIndex = 2
         ImageName = 'save-filled'
         OnClick = FSaveClick
@@ -272,7 +270,7 @@ object MainForm: TMainForm
       object StopCompileButton: TToolButton
         Left = 154
         Top = 0
-        Hint = 'Stop Compile (Esc)'
+        Hint = 'Stop Compile (%1)'
         Enabled = False
         ImageIndex = 4
         ImageName = 'build-cancel-2'
@@ -294,7 +292,6 @@ object MainForm: TMainForm
       object PauseButton: TToolButton
         Left = 208
         Top = 0
-        Hint = 'Pause'
         Enabled = False
         ImageIndex = 6
         ImageName = 'debug-break-all-filled'
@@ -317,7 +314,7 @@ object MainForm: TMainForm
       object TargetSetupButton: TToolButton
         Left = 262
         Top = 0
-        Hint = 'Target Setup (Ctrl+Q)'
+        Hint = 'Target Setup (%1)'
         Grouped = True
         ImageIndex = 7
         ImageName = 'install'
@@ -327,7 +324,7 @@ object MainForm: TMainForm
       object TargetUninstallButton: TToolButton
         Left = 285
         Top = 0
-        Hint = 'Target Uninstall (Alt+Q)'
+        Hint = 'Target Uninstall (%1)'
         Grouped = True
         ImageIndex = 8
         ImageName = 'uninstall'
@@ -343,7 +340,7 @@ object MainForm: TMainForm
       object HelpButton: TToolButton
         Left = 316
         Top = 0
-        Hint = 'Help (F1)'
+        Hint = 'Help (%1)'
         ImageIndex = 9
         ImageName = 'button-help'
         OnClick = HDocClick
@@ -399,7 +396,6 @@ object MainForm: TMainForm
       Margins.Right = 0
       Margins.Bottom = 8
       Align = alRight
-      Caption = 'Donate'
       ParentShowHint = False
       ShowHint = True
       TabOrder = 2
@@ -408,11 +404,9 @@ object MainForm: TMainForm
     object UpdateLinkLabel: TLinkLabel
       Left = 13
       Top = 13
-      Width = 303
+      Width = 8
       Height = 17
-      Caption = 
-        'Your version of Inno Setup has been updated! <a id="hwhatsnew">S' +
-        'ee what'#39's new</a>.'
+      Caption = '*'
       TabOrder = 0
       OnLinkClick = UpdateLinkLabelLinkClick
     end
@@ -756,6 +750,22 @@ object MainForm: TMainForm
         Caption = '&Low Priority During Compile'
         OnClick = BLowPriorityClick
       end
+      object BOutputDisabled: TMenuItem
+        Caption = '&Disable Output'
+        OnClick = BOutputDisabledClick
+      end
+      object BNoCompression: TMenuItem
+        Caption = 'Disable Co&mpression'
+        OnClick = BNoCompressionClick
+      end
+      object BNoSigning: TMenuItem
+        Caption = 'Disable &Signing'
+        OnClick = BNoSigningClick
+      end
+      object BNoSignCheck: TMenuItem
+        Caption = 'Disable Signcheck &Validation'
+        OnClick = BNoSignCheckClick
+      end
       object N17: TMenuItem
         Caption = '-'
       end
@@ -769,7 +779,7 @@ object MainForm: TMainForm
       Caption = '&Run'
       OnClick = RMenuClick
       object RRun: TMenuItem
-        Caption = '&Run'
+        Caption = '&Run...'
         OnClick = RRunClick
       end
       object RParameters: TMenuItem
@@ -868,17 +878,17 @@ object MainForm: TMainForm
         OnClick = TGenerateGUIDClick
       end
       object TFilesDesigner: TMenuItem
-        Caption = 'Generate [F&iles] Entries...'
+        Caption = 'Generate %1 Entries...'
         ShortCut = 24649
         OnClick = TFilesDesignerClick
       end
       object TRegistryDesigner: TMenuItem
-        Caption = 'Generate [&Registry] Entries...'
+        Caption = 'Generate %1 Entries...'
         ShortCut = 24658
         OnClick = TRegistryDesignerClick
       end
       object TMsgBoxDesigner: TMenuItem
-        Caption = 'Generate &MsgBox/TaskDialogMsgBox Call...'
+        Caption = 'Generate %1 Call...'
         ShortCut = 24653
         OnClick = TMsgBoxDesignerClick
       end
@@ -888,6 +898,10 @@ object MainForm: TMainForm
       object TSignTools: TMenuItem
         Caption = '&Configure Sign Tools...'
         OnClick = TSignToolsClick
+      end
+      object TRichEditor: TMenuItem
+        Caption = 'R&TF Editor...'
+        OnClick = TRichEditorClick
       end
       object N16: TMenuItem
         Caption = '-'
@@ -1300,6 +1314,91 @@ object MainForm: TMainForm
         CollectionIndex = 61
         CollectionName = 'shopping-cart'
         Name = 'shopping-cart'
+      end
+      item
+        CollectionIndex = 62
+        CollectionName = 'control-rich-text-edit-filled'
+        Name = 'control-rich-text-edit-filled'
+      end
+      item
+        CollectionIndex = 63
+        CollectionName = 'format-align-center'
+        Name = 'format-align-center'
+      end
+      item
+        CollectionIndex = 64
+        CollectionName = 'format-align-left'
+        Name = 'format-align-left'
+      end
+      item
+        CollectionIndex = 65
+        CollectionName = 'format-align-right'
+        Name = 'format-align-right'
+      end
+      item
+        CollectionIndex = 66
+        CollectionName = 'format-bold'
+        Name = 'format-bold'
+      end
+      item
+        CollectionIndex = 67
+        CollectionName = 'format-color-fill'
+        Name = 'format-color-fill'
+      end
+      item
+        CollectionIndex = 68
+        CollectionName = 'format-color-text'
+        Name = 'format-color-text'
+      end
+      item
+        CollectionIndex = 69
+        CollectionName = 'format-indent-decrease'
+        Name = 'format-indent-decrease'
+      end
+      item
+        CollectionIndex = 70
+        CollectionName = 'format-indent-increase'
+        Name = 'format-indent-increase'
+      end
+      item
+        CollectionIndex = 71
+        CollectionName = 'format-italic'
+        Name = 'format-italic'
+      end
+      item
+        CollectionIndex = 72
+        CollectionName = 'format-size'
+        Name = 'format-size'
+      end
+      item
+        CollectionIndex = 73
+        CollectionName = 'format-underlined'
+        Name = 'format-underlined'
+      end
+      item
+        CollectionIndex = 74
+        CollectionName = 'text-decrease'
+        Name = 'text-decrease'
+      end
+      item
+        CollectionIndex = 75
+        CollectionName = 'text-increase'
+        Name = 'text-increase'
+      end
+      item
+        CollectionIndex = 76
+        CollectionName = 'format-color-reset-filled'
+        Name = 'format-color-reset-filled'
+      end
+      item
+        CollectionIndex = 77
+        CollectionName = 'format-list-bulleted'
+        Name = 'format-list-bulleted'
+      end
+      item
+        CollectionIndex = 78
+        CollectionName = 'unused\format-list-numbered'
+        Name = 'unused\format-list-numbered'
       end>
     ImageCollection = ImagesModule.LightToolBarImageCollection
     Left = 80

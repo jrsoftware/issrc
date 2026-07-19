@@ -2,7 +2,7 @@ unit BrowseFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -15,7 +15,7 @@ uses
   Windows, Classes, Forms;
 
 function BrowseForFolder(const Prompt: String; var Directory: String;
-  const ParentWnd: HWND; const NewFolderButton: Boolean): Boolean;
+  const ParentWnd: HWND): Boolean;
 function NewGetOpenFileName(const Prompt: String; var FileName: String;
   const InitialDirectory, Filter, DefaultExtension: String;
   const ParentWnd: HWND): Boolean;
@@ -34,7 +34,7 @@ uses
   PathFunc;
 
 function BrowseForFolder(const Prompt: String; var Directory: String;
-  const ParentWnd: HWND; const NewFolderButton: Boolean): Boolean;
+  const ParentWnd: HWND): Boolean;
 
   function RemoveSinglePeriod(const S: String): String;
   begin
@@ -71,10 +71,6 @@ begin
       Exit;
 
     Options := Options or FOS_PICKFOLDERS or FOS_FORCEFILESYSTEM;
-    if not NewFolderButton then begin
-      const FOS_NOCREATEFOLDERS: DWORD = $00000200;
-      Options := Options or FOS_NOCREATEFOLDERS;
-    end;
     if Failed(FileDialog.SetOptions(Options)) then
       Exit;
 

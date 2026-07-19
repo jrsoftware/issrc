@@ -2,7 +2,7 @@ unit IDE.HtmlHelpFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -37,7 +37,6 @@ var
   HtmlHelp: THtmlHelp;
 
 procedure InitHtmlHelpLibrary;
-procedure FreeHtmlHelpLibrary;
 
 implementation
 
@@ -56,15 +55,6 @@ begin
     else
       HtmlHelp := nil;
    end;
-end;
-
-procedure FreeHtmlHelpLibrary;
-begin
-  if HHCtrl <> 0 then begin
-    HtmlHelp := nil;
-    FreeLibrary(HHCtrl);
-    HHCtrl := 0;
-  end;
 end;
 
 function CloseHtmlHelpWindowsEnumProc(Wnd: HWND; lParam: LPARAM): BOOL; stdcall;

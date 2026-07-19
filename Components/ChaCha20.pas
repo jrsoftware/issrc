@@ -22,6 +22,7 @@ type
   TChaCha20Context = record
     ctx, keystream: TChaCha20Ctx;
     position: 0..64;
+    exhausted: Boolean;
     count64: Boolean;
   end;
 
@@ -46,6 +47,7 @@ uses
   UnsignedFunc;
 
 {$C+}
+{$Q-} { ChaCha20 arithmetic relies on Cardinal wraparound }
 
 procedure ChaCha20InitCtx(var ctx: TChaCha20Ctx; const Key;
   const KeyLength: Cardinal; const Nonce; const NonceLength: Cardinal;
@@ -77,6 +79,7 @@ procedure ChaCha20Init(var Context: TChaCha20Context; const Key;
 begin
   ChaCha20InitCtx(Context.ctx, Key, KeyLength, Nonce, NonceLength, Count);
   Context.position := 64;
+  Context.exhausted := False;
   Context.count64 := NonceLength <> 12;
 end;
 
@@ -113,8 +116,15 @@ end;
 procedure ChaCha20Crypt(var Context: TChaCha20Context; const InBuffer;
   var OutBuffer; const Length: Cardinal);
 
-  procedure ChaCha20BlockNext(var ctx, keystream: TChaCha20Ctx; const count64: Boolean);
+  procedure ChaCha20BlockNext(var ctx, keystream: TChaCha20Ctx;
+    var exhausted: Boolean; const count64: Boolean);
   begin
+    { The counter is advanced only after the block for it has been generated,
+      so the last valid block (counter at its maximum) must still be usable.
+      The context is marked exhausted instead, which makes the assert fire on
+      the next call rather than one block too early }
+    Assert(not exhausted);
+
     ChaCha20RunRounds(ctx, keystream);
 
     for var i := 0 to 15 do
@@ -123,14 +133,16 @@ procedure ChaCha20Crypt(var Context: TChaCha20Context; const InBuffer;
     if count64 then begin
       if ctx[12] < High(Cardinal) then
         ctx[12] := ctx[12] + 1
-      else begin
+      else if ctx[13] < High(Cardinal) then begin
         ctx[12] := 0;
-        Assert(ctx[13] < High(Cardinal));
         ctx[13] := ctx[13] + 1;
-      end;
+      end else
+        exhausted := True;
     end else begin
-      Assert(ctx[12] < High(Cardinal));
-      ctx[12] := ctx[12] + 1;
+      if ctx[12] < High(Cardinal) then
+        ctx[12] := ctx[12] + 1
+      else
+        exhausted := True;
     end;
   end;
 
@@ -144,7 +156,7 @@ begin
 
   for var I := 0 to Length-1 do begin
     if Context.position >= 64 then begin
-      ChaCha20BlockNext(Context.ctx, Context.keystream, Context.count64);
+      ChaCha20BlockNext(Context.ctx, Context.keystream, Context.exhausted, Context.count64);
       Context.position := 0;
     end;
     OutBuf[I] := InBuf[I] xor KeyStream[Context.position];

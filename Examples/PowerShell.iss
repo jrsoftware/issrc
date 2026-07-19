@@ -18,7 +18,7 @@
   "Add-Type -AssemblyName 'System.Web';" + \
   "[System.Web.Security.Membership]::GeneratePassword(12, 4);")
 
-#expr ExecPowerShell( \
+#call ExecPowerShell( \
   "$Password = '" + Password + "';" + \
   "Set-Clipboard -Value $Password;" + \
   "Add-Type -AssemblyName System.Windows.Forms;" + \

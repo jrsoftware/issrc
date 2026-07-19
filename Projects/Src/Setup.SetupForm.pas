@@ -27,7 +27,7 @@ unit Setup.SetupForm;
 interface
 
 uses
-  Windows, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
+  Windows, MultiMon, SysUtils, Messages, Classes, Graphics, Controls, Forms, Dialogs,
   UIStateForm,
   Setup.MainFunc;
 
@@ -239,17 +239,15 @@ begin
 end;
 
 function TSetupForm.CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
-var
-  DC: HDC;
-  W: Integer;
 begin
+  { Same code as TIDEForm.CalculateButtonWidth }
   Result := ScalePixelsX(75);
   { Increase the button size if there are unusually long button captions }
-  DC := GetDC(0);
+  const DC = GetDC(0);
   try
     SelectObject(DC, Font.Handle);
     for var I := Low(ButtonCaptions) to High(ButtonCaptions) do begin
-      W := GetTextWidth(DC, ButtonCaptions[I], True) + ScalePixelsX(20);
+      const W = GetTextWidth(DC, ButtonCaptions[I], True) + ScalePixelsX(20);
       if Result < W then
         Result := W;
     end;
@@ -285,35 +283,15 @@ procedure TSetupForm.CenterInsideRect(const InsideRect: TRect);
 
   function GetRectOfMonitorContainingRect(const R: TRect): TRect;
   { Returns bounding rectangle of monitor containing or nearest to R }
-  type
-    HMONITOR = type THandle;
-    TMonitorInfo = record
-      cbSize: DWORD;
-      rcMonitor: TRect;
-      rcWork: TRect;
-      dwFlags: DWORD;
-    end;
-  const
-    MONITOR_DEFAULTTONEAREST = $00000002;
   var
-    Module: HMODULE;
-    MonitorFromRect: function(const lprc: TRect; dwFlags: DWORD): HMONITOR; stdcall;
-    GetMonitorInfo: function(hMonitor: HMONITOR; var lpmi: TMonitorInfo): BOOL; stdcall;
-    M: HMONITOR;
     Info: TMonitorInfo;
   begin
-    Module := GetModuleHandle(user32);
-    MonitorFromRect := GetProcAddress(Module, 'MonitorFromRect');
-    GetMonitorInfo := GetProcAddress(Module, 'GetMonitorInfoA');
-    if Assigned(MonitorFromRect) and Assigned(GetMonitorInfo) then begin
-      M := MonitorFromRect(R, MONITOR_DEFAULTTONEAREST);
-      Info.cbSize := SizeOf(Info);
-      if GetMonitorInfo(M, Info) then begin
-        Result := Info.rcWork;
-        Exit;
-      end;
-    end;
-    Result := GetRectOfPrimaryMonitor(True);
+    const M = MonitorFromRect(@R, MONITOR_DEFAULTTONEAREST);
+    Info.cbSize := SizeOf(Info);
+    if GetMonitorInfo(M, @Info) then
+      Result := Info.rcWork
+    else
+      Result := GetRectOfPrimaryMonitor(True);
   end;
 
 var
@@ -755,8 +733,9 @@ begin
     DisableControlStyleAsNeeded(AControl);
 
   { Set CurrentPPI of the control to be parented to the CurrentPPI of the parent, preventing VCL
-    from scaling the control. Also see TSetupForm.CreateWnd.  }
-  AControl.SetCurrentPPI(AParent.CurrentPPI);
+    from scaling the control. Also see TSetupForm.CreateWnd. }
+  if AParent <> nil then { Could happen if called by [Code] }
+    AControl.SetCurrentPPI(AParent.CurrentPPI);
   AControl.Parent := AParent;
 end;
 

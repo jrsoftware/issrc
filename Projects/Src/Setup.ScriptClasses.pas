@@ -233,7 +233,8 @@ procedure TNewNotebookPageNotebook_W(Self: TNewNotebookPage; const T: TNewNotebo
 begin
   { Set CurrentPPI of the control to be parented to the CurrentPPI of the parent, preventing VCL
     from scaling the control. Also see TSetupForm.CreateWnd.  }
-  Self.SetCurrentPPI(T.CurrentPPI);
+  if T <> nil then { Could happen if called by [Code] }
+    Self.SetCurrentPPI(T.CurrentPPI);
   Self.Notebook := T;
 end;
 
@@ -434,8 +435,6 @@ begin
 end;
 
 procedure RegisterHandCursor_R(Cl: TPSRuntimeClassImporter);
-const
-  IDC_HAND = MakeIntResource(32649);
 begin
   Screen.Cursors[crHand] := LoadCursor(0, IDC_HAND);
 end;

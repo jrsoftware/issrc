@@ -2,7 +2,7 @@ unit IDE.FileAssocFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -19,7 +19,8 @@ implementation
 uses
   Windows, SysUtils, ShlObj,
   PathFunc, UnsignedFunc,
-  Shared.CommonFunc.Vcl, Shared.CommonFunc;
+  Shared.CommonFunc.Vcl, Shared.CommonFunc,
+  IDE.Messages, IDE.LocalizeFunc;
   
 function GetRootkey: HKEY;
 begin
@@ -39,8 +40,7 @@ function RegisterISSFileAssociation(const AllowInteractive: Boolean; var AllUser
     procedure Check(const Res: DWORD);
     begin
       if Res <> ERROR_SUCCESS then
-        raise Exception.CreateFmt('Error creating file association:'#13#10'%d - %s',
-          [Res, Win32ErrorString(Res)]);
+        raise Exception.Create(LFmtMessage(SAssocError, [Res, Win32ErrorString(Res)]));
     end;
 
   var
@@ -64,8 +64,7 @@ begin
   AllUsers := Rootkey = HKEY_LOCAL_MACHINE;
   
   Result := AllUsers or not AllowInteractive or
-            (MsgBox('Unable to associate for all users without administrative privileges. Do you want to associate only for yourself instead?',
-              'Associate', mbConfirmation, MB_YESNO) = IDYES);
+            (MsgBox(LFmtMessage(SAssocUnableForAllUsers), LFmtMessage(SAssocTitle), mbConfirmation, MB_YESNO) = IDYES);
   if not Result then
     Exit;
 
@@ -78,11 +77,11 @@ begin
   SetKeyValue(Rootkey, 'Software\Classes\.iss', 'Content Type', 'text/plain');
   SetKeyValue(Rootkey, 'Software\Classes\.iss\OpenWithProgids', 'InnoSetupScriptFile', '');
 
-  SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile', nil, 'Inno Setup Script');
+  SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile', nil, LFmtMessage(SAssocInnoSetupScript));
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\DefaultIcon', nil, SelfName + ',1');
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\open\command', nil,
     '"' + SelfName + '" "%1"');
-  SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile', nil, 'Compi&le');
+  SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile', nil, LFmtMessage(SAssocInnoSetupScriptCompile));
   SetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\Compile\command', nil,
     '"' + SelfName + '" /cc "%1"');
 
@@ -129,7 +128,7 @@ begin
     const ExpectedCommand = '"' + NewParamStr(0) + '" "%1"';
     var CurCommand: String;
     if GetKeyValue(Rootkey, 'Software\Classes\InnoSetupScriptFile\shell\open\command', CurCommand) and
-       (PathCompare(CurCommand, ExpectedCommand) <> 0) then
+       not PathSame(CurCommand, ExpectedCommand) then
       Exit;
   end;
 

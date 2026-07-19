@@ -381,18 +381,20 @@ const
   ];
 
   Constants: array of AnsiString = [
-    { Doesn't include constants with non-word chars }
+    { Doesn't include constants with non-word chars.
+      Also doesn't include the *32 and *64 variants like commonpf32 or dotnet2064 }
     '{', 'app', 'win', 'sys', 'sysnative', 'syswow64', 'src', 'sd', 'commonpf',
     'commoncf', 'tmp', 'commonfonts', 'dao', 'dotnet11', 'dotnet20', 'dotnet40',
     'group', 'localappdata', 'userappdata', 'commonappdata', 'usercf',
     'userdesktop', 'commondesktop', 'userdocs', 'commondocs', 'userfavorites',
     'userfonts', 'userpf', 'userprograms', 'commonprograms', 'usersavedgames',
-    'userstartmenu', 'commonstartmenu', 'userstartup', 'commonstartup',
-    'usertemplates', 'commontemplates', 'autoappdata', 'autocf', 'autodesktop',
-    'autodocs', 'autofonts', 'autopf', 'autoprograms', 'autostartmenu', 'cmd',
-    'computername', 'groupname', 'wizardhwnd', 'language', 'srcexe',
-    'uninstallexe', 'sysuserinfoname', 'sysuserinfoorg', 'userinfoname',
-    'userinfoorg', 'userinfoserial', 'username', 'log'
+    'usersendto', 'userstartmenu', 'commonstartmenu', 'userstartup',
+    'commonstartup', 'usertemplates', 'commontemplates', 'autoappdata',
+    'autocf', 'autodesktop', 'autodocs', 'autofonts', 'autopf', 'autoprograms',
+    'autostartmenu', 'autostartup', 'autotemplates', 'cmd', 'computername',
+    'groupname', 'wizardhwnd', 'language', 'srcexe', 'uninstallexe',
+    'sysuserinfoname', 'sysuserinfoorg', 'userinfoname', 'userinfoorg',
+    'userinfoserial', 'username', 'log'
   ];
 
   ISPPPredefinedVariables: array of AnsiString = [
@@ -411,6 +413,7 @@ const
       Includes void functions because they work with for example #expr,
       and because comma expressions make them work with for example #define. }
     { From ISPPBuiltins.iss }
+    'int TypeOf2(any Expr)',
     'str GetFileCompanyString(str FileName)',
     'str GetFileDescriptionString(str FileName)',
     'str GetFileVersionString(str FileName)',
@@ -477,8 +480,8 @@ const
     'int EntryCount(str Section)',
     'str GetEnv(str Name)',
     'void DeleteFile(str FileName)',
-    'void DeleteFileNow(str FileName)',
-    'void CopyFile(str ExistingFile, str NewFile)',
+    'int DeleteFileNow(str FileName)',
+    'int CopyFile(str ExistingFile, str NewFile)',
     'int FindFirst(str Pattern, int Attrs)',
     'int FindNext(int Handle)',
     'str FindGetFileName(int Handle)',
@@ -500,6 +503,7 @@ const
     'str GetSHA256OfFile(str FileName)',
     'str GetSHA256OfString(str S)',
     'str GetSHA256OfUnicodeString(str S)',
+    'str Format(str Format, ...)',
     'str Trim(str S)',
     'str StringChange(str S, str OldPattern, str NewPattern)',
     'int IsWin64',
@@ -510,9 +514,9 @@ const
     'int SameStr(str S1, str S2)',
     'int Is64BitPEImage(str FileName)',
     { Special }
-    'int Defined(identifier Name)',
-    'int TypeOf(identifier Name)',
-    'int DimOf(identifier Name)'
+    'int Defined(<ident>)',
+    'int TypeOf(<ident>)',
+    'int DimOf(<ident>)'
   ];
 
   ISPPConstants: array of AnsiString = [
@@ -751,7 +755,6 @@ const
   inSquiggly = 0;
   inPendingSquiggly = 1;
 
-  AllChars = [#0..#255];
   WhitespaceChars = [#0..' '];
   AlphaChars = ['A'..'Z', 'a'..'z'];
   DigitChars = ['0'..'9'];
@@ -917,6 +920,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
   begin
     Result := TStringList.Create;
     Result.CaseSensitive := False;
+    Result.UseLocale := False; { Make sure it uses CompareText and not AnsiCompareText }
     Result.Sorted := True;
   end;
 
@@ -1147,7 +1151,10 @@ begin
   var SL := TStringList.Create;
   try
     for var Constant in Constants do
-      AddWordToList(SL, '{' + Constant + '}', awtConstant);
+      if Constant = '{' then
+        AddWordToList(SL, '{{', awtConstant)
+      else
+        AddWordToList(SL, '{' + Constant + '}', awtConstant);
     if ISPPInstalled then begin
       AddWordToList(SL, '{#', awtConstant);
       AddWordToList(SL, '{#file ', awtConstant);
@@ -1543,17 +1550,20 @@ procedure TInnoSetupStyler.HandleCompilerDirective(const InlineDirective: Boolea
   end;
 
 const
-  ISPPReservedWords: array[0..16] of TScintRawString = (
+  ISPPReservedWords: array[0..17] of TScintRawString = (
     'private', 'protected', 'public', 'any', 'int',
-    'str', 'func', 'option', 'parseroption', 'inlinestart',
+    'str', 'func', 'array', 'option', 'parseroption', 'inlinestart',
     'inlineend', 'message', 'warning', 'error',
     'verboselevel', 'include', 'spansymbol');
   ISPPDirectiveShorthands: TScintRawCharSet =
     [':' {define},
-     'x' {undef},
      '+' {include},
      '=' {emit},
-     '!' {expr}];
+     '%' {env},
+     '!' {expr},
+     '?' {if},
+     '^' {else},
+     '.' {endif}];
 begin
   var StartIndex := CurIndex;
   var NeedIspp: Boolean;
@@ -1574,7 +1584,18 @@ begin
   if ConsumeCharIn(ISPPDirectiveShorthands) then begin
     DoIncludeFileNotationCheck := C = '+'; { We need to check the include file notation  }
     NeedIspp := True;
-    FinishDirectiveNameOrShorthand(True); { All shorthands require a parameter }
+    if C = '?' then begin { if }
+      Inc(OpenCount);
+      FinishDirectiveNameOrShorthand(True);
+    end else if C = '.' then begin { endif }
+      Inc(OpenCount, -1);
+      if OpenCount < 0 then begin
+        CommitStyleSq(stCompilerDirective, True);
+        OpenCount := 0; { See below }
+      end;
+      FinishDirectiveNameOrShorthand(False);
+    end else
+      FinishDirectiveNameOrShorthand(C <> '^'); { All shorthands except ^ (else) require a parameter }
   end else begin
     var S := ConsumeString(ISPPIdentChars);
     for var ISPPDirective in ISPPDirectives do
@@ -2206,13 +2227,16 @@ initialization
     ISPPD('include', True, 0),
     ISPPD('file', True, 0),
     ISPPD('emit', True, 0),
+    ISPPD('echo', True, 0),
+    ISPPD('env', True, 0),
     ISPPD('expr', True, 0),
+    ISPPD('call', True, 0),
     ISPPD('insert', True, 0),
     ISPPD('append', False, 0),
-    ISPPD('if', True, 1),
+    ISPPD('if', True, 1), { also see #? OpenCount handling in HandleCompilerDirective }
     ISPPD('elif', False { bug in ISPP? }, 0),
     ISPPD('else', False, 0),
-    ISPPD('endif', False, -1),
+    ISPPD('endif', False, -1), { also see #. OpenCount handling in HandleCompilerDirective }
     ISPPD('ifdef', True, 1),
     ISPPD('ifndef', True, 1),
     ISPPD('ifexist', True, 1),

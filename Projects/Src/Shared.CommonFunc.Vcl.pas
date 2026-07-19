@@ -53,6 +53,7 @@ function MsgBoxFmt(const Text: String; const Args: array of const;
 procedure SetMessageBoxRightToLeft(const ARightToLeft: Boolean);
 function GetMessageBoxRightToLeft: Boolean;
 procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: NativeInt);
+procedure GetMessageBoxCallbackFunc(out AFunc: TMsgBoxCallbackFunc; out AParam: NativeInt);
 procedure TriggerMessageBoxCallbackFunc(const Flags: Cardinal; const After: Boolean);
 function GetOwnerWndForMessageBox: HWND;
 function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
@@ -199,6 +200,12 @@ begin
   MessageBoxCallbackParam := AParam;
 end;
 
+procedure GetMessageBoxCallbackFunc(out AFunc: TMsgBoxCallbackFunc; out AParam: NativeInt);
+begin
+  AFunc := MessageBoxCallbackFunc;
+  AParam := MessageBoxCallbackParam;
+end;
+
 procedure TriggerMessageBoxCallbackFunc(const Flags: Cardinal; const After: Boolean);
 begin
   if Assigned(MessageBoxCallbackFunc) and not MessageBoxCallbackActive then begin
@@ -276,15 +283,6 @@ var
 function MsgBox(const Text, Caption: PChar; Flags: Cardinal): Integer;
 
 {$IFDEF USETASKDIALOGFORM}
-  procedure DoInternalError(const Msg: String);
-  begin
-    {$IFDEF SETUPPROJ}
-      InternalError(Msg);
-    {$ELSE}
-      raise Exception.Create(Msg);
-    {$ENDIF}
-  end;
-
   procedure MsgBoxFlagsDecode(const Flags: Cardinal; out Icon: PChar;
     out TDCommonButtons: Cardinal; out DefCommonButton: Integer; out SetForeground: Boolean);
   begin
@@ -304,15 +302,15 @@ function MsgBox(const Text, Caption: PChar; Flags: Cardinal): Integer;
       MB_YESNO: TDCommonButtons := TDCBF_YES_BUTTON or TDCBF_NO_BUTTON;
       MB_RETRYCANCEL: TDCommonButtons := TDCBF_RETRY_BUTTON or TDCBF_CANCEL_BUTTON;
     else
-      DoInternalError('MsgBoxFlagsDecode: Invalid Flags');
+      InternalError('MsgBoxFlagsDecode: Invalid Flags');
     end;
 
-    if (Flags and MB_DEFBUTTON2) <> 0 then
-      DefCommonButton := 2
-    else if (Flags and MB_DEFBUTTON3) <> 0 then
-      DefCommonButton := 3
+    case Flags and MB_DEFMASK of
+      MB_DEFBUTTON2: DefCommonButton := 2;
+      MB_DEFBUTTON3: DefCommonButton := 3;
     else
       DefCommonButton := 0;
+    end;
 
     SetForeground := Flags and MB_SETFOREGROUND <> 0;
   end;

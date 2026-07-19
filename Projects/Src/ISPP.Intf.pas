@@ -38,7 +38,7 @@ type
     procedure SetAsInt(Value: Int64); stdcall;
     procedure SetAsString(Value: PChar); stdcall;
     procedure SetAsNull; stdcall;
-    procedure Error(Message: PChar); stdcall;
+    procedure RaiseError(Message: PChar); stdcall;
   end;
 
   IIsppFuncParams = interface
@@ -52,11 +52,6 @@ type
 
   TIsppFunction = function (Ext: NativeInt; const Params: IIsppFuncParams;
     const FuncResult: IIsppFuncResult): TIsppFuncResult; stdcall;
-
-  IPreprocessor = interface
-    procedure DefineVariable(Name: PChar; Typ: TIsppVarType; Value: Int64);
-    procedure QueueLine(Line: PChar);
-  end;
 
 const
 

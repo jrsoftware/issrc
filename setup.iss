@@ -30,7 +30,7 @@
 [Setup]
 AppName=Inno Setup
 AppId=Inno Setup 7{#spacebit}
-AppVersion=7.0.2{#spacebit}
+AppVersion=7.1.0-dev{#spacebit}
 AppPublisher=jrsoftware.org
 AppPublisherURL=https://www.innosetup.com/
 AppSupportURL=https://www.innosetup.com/
@@ -50,13 +50,11 @@ UsePreviousLanguage=no
 LicenseFile=license.txt
 TouchDate=none
 TouchTime=00:00
-#ifdef SIGNTOOL
 SignTool=issigntool256
 SignedUninstaller=yes
-#endif
 SetupArchitecture={#arch}
 
-#expr EmitLanguagesSection
+#call EmitLanguagesSection
 
 [Messages]
 HelpTextNote=/PORTABLE=1%nEnable portable mode.
@@ -71,23 +69,19 @@ Type: files; Name: {autodesktop}\Inno Setup Compiler.lnk; Tasks: not desktopicon
 ; Remove translations in case any got demoted
 Type: files; Name: "{app}\Languages\*.isl"
 
-#include "setup.allowedpublickeys.iss"
-
-#ifdef SIGNTOOL
-  #define signcheck "signcheck"
-#else
-  #define signcheck
-#endif
+[ISSigKeys]
+Name: mykey1; KeyFile: def01.ispublickey; KeyID: def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38
+Name: mykey2; KeyFile: def02.ispublickey
 
 [Files]
 Source: "license.txt"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "{#CheckArch("files\ISIDE.exe")}"; DestDir: "{app}"; Flags: ignoreversion signonce touch
 Source: "files\isscint{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\isscint{#dasharch}.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "{#CheckArch("files\ISCC.exe")}"; DestDir: "{app}"; Flags: ignoreversion {#signcheck} touch
-Source: "{#CheckArch("files\ISCmplr.dll")}"; DestDir: "{app}"; Flags: ignoreversion issigverify {#signcheck} touch
+Source: "{#CheckArch("files\ISCC.exe")}"; DestDir: "{app}"; Flags: ignoreversion signcheck touch
+Source: "{#CheckArch("files\ISCmplr.dll")}"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\ISCmplr.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
-Source: "{#CheckArch("files\ISPP.dll")}"; DestDir: "{app}"; Flags: ignoreversion issigverify {#signcheck} touch
+Source: "{#CheckArch("files\ISPP.dll")}"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
 Source: "files\ISPP.dll.issig"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\ISPPBuiltins.iss"; DestDir: "{app}"; Flags: ignoreversion touch
 Source: "files\iszlib{#dasharch}.dll"; DestDir: "{app}"; Flags: ignoreversion issigverify signcheck touch
@@ -205,10 +199,10 @@ Name: "{group}\Inno Setup Revision History"; Filename: "{app}\whatsnew.htm"
 Name: "{autodesktop}\Inno Setup Compiler"; Filename: "{app}\ISIDE.exe"; WorkingDir: "{app}"; AppUserModelID: "JR.InnoSetup.IDE.7{#dasharch}"; Tasks: desktopicon
 
 [Run]
-; The /ASSOC line will be automatically skipped on portable mode, because of the fileassoc task being removed
-Filename: "{app}\ISIDE.exe"; Parameters: "/ASSOC"; StatusMsg: "{cm:AssocingFileExtension,Inno Setup,.iss}"; Tasks: fileassoc
+; The /assoc line will be automatically skipped on portable mode, because of the fileassoc task being removed
+Filename: "{app}\ISIDE.exe"; Parameters: "/assoc"; StatusMsg: "{cm:AssocingFileExtension,Inno Setup,.iss}"; Tasks: fileassoc
 Filename: "{app}\ISIDE.exe"; WorkingDir: "{app}"; Description: "{cm:LaunchProgram,Inno Setup}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
-; The /UNASSOC line will be automatically skipped on portable mode, because of Uninstallable being set to no
-Filename: "{app}\ISIDE.exe"; Parameters: "/UNASSOC"; RunOnceId: "RemoveISSAssoc"
+; The /unassoc line will be automatically skipped on portable mode, because of Uninstallable being set to no
+Filename: "{app}\ISIDE.exe"; Parameters: "/unassoc"; RunOnceId: "RemoveISSAssoc"

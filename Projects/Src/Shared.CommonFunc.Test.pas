@@ -77,6 +77,18 @@ begin
   Assert(StringChange(S, '.', '...') = 2);
   Assert(S = 'a...b...c');
 
+  { Binary-safe: an embedded #0 in S, FromStr, or ToStr is handled like any
+    other character }
+  S := 'a'#0'b'#0'c';
+  Assert(StringChange(S, #0, '-') = 2);
+  Assert(S = 'a-b-c');
+  S := 'x'#0'y'#0'z';
+  Assert(StringChange(S, #0'y', 'Q') = 1);
+  Assert(S = 'xQ'#0'z');
+  S := 'ab';
+  Assert(StringChange(S, 'a', 'p'#0'q') = 1);
+  Assert(S = 'p'#0'qb');
+
   { ConvertPercentStr: each '%hh' decodes to the matching byte }
   S := 'a%20b%41%42%43';
   Assert(ConvertPercentStr(S));
@@ -139,6 +151,8 @@ begin
   { Unclosed brace returns 0 }
   Assert(SkipPastConst('a{bc', 2) = 0);
   Assert(SkipPastConst('a{{b', 2) = 4);
+  { A '{{' inside an already-open constant is skipped }
+  Assert(SkipPastConst('{a{{b}', 1) = 7);
   { Start at end-of-string returns 0 }
   Assert(SkipPastConst('a{', 2) = 0);
 

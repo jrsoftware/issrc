@@ -1926,12 +1926,14 @@ begin
   btWideString:
     begin
       BlockWriteLong(BlockInfo, Length(tbtWideString(p^.twidestring)));
-      BlockWriteData(BlockInfo, tbtwidestring(p^.twidestring)[1], 2*Length(tbtWideString(p^.twidestring)));
+      if Length(tbtWideString(p^.twidestring)) > 0 then
+        BlockWriteData(BlockInfo, tbtwidestring(p^.twidestring)[1], 2*Length(tbtWideString(p^.twidestring)));
     end;
   btUnicodeString:
     begin
       BlockWriteLong(BlockInfo, Length(tbtUnicodeString(p^.tunistring)));
-      BlockWriteData(BlockInfo, tbtUnicodeString(p^.tunistring)[1], 2*Length(tbtUnicodeString(p^.tunistring)));
+      if Length(tbtUnicodeString(p^.tunistring)) > 0 then
+        BlockWriteData(BlockInfo, tbtUnicodeString(p^.tunistring)[1], 2*Length(tbtUnicodeString(p^.tunistring)));
     end;
   btWideChar: BlockWriteData(BlockInfo, p^.twidechar, 2);
   {$ENDIF}
@@ -1974,7 +1976,8 @@ begin
   btString:
     begin
       BlockWriteLong(BlockInfo, Length(tbtString(p^.tstring)));
-      BlockWriteData(BlockInfo, tbtString(p^.tstring)[1], Length(tbtString(p^.tstring)));
+      if Length(tbtString(p^.tstring)) > 0 then
+        BlockWriteData(BlockInfo, tbtString(p^.tstring)[1], Length(tbtString(p^.tstring)));
     end;
      btenum:
      begin
@@ -2581,10 +2584,7 @@ begin
             Parser.Next;
           end;
           if Parser.CurrTokenId <> CSTI_Colon then
-          begin
-            Parser.Free;
             Raise EPSCompilerException.CreateFmt(RPS_UnableToRegisterFunction, [Name]);
-          end;
           Parser.Next;
           VCType := FindType(Parser.GetToken);
           if VCType = nil then
@@ -3078,11 +3078,6 @@ begin
 end;
 {$ENDIF}
 
-function ab(b: Longint): Longint;
-begin
-  ab := Longint(b = 0);
-end;
-
 procedure Set_Union(Dest, Src: PByteArray; ByteSize: Integer);
 var
   i: Longint;
@@ -3357,7 +3352,7 @@ begin
               end;
             btChar:
               begin
-                ConvertToString(Self, FUseUsedTypes, var1, getstring(Var1, b)+getstring(Var2, b));
+                ConvertToString(Self, FUseUsedTypes, var1, getstring(Var1, Result)+getstring(Var2, Result));
               end;
             btString: tbtstring(var1^.tstring) := tbtstring(var1^.tstring) + GetString(Var2, Result);
             {$IFNDEF PS_NOWIDESTRING}
@@ -3365,7 +3360,7 @@ begin
             btUnicodeString: tbtunicodestring(var1^.tunistring) := tbtunicodestring(var1^.tunistring) + GetUnicodeString(Var2, Result);
             btWidechar:
               begin
-                ConvertToUnicodeString(Self, FUseUsedTypes, var1, GetUnicodeString(Var1, b)+GetUnicodeString(Var2, b));
+                ConvertToUnicodeString(Self, FUseUsedTypes, var1, GetUnicodeString(Var1, Result)+GetUnicodeString(Var2, Result));
               end;
             {$ENDIF}
             else Result := False;
@@ -10527,7 +10522,7 @@ begin
   function ProcessWhile: Boolean;
   var
     vin, vout: TPSValue;
-    SPos, EPos: Cardinal;
+    SPos, EPos, RPos: Cardinal;
     OldCo, OldBO: TPSList;
     I: Longint;
     Block: TPSBlockInfo;
@@ -10580,6 +10575,7 @@ begin
       FBreakOffsets := OldBo;
       exit;
     end;
+    RPos := Length(BlockInfo.Proc.Data); // loop body start, preserved for HasInvalidJumps
     Block := TPSBlockInfo.Create(BlockInfo);
     Block.SubType := tOneLiner;
 
@@ -10645,7 +10641,7 @@ begin
     // vin must be freed before vout to maintain LIFO order for CM_PO generation
     vin.Free;
     vout.Free;
-		if HasInvalidJumps(EPos, Length(BlockInfo.Proc.Data)) then
+		if HasInvalidJumps(RPos, Length(BlockInfo.Proc.Data)) then
     begin
       Result := False;
       exit;
@@ -11103,6 +11099,7 @@ begin
       begin
         CalcItem.Free;
         v1.Free;
+        TempRec.Free;
         EndReloc.Free;
         ProcessCase := False;
         exit;
@@ -11980,12 +11977,14 @@ var
       btWideString:
         begin
           WriteLong(Length(tbtWideString(p^.twidestring)));
-          WriteData(tbtwidestring(p^.twidestring)[1], 2*Length(tbtWideString(p^.twidestring)));
+          if Length(tbtWideString(p^.twidestring)) > 0 then
+            WriteData(tbtwidestring(p^.twidestring)[1], 2*Length(tbtWideString(p^.twidestring)));
         end;
       btUnicodeString:
         begin
           WriteLong(Length(tbtUnicodestring(p^.tunistring)));
-          WriteData(tbtUnicodestring(p^.tunistring)[1], 2*Length(tbtUnicodestring(p^.tunistring)));
+          if Length(tbtUnicodestring(p^.tunistring)) > 0 then
+            WriteData(tbtUnicodestring(p^.tunistring)[1], 2*Length(tbtUnicodestring(p^.tunistring)));
         end;
       btWideChar: WriteData(p^.twidechar, 2);
       {$ENDIF}
@@ -12028,7 +12027,8 @@ var
       btString:
         begin
           WriteLong(Length(tbtString(p^.tstring)));
-          WriteData(tbtString(p^.tstring)[1], Length(tbtString(p^.tstring)));
+          if Length(tbtString(p^.tstring)) > 0 then
+            WriteData(tbtString(p^.tstring)[1], Length(tbtString(p^.tstring)));
         end;
       btenum:
         begin
@@ -14920,7 +14920,6 @@ begin
   else
     Result := tbtstring(RPS_UnknownError);
   end;
-  Result := Result;
 end;
 
 

@@ -9,8 +9,8 @@
 
   <xsl:comment>
     Inno Setup Preprocessor Reference
-    Copyright (C) 1997-2025 Jordan Russell
-    Portions Copyright (C) 2000-2024 Martijn Laan
+    Copyright (C) 1997-2026 Jordan Russell
+    Portions Copyright (C) 2000-2026 Martijn Laan
     For conditions of distribution and use, see LICENSE.TXT.
     Portions Copyright (C) 2001-2004 Alex Yackimoff
 
@@ -46,10 +46,21 @@
             <xsl:for-each select="topic">
               <xsl:sort select="title" data-type="text" order="ascending"/>
               <xsl:if test="title">
-                <li><link topic="{translate(@id,$ucletters,$lcletters)}"><xsl:value-of select="title"/></link></li>
+                <li><tt><link topic="{translate(@id,$ucletters,$lcletters)}"><xsl:value-of select="title"/></link></tt></li>
               </xsl:if>
             </xsl:for-each>
           </xsl:when>
+          <xsl:when test="@id='directives'">
+            <xsl:for-each select="topic">
+              <xsl:if test="title and not(@unlisted='yes')">
+                <li><xsl:call-template name="directivelinks">
+                  <xsl:with-param name="title" select="title"/>
+                  <xsl:with-param name="topic" select="translate(@id,$ucletters,$lcletters)"/>
+                </xsl:call-template></li>
+              </xsl:if>
+            </xsl:for-each>
+          </xsl:when>
+          <!-- Used by the "All topics" list -->
           <xsl:otherwise>
             <xsl:for-each select="topic">
               <xsl:if test="title and not(@unlisted='yes')">
@@ -65,6 +76,24 @@
   <xsl:for-each select="topic">
     <xsl:apply-templates select="."/>
   </xsl:for-each>
+</xsl:template>
+
+<xsl:template name="directivelinks">
+  <xsl:param name="title"/>
+  <xsl:param name="topic"/>
+  <xsl:choose>
+    <xsl:when test="contains($title, ', ')">
+      <tt><link topic="{$topic}"><xsl:value-of select="substring-before($title, ', ')"/></link></tt>
+      <xsl:text>, </xsl:text>
+      <xsl:call-template name="directivelinks">
+        <xsl:with-param name="title" select="substring-after($title, ', ')"/>
+        <xsl:with-param name="topic" select="$topic"/>
+      </xsl:call-template>
+    </xsl:when>
+    <xsl:otherwise>
+      <tt><link topic="{$topic}"><xsl:value-of select="$title"/></link></tt>
+    </xsl:otherwise>
+  </xsl:choose>
 </xsl:template>
 
 <xsl:template match="title">
@@ -85,12 +114,12 @@
   <tr><xsl:apply-templates/></tr>
 </xsl:template>
 
-<xsl:template match="td">
-  <td><xsl:apply-templates/></td>
+<xsl:template match="th">
+  <th><xsl:copy-of select="@nowrap"/><xsl:apply-templates/></th>
 </xsl:template>
 
-<xsl:template match="code">
-  <tt><xsl:apply-templates/></tt>
+<xsl:template match="td">
+  <td><xsl:copy-of select="@nowrap"/><xsl:apply-templates/></td>
 </xsl:template>
 
 <xsl:template match="keywords">
@@ -124,6 +153,46 @@
   <tt><xsl:apply-templates/></tt>
 </xsl:template>
 
+<xsl:template match="sd">
+  <sd><xsl:apply-templates/></sd>
+</xsl:template>
+
+<xsl:template match="sn">
+  <sn><xsl:apply-templates/></sn>
+</xsl:template>
+
+<xsl:template match="sec">
+  <sec><xsl:apply-templates/></sec>
+</xsl:template>
+
+<xsl:template match="evt">
+  <evt><xsl:apply-templates/></evt>
+</xsl:template>
+
+<xsl:template match="key">
+  <key><xsl:apply-templates/></key>
+</xsl:template>
+
+<xsl:template match="com">
+  <com><xsl:apply-templates/></com>
+</xsl:template>
+
+<xsl:template match="con">
+  <con><xsl:apply-templates/></con>
+</xsl:template>
+
+<xsl:template match="str">
+  <str><xsl:apply-templates/></str>
+</xsl:template>
+
+<xsl:template match="num">
+  <num><xsl:apply-templates/></num>
+</xsl:template>
+
+<xsl:template match="ispp">
+  <ispp><xsl:apply-templates/></ispp>
+</xsl:template>
+
 <xsl:template match="syntax">
   <heading>Syntax</heading>
   <xsl:apply-templates select="*[@inline!='yes']"/>
@@ -145,7 +214,7 @@
   <xsl:choose>
     <xsl:when test="ancestor::topic/@id=@href">
         <xsl:choose>
-        <xsl:when test="text()">
+        <xsl:when test="node()">
           <xsl:apply-templates/>
         </xsl:when>
         <xsl:otherwise>
@@ -163,7 +232,7 @@
     <xsl:otherwise>
       <link topic="{translate(@href,$ucletters,$lcletters)}">
         <xsl:choose>
-        <xsl:when test="text()">
+        <xsl:when test="node()">
           <xsl:apply-templates/>
         </xsl:when>
         <xsl:otherwise>

@@ -120,6 +120,7 @@
         <DCCReference Include="Src\Compiler.SetupCompiler.pas"/>
         <DCCReference Include="Src\Compiler.Messages.pas"/>
         <DCCReference Include="Src\Compiler.StringLists.pas"/>
+        <DCCReference Include="Src\Compiler.StringLists.Test.pas"/>
         <DCCReference Include="Src\Compiler.CompressionHandler.pas"/>
         <DCCReference Include="Src\Compiler.HelperFunc.pas"/>
         <DCCReference Include="Src\Compiler.BuiltinPreproc.pas"/>

@@ -35,6 +35,8 @@ type
       const Parameters: array of const): Boolean;
     function EvalStringParams(Sender: TSimpleExpression; const Name: String;
       const Parameters: array of const): Boolean;
+    function EvalNoParams(Sender: TSimpleExpression; const Name: String;
+      const Parameters: array of const): Boolean;
     function ExpandConstant(Sender: TSimpleExpression;
       const Constant: String): String;
   end;
@@ -82,6 +84,14 @@ begin
   Result := UnicodeString(Parameters[0].VUnicodeString) = UnicodeString(Parameters[1].VUnicodeString);
 end;
 
+function TSimpleExpressionTestHandler.EvalNoParams(Sender: TSimpleExpression;
+  const Name: String; const Parameters: array of const): Boolean;
+begin
+  Assert(SameText(Name, 'eval'));
+  Assert(Length(Parameters) = 0);
+  Result := True;
+end;
+
 function TSimpleExpressionTestHandler.ExpandConstant(Sender: TSimpleExpression;
   const Constant: String): String;
 begin
@@ -104,11 +114,13 @@ procedure SimpleExpressionRunTests;
   end;
 
   {$IFDEF ISTESTTOOLPROJ}
-  procedure TestException(const Expression: String);
+  procedure TestException(const Expression: String;
+    const ParametersAllowed: Boolean = False);
   begin
     const Evaluator = TSimpleExpression.Create;
     try
       Evaluator.Expression := Expression;
+      Evaluator.ParametersAllowed := ParametersAllowed;
       var Caught := False;
       try
         Evaluator.Eval;
@@ -177,6 +189,10 @@ begin
       Assert(Evaluator.Eval);
       Evaluator.Expression := 'eval(true, false)';
       Assert(not Evaluator.Eval);
+      { A zero-parameter call is allowed }
+      Evaluator.OnEvalIdentifier := Handler.EvalNoParams; { checks there are no parameters }
+      Evaluator.Expression := 'eval()';
+      Assert(Evaluator.Eval);
     finally
       Evaluator.Free;
     end;
@@ -279,6 +295,7 @@ begin
     TestException('(a');
     TestException('a)');
     TestException('a $');
+    TestException('eval(1,)', True);
     {$ENDIF}
   finally
     Handler.Free;
