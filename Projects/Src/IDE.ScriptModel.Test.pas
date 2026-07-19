@@ -1486,6 +1486,40 @@ begin
     Assert(Lines[0] = 'A: 1; \');
     Assert(Lines[1] = 'C: 3');
 
+    { Removing the first parameter shifts the following break to parameter
+      index 0; a break whose line would carry no parameter is skipped instead
+      of serializing a parameter-less continuation-only line }
+    Entry.Parse(['A: 1; \', 'B: 2']);
+    Entry.Remove(0);
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 1);
+    Assert(Lines[0] = 'B: 2');
+
+    { A break inside the first parameter (a value spanned mid-parameter, legal
+      because ISPP joins spanned lines before any parameter parsing) maps to
+      parameter index 0, round-trips byte-identical while untouched, and is
+      skipped the same way once any other parameter is edited }
+    Entry.Parse(['Source: foo \', '  bar; DestDir: x']);
+    Assert(Entry.BreakCount = 1);
+    Assert(Entry.BreakParameterIndexes[0] = 0);
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[0] = 'Source: foo \');
+    Assert(Lines[1] = '  bar; DestDir: x');
+    Entry.SetValue(1, 'y');
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 1);
+    Assert(Lines[0] = 'Source: foo bar; DestDir: y');
+
+    { A break inside a later parameter snaps to the preceding parameter
+      boundary on edit }
+    Entry.Parse(['A: 1; B: foo \', '  bar; C: 3']);
+    Entry.SetValue(2, 'y');
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[0] = 'A: 1; \');
+    Assert(Lines[1] = '  B: foo bar; C: y');
+
     { Unusual whitespace around the break reconstructs exactly }
     Entry.Parse(['Source: a ;  \', '   DestDir: b']);
     Entry.SetValue(0, 'z');

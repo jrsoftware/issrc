@@ -599,7 +599,7 @@ begin
         Inc(ParameterIndex);
       end;
 
-      if B < FBreaks.Count then begin
+      if (B < FBreaks.Count) and LineHasParameters then begin
         { End this line with a continuation: the whitespace before the
           backslash comes from the next parameter's leading whitespace }
         var SuffixWhitespace: String := ' ';
@@ -608,11 +608,7 @@ begin
           if NextLeadingWhitespace <> '' then
             SuffixWhitespace := NextLeadingWhitespace;
         end;
-        if LineHasParameters then
-          Line := Line + ';';
-        Line := Line + SuffixWhitespace + '\';
-        if Length(Line) <= 2 then
-          Line := ' ' + Line; { Too short to be recognized as spanning }
+        Line := Line + ';' + SuffixWhitespace + '\';
         LineList.Add(Line);
         Line := FBreaks[B].Indent;
         LineHasParameters := False;
