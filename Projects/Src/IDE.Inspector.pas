@@ -71,12 +71,10 @@ type
     procedure JvInspectorKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     function GetDividerWidth: Integer;
-    function GetWidth: Integer;
     procedure SetDividerWidth(const Value: Integer);
     procedure SetQuoteNewDirectiveValues(const Value: Boolean);
     procedure SetQuoteNewParameterValues(const Value: Boolean);
     procedure SetShowAllKnownDirectives(const Value: Boolean);
-    procedure SetWidth(const Value: Integer);
   public
     constructor Create(const AJvInspector: TJvInspector;
       const AFactory: TLiveScriptObjectFactory;
@@ -95,7 +93,6 @@ type
     property QuoteNewDirectiveValues: Boolean read FQuoteNewDirectiveValues
       write SetQuoteNewDirectiveValues;
     property JvInspector: TJvInspector read FJvInspector;
-    property Width: Integer read GetWidth write SetWidth;
     property DividerWidth: Integer read GetDividerWidth write SetDividerWidth;
   end;
 
@@ -257,8 +254,15 @@ end;
 procedure TInspector.SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
   const AShowAllKnownDirectives: Boolean);
 begin
-  if AFactory = FFactory then
+  if AFactory = FFactory then begin
+    { Still apply the setting: it may have changed independently. Also still
+      update from caret. }
+    if AShowAllKnownDirectives <> FShowAllKnownDirectives then
+      ShowAllKnownDirectives := AShowAllKnownDirectives { Also updates from caret }
+    else
+      UpdateFromCaret;
     Exit;
+  end;
   { Attach to a different factory = different memo = different tab }
   FFactory := AFactory;
   FShowAllKnownDirectives := AShowAllKnownDirectives;
@@ -1014,11 +1018,6 @@ begin
     Values.Add(KnownValue);
 end;
 
-function TInspector.GetWidth: Integer;
-begin
-  Result := FJvInspector.Width;
-end;
-
 function TInspector.GetDividerWidth: Integer;
 begin
   Result := FJvInspector.Divider;
@@ -1050,11 +1049,6 @@ begin
     FRowSetSignature := ''; { Force a rebuild, see UpdateFromCaret's early exit }
     UpdateFromCaret;
   end;
-end;
-
-procedure TInspector.SetWidth(const Value: Integer);
-begin
-  FJvInspector.Width := Value;
 end;
 
 procedure TInspector.UpdateTheme(const ATheme: TTheme);

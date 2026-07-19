@@ -38,7 +38,7 @@ object MainForm: TMainForm
     BevelOuter = bvNone
     FullRepaint = False
     TabOrder = 3
-    object SplitPanel: TPanel
+    object StatusSplitPanel: TPanel
       Left = 0
       Top = 86
       Width = 361
@@ -50,7 +50,7 @@ object MainForm: TMainForm
       TabOrder = 1
       Visible = False
       StyleName = 'Windows'
-      OnMouseMove = SplitPanelMouseMove
+      OnMouseMove = StatusSplitPanelMouseMove
     end
     object StatusPanel: TPanel
       Left = 0
@@ -136,6 +136,31 @@ object MainForm: TMainForm
           '*')
         OnClick = OutputTabSetClick
       end
+    end
+    object InspectorSplitPanel: TPanel
+      Left = 236
+      Top = 0
+      Width = 4
+      Height = 86
+      Cursor = crHSplit
+      Align = alRight
+      BevelOuter = bvNone
+      FullRepaint = False
+      TabOrder = 2
+      Visible = False
+      StyleName = 'Windows'
+      OnMouseMove = InspectorSplitPanelMouseMove
+    end
+    object InspectorPanel: TPanel
+      Left = 240
+      Top = 0
+      Width = 121
+      Height = 86
+      Align = alRight
+      BevelOuter = bvNone
+      FullRepaint = False
+      TabOrder = 3
+      Visible = False
     end
   end
   object StatusBar: TStatusBar
