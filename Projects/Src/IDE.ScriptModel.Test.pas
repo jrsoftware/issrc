@@ -95,6 +95,7 @@ end;
 
 procedure TestEntryParseAndSerialize;
 begin
+  const Counter = TChangeCounter.Create;
   const Entry = TScriptParameterEntry.Create(nil);
   try
     { Basic parse of known and unknown parameters }
@@ -163,6 +164,27 @@ begin
     Entry.SetValue(0, 'y');
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'A: y');
+
+    { A same-value set is a no-op: Modified stays False, no OnChange fires and
+      the entry round-trips byte-identical, with quoting and whitespace kept.
+      Repeating a real edit is a no-op too }
+    Entry.Parse(['A: "x"; B :  y  ; C: z']);
+    Entry.OnChange := Counter.HandleChange;
+    Entry.SetValue(0, 'x');
+    Entry.SetValue(1, 'y');
+    Entry.SetValue(2, 'z');
+    Assert(not Entry.Modified);
+    Assert(Counter.Count = 0);
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'A: "x"; B :  y  ; C: z');
+    Entry.SetValue(0, 'q');
+    Assert(Entry.Modified);
+    Assert(Counter.Count = 1);
+    Entry.SetValue(0, 'q');
+    Assert(Counter.Count = 1);
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'A: "q"; B :  y  ; C: z');
+    Entry.OnChange := nil;
 
     { A new parameter is quoted when QuoteNewValues is on (the default for
       parameter sections) and left bare when it is off }
@@ -273,6 +295,7 @@ begin
     {$ENDIF}
   finally
     Entry.Free;
+    Counter.Free;
   end;
 end;
 
@@ -1140,10 +1163,20 @@ begin
     Section.Parse(['AppName="My ""quoted"" App"']);
     Assert(Section.Lines[0].Value = 'My ""quoted"" App');
 
-    { Editing a directive only rewrites that line, keeping the name and the
-      whitespace around the '=' as written }
+    { A same-value set is a no-op: no OnChange fires and the line stays
+      byte-identical }
     Section.Parse(['; c', 'AppName = Foo', 'Other=1']);
     Section.OnChange := Counter.HandleChange;
+    Section.SetValue(1, 'Foo');
+    Assert(Counter.Count = 0);
+    Lines := Section.GetLines;
+    Assert(Lines[1] = 'AppName = Foo');
+
+    { Editing a directive only rewrites that line, keeping the name and the
+      whitespace around the '=' as written; repeating the same value is then
+      a no-op too }
+    Section.SetValue(1, 'Bar');
+    Assert(Counter.Count = 1);
     Section.SetValue(1, 'Bar');
     Assert(Counter.Count = 1);
     Lines := Section.GetLines;
@@ -1511,6 +1544,16 @@ begin
     Assert(Length(Lines) = 1);
     Assert(Lines[0] = 'Source: foo bar; DestDir: y');
 
+    { A same-value set is a no-op even with a mid-parameter break: the span
+      keeps its physical lines }
+    Entry.Parse(['Source: foo \', '  bar; DestDir: x']);
+    Entry.SetValue(0, 'foo bar');
+    Assert(not Entry.Modified);
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[0] = 'Source: foo \');
+    Assert(Lines[1] = '  bar; DestDir: x');
+
     { A break inside a later parameter snaps to the preceding parameter
       boundary on edit }
     Entry.Parse(['A: 1; B: foo \', '  bar; C: 3']);
@@ -1543,6 +1586,10 @@ begin
     Assert(Length(Lines) = 2);
     Assert(Lines[0] = 'AppName=Foo \');
     Assert(Lines[1] = 'Bar');
+    { A same-value set is a no-op: the spanned group keeps its physical lines }
+    Section.SetValue(0, 'Foo Bar');
+    Lines := Section.GetLines;
+    Assert(Length(Lines) = 2);
     Section.SetValue(0, 'X');
     Lines := Section.GetLines;
     Assert(Length(Lines) = 1);

@@ -717,8 +717,11 @@ begin
     ScriptValueIsQuoted(OldRawValue));
   const Leading = LeadingWhitespace(OldRawValue);
   const Trailing = TrailingWhitespace(Copy(OldRawValue, Length(Leading)+1, MaxInt));
-  Parameter.SetRawText(Copy(Parameter.RawText, 1, Parameter.FValueStartIndex-1) +
-    Leading + NewValueText + Trailing);
+  const NewRawText = Copy(Parameter.RawText, 1, Parameter.FValueStartIndex-1) +
+    Leading + NewValueText + Trailing;
+  if NewRawText = Parameter.RawText then
+    Exit;
+  Parameter.SetRawText(NewRawText);
   MarkModified;
 end;
 
@@ -1071,8 +1074,11 @@ begin
     raise EScriptModelError.Create('Internal error: Value must not contain line breaks');
   const Line = GetNamedLine(AIndex);
   { Keep any whitespace between the '=' and the old value, and keep quotes }
-  Line.FRawValue := LeadingWhitespace(Line.FRawValue) +
+  const NewRawValue = LeadingWhitespace(Line.FRawValue) +
     QuoteScriptDirectiveValueIfNeeded(AValue, ScriptValueIsQuoted(Line.FRawValue));
+  if NewRawValue = Line.FRawValue then
+    Exit;
+  Line.FRawValue := NewRawValue;
   Line.FModified := True;
   Changed;
 end;
