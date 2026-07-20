@@ -424,7 +424,7 @@ procedure TInspector.UpdateFromCaret;
       Item.Flags := Item.Flags + [iifValueList];
   end;
 
-  procedure AddParameterRows(const AParent: TJvCustomInspectorItem;
+  procedure AddParameterOccurrenceRows(const AParent: TJvCustomInspectorItem;
     const ADefinition: TMemberDefinition);
   begin
     { Normally a parameter will be present only once, but duplicates are still
@@ -432,7 +432,7 @@ procedure TInspector.UpdateFromCaret;
     const Entry = FLiveParameterSectionEntry.Entry;
     var Found := False;
     for var I := 0 to Entry.Count-1 do begin
-      if (Entry.Parameters[I].Kind = psepParameter) and
+      if (Entry.Parameters[I].Kind = pkParameter) and
          SameText(Entry.Parameters[I].Name, ADefinition.Name) then begin
         AddParameterRow(AParent, ADefinition, I);
         Found := True;
@@ -504,14 +504,14 @@ procedure TInspector.UpdateFromCaret;
           Continue; { Hide obsolete and unspecified }
         var CategoryName: String;
         if not TryGetScriptCategory(SectionName, Definition.Name, CategoryName) then
-          AddParameterRows(FJvInspector.Root, Definition);
+          AddParameterOccurrenceRows(FJvInspector.Root, Definition);
       end;
     end;
 
     { Present but unknown parameters }
     for var I := 0 to Entry.Count-1 do begin
       const Parameter = Entry.Parameters[I];
-      if Parameter.Kind = psepParameter then begin
+      if Parameter.Kind = pkParameter then begin
         var Definition: TMemberDefinition;
         if not Entry.TryGetDefinition(Parameter.Name, Definition) then begin
           const Row = MakeParameterRow(Parameter.Name, I);
@@ -533,7 +533,7 @@ procedure TInspector.UpdateFromCaret;
              SameText(DefinitionCategory, CategoryName) then begin
             if CategoryItem = nil then
               CategoryItem := NewCategory(CategoryName);
-            AddParameterRows(CategoryItem, Definition);
+            AddParameterOccurrenceRows(CategoryItem, Definition);
           end;
         end;
       end;
@@ -556,7 +556,7 @@ procedure TInspector.UpdateFromCaret;
         for var Definition in Section.Metadata.Members do begin
           var Found := False;
           for var I := 0 to Section.Count-1 do begin
-            if (Section.Lines[I].Kind = dslDirective) and
+            if (Section.Lines[I].Kind = lkDirective) and
                SameText(Section.Lines[I].Name, Definition.Name) then begin
               DirectivesToShow.Add(MakeDirectiveRow(Section.Lines[I].Name, I));
               LineWillBeShown[I] := True;
@@ -574,7 +574,7 @@ procedure TInspector.UpdateFromCaret;
 
       { The remaining directives, in script order }
       for var I := 0 to Section.Count-1 do begin
-        if (Section.Lines[I].Kind = dslDirective) and not LineWillBeShown[I] then
+        if (Section.Lines[I].Kind = lkDirective) and not LineWillBeShown[I] then
           DirectivesToShow.Add(MakeDirectiveRow(Section.Lines[I].Name, I));
       end;
 
@@ -719,7 +719,7 @@ begin
     RowSetSignature := 'E|' + SectionName;
     for var I := 0 to FLiveParameterSectionEntry.Entry.Count-1 do begin
       const Parameter = FLiveParameterSectionEntry.Entry.Parameters[I];
-      if Parameter.Kind = psepParameter then
+      if Parameter.Kind = pkParameter then
         RowSetSignature := RowSetSignature + '|' + IntToStr(I) + ':' + Parameter.Name;
     end;
   end else begin
@@ -754,7 +754,7 @@ begin
         IntToStr(Ord(FShowAllKnownDirectives)) + '|' + Header.Name;
       const Model = FLiveDirectiveSection.Section;
       for var I := 0 to Model.Count-1 do begin
-        if Model.Lines[I].Kind = dslDirective then begin
+        if Model.Lines[I].Kind = lkDirective then begin
           RowSetSignature := RowSetSignature + '|' + IntToStr(I) + ':' + Model.Lines[I].Name;
           { Put AddDirectiveRow's decision into the structure }
           var Definition: TMemberDefinition;

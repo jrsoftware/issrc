@@ -34,7 +34,7 @@ type
 
   TScriptLineKind = (slkBlank, slkComment, slkISPPDirective, slkActual);
 
-  TParameterSectionEntryParameterKind = (psepParameter, psepOther);
+  TParameterSectionEntryParameterKind = (pkParameter, pkOther);
 
   { A single parameter of an entry in a parameter section: either a Name: Value
     or another kind of chunk of text between ';' separators }
@@ -55,8 +55,8 @@ type
     property Value: String read GetValue;
   end;
 
-  { A remembered ISPP line-spanning break }
-  TParameterSectionEntryBreak = record
+  { A remembered ISPP line span }
+  TParameterSectionEntryLineSpan = record
     ParameterIndex: Integer; { Parameter the physical line started with }
     Indent: String;          { Leading whitespace of the physical line as written }
   end;
@@ -66,7 +66,7 @@ type
   private
     FMetadata: TScriptModelSectionMetadata; { May be nil }
     FParameters: TObjectList<TParameterSectionEntryParameter>;
-    FBreaks: TList<TParameterSectionEntryBreak>; { Line spanning }
+    FLineSpans: TList<TParameterSectionEntryLineSpan>;
     FIndent: String; { First line indent }
     FOriginalLines: TArray<String>; { Before modification }
     FModified: Boolean;
@@ -80,7 +80,7 @@ type
       const AQuoteNewValue: Boolean): Integer;
     procedure BeginUpdate;
     procedure EndUpdate;
-    function GetBreakParameterIndex(Index: Integer): Integer;
+    function GetLineSpanParameterIndex(Index: Integer): Integer;
     function GetNamedParameter(
       const AIndex: Integer): TParameterSectionEntryParameter;
     function GetParameter(Index: Integer): TParameterSectionEntryParameter;
@@ -109,8 +109,8 @@ type
       const AInclude: Boolean);
     function TryGetDefinition(const AName: String;
       out ADefinition: TMemberDefinition): Boolean;
-    function BreakCount: Integer;
-    property BreakParameterIndexes[Index: Integer]: Integer read GetBreakParameterIndex;
+    function LineSpanCount: Integer;
+    property LineSpanParameterIndexes[Index: Integer]: Integer read GetLineSpanParameterIndex;
     property Indent: String read FIndent;
     property Metadata: TScriptModelSectionMetadata read FMetadata;
     property Modified: Boolean read FModified;
@@ -119,7 +119,7 @@ type
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
 
-  TDirectiveSectionLineKind = (dslDirective, dslOther);
+  TDirectiveSectionLineKind = (lkDirective, lkOther);
 
   { A single logical line in a directive section: either a Name=Value or
     another kind of line (comment, ISPP directive, blank, or anything else) }
@@ -451,9 +451,9 @@ function TParameterSectionEntryParameter.GetKind:
   TParameterSectionEntryParameterKind;
 begin
   if FName <> '' then
-    Result := psepParameter
+    Result := pkParameter
   else
-    Result := psepOther;
+    Result := pkOther;
 end;
 
 function TParameterSectionEntryParameter.GetRawValue: String;
@@ -477,13 +477,13 @@ begin
   inherited Create;
   FMetadata := AMetadata;
   FParameters := TObjectList<TParameterSectionEntryParameter>.Create;
-  FBreaks := TList<TParameterSectionEntryBreak>.Create;
+  FLineSpans := TList<TParameterSectionEntryLineSpan>.Create;
   FQuoteNewValues := True;
 end;
 
 destructor TScriptModelParameterSectionEntry.Destroy;
 begin
-  FBreaks.Free;
+  FLineSpans.Free;
   FParameters.Free;
   inherited;
 end;
@@ -492,7 +492,7 @@ procedure TScriptModelParameterSectionEntry.Parse(
   const ALines: array of String);
 begin
   FParameters.Clear;
-  FBreaks.Clear;
+  FLineSpans.Clear;
   FIndent := '';
   FModified := False;
   SetLength(FOriginalLines, Length(ALines));
@@ -555,10 +555,10 @@ begin
           Break;
         end;
       end;
-      var EntryBreak: TParameterSectionEntryBreak;
-      EntryBreak.ParameterIndex := ParameterIndex;
-      EntryBreak.Indent := LeadingWhitespace(ALines[I]);
-      FBreaks.Add(EntryBreak);
+      var LineSpan: TParameterSectionEntryLineSpan;
+      LineSpan.ParameterIndex := ParameterIndex;
+      LineSpan.Indent := LeadingWhitespace(ALines[I]);
+      FLineSpans.Add(LineSpan);
     end;
   finally
     ChunkStartOffsets.Free;
@@ -577,10 +577,10 @@ begin
     var LineHasParameters := False;
     var IsFirstLine := True;
     var ParameterIndex := 0;
-    for var B := 0 to FBreaks.Count do begin
+    for var B := 0 to FLineSpans.Count do begin
       var Boundary: Integer;
-      if B < FBreaks.Count then
-        Boundary := FBreaks[B].ParameterIndex
+      if B < FLineSpans.Count then
+        Boundary := FLineSpans[B].ParameterIndex
       else
         Boundary := Integer(FParameters.Count);
       if Boundary < ParameterIndex then
@@ -603,7 +603,7 @@ begin
         Inc(ParameterIndex);
       end;
 
-      if (B < FBreaks.Count) and LineHasParameters then begin
+      if (B < FLineSpans.Count) and LineHasParameters then begin
         { End this line with a continuation: the whitespace before the
           backslash comes from the next parameter's leading whitespace }
         var SuffixWhitespace: String := ' ';
@@ -614,7 +614,7 @@ begin
         end;
         Line := Line + ';' + SuffixWhitespace + '\';
         LineList.Add(Line);
-        Line := FBreaks[B].Indent;
+        Line := FLineSpans[B].Indent;
         LineHasParameters := False;
         IsFirstLine := False;
       end;
@@ -641,19 +641,19 @@ function TScriptModelParameterSectionEntry.GetNamedParameter(
   const AIndex: Integer): TParameterSectionEntryParameter;
 begin
   Result := FParameters[AIndex];
-  if Result.Kind <> psepParameter then
+  if Result.Kind <> pkParameter then
     raise EScriptModelError.Create('Internal error: Parameter has no name');
 end;
 
-function TScriptModelParameterSectionEntry.BreakCount: Integer;
+function TScriptModelParameterSectionEntry.LineSpanCount: Integer;
 begin
-  Result := Integer(FBreaks.Count);
+  Result := Integer(FLineSpans.Count);
 end;
 
-function TScriptModelParameterSectionEntry.GetBreakParameterIndex(
+function TScriptModelParameterSectionEntry.GetLineSpanParameterIndex(
   Index: Integer): Integer;
 begin
-  Result := FBreaks[Index].ParameterIndex;
+  Result := FLineSpans[Index].ParameterIndex;
 end;
 
 function TScriptModelParameterSectionEntry.IndexOf(
@@ -661,7 +661,7 @@ function TScriptModelParameterSectionEntry.IndexOf(
 { With duplicate parameters the first one wins }
 begin
   for var I := 0 to Count-1 do
-    if (FParameters[I].Kind = psepParameter) and SameText(FParameters[I].Name, AName) then
+    if (FParameters[I].Kind = pkParameter) and SameText(FParameters[I].Name, AName) then
       Exit(I);
   Result := -1;
 end;
@@ -678,7 +678,7 @@ begin
   if AIndex < 0 then
     AIndex := IndexOf(AName);
   Result := (AIndex >= 0) and (AIndex < Count) and
-    (FParameters[AIndex].Kind = psepParameter) and
+    (FParameters[AIndex].Kind = pkParameter) and
     SameText(FParameters[AIndex].Name, AName);
 end;
 
@@ -808,13 +808,13 @@ begin
   try
     FParameters.Delete(AIndex);
     { Update breaks }
-    for var B := FBreaks.Count-1 downto 0 do begin
-      if FBreaks[B].ParameterIndex = AIndex then
-        FBreaks.Delete(B)
-      else if FBreaks[B].ParameterIndex > AIndex then begin
-        var EntryBreak := FBreaks[B];
-        Dec(EntryBreak.ParameterIndex);
-        FBreaks[B] := EntryBreak;
+    for var B := FLineSpans.Count-1 downto 0 do begin
+      if FLineSpans[B].ParameterIndex = AIndex then
+        FLineSpans.Delete(B)
+      else if FLineSpans[B].ParameterIndex > AIndex then begin
+        var LineSpan := FLineSpans[B];
+        Dec(LineSpan.ParameterIndex);
+        FLineSpans[B] := LineSpan;
       end;
     end;
     if (AIndex = 0) and (FParameters.Count > 0) then
@@ -997,11 +997,11 @@ begin
     for var J := I to Last do
       Line.FOriginalLines[J-I] := ALines[J];
     const Joined = JoinSpannedScriptLines(Line.FOriginalLines);
-    Line.FKind := dslOther;
+    Line.FKind := lkOther;
     if ClassifyScriptLine(Joined) = slkActual then begin
       var NameText, RawValue: String;
       if TryParseDirectiveLine(Joined, NameText, RawValue) then begin
-        Line.FKind := dslDirective;
+        Line.FKind := lkDirective;
         Line.FNameText := NameText;
         Line.FName := Trim(NameText);
         Line.FRawValue := RawValue;
@@ -1045,7 +1045,7 @@ function TScriptModelDirectiveSection.IndexOf(const AName: String): Integer;
 begin
   Result := -1;
   for var I := 0 to Count-1 do
-    if (FLines[I].Kind = dslDirective) and SameText(FLines[I].Name, AName) then
+    if (FLines[I].Kind = lkDirective) and SameText(FLines[I].Name, AName) then
       Result := I;
 end;
 
@@ -1056,7 +1056,7 @@ begin
   if AIndex < 0 then
     AIndex := IndexOf(AName);
   Result := (AIndex >= 0) and (AIndex < Count) and
-    (FLines[AIndex].Kind = dslDirective) and
+    (FLines[AIndex].Kind = lkDirective) and
     SameText(FLines[AIndex].Name, AName);
 end;
 
@@ -1073,7 +1073,7 @@ function TScriptModelDirectiveSection.GetNamedLine(
   const AIndex: Integer): TDirectiveSectionLine;
 begin
   Result := FLines[AIndex];
-  if Result.Kind <> dslDirective then
+  if Result.Kind <> lkDirective then
     raise EScriptModelError.Create('Internal error: Line is not a directive');
 end;
 
@@ -1104,7 +1104,7 @@ begin
     raise EScriptModelError.Create('Internal error: Value must not contain line breaks');
 
   const Line = TDirectiveSectionLine.Create;
-  Line.FKind := dslDirective;
+  Line.FKind := lkDirective;
   Line.FNameText := AName;
   Line.FName := AName;
   { A newly added directive is quoted according to the section's option }
@@ -1115,7 +1115,7 @@ begin
     at the end. With no directives yet, append at the end. }
   Result := Count;
   for var I := Count-1 downto 0 do
-    if FLines[I].Kind = dslDirective then begin
+    if FLines[I].Kind = lkDirective then begin
       Result := I+1;
       Break;
     end;

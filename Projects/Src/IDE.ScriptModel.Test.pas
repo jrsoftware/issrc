@@ -102,7 +102,7 @@ begin
     Entry.Parse(['Source: "My Prog.exe"; DestDir: "{app}"; Flags: ignoreversion']);
     Assert(Entry.Count = 3);
     Assert(Entry.Parameters[0].Name = 'Source');
-    Assert(Entry.Parameters[0].Kind = psepParameter);
+    Assert(Entry.Parameters[0].Kind = pkParameter);
     Assert(Entry.Parameters[0].Value = 'My Prog.exe');
     var Value: String;
     Assert(Entry.TryGetValue('destdir', Value) and (Value = '{app}')); { Case-insensitive }
@@ -126,7 +126,7 @@ begin
     Assert(Entry.TryGetValue('DestName', Value) and (Value = ''));
     Assert(Entry.TryGetValue('Foo', Value) and (Value = '1'));
     Assert(Entry.Count = 3);
-    Assert(Entry.Parameters[2].Kind = psepOther);
+    Assert(Entry.Parameters[2].Kind = pkOther);
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'DestName: ; Foo: 1;');
 
@@ -140,7 +140,7 @@ begin
     { Garbage input is kept as opaque raw text }
     Entry.Parse(['%$#@!']);
     Assert(Entry.Count = 1);
-    Assert(Entry.Parameters[0].Kind = psepOther);
+    Assert(Entry.Parameters[0].Kind = pkOther);
     Lines := Entry.GetLines;
     Assert(Lines[0] = '%$#@!');
 
@@ -1127,14 +1127,14 @@ begin
       'Unknown=1',
       '#define X 1']);
     Assert(Section.Count = 6);
-    Assert(Section.Lines[0].Kind = dslOther);
-    Assert(Section.Lines[1].Kind = dslDirective);
+    Assert(Section.Lines[0].Kind = lkOther);
+    Assert(Section.Lines[1].Kind = lkDirective);
     Assert(Section.Lines[1].Name = 'AppName');
-    Assert(Section.Lines[2].Kind = dslOther);
-    Assert(Section.Lines[3].Kind = dslDirective);
+    Assert(Section.Lines[2].Kind = lkOther);
+    Assert(Section.Lines[3].Kind = lkDirective);
     Assert(Section.Lines[3].Value = 'Bar');
-    Assert(Section.Lines[4].Kind = dslDirective);
-    Assert(Section.Lines[5].Kind = dslOther);
+    Assert(Section.Lines[4].Kind = lkDirective);
+    Assert(Section.Lines[5].Kind = lkOther);
     var Value: String;
     Assert(Section.TryGetValue('appname', Value));
     Assert(Value = 'Bar'); { Last occurrence }
@@ -1467,8 +1467,8 @@ begin
     Assert(Entry.Count = 3);
     var Value: String;
     Assert(Entry.TryGetValue('DestDir', Value) and (Value = 'b'));
-    Assert(Entry.BreakCount = 1);
-    Assert(Entry.BreakParameterIndexes[0] = 1);
+    Assert(Entry.LineSpanCount = 1);
+    Assert(Entry.LineSpanParameterIndexes[0] = 1);
 
     { Untouched spanned entries round-trip byte-identical }
     var Lines := Entry.GetLines;
@@ -1502,7 +1502,7 @@ begin
 
     { Three physical lines, edit in the middle }
     Entry.Parse(['A: 1; \', 'B: 2; \', 'C: 3']);
-    Assert(Entry.BreakCount = 2);
+    Assert(Entry.LineSpanCount = 2);
     Entry.SetValue(1, '22');
     Lines := Entry.GetLines;
     Assert(Length(Lines) = 3);
@@ -1533,8 +1533,8 @@ begin
       parameter index 0, round-trips byte-identical while untouched, and is
       skipped the same way once any other parameter is edited }
     Entry.Parse(['Source: foo \', '  bar; DestDir: x']);
-    Assert(Entry.BreakCount = 1);
-    Assert(Entry.BreakParameterIndexes[0] = 0);
+    Assert(Entry.LineSpanCount = 1);
+    Assert(Entry.LineSpanParameterIndexes[0] = 0);
     Lines := Entry.GetLines;
     Assert(Length(Lines) = 2);
     Assert(Lines[0] = 'Source: foo \');
@@ -1580,7 +1580,7 @@ begin
   try
     Section.Parse(['AppName=Foo \', 'Bar']);
     Assert(Section.Count = 1);
-    Assert(Section.Lines[0].Kind = dslDirective);
+    Assert(Section.Lines[0].Kind = lkDirective);
     Assert(Section.Lines[0].Value = 'Foo Bar');
     var Lines := Section.GetLines;
     Assert(Length(Lines) = 2);
