@@ -24,12 +24,13 @@ uses
 type
   TLiveScriptObjectFactory = class;
 
-  { Why TryCreateEntry or TryCreateDirectiveSection refused to create an object }
-  TLiveScriptRefusalReason = (rrLineOutOfRange, rrNotInsideSection,
+  { Why TryCreateParameterSectionEntry or TryCreateDirectiveSection refused to
+    create an object }
+  TRefusalReason = (rrLineOutOfRange, rrNotInsideSection,
     rrInCodeSection, rrUnrecognizedSection, rrDirectiveStyleSection, rrComment,
     rrISPPDirective, rrSectionIndexOutOfRange, rrNotDirectiveStyleSection);
 
-  TLiveScriptSection = record
+  TLiveScriptSectionHeader = record
     Line: Integer;
     Section: TInnoSetupStylerSection;
     Name: String;
@@ -50,20 +51,20 @@ type
   end;
 
   { An entry of a parameter section }
-  TLiveScriptEntry = class(TLiveScriptObject)
+  TLiveScriptParameterSectionEntry = class(TLiveScriptObject)
   private
     FEntry: TScriptModelParameterSectionEntry;
-    FSection: TInnoSetupStylerSection;
+    FStylerSection: TInnoSetupStylerSection;
     FCreatedFromBlankLine: Boolean;
     constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
       ALastLine: Integer; const ASection: TInnoSetupStylerSection;
       const AMetadata: TScriptModelSectionMetadata; const ALines: TArray<String>;
       const ACreatedFromBlankLine: Boolean);
-    procedure EntryChange(Sender: TObject);
+    procedure ParameterSectionEntryChange(Sender: TObject);
   public
     destructor Destroy; override;
     property Entry: TScriptModelParameterSectionEntry read FEntry;
-    property Section: TInnoSetupStylerSection read FSection;
+    property StylerSection: TInnoSetupStylerSection read FStylerSection;
   end;
 
   { A single occurrence of a directive-style section }
@@ -73,7 +74,7 @@ type
     constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
       ALastLine: Integer; const AMetadata: TScriptModelSectionMetadata;
       const ALines: TArray<String>);
-    procedure SectionChange(Sender: TObject);
+    procedure DirectiveSectionChange(Sender: TObject);
   public
     destructor Destroy; override;
     property Section: TScriptModelDirectiveSection read FSection;
@@ -83,7 +84,7 @@ type
   private
     FMemo: TScintEdit;
     FStyler: TInnoSetupStyler;
-    FSections: TList<TLiveScriptSection>; { Includes scUnknown/scThirdParty section }
+    FSections: TList<TLiveScriptSectionHeader>; { Includes scUnknown/scThirdParty section }
     FIndexValid: Boolean;
     FDirtyFirstLine, FDirtyLastLine: Integer; { -1 when nothing is dirty }
     FLiveScriptObjects: TList<TLiveScriptObject>;
@@ -92,7 +93,7 @@ type
     procedure EnsureIndex;
     procedure EnsureStyled;
     function GetLinesText(const AFirstLine, ALastLine: Integer): TArray<String>;
-    function GetSection(Index: Integer): TLiveScriptSection;
+    function GetSectionHeader(Index: Integer): TLiveScriptSectionHeader;
     procedure GetSectionLines(const ASectionIndex: Integer;
       out AFirstLine, ALastLine: Integer);
     function LineSpans(const ALine: Integer): Boolean;
@@ -111,16 +112,17 @@ type
     function TryGetSetupDirectiveValue(const ADirectiveName: String;
       out AValue: String): Boolean;
     { ARefusalReason is only set when the result is False }
-    function TryCreateEntry(const ALine: Integer; out AEntry: TLiveScriptEntry;
-      out ARefusalReason: TLiveScriptRefusalReason): Boolean;
+    function TryCreateParameterSectionEntry(const ALine: Integer;
+      out AEntry: TLiveScriptParameterSectionEntry;
+      out ARefusalReason: TRefusalReason): Boolean;
     function TryCreateDirectiveSection(const ASectionIndex: Integer;
       out ASection: TLiveScriptDirectiveSection;
-      out ARefusalReason: TLiveScriptRefusalReason): Boolean;
+      out ARefusalReason: TRefusalReason): Boolean;
     { Bumped on every Change call, so a consumer can tell whether the memo
       changed since it last read something }
     property ChangeCount: Int64 read FChangeCount;
     property Memo: TScintEdit read FMemo;
-    property Sections[Index: Integer]: TLiveScriptSection read GetSection;
+    property Sections[Index: Integer]: TLiveScriptSectionHeader read GetSectionHeader;
     property Styler: TInnoSetupStyler read FStyler;
   end;
 
@@ -174,28 +176,28 @@ begin
   inherited;
 end;
 
-{ TLiveScriptEntry }
+{ TLiveScriptParameterSectionEntry }
 
-constructor TLiveScriptEntry.Create(const AFactory: TLiveScriptObjectFactory;
+constructor TLiveScriptParameterSectionEntry.Create(const AFactory: TLiveScriptObjectFactory;
   const AFirstLine, ALastLine: Integer; const ASection: TInnoSetupStylerSection;
   const AMetadata: TScriptModelSectionMetadata; const ALines: TArray<String>;
   const ACreatedFromBlankLine: Boolean);
 begin
   inherited Create(AFactory, AFirstLine, ALastLine);
-  FSection := ASection;
+  FStylerSection := ASection;
   FCreatedFromBlankLine := ACreatedFromBlankLine;
   FEntry := TScriptModelParameterSectionEntry.Create(AMetadata);
   FEntry.Parse(ALines);
-  FEntry.OnChange := EntryChange;
+  FEntry.OnChange := ParameterSectionEntryChange;
 end;
 
-destructor TLiveScriptEntry.Destroy;
+destructor TLiveScriptParameterSectionEntry.Destroy;
 begin
   FEntry.Free;
   inherited;
 end;
 
-procedure TLiveScriptEntry.EntryChange(Sender: TObject);
+procedure TLiveScriptParameterSectionEntry.ParameterSectionEntryChange(Sender: TObject);
 begin
   if (FFactory <> nil) and FValid then begin
     FFactory.WriteBackChange(Self, FEntry.GetLines, FCreatedFromBlankLine);
@@ -212,7 +214,7 @@ begin
   inherited Create(AFactory, AFirstLine, ALastLine);
   FSection := TScriptModelDirectiveSection.Create(AMetadata);
   FSection.Parse(ALines);
-  FSection.OnChange := SectionChange;
+  FSection.OnChange := DirectiveSectionChange;
 end;
 
 destructor TLiveScriptDirectiveSection.Destroy;
@@ -221,7 +223,7 @@ begin
   inherited;
 end;
 
-procedure TLiveScriptDirectiveSection.SectionChange(Sender: TObject);
+procedure TLiveScriptDirectiveSection.DirectiveSectionChange(Sender: TObject);
 begin
   if (FFactory <> nil) and FValid then
     FFactory.WriteBackChange(Self, FSection.GetLines);
@@ -235,7 +237,7 @@ begin
   inherited Create;
   FMemo := AMemo;
   FStyler := AStyler;
-  FSections := TList<TLiveScriptSection>.Create;
+  FSections := TList<TLiveScriptSectionHeader>.Create;
   FLiveScriptObjects := TList<TLiveScriptObject>.Create;
   FDirtyFirstLine := -1;
   FDirtyLastLine := -1;
@@ -272,8 +274,8 @@ procedure TLiveScriptObjectFactory.EnsureIndex;
       Result := Copy(S, P+1, I-P-1);
   end;
 
-  function GetHeaderSection(const ALine: Integer;
-    out ASection: TLiveScriptSection): Boolean;
+  function TryGetSectionHeader(const ALine: Integer;
+    out ASection: TLiveScriptSectionHeader): Boolean;
   begin
     { ISPP's line continuation (see LineSpans) joins physical lines into one
       logical line, and the styler gives them all the same line state. This
@@ -297,8 +299,8 @@ procedure TLiveScriptObjectFactory.EnsureIndex;
     var PreviousLineSpans := False;
     for var I := 0 to LineCount-1 do begin
       if not PreviousLineSpans then begin
-        var Section: TLiveScriptSection;
-        if GetHeaderSection(I, Section) then
+        var Section: TLiveScriptSectionHeader;
+        if TryGetSectionHeader(I, Section) then
           FSections.Add(Section);
       end;
       PreviousLineSpans := LineSpans(I);
@@ -358,8 +360,8 @@ procedure TLiveScriptObjectFactory.EnsureIndex;
     var PreviousLineSpans := False; { FirstLine was extended back to the start of a group }
     for var I := FirstLine to LastLine do begin
       if not PreviousLineSpans then begin
-        var Section: TLiveScriptSection;
-        if GetHeaderSection(I, Section) then begin
+        var Section: TLiveScriptSectionHeader;
+        if TryGetSectionHeader(I, Section) then begin
           FSections.Insert(InsertAt, Section);
           Inc(InsertAt);
         end;
@@ -498,7 +500,7 @@ begin
   Result := Integer(FSections.Count);
 end;
 
-function TLiveScriptObjectFactory.GetSection(Index: Integer): TLiveScriptSection;
+function TLiveScriptObjectFactory.GetSectionHeader(Index: Integer): TLiveScriptSectionHeader;
 begin
   EnsureIndex;
   Result := FSections[Index];
@@ -596,8 +598,9 @@ begin
   end;
 end;
 
-function TLiveScriptObjectFactory.TryCreateEntry(const ALine: Integer;
-  out AEntry: TLiveScriptEntry; out ARefusalReason: TLiveScriptRefusalReason): Boolean;
+function TLiveScriptObjectFactory.TryCreateParameterSectionEntry(const ALine: Integer;
+  out AEntry: TLiveScriptParameterSectionEntry;
+  out ARefusalReason: TRefusalReason): Boolean;
 begin
   AEntry := nil;
   Result := False;
@@ -653,14 +656,14 @@ begin
 
   var Metadata: TScriptModelSectionMetadata := nil;
   TryGetScriptModelSectionMetadata(ParameterSectionToSectionName(Section), Metadata);
-  AEntry := TLiveScriptEntry.Create(Self, FirstLine, LastLine, Section,
-    Metadata, EntryLines, LineKind = slkBlank);
+  AEntry := TLiveScriptParameterSectionEntry.Create(Self, FirstLine, LastLine,
+    Section, Metadata, EntryLines, LineKind = slkBlank);
   Result := True;
 end;
 
 function TLiveScriptObjectFactory.TryCreateDirectiveSection(const ASectionIndex: Integer;
   out ASection: TLiveScriptDirectiveSection;
-  out ARefusalReason: TLiveScriptRefusalReason): Boolean;
+  out ARefusalReason: TRefusalReason): Boolean;
 begin
   ASection := nil;
   Result := False;

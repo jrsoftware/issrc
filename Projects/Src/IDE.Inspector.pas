@@ -36,7 +36,7 @@ type
   private
     FJvInspector: TJvInspector;
     FFactory: TLiveScriptObjectFactory;
-    FLiveEntry: TLiveScriptEntry;
+    FLiveParameterSectionEntry: TLiveScriptParameterSectionEntry;
     FLiveDirectiveSection: TLiveScriptDirectiveSection;
     FLiveDirectiveSectionName: String;
     FLiveDirectiveSectionHasSiblingOccurrences: Boolean;
@@ -54,7 +54,7 @@ type
     FQuoteNewDirectiveValues: Boolean;
     function TryGetRow(const AItem: TJvCustomInspectorItem;
       out ARow: TInspectorRow): Boolean;
-    function TryGetRowParameterEntry(const ARow: TInspectorRow;
+    function TryGetRowParameterSectionEntry(const ARow: TInspectorRow;
       out AEntry: TScriptModelParameterSectionEntry; out AIndex: Integer): Boolean;
     function TryGetRowDirectiveSection(const ARow: TInspectorRow;
       out ASection: TScriptModelDirectiveSection; out AIndex: Integer): Boolean;
@@ -140,7 +140,7 @@ destructor TInspector.Destroy;
 begin
   { Free the inspector before the objects its rows read from }
   FJvInspector.Free;
-  FLiveEntry.Free;
+  FLiveParameterSectionEntry.Free;
   FLiveDirectiveSection.Free;
   FRows.Free;
   inherited;
@@ -157,13 +157,13 @@ function TInspector.ItemShouldBeBold(
         begin
           var Entry: TScriptModelParameterSectionEntry;
           var Index: Integer;
-          Result := TryGetRowParameterEntry(ARow, Entry, Index);
+          Result := TryGetRowParameterSectionEntry(ARow, Entry, Index);
         end;
       irkEntryFlag:
         begin
           var Entry: TScriptModelParameterSectionEntry;
           var Index: Integer;
-          Result := TryGetRowParameterEntry(ARow, Entry, Index) and
+          Result := TryGetRowParameterSectionEntry(ARow, Entry, Index) and
             Entry.FlagIncluded(Index, ARow.FlagName);
         end;
       irkDirective:
@@ -190,14 +190,14 @@ begin
   Result := TryGetRow(AItem, Row) and RowShouldBeBold(Row);
 end;
 
-function TInspector.TryGetRowParameterEntry(const ARow: TInspectorRow;
+function TInspector.TryGetRowParameterSectionEntry(const ARow: TInspectorRow;
   out AEntry: TScriptModelParameterSectionEntry; out AIndex: Integer): Boolean;
 begin
   AEntry := nil;
   AIndex := -1;
-  if (FLiveEntry = nil) or not FLiveEntry.Valid then
+  if (FLiveParameterSectionEntry = nil) or not FLiveParameterSectionEntry.Valid then
     Exit(False);
-  AEntry := FLiveEntry.Entry;
+  AEntry := FLiveParameterSectionEntry.Entry;
   AIndex := ARow.NameIndex;
   Result := AEntry.TryResolve(ARow.Name, AIndex);
 end;
@@ -348,7 +348,7 @@ procedure TInspector.UpdateFromCaret;
   end;
 
   {$IFDEF DEBUG}
-  function RefusalReasonToString(const ARefusalReason: TLiveScriptRefusalReason): String;
+  function RefusalReasonToString(const ARefusalReason: TRefusalReason): String;
   begin
     case ARefusalReason of
       rrLineOutOfRange: Result := 'The line number is out of range';
@@ -431,7 +431,7 @@ procedure TInspector.UpdateFromCaret;
   begin
     { Normally a parameter will be present only once, but duplicates are still
       handled here, even though that doesn't compile }
-    const Entry = FLiveEntry.Entry;
+    const Entry = FLiveParameterSectionEntry.Entry;
     var Found := False;
     for var I := 0 to Entry.Count-1 do begin
       if (Entry.Parameters[I].Kind = psepParameter) and
@@ -496,7 +496,7 @@ procedure TInspector.UpdateFromCaret;
 
   procedure AddEntryRows;
   begin
-    const Entry = FLiveEntry.Entry;
+    const Entry = FLiveParameterSectionEntry.Entry;
 
     { Known and uncategorized parameters first, in metadata order }
     if Entry.Metadata <> nil then begin
@@ -633,7 +633,7 @@ procedure TInspector.UpdateFromCaret;
         FJvInspector.Clear;
         FRows.Clear;
 
-        if FLiveEntry <> nil then
+        if FLiveParameterSectionEntry <> nil then
           AddEntryRows
         else if FLiveDirectiveSection <> nil then
           AddDirectiveRows;
@@ -669,10 +669,10 @@ begin
     entry or directive section changes nothing, so keep the model and the rows.
     The signature check must precede LiveObjectTextChanged: right after
     SetActiveFactory the live object still belongs to the previous factory. }
-  if (FLiveEntry <> nil) and FLiveEntry.Valid and
+  if (FLiveParameterSectionEntry <> nil) and FLiveParameterSectionEntry.Valid and
      (FRowSetSignature <> '') and not LiveObjectTextChanged and
-     (CaretLine >= FLiveEntry.FirstLine) and
-     (CaretLine <= FLiveEntry.LastLine) then begin
+     (CaretLine >= FLiveParameterSectionEntry.FirstLine) and
+     (CaretLine <= FLiveParameterSectionEntry.LastLine) then begin
     {$IFDEF DEBUG}
     Inc(FUpdateFromCaretEarlyExitCount);
     FJvInspector.Invalidate; { Repaint the early exit count }
@@ -694,7 +694,7 @@ begin
     end;
   end;
 
-  FreeAndNil(FLiveEntry);
+  FreeAndNil(FLiveParameterSectionEntry);
   FreeAndNil(FLiveDirectiveSection);
   {$IFDEF DEBUG}
   FUpdateFromCaretEarlyExitCount := 0;
@@ -702,28 +702,30 @@ begin
 
   { Build row set signature for the selected entry or section }
   var RowSetSignature: String; { The actual value this gets doesn't matter, as long as it's unique for any unique row set }
-  var Entry: TLiveScriptEntry;
-  var EntryRefusalReason: TLiveScriptRefusalReason;
-  if FFactory.TryCreateEntry(CaretLine, Entry, EntryRefusalReason) then begin
-    FLiveEntry := Entry;
+  var Entry: TLiveScriptParameterSectionEntry;
+  var EntryRefusalReason: TRefusalReason;
+  if FFactory.TryCreateParameterSectionEntry(CaretLine, Entry, EntryRefusalReason) then begin
+    FLiveParameterSectionEntry := Entry;
     FChangeCountAtCreation := FFactory.ChangeCount;
-    FLiveEntry.Entry.QuoteNewValues := FQuoteNewParameterValues;
-    const SectionName = ParameterSectionToSectionName(FLiveEntry.Section);
+    FLiveParameterSectionEntry.Entry.QuoteNewValues := FQuoteNewParameterValues;
+    const SectionName = ParameterSectionToSectionName(
+      FLiveParameterSectionEntry.StylerSection);
     {$IFDEF DEBUG}
     FDebugStatusRowString := Format('[%s] entry at lines %d-%d',
-      [SectionName, FLiveEntry.FirstLine+1, FLiveEntry.LastLine+1]);
+      [SectionName, FLiveParameterSectionEntry.FirstLine+1,
+       FLiveParameterSectionEntry.LastLine+1]);
     {$ENDIF}
     { Rows address parameters by index, so the signature includes the indexes }
     RowSetSignature := 'E|' + SectionName;
-    for var I := 0 to FLiveEntry.Entry.Count-1 do begin
-      const Parameter = FLiveEntry.Entry.Parameters[I];
+    for var I := 0 to FLiveParameterSectionEntry.Entry.Count-1 do begin
+      const Parameter = FLiveParameterSectionEntry.Entry.Parameters[I];
       if Parameter.Kind = psepParameter then
         RowSetSignature := RowSetSignature + '|' + IntToStr(I) + ':' + Parameter.Name;
     end;
   end else begin
     var SectionIndex: Integer;
     var DirectiveSection: TLiveScriptDirectiveSection;
-    var SectionRefusalReason: TLiveScriptRefusalReason;
+    var SectionRefusalReason: TRefusalReason;
     if FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
        FFactory.TryCreateDirectiveSection(SectionIndex, DirectiveSection,
          SectionRefusalReason) then begin
@@ -812,7 +814,7 @@ begin
       begin
         var Entry: TScriptModelParameterSectionEntry;
         var Index: Integer;
-        if TryGetRowParameterEntry(Row, Entry, Index) and
+        if TryGetRowParameterSectionEntry(Row, Entry, Index) and
            Entry.FlagIncluded(Index, Row.FlagName) then
           Value := 1;
       end;
@@ -854,7 +856,7 @@ begin
       begin
         var Entry: TScriptModelParameterSectionEntry;
         var Index: Integer;
-        if TryGetRowParameterEntry(Row, Entry, Index) then
+        if TryGetRowParameterSectionEntry(Row, Entry, Index) then
           Value := Entry.Parameters[Index].Value;
         { else: Not present in the script: show empty }
       end;
@@ -900,7 +902,7 @@ begin
         begin
           var Entry: TScriptModelParameterSectionEntry;
           var Index: Integer;
-          if TryGetRowParameterEntry(Row, Entry, Index) then
+          if TryGetRowParameterSectionEntry(Row, Entry, Index) then
             Entry.SetFlag(Index, Row.FlagName, Value <> 0) { May adjust related flags as well }
           else if (Entry <> nil) and (Row.NameIndex < 0) and (Value <> 0) then begin
             { Group Add's and SetFlag's writes into a single undo action }
@@ -982,7 +984,7 @@ begin
         begin
           var Entry: TScriptModelParameterSectionEntry;
           var Index: Integer;
-          const Found = TryGetRowParameterEntry(Row, Entry, Index);
+          const Found = TryGetRowParameterSectionEntry(Row, Entry, Index);
           if Entry <> nil then begin
             var Definition: TMemberDefinition;
             if Entry.TryGetDefinition(Row.Name, Definition) then
@@ -1025,8 +1027,8 @@ begin
   if not TryGetRow(Item, Row) then
     Exit;
   var Definition: TMemberDefinition;
-  if (FLiveEntry <> nil) and FLiveEntry.Valid then begin
-    if not FLiveEntry.Entry.TryGetDefinition(Row.Name, Definition) then
+  if (FLiveParameterSectionEntry <> nil) and FLiveParameterSectionEntry.Valid then begin
+    if not FLiveParameterSectionEntry.Entry.TryGetDefinition(Row.Name, Definition) then
       raise Exception.Create('Internal error: ChoiceRowGetValueList: unknown parameter');
   end else if (FLiveDirectiveSection <> nil) and FLiveDirectiveSection.Valid then begin
     if not FLiveDirectiveSection.Section.TryGetDefinition(Row.Name, Definition) then
@@ -1065,8 +1067,8 @@ end;
 procedure TInspector.SetQuoteNewParameterValues(const Value: Boolean);
 begin
   FQuoteNewParameterValues := Value;
-  if FLiveEntry <> nil then
-    FLiveEntry.Entry.QuoteNewValues := Value;
+  if FLiveParameterSectionEntry <> nil then
+    FLiveParameterSectionEntry.Entry.QuoteNewValues := Value;
 end;
 
 procedure TInspector.SetShowAllKnownDirectives(const Value: Boolean);
