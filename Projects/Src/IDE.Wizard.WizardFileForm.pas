@@ -95,10 +95,10 @@ var
 
 procedure InitializeDestRootDirs;
 begin
-  var Metadata: TScriptSectionMetadata;
-  var Definition: TScriptParameterDefinition;
-  if not TryGetScriptSectionMetadata('Files', Metadata) or
-     not Metadata.TryGetParameter('DestDir', Definition) or
+  var Metadata: TScriptModelSectionMetadata;
+  var Definition: TMemberDefinition;
+  if not TryGetScriptModelSectionMetadata('Files', Metadata) or
+     not Metadata.TryGetMember('DestDir', Definition) or
      (Length(Definition.KnownValues) <> Length(DestRootDirs)) then
     raise Exception.Create('Internal error: DestDir known values mismatch');
   for var I := Low(DestRootDirs) to High(DestRootDirs) do

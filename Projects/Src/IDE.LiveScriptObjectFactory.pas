@@ -57,7 +57,7 @@ type
     FCreatedFromBlankLine: Boolean;
     constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
       ALastLine: Integer; const ASection: TInnoSetupStylerSection;
-      const AMetadata: TScriptSectionMetadata; const ALines: TArray<String>;
+      const AMetadata: TScriptModelSectionMetadata; const ALines: TArray<String>;
       const ACreatedFromBlankLine: Boolean);
     procedure EntryChange(Sender: TObject);
   public
@@ -71,7 +71,7 @@ type
   private
     FSection: TScriptModelDirectiveSection;
     constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
-      ALastLine: Integer; const AMetadata: TScriptSectionMetadata;
+      ALastLine: Integer; const AMetadata: TScriptModelSectionMetadata;
       const ALines: TArray<String>);
     procedure SectionChange(Sender: TObject);
   public
@@ -178,7 +178,7 @@ end;
 
 constructor TLiveScriptEntry.Create(const AFactory: TLiveScriptObjectFactory;
   const AFirstLine, ALastLine: Integer; const ASection: TInnoSetupStylerSection;
-  const AMetadata: TScriptSectionMetadata; const ALines: TArray<String>;
+  const AMetadata: TScriptModelSectionMetadata; const ALines: TArray<String>;
   const ACreatedFromBlankLine: Boolean);
 begin
   inherited Create(AFactory, AFirstLine, ALastLine);
@@ -206,7 +206,7 @@ end;
 { TLiveScriptDirectiveSection }
 
 constructor TLiveScriptDirectiveSection.Create(const AFactory: TLiveScriptObjectFactory;
-  const AFirstLine, ALastLine: Integer; const AMetadata: TScriptSectionMetadata;
+  const AFirstLine, ALastLine: Integer; const AMetadata: TScriptModelSectionMetadata;
   const ALines: TArray<String>);
 begin
   inherited Create(AFactory, AFirstLine, ALastLine);
@@ -651,8 +651,8 @@ begin
       end;
   end;
 
-  var Metadata: TScriptSectionMetadata := nil;
-  TryGetScriptSectionMetadata(ParameterSectionToSectionName(Section), Metadata);
+  var Metadata: TScriptModelSectionMetadata := nil;
+  TryGetScriptModelSectionMetadata(ParameterSectionToSectionName(Section), Metadata);
   AEntry := TLiveScriptEntry.Create(Self, FirstLine, LastLine, Section,
     Metadata, EntryLines, LineKind = slkBlank);
   Result := True;
@@ -683,8 +683,8 @@ begin
     SectionLines := GetLinesText(FirstLine, LastLine)
   else
     SectionLines := nil;
-  var Metadata: TScriptSectionMetadata := nil;
-  TryGetScriptSectionMetadata(FSections[ASectionIndex].Name, Metadata);
+  var Metadata: TScriptModelSectionMetadata := nil;
+  TryGetScriptModelSectionMetadata(FSections[ASectionIndex].Name, Metadata);
   ASection := TLiveScriptDirectiveSection.Create(Self, FirstLine, LastLine,
     Metadata, SectionLines);
   Result := True;

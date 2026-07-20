@@ -21,15 +21,15 @@ uses
   Shared.SetupSectionDirectives;
 
 type
-  TScriptParameterValueKind = (pvkString, pvkInteger, pvkVersion,
-    pvkChoice, pvkFlags, pvkYesNo);
+  TMemberValueKind = (mvkString, mvkInteger, mvkVersion,
+    mvkChoice, mvkFlags, mvkYesNo);
 
-  TScriptParameterDefinition = record
+  TMemberDefinition = record
     Name: String;
-    ValueKind: TScriptParameterValueKind;
-    KnownValues: TArray<String>; { For pvkFlags: the known flags
-                                   For pvkChoice: the known choices (other choices might still be valid, like a scripted expression)
-                                   For pvkYesNo: 'yes' and 'no' (other values might still be valid, like an ISPP inline directive) }
+    ValueKind: TMemberValueKind;
+    KnownValues: TArray<String>; { For mvkFlags: the known flags
+                                   For mvkChoice: the known choices (other choices might still be valid, like a scripted expression)
+                                   For mvkYesNo: 'yes' and 'no' (other values might still be valid, like an ISPP inline directive) }
     DefaultValue: String; { The default of a directive, empty for parameters }
     Obsolete: Boolean;    { To be hidden unless explicitly present in the script }
   end;
@@ -38,41 +38,41 @@ type
     Includes rules are applied in one direction only. Excludes rules are also
     applied in reverse (including a listed other flag excludes FlagName),
     but the listed other flags do not exclude each other. }
-  TScriptFlagRule = record
+  TFlagRule = record
     ParameterName: String;
     FlagName: String;
     OtherFlagNames: TArray<String>; { the other flags to include or exclude }
   end;
 
   { Rule: giving a parameter a non-empty value must also include a flag }
-  TScriptParameterIncludesFlagRule = record
+  TParameterIncludesFlagRule = record
     ParameterName: String;      { the parameter whose value triggers the rule }
     FlagParameterName: String;  { the flag-list parameter that holds the flag }
     FlagName: String;           { the flag to include }
   end;
 
-  TScriptSectionMetadata = class
+  TScriptModelSectionMetadata = class
   private
     FSectionName: String;
-    FParameters: TArray<TScriptParameterDefinition>;
-    FParametersByName: TDictionary<String, Integer>; { FParameters index by name }
-    FFlagIncludesRules: TArray<TScriptFlagRule>;
-    FFlagExcludesRules: TArray<TScriptFlagRule>;
-    FParameterIncludesFlagRules: TArray<TScriptParameterIncludesFlagRule>;
+    FMembers: TArray<TMemberDefinition>;
+    FMembersByName: TDictionary<String, Integer>; { FMembers index by name }
+    FFlagIncludesRules: TArray<TFlagRule>;
+    FFlagExcludesRules: TArray<TFlagRule>;
+    FParameterIncludesFlagRules: TArray<TParameterIncludesFlagRule>;
   public
     constructor Create(const ASectionName: String;
-      const AParameters: TArray<TScriptParameterDefinition>;
-      const AFlagIncludesRules: TArray<TScriptFlagRule> = nil;
-      const AFlagExcludesRules: TArray<TScriptFlagRule> = nil;
-      const AParameterIncludesFlagRules: TArray<TScriptParameterIncludesFlagRule> = nil);
+      const AMembers: TArray<TMemberDefinition>;
+      const AFlagIncludesRules: TArray<TFlagRule> = nil;
+      const AFlagExcludesRules: TArray<TFlagRule> = nil;
+      const AParameterIncludesFlagRules: TArray<TParameterIncludesFlagRule> = nil);
     destructor Destroy; override;
-    function TryGetParameter(const AName: String;
-      out ADefinition: TScriptParameterDefinition): Boolean;
+    function TryGetMember(const AName: String;
+      out ADefinition: TMemberDefinition): Boolean;
     property SectionName: String read FSectionName;
-    property Parameters: TArray<TScriptParameterDefinition> read FParameters;
-    property FlagIncludesRules: TArray<TScriptFlagRule> read FFlagIncludesRules;
-    property FlagExcludesRules: TArray<TScriptFlagRule> read FFlagExcludesRules;
-    property ParameterIncludesFlagRules: TArray<TScriptParameterIncludesFlagRule>
+    property Members: TArray<TMemberDefinition> read FMembers;
+    property FlagIncludesRules: TArray<TFlagRule> read FFlagIncludesRules;
+    property FlagExcludesRules: TArray<TFlagRule> read FFlagExcludesRules;
+    property ParameterIncludesFlagRules: TArray<TParameterIncludesFlagRule>
       read FParameterIncludesFlagRules;
   end;
 
@@ -104,8 +104,8 @@ const
   SNo = 'no';
   SAuto = 'auto';
 
-function TryGetScriptSectionMetadata(const ASectionName: String;
-  out AMetadata: TScriptSectionMetadata): Boolean;
+function TryGetScriptModelSectionMetadata(const ASectionName: String;
+  out AMetadata: TScriptModelSectionMetadata): Boolean;
 
 function ScriptCategoryNamesOrdered: TArray<String>;
 
@@ -119,44 +119,44 @@ uses
   Shared.LangOptionsSectionDirectives;
 
 var
-  SectionMetadataList: TObjectList<TScriptSectionMetadata>;
+  SectionMetadataList: TObjectList<TScriptModelSectionMetadata>;
 
-{ TScriptSectionMetadata }
+{ TScriptModelSectionMetadata }
 
-constructor TScriptSectionMetadata.Create(const ASectionName: String;
-  const AParameters: TArray<TScriptParameterDefinition>;
-  const AFlagIncludesRules: TArray<TScriptFlagRule>;
-  const AFlagExcludesRules: TArray<TScriptFlagRule>;
-  const AParameterIncludesFlagRules: TArray<TScriptParameterIncludesFlagRule>);
+constructor TScriptModelSectionMetadata.Create(const ASectionName: String;
+  const AMembers: TArray<TMemberDefinition>;
+  const AFlagIncludesRules: TArray<TFlagRule>;
+  const AFlagExcludesRules: TArray<TFlagRule>;
+  const AParameterIncludesFlagRules: TArray<TParameterIncludesFlagRule>);
 begin
   inherited Create;
   FSectionName := ASectionName;
-  FParameters := AParameters;
-  FParametersByName := TDictionary<String, Integer>.Create(TIStringComparer.Ordinal);
-  for var I := 0 to High(FParameters) do
-    FParametersByName.Add(FParameters[I].Name, Integer(I)); { Add raises on a duplicate name }
+  FMembers := AMembers;
+  FMembersByName := TDictionary<String, Integer>.Create(TIStringComparer.Ordinal);
+  for var I := 0 to High(FMembers) do
+    FMembersByName.Add(FMembers[I].Name, Integer(I)); { Add raises on a duplicate name }
   FFlagIncludesRules := AFlagIncludesRules;
   FFlagExcludesRules := AFlagExcludesRules;
   FParameterIncludesFlagRules := AParameterIncludesFlagRules;
 end;
 
-destructor TScriptSectionMetadata.Destroy;
+destructor TScriptModelSectionMetadata.Destroy;
 begin
-  FParametersByName.Free;
+  FMembersByName.Free;
   inherited;
 end;
 
-function TScriptSectionMetadata.TryGetParameter(const AName: String;
-  out ADefinition: TScriptParameterDefinition): Boolean;
+function TScriptModelSectionMetadata.TryGetMember(const AName: String;
+  out ADefinition: TMemberDefinition): Boolean;
 begin
   var I: Integer;
-  Result := FParametersByName.TryGetValue(AName, I);
+  Result := FMembersByName.TryGetValue(AName, I);
   if Result then
-    ADefinition := FParameters[I];
+    ADefinition := FMembers[I];
 end;
 
-function TryGetScriptSectionMetadata(const ASectionName: String;
-  out AMetadata: TScriptSectionMetadata): Boolean;
+function TryGetScriptModelSectionMetadata(const ASectionName: String;
+  out AMetadata: TScriptModelSectionMetadata): Boolean;
 begin
   for var Metadata in SectionMetadataList do begin
     if SameText(Metadata.SectionName, ASectionName) then begin
@@ -286,10 +286,10 @@ end;
 
 procedure InitializeSectionMetadata;
 
-  function PD(const AName: String; const AValueKind: TScriptParameterValueKind;
+  function MD(const AName: String; const AValueKind: TMemberValueKind;
     const AKnownValues: TArray<String> = nil;
     const AObsolete: Boolean = False;
-    const ADefaultValue: String = ''): TScriptParameterDefinition;
+    const ADefaultValue: String = ''): TMemberDefinition;
   begin
     Result.Name := AName;
     Result.ValueKind := AValueKind;
@@ -299,7 +299,7 @@ procedure InitializeSectionMetadata;
   end;
 
   function FR(const AParameterName, AFlagName: String;
-    const AOtherFlagNames: TArray<String>): TScriptFlagRule;
+    const AOtherFlagNames: TArray<String>): TFlagRule;
   begin
     Result.ParameterName := AParameterName;
     Result.FlagName := AFlagName;
@@ -307,7 +307,7 @@ procedure InitializeSectionMetadata;
   end;
 
   function PIF(const AParameterName, AFlagParameterName,
-    AFlagName: String): TScriptParameterIncludesFlagRule;
+    AFlagName: String): TParameterIncludesFlagRule;
   begin
     Result.ParameterName := AParameterName;
     Result.FlagParameterName := AFlagParameterName;
@@ -468,41 +468,41 @@ const
       ssUninstallDisplaySize, ssWizardBackImageOpacity, ssWizardImageOpacity];
     SetupSectionDirectivesVersion = [ssMinVersion, ssOnlyBelowVersion];
   begin
-    var Definitions: TArray<TScriptParameterDefinition>;
-    SetLength(Definitions, Ord(High(TSetupSectionDirective))+1);
+    var Members: TArray<TMemberDefinition>;
+    SetLength(Members, Ord(High(TSetupSectionDirective))+1);
     for var Directive := Low(TSetupSectionDirective) to High(TSetupSectionDirective) do begin
-      var ValueKind := pvkString;
+      var ValueKind := mvkString;
       var KnownValues: TArray<String> := nil;
       if Directive in SetupSectionDirectivesYesNo then begin
-        ValueKind := pvkYesNo;
+        ValueKind := mvkYesNo;
         KnownValues := [SYes, SNo]; { For AddDirectiveRow's fallback }
       end else if Directive in SetupSectionDirectivesYesNoOrScripted then begin
-        ValueKind := pvkChoice; { Also allows free typing }
+        ValueKind := mvkChoice; { Also allows free typing }
         KnownValues := [SYes, SNo];
       end else if Directive in SetupSectionDirectivesAutoYesNo then begin
-        ValueKind := pvkChoice; { Also allows free typing }
+        ValueKind := mvkChoice; { Also allows free typing }
         KnownValues := [SAuto, SYes, SNo];
       end else if Directive in SetupSectionDirectivesInteger then
-        ValueKind := pvkInteger
+        ValueKind := mvkInteger
       else if Directive in SetupSectionDirectivesVersion then
-        ValueKind := pvkVersion
+        ValueKind := mvkVersion
       else begin
         KnownValues := SetupSectionDirectiveFlagValues(Directive);
         if KnownValues <> nil then
-          ValueKind := pvkFlags
+          ValueKind := mvkFlags
         else begin
           KnownValues := SetupSectionDirectiveChoiceValues(Directive);
           if KnownValues <> nil then
-            ValueKind := pvkChoice;
+            ValueKind := mvkChoice;
         end;
       end;
-      Definitions[Ord(Directive)] := PD(
+      Members[Ord(Directive)] := MD(
         Copy(GetEnumName(TypeInfo(TSetupSectionDirective), Ord(Directive)),
           Length(SetupSectionDirectivePrefix)+1, MaxInt),
         ValueKind, KnownValues, Directive in SetupSectionDirectivesObsolete,
         SetupSectionDirectiveDefaultValue(Directive));
     end;
-    SectionMetadataList.Add(TScriptSectionMetadata.Create('Setup', Definitions,
+    SectionMetadataList.Add(TScriptModelSectionMetadata.Create('Setup', Members,
       nil,
       [FR('WizardStyle', 'classic', ['modern']),
        FR('WizardStyle', 'light', ['dark', 'dynamic']),
@@ -540,23 +540,23 @@ const
       lsDialogFontBaseScaleWidth, lsDialogFontSize, lsLanguageCodePage,
       lsLanguageID, lsWelcomeFontSize];
   begin
-    var Definitions: TArray<TScriptParameterDefinition>;
-    SetLength(Definitions, Ord(High(TLangOptionsSectionDirective))+1);
+    var Members: TArray<TMemberDefinition>;
+    SetLength(Members, Ord(High(TLangOptionsSectionDirective))+1);
     for var Directive := Low(TLangOptionsSectionDirective) to High(TLangOptionsSectionDirective) do begin
-      var ValueKind := pvkString;
+      var ValueKind := mvkString;
       var KnownValues: TArray<String> := nil;
       if Directive in LangOptionsSectionDirectivesYesNo then begin
-        ValueKind := pvkYesNo;
+        ValueKind := mvkYesNo;
         KnownValues := [SYes, SNo]; { For AddDirectiveRow's fallback }
       end else if Directive in LangOptionsSectionDirectivesInteger then
-        ValueKind := pvkInteger;
-      Definitions[Ord(Directive)] := PD(
+        ValueKind := mvkInteger;
+      Members[Ord(Directive)] := MD(
         Copy(GetEnumName(TypeInfo(TLangOptionsSectionDirective), Ord(Directive)),
           LangOptionsSectionDirectivePrefixLength+1, MaxInt),
         ValueKind, KnownValues, Directive in LangOptionsSectionDirectivesObsolete,
         LangOptionsSectionDirectiveDefaultValue(Directive));
     end;
-    SectionMetadataList.Add(TScriptSectionMetadata.Create('LangOptions', Definitions));
+    SectionMetadataList.Add(TScriptModelSectionMetadata.Create('LangOptions', Members));
   end;
 
 begin
@@ -575,33 +575,33 @@ begin
     'sortfilesbyname', 'touch', 'uninsneveruninstall', 'uninsnosharedfileprompt',
     'uninsremovereadonly', 'uninsrestartdelete', 'unsetntfscompression'];
 
-  SectionMetadataList.Add(TScriptSectionMetadata.Create('Files',
-    [PD('AfterInstall', pvkString),
-    PD('Attribs', pvkFlags, AttribsFlagNames),
-    PD('BeforeInstall', pvkString),
-    PD('Check', pvkString),
-    PD('Components', pvkString),
-    PD('CopyMode', pvkString, nil, True),
+  SectionMetadataList.Add(TScriptModelSectionMetadata.Create('Files',
+    [MD('AfterInstall', mvkString),
+    MD('Attribs', mvkFlags, AttribsFlagNames),
+    MD('BeforeInstall', mvkString),
+    MD('Check', mvkString),
+    MD('Components', mvkString),
+    MD('CopyMode', mvkString, nil, True),
     { Order must match IDE.Wizard.WizardFileForm! }
-    PD('DestDir', pvkChoice, ['{app}', '{autopf}', '{autocf}', '{win}', '{sys}', '{src}', '{sd}']),
-    PD('DestName', pvkString),
-    PD('DownloadISSigSource', pvkString),
-    PD('DownloadPassword', pvkString),
-    PD('DownloadUserName', pvkString),
-    PD('Excludes', pvkString),
-    PD('ExternalSize', pvkInteger),
-    PD('ExtractArchivePassword', pvkString),
-    PD('Flags', pvkFlags, FilesFlagNames),
-    PD('FontInstall', pvkString),
-    PD('Hash', pvkString),
-    PD('ISSigAllowedKeys', pvkString),
-    PD('Languages', pvkString),
-    PD('MinVersion', pvkVersion),
-    PD('OnlyBelowVersion', pvkVersion),
-    PD('Permissions', pvkString),
-    PD('Source', pvkString),
-    PD('StrongAssemblyName', pvkString),
-    PD('Tasks', pvkString)],
+    MD('DestDir', mvkChoice, ['{app}', '{autopf}', '{autocf}', '{win}', '{sys}', '{src}', '{sd}']),
+    MD('DestName', mvkString),
+    MD('DownloadISSigSource', mvkString),
+    MD('DownloadPassword', mvkString),
+    MD('DownloadUserName', mvkString),
+    MD('Excludes', mvkString),
+    MD('ExternalSize', mvkInteger),
+    MD('ExtractArchivePassword', mvkString),
+    MD('Flags', mvkFlags, FilesFlagNames),
+    MD('FontInstall', mvkString),
+    MD('Hash', mvkString),
+    MD('ISSigAllowedKeys', mvkString),
+    MD('Languages', mvkString),
+    MD('MinVersion', mvkVersion),
+    MD('OnlyBelowVersion', mvkVersion),
+    MD('Permissions', mvkString),
+    MD('Source', mvkString),
+    MD('StrongAssemblyName', mvkString),
+    MD('Tasks', mvkString)],
     [FR('Flags', 'extractarchive', ['external', 'ignoreversion']),
      FR('Flags', 'download', ['external', 'ignoreversion']),
      FR('Flags', 'createallsubdirs', ['recursesubdirs']),
@@ -627,160 +627,160 @@ begin
      PIF('ISSigAllowedKeys', 'Flags', 'issigverify'),
      PIF('StrongAssemblyName', 'Flags', 'gacinstall')]));
 
-  SectionMetadataList.Add(TScriptSectionMetadata.Create('Components',
-    [PD('Check', pvkString),
-    PD('Description', pvkString),
-    PD('ExtraDiskSpaceRequired', pvkInteger),
-    PD('Flags', pvkFlags, ['checkablealone', 'disablenouninstallwarning',
+  SectionMetadataList.Add(TScriptModelSectionMetadata.Create('Components',
+    [MD('Check', mvkString),
+    MD('Description', mvkString),
+    MD('ExtraDiskSpaceRequired', mvkInteger),
+    MD('Flags', mvkFlags, ['checkablealone', 'disablenouninstallwarning',
        'dontinheritcheck', 'exclusive', 'fixed', 'restart']),
-    PD('Languages', pvkString),
-    PD('MinVersion', pvkVersion),
-    PD('Name', pvkString),
-    PD('OnlyBelowVersion', pvkVersion),
-    PD('Types', pvkString)],
+    MD('Languages', mvkString),
+    MD('MinVersion', mvkVersion),
+    MD('Name', mvkString),
+    MD('OnlyBelowVersion', mvkVersion),
+    MD('Types', mvkString)],
     nil,
     [FR('Flags', 'dontinheritcheck', ['exclusive'])]));
 
-  SectionMetadataList.Add(TScriptSectionMetadata.Create('Dirs',
-    [PD('AfterInstall', pvkString),
-    PD('Attribs', pvkFlags, AttribsFlagNames),
-    PD('BeforeInstall', pvkString),
-    PD('Check', pvkString),
-    PD('Components', pvkString),
-    PD('Flags', pvkFlags, ['deleteafterinstall', 'setntfscompression',
+  SectionMetadataList.Add(TScriptModelSectionMetadata.Create('Dirs',
+    [MD('AfterInstall', mvkString),
+    MD('Attribs', mvkFlags, AttribsFlagNames),
+    MD('BeforeInstall', mvkString),
+    MD('Check', mvkString),
+    MD('Components', mvkString),
+    MD('Flags', mvkFlags, ['deleteafterinstall', 'setntfscompression',
        'uninsalwaysuninstall', 'uninsneveruninstall', 'unsetntfscompression']),
-    PD('Languages', pvkString),
-    PD('MinVersion', pvkVersion),
-    PD('Name', pvkString),
-    PD('OnlyBelowVersion', pvkVersion),
-    PD('Permissions', pvkString),
-    PD('Tasks', pvkString)],
+    MD('Languages', mvkString),
+    MD('MinVersion', mvkVersion),
+    MD('Name', mvkString),
+    MD('OnlyBelowVersion', mvkVersion),
+    MD('Permissions', mvkString),
+    MD('Tasks', mvkString)],
     nil,
     [FR('Flags', 'setntfscompression', ['unsetntfscompression']),
      FR('Flags', 'uninsalwaysuninstall', ['uninsneveruninstall'])]));
 
-  SectionMetadataList.Add(TScriptSectionMetadata.Create('Icons',
-    [PD('AfterInstall', pvkString),
-    PD('AppUserModelID', pvkString),
-    PD('AppUserModelToastActivatorCLSID', pvkString),
-    PD('BeforeInstall', pvkString),
-    PD('Check', pvkString),
-    PD('Comment', pvkString),
-    PD('Components', pvkString),
-    PD('Filename', pvkString),
-    PD('Flags', pvkFlags, ['closeonexit', 'createonlyiffileexists',
+  SectionMetadataList.Add(TScriptModelSectionMetadata.Create('Icons',
+    [MD('AfterInstall', mvkString),
+    MD('AppUserModelID', mvkString),
+    MD('AppUserModelToastActivatorCLSID', mvkString),
+    MD('BeforeInstall', mvkString),
+    MD('Check', mvkString),
+    MD('Comment', mvkString),
+    MD('Components', mvkString),
+    MD('Filename', mvkString),
+    MD('Flags', mvkFlags, ['closeonexit', 'createonlyiffileexists',
        'dontcloseonexit', 'excludefromshowinnewinstall', 'preventpinning',
        'runmaximized', 'runminimized', 'uninsneveruninstall', 'useapppaths']),
-    PD('HotKey', pvkString),
-    PD('IconFilename', pvkString),
-    PD('IconIndex', pvkInteger),
-    PD('Languages', pvkString),
-    PD('MinVersion', pvkVersion),
-    PD('Name', pvkString),
-    PD('OnlyBelowVersion', pvkVersion),
-    PD('Parameters', pvkString),
-    PD('Tasks', pvkString),
-    PD('WorkingDir', pvkString)]));
+    MD('HotKey', mvkString),
+    MD('IconFilename', mvkString),
+    MD('IconIndex', mvkInteger),
+    MD('Languages', mvkString),
+    MD('MinVersion', mvkVersion),
+    MD('Name', mvkString),
+    MD('OnlyBelowVersion', mvkVersion),
+    MD('Parameters', mvkString),
+    MD('Tasks', mvkString),
+    MD('WorkingDir', mvkString)]));
 
-  SectionMetadataList.Add(TScriptSectionMetadata.Create('INI',
-    [PD('AfterInstall', pvkString),
-    PD('BeforeInstall', pvkString),
-    PD('Check', pvkString),
-    PD('Components', pvkString),
-    PD('Filename', pvkString),
-    PD('Flags', pvkFlags, ['createkeyifdoesntexist', 'uninsdeleteentry',
+  SectionMetadataList.Add(TScriptModelSectionMetadata.Create('INI',
+    [MD('AfterInstall', mvkString),
+    MD('BeforeInstall', mvkString),
+    MD('Check', mvkString),
+    MD('Components', mvkString),
+    MD('Filename', mvkString),
+    MD('Flags', mvkFlags, ['createkeyifdoesntexist', 'uninsdeleteentry',
        'uninsdeletesection', 'uninsdeletesectionifempty']),
-    PD('Key', pvkString),
-    PD('Languages', pvkString),
-    PD('MinVersion', pvkVersion),
-    PD('OnlyBelowVersion', pvkVersion),
-    PD('Section', pvkString),
-    PD('String', pvkString),
-    PD('Tasks', pvkString)],
+    MD('Key', mvkString),
+    MD('Languages', mvkString),
+    MD('MinVersion', mvkVersion),
+    MD('OnlyBelowVersion', mvkVersion),
+    MD('Section', mvkString),
+    MD('String', mvkString),
+    MD('Tasks', mvkString)],
     nil,
     [FR('Flags', 'uninsdeletesection', ['uninsdeleteentry',
        'uninsdeletesectionifempty'])]));
 
-  const DeleteSectionParameters: TArray<TScriptParameterDefinition> = [
-    PD('AfterInstall', pvkString),
-    PD('BeforeInstall', pvkString),
-    PD('Check', pvkString),
-    PD('Components', pvkString),
-    PD('Languages', pvkString),
-    PD('MinVersion', pvkVersion),
-    PD('Name', pvkString),
-    PD('OnlyBelowVersion', pvkVersion),
-    PD('Tasks', pvkString),
-    PD('Type', pvkChoice, ['files', 'filesandordirs', 'dirifempty'])];
-  SectionMetadataList.Add(TScriptSectionMetadata.Create('InstallDelete',
+  const DeleteSectionParameters: TArray<TMemberDefinition> = [
+    MD('AfterInstall', mvkString),
+    MD('BeforeInstall', mvkString),
+    MD('Check', mvkString),
+    MD('Components', mvkString),
+    MD('Languages', mvkString),
+    MD('MinVersion', mvkVersion),
+    MD('Name', mvkString),
+    MD('OnlyBelowVersion', mvkVersion),
+    MD('Tasks', mvkString),
+    MD('Type', mvkChoice, ['files', 'filesandordirs', 'dirifempty'])];
+  SectionMetadataList.Add(TScriptModelSectionMetadata.Create('InstallDelete',
     DeleteSectionParameters));
-  SectionMetadataList.Add(TScriptSectionMetadata.Create('UninstallDelete',
+  SectionMetadataList.Add(TScriptModelSectionMetadata.Create('UninstallDelete',
     DeleteSectionParameters));
 
-  SectionMetadataList.Add(TScriptSectionMetadata.Create('ISSigKeys',
-    [PD('Group', pvkString),
-    PD('KeyFile', pvkString),
-    PD('KeyID', pvkString),
-    PD('Name', pvkString),
-    PD('PublicX', pvkString),
-    PD('PublicY', pvkString),
-    PD('RuntimeID', pvkString)]));
+  SectionMetadataList.Add(TScriptModelSectionMetadata.Create('ISSigKeys',
+    [MD('Group', mvkString),
+    MD('KeyFile', mvkString),
+    MD('KeyID', mvkString),
+    MD('Name', mvkString),
+    MD('PublicX', mvkString),
+    MD('PublicY', mvkString),
+    MD('RuntimeID', mvkString)]));
 
-  SectionMetadataList.Add(TScriptSectionMetadata.Create('Languages',
-    [PD('InfoAfterFile', pvkString),
-    PD('InfoBeforeFile', pvkString),
-    PD('LicenseFile', pvkString),
-    PD('MessagesFile', pvkString),
-    PD('Name', pvkString)]));
+  SectionMetadataList.Add(TScriptModelSectionMetadata.Create('Languages',
+    [MD('InfoAfterFile', mvkString),
+    MD('InfoBeforeFile', mvkString),
+    MD('LicenseFile', mvkString),
+    MD('MessagesFile', mvkString),
+    MD('Name', mvkString)]));
 
-  SectionMetadataList.Add(TScriptSectionMetadata.Create('Registry',
-    [PD('AfterInstall', pvkString),
-    PD('BeforeInstall', pvkString),
-    PD('Check', pvkString),
-    PD('Components', pvkString),
-    PD('Flags', pvkFlags, ['createvalueifdoesntexist', 'deletekey',
+  SectionMetadataList.Add(TScriptModelSectionMetadata.Create('Registry',
+    [MD('AfterInstall', mvkString),
+    MD('BeforeInstall', mvkString),
+    MD('Check', mvkString),
+    MD('Components', mvkString),
+    MD('Flags', mvkFlags, ['createvalueifdoesntexist', 'deletekey',
        'deletevalue', 'dontcreatekey', 'noerror', 'preservestringtype',
        'uninsclearvalue', 'uninsdeletekey', 'uninsdeletekeyifempty',
        'uninsdeletevalue']),
-    PD('Languages', pvkString),
-    PD('MinVersion', pvkVersion),
-    PD('OnlyBelowVersion', pvkVersion),
-    PD('Permissions', pvkString),
-    PD('Root', pvkChoice, ['HKA', 'HKA32', 'HKA64', 'HKCC', 'HKCC32',
+    MD('Languages', mvkString),
+    MD('MinVersion', mvkVersion),
+    MD('OnlyBelowVersion', mvkVersion),
+    MD('Permissions', mvkString),
+    MD('Root', mvkChoice, ['HKA', 'HKA32', 'HKA64', 'HKCC', 'HKCC32',
        'HKCC64', 'HKCR', 'HKCR32', 'HKCR64', 'HKCU', 'HKCU32', 'HKCU64',
        'HKLM', 'HKLM32', 'HKLM64', 'HKU', 'HKU32', 'HKU64']),
-    PD('Subkey', pvkString),
-    PD('Tasks', pvkString),
-    PD('ValueData', pvkString),
-    PD('ValueName', pvkString),
-    PD('ValueType', pvkChoice, ['none', 'string', 'expandsz', 'multisz',
+    MD('Subkey', mvkString),
+    MD('Tasks', mvkString),
+    MD('ValueData', mvkString),
+    MD('ValueName', mvkString),
+    MD('ValueType', mvkChoice, ['none', 'string', 'expandsz', 'multisz',
        'dword', 'qword', 'binary'])],
     nil,
     [FR('Flags', 'uninsdeletekey', ['uninsclearvalue', 'uninsdeletekeyifempty',
        'uninsdeletevalue']),
      FR('Flags', 'uninsclearvalue', ['uninsdeletevalue'])]));
 
-  SectionMetadataList.Add(TScriptSectionMetadata.Create('Run',
-    [PD('AfterInstall', pvkString),
-    PD('BeforeInstall', pvkString),
-    PD('Check', pvkString),
-    PD('Components', pvkString),
-    PD('Description', pvkString),
-    PD('Filename', pvkString),
-    PD('Flags', pvkFlags, ['32bit', '64bit', 'dontlogparameters', 'hidewizard',
+  SectionMetadataList.Add(TScriptModelSectionMetadata.Create('Run',
+    [MD('AfterInstall', mvkString),
+    MD('BeforeInstall', mvkString),
+    MD('Check', mvkString),
+    MD('Components', mvkString),
+    MD('Description', mvkString),
+    MD('Filename', mvkString),
+    MD('Flags', mvkFlags, ['32bit', '64bit', 'dontlogparameters', 'hidewizard',
        'logoutput', 'nowait', 'postinstall', 'runascurrentuser',
        'runasoriginaluser', 'runhidden', 'runmaximized', 'runminimized',
        'shellexec', 'skipifdoesntexist', 'skipifnotsilent', 'skipifsilent',
        'unchecked', 'waituntilidle', 'waituntilterminated']),
-    PD('Languages', pvkString),
-    PD('MinVersion', pvkVersion),
-    PD('OnLog', pvkString),
-    PD('OnlyBelowVersion', pvkVersion),
-    PD('Parameters', pvkString),
-    PD('StatusMsg', pvkString),
-    PD('Tasks', pvkString),
-    PD('Verb', pvkString),
-    PD('WorkingDir', pvkString)],
+    MD('Languages', mvkString),
+    MD('MinVersion', mvkVersion),
+    MD('OnLog', mvkString),
+    MD('OnlyBelowVersion', mvkVersion),
+    MD('Parameters', mvkString),
+    MD('StatusMsg', mvkString),
+    MD('Tasks', mvkString),
+    MD('Verb', mvkString),
+    MD('WorkingDir', mvkString)],
     [FR('Flags', 'unchecked', ['postinstall'])],
     [FR('Flags', '32bit', ['64bit']),
      FR('Flags', 'logoutput', ['nowait', 'runasoriginaluser', 'shellexec',
@@ -792,48 +792,48 @@ begin
     [PIF('Verb', 'Flags', 'shellexec'),
      PIF('OnLog', 'Flags', 'logoutput')]));
 
-  SectionMetadataList.Add(TScriptSectionMetadata.Create('Tasks',
-    [PD('Check', pvkString),
-    PD('Components', pvkString),
-    PD('Description', pvkString),
-    PD('Flags', pvkFlags, ['checkablealone', 'checkedonce', 'dontinheritcheck',
+  SectionMetadataList.Add(TScriptModelSectionMetadata.Create('Tasks',
+    [MD('Check', mvkString),
+    MD('Components', mvkString),
+    MD('Description', mvkString),
+    MD('Flags', mvkFlags, ['checkablealone', 'checkedonce', 'dontinheritcheck',
        'exclusive', 'restart', 'unchecked']),
-    PD('GroupDescription', pvkString),
-    PD('Languages', pvkString),
-    PD('MinVersion', pvkVersion),
-    PD('Name', pvkString),
-    PD('OnlyBelowVersion', pvkVersion)],
+    MD('GroupDescription', mvkString),
+    MD('Languages', mvkString),
+    MD('MinVersion', mvkVersion),
+    MD('Name', mvkString),
+    MD('OnlyBelowVersion', mvkVersion)],
     nil,
     [FR('Flags', 'dontinheritcheck', ['exclusive'])]));
 
-  SectionMetadataList.Add(TScriptSectionMetadata.Create('Types',
-    [PD('Check', pvkString),
-    PD('Description', pvkString),
-    PD('Flags', pvkFlags, ['iscustom']),
-    PD('Languages', pvkString),
-    PD('MinVersion', pvkVersion),
-    PD('Name', pvkString),
-    PD('OnlyBelowVersion', pvkVersion)]));
+  SectionMetadataList.Add(TScriptModelSectionMetadata.Create('Types',
+    [MD('Check', mvkString),
+    MD('Description', mvkString),
+    MD('Flags', mvkFlags, ['iscustom']),
+    MD('Languages', mvkString),
+    MD('MinVersion', mvkVersion),
+    MD('Name', mvkString),
+    MD('OnlyBelowVersion', mvkVersion)]));
 
-  SectionMetadataList.Add(TScriptSectionMetadata.Create('UninstallRun',
-    [PD('AfterInstall', pvkString),
-    PD('BeforeInstall', pvkString),
-    PD('Check', pvkString),
-    PD('Components', pvkString),
-    PD('Filename', pvkString),
-    PD('Flags', pvkFlags, ['32bit', '64bit', 'dontlogparameters', 'hidewizard',
+  SectionMetadataList.Add(TScriptModelSectionMetadata.Create('UninstallRun',
+    [MD('AfterInstall', mvkString),
+    MD('BeforeInstall', mvkString),
+    MD('Check', mvkString),
+    MD('Components', mvkString),
+    MD('Filename', mvkString),
+    MD('Flags', mvkFlags, ['32bit', '64bit', 'dontlogparameters', 'hidewizard',
        'logoutput', 'nowait', 'runascurrentuser', 'runhidden', 'runmaximized',
        'runminimized', 'shellexec', 'skipifdoesntexist', 'waituntilidle',
        'waituntilterminated']),
-    PD('Languages', pvkString),
-    PD('MinVersion', pvkVersion),
-    PD('OnlyBelowVersion', pvkVersion),
-    PD('Parameters', pvkString),
-    PD('RunOnceId', pvkString),
-    PD('StatusMsg', pvkString, nil, True),
-    PD('Tasks', pvkString),
-    PD('Verb', pvkString),
-    PD('WorkingDir', pvkString)],
+    MD('Languages', mvkString),
+    MD('MinVersion', mvkVersion),
+    MD('OnlyBelowVersion', mvkVersion),
+    MD('Parameters', mvkString),
+    MD('RunOnceId', mvkString),
+    MD('StatusMsg', mvkString, nil, True),
+    MD('Tasks', mvkString),
+    MD('Verb', mvkString),
+    MD('WorkingDir', mvkString)],
     nil,
     [FR('Flags', '32bit', ['64bit']),
      FR('Flags', 'logoutput', ['nowait', 'shellexec', 'waituntilidle']),
@@ -847,7 +847,7 @@ begin
 end;
 
 initialization
-  SectionMetadataList := TObjectList<TScriptSectionMetadata>.Create;
+  SectionMetadataList := TObjectList<TScriptModelSectionMetadata>.Create;
   InitializeSectionMetadata;
   ScriptCategoryDictionary := TDictionary<String, String>.Create(TIStringComparer.Ordinal);
   InitializeScriptCategories;

@@ -885,11 +885,11 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
 
   procedure BuildSetupDirectiveValueWordLists;
   begin
-    var Metadata: TScriptSectionMetadata;
-    if not TryGetScriptSectionMetadata('Setup', Metadata) then
+    var Metadata: TScriptModelSectionMetadata;
+    if not TryGetScriptModelSectionMetadata('Setup', Metadata) then
       raise Exception.Create('Internal error: BuildSetupDirectiveValueWordLists: no metadata');
     for var Directive := Low(TSetupSectionDirective) to High(TSetupSectionDirective) do begin
-      const KnownValues = Metadata.Parameters[Ord(Directive)].KnownValues;
+      const KnownValues = Metadata.Members[Ord(Directive)].KnownValues;
       if KnownValues <> nil then begin
         var Values: TArray<TScintRawString>;
         SetLength(Values, Length(KnownValues));

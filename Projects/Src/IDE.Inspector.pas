@@ -416,18 +416,18 @@ procedure TInspector.UpdateFromCaret;
   end;
 
   procedure AddParameterRow(const AParent: TJvCustomInspectorItem;
-    const ADefinition: TScriptParameterDefinition; const ANameIndex: Integer);
+    const ADefinition: TMemberDefinition; const ANameIndex: Integer);
   begin
     const Item = AddEntryValueRow(AParent, ADefinition.Name, ANameIndex);
-    if ADefinition.ValueKind = pvkFlags then begin
+    if ADefinition.ValueKind = mvkFlags then begin
       for var FlagName in ADefinition.KnownValues do
         AddEntryFlagRow(Item, ADefinition.Name, FlagName, ANameIndex); { Adds a child to Item }
-    end else if ADefinition.ValueKind = pvkChoice then
+    end else if ADefinition.ValueKind = mvkChoice then
       Item.Flags := Item.Flags + [iifValueList];
   end;
 
   procedure AddParameterRows(const AParent: TJvCustomInspectorItem;
-    const ADefinition: TScriptParameterDefinition);
+    const ADefinition: TMemberDefinition);
   begin
     { Normally a parameter will be present only once, but duplicates are still
       handled here, even though that doesn't compile }
@@ -453,13 +453,13 @@ procedure TInspector.UpdateFromCaret;
     Result.NameIndex := ANameIndex;
   end;
 
-  function DirectiveRowIsCheckBox(const ADefinition: TScriptParameterDefinition;
+  function DirectiveRowIsCheckBox(const ADefinition: TMemberDefinition;
     const ANameIndex: Integer): Boolean;
   { A yes/no directive gets a true checkbox row only if its value is a simple yes/no and
     not something like an ISPP inline directive, else it falls back to a text & dropdown row. }
   begin
     var BoolValue := False;
-    Result := (ADefinition.ValueKind = pvkYesNo) and
+    Result := (ADefinition.ValueKind = mvkYesNo) and
       ((ANameIndex < 0) or { Don't check unspecified directives, they don't have a value }
        TryStrToBoolean(FLiveDirectiveSection.Section.Lines[ANameIndex].Value, BoolValue));
   end;
@@ -478,17 +478,17 @@ procedure TInspector.UpdateFromCaret;
   procedure AddDirectiveRow(const AParent: TJvCustomInspectorItem;
     const ARow: TInspectorRow);
   begin
-    var Definition: TScriptParameterDefinition;
+    var Definition: TMemberDefinition;
     const Known = FLiveDirectiveSection.Section.TryGetDefinition(ARow.Name, Definition);
     if Known and DirectiveRowIsCheckBox(Definition, ARow.NameIndex) then
       AddRow(AParent, ARow.Name, True, ARow)
     else begin
       const Item = AddRow(AParent, ARow.Name, False, ARow);
       if Known then begin
-        if Definition.ValueKind = pvkFlags then begin
+        if Definition.ValueKind = mvkFlags then begin
           for var FlagName in Definition.KnownValues do
             AddDirectiveFlagRow(Item, ARow.Name, FlagName, ARow.NameIndex); { Adds a child to Item }
-        end else if Definition.ValueKind in [pvkChoice, pvkYesNo] then
+        end else if Definition.ValueKind in [mvkChoice, mvkYesNo] then
           Item.Flags := Item.Flags + [iifValueList];
       end;
     end;
@@ -501,7 +501,7 @@ procedure TInspector.UpdateFromCaret;
     { Known and uncategorized parameters first, in metadata order }
     if Entry.Metadata <> nil then begin
       const SectionName = Entry.Metadata.SectionName;
-      for var Definition in Entry.Metadata.Parameters do begin
+      for var Definition in Entry.Metadata.Members do begin
         if Definition.Obsolete and not Entry.Has(Definition.Name) then
           Continue; { Hide obsolete and unspecified }
         var CategoryName: String;
@@ -514,7 +514,7 @@ procedure TInspector.UpdateFromCaret;
     for var I := 0 to Entry.Count-1 do begin
       const Parameter = Entry.Parameters[I];
       if Parameter.Kind = psepParameter then begin
-        var Definition: TScriptParameterDefinition;
+        var Definition: TMemberDefinition;
         if not Entry.TryGetDefinition(Parameter.Name, Definition) then
           AddEntryValueRow(FJvInspector.Root, Parameter.Name, I);
       end;
@@ -525,7 +525,7 @@ procedure TInspector.UpdateFromCaret;
       const SectionName = Entry.Metadata.SectionName;
       for var CategoryName in ScriptCategoryNamesOrdered do begin
         var CategoryItem: TJvCustomInspectorItem := nil;
-        for var Definition in Entry.Metadata.Parameters do begin
+        for var Definition in Entry.Metadata.Members do begin
           if Definition.Obsolete and not Entry.Has(Definition.Name) then
             Continue;
           var DefinitionCategory: String;
@@ -553,7 +553,7 @@ procedure TInspector.UpdateFromCaret;
         ShowAllKnownDirectives, show every known directive in metadata
         order. A repeated directive gets a row per line. }
       if FShowAllKnownDirectives and (Section.Metadata <> nil) then begin
-        for var Definition in Section.Metadata.Parameters do begin
+        for var Definition in Section.Metadata.Members do begin
           var Found := False;
           for var I := 0 to Section.Count-1 do begin
             if (Section.Lines[I].Kind = dslDirective) and
@@ -755,7 +755,7 @@ begin
         if Model.Lines[I].Kind = dslDirective then begin
           RowSetSignature := RowSetSignature + '|' + IntToStr(I) + ':' + Model.Lines[I].Name;
           { Put AddDirectiveRow's decision into the structure }
-          var Definition: TScriptParameterDefinition;
+          var Definition: TMemberDefinition;
           if Model.TryGetDefinition(Model.Lines[I].Name, Definition) and
              DirectiveRowIsCheckBox(Definition, I) then
             RowSetSignature := RowSetSignature + '!';
@@ -957,10 +957,10 @@ procedure TInspector.RowSetAsString(Sender: TJvCustomInspectorItem;
   var Value: String);
 
   procedure ValidateValue(const ARowName, AValue: String;
-    const ADefinition: TScriptParameterDefinition);
+    const ADefinition: TMemberDefinition);
   begin
     if (AValue <> '') and (Pos('{', AValue) = 0) and
-       (ADefinition.ValueKind = pvkInteger) then begin
+       (ADefinition.ValueKind = mvkInteger) then begin
       { Validate if the value is a valid integer. Strips underscore digit
         separators because the compiler accepts them for some values. }
       var IntegerValue: Int64;
@@ -984,7 +984,7 @@ begin
           var Index: Integer;
           const Found = TryGetRowParameterEntry(Row, Entry, Index);
           if Entry <> nil then begin
-            var Definition: TScriptParameterDefinition;
+            var Definition: TMemberDefinition;
             if Entry.TryGetDefinition(Row.Name, Definition) then
               ValidateValue(Row.Name, Value, Definition);
             if Found then
@@ -999,7 +999,7 @@ begin
           var Index: Integer;
           const Found = TryGetRowDirectiveSection(Row, Section, Index);
           if Section <> nil then begin
-            var Definition: TScriptParameterDefinition;
+            var Definition: TMemberDefinition;
             if Section.TryGetDefinition(Row.Name, Definition) then
               ValidateValue(Row.Name, Value, Definition);
             if Found then
@@ -1024,7 +1024,7 @@ begin
   var Row: TInspectorRow;
   if not TryGetRow(Item, Row) then
     Exit;
-  var Definition: TScriptParameterDefinition;
+  var Definition: TMemberDefinition;
   if (FLiveEntry <> nil) and FLiveEntry.Valid then begin
     if not FLiveEntry.Entry.TryGetDefinition(Row.Name, Definition) then
       raise Exception.Create('Internal error: ChoiceRowGetValueList: unknown parameter');

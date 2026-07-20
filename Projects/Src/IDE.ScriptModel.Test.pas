@@ -399,11 +399,11 @@ end;
 
 procedure TestEntryMetadata;
 begin
-  var Metadata: TScriptSectionMetadata;
-  Assert(TryGetScriptSectionMetadata('files', Metadata)); { Case-insensitive }
+  var Metadata: TScriptModelSectionMetadata;
+  Assert(TryGetScriptModelSectionMetadata('files', Metadata)); { Case-insensitive }
   Assert(Metadata.SectionName = 'Files');
-  Assert(not TryGetScriptSectionMetadata('Code', Metadata));
-  Assert(TryGetScriptSectionMetadata('Files', Metadata));
+  Assert(not TryGetScriptModelSectionMetadata('Code', Metadata));
+  Assert(TryGetScriptModelSectionMetadata('Files', Metadata));
 
   const Entry = TScriptModelParameterSectionEntry.Create(Metadata);
   try
@@ -414,26 +414,26 @@ begin
     { The ExternalSize parameter-includes-flag rule also checks external }
     Assert(Lines[0] = 'Source: a; ExternalSize: 456; Unknown: u; Flags: external');
 
-    var Definition: TScriptParameterDefinition;
+    var Definition: TMemberDefinition;
     Assert(Entry.TryGetDefinition('flags', Definition));
-    Assert(Definition.ValueKind = pvkFlags);
+    Assert(Definition.ValueKind = mvkFlags);
     var FoundFlagName := False;
     for var KnownValue in Definition.KnownValues do
       if KnownValue = 'ignoreversion' then
         FoundFlagName := True;
     Assert(FoundFlagName);
     Assert(Entry.TryGetDefinition('ExternalSize', Definition));
-    Assert(Definition.ValueKind = pvkInteger);
+    Assert(Definition.ValueKind = mvkInteger);
     Assert(Entry.TryGetDefinition('MinVersion', Definition));
-    Assert(Definition.ValueKind = pvkVersion);
+    Assert(Definition.ValueKind = mvkVersion);
 
     { Unknown parameters remain accessible as raw text }
     Assert(not Entry.TryGetDefinition('Unknown', Definition));
     var Value: String;
     Assert(Entry.TryGetValue('Unknown', Value) and (Value = 'u'));
 
-    { Only text parameters are quoted by default when added: a pvkVersion
-      value is written bare, a pvkString value is quoted }
+    { Only text parameters are quoted by default when added: a mvkVersion
+      value is written bare, a mvkString value is quoted }
     Entry.Parse(['Source: a']);
     Assert(Entry.QuoteNewValues);
     Entry.Add('MinVersion', '6.2');
@@ -449,112 +449,112 @@ procedure TestDirectiveSectionMetadata;
 begin
   { The [Setup] and [LangOptions] tables are generated from the compiler's
     enums: every directive present, in canonical enum order }
-  var Metadata: TScriptSectionMetadata;
-  Assert(TryGetScriptSectionMetadata('Setup', Metadata));
+  var Metadata: TScriptModelSectionMetadata;
+  Assert(TryGetScriptModelSectionMetadata('Setup', Metadata));
   Assert(Metadata.SectionName = 'Setup');
-  Assert(Length(Metadata.Parameters) = Ord(High(TSetupSectionDirective))+1);
-  Assert(Metadata.Parameters[0].Name = 'AllowCancelDuringInstall');
-  var Definition: TScriptParameterDefinition;
-  Assert(Metadata.TryGetParameter('AppName', Definition));
-  Assert(Definition.ValueKind = pvkString);
+  Assert(Length(Metadata.Members) = Ord(High(TSetupSectionDirective))+1);
+  Assert(Metadata.Members[0].Name = 'AllowCancelDuringInstall');
+  var Definition: TMemberDefinition;
+  Assert(Metadata.TryGetMember('AppName', Definition));
+  Assert(Definition.ValueKind = mvkString);
   Assert(not Definition.Obsolete);
   Assert(Definition.DefaultValue = '');
   { A yes/no directive still lists its two values, for the drop-down of the
     inspector's text-row fallback when the value isn't yes/no }
-  Assert(Metadata.TryGetParameter('SolidCompression', Definition));
-  Assert(Definition.ValueKind = pvkYesNo);
+  Assert(Metadata.TryGetMember('SolidCompression', Definition));
+  Assert(Definition.ValueKind = mvkYesNo);
   Assert(Length(Definition.KnownValues) = 2);
   Assert(Definition.KnownValues[0] = 'yes');
   Assert(Definition.KnownValues[1] = 'no');
   Assert(Definition.DefaultValue = 'no');
-  Assert(Metadata.TryGetParameter('AllowNetworkDrive', Definition));
-  Assert(Definition.ValueKind = pvkYesNo);
+  Assert(Metadata.TryGetMember('AllowNetworkDrive', Definition));
+  Assert(Definition.ValueKind = mvkYesNo);
   Assert(Definition.DefaultValue = 'yes');
   { The auto/yes/no and yes/no-or-scripted directives allow other values, so
     they are choices and not yes/no, and each kind has exceptions to its usual
     default }
-  Assert(Metadata.TryGetParameter('DisableDirPage', Definition));
-  Assert(Definition.ValueKind = pvkChoice);
+  Assert(Metadata.TryGetMember('DisableDirPage', Definition));
+  Assert(Definition.ValueKind = mvkChoice);
   Assert(Length(Definition.KnownValues) = 3);
   Assert(Definition.KnownValues[0] = 'auto');
   Assert(Definition.KnownValues[1] = 'yes');
   Assert(Definition.KnownValues[2] = 'no');
   Assert(Definition.DefaultValue = 'auto');
-  Assert(Metadata.TryGetParameter('ShowLanguageDialog', Definition));
+  Assert(Metadata.TryGetMember('ShowLanguageDialog', Definition));
   Assert(Definition.DefaultValue = 'yes');
-  Assert(Metadata.TryGetParameter('Uninstallable', Definition));
-  Assert(Definition.ValueKind = pvkChoice);
+  Assert(Metadata.TryGetMember('Uninstallable', Definition));
+  Assert(Definition.ValueKind = mvkChoice);
   Assert(Length(Definition.KnownValues) = 2);
   Assert(Definition.KnownValues[0] = 'yes');
   Assert(Definition.KnownValues[1] = 'no');
   Assert(Definition.DefaultValue = 'yes');
-  Assert(Metadata.TryGetParameter('ChangesAssociations', Definition));
+  Assert(Metadata.TryGetMember('ChangesAssociations', Definition));
   Assert(Definition.DefaultValue = 'no');
-  Assert(Metadata.TryGetParameter('ChangesEnvironment', Definition));
+  Assert(Metadata.TryGetMember('ChangesEnvironment', Definition));
   Assert(Definition.DefaultValue = 'no');
   { The choice directives list their values, including Compression's computed
     list }
-  Assert(Metadata.TryGetParameter('Compression', Definition));
-  Assert(Definition.ValueKind = pvkChoice);
+  Assert(Metadata.TryGetMember('Compression', Definition));
+  Assert(Definition.ValueKind = mvkChoice);
   Assert(Length(Definition.KnownValues) = 33); { none + zip and bzip with 9 levels each + lzma and lzma2 with 5 levels each }
   Assert(Definition.KnownValues[0] = 'none');
   Assert(Definition.KnownValues[1] = 'zip');
   Assert(Definition.KnownValues[2] = 'zip/1');
   Assert(Definition.KnownValues[32] = 'lzma2/ultra64');
   Assert(Definition.DefaultValue = 'lzma2/max');
-  Assert(Metadata.TryGetParameter('LZMAUseSeparateProcess', Definition));
-  Assert(Definition.ValueKind = pvkChoice);
+  Assert(Metadata.TryGetMember('LZMAUseSeparateProcess', Definition));
+  Assert(Definition.ValueKind = mvkChoice);
   Assert(Length(Definition.KnownValues) = 3);
   Assert(Definition.KnownValues[0] = 'x86');
   Assert(Definition.DefaultValue = 'no');
-  Assert(Metadata.TryGetParameter('UninstallLogMode', Definition));
-  Assert(Definition.ValueKind = pvkChoice);
+  Assert(Metadata.TryGetMember('UninstallLogMode', Definition));
+  Assert(Definition.ValueKind = mvkChoice);
   Assert(Length(Definition.KnownValues) = 3);
   Assert(Definition.KnownValues[0] = 'append');
   { The expression directives are not choices: their word lists are editor
     autocomplete data, kept by the styler }
-  Assert(Metadata.TryGetParameter('ArchitecturesAllowed', Definition));
-  Assert(Definition.ValueKind = pvkString);
+  Assert(Metadata.TryGetMember('ArchitecturesAllowed', Definition));
+  Assert(Definition.ValueKind = mvkString);
   Assert(Length(Definition.KnownValues) = 0);
   { The flag-list directives carry their flags like a parameter table's Flags
     entry does, with WizardStyle's styles grouped like the compiler's style
     groups instead of sorted }
-  Assert(Metadata.TryGetParameter('WizardStyle', Definition));
-  Assert(Definition.ValueKind = pvkFlags);
+  Assert(Metadata.TryGetMember('WizardStyle', Definition));
+  Assert(Definition.ValueKind = mvkFlags);
   Assert(Length(Definition.KnownValues) = 14);
   Assert(Definition.KnownValues[0] = 'classic');
   Assert(Definition.KnownValues[13] = 'zircon');
   Assert(Definition.DefaultValue = 'classic');
-  Assert(Metadata.TryGetParameter('PrivilegesRequiredOverridesAllowed', Definition));
-  Assert(Definition.ValueKind = pvkFlags);
+  Assert(Metadata.TryGetMember('PrivilegesRequiredOverridesAllowed', Definition));
+  Assert(Definition.ValueKind = mvkFlags);
   Assert(Length(Definition.KnownValues) = 2);
   Assert(Definition.KnownValues[0] = 'commandline');
   Assert(Definition.DefaultValue = '');
-  Assert(Metadata.TryGetParameter('DisablePrecompiledFileVerifications', Definition));
-  Assert(Definition.ValueKind = pvkFlags);
+  Assert(Metadata.TryGetMember('DisablePrecompiledFileVerifications', Definition));
+  Assert(Definition.ValueKind = mvkFlags);
   Assert(Length(Definition.KnownValues) = 7);
   Assert(Definition.KnownValues[0] = 'setup');
   Assert(Definition.DefaultValue = '');
   { The integer directives, but not the ones with richer forms like
     DiskSliceSize's 'max' and CompressionThreads' 'auto', and the version
     directives like their parameter-table counterparts }
-  Assert(Metadata.TryGetParameter('ReserveBytes', Definition));
-  Assert(Definition.ValueKind = pvkInteger);
+  Assert(Metadata.TryGetMember('ReserveBytes', Definition));
+  Assert(Definition.ValueKind = mvkInteger);
   Assert(Definition.DefaultValue = '0');
-  Assert(Metadata.TryGetParameter('UninstallDisplaySize', Definition));
-  Assert(Definition.ValueKind = pvkInteger);
+  Assert(Metadata.TryGetMember('UninstallDisplaySize', Definition));
+  Assert(Definition.ValueKind = mvkInteger);
   Assert(Definition.DefaultValue = ''); { Calculated automatically when not set }
-  Assert(Metadata.TryGetParameter('DiskSliceSize', Definition));
-  Assert(Definition.ValueKind = pvkString);
-  Assert(Metadata.TryGetParameter('CompressionThreads', Definition));
-  Assert(Definition.ValueKind = pvkString);
-  Assert(Metadata.TryGetParameter('MinVersion', Definition));
-  Assert(Definition.ValueKind = pvkVersion);
+  Assert(Metadata.TryGetMember('DiskSliceSize', Definition));
+  Assert(Definition.ValueKind = mvkString);
+  Assert(Metadata.TryGetMember('CompressionThreads', Definition));
+  Assert(Definition.ValueKind = mvkString);
+  Assert(Metadata.TryGetMember('MinVersion', Definition));
+  Assert(Definition.ValueKind = mvkVersion);
   Assert(Definition.DefaultValue = '6.1sp1');
-  Assert(Metadata.TryGetParameter('DefaultGroupName', Definition));
-  Assert(Definition.ValueKind = pvkString);
+  Assert(Metadata.TryGetMember('DefaultGroupName', Definition));
+  Assert(Definition.ValueKind = mvkString);
   Assert(Definition.DefaultValue = '(Default)');
-  Assert(Metadata.TryGetParameter('UninstallStyle', Definition));
+  Assert(Metadata.TryGetMember('UninstallStyle', Definition));
   Assert(Definition.Obsolete);
   { Every directive of a yes/no kind has a default: none was left out of the
     generator's default-yes, default-no, and default-auto sets }
@@ -562,7 +562,7 @@ begin
     if (Directive in SetupSectionDirectivesYesNo) or
        (Directive in SetupSectionDirectivesAutoYesNo) or
        (Directive in SetupSectionDirectivesYesNoOrScripted) then
-      Assert(Metadata.Parameters[Ord(Directive)].DefaultValue <> '');
+      Assert(Metadata.Members[Ord(Directive)].DefaultValue <> '');
   end;
 
   { The section model exposes the definitions like the entry model does }
@@ -570,7 +570,7 @@ begin
   try
     Assert(Section.Metadata = Metadata);
     Assert(Section.TryGetDefinition('solidcompression', Definition)); { Case-insensitive }
-    Assert(Definition.ValueKind = pvkYesNo);
+    Assert(Definition.ValueKind = mvkYesNo);
     Assert(not Section.TryGetDefinition('NoSuchDirective', Definition));
 
     { With the quoting option on, only text directives are quoted: a yes/no
@@ -594,33 +594,33 @@ begin
     SectionWithoutMetadata.Free;
   end;
 
-  Assert(TryGetScriptSectionMetadata('LangOptions', Metadata));
+  Assert(TryGetScriptModelSectionMetadata('LangOptions', Metadata));
   Assert(Metadata.SectionName = 'LangOptions');
-  Assert(Length(Metadata.Parameters) = Ord(High(TLangOptionsSectionDirective))+1);
-  Assert(Metadata.Parameters[0].Name = 'CopyrightFontName');
-  Assert(Metadata.Parameters[0].Obsolete);
-  Assert(Metadata.TryGetParameter('RightToLeft', Definition));
-  Assert(Definition.ValueKind = pvkYesNo);
+  Assert(Length(Metadata.Members) = Ord(High(TLangOptionsSectionDirective))+1);
+  Assert(Metadata.Members[0].Name = 'CopyrightFontName');
+  Assert(Metadata.Members[0].Obsolete);
+  Assert(Metadata.TryGetMember('RightToLeft', Definition));
+  Assert(Definition.ValueKind = mvkYesNo);
   Assert(Length(Definition.KnownValues) = 2); { Like SolidCompression above }
   Assert(Definition.KnownValues[0] = 'yes');
   Assert(Definition.KnownValues[1] = 'no');
   Assert(Definition.DefaultValue = 'no');
-  Assert(Metadata.TryGetParameter('LanguageName', Definition));
-  Assert(Definition.ValueKind = pvkString);
+  Assert(Metadata.TryGetMember('LanguageName', Definition));
+  Assert(Definition.ValueKind = mvkString);
   Assert(Definition.DefaultValue = 'English');
   { The integer directives, including LanguageID whose '$'-prefixed hex form
     is still a plain integer }
-  Assert(Metadata.TryGetParameter('LanguageID', Definition));
-  Assert(Definition.ValueKind = pvkInteger);
+  Assert(Metadata.TryGetMember('LanguageID', Definition));
+  Assert(Definition.ValueKind = mvkInteger);
   Assert(Definition.DefaultValue = '$0409');
-  Assert(Metadata.TryGetParameter('DialogFontSize', Definition));
-  Assert(Definition.ValueKind = pvkInteger);
+  Assert(Metadata.TryGetMember('DialogFontSize', Definition));
+  Assert(Definition.ValueKind = mvkInteger);
   Assert(Definition.DefaultValue = '9');
 
   { [Messages] names are localized message identifiers and [CustomMessages]
     names are user-defined, so neither has a table }
-  Assert(not TryGetScriptSectionMetadata('Messages', Metadata));
-  Assert(not TryGetScriptSectionMetadata('CustomMessages', Metadata));
+  Assert(not TryGetScriptModelSectionMetadata('Messages', Metadata));
+  Assert(not TryGetScriptModelSectionMetadata('CustomMessages', Metadata));
 end;
 
 procedure TestSectionMetadataTables;
@@ -630,16 +630,16 @@ begin
     'Components', 'Dirs', 'Files', 'Icons', 'INI', 'InstallDelete',
     'ISSigKeys', 'Languages', 'Registry', 'Run', 'Tasks', 'Types',
     'UninstallDelete', 'UninstallRun'];
-  var Metadata: TScriptSectionMetadata;
+  var Metadata: TScriptModelSectionMetadata;
   for var SectionName in SectionNames do begin
-    Assert(TryGetScriptSectionMetadata(SectionName, Metadata));
+    Assert(TryGetScriptModelSectionMetadata(SectionName, Metadata));
     Assert(Metadata.SectionName = SectionName);
-    Assert(Length(Metadata.Parameters) > 0);
+    Assert(Length(Metadata.Members) > 0);
   end;
-  Assert(not TryGetScriptSectionMetadata('Code', Metadata));
+  Assert(not TryGetScriptModelSectionMetadata('Code', Metadata));
 
   { [Registry] value types differ from [Files]: Root/ValueType/ValueData }
-  Assert(TryGetScriptSectionMetadata('Registry', Metadata));
+  Assert(TryGetScriptModelSectionMetadata('Registry', Metadata));
   const RegistryEntry = TScriptModelParameterSectionEntry.Create(Metadata);
   try
     RegistryEntry.Parse(['Root: HKA; Subkey: "Software\My Company"; ' +
@@ -649,9 +649,9 @@ begin
     Assert(RegistryEntry.TryGetValue('Root', Value) and (Value = 'HKA'));
     Assert(RegistryEntry.TryGetValue('ValueData', Value) and (Value = '{app}'));
     Assert(RegistryEntry.FlagIncluded(5, 'uninsdeletekey'));
-    var Definition: TScriptParameterDefinition;
+    var Definition: TMemberDefinition;
     Assert(RegistryEntry.TryGetDefinition('Flags', Definition));
-    Assert(Definition.ValueKind = pvkFlags);
+    Assert(Definition.ValueKind = mvkFlags);
     var FoundFlagName := False;
     for var KnownValue in Definition.KnownValues do
       if KnownValue = 'preservestringtype' then
@@ -668,7 +668,7 @@ begin
   end;
 
   { [Run] flags }
-  Assert(TryGetScriptSectionMetadata('Run', Metadata));
+  Assert(TryGetScriptModelSectionMetadata('Run', Metadata));
   const RunEntry = TScriptModelParameterSectionEntry.Create(Metadata);
   try
     RunEntry.Parse(['Filename: "{app}\MyProg.exe"; Flags: nowait postinstall skipifsilent']);
@@ -676,7 +676,7 @@ begin
     RunEntry.SetFlag(1, 'postinstall', False);
     const Lines = RunEntry.GetLines;
     Assert(Lines[0] = 'Filename: "{app}\MyProg.exe"; Flags: nowait skipifsilent');
-    var Definition: TScriptParameterDefinition;
+    var Definition: TMemberDefinition;
     Assert(RunEntry.TryGetDefinition('Flags', Definition));
     var FoundFlagName := False;
     for var KnownValue in Definition.KnownValues do
@@ -688,21 +688,21 @@ begin
   end;
 
   { [Components] has an integer parameter }
-  Assert(TryGetScriptSectionMetadata('Components', Metadata));
-  var Definition: TScriptParameterDefinition;
-  Assert(Metadata.TryGetParameter('ExtraDiskSpaceRequired', Definition));
-  Assert(Definition.ValueKind = pvkInteger);
+  Assert(TryGetScriptModelSectionMetadata('Components', Metadata));
+  var Definition: TMemberDefinition;
+  Assert(Metadata.TryGetMember('ExtraDiskSpaceRequired', Definition));
+  Assert(Definition.ValueKind = mvkInteger);
 
   { Single-choice parameters carry their known values }
-  Assert(TryGetScriptSectionMetadata('Registry', Metadata));
-  Assert(Metadata.TryGetParameter('Root', Definition));
-  Assert(Definition.ValueKind = pvkChoice);
+  Assert(TryGetScriptModelSectionMetadata('Registry', Metadata));
+  Assert(Metadata.TryGetMember('Root', Definition));
+  Assert(Definition.ValueKind = mvkChoice);
   Assert(Length(Definition.KnownValues) > 0);
-  Assert(Metadata.TryGetParameter('ValueType', Definition));
-  Assert(Definition.ValueKind = pvkChoice);
-  Assert(TryGetScriptSectionMetadata('InstallDelete', Metadata));
-  Assert(Metadata.TryGetParameter('Type', Definition));
-  Assert(Definition.ValueKind = pvkChoice);
+  Assert(Metadata.TryGetMember('ValueType', Definition));
+  Assert(Definition.ValueKind = mvkChoice);
+  Assert(TryGetScriptModelSectionMetadata('InstallDelete', Metadata));
+  Assert(Metadata.TryGetMember('Type', Definition));
+  Assert(Definition.ValueKind = mvkChoice);
 end;
 
 procedure TestMetadataConsistency;
@@ -727,25 +727,25 @@ begin
     'Languages', 'MinVersion', 'OnlyBelowVersion', 'BeforeInstall',
     'AfterInstall'];
   for var SectionName in SectionNames do begin
-    var Metadata: TScriptSectionMetadata;
-    Assert(TryGetScriptSectionMetadata(SectionName, Metadata));
+    var Metadata: TScriptModelSectionMetadata;
+    Assert(TryGetScriptModelSectionMetadata(SectionName, Metadata));
 
     { Every parameter has a unique name, and only flags and choices carry
       tokens, which are themselves non-empty and unique (and lowercase and
       sorted for flags) }
-    for var I := 0 to High(Metadata.Parameters) do begin
-      const Parameter = Metadata.Parameters[I];
+    for var I := 0 to High(Metadata.Members) do begin
+      const Parameter = Metadata.Members[I];
       Assert(Parameter.Name <> '');
       for var J := 0 to I-1 do
-        Assert(not SameText(Metadata.Parameters[J].Name, Parameter.Name));
-      if Parameter.ValueKind in [pvkFlags, pvkChoice] then begin
+        Assert(not SameText(Metadata.Members[J].Name, Parameter.Name));
+      if Parameter.ValueKind in [mvkFlags, mvkChoice] then begin
         Assert(Length(Parameter.KnownValues) > 0);
         for var K := 0 to High(Parameter.KnownValues) do begin
           const Token = Parameter.KnownValues[K];
           Assert(Token <> '');
           for var L := 0 to K-1 do
             Assert(not SameText(Parameter.KnownValues[L], Token));
-          if Parameter.ValueKind = pvkFlags then begin
+          if Parameter.ValueKind = mvkFlags then begin
             Assert(Token = LowerCase(Token));
             { The inspector gives a flag parameter one child row per flag, in
               table order, so the table decides the order the flags are shown in.
@@ -771,9 +771,9 @@ begin
     { Every flag-includes rule points at a real flag parameter and names only
       flags that exist, so it cannot silently never fire }
     for var Rule in Metadata.FlagIncludesRules do begin
-      var Definition: TScriptParameterDefinition;
-      Assert(Metadata.TryGetParameter(Rule.ParameterName, Definition));
-      Assert(Definition.ValueKind = pvkFlags);
+      var Definition: TMemberDefinition;
+      Assert(Metadata.TryGetMember(Rule.ParameterName, Definition));
+      Assert(Definition.ValueKind = mvkFlags);
       Assert(InNames(Definition.KnownValues, Rule.FlagName));
       Assert(Length(Rule.OtherFlagNames) > 0);
       for var FlagName in Rule.OtherFlagNames do
@@ -783,20 +783,20 @@ begin
     { Every parameter-includes-flag rule references a real trigger parameter
       and a real flag in a real flag parameter }
     for var Rule in Metadata.ParameterIncludesFlagRules do begin
-      var Definition: TScriptParameterDefinition;
-      Assert(Metadata.TryGetParameter(Rule.ParameterName, Definition));
-      var FlagDefinition: TScriptParameterDefinition;
-      Assert(Metadata.TryGetParameter(Rule.FlagParameterName, FlagDefinition));
-      Assert(FlagDefinition.ValueKind = pvkFlags);
+      var Definition: TMemberDefinition;
+      Assert(Metadata.TryGetMember(Rule.ParameterName, Definition));
+      var FlagDefinition: TMemberDefinition;
+      Assert(Metadata.TryGetMember(Rule.FlagParameterName, FlagDefinition));
+      Assert(FlagDefinition.ValueKind = mvkFlags);
       Assert(InNames(FlagDefinition.KnownValues, Rule.FlagName));
     end;
 
     { Every flag-excludes rule points at a real flag parameter, names only
       flags that exist, and does not exclude its own flag }
     for var Rule in Metadata.FlagExcludesRules do begin
-      var Definition: TScriptParameterDefinition;
-      Assert(Metadata.TryGetParameter(Rule.ParameterName, Definition));
-      Assert(Definition.ValueKind = pvkFlags);
+      var Definition: TMemberDefinition;
+      Assert(Metadata.TryGetMember(Rule.ParameterName, Definition));
+      Assert(Definition.ValueKind = mvkFlags);
       Assert(InNames(Definition.KnownValues, Rule.FlagName));
       Assert(Length(Rule.OtherFlagNames) > 0);
       for var FlagName in Rule.OtherFlagNames do begin
@@ -869,22 +869,22 @@ begin
   Assert(not TryGetScriptCategory('Files', 'Source', CategoryName));
 
   { Obsolete parameters are flagged in the metadata }
-  var Metadata: TScriptSectionMetadata;
-  Assert(TryGetScriptSectionMetadata('Files', Metadata));
-  var Definition: TScriptParameterDefinition;
-  Assert(Metadata.TryGetParameter('CopyMode', Definition));
+  var Metadata: TScriptModelSectionMetadata;
+  Assert(TryGetScriptModelSectionMetadata('Files', Metadata));
+  var Definition: TMemberDefinition;
+  Assert(Metadata.TryGetMember('CopyMode', Definition));
   Assert(Definition.Obsolete);
-  Assert(Metadata.TryGetParameter('Source', Definition));
+  Assert(Metadata.TryGetMember('Source', Definition));
   Assert(not Definition.Obsolete);
-  Assert(TryGetScriptSectionMetadata('UninstallRun', Metadata));
-  Assert(Metadata.TryGetParameter('StatusMsg', Definition));
+  Assert(TryGetScriptModelSectionMetadata('UninstallRun', Metadata));
+  Assert(Metadata.TryGetMember('StatusMsg', Definition));
   Assert(Definition.Obsolete);
 end;
 
 procedure TestEntryRules;
 begin
-  var Metadata: TScriptSectionMetadata;
-  Assert(TryGetScriptSectionMetadata('Files', Metadata));
+  var Metadata: TScriptModelSectionMetadata;
+  Assert(TryGetScriptModelSectionMetadata('Files', Metadata));
 
   const Counter = TChangeCounter.Create;
   var Entry := TScriptModelParameterSectionEntry.Create(Metadata);
@@ -918,7 +918,7 @@ begin
     Entry.Parse(['Source: a']);
     Entry.SetFlag(Entry.Add('Flags', ''), 'createallsubdirs', True);
     Assert(Entry.FlagIncluded(1, 'recursesubdirs'));
-    { Flags is pvkFlags, so the quoting option does not apply }
+    { Flags is mvkFlags, so the quoting option does not apply }
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'Source: a; Flags: createallsubdirs recursesubdirs');
     Entry.Parse(['Source: a']);
@@ -963,7 +963,7 @@ begin
 
     { A parameter value can also include a flag: setting Verb on a [Run] entry
       checks shellexec and setting OnLog checks logoutput, each in one change }
-    Assert(TryGetScriptSectionMetadata('Run', Metadata));
+    Assert(TryGetScriptModelSectionMetadata('Run', Metadata));
     Entry.Free;
     Entry := TScriptModelParameterSectionEntry.Create(Metadata);
     Entry.Parse(['Filename: a']);
@@ -987,7 +987,7 @@ begin
     Assert(Entry.FlagIncluded(2, 'postinstall'));
 
     { The rule is section-scoped: UninstallRun has the Verb rule but not OnLog }
-    Assert(TryGetScriptSectionMetadata('UninstallRun', Metadata));
+    Assert(TryGetScriptModelSectionMetadata('UninstallRun', Metadata));
     Entry.Free;
     Entry := TScriptModelParameterSectionEntry.Create(Metadata);
     Entry.Parse(['Filename: a']);
@@ -1011,8 +1011,8 @@ end;
 
 procedure TestEntryExcludeRules;
 begin
-  var Metadata: TScriptSectionMetadata;
-  Assert(TryGetScriptSectionMetadata('Files', Metadata));
+  var Metadata: TScriptModelSectionMetadata;
+  Assert(TryGetScriptModelSectionMetadata('Files', Metadata));
 
   const Counter = TChangeCounter.Create;
   var Entry := TScriptModelParameterSectionEntry.Create(Metadata);
@@ -1070,7 +1070,7 @@ begin
 
     { [Run]: the three wait flags exclude each other, and shellexec and the
       bitness flags exclude each other }
-    Assert(TryGetScriptSectionMetadata('Run', Metadata));
+    Assert(TryGetScriptModelSectionMetadata('Run', Metadata));
     Entry.Free;
     Entry := TScriptModelParameterSectionEntry.Create(Metadata);
     Entry.Parse(['Filename: a; Flags: nowait']);
@@ -1091,7 +1091,7 @@ begin
 
     { The rules are section-scoped: [Dirs] has both flags of the [Files]
       deleteafterinstall rule but not the rule, so both stay checked }
-    Assert(TryGetScriptSectionMetadata('Dirs', Metadata));
+    Assert(TryGetScriptModelSectionMetadata('Dirs', Metadata));
     Entry.Free;
     Entry := TScriptModelParameterSectionEntry.Create(Metadata);
     Entry.Parse(['Name: x; Flags: uninsneveruninstall']);
@@ -1398,8 +1398,8 @@ begin
     { With the [Setup] metadata, WizardStyle's excludes rules mirror the
       compiler's style groups: a style excludes the other styles of its own
       group, in one change notification, and the other groups are untouched }
-    var Metadata: TScriptSectionMetadata;
-    Assert(TryGetScriptSectionMetadata('Setup', Metadata));
+    var Metadata: TScriptModelSectionMetadata;
+    Assert(TryGetScriptModelSectionMetadata('Setup', Metadata));
     Section.Free;
     Section := TScriptModelDirectiveSection.Create(Metadata);
     Section.Parse(['WizardStyle=classic light excludelightbuttons polar']);

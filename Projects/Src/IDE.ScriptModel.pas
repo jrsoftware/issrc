@@ -64,7 +64,7 @@ type
   { An entry of a parameter section }
   TScriptModelParameterSectionEntry = class
   private
-    FMetadata: TScriptSectionMetadata; { May be nil }
+    FMetadata: TScriptModelSectionMetadata; { May be nil }
     FParameters: TObjectList<TParameterSectionEntryParameter>;
     FBreaks: TList<TParameterSectionEntryBreak>; { Line spanning }
     FIndent: String; { First line indent }
@@ -91,7 +91,7 @@ type
       const AInclude: Boolean); overload;
     procedure SetValueInternal(const AIndex: Integer; const AValue: String);
   public
-    constructor Create(const AMetadata: TScriptSectionMetadata);
+    constructor Create(const AMetadata: TScriptModelSectionMetadata);
     destructor Destroy; override;
     procedure Parse(const ALines: array of String);
     function GetLines: TArray<String>;
@@ -108,11 +108,11 @@ type
     procedure SetFlag(const AIndex: Integer; const AFlagName: String;
       const AInclude: Boolean);
     function TryGetDefinition(const AName: String;
-      out ADefinition: TScriptParameterDefinition): Boolean;
+      out ADefinition: TMemberDefinition): Boolean;
     function BreakCount: Integer;
     property BreakParameterIndexes[Index: Integer]: Integer read GetBreakParameterIndex;
     property Indent: String read FIndent;
-    property Metadata: TScriptSectionMetadata read FMetadata;
+    property Metadata: TScriptModelSectionMetadata read FMetadata;
     property Modified: Boolean read FModified;
     property Parameters[Index: Integer]: TParameterSectionEntryParameter read GetParameter;
     property QuoteNewValues: Boolean read FQuoteNewValues write FQuoteNewValues;
@@ -142,7 +142,7 @@ type
   { A single occurrence of a directive-style section }
   TScriptModelDirectiveSection = class
   private
-    FMetadata: TScriptSectionMetadata; { May be nil }
+    FMetadata: TScriptModelSectionMetadata; { May be nil }
     FLines: TObjectList<TDirectiveSectionLine>;
     FOnChange: TNotifyEvent;
     FUpdateLevel: Integer;
@@ -158,7 +158,7 @@ type
     procedure SetFlagInternal(const AIndex: Integer; const AFlagName: String;
       const AInclude: Boolean);
   public
-    constructor Create(const AMetadata: TScriptSectionMetadata);
+    constructor Create(const AMetadata: TScriptModelSectionMetadata);
     destructor Destroy; override;
     procedure Parse(const ALines: array of String);
     function GetLines: TArray<String>;
@@ -174,10 +174,10 @@ type
     procedure SetFlag(const AIndex: Integer; const AFlagName: String;
       const AInclude: Boolean);
     function TryGetDefinition(const AName: String;
-      out ADefinition: TScriptParameterDefinition): Boolean;
+      out ADefinition: TMemberDefinition): Boolean;
     function DefaultValue(const AName: String): String;
     property Lines[Index: Integer]: TDirectiveSectionLine read GetLine;
-    property Metadata: TScriptSectionMetadata read FMetadata;
+    property Metadata: TScriptModelSectionMetadata read FMetadata;
     property QuoteNewValues: Boolean read FQuoteNewValues write FQuoteNewValues;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
@@ -309,13 +309,13 @@ begin
 end;
 
 function ShouldQuoteNewValue(const AQuoteNewValues: Boolean;
-  const AMetadata: TScriptSectionMetadata; const AName: String): Boolean;
+  const AMetadata: TScriptModelSectionMetadata; const AName: String): Boolean;
 begin
   if not AQuoteNewValues then
     Exit(False);
-  var Definition: TScriptParameterDefinition;
-  if (AMetadata <> nil) and AMetadata.TryGetParameter(AName, Definition) then
-    Result := Definition.ValueKind in [pvkString, pvkChoice]
+  var Definition: TMemberDefinition;
+  if (AMetadata <> nil) and AMetadata.TryGetMember(AName, Definition) then
+    Result := Definition.ValueKind in [mvkString, mvkChoice]
   else
     Result := True;
 end;
@@ -472,7 +472,7 @@ end;
 { TScriptModelParameterSectionEntry }
 
 constructor TScriptModelParameterSectionEntry.Create(
-  const AMetadata: TScriptSectionMetadata);
+  const AMetadata: TScriptModelSectionMetadata);
 begin
   inherited Create;
   FMetadata := AMetadata;
@@ -931,9 +931,9 @@ begin
 end;
 
 function TScriptModelParameterSectionEntry.TryGetDefinition(const AName: String;
-  out ADefinition: TScriptParameterDefinition): Boolean;
+  out ADefinition: TMemberDefinition): Boolean;
 begin
-  Result := (FMetadata <> nil) and FMetadata.TryGetParameter(AName, ADefinition);
+  Result := (FMetadata <> nil) and FMetadata.TryGetMember(AName, ADefinition);
 end;
 
 { TDirectiveSectionLine }
@@ -946,7 +946,7 @@ end;
 { TScriptModelDirectiveSection }
 
 constructor TScriptModelDirectiveSection.Create(
-  const AMetadata: TScriptSectionMetadata);
+  const AMetadata: TScriptModelSectionMetadata);
 begin
   inherited Create;
   FMetadata := AMetadata;
@@ -1211,15 +1211,15 @@ begin
 end;
 
 function TScriptModelDirectiveSection.TryGetDefinition(const AName: String;
-  out ADefinition: TScriptParameterDefinition): Boolean;
+  out ADefinition: TMemberDefinition): Boolean;
 begin
-  Result := (FMetadata <> nil) and FMetadata.TryGetParameter(AName, ADefinition);
+  Result := (FMetadata <> nil) and FMetadata.TryGetMember(AName, ADefinition);
 end;
 
 function TScriptModelDirectiveSection.DefaultValue(const AName: String): String;
 begin
   Result := '';
-  var Definition: TScriptParameterDefinition;
+  var Definition: TMemberDefinition;
   if TryGetDefinition(AName, Definition) then
     Result := Definition.DefaultValue;
 end;
