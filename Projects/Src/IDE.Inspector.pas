@@ -19,17 +19,16 @@ uses
   IDE.LiveScriptObjectFactory, IDE.ScriptModel, IDE.ScriptModel.Metadata;
 
 type
-  TInspectorRowKind = (irkEntryValue, irkEntryFlag, irkDirective,
+  TInspectorRowKind = (irkParameter, irkParameterFlag, irkDirective,
     irkDirectiveFlag {$IFDEF DEBUG}, irkDebugStatus, irkDebugSections, irkDebugEarlyExits{$ENDIF});
 
   TInspectorRow = record
     Kind: TInspectorRowKind;
-    Name: String;            { irkEntryValue and irkEntryFlag: parameter name,
-                               irkDirective and irkDirectiveFlag: directive name }
-    FlagName: String;        { irkEntryFlag and irkDirectiveFlag }
-    NameIndex: Integer;      { irkDirective and irkDirectiveFlag: line index,
-                               irkEntryValue and irkEntryFlag: parameter index
-                               -1 if known but not present in the script }
+    Name: String;            { The parameter or directive name }
+    FlagName: String;        { irkParameterFlag and irkDirectiveFlag }
+    NameIndex: Integer;      { The parameter index, or the line index for a
+                               directive. -1 if known but not present in the
+                               script }
   end;
 
   TInspector = class
@@ -153,13 +152,13 @@ function TInspector.ItemShouldBeBold(
   begin
     Result := False;
     case ARow.Kind of
-      irkEntryValue:
+      irkParameter:
         begin
           var Entry: TScriptModelParameterSectionEntry;
           var Index: Integer;
           Result := TryGetRowParameterSectionEntry(ARow, Entry, Index);
         end;
-      irkEntryFlag:
+      irkParameterFlag:
         begin
           var Entry: TScriptModelParameterSectionEntry;
           var Index: Integer;
@@ -240,9 +239,9 @@ procedure TInspector.JvInspectorKeyDown(Sender: TObject; var Key: Word;
     var Row: TInspectorRow;
     if (Item <> nil) and TryGetRow(Item, Row) then begin
       case Row.Kind of
-        irkEntryValue, irkDirective, irkDirectiveFlag:
+        irkParameter, irkDirective, irkDirectiveFlag:
           Result := Row.Name; { A directive's flags have no own help topic }
-        irkEntryFlag:
+        irkParameterFlag:
           Result := Row.FlagName;
       end;
     end;
@@ -393,22 +392,20 @@ procedure TInspector.UpdateFromCaret;
   end;
   {$ENDIF}
 
-  function AddEntryValueRow(const AParent: TJvCustomInspectorItem;
-    const AParameterName: String; const ANameIndex: Integer): TJvCustomInspectorItem;
+  function MakeParameterRow(const AName: String;
+    const ANameIndex: Integer): TInspectorRow;
   begin
-    var Row: TInspectorRow;
-    Row.Kind := irkEntryValue;
-    Row.Name := AParameterName;
-    Row.FlagName := '';
-    Row.NameIndex := ANameIndex;
-    Result := AddRow(AParent, AParameterName, False, Row);
+    Result.Kind := irkParameter;
+    Result.Name := AName;
+    Result.FlagName := '';
+    Result.NameIndex := ANameIndex;
   end;
 
-  procedure AddEntryFlagRow(const AParent: TJvCustomInspectorItem;
+  procedure AddParameterFlagRow(const AParent: TJvCustomInspectorItem;
     const AParameterName, AFlagName: String; const ANameIndex: Integer);
   begin
     var Row: TInspectorRow;
-    Row.Kind := irkEntryFlag;
+    Row.Kind := irkParameterFlag;
     Row.Name := AParameterName;
     Row.FlagName := AFlagName;
     Row.NameIndex := ANameIndex;
@@ -418,10 +415,11 @@ procedure TInspector.UpdateFromCaret;
   procedure AddParameterRow(const AParent: TJvCustomInspectorItem;
     const ADefinition: TMemberDefinition; const ANameIndex: Integer);
   begin
-    const Item = AddEntryValueRow(AParent, ADefinition.Name, ANameIndex);
+    const Row = MakeParameterRow(ADefinition.Name, ANameIndex);
+    const Item = AddRow(AParent, Row.Name, False, Row);
     if ADefinition.ValueKind = mvkFlags then begin
       for var FlagName in ADefinition.KnownValues do
-        AddEntryFlagRow(Item, ADefinition.Name, FlagName, ANameIndex); { Adds a child to Item }
+        AddParameterFlagRow(Item, ADefinition.Name, FlagName, ANameIndex); { Adds a child to Item }
     end else if ADefinition.ValueKind = mvkChoice then
       Item.Flags := Item.Flags + [iifValueList];
   end;
@@ -515,8 +513,10 @@ procedure TInspector.UpdateFromCaret;
       const Parameter = Entry.Parameters[I];
       if Parameter.Kind = psepParameter then begin
         var Definition: TMemberDefinition;
-        if not Entry.TryGetDefinition(Parameter.Name, Definition) then
-          AddEntryValueRow(FJvInspector.Root, Parameter.Name, I);
+        if not Entry.TryGetDefinition(Parameter.Name, Definition) then begin
+          const Row = MakeParameterRow(Parameter.Name, I);
+          AddRow(FJvInspector.Root, Row.Name, False, Row);
+        end;
       end;
     end;
 
@@ -810,7 +810,7 @@ begin
   if not TryGetRow(Sender, Row) then
     Exit;
   case Row.Kind of
-    irkEntryFlag:
+    irkParameterFlag:
       begin
         var Entry: TScriptModelParameterSectionEntry;
         var Index: Integer;
@@ -852,7 +852,7 @@ begin
   if not TryGetRow(Sender, Row) then
     Exit;
   case Row.Kind of
-    irkEntryValue:
+    irkParameter:
       begin
         var Entry: TScriptModelParameterSectionEntry;
         var Index: Integer;
@@ -898,7 +898,7 @@ begin
   FInEdit := True;
   try
     case Row.Kind of
-      irkEntryFlag:
+      irkParameterFlag:
         begin
           var Entry: TScriptModelParameterSectionEntry;
           var Index: Integer;
@@ -980,7 +980,7 @@ begin
   FInEdit := True;
   try
     case Row.Kind of
-      irkEntryValue:
+      irkParameter:
         begin
           var Entry: TScriptModelParameterSectionEntry;
           var Index: Integer;
