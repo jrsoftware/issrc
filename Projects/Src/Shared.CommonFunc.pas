@@ -1279,10 +1279,32 @@ begin
 end;
 
 function AddPeriod(const S: String): String;
+{ Returns the specified string with a full stop character (U+002E) appended,
+  unless the string is empty, already ends with a sentence-terminating
+  character, or ends with a control character (such as CR or LF), in which
+  case the string is returned unchanged. }
 begin
+  if S <> '' then begin
+    { This list is not intended to be exhaustive; it includes characters that
+      are known/expected to be used in Inno Setup .isl translations.
+      Keep the isxfunc.xml AddPeriod topic's table in sync. }
+    case S[High(S)] of
+      #0..#$001F, { Control characters (don't want '.' after trailing CR/LF) }
+      '!',     { Exclamation Mark }
+      '.',     { Full Stop }
+      '?',     { Question Mark }
+      #$061F,  { Arabic Question Mark }
+      #$06D4,  { Arabic Full Stop (used in Urdu, not Arabic) }
+      #$3002,  { Ideographic Full Stop (used in Japanese and Chinese) }
+      #$FF01,  { Fullwidth Exclamation Mark }
+      #$FF0E,  { Fullwidth Full Stop }
+      #$FF1F:  { Fullwidth Question Mark }
+        ;
+    else
+      Exit(S + '.');
+    end;
+  end;
   Result := S;
-  if (Result <> '') and (PathLastChar(Result)^ > '.') then
-    Result := Result + '.';
 end;
 
 function GetExceptMessage: String;

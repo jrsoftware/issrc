@@ -179,13 +179,18 @@ begin
   Assert(RemoveAccelChar('瀏覽 (&R)...') = '瀏覽...');
   Assert(RemoveAccelChar('是 (&Y)') = '是');
 
-  { AddPeriod: adds '.' only when the last character is greater than '.';
-    idempotent on already-terminated strings }
+  { AddPeriod: adds '.' only when the last character isn't sentence-terminating
+    or a control character; idempotent on already-terminated strings }
   Assert(AddPeriod('') = '');
   Assert(AddPeriod('Hello') = 'Hello.');
   Assert(AddPeriod('Hello.') = 'Hello.');
-  Assert(AddPeriod('Hello!') = 'Hello!');     { '!' (33) < '.' (46) }
-  Assert(AddPeriod('Hello?') = 'Hello?.');    { '?' (63) > '.' (46) }
+  Assert(AddPeriod('Hello!') = 'Hello!');
+  Assert(AddPeriod('Hello?') = 'Hello?');
+  Assert(AddPeriod('Hello'#$3002) = 'Hello'#$3002);
+  Assert(AddPeriod('Hello ') = 'Hello .');
+  Assert(AddPeriod('"Hello"') = '"Hello".');
+  Assert(AddPeriod('(Hello)') = '(Hello).');
+  Assert(AddPeriod('Hello'#13#10) = 'Hello'#13#10);
 
   { IsWildcard: only the last path component is checked, so '?' or '*' in a
     drive prefix like '\\?\' must not register }
