@@ -768,11 +768,11 @@ begin
       end;
     end;
 
-    { Every flag-includes rule points at a real flag parameter and names only
+    { Every flag-includes rule points at a real flag member and names only
       flags that exist, so it cannot silently never fire }
     for var Rule in Metadata.FlagIncludesRules do begin
       var Definition: TMemberDefinition;
-      Assert(Metadata.TryGetMember(Rule.ParameterName, Definition));
+      Assert(Metadata.TryGetMember(Rule.MemberName, Definition));
       Assert(Definition.ValueKind = mvkFlags);
       Assert(InNames(Definition.KnownValues, Rule.FlagName));
       Assert(Length(Rule.OtherFlagNames) > 0);
@@ -791,11 +791,11 @@ begin
       Assert(InNames(FlagDefinition.KnownValues, Rule.FlagName));
     end;
 
-    { Every flag-excludes rule points at a real flag parameter, names only
+    { Every flag-excludes rule points at a real flag member, names only
       flags that exist, and does not exclude its own flag }
     for var Rule in Metadata.FlagExcludesRules do begin
       var Definition: TMemberDefinition;
-      Assert(Metadata.TryGetMember(Rule.ParameterName, Definition));
+      Assert(Metadata.TryGetMember(Rule.MemberName, Definition));
       Assert(Definition.ValueKind = mvkFlags);
       Assert(InNames(Definition.KnownValues, Rule.FlagName));
       Assert(Length(Rule.OtherFlagNames) > 0);
@@ -811,7 +811,7 @@ begin
       const IncludedNames: TArray<String> =
         [IncludeRule.FlagName] + IncludeRule.OtherFlagNames;
       for var ExcludeRule in Metadata.FlagExcludesRules do begin
-        if SameText(IncludeRule.ParameterName, ExcludeRule.ParameterName) and
+        if SameText(IncludeRule.MemberName, ExcludeRule.MemberName) and
            InNames(IncludedNames, ExcludeRule.FlagName) then
           for var FlagName in ExcludeRule.OtherFlagNames do
             Assert(not InNames(IncludedNames, FlagName));

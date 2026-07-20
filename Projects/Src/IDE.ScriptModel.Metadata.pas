@@ -6,8 +6,9 @@ unit IDE.ScriptModel.Metadata;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Per-section metadata tables for the script model: parameter and directive
-  names, value kinds, and flag lists, plus the rules layer registrations.
+  Per-section metadata tables for the script model: member (parameter or
+  directive) names, value kinds, and flag lists, plus the rules layer
+  registrations.
 
   Tables for [Setup] and [LangOptions] are generated from enums at startup,
   and are enriched with value kinds, choice values, and default values.
@@ -39,7 +40,7 @@ type
     applied in reverse (including a listed other flag excludes FlagName),
     but the listed other flags do not exclude each other. }
   TFlagRule = record
-    ParameterName: String;
+    MemberName: String;
     FlagName: String;
     OtherFlagNames: TArray<String>; { the other flags to include or exclude }
   end;
@@ -298,10 +299,10 @@ procedure InitializeSectionMetadata;
     Result.DefaultValue := ADefaultValue;
   end;
 
-  function FR(const AParameterName, AFlagName: String;
+  function FR(const AMemberName, AFlagName: String;
     const AOtherFlagNames: TArray<String>): TFlagRule;
   begin
-    Result.ParameterName := AParameterName;
+    Result.MemberName := AMemberName;
     Result.FlagName := AFlagName;
     Result.OtherFlagNames := AOtherFlagNames;
   end;
@@ -701,7 +702,7 @@ begin
     [FR('Flags', 'uninsdeletesection', ['uninsdeleteentry',
        'uninsdeletesectionifempty'])]));
 
-  const DeleteSectionParameters: TArray<TMemberDefinition> = [
+  const DeleteSectionMembers: TArray<TMemberDefinition> = [
     MD('AfterInstall', mvkString),
     MD('BeforeInstall', mvkString),
     MD('Check', mvkString),
@@ -713,9 +714,9 @@ begin
     MD('Tasks', mvkString),
     MD('Type', mvkChoice, ['files', 'filesandordirs', 'dirifempty'])];
   SectionMetadataList.Add(TScriptModelSectionMetadata.Create('InstallDelete',
-    DeleteSectionParameters));
+    DeleteSectionMembers));
   SectionMetadataList.Add(TScriptModelSectionMetadata.Create('UninstallDelete',
-    DeleteSectionParameters));
+    DeleteSectionMembers));
 
   SectionMetadataList.Add(TScriptModelSectionMetadata.Create('ISSigKeys',
     [MD('Group', mvkString),

@@ -93,13 +93,13 @@ end;
 procedure TestSectionIndexing(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
 
-  procedure AssertSection(const ASection: TLiveScriptSectionHeader;
-    const AExpectedSection: TInnoSetupStylerSection; const AExpectedLine: Integer;
+  procedure AssertSectionHeader(const ASectionHeader: TLiveScriptSectionHeader;
+    const AExpectedStylerSection: TInnoSetupStylerSection; const AExpectedLine: Integer;
     const AExpectedName: String);
   begin
-    Assert(ASection.Section = AExpectedSection);
-    Assert(ASection.Line = AExpectedLine);
-    Assert(ASection.Name = AExpectedName);
+    Assert(ASectionHeader.StylerSection = AExpectedStylerSection);
+    Assert(ASectionHeader.Line = AExpectedLine);
+    Assert(ASectionHeader.Name = AExpectedName);
   end;
 
 begin
@@ -121,15 +121,15 @@ begin
   try
     const Factory = Context.Factory;
     Assert(Factory.SectionCount = 7);
-    AssertSection(Factory.Sections[0], scSetup, 0, 'Setup');
-    AssertSection(Factory.Sections[1], scFiles, 2, 'Files');
-    AssertSection(Factory.Sections[2], scSetup, 4, 'Setup'); { Duplicate kept }
-    AssertSection(Factory.Sections[3], scCode, 6, 'Code');
-    AssertSection(Factory.Sections[4], scThirdParty, 8, '_ThirdParty');
-    AssertSection(Factory.Sections[5], scUnknown, 10, 'Bogus');
+    AssertSectionHeader(Factory.SectionHeaders[0], scSetup, 0, 'Setup');
+    AssertSectionHeader(Factory.SectionHeaders[1], scFiles, 2, 'Files');
+    AssertSectionHeader(Factory.SectionHeaders[2], scSetup, 4, 'Setup'); { Duplicate kept }
+    AssertSectionHeader(Factory.SectionHeaders[3], scCode, 6, 'Code');
+    AssertSectionHeader(Factory.SectionHeaders[4], scThirdParty, 8, '_ThirdParty');
+    AssertSectionHeader(Factory.SectionHeaders[5], scUnknown, 10, 'Bogus');
     { The spanned header at line 12 is a single section whose continuation
       (line 13) is not itself indexed }
-    AssertSection(Factory.Sections[6], scFiles, 12, 'Files');
+    AssertSectionHeader(Factory.SectionHeaders[6], scFiles, 12, 'Files');
   finally
     Context.Free;
   end;
@@ -530,7 +530,7 @@ begin
         Assert(Entry.FirstLine = 2);
         Assert(Entry.LastLine = 2);
         Assert(Factory.SectionCount = 1);
-        Assert(Factory.Sections[0].Line = 1); { [Files] header shifted down }
+        Assert(Factory.SectionHeaders[0].Line = 1); { [Files] header shifted down }
       finally
         Entry.Free;
       end;
@@ -704,15 +704,15 @@ begin
       AMemo.ReplaceTextRange(AMemo.GetPositionFromLine(2),
         AMemo.GetPositionFromLine(2), '[Icons]' + EOL); { Add a header }
       Assert(Factory.SectionCount = 3);
-      Assert(Factory.Sections[1].Section = scIcons);
-      Assert(Factory.Sections[1].Line = 2);
-      Assert(Factory.Sections[2].Section = scFiles);
-      Assert(Factory.Sections[2].Line = 3);
+      Assert(Factory.SectionHeaders[1].StylerSection = scIcons);
+      Assert(Factory.SectionHeaders[1].Line = 2);
+      Assert(Factory.SectionHeaders[2].StylerSection = scFiles);
+      Assert(Factory.SectionHeaders[2].Line = 3);
       AMemo.ReplaceTextRange(AMemo.GetPositionFromLine(2),
         AMemo.GetPositionFromLine(3), ''); { Remove the header again }
       Assert(Factory.SectionCount = 2);
-      Assert(Factory.Sections[1].Section = scFiles);
-      Assert(Factory.Sections[1].Line = 2);
+      Assert(Factory.SectionHeaders[1].StylerSection = scFiles);
+      Assert(Factory.SectionHeaders[1].Line = 2);
     finally
       Context.Free;
     end;

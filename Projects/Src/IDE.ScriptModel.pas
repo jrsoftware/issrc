@@ -75,7 +75,7 @@ type
     FPendingChange: Boolean;
     FQuoteNewValues: Boolean;
     procedure ApplyFlagRules(const AParameterName, AIncludedFlagName: String);
-    procedure ApplyParameterFlagRules(const AParameterName, AValue: String);
+    procedure ApplyParameterIncludesFlagRules(const AParameterName, AValue: String);
     function AppendParameterInternal(const AName, AValue: String;
       const AQuoteNewValue: Boolean): Integer;
     procedure BeginUpdate;
@@ -764,7 +764,7 @@ begin
   Result := Integer(FParameters.Count)-1;
 end;
 
-procedure TScriptModelParameterSectionEntry.ApplyParameterFlagRules(
+procedure TScriptModelParameterSectionEntry.ApplyParameterIncludesFlagRules(
   const AParameterName, AValue: String);
 begin
   { Clearing the value leaves the flag in place }
@@ -782,7 +782,7 @@ begin
   try
     const Name = GetNamedParameter(AIndex).Name;
     SetValueInternal(AIndex, AValue);
-    ApplyParameterFlagRules(Name, AValue);
+    ApplyParameterIncludesFlagRules(Name, AValue);
   finally
     EndUpdate;
   end;
@@ -795,7 +795,7 @@ begin
   try
     Result := AppendParameterInternal(AName, AValue,
       ShouldQuoteNewValue(FQuoteNewValues, FMetadata, AName));
-    ApplyParameterFlagRules(AName, AValue);
+    ApplyParameterIncludesFlagRules(AName, AValue);
   finally
     EndUpdate;
   end;
@@ -848,14 +848,14 @@ begin
     Exit;
   { Includes rules run in the forward direction only }
   for var Rule in FMetadata.FlagIncludesRules do begin
-    if SameText(Rule.ParameterName, AParameterName) and
+    if SameText(Rule.MemberName, AParameterName) and
        SameText(Rule.FlagName, AIncludedFlagName) then begin
       for var ImpliedFlagName in Rule.OtherFlagNames do
         SetFlagInternal(AParameterName, ImpliedFlagName, True);
     end;
   end;
   for var Rule in FMetadata.FlagExcludesRules do begin
-    if SameText(Rule.ParameterName, AParameterName) then begin
+    if SameText(Rule.MemberName, AParameterName) then begin
       if SameText(Rule.FlagName, AIncludedFlagName) then begin
         { Forward: FlagName was included, exclude the other flags }
         for var ExcludedFlagName in Rule.OtherFlagNames do
@@ -1146,14 +1146,14 @@ begin
   const Name = GetNamedLine(AIndex).Name;
   { Includes rules run in the forward direction only }
   for var Rule in FMetadata.FlagIncludesRules do begin
-    if SameText(Rule.ParameterName, Name) and
+    if SameText(Rule.MemberName, Name) and
        SameText(Rule.FlagName, AIncludedFlagName) then begin
       for var ImpliedFlagName in Rule.OtherFlagNames do
         SetFlagInternal(AIndex, ImpliedFlagName, True);
     end;
   end;
   for var Rule in FMetadata.FlagExcludesRules do begin
-    if SameText(Rule.ParameterName, Name) then begin
+    if SameText(Rule.MemberName, Name) then begin
       if SameText(Rule.FlagName, AIncludedFlagName) then begin
         { Forward: FlagName was included, exclude the other flags }
         for var ExcludedFlagName in Rule.OtherFlagNames do

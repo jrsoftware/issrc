@@ -729,7 +729,7 @@ begin
     if FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
        FFactory.TryCreateDirectiveSection(SectionIndex, DirectiveSection,
          SectionRefusalReason) then begin
-      const Header = FFactory.Sections[SectionIndex];
+      const Header = FFactory.SectionHeaders[SectionIndex];
       FLiveDirectiveSection := DirectiveSection;
       FLiveDirectiveSectionIndex := SectionIndex;
       FChangeCountAtCreation := FFactory.ChangeCount;
@@ -875,10 +875,10 @@ begin
     irkDebugSections:
       begin
         for var I := 0 to FFactory.SectionCount-1 do begin
-          const Section = FFactory.Sections[I];
+          const Header = FFactory.SectionHeaders[I];
           if Value <> '' then
             Value := Value + ', ';
-          Value := Value + Section.Name + '@' + IntToStr(Section.Line+1);
+          Value := Value + Header.Name + '@' + IntToStr(Header.Line+1);
         end;
       end;
     irkDebugEarlyExits:

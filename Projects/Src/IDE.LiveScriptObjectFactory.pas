@@ -32,7 +32,7 @@ type
 
   TLiveScriptSectionHeader = record
     Line: Integer;
-    Section: TInnoSetupStylerSection;
+    StylerSection: TInnoSetupStylerSection;
     Name: String;
   end;
 
@@ -57,7 +57,7 @@ type
     FStylerSection: TInnoSetupStylerSection;
     FCreatedFromBlankLine: Boolean;
     constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
-      ALastLine: Integer; const ASection: TInnoSetupStylerSection;
+      ALastLine: Integer; const AStylerSection: TInnoSetupStylerSection;
       const AMetadata: TScriptModelSectionMetadata; const ALines: TArray<String>;
       const ACreatedFromBlankLine: Boolean);
     procedure ParameterSectionEntryChange(Sender: TObject);
@@ -84,7 +84,7 @@ type
   private
     FMemo: TScintEdit;
     FStyler: TInnoSetupStyler;
-    FSections: TList<TLiveScriptSectionHeader>; { Includes scUnknown/scThirdParty section }
+    FSectionHeaders: TList<TLiveScriptSectionHeader>; { Includes scUnknown/scThirdParty section }
     FIndexValid: Boolean;
     FDirtyFirstLine, FDirtyLastLine: Integer; { -1 when nothing is dirty }
     FLiveScriptObjects: TList<TLiveScriptObject>;
@@ -122,7 +122,7 @@ type
       changed since it last read something }
     property ChangeCount: Int64 read FChangeCount;
     property Memo: TScintEdit read FMemo;
-    property Sections[Index: Integer]: TLiveScriptSectionHeader read GetSectionHeader;
+    property SectionHeaders[Index: Integer]: TLiveScriptSectionHeader read GetSectionHeader;
     property Styler: TInnoSetupStyler read FStyler;
   end;
 
@@ -179,12 +179,12 @@ end;
 { TLiveScriptParameterSectionEntry }
 
 constructor TLiveScriptParameterSectionEntry.Create(const AFactory: TLiveScriptObjectFactory;
-  const AFirstLine, ALastLine: Integer; const ASection: TInnoSetupStylerSection;
+  const AFirstLine, ALastLine: Integer; const AStylerSection: TInnoSetupStylerSection;
   const AMetadata: TScriptModelSectionMetadata; const ALines: TArray<String>;
   const ACreatedFromBlankLine: Boolean);
 begin
   inherited Create(AFactory, AFirstLine, ALastLine);
-  FStylerSection := ASection;
+  FStylerSection := AStylerSection;
   FCreatedFromBlankLine := ACreatedFromBlankLine;
   FEntry := TScriptModelParameterSectionEntry.Create(AMetadata);
   FEntry.Parse(ALines);
@@ -237,7 +237,7 @@ begin
   inherited Create;
   FMemo := AMemo;
   FStyler := AStyler;
-  FSections := TList<TLiveScriptSectionHeader>.Create;
+  FSectionHeaders := TList<TLiveScriptSectionHeader>.Create;
   FLiveScriptObjects := TList<TLiveScriptObject>.Create;
   FDirtyFirstLine := -1;
   FDirtyLastLine := -1;
@@ -249,7 +249,7 @@ begin
     for var LiveScriptObject in FLiveScriptObjects do
       LiveScriptObject.FFactory := nil;
   FLiveScriptObjects.Free;
-  FSections.Free;
+  FSectionHeaders.Free;
   inherited;
 end;
 
@@ -275,33 +275,33 @@ procedure TLiveScriptObjectFactory.EnsureIndex;
   end;
 
   function TryGetSectionHeader(const ALine: Integer;
-    out ASection: TLiveScriptSectionHeader): Boolean;
+    out ASectionHeader: TLiveScriptSectionHeader): Boolean;
   begin
     { ISPP's line continuation (see LineSpans) joins physical lines into one
       logical line, and the styler gives them all the same line state. This
       also applies to spanned headers, regardless of the fact that those
       don't compile. There's no detection for this issue and callers must
       just pass only the first physical line of a spanned header. }
-    var Section: TInnoSetupStylerSection;
-    Result := TInnoSetupStyler.LineSectionHeader(FMemo.Lines.State[ALine], Section);
+    var StylerSection: TInnoSetupStylerSection;
+    Result := TInnoSetupStyler.LineSectionHeader(FMemo.Lines.State[ALine], StylerSection);
     if Result then begin
-      ASection.Line := ALine;
-      ASection.Section := Section;
-      ASection.Name := ExtractSectionHeaderName(FMemo.Lines[ALine]);
+      ASectionHeader.Line := ALine;
+      ASectionHeader.StylerSection := StylerSection;
+      ASectionHeader.Name := ExtractSectionHeaderName(FMemo.Lines[ALine]);
     end;
   end;
 
   procedure BuildIndex;
   begin
-    FSections.Clear;
+    FSectionHeaders.Clear;
     EnsureStyled;
     const LineCount = FMemo.Lines.Count;
     var PreviousLineSpans := False;
     for var I := 0 to LineCount-1 do begin
       if not PreviousLineSpans then begin
-        var Section: TLiveScriptSectionHeader;
-        if TryGetSectionHeader(I, Section) then
-          FSections.Add(Section);
+        var SectionHeader: TLiveScriptSectionHeader;
+        if TryGetSectionHeader(I, SectionHeader) then
+          FSectionHeaders.Add(SectionHeader);
       end;
       PreviousLineSpans := LineSpans(I);
     end;
@@ -351,18 +351,18 @@ procedure TLiveScriptObjectFactory.EnsureIndex;
     end;
 
     { Rescan the affected lines, replacing that slice of the index }
-    for var I := Integer(FSections.Count)-1 downto 0 do
-      if (FSections[I].Line >= FirstLine) and (FSections[I].Line <= LastLine) then
-        FSections.Delete(I);
+    for var I := Integer(FSectionHeaders.Count)-1 downto 0 do
+      if (FSectionHeaders[I].Line >= FirstLine) and (FSectionHeaders[I].Line <= LastLine) then
+        FSectionHeaders.Delete(I);
     var InsertAt := 0;
-    while (InsertAt < FSections.Count) and (FSections[InsertAt].Line < FirstLine) do
+    while (InsertAt < FSectionHeaders.Count) and (FSectionHeaders[InsertAt].Line < FirstLine) do
       Inc(InsertAt);
     var PreviousLineSpans := False; { FirstLine was extended back to the start of a group }
     for var I := FirstLine to LastLine do begin
       if not PreviousLineSpans then begin
-        var Section: TLiveScriptSectionHeader;
-        if TryGetSectionHeader(I, Section) then begin
-          FSections.Insert(InsertAt, Section);
+        var SectionHeader: TLiveScriptSectionHeader;
+        if TryGetSectionHeader(I, SectionHeader) then begin
+          FSectionHeaders.Insert(InsertAt, SectionHeader);
           Inc(InsertAt);
         end;
       end;
@@ -387,7 +387,7 @@ begin
   FIndexValid := False; { Index will be rebuilt next time it is needed }
   FDirtyFirstLine := -1;
   FDirtyLastLine := -1;
-  FSections.Clear;
+  FSectionHeaders.Clear;
   for var LiveScriptObject in FLiveScriptObjects do
     LiveScriptObject.FValid := False;
 end;
@@ -421,11 +421,11 @@ begin
 
   if Info.LinesDelta > 0 then begin
     const Count = Info.LinesDelta;
-    for var I := 0 to Integer(FSections.Count)-1 do begin
-      if FSections[I].Line >= FirstLine then begin
-        var Section := FSections[I];
-        Inc(Section.Line, Count);
-        FSections[I] := Section;
+    for var I := 0 to Integer(FSectionHeaders.Count)-1 do begin
+      if FSectionHeaders[I].Line >= FirstLine then begin
+        var SectionHeader := FSectionHeaders[I];
+        Inc(SectionHeader.Line, Count);
+        FSectionHeaders[I] := SectionHeader;
       end;
     end;
     for var LiveScriptObject in FLiveScriptObjects do begin
@@ -454,13 +454,13 @@ begin
     const Count = -Info.LinesDelta;
     const DeleteFirst = FirstLine;
     const DeleteLast = FirstLine + Count - 1;
-    for var I := Integer(FSections.Count)-1 downto 0 do begin
-      if FSections[I].Line > DeleteLast then begin
-        var Section := FSections[I];
-        Dec(Section.Line, Count);
-        FSections[I] := Section;
-      end else if FSections[I].Line >= DeleteFirst then
-        FSections.Delete(I);
+    for var I := Integer(FSectionHeaders.Count)-1 downto 0 do begin
+      if FSectionHeaders[I].Line > DeleteLast then begin
+        var SectionHeader := FSectionHeaders[I];
+        Dec(SectionHeader.Line, Count);
+        FSectionHeaders[I] := SectionHeader;
+      end else if FSectionHeaders[I].Line >= DeleteFirst then
+        FSectionHeaders.Delete(I);
     end;
     for var LiveScriptObject in FLiveScriptObjects do begin
       if LiveScriptObject.FValid and (LiveScriptObject <> FWritingBackObject) then begin
@@ -497,13 +497,13 @@ end;
 function TLiveScriptObjectFactory.SectionCount: Integer;
 begin
   EnsureIndex;
-  Result := Integer(FSections.Count);
+  Result := Integer(FSectionHeaders.Count);
 end;
 
 function TLiveScriptObjectFactory.GetSectionHeader(Index: Integer): TLiveScriptSectionHeader;
 begin
   EnsureIndex;
-  Result := FSections[Index];
+  Result := FSectionHeaders[Index];
 end;
 
 function TLiveScriptObjectFactory.TryGetSectionAtLine(const ALine: Integer;
@@ -512,8 +512,8 @@ begin
   EnsureIndex;
   EnsureStyled; { For GetSectionLines }
   Result := False;
-  for var I := Integer(FSections.Count)-1 downto 0 do begin
-    if FSections[I].Line <= ALine then begin
+  for var I := Integer(FSectionHeaders.Count)-1 downto 0 do begin
+    if FSectionHeaders[I].Line <= ALine then begin
       var FirstLine, LastLine: Integer;
       GetSectionLines(I, FirstLine, LastLine);
       if (ALine < FirstLine) or (ALine <= LastLine) then begin
@@ -529,11 +529,11 @@ procedure TLiveScriptObjectFactory.GetSectionOccurrence(const ASectionIndex: Int
   out AOccurrenceIndex, AOccurrenceCount: Integer);
 { Does not include special support for scUnknown/scThirdParty }
 begin
-  const Section = Sections[ASectionIndex].Section;
+  const StylerSection = SectionHeaders[ASectionIndex].StylerSection;
   AOccurrenceIndex := 0;
   AOccurrenceCount := 0;
   for var I := 0 to SectionCount-1 do begin
-    if Sections[I].Section = Section then begin
+    if SectionHeaders[I].StylerSection = StylerSection then begin
       Inc(AOccurrenceCount);
       if I = ASectionIndex then
         AOccurrenceIndex := AOccurrenceCount;
@@ -545,7 +545,7 @@ procedure TLiveScriptObjectFactory.GetSectionLines(const ASectionIndex: Integer;
   out AFirstLine, ALastLine: Integer);
 { Requires the lines to be styled already. The returned range can be empty (ALastLine < AFirstLine) }
 begin
-  const Header = FSections[ASectionIndex];
+  const Header = FSectionHeaders[ASectionIndex];
   const LineCount = FMemo.Lines.Count;
   var HeaderLastLine := Header.Line;
   while (HeaderLastLine < LineCount-1) and LineSpans(HeaderLastLine) do
@@ -553,7 +553,7 @@ begin
   AFirstLine := HeaderLastLine+1;
   var L := AFirstLine;
   while (L < LineCount) and
-        (TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[L]) = Header.Section) do
+        (TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[L]) = Header.StylerSection) do
     Inc(L);
   ALastLine := L-1;
 end;
@@ -577,8 +577,8 @@ begin
   EnsureIndex;
   EnsureStyled; { For GetSectionLines }
   Result := False;
-  for var I := 0 to Integer(FSections.Count)-1 do begin
-    if FSections[I].Section = scSetup then begin
+  for var I := 0 to Integer(FSectionHeaders.Count)-1 do begin
+    if FSectionHeaders[I].StylerSection = scSetup then begin
       var FirstLine, LastLine: Integer;
       GetSectionLines(I, FirstLine, LastLine);
       if LastLine >= FirstLine then begin
@@ -613,20 +613,20 @@ begin
     Exit;
   end;
 
-  const Section = TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[ALine]);
-  if Section = scNone then begin
+  const StylerSection = TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[ALine]);
+  if StylerSection = scNone then begin
     ARefusalReason := rrNotInsideSection;
     Exit;
   end;
-  if Section = scCode then begin
+  if StylerSection = scCode then begin
     ARefusalReason := rrInCodeSection;
     Exit;
   end;
-  if Section in [scUnknown, scThirdParty] then begin
+  if StylerSection in [scUnknown, scThirdParty] then begin
     ARefusalReason := rrUnrecognizedSection;
     Exit;
   end;
-  if not TInnoSetupStyler.IsParamSection(Section) then begin
+  if not TInnoSetupStyler.IsParamSection(StylerSection) then begin
     ARefusalReason := rrDirectiveStyleSection;
     Exit;
   end;
@@ -655,9 +655,9 @@ begin
   end;
 
   var Metadata: TScriptModelSectionMetadata := nil;
-  TryGetScriptModelSectionMetadata(ParameterSectionToSectionName(Section), Metadata);
+  TryGetScriptModelSectionMetadata(ParameterSectionToSectionName(StylerSection), Metadata);
   AEntry := TLiveScriptParameterSectionEntry.Create(Self, FirstLine, LastLine,
-    Section, Metadata, EntryLines, LineKind = slkBlank);
+    StylerSection, Metadata, EntryLines, LineKind = slkBlank);
   Result := True;
 end;
 
@@ -670,11 +670,11 @@ begin
   EnsureIndex;
   EnsureStyled;
 
-  if (ASectionIndex < 0) or (ASectionIndex >= FSections.Count) then begin
+  if (ASectionIndex < 0) or (ASectionIndex >= FSectionHeaders.Count) then begin
     ARefusalReason := rrSectionIndexOutOfRange;
     Exit;
   end;
-  if not (FSections[ASectionIndex].Section in [scSetup, scMessages, scCustomMessages, scLangOptions]) then begin
+  if not (FSectionHeaders[ASectionIndex].StylerSection in [scSetup, scMessages, scCustomMessages, scLangOptions]) then begin
     ARefusalReason := rrNotDirectiveStyleSection;
     Exit;
   end;
@@ -687,7 +687,7 @@ begin
   else
     SectionLines := nil;
   var Metadata: TScriptModelSectionMetadata := nil;
-  TryGetScriptModelSectionMetadata(FSections[ASectionIndex].Name, Metadata);
+  TryGetScriptModelSectionMetadata(FSectionHeaders[ASectionIndex].Name, Metadata);
   ASection := TLiveScriptDirectiveSection.Create(Self, FirstLine, LastLine,
     Metadata, SectionLines);
   Result := True;
