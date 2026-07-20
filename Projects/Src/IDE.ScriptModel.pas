@@ -34,21 +34,21 @@ type
 
   TScriptLineKind = (slkBlank, slkComment, slkISPPDirective, slkActual);
 
-  TScriptEntryParameterKind = (sepParameter, sepOther);
+  TParameterSectionEntryParameterKind = (psepParameter, psepOther);
 
   { A single parameter of an entry in a parameter section: either a Name: Value
     or another kind of chunk of text between ';' separators }
-  TScriptEntryParameter = class
+  TParameterSectionEntryParameter = class
   private
     FRawText: String; { The original text }
     FName: String;    { May be empty }
     FValueStartIndex: Integer; { Index in FRawText of the first character after the ':', or 0 }
     procedure SetRawText(const ARawText: String);
-    function GetKind: TScriptEntryParameterKind;
+    function GetKind: TParameterSectionEntryParameterKind;
     function GetRawValue: String;
     function GetValue: String;
   public
-    property Kind: TScriptEntryParameterKind read GetKind;
+    property Kind: TParameterSectionEntryParameterKind read GetKind;
     property Name: String read FName;
     property RawText: String read FRawText;
     property RawValue: String read GetRawValue;
@@ -56,17 +56,17 @@ type
   end;
 
   { A remembered ISPP line-spanning break }
-  TScriptEntryBreak = record
+  TParameterSectionEntryBreak = record
     ParameterIndex: Integer; { Parameter the physical line started with }
     Indent: String;          { Leading whitespace of the physical line as written }
   end;
 
   { An entry of a parameter section }
-  TScriptParameterEntry = class
+  TScriptModelParameterSectionEntry = class
   private
     FMetadata: TScriptSectionMetadata; { May be nil }
-    FParameters: TObjectList<TScriptEntryParameter>;
-    FBreaks: TList<TScriptEntryBreak>; { Line spanning }
+    FParameters: TObjectList<TParameterSectionEntryParameter>;
+    FBreaks: TList<TParameterSectionEntryBreak>; { Line spanning }
     FIndent: String; { First line indent }
     FOriginalLines: TArray<String>; { Before modification }
     FModified: Boolean;
@@ -81,8 +81,9 @@ type
     procedure BeginUpdate;
     procedure EndUpdate;
     function GetBreakParameterIndex(Index: Integer): Integer;
-    function GetNamedParameter(const AIndex: Integer): TScriptEntryParameter;
-    function GetParameter(Index: Integer): TScriptEntryParameter;
+    function GetNamedParameter(
+      const AIndex: Integer): TParameterSectionEntryParameter;
+    function GetParameter(Index: Integer): TParameterSectionEntryParameter;
     procedure MarkModified;
     procedure SetFlagInternal(const AParameterName, AFlagName: String;
       const AInclude: Boolean); overload;
@@ -113,18 +114,18 @@ type
     property Indent: String read FIndent;
     property Metadata: TScriptSectionMetadata read FMetadata;
     property Modified: Boolean read FModified;
-    property Parameters[Index: Integer]: TScriptEntryParameter read GetParameter;
+    property Parameters[Index: Integer]: TParameterSectionEntryParameter read GetParameter;
     property QuoteNewValues: Boolean read FQuoteNewValues write FQuoteNewValues;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
 
-  TScriptDirectiveLineKind = (sdlDirective, sdlOther);
+  TDirectiveSectionLineKind = (dslDirective, dslOther);
 
   { A single logical line in a directive section: either a Name=Value or
     another kind of line (comment, ISPP directive, blank, or anything else) }
-  TScriptDirectiveSectionLine = class
+  TDirectiveSectionLine = class
   private
-    FKind: TScriptDirectiveLineKind;
+    FKind: TDirectiveSectionLineKind;
     FOriginalLines: TArray<String>; { The original lines }
     FNameText: String;              { Original name }
     FName: String;                  { Trimmed name }
@@ -132,17 +133,17 @@ type
     FModified: Boolean;
     function GetValue: String;
   public
-    property Kind: TScriptDirectiveLineKind read FKind;
+    property Kind: TDirectiveSectionLineKind read FKind;
     property Name: String read FName;
     property RawValue: String read FRawValue;
     property Value: String read GetValue;
   end;
 
   { A single occurrence of a directive-style section }
-  TScriptDirectiveSection = class
+  TScriptModelDirectiveSection = class
   private
     FMetadata: TScriptSectionMetadata; { May be nil }
-    FLines: TObjectList<TScriptDirectiveSectionLine>;
+    FLines: TObjectList<TDirectiveSectionLine>;
     FOnChange: TNotifyEvent;
     FUpdateLevel: Integer;
     FPendingChange: Boolean;
@@ -152,8 +153,8 @@ type
     procedure BeginUpdate;
     procedure Changed;
     procedure EndUpdate;
-    function GetNamedLine(const AIndex: Integer): TScriptDirectiveSectionLine;
-    function GetLine(Index: Integer): TScriptDirectiveSectionLine;
+    function GetNamedLine(const AIndex: Integer): TDirectiveSectionLine;
+    function GetLine(Index: Integer): TDirectiveSectionLine;
     procedure SetFlagInternal(const AIndex: Integer; const AFlagName: String;
       const AInclude: Boolean);
   public
@@ -175,7 +176,7 @@ type
     function TryGetDefinition(const AName: String;
       out ADefinition: TScriptParameterDefinition): Boolean;
     function DefaultValue(const AName: String): String;
-    property Lines[Index: Integer]: TScriptDirectiveSectionLine read GetLine;
+    property Lines[Index: Integer]: TDirectiveSectionLine read GetLine;
     property Metadata: TScriptSectionMetadata read FMetadata;
     property QuoteNewValues: Boolean read FQuoteNewValues write FQuoteNewValues;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
@@ -188,11 +189,11 @@ function ScriptValueIncludesFlag(const AValue, AFlagName: String): Boolean;
 
 { These are in the interface only for the Test unit }
 function ScriptLineSpans(const S: String): Boolean;
-function UnquoteScriptParameterValue(const S: String): String;
-function QuoteScriptParameterValueIfNeeded(const S: String;
+function UnquoteParameterValue(const S: String): String;
+function QuoteParameterValueIfNeeded(const S: String;
   const AAlwaysQuote: Boolean = False): String;
-function UnquoteScriptDirectiveValue(const S: String): String;
-function TryParseScriptDirectiveLine(const S: String;
+function UnquoteDirectiveValue(const S: String): String;
+function TryParseDirectiveLine(const S: String;
   out ANameText, ARawValue: String): Boolean;
 
 implementation
@@ -255,7 +256,7 @@ begin
   end;
 end;
 
-function UnquoteScriptParameterValue(const S: String): String;
+function UnquoteParameterValue(const S: String): String;
 begin
   Result := Trim(S);
   if (Length(Result) >= 2) and (Result[1] = '"') and
@@ -265,7 +266,7 @@ begin
   end;
 end;
 
-function QuoteScriptParameterValueIfNeeded(const S: String;
+function QuoteParameterValueIfNeeded(const S: String;
   const AAlwaysQuote: Boolean): String;
 
   function NeedsQuoting: Boolean;
@@ -292,7 +293,7 @@ begin
     Result := S;
 end;
 
-function QuoteScriptDirectiveValueIfNeeded(const AValue: String;
+function QuoteDirectiveValueIfNeeded(const AValue: String;
   const AAlwaysQuote: Boolean = False): String;
 begin
   { Directive values only need quotes to keep leading or trailing whitespace,
@@ -319,7 +320,7 @@ begin
     Result := True;
 end;
 
-function UnquoteScriptDirectiveValue(const S: String): String;
+function UnquoteDirectiveValue(const S: String): String;
 begin
   Result := Trim(S);
   { If the value is surrounded in quotes, remove them, just like
@@ -329,7 +330,7 @@ begin
     Result := Copy(Result, 2, Length(Result)-2);
 end;
 
-function TryParseScriptDirectiveLine(const S: String;
+function TryParseDirectiveLine(const S: String;
   out ANameText, ARawValue: String): Boolean;
 begin
   const P = Pos('=', S);
@@ -420,9 +421,9 @@ begin
   end;
 end;
 
-{ TScriptEntryParameter }
+{ TParameterSectionEntryParameter }
 
-procedure TScriptEntryParameter.SetRawText(const ARawText: String);
+procedure TParameterSectionEntryParameter.SetRawText(const ARawText: String);
 begin
   FRawText := ARawText;
   FName := '';
@@ -446,15 +447,16 @@ begin
   end;
 end;
 
-function TScriptEntryParameter.GetKind: TScriptEntryParameterKind;
+function TParameterSectionEntryParameter.GetKind:
+  TParameterSectionEntryParameterKind;
 begin
   if FName <> '' then
-    Result := sepParameter
+    Result := psepParameter
   else
-    Result := sepOther;
+    Result := psepOther;
 end;
 
-function TScriptEntryParameter.GetRawValue: String;
+function TParameterSectionEntryParameter.GetRawValue: String;
 begin
   if FValueStartIndex > 0 then
     Result := Copy(FRawText, FValueStartIndex, MaxInt)
@@ -462,30 +464,32 @@ begin
     Result := '';
 end;
 
-function TScriptEntryParameter.GetValue: String;
+function TParameterSectionEntryParameter.GetValue: String;
 begin
-  Result := UnquoteScriptParameterValue(GetRawValue);
+  Result := UnquoteParameterValue(GetRawValue);
 end;
 
-{ TScriptParameterEntry }
+{ TScriptModelParameterSectionEntry }
 
-constructor TScriptParameterEntry.Create(const AMetadata: TScriptSectionMetadata);
+constructor TScriptModelParameterSectionEntry.Create(
+  const AMetadata: TScriptSectionMetadata);
 begin
   inherited Create;
   FMetadata := AMetadata;
-  FParameters := TObjectList<TScriptEntryParameter>.Create;
-  FBreaks := TList<TScriptEntryBreak>.Create;
+  FParameters := TObjectList<TParameterSectionEntryParameter>.Create;
+  FBreaks := TList<TParameterSectionEntryBreak>.Create;
   FQuoteNewValues := True;
 end;
 
-destructor TScriptParameterEntry.Destroy;
+destructor TScriptModelParameterSectionEntry.Destroy;
 begin
   FBreaks.Free;
   FParameters.Free;
   inherited;
 end;
 
-procedure TScriptParameterEntry.Parse(const ALines: array of String);
+procedure TScriptModelParameterSectionEntry.Parse(
+  const ALines: array of String);
 begin
   FParameters.Clear;
   FBreaks.Clear;
@@ -527,7 +531,7 @@ begin
       var I := 1;
       while True do begin
         if (I > Length(Joined)) or ((Joined[I] = ';') and not InQuotes) then begin
-          const Parameter = TScriptEntryParameter.Create;
+          const Parameter = TParameterSectionEntryParameter.Create;
           Parameter.SetRawText(Copy(Joined, ChunkStart, I-ChunkStart));
           FParameters.Add(Parameter);
           ChunkStartOffsets.Add(ChunkStart);
@@ -551,7 +555,7 @@ begin
           Break;
         end;
       end;
-      var EntryBreak: TScriptEntryBreak;
+      var EntryBreak: TParameterSectionEntryBreak;
       EntryBreak.ParameterIndex := ParameterIndex;
       EntryBreak.Indent := LeadingWhitespace(ALines[I]);
       FBreaks.Add(EntryBreak);
@@ -561,7 +565,7 @@ begin
   end;
 end;
 
-function TScriptParameterEntry.GetLines: TArray<String>;
+function TScriptModelParameterSectionEntry.GetLines: TArray<String>;
 begin
   if not FModified then
     Exit(Copy(FOriginalLines));
@@ -622,60 +626,63 @@ begin
   end;
 end;
 
-function TScriptParameterEntry.Count: Integer;
+function TScriptModelParameterSectionEntry.Count: Integer;
 begin
   Result := Integer(FParameters.Count);
 end;
 
-function TScriptParameterEntry.GetParameter(Index: Integer): TScriptEntryParameter;
+function TScriptModelParameterSectionEntry.GetParameter(
+  Index: Integer): TParameterSectionEntryParameter;
 begin
   Result := FParameters[Index];
 end;
 
-function TScriptParameterEntry.GetNamedParameter(
-  const AIndex: Integer): TScriptEntryParameter;
+function TScriptModelParameterSectionEntry.GetNamedParameter(
+  const AIndex: Integer): TParameterSectionEntryParameter;
 begin
   Result := FParameters[AIndex];
-  if Result.Kind <> sepParameter then
+  if Result.Kind <> psepParameter then
     raise EScriptModelError.Create('Internal error: Parameter has no name');
 end;
 
-function TScriptParameterEntry.BreakCount: Integer;
+function TScriptModelParameterSectionEntry.BreakCount: Integer;
 begin
   Result := Integer(FBreaks.Count);
 end;
 
-function TScriptParameterEntry.GetBreakParameterIndex(Index: Integer): Integer;
+function TScriptModelParameterSectionEntry.GetBreakParameterIndex(
+  Index: Integer): Integer;
 begin
   Result := FBreaks[Index].ParameterIndex;
 end;
 
-function TScriptParameterEntry.IndexOf(const AName: String): Integer;
+function TScriptModelParameterSectionEntry.IndexOf(
+  const AName: String): Integer;
 { With duplicate parameters the first one wins }
 begin
   for var I := 0 to Count-1 do
-    if (FParameters[I].Kind = sepParameter) and SameText(FParameters[I].Name, AName) then
+    if (FParameters[I].Kind = psepParameter) and SameText(FParameters[I].Name, AName) then
       Exit(I);
   Result := -1;
 end;
 
-function TScriptParameterEntry.Has(const AName: String): Boolean;
+function TScriptModelParameterSectionEntry.Has(const AName: String): Boolean;
 begin
   Result := IndexOf(AName) >= 0;
 end;
 
-function TScriptParameterEntry.TryResolve(const AName: String;
+function TScriptModelParameterSectionEntry.TryResolve(const AName: String;
   var AIndex: Integer): Boolean;
 { Pass -1 as AIndex to look the parameter up by name }
 begin
   if AIndex < 0 then
     AIndex := IndexOf(AName);
   Result := (AIndex >= 0) and (AIndex < Count) and
-    (FParameters[AIndex].Kind = sepParameter) and
+    (FParameters[AIndex].Kind = psepParameter) and
     SameText(FParameters[AIndex].Name, AName);
 end;
 
-function TScriptParameterEntry.TryGetValue(const AName: String;
+function TScriptModelParameterSectionEntry.TryGetValue(const AName: String;
   out AValue: String): Boolean;
 begin
   const I = IndexOf(AName);
@@ -684,12 +691,12 @@ begin
     AValue := FParameters[I].Value;
 end;
 
-procedure TScriptParameterEntry.BeginUpdate;
+procedure TScriptModelParameterSectionEntry.BeginUpdate;
 begin
   Inc(FUpdateLevel);
 end;
 
-procedure TScriptParameterEntry.EndUpdate;
+procedure TScriptModelParameterSectionEntry.EndUpdate;
 begin
   Dec(FUpdateLevel);
   if (FUpdateLevel = 0) and FPendingChange then begin
@@ -699,21 +706,21 @@ begin
   end;
 end;
 
-procedure TScriptParameterEntry.MarkModified;
+procedure TScriptModelParameterSectionEntry.MarkModified;
 begin
   FModified := True;
   FPendingChange := True;
 end;
 
-procedure TScriptParameterEntry.SetValueInternal(const AIndex: Integer;
-  const AValue: String);
+procedure TScriptModelParameterSectionEntry.SetValueInternal(
+  const AIndex: Integer; const AValue: String);
 { Keeps quotes and surrounding whitespace }
 begin
   if ContainsLineBreak(AValue) then
     raise EScriptModelError.Create('Internal error: Value must not contain line breaks');
   const Parameter = GetNamedParameter(AIndex);
   const OldRawValue = Parameter.RawValue;
-  const NewValueText = QuoteScriptParameterValueIfNeeded(AValue,
+  const NewValueText = QuoteParameterValueIfNeeded(AValue,
     ScriptValueIsQuoted(OldRawValue));
   const Leading = LeadingWhitespace(OldRawValue);
   const Trailing = TrailingWhitespace(Copy(OldRawValue, Length(Leading)+1, MaxInt));
@@ -725,10 +732,10 @@ begin
   MarkModified;
 end;
 
-function TScriptParameterEntry.AppendParameterInternal(const AName,
+function TScriptModelParameterSectionEntry.AppendParameterInternal(const AName,
   AValue: String; const AQuoteNewValue: Boolean): Integer;
 
-  { See TScriptEntryParameter.SetRawText }
+  { See TParameterSectionEntryParameter.SetRawText }
   function IsValidScriptParameterName(const S: String): Boolean;
   begin
     if S = '' then
@@ -746,19 +753,19 @@ begin
   if ContainsLineBreak(AValue) then
     raise EScriptModelError.Create('Internal error: Value must not contain line breaks');
 
-  const NewValueText = QuoteScriptParameterValueIfNeeded(AValue, AQuoteNewValue);
+  const NewValueText = QuoteParameterValueIfNeeded(AValue, AQuoteNewValue);
   var RawText := AName + ': ' + NewValueText;
   if FParameters.Count > 0 then
     RawText := ' ' + RawText;
-  const Parameter = TScriptEntryParameter.Create;
+  const Parameter = TParameterSectionEntryParameter.Create;
   Parameter.SetRawText(RawText);
   FParameters.Add(Parameter);
   MarkModified;
   Result := Integer(FParameters.Count)-1;
 end;
 
-procedure TScriptParameterEntry.ApplyParameterFlagRules(const AParameterName,
-  AValue: String);
+procedure TScriptModelParameterSectionEntry.ApplyParameterFlagRules(
+  const AParameterName, AValue: String);
 begin
   { Clearing the value leaves the flag in place }
   if (FMetadata = nil) or (Trim(AValue) = '') then
@@ -768,7 +775,7 @@ begin
       SetFlagInternal(Rule.FlagParameterName, Rule.FlagName, True);
 end;
 
-procedure TScriptParameterEntry.SetValue(const AIndex: Integer;
+procedure TScriptModelParameterSectionEntry.SetValue(const AIndex: Integer;
   const AValue: String);
 begin
   BeginUpdate;
@@ -781,7 +788,8 @@ begin
   end;
 end;
 
-function TScriptParameterEntry.Add(const AName, AValue: String): Integer;
+function TScriptModelParameterSectionEntry.Add(
+  const AName, AValue: String): Integer;
 begin
   BeginUpdate;
   try
@@ -793,7 +801,7 @@ begin
   end;
 end;
 
-procedure TScriptParameterEntry.Remove(const AIndex: Integer);
+procedure TScriptModelParameterSectionEntry.Remove(const AIndex: Integer);
 begin
   GetNamedParameter(AIndex); { This is a sanity check: GetNamedParameter raises if not named }
   BeginUpdate;
@@ -827,13 +835,13 @@ begin
   Result := True;
 end;
 
-function TScriptParameterEntry.FlagIncluded(const AIndex: Integer;
+function TScriptModelParameterSectionEntry.FlagIncluded(const AIndex: Integer;
   const AFlagName: String): Boolean;
 begin
   Result := ScriptValueIncludesFlag(GetNamedParameter(AIndex).Value, AFlagName);
 end;
 
-procedure TScriptParameterEntry.ApplyFlagRules(const AParameterName,
+procedure TScriptModelParameterSectionEntry.ApplyFlagRules(const AParameterName,
   AIncludedFlagName: String);
 begin
   if FMetadata = nil then
@@ -863,8 +871,8 @@ begin
   end;
 end;
 
-procedure TScriptParameterEntry.SetFlagInternal(const AParameterName,
-  AFlagName: String; const AInclude: Boolean);
+procedure TScriptModelParameterSectionEntry.SetFlagInternal(
+  const AParameterName, AFlagName: String; const AInclude: Boolean);
 { Like the by-index overload below, but the flag-list parameter doesn't have to
   exist yet. If that is the case then including adds it and excluding is a noop }
 begin
@@ -880,8 +888,8 @@ begin
   end;
 end;
 
-procedure TScriptParameterEntry.SetFlagInternal(const AIndex: Integer;
-  const AFlagName: String; const AInclude: Boolean);
+procedure TScriptModelParameterSectionEntry.SetFlagInternal(
+  const AIndex: Integer; const AFlagName: String; const AInclude: Boolean);
 { Includes or excludes a flag in an existing flag-list parameter. Including
   also runs the flag rules, so extra other flags could be turned on or off as well. }
 begin
@@ -911,7 +919,7 @@ begin
   end;
 end;
 
-procedure TScriptParameterEntry.SetFlag(const AIndex: Integer;
+procedure TScriptModelParameterSectionEntry.SetFlag(const AIndex: Integer;
   const AFlagName: String; const AInclude: Boolean);
 begin
   BeginUpdate;
@@ -922,41 +930,42 @@ begin
   end;
 end;
 
-function TScriptParameterEntry.TryGetDefinition(const AName: String;
+function TScriptModelParameterSectionEntry.TryGetDefinition(const AName: String;
   out ADefinition: TScriptParameterDefinition): Boolean;
 begin
   Result := (FMetadata <> nil) and FMetadata.TryGetParameter(AName, ADefinition);
 end;
 
-{ TScriptDirectiveSectionLine }
+{ TDirectiveSectionLine }
 
-function TScriptDirectiveSectionLine.GetValue: String;
+function TDirectiveSectionLine.GetValue: String;
 begin
-  Result := UnquoteScriptDirectiveValue(FRawValue);
+  Result := UnquoteDirectiveValue(FRawValue);
 end;
 
-{ TScriptDirectiveSection }
+{ TScriptModelDirectiveSection }
 
-constructor TScriptDirectiveSection.Create(const AMetadata: TScriptSectionMetadata);
+constructor TScriptModelDirectiveSection.Create(
+  const AMetadata: TScriptSectionMetadata);
 begin
   inherited Create;
   FMetadata := AMetadata;
-  FLines := TObjectList<TScriptDirectiveSectionLine>.Create;
+  FLines := TObjectList<TDirectiveSectionLine>.Create;
   FQuoteNewValues := False;
 end;
 
-destructor TScriptDirectiveSection.Destroy;
+destructor TScriptModelDirectiveSection.Destroy;
 begin
   FLines.Free;
   inherited;
 end;
 
-procedure TScriptDirectiveSection.BeginUpdate;
+procedure TScriptModelDirectiveSection.BeginUpdate;
 begin
   Inc(FUpdateLevel);
 end;
 
-procedure TScriptDirectiveSection.EndUpdate;
+procedure TScriptModelDirectiveSection.EndUpdate;
 begin
   Dec(FUpdateLevel);
   if (FUpdateLevel = 0) and FPendingChange then begin
@@ -966,7 +975,7 @@ begin
   end;
 end;
 
-procedure TScriptDirectiveSection.Changed;
+procedure TScriptModelDirectiveSection.Changed;
 begin
   if FUpdateLevel > 0 then
     FPendingChange := True
@@ -974,7 +983,7 @@ begin
     FOnChange(Self);
 end;
 
-procedure TScriptDirectiveSection.Parse(const ALines: array of String);
+procedure TScriptModelDirectiveSection.Parse(const ALines: array of String);
 begin
   FLines.Clear;
   var I := 0;
@@ -983,16 +992,16 @@ begin
     var Last := I;
     while (Last < High(ALines)) and ScriptLineSpans(ALines[Last]) do
       Inc(Last);
-    const Line = TScriptDirectiveSectionLine.Create;
+    const Line = TDirectiveSectionLine.Create;
     SetLength(Line.FOriginalLines, Last-I+1);
     for var J := I to Last do
       Line.FOriginalLines[J-I] := ALines[J];
     const Joined = JoinSpannedScriptLines(Line.FOriginalLines);
-    Line.FKind := sdlOther;
+    Line.FKind := dslOther;
     if ClassifyScriptLine(Joined) = slkActual then begin
       var NameText, RawValue: String;
-      if TryParseScriptDirectiveLine(Joined, NameText, RawValue) then begin
-        Line.FKind := sdlDirective;
+      if TryParseDirectiveLine(Joined, NameText, RawValue) then begin
+        Line.FKind := dslDirective;
         Line.FNameText := NameText;
         Line.FName := Trim(NameText);
         Line.FRawValue := RawValue;
@@ -1003,7 +1012,7 @@ begin
   end;
 end;
 
-function TScriptDirectiveSection.GetLines: TArray<String>;
+function TScriptModelDirectiveSection.GetLines: TArray<String>;
 begin
   const LineList = TList<String>.Create;
   try
@@ -1019,38 +1028,39 @@ begin
   end;
 end;
 
-function TScriptDirectiveSection.Count: Integer;
+function TScriptModelDirectiveSection.Count: Integer;
 begin
   Result := Integer(FLines.Count);
 end;
 
-function TScriptDirectiveSection.GetLine(Index: Integer): TScriptDirectiveSectionLine;
+function TScriptModelDirectiveSection.GetLine(
+  Index: Integer): TDirectiveSectionLine;
 begin
   Result := FLines[Index];
 end;
 
-function TScriptDirectiveSection.IndexOf(const AName: String): Integer;
+function TScriptModelDirectiveSection.IndexOf(const AName: String): Integer;
 { With duplicate directives the last one wins. Also see
   TLiveScriptObjectFactory.TryGetSetupDirectiveValue which does the same. }
 begin
   Result := -1;
   for var I := 0 to Count-1 do
-    if (FLines[I].Kind = sdlDirective) and SameText(FLines[I].Name, AName) then
+    if (FLines[I].Kind = dslDirective) and SameText(FLines[I].Name, AName) then
       Result := I;
 end;
 
-function TScriptDirectiveSection.TryResolve(const AName: String;
+function TScriptModelDirectiveSection.TryResolve(const AName: String;
   var AIndex: Integer): Boolean;
 { Pass -1 as AIndex to look the directive up by name }
 begin
   if AIndex < 0 then
     AIndex := IndexOf(AName);
   Result := (AIndex >= 0) and (AIndex < Count) and
-    (FLines[AIndex].Kind = sdlDirective) and
+    (FLines[AIndex].Kind = dslDirective) and
     SameText(FLines[AIndex].Name, AName);
 end;
 
-function TScriptDirectiveSection.TryGetValue(const AName: String;
+function TScriptModelDirectiveSection.TryGetValue(const AName: String;
   out AValue: String): Boolean;
 begin
   const I = IndexOf(AName);
@@ -1059,15 +1069,15 @@ begin
     AValue := FLines[I].Value;
 end;
 
-function TScriptDirectiveSection.GetNamedLine(
-  const AIndex: Integer): TScriptDirectiveSectionLine;
+function TScriptModelDirectiveSection.GetNamedLine(
+  const AIndex: Integer): TDirectiveSectionLine;
 begin
   Result := FLines[AIndex];
-  if Result.Kind <> sdlDirective then
+  if Result.Kind <> dslDirective then
     raise EScriptModelError.Create('Internal error: Line is not a directive');
 end;
 
-procedure TScriptDirectiveSection.SetValue(const AIndex: Integer;
+procedure TScriptModelDirectiveSection.SetValue(const AIndex: Integer;
   const AValue: String);
 begin
   if ContainsLineBreak(AValue) then
@@ -1075,7 +1085,7 @@ begin
   const Line = GetNamedLine(AIndex);
   { Keep any whitespace between the '=' and the old value, and keep quotes }
   const NewRawValue = LeadingWhitespace(Line.FRawValue) +
-    QuoteScriptDirectiveValueIfNeeded(AValue, ScriptValueIsQuoted(Line.FRawValue));
+    QuoteDirectiveValueIfNeeded(AValue, ScriptValueIsQuoted(Line.FRawValue));
   if NewRawValue = Line.FRawValue then
     Exit;
   Line.FRawValue := NewRawValue;
@@ -1083,7 +1093,7 @@ begin
   Changed;
 end;
 
-function TScriptDirectiveSection.Add(const AName,
+function TScriptModelDirectiveSection.Add(const AName,
   AValue: String): Integer;
 begin
   { Sanity checks }
@@ -1093,19 +1103,19 @@ begin
   if ContainsLineBreak(AValue) then
     raise EScriptModelError.Create('Internal error: Value must not contain line breaks');
 
-  const Line = TScriptDirectiveSectionLine.Create;
-  Line.FKind := sdlDirective;
+  const Line = TDirectiveSectionLine.Create;
+  Line.FKind := dslDirective;
   Line.FNameText := AName;
   Line.FName := AName;
   { A newly added directive is quoted according to the section's option }
-  Line.FRawValue := QuoteScriptDirectiveValueIfNeeded(AValue,
+  Line.FRawValue := QuoteDirectiveValueIfNeeded(AValue,
     ShouldQuoteNewValue(FQuoteNewValues, FMetadata, AName));
   Line.FModified := True;
   { Insert after the last directive so trailing comments or blank lines stay
     at the end. With no directives yet, append at the end. }
   Result := Count;
   for var I := Count-1 downto 0 do
-    if FLines[I].Kind = sdlDirective then begin
+    if FLines[I].Kind = dslDirective then begin
       Result := I+1;
       Break;
     end;
@@ -1113,23 +1123,23 @@ begin
   Changed;
 end;
 
-procedure TScriptDirectiveSection.Remove(const AIndex: Integer);
+procedure TScriptModelDirectiveSection.Remove(const AIndex: Integer);
 begin
   GetNamedLine(AIndex);
   FLines.Delete(AIndex);
   Changed;
 end;
 
-function TScriptDirectiveSection.FlagIncluded(const AIndex: Integer;
+function TScriptModelDirectiveSection.FlagIncluded(const AIndex: Integer;
   const AFlagName: String): Boolean;
 begin
   Result := ScriptValueIncludesFlag(GetNamedLine(AIndex).Value, AFlagName);
 end;
 
-procedure TScriptDirectiveSection.ApplyFlagRules(const AIndex: Integer;
+procedure TScriptModelDirectiveSection.ApplyFlagRules(const AIndex: Integer;
   const AIncludedFlagName: String);
-{ Like TScriptParameterEntry.ApplyFlagRules, but a directive's rules always
-  target the directive itself, so the rules work on the same line }
+{ Like TScriptModelParameterSectionEntry.ApplyFlagRules, but a directive's rules
+  always target the directive itself, so the rules work on the same line }
 begin
   if FMetadata = nil then
     Exit;
@@ -1159,7 +1169,7 @@ begin
   end;
 end;
 
-procedure TScriptDirectiveSection.SetFlagInternal(const AIndex: Integer;
+procedure TScriptModelDirectiveSection.SetFlagInternal(const AIndex: Integer;
   const AFlagName: String; const AInclude: Boolean);
 { Includes or excludes a flag in an existing directive's value. Including also
   runs the flag rules, so other flags could be turned on or off as well. }
@@ -1189,7 +1199,7 @@ begin
   end;
 end;
 
-procedure TScriptDirectiveSection.SetFlag(const AIndex: Integer;
+procedure TScriptModelDirectiveSection.SetFlag(const AIndex: Integer;
   const AFlagName: String; const AInclude: Boolean);
 begin
   BeginUpdate;
@@ -1200,13 +1210,13 @@ begin
   end;
 end;
 
-function TScriptDirectiveSection.TryGetDefinition(const AName: String;
+function TScriptModelDirectiveSection.TryGetDefinition(const AName: String;
   out ADefinition: TScriptParameterDefinition): Boolean;
 begin
   Result := (FMetadata <> nil) and FMetadata.TryGetParameter(AName, ADefinition);
 end;
 
-function TScriptDirectiveSection.DefaultValue(const AName: String): String;
+function TScriptModelDirectiveSection.DefaultValue(const AName: String): String;
 begin
   Result := '';
   var Definition: TScriptParameterDefinition;

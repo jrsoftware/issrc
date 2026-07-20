@@ -55,9 +55,9 @@ type
     function TryGetRow(const AItem: TJvCustomInspectorItem;
       out ARow: TInspectorRow): Boolean;
     function TryGetRowParameterEntry(const ARow: TInspectorRow;
-      out AEntry: TScriptParameterEntry; out AIndex: Integer): Boolean;
+      out AEntry: TScriptModelParameterSectionEntry; out AIndex: Integer): Boolean;
     function TryGetRowDirectiveSection(const ARow: TInspectorRow;
-      out ASection: TScriptDirectiveSection; out AIndex: Integer): Boolean;
+      out ASection: TScriptModelDirectiveSection; out AIndex: Integer): Boolean;
     procedure RowGetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64);
     procedure RowGetAsString(Sender: TJvCustomInspectorItem; var Value: String);
     procedure RowSetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64);
@@ -155,13 +155,13 @@ function TInspector.ItemShouldBeBold(
     case ARow.Kind of
       irkEntryValue:
         begin
-          var Entry: TScriptParameterEntry;
+          var Entry: TScriptModelParameterSectionEntry;
           var Index: Integer;
           Result := TryGetRowParameterEntry(ARow, Entry, Index);
         end;
       irkEntryFlag:
         begin
-          var Entry: TScriptParameterEntry;
+          var Entry: TScriptModelParameterSectionEntry;
           var Index: Integer;
           Result := TryGetRowParameterEntry(ARow, Entry, Index) and
             Entry.FlagIncluded(Index, ARow.FlagName);
@@ -170,14 +170,14 @@ function TInspector.ItemShouldBeBold(
         { Without ShowAllKnownDirectives only directives which are in the
           script get a row, so bold would say nothing }
         if FShowAllKnownDirectives then begin
-          var Section: TScriptDirectiveSection;
+          var Section: TScriptModelDirectiveSection;
           var Index: Integer;
           Result := TryGetRowDirectiveSection(ARow, Section, Index);
         end;
       irkDirectiveFlag:
         { See above }
         if FShowAllKnownDirectives then begin
-          var Section: TScriptDirectiveSection;
+          var Section: TScriptModelDirectiveSection;
           var Index: Integer;
           Result := TryGetRowDirectiveSection(ARow, Section, Index) and
             Section.FlagIncluded(Index, ARow.FlagName);
@@ -191,7 +191,7 @@ begin
 end;
 
 function TInspector.TryGetRowParameterEntry(const ARow: TInspectorRow;
-  out AEntry: TScriptParameterEntry; out AIndex: Integer): Boolean;
+  out AEntry: TScriptModelParameterSectionEntry; out AIndex: Integer): Boolean;
 begin
   AEntry := nil;
   AIndex := -1;
@@ -203,7 +203,7 @@ begin
 end;
 
 function TInspector.TryGetRowDirectiveSection(const ARow: TInspectorRow;
-  out ASection: TScriptDirectiveSection; out AIndex: Integer): Boolean;
+  out ASection: TScriptModelDirectiveSection; out AIndex: Integer): Boolean;
 begin
   ASection := nil;
   AIndex := -1;
@@ -434,7 +434,7 @@ procedure TInspector.UpdateFromCaret;
     const Entry = FLiveEntry.Entry;
     var Found := False;
     for var I := 0 to Entry.Count-1 do begin
-      if (Entry.Parameters[I].Kind = sepParameter) and
+      if (Entry.Parameters[I].Kind = psepParameter) and
          SameText(Entry.Parameters[I].Name, ADefinition.Name) then begin
         AddParameterRow(AParent, ADefinition, I);
         Found := True;
@@ -513,7 +513,7 @@ procedure TInspector.UpdateFromCaret;
     { Present but unknown parameters }
     for var I := 0 to Entry.Count-1 do begin
       const Parameter = Entry.Parameters[I];
-      if Parameter.Kind = sepParameter then begin
+      if Parameter.Kind = psepParameter then begin
         var Definition: TScriptParameterDefinition;
         if not Entry.TryGetDefinition(Parameter.Name, Definition) then
           AddEntryValueRow(FJvInspector.Root, Parameter.Name, I);
@@ -556,7 +556,7 @@ procedure TInspector.UpdateFromCaret;
         for var Definition in Section.Metadata.Parameters do begin
           var Found := False;
           for var I := 0 to Section.Count-1 do begin
-            if (Section.Lines[I].Kind = sdlDirective) and
+            if (Section.Lines[I].Kind = dslDirective) and
                SameText(Section.Lines[I].Name, Definition.Name) then begin
               DirectivesToShow.Add(MakeDirectiveRow(Section.Lines[I].Name, I));
               LineWillBeShown[I] := True;
@@ -574,7 +574,7 @@ procedure TInspector.UpdateFromCaret;
 
       { The remaining directives, in script order }
       for var I := 0 to Section.Count-1 do begin
-        if (Section.Lines[I].Kind = sdlDirective) and not LineWillBeShown[I] then
+        if (Section.Lines[I].Kind = dslDirective) and not LineWillBeShown[I] then
           DirectivesToShow.Add(MakeDirectiveRow(Section.Lines[I].Name, I));
       end;
 
@@ -717,7 +717,7 @@ begin
     RowSetSignature := 'E|' + SectionName;
     for var I := 0 to FLiveEntry.Entry.Count-1 do begin
       const Parameter = FLiveEntry.Entry.Parameters[I];
-      if Parameter.Kind = sepParameter then
+      if Parameter.Kind = psepParameter then
         RowSetSignature := RowSetSignature + '|' + IntToStr(I) + ':' + Parameter.Name;
     end;
   end else begin
@@ -752,7 +752,7 @@ begin
         IntToStr(Ord(FShowAllKnownDirectives)) + '|' + Header.Name;
       const Model = FLiveDirectiveSection.Section;
       for var I := 0 to Model.Count-1 do begin
-        if Model.Lines[I].Kind = sdlDirective then begin
+        if Model.Lines[I].Kind = dslDirective then begin
           RowSetSignature := RowSetSignature + '|' + IntToStr(I) + ':' + Model.Lines[I].Name;
           { Put AddDirectiveRow's decision into the structure }
           var Definition: TScriptParameterDefinition;
@@ -810,7 +810,7 @@ begin
   case Row.Kind of
     irkEntryFlag:
       begin
-        var Entry: TScriptParameterEntry;
+        var Entry: TScriptModelParameterSectionEntry;
         var Index: Integer;
         if TryGetRowParameterEntry(Row, Entry, Index) and
            Entry.FlagIncluded(Index, Row.FlagName) then
@@ -818,7 +818,7 @@ begin
       end;
     irkDirective:
       begin
-        var Section: TScriptDirectiveSection;
+        var Section: TScriptModelDirectiveSection;
         var Index: Integer;
         if TryGetRowDirectiveSection(Row, Section, Index) then begin
           var BoolValue := False;
@@ -830,7 +830,7 @@ begin
       end;
     irkDirectiveFlag:
       begin
-        var Section: TScriptDirectiveSection;
+        var Section: TScriptModelDirectiveSection;
         var Index: Integer;
         if TryGetRowDirectiveSection(Row, Section, Index) then begin
           if Section.FlagIncluded(Index, Row.FlagName) then
@@ -852,7 +852,7 @@ begin
   case Row.Kind of
     irkEntryValue:
       begin
-        var Entry: TScriptParameterEntry;
+        var Entry: TScriptModelParameterSectionEntry;
         var Index: Integer;
         if TryGetRowParameterEntry(Row, Entry, Index) then
           Value := Entry.Parameters[Index].Value;
@@ -860,7 +860,7 @@ begin
       end;
     irkDirective:
       begin
-        var Section: TScriptDirectiveSection;
+        var Section: TScriptModelDirectiveSection;
         var Index: Integer;
         if TryGetRowDirectiveSection(Row, Section, Index) then
           Value := Section.Lines[Index].Value
@@ -898,7 +898,7 @@ begin
     case Row.Kind of
       irkEntryFlag:
         begin
-          var Entry: TScriptParameterEntry;
+          var Entry: TScriptModelParameterSectionEntry;
           var Index: Integer;
           if TryGetRowParameterEntry(Row, Entry, Index) then
             Entry.SetFlag(Index, Row.FlagName, Value <> 0) { May adjust related flags as well }
@@ -914,7 +914,7 @@ begin
         end;
       irkDirective:
         begin
-          var Section: TScriptDirectiveSection;
+          var Section: TScriptModelDirectiveSection;
           var Index: Integer;
           var NewValue := SNo;
           if Value <> 0 then
@@ -927,7 +927,7 @@ begin
         end;
       irkDirectiveFlag:
         begin
-          var Section: TScriptDirectiveSection;
+          var Section: TScriptModelDirectiveSection;
           var Index: Integer;
           if TryGetRowDirectiveSection(Row, Section, Index) then
             Section.SetFlag(Index, Row.FlagName, Value <> 0) { May adjust related flags as well }
@@ -980,7 +980,7 @@ begin
     case Row.Kind of
       irkEntryValue:
         begin
-          var Entry: TScriptParameterEntry;
+          var Entry: TScriptModelParameterSectionEntry;
           var Index: Integer;
           const Found = TryGetRowParameterEntry(Row, Entry, Index);
           if Entry <> nil then begin
@@ -995,7 +995,7 @@ begin
         end;
       irkDirective:
         begin
-          var Section: TScriptDirectiveSection;
+          var Section: TScriptModelDirectiveSection;
           var Index: Integer;
           const Found = TryGetRowDirectiveSection(Row, Section, Index);
           if Section <> nil then begin

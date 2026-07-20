@@ -52,7 +52,7 @@ type
   { An entry of a parameter section }
   TLiveScriptEntry = class(TLiveScriptObject)
   private
-    FEntry: TScriptParameterEntry;
+    FEntry: TScriptModelParameterSectionEntry;
     FSection: TInnoSetupStylerSection;
     FCreatedFromBlankLine: Boolean;
     constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
@@ -62,21 +62,21 @@ type
     procedure EntryChange(Sender: TObject);
   public
     destructor Destroy; override;
-    property Entry: TScriptParameterEntry read FEntry;
+    property Entry: TScriptModelParameterSectionEntry read FEntry;
     property Section: TInnoSetupStylerSection read FSection;
   end;
 
   { A single occurrence of a directive-style section }
   TLiveScriptDirectiveSection = class(TLiveScriptObject)
   private
-    FSection: TScriptDirectiveSection;
+    FSection: TScriptModelDirectiveSection;
     constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
       ALastLine: Integer; const AMetadata: TScriptSectionMetadata;
       const ALines: TArray<String>);
     procedure SectionChange(Sender: TObject);
   public
     destructor Destroy; override;
-    property Section: TScriptDirectiveSection read FSection;
+    property Section: TScriptModelDirectiveSection read FSection;
   end;
 
   TLiveScriptObjectFactory = class
@@ -184,7 +184,7 @@ begin
   inherited Create(AFactory, AFirstLine, ALastLine);
   FSection := ASection;
   FCreatedFromBlankLine := ACreatedFromBlankLine;
-  FEntry := TScriptParameterEntry.Create(AMetadata);
+  FEntry := TScriptModelParameterSectionEntry.Create(AMetadata);
   FEntry.Parse(ALines);
   FEntry.OnChange := EntryChange;
 end;
@@ -210,7 +210,7 @@ constructor TLiveScriptDirectiveSection.Create(const AFactory: TLiveScriptObject
   const ALines: TArray<String>);
 begin
   inherited Create(AFactory, AFirstLine, ALastLine);
-  FSection := TScriptDirectiveSection.Create(AMetadata);
+  FSection := TScriptModelDirectiveSection.Create(AMetadata);
   FSection.Parse(ALines);
   FSection.OnChange := SectionChange;
 end;
@@ -580,7 +580,7 @@ begin
       var FirstLine, LastLine: Integer;
       GetSectionLines(I, FirstLine, LastLine);
       if LastLine >= FirstLine then begin
-        const Section = TScriptDirectiveSection.Create(nil); { Just reading, metadata not needed }
+        const Section = TScriptModelDirectiveSection.Create(nil); { Just reading, metadata not needed }
         try
           Section.Parse(GetLinesText(FirstLine, LastLine));
           var Value: String;

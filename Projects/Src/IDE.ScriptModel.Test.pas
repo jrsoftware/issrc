@@ -65,44 +65,44 @@ begin
   Assert(JoinSpannedScriptLines(['A=1 \', ' 2 \', ' 3']) = 'A=1 2 3');
 
   { Quoting helpers }
-  Assert(UnquoteScriptParameterValue(' "a""b" ') = 'a"b');
-  Assert(UnquoteScriptParameterValue('x') = 'x');
-  Assert(UnquoteScriptParameterValue('"x') = '"x'); { No closing quote }
-  Assert(QuoteScriptParameterValueIfNeeded('x y') = 'x y');
-  Assert(QuoteScriptParameterValueIfNeeded('a;b') = '"a;b"');
-  Assert(QuoteScriptParameterValueIfNeeded('a"b') = '"a""b"');
-  Assert(QuoteScriptParameterValueIfNeeded(' x') = '" x"');
-  Assert(QuoteScriptParameterValueIfNeeded('') = '');
+  Assert(UnquoteParameterValue(' "a""b" ') = 'a"b');
+  Assert(UnquoteParameterValue('x') = 'x');
+  Assert(UnquoteParameterValue('"x') = '"x'); { No closing quote }
+  Assert(QuoteParameterValueIfNeeded('x y') = 'x y');
+  Assert(QuoteParameterValueIfNeeded('a;b') = '"a;b"');
+  Assert(QuoteParameterValueIfNeeded('a"b') = '"a""b"');
+  Assert(QuoteParameterValueIfNeeded(' x') = '" x"');
+  Assert(QuoteParameterValueIfNeeded('') = '');
   { A value ending in whitespace + '\' is quoted so the written line is not
     read back as an ISPP line continuation; one ending in '\' with no preceding
     whitespace needs no quoting. A value of just '\' is quoted too: the
     separator written before the value ends in whitespace }
-  Assert(QuoteScriptParameterValueIfNeeded('a \') = '"a \"');
-  Assert(QuoteScriptParameterValueIfNeeded('a\') = 'a\');
-  Assert(QuoteScriptParameterValueIfNeeded('\') = '"\"');
+  Assert(QuoteParameterValueIfNeeded('a \') = '"a \"');
+  Assert(QuoteParameterValueIfNeeded('a\') = 'a\');
+  Assert(QuoteParameterValueIfNeeded('\') = '"\"');
   { Forced quoting still doubles embedded quotes }
-  Assert(QuoteScriptParameterValueIfNeeded('x y', True) = '"x y"');
-  Assert(QuoteScriptParameterValueIfNeeded('a"b', True) = '"a""b"');
+  Assert(QuoteParameterValueIfNeeded('x y', True) = '"x y"');
+  Assert(QuoteParameterValueIfNeeded('a"b', True) = '"a""b"');
 
   { Directive line helpers }
   var NameText, RawValue: String;
-  Assert(TryParseScriptDirectiveLine('AppName = Foo', NameText, RawValue));
+  Assert(TryParseDirectiveLine('AppName = Foo', NameText, RawValue));
   Assert((NameText = 'AppName ') and (RawValue = ' Foo'));
-  Assert(not TryParseScriptDirectiveLine('No directive here', NameText, RawValue));
-  Assert(not TryParseScriptDirectiveLine(' = Foo', NameText, RawValue));
-  Assert(UnquoteScriptDirectiveValue(' "My ""quoted"" App" ') = 'My ""quoted"" App');
+  Assert(not TryParseDirectiveLine('No directive here', NameText, RawValue));
+  Assert(not TryParseDirectiveLine(' = Foo', NameText, RawValue));
+  Assert(UnquoteDirectiveValue(' "My ""quoted"" App" ') = 'My ""quoted"" App');
 end;
 
 procedure TestEntryParseAndSerialize;
 begin
   const Counter = TChangeCounter.Create;
-  const Entry = TScriptParameterEntry.Create(nil);
+  const Entry = TScriptModelParameterSectionEntry.Create(nil);
   try
     { Basic parse of known and unknown parameters }
     Entry.Parse(['Source: "My Prog.exe"; DestDir: "{app}"; Flags: ignoreversion']);
     Assert(Entry.Count = 3);
     Assert(Entry.Parameters[0].Name = 'Source');
-    Assert(Entry.Parameters[0].Kind = sepParameter);
+    Assert(Entry.Parameters[0].Kind = psepParameter);
     Assert(Entry.Parameters[0].Value = 'My Prog.exe');
     var Value: String;
     Assert(Entry.TryGetValue('destdir', Value) and (Value = '{app}')); { Case-insensitive }
@@ -126,7 +126,7 @@ begin
     Assert(Entry.TryGetValue('DestName', Value) and (Value = ''));
     Assert(Entry.TryGetValue('Foo', Value) and (Value = '1'));
     Assert(Entry.Count = 3);
-    Assert(Entry.Parameters[2].Kind = sepOther);
+    Assert(Entry.Parameters[2].Kind = psepOther);
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'DestName: ; Foo: 1;');
 
@@ -140,7 +140,7 @@ begin
     { Garbage input is kept as opaque raw text }
     Entry.Parse(['%$#@!']);
     Assert(Entry.Count = 1);
-    Assert(Entry.Parameters[0].Kind = sepOther);
+    Assert(Entry.Parameters[0].Kind = psepOther);
     Lines := Entry.GetLines;
     Assert(Lines[0] = '%$#@!');
 
@@ -301,7 +301,7 @@ end;
 
 procedure TestEntryFlags;
 begin
-  const Entry = TScriptParameterEntry.Create(nil);
+  const Entry = TScriptModelParameterSectionEntry.Create(nil);
   try
     { Toggling a known flag amid unknown ones only edits that token }
     Entry.Parse(['Flags: foo ignoreversion bar']);
@@ -405,7 +405,7 @@ begin
   Assert(not TryGetScriptSectionMetadata('Code', Metadata));
   Assert(TryGetScriptSectionMetadata('Files', Metadata));
 
-  const Entry = TScriptParameterEntry.Create(Metadata);
+  const Entry = TScriptModelParameterSectionEntry.Create(Metadata);
   try
     Entry.Parse(['Source: a; ExternalSize: 1_048_576; Unknown: u']);
 
@@ -566,7 +566,7 @@ begin
   end;
 
   { The section model exposes the definitions like the entry model does }
-  const Section = TScriptDirectiveSection.Create(Metadata);
+  const Section = TScriptModelDirectiveSection.Create(Metadata);
   try
     Assert(Section.Metadata = Metadata);
     Assert(Section.TryGetDefinition('solidcompression', Definition)); { Case-insensitive }
@@ -586,7 +586,7 @@ begin
   finally
     Section.Free;
   end;
-  const SectionWithoutMetadata = TScriptDirectiveSection.Create(nil);
+  const SectionWithoutMetadata = TScriptModelDirectiveSection.Create(nil);
   try
     Assert(SectionWithoutMetadata.Metadata = nil);
     Assert(not SectionWithoutMetadata.TryGetDefinition('AppName', Definition));
@@ -640,7 +640,7 @@ begin
 
   { [Registry] value types differ from [Files]: Root/ValueType/ValueData }
   Assert(TryGetScriptSectionMetadata('Registry', Metadata));
-  const RegistryEntry = TScriptParameterEntry.Create(Metadata);
+  const RegistryEntry = TScriptModelParameterSectionEntry.Create(Metadata);
   try
     RegistryEntry.Parse(['Root: HKA; Subkey: "Software\My Company"; ' +
       'ValueType: string; ValueName: "Path"; ValueData: "{app}"; ' +
@@ -669,7 +669,7 @@ begin
 
   { [Run] flags }
   Assert(TryGetScriptSectionMetadata('Run', Metadata));
-  const RunEntry = TScriptParameterEntry.Create(Metadata);
+  const RunEntry = TScriptModelParameterSectionEntry.Create(Metadata);
   try
     RunEntry.Parse(['Filename: "{app}\MyProg.exe"; Flags: nowait postinstall skipifsilent']);
     Assert(RunEntry.FlagIncluded(1, 'postinstall'));
@@ -887,7 +887,7 @@ begin
   Assert(TryGetScriptSectionMetadata('Files', Metadata));
 
   const Counter = TChangeCounter.Create;
-  var Entry := TScriptParameterEntry.Create(Metadata);
+  var Entry := TScriptModelParameterSectionEntry.Create(Metadata);
   try
     { Checking extractarchive also checks external and ignoreversion, in one
       change notification, with unknown tokens preserved }
@@ -965,7 +965,7 @@ begin
       checks shellexec and setting OnLog checks logoutput, each in one change }
     Assert(TryGetScriptSectionMetadata('Run', Metadata));
     Entry.Free;
-    Entry := TScriptParameterEntry.Create(Metadata);
+    Entry := TScriptModelParameterSectionEntry.Create(Metadata);
     Entry.Parse(['Filename: a']);
     Entry.OnChange := Counter.HandleChange;
     Counter.Count := 0;
@@ -989,7 +989,7 @@ begin
     { The rule is section-scoped: UninstallRun has the Verb rule but not OnLog }
     Assert(TryGetScriptSectionMetadata('UninstallRun', Metadata));
     Entry.Free;
-    Entry := TScriptParameterEntry.Create(Metadata);
+    Entry := TScriptModelParameterSectionEntry.Create(Metadata);
     Entry.Parse(['Filename: a']);
     Entry.Add('Verb', 'open');
     Assert(Entry.FlagIncluded(2, 'shellexec'));
@@ -998,7 +998,7 @@ begin
 
     { Without metadata there are no rules }
     Entry.Free;
-    Entry := TScriptParameterEntry.Create(nil);
+    Entry := TScriptModelParameterSectionEntry.Create(nil);
     Entry.Parse(['Source: a']);
     Entry.SetFlag(Entry.Add('Flags', ''), 'extractarchive', True);
     Assert(Entry.FlagIncluded(1, 'extractarchive'));
@@ -1015,7 +1015,7 @@ begin
   Assert(TryGetScriptSectionMetadata('Files', Metadata));
 
   const Counter = TChangeCounter.Create;
-  var Entry := TScriptParameterEntry.Create(Metadata);
+  var Entry := TScriptModelParameterSectionEntry.Create(Metadata);
   try
     { Checking signonce unchecks sign, in one change notification, with
       unknown tokens preserved }
@@ -1072,7 +1072,7 @@ begin
       bitness flags exclude each other }
     Assert(TryGetScriptSectionMetadata('Run', Metadata));
     Entry.Free;
-    Entry := TScriptParameterEntry.Create(Metadata);
+    Entry := TScriptModelParameterSectionEntry.Create(Metadata);
     Entry.Parse(['Filename: a; Flags: nowait']);
     Entry.SetFlag(1, 'waituntilterminated', True);
     Assert(Entry.FlagIncluded(1, 'waituntilterminated'));
@@ -1093,7 +1093,7 @@ begin
       deleteafterinstall rule but not the rule, so both stay checked }
     Assert(TryGetScriptSectionMetadata('Dirs', Metadata));
     Entry.Free;
-    Entry := TScriptParameterEntry.Create(Metadata);
+    Entry := TScriptModelParameterSectionEntry.Create(Metadata);
     Entry.Parse(['Name: x; Flags: uninsneveruninstall']);
     Entry.SetFlag(1, 'deleteafterinstall', True);
     Assert(Entry.FlagIncluded(1, 'deleteafterinstall'));
@@ -1101,7 +1101,7 @@ begin
 
     { Without metadata there are no rules }
     Entry.Free;
-    Entry := TScriptParameterEntry.Create(nil);
+    Entry := TScriptModelParameterSectionEntry.Create(nil);
     Entry.Parse(['Source: a; Flags: sign']);
     Entry.SetFlag(1, 'signonce', True);
     Assert(Entry.FlagIncluded(1, 'sign'));
@@ -1115,7 +1115,7 @@ end;
 procedure TestDirectiveSection;
 begin
   const Counter = TChangeCounter.Create;
-  const Section = TScriptDirectiveSection.Create(nil);
+  const Section = TScriptModelDirectiveSection.Create(nil);
   try
     { Duplicates are both kept; the value scan returns the last occurrence;
       unknown directives, comments, blank lines and ISPP lines are opaque }
@@ -1127,14 +1127,14 @@ begin
       'Unknown=1',
       '#define X 1']);
     Assert(Section.Count = 6);
-    Assert(Section.Lines[0].Kind = sdlOther);
-    Assert(Section.Lines[1].Kind = sdlDirective);
+    Assert(Section.Lines[0].Kind = dslOther);
+    Assert(Section.Lines[1].Kind = dslDirective);
     Assert(Section.Lines[1].Name = 'AppName');
-    Assert(Section.Lines[2].Kind = sdlOther);
-    Assert(Section.Lines[3].Kind = sdlDirective);
+    Assert(Section.Lines[2].Kind = dslOther);
+    Assert(Section.Lines[3].Kind = dslDirective);
     Assert(Section.Lines[3].Value = 'Bar');
-    Assert(Section.Lines[4].Kind = sdlDirective);
-    Assert(Section.Lines[5].Kind = sdlOther);
+    Assert(Section.Lines[4].Kind = dslDirective);
+    Assert(Section.Lines[5].Kind = dslOther);
     var Value: String;
     Assert(Section.TryGetValue('appname', Value));
     Assert(Value = 'Bar'); { Last occurrence }
@@ -1327,7 +1327,7 @@ end;
 procedure TestDirectiveSectionFlags;
 begin
   const Counter = TChangeCounter.Create;
-  var Section := TScriptDirectiveSection.Create(nil);
+  var Section := TScriptModelDirectiveSection.Create(nil);
   try
     { Toggling a flag amid unknown ones only edits that token }
     Section.Parse(['WizardStyle=foo modern bar']);
@@ -1401,7 +1401,7 @@ begin
     var Metadata: TScriptSectionMetadata;
     Assert(TryGetScriptSectionMetadata('Setup', Metadata));
     Section.Free;
-    Section := TScriptDirectiveSection.Create(Metadata);
+    Section := TScriptModelDirectiveSection.Create(Metadata);
     Section.Parse(['WizardStyle=classic light excludelightbuttons polar']);
     Section.OnChange := Counter.HandleChange;
     Counter.Count := 0;
@@ -1459,7 +1459,7 @@ end;
 
 procedure TestEntrySpanning;
 begin
-  const Entry = TScriptParameterEntry.Create(nil);
+  const Entry = TScriptModelParameterSectionEntry.Create(nil);
   try
     { A spanned entry parses from its physical lines and remembers the break
       at parameter granularity }
@@ -1576,11 +1576,11 @@ begin
 
   { A spanned directive line is joined for parsing and collapses to one
     physical line when edited }
-  const Section = TScriptDirectiveSection.Create(nil);
+  const Section = TScriptModelDirectiveSection.Create(nil);
   try
     Section.Parse(['AppName=Foo \', 'Bar']);
     Assert(Section.Count = 1);
-    Assert(Section.Lines[0].Kind = sdlDirective);
+    Assert(Section.Lines[0].Kind = dslDirective);
     Assert(Section.Lines[0].Value = 'Foo Bar');
     var Lines := Section.GetLines;
     Assert(Length(Lines) = 2);
