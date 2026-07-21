@@ -1735,13 +1735,15 @@ begin
           if Msg.Msg <> WM_CHAR then
             DoDropDownKeys(TWMKeyDown(Msg).CharCode, KeyDataToShiftState(TWMKeyDown(Msg).KeyData));
           if (Msg.Msg = WM_CHAR) or (TWMKeyDown(Msg).CharCode <> 0) then begin
-            if DroppedDown then
+            if DroppedDown and ((Msg.Msg = WM_CHAR) or
+               (TWMKeyDown(Msg).CharCode in [VK_UP, VK_DOWN, VK_PRIOR, VK_NEXT])) then
               SendMessage(ListBox.Handle, Msg.Msg, Msg.WParam, Msg.LParam);
-            // Only Up/Down navigate the value list; any other key the
-            // drop-down logic did not consume keeps its normal meaning, such
-            // as Alt+F4
+            // Only Up/Down/PgUp/PgDn navigate the value list and only WM_CHAR
+            // feeds its type-search; caret keys just move the edit's caret,
+            // and any other key the drop-down logic did not consume keeps its
+            // normal meaning, such as Alt+F4
             if (Msg.Msg = WM_KEYDOWN) and
-              (TWMKeyDown(Msg).CharCode in [VK_UP, VK_DOWN]) then
+              (TWMKeyDown(Msg).CharCode in [VK_UP, VK_DOWN, VK_PRIOR, VK_NEXT]) then
               ExecInherited := False;
           end;
         end;
