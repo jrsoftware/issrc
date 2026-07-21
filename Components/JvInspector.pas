@@ -630,6 +630,37 @@ begin
       VK_SUBTRACT:
         if (Item <> nil) and Item.Expanded then
           Item.Expanded := False;
+      VK_RIGHT:
+        if (Item <> nil) and (Item.Count > 0) then
+        begin
+          if not Item.Expanded then
+            Item.Expanded := True
+          else
+            SelectedIndex := SelectedIndex + 1;
+        end;
+      VK_LEFT:
+        if Item <> nil then
+        begin
+          if Item.Expanded then
+            Item.Expanded := False
+          else
+          begin
+            const ParentIndex = Integer(FVisibleList.IndexOf(Item.Parent));
+            if ParentIndex >= 0 then
+              SelectedIndex := ParentIndex;
+          end;
+        end;
+      VK_RETURN, VK_SPACE:
+        if (Item <> nil) and not Item.Editing then
+        begin
+          if (Item.Count > 0) and not Item.Expanded then
+            Item.Expanded := True
+          else
+          if Item.Expanded then
+            Item.Expanded := False;
+        end
+        else
+          IgnoreKey := False;
     else
       IgnoreKey := False;
     end;
