@@ -1618,10 +1618,16 @@ begin
     processing. In Delphi 5+, however, this happens even when a TFindDialog
     is active, causing Ctrl+V/Esc/etc. to be intercepted by the main form.
     Work around this by always returning False when not Active. }
-  if Active then
-    Result := inherited IsShortCut(Message)
-  else
-    Result := False;
+  if not Active then
+    Exit(False);
+
+  { The inspector handles F4 itself, except Alt+F4 }
+  if (Message.CharCode = VK_F4) and
+     not (ssAlt in KeyDataToShiftState(Message.KeyData)) and
+     InspectorPanel.Visible and InspectorPanel.ContainsControl(ActiveControl) then
+    Exit(False);
+
+  Result := inherited;
 end;
 
 procedure TMainForm.FinishLocalization;

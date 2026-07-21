@@ -3819,7 +3819,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Discard changes to the value being edited</td><td>Esc</td>
 </tr>
 <tr>
-  <td>Open or close the drop-down list of a choice value</td><td>Alt+Down, Alt+Up, or click the drop-down button</td>
+  <td>Open or close the drop-down list of a choice value</td><td>F4, Alt+Down, Alt+Up, or click the drop-down button</td>
 </tr>
 <tr>
   <td>Change to the next value in the list</td><td>Ctrl+Down, Ctrl+Enter, or DoubleClick the value</td>

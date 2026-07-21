@@ -1526,8 +1526,9 @@ end;
 procedure TJvCustomInspectorItem.DoDropDownKeys(var Key: Word; Shift: TShiftState);
 begin
   case Key of
-    VK_UP, VK_DOWN:
-      if ssAlt in Shift then
+    VK_UP, VK_DOWN, VK_F4:
+      { Up and Down toggle the dropdown with Alt, F4 without }
+      if (ssAlt in Shift) xor (Key = VK_F4) then
       begin
         if DroppedDown then
           CloseUp(True)
