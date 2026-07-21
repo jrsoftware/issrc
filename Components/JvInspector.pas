@@ -403,32 +403,26 @@ var
 begin
   Result := False;
   if StyleServices.Enabled and (uType = DFC_SCROLL) and
-     ((uState and Mask) = DFCS_SCROLLCOMBOBOX) then
-  begin
+     ((uState and Mask) = DFCS_SCROLLCOMBOBOX) then begin
     R := Rect;
     if uState and DFCS_INACTIVE <> 0 then
       ComboBox := tcDropDownButtonDisabled
-    else
-    if uState and DFCS_PUSHED <> 0 then
+    else if uState and DFCS_PUSHED <> 0 then
       ComboBox := tcDropDownButtonPressed
     else
       ComboBox := tcDropDownButtonNormal;
 
     DrawElementPreservingDCState(DC, StyleServices.GetElementDetails(ComboBox), R, DPI);
     Result := True;
-  end
-  else
-  if StyleServices.Enabled and (uType = DFC_BUTTON) and
-     ((uState and Mask) = DFCS_BUTTONCHECK) then
-  begin
+  end else if StyleServices.Enabled and (uType = DFC_BUTTON) and
+     ((uState and Mask) = DFCS_BUTTONCHECK) then begin
     R := Rect;
     if uState and DFCS_CHECKED <> 0 then
       if uState and DFCS_PUSHED <> 0 then
         Btn := tbCheckBoxCheckedPressed
       else
         Btn := tbCheckBoxCheckedNormal
-    else
-    if uState and DFCS_PUSHED <> 0 then
+    else if uState and DFCS_PUSHED <> 0 then
       Btn := tbCheckBoxUncheckedPressed
     else
       Btn := tbCheckBoxUncheckedNormal;
@@ -487,8 +481,7 @@ function TJvInspector.CalcItemIndex(const Y: Integer): Integer;
 begin
   if Y < 0 then
     Result := -1
-  else
-  begin
+  else begin
     Result := TopIndex + Y div GetItemHeight;
     if Result >= GetVisibleCount then
       Result := -1;
@@ -566,17 +559,13 @@ end;
 
 procedure TJvInspector.InvalidateList;
 begin
-  if not (csDestroying in ComponentState) and (LockCount = 0) then
-  begin
-    if HandleAllocated then
-    begin
+  if not (csDestroying in ComponentState) and (LockCount = 0) then begin
+    if HandleAllocated then begin
       RebuildVisible;
       UpdateScrollBars;
-    end
-    else
+    end else
       NeedRebuild := True;
-  end
-  else
+  end else
     NeedRebuild := True;
 end;
 
@@ -587,8 +576,7 @@ var
   TmpIdx: Integer;
 begin
   Item := Selected;
-  if Shift = [] then
-  begin
+  if Shift = [] then begin
     IgnoreKey := True;
     case Key of
       VK_UP:
@@ -601,9 +589,7 @@ begin
         begin
           if SelectedIndex > TopIndex then
             SelectedIndex := TopIndex
-          else
-          if SelectedIndex > 0 then
-          begin
+          else if SelectedIndex > 0 then begin
             TmpIdx := YToIdx(IdxToY(SelectedIndex) + GetItemHeight - ClientHeight);
             if TmpIdx < 0 then
               TmpIdx := 0;
@@ -615,9 +601,7 @@ begin
           TmpIdx := GetLastFullVisible;
           if SelectedIndex < TmpIdx then
             SelectedIndex := TmpIdx
-          else
-          if SelectedIndex < Pred(GetVisibleCount) then
-          begin
+          else if SelectedIndex < Pred(GetVisibleCount) then begin
             TmpIdx := YToIdx(IdxToY(SelectedIndex) + GetItemHeight + ClientHeight);
             if TmpIdx < 0 then
               TmpIdx := Pred(GetVisibleCount);
@@ -631,49 +615,41 @@ begin
         if (Item <> nil) and Item.Expanded then
           Item.Expanded := False;
       VK_RIGHT:
-        if (Item <> nil) and (Item.Count > 0) then
-        begin
+        if (Item <> nil) and (Item.Count > 0) then begin
           if not Item.Expanded then
             Item.Expanded := True
           else
             SelectedIndex := SelectedIndex + 1;
         end;
       VK_LEFT:
-        if Item <> nil then
-        begin
+        if Item <> nil then begin
           if Item.Expanded then
             Item.Expanded := False
-          else
-          begin
+          else begin
             const ParentIndex = Integer(FVisibleList.IndexOf(Item.Parent));
             if ParentIndex >= 0 then
               SelectedIndex := ParentIndex;
           end;
         end;
       VK_RETURN, VK_SPACE:
-        if (Item <> nil) and not Item.Editing then
-        begin
+        if (Item <> nil) and not Item.Editing then begin
           if (Item.Count > 0) and not Item.Expanded then
             Item.Expanded := True
-          else
-          if Item.Expanded then
+          else if Item.Expanded then
             Item.Expanded := False;
-        end
-        else
+        end else
           IgnoreKey := False;
     else
       IgnoreKey := False;
     end;
-    if IgnoreKey then
-    begin
+    if IgnoreKey then begin
       Key := 0;
       SendMessage(Handle, WM_CHANGEUISTATE, UIS_CLEAR or (UISF_HIDEFOCUS shl 16), 0);
     end;
   end;
   inherited;
   Item := Selected;
-  if (Item <> nil) and Item.Editing then
-  begin
+  if (Item <> nil) and Item.Editing then begin
     Item.ScrollInView;
     Item.EditKeyDown(Self, Key, Shift);
   end;
@@ -698,28 +674,23 @@ begin
   Item := GetVisibleItems(ItemIndex);
   if not Focused and ((Item = nil) or (not Item.Editing)) then
     SetFocus
-  else
-  if (Item <> nil) and Item.Editing then
+  else if (Item <> nil) and Item.Editing then
     Item.SetFocus;
-  if Button = mbLeft then
-  begin
+  if Button = mbLeft then begin
     // Check divider dragging
     if (X >= Pred(Divider)) and (X <= Succ(Divider)) then
       DraggingDivider := True
     // Check selecting
-    else
-    if (Item <> nil) and (ItemIndex <> SelectedIndex) then
+    else if (Item <> nil) and (ItemIndex <> SelectedIndex) then
       SelectedIndex := ItemIndex;
     if (Item <> nil) and
-      ((Item.Count > 0) or (iifExpanded in Item.Flags)) then
-    begin
+      ((Item.Count > 0) or (iifExpanded in Item.Flags)) then begin
       if PtInRect(Item.Rects[iprBtnDstRect], Point(X, Y)) or
         ((ssDouble in Shift) and (Item.IsCategory or (X < Pred(Divider)))) then
         Item.Expanded := not Item.Expanded;
     end;
     if (Item <> nil) and (PtInRect(Item.Rects[iprNameArea], Point(X, Y)) or
-      PtInRect(Item.Rects[iprValueArea], Point(X, Y))) then
-    begin
+      PtInRect(Item.Rects[iprValueArea], Point(X, Y))) then begin
       FPressedItem := Item;
       Item.MouseDown(Button, Shift, X, Y);
     end;
@@ -735,8 +706,7 @@ begin
     if not (ssDouble in Shift) and not DraggingDivider and
       (Item <> nil) and Item.Editing and (Item.EditCtrl <> nil) and
       Item.EditCtrl.HandleAllocated and Item.EditCtrl.CanFocus and
-      PtInRect(Item.Rects[iprEditValue], Point(X, Y)) then
-    begin
+      PtInRect(Item.Rects[iprEditValue], Point(X, Y)) then begin
       FPressedItem := nil;
       ControlState := ControlState - [csLButtonDown, csClicked];
       MouseCapture := False;
@@ -753,11 +723,9 @@ begin
   inherited;
   if DraggingDivider then
     Divider := X
-  else
-  if (X >= Pred(Divider)) and (X <= Succ(Divider)) then
+  else if (X >= Pred(Divider)) and (X <= Succ(Divider)) then
     Cursor := crHSplit
-  else
-  begin
+  else begin
     Cursor := crDefault;
     if FPressedItem <> nil then
       FPressedItem.MouseMove(Shift, X, Y);
@@ -767,12 +735,10 @@ end;
 procedure TJvInspector.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
-  if Button = mbLeft then
-  begin
+  if Button = mbLeft then begin
     if DraggingDivider then
       DraggingDivider := False;
-    if FPressedItem <> nil then
-    begin
+    if FPressedItem <> nil then begin
       const Item = FPressedItem;
       FPressedItem := nil;
       Item.MouseUp(Button, Shift, X, Y);
@@ -801,8 +767,7 @@ var
   var
     Child: TJvCustomInspectorItem;
   begin
-    for var I := 0 to Item.Count - 1 do
-    begin
+    for var I := 0 to Item.Count - 1 do begin
       Child := Item.Items[I];
       FVisibleList.Add(Child);
       if Child.Expanded then
@@ -857,16 +822,13 @@ begin
     Value := Pred(GetVisibleCount);
   if Value < -1 then
     Value := -1;
-  if Value <> SelectedIndex then
-  begin
+  if Value <> SelectedIndex then begin
     // bugfix WAP.  Why repaint the screen when the component is going away anyway.
-    if not (csDestroying in ComponentState) then
-    begin
+    if not (csDestroying in ComponentState) then begin
       if Selected <> nil then
         Selected.DoneEdit(False);
       FSelectedIndex := Value;
-      if Selected <> nil then
-      begin
+      if Selected <> nil then begin
         Selected.ScrollInView;
         Selected.InitEdit;
       end;
@@ -887,8 +849,7 @@ begin
     Value := MaxIdx;
   if Value < 0 then
     Value := 0;
-  if TopIndex <> Value then
-  begin
+  if TopIndex <> Value then begin
     FTopIndex := Value;
     if HandleAllocated then
       UpdateScrollBars;
@@ -912,10 +873,8 @@ begin
   DrawHeight := GetImageHeight;
   ClHeight := ClientHeight;
   ShowVertSB := DrawHeight >= ClHeight;
-  if ShowVertSB then
-  begin
-    with ScrollInfo do
-    begin
+  if ShowVertSB then begin
+    with ScrollInfo do begin
       cbSize := SizeOf(ScrollInfo);
       fMask := SIF_ALL;
       nMin := 0;
@@ -1026,8 +985,7 @@ procedure TJvInspector.EndUpdate;
 begin
   if FLockCount > 0 then
     Dec(FLockCount);
-  if FLockCount = 0 then
-  begin
+  if FLockCount = 0 then begin
     if NeedRebuild then
       InvalidateList
     else
@@ -1056,10 +1014,8 @@ end;
 
 procedure TJvInspector.RefreshValues;
 begin
-  if (Selected <> nil) and Selected.Editing then
-  begin
-    if (Selected.EditCtrl = nil) or (Selected.DisplayValue <> Selected.EditCtrl.Text) then
-    begin
+  if (Selected <> nil) and Selected.Editing then begin
+    if (Selected.EditCtrl = nil) or (Selected.DisplayValue <> Selected.EditCtrl.Text) then begin
       Selected.DoneEdit(True);
       Selected.InitEdit;
     end;
@@ -1082,11 +1038,9 @@ var
   LbPos: TPoint;
   MinPos, MaxPos: Integer;
 begin
-  if (Selected <> nil) and Selected.DroppedDown then
-  begin
+  if (Selected <> nil) and Selected.DroppedDown then begin
     // If Selected.ListBox gets the WM_MOUSEWHEEL we would run into an infinite recursion
-    if not FMouseWheelRecursion then
-    begin
+    if not FMouseWheelRecursion then begin
       FMouseWheelRecursion := True;
       try
         LbPos := Selected.ListBox.ScreenToClient(ClientToScreen(MousePos));
@@ -1095,12 +1049,9 @@ begin
         FMouseWheelRecursion := False;
       end;
     end;
-  end
-  else
-  begin
+  end else begin
     GetScrollRange(Handle, SB_VERT, MinPos, MaxPos);
-    if MinPos <> MaxPos then // no scroll bar enabled
-    begin
+    if MinPos <> MaxPos then begin // no scroll bar enabled
       var Lines := Mouse.WheelScrollLines; // 0 = don't scroll, -1 = WHEEL_PAGESCROLL
       if Lines < 0 then
         Lines := ClientHeight div GetItemHeight;
@@ -1122,28 +1073,20 @@ end;
 procedure TJvInspector.ApplyNameFont;
 begin
   Canvas.Font := Font;
-  if FPaintItem.IsCategory then
-  begin
+  if FPaintItem.IsCategory then begin
     Canvas.Font.Color := FCategoryTextColor;
     Canvas.Font.Style := Canvas.Font.Style + [fsBold];
-  end
-  else
+  end else
     Canvas.Font.Color := FNameColor;
-  if FPaintItem = Selected then
-  begin
-    if Focused then
-    begin
+  if FPaintItem = Selected then begin
+    if Focused then begin
       Canvas.Brush.Color := FSelectedColor;
       Canvas.Font.Color := FSelectedTextColor;
-    end
-    else
-    begin
+    end else begin
       Canvas.Brush.Color := FHideSelectColor;
       Canvas.Font.Color := FHideSelectTextColor;
     end;
-  end
-  else
-  if FPaintItem.IsCategory then
+  end else if FPaintItem.IsCategory then
     Canvas.Brush.Color := FCategoryColor
   else
     Canvas.Brush.Color := FBackgroundColor;
@@ -1169,8 +1112,7 @@ begin
   ItemIdx := TopIndex;
   MaxItemIdx := GetVisibleCount;
   // Loop through the visible list
-  while (Rect.Top < Rect.Bottom) and (ItemIdx < MaxItemIdx) do
-  begin
+  while (Rect.Top < Rect.Bottom) and (ItemIdx < MaxItemIdx) do begin
     SelItemVisible := SelItemVisible or (ItemIdx = SelectedIndex);
     PaintItem(Rect, ItemIdx);
     Inc(ItemIdx);
@@ -1211,8 +1153,7 @@ begin
   ItemRect2 := FPaintItem.Rects[iprItem];
   ButtonRect := Rect(ItemRect2.Left + (FPaintItem.Level * GetItemHeight), ItemRect2.Top,
     ItemRect2.Left + (Succ(FPaintItem.Level) * GetItemHeight), ItemRect2.Bottom);
-  if not FPaintItem.IsCategory and (ButtonRect.Left > Pred(Divider)) then
-  begin
+  if not FPaintItem.IsCategory and (ButtonRect.Left > Pred(Divider)) then begin
     ButtonRect.Left := 0;
     ButtonRect.Right := 0;
   end;
@@ -1220,13 +1161,10 @@ begin
     ButtonRect.Right := Pred(Divider);
   TmpRect := ItemRect2;
   TmpRect.Left := ItemRect2.Left + (Succ(FPaintItem.Level) * GetItemHeight);
-  if FPaintItem.IsCategory then
-  begin
+  if FPaintItem.IsCategory then begin
     FPaintItem.Rects[iprNameArea] := TmpRect;
     FPaintItem.Rects[iprValueArea] := Rect(0, 0, 0, 0);
-  end
-  else
-  begin
+  end else begin
     if TmpRect.Left > Pred(Divider) then
       TmpRect := Rect(0, 0, 0, 0)
     else
@@ -1246,8 +1184,7 @@ var
   BtnDstRect: TRect;
   Size: Integer;
 begin
-  if (FPaintItem.Expanded or (FPaintItem.Count > 0)) and (ButtonArea.Width > 0) then
-  begin
+  if (FPaintItem.Expanded or (FPaintItem.Count > 0)) and (ButtonArea.Width > 0) then begin
     Size := MulDiv(9, CurrentPPI, 96);
     if not Odd(Size) then
       Dec(Size);
@@ -1256,8 +1193,7 @@ begin
       (ButtonArea.Height - Size) div 2);
     OffsetRect(BtnDstRect, ButtonArea.Left, ButtonArea.Top);
     IntersectRect(BtnDstRect, BtnDstRect, ButtonArea);
-  end
-  else
+  end else
     BtnDstRect := Rect(0, 0, 0, 0);
   FPaintItem.Rects[iprBtnDstRect] := BtnDstRect;
 end;
@@ -1276,8 +1212,7 @@ begin
     Inc(TmpRect.Left, 2);
   if TmpRect.Height div RowHeight < 2 then
     OffsetRect(TmpRect, 0, (TmpRect.Height - RowHeight) div 2)
-  else
-  begin
+  else begin
     Inc(TmpRect.Top, 1);
     Dec(TmpRect.Bottom, 1);
   end;
@@ -1290,13 +1225,10 @@ var
   TmpRect: TRect;
 begin
   TmpRect := FPaintItem.Rects[iprValueArea];
-  if TmpRect.Height div FRegularTextHeight < 2 then
-  begin
+  if TmpRect.Height div FRegularTextHeight < 2 then begin
     OffsetRect(TmpRect, 0, (TmpRect.Height - FRegularTextHeight) div 2);
     IntersectRect(TmpRect, TmpRect, FPaintItem.Rects[iprValueArea]);
-  end
-  else
-  begin
+  end else begin
     Inc(TmpRect.Top, 1);
     Dec(TmpRect.Bottom, 1);
     IntersectRect(TmpRect, TmpRect, FPaintItem.Rects[iprValueArea]);
@@ -1309,13 +1241,10 @@ procedure TJvInspector.CalcEditBasedRects;
 var
   TmpRect: TRect;
 begin
-  if not (iifValueList in FPaintItem.Flags) then
-  begin // Value takes up entire edit value rect, there is no edit button:
+  if not (iifValueList in FPaintItem.Flags) then begin // Value takes up entire edit value rect, there is no edit button:
     FPaintItem.Rects[iprEditValue] := FPaintItem.Rects[iprValue];
     FPaintItem.Rects[iprEditButton] := Rect(0, 0, 0, 0);
-  end
-  else
-  begin // The edit button is on the right of the edit value area:
+  end else begin // The edit button is on the right of the edit value area:
     TmpRect := FPaintItem.Rects[iprValue];
     Dec(TmpRect.Right, GetItemHeight);
     FPaintItem.Rects[iprEditValue] := TmpRect;
@@ -1335,26 +1264,22 @@ var
 begin
   // Determine item type (end of list, end of a category)
   EndOfList := Succ(FPaintItemIndex) >= GetVisibleCount;
-  if not EndOfList then
-  begin
+  if not EndOfList then begin
     NextItem := GetVisibleItems(Succ(FPaintItemIndex));
     EndOfCat := (NextItem.GetBaseCategory <> FPaintItem.GetBaseCategory) and
       (FPaintItem.GetBaseCategory <> nil);
-  end
-  else
+  end else
     EndOfCat := FPaintItem.GetBaseCategory <> nil;
 
   CatRect := FPaintItem.Rects[iprItem];
   CatRect.Right := CatRect.Left + GetItemHeight;
   Inc(CatRect.Bottom);
-  if FPaintItem.GetBaseCategory <> nil then
-  begin
+  if FPaintItem.GetBaseCategory <> nil then begin
     Canvas.Brush.Color := FCategoryColor;
     Canvas.FillRect(CatRect);
   end;
 
-  if not FPaintItem.IsCategory then
-  begin
+  if not FPaintItem.IsCategory then begin
     Canvas.Pen.Color := FDividerColor;
     Canvas.MoveTo(FPaintItem.Rects[iprItem].Left + Divider, Pred(FPaintItem.Rects[iprItem].Top));
     Canvas.LineTo(FPaintItem.Rects[iprItem].Left + Divider, FPaintItem.Rects[iprItem].Bottom);
@@ -1375,8 +1300,7 @@ begin
   FPaintItem.DrawValue(Canvas);
 
   const BtnRect = FPaintItem.Rects[iprBtnDstRect];
-  if not IsRectEmpty(BtnRect) then
-  begin
+  if not IsRectEmpty(BtnRect) then begin
     var Size := MulDiv(9, CurrentPPI, 96);
     if not Odd(Size) then
       Dec(Size);
@@ -1392,8 +1316,7 @@ begin
         BtnRect.Top + Size);
       Canvas.MoveTo(BtnRect.Left + Margin, BtnRect.Top + Mid);
       Canvas.LineTo(BtnRect.Left + Size - Margin, BtnRect.Top + Mid);
-      if not FPaintItem.Expanded then
-      begin
+      if not FPaintItem.Expanded then begin
         Canvas.MoveTo(BtnRect.Left + Mid, BtnRect.Top + Margin);
         Canvas.LineTo(BtnRect.Left + Mid, BtnRect.Top + Size - Margin);
       end;
@@ -1413,8 +1336,7 @@ begin
   Canvas.MoveTo(FPaintItem.Rects[iprItem].Right, FPaintItem.Rects[iprItem].Bottom);
   Canvas.LineTo(Pred(LeftX), FPaintItem.Rects[iprItem].Bottom);
 
-  if FPaintItem <> FPaintItem.GetBaseCategory then
-  begin
+  if FPaintItem <> FPaintItem.GetBaseCategory then begin
     if FPaintItem.GetBaseCategory <> nil then
       Canvas.Pen.Color := FCategoryDividerColor
     else
@@ -1431,8 +1353,7 @@ begin
   inherited Create;
   FItems := TObjectList<TJvCustomInspectorItem>.Create(True);
   Flags := [];
-  if AParent <> nil then
-  begin
+  if AParent <> nil then begin
     FInspector := AParent.Inspector;
     FParent := AParent;
     AParent.FItems.Add(Self);
@@ -1446,11 +1367,9 @@ var
   NewValue: string;
 begin
   try
-    if Editing and (EditCtrl <> nil) then
-    begin
+    if Editing and (EditCtrl <> nil) then begin
       NewValue := EditCtrl.Text;
-      if DisplayValue <> NewValue then
-      begin
+      if DisplayValue <> NewValue then begin
         Inc(FUpdateEditCtrl);
         try
           DisplayValue := NewValue;
@@ -1458,8 +1377,7 @@ begin
           Dec(FUpdateEditCtrl);
         end;
         InvalidateItem;
-        if EditCtrl <> nil then
-        begin
+        if EditCtrl <> nil then begin
           TmpOnChange := EditCtrl.OnChange;
           EditCtrl.OnChange := nil;
           try
@@ -1471,8 +1389,7 @@ begin
       end;
     end;
   finally
-    if Editing and (EditCtrl <> nil) then
-    begin
+    if Editing and (EditCtrl <> nil) then begin
       EditCtrl.SelectAll;
       EditCtrl.Modified := False;
       EditCtrl.ClearUndo;
@@ -1523,8 +1440,7 @@ procedure TJvCustomInspectorItem.CloseUp(Accept: Boolean);
 var
   ListValue: string;
 begin
-  if DroppedDown then
-  begin
+  if DroppedDown then begin
     if GetCaptureControl = ListBox then
       SetCaptureControl(nil);
     if GetCapture <> 0 then
@@ -1535,8 +1451,7 @@ begin
       SWP_NOMOVE or SWP_NOSIZE or SWP_NOACTIVATE or SWP_HIDEWINDOW);
     FDroppedDown := False;
     InvalidateItem;
-    if Accept then
-    begin
+    if Accept then begin
       if Assigned(EditCtrl) then
         EditCtrl.Text := ListValue;
       Apply;
@@ -1549,8 +1464,7 @@ begin
   case Key of
     VK_UP, VK_DOWN, VK_F4:
       { Up and Down toggle the dropdown with Alt, F4 without }
-      if (ssAlt in Shift) xor (Key = VK_F4) then
-      begin
+      if (ssAlt in Shift) xor (Key = VK_F4) then begin
         if DroppedDown then
           CloseUp(True)
         else
@@ -1558,8 +1472,7 @@ begin
         Key := 0;
       end;
     VK_RETURN, VK_ESCAPE:
-      if DroppedDown and not (ssAlt in Shift) then
-      begin
+      if DroppedDown and not (ssAlt in Shift) then begin
         CloseUp(Key = VK_RETURN);
         Key := 0;
       end;
@@ -1578,8 +1491,7 @@ var
   R: TRect;
   EditMonitor: TMonitor;
 begin
-  if (not DroppedDown) and (ListBox <> nil) then
-  begin
+  if (not DroppedDown) and (ListBox <> nil) then begin
     ListBox.Width := Abs(Rects[iprValueArea].Width);
     ListBox.Font := EditCtrl.Font;
     ListBox.Items.Clear;
@@ -1591,8 +1503,7 @@ begin
     if ListCount = 0 then
       ListCount := 1;
     ListBox.Height := ListCount * ListBox.ItemHeight + 4;
-    if ListBox.Height > Screen.DesktopHeight then
-    begin
+    if ListBox.Height > Screen.DesktopHeight then begin
       ListCount := (Screen.DesktopHeight - 4) div ListBox.ItemHeight;
       ListBox.Height := ListCount * ListBox.ItemHeight + 4;
     end;
@@ -1600,8 +1511,7 @@ begin
     J := ListBox.ClientWidth;
     if ListBox.Items.Count > ListCount then
       Dec(J, GetSystemMetrics(SM_CXVSCROLL));
-    for I := 0 to ListBox.Items.Count - 1 do
-    begin
+    for I := 0 to ListBox.Items.Count - 1 do begin
       Y := ListBox.Canvas.TextWidth(ListBox.Items[I]) + 4;
       if Y > J then
         J := Y;
@@ -1618,8 +1528,7 @@ begin
     Y := P.Y + Rects[iprValueArea].Height;
     GetWindowRect(EditCtrl.Handle, R);
     EditMonitor := Screen.MonitorFromRect(R);
-    if EditMonitor <> nil then
-    begin
+    if EditMonitor <> nil then begin
       R := EditMonitor.BoundsRect;
       if P.X + ListBox.Width > R.Right then
         P.X := R.Right - ListBox.Width;
@@ -1629,9 +1538,7 @@ begin
         Y := P.Y - ListBox.Height;
       if Y < R.Top then
         Y := R.Top;
-    end
-    else
-    begin
+    end else begin
       if Y + ListBox.Height > Screen.DesktopHeight then
         Y := P.Y - ListBox.Height;
       if P.X + ListBox.Width > Screen.DesktopWidth then
@@ -1647,8 +1554,7 @@ end;
 
 procedure TJvCustomInspectorItem.EditFocusLost(Sender: TObject);
 begin
-  if Inspector.HandleAllocated and not Inspector.Focused then
-  begin
+  if Inspector.HandleAllocated and not Inspector.Focused then begin
     // Mantis 3391: When the focus is lost, the editing is finished, so that
     // moving to another item or another control always updates the value.
     try
@@ -1705,8 +1611,7 @@ var
     Idx: Integer;
   begin
     Result := False;
-    if AnItem = '' then
-    begin
+    if AnItem = '' then begin
       ListBox.ItemIndex := -1;
       Exit;
     end;
@@ -1730,9 +1635,7 @@ begin
       begin
         if HasSelectedText(StartPos, EndPos) then
           DeleteSelectedText
-        else
-        if EditCtrl.Text <> '' then
-        begin
+        else if EditCtrl.Text <> '' then begin
           SaveText := EditCtrl.Text;
           var LastCharIndex := StartPos;
           while (LastCharIndex > 0) and SaveText[LastCharIndex].IsLowSurrogate do
@@ -1776,8 +1679,7 @@ begin
   if Assigned(Inspector.FOnEditorKeyDown) then
     Inspector.FOnEditorKeyDown(Inspector, Key, Shift);
 
-  if Shift = [] then
-  begin
+  if Shift = [] then begin
     case Key of
       VK_RETURN:
         Apply;
@@ -1786,19 +1688,15 @@ begin
     end;
     if (Key = VK_RETURN) or (Key = VK_ESCAPE) then
       Key := VK_RIGHT;
-  end
-  else
-  if Shift = [ssCtrl] then
+  end else if Shift = [ssCtrl] then
     case Key of
       VK_UP:
-        if iifValueList in Flags then
-        begin
+        if iifValueList in Flags then begin
           SelectValue(-1);
           Key := 0;
         end;
       VK_DOWN, VK_RETURN:
-        if iifValueList in Flags then
-        begin
+        if iifValueList in Flags then begin
           SelectValue(1);
           Key := 0;
         end;
@@ -1826,12 +1724,10 @@ begin
   case Msg.Msg of
     WM_KEYDOWN, WM_SYSKEYDOWN, WM_CHAR:
       begin
-        if iifValueList in Flags then
-        begin
+        if iifValueList in Flags then begin
           if Msg.Msg <> WM_CHAR then
             DoDropDownKeys(TWMKeyDown(Msg).CharCode, KeyDataToShiftState(TWMKeyDown(Msg).KeyData));
-          if (Msg.Msg = WM_CHAR) or (TWMKeyDown(Msg).CharCode <> 0) then
-          begin
+          if (Msg.Msg = WM_CHAR) or (TWMKeyDown(Msg).CharCode <> 0) then begin
             if DroppedDown then
               SendMessage(ListBox.Handle, Msg.Msg, Msg.WParam, Msg.LParam);
             // Only Up/Down navigate the value list; any other key the
@@ -1846,8 +1742,7 @@ begin
           (Msg.Msg = WM_KEYDOWN) and ((KeyDataToShiftState(Int32(Msg.LParam)) = []) and
           ((Msg.WParam in [VK_NEXT, VK_PRIOR]) or
             (not DroppedDown and (Msg.WParam in [VK_DOWN, VK_UP]))));
-        if PostToInsp then
-        begin
+        if PostToInsp then begin
           PostMessage(Inspector.Handle, Msg.Msg, Msg.WParam, Msg.LParam);
           Msg.Result := 1;
           ExecInherited := False;
@@ -1855,13 +1750,11 @@ begin
       end;
   end;
 
-  if (Msg.Msg = WM_CHAR) and (Msg.WParam = VK_RETURN) then
-  begin
+  if (Msg.Msg = WM_CHAR) and (Msg.WParam = VK_RETURN) then begin
     ExecInherited := False;
     EditCtrl.SelectAll;
   end;
-  if Msg.Msg = WM_MOUSEWHEEL then
-  begin
+  if Msg.Msg = WM_MOUSEWHEEL then begin
     if not DroppedDown then
       PostMessage(Inspector.Handle, Msg.Msg, Msg.WParam, Msg.LParam);
     Msg.Result := 1;
@@ -1883,8 +1776,7 @@ begin
     EditWndPrc(Msg);
   if (Msg.Msg = WM_KILLFOCUS) and DroppedDown then
     CloseUp(False);
-  if Msg.Msg = WM_SETFOCUS then
-  begin
+  if Msg.Msg = WM_SETFOCUS then begin
     { Changing the focus to another Control in the same form via Mouse-Click, if a
       property-editor is active has no effect until you clicked twice on the control.
       Telling the VCL that this control has the focus, fixes the problem. }
@@ -1896,8 +1788,7 @@ function TJvCustomInspectorItem.GetBaseCategory: TJvCustomInspectorItem;
 begin
   if IsCategory then
     Result := Self
-  else
-  begin
+  else begin
     Result := Parent;
     while (Result <> nil) and not Result.IsCategory do
       Result := Result.Parent;
@@ -1930,8 +1821,7 @@ var
 begin
   Result := -1;
   Item := Parent;
-  while Item <> nil do
-  begin
+  while Item <> nil do begin
     Inc(Result);
     Item := Item.Parent;
   end;
@@ -1986,19 +1876,15 @@ end;
 procedure TJvCustomInspectorItem.MouseDown(Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  if (Button = mbLeft) and PtInRect(Rects[iprEditButton], Point(X, Y)) then
-  begin
+  if (Button = mbLeft) and PtInRect(Rects[iprEditButton], Point(X, Y)) then begin
     if DroppedDown then
       CloseUp(False)
-    else
-    begin
+    else begin
       Tracking := True;
       TrackButton(X, Y);
       DropDown;
     end;
-  end
-  else
-  if (Button = mbLeft) and (ssDouble in Shift) then
+  end else if (Button = mbLeft) and (ssDouble in Shift) then
     if (iifValueList in Flags) and
        (PtInRect(Rects[iprValueArea], Point(X, Y))) then
       SelectValue(1);
@@ -2009,14 +1895,11 @@ var
   ListPos: TPoint;
   MousePos: TSmallPoint;
 begin
-  if Tracking then
-  begin
+  if Tracking then begin
     TrackButton(X, Y);
-    if DroppedDown then
-    begin
+    if DroppedDown then begin
       ListPos := ListBox.ScreenToClient(Inspector.ClientToScreen(Point(X, Y)));
-      if PtInRect(ListBox.ClientRect, ListPos) then
-      begin
+      if PtInRect(ListBox.ClientRect, ListPos) then begin
         StopTracking;
         Inspector.FPressedItem := nil;
         MousePos := PointToSmallPoint(ListPos);
@@ -2040,8 +1923,7 @@ begin
   SL := TStringList.Create;
   try
     GetValueList(SL);
-    if SL.Count > 0 then
-    begin
+    if SL.Count > 0 then begin
       I := SL.IndexOf(DisplayValue);
       Inc(I, Delta);
       while I < 0 do
@@ -2062,18 +1944,15 @@ end;
 
 procedure TJvCustomInspectorItem.SetEditCtrl(const Value: TEdit);
 begin
-  if EditCtrl <> Value then
-  begin
-    if EditCtrl <> nil then
-    begin
+  if EditCtrl <> Value then begin
+    if EditCtrl <> nil then begin
       FEditCtrlDestroying := True;
       try
         if Inspector.CanFocus and (EditCtrl.Focused or Inspector.Focused) then // Without "Inspector.Focused" every second click looses the focus
           Inspector.SetFocus;
 
         // Following Mantis 3391, setting the Focus may set EditCtrl to nil
-        if Assigned(EditCtrl) then
-        begin
+        if Assigned(EditCtrl) then begin
           if EditCtrl.HandleAllocated then
             SetOrClearNameForMSAA(EditCtrl.Handle, '');
           EditCtrl.Free;
@@ -2084,8 +1963,7 @@ begin
     end;
     FEditCtrl := Value;
 
-    if EditCtrl <> nil then
-    begin
+    if EditCtrl <> nil then begin
       EditCtrl.Ctl3D := False;
       EditCtrl.BorderStyle := bsNone;
       EditCtrl.Parent := TWinControl(EditCtrl.Owner);
@@ -2095,8 +1973,7 @@ end;
 
 procedure TJvCustomInspectorItem.SetExpanded(Value: Boolean);
 begin
-  if Value <> Expanded then
-  begin
+  if Value <> Expanded then begin
     if Value then
       Flags := Flags + [iifExpanded]
     else
@@ -2110,8 +1987,7 @@ var
   OldFlags: TInspectorItemFlags;
 begin
   NewFlags := Value;
-  if Flags <> NewFlags then
-  begin
+  if Flags <> NewFlags then begin
     OldFlags := Flags;
     FFlags := NewFlags;
     OldFlags := OldFlags * [iifExpanded];
@@ -2137,11 +2013,9 @@ procedure TJvCustomInspectorItem.SetRects(const RectKind: TInspectorPaintRect;
   Value: TRect);
 begin
   FLastPaintGen := Inspector.PaintGeneration;
-  if not EqualRect(Rects[RectKind], Value) then
-  begin
+  if not EqualRect(Rects[RectKind], Value) then begin
     FRects[RectKind] := Value;
-    if (RectKind = iprEditValue) and (EditCtrl <> nil) then
-    begin
+    if (RectKind = iprEditValue) and (EditCtrl <> nil) then begin
       EditCtrl.BoundsRect := Rects[iprEditValue];
       if DroppedDown then
         CloseUp(False);
@@ -2151,8 +2025,7 @@ end;
 
 procedure TJvCustomInspectorItem.StopTracking;
 begin
-  if Tracking then
-  begin
+  if Tracking then begin
     TrackButton(-1, -1);
     Tracking := False;
     Inspector.MouseCapture := False;
@@ -2166,8 +2039,7 @@ var
 begin
   R := Rects[iprEditButton];
   NewState := PtInRect(R, Point(X, Y));
-  if Pressed <> NewState then
-  begin
+  if Pressed <> NewState then begin
     Pressed := NewState;
     Windows.InvalidateRect(Inspector.Handle, @R, False);
   end;
@@ -2175,8 +2047,7 @@ end;
 
 procedure TJvCustomInspectorItem.Undo;
 begin
-  if Editing and Assigned(EditCtrl) then
-  begin
+  if Editing and Assigned(EditCtrl) then begin
     EditCtrl.Text := DisplayValue;
     EditCtrl.Modified := False;
     EditCtrl.SelectAll;
@@ -2212,8 +2083,7 @@ begin
     ACanvas.Brush.Color := Inspector.BackgroundColor;
   if not Editing then
     ACanvas.TextRect(ARect, ARect.Left, ARect.Top, S)
-  else
-  begin
+  else begin
     ARect := Rects[iprValueArea];
     ACanvas.FillRect(ARect);
     // Reposition the editor if the layout changed since InitEdit placed it,
@@ -2224,13 +2094,11 @@ begin
     if EditCtrl <> nil then
       EditCtrl.PaintTo(ACanvas.Handle, EditCtrl.Left, EditCtrl.Top);
     ARect := Rects[iprEditButton];
-    if not IsRectEmpty(ARect) then
-    begin
+    if not IsRectEmpty(ARect) then begin
       var BFlags: UINT := 0;
       if Assigned(EditCtrl) and (not EditCtrl.Enabled) then
         BFlags := DFCS_INACTIVE
-      else
-      if Pressed then
+      else if Pressed then
         BFlags := DFCS_FLAT or DFCS_PUSHED;
       DrawThemedFrameControl(ACanvas.Handle, ARect, DFC_SCROLL, BFlags or DFCS_SCROLLCOMBOBOX, Inspector.CurrentPPI);
     end;
@@ -2242,8 +2110,7 @@ end;
 procedure TJvInspectorListBox.CreateParams(var Params: TCreateParams);
 begin
   inherited;
-  with Params do
-  begin
+  with Params do begin
     Style := Style or WS_BORDER;
     ExStyle := WS_EX_TOOLWINDOW or WS_EX_TOPMOST;
     AddBiDiModeExStyle(ExStyle);
@@ -2287,14 +2154,12 @@ begin
   R := Rect(0, 0, Width, Height);
   Pt := Point(X, Y);
 
-  if PtInRect(R, Pt) then
-  begin
+  if PtInRect(R, Pt) then begin
     if not PtInRect(ClientRect, Pt) then
       FNCClick := True;
     FClicking := True;
     inherited;
-  end
-  else
+  end else
     FOnDeactivate(Self);
 end;
 
@@ -2319,15 +2184,12 @@ begin
 
   if FNCClick then
     inherited
-  else
-  if FClicking then
-  begin
+  else if FClicking then begin
     if PtInRect(ClientRect, Pt) then
       FOnValueSelect(Self)
     else
       FOnDeactivate(Self);
-  end
-  else
+  end else
     // MouseUps where FClicking is False
     // have originated in the item that
     // opened the list, let it know that
@@ -2343,8 +2205,7 @@ var
   Edit: TEdit;
 begin
   FEditing := CanEdit;
-  if Editing and (FUpdateEditCtrl = 0) then
-  begin
+  if Editing and (FUpdateEditCtrl = 0) then begin
     Edit := TEdit.Create(Inspector);
     Edit.OnExit := EditFocusLost;
     SetEditCtrl(Edit);
@@ -2363,8 +2224,7 @@ begin
     FEditWndPrc := EditCtrl.WindowProc;
     EditCtrl.WindowProc := Edit_WndProc;
     EditCtrl.AutoSize := False;
-    if iifValueList in Flags then
-    begin
+    if iifValueList in Flags then begin
       FListBox := TJvInspectorListBox.Create(Inspector);
       ListBox.Visible := False;
       ListBox.Parent := EditCtrl;
@@ -2390,12 +2250,10 @@ end;
 
 procedure TJvCustomInspectorItem.DoneEdit(const CancelEdits: Boolean);
 begin
-  if Editing and (FUpdateEditCtrl = 0) then
-  begin
+  if Editing and (FUpdateEditCtrl = 0) then begin
     if DroppedDown then
       CloseUp(False);
-    if not CancelEdits and (DisplayValue <> EditCtrl.Text) then
-    begin
+    if not CancelEdits and (DisplayValue <> EditCtrl.Text) then begin
       Apply;
       InvalidateItem;
     end;
@@ -2420,9 +2278,7 @@ begin
   ViewIdx := Integer(Inspector.FVisibleList.IndexOf(Self));
   if Inspector.TopIndex > ViewIdx then
     Inspector.TopIndex := ViewIdx
-  else
-  if (Inspector.IdxToY(ViewIdx) - Inspector.IdxToY(Inspector.TopIndex) + Inspector.GetItemHeight) > Inspector.ClientHeight then
-  begin
+  else if (Inspector.IdxToY(ViewIdx) - Inspector.IdxToY(Inspector.TopIndex) + Inspector.GetItemHeight) > Inspector.ClientHeight then begin
     YDelta := Inspector.IdxToY(ViewIdx) + Inspector.GetItemHeight - Inspector.ClientHeight - Inspector.IdxToY(Inspector.TopIndex);
     ViewIdx := Inspector.TopIndex + (YDelta + Inspector.GetItemHeight - 1) div Inspector.GetItemHeight;
     if ViewIdx < Inspector.GetVisibleCount then
@@ -2471,19 +2327,15 @@ end;
 procedure TJvInspectorBooleanItem.EditKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if Editing and (Shift = []) and (Key = VK_SPACE) then
-  begin
-    if not FCheckKeyPressed then
-    begin
+  if Editing and (Shift = []) and (Key = VK_SPACE) then begin
+    if not FCheckKeyPressed then begin
       FCheckKeyPressed := True;
       FCheckPressed := True;
       InvalidateItem;
     end;
-  end else if FCheckKeyPressed then
-  begin
+  end else if FCheckKeyPressed then begin
     FCheckKeyPressed := False;
-    if FCheckPressed and not FCheckTracking then
-    begin
+    if FCheckPressed and not FCheckTracking then begin
       FCheckPressed := False;
       InvalidateItem;
     end;
@@ -2493,8 +2345,7 @@ end;
 procedure TJvInspectorBooleanItem.EditKeyUp(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
-  if FCheckKeyPressed and (Key = VK_SPACE) then
-  begin
+  if FCheckKeyPressed and (Key = VK_SPACE) then begin
     FCheckKeyPressed := False;
     FCheckPressed := False;
     Toggle;
@@ -2506,8 +2357,7 @@ procedure TJvInspectorBooleanItem.MouseDown(Button: TMouseButton;
 begin
   if ssDouble in Shift then
     Shift := Shift - [ssDouble];
-  if PtInRect(FCheckRect, Point(X, Y)) and (Shift = [ssLeft]) and Editing then
-  begin
+  if PtInRect(FCheckRect, Point(X, Y)) and (Shift = [ssLeft]) and Editing then begin
     FCheckTracking := True;
     FCheckPressed := True;
     InvalidateItem;
@@ -2517,11 +2367,9 @@ end;
 procedure TJvInspectorBooleanItem.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
-  if FCheckTracking then
-  begin
+  if FCheckTracking then begin
     const NewPressed = PtInRect(FCheckRect, Point(X, Y));
-    if FCheckPressed <> NewPressed then
-    begin
+    if FCheckPressed <> NewPressed then begin
       FCheckPressed := NewPressed;
       InvalidateItem;
     end;
@@ -2532,8 +2380,7 @@ procedure TJvInspectorBooleanItem.MouseUp(Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
-  if FCheckTracking then
-  begin
+  if FCheckTracking then begin
     FCheckTracking := False;
     FCheckPressed := False;
     if PtInRect(FCheckRect, Point(X, Y)) then
@@ -2545,8 +2392,7 @@ end;
 
 procedure TJvInspectorBooleanItem.CancelPress;
 begin
-  if FCheckKeyPressed or FCheckTracking or FCheckPressed then
-  begin
+  if FCheckKeyPressed or FCheckTracking or FCheckPressed then begin
     FCheckKeyPressed := False;
     FCheckTracking := False;
     FCheckPressed := False;
@@ -2612,8 +2458,7 @@ begin
     ACanvas.Brush.Style := bsSolid;
   end;
   if Inspector.Focused and (Inspector.Selected = Self) and
-     (SendMessage(Inspector.Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS = 0) then
-  begin
+     (SendMessage(Inspector.Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS = 0) then begin
     var FocusRect := Rect(LabelRect.Left, TextTop,
       LabelRect.Left + ACanvas.TextWidth(LabelText), TextTop + ACanvas.TextHeight(LabelText));
     InflateRect(FocusRect, MulDiv(1, Inspector.CurrentPPI, 96), MulDiv(1, Inspector.CurrentPPI, 96));
