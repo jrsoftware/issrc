@@ -139,6 +139,7 @@ type
     procedure InvalidateItem;
     procedure InvalidateList;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
+    procedure KeyUp(var Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
@@ -219,6 +220,7 @@ type
     FUpdateEditCtrl: Integer; // Used to prevent EditCtrl destruction while in Apply().
   protected
     procedure Apply;
+    procedure CancelPress; virtual;
     function CanEdit: Boolean;
     procedure CloseUp(Accept: Boolean);
     procedure DoDropDownKeys(var Key: Word; Shift: TShiftState);
@@ -226,6 +228,7 @@ type
     procedure EditFocusLost(Sender: TObject);
     procedure EditKeyPress(Sender: TObject; var Key: Char);
     procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); dynamic;
+    procedure EditKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState); dynamic;
     procedure EditMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure Edit_WndProc(var Msg: TMessage);
@@ -250,8 +253,8 @@ type
     procedure ListDeactivate(Sender: TObject);
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer); virtual;
-    procedure MouseMove(Shift: TShiftState; X, Y: Integer);
-    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); virtual;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); virtual;
     procedure SelectValue(const Delta: Integer);
     procedure SetDisplayValue(const Value: string); virtual;
     procedure SetEditCtrl(const Value: TEdit);
@@ -309,10 +312,17 @@ type
   TJvInspectorBooleanItem = class(TJvCustomInspectorItem)
   private
     FCheckRect: TRect;
+    FCheckPressed: Boolean;
+    FCheckTracking: Boolean;
+    FCheckKeyPressed: Boolean;
   protected
+    procedure CancelPress; override;
     procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); override;
+    procedure EditKeyUp(Sender: TObject; var Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState;
       X, Y: Integer); override;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure Toggle;
   public
     procedure DoneEdit(const CancelEdits: Boolean = False); override;
@@ -413,7 +423,13 @@ begin
   begin
     R := Rect;
     if uState and DFCS_CHECKED <> 0 then
-      Btn := tbCheckBoxCheckedNormal
+      if uState and DFCS_PUSHED <> 0 then
+        Btn := tbCheckBoxCheckedPressed
+      else
+        Btn := tbCheckBoxCheckedNormal
+    else
+    if uState and DFCS_PUSHED <> 0 then
+      Btn := tbCheckBoxUncheckedPressed
     else
       Btn := tbCheckBoxUncheckedNormal;
 
@@ -495,6 +511,8 @@ end;
 procedure TJvInspector.CMDeactivate(var Msg: TCMActivate);
 begin
   inherited;
+  if Selected <> nil then
+    Selected.CancelPress;
   Invalidate;
 end;
 
@@ -654,6 +672,14 @@ begin
     Item.ScrollInView;
     Item.EditKeyDown(Self, Key, Shift);
   end;
+end;
+
+procedure TJvInspector.KeyUp(var Key: Word; Shift: TShiftState);
+begin
+  inherited;
+  const Item = Selected;
+  if (Item <> nil) and Item.Editing then
+    Item.EditKeyUp(Self, Key, Shift);
 end;
 
 procedure TJvInspector.MouseDown(Button: TMouseButton; Shift: TShiftState;
@@ -913,6 +939,8 @@ begin
     WM_KILLFOCUS:
       begin
         inherited WndProc(Msg);
+        if Selected <> nil then
+          Selected.CancelPress;
         Invalidate;
       end;
     WM_SIZE:
@@ -1727,6 +1755,10 @@ begin
   end;
 end;
 
+procedure TJvCustomInspectorItem.CancelPress;
+begin
+end;
+
 procedure TJvCustomInspectorItem.EditKeyPress(Sender: TObject; var Key: Char);
 begin
   if (iifValueList in Flags) and not ReadOnly and (ListBox <> nil) then
@@ -1766,6 +1798,11 @@ begin
           Key := 0;
         end;
     end;
+end;
+
+procedure TJvCustomInspectorItem.EditKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
 end;
 
 procedure TJvCustomInspectorItem.EditMouseDown(Sender: TObject;
@@ -2332,6 +2369,7 @@ begin
     end;
     EditCtrl.BoundsRect := Rects[iprEditValue];
     EditCtrl.OnKeyDown := EditKeyDown;
+    EditCtrl.OnKeyUp := EditKeyUp;
     EditCtrl.OnKeyPress := EditKeyPress;
     EditCtrl.OnMouseDown := EditMouseDown;
     EditCtrl.Visible := True;
@@ -2428,7 +2466,33 @@ procedure TJvInspectorBooleanItem.EditKeyDown(Sender: TObject; var Key: Word;
   Shift: TShiftState);
 begin
   if Editing and (Shift = []) and (Key = VK_SPACE) then
+  begin
+    if not FCheckKeyPressed then
+    begin
+      FCheckKeyPressed := True;
+      FCheckPressed := True;
+      InvalidateItem;
+    end;
+  end else if FCheckKeyPressed then
+  begin
+    FCheckKeyPressed := False;
+    if FCheckPressed and not FCheckTracking then
+    begin
+      FCheckPressed := False;
+      InvalidateItem;
+    end;
+  end;
+end;
+
+procedure TJvInspectorBooleanItem.EditKeyUp(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if FCheckKeyPressed and (Key = VK_SPACE) then
+  begin
+    FCheckKeyPressed := False;
+    FCheckPressed := False;
     Toggle;
+  end;
 end;
 
 procedure TJvInspectorBooleanItem.MouseDown(Button: TMouseButton;
@@ -2437,11 +2501,58 @@ begin
   if ssDouble in Shift then
     Shift := Shift - [ssDouble];
   if PtInRect(FCheckRect, Point(X, Y)) and (Shift = [ssLeft]) and Editing then
-    Toggle;
+  begin
+    FCheckTracking := True;
+    FCheckPressed := True;
+    InvalidateItem;
+  end;
+end;
+
+procedure TJvInspectorBooleanItem.MouseMove(Shift: TShiftState; X, Y: Integer);
+begin
+  inherited MouseMove(Shift, X, Y);
+  if FCheckTracking then
+  begin
+    const NewPressed = PtInRect(FCheckRect, Point(X, Y));
+    if FCheckPressed <> NewPressed then
+    begin
+      FCheckPressed := NewPressed;
+      InvalidateItem;
+    end;
+  end;
+end;
+
+procedure TJvInspectorBooleanItem.MouseUp(Button: TMouseButton;
+  Shift: TShiftState; X, Y: Integer);
+begin
+  inherited MouseUp(Button, Shift, X, Y);
+  if FCheckTracking then
+  begin
+    FCheckTracking := False;
+    FCheckPressed := False;
+    if PtInRect(FCheckRect, Point(X, Y)) then
+      Toggle
+    else
+      InvalidateItem;
+  end;
+end;
+
+procedure TJvInspectorBooleanItem.CancelPress;
+begin
+  if FCheckKeyPressed or FCheckTracking or FCheckPressed then
+  begin
+    FCheckKeyPressed := False;
+    FCheckTracking := False;
+    FCheckPressed := False;
+    InvalidateItem;
+  end;
 end;
 
 procedure TJvInspectorBooleanItem.DoneEdit(const CancelEdits: Boolean = False);
 begin
+  FCheckKeyPressed := False;
+  FCheckTracking := False;
+  FCheckPressed := False;
   FEditing := False;
 end;
 
@@ -2475,6 +2586,8 @@ begin
     BFlags := DFCS_BUTTONCHECK;
     if Bool then
       BFlags := BFlags or DFCS_CHECKED;
+    if FCheckPressed then
+      BFlags := BFlags or DFCS_PUSHED;
     DrawThemedFrameControl(ACanvas.Handle, ARect, DFC_BUTTON, BFlags, Inspector.CurrentPPI);
   finally
     RestoreDC(ACanvas.Handle, SaveIndex);
