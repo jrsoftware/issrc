@@ -723,12 +723,19 @@ begin
   inherited;
   if DraggingDivider then
     Divider := X
+  else if FPressedItem <> nil then begin
+    Cursor := crDefault;
+    FPressedItem.MouseMove(Shift, X, Y);
+  end
   else if (X >= Pred(Divider)) and (X <= Succ(Divider)) then
     Cursor := crHSplit
   else begin
-    Cursor := crDefault;
-    if FPressedItem <> nil then
-      FPressedItem.MouseMove(Shift, X, Y);
+    const Item = GetVisibleItems(CalcItemIndex(Y));
+    if (Item <> nil) and Item.CanEdit and not (Item is TJvInspectorBooleanItem) and
+      not Item.Editing and PtInRect(Item.Rects[iprEditValue], Point(X, Y)) then
+      Cursor := crIBeam
+    else
+      Cursor := crDefault;
   end
 end;
 
