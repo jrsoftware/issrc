@@ -1746,9 +1746,8 @@ begin
           end;
         end;
         PostToInsp :=
-          (Msg.Msg = WM_KEYDOWN) and ((KeyDataToShiftState(Int32(Msg.LParam)) = []) and
-          ((Msg.WParam in [VK_NEXT, VK_PRIOR]) or
-            (not DroppedDown and (Msg.WParam in [VK_DOWN, VK_UP]))));
+          (Msg.Msg = WM_KEYDOWN) and (KeyDataToShiftState(TWMKeyDown(Msg).KeyData) = []) and
+          (not DroppedDown and (TWMKeyDown(Msg).CharCode in [VK_NEXT, VK_PRIOR, VK_DOWN, VK_UP]));
         if PostToInsp then begin
           PostMessage(Inspector.Handle, Msg.Msg, Msg.WParam, Msg.LParam);
           Msg.Result := 1;
