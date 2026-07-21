@@ -2129,7 +2129,6 @@ procedure TJvInspectorListBox.CreateWnd;
 begin
   inherited CreateWnd;
   Windows.SetParent(Handle, 0);
-  CallWindowProc(DefWndProc, Handle, WM_SETFOCUS, 0, 0);
 end;
 
 procedure TJvInspectorListBox.KeyPress(var Key: Char);
