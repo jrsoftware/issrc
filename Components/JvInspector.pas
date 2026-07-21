@@ -151,7 +151,6 @@ type
     procedure SetTopIndex(Value: Integer);
     procedure UpdateScrollBars;
     procedure WMGetObject(var Msg: TMessage); message WM_GETOBJECT;
-    procedure WMUpdateUIState(var Msg: TMessage); message WM_UPDATEUISTATE;
     procedure WMVScroll(var Msg: TWMScroll); message WM_VSCROLL;
     procedure WndProc(var Msg: TMessage); override;
     function DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean; override;
@@ -960,12 +959,6 @@ procedure TJvInspector.WMGetObject(var Msg: TMessage);
 begin
   if not HandleMSAAGetObject(Msg) then
     inherited;
-end;
-
-procedure TJvInspector.WMUpdateUIState(var Msg: TMessage);
-begin
-  Invalidate;
-  inherited;
 end;
 
 procedure TJvInspector.WMVScroll(var Msg: TWMScroll);

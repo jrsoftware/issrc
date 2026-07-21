@@ -103,7 +103,6 @@ type
     procedure WMNCHitTest(var Message: TWMNCHitTest); message WM_NCHITTEST;
     procedure WMSize(var Message: TWMSize); message WM_SIZE;
     procedure WMThemeChanged(var Message: TMessage); message WM_THEMECHANGED;
-    procedure WMUpdateUIState(var Message: TMessage); message WM_UPDATEUISTATE;
     procedure WMVScroll(var Message: TWMVScroll); message WM_VSCROLL;
   protected
     FAccObjectInstance: TObject;
@@ -1779,12 +1778,6 @@ procedure TNewCheckListBox.WMThemeChanged(var Message: TMessage);
 begin
   { Do not use Run to Cursor inside this function, it will interrupt the theme change }
   UpdateThemeData(True, True);
-  inherited;
-end;
-
-procedure TNewCheckListBox.WMUpdateUIState(var Message: TMessage);
-begin
-  Invalidate;
   inherited;
 end;
 
