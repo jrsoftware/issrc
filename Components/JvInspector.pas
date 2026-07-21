@@ -1241,7 +1241,7 @@ procedure TJvInspector.CalcEditBasedRects;
 var
   TmpRect: TRect;
 begin
-  if not (iifValueList in FPaintItem.Flags) then begin // Value takes up entire edit value rect, there is no edit button:
+  if not (FPaintItem.Editing and (iifValueList in FPaintItem.Flags)) then begin // Value takes up entire edit value rect, there is no edit button:
     FPaintItem.Rects[iprEditValue] := FPaintItem.Rects[iprValue];
     FPaintItem.Rects[iprEditButton] := Rect(0, 0, 0, 0);
   end else begin // The edit button is on the right of the edit value area:
