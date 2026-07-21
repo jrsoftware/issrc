@@ -12,7 +12,7 @@ unit OleAccFunc;
 interface
 
 uses
-  Windows;
+  Winapi.Windows;
 
 const
   CLSID_AccPropServices: TGUID = '{B5F8350B-0548-48B1-A6EE-88BD00B4A5E7}';
@@ -31,11 +31,11 @@ function InitializeOleAcc: Boolean;
 implementation
 
 uses
-  ActiveX, SysUtils, PathFunc;
+  Winapi.ActiveX, System.SysUtils, PathFunc;
 
 var
-  OleAccInited: BOOL;
-  OleAccAvailable: BOOL;
+  OleAccInited: Boolean;
+  OleAccAvailable: Boolean;
 
 function InitializeOleAcc: Boolean;
 

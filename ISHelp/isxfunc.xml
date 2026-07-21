@@ -999,6 +999,28 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <prototype>function ConvertPercentStr(var S: String): Boolean;</prototype>
         <description><p>Expands all %-encoded characters in the string (see <extlink href="http://www.ietf.org/rfc/rfc2396.txt">RFC 2396</extlink>). Returns <tt>True</tt> if all were successfully expanded.</p></description>
       </function>
+      <function>
+        <name>AddPeriod</name>
+        <prototype>function AddPeriod(const S: String): String;</prototype>
+        <description><p>Returns the specified string with a <tt>.</tt> full stop character (<tt>U+002E</tt>) appended, unless the string is empty, already ends with a sentence-terminating character, or ends with a control character (such as CR or LF), in which case the string is returned unchanged.</p></description>
+        <remarks><p>This function is mainly intended to be used when displaying or logging exception messages, which generally do not end with a punctuation character.</p>
+<p>The precise behavior of this function is subject to change. Therefore, callers must not assume that the result will always be the same for a given string. The result is meant to be viewed by humans, not consumed by parsers.</p>
+<p>Currently recognized sentence-terminating characters include:</p>
+<table>
+<!-- Descriptions are from the Unicode standard -->
+<tr><th>Character</th><th>Code point</th><th>Description</th></tr>
+<tr><td><tt>!</tt></td><td><tt>U+0021</tt></td><td>Exclamation Mark</td></tr>
+<tr><td><tt>.</tt></td><td><tt>U+002E</tt></td><td>Full Stop</td></tr>
+<tr><td><tt>?</tt></td><td><tt>U+003F</tt></td><td>Question Mark</td></tr>
+<tr><td><tt>&#x061F;</tt></td><td><tt>U+061F</tt></td><td>Arabic Question Mark</td></tr>
+<tr><td><tt>&#x06D4;</tt></td><td><tt>U+06D4</tt></td><td>Arabic Full Stop</td></tr>
+<tr><td><tt>&#x3002;</tt></td><td><tt>U+3002</tt></td><td>Ideographic Full Stop</td></tr>
+<tr><td><tt>&#xFF01;</tt></td><td><tt>U+FF01</tt></td><td>Fullwidth Exclamation Mark</td></tr>
+<tr><td><tt>&#xFF0E;</tt></td><td><tt>U+FF0E</tt></td><td>Fullwidth Full Stop</td></tr>
+<tr><td><tt>&#xFF1F;</tt></td><td><tt>U+FF1F</tt></td><td>Fullwidth Question Mark</td></tr>
+</table></remarks>
+        <seealso><p><isxfunc>GetExceptionMessage</isxfunc></p></seealso>
+      </function>
     </subcategory>
     <subcategory>
       <function>
@@ -1238,11 +1260,6 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
         <prototype>function PathEndsWith(const S, AEndsWith: String; const IgnoreCase: Boolean): Boolean;</prototype>
         <description><p>Returns <tt>True</tt> if <tt>S</tt> ends with (or is equal to) <tt>AEndsWith</tt>. Uses a locale-independent "ordinal" comparison, which is important when comparing filenames/paths. Optionally ignores case.</p></description>
         <seealso><p><isxfunc>PathStartsWith</isxfunc></p></seealso>
-      </function>
-      <function>
-        <name>AddPeriod</name>
-        <prototype>function AddPeriod(const S: String): String;</prototype>
-        <description><p>Returns the specified string with a trailing period added, unless the string is empty or already ends in a period or other punctuation mark.</p></description>
       </function>
       <function>
         <name>ChangeFileExt</name>
