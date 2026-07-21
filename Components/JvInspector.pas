@@ -837,7 +837,6 @@ begin
   if Value < -1 then
     Value := -1;
   if Value <> SelectedIndex then begin
-    // bugfix WAP.  Why repaint the screen when the component is going away anyway.
     if not (csDestroying in ComponentState) then begin
       if Selected <> nil then
         Selected.DoneEdit(False);
@@ -864,10 +863,13 @@ begin
   if Value < 0 then
     Value := 0;
   if TopIndex <> Value then begin
+    const OldTopIndex = TopIndex;
     FTopIndex := Value;
     if HandleAllocated then begin
       UpdateScrollBars;
-      Invalidate;
+      // without SW_SCROLLCHILDREN any editor is still moved (in the paint), but becomes stale
+      ScrollWindowEx(Handle, 0, (OldTopIndex - Value) * GetItemHeight, nil, nil, 0,
+        nil, SW_INVALIDATE or SW_SCROLLCHILDREN);
     end;
   end;
 end;
