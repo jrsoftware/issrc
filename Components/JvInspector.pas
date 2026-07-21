@@ -456,7 +456,7 @@ end;
 
 constructor TJvInspector.Create(AOwner: TComponent);
 begin
-  inherited Create(AOwner);
+  inherited;
 
   DoubleBuffered := True;
   FVisibleList := TList<TJvCustomInspectorItem>.Create;
@@ -665,7 +665,7 @@ begin
       SendMessage(Handle, WM_CHANGEUISTATE, UIS_CLEAR or (UISF_HIDEFOCUS shl 16), 0);
     end;
   end;
-  inherited KeyDown(Key, Shift);
+  inherited;
   Item := Selected;
   if (Item <> nil) and Item.Editing then
   begin
@@ -688,7 +688,7 @@ var
   ItemIndex: Integer;
   Item: TJvCustomInspectorItem;
 begin
-  inherited MouseDown(Button, Shift, X, Y);
+  inherited;
   ItemIndex := CalcItemIndex(Y);
   Item := GetVisibleItems(ItemIndex);
   if not Focused and ((Item = nil) or (not Item.Editing)) then
@@ -745,7 +745,7 @@ end;
 
 procedure TJvInspector.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
-  inherited MouseMove(Shift, X, Y);
+  inherited;
   if DraggingDivider then
     Divider := X
   else
@@ -761,7 +761,7 @@ end;
 
 procedure TJvInspector.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  inherited MouseUp(Button, Shift, X, Y);
+  inherited;
   if Button = mbLeft then
   begin
     if DraggingDivider then
@@ -930,7 +930,7 @@ begin
   case Msg.Msg of
     WM_SETFOCUS:
       begin
-        inherited WndProc(Msg);
+        inherited;
         if (Selected <> nil) and not Selected.EditCtrlDestroying then
           Selected.SetFocus;
         Invalidate;
@@ -938,23 +938,23 @@ begin
       end;
     WM_KILLFOCUS:
       begin
-        inherited WndProc(Msg);
+        inherited;
         if Selected <> nil then
           Selected.CancelPress;
         Invalidate;
       end;
     WM_SIZE:
       begin
-        inherited WndProc(Msg);
+        inherited;
         BoundsChanged;
       end;
     WM_GETDLGCODE:
       begin
-        inherited WndProc(Msg);
+        inherited;
         Msg.Result := DLGC_WANTARROWS;
       end;
   else
-    inherited WndProc(Msg);
+    inherited;
   end;
 end;
 
@@ -2236,7 +2236,7 @@ end;
 
 procedure TJvInspectorListBox.CreateParams(var Params: TCreateParams);
 begin
-  inherited CreateParams(Params);
+  inherited;
   with Params do
   begin
     Style := Style or WS_BORDER;
@@ -2270,7 +2270,7 @@ begin
         Key := #0;
       end;
   end;
-  inherited KeyPress(Key);
+  inherited;
 end;
 
 procedure TJvInspectorListBox.MouseDown(Button: TMouseButton; Shift: TShiftState;
@@ -2287,7 +2287,7 @@ begin
     if not PtInRect(ClientRect, Pt) then
       FNCClick := True;
     FClicking := True;
-    inherited MouseDown(Button, Shift, X, Y);
+    inherited;
   end
   else
     FOnDeactivate(Self);
@@ -2313,7 +2313,7 @@ begin
   Pt := Point(X, Y);
 
   if FNCClick then
-    inherited MouseUp(Button, Shift, X, Y)
+    inherited
   else
   if FClicking then
   begin
@@ -2511,7 +2511,7 @@ end;
 
 procedure TJvInspectorBooleanItem.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
-  inherited MouseMove(Shift, X, Y);
+  inherited;
   if FCheckTracking then
   begin
     const NewPressed = PtInRect(FCheckRect, Point(X, Y));
@@ -2526,7 +2526,7 @@ end;
 procedure TJvInspectorBooleanItem.MouseUp(Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  inherited MouseUp(Button, Shift, X, Y);
+  inherited;
   if FCheckTracking then
   begin
     FCheckTracking := False;
