@@ -335,6 +335,7 @@ type
     procedure CreateWnd; override;
     procedure KeyPress(var Key: Char); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
   public
     property OnValueSelect: TNotifyEvent read FOnValueSelect write FOnValueSelect;
@@ -2249,6 +2250,16 @@ begin
   end
   else
     FOnDeactivate(Self);
+end;
+
+procedure TJvInspectorListBox.MouseMove(Shift: TShiftState; X, Y: Integer);
+begin
+  inherited;
+  { Auto-update selection, like a standard combobox. Doesn't actually commit
+    selection item. }
+  const Index = ItemAtPos(Point(X, Y), True);
+  if Index >= 0 then
+    ItemIndex := Index;
 end;
 
 procedure TJvInspectorListBox.MouseUp(Button: TMouseButton; Shift: TShiftState;
