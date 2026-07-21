@@ -1783,6 +1783,8 @@ end;
 procedure TJvCustomInspectorItem.EditMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
+  if DroppedDown then
+    CloseUp(False);
   if (Button = mbLeft) and (ssDouble in Shift) and (iifValueList in Flags) then
     SelectValue(1);
 end;
