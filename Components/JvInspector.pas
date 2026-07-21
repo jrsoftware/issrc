@@ -70,7 +70,6 @@ type
     FDraggingDivider: Boolean;
     FLockCount: Integer;
     FNeedRebuild: Boolean;
-    FBackgroundColor: TColor;
     FCategoryColor: TColor;
     FCategoryDividerColor: TColor;
     FCategoryTextColor: TColor;
@@ -127,6 +126,7 @@ type
     procedure ChangeScale(M, D: Integer; isDpiChange: Boolean); override;
     procedure CMActivate(var Msg: TCMActivate); message CM_ACTIVATE;
     procedure CMDeactivate(var Msg: TCMActivate); message CM_DEACTIVATE;
+    function GetBackgroundColor: TColor;
     function GetImageHeight: Integer;
     function GetItemHeight: Integer;
     function GetLastFullVisible: Integer;
@@ -146,6 +146,7 @@ type
     procedure Paint; override;
     procedure RebuildVisible;
     procedure BoundsChanged;
+    procedure SetBackgroundColor(const Value: TColor);
     procedure SetDivider(Value: Integer);
     procedure SetSelected(const Value: TJvCustomInspectorItem);
     procedure SetSelectedIndex(Value: Integer);
@@ -185,7 +186,7 @@ type
     property OnSetAsOrdinal: TJvInspAsOrdinal read FOnSetAsOrdinal write FOnSetAsOrdinal;
     property OnSetAsString: TJvInspAsString read FOnSetAsString write FOnSetAsString;
     property OnGetValueList: TInspectorItemGetValueListEvent read FOnGetValueList write FOnGetValueList;
-    property BackgroundColor: TColor read FBackgroundColor write FBackgroundColor;
+    property BackgroundColor: TColor read GetBackgroundColor write SetBackgroundColor;
     property CategoryColor: TColor read FCategoryColor write FCategoryColor;
     property CategoryDividerColor: TColor read FCategoryDividerColor write FCategoryDividerColor;
     property CategoryTextColor: TColor read FCategoryTextColor write FCategoryTextColor;
@@ -465,7 +466,7 @@ begin
   Height := 100;
   Divider := 75;
 
-  FBackgroundColor := clWindow;
+  BackgroundColor := clWindow;
   FCategoryColor := clBtnFace;
   FCategoryDividerColor := clBtnShadow;
   FCategoryTextColor := clBtnText;
@@ -768,7 +769,7 @@ begin
   FRegularTextHeight := CanvasMaxTextHeight(Canvas);
   Canvas.Font.Style := Canvas.Font.Style + [fsBold];
   FCategoryTextHeight := CanvasMaxTextHeight(Canvas);
-  Canvas.Brush.Color := FBackgroundColor;
+  Canvas.Brush.Color := BackgroundColor;
   PaintItems;
 end;
 
@@ -807,6 +808,19 @@ begin
     UpdateScrollBars;
     Invalidate;
   end;
+end;
+
+function TJvInspector.GetBackgroundColor: TColor;
+begin
+  Result := Color;
+end;
+
+procedure TJvInspector.SetBackgroundColor(const Value: TColor);
+begin
+  { Using the Color property itself so background erases use the correct
+    color: invalidations initiated by Windows itself, such as when the
+    control is uncovered, erase with Color even if csOpaque is set. }
+  Color := Value;
 end;
 
 procedure TJvInspector.SetDivider(Value: Integer);
@@ -1109,14 +1123,14 @@ begin
   end else if FPaintItem.IsCategory then
     Canvas.Brush.Color := FCategoryColor
   else
-    Canvas.Brush.Color := FBackgroundColor;
+    Canvas.Brush.Color := BackgroundColor;
 end;
 
 procedure TJvInspector.ApplyValueFont;
 begin
   Canvas.Font := Font;
   Canvas.Font.Color := FValueColor;
-  Canvas.Brush.Color := FBackgroundColor;
+  Canvas.Brush.Color := BackgroundColor;
 end;
 
 procedure TJvInspector.PaintItems;
@@ -1326,7 +1340,7 @@ begin
       Dec(Size);
     const Margin = MulDiv(2, Size, 9);
     const Mid = Size div 2;
-    Canvas.Brush.Color := FBackgroundColor;
+    Canvas.Brush.Color := BackgroundColor;
     Canvas.Pen.Color := FNameColor;
     const SaveIndex = SaveDC(Canvas.Handle);
     try
