@@ -553,8 +553,10 @@ end;
 
 procedure TJvInspector.InvalidateItem;
 begin
-  if (LockCount = 0) and HandleAllocated then
-    UpdateScrollBars; { Calls Invalidate }
+  if (LockCount = 0) and HandleAllocated then begin
+    UpdateScrollBars;
+    Invalidate;
+  end;
 end;
 
 procedure TJvInspector.InvalidateList;
@@ -563,6 +565,7 @@ begin
     if HandleAllocated then begin
       RebuildVisible;
       UpdateScrollBars;
+      Invalidate;
     end else
       NeedRebuild := True;
   end else
@@ -797,8 +800,10 @@ begin
   if csCreating in ControlState then
     Exit;
   TopIndex := TopIndex; // Adapt position
-  if HandleAllocated then
+  if HandleAllocated then begin
     UpdateScrollBars;
+    Invalidate;
+  end;
 end;
 
 procedure TJvInspector.SetDivider(Value: Integer);
@@ -814,8 +819,10 @@ begin
   if Value < (2 * GetItemHeight) then
     Value := 2 * GetItemHeight;
   FDivider := Value;
-  if HandleAllocated then
+  if HandleAllocated then begin
     UpdateScrollBars;
+    Invalidate;
+  end;
 end;
 
 procedure TJvInspector.SetSelected(const Value: TJvCustomInspectorItem);
@@ -858,8 +865,10 @@ begin
     Value := 0;
   if TopIndex <> Value then begin
     FTopIndex := Value;
-    if HandleAllocated then
+    if HandleAllocated then begin
       UpdateScrollBars;
+      Invalidate;
+    end;
   end;
 end;
 
@@ -893,7 +902,6 @@ begin
     SetScrollInfo(Handle, SB_VERT, ScrollInfo, True);
   end;
   ShowScrollBar(Handle, SB_VERT, ShowVertSB);
-  Invalidate;
 end;
 
 procedure TJvInspector.WndProc(var Msg: TMessage);
