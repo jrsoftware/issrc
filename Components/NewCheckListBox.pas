@@ -250,8 +250,7 @@ constructor TNewCheckListBox.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  with TBitmap.Create do
-  begin
+  with TBitmap.Create do begin
     try
       Handle := LoadBitmap(0, PChar(OBM_CHECKBOXES));
       FCheckWidth := Width div 4;
@@ -360,8 +359,7 @@ begin
   Result := True;
   Dec(Index);
   Dec(ALevel);
-  while Index >= 0 do
-  begin
+  while Index >= 0 do begin
     with ItemStates[Index] do
       if Level = ALevel then
         if ItemType = itRadio then
@@ -370,11 +368,9 @@ begin
           Break;
     Dec(Index);
   end;
-  if Index >= 0 then
-  begin
+  if Index >= 0 then begin
     Index := GetParentOf(Index);
-    while Index >= 0 do
-    begin
+    while Index >= 0 do begin
       if ItemStates[Index].ItemType = itRadio then
         Exit;
       Index := GetParentOf(Index);
@@ -388,11 +384,9 @@ var
   I: Integer;
 begin
   if FWantTabs and CanFocus then
-    with Message do
-    begin
+    with Message do begin
       I := FindAccel(CharCode);
-      if I >= 0 then
-      begin
+      if I >= 0 then begin
         SetFocus;
         if FCaptureIndex = I then
           EndCapture(True) { We're about to toggle the captured item, so end capture, else it will be toggled twice }
@@ -413,21 +407,17 @@ procedure TNewCheckListBox.CMEnter(var Message: TCMEnter);
 var
   GoForward, Arrows: Boolean;
 begin
-  if FWantTabs and FFormFocusChanged and (GetKeyState(VK_LBUTTON) >= 0) then
-  begin
+  if FWantTabs and FFormFocusChanged and (GetKeyState(VK_LBUTTON) >= 0) then begin
     if GetKeyState(VK_TAB) < 0 then begin
       Arrows := False;
       GoForward := (GetKeyState(VK_SHIFT) >= 0);
-    end
-    else if (GetKeyState(VK_UP) < 0) or (GetKeyState(VK_LEFT) < 0) then begin
+    end else if (GetKeyState(VK_UP) < 0) or (GetKeyState(VK_LEFT) < 0) then begin
       Arrows := True;
       GoForward := False;
-    end
-    else if (GetKeyState(VK_DOWN) < 0) or (GetKeyState(VK_RIGHT) < 0) then begin
+    end else if (GetKeyState(VK_DOWN) < 0) or (GetKeyState(VK_RIGHT) < 0) then begin
       Arrows := True;
       GoForward := True;
-    end
-    else begin
+    end else begin
       { Otherwise, just select the first item }
       Arrows := False;
       GoForward := True;
@@ -460,8 +450,7 @@ end;
 
 procedure LineDDAProc(X, Y: Integer; Canvas: TCanvas); stdcall;
 begin
-  if ((X xor Y) and 1) = 0 then
-  begin
+  if ((X xor Y) and 1) = 0 then begin
     Canvas.MoveTo(X, Y);
     Canvas.LineTo(X + 1, Y);
   end;
@@ -474,8 +463,7 @@ end;
 
 procedure TNewCheckListBox.CNDrawItem(var Message: TWMDrawItem);
 begin
-  with Message.DrawItemStruct^ do
-  begin
+  with Message.DrawItemStruct^ do begin
     { Note: itemID is -1 when there are no items }
     if Integer(itemID) >= 0 then begin
       var L := ItemStates[Integer(itemID)].Level;
@@ -608,8 +596,7 @@ var
   procedure InternalDrawText(const S: string; var R: TRect; Format: UINT;
     Embossed: Boolean);
   begin
-    if Embossed then
-    begin
+    if Embossed then begin
       Canvas.Brush.Style := bsClear;
       OffsetRect(R, 1, 1);
       SetTextColor(Canvas.Handle, GetSysColor(COLOR_BTNHIGHLIGHT));
@@ -617,8 +604,7 @@ var
       OffsetRect(R, -1, -1);
       SetTextColor(Canvas.Handle, GetSysColor(COLOR_BTNSHADOW));
       DrawText(Canvas.Handle, PChar(S), Length(S), R, Format);
-    end
-    else
+    end else
       DrawText(Canvas.Handle, PChar(S), Length(S), R, Format);
   end;
 
@@ -788,8 +774,7 @@ begin
     FlipRect(Rect, SavedClientRect, IsRightToLeft);
     Inc(Rect.Left);
     const OldColor = SetTextColor(Handle, UColorToRGB(NewTextColor));
-    if ItemState.SubItem <> '' then
-    begin
+    if ItemState.SubItem <> '' then begin
       const DrawTextFormat = UDrawTextBiDiModeFlags(Self, DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE or DT_VCENTER);
       Font.Style := ItemState.SubItemFontStyle;
       Font.Color := NewTextColor; { Setting Font.Style may invalidate the font, requiring us to reset Color regardless of the SetTextColor call above }
@@ -803,8 +788,7 @@ begin
       InternalDrawText(ItemState.SubItem, SubItemRect, DrawTextFormat,
         FWantTabs and ItemDisabled);
       Dec(Rect.Right, SubItemWidth);
-    end
-    else
+    end else
       Dec(Rect.Right, FOffset);
     { Draw item text }
     if not FWantTabs then
@@ -838,8 +822,7 @@ begin
       InternalDrawText(Items[Index], Rect, DrawTextFormat, Embossed);
     { Draw focus rectangle }
     if FWantTabs and not ItemDisabled and (odSelected in State) and Focused and
-      (UIState and UISF_HIDEFOCUS = 0) then
-    begin
+      (UIState and UISF_HIDEFOCUS = 0) then begin
       FocusRect := Rect;
       InflateRect(FocusRect, 1, 1);
       DrawFocusRect(FocusRect);
@@ -854,8 +837,7 @@ var
   Item: Integer;
 begin
   Item := FCaptureIndex;
-  if Item >= 0 then
-  begin
+  if Item >= 0 then begin
     InvalidateItem := FSpaceDown or (FCaptureIndex = FLastMouseMoveIndex) or (FThemeData <> 0);
     FSpaceDown := False;
     FCaptureIndex := -1;
@@ -876,18 +858,14 @@ var
 begin
   if (Item < -1) or (Item >= Items.Count) then
     Exit;
-  if Item = -1 then
-  begin
+  if Item = -1 then begin
     L := 0;
     Item := 0;
-  end
-  else
-  begin
+  end else begin
     L := ItemLevel[Item] + 1;
     Inc(Item);
   end;
-  while (Item < Items.Count) and (ItemLevel[Item] >= L) do
-  begin
+  while (Item < Items.Count) and (ItemLevel[Item] >= L) do begin
     if ItemLevel[Item] = L then
       Proc(Item, (Item < Items.Count - 1) and (ItemLevel[Item + 1] > L), Ext);
     Inc(Item);
@@ -904,12 +882,10 @@ var
 begin
   if Items.Count <> FStateList.Count then  { sanity check }
     raise Exception.Create('List item and state item count mismatch');
-  if Items.Count > 0 then
-  begin
+  if Items.Count > 0 then begin
     if ItemLevel[Items.Count - 1] + 1 < ALevel then
       ALevel := Byte(ItemLevel[Items.Count - 1] + 1);
-  end
-  else
+  end else
     ALevel := 0;
   FThreadsUpToDate := False;
   { Use our own grow code to minimize heap fragmentation }
@@ -977,8 +953,7 @@ var
 begin
   if StartFrom < -1 then
     StartFrom := ItemIndex;
-  if Items.Count > 0 then
-  begin
+  if Items.Count > 0 then begin
     Delta := Ord(GoForward) * 2 - 1;
     Result := StartFrom + Delta;
     while (Result >= 0) and (Result < Items.Count) and
@@ -986,8 +961,7 @@ begin
       Result := Result + Delta;
     if (Result < 0) or (Result >= Items.Count) then
       Result := -1;
-  end
-  else
+  end else
     Result := -1;
 end;
 
@@ -1100,8 +1074,7 @@ begin
         if (FHotIndex <> ItemIndex) and (FHotIndex <> -1) and (FThemeData <> 0) then
           InvalidateCheck(FHotIndex);
       end;
-    end
-    else
+    end else
       Toggle(ItemIndex);
   inherited;
 end;
@@ -1123,8 +1096,7 @@ var
 begin
   if Button = mbLeft then begin
     Index := ItemAtPos(Point(X, Y), True);
-    if (Index <> -1) and CanFocusItem(Index) then
-    begin
+    if (Index <> -1) and CanFocusItem(Index) then begin
       if FWantTabs then begin
         if not FSpaceDown then begin
           if not MouseCapture then
@@ -1134,8 +1106,7 @@ begin
           InvalidateCheck(Index);
           HandleScroll; { Might have scrolled a new item into view }
         end;
-      end
-      else
+      end else
         Toggle(Index);
     end;
   end;
@@ -1147,8 +1118,7 @@ procedure TNewCheckListBox.MouseUp(Button: TMouseButton; Shift: TShiftState;
 var
   Index: Integer;
 begin
-  if (Button = mbLeft) and FWantTabs and not FSpaceDown and (FCaptureIndex >= 0) then
-  begin
+  if (Button = mbLeft) and FWantTabs and not FSpaceDown and (FCaptureIndex >= 0) then begin
     Index := ItemAtPos(Point(X, Y), True);
     EndCapture(Index <> FCaptureIndex);
     if (FHotIndex <> -1) and (FThemeData <> 0) then
@@ -1162,8 +1132,7 @@ var
   OldHotIndex: Integer;
 begin
   OldHotIndex := FHotIndex;
-  if NewHotIndex <> OldHotIndex then
-  begin
+  if NewHotIndex <> OldHotIndex then begin
     FHotIndex := NewHotIndex;
     if FCaptureIndex = -1 then begin
       if (OldHotIndex <> -1) and (FThemeData <> 0) then
@@ -1292,8 +1261,7 @@ function TNewCheckListBox.CheckItem(const Index: Integer;
         Result := cbGrayed
       else
         Result := cbChecked;
-    end
-    else
+    end else
       Result := cbUnchecked;
   end;
 
@@ -1434,8 +1402,7 @@ end;
 
 procedure TNewCheckListBox.SetFlat(Value: Boolean);
 begin
-  if Value <> FFlat then
-  begin
+  if Value <> FFlat then begin
     FFlat := Value;
     Invalidate;
   end;
@@ -1443,8 +1410,7 @@ end;
 
 procedure TNewCheckListBox.SetItemEnabled(Index: Integer; const AEnabled: Boolean);
 begin
-  if ItemStates[Index].Enabled <> AEnabled then
-  begin
+  if ItemStates[Index].Enabled <> AEnabled then begin
     ItemStates[Index].Enabled := AEnabled;
     const R = ItemRect(Index);
     InvalidateRect(Handle, @R, True);
@@ -1497,8 +1463,7 @@ end;
 
 procedure TNewCheckListBox.SetOffset(AnOffset: Integer);
 begin
-  if FOffset <> AnOffset then
-  begin
+  if FOffset <> AnOffset then begin
     FOffset := AnOffset;
     for var I := Items.Count-1 downto 0 do
       RemeasureItem(I);
@@ -1509,8 +1474,7 @@ end;
 
 procedure TNewCheckListBox.SetShowLines(Value: Boolean);
 begin
-  if FShowLines <> Value then
-  begin
+  if FShowLines <> Value then begin
     FShowLines := Value;
     Invalidate;
   end;
@@ -1560,8 +1524,7 @@ procedure TNewCheckListBox.UpdateThreads;
     Result := -1;
     L := ItemLevel[Item] + 1;
     Inc(Item);
-    while (Item < Items.Count) and (ItemLevel[Item] >= L) do
-    begin
+    while (Item < Items.Count) and (ItemLevel[Item] >= L) do begin
       if ItemLevel[Item] = L then
         Result := Item;
       Inc(Item);
@@ -1572,14 +1535,12 @@ procedure TNewCheckListBox.UpdateThreads;
 var
   I, J, LastChild, L: Integer;
 begin
-  for I := 0 to Items.Count - 1 do
-  begin
+  for I := 0 to Items.Count - 1 do begin
     ItemStates[I].ThreadCache := [0];       //Doing ':= []' causes a "F2084 Internal Error: C21846" compiler error on Delphi 10.3 Rio }
     Exclude(ItemStates[I].ThreadCache, 0);  //
     ItemStates[I].IsLastChild := False;
   end;
-  for I := 0 to Items.Count - 1 do
-  begin
+  for I := 0 to Items.Count - 1 do begin
     LastChild := LastImmediateChildOf(I);
     L := ItemLevel[I];
     for J := I + 1 to LastChild do
@@ -1632,8 +1593,7 @@ var
   Prnt, Ctrl: TWinControl;
 begin
   { If space is pressed, avoid flickering -- exit now. }
-  if not FWantTabs or (Message.CharCode = VK_SPACE) then
-  begin
+  if not FWantTabs or (Message.CharCode = VK_SPACE) then begin
     inherited;
     Exit;
   end;
@@ -1657,17 +1617,14 @@ begin
     I := FindNextItem(-2, GoForward, not Arrows)
   else
     I := -1;
-  if I < 0 then
-  begin
+  if I < 0 then begin
     Prnt := nil;
     if not Arrows then
       Prnt := GetParentForm(Self);
     if Prnt = nil then Prnt := Parent;
-    if Prnt <> nil then
-    begin
+    if Prnt <> nil then begin
       Ctrl := TWinControlAccess(Prnt).FindNextControl(Self, GoForward, True, Arrows);
-      if (Ctrl <> nil) and (Ctrl <> Self) then
-      begin
+      if (Ctrl <> nil) and (Ctrl <> Self) then begin
         Ctrl.SetFocus;
         Exit;
       end;
@@ -1701,8 +1658,7 @@ begin
   end;
 
   NewHotIndex := -1;
-  if (Index <> -1) and CanFocusItem(Index) then
-  begin
+  if (Index <> -1) and CanFocusItem(Index) then begin
     Rect := ItemRect(Index);
     Indent := (FOffset * 2 + FCheckWidth);
     if FWantTabs then
@@ -1748,13 +1704,10 @@ var
   I: Integer;
 begin
   inherited;
-  if FWantTabs and not (csDesigning in ComponentState) then
-  begin
-    if Message.Result = HTCLIENT then
-    begin
+  if FWantTabs and not (csDesigning in ComponentState) then begin
+    if Message.Result = HTCLIENT then begin
       I := ItemAtPos(ScreenToClient(SmallPointToPoint(Message.Pos)), True);
-      if (I < 0) or not CanFocusItem(I) then
-      begin
+      if (I < 0) or not CanFocusItem(I) then begin
         UpdateHotIndex(-1);
         Message.Result := 12345;
         Exit;

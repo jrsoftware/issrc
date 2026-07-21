@@ -283,8 +283,7 @@ begin
     TVarData(pvarRole).VInteger := ROLE_SYSTEM_OUTLINE;
     TVarData(pvarRole).VType := VT_I4;
     Result := S_OK;
-  end
-  else begin
+  end else begin
     try
       case FControl.ItemStates[TVarData(varChild).VInteger-1].ItemType of
         itCheck: TVarData(pvarRole).VInteger := ROLE_SYSTEM_CHECKBUTTON;
