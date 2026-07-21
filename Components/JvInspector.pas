@@ -452,7 +452,10 @@ constructor TJvInspector.Create(AOwner: TComponent);
 begin
   inherited;
 
+  ControlStyle := ControlStyle + [csOpaque];
+  {$IFNDEF DEBUG}
   DoubleBuffered := True;
+  {$ENDIF}
   FVisibleList := TList<TJvCustomInspectorItem>.Create;
   FRoot := TJvCustomInspectorItem.Create(nil);
   FRoot.FInspector := Self;
