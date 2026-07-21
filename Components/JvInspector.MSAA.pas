@@ -653,7 +653,7 @@ begin
         pszValue := 'yes'
       else
         pszValue := 'no';
-    end else if Item.Count > 0 then begin
+    end else if TJvCustomInspectorItemAccess(Item).IsCategory then begin
       { Return the level as the value, like standard tree view controls do.
         Not sure if any screen readers will actually use this, seeing as we
         aren't a real tree view control. }
