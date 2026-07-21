@@ -5734,6 +5734,9 @@ begin
 
   ToolbarPanel.Color := FTheme.Colors[tcToolBack];
 
+  MemosTabSet.UpdateTheme;
+  OutputTabSet.UpdateTheme;
+
   for var Memo in FMemos do begin
     Memo.UpdateThemeColorsAndStyleAttributes;
     SetControlWindowTheme(Memo, FTheme.Dark);
