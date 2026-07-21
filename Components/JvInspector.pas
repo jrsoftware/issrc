@@ -1830,7 +1830,7 @@ begin
         begin
           if Msg.Msg <> WM_CHAR then
             DoDropDownKeys(TWMKeyDown(Msg).CharCode, KeyDataToShiftState(TWMKeyDown(Msg).KeyData));
-          if TWMKeyDown(Msg).CharCode <> 0 then
+          if (Msg.Msg = WM_CHAR) or (TWMKeyDown(Msg).CharCode <> 0) then
           begin
             if DroppedDown then
               SendMessage(ListBox.Handle, Msg.Msg, Msg.WParam, Msg.LParam);
