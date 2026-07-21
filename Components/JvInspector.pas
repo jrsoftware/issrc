@@ -91,7 +91,7 @@ type
     FReadOnly: Boolean;
     FRoot: TJvCustomInspectorItem;
     FSelectedIndex: Integer;
-    FSelecting: Boolean;
+    FPressedItem: TJvCustomInspectorItem;
     FTopIndex: Integer;
     FVisibleList: TList<TJvCustomInspectorItem>;
     FOnEditorKeyDown: TKeyEvent;
@@ -160,7 +160,6 @@ type
     property NeedRebuild: Boolean read FNeedRebuild write FNeedRebuild;
     property PaintGeneration: Integer read FPaintGen;
     property SelectedIndex: Integer read FSelectedIndex write SetSelectedIndex;
-    property Selecting: Boolean read FSelecting write FSelecting;
     property TopIndex: Integer read FTopIndex write SetTopIndex;
   public
     constructor Create(AOwner: TComponent); override;
@@ -680,28 +679,26 @@ begin
     else
     if (Item <> nil) and (ItemIndex <> SelectedIndex) then
       SelectedIndex := ItemIndex;
-    if not DraggingDivider then
-      Selecting := True;
     if (Item <> nil) and
       ((Item.Count > 0) or (iifExpanded in Item.Flags)) then
     begin
       if PtInRect(Item.Rects[iprBtnDstRect], Point(X, Y)) or
         ((ssDouble in Shift) and (Item.IsCategory or (X < Pred(Divider)))) then
-      begin
         Item.Expanded := not Item.Expanded;
-        Selecting := False;
-      end;
     end;
     if (Item <> nil) and (PtInRect(Item.Rects[iprNameArea], Point(X, Y)) or
       PtInRect(Item.Rects[iprValueArea], Point(X, Y))) then
+    begin
+      FPressedItem := Item;
       Item.MouseDown(Button, Shift, X, Y);
+    end;
     // A click on the value of an item that was not being edited yet lands on
     // the inspector, not the freshly focused edit, so the edit keeps all its
     // text selected and can't start a click-drag selection. Forward the click
     // to the edit so it places the caret and captures the mouse for dragging,
     // like the Delphi object inspector (when the item was already being edited
     // the click lands on the edit itself and never gets here). Hand the whole
-    // gesture to the edit: drop the inspector's own selecting, button-down and
+    // gesture to the edit: drop the inspector's own pressed-item, button-down and
     // capture state, since it gets no matching MouseUp once the edit captures
     // and would otherwise fire a stray click or keep following the mouse
     if not (ssDouble in Shift) and not DraggingDivider and
@@ -709,7 +706,7 @@ begin
       Item.EditCtrl.HandleAllocated and Item.EditCtrl.CanFocus and
       PtInRect(Item.Rects[iprEditValue], Point(X, Y)) then
     begin
-      Selecting := False;
+      FPressedItem := nil;
       ControlState := ControlState - [csLButtonDown, csClicked];
       MouseCapture := False;
       const Keys = MK_LBUTTON or (Ord(ssShift in Shift) * MK_SHIFT) or
@@ -721,9 +718,6 @@ begin
 end;
 
 procedure TJvInspector.MouseMove(Shift: TShiftState; X, Y: Integer);
-var
-  ItemIndex: Integer;
-  Item: TJvCustomInspectorItem;
 begin
   inherited MouseMove(Shift, X, Y);
   if DraggingDivider then
@@ -734,44 +728,25 @@ begin
   else
   begin
     Cursor := crDefault;
-    ItemIndex := CalcItemIndex(Y);
-    if Selecting then
-    begin
-      if ItemIndex <> SelectedIndex then
-      begin
-        if ItemIndex < 0 then
-          ItemIndex := SelectedIndex;
-        SelectedIndex := ItemIndex;
-      end;
-      Item := GetVisibleItems(ItemIndex);
-      if Item <> nil then
-        Item.MouseMove(Shift, X, Y);
-    end;
+    if FPressedItem <> nil then
+      FPressedItem.MouseMove(Shift, X, Y);
   end
 end;
 
 procedure TJvInspector.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
-var
-  ItemIndex: Integer;
-  Item: TJvCustomInspectorItem;
 begin
   inherited MouseUp(Button, Shift, X, Y);
-  ItemIndex := CalcItemIndex(Y);
-  Item := GetVisibleItems(ItemIndex);
   if Button = mbLeft then
   begin
     if DraggingDivider then
-      DraggingDivider := False
-    else
-    if Selecting then
-      Selecting := False;
+      DraggingDivider := False;
+    if FPressedItem <> nil then
+    begin
+      const Item = FPressedItem;
+      FPressedItem := nil;
+      Item.MouseUp(Button, Shift, X, Y);
+    end;
   end;
-  if (Item <> nil) and (PtInRect(Item.Rects[iprNameArea], Point(X, Y)) or
-    PtInRect(Item.Rects[iprValueArea], Point(X, Y))) then
-    Item.MouseUp(Button, Shift, X, Y)
-  else
-  if (Selected <> nil) and Selected.Tracking and not PtInRect(ClientRect, Point(X, Y)) then
-    Selected.StopTracking;
 end;
 
 procedure TJvInspector.Paint;
@@ -1634,7 +1609,6 @@ begin
     InvalidateItem;
     EditCtrl.SetFocus;
     FDroppedDown := True; // must be after EditCtrl.SetFocus
-    Inspector.Selecting := False;
   end;
 end;
 
@@ -2001,6 +1975,7 @@ begin
       if PtInRect(ListBox.ClientRect, ListPos) then
       begin
         StopTracking;
+        Inspector.FPressedItem := nil;
         MousePos := PointToSmallPoint(ListPos);
         SendMessage(ListBox.Handle, WM_LBUTTONDOWN, 0, PointToLParam(MousePos));
         Exit;
@@ -2170,6 +2145,8 @@ begin
   inherited BeforeDestruction;
   if Parent <> nil then
     Parent.FItems.Remove(Self);
+  if (Inspector <> nil) and (Inspector.FPressedItem = Self) then
+    Inspector.FPressedItem := nil;
   if (Inspector <> nil) and (Inspector.Root <> Self) then
     DoneEdit(True);
   FItems.Free;
