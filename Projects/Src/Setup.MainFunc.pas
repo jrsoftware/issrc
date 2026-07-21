@@ -257,7 +257,7 @@ uses
   ChaCha20, ECDSA, ISSigFunc, NewCtrls, PathFunc, UnsignedFunc, FormBackgroundStyleHook, RichEditViewer,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.PathRedir, {$IFNDEF WIN64} Setup.RedirFunc, {$ENDIF}
-  Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
+  Compression.Base, Compression.Zstd, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
   Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
   Shared.FileClass, Setup.LoggingFunc, StringScanner,
@@ -2860,6 +2860,9 @@ var
     if DecompressorDLLHandle = 0 then
       InternalError(Format('Failed to load DLL "%s"', [Filename]));
     case SetupHeader.CompressMethod of
+      cmZstd:
+        if not ZstdInitDecompressFunctions(DecompressorDLLHandle) then
+          InternalError('ZstdInitDecompressFunctions failed');
       cmZip:
         if not ZlibInitDecompressFunctions(DecompressorDLLHandle) then
           InternalError('ZlibInitDecompressFunctions failed');
@@ -3525,7 +3528,7 @@ begin
         ReadWizardImages(Reader, WizardBackImages, WantWizardImagesDynamicDark);
         { Decompressor DLL }
         DecompressorDLL := nil;
-        if SetupHeader.CompressMethod in [cmZip, cmBzip] then begin
+        if SetupHeader.CompressMethod in [cmZip, cmBzip, cmZstd] then begin
           DecompressorDLL := TMemoryStream.Create;
           ReadFileIntoStream(Reader, DecompressorDLL);
         end;
@@ -3637,7 +3640,7 @@ begin
   CreateTempInstallDir;
 
   { Save DecompressorDLL stream as "_isdecmp.dll" in TempInstallDir, and load it }
-  if SetupHeader.CompressMethod in [cmZip, cmBzip] then
+  if SetupHeader.CompressMethod in [cmZip, cmBzip, cmZstd] then
     LoadDecompressorDLL;
 
   { Save SevenZipDll stream as "_is7z.dll" in TempInstallDir, and load it }
