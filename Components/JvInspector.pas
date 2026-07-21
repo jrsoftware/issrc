@@ -108,6 +108,7 @@ type
     // otherwise invisible. This could be used to ill effect, so beware.
     FBeforeEdit: TInspectorBeforeEditEvent;
     FMouseWheelRecursion: Boolean;
+    FMouseWheelAccum: Integer;
     FAccessibleName: string;
     function ApplicationHook(var Msg: TMessage): Boolean;
     procedure ApplyNameFont;
@@ -1055,7 +1056,6 @@ end;
 
 function TJvInspector.DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean;
 var
-  Count: Integer;
   Index: Integer;
   LbPos: TPoint;
   MinPos, MaxPos: Integer;
@@ -1079,8 +1079,14 @@ begin
     GetScrollRange(Handle, SB_VERT, MinPos, MaxPos);
     if MinPos <> MaxPos then // no scroll bar enabled
     begin
-      Count := -WheelDelta div (120 div 5); // 5 items per scroll
-      Index := TopIndex + Count;
+      var Lines := Mouse.WheelScrollLines; // 0 = don't scroll, -1 = WHEEL_PAGESCROLL
+      if Lines < 0 then
+        Lines := ClientHeight div GetItemHeight;
+      // accumulate as required by https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-mousewheel
+      Inc(FMouseWheelAccum, WheelDelta * Lines);
+      const Count = FMouseWheelAccum div WHEEL_DELTA;
+      Dec(FMouseWheelAccum, Count * WHEEL_DELTA);
+      Index := TopIndex - Count;
       if Index < 0 then
         Index := 0;
       TopIndex := Index;
