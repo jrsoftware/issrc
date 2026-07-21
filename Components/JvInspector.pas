@@ -591,10 +591,10 @@ begin
   begin
     IgnoreKey := True;
     case Key of
-      VK_UP, VK_LEFT:
+      VK_UP:
         if SelectedIndex > 0 then
           SelectedIndex := SelectedIndex - 1;
-      VK_DOWN, VK_RIGHT:
+      VK_DOWN:
         if SelectedIndex < Pred(GetVisibleCount) then
           SelectedIndex := SelectedIndex + 1;
       VK_PRIOR:
@@ -1823,7 +1823,8 @@ begin
       begin
         if iifValueList in Flags then
         begin
-          DoDropDownKeys(TWMKeyDown(Msg).CharCode, KeyDataToShiftState(TWMKeyDown(Msg).KeyData));
+          if Msg.Msg <> WM_CHAR then
+            DoDropDownKeys(TWMKeyDown(Msg).CharCode, KeyDataToShiftState(TWMKeyDown(Msg).KeyData));
           if TWMKeyDown(Msg).CharCode <> 0 then
           begin
             if DroppedDown then
