@@ -32,6 +32,7 @@ uses
   Compression.Zlib in 'Src\Compression.Zlib.pas',
   Compression.bzlib in 'Src\Compression.bzlib.pas',
   Compression.LZMACompressor in 'Src\Compression.LZMACompressor.pas',
+  Compression.Zstd in 'Src\Compression.Zstd.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
   ChaCha20 in '..\Components\ChaCha20.pas',
   Shared.VerInfoFunc in 'Src\Shared.VerInfoFunc.pas',
