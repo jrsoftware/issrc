@@ -669,32 +669,6 @@ begin
       Key := 0;
       SendMessage(Handle, WM_CHANGEUISTATE, UIS_CLEAR or (UISF_HIDEFOCUS shl 16), 0);
     end;
-  end
-  else
-  if Shift = [ssCtrl] then
-  begin
-    IgnoreKey := True;
-    case Key of
-      VK_RIGHT:
-        if (Item <> nil) and (Item.Count > 0) and not Item.Expanded then
-          Item.Expanded := True;
-      VK_LEFT:
-        if (Item <> nil) and Item.Expanded then
-          Item.Expanded := False;
-      VK_RETURN:
-        if (Item <> nil) and (Item.Count > 0) and not Item.Expanded then
-          Item.Expanded := True
-        else
-        if (Item <> nil) and Item.Expanded then
-          Item.Expanded := False;
-    else
-      IgnoreKey := False;
-    end;
-    if IgnoreKey then
-    begin
-      Key := 0;
-      SendMessage(Handle, WM_CHANGEUISTATE, UIS_CLEAR or (UISF_HIDEFOCUS shl 16), 0);
-    end;
   end;
   inherited;
   Item := Selected;
