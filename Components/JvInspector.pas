@@ -617,7 +617,10 @@ begin
       IgnoreKey := False;
     end;
     if IgnoreKey then
+    begin
       Key := 0;
+      SendMessage(Handle, WM_CHANGEUISTATE, UIS_CLEAR or (UISF_HIDEFOCUS shl 16), 0);
+    end;
   end
   else
   if Shift = [ssCtrl] then
@@ -640,7 +643,10 @@ begin
       IgnoreKey := False;
     end;
     if IgnoreKey then
+    begin
       Key := 0;
+      SendMessage(Handle, WM_CHANGEUISTATE, UIS_CLEAR or (UISF_HIDEFOCUS shl 16), 0);
+    end;
   end;
   inherited KeyDown(Key, Shift);
   Item := Selected;
@@ -2502,13 +2508,21 @@ begin
     LabelText := 'no';
   LabelRect := Rects[iprValueArea];
   LabelRect.Left := ARect.Right + MulDiv(4, Inspector.CurrentPPI, 96);
+  const TextTop = LabelRect.Top + (LabelRect.Height - ACanvas.TextHeight(LabelText)) div 2;
   ACanvas.Brush.Style := bsClear;
   try
-    ACanvas.TextOut(LabelRect.Left,
-      LabelRect.Top + (LabelRect.Height - ACanvas.TextHeight(LabelText)) div 2,
-      LabelText);
+    ACanvas.TextOut(LabelRect.Left, TextTop, LabelText);
   finally
     ACanvas.Brush.Style := bsSolid;
+  end;
+  if Inspector.Focused and (Inspector.Selected = Self) and
+     (SendMessage(Inspector.Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS = 0) then
+  begin
+    var FocusRect := Rect(LabelRect.Left, TextTop,
+      LabelRect.Left + ACanvas.TextWidth(LabelText), TextTop + ACanvas.TextHeight(LabelText));
+    InflateRect(FocusRect, MulDiv(1, Inspector.CurrentPPI, 96), MulDiv(1, Inspector.CurrentPPI, 96));
+    IntersectRect(FocusRect, FocusRect, Rects[iprValueArea]);
+    ACanvas.DrawFocusRect(FocusRect);
   end;
 end;
 
