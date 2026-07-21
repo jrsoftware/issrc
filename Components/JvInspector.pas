@@ -689,20 +689,27 @@ begin
     if (Item <> nil) and (PtInRect(Item.Rects[iprNameArea], Point(X, Y)) or
       PtInRect(Item.Rects[iprValueArea], Point(X, Y))) then
       Item.MouseDown(Button, Shift, X, Y);
-    // A click on the value of an item that was not being edited yet leaves
-    // the edit control's text fully selected; move the caret to the clicked
-    // character instead, like the Delphi object inspector (when the item was
-    // already being edited the click lands on the edit control itself and
-    // never gets here)
+    // A click on the value of an item that was not being edited yet lands on
+    // the inspector, not the freshly focused edit, so the edit keeps all its
+    // text selected and can't start a click-drag selection. Forward the click
+    // to the edit so it places the caret and captures the mouse for dragging,
+    // like the Delphi object inspector (when the item was already being edited
+    // the click lands on the edit itself and never gets here). Hand the whole
+    // gesture to the edit: drop the inspector's own selecting, button-down and
+    // capture state, since it gets no matching MouseUp once the edit captures
+    // and would otherwise fire a stray click or keep following the mouse
     if not (ssDouble in Shift) and not DraggingDivider and
-      (Item <> nil) and Item.Editing and
-      (Item.EditCtrl <> nil) and Item.EditCtrl.HandleAllocated and
+      (Item <> nil) and Item.Editing and (Item.EditCtrl <> nil) and
+      Item.EditCtrl.HandleAllocated and Item.EditCtrl.CanFocus and
       PtInRect(Item.Rects[iprEditValue], Point(X, Y)) then
     begin
-      const CharPos = Item.EditCtrl.Perform(EM_CHARFROMPOS, 0,
+      Selecting := False;
+      ControlState := ControlState - [csLButtonDown, csClicked];
+      MouseCapture := False;
+      const Keys = MK_LBUTTON or (Ord(ssShift in Shift) * MK_SHIFT) or
+        (Ord(ssCtrl in Shift) * MK_CONTROL);
+      Item.EditCtrl.Perform(WM_LBUTTONDOWN, WPARAM(Keys),
         PointToLParam(Point(X - Item.EditCtrl.Left, Y - Item.EditCtrl.Top)));
-      if CharPos <> -1 then
-        Item.EditCtrl.Perform(EM_SETSEL, Word(CharPos), Word(CharPos));
     end;
   end;
 end;
@@ -1784,8 +1791,6 @@ end;
 procedure TJvCustomInspectorItem.EditMouseDown(Sender: TObject;
   Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
-  if DroppedDown then
-    CloseUp(False);
   if (Button = mbLeft) and (ssDouble in Shift) and (iifValueList in Flags) then
     SelectValue(1);
 end;
@@ -1839,6 +1844,18 @@ begin
     Msg.Result := 1;
     ExecInherited := False;
   end;
+  if DroppedDown then
+    // be like standard combobox (this doesn't break click+drag)
+    case Msg.Msg of
+      WM_LBUTTONDOWN:
+        CloseUp(False);
+      WM_RBUTTONDOWN, WM_RBUTTONUP, WM_RBUTTONDBLCLK,
+      WM_MBUTTONDOWN, WM_MBUTTONUP, WM_MBUTTONDBLCLK:
+        begin
+          Msg.Result := 0;
+          ExecInherited := False;
+        end;
+    end;
   if ExecInherited then
     EditWndPrc(Msg);
   if (Msg.Msg = WM_KILLFOCUS) and DroppedDown then
