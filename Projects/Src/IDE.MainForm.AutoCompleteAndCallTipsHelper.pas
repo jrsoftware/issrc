@@ -300,7 +300,9 @@ begin
       else
         begin
           const Section = TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[Line]);
-          if Section = scCode then begin
+          if Section in [scUnknown, scThirdParty] then
+            Exit
+          else if Section = scCode then begin
             { Space can only initiate autocompletion after non whitespace }
             if (Key = ' ') and OnlyWhiteSpaceBeforeWord(AMemo, LinePos, WordStartPos) then
               Exit;
@@ -343,7 +345,7 @@ begin
             if WordList = '' then
               Exit;
           end else begin
-            const IsParamSection = TInnoSetupStyler.IsParamSection(Section);
+            const IsParamSection = Section in ParameterSections;
 
             var FoundSemicolon := False;
             var FoundFlagsOrType := False;

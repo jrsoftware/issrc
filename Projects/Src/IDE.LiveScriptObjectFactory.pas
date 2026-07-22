@@ -28,8 +28,8 @@ type
   { Why TryCreateParameterSectionEntry or TryCreateDirectiveSection refused to
     create an object }
   TRefusalReason = (rrLineOutOfRange, rrNotInsideSection,
-    rrInCodeSection, rrUnrecognizedSection, rrDirectiveStyleSection, rrComment,
-    rrISPPDirective, rrSectionIndexOutOfRange, rrNotDirectiveStyleSection);
+    rrInCodeSection, rrUnrecognizedSection, rrNotParameterSection, rrComment,
+    rrISPPDirective, rrSectionIndexOutOfRange, rrNotDirectiveSection);
 
   TLiveScriptSectionHeader = record
     Line: Integer;
@@ -602,8 +602,8 @@ begin
     ARefusalReason := rrUnrecognizedSection;
     Exit;
   end;
-  if not TInnoSetupStyler.IsParamSection(StylerSection) then begin
-    ARefusalReason := rrDirectiveStyleSection;
+  if not (StylerSection in ParameterSections) then begin
+    ARefusalReason := rrNotParameterSection;
     Exit;
   end;
 
@@ -650,8 +650,8 @@ begin
     ARefusalReason := rrSectionIndexOutOfRange;
     Exit;
   end;
-  if not (FSectionHeaders[ASectionIndex].StylerSection in [scSetup, scMessages, scCustomMessages, scLangOptions]) then begin
-    ARefusalReason := rrNotDirectiveStyleSection;
+  if not (FSectionHeaders[ASectionIndex].StylerSection in DirectiveSections) then begin
+    ARefusalReason := rrNotDirectiveSection;
     Exit;
   end;
 

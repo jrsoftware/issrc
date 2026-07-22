@@ -144,7 +144,6 @@ type
     class function IsCommentOrISPPStringStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsISPPIdentChar(const C: AnsiChar): Boolean; static;
-    class function IsParamSection(const Section: TInnoSetupSection): Boolean; static;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean; static;
     class function LineSectionHeader(const LineState: TScintLineState; out Section: TInnoSetupSection): Boolean; static;
     class function LineSpans(const S: TScintRawString): Boolean; static;
@@ -1326,12 +1325,6 @@ end;
 class function TInnoSetupStyler.IsISPPIdentChar(const C: AnsiChar): Boolean;
 begin
   Result := C in ISPPIdentChars;
-end;
-
-class function TInnoSetupStyler.IsParamSection(
-  const Section: TInnoSetupSection): Boolean;
-begin
-  Result := not (Section in [scCustomMessages, scLangOptions, scMessages, scSetup, scCode, scCodeBlock]);
 end;
 
 class function TInnoSetupStyler.IsSymbolStyle(const Style: TScintStyleNumber): Boolean;

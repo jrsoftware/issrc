@@ -354,11 +354,11 @@ procedure TInspector.UpdateFromCaret;
       rrNotInsideSection: Result := 'The line is not inside a section';
       rrInCodeSection: Result := 'The line is in the [Code] section';
       rrUnrecognizedSection: Result := 'The line is in an unrecognized section';
-      rrDirectiveStyleSection: Result := 'The line is in a directive-style section';
+      rrNotParameterSection: Result := 'The line is in not in a parameter section';
       rrComment: Result := 'The line is a comment';
       rrISPPDirective: Result := 'The line is an ISPP directive';
       rrSectionIndexOutOfRange: Result := 'The section index is out of range';
-      rrNotDirectiveStyleSection: Result := 'The section is not a directive-style section';
+      rrNotDirectiveSection: Result := 'The section is not a directive section';
     else
       Result := '';
     end;

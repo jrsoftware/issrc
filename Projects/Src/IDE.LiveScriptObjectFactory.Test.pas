@@ -221,7 +221,7 @@ begin
     AssertRefusal(Factory, -1, rrLineOutOfRange);
     AssertRefusal(Factory, 13, rrLineOutOfRange);
     AssertRefusal(Factory, 0, rrNotInsideSection);
-    AssertRefusal(Factory, 2, rrDirectiveStyleSection);
+    AssertRefusal(Factory, 2, rrNotParameterSection);
     AssertRefusal(Factory, 5, rrComment);
     AssertRefusal(Factory, 6, rrISPPDirective);
     AssertRefusal(Factory, 10, rrInCodeSection);
@@ -401,7 +401,7 @@ begin
         DirectiveSection.Free;
       end;
       Assert(not Factory.TryCreateDirectiveSection(1, DirectiveSection, Reason));
-      Assert(Reason = rrNotDirectiveStyleSection);
+      Assert(Reason = rrNotDirectiveSection);
       Assert(not Factory.TryCreateDirectiveSection(99, DirectiveSection, Reason));
       Assert(Reason = rrSectionIndexOutOfRange);
     finally
