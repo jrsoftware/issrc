@@ -36,7 +36,8 @@ type
     FThemeDark: Boolean;
     FHotIndex: Integer;
     procedure EnsureCurrentTabIsFullyVisible;
-    function GetBackgroundColor: TColor;
+    function GetBackgroundColor: TColor; overload;
+    function GetBackgroundColor(const HighColorMode: Boolean): TColor; overload;
     function GetTabRect(const Index: Integer; const ApplyTabsOffset: Boolean = True): TRect;
     function GetCloseButtonRect(const TabRect: TRect): TRect;
     procedure InvalidateTab(Index: Integer);
@@ -160,6 +161,11 @@ begin
     V := 0;
   HSVtoRGB(H, S, V, R, G, B);
   Result := R or (G shl 8) or (B shl 16);
+end;
+
+function IsHighColorMode(const DC: HDC): Boolean;
+begin
+  Result := GetDeviceCaps(DC, BITSPIXEL) * GetDeviceCaps(DC, PLANES) >= 15;
 end;
 
 { TNewTabSet }
@@ -300,6 +306,32 @@ begin
   NewHeight := Canvas.TextHeight('0') + (ToCurrentPPI(TabPaddingY) * 2) +
     ToCurrentPPI(2);
   Result := True;
+end;
+
+function TNewTabSet.GetBackgroundColor: TColor;
+begin
+  var HighColorMode: Boolean;
+  if FTheme <> nil then
+    HighColorMode := True { Actual value doesn't matter }
+  else begin
+    const DC = GetDC(0);
+    try
+      HighColorMode := IsHighColorMode(DC);
+    finally
+      ReleaseDC(0, DC);
+    end;
+  end;
+  Result := GetBackgroundColor(HighColorMode);
+end;
+
+function TNewTabSet.GetBackgroundColor(const HighColorMode: Boolean): TColor;
+begin
+  if FTheme <> nil then
+    Result := FTheme.Colors[tcMarginBack]
+  else if HighColorMode then
+    Result := LightenColor(ColorToRGB(clBtnFace), 35)
+  else
+    Result := clBtnShadow;
 end;
 
 function TNewTabSet.GetTabRect(const Index: Integer;
@@ -485,8 +517,7 @@ var
 begin
   Canvas.Font.Assign(Font);
 
-  HighColorMode := (GetDeviceCaps(Canvas.Handle, BITSPIXEL) *
-    GetDeviceCaps(Canvas.Handle, PLANES)) >= 15;
+  HighColorMode := IsHighColorMode(Canvas.Handle);
 
   CR := ClientRect;
 
@@ -514,7 +545,7 @@ begin
   Canvas.FillRect(LineRect);
 
   { Background fill }
-  const BackgroundColor = GetBackgroundColor;
+  const BackgroundColor = GetBackgroundColor(HighColorMode);
   if Color <> BackgroundColor then
     Color := BackgroundColor;
   Canvas.Brush.Color := BackgroundColor;
@@ -572,24 +603,6 @@ begin
   FTabs.Assign(Value);
   if FTabIndex >= FTabs.Count then
     SetTabIndex(FTabs.Count-1);
-end;
-
-function TNewTabSet.GetBackgroundColor: TColor;
-begin
-  if FTheme <> nil then
-    Result := FTheme.Colors[tcMarginBack]
-  else begin
-    const DC = GetDC(0);
-    try
-      { High color mode is 15-bit color or better }
-      if (GetDeviceCaps(DC, BITSPIXEL) * GetDeviceCaps(DC, PLANES)) >= 15 then
-        Result := LightenColor(ColorToRGB(clBtnFace), 35)
-      else
-        Result := clBtnShadow;
-    finally
-      ReleaseDC(0, DC);
-    end;
-  end;
 end;
 
 procedure TNewTabSet.SetTheme(Value: TTheme);
