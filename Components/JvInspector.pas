@@ -137,8 +137,8 @@ type
     function IdxToY(const Index: Integer): Integer;
     function EditorActive: Boolean;
     function InheritedFocused: Boolean;
-    procedure InvalidateItem;
     procedure InvalidateList;
+    procedure InvalidateUnlessLocked;
     procedure KeyDown(var Key: Word; Shift: TShiftState); override;
     procedure KeyUp(var Key: Word; Shift: TShiftState); override;
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
@@ -246,7 +246,7 @@ type
     function GetReadOnly: Boolean;
     function GetRects(const RectKind: TInspectorPaintRect): TRect;
     procedure GetValueList(const Strings: TStrings);
-    procedure InvalidateItem;
+    procedure InvalidateUnlessLocked;
     procedure SetAsOrdinal(Value: Int64);
     procedure SetAsString(Value: string);
     procedure InvalidateList;
@@ -556,12 +556,6 @@ begin
   Result := Index * GetItemHeight;
 end;
 
-procedure TJvInspector.InvalidateItem;
-begin
-  if (LockCount = 0) and HandleAllocated then
-    Invalidate;
-end;
-
 procedure TJvInspector.InvalidateList;
 begin
   if not (csDestroying in ComponentState) and (LockCount = 0) then begin
@@ -573,6 +567,12 @@ begin
       NeedRebuild := True;
   end else
     NeedRebuild := True;
+end;
+
+procedure TJvInspector.InvalidateUnlessLocked;
+begin
+  if (LockCount = 0) and HandleAllocated then
+    Invalidate;
 end;
 
 procedure TJvInspector.KeyDown(var Key: Word; Shift: TShiftState);
@@ -868,7 +868,7 @@ begin
         Selected.ScrollInView;
         Selected.InitEdit;
       end;
-      InvalidateItem;
+      InvalidateUnlessLocked;
       AnnounceSelectionToMSAA;
     end;
   end;
@@ -1029,7 +1029,7 @@ begin
     if NeedRebuild then
       InvalidateList
     else
-      InvalidateItem;
+      InvalidateUnlessLocked;
   end;
 end;
 
@@ -1416,7 +1416,7 @@ begin
         finally
           Dec(FUpdateEditCtrl);
         end;
-        InvalidateItem;
+        InvalidateUnlessLocked;
         if EditCtrl <> nil then begin
           TmpOnChange := EditCtrl.OnChange;
           EditCtrl.OnChange := nil;
@@ -1464,7 +1464,7 @@ begin
     Inspector.FOnSetAsOrdinal(Self, Value)
   else
     raise EJvInspectorData.CreateFmt(RsEJvInspDataNoAccessAs, ['Ordinal']);
-  InvalidateItem;
+  InvalidateUnlessLocked;
 end;
 
 procedure TJvCustomInspectorItem.SetAsString(Value: string);
@@ -1473,7 +1473,7 @@ begin
     Inspector.FOnSetAsString(Self, Value)
   else
     raise EJvInspectorData.CreateFmt(RsEJvInspDataNoAccessAs, ['string']);
-  InvalidateItem;
+  InvalidateUnlessLocked;
 end;
 
 procedure TJvCustomInspectorItem.CloseUp(Accept: Boolean);
@@ -1490,7 +1490,7 @@ begin
     SetWindowPos(ListBox.Handle, 0, 0, 0, 0, 0, SWP_NOZORDER or
       SWP_NOMOVE or SWP_NOSIZE or SWP_NOACTIVATE or SWP_HIDEWINDOW);
     FDroppedDown := False;
-    InvalidateItem;
+    InvalidateUnlessLocked;
     if Accept then begin
       if Assigned(EditCtrl) then
         EditCtrl.Text := ListValue;
@@ -1586,7 +1586,7 @@ begin
     end;
     SetWindowPos(ListBox.Handle, HWND_TOP, P.X, Y, 0, 0,
       SWP_NOSIZE or {SWP_NOACTIVATE or }SWP_SHOWWINDOW);
-    InvalidateItem;
+    InvalidateUnlessLocked;
     EditCtrl.SetFocus;
     FDroppedDown := True; // must be after EditCtrl.SetFocus
   end;
@@ -1604,7 +1604,7 @@ begin
       if (EditCtrl <> nil) and EditCtrl.CanFocus then
         EditCtrl.SetFocus;
     end;
-    InvalidateItem;
+    InvalidateUnlessLocked;
 
     Inspector.Invalidate;
   end;
@@ -1887,16 +1887,16 @@ begin
     Inspector.FOnGetValueList(Self, Strings);
 end;
 
-procedure TJvCustomInspectorItem.InvalidateItem;
-begin
-  if Inspector <> nil then
-    Inspector.InvalidateItem;
-end;
-
 procedure TJvCustomInspectorItem.InvalidateList;
 begin
   if Inspector <> nil then
     Inspector.InvalidateList;
+end;
+
+procedure TJvCustomInspectorItem.InvalidateUnlessLocked;
+begin
+  if Inspector <> nil then
+    Inspector.InvalidateUnlessLocked;
 end;
 
 function TJvCustomInspectorItem.IsCategory: Boolean;
@@ -2038,7 +2038,7 @@ begin
       if Inspector <> nil then
         Inspector.AnnounceStateChangeToMSAA(Integer(Inspector.FVisibleList.IndexOf(Self)));
     end else
-      InvalidateItem;
+      InvalidateUnlessLocked;
   end;
 end;
 
@@ -2295,7 +2295,7 @@ begin
       CloseUp(False);
     if not CancelEdits and (DisplayValue <> EditCtrl.Text) then begin
       Apply;
-      InvalidateItem;
+      InvalidateUnlessLocked;
     end;
     FreeAndNil(FListBox);
 
@@ -2359,7 +2359,7 @@ procedure TJvInspectorBooleanItem.Toggle;
 begin
   const Bool = not (AsOrdinal <> Ord(False));
   AsOrdinal := Ord(Bool);
-  InvalidateItem;
+  InvalidateUnlessLocked;
   if Inspector <> nil then
     Inspector.AnnounceStateChangeToMSAA(Integer(Inspector.FVisibleList.IndexOf(Self)));
 end;
@@ -2371,13 +2371,13 @@ begin
     if not FCheckKeyPressed then begin
       FCheckKeyPressed := True;
       FCheckPressed := True;
-      InvalidateItem;
+      InvalidateUnlessLocked;
     end;
   end else if FCheckKeyPressed then begin
     FCheckKeyPressed := False;
     if FCheckPressed and not FCheckTracking then begin
       FCheckPressed := False;
-      InvalidateItem;
+      InvalidateUnlessLocked;
     end;
   end;
 end;
@@ -2400,7 +2400,7 @@ begin
   if PtInRect(FCheckRect, Point(X, Y)) and (Shift = [ssLeft]) and Editing then begin
     FCheckTracking := True;
     FCheckPressed := True;
-    InvalidateItem;
+    InvalidateUnlessLocked;
   end;
 end;
 
@@ -2411,7 +2411,7 @@ begin
     const NewPressed = PtInRect(FCheckRect, Point(X, Y));
     if FCheckPressed <> NewPressed then begin
       FCheckPressed := NewPressed;
-      InvalidateItem;
+      InvalidateUnlessLocked;
     end;
   end;
 end;
@@ -2426,7 +2426,7 @@ begin
     if PtInRect(FCheckRect, Point(X, Y)) then
       Toggle
     else
-      InvalidateItem;
+      InvalidateUnlessLocked;
   end;
 end;
 
@@ -2436,7 +2436,7 @@ begin
     FCheckKeyPressed := False;
     FCheckTracking := False;
     FCheckPressed := False;
-    InvalidateItem;
+    InvalidateUnlessLocked;
   end;
 end;
 
