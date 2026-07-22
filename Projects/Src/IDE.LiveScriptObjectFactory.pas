@@ -574,6 +574,20 @@ begin
   end;
 end;
 
+function TryGetCommonSectionRefusalReason(const AStylerSection: TInnoSetupSection;
+  out ARefusalReason: TRefusalReason): Boolean;
+begin
+  Result := True;
+  if AStylerSection = scNone then
+    ARefusalReason := rrNotInsideSection
+  else if AStylerSection = scCode then
+    ARefusalReason := rrInCodeSection
+  else if AStylerSection in [scUnknown, scThirdParty] then
+    ARefusalReason := rrUnrecognizedSection
+  else
+    Result := False;
+end;
+
 function TLiveScriptObjectFactory.TryCreateParameterSectionEntry(const ALine: Integer;
   out AEntry: TLiveScriptParameterSectionEntry;
   out ARefusalReason: TRefusalReason): Boolean;
@@ -590,18 +604,8 @@ begin
   end;
 
   const StylerSection = TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[ALine]);
-  if StylerSection = scNone then begin
-    ARefusalReason := rrNotInsideSection;
+  if TryGetCommonSectionRefusalReason(StylerSection, ARefusalReason) then
     Exit;
-  end;
-  if StylerSection = scCode then begin
-    ARefusalReason := rrInCodeSection;
-    Exit;
-  end;
-  if StylerSection in [scUnknown, scThirdParty] then begin
-    ARefusalReason := rrUnrecognizedSection;
-    Exit;
-  end;
   if not (StylerSection in ParameterSections) then begin
     ARefusalReason := rrNotParameterSection;
     Exit;
@@ -650,7 +654,10 @@ begin
     ARefusalReason := rrSectionIndexOutOfRange;
     Exit;
   end;
-  if not (FSectionHeaders[ASectionIndex].StylerSection in DirectiveSections) then begin
+  const StylerSection = FSectionHeaders[ASectionIndex].StylerSection;
+  if TryGetCommonSectionRefusalReason(StylerSection, ARefusalReason) then
+    Exit;
+  if not (StylerSection in DirectiveSections) then begin
     ARefusalReason := rrNotDirectiveSection;
     Exit;
   end;
