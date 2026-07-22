@@ -18,6 +18,9 @@ uses
   IDE.ScintStylerInnoSetup;
 
 const
+  AlphaChars = ['A'..'Z', 'a'..'z'];
+  AlphaUnderscoreChars = AlphaChars + ['_'];
+
   WhitespaceChars = [#0..' '];
   DigitChars = ['0'..'9'];
   HexDigitChars = DigitChars + ['A'..'F', 'a'..'f'];

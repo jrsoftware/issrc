@@ -16,9 +16,6 @@ uses
   ScintEdit, ModernColors, Shared.ScriptFunc, Shared.SetupSectionDirectives;
 
 const
-  AlphaChars = ['A'..'Z', 'a'..'z'];
-  AlphaUnderscoreChars = AlphaChars + ['_'];
-
   InnoSetupStylerWordListSeparator = #9;
   InnoSetupStylerWordListTypeSeparator = '!'; { Must sort before numbers - so the default '?' is not ok }
 
