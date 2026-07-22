@@ -19,7 +19,8 @@ interface
 uses
   Classes, Generics.Collections,
   ScintEdit,
-  IDE.ScintStylerInnoSetup, IDE.ScriptModel, IDE.ScriptModel.Metadata;
+  IDE.ScintStylerInnoSetup, IDE.ScriptModel, IDE.ScriptModel.Metadata,
+  IDE.ScriptModel.Metadata.Extra;
 
 type
   TLiveScriptObjectFactory = class;
@@ -32,7 +33,7 @@ type
 
   TLiveScriptSectionHeader = record
     Line: Integer;
-    StylerSection: TInnoSetupStylerSection;
+    StylerSection: TInnoSetupSection;
     Name: String;
   end;
 
@@ -54,17 +55,17 @@ type
   TLiveScriptParameterSectionEntry = class(TLiveScriptObject)
   private
     FEntry: TScriptModelParameterSectionEntry;
-    FStylerSection: TInnoSetupStylerSection;
+    FStylerSection: TInnoSetupSection;
     FCreatedFromBlankLine: Boolean;
     constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
-      ALastLine: Integer; const AStylerSection: TInnoSetupStylerSection;
+      ALastLine: Integer; const AStylerSection: TInnoSetupSection;
       const AMetadata: TScriptModelSectionMetadata; const ALines: TArray<String>;
       const ACreatedFromBlankLine: Boolean);
     procedure ParameterSectionEntryChange(Sender: TObject);
   public
     destructor Destroy; override;
     property Entry: TScriptModelParameterSectionEntry read FEntry;
-    property StylerSection: TInnoSetupStylerSection read FStylerSection;
+    property StylerSection: TInnoSetupSection read FStylerSection;
   end;
 
   { A single occurrence of a directive-style section }
@@ -129,7 +130,7 @@ type
 implementation
 
 uses
-  SysUtils, IDE.ScriptModel.Metadata.Extra;
+  SysUtils;
 
 { TLiveScriptObject }
 
@@ -154,7 +155,7 @@ end;
 { TLiveScriptParameterSectionEntry }
 
 constructor TLiveScriptParameterSectionEntry.Create(const AFactory: TLiveScriptObjectFactory;
-  const AFirstLine, ALastLine: Integer; const AStylerSection: TInnoSetupStylerSection;
+  const AFirstLine, ALastLine: Integer; const AStylerSection: TInnoSetupSection;
   const AMetadata: TScriptModelSectionMetadata; const ALines: TArray<String>;
   const ACreatedFromBlankLine: Boolean);
 begin
@@ -257,7 +258,7 @@ procedure TLiveScriptObjectFactory.EnsureIndex;
       also applies to spanned headers, regardless of the fact that those
       don't compile. There's no detection for this issue and callers must
       just pass only the first physical line of a spanned header. }
-    var StylerSection: TInnoSetupStylerSection;
+    var StylerSection: TInnoSetupSection;
     Result := TInnoSetupStyler.LineSectionHeader(FMemo.Lines.State[ALine], StylerSection);
     if Result then begin
       ASectionHeader.Line := ALine;

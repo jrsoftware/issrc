@@ -43,7 +43,7 @@ implementation
 uses
   SysUtils, Math, TypInfo,
   Shared.SetupSectionDirectives,
-  IDE.ScintStylerInnoSetup;
+  IDE.ScintStylerInnoSetup, IDE.ScriptModel.Metadata.Extra;
 
 class function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
   const WordStartLinePos, PositionBeforeWordStartPos: Integer;

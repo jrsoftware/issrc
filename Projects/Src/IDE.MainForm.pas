@@ -717,12 +717,12 @@ uses
   Math, StrUtils, WideStrUtils, TypInfo,
   PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc, UnsignedFunc, Toolbar.Accessibility, JvInspector,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.ScriptFunc,
+  Shared.SignToolsFunc, Shared.CompilerInt, Shared.LicenseFunc,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
   IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.GotoFileForm,
   IDE.InputQueryForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper, IDE.RichEditForm,
-  {$IFDEF DEBUG} IDE.LiveScriptObjectFactory.Test, {$ENDIF}
-  Shared.SignToolsFunc, Shared.CompilerInt, Shared.LicenseFunc;
+  {$IFDEF DEBUG} IDE.LiveScriptObjectFactory.Test, {$ENDIF} IDE.ScriptModel.Metadata.Extra;
 
 {$R *.DFM}
 
@@ -4527,7 +4527,7 @@ begin
     const Section = TInnoSetupStyler.GetSectionFromLineState(FActiveMemo.Lines.State[FActiveMemo.CaretLine], False);
     const Style = FActiveMemo.GetStyleAtPosition(CaretPos);
     Text := Format('%s-%s@%d+%d:%s', [
-      Copy(GetEnumName(TypeInfo(TInnoSetupStylerSection), Ord(Section)), 3, MaxInt),
+      SectionToSectionName(Section),
       Copy(GetEnumName(TypeInfo(TInnoSetupStylerStyle), Style), 3, MaxInt),
       CaretPos, FActiveMemo.CaretVirtualSpace, Text]);
   end;

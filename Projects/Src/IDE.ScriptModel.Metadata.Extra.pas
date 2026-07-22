@@ -14,8 +14,7 @@ interface
 uses
   TypInfo,
   ScintEdit,
-  Shared.SetupSectionDirectives,
-  IDE.ScintStylerInnoSetup;
+  Shared.SetupSectionDirectives;
 
 const
   AlphaChars = ['A'..'Z', 'a'..'z'];
@@ -33,7 +32,35 @@ const
   ISPPIdentFirstChars = AlphaUnderscoreChars;
   ISPPIdentChars = AlphaDigitUnderscoreChars;
 
+  InnoSetupSectionPrefixLength = 2;
+
 type
+  TInnoSetupSection = (
+    scNone,            { Not inside a section (start of file, or previous section was closed )
+                         Section tags themselves are not associated with any section! }
+    scUnknown,         { Inside an unrecognized section }
+    scThirdParty,      { Inside a '_' section (reserved for third-party tools) }
+    scCode,
+    scCodeBlock,       { Block headers themselves are still associated with scCode }
+    scComponents,
+    scCustomMessages,
+    scDirs,
+    scISSigKeys,
+    scFiles,
+    scIcons,
+    scINI,
+    scInstallDelete,
+    scLangOptions,
+    scLanguages,
+    scMessages,
+    scRegistry,
+    scRun,
+    scSetup,
+    scTasks,
+    scTypes,
+    scUninstallDelete,
+    scUninstallRun);
+
   TISPPDirective = record
     Name: TScintRawString;
     RequiresParameter: Boolean;
@@ -420,7 +447,7 @@ type
 var
   SetupSectionExpressionDirectivesValues: array of TSetupSectionDirectiveValue; { Initialized below }
 
-function SectionToSectionName(const ASection: TInnoSetupStylerSection): String;
+function SectionToSectionName(const ASection: TInnoSetupSection): String;
 
 implementation
 
@@ -441,10 +468,10 @@ begin
   Result.Values := Values;
 end;
 
-function SectionToSectionName(const ASection: TInnoSetupStylerSection): String;
+function SectionToSectionName(const ASection: TInnoSetupSection): String;
 begin
-  Result := Copy(GetEnumName(TypeInfo(TInnoSetupStylerSection), Ord(ASection)),
-    InnoSetupStylerSectionPrefixLength+1, MaxInt);
+  Result := Copy(GetEnumName(TypeInfo(TInnoSetupSection), Ord(ASection)),
+    InnoSetupSectionPrefixLength+1, MaxInt);
 end;
 
 initialization

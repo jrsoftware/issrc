@@ -29,7 +29,8 @@ implementation
 
 uses
   System.SysUtils,
-  IDE.ScriptModel, IDE.ScriptModel.Metadata, IDE.LiveScriptObjectFactory;
+  IDE.ScriptModel, IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra,
+  IDE.LiveScriptObjectFactory;
 
 {$C+}
 
@@ -94,7 +95,7 @@ procedure TestSectionIndexing(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
 
   procedure AssertSectionHeader(const ASectionHeader: TLiveScriptSectionHeader;
-    const AExpectedStylerSection: TInnoSetupStylerSection; const AExpectedLine: Integer;
+    const AExpectedStylerSection: TInnoSetupSection; const AExpectedLine: Integer;
     const AExpectedName: String);
   begin
     Assert(ASectionHeader.StylerSection = AExpectedStylerSection);

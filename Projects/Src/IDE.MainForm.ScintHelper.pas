@@ -35,7 +35,7 @@ implementation
 uses
   SysUtils, Clipbrd, Math, Generics.Collections, Generics.Defaults,
   ScintInt,
-  IDE.HelperFunc, IDE.ScintStylerInnoSetup;
+  IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.ScriptModel.Metadata.Extra;
 
 procedure TMainFormScintHelper.SimplifySelection(const AMemo: TScintEdit);
 begin

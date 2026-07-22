@@ -41,7 +41,7 @@ uses
   SysUtils, Forms, UITypes, StrUtils,
   PathFunc,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.ConfigIniFile,
-  IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.SignToolsForm, IDE.MsgBoxDesignerForm,
+  IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.ScriptModel.Metadata.Extra, IDE.SignToolsForm, IDE.MsgBoxDesignerForm,
   IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.RichEditForm, IDE.Wizard.WizardFormRegistryHelper;
 
 {$IFNDEF WIN64}

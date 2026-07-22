@@ -13,7 +13,8 @@ interface
 
 uses
   SysUtils, Classes, Graphics, Generics.Collections, TypInfo,
-  ScintEdit, ModernColors, Shared.ScriptFunc, Shared.SetupSectionDirectives;
+  ScintEdit, ModernColors, Shared.ScriptFunc, Shared.SetupSectionDirectives,
+  IDE.ScriptModel.Metadata.Extra;
 
 const
   InnoSetupStylerWordListSeparator = #9;
@@ -40,35 +41,7 @@ const
   awtISPPVariable = 31;
   awtISPPConstant = 32;
 
-const
-  InnoSetupStylerSectionPrefixLength = 2;
 type
-  TInnoSetupStylerSection = (
-    scNone,            { Not inside a section (start of file, or previous section was closed )
-                         Section tags themselves are not associated with any section! }
-    scUnknown,         { Inside an unrecognized section }
-    scThirdParty,      { Inside a '_' section (reserved for third-party tools) }
-    scCode,
-    scCodeBlock,       { Block headers themselves are still associated with scCode }
-    scComponents,
-    scCustomMessages,
-    scDirs,
-    scISSigKeys,
-    scFiles,
-    scIcons,
-    scINI,
-    scInstallDelete,
-    scLangOptions,
-    scLanguages,
-    scMessages,
-    scRegistry,
-    scRun,
-    scSetup,
-    scTasks,
-    scTypes,
-    scUninstallDelete,
-    scUninstallRun);
-
   { Internally-used types }
   TInnoSetupStylerSpanState = (spNone, spBraceComment, spStarComment);
 
@@ -82,7 +55,7 @@ type
     stPascalReservedWord, stPascalString, stPascalNumber,
     stISPPReservedWord, stISPPString, stISPPNumber);
 
-  TWordsBySection = TObjectDictionary<TInnoSetupStylerSection, TStringList>;
+  TWordsBySection = TObjectDictionary<TInnoSetupSection, TStringList>;
   TFunctionDefinition = record
     ScriptFuncWithoutHeader: AnsiString;
     HeaderKind: TScriptFuncHeaderKind;
@@ -97,9 +70,9 @@ type
 
   TInnoSetupStyler = class(TScintCustomStyler)
   private
-    FSectionParameters: array[TInnoSetupStylerSection] of TArray<TScintRawString>;
+    FSectionParameters: array[TInnoSetupSection] of TArray<TScintRawString>;
     FEventFunctionsWordList: array[Boolean] of AnsiString;
-    FKeywordsWordList, FFlagsWordList: array[TInnoSetupStylerSection] of AnsiString;
+    FKeywordsWordList, FFlagsWordList: array[TInnoSetupSection] of AnsiString;
     FNoHighlightAtCursorWords: TWordsBySection;
     FFlagsWords: TWordsBySection;
     FISPPDirectivesWordList, FISPPPragmaWordList, FConstantsWordList: AnsiString;
@@ -118,14 +91,14 @@ type
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
     procedure BuildConstantsWordList;
     procedure BuildEventFunctionsWordList;
-    procedure BuildFlagsWordList(const Section: TInnoSetupStylerSection;
+    procedure BuildFlagsWordList(const Section: TInnoSetupSection;
      const Flags: array of TScintRawString);
     procedure BuildISPPDirectivesWordList;
     procedure BuildISPPPragmaWordList;
     procedure BuildISPPExpressionWordList;
-    procedure BuildKeywordsWordList(const Section: TInnoSetupStylerSection;
+    procedure BuildKeywordsWordList(const Section: TInnoSetupSection;
       const Parameters: array of TScintRawString);
-    procedure BuildKeywordsWordListFromTypeInfo(const Section: TInnoSetupStylerSection;
+    procedure BuildKeywordsWordListFromTypeInfo(const Section: TInnoSetupSection;
       const EnumTypeInfo: Pointer; const PrefixLength: Integer);
     procedure BuildScriptFunctionsLists(const ScriptFuncTable: TScriptTable;
       const ClassMembers: Boolean; const SL: TStringList);
@@ -136,12 +109,12 @@ type
       const Squigglify: Boolean);
     procedure CommitStyleSqPending(const Style: TInnoSetupStylerStyle);
     function GetEventFunctionsWordList(Procedures: Boolean): AnsiString;
-    function GetFlagsWordList(Section: TInnoSetupStylerSection): AnsiString;
+    function GetFlagsWordList(Section: TInnoSetupSection): AnsiString;
     class function GetFunctionDefinition(const FunctionsByName: TFunctionDefinitionsByName;
       const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; static;
-    function GetKeywordsWordList(Section: TInnoSetupStylerSection): AnsiString;
+    function GetKeywordsWordList(Section: TInnoSetupSection): AnsiString;
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState; var CodeBlockHeader: Boolean);
-    procedure HandleKeyValueSection(const Section: TInnoSetupStylerSection);
+    procedure HandleKeyValueSection(const Section: TInnoSetupSection);
     procedure HandleParameterSection(const ValidParameters: array of TScintRawString);
     procedure HandleCompilerDirective(const InlineDirective: Boolean;
       const InlineDirectiveEndIndex: Integer; var OpenCount: ShortInt);
@@ -166,14 +139,14 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
-    class function GetSectionFromLineState(const LineState: TScintLineState; const ReturnCodeBlockAsCode: Boolean = True): TInnoSetupStylerSection; static;
+    class function GetSectionFromLineState(const LineState: TScintLineState; const ReturnCodeBlockAsCode: Boolean = True): TInnoSetupSection; static;
     class function IsCommentOrKeywordStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsCommentOrISPPStringStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsISPPIdentChar(const C: AnsiChar): Boolean; static;
-    class function IsParamSection(const Section: TInnoSetupStylerSection): Boolean; static;
+    class function IsParamSection(const Section: TInnoSetupSection): Boolean; static;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean; static;
-    class function LineSectionHeader(const LineState: TScintLineState; out Section: TInnoSetupStylerSection): Boolean; static;
+    class function LineSectionHeader(const LineState: TScintLineState; out Section: TInnoSetupSection): Boolean; static;
     class function LineSpans(const S: TScintRawString): Boolean; static;
     function GetISPPFunctionDefinition(const Name: String;
       const Index: Integer; out Count: Integer): TFunctionDefinition;
@@ -181,16 +154,16 @@ type
       const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; overload;
     function GetScriptFunctionDefinition(const ClassMember: Boolean;
       const Name: String; const Index: Integer): TFunctionDefinition; overload;
-    function SectionHasFlag(const Section: TInnoSetupStylerSection; const Flag: String): Boolean;
-    function HighlightAtCursorAllowed(const Section: TInnoSetupStylerSection; const Word: String): Boolean;
+    function SectionHasFlag(const Section: TInnoSetupSection; const Flag: String): Boolean;
+    function HighlightAtCursorAllowed(const Section: TInnoSetupSection; const Word: String): Boolean;
     property ConstantsWordList: AnsiString read FConstantsWordList;
     property EventFunctionsWordList[Procedures: Boolean]: AnsiString read GetEventFunctionsWordList;
-    property FlagsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetFlagsWordList;
+    property FlagsWordList[Section: TInnoSetupSection]: AnsiString read GetFlagsWordList;
     property ISPPDirectivesWordList: AnsiString read FISPPDirectivesWordList;
     property ISPPPragmaWordList: AnsiString read FISPPPragmaWordList;
     property ISPPExpressionWordList: AnsiString read FISPPExpressionWordList;
     property ISPPInstalled: Boolean read FISPPInstalled write SetISPPInstalled;
-    property KeywordsWordList[Section: TInnoSetupStylerSection]: AnsiString read GetKeywordsWordList;
+    property KeywordsWordList[Section: TInnoSetupSection]: AnsiString read GetKeywordsWordList;
     property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
     property SectionsWordList: AnsiString read FSectionsWordList;
     property SetupSectionDirectiveValueIsMultiValue[SetupSectionDirective: TSetupSectionDirective]: Boolean read GetSetupSectionDirectiveValueIsMultiValue;
@@ -203,13 +176,13 @@ implementation
 uses
   Generics.Defaults,
   Shared.SetupMessageIDs, ScintInt, Shared.LangOptionsSectionDirectives,
-  IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra,
+  IDE.ScriptModel.Metadata,
   isxclasses_wordlists_generated;
 
 type
   { Size must be <= SizeOf(TScintLineState) }
   TInnoSetupStylerLineState = record
-    Section, NextLineSection: TInnoSetupStylerSection;
+    Section, NextLineSection: TInnoSetupSection;
     SpanState: TInnoSetupStylerSpanState;
     OpenCompilerDirectivesCount: ShortInt;
   end;
@@ -217,7 +190,7 @@ type
 type
   TSectionMapItem = record
     Name: TScintRawString;
-    Section: TInnoSetupStylerSection;
+    Section: TInnoSetupSection;
   end;
 
 var
@@ -423,7 +396,7 @@ begin
   BuildSectionParameterLists;
   FNoHighlightAtCursorWords := TWordsBySection.Create([doOwnsValues]);
   FFlagsWords := TWordsBySection.Create([doOwnsValues]);
-  for var Section := Low(TInnoSetupStylerSection) to High(TInnoSetupStylerSection) do begin
+  for var Section := Low(TInnoSetupSection) to High(TInnoSetupSection) do begin
     FNoHighlightAtCursorWords.Add(Section, CreateWordsBySectionList);
     FFlagsWords.Add(Section, CreateWordsBySectionList);
   end;
@@ -522,7 +495,7 @@ begin
 end;
 
 procedure TInnoSetupStyler.BuildKeywordsWordList(
-  const Section: TInnoSetupStylerSection;
+  const Section: TInnoSetupSection;
   const Parameters: array of TScintRawString);
 begin
   const SL1 = FNoHighlightAtCursorWords[Section];
@@ -539,7 +512,7 @@ begin
 end;
 
 procedure TInnoSetupStyler.BuildKeywordsWordListFromTypeInfo(
-  const Section: TInnoSetupStylerSection; const EnumTypeInfo: Pointer;
+  const Section: TInnoSetupSection; const EnumTypeInfo: Pointer;
   const PrefixLength: Integer);
 begin
   const SL1 = FNoHighlightAtCursorWords[Section];
@@ -556,7 +529,7 @@ begin
   end;
 end;
 
-procedure TInnoSetupStyler.BuildFlagsWordList(const Section: TInnoSetupStylerSection;
+procedure TInnoSetupStyler.BuildFlagsWordList(const Section: TInnoSetupSection;
   const Flags: array of TScintRawString);
 begin
   const SL1 = FFlagsWords[Section];
@@ -713,7 +686,7 @@ begin
   Result := FEventFunctionsWordList[Procedures];
 end;
 
-function TInnoSetupStyler.GetFlagsWordList(Section: TInnoSetupStylerSection): AnsiString;
+function TInnoSetupStyler.GetFlagsWordList(Section: TInnoSetupSection): AnsiString;
 begin
   Result := FFlagsWordList[Section];
 end;
@@ -743,7 +716,7 @@ begin
   end;
 end;
 
-function TInnoSetupStyler.GetKeywordsWordList(Section: TInnoSetupStylerSection): AnsiString;
+function TInnoSetupStyler.GetKeywordsWordList(Section: TInnoSetupSection): AnsiString;
 begin
   Result := FKeywordsWordList[Section];
 end;
@@ -791,7 +764,7 @@ begin
 end;
 
 class function TInnoSetupStyler.GetSectionFromLineState(
-  const LineState: TScintLineState; const ReturnCodeBlockAsCode: Boolean = True): TInnoSetupStylerSection;
+  const LineState: TScintLineState; const ReturnCodeBlockAsCode: Boolean = True): TInnoSetupSection;
 begin
   Result := TInnoSetupStylerLineState(LineState).Section;
   if ReturnCodeBlockAsCode and (Result = scCodeBlock) then
@@ -1274,7 +1247,7 @@ begin
   end;
 end;
 
-procedure TInnoSetupStyler.HandleKeyValueSection(const Section: TInnoSetupStylerSection);
+procedure TInnoSetupStyler.HandleKeyValueSection(const Section: TInnoSetupSection);
 
   procedure StyleMessageArgs;
   begin
@@ -1368,7 +1341,7 @@ begin
 end;
 
 class function TInnoSetupStyler.IsParamSection(
-  const Section: TInnoSetupStylerSection): Boolean;
+  const Section: TInnoSetupSection): Boolean;
 begin
   Result := not (Section in [scCustomMessages, scLangOptions, scMessages, scSetup, scCode, scCodeBlock]);
 end;
@@ -1379,7 +1352,7 @@ begin
 end;
 
 class function TInnoSetupStyler.LineSectionHeader(const LineState: TScintLineState;
-  out Section: TInnoSetupStylerSection): Boolean;
+  out Section: TInnoSetupSection): Boolean;
 { Returns True if the line opens a section for the lines after it, also
   returning that section (scNone if it does not). A line starting a section
   has NextLineSection <> scNone. Exception: a code-block begin line inside
@@ -1475,13 +1448,13 @@ begin
   end;
 end;
 
-function TInnoSetupStyler.SectionHasFlag(const Section: TInnoSetupStylerSection;
+function TInnoSetupStyler.SectionHasFlag(const Section: TInnoSetupSection;
   const Flag: String): Boolean;
 begin
   Result := FFlagsWords[Section].IndexOf(Flag) <> -1;
 end;
 
-function TInnoSetupStyler.HighlightAtCursorAllowed(const Section: TInnoSetupStylerSection;
+function TInnoSetupStyler.HighlightAtCursorAllowed(const Section: TInnoSetupSection;
   const Word: string): Boolean;
 begin
   Result := FNoHighlightAtCursorWords[Section].IndexOf(Word) = -1;
@@ -1543,7 +1516,7 @@ end;
 
 procedure TInnoSetupStyler.StyleNeeded;
 
-  function MapSectionNameString(const S: TScintRawString): TInnoSetupStylerSection;
+  function MapSectionNameString(const S: TScintRawString): TInnoSetupSection;
   begin
     if (S <> '') and (S[1] = '_') then
       Result := scThirdParty
@@ -1557,7 +1530,7 @@ procedure TInnoSetupStyler.StyleNeeded;
     end;
   end;
 
-  function CheckSectionEnd(const NewSection, Section: TInnoSetupStylerSection): Boolean;
+  function CheckSectionEnd(const NewSection, Section: TInnoSetupSection): Boolean;
   begin
     Result := (NewSection = Section) or ((NewSection = scCode) and (Section = scCodeBlock));
   end;
@@ -1635,14 +1608,14 @@ begin
   LineState := TScintLineState(NewLineState);
 end;
 
-function SMI(const Section: TInnoSetupStylerSection): TSectionMapItem;
+function SMI(const Section: TInnoSetupSection): TSectionMapItem;
 begin
   Result.Name := TScintRawString(SectionToSectionName(Section));
   Result.Section := Section;
 end;
 
 initialization
-  for var Section := Low(TInnoSetupStylerSection) to High(TInnoSetupStylerSection) do
+  for var Section := Low(TInnoSetupSection) to High(TInnoSetupSection) do
     if not (Section in [scNone, scUnknown, scThirdParty, scCodeBlock]) then
       SectionMap := SectionMap + [SMI(Section)];
 
