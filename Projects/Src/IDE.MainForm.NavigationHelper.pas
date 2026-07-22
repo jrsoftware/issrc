@@ -38,7 +38,7 @@ implementation
 uses
   Windows,
   SysUtils, TypInfo, ComCtrls,
-  IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.Messages, IDE.LocalizeFunc;
+  IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc;
 
 procedure TMainFormNavigationHelper.RemoveMemoFromNavigation(const AMemo: TIDEScintEdit);
 begin

@@ -42,7 +42,7 @@ uses
   Classes, SysUtils,  Menus,
   ScintEdit,
   Shared.CommonFunc, Shared.CommonFunc.Vcl,
-  IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.ScintStylerInnoSetup;
+  IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc;
 
 const
   OldFindReplaceWndProcProp = 'OldFindReplaceWndProc';

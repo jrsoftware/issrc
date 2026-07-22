@@ -229,6 +229,7 @@
         <DCCReference Include="..\Components\JvInspector.MSAA.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.Metadata.pas"/>
+        <DCCReference Include="Src\IDE.ScriptModel.Metadata.Extra.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.Test.pas"/>
         <DCCReference Include="Src\IDE.LiveScriptObjectFactory.pas"/>
         <DCCReference Include="Src\IDE.LiveScriptObjectFactory.Test.pas"/>

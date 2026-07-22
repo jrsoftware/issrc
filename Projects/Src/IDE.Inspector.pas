@@ -102,7 +102,7 @@ uses
   Windows, SysUtils, UITypes, Themes, Forms, Generics.Defaults,
   NewUxTheme,
   Shared.CommonFunc,
-  IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc;
+  IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc, IDE.ScriptModel.Metadata.Extra;
 
 type
   EInspectorValueRejected = class(EScriptModelError);

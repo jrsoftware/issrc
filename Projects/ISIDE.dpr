@@ -96,6 +96,7 @@ uses
   JvInspector.MSAA in '..\Components\JvInspector.MSAA.pas',
   IDE.ScriptModel in 'Src\IDE.ScriptModel.pas',
   IDE.ScriptModel.Metadata in 'Src\IDE.ScriptModel.Metadata.pas',
+  IDE.ScriptModel.Metadata.Extra in 'Src\IDE.ScriptModel.Metadata.Extra.pas',
   IDE.ScriptModel.Test in 'Src\IDE.ScriptModel.Test.pas',
   IDE.LiveScriptObjectFactory in 'Src\IDE.LiveScriptObjectFactory.pas',
   IDE.LiveScriptObjectFactory.Test in 'Src\IDE.LiveScriptObjectFactory.Test.pas',

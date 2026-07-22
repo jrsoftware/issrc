@@ -126,18 +126,10 @@ type
     property Styler: TInnoSetupStyler read FStyler;
   end;
 
-function SectionToSectionName(const ASection: TInnoSetupStylerSection): String;
-
 implementation
 
 uses
-  SysUtils, TypInfo;
-
-function SectionToSectionName(const ASection: TInnoSetupStylerSection): String;
-begin
-  Result := Copy(GetEnumName(TypeInfo(TInnoSetupStylerSection), Ord(ASection)),
-    InnoSetupStylerSectionPrefixLength+1, MaxInt);
-end;
+  SysUtils, IDE.ScriptModel.Metadata.Extra;
 
 { TLiveScriptObject }
 
