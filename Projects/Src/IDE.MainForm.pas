@@ -3771,6 +3771,7 @@ begin
   if W > MaxWidth then W := MaxWidth;
   if W < MinWidth then W := MinWidth;
   InspectorPanel.Width := W;
+  FInspector.DividerWidth := FInspector.DividerWidth; { Triggers minimum divider width check }
 end;
 
 procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
