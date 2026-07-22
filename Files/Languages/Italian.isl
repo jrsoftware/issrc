@@ -67,8 +67,8 @@ WinVersionTooLowError=Questo programma richiede %1 versione %2 o successiva.
 WinVersionTooHighError=Questo programma non può essere installato su %1 versione %2 o successiva.
 AdminPrivilegesRequired=Per installare questo programma sono richiesti privilegi di amministratore.
 PowerUserPrivilegesRequired=Per poter installare questo programma sono richiesti i privilegi di amministratore o di Power Users.
-SetupAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona "OK", o seleziona "Annulla" per uscire.
-UninstallAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona "OK", o seleziona "Annulla" per uscire.
+SetupAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona "OK" o "Annulla" per uscire.
+UninstallAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona "OK" o "Annulla" per uscire.
 
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=Seleziona modo installazione
@@ -113,7 +113,7 @@ SelectLanguageTitle=Seleziona la lingua dell'installazione
 SelectLanguageLabel=Seleziona la lingua da usare durante l'installazione.
 
 ; *** Common wizard text
-ClickNext=Seleziona "Avanti" per continuare, o "Annulla" per uscire.
+ClickNext=Per continuare seleziona "Avanti" o "Annulla" per uscire.
 BeveledLabel=
 BrowseDialogTitle=Sfoglia cartelle
 BrowseDialogLabel=Seleziona una cartella nell'elenco, e quindi seleziona "OK".
@@ -140,10 +140,10 @@ LicenseNotAccepted=&Non accetto i termini del contratto di licenza
 ; *** "Information" wizard pages
 WizardInfoBefore=Informazioni
 InfoBeforeLabel=Prima di procedere leggi le importanti informazioni che seguono.
-InfoBeforeClickLabel=Quando sei pronto per proseguire, seleziona "Avanti".
+InfoBeforeClickLabel=Quando sei pronto per proseguire seleziona "Avanti".
 WizardInfoAfter=Informazioni
 InfoAfterLabel=Prima di procedere leggi le importanti informazioni che seguono.
-InfoAfterClickLabel=Quando sei pronto per proseguire, seleziona "Avanti".
+InfoAfterClickLabel=Quando sei pronto per proseguire seleziona "Avanti".
 
 ; *** "User Information" wizard page
 WizardUserInfo=Informazioni utente
@@ -208,7 +208,7 @@ NoProgramGroupCheck2=&Non creare una cartella nel menu Avvio/Start
 ; *** "Ready to Install" wizard page
 WizardReady=Pronto per l'installazione
 ReadyLabel1=Il programma è pronto per iniziare l'installazione di [name] nel computer.
-ReadyLabel2a=Seleziona "Installa" per continuare con l'installazione, o "Indietro" per rivedere o modificare le impostazioni.
+ReadyLabel2a=Per continuare con l'installazione seleziona "Installa" o "Indietro" per rivedere o modificare le impostazioni.
 ReadyLabel2b=Per procedere con l'installazione seleziona "Installa".
 ReadyMemoUserInfo=Informazioni utente:
 ReadyMemoDir=Cartella di installazione:
@@ -243,7 +243,7 @@ ArchiveUnsupportedFormat=Questo formato archivio non è supportato
 WizardPreparing=Preparazione all'installazione
 PreparingDesc=Preparazione all'installazione di [name] nel computer.
 PreviousInstallNotCompleted=L'installazione/rimozione precedente del programma non è stata completata.%n%nPer completare l'installazione è necessario riavviare il sistema.%n%nDopo il riavvio del sistema esegui di nuovo l'installazione di [name].
-CannotContinue=L'installazione non può continuare. Seleziona "Annulla" per uscire.
+CannotContinue=L'installazione non può continuare. Per uscire seleziona "Annulla" .
 ApplicationsFound=Le seguenti applicazioni stanno usando file che devono essere aggiornati dall'installazione.%n%nTi consigliamo di permettere al processo di chiudere automaticamente queste applicazioni.
 ApplicationsFound2=Le seguenti applicazioni stanno usando file che devono essere aggiornati dall'installazione.%n%nTi consigliamo di permettere al processo di chiudere automaticamente queste applicazioni.%n%nAd installazione completata, il processo tenterà di riavviare le applicazioni.
 CloseApplications=Chiudi &automaticamente le applicazioni
@@ -259,7 +259,7 @@ InstallingLabel=Attendi il completamento dell'installazione di [name] nel comput
 FinishedHeadingLabel=Installazione di [name] completata
 FinishedLabelNoIcons=Installazione di [name] completata.
 FinishedLabel=Installazione di [name] completata.%n%nL'applicazione può essere eseguita selezionando le relative icone.
-ClickFinish=Seleziona "Fine" per uscire dall'installazione.
+ClickFinish=Per uscire dall'installazione seleziona "Fine" .
 FinishedRestartLabel=Per completare l'installazione di [name], è necessario riavviare il sistema.%n%nVuoi riavviare il sistema?
 FinishedRestartMessage=Per completare l'installazione di [name], è necessario riavviare il sistema.%n%nVuoi riavviare il sistema?
 ShowReadmeCheck=Sì, visualizza ora il file LEGGIMI
