@@ -1041,7 +1041,7 @@ end;
 
 function TScriptModelKeyValueSection.IndexOf(const AName: String): Integer;
 { With duplicate keys the last one wins. Also see
-  TLiveScriptObjectFactory.TryGetSetupKeyValueValue which does the same. }
+  TLiveScriptObjectFactory.TryGetSetupDirectiveValue which does the same. }
 begin
   Result := -1;
   for var I := 0 to Count-1 do

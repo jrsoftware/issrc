@@ -33,7 +33,7 @@ type
 
   TLiveScriptSectionHeader = record
     Line: Integer;
-    StylerSection: TInnoSetupSection;
+    Section: TInnoSetupSection;
     Name: String;
   end;
 
@@ -55,17 +55,17 @@ type
   TLiveScriptParameterSectionEntry = class(TLiveScriptObject)
   private
     FEntry: TScriptModelParameterSectionEntry;
-    FStylerSection: TInnoSetupSection;
+    FSection: TInnoSetupSection;
     FCreatedFromBlankLine: Boolean;
     constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
-      ALastLine: Integer; const AStylerSection: TInnoSetupSection;
+      ALastLine: Integer; const ASection: TInnoSetupSection;
       const AMetadata: TScriptModelSectionMetadata; const ALines: TArray<String>;
       const ACreatedFromBlankLine: Boolean);
     procedure OnChange(Sender: TObject);
   public
     destructor Destroy; override;
     property Entry: TScriptModelParameterSectionEntry read FEntry;
-    property StylerSection: TInnoSetupSection read FStylerSection;
+    property Section: TInnoSetupSection read FSection;
   end;
 
   { A single occurrence of a key/value section }
@@ -155,12 +155,12 @@ end;
 { TLiveScriptParameterSectionEntry }
 
 constructor TLiveScriptParameterSectionEntry.Create(const AFactory: TLiveScriptObjectFactory;
-  const AFirstLine, ALastLine: Integer; const AStylerSection: TInnoSetupSection;
+  const AFirstLine, ALastLine: Integer; const ASection: TInnoSetupSection;
   const AMetadata: TScriptModelSectionMetadata; const ALines: TArray<String>;
   const ACreatedFromBlankLine: Boolean);
 begin
   inherited Create(AFactory, AFirstLine, ALastLine);
-  FStylerSection := AStylerSection;
+  FSection := ASection;
   FCreatedFromBlankLine := ACreatedFromBlankLine;
   FEntry := TScriptModelParameterSectionEntry.Create(AMetadata);
   FEntry.Parse(ALines);
@@ -258,11 +258,11 @@ procedure TLiveScriptObjectFactory.EnsureIndex;
       also applies to spanned headers, regardless of the fact that those
       don't compile. There's no detection for this issue and callers must
       just pass only the first physical line of a spanned header. }
-    var StylerSection: TInnoSetupSection;
-    Result := TInnoSetupStyler.LineSectionHeader(FMemo.Lines.State[ALine], StylerSection);
+    var Section: TInnoSetupSection;
+    Result := TInnoSetupStyler.LineSectionHeader(FMemo.Lines.State[ALine], Section);
     if Result then begin
       ASectionHeader.Line := ALine;
-      ASectionHeader.StylerSection := StylerSection;
+      ASectionHeader.Section := Section;
       ASectionHeader.Name := ExtractSectionHeaderName(FMemo.Lines[ALine]);
     end;
   end;
@@ -505,11 +505,11 @@ procedure TLiveScriptObjectFactory.GetSectionOccurrence(const ASectionIndex: Int
   out AOccurrenceIndex, AOccurrenceCount: Integer);
 { Does not include special support for scUnknown/scThirdParty }
 begin
-  const StylerSection = SectionHeaders[ASectionIndex].StylerSection;
+  const Section = SectionHeaders[ASectionIndex].Section;
   AOccurrenceIndex := 0;
   AOccurrenceCount := 0;
   for var I := 0 to SectionCount-1 do begin
-    if SectionHeaders[I].StylerSection = StylerSection then begin
+    if SectionHeaders[I].Section = Section then begin
       Inc(AOccurrenceCount);
       if I = ASectionIndex then
         AOccurrenceIndex := AOccurrenceCount;
@@ -529,7 +529,7 @@ begin
   AFirstLine := HeaderLastLine+1;
   var L := AFirstLine;
   while (L < LineCount) and
-        (TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[L]) = Header.StylerSection) do
+        (TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[L]) = Header.Section) do
     Inc(L);
   ALastLine := L-1;
 end;
@@ -554,7 +554,7 @@ begin
   EnsureStyled; { For GetSectionLines }
   Result := False;
   for var I := 0 to Integer(FSectionHeaders.Count)-1 do begin
-    if FSectionHeaders[I].StylerSection = scSetup then begin
+    if FSectionHeaders[I].Section = scSetup then begin
       var FirstLine, LastLine: Integer;
       GetSectionLines(I, FirstLine, LastLine);
       if LastLine >= FirstLine then begin
@@ -574,15 +574,15 @@ begin
   end;
 end;
 
-function TryGetCommonSectionRefusalReason(const AStylerSection: TInnoSetupSection;
+function TryGetCommonSectionRefusalReason(const ASection: TInnoSetupSection;
   out ARefusalReason: TRefusalReason): Boolean;
 begin
   Result := True;
-  if AStylerSection = scNone then
+  if ASection = scNone then
     ARefusalReason := rrNotInsideSection
-  else if AStylerSection = scCode then
+  else if ASection = scCode then
     ARefusalReason := rrInCodeSection
-  else if AStylerSection in [scUnknown, scThirdParty] then
+  else if ASection in [scUnknown, scThirdParty] then
     ARefusalReason := rrUnrecognizedSection
   else
     Result := False;
@@ -603,10 +603,10 @@ begin
     Exit;
   end;
 
-  const StylerSection = TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[ALine]);
-  if TryGetCommonSectionRefusalReason(StylerSection, ARefusalReason) then
+  const Section = TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[ALine]);
+  if TryGetCommonSectionRefusalReason(Section, ARefusalReason) then
     Exit;
-  if not (StylerSection in ParameterSections) then begin
+  if not (Section in ParameterSections) then begin
     ARefusalReason := rrNotParameterSection;
     Exit;
   end;
@@ -635,9 +635,9 @@ begin
   end;
 
   var Metadata: TScriptModelSectionMetadata := nil;
-  TryGetScriptModelSectionMetadata(SectionToSectionName(StylerSection), Metadata);
+  TryGetScriptModelSectionMetadata(SectionToSectionName(Section), Metadata);
   AEntry := TLiveScriptParameterSectionEntry.Create(Self, FirstLine, LastLine,
-    StylerSection, Metadata, EntryLines, LineKind = slkBlank);
+    Section, Metadata, EntryLines, LineKind = slkBlank);
   Result := True;
 end;
 
@@ -654,10 +654,10 @@ begin
     ARefusalReason := rrSectionIndexOutOfRange;
     Exit;
   end;
-  const StylerSection = FSectionHeaders[ASectionIndex].StylerSection;
-  if TryGetCommonSectionRefusalReason(StylerSection, ARefusalReason) then
+  const Section = FSectionHeaders[ASectionIndex].Section;
+  if TryGetCommonSectionRefusalReason(Section, ARefusalReason) then
     Exit;
-  if not (StylerSection in KeyValueSections) then begin
+  if not (Section in KeyValueSections) then begin
     ARefusalReason := rrNotKeyValueSection;
     Exit;
   end;

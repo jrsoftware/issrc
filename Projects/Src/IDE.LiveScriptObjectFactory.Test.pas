@@ -95,10 +95,10 @@ procedure TestSectionIndexing(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
 
   procedure AssertSectionHeader(const ASectionHeader: TLiveScriptSectionHeader;
-    const AExpectedStylerSection: TInnoSetupSection; const AExpectedLine: Integer;
+    const AExpectedSection: TInnoSetupSection; const AExpectedLine: Integer;
     const AExpectedName: String);
   begin
-    Assert(ASectionHeader.StylerSection = AExpectedStylerSection);
+    Assert(ASectionHeader.Section = AExpectedSection);
     Assert(ASectionHeader.Line = AExpectedLine);
     Assert(ASectionHeader.Name = AExpectedName);
   end;
@@ -232,7 +232,7 @@ begin
     var Reason: TRefusalReason;
     Assert(Factory.TryCreateParameterSectionEntry(4, Entry, Reason));
     try
-      Assert(Entry.StylerSection = scFiles);
+      Assert(Entry.Section = scFiles);
       var Value: String;
       Assert(Entry.Entry.TryGetValue('Source', Value) and (Value = 'a.txt'));
       Assert(Entry.Entry.TryGetValue('DestDir', Value) and (Value = '{app}'));
@@ -342,7 +342,7 @@ end;
 procedure TestKeyValueSections(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
 begin
-  { TryGetSetupKeyValueValue walks all [Setup] blocks; last occurrence wins and
+  { TryGetSetupDirectiveValue walks all [Setup] blocks; last occurrence wins and
     not-found is distinct from an empty value }
   begin
     const Context = TFactoryTestContext.Create(AMemo, AStyler, [
@@ -705,14 +705,14 @@ begin
       AMemo.ReplaceTextRange(AMemo.GetPositionFromLine(2),
         AMemo.GetPositionFromLine(2), '[Icons]' + EOL); { Add a header }
       Assert(Factory.SectionCount = 3);
-      Assert(Factory.SectionHeaders[1].StylerSection = scIcons);
+      Assert(Factory.SectionHeaders[1].Section = scIcons);
       Assert(Factory.SectionHeaders[1].Line = 2);
-      Assert(Factory.SectionHeaders[2].StylerSection = scFiles);
+      Assert(Factory.SectionHeaders[2].Section = scFiles);
       Assert(Factory.SectionHeaders[2].Line = 3);
       AMemo.ReplaceTextRange(AMemo.GetPositionFromLine(2),
         AMemo.GetPositionFromLine(3), ''); { Remove the header again }
       Assert(Factory.SectionCount = 2);
-      Assert(Factory.SectionHeaders[1].StylerSection = scFiles);
+      Assert(Factory.SectionHeaders[1].Section = scFiles);
       Assert(Factory.SectionHeaders[1].Line = 2);
     finally
       Context.Free;

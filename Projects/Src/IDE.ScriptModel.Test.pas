@@ -84,11 +84,11 @@ begin
   Assert(QuoteParameterValueIfNeeded('x y', True) = '"x y"');
   Assert(QuoteParameterValueIfNeeded('a"b', True) = '"a""b"');
 
-  { Directive line helpers }
+  { Key/value line helpers }
   var NameText, RawValue: String;
   Assert(TryParseKeyValueLine('AppName = Foo', NameText, RawValue));
   Assert((NameText = 'AppName ') and (RawValue = ' Foo'));
-  Assert(not TryParseKeyValueLine('No directive here', NameText, RawValue));
+  Assert(not TryParseKeyValueLine('No key/value here', NameText, RawValue));
   Assert(not TryParseKeyValueLine(' = Foo', NameText, RawValue));
   Assert(UnquoteKeyValueValue(' "My ""quoted"" App" ') = 'My ""quoted"" App');
 end;

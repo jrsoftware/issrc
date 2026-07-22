@@ -476,7 +476,7 @@ const
       var KnownValues: TArray<String> := nil;
       if Directive in SetupSectionDirectivesYesNo then begin
         ValueKind := mvkYesNo;
-        KnownValues := [SYes, SNo]; { For AddDirectiveRow's fallback }
+        KnownValues := [SYes, SNo]; { For AddKeyRow's fallback }
       end else if Directive in SetupSectionDirectivesYesNoOrScripted then begin
         ValueKind := mvkChoice; { Also allows free typing }
         KnownValues := [SYes, SNo];
@@ -548,7 +548,7 @@ const
       var KnownValues: TArray<String> := nil;
       if Directive in LangOptionsSectionDirectivesYesNo then begin
         ValueKind := mvkYesNo;
-        KnownValues := [SYes, SNo]; { For AddDirectiveRow's fallback }
+        KnownValues := [SYes, SNo]; { For AddKeyRow's fallback }
       end else if Directive in LangOptionsSectionDirectivesInteger then
         ValueKind := mvkInteger;
       Members[Ord(Directive)] := MD(

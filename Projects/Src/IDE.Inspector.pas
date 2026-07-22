@@ -38,6 +38,7 @@ type
     FLiveParameterSectionEntry: TLiveScriptParameterSectionEntry;
     FLiveKeyValueSection: TLiveScriptKeyValueSection;
     FLiveKeyValueSectionName: String;
+    FLiveKeyValueSectionIsDirectiveSection: Boolean;
     FLiveKeyValueSectionHasSiblingOccurrences: Boolean;
     FLiveKeyValueSectionIndex: Integer; { Factory section index it was created for }
     FChangeCountAtCreation: Int64; { Factory ChangeCount at the live object's creation }
@@ -458,7 +459,7 @@ procedure TInspector.UpdateFromCaret;
   begin
     var BoolValue := False;
     Result := (ADefinition.ValueKind = mvkYesNo) and
-      ((ANameIndex < 0) or { Don't check unspecified key, they don't have a value }
+      ((ANameIndex < 0) or { Don't check unspecified keys, they don't have a value }
        TryStrToBoolean(FLiveKeyValueSection.Section.Lines[ANameIndex].Value, BoolValue));
   end;
 
@@ -666,7 +667,7 @@ begin
   const CaretLine = FFactory.Memo.CaretLine;
 
   { Without a memo change or a forced rebuild, a caret move within the same
-    entry or directive section changes nothing, so keep the model and the rows.
+    entry or key/value section changes nothing, so keep the model and the rows.
     The signature check must precede LiveObjectTextChanged: right after
     SetActiveFactory the live object still belongs to the previous factory. }
   if (FLiveParameterSectionEntry <> nil) and FLiveParameterSectionEntry.Valid and
@@ -708,7 +709,7 @@ begin
     FLiveParameterSectionEntry := Entry;
     FChangeCountAtCreation := FFactory.ChangeCount;
     FLiveParameterSectionEntry.Entry.QuoteNewValues := FQuoteNewParameterValues;
-    const SectionName = SectionToSectionName(FLiveParameterSectionEntry.StylerSection);
+    const SectionName = SectionToSectionName(FLiveParameterSectionEntry.Section);
     {$IFDEF DEBUG}
     FDebugStatusRowString := Format('[%s] entry at lines %d-%d',
       [SectionName, FLiveParameterSectionEntry.FirstLine+1,
@@ -732,8 +733,10 @@ begin
       FLiveKeyValueSection := KeyValueSection;
       FLiveKeyValueSectionIndex := SectionIndex;
       FChangeCountAtCreation := FFactory.ChangeCount;
-      FLiveKeyValueSection.Section.QuoteNewValues := FQuoteNewDirectiveValues;
       FLiveKeyValueSectionName := Header.Name;
+      FLiveKeyValueSectionIsDirectiveSection := Header.Section in DirectiveSections;
+      FLiveKeyValueSection.Section.QuoteNewValues := FQuoteNewDirectiveValues and
+        FLiveKeyValueSectionIsDirectiveSection;
       {$IFDEF DEBUG}
       FDebugStatusRowString := Format('[%s] section at line %d',
         [Header.Name, Header.Line+1]);
@@ -755,7 +758,7 @@ begin
       for var I := 0 to Model.Count-1 do begin
         if Model.Lines[I].Kind = lkKeyValue then begin
           RowSetSignature := RowSetSignature + '|' + IntToStr(I) + ':' + Model.Lines[I].Name;
-          { Put AddDirectiveRow's decision into the structure }
+          { Put AddKeyRow's decision into the structure }
           var Definition: TMemberDefinition;
           if Model.TryGetDefinition(Model.Lines[I].Name, Definition) and
              KeyRowIsCheckBox(Definition, I) then
@@ -763,9 +766,7 @@ begin
         end;
       end;
     end else begin
-      { Prefer the entry refusal: it explains the caret line, while a failed
-        TryCreateDirectiveSection could only say the section is not
-        directive-style }
+      { Prefer the entry refusal }
       {$IFDEF DEBUG}
       FDebugStatusRowString := RefusalReasonToString(EntryRefusalReason);
       {$ENDIF}
@@ -1059,7 +1060,7 @@ end;
 procedure TInspector.SetQuoteNewDirectiveValues(const Value: Boolean);
 begin
   FQuoteNewDirectiveValues := Value;
-  if FLiveKeyValueSection <> nil then
+  if (FLiveKeyValueSection <> nil) and FLiveKeyValueSectionIsDirectiveSection then
     FLiveKeyValueSection.Section.QuoteNewValues := Value;
 end;
 
