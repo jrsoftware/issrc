@@ -1111,7 +1111,7 @@ begin
   SetFakeShortCut(POutputListSelectAll, Ord('A'), [ssCtrl]);
   { Set real shortcut on TOptions which can't be set at design time }
   TOptions.ShortCut := ShortCut(VK_OEM_COMMA, [ssCtrl]);
-  { F1 is handled by the memo's and by the inspector }
+  { F1 is handled by the memos and by the inspector }
   SetFakeShortCut(HDoc, VK_F1, []);
 
   PopupMenu := TMainFormPopupMenu.Create(Self, EMenu);
