@@ -25,11 +25,11 @@ uses
 type
   TLiveScriptObjectFactory = class;
 
-  { Why TryCreateParameterSectionEntry or TryCreateDirectiveSection refused to
+  { Why TryCreateParameterSectionEntry or TryCreateKeyValueSection refused to
     create an object }
   TRefusalReason = (rrLineOutOfRange, rrNotInsideSection,
     rrInCodeSection, rrUnrecognizedSection, rrNotParameterSection, rrComment,
-    rrISPPDirective, rrSectionIndexOutOfRange, rrNotDirectiveSection);
+    rrISPPDirective, rrSectionIndexOutOfRange, rrNotKeyValueSection);
 
   TLiveScriptSectionHeader = record
     Line: Integer;
@@ -61,24 +61,24 @@ type
       ALastLine: Integer; const AStylerSection: TInnoSetupSection;
       const AMetadata: TScriptModelSectionMetadata; const ALines: TArray<String>;
       const ACreatedFromBlankLine: Boolean);
-    procedure ParameterSectionEntryChange(Sender: TObject);
+    procedure OnChange(Sender: TObject);
   public
     destructor Destroy; override;
     property Entry: TScriptModelParameterSectionEntry read FEntry;
     property StylerSection: TInnoSetupSection read FStylerSection;
   end;
 
-  { A single occurrence of a directive-style section }
-  TLiveScriptDirectiveSection = class(TLiveScriptObject)
+  { A single occurrence of a key/value section }
+  TLiveScriptKeyValueSection = class(TLiveScriptObject)
   private
-    FSection: TScriptModelDirectiveSection;
+    FSection: TScriptModelKeyValueSection;
     constructor Create(const AFactory: TLiveScriptObjectFactory; const AFirstLine,
       ALastLine: Integer; const AMetadata: TScriptModelSectionMetadata;
       const ALines: TArray<String>);
-    procedure DirectiveSectionChange(Sender: TObject);
+    procedure OnChange(Sender: TObject);
   public
     destructor Destroy; override;
-    property Section: TScriptModelDirectiveSection read FSection;
+    property Section: TScriptModelKeyValueSection read FSection;
   end;
 
   TLiveScriptObjectFactory = class
@@ -116,8 +116,8 @@ type
     function TryCreateParameterSectionEntry(const ALine: Integer;
       out AEntry: TLiveScriptParameterSectionEntry;
       out ARefusalReason: TRefusalReason): Boolean;
-    function TryCreateDirectiveSection(const ASectionIndex: Integer;
-      out ASection: TLiveScriptDirectiveSection;
+    function TryCreateKeyValueSection(const ASectionIndex: Integer;
+      out ASection: TLiveScriptKeyValueSection;
       out ARefusalReason: TRefusalReason): Boolean;
     { Bumped on every Change call, so a consumer can tell whether the memo
       changed since it last read something }
@@ -164,7 +164,7 @@ begin
   FCreatedFromBlankLine := ACreatedFromBlankLine;
   FEntry := TScriptModelParameterSectionEntry.Create(AMetadata);
   FEntry.Parse(ALines);
-  FEntry.OnChange := ParameterSectionEntryChange;
+  FEntry.OnChange := OnChange;
 end;
 
 destructor TLiveScriptParameterSectionEntry.Destroy;
@@ -173,7 +173,7 @@ begin
   inherited;
 end;
 
-procedure TLiveScriptParameterSectionEntry.ParameterSectionEntryChange(Sender: TObject);
+procedure TLiveScriptParameterSectionEntry.OnChange(Sender: TObject);
 begin
   if (FFactory <> nil) and FValid then begin
     FFactory.WriteBackChange(Self, FEntry.GetLines, FCreatedFromBlankLine);
@@ -181,25 +181,25 @@ begin
   end;
 end;
 
-{ TLiveScriptDirectiveSection }
+{ TLiveScriptKeyValueSection }
 
-constructor TLiveScriptDirectiveSection.Create(const AFactory: TLiveScriptObjectFactory;
+constructor TLiveScriptKeyValueSection.Create(const AFactory: TLiveScriptObjectFactory;
   const AFirstLine, ALastLine: Integer; const AMetadata: TScriptModelSectionMetadata;
   const ALines: TArray<String>);
 begin
   inherited Create(AFactory, AFirstLine, ALastLine);
-  FSection := TScriptModelDirectiveSection.Create(AMetadata);
+  FSection := TScriptModelKeyValueSection.Create(AMetadata);
   FSection.Parse(ALines);
-  FSection.OnChange := DirectiveSectionChange;
+  FSection.OnChange := OnChange;
 end;
 
-destructor TLiveScriptDirectiveSection.Destroy;
+destructor TLiveScriptKeyValueSection.Destroy;
 begin
   FSection.Free;
   inherited;
 end;
 
-procedure TLiveScriptDirectiveSection.DirectiveSectionChange(Sender: TObject);
+procedure TLiveScriptKeyValueSection.OnChange(Sender: TObject);
 begin
   if (FFactory <> nil) and FValid then
     FFactory.WriteBackChange(Self, FSection.GetLines);
@@ -548,7 +548,7 @@ function TLiveScriptObjectFactory.TryGetSetupDirectiveValue(const ADirectiveName
   out AValue: String): Boolean;
 begin
   { Returns the last occurrence found. The compiler does not accept duplicate
-    directives (except SignTool), but it only sees the script after preprocessing.
+    keys (except SignTool), but it only sees the script after preprocessing.
     Before preprocessing having duplicates does not always mean there's an error. }
   EnsureIndex;
   EnsureStyled; { For GetSectionLines }
@@ -558,7 +558,7 @@ begin
       var FirstLine, LastLine: Integer;
       GetSectionLines(I, FirstLine, LastLine);
       if LastLine >= FirstLine then begin
-        const Section = TScriptModelDirectiveSection.Create(nil); { Just reading, metadata not needed }
+        const Section = TScriptModelKeyValueSection.Create(nil); { Just reading, metadata not needed }
         try
           Section.Parse(GetLinesText(FirstLine, LastLine));
           var Value: String;
@@ -641,8 +641,8 @@ begin
   Result := True;
 end;
 
-function TLiveScriptObjectFactory.TryCreateDirectiveSection(const ASectionIndex: Integer;
-  out ASection: TLiveScriptDirectiveSection;
+function TLiveScriptObjectFactory.TryCreateKeyValueSection(const ASectionIndex: Integer;
+  out ASection: TLiveScriptKeyValueSection;
   out ARefusalReason: TRefusalReason): Boolean;
 begin
   ASection := nil;
@@ -657,8 +657,8 @@ begin
   const StylerSection = FSectionHeaders[ASectionIndex].StylerSection;
   if TryGetCommonSectionRefusalReason(StylerSection, ARefusalReason) then
     Exit;
-  if not (StylerSection in DirectiveSections) then begin
-    ARefusalReason := rrNotDirectiveSection;
+  if not (StylerSection in KeyValueSections) then begin
+    ARefusalReason := rrNotKeyValueSection;
     Exit;
   end;
 
@@ -671,7 +671,7 @@ begin
     SectionLines := nil;
   var Metadata: TScriptModelSectionMetadata := nil;
   TryGetScriptModelSectionMetadata(FSectionHeaders[ASectionIndex].Name, Metadata);
-  ASection := TLiveScriptDirectiveSection.Create(Self, FirstLine, LastLine,
+  ASection := TLiveScriptKeyValueSection.Create(Self, FirstLine, LastLine,
     Metadata, SectionLines);
   Result := True;
 end;
@@ -688,8 +688,8 @@ begin
   for var Line in ALines do
     if ContainsLineBreak(Line) then
       raise Exception.Create('Internal error: WriteBackChange: ALines element contains a line break');
-  if (Length(ALines) = 0) and not (ALiveScriptObject is TLiveScriptDirectiveSection) then
-    raise Exception.Create('Internal error: WriteBackChange: empty ALines but not a directive section');
+  if (Length(ALines) = 0) and not (ALiveScriptObject is TLiveScriptKeyValueSection) then
+    raise Exception.Create('Internal error: WriteBackChange: empty ALines but not a key/value section');
 
   const LineEnding = String(FMemo.LineEndingString);
   const Text = String.Join(LineEnding, ALines);
@@ -725,7 +725,7 @@ begin
           srmMinimal);
       end;
     end else if Length(ALines) > 0 then begin
-      { The object has no lines yet (a directive-style section without lines):
+      { The object has no lines yet (a key/value section without lines):
         there is nothing to replace, so the new lines are inserted }
       if ALiveScriptObject.FFirstLine <= FMemo.Lines.Count-1 then begin
         { Insert the new lines plus a line ending at the start of the line

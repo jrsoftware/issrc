@@ -15,7 +15,7 @@ unit IDE.ScriptModel;
     preserved and edits touch only what changed. Parsing has no error
     path and creates a structure which can always be serialized back
     into the parsed lines, byte-identical. Editing keeps line spanning.
-  - Directive sections: a section occurrence is an ordered list of
+  - Key/value sections: a section occurrence is an ordered list of
     its logical lines, so after joining physical lines for line
     spanning. Editing does not keep line spanning. Does keep whitespace
     and quotes.
@@ -119,13 +119,13 @@ type
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
 
-  TDirectiveSectionLineKind = (lkDirective, lkOther);
+  TKeyValueSectionLineKind = (lkKeyValue, lkOther);
 
-  { A single logical line in a directive section: either a Name=Value or
+  { A single logical line in a key/value section: either a Name=Value or
     another kind of line (comment, ISPP directive, blank, or anything else) }
-  TDirectiveSectionLine = class
+  TKeyValueSectionLine = class
   private
-    FKind: TDirectiveSectionLineKind;
+    FKind: TKeyValueSectionLineKind;
     FOriginalLines: TArray<String>; { The original lines }
     FNameText: String;              { Original name }
     FName: String;                  { Trimmed name }
@@ -133,17 +133,17 @@ type
     FModified: Boolean;
     function GetValue: String;
   public
-    property Kind: TDirectiveSectionLineKind read FKind;
+    property Kind: TKeyValueSectionLineKind read FKind;
     property Name: String read FName;
     property RawValue: String read FRawValue;
     property Value: String read GetValue;
   end;
 
-  { A single occurrence of a directive-style section }
-  TScriptModelDirectiveSection = class
+  { A single occurrence of a key/value section }
+  TScriptModelKeyValueSection = class
   private
     FMetadata: TScriptModelSectionMetadata; { May be nil }
-    FLines: TObjectList<TDirectiveSectionLine>;
+    FLines: TObjectList<TKeyValueSectionLine>;
     FOnChange: TNotifyEvent;
     FUpdateLevel: Integer;
     FPendingChange: Boolean;
@@ -153,8 +153,8 @@ type
     procedure BeginUpdate;
     procedure Changed;
     procedure EndUpdate;
-    function GetNamedLine(const AIndex: Integer): TDirectiveSectionLine;
-    function GetLine(Index: Integer): TDirectiveSectionLine;
+    function GetNamedLine(const AIndex: Integer): TKeyValueSectionLine;
+    function GetLine(Index: Integer): TKeyValueSectionLine;
     procedure SetFlagInternal(const AIndex: Integer; const AFlagName: String;
       const AInclude: Boolean);
   public
@@ -176,7 +176,7 @@ type
     function TryGetDefinition(const AName: String;
       out ADefinition: TMemberDefinition): Boolean;
     function DefaultValue(const AName: String): String;
-    property Lines[Index: Integer]: TDirectiveSectionLine read GetLine;
+    property Lines[Index: Integer]: TKeyValueSectionLine read GetLine;
     property Metadata: TScriptModelSectionMetadata read FMetadata;
     property QuoteNewValues: Boolean read FQuoteNewValues write FQuoteNewValues;
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
@@ -192,8 +192,8 @@ function ScriptLineSpans(const S: String): Boolean;
 function UnquoteParameterValue(const S: String): String;
 function QuoteParameterValueIfNeeded(const S: String;
   const AAlwaysQuote: Boolean = False): String;
-function UnquoteDirectiveValue(const S: String): String;
-function TryParseDirectiveLine(const S: String;
+function UnquoteKeyValueValue(const S: String): String;
+function TryParseKeyValueLine(const S: String;
   out ANameText, ARawValue: String): Boolean;
 
 implementation
@@ -293,10 +293,10 @@ begin
     Result := S;
 end;
 
-function QuoteDirectiveValueIfNeeded(const AValue: String;
+function QuoteKeyValueValueIfNeeded(const AValue: String;
   const AAlwaysQuote: Boolean = False): String;
 begin
-  { Directive values only need quotes to keep leading or trailing whitespace,
+  { Key/value values only need quotes to keep leading or trailing whitespace,
     to keep a value that itself looks quoted from losing those quotes on
     read-back, or to keep a trailing '\' from being read back as a line
     continuation }
@@ -320,7 +320,7 @@ begin
     Result := True;
 end;
 
-function UnquoteDirectiveValue(const S: String): String;
+function UnquoteKeyValueValue(const S: String): String;
 begin
   Result := Trim(S);
   { If the value is surrounded in quotes, remove them, just like
@@ -330,7 +330,7 @@ begin
     Result := Copy(Result, 2, Length(Result)-2);
 end;
 
-function TryParseDirectiveLine(const S: String;
+function TryParseKeyValueLine(const S: String;
   out ANameText, ARawValue: String): Boolean;
 begin
   const P = Pos('=', S);
@@ -936,36 +936,36 @@ begin
   Result := (FMetadata <> nil) and FMetadata.TryGetMember(AName, ADefinition);
 end;
 
-{ TDirectiveSectionLine }
+{ TKeyValueSectionLine }
 
-function TDirectiveSectionLine.GetValue: String;
+function TKeyValueSectionLine.GetValue: String;
 begin
-  Result := UnquoteDirectiveValue(FRawValue);
+  Result := UnquoteKeyValueValue(FRawValue);
 end;
 
-{ TScriptModelDirectiveSection }
+{ TScriptModelKeyValueSection }
 
-constructor TScriptModelDirectiveSection.Create(
+constructor TScriptModelKeyValueSection.Create(
   const AMetadata: TScriptModelSectionMetadata);
 begin
   inherited Create;
   FMetadata := AMetadata;
-  FLines := TObjectList<TDirectiveSectionLine>.Create;
+  FLines := TObjectList<TKeyValueSectionLine>.Create;
   FQuoteNewValues := False;
 end;
 
-destructor TScriptModelDirectiveSection.Destroy;
+destructor TScriptModelKeyValueSection.Destroy;
 begin
   FLines.Free;
   inherited;
 end;
 
-procedure TScriptModelDirectiveSection.BeginUpdate;
+procedure TScriptModelKeyValueSection.BeginUpdate;
 begin
   Inc(FUpdateLevel);
 end;
 
-procedure TScriptModelDirectiveSection.EndUpdate;
+procedure TScriptModelKeyValueSection.EndUpdate;
 begin
   Dec(FUpdateLevel);
   if (FUpdateLevel = 0) and FPendingChange then begin
@@ -975,7 +975,7 @@ begin
   end;
 end;
 
-procedure TScriptModelDirectiveSection.Changed;
+procedure TScriptModelKeyValueSection.Changed;
 begin
   if FUpdateLevel > 0 then
     FPendingChange := True
@@ -983,7 +983,7 @@ begin
     FOnChange(Self);
 end;
 
-procedure TScriptModelDirectiveSection.Parse(const ALines: array of String);
+procedure TScriptModelKeyValueSection.Parse(const ALines: array of String);
 begin
   FLines.Clear;
   var I := 0;
@@ -992,7 +992,7 @@ begin
     var Last := I;
     while (Last < High(ALines)) and ScriptLineSpans(ALines[Last]) do
       Inc(Last);
-    const Line = TDirectiveSectionLine.Create;
+    const Line = TKeyValueSectionLine.Create;
     SetLength(Line.FOriginalLines, Last-I+1);
     for var J := I to Last do
       Line.FOriginalLines[J-I] := ALines[J];
@@ -1000,8 +1000,8 @@ begin
     Line.FKind := lkOther;
     if ClassifyScriptLine(Joined) = slkActual then begin
       var NameText, RawValue: String;
-      if TryParseDirectiveLine(Joined, NameText, RawValue) then begin
-        Line.FKind := lkDirective;
+      if TryParseKeyValueLine(Joined, NameText, RawValue) then begin
+        Line.FKind := lkKeyValue;
         Line.FNameText := NameText;
         Line.FName := Trim(NameText);
         Line.FRawValue := RawValue;
@@ -1012,7 +1012,7 @@ begin
   end;
 end;
 
-function TScriptModelDirectiveSection.GetLines: TArray<String>;
+function TScriptModelKeyValueSection.GetLines: TArray<String>;
 begin
   const LineList = TList<String>.Create;
   try
@@ -1028,39 +1028,39 @@ begin
   end;
 end;
 
-function TScriptModelDirectiveSection.Count: Integer;
+function TScriptModelKeyValueSection.Count: Integer;
 begin
   Result := Integer(FLines.Count);
 end;
 
-function TScriptModelDirectiveSection.GetLine(
-  Index: Integer): TDirectiveSectionLine;
+function TScriptModelKeyValueSection.GetLine(
+  Index: Integer): TKeyValueSectionLine;
 begin
   Result := FLines[Index];
 end;
 
-function TScriptModelDirectiveSection.IndexOf(const AName: String): Integer;
-{ With duplicate directives the last one wins. Also see
-  TLiveScriptObjectFactory.TryGetSetupDirectiveValue which does the same. }
+function TScriptModelKeyValueSection.IndexOf(const AName: String): Integer;
+{ With duplicate keys the last one wins. Also see
+  TLiveScriptObjectFactory.TryGetSetupKeyValueValue which does the same. }
 begin
   Result := -1;
   for var I := 0 to Count-1 do
-    if (FLines[I].Kind = lkDirective) and SameText(FLines[I].Name, AName) then
+    if (FLines[I].Kind = lkKeyValue) and SameText(FLines[I].Name, AName) then
       Result := I;
 end;
 
-function TScriptModelDirectiveSection.TryResolve(const AName: String;
+function TScriptModelKeyValueSection.TryResolve(const AName: String;
   var AIndex: Integer): Boolean;
-{ Pass -1 as AIndex to look the directive up by name }
+{ Pass -1 as AIndex to look the key up by name }
 begin
   if AIndex < 0 then
     AIndex := IndexOf(AName);
   Result := (AIndex >= 0) and (AIndex < Count) and
-    (FLines[AIndex].Kind = lkDirective) and
+    (FLines[AIndex].Kind = lkKeyValue) and
     SameText(FLines[AIndex].Name, AName);
 end;
 
-function TScriptModelDirectiveSection.TryGetValue(const AName: String;
+function TScriptModelKeyValueSection.TryGetValue(const AName: String;
   out AValue: String): Boolean;
 begin
   const I = IndexOf(AName);
@@ -1069,15 +1069,15 @@ begin
     AValue := FLines[I].Value;
 end;
 
-function TScriptModelDirectiveSection.GetNamedLine(
-  const AIndex: Integer): TDirectiveSectionLine;
+function TScriptModelKeyValueSection.GetNamedLine(
+  const AIndex: Integer): TKeyValueSectionLine;
 begin
   Result := FLines[AIndex];
-  if Result.Kind <> lkDirective then
-    raise EScriptModelError.Create('Internal error: Line is not a directive');
+  if Result.Kind <> lkKeyValue then
+    raise EScriptModelError.Create('Internal error: Line is not a key/value');
 end;
 
-procedure TScriptModelDirectiveSection.SetValue(const AIndex: Integer;
+procedure TScriptModelKeyValueSection.SetValue(const AIndex: Integer;
   const AValue: String);
 begin
   if ContainsLineBreak(AValue) then
@@ -1085,7 +1085,7 @@ begin
   const Line = GetNamedLine(AIndex);
   { Keep any whitespace between the '=' and the old value, and keep quotes }
   const NewRawValue = LeadingWhitespace(Line.FRawValue) +
-    QuoteDirectiveValueIfNeeded(AValue, ScriptValueIsQuoted(Line.FRawValue));
+    QuoteKeyValueValueIfNeeded(AValue, ScriptValueIsQuoted(Line.FRawValue));
   if NewRawValue = Line.FRawValue then
     Exit;
   Line.FRawValue := NewRawValue;
@@ -1093,29 +1093,29 @@ begin
   Changed;
 end;
 
-function TScriptModelDirectiveSection.Add(const AName,
+function TScriptModelKeyValueSection.Add(const AName,
   AValue: String): Integer;
 begin
   { Sanity checks }
   if (AName <> Trim(AName)) or ContainsLineBreak(AName) or
      (Pos('=', AName) > 0) or (ClassifyScriptLine(AName) <> slkActual) then
-    raise EScriptModelError.Create('Internal error: Invalid directive name');
+    raise EScriptModelError.Create('Internal error: Invalid key name');
   if ContainsLineBreak(AValue) then
     raise EScriptModelError.Create('Internal error: Value must not contain line breaks');
 
-  const Line = TDirectiveSectionLine.Create;
-  Line.FKind := lkDirective;
+  const Line = TKeyValueSectionLine.Create;
+  Line.FKind := lkKeyValue;
   Line.FNameText := AName;
   Line.FName := AName;
-  { A newly added directive is quoted according to the section's option }
-  Line.FRawValue := QuoteDirectiveValueIfNeeded(AValue,
+  { A newly added key/value value is quoted according to the section's option }
+  Line.FRawValue := QuoteKeyValueValueIfNeeded(AValue,
     ShouldQuoteNewValue(FQuoteNewValues, FMetadata, AName));
   Line.FModified := True;
-  { Insert after the last directive so trailing comments or blank lines stay
-    at the end. With no directives yet, append at the end. }
+  { Insert after the last key so trailing comments or blank lines stay
+    at the end. With no keys yet, append at the end. }
   Result := Count;
   for var I := Count-1 downto 0 do
-    if FLines[I].Kind = lkDirective then begin
+    if FLines[I].Kind = lkKeyValue then begin
       Result := I+1;
       Break;
     end;
@@ -1123,23 +1123,23 @@ begin
   Changed;
 end;
 
-procedure TScriptModelDirectiveSection.Remove(const AIndex: Integer);
+procedure TScriptModelKeyValueSection.Remove(const AIndex: Integer);
 begin
   GetNamedLine(AIndex);
   FLines.Delete(AIndex);
   Changed;
 end;
 
-function TScriptModelDirectiveSection.FlagIncluded(const AIndex: Integer;
+function TScriptModelKeyValueSection.FlagIncluded(const AIndex: Integer;
   const AFlagName: String): Boolean;
 begin
   Result := ScriptValueIncludesFlag(GetNamedLine(AIndex).Value, AFlagName);
 end;
 
-procedure TScriptModelDirectiveSection.ApplyFlagRules(const AIndex: Integer;
+procedure TScriptModelKeyValueSection.ApplyFlagRules(const AIndex: Integer;
   const AIncludedFlagName: String);
-{ Like TScriptModelParameterSectionEntry.ApplyFlagRules, but a directive's rules
-  always target the directive itself, so the rules work on the same line }
+{ Like TScriptModelParameterSectionEntry.ApplyFlagRules, but a key's rules
+  always target the key itself, so the rules work on the same line }
 begin
   if FMetadata = nil then
     Exit;
@@ -1169,9 +1169,9 @@ begin
   end;
 end;
 
-procedure TScriptModelDirectiveSection.SetFlagInternal(const AIndex: Integer;
+procedure TScriptModelKeyValueSection.SetFlagInternal(const AIndex: Integer;
   const AFlagName: String; const AInclude: Boolean);
-{ Includes or excludes a flag in an existing directive's value. Including also
+{ Includes or excludes a flag in an existing key's value. Including also
   runs the flag rules, so other flags could be turned on or off as well. }
 begin
   { Sanity check }
@@ -1193,13 +1193,13 @@ begin
       Exit;
     const NewValue = RemoveScriptFlagTokens(OldValue, AFlagName);
     if Trim(NewValue) = '' then
-      Remove(AIndex) { Nothing left so remove the whole directive }
+      Remove(AIndex) { Nothing left so remove the whole key/value }
     else
       SetValue(AIndex, NewValue);
   end;
 end;
 
-procedure TScriptModelDirectiveSection.SetFlag(const AIndex: Integer;
+procedure TScriptModelKeyValueSection.SetFlag(const AIndex: Integer;
   const AFlagName: String; const AInclude: Boolean);
 begin
   BeginUpdate;
@@ -1210,13 +1210,13 @@ begin
   end;
 end;
 
-function TScriptModelDirectiveSection.TryGetDefinition(const AName: String;
+function TScriptModelKeyValueSection.TryGetDefinition(const AName: String;
   out ADefinition: TMemberDefinition): Boolean;
 begin
   Result := (FMetadata <> nil) and FMetadata.TryGetMember(AName, ADefinition);
 end;
 
-function TScriptModelDirectiveSection.DefaultValue(const AName: String): String;
+function TScriptModelKeyValueSection.DefaultValue(const AName: String): String;
 begin
   Result := '';
   var Definition: TMemberDefinition;

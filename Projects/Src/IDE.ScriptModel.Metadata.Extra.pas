@@ -434,7 +434,7 @@ const
      '^' {else},
      '.' {endif}];
 
-  DirectiveSections = [scSetup, scLangOptions, scMessages, scCustomMessages];
+  KeyValueSections = [scSetup, scLangOptions, scMessages, scCustomMessages];
 
   ParameterSections = [scComponents, scDirs, scISSigKeys, scFiles, scIcons,
     scINI, scInstallDelete, scLanguages, scRegistry, scRun, scTasks, scTypes,

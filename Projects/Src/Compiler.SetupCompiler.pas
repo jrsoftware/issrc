@@ -284,7 +284,7 @@ type
     procedure CompileCode;
     function FilenameToFileIndex(const AFileName: String): Integer;
     procedure ReadTextFile(const Filename: String; const LangIndex: Integer; var Text: AnsiString);
-    procedure SeparateDirective(const Line: PChar; var Key, Value: String);
+    procedure SeparateDirective(const Line: PChar; var KeyName, Value: String);
     procedure ShiftDebugEntryIndexes(AKind: TDebugEntryKind);
     procedure Sign(AExeFilename: String);
     procedure SignCommand(const AName, ACommand, AParams, AExeFilename: String; const RetryCount, RetryDelay, MinimumTimeBetween: Cardinal; const RunMinimized: Boolean);
@@ -2454,20 +2454,20 @@ end;
 
 { Note: result Value may include leading/trailing whitespaces if it was quoted! }
 procedure TSetupCompiler.SeparateDirective(const Line: PChar;
-  var Key, Value: String);
+  var KeyName, Value: String);
 var
   P: PChar;
 begin
-  Key := '';
+  KeyName := '';
   Value := '';
   P := Line;
   SkipWhitespace(P);
   if P^ <> #0 then begin
-    Key := ExtractWords(P, '=');
-    if Key = '' then
+    KeyName := ExtractWords(P, '=');
+    if KeyName = '' then
       AbortCompile(SCompilerDirectiveNameMissing);
     if P^ <> '=' then
-      AbortCompileFmt(SCompilerDirectiveHasNoValue, [Key]);
+      AbortCompileFmt(SCompilerDirectiveHasNoValue, [KeyName]);
     Inc(P);
     SkipWhitespace(P);
     Value := ExtractWords(P, #0);

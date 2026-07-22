@@ -86,11 +86,11 @@ begin
 
   { Directive line helpers }
   var NameText, RawValue: String;
-  Assert(TryParseDirectiveLine('AppName = Foo', NameText, RawValue));
+  Assert(TryParseKeyValueLine('AppName = Foo', NameText, RawValue));
   Assert((NameText = 'AppName ') and (RawValue = ' Foo'));
-  Assert(not TryParseDirectiveLine('No directive here', NameText, RawValue));
-  Assert(not TryParseDirectiveLine(' = Foo', NameText, RawValue));
-  Assert(UnquoteDirectiveValue(' "My ""quoted"" App" ') = 'My ""quoted"" App');
+  Assert(not TryParseKeyValueLine('No directive here', NameText, RawValue));
+  Assert(not TryParseKeyValueLine(' = Foo', NameText, RawValue));
+  Assert(UnquoteKeyValueValue(' "My ""quoted"" App" ') = 'My ""quoted"" App');
 end;
 
 procedure TestEntryParseAndSerialize;
@@ -445,8 +445,11 @@ begin
   end;
 end;
 
-procedure TestDirectiveSectionMetadata;
+procedure TestKeyValueSectionMetadata;
 begin
+  { The keys of the [Setup] and [LangOptions] sections are called directives,
+    which is why the comments below refer to directives }
+
   { The [Setup] and [LangOptions] tables are generated from the compiler's
     enums: every directive present, in canonical enum order }
   var Metadata: TScriptModelSectionMetadata;
@@ -459,7 +462,7 @@ begin
   Assert(Definition.ValueKind = mvkString);
   Assert(not Definition.Obsolete);
   Assert(Definition.DefaultValue = '');
-  { A yes/no directive still lists its two values, for the drop-down of the
+  { A yes/no key still lists its two values, for the drop-down of the
     inspector's text-row fallback when the value isn't yes/no }
   Assert(Metadata.TryGetMember('SolidCompression', Definition));
   Assert(Definition.ValueKind = mvkYesNo);
@@ -566,14 +569,14 @@ begin
   end;
 
   { The section model exposes the definitions like the entry model does }
-  const Section = TScriptModelDirectiveSection.Create(Metadata);
+  const Section = TScriptModelKeyValueSection.Create(Metadata);
   try
     Assert(Section.Metadata = Metadata);
     Assert(Section.TryGetDefinition('solidcompression', Definition)); { Case-insensitive }
     Assert(Definition.ValueKind = mvkYesNo);
-    Assert(not Section.TryGetDefinition('NoSuchDirective', Definition));
+    Assert(not Section.TryGetDefinition('NoSuchKey', Definition));
 
-    { With the quoting option on, only text directives are quoted: a yes/no
+    { With the quoting option on, only text keys are quoted: a yes/no
       or integer value is written bare }
     Section.QuoteNewValues := True;
     Section.Add('SolidCompression', 'yes');
@@ -586,7 +589,7 @@ begin
   finally
     Section.Free;
   end;
-  const SectionWithoutMetadata = TScriptModelDirectiveSection.Create(nil);
+  const SectionWithoutMetadata = TScriptModelKeyValueSection.Create(nil);
   try
     Assert(SectionWithoutMetadata.Metadata = nil);
     Assert(not SectionWithoutMetadata.TryGetDefinition('AppName', Definition));
@@ -1112,13 +1115,13 @@ begin
   end;
 end;
 
-procedure TestDirectiveSection;
+procedure TestKeyValueSection;
 begin
   const Counter = TChangeCounter.Create;
-  const Section = TScriptModelDirectiveSection.Create(nil);
+  const Section = TScriptModelKeyValueSection.Create(nil);
   try
     { Duplicates are both kept; the value scan returns the last occurrence;
-      unknown directives, comments, blank lines and ISPP lines are opaque }
+      unknown keys, comments, blank lines and ISPP lines are opaque }
     Section.Parse([
       '; comment',
       'AppName=Foo',
@@ -1128,12 +1131,12 @@ begin
       '#define X 1']);
     Assert(Section.Count = 6);
     Assert(Section.Lines[0].Kind = lkOther);
-    Assert(Section.Lines[1].Kind = lkDirective);
+    Assert(Section.Lines[1].Kind = lkKeyValue);
     Assert(Section.Lines[1].Name = 'AppName');
     Assert(Section.Lines[2].Kind = lkOther);
-    Assert(Section.Lines[3].Kind = lkDirective);
+    Assert(Section.Lines[3].Kind = lkKeyValue);
     Assert(Section.Lines[3].Value = 'Bar');
-    Assert(Section.Lines[4].Kind = lkDirective);
+    Assert(Section.Lines[4].Kind = lkKeyValue);
     Assert(Section.Lines[5].Kind = lkOther);
     var Value: String;
     Assert(Section.TryGetValue('appname', Value));
@@ -1145,7 +1148,7 @@ begin
     Index := 1;
     Assert(Section.TryResolve('AppName', Index) and (Index = 1)); { A given index is kept }
     Index := 0;
-    Assert(not Section.TryResolve('AppName', Index)); { A comment line is not a directive }
+    Assert(not Section.TryResolve('AppName', Index)); { A comment line is not a key/value line }
     Index := 4;
     Assert(not Section.TryResolve('AppName', Index)); { Name mismatch }
     Index := 6;
@@ -1158,7 +1161,7 @@ begin
     Assert(Lines[3] = 'AppName = Bar ');
     Assert(Lines[5] = '#define X 1');
 
-    { Directive values keep surrounding quotes out of the display value,
+    { Key/value values keep surrounding quotes out of the display value,
       without treating embedded quotes as doubled }
     Section.Parse(['AppName="My ""quoted"" App"']);
     Assert(Section.Lines[0].Value = 'My ""quoted"" App');
@@ -1172,7 +1175,7 @@ begin
     Lines := Section.GetLines;
     Assert(Lines[1] = 'AppName = Foo');
 
-    { Editing a directive only rewrites that line, keeping the name and the
+    { Editing a key/value line only rewrites that line, keeping the name and the
       whitespace around the '=' as written; repeating the same value is then
       a no-op too }
     Section.SetValue(1, 'Bar');
@@ -1190,7 +1193,7 @@ begin
     Lines := Section.GetLines;
     Assert(Lines[1] = 'AppName = "B "');
 
-    { Adding inserts after the last directive; removing removes only that
+    { Adding inserts after the last key; removing removes only that
       line }
     Assert(Section.Add('AppVersion', '1.0') = 3);
     Lines := Section.GetLines;
@@ -1221,14 +1224,14 @@ begin
     Assert(Caught);
     {$ENDIF}
 
-    { With no directives yet, adding appends at the end }
+    { With no keys yet, adding appends at the end }
     Section.Parse(['; only comment']);
     Assert(Section.Add('A', '1') = 1);
     Lines := Section.GetLines;
     Assert(Length(Lines) = 2);
     Assert(Lines[1] = 'A=1');
 
-    { Editing a directive keeps its own quoting: a quoted value stays quoted }
+    { Editing a key/value value keeps its own quoting: a quoted value stays quoted }
     Section.Parse(['AppName="Foo"']);
     Section.SetValue(0, 'Bar');
     Lines := Section.GetLines;
@@ -1254,8 +1257,8 @@ begin
     Assert(Lines[1] = 'AppName=""Foo""');
     Assert(Section.Lines[1].Value = '"Foo"');
 
-    { A new directive is left bare by default (QuoteNewValues off for
-      directive-style sections) and quoted when the option is turned on }
+    { A new key/value value is left bare by default (QuoteNewValues off for
+      key/value sections) and quoted when the option is turned on }
     Section.Parse(['; c']);
     Assert(not Section.QuoteNewValues);
     Section.Add('AppName', 'Foo');
@@ -1270,7 +1273,7 @@ begin
 
     {$IFDEF ISTESTTOOLPROJ}
     { Values with line breaks and names that would not read back as the same
-      directive raise, leaving the section untouched }
+      key raise, leaving the section untouched }
     Section.Parse(['AppName=Foo']);
     Caught := False;
     try
@@ -1324,10 +1327,10 @@ begin
   end;
 end;
 
-procedure TestDirectiveSectionFlags;
+procedure TestKeyValueSectionFlags;
 begin
   const Counter = TChangeCounter.Create;
-  var Section := TScriptModelDirectiveSection.Create(nil);
+  var Section := TScriptModelKeyValueSection.Create(nil);
   try
     { Toggling a flag amid unknown ones only edits that token }
     Section.Parse(['WizardStyle=foo modern bar']);
@@ -1353,7 +1356,7 @@ begin
     Lines := Section.GetLines;
     Assert(Lines[0] = 'WizardStyle="modern"');
 
-    { Excluding the last flag removes the whole directive }
+    { Excluding the last flag removes the whole key/value line }
     Section.Parse(['; c', 'WizardStyle=modern', 'Other=1']);
     Section.SetFlag(1, 'modern', False);
     Lines := Section.GetLines;
@@ -1375,7 +1378,7 @@ begin
 
     {$IFDEF ISTESTTOOLPROJ}
     { Flag names that cannot be a single unquoted token raise, leaving the
-      section untouched; index access requires a directive line }
+      section untouched; index access requires a key/value line }
     Section.Parse(['; c', 'WizardStyle=modern']);
     var Caught := False;
     try
@@ -1386,7 +1389,7 @@ begin
     Assert(Caught);
     Caught := False;
     try
-      Section.SetFlag(0, 'modern', False); { The comment line is not a directive }
+      Section.SetFlag(0, 'modern', False); { The comment line is not a key/value line }
     except
       on EScriptModelError do Caught := True;
     end;
@@ -1401,7 +1404,7 @@ begin
     var Metadata: TScriptModelSectionMetadata;
     Assert(TryGetScriptModelSectionMetadata('Setup', Metadata));
     Section.Free;
-    Section := TScriptModelDirectiveSection.Create(Metadata);
+    Section := TScriptModelKeyValueSection.Create(Metadata);
     Section.Parse(['WizardStyle=classic light excludelightbuttons polar']);
     Section.OnChange := Counter.HandleChange;
     Counter.Count := 0;
@@ -1446,7 +1449,7 @@ begin
     Lines := Section.GetLines;
     Assert(Lines[0] = 'WizardStyle=modern dark polar hidebevels includetitlebar');
 
-    { The other flag-list directives have no rules }
+    { The other flag-list keys have no rules }
     Section.Parse(['PrivilegesRequiredOverridesAllowed=commandline']);
     Section.SetFlag(0, 'dialog', True);
     Lines := Section.GetLines;
@@ -1574,13 +1577,13 @@ begin
     Entry.Free;
   end;
 
-  { A spanned directive line is joined for parsing and collapses to one
+  { A spanned key/value line is joined for parsing and collapses to one
     physical line when edited }
-  const Section = TScriptModelDirectiveSection.Create(nil);
+  const Section = TScriptModelKeyValueSection.Create(nil);
   try
     Section.Parse(['AppName=Foo \', 'Bar']);
     Assert(Section.Count = 1);
-    Assert(Section.Lines[0].Kind = lkDirective);
+    Assert(Section.Lines[0].Kind = lkKeyValue);
     Assert(Section.Lines[0].Value = 'Foo Bar');
     var Lines := Section.GetLines;
     Assert(Length(Lines) = 2);
@@ -1605,14 +1608,14 @@ begin
   TestEntryParseAndSerialize;
   TestEntryFlags;
   TestEntryMetadata;
-  TestDirectiveSectionMetadata;
+  TestKeyValueSectionMetadata;
   TestSectionMetadataTables;
   TestMetadataConsistency;
   TestScriptCategories;
   TestEntryRules;
   TestEntryExcludeRules;
-  TestDirectiveSection;
-  TestDirectiveSectionFlags;
+  TestKeyValueSection;
+  TestKeyValueSectionFlags;
   TestEntrySpanning;
 end;
 

@@ -19,15 +19,15 @@ uses
   IDE.LiveScriptObjectFactory, IDE.ScriptModel, IDE.ScriptModel.Metadata;
 
 type
-  TInspectorRowKind = (irkParameter, irkParameterFlag, irkDirective,
-    irkDirectiveFlag {$IFDEF DEBUG}, irkDebugStatus, irkDebugSections, irkDebugEarlyExits{$ENDIF});
+  TInspectorRowKind = (irkParameter, irkParameterFlag, irkKey,
+    irkKeyFlag {$IFDEF DEBUG}, irkDebugStatus, irkDebugSections, irkDebugEarlyExits{$ENDIF});
 
   TInspectorRow = record
     Kind: TInspectorRowKind;
-    Name: String;            { The parameter or directive name }
-    FlagName: String;        { irkParameterFlag and irkDirectiveFlag }
+    Name: String;            { The parameter or key name }
+    FlagName: String;        { irkParameterFlag and irkKeyFlag }
     NameIndex: Integer;      { The parameter index, or the line index for a
-                               directive. -1 if known but not present in the
+                               key. -1 if known but not present in the
                                script }
   end;
 
@@ -36,10 +36,10 @@ type
     FJvInspector: TJvInspector;
     FFactory: TLiveScriptObjectFactory;
     FLiveParameterSectionEntry: TLiveScriptParameterSectionEntry;
-    FLiveDirectiveSection: TLiveScriptDirectiveSection;
-    FLiveDirectiveSectionName: String;
-    FLiveDirectiveSectionHasSiblingOccurrences: Boolean;
-    FLiveDirectiveSectionIndex: Integer; { Factory section index it was created for }
+    FLiveKeyValueSection: TLiveScriptKeyValueSection;
+    FLiveKeyValueSectionName: String;
+    FLiveKeyValueSectionHasSiblingOccurrences: Boolean;
+    FLiveKeyValueSectionIndex: Integer; { Factory section index it was created for }
     FChangeCountAtCreation: Int64; { Factory ChangeCount at the live object's creation }
     FRows: TList<TInspectorRow>;
     FRowSetSignature: String;
@@ -55,8 +55,8 @@ type
       out ARow: TInspectorRow): Boolean;
     function TryGetRowParameterSectionEntry(const ARow: TInspectorRow;
       out AEntry: TScriptModelParameterSectionEntry; out AIndex: Integer): Boolean;
-    function TryGetRowDirectiveSection(const ARow: TInspectorRow;
-      out ASection: TScriptModelDirectiveSection; out AIndex: Integer): Boolean;
+    function TryGetRowKeyValueSection(const ARow: TInspectorRow;
+      out ASection: TScriptModelKeyValueSection; out AIndex: Integer): Boolean;
     procedure RowGetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64);
     procedure RowGetAsString(Sender: TJvCustomInspectorItem; var Value: String);
     procedure RowSetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64);
@@ -140,7 +140,7 @@ begin
   { Free the inspector before the objects its rows read from }
   FJvInspector.Free;
   FLiveParameterSectionEntry.Free;
-  FLiveDirectiveSection.Free;
+  FLiveKeyValueSection.Free;
   FRows.Free;
   inherited;
 end;
@@ -165,20 +165,20 @@ function TInspector.ItemShouldBeBold(
           Result := TryGetRowParameterSectionEntry(ARow, Entry, Index) and
             Entry.FlagIncluded(Index, ARow.FlagName);
         end;
-      irkDirective:
+      irkKey:
         { Without ShowAllKnownDirectives only directives which are in the
           script get a row, so bold would say nothing }
         if FShowAllKnownDirectives then begin
-          var Section: TScriptModelDirectiveSection;
+          var Section: TScriptModelKeyValueSection;
           var Index: Integer;
-          Result := TryGetRowDirectiveSection(ARow, Section, Index);
+          Result := TryGetRowKeyValueSection(ARow, Section, Index);
         end;
-      irkDirectiveFlag:
+      irkKeyFlag:
         { See above }
         if FShowAllKnownDirectives then begin
-          var Section: TScriptModelDirectiveSection;
+          var Section: TScriptModelKeyValueSection;
           var Index: Integer;
-          Result := TryGetRowDirectiveSection(ARow, Section, Index) and
+          Result := TryGetRowKeyValueSection(ARow, Section, Index) and
             Section.FlagIncluded(Index, ARow.FlagName);
         end;
     end;
@@ -201,14 +201,14 @@ begin
   Result := AEntry.TryResolve(ARow.Name, AIndex);
 end;
 
-function TInspector.TryGetRowDirectiveSection(const ARow: TInspectorRow;
-  out ASection: TScriptModelDirectiveSection; out AIndex: Integer): Boolean;
+function TInspector.TryGetRowKeyValueSection(const ARow: TInspectorRow;
+  out ASection: TScriptModelKeyValueSection; out AIndex: Integer): Boolean;
 begin
   ASection := nil;
   AIndex := -1;
-  if (FLiveDirectiveSection = nil) or not FLiveDirectiveSection.Valid then
+  if (FLiveKeyValueSection = nil) or not FLiveKeyValueSection.Valid then
     Exit(False);
-  ASection := FLiveDirectiveSection.Section;
+  ASection := FLiveKeyValueSection.Section;
   AIndex := ARow.NameIndex;
   Result := ASection.TryResolve(ARow.Name, AIndex);
 end;
@@ -239,8 +239,8 @@ procedure TInspector.JvInspectorKeyDown(Sender: TObject; var Key: Word;
     var Row: TInspectorRow;
     if (Item <> nil) and TryGetRow(Item, Row) then begin
       case Row.Kind of
-        irkParameter, irkDirective, irkDirectiveFlag:
-          Result := Row.Name; { A directive's flags have no own help topic }
+        irkParameter, irkKey, irkKeyFlag:
+          Result := Row.Name; { A key's (=directive's) flags have no own help topic }
         irkParameterFlag:
           Result := Row.FlagName;
       end;
@@ -354,11 +354,11 @@ procedure TInspector.UpdateFromCaret;
       rrNotInsideSection: Result := 'The line is not inside a section';
       rrInCodeSection: Result := 'The line is in the [Code] section';
       rrUnrecognizedSection: Result := 'The line is in an unrecognized section';
-      rrNotParameterSection: Result := 'The line is in not in a parameter section';
+      rrNotParameterSection: Result := 'The line is not in a parameter section';
       rrComment: Result := 'The line is a comment';
       rrISPPDirective: Result := 'The line is an ISPP directive';
       rrSectionIndexOutOfRange: Result := 'The section index is out of range';
-      rrNotDirectiveSection: Result := 'The section is not a directive section';
+      rrNotKeyValueSection: Result := 'The section is not a key/value section';
     else
       Result := '';
     end;
@@ -442,57 +442,57 @@ procedure TInspector.UpdateFromCaret;
       AddParameterRow(AParent, ADefinition, -1);
   end;
 
-  function MakeDirectiveRow(const AName: String;
+  function MakeKeyRow(const AName: String;
     const ANameIndex: Integer): TInspectorRow;
   begin
-    Result.Kind := irkDirective;
+    Result.Kind := irkKey;
     Result.Name := AName;
     Result.FlagName := '';
     Result.NameIndex := ANameIndex;
   end;
 
-  function DirectiveRowIsCheckBox(const ADefinition: TMemberDefinition;
+  function KeyRowIsCheckBox(const ADefinition: TMemberDefinition;
     const ANameIndex: Integer): Boolean;
-  { A yes/no directive gets a true checkbox row only if its value is a simple yes/no and
+  { A yes/no key gets a true checkbox row only if its value is a simple yes/no and
     not something like an ISPP inline directive, else it falls back to a text & dropdown row. }
   begin
     var BoolValue := False;
     Result := (ADefinition.ValueKind = mvkYesNo) and
-      ((ANameIndex < 0) or { Don't check unspecified directives, they don't have a value }
-       TryStrToBoolean(FLiveDirectiveSection.Section.Lines[ANameIndex].Value, BoolValue));
+      ((ANameIndex < 0) or { Don't check unspecified key, they don't have a value }
+       TryStrToBoolean(FLiveKeyValueSection.Section.Lines[ANameIndex].Value, BoolValue));
   end;
 
-  procedure AddDirectiveFlagRow(const AParent: TJvCustomInspectorItem;
-    const ADirectiveName, AFlagName: String; const ANameIndex: Integer);
+  procedure AddKeyFlagRow(const AParent: TJvCustomInspectorItem;
+    const AKeyName, AFlagName: String; const ANameIndex: Integer);
   begin
     var Row: TInspectorRow;
-    Row.Kind := irkDirectiveFlag;
-    Row.Name := ADirectiveName;
+    Row.Kind := irkKeyFlag;
+    Row.Name := AKeyName;
     Row.FlagName := AFlagName;
     Row.NameIndex := ANameIndex;
     AddRow(AParent, AFlagName, True, Row);
   end;
 
-  procedure AddDirectiveRow(const AParent: TJvCustomInspectorItem;
+  procedure AddKeyRow(const AParent: TJvCustomInspectorItem;
     const ARow: TInspectorRow);
   begin
     var Definition: TMemberDefinition;
-    const Known = FLiveDirectiveSection.Section.TryGetDefinition(ARow.Name, Definition);
-    if Known and DirectiveRowIsCheckBox(Definition, ARow.NameIndex) then
+    const Known = FLiveKeyValueSection.Section.TryGetDefinition(ARow.Name, Definition);
+    if Known and KeyRowIsCheckBox(Definition, ARow.NameIndex) then
       AddRow(AParent, ARow.Name, True, ARow)
     else begin
       const Item = AddRow(AParent, ARow.Name, False, ARow);
       if Known then begin
         if Definition.ValueKind = mvkFlags then begin
           for var FlagName in Definition.KnownValues do
-            AddDirectiveFlagRow(Item, ARow.Name, FlagName, ARow.NameIndex); { Adds a child to Item }
+            AddKeyFlagRow(Item, ARow.Name, FlagName, ARow.NameIndex); { Adds a child to Item }
         end else if Definition.ValueKind in [mvkChoice, mvkYesNo] then
           Item.Flags := Item.Flags + [iifValueList];
       end;
     end;
   end;
 
-  procedure AddEntryRows;
+  procedure AddParameterSectionEntryRows;
   begin
     const Entry = FLiveParameterSectionEntry.Entry;
 
@@ -540,68 +540,68 @@ procedure TInspector.UpdateFromCaret;
     end;
   end;
 
-  procedure AddDirectiveRows;
+  procedure AddKeyValueSectionRows;
   begin
-    const Section = FLiveDirectiveSection.Section;
+    const Section = FLiveKeyValueSection.Section;
 
     var LineWillBeShown: TArray<Boolean>;
     SetLength(LineWillBeShown, Section.Count);
 
-    const DirectivesToShow = TList<TInspectorRow>.Create;
+    const KeyRowsToShow = TList<TInspectorRow>.Create;
     try
-      { First determine the directives to show and their order: with
+      { First determine the keys to show and their order: with
         ShowAllKnownDirectives, show every known directive in metadata
-        order. A repeated directive gets a row per line. }
+        order. A repeated key gets a row per line. }
       if FShowAllKnownDirectives and (Section.Metadata <> nil) then begin
         for var Definition in Section.Metadata.Members do begin
           var Found := False;
           for var I := 0 to Section.Count-1 do begin
-            if (Section.Lines[I].Kind = lkDirective) and
+            if (Section.Lines[I].Kind = lkKeyValue) and
                SameText(Section.Lines[I].Name, Definition.Name) then begin
-              DirectivesToShow.Add(MakeDirectiveRow(Section.Lines[I].Name, I));
+              KeyRowsToShow.Add(MakeKeyRow(Section.Lines[I].Name, I));
               LineWillBeShown[I] := True;
               Found := True;
             end;
           end;
-          { An unspecified directive gets a row showing the compiler default,
+          { An unspecified key gets a row showing the compiler default,
             unless it is obsolete or another occurrence of the section might
             set it. Other occurrences aren't parsed/live so we can't check. }
           if not Found and not Definition.Obsolete and
-             not FLiveDirectiveSectionHasSiblingOccurrences then
-            DirectivesToShow.Add(MakeDirectiveRow(Definition.Name, -1));
+             not FLiveKeyValueSectionHasSiblingOccurrences then
+            KeyRowsToShow.Add(MakeKeyRow(Definition.Name, -1));
         end;
       end;
 
-      { The remaining directives, in script order }
+      { The remaining keys, in script order }
       for var I := 0 to Section.Count-1 do begin
-        if (Section.Lines[I].Kind = lkDirective) and not LineWillBeShown[I] then
-          DirectivesToShow.Add(MakeDirectiveRow(Section.Lines[I].Name, I));
+        if (Section.Lines[I].Kind = lkKeyValue) and not LineWillBeShown[I] then
+          KeyRowsToShow.Add(MakeKeyRow(Section.Lines[I].Name, I));
       end;
 
       { Determination done. Add by category the same way as entry rows are. }
 
       { Uncategorized first, in the order determined above }
-      for var Row in DirectivesToShow do begin
+      for var Row in KeyRowsToShow do begin
         var CategoryName: String;
-        if not TryGetScriptCategory(FLiveDirectiveSectionName, Row.Name, CategoryName) then
-          AddDirectiveRow(FJvInspector.Root, Row);
+        if not TryGetScriptCategory(FLiveKeyValueSectionName, Row.Name, CategoryName) then
+          AddKeyRow(FJvInspector.Root, Row);
       end;
 
-      { Categorized directives, also in the order determined above }
+      { Categorized keys, also in the order determined above }
       for var CategoryName in ScriptCategoryNamesOrdered do begin
         var CategoryItem: TJvCustomInspectorItem := nil;
-        for var Row in DirectivesToShow do begin
-          var DirectiveCategory: String;
-          if TryGetScriptCategory(FLiveDirectiveSectionName, Row.Name, DirectiveCategory) and
-             SameText(DirectiveCategory, CategoryName) then begin
+        for var Row in KeyRowsToShow do begin
+          var KeyCategory: String;
+          if TryGetScriptCategory(FLiveKeyValueSectionName, Row.Name, KeyCategory) and
+             SameText(KeyCategory, CategoryName) then begin
             if CategoryItem = nil then
               CategoryItem := NewCategory(CategoryName);
-            AddDirectiveRow(CategoryItem, Row);
+            AddKeyRow(CategoryItem, Row);
           end;
         end;
       end;
     finally
-      DirectivesToShow.Free;
+      KeyRowsToShow.Free;
     end;
   end;
 
@@ -634,9 +634,9 @@ procedure TInspector.UpdateFromCaret;
         FRows.Clear;
 
         if FLiveParameterSectionEntry <> nil then
-          AddEntryRows
-        else if FLiveDirectiveSection <> nil then
-          AddDirectiveRows;
+          AddParameterSectionEntryRows
+        else if FLiveKeyValueSection <> nil then
+          AddKeyValueSectionRows;
 
         {$IFDEF DEBUG}
         const DebugCategory = NewCategory('Debug');
@@ -679,13 +679,13 @@ begin
     {$ENDIF}
     Exit;
   end;
-  if (FLiveDirectiveSection <> nil) and FLiveDirectiveSection.Valid and
+  if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid and
      (FRowSetSignature <> '') and not LiveObjectTextChanged then begin
     { Resolved by section index instead of the entry's line-range test above:
       the section's range covers the body only, so it misses the header line }
     var SectionIndex: Integer;
     if FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
-       (SectionIndex = FLiveDirectiveSectionIndex) then begin
+       (SectionIndex = FLiveKeyValueSectionIndex) then begin
       {$IFDEF DEBUG}
       Inc(FUpdateFromCaretEarlyExitCount);
       FJvInspector.Invalidate; { See above }
@@ -695,7 +695,7 @@ begin
   end;
 
   FreeAndNil(FLiveParameterSectionEntry);
-  FreeAndNil(FLiveDirectiveSection);
+  FreeAndNil(FLiveKeyValueSection);
   {$IFDEF DEBUG}
   FUpdateFromCaretEarlyExitCount := 0;
   {$ENDIF}
@@ -723,26 +723,26 @@ begin
     end;
   end else begin
     var SectionIndex: Integer;
-    var DirectiveSection: TLiveScriptDirectiveSection;
+    var KeyValueSection: TLiveScriptKeyValueSection;
     var SectionRefusalReason: TRefusalReason;
     if FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
-       FFactory.TryCreateDirectiveSection(SectionIndex, DirectiveSection,
+       FFactory.TryCreateKeyValueSection(SectionIndex, KeyValueSection,
          SectionRefusalReason) then begin
       const Header = FFactory.SectionHeaders[SectionIndex];
-      FLiveDirectiveSection := DirectiveSection;
-      FLiveDirectiveSectionIndex := SectionIndex;
+      FLiveKeyValueSection := KeyValueSection;
+      FLiveKeyValueSectionIndex := SectionIndex;
       FChangeCountAtCreation := FFactory.ChangeCount;
-      FLiveDirectiveSection.Section.QuoteNewValues := FQuoteNewDirectiveValues;
-      FLiveDirectiveSectionName := Header.Name;
+      FLiveKeyValueSection.Section.QuoteNewValues := FQuoteNewDirectiveValues;
+      FLiveKeyValueSectionName := Header.Name;
       {$IFDEF DEBUG}
       FDebugStatusRowString := Format('[%s] section at line %d',
         [Header.Name, Header.Line+1]);
       {$ENDIF}
       var OccurrenceIndex, OccurrenceCount: Integer;
       FFactory.GetSectionOccurrence(SectionIndex, OccurrenceIndex, OccurrenceCount);
-      FLiveDirectiveSectionHasSiblingOccurrences := OccurrenceCount > 1;
+      FLiveKeyValueSectionHasSiblingOccurrences := OccurrenceCount > 1;
       {$IFDEF DEBUG}
-      if FLiveDirectiveSectionHasSiblingOccurrences then
+      if FLiveKeyValueSectionHasSiblingOccurrences then
         FDebugStatusRowString := FDebugStatusRowString + Format(' (occurrence %d of %d)',
           [OccurrenceIndex, OccurrenceCount]);
       {$ENDIF}
@@ -751,14 +751,14 @@ begin
         decide the row set }
       RowSetSignature := 'D|' + IntToStr(OccurrenceCount) + '|' +
         IntToStr(Ord(FShowAllKnownDirectives)) + '|' + Header.Name;
-      const Model = FLiveDirectiveSection.Section;
+      const Model = FLiveKeyValueSection.Section;
       for var I := 0 to Model.Count-1 do begin
-        if Model.Lines[I].Kind = lkDirective then begin
+        if Model.Lines[I].Kind = lkKeyValue then begin
           RowSetSignature := RowSetSignature + '|' + IntToStr(I) + ':' + Model.Lines[I].Name;
           { Put AddDirectiveRow's decision into the structure }
           var Definition: TMemberDefinition;
           if Model.TryGetDefinition(Model.Lines[I].Name, Definition) and
-             DirectiveRowIsCheckBox(Definition, I) then
+             KeyRowIsCheckBox(Definition, I) then
             RowSetSignature := RowSetSignature + '!';
         end;
       end;
@@ -817,11 +817,11 @@ begin
            Entry.FlagIncluded(Index, Row.FlagName) then
           Value := 1;
       end;
-    irkDirective:
+    irkKey:
       begin
-        var Section: TScriptModelDirectiveSection;
+        var Section: TScriptModelKeyValueSection;
         var Index: Integer;
-        if TryGetRowDirectiveSection(Row, Section, Index) then begin
+        if TryGetRowKeyValueSection(Row, Section, Index) then begin
           var BoolValue := False;
           if TryStrToBoolean(Section.Lines[Index].Value, BoolValue) and BoolValue then
             Value := 1;
@@ -829,11 +829,11 @@ begin
                     SameText(Section.DefaultValue(Row.Name), SYes) then
           Value := 1;
       end;
-    irkDirectiveFlag:
+    irkKeyFlag:
       begin
-        var Section: TScriptModelDirectiveSection;
+        var Section: TScriptModelKeyValueSection;
         var Index: Integer;
-        if TryGetRowDirectiveSection(Row, Section, Index) then begin
+        if TryGetRowKeyValueSection(Row, Section, Index) then begin
           if Section.FlagIncluded(Index, Row.FlagName) then
             Value := 1;
         end else if (Section <> nil) and
@@ -859,11 +859,11 @@ begin
           Value := Entry.Parameters[Index].Value;
         { else: Not present in the script: show empty }
       end;
-    irkDirective:
+    irkKey:
       begin
-        var Section: TScriptModelDirectiveSection;
+        var Section: TScriptModelKeyValueSection;
         var Index: Integer;
-        if TryGetRowDirectiveSection(Row, Section, Index) then
+        if TryGetRowKeyValueSection(Row, Section, Index) then
           Value := Section.Lines[Index].Value
         else if Section <> nil then
           Value := Section.DefaultValue(Row.Name); { Not present in the script: show the compiler default }
@@ -913,24 +913,24 @@ begin
             end;
           end;
         end;
-      irkDirective:
+      irkKey:
         begin
-          var Section: TScriptModelDirectiveSection;
+          var Section: TScriptModelKeyValueSection;
           var Index: Integer;
           var NewValue := SNo;
           if Value <> 0 then
             NewValue := SYes;
-          if TryGetRowDirectiveSection(Row, Section, Index) then
+          if TryGetRowKeyValueSection(Row, Section, Index) then
             Section.SetValue(Index, NewValue)
           else if (Section <> nil) and (Row.NameIndex < 0) and
                   not SameText(NewValue, Section.DefaultValue(Row.Name)) then { Skip unchanged from default, also see below }
             Section.Add(Row.Name, NewValue);
         end;
-      irkDirectiveFlag:
+      irkKeyFlag:
         begin
-          var Section: TScriptModelDirectiveSection;
+          var Section: TScriptModelKeyValueSection;
           var Index: Integer;
-          if TryGetRowDirectiveSection(Row, Section, Index) then
+          if TryGetRowKeyValueSection(Row, Section, Index) then
             Section.SetFlag(Index, Row.FlagName, Value <> 0) { May adjust related flags as well }
           else if (Section <> nil) and (Row.NameIndex < 0) and (Value <> 0) then begin
             { Group Add's and SetFlag's writes into a single undo action. The
@@ -994,11 +994,11 @@ begin
               Entry.Add(Row.Name, Value);
           end;
         end;
-      irkDirective:
+      irkKey:
         begin
-          var Section: TScriptModelDirectiveSection;
+          var Section: TScriptModelKeyValueSection;
           var Index: Integer;
-          const Found = TryGetRowDirectiveSection(Row, Section, Index);
+          const Found = TryGetRowKeyValueSection(Row, Section, Index);
           if Section <> nil then begin
             var Definition: TMemberDefinition;
             if Section.TryGetDefinition(Row.Name, Definition) then
@@ -1029,9 +1029,9 @@ begin
   if (FLiveParameterSectionEntry <> nil) and FLiveParameterSectionEntry.Valid then begin
     if not FLiveParameterSectionEntry.Entry.TryGetDefinition(Row.Name, Definition) then
       raise Exception.Create('Internal error: ChoiceRowGetValueList: unknown parameter');
-  end else if (FLiveDirectiveSection <> nil) and FLiveDirectiveSection.Valid then begin
-    if not FLiveDirectiveSection.Section.TryGetDefinition(Row.Name, Definition) then
-      raise Exception.Create('Internal error: ChoiceRowGetValueList: unknown directive');
+  end else if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
+    if not FLiveKeyValueSection.Section.TryGetDefinition(Row.Name, Definition) then
+      raise Exception.Create('Internal error: ChoiceRowGetValueList: unknown key');
   end else
     Exit;
   { Sort using same sort as autocompletion and Scintilla, so using CompareText.
@@ -1059,8 +1059,8 @@ end;
 procedure TInspector.SetQuoteNewDirectiveValues(const Value: Boolean);
 begin
   FQuoteNewDirectiveValues := Value;
-  if FLiveDirectiveSection <> nil then
-    FLiveDirectiveSection.Section.QuoteNewValues := Value;
+  if FLiveKeyValueSection <> nil then
+    FLiveKeyValueSection.Section.QuoteNewValues := Value;
 end;
 
 procedure TInspector.SetQuoteNewParameterValues(const Value: Boolean);

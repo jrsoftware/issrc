@@ -336,13 +336,13 @@ begin
   end;
 end;
 
-{ Directive-style sections: last-occurrence value lookup, editing a populated
-  section, refusals, an empty section that a directive is added to, and
-  removing directives up to and including the last one }
-procedure TestDirectiveSections(const AMemo: TScintEdit;
+{ Key/value sections: last-occurrence value lookup, editing a populated
+  section, refusals, an empty section that a key is added to, and
+  removing keys up to and including the last one }
+procedure TestKeyValueSections(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
 begin
-  { TryGetSetupDirectiveValue walks all [Setup] blocks; last occurrence wins and
+  { TryGetSetupKeyValueValue walks all [Setup] blocks; last occurrence wins and
     not-found is distinct from an empty value }
   begin
     const Context = TFactoryTestContext.Create(AMemo, AStyler, [
@@ -378,7 +378,7 @@ begin
     end;
   end;
 
-  { TryCreateDirectiveSection on a populated [Setup]: edit one directive and see
+  { TryCreateKeyValueSection on a populated [Setup]: edit one directive and see
     it written back; refuse a parameter section and an out-of-range index }
   begin
     const Context = TFactoryTestContext.Create(AMemo, AStyler, [
@@ -389,27 +389,27 @@ begin
       'Source: a']);
     try
       const Factory = Context.Factory;
-      var DirectiveSection: TLiveScriptDirectiveSection;
+      var KeyValueSection: TLiveScriptKeyValueSection;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateDirectiveSection(0, DirectiveSection, Reason));
+      Assert(Factory.TryCreateKeyValueSection(0, KeyValueSection, Reason));
       try
-        const List = DirectiveSection.Section;
+        const List = KeyValueSection.Section;
         List.SetValue(List.IndexOf('AppName'), 'Edited');
         Assert(AMemo.Lines[1] = 'AppName=Edited');
         Assert(AMemo.Lines[2] = 'AppVersion=1.0'); { Other directive untouched }
       finally
-        DirectiveSection.Free;
+        KeyValueSection.Free;
       end;
-      Assert(not Factory.TryCreateDirectiveSection(1, DirectiveSection, Reason));
-      Assert(Reason = rrNotDirectiveSection);
-      Assert(not Factory.TryCreateDirectiveSection(99, DirectiveSection, Reason));
+      Assert(not Factory.TryCreateKeyValueSection(1, KeyValueSection, Reason));
+      Assert(Reason = rrNotKeyValueSection);
+      Assert(not Factory.TryCreateKeyValueSection(99, KeyValueSection, Reason));
       Assert(Reason = rrSectionIndexOutOfRange);
     finally
       Context.Free;
     end;
   end;
 
-  { An empty directive-style section (a header with no body): adding a directive
+  { An empty key/value section (a header with no body): adding a key/value line
     inserts it into the empty range }
   begin
     const Context = TFactoryTestContext.Create(AMemo, AStyler, [
@@ -417,24 +417,24 @@ begin
       '[Files]',
       'Source: a']);
     try
-      var DirectiveSection: TLiveScriptDirectiveSection;
+      var KeyValueSection: TLiveScriptKeyValueSection;
       var Reason: TRefusalReason;
-      Assert(Context.Factory.TryCreateDirectiveSection(0, DirectiveSection, Reason));
+      Assert(Context.Factory.TryCreateKeyValueSection(0, KeyValueSection, Reason));
       try
-        Assert(DirectiveSection.Section.Count = 0);
-        DirectiveSection.Section.Add('MyMsg', 'Hello');
+        Assert(KeyValueSection.Section.Count = 0);
+        KeyValueSection.Section.Add('MyMsg', 'Hello');
         Assert(AMemo.Lines.Count = 4);
         Assert(AMemo.Lines[1] = 'MyMsg=Hello');
         Assert(AMemo.Lines[2] = '[Files]');
       finally
-        DirectiveSection.Free;
+        KeyValueSection.Free;
       end;
     finally
       Context.Free;
     end;
   end;
 
-  { Removing directives: removing one of two leaves the other line untouched,
+  { Removing keys/value lines: removing one of two leaves the other line untouched,
     and removing the last one removes the physical line instead of leaving a
     blank line behind, after which the section is empty again and an Add
     reinserts a line }
@@ -446,11 +446,11 @@ begin
       '[Files]',
       'Source: a']);
     try
-      var DirectiveSection: TLiveScriptDirectiveSection;
+      var KeyValueSection: TLiveScriptKeyValueSection;
       var Reason: TRefusalReason;
-      Assert(Context.Factory.TryCreateDirectiveSection(0, DirectiveSection, Reason));
+      Assert(Context.Factory.TryCreateKeyValueSection(0, KeyValueSection, Reason));
       try
-        const List = DirectiveSection.Section;
+        const List = KeyValueSection.Section;
         List.Remove(List.IndexOf('AppName'));
         Assert(AMemo.Lines.Count = 4);
         Assert(AMemo.Lines[1] = 'AppVersion=1.0'); { Other directive untouched }
@@ -459,13 +459,13 @@ begin
         Assert(AMemo.Lines.Count = 3);
         Assert(AMemo.Lines[1] = '[Files]');
         { The empty range a body-less section is created with }
-        Assert(DirectiveSection.LastLine < DirectiveSection.FirstLine);
+        Assert(KeyValueSection.LastLine < KeyValueSection.FirstLine);
         List.Add('AppComments', 'hi');
         Assert(AMemo.Lines.Count = 4);
         Assert(AMemo.Lines[1] = 'AppComments=hi');
         Assert(AMemo.Lines[2] = '[Files]');
       finally
-        DirectiveSection.Free;
+        KeyValueSection.Free;
       end;
     finally
       Context.Free;
@@ -482,20 +482,20 @@ begin
       '[Setup]',
       'AppName=Foo']);
     try
-      var DirectiveSection: TLiveScriptDirectiveSection;
+      var KeyValueSection: TLiveScriptKeyValueSection;
       var Reason: TRefusalReason;
-      Assert(Context.Factory.TryCreateDirectiveSection(1, DirectiveSection, Reason));
+      Assert(Context.Factory.TryCreateKeyValueSection(1, KeyValueSection, Reason));
       try
-        const List = DirectiveSection.Section;
+        const List = KeyValueSection.Section;
         List.Remove(List.IndexOf('AppName'));
         Assert(AMemo.Lines.Count = 3);
         Assert(AMemo.Lines[2] = '[Setup]');
-        Assert(DirectiveSection.LastLine < DirectiveSection.FirstLine);
+        Assert(KeyValueSection.LastLine < KeyValueSection.FirstLine);
         List.Add('AppName', 'Bar');
         Assert(AMemo.Lines.Count = 4);
         Assert(AMemo.Lines[3] = 'AppName=Bar');
       finally
-        DirectiveSection.Free;
+        KeyValueSection.Free;
       end;
     finally
       Context.Free;
@@ -756,7 +756,7 @@ begin
     TestTryGetSectionAtLine(AMemo, AStyler);
     TestTryCreateParameterSectionEntry(AMemo, AStyler);
     TestEntryRoundTrip(AMemo, AStyler);
-    TestDirectiveSections(AMemo, AStyler);
+    TestKeyValueSections(AMemo, AStyler);
     TestEditTracking(AMemo, AStyler);
   finally
     AMemo.OnChange := nil;

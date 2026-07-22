@@ -1560,7 +1560,7 @@ begin
       Section := scCode;
       NewLineState.NextLineSection := scCodeBlock;
     end;
-  end else if Section in DirectiveSections then
+  end else if Section in KeyValueSections then
     HandleKeyValueSection(Section)
   else if Section in ParameterSections then
     HandleParameterSection(FSectionParameters[Section]);

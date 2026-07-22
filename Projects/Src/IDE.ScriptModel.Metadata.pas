@@ -7,7 +7,7 @@ unit IDE.ScriptModel.Metadata;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Per-section metadata tables for the script model: member (parameter or
-  directive) names, value kinds, and flag lists, plus the rules layer
+  key) names, value kinds, and flag lists, plus the rules layer
   registrations.
 
   Tables for [Setup] and [LangOptions] are generated from enums at startup,
@@ -31,7 +31,7 @@ type
     KnownValues: TArray<String>; { For mvkFlags: the known flags
                                    For mvkChoice: the known choices (other choices might still be valid, like a scripted expression)
                                    For mvkYesNo: 'yes' and 'no' (other values might still be valid, like an ISPP inline directive) }
-    DefaultValue: String; { The default of a directive, empty for parameters }
+    DefaultValue: String; { The default of a directive-key, empty for parameters and non-directive keys }
     Obsolete: Boolean;    { To be hidden unless explicitly present in the script }
   end;
 
