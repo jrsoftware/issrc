@@ -171,6 +171,7 @@ type
     procedure BeginUpdate;
     procedure EndUpdate;
     function Focused: Boolean; override;
+    procedure InvalidateItem(const Item: TJvCustomInspectorItem);
     procedure InvalidateItemAndRelated(const Item: TJvCustomInspectorItem);
     procedure RefreshValues;
     procedure Clear;
@@ -248,6 +249,7 @@ type
     function GetReadOnly: Boolean;
     function GetRects(const RectKind: TInspectorPaintRect): TRect;
     procedure GetValueList(const Strings: TStrings);
+    procedure InvalidateItem;
     procedure InvalidateItemAndRelated;
     procedure SetAsOrdinal(Value: Int64);
     procedure SetAsString(Value: string);
@@ -556,6 +558,12 @@ end;
 function TJvInspector.IdxToY(const Index: Integer): Integer;
 begin
   Result := Index * GetItemHeight;
+end;
+
+procedure TJvInspector.InvalidateItem(const Item: TJvCustomInspectorItem);
+begin
+  if (LockCount = 0) and HandleAllocated then
+    InvalidateRow(Integer(FVisibleList.IndexOf(Item)));
 end;
 
 procedure TJvInspector.InvalidateItemAndRelated(const Item: TJvCustomInspectorItem);
@@ -1526,7 +1534,7 @@ begin
     SetWindowPos(ListBox.Handle, 0, 0, 0, 0, 0, SWP_NOZORDER or
       SWP_NOMOVE or SWP_NOSIZE or SWP_NOACTIVATE or SWP_HIDEWINDOW);
     FDroppedDown := False;
-    InvalidateItemAndRelated;
+    InvalidateItem;
     if Accept then begin
       if Assigned(EditCtrl) then
         EditCtrl.Text := ListValue;
@@ -1622,7 +1630,7 @@ begin
     end;
     SetWindowPos(ListBox.Handle, HWND_TOP, P.X, Y, 0, 0,
       SWP_NOSIZE or {SWP_NOACTIVATE or }SWP_SHOWWINDOW);
-    InvalidateItemAndRelated;
+    InvalidateItem;
     EditCtrl.SetFocus;
     FDroppedDown := True; // must be after EditCtrl.SetFocus
   end;
@@ -1927,6 +1935,12 @@ procedure TJvCustomInspectorItem.InvalidateList;
 begin
   if Inspector <> nil then
     Inspector.InvalidateList;
+end;
+
+procedure TJvCustomInspectorItem.InvalidateItem;
+begin
+  if Inspector <> nil then
+    Inspector.InvalidateItem(Self);
 end;
 
 procedure TJvCustomInspectorItem.InvalidateItemAndRelated;
@@ -2407,13 +2421,13 @@ begin
     if not FCheckKeyPressed then begin
       FCheckKeyPressed := True;
       FCheckPressed := True;
-      InvalidateItemAndRelated;
+      InvalidateItem;
     end;
   end else if FCheckKeyPressed then begin
     FCheckKeyPressed := False;
     if FCheckPressed and not FCheckTracking then begin
       FCheckPressed := False;
-      InvalidateItemAndRelated;
+      InvalidateItem;
     end;
   end;
 end;
@@ -2436,7 +2450,7 @@ begin
   if PtInRect(FCheckRect, Point(X, Y)) and (Shift = [ssLeft]) and Editing then begin
     FCheckTracking := True;
     FCheckPressed := True;
-    InvalidateItemAndRelated;
+    InvalidateItem;
   end;
 end;
 
@@ -2447,7 +2461,7 @@ begin
     const NewPressed = PtInRect(FCheckRect, Point(X, Y));
     if FCheckPressed <> NewPressed then begin
       FCheckPressed := NewPressed;
-      InvalidateItemAndRelated;
+      InvalidateItem;
     end;
   end;
 end;
@@ -2462,7 +2476,7 @@ begin
     if PtInRect(FCheckRect, Point(X, Y)) then
       Toggle
     else
-      InvalidateItemAndRelated;
+      InvalidateItem;
   end;
 end;
 
@@ -2472,7 +2486,7 @@ begin
     FCheckKeyPressed := False;
     FCheckTracking := False;
     FCheckPressed := False;
-    InvalidateItemAndRelated;
+    InvalidateItem;
   end;
 end;
 
