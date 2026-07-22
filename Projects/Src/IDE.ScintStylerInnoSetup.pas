@@ -226,73 +226,6 @@ type
 var
   SectionMap: array of TSectionMapItem; { Initialized below }
 
-const
-  ComponentsSectionFlags: array of TScintRawString = [
-    'checkablealone', 'disablenouninstallwarning', 'dontinheritcheck', 'exclusive',
-    'fixed', 'restart'
-  ];
-
-  DeleteSectionTypes: array of TScintRawString = [
-    'files', 'filesandordirs', 'dirifempty'
-  ];
-
-  DirsSectionFlags: array of TScintRawString = [
-    'deleteafterinstall', 'setntfscompression', 'uninsalwaysuninstall',
-    'uninsneveruninstall', 'unsetntfscompression'
-  ];
-
-  FilesSectionFlags: array of TScintRawString = [
-    '32bit', '64bit', 'allowunsafefiles', 'comparetimestamp', 'confirmoverwrite',
-    'createallsubdirs', 'deleteafterinstall', 'dontcopy', 'dontverifychecksum', 'download',
-    'external', 'extractarchive', 'fontisnttruetype', 'gacinstall', 'ignoreversion',
-    'isreadme', 'issigverify', 'nocompression', 'noencryption', 'notimestamp', 'noregerror',
-    'onlyifdestfileexists', 'onlyifdoesntexist', 'overwritereadonly', 'promptifolder',
-    'recursesubdirs', 'regserver', 'regtypelib', 'replacesameversion', 'restartreplace',
-    'setntfscompression', 'sharedfile', 'sign', 'signcheck', 'signonce',
-    'skipifsourcedoesntexist', 'solidbreak', 'sortfilesbyextension',
-    'sortfilesbyname', 'touch', 'uninsnosharedfileprompt', 'uninsremovereadonly',
-    'uninsrestartdelete', 'uninsneveruninstall', 'unsetntfscompression'
-  ];
-
-  IconsSectionFlags: array of TScintRawString = [
-    'closeonexit', 'createonlyiffileexists', 'dontcloseonexit',
-    'excludefromshowinnewinstall', 'preventpinning', 'runmaximized',
-    'runminimized', 'uninsneveruninstall', 'useapppaths'
-  ];
-
-  INISectionFlags: array of TScintRawString = [
-    'createkeyifdoesntexist', 'uninsdeleteentry', 'uninsdeletesection',
-    'uninsdeletesectionifempty'
-  ];
-
-  RegistrySectionFlags: array of TScintRawString = [
-    'createvalueifdoesntexist', 'deletekey', 'deletevalue', 'dontcreatekey',
-    'noerror', 'preservestringtype', 'uninsclearvalue', 'uninsdeletekey',
-    'uninsdeletekeyifempty', 'uninsdeletevalue'
-  ];
-
-  RunSectionFlags: array of TScintRawString = [
-    '32bit', '64bit', 'dontlogparameters', 'hidewizard', 'logoutput', 'nowait',
-    'postinstall', 'runascurrentuser', 'runasoriginaluser', 'runhidden',
-    'runmaximized', 'runminimized', 'shellexec', 'skipifdoesntexist', 'skipifnotsilent',
-    'skipifsilent', 'unchecked', 'waituntilidle', 'waituntilterminated'
-  ];
-
-  UninstallRunSectionFlags: array of TScintRawString = [
-    '32bit', '64bit', 'dontlogparameters', 'hidewizard', 'logoutput', 'nowait',
-    'runascurrentuser', 'runhidden', 'runmaximized', 'runminimized', 'shellexec',
-    'skipifdoesntexist', 'waituntilidle', 'waituntilterminated'
-  ];
-
-  TasksSectionFlags: array of TScintRawString = [
-    'checkablealone', 'checkedonce', 'dontinheritcheck', 'exclusive', 'restart',
-    'unchecked'
-  ];
-
-  TypesSectionFlags: array of TScintRawString = [
-    'iscustom'
-  ];
-
 type
   TISPPDirective = record
     Name: TScintRawString;
@@ -743,19 +676,21 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
   procedure BuildFlagsWordLists;
   begin
     { Builds FFlagsWordList (for autocomplete) and FFlagsWords }
-    BuildFlagsWordList(scFiles, FilesSectionFlags);
-    BuildFlagsWordList(scComponents, ComponentsSectionFlags);
-    BuildFlagsWordList(scDirs, DirsSectionFlags);
-    BuildFlagsWordList(scIcons, IconsSectionFlags);
-    BuildFlagsWordList(scINI, INISectionFlags);
-    BuildFlagsWordList(scRegistry, RegistrySectionFlags);
-    BuildFlagsWordList(scRun, RunSectionFlags);
-    BuildFlagsWordList(scTasks, TasksSectionFlags);
-    BuildFlagsWordList(scTypes, TypesSectionFlags);
-    BuildFlagsWordList(scUninstallRun, UninstallRunSectionFlags);
-    { Bit of a trick }
-    BuildFlagsWordList(scInstallDelete, DeleteSectionTypes);
-    BuildFlagsWordList(scUninstallDelete, DeleteSectionTypes);
+    for var Item in SectionMap do begin
+      var Metadata: TScriptModelSectionMetadata;
+      if not TryGetScriptModelSectionMetadata(String(Item.Name), Metadata) then
+        Continue;
+      var Member: TMemberDefinition;
+      if (not Metadata.TryGetMember('Flags', Member) and
+          not Metadata.TryGetMember('Type', Member)) or
+         not (Member.ValueKind in [mvkFlags, mvkChoice]) then
+        Continue;
+      var Flags: TArray<TScintRawString>;
+      SetLength(Flags, Length(Member.KnownValues));
+      for var I := 0 to High(Member.KnownValues) do
+        Flags[I] := TScintRawString(Member.KnownValues[I]);
+      BuildFlagsWordList(Item.Section, Flags);
+    end;
   end;
 
   procedure BuildKeywordsWordLists;
