@@ -891,7 +891,7 @@ begin
     if HandleAllocated then begin
       UpdateScrollBars;
       // without SW_SCROLLCHILDREN any editor is still moved (in the paint), but becomes stale
-      ScrollWindowEx(Handle, 0, (OldTopIndex - Value) * GetItemHeight, nil, nil, 0,
+      ScrollWindowEx(Handle, 0, IdxToY(OldTopIndex - Value), nil, nil, 0,
         nil, SW_INVALIDATE or SW_SCROLLCHILDREN);
     end;
   end;
@@ -2318,8 +2318,8 @@ begin
   ViewIdx := Integer(Inspector.FVisibleList.IndexOf(Self));
   if Inspector.TopIndex > ViewIdx then
     Inspector.TopIndex := ViewIdx
-  else if (Inspector.IdxToY(ViewIdx) - Inspector.IdxToY(Inspector.TopIndex) + Inspector.GetItemHeight) > Inspector.ClientHeight then begin
-    YDelta := Inspector.IdxToY(ViewIdx) + Inspector.GetItemHeight - Inspector.ClientHeight - Inspector.IdxToY(Inspector.TopIndex);
+  else if (Inspector.IdxToY(ViewIdx - Inspector.TopIndex) + Inspector.GetItemHeight) > Inspector.ClientHeight then begin
+    YDelta := Inspector.IdxToY(ViewIdx - Inspector.TopIndex) + Inspector.GetItemHeight - Inspector.ClientHeight;
     ViewIdx := Inspector.TopIndex + (YDelta + Inspector.GetItemHeight - 1) div Inspector.GetItemHeight;
     if ViewIdx < Inspector.GetVisibleCount then
       Inspector.TopIndex := ViewIdx;
