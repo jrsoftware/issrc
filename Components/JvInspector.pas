@@ -318,6 +318,7 @@ type
   TJvInspectorBooleanItem = class(TJvCustomInspectorItem)
   private
     FCheckRect: TRect;
+    FClickRect: TRect;
     FCheckPressed: Boolean;
     FCheckTracking: Boolean;
     FCheckKeyPressed: Boolean;
@@ -2451,7 +2452,7 @@ procedure TJvInspectorBooleanItem.MouseDown(Button: TMouseButton;
 begin
   if ssDouble in Shift then
     Shift := Shift - [ssDouble];
-  if PtInRect(FCheckRect, Point(X, Y)) and (Shift = [ssLeft]) and Editing then begin
+  if PtInRect(FClickRect, Point(X, Y)) and (Shift = [ssLeft]) and Editing then begin
     FCheckTracking := True;
     FCheckPressed := True;
     InvalidateItem;
@@ -2462,7 +2463,7 @@ procedure TJvInspectorBooleanItem.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
   if FCheckTracking then begin
-    const NewPressed = PtInRect(FCheckRect, Point(X, Y));
+    const NewPressed = PtInRect(FClickRect, Point(X, Y));
     if FCheckPressed <> NewPressed then begin
       FCheckPressed := NewPressed;
       InvalidateItem;
@@ -2477,7 +2478,7 @@ begin
   if FCheckTracking then begin
     FCheckTracking := False;
     FCheckPressed := False;
-    if PtInRect(FCheckRect, Point(X, Y)) then
+    if PtInRect(FClickRect, Point(X, Y)) then
       Toggle
     else
       InvalidateItem;
@@ -2544,6 +2545,9 @@ begin
     LabelText := 'no';
   LabelRect := Rects[iprValueArea];
   LabelRect.Left := ARect.Right + MulDiv(4, Inspector.CurrentPPI, 96);
+  FClickRect := FCheckRect;
+  FClickRect.Right := LabelRect.Left + ACanvas.TextWidth(LabelText);
+  IntersectRect(FClickRect, FClickRect, Rects[iprValueArea]);
   const TextTop = LabelRect.Top + (LabelRect.Height - ACanvas.TextHeight(LabelText)) div 2;
   ACanvas.Brush.Style := bsClear;
   try
