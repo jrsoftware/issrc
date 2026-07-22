@@ -43,6 +43,8 @@ const
   awtISPPVariable = 31;
   awtISPPConstant = 32;
 
+const
+  InnoSetupStylerSectionPrefixLength = 2;
 type
   TInnoSetupStylerSection = (
     scNone,            { Not inside a section (start of file, or previous section was closed )
@@ -98,6 +100,7 @@ type
 
   TInnoSetupStyler = class(TScintCustomStyler)
   private
+    FSectionParameters: array[TInnoSetupStylerSection] of TArray<TScintRawString>;
     FEventFunctionsWordList: array[Boolean] of AnsiString;
     FKeywordsWordList, FFlagsWordList: array[TInnoSetupStylerSection] of AnsiString;
     FNoHighlightAtCursorWords: TWordsBySection;
@@ -224,45 +227,18 @@ var
   SectionMap: array of TSectionMapItem; { Initialized below }
 
 const
-  ComponentsSectionParameters: array of TScintRawString = [
-    'Check', 'Description', 'ExtraDiskSpaceRequired', 'Flags', 'Languages',
-    'MinVersion', 'Name', 'OnlyBelowVersion', 'Types'
-  ];
-
   ComponentsSectionFlags: array of TScintRawString = [
     'checkablealone', 'disablenouninstallwarning', 'dontinheritcheck', 'exclusive',
     'fixed', 'restart'
-  ];
-
-  DeleteSectionParameters: array of TScintRawString = [
-    'AfterInstall', 'BeforeInstall', 'Check', 'Components', 'Languages',
-    'MinVersion', 'Name', 'OnlyBelowVersion', 'Tasks', 'Type'
   ];
 
   DeleteSectionTypes: array of TScintRawString = [
     'files', 'filesandordirs', 'dirifempty'
   ];
 
-  DirsSectionParameters: array of TScintRawString = [
-    'AfterInstall', 'Attribs', 'BeforeInstall', 'Check', 'Components', 'Flags',
-    'Languages', 'MinVersion', 'Name', 'OnlyBelowVersion', 'Permissions', 'Tasks'
-  ];
-
   DirsSectionFlags: array of TScintRawString = [
     'deleteafterinstall', 'setntfscompression', 'uninsalwaysuninstall',
     'uninsneveruninstall', 'unsetntfscompression'
-  ];
-
-  ISSigKeysSectionParameters: array of TScintRawString = [
-    'Name', 'Group', 'KeyFile', 'KeyID', 'PublicX', 'PublicY', 'RuntimeID'
-  ];
-
-  FilesSectionParameters: array of TScintRawString = [
-    'AfterInstall', 'Attribs', 'BeforeInstall', 'Check', 'Components', 'CopyMode',
-    'DestDir', 'DestName', 'DownloadISSigSource', 'DownloadPassword',
-    'DownloadUserName', 'Excludes', 'ExternalSize', 'ExtractArchivePassword',
-    'Flags', 'FontInstall', 'Hash', 'ISSigAllowedKeys', 'Languages', 'MinVersion',
-    'OnlyBelowVersion', 'Permissions', 'Source', 'StrongAssemblyName', 'Tasks'
   ];
 
   FilesSectionFlags: array of TScintRawString = [
@@ -278,23 +254,10 @@ const
     'uninsrestartdelete', 'uninsneveruninstall', 'unsetntfscompression'
   ];
 
-  IconsSectionParameters: array of TScintRawString = [
-    'AfterInstall', 'AppUserModelID', 'AppUserModelToastActivatorCLSID',
-    'BeforeInstall', 'Check', 'Comment', 'Components', 'Filename', 'Flags',
-    'HotKey', 'IconFilename', 'IconIndex', 'Languages', 'MinVersion', 'Name',
-    'OnlyBelowVersion', 'Parameters', 'Tasks', 'WorkingDir'
-  ];
-
   IconsSectionFlags: array of TScintRawString = [
     'closeonexit', 'createonlyiffileexists', 'dontcloseonexit',
     'excludefromshowinnewinstall', 'preventpinning', 'runmaximized',
     'runminimized', 'uninsneveruninstall', 'useapppaths'
-  ];
-
-  INISectionParameters: array of TScintRawString = [
-    'AfterInstall', 'BeforeInstall', 'Check', 'Components', 'Filename',
-    'Flags', 'Key', 'Languages', 'MinVersion', 'OnlyBelowVersion', 'Section',
-    'String', 'Tasks'
   ];
 
   INISectionFlags: array of TScintRawString = [
@@ -302,26 +265,10 @@ const
     'uninsdeletesectionifempty'
   ];
 
-  LanguagesSectionParameters: array of TScintRawString = [
-    'InfoAfterFile', 'InfoBeforeFile', 'LicenseFile', 'MessagesFile', 'Name'
-  ];
-
-  RegistrySectionParameters: array of TScintRawString = [
-    'AfterInstall', 'BeforeInstall', 'Check', 'Components', 'Flags', 'Languages',
-    'MinVersion', 'OnlyBelowVersion', 'Permissions', 'Root', 'Subkey', 'Tasks',
-    'ValueData', 'ValueName', 'ValueType'
-  ];
-
   RegistrySectionFlags: array of TScintRawString = [
     'createvalueifdoesntexist', 'deletekey', 'deletevalue', 'dontcreatekey',
     'noerror', 'preservestringtype', 'uninsclearvalue', 'uninsdeletekey',
     'uninsdeletekeyifempty', 'uninsdeletevalue'
-  ];
-
-  RunSectionParameters: array of TScintRawString = [
-    'AfterInstall', 'BeforeInstall', 'Check', 'Components', 'Description',
-    'Filename', 'Flags', 'Languages', 'MinVersion', 'OnlyBelowVersion',
-    'Parameters', 'StatusMsg', 'Tasks', 'Verb', 'WorkingDir', 'OnLog'
   ];
 
   RunSectionFlags: array of TScintRawString = [
@@ -331,31 +278,15 @@ const
     'skipifsilent', 'unchecked', 'waituntilidle', 'waituntilterminated'
   ];
 
-  UninstallRunSectionParameters: array of TScintRawString = [
-    'AfterInstall', 'BeforeInstall', 'Check', 'Components', 'Filename', 'Flags',
-    'Languages', 'MinVersion', 'OnlyBelowVersion', 'Parameters', 'RunOnceId',
-    'Tasks', 'Verb', 'WorkingDir'
-  ];
-
   UninstallRunSectionFlags: array of TScintRawString = [
     '32bit', '64bit', 'dontlogparameters', 'hidewizard', 'logoutput', 'nowait',
     'runascurrentuser', 'runhidden', 'runmaximized', 'runminimized', 'shellexec',
     'skipifdoesntexist', 'waituntilidle', 'waituntilterminated'
   ];
 
-  TasksSectionParameters: array of TScintRawString = [
-    'Check', 'Components', 'Description', 'Flags', 'GroupDescription', 'Languages',
-    'MinVersion', 'Name', 'OnlyBelowVersion'
-  ];
-
   TasksSectionFlags: array of TScintRawString = [
     'checkablealone', 'checkedonce', 'dontinheritcheck', 'exclusive', 'restart',
     'unchecked'
-  ];
-
-  TypesSectionParameters: array of TScintRawString = [
-    'Check', 'Description', 'Flags', 'Languages', 'MinVersion', 'Name',
-    'OnlyBelowVersion'
   ];
 
   TypesSectionFlags: array of TScintRawString = [
@@ -788,6 +719,27 @@ end;
 
 constructor TInnoSetupStyler.Create(AOwner: TComponent);
 
+  procedure BuildSectionParameterLists;
+  const
+    ParameterSections = [scComponents, scDirs, scISSigKeys, scFiles, scIcons,
+      scINI, scInstallDelete, scLanguages, scRegistry, scRun, scTasks, scTypes,
+      scUninstallDelete, scUninstallRun];
+  begin
+    for var Item in SectionMap do begin
+      if not (Item.Section in ParameterSections) then
+        Continue;
+      var Metadata: TScriptModelSectionMetadata;
+      if not TryGetScriptModelSectionMetadata(String(Item.Name), Metadata) then
+        raise Exception.CreateFmt('Internal error: no script model metadata for section [%s]',
+          [String(Item.Name)]);
+      var Parameters: TArray<TScintRawString>;
+      SetLength(Parameters, Length(Metadata.Members));
+      for var I := 0 to High(Metadata.Members) do
+        Parameters[I] := TScintRawString(Metadata.Members[I].Name);
+      FSectionParameters[Item.Section] := Parameters;
+    end;
+  end;
+
   procedure BuildFlagsWordLists;
   begin
     { Builds FFlagsWordList (for autocomplete) and FFlagsWords }
@@ -809,22 +761,22 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
   procedure BuildKeywordsWordLists;
   begin
     { Builds FKeywordsWordList (for autocomplete) and FNoHighlightAtCursorWords }
-    BuildKeywordsWordList(scISSigKeys, ISSigKeysSectionParameters);
-    BuildKeywordsWordList(scFiles, FilesSectionParameters);
-    BuildKeywordsWordList(scComponents, ComponentsSectionParameters);
-    BuildKeywordsWordList(scDirs, DirsSectionParameters);
-    BuildKeywordsWordList(scIcons, IconsSectionParameters);
-    BuildKeywordsWordList(scINI, INISectionParameters);
-    BuildKeywordsWordList(scInstallDelete, DeleteSectionParameters);
+    BuildKeywordsWordList(scISSigKeys, FSectionParameters[scISSigKeys]);
+    BuildKeywordsWordList(scFiles, FSectionParameters[scFiles]);
+    BuildKeywordsWordList(scComponents, FSectionParameters[scComponents]);
+    BuildKeywordsWordList(scDirs, FSectionParameters[scDirs]);
+    BuildKeywordsWordList(scIcons, FSectionParameters[scIcons]);
+    BuildKeywordsWordList(scINI, FSectionParameters[scINI]);
+    BuildKeywordsWordList(scInstallDelete, FSectionParameters[scInstallDelete]);
     BuildKeywordsWordListFromTypeInfo(scLangOptions, TypeInfo(TLangOptionsSectionDirective), LangOptionsSectionDirectivePrefixLength);
-    BuildKeywordsWordList(scLanguages, LanguagesSectionParameters);
-    BuildKeywordsWordList(scRegistry, RegistrySectionParameters);
-    BuildKeywordsWordList(scRun, RunSectionParameters);
+    BuildKeywordsWordList(scLanguages, FSectionParameters[scLanguages]);
+    BuildKeywordsWordList(scRegistry, FSectionParameters[scRegistry]);
+    BuildKeywordsWordList(scRun, FSectionParameters[scRun]);
     BuildKeywordsWordListFromTypeInfo(scSetup, TypeInfo(TSetupSectionDirective), Length(SetupSectionDirectivePrefix));
-    BuildKeywordsWordList(scTasks, TasksSectionParameters);
-    BuildKeywordsWordList(scTypes, TypesSectionParameters);
-    BuildKeywordsWordList(scUninstallDelete, DeleteSectionParameters);
-    BuildKeywordsWordList(scUninstallRun, UninstallRunSectionParameters);
+    BuildKeywordsWordList(scTasks, FSectionParameters[scTasks]);
+    BuildKeywordsWordList(scTypes, FSectionParameters[scTypes]);
+    BuildKeywordsWordList(scUninstallDelete, FSectionParameters[scUninstallDelete]);
+    BuildKeywordsWordList(scUninstallRun, FSectionParameters[scUninstallRun]);
     BuildKeywordsWordListFromTypeInfo(scMessages, TypeInfo(TSetupMessageID), SetupMessageIDPrefixLength);
   end;
 
@@ -913,6 +865,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
 
 begin
   inherited;
+  BuildSectionParameterLists;
   FNoHighlightAtCursorWords := TWordsBySection.Create([doOwnsValues]);
   FFlagsWords := TWordsBySection.Create([doOwnsValues]);
   for var Section := Low(TInnoSetupStylerSection) to High(TInnoSetupStylerSection) do begin
@@ -2117,24 +2070,24 @@ begin
     case Section of
       scUnknown: ;
       scThirdParty: ;
-      scComponents: HandleParameterSection(ComponentsSectionParameters);
+      scComponents: HandleParameterSection(FSectionParameters[Section]);
       scCustomMessages: HandleKeyValueSection(Section);
-      scDirs: HandleParameterSection(DirsSectionParameters);
-      scISSigKeys: HandleParameterSection(ISSigKeysSectionParameters);
-      scFiles: HandleParameterSection(FilesSectionParameters);
-      scIcons: HandleParameterSection(IconsSectionParameters);
-      scINI: HandleParameterSection(INISectionParameters);
-      scInstallDelete: HandleParameterSection(DeleteSectionParameters);
+      scDirs: HandleParameterSection(FSectionParameters[Section]);
+      scISSigKeys: HandleParameterSection(FSectionParameters[Section]);
+      scFiles: HandleParameterSection(FSectionParameters[Section]);
+      scIcons: HandleParameterSection(FSectionParameters[Section]);
+      scINI: HandleParameterSection(FSectionParameters[Section]);
+      scInstallDelete: HandleParameterSection(FSectionParameters[Section]);
       scLangOptions: HandleKeyValueSection(Section);
-      scLanguages: HandleParameterSection(LanguagesSectionParameters);
+      scLanguages: HandleParameterSection(FSectionParameters[Section]);
       scMessages: HandleKeyValueSection(Section);
-      scRegistry: HandleParameterSection(RegistrySectionParameters);
-      scRun: HandleParameterSection(RunSectionParameters);
+      scRegistry: HandleParameterSection(FSectionParameters[Section]);
+      scRun: HandleParameterSection(FSectionParameters[Section]);
       scSetup: HandleKeyValueSection(Section);
-      scTasks: HandleParameterSection(TasksSectionParameters);
-      scTypes: HandleParameterSection(TypesSectionParameters);
-      scUninstallDelete: HandleParameterSection(DeleteSectionParameters);
-      scUninstallRun: HandleParameterSection(UninstallRunSectionParameters);
+      scTasks: HandleParameterSection(FSectionParameters[Section]);
+      scTypes: HandleParameterSection(FSectionParameters[Section]);
+      scUninstallDelete: HandleParameterSection(FSectionParameters[Section]);
+      scUninstallRun: HandleParameterSection(FSectionParameters[Section]);
     end;
   end;
 
