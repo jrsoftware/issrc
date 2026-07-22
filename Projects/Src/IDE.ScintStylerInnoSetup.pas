@@ -289,22 +289,10 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
   procedure BuildKeywordsWordLists;
   begin
     { Builds FKeywordsWordList (for autocomplete) and FNoHighlightAtCursorWords }
-    BuildKeywordsWordList(scISSigKeys, FSectionParameters[scISSigKeys]);
-    BuildKeywordsWordList(scFiles, FSectionParameters[scFiles]);
-    BuildKeywordsWordList(scComponents, FSectionParameters[scComponents]);
-    BuildKeywordsWordList(scDirs, FSectionParameters[scDirs]);
-    BuildKeywordsWordList(scIcons, FSectionParameters[scIcons]);
-    BuildKeywordsWordList(scINI, FSectionParameters[scINI]);
-    BuildKeywordsWordList(scInstallDelete, FSectionParameters[scInstallDelete]);
+    for var Section in ParameterSections do
+      BuildKeywordsWordList(Section, FSectionParameters[Section]);
     BuildKeywordsWordListFromTypeInfo(scLangOptions, TypeInfo(TLangOptionsSectionDirective), LangOptionsSectionDirectivePrefixLength);
-    BuildKeywordsWordList(scLanguages, FSectionParameters[scLanguages]);
-    BuildKeywordsWordList(scRegistry, FSectionParameters[scRegistry]);
-    BuildKeywordsWordList(scRun, FSectionParameters[scRun]);
     BuildKeywordsWordListFromTypeInfo(scSetup, TypeInfo(TSetupSectionDirective), Length(SetupSectionDirectivePrefix));
-    BuildKeywordsWordList(scTasks, FSectionParameters[scTasks]);
-    BuildKeywordsWordList(scTypes, FSectionParameters[scTypes]);
-    BuildKeywordsWordList(scUninstallDelete, FSectionParameters[scUninstallDelete]);
-    BuildKeywordsWordList(scUninstallRun, FSectionParameters[scUninstallRun]);
     BuildKeywordsWordListFromTypeInfo(scMessages, TypeInfo(TSetupMessageID), SetupMessageIDPrefixLength);
   end;
 
@@ -1579,30 +1567,10 @@ begin
       Section := scCode;
       NewLineState.NextLineSection := scCodeBlock;
     end;
-  end else begin
-    case Section of
-      scUnknown: ;
-      scThirdParty: ;
-      scComponents: HandleParameterSection(FSectionParameters[Section]);
-      scCustomMessages: HandleKeyValueSection(Section);
-      scDirs: HandleParameterSection(FSectionParameters[Section]);
-      scISSigKeys: HandleParameterSection(FSectionParameters[Section]);
-      scFiles: HandleParameterSection(FSectionParameters[Section]);
-      scIcons: HandleParameterSection(FSectionParameters[Section]);
-      scINI: HandleParameterSection(FSectionParameters[Section]);
-      scInstallDelete: HandleParameterSection(FSectionParameters[Section]);
-      scLangOptions: HandleKeyValueSection(Section);
-      scLanguages: HandleParameterSection(FSectionParameters[Section]);
-      scMessages: HandleKeyValueSection(Section);
-      scRegistry: HandleParameterSection(FSectionParameters[Section]);
-      scRun: HandleParameterSection(FSectionParameters[Section]);
-      scSetup: HandleKeyValueSection(Section);
-      scTasks: HandleParameterSection(FSectionParameters[Section]);
-      scTypes: HandleParameterSection(FSectionParameters[Section]);
-      scUninstallDelete: HandleParameterSection(FSectionParameters[Section]);
-      scUninstallRun: HandleParameterSection(FSectionParameters[Section]);
-    end;
-  end;
+  end else if Section in DirectiveSections then
+    HandleKeyValueSection(Section)
+  else if Section in ParameterSections then
+    HandleParameterSection(FSectionParameters[Section]);
 
   NewLineState.Section := Section;
   LineState := TScintLineState(NewLineState);
