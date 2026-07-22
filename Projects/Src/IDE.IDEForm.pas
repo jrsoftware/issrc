@@ -15,14 +15,16 @@ unit IDE.IDEForm;
 interface
 
 uses
-  Classes, Controls, StdCtrls,
+  Messages, Classes, Controls, StdCtrls,
   UIStateForm;
 
 type
   TIDEForm = class(TUIStateForm)
   private
     FFormThemeActive: Boolean;
+    FUncloakPending: Boolean;
     function ScalePixelsX(const N: Integer): Integer;
+    procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
   protected
     procedure CreateWnd; override;
   public
@@ -60,6 +62,19 @@ begin
   inherited;
   if (TStyleManager.FormBorderStyle = fbsSystemStyle) or not (seBorder in StyleElements) then
     SetDarkTitleBar(Self, InitFormThemeIsDark);
+  { Prevents flicker, especially in dark mode, but even in light mode for a heavy form }
+  FUncloakPending := SetWindowCloaked(Handle, True);
+end;
+
+procedure TIDEForm.WMPaint(var Message: TWMPaint);
+begin
+  inherited;
+  if FUncloakPending then begin
+    FUncloakPending := False;
+    RedrawWindow(Handle, nil, 0, RDW_UPDATENOW or RDW_ALLCHILDREN);
+    { Everything is now painted, show the window }
+    SetWindowCloaked(Handle, False);
+  end;
 end;
 
 function TIDEForm.ScalePixelsX(const N: Integer): Integer;

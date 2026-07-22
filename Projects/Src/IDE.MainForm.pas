@@ -510,6 +510,8 @@ type
     FProgressThemeData: HTHEME;
     FToolbarThemeData: HTHEME;
     FStatusBarThemeData: HTHEME;
+    FStartupCloakingFinished: Boolean;
+    FUncloakPending: Boolean;
     FDebugLogListTimestampsWidth: Integer;
     FOnPendingSquiggly: Boolean;
     FPendingSquigglyCaretPos: Integer;
@@ -574,6 +576,8 @@ type
     procedure MemoModifiedChange(Sender: TObject);
     procedure MemoUpdateUI(Sender: TObject; Updated: TScintEditUpdates);
     procedure MemoZoom(Sender: TObject);
+    class procedure MessageBoxCallback(const Flags: Cardinal; const After: Boolean;
+      const Param: NativeInt); static;
     procedure NewMainFile(const IsReload: Boolean = False);
     procedure NewMainFileUsingWizard;
     procedure OpenFile(AMemo: TIDEScintFileEdit; AFilename: String; const MainMemoAddToRecentDocs: Boolean;
@@ -595,6 +599,7 @@ type
     procedure SyncInspectorOptions;
     function TabIndexToMemo(const ATabIndex, AMaxTabIndex: Integer): TIDEScintEdit;
     procedure ToggleBreakPoint(Line: Integer);
+    procedure Uncloak;
     procedure UpdateAllMemoLineMarkers(const AMemo: TIDEScintFileEdit);
     procedure UpdateAllMemosLineMarkers;
     procedure UpdateBevel1Visibility;
@@ -693,6 +698,7 @@ type
     procedure InvalidateIndexForMemo(const AMemo: TScintEdit);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     { Other }
+    procedure CreateWnd; override;
     procedure WndProc(var Message: TMessage); override;
   public
     constructor Create(AOwner: TComponent); override;
@@ -1061,6 +1067,11 @@ var
 begin
   inherited;
 
+  { Uncloak before any startup message box or task dialog is shown, otherwise it
+    would inherit the main form's cloak and stay invisible while its modal loop
+    prevents AppOnIdle from uncloaking }
+  SetMessageBoxCallbackFunc(MessageBoxCallback, NativeInt(Self));
+
   {$IFNDEF STATICCOMPILER}
   FCompilerVersion := ISDllGetVersion;
   {$ELSE}
@@ -1272,6 +1283,8 @@ destructor TMainForm.Destroy;
   end;
 
 begin
+  SetMessageBoxCallbackFunc(nil, 0);
+
   UpdateThemeData(False);
 
   Application.OnActivate := nil;
@@ -5884,6 +5897,40 @@ begin
   FKeyMappedMenus.Add(FForwardNavButtonShortCut, nil);
 end;
 
+procedure TMainForm.CreateWnd;
+begin
+  inherited;
+  if not FStartupCloakingFinished then begin
+    { Prevents flicker, especially in dark mode, but even in light mode.
+      Also prevents movement due to things aligning. }
+    FUncloakPending := SetWindowCloaked(Handle, True);
+  end;
+end;
+
+procedure TMainForm.Uncloak;
+begin
+  if FStartupCloakingFinished then
+    Exit;
+
+  if FUncloakPending then begin
+    if HandleAllocated then
+      SetWindowCloaked(Handle, False);
+    FUncloakPending := False;
+  end;
+
+  FStartupCloakingFinished := True;
+  SetMessageBoxCallbackFunc(nil, 0);
+end;
+
+class procedure TMainForm.MessageBoxCallback(const Flags: Cardinal;
+  const After: Boolean; const Param: NativeInt);
+begin
+  { A message box is about to be shown while the main form may still be cloaked;
+    uncloak first so the dialog, which would inherit the cloak, is visible }
+  if not After then
+    TMainForm(Param).Uncloak;
+end;
+
 procedure TMainForm.UpdateTheme;
 
   procedure SetListBoxWindowTheme(const ListBox: TListBox);
@@ -5928,6 +5975,9 @@ begin
   end;
 
   ToolbarPanel.Color := FTheme.Colors[tcToolBack];
+
+  MemosTabSet.UpdateTheme;
+  OutputTabSet.UpdateTheme;
 
   for var Memo in FMemos do begin
     Memo.UpdateThemeColorsAndStyleAttributes;
@@ -6376,6 +6426,9 @@ begin
   if FCompiling then
     Done := False;
 
+  { Everything is now painted and settled, show the window (which is also
+    maximized now if that was the loaded state) }
+  Uncloak;
   FBecameIdle := True;
 end;
 

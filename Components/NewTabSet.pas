@@ -36,6 +36,8 @@ type
     FThemeDark: Boolean;
     FHotIndex: Integer;
     procedure EnsureCurrentTabIsFullyVisible;
+    function GetBackgroundColor: TColor; overload;
+    function GetBackgroundColor(const HighColorMode: Boolean): TColor; overload;
     function GetTabRect(const Index: Integer; const ApplyTabsOffset: Boolean = True): TRect;
     function GetCloseButtonRect(const TabRect: TRect): TRect;
     procedure InvalidateTab(Index: Integer);
@@ -67,6 +69,7 @@ type
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    procedure UpdateTheme;
     property CloseButtons: TBoolList read FCloseButtons write SetCloseButtons;
     property Theme: TTheme read FTheme write SetTheme;
   published
@@ -160,6 +163,11 @@ begin
   Result := R or (G shl 8) or (B shl 16);
 end;
 
+function IsHighColorMode(const DC: HDC): Boolean;
+begin
+  Result := GetDeviceCaps(DC, BITSPIXEL) * GetDeviceCaps(DC, PLANES) >= 15;
+end;
+
 { TNewTabSet }
 
 const
@@ -180,6 +188,10 @@ begin
   TStringList(FHints).OnChange := HintsListChanged;
   FHotIndex := -1;
   ControlStyle := ControlStyle + [csOpaque];
+  { Using the Color property itself so background erases use the correct
+    color: invalidations initiated by Windows itself, such as when the
+    control is uncovered, erase with Color even if csOpaque is set. }
+  Color := GetBackgroundColor;
   Width := 129;
   Height := 21;
   AutoSize := True;
@@ -294,6 +306,32 @@ begin
   NewHeight := Canvas.TextHeight('0') + (ToCurrentPPI(TabPaddingY) * 2) +
     ToCurrentPPI(2);
   Result := True;
+end;
+
+function TNewTabSet.GetBackgroundColor: TColor;
+begin
+  var HighColorMode: Boolean;
+  if FTheme <> nil then
+    HighColorMode := True { Actual value doesn't matter }
+  else begin
+    const DC = GetDC(0);
+    try
+      HighColorMode := IsHighColorMode(DC);
+    finally
+      ReleaseDC(0, DC);
+    end;
+  end;
+  Result := GetBackgroundColor(HighColorMode);
+end;
+
+function TNewTabSet.GetBackgroundColor(const HighColorMode: Boolean): TColor;
+begin
+  if FTheme <> nil then
+    Result := FTheme.Colors[tcMarginBack]
+  else if HighColorMode then
+    Result := LightenColor(ColorToRGB(clBtnFace), 35)
+  else
+    Result := clBtnShadow;
 end;
 
 function TNewTabSet.GetTabRect(const Index: Integer;
@@ -479,8 +517,7 @@ var
 begin
   Canvas.Font.Assign(Font);
 
-  HighColorMode := (GetDeviceCaps(Canvas.Handle, BITSPIXEL) *
-    GetDeviceCaps(Canvas.Handle, PLANES)) >= 15;
+  HighColorMode := IsHighColorMode(Canvas.Handle);
 
   CR := ClientRect;
 
@@ -508,12 +545,10 @@ begin
   Canvas.FillRect(LineRect);
 
   { Background fill }
-  if FTheme <> nil then
-    Canvas.Brush.Color := FTheme.Colors[tcMarginBack]
-  else if HighColorMode then
-    Canvas.Brush.Color := LightenColor(ColorToRGB(clBtnFace), 35)
-  else
-    Canvas.Brush.Color := clBtnShadow;
+  const BackgroundColor = GetBackgroundColor(HighColorMode);
+  if Color <> BackgroundColor then
+    Color := BackgroundColor;
+  Canvas.Brush.Color := BackgroundColor;
   if FTabPosition = tpBottom then
     Inc(CR.Top, LineRectHeight)
   else
@@ -574,12 +609,18 @@ procedure TNewTabSet.SetTheme(Value: TTheme);
 begin
   if FTheme <> Value then begin
     FTheme := Value;
-    var NewThemeDark := (FTheme <> nil) and FTheme.Dark;
-    if FThemeDark <> NewThemeDark then
-      UpdateThemeData(True);
-    FThemeDark := NewThemeDark;
-    Invalidate;
+    UpdateTheme;
   end;
+end;
+
+procedure TNewTabSet.UpdateTheme;
+begin
+  const NewThemeDark = (FTheme <> nil) and FTheme.Dark;
+  if FThemeDark <> NewThemeDark then
+    UpdateThemeData(True);
+  FThemeDark := NewThemeDark;
+  Color := GetBackgroundColor;
+  Invalidate;
 end;
 
 function TNewTabSet.ToCurrentPPI(const XY: Integer): Integer;
