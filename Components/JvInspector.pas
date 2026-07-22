@@ -317,7 +317,6 @@ type
 
   TJvInspectorBooleanItem = class(TJvCustomInspectorItem)
   private
-    FCheckRect: TRect;
     FClickRect: TRect;
     FCheckPressed: Boolean;
     FCheckTracking: Boolean;
@@ -2525,11 +2524,12 @@ begin
   ARect.Right := ARect.Left + BoxSize;
   ARect.Bottom := ARect.Top + BoxSize;
   { Clip all outside of the item rectangle }
-  IntersectRect(FCheckRect, ARect, Rects[iprValueArea]);
+  var CheckRect: TRect;
+  IntersectRect(CheckRect, ARect, Rects[iprValueArea]);
   SaveIndex := SaveDC(ACanvas.Handle);
   try
-    IntersectClipRect(ACanvas.Handle, FCheckRect.Left, FCheckRect.Top,
-      FCheckRect.Right, FCheckRect.Bottom);
+    IntersectClipRect(ACanvas.Handle, CheckRect.Left, CheckRect.Top,
+      CheckRect.Right, CheckRect.Bottom);
     BFlags := DFCS_BUTTONCHECK;
     if Bool then
       BFlags := BFlags or DFCS_CHECKED;
@@ -2545,7 +2545,7 @@ begin
     LabelText := 'no';
   LabelRect := Rects[iprValueArea];
   LabelRect.Left := ARect.Right + MulDiv(4, Inspector.CurrentPPI, 96);
-  FClickRect := FCheckRect;
+  FClickRect := CheckRect;
   FClickRect.Right := LabelRect.Left + ACanvas.TextWidth(LabelText);
   IntersectRect(FClickRect, FClickRect, Rects[iprValueArea]);
   const TextTop = LabelRect.Top + (LabelRect.Height - ACanvas.TextHeight(LabelText)) div 2;
