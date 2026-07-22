@@ -92,6 +92,7 @@ type
     FSelectedIndex: Integer;
     FPressedItem: TJvCustomInspectorItem;
     FTopIndex: Integer;
+    FLastClientWidth: Integer;
     FVisibleList: TList<TJvCustomInspectorItem>;
     FOnEditorKeyDown: TKeyEvent;
     FOnGetAsOrdinal: TJvInspAsOrdinal;
@@ -557,10 +558,8 @@ end;
 
 procedure TJvInspector.InvalidateItem;
 begin
-  if (LockCount = 0) and HandleAllocated then begin
-    UpdateScrollBars;
+  if (LockCount = 0) and HandleAllocated then
     Invalidate;
-  end;
 end;
 
 procedure TJvInspector.InvalidateList;
@@ -806,7 +805,10 @@ begin
   TopIndex := TopIndex; // Adapt position
   if HandleAllocated then begin
     UpdateScrollBars;
-    Invalidate;
+    if ClientWidth <> FLastClientWidth then begin
+      FLastClientWidth := ClientWidth;
+      Invalidate;
+    end;
   end;
 end;
 
@@ -835,10 +837,14 @@ begin
     Value := W - 2 * GetItemHeight;
   if Value < (2 * GetItemHeight) then
     Value := 2 * GetItemHeight;
+  const OldDivider = FDivider;
   FDivider := Value;
   if HandleAllocated then begin
-    UpdateScrollBars;
-    Invalidate;
+    var MinLeft := OldDivider;
+    if FDivider < MinLeft then
+      MinLeft := FDivider;
+    var R := Rect(MinLeft - 1, 0, ClientWidth, ClientHeight);
+    Windows.InvalidateRect(Handle, @R, False);
   end;
 end;
 
