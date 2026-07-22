@@ -1638,32 +1638,15 @@ begin
   LineState := TScintLineState(NewLineState);
 end;
 
-function SMI(const Name: TScintRawString; const Section: TInnoSetupStylerSection): TSectionMapItem;
+function SMI(const Section: TInnoSetupStylerSection): TSectionMapItem;
 begin
-  Result.Name := Name;
+  Result.Name := TScintRawString(SectionToSectionName(Section));
   Result.Section := Section;
 end;
 
 initialization
-  SectionMap := [
-    SMI('Code', scCode),
-    SMI('Components', scComponents),
-    SMI('CustomMessages', scCustomMessages),
-    SMI('Dirs', scDirs),
-    SMI('ISSigKeys', scISSigKeys),
-    SMI('Files', scFiles),
-    SMI('Icons', scIcons),
-    SMI('INI', scINI),
-    SMI('InstallDelete', scInstallDelete),
-    SMI('LangOptions', scLangOptions),
-    SMI('Languages', scLanguages),
-    SMI('Messages', scMessages),
-    SMI('Registry', scRegistry),
-    SMI('Run', scRun),
-    SMI('Setup', scSetup),
-    SMI('Tasks', scTasks),
-    SMI('Types', scTypes),
-    SMI('UninstallDelete', scUninstallDelete),
-    SMI('UninstallRun', scUninstallRun)];
+  for var Section := Low(TInnoSetupStylerSection) to High(TInnoSetupStylerSection) do
+    if not (Section in [scNone, scUnknown, scThirdParty, scCodeBlock]) then
+      SectionMap := SectionMap + [SMI(Section)];
 
 end.
