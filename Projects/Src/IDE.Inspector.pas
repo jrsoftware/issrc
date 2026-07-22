@@ -708,8 +708,7 @@ begin
     FLiveParameterSectionEntry := Entry;
     FChangeCountAtCreation := FFactory.ChangeCount;
     FLiveParameterSectionEntry.Entry.QuoteNewValues := FQuoteNewParameterValues;
-    const SectionName = ParameterSectionToSectionName(
-      FLiveParameterSectionEntry.StylerSection);
+    const SectionName = SectionToSectionName(FLiveParameterSectionEntry.StylerSection);
     {$IFDEF DEBUG}
     FDebugStatusRowString := Format('[%s] entry at lines %d-%d',
       [SectionName, FLiveParameterSectionEntry.FirstLine+1,

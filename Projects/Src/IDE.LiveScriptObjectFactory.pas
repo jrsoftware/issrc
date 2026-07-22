@@ -126,34 +126,17 @@ type
     property Styler: TInnoSetupStyler read FStyler;
   end;
 
-function ParameterSectionToSectionName(const ASection: TInnoSetupStylerSection): String;
+function SectionToSectionName(const ASection: TInnoSetupStylerSection): String;
 
 implementation
 
 uses
-  SysUtils;
+  SysUtils, TypInfo;
 
-function ParameterSectionToSectionName(const ASection: TInnoSetupStylerSection): String;
-{ Returns an empty string for sections which aren't parameter sections }
+function SectionToSectionName(const ASection: TInnoSetupStylerSection): String;
 begin
-  case ASection of
-    scComponents: Result := 'Components';
-    scDirs: Result := 'Dirs';
-    scFiles: Result := 'Files';
-    scIcons: Result := 'Icons';
-    scINI: Result := 'INI';
-    scInstallDelete: Result := 'InstallDelete';
-    scISSigKeys: Result := 'ISSigKeys';
-    scLanguages: Result := 'Languages';
-    scRegistry: Result := 'Registry';
-    scRun: Result := 'Run';
-    scTasks: Result := 'Tasks';
-    scTypes: Result := 'Types';
-    scUninstallDelete: Result := 'UninstallDelete';
-    scUninstallRun: Result := 'UninstallRun';
-  else
-    Result := '';
-  end;
+  Result := Copy(GetEnumName(TypeInfo(TInnoSetupStylerSection), Ord(ASection)),
+    InnoSetupStylerSectionPrefixLength+1, MaxInt);
 end;
 
 { TLiveScriptObject }
@@ -655,7 +638,7 @@ begin
   end;
 
   var Metadata: TScriptModelSectionMetadata := nil;
-  TryGetScriptModelSectionMetadata(ParameterSectionToSectionName(StylerSection), Metadata);
+  TryGetScriptModelSectionMetadata(SectionToSectionName(StylerSection), Metadata);
   AEntry := TLiveScriptParameterSectionEntry.Create(Self, FirstLine, LastLine,
     StylerSection, Metadata, EntryLines, LineKind = slkBlank);
   Result := True;
