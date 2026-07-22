@@ -413,9 +413,13 @@ begin
     R := Rect;
     if uState and DFCS_INACTIVE <> 0 then
       ComboBox := tcDropDownButtonDisabled
-    else if uState and DFCS_PUSHED <> 0 then
+    else if uState and DFCS_PUSHED <> 0 then begin
+      { Not all VCL Styles have an actual image for this, and will just show a
+        regular checkbox. This includes our dark theme (Windows11 Modern Dark).
+        In TSeButtonObject.Draw variable FState is correctly set to ssPressed,
+        but FBitmapPressed.Assigned is False. }
       ComboBox := tcDropDownButtonPressed
-    else
+    end else
       ComboBox := tcDropDownButtonNormal;
 
     DrawElementPreservingDCState(DC, StyleServices.GetElementDetails(ComboBox), R, DPI);
@@ -429,7 +433,7 @@ begin
       else
         Btn := tbCheckBoxCheckedNormal
     else if uState and DFCS_PUSHED <> 0 then
-      Btn := tbCheckBoxUncheckedPressed
+      Btn := tbCheckBoxUncheckedPressed { See above }
     else
       Btn := tbCheckBoxUncheckedNormal;
 
@@ -2529,7 +2533,7 @@ begin
     if Bool then
       BFlags := BFlags or DFCS_CHECKED;
     if FCheckPressed then
-      BFlags := BFlags or DFCS_PUSHED;
+      BFlags := BFlags or DFCS_PUSHED; { See DrawThemedFrameControl for VCL Styles limitation }
     DrawThemedFrameControl(ACanvas.Handle, ARect, DFC_BUTTON, BFlags, Inspector.CurrentPPI);
   finally
     RestoreDC(ACanvas.Handle, SaveIndex);
