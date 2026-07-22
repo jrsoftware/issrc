@@ -284,8 +284,14 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
           [String(Item.Name)]);
       var Parameters: TArray<TScintRawString>;
       SetLength(Parameters, Length(Metadata.Members));
-      for var I := 0 to High(Metadata.Members) do
-        Parameters[I] := TScintRawString(Metadata.Members[I].Name);
+      var N := 0;
+      for var Member in Metadata.Members do begin
+        if (Item.Section = scUninstallRun) and SameText(Member.Name, 'StatusMsg') then
+          Continue;
+        Parameters[N] := TScintRawString(Member.Name);
+        Inc(N);
+      end;
+      SetLength(Parameters, N);
       FSectionParameters[Item.Section] := Parameters;
     end;
   end;
