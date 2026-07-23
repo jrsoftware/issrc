@@ -501,8 +501,9 @@ type
     FProgressThemeData: HTHEME;
     FToolbarThemeData: HTHEME;
     FStatusBarThemeData: HTHEME;
-    FStartupCloakingFinished: Boolean;
     FUncloakPending: Boolean;
+    FStartupCloakingUsed, FStartupCloakingFinished: Boolean;
+    FStartupClientAreaFilled: Boolean;
     FDebugLogListTimestampsWidth: Integer;
     FOnPendingSquiggly: Boolean;
     FPendingSquigglyCaretPos: Integer;
@@ -633,6 +634,7 @@ type
     procedure WMUAHDrawMenuItem(var Message: TMessage); message WM_UAHDRAWMENUITEM;
     procedure WMNCActivate(var Message: TMessage); message WM_NCACTIVATE;
     procedure WMNCPaint(var Message: TMessage); message WM_NCPAINT;
+    procedure WMWindowPosChanged(var Message: TWMWindowPosChanged); message WM_WINDOWPOSCHANGED;
   protected
     { Main objects }
     FMemos: TList<TIDEScintEdit>;             { FMemos[0] is the main memo and FMemos[1] the preprocessor output memo - also see MemosTabSet comment above
@@ -707,7 +709,7 @@ uses
   PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc, UnsignedFunc, Toolbar.Accessibility,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.ScriptFunc,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
-  IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule,
+  IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule, IDE.IDEForm,
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.GotoFileForm,
   IDE.InputQueryForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper, IDE.RichEditForm,
   Shared.ConfigIniFile, Shared.SignToolsFunc, Shared.CompilerInt, Shared.LicenseFunc;
@@ -5709,7 +5711,18 @@ begin
     { Prevents flicker, especially in dark mode, but even in light mode.
       Also prevents movement due to things aligning. }
     FUncloakPending := SetWindowCloaked(Handle, True);
+    if FUncloakPending then
+      FStartupCloakingUsed := True;
   end;
+end;
+
+procedure TMainForm.WMWindowPosChanged(var Message: TWMWindowPosChanged);
+begin
+  { This prevents dark mode startup flicker if cloaking was not used because of
+    ClientAreaAnimationsActive, or not available. Updates FStartupClientAreaFilled. }
+  TIDEForm.HandleWMWindowPosChanged(Self, Message, FStartupClientAreaFilled,
+    FStartupCloakingUsed, (FTheme <> nil) and FTheme.Dark);
+  inherited;
 end;
 
 procedure TMainForm.Uncloak;
