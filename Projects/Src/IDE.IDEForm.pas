@@ -9,13 +9,13 @@ unit IDE.IDEForm;
   TIDEForm, a TUIStateForm descendant which localizes the form
   and initializes its font and theme.
 
-  Not used by IDE.MainForm!
+  IDE.MainForm itself is not a TIDEForm!
 }
 
 interface
 
 uses
-  Messages, Classes, Controls, StdCtrls,
+  Messages, Classes, Forms, Controls, StdCtrls,
   UIStateForm;
 
 type
@@ -23,13 +23,18 @@ type
   private
     FFormThemeActive: Boolean;
     FUncloakPending: Boolean;
+    FStartupCloakingUsed, FStartupClientAreaFilled: Boolean;
     function ScalePixelsX(const N: Integer): Integer;
     procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
+    procedure WMWindowPosChanged(var Message: TWMWindowPosChanged); message WM_WINDOWPOSCHANGED;
   protected
     procedure CreateWnd; override;
   public
     constructor Create(AOwner: TComponent); override;
     function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
+    class procedure HandleWMWindowPosChanged(const Form: TForm;
+      const Message: TWMWindowPosChanged; var StartupClientAreaFilled: Boolean;
+      const StartupCloakingUsed, FormThemeIsDark: Boolean); static;
     function SizeBottomButtons(const LeftBottomButton, RightBottomButton: TButton;
       const ResizeControl: TControl = nil): Integer; overload;
     function SizeBottomButtons(const LeftBottomButton, RightBottomButton: TButton;
@@ -46,6 +51,7 @@ implementation
 uses
   Windows,
   Themes,
+  UnsignedFunc,
   Shared.CommonFunc, Shared.CommonFunc.Vcl,
   IDE.HelperFunc, IDE.LocalizeFunc;
 
@@ -65,7 +71,79 @@ begin
   if not ClientAreaAnimationsActive then begin
     { Prevents flicker, especially in dark mode, but even in light mode for a heavy form }
     FUncloakPending := SetWindowCloaked(Handle, True);
+    if FUncloakPending then
+      FStartupCloakingUsed := True;
   end;
+end;
+
+class procedure TIDEForm.HandleWMWindowPosChanged(const Form: TForm;
+  const Message: TWMWindowPosChanged; var StartupClientAreaFilled: Boolean;
+  const StartupCloakingUsed, FormThemeIsDark: Boolean);
+{ When the window is shown without a cloaking (see CreateWnd) it appears
+  white until the first paints complete, which causes bad flicker in dark
+  mode. Avoid that by filling the client area with the dark background
+  color as soon as possible. WM_WINDOWPOSCHANGED was the earliest working
+  moment in many tests. At WM_WINDOWPOSCHANGING and WM_NCPAINT the code
+  has no effect, and a class background brush was also not used by the
+  system. With WM_WINDOWPOSCHANGED the paint happens before any control
+  is visible, and it fixes all per-control flicker at once. }
+
+  procedure FillClientAreaWithBackgroundColor;
+  { Uses the window DC because child windows do not clip it, so it also
+    covers the areas of controls that have not painted yet. }
+  begin
+    const DC = GetWindowDC(Form.Handle);
+    if DC <> 0 then begin
+      try
+        var WindowRect: TRect;
+        GetWindowRect(Form.Handle, WindowRect);
+        const Origin = Form.ClientOrigin;
+        var R := TRect.Create(0, 0, Form.ClientWidth, Form.ClientHeight);
+        OffsetRect(R, Origin.X - WindowRect.Left, Origin.Y - WindowRect.Top);
+        const Brush = CreateSolidBrush(UColorToRGB(Form.Color)); { Color set by InitFormTheme }
+        FillRect(DC, R, Brush);
+        DeleteObject(Brush);
+      finally
+        ReleaseDC(Form.Handle, DC);
+      end;
+    end;
+  end;
+
+begin
+  if (Message.WindowPos.flags and SWP_SHOWWINDOW <> 0) and
+     not StartupClientAreaFilled and not StartupCloakingUsed and
+     FormThemeIsDark then begin
+    { Update callers' variable tracking this has been done }
+    StartupClientAreaFilled := True;
+    { Fill the client area }
+    FillClientAreaWithBackgroundColor;
+    { Make sure the fill has reached the surface }
+    GdiFlush;
+    { ValidateRect so the BeginPaint below has nothing to erase }
+    ValidateRect(Form.Handle, nil);
+    { The fill did reach the surface, but the system keeps showing white until
+      the window completes a BeginPaint/EndPaint cycle, so do an empty one;
+      This bit is the essential trick to get our color to appear early. }
+    var PS: TPaintStruct;
+    if BeginPaint(Form.Handle, PS) <> 0 then
+      EndPaint(Form.Handle, PS);
+    { Two problems remain: the empty cycle removed the pending paint of the
+      form itself, which is what draws windowless controls, and the fill
+      overwrote what controls already drew when the system sent them
+      WM_NCPAINT and WM_ERASEBKGND while showing the window, such as the
+      borders and backgrounds of list boxes. So queue a repaint of
+      everything. }
+    RedrawWindow(Form.Handle, nil, 0,
+      RDW_INVALIDATE or RDW_ERASE or RDW_FRAME or RDW_ALLCHILDREN);
+  end;
+end;
+
+procedure TIDEForm.WMWindowPosChanged(var Message: TWMWindowPosChanged);
+begin
+  { See MainForm, and above }
+  HandleWMWindowPosChanged(Self, Message, FStartupClientAreaFilled,
+    FStartupCloakingUsed, InitFormThemeIsDark);
+  inherited;
 end;
 
 procedure TIDEForm.WMPaint(var Message: TWMPaint);
