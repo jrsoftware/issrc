@@ -172,7 +172,6 @@ type
     procedure EndUpdate;
     function Focused: Boolean; override;
     procedure InvalidateItem(const Item: TJvCustomInspectorItem);
-    procedure InvalidateItemAndRelated(const Item: TJvCustomInspectorItem);
     procedure RefreshValues;
     procedure Clear;
     property AccessibleName: string read FAccessibleName write FAccessibleName;
@@ -250,7 +249,6 @@ type
     function GetRects(const RectKind: TInspectorPaintRect): TRect;
     procedure GetValueList(const Strings: TStrings);
     procedure InvalidateItem;
-    procedure InvalidateItemAndRelated;
     procedure SetAsOrdinal(Value: Int64);
     procedure SetAsString(Value: string);
     procedure InvalidateList;
@@ -568,29 +566,6 @@ procedure TJvInspector.InvalidateItem(const Item: TJvCustomInspectorItem);
 begin
   if (LockCount = 0) and HandleAllocated then
     InvalidateRow(Integer(FVisibleList.IndexOf(Item)));
-end;
-
-procedure TJvInspector.InvalidateItemAndRelated(const Item: TJvCustomInspectorItem);
-begin
-  if (LockCount = 0) and HandleAllocated then begin
-    { Invalidate parent rows, because they may display a value derived from the item }
-    var ItemParent := Item.Parent;
-    while ItemParent <> nil do begin
-      InvalidateRow(Integer(FVisibleList.IndexOf(ItemParent)));
-      ItemParent := ItemParent.Parent;
-    end;
-    { Invalidate the row of the item itself, and of its children }
-    const Index = Integer(FVisibleList.IndexOf(Item));
-    if Index >= 0 then begin
-      InvalidateRow(Index);
-      const Level = Item.Level;
-      var I := Succ(Index);
-      while (I < GetVisibleCount) and (GetVisibleItems(I).Level > Level) do begin
-        InvalidateRow(I);
-        Inc(I);
-      end;
-    end;
-  end;
 end;
 
 procedure TJvInspector.InvalidateList;
@@ -1464,7 +1439,7 @@ begin
         finally
           Dec(FUpdateEditCtrl);
         end;
-        InvalidateItemAndRelated;
+        InvalidateItem;
         if EditCtrl <> nil then begin
           TmpOnChange := EditCtrl.OnChange;
           EditCtrl.OnChange := nil;
@@ -1512,7 +1487,7 @@ begin
     Inspector.FOnSetAsOrdinal(Self, Value)
   else
     raise EJvInspectorData.CreateFmt(RsEJvInspDataNoAccessAs, ['Ordinal']);
-  InvalidateItemAndRelated;
+  InvalidateItem;
 end;
 
 procedure TJvCustomInspectorItem.SetAsString(Value: string);
@@ -1521,7 +1496,7 @@ begin
     Inspector.FOnSetAsString(Self, Value)
   else
     raise EJvInspectorData.CreateFmt(RsEJvInspDataNoAccessAs, ['string']);
-  InvalidateItemAndRelated;
+  InvalidateItem;
 end;
 
 procedure TJvCustomInspectorItem.CloseUp(Accept: Boolean);
@@ -1652,7 +1627,7 @@ begin
       if (EditCtrl <> nil) and EditCtrl.CanFocus then
         EditCtrl.SetFocus;
     end;
-    InvalidateItemAndRelated;
+    InvalidateItem;
 
     Inspector.Invalidate;
   end;
@@ -1947,12 +1922,6 @@ begin
     Inspector.InvalidateItem(Self);
 end;
 
-procedure TJvCustomInspectorItem.InvalidateItemAndRelated;
-begin
-  if Inspector <> nil then
-    Inspector.InvalidateItemAndRelated(Self);
-end;
-
 function TJvCustomInspectorItem.IsCategory: Boolean;
 begin
   Result := False;
@@ -2092,7 +2061,7 @@ begin
       if Inspector <> nil then
         Inspector.AnnounceStateChangeToMSAA(Integer(Inspector.FVisibleList.IndexOf(Self)));
     end else
-      InvalidateItemAndRelated;
+      InvalidateItem;
   end;
 end;
 
@@ -2349,7 +2318,7 @@ begin
       CloseUp(False);
     if not CancelEdits and (DisplayValue <> EditCtrl.Text) then begin
       Apply;
-      InvalidateItemAndRelated;
+      InvalidateItem;
     end;
     FreeAndNil(FListBox);
 
@@ -2413,7 +2382,7 @@ procedure TJvInspectorBooleanItem.Toggle;
 begin
   const Bool = not (AsOrdinal <> Ord(False));
   AsOrdinal := Ord(Bool);
-  InvalidateItemAndRelated;
+  InvalidateItem;
   if Inspector <> nil then
     Inspector.AnnounceStateChangeToMSAA(Integer(Inspector.FVisibleList.IndexOf(Self)));
 end;
