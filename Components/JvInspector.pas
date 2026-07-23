@@ -509,7 +509,7 @@ end;
 procedure TJvInspector.CMActivate(var Msg: TCMActivate);
 begin
   inherited;
-  Invalidate;
+  InvalidateRow(SelectedIndex);
 end;
 
 procedure TJvInspector.CMDeactivate(var Msg: TCMActivate);
@@ -517,7 +517,7 @@ begin
   inherited;
   if Selected <> nil then
     Selected.CancelPress;
-  Invalidate;
+  InvalidateRow(SelectedIndex);
 end;
 
 function TJvInspector.GetImageHeight: Integer;
@@ -955,6 +955,13 @@ begin
 end;
 
 procedure TJvInspector.WndProc(var Msg: TMessage);
+
+  function OtherWndIsEditCtrl(const OtherWnd: HWND): Boolean;
+  begin
+    Result := EditorActive and Selected.EditCtrl.HandleAllocated and
+      (Selected.EditCtrl.Handle = OtherWnd);
+  end;
+
 begin
   case Msg.Msg of
     WM_SETFOCUS:
@@ -962,7 +969,8 @@ begin
         inherited;
         if (Selected <> nil) and not Selected.EditCtrlDestroying then
           Selected.SetFocus;
-        Invalidate;
+        if not OtherWndIsEditCtrl(HWND(Msg.WParam)) then
+          InvalidateRow(SelectedIndex);
         AnnounceFocusToMSAA;
       end;
     WM_KILLFOCUS:
@@ -970,7 +978,8 @@ begin
         inherited;
         if Selected <> nil then
           Selected.CancelPress;
-        Invalidate;
+        if not OtherWndIsEditCtrl(HWND(Msg.WParam)) then
+          InvalidateRow(SelectedIndex);
       end;
     WM_SIZE:
       begin
@@ -2270,6 +2279,7 @@ begin
   FEditing := CanEdit;
   if Editing and (FUpdateEditCtrl = 0) then begin
     Edit := TEdit.Create(Inspector);
+    Edit.Visible := False;
     Edit.OnExit := EditFocusLost;
     SetEditCtrl(Edit);
     EditCtrl.Color := Inspector.BackgroundColor;
