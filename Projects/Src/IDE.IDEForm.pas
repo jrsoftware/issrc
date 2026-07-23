@@ -125,8 +125,8 @@ begin
       the window completes a BeginPaint/EndPaint cycle, so do an empty one;
       This bit is the essential trick to get our color to appear early. }
     var PS: TPaintStruct;
-    BeginPaint(Form.Handle, PS);
-    EndPaint(Form.Handle, PS);
+    if BeginPaint(Form.Handle, PS) <> 0 then
+      EndPaint(Form.Handle, PS);
     { Two problems remain: the empty cycle removed the pending paint of the
       form itself, which is what draws windowless controls, and the fill
       overwrote what controls already drew when the system sent them
