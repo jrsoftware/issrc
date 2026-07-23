@@ -29,6 +29,8 @@ type
     NameIndex: Integer;      { The parameter index, or the line index for a
                                key. -1 if known but not present in the
                                script }
+    LastValueSignature: String;
+    CheckBox: Boolean;
   end;
 
   TInspector = class
@@ -52,14 +54,18 @@ type
     FShowAllKnownDirectives: Boolean;
     FQuoteNewParameterValues: Boolean;
     FQuoteNewDirectiveValues: Boolean;
+    procedure InvalidateChangedRows;
     function TryGetRow(const AItem: TJvCustomInspectorItem;
       out ARow: TInspectorRow): Boolean;
     function TryGetRowParameterSectionEntry(const ARow: TInspectorRow;
       out AEntry: TScriptModelParameterSectionEntry; out AIndex: Integer): Boolean;
     function TryGetRowKeyValueSection(const ARow: TInspectorRow;
       out ASection: TScriptModelKeyValueSection; out AIndex: Integer): Boolean;
-    procedure RowGetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64);
-    procedure RowGetAsString(Sender: TJvCustomInspectorItem; var Value: String);
+    function GetRowValueSignature(const ARow: TInspectorRow): String;
+    function RowGetAsOrdinal(const ARow: TInspectorRow): Int64; overload;
+    procedure RowGetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64); overload;
+    function RowGetAsString(const ARow: TInspectorRow): String; overload;
+    procedure RowGetAsString(Sender: TJvCustomInspectorItem; var Value: String); overload;
     procedure RowSetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64);
     procedure RowSetAsString(Sender: TJvCustomInspectorItem; var Value: String);
     procedure ChoiceRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
@@ -297,6 +303,19 @@ begin
   UpdateFromCaret;
 end;
 
+procedure TInspector.InvalidateChangedRows;
+begin
+  for var I := 0 to FRows.Count-1 do begin
+    var Row := FRows[I];
+    const ValueSignature = GetRowValueSignature(Row);
+    if ValueSignature <> Row.LastValueSignature then begin
+      Row.LastValueSignature := ValueSignature;
+      FRows[I] := Row;
+      FJvInspector.InvalidateItemByTag(I+1); { See AddRow }
+    end;
+  end;
+end;
+
 procedure TInspector.UpdateFromCaret;
 
   function LiveObjectTextChanged: Boolean;
@@ -367,15 +386,18 @@ procedure TInspector.UpdateFromCaret;
   {$ENDIF}
 
   function AddRow(const AParent: TJvCustomInspectorItem;
-    const ADisplayName: String; const ABoolean: Boolean;
+    const ADisplayName: String; const ACheckBox: Boolean;
     const ARow: TInspectorRow): TJvCustomInspectorItem;
   begin
-    if ABoolean then
+    if ACheckBox then
       Result := TJvInspectorBooleanItem.Create(AParent)
     else
       Result := TJvInspectorStringItem.Create(AParent);
     Result.DisplayName := ADisplayName;
-    FRows.Add(ARow);
+    var Row := ARow;
+    Row.CheckBox := ACheckBox;
+    Row.LastValueSignature := GetRowValueSignature(Row);
+    FRows.Add(Row);
     Result.Tag := FRows.Count;
   end;
 
@@ -383,10 +405,8 @@ procedure TInspector.UpdateFromCaret;
   procedure AddDebugRow(const AParent: TJvCustomInspectorItem;
     const ADisplayName: String; const AKind: TInspectorRowKind);
   begin
-    var Row: TInspectorRow;
+    var Row := Default(TInspectorRow);
     Row.Kind := AKind;
-    Row.Name := '';
-    Row.FlagName := '';
     Row.NameIndex := -1;
     const Item = AddRow(AParent, ADisplayName, False, Row);
     Item.Flags := Item.Flags + [iifReadonly];
@@ -396,16 +416,16 @@ procedure TInspector.UpdateFromCaret;
   function MakeParameterRow(const AName: String;
     const ANameIndex: Integer): TInspectorRow;
   begin
+    Result := Default(TInspectorRow);
     Result.Kind := irkParameter;
     Result.Name := AName;
-    Result.FlagName := '';
     Result.NameIndex := ANameIndex;
   end;
 
   procedure AddParameterFlagRow(const AParent: TJvCustomInspectorItem;
     const AParameterName, AFlagName: String; const ANameIndex: Integer);
   begin
-    var Row: TInspectorRow;
+    var Row := Default(TInspectorRow);
     Row.Kind := irkParameterFlag;
     Row.Name := AParameterName;
     Row.FlagName := AFlagName;
@@ -446,9 +466,9 @@ procedure TInspector.UpdateFromCaret;
   function MakeKeyRow(const AName: String;
     const ANameIndex: Integer): TInspectorRow;
   begin
+    Result := Default(TInspectorRow);
     Result.Kind := irkKey;
     Result.Name := AName;
-    Result.FlagName := '';
     Result.NameIndex := ANameIndex;
   end;
 
@@ -466,7 +486,7 @@ procedure TInspector.UpdateFromCaret;
   procedure AddKeyFlagRow(const AParent: TJvCustomInspectorItem;
     const AKeyName, AFlagName: String; const ANameIndex: Integer);
   begin
-    var Row: TInspectorRow;
+    var Row := Default(TInspectorRow);
     Row.Kind := irkKeyFlag;
     Row.Name := AKeyName;
     Row.FlagName := AFlagName;
@@ -676,7 +696,7 @@ begin
      (CaretLine <= FLiveParameterSectionEntry.LastLine) then begin
     {$IFDEF DEBUG}
     Inc(FUpdateFromCaretEarlyExitCount);
-    FJvInspector.Invalidate; { Repaint the early exit count }
+    InvalidateChangedRows; { Repaint the early exit count }
     {$ENDIF}
     Exit;
   end;
@@ -689,7 +709,7 @@ begin
        (SectionIndex = FLiveKeyValueSectionIndex) then begin
       {$IFDEF DEBUG}
       Inc(FUpdateFromCaretEarlyExitCount);
-      FJvInspector.Invalidate; { See above }
+      InvalidateChangedRows; { See above }
       {$ENDIF}
       Exit;
     end;
@@ -777,15 +797,17 @@ begin
   { Re-sync any open in-place editor. Done before any rebuild: RebuildRows'
     Clear deselects, and a deselect applies a stale editor's text back over
     the memo edit unless the editor was re-synced first }
-  FJvInspector.RefreshValues;
+  FJvInspector.ResyncEditor;
 
   if RowSetSignature <> FRowSetSignature then begin
     { Row set changes, need to rebuild the inspector's rows }
     FRowSetSignature := RowSetSignature;
     RebuildRows;
-  end; { else: Row set stayed same, just need to Invalidate to show updated values }
-
-  FJvInspector.Invalidate;
+    FJvInspector.Invalidate;
+  end else begin
+    { Row set stayed same, just need to invalidate to show updated values }
+    InvalidateChangedRows;
+  end;
 end;
 
 procedure TInspector.UpdateReadOnly;
@@ -802,45 +824,97 @@ begin
     ARow := FRows[Index];
 end;
 
-procedure TInspector.RowGetAsOrdinal(Sender: TJvCustomInspectorItem;
-  var Value: Int64);
+function TInspector.GetRowValueSignature(const ARow: TInspectorRow): String;
 begin
-  Value := 0;
-  var Row: TInspectorRow;
-  if not TryGetRow(Sender, Row) then
-    Exit;
-  case Row.Kind of
+  if ARow.CheckBox then
+    Result := IntToStr(RowGetAsOrdinal(ARow))
+  else
+    Result := RowGetAsString(ARow);
+end;
+
+function TInspector.RowGetAsOrdinal(const ARow: TInspectorRow): Int64;
+begin
+  Result := 0;
+  case ARow.Kind of
     irkParameterFlag:
       begin
         var Entry: TScriptModelParameterSectionEntry;
         var Index: Integer;
-        if TryGetRowParameterSectionEntry(Row, Entry, Index) and
-           Entry.FlagIncluded(Index, Row.FlagName) then
-          Value := 1;
+        if TryGetRowParameterSectionEntry(ARow, Entry, Index) and
+           Entry.FlagIncluded(Index, ARow.FlagName) then
+          Result := 1;
       end;
     irkKey:
       begin
         var Section: TScriptModelKeyValueSection;
         var Index: Integer;
-        if TryGetRowKeyValueSection(Row, Section, Index) then begin
+        if TryGetRowKeyValueSection(ARow, Section, Index) then begin
           var BoolValue := False;
           if TryStrToBoolean(Section.Lines[Index].Value, BoolValue) and BoolValue then
-            Value := 1;
+            Result := 1;
         end else if (Section <> nil) and
-                    SameText(Section.DefaultValue(Row.Name), SYes) then
-          Value := 1;
+                    SameText(Section.DefaultValue(ARow.Name), SYes) then
+          Result := 1;
       end;
     irkKeyFlag:
       begin
         var Section: TScriptModelKeyValueSection;
         var Index: Integer;
-        if TryGetRowKeyValueSection(Row, Section, Index) then begin
-          if Section.FlagIncluded(Index, Row.FlagName) then
-            Value := 1;
+        if TryGetRowKeyValueSection(ARow, Section, Index) then begin
+          if Section.FlagIncluded(Index, ARow.FlagName) then
+            Result := 1;
         end else if (Section <> nil) and
-                    ScriptValueIncludesFlag(Section.DefaultValue(Row.Name), Row.FlagName) then
-          Value := 1; { Not present in the script: show the compiler default }
+                    ScriptValueIncludesFlag(Section.DefaultValue(ARow.Name), ARow.FlagName) then
+          Result := 1; { Not present in the script: show the compiler default }
       end;
+  end;
+end;
+
+procedure TInspector.RowGetAsOrdinal(Sender: TJvCustomInspectorItem;
+  var Value: Int64);
+begin
+  Value := 0;
+  var Row: TInspectorRow;
+  if TryGetRow(Sender, Row) then
+    Value := RowGetAsOrdinal(Row);
+end;
+
+function TInspector.RowGetAsString(const ARow: TInspectorRow): String;
+begin
+  Result := '';
+  case ARow.Kind of
+    irkParameter:
+      begin
+        var Entry: TScriptModelParameterSectionEntry;
+        var Index: Integer;
+        if TryGetRowParameterSectionEntry(ARow, Entry, Index) then
+          Result := Entry.Parameters[Index].Value;
+        { else: Not present in the script: show empty }
+      end;
+    irkKey:
+      begin
+        var Section: TScriptModelKeyValueSection;
+        var Index: Integer;
+        if TryGetRowKeyValueSection(ARow, Section, Index) then
+          Result := Section.Lines[Index].Value
+        else if Section <> nil then
+          Result := Section.DefaultValue(ARow.Name); { Not present in the script: show the compiler default }
+      end;
+    {$IFDEF DEBUG}
+    irkDebugStatus:
+      Result := FDebugStatusRowString;
+    irkDebugSections:
+      begin
+        for var I := 0 to FFactory.SectionCount-1 do begin
+          const Header = FFactory.SectionHeaders[I];
+          if Result <> '' then
+            Result := Result + ', ';
+          Result := Result + Header.Name + '@' + IntToStr(Header.Line+1);
+        end;
+      end;
+    irkDebugEarlyExits:
+      Result := IntToStr(FUpdateFromCaretEarlyExitCount);
+    {$ENDIF}
   end;
 end;
 
@@ -849,42 +923,8 @@ procedure TInspector.RowGetAsString(Sender: TJvCustomInspectorItem;
 begin
   Value := '';
   var Row: TInspectorRow;
-  if not TryGetRow(Sender, Row) then
-    Exit;
-  case Row.Kind of
-    irkParameter:
-      begin
-        var Entry: TScriptModelParameterSectionEntry;
-        var Index: Integer;
-        if TryGetRowParameterSectionEntry(Row, Entry, Index) then
-          Value := Entry.Parameters[Index].Value;
-        { else: Not present in the script: show empty }
-      end;
-    irkKey:
-      begin
-        var Section: TScriptModelKeyValueSection;
-        var Index: Integer;
-        if TryGetRowKeyValueSection(Row, Section, Index) then
-          Value := Section.Lines[Index].Value
-        else if Section <> nil then
-          Value := Section.DefaultValue(Row.Name); { Not present in the script: show the compiler default }
-      end;
-    {$IFDEF DEBUG}
-    irkDebugStatus:
-      Value := FDebugStatusRowString;
-    irkDebugSections:
-      begin
-        for var I := 0 to FFactory.SectionCount-1 do begin
-          const Header = FFactory.SectionHeaders[I];
-          if Value <> '' then
-            Value := Value + ', ';
-          Value := Value + Header.Name + '@' + IntToStr(Header.Line+1);
-        end;
-      end;
-    irkDebugEarlyExits:
-      Value := IntToStr(FUpdateFromCaretEarlyExitCount);
-    {$ENDIF}
-  end;
+  if TryGetRow(Sender, Row) then
+    Value := RowGetAsString(Row);
 end;
 
 procedure TInspector.RowSetAsOrdinal(Sender: TJvCustomInspectorItem;
@@ -952,7 +992,7 @@ begin
   finally
     FInEdit := False;
   end;
-  FJvInspector.Invalidate;
+  InvalidateChangedRows;
 end;
 
 procedure TInspector.RowSetAsString(Sender: TJvCustomInspectorItem;
@@ -1017,7 +1057,7 @@ begin
   finally
     FInEdit := False;
   end;
-  FJvInspector.Invalidate;
+  InvalidateChangedRows;
 end;
 
 procedure TInspector.ChoiceRowGetValueList(Item: TJvCustomInspectorItem;

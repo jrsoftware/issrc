@@ -94,6 +94,7 @@ type
     FTopIndex: Integer;
     FLastClientWidth: Integer;
     FVisibleList: TList<TJvCustomInspectorItem>;
+    FVisibleTags: TDictionary<NativeInt, Integer>; { Item.Tag -> FVisibleList index }
     FOnEditorKeyDown: TKeyEvent;
     FOnGetAsOrdinal: TJvInspAsOrdinal;
     FOnGetAsString: TJvInspAsString;
@@ -118,6 +119,7 @@ type
     procedure CalcNameBasedRects;
     procedure CalcValueBasedRects;
     procedure DoPaintItem;
+    procedure InvalidateItem(const Item: TJvCustomInspectorItem);
     procedure InvalidateRow(const Index: Integer);
     procedure PaintItem(var ARect: TRect; const AItemIndex: Integer);
     procedure PaintItems;
@@ -172,8 +174,8 @@ type
     procedure BeginUpdate;
     procedure EndUpdate;
     function Focused: Boolean; override;
-    procedure InvalidateItem(const Item: TJvCustomInspectorItem);
-    procedure RefreshValues;
+    procedure InvalidateItemByTag(const ATag: NativeInt);
+    procedure ResyncEditor;
     procedure Clear;
     property AccessibleName: string read FAccessibleName write FAccessibleName;
     property Divider: Integer read FDivider write SetDivider;
@@ -466,6 +468,7 @@ begin
   DoubleBuffered := True;
   {$ENDIF}
   FVisibleList := TList<TJvCustomInspectorItem>.Create;
+  FVisibleTags := TDictionary<NativeInt, Integer>.Create;
   FRoot := TJvCustomInspectorItem.Create(nil);
   FRoot.FInspector := Self;
   FSelectedIndex := -1;
@@ -573,6 +576,14 @@ procedure TJvInspector.InvalidateItem(const Item: TJvCustomInspectorItem);
 begin
   if (LockCount = 0) and HandleAllocated then
     InvalidateRow(Integer(FVisibleList.IndexOf(Item)));
+end;
+
+procedure TJvInspector.InvalidateItemByTag(const ATag: NativeInt);
+begin
+  var Index: Integer;
+  if (LockCount = 0) and HandleAllocated and
+     FVisibleTags.TryGetValue(ATag, Index) then
+    InvalidateRow(Index);
 end;
 
 procedure TJvInspector.InvalidateList;
@@ -823,6 +834,7 @@ var
     for var I := 0 to Item.Count - 1 do begin
       Child := Item.Items[I];
       FVisibleList.Add(Child);
+      FVisibleTags.AddOrSetValue(Child.Tag, Integer(FVisibleList.Count)-1);
       if Child.Expanded then
         AddChildren(Child);
     end;
@@ -831,6 +843,7 @@ var
 begin
   OldSel := Selected;
   FVisibleList.Clear;
+  FVisibleTags.Clear;
   AddChildren(Root);
   AnnounceReorderToMSAA;
   if OldSel <> nil then
@@ -1065,6 +1078,7 @@ begin
   Application.UnhookMainWindow(ApplicationHook);
   FRoot.Free;
   FVisibleList.Free;
+  FVisibleTags.Free;
 end;
 
 procedure TJvInspector.BeginUpdate;
@@ -1103,7 +1117,7 @@ begin
   Result := inherited Focused;
 end;
 
-procedure TJvInspector.RefreshValues;
+procedure TJvInspector.ResyncEditor;
 begin
   if (Selected <> nil) and Selected.Editing then begin
     if (Selected.EditCtrl = nil) or (Selected.DisplayValue <> Selected.EditCtrl.Text) then begin
@@ -1111,7 +1125,6 @@ begin
       Selected.InitEdit;
     end;
   end;
-  Invalidate;
 end;
 
 procedure TJvInspector.Clear;
