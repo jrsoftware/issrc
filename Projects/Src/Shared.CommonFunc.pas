@@ -200,10 +200,13 @@ function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRe
 function Is64BitPEImage(const Filename: String): Boolean;
 function BitsFrom64BitBoolean(const A64Bit: Boolean): Integer; inline;
 function RegViewFrom64BitBoolean(const A64Bit: Boolean): TRegView;
+function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
+function SetWindowCloaked(const Wnd: HWND; const Cloaked: Boolean): Boolean;
 
 implementation
 
 uses
+  DwmApi,
   PathFunc, UnsignedFunc,
   Shared.FileClass;
 
@@ -1820,6 +1823,41 @@ begin
     Result := rv64Bit
   else
     Result := rv32Bit;
+end;
+
+function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
+begin
+  { Find the "root owner" window, which is what appears in the taskbar.
+    We avoid GetAncestor(..., GA_ROOTOWNER) because it's broken in the same
+    way as GetParent(): it stops if it reaches a top-level window that doesn't
+    have the WS_POPUP style (i.e., a WS_OVERLAPPED window). }
+  var RootWnd := Wnd;
+  while True do begin
+    { Visible WS_EX_APPWINDOW windows have their own taskbar button regardless
+      of their root owner's visibility }
+    if (GetWindowLong(RootWnd, GWL_EXSTYLE) and WS_EX_APPWINDOW <> 0) and
+       (GetWindowLong(RootWnd, GWL_STYLE) and WS_VISIBLE <> 0) then
+      Exit(True);
+    var ParentWnd := HWND(GetWindowLongPtr(RootWnd, GWLP_HWNDPARENT));
+    if ParentWnd = 0 then
+      Break;
+    RootWnd := ParentWnd;
+  end;
+
+  Result := (GetWindowLong(RootWnd, GWL_STYLE) and WS_VISIBLE <> 0) and
+    (GetWindowLong(RootWnd, GWL_EXSTYLE) and WS_EX_TOOLWINDOW = 0);
+end;
+
+function SetWindowCloaked(const Wnd: HWND; const Cloaked: Boolean): Boolean;
+begin
+  { Cloaks the window such that it is not visible to the user. The window is
+    still composed by DWM. }
+  if CurrentWindowsVersionAtLeast(6, 2) then begin
+    const DWMWA_CLOAK: DWORD = 13;
+    var value: BOOL := Cloaked;
+    Result := Succeeded(DwmSetWindowAttribute(Wnd, DWMWA_CLOAK, @value, SizeOf(value)));
+  end else
+    Result := False;
 end;
 
 { TSimpleLock }
