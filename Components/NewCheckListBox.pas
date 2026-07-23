@@ -732,7 +732,7 @@ begin
         if ItemDisabled then
           uState := uState or DFCS_INACTIVE;
         if (FCaptureIndex = Index) and (FSpaceDown or (FLastMouseMoveIndex = Index)) then
-          uState := uState or DFCS_PUSHED;
+          uState := uState or DFCS_PUSHED; { Not all VCL Styles have an actual image for this, and will just show a regular checkbox }
         DrawFrameControl(Handle, CheckRect, DFC_BUTTON, uState);
       end else begin
         PartId := ButtonPartIds[ItemState.ItemType];

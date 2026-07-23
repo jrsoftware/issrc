@@ -62,8 +62,10 @@ begin
   inherited;
   if (TStyleManager.FormBorderStyle = fbsSystemStyle) or not (seBorder in StyleElements) then
     SetDarkTitleBar(Self, InitFormThemeIsDark);
-  { Prevents flicker, especially in dark mode, but even in light mode for a heavy form }
-  FUncloakPending := SetWindowCloaked(Handle, True);
+  if not ClientAreaAnimationsActive then begin
+    { Prevents flicker, especially in dark mode, but even in light mode for a heavy form }
+    FUncloakPending := SetWindowCloaked(Handle, True);
+  end;
 end;
 
 procedure TIDEForm.WMPaint(var Message: TWMPaint);

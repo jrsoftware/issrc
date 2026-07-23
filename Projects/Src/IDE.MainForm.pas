@@ -5900,7 +5900,7 @@ end;
 procedure TMainForm.CreateWnd;
 begin
   inherited;
-  if not FStartupCloakingFinished then begin
+  if not FStartupCloakingFinished and not ClientAreaAnimationsActive then begin
     { Prevents flicker, especially in dark mode, but even in light mode.
       Also prevents movement due to things aligning. }
     FUncloakPending := SetWindowCloaked(Handle, True);
