@@ -634,17 +634,17 @@ procedure TInspector.UpdateFromCaret;
         FJvInspector.Clear;
         FRows.Clear;
 
-        if FLiveParameterSectionEntry <> nil then
-          AddParameterSectionEntryRows
-        else if FLiveKeyValueSection <> nil then
-          AddKeyValueSectionRows;
-
         {$IFDEF DEBUG}
         const DebugCategory = NewCategory('Debug');
         AddDebugRow(DebugCategory, 'Status', irkDebugStatus);
         AddDebugRow(DebugCategory, 'Sections', irkDebugSections);
         AddDebugRow(DebugCategory, 'Early exits', irkDebugEarlyExits);
         {$ENDIF}
+
+        if FLiveParameterSectionEntry <> nil then
+          AddParameterSectionEntryRows
+        else if FLiveKeyValueSection <> nil then
+          AddKeyValueSectionRows;
 
         RestoreExpandedStates(ExpandedStates, FJvInspector.Root);
       finally
