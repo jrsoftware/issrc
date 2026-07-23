@@ -128,6 +128,7 @@ type
     procedure ChangeScale(M, D: Integer; isDpiChange: Boolean); override;
     procedure CMActivate(var Msg: TCMActivate); message CM_ACTIVATE;
     procedure CMDeactivate(var Msg: TCMActivate); message CM_DEACTIVATE;
+    procedure CreateParams(var Params: TCreateParams); override;
     function GetBackgroundColor: TColor;
     function GetImageHeight: Integer;
     function GetItemHeight: Integer;
@@ -486,6 +487,12 @@ begin
   FHideSelectTextColor := clHighlightText;
 
   Application.HookMainWindow(ApplicationHook);
+end;
+
+procedure TJvInspector.CreateParams(var Params: TCreateParams);
+begin
+  inherited;
+  Params.Style := Params.Style or WS_CLIPCHILDREN;
 end;
 
 function TJvInspector.CalcItemIndex(const Y: Integer): Integer;
