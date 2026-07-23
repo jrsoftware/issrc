@@ -724,14 +724,14 @@ begin
       Item.MouseDown(Button, Shift, X, Y);
     end;
     // A click on the value of an item that was not being edited yet lands on
-    // the inspector, not the freshly focused edit, so the edit keeps all its
-    // text selected and can't start a click-drag selection. Forward the click
-    // to the edit so it places the caret and captures the mouse for dragging,
-    // like the Delphi object inspector (when the item was already being edited
-    // the click lands on the edit itself and never gets here). Hand the whole
-    // gesture to the edit: drop the inspector's own pressed-item, button-down and
-    // capture state, since it gets no matching MouseUp once the edit captures
-    // and would otherwise fire a stray click or keep following the mouse
+    // the inspector, not the freshly focused edit, so the edit can't start a
+    // click-drag selection. Forward the click to the edit so it places the
+    // caret and captures the mouse for dragging, like the Delphi object
+    // inspector (when the item was already being edited the click lands on the
+    // edit itself and never gets here). Hand the whole gesture to the edit:
+    // drop the inspector's own pressed-item, button-down and capture state,
+    // since it gets no matching MouseUp once the edit captures and would
+    // otherwise fire a stray click or keep following the mouse.
     if not (ssDouble in Shift) and not DraggingDivider and
       (Item <> nil) and Item.Editing and (Item.EditCtrl <> nil) and
       Item.EditCtrl.HandleAllocated and Item.EditCtrl.CanFocus and
@@ -2297,6 +2297,7 @@ begin
     FEditWndPrc := EditCtrl.WindowProc;
     EditCtrl.WindowProc := Edit_WndProc;
     EditCtrl.AutoSize := False;
+    EditCtrl.AutoSelect := not (csLButtonDown in Inspector.ControlState);
     if iifValueList in Flags then begin
       FListBox := TJvInspectorListBox.Create(Inspector);
       ListBox.Visible := False;
@@ -2311,10 +2312,9 @@ begin
     EditCtrl.OnKeyUp := EditKeyUp;
     EditCtrl.OnKeyPress := EditKeyPress;
     EditCtrl.OnMouseDown := EditMouseDown;
-    EditCtrl.Visible := True;
     EditCtrl.Text := DisplayValue;
     EditCtrl.Modified := False;
-    EditCtrl.SelectAll;
+    EditCtrl.Visible := True;
     SetOrClearNameForMSAA(EditCtrl.Handle, DisplayName); { Must be done before focus }
     if EditCtrl.CanFocus and Inspector.Focused then
       EditCtrl.SetFocus;
