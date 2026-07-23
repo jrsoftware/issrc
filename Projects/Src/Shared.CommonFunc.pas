@@ -183,6 +183,7 @@ procedure WaitMessageWithTimeout(const Milliseconds: DWORD);
 function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
 procedure CreateMutex(const MutexName: String);
 function HighContrastActive: Boolean;
+function ClientAreaAnimationsActive: Boolean;
 function CurrentWindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
 function DarkModeActive: Boolean;
 function DeleteFileOrDirByHandle(const H: THandle): Boolean;
@@ -1606,6 +1607,14 @@ begin
   Result := False;
   if SystemParametersInfo(SPI_GETHIGHCONTRAST, HighContrast.cbSize, @HighContrast, 0) then
     Result := (HighContrast.dwFlags and HCF_HIGHCONTRASTON) <> 0;
+end;
+
+function ClientAreaAnimationsActive: Boolean;
+begin
+  var value: BOOL;
+  Result := False;
+  if SystemParametersInfo(SPI_GETCLIENTAREAANIMATION, 0, @value, 0) then
+    Result := value;
 end;
 
 var
