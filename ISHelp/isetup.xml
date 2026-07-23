@@ -3801,19 +3801,19 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Move between rows</td><td>Up or Down</td>
 </tr>
 <tr>
-  <td>Expand the selected category row</td><td>Right or Numpad +</td>
+  <td>Expand the selected row</td><td>Numpad + or Ctrl+Numpad +</td>
 </tr>
 <tr>
-  <td>Collapse the selected category row</td><td>Left or Numpad -</td>
+  <td>Collapse the selected row</td><td>Numpad - or Ctrl+Numpad -</td>
 </tr>
 <tr>
-  <td>Expand or collapse the selected category row</td><td>Enter or Space</td>
+  <td>Expand or collapse the selected row</td><td>Enter or Space</td>
 </tr>
 <tr>
-  <td>Move to the first child of the selected expanded category row</td><td>Right</td>
+  <td>Expand the selected row, or move to its first child</td><td>Right</td>
 </tr>
 <tr>
-  <td>Move to the parent of the selected row</td><td>Left</td>
+  <td>Collapse the selected row, or move to its parent</td><td>Left</td>
 </tr>
 <tr>
   <td>Expand or collapse any row</td><td>Click the expand button, or DoubleClick the row's name</td>

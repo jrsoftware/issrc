@@ -601,12 +601,11 @@ end;
 procedure TJvInspector.KeyDown(var Key: Word; Shift: TShiftState);
 var
   Item: TJvCustomInspectorItem;
-  IgnoreKey: Boolean;
   TmpIdx: Integer;
 begin
   Item := Selected;
   if Shift = [] then begin
-    IgnoreKey := True;
+    var IgnoreKey := True; // reset to False below for unhandled keys
     case Key of
       VK_UP:
         if SelectedIndex > 0 then
@@ -637,12 +636,6 @@ begin
             SelectedIndex := TmpIdx;
           end;
         end;
-      VK_ADD:
-        if (Item <> nil) and (Item.Count > 0) and not Item.Expanded then
-          Item.Expanded := True;
-      VK_SUBTRACT:
-        if (Item <> nil) and Item.Expanded then
-          Item.Expanded := False;
       VK_RIGHT:
         if (Item <> nil) and (Item.Count > 0) then begin
           if not Item.Expanded then
@@ -668,6 +661,23 @@ begin
             Item.Expanded := False;
         end else
           IgnoreKey := False;
+    else
+      IgnoreKey := False;
+    end;
+    if IgnoreKey then begin
+      Key := 0;
+      SendMessage(Handle, WM_CHANGEUISTATE, UIS_CLEAR or (UISF_HIDEFOCUS shl 16), 0);
+    end;
+  end;
+  if (Key <> 0) and ((Shift = []) or (Shift = [ssCtrl])) then begin
+    var IgnoreKey := True;
+    case Key of
+      VK_ADD:
+        if (Item <> nil) and (Item.Count > 0) and not Item.Expanded then
+          Item.Expanded := True;
+      VK_SUBTRACT:
+        if (Item <> nil) and Item.Expanded then
+          Item.Expanded := False;
     else
       IgnoreKey := False;
     end;
@@ -1770,6 +1780,16 @@ begin
       VK_DOWN, VK_RETURN:
         if iifValueList in Flags then begin
           SelectValue(1);
+          Key := 0;
+        end;
+      VK_ADD:
+        if (Count > 0) and not Expanded then begin
+          Expanded := True;
+          Key := 0;
+        end;
+      VK_SUBTRACT:
+        if Expanded then begin
+          Expanded := False;
           Key := 0;
         end;
     end;
