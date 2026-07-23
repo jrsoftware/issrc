@@ -884,6 +884,7 @@ begin
     Value := -1;
   if Value <> SelectedIndex then begin
     if not (csDestroying in ComponentState) then begin
+      const OldIndex = SelectedIndex;
       if Selected <> nil then
         Selected.DoneEdit(False);
       FSelectedIndex := Value;
@@ -891,7 +892,8 @@ begin
         Selected.ScrollInView;
         Selected.InitEdit;
       end;
-      InvalidateUnlessLocked;
+      InvalidateRow(OldIndex);
+      InvalidateRow(Value);
       AnnounceSelectionToMSAA;
     end;
   end;
@@ -1628,8 +1630,6 @@ begin
         EditCtrl.SetFocus;
     end;
     InvalidateItem;
-
-    Inspector.Invalidate;
   end;
 end;
 
