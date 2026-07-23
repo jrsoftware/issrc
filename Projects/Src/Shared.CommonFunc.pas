@@ -199,10 +199,12 @@ function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRe
 function Is64BitPEImage(const Filename: String): Boolean;
 function BitsFrom64BitBoolean(const A64Bit: Boolean): Integer; inline;
 function RegViewFrom64BitBoolean(const A64Bit: Boolean): TRegView;
+function SetWindowCloaked(const Wnd: HWND; const Cloaked: Boolean): Boolean;
 
 implementation
 
 uses
+  DwmApi,
   PathFunc, UnsignedFunc,
   Shared.FileClass;
 
@@ -1811,6 +1813,18 @@ begin
     Result := rv64Bit
   else
     Result := rv32Bit;
+end;
+
+function SetWindowCloaked(const Wnd: HWND; const Cloaked: Boolean): Boolean;
+begin
+  { Cloaks the window such that it is not visible to the user. The window is
+    still composed by DWM. }
+  if CurrentWindowsVersionAtLeast(6, 2) then begin
+    const DWMWA_CLOAK: DWORD = 13;
+    var value: BOOL := Cloaked;
+    Result := Succeeded(DwmSetWindowAttribute(Wnd, DWMWA_CLOAK, @value, SizeOf(value)));
+  end else
+    Result := False;
 end;
 
 { TSimpleLock }
