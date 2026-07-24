@@ -122,3 +122,18 @@ if errorlevel 1 exit /b 1
 copy %R%\Arm64EC\Release\islzma-ARM64EC.dll Files
 if errorlevel 1 exit /b 1
 exit /b
+
+:copy-iszstd
+echo Copying is(un)zstd files
+set R=Projects\Src\Compression.Zstd\iszstd
+copy %R%\Win32\Release\iszstd.dll Files
+if errorlevel 1 exit /b 1
+copy %R%\x64\Release\iszstd-x64.dll Files
+if errorlevel 1 exit /b 1
+copy %R%\ARM64EC\Release\iszstd-Arm64EC.dll Files
+if errorlevel 1 exit /b 1
+copy %R%\Win32\Release\isunzstd.dll Files
+if errorlevel 1 exit /b 1
+copy %R%\x64\Release\isunzstd-x64.dll Files
+if errorlevel 1 exit /b 1
+exit /b

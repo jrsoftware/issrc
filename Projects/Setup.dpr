@@ -52,6 +52,8 @@ uses
   Compression.Zlib in 'Src\Compression.Zlib.pas',
   Compression.bzlib in 'Src\Compression.bzlib.pas',
   Compression.LZMADecompressor in 'Src\Compression.LZMADecompressor.pas',
+  Compression.Zstd in 'Src\Compression.Zstd.pas',
+  Compression.CompressorProps in 'Src\Compression.CompressorProps.pas',
   Shared.FileClass in 'Src\Shared.FileClass.pas',
   MD5 in '..\Components\MD5.pas',
   MD5.Test in '..\Components\MD5.Test.pas',

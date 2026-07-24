@@ -54,7 +54,7 @@ implementation
 uses
   PathFunc, Shared.CommonFunc, Setup.MainFunc, SetupLdrAndSetup.Messages,
   Shared.SetupMessageIDs, Setup.InstFunc, Compression.Zlib, Compression.bzlib,
-  Compression.LZMADecompressor, SHA256, Setup.LoggingFunc, Setup.NewDiskForm;
+  Compression.LZMADecompressor, Compression.Zstd, SHA256, Setup.LoggingFunc, Setup.NewDiskForm;
 
 var
   FFileExtractor: TFileExtractor;
@@ -63,7 +63,7 @@ function FileExtractor: TFileExtractor;
 const
   DecompClasses: array[TSetupCompressMethod] of TCustomDecompressorClass =
     (TStoredDecompressor, TZDecompressor, TBZDecompressor, TLZMA1Decompressor,
-     TLZMA2Decompressor);
+     TLZMA2Decompressor, TZstdDecompressor);
 begin
   if FFileExtractor = nil then
     FFileExtractor := TFileExtractor.Create(DecompClasses[SetupHeader.CompressMethod]);

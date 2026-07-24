@@ -2163,6 +2163,7 @@ end;
 
 type
   TZipLevel = 1..9;
+  TZstdLevel = 1..22;
 
 const
   LZMALevels: TArray<TScintRawString> = ['fast', 'normal', 'max', 'ultra', 'ultra64'];
@@ -2178,10 +2179,12 @@ function GetCompressionValues: TArray<TScintRawString>;
 const
   ZipAlgos: TArray<TScintRawString> = ['zip', 'bzip'];
   LZMAAlgos: TArray<TScintRawString> = ['lzma', 'lzma2'];
+  ZstdAlgo: String = 'zstd';
 begin
   SetLength(Result, 1 +
     Length(ZipAlgos) + Length(ZipAlgos) * (High(TZipLevel) - Low(TZipLevel) + 1) +
-    Length(LZMAAlgos) + Length(LZMAAlgos) * Length(LZMALevels));
+    Length(LZMAAlgos) + Length(LZMAAlgos) * Length(LZMALevels) +
+    1 + (High(TZstdLevel) - Low(TZstdLevel) + 1));
   var I := 0;
   SetResult(I, 'none');
   for var Algo in ZipAlgos do begin
@@ -2194,6 +2197,9 @@ begin
     for var Level in  LZMALevels do
       SetResult(I, TScintRawString(Algo + '/' + Level));
   end;
+  // SetResult(I, TScintRawString(ZstdAlgo));
+  // for var Level := Low(TZstdLevel) to High(TZstdLevel) do
+  //   SetResult(I, TScintRawString(ZstdAlgo + '/' + Level.ToString));
 end;
 
 initialization
@@ -2268,10 +2274,11 @@ initialization
     SSDV(ssArchiveExtraction, ['auto', 'basic', 'enhanced/nopassword', 'enhanced', 'full']),
     SSDV(ssCloseApplications, ['force', SYes, SNo]),
     SSDV(ssCompression, GetCompressionValues),
-    SSDV(ssDisablePrecompiledFileVerifications, ['setup', 'setupcustomstyle', 'setupldr', 'is7z', 'isbunzip', 'isunzlib', 'islzma']),
+    SSDV(ssDisablePrecompiledFileVerifications, ['setup', 'setupcustomstyle', 'setupldr', 'is7z', 'isbunzip', 'isunzlib', 'islzma', 'isunzstd']),
     SSDV(ssEncryption, ['full', SYes, SNo]),
     SSDV(ssInternalCompressLevel, ['none'] + LZMALevels), { We don't list 0 }
     SSDV(ssLanguageDetectionMethod, ['uilanguage', 'locale', 'none']),
+    
     SSDV(ssLZMAAlgorithm, ['0', '1']),
     SSDV(ssLZMAMatchFinder, ['BT', 'HC']),
     SSDV(ssLZMAUseSeparateProcess, ['x86', SYes, SNo]),

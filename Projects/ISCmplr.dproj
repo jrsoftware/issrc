@@ -134,6 +134,7 @@
         <DCCReference Include="Src\Compression.Zlib.pas"/>
         <DCCReference Include="Src\Compression.bzlib.pas"/>
         <DCCReference Include="Src\Compression.LZMACompressor.pas"/>
+        <DCCReference Include="Src\Compression.Zstd.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="..\Components\ChaCha20.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>
@@ -167,6 +168,7 @@
         <DCCReference Include="..\Components\UniPs\Source\uPSC_stdctrls.pas"/>
         <DCCReference Include="..\Components\UniPs\Source\uPSCompiler.pas"/>
         <DCCReference Include="..\Components\UniPs\Source\uPSUtils.pas"/>
+        <DCCReference Include="Src\Compression.CompressorProps.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
