@@ -1,0 +1,8 @@
+format issig-v2
+file-name "iszstd.dll"
+file-size 383392
+file-hash a7ae8e0fb600dff2efe9885fc5c24dfbd9fb5ccbafbd3934444a33b2960f5ecd
+file-tag ""
+key-id def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38
+sig-r 184fb35a14a7dbd5fe9d414285461b046561a881a46b8822778cfde4d005a826
+sig-s 2c68fecbdecf7615f3311aecd42b1967aeaddecc83b16cf4935c5d0471288ef6

@@ -1,0 +1,8 @@
+format issig-v2
+file-name "isunzstd.dll"
+file-size 70560
+file-hash 27cc16adc18cf13bc645dbb80f6a26173c3fd9d5c2520e6409c7aac69ece2a98
+file-tag ""
+key-id def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38
+sig-r 93fb2b3d6b8f08c5f5f36c0b90ab022dbf0a82c9175755d6fa72103058216295
+sig-s 85f73d34bbad81e1effdf568d8cc7b2312c10a71d1a86cf87e231210b08b27c8

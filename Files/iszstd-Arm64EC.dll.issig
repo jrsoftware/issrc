@@ -1,0 +1,8 @@
+format issig-v2
+file-name "iszstd-Arm64EC.dll"
+file-size 469920
+file-hash 9b680dca38ea0f44166beb8e43c3f1a01f5891f506c8aac00bc63f2f27cddd34
+file-tag ""
+key-id def0147c3bbc17ab99bf7b7a9c2de1390283f38972152418d7c2a4a7d7131a38
+sig-r 4e27aee010f2199a80b5857282303ffe41fddf2059146a0aed383cf6055f5b4a
+sig-s d37703afd1695878ced475512bc845b6eb64284ec9d1985eaf48a7afaf8ba49d
