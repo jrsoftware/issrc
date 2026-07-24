@@ -14,7 +14,7 @@ interface
 
 uses
   Windows, SysUtils,
-  Compression.Base;
+  Compression.Base, Compression.CompressorProps;
 
 function LZMAInitCompressFunctions(Module: HMODULE): Boolean;
 function LZMAGetLevel(const Value: String; var Level: Integer): Boolean;
@@ -30,22 +30,6 @@ type
   { Internally-used types }
   TLZMASRes = type Integer;
   TLZMACompressorCustomWorker = class;
-
-  TLZMACompressorProps = class(TCompressorProps)
-  public
-    Algorithm: Integer;
-    BlockSize: Integer;
-    BTMode: Integer;
-    DictionarySize: Cardinal;
-    NumBlockThreads: Integer;
-    NumFastBytes: Integer;
-    NumThreads: Integer;
-    NumThreadGroups: Integer;
-    WorkerProcessCheckTrust: Boolean;
-    WorkerProcessOnCheckedTrust: TProc<Boolean>;
-    WorkerProcessFilename: String;
-    constructor Create;
-  end;
 
   { Internally-used records }
   TLZMAEncoderProps = record
@@ -425,15 +409,6 @@ begin
     Dec(Size, Bytes);
     Inc(Result, Bytes);
   end;
-end;
-
-{ TLZMACompressorProps }
-
-constructor TLZMACompressorProps.Create;
-begin
-  inherited;
-  Algorithm := -1;
-  BTMode := -1;
 end;
 
 { TLZMACompressorCustomWorker }

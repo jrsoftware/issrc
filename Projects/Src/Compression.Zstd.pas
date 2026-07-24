@@ -14,7 +14,7 @@ unit Compression.Zstd;
 interface
 
 uses
-  Windows, SysUtils, Compression.Base;
+  Windows, SysUtils, Compression.Base, Compression.CompressorProps;
 
 function ZstdInitCompressFunctions(Module: HMODULE): Boolean;
 function ZstdInitDecompressFunctions(Module: HMODULE): Boolean;
@@ -168,17 +168,27 @@ constructor TZstdCompressor.Create(AWriteProc: TCompressorWriteProc;
   ACompressorProps: TCompressorProps);
 var
   GetActiveProcessorCountFunc: function(GroupNumber: WORD): WORD; stdcall;
+  Props: TLZMACompressorProps;
 begin
   inherited;
   FCompressionLevel := CompressionLevel;
   FNumThreads := 0;
-  { Let's make Zstd use automatically all physical processors }
-  GetActiveProcessorCountFunc := GetProcAddress(GetModuleHandle(kernel32),
-    'GetActiveProcessorCount');
-  if Assigned(GetActiveProcessorCountFunc) then begin
-    const ActiveProcessorCount = GetActiveProcessorCountFunc(65535);
-    if ActiveProcessorCount > 1 then
-      FNumThreads := ActiveProcessorCount div 2;
+  if ACompressorProps is TLZMACompressorProps then begin
+    Props := (ACompressorProps as TLZMACompressorProps);
+    if Props.NumBlockThreads <> 0 then
+      FNumThreads := Props.NumBlockThreads;
+    if not Props.UseSolidCompression then
+      FNumThreads := 1;
+  end;
+  if FNumThreads = 0 then begin
+    { Let's make Zstd use automatically all physical processors }
+    GetActiveProcessorCountFunc := GetProcAddress(GetModuleHandle(kernel32),
+      'GetActiveProcessorCount');
+    if Assigned(GetActiveProcessorCountFunc) then begin
+      const ActiveProcessorCount = GetActiveProcessorCountFunc(65535);
+      if ActiveProcessorCount > 1 then
+        FNumThreads := ActiveProcessorCount div 2;
+    end;
   end;
   InitCompress;
 end;

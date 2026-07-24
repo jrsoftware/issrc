@@ -163,6 +163,7 @@
         <DCCReference Include="Src\Compression.bzlib.pas"/>
         <DCCReference Include="Src\Compression.LZMADecompressor.pas"/>
         <DCCReference Include="Src\Compression.Zstd.pas"/>
+        <DCCReference Include="Src\Compression.CompressorProps.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
         <DCCReference Include="..\Components\MD5.pas"/>
         <DCCReference Include="..\Components\MD5.Test.pas"/>

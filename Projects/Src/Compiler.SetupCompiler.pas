@@ -33,8 +33,8 @@ uses
   SimpleExpression, SHA256, ChaCha20, Shared.SetupTypes, Shared.CommonFunc,
   Shared.Struct, Shared.CompilerInt.Struct, Shared.PreprocInt, Shared.SetupMessageIDs,
   Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.DebugStruct,
-  Compiler.ScriptCompiler, Compiler.StringLists, Compression.LZMACompressor, Compression.Zstd,
-  Compiler.ExeUpdateFunc;
+  Compiler.ScriptCompiler, Compiler.StringLists, Compiler.ExeUpdateFunc,
+  Compression.LZMACompressor, Compression.Zstd, Compression.CompressorProps;
 
 type
   EISCompileError = class(Exception);
@@ -3387,6 +3387,7 @@ begin
       end;
     ssSolidCompression: begin
         UseSolidCompression := StrToBool(Value);
+        CompressProps.UseSolidCompression := UseSolidCompression;
       end;
     ssSourceDir: begin
         if Value = '' then
