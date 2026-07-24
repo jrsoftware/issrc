@@ -180,6 +180,18 @@
       "comment": "Optional compression and decompression; used by Setup via isbzip/isbunzip precompiled libraries. License text in Iscompress/bzlib/LICENSE."
     },
     {
+      "name": "zstd",
+      "SPDXID": "SPDXRef-zstd",
+      "downloadLocation": "https://github.com/jrsoftware/iscompress",
+      "filesAnalyzed": false,
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause OR GPL-2.0-only",
+      "copyrightText": "Copyright (c) Meta Platforms, Inc. and affiliates. All rights reserved. Portions copyright (c) Yann Collet and (c) 2016 Tino Reichardt.",
+      "supplier": "Organization: Meta Platforms, Inc.",
+      "versionInfo": "1.5.7",
+      "comment": "Optional compression and decompression; used by Setup via iszstd/isunzstd precompiled libraries. License text in Iscompress/zstd/LICENSE."
+    },
+    {
       "name": "7-Zip",
       "SPDXID": "SPDXRef-7zip",
       "downloadLocation": "https://github.com/jrsoftware/is7z",
@@ -283,6 +295,11 @@
     {
       "spdxElementId": "SPDXRef-ISCmplr",
       "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-zstd"
+    },
+    {
+      "spdxElementId": "SPDXRef-ISCmplr",
+      "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-ISPP"
     },
     {
@@ -329,6 +346,16 @@
       "spdxElementId": "SPDXRef-SetupCustomStyle",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-bzip2"
+    },
+    {
+      "spdxElementId": "SPDXRef-Setup",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-zstd"
+    },
+    {
+      "spdxElementId": "SPDXRef-SetupCustomStyle",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-zstd"
     },
     {
       "spdxElementId": "SPDXRef-Setup",

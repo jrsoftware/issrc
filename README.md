@@ -229,6 +229,9 @@ from the bzlib directory in the [iscompress] repository. Used by Setup and ISCmp
 **Files\isunzlib(-x64).dll**, **Files\iszlib(-x64).dll** - Compiled by Visual Studio 2022
 from the zlib directory in the [iscompress] repository. Used by Setup and ISCmplr respectively.
 
+**Files\isunzstd(-x64).dll**, **Files\iszstd(-x64|-Arm64EC).dll** - Compiled by Visual Studio 2022
+from the zstd directory in the [iscompress] repository. Used by Setup and ISCmplr respectively.
+
 **Files\islzma(-x64|-Arm64EC).dll**, **Files\islzma32.exe**, **Files\islzma64.exe** - Compiled
 by Visual Studio 2022 from the [Projects\Src\Compression.LZMACompressor\islzma] directory.
 Used by ISCmplr.
