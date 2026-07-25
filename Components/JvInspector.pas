@@ -1549,23 +1549,19 @@ begin
 end;
 
 procedure TJvCustomInspectorItem.CloseUp(Accept: Boolean);
-var
-  ListValue: string;
 begin
   if DroppedDown then begin
     if GetCaptureControl = ListBox then
       SetCaptureControl(nil);
     if GetCapture <> 0 then
       SendMessage(GetCapture, WM_CANCELMODE, 0, 0);
-    if ListBox.ItemIndex > -1 then
-      ListValue := ListBox.Items[ListBox.ItemIndex];
     SetWindowPos(ListBox.Handle, 0, 0, 0, 0, 0, SWP_NOZORDER or
       SWP_NOMOVE or SWP_NOSIZE or SWP_NOACTIVATE or SWP_HIDEWINDOW);
     FDroppedDown := False;
     InvalidateItem;
     if Accept then begin
-      if Assigned(EditCtrl) then
-        EditCtrl.Text := ListValue;
+      if (ListBox.ItemIndex > -1) and Assigned(EditCtrl) then
+        EditCtrl.Text := ListBox.Items[ListBox.ItemIndex];
       Apply;
     end;
   end;
