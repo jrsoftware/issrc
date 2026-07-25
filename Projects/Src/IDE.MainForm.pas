@@ -1463,8 +1463,8 @@ begin
     if VCloseCurrentTab.Enabled then
       VCloseCurrentTabClick(Self);
   end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
-    { Move focus between the active memo, the active bottom pane, the active
-      banner, and the inspector }
+    { Move focus between the active memo, the active bottom pane, the
+      inspector, and the active banner }
     Key := 0;
 
     { First get the list of controls to toggle between }
@@ -3767,22 +3767,18 @@ begin
 end;
 
 procedure TMainForm.UpdateStatusPanelHeight(H: Integer);
-var
-  MinHeight, MaxHeight: Integer;
 begin
-  MinHeight := (3 * DebugOutputList.ItemHeight + ToCurrentPPI(4)) + OutputTabSet.Height;
-  MaxHeight := BodyPanel.ClientHeight - ToCurrentPPI(48) - StatusSplitPanel.Height;
+  const MinHeight = (3 * DebugOutputList.ItemHeight + ToCurrentPPI(4)) + OutputTabSet.Height;
+  const MaxHeight = BodyPanel.ClientHeight - ToCurrentPPI(48) - StatusSplitPanel.Height;
   if H > MaxHeight then H := MaxHeight;
   if H < MinHeight then H := MinHeight;
   StatusPanel.Height := H;
 end;
 
 procedure TMainForm.UpdateInspectorPanelWidth(W: Integer);
-var
-  MinWidth, MaxWidth: Integer;
 begin
-  MinWidth := ToCurrentPPI(120);
-  MaxWidth := BodyPanel.ClientWidth - ToCurrentPPI(200) - InspectorSplitPanel.Width;
+  const MinWidth = ToCurrentPPI(120);
+  const MaxWidth = BodyPanel.ClientWidth - ToCurrentPPI(200) - InspectorSplitPanel.Width;
   if W > MaxWidth then W := MaxWidth;
   if W < MinWidth then W := MinWidth;
   InspectorPanel.Width := W;

@@ -12,8 +12,8 @@ unit IDE.LiveScriptObjectFactory.Test;
   at unit initialization: they require a live and parented TScintEdit.
 
   So to get a self-test, call IDELiveScriptObjectFactoryRunTests. The
-  TScintEdit's text, styler, change handler and read-only state are restored on
-  exit.
+  TScintEdit's styler, change handler and read-only state are restored on
+  exit. Its text must be empty.
 }
 
 interface
@@ -48,20 +48,21 @@ type
     property Factory: TLiveScriptObjectFactory read FFactory;
   end;
 
-function JoinScriptLines(const ALines: array of String): String;
-begin
-  Result := '';
-  for var I := 0 to High(ALines) do begin
-    if I > 0 then
-      Result := Result + #13#10;
-    Result := Result + ALines[I];
-  end;
-end;
-
 { TFactoryTestContext }
 
 constructor TFactoryTestContext.Create(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler; const AScriptLines: array of String);
+
+  function JoinScriptLines(const ALines: array of String): String;
+  begin
+    Result := '';
+    for var I := 0 to High(ALines) do begin
+      if I > 0 then
+        Result := Result + #13#10;
+      Result := Result + ALines[I];
+    end;
+  end;
+
 begin
   inherited Create;
   FMemo := AMemo;
@@ -77,8 +78,6 @@ end;
 
 destructor TFactoryTestContext.Destroy;
 begin
-  if FMemo <> nil then
-    FMemo.OnChange := nil;
   FFactory.Free;
   inherited;
 end;
@@ -747,7 +746,8 @@ end;
 procedure IDELiveScriptObjectFactoryRunTests(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
 begin
-  const SavedText = AMemo.Lines.Text;
+  Assert(AMemo.Lines.Text = '');
+
   const SavedOnChange = AMemo.OnChange;
   const SavedStyler = AMemo.Styler;
   const SavedReadOnly = AMemo.ReadOnly;
@@ -761,9 +761,6 @@ begin
   finally
     AMemo.OnChange := nil;
     AMemo.Styler := SavedStyler;
-    { Restore the text before the read-only state: Scintilla ignores
-      modifications while a document is read-only }
-    AMemo.Lines.Text := SavedText;
     AMemo.ClearUndo;
     AMemo.ReadOnly := SavedReadOnly;
     AMemo.OnChange := SavedOnChange;
