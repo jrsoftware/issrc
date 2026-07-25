@@ -1471,7 +1471,7 @@ var
   NewValue: string;
 begin
   try
-    if Editing and (EditCtrl <> nil) then begin
+    if Editing and (EditCtrl <> nil) then begin // also see SelectValue
       NewValue := EditCtrl.Text;
       if DisplayValue <> NewValue then begin
         Inc(FUpdateEditCtrl);
@@ -2033,21 +2033,23 @@ var
   SL: TStrings;
   I: Integer;
 begin
-  SL := TStringList.Create;
-  try
-    GetValueList(SL);
-    if SL.Count > 0 then begin
-      I := SL.IndexOf(DisplayValue);
-      Inc(I, Delta);
-      while I < 0 do
-        I := I + SL.Count;
-      while I >= SL.Count do
-        I := I - SL.Count;
-      EditCtrl.Text := SL[I];
-      Apply;
+  if Editing and (EditCtrl <> nil) then begin // also see Apply
+    SL := TStringList.Create;
+    try
+      GetValueList(SL);
+      if SL.Count > 0 then begin
+        I := SL.IndexOf(DisplayValue);
+        Inc(I, Delta);
+        while I < 0 do
+          I := I + SL.Count;
+        while I >= SL.Count do
+          I := I - SL.Count;
+        EditCtrl.Text := SL[I];
+        Apply;
+      end;
+    finally
+      SL.Free;
     end;
-  finally
-    SL.Free;
   end;
 end;
 
