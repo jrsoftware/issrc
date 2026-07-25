@@ -91,7 +91,7 @@ type
       const AShowAllKnownDirectives: Boolean);
     procedure UpdateFromCaret;
     procedure UpdateReadOnly;
-    procedure UpdateTheme(const ATheme: TTheme);
+    procedure UpdateTheme(const ATheme: TTheme; const AHighContrastActive: Boolean);
     property ShowAllKnownDirectives: Boolean read FShowAllKnownDirectives
       write SetShowAllKnownDirectives;
     { These only apply to text values }
@@ -1120,31 +1120,33 @@ begin
   end;
 end;
 
-procedure TInspector.UpdateTheme(const ATheme: TTheme);
+procedure TInspector.UpdateTheme(const ATheme: TTheme; const AHighContrastActive: Boolean);
 begin
-  FJvInspector.BackgroundColor := ATheme.Colors[tcBack];
-  FJvInspector.NameColor := ATheme.Colors[tcFore];
-  FJvInspector.ValueColor := ATheme.Colors[tcFore];
-  FJvInspector.CategoryColor := ATheme.Colors[tcToolBack];
-  FJvInspector.CategoryTextColor := ATheme.Colors[tcFore];
-  FJvInspector.DividerColor := ATheme.Colors[tcToolBack];
-  FJvInspector.CategoryDividerColor := FJvInspector.DividerColor;
-  FJvInspector.SelectedColor := ATheme.Colors[tcSelBack];
-  FJvInspector.SelectedTextColor := ATheme.Colors[tcFore];
-  FJvInspector.HideSelectColor := ATheme.Colors[tcToolBack];
-  FJvInspector.HideSelectTextColor := ATheme.Colors[tcFore];
+  if not AHighContrastActive then begin
+    FJvInspector.BackgroundColor := ATheme.Colors[tcBack];
+    FJvInspector.NameColor := ATheme.Colors[tcFore];
+    FJvInspector.ValueColor := ATheme.Colors[tcFore];
+    FJvInspector.CategoryColor := ATheme.Colors[tcToolBack];
+    FJvInspector.CategoryTextColor := ATheme.Colors[tcFore];
+    FJvInspector.DividerColor := ATheme.Colors[tcToolBack];
+    FJvInspector.CategoryDividerColor := FJvInspector.DividerColor;
+    FJvInspector.SelectedColor := ATheme.Colors[tcSelBack];
+    FJvInspector.SelectedTextColor := ATheme.Colors[tcFore];
+    FJvInspector.HideSelectColor := ATheme.Colors[tcToolBack];
+    FJvInspector.HideSelectTextColor := ATheme.Colors[tcFore];
 
-  { Calling SetWindowTheme manually because our SetControlWindowTheme
-    would remove all VCL styling, but we still need it to theme the
-    inspector's in-place editor and dropdown }
-  if UseThemes then begin
-    if ATheme.Dark then
-      SetWindowTheme(FJvInspector.Handle, 'DarkMode_Explorer', nil)
-    else
-      SetWindowTheme(FJvInspector.Handle, nil, nil);
+    { Calling SetWindowTheme manually because our SetControlWindowTheme
+      would remove all VCL styling, but we still need it to theme the
+      inspector's in-place editor and dropdown }
+    if UseThemes then begin
+      if ATheme.Dark then
+        SetWindowTheme(FJvInspector.Handle, 'DarkMode_Explorer', nil)
+      else
+        SetWindowTheme(FJvInspector.Handle, nil, nil);
+    end;
+
+    FJvInspector.Invalidate;
   end;
-
-  FJvInspector.Invalidate;
 end;
 
 end.

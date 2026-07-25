@@ -6013,7 +6013,7 @@ begin
   InspectorSplitPanel.ParentBackground := False;
   InspectorSplitPanel.Color := FTheme.Colors[tcSplitterBack];
 
-  FInspector.UpdateTheme(FTheme);
+  FInspector.UpdateTheme(FTheme, FHighContrastActive);
   FMenuDarkBackgroundBrush.Color := FTheme.Colors[tcToolBack];
   FMenuDarkHotOrSelectedBrush.Color := $2C2C2C; { Same as themed menu drawn by Windows 11, which is close to Colors[tcBack] }
 
