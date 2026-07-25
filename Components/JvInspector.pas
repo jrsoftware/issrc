@@ -479,15 +479,15 @@ begin
 
   BackgroundColor := clWindow;
   FCategoryColor := clBtnFace;
-  FCategoryDividerColor := clBtnShadow;
   FCategoryTextColor := clBtnText;
+  FCategoryDividerColor := clBtnShadow;
   FDividerColor := clBtnFace;
   FNameColor := clWindowText;
   FValueColor := clWindowText;
   FSelectedColor := clHighlight;
   FSelectedTextColor := clHighlightText;
   FHideSelectColor := clBtnFace;
-  FHideSelectTextColor := clHighlightText;
+  FHideSelectTextColor := clBtnText;
 
   Application.HookMainWindow(ApplicationHook);
 end;
