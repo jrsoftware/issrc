@@ -3548,6 +3548,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <keyword value="Compiler IDE Keyboard And Mouse Commands" />
 <keyword value="Keyboard commands" />
 <keyword value="Mouse commands" />
+<keyword value="Inspector keyboard and mouse commands" />
 <body>
 
 <p>Besides the keyboard commands listed in the menus, the Compiler IDE supports additional keyboard and mouse commands, some of which depend on the active editor key map.</p>
