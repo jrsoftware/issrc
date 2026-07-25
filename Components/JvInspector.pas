@@ -1049,7 +1049,15 @@ begin
     SB_PAGEUP:
       Delta := -ClientHeight;
     SB_THUMBPOSITION, SB_THUMBTRACK:
-      Delta := Msg.Pos - IdxToY(TopIndex);
+      begin
+        var ScrollInfo: TScrollInfo;
+        ScrollInfo.cbSize := SizeOf(ScrollInfo);
+        ScrollInfo.fMask := SIF_TRACKPOS;
+        if GetScrollInfo(Handle, SB_VERT, ScrollInfo) then
+          Delta := ScrollInfo.nTrackPos - IdxToY(TopIndex)
+        else
+          Delta := Msg.Pos - IdxToY(TopIndex);
+      end;
     SB_TOP:
       Delta := -IdxToY(TopIndex);
   end;
@@ -2173,7 +2181,7 @@ procedure TJvCustomInspectorItem.BeforeDestruction;
 begin
   inherited BeforeDestruction;
   if Parent <> nil then
-    Parent.FItems.Remove(Self);
+    Parent.FItems.Extract(Self); // FItems owns the items
   if (Inspector <> nil) and (Inspector.FPressedItem = Self) then
     Inspector.FPressedItem := nil;
   if (Inspector <> nil) and (Inspector.Root <> Self) then
