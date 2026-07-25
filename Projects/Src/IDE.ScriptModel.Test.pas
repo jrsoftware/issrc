@@ -996,6 +996,18 @@ begin
     Entry.SetFlag(2, 'unchecked', True);
     Assert(Entry.FlagIncluded(2, 'postinstall'));
 
+    { A same-value set is a no-op even for a rule-bearing parameter: re-committing
+      an identical Verb value fires no rule, so no shellexec flag is added }
+    Entry.Free;
+    Entry := TScriptModelParameterSectionEntry.Create(Metadata);
+    Entry.Parse(['Filename: a; Verb: open']);
+    Entry.OnChange := Counter.HandleChange;
+    Counter.Count := 0;
+    Entry.SetValue(1, 'open');
+    Assert(Counter.Count = 0);
+    Assert(not Entry.Modified);
+    Assert(Entry.Count = 2); { No Flags parameter was added }
+
     { The rule is section-scoped: UninstallRun has the Verb rule but not OnLog }
     Assert(TryGetScriptModelSectionMetadata('UninstallRun', Metadata));
     Entry.Free;

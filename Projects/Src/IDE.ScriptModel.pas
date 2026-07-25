@@ -89,7 +89,8 @@ type
       const AInclude: Boolean); overload;
     procedure SetFlagInternal(const AIndex: Integer; const AFlagName: String;
       const AInclude: Boolean); overload;
-    procedure SetValueInternal(const AIndex: Integer; const AValue: String);
+    function SetValueInternal(const AIndex: Integer;
+      const AValue: String): Boolean;
   public
     constructor Create(const AMetadata: TScriptModelSectionMetadata);
     destructor Destroy; override;
@@ -712,9 +713,9 @@ begin
   FPendingChange := True;
 end;
 
-procedure TScriptModelParameterSectionEntry.SetValueInternal(
-  const AIndex: Integer; const AValue: String);
-{ Keeps quotes and surrounding whitespace }
+function TScriptModelParameterSectionEntry.SetValueInternal(
+  const AIndex: Integer; const AValue: String): Boolean;
+{ Keeps quotes and surrounding whitespace. Returns True if the value changed. }
 begin
   if ContainsLineBreak(AValue) then
     raise EScriptModelError.Create('Internal error: Value must not contain line breaks');
@@ -727,9 +728,10 @@ begin
   const NewRawText = Copy(Parameter.RawText, 1, Parameter.FValueStartIndex-1) +
     Leading + NewValueText + Trailing;
   if NewRawText = Parameter.RawText then
-    Exit;
+    Exit(False);
   Parameter.SetRawText(NewRawText);
   MarkModified;
+  Result := True;
 end;
 
 function TScriptModelParameterSectionEntry.AppendParameterInternal(const AName,
@@ -781,8 +783,8 @@ begin
   BeginUpdate;
   try
     const Name = GetNamedParameter(AIndex).Name;
-    SetValueInternal(AIndex, AValue);
-    ApplyParameterIncludesFlagRules(Name, AValue);
+    if SetValueInternal(AIndex, AValue) then
+      ApplyParameterIncludesFlagRules(Name, AValue);
   finally
     EndUpdate;
   end;
