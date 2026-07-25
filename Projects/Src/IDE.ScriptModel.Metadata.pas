@@ -150,8 +150,14 @@ end;
 function TScriptModelSectionMetadata.TryGetMember(const AName: String;
   out ADefinition: TMemberDefinition): Boolean;
 begin
+  var Name := AName;
+  if SameText(FSectionName, 'LangOptions') then begin
+    const P = Pos('.', Name);
+    if P > 1 then
+      Name := Copy(Name, P+1, MaxInt);
+  end;
   var I: Integer;
-  Result := FMembersByName.TryGetValue(AName, I);
+  Result := FMembersByName.TryGetValue(Name, I);
   if Result then
     ADefinition := FMembers[I];
 end;

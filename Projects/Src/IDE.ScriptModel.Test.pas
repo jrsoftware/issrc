@@ -608,6 +608,9 @@ begin
   Assert(Definition.KnownValues[0] = 'yes');
   Assert(Definition.KnownValues[1] = 'no');
   Assert(Definition.DefaultValue = 'no');
+  Assert(Metadata.TryGetMember('en.RightToLeft', Definition));
+  Assert(Definition.Name = 'RightToLeft');
+  Assert(Definition.ValueKind = mvkYesNo);
   Assert(Metadata.TryGetMember('LanguageName', Definition));
   Assert(Definition.ValueKind = mvkString);
   Assert(Definition.DefaultValue = 'English');
@@ -619,6 +622,10 @@ begin
   Assert(Metadata.TryGetMember('DialogFontSize', Definition));
   Assert(Definition.ValueKind = mvkInteger);
   Assert(Definition.DefaultValue = '9');
+  Assert(Metadata.TryGetMember('en.DialogFontSize', Definition));
+  Assert(Definition.Name = 'DialogFontSize');
+  Assert(Definition.ValueKind = mvkInteger);
+  Assert(not Metadata.TryGetMember('en.NoSuchDirective', Definition));
 
   { [Messages] names are localized message identifiers and [CustomMessages]
     names are user-defined, so neither has a table }

@@ -246,8 +246,17 @@ procedure TInspector.JvInspectorKeyDown(Sender: TObject; var Key: Word;
     var Row: TInspectorRow;
     if (Item <> nil) and TryGetRow(Item, Row) then begin
       case Row.Kind of
-        irkParameter, irkKey, irkKeyFlag:
-          Result := Row.Name; { A key's (=directive's) flags have no own help topic }
+        irkParameter:
+          Result := Row.Name;
+        irkKey, irkKeyFlag:
+          begin
+            Result := Row.Name; { A key's (=directive's) flags have no own help topic }
+            if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
+              var Definition: TMemberDefinition;
+              if FLiveKeyValueSection.Section.TryGetDefinition(Row.Name, Definition) then
+                Result := Definition.Name;
+            end;
+          end;
         irkParameterFlag:
           Result := Row.FlagName;
       end;
