@@ -67,8 +67,8 @@ WinVersionTooLowError=Questo programma richiede %1 versione %2 o successiva.
 WinVersionTooHighError=Questo programma non può essere installato su %1 versione %2 o successiva.
 AdminPrivilegesRequired=Per installare questo programma sono richiesti privilegi di amministratore.
 PowerUserPrivilegesRequired=Per poter installare questo programma sono richiesti i privilegi di amministratore o di Power Users.
-SetupAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona "OK" o "Annulla" per uscire.
-UninstallAppRunningError=%1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona "OK" o "Annulla" per uscire.
+SetupAppRunningError=L'installazione ha rilevato che %1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona "OK" per continuare o "Annulla" per uscire.
+UninstallAppRunningError=La disinstallazione ha rilevato che %1 è attualmente in esecuzione.%n%nChiudi adesso tutte le istanze del programma e poi seleziona "OK" per continuare o "Annulla" per uscire.
 
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=Seleziona modo installazione
@@ -183,7 +183,7 @@ FullInstallation=Installazione completa
 CompactInstallation=Installazione compatta
 CustomInstallation=Installazione personalizzata
 NoUninstallWarningTitle=Componente esistente
-NoUninstallWarning=I seguenti componenti sono già installati nel computer:%n%n%1%n%nDeselezionando questi componenti essi non verranno rimossi.%n%nVuoi continuare comunque?
+NoUninstallWarning=L'installazione ha rilevato che i seguenti componenti sono già installati nel computer:%n%n%1%n%nDeselezionando questi componenti essi non verranno rimossi.%n%nVuoi continuare comunque?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
 ComponentsDiskSpaceGBLabel=La selezione attuale richiede almeno [gb] GB di spazio nel disco.
