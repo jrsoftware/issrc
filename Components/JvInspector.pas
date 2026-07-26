@@ -834,7 +834,8 @@ var
     for var I := 0 to Item.Count - 1 do begin
       Child := Item.Items[I];
       FVisibleList.Add(Child);
-      FVisibleTags.AddOrSetValue(Child.Tag, Integer(FVisibleList.Count)-1);
+      if Child.Tag <> 0 then
+        FVisibleTags.AddOrSetValue(Child.Tag, Integer(FVisibleList.Count)-1);
       if Child.Expanded then
         AddChildren(Child);
     end;
