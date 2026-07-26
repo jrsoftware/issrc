@@ -248,9 +248,9 @@ procedure TInspector.JvInspectorKeyDown(Sender: TObject; var Key: Word;
       case Row.Kind of
         irkParameter:
           Result := Row.Name;
-        irkKey, irkKeyFlag:
+        irkKey:
           begin
-            Result := Row.Name; { A key's (=directive's) flags have no own help topic }
+            Result := Row.Name;
             if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
               { This resolves [LangOptions] directives which use a language name prefix }
               var Definition: TMemberDefinition;
@@ -258,8 +258,11 @@ procedure TInspector.JvInspectorKeyDown(Sender: TObject; var Key: Word;
                 Result := Definition.Name;
             end;
           end;
-        irkParameterFlag:
-          Result := Row.FlagName;
+        irkParameterFlag, irkKeyFlag:
+          if (Row.Kind = irkParameterFlag) and SameText(Row.Name, 'Flags') then
+            Result := Row.FlagName { Keyword presence guaranteed }
+          else
+            Result := Row.Name;
       end;
     end;
   end;
