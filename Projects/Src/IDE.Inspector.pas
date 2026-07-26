@@ -252,6 +252,7 @@ procedure TInspector.JvInspectorKeyDown(Sender: TObject; var Key: Word;
           begin
             Result := Row.Name; { A key's (=directive's) flags have no own help topic }
             if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
+              { This resolves [LangOptions] directives which use a language name prefix }
               var Definition: TMemberDefinition;
               if FLiveKeyValueSection.Section.TryGetDefinition(Row.Name, Definition) then
                 Result := Definition.Name;
