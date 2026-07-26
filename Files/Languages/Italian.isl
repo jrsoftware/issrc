@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 01.07.2026 by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 24.07.2026 by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -91,7 +91,7 @@ AboutSetupMenuItem=&Informazioni sull'installazione...
 AboutSetupTitle=Informazioni sull'installazione
 AboutSetupMessage=%1 %2%n%3%n%n%1 sito web:%n%4
 AboutSetupNote=
-TranslatorNote=Traduzione italiana a cura di Rinaldo M. aka Whiteshark e bovirus (v. 20.07.2026)
+TranslatorNote=Traduzione italiana a cura di Rinaldo M. aka Whiteshark e bovirus (v. 24.07.2026)
 
 ; *** Buttons
 ButtonBack=< &Indietro
