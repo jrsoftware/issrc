@@ -494,6 +494,8 @@ static int exe_start(const char *exe, BOOL lzma2)
     STARTUPINFOA si;
     PROCESS_INFORMATION pi;
     char cmdline[64];
+    DWORD priority_class;
+    int thread_priority;
     BOOL ok;
 
     memset(&w, 0, sizeof(w));
@@ -543,6 +545,21 @@ static int exe_start(const char *exe, BOOL lzma2)
         CloseHandle(pd_mapping);
         return 1;
     }
+
+    /* Give the worker our own priority class and thread priority: a child of
+       a high priority process starts at normal priority, and its primary
+       thread, which is the one running LZMA_Encode, starts at normal thread
+       priority. Base priority combines the two, so without this the speed
+       test would measure the exe methods below the dll method */
+    priority_class = GetPriorityClass(GetCurrentProcess());
+    if (priority_class && !SetPriorityClass(pi.hProcess, priority_class))
+        printf("  note: could not set worker process priority (%lu)\n",
+            GetLastError());
+    thread_priority = GetThreadPriority(GetCurrentThread());
+    if (thread_priority != THREAD_PRIORITY_ERROR_RETURN &&
+            !SetThreadPriority(pi.hThread, thread_priority))
+        printf("  note: could not set worker thread priority (%lu)\n",
+            GetLastError());
 
     ok = dupe_handle(GetCurrentProcess(), pi.hProcess, &pd->ParentProcess,
              SYNCHRONIZE) &&
