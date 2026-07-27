@@ -756,14 +756,24 @@ begin
     raise EScriptModelError.Create('Internal error: Value must not contain line breaks');
 
   const NewValueText = QuoteParameterValueIfNeeded(AValue, AQuoteNewValue);
-  var RawText := AName + ': ' + NewValueText;
-  if FParameters.Count > 0 then
-    RawText := ' ' + RawText;
   const Parameter = TParameterSectionEntryParameter.Create;
-  Parameter.SetRawText(RawText);
-  FParameters.Add(Parameter);
+  const LastIndex = Integer(FParameters.Count)-1;
+  if (LastIndex >= 0) and (FParameters[LastIndex].Kind = pkOther) and
+     (Trim(FParameters[LastIndex].RawText) = '') then begin
+    { Make sure something like 'Source: x;' (which is two parameters) becomes
+      'Source: x; NewParam: y;' and not 'Source: x;; NewParam: y'. }
+    Parameter.SetRawText(' ' + AName + ': ' + NewValueText);
+    FParameters.Insert(LastIndex, Parameter);
+    Result := LastIndex;
+  end else begin
+    var RawText := AName + ': ' + NewValueText;
+    if FParameters.Count > 0 then
+      RawText := ' ' + RawText;
+    Parameter.SetRawText(RawText);
+    FParameters.Add(Parameter);
+    Result := Integer(FParameters.Count)-1;
+  end;
   MarkModified;
-  Result := Integer(FParameters.Count)-1;
 end;
 
 procedure TScriptModelParameterSectionEntry.ApplyParameterIncludesFlagRules(

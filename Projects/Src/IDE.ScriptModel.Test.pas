@@ -198,6 +198,18 @@ begin
     Entry.Add('B', '2');
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'A: 1; B: 2');
+
+    { Appending to an entry with a trailing semicolon (an opaque empty chunk,
+      see above) inserts the new parameter before that chunk: appending after
+      it would serialize ';;' }
+    Entry.Parse(['Source: x;']);
+    Assert(Entry.Add('Flags', 'touch') = 1);
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'Source: x; Flags: touch;');
+    Entry.Parse(['DestName: ; Foo: 1;']);
+    Assert(Entry.Add('Bar', '2') = 2);
+    Lines := Entry.GetLines;
+    Assert(Lines[0] = 'DestName: ; Foo: 1; Bar: 2;');
     Entry.QuoteNewValues := True;
 
     { Whitespace around names and values is preserved on edit }
@@ -1592,6 +1604,22 @@ begin
     Assert(Length(Lines) = 2);
     Assert(Lines[0] = 'Source: z ;  \');
     Assert(Lines[1] = '   DestDir: b');
+
+    { A continuation followed only by whitespace parses into a trailing
+      whitespace-only chunk with the break mapped past it; appending inserts
+      the new parameter before that chunk, keeping the break and the
+      whitespace before the backslash }
+    Entry.Parse(['Source: x; \', '  ']);
+    Assert(Entry.Count = 2);
+    Assert(Entry.LineSpanCount = 1);
+    Assert(Entry.LineSpanParameterIndexes[0] = 2);
+    Entry.QuoteNewValues := False;
+    Assert(Entry.Add('Flags', 'touch') = 1);
+    Entry.QuoteNewValues := True;
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[0] = 'Source: x; Flags: touch; \');
+    Assert(Lines[1] = '  ');
   finally
     Entry.Free;
   end;
