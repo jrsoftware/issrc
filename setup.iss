@@ -53,6 +53,7 @@ TouchTime=00:00
 SignTool=issigntool256
 SignedUninstaller=yes
 SetupArchitecture={#arch}
+ShowLanguageDialog=auto
 
 #call EmitLanguagesSection
 
