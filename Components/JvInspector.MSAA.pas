@@ -313,13 +313,15 @@ begin
   const Item = FControl.GetVisibleItems(Index);
   try
     if Item is TJvInspectorBooleanItem then begin
-      if TJvCustomInspectorItemAccess(Item).CanEdit then
-        TJvInspectorBooleanItemAccess(Item).Toggle
-      else
+      if TJvCustomInspectorItemAccess(Item).CanEdit then begin
+        FControl.SelectedIndex := Index; { Just like TJvInspector.MouseDown }
+        TJvInspectorBooleanItemAccess(Item).Toggle;
+      end else
         Result := DISP_E_MEMBERNOTFOUND;
-    end else if Item.Count > 0 then
-      Item.Expanded := not Item.Expanded
-    else
+    end else if Item.Count > 0 then begin
+      FControl.SelectedIndex := Index; { See above }
+      Item.Expanded := not Item.Expanded;
+    end else
       Result := DISP_E_MEMBERNOTFOUND;
   except
     Result := E_FAIL;
