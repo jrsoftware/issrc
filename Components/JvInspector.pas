@@ -135,6 +135,7 @@ type
     function GetImageHeight: Integer;
     function GetItemHeight: Integer;
     function GetLastFullVisible: Integer;
+    function GetMaxTopIndex: Integer;
     function GetSelected: TJvCustomInspectorItem;
     function GetVisibleCount: Integer;
     function GetVisibleItems(const I: Integer): TJvCustomInspectorItem;
@@ -549,6 +550,14 @@ begin
     Result := TopIndex + Pred(ClientHeight div GetItemHeight);
 end;
 
+function TJvInspector.GetMaxTopIndex: Integer;
+begin
+  if GetImageHeight <= ClientHeight then
+    Result := 0 { Everything fits: no scrolling, so TopIndex must be 0 and not 1 }
+  else
+    Result := Succ(YToIdx(GetImageHeight - ClientHeight));
+end;
+
 function TJvInspector.GetSelected: TJvCustomInspectorItem;
 begin
   Result := GetVisibleItems(SelectedIndex);
@@ -591,6 +600,7 @@ begin
   if not (csDestroying in ComponentState) and (LockCount = 0) then begin
     if HandleAllocated then begin
       RebuildVisible;
+      TopIndex := TopIndex; //the list may have shrunk
       UpdateScrollBars;
       Invalidate;
     end else
@@ -931,12 +941,8 @@ begin
 end;
 
 procedure TJvInspector.SetTopIndex(Value: Integer);
-var
-  MaxIdx: Integer;
 begin
-  MaxIdx := Succ(YToIdx(GetImageHeight - ClientHeight));
-  if MaxIdx < 0 then
-    MaxIdx := 0;
+  const MaxIdx = GetMaxTopIndex;
   if Value > MaxIdx then
     Value := MaxIdx;
   if Value < 0 then
@@ -969,13 +975,13 @@ begin
   // Cache the image height and client height
   DrawHeight := GetImageHeight;
   ClHeight := ClientHeight;
-  ShowVertSB := DrawHeight >= ClHeight;
+  ShowVertSB := DrawHeight > ClHeight;
   if ShowVertSB then begin
     with ScrollInfo do begin
       cbSize := SizeOf(ScrollInfo);
       fMask := SIF_ALL;
       nMin := 0;
-      nMax := IdxToY(Succ(YToIdx(GetImageHeight - ClientHeight))) + ClientHeight;
+      nMax := IdxToY(GetMaxTopIndex) + ClientHeight;
       nPage := UINT(ClHeight);
       nPos := IdxToY(TopIndex);
       nTrackPos := 0;
