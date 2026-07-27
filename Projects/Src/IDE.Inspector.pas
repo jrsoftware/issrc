@@ -998,6 +998,9 @@ begin
               FFactory.Memo.EndUndoAction;
             end;
           end;
+          { else: ignore unchecking a default-checked flag of an absent directive,
+            can't write valid script text for that (currently applies only to
+            WizardStyle defaulting to 'classic') }
         end;
     else
       raise Exception.Create('Internal error: RowSetAsOrdinal: unexpected row kind');
