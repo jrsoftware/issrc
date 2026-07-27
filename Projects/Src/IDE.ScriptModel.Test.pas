@@ -250,11 +250,11 @@ begin
     var Index := -1;
     Assert(Entry.TryResolve('A', Index) and (Index = 0)); { -1 resolves by name }
     Index := 1;
-    Assert(Entry.TryResolve('a', Index) and (Index = 1)); { A given index is kept }
+    Assert(Entry.TryResolve('a', Index) and (Index = 1)); { A matching index is kept }
     Index := 0;
-    Assert(not Entry.TryResolve('B', Index)); { Name mismatch }
+    Assert(not Entry.TryResolve('B', Index)); { Name mismatch without an occurrence to rebind to }
     Index := 2;
-    Assert(not Entry.TryResolve('A', Index)); { Out of range }
+    Assert(Entry.TryResolve('A', Index) and (Index = 0)); { A stale index rebinds by name }
     Entry.SetValue(1, 'D');
     Lines := Entry.GetLines;
     Assert(Lines[0] = 'A: B; A: D');
@@ -1177,13 +1177,15 @@ begin
     var Index := -1;
     Assert(Section.TryResolve('appname', Index) and (Index = 3)); { -1 resolves by name }
     Index := 1;
-    Assert(Section.TryResolve('AppName', Index) and (Index = 1)); { A given index is kept }
+    Assert(Section.TryResolve('AppName', Index) and (Index = 1)); { A matching index is kept }
     Index := 0;
-    Assert(not Section.TryResolve('AppName', Index)); { A comment line is not a key/value line }
+    Assert(Section.TryResolve('AppName', Index) and (Index = 3)); { A comment line is not a key/value line: rebinds by name }
     Index := 4;
-    Assert(not Section.TryResolve('AppName', Index)); { Name mismatch }
+    Assert(Section.TryResolve('AppName', Index) and (Index = 3)); { Name mismatch: rebinds by name }
     Index := 6;
-    Assert(not Section.TryResolve('AppName', Index)); { Out of range }
+    Assert(Section.TryResolve('AppName', Index) and (Index = 3)); { Out of range: rebinds by name }
+    Index := 1;
+    Assert(not Section.TryResolve('AppVersion', Index)); { Mismatch without an occurrence to rebind to }
 
     { Untouched sections round-trip byte-identical }
     var Lines := Section.GetLines;

@@ -681,13 +681,23 @@ end;
 
 function TScriptModelParameterSectionEntry.TryResolve(const AName: String;
   var AIndex: Integer): Boolean;
-{ Pass -1 as AIndex to look the parameter up by name }
+{ AName is required. AIndex is a hint: it is kept when the parameter at it
+  matches AName, otherwise, such as when -1 or stale, AName is looked up by
+  name }
+
+  function Valid: Boolean;
+  begin
+    Result := (AIndex >= 0) and (AIndex < Count) and
+      (FParameters[AIndex].Kind = pkParameter) and
+      SameText(FParameters[AIndex].Name, AName);
+  end;
+
 begin
-  if AIndex < 0 then
+  Result := Valid;
+  if not Result then begin
     AIndex := IndexOf(AName);
-  Result := (AIndex >= 0) and (AIndex < Count) and
-    (FParameters[AIndex].Kind = pkParameter) and
-    SameText(FParameters[AIndex].Name, AName);
+    Result := Valid;
+  end;
 end;
 
 function TScriptModelParameterSectionEntry.TryGetValue(const AName: String;
@@ -1070,13 +1080,23 @@ end;
 
 function TScriptModelKeyValueSection.TryResolve(const AName: String;
   var AIndex: Integer): Boolean;
-{ Pass -1 as AIndex to look the key up by name }
+{ AName is required. AIndex is a hint: it is kept when the line at it
+  matches AName, otherwise, such as when -1 or stale, AName is looked up by
+  name }
+
+  function Valid: Boolean;
+  begin
+    Result := (AIndex >= 0) and (AIndex < Count) and
+      (FLines[AIndex].Kind = lkKeyValue) and
+      SameText(FLines[AIndex].Name, AName);
+  end;
+
 begin
-  if AIndex < 0 then
+  Result := Valid;
+  if not Result then begin
     AIndex := IndexOf(AName);
-  Result := (AIndex >= 0) and (AIndex < Count) and
-    (FLines[AIndex].Kind = lkKeyValue) and
-    SameText(FLines[AIndex].Name, AName);
+    Result := Valid;
+  end;
 end;
 
 function TScriptModelKeyValueSection.TryGetValue(const AName: String;
