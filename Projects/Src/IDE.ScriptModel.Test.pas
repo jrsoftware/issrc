@@ -1620,6 +1620,44 @@ begin
     Assert(Length(Lines) = 2);
     Assert(Lines[0] = 'Source: x; Flags: touch; \');
     Assert(Lines[1] = '  ');
+
+    { Editing such an entry writes the separator once: the trailing
+      whitespace-only chunk already owns it, so the continuation adds only the
+      backslash }
+    Entry.Parse(['Source: x; \', '  ']);
+    Entry.SetValue(0, 'y');
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[0] = 'Source: y; \');
+    Assert(Lines[1] = '  ');
+
+    { The same when the source had no separator before the backslash: none is
+      invented }
+    Entry.Parse(['Source: x \', '  ']);
+    Entry.SetValue(0, 'y');
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[0] = 'Source: y \');
+    Assert(Lines[1] = '  ');
+
+    { Removing the last parameter takes the whitespace before the backslash
+      with it: whitespace is restored so the line still spans }
+    Entry.Parse(['Source: x; Flags: touch \', '  ']);
+    Entry.Remove(1);
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[0] = 'Source: x \');
+    Assert(Lines[1] = '  ');
+
+    { A whitespace-only chunk that is not the entry's last keeps its
+      separator: such source is compiler-invalid, but editing must not
+      silently alter it }
+    Entry.Parse(['A: 1; ; \', '  B: 2']);
+    Entry.SetValue(0, 'x');
+    Lines := Entry.GetLines;
+    Assert(Length(Lines) = 2);
+    Assert(Lines[0] = 'A: x; ; \');
+    Assert(Lines[1] = '  B: 2');
   finally
     Entry.Free;
   end;

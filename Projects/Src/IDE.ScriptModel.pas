@@ -605,15 +605,22 @@ begin
       end;
 
       if (B < FLineSpans.Count) and LineHasParameters then begin
-        { End this line with a continuation: the whitespace before the
-          backslash comes from the next parameter's leading whitespace }
-        var SuffixWhitespace: String := ' ';
-        if Boundary < FParameters.Count then begin
-          const NextLeadingWhitespace = LeadingWhitespace(FParameters[Boundary].RawText);
-          if NextLeadingWhitespace <> '' then
-            SuffixWhitespace := NextLeadingWhitespace;
+        if Boundary = Integer(FParameters.Count) then begin
+          { Make sure 'Source: x; \<EOL>  ' doesn't become 'Source: x; ; \',
+            and 'Source: x \<EOL>  ' doesn't gain a ';' and
+            'Source: x; Flags: touch \<EOL>  ' with Flags removed doesn't
+            become 'Source: x\' }
+          if (Line = '') or (Line[Length(Line)] > ' ') then
+            Line := Line + ' ';
+          Line := Line + '\';
+        end else begin
+          { End this line with a continuation: the whitespace before the
+            backslash comes from the next parameter's leading whitespace }
+          var SuffixWhitespace := LeadingWhitespace(FParameters[Boundary].RawText);
+          if SuffixWhitespace = '' then
+            SuffixWhitespace := ' ';
+          Line := Line + ';' + SuffixWhitespace + '\';
         end;
-        Line := Line + ';' + SuffixWhitespace + '\';
         LineList.Add(Line);
         Line := FLineSpans[B].Indent;
         LineHasParameters := False;
