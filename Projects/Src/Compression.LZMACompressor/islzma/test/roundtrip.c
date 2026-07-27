@@ -29,6 +29,16 @@
 
 #define ISLZMA_EXE_VERSION 102
 
+/* Architecture of this process: which islzma.dll and which ISLzmaDec OBJ
+   test.bat put in place. The exe32 and exe64 workers are tested from both. */
+#if defined(_M_X64)
+#  define ARCHITECTURE "x64"
+#elif defined(_M_IX86)
+#  define ARCHITECTURE "x86"
+#else
+#  error unsupported architecture
+#endif
+
 typedef int SRes;
 #define SZ_OK 0
 
@@ -792,6 +802,8 @@ int main(void)
     setvbuf(stdout, NULL, _IONBF, 0);
     if (!orig || !comp || !deco) { printf("buffer allocation failed\n"); return 2; }
     make_buffer(orig, SPEED_N);
+
+    printf("Architecture: %s\n\n", ARCHITECTURE);
 
     if (dll_load()) { printf("\n*** DLL COULD NOT BE LOADED ***\n"); return 1; }
 
