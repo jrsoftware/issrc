@@ -884,6 +884,7 @@ constructor TMainForm.Create(AOwner: TComponent);
     JvInspector.AccessibleName := RemoveAccelChar(VInspector.Caption);
     JvInspector.Parent := InspectorPanel;
     JvInspector.Align := alClient;
+    JvInspector.ShowHint := True;
     const Ini = TConfigIniFile.Create;
     try
       FOptions.InspectorShowAllKnownDirectives := Ini.ReadBool('Options', 'InspectorShowAllKnownDirectives', True);

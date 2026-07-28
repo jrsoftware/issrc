@@ -58,7 +58,7 @@ type
 
   EJvInspectorData = class(Exception);
 
-  TOnJvInspectorSetItemColors = procedure(Item: TJvCustomInspectorItem; Canvas: TCanvas) of object;
+  TOnJvInspectorCustomizeItemCanvas = procedure(Item: TJvCustomInspectorItem; Canvas: TCanvas) of object;
 
   TJvInspector = class(TCustomControl)
   private
@@ -73,7 +73,7 @@ type
     FHideSelectColor: TColor;
     FHideSelectTextColor: TColor;
     FNameColor: TColor;
-    FOnSetItemColors: TOnJvInspectorSetItemColors;
+    FOnCustomizeItemCanvas: TOnJvInspectorCustomizeItemCanvas;
     FPaintItem: TJvCustomInspectorItem;
     FPaintItemIndex: Integer;
     FPaintRect: TRect;
@@ -126,6 +126,7 @@ type
     procedure ChangeScale(M, D: Integer; isDpiChange: Boolean); override;
     procedure CMActivate(var Msg: TCMActivate); message CM_ACTIVATE;
     procedure CMDeactivate(var Msg: TCMActivate); message CM_DEACTIVATE;
+    procedure CMHintShow(var Msg: TCMHintShow); message CM_HINTSHOW;
     procedure CreateParams(var Params: TCreateParams); override;
     function GetBackgroundColor: TColor;
     function GetImageHeight: Integer;
@@ -200,7 +201,7 @@ type
     property SelectedColor: TColor read FSelectedColor write FSelectedColor;
     property SelectedTextColor: TColor read FSelectedTextColor write FSelectedTextColor;
     property ValueColor: TColor read FValueColor write FValueColor;
-    property OnSetItemColors: TOnJvInspectorSetItemColors read FOnSetItemColors write FOnSetItemColors;
+    property OnCustomizeItemCanvas: TOnJvInspectorCustomizeItemCanvas read FOnCustomizeItemCanvas write FOnCustomizeItemCanvas;
   end;
 
   TJvCustomInspectorItem = class(TObject)
@@ -525,6 +526,63 @@ begin
   if Selected <> nil then
     Selected.CancelPress;
   InvalidateRow(SelectedIndex);
+end;
+
+procedure TJvInspector.CMHintShow(var Msg: TCMHintShow);
+
+  function TextIsClipped(const AItem: TJvCustomInspectorItem;
+    const AText: string; const AAvailableWidth: Integer;
+    const AForceBoldFont: Boolean): Boolean;
+  begin
+    Canvas.Font := Font;
+    if AForceBoldFont then
+      Canvas.Font.Style := Canvas.Font.Style + [fsBold];
+    if Assigned(FOnCustomizeItemCanvas) then
+      FOnCustomizeItemCanvas(AItem, Canvas);
+    Result := Canvas.TextWidth(AText) > AAvailableWidth;
+  end;
+
+begin
+  inherited;
+  const HintInfo = Msg.HintInfo;
+  const X = HintInfo.CursorPos.X;
+  const Index = CalcItemIndex(HintInfo.CursorPos.Y);
+  const Item = GetVisibleItems(Index);
+  if Item <> nil then begin
+    const NameAreaLeft = Item.Rects[iprNameArea].Left;
+    const NameAreaRight = Item.Rects[iprNameArea].Right;
+    const ValueAreaLeft = Item.Rects[iprValueArea].Left;
+    const ValueAreaRight = Item.Rects[iprValueArea].Right;
+    const ForceBoldFont = Item.IsCategory;
+    var HintStr := '';
+    var HintAreaLeft := 0;
+    var HintAreaRight := 0;
+    if (X >= NameAreaLeft) and (X < NameAreaRight) then begin
+      if TextIsClipped(Item, Item.DisplayName, Item.Rects[iprName].Width, ForceBoldFont) then
+        HintStr := Item.DisplayName;
+      HintAreaLeft := NameAreaLeft;
+      HintAreaRight := NameAreaRight;
+    end else if (X >= ValueAreaLeft) and (X < ValueAreaRight) and
+       not Item.Editing and not (Item is TJvInspectorBooleanItem) then begin
+      var Value: string;
+      try
+        Value := Item.DisplayValue;
+      except
+        Value := '';
+      end;
+      if TextIsClipped(Item, Value, Item.Rects[iprValue].Width, ForceBoldFont) then
+        HintStr := Value;
+      HintAreaLeft := ValueAreaLeft;
+      HintAreaRight := ValueAreaRight;
+    end;
+    if HintStr <> '' then begin
+      HintInfo.HintStr := HintStr;
+      const HintAreaTop = IdxToY(Index - TopIndex);
+      HintInfo.CursorRect := Rect(HintAreaLeft, HintAreaTop, HintAreaRight,
+        HintAreaTop + GetItemHeight);
+      HintInfo.HideTimeout := High(Integer); { infinite }
+    end;
+  end;
 end;
 
 function TJvInspector.GetImageHeight: Integer;
@@ -1405,13 +1463,13 @@ begin
   if not FPaintItem.IsCategory then
     NameFillRect.Right := FPaintItem.Rects[iprItem].Left + Divider;
   Canvas.FillRect(NameFillRect);
-  if Assigned(FOnSetItemColors) then
-    FOnSetItemColors(FPaintItem, Canvas);
+  if Assigned(FOnCustomizeItemCanvas) then
+    FOnCustomizeItemCanvas(FPaintItem, Canvas);
   var NameRect := FPaintItem.Rects[iprName];
   Canvas.TextRect(NameRect, NameRect.Left, NameRect.Top, FPaintItem.DisplayName);
   ApplyValueFont;
-  if Assigned(FOnSetItemColors) then
-    FOnSetItemColors(FPaintItem, Canvas); // Custom colors for canvas and font for cells depending on values.
+  if Assigned(FOnCustomizeItemCanvas) then
+    FOnCustomizeItemCanvas(FPaintItem, Canvas);
   FPaintItem.DrawValue(Canvas);
 
   const BtnRect = FPaintItem.Rects[iprBtnDstRect];

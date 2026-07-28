@@ -70,7 +70,7 @@ type
     procedure RowSetAsString(Sender: TJvCustomInspectorItem; var Value: String);
     procedure ChoiceRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
     function ItemShouldBeBold(const AItem: TJvCustomInspectorItem): Boolean;
-    procedure PainterSetItemColors(Item: TJvCustomInspectorItem;
+    procedure JvInspectorCustomizeItemCanvas(Item: TJvCustomInspectorItem;
       Canvas: TCanvas);
     procedure JvInspectorBeforeEdit(Sender: TObject;
       Item: TJvCustomInspectorItem; Edit: TEdit);
@@ -131,7 +131,7 @@ begin
   FRows := TList<TInspectorRow>.Create;
 
   FJvInspector := AJvInspector;
-  FJvInspector.OnSetItemColors := PainterSetItemColors;
+  FJvInspector.OnCustomizeItemCanvas := JvInspectorCustomizeItemCanvas;
   FJvInspector.BeforeEdit := JvInspectorBeforeEdit;
   FJvInspector.OnKeyDown := JvInspectorKeyDown;
   FJvInspector.OnEditorKeyDown := JvInspectorKeyDown;
@@ -220,10 +220,11 @@ begin
   Result := ASection.TryResolve(ARow.Name, AIndex);
 end;
 
-procedure TInspector.PainterSetItemColors(Item: TJvCustomInspectorItem;
+procedure TInspector.JvInspectorCustomizeItemCanvas(Item: TJvCustomInspectorItem;
   Canvas: TCanvas);
 begin
-  { Called just before it draws each row's name and again just before its value }
+  { Called just before it draws each row's name and again just before its
+    value, and also when it measures text to decide on a hint }
   if ItemShouldBeBold(Item) then
     Canvas.Font.Style := Canvas.Font.Style + [fsBold];
 end;
