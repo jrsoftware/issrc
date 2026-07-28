@@ -589,6 +589,8 @@ begin
   VariantInit(pvarChildren);
   if FControl = nil then
     Exit(E_FAIL);
+  { No selection is an empty variant with S_OK; unlike get_accFocus and
+    accHitTest, the documentation defines no S_FALSE for this method }
   if FControl.SelectedIndex >= 0 then
     VariantInitInteger(pvarChildren, 1 + FControl.SelectedIndex);
   Result := S_OK;
