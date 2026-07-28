@@ -240,6 +240,7 @@ begin
       if PtInRect(R, Message.HintInfo.CursorPos) then begin
         Message.HintInfo.HintStr := FHints[I];
         Message.HintInfo.CursorRect := R;
+        Message.HintInfo.HideTimeout := High(Integer); { infinite }
         Break;
       end;
     end;
