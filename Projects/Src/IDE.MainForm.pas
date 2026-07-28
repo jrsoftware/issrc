@@ -867,7 +867,7 @@ constructor TMainForm.Create(AOwner: TComponent);
     var ConfigValue := Ini.ReadInteger('UpdatePanel', ConfigIdent, ConfigValueDefault); { Also see HUnregisterClick }
     if ConfigValue < ConfigValueMinimum then
       FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueNew, Color,
-      	HasLink));
+        HasLink));
   end;
 
   procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
@@ -6068,11 +6068,11 @@ begin
     UpdateLinkLabel.Caption := FUpdatePanelMessages[MessageToShowIndex].Msg;
     if not FHighContrastActive then
       UpdatePanel.Color := FUpdatePanelMessages[MessageToShowIndex].Color;
-	  if FUpdatePanelMessages[MessageToShowIndex].ConfigIdent.StartsWith('Purchase') then
-	    FDonateImageMenuItem := HPurchase
-	  else
-	    FDonateImageMenuItem := HDonate;
-	  UpdatePanelDonateBitBtn.Hint := RemoveAccelChar(FDonateImageMenuItem.Caption)
+    if FUpdatePanelMessages[MessageToShowIndex].ConfigIdent.StartsWith('Purchase') then
+      FDonateImageMenuItem := HPurchase
+    else
+      FDonateImageMenuItem := HDonate;
+    UpdatePanelDonateBitBtn.Hint := RemoveAccelChar(FDonateImageMenuItem.Caption)
   end;
   UpdateBevel1Visibility;
 end;

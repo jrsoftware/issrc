@@ -1133,10 +1133,10 @@ int Z7_CDECL mainW(int numargs, WCHAR *args[])
             {
               size_t friendlySize = (outBufferSize + 512) / 1024;
               if (friendlySize > 1024)
-				        PrintInt(" (", (friendlySize + 512 ) / 1024, " mb)", False);
+                PrintInt(" (", (friendlySize + 512 ) / 1024, " mb)", False);
               else
-  			        PrintInt(" (", friendlySize, " kb)", False);
-    			  }
+                PrintInt(" (", friendlySize, " kb)", False);
+            }
             PrintLF();
             prevOutBufferSize = outBufferSize;
           }

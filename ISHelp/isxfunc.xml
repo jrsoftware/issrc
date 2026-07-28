@@ -1348,43 +1348,35 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
       <function>
         <name>GetDateTimeString</name>
         <prototype>function GetDateTimeString(const DateTimeFormat: String; const DateSeparator, TimeSeparator: Char): String;</prototype>
-        <description><p>Returns the current date and time as a string using the specified formatting. The following format specifiers are supported:<br />
-<br />
-<tt>d</tt>	Displays the day as a number without a leading zero (1-31).<br />
-<tt>dd</tt>	Displays the day as a number with a leading zero (01-31).<br />
-<tt>ddd</tt>	Displays the day as an abbreviation (Sun-Sat).<br />
-<tt>dddd</tt>	Displays the day as a full name (Sunday-Saturday).<br />
-<tt>ddddd</tt>	Displays the date using the system's short date format.<br />
-<tt>dddddd</tt>	Displays the date using the system's long date format.<br />
-<tt>m</tt>	Displays the month as a number without a leading zero (1-12).<br />
-	If the <tt>m</tt> specifier immediately follows an <tt>h</tt> or <tt>hh</tt> specifier, the minute rather than the month is displayed.<br />
-<tt>mm</tt>	Displays the month as a number with a leading zero (01-12).<br />
-	If the <tt>mm</tt> specifier immediately follows an <tt>h</tt> or <tt>hh</tt> specifier, the minute rather than the month is displayed.<br />
-<tt>mmm</tt>	Displays the month as an abbreviation (Jan-Dec).<br />
-<tt>mmmm</tt>	Displays the month as a full name (January-December).<br />
-<tt>yy</tt>	Displays the year as a two-digit number (00-99).<br />
-<tt>yyyy</tt>	Displays the year as a four-digit number (0000-9999).<br />
-<tt>h</tt>	Displays the hour without a leading zero (0-23).<br />
-<tt>hh</tt>	Displays the hour with a leading zero (00-23).<br />
-<tt>n</tt>	Displays the minute without a leading zero (0-59).<br />
-<tt>nn</tt>	Displays the minute with a leading zero (00-59).<br />
-<tt>s</tt>	Displays the second without a leading zero (0-59).<br />
-<tt>ss</tt>	Displays the second with a leading zero (00-59).<br />
-<tt>t</tt>	Displays the time using the system's short time format.<br />
-<tt>tt</tt>	Displays the time using the system's long time format.<br />
-<tt>am/pm</tt>	Uses the 12-hour clock for the preceding <tt>h</tt> or <tt>hh</tt> specifier.<br />
-	Displays <tt>am</tt> for any hour before noon, and <tt>pm</tt> for any hour after noon.<br />
-	The <tt>am/pm</tt> specifier can use lower, upper, or mixed case, and the result is displayed accordingly.<br />
-<tt>a/p</tt>	Uses the 12-hour clock for the preceding <tt>h</tt> or <tt>hh</tt> specifier.<br />
-	Displays <tt>a</tt> for any hour before noon, and <tt>p</tt> for any hour after noon.<br />
-	The <tt>a/p</tt> specifier can use lower, upper, or mixed case, and the result is displayed accordingly.<br />
-<tt>/</tt>	Displays the date separator character given by the <tt>DateSeparator</tt> parameter.<br />
-	If <tt>DateSeparator</tt> is set to #0, the system's date separator character will be used instead.<br />
-<tt>:</tt>	Displays the time separator character given by the <tt>TimeSeparator</tt> parameter.<br />
-	If <tt>TimeSeparator</tt> is set to #0, the system's time separator character will be used instead.<br />
-<tt>'xx'/"xx"</tt>	Characters enclosed in single or double quotes are displayed as-is, and do not affect formatting.<br />
-<br />
-Format specifiers may be written in upper case as well as in lower case letters. Both produce the same result.</p></description>
+        <description><p>Returns the current date and time as a string using the specified formatting. The following format specifiers are supported:</p>
+<table>
+<tr><td><tt>d</tt></td><td>Displays the day as a number without a leading zero (1-31).</td></tr>
+<tr><td><tt>dd</tt></td><td>Displays the day as a number with a leading zero (01-31).</td></tr>
+<tr><td><tt>ddd</tt></td><td>Displays the day as an abbreviation (Sun-Sat).</td></tr>
+<tr><td><tt>dddd</tt></td><td>Displays the day as a full name (Sunday-Saturday).</td></tr>
+<tr><td><tt>ddddd</tt></td><td>Displays the date using the system's short date format.</td></tr>
+<tr><td><tt>dddddd</tt></td><td>Displays the date using the system's long date format.</td></tr>
+<tr><td><tt>m</tt></td><td>Displays the month as a number without a leading zero (1-12). If the <tt>m</tt> specifier immediately follows an <tt>h</tt> or <tt>hh</tt> specifier, the minute rather than the month is displayed.</td></tr>
+<tr><td><tt>mm</tt></td><td>Displays the month as a number with a leading zero (01-12). If the <tt>mm</tt> specifier immediately follows an <tt>h</tt> or <tt>hh</tt> specifier, the minute rather than the month is displayed.</td></tr>
+<tr><td><tt>mmm</tt></td><td>Displays the month as an abbreviation (Jan-Dec).</td></tr>
+<tr><td><tt>mmmm</tt></td><td>Displays the month as a full name (January-December).</td></tr>
+<tr><td><tt>yy</tt></td><td>Displays the year as a two-digit number (00-99).</td></tr>
+<tr><td><tt>yyyy</tt></td><td>Displays the year as a four-digit number (0000-9999).</td></tr>
+<tr><td><tt>h</tt></td><td>Displays the hour without a leading zero (0-23).</td></tr>
+<tr><td><tt>hh</tt></td><td>Displays the hour with a leading zero (00-23).</td></tr>
+<tr><td><tt>n</tt></td><td>Displays the minute without a leading zero (0-59).</td></tr>
+<tr><td><tt>nn</tt></td><td>Displays the minute with a leading zero (00-59).</td></tr>
+<tr><td><tt>s</tt></td><td>Displays the second without a leading zero (0-59).</td></tr>
+<tr><td><tt>ss</tt></td><td>Displays the second with a leading zero (00-59).</td></tr>
+<tr><td><tt>t</tt></td><td>Displays the time using the system's short time format.</td></tr>
+<tr><td><tt>tt</tt></td><td>Displays the time using the system's long time format.</td></tr>
+<tr><td><tt>am/pm</tt></td><td>Uses the 12-hour clock for the preceding <tt>h</tt> or <tt>hh</tt> specifier. Displays <tt>am</tt> for any hour before noon, and <tt>pm</tt> for any hour after noon. The <tt>am/pm</tt> specifier can use lower, upper, or mixed case, and the result is displayed accordingly.</td></tr>
+<tr><td><tt>a/p</tt></td><td>Uses the 12-hour clock for the preceding <tt>h</tt> or <tt>hh</tt> specifier. Displays <tt>a</tt> for any hour before noon, and <tt>p</tt> for any hour after noon. The <tt>a/p</tt> specifier can use lower, upper, or mixed case, and the result is displayed accordingly.</td></tr>
+<tr><td><tt>/</tt></td><td>Displays the date separator character given by the <tt>DateSeparator</tt> parameter. If <tt>DateSeparator</tt> is set to <tt>#0</tt>, the system's date separator character will be used instead.</td></tr>
+<tr><td><tt>:</tt></td><td>Displays the time separator character given by the <tt>TimeSeparator</tt> parameter. If <tt>TimeSeparator</tt> is set to <tt>#0</tt>, the system's time separator character will be used instead.</td></tr>
+<tr><td><tt>'xx'/"xx"</tt></td><td>Characters enclosed in single or double quotes are displayed as-is, and do not affect formatting.</td></tr>
+</table>
+<p>Format specifiers may be written in upper case as well as in lower case letters. Both produce the same result.</p></description>
         <example><pre>
 GetDateTimeString(<str>'ddddd'</str>, <str>#0</str>, <str>#0</str>);
 GetDateTimeString(<str>'ddddd tt'</str>, <str>#0</str>, <str>#0</str>);

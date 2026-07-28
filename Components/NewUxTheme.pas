@@ -1074,8 +1074,8 @@ type
 
   UAHMENUITEM = record
     iPosition: Cardinal; // 0-based position of menu item in menubar
-	  //UAHMENUITEMMETRICS umim;
-	  //UAHMENUPOPUPMETRICS umpm;
+    //UAHMENUITEMMETRICS umim;
+    //UAHMENUPOPUPMETRICS umpm;
   end;
   TUAHMenuItem = UAHMENUITEM;
   PUAHMenuItem = ^TUAHMenuItem;

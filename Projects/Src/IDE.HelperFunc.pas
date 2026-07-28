@@ -169,7 +169,7 @@ begin
     Result := FormTheme.Colors[tcBack]; { This is white if not dark mode }
     if Result = clWhite then
       Result := clWindow; { For high contrast themes }
-	end else
+  end else
     Result := FormTheme.Colors[tcToolBack]; { This is gray/btnface if not dark mode }
 end;
 
