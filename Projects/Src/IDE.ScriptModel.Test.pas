@@ -679,7 +679,7 @@ begin
       if KnownValue = 'preservestringtype' then
         FoundFlagName := True;
     Assert(FoundFlagName);
-    { No rules registered for [Registry]: toggling runs no implications }
+    { 'deletevalue' appears in no [Registry] rule: toggling runs no implications }
     RegistryEntry.SetFlag(5, 'deletevalue', True);
     const Lines = RegistryEntry.GetLines;
     Assert(Lines[0] = 'Root: HKA; Subkey: "Software\My Company"; ' +

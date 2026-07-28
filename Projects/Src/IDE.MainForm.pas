@@ -5954,7 +5954,8 @@ begin
   FTheme.Typ := FOptions.ThemeType;
 
   {$IF RtlVersion >= 36.0}
-  { For MainForm the active style only impacts message boxes and tooltips: FMemos, ToolbarPanel,
+  { For MainForm the active style only impacts message boxes, tooltips, and the inspector's
+    checkboxes, in-place editors, drop-down buttons, and drop-down lists: FMemos, ToolbarPanel,
     UpdatePanel, StatusSplitPanel, InspectorSplitPanel and the 4 ListBoxes all ignore it because
     their StyleName property is set to 'Windows' always, either by the .dfm or by code.
     Additionally, for scrollbars and StatusBar, MainForm's StyleElements is empty. Menus ignore it

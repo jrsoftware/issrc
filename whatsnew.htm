@@ -67,12 +67,25 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
       <li>This applies to the Compiler IDE only. The command-line compiler (ISCC) and the compiler itself remain English.</li>
     </ul>
     </li>
+    <li>Added a new <i>Inspector</i> panel to the right of the editor. It follows the caret and shows the current section's directives or the current entry's parameters as an editable list, so you can review and change what the script does without remembering exact names, flags, and defaults.
+    <ul>
+      <li>Shows all directives of a section and all parameters of an entry, using bold for those present in the script. Known directives which aren't in the script yet display their default values, and editing one adds it to the script.</li>
+      <li>Edits values in place: checkboxes for <tt>yes</tt><tt>/no</tt> values, drop-down lists for multiple-choice values, and expandable checkbox lists for flags, with validation of integer values.</li>
+      <li>Knows the relationships between flags and parameters and applies them automatically. For example, checking the <tt>download</tt> flag of a <tt>[Files]</tt> entry also checks the flags it needs.</li>
+      <li>Writes all changes to the script as regular edits, so <i>Undo</i>, <i>Redo</i>, and change history work normally.</li>
+      <li>Changes only the parameter or directive you edit: everything else stays exactly as it was, including comments, quoting, ISPP line spanning, and anything the Inspector doesn't recognize.</li>
+      <li>Pressing F1 on a row opens the help for that directive, parameter, or flag. All of the Inspector's keyboard and mouse commands are listed in the <a href="https://jrsoftware.org/ishelp/index.php?topic=compformshortcuts">Compiler IDE Keyboard And Mouse Commands</a> help topic.</li>
+      <li>Supports screen readers, high-contrast themes, and dark mode.</li>
+      <li>Shown by default and can be hidden via the <i>View</i> menu. New options control whether unspecified directives are shown and whether new values are quoted.<br/>
+          Unspecified directives are only shown for the main file, and only when it contains a single occurrence of the section.</li>
+    </ul>
+    </li>
     <li>Added a new <i>RTF Editor</i> to the <i>Tools</i> menu for creating the RTF files Setup can display. It renders text exactly as Setup will, making it a small built-in replacement for the beloved WordPad that is no more.</li>
-    <li>Improved support for screen readers: toolbar buttons are now announced.</li>
-    <li>Removed or reduced flicker (especially visible in dark mode) at startup and when opening dialogs.</li>
     <li>Added new <i>Disable Output</i>, <i>Disable Compression</i>, <i>Disable Signing</i>, and <i>Disable Signcheck Validation</i> menu items to the <i>Build</i> menu. These are not remembered between sessions.</li>
     <li>Compiler errors are now also shown in the <i>Compiler Output</i> view, instead of only in a message box.</li>
     <li>The status bar now shows information about the current selection when text is selected, instead of only the caret position.</li>
+    <li>Removed or reduced flicker (especially visible in dark mode) at startup and when opening dialogs.</li>
+    <li>Improved support for screen readers: toolbar buttons are now announced.</li>
     <li><i>Fix:</i> <i>Find in Files</i> now works correctly on lines containing non-ASCII text.</li>
     <li>Compiler IDE command line:
     <ul>

@@ -7,7 +7,7 @@ unit IDE.ScriptModel;
   For conditions of distribution and use, see LICENSE.TXT.
 
   Script model which can parse and store a single entry of a parameter
-  section.
+  section, or single occurrence of a key/value section.
   
   Uses the InnoIDE storage technique:
   - Parameter sections: a section entry is an ordered list of

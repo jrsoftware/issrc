@@ -25,10 +25,6 @@
 
  ******************************************************************************
 
- Object Inspector like control which can inspect not only published
- properties, but also variables, string lists (can be parsed as INI files)
- anything you can think of (e.g. DataSet based or event based).
-
  You may retrieve the latest version of this file at the Project JEDI home
  page, located at http://www.delphi-jedi.org
 

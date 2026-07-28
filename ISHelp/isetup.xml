@@ -3799,7 +3799,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <table>
 <tr><th>Command</th><th>Keyboard or mouse</th></tr>
 <tr>
-  <td>Move between rows</td><td>Up or Down</td>
+  <td>Move between rows</td><td>Up, Down, Page Up, or Page Down</td>
 </tr>
 <tr>
   <td>Expand the selected row</td><td>Numpad + or Ctrl+Numpad +</td>
