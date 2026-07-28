@@ -1100,7 +1100,7 @@ begin
   Delta := 0;
   case Msg.ScrollCode of
     SB_BOTTOM:
-      Delta := GetImageHeight - ClientHeight - IdxToY(TopIndex);
+      TopIndex := GetMaxTopIndex;
     SB_LINEDOWN:
       TopIndex := TopIndex + 1;
     SB_LINEUP:
