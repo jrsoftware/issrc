@@ -655,6 +655,10 @@ procedure TInspector.UpdateFromCaret;
   end;
 
   procedure RebuildRows;
+  { Items must not be added, removed, expanded or collapsed while an in-place
+    edit is open: JvInspector's RebuildVisible can then reselect the wrong
+    item and break the edit. Safe here because Clear ends the edit before the
+    items change. }
   begin
     var SelectedKey := '';
     if FJvInspector.Selected <> nil then
@@ -1014,6 +1018,9 @@ end;
 
 procedure TInspector.RowSetAsString(Sender: TJvCustomInspectorItem;
   var Value: String);
+{ Runs inside the in-place editor's Apply: must not (indirectly) change the
+  inspector's selection or end the edit. Setting FInEdit below makes
+  UpdateFromCaret exit early while the memo is being changed. }
 
   procedure ValidateValue(const ARowName, AValue: String;
     const ADefinition: TMemberDefinition);
