@@ -761,6 +761,7 @@ begin
   finally
     AMemo.OnChange := nil;
     AMemo.Styler := SavedStyler;
+    AMemo.Lines.Text := '';
     AMemo.ClearUndo;
     AMemo.ReadOnly := SavedReadOnly;
     AMemo.OnChange := SavedOnChange;
