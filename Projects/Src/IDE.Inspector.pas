@@ -15,7 +15,7 @@ interface
 
 uses
   Classes, Graphics, Controls, StdCtrls, Generics.Collections,
-  JvInspector, ModernColors,
+  JvInspector, ModernColors, NewStaticText,
   IDE.LiveScriptObjectFactory, IDE.ScriptModel, IDE.ScriptModel.Metadata;
 
 type
@@ -36,6 +36,7 @@ type
   TInspector = class
   private
     FJvInspector: TJvInspector;
+    FNoteText: TNewStaticText;
     FFactory: TLiveScriptObjectFactory;
     FLiveParameterSectionEntry: TLiveScriptParameterSectionEntry;
     FLiveKeyValueSection: TLiveScriptKeyValueSection;
@@ -81,8 +82,11 @@ type
     procedure SetQuoteNewDirectiveValues(const Value: Boolean);
     procedure SetQuoteNewParameterValues(const Value: Boolean);
     procedure SetShowAllKnownDirectives(const Value: Boolean);
+    procedure ShowNote(const AText: String);
+    procedure HideNote;
   public
     constructor Create(const AJvInspector: TJvInspector;
+      const ANoteText: TNewStaticText;
       const AFactory: TLiveScriptObjectFactory;
       const AShowAllKnownDirectives: Boolean);
     destructor Destroy; override;
@@ -117,12 +121,14 @@ type
 { TInspector }
 
 constructor TInspector.Create(const AJvInspector: TJvInspector;
+  const ANoteText: TNewStaticText;
   const AFactory: TLiveScriptObjectFactory;
   const AShowAllKnownDirectives: Boolean);
-{ Takes ownership of AJvInspector }
+{ Takes ownership of AJvInspector but not of ANoteText }
 begin
   inherited Create;
 
+  FNoteText := ANoteText;
   FFactory := AFactory;
   FShowAllKnownDirectives := AShowAllKnownDirectives;
   {$IFDEF DEBUG}
@@ -150,6 +156,18 @@ begin
   FLiveKeyValueSection.Free;
   FRows.Free;
   inherited;
+end;
+
+procedure TInspector.ShowNote(const AText: String);
+begin
+  FNoteText.Caption := AText;
+  FNoteText.Visible := True; { This updates any stale width }
+  FNoteText.AdjustHeight;
+end;
+
+procedure TInspector.HideNote;
+begin
+  FNoteText.Visible := False;
 end;
 
 function TInspector.ItemShouldBeBold(

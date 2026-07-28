@@ -251,6 +251,12 @@ begin
       const ControlAccess = TControlAccess(Control);
       if ControlAccess.Text <> '' then { This is both Caption and Text }
         ControlAccess.Text := LFmtMessage(ControlAccess.Text);
+
+      if Control is TCustomEdit then begin
+        const Edit = TCustomEdit(Control);
+        if Edit.TextHint <> '' then
+          Edit.TextHint := LFmtMessage(Edit.TextHint);
+      end;
     end;
 
     { Of the following, only TNewTabSet.Tabs is currently actually

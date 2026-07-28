@@ -161,6 +161,55 @@ object MainForm: TMainForm
       FullRepaint = False
       TabOrder = 3
       Visible = False
+      StyleElements = []
+      OnResize = InspectorPanelResize
+      object InspectorHeaderPanel: TPanel
+        Left = 0
+        Top = 0
+        Width = 121
+        Height = 22
+        Align = alTop
+        BevelOuter = bvNone
+        FullRepaint = False
+        TabOrder = 0
+        StyleElements = []
+        OnResize = InspectorHeaderPanelResize
+        object InspectorCaptionText: TNewStaticText
+          Left = 4
+          Top = 4
+          Width = 5
+          Height = 14
+          Caption = '*'
+          StyleName = 'Windows'
+          TabOrder = 0
+          Transparent = False
+        end
+        object InspectorFilterEdit: TEdit
+          Left = 56
+          Top = 1
+          Width = 61
+          Height = 21
+          TabOrder = 1
+          TextHint = 'Filter'
+        end
+      end
+      object InspectorNoteText: TNewStaticText
+        AlignWithMargins = True
+        Left = 4
+        Top = 22
+        Width = 113
+        Height = 14
+        Margins.Left = 4
+        Margins.Top = 0
+        Margins.Right = 4
+        Margins.Bottom = 0
+        Align = alTop
+        StyleName = 'Windows'
+        TabOrder = 1
+        Transparent = False
+        Visible = False
+        WordWrap = True
+      end
     end
   end
   object StatusBar: TStatusBar

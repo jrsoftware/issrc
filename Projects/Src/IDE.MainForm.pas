@@ -27,7 +27,7 @@ uses
   ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.IDEScintEdit,
   Shared.DebugStruct, Shared.CompilerInt.Struct, Shared.ConfigIniFile, NewUxTheme, ImageList, ImgList, ToolWin,
   IDE.HelperFunc, IDE.LocalizeFunc, IDE.Inspector, IDE.LiveScriptObjectFactory,
-  VirtualImageList, BaseImageCollection, BitmapButton;
+  VirtualImageList, BaseImageCollection, BitmapButton, NewStaticText;
 
 const
   WM_StartCommandLineCompile = WM_USER + $1000;
@@ -338,6 +338,10 @@ type
     EGotoFile: TMenuItem;
     InspectorSplitPanel: TPanel;
     InspectorPanel: TPanel;
+    InspectorHeaderPanel: TPanel;
+    InspectorCaptionText: TNewStaticText;
+    InspectorFilterEdit: TEdit;
+    InspectorNoteText: TNewStaticText;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -479,6 +483,8 @@ type
     procedure VInspectorClick(Sender: TObject);
     procedure InspectorSplitPanelMouseMove(Sender: TObject; Shift: TShiftState;
       X, Y: Integer);
+    procedure InspectorHeaderPanelResize(Sender: TObject);
+    procedure InspectorPanelResize(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -625,6 +631,7 @@ type
     procedure UpdateThemeData(const Open: Boolean);
     procedure UpdateStatusPanelHeight(H: Integer);
     procedure UpdateInspectorPanelWidth(W: Integer);
+    procedure UpdateInspectorHeaderPanelLayout;
     procedure WMAppCommand(var Message: TMessage); message WM_APPCOMMAND;
     procedure WMCopyData(var Message: TWMCopyData); message WM_COPYDATA;
     procedure WMDebuggerHello(var Message: TMessage); message WM_Debugger_Hello;
@@ -891,7 +898,7 @@ constructor TMainForm.Create(AOwner: TComponent);
     finally
       Ini.Free;
     end;
-    FInspector := TInspector.Create(JvInspector, LiveScriptObjectFactoryForMemo(FActiveMemo),
+    FInspector := TInspector.Create(JvInspector, InspectorNoteText, LiveScriptObjectFactoryForMemo(FActiveMemo),
       FOptions.InspectorShowAllKnownDirectives); { No main-memo check needed: FActiveMemo is FMainMemo at startup }
   end;
 
@@ -1170,6 +1177,7 @@ begin
     FLiveScriptObjectFactories.Add(Memo, TLiveScriptObjectFactory.Create(Memo, FMemosStyler));
 
   CreateInspector;
+  UpdateInspectorHeaderPanelLayout;
 
   FMemosStyler.Theme := FTheme;
 
@@ -1403,6 +1411,9 @@ begin
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
   UpdateInspectorPanelWidth(InspectorPanel.Width);
+  UpdateInspectorHeaderPanelLayout;
+  if InspectorNoteText.Visible then
+    InspectorNoteText.AdjustHeight;
 end;
 
 procedure TMainForm.FormCloseQuery(Sender: TObject;
@@ -1465,7 +1476,7 @@ begin
       VCloseCurrentTabClick(Self);
   end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
     { Move focus between the active memo, the active bottom pane, the
-      inspector, and the active banner }
+      inspector filter, the inspector, and the active banner }
     Key := 0;
 
     { First get the list of controls to toggle between }
@@ -1482,8 +1493,11 @@ begin
       if ControlToAdd <> nil then
         AddControlToArray(ControlToAdd, Controls, NControls);
     end;
-    if InspectorPanel.Visible then
+    if InspectorPanel.Visible then begin
+      if InspectorFilterEdit.Visible then
+        AddControlToArray(InspectorFilterEdit, Controls, NControls);
       AddControlToArray(FInspector.JvInspector, Controls, NControls);
+    end;
     if UpdatePanel.Visible then begin
       if FUpdatePanelMessages[UpdateLinkLabel.Tag].HasLink then
         AddControlToArray(UpdateLinkLabel, Controls, NControls);
@@ -1670,6 +1684,7 @@ begin
   OutputTabSet.Tabs[tiDebugOutput] := RemoveAccelChar(VDebugOutput.Caption);
   OutputTabSet.Tabs[tiDebugCallStack] := RemoveAccelChar(VDebugCallStack.Caption);
   OutputTabSet.Tabs[tiFindResults] := RemoveAccelChar(VFindResults.Caption);
+  InspectorCaptionText.Caption := RemoveAccelChar(VInspector.Caption);
 
   { Not displayed, for TToolBarAccessibility }
   BackNavButton.Caption := LFmtMessage(SToolBarBack);
@@ -3784,6 +3799,36 @@ begin
   if W < MinWidth then W := MinWidth;
   InspectorPanel.Width := W;
   FInspector.DividerWidth := FInspector.DividerWidth; { Triggers minimum divider width check }
+end;
+
+procedure TMainForm.UpdateInspectorHeaderPanelLayout;
+begin
+  const Padding = ToCurrentPPI(4); { 4 = same as InspectorNoteText's horizontal margins in the .dfm }
+
+  { Update height }
+  InspectorHeaderPanel.ClientHeight := InspectorFilterEdit.Height + 2*Padding;
+
+  { Update caption position }
+  InspectorCaptionText.Left := Padding;
+  InspectorCaptionText.Top := (InspectorHeaderPanel.ClientHeight - InspectorCaptionText.Height) div 2;
+
+  { Update edit position and width }
+  const X = InspectorCaptionText.Left + InspectorCaptionText.Width + 2*Padding;
+  const W = InspectorHeaderPanel.ClientWidth - Padding - X;
+  InspectorFilterEdit.Visible := W > 0;
+  if InspectorFilterEdit.Visible then
+    InspectorFilterEdit.SetBounds(X, Padding, W, InspectorFilterEdit.Height);
+end;
+
+procedure TMainForm.InspectorHeaderPanelResize(Sender: TObject);
+begin
+  UpdateInspectorHeaderPanelLayout;
+end;
+
+procedure TMainForm.InspectorPanelResize(Sender: TObject);
+begin
+  if InspectorNoteText.Visible then
+    InspectorNoteText.AdjustHeight;
 end;
 
 procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
@@ -5955,12 +6000,16 @@ begin
   FTheme.Typ := FOptions.ThemeType;
 
   {$IF RtlVersion >= 36.0}
-  { For MainForm the active style only impacts message boxes, tooltips, and the inspector's
-    checkboxes, in-place editors, drop-down buttons, and drop-down lists: FMemos, ToolbarPanel,
-    UpdatePanel, StatusSplitPanel, InspectorSplitPanel and the 4 ListBoxes all ignore it because
-    their StyleName property is set to 'Windows' always, either by the .dfm or by code.
-    Additionally, for scrollbars and StatusBar, MainForm's StyleElements is empty. Menus ignore it
-    because shMenus is removed from TStyleManager.SystemHooks at startup. }
+  { For MainForm the active style only impacts message boxes, tooltips, the inspector's filter
+    edit, and the inspector's checkboxes, in-place editors, drop-down buttons, and drop-down
+    lists: FMemos, ToolbarPanel, UpdatePanel, StatusSplitPanel, InspectorSplitPanel,
+    InspectorCaptionText, InspectorNoteText and the 4 ListBoxes all ignore it because their
+    StyleName property is set to 'Windows' always, either by the .dfm or by code. Additionally,
+    for scrollbars and StatusBar, MainForm's StyleElements is empty, and so are InspectorPanel's
+    and InspectorHeaderPanel's, which keeps their manual coloring (InspectorPanel's color, which
+    the header follows through ParentColor) without opting their children out like a 'Windows'
+    StyleName would. Menus ignore it because shMenus is removed from TStyleManager.SystemHooks
+    at startup. }
   if FTheme.Dark then
     TStyleManager.TrySetStyle('Windows11 Modern Dark')
   else
@@ -6010,6 +6059,14 @@ begin
   StatusSplitPanel.Color := FTheme.Colors[tcSplitterBack];
   InspectorSplitPanel.ParentBackground := False;
   InspectorSplitPanel.Color := FTheme.Colors[tcSplitterBack];
+
+  if not FHighContrastActive then begin
+    InspectorPanel.ParentBackground := False;
+    InspectorPanel.Color := FTheme.Colors[tcToolBack];
+    InspectorHeaderPanel.ParentColor := True;
+    InspectorCaptionText.Font.Color := FTheme.Colors[tcFore];
+    InspectorNoteText.Font.Color := FTheme.Colors[tcFore];
+  end;
 
   FInspector.UpdateTheme(FTheme, FHighContrastActive);
   FMenuDarkBackgroundBrush.Color := FTheme.Colors[tcToolBack];
