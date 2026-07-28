@@ -110,7 +110,7 @@ ButtonNewFolder=&Crea nuova cartella
 
 ; *** "Select Language" dialog messages
 SelectLanguageTitle=Seleziona la lingua dell'installazione
-SelectLanguageLabel=Seleziona la lingua da usare durante l'installazione:
+SelectLanguageLabel=Seleziona la lingua da usare durante l'installazione.
 
 ; *** Common wizard text
 ClickNext=Per continuare seleziona "Avanti" o "Annulla" per uscire.
@@ -121,7 +121,7 @@ NewFolderName=Nuova cartella
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Installazione di [name]
-WelcomeLabel2=Il programma installerà [name/ver].%n%nPrima di procedere chiudi tutte le applicazioni attive.
+WelcomeLabel2=Il programma installerà [name/ver] sul computer.%n%nPrima di procedere chiudi tutte le applicazioni attive.
 
 ; *** "Password" wizard page
 WizardPassword=Password
@@ -183,11 +183,11 @@ FullInstallation=Installazione completa
 CompactInstallation=Installazione compatta
 CustomInstallation=Installazione personalizzata
 NoUninstallWarningTitle=Componente esistente
-NoUninstallWarning=L'installazione ha rilevato che sono già installati i seguenti componenti:%n%n%1%n%nDeselezionando questi componenti essi non verranno rimossi.%n%nVuoi continuare comunque?
+NoUninstallWarning=L'installazione ha rilevato che sono già installati nel computer i seguenti componenti:%n%n%1%n%nDeselezionando questi componenti essi non verranno rimossi.%n%nVuoi continuare comunque?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceGBLabel=La selezione attuale richiede almeno [gb] GB di spazio libero nel disco.
-ComponentsDiskSpaceMBLabel=La selezione attuale richiede almeno [mb] MB di spazio libero nel disco.
+ComponentsDiskSpaceGBLabel=La selezione attuale richiede almeno [gb] GB di spazio nel disco.
+ComponentsDiskSpaceMBLabel=La selezione attuale richiede almeno [mb] MB di spazio nel disco.
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Selezione processi aggiuntivi
@@ -207,7 +207,7 @@ NoProgramGroupCheck2=&Non creare una cartella nel menu Avvio/Start
 
 ; *** "Ready to Install" wizard page
 WizardReady=Pronto per l'installazione
-ReadyLabel1=Il programma è pronto per iniziare l'installazione di [name].
+ReadyLabel1=Il programma è pronto per iniziare l'installazione di [name] nel computer.
 ReadyLabel2a=Per continuare con l'installazione seleziona "Installa" o "Indietro" per rivedere o modificare le impostazioni.
 ReadyLabel2b=Per procedere con l'installazione seleziona "Installa".
 ReadyMemoUserInfo=Informazioni utente:
@@ -241,7 +241,7 @@ ArchiveUnsupportedFormat=Questo formato archivio non è supportato
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Preparazione all'installazione
-PreparingDesc=Preparazione all'installazione di [name].
+PreparingDesc=Preparazione all'installazione di [name] nel computer.
 PreviousInstallNotCompleted=L'installazione/rimozione precedente del programma non è stata completata.%n%nPer completare l'installazione è necessario riavviare il sistema.%n%nDopo il riavvio del sistema esegui di nuovo l'installazione di [name].
 CannotContinue=L'installazione non può continuare. Per uscire seleziona "Annulla".
 ApplicationsFound=Le seguenti applicazioni stanno usando file che devono essere aggiornati dall'installazione.%n%nTi consigliamo di permettere al processo di chiudere automaticamente queste applicazioni.
@@ -253,7 +253,7 @@ PrepareToInstallNeedsRestart=Il programma di installazione deve riavviare il com
 
 ; *** "Installing" wizard page
 WizardInstalling=Installazione in corso
-InstallingLabel=Attendi il completamento dell'installazione di [name].
+InstallingLabel=Attendi il completamento dell'installazione di [name] nel computer.
 
 ; *** "Setup Completed" wizard page
 FinishedHeadingLabel=Installazione di [name] completata
