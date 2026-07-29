@@ -177,6 +177,7 @@ type
     procedure Clear;
     property AccessibleName: string read FAccessibleName write FAccessibleName;
     property Divider: Integer read FDivider write SetDivider;
+    property PopupMenu;
     property ReadOnly: Boolean read FReadOnly write FReadOnly;
     property Root: TJvCustomInspectorItem read FRoot;
     property Selected: TJvCustomInspectorItem read GetSelected write SetSelected;
@@ -797,6 +798,8 @@ begin
     SetFocus
   else if (Item <> nil) and Item.Editing then
     Item.SetFocus;
+  if (Button = mbRight) and (Item <> nil) and (ItemIndex <> SelectedIndex) then
+    SelectedIndex := ItemIndex;
   if Button = mbLeft then begin
     // Check divider dragging
     if (X >= Pred(Divider)) and (X <= Succ(Divider)) then

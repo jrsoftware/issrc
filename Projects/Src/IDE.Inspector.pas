@@ -94,6 +94,7 @@ type
       const AShowAllKnownDirectives: Boolean);
     destructor Destroy; override;
     procedure ForceFinishEdit;
+    function GetSelectedHelpKeyword: String;
     procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
       const AShowAllKnownDirectives, AShowAllKnownDirectivesSuppressedNote: Boolean);
     procedure UpdateFromCaret;
@@ -278,37 +279,36 @@ begin
     Edit.Font.Style := Edit.Font.Style + [fsBold];
 end;
 
-procedure TInspector.JvInspectorKeyDown(Sender: TObject; var Key: Word;
-  Shift: TShiftState);
-
-  function GetSelectedHelpKeyword: String;
-  begin
-    Result := '';
-    const Item = FJvInspector.Selected;
-    var Row: TInspectorRow;
-    if (Item <> nil) and TryGetRow(Item, Row) then begin
-      case Row.Kind of
-        irkParameter:
+function TInspector.GetSelectedHelpKeyword: String;
+begin
+  Result := '';
+  const Item = FJvInspector.Selected;
+  var Row: TInspectorRow;
+  if (Item <> nil) and TryGetRow(Item, Row) then begin
+    case Row.Kind of
+      irkParameter:
+        Result := Row.Name;
+      irkKey:
+        begin
           Result := Row.Name;
-        irkKey:
-          begin
-            Result := Row.Name;
-            if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
-              { This resolves [LangOptions] directives which use a language name prefix }
-              var Definition: TMemberDefinition;
-              if FLiveKeyValueSection.Section.TryGetDefinition(Row.Name, Definition) then
-                Result := Definition.Name;
-            end;
+          if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
+            { This resolves [LangOptions] directives which use a language name prefix }
+            var Definition: TMemberDefinition;
+            if FLiveKeyValueSection.Section.TryGetDefinition(Row.Name, Definition) then
+              Result := Definition.Name;
           end;
-        irkParameterFlag, irkKeyFlag:
-          if (Row.Kind = irkParameterFlag) and SameText(Row.Name, 'Flags') then
-            Result := Row.FlagName { Keyword presence guaranteed }
-          else
-            Result := Row.Name;
-      end;
+        end;
+      irkParameterFlag, irkKeyFlag:
+        if (Row.Kind = irkParameterFlag) and SameText(Row.Name, 'Flags') then
+          Result := Row.FlagName { Keyword presence guaranteed }
+        else
+          Result := Row.Name;
     end;
   end;
+end;
 
+procedure TInspector.JvInspectorKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
 begin
   if (Key = VK_F1) and (Shift * [ssShift, ssAlt, ssCtrl] = []) then begin
     Key := 0;

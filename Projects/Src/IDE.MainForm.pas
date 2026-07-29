@@ -342,6 +342,8 @@ type
     InspectorCaptionText: TNewStaticText;
     InspectorFilterEdit: TEdit;
     InspectorNoteText: TNewStaticText;
+    InspectorPopupMenu: TMenuItem;
+    PInspectorHelp: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -488,6 +490,7 @@ type
     procedure InspectorFilterEditChange(Sender: TObject);
     procedure InspectorFilterEditKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure PInspectorHelpClick(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -895,9 +898,10 @@ constructor TMainForm.Create(AOwner: TComponent);
   begin
     const JvInspector = TJvInspector.Create(Self);
     JvInspector.AccessibleName := RemoveAccelChar(VInspector.Caption);
+    JvInspector.ShowHint := True;
+    JvInspector.PopupMenu := TMainFormPopupMenu.Create(Self, InspectorPopupMenu);
     JvInspector.Parent := InspectorPanel;
     JvInspector.Align := alClient;
-    JvInspector.ShowHint := True;
     const Ini = TConfigIniFile.Create;
     try
       FOptions.InspectorShowAllKnownDirectives := Ini.ReadBool('Options', 'InspectorShowAllKnownDirectives', True);
@@ -1142,6 +1146,7 @@ begin
   TOptions.ShortCut := ShortCut(VK_OEM_COMMA, [ssCtrl]);
   { F1 is handled by the memos and by the inspector }
   SetFakeShortCut(HDoc, VK_F1, []);
+  SetFakeShortCut(PInspectorHelp, VK_F1, []);
 
   PopupMenu := TMainFormPopupMenu.Create(Self, EMenu);
 
@@ -3871,6 +3876,11 @@ begin
     Key := 0;
     InspectorFilterEdit.Text := ''; { Also updates the filter }
   end;
+end;
+
+procedure TMainForm.PInspectorHelpClick(Sender: TObject);
+begin
+  ShowHelp(FInspector.GetSelectedHelpKeyword);
 end;
 
 procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);

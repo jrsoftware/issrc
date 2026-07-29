@@ -810,6 +810,15 @@ object MainForm: TMainForm
           OnClick = POutputListSelectAllClick
         end
       end
+      object InspectorPopupMenu: TMenuItem
+        Caption = 'InspectorPopupMenu'
+        Visible = False
+        OnClick = SimpleMenuClick
+        object PInspectorHelp: TMenuItem
+          Caption = '&Help'
+          OnClick = PInspectorHelpClick
+        end
+      end
     end
     object BMenu: TMenuItem
       Caption = '&Build'

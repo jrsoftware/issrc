@@ -130,7 +130,8 @@ begin
           BM(RRun, RunButton),
           BM(RPause, PauseButton),
           BM(RTerminate, TerminateButton),
-          BM(HDoc, HelpButton)];
+          BM(HDoc, HelpButton),
+          BM(PInspectorHelp, HelpButton)];
 
         for var ButtonedMenu in ButtonedMenus do
           AddMenuBitmap(FMenuBitmaps, DC, BitmapInfo, ButtonedMenu.Key, ImageList, ButtonedMenu.Value.ImageIndex);
