@@ -191,6 +191,8 @@ object MainForm: TMainForm
           Height = 21
           TabOrder = 1
           TextHint = 'Filter'
+          OnChange = InspectorFilterEditChange
+          OnKeyDown = InspectorFilterEditKeyDown
         end
       end
       object InspectorNoteText: TNewStaticText

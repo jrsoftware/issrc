@@ -485,6 +485,9 @@ type
       X, Y: Integer);
     procedure InspectorHeaderPanelResize(Sender: TObject);
     procedure InspectorPanelResize(Sender: TObject);
+    procedure InspectorFilterEditChange(Sender: TObject);
+    procedure InspectorFilterEditKeyDown(Sender: TObject; var Key: Word;
+      Shift: TShiftState);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -3839,6 +3842,20 @@ procedure TMainForm.InspectorPanelResize(Sender: TObject);
 begin
   if InspectorNoteText.Visible then
     InspectorNoteText.AdjustHeight;
+end;
+
+procedure TMainForm.InspectorFilterEditChange(Sender: TObject);
+begin
+  FInspector.FilterText := InspectorFilterEdit.Text;
+end;
+
+procedure TMainForm.InspectorFilterEditKeyDown(Sender: TObject; var Key: Word;
+  Shift: TShiftState);
+begin
+  if (Key = VK_ESCAPE) and (Shift * [ssShift, ssAlt, ssCtrl] = []) then begin
+    Key := 0;
+    InspectorFilterEdit.Text := ''; { Also updates the filter }
+  end;
 end;
 
 procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);

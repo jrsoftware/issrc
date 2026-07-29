@@ -52,6 +52,7 @@ type
     FUpdateFromCaretEarlyExitCount: Integer;
     {$ENDIF}
     FInEdit: Boolean;
+    FFilterText: String;
     FShowAllKnownDirectives: Boolean;
     FShowAllKnownDirectivesSuppressedNote: Boolean;
     FQuoteNewParameterValues: Boolean;
@@ -80,6 +81,7 @@ type
       Shift: TShiftState);
     function GetDividerWidth: Integer;
     procedure SetDividerWidth(const Value: Integer);
+    procedure SetFilterText(const Value: String);
     procedure SetQuoteNewDirectiveValues(const Value: Boolean);
     procedure SetQuoteNewParameterValues(const Value: Boolean);
     procedure SetShowAllKnownDirectives(const Value: Boolean);
@@ -97,6 +99,7 @@ type
     procedure UpdateFromCaret;
     procedure UpdateReadOnly;
     procedure UpdateTheme(const ATheme: TTheme; const AHighContrastActive: Boolean);
+    property FilterText: String read FFilterText write SetFilterText;
     property ShowAllKnownDirectives: Boolean read FShowAllKnownDirectives
       write SetShowAllKnownDirectives;
     property ShowAllKnownDirectivesSuppressedNote: Boolean
@@ -114,7 +117,7 @@ type
 implementation
 
 uses
-  Windows, SysUtils, UITypes, Themes, Forms, Generics.Defaults,
+  Windows, SysUtils, StrUtils, UITypes, Themes, Forms, Generics.Defaults,
   NewUxTheme,
   Shared.CommonFunc,
   IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc, IDE.ScriptModel.Metadata.Extra;
@@ -420,6 +423,35 @@ procedure TInspector.UpdateFromCaret;
     Result.Expanded := True;
   end;
 
+  function NameMatchesFilter(const AName: String): Boolean;
+  begin
+    Result := (FFilterText = '') or ContainsText(AName, FFilterText);
+  end;
+
+  function AnyFlagMatchesFilter(const AFlagNames: TArray<String>): Boolean;
+  begin
+    Result := False;
+    for var FlagName in AFlagNames do
+      if NameMatchesFilter(FlagName) then
+        Exit(True);
+  end;
+
+  function DefinitionMatchesFilter(const ADefinition: TMemberDefinition): Boolean;
+  begin
+    Result := NameMatchesFilter(ADefinition.Name) or
+      ((ADefinition.ValueKind = mvkFlags) and AnyFlagMatchesFilter(ADefinition.KnownValues));
+  end;
+
+  function KeyRowMatchesFilter(const ARow: TInspectorRow): Boolean;
+  begin
+    Result := NameMatchesFilter(ARow.Name);
+    if not Result then begin
+      var Definition: TMemberDefinition;
+      Result := FLiveKeyValueSection.Section.TryGetDefinition(ARow.Name, Definition) and
+        (Definition.ValueKind = mvkFlags) and AnyFlagMatchesFilter(Definition.KnownValues);
+    end;
+  end;
+
   {$IFDEF DEBUG}
   function RefusalReasonToString(const ARefusalReason: TRefusalReason): String;
   begin
@@ -493,8 +525,10 @@ procedure TInspector.UpdateFromCaret;
     const Row = MakeParameterRow(ADefinition.Name, ANameIndex);
     const Item = AddRow(AParent, Row.Name, False, Row);
     if ADefinition.ValueKind = mvkFlags then begin
+      const KeepAllFlags = NameMatchesFilter(ADefinition.Name);
       for var FlagName in ADefinition.KnownValues do
-        AddParameterFlagRow(Item, ADefinition.Name, FlagName, ANameIndex); { Adds a child to Item }
+        if KeepAllFlags or NameMatchesFilter(FlagName) then
+          AddParameterFlagRow(Item, ADefinition.Name, FlagName, ANameIndex); { Adds a child to Item }
     end else if ADefinition.ValueKind = mvkChoice then
       Item.Flags := Item.Flags + [iifValueList];
   end;
@@ -559,8 +593,10 @@ procedure TInspector.UpdateFromCaret;
       const Item = AddRow(AParent, ARow.Name, False, ARow);
       if Known then begin
         if Definition.ValueKind = mvkFlags then begin
+          const KeepAllFlags = NameMatchesFilter(ARow.Name);
           for var FlagName in Definition.KnownValues do
-            AddKeyFlagRow(Item, ARow.Name, FlagName, ARow.NameIndex); { Adds a child to Item }
+            if KeepAllFlags or NameMatchesFilter(FlagName) then
+              AddKeyFlagRow(Item, ARow.Name, FlagName, ARow.NameIndex); { Adds a child to Item }
         end else if Definition.ValueKind in [mvkChoice, mvkYesNo] then
           Item.Flags := Item.Flags + [iifValueList];
       end;
@@ -577,6 +613,8 @@ procedure TInspector.UpdateFromCaret;
       for var Definition in Entry.Metadata.Members do begin
         if Definition.Obsolete and not Entry.Has(Definition.Name) then
           Continue; { Hide obsolete and unspecified }
+        if not DefinitionMatchesFilter(Definition) then
+          Continue;
         var CategoryName: String;
         if not TryGetScriptCategory(SectionName, Definition.Name, CategoryName) then
           AddParameterOccurrenceRows(FJvInspector.Root, Definition);
@@ -588,7 +626,8 @@ procedure TInspector.UpdateFromCaret;
       const Parameter = Entry.Parameters[I];
       if Parameter.Kind = pkParameter then begin
         var Definition: TMemberDefinition;
-        if not Entry.TryGetDefinition(Parameter.Name, Definition) then begin
+        if not Entry.TryGetDefinition(Parameter.Name, Definition) and
+           NameMatchesFilter(Parameter.Name) then begin
           const Row = MakeParameterRow(Parameter.Name, I);
           AddRow(FJvInspector.Root, Row.Name, False, Row);
         end;
@@ -602,6 +641,8 @@ procedure TInspector.UpdateFromCaret;
         var CategoryItem: TJvCustomInspectorItem := nil;
         for var Definition in Entry.Metadata.Members do begin
           if Definition.Obsolete and not Entry.Has(Definition.Name) then
+            Continue;
+          if not DefinitionMatchesFilter(Definition) then
             Continue;
           var DefinitionCategory: String;
           if TryGetScriptCategory(SectionName, Definition.Name, DefinitionCategory) and
@@ -657,6 +698,8 @@ procedure TInspector.UpdateFromCaret;
 
       { Uncategorized first, in the order determined above }
       for var Row in KeyRowsToShow do begin
+        if not KeyRowMatchesFilter(Row) then
+          Continue;
         var CategoryName: String;
         if not TryGetScriptCategory(FLiveKeyValueSectionName, Row.Name, CategoryName) then
           AddKeyRow(FJvInspector.Root, Row);
@@ -666,6 +709,8 @@ procedure TInspector.UpdateFromCaret;
       for var CategoryName in ScriptCategoryNamesOrdered do begin
         var CategoryItem: TJvCustomInspectorItem := nil;
         for var Row in KeyRowsToShow do begin
+          if not KeyRowMatchesFilter(Row) then
+            Continue;
           var KeyCategory: String;
           if TryGetScriptCategory(FLiveKeyValueSectionName, Row.Name, KeyCategory) and
              SameText(KeyCategory, CategoryName) then begin
@@ -1175,6 +1220,15 @@ begin
   FQuoteNewParameterValues := Value;
   if FLiveParameterSectionEntry <> nil then
     FLiveParameterSectionEntry.Entry.QuoteNewValues := Value;
+end;
+
+procedure TInspector.SetFilterText(const Value: String);
+begin
+  if Value <> FFilterText then begin
+    FFilterText := Value;
+    FRowSetSignature := ''; { Force a rebuild, see UpdateFromCaret's early exit }
+    UpdateFromCaret;
+  end;
 end;
 
 procedure TInspector.SetShowAllKnownDirectives(const Value: Boolean);

@@ -3840,6 +3840,9 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 <tr>
   <td>Show help for the selected directive, parameter, or flag</td><td>F1</td>
 </tr>
+<tr>
+  <td>Clear the filter</td><td>Esc in the filter edit</td>
+</tr>
 </table>
 
 </body>
