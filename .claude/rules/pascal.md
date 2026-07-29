@@ -16,7 +16,12 @@ paths: ["**/*.pas", "**/*.dpr", "**/*.inc"]
 - `if` and `begin` should be on the same line.
 - `else` and `begin` should be on the same line.
 - A `Result` assignment followed by an `Exit` statement should be combined into a single statement. For example: `Exit(ResultValue);`
-- Do not use `begin..end` for single one-line statement blocks, but always use it when the block spans multiple lines. This includes when the block's single statement spans multiple lines (such as a multi-line `for`), and when a comment on its own line accompanies the statement (such an own-line comment counts as a block line; a trailing comment on the statement's line does not).
+- Do not use `begin..end` for single one-line statement blocks, but always use it when the block spans multiple lines. This includes when the block's single statement spans multiple lines (such as a multi-line `for`), and when a comment on its own line accompanies the statement (a trailing comment on the statement's line does not count).
+  Count lines per indentation level: a child statement never adds to its parent's count, so a chain of one-line statements takes no `begin..end` at any level:
+  `for var X in Y do`
+  `  if Z(X) then`
+  `    Exit(True);`
+  But a statement that is multi-line at its own level (a wrapped condition or call, or a `begin..end` block of its own) makes each level above it multi-line too.
 - Do not use `Longint` or `LongWord`, use `Integer` or `Cardinal` instead.
 - Mark read-only parameters as `const`.
 - Use Windows units first, then RTL/VCL units, then Components units, then Shared units, then project specific units.
