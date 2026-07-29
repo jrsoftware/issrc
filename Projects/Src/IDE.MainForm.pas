@@ -596,6 +596,7 @@ type
     function SaveFile(const AMemo: TIDEScintFileEdit; const SaveAs: Boolean): Boolean;
     procedure SetBorderStyle(Value: TFormBorderStyle);
     procedure SetErrorLine(const AMemo: TIDEScintFileEdit; const ALine: Integer);
+    procedure SetInspectorActiveFactory;
     procedure SetInspectorVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TIDEScintFileEdit; ALine: Integer);
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
@@ -2646,7 +2647,10 @@ end;
 
 procedure TMainForm.SyncInspectorOptions;
 begin
-  FInspector.ShowAllKnownDirectives := FOptions.InspectorShowAllKnownDirectives and (FActiveMemo = FMainMemo);
+  { Also see SetInspectorActiveFactory }
+  const ActiveMemoIsMainMemo = (FActiveMemo = FMainMemo);
+  FInspector.ShowAllKnownDirectives := FOptions.InspectorShowAllKnownDirectives and ActiveMemoIsMainMemo;
+  FInspector.ShowAllKnownDirectivesSuppressedNote := FOptions.InspectorShowAllKnownDirectives and not ActiveMemoIsMainMemo;
   FInspector.QuoteNewDirectiveValues := FOptions.InspectorQuoteNewDirectiveValues;
   FInspector.QuoteNewParameterValues := FOptions.InspectorQuoteNewParameterValues;
 end;
@@ -3316,6 +3320,14 @@ begin
   end;
 end;
 
+procedure TMainForm.SetInspectorActiveFactory;
+begin
+  { Also see SyncInspectorOptions }
+  FInspector.SetActiveFactory(LiveScriptObjectFactoryForMemo(FActiveMemo),
+    FOptions.InspectorShowAllKnownDirectives and (FActiveMemo = FMainMemo),
+    FOptions.InspectorShowAllKnownDirectives and (FActiveMemo <> FMainMemo));
+end;
+
 procedure TMainForm.SetInspectorVisible(const AVisible: Boolean);
 begin
   if InspectorPanel.Visible <> AVisible then begin
@@ -3334,8 +3346,7 @@ begin
       InspectorSplitPanel.Left := ClientWidth;
       InspectorPanel.Left := ClientWidth;
       { Update contents }
-      FInspector.SetActiveFactory(LiveScriptObjectFactoryForMemo(FActiveMemo),
-        FOptions.InspectorShowAllKnownDirectives and (FActiveMemo = FMainMemo));
+      SetInspectorActiveFactory;
     end else begin
       { If an in-place editor is active it will lose focus after the next
         focus change, which causes it to show an error on bad input.
@@ -3713,8 +3724,7 @@ begin
     UpdateModifiedStatusPanel;
 
     if InspectorPanel.Visible then
-      FInspector.SetActiveFactory(LiveScriptObjectFactoryForMemo(FActiveMemo),
-        FOptions.InspectorShowAllKnownDirectives and (FActiveMemo = FMainMemo));
+      SetInspectorActiveFactory;
   end;
 end;
 

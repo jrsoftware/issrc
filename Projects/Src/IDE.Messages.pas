@@ -225,6 +225,9 @@ const
   { Inspector }
   SInspectorIntegerValueError = '%1 must be an integer value';
   SInspectorReadOnlyError = 'The script cannot be edited because it is read-only';
+  SInspectorNothingToInspectNote = 'Move to a key/value section or parameter entry';
+  SInspectorSiblingOccurrencesNote = 'Unspecified directives are hidden because this section occurs more than once';
+  SInspectorShowAllKnownDirectivesSuppressedNote = 'Unspecified directives are hidden because this is not the main script file';
 
   { Inspector category display names, must match IDE.ScriptModel.Metadata's
     category tables. These are not referenced by the code but must still be

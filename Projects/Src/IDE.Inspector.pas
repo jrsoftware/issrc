@@ -53,6 +53,7 @@ type
     {$ENDIF}
     FInEdit: Boolean;
     FShowAllKnownDirectives: Boolean;
+    FShowAllKnownDirectivesSuppressedNote: Boolean;
     FQuoteNewParameterValues: Boolean;
     FQuoteNewDirectiveValues: Boolean;
     procedure InvalidateChangedRows;
@@ -82,8 +83,8 @@ type
     procedure SetQuoteNewDirectiveValues(const Value: Boolean);
     procedure SetQuoteNewParameterValues(const Value: Boolean);
     procedure SetShowAllKnownDirectives(const Value: Boolean);
-    procedure ShowNote(const AText: String);
-    procedure HideNote;
+    procedure SetShowAllKnownDirectivesSuppressedNote(const Value: Boolean);
+    procedure UpdateNote;
   public
     constructor Create(const AJvInspector: TJvInspector;
       const ANoteText: TNewStaticText;
@@ -92,12 +93,15 @@ type
     destructor Destroy; override;
     procedure ForceFinishEdit;
     procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
-      const AShowAllKnownDirectives: Boolean);
+      const AShowAllKnownDirectives, AShowAllKnownDirectivesSuppressedNote: Boolean);
     procedure UpdateFromCaret;
     procedure UpdateReadOnly;
     procedure UpdateTheme(const ATheme: TTheme; const AHighContrastActive: Boolean);
     property ShowAllKnownDirectives: Boolean read FShowAllKnownDirectives
       write SetShowAllKnownDirectives;
+    property ShowAllKnownDirectivesSuppressedNote: Boolean
+      read FShowAllKnownDirectivesSuppressedNote
+      write SetShowAllKnownDirectivesSuppressedNote;
     { These only apply to text values }
     property QuoteNewParameterValues: Boolean read FQuoteNewParameterValues
       write SetQuoteNewParameterValues;
@@ -158,16 +162,32 @@ begin
   inherited;
 end;
 
-procedure TInspector.ShowNote(const AText: String);
-begin
-  FNoteText.Caption := AText;
-  FNoteText.Visible := True; { This updates any stale width }
-  FNoteText.AdjustHeight;
-end;
+procedure TInspector.UpdateNote;
 
-procedure TInspector.HideNote;
+  procedure ShowNote(const AText: String);
+  begin
+    FNoteText.Caption := AText;
+    FNoteText.Visible := True; { This updates any stale width }
+    FNoteText.AdjustHeight;
+  end;
+
+  procedure HideNote;
+  begin
+    FNoteText.Visible := False;
+  end;
+
 begin
-  FNoteText.Visible := False;
+  if (FLiveParameterSectionEntry = nil) and (FLiveKeyValueSection = nil) then
+    ShowNote(LFmtMessage(SInspectorNothingToInspectNote))
+  else if (FLiveKeyValueSection <> nil) and FLiveKeyValueSectionIsDirectiveSection then begin
+    if FShowAllKnownDirectives and FLiveKeyValueSectionHasSiblingOccurrences then
+      ShowNote(LFmtMessage(SInspectorSiblingOccurrencesNote))
+    else if FShowAllKnownDirectivesSuppressedNote then
+      ShowNote(LFmtMessage(SInspectorShowAllKnownDirectivesSuppressedNote))
+    else
+      HideNote;
+  end else
+    HideNote;
 end;
 
 function TInspector.ItemShouldBeBold(
@@ -317,11 +337,12 @@ begin
 end;
 
 procedure TInspector.SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
-  const AShowAllKnownDirectives: Boolean);
+  const AShowAllKnownDirectives, AShowAllKnownDirectivesSuppressedNote: Boolean);
 begin
   if AFactory = FFactory then begin
-    { Still apply the setting: it may have changed independently. Also still
+    { Still apply the settings: they may have changed independently. Also still
       update from caret. }
+    ShowAllKnownDirectivesSuppressedNote := AShowAllKnownDirectivesSuppressedNote; { Also updates the note }
     if AShowAllKnownDirectives <> FShowAllKnownDirectives then
       ShowAllKnownDirectives := AShowAllKnownDirectives { Also updates from caret }
     else
@@ -331,6 +352,7 @@ begin
   { Attach to a different factory = different memo = different tab }
   FFactory := AFactory;
   FShowAllKnownDirectives := AShowAllKnownDirectives;
+  FShowAllKnownDirectivesSuppressedNote := AShowAllKnownDirectivesSuppressedNote;
   FRowSetSignature := ''; { Force rebuild even if row set stayed same }
   UpdateFromCaret;
 end;
@@ -844,6 +866,8 @@ begin
     { Row set stayed same, just need to invalidate to show updated values }
     InvalidateChangedRows;
   end;
+
+  UpdateNote;
 end;
 
 procedure TInspector.UpdateReadOnly;
@@ -1159,6 +1183,14 @@ begin
     FShowAllKnownDirectives := Value;
     FRowSetSignature := ''; { Force a rebuild, see UpdateFromCaret's early exit }
     UpdateFromCaret;
+  end;
+end;
+
+procedure TInspector.SetShowAllKnownDirectivesSuppressedNote(const Value: Boolean);
+begin
+  if Value <> FShowAllKnownDirectivesSuppressedNote then begin
+    FShowAllKnownDirectivesSuppressedNote := Value;
+    UpdateNote;
   end;
 end;
 
