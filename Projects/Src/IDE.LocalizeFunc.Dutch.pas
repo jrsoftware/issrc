@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..965] of TTranslationPair = (
+  DutchIDETranslations: array [0..970] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -177,6 +177,9 @@ const
     (English: 'Invalid command.'; Localized: 'Ongeldige opdracht.'),
     (English: '%1 must be an integer value'; Localized: '%1 moet een geheel getal zijn'),
     (English: 'The script cannot be edited because it is read-only'; Localized: 'Het script kan niet worden bewerkt omdat het alleen-lezen is'),
+    (English: 'Move to a key/value section or parameter entry'; Localized: 'Ga naar een sleutel/waarde-sectie of parametervermelding'),
+    (English: 'Unspecified directives are hidden because this section occurs more than once'; Localized: 'Niet-opgegeven directieven zijn verborgen omdat deze sectie meer dan één keer voorkomt'),
+    (English: 'Unspecified directives are hidden because this is not the main script file'; Localized: 'Niet-opgegeven directieven zijn verborgen omdat dit niet het hoofdscriptbestand is'),
     (English: 'Compiler'; Localized: 'Compiler'),
     (English: 'Compression'; Localized: 'Compressie'),
     (English: 'Installer'; Localized: 'Installatieprogramma'),
@@ -249,6 +252,7 @@ const
     (English: 'Commercial license key has been removed.'; Localized: 'Commerciële licentiesleutel is verwijderd.'),
     (English: 'Your version of Inno Setup has been updated! <a id="%1">See what''s new</a>.'; Localized: 'Uw versie van Inno Setup is bijgewerkt! <a id="%1">Bekijk wat er nieuw is</a>.'),
     (English: 'VS Code-style editor shortcuts added! Use the <a id="%1">Editor Keys option</a> in Options dialog.'; Localized: 'Editorsneltoetsen in VS Code-stijl toegevoegd! Gebruik de <a id="%1">optie Editortoetsen</a> in het venster Opties.'),
+    (English: 'RTF Editor added, a built-in WordPad replacement! Use the <a id="%1">RTF Editor item</a> in Tools menu.'; Localized: 'RTF-editor toegevoegd, een ingebouwde vervanging voor WordPad! Gebruik het <a id="%1">item RTF-editor</a> in het menu Extra.'),
     (English: 'Inno Setup Compiler is available in your language! Use the <a id="%1">Language option</a> in Options dialog.'; Localized: 'Inno Setup Compiler is beschikbaar in uw taal! Gebruik de <a id="%1">optie Taal</a> in het venster Opties.'),
     (English: '<a id="%1">Ideas board is open!</a> Share your ideas and vote on others, this month only.'; Localized: '<a id="%1">Het ideeënbord is open!</a> Deel uw ideeën en stem op die van anderen, alleen deze maand.'),
     (English: 'Running a version released after your update entitlement ended. <a id="%1">Renew license</a>, <a id="%2">remove key</a>, or <a id="%3">exit</a>.'; Localized: 'U gebruikt een versie die is uitgebracht nadat uw recht op updates is verlopen. <a id="%1">Licentie verlengen</a>, <a id="%2">licentiesleutel verwijderen</a> of <a id="%3">afsluiten</a>.'),
@@ -300,6 +304,7 @@ const
     (English: 'Enter Commercial License Key'; Localized: 'Commerciële licentiesleutel invoeren'),
     (English: 'Paste your license key below'; Localized: 'Plak hieronder uw licentiesleutel'),
     (English: 'Close'; Localized: 'Sluiten'),
+    (English: 'Filter'; Localized: 'Filter'),
     (English: 'New Main Script (%1)'; Localized: 'Nieuw hoofdscript (%1)'),
     (English: 'Open Main Script (%1)'; Localized: 'Hoofdscript openen (%1)'),
     (English: 'Save (%1)'; Localized: 'Opslaan (%1)'),
@@ -439,6 +444,10 @@ const
     (English: 'Allow Undo after reload'; Localized: 'Ongedaan maken na opnieuw laden toestaan'),
     (English: 'Keep new %1 files closed'; Localized: 'Nieuwe %1-bestanden gesloten houden'),
     (English: 'Language:'; Localized: 'Taal:'),
+    (English: ' Inspector '; Localized: ' Inspector '),
+    (English: 'Show all known directives'; Localized: 'Alle bekende directieven tonen'),
+    (English: 'Quote new directive values'; Localized: 'Nieuwe directiefwaarden in aanhalingstekens zetten'),
+    (English: 'Quote new parameter values'; Localized: 'Nieuwe parameterwaarden in aanhalingstekens zetten'),
     (English: ' Editor '; Localized: ' Editor '),
     (English: 'Invoke autoco&mplete automatically'; Localized: 'Aa&nvulling automatisch aanroepen'),
     (English: 'Use syntax &highlighting'; Localized: 'S&yntaxismarkering gebruiken'),
@@ -459,10 +468,6 @@ const
     (English: 'Ke&ys:'; Localized: 'Toet&sen:'),
     (English: 'Show whitespace'; Localized: 'Witruimte tonen'),
     (English: 'Smart Home key'; Localized: 'Slimme Home-toets'),
-    (English: ' Inspector '; Localized: ' Inspector '),
-    (English: 'Show all known directives'; Localized: 'Alle bekende directieven tonen'),
-    (English: 'Quote new directive values'; Localized: 'Nieuwe directiefwaarden in aanhalingstekens zetten'),
-    (English: 'Quote new parameter values'; Localized: 'Nieuwe parameterwaarden in aanhalingstekens zetten'),
     (English: '&Associate .%1 files with this compiler'; Localized: '.%1-bestanden &aan deze compiler koppelen'),
     (English: '&Windows registry file (.%1) to import:'; Localized: '&Windows-registerbestand (.%1) om te importeren:'),
     (English: 'B&rowse...'; Localized: 'Bladere&n...'),

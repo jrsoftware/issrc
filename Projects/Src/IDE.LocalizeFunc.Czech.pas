@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..965] of TTranslationPair = (
+  CzechIDETranslations: array [0..970] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -177,6 +177,9 @@ const
     (English: 'Invalid command.'; Localized: 'Neplatný příkaz.'),
     (English: '%1 must be an integer value'; Localized: '%1 musí být celé číslo'),
     (English: 'The script cannot be edited because it is read-only'; Localized: 'Skript nelze upravit, protože je pouze pro čtení'),
+    (English: 'Move to a key/value section or parameter entry'; Localized: 'Přejděte na sekci klíč/hodnota nebo položku s parametry'),
+    (English: 'Unspecified directives are hidden because this section occurs more than once'; Localized: 'Nezadané direktivy jsou skryty, protože se tato sekce vyskytuje více než jednou'),
+    (English: 'Unspecified directives are hidden because this is not the main script file'; Localized: 'Nezadané direktivy jsou skryty, protože toto není hlavní soubor skriptu'),
     (English: 'Compiler'; Localized: 'Kompilátor'),
     (English: 'Compression'; Localized: 'Komprese'),
     (English: 'Installer'; Localized: 'Instalátor'),
@@ -249,6 +252,7 @@ const
     (English: 'Commercial license key has been removed.'; Localized: 'Komerční licenční klíč byl odebrán.'),
     (English: 'Your version of Inno Setup has been updated! <a id="%1">See what''s new</a>.'; Localized: 'Vaše verze Inno Setup byla aktualizována! <a id="%1">Podívejte se na novinky</a>.'),
     (English: 'VS Code-style editor shortcuts added! Use the <a id="%1">Editor Keys option</a> in Options dialog.'; Localized: 'Byly přidány klávesové zkratky editoru ve stylu VS Code! Použijte možnost <a id="%1">Klávesy editoru</a> v dialogu Možnosti.'),
+    (English: 'RTF Editor added, a built-in WordPad replacement! Use the <a id="%1">RTF Editor item</a> in Tools menu.'; Localized: 'Byl přidán Editor RTF, vestavěná náhrada programu WordPad! Použijte položku <a id="%1">Editor RTF</a> v nabídce Nástroje.'),
     (English: 'Inno Setup Compiler is available in your language! Use the <a id="%1">Language option</a> in Options dialog.'; Localized: 'Inno Setup Compiler je k dispozici ve vašem jazyce! Použijte možnost <a id="%1">Jazyk</a> v dialogu Možnosti.'),
     (English: '<a id="%1">Ideas board is open!</a> Share your ideas and vote on others, this month only.'; Localized: '<a id="%1">Nástěnka nápadů je otevřená!</a> Sdílejte své nápady a hlasujte o ostatních, pouze tento měsíc.'),
     (English: 'Running a version released after your update entitlement ended. <a id="%1">Renew license</a>, <a id="%2">remove key</a>, or <a id="%3">exit</a>.'; Localized: 'Používáte verzi vydanou po skončení vašeho nároku na aktualizace. <a id="%1">Obnovit licenci</a>, <a id="%2">odebrat klíč</a> nebo <a id="%3">ukončit</a>.'),
@@ -300,6 +304,7 @@ const
     (English: 'Enter Commercial License Key'; Localized: 'Zadat komerční licenční klíč'),
     (English: 'Paste your license key below'; Localized: 'Vložte svůj licenční klíč níže'),
     (English: 'Close'; Localized: 'Zavřít'),
+    (English: 'Filter'; Localized: 'Filtr'),
     (English: 'New Main Script (%1)'; Localized: 'Nový hlavní skript (%1)'),
     (English: 'Open Main Script (%1)'; Localized: 'Otevřít hlavní skript (%1)'),
     (English: 'Save (%1)'; Localized: 'Uložit (%1)'),
@@ -439,6 +444,10 @@ const
     (English: 'Allow Undo after reload'; Localized: 'Povolit Zpět po opětovném načtení'),
     (English: 'Keep new %1 files closed'; Localized: 'Nové soubory %1 ponechat zavřené'),
     (English: 'Language:'; Localized: 'Jazyk:'),
+    (English: ' Inspector '; Localized: ' Inspektor '),
+    (English: 'Show all known directives'; Localized: 'Zobrazovat všechny známé direktivy'),
+    (English: 'Quote new directive values'; Localized: 'Uzavírat nové hodnoty direktiv do uvozovek'),
+    (English: 'Quote new parameter values'; Localized: 'Uzavírat nové hodnoty parametrů do uvozovek'),
     (English: ' Editor '; Localized: ' Editor '),
     (English: 'Invoke autoco&mplete automatically'; Localized: '&Automaticky vyvolávat automatické dokončování'),
     (English: 'Use syntax &highlighting'; Localized: 'Použít zvýraznění synta&xe'),
@@ -459,10 +468,6 @@ const
     (English: 'Ke&ys:'; Localized: 'Kláves&y:'),
     (English: 'Show whitespace'; Localized: 'Zobrazit prázdné znaky'),
     (English: 'Smart Home key'; Localized: 'Chytrá klávesa Home'),
-    (English: ' Inspector '; Localized: ' Inspektor '),
-    (English: 'Show all known directives'; Localized: 'Zobrazovat všechny známé direktivy'),
-    (English: 'Quote new directive values'; Localized: 'Uzavírat nové hodnoty direktiv do uvozovek'),
-    (English: 'Quote new parameter values'; Localized: 'Uzavírat nové hodnoty parametrů do uvozovek'),
     (English: '&Associate .%1 files with this compiler'; Localized: '&Přidružit soubory .%1 k tomuto kompilátoru'),
     (English: '&Windows registry file (.%1) to import:'; Localized: 'Soubor registru &Windows (.%1) k importu:'),
     (English: 'B&rowse...'; Localized: 'P&rocházet...'),

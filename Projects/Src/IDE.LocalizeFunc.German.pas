@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..965] of TTranslationPair = (
+  GermanIDETranslations: array [0..970] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -177,6 +177,9 @@ const
     (English: 'Invalid command.'; Localized: 'Ungültiger Befehl.'),
     (English: '%1 must be an integer value'; Localized: '%1 muss ein ganzzahliger Wert sein'),
     (English: 'The script cannot be edited because it is read-only'; Localized: 'Das Skript kann nicht bearbeitet werden, da es schreibgeschützt ist'),
+    (English: 'Move to a key/value section or parameter entry'; Localized: 'Wechseln Sie zu einem Schlüssel/Wert-Abschnitt oder Parametereintrag'),
+    (English: 'Unspecified directives are hidden because this section occurs more than once'; Localized: 'Nicht angegebene Direktiven sind ausgeblendet, da dieser Abschnitt mehr als einmal vorkommt'),
+    (English: 'Unspecified directives are hidden because this is not the main script file'; Localized: 'Nicht angegebene Direktiven sind ausgeblendet, da dies nicht die Hauptskriptdatei ist'),
     (English: 'Compiler'; Localized: 'Compiler'),
     (English: 'Compression'; Localized: 'Komprimierung'),
     (English: 'Installer'; Localized: 'Installer'),
@@ -249,6 +252,7 @@ const
     (English: 'Commercial license key has been removed.'; Localized: 'Kommerzieller Lizenzschlüssel wurde entfernt.'),
     (English: 'Your version of Inno Setup has been updated! <a id="%1">See what''s new</a>.'; Localized: 'Ihre Version von Inno Setup wurde aktualisiert! <a id="%1">Neuerungen ansehen</a>.'),
     (English: 'VS Code-style editor shortcuts added! Use the <a id="%1">Editor Keys option</a> in Options dialog.'; Localized: 'Editor-Tastenkombinationen im VS Code-Stil hinzugefügt! Verwenden Sie die <a id="%1">Option "Tasten"</a> im Dialog "Optionen".'),
+    (English: 'RTF Editor added, a built-in WordPad replacement! Use the <a id="%1">RTF Editor item</a> in Tools menu.'; Localized: 'RTF-Editor hinzugefügt, ein integrierter WordPad-Ersatz! Verwenden Sie den <a id="%1">Eintrag "RTF-Editor"</a> im Menü "Extras".'),
     (English: 'Inno Setup Compiler is available in your language! Use the <a id="%1">Language option</a> in Options dialog.'; Localized: 'Inno Setup Compiler ist in Ihrer Sprache verfügbar! Verwenden Sie die <a id="%1">Option "Sprache"</a> im Dialog "Optionen".'),
     (English: '<a id="%1">Ideas board is open!</a> Share your ideas and vote on others, this month only.'; Localized: '<a id="%1">Das Ideen-Board ist geöffnet!</a> Teilen Sie Ihre Ideen und stimmen Sie über andere ab, nur diesen Monat.'),
     (English: 'Running a version released after your update entitlement ended. <a id="%1">Renew license</a>, <a id="%2">remove key</a>, or <a id="%3">exit</a>.'; Localized: 'Sie verwenden eine Version, die nach dem Ende Ihrer Update-Berechtigung veröffentlicht wurde. <a id="%1">Lizenz verlängern</a>, <a id="%2">Schlüssel entfernen</a> oder <a id="%3">beenden</a>.'),
@@ -300,6 +304,7 @@ const
     (English: 'Enter Commercial License Key'; Localized: 'Kommerziellen Lizenzschlüssel eingeben'),
     (English: 'Paste your license key below'; Localized: 'Fügen Sie Ihren Lizenzschlüssel unten ein'),
     (English: 'Close'; Localized: 'Schließen'),
+    (English: 'Filter'; Localized: 'Filter'),
     (English: 'New Main Script (%1)'; Localized: 'Neues Hauptskript (%1)'),
     (English: 'Open Main Script (%1)'; Localized: 'Hauptskript öffnen (%1)'),
     (English: 'Save (%1)'; Localized: 'Speichern (%1)'),
@@ -439,6 +444,10 @@ const
     (English: 'Allow Undo after reload'; Localized: 'Rückgängig nach dem Neuladen erlauben'),
     (English: 'Keep new %1 files closed'; Localized: 'Neue %1-Dateien geschlossen halten'),
     (English: 'Language:'; Localized: 'Sprache:'),
+    (English: ' Inspector '; Localized: ' Inspektor '),
+    (English: 'Show all known directives'; Localized: 'Alle bekannten Direktiven anzeigen'),
+    (English: 'Quote new directive values'; Localized: 'Neue Direktivenwerte in Anführungszeichen setzen'),
+    (English: 'Quote new parameter values'; Localized: 'Neue Parameterwerte in Anführungszeichen setzen'),
     (English: ' Editor '; Localized: ' Editor '),
     (English: 'Invoke autoco&mplete automatically'; Localized: 'Autovervollständigung auto&matisch aufrufen'),
     (English: 'Use syntax &highlighting'; Localized: 'Syntax&hervorhebung verwenden'),
@@ -459,10 +468,6 @@ const
     (English: 'Ke&ys:'; Localized: 'Taste&n:'),
     (English: 'Show whitespace'; Localized: 'Leerzeichen anzeigen'),
     (English: 'Smart Home key'; Localized: 'Intelligente Pos1-Taste'),
-    (English: ' Inspector '; Localized: ' Inspektor '),
-    (English: 'Show all known directives'; Localized: 'Alle bekannten Direktiven anzeigen'),
-    (English: 'Quote new directive values'; Localized: 'Neue Direktivenwerte in Anführungszeichen setzen'),
-    (English: 'Quote new parameter values'; Localized: 'Neue Parameterwerte in Anführungszeichen setzen'),
     (English: '&Associate .%1 files with this compiler'; Localized: '.%1-D&ateien diesem Compiler zuordnen'),
     (English: '&Windows registry file (.%1) to import:'; Localized: '&Windows-Registry-Datei (.%1) zum Importieren:'),
     (English: 'B&rowse...'; Localized: 'Du&rchsuchen...'),

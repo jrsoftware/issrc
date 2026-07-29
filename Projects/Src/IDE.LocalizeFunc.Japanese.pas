@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..965] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..970] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -177,6 +177,9 @@ const
     (English: 'Invalid command.'; Localized: '無効なコマンドです。'),
     (English: '%1 must be an integer value'; Localized: '%1 は整数値である必要があります'),
     (English: 'The script cannot be edited because it is read-only'; Localized: 'スクリプトは読み取り専用のため編集できません'),
+    (English: 'Move to a key/value section or parameter entry'; Localized: 'キー/値のセクションまたはパラメーターエントリに移動してください'),
+    (English: 'Unspecified directives are hidden because this section occurs more than once'; Localized: '未指定のディレクティブは、このセクションが複数回出現するため非表示になっています'),
+    (English: 'Unspecified directives are hidden because this is not the main script file'; Localized: '未指定のディレクティブは、これがメインスクリプトファイルではないため非表示になっています'),
     (English: 'Compiler'; Localized: 'コンパイラー'),
     (English: 'Compression'; Localized: '圧縮'),
     (English: 'Installer'; Localized: 'インストーラー'),
@@ -249,6 +252,7 @@ const
     (English: 'Commercial license key has been removed.'; Localized: '商用ライセンスキーが削除されました。'),
     (English: 'Your version of Inno Setup has been updated! <a id="%1">See what''s new</a>.'; Localized: 'ご使用の Inno Setup のバージョンが更新されました！<a id="%1">新機能を見る</a>。'),
     (English: 'VS Code-style editor shortcuts added! Use the <a id="%1">Editor Keys option</a> in Options dialog.'; Localized: 'VS Code スタイルのエディターショートカットが追加されました！「オプション」ダイアログで <a id="%1">エディターの「キー」オプション</a>を使用してください。'),
+    (English: 'RTF Editor added, a built-in WordPad replacement! Use the <a id="%1">RTF Editor item</a> in Tools menu.'; Localized: 'ワードパッドの代わりになる組み込みの RTF エディターが追加されました！「ツール」メニューで <a id="%1">「RTF エディター」項目</a>を使用してください。'),
     (English: 'Inno Setup Compiler is available in your language! Use the <a id="%1">Language option</a> in Options dialog.'; Localized: 'Inno Setup Compiler をお使いの言語でご利用いただけます！「オプション」ダイアログで <a id="%1">「言語」オプション</a>を使用してください。'),
     (English: '<a id="%1">Ideas board is open!</a> Share your ideas and vote on others, this month only.'; Localized: '<a id="%1">アイデアボードが公開されました！</a> あなたのアイデアを共有し、他の人のアイデアに投票してください。今月限定です。'),
     (English: 'Running a version released after your update entitlement ended. <a id="%1">Renew license</a>, <a id="%2">remove key</a>, or <a id="%3">exit</a>.'; Localized: 'アップデート権の終了後にリリースされたバージョンを実行しています。<a id="%1">ライセンスを更新</a>、<a id="%2">キーを削除</a>、または <a id="%3">終了</a>。'),
@@ -300,6 +304,7 @@ const
     (English: 'Enter Commercial License Key'; Localized: '商用ライセンスキーの入力'),
     (English: 'Paste your license key below'; Localized: 'ライセンスキーを下に貼り付けてください'),
     (English: 'Close'; Localized: '閉じる'),
+    (English: 'Filter'; Localized: 'フィルター'),
     (English: 'New Main Script (%1)'; Localized: '新しいメインスクリプト (%1)'),
     (English: 'Open Main Script (%1)'; Localized: 'メインスクリプトを開く (%1)'),
     (English: 'Save (%1)'; Localized: '保存 (%1)'),
@@ -439,6 +444,10 @@ const
     (English: 'Allow Undo after reload'; Localized: '再読み込み後に元に戻すことを許可'),
     (English: 'Keep new %1 files closed'; Localized: '新しい %1 ファイルを閉じたままにする'),
     (English: 'Language:'; Localized: '言語:'),
+    (English: ' Inspector '; Localized: ' インスペクター '),
+    (English: 'Show all known directives'; Localized: '既知のディレクティブをすべて表示'),
+    (English: 'Quote new directive values'; Localized: 'ディレクティブの新しい値を引用符で囲む'),
+    (English: 'Quote new parameter values'; Localized: 'パラメーターの新しい値を引用符で囲む'),
     (English: ' Editor '; Localized: ' エディター '),
     (English: 'Invoke autoco&mplete automatically'; Localized: 'オートコンプリートを自動的に呼び出す(&M)'),
     (English: 'Use syntax &highlighting'; Localized: '構文の強調表示を使用(&H)'),
@@ -459,10 +468,6 @@ const
     (English: 'Ke&ys:'; Localized: 'キー(&Y):'),
     (English: 'Show whitespace'; Localized: '空白文字を表示'),
     (English: 'Smart Home key'; Localized: 'スマート Home キー'),
-    (English: ' Inspector '; Localized: ' インスペクター '),
-    (English: 'Show all known directives'; Localized: '既知のディレクティブをすべて表示'),
-    (English: 'Quote new directive values'; Localized: 'ディレクティブの新しい値を引用符で囲む'),
-    (English: 'Quote new parameter values'; Localized: 'パラメーターの新しい値を引用符で囲む'),
     (English: '&Associate .%1 files with this compiler'; Localized: '.%1 ファイルをこのコンパイラーに関連付ける(&A)'),
     (English: '&Windows registry file (.%1) to import:'; Localized: 'インポートする Windows レジストリファイル (.%1)(&W):'),
     (English: 'B&rowse...'; Localized: '参照(&R)...'),
