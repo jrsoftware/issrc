@@ -6000,15 +6000,28 @@ begin
   FTheme.Typ := FOptions.ThemeType;
 
   {$IF RtlVersion >= 36.0}
-  { For MainForm the active style only impacts message boxes, tooltips, the inspector's filter
-    edit, and the inspector's checkboxes, in-place editors, drop-down buttons, and drop-down
-    lists: FMemos, ToolbarPanel, UpdatePanel, StatusSplitPanel, InspectorSplitPanel,
-    InspectorCaptionText, InspectorNoteText and the 4 ListBoxes all ignore it because their
-    StyleName property is set to 'Windows' always, either by the .dfm or by code. Additionally,
-    for scrollbars and StatusBar, MainForm's StyleElements is empty, and so are InspectorPanel's
-    and InspectorHeaderPanel's, which keeps their manual coloring (InspectorPanel's color, which
-    the header follows through ParentColor) without opting their children out like a 'Windows'
-    StyleName would. Menus ignore it because shMenus is removed from TStyleManager.SystemHooks
+  { For MainForm the active style only impacts:
+    - Message boxes
+    - Tooltips
+    - Scrollbars and StatusBar
+    - The inspector's filter edit
+    - The inspector's checkboxes, in-place editors, drop-down buttons, and drop-down lists
+    The following components (and any children) ignore the active style because
+    their StyleName is set to 'Windows' always, either by the .dfm or by code:
+    - FMemos
+    - ToolbarPanel
+    - UpdatePanel
+    - StatusSplitPanel
+    - InspectorSplitPanel, InspectorCaptionText, and InspectorNoteText
+    - The 4 ListBoxes
+    Setting a control's StyleName to 'Windows' also prevents all its children
+    from being styled. For that reason some controls set StyleElements to []
+    instead of setting StyleName. This allows children to use the active style.
+    This applies to:
+    - MainForm itself, for styling of scrollbars and StatusBar
+    - InspectorHeaderPanel, for styling of the inspector filter edit
+    - InspectorPanel, for styling of the inspector elements named above (and InspectorHeaderPanel's children)
+    Menus ignore the active style because shMenus is removed from TStyleManager.SystemHooks
     at startup. }
   if FTheme.Dark then
     TStyleManager.TrySetStyle('Windows11 Modern Dark')
