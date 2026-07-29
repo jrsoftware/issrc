@@ -1012,6 +1012,7 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
 <tr><td><tt>!</tt></td><td><tt>U+0021</tt></td><td>Exclamation Mark</td></tr>
 <tr><td><tt>.</tt></td><td><tt>U+002E</tt></td><td>Full Stop</td></tr>
 <tr><td><tt>?</tt></td><td><tt>U+003F</tt></td><td>Question Mark</td></tr>
+<tr><td><tt>&#x0589;</tt></td><td><tt>U+0589</tt></td><td>Armenian Full Stop</td></tr>
 <tr><td><tt>&#x061F;</tt></td><td><tt>U+061F</tt></td><td>Arabic Question Mark</td></tr>
 <tr><td><tt>&#x06D4;</tt></td><td><tt>U+06D4</tt></td><td>Arabic Full Stop</td></tr>
 <tr><td><tt>&#x3002;</tt></td><td><tt>U+3002</tt></td><td>Ideographic Full Stop</td></tr>
