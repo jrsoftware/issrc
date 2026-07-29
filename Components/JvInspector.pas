@@ -362,7 +362,7 @@ implementation
 uses
   System.UITypes,
   Character, StrUtils, Types, Forms, Themes,
-  JvInspector.MSAA;
+  JvInspector.MSAA, OleAccFunc;
 
 const
   BackSpace = #8;
@@ -1138,7 +1138,7 @@ end;
 
 procedure TJvInspector.BeforeDestruction;
 begin
-  inherited BeforeDestruction;
+  inherited;
   { The accessible object reads FRoot and FVisibleList, which are freed
     below: clear its control pointer and disconnect it first, then release
     our reference. A later WM_GETOBJECT will not recreate it: the inherited
@@ -1176,7 +1176,7 @@ end;
 
 function TJvInspector.Focused: Boolean;
 begin
-  Result := inherited Focused or
+  Result := inherited or
     (EditorActive and Selected.EditCtrl.Focused);
 end;
 
@@ -2236,7 +2236,7 @@ end;
 
 procedure TJvCustomInspectorItem.BeforeDestruction;
 begin
-  inherited BeforeDestruction;
+  inherited;
   if Parent <> nil then
     Parent.FItems.Extract(Self); // FItems owns the items
   if (Inspector <> nil) and (Inspector.FPressedItem = Self) then
@@ -2300,7 +2300,7 @@ end;
 
 procedure TJvInspectorListBox.CreateWnd;
 begin
-  inherited CreateWnd;
+  inherited;
   Windows.SetParent(Handle, 0);
 end;
 

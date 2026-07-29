@@ -28,8 +28,6 @@ type
     function HandleMSAAGetObject(var Message: TMessage): Boolean;
   end;
 
-procedure SetOrClearNameForMSAA(const AWindow: HWND; const AName: string);
-
 implementation
 
 uses
@@ -90,25 +88,6 @@ type
     destructor Destroy; override;
     procedure ControlDestroying;
   end;
-
-procedure SetOrClearNameForMSAA(const AWindow: HWND; const AName: string);
-{ Annotates the name property of a control. Call this again with AName set
-  to an empty string before destroying the contol. Also see
-  https://learn.microsoft.com/en-us/windows/win32/winauto/ensure-that-ui-elements-are-named-correctly }
-begin
-  var Services: IAccPropServices;
-  if (CoCreateInstance(CLSID_AccPropServices, nil, CLSCTX_INPROC_SERVER,
-      IAccPropServices, Services) = S_OK) and (Services <> nil) then begin
-    if AName <> '' then
-      Services.SetHwndPropStr(wireHWND(AWindow)^, DWORD(OBJID_CLIENT),
-        CHILDID_SELF, PROPID_ACC_NAME, PChar(AName))
-    else begin
-      var PropId := PROPID_ACC_NAME;
-      Services.ClearHwndProps(wireHWND(AWindow)^, DWORD(OBJID_CLIENT),
-        CHILDID_SELF, PropId, 1);
-    end;
-  end;
-end;
 
 { TJvInspectorMSAAHelper }
 

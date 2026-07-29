@@ -540,6 +540,7 @@ type
     FInspector: TInspector;
     FAllowUpdateInspectorPanelWidth: Boolean;
     FLiveScriptObjectFactories: TObjectDictionary<TScintEdit, TLiveScriptObjectFactory>;
+    FSavedInspectorFilterEditWindowProc: TWndMethod;
     procedure AppOnActivate(Sender: TObject);
     class procedure AppOnGetActiveFormHandle(var AHandle: HWND);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -569,6 +570,7 @@ type
     function InitializeMainMemo(const Memo: TIDEScintFileEdit; const PopupMenu: TPopupMenu): TIDEScintFileEdit;
     function InitializeMemoBase(const Memo: TIDEScintEdit; const PopupMenu: TPopupMenu): TIDEScintEdit;
     function InitializeNonFileMemo(const Memo: TIDEScintEdit; const PopupMenu: TPopupMenu): TIDEScintEdit;
+    procedure InspectorFilterEditWindowProc(var Message: TMessage);
     procedure InvalidateStatusPanel(const Index: Integer);
     procedure LoadBreakPointLinesAndUpdateLineMarkers(const AMemo: TIDEScintFileEdit);
     procedure LoadKnownIncludedAndHiddenFilesAndUpdateMemos(const AFilename: String);
@@ -734,7 +736,7 @@ implementation
 uses
   ActiveX, Clipbrd, ShellApi, ShlObj, IniFiles, Registry, Consts, Types, UITypes, Themes, DateUtils,
   Math, StrUtils, WideStrUtils, TypInfo,
-  PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc, UnsignedFunc, Toolbar.Accessibility, JvInspector,
+  PathFunc, TaskbarProgressFunc, NewUxTheme.TmSchema, BrowseFunc, UnsignedFunc, Toolbar.Accessibility, JvInspector, OleAccFunc,
   Shared.CommonFunc.Vcl, Shared.CommonFunc, Shared.FileClass, Shared.ScriptFunc,
   Shared.SignToolsFunc, Shared.CompilerInt, Shared.LicenseFunc,
   {$IFDEF STATICCOMPILER} Compiler.Compile, {$ENDIF}
@@ -1182,6 +1184,8 @@ begin
 
   CreateInspector;
   UpdateInspectorHeaderPanelLayout;
+  FSavedInspectorFilterEditWindowProc := InspectorFilterEdit.WindowProc;
+  InspectorFilterEdit.WindowProc := InspectorFilterEditWindowProc;
 
   FMemosStyler.Theme := FTheme;
 
@@ -1660,7 +1664,7 @@ begin
   { The inspector handles F4 itself, except Alt+F4 }
   if (Message.CharCode = VK_F4) and
      not (ssAlt in KeyDataToShiftState(Message.KeyData)) and
-     InspectorPanel.Visible and InspectorPanel.ContainsControl(ActiveControl) then
+     InspectorPanel.Visible and FInspector.JvInspector.ContainsControl(ActiveControl) then
     Exit(False);
 
   Result := inherited;
@@ -3842,6 +3846,15 @@ procedure TMainForm.InspectorPanelResize(Sender: TObject);
 begin
   if InspectorNoteText.Visible then
     InspectorNoteText.AdjustHeight;
+end;
+
+procedure TMainForm.InspectorFilterEditWindowProc(var Message: TMessage);
+begin
+  if Message.Msg = WM_DESTROY then
+    SetOrClearNameForMSAA(InspectorFilterEdit.Handle, '');
+  FSavedInspectorFilterEditWindowProc(Message);
+  if Message.Msg = WM_CREATE then
+    SetOrClearNameForMSAA(InspectorFilterEdit.Handle, InspectorFilterEdit.TextHint);
 end;
 
 procedure TMainForm.InspectorFilterEditChange(Sender: TObject);
