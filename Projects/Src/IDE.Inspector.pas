@@ -739,6 +739,21 @@ procedure TInspector.UpdateFromCaret;
     end;
   end;
 
+  procedure ExpandParentsKeptByChildMatch(const AParent: TJvCustomInspectorItem);
+  { Make sure the category and Flags parent row are expanded when a row or
+    flag was found through the filter }
+  begin
+    for var I := 0 to AParent.Count-1 do begin
+      const Item = AParent.Items[I];
+      if Item.Count > 0 then begin
+        if (Item is TJvInspectorCustomCategoryItem) or
+           not NameMatchesFilter(Item.DisplayName) then
+          Item.Expanded := True;
+        ExpandParentsKeptByChildMatch(Item);
+      end;
+    end;
+  end;
+
   procedure RebuildRows;
   { Items must not be added, removed, expanded or collapsed while an in-place
     edit is open: JvInspector's RebuildVisible can then reselect the wrong
@@ -770,6 +785,8 @@ procedure TInspector.UpdateFromCaret;
           AddKeyValueSectionRows;
 
         RestoreExpandedStates(ExpandedStates, FJvInspector.Root);
+        if FFilterText <> '' then
+          ExpandParentsKeptByChildMatch(FJvInspector.Root);
       finally
         ExpandedStates.Free;
       end;
