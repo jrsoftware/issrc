@@ -914,6 +914,8 @@ constructor TMainForm.Create(AOwner: TComponent);
         LFmtMessage(SUpdatePanelVersionUpdated, ['hwhatsnew']), BannerGreen, True);
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
         LFmtMessage(SUpdatePanelVSCodeShortcutsAdded, ['toptions-vscode']), BannerBlue, True);
+      CheckUpdatePanelMessage(Ini, 'RichEditor', 0, 1,
+        LFmtMessage(SUpdatePanelRichEditorAdded, ['tricheditor']), BannerBlue, True);
       if FOptions.Language = ilEnglish then begin
         var MessageLanguage := ilEnglish;
         case PRIMARYLANGID(GetUILanguage) of
@@ -6867,6 +6869,8 @@ begin
     HUnregister.Click
   else if Link = 'hwhatsnew' then
     HWhatsNew.Click
+  else if Link = 'tricheditor' then
+    TRichEditor.Click
   else if Link = 'toptions-vscode' then begin
     TOptionsForm.DropDownOnNextShow := odMemoKeyMapping;
     TOptions.Click;
