@@ -3183,8 +3183,9 @@ begin
           Invalid;
         CompressProps.BTMode := I;
       end;
-    ssLZMANumBlockThreads: begin
-        CompressProps.NumBlockThreads := StrToIntRange(Value, 1, 256);
+    ssLZMANumBlockThreads, ssZstdNumWorkerThreads: begin
+        CompressProps.NumBlockThreads := StrToIntRange(Value, 1,
+          IfThen(Directive = ssLZMANumBlockThreads, 256, 64));
       end;
     ssLZMANumFastBytes: begin
         CompressProps.NumFastBytes := StrToIntRange(Value, 5, 273);
@@ -8390,6 +8391,9 @@ begin
     CallIdleProc;
 
     { Verify settings set in [Setup] section }
+    if (SetupDirectiveLines[ssLZMANumBlockThreads] <> 0) and
+       (SetupDirectiveLines[ssZstdNumWorkerThreads] <> 0) then
+      AbortCompileFmt(SCompilerEntryConflict, ['LZMANumBlockThreads', 'ZstdNumWorkerThreads', 'Setup']);
     if SetupDirectiveLines[ssUseSetupLdr] = 0 then begin
       if SetupArchitecture = sa32bit then
         SetupLdrArchitecture := sla32bit
