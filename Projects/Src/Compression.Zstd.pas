@@ -291,7 +291,7 @@ destructor TZstdDecompressor.Destroy;
 begin
   if FStrm <> nil then
     ZSTD_freeDStream(FStrm);
-  inherited Destroy;
+  inherited;
 end;
 
 procedure TZstdDecompressor.DecompressInto(var Buffer; Count: Cardinal);
