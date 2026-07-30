@@ -25,10 +25,10 @@ type
   TInspectorRow = record
     Kind: TInspectorRowKind;
     Name: String;            { The parameter or key name }
-    FlagName: String;        { irkParameterFlag and irkKeyFlag }
-    NameIndex: Integer;      { The parameter index, or the line index for a
-                               key. -1 if known but not present in the
+    Index: Integer;          { The parameter index, or the line index for a
+                               key, or -1 if known but not present in the
                                script }
+    FlagName: String;        { irkParameterFlag and irkKeyFlag }
     LastValueSignature: String;
     CheckBox: Boolean;
   end;
@@ -251,7 +251,7 @@ begin
   if (FLiveParameterSectionEntry = nil) or not FLiveParameterSectionEntry.Valid then
     Exit(False);
   AEntry := FLiveParameterSectionEntry.Entry;
-  AIndex := ARow.NameIndex;
+  AIndex := ARow.Index;
   Result := AEntry.TryResolve(ARow.Name, AIndex);
 end;
 
@@ -263,7 +263,7 @@ begin
   if (FLiveKeyValueSection = nil) or not FLiveKeyValueSection.Valid then
     Exit(False);
   ASection := FLiveKeyValueSection.Section;
-  AIndex := ARow.NameIndex;
+  AIndex := ARow.Index;
   Result := ASection.TryResolve(ARow.Name, AIndex);
 end;
 
@@ -555,42 +555,42 @@ procedure TInspector.UpdateFromCaret;
   begin
     var Row := Default(TInspectorRow);
     Row.Kind := AKind;
-    Row.NameIndex := -1;
+    Row.Index := -1;
     const Item = AddRow(AParent, ADisplayName, False, Row);
     Item.Flags := Item.Flags + [iifReadonly];
   end;
   {$ENDIF}
 
   function MakeParameterRow(const AName: String;
-    const ANameIndex: Integer): TInspectorRow;
+    const AIndex: Integer): TInspectorRow;
   begin
     Result := Default(TInspectorRow);
     Result.Kind := irkParameter;
     Result.Name := AName;
-    Result.NameIndex := ANameIndex;
+    Result.Index := AIndex;
   end;
 
   procedure AddParameterFlagRow(const AParent: TJvCustomInspectorItem;
-    const AParameterName, AFlagName: String; const ANameIndex: Integer);
+    const AParameterName, AFlagName: String; const AIndex: Integer);
   begin
     var Row := Default(TInspectorRow);
     Row.Kind := irkParameterFlag;
     Row.Name := AParameterName;
     Row.FlagName := AFlagName;
-    Row.NameIndex := ANameIndex;
+    Row.Index := AIndex;
     AddRow(AParent, AFlagName, True, Row);
   end;
 
   procedure AddParameterRow(const AParent: TJvCustomInspectorItem;
-    const ADefinition: TMemberDefinition; const ANameIndex: Integer);
+    const ADefinition: TMemberDefinition; const AIndex: Integer);
   begin
-    const Row = MakeParameterRow(ADefinition.Name, ANameIndex);
+    const Row = MakeParameterRow(ADefinition.Name, AIndex);
     const Item = AddRow(AParent, Row.Name, False, Row);
     if ADefinition.ValueKind = mvkFlags then begin
       const KeepAllFlags = NameMatchesFilter(ADefinition.Name);
       for var FlagName in ADefinition.KnownValues do
         if KeepAllFlags or NameMatchesFilter(FlagName) then
-          AddParameterFlagRow(Item, ADefinition.Name, FlagName, ANameIndex); { Adds a child to Item }
+          AddParameterFlagRow(Item, ADefinition.Name, FlagName, AIndex); { Adds a child to Item }
     end else if ADefinition.ValueKind = mvkChoice then
       Item.Flags := Item.Flags + [iifValueList];
   end;
@@ -614,33 +614,33 @@ procedure TInspector.UpdateFromCaret;
   end;
 
   function MakeKeyRow(const AName: String;
-    const ANameIndex: Integer): TInspectorRow;
+    const AIndex: Integer): TInspectorRow;
   begin
     Result := Default(TInspectorRow);
     Result.Kind := irkKey;
     Result.Name := AName;
-    Result.NameIndex := ANameIndex;
+    Result.Index := AIndex;
   end;
 
   function KeyRowIsCheckBox(const ADefinition: TMemberDefinition;
-    const ANameIndex: Integer): Boolean;
+    const AIndex: Integer): Boolean;
   { A yes/no key gets a true checkbox row only if its value is a simple yes/no and
     not something like an ISPP inline directive, else it falls back to a text & dropdown row. }
   begin
     var BoolValue := False;
     Result := (ADefinition.ValueKind = mvkYesNo) and
-      ((ANameIndex < 0) or { Don't check unspecified keys, they don't have a value }
-       TryStrToBoolean(FLiveKeyValueSection.Section.Lines[ANameIndex].Value, BoolValue));
+      ((AIndex < 0) or { Don't check unspecified keys, they don't have a value }
+       TryStrToBoolean(FLiveKeyValueSection.Section.Lines[AIndex].Value, BoolValue));
   end;
 
   procedure AddKeyFlagRow(const AParent: TJvCustomInspectorItem;
-    const AKeyName, AFlagName: String; const ANameIndex: Integer);
+    const AKeyName, AFlagName: String; const AIndex: Integer);
   begin
     var Row := Default(TInspectorRow);
     Row.Kind := irkKeyFlag;
     Row.Name := AKeyName;
     Row.FlagName := AFlagName;
-    Row.NameIndex := ANameIndex;
+    Row.Index := AIndex;
     AddRow(AParent, AFlagName, True, Row);
   end;
 
@@ -649,7 +649,7 @@ procedure TInspector.UpdateFromCaret;
   begin
     var Definition: TMemberDefinition;
     const Known = FLiveKeyValueSection.Section.TryGetDefinition(ARow.Name, Definition);
-    if Known and KeyRowIsCheckBox(Definition, ARow.NameIndex) then
+    if Known and KeyRowIsCheckBox(Definition, ARow.Index) then
       AddRow(AParent, ARow.Name, True, ARow)
     else begin
       const Item = AddRow(AParent, ARow.Name, False, ARow);
@@ -658,7 +658,7 @@ procedure TInspector.UpdateFromCaret;
           const KeepAllFlags = NameMatchesFilter(ARow.Name);
           for var FlagName in Definition.KnownValues do
             if KeepAllFlags or NameMatchesFilter(FlagName) then
-              AddKeyFlagRow(Item, ARow.Name, FlagName, ARow.NameIndex); { Adds a child to Item }
+              AddKeyFlagRow(Item, ARow.Name, FlagName, ARow.Index); { Adds a child to Item }
         end else if Definition.ValueKind in [mvkChoice, mvkYesNo] then
           Item.Flags := Item.Flags + [iifValueList];
       end;
@@ -1128,7 +1128,7 @@ begin
           var Index: Integer;
           if TryGetRowParameterSectionEntry(Row, Entry, Index) then
             Entry.SetFlag(Index, Row.FlagName, Value <> 0) { May adjust related flags as well }
-          else if (Entry <> nil) and (Row.NameIndex < 0) and (Value <> 0) then begin
+          else if (Entry <> nil) and (Row.Index < 0) and (Value <> 0) then begin
             { Group Add's and SetFlag's writes into a single undo action }
             FFactory.Memo.BeginUndoAction;
             try
@@ -1147,7 +1147,7 @@ begin
             NewValue := SYes;
           if TryGetRowKeyValueSection(Row, Section, Index) then
             Section.SetValue(Index, NewValue)
-          else if (Section <> nil) and (Row.NameIndex < 0) and
+          else if (Section <> nil) and (Row.Index < 0) and
                   not SameText(NewValue, Section.DefaultValue(Row.Name)) then { Skip unchanged from default, also see below }
             Section.Add(Row.Name, NewValue);
         end;
@@ -1157,7 +1157,7 @@ begin
           var Index: Integer;
           if TryGetRowKeyValueSection(Row, Section, Index) then
             Section.SetFlag(Index, Row.FlagName, Value <> 0) { May adjust related flags as well }
-          else if (Section <> nil) and (Row.NameIndex < 0) and (Value <> 0) then begin
+          else if (Section <> nil) and (Row.Index < 0) and (Value <> 0) then begin
             { Group Add's and SetFlag's writes into a single undo action. The
               new directive is seeded with the compiler default so the flags
               shown as checked stay checked. }
@@ -1221,7 +1221,7 @@ begin
               ValidateValue(Row.Name, Value, Definition);
             if Found then
               Entry.SetValue(Index, Value)
-            else if (Row.NameIndex < 0) and (Value <> '') then
+            else if (Row.Index < 0) and (Value <> '') then
               Entry.Add(Row.Name, Value);
           end;
         end;
@@ -1236,7 +1236,7 @@ begin
               ValidateValue(Row.Name, Value, Definition);
             if Found then
               Section.SetValue(Index, Value)
-            else if (Row.NameIndex < 0) and (Value <> '') and
+            else if (Row.Index < 0) and (Value <> '') and
                     (Value <> Section.DefaultValue(Row.Name)) then { Same as above, but case sensitive }
               Section.Add(Row.Name, Value);
           end;
