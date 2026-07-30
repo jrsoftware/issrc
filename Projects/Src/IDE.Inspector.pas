@@ -71,6 +71,8 @@ type
     procedure RowGetAsString(Sender: TJvCustomInspectorItem; var Value: String); overload;
     procedure RowSetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64);
     procedure RowSetAsString(Sender: TJvCustomInspectorItem; var Value: String);
+    procedure RowRemove(const AEntry: TScriptModelParameterSectionEntry;
+      const ASection: TScriptModelKeyValueSection; const AIndex: Integer);
     procedure ChoiceRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
     function ItemShouldBeBold(const AItem: TJvCustomInspectorItem): Boolean;
     procedure JvInspectorCustomizeItemCanvas(Item: TJvCustomInspectorItem;
@@ -94,11 +96,16 @@ type
       const AFactory: TLiveScriptObjectFactory;
       const AShowAllKnownDirectives: Boolean);
     destructor Destroy; override;
-    procedure ForceFinishEdit;
+    procedure ForceFinishEdit(const AForceCancel: Boolean = False);
     function GetSelectedHelpKeyword: String;
     function TryGetSelectedRowFirstLine: Integer; overload;
     function TryGetSelectedRowFirstLine(out AFirstLine: Integer): Boolean; overload;
     procedure GoToSelectedRow(const AFirstLine: Integer = -1);
+    function TryResolveSelectedRow(out AEntry: TScriptModelParameterSectionEntry;
+      out ASection: TScriptModelKeyValueSection; out AIndex: Integer): Boolean; overload;
+    function TryResolveSelectedRow: Boolean; overload;
+    function CanRemoveSelectedRow: Boolean;
+    procedure RemoveSelectedRow;
     procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
       const AShowAllKnownDirectives, AShowAllKnownDirectivesSuppressedNote: Boolean);
     procedure UpdateFromCaret;
@@ -374,9 +381,59 @@ begin
   end;
 end;
 
-procedure TInspector.ForceFinishEdit;
+function TInspector.TryResolveSelectedRow(
+  out AEntry: TScriptModelParameterSectionEntry;
+  out ASection: TScriptModelKeyValueSection; out AIndex: Integer): Boolean;
+begin
+  Result := False;
+  AEntry := nil;
+  ASection := nil;
+  AIndex := -1;
+  const Item = FJvInspector.Selected;
+  var Row: TInspectorRow;
+  if (Item = nil) or not TryGetRow(Item, Row) then
+    Exit;
+  case Row.Kind of
+    irkParameter, irkParameterFlag:
+      Result := TryGetRowParameterSectionEntry(Row, AEntry, AIndex);
+    irkKey, irkKeyFlag:
+      Result := TryGetRowKeyValueSection(Row, ASection, AIndex);
+  end;
+end;
+
+function TInspector.TryResolveSelectedRow: Boolean;
+begin
+  var Entry: TScriptModelParameterSectionEntry;
+  var Section: TScriptModelKeyValueSection;
+  var Index: Integer;
+  Result := TryResolveSelectedRow(Entry, Section, Index);
+end;
+
+function TInspector.CanRemoveSelectedRow: Boolean;
+begin
+  Result := not FFactory.Memo.ReadOnly and TryResolveSelectedRow;
+end;
+
+procedure TInspector.RemoveSelectedRow;
+begin
+  var Entry: TScriptModelParameterSectionEntry;
+  var Section: TScriptModelKeyValueSection;
+  var Index: Integer;
+  if FFactory.Memo.ReadOnly or
+     not TryResolveSelectedRow(Entry, Section, Index) then
+    Exit;
+
+  { Cancel any open in-place edit: a commit could re-add the value being
+    removed }
+  ForceFinishEdit(True);
+
+  RowRemove(Entry, Section, Index);
+end;
+
+procedure TInspector.ForceFinishEdit(const AForceCancel: Boolean);
 { Commits a pending in-place edit, silently reverting it if its value is
-  rejected, or loudly reverting on other errors.
+  rejected, or loudly reverting on other errors, or always reverting it if
+  AForceCancel is set.
   Note: Editing only restarts on a selection change, so the row is left
   selected without its editor and would ignore clicks. This means you
   should only call this procedure when the inspector is about to be reset
@@ -384,7 +441,7 @@ procedure TInspector.ForceFinishEdit;
 begin
   const Item = FJvInspector.Selected;
   if (Item <> nil) and Item.Editing then begin
-    if FFactory.Memo.ReadOnly then
+    if AForceCancel or FFactory.Memo.ReadOnly then
       Item.DoneEdit(True)
     else begin
       try
@@ -1248,6 +1305,21 @@ begin
     FInEdit := False;
   end;
   InvalidateChangedRows;
+end;
+
+procedure TInspector.RowRemove(const AEntry: TScriptModelParameterSectionEntry;
+  const ASection: TScriptModelKeyValueSection; const AIndex: Integer);
+begin
+  FInEdit := True; { See RowSetAsString }
+  try
+    if AEntry <> nil then
+      AEntry.Remove(AIndex)
+    else
+      ASection.Remove(AIndex);
+  finally
+    FInEdit := False;
+  end;
+  UpdateFromCaret;
 end;
 
 procedure TInspector.ChoiceRowGetValueList(Item: TJvCustomInspectorItem;

@@ -139,6 +139,7 @@ begin
 
         var NamedMenus := [
           NM(FClearRecent, 'eraser'),
+          NM(PInspectorRemove, 'eraser'),
           NM(FSaveMainFileAs, 'save-as-filled'),
           NM(FSaveAll, 'save-all-filled'),
           NM(FPrint, 'printer'),
@@ -529,6 +530,7 @@ end;
 procedure TMainFormUpdateMenuHelper.UpdateInspectorPopupMenu(const Menu: TMenuItem);
 begin
   PInspectorGoTo.Enabled := FInspector.TryGetSelectedRowFirstLine >= 0;
+  PInspectorRemove.Enabled := FInspector.CanRemoveSelectedRow;
 
   _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;

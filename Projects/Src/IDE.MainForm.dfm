@@ -818,6 +818,13 @@ object MainForm: TMainForm
           Caption = '&Go to'
           OnClick = PInspectorGoToClick
         end
+        object PInspectorRemove: TMenuItem
+          Caption = '&Remove'
+          OnClick = PInspectorRemoveClick
+        end
+        object N26: TMenuItem
+          Caption = '-'
+        end
         object PInspectorHelp: TMenuItem
           Caption = '&Help'
           OnClick = PInspectorHelpClick

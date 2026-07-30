@@ -345,6 +345,8 @@ type
     InspectorPopupMenu: TMenuItem;
     PInspectorGoTo: TMenuItem;
     PInspectorHelp: TMenuItem;
+    PInspectorRemove: TMenuItem;
+    N26: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -494,6 +496,7 @@ type
     procedure InspectorPopupMenuClick(Sender: TObject);
     procedure PInspectorGoToClick(Sender: TObject);
     procedure PInspectorHelpClick(Sender: TObject);
+    procedure PInspectorRemoveClick(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -3897,6 +3900,11 @@ end;
 procedure TMainForm.PInspectorHelpClick(Sender: TObject);
 begin
   ShowHelp(FInspector.GetSelectedHelpKeyword);
+end;
+
+procedure TMainForm.PInspectorRemoveClick(Sender: TObject);
+begin
+  FInspector.RemoveSelectedRow;
 end;
 
 procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
