@@ -365,7 +365,6 @@ end;
 procedure TInspector.GoToSelectedRow(const AFirstLine: Integer);
 { Set AFirstLine to -1 if it's not yet known }
 begin
-  ForceFinishEdit;
   var FirstLine := AFirstLine;
   if FirstLine < 0 then
     FirstLine := TryGetSelectedRowFirstLine;
@@ -377,7 +376,11 @@ end;
 
 procedure TInspector.ForceFinishEdit;
 { Commits a pending in-place edit, silently reverting it if its value is
-  rejected, or loudly reverting on other errors }
+  rejected, or loudly reverting on other errors.
+  Note: Editing only restarts on a selection change, so the row is left
+  selected without its editor and would ignore clicks. This means you
+  should only call this procedure when the inspector is about to be reset
+  or rebuilt (or hidden and reset later before it's shown again). }
 begin
   const Item = FJvInspector.Selected;
   if (Item <> nil) and Item.Editing then begin
