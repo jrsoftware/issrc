@@ -52,7 +52,7 @@ type
     { Workaround for Zstd not resetting the frame progression until compress2
       is called. Let's keep a good local copy }
     FProgress: TZSTD_FrameProgression;
-    procedure EndCompress;
+    function EndCompress: NativeUInt;
     procedure FlushBuffer;
     procedure InitCompress;
   protected
@@ -85,6 +85,8 @@ const
   SZstdDataError = 'zstd: Compressed data is corrupted';
   SZstdInternalError = 'zstd: Internal error. Code %d';
 
+  ZSTD_error_no_error = 0;
+
   ZSTD_e_continue = 0;
   ZSTD_e_flush    = 1;
   ZSTD_e_end      = 2;
@@ -100,7 +102,7 @@ var
   ZSTD_compressStream2: function(cctx: Pointer; var output: TZSTD_outBuffer; var input: TZSTD_inBuffer; endOp: Cardinal): NativeUInt; stdcall;
   ZSTD_freeCStream: function(zcs: Pointer): NativeUInt; stdcall;
 
-  ZSTD_createDStream: function(): Pointer; stdcall;
+  ZSTD_createDStream: function: Pointer; stdcall;
   ZSTD_initDStream: function(zds: Pointer): NativeUInt; stdcall;
   ZSTD_decompressStream: function(zds: Pointer; var output: TZSTD_outBuffer; var input: TZSTD_inBuffer): NativeUInt; stdcall;
   ZSTD_freeDStream: function(zds: Pointer): NativeUInt; stdcall;
@@ -191,30 +193,8 @@ end;
 
 destructor TZstdCompressor.Destroy;
 begin
-  { Unlike other destructors e.g. Zlib, this library is backed by a runtime
-    thread pool. For this reason the buffer needs to be as small as
-    possible (1 block == 128KB + overhead), so as to trigger the flush
-    ASAP, then every write afterwards is promptly discarded from memory.
-    This helps a lot with returning the control to the event loop, minimizing
-    the time the UI spends unresponsive. }
-  var FUnusedIn: TZSTD_inBuffer;
-  FillChar(FUnusedIn, SizeOf(FUnusedIn), 0);
-  FOut.pos := 0;
-  var OldCount := FProgress.consumed;
-  var Code: NativeUInt := 1;
-  if Assigned(ProgressProc) and (FProgress.consumed <> FProgress.ingested) then begin
-    While Code <> 0 do begin
-      Code := ZSTD_compressStream2(FStrm, FOut, FUnusedIn, ZSTD_e_flush);
-      Check(Code);
-      FProgress := ZSTD_getFrameProgression(FStrm);
-      const Actual = FProgress.consumed - OldCount;
-      ProgressProc(Actual);
-      OldCount := FProgress.consumed;
-      FOut.pos := 0;
-    end;
-  end;
   EndCompress;
-  Check(ZSTD_freeCStream(FStrm));
+  ZSTD_freeCStream(FStrm);
   inherited;
 end;
 
@@ -225,7 +205,7 @@ begin
     multithreaded mode, it's pretty easy to OOM Delphi by using Zstd together
     with SolidCompression=no, as Zstd allocates a thread pool per context }
   if FStrm = nil then begin
-    FStrm := ZSTD_createCStream();
+    FStrm := ZSTD_createCStream;
     if FStrm = nil then
       OutOfMemoryError;
     Check(ZSTD_initCStream(FStrm, FCompressionLevel));
@@ -245,19 +225,20 @@ begin
   end;
 end;
 
-procedure TZstdCompressor.EndCompress;
+function TZstdCompressor.EndCompress: NativeUInt;
 begin
   if FInitialized then begin
     FInitialized := False;
     { Only reset the compression state; the rest is reusable }
-    Check(ZSTD_CCtx_reset(FStrm, ZSTD_reset_session_only));
-  end;
+    Result := ZSTD_CCtx_reset(FStrm, ZSTD_reset_session_only);
+  end else
+    Result := ZSTD_error_no_error;
 end;
 
 procedure TZstdCompressor.FlushBuffer;
 begin
   if FOut.pos > 0 then begin
-    WriteProc(FBuffer, FOut.pos);
+    WriteProc(FBuffer, Cardinal(FOut.pos));
     FOut.pos := 0;
   end;
 end;
@@ -279,7 +260,7 @@ begin
     if Assigned(ProgressProc) then begin
       FProgress := ZSTD_getFrameProgression(FStrm);
       const Actual = FProgress.consumed - OldCount;
-      ProgressProc(Actual);
+      ProgressProc(Cardinal(Actual));
       OldCount := FProgress.consumed;
     end;
   end;
@@ -301,11 +282,11 @@ begin
     if Assigned(ProgressProc) then begin
       FProgress := ZSTD_getFrameProgression(FStrm);
       const Actual = FProgress.consumed - OldCount;
-      ProgressProc(Actual);
+      ProgressProc(Cardinal(Actual));
       OldCount := FProgress.consumed;
     end;
   end;
-  EndCompress;
+  Check(EndCompress);
 end;
 
 { TZstdDecompressor }
@@ -313,7 +294,7 @@ end;
 constructor TZstdDecompressor.Create(AReadProc: TDecompressorReadProc);
 begin
   inherited Create(AReadProc);
-  FStrm := ZSTD_createDStream();
+  FStrm := ZSTD_createDStream;
   if FStrm = nil then
     OutOfMemoryError;
   try
