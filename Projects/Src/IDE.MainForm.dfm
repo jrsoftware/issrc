@@ -813,7 +813,11 @@ object MainForm: TMainForm
       object InspectorPopupMenu: TMenuItem
         Caption = 'InspectorPopupMenu'
         Visible = False
-        OnClick = SimpleMenuClick
+        OnClick = InspectorPopupMenuClick
+        object PInspectorGoTo: TMenuItem
+          Caption = '&Go to'
+          OnClick = PInspectorGoToClick
+        end
         object PInspectorHelp: TMenuItem
           Caption = '&Help'
           OnClick = PInspectorHelpClick

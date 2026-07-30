@@ -51,6 +51,7 @@ type
   TInspectorPaintRect = (iprItem, iprBtnDstRect, iprNameArea, iprName,
     iprValueArea, iprValue, iprEditValue, iprEditButton);
 
+  TInspectorItemEvent = procedure(Item: TJvCustomInspectorItem) of object;
   TInspectorItemGetValueListEvent = procedure(Item: TJvCustomInspectorItem; Values: TStrings) of object;
   TJvInspAsOrdinal = procedure(Sender: TJvCustomInspectorItem; var Value: Int64) of object;
   TJvInspAsString = procedure(Sender: TJvCustomInspectorItem; var Value: string) of object;
@@ -92,6 +93,7 @@ type
     FVisibleList: TList<TJvCustomInspectorItem>;
     FVisibleTags: TDictionary<NativeInt, Integer>; { Item.Tag -> FVisibleList index }
     FOnEditorKeyDown: TKeyEvent;
+    FOnLeafNameDblClick: TInspectorItemEvent;
     FOnGetAsOrdinal: TJvInspAsOrdinal;
     FOnGetAsString: TJvInspAsString;
     FOnSetAsOrdinal: TJvInspAsOrdinal;
@@ -186,6 +188,8 @@ type
     { Standard TCustomControl event - this is really an event fired by
       the TEdit control used when editing in a cell!}
     property OnEditorKeyDown: TKeyEvent read FOnEditorKeyDown write FOnEditorKeyDown;
+    { Fired when the name area of a row without children is double-clicked }
+    property OnLeafNameDblClick: TInspectorItemEvent read FOnLeafNameDblClick write FOnLeafNameDblClick;
     property OnGetAsOrdinal: TJvInspAsOrdinal read FOnGetAsOrdinal write FOnGetAsOrdinal;
     property OnGetAsString: TJvInspAsString read FOnGetAsString write FOnGetAsString;
     property OnSetAsOrdinal: TJvInspAsOrdinal read FOnSetAsOrdinal write FOnSetAsOrdinal;
@@ -808,13 +812,13 @@ begin
     else if (Item <> nil) and (ItemIndex <> SelectedIndex) then
       SelectedIndex := ItemIndex;
     if (Item <> nil) and
-      ((Item.Count > 0) or (iifExpanded in Item.Flags)) then begin
+       ((Item.Count > 0) or (iifExpanded in Item.Flags)) then begin
       if PtInRect(Item.Rects[iprBtnDstRect], Point(X, Y)) or
-        ((ssDouble in Shift) and (Item.IsCategory or (X < Pred(Divider)))) then
+         ((ssDouble in Shift) and (Item.IsCategory or (X < Pred(Divider)))) then
         Item.Expanded := not Item.Expanded;
     end;
     if (Item <> nil) and (PtInRect(Item.Rects[iprNameArea], Point(X, Y)) or
-      PtInRect(Item.Rects[iprValueArea], Point(X, Y))) then begin
+       PtInRect(Item.Rects[iprValueArea], Point(X, Y))) then begin
       FPressedItem := Item;
       Item.MouseDown(Button, Shift, X, Y);
     end;
@@ -828,9 +832,9 @@ begin
     // since it gets no matching MouseUp once the edit captures and would
     // otherwise fire a stray click or keep following the mouse.
     if not (ssDouble in Shift) and not DraggingDivider and
-      (Item <> nil) and Item.Editing and (Item.EditCtrl <> nil) and
-      Item.EditCtrl.HandleAllocated and Item.EditCtrl.CanFocus and
-      PtInRect(Item.Rects[iprEditValue], Point(X, Y)) then begin
+       (Item <> nil) and Item.Editing and (Item.EditCtrl <> nil) and
+       Item.EditCtrl.HandleAllocated and Item.EditCtrl.CanFocus and
+       PtInRect(Item.Rects[iprEditValue], Point(X, Y)) then begin
       FPressedItem := nil;
       ControlState := ControlState - [csLButtonDown, csClicked];
       MouseCapture := False;
@@ -838,6 +842,13 @@ begin
         (Ord(ssCtrl in Shift) * MK_CONTROL);
       Item.EditCtrl.Perform(WM_LBUTTONDOWN, WPARAM(Keys),
         PointToLParam(Point(X - Item.EditCtrl.Left, Y - Item.EditCtrl.Top)));
+    end;
+    if (Item <> nil) and (ssDouble in Shift) and not Item.IsCategory and
+       (Item.Count = 0) and not (iifExpanded in Item.Flags) and
+       Assigned(FOnLeafNameDblClick) and
+       PtInRect(Item.Rects[iprNameArea], Point(X, Y)) then begin
+      FPressedItem := nil; // The handler may change focus or rebuild the items
+      FOnLeafNameDblClick(Item);
     end;
   end;
 end;

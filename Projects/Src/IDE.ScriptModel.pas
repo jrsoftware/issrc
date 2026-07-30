@@ -163,6 +163,7 @@ type
     destructor Destroy; override;
     procedure Parse(const ALines: array of String);
     function GetLines: TArray<String>;
+    function GetLineCount(const AIndex: Integer): Integer;
     function Count: Integer;
     function IndexOf(const AName: String): Integer;
     function TryResolve(const AName: String;
@@ -1046,8 +1047,8 @@ begin
   const LineList = TList<String>.Create;
   try
     for var Line in FLines do begin
-      if Line.FModified then
-        LineList.Add(Line.FNameText + '=' + Line.FRawValue) { Does not keep line spanning }
+      if Line.FModified then 
+        LineList.Add(Line.FNameText + '=' + Line.FRawValue) { Does not keep line spanning. Also see GetLineCount. }
       else
         LineList.AddRange(Line.FOriginalLines);
     end;
@@ -1055,6 +1056,16 @@ begin
   finally
     LineList.Free;
   end;
+end;
+
+function TScriptModelKeyValueSection.GetLineCount(const AIndex: Integer): Integer;
+{ The number of lines GetLines returns for the line at AIndex }
+begin
+  const Line = FLines[AIndex];
+  if Line.FModified then
+    Result := 1 { GetLines does not keep line spanning }
+  else
+    Result := Integer(Length(Line.FOriginalLines));
 end;
 
 function TScriptModelKeyValueSection.Count: Integer;

@@ -3838,6 +3838,9 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Toggle a <tt>yes</tt>/<tt>no</tt> value</td><td>Space or click the checkbox</td>
 </tr>
 <tr>
+  <td>Go to the selected row's line in the script</td><td>Ctrl+G, or (if the row is not expandable) DoubleClick the row's name</td>
+</tr>
+<tr>
   <td>Show help for the selected directive, parameter, or flag</td><td>F1</td>
 </tr>
 <tr>

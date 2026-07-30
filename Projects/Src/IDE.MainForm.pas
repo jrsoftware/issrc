@@ -343,6 +343,7 @@ type
     InspectorFilterEdit: TEdit;
     InspectorNoteText: TNewStaticText;
     InspectorPopupMenu: TMenuItem;
+    PInspectorGoTo: TMenuItem;
     PInspectorHelp: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
@@ -490,6 +491,8 @@ type
     procedure InspectorFilterEditChange(Sender: TObject);
     procedure InspectorFilterEditKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure InspectorPopupMenuClick(Sender: TObject);
+    procedure PInspectorGoToClick(Sender: TObject);
     procedure PInspectorHelpClick(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
@@ -540,7 +543,6 @@ type
     FUpdatePanelMessages: TUpdatePanelMessages;
     FHighContrastActive: Boolean;
     FDonateImageMenuItem: TMenuItem;
-    FInspector: TInspector;
     FAllowUpdateInspectorPanelWidth: Boolean;
     FLiveScriptObjectFactories: TObjectDictionary<TScintEdit, TLiveScriptObjectFactory>;
     FSavedInspectorFilterEditWindowProc: TWndMethod;
@@ -686,6 +688,7 @@ type
     FDebugging: Boolean;
     FDebugTarget: TDebugTarget;
     FFindResults: TFindResults;
+    FInspector: TInspector;
     FLastFindOptions: TFindOptions;
     FLastFindRegEx: Boolean;
     FLastFindText: String;
@@ -1147,6 +1150,9 @@ begin
   { F1 is handled by the memos and by the inspector }
   SetFakeShortCut(HDoc, VK_F1, []);
   SetFakeShortCut(PInspectorHelp, VK_F1, []);
+  { Use fake Ctrl+G shortcut for PInspectorGoTo because EGotoLine already has
+    the real one }
+  SetFakeShortCut(PInspectorGoTo, Ord('G'), [ssCtrl]);
 
   PopupMenu := TMainFormPopupMenu.Create(Self, EMenu);
 
@@ -3876,6 +3882,16 @@ begin
     Key := 0;
     InspectorFilterEdit.Text := ''; { Also updates the filter }
   end;
+end;
+
+procedure TMainForm.InspectorPopupMenuClick(Sender: TObject);
+begin
+  UpdateInspectorPopupMenu(Sender as TMenuItem);
+end;
+
+procedure TMainForm.PInspectorGoToClick(Sender: TObject);
+begin
+  FInspector.GoToSelectedRow;
 end;
 
 procedure TMainForm.PInspectorHelpClick(Sender: TObject);
@@ -6614,15 +6630,17 @@ begin
 end;
 
 procedure TMainForm.EGotoLineClick(Sender: TObject);
-var
-  S: String;
-  L: Integer;
 begin
-  S := IntToStr(FActiveMemo.CaretLine + 1);
-  if InputQueryEdit(LFmtMessage(SGotoLineTitle), LFmtMessage(SGotoLinePrompt), S) then begin
-    L := StrToIntDef(S, Low(L));
-    if L <> Low(L) then
-      FActiveMemo.CaretLine := L - 1;
+  var FirstLine: Integer;
+  if FInspector.JvInspector.Focused and FInspector.TryGetSelectedRowFirstLine(FirstLine) then
+    FInspector.GoToSelectedRow(FirstLine)
+  else begin
+    var S := IntToStr(FActiveMemo.CaretLine + 1);
+    if InputQueryEdit(LFmtMessage(SGotoLineTitle), LFmtMessage(SGotoLinePrompt), S) then begin
+      const L = StrToIntDef(S, Low(Integer));
+      if L <> Low(Integer) then
+        FActiveMemo.CaretLine := L - 1;
+    end;
   end;
 end;
 

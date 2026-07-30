@@ -1194,6 +1194,10 @@ begin
     Assert(Lines[3] = 'AppName = Bar ');
     Assert(Lines[5] = '#define X 1');
 
+    { Every unspanned line contributes one line to GetLines }
+    for var I := 0 to Section.Count-1 do
+      Assert(Section.GetLineCount(I) = 1);
+
     { Key/value values keep surrounding quotes out of the display value,
       without treating embedded quotes as doubled }
     Section.Parse(['AppName="My ""quoted"" App"']);
@@ -1229,6 +1233,7 @@ begin
     { Adding inserts after the last key; removing removes only that
       line }
     Assert(Section.Add('AppVersion', '1.0') = 3);
+    Assert(Section.GetLineCount(3) = 1); { An added line contributes one line }
     Lines := Section.GetLines;
     Assert(Length(Lines) = 4);
     Assert(Lines[3] = 'AppVersion=1.0');
@@ -1672,6 +1677,7 @@ begin
     Assert(Section.Count = 1);
     Assert(Section.Lines[0].Kind = lkKeyValue);
     Assert(Section.Lines[0].Value = 'Foo Bar');
+    Assert(Section.GetLineCount(0) = 2); { A spanned line contributes its physical lines }
     var Lines := Section.GetLines;
     Assert(Length(Lines) = 2);
     Assert(Lines[0] = 'AppName=Foo \');
@@ -1681,6 +1687,7 @@ begin
     Lines := Section.GetLines;
     Assert(Length(Lines) = 2);
     Section.SetValue(0, 'X');
+    Assert(Section.GetLineCount(0) = 1); { Editing collapsed the span }
     Lines := Section.GetLines;
     Assert(Length(Lines) = 1);
     Assert(Lines[0] = 'AppName=X');

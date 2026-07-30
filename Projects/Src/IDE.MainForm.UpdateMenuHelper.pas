@@ -33,6 +33,7 @@ type
     procedure UpdateRunMenu(const Menu: TMenuItem);
     procedure UpdateBreakPointsMenu(const Menu: TMenuItem);
     procedure UpdateTargetMenuItems;
+    procedure UpdateInspectorPopupMenu(const Menu: TMenuItem);
     { Private }
     procedure _UpdateMenuBitmapsIfNeeded;
     procedure _ApplyMenuBitmapsAndNewShortCutText(const ParentMenuItem: TMenuItem);
@@ -47,7 +48,7 @@ uses
   SysUtils, Generics.Collections, VirtualImageList, ComCtrls,
   PathFunc,
   Shared.LicenseFunc,
-  IDE.HelperFunc, IDE.IDEScintEdit, IDE.Messages, IDE.LocalizeFunc;
+  IDE.HelperFunc, IDE.IDEScintEdit, IDE.Inspector, IDE.Messages, IDE.LocalizeFunc;
 
 procedure TMainFormUpdateMenuHelper._UpdateMenuBitmapsIfNeeded;
 
@@ -368,7 +369,7 @@ begin
   EUnfoldLine.Visible := EFoldLine.Visible;
   EUnfoldLine.Enabled := EFoldLine.Enabled;
   EGotoFile.Enabled := FMainMemo.Filename <> '';
-  EGotoLine.Enabled := MemoHasFocus;
+  EGotoLine.Enabled := MemoHasFocus or FInspector.JvInspector.Focused;
   EToggleLinesComment.Enabled := MemoHasFocus and not MemoIsReadOnly;
   EBraceMatch.Enabled := MemoHasFocus;
 
@@ -523,6 +524,13 @@ begin
     RTargetUninstall.Checked := True;
     TargetUninstallButton.Down := True;
   end;
+end;
+
+procedure TMainFormUpdateMenuHelper.UpdateInspectorPopupMenu(const Menu: TMenuItem);
+begin
+  PInspectorGoTo.Enabled := FInspector.TryGetSelectedRowFirstLine >= 0;
+
+  _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;
 
 end.
