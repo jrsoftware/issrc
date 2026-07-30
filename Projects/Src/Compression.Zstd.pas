@@ -243,7 +243,7 @@ begin
     if FOut.pos = FOut.size then
       FlushBuffer;
     { Maximize responsiveness by tying ProgressProc to the actual data
-      ingested; especially helpful with compression levels >= 19 }
+      consumed; especially helpful with compression levels >= 19 }
     if Assigned(ProgressProc) then begin
       FProgress := ZSTD_getFrameProgression(FStrm);
       const Actual = FProgress.consumed - OldCount;
@@ -314,7 +314,7 @@ begin
     if ZSTD_isError(Code) <> 0 then begin
       raise ECompressDataError.Create(SZstdDataError);
     end else if (FIn.pos = OldInPos) and (LOut.pos = OldOutPos) then begin
-      { Sanity check; no data consumed or compressed at all }
+      { Sanity check; no data consumed or decompressed at all }
       raise ECompressDataError.Create(SZstdDataError);
     end else if Code = 0 then
       FReachedEnd := True;
