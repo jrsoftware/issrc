@@ -73,6 +73,9 @@ function IsValidIdentString(const S: String; AllowBackslash, AllowOperators: Boo
 procedure SkipWhitespace(var S: PChar);
 function ExtractWords(var S: PChar; const Sep: Char): String;
 function UnescapeBraces(const S: String): String;
+{$IFDEF WIN64}
+function IsArm64: Boolean;
+{$ENDIF}
 
 implementation
 
@@ -326,5 +329,36 @@ begin
       Inc(I);
   end;
 end;
+
+{$IFDEF WIN64}
+function IsArm64: Boolean;
+const
+  IMAGE_FILE_MACHINE_ARM64 = $AA64;
+  {$IFNDEF CPUX64}
+  PROCESSOR_ARCHITECTURE_ARM64 = 12;
+  {$ENDIF}
+var
+  IsWow64Process2Func: function(hProcess: THandle; var pProcessMachine, pNativeMachine: USHORT): BOOL; stdcall;
+begin
+  const KernelModule = GetModuleHandle(kernel32);
+
+  IsWow64Process2Func := GetProcAddress(KernelModule, 'IsWow64Process2');
+  var ProcessMachine, NativeMachine: USHORT;
+  if Assigned(IsWow64Process2Func) and
+      IsWow64Process2Func(GetCurrentProcess, ProcessMachine, NativeMachine) then
+    Exit(NativeMachine = IMAGE_FILE_MACHINE_ARM64);
+
+  { When running with x64 emulation on ARM64, GetNativeSystemInfo will just lie to us, so only
+    call if not x64 (which currently is impossible) }
+  {$IFNDEF CPUX64}
+  var SysInfo: TSystemInfo;
+  GetNativeSystemInfo(SysInfo);
+  if SysInfo.wProcessorArchitecture = PROCESSOR_ARCHITECTURE_ARM64 then
+    Exit(True);
+  {$ENDIF}
+
+  Result := False;
+end;
+{$ENDIF}
 
 end.

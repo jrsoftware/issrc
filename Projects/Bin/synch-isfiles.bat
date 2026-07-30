@@ -14,6 +14,10 @@ copy ..\..\Files\isscint*.dll
 copy ..\..\Files\isscint*.dll.issig
 copy ..\..\Files\islzma*.dll
 copy ..\..\Files\islzma*.dll.issig
+copy ..\..\Files\isunzstd*.dll
+copy ..\..\Files\isunzstd*.dll.issig
+copy ..\..\Files\iszstd*.dll
+copy ..\..\Files\iszstd*.dll.issig
 copy ..\..\Files\islzma*.exe
 copy ..\..\Files\islzma*.exe.issig
 copy ..\..\Files\WizClassicSmallImage.bmp
