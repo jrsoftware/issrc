@@ -139,7 +139,6 @@ type
     function GetVisibleCount: Integer;
     function GetVisibleItems(const I: Integer): TJvCustomInspectorItem;
     function IdxToY(const Index: Integer): Integer;
-    function EditorActive: Boolean;
     function InheritedFocused: Boolean;
     procedure InvalidateList;
     procedure InvalidateUnlessLocked;
@@ -173,6 +172,7 @@ type
     procedure BeforeDestruction; override;
     procedure BeginUpdate;
     procedure EndUpdate;
+    function EditorActive: Boolean;
     function Focused: Boolean; override;
     procedure InvalidateItemByTag(const ATag: NativeInt);
     procedure ResyncEditor;

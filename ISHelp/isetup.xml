@@ -3586,13 +3586,13 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Delete to start of word</td><td>Ctrl+Backspace</td>
 </tr>
 <tr>
-  <td>Delete to end of word</td><td>Ctrl+Delete</td>
+  <td>Delete to end of word</td><td>Ctrl+Del</td>
 </tr>
 <tr>
   <td>Delete to start of line</td><td>Ctrl+Shift+Backspace</td>
 </tr>
 <tr>
-  <td>Delete to end of line</td><td>Ctrl+Shift+Delete</td>
+  <td>Delete to end of line</td><td>Ctrl+Shift+Del</td>
 </tr>
 <tr>
   <td>&nbsp;</td>
@@ -3643,7 +3643,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>&nbsp;</td>
 </tr>
 <tr>
-  <td>Cut selection or line</td><td>Ctrl+X or Shift+Delete</td>
+  <td>Cut selection or line</td><td>Ctrl+X or Shift+Del</td>
 </tr>
 <tr>
   <td>Copy selection or line</td><td>Ctrl+C or Ctrl+Insert</td>
@@ -3839,6 +3839,9 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
 </tr>
 <tr>
   <td>Go to the selected row's line in the script</td><td>Ctrl+G, or (if the row is not expandable) DoubleClick the row's name</td>
+</tr>
+<tr>
+  <td>Remove the selected key or parameter from the script</td><td>Ctrl+Del, or (if the row shows a checkbox) Del</td>
 </tr>
 <tr>
   <td>Show help for the selected directive, parameter, or flag</td><td>F1</td>

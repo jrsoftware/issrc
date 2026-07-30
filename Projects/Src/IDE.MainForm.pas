@@ -1153,6 +1153,8 @@ begin
   { F1 is handled by the memos and by the inspector }
   SetFakeShortCut(HDoc, VK_F1, []);
   SetFakeShortCut(PInspectorHelp, VK_F1, []);
+  { Ctrl+Del is handled by the inspector }
+  SetFakeShortCut(PInspectorRemove, VK_DELETE, [ssCtrl]);
   { Use fake Ctrl+G shortcut for PInspectorGoTo because EGotoLine already has
     the real one }
   SetFakeShortCut(PInspectorGoTo, Ord('G'), [ssCtrl]);

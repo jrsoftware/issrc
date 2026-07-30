@@ -14,7 +14,7 @@ unit IDE.Inspector;
 interface
 
 uses
-  Classes, Graphics, Controls, StdCtrls, Generics.Collections,
+  Windows, Messages, Classes, Graphics, Controls, StdCtrls, Generics.Collections,
   JvInspector, ModernColors, NewStaticText,
   IDE.LiveScriptObjectFactory, IDE.ScriptModel, IDE.ScriptModel.Metadata;
 
@@ -36,6 +36,7 @@ type
   TInspector = class
   private
     FJvInspector: TJvInspector;
+    FMessagesWnd: HWND;
     FNoteText: TNewStaticText;
     FFactory: TLiveScriptObjectFactory;
     FLiveParameterSectionEntry: TLiveScriptParameterSectionEntry;
@@ -82,6 +83,7 @@ type
     procedure JvInspectorKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure JvInspectorLeafNameDblClick(Item: TJvCustomInspectorItem);
+    procedure MessagesWndProc(var Message: TMessage);
     function GetDividerWidth: Integer;
     procedure SetDividerWidth(const Value: Integer);
     procedure SetFilterText(const Value: String);
@@ -129,13 +131,16 @@ type
 implementation
 
 uses
-  Windows, SysUtils, StrUtils, UITypes, Themes, Forms, Generics.Defaults,
+  SysUtils, StrUtils, UITypes, Themes, Forms, Generics.Defaults,
   NewUxTheme,
   Shared.CommonFunc,
   IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc, IDE.ScriptModel.Metadata.Extra;
 
 type
   EInspectorValueRejected = class(EScriptModelError);
+
+const
+  WM_RemoveSelectedRow = WM_USER + 1;
 
 { TInspector }
 
@@ -153,6 +158,7 @@ begin
   {$IFDEF DEBUG}
   FDebugStatusRowString := 'Not updated yet';
   {$ENDIF}
+  FMessagesWnd := AllocateHWnd(MessagesWndProc);
   FRows := TList<TInspectorRow>.Create;
 
   FJvInspector := AJvInspector;
@@ -175,6 +181,8 @@ begin
   FLiveParameterSectionEntry.Free;
   FLiveKeyValueSection.Free;
   FRows.Free;
+  if FMessagesWnd <> 0 then
+    DeallocateHWnd(FMessagesWnd);
   inherited;
 end;
 
@@ -325,7 +333,30 @@ begin
   if (Key = VK_F1) and (Shift * [ssShift, ssAlt, ssCtrl] = []) then begin
     Key := 0;
     ShowHelp(GetSelectedHelpKeyword);
+  end else if Key = VK_DELETE then begin
+    const Modifiers = Shift * [ssShift, ssAlt, ssCtrl];
+    const EditorActive = FJvInspector.EditorActive;
+    if ((Modifiers = [ssCtrl]) or ((Modifiers = []) and not EditorActive)) and
+       CanRemoveSelectedRow then begin
+      if EditorActive then begin
+        { Defer the removal until the key message unwinds: RemoveSelectedRow
+          frees the edit control whose key event is still executing }
+        if (FMessagesWnd <> 0) and PostMessage(FMessagesWnd, WM_RemoveSelectedRow, 0, 0) then
+          Key := 0;
+      end else begin
+        Key := 0;
+        RemoveSelectedRow;
+      end;
+    end;
   end;
+end;
+
+procedure TInspector.MessagesWndProc(var Message: TMessage);
+begin
+  if Message.Msg = WM_RemoveSelectedRow then
+    RemoveSelectedRow
+  else
+    Message.Result := DefWindowProc(FMessagesWnd, Message.Msg, Message.WParam, Message.LParam);
 end;
 
 function TInspector.TryGetSelectedRowFirstLine: Integer;
