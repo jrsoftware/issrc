@@ -67,7 +67,6 @@ type
 
   TZstdDecompressor = class(TCustomDecompressor)
   private
-    FInitialized: Boolean;
     FStrm: Pointer;
     FIn: TZSTD_inBuffer;
     FReachedEnd: Boolean;
@@ -285,23 +284,13 @@ begin
   FStrm := ZSTD_createDStream;
   if FStrm = nil then
     OutOfMemoryError;
-  try
-    Reset;
-    FInitialized := True;
-  except
-    begin
-      Check(ZSTD_freeDStream(FStrm));
-      raise;
-    end;
-  end;
+  Reset;
 end;
 
 destructor TZstdDecompressor.Destroy;
 begin
-  if FInitialized then begin
-    Check(ZSTD_freeDStream(FStrm));
-    FInitialized := False;
-  end;
+  if FStrm <> nil then
+    ZSTD_freeDStream(FStrm);
   inherited Destroy;
 end;
 
