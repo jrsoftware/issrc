@@ -55,6 +55,7 @@ type
     function EndCompress: NativeUInt;
     procedure FlushBuffer;
     procedure InitCompress;
+    procedure ReportProgress;
   protected
     procedure DoCompress(const Buffer; Count: Cardinal); override;
     procedure DoFinish; override;
@@ -225,6 +226,17 @@ begin
   end;
 end;
 
+procedure TZstdCompressor.ReportProgress;
+begin
+  { Maximize responsiveness by tying ProgressProc to the actual data
+    consumed; especially helpful with compression levels >= 19 }
+  if Assigned(ProgressProc) then begin
+    const OldConsumed = FProgress.consumed;
+    FProgress := ZSTD_getFrameProgression(FStrm);
+    ProgressProc(Cardinal(FProgress.consumed - OldConsumed));
+  end;
+end;
+
 procedure TZstdCompressor.DoCompress(const Buffer; Count: Cardinal);
 begin
   InitCompress;
@@ -232,19 +244,11 @@ begin
   LIn.src := @Buffer;
   LIn.size := Count;
   LIn.pos := 0;
-  var OldCount := FProgress.consumed;
   while LIn.pos < Count do begin
     Check(ZSTD_compressStream2(FStrm, FOut, LIn, ZSTD_e_continue));
     if FOut.pos = FOut.size then
       FlushBuffer;
-    { Maximize responsiveness by tying ProgressProc to the actual data
-      consumed; especially helpful with compression levels >= 19 }
-    if Assigned(ProgressProc) then begin
-      FProgress := ZSTD_getFrameProgression(FStrm);
-      const Actual = FProgress.consumed - OldCount;
-      ProgressProc(Cardinal(Actual));
-      OldCount := FProgress.consumed;
-    end;
+    ReportProgress;
   end;
 end;
 
@@ -252,21 +256,15 @@ procedure TZstdCompressor.DoFinish;
 begin
   var LIn: TZSTD_inBuffer;
   InitCompress;
-  var LReachedEnd := False;
+  var ReachedEnd := False;
   FillChar(LIn, SizeOf(LIn), 0);
-  var OldCount := FProgress.consumed;
-  while not LReachedEnd do begin
+  while not ReachedEnd do begin
     const Code = ZSTD_compressStream2(FStrm, FOut, LIn, ZSTD_e_end);
     Check(Code);
     FlushBuffer;
     if Code = 0 then
-      LReachedEnd := True;
-    if Assigned(ProgressProc) then begin
-      FProgress := ZSTD_getFrameProgression(FStrm);
-      const Actual = FProgress.consumed - OldCount;
-      ProgressProc(Cardinal(Actual));
-      OldCount := FProgress.consumed;
-    end;
+      ReachedEnd := True;
+    ReportProgress;
   end;
   Check(EndCompress);
 end;
