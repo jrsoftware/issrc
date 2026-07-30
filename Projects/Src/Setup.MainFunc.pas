@@ -2022,19 +2022,19 @@ begin
               Exit(False);
           end else begin
             SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.SourceFilename), tpCurrent);
-	          Excludes.DelimitedText := CurFile^.Excludes;
-	          if foExtractArchive in CurFile^.Options then begin
-	            try
-	              if not RecurseExternalArchiveFiles(Is64Bit, SourceWildcard,
-	                 Excludes, CurFile) then
-	                Exit(False);
-	            except on E: ESevenZipError do
-	              { Ignore archive errors for now, will show up with proper UI during
-	                installation }
-	            end;
-	          end else begin
-	            if not RecurseExternalFiles(Is64Bit, PathExtractPath(SourceWildcard), '',
-	               PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
+            Excludes.DelimitedText := CurFile^.Excludes;
+            if foExtractArchive in CurFile^.Options then begin
+              try
+                if not RecurseExternalArchiveFiles(Is64Bit, SourceWildcard,
+                   Excludes, CurFile) then
+                  Exit(False);
+              except on E: ESevenZipError do
+                { Ignore archive errors for now, will show up with proper UI during
+                  installation }
+              end;
+            end else begin
+              if not RecurseExternalFiles(Is64Bit, PathExtractPath(SourceWildcard), '',
+                 PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
                 Exit(False);
             end;
           end;

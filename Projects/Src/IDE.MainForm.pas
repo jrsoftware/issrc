@@ -835,7 +835,7 @@ constructor TMainForm.Create(AOwner: TComponent);
     var ConfigValue := Ini.ReadInteger('UpdatePanel', ConfigIdent, ConfigValueDefault); { Also see HUnregisterClick }
     if ConfigValue < ConfigValueMinimum then
       FUpdatePanelMessages.Add(TUpdatePanelMessage.Create(Msg, ConfigIdent, ConfigValueNew, Color,
-      	HasLink));
+        HasLink));
   end;
 
   procedure CheckUpdatePanelMessage(const Ini: TConfigIniFile; const ConfigIdent: String;
@@ -914,6 +914,8 @@ constructor TMainForm.Create(AOwner: TComponent);
         LFmtMessage(SUpdatePanelVersionUpdated, ['hwhatsnew']), BannerGreen, True);
       CheckUpdatePanelMessage(Ini, 'VSCodeMemoKeyMap', 0, 1,
         LFmtMessage(SUpdatePanelVSCodeShortcutsAdded, ['toptions-vscode']), BannerBlue, True);
+      CheckUpdatePanelMessage(Ini, 'RichEditor', 0, 1,
+        LFmtMessage(SUpdatePanelRichEditorAdded, ['tricheditor']), BannerBlue, True);
       if FOptions.Language = ilEnglish then begin
         var MessageLanguage := ilEnglish;
         case PRIMARYLANGID(GetUILanguage) of
@@ -5872,11 +5874,11 @@ begin
     UpdateLinkLabel.Caption := FUpdatePanelMessages[MessageToShowIndex].Msg;
     if not FHighContrastActive then
       UpdatePanel.Color := FUpdatePanelMessages[MessageToShowIndex].Color;
-	  if FUpdatePanelMessages[MessageToShowIndex].ConfigIdent.StartsWith('Purchase') then
-	    FDonateImageMenuItem := HPurchase
-	  else
-	    FDonateImageMenuItem := HDonate;
-	  UpdatePanelDonateBitBtn.Hint := RemoveAccelChar(FDonateImageMenuItem.Caption)
+    if FUpdatePanelMessages[MessageToShowIndex].ConfigIdent.StartsWith('Purchase') then
+      FDonateImageMenuItem := HPurchase
+    else
+      FDonateImageMenuItem := HDonate;
+    UpdatePanelDonateBitBtn.Hint := RemoveAccelChar(FDonateImageMenuItem.Caption)
   end;
   UpdateBevel1Visibility;
 end;
@@ -6867,6 +6869,8 @@ begin
     HUnregister.Click
   else if Link = 'hwhatsnew' then
     HWhatsNew.Click
+  else if Link = 'tricheditor' then
+    TRichEditor.Click
   else if Link = 'toptions-vscode' then begin
     TOptionsForm.DropDownOnNextShow := odMemoKeyMapping;
     TOptions.Click;

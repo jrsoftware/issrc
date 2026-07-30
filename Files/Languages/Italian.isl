@@ -9,7 +9,7 @@
 ; Setup adds the periods automatically (appending a period would result in
 ; two periods being displayed).
 ;
-; Italian.isl - Last Update: 24.07.2026 by bovirus (bovirus@gmail.com)
+; Italian.isl - Last Update: 28.07.2026 by bovirus (bovirus@gmail.com)
 ;
 ; Translator name:   bovirus
 ; Translator e-mail: bovirus@gmail.com
@@ -46,7 +46,7 @@ ConfirmTitle=Conferma
 ErrorTitle=Errore
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Questa è l'installazione di %1.%n%nVuoi continuare?
+SetupLdrStartupMessage=Installazione di %1.%n%nVuoi continuare?
 LdrCannotCreateTemp=Impossibile creare un file temporaneo.%n%nInstallazione annullata.
 LdrCannotExecTemp=Impossibile eseguire un file nella cartella temporanea.%n%nInstallazione annullata.
 HelpTextNote=
@@ -91,7 +91,7 @@ AboutSetupMenuItem=&Informazioni sull'installazione...
 AboutSetupTitle=Informazioni sull'installazione
 AboutSetupMessage=%1 %2%n%3%n%n%1 sito web:%n%4
 AboutSetupNote=
-TranslatorNote=Traduzione italiana a cura di Rinaldo M. aka Whiteshark e bovirus (v. 24.07.2026)
+TranslatorNote=Traduzione italiana (v. 28.07.2026) a cura di Rinaldo M. aka Whiteshark e bovirus
 
 ; *** Buttons
 ButtonBack=< &Indietro
@@ -121,7 +121,7 @@ NewFolderName=Nuova cartella
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Installazione di [name]
-WelcomeLabel2=[name/ver] sarà installato sul computer.%n%nPrima di procedere chiudi tutte le applicazioni attive.
+WelcomeLabel2=Il programma installerà [name/ver] sul computer.%n%nPrima di procedere chiudi tutte le applicazioni attive.
 
 ; *** "Password" wizard page
 WizardPassword=Password
@@ -163,7 +163,7 @@ DiskSpaceMBLabel=Sono richiesti almeno [mb] MB di spazio libero nel disco.
 CannotInstallToNetworkDrive=Non è possibile effettuare l'installazione in un disco in rete.
 CannotInstallToUNCPath=Non è possibile effettuare l'installazione in un percorso UNC.
 InvalidPath=Va inserito un percorso completo di lettera di unità; per esempio:%n%nC:\APP%n%no un percorso di rete nella forma:%n%n\\server\condivisione
-InvalidDrive=L'unità o il percorso di rete selezionato non esiste o non è accessibile.%n%nSelezionane un altro.
+InvalidDrive=L'unità o il percorso di rete selezionato non esiste o non è accessibile.%n%nSeleziona un'altra unità o percorso.
 DiskSpaceWarningTitle=Spazio su disco insufficiente
 DiskSpaceWarning=L'installazione richiede per eseguire l'installazione almeno %1 KB di spazio libero, ma l'unità selezionata ha solo %2 KB disponibili.%n%nVuoi continuare comunque?
 DirNameTooLong=Il nome della cartella o il percorso sono troppo lunghi.
@@ -183,7 +183,7 @@ FullInstallation=Installazione completa
 CompactInstallation=Installazione compatta
 CustomInstallation=Installazione personalizzata
 NoUninstallWarningTitle=Componente esistente
-NoUninstallWarning=L'installazione ha rilevato che i seguenti componenti sono già installati nel computer:%n%n%1%n%nDeselezionando questi componenti essi non verranno rimossi.%n%nVuoi continuare comunque?
+NoUninstallWarning=L'installazione ha rilevato che sono già installati nel computer i seguenti componenti:%n%n%1%n%nDeselezionando questi componenti essi non verranno rimossi.%n%nVuoi continuare comunque?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
 ComponentsDiskSpaceGBLabel=La selezione attuale richiede almeno [gb] GB di spazio nel disco.
@@ -405,7 +405,7 @@ NameAndVersion=%1 versione %2
 AdditionalIcons=Icone aggiuntive:
 CreateDesktopIcon=Crea un'icona sul &desktop
 CreateQuickLaunchIcon=Crea un'icona nella &barra 'Avvio veloce'
-ProgramOnTheWeb=Sito web di %1
+ProgramOnTheWeb=Sito web %1
 UninstallProgram=Disinstalla %1
 LaunchProgram=Esegui %1
 AssocFileExtension=&Associa i file con estensione %2 a %1

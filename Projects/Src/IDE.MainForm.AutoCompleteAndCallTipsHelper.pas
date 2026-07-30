@@ -504,13 +504,13 @@ begin
   {$ZEROBASEDSTRINGS ON}
   repeat
     var Braces := 0;
-		while ((Current > 0) and ((Braces <> 0) or not (LineText[Current-1] = '('))) do begin
-			if LineText[Current-1] = '(' then
-			  Dec(Braces)
-			else if LineText[Current-1] = ')' then
-				Inc(Braces);
-			Dec(Current);
-			Dec(Pos);
+    while ((Current > 0) and ((Braces <> 0) or not (LineText[Current-1] = '('))) do begin
+      if LineText[Current-1] = '(' then
+        Dec(Braces)
+      else if LineText[Current-1] = ')' then
+        Inc(Braces);
+      Dec(Current);
+      Dec(Pos);
     end;
     if Current > 0 then begin
       Dec(Current);
@@ -526,9 +526,9 @@ begin
   if Current <= 0 then
     Exit;
 
-	FCallTipState.StartCallTipWord := Current - 1;
+  FCallTipState.StartCallTipWord := Current - 1;
   {$ZEROBASEDSTRINGS ON}
-	while (FCallTipState.StartCallTipWord > 0) and CharInSet(LineText[FCallTipState.StartCallTipWord-1], CallTipWordCharacters) do
+  while (FCallTipState.StartCallTipWord > 0) and CharInSet(LineText[FCallTipState.StartCallTipWord-1], CallTipWordCharacters) do
     Dec(FCallTipState.StartCallTipWord);
   FCallTipState.ISPPExpressionContext := ISPPExpressionContext;
   if ISPPExpressionContext then
@@ -574,31 +574,31 @@ begin
   _CountCallTipBracesAndCommas(AMemo, Braces {unused}, Commas);
 
   {$ZEROBASEDSTRINGS ON}
-	var StartHighlight := 0;
+  var StartHighlight := 0;
   const FunctionDefinition = FCallTipState.FunctionDefinition;
   const FunctionDefinitionLength = Length(FunctionDefinition);
-	while (StartHighlight < FunctionDefinitionLength) and not (FunctionDefinition[StartHighlight] = '(') do
-		Inc(StartHighlight);
-	if (StartHighlight < FunctionDefinitionLength) and (FunctionDefinition[StartHighlight] = '(') then
-		Inc(StartHighlight);
-	while (StartHighlight < FunctionDefinitionLength) and (Commas > 0) do begin
-		if FunctionDefinition[StartHighlight] in [',', ';'] then
-			Dec(Commas);
-		// If it reached the end of the argument list it means that the user typed in more
-		// arguments than the ones listed in the calltip
-		if FunctionDefinition[StartHighlight] = ')' then
-			Commas := 0
-		else
-			Inc(StartHighlight);
-	end;
-	if (StartHighlight < FunctionDefinitionLength) and (FunctionDefinition[StartHighlight] in [',', ';']) then
-		Inc(StartHighlight);
-	var EndHighlight := StartHighlight;
-	while (EndHighlight < FunctionDefinitionLength) and not (FunctionDefinition[EndHighlight] in [',', ';']) and not (FunctionDefinition[EndHighlight] = ')') do
-		Inc(EndHighlight);
+  while (StartHighlight < FunctionDefinitionLength) and not (FunctionDefinition[StartHighlight] = '(') do
+    Inc(StartHighlight);
+  if (StartHighlight < FunctionDefinitionLength) and (FunctionDefinition[StartHighlight] = '(') then
+    Inc(StartHighlight);
+  while (StartHighlight < FunctionDefinitionLength) and (Commas > 0) do begin
+    if FunctionDefinition[StartHighlight] in [',', ';'] then
+      Dec(Commas);
+    // If it reached the end of the argument list it means that the user typed in more
+    // arguments than the ones listed in the calltip
+    if FunctionDefinition[StartHighlight] = ')' then
+      Commas := 0
+    else
+      Inc(StartHighlight);
+  end;
+  if (StartHighlight < FunctionDefinitionLength) and (FunctionDefinition[StartHighlight] in [',', ';']) then
+    Inc(StartHighlight);
+  var EndHighlight := StartHighlight;
+  while (EndHighlight < FunctionDefinitionLength) and not (FunctionDefinition[EndHighlight] in [',', ';']) and not (FunctionDefinition[EndHighlight] = ')') do
+    Inc(EndHighlight);
   {$ZEROBASEDSTRINGS OFF}
 
-	AMemo.SetCallTipHighlight(StartHighlight, EndHighlight);
+  AMemo.SetCallTipHighlight(StartHighlight, EndHighlight);
 end;
 
 procedure TMainFormAutoCompleteAndCallTipsHelper.CallTipsHandleUpdateUI(const AMemo: TScintEdit);
