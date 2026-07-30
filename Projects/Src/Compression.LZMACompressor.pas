@@ -37,8 +37,8 @@ type
     BlockSize: Integer;
     BTMode: Integer;
     DictionarySize: Cardinal;
-    NumThreads: Integer;
     NumFastBytes: Integer;
+    NumThreads: Integer;
     NumThreadGroups: Integer;
     WorkerProcessCheckTrust: Boolean;
     WorkerProcessOnCheckedTrust: TProc<Boolean>;

@@ -33,8 +33,8 @@ uses
   SimpleExpression, SHA256, ChaCha20, Shared.SetupTypes, Shared.CommonFunc,
   Shared.Struct, Shared.CompilerInt.Struct, Shared.PreprocInt, Shared.SetupMessageIDs,
   Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.DebugStruct,
-  Compiler.ScriptCompiler, Compiler.StringLists, Compiler.ExeUpdateFunc,
-  Compression.LZMACompressor, Compression.Zstd;
+  Compiler.ScriptCompiler, Compiler.StringLists, Compression.LZMACompressor,
+  Compiler.ExeUpdateFunc, Compression.Zstd;
 
 type
   EISCompileError = class(Exception);
@@ -8383,10 +8383,6 @@ begin
     CallIdleProc;
 
     { Verify settings set in [Setup] section }
-    if CompressMethod = cmZstd then begin
-      if (CompressProps.NumBlockThreads = 0) and (not UseSolidCompression) then
-        WarningsList.Add(SCompilerZstdTooManyThreads);
-    end;
     if SetupDirectiveLines[ssUseSetupLdr] = 0 then begin
       if SetupArchitecture = sa32bit then
         SetupLdrArchitecture := sla32bit

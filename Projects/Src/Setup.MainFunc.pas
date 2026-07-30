@@ -257,7 +257,7 @@ uses
   ChaCha20, ECDSA, ISSigFunc, NewCtrls, PathFunc, UnsignedFunc, FormBackgroundStyleHook, RichEditViewer,
   SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, Setup.DownloadFileFunc, Setup.ExtractFileFunc,
   SetupLdrAndSetup.InstFunc, Setup.InstFunc, Setup.PathRedir, {$IFNDEF WIN64} Setup.RedirFunc, {$ENDIF}
-  Compression.Base, Compression.Zstd, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor,
+  Compression.Base, Compression.Zlib, Compression.bzlib, Compression.LZMADecompressor, Compression.Zstd,
   Shared.SetupEntFunc, Shared.EncryptionFunc,  Setup.SelectLanguageForm,
   Setup.WizardForm, Setup.DebugClient, Shared.VerInfoFunc, Setup.FileExtractor,
   Shared.FileClass, Setup.LoggingFunc, StringScanner,
@@ -2860,15 +2860,15 @@ var
     if DecompressorDLLHandle = 0 then
       InternalError(Format('Failed to load DLL "%s"', [Filename]));
     case SetupHeader.CompressMethod of
-      cmZstd:
-        if not ZstdInitDecompressFunctions(DecompressorDLLHandle) then
-          InternalError('ZstdInitDecompressFunctions failed');
       cmZip:
         if not ZlibInitDecompressFunctions(DecompressorDLLHandle) then
           InternalError('ZlibInitDecompressFunctions failed');
       cmBzip:
         if not BZInitDecompressFunctions(DecompressorDLLHandle) then
           InternalError('BZInitDecompressFunctions failed');
+      cmZstd:
+        if not ZstdInitDecompressFunctions(DecompressorDLLHandle) then
+          InternalError('ZstdInitDecompressFunctions failed');
     end;
   end;
 
