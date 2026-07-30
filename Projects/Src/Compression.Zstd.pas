@@ -86,12 +86,12 @@ const
   SZstdInternalError = 'zstd: Internal error. Code %d';
 
   ZSTD_error_no_error = 0;
+  ZSTD_error_memory_allocation = 64;
 
   ZSTD_e_continue = 0;
-  ZSTD_e_flush    = 1;
-  ZSTD_e_end      = 2;
+  ZSTD_e_end = 2;
 
-  ZSTD_c_nbWorkers        = 400;
+  ZSTD_c_nbWorkers = 400;
 
   ZSTD_reset_session_only = 1;
 
@@ -107,7 +107,7 @@ var
   ZSTD_decompressStream: function(zds: Pointer; var output: TZSTD_outBuffer; var input: TZSTD_inBuffer): NativeUInt; stdcall;
   ZSTD_freeDStream: function(zds: Pointer): NativeUInt; stdcall;
 
-  ZSTD_isError: function(res: NativeUInt): Cardinal; stdcall;
+  ZSTD_getErrorCode: function(functionResult: NativeUInt): Cardinal; stdcall;
   ZSTD_CCtx_reset: function(cctx: Pointer; reset: Cardinal): NativeUInt; stdcall;
   ZSTD_getFrameProgression: function(cctx: Pointer): TZSTD_frameProgression; stdcall;
 
@@ -118,13 +118,13 @@ begin
   ZSTD_initCStream := GetProcAddress(Module, 'ZSTD_initCStream');
   ZSTD_compressStream2 := GetProcAddress(Module, 'ZSTD_compressStream2');
   ZSTD_freeCStream := GetProcAddress(Module, 'ZSTD_freeCStream');
-  ZSTD_isError := GetProcAddress(Module, 'ZSTD_isError');
+  ZSTD_getErrorCode := GetProcAddress(Module, 'ZSTD_getErrorCode');
   ZSTD_CCtx_reset := GetProcAddress(Module, 'ZSTD_CCtx_reset');
   ZSTD_getFrameProgression := GetProcAddress(Module, 'ZSTD_getFrameProgression');
   Result :=
     Assigned(ZSTD_createCStream) and Assigned(ZSTD_CCtx_setParameter) and
     Assigned(ZSTD_initCStream) and Assigned(ZSTD_compressStream2) and
-    Assigned(ZSTD_freeCStream) and Assigned(ZSTD_isError) and
+    Assigned(ZSTD_freeCStream) and Assigned(ZSTD_getErrorCode) and
     Assigned(ZSTD_CCtx_reset) and Assigned(ZSTD_getFrameProgression);
   if not Result then begin
     ZSTD_createCStream := nil;
@@ -132,7 +132,7 @@ begin
     ZSTD_CCtx_setParameter := nil;
     ZSTD_compressStream2 := nil;
     ZSTD_freeCStream := nil;
-    ZSTD_isError := nil;
+    ZSTD_getErrorCode := nil;
     ZSTD_CCtx_reset := nil;
     ZSTD_getFrameProgression := nil;
   end;
@@ -144,24 +144,28 @@ begin
   ZSTD_initDStream := GetProcAddress(Module, 'ZSTD_initDStream');
   ZSTD_decompressStream := GetProcAddress(Module, 'ZSTD_decompressStream');
   ZSTD_freeDStream := GetProcAddress(Module, 'ZSTD_freeDStream');
-  ZSTD_isError := GetProcAddress(Module, 'ZSTD_isError');
+  ZSTD_getErrorCode := GetProcAddress(Module, 'ZSTD_getErrorCode');
   Result :=
     Assigned(ZSTD_createDStream) and Assigned(ZSTD_initDStream) and
     Assigned(ZSTD_decompressStream) and Assigned(ZSTD_freeDStream) and
-    Assigned(ZSTD_isError);
+    Assigned(ZSTD_getErrorCode);
   if not Result then begin
     ZSTD_createDStream := nil;
     ZSTD_initDStream := nil;
     ZSTD_decompressStream := nil;
     ZSTD_freeDStream := nil;
-    ZSTD_isError := nil;
+    ZSTD_getErrorCode := nil;
   end;
 end;
 
 procedure Check(const Code: NativeUInt);
 begin
-  if ZSTD_isError(Code) <> 0 then
+  const ErrorCode = ZSTD_getErrorCode(Code);
+  if ErrorCode <> ZSTD_error_no_error then begin
+    if ErrorCode = ZSTD_error_memory_allocation then
+      OutOfMemoryError;
     raise ECompressInternalError.CreateFmt(SZstdInternalError, [Code]);
+  end;
 end;
 
 { TZstdCompressor }
@@ -307,9 +311,12 @@ begin
     const OldInPos = FIn.pos;
     const OldOutPos = LOut.pos;
     const Code = ZSTD_decompressStream(FStrm, LOut, FIn);
-    if ZSTD_isError(Code) <> 0 then
-      raise ECompressDataError.Create(SZstdDataError)
-    else if (FIn.pos = OldInPos) and (LOut.pos = OldOutPos) then begin
+    const ErrorCode = ZSTD_getErrorCode(Code);
+    if ErrorCode <> ZSTD_error_no_error then begin
+      if ErrorCode = ZSTD_error_memory_allocation then
+        OutOfMemoryError;
+      raise ECompressDataError.Create(SZstdDataError);
+    end else if (FIn.pos = OldInPos) and (LOut.pos = OldOutPos) then begin
       { Sanity check; no data consumed or decompressed at all }
       raise ECompressDataError.Create(SZstdDataError);
     end else if Code = 0 then
