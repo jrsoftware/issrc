@@ -167,26 +167,14 @@ end;
 constructor TZstdCompressor.Create(AWriteProc: TCompressorWriteProc;
   AProgressProc: TCompressorProgressProc; CompressionLevel: Integer;
   ACompressorProps: TCompressorProps);
-var
-  GetActiveProcessorCountFunc: function(GroupNumber: WORD): WORD; stdcall;
 begin
   inherited;
   FCompressionLevel := CompressionLevel;
-  FNumThreads := 0;
+  FNumThreads := 1;
   if ACompressorProps is TThreadedCompressorProps then begin
     const Props = (ACompressorProps as TThreadedCompressorProps);
     if Props.NumBlockThreads <> 0 then
       FNumThreads := Props.NumBlockThreads;
-  end;
-  if FNumThreads = 0 then begin
-    { Let's make Zstd use automatically all physical processors }
-    GetActiveProcessorCountFunc := GetProcAddress(GetModuleHandle(kernel32),
-      'GetActiveProcessorCount');
-    if Assigned(GetActiveProcessorCountFunc) then begin
-      const ActiveProcessorCount = GetActiveProcessorCountFunc(65535);
-      if ActiveProcessorCount > 1 then
-        FNumThreads := ActiveProcessorCount div 2;
-    end;
   end;
   InitCompress;
 end;
