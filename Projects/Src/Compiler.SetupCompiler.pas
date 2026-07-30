@@ -618,84 +618,91 @@ begin
   PreprocessorInitialized := True;
 end;
 
-procedure TSetupCompiler.InitZstdDLL;
+type
+  TInitCompressFunctions = function(Module: HMODULE): Boolean;
+
+procedure InitCompressionDLL(const CompilerDir, BaseName: String;
+  const HasArm64ECDll: Boolean; var Initialized: Boolean;
+  const Init: TInitCompressFunctions);
+
+  {$IFDEF WIN64}
+
+  function IsArm64: Boolean;
+  const
+    IMAGE_FILE_MACHINE_ARM64 = $AA64;
+    {$IFNDEF CPUX64}
+    PROCESSOR_ARCHITECTURE_ARM64 = 12;
+    {$ENDIF}
+  var
+    IsWow64Process2Func: function(hProcess: THandle; var pProcessMachine, pNativeMachine: USHORT): BOOL; stdcall;
+  begin
+    const KernelModule = GetModuleHandle(kernel32);
+
+    IsWow64Process2Func := GetProcAddress(KernelModule, 'IsWow64Process2');
+    var ProcessMachine, NativeMachine: USHORT;
+    if Assigned(IsWow64Process2Func) and
+       IsWow64Process2Func(GetCurrentProcess, ProcessMachine, NativeMachine) then
+      Exit(NativeMachine = IMAGE_FILE_MACHINE_ARM64);
+
+    { When running with x64 emulation on ARM64, GetNativeSystemInfo will just lie to us, so only
+      call if not x64 (which currently is impossible) }
+    {$IFNDEF CPUX64}
+    var SysInfo: TSystemInfo;
+    GetNativeSystemInfo(SysInfo);
+    if SysInfo.wProcessorArchitecture = PROCESSOR_ARCHITECTURE_ARM64 then
+      Exit(True);
+    {$ENDIF}
+
+    Result := False;
+  end;
+
+  {$ENDIF}
+
 begin
-  if ZstdInitialized then
+  if Initialized then
     Exit;
   var Filename: String;
   {$IFDEF WIN64}
   var DllName: String;
-  if IsArm64 then begin
+  if HasArm64ECDll and IsArm64 then begin
     { We can use an Arm64EC DLL from our x64 EXE, for better performance }
-    DllName := 'iszstd-Arm64EC.dll';
+    DllName := 'is' + BaseName + '-Arm64EC.dll';
     const Arm64Filename = CompilerDir + DllName;
     if NewFileExists(Arm64Filename) then { Allow it to be deleted, for easy performance comparison }
       Filename := Arm64Filename;
   end;
   if Filename = '' then begin
-    DllName := 'iszstd-x64.dll';
+    DllName := 'is' + BaseName + '-x64.dll';
     Filename := CompilerDir + DllName;
   end;
   {$ELSE}
-  const DllName = 'iszstd.dll';
+  const DllName = 'is' + BaseName + '.dll';
   Filename := CompilerDir + DllName;
   {$ENDIF};
   const M = LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
-  if not ZstdInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in ' + DllName);
-  ZstdInitialized := True;
+  if not Init(M) then
+    TSetupCompiler.AbortCompile('Failed to get address of functions in ' + DllName);
+  Initialized := True;
 end;
 
 procedure TSetupCompiler.InitZipDLL;
 begin
-  if ZipInitialized then
-    Exit;
-  const DllName = {$IFDEF WIN64} 'iszlib-x64.dll' {$ELSE} 'iszlib.dll' {$ENDIF};
-  const Filename = CompilerDir + DllName;
-  const M = LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
-  if not ZlibInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in ' + DllName);
-  ZipInitialized := True;
+  InitCompressionDLL(CompilerDir, 'zlib', False, ZipInitialized, ZlibInitCompressFunctions);
 end;
 
 procedure TSetupCompiler.InitBzipDLL;
 begin
-  if BzipInitialized then
-    Exit;
-  const DllName = {$IFDEF WIN64} 'isbzip-x64.dll' {$ELSE} 'isbzip.dll' {$ENDIF};
-  const Filename = CompilerDir + DllName;
-  const M = LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
-  if not BZInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in ' + DllName);
-  BzipInitialized := True;
+  InitCompressionDLL(CompilerDir, 'bzip', False, BzipInitialized, BZInitCompressFunctions);
 end;
 
 procedure TSetupCompiler.InitLZMADLL;
 begin
-  if LZMAInitialized then
-    Exit;
-  var Filename: String;
-  {$IFDEF WIN64}
-  var DllName: String;
-  if IsArm64 then begin
-    { We can use an Arm64EC DLL from our x64 EXE, for better performance }
-    DllName := 'islzma-Arm64EC.dll';
-    const Arm64Filename = CompilerDir + DllName;
-    if NewFileExists(Arm64Filename) then { Allow it to be deleted, for easy performance comparison }
-      Filename := Arm64Filename;
-  end;
-  if Filename = '' then begin
-    DllName := 'islzma-x64.dll';
-    Filename := CompilerDir + DllName;
-  end;
-  {$ELSE}
-  const DllName = 'islzma.dll';
-  Filename := CompilerDir + DllName;
-  {$ENDIF};
-  const M = LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
-  if not LZMAInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in ' + DllName);
-  LZMAInitialized := True;
+  InitCompressionDLL(CompilerDir, 'lzma', True, LZMAInitialized, LZMAInitCompressFunctions);
+end;
+
+procedure TSetupCompiler.InitZstdDLL;
+begin
+  InitCompressionDLL(CompilerDir, 'zstd', True, ZstdInitialized, ZstdInitCompressFunctions);
 end;
 
 function TSetupCompiler.GetBytesCompressedSoFar: Int64;
