@@ -21,24 +21,24 @@ function ZstdInitDecompressFunctions(Module: HMODULE): Boolean;
 
 type
   TZSTD_inBuffer = record
-    src: Pointer;        { start of input buffer }
-    size: NativeUInt;        { size of input buffer }
-    pos: NativeUInt;         { position where reading stopped. Will be updated. Necessarily 0 <= pos <= size }
+    src: Pointer;      { start of input buffer }
+    size: NativeUInt;  { size of input buffer }
+    pos: NativeUInt;   { position where reading stopped. Will be updated. Necessarily 0 <= pos <= size }
   end;
 
   TZSTD_outBuffer = record
-    dst: Pointer;        { start of output buffer }
-    size: NativeUInt;        { size of output buffer }
-    pos: NativeUInt;         { position where writing stopped. Will be updated. Necessarily 0 <= pos <= size }
+    dst: Pointer;      { start of output buffer }
+    size: NativeUInt;  { size of output buffer }
+    pos: NativeUInt;   { position where writing stopped. Will be updated. Necessarily 0 <= pos <= size }
   end;
 
   TZSTD_frameProgression = record
-    ingested: UInt64;   { nb input bytes read and buffered }
-    consumed: UInt64;   { nb input bytes actually compressed }
-    produced: UInt64;   { nb of compressed bytes generated and buffered }
-    flushed: UInt64;    { nb of compressed bytes flushed : not provided; can be tracked from caller side }
-    currentJobID: Cardinal;         { MT only : latest started job nb }
-    nbActiveWorkers: Cardinal;      { MT only : nb of workers actively compressing at probe time }
+    ingested: UInt64;  { nb input bytes read and buffered }
+    consumed: UInt64;  { nb input bytes actually compressed }
+    produced: UInt64;  { nb of compressed bytes generated and buffered }
+    flushed: UInt64;   { nb of compressed bytes flushed : not provided; can be tracked from caller side }
+    currentJobID: Cardinal;     { MT only : latest started job nb }
+    nbActiveWorkers: Cardinal;  { MT only : nb of workers actively compressing at probe time }
   end;
 
   TZstdCompressor = class(TCustomCompressor)
@@ -121,10 +121,11 @@ begin
   ZSTD_isError := GetProcAddress(Module, 'ZSTD_isError');
   ZSTD_CCtx_reset := GetProcAddress(Module, 'ZSTD_CCtx_reset');
   ZSTD_getFrameProgression := GetProcAddress(Module, 'ZSTD_getFrameProgression');
-  Result := Assigned(ZSTD_createCStream) and Assigned(ZSTD_CCtx_setParameter)
-    and Assigned(ZSTD_initCStream) and Assigned(ZSTD_compressStream2)
-    and Assigned(ZSTD_freeCStream) and Assigned(ZSTD_isError)
-    and Assigned(ZSTD_CCtx_reset) and Assigned(ZSTD_getFrameProgression);
+  Result :=
+    Assigned(ZSTD_createCStream) and Assigned(ZSTD_CCtx_setParameter) and
+    Assigned(ZSTD_initCStream) and Assigned(ZSTD_compressStream2) and
+    Assigned(ZSTD_freeCStream) and Assigned(ZSTD_isError) and
+    Assigned(ZSTD_CCtx_reset) and Assigned(ZSTD_getFrameProgression);
   if not Result then begin
     ZSTD_createCStream := nil;
     ZSTD_initCStream := nil;
@@ -144,8 +145,10 @@ begin
   ZSTD_decompressStream := GetProcAddress(Module, 'ZSTD_decompressStream');
   ZSTD_freeDStream := GetProcAddress(Module, 'ZSTD_freeDStream');
   ZSTD_isError := GetProcAddress(Module, 'ZSTD_isError');
-  Result := Assigned(ZSTD_createDStream) and Assigned(ZSTD_initDStream) and
-    Assigned(ZSTD_decompressStream) and Assigned(ZSTD_freeDStream) and Assigned(ZSTD_isError);
+  Result :=
+    Assigned(ZSTD_createDStream) and Assigned(ZSTD_initDStream) and
+    Assigned(ZSTD_decompressStream) and Assigned(ZSTD_freeDStream) and
+    Assigned(ZSTD_isError);
   if not Result then begin
     ZSTD_createDStream := nil;
     ZSTD_initDStream := nil;
@@ -304,9 +307,9 @@ begin
     const OldInPos = FIn.pos;
     const OldOutPos = LOut.pos;
     const Code = ZSTD_decompressStream(FStrm, LOut, FIn);
-    if ZSTD_isError(Code) <> 0 then begin
-      raise ECompressDataError.Create(SZstdDataError);
-    end else if (FIn.pos = OldInPos) and (LOut.pos = OldOutPos) then begin
+    if ZSTD_isError(Code) <> 0 then
+      raise ECompressDataError.Create(SZstdDataError)
+    else if (FIn.pos = OldInPos) and (LOut.pos = OldOutPos) then begin
       { Sanity check; no data consumed or decompressed at all }
       raise ECompressDataError.Create(SZstdDataError);
     end else if Code = 0 then
