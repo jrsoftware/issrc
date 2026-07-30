@@ -51,7 +51,7 @@ type
     FBuffer: array[0..$FFFFF] of Byte;
     { Workaround for Zstd not resetting the frame progression until compress2
       is called. Let's keep a good local copy }
-    FProgress: TZSTD_FrameProgression;
+    FProgress: TZSTD_frameProgression;
     function EndCompress: NativeUInt;
     procedure FlushBuffer;
     procedure InitCompress;
@@ -96,7 +96,7 @@ const
 
 var
   ZSTD_createCStream: function: Pointer; stdcall;
-  ZSTD_initCStream: function (zcs: Pointer; compressionLevel: Integer): NativeUInt; stdcall;
+  ZSTD_initCStream: function(zcs: Pointer; compressionLevel: Integer): NativeUInt; stdcall;
   ZSTD_CCtx_setParameter: function(cctx: Pointer; param: Cardinal; value: Integer): NativeUInt; stdcall;
   ZSTD_compressStream2: function(cctx: Pointer; var output: TZSTD_outBuffer; var input: TZSTD_inBuffer; endOp: Cardinal): NativeUInt; stdcall;
   ZSTD_freeCStream: function(zcs: Pointer): NativeUInt; stdcall;
@@ -154,11 +154,10 @@ begin
   end;
 end;
 
-function Check(const Code: NativeUInt): Boolean;
+procedure Check(const Code: NativeUInt);
 begin
   if ZSTD_isError(Code) <> 0 then
     raise ECompressInternalError.CreateFmt(SZstdInternalError, [Code]);
-  Result := True;
 end;
 
 { TZstdCompressor }
@@ -196,18 +195,14 @@ begin
     if FStrm = nil then
       OutOfMemoryError;
     Check(ZSTD_initCStream(FStrm, FCompressionLevel));
-    if FNumThreads > 1 then begin
-      const Code = ZSTD_CCtx_setParameter(FStrm, ZSTD_c_nbWorkers, FNumThreads);
-      if ZSTD_isError(Code) <> 0 then
-        Check(ZSTD_CCtx_setParameter(FStrm, ZSTD_c_nbWorkers, 1));
-    end;
+    if FNumThreads > 1 then
+      Check(ZSTD_CCtx_setParameter(FStrm, ZSTD_c_nbWorkers, FNumThreads));
   end;
   if not FInitialized then begin
     FillChar(FProgress, SizeOf(FProgress), 0);
     FillChar(FOut, SizeOf(FOut), 0);
     FOut.dst := @FBuffer;
     FOut.size := SizeOf(FBuffer);
-    FOut.pos := 0;
     FInitialized := True;
   end;
 end;
