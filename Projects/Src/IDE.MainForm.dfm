@@ -825,6 +825,13 @@ object MainForm: TMainForm
         object N26: TMenuItem
           Caption = '-'
         end
+        object PInspectorShowAllKnownDirectives: TMenuItem
+          Caption = 'Show all known directives'
+          OnClick = PInspectorShowAllKnownDirectivesClick
+        end
+        object PInspectorShowAllKnownDirectivesSeparator: TMenuItem
+          Caption = '-'
+        end
         object PInspectorHelp: TMenuItem
           Caption = '&Help'
           OnClick = PInspectorHelpClick

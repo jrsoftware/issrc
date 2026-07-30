@@ -531,6 +531,10 @@ procedure TMainFormUpdateMenuHelper.UpdateInspectorPopupMenu(const Menu: TMenuIt
 begin
   PInspectorGoTo.Enabled := FInspector.TryGetSelectedRowFirstLine >= 0;
   PInspectorRemove.Enabled := FInspector.CanRemoveSelectedRow;
+  PInspectorShowAllKnownDirectives.Visible := FInspector.ShowingDirectiveSection;
+  PInspectorShowAllKnownDirectives.Checked := FOptions.InspectorShowAllKnownDirectives;
+  PInspectorShowAllKnownDirectives.Enabled := FActiveMemo = FMainMemo;
+  PInspectorShowAllKnownDirectivesSeparator.Visible := PInspectorShowAllKnownDirectives.Visible; { AutoLineReduction is maManual }
 
   _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;

@@ -347,6 +347,8 @@ type
     PInspectorHelp: TMenuItem;
     PInspectorRemove: TMenuItem;
     N26: TMenuItem;
+    PInspectorShowAllKnownDirectives: TMenuItem;
+    PInspectorShowAllKnownDirectivesSeparator: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -497,6 +499,7 @@ type
     procedure PInspectorGoToClick(Sender: TObject);
     procedure PInspectorHelpClick(Sender: TObject);
     procedure PInspectorRemoveClick(Sender: TObject);
+    procedure PInspectorShowAllKnownDirectivesClick(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -3907,6 +3910,19 @@ end;
 procedure TMainForm.PInspectorRemoveClick(Sender: TObject);
 begin
   FInspector.RemoveSelectedRow;
+end;
+
+procedure TMainForm.PInspectorShowAllKnownDirectivesClick(Sender: TObject);
+begin
+  FInspector.ForceFinishEdit; { Allowed: SyncInspectorOptions below rebuilds }
+  FOptions.InspectorShowAllKnownDirectives := not FOptions.InspectorShowAllKnownDirectives;
+  SyncInspectorOptions;
+  const Ini = TConfigIniFile.Create;
+  try
+    Ini.WriteBool('Options', 'InspectorShowAllKnownDirectives', FOptions.InspectorShowAllKnownDirectives);
+  finally
+    Ini.Free;
+  end;
 end;
 
 procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);

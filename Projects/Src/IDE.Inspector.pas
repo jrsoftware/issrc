@@ -108,6 +108,7 @@ type
     function TryResolveSelectedRow: Boolean; overload;
     function CanRemoveSelectedRow: Boolean;
     procedure RemoveSelectedRow;
+    function ShowingDirectiveSection: Boolean;
     procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
       const AShowAllKnownDirectives, AShowAllKnownDirectivesSuppressedNote: Boolean);
     procedure UpdateFromCaret;
@@ -203,7 +204,7 @@ procedure TInspector.UpdateNote;
 begin
   if (FLiveParameterSectionEntry = nil) and (FLiveKeyValueSection = nil) then
     ShowNote(LFmtMessage(SInspectorNothingToInspectNote))
-  else if (FLiveKeyValueSection <> nil) and FLiveKeyValueSectionIsDirectiveSection then begin
+  else if ShowingDirectiveSection then begin
     if FShowAllKnownDirectives and FLiveKeyValueSectionHasSiblingOccurrences then
       ShowNote(LFmtMessage(SInspectorSiblingOccurrencesNote))
     else if FShowAllKnownDirectivesSuppressedNote then
@@ -459,6 +460,11 @@ begin
   ForceFinishEdit(True);
 
   RowRemove(Entry, Section, Index);
+end;
+
+function TInspector.ShowingDirectiveSection: Boolean;
+begin
+  Result := (FLiveKeyValueSection <> nil) and FLiveKeyValueSectionIsDirectiveSection;
 end;
 
 procedure TInspector.ForceFinishEdit(const AForceCancel: Boolean);
@@ -1393,7 +1399,7 @@ end;
 procedure TInspector.SetQuoteNewDirectiveValues(const Value: Boolean);
 begin
   FQuoteNewDirectiveValues := Value;
-  if (FLiveKeyValueSection <> nil) and FLiveKeyValueSectionIsDirectiveSection then
+  if ShowingDirectiveSection then
     FLiveKeyValueSection.Section.QuoteNewValues := Value;
 end;
 
