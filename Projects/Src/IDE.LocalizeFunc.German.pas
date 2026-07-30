@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..970] of TTranslationPair = (
+  GermanIDETranslations: array [0..971] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -370,6 +370,9 @@ const
     (English: '&Find Results'; Localized: 'Such&ergebnisse'),
     (English: '&Hide Bottom Pane'; Localized: 'Unteren &Bereich ausblenden'),
     (English: '&Word Wrap'; Localized: '&Zeilenumbruch'),
+    (English: '&Go to'; Localized: '&Gehe zu'),
+    (English: 'Show all known directives'; Localized: 'Alle bekannten Direktiven anzeigen'),
+    (English: '&Help'; Localized: '&Hilfe'),
     (English: '&Build'; Localized: '&Erstellen'),
     (English: '&Compile'; Localized: '&Kompilieren'),
     (English: 'S&top Compile'; Localized: 'Kompilierung s&toppen'),
@@ -400,7 +403,6 @@ const
     (English: '&Configure Sign Tools...'; Localized: '&Signaturtools konfigurieren...'),
     (English: 'R&TF Editor...'; Localized: 'R&TF-Editor...'),
     (English: '&Options...'; Localized: '&Optionen...'),
-    (English: '&Help'; Localized: '&Hilfe'),
     (English: 'Purchase or Renew Commercial &License'; Localized: 'Kommerzielle &Lizenz erwerben oder verlängern'),
     (English: 'Enter Commercial License &Key...'; Localized: '&Kommerziellen Lizenzschlüssel eingeben...'),
     (English: 'Remove Commercial License Key'; Localized: 'Kommerziellen Lizenzschlüssel entfernen'),
@@ -445,7 +447,6 @@ const
     (English: 'Keep new %1 files closed'; Localized: 'Neue %1-Dateien geschlossen halten'),
     (English: 'Language:'; Localized: 'Sprache:'),
     (English: ' Inspector '; Localized: ' Inspektor '),
-    (English: 'Show all known directives'; Localized: 'Alle bekannten Direktiven anzeigen'),
     (English: 'Quote new directive values'; Localized: 'Neue Direktivenwerte in Anführungszeichen setzen'),
     (English: 'Quote new parameter values'; Localized: 'Neue Parameterwerte in Anführungszeichen setzen'),
     (English: ' Editor '; Localized: ' Editor '),
