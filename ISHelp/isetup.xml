@@ -5412,7 +5412,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <tr><td><tt>19</tt> (default)</td><td>8.5 MB</td><td>98 MB</td></tr>
 <tr><td><tt>20</tt></td><td>33 MB</td><td>226 MB</td></tr>
 </table>
-<p>See <sd>ZstdNumThreads</sd> for the memory required when multiple threads are used.</p>
+<p>See <sd>ZstdNumThreads</sd> for the compression memory required when multiple compression threads are used.</p>
 </indent>
 <p><tt>lzma</tt> is the method of compression employed by the <extlink href="http://www.7-zip.org/">7-Zip LZMA</extlink> compressor. It typically compresses significantly better than the <tt>zip</tt> and <tt>bzip</tt> methods, and somewhat better than <tt>zstd</tt>. However, depending on the compression level used, it can be significantly slower at compressing, and consume a <i>lot</i> more memory. The following table summarizes the approximate memory requirements for each of the supported <tt>lzma</tt> compression levels. If a compression level isn't specified, it defaults to <tt>max</tt>.</p>
 <indent>
