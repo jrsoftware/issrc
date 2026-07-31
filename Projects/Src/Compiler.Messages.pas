@@ -94,7 +94,6 @@ const
   SCompilerEntryInvalid2 = 'Value of [%s] section directive "%s" is invalid';
   SCompilerEntryValueUnsupported = 'Value of [%s] section directive "%s" must not be "%s" if flag "%s" is used.';
   SCompilerEntryAlreadySpecified = '[%s] section directive "%s" already specified';
-  SCompilerEntryConflict = 'Cannot have both the "%s" and "%s" [%s] section directives';
   SCompilerAppVersionOrAppVerNameRequired = 'The [Setup] section must include an AppVersion or AppVerName directive';
   SCompilerMinVersionWinMustBeZero = 'Minimum non NT version specified by MinVersion must be 0. (Windows 95/98/Me are no longer supported.)';
   SCompilerMinVersionNTTooLow = 'Minimum version specified by MinVersion must be at least %s otherwise Setup will never run. (Windows Vista/Server 2008 are no longer supported.)';

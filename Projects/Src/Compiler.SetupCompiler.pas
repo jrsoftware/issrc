@@ -135,6 +135,7 @@ type
     CompressMethod: TSetupCompressMethod;
     InternalCompressLevel, CompressLevel: Integer;
     InternalCompressProps, CompressProps: TLZMACompressorProps;
+    ZstdNumThreads: Integer;
     UseSolidCompression: Boolean;
     ArchiveExtraction, MinArchiveExtraction: TArchiveExtraction;
     DontMergeDuplicateFiles: Boolean;
@@ -3183,9 +3184,8 @@ begin
           Invalid;
         CompressProps.BTMode := I;
       end;
-    ssLZMANumBlockThreads, ssZstdNumThreads: begin
-        CompressProps.NumBlockThreads := StrToIntRange(Value, 1,
-          IfThen(Directive = ssLZMANumBlockThreads, 256, 64));
+    ssLZMANumBlockThreads: begin
+        CompressProps.NumBlockThreads := StrToIntRange(Value, 1, 256);
       end;
     ssLZMANumFastBytes: begin
         CompressProps.NumFastBytes := StrToIntRange(Value, 5, 273);
@@ -3603,6 +3603,9 @@ begin
       end;
     ssWizardStyleFileDynamicDark: begin
         WizardStyleFileDynamicDark := Value;
+      end;
+    ssZstdNumThreads: begin
+        ZstdNumThreads := StrToIntRange(Value, 1, 64);
       end;
   end;
 end;
@@ -8391,9 +8394,8 @@ begin
     CallIdleProc;
 
     { Verify settings set in [Setup] section }
-    if (SetupDirectiveLines[ssLZMANumBlockThreads] <> 0) and
-       (SetupDirectiveLines[ssZstdNumThreads] <> 0) then
-      AbortCompileFmt(SCompilerEntryConflict, ['LZMANumBlockThreads', 'ZstdNumThreads', 'Setup']);
+    if CompressMethod = cmZstd then
+      CompressProps.NumBlockThreads := ZstdNumThreads;
     if SetupDirectiveLines[ssUseSetupLdr] = 0 then begin
       if SetupArchitecture = sa32bit then
         SetupLdrArchitecture := sla32bit
