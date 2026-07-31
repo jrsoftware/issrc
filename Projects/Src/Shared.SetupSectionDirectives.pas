@@ -193,7 +193,7 @@ type
     ssWizardStyle,
     ssWizardStyleFile,
     ssWizardStyleFileDynamicDark,
-    ssZstdNumWorkerThreads);
+    ssZstdNumThreads);
     
 implementation
 

@@ -9,6 +9,8 @@ unit Compression.Zstd;
   Originally contributed by Amyspark <amy@amyspark.me>
 
   Declarations for Zstandard functions & structures
+
+  https://raw.githack.com/facebook/zstd/release/doc/zstd_manual.html
 }
 
 interface
@@ -50,7 +52,7 @@ type
     FOut: TZSTD_outBuffer;
     FBuffer: array[0..$FFFFF] of Byte;
     { Workaround for Zstd not resetting the frame progression until compress2
-      is called. Let's keep a good local copy }
+      is called. Let's keep a good local copy. }
     FProgress: TZSTD_frameProgression;
     function EndCompress: NativeUInt;
     procedure FlushBuffer;
@@ -92,6 +94,7 @@ const
   ZSTD_e_end = 2;
 
   ZSTD_c_nbWorkers = 400;
+  ZSTD_c_jobSize = 401;
 
   ZSTD_reset_session_only = 1;
 
@@ -197,18 +200,21 @@ begin
   { Decoupling initialization from compression context creation allows
     reusing the context for further compression operations. Also, in
     multithreaded mode, it's pretty easy to OOM Delphi by using Zstd together
-    with SolidCompression=no, as Zstd allocates a thread pool per context }
+    with SolidCompression=no, as Zstd allocates a thread pool per context. }
   if FStrm = nil then begin
     FStrm := ZSTD_createCStream;
     if FStrm = nil then
       OutOfMemoryError;
     Check(ZSTD_initCStream(FStrm, FCompressionLevel));
-    if FNumThreads > 1 then
+    if FNumThreads > 1 then begin
       Check(ZSTD_CCtx_setParameter(FStrm, ZSTD_c_nbWorkers, FNumThreads));
+      if FCompressionLevel > 19 then
+        Check(ZSTD_CCtx_setParameter(FStrm, ZSTD_c_jobSize, 32 * 1024 * 1024));
+    end;
   end;
   if not FInitialized then begin
-    FillChar(FProgress, SizeOf(FProgress), 0);
-    FillChar(FOut, SizeOf(FOut), 0);
+    FProgress := Default(TZSTD_frameProgression);
+    FOut := Default(TZSTD_outBuffer);
     FOut.dst := @FBuffer;
     FOut.size := SizeOf(FBuffer);
     FInitialized := True;
@@ -247,10 +253,9 @@ end;
 procedure TZstdCompressor.DoCompress(const Buffer; Count: Cardinal);
 begin
   InitCompress;
-  var LIn: TZSTD_inBuffer;
+  var LIn := Default(TZSTD_inBuffer);
   LIn.src := @Buffer;
   LIn.size := Count;
-  LIn.pos := 0;
   while LIn.pos < Count do begin
     Check(ZSTD_compressStream2(FStrm, FOut, LIn, ZSTD_e_continue));
     if FOut.pos = FOut.size then
@@ -261,10 +266,9 @@ end;
 
 procedure TZstdCompressor.DoFinish;
 begin
-  var LIn: TZSTD_inBuffer;
   InitCompress;
+  var LIn := Default(TZSTD_inBuffer);
   var ReachedEnd := False;
-  FillChar(LIn, SizeOf(LIn), 0);
   while not ReachedEnd do begin
     const Code = ZSTD_compressStream2(FStrm, FOut, LIn, ZSTD_e_end);
     Check(Code);
@@ -296,10 +300,9 @@ end;
 
 procedure TZstdDecompressor.DecompressInto(var Buffer; Count: Cardinal);
 begin
-  var LOut: TZSTD_outBuffer;
+  var LOut := Default(TZSTD_outBuffer);
   LOut.dst := @Buffer;
   LOut.size := Count;
-  LOut.pos := 0;
   while LOut.pos < Count do begin
     if FReachedEnd then  { unexpected EOF }
       raise ECompressDataError.Create(SZstdDataError);
@@ -326,7 +329,7 @@ end;
 
 procedure TZstdDecompressor.Reset;
 begin
-  FillChar(FIn, SizeOf(FIn), 0);
+  FIn := Default(TZSTD_inBuffer);
   Check(ZSTD_initDStream(FStrm));
   FReachedEnd := False;
 end;

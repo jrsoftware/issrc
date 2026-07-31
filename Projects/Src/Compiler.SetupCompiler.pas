@@ -2946,7 +2946,7 @@ begin
         end
         else if Value = 'zstd' then begin
           CompressMethod := cmZstd;
-          CompressLevel := 18;
+          CompressLevel := 19;
         end
         else if Copy(Value, 1, 4) = 'zip/' then begin
           I := StrToIntDef(Copy(Value, 5, Maxint), -1);
@@ -2976,7 +2976,7 @@ begin
         end
         else if Copy(Value, 1, 5) = 'zstd/' then begin
           I := StrToIntDef(Copy(Value, 6, Maxint), -1);
-          if (I < 1) or (I > 22) then
+          if (I < 1) or (I > 20) then
             Invalid;
           CompressMethod := cmZstd;
           CompressLevel := I;
@@ -3183,7 +3183,7 @@ begin
           Invalid;
         CompressProps.BTMode := I;
       end;
-    ssLZMANumBlockThreads, ssZstdNumWorkerThreads: begin
+    ssLZMANumBlockThreads, ssZstdNumThreads: begin
         CompressProps.NumBlockThreads := StrToIntRange(Value, 1,
           IfThen(Directive = ssLZMANumBlockThreads, 256, 64));
       end;
@@ -8392,8 +8392,8 @@ begin
 
     { Verify settings set in [Setup] section }
     if (SetupDirectiveLines[ssLZMANumBlockThreads] <> 0) and
-       (SetupDirectiveLines[ssZstdNumWorkerThreads] <> 0) then
-      AbortCompileFmt(SCompilerEntryConflict, ['LZMANumBlockThreads', 'ZstdNumWorkerThreads', 'Setup']);
+       (SetupDirectiveLines[ssZstdNumThreads] <> 0) then
+      AbortCompileFmt(SCompilerEntryConflict, ['LZMANumBlockThreads', 'ZstdNumThreads', 'Setup']);
     if SetupDirectiveLines[ssUseSetupLdr] = 0 then begin
       if SetupArchitecture = sa32bit then
         SetupLdrArchitecture := sla32bit
