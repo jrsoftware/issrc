@@ -2977,7 +2977,7 @@ begin
         end
         else if Copy(Value, 1, 5) = 'zstd/' then begin
           I := StrToIntDef(Copy(Value, 6, Maxint), -1);
-          if (I < 1) or (I > 20) then
+          if (I < 1) or (I > 22) then
             Invalid;
           CompressMethod := cmZstd;
           CompressLevel := I;
@@ -8394,8 +8394,14 @@ begin
     CallIdleProc;
 
     { Verify settings set in [Setup] section }
-    if CompressMethod = cmZstd then
+    if CompressMethod = cmZstd then begin
+      if (ZstdNumThreads > 1) and (CompressLevel > 20) then begin
+        { Not allowed because aborting takes too long }
+        LineNumber := SetupDirectiveLines[ssZstdNumThreads];
+        AbortCompile(SCompilerMustNotUseZstdNumThreads);
+      end;
       CompressProps.NumBlockThreads := ZstdNumThreads;
+    end;
     if SetupDirectiveLines[ssUseSetupLdr] = 0 then begin
       if SetupArchitecture = sa32bit then
         SetupLdrArchitecture := sla32bit

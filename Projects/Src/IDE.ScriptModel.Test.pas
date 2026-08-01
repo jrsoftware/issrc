@@ -511,11 +511,12 @@ begin
     list }
   Assert(Metadata.TryGetMember('Compression', Definition));
   Assert(Definition.ValueKind = mvkChoice);
-  Assert(Length(Definition.KnownValues) = 43); { none + zip, bzip, and zstd with 9 levels each + lzma and lzma2 with 5 levels each }
+  Assert(Length(Definition.KnownValues) = 45); { none + zip and bzip with 9 levels each + lzma and lzma2 with 5 levels each + zstd with its 11 meaningful levels }
   Assert(Definition.KnownValues[0] = 'none');
   Assert(Definition.KnownValues[1] = 'zip');
   Assert(Definition.KnownValues[2] = 'zip/1');
   Assert(Definition.KnownValues[32] = 'lzma2/ultra64');
+  Assert(Definition.KnownValues[44] = 'zstd/22');
   Assert(Definition.DefaultValue = 'lzma2/max');
   Assert(Metadata.TryGetMember('LZMAUseSeparateProcess', Definition));
   Assert(Definition.ValueKind = mvkChoice);

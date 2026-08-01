@@ -105,6 +105,7 @@ const
   SCompilerMustUseDisableStartupPrompt = 'DisableStartupPrompt must be set to "yes" when AppName includes constants';
   SCompilerMustNotUsePreviousLanguage = 'UsePreviousLanguage must be set to "no" when AppId includes constants';
   SCompilerMustNotUsePreviousPrivileges = 'UsePreviousPrivileges must be set to "no" when AppId includes constants and PrivilegesRequiredOverridesAllowed allows "dialog"';
+  SCompilerMustNotUseZstdNumThreads = 'ZstdNumThreads must be set to 1 when Compression is set to "zstd/21" or "zstd/22"';
   SCompilerDirectiveNotUsingDefault = 'The [Setup] section directive "%s" is not assuming a default value because %s includes constants.';
   SCompilerDirectiveNotUsingPreferredDefault = 'The [Setup] section directive "%s" is defaulting to %s because %s includes constants.';
   SCompilerDirectivePatternTooLong = 'The [Setup] section directive "%s" contains a pattern that is too long';

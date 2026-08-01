@@ -209,7 +209,7 @@ begin
     if FNumThreads > 1 then begin
       Check(ZSTD_CCtx_setParameter(FStrm, ZSTD_c_nbWorkers, FNumThreads));
       if FCompressionLevel > 19 then
-        Check(ZSTD_CCtx_setParameter(FStrm, ZSTD_c_jobSize, 32 * 1024 * 1024));
+        Check(ZSTD_CCtx_setParameter(FStrm, ZSTD_c_jobSize, 32 * 1024 * 1024)); { Ensures aborting is quick }
     end;
   end;
   if not FInitialized then begin

@@ -408,7 +408,7 @@ const
     ZipAlgos: TArray<String> = ['zip', 'bzip'];
     LZMAAlgos: TArray<String> = ['lzma', 'lzma2'];
     ZstdAlgo = 'zstd';
-    MeaningfulZstdLevels: TArray<Integer> = [1, 3, 6, 8, 13, 16, 18, 19, 20];
+    MeaningfulZstdLevels: TArray<Integer> = [1, 3, 6, 8, 13, 16, 18, 19, 20, 21, 22];
   begin
     Result := ['none'];
     for var Algo in ZipAlgos do begin

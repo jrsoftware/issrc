@@ -62,14 +62,14 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   <li>Added Zstandard (zstd) compression support:
   <ul>
     <li><tt>[Setup]</tt> section directive <tt>Compression</tt> can now be set to <tt>zstd</tt>, which enables <a href="https://facebook.github.io/zstd/">Zstandard</a> compression at level 19.<br/>
-        It almost always compresses better than <tt>zip</tt> and <tt>bzip</tt>, and at its highest levels its compression ratio approaches that of <tt>lzma</tt> and <tt>lzma2</tt> while compressing faster. Decompression is extremely fast at every level and uses little memory.<br/>
-        When choosing between <tt>lzma2</tt> and <tt>zstd</tt>: at the same dictionary and window sizes, <tt>lzma2</tt> typically compresses 5 to 15% better than <tt>zstd</tt>, making it the best choice when a small download size is most important. In return, <tt>zstd</tt> decompresses roughly 20 times faster while using at most 33 MB of memory, where <tt>lzma2</tt> requires the full dictionary size (up to 3.8 GB). This makes <tt>zstd</tt> the best choice when installation time is most important, such as with very large installations.
+        It almost always compresses better than <tt>zip</tt> and <tt>bzip</tt>, and at its highest levels its compression ratio approaches that of <tt>lzma</tt> and <tt>lzma2</tt> while compressing faster. Decompression is extremely fast at every level.<br/>
+        When choosing between <tt>lzma2</tt> and <tt>zstd</tt>: at the same dictionary and window sizes, <tt>lzma2</tt> typically compresses 5 to 15% better than <tt>zstd</tt>, making it the best choice when a small download size is most important. In return, <tt>zstd</tt> decompresses roughly 20 times faster. This makes <tt>zstd</tt> the best choice when installation time is most important, such as with very large installations.
     </li>
-    <li>Custom compression levels can be specified using <tt>zstd/1</tt> through <tt>zstd/20</tt>.<br/>
-        Levels 21 and 22 are not supported, because at those levels compression cannot be aborted in a timely manner.
+    <li>Custom compression levels can be specified using <tt>zstd/1</tt> through <tt>zstd/22</tt>.
     </li>
     <li>Added new <tt>[Setup]</tt> section directive <tt>ZstdNumThreads</tt> to enable multi-threaded compression. Doing so has almost no effect on the compression ratio, unlike multi-threading for <tt>lzma2</tt> which has a negative effect.<br/>
-        At level 20, the compiler lowers the compressor's default job size from 128 MB to 32 MB. This reduces memory use and lets an aborted compilation stop more quickly.
+        At level 20, the compiler lowers the compressor's default job size from 128 MB to 32 MB. This reduces memory use and allows compression to be aborted in a timely manner.<br/>
+        Levels 21 and 22 cannot be combined with this directive, because at those levels compression cannot be aborted in a timely manner.
     </li>
     <li>Thanks to Amy Spark for their work on this, contributed via <a href="https://github.com/jrsoftware/issrc">GitHub</a>.</li>
   </ul>
