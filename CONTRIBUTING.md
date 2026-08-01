@@ -45,6 +45,10 @@ branches and make pull requests. In detail:
     clear title and description. Please include your name and email address if
     you are contributing a translation.
 
+   After opening Pull Requests, please push subsequent commits to corresponding
+   branches normally instead of squashing / force pushing, otherwise code review
+   will be harder.
+
 10. Sign our [Contributor License Agreement](https://gist.github.com/c6a4b3ca5e370d65b49746df848e12a2) when asked.
 
 If you don't have the Git client (`git`), get it from:
