@@ -511,7 +511,7 @@ begin
     list }
   Assert(Metadata.TryGetMember('Compression', Definition));
   Assert(Definition.ValueKind = mvkChoice);
-  Assert(Length(Definition.KnownValues) = 33); { none + zip and bzip with 9 levels each + lzma and lzma2 with 5 levels each }
+  Assert(Length(Definition.KnownValues) = 43); { none + zip, bzip, and zstd with 9 levels each + lzma and lzma2 with 5 levels each }
   Assert(Definition.KnownValues[0] = 'none');
   Assert(Definition.KnownValues[1] = 'zip');
   Assert(Definition.KnownValues[2] = 'zip/1');
@@ -547,7 +547,7 @@ begin
   Assert(Definition.DefaultValue = '');
   Assert(Metadata.TryGetMember('DisablePrecompiledFileVerifications', Definition));
   Assert(Definition.ValueKind = mvkFlags);
-  Assert(Length(Definition.KnownValues) = 7);
+  Assert(Length(Definition.KnownValues) = 8);
   Assert(Definition.KnownValues[0] = 'setup');
   Assert(Definition.DefaultValue = '');
   { The integer directives, but not the ones with richer forms like

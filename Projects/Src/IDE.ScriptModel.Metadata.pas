@@ -383,7 +383,7 @@ procedure InitializeSectionMetadata;
       ssExtraDiskSpaceRequired, ssReserveBytes, ssSignToolMinimumTimeBetween,
         ssOnlyBelowVersion: Result := '0';
       ssDiskClusterSize: Result := '512';
-      ssSlicesPerDisk, ssLZMANumBlockThreads: Result := '1';
+      ssSlicesPerDisk, ssLZMANumBlockThreads, ssZstdNumThreads: Result := '1';
       ssDiskSliceSize: Result := '2100000000';
       ssTimeStampRounding: Result := '2';
       ssTouchDate, ssTouchTime: Result := 'current';
@@ -398,23 +398,18 @@ procedure InitializeSectionMetadata;
     end;
   end;
 
-type
-  TZipLevel = 1..9;
-
 const
   LZMALevels: TArray<String> = ['fast', 'normal', 'max', 'ultra', 'ultra64'];
-  MeaningfulZstdLevels: TArray<Integer> = [1, 3, 6, 8, 13, 16, 18, 19, 20];
 
   function CompressionValues: TArray<String>;
+  type
+    TZipLevel = 1..9;
   const
     ZipAlgos: TArray<String> = ['zip', 'bzip'];
     LZMAAlgos: TArray<String> = ['lzma', 'lzma2'];
     ZstdAlgo = 'zstd';
+    MeaningfulZstdLevels: TArray<Integer> = [1, 3, 6, 8, 13, 16, 18, 19, 20];
   begin
-    SetLength(Result, 1 +
-      Length(ZipAlgos) + Length(ZipAlgos) * (High(TZipLevel) - Low(TZipLevel) + 1) +
-      Length(LZMAAlgos) + Length(LZMAAlgos) * Length(LZMALevels) +
-      1 + Length(MeaningfulZstdLevels));
     Result := ['none'];
     for var Algo in ZipAlgos do begin
       Result := Result + [Algo];
@@ -428,7 +423,7 @@ const
     end;
     Result := Result + [ZstdAlgo];
     for var Level in MeaningfulZstdLevels do
-      Result := Result + [ZstdAlgo + '/' + IntToStr(Level)];
+      Result := Result + [ZstdAlgo + '/' + Level.ToString];
   end;
 
   function SetupSectionDirectiveFlagValues(
@@ -485,7 +480,8 @@ const
       ssLZMADictionarySize, ssLZMANumBlockThreads, ssLZMANumFastBytes,
       ssReserveBytes, ssSignToolMinimumTimeBetween, ssSignToolRetryCount,
       ssSignToolRetryDelay, ssSlicesPerDisk, ssTimeStampRounding,
-      ssUninstallDisplaySize, ssWizardBackImageOpacity, ssWizardImageOpacity];
+      ssUninstallDisplaySize, ssWizardBackImageOpacity, ssWizardImageOpacity,
+      ssZstdNumThreads];
     SetupSectionDirectivesVersion = [ssMinVersion, ssOnlyBelowVersion];
   begin
     var Members: TArray<TMemberDefinition>;
