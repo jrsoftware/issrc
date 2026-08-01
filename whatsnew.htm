@@ -59,22 +59,33 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
 <!-- <p>Thank you to everyone who has already <a href="https://jrsoftware.org/isorder.php">purchased a commercial license</a>. Your support is very important to our ongoing development.</p> -->
 
 <ul>
-  <li>Compiler IDE:
+  <li>Added Zstandard (zstd) compression support:
   <ul>
-    <li>Added a new <i>Inspector</i> panel to the right of the editor. It follows the caret and shows the current section's directives or the current entry's parameters as an editable list, so you can review and change what the script does without remembering exact names, flags, and defaults.
-    <ul>
-      <li>Shows all directives of a section and all parameters of an entry, using bold for those present in the script. Known directives which aren't in the script yet display their default values, and editing one adds it to the script.</li>
-      <li>Edits values in place: checkboxes for <tt>yes</tt>/<tt>no</tt> values, drop-down lists for multiple-choice values, and expandable checkbox lists for flags, with validation of integer values.</li>
-      <li>Knows the relationships between flags and parameters and applies them automatically. For example, checking the <tt>download</tt> flag of a <tt>[Files]</tt> entry also checks the flags it needs.</li>
-      <li>Writes all changes to the script as regular edits, so <i>Undo</i>, <i>Redo</i>, and change history work normally.</li>
-      <li>Changes only the parameter or directive you edit: everything else stays exactly as it was, including comments, quoting, ISPP line spanning, and anything the Inspector doesn't recognize.</li>
-      <li>Pressing F1 on a row opens the help for that directive, parameter, or flag. Pressing Ctrl+G on a row, or double-clicking the name of a row that isn't expandable, jumps to the corresponding location in the script.<br/>
-          All other Inspector keyboard and mouse commands are listed in the <a href="https://jrsoftware.org/ishelp/index.php?topic=compformshortcuts">Compiler IDE Keyboard And Mouse Commands</a> help topic. A right-click popup menu is also available.</li>
-      <li>Supports screen readers, high-contrast themes, and dark mode.</li>
-      <li>Shown by default and can be hidden via the <i>View</i> menu. New options control whether unspecified directives are shown and whether new values are quoted.<br/>
-          Unspecified directives are only shown for the main file, and only when it contains a single occurrence of the section.</li>
-    </ul>
+    <li><tt>[Setup]</tt> section directive <tt>Compression</tt> can now be set to <tt>zstd</tt>, which enables <a href="https://facebook.github.io/zstd/">Zstandard</a> compression at level 19.<br/>
+        It almost always compresses better than <tt>zip</tt> and <tt>bzip</tt>, and at its highest levels its compression ratio approaches that of <tt>lzma</tt> and <tt>lzma2</tt> while compressing faster. Decompression is extremely fast at every level and uses little memory.<br/>
+        When choosing between <tt>lzma2</tt> and <tt>zstd</tt>: at the same dictionary and window sizes, <tt>lzma2</tt> typically compresses 5 to 15% better than <tt>zstd</tt>, making it the best choice when a small download size is most important. In return, <tt>zstd</tt> decompresses roughly 20 times faster while using at most 33 MB of memory, where <tt>lzma2</tt> requires the full dictionary size (up to 3.8 GB). This makes <tt>zstd</tt> the best choice when installation time is most important, such as with very large installations.
     </li>
+    <li>Custom compression levels can be specified using <tt>zstd/1</tt> through <tt>zstd/20</tt>.<br/>
+        Levels 21 and 22 are not supported, because at those levels compression cannot be aborted in a timely manner.
+    </li>
+    <li>Added new <tt>[Setup]</tt> section directive <tt>ZstdNumThreads</tt> to enable multi-threaded compression. Doing so has almost no effect on the compression ratio, unlike multi-threading for <tt>lzma2</tt> which has a negative effect.<br/>
+        At level 20, the compiler lowers the compressor's default job size from 128 MB to 32 MB. This reduces memory use and lets an aborted compilation stop more quickly.
+    </li>
+    <li>Thanks to Amy Spark for their work on this, contributed via <a href="https://github.com/jrsoftware/issrc">GitHub</a>.</li>
+  </ul>
+  </li>
+  <li>Added a new <i>Inspector</i> panel to the right of the Compiler IDE editor. It follows the caret and shows the current section's directives or the current entry's parameters as an editable list, so you can review and change what the script does without remembering exact names, flags, and defaults.
+  <ul>
+    <li>Shows all directives of a section and all parameters of an entry, using bold for those present in the script. Known directives which aren't in the script yet display their default values, and editing one adds it to the script.</li>
+    <li>Edits values in place: checkboxes for <tt>yes</tt>/<tt>no</tt> values, drop-down lists for multiple-choice values, and expandable checkbox lists for flags, with validation of integer values.</li>
+    <li>Knows the relationships between flags and parameters and applies them automatically. For example, checking the <tt>download</tt> flag of a <tt>[Files]</tt> entry also checks the flags it needs.</li>
+    <li>Writes all changes to the script as regular edits, so <i>Undo</i>, <i>Redo</i>, and change history work normally.</li>
+    <li>Changes only the parameter or directive you edit: everything else stays exactly as it was, including comments, quoting, ISPP line spanning, and anything the Inspector doesn't recognize.</li>
+    <li>Pressing F1 on a row opens the help for that directive, parameter, or flag. Pressing Ctrl+G on a row, or double-clicking the name of a row that isn't expandable, jumps to the corresponding location in the script.<br/>
+        All other Inspector keyboard and mouse commands are listed in the <a href="https://jrsoftware.org/ishelp/index.php?topic=compformshortcuts">Compiler IDE Keyboard And Mouse Commands</a> help topic. A right-click popup menu is also available.</li>
+    <li>Supports screen readers, high-contrast themes, and dark mode.</li>
+    <li>Shown by default and can be hidden via the <i>View</i> menu. New options control whether unspecified directives are shown and whether new values are quoted.<br/>
+        Unspecified directives are only shown for the main file, and only when it contains a single occurrence of the section.</li>
   </ul>
   </li>
 </ul>
