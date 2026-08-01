@@ -33,7 +33,7 @@ const
     this file it's recommended you change SetupID. Any change will do (like
     changing the letters or numbers), as long as your format is
     unrecognizable by the standard Inno Setup. }
-  SetupID: TSetupID = 'Inno Setup Setup Data (7.0.0.3)';
+  SetupID: TSetupID = 'Inno Setup Setup Data (7.2.0)';
   UninstallLogID: array[Boolean] of TUninstallLogID =
     ('Inno Setup Uninstall Log (b)',
      'Inno Setup Uninstall Log (b) 64-bit'); { '64-bit' refers to 64-bit install mode }
@@ -81,7 +81,7 @@ type
       64-bit builds, even without specifying packed. But to be sure we specify
       it anyway. }
   TSetupLanguageDetectionMethod = (ldUILanguage, ldLocale, ldNone);
-  TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2);
+  TSetupCompressMethod = (cmStored, cmZip, cmBzip, cmLZMA, cmLZMA2, cmZstd);
   TSetupKDFSalt = array[0..15] of Byte;
   TSetupEncryptionKey = array[0..31] of Byte;
   TSetupEncryptionNonce = record

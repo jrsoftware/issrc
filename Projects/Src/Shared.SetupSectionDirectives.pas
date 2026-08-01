@@ -192,7 +192,8 @@ type
     ssWizardSizePercent,
     ssWizardStyle,
     ssWizardStyleFile,
-    ssWizardStyleFileDynamicDark);
+    ssWizardStyleFileDynamicDark,
+    ssZstdNumThreads);
 
 const
   SetupSectionDirectivesObsolete: set of TSetupSectionDirective = [

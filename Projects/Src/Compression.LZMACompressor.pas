@@ -31,13 +31,12 @@ type
   TLZMASRes = type Integer;
   TLZMACompressorCustomWorker = class;
 
-  TLZMACompressorProps = class(TCompressorProps)
+  TLZMACompressorProps = class(TThreadedCompressorProps)
   public
     Algorithm: Integer;
     BlockSize: Integer;
     BTMode: Integer;
     DictionarySize: Cardinal;
-    NumBlockThreads: Integer;
     NumFastBytes: Integer;
     NumThreads: Integer;
     NumThreadGroups: Integer;

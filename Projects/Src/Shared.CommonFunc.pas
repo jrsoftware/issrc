@@ -1297,6 +1297,7 @@ begin
       '!',     { Exclamation Mark }
       '.',     { Full Stop }
       '?',     { Question Mark }
+      #$0589,  { Armenian Full Stop }
       #$061F,  { Arabic Question Mark }
       #$06D4,  { Arabic Full Stop (used in Urdu, not Arabic) }
       #$3002,  { Ideographic Full Stop (used in Japanese and Chinese) }

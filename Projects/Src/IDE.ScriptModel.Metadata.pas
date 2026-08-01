@@ -235,7 +235,8 @@ begin
   CD('Compression', ['Compression', 'CompressionThreads',
     'InternalCompressLevel', 'LZMAAlgorithm', 'LZMABlockSize',
     'LZMADictionarySize', 'LZMAMatchFinder', 'LZMANumBlockThreads',
-    'LZMANumFastBytes', 'LZMAUseSeparateProcess', 'SolidCompression'],
+    'LZMANumFastBytes', 'LZMAUseSeparateProcess', 'SolidCompression',
+    'ZstdNumThreads'],
     SetupSection);
 
   CD('Installer', ['AllowCancelDuringInstall', 'AllowNetworkDrive',
@@ -397,18 +398,27 @@ procedure InitializeSectionMetadata;
     end;
   end;
 
+type
+  TZipLevel = 1..9;
+
 const
   LZMALevels: TArray<String> = ['fast', 'normal', 'max', 'ultra', 'ultra64'];
+  MeaningfulZstdLevels: TArray<Integer> = [1, 3, 6, 8, 13, 16, 18, 19, 20];
 
   function CompressionValues: TArray<String>;
   const
     ZipAlgos: TArray<String> = ['zip', 'bzip'];
     LZMAAlgos: TArray<String> = ['lzma', 'lzma2'];
+    ZstdAlgo = 'zstd';
   begin
+    SetLength(Result, 1 +
+      Length(ZipAlgos) + Length(ZipAlgos) * (High(TZipLevel) - Low(TZipLevel) + 1) +
+      Length(LZMAAlgos) + Length(LZMAAlgos) * Length(LZMALevels) +
+      1 + Length(MeaningfulZstdLevels));
     Result := ['none'];
     for var Algo in ZipAlgos do begin
       Result := Result + [Algo];
-      for var Level := 1 to 9 do
+      for var Level := Low(TZipLevel) to High(TZipLevel) do
         Result := Result + [Algo + '/' + Level.ToString];
     end;
     for var Algo in LZMAAlgos do begin
@@ -416,6 +426,9 @@ const
       for var Level in LZMALevels do
         Result := Result + [Algo + '/' + Level];
     end;
+    Result := Result + [ZstdAlgo];
+    for var Level in MeaningfulZstdLevels do
+      Result := Result + [ZstdAlgo + '/' + IntToStr(Level)];
   end;
 
   function SetupSectionDirectiveFlagValues(
@@ -427,7 +440,7 @@ const
     case SetupSectionDirective of
       ssDisablePrecompiledFileVerifications: Result := ['setup',
         'setupcustomstyle', 'setupldr', 'is7z', 'isbunzip', 'isunzlib',
-        'islzma'];
+        'islzma', 'isunzstd'];
       ssPrivilegesRequiredOverridesAllowed: Result := ['commandline', 'dialog'];
       ssWizardStyle: Result := ['classic', 'modern', 'light', 'dark', 'dynamic',
         'excludelightbuttons', 'excludelightcontrols', 'hidebevels',

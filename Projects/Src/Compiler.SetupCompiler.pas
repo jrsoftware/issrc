@@ -34,7 +34,7 @@ uses
   Shared.Struct, Shared.CompilerInt.Struct, Shared.PreprocInt, Shared.SetupMessageIDs,
   Shared.SetupSectionDirectives, Shared.VerInfoFunc, Shared.DebugStruct,
   Compiler.ScriptCompiler, Compiler.StringLists, Compression.LZMACompressor,
-  Compiler.ExeUpdateFunc;
+  Compiler.ExeUpdateFunc, Compression.Zstd;
 
 type
   EISCompileError = class(Exception);
@@ -74,7 +74,7 @@ type
 
   TCodeParameterKind = (cpkCheck, cpkDirectiveCheck, cpkInstall, cpkOnLog);
 
-  TPrecompiledFile = (pfSetup, pfSetupCustomStyle, pfSetupLdr, pfIs7z, pfIsbunzip, pfIsunzlib, pfIslzma);
+  TPrecompiledFile = (pfSetup, pfSetupCustomStyle, pfSetupLdr, pfIs7z, pfIsbunzip, pfIsunzlib, pfIslzma, pfIsunzstd);
   TPrecompiledFiles = set of TPrecompiledFile;
 
   TWizardImages = TObjectList<TCustomMemoryStream>;
@@ -135,6 +135,7 @@ type
     CompressMethod: TSetupCompressMethod;
     InternalCompressLevel, CompressLevel: Integer;
     InternalCompressProps, CompressProps: TLZMACompressorProps;
+    ZstdNumThreads: Integer;
     UseSolidCompression: Boolean;
     ArchiveExtraction, MinArchiveExtraction: TArchiveExtraction;
     DontMergeDuplicateFiles: Boolean;
@@ -246,6 +247,7 @@ type
     procedure InitLZMADLL;
     procedure InitPreprocessor;
     procedure InitZipDLL;
+    procedure InitZstdDLL;
     procedure PopulateLanguageEntryData;
     procedure ProcessMinVersionParameter(const ParamValue: TParamValue;
       var AMinVersion: TSetupVersionData);
@@ -374,7 +376,7 @@ type
   end;
 
 var
-  ZipInitialized, BzipInitialized, LZMAInitialized: Boolean;
+  ZipInitialized, BzipInitialized, LZMAInitialized, ZstdInitialized: Boolean;
   PreprocessorInitialized: Boolean;
   PreprocessScriptProc: TPreprocessScriptProc;
 
@@ -617,34 +619,15 @@ begin
   PreprocessorInitialized := True;
 end;
 
-procedure TSetupCompiler.InitZipDLL;
-begin
-  if ZipInitialized then
-    Exit;
-  const DllName = {$IFDEF WIN64} 'iszlib-x64.dll' {$ELSE} 'iszlib.dll' {$ENDIF};
-  const Filename = CompilerDir + DllName;
-  const M = LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
-  if not ZlibInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in ' + DllName);
-  ZipInitialized := True;
-end;
+type
+  TInitCompressFunctions = function(Module: HMODULE): Boolean;
 
-procedure TSetupCompiler.InitBzipDLL;
-begin
-  if BzipInitialized then
-    Exit;
-  const DllName = {$IFDEF WIN64} 'isbzip-x64.dll' {$ELSE} 'isbzip.dll' {$ENDIF};
-  const Filename = CompilerDir + DllName;
-  const M = LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
-  if not BZInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in ' + DllName);
-  BzipInitialized := True;
-end;
-
-procedure TSetupCompiler.InitLZMADLL;
+procedure InitCompressionDLL(const CompilerDir, BaseName: String;
+  const HasArm64ECDll: Boolean; var Initialized: Boolean;
+  const Init: TInitCompressFunctions);
 
   {$IFDEF WIN64}
-  
+
   function IsArm64: Boolean;
   const
     IMAGE_FILE_MACHINE_ARM64 = $AA64;
@@ -673,34 +656,54 @@ procedure TSetupCompiler.InitLZMADLL;
 
     Result := False;
   end;
-  
+
   {$ENDIF}
 
 begin
-  if LZMAInitialized then
+  if Initialized then
     Exit;
   var Filename: String;
   {$IFDEF WIN64}
   var DllName: String;
-  if IsArm64 then begin
+  if HasArm64ECDll and IsArm64 then begin
     { We can use an Arm64EC DLL from our x64 EXE, for better performance }
-    DllName := 'islzma-Arm64EC.dll';
+    DllName := 'is' + BaseName + '-Arm64EC.dll';
     const Arm64Filename = CompilerDir + DllName;
     if NewFileExists(Arm64Filename) then { Allow it to be deleted, for easy performance comparison }
       Filename := Arm64Filename;
   end;
   if Filename = '' then begin
-    DllName := 'islzma-x64.dll';
+    DllName := 'is' + BaseName + '-x64.dll';
     Filename := CompilerDir + DllName;
   end;
   {$ELSE}
-  const DllName = 'islzma.dll';
+  const DllName = 'is' + BaseName + '.dll';
   Filename := CompilerDir + DllName;
   {$ENDIF};
   const M = LoadCompilerDLL(Filename, [ltloTrustAllOnDebug]);
-  if not LZMAInitCompressFunctions(M) then
-    AbortCompile('Failed to get address of functions in ' + DllName);
-  LZMAInitialized := True;
+  if not Init(M) then
+    TSetupCompiler.AbortCompile('Failed to get address of functions in ' + DllName);
+  Initialized := True;
+end;
+
+procedure TSetupCompiler.InitZipDLL;
+begin
+  InitCompressionDLL(CompilerDir, 'zlib', False, ZipInitialized, ZlibInitCompressFunctions);
+end;
+
+procedure TSetupCompiler.InitBzipDLL;
+begin
+  InitCompressionDLL(CompilerDir, 'bzip', False, BzipInitialized, BZInitCompressFunctions);
+end;
+
+procedure TSetupCompiler.InitLZMADLL;
+begin
+  InitCompressionDLL(CompilerDir, 'lzma', True, LZMAInitialized, LZMAInitCompressFunctions);
+end;
+
+procedure TSetupCompiler.InitZstdDLL;
+begin
+  InitCompressionDLL(CompilerDir, 'zstd', True, ZstdInitialized, ZstdInitCompressFunctions);
 end;
 
 function TSetupCompiler.GetBytesCompressedSoFar: Int64;
@@ -2679,7 +2682,7 @@ var
   function StrToPrecompiledFiles(S: String): TPrecompiledFiles;
   const
     PrecompiledFiles: array of PChar = ['setup', 'setupcustomstyle', 'setupldr',
-      'is7z', 'isbunzip', 'isunzlib', 'islzma'];
+      'is7z', 'isbunzip', 'isunzlib', 'islzma', 'isunzstd'];
   begin
     Result := [];
     while True do
@@ -2693,6 +2696,7 @@ var
         4: Include(Result, pfIsbunzip);
         5: Include(Result, pfIsunzlib);
         6: Include(Result, pfIslzma);
+        7: Include(Result, pfIsunzstd);
       end;
   end;
 
@@ -2941,6 +2945,10 @@ begin
           CompressMethod := cmLZMA2;
           CompressLevel := clLZMAMax;
         end
+        else if Value = 'zstd' then begin
+          CompressMethod := cmZstd;
+          CompressLevel := 19;
+        end
         else if Copy(Value, 1, 4) = 'zip/' then begin
           I := StrToIntDef(Copy(Value, 5, Maxint), -1);
           if (I < 1) or (I > 9) then
@@ -2965,6 +2973,13 @@ begin
           if not LZMAGetLevel(Copy(Value, 7, Maxint), I) then
             Invalid;
           CompressMethod := cmLZMA2;
+          CompressLevel := I;
+        end
+        else if Copy(Value, 1, 5) = 'zstd/' then begin
+          I := StrToIntDef(Copy(Value, 6, Maxint), -1);
+          if (I < 1) or (I > 20) then
+            Invalid;
+          CompressMethod := cmZstd;
           CompressLevel := I;
         end
         else
@@ -3588,6 +3603,9 @@ begin
       end;
     ssWizardStyleFileDynamicDark: begin
         WizardStyleFileDynamicDark := Value;
+      end;
+    ssZstdNumThreads: begin
+        ZstdNumThreads := StrToIntRange(Value, 1, 64);
       end;
   end;
 end;
@@ -7431,7 +7449,7 @@ var
       WriteWizardImages(WizardImagesDynamicDark, W, WizardImages);
       WriteWizardImages(WizardSmallImagesDynamicDark, W, WizardSmallImages);
       WriteWizardImages(WizardBackImagesDynamicDark, W, WizardBackImages);
-      if SetupHeader.CompressMethod in [cmZip, cmBzip] then
+      if SetupHeader.CompressMethod in [cmZip, cmBzip, cmZstd] then
         WriteStream(DecompressorDLL, W);
       if SevenZipDLL <> nil then
         WriteStream(SevenZipDLL, W);
@@ -7613,6 +7631,10 @@ var
             end;
           cmLZMA2: begin
               Result := TLZMA2Compressor;
+            end;
+          cmZstd: begin
+              InitZstdDLL;
+              Result := TZSTDCompressor;
             end;
         else
           AbortCompile('GetCompressorClass: Unknown CompressMethod');
@@ -8372,6 +8394,8 @@ begin
     CallIdleProc;
 
     { Verify settings set in [Setup] section }
+    if CompressMethod = cmZstd then
+      CompressProps.NumBlockThreads := ZstdNumThreads;
     if SetupDirectiveLines[ssUseSetupLdr] = 0 then begin
       if SetupArchitecture = sa32bit then
         SetupLdrArchitecture := sla32bit
@@ -8982,6 +9006,12 @@ begin
           AddStatus(Format(SCompilerStatusReadingFile, [DllName]));
           DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + DllName,
             not(pfIsbunzip in DisablePrecompiledFileVerifications), OnCheckedTrust);
+        end;
+      cmZstd: begin
+          const DllName = Format('isunzstd%s.dll', [DllNameExtension]);
+          AddStatus(Format(SCompilerStatusReadingFile, [DllName]));
+          DecompressorDLL := CreateMemoryStreamFromFile(CompilerDir + DllName,
+            not(pfIsunzstd in DisablePrecompiledFileVerifications), OnCheckedTrust);
         end;
     end;
 
