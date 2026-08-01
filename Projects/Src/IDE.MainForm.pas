@@ -3914,9 +3914,9 @@ end;
 
 procedure TMainForm.PInspectorShowAllKnownDirectivesClick(Sender: TObject);
 begin
-  FInspector.ForceFinishEdit; { Allowed: SyncInspectorOptions below rebuilds }
+  FInspector.ForceFinishEdit;
   FOptions.InspectorShowAllKnownDirectives := not FOptions.InspectorShowAllKnownDirectives;
-  SyncInspectorOptions;
+  SyncInspectorOptions; { Rebuilds }
   const Ini = TConfigIniFile.Create;
   try
     Ini.WriteBool('Options', 'InspectorShowAllKnownDirectives', FOptions.InspectorShowAllKnownDirectives);

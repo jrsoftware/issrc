@@ -471,10 +471,9 @@ procedure TInspector.ForceFinishEdit(const AForceCancel: Boolean);
 { Commits a pending in-place edit, silently reverting it if its value is
   rejected, or loudly reverting on other errors, or always reverting it if
   AForceCancel is set.
-  Note: Editing only restarts on a selection change, so the row is left
-  selected without its editor and would ignore clicks. This means you
-  should only call this procedure when the inspector is about to be reset
-  or rebuilt (or hidden and reset later before it's shown again). }
+  Note: Editing only restarts on a selection change, so the row would be
+  left selected without its editor and would ignore clicks. To avoid this
+  the next UpdateFromCaret is forced to rebuild, which reselects the row. }
 begin
   const Item = FJvInspector.Selected;
   if (Item <> nil) and Item.Editing then begin
@@ -492,6 +491,7 @@ begin
         end;
       end;
     end;
+    FRowSetSignature := ''; { See explanation above }
   end;
 end;
 
