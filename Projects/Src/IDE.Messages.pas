@@ -222,6 +222,22 @@ const
   SSignToolCommandPrompt = 'Command of the Sign Tool:';
   SSignToolInvalidCommand = 'Invalid command.';
 
+  { Inspector }
+  SInspectorIntegerValueError = '%1 must be an integer value';
+  SInspectorReadOnlyError = 'The script cannot be edited because it is read-only';
+  SInspectorNothingToInspectNote = 'Move to a key/value section or parameter entry';
+  SInspectorSiblingOccurrencesNote = 'Unspecified directives are hidden because this section occurs more than once';
+  SInspectorShowAllKnownDirectivesSuppressedNote = 'Unspecified directives are hidden because this is not the main script file';
+
+  { Inspector category display names, must match IDE.ScriptModel.Metadata's
+    category tables. These are not referenced by the code but must still be
+    present here, to ensure localization. }
+  SInspectorCategoryCompiler = 'Compiler';
+  SInspectorCategoryCompression = 'Compression';
+  SInspectorCategoryInstaller = 'Installer';
+  SInspectorCategoryCosmetic = 'Cosmetic';
+  SInspectorCategoryCommon = 'Common';
+
   { Tools }
   SToolsInsertGuidConfirm = 'The generated GUID will be inserted into the editor at the cursor position. Continue?';
   SToolsNotInCodeSectionConfirm = 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the %1 section. Continue anyway?';

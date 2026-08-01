@@ -38,7 +38,7 @@ object MainForm: TMainForm
     BevelOuter = bvNone
     FullRepaint = False
     TabOrder = 3
-    object SplitPanel: TPanel
+    object StatusSplitPanel: TPanel
       Left = 0
       Top = 86
       Width = 361
@@ -50,7 +50,7 @@ object MainForm: TMainForm
       TabOrder = 1
       Visible = False
       StyleName = 'Windows'
-      OnMouseMove = SplitPanelMouseMove
+      OnMouseMove = StatusSplitPanelMouseMove
     end
     object StatusPanel: TPanel
       Left = 0
@@ -135,6 +135,82 @@ object MainForm: TMainForm
           '*'
           '*')
         OnClick = OutputTabSetClick
+      end
+    end
+    object InspectorSplitPanel: TPanel
+      Left = 236
+      Top = 0
+      Width = 4
+      Height = 86
+      Cursor = crHSplit
+      Align = alRight
+      BevelOuter = bvNone
+      FullRepaint = False
+      TabOrder = 2
+      Visible = False
+      StyleName = 'Windows'
+      OnMouseMove = InspectorSplitPanelMouseMove
+    end
+    object InspectorPanel: TPanel
+      Left = 240
+      Top = 0
+      Width = 121
+      Height = 86
+      Align = alRight
+      BevelOuter = bvNone
+      FullRepaint = False
+      TabOrder = 3
+      Visible = False
+      StyleElements = []
+      OnResize = InspectorPanelResize
+      object InspectorHeaderPanel: TPanel
+        Left = 0
+        Top = 0
+        Width = 121
+        Height = 22
+        Align = alTop
+        BevelOuter = bvNone
+        FullRepaint = False
+        TabOrder = 0
+        StyleElements = []
+        OnResize = InspectorHeaderPanelResize
+        object InspectorCaptionText: TNewStaticText
+          Left = 4
+          Top = 4
+          Width = 5
+          Height = 14
+          Caption = '*'
+          StyleName = 'Windows'
+          TabOrder = 0
+          Transparent = False
+        end
+        object InspectorFilterEdit: TEdit
+          Left = 56
+          Top = 1
+          Width = 61
+          Height = 21
+          TabOrder = 1
+          TextHint = 'Filter'
+          OnChange = InspectorFilterEditChange
+          OnKeyDown = InspectorFilterEditKeyDown
+        end
+      end
+      object InspectorNoteText: TNewStaticText
+        AlignWithMargins = True
+        Left = 4
+        Top = 22
+        Width = 113
+        Height = 14
+        Margins.Left = 4
+        Margins.Top = 0
+        Margins.Right = 4
+        Margins.Bottom = 0
+        Align = alTop
+        StyleName = 'Windows'
+        TabOrder = 1
+        Transparent = False
+        Visible = False
+        WordWrap = True
       end
     end
   end
@@ -631,6 +707,10 @@ object MainForm: TMainForm
         Caption = '&Toolbar'
         OnClick = VToolbarClick
       end
+      object VInspector: TMenuItem
+        Caption = '&Inspector'
+        OnClick = VInspectorClick
+      end
       object VStatusBar: TMenuItem
         Caption = 'St&atus Bar'
         OnClick = VStatusBarClick
@@ -728,6 +808,33 @@ object MainForm: TMainForm
         object POutputListSelectAll: TMenuItem
           Caption = 'Select &All'
           OnClick = POutputListSelectAllClick
+        end
+      end
+      object InspectorPopupMenu: TMenuItem
+        Caption = 'InspectorPopupMenu'
+        Visible = False
+        OnClick = InspectorPopupMenuClick
+        object PInspectorGoTo: TMenuItem
+          Caption = '&Go to'
+          OnClick = PInspectorGoToClick
+        end
+        object PInspectorRemove: TMenuItem
+          Caption = 'Remo&ve'
+          OnClick = PInspectorRemoveClick
+        end
+        object N26: TMenuItem
+          Caption = '-'
+        end
+        object PInspectorShowAllKnownDirectives: TMenuItem
+          Caption = 'Show all known directives'
+          OnClick = PInspectorShowAllKnownDirectivesClick
+        end
+        object PInspectorShowAllKnownDirectivesSeparator: TMenuItem
+          Caption = '-'
+        end
+        object PInspectorHelp: TMenuItem
+          Caption = '&Help'
+          OnClick = PInspectorHelpClick
         end
       end
     end

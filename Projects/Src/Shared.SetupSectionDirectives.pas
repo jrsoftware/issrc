@@ -194,7 +194,14 @@ type
     ssWizardStyleFile,
     ssWizardStyleFileDynamicDark,
     ssZstdNumThreads);
-    
+
+const
+  SetupSectionDirectivesObsolete: set of TSetupSectionDirective = [
+    ssBackColor, ssBackColor2, ssBackColorDirection, ssBackSolid,
+    ssDontMergeDuplicateFiles, ssMessagesFile, ssShowUndisplayableLanguages,
+    ssUninstallIconFile, ssUninstallStyle, ssWindowResizable, ssWindowShowCaption,
+    ssWindowStartMaximized, ssWindowVisible, ssWizardResizable];
+
 implementation
 
 end.

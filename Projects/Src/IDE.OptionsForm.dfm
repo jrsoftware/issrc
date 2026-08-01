@@ -4,7 +4,7 @@ object OptionsForm: TOptionsForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 453
+  ClientHeight = 508
   ClientWidth = 669
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,19 +17,18 @@ object OptionsForm: TOptionsForm
   OnShow = FormShow
   DesignSize = (
     669
-    453)
+    508)
   TextHeight = 13
   object GroupBox1: TNewGroupBox
     Left = 8
     Top = 8
     Width = 321
-    Height = 392
-    Anchors = [akLeft, akTop, akBottom]
+    Height = 360
     Caption = ' Miscellaneous '
     TabOrder = 0
     object StartupCheck: TCheckBox
       Left = 8
-      Top = 16
+      Top = 20
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -38,7 +37,7 @@ object OptionsForm: TOptionsForm
     end
     object WizardCheck: TCheckBox
       Left = 8
-      Top = 36
+      Top = 40
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -47,7 +46,7 @@ object OptionsForm: TOptionsForm
     end
     object AutosaveCheck: TCheckBox
       Left = 8
-      Top = 116
+      Top = 120
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -56,7 +55,7 @@ object OptionsForm: TOptionsForm
     end
     object BackupCheck: TCheckBox
       Left = 8
-      Top = 136
+      Top = 140
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -65,7 +64,7 @@ object OptionsForm: TOptionsForm
     end
     object UndoAfterSaveCheck: TCheckBox
       Left = 8
-      Top = 156
+      Top = 160
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -74,7 +73,7 @@ object OptionsForm: TOptionsForm
     end
     object FullPathCheck: TCheckBox
       Left = 8
-      Top = 214
+      Top = 218
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -83,7 +82,7 @@ object OptionsForm: TOptionsForm
     end
     object PauseOnDebuggerExceptionsCheck: TCheckBox
       Left = 8
-      Top = 234
+      Top = 238
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -92,7 +91,7 @@ object OptionsForm: TOptionsForm
     end
     object RunAsDifferentUserCheck: TCheckBox
       Left = 8
-      Top = 254
+      Top = 258
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -101,7 +100,7 @@ object OptionsForm: TOptionsForm
     end
     object ColorizeCompilerOutputCheck: TCheckBox
       Left = 8
-      Top = 274
+      Top = 278
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -110,7 +109,7 @@ object OptionsForm: TOptionsForm
     end
     object OpenIncludedFilesCheck: TCheckBox
       Left = 8
-      Top = 76
+      Top = 80
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -119,7 +118,7 @@ object OptionsForm: TOptionsForm
     end
     object ShowPreprocessorOutputCheck: TCheckBox
       Left = 8
-      Top = 56
+      Top = 60
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -128,7 +127,7 @@ object OptionsForm: TOptionsForm
     end
     object Label3: TNewStaticText
       Left = 8
-      Top = 301
+      Top = 305
       Width = 56
       Height = 14
       Caption = 'Menu &keys:'
@@ -137,7 +136,7 @@ object OptionsForm: TOptionsForm
     end
     object KeyMappingComboBox: TComboBox
       Left = 104
-      Top = 297
+      Top = 301
       Width = 209
       Height = 21
       Style = csDropDownList
@@ -146,7 +145,7 @@ object OptionsForm: TOptionsForm
     end
     object AutoreloadCheck: TCheckBox
       Left = 8
-      Top = 176
+      Top = 180
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -155,7 +154,7 @@ object OptionsForm: TOptionsForm
     end
     object UndoAfterReloadCheck: TCheckBox
       Left = 8
-      Top = 196
+      Top = 200
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -164,7 +163,7 @@ object OptionsForm: TOptionsForm
     end
     object AutoHideNewIncludedFilesCheck: TCheckBox
       Left = 8
-      Top = 96
+      Top = 100
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -173,7 +172,7 @@ object OptionsForm: TOptionsForm
     end
     object Label6: TNewStaticText
       Left = 8
-      Top = 330
+      Top = 334
       Width = 52
       Height = 14
       Caption = 'Language:'
@@ -182,7 +181,7 @@ object OptionsForm: TOptionsForm
     end
     object LanguageComboBox: TComboBox
       Left = 104
-      Top = 324
+      Top = 328
       Width = 209
       Height = 21
       Style = csDropDownList
@@ -190,17 +189,52 @@ object OptionsForm: TOptionsForm
       TabOrder = 17
     end
   end
+  object GroupBox2: TNewGroupBox
+    Left = 8
+    Top = 376
+    Width = 321
+    Height = 88
+    Caption = ' Inspector '
+    TabOrder = 1
+    object InspectorShowAllKnownDirectivesCheck: TCheckBox
+      Left = 8
+      Top = 20
+      Width = 305
+      Height = 17
+      Anchors = [akLeft, akTop, akRight]
+      Caption = 'Show all known directives'
+      TabOrder = 0
+    end
+    object InspectorQuoteNewDirectiveValuesCheck: TCheckBox
+      Left = 8
+      Top = 40
+      Width = 305
+      Height = 17
+      Anchors = [akLeft, akTop, akRight]
+      Caption = 'Quote new directive values'
+      TabOrder = 1
+    end
+    object InspectorQuoteNewParameterValuesCheck: TCheckBox
+      Left = 8
+      Top = 60
+      Width = 305
+      Height = 17
+      Anchors = [akLeft, akTop, akRight]
+      Caption = 'Quote new parameter values'
+      TabOrder = 2
+    end
+  end
   object GroupBox3: TNewGroupBox
     Left = 340
     Top = 8
     Width = 321
-    Height = 401
+    Height = 405
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Editor '
-    TabOrder = 1
+    TabOrder = 2
     object AutoAutoCompleteCheck: TCheckBox
       Left = 8
-      Top = 16
+      Top = 20
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -209,7 +243,7 @@ object OptionsForm: TOptionsForm
     end
     object UseSynHighCheck: TCheckBox
       Left = 8
-      Top = 36
+      Top = 40
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -218,7 +252,7 @@ object OptionsForm: TOptionsForm
     end
     object UnderlineErrorsCheck: TCheckBox
       Left = 8
-      Top = 56
+      Top = 60
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -227,7 +261,7 @@ object OptionsForm: TOptionsForm
     end
     object CursorPastEOLCheck: TCheckBox
       Left = 8
-      Top = 76
+      Top = 80
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -236,7 +270,7 @@ object OptionsForm: TOptionsForm
     end
     object UseFoldingCheck: TCheckBox
       Left = 8
-      Top = 96
+      Top = 100
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -245,7 +279,7 @@ object OptionsForm: TOptionsForm
     end
     object UseTabCharacterCheck: TCheckBox
       Left = 8
-      Top = 116
+      Top = 120
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -254,7 +288,7 @@ object OptionsForm: TOptionsForm
     end
     object AutoIndentCheck: TCheckBox
       Left = 8
-      Top = 136
+      Top = 140
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -263,7 +297,7 @@ object OptionsForm: TOptionsForm
     end
     object IndentationGuidesCheck: TCheckBox
       Left = 8
-      Top = 176
+      Top = 180
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -272,7 +306,7 @@ object OptionsForm: TOptionsForm
     end
     object Label1: TNewStaticText
       Left = 8
-      Top = 335
+      Top = 339
       Width = 25
       Height = 14
       Anchors = [akLeft, akBottom]
@@ -281,7 +315,7 @@ object OptionsForm: TOptionsForm
     end
     object FontPanel: TPanel
       Left = 104
-      Top = 326
+      Top = 330
       Width = 129
       Height = 32
       Anchors = [akLeft, akRight, akBottom]
@@ -292,7 +326,7 @@ object OptionsForm: TOptionsForm
     end
     object ChangeFontButton: TButton
       Left = 240
-      Top = 331
+      Top = 335
       Width = 73
       Height = 23
       Anchors = [akRight, akBottom]
@@ -302,7 +336,7 @@ object OptionsForm: TOptionsForm
     end
     object Label2: TNewStaticText
       Left = 8
-      Top = 369
+      Top = 373
       Width = 54
       Height = 14
       Anchors = [akLeft, akBottom]
@@ -312,7 +346,7 @@ object OptionsForm: TOptionsForm
     end
     object TabWidthEdit: TEdit
       Left = 104
-      Top = 366
+      Top = 370
       Width = 50
       Height = 21
       Anchors = [akLeft, akRight, akBottom]
@@ -321,7 +355,7 @@ object OptionsForm: TOptionsForm
     end
     object GutterLineNumbersCheck: TCheckBox
       Left = 8
-      Top = 196
+      Top = 200
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -330,7 +364,7 @@ object OptionsForm: TOptionsForm
     end
     object Label4: TNewStaticText
       Left = 8
-      Top = 301
+      Top = 305
       Width = 37
       Height = 14
       Anchors = [akLeft, akBottom]
@@ -340,7 +374,7 @@ object OptionsForm: TOptionsForm
     end
     object ThemeComboBox: TComboBox
       Left = 104
-      Top = 297
+      Top = 301
       Width = 209
       Height = 21
       Style = csDropDownList
@@ -349,7 +383,7 @@ object OptionsForm: TOptionsForm
     end
     object HighlightSelTextOccurrencesCheck: TCheckBox
       Left = 8
-      Top = 216
+      Top = 220
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -358,7 +392,7 @@ object OptionsForm: TOptionsForm
     end
     object HighlightWordAtCursorOccurrencesCheck: TCheckBox
       Left = 8
-      Top = 236
+      Top = 240
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -367,7 +401,7 @@ object OptionsForm: TOptionsForm
     end
     object Label5: TNewStaticText
       Left = 8
-      Top = 272
+      Top = 276
       Width = 27
       Height = 14
       Anchors = [akLeft, akBottom]
@@ -377,7 +411,7 @@ object OptionsForm: TOptionsForm
     end
     object MemoKeyMappingComboBox: TComboBox
       Left = 104
-      Top = 268
+      Top = 272
       Width = 209
       Height = 21
       Style = csDropDownList
@@ -386,7 +420,7 @@ object OptionsForm: TOptionsForm
     end
     object ShowWhiteSpaceCheck: TCheckBox
       Left = 160
-      Top = 368
+      Top = 372
       Width = 153
       Height = 17
       Anchors = [akRight, akBottom]
@@ -395,7 +429,7 @@ object OptionsForm: TOptionsForm
     end
     object SmartHomeCheck: TCheckBox
       Left = 8
-      Top = 156
+      Top = 160
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
@@ -405,34 +439,34 @@ object OptionsForm: TOptionsForm
   end
   object OKButton: TButton
     Left = 500
-    Top = 421
+    Top = 476
     Width = 73
     Height = 23
     Anchors = [akRight, akBottom]
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 2
+    TabOrder = 3
   end
   object CancelButton: TButton
     Left = 580
-    Top = 421
+    Top = 476
     Width = 73
     Height = 23
     Anchors = [akRight, akBottom]
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 3
+    TabOrder = 4
   end
   object AssocButton: TButton
     Left = 16
-    Top = 421
+    Top = 476
     Width = 201
     Height = 23
     Anchors = [akLeft, akBottom]
     Caption = '&Associate .%1 files with this compiler'
-    TabOrder = 4
+    TabOrder = 5
     OnClick = AssocButtonClick
   end
   object FontDialog: TFontDialog

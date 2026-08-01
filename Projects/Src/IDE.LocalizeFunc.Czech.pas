@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..970] of TTranslationPair = (
+  CzechIDETranslations: array [0..971] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -370,6 +370,9 @@ const
     (English: '&Find Results'; Localized: 'Výsledky &hledání'),
     (English: '&Hide Bottom Pane'; Localized: 'Skrýt &dolní podokno'),
     (English: '&Word Wrap'; Localized: 'Zala&mování řádků'),
+    (English: '&Go to'; Localized: '&Přejít'),
+    (English: 'Show all known directives'; Localized: 'Zobrazovat všechny známé direktivy'),
+    (English: '&Help'; Localized: 'Nápo&věda'),
     (English: '&Build'; Localized: 'S&estavení'),
     (English: '&Compile'; Localized: '&Kompilovat'),
     (English: 'S&top Compile'; Localized: '&Zastavit kompilaci'),
@@ -400,7 +403,6 @@ const
     (English: '&Configure Sign Tools...'; Localized: '&Konfigurovat nástroje pro podepisování...'),
     (English: 'R&TF Editor...'; Localized: 'Editor R&TF...'),
     (English: '&Options...'; Localized: '&Možnosti...'),
-    (English: '&Help'; Localized: 'Nápo&věda'),
     (English: 'Purchase or Renew Commercial &License'; Localized: 'Zakoupit nebo obnovit komerční &licenci'),
     (English: 'Enter Commercial License &Key...'; Localized: '&Zadat komerční licenční klíč...'),
     (English: 'Remove Commercial License Key'; Localized: 'Odebrat komerční licenční klíč'),
@@ -445,7 +447,6 @@ const
     (English: 'Keep new %1 files closed'; Localized: 'Nové soubory %1 ponechat zavřené'),
     (English: 'Language:'; Localized: 'Jazyk:'),
     (English: ' Inspector '; Localized: ' Inspektor '),
-    (English: 'Show all known directives'; Localized: 'Zobrazovat všechny známé direktivy'),
     (English: 'Quote new directive values'; Localized: 'Uzavírat nové hodnoty direktiv do uvozovek'),
     (English: 'Quote new parameter values'; Localized: 'Uzavírat nové hodnoty parametrů do uvozovek'),
     (English: ' Editor '; Localized: ' Editor '),

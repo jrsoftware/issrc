@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..970] of TTranslationPair = (
+  DutchIDETranslations: array [0..971] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -370,6 +370,9 @@ const
     (English: '&Find Results'; Localized: '&Zoekresultaten'),
     (English: '&Hide Bottom Pane'; Localized: 'Onderste deelvenster ver&bergen'),
     (English: '&Word Wrap'; Localized: '&Tekstterugloop'),
+    (English: '&Go to'; Localized: '&Ga naar'),
+    (English: 'Show all known directives'; Localized: 'Alle bekende directieven tonen'),
+    (English: '&Help'; Localized: '&Help'),
     (English: '&Build'; Localized: 'B&ouwen'),
     (English: '&Compile'; Localized: '&Compileren'),
     (English: 'S&top Compile'; Localized: 'Compileren s&toppen'),
@@ -400,7 +403,6 @@ const
     (English: '&Configure Sign Tools...'; Localized: 'Ondertekeningstools &configureren...'),
     (English: 'R&TF Editor...'; Localized: 'R&TF-editor...'),
     (English: '&Options...'; Localized: '&Opties...'),
-    (English: '&Help'; Localized: '&Help'),
     (English: 'Purchase or Renew Commercial &License'; Localized: 'Commerciële &licentie aanschaffen of verlengen'),
     (English: 'Enter Commercial License &Key...'; Localized: 'Commerciële licentie&sleutel invoeren...'),
     (English: 'Remove Commercial License Key'; Localized: 'Commerciële licentiesleutel verwijderen'),
@@ -445,7 +447,6 @@ const
     (English: 'Keep new %1 files closed'; Localized: 'Nieuwe %1-bestanden gesloten houden'),
     (English: 'Language:'; Localized: 'Taal:'),
     (English: ' Inspector '; Localized: ' Inspector '),
-    (English: 'Show all known directives'; Localized: 'Alle bekende directieven tonen'),
     (English: 'Quote new directive values'; Localized: 'Nieuwe directiefwaarden in aanhalingstekens zetten'),
     (English: 'Quote new parameter values'; Localized: 'Nieuwe parameterwaarden in aanhalingstekens zetten'),
     (English: ' Editor '; Localized: ' Editor '),

@@ -33,6 +33,7 @@ type
     procedure UpdateRunMenu(const Menu: TMenuItem);
     procedure UpdateBreakPointsMenu(const Menu: TMenuItem);
     procedure UpdateTargetMenuItems;
+    procedure UpdateInspectorPopupMenu(const Menu: TMenuItem);
     { Private }
     procedure _UpdateMenuBitmapsIfNeeded;
     procedure _ApplyMenuBitmapsAndNewShortCutText(const ParentMenuItem: TMenuItem);
@@ -47,7 +48,7 @@ uses
   SysUtils, Generics.Collections, VirtualImageList, ComCtrls,
   PathFunc,
   Shared.LicenseFunc,
-  IDE.HelperFunc, IDE.IDEScintEdit, IDE.Messages, IDE.LocalizeFunc;
+  IDE.HelperFunc, IDE.IDEScintEdit, IDE.Inspector, IDE.Messages, IDE.LocalizeFunc;
 
 procedure TMainFormUpdateMenuHelper._UpdateMenuBitmapsIfNeeded;
 
@@ -130,13 +131,15 @@ begin
           BM(RRun, RunButton),
           BM(RPause, PauseButton),
           BM(RTerminate, TerminateButton),
-          BM(HDoc, HelpButton)];
+          BM(HDoc, HelpButton),
+          BM(PInspectorHelp, HelpButton)];
 
         for var ButtonedMenu in ButtonedMenus do
           AddMenuBitmap(FMenuBitmaps, DC, BitmapInfo, ButtonedMenu.Key, ImageList, ButtonedMenu.Value.ImageIndex);
 
         var NamedMenus := [
           NM(FClearRecent, 'eraser'),
+          NM(PInspectorRemove, 'eraser'),
           NM(FSaveMainFileAs, 'save-as-filled'),
           NM(FSaveAll, 'save-all-filled'),
           NM(FPrint, 'printer'),
@@ -367,7 +370,7 @@ begin
   EUnfoldLine.Visible := EFoldLine.Visible;
   EUnfoldLine.Enabled := EFoldLine.Enabled;
   EGotoFile.Enabled := FMainMemo.Filename <> '';
-  EGotoLine.Enabled := MemoHasFocus;
+  EGotoLine.Enabled := MemoHasFocus or FInspector.JvInspector.Focused;
   EToggleLinesComment.Enabled := MemoHasFocus and not MemoIsReadOnly;
   EBraceMatch.Enabled := MemoHasFocus;
 
@@ -522,6 +525,18 @@ begin
     RTargetUninstall.Checked := True;
     TargetUninstallButton.Down := True;
   end;
+end;
+
+procedure TMainFormUpdateMenuHelper.UpdateInspectorPopupMenu(const Menu: TMenuItem);
+begin
+  PInspectorGoTo.Enabled := FInspector.TryGetSelectedRowFirstLine >= 0;
+  PInspectorRemove.Enabled := FInspector.CanRemoveSelectedRow;
+  PInspectorShowAllKnownDirectives.Visible := FInspector.ShowingDirectiveSection;
+  PInspectorShowAllKnownDirectives.Checked := FOptions.InspectorShowAllKnownDirectives;
+  PInspectorShowAllKnownDirectives.Enabled := FActiveMemo = FMainMemo;
+  PInspectorShowAllKnownDirectivesSeparator.Visible := PInspectorShowAllKnownDirectives.Visible; { AutoLineReduction is maManual }
+
+  _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;
 
 end.

@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..970] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..971] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -370,6 +370,9 @@ const
     (English: '&Find Results'; Localized: '検索結果(&F)'),
     (English: '&Hide Bottom Pane'; Localized: '下部ペインを非表示(&H)'),
     (English: '&Word Wrap'; Localized: '折り返し(&W)'),
+    (English: '&Go to'; Localized: '移動(&G)'),
+    (English: 'Show all known directives'; Localized: '既知のディレクティブをすべて表示'),
+    (English: '&Help'; Localized: 'ヘルプ(&H)'),
     (English: '&Build'; Localized: 'ビルド(&B)'),
     (English: '&Compile'; Localized: 'コンパイル(&C)'),
     (English: 'S&top Compile'; Localized: 'コンパイルの停止(&T)'),
@@ -400,7 +403,6 @@ const
     (English: '&Configure Sign Tools...'; Localized: '署名ツールの構成(&C)...'),
     (English: 'R&TF Editor...'; Localized: 'RTF エディター(&T)...'),
     (English: '&Options...'; Localized: 'オプション(&O)...'),
-    (English: '&Help'; Localized: 'ヘルプ(&H)'),
     (English: 'Purchase or Renew Commercial &License'; Localized: '商用ライセンスの購入または更新(&L)'),
     (English: 'Enter Commercial License &Key...'; Localized: '商用ライセンスキーの入力(&K)...'),
     (English: 'Remove Commercial License Key'; Localized: '商用ライセンスキーの削除'),
@@ -445,7 +447,6 @@ const
     (English: 'Keep new %1 files closed'; Localized: '新しい %1 ファイルを閉じたままにする'),
     (English: 'Language:'; Localized: '言語:'),
     (English: ' Inspector '; Localized: ' インスペクター '),
-    (English: 'Show all known directives'; Localized: '既知のディレクティブをすべて表示'),
     (English: 'Quote new directive values'; Localized: 'ディレクティブの新しい値を引用符で囲む'),
     (English: 'Quote new parameter values'; Localized: 'パラメーターの新しい値を引用符で囲む'),
     (English: ' Editor '; Localized: ' エディター '),
