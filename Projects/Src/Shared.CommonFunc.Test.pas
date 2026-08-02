@@ -187,6 +187,7 @@ begin
   Assert(AddPeriod('Hello!') = 'Hello!');
   Assert(AddPeriod('Hello?') = 'Hello?');
   Assert(AddPeriod('Hello'#$3002) = 'Hello'#$3002);
+  Assert(AddPeriod('ลองอีกครั้ง') = 'ลองอีกครั้ง');
   Assert(AddPeriod('Hello ') = 'Hello .');
   Assert(AddPeriod('"Hello"') = '"Hello".');
   Assert(AddPeriod('(Hello)') = '(Hello).');

@@ -1285,8 +1285,9 @@ end;
 function AddPeriod(const S: String): String;
 { Returns the specified string with a full stop character (U+002E) appended,
   unless the string is empty, already ends with a sentence-terminating
-  character, or ends with a control character (such as CR or LF), in which
-  case the string is returned unchanged. }
+  character, ends with a control character (such as CR or LF), or ends with
+  a Thai or Lao character (these do not end sentences with a full stop),
+  in which case the string is returned unchanged. }
 begin
   if S <> '' then begin
     { This list is not intended to be exhaustive; it includes characters that
@@ -1300,6 +1301,10 @@ begin
       #$0589,  { Armenian Full Stop }
       #$061F,  { Arabic Question Mark }
       #$06D4,  { Arabic Full Stop (used in Urdu, not Arabic) }
+      #$0E00..#$0EFF, { Thai and Lao blocks (sentences do not end in a full stop) }
+      #$104A..#$104B, { Myanmar sentence terminators }
+      #$17D4..#$17D5, { Khmer sentence terminators }
+      #$17DA,         { Khmer end-of-text mark }
       #$3002,  { Ideographic Full Stop (used in Japanese and Chinese) }
       #$FF01,  { Fullwidth Exclamation Mark }
       #$FF0E,  { Fullwidth Full Stop }
