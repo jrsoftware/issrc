@@ -23,7 +23,8 @@ uses
 
 type
   TMemberValueKind = (mvkString, mvkInteger, mvkVersion,
-    mvkChoice, mvkFlags, mvkYesNo);
+    mvkChoice, mvkFlags, mvkYesNo, mvkCompilerSourceFile, mvkCompilerSourceFiles,
+    mvkCompilerPath, mvkCompilerDestFile);
 
   TMemberDefinition = record
     Name: String;
@@ -483,6 +484,16 @@ const
       ssUninstallDisplaySize, ssWizardBackImageOpacity, ssWizardImageOpacity,
       ssZstdNumThreads];
     SetupSectionDirectivesVersion = [ssMinVersion, ssOnlyBelowVersion];
+    SetupSectionDirectivesCompilerSourceFile = [
+      ssInfoAfterFile, ssInfoBeforeFile, ssLicenseFile, ssSetupIconFile,
+      ssWizardStyleFile, ssWizardStyleFileDynamicDark];
+    SetupSectionDirectivesCompilerSourceFiles = [
+      ssWizardBackImageFile, ssWizardBackImageFileDynamicDark,
+      ssWizardImageFile, ssWizardImageFileDynamicDark,
+      ssWizardSmallImageFile, ssWizardSmallImageFileDynamicDark];
+    SetupSectionDirectivesCompilerPath = [
+      ssOutputDir, ssSignedUninstallerDir, ssSourceDir];
+    SetupSectionDirectivesCompilerDestFile = [ssOutputManifestFile];
   begin
     var Members: TArray<TMemberDefinition>;
     SetLength(Members, Ord(High(TSetupSectionDirective))+1);
@@ -502,6 +513,14 @@ const
         ValueKind := mvkInteger
       else if Directive in SetupSectionDirectivesVersion then
         ValueKind := mvkVersion
+      else if Directive in SetupSectionDirectivesCompilerSourceFile then
+        ValueKind := mvkCompilerSourceFile
+      else if Directive in SetupSectionDirectivesCompilerSourceFiles then
+        ValueKind := mvkCompilerSourceFiles
+      else if Directive in SetupSectionDirectivesCompilerPath then
+        ValueKind := mvkCompilerPath
+      else if Directive in SetupSectionDirectivesCompilerDestFile then
+        ValueKind := mvkCompilerDestFile
       else begin
         KnownValues := SetupSectionDirectiveFlagValues(Directive);
         if KnownValues <> nil then
@@ -735,7 +754,7 @@ begin
 
   SectionMetadataList.Add(TScriptModelSectionMetadata.Create('ISSigKeys',
     [MD('Group', mvkString),
-    MD('KeyFile', mvkString),
+    MD('KeyFile', mvkCompilerSourceFile),
     MD('KeyID', mvkString),
     MD('Name', mvkString),
     MD('PublicX', mvkString),
@@ -743,10 +762,10 @@ begin
     MD('RuntimeID', mvkString)]));
 
   SectionMetadataList.Add(TScriptModelSectionMetadata.Create('Languages',
-    [MD('InfoAfterFile', mvkString),
-    MD('InfoBeforeFile', mvkString),
-    MD('LicenseFile', mvkString),
-    MD('MessagesFile', mvkString),
+    [MD('InfoAfterFile', mvkCompilerSourceFile),
+    MD('InfoBeforeFile', mvkCompilerSourceFile),
+    MD('LicenseFile', mvkCompilerSourceFile),
+    MD('MessagesFile', mvkCompilerSourceFiles),
     MD('Name', mvkString)]));
 
   SectionMetadataList.Add(TScriptModelSectionMetadata.Create('Registry',

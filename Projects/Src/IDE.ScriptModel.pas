@@ -317,7 +317,9 @@ begin
     Exit(False);
   var Definition: TMemberDefinition;
   if (AMetadata <> nil) and AMetadata.TryGetMember(AName, Definition) then
-    Result := Definition.ValueKind in [mvkString, mvkChoice]
+    Result := Definition.ValueKind in [mvkString, mvkChoice,
+      mvkCompilerSourceFile, mvkCompilerSourceFiles, mvkCompilerPath,
+      mvkCompilerDestFile]
   else
     Result := True;
 end;

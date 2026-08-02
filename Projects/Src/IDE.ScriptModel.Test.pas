@@ -570,6 +570,19 @@ begin
   Assert(Metadata.TryGetMember('DefaultGroupName', Definition));
   Assert(Definition.ValueKind = mvkString);
   Assert(Definition.DefaultValue = '(Default)');
+  { The compiler-path directives: a source file the compiler reads, a list of
+    such files, a directory, and a file the compiler writes, while run-time
+    paths stay plain strings }
+  Assert(Metadata.TryGetMember('LicenseFile', Definition));
+  Assert(Definition.ValueKind = mvkCompilerSourceFile);
+  Assert(Metadata.TryGetMember('WizardImageFile', Definition));
+  Assert(Definition.ValueKind = mvkCompilerSourceFiles);
+  Assert(Metadata.TryGetMember('OutputDir', Definition));
+  Assert(Definition.ValueKind = mvkCompilerPath);
+  Assert(Metadata.TryGetMember('OutputManifestFile', Definition));
+  Assert(Definition.ValueKind = mvkCompilerDestFile);
+  Assert(Metadata.TryGetMember('AppReadmeFile', Definition));
+  Assert(Definition.ValueKind = mvkString);
   Assert(Metadata.TryGetMember('UninstallStyle', Definition));
   Assert(Definition.Obsolete);
   { Every directive of a yes/no kind has a default: none was left out of the
@@ -589,16 +602,20 @@ begin
     Assert(Definition.ValueKind = mvkYesNo);
     Assert(not Section.TryGetDefinition('NoSuchKey', Definition));
 
-    { With the quoting option on, only text keys are quoted: a yes/no
-      or integer value is written bare }
+    { With the quoting option on, only text and compiler-path keys are quoted:
+      a yes/no or integer value is written bare }
     Section.QuoteNewValues := True;
     Section.Add('SolidCompression', 'yes');
     Section.Add('AppName', 'My App');
     Section.Add('ReserveBytes', '4096');
+    Section.Add('LicenseFile', 'license.txt');
+    Section.Add('WizardImageFile', 'image1.bmp,image2.bmp');
     const Lines = Section.GetLines;
     Assert(Lines[0] = 'SolidCompression=yes');
     Assert(Lines[1] = 'AppName="My App"');
     Assert(Lines[2] = 'ReserveBytes=4096');
+    Assert(Lines[3] = 'LicenseFile="license.txt"');
+    Assert(Lines[4] = 'WizardImageFile="image1.bmp,image2.bmp"');
   finally
     Section.Free;
   end;
@@ -715,6 +732,18 @@ begin
   var Definition: TMemberDefinition;
   Assert(Metadata.TryGetMember('ExtraDiskSpaceRequired', Definition));
   Assert(Definition.ValueKind = mvkInteger);
+
+  { The compiler source file parameters name a source file the compiler reads,
+    MessagesFile a comma-separated list of them; [Files] Source is neither: its
+    meaning depends on the entry's flags }
+  Assert(TryGetScriptModelSectionMetadata('Languages', Metadata));
+  Assert(Metadata.TryGetMember('LicenseFile', Definition));
+  Assert(Definition.ValueKind = mvkCompilerSourceFile);
+  Assert(Metadata.TryGetMember('MessagesFile', Definition));
+  Assert(Definition.ValueKind = mvkCompilerSourceFiles);
+  Assert(TryGetScriptModelSectionMetadata('Files', Metadata));
+  Assert(Metadata.TryGetMember('Source', Definition));
+  Assert(Definition.ValueKind = mvkString);
 
   { Single-choice parameters carry their known values }
   Assert(TryGetScriptModelSectionMetadata('Registry', Metadata));
