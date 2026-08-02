@@ -79,7 +79,7 @@ PrivilegesRequiredOverrideCurrentUserRecommended=فقط میرے &لیے تنص�
 
 ; *** Misc. errors
 ErrorCreatingDir=سیٹ اپ ڈائریکٹری "%1" بنانے میں نااہل ہے
-ErrorTooManyFilesInDir=ڈائریکٹری "%1" میں مسل نہیں بنا سکے کیونکہ یہ بہت زیادہ مسلوں کا حامل ہے
+ErrorTooManyFilesInDir=ڈائریکٹری "%1" میں مسل نہیں بنا سکے کیونکہ یہ بہت زیادہ مسلوں کا حامل ہے۔
 
 ; *** Setup common messages
 ExitSetupTitle=سیٹ اپ خروج کریں
@@ -218,13 +218,13 @@ ReadyMemoTasks=اضافی کام:
 DownloadingLabel=اضافی مسلیں ڈاؤن لوڈ کر رہا ہے...
 ButtonStopDownload=&ڈاؤن لوڈ روکیں
 StopDownload=آپ کو یقین ہے کہ آپ ڈاؤن لوڈ روکنا چاہتے ہیں؟
-ErrorDownloadAborted=ڈاؤن لوڈ ساقط
-ErrorDownloadFailed=ڈاؤن لوڈ ناکام: %1 %2
-ErrorDownloadSizeFailed=سائز کے حصول میں ناکامی: %1 %2
+ErrorDownloadAborted=ڈاؤن لوڈ ساقط۔
+ErrorDownloadFailed=ڈاؤن لوڈ ناکام: %1 %2۔
+ErrorDownloadSizeFailed=سائز کے حصول میں ناکامی: %1 %2۔
 ErrorFileHash1=مسل ہیش ناکام: %1
 ErrorFileHash2=ناجائز مسل ہیش: expected %1, found %2
-ErrorProgress=ناجائز پیش رفت: %1 of %2
-ErrorFileSize=ناجائز مسل سائز: expected %1, found %2
+ErrorProgress=ناجائز پیش رفت: %1 of %2۔
+ErrorFileSize=ناجائز مسل سائز: expected %1, found %2۔
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=تنصیب کی تیاری کررہا ہے
@@ -285,9 +285,9 @@ StatusRestartingApplications=ایپلی کیشن پھر شروع...
 StatusRollback=تبدیلیوں کو رولنگ بیک...
 
 ; *** Misc. errors
-ErrorInternal2=اندرونی نقص: %1
-ErrorFunctionFailedNoCode=%1 ناکام
-ErrorFunctionFailed=%1 ناکام; کوڈ %2
+ErrorInternal2=اندرونی نقص: %1۔
+ErrorFunctionFailedNoCode=%1 ناکام۔
+ErrorFunctionFailed=%1 ناکام; کوڈ %2۔
 ErrorFunctionFailedWithMessage=%1 ناکام; کوڈ %2۔%n%3
 ErrorExecutingProgram=مسل کے نفاذ میں ناکام:%n%1
 
@@ -302,8 +302,8 @@ ErrorIniEntry=مسل "%1" INI اندراج بنانے میں نقص.
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=&یہ مسل چھوڑیں (سفارش کی نہیں)
 FileAbortRetryIgnoreIgnoreNotRecommended=&نقص نظرانداز کریں اور جاری رکھیں (سفارش کی نہیں)
-SourceIsCorrupted=ماخذ مسل خراب ہے
-SourceDoesntExist=ماخذ مسل "%1" موجود نہیں
+SourceIsCorrupted=ماخذ مسل خراب ہے۔
+SourceDoesntExist=ماخذ مسل "%1" موجود نہیں۔
 ExistingFileReadOnly2=موجود مسل تبدیل نہیں کی جا سکی کیونکہ اسے read-only نشان زد کیا گیا ہے.
 ExistingFileReadOnlyRetry=&read-only خاصیت ہٹائیں اور پھر کوشش کریں
 ExistingFileReadOnlyKeepExisting=&موجودہ مسل رکھیں
@@ -326,7 +326,7 @@ ErrorReplacingExistingFile=موجود مسل کی جگہ بنانے کی کوش�
 ErrorRestartReplace=RestartReplace ناکام:
 ErrorRenamingTemp=مقصود ڈائریکٹری میں مسل کا نام تبدیل کرنے کی کوشش کے دوران نقص واقع ہوا:
 ErrorRegisterServer=DLL/OCX رجسٹر نہیں کر سکا: %1
-ErrorRegSvr32Failed=RegSvr32 خروج ضابطہ کے ساتھ ناکام %1
+ErrorRegSvr32Failed=RegSvr32 خروج ضابطہ کے ساتھ ناکام %1۔
 ErrorRegisterTypeLib=قسم لائبریری رجسٹر نہیں کر سکا: %1
 
 ; *** Uninstall display name markings
@@ -346,8 +346,8 @@ ErrorRestartingComputer=سیٹ اپ کمپیوٹر پھر شروع نہیں کر
 ; *** Uninstaller messages
 UninstallNotFound=مسل "%1" موجود نہیں. ناتنصیب نہیں کر سکتے.
 UninstallOpenError=مسل "%1" نہیں کھولی جا سکی. ناتنصیب نہیں کر سکتے
-UninstallUnsupportedVer=ناتنصیب لاگ مسل "%1" ناتنصیبکار کے اس ورژن کی طرف سے تسلیم شدہ وضع میں ہے. ناتنصیب نہیں کر سکتے
-UninstallUnknownEntry=ایک نامعلوم اندراج (%1) ناتنصیب لاگ میں سامنا کیا گیا
+UninstallUnsupportedVer=ناتنصیب لاگ مسل "%1" ناتنصیبکار کے اس ورژن کی طرف سے تسلیم شدہ وضع میں ہے. ناتنصیب نہیں کر سکتے۔
+UninstallUnknownEntry=ایک نامعلوم اندراج (%1) ناتنصیب لاگ میں سامنا کیا گیا۔
 ConfirmUninstall=آپ کو یقین کے آپ %1 اور اس کے تمام اجزاء کو مکمل طور پر ہٹانا چاہتے ہیں؟
 UninstallOnlyOnWin64=یہ تنصیب صرف 64-bit Windows پر ناتنصیب کی جا سکتی ہے.
 OnlyAdminCanUninstall=یہ تنصیب صرف ایک صارف کی طرف سے انتظامی استحقاق کے ساتھ نا تنصیب کی جا سکتی ہے.
@@ -355,7 +355,7 @@ UninstallStatusLabel=انتظار کریں جبکہ %1 آپ کے کمپیوٹر 
 UninstalledAll=%1 آپ کے کمپیوٹر سے کامیابی سے ہٹا دیا گیا.
 UninstalledMost=%1 ناتنصیب مکمل.%n%nکچھ عناصر نہیں ہٹایا جا سکا. یہ دستی طور پر ہٹا دیا جا سکتا ہے.
 UninstalledAndNeedsRestart=%1 کی ناتنصیب مکمل کرنے کے لیے، آپ کا کمپیوٹر پھر شروع ہونا چاہیے.%n%nکیا آپ ابھی پھر شروع کرنا چاہتے ہیں؟
-UninstallDataCorrupted="%1" مسل خراب ہے. ناتنصیب نہیں کر سکتے
+UninstallDataCorrupted="%1" مسل خراب ہے. ناتنصیب نہیں کر سکتے۔
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=حصہ دارانہ مسل ہٹائیں?

@@ -9,6 +9,8 @@
 ; - Do not add or remove sentences, or add or omit information within sentences.
 ; - Do not remove these words: all, only, automatically, now, later, may, must, and not.
 ; - Do not add periods (.) or colons (:) or ellipses (...) to the end of messages that didn't have them already.
+;   Exception: for languages with their own period character, such as Japanese and Chinese, it was added
+;   to the end of messages as needed.
 ; - Do not remove periods or colons or ellipses or question marks from the end of messages.
 ;   Exception: Thai and Lao remove trailing periods and question marks.
 ; - Do not replace periods with colons. Replacing '...' with '…' is allowed.
