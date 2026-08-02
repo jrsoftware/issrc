@@ -49,7 +49,7 @@ LdrCannotExecTemp=عارضی ڈائریکٹری میں مسل کا نفاذ نہ
 HelpTextNote=
 
 ; *** Startup error messages
-LastErrorMessage=%1.%n%nنقص %2: %3
+LastErrorMessage=%1۔%n%nنقص %2: %3
 SetupFileMissing=مسل %1 تنصیب ڈائریکٹری سے غائب ہے. مسئلہ کی تصحیح کریں یا پروگرام کی نئی نقل حاصل کریں.
 SetupFileCorrupt=سیٹ اپ مسلیں خراب ہیں. برائے مہربانی پروگرام کی ایک نئی نقل حاصل کریں.
 SetupFileCorruptOrWrongVer=سیٹ اپ مسلیں خراب ہیں، یا سیٹ اپ کے اس ورژن کے ساتھ مطابقت نہیں ہے. برائے مہربانی مسئلہ کی تصحیح کریں یا پروگرام کی نئی نقل حاصل کریں.
@@ -288,7 +288,7 @@ StatusRollback=تبدیلیوں کو رولنگ بیک...
 ErrorInternal2=اندرونی نقص: %1
 ErrorFunctionFailedNoCode=%1 ناکام
 ErrorFunctionFailed=%1 ناکام; کوڈ %2
-ErrorFunctionFailedWithMessage=%1 ناکام; کوڈ %2.%n%3
+ErrorFunctionFailedWithMessage=%1 ناکام; کوڈ %2۔%n%3
 ErrorExecutingProgram=مسل کے نفاذ میں ناکام:%n%1
 
 ; *** Registry errors

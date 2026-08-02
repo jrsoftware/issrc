@@ -30,7 +30,7 @@ LdrCannotCreateTemp=一時ファイルを作成できません。セットアッ
 LdrCannotExecTemp=一時フォルダーのファイルを実行できません。セットアップを中止します
 
 ; *** Startup error messages
-LastErrorMessage=%1.%n%nエラー %2: %3
+LastErrorMessage=%1。%n%nエラー %2: %3
 SetupFileMissing=ファイル %1 が見つかりません。問題を解決するか新しいセットアッププログラムを入手してください。
 SetupFileCorrupt=セットアップファイルが壊れています。新しいセットアッププログラムを入手してください。
 SetupFileCorruptOrWrongVer=セットアップファイルが壊れているか、このバージョンのセットアップと互換性がありません。問題を解決するか新しいセットアッププログラムを入手してください。
@@ -283,7 +283,7 @@ StatusRollback=変更を元に戻しています...
 ErrorInternal2=内部エラー: %1
 ErrorFunctionFailedNoCode=%1 エラー
 ErrorFunctionFailed=%1 エラー: コード %2
-ErrorFunctionFailedWithMessage=%1 エラー: コード %2.%n%3
+ErrorFunctionFailedWithMessage=%1 エラー: コード %2。%n%3
 ErrorExecutingProgram=ファイル実行エラー:%n%1
 
 ; *** Registry errors

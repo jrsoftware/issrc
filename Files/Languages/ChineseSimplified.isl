@@ -307,7 +307,7 @@ StatusRollback=正在撤销更改...
 ErrorInternal2=内部错误：%1
 ErrorFunctionFailedNoCode=%1 失败
 ErrorFunctionFailed=%1 失败；错误代码 %2
-ErrorFunctionFailedWithMessage=%1 失败；错误代码 %2.%n%3
+ErrorFunctionFailedWithMessage=%1 失败；错误代码 %2。%n%3
 ErrorExecutingProgram=无法执行文件：%n%1
 
 ; *** Registry errors

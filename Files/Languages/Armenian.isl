@@ -37,7 +37,7 @@ LdrCannotCreateTemp=Հնարավոր չէ ստեղծել ժամանակավոր 
 LdrCannotExecTemp=Հնարավոր չէ կատարել ֆայլը ժամանակավոր պանակից։ Տեղադրումը կասեցված է
 
 ; *** Startup error messages
-LastErrorMessage=%1.%n%nՍխալ %2: %3
+LastErrorMessage=%1։%n%nՍխալ %2: %3
 SetupFileMissing=%1 ֆայլը բացակայում է տեղադրման պանակից։ Ուղղեք խնդիրը կամ ստացեք ծրագրի նոր տարբերակը։
 SetupFileCorrupt=Տեղադրվող ֆայլերը վնասված են։
 SetupFileCorruptOrWrongVer=Տեղադրվող ֆայլերը վնասված են կամ անհամատեղելի են տեղակայիչի այս տարբերակի հետ։ Ուղղեք խնդիրը կամ ստացեք ծրագրի նոր տարբերակը։
@@ -285,7 +285,7 @@ StatusRollback=Փոփոխությունների հետ բերում...
 ErrorInternal2=Ներքին սխալ՝ %1
 ErrorFunctionFailedNoCode=%1-ը ձախողվեց
 ErrorFunctionFailed=%1-ը ձախողվեց, կոդ՝ %2
-ErrorFunctionFailedWithMessage=%1-ը ձախողվեց, կոդ՝ %2.%n%3
+ErrorFunctionFailedWithMessage=%1-ը ձախողվեց, կոդ՝ %2։%n%3
 ErrorExecutingProgram=Հնարավոր չէ կատարել%n%1 ֆայլը
 
 ; *** Registry errors
