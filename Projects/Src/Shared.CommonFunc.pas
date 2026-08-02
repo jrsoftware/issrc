@@ -1301,8 +1301,11 @@ begin
       #$0589,  { Armenian Full Stop }
       #$061F,  { Arabic Question Mark }
       #$06D4,  { Arabic Full Stop (used in Urdu, not Arabic) }
+      #$0964..#$0965, { Devanagari Danda and Double Danda (used across Indic scripts) }
       #$0E00..#$0EFF, { Thai and Lao blocks (sentences do not end in a full stop) }
       #$104A..#$104B, { Myanmar sentence terminators }
+      #$1362,  { Ethiopic Full Stop }
+      #$1367,  { Ethiopic Question Mark }
       #$17D4..#$17D5, { Khmer sentence terminators }
       #$17DA,         { Khmer end-of-text mark }
       #$3002,  { Ideographic Full Stop (used in Japanese and Chinese) }

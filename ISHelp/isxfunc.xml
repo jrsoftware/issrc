@@ -1015,8 +1015,12 @@ CurUninstallStepChanged(usUninstall)</tt></p></remarks>
 <tr><td><tt>&#x0589;</tt></td><td><tt>U+0589</tt></td><td>Armenian Full Stop</td></tr>
 <tr><td><tt>&#x061F;</tt></td><td><tt>U+061F</tt></td><td>Arabic Question Mark</td></tr>
 <tr><td><tt>&#x06D4;</tt></td><td><tt>U+06D4</tt></td><td>Arabic Full Stop</td></tr>
+<tr><td><tt>&#x0964;</tt></td><td><tt>U+0964</tt></td><td>Devanagari Danda</td></tr>
+<tr><td><tt>&#x0965;</tt></td><td><tt>U+0965</tt></td><td>Devanagari Double Danda</td></tr>
 <tr><td><tt>&#x104A;</tt></td><td><tt>U+104A</tt></td><td>Myanmar Sign Little Section</td></tr>
 <tr><td><tt>&#x104B;</tt></td><td><tt>U+104B</tt></td><td>Myanmar Sign Section</td></tr>
+<tr><td><tt>&#x1362;</tt></td><td><tt>U+1362</tt></td><td>Ethiopic Full Stop</td></tr>
+<tr><td><tt>&#x1367;</tt></td><td><tt>U+1367</tt></td><td>Ethiopic Question Mark</td></tr>
 <tr><td><tt>&#x17D4;</tt></td><td><tt>U+17D4</tt></td><td>Khmer Sign Khan</td></tr>
 <tr><td><tt>&#x17D5;</tt></td><td><tt>U+17D5</tt></td><td>Khmer Sign Bariyoosan</td></tr>
 <tr><td><tt>&#x17DA;</tt></td><td><tt>U+17DA</tt></td><td>Khmer Sign Koomuut</td></tr>
