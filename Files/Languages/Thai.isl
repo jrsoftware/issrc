@@ -45,7 +45,7 @@ LdrCannotExecTemp=ไม่สามารถเปิดใช้งานไ�
 HelpTextNote=
 
 ; *** Startup error messages
-LastErrorMessage=%1.%n%nข้อผิดพลาด %2: %3
+LastErrorMessage=%1%n%nข้อผิดพลาด %2: %3
 SetupFileMissing=ไม่พบไฟล์ %1 ในโฟลเดอร์การติดตั้ง โปรดแก้ไขปัญหาหรือรับสำเนาใหม่ของโปรแกรม
 SetupFileCorrupt=ไฟล์การติดตั้งเสียหาย โปรดรับสำเนาใหม่ของโปรแกรม
 SetupFileCorruptOrWrongVer=ไฟล์การติดตั้งเสียหายหรือไม่เข้ากันกับโปรแกรมติดตั้งเวอร์ชั่นนี้ โปรดแก้ไขปัญหาหรือรับสำเนาใหม่ของโปรแกรม
@@ -53,8 +53,8 @@ InvalidParameter=มีการส่งพารามิเตอร์ที
 SetupAlreadyRunning=โปรแกรมติดตั้งทำงานอยู่แล้ว
 WindowsVersionNotSupported=โปรแกรมนี้ไม่รองรับเวอร์ชั่นของ Windows ที่คอมพิวเตอร์ของคุณใช้งานอยู่
 WindowsServicePackRequired=โปรแกรมนี้จำเป็นต้องใช้ %1 Service Pack %2 ขึ้นไป
-NotOnThisPlatform=โปรแกรมนี้จะไม่ทำงานบน %1.
-OnlyOnThisPlatform=โปรแกรมนี้จะต้องทำงานบน %1.
+NotOnThisPlatform=โปรแกรมนี้จะไม่ทำงานบน %1
+OnlyOnThisPlatform=โปรแกรมนี้จะต้องทำงานบน %1
 OnlyOnTheseArchitectures=โปรแกรมนี้สามารถติดตั้งได้บน Windows ที่ถูกออกแบบมาสำหรับสถาปัตยกรรมหน่วยประมวลผลต่อไปนี้เท่านั้น:%n%n%1
 WinVersionTooLowError=โปรแกรมนี้ต้องใช้ %1 เวอร์ชั่น %2 ขึ้นไป
 WinVersionTooHighError=โปรแกรมนี้ไม่สามารถติดตั้งบน %1 เวอร์ชั่น %2 ขึ้นไปได้
@@ -298,7 +298,7 @@ StatusRollback=กำลังย้อนการเปลี่ยนแป�
 ErrorInternal2=ข้อผิดพลาดภายใน: %1
 ErrorFunctionFailedNoCode=%1 ล้มเหลว
 ErrorFunctionFailed=%1 ล้มเหลว; โค้ด %2
-ErrorFunctionFailedWithMessage=%1 ล้มเหลว; โค้ด %2.%n%3
+ErrorFunctionFailedWithMessage=%1 ล้มเหลว; โค้ด %2%n%3
 ErrorExecutingProgram=ไม่สามารถเปิดไฟล์ได้:%n%1
 
 ; *** Registry errors
