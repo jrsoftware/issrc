@@ -820,7 +820,7 @@ var
 begin
   FileName := AppExeEdit.Text;
   if NewGetOpenFileName('', FileName, PathExtractPath(FileName),
-       Format(SLitExtAndAllFilter, [LFmtMessage(SExeFiles), SLitExeExt, LFmtMessage(SAllFiles)]),
+       FormatFileFilter(SExeFiles, [SLitExeExt]),
        SLitExeExt, Handle) then
     AppExeEdit.Text := FileName;
 end;
@@ -863,10 +863,10 @@ begin
     Edit := SetupIconFileEdit;
 
   if Sender <> SetupIconFileButton then begin
-    Filter := Format(SLitDocsAndAllFilter, [LFmtMessage(SDocFiles), LFmtMessage(SAllFiles)]);
+    Filter := FormatFileFilter(SDocFiles, [SLitRtfExt, SLitTxtExt]);
     DefaultExt := SLitRtfExt;
   end else begin
-    Filter := Format(SLitExtAndAllFilter, [LFmtMessage(SIcoFiles), SLitIcoExt, LFmtMessage(SAllFiles)]);
+    Filter := FormatFileFilter(SIcoFiles, [SLitIcoExt]);
     DefaultExt := SLitIcoExt;
   end;
 

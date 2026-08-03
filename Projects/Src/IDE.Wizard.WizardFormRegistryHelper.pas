@@ -110,7 +110,7 @@ procedure TWizardFormRegistryHelper.FileButtonClick(Sender: TObject);
 begin
   var FileName: String := FFileEdit.Text;
   if NewGetOpenFileName('', FileName, '',
-       Format(SLitExtAndAllFilter, [LFmtMessage(SRegFiles), SLitRegExt, LFmtMessage(SAllFiles)]),
+       FormatFileFilter(SRegFiles, [SLitRegExt]),
        SLitRegExt, FForm.Handle) then
     FFileEdit.Text := FileName;
 end;

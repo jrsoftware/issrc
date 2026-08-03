@@ -933,6 +933,51 @@ begin
   Assert(Definition.Obsolete);
 end;
 
+procedure TestScriptBrowseFileTypes;
+begin
+  { Every member the compiler resolves as a file it reads or writes has a
+    browse file type, so the inspector's "..." button can offer a matching
+    filter; directory members browse for a folder and need none, and no other
+    member has one }
+  const SectionNames: TArray<String> = ['Setup', 'LangOptions', 'Components',
+    'Dirs', 'Files', 'Icons', 'INI', 'InstallDelete', 'ISSigKeys', 'Languages',
+    'Registry', 'Run', 'Tasks', 'Types', 'UninstallDelete', 'UninstallRun'];
+  for var SectionName in SectionNames do begin
+    var Metadata: TScriptModelSectionMetadata;
+    Assert(TryGetScriptModelSectionMetadata(SectionName, Metadata));
+    for var Member in Metadata.Members do begin
+      var FileType: TScriptBrowseFileType;
+      if Member.ValueKind in [mvkCompilerSourceFile, mvkCompilerSourceFiles,
+         mvkCompilerDestFile] then
+        Assert(TryGetScriptBrowseFileType(SectionName, Member.Name, FileType))
+      else
+        Assert(not TryGetScriptBrowseFileType(SectionName, Member.Name, FileType));
+    end;
+  end;
+
+  { Membership maps a member to its file type, case-insensitively, and only in
+    the sections that list it }
+  var FileType: TScriptBrowseFileType;
+  Assert(TryGetScriptBrowseFileType('Setup', 'licensefile', FileType) and
+    (FileType = bftDocs));
+  Assert(TryGetScriptBrowseFileType('Languages', 'LicenseFile', FileType) and
+    (FileType = bftDocs));
+  Assert(TryGetScriptBrowseFileType('Setup', 'SetupIconFile', FileType) and
+    (FileType = bftIco));
+  Assert(TryGetScriptBrowseFileType('Setup', 'WizardSmallImageFile', FileType) and
+    (FileType = bftImages));
+  Assert(TryGetScriptBrowseFileType('Setup', 'WizardStyleFileDynamicDark', FileType) and
+    (FileType = bftVclStyle));
+  Assert(TryGetScriptBrowseFileType('Setup', 'OutputManifestFile', FileType) and
+    (FileType = bftTxt));
+  Assert(TryGetScriptBrowseFileType('Languages', 'MessagesFile', FileType) and
+    (FileType = bftIsl));
+  Assert(TryGetScriptBrowseFileType('ISSigKeys', 'KeyFile', FileType) and
+    (FileType = bftKey));
+  Assert(not TryGetScriptBrowseFileType('Setup', 'MessagesFile', FileType));
+  Assert(not TryGetScriptBrowseFileType('Setup', 'OutputDir', FileType));
+end;
+
 procedure TestEntryRules;
 begin
   var Metadata: TScriptModelSectionMetadata;
@@ -1736,6 +1781,7 @@ begin
   TestSectionMetadataTables;
   TestMetadataConsistency;
   TestScriptCategories;
+  TestScriptBrowseFileTypes;
   TestEntryRules;
   TestEntryExcludeRules;
   TestKeyValueSection;

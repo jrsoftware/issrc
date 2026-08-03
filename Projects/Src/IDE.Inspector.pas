@@ -33,12 +33,15 @@ type
     CheckBox: Boolean;
   end;
 
+  TInspectorGetBaseDirEvent = function: String of object;
+
   TInspector = class
   private
     FJvInspector: TJvInspector;
     FMessagesWnd: HWND;
     FNoteText: TNewStaticText;
     FFactory: TLiveScriptObjectFactory;
+    FOnGetBaseDir: TInspectorGetBaseDirEvent;
     FLiveParameterSectionEntry: TLiveScriptParameterSectionEntry;
     FLiveKeyValueSection: TLiveScriptKeyValueSection;
     FLiveKeyValueSectionName: String;
@@ -98,7 +101,8 @@ type
     constructor Create(const AJvInspector: TJvInspector;
       const ANoteText: TNewStaticText;
       const AFactory: TLiveScriptObjectFactory;
-      const AShowAllKnownDirectives: Boolean);
+      const AShowAllKnownDirectives: Boolean;
+      const AOnGetBaseDir: TInspectorGetBaseDirEvent);
     destructor Destroy; override;
     procedure ForceFinishEdit(const AForceCancel: Boolean = False);
     function GetSelectedHelpKeyword: String;
@@ -135,7 +139,7 @@ implementation
 
 uses
   SysUtils, StrUtils, UITypes, Themes, Forms, Generics.Defaults,
-  NewUxTheme,
+  BrowseFunc, NewUxTheme, PathFunc,
   Shared.CommonFunc,
   IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc, IDE.ScriptModel.Metadata.Extra;
 
@@ -145,18 +149,45 @@ type
 const
   WM_RemoveSelectedRow = WM_USER + 1;
 
+var
+  ScriptBrowseFileTypeFilters: array [TScriptBrowseFileType] of record
+    FilesName: String;
+    Extensions: TArray<String>; { First is default }
+  end;
+
+procedure InitializeScriptBrowseFileTypeFilters;
+
+  procedure BF(const AFileType: TScriptBrowseFileType; const AFilesName: String;
+    const AExtensions: TArray<String>);
+  begin
+    ScriptBrowseFileTypeFilters[AFileType].FilesName := AFilesName;
+    ScriptBrowseFileTypeFilters[AFileType].Extensions := AExtensions;
+  end;
+
+begin
+  BF(bftDocs, SDocFiles, [SLitRtfExt, SLitTxtExt]);
+  BF(bftIco, SIcoFiles, [SLitIcoExt]);
+  BF(bftImages, SImageFiles, [SLitPngExt, SLitBmpExt]);
+  BF(bftVclStyle, SVclStylesFiles, [SLitVsfExt]);
+  BF(bftIsl, SIslFiles, [SLitIslExt]);
+  BF(bftKey, SIsPublicKeyFiles, [SLitIsPublicKeyExt]);
+  BF(bftTxt, STxtFiles, [SLitTxtExt]);
+end;
+
 { TInspector }
 
 constructor TInspector.Create(const AJvInspector: TJvInspector;
   const ANoteText: TNewStaticText;
   const AFactory: TLiveScriptObjectFactory;
-  const AShowAllKnownDirectives: Boolean);
+  const AShowAllKnownDirectives: Boolean;
+  const AOnGetBaseDir: TInspectorGetBaseDirEvent);
 { Takes ownership of AJvInspector but not of ANoteText }
 begin
   inherited Create;
 
   FNoteText := ANoteText;
   FFactory := AFactory;
+  FOnGetBaseDir := AOnGetBaseDir;
   FShowAllKnownDirectives := AShowAllKnownDirectives;
   {$IFDEF DEBUG}
   FDebugStatusRowString := 'Not updated yet';
@@ -409,6 +440,95 @@ procedure TInspector.JvInspectorEditButtonClick(Item: TJvCustomInspectorItem;
 begin
   if FFactory.Memo.ReadOnly then
     Exit;
+
+  var Row: TInspectorRow;
+  if not TryGetRow(Item, Row) then
+    Exit;
+
+  var Definition: TMemberDefinition;
+  var SectionName := '';
+  var Known := False;
+  case Row.Kind of
+    irkParameter:
+      if (FLiveParameterSectionEntry <> nil) and FLiveParameterSectionEntry.Valid then begin
+        Known := FLiveParameterSectionEntry.Entry.TryGetDefinition(Row.Name, Definition);
+        if Known then
+          SectionName := FLiveParameterSectionEntry.Entry.Metadata.SectionName;
+      end;
+    irkKey:
+      if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
+        Known := FLiveKeyValueSection.Section.TryGetDefinition(Row.Name, Definition);
+        if Known then
+          SectionName := FLiveKeyValueSection.Section.Metadata.SectionName;
+      end;
+  end;
+  if not Known then
+    Exit;
+
+  const Handle = GetParentForm(FJvInspector).Handle;
+
+  if Definition.ValueKind in [mvkCompilerSourceFile, mvkCompilerSourceFiles, mvkCompilerPath, mvkCompilerDestFile] then begin
+    { Determine initial directory and file name }
+    var S := Trim(Value);
+    if Definition.ValueKind = mvkCompilerSourceFiles then
+      S := ExtractStr(S, ',');
+    var InitialDir := '';
+    var InitialFileName := ''; { Not used by mvkCompilerSourceFiles/mvkCompilerPath }
+    if PathIsRooted(S) then begin
+      if Definition.ValueKind = mvkCompilerPath then
+        InitialDir := S
+      else begin
+        InitialDir := PathExtractDir(S);
+        InitialFileName := S;
+      end;
+    end else if Assigned(FOnGetBaseDir) then
+      InitialDir := FOnGetBaseDir;
+
+    { Determine filter and default extension }
+    var FileType: TScriptBrowseFileType;
+    var Filter: String;
+    var DefaultExt: String;
+    if TryGetScriptBrowseFileType(SectionName, Definition.Name, FileType) then begin
+      const FileTypeFilter = ScriptBrowseFileTypeFilters[FileType];
+      Filter := FormatFileFilter(FileTypeFilter.FilesName, FileTypeFilter.Extensions);
+      DefaultExt := FileTypeFilter.Extensions[0];
+    end else begin
+      Filter := Format(SLitAllFilesFilter, [LFmtMessage(SAllFiles)]);
+      DefaultExt := '';
+    end;
+
+    { Browse }
+    case Definition.ValueKind of
+      mvkCompilerSourceFile:
+        begin
+          var FileName := InitialFileName;
+          if NewGetOpenFileName('', FileName, InitialDir, Filter, DefaultExt, Handle) then
+            Value := FileName;
+        end;
+      mvkCompilerSourceFiles:
+        begin
+          const FileList = TStringList.Create;
+          try
+            if NewGetOpenFileNameMulti('', FileList, InitialDir, Filter, DefaultExt, Handle) then
+              Value := String.Join(',', FileList.ToStringArray);
+          finally
+            FileList.Free;
+          end;
+        end;
+      mvkCompilerPath:
+        begin
+          var Directory := InitialDir;
+          if BrowseForFolder('', Directory, Handle) then
+            Value := Directory;
+        end;
+      mvkCompilerDestFile:
+        begin
+          var FileName := InitialFileName;
+          if NewGetSaveFileName('', FileName, InitialDir, Filter, DefaultExt, Handle) then
+            Value := FileName;
+        end;
+    end;
+  end;
 end;
 
 procedure TInspector.GoToSelectedRow(const AFirstLine: Integer);
@@ -1481,4 +1601,6 @@ begin
   end;
 end;
 
+initialization
+  InitializeScriptBrowseFileTypeFilters;
 end.

@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..971] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..976] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -37,6 +37,11 @@ const
     (English: 'Rich Text Format files'; Localized: 'リッチ テキスト形式ファイル'),
     (English: 'Registry files'; Localized: 'レジストリファイル'),
     (English: 'Icon files'; Localized: 'アイコンファイル'),
+    (English: 'Image files'; Localized: '画像ファイル'),
+    (English: 'VCL Styles files'; Localized: 'VCL Styles ファイル'),
+    (English: 'Inno Setup Messages files'; Localized: 'Inno Setup メッセージファイル'),
+    (English: 'Public key files'; Localized: '公開鍵ファイル'),
+    (English: 'Text files'; Localized: 'テキストファイル'),
     (English: 'Inno Setup Script Wizard'; Localized: 'Inno Setup スクリプトウィザード'),
     (English: 'Welcome'; Localized: 'ようこそ'),
     (English: 'Application Information'; Localized: 'アプリケーション情報'),

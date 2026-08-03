@@ -78,6 +78,8 @@ function ReadScriptLines(const ALines: TStringList; const ReadFromFile: Boolean;
 function CreateBitmapInfo(const Width, Height: Integer; const BitCount: Word): TBitmapInfo;
 function GetPreferredMemoFont: String;
 function DoubleAmp(const S: String): String;
+function FormatFileFilter(const AFilesName: String;
+  const AExtensions: array of String): String;
 procedure LoadWindowState(const Form: TForm;
   const Section: String; const Ini: TConfigIniFile = nil);
 procedure SaveWindowState(const Form: TForm;
@@ -852,6 +854,17 @@ begin
   for var I := Length(Result) downto 1 do
     if Result[I] = '&' then
       Insert('&', Result, I + 1);
+end;
+
+function FormatFileFilter(const AFilesName: String;
+  const AExtensions: array of String): String;
+begin
+  var Masks: TArray<String>;
+  SetLength(Masks, Length(AExtensions));
+  for var I := 0 to High(AExtensions) do
+    Masks[I] := Format(SLitExtFilter, [AExtensions[I]]);
+  Result := Format(SLitExtsAndAllFilter, [LFmtMessage(AFilesName),
+    String.Join(',', Masks), String.Join(';', Masks), LFmtMessage(SAllFiles)]);
 end;
 
 procedure LoadWindowState(const Form: TForm;

@@ -27,8 +27,14 @@ const
   SLitRegExt = 'reg';
   SLitIcoExt = 'ico';
   SLit7zExt  = '7z';
-  SLitExtAndAllFilter = '%s (*.%s)|*.%1:s|%s|*.*';
-  SLitDocsAndAllFilter = '%s (*.rtf,*.txt)|*.rtf;*.txt|%s|*.*';
+  SLitBmpExt = 'bmp';
+  SLitPngExt = 'png';
+  SLitVsfExt = 'vsf';
+  SLitIslExt = 'isl';
+  SLitTxtExt = 'txt';
+  SLitIsPublicKeyExt = 'ispublickey';
+  SLitExtFilter = '*.%s';
+  SLitExtsAndAllFilter = '%s (%s)|%s|%s|*.*';
   SLitAllFilesFilter = '%s|*.*';
 
   { Compiler-specific messages }
@@ -57,6 +63,11 @@ const
   SRtfFiles = 'Rich Text Format files';
   SRegFiles = 'Registry files';
   SIcoFiles = 'Icon files';
+  SImageFiles = 'Image files';
+  SVclStylesFiles = 'VCL Styles files';
+  SIslFiles = 'Inno Setup Messages files';
+  SIsPublicKeyFiles = 'Public key files';
+  STxtFiles = 'Text files';
 
   { Compiler Script Wizard }
   SWizardDefaultName = 'Inno Setup Script Wizard';

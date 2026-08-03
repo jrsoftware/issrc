@@ -491,7 +491,7 @@ begin
   var Filename := FFilename;
   if ASaveAs or (Filename = '') then begin
     if not NewGetSaveFileName('', Filename, '',
-             Format(SLitExtAndAllFilter, [LFmtMessage(SRtfFiles), SLitRtfExt, LFmtMessage(SAllFiles)]),
+             FormatFileFilter(SRtfFiles, [SLitRtfExt]),
              SLitRtfExt, Handle) then
       Exit;
     Filename := PathExpand(Filename);
@@ -543,7 +543,7 @@ begin
     Exit;
   var Filename := FFilename;
   if NewGetOpenFileName('', Filename, '',
-       Format(SLitExtAndAllFilter, [LFmtMessage(SRtfFiles), SLitRtfExt, LFmtMessage(SAllFiles)]),
+       FormatFileFilter(SRtfFiles, [SLitRtfExt]),
        SLitRtfExt, Handle) then
     OpenFile(PathExpand(Filename));
 end;

@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..971] of TTranslationPair = (
+  DutchIDETranslations: array [0..976] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -37,6 +37,11 @@ const
     (English: 'Rich Text Format files'; Localized: 'Rich Text Format-bestanden'),
     (English: 'Registry files'; Localized: 'Registerbestanden'),
     (English: 'Icon files'; Localized: 'Pictogrambestanden'),
+    (English: 'Image files'; Localized: 'Afbeeldingsbestanden'),
+    (English: 'VCL Styles files'; Localized: 'VCL Styles-bestanden'),
+    (English: 'Inno Setup Messages files'; Localized: 'Inno Setup-berichtenbestanden'),
+    (English: 'Public key files'; Localized: 'Bestanden met openbare sleutel'),
+    (English: 'Text files'; Localized: 'Tekstbestanden'),
     (English: 'Inno Setup Script Wizard'; Localized: 'Inno Setup-scriptwizard'),
     (English: 'Welcome'; Localized: 'Welkom'),
     (English: 'Application Information'; Localized: 'Toepassingsinformatie'),

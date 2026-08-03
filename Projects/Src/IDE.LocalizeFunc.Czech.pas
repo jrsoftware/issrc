@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..971] of TTranslationPair = (
+  CzechIDETranslations: array [0..976] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -37,6 +37,11 @@ const
     (English: 'Rich Text Format files'; Localized: 'Soubory Rich Text Format'),
     (English: 'Registry files'; Localized: 'Soubory registru'),
     (English: 'Icon files'; Localized: 'Soubory ikon'),
+    (English: 'Image files'; Localized: 'Soubory obrázků'),
+    (English: 'VCL Styles files'; Localized: 'Soubory VCL Styles'),
+    (English: 'Inno Setup Messages files'; Localized: 'Soubory zpráv Inno Setup'),
+    (English: 'Public key files'; Localized: 'Soubory veřejných klíčů'),
+    (English: 'Text files'; Localized: 'Textové soubory'),
     (English: 'Inno Setup Script Wizard'; Localized: 'Průvodce skriptem Inno Setup'),
     (English: 'Welcome'; Localized: 'Vítejte'),
     (English: 'Application Information'; Localized: 'Informace o aplikaci'),

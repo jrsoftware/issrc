@@ -460,10 +460,17 @@ var
 
 function SectionToSectionName(const ASection: TInnoSetupSection): String;
 
+type
+  TScriptBrowseFileType = (bftDocs, bftIco, bftImages, bftVclStyle, bftIsl,
+    bftKey, bftTxt);
+
 function ScriptCategoryNamesOrdered: TArray<String>;
 
 function TryGetScriptCategory(const ASectionName, AName: String;
   out ACategoryName: String): Boolean;
+
+function TryGetScriptBrowseFileType(const ASectionName, AName: String;
+  out AFileType: TScriptBrowseFileType): Boolean;
 
 implementation
 
@@ -499,6 +506,7 @@ end;
 var
   ScriptCategoryDictionary: TDictionary<String, String>;
   ScriptCategoryNameOrderedList: TArray<String>;
+  ScriptBrowseFileTypeDictionary: TDictionary<String, TScriptBrowseFileType>;
 
 function ScriptMemberDictionaryKey(const ASectionName, AName: String): String;
 begin
@@ -515,6 +523,13 @@ function TryGetScriptCategory(const ASectionName, AName: String;
 begin
   Result := ScriptCategoryDictionary.TryGetValue(
     ScriptMemberDictionaryKey(ASectionName, AName), ACategoryName);
+end;
+
+function TryGetScriptBrowseFileType(const ASectionName, AName: String;
+  out AFileType: TScriptBrowseFileType): Boolean;
+begin
+  Result := ScriptBrowseFileTypeDictionary.TryGetValue(
+    ScriptMemberDictionaryKey(ASectionName, AName), AFileType);
 end;
 
 procedure InitializeScriptCategories;
@@ -612,6 +627,31 @@ begin
     CommonSections);
 end;
 
+procedure InitializeScriptBrowseFileTypes;
+
+  procedure BF(const AFileType: TScriptBrowseFileType;
+    const AMemberNames: TArray<String>; const ASectionNames: TArray<String>);
+  begin
+    for var SectionName in ASectionNames do begin
+      for var MemberName in AMemberNames do begin
+        ScriptBrowseFileTypeDictionary.Add(
+          ScriptMemberDictionaryKey(SectionName, MemberName), AFileType);
+      end;
+    end;
+  end;
+
+begin
+  BF(bftDocs, ['InfoAfterFile', 'InfoBeforeFile', 'LicenseFile'], ['Setup', 'Languages']);
+  BF(bftIco, ['SetupIconFile'], ['Setup']);
+  BF(bftImages, ['WizardBackImageFile', 'WizardBackImageFileDynamicDark',
+    'WizardImageFile', 'WizardImageFileDynamicDark', 'WizardSmallImageFile',
+    'WizardSmallImageFileDynamicDark'], ['Setup']);
+  BF(bftVclStyle, ['WizardStyleFile', 'WizardStyleFileDynamicDark'], ['Setup']);
+  BF(bftTxt, ['OutputManifestFile'], ['Setup']);
+  BF(bftIsl, ['MessagesFile'], ['Languages']);
+  BF(bftKey, ['KeyFile'], ['ISSigKeys']);
+end;
+
 initialization
   ISPPDirectives := [
     ISPPD('preproc', True, 0),
@@ -663,6 +703,9 @@ initialization
 
   ScriptCategoryDictionary := TDictionary<String, String>.Create(TIStringComparer.Ordinal);
   InitializeScriptCategories;
+  ScriptBrowseFileTypeDictionary := TDictionary<String, TScriptBrowseFileType>.Create(TIStringComparer.Ordinal);
+  InitializeScriptBrowseFileTypes;
 finalization
+  ScriptBrowseFileTypeDictionary.Free;
   ScriptCategoryDictionary.Free;
 end.
