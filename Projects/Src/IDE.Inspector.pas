@@ -140,7 +140,7 @@ implementation
 uses
   SysUtils, StrUtils, UITypes, Themes, Forms, Generics.Defaults,
   BrowseFunc, NewUxTheme, PathFunc,
-  Shared.CommonFunc,
+  Shared.CommonFunc, Shared.CommonFunc.Vcl,
   IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc, IDE.ScriptModel.Metadata.Extra;
 
 type
@@ -533,6 +533,18 @@ begin
   if not Known then
     Exit;
 
+  { Special: [Files] Source can only be browsed for if not external }
+  if SameText(SectionName, 'Files') and SameText(Definition.Name, 'Source') then begin
+    const Entry = FLiveParameterSectionEntry.Entry; { Always exists }
+    var FlagsIndex := -1;
+    if Entry.TryResolve('Flags', FlagsIndex) and
+       Entry.FlagIncluded(FlagsIndex, 'external') then begin
+      MsgBox(LFmtMessage(SInspectorExternalSourceError, ['Source', 'external']),
+        LFmtMessage(SCompilerFormCaption), mbError, MB_OK);
+      Exit;
+    end;
+  end;
+
   const Handle = GetParentForm(FJvInspector).Handle;
 
   if Definition.ValueKind in [mvkCompilerSourceFile, mvkCompilerSourceFiles, mvkCompilerPath, mvkCompilerDestFile] then begin
@@ -545,7 +557,7 @@ begin
       S := ExtractStr(S, ',');
     if (S = '') and (Definition.ValueKind = mvkCompilerPath) and
        SameText(Definition.Name, 'SignedUninstallerDir') then
-      S := FindSetupDirectiveValue('OutputDir'); { An unset SignedUninstallerDir means the output directory }
+      S := FindSetupDirectiveValue('OutputDir'); { Special: blank SignedUninstallerDir means the output directory }
     var InitialDir := '';
     var InitialFileName := ''; { Not used by mvkCompilerSourceFiles/mvkCompilerPath }
     var ExpandedPath: String;

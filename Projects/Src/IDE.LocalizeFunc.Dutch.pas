@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..976] of TTranslationPair = (
+  DutchIDETranslations: array [0..977] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -182,6 +182,7 @@ const
     (English: 'Invalid command.'; Localized: 'Ongeldige opdracht.'),
     (English: '%1 must be an integer value'; Localized: '%1 moet een geheel getal zijn'),
     (English: 'The script cannot be edited because it is read-only'; Localized: 'Het script kan niet worden bewerkt omdat het alleen-lezen is'),
+    (English: 'Parameter "%1" cannot be browsed for when the "%2" flag is used'; Localized: 'Voor de parameter "%1" is bladeren niet mogelijk wanneer de vlag "%2" wordt gebruikt'),
     (English: 'Move to a key/value section or parameter entry'; Localized: 'Ga naar een sleutel/waarde-sectie of parametervermelding'),
     (English: 'Unspecified directives are hidden because this section occurs more than once'; Localized: 'Niet-opgegeven directieven zijn verborgen omdat deze sectie meer dan één keer voorkomt'),
     (English: 'Unspecified directives are hidden because this is not the main script file'; Localized: 'Niet-opgegeven directieven zijn verborgen omdat dit niet het hoofdscriptbestand is'),

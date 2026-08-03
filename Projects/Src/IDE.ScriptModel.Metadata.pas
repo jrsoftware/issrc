@@ -511,7 +511,7 @@ begin
     MD('MinVersion', mvkVersion),
     MD('OnlyBelowVersion', mvkVersion),
     MD('Permissions', mvkString),
-    MD('Source', mvkString),
+    MD('Source', mvkCompilerSourceFile),
     MD('StrongAssemblyName', mvkString),
     MD('Tasks', mvkString)],
     [FR('Flags', 'extractarchive', ['external', 'ignoreversion']),

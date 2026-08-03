@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..976] of TTranslationPair = (
+  GermanIDETranslations: array [0..977] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -182,6 +182,7 @@ const
     (English: 'Invalid command.'; Localized: 'Ungültiger Befehl.'),
     (English: '%1 must be an integer value'; Localized: '%1 muss ein ganzzahliger Wert sein'),
     (English: 'The script cannot be edited because it is read-only'; Localized: 'Das Skript kann nicht bearbeitet werden, da es schreibgeschützt ist'),
+    (English: 'Parameter "%1" cannot be browsed for when the "%2" flag is used'; Localized: 'Für den Parameter "%1" ist Durchsuchen nicht möglich, wenn das Flag "%2" verwendet wird'),
     (English: 'Move to a key/value section or parameter entry'; Localized: 'Wechseln Sie zu einem Schlüssel/Wert-Abschnitt oder Parametereintrag'),
     (English: 'Unspecified directives are hidden because this section occurs more than once'; Localized: 'Nicht angegebene Direktiven sind ausgeblendet, da dieser Abschnitt mehr als einmal vorkommt'),
     (English: 'Unspecified directives are hidden because this is not the main script file'; Localized: 'Nicht angegebene Direktiven sind ausgeblendet, da dies nicht die Hauptskriptdatei ist'),

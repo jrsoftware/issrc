@@ -734,8 +734,9 @@ begin
   Assert(Definition.ValueKind = mvkInteger);
 
   { The compiler source file parameters name a source file the compiler reads,
-    MessagesFile a comma-separated list of them; [Files] Source is neither: its
-    meaning depends on the entry's flags }
+    MessagesFile a comma-separated list of them. [Files] Source is one too, but
+    only if the entry doesn't have the external flag, which the inspector
+    checks before browsing }
   Assert(TryGetScriptModelSectionMetadata('Languages', Metadata));
   Assert(Metadata.TryGetMember('LicenseFile', Definition));
   Assert(Definition.ValueKind = mvkCompilerSourceFile);
@@ -743,7 +744,7 @@ begin
   Assert(Definition.ValueKind = mvkCompilerSourceFiles);
   Assert(TryGetScriptModelSectionMetadata('Files', Metadata));
   Assert(Metadata.TryGetMember('Source', Definition));
-  Assert(Definition.ValueKind = mvkString);
+  Assert(Definition.ValueKind = mvkCompilerSourceFile);
 
   { Single-choice parameters carry their known values }
   Assert(TryGetScriptModelSectionMetadata('Registry', Metadata));
@@ -947,8 +948,12 @@ begin
     Assert(TryGetScriptModelSectionMetadata(SectionName, Metadata));
     for var Member in Metadata.Members do begin
       var FileType: TScriptBrowseFileType;
-      if Member.ValueKind in [mvkCompilerSourceFile, mvkCompilerSourceFiles,
-         mvkCompilerDestFile] then
+      { [Files] Source is the exception: it names a file of any type, so it has
+        no filter and the inspector falls back to All Files }
+      const AnyFileType = SameText(SectionName, 'Files') and
+        SameText(Member.Name, 'Source');
+      if (Member.ValueKind in [mvkCompilerSourceFile, mvkCompilerSourceFiles,
+         mvkCompilerDestFile]) and not AnyFileType then
         Assert(TryGetScriptBrowseFileType(SectionName, Member.Name, FileType))
       else
         Assert(not TryGetScriptBrowseFileType(SectionName, Member.Name, FileType));
