@@ -84,6 +84,10 @@ procedure LoadWindowState(const Form: TForm;
   const Section: String; const Ini: TConfigIniFile = nil);
 procedure SaveWindowState(const Form: TForm;
   const Section: String; const Ini: TConfigIniFile = nil);
+function FindSetupDirectiveValue(const DirectiveName,
+  DefaultValue: String): String; overload;
+function FindSetupDirectiveValue(const DirectiveName: String;
+  DefaultValue: Boolean): Boolean; overload;
 
 implementation
 
@@ -932,6 +936,25 @@ begin
     if ConfigIni <> Ini then
       ConfigIni.Free;
   end;
+end;
+
+function FindSetupDirectiveValue(const DirectiveName,
+  DefaultValue: String): String;
+begin
+  { Searches the main file and returns the last occurrence, trimmed and
+    with surrounding quotes removed }
+  const Factory = MainForm.LiveScriptObjectFactoryForMainMemo;
+  if (Factory = nil) or
+     not Factory.TryGetSetupDirectiveValue(DirectiveName, Result) then
+    Result := DefaultValue;
+end;
+
+function FindSetupDirectiveValue(const DirectiveName: String;
+  DefaultValue: Boolean): Boolean;
+begin
+  var Value := FindSetupDirectiveValue(DirectiveName, IfThen(DefaultValue, '1', '0'));
+  if not TryStrToBoolean(Value, Result) then
+    Result := DefaultValue;
 end;
 
 initialization

@@ -437,6 +437,72 @@ end;
 
 procedure TInspector.JvInspectorEditButtonClick(Item: TJvCustomInspectorItem;
   var Value: String);
+
+  function ScriptPathExpand(const ABaseDir, AValue: String;
+    out AExpandedPath: String): Boolean;
+  begin
+    Result := False;
+
+    { Fail when AValue is empty or uses ISPP syntax }
+    if (AValue = '') or (Pos('{#', AValue) <> 0) then
+      Exit;
+
+    { Fail when AValue is relative and either the base dir is unknown, or a path
+      prefix like 'compiler:' is used (see TSetupCompiler.PrependDirName) }
+    if not PathIsRooted(AValue) and ((ABaseDir = '') or (PathPos(':', AValue) <> 0)) then
+      Exit;
+
+    Result := PathExpand(PathCombine(ABaseDir, AValue), AExpandedPath);
+  end;
+
+  function GetBaseDirForMember(const ADefinition: TMemberDefinition): String;
+  begin
+    { Get base directory }
+    var BaseDir := '';
+    if Assigned(FOnGetBaseDir) then
+      BaseDir := FOnGetBaseDir;
+    if BaseDir = '' then
+      Exit('');
+    var ExpandedBaseDir: String;
+    if not PathExpand(BaseDir, ExpandedBaseDir) then
+      Exit('');
+
+    { SourceDir itself resolves against the plain base directory }
+    if (ADefinition.ValueKind = mvkCompilerPath) and
+       SameText(ADefinition.Name, 'SourceDir') then
+      Exit(ExpandedBaseDir);
+
+    { Combine with the main file's [Setup] SourceDir when present, like the
+      compiler's PrependSourceDirName }
+    var SourceDir := ExpandedBaseDir;
+    const SourceDirValue = FindSetupDirectiveValue('SourceDir', '');
+    if SourceDirValue <> '' then
+      if not ScriptPathExpand(ExpandedBaseDir, SourceDirValue, SourceDir) then
+        Exit('');
+    if ADefinition.ValueKind <> mvkCompilerDestFile then
+      Exit(SourceDir);
+
+    { Additionally combine with the main file's [Setup] OutputDir (default 'Output') }
+    const OutputDirValue = FindSetupDirectiveValue('OutputDir', 'Output');
+    var OutputDir: String;
+    if not ScriptPathExpand(SourceDir, OutputDirValue, OutputDir) then
+      Exit('');
+    Result := OutputDir;
+  end;
+
+  procedure MakeRelative(var Path: String; const BaseDir: String);
+  begin
+    if BaseDir = '' then
+      Exit;
+    const Prefix = AddBackslash(BaseDir);
+    if PathStartsWith(AddBackslash(Path), Prefix) then begin
+      if Length(Path) > Length(Prefix) then
+        Path := Copy(Path, Length(Prefix)+1, Maxint)
+      else
+        Path := '.';
+    end;
+  end;
+
 begin
   if FFactory.Memo.ReadOnly then
     Exit;
@@ -468,21 +534,28 @@ begin
   const Handle = GetParentForm(FJvInspector).Handle;
 
   if Definition.ValueKind in [mvkCompilerSourceFile, mvkCompilerSourceFiles, mvkCompilerPath, mvkCompilerDestFile] then begin
+    { Determine base directory against which relative paths are resolved for this item }
+    const BaseDir = GetBaseDirForMember(Definition);
+
     { Determine initial directory and file name }
     var S := Trim(Value);
     if Definition.ValueKind = mvkCompilerSourceFiles then
       S := ExtractStr(S, ',');
     var InitialDir := '';
     var InitialFileName := ''; { Not used by mvkCompilerSourceFiles/mvkCompilerPath }
-    if PathIsRooted(S) then begin
+    var ExpandedPath: String;
+    if ScriptPathExpand(BaseDir, S, ExpandedPath) then begin
       if Definition.ValueKind = mvkCompilerPath then
-        InitialDir := S
+        InitialDir := ExpandedPath
       else begin
-        InitialDir := PathExtractDir(S);
-        InitialFileName := S;
+        InitialDir := PathExtractDir(ExpandedPath);
+        InitialFileName := ExpandedPath;
       end;
-    end else if Assigned(FOnGetBaseDir) then
-      InitialDir := FOnGetBaseDir;
+    end else begin
+      InitialDir := BaseDir;
+      if (InitialDir = '') and Assigned(FOnGetBaseDir) then
+        InitialDir := FOnGetBaseDir;
+    end;
 
     { Determine filter and default extension }
     var FileType: TScriptBrowseFileType;
@@ -502,15 +575,23 @@ begin
       mvkCompilerSourceFile:
         begin
           var FileName := InitialFileName;
-          if NewGetOpenFileName('', FileName, InitialDir, Filter, DefaultExt, Handle) then
+          if NewGetOpenFileName('', FileName, InitialDir, Filter, DefaultExt, Handle) then begin
+            MakeRelative(FileName, BaseDir);
             Value := FileName;
+          end;
         end;
       mvkCompilerSourceFiles:
         begin
           const FileList = TStringList.Create;
           try
-            if NewGetOpenFileNameMulti('', FileList, InitialDir, Filter, DefaultExt, Handle) then
+            if NewGetOpenFileNameMulti('', FileList, InitialDir, Filter, DefaultExt, Handle) then begin
+              for var I := 0 to FileList.Count-1 do begin
+                var FileName := FileList[I];
+                MakeRelative(FileName, BaseDir);
+                FileList[I] := FileName;
+              end;
               Value := String.Join(',', FileList.ToStringArray);
+            end;
           finally
             FileList.Free;
           end;
@@ -518,14 +599,18 @@ begin
       mvkCompilerPath:
         begin
           var Directory := InitialDir;
-          if BrowseForFolder('', Directory, Handle) then
+          if BrowseForFolder('', Directory, Handle) then begin
+            MakeRelative(Directory, BaseDir);
             Value := Directory;
+          end;
         end;
       mvkCompilerDestFile:
         begin
           var FileName := InitialFileName;
-          if NewGetSaveFileName('', FileName, InitialDir, Filter, DefaultExt, Handle) then
+          if NewGetSaveFileName('', FileName, InitialDir, Filter, DefaultExt, Handle) then begin
+            MakeRelative(FileName, BaseDir);
             Value := FileName;
+          end;
         end;
     end;
   end;

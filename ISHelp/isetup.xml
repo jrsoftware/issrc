@@ -3827,6 +3827,9 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Discard changes to the value being edited</td><td>Esc</td>
 </tr>
 <tr>
+  <td>Toggle a <tt>yes</tt>/<tt>no</tt> value</td><td>Space or click the checkbox</td>
+</tr>
+<tr>
   <td>Open or close the drop-down list of a choice value</td><td>F4, Alt+Down, Alt+Up, or click the drop-down button</td>
 </tr>
 <tr>
@@ -3836,7 +3839,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Change to the previous value in the list</td><td>Ctrl+Up</td>
 </tr>
 <tr>
-  <td>Toggle a <tt>yes</tt>/<tt>no</tt> value</td><td>Space or click the checkbox</td>
+  <td>Browse for a path value</td><td>F4, Alt+Down, or click the "..." button</td>
 </tr>
 <tr>
   <td>Go to the selected row's line in the script</td><td>Ctrl+G, or (if the row is not expandable) DoubleClick the row's name</td>

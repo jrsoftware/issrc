@@ -733,6 +733,7 @@ type
     destructor Destroy; override;
     function IsShortCut(var Message: TWMKey): Boolean; override;
     property FullPathInTitleBar: Boolean read FOptions.FullPathInTitleBar;
+    function LiveScriptObjectFactoryForMainMemo: TLiveScriptObjectFactory;
     property MainFilename: String read GetMainFilename;
   published
     property BorderStyle: TFormBorderStyle read GetBorderStyle write SetBorderStyle;
@@ -875,6 +876,11 @@ begin
   Result := nil;
   if FLiveScriptObjectFactories <> nil then
     FLiveScriptObjectFactories.TryGetValue(AMemo, Result);
+end;
+
+function TMainForm.LiveScriptObjectFactoryForMainMemo: TLiveScriptObjectFactory;
+begin
+  Result := LiveScriptObjectFactoryForMemo(FMainMemo);
 end;
 
 procedure TMainForm.InvalidateIndexForMemo(const AMemo: TScintEdit);

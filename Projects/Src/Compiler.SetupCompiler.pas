@@ -1489,7 +1489,8 @@ function TSetupCompiler.PrependDirName(const Filename, Dir: String): String;
 { Filename and/or Dir are allowed to be empty:
   - If Filename is empty, an empty string is returned.
   - If Dir is empty, any prefix on Filename (like "compiler:") is expanded,
-    but if there is no prefix then Filename is returned unchanged. }
+    but if there is no prefix then Filename is returned unchanged.
+  Also see ScriptPathExpand in IDE.Inspector.pas. }
 
   function GetShellFolderPathCached(const FolderID: Integer;
     var CachedDir: String): String;

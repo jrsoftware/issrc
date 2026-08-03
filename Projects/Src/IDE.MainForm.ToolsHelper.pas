@@ -27,18 +27,13 @@ type
     procedure ShowFilesDesignerForm(const AMemo: TScintEdit);
     procedure ShowSignToolsForm;
     procedure ShowRichEditForm;
-    { Private }
-    function _FindSetupDirectiveValue(const DirectiveName,
-      DefaultValue: String): String; overload;
-    function _FindSetupDirectiveValue(const DirectiveName: String;
-      DefaultValue: Boolean): Boolean; overload;
   end;
 
 implementation
 
 uses
   Windows,
-  SysUtils, Forms, UITypes, StrUtils,
+  SysUtils, Forms, UITypes,
   PathFunc,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.ConfigIniFile,
   IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.ScriptModel.Metadata.Extra, IDE.SignToolsForm, IDE.MsgBoxDesignerForm,
@@ -50,25 +45,6 @@ function Wow64DisableWow64FsRedirection_static(var OldValue: PVOID): BOOL; stdca
 function Wow64RevertWow64FsRedirection_static(OldValue: PVOID): BOOL; stdcall;
   external kernel32 name 'Wow64RevertWow64FsRedirection';
 {$ENDIF}
-
-function TMainFormToolsHelper._FindSetupDirectiveValue(const DirectiveName,
-  DefaultValue: String): String;
-begin
-  { Searches the main file and returns the last occurrence, trimmed and
-    with surrounding quotes removed }
-  const Factory = LiveScriptObjectFactoryForMemo(FMainMemo);
-  if (Factory = nil) or
-     not Factory.TryGetSetupDirectiveValue(DirectiveName, Result) then
-    Result := DefaultValue;
-end;
-
-function TMainFormToolsHelper._FindSetupDirectiveValue(const DirectiveName: String;
-  DefaultValue: Boolean): Boolean;
-begin
-  var Value := _FindSetupDirectiveValue(DirectiveName, IfThen(DefaultValue, '1', '0'));
-  if not TryStrToBoolean(Value, Result) then
-    Result := DefaultValue;
-end;
 
 procedure TMainFormToolsHelper.StartAddRemovePrograms;
 var
@@ -128,8 +104,8 @@ procedure TMainFormToolsHelper.ShowRegistryDesignerForm(const AMemo: TScintEdit)
 begin
   var RegistryDesignerForm := TRegistryDesignerForm.Create(Application);
   try
-    var PrivilegesRequired := _FindSetupDirectiveValue('PrivilegesRequired', 'admin');
-    var PrivilegesRequiredOverridesAllowed := _FindSetupDirectiveValue('PrivilegesRequiredOverridesAllowed', '');
+    var PrivilegesRequired := FindSetupDirectiveValue('PrivilegesRequired', 'admin');
+    var PrivilegesRequiredOverridesAllowed := FindSetupDirectiveValue('PrivilegesRequiredOverridesAllowed', '');
     if PrivilegesRequiredOverridesAllowed = '' then begin
       if SameText(PrivilegesRequired, 'admin') then
         RegistryDesignerForm.PrivilegesRequired := prAdmin
@@ -154,7 +130,7 @@ procedure TMainFormToolsHelper.ShowFilesDesignerForm(const AMemo: TScintEdit);
 begin
   var FilesDesignerForm := TFilesDesignerForm.Create(Application);
   try
-    FilesDesignerForm.CreateAppDir := _FindSetupDirectiveValue('CreateAppDir', True);
+    FilesDesignerForm.CreateAppDir := FindSetupDirectiveValue('CreateAppDir', True);
     if FilesDesignerForm.ShowModal = mrOk then begin
       var Text := FilesDesignerForm.Text;
       if TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scFiles then
