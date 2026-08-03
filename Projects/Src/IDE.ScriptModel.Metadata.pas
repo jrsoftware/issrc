@@ -22,7 +22,7 @@ uses
   Shared.SetupSectionDirectives;
 
 type
-  TMemberValueKind = (mvkString, mvkInteger, mvkVersion,
+  TMemberValueKind = (mvkString, mvkInteger, mvkVersion, mvkColor,
     mvkChoice, mvkFlags, mvkYesNo, mvkCompilerSourceFile, mvkCompilerSourceFiles,
     mvkCompilerPath, mvkCompilerDestFile);
 
@@ -361,6 +361,10 @@ const
       ssUninstallDisplaySize, ssWizardBackImageOpacity, ssWizardImageOpacity,
       ssZstdNumThreads];
     SetupSectionDirectivesVersion = [ssMinVersion, ssOnlyBelowVersion];
+    SetupSectionDirectivesColor = [
+      ssWizardBackColor, ssWizardBackColorDynamicDark,
+      ssWizardImageBackColor, ssWizardImageBackColorDynamicDark,
+      ssWizardSmallImageBackColor, ssWizardSmallImageBackColorDynamicDark];
     SetupSectionDirectivesCompilerSourceFile = [
       ssInfoAfterFile, ssInfoBeforeFile, ssLicenseFile, ssSetupIconFile,
       ssWizardStyleFile, ssWizardStyleFileDynamicDark];
@@ -390,6 +394,8 @@ const
         ValueKind := mvkInteger
       else if Directive in SetupSectionDirectivesVersion then
         ValueKind := mvkVersion
+      else if Directive in SetupSectionDirectivesColor then
+        ValueKind := mvkColor
       else if Directive in SetupSectionDirectivesCompilerSourceFile then
         ValueKind := mvkCompilerSourceFile
       else if Directive in SetupSectionDirectivesCompilerSourceFiles then
