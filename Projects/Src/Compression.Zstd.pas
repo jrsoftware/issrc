@@ -55,7 +55,7 @@ type
     FProgress: TZSTD_frameProgression;
     FOutBuffer: array[0..$FFFF] of Byte;
     function EndCompress: NativeUInt;
-    procedure FlushBuffer;
+    procedure FlushOutBuffer(const OnlyIfFull: Boolean);
     procedure InitCompress;
     procedure ReportProgress;
   protected
@@ -231,9 +231,9 @@ begin
     Result := ZSTD_error_no_error;
 end;
 
-procedure TZstdCompressor.FlushBuffer;
+procedure TZstdCompressor.FlushOutBuffer(const OnlyIfFull: Boolean);
 begin
-  if FOut.pos > 0 then begin
+  if (FOut.pos > 0) and (not OnlyIfFull or (FOut.pos = FOut.size)) then begin
     WriteProc(FOutBuffer, Cardinal(FOut.pos));
     FOut.pos := 0;
   end;
@@ -256,10 +256,9 @@ begin
   var LIn := Default(TZSTD_inBuffer);
   LIn.src := @Buffer;
   LIn.size := Count;
-  while LIn.pos < Count do begin
+  while LIn.pos < LIn.size do begin
     Check(ZSTD_compressStream2(FStrm, FOut, LIn, ZSTD_e_continue));
-    if FOut.pos = FOut.size then
-      FlushBuffer;
+    FlushOutBuffer(True);
     ReportProgress;
   end;
 end;
@@ -271,12 +270,13 @@ begin
   while True do begin
     const Code = ZSTD_compressStream2(FStrm, FOut, LIn, ZSTD_e_end);
     Check(Code);
-    FlushBuffer;
+    FlushOutBuffer(True);
     ReportProgress;
-    { Was the frame fully flushed? }
+    { Was the frame completed and fully flushed into our buffer? }
     if Code = 0 then
       Break;
   end;
+  FlushOutBuffer(False);
   Check(EndCompress);
 end;
 
