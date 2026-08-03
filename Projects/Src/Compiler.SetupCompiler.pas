@@ -395,18 +395,6 @@ const
 
   DefaultKDFIterations = 220000;
 
-function ExtractStr(var S: String; const Separator: Char): String;
-var
-  I: Integer;
-begin
-  repeat
-    I := PathPos(Separator, S);
-    if I = 0 then I := Length(S)+1;
-    Result := Trim(Copy(S, 1, I-1));
-    S := Trim(Copy(S, I+1, Maxint));
-  until (Result <> '') or (S = '');
-end;
-
 { TISSigKeyEntryExtraInfo }
 
 function TISSigKeyEntryExtraInfo.HasGroupName(const GroupName: String): Boolean;

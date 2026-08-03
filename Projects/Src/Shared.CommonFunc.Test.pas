@@ -89,6 +89,23 @@ begin
   Assert(StringChange(S, 'a', 'p'#0'q') = 1);
   Assert(S = 'p'#0'qb');
 
+  { ExtractStr: returns the first non-empty element, trimmed, and removes it
+    from S along with the separator; '' when nothing is left }
+  S := 'a.bmp,b.bmp';
+  Assert(ExtractStr(S, ',') = 'a.bmp');
+  Assert(S = 'b.bmp');
+  Assert(ExtractStr(S, ',') = 'b.bmp');
+  Assert(S = '');
+  Assert(ExtractStr(S, ',') = '');
+  Assert(S = '');
+
+  { Elements are trimmed and empty elements are skipped }
+  S := ' a , ,, b ';
+  Assert(ExtractStr(S, ',') = 'a');
+  Assert(S = ',, b');
+  Assert(ExtractStr(S, ',') = 'b');
+  Assert(S = '');
+
   { ConvertPercentStr: each '%hh' decodes to the matching byte }
   S := 'a%20b%41%42%43';
   Assert(ConvertPercentStr(S));

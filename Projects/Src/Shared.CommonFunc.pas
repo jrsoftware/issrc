@@ -140,6 +140,7 @@ function GetTempDir: String;
 function StringChange(var S: String; const FromStr, ToStr: String): Integer;
 function StringChangeEx(var S: String; const FromStr, ToStr: String;
   const SupportDBCS: Boolean): Integer;
+function ExtractStr(var S: String; const Separator: Char): String;
 function AdjustLength(var S: String; const Res: Cardinal): Boolean;
 function ConvertConstPercentStr(var S: String): Boolean;
 function ConvertPercentStr(var S: String): Boolean;
@@ -832,6 +833,16 @@ function StringChangeEx(var S: String; const FromStr, ToStr: String;
 { Obsolete; just calls StringChange. The SupportDBCS parameter is ignored. }
 begin
   Result := StringChange(S, FromStr, ToStr);
+end;
+
+function ExtractStr(var S: String; const Separator: Char): String;
+begin
+  repeat
+    var I := PathPos(Separator, S);
+    if I = 0 then I := Length(S)+1;
+    Result := Trim(Copy(S, 1, I-1));
+    S := Trim(Copy(S, I+1, Maxint));
+  until (Result <> '') or (S = '');
 end;
 
 function AdjustLength(var S: String; const Res: Cardinal): Boolean;
