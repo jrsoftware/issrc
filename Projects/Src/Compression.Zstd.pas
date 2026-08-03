@@ -50,10 +50,10 @@ type
     FInitialized: Boolean;
     FStrm: Pointer;
     FOut: TZSTD_outBuffer;
-    FBuffer: array[0..$FFFF] of Byte;
     { Workaround for Zstd not resetting the frame progression until compress2
       is called. Let's keep a good local copy. }
     FProgress: TZSTD_frameProgression;
+    FOutBuffer: array[0..$FFFF] of Byte;
     function EndCompress: NativeUInt;
     procedure FlushBuffer;
     procedure InitCompress;
@@ -72,8 +72,8 @@ type
   private
     FStrm: Pointer;
     FIn: TZSTD_inBuffer;
-    FReachedEnd: Boolean;
-    FBuffer: array[0..$FFFFF] of Byte;
+    FReachedEndOfFrame: Boolean;
+    FInBuffer: array[0..$FFFFF] of Byte;
   public
     constructor Create(AReadProc: TDecompressorReadProc); override;
     destructor Destroy; override;
@@ -215,8 +215,8 @@ begin
   if not FInitialized then begin
     FProgress := Default(TZSTD_frameProgression);
     FOut := Default(TZSTD_outBuffer);
-    FOut.dst := @FBuffer;
-    FOut.size := SizeOf(FBuffer);
+    FOut.dst := @FOutBuffer;
+    FOut.size := SizeOf(FOutBuffer);
     FInitialized := True;
   end;
 end;
@@ -234,7 +234,7 @@ end;
 procedure TZstdCompressor.FlushBuffer;
 begin
   if FOut.pos > 0 then begin
-    WriteProc(FBuffer, Cardinal(FOut.pos));
+    WriteProc(FOutBuffer, Cardinal(FOut.pos));
     FOut.pos := 0;
   end;
 end;
@@ -268,14 +268,14 @@ procedure TZstdCompressor.DoFinish;
 begin
   InitCompress;
   var LIn := Default(TZSTD_inBuffer);
-  var ReachedEnd := False;
-  while not ReachedEnd do begin
+  while True do begin
     const Code = ZSTD_compressStream2(FStrm, FOut, LIn, ZSTD_e_end);
     Check(Code);
     FlushBuffer;
-    if Code = 0 then
-      ReachedEnd := True;
     ReportProgress;
+    { Was the frame fully flushed? }
+    if Code = 0 then
+      Break;
   end;
   Check(EndCompress);
 end;
@@ -303,12 +303,13 @@ begin
   var LOut := Default(TZSTD_outBuffer);
   LOut.dst := @Buffer;
   LOut.size := Count;
-  while LOut.pos < Count do begin
-    if FReachedEnd then  { unexpected EOF }
+  while LOut.pos < LOut.size do begin
+    { The IS compiler doesn't write multiple frames }
+    if FReachedEndOfFrame then
       raise ECompressDataError.Create(SZstdDataError);
     if FIn.pos = FIn.size then begin
-      FIn.src := @FBuffer;
-      FIn.size := ReadProc(FBuffer, SizeOf(FBuffer));
+      FIn.src := @FInBuffer;
+      FIn.size := ReadProc(FInBuffer, SizeOf(FInBuffer));
       FIn.pos := 0;
     end;
     const OldInPos = FIn.pos;
@@ -319,11 +320,14 @@ begin
       if ErrorCode = ZSTD_error_memory_allocation then
         OutOfMemoryError;
       raise ECompressDataError.Create(SZstdDataError);
-    end else if (FIn.pos = OldInPos) and (LOut.pos = OldOutPos) then begin
-      { Sanity check; no data consumed or decompressed at all }
+    end;
+    { If no progress was made, then that implies that the decoder needs more
+      input but there isn't any left. To avoid an infinite loop, treat that as
+      a data error. }
+    if (FIn.pos = OldInPos) and (LOut.pos = OldOutPos) then
       raise ECompressDataError.Create(SZstdDataError);
-    end else if Code = 0 then
-      FReachedEnd := True;
+    if Code = 0 then
+      FReachedEndOfFrame := True;
   end;
 end;
 
@@ -331,7 +335,7 @@ procedure TZstdDecompressor.Reset;
 begin
   FIn := Default(TZSTD_inBuffer);
   Check(ZSTD_initDStream(FStrm));
-  FReachedEnd := False;
+  FReachedEndOfFrame := False;
 end;
 
 end.
