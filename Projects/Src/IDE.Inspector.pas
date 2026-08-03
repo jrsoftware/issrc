@@ -479,10 +479,12 @@ procedure TInspector.JvInspectorEditButtonClick(Item: TJvCustomInspectorItem;
     if SourceDirValue <> '' then
       if not ScriptPathExpand(ExpandedBaseDir, SourceDirValue, SourceDir) then
         Exit('');
+
+    { mvkCompilerDestFile: Additionally combine with the main file's [Setup]
+      OutputDir, like the compiler's PrependDirName for OutputManifestFile.
+      Else: Done. }
     if ADefinition.ValueKind <> mvkCompilerDestFile then
       Exit(SourceDir);
-
-    { mvkCompilerDestFile: Additionally combine with the main file's [Setup] OutputDir }
     const OutputDirValue = FindSetupDirectiveValue('OutputDir');
     var OutputDir: String;
     if not ScriptPathExpand(SourceDir, OutputDirValue, OutputDir) then
@@ -541,6 +543,9 @@ begin
     var S := Trim(Value);
     if Definition.ValueKind = mvkCompilerSourceFiles then
       S := ExtractStr(S, ',');
+    if (S = '') and (Definition.ValueKind = mvkCompilerPath) and
+       SameText(Definition.Name, 'SignedUninstallerDir') then
+      S := FindSetupDirectiveValue('OutputDir'); { An unset SignedUninstallerDir means the output directory }
     var InitialDir := '';
     var InitialFileName := ''; { Not used by mvkCompilerSourceFiles/mvkCompilerPath }
     var ExpandedPath: String;
