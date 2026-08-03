@@ -50,7 +50,7 @@ type
     FInitialized: Boolean;
     FStrm: Pointer;
     FOut: TZSTD_outBuffer;
-    FBuffer: array[0..$FFFFF] of Byte;
+    FBuffer: array[0..$FFFF] of Byte;
     { Workaround for Zstd not resetting the frame progression until compress2
       is called. Let's keep a good local copy. }
     FProgress: TZSTD_frameProgression;
