@@ -27,7 +27,7 @@ type
     NumBlockThreads: Integer;
   end;
 
-  TCompressorProgressProc = procedure(BytesProcessed: Cardinal) of object;
+  TCompressorProgressProc = procedure(BytesProcessed: Int64) of object;
   TCompressorWriteProc = procedure(const Buffer; Count: Cardinal) of object;
   TCustomCompressorClass = class of TCustomCompressor;
   TCustomCompressor = class

@@ -982,11 +982,8 @@ begin
 end;
 
 procedure TLZMACompressor.UpdateProgress;
-const
-  MaxBytesPerProgressProcCall = 1 shl 30;  { 1 GB }
 var
   NewProgressBytes, Bytes: Int64;
-  LimitedBytes: Cardinal;
 begin
   { Check if the timer is signaled. Because it's an auto-reset timer, this
     also resets it to non-signaled. Note that WaitForWorkerEvent also waits
@@ -1009,14 +1006,7 @@ begin
       end else
         Bytes := 0;
 
-      repeat
-        if Bytes >= MaxBytesPerProgressProcCall then
-          LimitedBytes := MaxBytesPerProgressProcCall
-        else
-          LimitedBytes := Cardinal(Bytes);
-        ProgressProc(LimitedBytes);
-        Dec(Bytes, LimitedBytes);
-      until Bytes = 0;
+      ProgressProc(Bytes);
     end;
   end;
 end;

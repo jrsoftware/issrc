@@ -246,7 +246,7 @@ begin
   if Assigned(ProgressProc) then begin
     const OldConsumed = FProgress.consumed;
     FProgress := ZSTD_getFrameProgression(FStrm);
-    ProgressProc(Cardinal(FProgress.consumed - OldConsumed));
+    ProgressProc(Int64(FProgress.consumed - OldConsumed));
   end;
 end;
 
