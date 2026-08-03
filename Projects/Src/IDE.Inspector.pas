@@ -475,15 +475,15 @@ procedure TInspector.JvInspectorEditButtonClick(Item: TJvCustomInspectorItem;
     { Combine with the main file's [Setup] SourceDir when present, like the
       compiler's PrependSourceDirName }
     var SourceDir := ExpandedBaseDir;
-    const SourceDirValue = FindSetupDirectiveValue('SourceDir', '');
+    const SourceDirValue = FindSetupDirectiveValue('SourceDir');
     if SourceDirValue <> '' then
       if not ScriptPathExpand(ExpandedBaseDir, SourceDirValue, SourceDir) then
         Exit('');
     if ADefinition.ValueKind <> mvkCompilerDestFile then
       Exit(SourceDir);
 
-    { Additionally combine with the main file's [Setup] OutputDir (default 'Output') }
-    const OutputDirValue = FindSetupDirectiveValue('OutputDir', 'Output');
+    { mvkCompilerDestFile: Additionally combine with the main file's [Setup] OutputDir }
+    const OutputDirValue = FindSetupDirectiveValue('OutputDir');
     var OutputDir: String;
     if not ScriptPathExpand(SourceDir, OutputDirValue, OutputDir) then
       Exit('');
