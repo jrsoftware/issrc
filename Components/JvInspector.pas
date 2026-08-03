@@ -45,7 +45,7 @@ type
   TJvInspectorCustomCategoryItem = class;
   TJvInspectorListBox = class;
 
-  TInspectorItemFlag = (iifReadonly, iifExpanded, iifValueList);
+  TInspectorItemFlag = (iifReadonly, iifExpanded, iifValueList, iifEditButton);
   TInspectorItemFlags = set of TInspectorItemFlag;
 
   TInspectorPaintRect = (iprItem, iprBtnDstRect, iprNameArea, iprName,
@@ -53,6 +53,7 @@ type
 
   TInspectorItemEvent = procedure(Item: TJvCustomInspectorItem) of object;
   TInspectorItemGetValueListEvent = procedure(Item: TJvCustomInspectorItem; Values: TStrings) of object;
+  TInspectorItemEditButtonClickEvent = procedure(Item: TJvCustomInspectorItem; var Value: string) of object;
   TJvInspAsOrdinal = procedure(Sender: TJvCustomInspectorItem; var Value: Int64) of object;
   TJvInspAsString = procedure(Sender: TJvCustomInspectorItem; var Value: string) of object;
   TInspectorBeforeEditEvent = procedure(Sender: TObject; Item: TJvCustomInspectorItem; Edit: TEdit) of object;
@@ -99,6 +100,7 @@ type
     FOnSetAsOrdinal: TJvInspAsOrdinal;
     FOnSetAsString: TJvInspAsString;
     FOnGetValueList: TInspectorItemGetValueListEvent;
+    FOnEditButtonClick: TInspectorItemEditButtonClickEvent;
     // BeforeEdit NOTE: - WAP
     //
     // This event fired is when creating TEdit objects, and
@@ -195,6 +197,7 @@ type
     property OnSetAsOrdinal: TJvInspAsOrdinal read FOnSetAsOrdinal write FOnSetAsOrdinal;
     property OnSetAsString: TJvInspAsString read FOnSetAsString write FOnSetAsString;
     property OnGetValueList: TInspectorItemGetValueListEvent read FOnGetValueList write FOnGetValueList;
+    property OnEditButtonClick: TInspectorItemEditButtonClickEvent read FOnEditButtonClick write FOnEditButtonClick;
     property BackgroundColor: TColor read GetBackgroundColor write SetBackgroundColor;
     property CategoryColor: TColor read FCategoryColor write FCategoryColor;
     property CategoryDividerColor: TColor read FCategoryDividerColor write FCategoryDividerColor;
@@ -235,6 +238,7 @@ type
     procedure CloseUp(Accept: Boolean);
     procedure DoDropDownKeys(var Key: Word; Shift: TShiftState);
     procedure DropDown;
+    procedure EditButtonClick;
     procedure EditFocusLost(Sender: TObject);
     procedure EditKeyPress(Sender: TObject; var Key: Char);
     procedure EditKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState); dynamic;
@@ -415,9 +419,7 @@ begin
   if StyleServices.Enabled and (uType = DFC_SCROLL) and
      ((uState and Mask) = DFCS_SCROLLCOMBOBOX) then begin
     R := Rect;
-    if uState and DFCS_INACTIVE <> 0 then
-      ComboBox := tcDropDownButtonDisabled
-    else if uState and DFCS_PUSHED <> 0 then begin
+    if uState and DFCS_PUSHED <> 0 then begin
       { Not all VCL Styles have an actual image for this, and will just show a
         regular checkbox. This includes our dark theme (Windows11 Modern Dark).
         In TSeButtonObject.Draw variable FState is correctly set to ssPressed,
@@ -440,6 +442,16 @@ begin
       Btn := tbCheckBoxUncheckedPressed { See above }
     else
       Btn := tbCheckBoxUncheckedNormal;
+
+    DrawElementPreservingDCState(DC, StyleServices.GetElementDetails(Btn), R, DPI);
+    Result := True;
+  end else if StyleServices.Enabled and (uType = DFC_BUTTON) and
+     ((uState and Mask) = DFCS_BUTTONPUSH) then begin
+    R := Rect;
+    if uState and DFCS_PUSHED <> 0 then
+      Btn := tbPushButtonPressed
+    else
+      Btn := tbPushButtonNormal;
 
     DrawElementPreservingDCState(DC, StyleServices.GetElementDetails(Btn), R, DPI);
     Result := True;
@@ -1428,15 +1440,19 @@ procedure TJvInspector.CalcEditBasedRects;
 var
   TmpRect: TRect;
 begin
-  if not (FPaintItem.Editing and (iifValueList in FPaintItem.Flags)) then begin // Value takes up entire edit value rect, there is no edit button:
+  if not (FPaintItem.Editing and
+     (FPaintItem.Flags * [iifValueList, iifEditButton] <> [])) then begin // Value takes up entire edit value rect, there is no edit button:
     FPaintItem.Rects[iprEditValue] := FPaintItem.Rects[iprValue];
     FPaintItem.Rects[iprEditButton] := Rect(0, 0, 0, 0);
   end else begin // The edit button is on the right of the edit value area:
+    var ButtonWidth := GetItemHeight;
+    if iifEditButton in FPaintItem.Flags then
+      ButtonWidth := MulDiv(ButtonWidth, 3, 2);
     TmpRect := FPaintItem.Rects[iprValue];
-    Dec(TmpRect.Right, GetItemHeight);
+    Dec(TmpRect.Right, ButtonWidth);
     FPaintItem.Rects[iprEditValue] := TmpRect;
     TmpRect := FPaintItem.Rects[iprValueArea];
-    TmpRect.Left := TmpRect.Right - GetItemHeight;
+    TmpRect.Left := TmpRect.Right - ButtonWidth;
     FPaintItem.Rects[iprEditButton] := TmpRect;
   end;
 end;
@@ -1735,6 +1751,18 @@ begin
   end;
 end;
 
+procedure TJvCustomInspectorItem.EditButtonClick;
+begin
+  if Editing and (EditCtrl <> nil) and Assigned(Inspector.FOnEditButtonClick) then begin
+    var Value: String := EditCtrl.Text;
+    Inspector.FOnEditButtonClick(Self, Value);
+    if Editing and (EditCtrl <> nil) then begin
+      EditCtrl.Text := Value;
+      Apply;
+    end;
+  end;
+end;
+
 procedure TJvCustomInspectorItem.EditFocusLost(Sender: TObject);
 begin
   if Inspector.HandleAllocated and not Inspector.Focused then begin
@@ -1930,6 +1958,14 @@ begin
               (TWMKeyDown(Msg).CharCode in [VK_UP, VK_DOWN, VK_PRIOR, VK_NEXT]) then
               ExecInherited := False;
           end;
+        end else if (iifEditButton in Flags) and (Msg.Msg <> WM_CHAR) then begin
+          const Key = TWMKeyDown(Msg).CharCode;
+          const KeyShift = KeyDataToShiftState(TWMKeyDown(Msg).KeyData);
+          if ((Key = VK_F4) and not (ssAlt in KeyShift)) or
+             ((Key = VK_DOWN) and (ssAlt in KeyShift)) then begin
+            EditButtonClick;
+            TWMKeyDown(Msg).CharCode := 0;
+          end;
         end;
         PostToInsp :=
           (Msg.Msg = WM_KEYDOWN) and (KeyDataToShiftState(TWMKeyDown(Msg).KeyData) = []) and
@@ -2069,7 +2105,10 @@ procedure TJvCustomInspectorItem.MouseDown(Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
   if (Button = mbLeft) and PtInRect(Rects[iprEditButton], Point(X, Y)) then begin
-    if DroppedDown then
+    if iifEditButton in Flags then begin
+      Tracking := True;
+      TrackButton(X, Y);
+    end else if DroppedDown then
       CloseUp(False)
     else begin
       Tracking := True;
@@ -2104,7 +2143,11 @@ end;
 
 procedure TJvCustomInspectorItem.MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer);
 begin
+  const FireEditButtonClick = (Button = mbLeft) and Tracking and
+    (iifEditButton in Flags) and PtInRect(Rects[iprEditButton], Point(X, Y));
   StopTracking;
+  if FireEditButtonClick then
+    EditButtonClick;
 end;
 
 procedure TJvCustomInspectorItem.SelectValue(const Delta: Integer);
@@ -2289,12 +2332,28 @@ begin
       EditCtrl.PaintTo(ACanvas.Handle, EditCtrl.Left, EditCtrl.Top);
     ARect := Rects[iprEditButton];
     if not IsRectEmpty(ARect) then begin
-      var BFlags: UINT := 0;
-      if Assigned(EditCtrl) and (not EditCtrl.Enabled) then
-        BFlags := DFCS_INACTIVE
-      else if Pressed then
-        BFlags := DFCS_FLAT or DFCS_PUSHED;
-      DrawThemedFrameControl(ACanvas.Handle, ARect, DFC_SCROLL, BFlags or DFCS_SCROLLCOMBOBOX, Inspector.CurrentPPI);
+      if iifEditButton in Flags then begin
+        var BFlags: UINT := DFCS_BUTTONPUSH;
+        if Pressed then
+          BFlags := BFlags or DFCS_PUSHED;
+        DrawThemedFrameControl(ACanvas.Handle, ARect, DFC_BUTTON, BFlags, Inspector.CurrentPPI);
+        const ButtonText = '...';
+        ACanvas.Font.Color := Inspector.ValueColor;
+        ACanvas.Brush.Style := bsClear;
+        try
+          ACanvas.TextOut(
+            ARect.Left + (ARect.Width - ACanvas.TextWidth(ButtonText)) div 2,
+            ARect.Top + (ARect.Height - ACanvas.TextHeight(ButtonText)) div 2,
+            ButtonText);
+        finally
+          ACanvas.Brush.Style := bsSolid;
+        end;
+      end else begin
+        var BFlags: UINT := 0;
+        if Pressed then
+          BFlags := DFCS_FLAT or DFCS_PUSHED;
+        DrawThemedFrameControl(ACanvas.Handle, ARect, DFC_SCROLL, BFlags or DFCS_SCROLLCOMBOBOX, Inspector.CurrentPPI);
+      end;
     end;
   end;
 end;
