@@ -84,7 +84,7 @@ type
 implementation
 
 const
-  SZstdDataError = 'zstd: Compressed data is corrupted';
+  SZstdDataError = 'zstd: Compressed data is corrupted (%d)';
   SZstdInternalError = 'zstd: Internal error. Code %d';
 
   ZSTD_error_no_error = 0;
@@ -299,6 +299,12 @@ begin
 end;
 
 procedure TZstdDecompressor.DecompressInto(var Buffer; Count: Cardinal);
+
+  procedure RaiseDataError(const Id: Int64);
+  begin
+    raise ECompressDataError.CreateFmt(SZstdDataError, [Id]);
+  end;
+
 begin
   var LOut := Default(TZSTD_outBuffer);
   LOut.dst := @Buffer;
@@ -306,7 +312,7 @@ begin
   while LOut.pos < LOut.size do begin
     { The IS compiler doesn't write multiple frames }
     if FReachedEndOfFrame then
-      raise ECompressDataError.Create(SZstdDataError);
+      RaiseDataError(-1);
     if FIn.pos = FIn.size then begin
       FIn.src := @FInBuffer;
       FIn.size := ReadProc(FInBuffer, SizeOf(FInBuffer));
@@ -319,13 +325,13 @@ begin
     if ErrorCode <> ZSTD_error_no_error then begin
       if ErrorCode = ZSTD_error_memory_allocation then
         OutOfMemoryError;
-      raise ECompressDataError.Create(SZstdDataError);
+      RaiseDataError(ErrorCode);
     end;
     { If no progress was made, then that implies that the decoder needs more
       input but there isn't any left. To avoid an infinite loop, treat that as
       a data error. }
     if (FIn.pos = OldInPos) and (LOut.pos = OldOutPos) then
-      raise ECompressDataError.Create(SZstdDataError);
+      RaiseDataError(-2);
     if Code = 0 then
       FReachedEndOfFrame := True;
   end;
