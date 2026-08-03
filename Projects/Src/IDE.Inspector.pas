@@ -83,6 +83,8 @@ type
     procedure JvInspectorKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
     procedure JvInspectorLeafNameDblClick(Item: TJvCustomInspectorItem);
+    procedure JvInspectorEditButtonClick(Item: TJvCustomInspectorItem;
+      var Value: String);
     procedure MessagesWndProc(var Message: TMessage);
     function GetDividerWidth: Integer;
     procedure SetDividerWidth(const Value: Integer);
@@ -168,6 +170,7 @@ begin
   FJvInspector.OnKeyDown := JvInspectorKeyDown;
   FJvInspector.OnEditorKeyDown := JvInspectorKeyDown;
   FJvInspector.OnLeafNameDblClick := JvInspectorLeafNameDblClick;
+  FJvInspector.OnEditButtonClick := JvInspectorEditButtonClick;
   FJvInspector.OnGetAsOrdinal := RowGetAsOrdinal;
   FJvInspector.OnGetAsString := RowGetAsString;
   FJvInspector.OnSetAsOrdinal := RowSetAsOrdinal;
@@ -399,6 +402,13 @@ end;
 procedure TInspector.JvInspectorLeafNameDblClick(Item: TJvCustomInspectorItem);
 begin
   GoToSelectedRow;
+end;
+
+procedure TInspector.JvInspectorEditButtonClick(Item: TJvCustomInspectorItem;
+  var Value: String);
+begin
+  if FFactory.Memo.ReadOnly then
+    Exit;
 end;
 
 procedure TInspector.GoToSelectedRow(const AFirstLine: Integer);
@@ -686,7 +696,10 @@ procedure TInspector.UpdateFromCaret;
         if KeepAllFlags or NameMatchesFilter(FlagName) then
           AddParameterFlagRow(Item, ADefinition.Name, FlagName, AIndex); { Adds a child to Item }
     end else if ADefinition.ValueKind = mvkChoice then
-      Item.Flags := Item.Flags + [iifValueList];
+      Item.Flags := Item.Flags + [iifValueList]
+    else if ADefinition.ValueKind in [mvkCompilerSourceFile, mvkCompilerSourceFiles,
+       mvkCompilerPath, mvkCompilerDestFile] then
+      Item.Flags := Item.Flags + [iifEditButton];
   end;
 
   procedure AddParameterOccurrenceRows(const AParent: TJvCustomInspectorItem;
@@ -754,7 +767,10 @@ procedure TInspector.UpdateFromCaret;
             if KeepAllFlags or NameMatchesFilter(FlagName) then
               AddKeyFlagRow(Item, ARow.Name, FlagName, ARow.Index); { Adds a child to Item }
         end else if Definition.ValueKind in [mvkChoice, mvkYesNo] then
-          Item.Flags := Item.Flags + [iifValueList];
+          Item.Flags := Item.Flags + [iifValueList]
+        else if Definition.ValueKind in [mvkCompilerSourceFile, mvkCompilerSourceFiles,
+           mvkCompilerPath, mvkCompilerDestFile] then
+          Item.Flags := Item.Flags + [iifEditButton];
       end;
     end;
   end;
