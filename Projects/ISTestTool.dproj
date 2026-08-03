@@ -126,6 +126,7 @@
         <DCCReference Include="Src\Compiler.StringLists.Test.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.Metadata.pas"/>
+        <DCCReference Include="Src\IDE.ScriptModel.Metadata.Extra.pas"/>
         <DCCReference Include="Src\IDE.ScriptModel.Test.pas"/>
         <DCCReference Include="Src\ISPP.CTokenizer.pas"/>
         <DCCReference Include="Src\ISPP.CTokenizer.Test.pas"/>
@@ -151,6 +152,9 @@
         <DCCReference Include="Src\Shared.EncryptionFunc.Test.pas"/>
         <DCCReference Include="Src\Shared.LangOptionsSectionDirectives.pas"/>
         <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>
+        <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
+        <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
+        <DCCReference Include="Src\Shared.SetupSteps.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.Test.pas"/>
         <DCCReference Include="..\Components\SimpleExpression.pas"/>

@@ -13,7 +13,9 @@ interface
 
 uses
   TypInfo,
+  {$IFNDEF ISTESTTOOLPROJ}
   ScintEdit,
+  {$ENDIF}
   Shared.SetupSectionDirectives;
 
 const
@@ -60,6 +62,11 @@ type
     scTypes,
     scUninstallDelete,
     scUninstallRun);
+
+{$IFDEF ISTESTTOOLPROJ}
+  TScintRawCharSet = set of AnsiChar;
+  TScintRawString = type RawByteString;
+{$ENDIF}
 
   TISPPDirective = record
     Name: TScintRawString;
@@ -453,11 +460,22 @@ var
 
 function SectionToSectionName(const ASection: TInnoSetupSection): String;
 
+function ScriptCategoryNamesOrdered: TArray<String>;
+
+function TryGetScriptCategory(const ASectionName, AName: String;
+  out ACategoryName: String): Boolean;
+
 implementation
 
 uses
-  Shared.CommonFunc.Vcl, Shared.DotNetVersion, Shared.SetupMessageIDs,
+  SysUtils, Generics.Collections, Generics.Defaults,
+  {$IFNDEF ISTESTTOOLPROJ} Shared.CommonFunc.Vcl, {$ENDIF} Shared.DotNetVersion, Shared.SetupMessageIDs,
   Shared.SetupSteps, Shared.Struct;
+
+{$IFDEF ISTESTTOOLPROJ}
+type
+  TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);
+{$ENDIF}
 
 function ISPPD(const Name: TScintRawString; const RequiresParameter: Boolean; const OpenCountChange: ShortInt): TISPPDirective;
 begin
@@ -476,6 +494,122 @@ function SectionToSectionName(const ASection: TInnoSetupSection): String;
 begin
   Result := Copy(GetEnumName(TypeInfo(TInnoSetupSection), Ord(ASection)),
     InnoSetupSectionPrefixLength+1, MaxInt);
+end;
+
+var
+  ScriptCategoryDictionary: TDictionary<String, String>;
+  ScriptCategoryNameOrderedList: TArray<String>;
+
+function ScriptMemberDictionaryKey(const ASectionName, AName: String): String;
+begin
+  Result := ASectionName + '.' + AName;
+end;
+
+function ScriptCategoryNamesOrdered: TArray<String>;
+begin
+  Result := Copy(ScriptCategoryNameOrderedList);
+end;
+
+function TryGetScriptCategory(const ASectionName, AName: String;
+  out ACategoryName: String): Boolean;
+begin
+  Result := ScriptCategoryDictionary.TryGetValue(
+    ScriptMemberDictionaryKey(ASectionName, AName), ACategoryName);
+end;
+
+procedure InitializeScriptCategories;
+
+  procedure CD(const AName: String; const AMemberNames: TArray<String>;
+    const ASectionNames: TArray<String>);
+  begin
+    if Length(ASectionNames) = 0 then
+      raise Exception.CreateFmt('Internal error: Category %s has no section names', [AName]);
+    ScriptCategoryNameOrderedList := ScriptCategoryNameOrderedList + [AName];
+    for var SectionName in ASectionNames do begin
+      for var MemberName in AMemberNames do begin
+        ScriptCategoryDictionary.Add(ScriptMemberDictionaryKey(SectionName, MemberName),
+          AName);
+      end;
+    end;
+  end;
+
+begin
+  const SetupSection: TArray<String> = ['Setup'];
+
+  CD('Compiler', ['ASLRCompatible', 'DEPCompatible',
+    'DisablePrecompiledFileVerifications', 'DiskClusterSize', 'DiskSliceSize',
+    'DiskSpanning', 'Encryption', 'EncryptionKeyDerivation',
+    'MergeDuplicateFiles', 'MissingMessagesWarning', 'MissingRunOnceIdsWarning',
+    'NotRecognizedMessagesWarning', 'Output', 'OutputBaseFilename', 'OutputDir',
+    'OutputManifestFile', 'ReserveBytes', 'SignedUninstaller',
+    'SignedUninstallerDir', 'SignTool', 'SignToolMinimumTimeBetween',
+    'SignToolRetryCount', 'SignToolRetryDelay', 'SignToolRunMinimized',
+    'SlicesPerDisk', 'SourceDir', 'TerminalServicesAware',
+    'UsedUserAreasWarning', 'UseSetupLdr', 'VersionInfoCompany',
+    'VersionInfoCopyright', 'VersionInfoDescription',
+    'VersionInfoOriginalFileName', 'VersionInfoProductName',
+    'VersionInfoProductTextVersion', 'VersionInfoProductVersion',
+    'VersionInfoTextVersion', 'VersionInfoVersion'],
+    SetupSection);
+
+  CD('Compression', ['Compression', 'CompressionThreads',
+    'InternalCompressLevel', 'LZMAAlgorithm', 'LZMABlockSize',
+    'LZMADictionarySize', 'LZMAMatchFinder', 'LZMANumBlockThreads',
+    'LZMANumFastBytes', 'LZMAUseSeparateProcess', 'SolidCompression',
+    'ZstdNumThreads'],
+    SetupSection);
+
+  CD('Installer', ['AllowCancelDuringInstall', 'AllowNetworkDrive',
+    'AllowNoIcons', 'AllowRootDirectory', 'AllowUNCPath', 'AlwaysRestart',
+    'AlwaysShowComponentsList', 'AlwaysShowDirOnReadyPage',
+    'AlwaysShowGroupOnReadyPage', 'AlwaysUsePersonalGroup',
+    'AppendDefaultDirName', 'AppendDefaultGroupName', 'AppComments',
+    'AppContact', 'AppId', 'AppModifyPath', 'AppMutex', 'AppName',
+    'AppPublisher', 'AppPublisherURL', 'AppReadmeFile', 'AppSupportPhone',
+    'AppSupportURL', 'AppUpdatesURL', 'AppVerName', 'AppVersion',
+    'ArchitecturesAllowed', 'ArchitecturesInstallIn64BitMode',
+    'ArchiveExtraction', 'ChangesAssociations', 'ChangesEnvironment',
+    'CloseApplications', 'CloseApplicationsFilter',
+    'CloseApplicationsFilterExcludes', 'CreateAppDir', 'CreateUninstallRegKey',
+    'DefaultDialogFontName', 'DefaultDirName', 'DefaultGroupName',
+    'DefaultUserInfoName', 'DefaultUserInfoOrg', 'DefaultUserInfoSerial',
+    'DirExistsWarning', 'DisableDirPage', 'DisableFinishedPage',
+    'DisableProgramGroupPage', 'DisableReadyMemo', 'DisableReadyPage',
+    'DisableStartupPrompt', 'DisableWelcomePage', 'EnableDirDoesntExistWarning',
+    'ExtraDiskSpaceRequired', 'InfoAfterFile', 'InfoBeforeFile',
+    'LanguageDetectionMethod', 'LicenseFile', 'MinVersion', 'OnlyBelowVersion',
+    'Password', 'PrivilegesRequired', 'PrivilegesRequiredOverridesAllowed',
+    'RedirectionGuard', 'RestartApplications', 'RestartIfNeededByRun',
+    'SetupArchitecture', 'SetupLogging', 'SetupMutex', 'ShowLanguageDialog',
+    'TimeStampRounding', 'TimeStampsInUTC', 'TouchDate', 'TouchTime',
+    'Uninstallable', 'UninstallDisplayIcon', 'UninstallDisplayName',
+    'UninstallDisplaySize', 'UninstallFilesDir', 'UninstallLogging',
+    'UninstallLogMode', 'UninstallRestartComputer', 'UpdateUninstallLogAppName',
+    'UsePreviousAppDir', 'UsePreviousGroup', 'UsePreviousLanguage',
+    'UsePreviousPrivileges', 'UsePreviousSetupType', 'UsePreviousTasks',
+    'UsePreviousUserInfo', 'UserInfoPage'],
+    SetupSection);
+
+  CD('Cosmetic', ['AppCopyright', 'FlatComponentsList', 'SetupIconFile',
+    'ShowComponentSizes', 'ShowTasksTreeLines', 'WizardBackColor',
+    'WizardBackColorDynamicDark', 'WizardBackImageFile',
+    'WizardBackImageFileDynamicDark', 'WizardBackImageOpacity',
+    'WizardImageAlphaFormat', 'WizardImageBackColor',
+    'WizardImageBackColorDynamicDark', 'WizardImageFile',
+    'WizardImageFileDynamicDark', 'WizardImageOpacity', 'WizardImageStretch',
+    'WizardKeepAspectRatio', 'WizardSizePercent', 'WizardSmallImageBackColor',
+    'WizardSmallImageBackColorDynamicDark', 'WizardSmallImageFile',
+    'WizardSmallImageFileDynamicDark', 'WizardStyle', 'WizardStyleFile',
+    'WizardStyleFileDynamicDark'],
+    SetupSection);
+
+  const CommonSections: TArray<String> = ['Components', 'Dirs', 'Files',
+    'Icons', 'INI', 'InstallDelete', 'ISSigKeys', 'Languages', 'Registry',
+    'Run', 'Tasks', 'Types', 'UninstallDelete', 'UninstallRun'];
+
+  CD('Common', ['Check', 'Components', 'Tasks', 'Languages', 'MinVersion',
+    'OnlyBelowVersion', 'BeforeInstall', 'AfterInstall'],
+    CommonSections);
 end;
 
 initialization
@@ -527,4 +661,8 @@ initialization
     SSDV(ssArchitecturesAllowed, ArchitecturesExpressionValues),
     SSDV(ssArchitecturesInstallIn64BitMode, ArchitecturesExpressionValues)];
 
+  ScriptCategoryDictionary := TDictionary<String, String>.Create(TIStringComparer.Ordinal);
+  InitializeScriptCategories;
+finalization
+  ScriptCategoryDictionary.Free;
 end.

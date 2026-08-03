@@ -6,7 +6,7 @@ unit IDE.ScriptModel.Test;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Test unit for IDE.ScriptModel and IDE.ScriptModel.Metadata
+  Test unit for IDE.ScriptModel and IDE.ScriptModel.Metadata*
 
   Runs a self-test if DEBUG is defined
 }
@@ -20,7 +20,7 @@ implementation
 uses
   {$IFDEF DEBUG} Winapi.Windows, {$ENDIF} System.SysUtils,
   Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives,
-  IDE.ScriptModel, IDE.ScriptModel.Metadata;
+  IDE.ScriptModel, IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra;
 
 {$C+}
 
