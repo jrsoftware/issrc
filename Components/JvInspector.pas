@@ -48,7 +48,7 @@ type
   TInspectorItemFlag = (iifReadonly, iifExpanded, iifValueList, iifEditButton);
   TInspectorItemFlags = set of TInspectorItemFlag;
 
-  TInspectorPaintRect = (iprItem, iprBtnDstRect, iprNameArea, iprName,
+  TInspectorPaintRect = (iprItem, iprBtnDstRect, iprMarker, iprNameArea, iprName,
     iprValueArea, iprValue, iprEditValue, iprEditButton);
 
   TInspectorItemEvent = procedure(Item: TJvCustomInspectorItem) of object;
@@ -76,6 +76,7 @@ type
     FHideSelectTextColor: TColor;
     FNameColor: TColor;
     FOnCustomizeItemCanvas: TOnJvInspectorCustomizeItemCanvas;
+    FMarkedItem: TJvCustomInspectorItem;
     FPaintItem: TJvCustomInspectorItem;
     FPaintItemIndex: Integer;
     FPaintRect: TRect;
@@ -119,6 +120,7 @@ type
     procedure InvalidateRow(const Index: Integer);
     procedure PaintItem(var ARect: TRect; const AItemIndex: Integer);
     procedure PaintItems;
+    procedure SetMarkedItem(const Value: TJvCustomInspectorItem);
     procedure SetupRects;
   protected
     FAccObject: IInterface;
@@ -177,6 +179,7 @@ type
     procedure Clear;
     property AccessibleName: string read FAccessibleName write FAccessibleName;
     property Divider: Integer read FDivider write SetDivider;
+    property MarkedItem: TJvCustomInspectorItem read FMarkedItem write SetMarkedItem;
     property PopupMenu;
     property ReadOnly: Boolean read FReadOnly write FReadOnly;
     property Root: TJvCustomInspectorItem read FRoot;
@@ -988,6 +991,17 @@ begin
   end;
 end;
 
+procedure TJvInspector.SetMarkedItem(const Value: TJvCustomInspectorItem);
+begin
+  if Value <> FMarkedItem then begin
+    if FMarkedItem <> nil then
+      InvalidateItem(FMarkedItem);
+    FMarkedItem := Value;
+    if FMarkedItem <> nil then
+      InvalidateItem(FMarkedItem);
+  end;
+end;
+
 procedure TJvInspector.SetSelected(const Value: TJvCustomInspectorItem);
 begin
   SelectedIndex := Integer(FVisibleList.IndexOf(Value));
@@ -1005,6 +1019,7 @@ begin
       if Selected <> nil then
         Selected.DoneEdit(False);
       FSelectedIndex := Value;
+      MarkedItem := nil; { Changing selection auto unmarks }
       if Selected <> nil then begin
         Selected.ScrollInView(False);
         Selected.InitEdit;
@@ -1382,6 +1397,29 @@ begin
     BtnDstRect := Rect(0, 0, 0, 0);
   FPaintItem.Rects[iprBtnDstRect] := BtnDstRect;
 
+  { Marker: it goes in the free 'gutter cell' left of and nearest to the name:
+    ButtonRect itself, or the 'cell' left of it when the button occupies it. Note
+    that GetItemHeight determines the width of these cells. Limitation: a top
+    level item which is a parent has no free cell, so never gets a marker. }
+  var MarkerArea := ButtonRect;
+  if not IsRectEmpty(BtnDstRect) then begin
+    OffsetRect(MarkerArea, -GetItemHeight, 0);
+    MarkerArea.Width := GetItemHeight; { Restore: the divider may have clipped ButtonRect }
+  end;
+  var MarkerRect: TRect;
+  if (MarkerArea.Width > 0) and (MarkerArea.Left >= ItemRect2.Left) then begin
+    var Size := MulDiv(9, CurrentPPI, 96);
+    if not Odd(Size) then
+      Dec(Size);
+    MarkerRect := Rect(0, 0, Size, Size);
+    OffsetRect(MarkerRect, (GetItemHeight - Size) div 2,
+      (MarkerArea.Height - Size) div 2);
+    OffsetRect(MarkerRect, MarkerArea.Left, MarkerArea.Top);
+    IntersectRect(MarkerRect, MarkerRect, MarkerArea);
+  end else
+    MarkerRect := Rect(0, 0, 0, 0);
+  FPaintItem.Rects[iprMarker] := MarkerRect;
+
   { The name }
   var RowHeight: Integer;
   if FPaintItem.IsCategory then
@@ -1437,6 +1475,51 @@ var
   EndOfCat: Boolean;
   CatRect: TRect;
   LeftX: Integer;
+
+  procedure PaintGlyph(const PaintRect: TInspectorPaintRect);
+  begin
+    const GlyphRect = FPaintItem.Rects[PaintRect];
+    if IsRectEmpty(GlyphRect) then
+      Exit;
+    var Size := MulDiv(9, CurrentPPI, 96);
+    if not Odd(Size) then
+      Dec(Size);
+    const Mid = Size div 2;
+    const IsExpandButton = (PaintRect = iprBtnDstRect);
+    if IsExpandButton then
+      Canvas.Brush.Color := BackgroundColor
+    else
+      Canvas.Brush.Color := FNameColor;
+    Canvas.Pen.Color := FNameColor;
+    const SaveIndex = SaveDC(Canvas.Handle);
+    try
+      IntersectClipRect(Canvas.Handle, GlyphRect.Left, GlyphRect.Top,
+        GlyphRect.Right, GlyphRect.Bottom);
+      if IsExpandButton then begin
+        const Margin = MulDiv(2, Size, 9);
+        Canvas.Rectangle(GlyphRect.Left, GlyphRect.Top, GlyphRect.Left + Size,
+          GlyphRect.Top + Size);
+        Canvas.MoveTo(GlyphRect.Left + Margin, GlyphRect.Top + Mid);
+        Canvas.LineTo(GlyphRect.Left + Size - Margin, GlyphRect.Top + Mid);
+        if not FPaintItem.Expanded then begin
+          Canvas.MoveTo(GlyphRect.Left + Mid, GlyphRect.Top + Margin);
+          Canvas.LineTo(GlyphRect.Left + Mid, GlyphRect.Top + Size - Margin);
+        end;
+      end else begin
+        Canvas.Polygon([
+          Point(GlyphRect.Left, GlyphRect.Top + Mid - 1),
+          Point(GlyphRect.Left + Mid, GlyphRect.Top + Mid - 1),
+          Point(GlyphRect.Left + Mid, GlyphRect.Top),
+          Point(Pred(GlyphRect.Left + Size), GlyphRect.Top + Mid),
+          Point(GlyphRect.Left + Mid, Pred(GlyphRect.Top + Size)),
+          Point(GlyphRect.Left + Mid, GlyphRect.Top + Mid + 1),
+          Point(GlyphRect.Left, GlyphRect.Top + Mid + 1)]);
+      end;
+    finally
+      RestoreDC(Canvas.Handle, SaveIndex);
+    end;
+  end;
+
 begin
   // Determine item type (end of list, end of a category)
   EndOfList := Succ(FPaintItemIndex) >= GetVisibleCount;
@@ -1475,31 +1558,10 @@ begin
     FOnCustomizeItemCanvas(FPaintItem, Canvas);
   FPaintItem.DrawValue(Canvas);
 
-  const BtnRect = FPaintItem.Rects[iprBtnDstRect];
-  if not IsRectEmpty(BtnRect) then begin
-    var Size := MulDiv(9, CurrentPPI, 96);
-    if not Odd(Size) then
-      Dec(Size);
-    const Margin = MulDiv(2, Size, 9);
-    const Mid = Size div 2;
-    Canvas.Brush.Color := BackgroundColor;
-    Canvas.Pen.Color := FNameColor;
-    const SaveIndex = SaveDC(Canvas.Handle);
-    try
-      IntersectClipRect(Canvas.Handle, BtnRect.Left, BtnRect.Top,
-        BtnRect.Right, BtnRect.Bottom);
-      Canvas.Rectangle(BtnRect.Left, BtnRect.Top, BtnRect.Left + Size,
-        BtnRect.Top + Size);
-      Canvas.MoveTo(BtnRect.Left + Margin, BtnRect.Top + Mid);
-      Canvas.LineTo(BtnRect.Left + Size - Margin, BtnRect.Top + Mid);
-      if not FPaintItem.Expanded then begin
-        Canvas.MoveTo(BtnRect.Left + Mid, BtnRect.Top + Margin);
-        Canvas.LineTo(BtnRect.Left + Mid, BtnRect.Top + Size - Margin);
-      end;
-    finally
-      RestoreDC(Canvas.Handle, SaveIndex);
-    end;
-  end;
+  PaintGlyph(iprBtnDstRect);
+
+  if FPaintItem = FMarkedItem then
+    PaintGlyph(iprMarker);
 
   if EndOfCat or FPaintItem.IsCategory then
     Canvas.Pen.Color := FCategoryDividerColor
@@ -2269,6 +2331,8 @@ begin
   inherited;
   if Parent <> nil then
     Parent.FItems.Extract(Self); // FItems owns the items
+  if (Inspector <> nil) and (Inspector.FMarkedItem = Self) then
+    Inspector.FMarkedItem := nil;
   if (Inspector <> nil) and (Inspector.FPressedItem = Self) then
     Inspector.FPressedItem := nil;
   if (Inspector <> nil) and (Inspector.Root <> Self) then
