@@ -810,6 +810,11 @@ begin
   var OldVisible := FParentMenuItem.Visible; { See ApplyMenuBitmaps }
   FParentMenuItem.Visible := True;
   try
+    { Update the items now, like TPopupMenu.Popup's DoPopup: changes to the
+      Visible property of menu items made during the Click fired by TrackPopupMenu
+      (via WM_INITMENUPOPUP, as explained by ApplyMenuBitmaps) don't stick.
+      Calling Click now fixes that. }
+    FParentMenuItem.Click;
     TrackPopupMenu(FParentMenuItem.Handle, TPM_RIGHTBUTTON, X, Y, 0, Form.Handle, nil);
   finally
     FParentMenuItem.Visible := OldVisible;
