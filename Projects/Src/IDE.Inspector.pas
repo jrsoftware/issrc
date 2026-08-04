@@ -539,7 +539,7 @@ begin
     var FlagsIndex := -1;
     if Entry.TryResolve('Flags', FlagsIndex) and
        Entry.FlagIncluded(FlagsIndex, 'external') then begin
-      MsgBox(LFmtMessage(SInspectorExternalSourceError, ['Source', 'external']),
+      MsgBox(LFmtMessage(SInspectorBrowseParamFlagError, ['Source', 'external']),
         LFmtMessage(SCompilerFormCaption), mbError, MB_OK);
       Exit;
     end;

@@ -238,7 +238,7 @@ const
   { Inspector }
   SInspectorIntegerValueError = '%1 must be an integer value';
   SInspectorReadOnlyError = 'The script cannot be edited because it is read-only';
-  SInspectorExternalSourceError = 'Parameter "%1" cannot be browsed for when the "%2" flag is used';
+  SInspectorBrowseParamFlagError = 'Parameter "%1" cannot be browsed for when the "%2" flag is used';
   SInspectorNothingToInspectNote = 'Move to a key/value section or parameter entry';
   SInspectorSiblingOccurrencesNote = 'Unspecified directives are hidden because this section occurs more than once';
   SInspectorShowAllKnownDirectivesSuppressedNote = 'Unspecified directives are hidden because this is not the main script file';
