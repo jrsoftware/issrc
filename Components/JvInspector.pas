@@ -114,10 +114,6 @@ type
     function ApplicationHook(var Msg: TMessage): Boolean;
     procedure ApplyNameFont;
     procedure ApplyValueFont;
-    procedure CalcButtonBasedRects(const ButtonArea: TRect);
-    procedure CalcEditBasedRects;
-    procedure CalcNameBasedRects;
-    procedure CalcValueBasedRects;
     procedure DoPaintItem;
     procedure InvalidateItem(const Item: TJvCustomInspectorItem);
     procedure InvalidateRow(const Index: Integer);
@@ -1342,15 +1338,12 @@ begin
 end;
 
 procedure TJvInspector.SetupRects;
-var
-  ItemRect2: TRect;
-  ButtonRect: TRect;
-  TmpRect: TRect;
 begin
+  { Base}
   FPaintItem.Rects[iprItem] := Rect(FPaintRect.Left, FPaintRect.Top,
     FPaintRect.Right, Pred(FPaintRect.Top + GetItemHeight));
-  ItemRect2 := FPaintItem.Rects[iprItem];
-  ButtonRect := Rect(ItemRect2.Left + (FPaintItem.Level * GetItemHeight), ItemRect2.Top,
+  const ItemRect2 = FPaintItem.Rects[iprItem];
+  var ButtonRect := Rect(ItemRect2.Left + (FPaintItem.Level * GetItemHeight), ItemRect2.Top,
     ItemRect2.Left + (Succ(FPaintItem.Level) * GetItemHeight), ItemRect2.Bottom);
   if not FPaintItem.IsCategory and (ButtonRect.Left > Pred(Divider)) then begin
     ButtonRect.Left := 0;
@@ -1358,7 +1351,7 @@ begin
   end;
   if not FPaintItem.IsCategory and (ButtonRect.Right > Pred(Divider)) then
     ButtonRect.Right := Pred(Divider);
-  TmpRect := ItemRect2;
+  var TmpRect := ItemRect2;
   TmpRect.Left := ItemRect2.Left + (Succ(FPaintItem.Level) * GetItemHeight);
   if FPaintItem.IsCategory then begin
     FPaintItem.Rects[iprNameArea] := TmpRect;
@@ -1373,35 +1366,24 @@ begin
     TmpRect.Left := ItemRect2.Left + Divider + 1;
     FPaintItem.Rects[iprValueArea] := TmpRect;
   end;
-  CalcButtonBasedRects(ButtonRect);
-  CalcNameBasedRects;
-  CalcValueBasedRects;
-end;
 
-procedure TJvInspector.CalcButtonBasedRects(const ButtonArea: TRect);
-var
-  BtnDstRect: TRect;
-  Size: Integer;
-begin
-  if (FPaintItem.Expanded or (FPaintItem.Count > 0)) and (ButtonArea.Width > 0) then begin
-    Size := MulDiv(9, CurrentPPI, 96);
+  { Expand/collapse button }
+  var BtnDstRect: TRect;
+  if (FPaintItem.Expanded or (FPaintItem.Count > 0)) and (ButtonRect.Width > 0) then begin
+    var Size := MulDiv(9, CurrentPPI, 96);
     if not Odd(Size) then
       Dec(Size);
     BtnDstRect := Rect(0, 0, Size, Size);
     OffsetRect(BtnDstRect, (GetItemHeight - Size) div 2,
-      (ButtonArea.Height - Size) div 2);
-    OffsetRect(BtnDstRect, ButtonArea.Left, ButtonArea.Top);
-    IntersectRect(BtnDstRect, BtnDstRect, ButtonArea);
+      (ButtonRect.Height - Size) div 2);
+    OffsetRect(BtnDstRect, ButtonRect.Left, ButtonRect.Top);
+    IntersectRect(BtnDstRect, BtnDstRect, ButtonRect);
   end else
     BtnDstRect := Rect(0, 0, 0, 0);
   FPaintItem.Rects[iprBtnDstRect] := BtnDstRect;
-end;
 
-procedure TJvInspector.CalcNameBasedRects;
-var
-  RowHeight: Integer;
-  TmpRect: TRect;
-begin
+  { The name }
+  var RowHeight: Integer;
   if FPaintItem.IsCategory then
     RowHeight := FCategoryTextHeight
   else
@@ -1417,12 +1399,8 @@ begin
   end;
   IntersectRect(TmpRect, TmpRect, FPaintItem.Rects[iprNameArea]);
   FPaintItem.Rects[iprName] := TmpRect;
-end;
 
-procedure TJvInspector.CalcValueBasedRects;
-var
-  TmpRect: TRect;
-begin
+  { The value }
   TmpRect := FPaintItem.Rects[iprValueArea];
   if TmpRect.Height div FRegularTextHeight < 2 then begin
     OffsetRect(TmpRect, 0, (TmpRect.Height - FRegularTextHeight) div 2);
@@ -1433,13 +1411,8 @@ begin
     IntersectRect(TmpRect, TmpRect, FPaintItem.Rects[iprValueArea]);
   end;
   FPaintItem.Rects[iprValue] := TmpRect;
-  CalcEditBasedRects;
-end;
 
-procedure TJvInspector.CalcEditBasedRects;
-var
-  TmpRect: TRect;
-begin
+  { The edit value and edit button }
   if not (FPaintItem.Editing and
      (FPaintItem.Flags * [iifValueList, iifEditButton] <> [])) then begin // Value takes up entire edit value rect, there is no edit button:
     FPaintItem.Rects[iprEditValue] := FPaintItem.Rects[iprValue];
