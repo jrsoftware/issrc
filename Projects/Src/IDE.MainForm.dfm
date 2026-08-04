@@ -194,6 +194,17 @@ object MainForm: TMainForm
           OnChange = InspectorFilterEditChange
           OnKeyDown = InspectorFilterEditKeyDown
         end
+        object InspectorPopupMenuBitBtn: TBitmapButton
+          Left = 96
+          Top = 1
+          Width = 21
+          Height = 21
+          Caption = 'Inspector Menu'
+          ParentShowHint = False
+          ShowHint = True
+          TabOrder = 2
+          OnClick = InspectorPopupMenuBitBtnClick
+        end
       end
       object InspectorNoteText: TNewStaticText
         AlignWithMargins = True
@@ -1506,6 +1517,11 @@ object MainForm: TMainForm
         CollectionIndex = 78
         CollectionName = 'unused\format-list-numbered'
         Name = 'unused\format-list-numbered'
+      end
+      item
+        CollectionIndex = 79
+        CollectionName = 'menu-hamburger'
+        Name = 'menu-hamburger'
       end>
     ImageCollection = ImagesModule.LightToolBarImageCollection
     Left = 80

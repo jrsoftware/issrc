@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..977] of TTranslationPair = (
+  DutchIDETranslations: array [0..978] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -311,6 +311,7 @@ const
     (English: 'Paste your license key below'; Localized: 'Plak hieronder uw licentiesleutel'),
     (English: 'Close'; Localized: 'Sluiten'),
     (English: 'Filter'; Localized: 'Filter'),
+    (English: 'Inspector Menu'; Localized: 'Inspector-menu'),
     (English: 'New Main Script (%1)'; Localized: 'Nieuw hoofdscript (%1)'),
     (English: 'Open Main Script (%1)'; Localized: 'Hoofdscript openen (%1)'),
     (English: 'Save (%1)'; Localized: 'Opslaan (%1)'),

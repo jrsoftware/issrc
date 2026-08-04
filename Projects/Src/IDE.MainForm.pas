@@ -341,6 +341,7 @@ type
     InspectorHeaderPanel: TPanel;
     InspectorCaptionText: TNewStaticText;
     InspectorFilterEdit: TEdit;
+    InspectorPopupMenuBitBtn: TBitmapButton;
     InspectorNoteText: TNewStaticText;
     InspectorPopupMenu: TMenuItem;
     PInspectorGoTo: TMenuItem;
@@ -495,6 +496,7 @@ type
     procedure InspectorFilterEditChange(Sender: TObject);
     procedure InspectorFilterEditKeyDown(Sender: TObject; var Key: Word;
       Shift: TShiftState);
+    procedure InspectorPopupMenuBitBtnClick(Sender: TObject);
     procedure InspectorPopupMenuClick(Sender: TObject);
     procedure PInspectorGoToClick(Sender: TObject);
     procedure PInspectorHelpClick(Sender: TObject);
@@ -1184,8 +1186,6 @@ begin
   UpdatePanel.ParentBackground := False;
   UpdatePanelDonateBitBtn.Hint := RemoveAccelChar(HDonate.Caption);
 
-  UpdateImages;
-
   FMemos := TList<TIDEScintEdit>.Create;
   FMainMemo := InitializeMainMemo(TIDEScintFileEdit.Create(Self), PopupMenu);
   FMemos.Add(FMainMemo);
@@ -1214,6 +1214,7 @@ begin
   UpdateInspectorHeaderPanelLayout;
   FSavedInspectorFilterEditWindowProc := InspectorFilterEdit.WindowProc;
   InspectorFilterEdit.WindowProc := InspectorFilterEditWindowProc;
+  InspectorPopupMenuBitBtn.Hint := InspectorPopupMenuBitBtn.Caption;
 
   FMemosStyler.Theme := FTheme;
 
@@ -1518,7 +1519,8 @@ begin
       VCloseCurrentTabClick(Self);
   end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
     { Move focus between the active memo, the active bottom pane, the
-      inspector filter, the inspector, and the active banner }
+      inspector filter, the inspector popup menu button, the inspector, and the
+      active banner }
     Key := 0;
 
     { First get the list of controls to toggle between }
@@ -1538,6 +1540,7 @@ begin
     if InspectorPanel.Visible then begin
       if InspectorFilterEdit.Visible then
         AddControlToArray(InspectorFilterEdit, Controls, NControls);
+      AddControlToArray(InspectorPopupMenuBitBtn, Controls, NControls);
       AddControlToArray(FInspector.JvInspector, Controls, NControls);
     end;
     if UpdatePanel.Visible then begin
@@ -3863,9 +3866,13 @@ begin
   InspectorCaptionText.Left := Padding;
   InspectorCaptionText.Top := (InspectorHeaderPanel.ClientHeight - InspectorCaptionText.Height) div 2;
 
+  { Update button position and size }
+  const WH = InspectorFilterEdit.Height;
+  InspectorPopupMenuBitBtn.SetBounds(InspectorHeaderPanel.ClientWidth - Padding - WH, Padding, WH, WH);
+
   { Update edit position and width }
   const X = InspectorCaptionText.Left + InspectorCaptionText.Width + 2*Padding;
-  const W = InspectorHeaderPanel.ClientWidth - Padding - X;
+  const W = InspectorPopupMenuBitBtn.Left - Padding - X;
   InspectorFilterEdit.Visible := W > 0;
   if InspectorFilterEdit.Visible then
     InspectorFilterEdit.SetBounds(X, Padding, W, InspectorFilterEdit.Height);
@@ -3903,6 +3910,13 @@ begin
     Key := 0;
     InspectorFilterEdit.Text := ''; { Also updates the filter }
   end;
+end;
+
+procedure TMainForm.InspectorPopupMenuBitBtnClick(Sender: TObject);
+begin
+  { Popup below the button always }
+  const Point = InspectorPopupMenuBitBtn.ClientToScreen(TPoint.Create(0, InspectorPopupMenuBitBtn.Height));
+  (FInspector.JvInspector.PopupMenu as TMainFormPopupMenu).Popup(Point.X, Point.Y);
 end;
 
 procedure TMainForm.InspectorPopupMenuClick(Sender: TObject);
@@ -4025,13 +4039,16 @@ begin
 end;
 
 procedure TMainForm.UpdateImages;
-{ Should be called at startup and after DPI changes }
+{ Should be called after DPI and theme changes }
 begin
   var WH := MulDiv(16, CurrentPPI, 96);
   var Images := ImagesModule.ToolbarImageCollection[FTheme.Dark];
 
   var Image := Images.GetSourceImage(Images.GetIndexByName('heart-filled'), WH, WH);
   UpdatePanelDonateBitBtn.Graphic := Image;
+
+  Image := Images.GetSourceImage(Images.GetIndexByName('menu-hamburger'), WH, WH);
+  InspectorPopupMenuBitBtn.Graphic := Image;
 end;
 
 procedure TMainForm.UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
@@ -6173,6 +6190,7 @@ begin
 
   UpdateThemeData(True);
   UpdateBevel1Visibility;
+  UpdateImages;
   UpdateMarginsAndAutoCompleteIcons;
 
   StatusSplitPanel.ParentBackground := False;

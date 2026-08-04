@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..977] of TTranslationPair = (
+  GermanIDETranslations: array [0..978] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -311,6 +311,7 @@ const
     (English: 'Paste your license key below'; Localized: 'Fügen Sie Ihren Lizenzschlüssel unten ein'),
     (English: 'Close'; Localized: 'Schließen'),
     (English: 'Filter'; Localized: 'Filter'),
+    (English: 'Inspector Menu'; Localized: 'Inspektormenü'),
     (English: 'New Main Script (%1)'; Localized: 'Neues Hauptskript (%1)'),
     (English: 'Open Main Script (%1)'; Localized: 'Hauptskript öffnen (%1)'),
     (English: 'Save (%1)'; Localized: 'Speichern (%1)'),
