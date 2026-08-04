@@ -295,7 +295,7 @@ type
     procedure DrawValue(const ACanvas: TCanvas); virtual;
     procedure InitEdit; dynamic;
     procedure DoneEdit(const CancelEdits: Boolean = False); dynamic;
-    procedure ScrollInView;
+    procedure ScrollInView(const ACenter: Boolean);
     property Count: NativeInt read GetCount;
     property DisplayName: string read FDisplayName write FDisplayName;
     property DisplayValue: string read GetDisplayValue write SetDisplayValue;
@@ -788,7 +788,7 @@ begin
   inherited;
   Item := Selected;
   if (Item <> nil) and Item.Editing then begin
-    Item.ScrollInView;
+    Item.ScrollInView(False);
     Item.EditKeyDown(Self, Key, Shift);
   end;
 end;
@@ -1010,7 +1010,7 @@ begin
         Selected.DoneEdit(False);
       FSelectedIndex := Value;
       if Selected <> nil then begin
-        Selected.ScrollInView;
+        Selected.ScrollInView(False);
         Selected.InitEdit;
       end;
       InvalidateRow(OldIndex);
@@ -2518,7 +2518,7 @@ begin
   FEditing := False;
 end;
 
-procedure TJvCustomInspectorItem.ScrollInView;
+procedure TJvCustomInspectorItem.ScrollInView(const ACenter: Boolean);
 var
   ViewIdx: Integer;
   YDelta: Integer;
@@ -2529,9 +2529,17 @@ begin
     Exit; // bugfix attempt. WAP.Self
 
   ViewIdx := Integer(Inspector.FVisibleList.IndexOf(Self));
-  if Inspector.TopIndex > ViewIdx then
+  if ViewIdx < 0 then
+    Exit;
+  const Above = Inspector.TopIndex > ViewIdx;
+  const Below = not Above and
+    (Inspector.IdxToY(ViewIdx - Inspector.TopIndex) + Inspector.GetItemHeight > Inspector.ClientHeight);
+  if ACenter then begin
+    if Above or Below then
+      Inspector.TopIndex := ViewIdx - (Inspector.ClientHeight div Inspector.GetItemHeight) div 2;
+  end else if Above then
     Inspector.TopIndex := ViewIdx
-  else if (Inspector.IdxToY(ViewIdx - Inspector.TopIndex) + Inspector.GetItemHeight) > Inspector.ClientHeight then begin
+  else if Below then begin
     YDelta := Inspector.IdxToY(ViewIdx - Inspector.TopIndex) + Inspector.GetItemHeight - Inspector.ClientHeight;
     ViewIdx := Inspector.TopIndex + (YDelta + Inspector.GetItemHeight - 1) div Inspector.GetItemHeight;
     if ViewIdx < Inspector.GetVisibleCount then
