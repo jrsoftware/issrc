@@ -567,6 +567,9 @@ begin
   Assert(Metadata.TryGetMember('MinVersion', Definition));
   Assert(Definition.ValueKind = mvkVersion);
   Assert(Definition.DefaultValue = '6.1sp1');
+  { The color directives, whose kind like mvkVersion only prevents quoting }
+  Assert(Metadata.TryGetMember('WizardBackColor', Definition));
+  Assert(Definition.ValueKind = mvkColor);
   Assert(Metadata.TryGetMember('DefaultGroupName', Definition));
   Assert(Definition.ValueKind = mvkString);
   Assert(Definition.DefaultValue = '(Default)');
@@ -603,19 +606,21 @@ begin
     Assert(not Section.TryGetDefinition('NoSuchKey', Definition));
 
     { With the quoting option on, only text and compiler-path keys are quoted:
-      a yes/no or integer value is written bare }
+      a yes/no, integer, or color value is written bare }
     Section.QuoteNewValues := True;
     Section.Add('SolidCompression', 'yes');
     Section.Add('AppName', 'My App');
     Section.Add('ReserveBytes', '4096');
     Section.Add('LicenseFile', 'license.txt');
     Section.Add('WizardImageFile', 'image1.bmp,image2.bmp');
+    Section.Add('WizardBackColor', '$FF0000');
     const Lines = Section.GetLines;
     Assert(Lines[0] = 'SolidCompression=yes');
     Assert(Lines[1] = 'AppName="My App"');
     Assert(Lines[2] = 'ReserveBytes=4096');
     Assert(Lines[3] = 'LicenseFile="license.txt"');
     Assert(Lines[4] = 'WizardImageFile="image1.bmp,image2.bmp"');
+    Assert(Lines[5] = 'WizardBackColor=$FF0000');
   finally
     Section.Free;
   end;
