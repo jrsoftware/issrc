@@ -20,7 +20,8 @@ uses
 
 type
   TInspectorRowKind = (irkParameter, irkParameterFlag, irkKey,
-    irkKeyFlag {$IFDEF DEBUG}, irkDebugStatus, irkDebugSections, irkDebugEarlyExits{$ENDIF});
+    irkKeyFlag {$IFDEF DEBUG}, irkDebugStatus, irkDebugSections, irkDebugEarlyExits,
+    irkDebugCaretAt {$ENDIF});
 
   TInspectorRow = record
     Kind: TInspectorRowKind;
@@ -31,6 +32,12 @@ type
     FlagName: String;        { irkParameterFlag and irkKeyFlag }
     LastValueSignature: String;
     CheckBox: Boolean;
+  end;
+
+  TCaretAt = record
+    Valid: Boolean;
+    Name: String;   { Protects against a stale Index }
+    Index: Integer; { Protects against duplicated Name }
   end;
 
   TInspectorGetBaseDirEvent = function: String of object;
@@ -51,6 +58,7 @@ type
     FChangeCountAtCreation: Int64; { Factory ChangeCount at the live object's creation }
     FRows: TList<TInspectorRow>;
     FRowSetSignature: String;
+    FCaretAt: TCaretAt;
     {$IFDEF DEBUG}
     FDebugStatusRowString: String;
     FUpdateFromCaretEarlyExitCount: Integer;
@@ -745,6 +753,7 @@ begin
   FShowAllKnownDirectives := AShowAllKnownDirectives;
   FShowAllKnownDirectivesSuppressedNote := AShowAllKnownDirectivesSuppressedNote;
   FRowSetSignature := ''; { Force rebuild even if row set stayed same }
+  FCaretAt.Valid := False;
   UpdateFromCaret;
 end;
 
@@ -1171,6 +1180,7 @@ procedure TInspector.UpdateFromCaret;
         AddDebugRow(DebugCategory, 'Status', irkDebugStatus);
         AddDebugRow(DebugCategory, 'Sections', irkDebugSections);
         AddDebugRow(DebugCategory, 'Early exits', irkDebugEarlyExits);
+        AddDebugRow(DebugCategory, 'Caret at', irkDebugCaretAt);
         {$ENDIF}
 
         if FLiveParameterSectionEntry <> nil then
@@ -1192,6 +1202,40 @@ procedure TInspector.UpdateFromCaret;
       FJvInspector.Selected := FindItemByKey(SelectedKey, FJvInspector.Root);
   end;
 
+  function GetCaretAt: TCaretAt;
+  begin
+    Result.Valid := False;
+    if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
+      const Section = FLiveKeyValueSection.Section;
+      const CaretLine = FFactory.Memo.CaretLine;
+      var Line := FLiveKeyValueSection.FirstLine;
+      if CaretLine >= Line then begin
+        for var I := 0 to Section.Count-1 do begin
+          Inc(Line, Section.GetLineCount(I));
+          if CaretLine < Line then begin
+            { This is where the caret is at }
+            if Section.Lines[I].Kind = lkKeyValue then begin
+              Result.Valid := True;
+              Result.Name := Section.Lines[I].Name;
+              Result.Index := I;
+            end;
+            Exit;
+          end;
+        end;
+      end;
+    end;
+  end;
+
+  procedure UpdateCaretAt;
+  begin
+    const CaretAt = GetCaretAt;
+    if (CaretAt.Valid <> FCaretAt.Valid) or (CaretAt.Name <> FCaretAt.Name) or
+       (CaretAt.Index <> FCaretAt.Index) then begin
+      { The caret moved to a different member }
+      FCaretAt := CaretAt;
+    end;
+  end;
+
 begin
   if FInEdit then
     Exit;
@@ -1208,6 +1252,7 @@ begin
      (FRowSetSignature <> '') and not LiveObjectTextChanged and
      (CaretLine >= FLiveParameterSectionEntry.FirstLine) and
      (CaretLine <= FLiveParameterSectionEntry.LastLine) then begin
+    UpdateCaretAt;
     {$IFDEF DEBUG}
     Inc(FUpdateFromCaretEarlyExitCount);
     InvalidateChangedRows; { Repaint the early exit count }
@@ -1221,6 +1266,7 @@ begin
     var SectionIndex: Integer;
     if FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
        (SectionIndex = FLiveKeyValueSectionIndex) then begin
+      UpdateCaretAt;
       {$IFDEF DEBUG}
       Inc(FUpdateFromCaretEarlyExitCount);
       InvalidateChangedRows; { See above }
@@ -1307,6 +1353,8 @@ begin
       RowSetSignature := 'N|' + IntToStr(Ord(EntryRefusalReason));
     end;
   end;
+
+  UpdateCaretAt;
 
   { Re-sync any open in-place editor. Done before any rebuild: RebuildRows'
     Clear deselects, and a deselect applies a stale editor's text back over
@@ -1430,6 +1478,11 @@ begin
       end;
     irkDebugEarlyExits:
       Result := IntToStr(FUpdateFromCaretEarlyExitCount);
+    irkDebugCaretAt:
+      if FCaretAt.Valid then
+        Result := FCaretAt.Name + '@' + IntToStr(FCaretAt.Index)
+      else
+        Result := 'None';
     {$ENDIF}
   end;
 end;
