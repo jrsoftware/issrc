@@ -64,6 +64,7 @@ type
       FChangeCountAtCreation: Int64; { Factory ChangeCount at the live object's creation }
       FRows: TList<TInspectorRow>;
       FRowSetSignature: String;
+      FFollowCaret: Boolean;
       FCaretAt: TCaretAt;
       {$IFDEF DEBUG}
       FDebugStatusRowString: String;
@@ -110,6 +111,7 @@ type
     function GetDividerWidth: Integer;
     procedure SetDividerWidth(const Value: Integer);
     procedure SetFilterText(const Value: String);
+    procedure SetFollowCaret(const Value: Boolean);
     procedure SetQuoteNewDirectiveValues(const Value: Boolean);
     procedure SetQuoteNewParameterValues(const Value: Boolean);
     procedure SetShowAllKnownDirectives(const Value: Boolean);
@@ -139,6 +141,7 @@ type
     procedure UpdateReadOnly;
     procedure UpdateTheme(const ATheme: TTheme; const AHighContrastActive: Boolean);
     property FilterText: String read FFilterText write SetFilterText;
+    property FollowCaret: Boolean read FFollowCaret write SetFollowCaret;
     property ShowAllKnownDirectives: Boolean read FShowAllKnownDirectives
       write SetShowAllKnownDirectives;
     property ShowAllKnownDirectivesSuppressedNote: Boolean
@@ -1263,6 +1266,8 @@ procedure TInspector.UpdateFromCaret;
 
   procedure UpdateCaretAt;
   begin
+    if not FFollowCaret then
+      Exit;
     const CaretAt = GetCaretAt;
     if (CaretAt.Valid <> FCaretAt.Valid) or (CaretAt.Name <> FCaretAt.Name) or
        (CaretAt.Index <> FCaretAt.Index) then begin
@@ -1470,7 +1475,7 @@ procedure TInspector.ApplyCaretAt;
   end;
 
 begin
-  if not FCaretAt.Valid or FJvInspector.Focused or FInEdit then
+  if not FFollowCaret or not FCaretAt.Valid or FJvInspector.Focused or FInEdit then
     Exit;
 
   const Item = FindCaretAtItem(FJvInspector.Root);
@@ -1829,6 +1834,18 @@ begin
     FFilterText := Value;
     FRowSetSignature := ''; { Force a rebuild, see UpdateFromCaret's early exit }
     UpdateFromCaret;
+  end;
+end;
+
+procedure TInspector.SetFollowCaret(const Value: Boolean);
+begin
+  if Value <> FFollowCaret then begin
+    FFollowCaret := Value;
+    FCaretAt.Valid := False;
+    if Value then
+      UpdateFromCaret
+    else
+      ApplyCaretAtTimerUpdate(True); { Cancel any queued }
   end;
 end;
 
