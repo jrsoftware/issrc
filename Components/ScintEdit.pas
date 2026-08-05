@@ -314,6 +314,7 @@ type
       const CharPosition, CloseOnly: Boolean): Integer;
     function GetPositionOfMatchingBrace(const Pos: Integer): Integer;
     function GetPositionRelative(const Pos, CharacterCount: Integer): Integer;
+    function GetPositionRelativeCodeUnits(const Pos, CodeUnitCount: Integer): Integer;
     function GetRawTextLength: Integer;
     function GetRawTextRange(const StartPos, EndPos: Integer): TScintRawString;
     procedure GetSelections(const RangeList: TScintRangeList); overload;
@@ -1297,6 +1298,13 @@ function TScintEdit.GetPositionRelative(const Pos,
   CharacterCount: Integer): Integer;
 begin
   Result := Call(SCI_POSITIONRELATIVE, Pos, CharacterCount);
+end;
+
+function TScintEdit.GetPositionRelativeCodeUnits(const Pos,
+  CodeUnitCount: Integer): Integer;
+{ See GetCodeUnitCount }
+begin
+  Result := Call(SCI_POSITIONRELATIVECODEUNITS, Pos, CodeUnitCount);
 end;
 
 function TScintEdit.GetRawCaretLineText: TScintRawString;
