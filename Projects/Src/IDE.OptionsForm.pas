@@ -69,6 +69,7 @@ type
     LanguageComboBox: TComboBox;
     GroupBox2: TNewGroupBox;
     InspectorShowAllKnownDirectivesCheck: TCheckBox;
+    InspectorFollowCaretCheck: TCheckBox;
     InspectorQuoteNewDirectiveValuesCheck: TCheckBox;
     InspectorQuoteNewParameterValuesCheck: TCheckBox;
     procedure AssocButtonClick(Sender: TObject);

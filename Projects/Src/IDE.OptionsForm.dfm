@@ -4,7 +4,7 @@ object OptionsForm: TOptionsForm
   BorderIcons = [biSystemMenu]
   BorderStyle = bsDialog
   Caption = 'Options'
-  ClientHeight = 508
+  ClientHeight = 528
   ClientWidth = 669
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -17,7 +17,7 @@ object OptionsForm: TOptionsForm
   OnShow = FormShow
   DesignSize = (
     669
-    508)
+    528)
   TextHeight = 13
   object GroupBox1: TNewGroupBox
     Left = 8
@@ -193,7 +193,7 @@ object OptionsForm: TOptionsForm
     Left = 8
     Top = 376
     Width = 321
-    Height = 88
+    Height = 108
     Caption = ' Inspector '
     TabOrder = 1
     object InspectorShowAllKnownDirectivesCheck: TCheckBox
@@ -205,30 +205,39 @@ object OptionsForm: TOptionsForm
       Caption = 'Show all known directives'
       TabOrder = 0
     end
-    object InspectorQuoteNewDirectiveValuesCheck: TCheckBox
+    object InspectorFollowCaretCheck: TCheckBox
       Left = 8
       Top = 40
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'Quote new directive values'
+      Caption = 'Follow cursor'
       TabOrder = 1
     end
-    object InspectorQuoteNewParameterValuesCheck: TCheckBox
+    object InspectorQuoteNewDirectiveValuesCheck: TCheckBox
       Left = 8
       Top = 60
       Width = 305
       Height = 17
       Anchors = [akLeft, akTop, akRight]
-      Caption = 'Quote new parameter values'
+      Caption = 'Quote new directive values'
       TabOrder = 2
+    end
+    object InspectorQuoteNewParameterValuesCheck: TCheckBox
+      Left = 8
+      Top = 80
+      Width = 305
+      Height = 17
+      Anchors = [akLeft, akTop, akRight]
+      Caption = 'Quote new parameter values'
+      TabOrder = 3
     end
   end
   object GroupBox3: TNewGroupBox
     Left = 340
     Top = 8
     Width = 321
-    Height = 405
+    Height = 425
     Anchors = [akLeft, akTop, akBottom]
     Caption = ' Editor '
     TabOrder = 2
@@ -306,7 +315,7 @@ object OptionsForm: TOptionsForm
     end
     object Label1: TNewStaticText
       Left = 8
-      Top = 339
+      Top = 359
       Width = 25
       Height = 14
       Anchors = [akLeft, akBottom]
@@ -315,7 +324,7 @@ object OptionsForm: TOptionsForm
     end
     object FontPanel: TPanel
       Left = 104
-      Top = 330
+      Top = 350
       Width = 129
       Height = 32
       Anchors = [akLeft, akRight, akBottom]
@@ -326,7 +335,7 @@ object OptionsForm: TOptionsForm
     end
     object ChangeFontButton: TButton
       Left = 240
-      Top = 335
+      Top = 355
       Width = 73
       Height = 23
       Anchors = [akRight, akBottom]
@@ -336,7 +345,7 @@ object OptionsForm: TOptionsForm
     end
     object Label2: TNewStaticText
       Left = 8
-      Top = 373
+      Top = 393
       Width = 54
       Height = 14
       Anchors = [akLeft, akBottom]
@@ -346,7 +355,7 @@ object OptionsForm: TOptionsForm
     end
     object TabWidthEdit: TEdit
       Left = 104
-      Top = 370
+      Top = 390
       Width = 50
       Height = 21
       Anchors = [akLeft, akRight, akBottom]
@@ -364,7 +373,7 @@ object OptionsForm: TOptionsForm
     end
     object Label4: TNewStaticText
       Left = 8
-      Top = 305
+      Top = 325
       Width = 37
       Height = 14
       Anchors = [akLeft, akBottom]
@@ -374,7 +383,7 @@ object OptionsForm: TOptionsForm
     end
     object ThemeComboBox: TComboBox
       Left = 104
-      Top = 301
+      Top = 321
       Width = 209
       Height = 21
       Style = csDropDownList
@@ -401,7 +410,7 @@ object OptionsForm: TOptionsForm
     end
     object Label5: TNewStaticText
       Left = 8
-      Top = 276
+      Top = 296
       Width = 27
       Height = 14
       Anchors = [akLeft, akBottom]
@@ -411,7 +420,7 @@ object OptionsForm: TOptionsForm
     end
     object MemoKeyMappingComboBox: TComboBox
       Left = 104
-      Top = 272
+      Top = 292
       Width = 209
       Height = 21
       Style = csDropDownList
@@ -420,7 +429,7 @@ object OptionsForm: TOptionsForm
     end
     object ShowWhiteSpaceCheck: TCheckBox
       Left = 160
-      Top = 372
+      Top = 392
       Width = 153
       Height = 17
       Anchors = [akRight, akBottom]
@@ -439,7 +448,7 @@ object OptionsForm: TOptionsForm
   end
   object OKButton: TButton
     Left = 500
-    Top = 476
+    Top = 496
     Width = 73
     Height = 23
     Anchors = [akRight, akBottom]
@@ -450,7 +459,7 @@ object OptionsForm: TOptionsForm
   end
   object CancelButton: TButton
     Left = 580
-    Top = 476
+    Top = 496
     Width = 73
     Height = 23
     Anchors = [akRight, akBottom]
@@ -461,7 +470,7 @@ object OptionsForm: TOptionsForm
   end
   object AssocButton: TButton
     Left = 16
-    Top = 476
+    Top = 496
     Width = 201
     Height = 23
     Anchors = [akLeft, akBottom]

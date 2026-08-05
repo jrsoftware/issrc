@@ -121,7 +121,7 @@ type
     constructor Create(const AJvInspector: TJvInspector;
       const ANoteText: TNewStaticText;
       const AFactory: TLiveScriptObjectFactory;
-      const AShowAllKnownDirectives: Boolean;
+      const AShowAllKnownDirectives, AFollowCaret: Boolean;
       const AOnGetBaseDir: TInspectorGetBaseDirEvent);
     destructor Destroy; override;
     procedure ForceFinishEdit(const AForceCancel: Boolean = False);
@@ -200,7 +200,7 @@ end;
 constructor TInspector.Create(const AJvInspector: TJvInspector;
   const ANoteText: TNewStaticText;
   const AFactory: TLiveScriptObjectFactory;
-  const AShowAllKnownDirectives: Boolean;
+  const AShowAllKnownDirectives, AFollowCaret: Boolean;
   const AOnGetBaseDir: TInspectorGetBaseDirEvent);
 { Takes ownership of AJvInspector but not of ANoteText }
 begin
@@ -210,6 +210,7 @@ begin
   FFactory := AFactory;
   FOnGetBaseDir := AOnGetBaseDir;
   FShowAllKnownDirectives := AShowAllKnownDirectives;
+  FFollowCaret := AFollowCaret;
   {$IFDEF DEBUG}
   FDebugStatusRowString := 'Not updated yet';
   {$ENDIF}

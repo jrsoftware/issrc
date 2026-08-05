@@ -534,7 +534,7 @@ begin
   PInspectorShowAllKnownDirectives.Visible := FInspector.ShowingDirectiveSection;
   PInspectorShowAllKnownDirectives.Checked := FOptions.InspectorShowAllKnownDirectives;
   PInspectorShowAllKnownDirectives.Enabled := FActiveMemo = FMainMemo;
-  PInspectorShowAllKnownDirectivesSeparator.Visible := PInspectorShowAllKnownDirectives.Visible; { AutoLineReduction is maManual }
+  PInspectorFollowCaret.Checked := FOptions.InspectorFollowCaret;
 
   _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;

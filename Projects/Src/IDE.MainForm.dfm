@@ -840,7 +840,11 @@ object MainForm: TMainForm
           Caption = 'Show all known directives'
           OnClick = PInspectorShowAllKnownDirectivesClick
         end
-        object PInspectorShowAllKnownDirectivesSeparator: TMenuItem
+        object PInspectorFollowCaret: TMenuItem
+          Caption = 'Follow cursor'
+          OnClick = PInspectorFollowCaretClick
+        end
+        object N27: TMenuItem
           Caption = '-'
         end
         object PInspectorHelp: TMenuItem
