@@ -114,8 +114,13 @@
         <DCCReference Include="..\Components\SafeDLLPath.pas"/>
         <DCCReference Include="Src\Compression.Base.pas"/>
         <DCCReference Include="Src\ISPP.Consts.pas"/>
+        <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
         <DCCReference Include="Src\Shared.FileClass.pas"/>
+        <DCCReference Include="Src\Shared.LangOptionsSectionDirectives.pas"/>
+        <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>
         <DCCReference Include="Src\Shared.SetupTypes.pas"/>
+        <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
+        <DCCReference Include="Src\Shared.SetupSteps.pas"/>
         <DCCReference Include="Src\Shared.Struct.pas"/>
         <DCCReference Include="..\Components\ECDSA.pas"/>
         <DCCReference Include="..\Components\BidiUtils.pas"/>
@@ -150,11 +155,6 @@
         <DCCReference Include="Src\Shared.CommonFunc.Test.pas"/>
         <DCCReference Include="Src\Shared.EncryptionFunc.pas"/>
         <DCCReference Include="Src\Shared.EncryptionFunc.Test.pas"/>
-        <DCCReference Include="Src\Shared.LangOptionsSectionDirectives.pas"/>
-        <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>
-        <DCCReference Include="Src\Shared.DotNetVersion.pas"/>
-        <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
-        <DCCReference Include="Src\Shared.SetupSteps.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.pas"/>
         <DCCReference Include="Src\Shared.VerInfoFunc.Test.pas"/>
         <DCCReference Include="..\Components\SimpleExpression.pas"/>
