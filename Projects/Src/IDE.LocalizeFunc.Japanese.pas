@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..978] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..979] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -379,6 +379,7 @@ const
     (English: '&Word Wrap'; Localized: '折り返し(&W)'),
     (English: '&Go to'; Localized: '移動(&G)'),
     (English: 'Show all known directives'; Localized: '既知のディレクティブをすべて表示'),
+    (English: 'Follow cursor'; Localized: 'カーソルに追従'),
     (English: '&Help'; Localized: 'ヘルプ(&H)'),
     (English: '&Build'; Localized: 'ビルド(&B)'),
     (English: '&Compile'; Localized: 'コンパイル(&C)'),
