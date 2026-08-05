@@ -104,6 +104,7 @@ type
     procedure JvInspectorEditButtonClick(Item: TJvCustomInspectorItem;
       var Value: String);
     procedure MessagesWndProc(var Message: TMessage);
+    function RowMatchesCaretAt(const ARow: TInspectorRow): Boolean;
     procedure ApplyCaretAtTimerUpdate(const ACancel: Boolean);
     procedure ApplyCaretAt;
     function GetDividerWidth: Integer;
@@ -1223,8 +1224,17 @@ procedure TInspector.UpdateFromCaret;
       FJvInspector.EndUpdate;
     end;
 
-    if SelectedKey <> '' then
+    if SelectedKey <> '' then begin
+      { Restore selection }
       FJvInspector.Selected := FindItemByKey(SelectedKey, FJvInspector.Root);
+      { Also restore marker if it's at selection }
+      const SelectedItem = FJvInspector.Selected;
+      var Row: TInspectorRow;
+      if (SelectedItem <> nil) and TryGetRow(SelectedItem, Row) and RowMatchesCaretAt(Row) then
+        FJvInspector.MarkedItem := SelectedItem
+      else if FCaretAt.Valid and (SelectedItem = nil) then { See UpdateCaretAt for same check and solution }
+        ApplyCaretAtTimerUpdate(False);
+    end;
   end;
 
   function GetCaretAt: TCaretAt;
@@ -1409,6 +1419,12 @@ begin
   UpdateNote;
 end;
 
+function TInspector.RowMatchesCaretAt(const ARow: TInspectorRow): Boolean;
+begin
+  Result := FCaretAt.Valid and (ARow.Kind = irkKey) and
+    (ARow.Index = FCaretAt.Index) and (ARow.Name = FCaretAt.Name);
+end;
+
 procedure TInspector.ApplyCaretAtTimerUpdate(const ACancel: Boolean);
 { Always clears the marker first }
 const
@@ -1422,7 +1438,62 @@ begin
 end;
 
 procedure TInspector.ApplyCaretAt;
+
+  function FindCaretAtItem(const AParent: TJvCustomInspectorItem): TJvCustomInspectorItem;
+  begin
+    Result := nil;
+    for var I := 0 to AParent.Count-1 do begin
+      const Item = AParent.Items[I];
+      var Row: TInspectorRow;
+      if TryGetRow(Item, Row) then begin
+        if RowMatchesCaretAt(Row) then
+          Exit(Item);
+      end else begin
+        { A category: find inside }
+        Result := FindCaretAtItem(Item);
+        if Result <> nil then
+          Exit;
+      end;
+    end;
+  end;
+
+  function SelectedIsItemOrDescendant(const AItem: TJvCustomInspectorItem): Boolean;
+  begin
+    Result := False;
+    { Move up from the selection towards the root, looking for AItem }
+    var SelectedOrAncestor := FJvInspector.Selected;
+    while SelectedOrAncestor <> nil do begin
+      if SelectedOrAncestor = AItem then
+        Exit(True);
+      SelectedOrAncestor := SelectedOrAncestor.Parent;
+    end;
+  end;
+
 begin
+  if not FCaretAt.Valid or FJvInspector.Focused or FInEdit then
+    Exit;
+
+  const Item = FindCaretAtItem(FJvInspector.Root);
+
+  if Item <> nil then begin
+    if SelectedIsItemOrDescendant(Item) then begin
+      { The selection already belongs to the caret's member, so leave it in
+        place and only add the marker if the member's own row is selected }
+      if FJvInspector.Selected = Item then
+        FJvInspector.MarkedItem := Item;
+    end else begin
+      { Ensure visibility first }
+      var Parent := Item.Parent;
+      while (Parent <> nil) and (Parent <> FJvInspector.Root) do begin
+        Parent.Expanded := True;
+        Parent := Parent.Parent;
+      end;
+      { Scroll, select and mark }
+      Item.ScrollInView(True);
+      FJvInspector.Selected := Item;
+      FJvInspector.MarkedItem := Item;
+    end;
+  end;
 end;
 
 procedure TInspector.UpdateReadOnly;
