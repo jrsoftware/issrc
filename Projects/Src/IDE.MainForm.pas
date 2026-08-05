@@ -1528,14 +1528,20 @@ begin
     if VCloseCurrentTab.Enabled then
       VCloseCurrentTabClick(Self);
   end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
-    { Move focus between the active memo, the active bottom pane, the
-      inspector filter, the inspector popup menu button, the inspector, and the
-      active banner }
+    { Move focus between the active memo, the inspector, the inspector filter,
+      the inspector popup menu button, the active bottom pane, and the active
+      banner }
     Key := 0;
 
     { First get the list of controls to toggle between }
     var Controls: TArray<TWinControl> := [FActiveMemo];
     var NControls: NativeInt := Length(Controls); { Explicit type for Delphi 10.4 }
+    if InspectorPanel.Visible then begin
+      AddControlToArray(FInspector.JvInspector, Controls, NControls);
+      if InspectorFilterEdit.Visible then
+        AddControlToArray(InspectorFilterEdit, Controls, NControls);
+      AddControlToArray(InspectorPopupMenuBitBtn, Controls, NControls);
+    end;
     if StatusPanel.Visible then begin
       var ControlToAdd: TWinControl := nil;
       case OutputTabSet.TabIndex of
@@ -1546,12 +1552,6 @@ begin
       end;
       if ControlToAdd <> nil then
         AddControlToArray(ControlToAdd, Controls, NControls);
-    end;
-    if InspectorPanel.Visible then begin
-      if InspectorFilterEdit.Visible then
-        AddControlToArray(InspectorFilterEdit, Controls, NControls);
-      AddControlToArray(InspectorPopupMenuBitBtn, Controls, NControls);
-      AddControlToArray(FInspector.JvInspector, Controls, NControls);
     end;
     if UpdatePanel.Visible then begin
       if FUpdatePanelMessages[UpdateLinkLabel.Tag].HasLink then
@@ -6714,9 +6714,13 @@ end;
 
 procedure TMainForm.EGotoLineClick(Sender: TObject);
 begin
-  if FInspector.JvInspector.Focused then
-    FInspector.GoToSelectedRow { This may fail, but don't fall back to regular Goto }
-  else begin
+  if FInspector.JvInspector.Focused then begin
+    FInspector.GoToSelectedRow;
+    { If the goto failed then nothing happened. Do simple switch to allow
+      back and forth switching with F6 and Ctrl+G. }
+    if not FActiveMemo.Focused then
+      FActiveMemo.SetFocus;
+  end else begin
     var S := IntToStr(FActiveMemo.CaretLine + 1);
     if InputQueryEdit(LFmtMessage(SGotoLineTitle), LFmtMessage(SGotoLinePrompt), S) then begin
       const L = StrToIntDef(S, Low(Integer));
