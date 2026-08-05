@@ -1270,8 +1270,10 @@ procedure TInspector.UpdateFromCaret;
     if not FFollowCaret then
       Exit;
     const CaretAt = GetCaretAt;
-    if (CaretAt.Valid <> FCaretAt.Valid) or (CaretAt.Name <> FCaretAt.Name) or
-       (CaretAt.Index <> FCaretAt.Index) then begin
+    if (CaretAt.Valid <> FCaretAt.Valid) or
+       (CaretAt.Valid and
+        ((CaretAt.Name <> FCaretAt.Name) or
+         (CaretAt.Index <> FCaretAt.Index))) then begin
       { The caret moved to a different member (or no member). Update CaretAt and
         queue its application, or cancel any queued. }
       FCaretAt := CaretAt;
