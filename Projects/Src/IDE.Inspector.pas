@@ -16,7 +16,7 @@ interface
 uses
   Windows, Messages, Classes, Graphics, Controls, StdCtrls, Generics.Collections,
   JvInspector, ModernColors, NewStaticText,
-  IDE.LiveScriptObjectFactory, IDE.ScriptModel, IDE.ScriptModel.Metadata;
+  IDE.LiveScriptObjectFactory, IDE.ScriptModel, IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra;
 
 type
   TInspectorRowKind = (irkParameter, irkParameterFlag, irkKey,
@@ -44,31 +44,38 @@ type
 
   TInspector = class
   private
-    FJvInspector: TJvInspector;
-    FMessagesWnd: HWND;
-    FNoteText: TNewStaticText;
-    FFactory: TLiveScriptObjectFactory;
-    FOnGetBaseDir: TInspectorGetBaseDirEvent;
-    FLiveParameterSectionEntry: TLiveScriptParameterSectionEntry;
-    FLiveKeyValueSection: TLiveScriptKeyValueSection;
-    FLiveKeyValueSectionName: String;
-    FLiveKeyValueSectionIsDirectiveSection: Boolean;
-    FLiveKeyValueSectionHasSiblingOccurrences: Boolean;
-    FLiveKeyValueSectionIndex: Integer; { Factory section index it was created for }
-    FChangeCountAtCreation: Int64; { Factory ChangeCount at the live object's creation }
-    FRows: TList<TInspectorRow>;
-    FRowSetSignature: String;
-    FCaretAt: TCaretAt;
-    {$IFDEF DEBUG}
-    FDebugStatusRowString: String;
-    FUpdateFromCaretEarlyExitCount: Integer;
-    {$ENDIF}
-    FInEdit: Boolean;
-    FFilterText: String;
-    FShowAllKnownDirectives: Boolean;
-    FShowAllKnownDirectivesSuppressedNote: Boolean;
-    FQuoteNewParameterValues: Boolean;
-    FQuoteNewDirectiveValues: Boolean;
+    class var
+      FScriptBrowseFileTypeFilters: array [TScriptBrowseFileType] of record
+        FilesName: String;
+        Extensions: TArray<String>; { First is default }
+      end;
+    var
+      FJvInspector: TJvInspector;
+      FMessagesWnd: HWND;
+      FNoteText: TNewStaticText;
+      FFactory: TLiveScriptObjectFactory;
+      FOnGetBaseDir: TInspectorGetBaseDirEvent;
+      FLiveParameterSectionEntry: TLiveScriptParameterSectionEntry;
+      FLiveKeyValueSection: TLiveScriptKeyValueSection;
+      FLiveKeyValueSectionName: String;
+      FLiveKeyValueSectionIsDirectiveSection: Boolean;
+      FLiveKeyValueSectionHasSiblingOccurrences: Boolean;
+      FLiveKeyValueSectionIndex: Integer; { Factory section index it was created for }
+      FChangeCountAtCreation: Int64; { Factory ChangeCount at the live object's creation }
+      FRows: TList<TInspectorRow>;
+      FRowSetSignature: String;
+      FCaretAt: TCaretAt;
+      {$IFDEF DEBUG}
+      FDebugStatusRowString: String;
+      FUpdateFromCaretEarlyExitCount: Integer;
+      {$ENDIF}
+      FInEdit: Boolean;
+      FFilterText: String;
+      FShowAllKnownDirectives: Boolean;
+      FShowAllKnownDirectivesSuppressedNote: Boolean;
+      FQuoteNewParameterValues: Boolean;
+      FQuoteNewDirectiveValues: Boolean;
+    class constructor Create;
     procedure InvalidateChangedRows;
     function TryGetRow(const AItem: TJvCustomInspectorItem;
       out ARow: TInspectorRow): Boolean;
@@ -149,7 +156,7 @@ uses
   SysUtils, StrUtils, UITypes, Themes, Forms, Generics.Defaults,
   BrowseFunc, NewUxTheme, PathFunc,
   Shared.CommonFunc, Shared.CommonFunc.Vcl,
-  IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc, IDE.ScriptModel.Metadata.Extra;
+  IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc;
 
 type
   EInspectorValueRejected = class(EScriptModelError);
@@ -157,32 +164,31 @@ type
 const
   WM_RemoveSelectedRow = WM_USER + 1;
 
-var
-  ScriptBrowseFileTypeFilters: array [TScriptBrowseFileType] of record
-    FilesName: String;
-    Extensions: TArray<String>; { First is default }
-  end;
+{ TInspector }
 
-procedure InitializeScriptBrowseFileTypeFilters;
+class constructor TInspector.Create;
 
   procedure BF(const AFileType: TScriptBrowseFileType; const AFilesName: String;
     const AExtensions: TArray<String>);
   begin
-    ScriptBrowseFileTypeFilters[AFileType].FilesName := AFilesName;
-    ScriptBrowseFileTypeFilters[AFileType].Extensions := AExtensions;
+    FScriptBrowseFileTypeFilters[AFileType].FilesName := AFilesName;
+    FScriptBrowseFileTypeFilters[AFileType].Extensions := AExtensions;
+  end;
+
+  procedure InitializeScriptBrowseFileTypeFilters;
+  begin
+    BF(bftDocs, SDocFiles, [SLitRtfExt, SLitTxtExt]);
+    BF(bftIco, SIcoFiles, [SLitIcoExt]);
+    BF(bftImages, SImageFiles, [SLitPngExt, SLitBmpExt]);
+    BF(bftVclStyle, SVclStylesFiles, [SLitVsfExt]);
+    BF(bftIsl, SIslFiles, [SLitIslExt]);
+    BF(bftKey, SIsPublicKeyFiles, [SLitIsPublicKeyExt]);
+    BF(bftTxt, STxtFiles, [SLitTxtExt]);
   end;
 
 begin
-  BF(bftDocs, SDocFiles, [SLitRtfExt, SLitTxtExt]);
-  BF(bftIco, SIcoFiles, [SLitIcoExt]);
-  BF(bftImages, SImageFiles, [SLitPngExt, SLitBmpExt]);
-  BF(bftVclStyle, SVclStylesFiles, [SLitVsfExt]);
-  BF(bftIsl, SIslFiles, [SLitIslExt]);
-  BF(bftKey, SIsPublicKeyFiles, [SLitIsPublicKeyExt]);
-  BF(bftTxt, STxtFiles, [SLitTxtExt]);
+  InitializeScriptBrowseFileTypeFilters;
 end;
-
-{ TInspector }
 
 constructor TInspector.Create(const AJvInspector: TJvInspector;
   const ANoteText: TNewStaticText;
@@ -587,7 +593,7 @@ begin
     var Filter: String;
     var DefaultExt: String;
     if TryGetScriptBrowseFileType(SectionName, Definition.Name, FileType) then begin
-      const FileTypeFilter = ScriptBrowseFileTypeFilters[FileType];
+      const FileTypeFilter = FScriptBrowseFileTypeFilters[FileType];
       Filter := FormatFileFilter(FileTypeFilter.FilesName, FileTypeFilter.Extensions);
       DefaultExt := FileTypeFilter.Extensions[0];
     end else begin
@@ -1756,6 +1762,4 @@ begin
   end;
 end;
 
-initialization
-  InitializeScriptBrowseFileTypeFilters;
 end.
