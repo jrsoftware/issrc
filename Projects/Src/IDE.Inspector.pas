@@ -34,8 +34,11 @@ type
     CheckBox: Boolean;
   end;
 
+  TCaretAtKind = (cakParameterSectionEntry, cakKeyValueSection);
+
   TCaretAt = record
     Valid: Boolean;
+    Kind: TCaretAtKind;
     Name: String;   { Protects against a stale Index }
     Index: Integer; { Protects against duplicated Name }
   end;
@@ -1261,9 +1264,31 @@ procedure TInspector.UpdateFromCaret;
   function GetCaretAt: TCaretAt;
   begin
     Result.Valid := False;
-    if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
+    const CaretLine = FFactory.Memo.CaretLine;
+    if (FLiveParameterSectionEntry <> nil) and FLiveParameterSectionEntry.Valid then begin
+      const Memo = FFactory.Memo;
+      const CaretCharIndex = Memo.GetCodeUnitCount(
+        Memo.GetPositionFromLine(CaretLine), Memo.CaretPosition);
+      const Entry = FLiveParameterSectionEntry.Entry;
+      var Index: Integer;
+      if Entry.TryGetParameterIndexAt(
+           CaretLine - FLiveParameterSectionEntry.FirstLine,
+           CaretCharIndex, Index) then begin
+        const Parameter = Entry.Parameters[Index];
+        if Parameter.Kind = pkParameter then begin
+          Result.Valid := True;
+          Result.Kind := cakParameterSectionEntry;
+          { Rows carry the definition's name when the parameter is known }
+          var Definition: TMemberDefinition;
+          if Entry.TryGetDefinition(Parameter.Name, Definition) then
+            Result.Name := Definition.Name
+          else
+            Result.Name := Parameter.Name;
+          Result.Index := Index;
+        end;
+      end;
+    end else if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
       const Section = FLiveKeyValueSection.Section;
-      const CaretLine = FFactory.Memo.CaretLine;
       var Line := FLiveKeyValueSection.FirstLine;
       if CaretLine >= Line then begin
         for var I := 0 to Section.Count-1 do begin
@@ -1272,6 +1297,7 @@ procedure TInspector.UpdateFromCaret;
             { This is where the caret is at }
             if Section.Lines[I].Kind = lkKeyValue then begin
               Result.Valid := True;
+              Result.Kind := cakKeyValueSection;
               Result.Name := Section.Lines[I].Name;
               Result.Index := I;
             end;
@@ -1289,7 +1315,8 @@ procedure TInspector.UpdateFromCaret;
     const CaretAt = GetCaretAt;
     if (CaretAt.Valid <> FCaretAt.Valid) or
        (CaretAt.Valid and
-        ((CaretAt.Name <> FCaretAt.Name) or
+        ((CaretAt.Kind <> FCaretAt.Kind) or
+         (CaretAt.Name <> FCaretAt.Name) or
          (CaretAt.Index <> FCaretAt.Index))) then begin
       { The caret moved to a different member (or no member). Update CaretAt and
         queue its application, or cancel any queued. }
@@ -1445,8 +1472,11 @@ begin
 end;
 
 function TInspector.RowMatchesCaretAt(const ARow: TInspectorRow): Boolean;
+const
+  RowKindForCaretAtKind: array [TCaretAtKind] of TInspectorRowKind =
+    (irkParameter, irkKey);
 begin
-  Result := FCaretAt.Valid and (ARow.Kind = irkKey) and
+  Result := FCaretAt.Valid and (ARow.Kind = RowKindForCaretAtKind[FCaretAt.Kind]) and
     (ARow.Index = FCaretAt.Index) and (ARow.Name = FCaretAt.Name);
 end;
 
