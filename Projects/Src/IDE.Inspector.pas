@@ -104,6 +104,8 @@ type
     procedure JvInspectorEditButtonClick(Item: TJvCustomInspectorItem;
       var Value: String);
     procedure MessagesWndProc(var Message: TMessage);
+    procedure ApplyCaretAtTimerUpdate(const ACancel: Boolean);
+    procedure ApplyCaretAt;
     function GetDividerWidth: Integer;
     procedure SetDividerWidth(const Value: Integer);
     procedure SetFilterText(const Value: String);
@@ -163,6 +165,7 @@ type
 
 const
   WM_RemoveSelectedRow = WM_USER + 1;
+  ApplyCaretAtTimerID = 1;
 
 { TInspector }
 
@@ -401,10 +404,25 @@ begin
 end;
 
 procedure TInspector.MessagesWndProc(var Message: TMessage);
+
+  function AnyInputDown: Boolean;
+  { Also handles mouse input }
+  begin
+    for var Key := 0 to 255 do
+      if GetAsyncKeyState(Key) < 0 then
+        Exit(True);
+    Result := False;
+  end;
+
 begin
   if Message.Msg = WM_RemoveSelectedRow then
     RemoveSelectedRow
-  else
+  else if (Message.Msg = WM_TIMER) and (Message.WParam = ApplyCaretAtTimerID) then begin
+    if AnyInputDown then
+      Exit; { Keeps timer alive }
+    ApplyCaretAtTimerUpdate(True); { Kills timer }
+    ApplyCaretAt;
+  end else
     Message.Result := DefWindowProc(FMessagesWnd, Message.Msg, Message.WParam, Message.LParam);
 end;
 
@@ -760,6 +778,7 @@ begin
   FShowAllKnownDirectivesSuppressedNote := AShowAllKnownDirectivesSuppressedNote;
   FRowSetSignature := ''; { Force rebuild even if row set stayed same }
   FCaretAt.Valid := False;
+  ApplyCaretAtTimerUpdate(True); { Cancel any queued }
   UpdateFromCaret;
 end;
 
@@ -1237,8 +1256,18 @@ procedure TInspector.UpdateFromCaret;
     const CaretAt = GetCaretAt;
     if (CaretAt.Valid <> FCaretAt.Valid) or (CaretAt.Name <> FCaretAt.Name) or
        (CaretAt.Index <> FCaretAt.Index) then begin
-      { The caret moved to a different member }
+      { The caret moved to a different member (or no member). Update CaretAt and
+        queue its application, or cancel any queued. }
       FCaretAt := CaretAt;
+      ApplyCaretAtTimerUpdate(not CaretAt.Valid); { Also always clears marker }
+    end else if CaretAt.Valid and (FJvInspector.Selected = nil) then begin
+      { The caret is still at the member, but there's no selection anymore,
+        which also means there's no marker anymore. Reapply it. Because
+        there's no selection this doesn't interfere with the user. Useful
+        when for example a filter was entered which hid the selected and
+        marked item, but then the filter was edited again in a way that
+        made the member's item reappear, unselected and unmarked. }
+      ApplyCaretAtTimerUpdate(False);
     end;
   end;
 
@@ -1378,6 +1407,22 @@ begin
   end;
 
   UpdateNote;
+end;
+
+procedure TInspector.ApplyCaretAtTimerUpdate(const ACancel: Boolean);
+{ Always clears the marker first }
+const
+  ApplyCaretAtTimerInterval = 100;
+begin
+  FJvInspector.MarkedItem := nil;
+  if ACancel then
+    KillTimer(FMessagesWnd, ApplyCaretAtTimerID)
+  else
+    SetTimer(FMessagesWnd, ApplyCaretAtTimerID, ApplyCaretAtTimerInterval, nil);
+end;
+
+procedure TInspector.ApplyCaretAt;
+begin
 end;
 
 procedure TInspector.UpdateReadOnly;
