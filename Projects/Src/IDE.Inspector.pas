@@ -39,7 +39,7 @@ type
   TCaretAt = record
     Valid: Boolean;
     Kind: TCaretAtKind;
-    Name: String;   { Protects against a stale Index }
+    Name: String;   { Protects against a stale Index. As in the script, so not cleaned }
     Index: Integer; { Protects against duplicated Name }
   end;
 
@@ -993,6 +993,16 @@ procedure TInspector.UpdateFromCaret;
       AddParameterRow(AParent, ADefinition, -1);
   end;
 
+  function CleanKeyName(const AKeyName: String): String;
+  begin
+    var Definition: TMemberDefinition;
+    if FLiveKeyValueSection.Section.TryGetDefinition(AKeyName, Definition) and
+       SameText(AKeyName, Definition.Name) then { Check for stripped language name prefix }
+      Result := Definition.Name
+    else
+      Result := AKeyName;
+  end;
+
   function MakeKeyRow(const AName: String;
     const AIndex: Integer): TInspectorRow;
   begin
@@ -1119,7 +1129,7 @@ procedure TInspector.UpdateFromCaret;
           for var I := 0 to Section.Count-1 do begin
             if (Section.Lines[I].Kind = lkKeyValue) and
                SameText(Section.Lines[I].Name, Definition.Name) then begin
-              KeyRowsToShow.Add(MakeKeyRow(Section.Lines[I].Name, I));
+              KeyRowsToShow.Add(MakeKeyRow(Definition.Name, I));
               LineWillBeShown[I] := True;
               Found := True;
             end;
@@ -1135,8 +1145,12 @@ procedure TInspector.UpdateFromCaret;
 
       { The remaining keys, in script order }
       for var I := 0 to Section.Count-1 do begin
-        if (Section.Lines[I].Kind = lkKeyValue) and not LineWillBeShown[I] then
-          KeyRowsToShow.Add(MakeKeyRow(Section.Lines[I].Name, I));
+        if (Section.Lines[I].Kind = lkKeyValue) and not LineWillBeShown[I] then begin
+          var Name := Section.Lines[I].Name;
+          if not FShowAllKnownDirectives then
+            Name := CleanKeyName(Name); { Could be known key, make clean if needed }
+          KeyRowsToShow.Add(MakeKeyRow(Name, I));
+        end;
       end;
 
       { Determination done. Add by category the same way as entry rows are. }
@@ -1278,12 +1292,7 @@ procedure TInspector.UpdateFromCaret;
         if Parameter.Kind = pkParameter then begin
           Result.Valid := True;
           Result.Kind := cakParameterSectionEntry;
-          { Rows carry the definition's name when the parameter is known }
-          var Definition: TMemberDefinition;
-          if Entry.TryGetDefinition(Parameter.Name, Definition) then
-            Result.Name := Definition.Name
-          else
-            Result.Name := Parameter.Name;
+          Result.Name := Parameter.Name;
           Result.Index := Index;
         end;
       end;
@@ -1476,8 +1485,10 @@ const
   RowKindForCaretAtKind: array [TCaretAtKind] of TInspectorRowKind =
     (irkParameter, irkKey);
 begin
-  Result := FCaretAt.Valid and (ARow.Kind = RowKindForCaretAtKind[FCaretAt.Kind]) and
-    (ARow.Index = FCaretAt.Index) and (ARow.Name = FCaretAt.Name);
+  Result := FCaretAt.Valid and
+    (ARow.Kind = RowKindForCaretAtKind[FCaretAt.Kind]) and
+    (ARow.Index = FCaretAt.Index) and
+    SameText(ARow.Name, FCaretAt.Name); { TInspectorRow uses clean names for known members, TCaretAt always uses names as in the script }
 end;
 
 procedure TInspector.ApplyCaretAtTimerUpdate(const ACancel: Boolean);
