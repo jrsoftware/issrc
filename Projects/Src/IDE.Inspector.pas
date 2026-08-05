@@ -809,12 +809,21 @@ procedure TInspector.UpdateFromCaret;
     Result := FFactory.ChangeCount > FChangeCountAtCreation;
   end;
 
-  function ItemKey(const AItem: TJvCustomInspectorItem): String;
+  function ItemKey(const AItem: TJvCustomInspectorItem;
+    const AIncludeIndex: Boolean): String;
+  { AIncludeIndex: Include the row index so the key is unique even for duplicated member names }
   begin
     if AItem is TJvInspectorCustomCategoryItem then
       Result := 'C|' + AItem.DisplayName
-    else
+    else begin
       Result := 'R|' + AItem.DisplayName;
+      if AIncludeIndex then begin
+        var Row: TInspectorRow;
+        if not TryGetRow(AItem, Row) then
+          raise Exception.Create('Internal error: ItemKey: Row not found');
+        Result := Result + '|' + IntToStr(Row.Index);
+      end;
+    end;
   end;
 
   procedure SaveExpandedStates(const AStates: TDictionary<String, Boolean>;
@@ -823,7 +832,7 @@ procedure TInspector.UpdateFromCaret;
     for var I := 0 to AParent.Count-1 do begin
       const Item = AParent.Items[I];
       if Item.Count > 0 then begin
-        AStates.AddOrSetValue(ItemKey(Item), Item.Expanded);
+        AStates.AddOrSetValue(ItemKey(Item, False), Item.Expanded);
         SaveExpandedStates(AStates, Item);
       end;
     end;
@@ -836,7 +845,7 @@ procedure TInspector.UpdateFromCaret;
       const Item = AParent.Items[I];
       if Item.Count > 0 then begin
         var Expanded: Boolean;
-        if AStates.TryGetValue(ItemKey(Item), Expanded) then
+        if AStates.TryGetValue(ItemKey(Item, False), Expanded) then
           Item.Expanded := Expanded;
         RestoreExpandedStates(AStates, Item);
       end;
@@ -1158,15 +1167,15 @@ procedure TInspector.UpdateFromCaret;
     end;
   end;
 
-  function FindItemByKey(const AKey: String;
+  function FindItemByKey(const AKey: String; const AKeyIncludesIndex: Boolean;
     const AParent: TJvCustomInspectorItem): TJvCustomInspectorItem;
   begin
     Result := nil;
     for var I := 0 to AParent.Count-1 do begin
       const Item = AParent.Items[I];
-      if ItemKey(Item) = AKey then
+      if ItemKey(Item, AKeyIncludesIndex) = AKey then
         Exit(Item);
-      Result := FindItemByKey(AKey, Item);
+      Result := FindItemByKey(AKey, AKeyIncludesIndex, Item);
       if Result <> nil then
         Exit;
     end;
@@ -1193,9 +1202,12 @@ procedure TInspector.UpdateFromCaret;
     item and break the edit. Safe here because Clear ends the edit before the
     items change. }
   begin
-    var SelectedKey := '';
-    if FJvInspector.Selected <> nil then
-      SelectedKey := ItemKey(FJvInspector.Selected);
+    var SelectedKeyWithIndex := '';
+    var SelectedKeyWithoutIndex := '';
+    if FJvInspector.Selected <> nil then begin
+      SelectedKeyWithIndex := ItemKey(FJvInspector.Selected, True);
+      SelectedKeyWithoutIndex := ItemKey(FJvInspector.Selected, False);
+    end;
 
     FJvInspector.BeginUpdate;
     try
@@ -1228,9 +1240,14 @@ procedure TInspector.UpdateFromCaret;
       FJvInspector.EndUpdate;
     end;
 
-    if SelectedKey <> '' then begin
-      { Restore selection }
-      FJvInspector.Selected := FindItemByKey(SelectedKey, FJvInspector.Root);
+    if SelectedKeyWithIndex <> '' then begin
+      { Restore selection: prefer the key with the row index so it always reselects
+        the correct one if there are duplicated member names, but fall back to the
+        one without: an edit may have shifted the index }
+      var Item := FindItemByKey(SelectedKeyWithIndex, True, FJvInspector.Root);
+      if Item = nil then
+        Item := FindItemByKey(SelectedKeyWithoutIndex, False, FJvInspector.Root);
+      FJvInspector.Selected := Item;
       { Also restore marker if it's at selection }
       const SelectedItem = FJvInspector.Selected;
       var Row: TInspectorRow;
