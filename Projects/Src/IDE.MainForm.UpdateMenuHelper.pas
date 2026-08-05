@@ -529,7 +529,7 @@ end;
 
 procedure TMainFormUpdateMenuHelper.UpdateInspectorPopupMenu(const Menu: TMenuItem);
 begin
-  PInspectorGoTo.Enabled := FInspector.TryGetSelectedRowFirstLine >= 0;
+  PInspectorGoTo.Enabled := FInspector.TryGetSelectedRowPosition;
   PInspectorRemove.Enabled := FInspector.CanRemoveSelectedRow;
   PInspectorShowAllKnownDirectives.Visible := FInspector.ShowingDirectiveSection;
   PInspectorShowAllKnownDirectives.Checked := FOptions.InspectorShowAllKnownDirectives;

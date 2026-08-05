@@ -129,9 +129,9 @@ type
     destructor Destroy; override;
     procedure ForceFinishEdit(const AForceCancel: Boolean = False);
     function GetSelectedHelpKeyword: String;
-    function TryGetSelectedRowFirstLine: Integer; overload;
-    function TryGetSelectedRowFirstLine(out AFirstLine: Integer): Boolean; overload;
-    procedure GoToSelectedRow(const AFirstLine: Integer = -1);
+    function TryGetSelectedRowPosition: Boolean; overload;
+    function TryGetSelectedRowPosition(out ALine, ACharIndex: Integer): Boolean; overload;
+    procedure GoToSelectedRow;
     function TryResolveSelectedRow(out AEntry: TScriptModelParameterSectionEntry;
       out ASection: TScriptModelKeyValueSection; out AIndex: Integer): Boolean; overload;
     function TryResolveSelectedRow: Boolean; overload;
@@ -434,21 +434,34 @@ begin
     Message.Result := DefWindowProc(FMessagesWnd, Message.Msg, Message.WParam, Message.LParam);
 end;
 
-function TInspector.TryGetSelectedRowFirstLine: Integer;
-{ Returns -1 when the selected row has no line }
+function TInspector.TryGetSelectedRowPosition: Boolean;
 begin
-  Result := -1;
+  var Line, CharIndex: Integer;
+  Result := TryGetSelectedRowPosition(Line, CharIndex);
+end;
+
+function TInspector.TryGetSelectedRowPosition(out ALine,
+  ACharIndex: Integer): Boolean;
+begin
+  ALine := -1;
+  ACharIndex := 0; { Stays 0 for keys }
   const Item = FJvInspector.Selected;
   var Row: TInspectorRow;
   if (Item = nil) or not TryGetRow(Item, Row) then
-    Exit;
+    Exit(False);
   case Row.Kind of
     irkParameter, irkParameterFlag:
       begin
         var Entry: TScriptModelParameterSectionEntry;
         var Index: Integer;
-        if TryGetRowParameterSectionEntry(Row, Entry, Index) then
-          Result := FLiveParameterSectionEntry.FirstLine;
+        if TryGetRowParameterSectionEntry(Row, Entry, Index) then begin
+          ALine := FLiveParameterSectionEntry.FirstLine;
+          var LineIndex, CharIndex: Integer;
+          if Entry.TryGetParameterPosition(Index, LineIndex, CharIndex) then begin
+            Inc(ALine, LineIndex);
+            ACharIndex := CharIndex;
+          end;
+        end;
       end;
     irkKey, irkKeyFlag:
       begin
@@ -458,16 +471,11 @@ begin
           var Line := FLiveKeyValueSection.FirstLine;
           for var I := 0 to Index-1 do
             Inc(Line, Section.GetLineCount(I));
-          Result := Line;
+          ALine := Line;
         end;
       end;
   end;
-end;
-
-function TInspector.TryGetSelectedRowFirstLine(out AFirstLine: Integer): Boolean;
-begin
-  AFirstLine := TryGetSelectedRowFirstLine;
-  Result := AFirstLine >= 0;
+  Result := ALine >= 0;
 end;
 
 procedure TInspector.JvInspectorLeafNameDblClick(Item: TJvCustomInspectorItem);
@@ -673,15 +681,14 @@ begin
   end;
 end;
 
-procedure TInspector.GoToSelectedRow(const AFirstLine: Integer);
-{ Set AFirstLine to -1 if it's not yet known }
+procedure TInspector.GoToSelectedRow;
 begin
-  var FirstLine := AFirstLine;
-  if FirstLine < 0 then
-    FirstLine := TryGetSelectedRowFirstLine;
-  if FirstLine >= 0 then begin
-    FFactory.Memo.CaretLine := FirstLine;
-    FFactory.Memo.SetFocus;
+  var Line, CharIndex: Integer;
+  if TryGetSelectedRowPosition(Line, CharIndex) then begin
+    const Memo = FFactory.Memo;
+    Memo.CaretPosition := Memo.GetPositionRelativeCodeUnits(
+      Memo.GetPositionFromLine(Line), CharIndex);
+    Memo.SetFocus;
   end;
 end;
 

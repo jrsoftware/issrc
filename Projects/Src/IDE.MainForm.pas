@@ -6714,9 +6714,8 @@ end;
 
 procedure TMainForm.EGotoLineClick(Sender: TObject);
 begin
-  var FirstLine: Integer;
-  if FInspector.JvInspector.Focused and FInspector.TryGetSelectedRowFirstLine(FirstLine) then
-    FInspector.GoToSelectedRow(FirstLine)
+  if FInspector.JvInspector.Focused then
+    FInspector.GoToSelectedRow { This may fail, but don't fall back to regular Goto }
   else begin
     var S := IntToStr(FActiveMemo.CaretLine + 1);
     if InputQueryEdit(LFmtMessage(SGotoLineTitle), LFmtMessage(SGotoLinePrompt), S) then begin
