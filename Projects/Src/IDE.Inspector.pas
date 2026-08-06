@@ -444,7 +444,7 @@ function TInspector.TryGetSelectedRowPosition(out ALine,
   ACharIndex: Integer): Boolean;
 begin
   ALine := -1;
-  ACharIndex := 0; { Stays 0 for keys }
+  ACharIndex := 0;
   const Item = FJvInspector.Selected;
   var Row: TInspectorRow;
   if (Item = nil) or not TryGetRow(Item, Row) then
@@ -457,7 +457,7 @@ begin
         if TryGetRowParameterSectionEntry(Row, Entry, Index) then begin
           ALine := FLiveParameterSectionEntry.FirstLine;
           var LineIndex, CharIndex: Integer;
-          if Entry.TryGetParameterPosition(Index, LineIndex, CharIndex) then begin
+          if Entry.TryGetValuePosition(Index, LineIndex, CharIndex) then begin
             Inc(ALine, LineIndex);
             ACharIndex := CharIndex;
           end;
@@ -472,6 +472,11 @@ begin
           for var I := 0 to Index-1 do
             Inc(Line, Section.GetLineCount(I));
           ALine := Line;
+          var LineIndex, CharIndex: Integer;
+          if Section.TryGetValuePosition(Index, LineIndex, CharIndex) then begin
+            Inc(ALine, LineIndex);
+            ACharIndex := CharIndex;
+          end;
         end;
       end;
   end;
@@ -1293,7 +1298,7 @@ procedure TInspector.UpdateFromCaret;
         Memo.GetPositionFromLine(CaretLine), Memo.CaretPosition);
       const Entry = FLiveParameterSectionEntry.Entry;
       var Index: Integer;
-      if Entry.TryGetParameterIndexAt(
+      if Entry.TryGetParameterIndex(
            CaretLine - FLiveParameterSectionEntry.FirstLine,
            CaretCharIndex, Index) then begin
         const Parameter = Entry.Parameters[Index];

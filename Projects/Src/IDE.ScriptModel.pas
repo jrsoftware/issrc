@@ -111,9 +111,9 @@ type
       const AInclude: Boolean);
     function TryGetDefinition(const AName: String;
       out ADefinition: TMemberDefinition): Boolean;
-    function TryGetParameterIndexAt(const AOriginalLineIndex, AOriginalCharIndex: Integer;
+    function TryGetParameterIndex(const AOriginalLineIndex, AOriginalCharIndex: Integer;
       out AParameterIndex: Integer): Boolean;
-    function TryGetParameterPosition(const AParameterIndex: Integer;
+    function TryGetValuePosition(const AParameterIndex: Integer;
       out AOriginalLineIndex, AOriginalCharIndex: Integer): Boolean;
     function LineSpanCount: Integer;
     property LineSpanParameterIndexes[Index: Integer]: Integer read GetLineSpanParameterIndex;
@@ -182,6 +182,8 @@ type
       const AInclude: Boolean);
     function TryGetDefinition(const AName: String;
       out ADefinition: TMemberDefinition): Boolean;
+    function TryGetValuePosition(const AIndex: Integer;
+      out AOriginalLineIndex, AOriginalCharIndex: Integer): Boolean;
     function DefaultValue(const AName: String): String;
     property Lines[Index: Integer]: TKeyValueSectionLine read GetLine;
     property Metadata: TScriptModelSectionMetadata read FMetadata;
@@ -671,10 +673,10 @@ begin
   Result := FLineSpans[Index].ParameterIndex;
 end;
 
-function TScriptModelParameterSectionEntry.TryGetParameterIndexAt(
+function TScriptModelParameterSectionEntry.TryGetParameterIndex(
   const AOriginalLineIndex, AOriginalCharIndex: Integer;
   out AParameterIndex: Integer): Boolean;
-{ The inverse of TryGetParameterPosition: returns the index of the
+{ The inverse of TryGetValuePosition: returns the index of the
   parameter occupying the position. Cannot be used after modification:
   uses information from Parse. }
 begin
@@ -705,10 +707,10 @@ begin
   Result := True;
 end;
 
-function TScriptModelParameterSectionEntry.TryGetParameterPosition(
+function TScriptModelParameterSectionEntry.TryGetValuePosition(
   const AParameterIndex: Integer;
   out AOriginalLineIndex, AOriginalCharIndex: Integer): Boolean;
-{ The inverse of TryGetParameterIndexAt: returns the position at which the
+{ The inverse of TryGetParameterIndex: returns the position at which the
   indexed parameter's value starts, so past its ':' and any whitespace after
   it. Cannot be used after modification: uses information from Parse. }
 begin
@@ -1341,6 +1343,51 @@ function TScriptModelKeyValueSection.TryGetDefinition(const AName: String;
   out ADefinition: TMemberDefinition): Boolean;
 begin
   Result := (FMetadata <> nil) and FMetadata.TryGetMember(AName, ADefinition);
+end;
+
+function TScriptModelKeyValueSection.TryGetValuePosition(const AIndex: Integer;
+  out AOriginalLineIndex, AOriginalCharIndex: Integer): Boolean;
+{ Returns the position at which the indexed line's value starts, so past its
+  '=' and any whitespace after it. Cannot be used after modification of the
+  line: uses information from Parse. }
+begin
+  if (AIndex < 0) or (AIndex >= Count) then
+    Exit(False);
+  const Line = FLines[AIndex];
+  if Line.FModified or (Line.Kind <> lkKeyValue) then
+    Exit(False);
+
+  { The offset of the value in the joined line: past the name text, the '=',
+    and the value's leading whitespace }
+  const Offset = Length(Line.FNameText) + 2 +
+    Length(LeadingWhitespace(Line.FRawValue));
+
+  { A single original line was joined as is, including its indent }
+  if Length(Line.FOriginalLines) = 1 then begin
+    AOriginalLineIndex := 0;
+    AOriginalCharIndex := Offset-1;
+    Exit(True);
+  end;
+
+  { Map the offset back through the joining of the original lines, which
+    trimmed each line's leading whitespace: the line at the offset is the
+    last one starting at or before it }
+  AOriginalLineIndex := 0;
+  var LineStartOffset := 1;
+  var NextLineStartOffset := 1;
+  for var I := 1 to High(Line.FOriginalLines) do begin
+    var S := Line.FOriginalLines[I-1];
+    if ScriptLineSpans(S) then
+      SetLength(S, Length(S)-1);
+    Inc(NextLineStartOffset, Length(TrimLeft(S)));
+    if NextLineStartOffset > Offset then
+      Break;
+    AOriginalLineIndex := Integer(I);
+    LineStartOffset := NextLineStartOffset;
+  end;
+  AOriginalCharIndex := Offset - LineStartOffset +
+    Length(LeadingWhitespace(Line.FOriginalLines[AOriginalLineIndex]));
+  Result := True;
 end;
 
 function TScriptModelKeyValueSection.DefaultValue(const AName: String): String;
