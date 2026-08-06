@@ -203,6 +203,7 @@
 <dd>
 <p>The wizard calls this event function to determine whether or not a particular page (specified by <tt>PageID</tt>) should be shown at all. If you return <tt>True</tt>, the page will be skipped; if you return <tt>False</tt>, the page may be shown.</p>
 <p>Note: This event function isn't called for the <tt>wpPreparing</tt>, and <tt>wpInstalling</tt> pages, nor for pages that Setup has already determined should be skipped (for example, <tt>wpSelectComponents</tt> in an install containing no components).</p>
+<p>Note: This event function may be called multiple times per page navigation, including for the current page when the user clicks Next. Avoid expensive operations such as file or registry access inside this function; cache any required results in global variables during <anchorlink name="InitializeWizard">InitializeWizard</anchorlink> instead.</p>
 </dd>
 
 <dt><tt>procedure <a name="CurPageChanged">CurPageChanged</a>(<anchorlink name="PageID">CurPageID</anchorlink>: Integer);</tt></dt>
