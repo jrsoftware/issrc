@@ -335,6 +335,126 @@ begin
   end;
 end;
 
+{ The name-plus-index-hint reads and writes of TLiveScriptParameterSectionEntries,
+  exercised with a single entry: aggregate reads, writes with their
+  add-when-absent rules, and one undo action per write }
+procedure TestParameterSectionEntries(const AMemo: TScintEdit;
+  const AStyler: TInnoSetupStyler);
+begin
+  { Reads: common value (with the hint resolving a duplicated parameter name
+    to the right occurrence), flag check state, and presence }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"; DestDir: "{app}"; DestDir: "{tmp}"; Flags: ignoreversion',
+      'Source: "b.txt"']);
+    try
+      var Entries: TLiveScriptParameterSectionEntries;
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
+      try
+        Assert(Entries.Count = 1);
+        Assert(Entries.Valid);
+        Assert(Entries.GetValue('Source', -1) = 'a.txt');
+        Assert(Entries.GetValue('Source', 0) = 'a.txt');
+        Assert(Entries.GetValue('Missing', -1) = '');
+        Assert(Entries.GetValue('DestDir', -1) = '{app}'); { First occurrence }
+        Assert(Entries.GetValue('DestDir', 2) = '{tmp}');  { The hint picks the second }
+        Assert(Entries.GetValue('DestDir', 99) = '{app}'); { A stale hint falls back to the name }
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'ignoreversion') = fcsAll);
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'solidbreak') = fcsNone);
+        Assert(Entries.MemberPresent('DestDir', -1));
+        Assert(Entries.MemberPresent('DestDir', 99));
+        Assert(not Entries.MemberPresent('Missing', -1));
+      finally
+        Entries.Free;
+      end;
+
+      { A missing Flags parameter counts as every flag being excluded }
+      Assert(Context.Factory.TryCreateParameterSectionEntries(2, Entries, Reason));
+      try
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'ignoreversion') = fcsNone);
+      finally
+        Entries.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { SetValue: resolve then set, else add, but only when the hint is -1 and the
+    value is non-empty }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"; DestDir: "{app}"; DestDir: "{tmp}"']);
+    try
+      var Entries: TLiveScriptParameterSectionEntries;
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
+      try
+        Entries.SetValue('DestDir', 2, '{sys}'); { The hint picks the second occurrence }
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{app}"; DestDir: "{sys}"');
+        Entries.SetValue('DestDir', -1, '{autopf}');
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{autopf}"; DestDir: "{sys}"');
+        Entries.SetValue('DestName', 99, 'b.txt'); { A stale real hint must not add }
+        Entries.SetValue('DestName', -1, '');      { Neither must an empty value }
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{autopf}"; DestDir: "{sys}"');
+        Entries.SetValue('DestName', -1, 'b.txt');
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{autopf}"; DestDir: "{sys}"; DestName: "b.txt"');
+        AMemo.Undo; { The write including the add is a single undo action }
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{autopf}"; DestDir: "{sys}"');
+        { Don't edit more here: the undo made the entry's model stale }
+      finally
+        Entries.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { SetFlag: include and exclude on a present Flags parameter, the
+    add-when-absent rule on include, and Remove }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"; Flags: ignoreversion',
+      'Source: "b.txt"']);
+    try
+      var Entries: TLiveScriptParameterSectionEntries;
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
+      try
+        Entries.SetFlag('Flags', -1, 'solidbreak', True);
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; Flags: ignoreversion solidbreak');
+        Entries.SetFlag('Flags', -1, 'solidbreak', False);
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; Flags: ignoreversion');
+        Entries.Remove('Flags', -1);
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"');
+        Entries.Remove('Missing', -1); { Removing an absent parameter is a no-op }
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"');
+      finally
+        Entries.Free;
+      end;
+
+      Assert(Context.Factory.TryCreateParameterSectionEntries(2, Entries, Reason));
+      try
+        Entries.SetFlag('Flags', -1, 'solidbreak', False); { Excluding without the parameter is a no-op }
+        Entries.SetFlag('Flags', 99, 'solidbreak', True);  { A stale real hint must not add }
+        Assert(AMemo.Lines[2] = 'Source: "b.txt"');
+        Entries.SetFlag('Flags', -1, 'solidbreak', True);  { Adds the Flags parameter first }
+        Assert(AMemo.Lines[2] = 'Source: "b.txt"; Flags: solidbreak');
+        AMemo.Undo; { The add plus the include is a single undo action }
+        Assert(AMemo.Lines[2] = 'Source: "b.txt"');
+      finally
+        Entries.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+end;
+
 { Key/value sections: last-occurrence value lookup, editing a populated
   section, refusals, an empty section that a key is added to, and
   removing keys up to and including the last one }
@@ -756,6 +876,7 @@ begin
     TestTryGetSectionAtLine(AMemo, AStyler);
     TestTryCreateParameterSectionEntries(AMemo, AStyler);
     TestEntryRoundTrip(AMemo, AStyler);
+    TestParameterSectionEntries(AMemo, AStyler);
     TestKeyValueSections(AMemo, AStyler);
     TestEditTracking(AMemo, AStyler);
   finally

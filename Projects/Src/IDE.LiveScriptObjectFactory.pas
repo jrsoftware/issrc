@@ -68,10 +68,14 @@ type
     property Section: TInnoSetupSection read FSection;
   end;
 
+  TLiveScriptFlagCheckState = (fcsNone, fcsAll, fcsSome);
+
   { One or more entries of one parameter section }
   TLiveScriptParameterSectionEntries = class
   private
-    FEntries: TObjectList<TLiveScriptParameterSectionEntry>;
+    FItems: TObjectList<TLiveScriptParameterSectionEntry>;
+    procedure BeginUndoAction;
+    procedure EndUndoAction;
     function GetCount: Integer;
     function GetEntry(Index: Integer): TLiveScriptParameterSectionEntry;
     function GetFirstLine: Integer;
@@ -83,6 +87,18 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+    { Reads and writes addressing a parameter by name plus an index hint,
+      applied per entry. Reads aggregate over all entries, writes change
+      every entry in one undo action. }
+    function GetValue(const AName: String; const AIndexHint: Integer): String;
+    function GetFlagCheckState(const AParameterName: String;
+      const AIndexHint: Integer; const AFlagName: String): TLiveScriptFlagCheckState;
+    function MemberPresent(const AName: String; const AIndexHint: Integer): Boolean;
+    procedure SetValue(const AName: String; const AIndexHint: Integer;
+      const AValue: String);
+    procedure SetFlag(const AParameterName: String; const AIndexHint: Integer;
+      const AFlagName: String; const AInclude: Boolean);
+    procedure Remove(const AName: String; const AIndexHint: Integer);
     property Count: Integer read GetCount;
     property Entries[Index: Integer]: TLiveScriptParameterSectionEntry read GetEntry;
     { FirstLine and LastLine are the primary entry's lines: they are not a
@@ -215,58 +231,188 @@ end;
 constructor TLiveScriptParameterSectionEntries.Create;
 begin
   inherited Create;
-  FEntries := TObjectList<TLiveScriptParameterSectionEntry>.Create;
+  FItems := TObjectList<TLiveScriptParameterSectionEntry>.Create;
 end;
 
 destructor TLiveScriptParameterSectionEntries.Destroy;
 begin
-  FEntries.Free;
+  FItems.Free;
   inherited;
+end;
+
+procedure TLiveScriptParameterSectionEntries.BeginUndoAction;
+begin
+  const Factory = FItems[0].FFactory;
+  if Factory <> nil then
+    Factory.Memo.BeginUndoAction;
+end;
+
+procedure TLiveScriptParameterSectionEntries.EndUndoAction;
+begin
+  const Factory = FItems[0].FFactory;
+  if Factory <> nil then
+    Factory.Memo.EndUndoAction;
+end;
+
+function TLiveScriptParameterSectionEntries.GetValue(const AName: String;
+  const AIndexHint: Integer): String;
+{ Returns the value only when every entry has the parameter with the exact
+  same value; otherwise returns '' }
+begin
+  Result := '';
+  if not Valid then
+    Exit;
+  var First := True;
+  for var LiveEntry in FItems do begin
+    var Index := AIndexHint;
+    if not LiveEntry.Entry.TryResolve(AName, Index) then
+      Exit('');
+    const Value = LiveEntry.Entry.Parameters[Index].Value;
+    if First then begin
+      Result := Value;
+      First := False;
+    end else if Value <> Result then
+      Exit('');
+  end;
+end;
+
+function TLiveScriptParameterSectionEntries.GetFlagCheckState(
+  const AParameterName: String; const AIndexHint: Integer;
+  const AFlagName: String): TLiveScriptFlagCheckState;
+{ An entry missing the parameter counts as the flag being excluded }
+begin
+  Result := fcsNone;
+  if not Valid then
+    Exit;
+  var IncludedCount := 0;
+  for var LiveEntry in FItems do begin
+    var Index := AIndexHint;
+    if LiveEntry.Entry.TryResolve(AParameterName, Index) and
+       LiveEntry.Entry.FlagIncluded(Index, AFlagName) then
+      Inc(IncludedCount);
+  end;
+  if IncludedCount = Count then
+    Result := fcsAll
+  else if IncludedCount > 0 then
+    Result := fcsSome;
+end;
+
+function TLiveScriptParameterSectionEntries.MemberPresent(const AName: String;
+  const AIndexHint: Integer): Boolean;
+{ True when the parameter is present in at least one entry }
+begin
+  Result := False;
+  if not Valid then
+    Exit;
+  for var LiveEntry in FItems do begin
+    var Index := AIndexHint;
+    if LiveEntry.Entry.TryResolve(AName, Index) then
+      Exit(True);
+  end;
+end;
+
+procedure TLiveScriptParameterSectionEntries.SetValue(const AName: String;
+  const AIndexHint: Integer; const AValue: String);
+{ Sets the parameter's value in every entry }
+begin
+  if not Valid then
+    Exit;
+  BeginUndoAction;
+  try
+    for var LiveEntry in FItems do begin
+      var Index := AIndexHint;
+      if LiveEntry.Entry.TryResolve(AName, Index) then
+        LiveEntry.Entry.SetValue(Index, AValue)
+      else if (AIndexHint < 0) and (AValue <> '') then
+        LiveEntry.Entry.Add(AName, AValue);
+    end;
+  finally
+    EndUndoAction;
+  end;
+end;
+
+procedure TLiveScriptParameterSectionEntries.SetFlag(const AParameterName: String;
+  const AIndexHint: Integer; const AFlagName: String; const AInclude: Boolean);
+{ Sets the flag in every entry, which may adjust related flags as well. Otherwise
+  like SetValue. }
+begin
+  if not Valid then
+    Exit;
+  BeginUndoAction;
+  try
+    for var LiveEntry in FItems do begin
+      var Index := AIndexHint;
+      if LiveEntry.Entry.TryResolve(AParameterName, Index) then
+        LiveEntry.Entry.SetFlag(Index, AFlagName, AInclude)
+      else if (AIndexHint < 0) and AInclude then
+        LiveEntry.Entry.SetFlag(LiveEntry.Entry.Add(AParameterName, ''), AFlagName, True);
+    end;
+  finally
+    EndUndoAction;
+  end;
+end;
+
+procedure TLiveScriptParameterSectionEntries.Remove(const AName: String;
+  const AIndexHint: Integer);
+{ Removes the parameter from every entry where it is present }
+begin
+  if not Valid then
+    Exit;
+  BeginUndoAction;
+  try
+    for var LiveEntry in FItems do begin
+      var Index := AIndexHint;
+      if LiveEntry.Entry.TryResolve(AName, Index) then
+        LiveEntry.Entry.Remove(Index);
+    end;
+  finally
+    EndUndoAction;
+  end;
 end;
 
 function TLiveScriptParameterSectionEntries.GetCount: Integer;
 begin
-  Result := Integer(FEntries.Count);
+  Result := Integer(FItems.Count);
 end;
 
 function TLiveScriptParameterSectionEntries.GetEntry(
   Index: Integer): TLiveScriptParameterSectionEntry;
 begin
-  Result := FEntries[Index];
+  Result := FItems[Index];
 end;
 
 function TLiveScriptParameterSectionEntries.GetFirstLine: Integer;
 begin
-  Result := FEntries[0].FirstLine;
+  Result := FItems[0].FirstLine;
 end;
 
 function TLiveScriptParameterSectionEntries.GetLastLine: Integer;
 begin
-  Result := FEntries[0].LastLine;
+  Result := FItems[0].LastLine;
 end;
 
 function TLiveScriptParameterSectionEntries.GetPrimaryEntry: TScriptModelParameterSectionEntry;
 begin
-  Result := FEntries[0].Entry;
+  Result := FItems[0].Entry;
 end;
 
 function TLiveScriptParameterSectionEntries.GetSection: TInnoSetupSection;
 begin
-  Result := FEntries[0].Section;
+  Result := FItems[0].Section;
 end;
 
 function TLiveScriptParameterSectionEntries.GetValid: Boolean;
 begin
-  Result := FEntries.Count > 0;
-  for var Entry in FEntries do
-    if not Entry.Valid then
+  Result := FItems.Count > 0;
+  for var LiveEntry in FItems do
+    if not LiveEntry.Valid then
       Exit(False);
 end;
 
 procedure TLiveScriptParameterSectionEntries.SetQuoteNewValues(const Value: Boolean);
 begin
-  for var Entry in FEntries do
-    Entry.Entry.QuoteNewValues := Value;
+  for var LiveEntry in FItems do
+    LiveEntry.Entry.QuoteNewValues := Value;
 end;
 
 { TLiveScriptKeyValueSection }
@@ -725,7 +871,7 @@ begin
   var Metadata: TScriptModelSectionMetadata := nil;
   TryGetScriptModelSectionMetadata(SectionToSectionName(Section), Metadata);
   AEntries := TLiveScriptParameterSectionEntries.Create;
-  AEntries.FEntries.Add(TLiveScriptParameterSectionEntry.Create(Self, FirstLine,
+  AEntries.FItems.Add(TLiveScriptParameterSectionEntry.Create(Self, FirstLine,
     LastLine, Section, Metadata, EntryLines, LineKind = slkBlank));
   Result := True;
 end;
