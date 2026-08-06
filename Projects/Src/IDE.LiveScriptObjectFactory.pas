@@ -85,7 +85,7 @@ type
     function GetValid: Boolean;
     procedure SetQuoteNewValues(const Value: Boolean);
   public
-    constructor Create;
+    constructor Create(const APrimaryEntry: TLiveScriptParameterSectionEntry);
     destructor Destroy; override;
     { Reads and writes addressing a parameter by name plus an index hint,
       applied per entry. Reads aggregate over all entries, writes change
@@ -228,10 +228,12 @@ end;
 
 { TLiveScriptParameterSectionEntries }
 
-constructor TLiveScriptParameterSectionEntries.Create;
+constructor TLiveScriptParameterSectionEntries.Create(
+  const APrimaryEntry: TLiveScriptParameterSectionEntry);
 begin
   inherited Create;
   FItems := TObjectList<TLiveScriptParameterSectionEntry>.Create;
+  FItems.Add(APrimaryEntry);
 end;
 
 destructor TLiveScriptParameterSectionEntries.Destroy;
@@ -403,10 +405,10 @@ end;
 
 function TLiveScriptParameterSectionEntries.GetValid: Boolean;
 begin
-  Result := FItems.Count > 0;
   for var LiveEntry in FItems do
     if not LiveEntry.Valid then
       Exit(False);
+  Result := True;
 end;
 
 procedure TLiveScriptParameterSectionEntries.SetQuoteNewValues(const Value: Boolean);
@@ -870,9 +872,9 @@ begin
 
   var Metadata: TScriptModelSectionMetadata := nil;
   TryGetScriptModelSectionMetadata(SectionToSectionName(Section), Metadata);
-  AEntries := TLiveScriptParameterSectionEntries.Create;
-  AEntries.FItems.Add(TLiveScriptParameterSectionEntry.Create(Self, FirstLine,
-    LastLine, Section, Metadata, EntryLines, LineKind = slkBlank));
+  const PrimaryEntry = TLiveScriptParameterSectionEntry.Create(Self, FirstLine,
+    LastLine, Section, Metadata, EntryLines, LineKind = slkBlank);
+  AEntries := TLiveScriptParameterSectionEntries.Create(PrimaryEntry);
   Result := True;
 end;
 
