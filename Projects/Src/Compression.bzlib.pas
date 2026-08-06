@@ -65,6 +65,8 @@ type
     FReachedEnd: Boolean;
     FBuffer: array[0..65535] of Byte;
     FHeapBase, FHeapNextFree: Pointer;
+    procedure EndDecompress;
+    procedure InitDecompress;
     function Malloc(Bytes: Cardinal): Pointer;
   protected
     procedure DoDecompressInto(var Buffer; Count: Cardinal); override;
@@ -291,17 +293,31 @@ begin
   FStrm.zfree := DecompressorFreeMem;
   FStrm.next_in := @FBuffer;
   FStrm.avail_in := 0;
-  Check(BZ2_bzDecompressInit(FStrm, 0, 0), [BZ_OK]);
-  FInitialized := True;
+  InitDecompress;
 end;
 
 destructor TBZDecompressor.Destroy;
 begin
-  if FInitialized then
-    BZ2_bzDecompressEnd(FStrm);
+  EndDecompress;
   if Assigned(FHeapBase) then
     VirtualFree(FHeapBase, 0, MEM_RELEASE);
   inherited Destroy;
+end;
+
+procedure TBZDecompressor.InitDecompress;
+begin
+  if not FInitialized then begin
+    Check(BZ2_bzDecompressInit(FStrm, 0, 0), [BZ_OK]);
+    FInitialized := True;
+  end;
+end;
+
+procedure TBZDecompressor.EndDecompress;
+begin
+  if FInitialized then begin
+    FInitialized := False;
+    BZ2_bzDecompressEnd(FStrm);
+  end;
 end;
 
 function TBZDecompressor.Malloc(Bytes: Cardinal): Pointer;
@@ -353,9 +369,9 @@ begin
   FStrm.next_in := @FBuffer;
   FStrm.avail_in := 0;
   { bzlib doesn't offer an optimized 'Reset' function like zlib }
-  BZ2_bzDecompressEnd(FStrm);
+  EndDecompress;
   FHeapNextFree := FHeapBase;  { discard previous allocations }
-  Check(BZ2_bzDecompressInit(FStrm, 0, 0), [BZ_OK]);
+  InitDecompress;
   FReachedEnd := False;
 end;
 
