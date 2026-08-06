@@ -284,18 +284,12 @@ function TInspector.ItemShouldBeBold(
     Result := False;
     case ARow.Kind of
       irkParameter:
-        begin
-          var Entry: TScriptModelParameterSectionEntry;
-          var Index: Integer;
-          Result := TryGetRowParameterSectionEntry(ARow, Entry, Index);
-        end;
+        Result := (FLiveParameterSectionEntries <> nil) and
+          FLiveParameterSectionEntries.MemberPresent(ARow.Name, ARow.Index);
       irkParameterFlag:
-        begin
-          var Entry: TScriptModelParameterSectionEntry;
-          var Index: Integer;
-          Result := TryGetRowParameterSectionEntry(ARow, Entry, Index) and
-            Entry.FlagIncluded(Index, ARow.FlagName);
-        end;
+        Result := (FLiveParameterSectionEntries <> nil) and
+          (FLiveParameterSectionEntries.GetFlagCheckState(ARow.Name, ARow.Index,
+             ARow.FlagName) <> fcsNone);
       irkKey:
         { Without ShowAllKnownDirectives only directives which are in the
           script get a row, so bold would say nothing }
@@ -598,12 +592,9 @@ begin
   if not Known then
     Exit;
 
-  { Special: [Files] Source can only be browsed for if not external }
+  { Special: [Files] Source can only be browsed for if no entry is external }
   if SameText(SectionName, 'Files') and SameText(Definition.Name, 'Source') then begin
-    const Entry = FLiveParameterSectionEntries.PrimaryEntry; { Always exists }
-    var FlagsIndex := -1;
-    if Entry.TryResolve('Flags', FlagsIndex) and
-       Entry.FlagIncluded(FlagsIndex, 'external') then begin
+    if FLiveParameterSectionEntries.GetFlagCheckState('Flags', -1, 'external') <> fcsNone then begin
       MsgBox(LFmtMessage(SInspectorBrowseParamFlagError, ['Source', 'external']),
         LFmtMessage(SCompilerFormCaption), mbError, MB_OK);
       Exit;
@@ -1630,13 +1621,10 @@ begin
   Result := 0;
   case ARow.Kind of
     irkParameterFlag:
-      begin
-        var Entry: TScriptModelParameterSectionEntry;
-        var Index: Integer;
-        if TryGetRowParameterSectionEntry(ARow, Entry, Index) and
-           Entry.FlagIncluded(Index, ARow.FlagName) then
-          Result := 1;
-      end;
+      if (FLiveParameterSectionEntries <> nil) and
+         (FLiveParameterSectionEntries.GetFlagCheckState(ARow.Name, ARow.Index,
+            ARow.FlagName) = fcsAll) then
+        Result := 1;
     irkKey:
       begin
         var Section: TScriptModelKeyValueSection;
@@ -1677,13 +1665,10 @@ begin
   Result := '';
   case ARow.Kind of
     irkParameter:
-      begin
-        var Entry: TScriptModelParameterSectionEntry;
-        var Index: Integer;
-        if TryGetRowParameterSectionEntry(ARow, Entry, Index) then
-          Result := Entry.Parameters[Index].Value;
-        { else: Not present in the script: show empty }
-      end;
+      { A parameter not present in the script, or without a common value,
+        shows empty }
+      if FLiveParameterSectionEntries <> nil then
+        Result := FLiveParameterSectionEntries.GetValue(ARow.Name, ARow.Index);
     irkKey:
       begin
         var Section: TScriptModelKeyValueSection;
