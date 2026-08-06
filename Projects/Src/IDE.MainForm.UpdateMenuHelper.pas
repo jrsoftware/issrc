@@ -532,7 +532,7 @@ begin
   const ShowingDirectiveSection = FInspector.ShowingDirectiveSection;
   const ShowingParameterSectionEntry = FInspector.ShowingParameterSectionEntry;
 
-  PInspectorGoTo.Enabled := FInspector.TryGetSelectedRowPosition;
+  PInspectorGoTo.Enabled := FInspector.CanGoToSelectedRow;
   PInspectorRemove.Enabled := FInspector.CanRemoveSelectedRow;
   PInspectorShowAllKnownDirectives.Visible := ShowingDirectiveSection;
   PInspectorShowAllKnownDirectives.Checked := FOptions.InspectorShowAllKnownDirectives;

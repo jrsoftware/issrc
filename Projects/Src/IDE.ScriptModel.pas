@@ -34,6 +34,10 @@ type
 
   TScriptLineKind = (slkBlank, slkComment, slkISPPDirective, slkActual);
 
+  TValuePosition = record
+    StartLineIndex, StartCharIndex, EndLineIndex, EndCharIndex: Integer;
+  end;
+
   TParameterSectionEntryParameterKind = (pkParameter, pkOther);
 
   { A single parameter of an entry in a parameter section: either a Name: Value
@@ -115,8 +119,7 @@ type
     function TryGetParameterIndex(const AOriginalLineIndex, AOriginalCharIndex: Integer;
       out AParameterIndex: Integer): Boolean;
     function TryGetValuePosition(const AParameterIndex: Integer;
-      out AOriginalStartLineIndex, AOriginalStartCharIndex, AOriginalEndLineIndex,
-      AOriginalEndCharIndex: Integer): Boolean;
+      out APosition: TValuePosition): Boolean;
     function LineSpanCount: Integer;
     property LineSpanParameterIndexes[Index: Integer]: Integer read GetLineSpanParameterIndex;
     property Indent: String read FIndent;
@@ -186,8 +189,7 @@ type
     function TryGetDefinition(const AName: String;
       out ADefinition: TMemberDefinition): Boolean;
     function TryGetValuePosition(const AIndex: Integer;
-      out AOriginalStartLineIndex, AOriginalStartCharIndex, AOriginalEndLineIndex,
-      AOriginalEndCharIndex: Integer): Boolean;
+      out APosition: TValuePosition): Boolean;
     function DefaultValue(const AName: String): String;
     property Lines[Index: Integer]: TKeyValueSectionLine read GetLine;
     property Metadata: TScriptModelSectionMetadata read FMetadata;
@@ -300,9 +302,7 @@ end;
 
 procedure DoGetValuePosition(const ARawValueOffset: Integer;
   const ARawValue: String; const ALineStartOffsets: TArray<Integer>;
-  const AOriginalLines: TArray<String>;
-  out AOriginalStartLineIndex, AOriginalStartCharIndex, AOriginalEndLineIndex,
-  AOriginalEndCharIndex: Integer);
+  const AOriginalLines: TArray<String>; out APosition: TValuePosition);
 { Shared helper for the TryGetValuePosition functions. ARawValueOffset tells
   where the raw value starts within the join of AOriginalLines, and
   ALineStartOffsets where each line's own content starts within that join. }
@@ -325,17 +325,17 @@ procedure DoGetValuePosition(const ARawValueOffset: Integer;
 begin
   { The start is past the value's leading whitespace }
   const Offset = ARawValueOffset + Length(LeadingWhitespace(ARawValue));
-  OffsetToPosition(Offset, AOriginalStartLineIndex, AOriginalStartCharIndex);
+  OffsetToPosition(Offset, APosition.StartLineIndex, APosition.StartCharIndex);
 
   { The end is one past the value's last non-whitespace character }
   const TrimmedLength = Length(Trim(ARawValue));
   if TrimmedLength > 0 then begin
-    OffsetToPosition(Offset + TrimmedLength - 1, AOriginalEndLineIndex,
-      AOriginalEndCharIndex);
-    Inc(AOriginalEndCharIndex);
+    OffsetToPosition(Offset + TrimmedLength - 1, APosition.EndLineIndex,
+      APosition.EndCharIndex);
+    Inc(APosition.EndCharIndex);
   end else begin
-    AOriginalEndLineIndex := AOriginalStartLineIndex;
-    AOriginalEndCharIndex := AOriginalStartCharIndex;
+    APosition.EndLineIndex := APosition.StartLineIndex;
+    APosition.EndCharIndex := APosition.StartCharIndex;
   end;
 end;
 
@@ -759,9 +759,7 @@ begin
 end;
 
 function TScriptModelParameterSectionEntry.TryGetValuePosition(
-  const AParameterIndex: Integer;
-  out AOriginalStartLineIndex, AOriginalStartCharIndex, AOriginalEndLineIndex,
-  AOriginalEndCharIndex: Integer): Boolean;
+  const AParameterIndex: Integer; out APosition: TValuePosition): Boolean;
 { The inverse of TryGetParameterIndex: returns the start and end of the indexed
   parameter's value, excluding whitespace surrounding it. Cannot be used after
   modification: uses information from Parse. }
@@ -774,9 +772,7 @@ begin
     Exit(False);
   DoGetValuePosition(
     FChunkStartOffsets[AParameterIndex] + Parameter.FValueStartIndex - 1,
-    Parameter.RawValue, FLineStartOffsets, FOriginalLines,
-    AOriginalStartLineIndex, AOriginalStartCharIndex,
-    AOriginalEndLineIndex, AOriginalEndCharIndex);
+    Parameter.RawValue, FLineStartOffsets, FOriginalLines, APosition);
   Result := True;
 end;
 
@@ -1382,8 +1378,7 @@ begin
 end;
 
 function TScriptModelKeyValueSection.TryGetValuePosition(const AIndex: Integer;
-  out AOriginalStartLineIndex, AOriginalStartCharIndex, AOriginalEndLineIndex,
-  AOriginalEndCharIndex: Integer): Boolean;
+  out APosition: TValuePosition): Boolean;
 { Returns the start and end of the line's value, excluding whitespace
   surrounding it. Cannot be used after modification of the line: uses
   information from Parse. }
@@ -1394,9 +1389,7 @@ begin
   if Line.FModified or (Line.Kind <> lkKeyValue) then
     Exit(False);
   DoGetValuePosition(Length(Line.FNameText) + 2, Line.FRawValue,
-    Line.FLineStartOffsets, Line.FOriginalLines,
-    AOriginalStartLineIndex, AOriginalStartCharIndex,
-    AOriginalEndLineIndex, AOriginalEndCharIndex);
+    Line.FLineStartOffsets, Line.FOriginalLines, APosition);
   Result := True;
 end;
 

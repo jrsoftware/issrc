@@ -1846,22 +1846,23 @@ end;
 procedure TestEntryValuePosition;
 
   procedure Check(const AEntry: TScriptModelParameterSectionEntry;
-    const AParameterIndex, AExpectedLineIndex, AExpectedCharIndex,
+    const AParameterIndex, AExpectedStartLineIndex, AExpectedStartCharIndex,
     AExpectedEndLineIndex, AExpectedEndCharIndex: Integer);
   begin
-    var LineIndex, CharIndex, EndLineIndex, EndCharIndex: Integer;
-    Assert(AEntry.TryGetValuePosition(AParameterIndex, LineIndex, CharIndex,
-      EndLineIndex, EndCharIndex));
-    Assert(LineIndex = AExpectedLineIndex);
-    Assert(CharIndex = AExpectedCharIndex);
-    Assert(EndLineIndex = AExpectedEndLineIndex);
-    Assert(EndCharIndex = AExpectedEndCharIndex);
+    var Position: TValuePosition;
+    Assert(AEntry.TryGetValuePosition(AParameterIndex, Position));
+    Assert(Position.StartLineIndex = AExpectedStartLineIndex);
+    Assert(Position.StartCharIndex = AExpectedStartCharIndex);
+    Assert(Position.EndLineIndex = AExpectedEndLineIndex);
+    Assert(Position.EndCharIndex = AExpectedEndCharIndex);
     { The positions must map back to the parameter they came from, so that
       going to a parameter and looking up what is at the caret agree }
     var ParameterIndex: Integer;
-    Assert(AEntry.TryGetParameterIndex(LineIndex, CharIndex, ParameterIndex));
+    Assert(AEntry.TryGetParameterIndex(Position.StartLineIndex,
+      Position.StartCharIndex, ParameterIndex));
     Assert(ParameterIndex = AParameterIndex);
-    Assert(AEntry.TryGetParameterIndex(EndLineIndex, EndCharIndex, ParameterIndex));
+    Assert(AEntry.TryGetParameterIndex(Position.EndLineIndex,
+      Position.EndCharIndex, ParameterIndex));
     Assert(ParameterIndex = AParameterIndex);
   end;
 
@@ -1908,25 +1909,20 @@ begin
     Entry.Parse(['Source: x;']);
     Assert(Entry.Count = 2);
     Check(Entry, 0, 0, 8, 0, 9);
-    var LineIndex, CharIndex, EndLineIndex, EndCharIndex: Integer;
-    Assert(not Entry.TryGetValuePosition(1, LineIndex, CharIndex,
-      EndLineIndex, EndCharIndex));
+    var Position: TValuePosition;
+    Assert(not Entry.TryGetValuePosition(1, Position));
 
     { Refuses parameters outside the parsed parameters }
-    Assert(not Entry.TryGetValuePosition(-1, LineIndex, CharIndex,
-      EndLineIndex, EndCharIndex));
-    Assert(not Entry.TryGetValuePosition(2, LineIndex, CharIndex,
-      EndLineIndex, EndCharIndex));
+    Assert(not Entry.TryGetValuePosition(-1, Position));
+    Assert(not Entry.TryGetValuePosition(2, Position));
 
     { Refuses once modified: the remembered offsets no longer match }
     Entry.SetValue(0, 'z');
-    Assert(not Entry.TryGetValuePosition(0, LineIndex, CharIndex,
-      EndLineIndex, EndCharIndex));
+    Assert(not Entry.TryGetValuePosition(0, Position));
 
     { Refuses an empty entry }
     Entry.Parse(['']);
-    Assert(not Entry.TryGetValuePosition(0, LineIndex, CharIndex,
-      EndLineIndex, EndCharIndex));
+    Assert(not Entry.TryGetValuePosition(0, Position));
   finally
     Entry.Free;
   end;
@@ -1935,16 +1931,15 @@ end;
 procedure TestKeyValueSectionValuePosition;
 
   procedure Check(const ASection: TScriptModelKeyValueSection;
-    const AIndex, AExpectedLineIndex, AExpectedCharIndex,
+    const AIndex, AExpectedStartLineIndex, AExpectedStartCharIndex,
     AExpectedEndLineIndex, AExpectedEndCharIndex: Integer);
   begin
-    var LineIndex, CharIndex, EndLineIndex, EndCharIndex: Integer;
-    Assert(ASection.TryGetValuePosition(AIndex, LineIndex, CharIndex,
-      EndLineIndex, EndCharIndex));
-    Assert(LineIndex = AExpectedLineIndex);
-    Assert(CharIndex = AExpectedCharIndex);
-    Assert(EndLineIndex = AExpectedEndLineIndex);
-    Assert(EndCharIndex = AExpectedEndCharIndex);
+    var Position: TValuePosition;
+    Assert(ASection.TryGetValuePosition(AIndex, Position));
+    Assert(Position.StartLineIndex = AExpectedStartLineIndex);
+    Assert(Position.StartCharIndex = AExpectedStartCharIndex);
+    Assert(Position.EndLineIndex = AExpectedEndLineIndex);
+    Assert(Position.EndCharIndex = AExpectedEndCharIndex);
   end;
 
 begin
@@ -1984,21 +1979,17 @@ begin
     { Refuses a line which isn't a key/value, so has no value }
     Section.Parse(['; comment', 'AppName=foo']);
     Assert(Section.Count = 2);
-    var LineIndex, CharIndex, EndLineIndex, EndCharIndex: Integer;
-    Assert(not Section.TryGetValuePosition(0, LineIndex, CharIndex,
-      EndLineIndex, EndCharIndex));
+    var Position: TValuePosition;
+    Assert(not Section.TryGetValuePosition(0, Position));
     Check(Section, 1, 0, 8, 0, 11);
 
     { Refuses lines outside the parsed lines }
-    Assert(not Section.TryGetValuePosition(-1, LineIndex, CharIndex,
-      EndLineIndex, EndCharIndex));
-    Assert(not Section.TryGetValuePosition(2, LineIndex, CharIndex,
-      EndLineIndex, EndCharIndex));
+    Assert(not Section.TryGetValuePosition(-1, Position));
+    Assert(not Section.TryGetValuePosition(2, Position));
 
     { Refuses a line once modified: the remembered lines no longer match }
     Section.SetValue(1, 'bar');
-    Assert(not Section.TryGetValuePosition(1, LineIndex, CharIndex,
-      EndLineIndex, EndCharIndex));
+    Assert(not Section.TryGetValuePosition(1, Position));
   finally
     Section.Free;
   end;

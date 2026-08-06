@@ -83,10 +83,12 @@ type
     procedure InvalidateChangedRows;
     function TryGetRow(const AItem: TJvCustomInspectorItem;
       out ARow: TInspectorRow): Boolean;
-    function TryGetRowParameterSectionEntry(const ARow: TInspectorRow;
-      out AEntry: TScriptModelParameterSectionEntry; out AIndex: Integer): Boolean;
     function TryGetRowKeyValueSection(const ARow: TInspectorRow;
       out ASection: TScriptModelKeyValueSection; out AIndex: Integer): Boolean;
+    function RowResolves(const ARow: TInspectorRow): Boolean;
+    function SelectedRowResolves: Boolean;
+    function GetSelectedRowValuePositions(
+      const AMaxCount: Integer = MaxInt): TArray<TValuePosition>;
     function GetRowValueSignature(const ARow: TInspectorRow): String;
     function RowGetAsOrdinal(const ARow: TInspectorRow): Int64; overload;
     procedure RowGetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64); overload;
@@ -94,8 +96,7 @@ type
     procedure RowGetAsString(Sender: TJvCustomInspectorItem; var Value: String); overload;
     procedure RowSetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64);
     procedure RowSetAsString(Sender: TJvCustomInspectorItem; var Value: String);
-    procedure RowRemove(const AEntry: TScriptModelParameterSectionEntry;
-      const ASection: TScriptModelKeyValueSection; const AIndex: Integer);
+    procedure RowRemove(const ARow: TInspectorRow);
     procedure ChoiceRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
     function ItemShouldBeBold(const AItem: TJvCustomInspectorItem): Boolean;
     procedure JvInspectorCustomizeItemCanvas(Item: TJvCustomInspectorItem;
@@ -129,13 +130,8 @@ type
     destructor Destroy; override;
     procedure ForceFinishEdit(const AForceCancel: Boolean = False);
     function GetSelectedHelpKeyword: String;
-    function TryGetSelectedRowPosition: Boolean; overload;
-    function TryGetSelectedRowPosition(out ALine, ACharIndex, AEndLine,
-      AEndCharIndex: Integer): Boolean; overload;
+    function CanGoToSelectedRow: Boolean;
     function GoToSelectedRow: Boolean;
-    function TryResolveSelectedRow(out AEntry: TScriptModelParameterSectionEntry;
-      out ASection: TScriptModelKeyValueSection; out AIndex: Integer): Boolean; overload;
-    function TryResolveSelectedRow: Boolean; overload;
     function CanRemoveSelectedRow: Boolean;
     procedure RemoveSelectedRow;
     function ShowingDirectiveSection: Boolean;
@@ -314,18 +310,6 @@ begin
   Result := TryGetRow(AItem, Row) and RowShouldBeBold(Row);
 end;
 
-function TInspector.TryGetRowParameterSectionEntry(const ARow: TInspectorRow;
-  out AEntry: TScriptModelParameterSectionEntry; out AIndex: Integer): Boolean;
-begin
-  AEntry := nil;
-  AIndex := -1;
-  if (FLiveParameterSectionEntries = nil) or not FLiveParameterSectionEntries.Valid then
-    Exit(False);
-  AEntry := FLiveParameterSectionEntries.PrimaryEntry;
-  AIndex := ARow.Index;
-  Result := AEntry.TryResolve(ARow.Name, AIndex);
-end;
-
 function TInspector.TryGetRowKeyValueSection(const ARow: TInspectorRow;
   out ASection: TScriptModelKeyValueSection; out AIndex: Integer): Boolean;
 begin
@@ -430,38 +414,37 @@ begin
     Message.Result := DefWindowProc(FMessagesWnd, Message.Msg, Message.WParam, Message.LParam);
 end;
 
-function TInspector.TryGetSelectedRowPosition: Boolean;
+function TInspector.CanGoToSelectedRow: Boolean;
 begin
-  var Line, CharIndex, EndLine, EndCharIndex: Integer;
-  Result := TryGetSelectedRowPosition(Line, CharIndex, EndLine, EndCharIndex);
+  Result := Length(GetSelectedRowValuePositions(1)) > 0;
 end;
 
-function TInspector.TryGetSelectedRowPosition(out ALine, ACharIndex, AEndLine,
-  AEndCharIndex: Integer): Boolean;
+function TInspector.GetSelectedRowValuePositions(
+  const AMaxCount: Integer): TArray<TValuePosition>;
+{ Returns the value position of the selected row's parameter or key in every
+  entry where it is present, in entry order, stopping once AMaxCount positions
+  were collected }
 begin
-  ALine := -1;
-  ACharIndex := 0;
-  AEndLine := -1;
-  AEndCharIndex := 0;
+  Result := nil;
   const Item = FJvInspector.Selected;
   var Row: TInspectorRow;
   if (Item = nil) or not TryGetRow(Item, Row) then
-    Exit(False);
+    Exit;
   case Row.Kind of
     irkParameter, irkParameterFlag:
-      begin
-        var Entry: TScriptModelParameterSectionEntry;
-        var Index: Integer;
-        if TryGetRowParameterSectionEntry(Row, Entry, Index) then begin
-          ALine := FLiveParameterSectionEntries.FirstLine;
-          AEndLine := ALine;
-          var LineIndex, CharIndex, EndLineIndex, EndCharIndex: Integer;
-          if Entry.TryGetValuePosition(Index, LineIndex, CharIndex,
-               EndLineIndex, EndCharIndex) then begin
-            Inc(ALine, LineIndex);
-            ACharIndex := CharIndex;
-            Inc(AEndLine, EndLineIndex);
-            AEndCharIndex := EndCharIndex;
+      if (FLiveParameterSectionEntries <> nil) and
+         FLiveParameterSectionEntries.Valid then begin
+        for var I := 0 to FLiveParameterSectionEntries.Count-1 do begin
+          const LiveEntry = FLiveParameterSectionEntries.Entries[I];
+          var Index := Row.Index;
+          var Position: TValuePosition;
+          if LiveEntry.Entry.TryResolve(Row.Name, Index) and
+             LiveEntry.Entry.TryGetValuePosition(Index, Position) then begin
+            Inc(Position.StartLineIndex, LiveEntry.FirstLine);
+            Inc(Position.EndLineIndex, LiveEntry.FirstLine);
+            Result := Result + [Position];
+            if Length(Result) = AMaxCount then
+              Exit;
           end;
         end;
       end;
@@ -470,23 +453,18 @@ begin
         var Section: TScriptModelKeyValueSection;
         var Index: Integer;
         if TryGetRowKeyValueSection(Row, Section, Index) then begin
-          var Line := FLiveKeyValueSection.FirstLine;
-          for var I := 0 to Index-1 do
-            Inc(Line, Section.GetLineCount(I));
-          ALine := Line;
-          AEndLine := Line;
-          var LineIndex, CharIndex, EndLineIndex, EndCharIndex: Integer;
-          if Section.TryGetValuePosition(Index, LineIndex, CharIndex,
-               EndLineIndex, EndCharIndex) then begin
-            Inc(ALine, LineIndex);
-            ACharIndex := CharIndex;
-            Inc(AEndLine, EndLineIndex);
-            AEndCharIndex := EndCharIndex;
+          var Position: TValuePosition;
+          if Section.TryGetValuePosition(Index, Position) then begin
+            var Line := FLiveKeyValueSection.FirstLine;
+            for var I := 0 to Index-1 do
+              Inc(Line, Section.GetLineCount(I));
+            Inc(Position.StartLineIndex, Line);
+            Inc(Position.EndLineIndex, Line);
+            Result := Result + [Position];
           end;
         end;
       end;
   end;
-  Result := ALine >= 0;
 end;
 
 procedure TInspector.JvInspectorLeafNameDblClick(Item: TJvCustomInspectorItem);
@@ -691,7 +669,7 @@ end;
 
 function TInspector.GoToSelectedRow: Boolean;
 begin
-  Result := TryGetSelectedRowPosition;
+  Result := CanGoToSelectedRow;
   if not Result then
     Exit;
 
@@ -703,61 +681,66 @@ begin
   { Losing focus may have committed an edit, so need to update }
   UpdateFromCaret;
 
-  var Line, CharIndex, EndLine, EndCharIndex: Integer;
-  if TryGetSelectedRowPosition(Line, CharIndex, EndLine, EndCharIndex) then begin
-    Memo.Selection := TScintRange.Create(
-      Memo.GetPositionRelativeCodeUnits(Memo.GetPositionFromLine(Line), CharIndex),
-      Memo.GetPositionRelativeCodeUnits(Memo.GetPositionFromLine(EndLine), EndCharIndex));
+  const Positions = GetSelectedRowValuePositions;
+  if Length(Positions) > 0 then begin
+    for var I := 0 to High(Positions) do begin
+      const Range = TScintRange.Create(
+        Memo.GetPositionRelativeCodeUnits(Memo.GetPositionFromLine(Positions[I].StartLineIndex), Positions[I].StartCharIndex),
+        Memo.GetPositionRelativeCodeUnits(Memo.GetPositionFromLine(Positions[I].EndLineIndex), Positions[I].EndCharIndex));
+      if I = 0 then
+        Memo.Selection := Range
+      else
+        Memo.AddSelection(Range.EndPos, Range.StartPos);
+    end;
+    if Length(Positions) > 1 then begin
+      Memo.MainSelection := 0;
+      Memo.ScrollCaretIntoView;
+    end;
   end;
 end;
 
-function TInspector.TryResolveSelectedRow(
-  out AEntry: TScriptModelParameterSectionEntry;
-  out ASection: TScriptModelKeyValueSection; out AIndex: Integer): Boolean;
+function TInspector.RowResolves(const ARow: TInspectorRow): Boolean;
 begin
   Result := False;
-  AEntry := nil;
-  ASection := nil;
-  AIndex := -1;
-  const Item = FJvInspector.Selected;
-  var Row: TInspectorRow;
-  if (Item = nil) or not TryGetRow(Item, Row) then
-    Exit;
-  case Row.Kind of
+  case ARow.Kind of
     irkParameter, irkParameterFlag:
-      Result := TryGetRowParameterSectionEntry(Row, AEntry, AIndex);
+      Result := (FLiveParameterSectionEntries <> nil) and
+        FLiveParameterSectionEntries.MemberPresent(ARow.Name, ARow.Index);
     irkKey, irkKeyFlag:
-      Result := TryGetRowKeyValueSection(Row, ASection, AIndex);
+      begin
+        var Section: TScriptModelKeyValueSection;
+        var Index: Integer;
+        Result := TryGetRowKeyValueSection(ARow, Section, Index);
+      end;
   end;
 end;
 
-function TInspector.TryResolveSelectedRow: Boolean;
+function TInspector.SelectedRowResolves: Boolean;
 begin
-  var Entry: TScriptModelParameterSectionEntry;
-  var Section: TScriptModelKeyValueSection;
-  var Index: Integer;
-  Result := TryResolveSelectedRow(Entry, Section, Index);
+  const Item = FJvInspector.Selected;
+  var Row: TInspectorRow;
+  Result := (Item <> nil) and TryGetRow(Item, Row) and RowResolves(Row);
 end;
 
 function TInspector.CanRemoveSelectedRow: Boolean;
 begin
-  Result := not FFactory.Memo.ReadOnly and TryResolveSelectedRow;
+  Result := not FFactory.Memo.ReadOnly and SelectedRowResolves;
 end;
 
 procedure TInspector.RemoveSelectedRow;
 begin
-  var Entry: TScriptModelParameterSectionEntry;
-  var Section: TScriptModelKeyValueSection;
-  var Index: Integer;
-  if FFactory.Memo.ReadOnly or
-     not TryResolveSelectedRow(Entry, Section, Index) then
+  if FFactory.Memo.ReadOnly then
+    Exit;
+  const Item = FJvInspector.Selected;
+  var Row: TInspectorRow;
+  if (Item = nil) or not TryGetRow(Item, Row) or not RowResolves(Row) then
     Exit;
 
   { Cancel any open in-place edit: a commit could re-add the value being
     removed }
   ForceFinishEdit(True);
 
-  RowRemove(Entry, Section, Index);
+  RowRemove(Row);
 end;
 
 function TInspector.ShowingDirectiveSection: Boolean;
@@ -1722,21 +1705,10 @@ begin
   try
     case Row.Kind of
       irkParameterFlag:
-        begin
-          var Entry: TScriptModelParameterSectionEntry;
-          var Index: Integer;
-          if TryGetRowParameterSectionEntry(Row, Entry, Index) then
-            Entry.SetFlag(Index, Row.FlagName, Value <> 0) { May adjust related flags as well }
-          else if (Entry <> nil) and (Row.Index < 0) and (Value <> 0) then begin
-            { Group Add's and SetFlag's writes into a single undo action }
-            FFactory.Memo.BeginUndoAction;
-            try
-              Entry.SetFlag(Entry.Add(Row.Name, ''), Row.FlagName, True);
-            finally
-              FFactory.Memo.EndUndoAction;
-            end;
-          end;
-        end;
+        { May adjust related flags as well }
+        if FLiveParameterSectionEntries <> nil then
+          FLiveParameterSectionEntries.SetFlag(Row.Name, Row.Index,
+            Row.FlagName, Value <> 0);
       irkKey:
         begin
           var Section: TScriptModelKeyValueSection;
@@ -1810,19 +1782,12 @@ begin
   try
     case Row.Kind of
       irkParameter:
-        begin
-          var Entry: TScriptModelParameterSectionEntry;
-          var Index: Integer;
-          const Found = TryGetRowParameterSectionEntry(Row, Entry, Index);
-          if Entry <> nil then begin
-            var Definition: TMemberDefinition;
-            if Entry.TryGetDefinition(Row.Name, Definition) then
-              ValidateValue(Row.Name, Value, Definition);
-            if Found then
-              Entry.SetValue(Index, Value)
-            else if (Row.Index < 0) and (Value <> '') then
-              Entry.Add(Row.Name, Value);
-          end;
+        if (FLiveParameterSectionEntries <> nil) and
+           FLiveParameterSectionEntries.Valid then begin
+          var Definition: TMemberDefinition;
+          if FLiveParameterSectionEntries.PrimaryEntry.TryGetDefinition(Row.Name, Definition) then
+            ValidateValue(Row.Name, Value, Definition);
+          FLiveParameterSectionEntries.SetValue(Row.Name, Row.Index, Value);
         end;
       irkKey:
         begin
@@ -1849,15 +1814,21 @@ begin
   InvalidateChangedRows;
 end;
 
-procedure TInspector.RowRemove(const AEntry: TScriptModelParameterSectionEntry;
-  const ASection: TScriptModelKeyValueSection; const AIndex: Integer);
+procedure TInspector.RowRemove(const ARow: TInspectorRow);
 begin
   FInEdit := True; { See RowSetAsString }
   try
-    if AEntry <> nil then
-      AEntry.Remove(AIndex)
-    else
-      ASection.Remove(AIndex);
+    case ARow.Kind of
+      irkParameter, irkParameterFlag:
+        FLiveParameterSectionEntries.Remove(ARow.Name, ARow.Index);
+      irkKey, irkKeyFlag:
+        begin
+          var Section: TScriptModelKeyValueSection;
+          var Index: Integer;
+          if TryGetRowKeyValueSection(ARow, Section, Index) then
+            Section.Remove(Index);
+        end;
+    end;
   finally
     FInEdit := False;
   end;
