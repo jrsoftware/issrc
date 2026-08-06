@@ -2,7 +2,7 @@ unit Compression.LZMA1SmallDecompressor;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -55,10 +55,11 @@ type
     procedure DestroyHeap;
     procedure DoRead(var Buffer: Pointer; var BufferSize: Cardinal);
     procedure ProcessHeader;
+  protected
+    procedure DoDecompressInto(var Buffer; Count: Cardinal); override;
+    procedure DoReset; override;
   public
     destructor Destroy; override;
-    procedure DecompressInto(var Buffer; Count: Cardinal); override;
-    procedure Reset; override;
   end;
 
 implementation
@@ -182,7 +183,7 @@ begin
   FHeaderProcessed := True;
 end;
 
-procedure TLZMA1SmallDecompressor.DecompressInto(var Buffer; Count: Cardinal);
+procedure TLZMA1SmallDecompressor.DoDecompressInto(var Buffer; Count: Cardinal);
 var
   CallbackData: TLZMADecompressorCallbackData;
   Code: Integer;
@@ -204,7 +205,7 @@ begin
     LZMADataError(6);
 end;
 
-procedure TLZMA1SmallDecompressor.Reset;
+procedure TLZMA1SmallDecompressor.DoReset;
 begin
   FHeaderProcessed := False;
   FReachedEnd := False;

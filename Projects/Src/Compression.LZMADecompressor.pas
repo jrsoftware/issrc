@@ -26,12 +26,12 @@ type
   protected
     function DecodeToBuf(var Dest; var DestLen: Cardinal; const Src;
       var SrcLen: Cardinal; var Status: Integer): Integer; virtual; abstract;
+    procedure DoDecompressInto(var Buffer; Count: Cardinal); override;
+    procedure DoReset; override;
     procedure FreeDecoder; virtual; abstract;
     procedure ProcessHeader; virtual; abstract;
   public
     destructor Destroy; override;
-    procedure DecompressInto(var Buffer; Count: Cardinal); override;
-    procedure Reset; override;
   end;
 
 type
@@ -172,7 +172,7 @@ begin
   inherited;
 end;
 
-procedure TLZMACustomDecompressor.DecompressInto(var Buffer; Count: Cardinal);
+procedure TLZMACustomDecompressor.DoDecompressInto(var Buffer; Count: Cardinal);
 var
   NextOut: PByte;
   OutBytes, InBytes: Cardinal;
@@ -218,7 +218,7 @@ begin
   end;
 end;
 
-procedure TLZMACustomDecompressor.Reset;
+procedure TLZMACustomDecompressor.DoReset;
 begin
   FHeaderProcessed := False;
   FReachedEnd := False;

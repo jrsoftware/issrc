@@ -2,7 +2,7 @@ unit Compression.Zlib;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -66,11 +66,12 @@ type
     FStrm: TZStreamRec;
     FReachedEnd: Boolean;
     FBuffer: array[0..65535] of Byte;
+  protected
+    procedure DoDecompressInto(var Buffer; Count: Cardinal); override;
+    procedure DoReset; override;
   public
     constructor Create(AReadProc: TDecompressorReadProc); override;
     destructor Destroy; override;
-    procedure DecompressInto(var Buffer; Count: Cardinal); override;
-    procedure Reset; override;
   end;
 
 implementation
@@ -267,7 +268,7 @@ begin
   inherited Destroy;
 end;
 
-procedure TZDecompressor.DecompressInto(var Buffer; Count: Cardinal);
+procedure TZDecompressor.DoDecompressInto(var Buffer; Count: Cardinal);
 begin
   FStrm.next_out := @Buffer;
   FStrm.avail_out := Count;
@@ -287,7 +288,7 @@ begin
   end;
 end;
 
-procedure TZDecompressor.Reset;
+procedure TZDecompressor.DoReset;
 begin
   FStrm.next_in := @FBuffer;
   FStrm.avail_in := 0;

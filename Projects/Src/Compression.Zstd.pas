@@ -74,11 +74,12 @@ type
     FIn: TZSTD_inBuffer;
     FReachedEndOfFrame: Boolean;
     FInBuffer: array[0..$FFFFF] of Byte;
+  protected
+    procedure DoDecompressInto(var Buffer; Count: Cardinal); override;
+    procedure DoReset; override;
   public
     constructor Create(AReadProc: TDecompressorReadProc); override;
     destructor Destroy; override;
-    procedure DecompressInto(var Buffer; Count: Cardinal); override;
-    procedure Reset; override;
   end;
 
 implementation
@@ -298,7 +299,7 @@ begin
   inherited;
 end;
 
-procedure TZstdDecompressor.DecompressInto(var Buffer; Count: Cardinal);
+procedure TZstdDecompressor.DoDecompressInto(var Buffer; Count: Cardinal);
 
   procedure RaiseDataError(const Id: Int64);
   begin
@@ -337,7 +338,7 @@ begin
   end;
 end;
 
-procedure TZstdDecompressor.Reset;
+procedure TZstdDecompressor.DoReset;
 begin
   FIn := Default(TZSTD_inBuffer);
   Check(ZSTD_initDStream(FStrm));

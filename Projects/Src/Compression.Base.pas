@@ -52,13 +52,17 @@ type
   TCustomDecompressorClass = class of TCustomDecompressor;
   TCustomDecompressor = class
   private
+    FEntered: Integer;
     FReadProc: TDecompressorReadProc;
+    FResetExpected: Boolean;
   protected
+    procedure DoDecompressInto(var Buffer; Count: Cardinal); virtual; abstract;
+    procedure DoReset; virtual; abstract;
     property ReadProc: TDecompressorReadProc read FReadProc;
   public
     constructor Create(AReadProc: TDecompressorReadProc); virtual;
-    procedure DecompressInto(var Buffer; Count: Cardinal); virtual; abstract;
-    procedure Reset; virtual; abstract;
+    procedure DecompressInto(var Buffer; Count: Cardinal);
+    procedure Reset;
   end;
 
   { TStoredCompressor is a compressor which doesn't actually compress }
@@ -69,9 +73,9 @@ type
   end;
 
   TStoredDecompressor = class(TCustomDecompressor)
-  public
-    procedure DecompressInto(var Buffer; Count: Cardinal); override;
-    procedure Reset; override;
+  protected
+    procedure DoDecompressInto(var Buffer; Count: Cardinal); override;
+    procedure DoReset; override;
   end;
 
   TCompressedBlockWriter = class
@@ -131,6 +135,9 @@ uses
 
 const
   SCompressorStateInvalid = 'Compressor state invalid';
+  SDecompressorStateInvalid = 'Decompressor state invalid';
+  SDecompressorStateInvalidResetNotCalled =
+    'Decompressor state invalid (Reset not called after prior exception)';
   SStoredDataError = 'Unexpected end of stream';
   SCompressedBlockDataError = 'Compressed block is corrupted';
 
@@ -260,6 +267,38 @@ begin
   FReadProc := AReadProc;
 end;
 
+procedure TCustomDecompressor.DecompressInto(var Buffer; Count: Cardinal);
+begin
+  if FEntered <> 0 then
+    raise ECompressInternalError.Create(SDecompressorStateInvalid);
+  if FResetExpected then
+    raise ECompressInternalError.Create(SDecompressorStateInvalidResetNotCalled);
+  Inc(FEntered);
+  try
+    DoDecompressInto(Buffer, Count);
+  except
+    { Exceptions raised by DoDecompressInto (data errors and I/O errors) can't
+      be fatal for the instance since Setup allows the user to retry file
+      extractions. But Reset must be called before DecompressInto is called
+      again. }
+    FResetExpected := True;
+    Dec(FEntered);
+    raise;
+  end;
+  Dec(FEntered);
+end;
+
+procedure TCustomDecompressor.Reset;
+begin
+  if FEntered <> 0 then
+    raise ECompressInternalError.Create(SDecompressorStateInvalid);
+  Inc(FEntered);
+  { DoReset raising an exception is fatal for the instance }
+  DoReset;
+  FResetExpected := False;
+  Dec(FEntered);
+end;
+
 { TStoredCompressor }
 
 procedure TStoredCompressor.DoCompress(const Buffer; Count: Cardinal);
@@ -275,7 +314,7 @@ end;
 
 { TStoredDecompressor }
 
-procedure TStoredDecompressor.DecompressInto(var Buffer; Count: Cardinal);
+procedure TStoredDecompressor.DoDecompressInto(var Buffer; Count: Cardinal);
 begin
   var P: PByte := @Buffer;
   while Count > 0 do begin
@@ -287,7 +326,7 @@ begin
   end;
 end;
 
-procedure TStoredDecompressor.Reset;
+procedure TStoredDecompressor.DoReset;
 begin
 end;
 

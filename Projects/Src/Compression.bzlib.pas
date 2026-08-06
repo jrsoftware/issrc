@@ -66,11 +66,12 @@ type
     FBuffer: array[0..65535] of Byte;
     FHeapBase, FHeapNextFree: Pointer;
     function Malloc(Bytes: Cardinal): Pointer;
+  protected
+    procedure DoDecompressInto(var Buffer; Count: Cardinal); override;
+    procedure DoReset; override;
   public
     constructor Create(AReadProc: TDecompressorReadProc); override;
     destructor Destroy; override;
-    procedure DecompressInto(var Buffer; Count: Cardinal); override;
-    procedure Reset; override;
   end;
 
 implementation
@@ -324,7 +325,7 @@ begin
   end;
 end;
 
-procedure TBZDecompressor.DecompressInto(var Buffer; Count: Cardinal);
+procedure TBZDecompressor.DoDecompressInto(var Buffer; Count: Cardinal);
 begin
   FStrm.next_out := @Buffer;
   FStrm.avail_out := Count;
@@ -347,7 +348,7 @@ begin
   end;
 end;
 
-procedure TBZDecompressor.Reset;
+procedure TBZDecompressor.DoReset;
 begin
   FStrm.next_in := @FBuffer;
   FStrm.avail_in := 0;
