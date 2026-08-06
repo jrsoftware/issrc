@@ -130,7 +130,8 @@ type
     procedure ForceFinishEdit(const AForceCancel: Boolean = False);
     function GetSelectedHelpKeyword: String;
     function TryGetSelectedRowPosition: Boolean; overload;
-    function TryGetSelectedRowPosition(out ALine, ACharIndex: Integer): Boolean; overload;
+    function TryGetSelectedRowPosition(out ALine, ACharIndex, AEndLine,
+      AEndCharIndex: Integer): Boolean; overload;
     function GoToSelectedRow: Boolean;
     function TryResolveSelectedRow(out AEntry: TScriptModelParameterSectionEntry;
       out ASection: TScriptModelKeyValueSection; out AIndex: Integer): Boolean; overload;
@@ -163,7 +164,7 @@ implementation
 
 uses
   SysUtils, StrUtils, UITypes, Themes, Forms, Generics.Defaults,
-  BrowseFunc, NewUxTheme, PathFunc,
+  BrowseFunc, NewUxTheme, PathFunc, ScintEdit,
   Shared.CommonFunc, Shared.CommonFunc.Vcl,
   IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc;
 
@@ -436,15 +437,17 @@ end;
 
 function TInspector.TryGetSelectedRowPosition: Boolean;
 begin
-  var Line, CharIndex: Integer;
-  Result := TryGetSelectedRowPosition(Line, CharIndex);
+  var Line, CharIndex, EndLine, EndCharIndex: Integer;
+  Result := TryGetSelectedRowPosition(Line, CharIndex, EndLine, EndCharIndex);
 end;
 
-function TInspector.TryGetSelectedRowPosition(out ALine,
-  ACharIndex: Integer): Boolean;
+function TInspector.TryGetSelectedRowPosition(out ALine, ACharIndex, AEndLine,
+  AEndCharIndex: Integer): Boolean;
 begin
   ALine := -1;
   ACharIndex := 0;
+  AEndLine := -1;
+  AEndCharIndex := 0;
   const Item = FJvInspector.Selected;
   var Row: TInspectorRow;
   if (Item = nil) or not TryGetRow(Item, Row) then
@@ -456,10 +459,14 @@ begin
         var Index: Integer;
         if TryGetRowParameterSectionEntry(Row, Entry, Index) then begin
           ALine := FLiveParameterSectionEntry.FirstLine;
-          var LineIndex, CharIndex: Integer;
-          if Entry.TryGetValuePosition(Index, LineIndex, CharIndex) then begin
+          AEndLine := ALine;
+          var LineIndex, CharIndex, EndLineIndex, EndCharIndex: Integer;
+          if Entry.TryGetValuePosition(Index, LineIndex, CharIndex,
+               EndLineIndex, EndCharIndex) then begin
             Inc(ALine, LineIndex);
             ACharIndex := CharIndex;
+            Inc(AEndLine, EndLineIndex);
+            AEndCharIndex := EndCharIndex;
           end;
         end;
       end;
@@ -472,10 +479,14 @@ begin
           for var I := 0 to Index-1 do
             Inc(Line, Section.GetLineCount(I));
           ALine := Line;
-          var LineIndex, CharIndex: Integer;
-          if Section.TryGetValuePosition(Index, LineIndex, CharIndex) then begin
+          AEndLine := Line;
+          var LineIndex, CharIndex, EndLineIndex, EndCharIndex: Integer;
+          if Section.TryGetValuePosition(Index, LineIndex, CharIndex,
+               EndLineIndex, EndCharIndex) then begin
             Inc(ALine, LineIndex);
             ACharIndex := CharIndex;
+            Inc(AEndLine, EndLineIndex);
+            AEndCharIndex := EndCharIndex;
           end;
         end;
       end;
@@ -688,12 +699,13 @@ end;
 
 function TInspector.GoToSelectedRow: Boolean;
 begin
-  var Line, CharIndex: Integer;
-  Result := TryGetSelectedRowPosition(Line, CharIndex);
+  var Line, CharIndex, EndLine, EndCharIndex: Integer;
+  Result := TryGetSelectedRowPosition(Line, CharIndex, EndLine, EndCharIndex);
   if Result then begin
     const Memo = FFactory.Memo;
-    Memo.CaretPosition := Memo.GetPositionRelativeCodeUnits(
-      Memo.GetPositionFromLine(Line), CharIndex);
+    Memo.Selection := TScintRange.Create(
+      Memo.GetPositionRelativeCodeUnits(Memo.GetPositionFromLine(Line), CharIndex),
+      Memo.GetPositionRelativeCodeUnits(Memo.GetPositionFromLine(EndLine), EndCharIndex));
     Memo.SetFocus;
   end;
 end;

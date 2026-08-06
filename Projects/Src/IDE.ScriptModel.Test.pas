@@ -58,11 +58,17 @@ begin
 
   { JoinSpannedScriptLines: single lines are untouched, spanned groups lose
     the backslash (keeping the whitespace before it) and each line's leading
-    whitespace }
-  Assert(JoinSpannedScriptLines(['  x']) = '  x');
+    whitespace. The offsets overload reports where each line's content, past
+    its leading whitespace, starts within the joined result. }
+  var LineStartOffsets: TArray<Integer>;
+  Assert(JoinSpannedScriptLines(['  x'], LineStartOffsets) = '  x');
+  Assert((Length(LineStartOffsets) = 1) and (LineStartOffsets[0] = 3));
   Assert(JoinSpannedScriptLines(['Source: "a"; \', '  DestDir: "b"']) =
     'Source: "a"; DestDir: "b"');
-  Assert(JoinSpannedScriptLines(['A=1 \', ' 2 \', ' 3']) = 'A=1 2 3');
+  Assert(JoinSpannedScriptLines(['A=1 \', ' 2 \', ' 3'], LineStartOffsets) =
+    'A=1 2 3');
+  Assert((Length(LineStartOffsets) = 3) and (LineStartOffsets[0] = 1) and
+    (LineStartOffsets[1] = 5) and (LineStartOffsets[2] = 7));
 
   { Quoting helpers }
   Assert(UnquoteParameterValue(' "a""b" ') = 'a"b');
@@ -1840,63 +1846,87 @@ end;
 procedure TestEntryValuePosition;
 
   procedure Check(const AEntry: TScriptModelParameterSectionEntry;
-    const AParameterIndex, AExpectedLineIndex, AExpectedCharIndex: Integer);
+    const AParameterIndex, AExpectedLineIndex, AExpectedCharIndex,
+    AExpectedEndLineIndex, AExpectedEndCharIndex: Integer);
   begin
-    var LineIndex, CharIndex: Integer;
-    Assert(AEntry.TryGetValuePosition(AParameterIndex, LineIndex, CharIndex));
+    var LineIndex, CharIndex, EndLineIndex, EndCharIndex: Integer;
+    Assert(AEntry.TryGetValuePosition(AParameterIndex, LineIndex, CharIndex,
+      EndLineIndex, EndCharIndex));
     Assert(LineIndex = AExpectedLineIndex);
     Assert(CharIndex = AExpectedCharIndex);
-    { The position must map back to the parameter it came from, so that going
-      to a parameter and looking up what is at the caret agree }
+    Assert(EndLineIndex = AExpectedEndLineIndex);
+    Assert(EndCharIndex = AExpectedEndCharIndex);
+    { The positions must map back to the parameter they came from, so that
+      going to a parameter and looking up what is at the caret agree }
     var ParameterIndex: Integer;
     Assert(AEntry.TryGetParameterIndex(LineIndex, CharIndex, ParameterIndex));
+    Assert(ParameterIndex = AParameterIndex);
+    Assert(AEntry.TryGetParameterIndex(EndLineIndex, EndCharIndex, ParameterIndex));
     Assert(ParameterIndex = AParameterIndex);
   end;
 
 begin
   const Entry = TScriptModelParameterSectionEntry.Create(nil);
   try
-    { Single line with an indent: the position is that of the value, so past
-      the ':' and the whitespace after it, and a quote counts as value }
+    { Single line with an indent: the range is that of the value, so from past
+      the ':' and the whitespace after it to past the value's end, and quotes
+      count as value }
     Entry.Parse(['  Source: "a;b"; DestDir: c']);
     Assert(Entry.Count = 2);
-    Check(Entry, 0, 0, 10);
-    Check(Entry, 1, 0, 26);
+    Check(Entry, 0, 0, 10, 0, 15);
+    Check(Entry, 1, 0, 26, 0, 27);
 
     { A spanned entry: a parameter whose whitespace started on the previous
-      line still reports the position of its value on the continuation line }
+      line still reports the range of its value on the continuation line }
     Entry.Parse(['Source: "a"; \', '  DestDir: "b"; Flags: x']);
     Assert(Entry.Count = 3);
-    Check(Entry, 0, 0, 8);
-    Check(Entry, 1, 1, 11);
-    Check(Entry, 2, 1, 23);
+    Check(Entry, 0, 0, 8, 0, 11);
+    Check(Entry, 1, 1, 11, 1, 14);
+    Check(Entry, 2, 1, 23, 1, 24);
 
     { A continuation line holding nothing but its indent and the backslash
       doesn't claim the parameter which follows it }
     Entry.Parse(['Source: x; \', '  \', '  DestDir: y']);
     Assert(Entry.Count = 2);
-    Check(Entry, 0, 0, 8);
-    Check(Entry, 1, 2, 11);
+    Check(Entry, 0, 0, 8, 0, 9);
+    Check(Entry, 1, 2, 11, 2, 12);
+
+    { A value spanning onto a continuation line ends there }
+    Entry.Parse(['Source: x \', '  y; DestDir: z']);
+    Assert(Entry.Count = 2);
+    Check(Entry, 0, 0, 8, 1, 3);
+    Check(Entry, 1, 1, 14, 1, 15);
+
+    { The end excludes whitespace before the ';', and an empty value's end is
+      its start }
+    Entry.Parse(['Source: x ; DestDir:']);
+    Assert(Entry.Count = 2);
+    Check(Entry, 0, 0, 8, 0, 9);
+    Check(Entry, 1, 0, 20, 0, 20);
 
     { Refuses a chunk which isn't a named parameter, so has no value }
     Entry.Parse(['Source: x;']);
     Assert(Entry.Count = 2);
-    Check(Entry, 0, 0, 8);
-    var ChunkLineIndex, ChunkCharIndex: Integer;
-    Assert(not Entry.TryGetValuePosition(1, ChunkLineIndex, ChunkCharIndex));
+    Check(Entry, 0, 0, 8, 0, 9);
+    var LineIndex, CharIndex, EndLineIndex, EndCharIndex: Integer;
+    Assert(not Entry.TryGetValuePosition(1, LineIndex, CharIndex,
+      EndLineIndex, EndCharIndex));
 
     { Refuses parameters outside the parsed parameters }
-    var LineIndex, CharIndex: Integer;
-    Assert(not Entry.TryGetValuePosition(-1, LineIndex, CharIndex));
-    Assert(not Entry.TryGetValuePosition(2, LineIndex, CharIndex));
+    Assert(not Entry.TryGetValuePosition(-1, LineIndex, CharIndex,
+      EndLineIndex, EndCharIndex));
+    Assert(not Entry.TryGetValuePosition(2, LineIndex, CharIndex,
+      EndLineIndex, EndCharIndex));
 
     { Refuses once modified: the remembered offsets no longer match }
     Entry.SetValue(0, 'z');
-    Assert(not Entry.TryGetValuePosition(0, LineIndex, CharIndex));
+    Assert(not Entry.TryGetValuePosition(0, LineIndex, CharIndex,
+      EndLineIndex, EndCharIndex));
 
     { Refuses an empty entry }
     Entry.Parse(['']);
-    Assert(not Entry.TryGetValuePosition(0, LineIndex, CharIndex));
+    Assert(not Entry.TryGetValuePosition(0, LineIndex, CharIndex,
+      EndLineIndex, EndCharIndex));
   finally
     Entry.Free;
   end;
@@ -1905,58 +1935,70 @@ end;
 procedure TestKeyValueSectionValuePosition;
 
   procedure Check(const ASection: TScriptModelKeyValueSection;
-    const AIndex, AExpectedLineIndex, AExpectedCharIndex: Integer);
+    const AIndex, AExpectedLineIndex, AExpectedCharIndex,
+    AExpectedEndLineIndex, AExpectedEndCharIndex: Integer);
   begin
-    var LineIndex, CharIndex: Integer;
-    Assert(ASection.TryGetValuePosition(AIndex, LineIndex, CharIndex));
+    var LineIndex, CharIndex, EndLineIndex, EndCharIndex: Integer;
+    Assert(ASection.TryGetValuePosition(AIndex, LineIndex, CharIndex,
+      EndLineIndex, EndCharIndex));
     Assert(LineIndex = AExpectedLineIndex);
     Assert(CharIndex = AExpectedCharIndex);
+    Assert(EndLineIndex = AExpectedEndLineIndex);
+    Assert(EndCharIndex = AExpectedEndCharIndex);
   end;
 
 begin
   const Section = TScriptModelKeyValueSection.Create(nil);
   try
-    { Single lines: the position is that of the value, so past the '=' and the
-      whitespace after it, a quote counts as value, and an empty value's
-      position is the line's end }
-    Section.Parse(['AppName=foo', '  AppVersion = "1.0"', 'AppId=']);
-    Assert(Section.Count = 3);
-    Check(Section, 0, 0, 8);
-    Check(Section, 1, 0, 15);
-    Check(Section, 2, 0, 6);
+    { Single lines: the range is that of the value, so from past the '=' and
+      the whitespace after it to past the value's end, quotes count as value,
+      an empty value's range is empty at the line's end, and trailing
+      whitespace is excluded }
+    Section.Parse(['AppName=foo', '  AppVersion = "1.0"', 'AppId=',
+      'AppCopyright=bar  ']);
+    Assert(Section.Count = 4);
+    Check(Section, 0, 0, 8, 0, 11);
+    Check(Section, 1, 0, 15, 0, 20);
+    Check(Section, 2, 0, 6, 0, 6);
+    Check(Section, 3, 0, 13, 0, 16);
 
-    { A spanned line reports the position on the continuation line holding the
+    { A spanned line reports the range on the continuation line holding the
       value, past that line's indent }
     Section.Parse(['AppName= \', '  foo', 'AppVersion=1.0']);
     Assert(Section.Count = 2);
-    Check(Section, 0, 1, 2);
-    Check(Section, 1, 0, 11);
+    Check(Section, 0, 1, 2, 1, 5);
+    Check(Section, 1, 0, 11, 0, 14);
 
-    { A spanned line whose value starts on the first line }
+    { A spanned line whose value starts on the first line and ends on the
+      continuation line }
     Section.Parse(['AppName=My \', '  Program']);
     Assert(Section.Count = 1);
-    Check(Section, 0, 0, 8);
+    Check(Section, 0, 0, 8, 1, 9);
 
-    { A spanned line with an indent: the joining trimmed it, but the position
-      is reported with it }
+    { A spanned line with an indent: the joining trimmed it, but the range is
+      reported with it }
     Section.Parse(['  AppName=foo \', 'bar']);
     Assert(Section.Count = 1);
-    Check(Section, 0, 0, 10);
+    Check(Section, 0, 0, 10, 1, 3);
 
     { Refuses a line which isn't a key/value, so has no value }
     Section.Parse(['; comment', 'AppName=foo']);
     Assert(Section.Count = 2);
-    var LineIndex, CharIndex: Integer;
-    Assert(not Section.TryGetValuePosition(0, LineIndex, CharIndex));
-    Check(Section, 1, 0, 8);
+    var LineIndex, CharIndex, EndLineIndex, EndCharIndex: Integer;
+    Assert(not Section.TryGetValuePosition(0, LineIndex, CharIndex,
+      EndLineIndex, EndCharIndex));
+    Check(Section, 1, 0, 8, 0, 11);
 
     { Refuses lines outside the parsed lines }
-    Assert(not Section.TryGetValuePosition(-1, LineIndex, CharIndex));
-    Assert(not Section.TryGetValuePosition(2, LineIndex, CharIndex));
+    Assert(not Section.TryGetValuePosition(-1, LineIndex, CharIndex,
+      EndLineIndex, EndCharIndex));
+    Assert(not Section.TryGetValuePosition(2, LineIndex, CharIndex,
+      EndLineIndex, EndCharIndex));
 
     { Refuses a line once modified: the remembered lines no longer match }
     Section.SetValue(1, 'bar');
-    Assert(not Section.TryGetValuePosition(1, LineIndex, CharIndex));
+    Assert(not Section.TryGetValuePosition(1, LineIndex, CharIndex,
+      EndLineIndex, EndCharIndex));
   finally
     Section.Free;
   end;

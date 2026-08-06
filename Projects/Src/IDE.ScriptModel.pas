@@ -70,6 +70,7 @@ type
     FIndent: String; { First line indent }
     FOriginalLines: TArray<String>; { Before modification }
     FLineStartOffsets: TArray<Integer>; { Before modification, set by Parse }
+    FChunkStartOffsets: TArray<Integer>; { Before modification, set by Parse }
     FModified: Boolean;
     FOnChange: TNotifyEvent;
     FUpdateLevel: Integer;
@@ -114,7 +115,8 @@ type
     function TryGetParameterIndex(const AOriginalLineIndex, AOriginalCharIndex: Integer;
       out AParameterIndex: Integer): Boolean;
     function TryGetValuePosition(const AParameterIndex: Integer;
-      out AOriginalLineIndex, AOriginalCharIndex: Integer): Boolean;
+      out AOriginalStartLineIndex, AOriginalStartCharIndex, AOriginalEndLineIndex,
+      AOriginalEndCharIndex: Integer): Boolean;
     function LineSpanCount: Integer;
     property LineSpanParameterIndexes[Index: Integer]: Integer read GetLineSpanParameterIndex;
     property Indent: String read FIndent;
@@ -133,6 +135,7 @@ type
   private
     FKind: TKeyValueSectionLineKind;
     FOriginalLines: TArray<String>; { The original lines }
+    FLineStartOffsets: TArray<Integer>; { Before modification, set by Parse }
     FNameText: String;              { Original name }
     FName: String;                  { Trimmed name }
     FRawValue: String;              { Original value }
@@ -183,7 +186,8 @@ type
     function TryGetDefinition(const AName: String;
       out ADefinition: TMemberDefinition): Boolean;
     function TryGetValuePosition(const AIndex: Integer;
-      out AOriginalLineIndex, AOriginalCharIndex: Integer): Boolean;
+      out AOriginalStartLineIndex, AOriginalStartCharIndex, AOriginalEndLineIndex,
+      AOriginalEndCharIndex: Integer): Boolean;
     function DefaultValue(const AName: String): String;
     property Lines[Index: Integer]: TKeyValueSectionLine read GetLine;
     property Metadata: TScriptModelSectionMetadata read FMetadata;
@@ -192,7 +196,9 @@ type
   end;
 
 function ClassifyScriptLine(const S: String): TScriptLineKind;
-function JoinSpannedScriptLines(const ALines: array of String): String;
+function JoinSpannedScriptLines(const ALines: array of String): String; overload;
+function JoinSpannedScriptLines(const ALines: array of String;
+  out ALineStartOffsets: TArray<Integer>): String; overload;
 function ContainsLineBreak(const S: String): Boolean;
 function ScriptValueIncludesFlag(const AValue, AFlagName: String): Boolean;
 
@@ -251,17 +257,85 @@ begin
     Result := slkActual;
 end;
 
+function LeadingWhitespace(const S: String): String;
+begin
+  var I := 1;
+  while (I <= Length(S)) and (S[I] <= ' ') do
+    Inc(I);
+  Result := Copy(S, 1, I-1);
+end;
+
+function TrailingWhitespace(const S: String): String;
+begin
+  var I := Length(S);
+  while (I >= 1) and (S[I] <= ' ') do
+    Dec(I);
+  Result := Copy(S, I+1, MaxInt);
+end;
+
 function JoinSpannedScriptLines(const ALines: array of String): String;
 begin
-  if Length(ALines) = 1 then
+  var LineStartOffsets: TArray<Integer>;
+  Result := JoinSpannedScriptLines(ALines, LineStartOffsets);
+end;
+
+function JoinSpannedScriptLines(const ALines: array of String;
+  out ALineStartOffsets: TArray<Integer>): String;
+begin
+  SetLength(ALineStartOffsets, Length(ALines));
+  if Length(ALines) = 1 then begin
+    ALineStartOffsets[0] := Length(LeadingWhitespace(ALines[0]))+1;
     Exit(ALines[0]);
+  end;
   { Matches ISPP's TPreprocessor.InternalQueueLine }
   Result := '';
   for var I := 0 to High(ALines) do begin
     var S := ALines[I];
     if (I < High(ALines)) and ScriptLineSpans(S) then
       SetLength(S, Length(S)-1);
+    ALineStartOffsets[I] := Length(Result)+1;
     Result := Result + TrimLeft(S);
+  end;
+end;
+
+procedure DoGetValuePosition(const ARawValueOffset: Integer;
+  const ARawValue: String; const ALineStartOffsets: TArray<Integer>;
+  const AOriginalLines: TArray<String>;
+  out AOriginalStartLineIndex, AOriginalStartCharIndex, AOriginalEndLineIndex,
+  AOriginalEndCharIndex: Integer);
+{ Shared helper for the TryGetValuePosition functions. ARawValueOffset tells
+  where the raw value starts within the join of AOriginalLines, and
+  ALineStartOffsets where each line's own content starts within that join. }
+
+  procedure OffsetToPosition(const AOffset: Integer;
+    out ALineIndex, ACharIndex: Integer);
+  { Finds the offset's character in the original lines: it is in the last line
+    whose content starts at or before the offset }
+  begin
+    ALineIndex := 0;
+    for var I := 1 to High(ALineStartOffsets) do begin
+      if ALineStartOffsets[I] > AOffset then
+        Break;
+      ALineIndex := Integer(I);
+    end;
+    ACharIndex := AOffset - ALineStartOffsets[ALineIndex] +
+      Length(LeadingWhitespace(AOriginalLines[ALineIndex]));
+  end;
+
+begin
+  { The start is past the value's leading whitespace }
+  const Offset = ARawValueOffset + Length(LeadingWhitespace(ARawValue));
+  OffsetToPosition(Offset, AOriginalStartLineIndex, AOriginalStartCharIndex);
+
+  { The end is one past the value's last non-whitespace character }
+  const TrimmedLength = Length(Trim(ARawValue));
+  if TrimmedLength > 0 then begin
+    OffsetToPosition(Offset + TrimmedLength - 1, AOriginalEndLineIndex,
+      AOriginalEndCharIndex);
+    Inc(AOriginalEndCharIndex);
+  end else begin
+    AOriginalEndLineIndex := AOriginalStartLineIndex;
+    AOriginalEndCharIndex := AOriginalStartCharIndex;
   end;
 end;
 
@@ -350,22 +424,6 @@ begin
     ANameText := Copy(S, 1, P-1);
     ARawValue := Copy(S, P+1, MaxInt);
   end;
-end;
-
-function LeadingWhitespace(const S: String): String;
-begin
-  var I := 1;
-  while (I <= Length(S)) and (S[I] <= ' ') do
-    Inc(I);
-  Result := Copy(S, 1, I-1);
-end;
-
-function TrailingWhitespace(const S: String): String;
-begin
-  var I := Length(S);
-  while (I >= 1) and (S[I] <= ' ') do
-    Dec(I);
-  Result := Copy(S, I+1, MaxInt);
 end;
 
 function ContainsLineBreak(const S: String): Boolean;
@@ -553,25 +611,26 @@ begin
         Inc(I);
       end;
     end;
-
-    { Map each physical line break to the parameter containing its offset;
-      a break that fell between parameters belongs to the following one }
-    for var I := 1 to High(ALines) do begin
-      const Offset = FLineStartOffsets[I];
-      var ParameterIndex := Integer(FParameters.Count);
-      for var K := 0 to Integer(ChunkStartOffsets.Count)-1 do begin
-        if Offset <= ChunkStartOffsets[K] + Length(FParameters[K].RawText) - 1 then begin
-          ParameterIndex := K;
-          Break;
-        end;
-      end;
-      var LineSpan: TParameterSectionEntryLineSpan;
-      LineSpan.ParameterIndex := ParameterIndex;
-      LineSpan.Indent := LeadingWhitespace(ALines[I]);
-      FLineSpans.Add(LineSpan);
-    end;
+    FChunkStartOffsets := ChunkStartOffsets.ToArray;
   finally
     ChunkStartOffsets.Free;
+  end;
+
+  { Map each physical line break to the parameter containing its offset;
+    a break that fell between parameters belongs to the following one }
+  for var I := 1 to High(ALines) do begin
+    const Offset = FLineStartOffsets[I];
+    var ParameterIndex := Integer(FParameters.Count);
+    for var J := 0 to High(FChunkStartOffsets) do begin
+      if Offset <= FChunkStartOffsets[J] + Length(FParameters[J].RawText) - 1 then begin
+        ParameterIndex := Integer(J);
+        Break;
+      end;
+    end;
+    var LineSpan: TParameterSectionEntryLineSpan;
+    LineSpan.ParameterIndex := ParameterIndex;
+    LineSpan.Indent := LeadingWhitespace(ALines[I]);
+    FLineSpans.Add(LineSpan);
   end;
 end;
 
@@ -684,23 +743,15 @@ begin
      (FParameters.Count = 0) then
     Exit(False);
 
-  { FLineStartOffsets excludes leading whitespace length, and was stored
-    as (F)Indent instead, so use that }
-  var OriginalIndent: String;
-  if AOriginalLineIndex = 0 then
-    OriginalIndent := FIndent
-  else
-    OriginalIndent := FLineSpans[AOriginalLineIndex-1].Indent;
-  var Offset := FLineStartOffsets[AOriginalLineIndex] + AOriginalCharIndex - Length(OriginalIndent);
+  var Offset := FLineStartOffsets[AOriginalLineIndex] + AOriginalCharIndex -
+    Length(LeadingWhitespace(FOriginalLines[AOriginalLineIndex])); { FLineStartOffsets excludes each line's leading whitespace, so take it off }
   if Offset < FLineStartOffsets[AOriginalLineIndex] then
     Offset := FLineStartOffsets[AOriginalLineIndex];
 
   { The parameter at the offset is the last one starting at or before it }
   AParameterIndex := 0;
-  var ChunkStart := 1;
-  for var I := 1 to FParameters.Count-1 do begin
-    Inc(ChunkStart, Length(FParameters[I-1].RawText) + 1);
-    if ChunkStart > Offset then
+  for var I := 1 to High(FChunkStartOffsets) do begin
+    if FChunkStartOffsets[I] > Offset then
       Break;
     AParameterIndex := Integer(I);
   end;
@@ -709,10 +760,11 @@ end;
 
 function TScriptModelParameterSectionEntry.TryGetValuePosition(
   const AParameterIndex: Integer;
-  out AOriginalLineIndex, AOriginalCharIndex: Integer): Boolean;
-{ The inverse of TryGetParameterIndex: returns the position at which the
-  indexed parameter's value starts, so past its ':' and any whitespace after
-  it. Cannot be used after modification: uses information from Parse. }
+  out AOriginalStartLineIndex, AOriginalStartCharIndex, AOriginalEndLineIndex,
+  AOriginalEndCharIndex: Integer): Boolean;
+{ The inverse of TryGetParameterIndex: returns the start and end of the indexed
+  parameter's value, excluding whitespace surrounding it. Cannot be used after
+  modification: uses information from Parse. }
 begin
   if FModified or (AParameterIndex < 0) or
      (AParameterIndex >= Integer(FParameters.Count)) then
@@ -720,27 +772,11 @@ begin
   const Parameter = FParameters[AParameterIndex];
   if Parameter.Kind <> pkParameter then
     Exit(False);
-
-  var Offset := 1;
-  for var I := 0 to AParameterIndex-1 do
-    Inc(Offset, Length(FParameters[I].RawText) + 1);
-  Inc(Offset, Parameter.FValueStartIndex - 1 +
-    Length(LeadingWhitespace(Parameter.RawValue)));
-
-  AOriginalLineIndex := 0;
-  for var I := 1 to High(FOriginalLines) do begin
-    if FLineStartOffsets[I] > Offset then
-      Break;
-    AOriginalLineIndex := Integer(I);
-  end;
-
-  var OriginalIndent: String;
-  if AOriginalLineIndex = 0 then
-    OriginalIndent := FIndent
-  else
-    OriginalIndent := FLineSpans[AOriginalLineIndex-1].Indent;
-  AOriginalCharIndex := Offset - FLineStartOffsets[AOriginalLineIndex] +
-    Length(OriginalIndent);
+  DoGetValuePosition(
+    FChunkStartOffsets[AParameterIndex] + Parameter.FValueStartIndex - 1,
+    Parameter.RawValue, FLineStartOffsets, FOriginalLines,
+    AOriginalStartLineIndex, AOriginalStartCharIndex,
+    AOriginalEndLineIndex, AOriginalEndCharIndex);
   Result := True;
 end;
 
@@ -1105,7 +1141,7 @@ begin
     SetLength(Line.FOriginalLines, Last-I+1);
     for var J := I to Last do
       Line.FOriginalLines[J-I] := ALines[J];
-    const Joined = JoinSpannedScriptLines(Line.FOriginalLines);
+    const Joined = JoinSpannedScriptLines(Line.FOriginalLines, Line.FLineStartOffsets);
     Line.FKind := lkOther;
     if ClassifyScriptLine(Joined) = slkActual then begin
       var NameText, RawValue: String;
@@ -1346,47 +1382,21 @@ begin
 end;
 
 function TScriptModelKeyValueSection.TryGetValuePosition(const AIndex: Integer;
-  out AOriginalLineIndex, AOriginalCharIndex: Integer): Boolean;
-{ Returns the position at which the indexed line's value starts, so past its
-  '=' and any whitespace after it. Cannot be used after modification of the
-  line: uses information from Parse. }
+  out AOriginalStartLineIndex, AOriginalStartCharIndex, AOriginalEndLineIndex,
+  AOriginalEndCharIndex: Integer): Boolean;
+{ Returns the start and end of the line's value, excluding whitespace
+  surrounding it. Cannot be used after modification of the line: uses
+  information from Parse. }
 begin
   if (AIndex < 0) or (AIndex >= Count) then
     Exit(False);
   const Line = FLines[AIndex];
   if Line.FModified or (Line.Kind <> lkKeyValue) then
     Exit(False);
-
-  { The offset of the value in the joined line: past the name text, the '=',
-    and the value's leading whitespace }
-  const Offset = Length(Line.FNameText) + 2 +
-    Length(LeadingWhitespace(Line.FRawValue));
-
-  { A single original line was joined as is, including its indent }
-  if Length(Line.FOriginalLines) = 1 then begin
-    AOriginalLineIndex := 0;
-    AOriginalCharIndex := Offset-1;
-    Exit(True);
-  end;
-
-  { Map the offset back through the joining of the original lines, which
-    trimmed each line's leading whitespace: the line at the offset is the
-    last one starting at or before it }
-  AOriginalLineIndex := 0;
-  var LineStartOffset := 1;
-  var NextLineStartOffset := 1;
-  for var I := 1 to High(Line.FOriginalLines) do begin
-    var S := Line.FOriginalLines[I-1];
-    if ScriptLineSpans(S) then
-      SetLength(S, Length(S)-1);
-    Inc(NextLineStartOffset, Length(TrimLeft(S)));
-    if NextLineStartOffset > Offset then
-      Break;
-    AOriginalLineIndex := Integer(I);
-    LineStartOffset := NextLineStartOffset;
-  end;
-  AOriginalCharIndex := Offset - LineStartOffset +
-    Length(LeadingWhitespace(Line.FOriginalLines[AOriginalLineIndex]));
+  DoGetValuePosition(Length(Line.FNameText) + 2, Line.FRawValue,
+    Line.FLineStartOffsets, Line.FOriginalLines,
+    AOriginalStartLineIndex, AOriginalStartCharIndex,
+    AOriginalEndLineIndex, AOriginalEndCharIndex);
   Result := True;
 end;
 
