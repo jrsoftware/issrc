@@ -184,18 +184,18 @@ begin
   end;
 end;
 
-{ TryCreateParameterSectionEntry: every refusal reason plus the two accept
+{ TryCreateParameterSectionEntries: every refusal reason plus the two accept
   paths (a real parameter line, and a blank line yielding an empty entry) }
-procedure TestTryCreateParameterSectionEntry(const AMemo: TScintEdit;
+procedure TestTryCreateParameterSectionEntries(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
 
   procedure AssertRefusal(const AFactory: TLiveScriptObjectFactory; const ALine: Integer;
     const AExpectedReason: TRefusalReason);
   begin
-    var Entry: TLiveScriptParameterSectionEntry;
+    var Entries: TLiveScriptParameterSectionEntries;
     var Reason: TRefusalReason;
-    Assert(not AFactory.TryCreateParameterSectionEntry(ALine, Entry, Reason));
-    Assert(Entry = nil);
+    Assert(not AFactory.TryCreateParameterSectionEntries(ALine, Entries, Reason));
+    Assert(Entries = nil);
     Assert(Reason = AExpectedReason);
   end;
 
@@ -227,24 +227,24 @@ begin
     AssertRefusal(Factory, 12, rrUnrecognizedSection);
 
     { Accept: a real parameter line, parameters readable }
-    var Entry: TLiveScriptParameterSectionEntry;
+    var Entries: TLiveScriptParameterSectionEntries;
     var Reason: TRefusalReason;
-    Assert(Factory.TryCreateParameterSectionEntry(4, Entry, Reason));
+    Assert(Factory.TryCreateParameterSectionEntries(4, Entries, Reason));
     try
-      Assert(Entry.Section = scFiles);
+      Assert(Entries.Section = scFiles);
       var Value: String;
-      Assert(Entry.Entry.TryGetValue('Source', Value) and (Value = 'a.txt'));
-      Assert(Entry.Entry.TryGetValue('DestDir', Value) and (Value = '{app}'));
+      Assert(Entries.PrimaryEntry.TryGetValue('Source', Value) and (Value = 'a.txt'));
+      Assert(Entries.PrimaryEntry.TryGetValue('DestDir', Value) and (Value = '{app}'));
     finally
-      Entry.Free;
+      Entries.Free;
     end;
 
     { Accept: a blank line inside a section yields an empty entry }
-    Assert(Factory.TryCreateParameterSectionEntry(7, Entry, Reason));
+    Assert(Factory.TryCreateParameterSectionEntries(7, Entries, Reason));
     try
-      Assert(Entry.Entry.Count = 0);
+      Assert(Entries.PrimaryEntry.Count = 0);
     finally
-      Entry.Free;
+      Entries.Free;
     end;
   finally
     Context.Free;
@@ -265,17 +265,17 @@ begin
       'Source: "a.txt"; DestDir: "{app}"',
       'Source: "keep.txt"']);
     try
-      var Entry: TLiveScriptParameterSectionEntry;
+      var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Context.Factory.TryCreateParameterSectionEntry(1, Entry, Reason));
+      Assert(Context.Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
       try
-        Entry.Entry.SetValue(1, '{tmp}');
+        Entries.PrimaryEntry.SetValue(1, '{tmp}');
         Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{tmp}"');
         Assert(AMemo.Lines[2] = 'Source: "keep.txt"'); { Neighbor untouched }
         AMemo.Undo; { Write-back is a single undo action }
         Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{app}"');
       finally
-        Entry.Free;
+        Entries.Free;
       end;
     finally
       Context.Free;
@@ -289,16 +289,16 @@ begin
       'Source: "a.txt"; \',
       '  DestDir: "{app}"; Flags: ignoreversion']);
     try
-      var Entry: TLiveScriptParameterSectionEntry;
+      var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Context.Factory.TryCreateParameterSectionEntry(1, Entry, Reason));
+      Assert(Context.Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
       try
-        Entry.Entry.SetValue(1, '{tmp}');
+        Entries.PrimaryEntry.SetValue(1, '{tmp}');
         Assert(AMemo.Lines.Count = 3);
         Assert(AMemo.Lines[1] = 'Source: "a.txt"; \');
         Assert(AMemo.Lines[2] = '  DestDir: "{tmp}"; Flags: ignoreversion');
       finally
-        Entry.Free;
+        Entries.Free;
       end;
     finally
       Context.Free;
@@ -314,11 +314,11 @@ begin
       '',
       'Source: "c.txt"']);
     try
-      var Entry: TLiveScriptParameterSectionEntry;
+      var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Context.Factory.TryCreateParameterSectionEntry(2, Entry, Reason));
+      Assert(Context.Factory.TryCreateParameterSectionEntries(2, Entries, Reason));
       try
-        Entry.Entry.Add('Source', 'b.txt');
+        Entries.PrimaryEntry.Add('Source', 'b.txt');
         Assert(AMemo.Lines.Count = 5);
         Assert(AMemo.Lines[2] = 'Source: "b.txt"');
         Assert(AMemo.Lines[3] = '');            { The old blank, now a separator }
@@ -327,7 +327,7 @@ begin
         Assert(AMemo.Lines.Count = 4);
         Assert(AMemo.Lines[2] = '');
       finally
-        Entry.Free;
+        Entries.Free;
       end;
     finally
       Context.Free;
@@ -517,22 +517,22 @@ begin
     try
       const Factory = Context.Factory;
       Assert(Factory.SectionCount = 1); { Build the index before editing }
-      var Entry: TLiveScriptParameterSectionEntry;
+      var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateParameterSectionEntry(1, Entry, Reason));
+      Assert(Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
       try
-        Assert(Entry.FirstLine = 1);
-        Assert(Entry.LastLine = 1);
+        Assert(Entries.FirstLine = 1);
+        Assert(Entries.LastLine = 1);
         const ChangeCountBefore = Factory.ChangeCount;
         AMemo.ReplaceTextRange(0, 0, 'X' + EOL); { Insert a line at the top }
         Assert(Factory.ChangeCount > ChangeCountBefore);
-        Assert(Entry.Valid);
-        Assert(Entry.FirstLine = 2);
-        Assert(Entry.LastLine = 2);
+        Assert(Entries.Valid);
+        Assert(Entries.FirstLine = 2);
+        Assert(Entries.LastLine = 2);
         Assert(Factory.SectionCount = 1);
         Assert(Factory.SectionHeaders[0].Line = 1); { [Files] header shifted down }
       finally
-        Entry.Free;
+        Entries.Free;
       end;
     finally
       Context.Free;
@@ -550,25 +550,25 @@ begin
     try
       const Factory = Context.Factory;
       Assert(Factory.SectionCount = 1);
-      var Entry: TLiveScriptParameterSectionEntry;
+      var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateParameterSectionEntry(2, Entry, Reason));
+      Assert(Factory.TryCreateParameterSectionEntries(2, Entries, Reason));
       try
-        Assert(Entry.FirstLine = 2);
+        Assert(Entries.FirstLine = 2);
         AMemo.ReplaceTextRange(AMemo.GetPositionFromLine(2),
           AMemo.GetPositionFromLine(3), ''); { Delete line 2 }
-        Assert(not Entry.Valid);
+        Assert(not Entries.Valid);
       finally
-        Entry.Free;
+        Entries.Free;
       end;
       { Line 2 now holds the former line 3 and is still parseable }
-      var NewEntry: TLiveScriptParameterSectionEntry;
-      Assert(Factory.TryCreateParameterSectionEntry(2, NewEntry, Reason));
+      var NewEntries: TLiveScriptParameterSectionEntries;
+      Assert(Factory.TryCreateParameterSectionEntries(2, NewEntries, Reason));
       try
         var Value: String;
-        Assert(NewEntry.Entry.TryGetValue('Source', Value) and (Value = 'c.txt'));
+        Assert(NewEntries.PrimaryEntry.TryGetValue('Source', Value) and (Value = 'c.txt'));
       finally
-        NewEntry.Free;
+        NewEntries.Free;
       end;
     finally
       Context.Free;
@@ -584,21 +584,21 @@ begin
     try
       const Factory = Context.Factory;
       Assert(Factory.SectionCount = 1);
-      var Entry: TLiveScriptParameterSectionEntry;
+      var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateParameterSectionEntry(1, Entry, Reason));
+      Assert(Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
       try
         const SplitPos = AMemo.GetPositionFromLine(1) + Length('Source: "a.txt";');
         AMemo.ReplaceTextRange(SplitPos, SplitPos, EOL);
         Assert(AMemo.Lines.Count = 3);
-        Assert(Entry.Valid);
-        Assert(Entry.FirstLine = 1);
-        Assert(Entry.LastLine = 2);
-        Entry.Entry.SetValue(1, '{tmp}');
+        Assert(Entries.Valid);
+        Assert(Entries.FirstLine = 1);
+        Assert(Entries.LastLine = 2);
+        Entries.PrimaryEntry.SetValue(1, '{tmp}');
         Assert(AMemo.Lines.Count = 2);
         Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{tmp}"');
       finally
-        Entry.Free;
+        Entries.Free;
       end;
     finally
       Context.Free;
@@ -615,24 +615,24 @@ begin
     try
       const Factory = Context.Factory;
       Assert(Factory.SectionCount = 1);
-      var Entry: TLiveScriptParameterSectionEntry;
+      var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateParameterSectionEntry(1, Entry, Reason));
+      Assert(Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
       try
-        Assert(Entry.FirstLine = 1);
-        Assert(Entry.LastLine = 2);
+        Assert(Entries.FirstLine = 1);
+        Assert(Entries.LastLine = 2);
         const SplitPos = AMemo.GetPositionFromLine(2) + Length('  DestDir: "{app}";');
         AMemo.ReplaceTextRange(SplitPos, SplitPos, EOL);
         Assert(AMemo.Lines.Count = 4);
-        Assert(Entry.Valid);
-        Assert(Entry.FirstLine = 1);
-        Assert(Entry.LastLine = 3);
-        Entry.Entry.SetValue(1, '{tmp}');
+        Assert(Entries.Valid);
+        Assert(Entries.FirstLine = 1);
+        Assert(Entries.LastLine = 3);
+        Entries.PrimaryEntry.SetValue(1, '{tmp}');
         Assert(AMemo.Lines.Count = 3);
         Assert(AMemo.Lines[1] = 'Source: "a.txt"; \');
         Assert(AMemo.Lines[2] = '  DestDir: "{tmp}"; Flags: ignoreversion');
       finally
-        Entry.Free;
+        Entries.Free;
       end;
     finally
       Context.Free;
@@ -649,17 +649,17 @@ begin
     try
       const Factory = Context.Factory;
       Assert(Factory.SectionCount = 1);
-      var Entry: TLiveScriptParameterSectionEntry;
+      var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateParameterSectionEntry(1, Entry, Reason));
+      Assert(Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
       try
         const Pos = AMemo.GetPositionFromLine(2);
         AMemo.ReplaceTextRange(Pos, Pos, 'Source: "new.txt"' + EOL);
-        Assert(Entry.Valid);
-        Assert(Entry.FirstLine = 1);
-        Assert(Entry.LastLine = 1);
+        Assert(Entries.Valid);
+        Assert(Entries.FirstLine = 1);
+        Assert(Entries.LastLine = 1);
       finally
-        Entry.Free;
+        Entries.Free;
       end;
     finally
       Context.Free;
@@ -676,15 +676,15 @@ begin
     try
       const Factory = Context.Factory;
       Assert(Factory.SectionCount = 1);
-      var Entry: TLiveScriptParameterSectionEntry;
+      var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateParameterSectionEntry(1, Entry, Reason));
+      Assert(Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
       try
         AMemo.ReplaceTextRange(AMemo.GetLineEndPosition(1),
           AMemo.GetPositionFromLine(2), ''); { Join line 2 into line 1 }
-        Assert(not Entry.Valid);
+        Assert(not Entries.Valid);
       finally
-        Entry.Free;
+        Entries.Free;
       end;
     finally
       Context.Free;
@@ -727,15 +727,15 @@ begin
     try
       const Factory = Context.Factory;
       Assert(Factory.SectionCount = 1);
-      var Entry: TLiveScriptParameterSectionEntry;
+      var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateParameterSectionEntry(1, Entry, Reason));
+      Assert(Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
       try
-        Assert(Entry.Valid);
+        Assert(Entries.Valid);
         Factory.InvalidateIndex;
-        Assert(not Entry.Valid);
+        Assert(not Entries.Valid);
       finally
-        Entry.Free;
+        Entries.Free;
       end;
     finally
       Context.Free;
@@ -754,7 +754,7 @@ begin
   try
     TestSectionIndexing(AMemo, AStyler);
     TestTryGetSectionAtLine(AMemo, AStyler);
-    TestTryCreateParameterSectionEntry(AMemo, AStyler);
+    TestTryCreateParameterSectionEntries(AMemo, AStyler);
     TestEntryRoundTrip(AMemo, AStyler);
     TestKeyValueSections(AMemo, AStyler);
     TestEditTracking(AMemo, AStyler);

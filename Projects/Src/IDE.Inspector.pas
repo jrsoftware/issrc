@@ -58,7 +58,7 @@ type
       FNoteText: TNewStaticText;
       FFactory: TLiveScriptObjectFactory;
       FOnGetBaseDir: TInspectorGetBaseDirEvent;
-      FLiveParameterSectionEntry: TLiveScriptParameterSectionEntry;
+      FLiveParameterSectionEntries: TLiveScriptParameterSectionEntries;
       FLiveKeyValueSection: TLiveScriptKeyValueSection;
       FLiveKeyValueSectionName: String;
       FLiveKeyValueSectionIsDirectiveSection: Boolean;
@@ -240,7 +240,7 @@ destructor TInspector.Destroy;
 begin
   { Free the inspector before the objects its rows read from }
   FJvInspector.Free;
-  FLiveParameterSectionEntry.Free;
+  FLiveParameterSectionEntries.Free;
   FLiveKeyValueSection.Free;
   FRows.Free;
   if FMessagesWnd <> 0 then
@@ -263,7 +263,7 @@ procedure TInspector.UpdateNote;
   end;
 
 begin
-  if (FLiveParameterSectionEntry = nil) and (FLiveKeyValueSection = nil) then
+  if (FLiveParameterSectionEntries = nil) and (FLiveKeyValueSection = nil) then
     ShowNote(LFmtMessage(SInspectorNothingToInspectNote))
   else if ShowingDirectiveSection then begin
     if FShowAllKnownDirectives and FLiveKeyValueSectionHasSiblingOccurrences then
@@ -325,9 +325,9 @@ function TInspector.TryGetRowParameterSectionEntry(const ARow: TInspectorRow;
 begin
   AEntry := nil;
   AIndex := -1;
-  if (FLiveParameterSectionEntry = nil) or not FLiveParameterSectionEntry.Valid then
+  if (FLiveParameterSectionEntries = nil) or not FLiveParameterSectionEntries.Valid then
     Exit(False);
-  AEntry := FLiveParameterSectionEntry.Entry;
+  AEntry := FLiveParameterSectionEntries.PrimaryEntry;
   AIndex := ARow.Index;
   Result := AEntry.TryResolve(ARow.Name, AIndex);
 end;
@@ -459,7 +459,7 @@ begin
         var Entry: TScriptModelParameterSectionEntry;
         var Index: Integer;
         if TryGetRowParameterSectionEntry(Row, Entry, Index) then begin
-          ALine := FLiveParameterSectionEntry.FirstLine;
+          ALine := FLiveParameterSectionEntries.FirstLine;
           AEndLine := ALine;
           var LineIndex, CharIndex, EndLineIndex, EndCharIndex: Integer;
           if Entry.TryGetValuePosition(Index, LineIndex, CharIndex,
@@ -583,10 +583,10 @@ begin
   var Known := False;
   case Row.Kind of
     irkParameter:
-      if (FLiveParameterSectionEntry <> nil) and FLiveParameterSectionEntry.Valid then begin
-        Known := FLiveParameterSectionEntry.Entry.TryGetDefinition(Row.Name, Definition);
+      if (FLiveParameterSectionEntries <> nil) and FLiveParameterSectionEntries.Valid then begin
+        Known := FLiveParameterSectionEntries.PrimaryEntry.TryGetDefinition(Row.Name, Definition);
         if Known then
-          SectionName := FLiveParameterSectionEntry.Entry.Metadata.SectionName;
+          SectionName := FLiveParameterSectionEntries.PrimaryEntry.Metadata.SectionName;
       end;
     irkKey:
       if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
@@ -600,7 +600,7 @@ begin
 
   { Special: [Files] Source can only be browsed for if not external }
   if SameText(SectionName, 'Files') and SameText(Definition.Name, 'Source') then begin
-    const Entry = FLiveParameterSectionEntry.Entry; { Always exists }
+    const Entry = FLiveParameterSectionEntries.PrimaryEntry; { Always exists }
     var FlagsIndex := -1;
     if Entry.TryResolve('Flags', FlagsIndex) and
        Entry.FlagIncluded(FlagsIndex, 'external') then begin
@@ -776,7 +776,7 @@ end;
 
 function TInspector.ShowingParameterSectionEntry: Boolean;
 begin
-  Result := FLiveParameterSectionEntry <> nil;
+  Result := FLiveParameterSectionEntries <> nil;
 end;
 
 procedure TInspector.ForceFinishEdit(const AForceCancel: Boolean);
@@ -1020,7 +1020,7 @@ procedure TInspector.UpdateFromCaret;
   begin
     { Normally a parameter will be present only once, but duplicates are still
       handled here, even though that doesn't compile }
-    const Entry = FLiveParameterSectionEntry.Entry;
+    const Entry = FLiveParameterSectionEntries.PrimaryEntry;
     var Found := False;
     for var I := 0 to Entry.Count-1 do begin
       if (Entry.Parameters[I].Kind = pkParameter) and
@@ -1100,7 +1100,7 @@ procedure TInspector.UpdateFromCaret;
 
   procedure AddParameterSectionEntryRows;
   begin
-    const Entry = FLiveParameterSectionEntry.Entry;
+    const Entry = FLiveParameterSectionEntries.PrimaryEntry;
 
     { Known and uncategorized parameters first, in metadata order }
     if Entry.Metadata <> nil then begin
@@ -1282,7 +1282,7 @@ procedure TInspector.UpdateFromCaret;
         AddDebugRow(DebugCategory, 'Caret at', irkDebugCaretAt);
         {$ENDIF}
 
-        if FLiveParameterSectionEntry <> nil then
+        if FLiveParameterSectionEntries <> nil then
           AddParameterSectionEntryRows
         else if FLiveKeyValueSection <> nil then
           AddKeyValueSectionRows;
@@ -1319,14 +1319,14 @@ procedure TInspector.UpdateFromCaret;
   begin
     Result.Valid := False;
     const CaretLine = FFactory.Memo.CaretLine;
-    if (FLiveParameterSectionEntry <> nil) and FLiveParameterSectionEntry.Valid then begin
+    if (FLiveParameterSectionEntries <> nil) and FLiveParameterSectionEntries.Valid then begin
       const Memo = FFactory.Memo;
       const CaretCharIndex = Memo.GetCodeUnitCount(
         Memo.GetPositionFromLine(CaretLine), Memo.CaretPosition);
-      const Entry = FLiveParameterSectionEntry.Entry;
+      const Entry = FLiveParameterSectionEntries.PrimaryEntry;
       var Index: Integer;
       if Entry.TryGetParameterIndex(
-           CaretLine - FLiveParameterSectionEntry.FirstLine,
+           CaretLine - FLiveParameterSectionEntries.FirstLine,
            CaretCharIndex, Index) then begin
         const Parameter = Entry.Parameters[Index];
         if Parameter.Kind = pkParameter then begin
@@ -1394,10 +1394,10 @@ begin
     entry or key/value section changes nothing, so keep the model and the rows.
     The signature check must precede LiveObjectTextChanged: right after
     SetActiveFactory the live object still belongs to the previous factory. }
-  if (FLiveParameterSectionEntry <> nil) and FLiveParameterSectionEntry.Valid and
+  if (FLiveParameterSectionEntries <> nil) and FLiveParameterSectionEntries.Valid and
      (FRowSetSignature <> '') and not LiveObjectTextChanged and
-     (CaretLine >= FLiveParameterSectionEntry.FirstLine) and
-     (CaretLine <= FLiveParameterSectionEntry.LastLine) then begin
+     (CaretLine >= FLiveParameterSectionEntries.FirstLine) and
+     (CaretLine <= FLiveParameterSectionEntries.LastLine) then begin
     UpdateCaretAt;
     {$IFDEF DEBUG}
     Inc(FUpdateFromCaretEarlyExitCount);
@@ -1421,7 +1421,7 @@ begin
     end;
   end;
 
-  FreeAndNil(FLiveParameterSectionEntry);
+  FreeAndNil(FLiveParameterSectionEntries);
   FreeAndNil(FLiveKeyValueSection);
   {$IFDEF DEBUG}
   FUpdateFromCaretEarlyExitCount := 0;
@@ -1429,22 +1429,23 @@ begin
 
   { Build row set signature for the selected entry or section }
   var RowSetSignature: String; { The actual value this gets doesn't matter, as long as it's unique for any unique row set }
-  var Entry: TLiveScriptParameterSectionEntry;
+  var Entries: TLiveScriptParameterSectionEntries;
   var EntryRefusalReason: TRefusalReason;
-  if FFactory.TryCreateParameterSectionEntry(CaretLine, Entry, EntryRefusalReason) then begin
-    FLiveParameterSectionEntry := Entry;
+  if FFactory.TryCreateParameterSectionEntries(CaretLine, Entries, EntryRefusalReason) then begin
+    FLiveParameterSectionEntries := Entries;
     FChangeCountAtCreation := FFactory.ChangeCount;
-    FLiveParameterSectionEntry.Entry.QuoteNewValues := FQuoteNewParameterValues;
-    const SectionName = SectionToSectionName(FLiveParameterSectionEntry.Section);
+    FLiveParameterSectionEntries.QuoteNewValues := FQuoteNewParameterValues;
+    const SectionName = SectionToSectionName(FLiveParameterSectionEntries.Section);
     {$IFDEF DEBUG}
     FDebugStatusRowString := Format('[%s] entry at lines %d-%d',
-      [SectionName, FLiveParameterSectionEntry.FirstLine+1,
-       FLiveParameterSectionEntry.LastLine+1]);
+      [SectionName, FLiveParameterSectionEntries.FirstLine+1,
+       FLiveParameterSectionEntries.LastLine+1]);
     {$ENDIF}
     { Rows address parameters by index, so the signature includes the indexes }
     RowSetSignature := 'E|' + SectionName;
-    for var I := 0 to FLiveParameterSectionEntry.Entry.Count-1 do begin
-      const Parameter = FLiveParameterSectionEntry.Entry.Parameters[I];
+    const PrimaryEntry = FLiveParameterSectionEntries.PrimaryEntry;
+    for var I := 0 to PrimaryEntry.Count-1 do begin
+      const Parameter = PrimaryEntry.Parameters[I];
       if Parameter.Kind = pkParameter then
         RowSetSignature := RowSetSignature + '|' + IntToStr(I) + ':' + Parameter.Name;
     end;
@@ -1885,8 +1886,8 @@ begin
   if not TryGetRow(Item, Row) then
     Exit;
   var Definition: TMemberDefinition;
-  if (FLiveParameterSectionEntry <> nil) and FLiveParameterSectionEntry.Valid then begin
-    if not FLiveParameterSectionEntry.Entry.TryGetDefinition(Row.Name, Definition) then
+  if (FLiveParameterSectionEntries <> nil) and FLiveParameterSectionEntries.Valid then begin
+    if not FLiveParameterSectionEntries.PrimaryEntry.TryGetDefinition(Row.Name, Definition) then
       raise Exception.Create('Internal error: ChoiceRowGetValueList: unknown parameter');
   end else if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
     if not FLiveKeyValueSection.Section.TryGetDefinition(Row.Name, Definition) then
@@ -1926,7 +1927,7 @@ procedure TInspector.SetQuoteNewParameterValues(const Value: Boolean);
 begin
   FQuoteNewParameterValues := Value;
   if ShowingParameterSectionEntry then
-    FLiveParameterSectionEntry.Entry.QuoteNewValues := Value;
+    FLiveParameterSectionEntries.QuoteNewValues := Value;
 end;
 
 procedure TInspector.SetFilterText(const Value: String);

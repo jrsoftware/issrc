@@ -25,7 +25,7 @@ uses
 type
   TLiveScriptObjectFactory = class;
 
-  { Why TryCreateParameterSectionEntry or TryCreateKeyValueSection refused to
+  { Why TryCreateParameterSectionEntries or TryCreateKeyValueSection refused to
     create an object }
   TRefusalReason = (rrLineOutOfRange, rrNotInsideSection,
     rrInCodeSection, rrUnrecognizedSection, rrNotParameterSection, rrComment,
@@ -66,6 +66,35 @@ type
     destructor Destroy; override;
     property Entry: TScriptModelParameterSectionEntry read FEntry;
     property Section: TInnoSetupSection read FSection;
+  end;
+
+  { One or more entries of one parameter section }
+  TLiveScriptParameterSectionEntries = class
+  private
+    FEntries: TObjectList<TLiveScriptParameterSectionEntry>;
+    function GetCount: Integer;
+    function GetEntry(Index: Integer): TLiveScriptParameterSectionEntry;
+    function GetFirstLine: Integer;
+    function GetLastLine: Integer;
+    function GetPrimaryEntry: TScriptModelParameterSectionEntry;
+    function GetSection: TInnoSetupSection;
+    function GetValid: Boolean;
+    procedure SetQuoteNewValues(const Value: Boolean);
+  public
+    constructor Create;
+    destructor Destroy; override;
+    property Count: Integer read GetCount;
+    property Entries[Index: Integer]: TLiveScriptParameterSectionEntry read GetEntry;
+    { FirstLine and LastLine are the primary entry's lines: they are not a
+      range covering all entries }
+    property FirstLine: Integer read GetFirstLine;
+    property LastLine: Integer read GetLastLine;
+    { The first entry's model. Metadata is common to all entries, so definition
+      lookups for any entry can use it. }
+    property PrimaryEntry: TScriptModelParameterSectionEntry read GetPrimaryEntry;
+    property QuoteNewValues: Boolean write SetQuoteNewValues;
+    property Section: TInnoSetupSection read GetSection;
+    property Valid: Boolean read GetValid;
   end;
 
   { A single occurrence of a key/value section }
@@ -113,8 +142,8 @@ type
     function TryGetSetupDirectiveValue(const ADirectiveName: String;
       out AValue: String): Boolean;
     { ARefusalReason is only set when the result is False }
-    function TryCreateParameterSectionEntry(const ALine: Integer;
-      out AEntry: TLiveScriptParameterSectionEntry;
+    function TryCreateParameterSectionEntries(const ALine: Integer;
+      out AEntries: TLiveScriptParameterSectionEntries;
       out ARefusalReason: TRefusalReason): Boolean;
     function TryCreateKeyValueSection(const ASectionIndex: Integer;
       out ASection: TLiveScriptKeyValueSection;
@@ -179,6 +208,65 @@ begin
     FFactory.WriteBackChange(Self, FEntry.GetLines, FCreatedFromBlankLine);
     FCreatedFromBlankLine := False; { An entry created from a blank line inserts itself above that line }
   end;
+end;
+
+{ TLiveScriptParameterSectionEntries }
+
+constructor TLiveScriptParameterSectionEntries.Create;
+begin
+  inherited Create;
+  FEntries := TObjectList<TLiveScriptParameterSectionEntry>.Create;
+end;
+
+destructor TLiveScriptParameterSectionEntries.Destroy;
+begin
+  FEntries.Free;
+  inherited;
+end;
+
+function TLiveScriptParameterSectionEntries.GetCount: Integer;
+begin
+  Result := Integer(FEntries.Count);
+end;
+
+function TLiveScriptParameterSectionEntries.GetEntry(
+  Index: Integer): TLiveScriptParameterSectionEntry;
+begin
+  Result := FEntries[Index];
+end;
+
+function TLiveScriptParameterSectionEntries.GetFirstLine: Integer;
+begin
+  Result := FEntries[0].FirstLine;
+end;
+
+function TLiveScriptParameterSectionEntries.GetLastLine: Integer;
+begin
+  Result := FEntries[0].LastLine;
+end;
+
+function TLiveScriptParameterSectionEntries.GetPrimaryEntry: TScriptModelParameterSectionEntry;
+begin
+  Result := FEntries[0].Entry;
+end;
+
+function TLiveScriptParameterSectionEntries.GetSection: TInnoSetupSection;
+begin
+  Result := FEntries[0].Section;
+end;
+
+function TLiveScriptParameterSectionEntries.GetValid: Boolean;
+begin
+  Result := FEntries.Count > 0;
+  for var Entry in FEntries do
+    if not Entry.Valid then
+      Exit(False);
+end;
+
+procedure TLiveScriptParameterSectionEntries.SetQuoteNewValues(const Value: Boolean);
+begin
+  for var Entry in FEntries do
+    Entry.Entry.QuoteNewValues := Value;
 end;
 
 { TLiveScriptKeyValueSection }
@@ -588,11 +676,11 @@ begin
     Result := False;
 end;
 
-function TLiveScriptObjectFactory.TryCreateParameterSectionEntry(const ALine: Integer;
-  out AEntry: TLiveScriptParameterSectionEntry;
+function TLiveScriptObjectFactory.TryCreateParameterSectionEntries(const ALine: Integer;
+  out AEntries: TLiveScriptParameterSectionEntries;
   out ARefusalReason: TRefusalReason): Boolean;
 begin
-  AEntry := nil;
+  AEntries := nil;
   Result := False;
   EnsureIndex;
   EnsureStyled;
@@ -636,8 +724,9 @@ begin
 
   var Metadata: TScriptModelSectionMetadata := nil;
   TryGetScriptModelSectionMetadata(SectionToSectionName(Section), Metadata);
-  AEntry := TLiveScriptParameterSectionEntry.Create(Self, FirstLine, LastLine,
-    Section, Metadata, EntryLines, LineKind = slkBlank);
+  AEntries := TLiveScriptParameterSectionEntries.Create;
+  AEntries.FEntries.Add(TLiveScriptParameterSectionEntry.Create(Self, FirstLine,
+    LastLine, Section, Metadata, EntryLines, LineKind = slkBlank));
   Result := True;
 end;
 
