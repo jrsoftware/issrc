@@ -6715,11 +6715,8 @@ end;
 procedure TMainForm.EGotoLineClick(Sender: TObject);
 begin
   if FInspector.JvInspector.Focused then begin
-    FInspector.GoToSelectedRow;
-    { If the goto failed then nothing happened. Do simple switch to allow
-      back and forth switching with F6 and Ctrl+G. }
-    if not FActiveMemo.Focused then
-      FActiveMemo.SetFocus;
+    if not FInspector.GoToSelectedRow then
+      FActiveMemo.SetFocus; { Attempt simple switch to allow going back and forth using F6 and Ctrl+G. }
   end else begin
     var S := IntToStr(FActiveMemo.CaretLine + 1);
     if InputQueryEdit(LFmtMessage(SGotoLineTitle), LFmtMessage(SGotoLinePrompt), S) then begin

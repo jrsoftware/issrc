@@ -131,7 +131,7 @@ type
     function GetSelectedHelpKeyword: String;
     function TryGetSelectedRowPosition: Boolean; overload;
     function TryGetSelectedRowPosition(out ALine, ACharIndex: Integer): Boolean; overload;
-    procedure GoToSelectedRow;
+    function GoToSelectedRow: Boolean;
     function TryResolveSelectedRow(out AEntry: TScriptModelParameterSectionEntry;
       out ASection: TScriptModelKeyValueSection; out AIndex: Integer): Boolean; overload;
     function TryResolveSelectedRow: Boolean; overload;
@@ -681,10 +681,11 @@ begin
   end;
 end;
 
-procedure TInspector.GoToSelectedRow;
+function TInspector.GoToSelectedRow: Boolean;
 begin
   var Line, CharIndex: Integer;
-  if TryGetSelectedRowPosition(Line, CharIndex) then begin
+  Result := TryGetSelectedRowPosition(Line, CharIndex);
+  if Result then begin
     const Memo = FFactory.Memo;
     Memo.CaretPosition := Memo.GetPositionRelativeCodeUnits(
       Memo.GetPositionFromLine(Line), CharIndex);
