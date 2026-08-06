@@ -699,14 +699,23 @@ end;
 
 function TInspector.GoToSelectedRow: Boolean;
 begin
+  Result := TryGetSelectedRowPosition;
+  if not Result then
+    Exit;
+
+  const Memo = FFactory.Memo;
+  Memo.SetFocus;
+  if not Memo.Focused then
+    Exit; { Validation rejected the focus change }
+ 
+  { Losing focus may have committed an edit, so need to update }
+  UpdateFromCaret;
+
   var Line, CharIndex, EndLine, EndCharIndex: Integer;
-  Result := TryGetSelectedRowPosition(Line, CharIndex, EndLine, EndCharIndex);
-  if Result then begin
-    const Memo = FFactory.Memo;
+  if TryGetSelectedRowPosition(Line, CharIndex, EndLine, EndCharIndex) then begin
     Memo.Selection := TScintRange.Create(
       Memo.GetPositionRelativeCodeUnits(Memo.GetPositionFromLine(Line), CharIndex),
       Memo.GetPositionRelativeCodeUnits(Memo.GetPositionFromLine(EndLine), EndCharIndex));
-    Memo.SetFocus;
   end;
 end;
 
