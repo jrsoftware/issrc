@@ -844,6 +844,14 @@ object MainForm: TMainForm
           Caption = 'Follow cursor'
           OnClick = PInspectorFollowCaretClick
         end
+        object PInspectorQuoteNewDirectiveValues: TMenuItem
+          Caption = 'Quote new directive values'
+          OnClick = PInspectorQuoteNewDirectiveValuesClick
+        end
+        object PInspectorQuoteNewParameterValues: TMenuItem
+          Caption = 'Quote new parameter values'
+          OnClick = PInspectorQuoteNewParameterValuesClick
+        end
         object N27: TMenuItem
           Caption = '-'
         end

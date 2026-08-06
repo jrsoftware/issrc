@@ -139,6 +139,7 @@ type
     function CanRemoveSelectedRow: Boolean;
     procedure RemoveSelectedRow;
     function ShowingDirectiveSection: Boolean;
+    function ShowingParameterSectionEntry: Boolean;
     procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory;
       const AShowAllKnownDirectives, AShowAllKnownDirectivesSuppressedNote: Boolean);
     procedure UpdateFromCaret;
@@ -771,6 +772,11 @@ end;
 function TInspector.ShowingDirectiveSection: Boolean;
 begin
   Result := (FLiveKeyValueSection <> nil) and FLiveKeyValueSectionIsDirectiveSection;
+end;
+
+function TInspector.ShowingParameterSectionEntry: Boolean;
+begin
+  Result := FLiveParameterSectionEntry <> nil;
 end;
 
 procedure TInspector.ForceFinishEdit(const AForceCancel: Boolean);
@@ -1919,7 +1925,7 @@ end;
 procedure TInspector.SetQuoteNewParameterValues(const Value: Boolean);
 begin
   FQuoteNewParameterValues := Value;
-  if FLiveParameterSectionEntry <> nil then
+  if ShowingParameterSectionEntry then
     FLiveParameterSectionEntry.Entry.QuoteNewValues := Value;
 end;
 

@@ -351,6 +351,8 @@ type
     N26: TMenuItem;
     PInspectorShowAllKnownDirectives: TMenuItem;
     PInspectorFollowCaret: TMenuItem;
+    PInspectorQuoteNewDirectiveValues: TMenuItem;
+    PInspectorQuoteNewParameterValues: TMenuItem;
     N27: TMenuItem;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
@@ -505,6 +507,8 @@ type
     procedure PInspectorRemoveClick(Sender: TObject);
     procedure PInspectorShowAllKnownDirectivesClick(Sender: TObject);
     procedure PInspectorFollowCaretClick(Sender: TObject);
+    procedure PInspectorQuoteNewDirectiveValuesClick(Sender: TObject);
+    procedure PInspectorQuoteNewParameterValuesClick(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -774,6 +778,16 @@ const
   FirstIncludedFilesMemoIndex = 1; { This is an index into FFileMemos }
 
   LineStateGrowAmount = 4000;
+
+procedure SaveBooleanOption(const OptionName: String; const Value: Boolean);
+begin
+  const Ini = TConfigIniFile.Create;
+  try
+    Ini.WriteBool('Options', OptionName, Value);
+  finally
+    Ini.Free;
+  end;
+end;
 
 { TUpdatePanelMessage }
 
@@ -3344,12 +3358,7 @@ procedure TMainForm.VWordWrapClick(Sender: TObject);
 begin
   FOptions.WordWrap := not FOptions.WordWrap;
   SyncEditorOptions;
-  var Ini := TConfigIniFile.Create;
-  try
-    Ini.WriteBool('Options', 'WordWrap', FOptions.WordWrap);
-  finally
-    Ini.Free;
-  end;
+  SaveBooleanOption('WordWrap', FOptions.WordWrap);
 end;
 
 procedure TMainForm.SetStatusPanelVisible(const AVisible: Boolean);
@@ -3696,7 +3705,6 @@ procedure TMainForm.WMStartNormally(var Message: TMessage);
   procedure ShowStartupForm;
   var
     StartupForm: TStartupForm;
-    Ini: TConfigIniFile;
   begin
     ReadMRUMainFilesList;
     StartupForm := TStartupForm.Create(Application);
@@ -3706,12 +3714,7 @@ procedure TMainForm.WMStartNormally(var Message: TMessage);
       if StartupForm.ShowModal = mrOK then begin
         if FOptions.ShowStartupForm <> not StartupForm.StartupCheck.Checked then begin
           FOptions.ShowStartupForm := not StartupForm.StartupCheck.Checked;
-          Ini := TConfigIniFile.Create;
-          try
-            Ini.WriteBool('Options', 'ShowStartupForm', FOptions.ShowStartupForm);
-          finally
-            Ini.Free;
-          end;
+          SaveBooleanOption('ShowStartupForm', FOptions.ShowStartupForm);
         end;
         case StartupForm.Result of
           srEmpty:
@@ -3833,12 +3836,7 @@ begin
   else begin
     FOptions.FindRegEx := not FOptions.FindRegEx;
     UpdateFindRegExUI;
-    var Ini := TConfigIniFile.Create;
-    try
-      Ini.WriteBool('Options', 'FindRegEx', FOptions.FindRegEx);
-    finally
-      Ini.Free;
-    end;
+    SaveBooleanOption('FindRegEx', FOptions.FindRegEx);
   end;
 end;
 
@@ -3955,24 +3953,28 @@ begin
   FInspector.ForceFinishEdit;
   FOptions.InspectorShowAllKnownDirectives := not FOptions.InspectorShowAllKnownDirectives;
   SyncInspectorOptions; { Rebuilds }
-  const Ini = TConfigIniFile.Create;
-  try
-    Ini.WriteBool('Options', 'InspectorShowAllKnownDirectives', FOptions.InspectorShowAllKnownDirectives);
-  finally
-    Ini.Free;
-  end;
+  SaveBooleanOption('InspectorShowAllKnownDirectives', FOptions.InspectorShowAllKnownDirectives);
 end;
 
 procedure TMainForm.PInspectorFollowCaretClick(Sender: TObject);
 begin
   FOptions.InspectorFollowCaret := not FOptions.InspectorFollowCaret;
   SyncInspectorOptions;
-  const Ini = TConfigIniFile.Create;
-  try
-    Ini.WriteBool('Options', 'InspectorFollowCaret', FOptions.InspectorFollowCaret);
-  finally
-    Ini.Free;
-  end;
+  SaveBooleanOption('InspectorFollowCaret', FOptions.InspectorFollowCaret);
+end;
+
+procedure TMainForm.PInspectorQuoteNewDirectiveValuesClick(Sender: TObject);
+begin
+  FOptions.InspectorQuoteNewDirectiveValues := not FOptions.InspectorQuoteNewDirectiveValues;
+  SyncInspectorOptions;
+  SaveBooleanOption('InspectorQuoteNewDirectiveValues', FOptions.InspectorQuoteNewDirectiveValues);
+end;
+
+procedure TMainForm.PInspectorQuoteNewParameterValuesClick(Sender: TObject);
+begin
+  FOptions.InspectorQuoteNewParameterValues := not FOptions.InspectorQuoteNewParameterValues;
+  SyncInspectorOptions;
+  SaveBooleanOption('InspectorQuoteNewParameterValues', FOptions.InspectorQuoteNewParameterValues);
 end;
 
 procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);

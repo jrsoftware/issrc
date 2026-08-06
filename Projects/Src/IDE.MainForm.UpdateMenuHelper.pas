@@ -529,12 +529,19 @@ end;
 
 procedure TMainFormUpdateMenuHelper.UpdateInspectorPopupMenu(const Menu: TMenuItem);
 begin
+  const ShowingDirectiveSection = FInspector.ShowingDirectiveSection;
+  const ShowingParameterSectionEntry = FInspector.ShowingParameterSectionEntry;
+
   PInspectorGoTo.Enabled := FInspector.TryGetSelectedRowPosition;
   PInspectorRemove.Enabled := FInspector.CanRemoveSelectedRow;
-  PInspectorShowAllKnownDirectives.Visible := FInspector.ShowingDirectiveSection;
+  PInspectorShowAllKnownDirectives.Visible := ShowingDirectiveSection;
   PInspectorShowAllKnownDirectives.Checked := FOptions.InspectorShowAllKnownDirectives;
   PInspectorShowAllKnownDirectives.Enabled := FActiveMemo = FMainMemo;
   PInspectorFollowCaret.Checked := FOptions.InspectorFollowCaret;
+  PInspectorQuoteNewDirectiveValues.Visible := ShowingDirectiveSection;
+  PInspectorQuoteNewDirectiveValues.Checked := FOptions.InspectorQuoteNewDirectiveValues;
+  PInspectorQuoteNewParameterValues.Visible := ShowingParameterSectionEntry;
+  PInspectorQuoteNewParameterValues.Checked := FOptions.InspectorQuoteNewParameterValues;
 
   _ApplyMenuBitmapsAndNewShortCutText(Menu);
 end;
