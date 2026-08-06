@@ -20,4 +20,4 @@ Boolean-like functions are documented as "Returns non-zero if [condition]." rath
 - **Cross-reference links:** use `<link href="topicname">Display Text</link>`. `ispp.dtd` has no `anchor` attribute; the `href` carries the target.
 - **Examples:** examples sit in a bare `<pre>` inside `<section title="Examples">`.
 - **Function shorthand:** `<isxfunc>` not available; link ISPP functions with `<link href="...">`.
-- **Indentation:** `ispp.xml` is tab-indented, unlike the other ISHelp sources. Keep using tabs; the two-space rule in `indentation.md` does not apply.
+- **Indentation:** `ispp.xml` is tab-indented, unlike the other ISHelp sources. Keep using tabs; the rules in `indentation.md` do not apply.

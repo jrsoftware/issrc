@@ -117,6 +117,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>The status bar now shows information about the current selection when text is selected, instead of only the cursor position.</li>
     <li>Removed or reduced flicker (especially visible in dark mode) at startup and when opening dialogs.</li>
     <li>Improved support for screen readers: toolbar buttons are now announced.</li>
+    <li>Shift+F6 now switches backward between the active memo, the active bottom pane, and the active banner, the reverse of F6.</li>
     <li><i>Fix:</i> <i>Find in Files</i> now works correctly on lines containing non-ASCII text.</li>
     <li>Compiler IDE command line:
     <ul>
@@ -183,7 +184,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   <ul>
     <li>Previously undocumented support functions <tt>Abs</tt>, <tt>Low</tt>, <tt>High</tt>, <tt>SizeOf</tt>, <tt>Assigned</tt>, <tt>Inc</tt>, <tt>Dec</tt>, <tt>Succ</tt>, <tt>Pred</tt>, <tt>Include</tt>, <tt>Exclude</tt>, and <tt>RaiseLastException</tt> are now all documented and recognized by the Compiler IDE.</li>
     <li>Support functions <tt>TaskDialogMsgBox</tt> and <tt>SuppressibleTaskDialogMsgBox</tt> now wrap long instruction text onto multiple lines even when a custom style is active.</li>
-    <li>Support function <tt>AddPeriod</tt> no longer appends a <tt>.</tt> on strings ending with a question mark (<tt>?</tt>), ideographic full stop (<tt>&#x3002;</tt>), or various other sentence-terminating characters (see documentation for the complete list). On strings ending with any other non-control character, a <tt>.</tt> will be appended. Previously, a <tt>.</tt> was not appended on strings ending with spaces or certain symbols like quotation marks and parentheses (specifically, characters &le; <tt>U+002E</tt>). This change also affects the error messages which Setup and the compiler themselves format using <tt>AddPeriod</tt>.</li>
+    <li>Support function <tt>AddPeriod</tt> no longer appends a <tt>.</tt> on strings ending with a question mark (<tt>?</tt>), ideographic full stop (<tt>&#x3002;</tt>), or various other sentence-terminating characters (see documentation for the complete list). It also no longer appends a <tt>.</tt> on strings ending with a Thai or Lao character, because these do not end sentences with a full stop. On strings ending with any other non-control character, a <tt>.</tt> will be appended. Previously, a <tt>.</tt> was not appended on strings ending with spaces or certain symbols like quotation marks and parentheses (specifically, characters &le; <tt>U+002E</tt>). This change also affects the error messages which Setup and the compiler themselves format using <tt>AddPeriod</tt>.</li>
     <li><i>Fixes:</i> Support function <tt>CreateCallback</tt> has been improved for some edge cases:
     <ul>
       <li>In 32-bit installers, a by-value 3-byte record, set, or static array parameter now receives the correct value.</li>
@@ -211,6 +212,7 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
   <li>The time stamps of files shown in Setup's log are now in UTC instead of local time, consistent with <tt>TimeStampsInUTC</tt> defaulting to <tt>yes</tt>.</li>
   <li>Updated the Scintilla source code used by Inno Setup to the latest version.</li>
   <li>Throughout the help file, all script examples are now syntax highlighted, all code identifiers are now monospaced, and all <tt>[Setup]</tt> section directives, section names, and Pascal Scripting support functions are now linked to their documentation.</li>
+  <li>Updated the official Japanese, Simplified Chinese, Traditional Chinese, and Armenian translations: certain error messages now end with the language's own period character (such as <tt>&#x3002;</tt>) instead of a <tt>.</tt> appended automatically at run time.</li>
   <li><i>Fix:</i> A <tt>+</tt> in the username or password of a download URL is no longer decoded as a space.</li>
   <li>Many other minor improvements and fixes.</li>
 </ul>

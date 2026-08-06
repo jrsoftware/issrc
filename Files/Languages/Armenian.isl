@@ -37,7 +37,7 @@ LdrCannotCreateTemp=Հնարավոր չէ ստեղծել ժամանակավոր 
 LdrCannotExecTemp=Հնարավոր չէ կատարել ֆայլը ժամանակավոր պանակից։ Տեղադրումը կասեցված է
 
 ; *** Startup error messages
-LastErrorMessage=%1.%n%nՍխալ %2: %3
+LastErrorMessage=%1։%n%nՍխալ %2: %3
 SetupFileMissing=%1 ֆայլը բացակայում է տեղադրման պանակից։ Ուղղեք խնդիրը կամ ստացեք ծրագրի նոր տարբերակը։
 SetupFileCorrupt=Տեղադրվող ֆայլերը վնասված են։
 SetupFileCorruptOrWrongVer=Տեղադրվող ֆայլերը վնասված են կամ անհամատեղելի են տեղակայիչի այս տարբերակի հետ։ Ուղղեք խնդիրը կամ ստացեք ծրագրի նոր տարբերակը։
@@ -67,7 +67,7 @@ PrivilegesRequiredOverrideCurrentUserRecommended=Տեղադրել միայն &ի
 
 ; *** Misc. errors
 ErrorCreatingDir=Հնարավոր չէ ստեղծել "%1" պանակը
-ErrorTooManyFilesInDir=Հնարավոր չէ ստեղծել ֆայլ "%1" պանակում, որովհետև նրանում կան չափից ավելի շատ ֆայլեր
+ErrorTooManyFilesInDir=Հնարավոր չէ ստեղծել ֆայլ "%1" պանակում, որովհետև նրանում կան չափից ավելի շատ ֆայլեր։
 
 ; *** Setup common messages
 ExitSetupTitle=Տեղակայման ընդհատում
@@ -205,21 +205,21 @@ ReadyMemoTasks=Լրացուցիչ առաջադրանքներ՝
 DownloadingLabel2=Ֆայլերի ներբեռնում...
 ButtonStopDownload=&Կանգնեցնել ներբեռնումը
 StopDownload=Համոզվա՞ծ եք, որ պետք է կանգնեցնել ներբեռնումը։
-ErrorDownloadAborted=Ներբեռնումը կասեցված է
-ErrorDownloadFailed=Ներբեռնումը ձախողվեց. %1 %2
-ErrorDownloadSizeFailed=Չափի ստացումը ձախողվեց. %1 %2
-ErrorProgress=Անվավեր ընթացք. %1-ը %2-ից
-ErrorFileSize=Ֆայլի անվավեր չափ. ակնկալվում էր %1, գտնվել է %2
+ErrorDownloadAborted=Ներբեռնումը կասեցված է։
+ErrorDownloadFailed=Ներբեռնումը ձախողվեց. %1 %2։
+ErrorDownloadSizeFailed=Չափի ստացումը ձախողվեց. %1 %2։
+ErrorProgress=Անվավեր ընթացք. %1-ը %2-ից։
+ErrorFileSize=Ֆայլի անվավեր չափ. ակնկալվում էր %1, գտնվել է %2։
 ; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=Ֆայլերը դուրս են բերվում...
 ButtonStopExtraction=&Կանգնեցնել դուրս բերումը
 StopExtraction=Համոզվա՞ծ եք, որ ցանկանում եք կանգնեցնել դուրս բերումը։
-ErrorExtractionAborted=Դուրս բերումը կասեցված է
+ErrorExtractionAborted=Դուրս բերումը կասեցված է։
 ErrorExtractionFailed=Դուրս բերումը ձախողվեց. %1
 ; *** Archive extraction failure details
-ArchiveIncorrectPassword=Գաղտնաբառը սխալ է
-ArchiveIsCorrupted=Արխիվը վնասված է
-ArchiveUnsupportedFormat=Արխիվի ձևաչափը չի աջակցվում
+ArchiveIncorrectPassword=Գաղտնաբառը սխալ է։
+ArchiveIsCorrupted=Արխիվը վնասված է։
+ArchiveUnsupportedFormat=Արխիվի ձևաչափը չի աջակցվում։
 ; *** "Preparing to Install" wizard page
 WizardPreparing=Տեղադրման նախապատրաստում
 PreparingDesc=Տեղակայիչը պատրաստվում է տեղադրել [name]-ը ձեր համակարգչում։
@@ -282,10 +282,10 @@ StatusRestartingApplications=Ծրագրերի վերամեկնարկում...
 StatusRollback=Փոփոխությունների հետ բերում...
 
 ; *** Misc. errors
-ErrorInternal2=Ներքին սխալ՝ %1
-ErrorFunctionFailedNoCode=%1-ը ձախողվեց
-ErrorFunctionFailed=%1-ը ձախողվեց, կոդ՝ %2
-ErrorFunctionFailedWithMessage=%1-ը ձախողվեց, կոդ՝ %2.%n%3
+ErrorInternal2=Ներքին սխալ՝ %1։
+ErrorFunctionFailedNoCode=%1-ը ձախողվեց։
+ErrorFunctionFailed=%1-ը ձախողվեց, կոդ՝ %2։
+ErrorFunctionFailedWithMessage=%1-ը ձախողվեց, կոդ՝ %2։%n%3
 ErrorExecutingProgram=Հնարավոր չէ կատարել%n%1 ֆայլը
 
 ; *** Registry errors
@@ -299,16 +299,16 @@ ErrorIniEntry=Սխալ՝ "%1" INI ֆայլում գրառում կատարելի
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=Բաց թողնել այս ֆայլը (խորհուրդ չի տրվում)
 FileAbortRetryIgnoreIgnoreNotRecommended=Անտեսել սխալը և շարունակել (խորհուրդ չի տրվում)
-SourceIsCorrupted=Սկզբնական ֆայլը վնասված է
-SourceDoesntExist=Սկզբնական "%1" ֆայլը գոյություն չունի
+SourceIsCorrupted=Սկզբնական ֆայլը վնասված է։
+SourceDoesntExist=Սկզբնական "%1" ֆայլը գոյություն չունի։
 SourceVerificationFailed=Սկզբնական ֆայլի ստուգումը ձախողվեց. %1
-VerificationSignatureDoesntExist="%1" ստորագրության ֆայլը գոյություն չունի
-VerificationSignatureInvalid=Ստորագրության "%1" ֆայլն անվավեր է
-VerificationKeyNotFound=Ստորագրության "%1" ֆայլն օգտագործում է անհայտ բանալի
-VerificationFileNameIncorrect=Ֆայլի անունը սխալ է
-VerificationFileTagIncorrect=Ֆայլի պիտակը սխալ է
-VerificationFileSizeIncorrect=Ֆայլի չափը սխալ է
-VerificationFileHashIncorrect=Ֆայլի hash-ը սխալ է
+VerificationSignatureDoesntExist="%1" ստորագրության ֆայլը գոյություն չունի։
+VerificationSignatureInvalid=Ստորագրության "%1" ֆայլն անվավեր է։
+VerificationKeyNotFound=Ստորագրության "%1" ֆայլն օգտագործում է անհայտ բանալի։
+VerificationFileNameIncorrect=Ֆայլի անունը սխալ է։
+VerificationFileTagIncorrect=Ֆայլի պիտակը սխալ է։
+VerificationFileSizeIncorrect=Ֆայլի չափը սխալ է։
+VerificationFileHashIncorrect=Ֆայլի hash-ը սխալ է։
 ExistingFileReadOnly2=Առկա ֆայլը չի կարող փոխարինվել, քանի որ այն նշված է որպես միայն կարդալու։
 ExistingFileReadOnlyRetry=&Հեռացրեք միայն կարդալ հատկանիշը և կրկին փորձեք
 ExistingFileReadOnlyKeepExisting=&Պահել առկա ֆայլը
@@ -333,7 +333,7 @@ ErrorReplacingExistingFile=Սխալ՝ գոյություն ունեցող ֆայ
 ErrorRestartReplace=RestartReplace ձախողում.
 ErrorRenamingTemp=Սխալ՝ նպատակակետ պանակում՝ ֆայլը վերանվանելիս.
 ErrorRegisterServer=Հնարավոր չէ գրանցել DLL/OCX-ը. %1
-ErrorRegSvr32Failed=RegSvr32-ի ձախողում, կոդ՝ %1
+ErrorRegSvr32Failed=RegSvr32-ի ձախողում, կոդ՝ %1։
 ErrorRegisterTypeLib=Հնարավոր չէ գրանցել դարանները՝ %1
 ; *** Uninstall display name markings
 ; used for example as 'My Program (32-bit)'
@@ -352,8 +352,8 @@ ErrorRestartingComputer=Հնարավոր չեղավ վերամեկնարկել �
 ; *** Uninstaller messages
 UninstallNotFound="%1" ֆայլը գոյություն չունի։ Հնարավոր չէ ապատեղադրել։
 UninstallOpenError="%1" ֆայլը հնարավոր չէ բացել: Հնարավոր չէ ապատեղադրել
-UninstallUnsupportedVer=Ապատեղադրելու "%1" մատյանի ֆայլը անճանաչելի է ապատեղադրող ծրագրի այս տարբերակի համար։ Հնարավոր չէ ապատեղադրել
-UninstallUnknownEntry=Անհայտ գրառում է (%1)՝ հայտնաբերվել ապատեղադրելու մատյանում
+UninstallUnsupportedVer=Ապատեղադրելու "%1" մատյանի ֆայլը անճանաչելի է ապատեղադրող ծրագրի այս տարբերակի համար։ Հնարավոր չէ ապատեղադրել։
+UninstallUnknownEntry=Անհայտ գրառում է (%1)՝ հայտնաբերվել ապատեղադրելու մատյանում։
 ConfirmUninstall=Ապատեղադրե՞լ %1-ը և նրա բոլոր բաղադրիչները։
 UninstallOnlyOnWin64=Հնարավոր է ապատեղադրել միայն 64 բիթանոց Windows-ում։
 OnlyAdminCanUninstall=Հնարավոր է ապատեղադրել միայն Ադմինի իրավունքներով։
@@ -361,7 +361,7 @@ UninstallStatusLabel=Խնդրում ենք սպասել, մինչև %1-ը ապա
 UninstalledAll=%1 ծրագիրը ապատեղադրվել է համակարգչից։
 UninstalledMost=%1-ը ապատեղադրվեց Ձեր համակարգչից։%n%nՈրոշ ֆայլեր հնարավոր չեղավ հեռացնել։ Ինքներդ հեռացրեք դրանք։
 UninstalledAndNeedsRestart=%1-ի ապատեղադրումը ավարտելու համար պետք է վերամեկնարկել համակարգիչը։%n%nՎերամեկնարկե՞լ։
-UninstallDataCorrupted="%1" ֆայլը վնասված է։ Հնարավոր չէ ապատեղադրել
+UninstallDataCorrupted="%1" ֆայլը վնասված է։ Հնարավոր չէ ապատեղադրել։
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Հեռացնե՞լ համատեղ օգտագործվող ֆայլը։

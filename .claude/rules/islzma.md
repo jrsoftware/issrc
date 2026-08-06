@@ -5,7 +5,7 @@ paths: ["Projects/Src/Compression.LZMACompressor/islzma/**", "Projects/Src/Compr
 
 ## Indentation
 
-These files keep their existing indentation style; the two-space rule in `indentation.md` does not apply:
+These files keep their existing indentation style; the rules in `indentation.md` do not apply:
 - `islzma.c`, `islzma.h`, `islzma_dll.c`, `islzma_exe.c`, `ISLzmaDec.c`, and `test/test.bat` are tab-indented.
 - `test/roundtrip.c` is four-space indented.
 

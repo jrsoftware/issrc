@@ -1544,7 +1544,7 @@ begin
   end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
     { Move focus between the active memo, the inspector, the inspector filter,
       the inspector popup menu button, the active bottom pane, and the active
-      banner }
+      banner, backward if Shift is held }
     Key := 0;
 
     { First get the list of controls to toggle between }
@@ -1574,15 +1574,13 @@ begin
       AddControlToArray(UpdatePanelCloseBitBtn, Controls, NControls);
     end;
 
-    { Now move focus to next }
+    { Now move focus to next or previous }
     if NControls > 1 then begin
+      const Delta = IfThen(ssShift in Shift, -1, 1);
       for var I := 0 to NControls-1 do begin
         { Using ContainsControl because the inspector has in-place editors }
         if Controls[I].ContainsControl(ActiveControl) then begin
-          if I = NControls-1 then
-            ActiveControl := Controls[0]
-          else
-            ActiveControl := Controls[I+1];
+          ActiveControl := Controls[(I+Delta+NControls) mod NControls];
           Exit;
         end;
       end;
