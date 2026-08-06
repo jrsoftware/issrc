@@ -55,6 +55,9 @@ type
   TScintStyleByteIndicatorNumbers = set of TScintStyleByteIndicatorNumber;
   TScintIndicatorNumber = INDICATOR_CONTAINER..INDICATOR_MAX;
   TScintLineEndings = (sleCRLF, sleCR, sleLF);
+  TScintLineRange = record
+    StartLine, EndLine: Integer;
+  end;
   TScintLineState = type Integer;
   TScintMarkerNumber = 0..31;
   TScintMarkerNumbers = set of TScintMarkerNumber;
@@ -316,6 +319,7 @@ type
     function GetPositionRelative(const Pos, CharacterCount: Integer): Integer;
     function GetRawTextLength: Integer;
     function GetRawTextRange(const StartPos, EndPos: Integer): TScintRawString;
+    function GetSelectionLineRanges: TArray<TScintLineRange>;
     procedure GetSelections(const RangeList: TScintRangeList); overload;
     procedure GetSelections(const CaretAndAnchorList: TScintCaretAndAnchorList); overload;
     procedure GetSelections(const CaretAndAnchorList, VirtualSpacesList: TScintCaretAndAnchorList); overload;
@@ -576,7 +580,7 @@ type
 implementation
 
 uses
-  ShellAPI, RTLConsts, UITypes, GraphUtil;
+  ShellAPI, RTLConsts, Generics.Defaults, Math, UITypes, GraphUtil;
 
 { TScintEdit }
 
@@ -1453,6 +1457,50 @@ end;
 function TScintEdit.GetSelectionEndPosition(Selection: Integer): Integer;
 begin
   Result := Call(SCI_GETSELECTIONNEND, Selection, 0)
+end;
+
+function TScintEdit.GetSelectionLineRanges: TArray<TScintLineRange>;
+{ Returns the line ranges of all selections, sorted, with overlapping and
+  adjacent ranges merged into one. For multi-line selections the end line is
+  dropped when the selection ends at the start of that line. }
+
+  function GetSelectionLineRange(const Selection: Integer): TScintLineRange;
+  begin
+    const EndPos = GetSelectionEndPosition(Selection);
+    Result.StartLine := GetLineFromPosition(GetSelectionStartPosition(Selection));
+    Result.EndLine := GetLineFromPosition(EndPos);
+    if (Result.EndLine > Result.StartLine) and (GetPositionFromLine(Result.EndLine) = EndPos) then
+      Dec(Result.EndLine);
+  end;
+
+begin
+  const SelectionCount = GetSelectionCount;
+  var LineRanges: TArray<TScintLineRange>;
+  { Collect }
+  SetLength(LineRanges, SelectionCount);
+  for var I := 0 to SelectionCount-1 do
+    LineRanges[I] := GetSelectionLineRange(I);
+  if SelectionCount > 1 then begin
+    { Sort }
+    TArray.Sort<TScintLineRange>(LineRanges, TComparer<TScintLineRange>.Construct(
+      function(const A, B: TScintLineRange): Integer
+      begin
+        Result := CompareValue(A.StartLine, B.StartLine);
+      end));
+    { Merge overlapping and adjacent ranges }
+    var MergedCount := 1;
+    for var I := 1 to SelectionCount-1 do begin
+      if LineRanges[I].StartLine <= LineRanges[MergedCount-1].EndLine + 1 then begin
+        if LineRanges[I].EndLine > LineRanges[MergedCount-1].EndLine then
+          LineRanges[MergedCount-1].EndLine := LineRanges[I].EndLine;
+      end else begin
+        LineRanges[MergedCount] := LineRanges[I];
+        Inc(MergedCount);
+      end;
+    end;
+    SetLength(LineRanges, MergedCount);
+  end;
+  Result := LineRanges;
 end;
 
 function TScintEdit.GetSelectionMode: TScintSelectionMode;
