@@ -2,12 +2,11 @@
 
 [Setup]
 AppName=My Program
-AppVerName=My Program version 1.5
+AppVersion=1.5
 #define DefaultDirName "{autopf}\My Program"
 DefaultDirName={#DefaultDirName}
 UseSetupLdr=no
 OutputDir=.
-AppVersion=1.2.3
 OutputBaseFilename=Setup
 PrivilegesRequired=lowest
 MergeDuplicateFiles=no

@@ -56,7 +56,7 @@ Getting Started
 
 4. **Build Inno Setup**
 
-   Unfortunately, Embarcadero has removed command line compilation support
+   Unfortunately, Embarcadero has removed command-line compilation support
    from the Community Edition, which means there's two different build
    scripts.
 
@@ -193,14 +193,14 @@ Source code tips
   the Debug.iss script as explained above, except with the `UseSetupLdr=no` line
   set to `yes`. Then open and run the SetupLdr project with a 32-bit or 64-bit
   target (latter does not require using `UseSetupLdr=x64`). It will automatically
-  set a special debug-only `/SELFFILENAME=Setup.exe` command line parameter,
+  set a special debug-only `/SELFFILENAME=Setup.exe` command-line parameter,
   which will cause it to load and run the Setup.exe you just compiled using
   ISIDE, instead of the SetupLdr.e32 or .e64 just compiled by Delphi.
 
 - To debug the uninstaller first run Setup.exe to completion with the
-  `/DETACHEDMSG` command line parameter set. Afterwards copy uninst000.dat and
+  `/DETACHEDMSG` command-line parameter set. Afterwards copy uninst000.dat and
   uninst000.msg as setup.dat and setup.msg to the [Projects\Bin] directory in your
-  issrc path. Then open the Setup project and set the command line parameters to
+  issrc path. Then open the Setup project and set the command-line parameters to
   `/UNINSTMODE /KEEPEXEDATMSG "/SECONDPHASE=<your issrc path\Projects\Bin\Setup.exe"` and start
   debugging.
 
@@ -276,7 +276,7 @@ performs unattended builds upon `push` events, it requires some setting up, thou
 
 Note: The following instructions assume that you have a correctly-licensed version
 of Delphi installed and ran **getit.bat** as mentioned above. Your Delphi version
-may not be a Community Edition because it does not support command line compilation.
+may not be a Community Edition because it does not support command-line compilation.
 Also ensure your current Delphi license still allows you to copy a subset of the
 Delphi files to another machine for the specific purpose of supporting unattended
 builds.

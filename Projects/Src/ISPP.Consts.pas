@@ -3,7 +3,7 @@
   Copyright (C) 2001-2002 Alex Yackimoff
 
   Inno Setup
-  Copyright (C) 1997-2020 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 }
@@ -32,11 +32,10 @@ const
   SElseWithoutIf = '''else'' without ''if''';
   SEndifExpected = '''endif'' expected';
   SEndifWithoutIf = '''endif'' without ''if''';
-  SErrorWhileOpeningFile = 'Error %d while opening file %s';
-  SErrorWhileReadingFile = 'Error %d while reading file %s';
   SFileDirectiveCanBeOnlyInline = '''file'' directive can be only inline';
   SFileIsAlreadyBeingIncluded = 'File %s is already being included';
   SFileNotFound = 'File not found: %s';
+  SFuncArrayNoDefault = 'Function or array parameter cannot have a default value';
   SInsertLineNoTooBig = 'Line number %d is out of current translation';
   SInvalidOptionName = 'Invalid option name';
   SInvalidTypeId = 'Invalid type identifier: %s';
@@ -105,7 +104,7 @@ const
   SActualParamsNamingConflict = 'All actual parameters must appear either in order of their declaration, or by names';
   SCannotConvertToInteger = 'Cannot convert "%s" to integer';
   SExpectedButFound = '%s expected but %s found';
-  SIllegalChar = 'Illegal character in input file: ''%s'' (0x%-2x)';
+  SIllegalChar = 'Illegal character in input file: ''%s'' (0x%.2x)';
   SIntegerExpressionExpected = 'Integer expression expected';
   SLValueRequired = 'Left side cannot be assigned to (expression is not an l-value)';
   SOperatorNotApplicableToThisOpera = 'Operator not applicable to this operand type';

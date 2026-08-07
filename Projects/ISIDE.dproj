@@ -124,6 +124,11 @@
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\IDE.HelperFunc.pas"/>
         <DCCReference Include="Src\IDE.Messages.pas"/>
+        <DCCReference Include="Src\IDE.LocalizeFunc.pas"/>
+        <DCCReference Include="Src\IDE.LocalizeFunc.Czech.pas"/>
+        <DCCReference Include="Src\IDE.LocalizeFunc.Dutch.pas"/>
+        <DCCReference Include="Src\IDE.LocalizeFunc.German.pas"/>
+        <DCCReference Include="Src\IDE.LocalizeFunc.Japanese.pas"/>
         <DCCReference Include="Src\Shared.CompilerInt.pas"/>
         <DCCReference Include="Src\Shared.CompilerInt.Struct.pas"/>
         <DCCReference Include="Src\IDE.OptionsForm.pas">
@@ -152,11 +157,15 @@
         <DCCReference Include="Src\IDE.LicenseKeyForm.pas">
             <Form>LicenseKeyForm</Form>
         </DCCReference>
-        <DCCReference Include="Src\IDE.InputQueryComboForm.pas">
-            <Form>InputQueryComboForm</Form>
+        <DCCReference Include="Src\IDE.InputQueryForm.pas">
+            <Form>InputQueryForm</Form>
         </DCCReference>
         <DCCReference Include="Src\IDE.InputQueryMemoForm.pas">
             <Form>InputQueryMemoForm</Form>
+        </DCCReference>
+        <DCCReference Include="..\Components\RichEditOleCallback.pas"/>
+        <DCCReference Include="Src\IDE.RichEditForm.pas">
+            <Form>RichEditForm</Form>
         </DCCReference>
         <DCCReference Include="..\Components\ScintInt.pas"/>
         <DCCReference Include="..\Components\ScintEdit.pas"/>
@@ -178,11 +187,14 @@
         <DCCReference Include="..\Components\DropListBox.pas"/>
         <DCCReference Include="..\Components\BitmapButton.pas"/>
         <DCCReference Include="..\Components\BitmapImage.pas"/>
+        <DCCReference Include="..\Components\OleAccFunc.pas"/>
         <DCCReference Include="..\Components\NewCheckListBox.pas"/>
+        <DCCReference Include="..\Components\NewCheckListBox.MSAA.pas"/>
         <DCCReference Include="..\Components\NewNotebook.pas"/>
         <DCCReference Include="..\Components\TaskbarProgressFunc.pas"/>
         <DCCReference Include="Src\IDE.HtmlHelpFunc.pas"/>
         <DCCReference Include="..\Components\UIStateForm.pas"/>
+        <DCCReference Include="Src\IDE.IDEForm.pas"/>
         <DCCReference Include="Src\Shared.LangOptionsSectionDirectives.pas"/>
         <DCCReference Include="Src\Shared.SetupMessageIDs.pas"/>
         <DCCReference Include="Src\Shared.SetupSectionDirectives.pas"/>
@@ -212,6 +224,7 @@
         <DCCReference Include="..\Components\StringScanner.pas"/>
         <DCCReference Include="..\Components\Resample.pas"/>
         <DCCReference Include="..\Components\UnsignedFunc.pas"/>
+        <DCCReference Include="..\Components\Toolbar.Accessibility.pas"/>
         <DCCReference Include="Src\IDE.MainForm.MRUHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.UAHHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.NavigationHelper.pas"/>

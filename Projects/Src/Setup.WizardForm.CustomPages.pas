@@ -13,8 +13,8 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, StdCtrls, Contnrs, Generics.Collections,
-  Shared.Struct, Setup.WizardForm, Setup.DownloadFileFunc, Setup.ISSigVerifyFunc,
-  Setup.InstFunc, Compression.SevenZipDecoder,
+  Shared.Struct, Shared.CommonFunc.Vcl,
+  Setup.WizardForm, Setup.DownloadFileFunc, Setup.ISSigVerifyFunc, Setup.InstFunc, Compression.SevenZipDecoder,
   NewCheckListBox, NewStaticText, NewProgressBar, PasswordEdit, RichEditViewer,
   NewCtrls, TaskbarProgressFunc;
 
@@ -151,6 +151,8 @@ type
       FProgressBar: TNewProgressBar;
       FUseMarqueeStyle: Boolean;
       FSavePageID: Integer;
+      FSaveMessageBoxCallbackFunc: TMsgBoxCallbackFunc;
+      FSaveMessageBoxCallbackParam: NativeInt;
       procedure ProcessMsgs;
     public
       constructor Create(AOwner: TComponent); override;
@@ -266,7 +268,7 @@ implementation
 uses
   StrUtils, ISSigFunc, SHA256,
   Shared.SetupTypes, Setup.MainFunc, Setup.SelectFolderForm,
-  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, PathFunc, Shared.CommonFunc.Vcl,
+  SetupLdrAndSetup.Messages, Shared.SetupMessageIDs, PathFunc,
   Shared.CommonFunc, BrowseFunc, Setup.LoggingFunc, Setup.SetupForm,
   Compression.SevenZipDLLDecoder;
 
@@ -840,7 +842,7 @@ end;
 procedure TOutputProgressWizardPage.Hide;
 begin
   if (WizardForm.CurPageID = ID) and (FSavePageID <> 0) then begin
-    SetMessageBoxCallbackFunc(nil, 0);
+    SetMessageBoxCallbackFunc(FSaveMessageBoxCallbackFunc, FSaveMessageBoxCallbackParam);
     SetAppTaskbarProgressState(tpsNoProgress);
     WizardForm.SetCurPage(FSavePageID);
     FSavePageID := 0;
@@ -911,6 +913,7 @@ begin
   if WizardForm.CurPageID <> ID then begin
     FSavePageID := WizardForm.CurPageID;
     WizardForm.SetCurPage(ID);
+    GetMessageBoxCallbackFunc(FSaveMessageBoxCallbackFunc, FSaveMessageBoxCallbackParam);
     SetMessageBoxCallbackFunc(OutputProgressWizardPageMessageBoxCallback, NativeInt(Self));
     ProcessMsgs;
   end;
@@ -1141,6 +1144,8 @@ begin
 
   try
     for var I := 0 to FFiles.Count-1 do begin
+      if FThrottler <> nil then
+        FThrottler.Reset;
       { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before downloading since we already process messages ourselves }
       const F = FFiles[I];
       FLastBaseNameOrUrl := IfThen(FShowBaseNameInsteadOfUrl, PathExtractName(F.BaseName), F.Url);
@@ -1286,6 +1291,8 @@ begin
 
   try
     for var A in FArchives do begin
+      if FThrottler <> nil then
+        FThrottler.Reset;
       { Don't need to set DownloadTemporaryFileOrExtractArchiveProcessMessages before extraction since we already process messages ourselves }
       if SetupHeader.SevenZipLibraryName <> '' then
         ExtractArchive(A.FileName, A.DestDir, A.Password, A.FullPaths, InternalOnExtractionProgress)

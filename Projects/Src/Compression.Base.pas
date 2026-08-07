@@ -2,7 +2,7 @@ unit Compression.Base;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -110,6 +110,7 @@ type
     destructor Destroy; override;
     procedure InitDecryption(const CryptKey: TSetupEncryptionKey;
       const EncryptionBaseNonce: TSetupEncryptionNonce; const SpecialCryptContextType: TSpecialCryptContextType);
+    class procedure RaiseCompressedBlockDataError; static;
     procedure Read(var Buffer; Count: Cardinal);
   end;
 
@@ -425,11 +426,11 @@ begin
 
   if (AFile.Read(HdrCRC, SizeOf(HdrCRC)) <> SizeOf(HdrCRC)) or
      (AFile.Read(Hdr, SizeOf(Hdr)) <> SizeOf(Hdr)) then
-    raise ECompressDataError.Create(SCompressedBlockDataError);
+    RaiseCompressedBlockDataError;
   if HdrCRC <> GetCRC32(Hdr, SizeOf(Hdr)) then
-    raise ECompressDataError.Create(SCompressedBlockDataError);
+    RaiseCompressedBlockDataError;
   if (Hdr.StoredSize < 0) or (AFile.Position > AFile.Size - Hdr.StoredSize) then
-    raise ECompressDataError.Create(SCompressedBlockDataError);
+    RaiseCompressedBlockDataError;
   if Hdr.Compressed then
     FDecompressor := ADecompressorClass.Create(DecompressorReadProc);
   FInBytesLeft := Hdr.StoredSize;
@@ -458,6 +459,11 @@ begin
   FDecrypt := True;
 end;
 
+class procedure TCompressedBlockReader.RaiseCompressedBlockDataError;
+begin
+  raise ECompressDataError.Create(SCompressedBlockDataError);
+end;
+
 procedure TCompressedBlockReader.ReadChunk;
 var
   CRC: Integer;
@@ -465,7 +471,7 @@ var
 begin
   { Read chunk CRC }
   if FInBytesLeft < SizeOf(CRC) + 1 then
-    raise ECompressDataError.Create(SCompressedBlockDataError);
+    RaiseCompressedBlockDataError;
   FFile.ReadBuffer(CRC, SizeOf(CRC));
   Dec(FInBytesLeft, SizeOf(CRC));
 
@@ -479,7 +485,7 @@ begin
   FInBufferNext := 0;
   FInBufferAvail := Len;
   if CRC <> GetCRC32(FInBuffer, Len) then
-    raise ECompressDataError.Create(SCompressedBlockDataError);
+    RaiseCompressedBlockDataError;
 
   if FDecrypt then
     XChaCha20Crypt(FCryptContext, FInBuffer, FInBuffer, Len);
@@ -515,7 +521,7 @@ begin
   else begin
     { Not compressed -- call DecompressorReadProc directly }
     if DecompressorReadProc(Buffer, Count) <> Count then
-      raise ECompressDataError.Create(SCompressedBlockDataError);
+      RaiseCompressedBlockDataError;
   end;
 end;
 

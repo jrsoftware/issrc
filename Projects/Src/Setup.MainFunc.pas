@@ -67,7 +67,7 @@ const
   CodeRunnerNamingAttribute = 'Event';
 
 var
-  { Variables for command line parameters }
+  { Variables for command-line parameters }
   SetupLdrMode: Boolean;
   SetupLdrOriginalFilename: String;
   SetupLdrOffset0, SetupLdrOffset1: Int64;
@@ -791,9 +791,7 @@ end;
 function ExpandIndividualConst(Cnst: String;
   const CustomConsts: array of String): String;
 { Cnst must be the name of a single constant, without the braces.
-  For example: app
-  IsPath is set to True if the result is a path which needs special trailing-
-  backslash handling. }
+  For example: app }
   
   procedure HandleAutoConstants(var Cnst: String);
   const
@@ -2024,19 +2022,19 @@ begin
               Exit(False);
           end else begin
             SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.SourceFilename), tpCurrent);
-	          Excludes.DelimitedText := CurFile^.Excludes;
-	          if foExtractArchive in CurFile^.Options then begin
-	            try
-	              if not RecurseExternalArchiveFiles(Is64Bit, SourceWildcard,
-	                 Excludes, CurFile) then
-	                Exit(False);
-	            except on E: ESevenZipError do
-	              { Ignore archive errors for now, will show up with proper UI during
-	                installation }
-	            end;
-	          end else begin
-	            if not RecurseExternalFiles(Is64Bit, PathExtractPath(SourceWildcard), '',
-	               PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
+            Excludes.DelimitedText := CurFile^.Excludes;
+            if foExtractArchive in CurFile^.Options then begin
+              try
+                if not RecurseExternalArchiveFiles(Is64Bit, SourceWildcard,
+                   Excludes, CurFile) then
+                  Exit(False);
+              except on E: ESevenZipError do
+                { Ignore archive errors for now, will show up with proper UI during
+                  installation }
+              end;
+            end else begin
+              if not RecurseExternalFiles(Is64Bit, PathExtractPath(SourceWildcard), '',
+                 PathExtractName(SourceWildcard), IsWildcard(SourceWildcard), Excludes, CurFile) then
                 Exit(False);
             end;
           end;
@@ -2097,7 +2095,7 @@ end;
 function PreviousInstallCompleted(const WizardComponents, WizardTasks: TStringList): Boolean;
 begin
   Result := True;
-  if Entries[seFile].Count = 0 then
+  if (Entries[seFile].Count = 0) and (Entries[seInstallDelete].Count = 0) then
     Exit;
   CheckForFileSL := TStringList.Create;
   try
@@ -3097,7 +3095,7 @@ var
         { Ask user. Doesn't log since logging hasn't started yet. Also doesn't
           use ExpandedAppName since it isn't set yet. Afterwards we need to tell
           any respawned Setup(Ldr) about the user choice (and avoid asking again).
-          Will use the command line parameter for this. Allowing proDialog forces
+          Will use the command-line parameter for this. Allowing proDialog forces
           allowing proCommandLine, so we can count on the parameter to work. }
         if shAppNameHasConsts in SetupHeader.Options then
           AppName := PathChangeExt(PathExtractName(SetupLdrOriginalFilename), '')

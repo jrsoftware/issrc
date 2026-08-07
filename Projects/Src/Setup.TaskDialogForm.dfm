@@ -161,6 +161,7 @@ object TaskDialogForm: TTaskDialogForm
         Caption = '*'
         ShowAccelChar = False
         TabOrder = 0
+        WordWrap = True
       end
       object TextText: TNewStaticText
         Left = 0

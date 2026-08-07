@@ -419,10 +419,10 @@ begin
         begin
           if FMacro.Params[ParamIndex].DefValue.Typ = evCallContext then
           begin
-            if (pfFunc in FMacro.Params[ParamIndex].ParamFlags) and
-              (Value.AsCallContext.GroupingStyle <> agsParenteses) or
-              not (pfFunc in FMacro.Params[ParamIndex].ParamFlags) and
-              (Value.AsCallContext.GroupingStyle <> agsBrackets) then
+            if ((pfFunc in FMacro.Params[ParamIndex].ParamFlags) and
+                (Value.AsCallContext.GroupingStyle <> agsParenteses)) or
+               ((pfArray in FMacro.Params[ParamIndex].ParamFlags) and
+                (Value.AsCallContext.GroupingStyle <> agsBrackets)) then
               ErrorWrongType(FMacro.Params[ParamIndex].Name);
           end;
           FList[ParamIndex].Value.Value[0] := GetRValue(Value);
@@ -508,22 +508,22 @@ function TMacroCallContext.GetIdent(const Name: string;
 var
   I: Integer;
 begin
+  { Also see TypeOf and DimOf }
   Result := itVariable;
-  if CompareText(SLocal, Name) = 0 then
-  begin
+  if CompareText(SLocal, Name) = 0 then begin
     CallContext := TMacroLocalArrayCallContext.Create(Self);
     Exit;
-  end
-  else
-    for I := 0 to FMacro^.ParamCount - 1 do
-      if CompareText(FMacro^.Params[I].Name, Name) = 0 then
-      begin
-        if FMacro^.Params[I].DefValue.Typ = evCallContext then
+  end else begin
+    for I := 0 to FMacro.ParamCount - 1 do begin
+      if CompareText(FMacro.Params[I].Name, Name) = 0 then begin
+        if FMacro.Params[I].DefValue.Typ = evCallContext then
           FList[I].Value.Value[0].AsCallContext.Clone(CallContext)
         else
           CallContext := TVarCallContext.Create(@FList[I].Value);
         Exit;
       end;
+    end;
+  end;
   Result := FIdentManager.GetIdent(Name, CallContext)
 end;
 
@@ -531,23 +531,54 @@ function TMacroCallContext.TypeOf(const Name: string): Byte;
 var
   I: Integer;
 begin
-  if CompareText(Name, SLocal) = 0 then
-  begin
+  { Also see GetIdent and DimOf }
+  if CompareText(Name, SLocal) = 0 then begin
     Result := TYPE_ARRAY;
     Exit;
   end;
-  for I := 0 to FMacro^.ParamCount - 1 do
-    if CompareText(FMacro^.Params[I].Name, Name) = 0 then
-    begin
-      case GetRValue(FList[I].Value.Value[0]).Typ of
-        evNull: Result := TYPE_NULL;
-        evInt: Result := TYPE_INTEGER
-      else
-        Result := TYPE_STRING
+  for I := 0 to FMacro.ParamCount - 1 do begin
+    if CompareText(FMacro.Params[I].Name, Name) = 0 then begin
+      if FMacro.Params[I].DefValue.Typ = evCallContext then begin
+        if pfFunc in FMacro.Params[I].ParamFlags then
+          Result := TYPE_FUNC
+        else if pfArray in FMacro.Params[I].ParamFlags then
+          Result := TYPE_ARRAY
+        else
+          Result := TYPE_ERROR { See TIdentManager.TypeOf }
+      end else begin
+        case GetRValue(FList[I].Value.Value[0]).Typ of
+          evNull: Result := TYPE_NULL;
+          evInt: Result := TYPE_INTEGER
+        else
+          Result := TYPE_STRING
+        end;
       end;
       Exit;
     end;
+  end;
   Result := FIdentManager.TypeOf(Name)
+end;
+
+function TMacroCallContext.DimOf(const Name: string): Integer;
+begin
+  { Also see GetIdent and TypeOf }
+  if CompareText(Name, SLocal) = 0 then
+    Exit(MaxLocalArraySize);
+  for var I := 0 to FMacro.ParamCount - 1 do begin
+    if CompareText(FMacro.Params[I].Name, Name) = 0 then begin
+      { Also see Add }
+      if (FMacro.Params[I].DefValue.Typ = evCallContext) and
+         (pfArray in FMacro.Params[I].ParamFlags) then begin
+        const Obj = FList[I].Value.Value[0].AsCallContext as TObject;
+        if Obj is TVarCallContext then
+          Exit(TVarCallContext(Obj).FVariable.Dim)
+        else if Obj is TMacroLocalArrayCallContext then
+          Exit(MaxLocalArraySize);
+      end else
+        Exit(0);
+    end;
+  end;
+  Result := FIdentManager.DimOf(Name);
 end;
 
 { TFuncCallContext }
@@ -573,7 +604,7 @@ type
     procedure SetAsInt(Value: Int64); stdcall;
     procedure SetAsString(Value: PChar); stdcall;
     procedure SetAsNull; stdcall;
-    procedure Error(Message: PChar); stdcall;
+    procedure RaiseError(Message: PChar); stdcall;
     { ICallContext }
     procedure Add(const Name: string; const Value: TIsppVariant);
     function Call: TIsppVariant;
@@ -631,39 +662,39 @@ begin
   VerboseMsg(9, SSuccessfullyCalledFunction, [FFunc.Name]);
 end;
 
-procedure TFuncCallContext.Error(Message: PChar);
+procedure TFuncCallContext.RaiseError(Message: PChar);
 begin
-  raise Exception.Create(Message)
+  raise Exception.Create(Message);
 end;
 
 function TFuncCallContext.GetCount: NativeInt;
 begin
-  Result := FParams.Count
+  Result := FParams.Count;
 end;
 
 function TFuncCallContext.Get(Index: NativeInt): PIsppVariant;
 begin
-  Result := FParams[Index]
+  Result := FParams[Index];
 end;
 
 function TFuncCallContext.ResPtr: PIsppVariant;
 begin
-  Result := @FResult
+  Result := @FResult;
 end;
 
 procedure TFuncCallContext.SetAsInt(Value: Int64);
 begin
-  MakeInt(FResult, Value)
+  MakeInt(FResult, Value);
 end;
 
 procedure TFuncCallContext.SetAsNull;
 begin
-  FResult := NULL
+  FResult := NULL;
 end;
 
 procedure TFuncCallContext.SetAsString(Value: PChar);
 begin
-  MakeStr(FResult, Value)
+  MakeStr(FResult, Value);
 end;
 
 { TIdentManager }
@@ -686,7 +717,7 @@ end;
 
 function TIdentManager.Defined(const Name: string): Boolean;
 begin
-  Result := Find(Name, dsAny) <> nil
+  Result := Find(Name, dsAny) <> nil;
 end;
 
 procedure TIdentManager.DefineFunction(const Name: string;
@@ -1068,14 +1099,6 @@ begin
     Result := PVariable(Ident)^.Dim
   else
     Result := 0;
-end;
-
-function TMacroCallContext.DimOf(const Name: string): Integer;
-begin
-  if CompareText(Name, SLocal) = 0 then
-    Result := MaxLocalArraySize
-  else
-    Result := FIdentManager.DimOf(Name);
 end;
 
 end.

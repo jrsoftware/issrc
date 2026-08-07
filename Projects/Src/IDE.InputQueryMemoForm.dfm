@@ -13,6 +13,7 @@ object InputQueryMemoForm: TInputQueryMemoForm
   Font.Name = 'MS Sans Serif'
   Font.Style = []
   Position = poScreenCenter
+  ShowHint = True
   OnAfterMonitorDpiChanged = FormAfterMonitorDpiChanged
   OnCreate = FormCreate
   DesignSize = (
@@ -34,7 +35,6 @@ object InputQueryMemoForm: TInputQueryMemoForm
     Height = 20
     Cursor = crHandPoint
     Anchors = [akLeft, akBottom]
-    Caption = 'Help'
     TabOrder = 1
   end
   object OKButton: TButton

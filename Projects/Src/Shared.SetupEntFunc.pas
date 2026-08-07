@@ -2,7 +2,7 @@ unit Shared.SetupEntFunc;
 
 {
   Inno Setup
-  Copyright (C) 1997-2025 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -98,6 +98,8 @@ begin
   P := @Buf;
   for I := 1 to NumStrings do begin
     R.Read(Len, SizeOf(Len));
+    if Len mod SizeOf(Char) <> 0 then
+      R.RaiseCompressedBlockDataError;
     SetLength(S, Len div SizeOf(Char));
     if Len <> 0 then
       R.Read(S[1], Len);

@@ -30,7 +30,7 @@ LdrCannotCreateTemp=一時ファイルを作成できません。セットアッ
 LdrCannotExecTemp=一時フォルダーのファイルを実行できません。セットアップを中止します
 
 ; *** Startup error messages
-LastErrorMessage=%1.%n%nエラー %2: %3
+LastErrorMessage=%1。%n%nエラー %2: %3
 SetupFileMissing=ファイル %1 が見つかりません。問題を解決するか新しいセットアッププログラムを入手してください。
 SetupFileCorrupt=セットアップファイルが壊れています。新しいセットアッププログラムを入手してください。
 SetupFileCorruptOrWrongVer=セットアップファイルが壊れているか、このバージョンのセットアップと互換性がありません。問題を解決するか新しいセットアッププログラムを入手してください。
@@ -60,7 +60,7 @@ PrivilegesRequiredOverrideCurrentUserRecommended=現在のユーザー用にイ�
 
 ; *** Misc. errors
 ErrorCreatingDir=ディレクトリ %1 を作成中にエラーが発生しました
-ErrorTooManyFilesInDir=ディレクトリ %1 にファイルを作成中にエラーが発生しました。ファイルの数が多すぎます
+ErrorTooManyFilesInDir=ディレクトリ %1 にファイルを作成中にエラーが発生しました。ファイルの数が多すぎます。
 
 ; *** Setup common messages
 ExitSetupTitle=セットアップ終了
@@ -199,23 +199,23 @@ ReadyMemoTasks=追加タスク一覧:
 DownloadingLabel2=ファイルをダウンロードしています...
 ButtonStopDownload=ダウンロードを中止(&S)
 StopDownload=ダウンロードを中止してもよろしいですか？
-ErrorDownloadAborted=ダウンロードを中止しました
-ErrorDownloadFailed=ダウンロードに失敗しました: %1 %2
-ErrorDownloadSizeFailed=サイズの取得に失敗しました: %1 %2
-ErrorProgress=無効な進行状況: %1 / %2
-ErrorFileSize=無効なファイルサイズ: 予期された値 %1, 実際の値 %2
+ErrorDownloadAborted=ダウンロードを中止しました。
+ErrorDownloadFailed=ダウンロードに失敗しました: %1 %2。
+ErrorDownloadSizeFailed=サイズの取得に失敗しました: %1 %2。
+ErrorProgress=無効な進行状況: %1 / %2。
+ErrorFileSize=無効なファイルサイズ: 予期された値 %1, 実際の値 %2。
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=ファイルを展開しています...
 ButtonStopExtraction=展開を中止(&S)
 StopExtraction=展開を中止してもよろしいですか？
-ErrorExtractionAborted=展開を中止しました
+ErrorExtractionAborted=展開を中止しました。
 ErrorExtractionFailed=展開に失敗しました: %1
 
 ; *** Archive extraction failure details
-ArchiveIncorrectPassword=パスワードが間違っています
-ArchiveIsCorrupted=アーカイブが破損しています
-ArchiveUnsupportedFormat=アーカイブフォーマットがサポートされていません
+ArchiveIncorrectPassword=パスワードが間違っています。
+ArchiveIsCorrupted=アーカイブが破損しています。
+ArchiveUnsupportedFormat=アーカイブフォーマットがサポートされていません。
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=インストール準備中
@@ -280,10 +280,10 @@ StatusRestartingApplications=アプリケーションを再起動しています
 StatusRollback=変更を元に戻しています...
 
 ; *** Misc. errors
-ErrorInternal2=内部エラー: %1
-ErrorFunctionFailedNoCode=%1 エラー
-ErrorFunctionFailed=%1 エラー: コード %2
-ErrorFunctionFailedWithMessage=%1 エラー: コード %2.%n%3
+ErrorInternal2=内部エラー: %1。
+ErrorFunctionFailedNoCode=%1 エラー。
+ErrorFunctionFailed=%1 エラー: コード %2。
+ErrorFunctionFailedWithMessage=%1 エラー: コード %2。%n%3
 ErrorExecutingProgram=ファイル実行エラー:%n%1
 
 ; *** Registry errors
@@ -297,16 +297,16 @@ ErrorIniEntry=INIファイルエントリ作成エラー: ファイル %1。
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=このファイルをスキップ(&S) (推奨されません)
 FileAbortRetryIgnoreIgnoreNotRecommended=エラーを無視して続行(&I) (推奨されません)
-SourceIsCorrupted=コピー元のファイルが壊れています
-SourceDoesntExist=コピー元のファイル %1 が見つかりません
+SourceIsCorrupted=コピー元のファイルが壊れています。
+SourceDoesntExist=コピー元のファイル %1 が見つかりません。
 SourceVerificationFailed=コピー元のファイルの検証に失敗しました: %1
-VerificationSignatureDoesntExist=署名ファイル "%1" が存在しません
-VerificationSignatureInvalid=署名ファイル "%1" が無効です
-VerificationKeyNotFound=署名ファイル "%1" で未知のキーが使用されています
-VerificationFileNameIncorrect=ファイル名が正しくありません
-VerificationFileTagIncorrect=ファイルのタグが正しくありません
-VerificationFileSizeIncorrect=ファイルのサイズが正しくありません
-VerificationFileHashIncorrect=ファイルのハッシュが正しくありません
+VerificationSignatureDoesntExist=署名ファイル "%1" が存在しません。
+VerificationSignatureInvalid=署名ファイル "%1" が無効です。
+VerificationKeyNotFound=署名ファイル "%1" で未知のキーが使用されています。
+VerificationFileNameIncorrect=ファイル名が正しくありません。
+VerificationFileTagIncorrect=ファイルのタグが正しくありません。
+VerificationFileSizeIncorrect=ファイルのサイズが正しくありません。
+VerificationFileHashIncorrect=ファイルのハッシュが正しくありません。
 ExistingFileReadOnly2=既存のファイルは読み取り専用のため置き換えできません。
 ExistingFileReadOnlyRetry=読み取り専用属性を解除してもう一度やりなおす(&R)
 ExistingFileReadOnlyKeepExisting=既存のファイルを残す(&K)
@@ -331,7 +331,7 @@ ErrorReplacingExistingFile=既存のファイルを置き換え中にエラー�
 ErrorRestartReplace=再起動による置き換えの実行に失敗しました:
 ErrorRenamingTemp=コピー先フォルダーのファイル名を変更中にエラーが発生しました:
 ErrorRegisterServer=DLL/OCXの登録に失敗しました: %1
-ErrorRegSvr32Failed=RegSvr32は終了コード %1 により失敗しました
+ErrorRegSvr32Failed=RegSvr32は終了コード %1 により失敗しました。
 ErrorRegisterTypeLib=タイプライブラリへの登録に失敗しました: %1
 
 ; *** Uninstall display name markings
@@ -349,8 +349,8 @@ ErrorRestartingComputer=コンピューターの再起動に失敗しました�
 ; *** Uninstaller messages
 UninstallNotFound=ファイル "%1" が見つかりません。アンインストールを実行できません。
 UninstallOpenError=ファイル "%1" を開くことができません。アンインストールを実行できません
-UninstallUnsupportedVer=アンインストールログファイル "%1" は、このバージョンのアンインストールプログラムが認識できない形式です。アンインストールを実行できません
-UninstallUnknownEntry=アンインストールログに不明のエントリ (%1) が見つかりました
+UninstallUnsupportedVer=アンインストールログファイル "%1" は、このバージョンのアンインストールプログラムが認識できない形式です。アンインストールを実行できません。
+UninstallUnknownEntry=アンインストールログに不明のエントリ (%1) が見つかりました。
 ConfirmUninstall=%1 とその関連コンポーネントをすべて削除します。よろしいですか？
 UninstallOnlyOnWin64=このプログラムは64 ビット版Windows上でのみアンインストールすることができます。
 OnlyAdminCanUninstall=アンインストールするためには管理者権限が必要です。
@@ -358,7 +358,7 @@ UninstallStatusLabel=ご使用のコンピューターから %1 を削除して�
 UninstalledAll=%1 はご使用のコンピューターから正常に削除されました。
 UninstalledMost=%1 のアンインストールが完了しました。%n%nいくつかの項目が削除できませんでした。手動で削除してください。
 UninstalledAndNeedsRestart=%1 の削除を完了するためには、コンピューターを再起動する必要があります。%n%nすぐに再起動しますか？
-UninstallDataCorrupted=ファイル "%1" が壊れています。アンインストールを実行できません
+UninstallDataCorrupted=ファイル "%1" が壊れています。アンインストールを実行できません。
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=共有ファイルの削除

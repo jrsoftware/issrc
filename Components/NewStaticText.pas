@@ -123,6 +123,11 @@ end;
 
 { TNewStaticText }
 
+class constructor TNewStaticText.Create;
+begin
+  TCustomStyleEngine.RegisterStyleHook(TNewStaticText, TNewStaticTextStyleHook);
+end;
+
 constructor TNewStaticText.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
@@ -137,11 +142,6 @@ begin
   FAutoSize := True;
   FShowAccelChar := True;
   AdjustBounds;
-end;
-
-class constructor TNewStaticText.Create;
-begin
-  TCustomStyleEngine.RegisterStyleHook(TNewStaticText, TNewStaticTextStyleHook);
 end;
 
 procedure TNewStaticText.CreateParams(var Params: TCreateParams);
@@ -405,9 +405,6 @@ end;
   except that it accesses the Control property as a TNewStaticText instead
   of a TCustomStaticText or TStaticText, and that it uses the control's
   Color property }
-
-type
-  TControlAccess = class(TControl);
 
 constructor TNewStaticTextStyleHook.Create(AControl: TWinControl);
 begin

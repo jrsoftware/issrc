@@ -55,6 +55,9 @@ type
   TScintStyleByteIndicatorNumbers = set of TScintStyleByteIndicatorNumber;
   TScintIndicatorNumber = INDICATOR_CONTAINER..INDICATOR_MAX;
   TScintLineEndings = (sleCRLF, sleCR, sleLF);
+  TScintLineRange = record
+    StartLine, EndLine: Integer;
+  end;
   TScintLineState = type Integer;
   TScintMarkerNumber = 0..31;
   TScintMarkerNumbers = set of TScintMarkerNumber;
@@ -149,7 +152,6 @@ type
     function GetCaretLine: Integer;
     function GetCaretLineText: String;
     function GetCaretPosition: Integer;
-    function GetCaretPositionInLine: Integer;
     function GetCaretVirtualSpace: Integer;
     function GetInsertMode: Boolean;
     function GetLineEndings: TScintLineEndings;
@@ -294,6 +296,7 @@ type
     procedure ForceModifiedState;
     function GetByteAtPosition(const Pos: Integer): AnsiChar;
     function GetCharacterCount(const StartPos, EndPos: Integer): Integer;
+    function GetCodeUnitCount(const StartPos, EndPos: Integer): Integer;
     function GetColumnFromPosition(const Pos: Integer): Integer;
     function GetDefaultWordChars: AnsiString;
     function GetDocLineFromVisibleLine(const VisibleLine: Integer): Integer;
@@ -316,6 +319,7 @@ type
     function GetPositionRelative(const Pos, CharacterCount: Integer): Integer;
     function GetRawTextLength: Integer;
     function GetRawTextRange(const StartPos, EndPos: Integer): TScintRawString;
+    function GetSelectionLineRanges: TArray<TScintLineRange>;
     procedure GetSelections(const RangeList: TScintRangeList); overload;
     procedure GetSelections(const CaretAndAnchorList: TScintCaretAndAnchorList); overload;
     procedure GetSelections(const CaretAndAnchorList, VirtualSpacesList: TScintCaretAndAnchorList); overload;
@@ -390,7 +394,6 @@ type
     property CaretLine: Integer read GetCaretLine write SetCaretLine;
     property CaretLineText: String read GetCaretLineText;
     property CaretPosition: Integer read GetCaretPosition write SetCaretPosition;
-    property CaretPositionInLine: Integer read GetCaretPositionInLine;
     property CaretPositionWithSelectFromAnchor: Integer write SetCaretPositionWithSelectFromAnchor;
     property CaretVirtualSpace: Integer read GetCaretVirtualSpace write SetCaretVirtualSpace;
     property EffectiveCodePage: Word read FEffectiveCodePage;
@@ -577,12 +580,9 @@ type
 implementation
 
 uses
-  ShellAPI, RTLConsts, UITypes, GraphUtil;
+  ShellAPI, RTLConsts, Generics.Defaults, Math, UITypes, GraphUtil;
 
 { TScintEdit }
-
-const
-  AUTOCSETSEPARATOR = #9;
 
 constructor TScintEdit.Create(AOwner: TComponent);
 begin
@@ -674,6 +674,7 @@ begin
     Selections := TScintCaretAndAnchorList.Create;
     VirtualSpaces := TScintCaretAndAnchorList.Create;
     GetSelections(Selections, VirtualSpaces);
+    const MainSel = MainSelection;
     for var I := 0 to Selections.Count-1 do begin
       if VirtualSpaces[I].CaretPos = 0 then begin
         var Pos := Selections[I].CaretPos;
@@ -685,7 +686,7 @@ begin
         if MatchPos <> -1 then begin
           SelectionCaretPosition[I] := MatchPos;
           SelectionAnchorPosition[I] := MatchPos;
-          if I = 0 then
+          if I = MainSel then
             ScrollCaretIntoView;
         end;
       end;
@@ -961,6 +962,7 @@ begin
   SetDefaultWordChars;
   ApplyOptions;
   UpdateStyleAttributes;
+  UpdateLineNumbersWidth;
   if FAcceptDroppedFiles then
     DragAcceptFiles(Handle, True);
 end;
@@ -1108,13 +1110,6 @@ begin
   Result := Call(SCI_GETCURRENTPOS, 0, 0);
 end;
 
-function TScintEdit.GetCaretPositionInLine: Integer;
-begin
-  var Caret := CaretPosition;
-  var LineStart := GetPositionFromLine(GetLineFromPosition(Caret));
-  Result := Caret - LineStart;
-end;
-
 function TScintEdit.GetCaretVirtualSpace: Integer;
 begin
   Result := GetSelectionCaretVirtualSpace(GetMainSelection);
@@ -1124,6 +1119,15 @@ function TScintEdit.GetCharacterCount(const StartPos, EndPos: Integer): Integer;
 begin
   CheckPosRange(StartPos, EndPos);
   Result := Call(SCI_COUNTCHARACTERS, StartPos, EndPos);
+end;
+
+function TScintEdit.GetCodeUnitCount(const StartPos, EndPos: Integer): Integer;
+{ Unlike GetCharacterCount this counts UTF-16 code units. So for a basic
+  smiley emoji this returns 2, same as the length of the string that would be
+  returned by GetTextRange. GetCharacterCount returns 1 instead. }
+begin
+  CheckPosRange(StartPos, EndPos);
+  Result := Call(SCI_COUNTCODEUNITS, StartPos, EndPos);
 end;
 
 function TScintEdit.GetColumnFromPosition(const Pos: Integer): Integer;
@@ -1455,6 +1459,50 @@ begin
   Result := Call(SCI_GETSELECTIONNEND, Selection, 0)
 end;
 
+function TScintEdit.GetSelectionLineRanges: TArray<TScintLineRange>;
+{ Returns the line ranges of all selections, sorted, with overlapping and
+  adjacent ranges merged into one. For multi-line selections the end line is
+  dropped when the selection ends at the start of that line. }
+
+  function GetSelectionLineRange(const Selection: Integer): TScintLineRange;
+  begin
+    const EndPos = GetSelectionEndPosition(Selection);
+    Result.StartLine := GetLineFromPosition(GetSelectionStartPosition(Selection));
+    Result.EndLine := GetLineFromPosition(EndPos);
+    if (Result.EndLine > Result.StartLine) and (GetPositionFromLine(Result.EndLine) = EndPos) then
+      Dec(Result.EndLine);
+  end;
+
+begin
+  const SelectionCount = GetSelectionCount;
+  var LineRanges: TArray<TScintLineRange>;
+  { Collect }
+  SetLength(LineRanges, SelectionCount);
+  for var I := 0 to SelectionCount-1 do
+    LineRanges[I] := GetSelectionLineRange(I);
+  if SelectionCount > 1 then begin
+    { Sort }
+    TArray.Sort<TScintLineRange>(LineRanges, TComparer<TScintLineRange>.Construct(
+      function(const A, B: TScintLineRange): Integer
+      begin
+        Result := CompareValue(A.StartLine, B.StartLine);
+      end));
+    { Merge overlapping and adjacent ranges }
+    var MergedCount := 1;
+    for var I := 1 to SelectionCount-1 do begin
+      if LineRanges[I].StartLine <= LineRanges[MergedCount-1].EndLine + 1 then begin
+        if LineRanges[I].EndLine > LineRanges[MergedCount-1].EndLine then
+          LineRanges[MergedCount-1].EndLine := LineRanges[I].EndLine;
+      end else begin
+        LineRanges[MergedCount] := LineRanges[I];
+        Inc(MergedCount);
+      end;
+    end;
+    SetLength(LineRanges, MergedCount);
+  end;
+  Result := LineRanges;
+end;
+
 function TScintEdit.GetSelectionMode: TScintSelectionMode;
 begin
   case Call(SCI_GETSELECTIONMODE, 0, 0) of
@@ -1724,6 +1772,7 @@ begin
 end;
 
 procedure TScintEdit.ScrollCaretIntoView;
+{ Works on the main selection }
 begin
   Call(SCI_SCROLLCARET, 0, 0);
 end;
@@ -1918,8 +1967,8 @@ procedure TScintEdit.SetEmptySelections;
 { Makes all selections empty without scrolling the caret into view }
 begin
   for var Selection := 0 to SelectionCount-1 do begin
-    var Pos := SelectionCaretPosition[Selection];
-    SelectionAnchorPosition[Selection] := Pos;
+    SelectionAnchorPosition[Selection] := SelectionCaretPosition[Selection];
+    SelectionAnchorVirtualSpace[Selection] := SelectionCaretVirtualSpace[Selection];
   end;
 end;
 
@@ -2468,6 +2517,9 @@ var
   LineCount, PixelWidth: Integer;
   Nines: String;
 begin
+  if not HandleAllocated then
+    Exit;
+
   if FLineNumbers or FFoldLevelNumbersOrLineState then begin
     { Note: Based on SciTE's SciTEBase::SetLineNumberWidth. }
 
@@ -2628,12 +2680,14 @@ procedure TScintEdit.WMDestroy(var Message: TWMDestroy);
 begin
   FDirectPtr := nil;
   FDirectStatusFunction := nil;
+  FAutoCompleteStyle := 0;
   inherited;
 end;
 
 procedure TScintEdit.DpiChanged(const Message: TMessage);
 begin
   ForwardMessage(Message);
+  UpdateLineNumbersWidth;
 end;
 
 procedure TScintEdit.WMDropFiles(var Message: TWMDropFiles);
@@ -2730,7 +2784,10 @@ var
   StartPos, EndPos: Integer;
 begin
   CheckIndexRange(Index);
-  StartPos := FEdit.GetPositionFromLine(Index);
+  if (Index > 0) and (Index = GetCount - 1) then
+    StartPos := FEdit.GetLineEndPosition(Index - 1)
+  else
+    StartPos := FEdit.GetPositionFromLine(Index);
   EndPos := FEdit.GetPositionFromLine(Index + 1);
   FEdit.ReplaceRawTextRange(StartPos, EndPos, '');
 end;

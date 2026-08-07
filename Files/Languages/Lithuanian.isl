@@ -107,7 +107,7 @@ ExitSetupTitle=Uždaryti diegimo programą
 ExitSetupMessage=Diegimas nebaigtas. Jei baigsite dabar, programa nebus įdiegta.%n%nJūs galite paleisti diegimo programą kitą kartą, kad pabaigtumėte diegimą.%n%nUždaryti diegimo programą?
 AboutSetupMenuItem=&Apie diegimo programą...
 AboutSetupTitle=Apie diegimo programą
-AboutSetupMessage=%1 versija %2%n%3%n%n%1 puslapis internete:%n%4
+AboutSetupMessage=%1 %2%n%3%n%n%1 puslapis internete:%n%4
 AboutSetupNote=
 TranslatorNote=
 
@@ -369,6 +369,7 @@ ErrorCopying=Kopijuojant failą įvyko klaida:
 ErrorDownloading=Parsisiunčiant failą įvyko klaida:
 ErrorExtracting=Išpakuojant archyvą įvyko klaida:
 ErrorReplacingExistingFile=Perrašant esamą failą įvyko klaida:
+; 'RestartReplace' is an internal name, you may keep it as is
 ErrorRestartReplace=Perkrovimas/Perrašymas nepavyko:
 ErrorRenamingTemp=Pervadinant failą pasirinktame kataloge įvyko klaida:
 ErrorRegisterServer=Nepavyko užregistruoti DLL/OCX bibliotekos: „%1“
@@ -423,7 +424,7 @@ ShutdownBlockReasonUninstallingApp=Šalinama „%1“.
 NameAndVersion=%1 versija %2
 AdditionalIcons=Papildomos nuorodos:
 CreateDesktopIcon=Sukurti nuorodą &Darbalaukyje
-CreateQuickLaunchIcon=Sukurti Sparčiosios &Paleisties nuorodą
+CreateQuickLaunchIcon=Su&kurti Sparčiosios Paleisties nuorodą
 ProgramOnTheWeb=„%1“ žiniatinklyje
 UninstallProgram=Pašalinti „%1“
 LaunchProgram=Paleisti „%1“

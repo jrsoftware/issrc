@@ -15,7 +15,7 @@ uses
   PathFunc in '..\..\Components\PathFunc.pas';
 
 const
-  Version = '1.32';
+  Version = '1.37';
 
   XMLFileVersion = '1';
 
@@ -29,12 +29,15 @@ type
     elB,
     elBody,
     elBR,
+    elCom, { script comment }
+    elCon, { script constant }
     elContents,
     elContentsHeading,
     elContentsTopic,
     elDD,
     elDL,
     elDT,
+    elEvt, { script event function name }
     elExample,
     elExamples,
     elExtLink,
@@ -44,9 +47,13 @@ type
     elI,
     elImg,
     elIndent,
+    elISPP, { script preprocessor directive }
+    elISXFunc,
+    elKey, { script section directive key, section parameter name, or Pascal keyword }
     elKeyword,
     elLI,
     elLink,
+    elNum, { script number literal in Pascal/ISPP contexts }
     elOL,
     elP,
     elParam,
@@ -54,11 +61,14 @@ type
     elPre,
     elPreCode,
     elSD,
+    elSec, { script section header }
     elSetupDefault,
     elSetupFormat,
     elSetupValid,
     elSetupTopic,
     elSmall,
+    elSN,
+    elStr, { script string literal in Pascal/ISPP contexts }
     elSup,
     elTable,
     elTD,
@@ -265,9 +275,9 @@ begin
   Result := Format('<span id="%s">%s</span>', [EscapeHTML(AnchorName), InnerContents]);
 end;
 
-function GenerateTopicLinkHTML(const TopicName, AnchorName, InnerContents: String): String;
-{ Generates HTML for a link to a topic and/or anchor, also updating
-  TargetTopics }
+procedure RegisterTopicLinkTarget(const TopicName, AnchorName: String);
+{ Validates a link to a topic and/or anchor and registers it in TargetTopics
+  so that CheckForNonexistentTargetTopics can verify the target exists }
 var
   S: String;
 begin
@@ -287,7 +297,15 @@ begin
   end;
   if not ListItemExists(TargetTopics, S) then
     TargetTopics.Add(S);
+end;
 
+function GenerateTopicLinkHTML(const TopicName, AnchorName, InnerContents: String): String;
+{ Generates HTML for a link to a topic and/or anchor, also updating
+  TargetTopics }
+begin
+  if (TopicName <> '') and (AnchorName = '') and SameText(TopicName, CurrentTopicName) then
+    raise Exception.CreateFmt('Topic "%s" links to itself', [CurrentTopicName]);
+  RegisterTopicLinkTarget(TopicName, AnchorName);
   Result := Format('<a href="%s">%s</a>',
     [EscapeHTML(GenerateTopicLink(TopicName, AnchorName)), InnerContents]);
 end;
@@ -297,14 +315,40 @@ begin
   Result := 'setup_' + Lowercase(Directive);
 end;
 
+function GenerateSectionNameTopicName(const SectionName: String): String;
+begin
+  if SameText(SectionName, 'Code') then
+    Result := 'scriptcreating'
+  else if SameText(SectionName, 'UninstallRun') then
+    Result := 'runsection'
+  else
+    Result := Lowercase(SectionName) + 'section';
+end;
+
 procedure CreateKeyword(const AKeyword, ATopicName, AAnchorName: String);
 var
   KeywordInfo: TKeywordInfo;
 begin
+  RegisterTopicLinkTarget(ATopicName, AAnchorName);
   KeywordInfo := TKeywordInfo.Create;
   KeywordInfo.Topic := ATopicName;
   KeywordInfo.Anchor := AAnchorName;
   Keywords.AddObject(AKeyword, KeywordInfo);
+end;
+
+function GenerateSdSnOrIsxFuncTopicLinkHTML(const Node: IXMLNode; const ElementName,
+  TopicName, InnerContents: String; const ExtraAllowedChars: TSysCharSet): String;
+begin
+  for var C in InnerContents do
+    if not CharInSet(C, ['A'..'Z', 'a'..'z', '0'..'9'] + ExtraAllowedChars) then
+      raise Exception.CreateFmt('<%s> inner content is invalid', [ElementName]);
+  Result := '';
+  const NeedTT = (ElementFromNode(Node.ParentNode) <> elTT);
+  if NeedTT then
+    Result := Result + '<tt>';
+  Result := Result + GenerateTopicLinkHTML(TopicName, '', InnerContents);
+  if NeedTT then
+    Result := Result + '</tt>';
 end;
 
 function ParseFormattedText(Node: IXMLNode): String;
@@ -420,16 +464,24 @@ begin
       elSD:
         begin
           const DirectiveName = ParseFormattedText(Node);
-          for var C in DirectiveName do
-            if not CharInSet(C, ['A'..'Z', 'a'..'z', '0'..'9']) then
-              raise Exception.Create('<sd> inner content is invalid');
-          const NeedTT = (ElementFromNode(Node.ParentNode) <> elTT);
-          if NeedTT then
-            Result := Result + '<tt>';
-          Result := Result + GenerateTopicLinkHTML(
-            GenerateSetupDirectiveTopicName(DirectiveName), '', DirectiveName);
-          if NeedTT then
-            Result := Result + '</tt>';
+          Result := Result + GenerateSdSnOrIsxFuncTopicLinkHTML(Node, 'sd',
+            GenerateSetupDirectiveTopicName(DirectiveName), DirectiveName, []);
+        end;
+      elSN:
+        begin
+          const BracketedSectionName = ParseFormattedText(Node);
+          const N = Length(BracketedSectionName);
+          if (N < 3) or (BracketedSectionName[1] <> '[') or (BracketedSectionName[N] <> ']') then
+            raise Exception.Create('<sn> inner content is invalid');
+          const SectionName = Copy(BracketedSectionName, 2, N-2);
+          Result := Result + GenerateSdSnOrIsxFuncTopicLinkHTML(Node, 'sn',
+            GenerateSectionNameTopicName(SectionName), BracketedSectionName, ['[', ']']);
+        end;
+      elISXFunc:
+        begin
+          const FunctionName = ParseFormattedText(Node);
+          Result := Result + GenerateSdSnOrIsxFuncTopicLinkHTML(Node, 'isxfunc',
+            'isxfunc_' + FunctionName, FunctionName, []);
         end;
       elSmall:
         Result := Result + '<span class="small">' + ParseFormattedText(Node) + '</span>';
@@ -463,6 +515,12 @@ begin
           if Node.OptionalAttributes['appearance'] = 'compact' then
             Result := Result + ' class="compact"';
           Result := Result + '>' + ParseFormattedText(Node) + '</ul>';
+        end;
+      elSec, elEvt, elKey, elCom, elCon, elStr, elNum, elISPP:
+        begin
+          { Unlike whatsnew this still uses span, for IE }
+          Result := Result + Format('<span class="%s">%s</span>',
+            [Node.NodeName, ParseFormattedText(Node)]);
         end;
     else
       UnexpectedElementError(Node);
@@ -596,6 +654,7 @@ var
 
   procedure AddLeaf(const Title, TopicName: String);
   begin
+    RegisterTopicLinkTarget(TopicName, '');
     SL.Add(Format('<li><object type="text/sitemap">' +
       '<param name="Name" value="%s">' +
       '<param name="Local" value="%s"></object>',
@@ -663,6 +722,7 @@ var
 
   procedure AddLeaf(const Title, TopicName: String);
   begin
+    RegisterTopicLinkTarget(TopicName, '');
     SL.Add(Format('<li><a href="%s" target="bodyframe">' +
       '<img src="images/contentstopic.svg" alt="" aria-hidden="true" />' +
       '<span>%s</span></a></li>',
@@ -960,11 +1020,9 @@ begin
     SetupDirectives.Free;
     TargetTopics.Free;
     DefinedTopics.Free;
-    if Assigned(Keywords) then begin
-      for I := Keywords.Count-1 downto 0 do
-        TKeywordInfo(Keywords.Objects[I]).Free;
-      Keywords.Free;
-    end;
+    for I := Keywords.Count-1 downto 0 do
+      TKeywordInfo(Keywords.Objects[I]).Free;
+    Keywords.Free;
   end;
 end;
 

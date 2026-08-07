@@ -12,12 +12,10 @@ object SelectLanguageForm: TSelectLanguageForm
   Font.Height = -11
   Font.Name = 'MS Sans Serif'
   Font.Style = []
-  OldCreateOrder = True
   Scaled = False
   DesignSize = (
     297
     140)
-  PixelsPerInch = 96
   TextHeight = 13
   object Bevel: TBevel
     Left = 0

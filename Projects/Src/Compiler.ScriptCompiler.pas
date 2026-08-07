@@ -45,7 +45,6 @@ type
       function CheckExports: Boolean;
       function Compile(const ScriptText: String; var CompiledScriptText, CompiledScriptDebugInfo: tbtString): Boolean;
       property ExportCount: NativeInt read GetExportCount;
-      function ExportFound(const Name: String): Boolean;
       function FunctionFound(const Name: String): Boolean;
       function IsObsoleteFunction(const Name: String): String;
       property ExecIs64Bit: Boolean read FExecIs64Bit write FExecIs64Bit;
@@ -86,13 +85,13 @@ begin
   P := Pos(' setuponly ', S);
   if P > 0 then begin
     Delete(S, P+1, Length('setuponly '));
-    Insert('setup:', S, Pos('@', S)+1);
+    Insert('setup:', S, rpos('@', tbtstring(S))+1);
   end
   else begin
     P := Pos(' uninstallonly ', S);
     if P > 0 then begin
       Delete(S, P+1, Length('uninstallonly '));
-      Insert('uninstall:', S, Pos('@', S)+1);
+      Insert('uninstall:', S, rpos('@', tbtstring(S))+1);
     end;
   end;
   if Pos('@uninstall:files:', S) <> 0 then begin
@@ -128,28 +127,34 @@ begin
         Result := False;
       end else begin
         AttrValue := String(GetString(Attr.Values[0], B));
-        var I := ScriptCompiler.FindExport(AttrValue, String(Sender.MakeDecl(TPSInternalProcedure(aProc).Decl)), -1);
-        if I <> -1 then begin
-          { The name from the attribute and the function prototype are both ok. }
-          ScriptExport := ScriptCompiler.FExports[I];
-          if not ScriptExport.AllowNamingAttribute then begin
-            with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute value "%s" not allowed', [ScriptCompiler.FNamingAttribute, AttrValue]))) do
-              SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
-            Result := False;
-          end else begin
-            ScriptExport.Exported := True;
-            Result := True;
-          end;
-        end else if ScriptCompiler.FindExport(AttrValue, '', -1) <> -1 then begin
-          { The name from the attribute is ok but the function prototype is not. }
-          with Sender.MakeError('', ecCustomError, tbtstring(Format('Invalid function or procedure prototype for attribute value "%s"', [AttrValue]))) do
-            SetCustomPos(TPSInternalProcedure(aProc).DeclarePos, TPSInternalProcedure(aProc).DeclareRow, TPSInternalProcedure(aProc).DeclareCol);
-          Result := False;
-        end else begin
-          { The name from the attribute is not ok. } 
-          with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute value "%s" invalid', [ScriptCompiler.FNamingAttribute, AttrValue]))) do
+        if AttrValue = '' then begin
+          with Sender.MakeError('', ecCustomError, tbtstring(Format('Empty "%s" attribute value not allowed', [ScriptCompiler.FNamingAttribute]))) do
             SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
           Result := False;
+        end else begin
+          var I := ScriptCompiler.FindExport(AttrValue, String(Sender.MakeDecl(TPSInternalProcedure(aProc).Decl)), -1);
+          if I <> -1 then begin
+            { The name from the attribute and the function prototype are both ok. }
+            ScriptExport := ScriptCompiler.FExports[I];
+            if not ScriptExport.AllowNamingAttribute then begin
+              with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute value "%s" not allowed', [ScriptCompiler.FNamingAttribute, AttrValue]))) do
+                SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
+              Result := False;
+            end else begin
+              ScriptExport.Exported := True;
+              Result := True;
+            end;
+          end else if ScriptCompiler.FindExport(AttrValue, '', -1) <> -1 then begin
+            { The name from the attribute is ok but the function prototype is not. }
+            with Sender.MakeError('', ecCustomError, tbtstring(Format('Invalid function or procedure prototype for attribute value "%s"', [AttrValue]))) do
+              SetCustomPos(TPSInternalProcedure(aProc).DeclarePos, TPSInternalProcedure(aProc).DeclareRow, TPSInternalProcedure(aProc).DeclareCol);
+            Result := False;
+          end else begin
+            { The name from the attribute is not ok. } 
+            with Sender.MakeError('', ecCustomError, tbtstring(Format('"%s" attribute value "%s" invalid', [ScriptCompiler.FNamingAttribute, AttrValue]))) do
+              SetCustomPos(Attr.DeclarePos, Attr.DeclareRow, Attr.DeclareCol);
+            Result := False;
+          end;
         end;
       end;
     end;
@@ -400,17 +405,13 @@ begin
 end;
 
 function TScriptCompiler.FindExport(const Name, Decl: String; const IgnoreIndex: NativeInt): NativeInt;
-var
-  ScriptExport: TScriptExport;
 begin
   for var I := 0 to FExports.Count-1 do begin
-    ScriptExport := FExports[I];
-    if ((Name = '') or (CompareText(ScriptExport.Name, Name) = 0)) and
-       ((Decl = '') or (CompareText(ScriptExport.Decl, Decl) = 0)) and
-       ((IgnoreIndex = -1) or (I <> IgnoreIndex)) then begin
-      Result := I;
-      Exit;
-    end;
+    const ScriptExport: TScriptExport = FExports[I];
+    if ((Name = '') or SameText(ScriptExport.Name, Name)) and
+       ((Decl = '') or SameText(ScriptExport.Decl, Decl)) and
+       ((IgnoreIndex = -1) or (I <> IgnoreIndex)) then
+      Exit(I);
   end;
   Result := -1;
 end;
@@ -425,8 +426,7 @@ begin
     ScriptExport := FExports[I];
     if ScriptExport.Required and not ScriptExport.Exported then begin
       if Assigned(FOnError) then begin
-        { Either the function wasn't present or it was present but matched another export }
-        if FindExport(ScriptExport.Name, '', I) <> -1 then
+        if FunctionFound(ScriptExport.Name) then
           Msg := Format('Required function or procedure ''%s'' found but not with a compatible prototype', [ScriptExport.Name])
         else
           Msg := Format('Required function or procedure ''%s'' not found', [ScriptExport.Name]);
@@ -521,32 +521,12 @@ begin
   end;
 end;
 
-function TScriptCompiler.ExportFound(const Name: String): Boolean;
-var
-  ScriptExport: TScriptExport;
-begin
-  for var I := 0 to FExports.Count-1 do begin
-    ScriptExport := FExports[I];
-    if CompareText(ScriptExport.Name, Name) = 0 then begin
-      Result := ScriptExport.Exported;
-      Exit;
-    end;
-  end;
-
-  Result := False;
-end;
-
 function TScriptCompiler.FunctionFound(const Name: String): Boolean;
-var
-  I: Integer;
 begin
+  for var I := 0 to FFunctionsFound.Count-1 do
+    if SameText(FFunctionsFound[I], Name) then
+      Exit(True);
   Result := False;
-  for I := 0 to FFunctionsFound.Count-1 do begin
-    if CompareText(FFunctionsFound[I], Name) = 0 then begin
-      Result := True;
-      Break;
-    end;
-  end;
 end;
 
 function TScriptCompiler.GetExportCount: NativeInt;

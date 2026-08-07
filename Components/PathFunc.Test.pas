@@ -11,6 +11,8 @@ unit PathFunc.Test;
   Runs a self-test if DEBUG is defined
 }
 
+{$DEFINE RAISEONERROR}
+
 interface
 
 procedure PathFuncRunTests(const IncludeWineIncompatibleTests: Boolean);
@@ -22,97 +24,111 @@ uses
 
 procedure PathFuncRunTests(const IncludeWineIncompatibleTests: Boolean);
 
+  procedure Error(const Msg: String); overload;
+  begin
+  {$IFDEF RAISEONERROR}
+    raise Exception.Create(Msg);
+  {$ELSE}
+    MessageBox(0, PChar(Msg), 'PathFunc test failed', MB_OK or MB_ICONERROR);
+  {$ENDIF}
+  end;
+
+  procedure Error(const Msg: String; const Args: array of const); overload;
+  begin
+    Error(Format(Msg, Args));
+  end;
+
   procedure TestPartLengths(const Filename: String;
     const DrivePartFalse, DrivePartTrue, PathPartFalse, PathPartTrue: Integer);
   begin
     if PathDrivePartLength(Filename) <> DrivePartFalse then
-      raise Exception.CreateFmt('"%s" drive part test failed', [Filename]);
+      Error('"%s" drive part test failed', [Filename]);
     if PathDrivePartLengthEx(Filename, False) <> DrivePartFalse then
-      raise Exception.CreateFmt('"%s" drive part(False) test failed', [Filename]);
+      Error('"%s" drive part(False) test failed', [Filename]);
     if PathDrivePartLengthEx(Filename, True) <> DrivePartTrue then
-      raise Exception.CreateFmt('"%s" drive part(True) test failed', [Filename]);
+      Error('"%s" drive part(True) test failed', [Filename]);
     if PathPathPartLength(Filename, False) <> PathPartFalse then
-      raise Exception.CreateFmt('"%s" path part(False) test failed', [Filename]);
+      Error('"%s" path part(False) test failed', [Filename]);
     if PathPathPartLength(Filename, True) <> PathPartTrue then
-      raise Exception.CreateFmt('"%s" path part(True) test failed', [Filename]);
+      Error('"%s" path part(True) test failed', [Filename]);
 
     if PathIsRooted(Filename) <> (PathDrivePartLengthEx(Filename, True) <> 0) then
-      raise Exception.CreateFmt('"%s" PathIsRooted test failed', [Filename]);
+      Error('"%s" PathIsRooted test failed', [Filename]);
   end;
 
   procedure TestRemoveBackslash(const Filename, ExpectedResult: String);
   begin
     if RemoveBackslash(Filename) <> ExpectedResult then
-      raise Exception.Create('RemoveBackslash test failed');
+      Error('RemoveBackslash test failed');
   end;
 
   procedure TestRemoveBackslashUnlessRoot(const Filename, ExpectedResult: String);
   begin
     if RemoveBackslashUnlessRoot(Filename) <> ExpectedResult then
-      raise Exception.Create('RemoveBackslashUnlessRoot test failed');
+      Error('RemoveBackslashUnlessRoot test failed');
   end;
 
   procedure TestPathChangeExt(const Filename, Extension, ExpectedResult: String);
   begin
     if PathChangeExt(Filename, Extension) <> ExpectedResult then
-      raise Exception.Create('PathChangeExt test failed');
+      Error('PathChangeExt test failed');
   end;
 
   procedure TestPathExtractExt(const Filename, ExpectedResult: String);
   begin
     if PathExtractExt(Filename) <> ExpectedResult then
-      raise Exception.Create('PathExtractExt test failed');
+      Error('PathExtractExt test failed');
   end;
 
   procedure TestPathCombine(const Dir, Filename, ExpectedResult: String);
   begin
     if PathCombine(Dir, Filename) <> ExpectedResult then
-      raise Exception.Create('PathCombine test failed');
+      Error('PathCombine test failed');
   end;
 
   procedure TestPathStartsWith(const S, AStartsWith: String; const ExpectedResult: Boolean);
   begin
     if PathStartsWith(S, AStartsWith) <> ExpectedResult then
-      raise Exception.Create('PathStartsWith test failed');
+      Error('PathStartsWith test failed');
   end;
 
   procedure TestPathStartsWithCaseSensitive(const S, AStartsWith: String;
     const ExpectedResult: Boolean);
   begin
     if PathStartsWith(S, AStartsWith, False) <> ExpectedResult then
-      raise Exception.Create('PathStartsWith test failed');
+      Error('PathStartsWith test failed');
   end;
 
   procedure TestPathEndsWith(const IgnoreCase: Boolean;
     const S, AEndsWith: String; const ExpectedResult: Boolean);
   begin
     if PathEndsWith(S, AEndsWith, IgnoreCase) <> ExpectedResult then
-      raise Exception.Create('PathEndsWith test failed');
+      Error('PathEndsWith test failed');
   end;
 
   procedure TestPathExpand(const S, ExpectedResult: String;
     const ExpectedResultFromTwoParamOverload: Boolean);
   begin
     if PathExpand(S) <> ExpectedResult then
-      raise Exception.Create('PathExpand test failed');
+      Error('PathExpand test failed');
 
     var PathExpandResult := 'unchanged';
     if PathExpand(S, PathExpandResult) <> ExpectedResultFromTwoParamOverload then
-      raise Exception.Create('PathExpand test failed');
+      Error('PathExpand test failed');
     if ExpectedResultFromTwoParamOverload then begin
       if PathExpandResult <> ExpectedResult then
-        raise Exception.Create('PathExpand test failed');
+        Error('PathExpand test failed');
     end else if PathExpandResult <> '' then
-      raise Exception.Create('PathExpand test failed');
+      Error('PathExpand test failed');
   end;
 
   procedure TestPathExpandFailure(const S: String);
   begin
     var PathExpandResult := 'unchanged';
     if PathExpand(S, PathExpandResult) then
-      raise Exception.Create('PathExpand test failed');
+      Error('PathExpand test failed');
     if PathExpandResult <> '' then
-      raise Exception.Create('PathExpand test failed');
+      Error('PathExpand test failed');
 
     var RaisedPathFuncError := False;
     try
@@ -122,7 +138,7 @@ procedure PathFuncRunTests(const IncludeWineIncompatibleTests: Boolean);
         RaisedPathFuncError := True;
     end;
     if not RaisedPathFuncError then
-      raise Exception.Create('PathExpand test failed');
+      Error('PathExpand test failed');
   end;
 
   procedure TestPathExpandAndNormalizeSlashes(const S, ExpectedResult: String);
@@ -135,10 +151,10 @@ procedure PathFuncRunTests(const IncludeWineIncompatibleTests: Boolean);
     if (PathExpand(S) <> ExpectedResult) or
        not PathExpand(S, PathExpandResult) or
        (PathExpandResult <> ExpectedResult) then
-      raise Exception.Create('PathExpand test failed');
+      Error('PathExpand test failed');
 
     if PathNormalizeSlashes(S) <> ExpectedResult then
-      raise Exception.Create('PathNormalizeSlashes test failed');
+      Error('PathNormalizeSlashes test failed');
   end;
 
   function CompareResultSign(const Value: Integer): Integer;
@@ -157,7 +173,7 @@ procedure PathFuncRunTests(const IncludeWineIncompatibleTests: Boolean);
   begin
     if CompareResultSign(PathStrCompare(PChar(S1), S1Length, PChar(S2),
        S2Length, IgnoreCase)) <> ExpectedSign then
-      raise Exception.Create('PathStrCompare test failed');
+      Error('PathStrCompare test failed');
   end;
 
   procedure TestPathStrCompare(const S1, S2: String;
@@ -182,7 +198,7 @@ procedure PathFuncRunTests(const IncludeWineIncompatibleTests: Boolean);
   begin
     if PathStrFind(PChar(Source), SourceLength, PChar(Value), ValueLength,
        IgnoreCase) <> ExpectedIndex then
-      raise Exception.Create('PathStrFind test failed');
+      Error('PathStrFind test failed');
   end;
 
   procedure TestPathStrFind(const Source, Value: String;
@@ -206,7 +222,7 @@ procedure PathFuncRunTests(const IncludeWineIncompatibleTests: Boolean);
   begin
     const P = PChar(S);
     if PathStrNextChar(P + Offset) <> P + ExpectedOffset then
-      raise Exception.Create('PathStrNextChar test failed');
+      Error('PathStrNextChar test failed');
   end;
 
   procedure TestPathStrScan(const S: String; const C: Char;
@@ -219,78 +235,78 @@ procedure PathFuncRunTests(const IncludeWineIncompatibleTests: Boolean);
     else
       ExpectedResult := nil;
     if PathStrScan(P, C) <> ExpectedResult then
-      raise Exception.Create('PathStrScan test failed');
+      Error('PathStrScan test failed');
   end;
 
   procedure TestAddBackslash(const S, ExpectedResult: String);
   begin
     if AddBackslash(S) <> ExpectedResult then
-      raise Exception.Create('AddBackslash test failed');
+      Error('AddBackslash test failed');
   end;
 
   procedure TestPathSame(const S1, S2: String; const ExpectedResult: Boolean);
   begin
     if PathSame(S1, S2) <> ExpectedResult then
-      raise Exception.Create('PathSame test failed');
+      Error('PathSame test failed');
   end;
 
   procedure TestPathCompare(const S1, S2: String; const IgnoreCase: Boolean;
     const ExpectedSign: Integer);
   begin
     if CompareResultSign(PathCompare(S1, S2, IgnoreCase)) <> ExpectedSign then
-      raise Exception.Create('PathCompare test failed');
+      Error('PathCompare test failed');
   end;
 
   procedure TestPathCompareDefault(const S1, S2: String; const ExpectedSign: Integer);
   begin
     if CompareResultSign(PathCompare(S1, S2)) <> ExpectedSign then
-      raise Exception.Create('PathCompare test failed');
+      Error('PathCompare test failed');
   end;
 
   procedure TestPathExtracts(const Filename, ExpectedName, ExpectedPath, ExpectedDir, ExpectedDrive: String);
   begin
     if PathExtractName(Filename) <> ExpectedName then
-      raise Exception.Create('PathExtractName test failed');
+      Error('PathExtractName test failed');
     if PathExtractPath(Filename) <> ExpectedPath then
-      raise Exception.Create('PathExtractPath test failed');
+      Error('PathExtractPath test failed');
     if PathExtractDir(Filename) <> ExpectedDir then
-      raise Exception.Create('PathExtractDir test failed');
+      Error('PathExtractDir test failed');
     if PathExtractDrive(Filename) <> ExpectedDrive then
-      raise Exception.Create('PathExtractDrive test failed');
+      Error('PathExtractDrive test failed');
   end;
 
   procedure TestPathExtensionPos(const Filename: String; const ExpectedResult: Integer);
   begin
     if PathExtensionPos(Filename) <> ExpectedResult then
-      raise Exception.Create('PathExtensionPos test failed');
+      Error('PathExtensionPos test failed');
   end;
 
   procedure TestPathHasSubstringAt(const S, Substring: String; const Offset: Integer;
     const ExpectedResult: Boolean);
   begin
     if PathHasSubstringAt(S, Substring, Offset) <> ExpectedResult then
-      raise Exception.Create('PathHasSubstringAt test failed');
+      Error('PathHasSubstringAt test failed');
   end;
 
   procedure TestPathHasSubstringAtCaseSensitive(const S, Substring: String;
     const Offset: Integer; const ExpectedResult: Boolean);
   begin
     if PathHasSubstringAt(S, Substring, Offset, False) <> ExpectedResult then
-      raise Exception.Create('PathHasSubstringAt test failed');
+      Error('PathHasSubstringAt test failed');
   end;
 
   procedure TestPathHasInvalidCharacters(const S: String;
     const AllowDriveLetterColon, ExpectedResult: Boolean);
   begin
     if PathHasInvalidCharacters(S, AllowDriveLetterColon) <> ExpectedResult then
-      raise Exception.Create('PathHasInvalidCharacters test failed');
+      Error('PathHasInvalidCharacters test failed');
   end;
 
   procedure TestPathComponentIsReservedName(const SingleComponent: String;
     const ExpectedResult: Boolean);
   begin
     if PathComponentIsReservedName(SingleComponent) <> ExpectedResult then
-      raise Exception.Create('PathComponentIsReservedName test failed');
+      Error('PathComponentIsReservedName test failed');
   end;
 
   procedure TestValidateAndCombinePath(const ADestDir, AFilename, ExpectedResultingPath: String;
@@ -298,100 +314,105 @@ procedure PathFuncRunTests(const IncludeWineIncompatibleTests: Boolean);
   begin
     var ResultingPath := 'unchanged';
     if ValidateAndCombinePath(ADestDir, AFilename, ResultingPath) <> ExpectedResult then
-      raise Exception.Create('ValidateAndCombinePath test failed');
+      Error('ValidateAndCombinePath test failed');
     if ExpectedResult then begin
       if ResultingPath <> ExpectedResultingPath then
-        raise Exception.Create('ValidateAndCombinePath test failed');
+        Error('ValidateAndCombinePath test failed');
     end else begin
       { Failure should not expose a partial path. Since AResultingPath is an out
         string, this cannot distinguish no assignment from assigning ''. }
       if ResultingPath <> '' then
-        raise Exception.Create('ValidateAndCombinePath test failed');
+        Error('ValidateAndCombinePath test failed');
     end;
     if ValidateAndCombinePath(ADestDir, AFilename) <> ExpectedResult then
-      raise Exception.Create('ValidateAndCombinePath test failed');
+      Error('ValidateAndCombinePath test failed');
   end;
+
+  var TestPathConvertNormalToSuperCounter: Integer;
 
   procedure TestPathConvertNormalToSuper(const Filename, ExpectedSuper: String;
     const ExpectedResult: Boolean);
   begin
+    Inc(TestPathConvertNormalToSuperCounter);
     var SuperFilename := 'unchanged';
     if PathConvertNormalToSuper(Filename, SuperFilename) <> ExpectedResult then
-      raise Exception.Create('PathConvertNormalToSuper test failed');
+      Error('PathConvertNormalToSuper test failed (%d/1)', [TestPathConvertNormalToSuperCounter]);
     if ExpectedResult then begin
       if SuperFilename <> ExpectedSuper then
-        raise Exception.Create('PathConvertNormalToSuper test failed');
+        Error('PathConvertNormalToSuper test failed (%d/2: got ''%s'' expected ''%s'')',
+          [TestPathConvertNormalToSuperCounter, SuperFilename, ExpectedSuper]);
     end else if SuperFilename <> '' then
-      raise Exception.Create('PathConvertNormalToSuper test failed');
+      Error('PathConvertNormalToSuper test failed (%d/3)', [TestPathConvertNormalToSuperCounter]);
   end;
 
   procedure TestPathConvertNormalToSuperStr(const Filename, ExpectedResult: String);
   begin
+    Inc(TestPathConvertNormalToSuperCounter);
     if PathConvertNormalToSuper(Filename) <> ExpectedResult then
-      raise Exception.Create('PathConvertNormalToSuper test failed');
+      Error('PathConvertNormalToSuper test failed (%d/4)', [TestPathConvertNormalToSuperCounter]);
   end;
 
   procedure TestPathConvertSuperToNormal(const Filename, ExpectedResult: String);
   begin
     if PathConvertSuperToNormal(Filename) <> ExpectedResult then
-      raise Exception.Create('PathConvertSuperToNormal test failed');
+      Error('PathConvertSuperToNormal test failed');
   end;
 
   procedure TestPathLastDelimiter(const Delimiters, S: String; const ExpectedResult: Integer);
   begin
     if PathLastDelimiter(Delimiters, S) <> ExpectedResult then
-      raise Exception.Create('PathLastDelimiter test failed');
+      Error('PathLastDelimiter test failed');
   end;
 
   procedure TestPathLowercase(const S, ExpectedResult: String);
   begin
     if PathLowercase(S) <> ExpectedResult then
-      raise Exception.Create('PathLowercase test failed');
+      Error('PathLowercase test failed');
   end;
 
   procedure TestPathPos(const C: Char; const S: String;
     const Offset, ExpectedResult: Integer);
   begin
     if PathPos(C, S, Offset) <> ExpectedResult then
-      raise Exception.Create('PathPos test failed');
+      Error('PathPos test failed');
   end;
 
   procedure TestPathPosDefault(const C: Char; const S: String;
     const ExpectedResult: Integer);
   begin
     if PathPos(C, S) <> ExpectedResult then
-      raise Exception.Create('PathPos test failed');
+      Error('PathPos test failed');
   end;
 
   procedure TestPathLastChar(const S: String; const ExpectedChar: Char);
   begin
     const Ptr = PathLastChar(S);
     if (Ptr = nil) or (Ptr^ <> ExpectedChar) then
-      raise Exception.Create('PathLastChar test failed');
+      Error('PathLastChar test failed');
   end;
 
   procedure TestPathLastCharNil(const S: String);
   begin
     if PathLastChar(S) <> nil then
-      raise Exception.Create('PathLastChar test failed');
+      Error('PathLastChar test failed');
   end;
 
   procedure TestPathCharIsSlash(const C: Char; const ExpectedResult: Boolean);
   begin
     if PathCharIsSlash(C) <> ExpectedResult then
-      raise Exception.Create('PathCharIsSlash test failed');
+      Error('PathCharIsSlash test failed');
   end;
 
   procedure TestPathCharIsDriveLetter(const C: Char; const ExpectedResult: Boolean);
   begin
     if PathCharIsDriveLetter(C) <> ExpectedResult then
-      raise Exception.Create('PathCharIsDriveLetter test failed');
+      Error('PathCharIsDriveLetter test failed');
   end;
 
   procedure TestPathNormalizeSlashes(const S, ExpectedResult: String);
   begin
     if PathNormalizeSlashes(S) <> ExpectedResult then
-      raise Exception.Create('PathNormalizeSlashes test failed');
+      Error('PathNormalizeSlashes test failed');
   end;
 
 begin
@@ -411,6 +432,7 @@ begin
   TestPartLengths('a\\\', 0, 0, 1, 4);
   TestPartLengths('a\b', 0, 0, 1, 2);
   TestPartLengths('a\b:c', 0, 0, 1, 2); {**}
+  TestPartLengths('abc:def', 0, 0, 0, 0); {**}
 
   { Drive "letters" can technically be any character other than '\'. See
     comment in PathDrivePartLengthEx. }
@@ -710,6 +732,7 @@ begin
   TestPathExtracts('\file', 'file', '\', '\', '');
   TestPathExtracts('', '', '', '', '');
   TestPathExtracts('a\b:c', 'b:c', 'a\', 'a', ''); {**}
+  TestPathExtracts('abc:def', 'abc:def', '', '', ''); {**}
 
   TestPathExtensionPos('', 0);
   TestPathExtensionPos('file', 0);
@@ -812,6 +835,7 @@ begin
   TestValidateAndCombinePath('c:\dest\', 'sub\NUL', '', False);                         { reserved name end }
   TestValidateAndCombinePath('c:\dest\', 'sub\NUL\file.txt', '', False);                { reserved name middle }
 
+  TestPathConvertNormalToSuperCounter := 0;
   TestPathConvertNormalToSuperStr('', '');
   TestPathConvertNormalToSuper('C:\dir\file', '\\?\C:\dir\file', True);
   TestPathConvertNormalToSuperStr('C:\dir\file', '\\?\C:\dir\file');
@@ -820,7 +844,10 @@ begin
   TestPathConvertNormalToSuperStr('\\?\UNC\server\share\x', '\\?\UNC\server\share\x');
   TestPathConvertNormalToSuper('\\.\C:\x', '\\?\C:\x', True);
   TestPathConvertNormalToSuper('\\?\C:\x', '\\?\C:\x', True);
-  TestPathConvertNormalToSuper('sub\file', '\\?\' + AddBackslash(GetCurrentDir) + 'sub\file', True);
+  TestPathConvertNormalToSuper('C:\dir\..\dir2', '\\?\C:\dir2', True);
+  const CurrentDir = GetCurrentDir;
+  if not PathStartsWith(CurrentDir, '\\') then
+    TestPathConvertNormalToSuper('sub\file', '\\?\' + AddBackslash(CurrentDir) + 'sub\file', True);
   TestPathConvertNormalToSuper('\\', '\\?\UNC\', True);
   TestPathConvertNormalToSuper('', '', False);
 

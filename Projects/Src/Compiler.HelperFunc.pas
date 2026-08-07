@@ -223,17 +223,6 @@ end;
 
 const
   IMAGE_NT_SIGNATURE = $00004550;  { 'PE'#0#0 }
-  IMAGE_NT_OPTIONAL_HDR32_MAGIC = $10b;
-type
-  TImageFileHeader = packed record
-    Machine: Word;
-    NumberOfSections: Word;
-    TimeDateStamp: DWORD;
-    PointerToSymbolTable: DWORD;
-    NumberOfSymbols: DWORD;
-    SizeOfOptionalHeader: Word;
-    Characteristics: Word;
-  end;
 
 function IsX86OrX64Executable(const F: TFile): Boolean;
 const

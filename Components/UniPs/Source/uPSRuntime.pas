@@ -886,6 +886,7 @@ const
 function PIFVariantToVariant(Src: PIFVariant; var Dest: Variant): Boolean;
 function VariantToPIFVariant(Exec: TPSExec; const Src: Variant; Dest: PIFVariant): Boolean;
 function ParamAsVariable(const Modifier: tbtchar; aType: TPSTypeRec): Boolean;
+function ResultAsRegister(b: TPSTypeRec): Boolean;
 
 function PSGetRecField(const avar: TPSVariantIFC; Fieldno: Longint): TPSVariantIFC;
 function PSGetArrayField(const avar: TPSVariantIFC; Fieldno: Longint): TPSVariantIFC;
@@ -1884,6 +1885,40 @@ type
     datas : pointer;
   end;
   PDynArrayRec = ^TDynArrayRec;
+
+{ True when the type is managed and needs reference counting or finalization,
+  so cannot simply be copied. Unlike NeedFinalization this looks inside records
+  and static arrays. Matches what Delphi/FPC considers managed, with btPointer as
+  an exception. btPointer has no native counterpart but it can own and destroy
+  the data it points to, see FinalizeVariant, so cannot simply be copied. }
+function IsManagedType(aType: TPSTypeRec): Boolean;
+var
+  t: TPSTypeRec;
+  i: Longint;
+begin
+  case aType.BaseType of
+    btString, {$IFNDEF PS_NOWIDESTRING} btUnicodeString, btWideString, {$ENDIF}
+    {$IFNDEF PS_NOINTERFACES} btInterface, {$ENDIF} btArray, btPointer, btVariant:
+      Result := True;
+    btRecord:
+      begin
+        for i := 0 to TPSTypeRec_Record(aType).FieldTypes.Count -1 do
+        begin
+          t := TPSTypeRec_Record(aType).FieldTypes[i];
+          if IsManagedType(t) then
+          begin
+            Result := True;
+            exit;
+          end;
+        end;
+        Result := False;
+      end;
+    btStaticArray:
+      Result := IsManagedType(TPSTypeRec_Array(aType).ArrayType);
+  else
+    Result := False;
+  end;
+end;
 
 procedure FinalizeVariant(p: Pointer; aType: TPSTypeRec);
 var
@@ -7008,7 +7043,7 @@ begin
               Inc(FCurrentPosition, 4);
               Pointer(Dest.P^) := nil;
               SetLength(tbtwidestring(Dest.P^), Param);
-              if not ReadData(tbtwidestring(Dest.P^)[1], Param*2) then
+              if (Param <> 0) and not ReadData(tbtwidestring(Dest.P^)[1], Param*2) then
               begin
                 CMD_Err(erOutOfRange);
                 FTempVars.Pop;
@@ -7033,7 +7068,7 @@ begin
               Inc(FCurrentPosition, 4);
               Pointer(Dest.P^) := nil;
               SetLength(tbtUnicodestring(Dest.P^), Param);
-              if not ReadData(tbtUnicodestring(Dest.P^)[1], Param*2) then
+              if (Param <> 0) and not ReadData(tbtUnicodestring(Dest.P^)[1], Param*2) then
               begin
                 CMD_Err(erOutOfRange);
                 FTempVars.Pop;
@@ -12218,9 +12253,13 @@ function AlwaysAsVariable(aType: TPSTypeRec): Boolean;
 begin
   case atype.BaseType of
     btVariant: Result := true;
-    btSet: Result := atype.RealSize > PointerSize;
-    btRecord: Result := atype.RealSize > PointerSize;
-    btStaticArray: Result := atype.RealSize > PointerSize;
+{$IFDEF CPU64}
+    { See the btSet/btRecord/btStaticArray comment in x64.inc }
+    btSet: Result := not (atype.RealSize in [1, 2, 3, 4{$IFDEF DELPHI}{$IFNDEF DELPHI_RIO_UP}, 5, 6, 7, 8{$ENDIF}{$ENDIF}]);
+    btRecord, btStaticArray: Result := not (atype.RealSize in [1, 2, 4{$IFDEF DELPHI}{$IFNDEF DELPHI_RIO_UP}, 5, 6, 7, 8{$ENDIF}{$ENDIF}]);
+{$ELSE}
+    btSet, btRecord, btStaticArray: Result := atype.RealSize > PointerSize;
+{$ENDIF}
   else
     Result := false;
   end;
@@ -12251,7 +12290,7 @@ end;
 {$IFDEF CPU64}
 function MyAllMethodsHandler64(Self: PScriptMethodInfo; _RDX, _R8, _R9:Pointer; Stack: PPointer;  _XMM1, _XMM2, _XMM3: Pointer; {$IFDEF DELPHI} ResPtr: Pointer {$ENDIF}): Integer; forward;
 {$ELSE}
-function MyAllMethodsHandler32(Self: PScriptMethodInfo; const Stack: PPointer; _EDX, _ECX: Pointer): Integer; forward;
+function MyAllMethodsHandler32(Self: PScriptMethodInfo; const Stack: PPointer; _EDX, _ECX: Pointer{$IFDEF DELPHI}; ResPtr: Pointer{$ENDIF}): Integer; forward;
 {$ENDIF}
 
 procedure MyAllMethodsHandler;
@@ -12335,6 +12374,29 @@ end;
 //     EAX = Self pointer
 //     EDX, ECX = param1 and param2
 //     STACK = param3... paramcount
+{$IFDEF DELPHI}
+asm
+  // Like the Win64 stub: the stub owns an 8-byte result slot and passes its
+  // address to MyAllMethodsHandler32 as ResPtr, so that an Int64/UInt64
+  // result also fits; the slot is loaded into EDX:EAX below
+  push 0                // result slot, high dword
+  push 0                // result slot, low dword
+  push ecx              // _ECX stack arg
+  mov ecx, edx          // _EDX register arg
+  lea edx, [esp+4]
+  push edx              // ResPtr stack arg
+  lea edx, [esp+20]     // Stack register arg: the caller's stack params
+  call MyAllMethodsHandler32
+  // EAX = byte count of the caller's stack params, popped callee-style below
+  // Stack now: result slot (2 dwords), return address, caller's stack params
+  mov edx, [esp+8]
+  mov [esp+eax+8], edx  // park the return address just below the params' end
+  mov ecx, [esp]
+  mov edx, [esp+4]
+  lea esp, [esp+eax+8]  // pop the slot, old return address and params
+  mov eax, ecx
+end;
+{$ELSE}
 asm
   push 0
   push ecx
@@ -12349,6 +12411,7 @@ asm
   mov [esp], edx
   mov eax, ecx
 end;
+{$ENDIF}
 {$endif CPU64}
 
 function ResultAsRegister(b: TPSTypeRec): Boolean;
@@ -12357,6 +12420,7 @@ begin
     btSingle,
     btDouble,
     btExtended,
+    btCurrency,
     btU8,
     bts8,
     bts16,
@@ -12377,8 +12441,21 @@ begin
     btChar,
     btclass,
     btEnum: Result := true;
+{$IFDEF DELPHI}
+    { The Delphi x64 ABI returns a record of 1, 2, or 4 bytes in RAX, and
+      the x86 ABI a record of 1 or 2 bytes in AL/AX (see System.Rtti's
+      UseResultPointer). Records of these sizes never contain a managed
+      field, so no managed check is needed. A record of pointer size is
+      also returned in RAX/EAX, but only when it contains no managed
+      field. Static arrays follow the same rule: UseResultPointer treats
+      tkArray like tkRecord. }
+    btRecord, btStaticArray: Result := (b.RealSize in [1, 2{$IFDEF CPU64}, 4{$ENDIF}]) or
+      ((b.RealSize = PointerSize) and not IsManagedType(b));
+{$ENDIF}
     btSet: Result := b.RealSize <= PointerSize;
+{$IFNDEF DELPHI}
     btStaticArray: Result := b.RealSize <= PointerSize;
+{$ENDIF}
   else
     Result := false;
   end;
@@ -12413,11 +12490,22 @@ begin
     btChar,
     btArray,
     btEnum: Result := true;
+{$IFDEF DELPHI}
+    { See the btSet/btRecord/btStaticArray comment in x64.inc. Delphi's set
+      storage rounding needs a case here only when it crosses the by-value/
+      by-reference boundary: 3 (by reference) rounds to 4 (by value), while
+      the rounding of 5-7 to 8 does not (all by reference) }
+    btSet: Result := b.RealSize in [1, 2, 3, 4{$IFDEF CPU64}{$IFNDEF DELPHI_RIO_UP}, 5, 6, 7, 8{$ENDIF}{$ENDIF}];
+    btRecord, btStaticArray: Result := b.RealSize in [1, 2, 4{$IFDEF CPU64}{$IFNDEF DELPHI_RIO_UP}, 5, 6, 7, 8{$ENDIF}{$ENDIF}];
+{$ELSE}
     btSet: Result := b.RealSize <= PointerSize;
     btStaticArray: Result := b.RealSize <= PointerSize;
+{$ENDIF}
 {$IFDEF CPU64}
     btSingle,
-    btDouble: Result := True;
+    btDouble,
+    btExtended,
+    btCurrency: Result := True;
 {$ENDIF}
   else
     Result := false;
@@ -12430,6 +12518,12 @@ asm
   fld tbyte ptr [ft]
 
 end;
+
+procedure PutOnFPUStackCurrency(cu: currency);
+asm
+  fild qword ptr [cu]
+end;
+
 {$IFDEF CPU64}
 function MyAllMethodsHandler64(Self: PScriptMethodInfo; _RDX, _R8, _R9:Pointer; Stack: PPointer;  _XMM1, _XMM2, _XMM3: Pointer; {$IFDEF DELPHI} ResPtr: Pointer {$ENDIF}): Integer;
 var
@@ -12513,21 +12607,21 @@ begin
       Params[i] := tmp;
       case regno of
         0: begin
-            if cpt.BaseType in [btSingle, btDouble] then
+            if cpt.BaseType in [btSingle, btDouble, btExtended] then
               CopyArrayContents(@PPSVariantData(tmp)^.Data, @_XMM1, 1, cpt)
             else
               CopyArrayContents(@PPSVariantData(tmp)^.Data, @_RDX, 1, cpt);
             inc(regno);
           end;
         1: begin
-            if cpt.BaseType in [btSingle, btDouble] then
+            if cpt.BaseType in [btSingle, btDouble, btExtended] then
               CopyArrayContents(@PPSVariantData(tmp)^.Data, @_XMM2, 1, cpt)
             else
               CopyArrayContents(@PPSVariantData(tmp)^.Data, @_R8, 1, cpt);
             inc(regno);
           end;
         2: begin
-            if cpt.BaseType in [btSingle, btDouble] then
+            if cpt.BaseType in [btSingle, btDouble, btExtended] then
               CopyArrayContents(@PPSVariantData(tmp)^.Data, @_XMM3, 1, cpt)
             else
               CopyArrayContents(@PPSVariantData(tmp)^.Data, @_R9, 1, cpt);
@@ -12595,7 +12689,10 @@ begin
         CopyArrayContents(Pointer(IPointer(Stack)-IPointer(PointerSize2)), @PPSVariantData(res)^.Data, 1, Res^.FType);
       end;
 {$ENDIF}
-    end;
+    end{$IFDEF DELPHI} else begin
+      { The Win64 ABI requires returning the hidden result pointer in RAX }
+      PPointer(ResPtr)^ := PPSVariantPointer(Res).DataDest;
+    end{$ENDIF};
     DestroyHeapVariant(res);
   end;
   for i := 0 to Params.Count - 1 do
@@ -12612,7 +12709,7 @@ begin
   end;
 end;
 {$ELSE}
-function MyAllMethodsHandler32(Self: PScriptMethodInfo; const Stack: PPointer; _EDX, _ECX: Pointer): Integer;
+function MyAllMethodsHandler32(Self: PScriptMethodInfo; const Stack: PPointer; _EDX, _ECX: Pointer{$IFDEF DELPHI}; ResPtr: Pointer{$ENDIF}): Integer;
 var
   Decl: tbtString;
   I, C, regno: Integer;
@@ -12767,16 +12864,21 @@ begin
           btSingle: PutOnFPUStackExtended(PPSVariantSingle(res).Data);
           btDouble: PutOnFPUStackExtended(PPSVariantDouble(res).Data);
           btExtended: PutOnFPUStackExtended(PPSVariantExtended(res).Data);
-          btCurrency: PutOnFPUStackExtended(PPSVariantCurrency(res).Data);
+          { Currency is returned on the FPU stack as its scaled integer backing (FILD), not its logical value }
+          btCurrency: PutOnFPUStackCurrency(PPSVariantCurrency(res).Data);
         end;
         DestroyHeapVariant(Res);
         Res := nil;
       end else
       begin
+{$IFDEF DELPHI}
+        CopyArrayContents(ResPtr, @PPSVariantData(res)^.Data, 1, Res^.FType);
+{$ELSE}
 {$IFNDEF PS_NOINT64}
   if (res^.FType.BaseType <> btS64) and (res^.FType.BaseType <> btU64) then
 {$ENDIF}
           CopyArrayContents(Pointer(IPointer(Stack)-PointerSize2), @PPSVariantData(res)^.Data, 1, Res^.FType);
+{$ENDIF}
       end;
     end;
     DestroyHeapVariant(res);
@@ -13308,6 +13410,7 @@ begin
       FDataPtr := nil;
     end;
     FCapacity := 0;
+    Exit;
   end;
   GetMem(p, Value);
   if FDataPtr <> nil then
@@ -13476,6 +13579,7 @@ begin
     val := items[ItemNo];
   ok := true;
   PSSetUnicodeString(@PPSVariantData(val).Data, val.FType, ok, Data);
+  if not ok then raise Exception.Create(RPS_TypeMismatch);
 end;
 
 procedure TPSStack.SetWideString(ItemNo: Longint;

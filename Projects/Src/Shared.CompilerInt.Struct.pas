@@ -2,7 +2,7 @@ unit Shared.CompilerInt.Struct;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -37,6 +37,8 @@ const
   isceInvalidParam = 1;    { Bad parameters passed to function }
   isceCompileFailure = 2;  { There was an error compiling or it was aborted
                              by the application }
+  isceConcurrentCall = 3;  { Compilation is already in progress; concurrent
+                             calls within the same process are not allowed }
 
 type
   { TCompilerCallbackData is a record passed to the callback function. The
@@ -138,6 +140,16 @@ type
                             SignTool-[name]=[command]
                               Configures a SignTool with name [name] and command
                               [command].
+                            NoCompression=(0|no|false|1|yes|true)
+                              Disables compression (overrides Compression
+                              and InternalCompressLevel).
+                            NoSigning=(0|no|false|1|yes|true)
+                              Disables signing (overrides SignTool and
+                              SignedUninstaller).
+                            NoSignCheck=(0|no|false|1|yes|true)
+                              Disables signcheck validation.
+                            PreprocessOnly=(0|no|false|1|yes|true)
+                              Preprocess only, suppressing compilation.
                             ISPP:[isppoption]
                               Configures an ISPP option. }
   end;

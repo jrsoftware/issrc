@@ -117,9 +117,11 @@
         </DelphiCompile>
         <DCCReference Include="..\Components\SafeDLLPath.pas"/>
         <DCCReference Include="Src\SetupLdrAndSetup.XPTheme.pas"/>
+        <DCCReference Include="..\Components\RichEditOleCallback.pas"/>
         <DCCReference Include="..\Components\RichEditViewer.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.Vcl.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
+        <DCCReference Include="Src\Shared.CommonFunc.Test.pas"/>
         <DCCReference Include="Src\Setup.Start.pas"/>
         <DCCReference Include="Src\Setup.MainForm.pas"/>
         <DCCReference Include="Src\Setup.MainFunc.pas"/>
@@ -203,7 +205,9 @@
         <DCCReference Include="..\Components\BitmapButton.pas"/>
         <DCCReference Include="..\Components\BitmapImage.pas"/>
         <DCCReference Include="..\Components\FolderTreeView.pas"/>
+        <DCCReference Include="..\Components\OleAccFunc.pas"/>
         <DCCReference Include="..\Components\NewCheckListBox.pas"/>
+        <DCCReference Include="..\Components\NewCheckListBox.MSAA.pas"/>
         <DCCReference Include="..\Components\NewNotebook.pas"/>
         <DCCReference Include="..\Components\NewProgressBar.pas"/>
         <DCCReference Include="..\Components\NewStaticText.pas"/>

@@ -23,7 +23,7 @@ type
     msgAbortRetryIgnoreIgnore,
     msgAbortRetryIgnoreRetry,
     msgAboutSetupMenuItem,
-    msgAboutSetupMessage,
+    msgAboutSetupMessage, { not used atm }
     msgAboutSetupNote,
     msgAboutSetupTitle,
     msgAdminPrivilegesRequired,
@@ -94,12 +94,12 @@ type
     msgErrorExtractionAborted,
     msgErrorExtractionFailed,
     msgErrorFileSize,
-    msgErrorFunctionFailed,
+    msgErrorFunctionFailed, { not used atm }
     msgErrorFunctionFailedNoCode,
     msgErrorFunctionFailedWithMessage,
     msgErrorIniEntry,
     msgErrorInternal2,
-    msgErrorOpeningReadme,
+    msgErrorOpeningReadme, { not used atm }
     msgErrorProgress,
     msgErrorReadingExistingDest,
     msgErrorReadingSource,
@@ -152,7 +152,7 @@ type
     msgInvalidDirName,
     msgInvalidDrive,
     msgInvalidGroupName,
-    msgInvalidParameter,
+    msgInvalidParameter, { not used atm }
     msgInvalidPath,
     msgLastErrorMessage,
     msgLdrCannotCreateTemp,
@@ -165,12 +165,12 @@ type
     msgNewFolderName,
     msgNoProgramGroupCheck2,
     msgNoRadio,
-    msgNotOnThisPlatform,
+    msgNotOnThisPlatform, { not used atm }
     msgNoUninstallWarning,
     msgNoUninstallWarningTitle, 
     msgOnlyAdminCanUninstall,
-    msgOnlyOnTheseArchitectures,
-    msgOnlyOnThisPlatform,
+    msgOnlyOnTheseArchitectures, { not used atm }
+    msgOnlyOnThisPlatform, { not used atm }
     msgPasswordEditLabel,
     msgPasswordLabel1,
     msgPasswordLabel3,
@@ -216,7 +216,7 @@ type
     msgSelectTasksDesc,
     msgSelectTasksLabel2,
     msgSetupAborted,
-    msgSetupAlreadyRunning,
+    msgSetupAlreadyRunning, { not used atm }
     msgSetupAppRunningError,
     msgSetupAppTitle,
     msgSetupFileCorrupt,
@@ -226,7 +226,7 @@ type
     msgSetupWindowTitle,
     msgSharedFileNameLabel,
     msgSharedFileLocationLabel,
-    msgShowReadmeCheck,
+    msgShowReadmeCheck, { not used atm }
     msgShutdownBlockReasonInstallingApp,
     msgShutdownBlockReasonUninstallingApp,
     msgSourceDoesntExist,
@@ -275,7 +275,7 @@ type
     msgVerificationFileHashIncorrect,
     msgVerificationFileNameIncorrect,
     msgVerificationFileSizeIncorrect,
-    msgVerificationFileTagIncorrect,
+    msgVerificationFileTagIncorrect, { not used atm }
     msgVerificationKeyNotFound,
     msgVerificationSignatureDoesntExist,
     msgVerificationSignatureInvalid,
@@ -283,8 +283,8 @@ type
     msgWelcomeLabel2,
     msgWindowsServicePackRequired,
     msgWindowsVersionNotSupported,
-    msgWinVersionTooHighError,
-    msgWinVersionTooLowError,
+    msgWinVersionTooHighError, { not used atm }
+    msgWinVersionTooLowError, { not used atm }
     msgWizardInfoAfter,
     msgWizardInfoBefore,
     msgWizardInstalling,

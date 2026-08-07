@@ -237,7 +237,6 @@ const
   SZ_ERROR_MEM = 2;
   SZ_ERROR_READ = 8;
   SZ_ERROR_PROGRESS = 10;
-  SZ_ERROR_FAIL = 11;
 
 function LZMAInitCompressFunctions(Module: HMODULE): Boolean;
 begin

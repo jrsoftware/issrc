@@ -3,37 +3,26 @@ unit uPSC_dll;
 
 {$I PascalScript.inc}
 interface
-{
-
-  Function FindWindow(c1, c2: PChar): Cardinal; external 'FindWindow@user32.dll stdcall';
-
-}
+{ Function FindWindow(c1, c2: PChar): Cardinal; external 'FindWindow@user32.dll stdcall'; }
 uses
   uPSCompiler, uPSUtils;
 
-  
 {$IFDEF DELPHI3UP }
 resourceString
 {$ELSE }
 const
 {$ENDIF }
-
   RPS_Invalid_External = 'Invalid External';
   RPS_InvalidCallingConvention = 'Invalid Calling Convention';
 
-
-
-function DllExternalProc(Sender: TPSPascalCompiler; Decl: TPSParametersDecl; const OriginalName, FExternal: tbtstring): TPSRegProc;
 type
-
-  TDllCallingConvention = (clRegister
-  , clPascal
-  , ClCdecl
-  , ClStdCall
-  );
+  TDllCallingConvention = (clRegister, clPascal, ClCdecl, ClStdCall);
 
 var
   DefaultCC: TDllCallingConvention;
+
+function rpos(ch: tbtchar; const s: tbtstring): Longint;
+function DllExternalProc(Sender: TPSPascalCompiler; Decl: TPSParametersDecl; const OriginalName, FExternal: tbtstring): TPSRegProc;
 
 procedure RegisterDll_Compiletime(cs: TPSPascalCompiler);
 

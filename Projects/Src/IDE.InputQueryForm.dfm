@@ -1,4 +1,4 @@
-object InputQueryComboForm: TInputQueryComboForm
+object InputQueryForm: TInputQueryForm
   Left = 330
   Top = 188
   BorderIcons = [biSystemMenu]
@@ -24,7 +24,7 @@ object InputQueryComboForm: TInputQueryComboForm
     Width = 9
     Height = 13
     Caption = '...'
-    FocusControl = ValueControl
+    FocusControl = ValueComboBox
   end
   object OKButton: TButton
     Left = 421
@@ -35,7 +35,7 @@ object InputQueryComboForm: TInputQueryComboForm
     Caption = 'OK'
     Default = True
     ModalResult = 1
-    TabOrder = 1
+    TabOrder = 2
   end
   object CancelButton: TButton
     Left = 501
@@ -46,14 +46,22 @@ object InputQueryComboForm: TInputQueryComboForm
     Cancel = True
     Caption = 'Cancel'
     ModalResult = 2
-    TabOrder = 2
+    TabOrder = 3
   end
-  object ValueControl: TComboBox
+  object ValueComboBox: TComboBox
     Left = 279
     Top = 8
     Width = 295
     Height = 21
     Anchors = [akLeft, akTop, akRight]
     TabOrder = 0
+  end
+  object ValueEdit: TEdit
+    Left = 279
+    Top = 8
+    Width = 295
+    Height = 21
+    Anchors = [akLeft, akTop, akRight]
+    TabOrder = 1
   end
 end

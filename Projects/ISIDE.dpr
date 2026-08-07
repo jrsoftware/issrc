@@ -21,6 +21,11 @@ uses
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   IDE.HelperFunc in 'Src\IDE.HelperFunc.pas',
   IDE.Messages in 'Src\IDE.Messages.pas',
+  IDE.LocalizeFunc in 'Src\IDE.LocalizeFunc.pas',
+  IDE.LocalizeFunc.Czech in 'Src\IDE.LocalizeFunc.Czech.pas',
+  IDE.LocalizeFunc.Dutch in 'Src\IDE.LocalizeFunc.Dutch.pas',
+  IDE.LocalizeFunc.German in 'Src\IDE.LocalizeFunc.German.pas',
+  IDE.LocalizeFunc.Japanese in 'Src\IDE.LocalizeFunc.Japanese.pas',
   Shared.CompilerInt in 'Src\Shared.CompilerInt.pas',
   Shared.CompilerInt.Struct in 'Src\Shared.CompilerInt.Struct.pas',
   IDE.OptionsForm in 'Src\IDE.OptionsForm.pas' {OptionsForm},
@@ -35,8 +40,10 @@ uses
   IDE.SignToolsForm in 'Src\IDE.SignToolsForm.pas' {SignToolsForm},
   IDE.GotoFileForm in 'Src\IDE.GotoFileForm.pas' {GotoFileForm},
   IDE.LicenseKeyForm in 'Src\IDE.LicenseKeyForm.pas' {LicenseKeyForm},
-  IDE.InputQueryComboForm in 'Src\IDE.InputQueryComboForm.pas' {InputQueryComboForm},
+  IDE.InputQueryForm in 'Src\IDE.InputQueryForm.pas' {InputQueryForm},
   IDE.InputQueryMemoForm in 'Src\IDE.InputQueryMemoForm.pas' {InputQueryMemoForm},
+  RichEditOleCallback in '..\Components\RichEditOleCallback.pas',
+  IDE.RichEditForm in 'Src\IDE.RichEditForm.pas' {RichEditForm},
   ScintInt in '..\Components\ScintInt.pas',
   ScintEdit in '..\Components\ScintEdit.pas',
   IDE.ScintStylerInnoSetup in 'Src\IDE.ScintStylerInnoSetup.pas',
@@ -53,11 +60,14 @@ uses
   DropListBox in '..\Components\DropListBox.pas',
   BitmapButton in '..\Components\BitmapButton.pas',
   BitmapImage in '..\Components\BitmapImage.pas',
+  OleAccFunc in '..\Components\OleAccFunc.pas',
   NewCheckListBox in '..\Components\NewCheckListBox.pas',
+  NewCheckListBox.MSAA in '..\Components\NewCheckListBox.MSAA.pas',
   NewNotebook in '..\Components\NewNotebook.pas',
   TaskbarProgressFunc in '..\Components\TaskbarProgressFunc.pas',
   IDE.HtmlHelpFunc in 'Src\IDE.HtmlHelpFunc.pas',
   UIStateForm in '..\Components\UIStateForm.pas',
+  IDE.IDEForm in 'Src\IDE.IDEForm.pas',
   Shared.LangOptionsSectionDirectives in 'Src\Shared.LangOptionsSectionDirectives.pas',
   Shared.SetupMessageIDs in 'Src\Shared.SetupMessageIDs.pas',
   Shared.SetupSectionDirectives in 'Src\Shared.SetupSectionDirectives.pas',
@@ -81,6 +91,7 @@ uses
   StringScanner in '..\Components\StringScanner.pas',
   Resample in '..\Components\Resample.pas',
   UnsignedFunc in '..\Components\UnsignedFunc.pas',
+  Toolbar.Accessibility in '..\Components\Toolbar.Accessibility.pas',
   VCL.Styles,
   VCL.Themes,
   IDE.MainForm.MRUHelper in 'Src\IDE.MainForm.MRUHelper.pas',
@@ -125,7 +136,6 @@ const
   RESTART_MAX_CMD_LINE = 1024;
   RESTART_NO_CRASH = $1;
   RESTART_NO_HANG = $2;
-  RESTART_NO_PATCH = $4;
   RESTART_NO_REBOOT = $8;
 var
   Func: function(pwzCommandLine: PWideChar; dwFlags: DWORD): HRESULT; stdcall;
@@ -140,13 +150,13 @@ begin
       relative path names but Restart Manager doesn't restore the working
       directory. }
     if CommandLineWizard then
-      CommandLine := '/WIZARD "' + CommandLineWizardName + '" "' + CommandLineFilename + '"'
+      CommandLine := '-wizard "' + CommandLineWizardName + '" "' + CommandLineFilename + '"'
     else begin
       CommandLine := CommandLineFilename;
       if CommandLine <> '' then
         CommandLine := '"' + CommandLine + '"';
       if CommandLineCompile then
-        CommandLine := '/CC ' + CommandLine;
+        CommandLine := '-cc ' + CommandLine;
     end;
 
     if Length(CommandLine) > RESTART_MAX_CMD_LINE then
@@ -178,9 +188,28 @@ procedure CheckParams;
 
   procedure Error;
   begin
-    MessageBox(0, SCompilerCommandLineHelp3, SCompilerFormCaption,
+    const CommandLineHelp = '%s' + SNewLine2 +
+      'iside -cc <%s>' + SNewLine +
+      'iside --compile <%1:s>' + SNewLine +
+      'iside -wizard <%s> <%1:s>' + SNewLine +
+      'iside --new-script-wizard <%2:s> <%1:s>' + SNewLine2 +
+      '%3:s' + SNewLine +
+      'iside -cc "C:\Inno Setup\Sample32\%s.iss"' + SNewLine +
+      'iside -wizard "%s" c:\temp.iss';
+    MessageBox(0, PChar(Format(CommandLineHelp,
+      [LFmtMessage(SCompilerCommandLineHelpUsage), LFmtMessage(SCompilerCommandLineHelpScriptFile),
+       LFmtMessage(SCompilerCommandLineHelpWizardName), LFmtMessage(SCompilerCommandLineHelpExamples),
+       LFmtMessage(SCompilerCommandLineHelpMyScript),
+       LFmtMessage(SCompilerCommandLineHelpMyScriptWizard)])),
+      PChar(LFmtMessage(SCompilerFormCaption)),
       MB_OK or MB_ICONEXCLAMATION);
     Halt(1);
+  end;
+
+  function IsParam(const S, ShortParam, LongParam: String): Boolean;
+  begin
+    Result := SameText(S, '/' + ShortParam) or SameText(S, '-' + ShortParam) or
+              ((LongParam <> '') and (SameStr(S, '--' + LongParam)));
   end;
 
 var
@@ -192,16 +221,16 @@ begin
   I := 1;
   while I <= P do begin
     S := NewParamStr(I);
-    if CompareText(S, '/CC') = 0 then
+    if IsParam(S, 'cc', 'compile') then
       CommandLineCompile := True
-    else if CompareText(S, '/WIZARD') = 0 then begin
+    else if IsParam(S, 'wizard', 'new-script-wizard') then begin
       if I = P then
         Error;
       CommandLineWizard := True;
       CommandLineWizardName := NewParamStr(I+1);
       Inc(I);
     end
-    else if CompareText(S, '/ASSOC') = 0 then begin
+    else if IsParam(S, 'assoc', 'associate') then begin
       try
         RegisterISSFileAssociation(False, Dummy);
       except
@@ -210,7 +239,7 @@ begin
       end;
       Halt;
     end
-    else if CompareText(S, '/UNASSOC') = 0 then begin
+    else if IsParam(S, 'unassoc', 'unassociate') then begin
       try
         UnregisterISSFileAssociation(True);
       except
@@ -219,13 +248,14 @@ begin
       end;
       Halt;
     end
-    else if (S = '') or (S[1] = '/') or (CommandLineFilename <> '') then
+    else if (S = '') or (S[1] = '/') or (S[1] = '-') or (CommandLineFilename <> '') then
       Error
     else
       CommandLineFilename := PathExpand(PathCombine(InitialCurDir, S));
     Inc(I);
   end;
-  if (CommandLineCompile or CommandLineWizard) and (CommandLineFilename = '') then
+  if (CommandLineCompile and CommandLineWizard) or
+     ((CommandLineCompile or CommandLineWizard) and (CommandLineFilename = '')) then
     Error;
 end;
 
@@ -235,8 +265,8 @@ begin
     InitISCmplrLibrary;
   except
     begin
-      MessageBox(0, PChar(Format('Could not load %s: %s' {$IFDEF DEBUG} + #13#10#13#10'Did you build the ISCmplr project?' {$ENDIF},
-        [ISCmplrDLL, GetExceptMessage])), nil, MB_OK or MB_ICONSTOP);
+      MessageBox(0, PChar(LFmtMessage(SCompilerLibraryLoadError, [ISCmplrDLL, GetExceptMessage])
+        {$IFDEF DEBUG} + #13#10#13#10'Did you build the ISCmplr project?' {$ENDIF}), nil, MB_OK or MB_ICONSTOP);
       Halt(3);
     end;
   end;
@@ -246,8 +276,8 @@ begin
     InitIsscintLibrary;
   except
     begin
-      MessageBox(0, PChar(Format('Could not load %s: %s' {$IFDEF DEBUG} + #13#10#13#10'Did you run Projects\Bin\synch-isfiles.bat as instructed in README.md?' {$ENDIF},
-        [IsscintDLL, GetExceptMessage])), nil, MB_OK or MB_ICONSTOP);
+      MessageBox(0, PChar(LFmtMessage(SCompilerLibraryLoadError, [IsscintDLL, GetExceptMessage])
+        {$IFDEF DEBUG} + #13#10#13#10'Did you run Projects\Bin\synch-isfiles.bat as instructed in README.md?' {$ENDIF}), nil, MB_OK or MB_ICONSTOP);
       Halt(4);
     end;
   end;
@@ -274,7 +304,7 @@ begin
     if CommandLineWizard then
       Title := CommandLineWizardName
     else
-      Title := SCompilerFormCaption;
+      Title := LFmtMessage(SCompilerFormCaption);
   end;
 
   { Don't allow VCL Styles to style menus using owner drawing. Instead we get native dark menus
@@ -284,6 +314,10 @@ begin
     TSysPopupStyleHook does not support our use of bitmaps set using MIIM_BITMAP on a TMenuItem, nor
     does it support our fake shortcuts set with SetFakeShortCut. }
   TStyleManager.SystemHooks := TStyleManager.SystemHooks - [shMenus]; { This keeps shDialogs and shTooltips }
+
+  { VCL can auto-append shortcut in hints for actions, but we don't want or
+    need that. Instead we append them ourselves, using our own NewShortCutToText  }
+  Application.HintShortCuts := False;
 
   Application.CreateForm(TImagesModule, ImagesModule);
   Application.CreateForm(TMainForm, MainForm);

@@ -41,6 +41,7 @@ begin
     Preprocessor.QueueLine(LineTextStr);
     Inc(I);
   end;
+  Preprocessor.FlushQueuedLine;
 end;
 
 function CleanupProc(CleanupProcData: Pointer): Integer; stdcall;
@@ -168,24 +169,10 @@ var
     end;
   end;
 
-  function IncludeBuiltinsAndParseIncludeFiles(BuiltinsDir: String; IncludeFiles: PChar; Options: TOptions): Boolean;
-
-    function Escape(const S: string): string;
-    var
-      I: Integer;
-    begin
-      Result := '';
-      for I := 1 to Length(S) do
-      begin
-        Result := Result + S[I];
-        if S[I] = '\' then Result := Result + '\';
-      end;
-    end;
+  function IncludeBuiltinsAndParseIncludeFiles(BuiltinsDir: String; IncludeFiles: PChar): Boolean;
 
     procedure Include(FileName: String; Builtins: Boolean);
     begin
-      if not GetOption(Options, 'P') then
-        FileName := Escape(FileName);
       Preprocessor.IncludeFile(FileName, Builtins, False, True);
     end;
 
@@ -262,8 +249,7 @@ begin
       Preprocessor.VarMan.DefineVariable('Ver', -1, V, dsPublic);
 
       if not ParseDefinitions(PChar(Definitions), Preprocessor.VarMan) or
-         not IncludeBuiltinsAndParseIncludeFiles(Params.CompilerPath, PChar(IncludeFiles),
-           Preprocessor.FOptions.ParserOptions.Options) then
+         not IncludeBuiltinsAndParseIncludeFiles(Params.CompilerPath, PChar(IncludeFiles)) then
       begin
         Result := ispeInvalidParam;
         FreeAndNil(Preprocessor); { This also calls PopPreproc }
@@ -274,7 +260,7 @@ begin
       ReadScript(Params, Preprocessor);
       Preprocessor.Stack.Resolved;
 
-      if not GetOption(Preprocessor.FOptions.Options, 'C') then
+      if not (optPassToCompiler in Preprocessor.FOptions.Options) then
         Result := ispeSilentAbort
       else
       begin

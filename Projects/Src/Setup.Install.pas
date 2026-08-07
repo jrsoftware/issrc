@@ -430,7 +430,7 @@ end;
 
 procedure ApplyNTFSCompression(const Filename: String; const FilenameIsDirectory, Compress: Boolean);
 const
-  SSet: array [Boolean] of String = ('Setting', 'Unsetting');
+  SSet: array [Boolean] of String = ('Unsetting', 'Setting');
   SFileDir: array [Boolean] of String = ('file', 'directory');
 begin
   LogFmt('%s NTFS compression on %s: %s', [SSet[Compress], SFileDir[FilenameIsDirectory], Filename]);
@@ -1311,8 +1311,11 @@ Retry:
       else
         ApplyPermissions(DestFile, CurFile^.PermissionsEntry);
 
-      { Set NTFS compression (even if the file wasn't replaced) }
-      if (foSetNTFSCompression in CurFile^.Options) or (foUnsetNTFSCompression in CurFile^.Options) then begin
+      { Set NTFS compression (even if the file wasn't replaced).
+        Don't attempt to set if the file doesn't exist (which can
+        happen if the foOnlyIfDestFileExists flag is used). }
+      if ((foSetNTFSCompression in CurFile^.Options) or (foUnsetNTFSCompression in CurFile^.Options)) and
+         ((TempFile <> '') or NewFileExists(DestFile)) then begin
         LastOperation := '';
         if TempFile <> '' then
           ApplyNTFSCompression(TempFile, False, foSetNTFSCompression in CurFile^.Options)
@@ -1572,7 +1575,6 @@ procedure CopyFiles(const UninstLog: TUninstallLog; const ExpandedAppId: String;
               if foUninsNeverUninstall in CurFile^.Options then Include(Flags, mdNoUninstall);
               if foDeleteAfterInstall in CurFile^.Options then Include(Flags, mdDeleteAfterInstall);
               MakeDir(UninstLog, DestDir + FindData.cFileName, Flags);
-              Result := True;
             end;
           until not ArchiveFindNextFile(H, FindData);
         finally

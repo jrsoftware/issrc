@@ -41,6 +41,17 @@ var
     'function TestInnerfuse_EchoCurrency(Value: Currency): Currency;',
     'function TestInnerfuse_EchoInt64(Value: Int64): Int64;',
     'function TestInnerfuse_EchoSmallRec(Value: TTestInnerfuseSmallRec): TTestInnerfuseSmallRec;',
+    'function TestInnerfuse_SumRec3(Value: TTestHandlerRec3): Integer;',
+    'function TestInnerfuse_SumRec6StdCall(Value: TTestHandlerRec6): Integer;',
+    'function TestInnerfuse_SumRec8(Value: TTestHandlerRec8): Integer;',
+    'function TestInnerfuse_SumRec8StdCall(Value: TTestHandlerRec8): Integer;',
+    'function TestInnerfuse_SumSet3(Value: TTestHandlerSet3): Integer;',
+    'function TestInnerfuse_SumSet8(Value: TTestHandlerSet8): Integer;',
+    'function TestInnerfuse_SumSet8StdCall(Value: TTestHandlerSet8): Integer;',
+    'function TestInnerfuse_SumArray3(Value: TTestHandlerArr3): Integer;',
+    'function TestInnerfuse_SumArray4(Value: TTestHandlerArr4): Integer;',
+    'function TestInnerfuse_SumArray8(Value: TTestHandlerArr8): Integer;',
+    'function TestInnerfuse_SumArray8StdCall(Value: TTestHandlerArr8): Integer;',
     'function TestInnerfuse_EchoLargeRec(Value: TTestInnerfuseLargeRec): TTestInnerfuseLargeRec;',
     'function TestInnerfuse_EchoPAnsiChar(Value: PAnsiChar): String;',
     'function TestInnerfuse_EchoSingleStdCall(Value: Single): Single;',
@@ -60,8 +71,49 @@ var
     'procedure TestCreateCallback_Invoke0(Callback: NativeInt);',
     'procedure TestCreateCallback_Invoke5(Callback: NativeInt; const S: String; A, B, C, D: Integer);',
     'procedure TestCreateCallback_InvokeFloat4(Callback: NativeInt; A, B, C: Integer; D: Double);',
+    'procedure TestCreateCallback_InvokeExtended4(Callback: NativeInt; A, B, C: Integer; D: Extended);',
     'function TestCreateCallback_InvokeReturnInteger(Callback: NativeInt; A, B: Integer): Integer;',
-    'function TestCreateCallback_InvokeReturnDouble(Callback: NativeInt; A, B: Integer): Double;'
+    'function TestCreateCallback_InvokeReturnDouble(Callback: NativeInt; A, B: Integer): Double;',
+    'function TestCreateCallback_InvokeReturnInt64(Callback: NativeInt; A, B: Integer): Int64;',
+    'procedure TestCreateCallback_InvokeRec8(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer);',
+    'procedure TestCreateCallback_InvokeSet8(Callback: NativeInt; const S: TTestHandlerSet8; Tail: Integer);',
+    'procedure TestCreateCallback_InvokeArray8(Callback: NativeInt; const A: TTestHandlerArr8; Tail: Integer);',
+    'function TestCreateCallback_InvokeRecRet3(Callback: NativeInt; A, B, C: Integer): String;',
+    'function TestCreateCallback_InvokeRecRet5(Callback: NativeInt; A, B, C, D, E: Integer): String;',
+    'function TestCreateCallback_InvokeRecRetFloat3(Callback: NativeInt; A, B: Integer; D: Double): String;',
+    'function TestCreateCallback_InvokeRec8RecRet(Callback: NativeInt; const R: TTestHandlerRec8; Tail: Integer): String;',
+{$IFDEF CPUX64}
+    'function TestCreateCallback_InvokeRecRet3RAX(Callback: NativeInt): String;',
+{$ENDIF}
+    'function TestInnerfuse_RecStringLength(Value: TTestHandlerRecString): Integer;',
+    'function TestInnerfuse_RecStringLengthStdCall(Value: TTestHandlerRecString): Integer;',
+    'function TestInnerfuse_ArrStringLength(Value: TTestHandlerArrString): Integer;',
+    'function TestInnerfuse_ArrStringLengthStdCall(Value: TTestHandlerArrString): Integer;',
+    'function TestInnerfuse_ReturnRec3(Base: Byte): TTestHandlerRec3;',
+    'function TestInnerfuse_ReturnRec4(Base: Word): TTestHandlerRec4;',
+    'function TestInnerfuse_ReturnRec8(Base: Word): TTestHandlerRec8;',
+    'function TestInnerfuse_ReturnRecString(A, B: Integer): TTestHandlerRecString;',
+    'function TestInnerfuse_ReturnSet3(A, B: Integer): TTestHandlerSet3;',
+    'function TestInnerfuse_ReturnSet4(A, B: Integer): TTestHandlerSet4;',
+    'function TestInnerfuse_ReturnSet6(A, B: Integer): TTestHandlerSet6;',
+    'function TestInnerfuse_ReturnArr1(Base: Byte): TTestHandlerArr1;',
+    'function TestInnerfuse_ReturnArr2(Base: Byte): TTestHandlerArr2;',
+    'function TestInnerfuse_ReturnArr3(Base: Byte): TTestHandlerArr3;',
+    'function TestInnerfuse_ReturnArr4(Base: Byte): TTestHandlerArr4;',
+    'function TestInnerfuse_ReturnArr8(Base: Byte): TTestHandlerArr8;',
+    'function TestInnerfuse_ReturnArrString(A, B: Integer): TTestHandlerArrString;',
+    'function TestInnerfuse_ReturnArr4Pascal(Base: Byte): TTestHandlerArr4;',
+    'function TestInnerfuse_ReturnArrStringPascal(A, B: Integer): TTestHandlerArrString;',
+    'function TestInnerfuse_ReturnSet3Pascal(A, B: Integer): TTestHandlerSet3;',
+    'function TestInnerfuse_ReturnSet6Pascal(A, B: Integer): TTestHandlerSet6;',
+    'function TestInnerfuse_ReturnArr4Cdecl(Base: Byte): TTestHandlerArr4;',
+    'function TestInnerfuse_ReturnArrStringCdecl(A, B: Integer): TTestHandlerArrString;',
+    'function TestInnerfuse_ReturnSet3Cdecl(A, B: Integer): TTestHandlerSet3;',
+    'function TestInnerfuse_ReturnSet6Cdecl(A, B: Integer): TTestHandlerSet6;',
+    'function TestInnerfuse_ReturnArr4StdCall(Base: Byte): TTestHandlerArr4;',
+    'function TestInnerfuse_ReturnArrStringStdCall(A, B: Integer): TTestHandlerArrString;',
+    'function TestInnerfuse_ReturnSet3StdCall(A, B: Integer): TTestHandlerSet3;',
+    'function TestInnerfuse_ReturnSet6StdCall(A, B: Integer): TTestHandlerSet6;'
   ];
 
 {$IFDEF ISIDEPROJ}
@@ -107,7 +159,6 @@ var
     'procedure UnloadDLL(S: String);',
     'function DLLGetLastError: LongInt;',
     'function Int(const E: Extended): Extended;',
-    { Special functions: undocumented but listing anyway }
     'function Low(var X): Int64;',
     'function High(var X): Int64;',
     'procedure Dec(var X: Ordinal);',
@@ -115,6 +166,11 @@ var
     'procedure Include(var S: Set; I: Ordinal);',
     'procedure Exclude(var S: Set; I: Ordinal);',
     'function SizeOf(var X): LongInt;',
+    'function Abs(E: Extended): Extended;',
+    'procedure RaiseLastException;',
+    'function Succ(X: Ordinal): Ordinal;', // Implemented by TPSPascalCompiler.ProcessSub
+    'function Pred(X: Ordinal): Ordinal;', //
+    'function Assigned(var X): Boolean;',  //
     { Special: keywords instead of functions in ROPS but are presented and documented as functions by us }
     'function Chr(X: Word): Char;',
     'function Ord(X: Ordinal): UInt64;',
@@ -133,12 +189,10 @@ var
     'function Sqrt(E: Extended): Extended;',
     'function Int(E: Extended): Extended;',
     'function Pi: Extended;',
-    'function Abs(E: Extended): Extended;',
     'function PadL(S: AnyString; I: LongInt): AnyString;',
     'function PadR(S: AnyString; I: LongInt): AnyString;',
     'function PadZ(S: AnyString; I: LongInt): AnyString;',
     'function Replicate(C: Char; I: LongInt): String;',
-    'procedure RaiseLastException;',
     'procedure RaiseException(Ex: TIFException; Param: String);',
     'function ExceptionType: TIFException;',
     'function ExceptionParam: String;',
@@ -332,7 +386,7 @@ initialization
 
   ScriptFuncTables[sftBrowseFunc] :=
   [
-    'function BrowseForFolder(const Prompt: String; var Directory: String; const NewFolderButton: Boolean): Boolean;',
+    'function BrowseForFolder(const Prompt: String; var Directory: String; const Reserved: Boolean): Boolean;',
     'function GetOpenFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;',
     'function GetOpenFileNameMulti(const Prompt: String; const FileNameList: TStrings; const InitialDirectory, Filter, DefaultExtension: String): Boolean;',
     'function GetSaveFileName(const Prompt: String; var FileName: String; const InitialDirectory, Filter, DefaultExtension: String): Boolean;'

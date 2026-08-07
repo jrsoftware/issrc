@@ -161,6 +161,7 @@ function TParser.Factor(DoEval: Boolean): TIsppVariant;
             begin
               NextToken;
               CallContext.Add(ArgName, V);
+              ArgName := '';
               V := NULL;
               T := PeekAtNextToken;
             end;
@@ -210,7 +211,7 @@ var
   Op: TTokenKind;
   ParenthesesUsed: Boolean;
 begin
-  FillChar(Result, SizeOf(Result), 0);
+  Result := Default(TIsppVariant);
   case NextTokenExpect(ExpressionStartTokens) of
     tkOpenParen:
       begin
@@ -220,10 +221,13 @@ begin
     tkPtr:
       begin
         NextTokenExpect([tkIdent]);
-        Result.Typ := evCallContext;
-        if not (FIdentMan.GetIdent(TokenString, Result.AsCallContext) in
-          [itVariable, itMacro, itFunc]) then
-          Error('Variable, macro, or function required');
+        if DoEval then
+        begin
+          Result.Typ := evCallContext;
+          if not (FIdentMan.GetIdent(TokenString, Result.AsCallContext) in
+            [itVariable, itMacro, itFunc]) then
+            Error('Variable, macro, or function required');
+        end;
       end;
     tkIdent:
       begin
@@ -234,8 +238,11 @@ begin
             if (optAllowUndeclared in FOptions.Options) and not
               (PeekAtNextToken in [tkOpenParen, tkOpenBracket, tkOpenBrace]) then
             begin
-              Result.Typ := evNull;
-              WarningMsg(SUndeclaredIdentifier, [TokenString]);
+              if DoEval then
+              begin
+                Result.Typ := evNull;
+                WarningMsg(SUndeclaredIdentifier, [TokenString]);
+              end;
             end
             else
               ErrorFmt(SUndeclaredIdentifier, [TokenString]);
@@ -275,12 +282,13 @@ begin
         end;
       end;
     tkNumber:
+      if DoEval then
       begin
         if not TryStrToInt64(TokenString, I) then
           ErrorFmt(SCannotConvertToInteger, [TokenString]);
         MakeInt(Result, I);
       end;
-    tkString: MakeStr(Result, TokenString);
+    tkString: if DoEval then MakeStr(Result, TokenString);
     opInc, opDec:
       begin
         Op := Token;
@@ -331,14 +339,17 @@ begin
         evInt: MakeInt(Op2, 0);
         evStr: MakeStr(Op2, '');
       end;
-  if (Op1.Typ <> Op2.Typ) or ((Op in [opSubtract..opMod]) and (Op1.Typ = evStr))
-    then Error(SOperatorNotApplicableToThisOpera);
+  if Op1.Typ <> Op2.Typ then
+    Error(SOperatorNotApplicableToThisOpera);
   AsBool := False;
   with Result do
   try
     if Op1.Typ = evStr then
     begin
-      if Op = opAdd then MakeStr(Result, Op1.AsStr + Op2.AsStr)
+      if Op in [opOr, opAnd, opSubtract..opMod] then
+        Error(SOperatorNotApplicableToThisOpera)
+      else if Op = opAdd then
+        MakeStr(Result, Op1.AsStr + Op2.AsStr)
       else
       begin
         Typ := evInt;
@@ -447,8 +458,8 @@ begin
   while PeekAtNextToken in OperatorPrecedence[Level].Operators do
   begin
     if DoEval and (OperatorPrecedence[Level].SCBE <> scemNone) and
-      (GetOption(FOptions.Options, 'B') or // short circuit bool eval
-       GetOption(FOptions.Options, 'M')) then // short circuit mul eval
+      ((optSCBE in FOptions.Options) or // short circuit bool eval
+       (optSCME in FOptions.Options)) then // short circuit mul eval
     begin
       with GetRValue(Result) do
         case Typ of
@@ -459,8 +470,8 @@ begin
         end;
       if R <> -1 then
       begin
-        if (OperatorPrecedence[Level].SCBE = scemStandard) and GetOption(FOptions.Options, 'B')
-          or (OperatorPrecedence[Level].SCBE = scemOptional) and GetOption(FOptions.Options, 'M') then
+        if (OperatorPrecedence[Level].SCBE = scemStandard) and (optSCBE in FOptions.Options)
+          or (OperatorPrecedence[Level].SCBE = scemOptional) and (optSCME in FOptions.Options) then
           DoEval := not (OperatorPrecedence[Level].SCBEValue = Boolean(R))
       end;
     end;

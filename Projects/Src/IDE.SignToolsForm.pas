@@ -12,10 +12,12 @@ unit IDE.SignToolsForm;
 interface
 
 uses
-  Classes, Controls, StdCtrls, UIStateForm, NewGroupBox;
+  Classes, Controls, StdCtrls,
+  NewGroupBox,
+  IDE.IDEForm;
 
 type
-  TSignToolsForm = class(TUIStateForm)
+  TSignToolsForm = class(TIDEForm)
     OKButton: TButton;
     CancelButton: TButton;
     GroupBox1: TNewGroupBox;
@@ -48,9 +50,10 @@ type
 implementation
 
 uses
-  Windows, Messages, SysUtils, Dialogs,
-  Shared.CommonFunc.Vcl, IDE.InputQueryMemoForm, IDE.HelperFunc,
-  IDE.HtmlHelpFunc, IDE.Messages;
+  Windows, Messages, SysUtils,
+  Shared.CommonFunc.Vcl,
+  IDE.InputQueryForm, IDE.InputQueryMemoForm, IDE.HelperFunc,
+  IDE.HtmlHelpFunc, IDE.Messages, IDE.LocalizeFunc;
 
 {$R *.DFM}
 
@@ -78,9 +81,11 @@ end;
 
 procedure TSignToolsForm.FormCreate(Sender: TObject);
 begin
+  { Finish localization }
+  SizeSideButtons([AddButton, EditButton, RemoveButton], SignToolsListBox);
+  SizeBottomButtons(OKButton, CancelButton);
+
   FSignTools := TStringList.Create();
-  InitFormFont(Self);
-  InitFormTheme(Self);
 end;
 
 { This and CreateParams make bsSizeable (which has an unwanted icon) look like bsDialog, see:
@@ -115,22 +120,22 @@ var
 begin
   Result := False;
 
-  if InputQuery(Caption, SSignToolNamePrompt, SignToolName) then begin
+  if InputQueryEdit(Caption, LFmtMessage(SSignToolNamePrompt), SignToolName) then begin
     if (SignToolName = '') or (Pos('=', SignToolName) <> 0) then begin
-      MsgBox(SSignToolInvalidName, Caption, mbCriticalError, MB_OK);
+      MsgBox(LFmtMessage(SSignToolInvalidName), Caption, mbCriticalError, MB_OK);
       Exit;
     end;
 
     for I := 0 to FSignTools.Count-1 do begin
       if (I <> ExistingIndex) and (Pos(SignToolName + '=', FSignTools[I]) = 1) then begin
-        MsgBox(SSignToolDuplicateName, Caption, mbCriticalError, MB_OK);
+        MsgBox(LFmtMessage(SSignToolDuplicateName), Caption, mbCriticalError, MB_OK);
         Exit;
       end;
     end;
 
-    if InputQueryMemo(Caption, SSignToolCommandPrompt, SignToolCommand, True, CommandDocBitBtnClick) then begin
+    if InputQueryMemo(Caption, LFmtMessage(SSignToolCommandPrompt), SignToolCommand, True, CommandDocBitBtnClick) then begin
       if SignToolCommand = '' then begin
-        MsgBox(SSignToolInvalidCommand, Caption, mbCriticalError, MB_OK);
+        MsgBox(LFmtMessage(SSignToolInvalidCommand), Caption, mbCriticalError, MB_OK);
         Exit;
       end;
       

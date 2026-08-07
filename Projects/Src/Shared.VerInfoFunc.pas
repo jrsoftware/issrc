@@ -27,7 +27,7 @@ function VersionNumbersToInt64(const VersionNumbers: TFileVersionNumbers): Int64
 implementation
 
 uses
-  Shared.CommonFunc, Shared.FileClass;
+  Shared.CommonFunc;
 
 function GetVersionInfo(const Filename: String;
   var VersionInfo: TVSFixedFileInfo): Boolean;

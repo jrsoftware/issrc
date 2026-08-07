@@ -10,6 +10,7 @@ rem  except the MyDll and MyProg example files.
 rem 
 rem  Once done the output can be found in Files. Output is
 rem  also synched to Projects\Bin by synch-isfiles.bat.
+rem  .obj outputs stay in their source directories.
 rem
 rem  Does NOT update .issig files.
 
@@ -79,25 +80,19 @@ echo Compiling LzmaDecodeInno-%~1.obj
 set R=Projects\Src\Compression.LZMA1SmallDecompressor\LzmaDecode
 call %R%\compile.bat %~1
 if errorlevel 1 exit /b 1
-copy %R%\LzmaDecodeInno-%~1.obj Files
-if errorlevel 1 exit /b 1
 exit /b
 
 :build-ISLzmaDec
-echo Compiling and copying ISLzmaDec-%~1.obj
+echo Compiling ISLzmaDec-%~1.obj
 set R=Projects\Src\Compression.LZMADecompressor\Lzma2Decode
 call %R%\compile.bat %~1
-if errorlevel 1 exit /b 1
-copy %R%\ISLzmaDec-%~1.obj Files
 if errorlevel 1 exit /b 1
 exit /b
 
 :build-IS7zDec
-echo Compiling and copying IS7zDec-%~1.obj
+echo Compiling IS7zDec-%~1.obj
 set R=Projects\Src\Compression.SevenZipDecoder\7zDecode
 call %R%\compile.bat %~1
-if errorlevel 1 exit /b 1
-copy %R%\IS7zDec-%~1.obj Files
 if errorlevel 1 exit /b 1
 exit /b
 

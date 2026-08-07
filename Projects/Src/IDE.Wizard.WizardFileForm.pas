@@ -13,7 +13,9 @@ interface
 
 uses
   Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  UIStateForm, StdCtrls, ExtCtrls, NewGroupBox, NewStaticText;
+  StdCtrls, ExtCtrls,
+  NewGroupBox, NewStaticText,
+  IDE.IDEForm;
 
 type
   TWizardFileOption = (foDownload, foExtractArchive, foRecurseSubDirs,  foCreateAllSubDirs);
@@ -31,7 +33,7 @@ type
     { Don't forget to initialize new fields in TWizardFormFilesHelper.AddWizardFile }
   end;
 
-  TWizardFileForm = class(TUIStateForm)
+  TWizardFileForm = class(TIDEForm)
     OKButton: TButton;
     CancelButton: TButton;
     GroupBox2: TNewGroupBox;
@@ -67,7 +69,7 @@ type
 implementation
 
 uses
-  IDE.Messages, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc;
+  IDE.Messages, IDE.LocalizeFunc, Shared.CommonFunc.Vcl, Shared.CommonFunc, IDE.HelperFunc;
 
 {$R *.DFM}
 
@@ -79,13 +81,13 @@ type
 const
   DestRootDirs: array[0..6] of TConstant =
   (
-    ( Constant: '{app}'; Description: 'Application directory'),
-    ( Constant: '{autopf}'; Description: 'Program Files directory'),
-    ( Constant: '{autocf}'; Description: 'Common Files directory'),
-    ( Constant: '{win}'; Description: 'Windows directory'),
-    ( Constant: '{sys}'; Description: 'Windows system directory'),
-    ( Constant: '{src}'; Description: 'Setup source directory'),
-    ( Constant: '{sd}'; Description: 'System drive root directory')
+    ( Constant: '{app}'; Description: SWizardDirApplication),
+    ( Constant: '{autopf}'; Description: SWizardDirProgramFiles),
+    ( Constant: '{autocf}'; Description: SWizardDirCommonFiles),
+    ( Constant: '{win}'; Description: SWizardDirWindows),
+    ( Constant: '{sys}'; Description: SWizardDirWindowsSystem),
+    ( Constant: '{src}'; Description: SWizardDirSetupSource),
+    ( Constant: '{sd}'; Description: SWizardDirSystemDriveRoot)
   );
 
 procedure MakeBold(const Ctl: TNewStaticText);
@@ -100,7 +102,7 @@ begin
   FWizardFile := WizardFile;
 
   if foDownload in WizardFile.Options then begin
-    SourceLabel.Caption := SWizardSourceURLLabel;
+    SourceLabel.Caption := LFmtMessage(SWizardSourceURLLabel);
     SourceEdit.Text := Format('%s (~%.1f MB)', [WizardFile.Source, WizardFile.ExternalSize/(1024*1024)]);
     MakeBold(DestNameLabel);
   end else begin
@@ -138,20 +140,18 @@ end;
 { --- }
 
 procedure TWizardFileForm.FormCreate(Sender: TObject);
-var
-  I: Integer;
 begin
-  InitFormFont(Self);
-  InitFormTheme(Self);
+  { Finish localization - also done for DestRootDirComboBox below}
+  SizeBottomButtons(OKButton, CancelButton);
 
   MakeBold(SourceLabel);
   MakeBold(DestRootDirLabel);
   MakeBold(RequiredLabel1);
   RequiredLabel2.Left := RequiredLabel1.Left + RequiredLabel1.Width;
 
-  for I := Low(DestRootDirs) to High(DestRootDirs) do
-    DestRootDirComboBox.Items.Add(DestRootDirs[I].Description);
-  DestRootDirComboBox.Items.Add('(Custom)');
+  for var I := Low(DestRootDirs) to High(DestRootDirs) do
+    DestRootDirComboBox.Items.Add(LFmtMessage(DestRootDirs[I].Description));
+  DestRootDirComboBox.Items.Add(LFmtMessage(SWizardDirCustom));
   DestRootDirComboBox.ItemIndex := 0;
 end;
 
@@ -201,11 +201,14 @@ begin
   const CustomDestRootDir = DestRootDirIndex = DestRootDirComboBox.Items.Count-1;
 
   if CustomDestRootDir and (DestRootDirEdit.Text = '') then begin
-    MsgBox(SWizardFileDestRootDirError, '',  mbError, MB_OK);
+    MsgBox(LFmtMessage(SWizardFileDestRootDirError), '',  mbError, MB_OK);
     ActiveControl := DestRootDirEdit;
   end else if not CustomDestRootDir and (DestRootDirs[DestRootDirIndex].Constant = '{app}') and not FAllowAppDestRootDir then begin
-    MsgBox(SWizardFileAppDestRootDirError, '',  mbError, MB_OK);
+    MsgBox(LFmtMessage(SWizardFileAppDestRootDirError), '',  mbError, MB_OK);
     ActiveControl := DestRootDirComboBox;
+  end else if (foDownload in FWizardFile.Options) and (DestNameEdit.Text = '') then begin
+    MsgBox(LFmtMessage(SWizardFileDestNameError), '',  mbError, MB_OK);
+    ActiveControl := DestNameEdit;
   end else
     ModalResult := mrOk;
 
@@ -213,9 +216,9 @@ begin
     FWizardFile.Options := FWizardFile.Options * [foDownload];
     if ExtractArchiveCheck.Checked then
       Include(FWizardFile.Options, foExtractArchive);
-    if RecurseSubDirsCheck.Checked then
+    if RecurseSubDirsCheck.Enabled and RecurseSubDirsCheck.Checked then
       Include(FWizardFile.Options, foRecurseSubDirs);
-    if CreateAllSubDirsCheck.Checked then
+    if CreateAllSubDirsCheck.Enabled and CreateAllSubDirsCheck.Checked then
       Include(FWizardFile.Options, foCreateAllSubDirs);
     if CustomDestRootDir then begin
       FWizardFile.DestRootDir := DestRootDirEdit.Text;

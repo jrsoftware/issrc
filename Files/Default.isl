@@ -9,7 +9,10 @@
 ; - Do not add or remove sentences, or add or omit information within sentences.
 ; - Do not remove these words: all, only, automatically, now, later, may, must, and not.
 ; - Do not add periods (.) or colons (:) or ellipses (...) to the end of messages that didn't have them already.
+;   Exception: for languages with their own period character, such as Japanese and Chinese, it was added
+;   to the end of messages as needed.
 ; - Do not remove periods or colons or ellipses or question marks from the end of messages.
+;   Exception: Thai and Lao remove trailing periods and question marks.
 ; - Do not replace periods with colons. Replacing '...' with '…' is allowed.
 ; - Do not add or remove number placeholders (%1, %2, etc.). Changing the order is allowed.
 ; - Do not add or remove named placeholders ([name], [name/ver], etc.). Do not replace one with another.
@@ -107,7 +110,7 @@ ExitSetupTitle=Exit Setup
 ExitSetupMessage=Setup is not complete. If you exit now, the program will not be installed.%n%nYou may run Setup again at another time to complete the installation.%n%nExit Setup?
 AboutSetupMenuItem=&About Setup...
 AboutSetupTitle=About Setup
-AboutSetupMessage=%1 version %2%n%3%n%n%1 home page:%n%4
+AboutSetupMessage=%1 %2%n%3%n%n%1 home page:%n%4
 AboutSetupNote=
 TranslatorNote=
 

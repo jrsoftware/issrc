@@ -53,9 +53,9 @@ function MsgBoxFmt(const Text: String; const Args: array of const;
 procedure SetMessageBoxRightToLeft(const ARightToLeft: Boolean);
 function GetMessageBoxRightToLeft: Boolean;
 procedure SetMessageBoxCallbackFunc(const AFunc: TMsgBoxCallbackFunc; const AParam: NativeInt);
+procedure GetMessageBoxCallbackFunc(out AFunc: TMsgBoxCallbackFunc; out AParam: NativeInt);
 procedure TriggerMessageBoxCallbackFunc(const Flags: Cardinal; const After: Boolean);
 function GetOwnerWndForMessageBox: HWND;
-function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
 procedure SetDarkTitleBar(const Form: TForm; const Dark: Boolean);
 
 implementation
@@ -199,6 +199,12 @@ begin
   MessageBoxCallbackParam := AParam;
 end;
 
+procedure GetMessageBoxCallbackFunc(out AFunc: TMsgBoxCallbackFunc; out AParam: NativeInt);
+begin
+  AFunc := MessageBoxCallbackFunc;
+  AParam := MessageBoxCallbackParam;
+end;
+
 procedure TriggerMessageBoxCallbackFunc(const Flags: Cardinal; const After: Boolean);
 begin
   if Assigned(MessageBoxCallbackFunc) and not MessageBoxCallbackActive then begin
@@ -231,29 +237,6 @@ begin
     Result := 0;
 end;
 
-function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
-begin
-  { Find the "root owner" window, which is what appears in the taskbar.
-    We avoid GetAncestor(..., GA_ROOTOWNER) because it's broken in the same
-    way as GetParent(): it stops if it reaches a top-level window that doesn't
-    have the WS_POPUP style (i.e., a WS_OVERLAPPED window). }
-  var RootWnd := Wnd;
-  while True do begin
-    { Visible WS_EX_APPWINDOW windows have their own taskbar button regardless
-      of their root owner's visibility }
-    if (GetWindowLong(RootWnd, GWL_EXSTYLE) and WS_EX_APPWINDOW <> 0) and
-       (GetWindowLong(RootWnd, GWL_STYLE) and WS_VISIBLE <> 0) then
-      Exit(True);
-    var ParentWnd := HWND(GetWindowLongPtr(RootWnd, GWLP_HWNDPARENT));
-    if ParentWnd = 0 then
-      Break;
-    RootWnd := ParentWnd;
-  end;
-
-  Result := (GetWindowLong(RootWnd, GWL_STYLE) and WS_VISIBLE <> 0) and
-    (GetWindowLong(RootWnd, GWL_EXSTYLE) and WS_EX_TOOLWINDOW = 0);
-end;
-
 procedure SetDarkTitleBar(const Form: TForm; const Dark: Boolean);
 begin
   { Based on https://learn.microsoft.com/en-us/windows/apps/desktop/modernize/apply-windows-themes
@@ -276,15 +259,6 @@ var
 function MsgBox(const Text, Caption: PChar; Flags: Cardinal): Integer;
 
 {$IFDEF USETASKDIALOGFORM}
-  procedure DoInternalError(const Msg: String);
-  begin
-    {$IFDEF SETUPPROJ}
-      InternalError(Msg);
-    {$ELSE}
-      raise Exception.Create(Msg);
-    {$ENDIF}
-  end;
-
   procedure MsgBoxFlagsDecode(const Flags: Cardinal; out Icon: PChar;
     out TDCommonButtons: Cardinal; out DefCommonButton: Integer; out SetForeground: Boolean);
   begin
@@ -304,15 +278,15 @@ function MsgBox(const Text, Caption: PChar; Flags: Cardinal): Integer;
       MB_YESNO: TDCommonButtons := TDCBF_YES_BUTTON or TDCBF_NO_BUTTON;
       MB_RETRYCANCEL: TDCommonButtons := TDCBF_RETRY_BUTTON or TDCBF_CANCEL_BUTTON;
     else
-      DoInternalError('MsgBoxFlagsDecode: Invalid Flags');
+      InternalError('MsgBoxFlagsDecode: Invalid Flags');
     end;
 
-    if (Flags and MB_DEFBUTTON2) <> 0 then
-      DefCommonButton := 2
-    else if (Flags and MB_DEFBUTTON3) <> 0 then
-      DefCommonButton := 3
+    case Flags and MB_DEFMASK of
+      MB_DEFBUTTON2: DefCommonButton := 2;
+      MB_DEFBUTTON3: DefCommonButton := 3;
     else
       DefCommonButton := 0;
+    end;
 
     SetForeground := Flags and MB_SETFOREGROUND <> 0;
   end;

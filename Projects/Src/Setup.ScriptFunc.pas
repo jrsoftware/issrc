@@ -48,7 +48,26 @@ type
 
   TScriptFuncs = TDictionary<AnsiString, TScriptFuncEx>;
 
-  TTestPSStackHelperProc = function(Value: Integer): Integer of object; { Internal, used only by Script.Test.iss }
+  { Internal, used only by Script.Test.iss }
+  TTestPSStackHelperProc = function(Value: Integer): Integer of object;
+  TTestHandlerExtendedProc = function(E1, E2, E3: Extended; Tail: Integer): Extended of object;
+  TTestHandlerCurrencyProc = function(C1, C2, C3: Currency; Tail: Integer): Currency of object;
+  TTestHandlerMixedProc = procedure(A: Integer; E: Extended; C: Currency; Tail: Integer) of object;
+  TTestHandlerRecProc = function(R1: TTestHandlerRec4; R2: TTestHandlerRec6; R3: TTestHandlerRec8; Tail: Integer): Integer of object;
+  TTestHandlerRecProc2 = function(R1: TTestHandlerRec3; R2: TTestHandlerRec10; Tail: Integer): Integer of object;
+  TTestHandlerSetProc = function(S1: TTestHandlerSet4; S2: TTestHandlerSet6; S3: TTestHandlerSet8; Tail: Integer): Integer of object;
+  TTestHandlerSetProc2 = function(S1: TTestHandlerSet3; S2: TTestHandlerSet10; Tail: Integer): Integer of object;
+  TTestHandlerArrProc = function(A1: TTestHandlerArr4; A2: TTestHandlerArr6; A3: TTestHandlerArr8; Tail: Integer): Integer of object;
+  TTestHandlerArrProc2 = function(A1: TTestHandlerArr3; A2: TTestHandlerArr10; Tail: Integer): Integer of object;
+  TTestHandlerRecRet1Proc = function(A, B: Integer): TTestHandlerRec1 of object;
+  TTestHandlerRecRet3Proc = function(A, B: Integer): TTestHandlerRec3 of object;
+  TTestHandlerRecRet4Proc = function(A, B: Integer): TTestHandlerRec4 of object;
+  TTestHandlerRecRet8Proc = function(A, B: Integer): TTestHandlerRec8 of object;
+  TTestHandlerRecRetStringProc = function(A, B: Integer): TTestHandlerRecString of object;
+  TTestHandlerArrRet3Proc = function(A, B: Integer): TTestHandlerArr3 of object;
+  TTestHandlerArrRet4Proc = function(A, B: Integer): TTestHandlerArr4 of object;
+  TTestHandlerArrRet8Proc = function(A, B: Integer): TTestHandlerArr8 of object;
+  TTestHandlerArrRetStringProc = function(A, B: Integer): TTestHandlerArrString of object;
 
 var
   ScriptFuncs: TScriptFuncs;
@@ -322,7 +341,7 @@ var
     RegisterScriptFunc('BROWSEFORFOLDER', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var S := Stack.GetString(PStart-2);
-      Stack.SetBool(PStart, BrowseForFolder(Stack.GetString(PStart-1), S, GetOwnerWndForMessageBox, Stack.GetBool(PStart-3)));
+      Stack.SetBool(PStart, BrowseForFolder(Stack.GetString(PStart-1), S, GetOwnerWndForMessageBox));
       Stack.SetString(PStart-2, S);
     end);
     RegisterScriptFunc('GETOPENFILENAME', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
@@ -1665,12 +1684,14 @@ var
     RegisterScriptFunc('OEMTOCHARBUFF', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var S := Stack.GetAnsiString(PStart);
+      UniqueString(S);
       OemToCharBuffA(PAnsiChar(S), PAnsiChar(S), ULength(S));
       Stack.SetAnsiString(PStart, S);
     end);
     RegisterScriptFunc('CHARTOOEMBUFF', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
     begin
       var S := Stack.GetAnsiString(PStart);
+      UniqueString(S);
       CharToOemBuffA(PAnsiChar(S), PAnsiChar(S), ULength(S));
       Stack.SetAnsiString(PStart, S);
     end);
@@ -2103,6 +2124,17 @@ begin
   RegisterDelphiFunction(@TestInnerfuse_EchoCurrency, 'TestInnerfuse_EchoCurrency');
   RegisterDelphiFunction(@TestInnerfuse_EchoInt64, 'TestInnerfuse_EchoInt64');
   RegisterDelphiFunction(@TestInnerfuse_EchoSmallRec, 'TestInnerfuse_EchoSmallRec');
+  RegisterDelphiFunction(@TestInnerfuse_SumRec3, 'TestInnerfuse_SumRec3');
+  RegisterDelphiFunction(@TestInnerfuse_SumRec6StdCall, 'TestInnerfuse_SumRec6StdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_SumRec8, 'TestInnerfuse_SumRec8');
+  RegisterDelphiFunction(@TestInnerfuse_SumRec8StdCall, 'TestInnerfuse_SumRec8StdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_SumSet3, 'TestInnerfuse_SumSet3');
+  RegisterDelphiFunction(@TestInnerfuse_SumSet8, 'TestInnerfuse_SumSet8');
+  RegisterDelphiFunction(@TestInnerfuse_SumSet8StdCall, 'TestInnerfuse_SumSet8StdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_SumArray3, 'TestInnerfuse_SumArray3');
+  RegisterDelphiFunction(@TestInnerfuse_SumArray4, 'TestInnerfuse_SumArray4');
+  RegisterDelphiFunction(@TestInnerfuse_SumArray8, 'TestInnerfuse_SumArray8');
+  RegisterDelphiFunction(@TestInnerfuse_SumArray8StdCall, 'TestInnerfuse_SumArray8StdCall', cdStdCall);
   RegisterDelphiFunction(@TestInnerfuse_EchoLargeRec, 'TestInnerfuse_EchoLargeRec');
   RegisterDelphiFunction(@TestInnerfuse_EchoPAnsiChar, 'TestInnerfuse_EchoPAnsiChar');
   RegisterDelphiFunction(@TestInnerfuse_EchoSingleStdCall, 'TestInnerfuse_EchoSingleStdCall', cdStdCall);
@@ -2122,21 +2154,309 @@ begin
   RegisterDelphiFunction(@TestCreateCallback_Invoke0, 'TestCreateCallback_Invoke0');
   RegisterDelphiFunction(@TestCreateCallback_Invoke5, 'TestCreateCallback_Invoke5');
   RegisterDelphiFunction(@TestCreateCallback_InvokeFloat4, 'TestCreateCallback_InvokeFloat4');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeExtended4, 'TestCreateCallback_InvokeExtended4');
   RegisterDelphiFunction(@TestCreateCallback_InvokeReturnInteger, 'TestCreateCallback_InvokeReturnInteger');
   RegisterDelphiFunction(@TestCreateCallback_InvokeReturnDouble, 'TestCreateCallback_InvokeReturnDouble');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeReturnInt64, 'TestCreateCallback_InvokeReturnInt64');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeRec8, 'TestCreateCallback_InvokeRec8');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeSet8, 'TestCreateCallback_InvokeSet8');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeArray8, 'TestCreateCallback_InvokeArray8');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeRecRet3, 'TestCreateCallback_InvokeRecRet3');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeRecRet5, 'TestCreateCallback_InvokeRecRet5');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeRecRetFloat3, 'TestCreateCallback_InvokeRecRetFloat3');
+  RegisterDelphiFunction(@TestCreateCallback_InvokeRec8RecRet, 'TestCreateCallback_InvokeRec8RecRet');
+{$IFDEF CPUX64}
+  RegisterDelphiFunction(@TestCreateCallback_InvokeRecRet3RAX, 'TestCreateCallback_InvokeRecRet3RAX');
+{$ENDIF}
+  RegisterDelphiFunction(@TestInnerfuse_RecStringLength, 'TestInnerfuse_RecStringLength');
+  RegisterDelphiFunction(@TestInnerfuse_RecStringLengthStdCall, 'TestInnerfuse_RecStringLengthStdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_ArrStringLength, 'TestInnerfuse_ArrStringLength');
+  RegisterDelphiFunction(@TestInnerfuse_ArrStringLengthStdCall, 'TestInnerfuse_ArrStringLengthStdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnRec3, 'TestInnerfuse_ReturnRec3');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnRec4, 'TestInnerfuse_ReturnRec4');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnRec8, 'TestInnerfuse_ReturnRec8');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnRecString, 'TestInnerfuse_ReturnRecString');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet3, 'TestInnerfuse_ReturnSet3');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet4, 'TestInnerfuse_ReturnSet4');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet6, 'TestInnerfuse_ReturnSet6');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr1, 'TestInnerfuse_ReturnArr1');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr2, 'TestInnerfuse_ReturnArr2');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr3, 'TestInnerfuse_ReturnArr3');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr4, 'TestInnerfuse_ReturnArr4');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr8, 'TestInnerfuse_ReturnArr8');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArrString, 'TestInnerfuse_ReturnArrString');
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr4Pascal, 'TestInnerfuse_ReturnArr4Pascal', cdPascal);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArrStringPascal, 'TestInnerfuse_ReturnArrStringPascal', cdPascal);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet3Pascal, 'TestInnerfuse_ReturnSet3Pascal', cdPascal);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet6Pascal, 'TestInnerfuse_ReturnSet6Pascal', cdPascal);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr4Cdecl, 'TestInnerfuse_ReturnArr4Cdecl', cdCdecl);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArrStringCdecl, 'TestInnerfuse_ReturnArrStringCdecl', cdCdecl);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet3Cdecl, 'TestInnerfuse_ReturnSet3Cdecl', cdCdecl);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet6Cdecl, 'TestInnerfuse_ReturnSet6Cdecl', cdCdecl);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArr4StdCall, 'TestInnerfuse_ReturnArr4StdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnArrStringStdCall, 'TestInnerfuse_ReturnArrStringStdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet3StdCall, 'TestInnerfuse_ReturnSet3StdCall', cdStdCall);
+  RegisterDelphiFunction(@TestInnerfuse_ReturnSet6StdCall, 'TestInnerfuse_ReturnSet6StdCall', cdStdCall);
   {$IFDEF DEBUG}
   if Count <> Length(TestInnerfuseScriptFuncTable) then
     raise Exception.Create('Count <> Length(TestInnerfuseScriptFuncTable)');
   {$ENDIF}
 
-  { Internal, used only by Script.Test.iss }
+  { Following are all internal, used only by Script.Test.iss }
+
   RegisterScriptFunc('TestPSStackHelper_InvokeCallback', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
   begin
-    var Method := Stack.GetProc(PStart-1, Caller);
+    const Method = Stack.GetProc(PStart-1, Caller);
     if Method.Code <> nil then
       Stack.SetInt(PStart, TTestPSStackHelperProc(Method)(Stack.GetInt(PStart-2)))
     else
       Stack.SetInt(PStart, -1);
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeExtended', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then
+      Stack.SetReal(PStart, TTestHandlerExtendedProc(Method)(1.5, 2.5, 3.5, 4))
+    else
+      Stack.SetReal(PStart, 0);
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeCurrency', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then
+      Stack.SetCurrency(PStart, TTestHandlerCurrencyProc(Method)(-1.5, -2.5, -3.5, -4))
+    else
+      Stack.SetCurrency(PStart, 0);
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeMixed', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart, Caller);
+    if Method.Code <> nil then
+      TTestHandlerMixedProc(Method)(10, 11.5, 12.5, 13);
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeRec', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      var R1: TTestHandlerRec4;
+      R1.A := 10;
+      R1.B := 11;
+      var R2: TTestHandlerRec6;
+      R2.A := 20;
+      R2.B := 21;
+      R2.C := 22;
+      var R3: TTestHandlerRec8;
+      R3.A := 30;
+      R3.B := 31;
+      R3.C := 32;
+      R3.D := 33;
+      Stack.SetInt(PStart, TTestHandlerRecProc(Method)(R1, R2, R3, 99));
+    end else
+      Stack.SetInt(PStart, -1);
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeRec2', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      var R1: TTestHandlerRec3;
+      R1.A := 10;
+      R1.B := 11;
+      R1.C := 12;
+      var R2: TTestHandlerRec10;
+      R2.A := 100;
+      R2.B := 101;
+      R2.C := 102;
+      R2.D := 103;
+      R2.E := 104;
+      Stack.SetInt(PStart, TTestHandlerRecProc2(Method)(R1, R2, 99));
+    end else
+      Stack.SetInt(PStart, -1);
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeSet', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      var S1: TTestHandlerSet4; S1 := [1, 30];
+      var S2: TTestHandlerSet6; S2 := [2, 45];
+      var S3: TTestHandlerSet8; S3 := [3, 60];
+      Stack.SetInt(PStart, TTestHandlerSetProc(Method)(S1, S2, S3, 99));
+    end else
+      Stack.SetInt(PStart, -1);
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeSet2', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      var S1: TTestHandlerSet3; S1 := [1, 20];
+      var S2: TTestHandlerSet10; S2 := [4, 70];
+      Stack.SetInt(PStart, TTestHandlerSetProc2(Method)(S1, S2, 99));
+    end else
+      Stack.SetInt(PStart, -1);
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeArray', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      var A1: TTestHandlerArr4;
+      for var I := 0 to High(A1) do
+        A1[I] := Byte(10 + I);
+      var A2: TTestHandlerArr6;
+      for var I := 0 to High(A2) do
+        A2[I] := Byte(20 + I);
+      var A3: TTestHandlerArr8;
+      for var I := 0 to High(A3) do
+        A3[I] := Byte(30 + I);
+      Stack.SetInt(PStart, TTestHandlerArrProc(Method)(A1, A2, A3, 99));
+    end else
+      Stack.SetInt(PStart, -1);
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeArray2', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      var A1: TTestHandlerArr3;
+      for var I := 0 to High(A1) do
+        A1[I] := Byte(10 + I);
+      var A2: TTestHandlerArr10;
+      for var I := 0 to High(A2) do
+        A2[I] := Byte(100 + I);
+      Stack.SetInt(PStart, TTestHandlerArrProc2(Method)(A1, A2, 99));
+    end else
+      Stack.SetInt(PStart, -1);
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeRecRet1', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const R = TTestHandlerRecRet1Proc(Method)(10, 20);
+      Stack.SetString(PStart, SysUtils.IntToStr(R.A));
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeRecRet3', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const R = TTestHandlerRecRet3Proc(Method)(10, 20);
+      Stack.SetString(PStart, SysUtils.IntToStr(R.A) + ',' + SysUtils.IntToStr(R.B) + ',' + SysUtils.IntToStr(R.C));
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeRecRet4', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const R = TTestHandlerRecRet4Proc(Method)(10, 20);
+      Stack.SetString(PStart, SysUtils.IntToStr(R.A) + ',' + SysUtils.IntToStr(R.B));
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeRecRet8', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const R = TTestHandlerRecRet8Proc(Method)(10, 20);
+      Stack.SetString(PStart, SysUtils.IntToStr(R.A) + ',' + SysUtils.IntToStr(R.B) + ',' + SysUtils.IntToStr(R.C) + ',' + SysUtils.IntToStr(R.D));
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeRecRetString', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const R = TTestHandlerRecRetStringProc(Method)(10, 20);
+      Stack.SetString(PStart, R.S);
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeArrRet3', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const A = TTestHandlerArrRet3Proc(Method)(10, 20);
+      Stack.SetString(PStart, SysUtils.IntToStr(A[0]) + ',' + SysUtils.IntToStr(A[1]) + ',' + SysUtils.IntToStr(A[2]));
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeArrRet4', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const A = TTestHandlerArrRet4Proc(Method)(10, 20);
+      Stack.SetString(PStart, SysUtils.IntToStr(A[0]) + ',' + SysUtils.IntToStr(A[1]) + ',' + SysUtils.IntToStr(A[2]) + ',' + SysUtils.IntToStr(A[3]));
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeArrRet8', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const A = TTestHandlerArrRet8Proc(Method)(10, 20);
+      Stack.SetString(PStart, SysUtils.IntToStr(A[0]) + ',' + SysUtils.IntToStr(A[7]));
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestHandler_InvokeArrRetString', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const Method = Stack.GetProc(PStart-1, Caller);
+    if Method.Code <> nil then begin
+      const A = TTestHandlerArrRetStringProc(Method)(10, 20);
+      Stack.SetString(PStart, A[0]);
+    end else
+      Stack.SetString(PStart, '');
+  end);
+
+  RegisterScriptFunc('TestRefCount_StringRefCount', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    { The -1 hides the reference GetString itself adds }
+    Stack.SetInt(PStart, TestStringRefCount(Stack.GetString(PStart-1)) - 1);
+  end);
+
+  RegisterScriptFunc('TestTypes_NativeSizeOf', procedure(const Caller: TPSExec; const OrgName: AnsiString; const Stack: TPSStack; const PStart: Integer)
+  begin
+    const TypeName = Stack.GetString(PStart-1);
+    var Size := -1;
+    if TypeName = 'TTestInnerfuseSmallRec' then Size := SizeOf(TTestInnerfuseSmallRec)
+    else if TypeName = 'TTestInnerfuseLargeRec' then Size := SizeOf(TTestInnerfuseLargeRec)
+    else if TypeName = 'TTestHandlerRec1' then Size := SizeOf(TTestHandlerRec1)
+    else if TypeName = 'TTestHandlerRec3' then Size := SizeOf(TTestHandlerRec3)
+    else if TypeName = 'TTestHandlerRec4' then Size := SizeOf(TTestHandlerRec4)
+    else if TypeName = 'TTestHandlerRec6' then Size := SizeOf(TTestHandlerRec6)
+    else if TypeName = 'TTestHandlerRec8' then Size := SizeOf(TTestHandlerRec8)
+    else if TypeName = 'TTestHandlerRec10' then Size := SizeOf(TTestHandlerRec10)
+    else if TypeName = 'TTestHandlerRecString' then Size := SizeOf(TTestHandlerRecString)
+    else if TypeName = 'TTestHandlerSet3' then Size := SizeOf(TTestHandlerSet3)
+    else if TypeName = 'TTestHandlerSet4' then Size := SizeOf(TTestHandlerSet4)
+    else if TypeName = 'TTestHandlerSet6' then Size := SizeOf(TTestHandlerSet6)
+    else if TypeName = 'TTestHandlerSet8' then Size := SizeOf(TTestHandlerSet8)
+    else if TypeName = 'TTestHandlerSet10' then Size := SizeOf(TTestHandlerSet10)
+    else if TypeName = 'TTestHandlerArr1' then Size := SizeOf(TTestHandlerArr1)
+    else if TypeName = 'TTestHandlerArr2' then Size := SizeOf(TTestHandlerArr2)
+    else if TypeName = 'TTestHandlerArr3' then Size := SizeOf(TTestHandlerArr3)
+    else if TypeName = 'TTestHandlerArr4' then Size := SizeOf(TTestHandlerArr4)
+    else if TypeName = 'TTestHandlerArr6' then Size := SizeOf(TTestHandlerArr6)
+    else if TypeName = 'TTestHandlerArr8' then Size := SizeOf(TTestHandlerArr8)
+    else if TypeName = 'TTestHandlerArr10' then Size := SizeOf(TTestHandlerArr10)
+    else if TypeName = 'TTestHandlerArrString' then Size := SizeOf(TTestHandlerArrString);
+    Stack.SetInt(PStart, Size);
   end);
 end;
 

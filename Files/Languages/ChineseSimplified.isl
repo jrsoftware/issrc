@@ -84,7 +84,7 @@ PrivilegesRequiredOverrideCurrentUserRecommended=仅为我安装(&M)（推荐）
 
 ; *** Misc. errors
 ErrorCreatingDir=安装程序无法创建目录“%1”
-ErrorTooManyFilesInDir=无法在目录“%1”中创建文件，因为里面包含太多文件
+ErrorTooManyFilesInDir=无法在目录“%1”中创建文件，因为里面包含太多文件。
 
 ; *** Setup common messages
 ExitSetupTitle=退出安装程序
@@ -223,23 +223,23 @@ ReadyMemoTasks=附加任务：
 DownloadingLabel2=正在下载文件...
 ButtonStopDownload=停止下载(&S)
 StopDownload=您确定要停止下载吗？
-ErrorDownloadAborted=下载已中止
-ErrorDownloadFailed=下载失败：%1 %2
-ErrorDownloadSizeFailed=获取大小失败：%1 %2
-ErrorProgress=无效的进度：%1 / %2
-ErrorFileSize=文件大小错误：预期 %1，实际 %2
+ErrorDownloadAborted=下载已中止。
+ErrorDownloadFailed=下载失败：%1 %2。
+ErrorDownloadSizeFailed=获取大小失败：%1 %2。
+ErrorProgress=无效的进度：%1 / %2。
+ErrorFileSize=文件大小错误：预期 %1，实际 %2。
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=正在提取文件...
 ButtonStopExtraction=停止提取(&S)
 StopExtraction=您确定要停止提取吗？
-ErrorExtractionAborted=提取已中止
+ErrorExtractionAborted=提取已中止。
 ErrorExtractionFailed=提取失败：%1
 
 ; *** Archive extraction failure details
-ArchiveIncorrectPassword=密码不正确
-ArchiveIsCorrupted=压缩包已损坏
-ArchiveUnsupportedFormat=不支持的压缩包格式
+ArchiveIncorrectPassword=密码不正确。
+ArchiveIsCorrupted=压缩包已损坏。
+ArchiveUnsupportedFormat=不支持的压缩包格式。
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=正在准备安装
@@ -304,10 +304,10 @@ StatusRestartingApplications=正在重启应用程序...
 StatusRollback=正在撤销更改...
 
 ; *** Misc. errors
-ErrorInternal2=内部错误：%1
-ErrorFunctionFailedNoCode=%1 失败
-ErrorFunctionFailed=%1 失败；错误代码 %2
-ErrorFunctionFailedWithMessage=%1 失败；错误代码 %2.%n%3
+ErrorInternal2=内部错误：%1。
+ErrorFunctionFailedNoCode=%1 失败。
+ErrorFunctionFailed=%1 失败；错误代码 %2。
+ErrorFunctionFailedWithMessage=%1 失败；错误代码 %2。%n%3
 ErrorExecutingProgram=无法执行文件：%n%1
 
 ; *** Registry errors
@@ -321,16 +321,16 @@ ErrorIniEntry=在文件“%1”中创建 INI 条目时出错。
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=跳过此文件(&S)（不推荐）
 FileAbortRetryIgnoreIgnoreNotRecommended=忽略错误并继续(&I)（不推荐）
-SourceIsCorrupted=源文件已损坏
-SourceDoesntExist=源文件“%1”不存在
+SourceIsCorrupted=源文件已损坏。
+SourceDoesntExist=源文件“%1”不存在。
 SourceVerificationFailed=源文件验证失败：%1
-VerificationSignatureDoesntExist=签名文件“%1”不存在
-VerificationSignatureInvalid=签名文件“%1”无效
-VerificationKeyNotFound=签名文件“%1”使用了未知的密钥
-VerificationFileNameIncorrect=文件名不正确
-VerificationFileTagIncorrect=文件标签不正确
-VerificationFileSizeIncorrect=文件大小不正确
-VerificationFileHashIncorrect=文件哈希值不正确
+VerificationSignatureDoesntExist=签名文件“%1”不存在。
+VerificationSignatureInvalid=签名文件“%1”无效。
+VerificationKeyNotFound=签名文件“%1”使用了未知的密钥。
+VerificationFileNameIncorrect=文件名不正确。
+VerificationFileTagIncorrect=文件标签不正确。
+VerificationFileSizeIncorrect=文件大小不正确。
+VerificationFileHashIncorrect=文件哈希值不正确。
 ExistingFileReadOnly2=无法替换已存在的文件，它是只读的。
 ExistingFileReadOnlyRetry=移除只读属性并重试(&R)
 ExistingFileReadOnlyKeepExisting=保留已存在的文件(&K)
@@ -355,7 +355,7 @@ ErrorReplacingExistingFile=尝试替换已存在的文件时出错：
 ErrorRestartReplace=重启并替换失败：
 ErrorRenamingTemp=尝试重命名下列目标目录中的一个文件时出错：
 ErrorRegisterServer=无法注册 DLL/OCX：%1
-ErrorRegSvr32Failed=RegSvr32 失败；退出代码 %1
+ErrorRegSvr32Failed=RegSvr32 失败；退出代码 %1。
 ErrorRegisterTypeLib=无法注册类型库：%1
 
 ; *** Uninstall display name markings
@@ -375,8 +375,8 @@ ErrorRestartingComputer=安装程序无法重启计算机，请手动重启。
 ; *** Uninstaller messages
 UninstallNotFound=文件“%1”不存在。无法卸载。
 UninstallOpenError=文件“%1”不能被打开。无法卸载
-UninstallUnsupportedVer=此版本的卸载程序无法识别卸载日志文件“%1”的格式。无法卸载
-UninstallUnknownEntry=卸载日志中遇到一个未知条目（%1）
+UninstallUnsupportedVer=此版本的卸载程序无法识别卸载日志文件“%1”的格式。无法卸载。
+UninstallUnknownEntry=卸载日志中遇到一个未知条目（%1）。
 ConfirmUninstall=您确认要完全移除 %1 及其所有组件吗？
 UninstallOnlyOnWin64=仅允许在 64 位 Windows 中卸载此程序。
 OnlyAdminCanUninstall=仅使用管理员权限的用户能完成此卸载。
@@ -384,7 +384,7 @@ UninstallStatusLabel=正在从您的计算机中移除 %1，请稍候。
 UninstalledAll=已顺利从您的计算机中移除 %1。
 UninstalledMost=%1 卸载完成。%n%n有部分内容未能被删除，但您可以手动删除它们。
 UninstalledAndNeedsRestart=为完成 %1 的卸载，需要重启您的计算机。%n%n要立即重启吗？
-UninstallDataCorrupted=文件“%1”已损坏。无法卸载
+UninstallDataCorrupted=文件“%1”已损坏。无法卸载。
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=删除共享文件？

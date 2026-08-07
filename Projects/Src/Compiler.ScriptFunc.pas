@@ -76,6 +76,21 @@ procedure ScriptFuncLibraryRegister_C(const ScriptCompiler: TPSPascalCompiler;
     ScriptCompiler.AddTypeS(Name, S);
   end;
 
+  { Internal, used only by Script.Test.iss }
+  procedure RegisterTestSetType(const SetName: tbtstring; const ByteSize: Integer);
+  begin
+    { Uses an enum set. ROPS sizes these as number of enums rounded up to whole bytes. }
+    var Enum: tbtstring := '(';
+    for var I := 0 to ByteSize * 8 - 1 do begin
+      if I > 0 then
+        Enum := Enum + ',';
+      Enum := Enum + SetName + 'M' + tbtstring(IntToStr(I));
+    end;
+    Enum := Enum + ')';
+    RegisterType(SetName + 'Base', Enum);
+    RegisterType(SetName, 'set of ' + SetName + 'Base');
+  end;
+
 begin
   RegisterType('TArrayOfString', 'array of String');
   RegisterType('TArrayOfChar', 'array of Char');
@@ -166,9 +181,67 @@ begin
   { These are internal, used only by Script.Test.iss }
   RegisterType('TTestInnerfuseSmallRec', 'record A: Byte; B: Byte; end');
   RegisterType('TTestInnerfuseLargeRec', 'record A: Integer; B: String; end');
+  RegisterType('TTestHandlerRec1', 'record A: Byte; end');
+  RegisterType('TTestHandlerRec3', 'record A: Byte; B: Byte; C: Byte; end');
+  RegisterType('TTestHandlerRec4', 'record A: Word; B: Word; end');
+  RegisterType('TTestHandlerRec6', 'record A: Word; B: Word; C: Word; end');
+  RegisterType('TTestHandlerRec8', 'record A: Word; B: Word; C: Word; D: Word; end');
+  RegisterType('TTestHandlerRec10', 'record A: Word; B: Word; C: Word; D: Word; E: Word; end');
+  RegisterType('TTestHandlerRecString', 'record S: String; end');
+  RegisterTestSetType('TTestHandlerSet3', 3);
+  RegisterTestSetType('TTestHandlerSet4', 4);
+  RegisterTestSetType('TTestHandlerSet6', 6);
+  RegisterTestSetType('TTestHandlerSet8', 8);
+  RegisterTestSetType('TTestHandlerSet10', 10);
+  RegisterType('TTestHandlerArr1', 'array[0..0] of Byte');
+  RegisterType('TTestHandlerArr2', 'array[0..1] of Byte');
+  RegisterType('TTestHandlerArr3', 'array[0..2] of Byte');
+  RegisterType('TTestHandlerArr4', 'array[0..3] of Byte');
+  RegisterType('TTestHandlerArr6', 'array[0..5] of Byte');
+  RegisterType('TTestHandlerArr8', 'array[0..7] of Byte');
+  RegisterType('TTestHandlerArr10', 'array[0..9] of Byte');
+  RegisterType('TTestHandlerArrString', 'array[0..0] of String');
   RegisterDelphiFunctionTable(TestInnerfuseScriptFuncTable);
   RegisterType('TTestPSStackHelperProc', 'function(Value: Integer): Integer;');
   ScriptCompiler.AddFunction('function TestPSStackHelper_InvokeCallback(const Callback: TTestPSStackHelperProc; const Value: Integer): Integer;');
+  RegisterType('TTestHandlerExtendedProc', 'function(E1, E2, E3: Extended; Tail: Integer): Extended;');
+  RegisterType('TTestHandlerCurrencyProc', 'function(C1, C2, C3: Currency; Tail: Integer): Currency;');
+  RegisterType('TTestHandlerMixedProc', 'procedure(A: Integer; E: Extended; C: Currency; Tail: Integer);');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeExtended(const Callback: TTestHandlerExtendedProc): Extended;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeCurrency(const Callback: TTestHandlerCurrencyProc): Currency;');
+  ScriptCompiler.AddFunction('procedure TestHandler_InvokeMixed(const Callback: TTestHandlerMixedProc);');
+  RegisterType('TTestHandlerRecProc', 'function(R1: TTestHandlerRec4; R2: TTestHandlerRec6; R3: TTestHandlerRec8; Tail: Integer): Integer;');
+  RegisterType('TTestHandlerRecProc2', 'function(R1: TTestHandlerRec3; R2: TTestHandlerRec10; Tail: Integer): Integer;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeRec(const Callback: TTestHandlerRecProc): Integer;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeRec2(const Callback: TTestHandlerRecProc2): Integer;');
+  RegisterType('TTestHandlerSetProc', 'function(S1: TTestHandlerSet4; S2: TTestHandlerSet6; S3: TTestHandlerSet8; Tail: Integer): Integer;');
+  RegisterType('TTestHandlerSetProc2', 'function(S1: TTestHandlerSet3; S2: TTestHandlerSet10; Tail: Integer): Integer;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeSet(const Callback: TTestHandlerSetProc): Integer;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeSet2(const Callback: TTestHandlerSetProc2): Integer;');
+  RegisterType('TTestHandlerArrProc', 'function(A1: TTestHandlerArr4; A2: TTestHandlerArr6; A3: TTestHandlerArr8; Tail: Integer): Integer;');
+  RegisterType('TTestHandlerArrProc2', 'function(A1: TTestHandlerArr3; A2: TTestHandlerArr10; Tail: Integer): Integer;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeArray(const Callback: TTestHandlerArrProc): Integer;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeArray2(const Callback: TTestHandlerArrProc2): Integer;');
+  RegisterType('TTestHandlerRecRet1Proc', 'function(A, B: Integer): TTestHandlerRec1;');
+  RegisterType('TTestHandlerRecRet3Proc', 'function(A, B: Integer): TTestHandlerRec3;');
+  RegisterType('TTestHandlerRecRet4Proc', 'function(A, B: Integer): TTestHandlerRec4;');
+  RegisterType('TTestHandlerRecRet8Proc', 'function(A, B: Integer): TTestHandlerRec8;');
+  RegisterType('TTestHandlerRecRetStringProc', 'function(A, B: Integer): TTestHandlerRecString;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeRecRet1(const Callback: TTestHandlerRecRet1Proc): String;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeRecRet3(const Callback: TTestHandlerRecRet3Proc): String;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeRecRet4(const Callback: TTestHandlerRecRet4Proc): String;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeRecRet8(const Callback: TTestHandlerRecRet8Proc): String;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeRecRetString(const Callback: TTestHandlerRecRetStringProc): String;');
+  RegisterType('TTestHandlerArrRet3Proc', 'function(A, B: Integer): TTestHandlerArr3;');
+  RegisterType('TTestHandlerArrRet4Proc', 'function(A, B: Integer): TTestHandlerArr4;');
+  RegisterType('TTestHandlerArrRet8Proc', 'function(A, B: Integer): TTestHandlerArr8;');
+  RegisterType('TTestHandlerArrRetStringProc', 'function(A, B: Integer): TTestHandlerArrString;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeArrRet3(const Callback: TTestHandlerArrRet3Proc): String;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeArrRet4(const Callback: TTestHandlerArrRet4Proc): String;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeArrRet8(const Callback: TTestHandlerArrRet8Proc): String;');
+  ScriptCompiler.AddFunction('function TestHandler_InvokeArrRetString(const Callback: TTestHandlerArrRetStringProc): String;');
+  ScriptCompiler.AddFunction('function TestRefCount_StringRefCount(const S: String): Integer;');
+  ScriptCompiler.AddFunction('function TestTypes_NativeSizeOf(const TypeName: String): Integer;');
 
   ObsoleteFunctionWarnings.Add('IsAdminLoggedOn', Format(SCompilerCodeFunctionRenamedWithAlternative, ['IsAdminLoggedOn', 'IsAdmin', 'IsAdminInstallMode']));
   ObsoleteFunctionWarnings.Add('IsComponentSelected', Format(SCompilerCodeFunctionRenamed, ['IsComponentSelected', 'WizardIsComponentSelected']));

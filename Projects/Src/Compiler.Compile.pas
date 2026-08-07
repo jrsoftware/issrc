@@ -24,6 +24,9 @@ uses
   Windows, SysUtils, Classes, PathFunc,
   Shared.Struct, Shared.CommonFunc, Compiler.SetupCompiler;
 
+var
+  CompileScriptLock: TSimpleLock;
+
 function GetSelfFilename: String;
 { Returns Filename of the calling DLL or application. (ParamStr(0) can only
   return the filename of the calling application.) }
@@ -109,22 +112,20 @@ function ISCompileScript(const Params: TCompileScriptParamsEx;
     Params.CallbackProc(iscbNotifyError, Data, Params.AppData);
   end;
 
-var
-  SetupCompiler: TSetupCompiler;
-  P: PChar;
-  P2: Integer;
 begin
-  if not CheckParams(Params) then begin
-    Result := isceInvalidParam;
-    Exit;
-  end;
-  SetupCompiler := TSetupCompiler.Create(nil);
+  if not CheckParams(Params) then
+    Exit(isceInvalidParam);
+
+  var SetupCompiler: TSetupCompiler := nil;
+  if not CompileScriptLock.TryAcquire then
+    Exit(isceConcurrentCall);
   try
+    SetupCompiler := TSetupCompiler.Create(nil);
     InitializeSetupCompiler(SetupCompiler, Params);
 
     { Parse Options (only present in TCompileScriptParamsEx) }
     if (Params.Size <> SizeOf(TCompileScriptParams)) and Assigned(Params.Options) then begin
-      P := Params.Options;
+      var P := Params.Options;
       while P^ <> #0 do begin
         if StrLIComp(P, 'Output=', Length('Output=')) = 0 then begin
           Inc(P, Length('Output='));
@@ -144,11 +145,47 @@ begin
           SetupCompiler.SetOutputBaseFilename(P);
         end else if StrLIComp(P, 'SignTool-', Length('SignTool-')) = 0 then begin
           Inc(P, Length('SignTool-'));
-          P2 := Pos('=', P);
+          const P2 = Pos('=', P);
           if (P2 <> 0) then
             SetupCompiler.AddSignTool(Copy(P, 1, P2-1), Copy(P, P2+1, MaxInt))
           else begin
             { Bad option }
+            Result := isceInvalidParam;
+            Exit;
+          end;
+        end else if StrLIComp(P, 'NoCompression=', Length('NoCompression=')) = 0 then begin
+          Inc(P, Length('NoCompression='));
+          var NoCompression: Boolean;
+          if TryStrToBoolean(P, NoCompression) then
+            SetupCompiler.SetNoCompression(NoCompression)
+          else begin
+            Result := isceInvalidParam;
+            Exit;
+          end;
+        end else if StrLIComp(P, 'NoSigning=', Length('NoSigning=')) = 0 then begin
+          Inc(P, Length('NoSigning='));
+          var NoSigning: Boolean;
+          if TryStrToBoolean(P, NoSigning) then
+            SetupCompiler.SetNoSigning(NoSigning)
+          else begin
+            Result := isceInvalidParam;
+            Exit;
+          end;
+        end else if StrLIComp(P, 'NoSignCheck=', Length('NoSignCheck=')) = 0 then begin
+          Inc(P, Length('NoSignCheck='));
+          var NoSignCheck: Boolean;
+          if TryStrToBoolean(P, NoSignCheck) then
+            SetupCompiler.SetNoSignCheck(NoSignCheck)
+          else begin
+            Result := isceInvalidParam;
+            Exit;
+          end;
+        end else if StrLIComp(P, 'PreprocessOnly=', Length('PreprocessOnly=')) = 0 then begin
+          Inc(P, Length('PreprocessOnly='));
+          var PreprocessOnly: Boolean;
+          if TryStrToBoolean(P, PreprocessOnly) then
+            SetupCompiler.SetPreprocessOnly(PreprocessOnly)
+          else begin
             Result := isceInvalidParam;
             Exit;
           end;
@@ -179,6 +216,7 @@ begin
     end;
   finally
     SetupCompiler.Free;
+    CompileScriptLock.Release;
   end;
 end;
 

@@ -17,6 +17,15 @@ uses
   Windows, SysUtils, Classes;
 
 type
+  TSimpleLock = record
+  strict private
+    [volatile] FLockValue: Integer;
+  public
+    class function Create: TSimpleLock; static;
+    procedure Release;
+    function TryAcquire: Boolean;
+  end;
+
   TOneShotTimer = record
   private
     FLastElapsed: Cardinal;
@@ -153,7 +162,6 @@ function GetShellFolderPath(const FolderID: Integer; out Path: String): HRESULT;
 function GetCurrentUserSid: String;
 function IsAdminLoggedOn: Boolean;
 function IsPowerUserLoggedOn: Boolean;
-function IsMultiByteString(const S: AnsiString): Boolean;
 function FontExists(const FaceName: String): Boolean;
 function GetUILanguage: LANGID;
 function RemoveAccelChar(const S: String): String;
@@ -175,6 +183,7 @@ procedure WaitMessageWithTimeout(const Milliseconds: DWORD);
 function MoveFileReplace(const ExistingFileName, NewFileName: String): Boolean;
 procedure CreateMutex(const MutexName: String);
 function HighContrastActive: Boolean;
+function ClientAreaAnimationsActive: Boolean;
 function CurrentWindowsVersionAtLeast(const AMajor, AMinor: Byte; const ABuild: Word = 0): Boolean;
 function DarkModeActive: Boolean;
 function DeleteFileOrDirByHandle(const H: THandle): Boolean;
@@ -191,10 +200,13 @@ function PerformFileOperationWithRetries(const MaxRetries: Integer; const AlsoRe
 function Is64BitPEImage(const Filename: String): Boolean;
 function BitsFrom64BitBoolean(const A64Bit: Boolean): Integer; inline;
 function RegViewFrom64BitBoolean(const A64Bit: Boolean): TRegView;
+function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
+function SetWindowCloaked(const Wnd: HWND; const Cloaked: Boolean): Boolean;
 
 implementation
 
 uses
+  DwmApi,
   PathFunc, UnsignedFunc,
   Shared.FileClass;
 
@@ -433,7 +445,7 @@ begin
 end;
 
 function GetCmdTail: String;
-{ Returns all command line parameters passed to the process as a single
+{ Returns all command-line parameters passed to the process as a single
   string. }
 var
   S: String;
@@ -442,7 +454,7 @@ begin
 end;
 
 function GetCmdTailEx(StartIndex: Integer): String;
-{ Returns all command line parameters passed to the process as a single
+{ Returns all command-line parameters passed to the process as a single
   string, starting with StartIndex (one-based). }
 var
   P: PChar;
@@ -470,7 +482,7 @@ begin
 end;
 
 function NewParamStr(Index: Integer): string;
-{ Returns the Indexth command line parameter, or an empty string if Index is
+{ Returns the Indexth command-line parameter, or an empty string if Index is
   out of range.
   Differences from Delphi's ParamStr:
   - No limits on parameter length
@@ -1186,18 +1198,6 @@ begin
   Result := IsMemberOfGroup(DOMAIN_ALIAS_RID_POWER_USERS);
 end;
 
-function IsMultiByteString(const S: AnsiString): Boolean;
-var
-  I: Integer;
-begin
-  Result := False;
-  for I := 1 to Length(S) do
-    if IsDBCSLeadByte(Ord(S[I])) then begin
-      Result := True;
-      Break;
-    end;
-end;
-
 function FontExistsCallback(const lplf: TLogFont; const lptm: TTextMetric;
   dwType: DWORD; lpData: LPARAM): Integer; stdcall;
 begin
@@ -1283,10 +1283,41 @@ begin
 end;
 
 function AddPeriod(const S: String): String;
+{ Returns the specified string with a full stop character (U+002E) appended,
+  unless the string is empty, already ends with a sentence-terminating
+  character, ends with a control character (such as CR or LF), or ends with
+  a Thai or Lao character (these do not end sentences with a full stop),
+  in which case the string is returned unchanged. }
 begin
+  if S <> '' then begin
+    { This list is not intended to be exhaustive; it includes characters that
+      are known/expected to be used in Inno Setup .isl translations.
+      Keep the isxfunc.xml AddPeriod topic's table in sync. }
+    case S[High(S)] of
+      #0..#$001F, { Control characters (don't want '.' after trailing CR/LF) }
+      '!',     { Exclamation Mark }
+      '.',     { Full Stop }
+      '?',     { Question Mark }
+      #$0589,  { Armenian Full Stop }
+      #$061F,  { Arabic Question Mark }
+      #$06D4,  { Arabic Full Stop (used in Urdu, not Arabic) }
+      #$0964..#$0965, { Devanagari Danda and Double Danda (used across Indic scripts) }
+      #$0E00..#$0EFF, { Thai and Lao blocks (sentences do not end in a full stop) }
+      #$104A..#$104B, { Myanmar sentence terminators }
+      #$1362,  { Ethiopic Full Stop }
+      #$1367,  { Ethiopic Question Mark }
+      #$17D4..#$17D5, { Khmer sentence terminators }
+      #$17DA,         { Khmer end-of-text mark }
+      #$3002,  { Ideographic Full Stop (used in Japanese and Chinese) }
+      #$FF01,  { Fullwidth Exclamation Mark }
+      #$FF0E,  { Fullwidth Full Stop }
+      #$FF1F:  { Fullwidth Question Mark }
+        ;
+    else
+      Exit(S + '.');
+    end;
+  end;
   Result := S;
-  if (Result <> '') and (PathLastChar(Result)^ > '.') then
-    Result := Result + '.';
 end;
 
 function GetExceptMessage: String;
@@ -1590,6 +1621,14 @@ begin
     Result := (HighContrast.dwFlags and HCF_HIGHCONTRASTON) <> 0;
 end;
 
+function ClientAreaAnimationsActive: Boolean;
+begin
+  var value: BOOL;
+  Result := False;
+  if SystemParametersInfo(SPI_GETCLIENTAREAANIMATION, 0, @value, 0) then
+    Result := value;
+end;
+
 var
   WindowsVersion: Cardinal;
   WindowsVersionRead: Boolean;
@@ -1793,6 +1832,58 @@ begin
     Result := rv64Bit
   else
     Result := rv32Bit;
+end;
+
+function IsWindowOnTaskbar(const Wnd: HWND): Boolean;
+begin
+  { Find the "root owner" window, which is what appears in the taskbar.
+    We avoid GetAncestor(..., GA_ROOTOWNER) because it's broken in the same
+    way as GetParent(): it stops if it reaches a top-level window that doesn't
+    have the WS_POPUP style (i.e., a WS_OVERLAPPED window). }
+  var RootWnd := Wnd;
+  while True do begin
+    { Visible WS_EX_APPWINDOW windows have their own taskbar button regardless
+      of their root owner's visibility }
+    if (GetWindowLong(RootWnd, GWL_EXSTYLE) and WS_EX_APPWINDOW <> 0) and
+       (GetWindowLong(RootWnd, GWL_STYLE) and WS_VISIBLE <> 0) then
+      Exit(True);
+    var ParentWnd := HWND(GetWindowLongPtr(RootWnd, GWLP_HWNDPARENT));
+    if ParentWnd = 0 then
+      Break;
+    RootWnd := ParentWnd;
+  end;
+
+  Result := (GetWindowLong(RootWnd, GWL_STYLE) and WS_VISIBLE <> 0) and
+    (GetWindowLong(RootWnd, GWL_EXSTYLE) and WS_EX_TOOLWINDOW = 0);
+end;
+
+function SetWindowCloaked(const Wnd: HWND; const Cloaked: Boolean): Boolean;
+begin
+  { Cloaks the window such that it is not visible to the user. The window is
+    still composed by DWM. }
+  if CurrentWindowsVersionAtLeast(6, 2) then begin
+    const DWMWA_CLOAK: DWORD = 13;
+    var value: BOOL := Cloaked;
+    Result := Succeeded(DwmSetWindowAttribute(Wnd, DWMWA_CLOAK, @value, SizeOf(value)));
+  end else
+    Result := False;
+end;
+
+{ TSimpleLock }
+
+class function TSimpleLock.Create: TSimpleLock;
+begin
+  Result.FLockValue := 0;
+end;
+
+procedure TSimpleLock.Release;
+begin
+  AtomicExchange(FLockValue, 0);
+end;
+
+function TSimpleLock.TryAcquire: Boolean;
+begin
+  AtomicCmpExchange(FLockValue, 1, 0, Result);
 end;
 
 { TOneShotTimer }

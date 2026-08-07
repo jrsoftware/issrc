@@ -44,6 +44,16 @@ begin
   for var I := 0 to High(Source) do
     Assert(Dest[I] = Source[I]);
 
+  { UMove compensates for overlaps between the source and destination blocks,
+    so for an overlapping range it must produce the same result as Move }
+  for var I := 0 to High(BufA) do begin
+    BufA[I] := Byte(I);
+    BufB[I] := Byte(I);
+  end;
+  Move(BufA[0], BufA[4], SizeOf(BufA) - 4);
+  UMove(BufB[0], BufB[4], SizeOf(BufB) - 4);
+  Assert(UCompareMem(@BufA, @BufB, SizeOf(BufA)));
+
   { UFillChar fills the requested range }
   FillChar(Dest, SizeOf(Dest), 0);
   UFillChar(Dest, SizeOf(Dest), $42);

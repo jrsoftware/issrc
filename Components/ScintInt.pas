@@ -338,7 +338,7 @@ const
   SCI_CHANGELASTUNDOACTIONTEXT = 2801;
   SCI_GETUNDOACTIONTYPE = 2802;
   SCI_GETUNDOACTIONPOSITION = 2803;
-  SCI_GETUNDOACTIONTEXT = 2804  ;
+  SCI_GETUNDOACTIONTEXT = 2804;
   INDIC_PLAIN = 0;
   INDIC_SQUIGGLE = 1;
   INDIC_TT = 2;
@@ -471,7 +471,6 @@ const
   SCI_GETLINEENDPOSITION = 2136;
   SCI_GETCODEPAGE = 2137;
   SCI_GETCARETFORE = 2138;
-  SCI_GETUSEPALETTE = 2139;
   SCI_GETREADONLY = 2140;
   SCI_SETCURRENTPOS = 2141;
   SCI_SETSELECTIONSTART = 2142;
@@ -1381,7 +1380,7 @@ uses
 procedure InitIsscintLibrary;
 begin
   var FileName := AddBackslash(PathExtractPath(ParamStr(0))) + IsscintDLL;
-  IsscintLibrary := LoadTrustedLibrary(PChar(FileName), [ltloTrustAllOnDebug]);
+  IsscintLibrary := LoadTrustedLibrary(FileName, [ltloTrustAllOnDebug]);
 end;
 
 end.

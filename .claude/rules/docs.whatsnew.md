@@ -3,13 +3,16 @@ paths: ["whatsnew.htm"]
 ---
 # Inno Setup Revision History documentation conventions
 
-## Formatting
+## Additional formatting
 
-- `<tt>` for script identifiers, same as in help XML.
 - `<i>Fix:</i>` prefix for bug fix entries.
-- `<i>` for example script file names when they are linked: `<i><a href="...">ScriptName.iss</a></i>`.
-- `<b>` for important warnings.
 - `<pre><code class="innosetup">` for syntax-highlighted script examples.
+
+## Example script references
+
+- "See updated <tt><a href="...">ScriptName.iss</a></tt> example script."
+- "See updated <tt><a href="...">ScriptName.iss</a></tt> example script for an example."
+- "See new <tt><a href="...">ScriptName.iss</a></tt> example script."
 
 ## Entry structure
 
@@ -63,12 +66,6 @@ End a version's changes with one of:
 - "Minor tweaks and fixes."
 - "Other minor improvements and fixes."
 - "Documentation improvements."
-
-## Example script references
-
-- "See updated <i><a href="...">ScriptName.iss</a></i> example script."
-- "See updated <i><a href="...">ScriptName.iss</a></i> example script for an example."
-- "See new <i><a href="...">ScriptName.iss</a></i> example script."
 
 ## Security section intro
 

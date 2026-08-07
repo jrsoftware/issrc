@@ -82,7 +82,7 @@ PrivilegesRequiredOverrideCurrentUserRecommended=僅為我安裝 (建議選項) 
 
 ; *** Misc. errors
 ErrorCreatingDir=安裝程式無法建立資料夾「%1」
-ErrorTooManyFilesInDir=無法在資料夾「%1」內建立檔案，因為資料夾內有太多的檔案
+ErrorTooManyFilesInDir=無法在資料夾「%1」內建立檔案，因為資料夾內有太多的檔案。
 
 ; *** Setup common messages
 ExitSetupTitle=結束安裝程式
@@ -221,23 +221,23 @@ ReadyMemoTasks=附加工作：
 DownloadingLabel2=正在下載檔案...
 ButtonStopDownload=停止下載 (&S)
 StopDownload=您確定要停止下載嗎？
-ErrorDownloadAborted=已停止下載
-ErrorDownloadFailed=下載失敗：%1 %2
-ErrorDownloadSizeFailed=取得檔案大小失敗：%1 %2
-ErrorProgress=進度無效：%1 / %2
-ErrorFileSize=檔案大小無效：必須為 %1，收到 %2
+ErrorDownloadAborted=已停止下載。
+ErrorDownloadFailed=下載失敗：%1 %2。
+ErrorDownloadSizeFailed=取得檔案大小失敗：%1 %2。
+ErrorProgress=進度無效：%1 / %2。
+ErrorFileSize=檔案大小無效：必須為 %1，收到 %2。
 
 ; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=正在解壓縮檔案...
 ButtonStopExtraction=停止解壓縮 (&S)
 StopExtraction=您確定要停止解壓縮嗎？
-ErrorExtractionAborted=解壓縮已中止
+ErrorExtractionAborted=解壓縮已中止。
 ErrorExtractionFailed=解壓縮失敗：%1
 
 ; *** Archive extraction failure details
-ArchiveIncorrectPassword=壓縮檔密碼不正確
-ArchiveIsCorrupted=壓縮檔已損毀
-ArchiveUnsupportedFormat=不支援的壓縮檔格式
+ArchiveIncorrectPassword=壓縮檔密碼不正確。
+ArchiveIsCorrupted=壓縮檔已損毀。
+ArchiveUnsupportedFormat=不支援的壓縮檔格式。
 
 ; *** "Preparing to Install" wizard page
 WizardPreparing=準備安裝程式
@@ -302,9 +302,9 @@ StatusRestartingApplications=正在重新啟動應用程式...
 StatusRollback=正在復原變更...
 
 ; *** Misc. errors
-ErrorInternal2=內部錯誤：%1
-ErrorFunctionFailedNoCode=%1 失敗
-ErrorFunctionFailed=%1 失敗；代碼 %2
+ErrorInternal2=內部錯誤：%1。
+ErrorFunctionFailedNoCode=%1 失敗。
+ErrorFunctionFailed=%1 失敗；代碼 %2。
 ErrorFunctionFailedWithMessage=%1 失敗；代碼 %2。%n%3
 ErrorExecutingProgram=無法執行檔案：%n%1
 
@@ -319,16 +319,16 @@ ErrorIniEntry=在檔案「%1」建立 INI 項目錯誤。
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=略過這個檔案 (不建議) (&S)
 FileAbortRetryIgnoreIgnoreNotRecommended=略過錯誤並繼續 (不建議) (&I)
-SourceDoesntExist=來源檔案「%1」不存在
-SourceIsCorrupted=來源檔案已經損毀
+SourceDoesntExist=來源檔案「%1」不存在。
+SourceIsCorrupted=來源檔案已經損毀。
 SourceVerificationFailed=來源檔案驗證失敗：%1
-VerificationSignatureDoesntExist=簽名檔「%1」不存在
-VerificationSignatureInvalid=簽名檔「%1」無效
-VerificationKeyNotFound=簽名檔「%1」使用了未知金鑰
-VerificationFileNameIncorrect=檔案名稱不正確
-VerificationFileTagIncorrect=檔案標籤不正確
-VerificationFileSizeIncorrect=檔案大小不正確
-VerificationFileHashIncorrect=檔案雜湊值不正確
+VerificationSignatureDoesntExist=簽名檔「%1」不存在。
+VerificationSignatureInvalid=簽名檔「%1」無效。
+VerificationKeyNotFound=簽名檔「%1」使用了未知金鑰。
+VerificationFileNameIncorrect=檔案名稱不正確。
+VerificationFileTagIncorrect=檔案標籤不正確。
+VerificationFileSizeIncorrect=檔案大小不正確。
+VerificationFileHashIncorrect=檔案雜湊值不正確。
 ExistingFileReadOnly2=無法取代現有檔案，因為檔案已標示為唯讀。
 ExistingFileReadOnlyRetry=移除唯讀屬性並重試 (&R)
 ExistingFileReadOnlyKeepExisting=保留現有檔案 (&K)
@@ -353,7 +353,7 @@ ErrorReplacingExistingFile=取代現有檔案時發生錯誤：
 ErrorRestartReplace=重新啟動電腦後取代檔案失敗：
 ErrorRenamingTemp=在目的資料夾變更檔案名稱時發生錯誤：
 ErrorRegisterServer=無法註冊 DLL/OCX 檔案：%1
-ErrorRegSvr32Failed=RegSvr32 失敗；結束代碼 %1
+ErrorRegSvr32Failed=RegSvr32 失敗；結束代碼 %1。
 ErrorRegisterTypeLib=無法註冊類型庫：%1
 
 ; *** Uninstall display name markings
@@ -373,8 +373,8 @@ ErrorRestartingComputer=安裝程式無法重新啟動電腦，請自行重新�
 ; *** Uninstaller messages
 UninstallNotFound=檔案「%1」不存在，無法解除安裝。
 UninstallOpenError=無法開啟檔案「%1」，無法解除安裝
-UninstallUnsupportedVer=這個版本的解除安裝程式無法辨識解除安裝記錄檔「%1」之格式，無法解除安裝
-UninstallUnknownEntry=解除安裝記錄檔中發現未知的記錄 (%1)
+UninstallUnsupportedVer=這個版本的解除安裝程式無法辨識解除安裝記錄檔「%1」之格式，無法解除安裝。
+UninstallUnknownEntry=解除安裝記錄檔中發現未知的記錄 (%1)。
 ConfirmUninstall=您確定要完全移除 %1 及其所有元件嗎？
 UninstallOnlyOnWin64=這個程式只能在 64 位元的 Windows 上解除安裝。
 OnlyAdminCanUninstall=這個程式要具備系統管理員權限的使用者方可解除安裝。
@@ -382,7 +382,7 @@ UninstallStatusLabel=正在從您的電腦移除 %1 中，請稍候。
 UninstalledAll=%1 已經成功從您的電腦中移除。
 UninstalledMost=%1 解除安裝完成。%n%n某些項目無法移除，您可以自行移除這些項目。
 UninstalledAndNeedsRestart=要完成 %1 的解除安裝，您必須重新啟動電腦。%n%n您想要現在重新啟動電腦嗎？
-UninstallDataCorrupted=檔案「%1」已經損毀，無法解除安裝
+UninstallDataCorrupted=檔案「%1」已經損毀，無法解除安裝。
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=移除共用檔案

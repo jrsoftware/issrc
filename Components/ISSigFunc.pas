@@ -291,6 +291,17 @@ begin
      ECDSAInt256ToString(Sig.Sig_s)]);
 end;
 
+procedure ClearVerifyOutParams(out AFileName: String; out AFileSize: Int64;
+  out AFileHash: TSHA256Digest; out AKeyUsedID: String);
+{ To be extra safe, clear the "out" parameters just in case the caller isn't
+  properly checking the function result }
+begin
+  AFileName := '';
+  AFileSize := -1;
+  FillChar(AFileHash, SizeOf(AFileHash), 0);
+  AKeyUsedID := '';
+end;
+
 function ISSigVerifySignatureText(const AAllowedKeys: array of TECDSAKey;
   const AText: String; out AFileName: String; out AFileSize: Int64;
   out AFileHash: TSHA256Digest; out AKeyUsedID: String): TISSigVerifySignatureResult;
@@ -313,13 +324,8 @@ var
     Version: Integer;
   end;
 begin
-  { To be extra safe, clear the "out" parameters just in case the caller isn't
-    properly checking the function result }
-  AFileName := '';
-  AFileSize := -1;
-  FillChar(AFileHash, SizeOf(AFileHash), 0);
+  ClearVerifyOutParams(AFileName, AFileSize, AFileHash, AKeyUsedID);
   var AFileTag := ''; { Should be a parameter in the future }
-  AKeyUsedID := '';
 
   if Length(AText) > ISSigTextFileLengthLimit then
     Exit(vsrMalformed)
@@ -359,7 +365,6 @@ begin
   end;
   if KeyUsed = nil then
     Exit(vsrKeyNotFound);
-  AKeyUsedID := TextValues.KeyID;
 
   const UnverifiedFileName = TextValues.FileName;
   const UnverifiedFileSize = StrToInt64(TextValues.FileSize);
@@ -375,6 +380,7 @@ begin
     AFileSize := UnverifiedFileSize;
     AFileHash := UnverifiedFileHash;
     AFileTag := UnverifiedFileTag;
+    AKeyUsedID := TextValues.KeyID;
     Result := vsrSuccess;
   end else
     Result := vsrBad;
@@ -407,6 +413,8 @@ function ISSigVerifySignature(const AFilename: String; const AAllowedKeys: array
   end;
 
 begin
+  ClearVerifyOutParams(AExpectedFileName, AExpectedFileSize, AExpectedFileHash, AKeyUsedID);
+
   if Assigned(AFileMissingErrorProc) and not NewFileExists(AFilename) then begin
     AFileMissingErrorProc(AFilename);
     Exit(False);

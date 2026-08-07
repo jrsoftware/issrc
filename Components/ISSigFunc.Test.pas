@@ -38,14 +38,28 @@ procedure ISSigFuncRunTests;
       Copy(AText, Idx + Length(AOld), MaxInt);
   end;
 
+  procedure AssertVerifyOutParamsCleared(const AFileName: String;
+    const AFileSize: Int64; const AFileHash: TSHA256Digest;
+    const AKeyUsedID: String);
+  begin
+    Assert(AFileName = '');
+    Assert(AFileSize = -1);
+    for var B in AFileHash do
+      Assert(B = 0);
+    Assert(AKeyUsedID = '');
+  end;
+
   procedure TestVerify(const AAllowedKeys: array of TECDSAKey;
     const AText: String; const AExpected: TISSigVerifySignatureResult);
   begin
-    var FileName: String;
-    var FileSize: Int64;
-    var FileHash: TSHA256Digest;
+    var FileName := 'unchanged';
+    var FileSize: Int64 := 123;
+    var FileHash := MakeHash($FF);
+    var KeyUsedID := 'unchanged';
     Assert(ISSigVerifySignatureText(AAllowedKeys, AText, FileName, FileSize,
-      FileHash) = AExpected);
+      FileHash, KeyUsedID) = AExpected);
+    if AExpected <> vsrSuccess then
+      AssertVerifyOutParamsCleared(FileName, FileSize, FileHash, KeyUsedID);
   end;
 
   procedure TestParsePublic(const AText: String;
@@ -331,6 +345,22 @@ begin
     Assert(ISSigLoadTextFromFile(RoundTripFileName) = RoundTripText);
   finally
     Winapi.Windows.DeleteFile(PChar(RoundTripFileName));
+  end;
+
+  { ISSigVerifySignature clears outputs when the signature file is missing }
+  const MissingSignatureFileName = MakeTempFileName;
+  try
+    var ExpectedFileName := 'unchanged';
+    var ExpectedFileSize: Int64 := 123;
+    var ExpectedFileHash := MakeHash($FF);
+    var KeyUsedID := 'unchanged';
+    Assert(not ISSigVerifySignature(MissingSignatureFileName, [],
+      ExpectedFileName, ExpectedFileSize, ExpectedFileHash, KeyUsedID, nil,
+      nil, nil));
+    AssertVerifyOutParamsCleared(ExpectedFileName, ExpectedFileSize,
+      ExpectedFileHash, KeyUsedID);
+  finally
+    Winapi.Windows.DeleteFile(PChar(MissingSignatureFileName));
   end;
 
   { ISSigLoadTextFromFile defenses-in-depth }

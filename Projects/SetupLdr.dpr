@@ -332,7 +332,7 @@ begin
               '/CURRENTUSER' + SNewLine +
               'Instructs Setup to install in non administrative install mode.' + SNewLine;
 
-  Help := 'The Setup program accepts optional command line parameters:' + SNewLine2 +
+  Help := 'The Setup program accepts optional command-line parameters:' + SNewLine2 +
           '/HELP, /?' + SNewLine +
            'Shows this help text.' + SNewLine +
            SpNote +
@@ -364,7 +364,7 @@ begin
           PrNote +
           CustomNote +
           SNewLine +
-          'Show additional command line parameters?';
+          'Show additional command-line parameters?';
 
   { Cannot use a task dialog here, due to the compiler's call to PreventCOMCTL32Sideloading }
   Result := MsgBox(Help, MB_YESNO or MB_ICONSTOP) = IDYES;
@@ -375,7 +375,7 @@ var
   Help: String;
 begin
   { do not localize }
-  Help := 'Additional command line parameters:' + SNewLine2 +
+  Help := 'Additional command-line parameters:' + SNewLine2 +
           '/NOICONS' + SNewLine +
           'Instructs Setup to initially check the Don''t create a Start Menu folder check box.' + SNewLine +
           '/NOSTYLE' + SNewLine +
@@ -494,7 +494,7 @@ begin
       ActivateDefaultLanguage;
 
       if InitShowHelp then begin
-        { Show the command line help. }
+        { Show the command-line help. }
         if ShowBasicHelp(SetupMessages[msgHelpTextNote]) then
           ShowAdvancedHelp;
         SetupLdrExitCode := 0;

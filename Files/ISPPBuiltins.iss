@@ -320,16 +320,16 @@
   !P ? 1 : X * Power(X, P - 1)
 
 #define Min(int A, int B, int C = MaxInt)  \
-  A < B ? A < C ? Int(A) : Int(C) : Int(B)
+  A < B ? A < C ? Int(A) : Int(C) : B < C ? Int(B) : Int(C)
 
 #define Max(int A, int B, int C = MinInt)  \
-  A > B ? A > C ? Int(A) : Int(C) : Int(B)
+  A > B ? A > C ? Int(A) : Int(C) : B > C ? Int(B) : Int(C)
 
 #define SameText(str S1, str S2) \
   S1 == S2
 
 #define WarnRenamedVersion(str OldName, str NewName) \
-  Warning("Function """ + OldName + """ has been renamed. Use """ + NewName + """ instead.")
+  Warning(Format('Function "%s" has been renamed. Use "%s" instead.', OldName, NewName))
 
 #define ParseVersion(str FileName, *Major, *Minor, *Rev, *Build) \
   WarnRenamedVersion("ParseVersion", "GetVersionComponents"), \
@@ -343,7 +343,7 @@
   #define Filename FindGetFileName(GLS_FindHandle)
   #define Name LowerCase(RemoveFileExt(Filename))
   #define MessagesFile "compiler:Languages\" + Filename
-  #emit "Name: " + Name + "; MessagesFile: " + MessagesFile
+  #emit Format('Name: %s; MessagesFile: %s', Name, MessagesFile)
 #endsub
 
 #define GLS_FindPathName
@@ -353,7 +353,7 @@
 #sub GLS_DoFindFiles
   #for {GLS_FindHandle = GLS_FindResult = FindFirst(GLS_FindPathName + "*.isl", 0); GLS_FindResult; GLS_FindResult = FindNext(GLS_FindHandle)} GLS_ProcessFoundLanguagesFile
   #if GLS_FindHandle
-    #expr FindClose(GLS_FindHandle)
+    #call FindClose(GLS_FindHandle)
   #endif
 #endsub
 
@@ -364,7 +364,7 @@
 #sub EmitLanguagesSection
   #emit "[Languages]"
   #emit "Name: english; MessagesFile: compiler:Default.isl"
-  #expr GLS_FindFiles(CompilerPath + "Languages\")
+  #call GLS_FindFiles(CompilerPath + "Languages\")
 #endsub
 
 #ifdef DisablePOptP

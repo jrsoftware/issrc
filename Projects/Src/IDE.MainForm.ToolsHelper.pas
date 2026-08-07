@@ -26,6 +26,7 @@ type
     procedure ShowRegistryDesignerForm(const AMemo: TScintEdit);
     procedure ShowFilesDesignerForm(const AMemo: TScintEdit);
     procedure ShowSignToolsForm;
+    procedure ShowRichEditForm;
   end;
 
 implementation
@@ -35,8 +36,8 @@ uses
   SysUtils, Forms, UITypes,
   PathFunc,
   Shared.CommonFunc, Shared.CommonFunc.Vcl, Shared.ConfigIniFile,
-  IDE.Messages, IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.SignToolsForm, IDE.MsgBoxDesignerForm,
-  IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.Wizard.WizardFormRegistryHelper;
+  IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.ScintStylerInnoSetup, IDE.SignToolsForm, IDE.MsgBoxDesignerForm,
+  IDE.FilesDesignerForm, IDE.RegistryDesignerForm, IDE.RichEditForm, IDE.Wizard.WizardFormRegistryHelper;
 
 {$IFNDEF WIN64}
 function Wow64DisableWow64FsRedirection_static(var OldValue: PVOID): BOOL; stdcall;
@@ -78,16 +79,16 @@ end;
 
 procedure TMainFormToolsHelper.InsertGeneratedGuid(const AMemo: TScintEdit);
 begin
-  if MsgBox(SToolsInsertGuidConfirm,
-     SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDYES then
+  if MsgBox(LFmtMessage(SToolsInsertGuidConfirm),
+     LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDYES then
     AMemo.MainSelText := GenerateGuid;
 end;
 
 procedure TMainFormToolsHelper.ShowMsgBoxDesignerForm(const AMemo: TScintEdit);
 begin
   if (TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scCode) and
-     (MsgBox(SToolsNotInCodeSectionConfirm,
-      SCompilerFormCaption, mbConfirmation, MB_YESNO) = IDNO) then
+     (MsgBox(LFmtMessage(SToolsNotInCodeSectionConfirm, ['[Code]']),
+      LFmtMessage(SCompilerFormCaption), mbConfirmation, MB_YESNO) = IDNO) then
     Exit;
 
   var MsgBoxForm := TMsgBoxDesignerForm.Create(Application);
@@ -114,10 +115,10 @@ begin
       RegistryDesignerForm.PrivilegesRequired := prDynamic;
     if RegistryDesignerForm.ShowModal = mrOk then
     begin
-      AMemo.CaretColumn := 0;
       var Text := RegistryDesignerForm.Text;
       if TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scRegistry then
         Text := '[Registry]' + SNewLine + Text;
+      AMemo.CaretColumn := 0;
       AMemo.MainSelText := Text;
     end;
   finally
@@ -131,10 +132,10 @@ begin
   try
     FilesDesignerForm.CreateAppDir := FindSetupDirectiveValue('CreateAppDir', True);
     if FilesDesignerForm.ShowModal = mrOk then begin
-      AMemo.CaretColumn := 0;
       var Text := FilesDesignerForm.Text;
       if TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]) <> scFiles then
         Text := '[Files]' + SNewLine + Text;
+      AMemo.CaretColumn := 0;
       AMemo.MainSelText := Text;
     end;
   finally
@@ -168,6 +169,13 @@ begin
   finally
     SignToolsForm.Free;
   end;
+end;
+
+procedure TMainFormToolsHelper.ShowRichEditForm;
+begin
+  if RichEditForm = nil then
+    RichEditForm := TRichEditForm.Create(Application);
+  RichEditForm.Show;
 end;
 
 end.

@@ -38,7 +38,7 @@ type
     FPreproc: TPreprocessor;
     FCache: Boolean;
     FCacheValid: Boolean;
-    procedure VerboseMsg(Msg: TConditionalVerboseMsg; Eval: Boolean);
+    procedure VerboseMsg(Msg: TConditionalVerboseMsg);
   protected
     function Last: TConditionalBlockInfo;
     procedure UpdateLast(const Value: TConditionalBlockInfo);
@@ -49,14 +49,14 @@ type
     procedure ElseInstruction;
     procedure EndIfInstruction;
     function Include: Boolean;
+    function OuterInclude: Boolean;
     procedure Resolved;
   end;
 
   TPreprocessorCommand = (pcError, pcIf, pcIfDef, pcIfNDef, pcIfExist,
     pcIfNExist, pcElseIf, pcElse, pcEndIf, pcDefine, pcUndef, pcInclude,
-    pcErrorDir, pcPragma, pcLine, pcImport, pcEmit, pcEnv, pcFile,
-    pcExpr, pcInsert, pcAppend, pcDim, pcSub, pcEndSub, pcEndLoop,
-    pcFor, pcReDim);
+    pcErrorDir, pcPragma, pcEmit, pcEnv, pcFile, pcExpr, pcInsert,
+    pcAppend, pcDim, pcSub, pcEndSub, pcFor, pcReDim);
 
   TDropGarbageProc = procedure(Item: Pointer);
 
@@ -83,7 +83,6 @@ type
     FStack: TConditionalTranslationStack;
     FIdentManager: TIdentManager;
     FInProcBody: Boolean;
-    FInForBody: Boolean;
     FProcs: TStringList;
     FGarbageCollection: TList;
     procedure DropGarbage;
@@ -106,6 +105,7 @@ type
       NonISS: Boolean);
     function InternalQueueLine(const LineRead: string; FileIndex, LineNo: Integer;
       NonISS: Boolean): Integer;
+    procedure InternalFlushQueuedLine(FileIndex, LineNo: Integer);
     function ParseFormalParams(Parser: TParser; var ParamList: PParamList): Integer;
     { IUnknown }
     function QueryInterface(const IID: TGUID; out Obj): HRESULT; stdcall;
@@ -136,6 +136,7 @@ type
     procedure GetNextOutputLineReset;
     procedure IncludeFile(FileName: string; Builtins, UseIncludePathOnly, ResetCurrentFile: Boolean);
     procedure QueueLine(const LineRead: string);
+    procedure FlushQueuedLine;
     function PrependDirName(const FileName, Dir: string): string;
     procedure RegisterFunction(const Name: string; Handler: TIsppFunction; Ext: NativeInt);
     procedure RaiseError(const Message: string);
@@ -160,12 +161,14 @@ uses
 const
   PreprocCommands: array[TPreprocessorCommand] of String =
     ('', 'if', 'ifdef', 'ifndef', 'ifexist', 'ifnexist', 'elif', 'else',
-    'endif', 'define', 'undef', 'include', 'error', 'pragma', 'line', 'import',
-    'emit', 'env', 'file', 'expr', 'insert', 'append', 'dim', 'sub', 'endsub',
-    'endloop', 'for', 'redim');
+     'endif', 'define', 'undef', 'include', 'error', 'pragma',
+     'emit', 'env', 'file', 'expr', 'insert', 'append', 'dim', 'sub', 'endsub',
+     'for', 'redim');
   PpCmdSynonyms: array[TPreprocessorCommand] of Char =
-    (#0, '?', #0, #0, #0, #0, #0, '^', '.', ':', #0, '+', #0, #0, #0, #0,
-    '=', '%', #0, '!', #0, #0, #0, #0, #0, #0, #0, #0);
+    (#0, '?', #0, #0, #0, #0, #0, '^',
+     '.', ':', #0, '+', #0, #0,
+     '=', '%', #0, '!', #0, #0, #0, #0, #0,
+     #0, #0);
 
 function GetEnv(const EnvVar: String): String;
 
@@ -190,28 +193,25 @@ end;
 
 function ParsePreprocCommand(var P: PChar; ExtraTerminator: Char): TPreprocessorCommand;
 begin
-  for Result := TPreprocessorCommand(1) to High(TPreprocessorCommand) do
-  begin
-    if (P^ = PpCmdSynonyms[Result]) then
+  for Result := TPreprocessorCommand(1) to High(TPreprocessorCommand) do begin
+    if (PpCmdSynonyms[Result] <> #0) and (P^ = PpCmdSynonyms[Result]) then
       Inc(P)
     else if (StrLIComp(P, @PreprocCommands[Result][1], ULength(PreprocCommands[Result])) = 0) and
-      CharInSet(P[Length(PreprocCommands[Result])], [#0..#32, ExtraTerminator]) then
+            CharInSet(P[Length(PreprocCommands[Result])], [#0..#32, ExtraTerminator]) then
       Inc(P, Length(PreprocCommands[Result]))
     else
       Continue;
     Exit;
   end;
-  if StrLIComp('echo', P, 4) = 0 then
-  begin
+  if (StrLIComp('echo', P, 4) = 0) and
+     CharInSet(P[4], [#0..#32, ExtraTerminator]) then begin
     Result := pcEmit;
     Inc(P, 4)
-  end
-  else if StrLIComp('call', P, 4) = 0 then
-  begin
+  end else if (StrLIComp('call', P, 4) = 0) and
+              CharInSet(P[4], [#0..#32, ExtraTerminator]) then begin
     Result := pcExpr;
     Inc(P, 4);
-  end
-  else
+  end else
     Result := pcError;
 end;
 
@@ -285,7 +285,7 @@ begin
   if Code = -1 then
     Result := FIncludes[FCurrentFile]
   else
-    Result := FIncludes[Integer(FOutput.Objects[Code]) shr 16];
+    Result := FIncludes[Integer(NativeUInt(FOutput.Objects[Code]) and $FFFF)];
 end;
 
 function TPreprocessor.GetLineNumber(Code: Integer): Integer;
@@ -293,7 +293,7 @@ begin
   if Code = -1 then
     Result := FCurrentLine
   else
-    Result := Integer(FOutput.Objects[Code]) and $FFFF
+    Result := Integer(NativeUInt(FOutput.Objects[Code]) shr 16)
 end;
 
 function TPreprocessor.GetNextOutputLine(var LineFilename: string; var LineNumber: Integer;
@@ -366,9 +366,9 @@ begin
               FStack.IfInstruction(FStack.Include and
                 ProcessPreprocCommand(Command, S, DirectiveOffset));
             pcElseIf:
-              FStack.ElseIfInstruction(FStack.Last.Fired or
-                (FStack.Include or not FStack.Last.BlockState) and
-                ProcessPreprocCommand(Command, S, DirectiveOffset));
+              FStack.ElseIfInstruction((FStack.AtLeast(1) and FStack.Last.Fired) or
+                (FStack.OuterInclude and
+                 ProcessPreprocCommand(Command, S, DirectiveOffset)));
             pcElse: FStack.ElseInstruction;
             pcEndIf: FStack.EndIfInstruction
             else
@@ -415,11 +415,11 @@ begin
         if FInsertionPoint >= 0 then
         begin
           EmitDestination.InsertObject(FInsertionPoint, S1,
-            TObject(FileIndex shl 16 or LineNo));
+            TObject(NativeUInt(LineNo) shl 16 or NativeUInt(FileIndex)));
           Inc(FInsertionPoint);
         end
         else
-          EmitDestination.AddObject(S1, TObject(FileIndex shl 16 or LineNo));
+          EmitDestination.AddObject(S1, TObject(NativeUInt(LineNo) shl 16 or NativeUInt(FileIndex)));
         while CharInSet(P^, [#10, #13]) do Inc(P);
       until P^ = #0;
     end;
@@ -441,8 +441,6 @@ var
   LineStart, P1, DStart, DEnd: PChar;
 
   function ScanForInlineStart(var P, D: PChar): Boolean;
-  var
-    I: Integer;
   begin
     Result := False;
     while P^ <> #0 do
@@ -451,7 +449,7 @@ var
       begin
         D := P;
         Result := True;
-        for I := 2 to Length(FOptions.InlineStart) do
+        for var I := 2 to Length(FOptions.InlineStart) do
         begin
           Inc(D);
           if D^ <> FOptions.InlineStart[I] then
@@ -468,27 +466,30 @@ var
   end;
 
   function ScanForInlineEnd(var P: PChar): PChar;
-  var
-    I: Integer;
   begin
     Result := nil;
     while P^ <> #0 do
     begin
       if P^ = FOptions.InlineEnd[1] then
       begin
+        var D := P;
         Result := P;
-        for I := 2 to Length(FOptions.InlineEnd) do
+        for var I := 2 to Length(FOptions.InlineEnd) do
         begin
-          Inc(P);
-          if P^ <> FOptions.InlineEnd[I] then
+          Inc(D);
+          if D^ <> FOptions.InlineEnd[I] then
           begin
             Result := nil;
             Break;
           end;
         end;
-        Inc(P);
+        if Result <> nil then
+        begin
+          Inc(D);
+          P := D;
+          Exit;
+        end;
       end;
-      if Result <> nil then Exit;
       Inc(P);
     end;
     RaiseError(SUnterminatedPreprocessorDirectiv);
@@ -511,20 +512,19 @@ begin
       SetString(S, DStart, ScanForInlineEnd(DEnd) - DStart);
 
       case Command of
-        pcError: RaiseError(SUnknownPreprocessorDirective);
         pcIf..pcIfNExist:
           LineStack.IfInstruction(LineStack.Include and
             ProcessPreprocCommand(Command, S, DStart - LineStart));
         pcElseIf:
-          LineStack.ElseIfInstruction(LineStack.Last.Fired or
-            (LineStack.Include or not LineStack.Last.BlockState) and
-            ProcessPreprocCommand(Command, S, DStart - LineStart));
+          LineStack.ElseIfInstruction((LineStack.AtLeast(1) and LineStack.Last.Fired) or
+            (LineStack.OuterInclude and
+             ProcessPreprocCommand(Command, S, DStart - LineStart)));
         pcElse: LineStack.ElseInstruction;
         pcEndIf: LineStack.EndIfInstruction;
       else
         if LineStack.Include then
           case Command of
-            pcInclude, pcInsert..pcEndSub:
+            pcInclude, pcInsert..pcEndSub, pcReDim:
               RaiseError(Format(SDirectiveCannotBeInline,
                 [PreprocCommands[Command]]));
             pcEmit, pcEnv, pcFile:
@@ -786,7 +786,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
         NextTokenExpect([opSubtract]);
         repeat
           NextTokenExpect([tkIdent]);
-          if Length(TokenString) > 1 then
+          if (Length(TokenString) > 1) or not CharInSet(TokenString[1], ['A'..'Z', 'a'..'z']) then
             RaiseError(SInvalidOptionName);
           C := TokenString[1];
           V := NextTokenExpect([opAdd, opSubtract]) = opAdd;
@@ -884,6 +884,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
             ALine := F.ReadLine;
             Preprocessor.QueueLine(ALine);
           end;
+          Preprocessor.FlushQueuedLine;
         finally
           F.Free;
         end;
@@ -944,8 +945,8 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
   var
     ProcName: string;
   begin
-    if FInForBody or FInProcBody then
-      RaiseError('Nested procedure declaration and compound loops not allowed');
+    if FInProcBody then
+      RaiseError('Nested procedure declaration not allowed');
     FInProcBody := True;
     Parser.NextTokenExpect([tkIdent]);
     ProcName := Parser.TokenString;
@@ -957,7 +958,7 @@ function TPreprocessor.ProcessPreprocCommand(Command: TPreprocessorCommand;
   procedure EndProcDecl;
   begin
     if not FInProcBody then
-      RaiseError('''endproc'' without ''procedure''');
+      RaiseError('''endsub'' without ''sub''');
     FInProcBody := False;
   end;
 
@@ -1008,8 +1009,9 @@ begin
       pcErrorDir:
         begin
           { Also see ErrorFunc in IsppFuncs }
+          Params := Params.Trim;
           if Params = '' then Params := 'Error';
-          RaiseError(Params.Trim);
+          RaiseError(Params);
         end;
       pcPragma: Pragma(Parser);
       pcEmit: Params := ToStr(Evaluate).AsStr;
@@ -1049,10 +1051,12 @@ begin
   else
     if FQueuedLineCount > 0 then
     begin
-      InternalAddLine(FQueuedLine + TrimLeft(LineRead), FileIndex, LineNo, NonISS);
-      FQueuedLine := '';
+      { Clear the queue before adding the line because adding it may reenter }
+      const QueuedLine = FQueuedLine + TrimLeft(LineRead);
       Result := FQueuedLineCount + 1;
+      FQueuedLine := '';
       FQueuedLineCount := 0;
+      InternalAddLine(QueuedLine, FileIndex, LineNo, NonISS);
     end
     else
     begin
@@ -1064,6 +1068,22 @@ end;
 procedure TPreprocessor.QueueLine(const LineRead: string);
 begin
   Inc(FMainCounter, InternalQueueLine(LineRead, 0, FMainCounter, False));
+end;
+
+procedure TPreprocessor.InternalFlushQueuedLine(FileIndex, LineNo: Integer);
+begin
+  if FQueuedLineCount > 0 then
+  begin
+    const QueuedLine = FQueuedLine; { See above }
+    FQueuedLine := '';
+    FQueuedLineCount := 0;
+    InternalAddLine(QueuedLine, FileIndex, LineNo, False);
+  end;
+end;
+
+procedure TPreprocessor.FlushQueuedLine;
+begin
+  InternalFlushQueuedLine(0, FMainCounter);
 end;
 
 procedure TPreprocessor.RegisterFunction(const Name: string; Handler: TIsppFunction; Ext: NativeInt);
@@ -1171,9 +1191,11 @@ procedure TPreprocessor.ExecProc(Body: TStrings);
 var
   I: Integer;
 begin
-  for I := 0 to Body.Count - 1 do
-    InternalAddLine(Body[I], Integer(Body.Objects[I]) shr 16,
-      Integer(Body.Objects[I]) and $FFFF - 1, False);
+  for I := 0 to Body.Count - 1 do begin
+    const PackedLocation = NativeUInt(Body.Objects[I]);
+    InternalAddLine(Body[I], Integer(PackedLocation and $FFFF),
+      Integer(PackedLocation shr 16) - 1, False);
+  end;
 end;
 
 { TConditionalTranslationStack }
@@ -1194,7 +1216,7 @@ begin
   A.HadElse := False;
   PushItem(A);
   FCacheValid := False;
-  VerboseMsg(cvmIf, Eval);
+  VerboseMsg(cvmIf);
 end;
 
 procedure TConditionalTranslationStack.ElseIfInstruction(Eval: Boolean);
@@ -1210,7 +1232,7 @@ begin
       FCacheValid := False;
     end;
     UpdateLast(A);
-    VerboseMsg(cvmElif, Eval);
+    VerboseMsg(cvmElif);
   end else
     FPreproc.RaiseError(SElseWithoutIf);
 end;
@@ -1229,7 +1251,7 @@ begin
       FCacheValid := False;
     end;
     UpdateLast(A);
-    VerboseMsg(cvmElse, False);
+    VerboseMsg(cvmElse);
   end else
     FPreproc.RaiseError(SElseWithoutIf);
 end;
@@ -1239,7 +1261,7 @@ begin
   if AtLeast(1) then begin
     PopItem;
     FCacheValid := False;
-    VerboseMsg(cvmEndif, False);
+    VerboseMsg(cvmEndif);
   end else
     FPreproc.RaiseError(SEndifWithoutIf);
 end;
@@ -1262,6 +1284,14 @@ begin
   end;
 end;
 
+function TConditionalTranslationStack.OuterInclude: Boolean;
+begin
+  for var I := Count - 2 downto 0 do
+    if not TConditionalBlockInfo(List[I]).BlockState then
+      Exit(False);
+  Result := True;
+end;
+
 procedure TConditionalTranslationStack.Resolved;
 begin
   if Count > 0 then
@@ -1280,9 +1310,7 @@ begin
 end;
 
 procedure TConditionalTranslationStack.VerboseMsg(
-  Msg: TConditionalVerboseMsg; Eval: Boolean);
-const
-  B: array[Boolean] of string = ('false', 'true');
+  Msg: TConditionalVerboseMsg);
 var
   M: string;
 begin
@@ -1357,11 +1385,12 @@ type
   private
     FPreproc: TPreprocessor;
     FBody: TStrings;
-    FScopeUpdated: Boolean;
+    FLocalsEnsured: Boolean;
     FIndex: Integer;
-    procedure UpdateScope;
+    procedure EnsureLocals;
   public
     constructor Create(Proprocessor: TPreprocessor; ProcBody: TStrings);
+    destructor Destroy; override;
     procedure Add(const Name: String; const Value: TIsppVariant);
     function Call: TIsppVariant;
     procedure Clone(out NewContext: ICallContext);
@@ -1499,16 +1528,12 @@ begin
   else if Name = '__INCLUDE__' then
   begin
     if Value <> nil then MakeStr(Value^, FIncludePath);
-  end
-  else if (Length(Name) = 9) and (Copy(Name, 1, 6) = '__OPT_') and
-    (Copy(Name, 8, 2) = '__') then
-  begin
+  end else if (Length(Name) = 9) and (Copy(Name, 1, 6) = '__OPT_') and
+              CharInSet(Name[7], ['A'..'Z']) and (Copy(Name, 8, 2) = '__') then begin
     if Value <> nil then Value^ := NULL;
     Result := GetOption(FOptions.Options, Name[7]);
-  end
-  else if (Length(Name) = 10) and (Copy(Name, 1, 7) = '__POPT_') and
-    (Copy(Name, 9, 2) = '__') then
-  begin
+  end else if (Length(Name) = 10) and (Copy(Name, 1, 7) = '__POPT_') and
+              CharInSet(Name[8], ['A'..'Z']) and (Copy(Name, 9, 2) = '__') then begin
     if Value <> nil then Value^ := NULL;
     Result := GetOption(FOptions.ParserOptions.Options, Name[8]);
   end
@@ -1697,6 +1722,7 @@ begin
           Inc(J, InternalQueueLine(LineTextStr, FileIndex, J, False));
           Inc(I);
         end;
+        InternalFlushQueuedLine(FileIndex, J);
       finally
         FIdentManager.EndLocal
       end;
@@ -1746,13 +1772,13 @@ begin
             if Ident = sAny then {do nothing }
             else if Ident = sInt then Param.DefValue.Typ := evInt
             else if Ident = sStr then Param.DefValue.Typ := evStr
-            else if Ident = 'FUNC' then
-              begin
-                Param.DefValue.Typ := evCallContext;
-                Include(Param.ParamFlags, pfFunc)
-              end
-            else if Ident = 'ARRAY' then Param.DefValue.Typ := evCallContext
-            else RaiseError(Format(SInvalidTypeId, [Ident]));
+            else if Ident = 'FUNC' then begin
+              Param.DefValue.Typ := evCallContext;
+              Include(Param.ParamFlags, pfFunc)
+            end else if Ident = 'ARRAY' then begin
+              Param.DefValue.Typ := evCallContext;
+              Include(Param.ParamFlags, pfArray)
+            end else RaiseError(Format(SInvalidTypeId, [Ident]));
             if Param.DefValue.Typ <> evSpecial then
               Include(Param.ParamFlags, pfTypeDefined);
             if NextTokenExpect([tkIdent, opMul]) = opMul then
@@ -1773,6 +1799,8 @@ begin
         begin
           if pfByRef in Param.ParamFlags then
             RaiseError(SByRefNoDefault);
+          if (Param.ParamFlags * [pfFunc, pfArray]) <> [] then
+            RaiseError(SFuncArrayNoDefault);
           NextToken;
           case Param.DefValue.Typ of
             evSpecial: Param.DefValue := GetRValue(Expr(True));
@@ -1803,7 +1831,7 @@ end;
 procedure TProcCallContext.Add(const Name: String;
   const Value: TIsppVariant);
 begin
-  UpdateScope;
+  EnsureLocals;
   if Name <> '' then
     FPreproc.FIdentManager.DefineVariable(Name, -1, Value, dsPrivate);
   FPreproc.FIdentManager.DefineVariable(SLocal, FIndex, Value, dsPrivate);
@@ -1812,12 +1840,16 @@ end;
 
 function TProcCallContext.Call: TIsppVariant;
 begin
-  UpdateScope;
+  EnsureLocals;
+  const SavedScope = FPreproc.GetDefaultScope;
   try
     FPreproc.ExecProc(FBody);
   finally
-    FPreproc.FIdentManager.EndLocal
+    FPreproc.FIdentManager.EndLocal;
+    FLocalsEnsured := False;
+    FPreproc.SetDefaultScope(SavedScope);
   end;
+  Result := NULL;
 end;
 
 procedure TProcCallContext.Clone(out NewContext: ICallContext);
@@ -1832,28 +1864,26 @@ begin
   FBody := ProcBody
 end;
 
+destructor TProcCallContext.Destroy;
+begin
+  if FLocalsEnsured then
+    FPreproc.FIdentManager.EndLocal; { The call was parsed but never evaluated }
+  inherited;
+end;
+
 function TProcCallContext.GroupingStyle: TArgGroupingStyle;
 begin
   Result := agsParenteses;
 end;
 
-procedure TProcCallContext.UpdateScope;
-var
-  ReDim: Boolean;
+procedure TProcCallContext.EnsureLocals;
 begin
-  if not FScopeUpdated then
-  begin
+  if not FLocalsEnsured then begin
     FPreproc.FIdentManager.BeginLocal;
-    ReDim := False;
+    var ReDim := False;
     FPreproc.FIdentManager.DimVariable(SLocal, 16, dsPrivate, ReDim);
-    FScopeUpdated := True;
+    FLocalsEnsured := True;
   end;
 end;
-
-initialization
-  { The code above stuffs TConditionalBlockInfo records in a TList without additional allocations.
-    In other words, TConditionalBlockInfo must fit into a Pointer. }
-  if SizeOf(TConditionalBlockInfo) > SizeOf(Pointer) then
-    raise Exception.Create('SizeOf(TConditionalBlockInfo) > SizeOf(Pointer)');
 
 end.

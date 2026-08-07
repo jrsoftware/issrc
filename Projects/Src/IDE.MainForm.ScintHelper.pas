@@ -26,6 +26,8 @@ type
     function MultipleSelectionPasteFromClipboard(const AMemo: TScintEdit): Boolean;
     procedure ToggleLinesComment(const AMemo: TScintEdit);
     procedure SelectAllFindMatches(const AMemo: TScintEdit);
+    procedure GetSelectionCharacterAndLineCounts(const AMemo: TScintEdit;
+      out CharacterCount, LineCount: Integer);
   end;
 
 implementation
@@ -228,7 +230,6 @@ begin
     { Send updated selections to memo }
     for var I := 0 to Selections.Count-1 do begin
       var Selection := Selections[I];
-      var VirtualSpace := VirtualSpaces[I];
       if I = 0 then
         AMemo.SetSingleSelection(Selection.CaretPos, Selection.AnchorPos)
       else
@@ -387,6 +388,19 @@ begin
     AMemo.MainSelection := ClosestSelection;
     AMemo.ScrollCaretIntoView;
   end;
+end;
+
+procedure TMainFormScintHelper.GetSelectionCharacterAndLineCounts(
+  const AMemo: TScintEdit; out CharacterCount, LineCount: Integer);
+begin
+  CharacterCount := 0;
+  for var I := 0 to AMemo.SelectionCount-1 do
+    Inc(CharacterCount, AMemo.GetCharacterCount(
+      AMemo.SelectionStartPosition[I], AMemo.SelectionEndPosition[I]));
+
+  LineCount := 0;
+  for var LineRange in AMemo.GetSelectionLineRanges do
+    Inc(LineCount, LineRange.EndLine - LineRange.StartLine + 1);
 end;
 
 end.

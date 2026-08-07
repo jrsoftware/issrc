@@ -15,6 +15,11 @@
 	--link-hover-fg-color: light-dark(hsl(206, 100%, 27%), hsl(206, 100%, 43%));
 	--header-bg-color: light-dark(#e0e0e0, #403e41);
 	--code-bg-color: light-dark(#f0f0f0, #353135);
+	--key-fg-color: light-dark(#0078d4, #0088f0);
+	--com-fg-color: light-dark(#2d862d, #339933);
+	--con-fg-color: light-dark(#9262a8, #a278b5);
+	--str-num-fg-color: light-dark(#c55420, #f09060);
+	--ispp-fg-color: light-dark(#d24152, #d95e6c);
 	--table-border-color: var(--header-bg-color);
 	--table-header-bg-color: var(--code-bg-color);
 }
@@ -162,6 +167,34 @@ TT {
 	font-weight: bold;
 	line-height: normal;
 	margin-bottom: 0.5em;
+}
+
+/* Syntax highlighting in script examples */
+.sec {
+	font-weight: bold;
+}
+.evt {
+	font-weight: bold;
+}
+.key {
+	color: #0078d4; /* for IE */
+	color: var(--key-fg-color);
+}
+.com {
+	color: #2d862d; /* for IE */
+	color: var(--com-fg-color);
+}
+.con {
+	color: #9262a8; /* for IE */
+	color: var(--con-fg-color);
+}
+.str, .num {
+	color: #c55420; /* for IE */
+	color: var(--str-num-fg-color);
+}
+.ispp {
+	color: #d24152; /* for IE */
+	color: var(--ispp-fg-color);
 }
 
 

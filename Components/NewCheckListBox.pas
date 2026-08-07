@@ -20,9 +20,6 @@ uses
   {$IFDEF VCLSTYLES} Vcl.Themes, {$ELSE} Themes, {$ENDIF}
   StdCtrls, NewUxTheme;
 
-const
-  WM_UPDATEUISTATE = $0128;
-
 type
   TItemType = (itGroup, itCheck, itRadio);
   TCheckBoxState2 = (cb2Normal, cb2Hot, cb2Pressed, cb2Disabled);
@@ -49,7 +46,6 @@ type
 
   TNewCheckListBox = class(TCustomListBox)
   private
-    FAccObjectInstance: TObject;
     FCaptureIndex: Integer;
     FSpaceDown: Boolean;
     FCheckHeight: Integer;
@@ -110,6 +106,7 @@ type
     procedure WMUpdateUIState(var Message: TMessage); message WM_UPDATEUISTATE;
     procedure WMVScroll(var Message: TWMVScroll); message WM_VSCROLL;
   protected
+    FAccObjectInstance: TObject;
     procedure CreateWnd; override;
     procedure MeasureItem(Index: Integer; var Height: Integer); override;
     procedure DrawItem(Index: Integer; Rect: TRect; State: TOwnerDrawState);
@@ -233,178 +230,14 @@ procedure Register;
 implementation
 
 uses
-  UITypes, Types, ActiveX,
-  NewUxTheme.TmSchema, PathFunc, BidiUtils, UnsignedFunc;
+  UITypes, Types,
+  NewUxTheme.TmSchema, BidiUtils, UnsignedFunc, NewCheckListBox.MSAA;
 
 const
   sRadioCantHaveDisabledChildren = 'Radio item cannot have disabled child items';
 
-  OBM_CHECKBOXES = 32759;
-  WM_CHANGEUISTATE = $0127;
-  WM_QUERYUISTATE = $0129;
-  UIS_SET = 1;
-  UIS_CLEAR = 2;
-  UIS_INITIALIZE = 3;
-  UISF_HIDEFOCUS = $1;
-  UISF_HIDEACCEL = $2;
-  DT_HIDEPREFIX = $00100000;
-
-  OBJID_CLIENT = $FFFFFFFC;
-  CHILDID_SELF = 0;
-  ROLE_SYSTEM_OUTLINE = $23;
-  ROLE_SYSTEM_STATICTEXT = $29;
-  ROLE_SYSTEM_CHECKBUTTON = $2c;
-  ROLE_SYSTEM_RADIOBUTTON = $2d;
-  STATE_SYSTEM_UNAVAILABLE = $1;
-  STATE_SYSTEM_CHECKED = $10;
-  STATE_SYSTEM_MIXED = $20;
-  EVENT_OBJECT_STATECHANGE = $800A;
-
-  IID_IUnknown: TGUID = (
-    D1:$00000000; D2:$0000; D3:$0000; D4:($C0,$00,$00,$00,$00,$00,$00,$46));
-  IID_IDispatch: TGUID = (
-    D1:$00020400; D2:$0000; D3:$0000; D4:($C0,$00,$00,$00,$00,$00,$00,$46));
-  IID_IAccessible: TGUID = (
-    D1:$618736e0; D2:$3c3d; D3:$11cf; D4:($81,$0c,$00,$aa,$00,$38,$9b,$71));
-
 type
   TWinControlAccess = class(TWinControl);
-
-  { Note: We have to use TVariantArg for Delphi 2 compat., because D2 passes
-    Variant parameters by reference (wrong), unlike D3+ which pass
-    Variant/OleVariant parameters by value }
-  NewOleVariant = TVariantArg;
-  NewWideString = Pointer;
-
-  TIUnknown = class
-  public
-    function QueryInterface(const iid: TIID; var obj): HRESULT; virtual; stdcall; abstract;
-    function AddRef: Longint; virtual; stdcall; abstract;
-    function Release: Longint; virtual; stdcall; abstract;
-  end;
-
-  TIDispatch = class(TIUnknown)
-  public
-    function GetTypeInfoCount(var ctinfo: Integer): HRESULT; virtual; stdcall; abstract;
-    function GetTypeInfo(itinfo: Integer; lcid: TLCID; var tinfo: ITypeInfo): HRESULT; virtual; stdcall; abstract;
-    function GetIDsOfNames(const iid: TIID; rgszNames: POleStrList;
-      cNames: Integer; lcid: TLCID; rgdispid: PDispIDList): HRESULT; virtual; stdcall; abstract;
-    function Invoke(dispIDMember: TDispID; const iid: TIID; lcid: TLCID;
-      flags: Word; var dispParams: TDispParams; varResult: PVariant;
-      excepInfo: PExcepInfo; argErr: PInteger): HRESULT; virtual; stdcall; abstract;
-  end;
-
-  TIAccessible = class(TIDispatch)
-  public
-    function get_accParent(var ppdispParent: IDispatch): HRESULT; virtual; stdcall; abstract;
-    function get_accChildCount(var pcountChildren: Integer): HRESULT; virtual; stdcall; abstract;
-    function get_accChild(varChild: NewOleVariant; var ppdispChild: IDispatch): HRESULT; virtual; stdcall; abstract;
-    function get_accName(varChild: NewOleVariant; var pszName: NewWideString): HRESULT; virtual; stdcall; abstract;
-    function get_accValue(varChild: NewOleVariant; var pszValue: NewWideString): HRESULT; virtual; stdcall; abstract;
-    function get_accDescription(varChild: NewOleVariant; var pszDescription: NewWideString): HRESULT; virtual; stdcall; abstract;
-    function get_accRole(varChild: NewOleVariant; var pvarRole: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function get_accState(varChild: NewOleVariant; var pvarState: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function get_accHelp(varChild: NewOleVariant; var pszHelp: NewWideString): HRESULT; virtual; stdcall; abstract;
-    function get_accHelpTopic(var pszHelpFile: NewWideString; varChild: NewOleVariant; var pidTopic: Integer): HRESULT; virtual; stdcall; abstract;
-    function get_accKeyboardShortcut(varChild: NewOleVariant; var pszKeyboardShortcut: NewWideString): HRESULT; virtual; stdcall; abstract;
-    function get_accFocus(var pvarID: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function get_accSelection(var pvarChildren: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function get_accDefaultAction(varChild: NewOleVariant; var pszDefaultAction: NewWideString): HRESULT; virtual; stdcall; abstract;
-    function accSelect(flagsSelect: Integer; varChild: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function accLocation(var pxLeft: Integer; var pyTop: Integer; var pcxWidth: Integer;
-      var pcyHeight: Integer; varChild: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function accNavigate(navDir: Integer; varStart: NewOleVariant; var pvarEnd: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function accHitTest(xLeft: Integer; yTop: Integer; var pvarID: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function accDoDefaultAction(varChild: NewOleVariant): HRESULT; virtual; stdcall; abstract;
-    function put_accName(varChild: NewOleVariant; const pszName: NewWideString): HRESULT; virtual; stdcall; abstract;
-    function put_accValue(varChild: NewOleVariant; const pszValue: NewWideString): HRESULT; virtual; stdcall; abstract;
-  end;
-
-  TAccObject = class(TIAccessible)
-  private
-    FControl: TNewCheckListBox;
-    FRefCount: Integer;
-    FStdAcc: TIAccessible;
-    { TIUnknown }
-    function QueryInterface(const iid: TIID; var obj): HRESULT; override;
-    function AddRef: Longint; override;
-    function Release: Longint; override;
-    { TIDispatch }
-    function GetTypeInfoCount(var ctinfo: Integer): HRESULT; override;
-    function GetTypeInfo(itinfo: Integer; lcid: TLCID; var tinfo: ITypeInfo): HRESULT; override;
-    function GetIDsOfNames(const iid: TIID; rgszNames: POleStrList;
-      cNames: Integer; lcid: TLCID; rgdispid: PDispIDList): HRESULT; override;
-    function Invoke(dispIDMember: TDispID; const iid: TIID; lcid: TLCID;
-      flags: Word; var dispParams: TDispParams; varResult: PVariant;
-      excepInfo: PExcepInfo; argErr: PInteger): HRESULT; override;
-    { TIAccessible }
-    function get_accParent(var ppdispParent: IDispatch): HRESULT; override;
-    function get_accChildCount(var pcountChildren: Integer): HRESULT; override;
-    function get_accChild(varChild: NewOleVariant; var ppdispChild: IDispatch): HRESULT; override;
-    function get_accName(varChild: NewOleVariant; var pszName: NewWideString): HRESULT; override;
-    function get_accValue(varChild: NewOleVariant; var pszValue: NewWideString): HRESULT; override;
-    function get_accDescription(varChild: NewOleVariant; var pszDescription: NewWideString): HRESULT; override;
-    function get_accRole(varChild: NewOleVariant; var pvarRole: NewOleVariant): HRESULT; override;
-    function get_accState(varChild: NewOleVariant; var pvarState: NewOleVariant): HRESULT; override;
-    function get_accHelp(varChild: NewOleVariant; var pszHelp: NewWideString): HRESULT; override;
-    function get_accHelpTopic(var pszHelpFile: NewWideString; varChild: NewOleVariant; var pidTopic: Integer): HRESULT; override;
-    function get_accKeyboardShortcut(varChild: NewOleVariant; var pszKeyboardShortcut: NewWideString): HRESULT; override;
-    function get_accFocus(var pvarID: NewOleVariant): HRESULT; override;
-    function get_accSelection(var pvarChildren: NewOleVariant): HRESULT; override;
-    function get_accDefaultAction(varChild: NewOleVariant; var pszDefaultAction: NewWideString): HRESULT; override;
-    function accSelect(flagsSelect: Integer; varChild: NewOleVariant): HRESULT; override;
-    function accLocation(var pxLeft: Integer; var pyTop: Integer; var pcxWidth: Integer;
-      var pcyHeight: Integer; varChild: NewOleVariant): HRESULT; override;
-    function accNavigate(navDir: Integer; varStart: NewOleVariant; var pvarEnd: NewOleVariant): HRESULT; override;
-    function accHitTest(xLeft: Integer; yTop: Integer; var pvarID: NewOleVariant): HRESULT; override;
-    function accDoDefaultAction(varChild: NewOleVariant): HRESULT; override;
-    function put_accName(varChild: NewOleVariant; const pszName: NewWideString): HRESULT; override;
-    function put_accValue(varChild: NewOleVariant; const pszValue: NewWideString): HRESULT; override;
-  public
-    constructor Create(AControl: TNewCheckListBox);
-    destructor Destroy; override;
-    procedure ControlDestroying;
-  end;
-
-function CoDisconnectObject(unk: TIUnknown; dwReserved: DWORD): HRESULT;
-  stdcall; external 'ole32.dll';
-
-var
-  NotifyWinEventFunc: procedure(event: DWORD; hwnd: HWND; idObject: DWORD;
-    idChild: Longint); stdcall;
-  OleAccInited: BOOL;
-  OleAccAvailable: BOOL;
-  LresultFromObjectFunc: function(const riid: TGUID; wParam: WPARAM;
-    pUnk: TIUnknown): LRESULT; stdcall;
-  CreateStdAccessibleObjectFunc: function(hwnd: HWND; idObject: Longint;
-    const riidInterface: TGUID; var ppvObject: Pointer): HRESULT; stdcall;
-
-function InitializeOleAcc: Boolean;
-
-  function GetSystemDir: String;
-  var
-    Buf: array[0..MAX_PATH-1] of Char;
-  begin
-    GetSystemDirectory(Buf, SizeOf(Buf) div SizeOf(Buf[0]));
-    Result := StrPas(Buf);
-  end;
-
-var
-  M: HMODULE;
-begin
-  if not OleAccInited then begin
-    M := LoadLibrary(PChar(AddBackslash(GetSystemDir) + 'oleacc.dll'));
-    if M <> 0 then begin
-      LresultFromObjectFunc := GetProcAddress(M, 'LresultFromObject');
-      CreateStdAccessibleObjectFunc := GetProcAddress(M, 'CreateStdAccessibleObject');
-      if Assigned(LresultFromObjectFunc) and
-         Assigned(CreateStdAccessibleObjectFunc) then
-        OleAccAvailable := True;
-    end;
-    OleAccInited := True;
-  end;
-  Result := OleAccAvailable;
-end;
 
 { TNewCheckListBox }
 
@@ -417,8 +250,7 @@ constructor TNewCheckListBox.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
 
-  with TBitmap.Create do
-  begin
+  with TBitmap.Create do begin
     try
       Handle := LoadBitmap(0, PChar(OBM_CHECKBOXES));
       FCheckWidth := Width div 4;
@@ -480,11 +312,7 @@ end;
 
 destructor TNewCheckListBox.Destroy;
 begin
-  if Assigned(FAccObjectInstance) then begin
-    { Detach from FAccObjectInstance if someone still has a reference to it }
-    TAccObject(FAccObjectInstance).ControlDestroying;
-    FAccObjectInstance := nil;
-  end;
+  DisconnectMSAAObject;
   if Assigned(FStateList) then begin
     for var I := FStateList.Count-1 downto 0 do
       TItemState(FStateList[I]).Free;
@@ -531,8 +359,7 @@ begin
   Result := True;
   Dec(Index);
   Dec(ALevel);
-  while Index >= 0 do
-  begin
+  while Index >= 0 do begin
     with ItemStates[Index] do
       if Level = ALevel then
         if ItemType = itRadio then
@@ -541,11 +368,9 @@ begin
           Break;
     Dec(Index);
   end;
-  if Index >= 0 then
-  begin
+  if Index >= 0 then begin
     Index := GetParentOf(Index);
-    while Index >= 0 do
-    begin
+    while Index >= 0 do begin
       if ItemStates[Index].ItemType = itRadio then
         Exit;
       Index := GetParentOf(Index);
@@ -559,13 +384,18 @@ var
   I: Integer;
 begin
   if FWantTabs and CanFocus then
-    with Message do
-    begin
+    with Message do begin
       I := FindAccel(CharCode);
-      if I >= 0 then
-      begin
+      if I >= 0 then begin
         SetFocus;
-        if (FCaptureIndex <> I) or FSpaceDown then EndCapture(not FSpaceDown);
+        if FCaptureIndex = I then
+          EndCapture(True) { We're about to toggle the captured item, so end capture, else it will be toggled twice }
+        else begin
+          { We're about to toggle an item which is not the captured item. Before we do
+            that, toggle the other item if space is down (same as KeyUp), else cancel
+            capture (=dont toggle, same as MouseUp). }
+          EndCapture(not FSpaceDown); { Does nothing if there was no capture active }
+        end;
         ItemIndex := I;
         Toggle(I);
         Result := 1
@@ -577,21 +407,17 @@ procedure TNewCheckListBox.CMEnter(var Message: TCMEnter);
 var
   GoForward, Arrows: Boolean;
 begin
-  if FWantTabs and FFormFocusChanged and (GetKeyState(VK_LBUTTON) >= 0) then
-  begin
+  if FWantTabs and FFormFocusChanged and (GetKeyState(VK_LBUTTON) >= 0) then begin
     if GetKeyState(VK_TAB) < 0 then begin
       Arrows := False;
       GoForward := (GetKeyState(VK_SHIFT) >= 0);
-    end
-    else if (GetKeyState(VK_UP) < 0) or (GetKeyState(VK_LEFT) < 0) then begin
+    end else if (GetKeyState(VK_UP) < 0) or (GetKeyState(VK_LEFT) < 0) then begin
       Arrows := True;
       GoForward := False;
-    end
-    else if (GetKeyState(VK_DOWN) < 0) or (GetKeyState(VK_RIGHT) < 0) then begin
+    end else if (GetKeyState(VK_DOWN) < 0) or (GetKeyState(VK_RIGHT) < 0) then begin
       Arrows := True;
       GoForward := True;
-    end
-    else begin
+    end else begin
       { Otherwise, just select the first item }
       Arrows := False;
       GoForward := True;
@@ -624,8 +450,7 @@ end;
 
 procedure LineDDAProc(X, Y: Integer; Canvas: TCanvas); stdcall;
 begin
-  if ((X xor Y) and 1) = 0 then
-  begin
+  if ((X xor Y) and 1) = 0 then begin
     Canvas.MoveTo(X, Y);
     Canvas.LineTo(X + 1, Y);
   end;
@@ -638,8 +463,7 @@ end;
 
 procedure TNewCheckListBox.CNDrawItem(var Message: TWMDrawItem);
 begin
-  with Message.DrawItemStruct^ do
-  begin
+  with Message.DrawItemStruct^ do begin
     { Note: itemID is -1 when there are no items }
     if Integer(itemID) >= 0 then begin
       var L := ItemStates[Integer(itemID)].Level;
@@ -772,8 +596,7 @@ var
   procedure InternalDrawText(const S: string; var R: TRect; Format: UINT;
     Embossed: Boolean);
   begin
-    if Embossed then
-    begin
+    if Embossed then begin
       Canvas.Brush.Style := bsClear;
       OffsetRect(R, 1, 1);
       SetTextColor(Canvas.Handle, GetSysColor(COLOR_BTNHIGHLIGHT));
@@ -781,8 +604,7 @@ var
       OffsetRect(R, -1, -1);
       SetTextColor(Canvas.Handle, GetSysColor(COLOR_BTNSHADOW));
       DrawText(Canvas.Handle, PChar(S), Length(S), R, Format);
-    end
-    else
+    end else
       DrawText(Canvas.Handle, PChar(S), Length(S), R, Format);
   end;
 
@@ -911,7 +733,7 @@ begin
         if ItemDisabled then
           uState := uState or DFCS_INACTIVE;
         if (FCaptureIndex = Index) and (FSpaceDown or (FLastMouseMoveIndex = Index)) then
-          uState := uState or DFCS_PUSHED;
+          uState := uState or DFCS_PUSHED; { Not all VCL Styles have an actual image for this, and will just show a regular checkbox }
         DrawFrameControl(Handle, CheckRect, DFC_BUTTON, uState);
       end else begin
         PartId := ButtonPartIds[ItemState.ItemType];
@@ -926,8 +748,8 @@ begin
           StateId := ButtonStateIds[ItemState.State][cb2Hot]
         else
           StateId := ButtonStateIds[ItemState.State][cb2Normal];
-        GetThemePartSize(FThemeData, Handle, PartId, StateId, @CheckRect, TS_TRUE, Size);
-        if (Size.cx <> FCheckWidth) or (Size.cy <> FCheckHeight) then begin
+        if ((GetThemePartSize(FThemeData, Handle, PartId, StateId, @CheckRect, TS_TRUE, Size)) = S_OK) and
+           ((Size.cx <> FCheckWidth) or (Size.cy <> FCheckHeight)) then begin
           CheckRect := Bounds(Rect.Left - (Size.cx + FOffset),
             Rect.Top + ((Rect.Bottom - Rect.Top - Size.cy) div 2),
             Size.cx, Size.cy);
@@ -952,8 +774,7 @@ begin
     FlipRect(Rect, SavedClientRect, IsRightToLeft);
     Inc(Rect.Left);
     const OldColor = SetTextColor(Handle, UColorToRGB(NewTextColor));
-    if ItemState.SubItem <> '' then
-    begin
+    if ItemState.SubItem <> '' then begin
       const DrawTextFormat = UDrawTextBiDiModeFlags(Self, DT_NOCLIP or DT_NOPREFIX or DT_SINGLELINE or DT_VCENTER);
       Font.Style := ItemState.SubItemFontStyle;
       Font.Color := NewTextColor; { Setting Font.Style may invalidate the font, requiring us to reset Color regardless of the SetTextColor call above }
@@ -967,8 +788,7 @@ begin
       InternalDrawText(ItemState.SubItem, SubItemRect, DrawTextFormat,
         FWantTabs and ItemDisabled);
       Dec(Rect.Right, SubItemWidth);
-    end
-    else
+    end else
       Dec(Rect.Right, FOffset);
     { Draw item text }
     if not FWantTabs then
@@ -1002,8 +822,7 @@ begin
       InternalDrawText(Items[Index], Rect, DrawTextFormat, Embossed);
     { Draw focus rectangle }
     if FWantTabs and not ItemDisabled and (odSelected in State) and Focused and
-      (UIState and UISF_HIDEFOCUS = 0) then
-    begin
+      (UIState and UISF_HIDEFOCUS = 0) then begin
       FocusRect := Rect;
       InflateRect(FocusRect, 1, 1);
       DrawFocusRect(FocusRect);
@@ -1018,8 +837,7 @@ var
   Item: Integer;
 begin
   Item := FCaptureIndex;
-  if Item >= 0 then
-  begin
+  if Item >= 0 then begin
     InvalidateItem := FSpaceDown or (FCaptureIndex = FLastMouseMoveIndex) or (FThemeData <> 0);
     FSpaceDown := False;
     FCaptureIndex := -1;
@@ -1040,18 +858,14 @@ var
 begin
   if (Item < -1) or (Item >= Items.Count) then
     Exit;
-  if Item = -1 then
-  begin
+  if Item = -1 then begin
     L := 0;
     Item := 0;
-  end
-  else
-  begin
+  end else begin
     L := ItemLevel[Item] + 1;
     Inc(Item);
   end;
-  while (Item < Items.Count) and (ItemLevel[Item] >= L) do
-  begin
+  while (Item < Items.Count) and (ItemLevel[Item] >= L) do begin
     if ItemLevel[Item] = L then
       Proc(Item, (Item < Items.Count - 1) and (ItemLevel[Item + 1] > L), Ext);
     Inc(Item);
@@ -1068,12 +882,10 @@ var
 begin
   if Items.Count <> FStateList.Count then  { sanity check }
     raise Exception.Create('List item and state item count mismatch');
-  if Items.Count > 0 then
-  begin
+  if Items.Count > 0 then begin
     if ItemLevel[Items.Count - 1] + 1 < ALevel then
       ALevel := Byte(ItemLevel[Items.Count - 1] + 1);
-  end
-  else
+  end else
     ALevel := 0;
   FThreadsUpToDate := False;
   { Use our own grow code to minimize heap fragmentation }
@@ -1141,8 +953,7 @@ var
 begin
   if StartFrom < -1 then
     StartFrom := ItemIndex;
-  if Items.Count > 0 then
-  begin
+  if Items.Count > 0 then begin
     Delta := Ord(GoForward) * 2 - 1;
     Result := StartFrom + Delta;
     while (Result >= 0) and (Result < Items.Count) and
@@ -1150,8 +961,7 @@ begin
       Result := Result + Delta;
     if (Result < 0) or (Result >= Items.Count) then
       Result := -1;
-  end
-  else
+  end else
     Result := -1;
 end;
 
@@ -1236,7 +1046,7 @@ begin
     var ScrollBarInfo: TScrollBarInfo;
     ScrollBarInfo.cbSize := SizeOf(ScrollBarInfo);
     if GetScrollBarInfo(Handle, Integer(OBJID_VSCROLL), ScrollBarInfo) and
-       (ScrollBarInfo.rgstate[0] <> STATE_SYSTEM_INVISIBLE) then
+       (ScrollBarInfo.rgstate[0] and STATE_SYSTEM_INVISIBLE = 0) then
       InvalidateRect(Handle, nil, True);
   end;
 end;
@@ -1264,8 +1074,7 @@ begin
         if (FHotIndex <> ItemIndex) and (FHotIndex <> -1) and (FThemeData <> 0) then
           InvalidateCheck(FHotIndex);
       end;
-    end
-    else
+    end else
       Toggle(ItemIndex);
   inherited;
 end;
@@ -1287,8 +1096,7 @@ var
 begin
   if Button = mbLeft then begin
     Index := ItemAtPos(Point(X, Y), True);
-    if (Index <> -1) and CanFocusItem(Index) then
-    begin
+    if (Index <> -1) and CanFocusItem(Index) then begin
       if FWantTabs then begin
         if not FSpaceDown then begin
           if not MouseCapture then
@@ -1298,8 +1106,7 @@ begin
           InvalidateCheck(Index);
           HandleScroll; { Might have scrolled a new item into view }
         end;
-      end
-      else
+      end else
         Toggle(Index);
     end;
   end;
@@ -1311,8 +1118,7 @@ procedure TNewCheckListBox.MouseUp(Button: TMouseButton; Shift: TShiftState;
 var
   Index: Integer;
 begin
-  if (Button = mbLeft) and FWantTabs and not FSpaceDown and (FCaptureIndex >= 0) then
-  begin
+  if (Button = mbLeft) and FWantTabs and not FSpaceDown and (FCaptureIndex >= 0) then begin
     Index := ItemAtPos(Point(X, Y), True);
     EndCapture(Index <> FCaptureIndex);
     if (FHotIndex <> -1) and (FThemeData <> 0) then
@@ -1326,8 +1132,7 @@ var
   OldHotIndex: Integer;
 begin
   OldHotIndex := FHotIndex;
-  if NewHotIndex <> OldHotIndex then
-  begin
+  if NewHotIndex <> OldHotIndex then begin
     FHotIndex := NewHotIndex;
     if FCaptureIndex = -1 then begin
       if (OldHotIndex <> -1) and (FThemeData <> 0) then
@@ -1408,10 +1213,7 @@ function TNewCheckListBox.CheckItem(const Index: Integer;
     if ItemStates[AIndex].State <> AState then begin
       ItemStates[AIndex].State := AState;
       InvalidateCheck(AIndex);
-      { Notify MSAA of the state change }
-      if Assigned(NotifyWinEventFunc) then
-        NotifyWinEventFunc(EVENT_OBJECT_STATECHANGE, Handle, OBJID_CLIENT,
-          1 + AIndex);
+      AnnounceStateChangeToMSAA(AIndex);
     end;
   end;
 
@@ -1459,8 +1261,7 @@ function TNewCheckListBox.CheckItem(const Index: Integer;
         Result := cbGrayed
       else
         Result := cbChecked;
-    end
-    else
+    end else
       Result := cbUnchecked;
   end;
 
@@ -1513,9 +1314,8 @@ function TNewCheckListBox.CheckItem(const Index: Integer;
   begin
     while True do begin
       I := FindCheckedSibling(AIndex);
-      if I = -1 then
+      if (I = -1) or not RecursiveCheck(I, coUncheck) then
         Break;
-      RecursiveCheck(I, coUncheck);
     end;
   end;
 
@@ -1602,8 +1402,7 @@ end;
 
 procedure TNewCheckListBox.SetFlat(Value: Boolean);
 begin
-  if Value <> FFlat then
-  begin
+  if Value <> FFlat then begin
     FFlat := Value;
     Invalidate;
   end;
@@ -1611,8 +1410,7 @@ end;
 
 procedure TNewCheckListBox.SetItemEnabled(Index: Integer; const AEnabled: Boolean);
 begin
-  if ItemStates[Index].Enabled <> AEnabled then
-  begin
+  if ItemStates[Index].Enabled <> AEnabled then begin
     ItemStates[Index].Enabled := AEnabled;
     const R = ItemRect(Index);
     InvalidateRect(Handle, @R, True);
@@ -1665,8 +1463,7 @@ end;
 
 procedure TNewCheckListBox.SetOffset(AnOffset: Integer);
 begin
-  if FOffset <> AnOffset then
-  begin
+  if FOffset <> AnOffset then begin
     FOffset := AnOffset;
     for var I := Items.Count-1 downto 0 do
       RemeasureItem(I);
@@ -1677,8 +1474,7 @@ end;
 
 procedure TNewCheckListBox.SetShowLines(Value: Boolean);
 begin
-  if FShowLines <> Value then
-  begin
+  if FShowLines <> Value then begin
     FShowLines := Value;
     Invalidate;
   end;
@@ -1728,8 +1524,7 @@ procedure TNewCheckListBox.UpdateThreads;
     Result := -1;
     L := ItemLevel[Item] + 1;
     Inc(Item);
-    while (Item < Items.Count) and (ItemLevel[Item] >= L) do
-    begin
+    while (Item < Items.Count) and (ItemLevel[Item] >= L) do begin
       if ItemLevel[Item] = L then
         Result := Item;
       Inc(Item);
@@ -1740,14 +1535,12 @@ procedure TNewCheckListBox.UpdateThreads;
 var
   I, J, LastChild, L: Integer;
 begin
-  for I := 0 to Items.Count - 1 do
-  begin
+  for I := 0 to Items.Count - 1 do begin
     ItemStates[I].ThreadCache := [0];       //Doing ':= []' causes a "F2084 Internal Error: C21846" compiler error on Delphi 10.3 Rio }
     Exclude(ItemStates[I].ThreadCache, 0);  //
     ItemStates[I].IsLastChild := False;
   end;
-  for I := 0 to Items.Count - 1 do
-  begin
+  for I := 0 to Items.Count - 1 do begin
     LastChild := LastImmediateChildOf(I);
     L := ItemLevel[I];
     for J := I + 1 to LastChild do
@@ -1766,6 +1559,7 @@ begin
       ItemState := FStateList[I];
       FStateList.Delete(I);
       ItemState.Free;
+      FThreadsUpToDate := False;
     end;
   end;
 end;
@@ -1775,12 +1569,14 @@ var
   ItemState: TItemState;
 begin
   inherited;
-  if FDisableItemStateDeletion = 0 then
+  if (FDisableItemStateDeletion = 0) and (FStateList.Count > 0) then begin
     for var I := FStateList.Count-1 downto 0 do begin
       ItemState := FStateList[I];
       FStateList.Delete(I);
       ItemState.Free;
     end;
+    FThreadsUpToDate := False;
+  end;
 end;
 
 procedure TNewCheckListBox.WMGetDlgCode(var Message: TWMGetDlgCode);
@@ -1797,8 +1593,7 @@ var
   Prnt, Ctrl: TWinControl;
 begin
   { If space is pressed, avoid flickering -- exit now. }
-  if not FWantTabs or (Message.CharCode = VK_SPACE) then
-  begin
+  if not FWantTabs or (Message.CharCode = VK_SPACE) then begin
     inherited;
     Exit;
   end;
@@ -1822,17 +1617,14 @@ begin
     I := FindNextItem(-2, GoForward, not Arrows)
   else
     I := -1;
-  if I < 0 then
-  begin
+  if I < 0 then begin
     Prnt := nil;
     if not Arrows then
       Prnt := GetParentForm(Self);
     if Prnt = nil then Prnt := Parent;
-    if Prnt <> nil then
-    begin
+    if Prnt <> nil then begin
       Ctrl := TWinControlAccess(Prnt).FindNextControl(Self, GoForward, True, Arrows);
-      if (Ctrl <> nil) and (Ctrl <> Self) then
-      begin
+      if (Ctrl <> nil) and (Ctrl <> Self) then begin
         Ctrl.SetFocus;
         Exit;
       end;
@@ -1866,8 +1658,7 @@ begin
   end;
 
   NewHotIndex := -1;
-  if (Index <> -1) and CanFocusItem(Index) then
-  begin
+  if (Index <> -1) and CanFocusItem(Index) then begin
     Rect := ItemRect(Index);
     Indent := (FOffset * 2 + FCheckWidth);
     if FWantTabs then
@@ -1913,13 +1704,10 @@ var
   I: Integer;
 begin
   inherited;
-  if FWantTabs and not (csDesigning in ComponentState) then
-  begin
-    if Message.Result = HTCLIENT then
-    begin
+  if FWantTabs and not (csDesigning in ComponentState) then begin
+    if Message.Result = HTCLIENT then begin
       I := ItemAtPos(ScreenToClient(SmallPointToPoint(Message.Pos)), True);
-      if (I < 0) or not CanFocusItem(I) then
-      begin
+      if (I < 0) or not CanFocusItem(I) then begin
         UpdateHotIndex(-1);
         Message.Result := 12345;
         Exit;
@@ -1955,21 +1743,7 @@ end;
 
 procedure TNewCheckListBox.WMGetObject(var Message: TMessage);
 begin
-  { Per docs, lParam must be casted to DWORD (32 bits) because it may be
-    sign-extended in a 64-bit process }
-  if (DWORD(Message.LParam) = OBJID_CLIENT) and InitializeOleAcc then begin
-    if FAccObjectInstance = nil then begin
-      try
-        FAccObjectInstance := TAccObject.Create(Self);
-      except
-        inherited;
-        Exit;
-      end;
-    end;
-    Message.Result := LresultFromObjectFunc(IID_IAccessible, Message.WParam,
-      TAccObject(FAccObjectInstance));
-  end
-  else
+  if not HandleMSAAGetObject(Message) then
     inherited;
 end;
 
@@ -2067,317 +1841,11 @@ end;
 
 {$ENDIF}
 
-{ TAccObject }
-
-constructor TAccObject.Create(AControl: TNewCheckListBox);
-begin
-  inherited Create;
-  if CreateStdAccessibleObjectFunc(AControl.Handle, Integer(OBJID_CLIENT),
-     IID_IAccessible, Pointer(FStdAcc)) <> S_OK then begin
-    { Note: The user will never actually see this message since the call to
-      TAccObject.Create in TNewCheckListBox.WMGetObject is protected by a
-      try..except. }
-    raise Exception.Create('CreateStdAccessibleObject failed');
-  end;
-  FControl := AControl;
-end;
-
-destructor TAccObject.Destroy;
-begin
-  { If FControl is assigned, then we are being destroyed before the control --
-    the usual case. Clear FControl's reference to us. }
-  if Assigned(FControl) then begin
-    FControl.FAccObjectInstance := nil;
-    FControl := nil;
-  end;
-  if Assigned(FStdAcc) then
-    FStdAcc.Release;
-  inherited;
-end;
-
-procedure TAccObject.ControlDestroying;
-begin
-  { Set FControl to nil, since it's no longer valid }
-  FControl := nil;
-  { Take this opportunity to disconnect remote clients, i.e. don't allow them
-    to call us anymore. This prevents invalid memory accesses if this unit's
-    code is in a DLL, and the application subsequently unloads the DLL while
-    remote clients still hold (and are using) references to this TAccObject. }
-  CoDisconnectObject(Self, 0);
-  { NOTE: Don't access Self in any way at this point. The CoDisconnectObject
-    call likely caused all references to be relinquished and Self to be
-    destroyed. }
-end;
-
-function TAccObject.QueryInterface(const iid: TIID; var obj): HRESULT;
-begin
-  if IsEqualIID(iid, IID_IUnknown) or
-     IsEqualIID(iid, IID_IDispatch) or
-     IsEqualIID(iid, IID_IAccessible) then begin
-    Pointer(obj) := Self;
-    AddRef;
-    Result := S_OK;
-  end
-  else begin
-    Pointer(obj) := nil;
-    Result := E_NOINTERFACE;
-  end;
-end;
-
-function TAccObject.AddRef: Longint;
-begin
-  Inc(FRefCount);
-  Result := FRefCount;
-end;
-
-function TAccObject.Release: Longint;
-begin
-  Dec(FRefCount);
-  Result := FRefCount;
-  if Result = 0 then
-    Destroy;
-end;
-
-function TAccObject.GetTypeInfoCount(var ctinfo: Integer): HRESULT;
-begin
-  Result := E_NOTIMPL;
-end;
-
-function TAccObject.GetTypeInfo(itinfo: Integer; lcid: TLCID; var tinfo: ITypeInfo): HRESULT;
-begin
-  Result := E_NOTIMPL;
-end;
-
-function TAccObject.GetIDsOfNames(const iid: TIID; rgszNames: POleStrList;
-  cNames: Integer; lcid: TLCID; rgdispid: PDispIDList): HRESULT;
-begin
-  Result := E_NOTIMPL;
-end;
-
-function TAccObject.Invoke(dispIDMember: TDispID; const iid: TIID; lcid: TLCID;
-  flags: Word; var dispParams: TDispParams; varResult: PVariant;
-  excepInfo: PExcepInfo; argErr: PInteger): HRESULT;
-begin
-  Result := E_NOTIMPL;
-end;
-
-function TAccObject.accDoDefaultAction(varChild: NewOleVariant): HRESULT;
-begin
-  { A list box's default action is Double Click, which is useless for a
-    list of check boxes. }
-  Result := DISP_E_MEMBERNOTFOUND;
-end;
-
-function TAccObject.accHitTest(xLeft, yTop: Integer;
-  var pvarID: NewOleVariant): HRESULT;
-begin
-  Result := FStdAcc.accHitTest(xLeft, yTop, pvarID);
-end;
-
-function TAccObject.accLocation(var pxLeft, pyTop, pcxWidth,
-  pcyHeight: Integer; varChild: NewOleVariant): HRESULT;
-begin
-  Result := FStdAcc.accLocation(pxLeft, pyTop, pcxWidth, pcyHeight, varChild);
-end;
-
-function TAccObject.accNavigate(navDir: Integer; varStart: NewOleVariant;
-  var pvarEnd: NewOleVariant): HRESULT;
-begin
-  Result := FStdAcc.accNavigate(navDir, varStart, pvarEnd);
-end;
-
-function TAccObject.accSelect(flagsSelect: Integer;
-  varChild: NewOleVariant): HRESULT;
-begin
-  Result := FStdAcc.accSelect(flagsSelect, varChild);
-end;
-
-function TAccObject.get_accChild(varChild: NewOleVariant;
-  var ppdispChild: IDispatch): HRESULT;
-begin
-  Result := FStdAcc.get_accChild(varChild, ppdispChild);
-end;
-
-function TAccObject.get_accChildCount(var pcountChildren: Integer): HRESULT;
-begin
-  Result := FStdAcc.get_accChildCount(pcountChildren);
-end;
-
-function TAccObject.get_accDefaultAction(varChild: NewOleVariant;
-  var pszDefaultAction: NewWideString): HRESULT;
-begin
-  { A list box's default action is Double Click, which is useless for a
-    list of check boxes. }
-  pszDefaultAction := nil;
-  Result := S_FALSE;
-end;
-
-function TAccObject.get_accDescription(varChild: NewOleVariant;
-  var pszDescription: NewWideString): HRESULT;
-begin
-  Result := FStdAcc.get_accDescription(varChild, pszDescription);
-end;
-
-function TAccObject.get_accFocus(var pvarID: NewOleVariant): HRESULT;
-begin
-  Result := FStdAcc.get_accFocus(pvarID);
-end;
-
-function TAccObject.get_accHelp(varChild: NewOleVariant;
-  var pszHelp: NewWideString): HRESULT;
-begin
-  Result := FStdAcc.get_accHelp(varChild, pszHelp);
-end;
-
-function TAccObject.get_accHelpTopic(var pszHelpFile: NewWideString;
-  varChild: NewOleVariant; var pidTopic: Integer): HRESULT;
-begin
-  Result := FStdAcc.get_accHelpTopic(pszHelpFile, varChild, pidTopic);
-end;
-
-function TAccObject.get_accKeyboardShortcut(varChild: NewOleVariant;
-  var pszKeyboardShortcut: NewWideString): HRESULT;
-begin
-  Result := FStdAcc.get_accKeyboardShortcut(varChild, pszKeyboardShortcut);
-end;
-
-function TAccObject.get_accName(varChild: NewOleVariant;
-  var pszName: NewWideString): HRESULT;
-begin
-  Result := FStdAcc.get_accName(varChild, pszName);
-end;
-
-function TAccObject.get_accParent(var ppdispParent: IDispatch): HRESULT;
-begin
-  Result := FStdAcc.get_accParent(ppdispParent);
-end;
-
-function TAccObject.get_accRole(varChild: NewOleVariant;
-  var pvarRole: NewOleVariant): HRESULT;
-begin
-  pvarRole.vt := VT_EMPTY;
-  if FControl = nil then begin
-    Result := E_FAIL;
-    Exit;
-  end;
-  if varChild.vt <> VT_I4 then begin
-    Result := E_INVALIDARG;
-    Exit;
-  end;
-  if varChild.lVal = CHILDID_SELF then begin
-    pvarRole.lVal := ROLE_SYSTEM_OUTLINE;
-    pvarRole.vt := VT_I4;
-    Result := S_OK;
-  end
-  else begin
-    try
-      case FControl.ItemStates[varChild.lVal-1].ItemType of
-        itCheck: pvarRole.lVal := ROLE_SYSTEM_CHECKBUTTON;
-        itRadio: pvarRole.lVal := ROLE_SYSTEM_RADIOBUTTON;
-      else
-        pvarRole.lVal := ROLE_SYSTEM_STATICTEXT;
-      end;
-      pvarRole.vt := VT_I4;
-      Result := S_OK;
-    except
-      Result := E_INVALIDARG;
-    end;
-  end;
-end;
-
-function TAccObject.get_accSelection(var pvarChildren: NewOleVariant): HRESULT;
-begin
-  Result := FStdAcc.get_accSelection(pvarChildren);
-end;
-
-function TAccObject.get_accState(varChild: NewOleVariant;
-  var pvarState: NewOleVariant): HRESULT;
-var
-  ItemState: TItemState;
-begin
-  Result := FStdAcc.get_accState(varChild, pvarState);
-  try
-    if (Result = S_OK) and (varChild.vt = VT_I4) and
-       (varChild.lVal <> CHILDID_SELF) and (pvarState.vt = VT_I4) and
-       Assigned(FControl) then begin
-      ItemState := FControl.ItemStates[varChild.lVal-1];
-      case ItemState.State of
-        cbChecked: pvarState.lVal := pvarState.lVal or STATE_SYSTEM_CHECKED;
-        cbGrayed: pvarState.lVal := pvarState.lVal or STATE_SYSTEM_MIXED;
-      end;
-      if not ItemState.Enabled then
-        pvarState.lVal := pvarState.lVal or STATE_SYSTEM_UNAVAILABLE;
-    end;
-  except
-    Result := E_INVALIDARG;
-  end;
-end;
-
-function TAccObject.get_accValue(varChild: NewOleVariant;
-  var pszValue: NewWideString): HRESULT;
-begin
-  pszValue := nil;
-  if FControl = nil then begin
-    Result := E_FAIL;
-    Exit;
-  end;
-  if varChild.vt <> VT_I4 then begin
-    Result := E_INVALIDARG;
-    Exit;
-  end;
-  if varChild.lVal = CHILDID_SELF then
-    Result := S_FALSE
-  else begin
-    { Return the level as the value, like standard tree view controls do.
-      Not sure if any screen readers will actually use this, seeing as we
-      aren't a real tree view control. }
-    try
-      pszValue := StringToOleStr(IntToStr(FControl.ItemStates[varChild.lVal-1].Level));
-      Result := S_OK;
-    except
-      Result := E_INVALIDARG;
-    end;
-  end;
-end;
-
-function TAccObject.put_accName(varChild: NewOleVariant;
-  const pszName: NewWideString): HRESULT;
-begin
-  Result := S_FALSE;
-end;
-
-function TAccObject.put_accValue(varChild: NewOleVariant;
-  const pszValue: NewWideString): HRESULT;
-begin
-  Result := S_FALSE;
-end;
-
-
 procedure Register;
 begin
   RegisterComponents('JR', [TNewCheckListBox]);
 end;
 
-{ Note: This COM initialization code based on code from DBTables }
-var
-  SaveInitProc: Pointer;
-  NeedToUninitialize: Boolean;
-
-procedure InitCOM;
-begin
-  if SaveInitProc <> nil then TProcedure(SaveInitProc);
-  NeedToUninitialize := SUCCEEDED(CoInitialize(nil));
-end;
-
 initialization
-  if not IsLibrary then begin
-    SaveInitProc := InitProc;
-    InitProc := @InitCOM;
-  end;
   InitThemeLibrary;
-  NotifyWinEventFunc := GetProcAddress(GetModuleHandle(user32), 'NotifyWinEvent');
-    
-finalization
-  if NeedToUninitialize then
-    CoUninitialize;
 end.

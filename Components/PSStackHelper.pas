@@ -2,7 +2,7 @@ unit PSStackHelper;
 
 {
   Inno Setup
-  Copyright (C) 1997-2024 Jordan Russell
+  Copyright (C) 1997-2026 Jordan Russell
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
@@ -28,7 +28,9 @@ type
       TArrayBuilder = record
         Arr: TPSVariantIFC;
         I: Integer;
+        Capacity: Integer;
         procedure Add(const Data: String);
+        procedure Finish;
       end;
       TArrayEnumerator = record
         Arr: TPSVariantIFC;
@@ -56,6 +58,8 @@ type
   end;
 
 implementation
+
+{$ZEROBASEDSTRINGS OFF}
 
 function TPSStackHelper.GetArray(const ItemNo, FieldNo: Longint;
   out N: Integer): TPSVariantIFC;
@@ -140,15 +144,27 @@ end;
 
 function TPSStackHelper.InitArrayBuilder(const ItemNo, FieldNo: Longint): TArrayBuilder;
 begin
-  Result.Arr := SetArray(ItemNo, FieldNo, 0);
+  Result.Capacity := 16; { Same as TPSList }
+  Result.Arr := SetArray(ItemNo, FieldNo, Result.Capacity);
   Result.I := 0;
 end;
 
 procedure TPSStackHelper.TArrayBuilder.Add(const Data: String);
 begin
-  PSDynArraySetLength(Pointer(Arr.Dta^), Arr.aType, I+1);
+  if I >= Capacity then begin
+    Inc(Capacity, 32); { Same as TPSList }
+    PSDynArraySetLength(Pointer(Arr.Dta^), Arr.aType, Capacity);
+  end;
   VNSetString(PSGetArrayField(Arr, I), Data);
   Inc(I);
+end;
+
+procedure TPSStackHelper.TArrayBuilder.Finish;
+begin
+  if Capacity <> I then begin
+    PSDynArraySetLength(Pointer(Arr.Dta^), Arr.aType, I);
+    Capacity := I;
+  end;
 end;
 
 function TPSStackHelper.InitArrayEnumerator(const ItemNo, FieldNo: Longint): TArrayEnumerator;

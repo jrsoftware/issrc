@@ -470,8 +470,7 @@ function PathPathPartLength(const Filename: String;
     If you pass a UNC root path, e.g. '\\server\share', it will return the
     length of the entire string, NOT the length of '\\server\'.
   - If you pass in a filename with a reference to an NTFS alternate data
-    stream, e.g. 'abc:def', it will return the length of the entire string,
-    NOT the length of 'abc:'. }
+    stream, e.g. 'abc:def', it will return 0, NOT the length of 'abc:'. }
 begin
   const DrivePartLen = PathDrivePartLengthEx(Filename, True);
   var FoundSlash := False;

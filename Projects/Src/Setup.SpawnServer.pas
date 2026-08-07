@@ -343,7 +343,7 @@ begin
             CD_SpawnServer_ShellExec:
               begin
                 Message.Result := HandleExec(
-                  TWMCopyData(Message).CopyDataStruct.dwData = CD_SpawnServer_ShellExec,
+                  CopyDataMsg = CD_SpawnServer_ShellExec,
                   TWMCopyData(Message).CopyDataStruct.lpData,
                   TWMCopyData(Message).CopyDataStruct.cbData);
               end;

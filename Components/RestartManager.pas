@@ -7,7 +7,7 @@ unit RestartManager;
 interface
 
 uses
-  ActiveX, Windows;
+  Windows;
 
 procedure FreeRestartManagerLibrary;
 function InitRestartManagerLibrary: Boolean;

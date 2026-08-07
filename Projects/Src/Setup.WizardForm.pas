@@ -1985,6 +1985,8 @@ var
   ProcessInfos: PArrayofProcessInfo;
   AppName: String;
 begin
+  Result := '';
+
   { Clear existing registered resources if we get here a second time (user clicked Back after first time). There
     doesn't seem to be function to do this directly, so restart the session instead. }
   if RmRegisteredFilesCount <> 0 then begin
@@ -2084,7 +2086,6 @@ procedure TWizardForm.UpdatePage(const PageID: Integer);
     Space = '      ';
   var
     TypeEntry: PSetupTypeEntry;
-    SelectedComponents, SelectedTasks: TStringList;
     MemoUserInfoInfo, MemoDirInfo, MemoGroupInfo, MemoTypeInfo, MemoComponentsInfo, MemoTasksInfo: String;
     I: Integer;
   begin
@@ -2114,15 +2115,18 @@ procedure TWizardForm.UpdatePage(const PageID: Integer);
         end else
           MemoTypeInfo := '';  { can get here if all types failed their Check }
 
-        SelectedComponents := TStringList.Create();
-        GetSelectedComponents(SelectedComponents, True, True);
-        if SelectedComponents.Count > 0 then begin
-          MemoComponentsInfo := SetupMessages[msgReadyMemoComponents];
-          for I := 0 to SelectedComponents.Count-1 do
-            MemoComponentsInfo := MemoComponentsInfo+SNewLine+Space+SelectedComponents[I];
-        end else
-          MemoComponentsInfo := '';
-        SelectedComponents.Free();
+        const SelectedComponents = TStringList.Create;
+        try
+          GetSelectedComponents(SelectedComponents, True, True);
+          if SelectedComponents.Count > 0 then begin
+            MemoComponentsInfo := SetupMessages[msgReadyMemoComponents];
+            for I := 0 to SelectedComponents.Count-1 do
+              MemoComponentsInfo := MemoComponentsInfo+SNewLine+Space+SelectedComponents[I];
+          end else
+            MemoComponentsInfo := '';
+        finally
+          SelectedComponents.Free;
+        end;
       end;
 
       if HasIcons and not NoIconsCheck.Checked and
@@ -2133,15 +2137,18 @@ procedure TWizardForm.UpdatePage(const PageID: Integer);
       end else
         MemoGroupInfo := '';
 
-      SelectedTasks := TStringList.Create();
-      GetSelectedTasks(SelectedTasks, True, True, True);
-      if SelectedTasks.Count > 0 then begin
-        MemoTasksInfo := SetupMessages[msgReadyMemoTasks];
-        for I := 0 to SelectedTasks.Count-1 do
-          MemoTasksInfo := MemoTasksInfo+SNewLine+Space+SelectedTasks[I];
-      end else
-        MemoTasksInfo := '';
-      SelectedTasks.Free();
+      const SelectedTasks = TStringList.Create;
+      try
+        GetSelectedTasks(SelectedTasks, True, True, True);
+        if SelectedTasks.Count > 0 then begin
+          MemoTasksInfo := SetupMessages[msgReadyMemoTasks];
+          for I := 0 to SelectedTasks.Count-1 do
+            MemoTasksInfo := MemoTasksInfo+SNewLine+Space+SelectedTasks[I];
+        end else
+          MemoTasksInfo := '';
+      finally
+        SelectedTasks.Free;
+      end;
 
       if (CodeRunner <> nil) and CodeRunner.FunctionExists('UpdateReadyMemo', True) then begin
         try
