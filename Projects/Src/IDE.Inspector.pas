@@ -894,6 +894,7 @@ procedure TInspector.UpdateFromCaret;
       rrNotParameterSection: Result := 'The line is not in a parameter section';
       rrComment: Result := 'The line is a comment';
       rrISPPDirective: Result := 'The line is an ISPP directive';
+      rrMixedSelection: Result := 'The selection mixes section types or other content';
       rrSectionIndexOutOfRange: Result := 'The section index is out of range';
       rrNotKeyValueSection: Result := 'The section is not a key/value section';
     else
@@ -1383,7 +1384,7 @@ begin
   var RowSetSignature: String; { The actual value this gets doesn't matter, as long as it's unique for any unique row set }
   var Entries: TLiveScriptParameterSectionEntries;
   var EntryRefusalReason: TRefusalReason;
-  if FFactory.TryCreateParameterSectionEntries(CaretLine, Entries, EntryRefusalReason) then begin
+  if FFactory.TryCreateParameterSectionEntries(nil, CaretLine, Entries, EntryRefusalReason) then begin
     FLiveParameterSectionEntries := Entries;
     FChangeCountAtCreation := FFactory.ChangeCount;
     FLiveParameterSectionEntries.QuoteNewValues := FQuoteNewParameterValues;

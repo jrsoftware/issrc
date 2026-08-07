@@ -29,7 +29,8 @@ type
     create an object }
   TRefusalReason = (rrLineOutOfRange, rrNotInsideSection,
     rrInCodeSection, rrUnrecognizedSection, rrNotParameterSection, rrComment,
-    rrISPPDirective, rrSectionIndexOutOfRange, rrNotKeyValueSection);
+    rrISPPDirective, rrMixedSelection, rrSectionIndexOutOfRange,
+    rrNotKeyValueSection);
 
   TLiveScriptSectionHeader = record
     Line: Integer;
@@ -74,6 +75,7 @@ type
   TLiveScriptParameterSectionEntries = class
   private
     FItems: TObjectList<TLiveScriptParameterSectionEntry>;
+    procedure Add(const AEntry: TLiveScriptParameterSectionEntry);
     procedure BeginUndoAction;
     procedure EndUndoAction;
     function GetCount: Integer;
@@ -153,6 +155,8 @@ type
     procedure EnsureIndex;
     procedure EnsureStyled;
     function GetLinesText(const AFirstLine, ALastLine: Integer): TArray<String>;
+    function GetLogicalLineFirstLine(const ALine: Integer): Integer;
+    function GetLogicalLineLastLine(const ALine: Integer): Integer;
     function GetSectionHeader(Index: Integer): TLiveScriptSectionHeader;
     procedure GetSectionLines(const ASectionIndex: Integer;
       out AFirstLine, ALastLine: Integer);
@@ -172,7 +176,8 @@ type
     function TryGetSetupDirectiveValue(const ADirectiveName: String;
       out AValue: String): Boolean;
     { ARefusalReason is only set when the result is False }
-    function TryCreateParameterSectionEntries(const ALine: Integer;
+    function TryCreateParameterSectionEntries(
+      const ALineRanges: TArray<TScintLineRange>; const ACaretLine: Integer;
       out AEntries: TLiveScriptParameterSectionEntries;
       out ARefusalReason: TRefusalReason): Boolean;
     function TryCreateKeyValueSection(const ASectionIndex: Integer;
@@ -254,6 +259,12 @@ destructor TLiveScriptParameterSectionEntries.Destroy;
 begin
   FItems.Free;
   inherited;
+end;
+
+procedure TLiveScriptParameterSectionEntries.Add(
+  const AEntry: TLiveScriptParameterSectionEntry);
+begin
+  FItems.Add(AEntry);
 end;
 
 procedure TLiveScriptParameterSectionEntries.BeginUndoAction;
@@ -646,15 +657,10 @@ procedure TLiveScriptObjectFactory.EnsureIndex;
 
     { Extend to whole logical (spanned) lines, plus one following logical line:
       an edit can detach that line from a span without its own text being edited }
-    while (FirstLine > 0) and LineSpans(FirstLine-1) do
-      Dec(FirstLine);
-    while (LastLine < LineCount-1) and LineSpans(LastLine) do
-      Inc(LastLine);
-    if LastLine < LineCount-1 then begin
-      Inc(LastLine);
-      while (LastLine < LineCount-1) and LineSpans(LastLine) do
-        Inc(LastLine);
-    end;
+    FirstLine := GetLogicalLineFirstLine(FirstLine);
+    LastLine := GetLogicalLineLastLine(LastLine);
+    if LastLine < LineCount-1 then
+      LastLine := GetLogicalLineLastLine(LastLine+1);
 
     { Restyle the affected lines to refresh their per-line section state }
     FMemo.RestyleLine(FirstLine);
@@ -864,9 +870,7 @@ procedure TLiveScriptObjectFactory.GetSectionLines(const ASectionIndex: Integer;
 begin
   const Header = FSectionHeaders[ASectionIndex];
   const LineCount = FMemo.Lines.Count;
-  var HeaderLastLine := Header.Line;
-  while (HeaderLastLine < LineCount-1) and LineSpans(HeaderLastLine) do
-    Inc(HeaderLastLine);
+  const HeaderLastLine = GetLogicalLineLastLine(Header.Line);
   AFirstLine := HeaderLastLine+1;
   var L := AFirstLine;
   while (L < LineCount) and
@@ -883,6 +887,23 @@ begin
   SetLength(Result, ALastLine-AFirstLine+1);
   for var I := AFirstLine to ALastLine do
     Result[I-AFirstLine] := FMemo.Lines[I];
+end;
+
+function TLiveScriptObjectFactory.GetLogicalLineFirstLine(const ALine: Integer): Integer;
+begin
+  { Find first line in series of spanned lines }
+  Result := ALine;
+  while (Result > 0) and LineSpans(Result-1) do
+    Dec(Result);
+end;
+
+function TLiveScriptObjectFactory.GetLogicalLineLastLine(const ALine: Integer): Integer;
+begin
+  { Find final line in series of spanned lines }
+  Result := ALine;
+  const LineCount = FMemo.Lines.Count;
+  while (Result < LineCount-1) and LineSpans(Result) do
+    Inc(Result);
 end;
 
 function TLiveScriptObjectFactory.TryGetSetupDirectiveValue(const ADirectiveName: String;
@@ -929,9 +950,16 @@ begin
     Result := False;
 end;
 
-function TLiveScriptObjectFactory.TryCreateParameterSectionEntries(const ALine: Integer;
+function TLiveScriptObjectFactory.TryCreateParameterSectionEntries(
+  const ALineRanges: TArray<TScintLineRange>; const ACaretLine: Integer;
   out AEntries: TLiveScriptParameterSectionEntries;
   out ARefusalReason: TRefusalReason): Boolean;
+{ ALineRanges must be sorted and merged, as returned by
+  TScintEdit.GetSelectionLineRanges. When it covers one line or none, or
+  contains no entries, ACaretLine is inspected instead. That line can lie
+  outside the ranges: Scintilla's Select Line commands like triple click
+  select one line but leave the caret below it, and inspection follows the
+  caret. }
 begin
   AEntries := nil;
   Result := False;
@@ -939,12 +967,88 @@ begin
   EnsureStyled;
 
   const LineCount = FMemo.Lines.Count;
-  if (ALine < 0) or (ALine >= LineCount) then begin
+  var CoveredLineCount := 0;
+  for var LineRange in ALineRanges do begin
+    if (LineRange.StartLine < 0) or (LineRange.EndLine >= LineCount) or
+       (LineRange.EndLine < LineRange.StartLine) then begin
+      ARefusalReason := rrLineOutOfRange;
+      Exit;
+    end;
+    Inc(CoveredLineCount, LineRange.EndLine-LineRange.StartLine+1);
+  end;
+
+  if CoveredLineCount > 1 then begin
+    const EntryLineRanges = TList<TScintLineRange>.Create;
+    try
+      { Collect the entry line ranges, creating no objects yet }
+      var EntriesSection := scNone;
+      var HasOtherActualContent := False;
+      var LastHandledLogicalFirstLine := -1;
+      for var LineRange in ALineRanges do begin
+        var Line := LineRange.StartLine;
+        while Line <= LineRange.EndLine do begin
+          const FirstLine = GetLogicalLineFirstLine(Line);
+          const LastLine = GetLogicalLineLastLine(Line);
+          Line := LastLine+1;
+          if FirstLine = LastHandledLogicalFirstLine then
+            Continue; { Two ranges can extend to the same logical line, and with sorted ranges a duplicate is always the previous one }
+          LastHandledLogicalFirstLine := FirstLine;
+          { Skip section header lines, else they cause rrMixedSelection }
+          var HeaderSection: TInnoSetupSection;
+          if TInnoSetupStyler.LineSectionHeader(FMemo.Lines.State[FirstLine], HeaderSection) then
+            Continue;
+          { Skip blank lines, comments, and ISPP directive lines }
+          if ClassifyScriptLine(JoinSpannedScriptLines(
+               GetLinesText(FirstLine, LastLine))) <> slkActual then
+            Continue;
+          const Section = TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[FirstLine]);
+          if Section in ParameterSections then begin
+            if EntriesSection = scNone then
+              EntriesSection := Section
+            else if Section <> EntriesSection then begin
+              ARefusalReason := rrMixedSelection;
+              Exit;
+            end;
+            var EntryLineRange: TScintLineRange;
+            EntryLineRange.StartLine := FirstLine;
+            EntryLineRange.EndLine := LastLine;
+            EntryLineRanges.Add(EntryLineRange);
+          end else
+            HasOtherActualContent := True;
+        end;
+      end;
+
+      if EntryLineRanges.Count > 0 then begin
+        if HasOtherActualContent then begin
+          ARefusalReason := rrMixedSelection;
+          Exit;
+        end;
+        var Metadata: TScriptModelSectionMetadata := nil;
+        TryGetScriptModelSectionMetadata(SectionToSectionName(EntriesSection), Metadata);
+        for var EntryLineRange in EntryLineRanges do begin
+          const Entry = TLiveScriptParameterSectionEntry.Create(Self,
+            EntryLineRange.StartLine, EntryLineRange.EndLine, EntriesSection, Metadata,
+            GetLinesText(EntryLineRange.StartLine, EntryLineRange.EndLine), False);
+          if AEntries = nil then
+            AEntries := TLiveScriptParameterSectionEntries.Create(Entry)
+          else
+            AEntries.Add(Entry);
+        end;
+        Exit(True);
+      end;
+      { The selection contains no entries: fall through to inspecting
+        ACaretLine }
+    finally
+      EntryLineRanges.Free;
+    end;
+  end;
+
+  if (ACaretLine < 0) or (ACaretLine >= LineCount) then begin
     ARefusalReason := rrLineOutOfRange;
     Exit;
   end;
 
-  const Section = TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[ALine]);
+  const Section = TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[ACaretLine]);
   if TryGetCommonSectionRefusalReason(Section, ARefusalReason) then
     Exit;
   if not (Section in ParameterSections) then begin
@@ -952,12 +1056,8 @@ begin
     Exit;
   end;
 
-  var FirstLine := ALine;
-  while (FirstLine > 0) and LineSpans(FirstLine-1) do
-    Dec(FirstLine);
-  var LastLine := ALine;
-  while (LastLine < LineCount-1) and LineSpans(LastLine) do
-    Inc(LastLine);
+  const FirstLine = GetLogicalLineFirstLine(ACaretLine);
+  const LastLine = GetLogicalLineLastLine(ACaretLine);
 
   const EntryLines = GetLinesText(FirstLine, LastLine);
   const LineKind = ClassifyScriptLine(JoinSpannedScriptLines(EntryLines));

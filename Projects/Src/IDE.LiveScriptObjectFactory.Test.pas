@@ -194,7 +194,7 @@ procedure TestTryCreateParameterSectionEntries(const AMemo: TScintEdit;
   begin
     var Entries: TLiveScriptParameterSectionEntries;
     var Reason: TRefusalReason;
-    Assert(not AFactory.TryCreateParameterSectionEntries(ALine, Entries, Reason));
+    Assert(not AFactory.TryCreateParameterSectionEntries(nil, ALine, Entries, Reason));
     Assert(Entries = nil);
     Assert(Reason = AExpectedReason);
   end;
@@ -229,7 +229,7 @@ begin
     { Accept: a real parameter line, parameters readable }
     var Entries: TLiveScriptParameterSectionEntries;
     var Reason: TRefusalReason;
-    Assert(Factory.TryCreateParameterSectionEntries(4, Entries, Reason));
+    Assert(Factory.TryCreateParameterSectionEntries(nil, 4, Entries, Reason));
     try
       Assert(Entries.Section = scFiles);
       var Value: String;
@@ -240,12 +240,147 @@ begin
     end;
 
     { Accept: a blank line inside a section yields an empty entry }
-    Assert(Factory.TryCreateParameterSectionEntries(7, Entries, Reason));
+    Assert(Factory.TryCreateParameterSectionEntries(nil, 7, Entries, Reason));
     try
       Assert(Entries.PrimaryEntry.Count = 0);
     finally
       Entries.Free;
     end;
+  finally
+    Context.Free;
+  end;
+end;
+
+function LineRange(const AStartLine, AEndLine: Integer): TScintLineRange;
+begin
+  Result.StartLine := AStartLine;
+  Result.EndLine := AEndLine;
+end;
+
+{ TryCreateParameterSectionEntries with line ranges covering several lines:
+  skipping of blank, comment, ISPP directive, and section header lines;
+  combining two [Files] occurrences; two ranges extending to the same spanned
+  entry; the mixed refusal; the fall backs to the caret line; and the
+  resulting entry line ranges }
+procedure TestTryCreateParameterSectionEntriesFromLineRanges(const AMemo: TScintEdit;
+  const AStyler: TInnoSetupStyler);
+
+  procedure AssertRefusal(const AFactory: TLiveScriptObjectFactory;
+    const ALineRanges: TArray<TScintLineRange>; const ACaretLine: Integer;
+    const AExpectedReason: TRefusalReason);
+  begin
+    var Entries: TLiveScriptParameterSectionEntries;
+    var Reason: TRefusalReason;
+    Assert(not AFactory.TryCreateParameterSectionEntries(ALineRanges, ACaretLine,
+      Entries, Reason));
+    Assert(Entries = nil);
+    Assert(Reason = AExpectedReason);
+  end;
+
+  procedure AssertEntryLines(const AEntries: TLiveScriptParameterSectionEntries;
+    const AIndex, AExpectedFirstLine, AExpectedLastLine: Integer);
+  begin
+    Assert(AEntries.Entries[AIndex].FirstLine = AExpectedFirstLine);
+    Assert(AEntries.Entries[AIndex].LastLine = AExpectedLastLine);
+  end;
+
+begin
+  const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+    '[Setup]',                              { 0 }
+    'AppName=x',                            { 1 }
+    '[Files]',                              { 2 }
+    'Source: "a.txt"; DestDir: "{app}"',    { 3 }
+    '; a comment in files',                 { 4 }
+    '#define MyDef 1',                      { 5 }
+    '',                                     { 6, blank inside [Files] }
+    'Source: "b.txt"; \',                   { 7, spanned entry }
+    '  DestDir: "{tmp}"; \',                { 8, continuation of line 7 }
+    '  Flags: ignoreversion',               { 9, continuation of line 7 }
+    '[Icons]',                              { 10 }
+    'Name: "{group}\My"; Filename: "x"',    { 11 }
+    '[Files]',                              { 12 }
+    'Source: "c.txt"']);                    { 13 }
+  try
+    const Factory = Context.Factory;
+
+    { Refusals. Mixed selections do not fall back to the caret line, even
+      though inspecting the given caret line would succeed. }
+    AssertRefusal(Factory, [LineRange(3, 99)], 3, rrLineOutOfRange);
+    AssertRefusal(Factory, [LineRange(3, 3), LineRange(11, 11)], 3,
+      rrMixedSelection);                                              { [Files] plus [Icons] entries }
+    AssertRefusal(Factory, [LineRange(1, 3)], 3, rrMixedSelection);   { An entry plus key/value content }
+
+    { Accept: skips the header, comment, ISPP directive, and blank lines,
+      combines the two [Files] occurrences, extends the partially covered
+      spanned entry to all of its lines, and ignores the caret line }
+    var Entries: TLiveScriptParameterSectionEntries;
+    var Reason: TRefusalReason;
+    Assert(Factory.TryCreateParameterSectionEntries(
+      [LineRange(2, 7), LineRange(12, 13)], 1, Entries, Reason));
+    try
+      Assert(Entries.Count = 3);
+      Assert(Entries.Valid);
+      Assert(Entries.Section = scFiles);
+      AssertEntryLines(Entries, 0, 3, 3);
+      AssertEntryLines(Entries, 1, 7, 9);
+      AssertEntryLines(Entries, 2, 13, 13);
+      Assert(Entries.FirstLine = 3); { The primary entry's lines }
+      Assert(Entries.LastLine = 3);
+      var Value: String;
+      Assert(Entries.PrimaryEntry.TryGetValue('Source', Value) and (Value = 'a.txt'));
+      Assert(Entries.Entries[1].Entry.TryGetValue('DestDir', Value) and (Value = '{tmp}'));
+      Assert(Entries.Entries[2].Entry.TryGetValue('Source', Value) and (Value = 'c.txt'));
+    finally
+      Entries.Free;
+    end;
+
+    { Two ranges extending to the same spanned entry yield it once }
+    Assert(Factory.TryCreateParameterSectionEntries(
+      [LineRange(7, 7), LineRange(9, 9)], 7, Entries, Reason));
+    try
+      Assert(Entries.Count = 1);
+      AssertEntryLines(Entries, 0, 7, 9);
+      Assert(Entries.GetFlagCheckState('Flags', -1, 'ignoreversion') = fcsAll);
+    finally
+      Entries.Free;
+    end;
+
+    { Ranges covering a single line inspect the caret line instead, which can
+      be a different line: selecting a whole line leaves the caret below it }
+    Assert(Factory.TryCreateParameterSectionEntries([LineRange(4, 4)], 13,
+      Entries, Reason));
+    try
+      Assert(Entries.Count = 1);
+      AssertEntryLines(Entries, 0, 13, 13);
+    finally
+      Entries.Free;
+    end;
+
+    { A selection without entries falls back to the caret line: to an entry,
+      to a blank line yielding an empty entry, and to a refused line }
+    Assert(Factory.TryCreateParameterSectionEntries([LineRange(4, 6)], 13,
+      Entries, Reason));                    { Only comment/ISPP/blank lines }
+    try
+      Assert(Entries.Count = 1);
+      AssertEntryLines(Entries, 0, 13, 13);
+    finally
+      Entries.Free;
+    end;
+    Assert(Factory.TryCreateParameterSectionEntries([LineRange(0, 1)], 3,
+      Entries, Reason));                    { Only key/value content }
+    try
+      AssertEntryLines(Entries, 0, 3, 3);
+    finally
+      Entries.Free;
+    end;
+    Assert(Factory.TryCreateParameterSectionEntries([LineRange(4, 5)], 6,
+      Entries, Reason));                    { Caret on the blank line }
+    try
+      Assert(Entries.PrimaryEntry.Count = 0);
+    finally
+      Entries.Free;
+    end;
+    AssertRefusal(Factory, [LineRange(4, 6)], 1, rrNotParameterSection); { Caret on key/value content }
   finally
     Context.Free;
   end;
@@ -267,7 +402,7 @@ begin
     try
       var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Context.Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
+      Assert(Context.Factory.TryCreateParameterSectionEntries(nil, 1, Entries, Reason));
       try
         Entries.PrimaryEntry.SetValue(1, '{tmp}');
         Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{tmp}"');
@@ -291,7 +426,7 @@ begin
     try
       var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Context.Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
+      Assert(Context.Factory.TryCreateParameterSectionEntries(nil, 1, Entries, Reason));
       try
         Entries.PrimaryEntry.SetValue(1, '{tmp}');
         Assert(AMemo.Lines.Count = 3);
@@ -316,7 +451,7 @@ begin
     try
       var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Context.Factory.TryCreateParameterSectionEntries(2, Entries, Reason));
+      Assert(Context.Factory.TryCreateParameterSectionEntries(nil, 2, Entries, Reason));
       try
         Entries.PrimaryEntry.Add('Source', 'b.txt');
         Assert(AMemo.Lines.Count = 5);
@@ -351,7 +486,7 @@ begin
     try
       var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Context.Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
+      Assert(Context.Factory.TryCreateParameterSectionEntries(nil, 1, Entries, Reason));
       try
         Assert(Entries.Count = 1);
         Assert(Entries.Valid);
@@ -371,7 +506,7 @@ begin
       end;
 
       { A missing Flags parameter counts as every flag being excluded }
-      Assert(Context.Factory.TryCreateParameterSectionEntries(2, Entries, Reason));
+      Assert(Context.Factory.TryCreateParameterSectionEntries(nil, 2, Entries, Reason));
       try
         Assert(Entries.GetFlagCheckState('Flags', -1, 'ignoreversion') = fcsNone);
       finally
@@ -391,7 +526,7 @@ begin
     try
       var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Context.Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
+      Assert(Context.Factory.TryCreateParameterSectionEntries(nil, 1, Entries, Reason));
       try
         Entries.SetValue('DestDir', 2, '{sys}'); { The hint picks the second occurrence }
         Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{app}"; DestDir: "{sys}"');
@@ -423,7 +558,7 @@ begin
     try
       var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Context.Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
+      Assert(Context.Factory.TryCreateParameterSectionEntries(nil, 1, Entries, Reason));
       try
         Entries.SetFlag('Flags', -1, 'solidbreak', True);
         Assert(AMemo.Lines[1] = 'Source: "a.txt"; Flags: ignoreversion solidbreak');
@@ -437,7 +572,7 @@ begin
         Entries.Free;
       end;
 
-      Assert(Context.Factory.TryCreateParameterSectionEntries(2, Entries, Reason));
+      Assert(Context.Factory.TryCreateParameterSectionEntries(nil, 2, Entries, Reason));
       try
         Entries.SetFlag('Flags', -1, 'solidbreak', False); { Excluding without the parameter is a no-op }
         Entries.SetFlag('Flags', 99, 'solidbreak', True);  { A stale real hint must not add }
@@ -446,6 +581,315 @@ begin
         Assert(AMemo.Lines[2] = 'Source: "b.txt"; Flags: solidbreak');
         AMemo.Undo; { The add plus the include is a single undo action }
         Assert(AMemo.Lines[2] = 'Source: "b.txt"');
+      finally
+        Entries.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+end;
+
+{ The name-plus-index-hint reads and writes of TLiveScriptParameterSectionEntries,
+  exercised with several entries: reads aggregating common, differing, and
+  absent-in-some values and flags, writes applying to every entry with the
+  add-when-absent and flag rules per entry, one undo action per multi-entry
+  write, real index hints resolving per entry, a write that changes the line
+  count shifting the entries still to be written, and the fail-safe when one
+  entry is invalidated }
+procedure TestParameterSectionEntriesMultiEntry(const AMemo: TScintEdit;
+  const AStyler: TInnoSetupStyler);
+begin
+  { Reads: a value common to every entry, values differing between entries
+    (including by case only, the comparison is case-sensitive), a value absent
+    in some entries, and flag check states where a missing Flags parameter
+    counts as every flag being excluded }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',                                                                { 0 }
+      'Source: "same.txt"; DestDir: "{app}"; Flags: ignoreversion solidbreak',  { 1 }
+      'Source: "same.txt"; DestDir: "{tmp}"; Flags: ignoreversion',             { 2 }
+      'Source: "same.txt"; DestDir: "{app}"; DestName: "new.txt"',              { 3 }
+      'Source: "SAME.txt"']);                                                   { 4 }
+    try
+      var Entries: TLiveScriptParameterSectionEntries;
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryCreateParameterSectionEntries([LineRange(1, 3)],
+        1, Entries, Reason));
+      try
+        Assert(Entries.Count = 3);
+        Assert(Entries.GetValue('Source', -1) = 'same.txt'); { Common to every entry }
+        Assert(Entries.GetValue('DestDir', -1) = '');        { Present in every entry but differing }
+        Assert(Entries.GetValue('DestName', -1) = '');       { Absent in some entries }
+        Assert(Entries.GetValue('Flags', -1) = '');          { The Flags parent row: differing }
+        Assert(Entries.MemberPresent('DestName', -1));       { Present in at least one entry }
+        Assert(not Entries.MemberPresent('Missing', -1));
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'ignoreversion') = fcsSome); { The entry without Flags counts as excluded }
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'solidbreak') = fcsSome);
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'external') = fcsNone);
+      finally
+        Entries.Free;
+      end;
+
+      { Restricted to the two entries that both have ignoreversion }
+      Assert(Context.Factory.TryCreateParameterSectionEntries([LineRange(1, 2)],
+        1, Entries, Reason));
+      try
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'ignoreversion') = fcsAll);
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'solidbreak') = fcsSome);
+      finally
+        Entries.Free;
+      end;
+
+      { Values differing by case only are not common }
+      Assert(Context.Factory.TryCreateParameterSectionEntries([LineRange(3, 4)],
+        3, Entries, Reason));
+      try
+        Assert(Entries.GetValue('Source', -1) = '');
+      finally
+        Entries.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { SetValue: sets the value in every entry, adding the parameter where
+    missing, and one undo restores every entry }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"; DestDir: "{app}"',
+      'Source: "b.txt"',
+      'Source: "c.txt"; DestDir: "{tmp}"']);
+    try
+      var Entries: TLiveScriptParameterSectionEntries;
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryCreateParameterSectionEntries([LineRange(1, 3)],
+        1, Entries, Reason));
+      try
+        Assert(Entries.Count = 3);
+        Entries.SetValue('DestDir', -1, '{sys}');
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{sys}"');
+        Assert(AMemo.Lines[2] = 'Source: "b.txt"; DestDir: "{sys}"'); { Added where missing }
+        Assert(AMemo.Lines[3] = 'Source: "c.txt"; DestDir: "{sys}"');
+        Assert(Entries.GetValue('DestDir', -1) = '{sys}'); { Common now }
+        AMemo.Undo; { The whole multi-entry write is a single undo action }
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{app}"');
+        Assert(AMemo.Lines[2] = 'Source: "b.txt"');
+        Assert(AMemo.Lines[3] = 'Source: "c.txt"; DestDir: "{tmp}"');
+        { Don't edit more here: the undo made the entries' models stale }
+      finally
+        Entries.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { SetFlag: includes the flag in every entry with the includes rule applied
+    per entry (createallsubdirs also includes recursesubdirs, already present
+    in one entry), adding the Flags parameter where missing, and one undo
+    restores every entry }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"; Flags: recursesubdirs',
+      'Source: "b.txt"']);
+    try
+      var Entries: TLiveScriptParameterSectionEntries;
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryCreateParameterSectionEntries([LineRange(1, 2)],
+        1, Entries, Reason));
+      try
+        Entries.SetFlag('Flags', -1, 'createallsubdirs', True);
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; Flags: recursesubdirs createallsubdirs');
+        Assert(AMemo.Lines[2] = 'Source: "b.txt"; Flags: createallsubdirs recursesubdirs'); { Flags parameter added, rule ran }
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'createallsubdirs') = fcsAll);
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'recursesubdirs') = fcsAll);
+        AMemo.Undo; { The adds, includes, and rule includes are a single undo action }
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; Flags: recursesubdirs');
+        Assert(AMemo.Lines[2] = 'Source: "b.txt"');
+        { Don't edit more here: the undo made the entries' models stale }
+      finally
+        Entries.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { SetFlag: including a flag included in only some entries (the indeterminate
+    checkbox click) includes it in every entry, with the excludes rule
+    (setntfscompression excludes unsetntfscompression) applied only in the
+    entry that has the excluded flag; excluding then removes it from every
+    entry, removing the Flags parameter where it was the only flag }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"; Flags: setntfscompression solidbreak',
+      'Source: "b.txt"; Flags: unsetntfscompression',
+      'Source: "c.txt"']);
+    try
+      var Entries: TLiveScriptParameterSectionEntries;
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryCreateParameterSectionEntries([LineRange(1, 3)],
+        1, Entries, Reason));
+      try
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'setntfscompression') = fcsSome);
+        Entries.SetFlag('Flags', -1, 'setntfscompression', True);
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; Flags: setntfscompression solidbreak'); { Already included, untouched }
+        Assert(AMemo.Lines[2] = 'Source: "b.txt"; Flags: setntfscompression'); { unsetntfscompression excluded by the rule }
+        Assert(AMemo.Lines[3] = 'Source: "c.txt"; Flags: setntfscompression'); { Flags parameter added }
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'setntfscompression') = fcsAll);
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'unsetntfscompression') = fcsNone);
+        Entries.SetFlag('Flags', -1, 'setntfscompression', False);
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; Flags: solidbreak');
+        Assert(AMemo.Lines[2] = 'Source: "b.txt"'); { The whole Flags parameter removed }
+        Assert(AMemo.Lines[3] = 'Source: "c.txt"');
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'setntfscompression') = fcsNone);
+      finally
+        Entries.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { Remove: removes the parameter from every entry where it is present,
+    leaving the other entries untouched }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"; DestDir: "{app}"; Flags: ignoreversion',
+      'Source: "b.txt"',
+      'Source: "c.txt"; DestDir: "{tmp}"']);
+    try
+      var Entries: TLiveScriptParameterSectionEntries;
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryCreateParameterSectionEntries([LineRange(1, 3)],
+        1, Entries, Reason));
+      try
+        Assert(Entries.MemberPresent('DestDir', -1));
+        Entries.Remove('DestDir', -1);
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; Flags: ignoreversion');
+        Assert(AMemo.Lines[2] = 'Source: "b.txt"');
+        Assert(AMemo.Lines[3] = 'Source: "c.txt"');
+        Assert(not Entries.MemberPresent('DestDir', -1));
+      finally
+        Entries.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { A real (non-negative) index hint applies per entry with TryResolve
+    semantics: it keeps the occurrence at the hint where the name matches
+    (disambiguating a duplicated name in the primary entry), falls back to
+    name lookup where it does not, and never adds where the parameter is
+    missing }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',                                              { 0 }
+      'Source: "a.txt"; DestDir: "{app}"; DestDir: "{sys}"',  { 1 }
+      'Source: "b.txt"; DestDir: "{sys}"; DestName: "n.txt"', { 2, index 2 names a different parameter }
+      'Source: "c.txt"']);                                    { 3 }
+    try
+      var Entries: TLiveScriptParameterSectionEntries;
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryCreateParameterSectionEntries([LineRange(1, 2)],
+        1, Entries, Reason));
+      try
+        { The hint picks the second occurrence in the first entry and falls
+          back to the name in the second, so the common value is 'sys' even
+          though the first entry's first occurrence is 'app' }
+        Assert(Entries.GetValue('DestDir', 2) = '{sys}');
+      finally
+        Entries.Free;
+      end;
+
+      Assert(Context.Factory.TryCreateParameterSectionEntries([LineRange(1, 3)],
+        1, Entries, Reason));
+      try
+        Entries.SetValue('DestDir', 2, '{tmp}');
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{app}"; DestDir: "{tmp}"');
+        Assert(AMemo.Lines[2] = 'Source: "b.txt"; DestDir: "{tmp}"; DestName: "n.txt"');
+        Assert(AMemo.Lines[3] = 'Source: "c.txt"'); { A real hint must not add }
+      finally
+        Entries.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { A write that changes the line count: removing the only spanned parameter
+    of the first entry shrinks it to one line, and the following entry's write
+    must land on its shifted line. One undo restores both entries. }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',                            { 0 }
+      'Source: "a.txt"; \',                 { 1, spanned entry }
+      '  DestDir: "{app}"',                 { 2, continuation of line 1 }
+      'Source: "b.txt"; DestDir: "{tmp}"']); { 3 }
+    try
+      var Entries: TLiveScriptParameterSectionEntries;
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryCreateParameterSectionEntries([LineRange(1, 3)],
+        1, Entries, Reason));
+      try
+        Assert(Entries.Count = 2);
+        Assert(Entries.Entries[1].FirstLine = 3);
+        Entries.Remove('DestDir', -1);
+        Assert(AMemo.Lines.Count = 3);
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"');
+        Assert(AMemo.Lines[2] = 'Source: "b.txt"');
+        Assert(Entries.Valid);
+        Assert(Entries.Entries[1].FirstLine = 2); { Shifted by the first entry's write }
+        AMemo.Undo; { Both writes are a single undo action }
+        Assert(AMemo.Lines.Count = 4);
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; \');
+        Assert(AMemo.Lines[2] = '  DestDir: "{app}"');
+        Assert(AMemo.Lines[3] = 'Source: "b.txt"; DestDir: "{tmp}"');
+        { Don't edit more here: the undo made the entries' models stale }
+      finally
+        Entries.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { One entry becoming invalid makes the whole container invalid: reads fail
+    safe and writes are no-ops, while the surviving entries stay individually
+    valid }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Files]',
+      'Source: "a.txt"; DestDir: "{app}"; Flags: ignoreversion',
+      'Source: "b.txt"; DestDir: "{app}"; Flags: ignoreversion',
+      'Source: "c.txt"; DestDir: "{app}"; Flags: ignoreversion']);
+    try
+      var Entries: TLiveScriptParameterSectionEntries;
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryCreateParameterSectionEntries([LineRange(1, 3)],
+        1, Entries, Reason));
+      try
+        Assert(Entries.GetValue('DestDir', -1) = '{app}');
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'ignoreversion') = fcsAll);
+        AMemo.ReplaceTextRange(AMemo.GetPositionFromLine(2),
+          AMemo.GetPositionFromLine(3), ''); { Delete the middle entry's line }
+        Assert(not Entries.Valid);
+        Assert(Entries.Entries[0].Valid);
+        Assert(not Entries.Entries[1].Valid);
+        Assert(Entries.Entries[2].Valid);
+        Assert(Entries.GetValue('DestDir', -1) = '');
+        Assert(Entries.GetFlagCheckState('Flags', -1, 'ignoreversion') = fcsNone);
+        Assert(not Entries.MemberPresent('DestDir', -1));
+        Entries.SetValue('DestDir', -1, '{tmp}'); { Writes are no-ops }
+        Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{app}"; Flags: ignoreversion');
+        Assert(AMemo.Lines[2] = 'Source: "c.txt"; DestDir: "{app}"; Flags: ignoreversion');
       finally
         Entries.Free;
       end;
@@ -748,7 +1192,7 @@ begin
       Assert(Factory.SectionCount = 1); { Build the index before editing }
       var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
+      Assert(Factory.TryCreateParameterSectionEntries(nil, 1, Entries, Reason));
       try
         Assert(Entries.FirstLine = 1);
         Assert(Entries.LastLine = 1);
@@ -781,7 +1225,7 @@ begin
       Assert(Factory.SectionCount = 1);
       var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateParameterSectionEntries(2, Entries, Reason));
+      Assert(Factory.TryCreateParameterSectionEntries(nil, 2, Entries, Reason));
       try
         Assert(Entries.FirstLine = 2);
         AMemo.ReplaceTextRange(AMemo.GetPositionFromLine(2),
@@ -792,7 +1236,7 @@ begin
       end;
       { Line 2 now holds the former line 3 and is still parseable }
       var NewEntries: TLiveScriptParameterSectionEntries;
-      Assert(Factory.TryCreateParameterSectionEntries(2, NewEntries, Reason));
+      Assert(Factory.TryCreateParameterSectionEntries(nil, 2, NewEntries, Reason));
       try
         var Value: String;
         Assert(NewEntries.PrimaryEntry.TryGetValue('Source', Value) and (Value = 'c.txt'));
@@ -815,7 +1259,7 @@ begin
       Assert(Factory.SectionCount = 1);
       var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
+      Assert(Factory.TryCreateParameterSectionEntries(nil, 1, Entries, Reason));
       try
         const SplitPos = AMemo.GetPositionFromLine(1) + Length('Source: "a.txt";');
         AMemo.ReplaceTextRange(SplitPos, SplitPos, EOL);
@@ -846,7 +1290,7 @@ begin
       Assert(Factory.SectionCount = 1);
       var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
+      Assert(Factory.TryCreateParameterSectionEntries(nil, 1, Entries, Reason));
       try
         Assert(Entries.FirstLine = 1);
         Assert(Entries.LastLine = 2);
@@ -880,7 +1324,7 @@ begin
       Assert(Factory.SectionCount = 1);
       var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
+      Assert(Factory.TryCreateParameterSectionEntries(nil, 1, Entries, Reason));
       try
         const Pos = AMemo.GetPositionFromLine(2);
         AMemo.ReplaceTextRange(Pos, Pos, 'Source: "new.txt"' + EOL);
@@ -907,7 +1351,7 @@ begin
       Assert(Factory.SectionCount = 1);
       var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
+      Assert(Factory.TryCreateParameterSectionEntries(nil, 1, Entries, Reason));
       try
         AMemo.ReplaceTextRange(AMemo.GetLineEndPosition(1),
           AMemo.GetPositionFromLine(2), ''); { Join line 2 into line 1 }
@@ -958,7 +1402,7 @@ begin
       Assert(Factory.SectionCount = 1);
       var Entries: TLiveScriptParameterSectionEntries;
       var Reason: TRefusalReason;
-      Assert(Factory.TryCreateParameterSectionEntries(1, Entries, Reason));
+      Assert(Factory.TryCreateParameterSectionEntries(nil, 1, Entries, Reason));
       try
         Assert(Entries.Valid);
         Factory.InvalidateIndex;
@@ -984,8 +1428,10 @@ begin
     TestSectionIndexing(AMemo, AStyler);
     TestTryGetSectionAtLine(AMemo, AStyler);
     TestTryCreateParameterSectionEntries(AMemo, AStyler);
+    TestTryCreateParameterSectionEntriesFromLineRanges(AMemo, AStyler);
     TestEntryRoundTrip(AMemo, AStyler);
     TestParameterSectionEntries(AMemo, AStyler);
+    TestParameterSectionEntriesMultiEntry(AMemo, AStyler);
     TestKeyValueSections(AMemo, AStyler);
     TestKeyValueSectionReadsAndWrites(AMemo, AStyler);
     TestEditTracking(AMemo, AStyler);
