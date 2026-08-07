@@ -323,6 +323,8 @@ type
   end;
 
   TJvInspectorBooleanItem = class(TJvCustomInspectorItem)
+  public
+    const IndeterminateOrdinal = 2; { AsOrdinal value showing an indeterminate checkbox }
   private
     FClickRect: TRect;
     FCheckPressed: Boolean;
@@ -437,6 +439,21 @@ begin
         Btn := tbCheckBoxCheckedPressed
       else
         Btn := tbCheckBoxCheckedNormal
+    else if uState and DFCS_PUSHED <> 0 then
+      Btn := tbCheckBoxUncheckedPressed { See above }
+    else
+      Btn := tbCheckBoxUncheckedNormal;
+
+    DrawElementPreservingDCState(DC, StyleServices.GetElementDetails(Btn), R, DPI);
+    Result := True;
+  end else if StyleServices.Enabled and (uType = DFC_BUTTON) and
+     ((uState and Mask) = DFCS_BUTTON3STATE) then begin
+    R := Rect;
+    if uState and DFCS_CHECKED <> 0 then
+      if uState and DFCS_PUSHED <> 0 then
+        Btn := tbCheckBoxMixedPressed { See above }
+      else
+        Btn := tbCheckBoxMixedNormal
     else if uState and DFCS_PUSHED <> 0 then
       Btn := tbCheckBoxUncheckedPressed { See above }
     else
@@ -2615,7 +2632,8 @@ end;
 
 procedure TJvInspectorBooleanItem.Toggle;
 begin
-  const Bool = not (AsOrdinal <> Ord(False));
+  { Unchecked and indeterminate both toggle to checked }
+  const Bool = AsOrdinal <> Ord(True);
   AsOrdinal := Ord(Bool);
   InvalidateItem;
   if Inspector <> nil then
@@ -2708,7 +2726,6 @@ end;
 
 procedure TJvInspectorBooleanItem.DrawValue(const ACanvas: TCanvas);
 var
-  Bool: Boolean;
   ARect: TRect;
   SaveIndex: Integer;
   BoxSize: Integer;
@@ -2716,7 +2733,9 @@ var
   LabelText: string;
   LabelRect: TRect;
 begin
-  Bool := AsOrdinal <> Ord(False);
+  const Ordinal = AsOrdinal;
+  const IsMixed = Ordinal = IndeterminateOrdinal;
+  const IsTrue = Ordinal = Ord(True);
 
   if Editing then
     ACanvas.Brush.Color := Inspector.BackgroundColor;
@@ -2734,16 +2753,22 @@ begin
   try
     IntersectClipRect(ACanvas.Handle, CheckRect.Left, CheckRect.Top,
       CheckRect.Right, CheckRect.Bottom);
-    BFlags := DFCS_BUTTONCHECK;
-    if Bool then
-      BFlags := BFlags or DFCS_CHECKED;
+    if IsMixed then
+      BFlags := DFCS_BUTTON3STATE or DFCS_CHECKED
+    else begin
+      BFlags := DFCS_BUTTONCHECK;
+      if IsTrue then
+        BFlags := BFlags or DFCS_CHECKED;
+    end;
     if FCheckPressed then
       BFlags := BFlags or DFCS_PUSHED; { See DrawThemedFrameControl for VCL Styles limitation }
     DrawThemedFrameControl(ACanvas.Handle, ARect, DFC_BUTTON, BFlags, Inspector.CurrentPPI);
   finally
     RestoreDC(ACanvas.Handle, SaveIndex);
   end;
-  if Bool then
+  if IsMixed then
+    LabelText := ''
+  else if IsTrue then
     LabelText := 'yes'
   else
     LabelText := 'no';
@@ -2759,7 +2784,7 @@ begin
   finally
     ACanvas.Brush.Style := bsSolid;
   end;
-  if Inspector.Focused and (Inspector.Selected = Self) and
+  if (LabelText <> '') and Inspector.Focused and (Inspector.Selected = Self) and
      (SendMessage(Inspector.Handle, WM_QUERYUISTATE, 0, 0) and UISF_HIDEFOCUS = 0) then begin
     var FocusRect := Rect(LabelRect.Left, TextTop,
       LabelRect.Left + ACanvas.TextWidth(LabelText), TextTop + ACanvas.TextHeight(LabelText));

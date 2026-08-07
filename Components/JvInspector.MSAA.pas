@@ -442,10 +442,11 @@ begin
     try
       if Item is TJvInspectorBooleanItem then begin
         if TJvCustomInspectorItemAccess(Item).CanEdit then begin
-          if TJvCustomInspectorItemAccess(Item).AsOrdinal <> Ord(False) then
-            pszDefaultAction := RsJvInspUncheck
+          { Matches Toggle: unchecked and indeterminate both check }
+          if TJvCustomInspectorItemAccess(Item).AsOrdinal <> Ord(True) then
+            pszDefaultAction := RsJvInspCheck
           else
-            pszDefaultAction := RsJvInspCheck;
+            pszDefaultAction := RsJvInspUncheck;
           Exit;
         end;
       end else if Item.Count > 0 then begin
@@ -608,7 +609,10 @@ begin
   end;
   if Item is TJvInspectorBooleanItem then begin
     try
-      if TJvCustomInspectorItemAccess(Item).AsOrdinal <> Ord(False) then
+      const Ordinal = TJvCustomInspectorItemAccess(Item).AsOrdinal;
+      if Ordinal = TJvInspectorBooleanItem.IndeterminateOrdinal then
+        State := State or STATE_SYSTEM_MIXED
+      else if Ordinal = Ord(True) then
         State := State or STATE_SYSTEM_CHECKED;
     except
       Exit(E_INVALIDARG);
@@ -631,8 +635,12 @@ begin
     const Item = FControl.GetVisibleItems(Index);
     if Item is TJvInspectorBooleanItem then begin
       { Boolean rows have an empty DisplayValue, so report the matching
-        script text, not localized }
-      if TJvCustomInspectorItemAccess(Item).AsOrdinal <> Ord(False) then
+        script text, not localized. An indeterminate row reports blank,
+        matching its blank label }
+      const Ordinal = TJvCustomInspectorItemAccess(Item).AsOrdinal;
+      if Ordinal = TJvInspectorBooleanItem.IndeterminateOrdinal then
+        pszValue := ''
+      else if Ordinal = Ord(True) then
         pszValue := 'yes'
       else
         pszValue := 'no';
