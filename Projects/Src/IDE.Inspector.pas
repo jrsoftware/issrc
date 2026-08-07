@@ -66,6 +66,8 @@ type
       FLiveKeyValueSectionIndex: Integer; { Factory section index it was created for }
       FChangeCountAtCreation: Int64; { Factory ChangeCount at the live object's creation }
       FSelectionLineRangesAtCreation: TArray<TScintLineRange>; { GetSelectionLineRanges result at the live object's creation }
+      FIndividualSelectionLineRangesAtCreation: TArray<TScintLineRange>; { Same but the individual line ranges }
+      FCaretLineAtCreation: Integer; { Memo CaretLine at the live object's creation }
       FMixedSelection: Boolean;
       FRows: TList<TInspectorRow>;
       FRowSetSignature: String;
@@ -1426,14 +1428,23 @@ begin
   FJvInspector.ReadOnly := FFactory.Memo.ReadOnly;
 
   const CaretLine = FFactory.Memo.CaretLine;
-  const SelectionLineRanges = FFactory.Memo.GetSelectionLineRanges;
+  var IndividualSelectionLineRanges: TArray<TScintLineRange>;
+  const SelectionLineRanges = FFactory.Memo.GetSelectionLineRanges(
+    IndividualSelectionLineRanges);
   { If the selection covers several lines now, or did when the live objects
     were created, the caret no longer tells whether the objects are stale, so
-    the early exits below must compare the selection instead }
+    the early exits below must compare the selection instead. The caret line
+    is still compared as well: it decides the fallback to single-entry
+    editing when the selection doesn't actually contain entries, and it can
+    change while both range sets stay identical, for example because
+    GetSelectionLineRange drops the end line when a selection ends at the
+    start of it. }
   const UseSelectionTest = LineRangesCoverMultipleLines(SelectionLineRanges) or
     LineRangesCoverMultipleLines(FSelectionLineRangesAtCreation);
   const SelectionTestPassed = UseSelectionTest and
-    LineRangesEqual(SelectionLineRanges, FSelectionLineRangesAtCreation);
+    LineRangesEqual(SelectionLineRanges, FSelectionLineRangesAtCreation) and
+    LineRangesEqual(IndividualSelectionLineRanges, FIndividualSelectionLineRangesAtCreation) and
+    (CaretLine = FCaretLineAtCreation);
 
   { Without a memo change or a forced rebuild, a caret move within the same
     entry or key/value section, or an unchanged multi-line selection, changes
@@ -1480,11 +1491,13 @@ begin
   var RowSetSignature: String; { The actual value this gets doesn't matter, as long as it's unique for any unique row set }
   var Entries: TLiveScriptParameterSectionEntries;
   var EntryRefusalReason: TRefusalReason;
-  if FFactory.TryCreateParameterSectionEntries(SelectionLineRanges, CaretLine,
-       Entries, EntryRefusalReason) then begin
+  if FFactory.TryCreateParameterSectionEntries(SelectionLineRanges,
+       IndividualSelectionLineRanges, CaretLine, Entries, EntryRefusalReason) then begin
     FLiveParameterSectionEntries := Entries;
     FChangeCountAtCreation := FFactory.ChangeCount;
     FSelectionLineRangesAtCreation := SelectionLineRanges;
+    FIndividualSelectionLineRangesAtCreation := IndividualSelectionLineRanges;
+    FCaretLineAtCreation := CaretLine;
     FLiveParameterSectionEntries.QuoteNewValues := FQuoteNewParameterValues;
     const SectionName = SectionToSectionName(FLiveParameterSectionEntries.Section);
     {$IFDEF DEBUG}
@@ -1517,6 +1530,8 @@ begin
       FLiveKeyValueSectionIndex := SectionIndex;
       FChangeCountAtCreation := FFactory.ChangeCount;
       FSelectionLineRangesAtCreation := SelectionLineRanges;
+      FIndividualSelectionLineRangesAtCreation := IndividualSelectionLineRanges;
+      FCaretLineAtCreation := CaretLine;
       FLiveKeyValueSectionName := Header.Name;
       FLiveKeyValueSectionIsDirectiveSection := Header.Section in DirectiveSections;
       FLiveKeyValueSection.QuoteNewValues := FQuoteNewDirectiveValues and
@@ -1552,6 +1567,8 @@ begin
     end else begin
       { Prefer the entry refusal }
       FSelectionLineRangesAtCreation := [];
+      FIndividualSelectionLineRangesAtCreation := [];
+      FCaretLineAtCreation := -1;
       FMixedSelection := EntryRefusalReason = rrMixedSelection;
       {$IFDEF DEBUG}
       FDebugStatusRowString := RefusalReasonToString(EntryRefusalReason);

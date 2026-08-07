@@ -320,7 +320,9 @@ type
     function GetPositionRelativeCodeUnits(const Pos, CodeUnitCount: Integer): Integer;
     function GetRawTextLength: Integer;
     function GetRawTextRange(const StartPos, EndPos: Integer): TScintRawString;
-    function GetSelectionLineRanges: TArray<TScintLineRange>;
+    function GetSelectionLineRanges: TArray<TScintLineRange>; overload;
+    function GetSelectionLineRanges(
+      out AIndividualLineRanges: TArray<TScintLineRange>): TArray<TScintLineRange>; overload;
     procedure GetSelections(const RangeList: TScintRangeList); overload;
     procedure GetSelections(const CaretAndAnchorList: TScintCaretAndAnchorList); overload;
     procedure GetSelections(const CaretAndAnchorList, VirtualSpacesList: TScintCaretAndAnchorList); overload;
@@ -1468,9 +1470,18 @@ begin
 end;
 
 function TScintEdit.GetSelectionLineRanges: TArray<TScintLineRange>;
+begin
+  var IndividualLineRanges: TArray<TScintLineRange>;
+  Result := GetSelectionLineRanges(IndividualLineRanges);
+end;
+
+function TScintEdit.GetSelectionLineRanges(
+  out AIndividualLineRanges: TArray<TScintLineRange>): TArray<TScintLineRange>;
 { Returns the line ranges of all selections, sorted, with overlapping and
-  adjacent ranges merged into one. For multi-line selections the end line is
-  dropped when the selection ends at the start of that line. }
+  adjacent ranges merged into one, also returning the individual line ranges
+  before merging, equally sorted. For multi-line selections the end line is
+  dropped when the selection ends at the start of that line.
+  Note: Returned ranges may reference same array storage, so don't edit them. }
 
   function GetSelectionLineRange(const Selection: Integer): TScintLineRange;
   begin
@@ -1495,6 +1506,8 @@ begin
       begin
         Result := CompareValue(A.StartLine, B.StartLine);
       end));
+    { Keep the individual line ranges: a copy because merging edits elements }
+    AIndividualLineRanges := Copy(LineRanges);
     { Merge overlapping and adjacent ranges }
     var MergedCount := 1;
     for var I := 1 to SelectionCount-1 do begin
@@ -1507,7 +1520,8 @@ begin
       end;
     end;
     SetLength(LineRanges, MergedCount);
-  end;
+  end else
+    AIndividualLineRanges := LineRanges;
   Result := LineRanges;
 end;
 

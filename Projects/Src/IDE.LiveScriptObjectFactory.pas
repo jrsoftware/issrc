@@ -175,7 +175,8 @@ type
       out AValue: String): Boolean;
     { ARefusalReason is only set when the result is False }
     function TryCreateParameterSectionEntries(
-      const ALineRanges: TArray<TScintLineRange>; const ACaretLine: Integer;
+      const ALineRanges, AIndividualLineRanges: TArray<TScintLineRange>;
+      const ACaretLine: Integer;
       out AEntries: TLiveScriptParameterSectionEntries;
       out ARefusalReason: TRefusalReason): Boolean;
     function TryCreateKeyValueSection(const ASectionIndex: Integer;
@@ -948,16 +949,35 @@ begin
     Result := False;
 end;
 
+type
+  TExtendedLineRange = record
+    LineRange: TScintLineRange;
+    CreatedFromBlankLine: Boolean;
+  end;
+
 function TLiveScriptObjectFactory.TryCreateParameterSectionEntries(
-  const ALineRanges: TArray<TScintLineRange>; const ACaretLine: Integer;
+  const ALineRanges, AIndividualLineRanges: TArray<TScintLineRange>;
+  const ACaretLine: Integer;
   out AEntries: TLiveScriptParameterSectionEntries;
   out ARefusalReason: TRefusalReason): Boolean;
-{ ALineRanges must be sorted and merged, as returned by
-  TScintEdit.GetSelectionLineRanges. When it covers one line or none, or
-  contains no entries, ACaretLine is inspected instead. That line can lie
+{ ALineRanges must be sorted and merged and AIndividualLineRanges must contain
+  the individual line ranges before merging, both as returned by
+  TScintEdit.GetSelectionLineRanges. When ALineRanges covers one line or none,
+  or contains no entries, ACaretLine is inspected instead. That line can lie
   outside the ranges: Scintilla's Select Line commands like triple click
   select one line but leave the caret below it, and inspection follows the
   caret. }
+
+  function AnySelectionWithinLines(const AFirstLine, ALastLine: Integer): Boolean;
+  { Returns True when there was an individual selection within the given lines.
+    Note that in Scintilla a regular caret is an empty selection. }
+  begin
+    Result := False;
+    for var LineRange in AIndividualLineRanges do
+      if (LineRange.StartLine >= AFirstLine) and (LineRange.EndLine <= ALastLine) then
+        Exit(True);
+  end;
+
 begin
   AEntries := nil;
   Result := False;
@@ -976,7 +996,7 @@ begin
   end;
 
   if CoveredLineCount > 1 then begin
-    const EntryLineRanges = TList<TScintLineRange>.Create;
+    const EntryLineRanges = TList<TExtendedLineRange>.Create;
     try
       { Collect the entry line ranges, creating no objects yet }
       var EntriesSection := scNone;
@@ -995,11 +1015,16 @@ begin
           var HeaderSection: TInnoSetupSection;
           if TInnoSetupStyler.LineSectionHeader(FMemo.Lines.State[FirstLine], HeaderSection) then
             Continue;
-          { Skip blank lines, comments, and ISPP directive lines }
-          if ClassifyScriptLine(JoinSpannedScriptLines(
-               GetLinesText(FirstLine, LastLine))) <> slkActual then
-            Continue;
+          { Skip blank lines, comments, and ISPP directive lines, except a
+            blank line in a parameter section with a selection of its own:
+            this is so a new entry can be created on a blank line, same as
+            in single-entry path below }
           const Section = TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[FirstLine]);
+          const EntryLines = GetLinesText(FirstLine, LastLine);
+          const LineKind = ClassifyScriptLine(JoinSpannedScriptLines(EntryLines));
+          if (LineKind <> slkActual) and
+             ((LineKind <> slkBlank) or not (Section in ParameterSections) or not AnySelectionWithinLines(FirstLine, LastLine)) then
+            Continue;
           if Section in ParameterSections then begin
             if EntriesSection = scNone then
               EntriesSection := Section
@@ -1007,9 +1032,10 @@ begin
               ARefusalReason := rrMixedSelection;
               Exit;
             end;
-            var EntryLineRange: TScintLineRange;
-            EntryLineRange.StartLine := FirstLine;
-            EntryLineRange.EndLine := LastLine;
+            var EntryLineRange: TExtendedLineRange;
+            EntryLineRange.LineRange.StartLine := FirstLine;
+            EntryLineRange.LineRange.EndLine := LastLine;
+            EntryLineRange.CreatedFromBlankLine := LineKind = slkBlank;
             EntryLineRanges.Add(EntryLineRange);
           end else
             HasOtherActualContent := True;
@@ -1024,9 +1050,11 @@ begin
         var Metadata: TScriptModelSectionMetadata := nil;
         TryGetScriptModelSectionMetadata(SectionToSectionName(EntriesSection), Metadata);
         for var EntryLineRange in EntryLineRanges do begin
+          const LineRange = EntryLineRange.LineRange;
           const Entry = TLiveScriptParameterSectionEntry.Create(Self,
-            EntryLineRange.StartLine, EntryLineRange.EndLine, EntriesSection, Metadata,
-            GetLinesText(EntryLineRange.StartLine, EntryLineRange.EndLine), False);
+            LineRange.StartLine, LineRange.EndLine, EntriesSection, Metadata,
+            GetLinesText(LineRange.StartLine, LineRange.EndLine),
+            EntryLineRange.CreatedFromBlankLine);
           if AEntries = nil then
             AEntries := TLiveScriptParameterSectionEntries.Create(Entry)
           else
@@ -1060,7 +1088,8 @@ begin
   const EntryLines = GetLinesText(FirstLine, LastLine);
   const LineKind = ClassifyScriptLine(JoinSpannedScriptLines(EntryLines));
   case LineKind of
-  { slkBlank is not refused. This is so a new entry can be created on a blank line. }
+  { slkBlank is not refused. This is so a new entry can be created on a blank line,
+    same as in multi-entry path above. }
     slkComment:
       begin
         ARefusalReason := rrComment;
