@@ -914,8 +914,8 @@ procedure TInspector.UpdateFromCaret;
   begin
     if FLiveParameterSectionEntries.Count = 1 then begin
       FDebugStatusRowString := Format('[%s] entry at lines %d-%d',
-        [ASectionName, FLiveParameterSectionEntries.FirstLine+1,
-         FLiveParameterSectionEntries.LastLine+1]);
+        [ASectionName, FLiveParameterSectionEntries.PrimaryFirstLine+1,
+         FLiveParameterSectionEntries.PrimaryLastLine+1]);
     end else begin
       FDebugStatusRowString := Format('[%s] %d entries at lines',
         [ASectionName, FLiveParameterSectionEntries.Count]);
@@ -1444,8 +1444,8 @@ begin
      (FRowSetSignature <> '') and not LiveObjectTextChanged and
      (SelectionTestPassed or
       (not UseSelectionTest and
-       (CaretLine >= FLiveParameterSectionEntries.FirstLine) and
-       (CaretLine <= FLiveParameterSectionEntries.LastLine))) then begin
+       (CaretLine >= FLiveParameterSectionEntries.PrimaryFirstLine) and
+       (CaretLine <= FLiveParameterSectionEntries.PrimaryLastLine))) then begin
     UpdateCaretAt;
     {$IFDEF DEBUG}
     Inc(FUpdateFromCaretEarlyExitCount);

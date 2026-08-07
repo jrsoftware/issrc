@@ -80,9 +80,9 @@ type
     procedure EndUndoAction;
     function GetCount: Integer;
     function GetEntry(Index: Integer): TLiveScriptParameterSectionEntry;
-    function GetFirstLine: Integer;
-    function GetLastLine: Integer;
     function GetPrimaryEntry: TScriptModelParameterSectionEntry;
+    function GetPrimaryFirstLine: Integer;
+    function GetPrimaryLastLine: Integer;
     function GetSection: TInnoSetupSection;
     function GetValid: Boolean;
     procedure SetQuoteNewValues(const Value: Boolean);
@@ -103,13 +103,11 @@ type
     procedure Remove(const AName: String; const AIndexHint: Integer);
     property Count: Integer read GetCount;
     property Entries[Index: Integer]: TLiveScriptParameterSectionEntry read GetEntry;
-    { FirstLine and LastLine are the primary entry's lines: they are not a
-      range covering all entries }
-    property FirstLine: Integer read GetFirstLine;
-    property LastLine: Integer read GetLastLine;
     { The first entry's model. Metadata is common to all entries, so definition
       lookups for any entry can use it. }
     property PrimaryEntry: TScriptModelParameterSectionEntry read GetPrimaryEntry;
+    property PrimaryFirstLine: Integer read GetPrimaryFirstLine;
+    property PrimaryLastLine: Integer read GetPrimaryLastLine;
     property QuoteNewValues: Boolean write SetQuoteNewValues;
     property Section: TInnoSetupSection read GetSection;
     property Valid: Boolean read GetValid;
@@ -408,19 +406,19 @@ begin
   Result := FItems[Index];
 end;
 
-function TLiveScriptParameterSectionEntries.GetFirstLine: Integer;
+function TLiveScriptParameterSectionEntries.GetPrimaryEntry: TScriptModelParameterSectionEntry;
+begin
+  Result := FItems[0].Entry;
+end;
+
+function TLiveScriptParameterSectionEntries.GetPrimaryFirstLine: Integer;
 begin
   Result := FItems[0].FirstLine;
 end;
 
-function TLiveScriptParameterSectionEntries.GetLastLine: Integer;
+function TLiveScriptParameterSectionEntries.GetPrimaryLastLine: Integer;
 begin
   Result := FItems[0].LastLine;
-end;
-
-function TLiveScriptParameterSectionEntries.GetPrimaryEntry: TScriptModelParameterSectionEntry;
-begin
-  Result := FItems[0].Entry;
 end;
 
 function TLiveScriptParameterSectionEntries.GetSection: TInnoSetupSection;

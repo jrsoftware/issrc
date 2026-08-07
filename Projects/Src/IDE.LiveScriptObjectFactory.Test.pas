@@ -324,8 +324,8 @@ begin
       AssertEntryLines(Entries, 0, 3, 3);
       AssertEntryLines(Entries, 1, 7, 9);
       AssertEntryLines(Entries, 2, 13, 13);
-      Assert(Entries.FirstLine = 3); { The primary entry's lines }
-      Assert(Entries.LastLine = 3);
+      Assert(Entries.PrimaryFirstLine = 3);
+      Assert(Entries.PrimaryLastLine = 3);
       var Value: String;
       Assert(Entries.PrimaryEntry.TryGetValue('Source', Value) and (Value = 'a.txt'));
       Assert(Entries.Entries[1].Entry.TryGetValue('DestDir', Value) and (Value = '{tmp}'));
@@ -1194,14 +1194,14 @@ begin
       var Reason: TRefusalReason;
       Assert(Factory.TryCreateParameterSectionEntries(nil, 1, Entries, Reason));
       try
-        Assert(Entries.FirstLine = 1);
-        Assert(Entries.LastLine = 1);
+        Assert(Entries.PrimaryFirstLine = 1);
+        Assert(Entries.PrimaryLastLine = 1);
         const ChangeCountBefore = Factory.ChangeCount;
         AMemo.ReplaceTextRange(0, 0, 'X' + EOL); { Insert a line at the top }
         Assert(Factory.ChangeCount > ChangeCountBefore);
         Assert(Entries.Valid);
-        Assert(Entries.FirstLine = 2);
-        Assert(Entries.LastLine = 2);
+        Assert(Entries.PrimaryFirstLine = 2);
+        Assert(Entries.PrimaryLastLine = 2);
         Assert(Factory.SectionCount = 1);
         Assert(Factory.SectionHeaders[0].Line = 1); { [Files] header shifted down }
       finally
@@ -1227,7 +1227,7 @@ begin
       var Reason: TRefusalReason;
       Assert(Factory.TryCreateParameterSectionEntries(nil, 2, Entries, Reason));
       try
-        Assert(Entries.FirstLine = 2);
+        Assert(Entries.PrimaryFirstLine = 2);
         AMemo.ReplaceTextRange(AMemo.GetPositionFromLine(2),
           AMemo.GetPositionFromLine(3), ''); { Delete line 2 }
         Assert(not Entries.Valid);
@@ -1265,8 +1265,8 @@ begin
         AMemo.ReplaceTextRange(SplitPos, SplitPos, EOL);
         Assert(AMemo.Lines.Count = 3);
         Assert(Entries.Valid);
-        Assert(Entries.FirstLine = 1);
-        Assert(Entries.LastLine = 2);
+        Assert(Entries.PrimaryFirstLine = 1);
+        Assert(Entries.PrimaryLastLine = 2);
         Entries.PrimaryEntry.SetValue(1, '{tmp}');
         Assert(AMemo.Lines.Count = 2);
         Assert(AMemo.Lines[1] = 'Source: "a.txt"; DestDir: "{tmp}"');
@@ -1292,14 +1292,14 @@ begin
       var Reason: TRefusalReason;
       Assert(Factory.TryCreateParameterSectionEntries(nil, 1, Entries, Reason));
       try
-        Assert(Entries.FirstLine = 1);
-        Assert(Entries.LastLine = 2);
+        Assert(Entries.PrimaryFirstLine = 1);
+        Assert(Entries.PrimaryLastLine = 2);
         const SplitPos = AMemo.GetPositionFromLine(2) + Length('  DestDir: "{app}";');
         AMemo.ReplaceTextRange(SplitPos, SplitPos, EOL);
         Assert(AMemo.Lines.Count = 4);
         Assert(Entries.Valid);
-        Assert(Entries.FirstLine = 1);
-        Assert(Entries.LastLine = 3);
+        Assert(Entries.PrimaryFirstLine = 1);
+        Assert(Entries.PrimaryLastLine = 3);
         Entries.PrimaryEntry.SetValue(1, '{tmp}');
         Assert(AMemo.Lines.Count = 3);
         Assert(AMemo.Lines[1] = 'Source: "a.txt"; \');
@@ -1329,8 +1329,8 @@ begin
         const Pos = AMemo.GetPositionFromLine(2);
         AMemo.ReplaceTextRange(Pos, Pos, 'Source: "new.txt"' + EOL);
         Assert(Entries.Valid);
-        Assert(Entries.FirstLine = 1);
-        Assert(Entries.LastLine = 1);
+        Assert(Entries.PrimaryFirstLine = 1);
+        Assert(Entries.PrimaryLastLine = 1);
       finally
         Entries.Free;
       end;
