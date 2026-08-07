@@ -622,6 +622,115 @@ begin
   end;
 end;
 
+{ The name-plus-index-hint reads and writes of TLiveScriptKeyValueSection:
+  reads, and writes with their add-when-absent rules, which unlike the
+  parameter section ones also involve the compiler default }
+procedure TestKeyValueSectionReadsAndWrites(const AMemo: TScintEdit;
+  const AStyler: TInnoSetupStyler);
+begin
+  { Reads: value (with the hint resolving a duplicated key name to the right
+    occurrence), flag check state, and presence }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Setup]',
+      'AppName=First',
+      'AppName=Second',
+      'WizardStyle=modern',
+      '[Files]',
+      'Source: a']);
+    try
+      var KeyValueSection: TLiveScriptKeyValueSection;
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryCreateKeyValueSection(0, KeyValueSection, Reason));
+      try
+        Assert(KeyValueSection.Valid);
+        Assert(KeyValueSection.GetValue('AppName', -1) = 'Second'); { With duplicate keys the last one wins }
+        Assert(KeyValueSection.GetValue('AppName', 0) = 'First');   { The hint picks the first }
+        Assert(KeyValueSection.GetValue('AppName', 99) = 'Second'); { A stale hint falls back to the name }
+        Assert(KeyValueSection.GetValue('Missing', -1) = '');
+        Assert(KeyValueSection.GetFlagCheckState('WizardStyle', -1, 'modern') = fcsAll);
+        Assert(KeyValueSection.GetFlagCheckState('WizardStyle', -1, 'dark') = fcsNone);
+        Assert(KeyValueSection.GetFlagCheckState('Missing', -1, 'modern') = fcsNone);
+        Assert(KeyValueSection.MemberPresent('AppName', -1));
+        Assert(KeyValueSection.MemberPresent('AppName', 99));
+        Assert(not KeyValueSection.MemberPresent('Missing', -1));
+      finally
+        KeyValueSection.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { SetValue: resolve then set, else add, but only when the hint is -1 and the
+    value is non-empty and not the compiler default }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Setup]',
+      'AppName=My App',
+      '[Files]',
+      'Source: a']);
+    try
+      var KeyValueSection: TLiveScriptKeyValueSection;
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryCreateKeyValueSection(0, KeyValueSection, Reason));
+      try
+        KeyValueSection.SetValue('AppName', -1, 'Edited');
+        Assert(AMemo.Lines[1] = 'AppName=Edited');
+        KeyValueSection.SetValue('AppVersion', 99, '2.0'); { A stale real hint must not add }
+        KeyValueSection.SetValue('AppVersion', -1, '');    { Neither must an empty value }
+        KeyValueSection.SetValue('AllowCancelDuringInstall', -1, 'yes'); { Nor a value equal to the compiler default }
+        Assert(AMemo.Lines[2] = '[Files]');
+        KeyValueSection.SetValue('AllowCancelDuringInstall', -1, 'no');
+        Assert(AMemo.Lines[2] = 'AllowCancelDuringInstall=no');
+        Assert(AMemo.Lines[3] = '[Files]');
+      finally
+        KeyValueSection.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+
+  { SetFlag: include and exclude on a present key, the add-when-absent rule
+    on include, which seeds the new key with the compiler default, and Remove }
+  begin
+    const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+      '[Setup]',
+      'WizardStyle=modern',
+      '[Files]',
+      'Source: a']);
+    try
+      var KeyValueSection: TLiveScriptKeyValueSection;
+      var Reason: TRefusalReason;
+      Assert(Context.Factory.TryCreateKeyValueSection(0, KeyValueSection, Reason));
+      try
+        KeyValueSection.SetFlag('WizardStyle', -1, 'dark', True);
+        Assert(AMemo.Lines[1] = 'WizardStyle=modern dark');
+        KeyValueSection.SetFlag('WizardStyle', -1, 'dark', False);
+        Assert(AMemo.Lines[1] = 'WizardStyle=modern');
+        KeyValueSection.Remove('WizardStyle', -1);
+        Assert(AMemo.Lines[1] = '[Files]');
+        KeyValueSection.Remove('Missing', -1); { Removing an absent key is a no-op }
+        KeyValueSection.SetFlag('WizardStyle', 99, 'dark', True); { A stale real hint must not add }
+        KeyValueSection.SetFlag('WizardStyle', -1, 'dark', False); { Excluding without the key is a no-op }
+        Assert(AMemo.Lines.Count = 3);
+        KeyValueSection.SetFlag('WizardStyle', -1, 'dark', True); { Adds the key first, seeded with the 'classic' default }
+        Assert(AMemo.Lines[1] = 'WizardStyle=classic dark');
+        Assert(AMemo.Lines[2] = '[Files]');
+        AMemo.Undo; { The add plus the include is a single undo action }
+        Assert(AMemo.Lines.Count = 3);
+        Assert(AMemo.Lines[1] = '[Files]');
+        { Don't edit more here: the undo made the section's model stale }
+      finally
+        KeyValueSection.Free;
+      end;
+    finally
+      Context.Free;
+    end;
+  end;
+end;
+
 { Edit tracking: the factory only learns of edits through Change }
 procedure TestEditTracking(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
@@ -878,6 +987,7 @@ begin
     TestEntryRoundTrip(AMemo, AStyler);
     TestParameterSectionEntries(AMemo, AStyler);
     TestKeyValueSections(AMemo, AStyler);
+    TestKeyValueSectionReadsAndWrites(AMemo, AStyler);
     TestEditTracking(AMemo, AStyler);
   finally
     AMemo.OnChange := nil;

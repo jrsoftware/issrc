@@ -83,12 +83,10 @@ type
     procedure InvalidateChangedRows;
     function TryGetRow(const AItem: TJvCustomInspectorItem;
       out ARow: TInspectorRow): Boolean;
-    function TryGetRowKeyValueSection(const ARow: TInspectorRow;
-      out ASection: TScriptModelKeyValueSection; out AIndex: Integer): Boolean;
     function RowResolves(const ARow: TInspectorRow): Boolean;
     function SelectedRowResolves: Boolean;
     function GetSelectedRowValuePositions(
-      const AMaxCount: Integer = MaxInt): TArray<TValuePosition>;
+      const AMaxCount: Integer = 0): TArray<TValuePosition>;
     function GetRowValueSignature(const ARow: TInspectorRow): String;
     function RowGetAsOrdinal(const ARow: TInspectorRow): Int64; overload;
     procedure RowGetAsOrdinal(Sender: TJvCustomInspectorItem; var Value: Int64); overload;
@@ -289,37 +287,21 @@ function TInspector.ItemShouldBeBold(
       irkKey:
         { Without ShowAllKnownDirectives only directives which are in the
           script get a row, so bold would say nothing }
-        if FShowAllKnownDirectives then begin
-          var Section: TScriptModelKeyValueSection;
-          var Index: Integer;
-          Result := TryGetRowKeyValueSection(ARow, Section, Index);
-        end;
+        if FShowAllKnownDirectives then
+          Result := (FLiveKeyValueSection <> nil) and
+            FLiveKeyValueSection.MemberPresent(ARow.Name, ARow.Index);
       irkKeyFlag:
         { See above }
-        if FShowAllKnownDirectives then begin
-          var Section: TScriptModelKeyValueSection;
-          var Index: Integer;
-          Result := TryGetRowKeyValueSection(ARow, Section, Index) and
-            Section.FlagIncluded(Index, ARow.FlagName);
-        end;
+        if FShowAllKnownDirectives then
+          Result := (FLiveKeyValueSection <> nil) and
+            (FLiveKeyValueSection.GetFlagCheckState(ARow.Name, ARow.Index,
+               ARow.FlagName) <> fcsNone);
     end;
   end;
 
 begin
   var Row: TInspectorRow;
   Result := TryGetRow(AItem, Row) and RowShouldBeBold(Row);
-end;
-
-function TInspector.TryGetRowKeyValueSection(const ARow: TInspectorRow;
-  out ASection: TScriptModelKeyValueSection; out AIndex: Integer): Boolean;
-begin
-  ASection := nil;
-  AIndex := -1;
-  if (FLiveKeyValueSection = nil) or not FLiveKeyValueSection.Valid then
-    Exit(False);
-  ASection := FLiveKeyValueSection.Section;
-  AIndex := ARow.Index;
-  Result := ASection.TryResolve(ARow.Name, AIndex);
 end;
 
 procedure TInspector.JvInspectorCustomizeItemCanvas(Item: TJvCustomInspectorItem;
@@ -423,7 +405,7 @@ function TInspector.GetSelectedRowValuePositions(
   const AMaxCount: Integer): TArray<TValuePosition>;
 { Returns the value position of the selected row's parameter or key in every
   entry where it is present, in entry order, stopping once AMaxCount positions
-  were collected }
+  were collected (if AMaxCount <> 0) }
 begin
   Result := nil;
   const Item = FJvInspector.Selected;
@@ -449,19 +431,18 @@ begin
         end;
       end;
     irkKey, irkKeyFlag:
-      begin
-        var Section: TScriptModelKeyValueSection;
-        var Index: Integer;
-        if TryGetRowKeyValueSection(Row, Section, Index) then begin
-          var Position: TValuePosition;
-          if Section.TryGetValuePosition(Index, Position) then begin
-            var Line := FLiveKeyValueSection.FirstLine;
-            for var I := 0 to Index-1 do
-              Inc(Line, Section.GetLineCount(I));
-            Inc(Position.StartLineIndex, Line);
-            Inc(Position.EndLineIndex, Line);
-            Result := Result + [Position];
-          end;
+      if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
+        const Section = FLiveKeyValueSection.Section;
+        var Index := Row.Index;
+        var Position: TValuePosition;
+        if Section.TryResolve(Row.Name, Index) and
+           Section.TryGetValuePosition(Index, Position) then begin
+          var Line := FLiveKeyValueSection.FirstLine;
+          for var I := 0 to Index-1 do
+            Inc(Line, Section.GetLineCount(I));
+          Inc(Position.StartLineIndex, Line);
+          Inc(Position.EndLineIndex, Line);
+          Result := Result + [Position];
         end;
       end;
   end;
@@ -707,11 +688,8 @@ begin
       Result := (FLiveParameterSectionEntries <> nil) and
         FLiveParameterSectionEntries.MemberPresent(ARow.Name, ARow.Index);
     irkKey, irkKeyFlag:
-      begin
-        var Section: TScriptModelKeyValueSection;
-        var Index: Integer;
-        Result := TryGetRowKeyValueSection(ARow, Section, Index);
-      end;
+      Result := (FLiveKeyValueSection <> nil) and
+        FLiveKeyValueSection.MemberPresent(ARow.Name, ARow.Index);
   end;
 end;
 
@@ -1436,7 +1414,7 @@ begin
       FChangeCountAtCreation := FFactory.ChangeCount;
       FLiveKeyValueSectionName := Header.Name;
       FLiveKeyValueSectionIsDirectiveSection := Header.Section in DirectiveSections;
-      FLiveKeyValueSection.Section.QuoteNewValues := FQuoteNewDirectiveValues and
+      FLiveKeyValueSection.QuoteNewValues := FQuoteNewDirectiveValues and
         FLiveKeyValueSectionIsDirectiveSection;
       {$IFDEF DEBUG}
       FDebugStatusRowString := Format('[%s] section at line %d',
@@ -1609,26 +1587,25 @@ begin
             ARow.FlagName) = fcsAll) then
         Result := 1;
     irkKey:
-      begin
-        var Section: TScriptModelKeyValueSection;
-        var Index: Integer;
-        if TryGetRowKeyValueSection(ARow, Section, Index) then begin
+      if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
+        if FLiveKeyValueSection.MemberPresent(ARow.Name, ARow.Index) then begin
           var BoolValue := False;
-          if TryStrToBoolean(Section.Lines[Index].Value, BoolValue) and BoolValue then
+          if TryStrToBoolean(FLiveKeyValueSection.GetValue(ARow.Name, ARow.Index),
+               BoolValue) and BoolValue then
             Result := 1;
-        end else if (Section <> nil) and
-                    SameText(Section.DefaultValue(ARow.Name), SYes) then
+        end else if SameText(FLiveKeyValueSection.Section.DefaultValue(ARow.Name),
+                      SYes) then
           Result := 1;
       end;
     irkKeyFlag:
-      begin
-        var Section: TScriptModelKeyValueSection;
-        var Index: Integer;
-        if TryGetRowKeyValueSection(ARow, Section, Index) then begin
-          if Section.FlagIncluded(Index, ARow.FlagName) then
+      if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
+        if FLiveKeyValueSection.MemberPresent(ARow.Name, ARow.Index) then begin
+          if FLiveKeyValueSection.GetFlagCheckState(ARow.Name, ARow.Index,
+               ARow.FlagName) = fcsAll then
             Result := 1;
-        end else if (Section <> nil) and
-                    ScriptValueIncludesFlag(Section.DefaultValue(ARow.Name), ARow.FlagName) then
+        end else if ScriptValueIncludesFlag(
+                      FLiveKeyValueSection.Section.DefaultValue(ARow.Name),
+                      ARow.FlagName) then
           Result := 1; { Not present in the script: show the compiler default }
       end;
   end;
@@ -1653,13 +1630,11 @@ begin
       if FLiveParameterSectionEntries <> nil then
         Result := FLiveParameterSectionEntries.GetValue(ARow.Name, ARow.Index);
     irkKey:
-      begin
-        var Section: TScriptModelKeyValueSection;
-        var Index: Integer;
-        if TryGetRowKeyValueSection(ARow, Section, Index) then
-          Result := Section.Lines[Index].Value
-        else if Section <> nil then
-          Result := Section.DefaultValue(ARow.Name); { Not present in the script: show the compiler default }
+      if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
+        if FLiveKeyValueSection.MemberPresent(ARow.Name, ARow.Index) then
+          Result := FLiveKeyValueSection.GetValue(ARow.Name, ARow.Index)
+        else
+          Result := FLiveKeyValueSection.Section.DefaultValue(ARow.Name); { Not present in the script: show the compiler default }
       end;
     {$IFDEF DEBUG}
     irkDebugStatus:
@@ -1710,40 +1685,17 @@ begin
           FLiveParameterSectionEntries.SetFlag(Row.Name, Row.Index,
             Row.FlagName, Value <> 0);
       irkKey:
-        begin
-          var Section: TScriptModelKeyValueSection;
-          var Index: Integer;
+        if FLiveKeyValueSection <> nil then begin
           var NewValue := SNo;
           if Value <> 0 then
             NewValue := SYes;
-          if TryGetRowKeyValueSection(Row, Section, Index) then
-            Section.SetValue(Index, NewValue)
-          else if (Section <> nil) and (Row.Index < 0) and
-                  not SameText(NewValue, Section.DefaultValue(Row.Name)) then { Skip unchanged from default, also see below }
-            Section.Add(Row.Name, NewValue);
+          FLiveKeyValueSection.SetValue(Row.Name, Row.Index, NewValue);
         end;
       irkKeyFlag:
-        begin
-          var Section: TScriptModelKeyValueSection;
-          var Index: Integer;
-          if TryGetRowKeyValueSection(Row, Section, Index) then
-            Section.SetFlag(Index, Row.FlagName, Value <> 0) { May adjust related flags as well }
-          else if (Section <> nil) and (Row.Index < 0) and (Value <> 0) then begin
-            { Group Add's and SetFlag's writes into a single undo action. The
-              new directive is seeded with the compiler default so the flags
-              shown as checked stay checked. }
-            FFactory.Memo.BeginUndoAction;
-            try
-              Section.SetFlag(Section.Add(Row.Name, Section.DefaultValue(Row.Name)),
-                Row.FlagName, True);
-            finally
-              FFactory.Memo.EndUndoAction;
-            end;
-          end;
-          { else: ignore unchecking a default-checked flag of an absent directive,
-            can't write valid script text for that (currently applies only to
-            WizardStyle defaulting to 'classic') }
-        end;
+        { May adjust related flags as well }
+        if FLiveKeyValueSection <> nil then
+          FLiveKeyValueSection.SetFlag(Row.Name, Row.Index, Row.FlagName,
+            Value <> 0);
     else
       raise Exception.Create('Internal error: RowSetAsOrdinal: unexpected row kind');
     end;
@@ -1790,20 +1742,11 @@ begin
           FLiveParameterSectionEntries.SetValue(Row.Name, Row.Index, Value);
         end;
       irkKey:
-        begin
-          var Section: TScriptModelKeyValueSection;
-          var Index: Integer;
-          const Found = TryGetRowKeyValueSection(Row, Section, Index);
-          if Section <> nil then begin
-            var Definition: TMemberDefinition;
-            if Section.TryGetDefinition(Row.Name, Definition) then
-              ValidateValue(Row.Name, Value, Definition);
-            if Found then
-              Section.SetValue(Index, Value)
-            else if (Row.Index < 0) and (Value <> '') and
-                    (Value <> Section.DefaultValue(Row.Name)) then { Same as above, but case sensitive }
-              Section.Add(Row.Name, Value);
-          end;
+        if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
+          var Definition: TMemberDefinition;
+          if FLiveKeyValueSection.Section.TryGetDefinition(Row.Name, Definition) then
+            ValidateValue(Row.Name, Value, Definition);
+          FLiveKeyValueSection.SetValue(Row.Name, Row.Index, Value);
         end;
     else
       raise Exception.Create('Internal error: RowSetAsString: unexpected row kind');
@@ -1822,12 +1765,7 @@ begin
       irkParameter, irkParameterFlag:
         FLiveParameterSectionEntries.Remove(ARow.Name, ARow.Index);
       irkKey, irkKeyFlag:
-        begin
-          var Section: TScriptModelKeyValueSection;
-          var Index: Integer;
-          if TryGetRowKeyValueSection(ARow, Section, Index) then
-            Section.Remove(Index);
-        end;
+        FLiveKeyValueSection.Remove(ARow.Name, ARow.Index);
     end;
   finally
     FInEdit := False;
@@ -1876,7 +1814,7 @@ procedure TInspector.SetQuoteNewDirectiveValues(const Value: Boolean);
 begin
   FQuoteNewDirectiveValues := Value;
   if ShowingDirectiveSection then
-    FLiveKeyValueSection.Section.QuoteNewValues := Value;
+    FLiveKeyValueSection.QuoteNewValues := Value;
 end;
 
 procedure TInspector.SetQuoteNewParameterValues(const Value: Boolean);

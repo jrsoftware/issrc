@@ -121,8 +121,22 @@ type
       ALastLine: Integer; const AMetadata: TScriptModelSectionMetadata;
       const ALines: TArray<String>);
     procedure OnChange(Sender: TObject);
+    procedure SetQuoteNewValues(const Value: Boolean);
   public
     destructor Destroy; override;
+    { Reads and writes addressing a key by name plus an index hint. Same set
+      as TLiveScriptParameterSectionEntries has, but working on the single
+      section, so GetFlagCheckState never returns fcsSome. }
+    function GetValue(const AName: String; const AIndexHint: Integer): String;
+    function GetFlagCheckState(const AKeyName: String;
+      const AIndexHint: Integer; const AFlagName: String): TLiveScriptFlagCheckState;
+    function MemberPresent(const AName: String; const AIndexHint: Integer): Boolean;
+    procedure SetValue(const AName: String; const AIndexHint: Integer;
+      const AValue: String);
+    procedure SetFlag(const AKeyName: String; const AIndexHint: Integer;
+      const AFlagName: String; const AInclude: Boolean);
+    procedure Remove(const AName: String; const AIndexHint: Integer);
+    property QuoteNewValues: Boolean write SetQuoteNewValues;
     property Section: TScriptModelKeyValueSection read FSection;
   end;
 
@@ -335,8 +349,8 @@ end;
 
 procedure TLiveScriptParameterSectionEntries.SetFlag(const AParameterName: String;
   const AIndexHint: Integer; const AFlagName: String; const AInclude: Boolean);
-{ Sets the flag in every entry, which may adjust related flags as well. Otherwise
-  like SetValue. }
+{ Sets the flag in every entry, which may adjust related flags as well. If the
+  parameter is not present it is first added if AInclude is True. }
 begin
   if not Valid then
     Exit;
@@ -439,6 +453,97 @@ procedure TLiveScriptKeyValueSection.OnChange(Sender: TObject);
 begin
   if (FFactory <> nil) and FValid then
     FFactory.WriteBackChange(Self, FSection.GetLines);
+end;
+
+function TLiveScriptKeyValueSection.GetValue(const AName: String;
+  const AIndexHint: Integer): String;
+{ Returns the key's value, or '' when the key is not present }
+begin
+  Result := '';
+  if not Valid then
+    Exit;
+  var Index := AIndexHint;
+  if FSection.TryResolve(AName, Index) then
+    Result := FSection.Lines[Index].Value;
+end;
+
+function TLiveScriptKeyValueSection.GetFlagCheckState(const AKeyName: String;
+  const AIndexHint: Integer; const AFlagName: String): TLiveScriptFlagCheckState;
+{ A missing key counts as the flag being excluded }
+begin
+  Result := fcsNone;
+  if not Valid then
+    Exit;
+  var Index := AIndexHint;
+  if FSection.TryResolve(AKeyName, Index) and
+     FSection.FlagIncluded(Index, AFlagName) then
+    Result := fcsAll;
+end;
+
+function TLiveScriptKeyValueSection.MemberPresent(const AName: String;
+  const AIndexHint: Integer): Boolean;
+{ True when the key is present }
+begin
+  var Index := AIndexHint;
+  Result := Valid and FSection.TryResolve(AName, Index);
+end;
+
+procedure TLiveScriptKeyValueSection.SetValue(const AName: String;
+  const AIndexHint: Integer; const AValue: String);
+{ Sets the key's value, adding the key when not present, unless the new value
+  is empty or (case-sensitively) same as the compiler default }
+begin
+  if not Valid then
+    Exit;
+  var Index := AIndexHint;
+  if FSection.TryResolve(AName, Index) then
+    FSection.SetValue(Index, AValue)
+  else if (AIndexHint < 0) and (AValue <> '') and
+          (AValue <> FSection.DefaultValue(AName)) then
+    FSection.Add(AName, AValue);
+end;
+
+procedure TLiveScriptKeyValueSection.SetFlag(const AKeyName: String;
+  const AIndexHint: Integer; const AFlagName: String; const AInclude: Boolean);
+{ Sets the flag, which may adjust related flags as well. If the key is not
+  present it is first added if AInclude is True, using the compiler default.
+  Excluding a flag of a key not present is ignored: no valid script text can
+  be written for that (currently applies only to WizardStyle defaulting to
+  'classic'). }
+begin
+  if not Valid then
+    Exit;
+  var Index := AIndexHint;
+  if FSection.TryResolve(AKeyName, Index) then
+    FSection.SetFlag(Index, AFlagName, AInclude)
+  else if (AIndexHint < 0) and AInclude then begin
+    { Group Add's and SetFlag's writes into a single undo action }
+    if FFactory <> nil then
+      FFactory.Memo.BeginUndoAction;
+    try
+      FSection.SetFlag(FSection.Add(AKeyName, FSection.DefaultValue(AKeyName)),
+        AFlagName, True);
+    finally
+      if FFactory <> nil then
+        FFactory.Memo.EndUndoAction;
+    end;
+  end;
+end;
+
+procedure TLiveScriptKeyValueSection.Remove(const AName: String;
+  const AIndexHint: Integer);
+{ Removes the key if present }
+begin
+  if not Valid then
+    Exit;
+  var Index := AIndexHint;
+  if FSection.TryResolve(AName, Index) then
+    FSection.Remove(Index);
+end;
+
+procedure TLiveScriptKeyValueSection.SetQuoteNewValues(const Value: Boolean);
+begin
+  FSection.QuoteNewValues := Value;
 end;
 
 { TLiveScriptObjectFactory }
