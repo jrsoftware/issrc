@@ -141,12 +141,13 @@ end;
 
 function zlibAllocMem(AppData: Pointer; Items, Size: Cardinal): Pointer; stdcall;
 begin
+  if (Items <= 0) or (Size <= 0) or (Items > Cardinal(High(Integer)) div Size) then
+    Exit(nil);
   try
     GetMem(Result, Items * Size);
   except
-    { trap any exception, because zlib expects a NULL result if it's out
-      of memory }
-    Result := nil;
+    on EOutOfMemory do
+      Result := nil;
   end;
 end;
 

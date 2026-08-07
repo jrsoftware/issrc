@@ -63,11 +63,13 @@ type
     FInitialized: Boolean;
     FStrm: TBZStreamRec;
     FReachedEnd: Boolean;
+    FHeapBase: Pointer;
+    FHeapCommitSize: Cardinal;
+    FHeapNextFree: Cardinal;
     FBuffer: array[0..65535] of Byte;
-    FHeapBase, FHeapNextFree: Pointer;
     procedure EndDecompress;
     procedure InitDecompress;
-    function Malloc(Bytes: Cardinal): Pointer;
+    function Malloc(const AItems, ASize: Integer): Pointer;
   protected
     procedure DoDecompressInto(var Buffer; Count: Cardinal); override;
     procedure DoReset; override;
@@ -111,7 +113,6 @@ const
 
   SBzlibDataError = 'bzlib: Compressed data is corrupted';
   SBzlibInternalError = 'bzlib: Internal error. Code %d';
-  SBzlibAllocError = 'bzlib: Too much memory requested';
 
 function BZInitCompressFunctions(Module: HMODULE): Boolean;
 begin
@@ -143,12 +144,13 @@ end;
 
 function BZAllocMem(AppData: Pointer; Items, Size: Integer): Pointer; stdcall;
 begin
+  if (Items <= 0) or (Size <= 0) or (Items > High(Integer) div Size) then
+    Exit(nil);
   try
     GetMem(Result, Items * Size);
   except
-    { trap any exception, because bzlib expects a NULL result if it's out
-      of memory }
-    Result := nil;
+    on EOutOfMemory do
+      Result := nil;
   end;
 end;
 
@@ -272,7 +274,7 @@ const
 
 function DecompressorAllocMem(AppData: Pointer; Items, Size: Integer): Pointer; stdcall;
 begin
-  Result := TBZDecompressor(AppData).Malloc(Cardinal(Items * Size));
+  Result := TBZDecompressor(AppData).Malloc(Items, Size);
 end;
 
 procedure DecompressorFreeMem(AppData, Block: Pointer); stdcall;
@@ -287,7 +289,6 @@ begin
   FHeapBase := VirtualAlloc(nil, DecompressorHeapSize, MEM_RESERVE, PAGE_NOACCESS);
   if FHeapBase = nil then
     OutOfMemoryError;
-  FHeapNextFree := FHeapBase;
   FStrm.AppData := Self;
   FStrm.zalloc := DecompressorAllocMem;
   FStrm.zfree := DecompressorFreeMem;
@@ -317,28 +318,38 @@ begin
   if FInitialized then begin
     FInitialized := False;
     BZ2_bzDecompressEnd(FStrm);
+    { Discard previous allocations }
+    FHeapNextFree := 0;
   end;
 end;
 
-function TBZDecompressor.Malloc(Bytes: Cardinal): Pointer;
+function TBZDecompressor.Malloc(const AItems, ASize: Integer): Pointer;
 begin
-  { Round up to dword boundary if necessary }
-  if Bytes mod 4 <> 0 then
-    Inc(Bytes, 4 - Bytes mod 4);
+  if (AItems <= 0) or (ASize <= 0) or
+     (AItems > DecompressorHeapSize div ASize) then
+    Exit(nil);
+
+  var EndOffset := Cardinal(AItems * ASize);
+  { Round up to multiple of 16 bytes if necessary }
+  if EndOffset and $F <> 0 then
+    EndOffset := (EndOffset or $F) + 1;
+  Inc(EndOffset, FHeapNextFree);
 
   { Did bzlib request more memory than we reserved? This shouldn't happen
     unless this unit is used with a different version of bzlib that allocates
     more memory. }
-  const HeapSize = NativeUInt(PByte(FHeapNextFree) - PByte(FHeapBase)) + Bytes;
-  if HeapSize > DecompressorHeapSize then
-    raise ECompressInternalError.Create(SBzlibAllocError);
+  if EndOffset > DecompressorHeapSize then
+    Exit(nil);
 
-  if VirtualAlloc(FHeapNextFree, Bytes, MEM_COMMIT, PAGE_READWRITE) = nil then
-    Result := nil
-  else begin
-    Result := FHeapNextFree;
-    Inc(PByte(FHeapNextFree), Bytes);
+  if EndOffset > FHeapCommitSize then begin
+    if VirtualAlloc(PByte(FHeapBase) + FHeapCommitSize,
+       EndOffset - FHeapCommitSize, MEM_COMMIT, PAGE_READWRITE) = nil then
+      Exit(nil);
+    FHeapCommitSize := EndOffset;
   end;
+
+  Result := PByte(FHeapBase) + FHeapNextFree;
+  FHeapNextFree := EndOffset;
 end;
 
 procedure TBZDecompressor.DoDecompressInto(var Buffer; Count: Cardinal);
@@ -370,7 +381,6 @@ begin
   FStrm.avail_in := 0;
   { bzlib doesn't offer an optimized 'Reset' function like zlib }
   EndDecompress;
-  FHeapNextFree := FHeapBase;  { discard previous allocations }
   InitDecompress;
   FReachedEnd := False;
 end;
