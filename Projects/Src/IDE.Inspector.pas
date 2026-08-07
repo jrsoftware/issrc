@@ -1016,18 +1016,20 @@ procedure TInspector.UpdateFromCaret;
   procedure AddParameterOccurrenceRows(const AParent: TJvCustomInspectorItem;
     const ADefinition: TMemberDefinition);
   begin
-    { Normally a parameter will be present only once, but duplicates are still
-      handled here, even though that doesn't compile }
-    const Entry = FLiveParameterSectionEntries.PrimaryEntry;
-    var Found := False;
-    for var I := 0 to Entry.Count-1 do begin
-      if (Entry.Parameters[I].Kind = pkParameter) and
-         SameText(Entry.Parameters[I].Name, ADefinition.Name) then begin
-        AddParameterRow(AParent, ADefinition, I);
-        Found := True;
+    var Added := False;
+    if FLiveParameterSectionEntries.Count = 1 then begin
+      { Normally a parameter will be present only once, but duplicates are still
+        handled here, even though that doesn't compile }
+      const PrimaryEntry = FLiveParameterSectionEntries.PrimaryEntry;
+      for var I := 0 to PrimaryEntry.Count-1 do begin
+        if (PrimaryEntry.Parameters[I].Kind = pkParameter) and
+           SameText(PrimaryEntry.Parameters[I].Name, ADefinition.Name) then begin
+          AddParameterRow(AParent, ADefinition, I);
+          Added := True;
+        end;
       end;
-    end;
-    if not Found then
+    end; { else: no special handling for duplicates }
+    if not Added then
       AddParameterRow(AParent, ADefinition, -1);
   end;
 
@@ -1098,13 +1100,14 @@ procedure TInspector.UpdateFromCaret;
 
   procedure AddParameterSectionEntryRows;
   begin
-    const Entry = FLiveParameterSectionEntries.PrimaryEntry;
+    const PrimaryEntry = FLiveParameterSectionEntries.PrimaryEntry;
 
     { Known and uncategorized parameters first, in metadata order }
-    if Entry.Metadata <> nil then begin
-      const SectionName = Entry.Metadata.SectionName;
-      for var Definition in Entry.Metadata.Members do begin
-        if Definition.Obsolete and not Entry.Has(Definition.Name) then
+    if PrimaryEntry.Metadata <> nil then begin
+      const SectionName = PrimaryEntry.Metadata.SectionName;
+      for var Definition in PrimaryEntry.Metadata.Members do begin
+        if Definition.Obsolete and
+           not FLiveParameterSectionEntries.MemberPresent(Definition.Name, -1) then
           Continue; { Hide obsolete and unspecified }
         if not DefinitionMatchesFilter(Definition) then
           Continue;
@@ -1115,25 +1118,52 @@ procedure TInspector.UpdateFromCaret;
     end;
 
     { Present but unknown parameters }
-    for var I := 0 to Entry.Count-1 do begin
-      const Parameter = Entry.Parameters[I];
-      if Parameter.Kind = pkParameter then begin
-        var Definition: TMemberDefinition;
-        if not Entry.TryGetDefinition(Parameter.Name, Definition) and
-           NameMatchesFilter(Parameter.Name) then begin
-          const Row = MakeParameterRow(Parameter.Name, I);
-          AddRow(FJvInspector.Root, Row.Name, False, Row);
+    if FLiveParameterSectionEntries.Count > 1 then begin
+      { Add all names used across the entries, addressed by name }
+      const AddedNames = TStringList.Create;
+      try
+        AddedNames.CaseSensitive := False;
+        for var EntryIndex := 0 to FLiveParameterSectionEntries.Count-1 do begin
+          const LiveEntry = FLiveParameterSectionEntries.Entries[EntryIndex];
+          for var I := 0 to LiveEntry.Entry.Count-1 do begin
+            const Parameter = LiveEntry.Entry.Parameters[I];
+            if Parameter.Kind = pkParameter then begin
+              var Definition: TMemberDefinition;
+              if not LiveEntry.Entry.TryGetDefinition(Parameter.Name, Definition) and
+                 NameMatchesFilter(Parameter.Name) and
+                 (AddedNames.IndexOf(Parameter.Name) < 0) then begin
+                AddedNames.Add(Parameter.Name);
+                const Row = MakeParameterRow(Parameter.Name, -1);
+                AddRow(FJvInspector.Root, Row.Name, False, Row);
+              end;
+            end;
+          end;
+        end;
+      finally
+        AddedNames.Free;
+      end;
+    end else begin
+      for var I := 0 to PrimaryEntry.Count-1 do begin
+        const Parameter = PrimaryEntry.Parameters[I];
+        if Parameter.Kind = pkParameter then begin
+          var Definition: TMemberDefinition;
+          if not PrimaryEntry.TryGetDefinition(Parameter.Name, Definition) and
+             NameMatchesFilter(Parameter.Name) then begin
+            const Row = MakeParameterRow(Parameter.Name, I);
+            AddRow(FJvInspector.Root, Row.Name, False, Row);
+          end;
         end;
       end;
     end;
 
     { Known and categorized parameters, in metadata order }
-    if Entry.Metadata <> nil then begin
-      const SectionName = Entry.Metadata.SectionName;
+    if PrimaryEntry.Metadata <> nil then begin
+      const SectionName = PrimaryEntry.Metadata.SectionName;
       for var CategoryName in ScriptCategoryNamesOrdered do begin
         var CategoryItem: TJvCustomInspectorItem := nil;
-        for var Definition in Entry.Metadata.Members do begin
-          if Definition.Obsolete and not Entry.Has(Definition.Name) then
+        for var Definition in PrimaryEntry.Metadata.Members do begin
+          if Definition.Obsolete and
+             not FLiveParameterSectionEntries.MemberPresent(Definition.Name, -1) then
             Continue;
           if not DefinitionMatchesFilter(Definition) then
             Continue;
@@ -1321,17 +1351,26 @@ procedure TInspector.UpdateFromCaret;
       const Memo = FFactory.Memo;
       const CaretCharIndex = Memo.GetCodeUnitCount(
         Memo.GetPositionFromLine(CaretLine), Memo.CaretPosition);
-      const Entry = FLiveParameterSectionEntries.PrimaryEntry;
-      var Index: Integer;
-      if Entry.TryGetParameterIndex(
-           CaretLine - FLiveParameterSectionEntries.FirstLine,
-           CaretCharIndex, Index) then begin
-        const Parameter = Entry.Parameters[Index];
-        if Parameter.Kind = pkParameter then begin
-          Result.Valid := True;
-          Result.Kind := cakParameterSectionEntry;
-          Result.Name := Parameter.Name;
-          Result.Index := Index;
+      const MultiEntry = FLiveParameterSectionEntries.Count > 1;
+      for var I := 0 to FLiveParameterSectionEntries.Count-1 do begin
+        const LiveEntry = FLiveParameterSectionEntries.Entries[I];
+        if (CaretLine >= LiveEntry.FirstLine) and
+           (CaretLine <= LiveEntry.LastLine) then begin
+          var Index: Integer;
+          if LiveEntry.Entry.TryGetParameterIndex(CaretLine - LiveEntry.FirstLine,
+               CaretCharIndex, Index) then begin
+            const Parameter = LiveEntry.Entry.Parameters[Index];
+            if Parameter.Kind = pkParameter then begin
+              Result.Valid := True;
+              Result.Kind := cakParameterSectionEntry;
+              Result.Name := Parameter.Name;
+              if MultiEntry then
+                Result.Index := -1 { Rows are addressed by name, see AddParameterOccurrenceRows }
+              else
+                Result.Index := Index;
+            end;
+          end;
+          Break;
         end;
       end;
     end else if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
@@ -1650,10 +1689,13 @@ begin
   Result := 0;
   case ARow.Kind of
     irkParameterFlag:
-      if (FLiveParameterSectionEntries <> nil) and
-         (FLiveParameterSectionEntries.GetFlagCheckState(ARow.Name, ARow.Index,
-            ARow.FlagName) = fcsAll) then
-        Result := 1;
+      if FLiveParameterSectionEntries <> nil then begin
+        case FLiveParameterSectionEntries.GetFlagCheckState(ARow.Name, ARow.Index,
+               ARow.FlagName) of
+          fcsSome: Result := TJvInspectorBooleanItem.IndeterminateOrdinal;
+          fcsAll: Result := 1;
+        end;
+      end;
     irkKey:
       if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid then begin
         if FLiveKeyValueSection.MemberPresent(ARow.Name, ARow.Index) then begin
