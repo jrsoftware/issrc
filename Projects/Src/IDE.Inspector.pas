@@ -15,7 +15,7 @@ interface
 
 uses
   Windows, Messages, Classes, Graphics, Controls, StdCtrls, Generics.Collections,
-  JvInspector, ModernColors, NewStaticText,
+  JvInspector, ModernColors, NewStaticText, ScintEdit,
   IDE.LiveScriptObjectFactory, IDE.ScriptModel, IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra;
 
 type
@@ -65,6 +65,8 @@ type
       FLiveKeyValueSectionHasSiblingOccurrences: Boolean;
       FLiveKeyValueSectionIndex: Integer; { Factory section index it was created for }
       FChangeCountAtCreation: Int64; { Factory ChangeCount at the live object's creation }
+      FSelectionLineRangesAtCreation: TArray<TScintLineRange>; { GetSelectionLineRanges result at the live object's creation }
+      FMixedSelection: Boolean;
       FRows: TList<TInspectorRow>;
       FRowSetSignature: String;
       FFollowCaret: Boolean;
@@ -159,7 +161,7 @@ implementation
 
 uses
   SysUtils, StrUtils, UITypes, Themes, Forms, Generics.Defaults,
-  BrowseFunc, NewUxTheme, PathFunc, ScintEdit,
+  BrowseFunc, NewUxTheme, PathFunc,
   Shared.CommonFunc, Shared.CommonFunc.Vcl,
   IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc;
 
@@ -257,9 +259,12 @@ procedure TInspector.UpdateNote;
   end;
 
 begin
-  if (FLiveParameterSectionEntries = nil) and (FLiveKeyValueSection = nil) then
-    ShowNote(LFmtMessage(SInspectorNothingToInspectNote))
-  else if ShowingDirectiveSection then begin
+  if (FLiveParameterSectionEntries = nil) and (FLiveKeyValueSection = nil) then begin
+    if FMixedSelection then
+      ShowNote(LFmtMessage(SInspectorMixedSelectionNote))
+    else
+      ShowNote(LFmtMessage(SInspectorNothingToInspectNote));
+  end else if ShowingDirectiveSection then begin
     if FShowAllKnownDirectives and FLiveKeyValueSectionHasSiblingOccurrences then
       ShowNote(LFmtMessage(SInspectorSiblingOccurrencesNote))
     else if FShowAllKnownDirectivesSuppressedNote then
@@ -407,7 +412,7 @@ function TInspector.GetSelectedRowValuePositions(
   entry where it is present, in entry order, stopping once AMaxCount positions
   were collected (if AMaxCount <> 0) }
 begin
-  Result := nil;
+  Result := [];
   const Item = FJvInspector.Selected;
   var Row: TInspectorRow;
   if (Item = nil) or not TryGetRow(Item, Row) then
@@ -804,6 +809,27 @@ procedure TInspector.UpdateFromCaret;
     Result := FFactory.ChangeCount > FChangeCountAtCreation;
   end;
 
+  function LineRangesCoverMultipleLines(
+    const ALineRanges: TArray<TScintLineRange>): Boolean;
+  begin
+    Result := (Length(ALineRanges) > 1) or { The ranges are merged so two ranges always cover more than one line }
+      ((Length(ALineRanges) = 1) and (ALineRanges[0].EndLine > ALineRanges[0].StartLine));
+  end;
+
+  function LineRangesEqual(const ALineRanges1,
+    ALineRanges2: TArray<TScintLineRange>): Boolean;
+  { Assumes ranges are sorted }
+  begin
+    if Length(ALineRanges1) <> Length(ALineRanges2) then
+      Exit(False);
+    for var I := 0 to High(ALineRanges1) do begin
+      if (ALineRanges1[I].StartLine <> ALineRanges2[I].StartLine) or
+         (ALineRanges1[I].EndLine <> ALineRanges2[I].EndLine) then
+        Exit(False);
+    end;
+    Result := True;
+  end;
+
   function ItemID(const AItem: TJvCustomInspectorItem;
     const AIncludeIndex: Boolean): String;
   { AIncludeIndex: Include the row index so the id is unique even for duplicated member names }
@@ -884,6 +910,25 @@ procedure TInspector.UpdateFromCaret;
   end;
 
   {$IFDEF DEBUG}
+  procedure UpdateDebugStatusRowStringForParameterSectionEntries(const ASectionName: String);
+  begin
+    if FLiveParameterSectionEntries.Count = 1 then begin
+      FDebugStatusRowString := Format('[%s] entry at lines %d-%d',
+        [ASectionName, FLiveParameterSectionEntries.FirstLine+1,
+         FLiveParameterSectionEntries.LastLine+1]);
+    end else begin
+      FDebugStatusRowString := Format('[%s] %d entries at lines',
+        [ASectionName, FLiveParameterSectionEntries.Count]);
+      for var I := 0 to FLiveParameterSectionEntries.Count-1 do begin
+        const LiveEntry = FLiveParameterSectionEntries.Entries[I];
+        if I > 0 then
+          FDebugStatusRowString := FDebugStatusRowString + ',';
+        FDebugStatusRowString := FDebugStatusRowString + Format(' %d-%d',
+          [LiveEntry.FirstLine+1, LiveEntry.LastLine+1]);
+      end;
+    end;
+  end;
+
   function RefusalReasonToString(const ARefusalReason: TRefusalReason): String;
   begin
     case ARefusalReason of
@@ -1342,15 +1387,26 @@ begin
   FJvInspector.ReadOnly := FFactory.Memo.ReadOnly;
 
   const CaretLine = FFactory.Memo.CaretLine;
+  const SelectionLineRanges = FFactory.Memo.GetSelectionLineRanges;
+  { If the selection covers several lines now, or did when the live objects
+    were created, the caret no longer tells whether the objects are stale, so
+    the early exits below must compare the selection instead }
+  const UseSelectionTest = LineRangesCoverMultipleLines(SelectionLineRanges) or
+    LineRangesCoverMultipleLines(FSelectionLineRangesAtCreation);
+  const SelectionTestPassed = UseSelectionTest and
+    LineRangesEqual(SelectionLineRanges, FSelectionLineRangesAtCreation);
 
   { Without a memo change or a forced rebuild, a caret move within the same
-    entry or key/value section changes nothing, so keep the model and the rows.
+    entry or key/value section, or an unchanged multi-line selection, changes
+    nothing, so keep the model and the rows.
     The signature check must precede LiveObjectTextChanged: right after
     SetActiveFactory the live object still belongs to the previous factory. }
   if (FLiveParameterSectionEntries <> nil) and FLiveParameterSectionEntries.Valid and
      (FRowSetSignature <> '') and not LiveObjectTextChanged and
-     (CaretLine >= FLiveParameterSectionEntries.FirstLine) and
-     (CaretLine <= FLiveParameterSectionEntries.LastLine) then begin
+     (SelectionTestPassed or
+      (not UseSelectionTest and
+       (CaretLine >= FLiveParameterSectionEntries.FirstLine) and
+       (CaretLine <= FLiveParameterSectionEntries.LastLine))) then begin
     UpdateCaretAt;
     {$IFDEF DEBUG}
     Inc(FUpdateFromCaretEarlyExitCount);
@@ -1359,7 +1415,8 @@ begin
     Exit;
   end;
   if (FLiveKeyValueSection <> nil) and FLiveKeyValueSection.Valid and
-     (FRowSetSignature <> '') and not LiveObjectTextChanged then begin
+     (FRowSetSignature <> '') and not LiveObjectTextChanged and
+     (SelectionTestPassed or not UseSelectionTest) then begin
     { Resolved by section index instead of the entry's line-range test above:
       the section's range covers the body only, so it misses the header line }
     var SectionIndex: Integer;
@@ -1384,35 +1441,43 @@ begin
   var RowSetSignature: String; { The actual value this gets doesn't matter, as long as it's unique for any unique row set }
   var Entries: TLiveScriptParameterSectionEntries;
   var EntryRefusalReason: TRefusalReason;
-  if FFactory.TryCreateParameterSectionEntries(nil, CaretLine, Entries, EntryRefusalReason) then begin
+  if FFactory.TryCreateParameterSectionEntries(SelectionLineRanges, CaretLine,
+       Entries, EntryRefusalReason) then begin
     FLiveParameterSectionEntries := Entries;
     FChangeCountAtCreation := FFactory.ChangeCount;
+    FSelectionLineRangesAtCreation := SelectionLineRanges;
     FLiveParameterSectionEntries.QuoteNewValues := FQuoteNewParameterValues;
     const SectionName = SectionToSectionName(FLiveParameterSectionEntries.Section);
     {$IFDEF DEBUG}
-    FDebugStatusRowString := Format('[%s] entry at lines %d-%d',
-      [SectionName, FLiveParameterSectionEntries.FirstLine+1,
-       FLiveParameterSectionEntries.LastLine+1]);
+    UpdateDebugStatusRowStringForParameterSectionEntries(SectionName);
     {$ENDIF}
-    { Rows address parameters by index, so the signature includes the indexes }
+    { Rows address parameters by index, so the signature includes each entry's
+      indexes, with '@' separating the entries }
     RowSetSignature := 'E|' + SectionName;
-    const PrimaryEntry = FLiveParameterSectionEntries.PrimaryEntry;
-    for var I := 0 to PrimaryEntry.Count-1 do begin
-      const Parameter = PrimaryEntry.Parameters[I];
-      if Parameter.Kind = pkParameter then
-        RowSetSignature := RowSetSignature + '|' + IntToStr(I) + ':' + Parameter.Name;
+    for var I := 0 to FLiveParameterSectionEntries.Count-1 do begin
+      RowSetSignature := RowSetSignature + '|@';
+      const Entry = FLiveParameterSectionEntries.Entries[I].Entry;
+      for var J := 0 to Entry.Count-1 do begin
+        const Parameter = Entry.Parameters[J];
+        if Parameter.Kind = pkParameter then
+          RowSetSignature := RowSetSignature + '|' + IntToStr(J) + ':' + Parameter.Name;
+      end;
     end;
   end else begin
     var SectionIndex: Integer;
     var KeyValueSection: TLiveScriptKeyValueSection;
     var SectionRefusalReason: TRefusalReason;
-    if FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
+    { A mixed selection is refused outright: the caret's section must not be
+      inspected instead }
+    if (EntryRefusalReason <> rrMixedSelection) and
+       FFactory.TryGetSectionAtLine(CaretLine, SectionIndex) and
        FFactory.TryCreateKeyValueSection(SectionIndex, KeyValueSection,
          SectionRefusalReason) then begin
       const Header = FFactory.SectionHeaders[SectionIndex];
       FLiveKeyValueSection := KeyValueSection;
       FLiveKeyValueSectionIndex := SectionIndex;
       FChangeCountAtCreation := FFactory.ChangeCount;
+      FSelectionLineRangesAtCreation := SelectionLineRanges;
       FLiveKeyValueSectionName := Header.Name;
       FLiveKeyValueSectionIsDirectiveSection := Header.Section in DirectiveSections;
       FLiveKeyValueSection.QuoteNewValues := FQuoteNewDirectiveValues and
@@ -1447,6 +1512,8 @@ begin
       end;
     end else begin
       { Prefer the entry refusal }
+      FSelectionLineRangesAtCreation := [];
+      FMixedSelection := EntryRefusalReason = rrMixedSelection;
       {$IFDEF DEBUG}
       FDebugStatusRowString := RefusalReasonToString(EntryRefusalReason);
       {$ENDIF}

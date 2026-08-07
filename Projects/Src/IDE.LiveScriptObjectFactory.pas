@@ -1110,7 +1110,7 @@ begin
   if LastLine >= FirstLine then
     SectionLines := GetLinesText(FirstLine, LastLine)
   else
-    SectionLines := nil;
+    SectionLines := [];
   var Metadata: TScriptModelSectionMetadata := nil;
   TryGetScriptModelSectionMetadata(FSectionHeaders[ASectionIndex].Name, Metadata);
   ASection := TLiveScriptKeyValueSection.Create(Self, FirstLine, LastLine,

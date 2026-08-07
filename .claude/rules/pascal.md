@@ -13,6 +13,7 @@ paths: ["**/*.pas", "**/*.dpr", "**/*.inc"]
 - Prefer factoring shared code into a routine, or binding the expression to an inline const.
 - A routine whose callers all sit inside one routine belongs nested in it, not as a method or a unit-level routine. Keep such helpers siblings at a single level: never nest a helper inside another helper. No exceptions, except a routine assigned to an event stays a method.
 - Do not use `with` statements.
+- Use `[]` instead of `nil` when assigning an empty value to a dynamic array.
 - `if` and `begin` should be on the same line.
 - `else` and `begin` should be on the same line.
 - A `Result` assignment followed by an `Exit` statement should be combined into a single statement. For example: `Exit(ResultValue);`

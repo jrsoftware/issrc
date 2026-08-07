@@ -380,7 +380,7 @@ const
     SetLength(Members, Ord(High(TSetupSectionDirective))+1);
     for var Directive := Low(TSetupSectionDirective) to High(TSetupSectionDirective) do begin
       var ValueKind := mvkString;
-      var KnownValues: TArray<String> := nil;
+      var KnownValues: TArray<String> := [];
       if Directive in SetupSectionDirectivesYesNo then begin
         ValueKind := mvkYesNo;
         KnownValues := [SYes, SNo]; { For AddKeyRow's fallback }
@@ -462,7 +462,7 @@ const
     SetLength(Members, Ord(High(TLangOptionsSectionDirective))+1);
     for var Directive := Low(TLangOptionsSectionDirective) to High(TLangOptionsSectionDirective) do begin
       var ValueKind := mvkString;
-      var KnownValues: TArray<String> := nil;
+      var KnownValues: TArray<String> := [];
       if Directive in LangOptionsSectionDirectivesYesNo then begin
         ValueKind := mvkYesNo;
         KnownValues := [SYes, SNo]; { For AddKeyRow's fallback }
