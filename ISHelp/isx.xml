@@ -151,6 +151,8 @@
 
 <p>The Pascal script can contain several event functions which are called at appropriate times.</p>
 
+<p>Setup and Uninstall might call some event functions several times. If your function performs a lengthy piece of code, you can optimize it by performing the code only once and 'caching' the result in a global variable.</p>
+
 <heading>Setup event functions</heading>
 
 <p>Setup supports following event functions:</p>
