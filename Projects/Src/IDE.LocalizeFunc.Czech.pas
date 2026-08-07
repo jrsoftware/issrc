@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..979] of TTranslationPair = (
+  CzechIDETranslations: array [0..980] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -184,6 +184,7 @@ const
     (English: 'The script cannot be edited because it is read-only'; Localized: 'Skript nelze upravit, protože je pouze pro čtení'),
     (English: 'Parameter "%1" cannot be browsed for when the "%2" flag is used'; Localized: 'Pro parametr "%1" nelze procházet, když je použit příznak "%2"'),
     (English: 'Move to a key/value section or parameter entry'; Localized: 'Přejděte na sekci klíč/hodnota nebo položku s parametry'),
+    (English: 'Select entries of one section type, and no other content'; Localized: 'Vyberte položky jednoho typu sekce, bez jiného obsahu'),
     (English: 'Unspecified directives are hidden because this section occurs more than once'; Localized: 'Nezadané direktivy jsou skryty, protože se tato sekce vyskytuje více než jednou'),
     (English: 'Unspecified directives are hidden because this is not the main script file'; Localized: 'Nezadané direktivy jsou skryty, protože toto není hlavní soubor skriptu'),
     (English: 'Compiler'; Localized: 'Kompilátor'),

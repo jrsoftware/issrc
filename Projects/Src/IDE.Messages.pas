@@ -240,7 +240,7 @@ const
   SInspectorReadOnlyError = 'The script cannot be edited because it is read-only';
   SInspectorBrowseParamFlagError = 'Parameter "%1" cannot be browsed for when the "%2" flag is used';
   SInspectorNothingToInspectNote = 'Move to a key/value section or parameter entry';
-  SInspectorMixedSelectionNote = 'The selection cannot be inspected because it mixes entries of different section types or other content';
+  SInspectorMixedSelectionNote = 'Select entries of one section type, and no other content';
   SInspectorSiblingOccurrencesNote = 'Unspecified directives are hidden because this section occurs more than once';
   SInspectorShowAllKnownDirectivesSuppressedNote = 'Unspecified directives are hidden because this is not the main script file';
 

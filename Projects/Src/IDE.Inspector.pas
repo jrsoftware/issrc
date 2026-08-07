@@ -39,8 +39,8 @@ type
   TCaretAt = record
     Valid: Boolean;
     Kind: TCaretAtKind;
-    Name: String;   { Protects against a stale Index. As in the script, so not cleaned }
-    Index: Integer; { Protects against duplicated Name }
+    Name: String;   { Protects against a stale Index. As in the script, so not cleaned. }
+    Index: Integer; { Protects against duplicated Name. -1 if multi-entry editing. }
   end;
 
   TInspectorGetBaseDirEvent = function: String of object;

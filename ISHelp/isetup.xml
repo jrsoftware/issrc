@@ -3842,10 +3842,10 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Browse for a path value</td><td>F4, Alt+Down, or click the "..." button</td>
 </tr>
 <tr>
-  <td>Go to and select the selected row's value in the script</td><td>Ctrl+G, or (if the row is not expandable) DoubleClick the row's name</td>
+  <td>Go to and select the selected row's value(s) in the script</td><td>Ctrl+G, or (if the row is not expandable) DoubleClick the row's name</td>
 </tr>
 <tr>
-  <td>Remove the selected key or parameter from the script</td><td>Ctrl+Del, or (if the row shows a checkbox) Del</td>
+  <td>Remove the selected key or parameter(s) from the script</td><td>Ctrl+Del, or (if the row shows a checkbox) Del</td>
 </tr>
 <tr>
   <td>Show help for the selected directive, parameter, or flag</td><td>F1</td>
