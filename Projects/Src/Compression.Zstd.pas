@@ -45,18 +45,13 @@ type
 
   TZstdCompressor = class(TCustomCompressor)
   private
-    FCompressionLevel: Integer;
-    FNumThreads: Integer;
-    FInitialized: Boolean;
     FStrm: Pointer;
     FOut: TZSTD_outBuffer;
     { Workaround for Zstd not resetting the frame progression until compress2
       is called. Let's keep a good local copy. }
     FProgress: TZSTD_frameProgression;
     FOutBuffer: array[0..$FFFF] of Byte;
-    function EndCompress: NativeUInt;
     procedure FlushOutBuffer(const OnlyIfFull: Boolean);
-    procedure InitCompress;
     procedure ReportProgress;
   protected
     procedure DoCompress(const Buffer; Count: Cardinal); override;
@@ -179,57 +174,27 @@ constructor TZstdCompressor.Create(AWriteProc: TCompressorWriteProc;
   ACompressorProps: TCompressorProps);
 begin
   inherited;
-  FCompressionLevel := CompressionLevel;
-  FNumThreads := 1;
+  FOut.dst := @FOutBuffer;
+  FOut.size := SizeOf(FOutBuffer);
+  FStrm := ZSTD_createCStream;
+  if FStrm = nil then
+    OutOfMemoryError;
+  Check(ZSTD_initCStream(FStrm, CompressionLevel));
+
   if ACompressorProps is TThreadedCompressorProps then begin
     const Props = (ACompressorProps as TThreadedCompressorProps);
-    if Props.NumBlockThreads <> 0 then
-      FNumThreads := Props.NumBlockThreads;
+    if Props.NumBlockThreads > 1 then begin
+      Check(ZSTD_CCtx_setParameter(FStrm, ZSTD_c_nbWorkers, Props.NumBlockThreads));
+      if CompressionLevel > 19 then
+        Check(ZSTD_CCtx_setParameter(FStrm, ZSTD_c_jobSize, 32 * 1024 * 1024)); { Ensures aborting is quick }
+    end;
   end;
-  InitCompress;
 end;
 
 destructor TZstdCompressor.Destroy;
 begin
-  EndCompress;
   ZSTD_freeCStream(FStrm);
   inherited;
-end;
-
-procedure TZstdCompressor.InitCompress;
-begin
-  { Decoupling initialization from compression context creation allows
-    reusing the context for further compression operations. Also, in
-    multithreaded mode, it's pretty easy to OOM Delphi by using Zstd together
-    with SolidCompression=no, as Zstd allocates a thread pool per context. }
-  if FStrm = nil then begin
-    FStrm := ZSTD_createCStream;
-    if FStrm = nil then
-      OutOfMemoryError;
-    Check(ZSTD_initCStream(FStrm, FCompressionLevel));
-    if FNumThreads > 1 then begin
-      Check(ZSTD_CCtx_setParameter(FStrm, ZSTD_c_nbWorkers, FNumThreads));
-      if FCompressionLevel > 19 then
-        Check(ZSTD_CCtx_setParameter(FStrm, ZSTD_c_jobSize, 32 * 1024 * 1024)); { Ensures aborting is quick }
-    end;
-  end;
-  if not FInitialized then begin
-    FProgress := Default(TZSTD_frameProgression);
-    FOut := Default(TZSTD_outBuffer);
-    FOut.dst := @FOutBuffer;
-    FOut.size := SizeOf(FOutBuffer);
-    FInitialized := True;
-  end;
-end;
-
-function TZstdCompressor.EndCompress: NativeUInt;
-begin
-  if FInitialized then begin
-    FInitialized := False;
-    { Only reset the compression state; the rest is reusable }
-    Result := ZSTD_CCtx_reset(FStrm, ZSTD_reset_session_only);
-  end else
-    Result := ZSTD_error_no_error;
 end;
 
 procedure TZstdCompressor.FlushOutBuffer(const OnlyIfFull: Boolean);
@@ -253,7 +218,6 @@ end;
 
 procedure TZstdCompressor.DoCompress(const Buffer; Count: Cardinal);
 begin
-  InitCompress;
   var LIn := Default(TZSTD_inBuffer);
   LIn.src := @Buffer;
   LIn.size := Count;
@@ -266,7 +230,6 @@ end;
 
 procedure TZstdCompressor.DoFinish;
 begin
-  InitCompress;
   var LIn := Default(TZSTD_inBuffer);
   while True do begin
     const Code = ZSTD_compressStream2(FStrm, FOut, LIn, ZSTD_e_end);
@@ -278,7 +241,8 @@ begin
       Break;
   end;
   FlushOutBuffer(False);
-  Check(EndCompress);
+  FProgress := Default(TZSTD_frameProgression);
+  Check(ZSTD_CCtx_reset(FStrm, ZSTD_reset_session_only));
 end;
 
 { TZstdDecompressor }
