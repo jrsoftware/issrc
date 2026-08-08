@@ -466,8 +466,10 @@ type
 
 function ScriptCategoryNamesOrdered: TArray<String>;
 
-function TryGetScriptCategory(const ASectionName, AName: String;
-  out ACategoryName: String): Boolean;
+function IsScriptUnknownCategoryName(const ACategoryName: String): Boolean;
+
+function GetScriptCategory(const ASectionName, AName: String;
+  const AKnown, AObsolete: Boolean): String;
 
 function TryGetScriptBrowseFileType(const ASectionName, AName: String;
   out AFileType: TScriptBrowseFileType): Boolean;
@@ -503,9 +505,43 @@ begin
     InnoSetupSectionPrefixLength+1, MaxInt);
 end;
 
+resourcestring
+  SInspectorCategoryObsolete = 'Obsolete';
+  SInspectorCategoryUnknown = 'Other';
+
+  SInspectorCategoryCustomMessages = 'Custom Messages';
+  SInspectorCategoryLanguageOptions = 'Language Options';
+  SInspectorCategoryMessages = 'Messages';
+
+  SInspectorCategoryComponent = 'Component';
+  SInspectorCategoryDirectory = 'Directory';
+  SInspectorCategoryFile = 'File';
+  SInspectorCategoryIcon = 'Icon';
+  SInspectorCategoryINI = 'INI';
+  SInspectorCategoryInstallDelete = 'Delete'; { Also used for UninstallDelete }
+  SInspectorCategoryISSigKey = 'ISSig Key';
+  SInspectorCategoryLanguage = 'Language';
+  SInspectorCategoryRegistry = 'Registry';
+  SInspectorCategoryRun = 'Run'; { Also used for UninstallRun }
+  SInspectorCategoryTask = 'Task';
+  SInspectorCategoryType = 'Type';
+
+  SInspectorCategoryCompiler = 'Compiler';
+  SInspectorCategoryCompression = 'Compression';
+  SInspectorCategoryInstaller = 'Installer';
+  SInspectorCategoryCosmetic = 'Cosmetic';
+  SInspectorCategoryCommon = 'Common';
+
 var
   ScriptCategoryDictionary: TDictionary<String, String>;
+  ScriptDefaultCategoryDictionary: TDictionary<String, String>;
   ScriptCategoryNameOrderedList: TArray<String>;
+  { Each category resourcestring must be read once only, at initialization: the
+    LoadResStringFunc hook installed later by IDE.LocalizeFunc would otherwise
+    return a localized value which no longer matches the names cached above.
+    IDE.Inspector's NewCategory does the localization instead }
+  ScriptObsoleteCategoryName, ScriptUnknownCategoryName: String;
+  ScriptMessageNameDictionary: TDictionary<String, Boolean>;
   ScriptBrowseFileTypeDictionary: TDictionary<String, TScriptBrowseFileType>;
 
 function ScriptMemberDictionaryKey(const ASectionName, AName: String): String;
@@ -518,11 +554,43 @@ begin
   Result := Copy(ScriptCategoryNameOrderedList);
 end;
 
-function TryGetScriptCategory(const ASectionName, AName: String;
-  out ACategoryName: String): Boolean;
+function IsScriptUnknownCategoryName(const ACategoryName: String): Boolean;
 begin
-  Result := ScriptCategoryDictionary.TryGetValue(
-    ScriptMemberDictionaryKey(ASectionName, AName), ACategoryName);
+  Result := SameText(ACategoryName, ScriptUnknownCategoryName);
+end;
+
+function GetScriptCategory(const ASectionName, AName: String;
+  const AKnown, AObsolete: Boolean): String;
+{ Returns the category of a member (never empty) }
+
+  function GetDefaultCategory: String;
+  begin
+    if not ScriptDefaultCategoryDictionary.TryGetValue(ASectionName, Result) then
+      raise Exception.CreateFmt('Internal error: Section %s has no default category',
+        [ASectionName]);
+  end;
+
+  function IsKnownMessageName(const AName: String): Boolean;
+  { Accepts a language name prefix, just like the compiler does }
+  begin
+    var Name := AName;
+    const P = Pos('.', Name);
+    if P > 1 then
+      Name := Copy(Name, P+1, MaxInt);
+    Result := ScriptMessageNameDictionary.ContainsKey(Name);
+  end;
+
+begin
+  if AKnown then begin
+    if AObsolete then
+      Result := ScriptObsoleteCategoryName
+    else if not ScriptCategoryDictionary.TryGetValue(ScriptMemberDictionaryKey(ASectionName, AName), Result) then
+      Result := GetDefaultCategory;
+  end else if SameText(ASectionName, 'CustomMessages') or
+              (SameText(ASectionName, 'Messages') and IsKnownMessageName(AName)) then
+    Result := GetDefaultCategory
+  else
+    Result := ScriptUnknownCategoryName;
 end;
 
 function TryGetScriptBrowseFileType(const ASectionName, AName: String;
@@ -533,6 +601,13 @@ begin
 end;
 
 procedure InitializeScriptCategories;
+
+  procedure DC(const AName: String; const ASectionNames: TArray<String>);
+  begin
+    ScriptCategoryNameOrderedList := ScriptCategoryNameOrderedList + [AName];
+    for var SectionName in ASectionNames do
+      ScriptDefaultCategoryDictionary.Add(SectionName, AName);
+  end;
 
   procedure CD(const AName: String; const AMemberNames: TArray<String>;
     const ASectionNames: TArray<String>);
@@ -549,9 +624,35 @@ procedure InitializeScriptCategories;
   end;
 
 begin
+  ScriptObsoleteCategoryName := SInspectorCategoryObsolete;
+  ScriptUnknownCategoryName := SInspectorCategoryUnknown;
+
+  { Unknown and obsolete first }
+  ScriptCategoryNameOrderedList := ScriptCategoryNameOrderedList +
+    [ScriptUnknownCategoryName, ScriptObsoleteCategoryName];
+
+  { Then default categories. [Setup] deliberately has none: every one of its
+    directives has a specific category, see below }
+  DC(SInspectorCategoryComponent, ['Components']);
+  DC(SInspectorCategoryCustomMessages, ['CustomMessages']);
+  DC(SInspectorCategoryDirectory, ['Dirs']);
+  DC(SInspectorCategoryFile, ['Files']);
+  DC(SInspectorCategoryIcon, ['Icons']);
+  DC(SInspectorCategoryINI, ['INI']);
+  DC(SInspectorCategoryInstallDelete, ['InstallDelete', 'UninstallDelete']);
+  DC(SInspectorCategoryISSigKey, ['ISSigKeys']);
+  DC(SInspectorCategoryLanguage, ['Languages']);
+  DC(SInspectorCategoryLanguageOptions, ['LangOptions']);
+  DC(SInspectorCategoryMessages, ['Messages']);
+  DC(SInspectorCategoryRegistry, ['Registry']);
+  DC(SInspectorCategoryRun, ['Run', 'UninstallRun']);
+  DC(SInspectorCategoryTask, ['Tasks']);
+  DC(SInspectorCategoryType, ['Types']);
+
+  { Finally the specific categories }
   const SetupSection: TArray<String> = ['Setup'];
 
-  CD('Compiler', ['ASLRCompatible', 'DEPCompatible',
+  CD(SInspectorCategoryCompiler, ['ASLRCompatible', 'DEPCompatible',
     'DisablePrecompiledFileVerifications', 'DiskClusterSize', 'DiskSliceSize',
     'DiskSpanning', 'Encryption', 'EncryptionKeyDerivation',
     'MergeDuplicateFiles', 'MissingMessagesWarning', 'MissingRunOnceIdsWarning',
@@ -567,14 +668,14 @@ begin
     'VersionInfoTextVersion', 'VersionInfoVersion'],
     SetupSection);
 
-  CD('Compression', ['Compression', 'CompressionThreads',
+  CD(SInspectorCategoryCompression, ['Compression', 'CompressionThreads',
     'InternalCompressLevel', 'LZMAAlgorithm', 'LZMABlockSize',
     'LZMADictionarySize', 'LZMAMatchFinder', 'LZMANumBlockThreads',
     'LZMANumFastBytes', 'LZMAUseSeparateProcess', 'SolidCompression',
     'ZstdNumThreads'],
     SetupSection);
 
-  CD('Installer', ['AllowCancelDuringInstall', 'AllowNetworkDrive',
+  CD(SInspectorCategoryInstaller, ['AllowCancelDuringInstall', 'AllowNetworkDrive',
     'AllowNoIcons', 'AllowRootDirectory', 'AllowUNCPath', 'AlwaysRestart',
     'AlwaysShowComponentsList', 'AlwaysShowDirOnReadyPage',
     'AlwaysShowGroupOnReadyPage', 'AlwaysUsePersonalGroup',
@@ -605,7 +706,7 @@ begin
     'UsePreviousUserInfo', 'UserInfoPage'],
     SetupSection);
 
-  CD('Cosmetic', ['AppCopyright', 'FlatComponentsList', 'SetupIconFile',
+  CD(SInspectorCategoryCosmetic, ['AppCopyright', 'FlatComponentsList', 'SetupIconFile',
     'ShowComponentSizes', 'ShowTasksTreeLines', 'WizardBackColor',
     'WizardBackColorDynamicDark', 'WizardBackImageFile',
     'WizardBackImageFileDynamicDark', 'WizardBackImageOpacity',
@@ -622,9 +723,19 @@ begin
     'Icons', 'INI', 'InstallDelete', 'ISSigKeys', 'Languages', 'Registry',
     'Run', 'Tasks', 'Types', 'UninstallDelete', 'UninstallRun'];
 
-  CD('Common', ['Check', 'Components', 'Tasks', 'Languages', 'MinVersion',
+  CD(SInspectorCategoryCommon, ['Check', 'Components', 'Tasks', 'Languages', 'MinVersion',
     'OnlyBelowVersion', 'BeforeInstall', 'AfterInstall'],
     CommonSections);
+end;
+
+procedure InitializeScriptMessageNames;
+{ Used by IsKnownMessageName }
+begin
+  for var MessageID := Low(TSetupMessageID) to High(TSetupMessageID) do begin
+    ScriptMessageNameDictionary.Add(
+      Copy(GetEnumName(TypeInfo(TSetupMessageID), Ord(MessageID)),
+        SetupMessageIDPrefixLength+1, MaxInt), True);
+  end;
 end;
 
 procedure InitializeScriptBrowseFileTypes;
@@ -702,10 +813,15 @@ initialization
     SSDV(ssArchitecturesInstallIn64BitMode, ArchitecturesExpressionValues)];
 
   ScriptCategoryDictionary := TDictionary<String, String>.Create(TIStringComparer.Ordinal);
+  ScriptDefaultCategoryDictionary := TDictionary<String, String>.Create(TIStringComparer.Ordinal);
   InitializeScriptCategories;
+  ScriptMessageNameDictionary := TDictionary<String, Boolean>.Create(TIStringComparer.Ordinal);
+  InitializeScriptMessageNames;
   ScriptBrowseFileTypeDictionary := TDictionary<String, TScriptBrowseFileType>.Create(TIStringComparer.Ordinal);
   InitializeScriptBrowseFileTypes;
 finalization
   ScriptBrowseFileTypeDictionary.Free;
+  ScriptMessageNameDictionary.Free;
+  ScriptDefaultCategoryDictionary.Free;
   ScriptCategoryDictionary.Free;
 end.

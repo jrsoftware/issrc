@@ -825,11 +825,8 @@ begin
 
       { A parameter shared with the Common category groups under it, so a
         section cannot be forgotten in Common's section list }
-      if InNames(CommonMemberNames, Parameter.Name) then begin
-        var CategoryName: String;
-        Assert(TryGetScriptCategory(SectionName, Parameter.Name, CategoryName) and
-          (CategoryName = 'Common'));
-      end;
+      if InNames(CommonMemberNames, Parameter.Name) then
+        Assert(GetScriptCategory(SectionName, Parameter.Name, True, False) = 'Common');
     end;
 
     { Every flag-includes rule points at a real flag member and names only
@@ -885,52 +882,123 @@ begin
 end;
 
 procedure TestScriptCategories;
+const
+  UnknownAndObsoleteCategoryCount = 2; { Other and Obsolete }
+  SpecificCategoryCount = 5; { The four [Setup] ones and Common }
+  SharedDefaultCategoryCount = 2; { Install/UninstallDelete have same default category, as do Run/UninstallRun }
+
+  function IsDefaultCategoryName(const AName: String; const ACount: Integer): Boolean;
+  { Whether AName is one of the ACount default categories, which follow the
+    unknown and obsolete ones }
+  begin
+    const Names = ScriptCategoryNamesOrdered;
+    Result := False;
+    for var I := UnknownAndObsoleteCategoryCount to
+                 UnknownAndObsoleteCategoryCount+ACount-1 do
+      if Names[I] = AName then
+        Exit(True);
+  end;
+
 begin
-  { The categories are shown in this order: the section-specific groups first,
-    then Common (the inspector shows the Debug group after these) }
+  { Per section the categories are shown in this order: Other and Obsolete,
+    then its default category, then the categories of its remaining members: the
+    [Setup] ones, or Common (the inspector shows the Debug group before these) }
   const Names = ScriptCategoryNamesOrdered;
-  Assert(Length(Names) = 5);
-  Assert(Names[0] = 'Compiler');
-  Assert(Names[1] = 'Compression');
-  Assert(Names[2] = 'Installer');
-  Assert(Names[3] = 'Cosmetic');
-  Assert(Names[4] = 'Common');
+  const DefaultCategoryCount = Integer(Length(Names)) -
+    UnknownAndObsoleteCategoryCount - SpecificCategoryCount;
+  Assert(Names[0] = 'Other');
+  Assert(Names[1] = 'Obsolete');
+  const FirstSpecificCategoryIndex = UnknownAndObsoleteCategoryCount + DefaultCategoryCount;
+  Assert(Names[FirstSpecificCategoryIndex] = 'Compiler');
+  Assert(Names[FirstSpecificCategoryIndex+1] = 'Compression');
+  Assert(Names[FirstSpecificCategoryIndex+2] = 'Installer');
+  Assert(Names[FirstSpecificCategoryIndex+3] = 'Cosmetic');
+  Assert(Names[FirstSpecificCategoryIndex+4] = 'Common');
+
+  { A duplicated name would give a section two headers of the same name }
+  for var I := 0 to High(Names) do begin
+    Assert(Names[I] <> '');
+    for var J := 0 to I-1 do
+      Assert(not SameText(Names[J], Names[I]));
+  end;
+
+  { Every section the inspector shows has a default category, so every row of it
+    has a category, and that category comes before its specific ones. [Setup] is
+    the exception, see below. Taken from the section sets themselves: a section
+    added to one of them without a default category raises instead of leaving
+    its rows uncategorized }
+  var SectionCount := 0;
+  for var Section in KeyValueSections + ParameterSections - [scSetup] do begin
+    Assert(IsDefaultCategoryName(GetScriptCategory(SectionToSectionName(Section),
+      'AMemberWithoutOwnCategory', True, False), DefaultCategoryCount));
+    Inc(SectionCount);
+  end;
+  Assert(SectionCount = DefaultCategoryCount + SharedDefaultCategoryCount);
+
+  { [Setup] needs no default category because every one of its directives has a
+    specific category. This also raises for a directive which was forgotten,
+    instead of quietly grouping it apart from the others }
+  var SetupMetadata: TScriptModelSectionMetadata;
+  Assert(TryGetScriptModelSectionMetadata('Setup', SetupMetadata));
+  for var Member in SetupMetadata.Members do begin
+    Assert(not IsDefaultCategoryName(GetScriptCategory('Setup', Member.Name, True,
+      Member.Obsolete), DefaultCategoryCount));
+  end;
+
+  { A known member without a category of its own gets its section's default }
+  Assert(GetScriptCategory('Files', 'Source', True, False) = 'File');
+  Assert(GetScriptCategory('LangOptions', 'DialogFontName', True, False) = 'Language Options');
+
+  { An obsolete member is set apart, in every section }
+  Assert(GetScriptCategory('Setup', 'BackColor', True, True) = 'Obsolete');
+  Assert(GetScriptCategory('Files', 'CopyMode', True, True) = 'Obsolete');
+
+  { A member which is not in the metadata is set apart too, because it won't work }
+  Assert(GetScriptCategory('Setup', 'Check', False, False) = 'Other');
+  Assert(GetScriptCategory('Files', 'AppName', False, False) = 'Other');
+
+  { Except in the sections which have no metadata: [CustomMessages] names are the
+    script's own, and a [Messages] name is known if it is a message id, with or
+    without a language name prefix }
+  Assert(GetScriptCategory('CustomMessages', 'MyMessage', False, False) = 'Custom Messages');
+  Assert(GetScriptCategory('CustomMessages', 'AppName', False, False) = 'Custom Messages');
+  Assert(GetScriptCategory('Messages', 'welcomelabel1', False, False) = 'Messages');
+  Assert(GetScriptCategory('Messages', 'nl.WelcomeLabel1', False, False) = 'Messages');
+  Assert(GetScriptCategory('Messages', 'MyMessage', False, False) = 'Other');
+
+  { The inspector uses this to know where to add its unknown parameter rows }
+  Assert(IsScriptUnknownCategoryName('other'));
+  Assert(not IsScriptUnknownCategoryName('Obsolete'));
 
   { Membership maps a name to its category, case-insensitively. Common applies
     to the parameter sections only, so the unrelated [Setup] directive of the
     same name groups with the other [Setup] directives instead }
-  var CategoryName: String;
-  Assert(TryGetScriptCategory('Files', 'minversion', CategoryName) and
-    (CategoryName = 'Common'));
-  Assert(TryGetScriptCategory('Setup', 'minversion', CategoryName) and
-    (CategoryName = 'Installer'));
-  Assert(not TryGetScriptCategory('Setup', 'Check', CategoryName));
-
-  { A category applies only in the sections it lists, so a user-chosen name in
-    a section without a fixed name set (such as [CustomMessages]) cannot group }
-  Assert(not TryGetScriptCategory('CustomMessages', 'Tasks', CategoryName));
-  Assert(not TryGetScriptCategory('CustomMessages', 'AppName', CategoryName));
+  Assert(GetScriptCategory('Files', 'minversion', True, False) = 'Common');
+  Assert(GetScriptCategory('Setup', 'minversion', True, False) = 'Installer');
 
   { The [Setup] directive categories apply only in [Setup] }
-  Assert(TryGetScriptCategory('Setup', 'SolidCompression', CategoryName) and
-    (CategoryName = 'Compression'));
-  Assert(TryGetScriptCategory('Setup', 'LZMADictionarySize', CategoryName) and
-    (CategoryName = 'Compression'));
-  Assert(TryGetScriptCategory('Setup', 'SignTool', CategoryName) and
-    (CategoryName = 'Compiler'));
-  Assert(TryGetScriptCategory('Setup', 'AppName', CategoryName) and
-    (CategoryName = 'Installer'));
-  Assert(TryGetScriptCategory('Setup', 'wizardstyle', CategoryName) and
-    (CategoryName = 'Cosmetic'));
+  Assert(GetScriptCategory('Setup', 'SolidCompression', True, False) = 'Compression');
+  Assert(GetScriptCategory('Setup', 'LZMADictionarySize', True, False) = 'Compression');
+  Assert(GetScriptCategory('Setup', 'SignTool', True, False) = 'Compiler');
+  Assert(GetScriptCategory('Setup', 'AppName', True, False) = 'Installer');
+  Assert(GetScriptCategory('Setup', 'wizardstyle', True, False) = 'Cosmetic');
 
   { A name shared between a [Setup] directive and a parameter of another section
     groups only in [Setup] }
-  Assert(TryGetScriptCategory('Setup', 'ExtraDiskSpaceRequired', CategoryName) and
-    (CategoryName = 'Installer'));
-  Assert(not TryGetScriptCategory('Components', 'ExtraDiskSpaceRequired', CategoryName));
-  Assert(not TryGetScriptCategory('Languages', 'LicenseFile', CategoryName));
-  Assert(not TryGetScriptCategory('Files', 'AppName', CategoryName));
-  Assert(not TryGetScriptCategory('Files', 'Source', CategoryName));
+  Assert(GetScriptCategory('Setup', 'ExtraDiskSpaceRequired', True, False) = 'Installer');
+  Assert(GetScriptCategory('Components', 'ExtraDiskSpaceRequired', True, False) = 'Component');
+  Assert(GetScriptCategory('Languages', 'LicenseFile', True, False) = 'Language');
+
+{$IFDEF ISTESTTOOLPROJ}
+  { A section the inspector doesn't show has no default category }
+  var Caught := False;
+  try
+    GetScriptCategory('Code', 'MyRoutine', True, False);
+  except
+    Caught := True;
+  end;
+  Assert(Caught);
+{$ENDIF}
 
   { Obsolete parameters are flagged in the metadata }
   var Metadata: TScriptModelSectionMetadata;

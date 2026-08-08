@@ -244,15 +244,6 @@ const
   SInspectorSiblingOccurrencesNote = 'Unspecified directives are hidden because this section occurs more than once';
   SInspectorShowAllKnownDirectivesSuppressedNote = 'Unspecified directives are hidden because this is not the main script file';
 
-  { Inspector category display names, must match IDE.ScriptModel.Metadata.Extra's
-    category tables. These are not referenced by the code but must still be
-    present here, to ensure localization. }
-  SInspectorCategoryCompiler = 'Compiler';
-  SInspectorCategoryCompression = 'Compression';
-  SInspectorCategoryInstaller = 'Installer';
-  SInspectorCategoryCosmetic = 'Cosmetic';
-  SInspectorCategoryCommon = 'Common';
-
   { Tools }
   SToolsInsertGuidConfirm = 'The generated GUID will be inserted into the editor at the cursor position. Continue?';
   SToolsNotInCodeSectionConfirm = 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the %1 section. Continue anyway?';

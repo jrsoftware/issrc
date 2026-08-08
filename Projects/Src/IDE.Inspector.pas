@@ -878,7 +878,7 @@ procedure TInspector.UpdateFromCaret;
   function NewCategory(const AName: String): TJvCustomInspectorItem;
   begin
     Result := TJvInspectorCustomCategoryItem.Create(FJvInspector.Root);
-    Result.DisplayName := LFmtMessage(AName); { These are localizable, see IDE.Messages }
+    Result.DisplayName := LFmtMessage(AName); { These are localizable, because they use resourcestrings }
     Result.Expanded := True;
   end;
 
@@ -1100,26 +1100,11 @@ procedure TInspector.UpdateFromCaret;
     end;
   end;
 
-  procedure AddParameterSectionEntryRows;
+  procedure AddUnknownParameterRows(const ACategoryName: String;
+    var ACategoryItem: TJvCustomInspectorItem);
   begin
     const PrimaryEntry = FLiveParameterSectionEntries.PrimaryEntry;
 
-    { Known and uncategorized parameters first, in metadata order }
-    if PrimaryEntry.Metadata <> nil then begin
-      const SectionName = PrimaryEntry.Metadata.SectionName;
-      for var Definition in PrimaryEntry.Metadata.Members do begin
-        if Definition.Obsolete and
-           not FLiveParameterSectionEntries.MemberPresent(Definition.Name, -1) then
-          Continue; { Hide obsolete and unspecified }
-        if not DefinitionMatchesFilter(Definition) then
-          Continue;
-        var CategoryName: String;
-        if not TryGetScriptCategory(SectionName, Definition.Name, CategoryName) then
-          AddParameterOccurrenceRows(FJvInspector.Root, Definition);
-      end;
-    end;
-
-    { Present but unknown parameters }
     if FLiveParameterSectionEntries.Count > 1 then begin
       { Add all names used across the entries, addressed by name }
       const AddedNames = TStringList.Create;
@@ -1135,8 +1120,10 @@ procedure TInspector.UpdateFromCaret;
                  NameMatchesFilter(Parameter.Name) and
                  (AddedNames.IndexOf(Parameter.Name) < 0) then begin
                 AddedNames.Add(Parameter.Name);
+                if ACategoryItem = nil then
+                  ACategoryItem := NewCategory(ACategoryName);
                 const Row = MakeParameterRow(Parameter.Name, -1);
-                AddRow(FJvInspector.Root, Row.Name, False, Row);
+                AddRow(ACategoryItem, Row.Name, False, Row);
               end;
             end;
           end;
@@ -1151,33 +1138,43 @@ procedure TInspector.UpdateFromCaret;
           var Definition: TMemberDefinition;
           if not PrimaryEntry.TryGetDefinition(Parameter.Name, Definition) and
              NameMatchesFilter(Parameter.Name) then begin
+            if ACategoryItem = nil then
+              ACategoryItem := NewCategory(ACategoryName);
             const Row = MakeParameterRow(Parameter.Name, I);
-            AddRow(FJvInspector.Root, Row.Name, False, Row);
+            AddRow(ACategoryItem, Row.Name, False, Row);
           end;
         end;
       end;
     end;
+  end;
 
-    { Known and categorized parameters, in metadata order }
-    if PrimaryEntry.Metadata <> nil then begin
-      const SectionName = PrimaryEntry.Metadata.SectionName;
-      for var CategoryName in ScriptCategoryNamesOrdered do begin
-        var CategoryItem: TJvCustomInspectorItem := nil;
+  procedure AddParameterSectionEntryRows;
+  begin
+    const PrimaryEntry = FLiveParameterSectionEntries.PrimaryEntry;
+    const SectionName = SectionToSectionName(FLiveParameterSectionEntries.Section);
+
+    { Every row belongs to a category: the known parameters are added in
+      metadata order, each under its own category, and the parameters which are
+      present but unknown in script order, all under the unknown category }
+    for var CategoryName in ScriptCategoryNamesOrdered do begin
+      var CategoryItem: TJvCustomInspectorItem := nil;
+      if PrimaryEntry.Metadata <> nil then begin
         for var Definition in PrimaryEntry.Metadata.Members do begin
           if Definition.Obsolete and
              not FLiveParameterSectionEntries.MemberPresent(Definition.Name, -1) then
-            Continue;
+            Continue; { Hide obsolete and unspecified }
           if not DefinitionMatchesFilter(Definition) then
             Continue;
-          var DefinitionCategory: String;
-          if TryGetScriptCategory(SectionName, Definition.Name, DefinitionCategory) and
-             SameText(DefinitionCategory, CategoryName) then begin
+          if SameText(GetScriptCategory(SectionName, Definition.Name, True,
+               Definition.Obsolete), CategoryName) then begin
             if CategoryItem = nil then
               CategoryItem := NewCategory(CategoryName);
             AddParameterOccurrenceRows(CategoryItem, Definition);
           end;
         end;
       end;
+      if IsScriptUnknownCategoryName(CategoryName) then
+        AddUnknownParameterRows(CategoryName, CategoryItem);
     end;
   end;
 
@@ -1223,26 +1220,17 @@ procedure TInspector.UpdateFromCaret;
         end;
       end;
 
-      { Determination done. Add by category the same way as entry rows are. }
-
-      { Uncategorized first, in the order determined above }
-      for var Row in KeyRowsToShow do begin
-        if not KeyRowMatchesFilter(Row) then
-          Continue;
-        var CategoryName: String;
-        if not TryGetScriptCategory(FLiveKeyValueSectionName, Row.Name, CategoryName) then
-          AddKeyRow(FJvInspector.Root, Row);
-      end;
-
-      { Categorized keys, also in the order determined above }
+      { Determination done. Add by category the same way as entry rows are,
+        with every row belonging to a category, in the order determined above. }
       for var CategoryName in ScriptCategoryNamesOrdered do begin
         var CategoryItem: TJvCustomInspectorItem := nil;
         for var Row in KeyRowsToShow do begin
           if not KeyRowMatchesFilter(Row) then
             Continue;
-          var KeyCategory: String;
-          if TryGetScriptCategory(FLiveKeyValueSectionName, Row.Name, KeyCategory) and
-             SameText(KeyCategory, CategoryName) then begin
+          var Definition: TMemberDefinition;
+          const Known = Section.TryGetDefinition(Row.Name, Definition);
+          if SameText(GetScriptCategory(FLiveKeyValueSectionName, Row.Name, Known,
+               Known and Definition.Obsolete), CategoryName) then begin
             if CategoryItem = nil then
               CategoryItem := NewCategory(CategoryName);
             AddKeyRow(CategoryItem, Row);
