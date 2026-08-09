@@ -2048,8 +2048,11 @@ var
         TargetProcess := tpCurrent
       else
         TargetProcess := TPathRedirTargetProcess(Stack.GetInt(PStart-3));
+      const Path = Stack.GetString(PStart-2);
+      if Path = '' then
+        InternalError(Format('%s: Path must not be empty', [OrgName]));
       Stack.SetString(PStart, ApplyPathRedirRules(Stack.GetBool(PStart-1),
-        Stack.GetString(PStart-2), TargetProcess));
+        Path, TargetProcess));
     end);
   end;
 
