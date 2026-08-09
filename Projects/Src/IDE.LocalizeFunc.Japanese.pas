@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  JapaneseIDETranslations: array [0..980] of TTranslationPair = (
+  JapaneseIDETranslations: array [0..1005] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'コマンドラインの使用法:'),
     (English: 'Examples:'; Localized: '使用例:'),
     (English: 'script file'; Localized: 'スクリプトファイル'),
@@ -187,11 +187,6 @@ const
     (English: 'Select entries of one section type, and no other content'; Localized: '1 種類のセクションのエントリを、他の内容を含めずに選択してください'),
     (English: 'Unspecified directives are hidden because this section occurs more than once'; Localized: '未指定のディレクティブは、このセクションが複数回出現するため非表示になっています'),
     (English: 'Unspecified directives are hidden because this is not the main script file'; Localized: '未指定のディレクティブは、これがメインスクリプトファイルではないため非表示になっています'),
-    (English: 'Compiler'; Localized: 'コンパイラー'),
-    (English: 'Compression'; Localized: '圧縮'),
-    (English: 'Installer'; Localized: 'インストーラー'),
-    (English: 'Cosmetic'; Localized: '外観'),
-    (English: 'Common'; Localized: '共通'),
     (English: 'The generated GUID will be inserted into the editor at the cursor position. Continue?'; Localized: '生成された GUID は、エディターのカーソル位置に挿入されます。続行しますか？'),
     (English: 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the %1 section. Continue anyway?'; Localized: '生成された Pascal スクリプトは、エディターのカーソル位置に挿入されますが、カーソルは %1 セクション内にありません。それでも続行しますか？'),
     (English: 'Classic'; Localized: 'クラシック'),
@@ -911,6 +906,7 @@ const
     (English: 'Operation not supported on selected printer'; Localized: '選択されたプリンターではサポートされていない操作です'),
     (English: 'There is no default printer currently selected'; Localized: '現在、既定のプリンターが選択されていません'),
     (English: 'Menu ''%s'' is already being used by another form'; Localized: 'メニュー ''%s'' は既に別のフォームで使用されています'),
+    (English: 'Other'; Localized: 'その他'),
     (English: 'Docked control must have a name'; Localized: 'ドッキングされたコントロールには名前が必要です'),
     (English: 'Error removing control from dock tree'; Localized: 'ドック ツリーからのコントロールの削除中にエラーが発生しました'),
     (English: ' - Dock zone not found'; Localized: ' - ドック ゾーンが見つかりません'),
@@ -997,7 +993,36 @@ const
     (English: 'Data cannot be accessed as %s'; Localized: 'データに %s としてアクセスできません'),
     (English: 'Check'; Localized: 'オンにする'),
     (English: 'Uncheck'; Localized: 'オフにする'),
-    (English: 'Collapse'; Localized: '折りたたみ'));
+    (English: 'Collapse'; Localized: '折りたたみ'),
+    (English: 'Obsolete'; Localized: '廃止'),
+    (English: 'Custom Messages'; Localized: 'カスタムメッセージ'),
+    (English: 'Language Options'; Localized: '言語オプション'),
+    (English: 'Messages'; Localized: 'メッセージ'),
+    (English: 'Component'; Localized: 'コンポーネント'),
+    (English: 'Directory'; Localized: 'フォルダー'),
+    (English: 'File'; Localized: 'ファイル'),
+    (English: 'Icon'; Localized: 'アイコン'),
+    (English: 'INI'; Localized: 'INI'),
+    (English: 'Delete'; Localized: '削除'),
+    (English: 'ISSig Key'; Localized: 'ISSig キー'),
+    (English: 'Language'; Localized: '言語'),
+    (English: 'Registry'; Localized: 'レジストリ'),
+    (English: 'Task'; Localized: 'タスク'),
+    (English: 'Type'; Localized: '種類'),
+    (English: 'Appearance'; Localized: '外観'),
+    (English: 'Application Details'; Localized: 'アプリケーションの詳細'),
+    (English: 'Application Directory'; Localized: 'アプリケーションのフォルダー'),
+    (English: 'Applications in Use'; Localized: '使用中のアプリケーション'),
+    (English: 'Compression'; Localized: '圧縮'),
+    (English: 'Disk Spanning'; Localized: 'ディスク分割'),
+    (English: 'Installation Pages'; Localized: 'インストールページ'),
+    (English: 'Program Group'; Localized: 'プログラムグループ'),
+    (English: 'Security'; Localized: 'セキュリティ'),
+    (English: 'System Requirements'; Localized: 'システム要件'),
+    (English: 'Uninstallation'; Localized: 'アンインストール'),
+    (English: 'User Information'; Localized: 'ユーザー情報'),
+    (English: 'Version Information'; Localized: 'バージョン情報'),
+    (English: 'Common'; Localized: '共通'));
 
 implementation
 

@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  GermanIDETranslations: array [0..980] of TTranslationPair = (
+  GermanIDETranslations: array [0..1005] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Befehlszeilenverwendung:'),
     (English: 'Examples:'; Localized: 'Beispiele:'),
     (English: 'script file'; Localized: 'Skriptdatei'),
@@ -187,11 +187,6 @@ const
     (English: 'Select entries of one section type, and no other content'; Localized: 'Wählen Sie Einträge eines einzigen Abschnittstyps und keinen anderen Inhalt aus'),
     (English: 'Unspecified directives are hidden because this section occurs more than once'; Localized: 'Nicht angegebene Direktiven sind ausgeblendet, da dieser Abschnitt mehr als einmal vorkommt'),
     (English: 'Unspecified directives are hidden because this is not the main script file'; Localized: 'Nicht angegebene Direktiven sind ausgeblendet, da dies nicht die Hauptskriptdatei ist'),
-    (English: 'Compiler'; Localized: 'Compiler'),
-    (English: 'Compression'; Localized: 'Komprimierung'),
-    (English: 'Installer'; Localized: 'Installer'),
-    (English: 'Cosmetic'; Localized: 'Darstellung'),
-    (English: 'Common'; Localized: 'Allgemein'),
     (English: 'The generated GUID will be inserted into the editor at the cursor position. Continue?'; Localized: 'Die generierte GUID wird an der Cursorposition in den Editor eingefügt. Fortfahren?'),
     (English: 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the %1 section. Continue anyway?'; Localized: 'Das generierte Pascal-Skript wird an der Cursorposition in den Editor eingefügt, aber der Cursor befindet sich nicht im Abschnitt %1. Trotzdem fortfahren?'),
     (English: 'Classic'; Localized: 'Klassisch'),
@@ -910,6 +905,7 @@ const
     (English: 'Operation not supported on selected printer'; Localized: 'Vorgang wird vom ausgewählten Drucker nicht unterstützt'),
     (English: 'There is no default printer currently selected'; Localized: 'Derzeit ist kein Standarddrucker ausgewählt'),
     (English: 'Menu ''%s'' is already being used by another form'; Localized: 'Menü ''%s'' wird bereits von einem anderen Formular verwendet'),
+    (English: 'Other'; Localized: 'Sonstige'),
     (English: 'Docked control must have a name'; Localized: 'Angedocktes Steuerelement muss einen Namen haben'),
     (English: 'Error removing control from dock tree'; Localized: 'Fehler beim Entfernen des Steuerelements aus dem Andockbaum'),
     (English: ' - Dock zone not found'; Localized: ' - Andockzone nicht gefunden'),
@@ -996,7 +992,36 @@ const
     (English: 'Data cannot be accessed as %s'; Localized: 'Auf die Daten kann nicht als %s zugegriffen werden'),
     (English: 'Check'; Localized: 'Aktivieren'),
     (English: 'Uncheck'; Localized: 'Deaktivieren'),
-    (English: 'Collapse'; Localized: 'Reduzieren'));
+    (English: 'Collapse'; Localized: 'Reduzieren'),
+    (English: 'Obsolete'; Localized: 'Veraltet'),
+    (English: 'Custom Messages'; Localized: 'Benutzerdefinierte Meldungen'),
+    (English: 'Language Options'; Localized: 'Sprachoptionen'),
+    (English: 'Messages'; Localized: 'Meldungen'),
+    (English: 'Component'; Localized: 'Komponente'),
+    (English: 'Directory'; Localized: 'Ordner'),
+    (English: 'File'; Localized: 'Datei'),
+    (English: 'Icon'; Localized: 'Symbol'),
+    (English: 'INI'; Localized: 'INI'),
+    (English: 'Delete'; Localized: 'Löschen'),
+    (English: 'ISSig Key'; Localized: 'ISSig-Schlüssel'),
+    (English: 'Language'; Localized: 'Sprache'),
+    (English: 'Registry'; Localized: 'Registry'),
+    (English: 'Task'; Localized: 'Aufgabe'),
+    (English: 'Type'; Localized: 'Typ'),
+    (English: 'Appearance'; Localized: 'Darstellung'),
+    (English: 'Application Details'; Localized: 'Anwendungsdetails'),
+    (English: 'Application Directory'; Localized: 'Anwendungsordner'),
+    (English: 'Applications in Use'; Localized: 'Verwendete Anwendungen'),
+    (English: 'Compression'; Localized: 'Komprimierung'),
+    (English: 'Disk Spanning'; Localized: 'Datenträgeraufteilung'),
+    (English: 'Installation Pages'; Localized: 'Installationsseiten'),
+    (English: 'Program Group'; Localized: 'Programmgruppe'),
+    (English: 'Security'; Localized: 'Sicherheit'),
+    (English: 'System Requirements'; Localized: 'Systemanforderungen'),
+    (English: 'Uninstallation'; Localized: 'Deinstallation'),
+    (English: 'User Information'; Localized: 'Benutzerinformationen'),
+    (English: 'Version Information'; Localized: 'Versionsinformationen'),
+    (English: 'Common'; Localized: 'Allgemein'));
 
 implementation
 

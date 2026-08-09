@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  CzechIDETranslations: array [0..980] of TTranslationPair = (
+  CzechIDETranslations: array [0..1005] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Použití příkazového řádku:'),
     (English: 'Examples:'; Localized: 'Příklady:'),
     (English: 'script file'; Localized: 'soubor skriptu'),
@@ -187,11 +187,6 @@ const
     (English: 'Select entries of one section type, and no other content'; Localized: 'Vyberte položky jednoho typu sekce, bez jiného obsahu'),
     (English: 'Unspecified directives are hidden because this section occurs more than once'; Localized: 'Nezadané direktivy jsou skryty, protože se tato sekce vyskytuje více než jednou'),
     (English: 'Unspecified directives are hidden because this is not the main script file'; Localized: 'Nezadané direktivy jsou skryty, protože toto není hlavní soubor skriptu'),
-    (English: 'Compiler'; Localized: 'Kompilátor'),
-    (English: 'Compression'; Localized: 'Komprese'),
-    (English: 'Installer'; Localized: 'Instalátor'),
-    (English: 'Cosmetic'; Localized: 'Vzhled'),
-    (English: 'Common'; Localized: 'Obecné'),
     (English: 'The generated GUID will be inserted into the editor at the cursor position. Continue?'; Localized: 'Vygenerovaný GUID bude vložen do editoru na pozici kurzoru. Pokračovat?'),
     (English: 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the %1 section. Continue anyway?'; Localized: 'Vygenerovaný skript Pascal bude vložen do editoru na pozici kurzoru, ale kurzor není v sekci %1. Přesto pokračovat?'),
     (English: 'Classic'; Localized: 'Klasické'),
@@ -910,6 +905,7 @@ const
     (English: 'Operation not supported on selected printer'; Localized: 'Operace není podporována na vybrané tiskárně'),
     (English: 'There is no default printer currently selected'; Localized: 'Momentálně není vybrána žádná výchozí tiskárna'),
     (English: 'Menu ''%s'' is already being used by another form'; Localized: 'Nabídka ''%s'' je již používána jiným formulářem'),
+    (English: 'Other'; Localized: 'Ostatní'),
     (English: 'Docked control must have a name'; Localized: 'Ukotvený ovládací prvek musí mít název'),
     (English: 'Error removing control from dock tree'; Localized: 'Chyba při odebírání ovládacího prvku ze stromu ukotvení'),
     (English: ' - Dock zone not found'; Localized: ' - Ukotvovací zóna nenalezena'),
@@ -996,7 +992,36 @@ const
     (English: 'Data cannot be accessed as %s'; Localized: 'K datům nelze přistupovat jako %s'),
     (English: 'Check'; Localized: 'Zaškrtnout'),
     (English: 'Uncheck'; Localized: 'Zrušit zaškrtnutí'),
-    (English: 'Collapse'; Localized: 'Sbalit'));
+    (English: 'Collapse'; Localized: 'Sbalit'),
+    (English: 'Obsolete'; Localized: 'Zastaralé'),
+    (English: 'Custom Messages'; Localized: 'Vlastní zprávy'),
+    (English: 'Language Options'; Localized: 'Možnosti jazyka'),
+    (English: 'Messages'; Localized: 'Zprávy'),
+    (English: 'Component'; Localized: 'Součást'),
+    (English: 'Directory'; Localized: 'Složka'),
+    (English: 'File'; Localized: 'Soubor'),
+    (English: 'Icon'; Localized: 'Ikona'),
+    (English: 'INI'; Localized: 'INI'),
+    (English: 'Delete'; Localized: 'Odstranění'),
+    (English: 'ISSig Key'; Localized: 'Klíč ISSig'),
+    (English: 'Language'; Localized: 'Jazyk'),
+    (English: 'Registry'; Localized: 'Registr'),
+    (English: 'Task'; Localized: 'Úloha'),
+    (English: 'Type'; Localized: 'Typ'),
+    (English: 'Appearance'; Localized: 'Vzhled'),
+    (English: 'Application Details'; Localized: 'Podrobnosti o aplikaci'),
+    (English: 'Application Directory'; Localized: 'Složka aplikace'),
+    (English: 'Applications in Use'; Localized: 'Používané aplikace'),
+    (English: 'Compression'; Localized: 'Komprese'),
+    (English: 'Disk Spanning'; Localized: 'Rozdělení na disky'),
+    (English: 'Installation Pages'; Localized: 'Stránky instalace'),
+    (English: 'Program Group'; Localized: 'Skupina programů'),
+    (English: 'Security'; Localized: 'Zabezpečení'),
+    (English: 'System Requirements'; Localized: 'Požadavky na systém'),
+    (English: 'Uninstallation'; Localized: 'Odinstalace'),
+    (English: 'User Information'; Localized: 'Informace o uživateli'),
+    (English: 'Version Information'; Localized: 'Informace o verzi'),
+    (English: 'Common'; Localized: 'Obecné'));
 
 implementation
 

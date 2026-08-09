@@ -884,7 +884,7 @@ end;
 procedure TestScriptCategories;
 const
   UnknownAndObsoleteCategoryCount = 2; { Other and Obsolete }
-  SpecificCategoryCount = 5; { The four [Setup] ones and Common }
+  SpecificCategoryCount = 15; { The fourteen [Setup] ones and Common }
   SharedDefaultCategoryCount = 2; { Install/UninstallDelete have same default category, as do Run/UninstallRun }
 
   function IsDefaultCategoryName(const AName: String; const ACount: Integer): Boolean;
@@ -909,11 +909,21 @@ begin
   Assert(Names[0] = 'Other');
   Assert(Names[1] = 'Obsolete');
   const FirstSpecificCategoryIndex = UnknownAndObsoleteCategoryCount + DefaultCategoryCount;
-  Assert(Names[FirstSpecificCategoryIndex] = 'Compiler');
-  Assert(Names[FirstSpecificCategoryIndex+1] = 'Compression');
-  Assert(Names[FirstSpecificCategoryIndex+2] = 'Installer');
-  Assert(Names[FirstSpecificCategoryIndex+3] = 'Cosmetic');
-  Assert(Names[FirstSpecificCategoryIndex+4] = 'Common');
+  Assert(Names[FirstSpecificCategoryIndex] = 'Appearance');
+  Assert(Names[FirstSpecificCategoryIndex+1] = 'Application Details');
+  Assert(Names[FirstSpecificCategoryIndex+2] = 'Application Directory');
+  Assert(Names[FirstSpecificCategoryIndex+3] = 'Applications in Use');
+  Assert(Names[FirstSpecificCategoryIndex+4] = 'Compiler Settings');
+  Assert(Names[FirstSpecificCategoryIndex+5] = 'Compression');
+  Assert(Names[FirstSpecificCategoryIndex+6] = 'Disk Spanning');
+  Assert(Names[FirstSpecificCategoryIndex+7] = 'Installation Pages');
+  Assert(Names[FirstSpecificCategoryIndex+8] = 'Program Group');
+  Assert(Names[FirstSpecificCategoryIndex+9] = 'Security');
+  Assert(Names[FirstSpecificCategoryIndex+10] = 'System Requirements');
+  Assert(Names[FirstSpecificCategoryIndex+11] = 'Uninstallation');
+  Assert(Names[FirstSpecificCategoryIndex+12] = 'User Information');
+  Assert(Names[FirstSpecificCategoryIndex+13] = 'Version Information');
+  Assert(Names[FirstSpecificCategoryIndex+14] = 'Common');
 
   { A duplicated name would give a section two headers of the same name }
   for var I := 0 to High(Names) do begin
@@ -974,18 +984,45 @@ begin
     to the parameter sections only, so the unrelated [Setup] directive of the
     same name groups with the other [Setup] directives instead }
   Assert(GetScriptCategory('Files', 'minversion', True, False) = 'Common');
-  Assert(GetScriptCategory('Setup', 'minversion', True, False) = 'Installer');
+  Assert(GetScriptCategory('Setup', 'minversion', True, False) = 'System Requirements');
 
   { The [Setup] directive categories apply only in [Setup] }
   Assert(GetScriptCategory('Setup', 'SolidCompression', True, False) = 'Compression');
   Assert(GetScriptCategory('Setup', 'LZMADictionarySize', True, False) = 'Compression');
-  Assert(GetScriptCategory('Setup', 'SignTool', True, False) = 'Compiler');
-  Assert(GetScriptCategory('Setup', 'AppName', True, False) = 'Installer');
-  Assert(GetScriptCategory('Setup', 'wizardstyle', True, False) = 'Cosmetic');
+  Assert(GetScriptCategory('Setup', 'OutputBaseFilename', True, False) = 'Compiler Settings');
+  Assert(GetScriptCategory('Setup', 'AppName', True, False) = 'Application Details');
+  Assert(GetScriptCategory('Setup', 'wizardstyle', True, False) = 'Appearance');
+  Assert(GetScriptCategory('Setup', 'SetupArchitecture', True, False) = 'System Requirements');
+  Assert(GetScriptCategory('Setup', 'AppMutex', True, False) = 'Applications in Use');
+  Assert(GetScriptCategory('Setup', 'CloseApplications', True, False) = 'Applications in Use');
+  Assert(GetScriptCategory('Setup', 'SignTool', True, False) = 'Security');
+  Assert(GetScriptCategory('Setup', 'RedirectionGuard', True, False) = 'Security');
+
+  { Directives which go by what they do instead of by what their name suggests }
+  Assert(GetScriptCategory('Setup', 'TerminalServicesAware', True, False) = 'Compiler Settings');
+  Assert(GetScriptCategory('Setup', 'ASLRCompatible', True, False) = 'Security');
+  Assert(GetScriptCategory('Setup', 'Password', True, False) = 'Security');
+  Assert(GetScriptCategory('Setup', 'SetupLogging', True, False) = 'Application Details');
+  Assert(GetScriptCategory('Setup', 'AppId', True, False) = 'Uninstallation');
+  Assert(GetScriptCategory('Setup', 'AppCopyright', True, False) = 'Version Information');
+  Assert(GetScriptCategory('Setup', 'FlatComponentsList', True, False) = 'Installation Pages');
+
+  { AppVersion sets the Add/Remove Programs version, but it is also part of
+    AppVerName's default, which Setup shows in its window title }
+  Assert(GetScriptCategory('Setup', 'AppVersion', True, False) = 'Application Details');
+
+  { The file time stamp directives are resolved at compile time }
+  Assert(GetScriptCategory('Setup', 'TouchDate', True, False) = 'Compiler Settings');
+  Assert(GetScriptCategory('Setup', 'TimeStampsInUTC', True, False) = 'Compiler Settings');
+
+  { A UsePrevious* directive groups with the setting it remembers, not with the
+    other UsePrevious* directives }
+  Assert(GetScriptCategory('Setup', 'UsePreviousLanguage', True, False) = 'Installation Pages');
+  Assert(GetScriptCategory('Setup', 'UsePreviousPrivileges', True, False) = 'Application Details');
 
   { A name shared between a [Setup] directive and a parameter of another section
     groups only in [Setup] }
-  Assert(GetScriptCategory('Setup', 'ExtraDiskSpaceRequired', True, False) = 'Installer');
+  Assert(GetScriptCategory('Setup', 'ExtraDiskSpaceRequired', True, False) = 'Application Details');
   Assert(GetScriptCategory('Components', 'ExtraDiskSpaceRequired', True, False) = 'Component');
   Assert(GetScriptCategory('Languages', 'LicenseFile', True, False) = 'Language');
 

@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..980] of TTranslationPair = (
+  DutchIDETranslations: array [0..1005] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -187,11 +187,6 @@ const
     (English: 'Select entries of one section type, and no other content'; Localized: 'Selecteer vermeldingen van één sectietype, en geen andere inhoud'),
     (English: 'Unspecified directives are hidden because this section occurs more than once'; Localized: 'Niet-opgegeven directieven zijn verborgen omdat deze sectie meer dan één keer voorkomt'),
     (English: 'Unspecified directives are hidden because this is not the main script file'; Localized: 'Niet-opgegeven directieven zijn verborgen omdat dit niet het hoofdscriptbestand is'),
-    (English: 'Compiler'; Localized: 'Compiler'),
-    (English: 'Compression'; Localized: 'Compressie'),
-    (English: 'Installer'; Localized: 'Installatieprogramma'),
-    (English: 'Cosmetic'; Localized: 'Uiterlijk'),
-    (English: 'Common'; Localized: 'Algemeen'),
     (English: 'The generated GUID will be inserted into the editor at the cursor position. Continue?'; Localized: 'De gegenereerde GUID wordt op de cursorpositie in de editor ingevoegd. Doorgaan?'),
     (English: 'The generated Pascal script will be inserted into the editor at the cursor position, but the cursor is not in the %1 section. Continue anyway?'; Localized: 'Het gegenereerde Pascal-script wordt op de cursorpositie in de editor ingevoegd, maar de cursor staat niet in de sectie %1. Toch doorgaan?'),
     (English: 'Classic'; Localized: 'Klassiek'),
@@ -910,6 +905,7 @@ const
     (English: 'Operation not supported on selected printer'; Localized: 'Bewerking wordt niet ondersteund op de geselecteerde printer'),
     (English: 'There is no default printer currently selected'; Localized: 'Er is momenteel geen standaardprinter geselecteerd'),
     (English: 'Menu ''%s'' is already being used by another form'; Localized: 'Menu ''%s'' wordt al gebruikt door een ander formulier'),
+    (English: 'Other'; Localized: 'Overig'),
     (English: 'Docked control must have a name'; Localized: 'Gedockt besturingselement moet een naam hebben'),
     (English: 'Error removing control from dock tree'; Localized: 'Fout bij het verwijderen van besturingselement uit dockstructuur'),
     (English: ' - Dock zone not found'; Localized: ' - Dockzone niet gevonden'),
@@ -996,7 +992,36 @@ const
     (English: 'Data cannot be accessed as %s'; Localized: 'Gegevens kunnen niet als %s worden benaderd'),
     (English: 'Check'; Localized: 'Inschakelen'),
     (English: 'Uncheck'; Localized: 'Uitschakelen'),
-    (English: 'Collapse'; Localized: 'Samenvouwen'));
+    (English: 'Collapse'; Localized: 'Samenvouwen'),
+    (English: 'Obsolete'; Localized: 'Verouderd'),
+    (English: 'Custom Messages'; Localized: 'Aangepaste berichten'),
+    (English: 'Language Options'; Localized: 'Taalopties'),
+    (English: 'Messages'; Localized: 'Berichten'),
+    (English: 'Component'; Localized: 'Component'),
+    (English: 'Directory'; Localized: 'Map'),
+    (English: 'File'; Localized: 'Bestand'),
+    (English: 'Icon'; Localized: 'Pictogram'),
+    (English: 'INI'; Localized: 'INI'),
+    (English: 'Delete'; Localized: 'Verwijderen'),
+    (English: 'ISSig Key'; Localized: 'ISSig-sleutel'),
+    (English: 'Language'; Localized: 'Taal'),
+    (English: 'Registry'; Localized: 'Register'),
+    (English: 'Task'; Localized: 'Taak'),
+    (English: 'Type'; Localized: 'Type'),
+    (English: 'Appearance'; Localized: 'Uiterlijk'),
+    (English: 'Application Details'; Localized: 'Toepassingsdetails'),
+    (English: 'Application Directory'; Localized: 'Toepassingsmap'),
+    (English: 'Applications in Use'; Localized: 'Toepassingen in gebruik'),
+    (English: 'Compression'; Localized: 'Compressie'),
+    (English: 'Disk Spanning'; Localized: 'Schijfspreiding'),
+    (English: 'Installation Pages'; Localized: 'Installatiepagina''s'),
+    (English: 'Program Group'; Localized: 'Programmagroep'),
+    (English: 'Security'; Localized: 'Beveiliging'),
+    (English: 'System Requirements'; Localized: 'Systeemvereisten'),
+    (English: 'Uninstallation'; Localized: 'Verwijdering'),
+    (English: 'User Information'; Localized: 'Gebruikersinformatie'),
+    (English: 'Version Information'; Localized: 'Versie-informatie'),
+    (English: 'Common'; Localized: 'Algemeen'));
 
 implementation
 

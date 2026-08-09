@@ -526,10 +526,20 @@ resourcestring
   SInspectorCategoryTask = 'Task';
   SInspectorCategoryType = 'Type';
 
-  SInspectorCategoryCompiler = 'Compiler';
+  SInspectorCategoryAppearance = 'Appearance';
+  SInspectorCategoryApplicationDetails = 'Application Details';
+  SInspectorCategoryApplicationDirectory = 'Application Directory';
+  SInspectorCategoryApplicationsInUse = 'Applications in Use';
+  SInspectorCategoryCompilerSettings = 'Compiler Settings';
   SInspectorCategoryCompression = 'Compression';
-  SInspectorCategoryInstaller = 'Installer';
-  SInspectorCategoryCosmetic = 'Cosmetic';
+  SInspectorCategoryDiskSpanning = 'Disk Spanning';
+  SInspectorCategoryInstallationPages = 'Installation Pages';
+  SInspectorCategoryProgramGroup = 'Program Group';
+  SInspectorCategorySecurity = 'Security';
+  SInspectorCategorySystemRequirements = 'System Requirements';
+  SInspectorCategoryUninstallation = 'Uninstallation';
+  SInspectorCategoryUserInformation = 'User Information';
+  SInspectorCategoryVersionInformation = 'Version Information';
   SInspectorCategoryCommon = 'Common';
 
 var
@@ -652,20 +662,42 @@ begin
   { Finally the specific categories }
   const SetupSection: TArray<String> = ['Setup'];
 
-  CD(SInspectorCategoryCompiler, ['ASLRCompatible', 'DEPCompatible',
-    'DisablePrecompiledFileVerifications', 'DiskClusterSize', 'DiskSliceSize',
-    'DiskSpanning', 'Encryption', 'EncryptionKeyDerivation',
-    'MergeDuplicateFiles', 'MissingMessagesWarning', 'MissingRunOnceIdsWarning',
-    'NotRecognizedMessagesWarning', 'Output', 'OutputBaseFilename', 'OutputDir',
-    'OutputManifestFile', 'ReserveBytes', 'SignedUninstaller',
-    'SignedUninstallerDir', 'SignTool', 'SignToolMinimumTimeBetween',
-    'SignToolRetryCount', 'SignToolRetryDelay', 'SignToolRunMinimized',
-    'SlicesPerDisk', 'SourceDir', 'TerminalServicesAware',
-    'UsedUserAreasWarning', 'UseSetupLdr', 'VersionInfoCompany',
-    'VersionInfoCopyright', 'VersionInfoDescription',
-    'VersionInfoOriginalFileName', 'VersionInfoProductName',
-    'VersionInfoProductTextVersion', 'VersionInfoProductVersion',
-    'VersionInfoTextVersion', 'VersionInfoVersion'],
+  CD(SInspectorCategoryAppearance, ['DefaultDialogFontName', 'SetupIconFile',
+    'WizardBackColor', 'WizardBackColorDynamicDark', 'WizardBackImageFile',
+    'WizardBackImageFileDynamicDark', 'WizardBackImageOpacity',
+    'WizardImageAlphaFormat', 'WizardImageBackColor',
+    'WizardImageBackColorDynamicDark', 'WizardImageFile',
+    'WizardImageFileDynamicDark', 'WizardImageOpacity', 'WizardImageStretch',
+    'WizardKeepAspectRatio', 'WizardSizePercent', 'WizardSmallImageBackColor',
+    'WizardSmallImageBackColorDynamicDark', 'WizardSmallImageFile',
+    'WizardSmallImageFileDynamicDark', 'WizardStyle', 'WizardStyleFile',
+    'WizardStyleFileDynamicDark'],
+    SetupSection);
+
+  CD(SInspectorCategoryApplicationDetails, ['AllowCancelDuringInstall',
+    'AlwaysRestart', 'AppName', 'AppVerName', 'AppVersion',
+    'ChangesAssociations', 'ChangesEnvironment', 'ExtraDiskSpaceRequired',
+    'PrivilegesRequired', 'PrivilegesRequiredOverridesAllowed',
+    'RestartIfNeededByRun', 'SetupLogging', 'UsePreviousPrivileges'],
+    SetupSection);
+
+  CD(SInspectorCategoryApplicationDirectory, ['AllowNetworkDrive',
+    'AllowRootDirectory', 'AllowUNCPath', 'AppendDefaultDirName',
+    'CreateAppDir', 'DefaultDirName', 'DirExistsWarning', 'DisableDirPage',
+    'EnableDirDoesntExistWarning', 'UsePreviousAppDir'],
+    SetupSection);
+
+  CD(SInspectorCategoryApplicationsInUse, ['AppMutex', 'CloseApplications',
+    'CloseApplicationsFilter', 'CloseApplicationsFilterExcludes',
+    'RestartApplications', 'SetupMutex'],
+    SetupSection);
+
+  CD(SInspectorCategoryCompilerSettings, ['ArchiveExtraction',
+    'MergeDuplicateFiles', 'MissingMessagesWarning',
+    'MissingRunOnceIdsWarning', 'NotRecognizedMessagesWarning', 'Output',
+    'OutputBaseFilename', 'OutputDir', 'OutputManifestFile', 'SourceDir',
+    'TerminalServicesAware', 'TimeStampRounding', 'TimeStampsInUTC',
+    'TouchDate', 'TouchTime', 'UsedUserAreasWarning', 'UseSetupLdr'],
     SetupSection);
 
   CD(SInspectorCategoryCompression, ['Compression', 'CompressionThreads',
@@ -675,48 +707,56 @@ begin
     'ZstdNumThreads'],
     SetupSection);
 
-  CD(SInspectorCategoryInstaller, ['AllowCancelDuringInstall', 'AllowNetworkDrive',
-    'AllowNoIcons', 'AllowRootDirectory', 'AllowUNCPath', 'AlwaysRestart',
-    'AlwaysShowComponentsList', 'AlwaysShowDirOnReadyPage',
-    'AlwaysShowGroupOnReadyPage', 'AlwaysUsePersonalGroup',
-    'AppendDefaultDirName', 'AppendDefaultGroupName', 'AppComments',
-    'AppContact', 'AppId', 'AppModifyPath', 'AppMutex', 'AppName',
-    'AppPublisher', 'AppPublisherURL', 'AppReadmeFile', 'AppSupportPhone',
-    'AppSupportURL', 'AppUpdatesURL', 'AppVerName', 'AppVersion',
-    'ArchitecturesAllowed', 'ArchitecturesInstallIn64BitMode',
-    'ArchiveExtraction', 'ChangesAssociations', 'ChangesEnvironment',
-    'CloseApplications', 'CloseApplicationsFilter',
-    'CloseApplicationsFilterExcludes', 'CreateAppDir', 'CreateUninstallRegKey',
-    'DefaultDialogFontName', 'DefaultDirName', 'DefaultGroupName',
-    'DefaultUserInfoName', 'DefaultUserInfoOrg', 'DefaultUserInfoSerial',
-    'DirExistsWarning', 'DisableDirPage', 'DisableFinishedPage',
-    'DisableProgramGroupPage', 'DisableReadyMemo', 'DisableReadyPage',
-    'DisableStartupPrompt', 'DisableWelcomePage', 'EnableDirDoesntExistWarning',
-    'ExtraDiskSpaceRequired', 'InfoAfterFile', 'InfoBeforeFile',
-    'LanguageDetectionMethod', 'LicenseFile', 'MinVersion', 'OnlyBelowVersion',
-    'Password', 'PrivilegesRequired', 'PrivilegesRequiredOverridesAllowed',
-    'RedirectionGuard', 'RestartApplications', 'RestartIfNeededByRun',
-    'SetupArchitecture', 'SetupLogging', 'SetupMutex', 'ShowLanguageDialog',
-    'TimeStampRounding', 'TimeStampsInUTC', 'TouchDate', 'TouchTime',
-    'Uninstallable', 'UninstallDisplayIcon', 'UninstallDisplayName',
-    'UninstallDisplaySize', 'UninstallFilesDir', 'UninstallLogging',
-    'UninstallLogMode', 'UninstallRestartComputer', 'UpdateUninstallLogAppName',
-    'UsePreviousAppDir', 'UsePreviousGroup', 'UsePreviousLanguage',
-    'UsePreviousPrivileges', 'UsePreviousSetupType', 'UsePreviousTasks',
-    'UsePreviousUserInfo', 'UserInfoPage'],
+  CD(SInspectorCategoryDiskSpanning, ['DiskClusterSize', 'DiskSliceSize',
+    'DiskSpanning', 'ReserveBytes', 'SlicesPerDisk'],
     SetupSection);
 
-  CD(SInspectorCategoryCosmetic, ['AppCopyright', 'FlatComponentsList', 'SetupIconFile',
-    'ShowComponentSizes', 'ShowTasksTreeLines', 'WizardBackColor',
-    'WizardBackColorDynamicDark', 'WizardBackImageFile',
-    'WizardBackImageFileDynamicDark', 'WizardBackImageOpacity',
-    'WizardImageAlphaFormat', 'WizardImageBackColor',
-    'WizardImageBackColorDynamicDark', 'WizardImageFile',
-    'WizardImageFileDynamicDark', 'WizardImageOpacity', 'WizardImageStretch',
-    'WizardKeepAspectRatio', 'WizardSizePercent', 'WizardSmallImageBackColor',
-    'WizardSmallImageBackColorDynamicDark', 'WizardSmallImageFile',
-    'WizardSmallImageFileDynamicDark', 'WizardStyle', 'WizardStyleFile',
-    'WizardStyleFileDynamicDark'],
+  CD(SInspectorCategoryInstallationPages, ['AlwaysShowComponentsList',
+    'AlwaysShowDirOnReadyPage', 'AlwaysShowGroupOnReadyPage',
+    'DisableFinishedPage', 'DisableReadyMemo', 'DisableReadyPage',
+    'DisableStartupPrompt', 'DisableWelcomePage', 'FlatComponentsList',
+    'InfoAfterFile', 'InfoBeforeFile', 'LanguageDetectionMethod', 'LicenseFile',
+    'ShowComponentSizes', 'ShowLanguageDialog', 'ShowTasksTreeLines',
+    'UsePreviousLanguage', 'UsePreviousSetupType', 'UsePreviousTasks'],
+    SetupSection);
+
+  CD(SInspectorCategoryProgramGroup, ['AllowNoIcons', 'AlwaysUsePersonalGroup',
+    'AppendDefaultGroupName', 'DefaultGroupName', 'DisableProgramGroupPage',
+    'UsePreviousGroup'],
+    SetupSection);
+
+  CD(SInspectorCategorySecurity, ['ASLRCompatible', 'DEPCompatible',
+    'DisablePrecompiledFileVerifications', 'Encryption',
+    'EncryptionKeyDerivation', 'Password', 'RedirectionGuard',
+    'SignedUninstaller', 'SignedUninstallerDir', 'SignTool',
+    'SignToolMinimumTimeBetween', 'SignToolRetryCount', 'SignToolRetryDelay',
+    'SignToolRunMinimized'],
+    SetupSection);
+
+  CD(SInspectorCategorySystemRequirements, ['ArchitecturesAllowed',
+    'ArchitecturesInstallIn64BitMode', 'MinVersion', 'OnlyBelowVersion',
+    'SetupArchitecture'],
+    SetupSection);
+
+  CD(SInspectorCategoryUninstallation, ['AppComments', 'AppContact', 'AppId',
+    'AppModifyPath', 'AppPublisher', 'AppPublisherURL', 'AppReadmeFile',
+    'AppSupportPhone', 'AppSupportURL', 'AppUpdatesURL',
+    'CreateUninstallRegKey', 'Uninstallable', 'UninstallDisplayIcon',
+    'UninstallDisplayName', 'UninstallDisplaySize', 'UninstallFilesDir',
+    'UninstallLogging', 'UninstallLogMode', 'UninstallRestartComputer',
+    'UpdateUninstallLogAppName'],
+    SetupSection);
+
+  CD(SInspectorCategoryUserInformation, ['DefaultUserInfoName',
+    'DefaultUserInfoOrg', 'DefaultUserInfoSerial', 'UsePreviousUserInfo',
+    'UserInfoPage'],
+    SetupSection);
+
+  CD(SInspectorCategoryVersionInformation, ['AppCopyright',
+    'VersionInfoCompany', 'VersionInfoCopyright', 'VersionInfoDescription',
+    'VersionInfoOriginalFileName', 'VersionInfoProductName',
+    'VersionInfoProductTextVersion', 'VersionInfoProductVersion',
+    'VersionInfoTextVersion', 'VersionInfoVersion'],
     SetupSection);
 
   const CommonSections: TArray<String> = ['Components', 'Dirs', 'Files',
