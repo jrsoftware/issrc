@@ -22,7 +22,7 @@ paths: ["**/*.pas", "**/*.dpr", "**/*.inc"]
   `for var X in Y do`
   `  if Z(X) then`
   `    Exit(True);`
-  But a statement that is multi-line at its own level (a wrapped condition or call, or a `begin..end` block of its own) makes each level above it multi-line too.
+  A statement wrapped over continuation lines still counts as one line. But a statement that is genuinely multi-line at its own level (a `begin..end` block, or a control statement with a body, of its own) makes each level above it multi-line too.
 - Do not use `Longint` or `LongWord`, use `Integer` or `Cardinal` instead.
 - Mark read-only parameters as `const`.
 - Use Windows units first, then RTL/VCL units, then Components units, then Shared units, then project specific units.
