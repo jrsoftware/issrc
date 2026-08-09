@@ -26,7 +26,7 @@ These are hard constraints of the ROPS compiler. Violating them causes compile e
 - `else` and `begin` should be on the same line.
 - Do not use `begin..end` for single one-line statement blocks, but always use it when the block spans multiple lines. This includes when the block's single statement spans multiple lines (such as a multi-line `for`), and when a comment on its own line accompanies the statement (a trailing comment on the statement's line does not count).
   Count lines per indentation level: a child statement never adds to its parent's count, so a chain of one-line statements takes no `begin..end` at any level.
-  But a statement that is multi-line at its own level (a wrapped condition or call, or a `begin..end` block of its own) makes each level above it multi-line too.
+  A statement wrapped over continuation lines still counts as one line. But a statement that is genuinely multi-line at its own level (a `begin..end` block, or a control statement with a body, of its own) makes each level above it multi-line too.
 - Do not use `Longint` or `LongWord`; use `Integer` or `Cardinal` instead.
 - Mark read-only parameters as `const`.
 - Do not shorten descriptive names. Write `Expression`, not `Expr`; `MultiFileHandler`, not `MFH`. Conventional short names (`I`, `J`, `S`, `Res`) and established identifiers (`HiWord`) are fine.
