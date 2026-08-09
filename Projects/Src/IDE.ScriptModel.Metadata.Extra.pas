@@ -466,6 +466,8 @@ type
 
 function ScriptCategoryNamesOrdered: TArray<String>;
 
+procedure GetScriptSetupCategoryNamesRange(out AIndex, ACount: NativeInt);
+
 function IsScriptUnknownCategoryName(const ACategoryName: String): Boolean;
 
 function GetScriptCategory(const ASectionName, AName: String;
@@ -546,6 +548,7 @@ var
   ScriptCategoryDictionary: TDictionary<String, String>;
   ScriptDefaultCategoryDictionary: TDictionary<String, String>;
   ScriptCategoryNameOrderedList: TArray<String>;
+  ScriptSetupCategoryNamesIndex, ScriptSetupCategoryNamesCount: NativeInt;
   { Each category resourcestring must be read once only, at initialization: the
     LoadResStringFunc hook installed later by IDE.LocalizeFunc would otherwise
     return a localized value which no longer matches the names cached above.
@@ -562,6 +565,12 @@ end;
 function ScriptCategoryNamesOrdered: TArray<String>;
 begin
   Result := Copy(ScriptCategoryNameOrderedList);
+end;
+
+procedure GetScriptSetupCategoryNamesRange(out AIndex, ACount: NativeInt);
+begin
+  AIndex := ScriptSetupCategoryNamesIndex;
+  ACount := ScriptSetupCategoryNamesCount;
 end;
 
 function IsScriptUnknownCategoryName(const ACategoryName: String): Boolean;
@@ -661,6 +670,7 @@ begin
 
   { Finally the specific categories }
   const SetupSection: TArray<String> = ['Setup'];
+  ScriptSetupCategoryNamesIndex := Length(ScriptCategoryNameOrderedList);
 
   CD(SInspectorCategoryAppearance, ['DefaultDialogFontName', 'SetupIconFile',
     'WizardBackColor', 'WizardBackColorDynamicDark', 'WizardBackImageFile',
@@ -758,6 +768,9 @@ begin
     'VersionInfoProductTextVersion', 'VersionInfoProductVersion',
     'VersionInfoTextVersion', 'VersionInfoVersion'],
     SetupSection);
+
+  ScriptSetupCategoryNamesCount := Length(ScriptCategoryNameOrderedList) -
+    ScriptSetupCategoryNamesIndex;
 
   const CommonSections: TArray<String> = ['Components', 'Dirs', 'Files',
     'Icons', 'INI', 'InstallDelete', 'ISSigKeys', 'Languages', 'Registry',

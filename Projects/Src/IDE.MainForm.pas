@@ -4489,7 +4489,8 @@ begin
         -If multiple English strings have the same translation, only one is used
          when retranslating the translation back into to English.
         -It does not update the UpdatePanel message text.
-        -It does not update the exit code shown in the status bar (spExtraStatus). }
+        -It does not update the exit code shown in the status bar (spExtraStatus).
+        -It does not resort the Inspector's [Setup] category headers. }
       if SaveLanguage <> ilEnglish then begin
         InitLocalization(SaveLanguage, True);
         LocalizeComponent(Self);

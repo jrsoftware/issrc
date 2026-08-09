@@ -1502,9 +1502,9 @@ begin
   if SelectionCount > 1 then begin
     { Sort }
     TArray.Sort<TScintLineRange>(LineRanges, TComparer<TScintLineRange>.Construct(
-      function(const A, B: TScintLineRange): Integer
+      function(const Left, Right: TScintLineRange): Integer
       begin
-        Result := CompareValue(A.StartLine, B.StartLine);
+        Result := CompareValue(Left.StartLine, Right.StartLine);
       end));
     { Keep the individual line ranges: a copy because merging edits elements }
     AIndividualLineRanges := Copy(LineRanges);

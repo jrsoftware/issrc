@@ -925,6 +925,11 @@ begin
   Assert(Names[FirstSpecificCategoryIndex+13] = 'Version Information');
   Assert(Names[FirstSpecificCategoryIndex+14] = 'Common');
 
+  var FirstSetupCategoryIndex, SetupCategoryCount: NativeInt;
+  GetScriptSetupCategoryNamesRange(FirstSetupCategoryIndex, SetupCategoryCount);
+  Assert(FirstSetupCategoryIndex = FirstSpecificCategoryIndex);
+  Assert(SetupCategoryCount = SpecificCategoryCount-1);
+
   { A duplicated name would give a section two headers of the same name }
   for var I := 0 to High(Names) do begin
     Assert(Names[I] <> '');

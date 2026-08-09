@@ -31,6 +31,8 @@ function LFmtMessage(const Language: TIDELanguage; const Str: String;
 function LFmtMessage(const Language: TIDELanguage; const Str: String;
   const Args: array of const; const AllowEmpty: Boolean = False): String; overload;
 
+function LCompareText(const S1, S2: String): Integer;
+
 procedure LocalizeComponent(const Component: TComponent);
 
 implementation
@@ -43,6 +45,7 @@ uses
 
 var
   TranslationDictionary: TDictionary<String, String>;
+  TranslationLanguage: TIDELanguage;
   ResourceStringHookInstalled: Boolean;
   OrgLoadResStringFunc: function(ResStringRec: PResStringRec): String;
 
@@ -86,6 +89,10 @@ begin
     ilGerman: AddTranslations(GermanIDETranslations);
     ilJapanese: AddTranslations(JapaneseIDETranslations);
   end;
+  if Reverse then
+    TranslationLanguage := ilEnglish
+  else
+    TranslationLanguage := Lang;
   InstallResourceStringHook;
 end;
 
@@ -206,6 +213,15 @@ begin
   if not GetTranslationForLanguage(Result) then
     Result := Str;
   Result := FmtIDEMessage(PChar(Result), Args);
+end;
+
+function LCompareText(const S1, S2: String): Integer;
+const
+  LocaleIDs: array [TIDELanguage] of TLocaleID =
+    ($0409, $0405, $0413, $0407, $0411);
+begin
+  Result := String.Compare(S1, S2, [coIgnoreCase],
+    LocaleIDs[TranslationLanguage]);
 end;
 
 type
