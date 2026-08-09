@@ -995,7 +995,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 <li><anchorlink name="programgroup">Program Group</anchorlink></li>
 <li><anchorlink name="security">Security</anchorlink></li>
 <li><anchorlink name="systemrequirements">System Requirements</anchorlink></li>
-<li><anchorlink name="uninstall">Uninstall</anchorlink></li>
+<li><anchorlink name="uninstallation">Uninstallation</anchorlink></li>
 <li><anchorlink name="userinformation">User Information</anchorlink></li>
 <li><anchorlink name="versioninformation">Version Information</anchorlink></li>
 <li><anchorlink name="obsolete">Obsolete</anchorlink></li>
@@ -1223,7 +1223,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 <li><link topic="setup_setuparchitecture">SetupArchitecture</link></li>
 </ul>
 
-<heading><a name="uninstall">Uninstall</a></heading>
+<heading><a name="uninstallation">Uninstallation</a></heading>
 
 <p>These directives control uninstallation and the application's <i>Add/Remove Programs</i> entry.</p>
 
