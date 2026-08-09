@@ -80,8 +80,7 @@ type
     FPaintItem: TJvCustomInspectorItem;
     FPaintItemIndex: Integer;
     FPaintRect: TRect;
-    FRegularTextHeight: Integer;
-    FCategoryTextHeight: Integer;
+    FTextHeight: Integer;
     FSelectedColor: TColor;
     FSelectedTextColor: TColor;
     FValueColor: TColor;
@@ -564,12 +563,9 @@ end;
 procedure TJvInspector.CMHintShow(var Msg: TCMHintShow);
 
   function TextIsClipped(const AItem: TJvCustomInspectorItem;
-    const AText: string; const AAvailableWidth: Integer;
-    const AForceBoldFont: Boolean): Boolean;
+    const AText: string; const AAvailableWidth: Integer): Boolean;
   begin
     Canvas.Font := Font;
-    if AForceBoldFont then
-      Canvas.Font.Style := Canvas.Font.Style + [fsBold];
     if Assigned(FOnCustomizeItemCanvas) then
       FOnCustomizeItemCanvas(AItem, Canvas);
     Result := Canvas.TextWidth(AText) > AAvailableWidth;
@@ -586,12 +582,11 @@ begin
     const NameAreaRight = Item.Rects[iprNameArea].Right;
     const ValueAreaLeft = Item.Rects[iprValueArea].Left;
     const ValueAreaRight = Item.Rects[iprValueArea].Right;
-    const ForceBoldFont = Item.IsCategory;
     var HintStr := '';
     var HintAreaLeft := 0;
     var HintAreaRight := 0;
     if (X >= NameAreaLeft) and (X < NameAreaRight) then begin
-      if TextIsClipped(Item, Item.DisplayName, Item.Rects[iprNameText].Width, ForceBoldFont) then
+      if TextIsClipped(Item, Item.DisplayName, Item.Rects[iprNameText].Width) then
         HintStr := Item.DisplayName;
       HintAreaLeft := NameAreaLeft;
       HintAreaRight := NameAreaRight;
@@ -603,7 +598,7 @@ begin
       except
         Value := '';
       end;
-      if TextIsClipped(Item, Value, Item.Rects[iprValueText].Width, ForceBoldFont) then
+      if TextIsClipped(Item, Value, Item.Rects[iprValueText].Width) then
         HintStr := Value;
       HintAreaLeft := ValueAreaLeft;
       HintAreaRight := ValueAreaRight;
@@ -922,9 +917,7 @@ begin
     InvalidateList;
   Inc(FPaintGen);
   Canvas.Font := Font;
-  FRegularTextHeight := CanvasMaxTextHeight(Canvas);
-  Canvas.Font.Style := Canvas.Font.Style + [fsBold];
-  FCategoryTextHeight := CanvasMaxTextHeight(Canvas);
+  FTextHeight := CanvasMaxTextHeight(Canvas);
   Canvas.Brush.Color := BackgroundColor;
   PaintItems;
 end;
@@ -1300,10 +1293,9 @@ end;
 procedure TJvInspector.ApplyNameFont;
 begin
   Canvas.Font := Font;
-  if FPaintItem.IsCategory then begin
-    Canvas.Font.Color := FCategoryTextColor;
-    Canvas.Font.Style := Canvas.Font.Style + [fsBold];
-  end else
+  if FPaintItem.IsCategory then
+    Canvas.Font.Color := FCategoryTextColor
+  else
     Canvas.Font.Color := FNameColor;
   if FPaintItem = Selected then begin
     if Focused then begin
@@ -1438,16 +1430,11 @@ begin
   FPaintItem.Rects[iprMarker] := MarkerRect;
 
   { The name }
-  var RowHeight: Integer;
-  if FPaintItem.IsCategory then
-    RowHeight := FCategoryTextHeight
-  else
-    RowHeight := FRegularTextHeight;
   TmpRect := FPaintItem.Rects[iprNameArea];
   if FPaintItem.Level = 0 then
     Inc(TmpRect.Left, 2);
-  if TmpRect.Height div RowHeight < 2 then
-    OffsetRect(TmpRect, 0, (TmpRect.Height - RowHeight) div 2)
+  if TmpRect.Height div FTextHeight < 2 then
+    OffsetRect(TmpRect, 0, (TmpRect.Height - FTextHeight) div 2)
   else begin
     Inc(TmpRect.Top, 1);
     Dec(TmpRect.Bottom, 1);
@@ -1457,8 +1444,8 @@ begin
 
   { The value }
   TmpRect := FPaintItem.Rects[iprValueArea];
-  if TmpRect.Height div FRegularTextHeight < 2 then begin
-    OffsetRect(TmpRect, 0, (TmpRect.Height - FRegularTextHeight) div 2);
+  if TmpRect.Height div FTextHeight < 2 then begin
+    OffsetRect(TmpRect, 0, (TmpRect.Height - FTextHeight) div 2);
     IntersectRect(TmpRect, TmpRect, FPaintItem.Rects[iprValueArea]);
   end else begin
     Inc(TmpRect.Top, 1);
