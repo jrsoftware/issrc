@@ -189,6 +189,7 @@ function ExpandConstEx(const S: String; const CustomConsts: array of String): St
 function ExpandConstEx2(const S: String; const CustomConsts: array of String;
   const DoExpandIndividualConst: Boolean): String;
 function ExpandConstIfPrefixed(const S: String): String;
+function ExpandExternalSourceFilename(const FileEntry: PSetupFileEntry): String;
 function GetCustomMessageValue(const AName: String; var AValue: String): Boolean;
 function GetShellFolder(const Common: Boolean; const ID: TShellFolderID): String;
 function GetShellFolderByCSIDL(Folder: Integer; const Create: Boolean): String;
@@ -1338,6 +1339,14 @@ begin
     Result := S;
 end;
 
+function ExpandExternalSourceFilename(const FileEntry: PSetupFileEntry): String;
+begin
+  Result := ExpandConst(FileEntry^.SourceFilename);
+  if Result = '' then { when allowed ApplyPathRedirRules would throw its exception }
+    InternalErrorFmt('The "Source" parameter of the "[Files]" entry for "%s" ' +
+      'expanded to an empty string', [FileEntry^.DestName]);
+end;
+
 procedure InitMainNonGetShellFolderPathConstsAndPathRedir;
 
   function GetPath(const RegView: TRegView; const Name: PChar): String;
@@ -2021,7 +2030,7 @@ begin
             if not EnumFilesProc(ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.DestName), tpCurrent), Param) then
               Exit(False);
           end else begin
-            SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandConst(CurFile^.SourceFilename), tpCurrent);
+            SourceWildcard := ApplyPathRedirRules(Is64Bit, ExpandExternalSourceFilename(CurFile), tpCurrent);
             Excludes.DelimitedText := CurFile^.Excludes;
             if foExtractArchive in CurFile^.Options then begin
               try
