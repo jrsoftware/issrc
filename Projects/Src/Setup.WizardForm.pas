@@ -1826,7 +1826,7 @@ function TWizardForm.PrepareToInstall(const WizardComponents, WizardTasks: TStri
         const DestFile = AddBackslash(DestDir) + PathExtractName(FileEntry.DestName);
         const BaseName = Copy(DestFile, Length(TempDir)+1, MaxInt);
         { Add to DownloadPage }
-        const Url = ExpandConst(FileEntry.SourceFilename);
+        const Url = ExpandExternalSourceFilename(FileEntry);
         const UserName = ExpandConst(FileEntry.DownloadUserName);
         const Password = ExpandConst(FileEntry.DownloadPassword);
         if FileEntry.Verification.Typ = fvISSig then begin
