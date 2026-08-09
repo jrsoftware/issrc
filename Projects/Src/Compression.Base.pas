@@ -53,12 +53,13 @@ type
   TCustomDecompressor = class
   private
     FEntered: Integer;
-    FReadProc: TDecompressorReadProc;
+    FReachedEndOfInput: Boolean;
     FResetExpected: Boolean;
+    FReadProc: TDecompressorReadProc;
   protected
     procedure DoDecompressInto(var Buffer; Count: Cardinal); virtual; abstract;
     procedure DoReset; virtual; abstract;
-    property ReadProc: TDecompressorReadProc read FReadProc;
+    function ReadInput(var Buffer; Count: Cardinal): Cardinal;
   public
     constructor Create(AReadProc: TDecompressorReadProc); virtual;
     procedure DecompressInto(var Buffer; Count: Cardinal);
@@ -267,6 +268,18 @@ begin
   FReadProc := AReadProc;
 end;
 
+function TCustomDecompressor.ReadInput(var Buffer; Count: Cardinal): Cardinal;
+begin
+  { No need to keep calling FReadProc once it has returned 0 (meaning EOF) }
+  if FReachedEndOfInput or (Count = 0) then
+    Result := 0
+  else begin
+    Result := FReadProc(Buffer, Count);
+    if Result = 0 then
+      FReachedEndOfInput := True;
+  end;
+end;
+
 procedure TCustomDecompressor.DecompressInto(var Buffer; Count: Cardinal);
 begin
   if FEntered <> 0 then
@@ -295,6 +308,7 @@ begin
   Inc(FEntered);
   { DoReset raising an exception is fatal for the instance }
   DoReset;
+  FReachedEndOfInput := False;
   FResetExpected := False;
   Dec(FEntered);
 end;
@@ -318,7 +332,7 @@ procedure TStoredDecompressor.DoDecompressInto(var Buffer; Count: Cardinal);
 begin
   var P: PByte := @Buffer;
   while Count > 0 do begin
-    var NumRead := ReadProc(P^, Count);
+    const NumRead = ReadInput(P^, Count);
     if NumRead = 0 then
       raise ECompressDataError.Create(SStoredDataError);
     Inc(P, NumRead);

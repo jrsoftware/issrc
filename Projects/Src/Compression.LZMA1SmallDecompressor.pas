@@ -46,7 +46,6 @@ type
 
   TLZMA1SmallDecompressor = class(TCustomDecompressor)
   private
-    FReachedEnd: Boolean;
     FHeaderProcessed: Boolean;
     FDecoderState: TLZMAInternalDecoderState;
     FHeapBase: Pointer;
@@ -141,12 +140,7 @@ end;
 procedure TLZMA1SmallDecompressor.DoRead(var Buffer: Pointer; var BufferSize: Cardinal);
 begin
   Buffer := @FBuffer;
-  BufferSize := 0;
-  if not FReachedEnd then begin
-    BufferSize := ReadProc(FBuffer, SizeOf(FBuffer));
-    if BufferSize = 0 then
-      FReachedEnd := True;  { not really necessary, but for consistency }
-  end;
+  BufferSize := ReadInput(FBuffer, SizeOf(FBuffer));
 end;
 
 procedure TLZMA1SmallDecompressor.ProcessHeader;
@@ -156,7 +150,7 @@ var
   NewHeapSize: Cardinal;
 begin
   { Read header fields }
-  if ReadProc(Props, SizeOf(Props)) <> SizeOf(Props) then
+  if ReadInput(Props, SizeOf(Props)) <> SizeOf(Props) then
     LZMADataError(1);
 
   { Initialize the LZMA decoder state structure, and calculate the size of
@@ -208,7 +202,6 @@ end;
 procedure TLZMA1SmallDecompressor.DoReset;
 begin
   FHeaderProcessed := False;
-  FReachedEnd := False;
 end;
 
 end.

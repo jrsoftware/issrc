@@ -18,7 +18,6 @@ uses
 type
   TLZMACustomDecompressor = class(TCustomDecompressor)
   private
-    FReachedEnd: Boolean;
     FHeaderProcessed: Boolean;
     FNextIn: PByte;
     FAvailIn: Cardinal;
@@ -189,11 +188,9 @@ begin
   NextOut := @Buffer;
   var AvailOut := Count;
   while AvailOut > 0 do begin
-    if (FAvailIn = 0) and not FReachedEnd then begin
+    if FAvailIn = 0 then begin
       FNextIn := PByte(@FBuffer);
-      FAvailIn := ReadProc(FBuffer, SizeOf(FBuffer));
-      if FAvailIn = 0 then
-        FReachedEnd := True;  { not really necessary, but for consistency }
+      FAvailIn := ReadInput(FBuffer, SizeOf(FBuffer));
     end;
     OutBytes := AvailOut;
     InBytes := FAvailIn;
@@ -221,7 +218,6 @@ end;
 procedure TLZMACustomDecompressor.DoReset;
 begin
   FHeaderProcessed := False;
-  FReachedEnd := False;
 end;
 
 { TLZMA1Decompressor }
@@ -239,7 +235,7 @@ var
   end;
 begin
   { Read header fields }
-  if ReadProc(Props, SizeOf(Props)) <> SizeOf(Props) then
+  if ReadInput(Props, SizeOf(Props)) <> SizeOf(Props) then
     LZMADecompDataError(1);
 
   if Props.DictionarySize > MaxDictionarySize then
@@ -292,7 +288,7 @@ var
   Prop: Byte;
 begin
   { Read header fields }
-  if ReadProc(Prop, SizeOf(Prop)) <> SizeOf(Prop) then
+  if ReadInput(Prop, SizeOf(Prop)) <> SizeOf(Prop) then
     LZMADecompDataError(1);
 
   if (Prop >= 40) or

@@ -280,7 +280,7 @@ begin
       RaiseDataError(-1);
     if FIn.pos = FIn.size then begin
       FIn.src := @FInBuffer;
-      FIn.size := ReadProc(FInBuffer, SizeOf(FInBuffer));
+      FIn.size := ReadInput(FInBuffer, SizeOf(FInBuffer));
       FIn.pos := 0;
     end;
     const OldInPos = FIn.pos;

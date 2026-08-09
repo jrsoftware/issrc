@@ -361,7 +361,7 @@ begin
       raise ECompressDataError.Create(SBzlibDataError);
     if FStrm.avail_in = 0 then begin
       FStrm.next_in := @FBuffer;
-      FStrm.avail_in := ReadProc(FBuffer, SizeOf(FBuffer));
+      FStrm.avail_in := ReadInput(FBuffer, SizeOf(FBuffer));
       { Unlike zlib, bzlib does not return an error when avail_in is zero and
         it still needs input. To avoid an infinite loop, check for this and
         consider it a data error. }
