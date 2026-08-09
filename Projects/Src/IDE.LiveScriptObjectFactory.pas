@@ -979,6 +979,8 @@ function TLiveScriptObjectFactory.TryCreateParameterSectionEntries(
   end;
 
 begin
+  if (Length(ALineRanges) > 0) and (Length(AIndividualLineRanges) = 0) then
+    raise Exception.Create('Internal error: TryCreateParameterSectionEntries: AIndividualLineRanges is empty');
   AEntries := nil;
   Result := False;
   EnsureIndex;
