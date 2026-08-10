@@ -222,6 +222,7 @@ type
     FInspector: TJvInspector;
     FItems: TObjectList<TJvCustomInspectorItem>;
     FListBox: TJvInspectorListBox;
+    FOnGetValueList: TInspectorItemGetValueListEvent;
     FParent: TJvCustomInspectorItem;
     FLastPaintGen: Integer;
     FPressed: Boolean;
@@ -303,6 +304,8 @@ type
     property Inspector: TJvInspector read FInspector;
     property Items[const I: NativeInt]: TJvCustomInspectorItem read GetItems; default;
     property Level: Integer read GetLevel;
+    { Per-item override of the inspector's OnGetValueList }
+    property OnGetValueList: TInspectorItemGetValueListEvent read FOnGetValueList write FOnGetValueList;
     property Parent: TJvCustomInspectorItem read FParent;
     property ReadOnly: Boolean read GetReadOnly;
     property Rects[const RectKind: TInspectorPaintRect]: TRect read GetRects write SetRects;
@@ -2109,7 +2112,9 @@ end;
 
 procedure TJvCustomInspectorItem.GetValueList(const Strings: TStrings);
 begin
-  if Assigned(Inspector.FOnGetValueList) then
+  if Assigned(FOnGetValueList) then
+    FOnGetValueList(Self, Strings)
+  else if Assigned(Inspector.FOnGetValueList) then
     Inspector.FOnGetValueList(Self, Strings);
 end;
 
