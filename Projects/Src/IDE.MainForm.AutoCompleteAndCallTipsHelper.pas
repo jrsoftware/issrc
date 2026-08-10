@@ -686,11 +686,16 @@ begin
         if not AMemo.AutoCompleteActive and FOptions.AutoAutoComplete and not (Ch in ['0'..'9']) then
           InitiateAutoComplete(AMemo, Ch);
     else
-      const RestartAutoComplete = (Ch in [' ', '.', '!', '=']) and
-        (FOptions.AutoAutoComplete or AMemo.AutoCompleteActive);
-      AMemo.CancelAutoComplete;
-      if RestartAutoComplete then
-        InitiateAutoComplete(AMemo, Ch);
+      { If Ch is a fillup char but the autocompletion is still active then
+        Scintilla kept the list open because the typed word including Ch
+        still matches a list item, and it should not be cancelled }
+      if not (AMemo.AutoCompleteActive and AMemo.IsAutoCompleteFillupChar(Ch)) then begin
+        const RestartAutoComplete = (Ch in [' ', '.', '!', '=']) and
+          (FOptions.AutoAutoComplete or AMemo.AutoCompleteActive);
+        AMemo.CancelAutoComplete;
+        if RestartAutoComplete then
+          InitiateAutoComplete(AMemo, Ch);
+      end;
     end;
   end;
 end;

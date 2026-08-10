@@ -106,6 +106,7 @@ type
   TScintEdit = class(TWinControl)
   private
     FAcceptDroppedFiles: Boolean;
+    FAutoCompleteFillupCharsAsSet: TSysCharSet;
     FAutoCompleteFontName: String;
     FAutoCompleteFontSize: Integer;
     FAutoCompleteStyle: Integer;
@@ -331,6 +332,7 @@ type
     function GetVisibleLineFromDocLine(const DocLine: Integer): Integer;
     function GetWordEndPosition(const Pos: Integer; const OnlyWordChars: Boolean): Integer;
     function GetWordStartPosition(const Pos: Integer; const OnlyWordChars: Boolean): Integer;
+    function IsAutoCompleteFillupChar(const Ch: AnsiChar): Boolean;
     function IsPositionInViewVertically(const Pos: Integer): Boolean;
     class function KeyCodeAndShiftToKeyDefinition(const KeyCode: TScintKeyCode;
       Shift: TShiftState): TScintKeyDefinition; static;
@@ -1599,6 +1601,11 @@ begin
     System.SetCodePage(RawByteString(S), FCodePage, False);
 end;
 
+function TScintEdit.IsAutoCompleteFillupChar(const Ch: AnsiChar): Boolean;
+begin
+  Result := Ch in FAutoCompleteFillupCharsAsSet;
+end;
+
 function TScintEdit.IsPositionInViewVertically(const Pos: Integer): Boolean;
 var
   P: TPoint;
@@ -1861,6 +1868,9 @@ end;
 
 procedure TScintEdit.SetAutoCompleteFillupChars(const FillupChars: AnsiString);
 begin
+  FAutoCompleteFillupCharsAsSet := [];
+  for var C in FillupChars do
+    Include(FAutoCompleteFillupCharsAsSet, C);
   Call(SCI_AUTOCSETFILLUPS, 0, FillupChars);
 end;
 
