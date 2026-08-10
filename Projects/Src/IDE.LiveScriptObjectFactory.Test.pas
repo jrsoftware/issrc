@@ -28,7 +28,7 @@ procedure IDELiveScriptObjectFactoryRunTests(const AMemo: TScintEdit;
 implementation
 
 uses
-  System.SysUtils,
+  System.SysUtils, System.Classes,
   IDE.ScriptModel, IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra,
   IDE.LiveScriptObjectFactory;
 
@@ -960,6 +960,78 @@ begin
   end;
 end;
 
+{ CollectParameterValues: values collected across every occurrence of the
+  given section or of every parameter section, skipping comment and blank
+  lines, reading spanned entries whole, unquoting, skipping empty values,
+  leaving ordering and duplicate handling to the passed list, and
+  splitting values into words when asked }
+procedure TestCollectParameterValues(const AMemo: TScintEdit;
+  const AStyler: TInnoSetupStyler);
+begin
+  const Context = TFactoryTestContext.Create(AMemo, AStyler, [
+    '[Tasks]',                                                       { 0 }
+    'Name: desktopicon; Description: "Desktop icon"',                { 1 }
+    'Name: "desktopicon\common"; Description: "For all users"',      { 2 }
+    '; a comment',                                                   { 3 }
+    '',                                                              { 4 }
+    'Name: desktopicon; Description: "Duplicate name"',              { 5 }
+    'Description: "No name"',                                        { 6 }
+    'Name: ""; Description: "Empty name"',                           { 7 }
+    '[Files]',                                                       { 8 }
+    'Source: "a.txt"; Tasks: "not portable"',                        { 9 }
+    'Source: "b.txt"; Tasks: NOT PORTABLE',                          { 10, duplicate value ignoring case }
+    'Source: "c.txt"; \',                                            { 11, spanned entry }
+    '  Tasks: desktopicon\common',                                   { 12, continuation of line 11 }
+    'Source: "d.txt"',                                               { 13, no Tasks parameter }
+    '[Icons]',                                                       { 14 }
+    'Name: "{group}\My"; Filename: "x"; Tasks: portable',            { 15 }
+    '[Tasks]',                                                       { 16, second occurrence }
+    'Name: portable; Description: "Portable mode"',                  { 17 }
+    '[ISSigKeys]',                                                   { 18 }
+    'Name: mykey1; Group: "all extra"',                              { 19 }
+    'Name: mykey2; Group: ALL']);                                    { 20, duplicate word ignoring case }
+  try
+    const Factory = Context.Factory;
+    const Values = TStringList.Create;
+    try
+      Values.CaseSensitive := False;
+      Values.Duplicates := dupIgnore; { Only effective on a sorted list }
+      Values.Sorted := True;
+
+      { The Name values of the [Tasks] occurrences only: the [Icons] Name must
+        not appear }
+      Factory.CollectParameterValues(scTasks, 'Name', Values);
+      Assert(Values.Count = 3);
+      Assert(Values[0] = 'desktopicon');
+      Assert(Values[1] = 'desktopicon\common');
+      Assert(Values[2] = 'portable');
+
+      { The Tasks values of every parameter section }
+      Values.Clear;
+      Factory.CollectParameterValues(scNone, 'Tasks', Values);
+      Assert(Values.Count = 3);
+      Assert(Values[0] = 'desktopicon\common');
+      Assert(Values[1] = 'not portable');
+      Assert(Values[2] = 'portable');
+
+      { The space-separated words of the Group values }
+      Values.Clear;
+      Factory.CollectParameterValues(scISSigKeys, 'Group', Values, True);
+      Assert(Values.Count = 2);
+      Assert(Values[0] = 'all');
+      Assert(Values[1] = 'extra');
+
+      { A repeated collection adds nothing: the list ignores the duplicates }
+      Factory.CollectParameterValues(scISSigKeys, 'Group', Values, True);
+      Assert(Values.Count = 2);
+    finally
+      Values.Free;
+    end;
+  finally
+    Context.Free;
+  end;
+end;
+
 { Key/value sections: last-occurrence value lookup, editing a populated
   section, refusals, an empty section that a key is added to, and
   removing keys up to and including the last one }
@@ -1493,6 +1565,7 @@ begin
     TestEntryRoundTrip(AMemo, AStyler);
     TestParameterSectionEntries(AMemo, AStyler);
     TestParameterSectionEntriesMultiEntry(AMemo, AStyler);
+    TestCollectParameterValues(AMemo, AStyler);
     TestKeyValueSections(AMemo, AStyler);
     TestKeyValueSectionReadsAndWrites(AMemo, AStyler);
     TestEditTracking(AMemo, AStyler);

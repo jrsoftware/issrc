@@ -153,6 +153,8 @@ type
     procedure EnsureIndex;
     procedure EnsureStyled;
     function GetLinesText(const AFirstLine, ALastLine: Integer): TArray<String>;
+    function GetLinesTextAndClassify(const AFirstLine, ALastLine: Integer;
+      out ALineKind: TScriptLineKind): TArray<String>;
     function GetLogicalLineFirstLine(const ALine: Integer): Integer;
     function GetLogicalLineLastLine(const ALine: Integer): Integer;
     function GetSectionHeader(Index: Integer): TLiveScriptSectionHeader;
@@ -173,6 +175,9 @@ type
       out AOccurrenceIndex, AOccurrenceCount: Integer);
     function TryGetSetupDirectiveValue(const ADirectiveName: String;
       out AValue: String): Boolean;
+    procedure CollectParameterValues(const AOnlySection: TInnoSetupSection;
+      const AParameterName: String; const AValues: TStringList;
+      const ASplitValueWords: Boolean = False);
     { ARefusalReason is only set when the result is False }
     function TryCreateParameterSectionEntries(
       const ALineRanges, AIndividualLineRanges: TArray<TScintLineRange>;
@@ -193,7 +198,8 @@ type
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  Shared.CommonFunc;
 
 { TLiveScriptObject }
 
@@ -888,6 +894,13 @@ begin
     Result[I-AFirstLine] := FMemo.Lines[I];
 end;
 
+function TLiveScriptObjectFactory.GetLinesTextAndClassify(const AFirstLine,
+  ALastLine: Integer; out ALineKind: TScriptLineKind): TArray<String>;
+begin
+  Result := GetLinesText(AFirstLine, ALastLine);
+  ALineKind := ClassifyScriptLine(JoinSpannedScriptLines(Result));
+end;
+
 function TLiveScriptObjectFactory.GetLogicalLineFirstLine(const ALine: Integer): Integer;
 begin
   { Find first line in series of spanned lines }
@@ -930,6 +943,54 @@ begin
         finally
           Section.Free;
         end;
+      end;
+    end;
+  end;
+end;
+
+procedure TLiveScriptObjectFactory.CollectParameterValues(
+  const AOnlySection: TInnoSetupSection; const AParameterName: String;
+  const AValues: TStringList; const ASplitValueWords: Boolean);
+{ Collects the non-empty values of the AParameterName parameter of every
+  parameter section entry into AValues, restricted to AOnlySection when
+  not scNone. When ASplitValueWords is True the values' space-separated
+  words are collected instead. }
+begin
+  EnsureIndex;
+  EnsureStyled; { For GetSectionLines }
+  for var I := 0 to Integer(FSectionHeaders.Count)-1 do begin
+    const Section = FSectionHeaders[I].Section;
+    if not (Section in ParameterSections) or
+       ((AOnlySection <> scNone) and (Section <> AOnlySection)) then
+      Continue;
+    var FirstLine, LastLine: Integer;
+    GetSectionLines(I, FirstLine, LastLine);
+    var Line := FirstLine;
+    while Line <= LastLine do begin
+      const EntryFirstLine = Line;
+      const EntryLastLine = GetLogicalLineLastLine(Line);
+      Line := EntryLastLine+1;
+      var LineKind: TScriptLineKind;
+      const EntryLines = GetLinesTextAndClassify(EntryFirstLine, EntryLastLine, LineKind);
+      if LineKind <> slkActual then
+        Continue;
+      const Entry = TScriptModelParameterSectionEntry.Create(nil); { Just reading, metadata not needed }
+      try
+        Entry.Parse(EntryLines);
+        var Value: String;
+        if Entry.TryGetValue(AParameterName, Value) then begin
+          if ASplitValueWords then begin
+            while True do begin
+              const ValueWord = ExtractStr(Value, ' ');
+              if ValueWord = '' then
+                Break;
+              AValues.Add(ValueWord);
+            end;
+          end else if Value <> '' then
+            AValues.Add(Value);
+        end;
+      finally
+        Entry.Free;
       end;
     end;
   end;
@@ -1022,8 +1083,8 @@ begin
             this is so a new entry can be created on a blank line, same as
             in single-entry path below }
           const Section = TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[FirstLine]);
-          const EntryLines = GetLinesText(FirstLine, LastLine);
-          const LineKind = ClassifyScriptLine(JoinSpannedScriptLines(EntryLines));
+          var LineKind: TScriptLineKind;
+          GetLinesTextAndClassify(FirstLine, LastLine, LineKind);
           if (LineKind <> slkActual) and
              ((LineKind <> slkBlank) or not (Section in ParameterSections) or not AnySelectionWithinLines(FirstLine, LastLine)) then
             Continue;
@@ -1087,8 +1148,8 @@ begin
   const FirstLine = GetLogicalLineFirstLine(ACaretLine);
   const LastLine = GetLogicalLineLastLine(ACaretLine);
 
-  const EntryLines = GetLinesText(FirstLine, LastLine);
-  const LineKind = ClassifyScriptLine(JoinSpannedScriptLines(EntryLines));
+  var LineKind: TScriptLineKind;
+  const EntryLines = GetLinesTextAndClassify(FirstLine, LastLine, LineKind);
   case LineKind of
   { slkBlank is not refused. This is so a new entry can be created on a blank line,
     same as in multi-entry path above. }
