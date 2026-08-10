@@ -562,8 +562,8 @@ resourcestring
   SInspectorCategoryCompression = 'Compression';
   SInspectorCategoryDiskSpanning = 'Disk Spanning';
   SInspectorCategoryInstallationPages = 'Installation Pages';
-  SInspectorCategoryProgramGroup = 'Program Group';
   SInspectorCategorySecurity = 'Security';
+  SInspectorCategoryStartMenuFolder = 'Start Menu Folder';
   SInspectorCategorySystemRequirements = 'System Requirements';
   SInspectorCategoryUninstallation = 'Uninstallation';
   SInspectorCategoryUserInformation = 'User Information';
@@ -756,17 +756,17 @@ begin
     'UsePreviousLanguage', 'UsePreviousSetupType', 'UsePreviousTasks'],
     SetupSection);
 
-  CD(SInspectorCategoryProgramGroup, ['AllowNoIcons', 'AlwaysUsePersonalGroup',
-    'AppendDefaultGroupName', 'DefaultGroupName', 'DisableProgramGroupPage',
-    'UsePreviousGroup'],
-    SetupSection);
-
   CD(SInspectorCategorySecurity, ['ASLRCompatible', 'DEPCompatible',
     'DisablePrecompiledFileVerifications', 'Encryption',
     'EncryptionKeyDerivation', 'Password', 'RedirectionGuard',
     'SignedUninstaller', 'SignedUninstallerDir', 'SignTool',
     'SignToolMinimumTimeBetween', 'SignToolRetryCount', 'SignToolRetryDelay',
     'SignToolRunMinimized'],
+    SetupSection);
+
+  CD(SInspectorCategoryStartMenuFolder, ['AllowNoIcons',
+    'AlwaysUsePersonalGroup', 'AppendDefaultGroupName', 'DefaultGroupName',
+    'DisableProgramGroupPage', 'UsePreviousGroup'],
     SetupSection);
 
   CD(SInspectorCategorySystemRequirements, ['ArchitecturesAllowed',

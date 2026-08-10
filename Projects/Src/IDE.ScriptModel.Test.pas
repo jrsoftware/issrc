@@ -939,8 +939,8 @@ begin
   Assert(Names[FirstSpecificCategoryIndex+5] = 'Compression');
   Assert(Names[FirstSpecificCategoryIndex+6] = 'Disk Spanning');
   Assert(Names[FirstSpecificCategoryIndex+7] = 'Installation Pages');
-  Assert(Names[FirstSpecificCategoryIndex+8] = 'Program Group');
-  Assert(Names[FirstSpecificCategoryIndex+9] = 'Security');
+  Assert(Names[FirstSpecificCategoryIndex+8] = 'Security');
+  Assert(Names[FirstSpecificCategoryIndex+9] = 'Start Menu Folder');
   Assert(Names[FirstSpecificCategoryIndex+10] = 'System Requirements');
   Assert(Names[FirstSpecificCategoryIndex+11] = 'Uninstallation');
   Assert(Names[FirstSpecificCategoryIndex+12] = 'User Information');
