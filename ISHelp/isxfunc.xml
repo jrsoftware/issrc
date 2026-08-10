@@ -1887,6 +1887,7 @@ GetDateTimeString(<str>'dd/mm/yyyy hh:nn:ss'</str>, <str>'-'</str>, <str>':'</st
 <p>Before rewriting, the path is expanded using <isxfunc>ExpandFileName</isxfunc> and converted to an extended-length path (also known as a super path).</p>
 <p>Path expansion and conversion to extended-length path always occurs, even if nothing is rewritten.</p></description>
         <remarks><p>On systems running 32-bit Windows, <tt>Path64Bit</tt> must be <tt>False</tt>, otherwise an exception will be raised.</p>
+<p><tt>Path</tt> must not be empty, otherwise an exception will be raised.</p>
 <p><tt>TPathRedirTargetProcess</tt> is an enumerated type, defined as:</p>
 <p><tt>TPathRedirTargetProcess = (tpCurrent, tpNativeBit, tp32Bit, tp32BitPreferSystem32);</tt></p>
 <table>

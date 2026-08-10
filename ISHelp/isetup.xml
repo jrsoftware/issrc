@@ -981,167 +981,47 @@ Besides space separated lists, you may also use boolean expressions containing c
 
 <p>By default, any leading or trailing whitespace in a directive's value will be stripped. It is possible to avoid this by surrounding the directive's value in double quotes (<tt>"</tt>).</p>
 
-<p>The following directives can be placed in the <tt>[Setup]</tt> section:</p>
+<p>The following directives can be placed in the <tt>[Setup]</tt> section, grouped into these categories:</p>
+
+<ul appearance="compact">
+<li><anchorlink name="appearance">Appearance</anchorlink></li>
+<li><anchorlink name="applicationdetails">Application Details</anchorlink></li>
+<li><anchorlink name="applicationdirectory">Application Directory</anchorlink></li>
+<li><anchorlink name="applicationsinuse">Applications in Use</anchorlink></li>
+<li><anchorlink name="compilersettings">Compiler Settings</anchorlink></li>
+<li><anchorlink name="compression">Compression</anchorlink></li>
+<li><anchorlink name="diskspanning">Disk Spanning</anchorlink></li>
+<li><anchorlink name="installationpages">Installation Pages</anchorlink></li>
+<li><anchorlink name="programgroup">Program Group</anchorlink></li>
+<li><anchorlink name="security">Security</anchorlink></li>
+<li><anchorlink name="systemrequirements">System Requirements</anchorlink></li>
+<li><anchorlink name="uninstallation">Uninstallation</anchorlink></li>
+<li><anchorlink name="userinformation">User Information</anchorlink></li>
+<li><anchorlink name="versioninformation">Version Information</anchorlink></li>
+<li><anchorlink name="obsolete">Obsolete</anchorlink></li>
+</ul>
 
 <p>(<b>bold</b> = required)</p>
 
-<heading>Compiler-related</heading>
+<!-- Where a new directive goes:
+
+     1. Together with other related existing directives. A UsePrevious*
+        directive goes with the setting it remembers.
+     2. Otherwise by user-facing effect. Protects the compiler or
+        Setup: Security. Changes what the compiler produces:
+        Compression, Disk Spanning, Version Information, or else
+        Compiler Settings. Changes Setup: where the user runs into
+        it, or else Application Details.
+
+     Don't forget about IDE.ScriptModel.Metadata.Extra -->
+
+<heading><a name="appearance">Appearance</a></heading>
+
+<p>These directives control the appearance of the Setup program.</p>
 
 <ul appearance="compact">
-<li><link topic="setup_aslrcompatible">ASLRCompatible</link></li>
-<li><link topic="setup_compression">Compression</link></li>
-<li><link topic="setup_compressionthreads">CompressionThreads</link></li>
-<li><link topic="setup_depcompatible">DEPCompatible</link></li>
-<li><link topic="setup_disableprecompiledfileverifications">DisablePrecompiledFileVerifications</link></li>
-<li><link topic="setup_diskclustersize">DiskClusterSize</link></li>
-<li><link topic="setup_diskslicesize">DiskSliceSize</link></li>
-<li><link topic="setup_diskspanning">DiskSpanning</link></li>
-<li><link topic="setup_encryption">Encryption</link></li>
-<li><link topic="setup_internalcompresslevel">InternalCompressLevel</link></li>
-<li><link topic="setup_lzmaalgorithm">LZMAAlgorithm</link></li>
-<li><link topic="setup_lzmablocksize">LZMABlockSize</link></li>
-<li><link topic="setup_lzmadictionarysize">LZMADictionarySize</link></li>
-<li><link topic="setup_lzmamatchfinder">LZMAMatchFinder</link></li>
-<li><link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link></li>
-<li><link topic="setup_lzmanumfastbytes">LZMANumFastBytes</link></li>
-<li><link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link></li>
-<li><link topic="setup_mergeduplicatefiles">MergeDuplicateFiles</link></li>
-<li><link topic="setup_missingmessageswarning">MissingMessagesWarning</link></li>
-<li><link topic="setup_missingrunonceidswarning">MissingRunOnceIdsWarning</link></li>
-<li><link topic="setup_notrecognizedmessageswarning">NotRecognizedMessagesWarning</link></li>
-<li><link topic="setup_output">Output</link></li>
-<li><link topic="setup_outputbasefilename">OutputBaseFilename</link></li>
-<li><link topic="setup_outputdir">OutputDir</link></li>
-<li><link topic="setup_outputmanifestfile">OutputManifestFile</link></li>
-<li><link topic="setup_reservebytes">ReserveBytes</link></li>
-<li><link topic="setup_signeduninstaller">SignedUninstaller</link></li>
-<li><link topic="setup_signeduninstallerdir">SignedUninstallerDir</link></li>
-<li><link topic="setup_signtool">SignTool</link></li>
-<li><link topic="setup_signtoolminimumtimebetween">SignToolMinimumTimeBetween</link></li>
-<li><link topic="setup_signtoolretrycount">SignToolRetryCount</link></li>
-<li><link topic="setup_signtoolretrydelay">SignToolRetryDelay</link></li>
-<li><link topic="setup_signtoolrunminimized">SignToolRunMinimized</link></li>
-<li><link topic="setup_slicesperdisk">SlicesPerDisk</link></li>
-<li><link topic="setup_solidcompression">SolidCompression</link></li>
-<li><link topic="setup_sourcedir">SourceDir</link></li>
-<li><link topic="setup_terminalservicesaware">TerminalServicesAware</link></li>
-<li><link topic="setup_useduserareaswarning">UsedUserAreasWarning</link></li>
-<li><link topic="setup_usesetupldr">UseSetupLdr</link></li>
-<li><link topic="setup_versioninfocompany">VersionInfoCompany</link></li>
-<li><link topic="setup_versioninfocopyright">VersionInfoCopyright</link></li>
-<li><link topic="setup_versioninfodescription">VersionInfoDescription</link></li>
-<li><link topic="setup_versioninfooriginalfilename">VersionInfoOriginalFileName</link></li>
-<li><link topic="setup_versioninfoproductname">VersionInfoProductName</link></li>
-<li><link topic="setup_versioninfoproducttextversion">VersionInfoProductTextVersion</link></li>
-<li><link topic="setup_versioninfoproductversion">VersionInfoProductVersion</link></li>
-<li><link topic="setup_versioninfotextversion">VersionInfoTextVersion</link></li>
-<li><link topic="setup_versioninfoversion">VersionInfoVersion</link></li>
-</ul>
-
-<heading>Installer-related</heading>
-
-<p><b>Functional:</b> These directives affect the operation of the Setup program, or are saved and used later by the uninstaller.</p>
-
-<ul appearance="compact">
-<li><link topic="setup_allowcancelduringinstall">AllowCancelDuringInstall</link></li>
-<li><link topic="setup_allownetworkdrive">AllowNetworkDrive</link></li>
-<li><link topic="setup_allownoicons">AllowNoIcons</link></li>
-<li><link topic="setup_allowrootdirectory">AllowRootDirectory</link></li>
-<li><link topic="setup_allowuncpath">AllowUNCPath</link></li>
-<li><link topic="setup_alwaysrestart">AlwaysRestart</link></li>
-<li><link topic="setup_alwaysshowcomponentslist">AlwaysShowComponentsList</link></li>
-<li><link topic="setup_alwaysshowdironreadypage">AlwaysShowDirOnReadyPage</link></li>
-<li><link topic="setup_alwaysshowgrouponreadypage">AlwaysShowGroupOnReadyPage</link></li>
-<li><link topic="setup_alwaysusepersonalgroup">AlwaysUsePersonalGroup</link></li>
-<li><link topic="setup_appenddefaultdirname">AppendDefaultDirName</link></li>
-<li><link topic="setup_appenddefaultgroupname">AppendDefaultGroupName</link></li>
-<li><link topic="setup_appcomments">AppComments</link></li>
-<li><link topic="setup_appcontact">AppContact</link></li>
-<li><link topic="setup_appid">AppId</link></li>
-<li><link topic="setup_appmodifypath">AppModifyPath</link></li>
-<li><link topic="setup_appmutex">AppMutex</link></li>
-<li><link topic="setup_appname"><b>AppName</b></link></li>
-<li><link topic="setup_apppublisher">AppPublisher</link></li>
-<li><link topic="setup_apppublisherurl">AppPublisherURL</link></li>
-<li><link topic="setup_appreadmefile">AppReadmeFile</link></li>
-<li><link topic="setup_appsupportphone">AppSupportPhone</link></li>
-<li><link topic="setup_appsupporturl">AppSupportURL</link></li>
-<li><link topic="setup_appupdatesurl">AppUpdatesURL</link></li>
-<li><link topic="setup_appvername">AppVerName</link></li>
-<li><link topic="setup_appversion"><b>AppVersion</b></link></li>
-<li><link topic="setup_architecturesallowed">ArchitecturesAllowed</link></li>
-<li><link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link></li>
-<li><link topic="setup_archiveextraction">ArchiveExtraction</link></li>
-<li><link topic="setup_changesassociations">ChangesAssociations</link></li>
-<li><link topic="setup_changesenvironment">ChangesEnvironment</link></li>
-<li><link topic="setup_closeapplications">CloseApplications</link></li>
-<li><link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link></li>
-<li><link topic="setup_closeapplicationsfilterexcludes">CloseApplicationsFilterExcludes</link></li>
-<li><link topic="setup_createappdir">CreateAppDir</link></li>
-<li><link topic="setup_createuninstallregkey">CreateUninstallRegKey</link></li>
 <li><link topic="setup_defaultdialogfontname">DefaultDialogFontName</link></li>
-<li><link topic="setup_defaultdirname">DefaultDirName</link></li>
-<li><link topic="setup_defaultgroupname">DefaultGroupName</link></li>
-<li><link topic="setup_defaultuserinfoname">DefaultUserInfoName</link></li>
-<li><link topic="setup_defaultuserinfoorg">DefaultUserInfoOrg</link></li>
-<li><link topic="setup_defaultuserinfoserial">DefaultUserInfoSerial</link></li>
-<li><link topic="setup_direxistswarning">DirExistsWarning</link></li>
-<li><link topic="setup_disabledirpage">DisableDirPage</link></li>
-<li><link topic="setup_disablefinishedpage">DisableFinishedPage</link></li>
-<li><link topic="setup_disableprogramgrouppage">DisableProgramGroupPage</link></li>
-<li><link topic="setup_disablereadymemo">DisableReadyMemo</link></li>
-<li><link topic="setup_disablereadypage">DisableReadyPage</link></li>
-<li><link topic="setup_disablestartupprompt">DisableStartupPrompt</link></li>
-<li><link topic="setup_disablewelcomepage">DisableWelcomePage</link></li>
-<li><link topic="setup_enabledirdoesntexistwarning">EnableDirDoesntExistWarning</link></li>
-<li><link topic="setup_extradiskspacerequired">ExtraDiskSpaceRequired</link></li>
-<li><link topic="setup_infoafterfile">InfoAfterFile</link></li>
-<li><link topic="setup_infobeforefile">InfoBeforeFile</link></li>
-<li><link topic="setup_languagedetectionmethod">LanguageDetectionMethod</link></li>
-<li><link topic="setup_licensefile">LicenseFile</link></li>
-<li><link topic="setup_minversion">MinVersion</link></li>
-<li><link topic="setup_onlybelowversion">OnlyBelowVersion</link></li>
-<li><link topic="setup_password">Password</link></li>
-<li><link topic="setup_privilegesrequired">PrivilegesRequired</link></li>
-<li><link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link></li>
-<li><link topic="setup_redirectionguard">RedirectionGuard</link></li>
-<li><link topic="setup_restartapplications">RestartApplications</link></li>
-<li><link topic="setup_restartifneededbyrun">RestartIfNeededByRun</link></li>
-<li><link topic="setup_setuparchitecture">SetupArchitecture</link></li>
-<li><link topic="setup_setuplogging">SetupLogging</link></li>
-<li><link topic="setup_setupmutex">SetupMutex</link></li>
-<li><link topic="setup_showlanguagedialog">ShowLanguageDialog</link></li>
-<li><link topic="setup_timestamprounding">TimeStampRounding</link></li>
-<li><link topic="setup_timestampsinutc">TimeStampsInUTC</link></li>
-<li><link topic="setup_touchdate">TouchDate</link></li>
-<li><link topic="setup_touchtime">TouchTime</link></li>
-<li><link topic="setup_uninstallable">Uninstallable</link></li>
-<li><link topic="setup_uninstalldisplayicon">UninstallDisplayIcon</link></li>
-<li><link topic="setup_uninstalldisplayname">UninstallDisplayName</link></li>
-<li><link topic="setup_uninstalldisplaysize">UninstallDisplaySize</link></li>
-<li><link topic="setup_uninstallfilesdir">UninstallFilesDir</link></li>
-<li><link topic="setup_uninstalllogging">UninstallLogging</link></li>
-<li><link topic="setup_uninstalllogmode">UninstallLogMode</link></li>
-<li><link topic="setup_uninstallrestartcomputer">UninstallRestartComputer</link></li>
-<li><link topic="setup_updateuninstalllogappname">UpdateUninstallLogAppName</link></li>
-<li><link topic="setup_usepreviousappdir">UsePreviousAppDir</link></li>
-<li><link topic="setup_usepreviousgroup">UsePreviousGroup</link></li>
-<li><link topic="setup_usepreviouslanguage">UsePreviousLanguage</link></li>
-<li><link topic="setup_usepreviousprivileges">UsePreviousPrivileges</link></li>
-<li><link topic="setup_useprevioussetuptype">UsePreviousSetupType</link></li>
-<li><link topic="setup_useprevioustasks">UsePreviousTasks</link></li>
-<li><link topic="setup_useprevioususerinfo">UsePreviousUserInfo</link></li>
-<li><link topic="setup_userinfopage">UserInfoPage</link></li>
-</ul>
-
-<p><b>Cosmetic:</b> These directives only affect the appearance of the Setup program.</p>
-
-<ul appearance="compact">
-<li><link topic="setup_appcopyright">AppCopyright</link></li>
-<li><link topic="setup_flatcomponentslist">FlatComponentsList</link></li>
 <li><link topic="setup_setupiconfile">SetupIconFile</link></li>
-<li><link topic="setup_showcomponentsizes">ShowComponentSizes</link></li>
-<li><link topic="setup_showtaskstreelines">ShowTasksTreeLines</link></li>
 <li><link topic="setup_wizardbackcolor">WizardBackColor</link></li>
 <li><link topic="setup_wizardbackcolordynamicdark">WizardBackColorDynamicDark</link></li>
 <li><link topic="setup_wizardbackimagefile">WizardBackImageFile</link></li>
@@ -1165,7 +1045,241 @@ Besides space separated lists, you may also use boolean expressions containing c
 <li><link topic="setup_wizardstylefiledynamicdark">WizardStyleFileDynamicDark</link></li>
 </ul>
 
-<heading>Obsolete</heading>
+<heading><a name="applicationdetails">Application Details</a></heading>
+
+<p>These directives describe the application and control the general behavior of Setup.</p>
+
+<ul appearance="compact">
+<li><link topic="setup_allowcancelduringinstall">AllowCancelDuringInstall</link></li>
+<li><link topic="setup_alwaysrestart">AlwaysRestart</link></li>
+<li><link topic="setup_appname"><b>AppName</b></link></li>
+<li><link topic="setup_appvername">AppVerName</link></li>
+<li><link topic="setup_appversion"><b>AppVersion</b></link></li>
+<li><link topic="setup_changesassociations">ChangesAssociations</link></li>
+<li><link topic="setup_changesenvironment">ChangesEnvironment</link></li>
+<li><link topic="setup_extradiskspacerequired">ExtraDiskSpaceRequired</link></li>
+<li><link topic="setup_privilegesrequired">PrivilegesRequired</link></li>
+<li><link topic="setup_privilegesrequiredoverridesallowed">PrivilegesRequiredOverridesAllowed</link></li>
+<li><link topic="setup_restartifneededbyrun">RestartIfNeededByRun</link></li>
+<li><link topic="setup_setuplogging">SetupLogging</link></li>
+<li><link topic="setup_usepreviousprivileges">UsePreviousPrivileges</link></li>
+</ul>
+
+<heading><a name="applicationdirectory">Application Directory</a></heading>
+
+<p>These directives control the application's destination directory and the <i>Select Destination Location</i> wizard page which asks for it.</p>
+
+<ul appearance="compact">
+<li><link topic="setup_allownetworkdrive">AllowNetworkDrive</link></li>
+<li><link topic="setup_allowrootdirectory">AllowRootDirectory</link></li>
+<li><link topic="setup_allowuncpath">AllowUNCPath</link></li>
+<li><link topic="setup_appenddefaultdirname">AppendDefaultDirName</link></li>
+<li><link topic="setup_createappdir">CreateAppDir</link></li>
+<li><link topic="setup_defaultdirname">DefaultDirName</link></li>
+<li><link topic="setup_direxistswarning">DirExistsWarning</link></li>
+<li><link topic="setup_disabledirpage">DisableDirPage</link></li>
+<li><link topic="setup_enabledirdoesntexistwarning">EnableDirDoesntExistWarning</link></li>
+<li><link topic="setup_usepreviousappdir">UsePreviousAppDir</link></li>
+</ul>
+
+<heading><a name="applicationsinuse">Applications in Use</a></heading>
+
+<p>These directives control what happens when the application or Setup itself is already running.</p>
+
+<ul appearance="compact">
+<li><link topic="setup_appmutex">AppMutex</link></li>
+<li><link topic="setup_closeapplications">CloseApplications</link></li>
+<li><link topic="setup_closeapplicationsfilter">CloseApplicationsFilter</link></li>
+<li><link topic="setup_closeapplicationsfilterexcludes">CloseApplicationsFilterExcludes</link></li>
+<li><link topic="setup_restartapplications">RestartApplications</link></li>
+<li><link topic="setup_setupmutex">SetupMutex</link></li>
+</ul>
+
+<heading><a name="compilersettings">Compiler Settings</a></heading>
+
+<p>These directives control how the compiler produces the Setup files.</p>
+
+<ul appearance="compact">
+<li><link topic="setup_archiveextraction">ArchiveExtraction</link></li>
+<li><link topic="setup_mergeduplicatefiles">MergeDuplicateFiles</link></li>
+<li><link topic="setup_missingmessageswarning">MissingMessagesWarning</link></li>
+<li><link topic="setup_missingrunonceidswarning">MissingRunOnceIdsWarning</link></li>
+<li><link topic="setup_notrecognizedmessageswarning">NotRecognizedMessagesWarning</link></li>
+<li><link topic="setup_output">Output</link></li>
+<li><link topic="setup_outputbasefilename">OutputBaseFilename</link></li>
+<li><link topic="setup_outputdir">OutputDir</link></li>
+<li><link topic="setup_outputmanifestfile">OutputManifestFile</link></li>
+<li><link topic="setup_sourcedir">SourceDir</link></li>
+<li><link topic="setup_terminalservicesaware">TerminalServicesAware</link></li>
+<li><link topic="setup_timestamprounding">TimeStampRounding</link></li>
+<li><link topic="setup_timestampsinutc">TimeStampsInUTC</link></li>
+<li><link topic="setup_touchdate">TouchDate</link></li>
+<li><link topic="setup_touchtime">TouchTime</link></li>
+<li><link topic="setup_useduserareaswarning">UsedUserAreasWarning</link></li>
+<li><link topic="setup_usesetupldr">UseSetupLdr</link></li>
+</ul>
+
+<heading><a name="compression">Compression</a></heading>
+
+<p>These directives control how the compiler compresses your files.</p>
+
+<ul appearance="compact">
+<li><link topic="setup_compression">Compression</link></li>
+<li><link topic="setup_compressionthreads">CompressionThreads</link></li>
+<li><link topic="setup_internalcompresslevel">InternalCompressLevel</link></li>
+<li><link topic="setup_lzmaalgorithm">LZMAAlgorithm</link></li>
+<li><link topic="setup_lzmablocksize">LZMABlockSize</link></li>
+<li><link topic="setup_lzmadictionarysize">LZMADictionarySize</link></li>
+<li><link topic="setup_lzmamatchfinder">LZMAMatchFinder</link></li>
+<li><link topic="setup_lzmanumblockthreads">LZMANumBlockThreads</link></li>
+<li><link topic="setup_lzmanumfastbytes">LZMANumFastBytes</link></li>
+<li><link topic="setup_lzmauseseparateprocess">LZMAUseSeparateProcess</link></li>
+<li><link topic="setup_solidcompression">SolidCompression</link></li>
+</ul>
+
+<heading><a name="diskspanning">Disk Spanning</a></heading>
+
+<p>These directives control the number and size of the files the compiler outputs.</p>
+
+<ul appearance="compact">
+<li><link topic="setup_diskclustersize">DiskClusterSize</link></li>
+<li><link topic="setup_diskslicesize">DiskSliceSize</link></li>
+<li><link topic="setup_diskspanning">DiskSpanning</link></li>
+<li><link topic="setup_reservebytes">ReserveBytes</link></li>
+<li><link topic="setup_slicesperdisk">SlicesPerDisk</link></li>
+</ul>
+
+<heading><a name="installationpages">Installation Pages</a></heading>
+
+<p>These directives control which wizard pages Setup shows and how they behave.</p>
+
+<ul appearance="compact">
+<li><link topic="setup_alwaysshowcomponentslist">AlwaysShowComponentsList</link></li>
+<li><link topic="setup_alwaysshowdironreadypage">AlwaysShowDirOnReadyPage</link></li>
+<li><link topic="setup_alwaysshowgrouponreadypage">AlwaysShowGroupOnReadyPage</link></li>
+<li><link topic="setup_disablefinishedpage">DisableFinishedPage</link></li>
+<li><link topic="setup_disablereadymemo">DisableReadyMemo</link></li>
+<li><link topic="setup_disablereadypage">DisableReadyPage</link></li>
+<li><link topic="setup_disablestartupprompt">DisableStartupPrompt</link></li>
+<li><link topic="setup_disablewelcomepage">DisableWelcomePage</link></li>
+<li><link topic="setup_flatcomponentslist">FlatComponentsList</link></li>
+<li><link topic="setup_infoafterfile">InfoAfterFile</link></li>
+<li><link topic="setup_infobeforefile">InfoBeforeFile</link></li>
+<li><link topic="setup_languagedetectionmethod">LanguageDetectionMethod</link></li>
+<li><link topic="setup_licensefile">LicenseFile</link></li>
+<li><link topic="setup_showcomponentsizes">ShowComponentSizes</link></li>
+<li><link topic="setup_showlanguagedialog">ShowLanguageDialog</link></li>
+<li><link topic="setup_showtaskstreelines">ShowTasksTreeLines</link></li>
+<li><link topic="setup_usepreviouslanguage">UsePreviousLanguage</link></li>
+<li><link topic="setup_useprevioussetuptype">UsePreviousSetupType</link></li>
+<li><link topic="setup_useprevioustasks">UsePreviousTasks</link></li>
+</ul>
+
+<p>See also <anchorlink name="applicationdirectory">Application Directory</anchorlink>, <anchorlink name="programgroup">Program Group</anchorlink>, and <anchorlink name="userinformation">User Information</anchorlink>, which have their own wizard pages.</p>
+
+<heading><a name="programgroup">Program Group</a></heading>
+
+<p>These directives control the application's Start Menu folder and the <i>Select Start Menu Folder</i> wizard page which asks for it.</p>
+
+<ul appearance="compact">
+<li><link topic="setup_allownoicons">AllowNoIcons</link></li>
+<li><link topic="setup_alwaysusepersonalgroup">AlwaysUsePersonalGroup</link></li>
+<li><link topic="setup_appenddefaultgroupname">AppendDefaultGroupName</link></li>
+<li><link topic="setup_defaultgroupname">DefaultGroupName</link></li>
+<li><link topic="setup_disableprogramgrouppage">DisableProgramGroupPage</link></li>
+<li><link topic="setup_usepreviousgroup">UsePreviousGroup</link></li>
+</ul>
+
+<heading><a name="security">Security</a></heading>
+
+<p>These directives control the security of Setup and your files.</p>
+
+<ul appearance="compact">
+<li><link topic="setup_aslrcompatible">ASLRCompatible</link></li>
+<li><link topic="setup_depcompatible">DEPCompatible</link></li>
+<li><link topic="setup_disableprecompiledfileverifications">DisablePrecompiledFileVerifications</link></li>
+<li><link topic="setup_encryption">Encryption</link></li>
+<li><link topic="setup_encryptionkeyderivation">EncryptionKeyDerivation</link></li>
+<li><link topic="setup_password">Password</link></li>
+<li><link topic="setup_redirectionguard">RedirectionGuard</link></li>
+<li><link topic="setup_signeduninstaller">SignedUninstaller</link></li>
+<li><link topic="setup_signeduninstallerdir">SignedUninstallerDir</link></li>
+<li><link topic="setup_signtool">SignTool</link></li>
+<li><link topic="setup_signtoolminimumtimebetween">SignToolMinimumTimeBetween</link></li>
+<li><link topic="setup_signtoolretrycount">SignToolRetryCount</link></li>
+<li><link topic="setup_signtoolretrydelay">SignToolRetryDelay</link></li>
+<li><link topic="setup_signtoolrunminimized">SignToolRunMinimized</link></li>
+</ul>
+
+<heading><a name="systemrequirements">System Requirements</a></heading>
+
+<p>These directives control the systems on which Setup can run and whether it uses <link topic="32vs64bitinstalls">64-bit install mode</link>.</p>
+
+<ul appearance="compact">
+<li><link topic="setup_architecturesallowed">ArchitecturesAllowed</link></li>
+<li><link topic="setup_architecturesinstallin64bitmode">ArchitecturesInstallIn64BitMode</link></li>
+<li><link topic="setup_minversion">MinVersion</link></li>
+<li><link topic="setup_onlybelowversion">OnlyBelowVersion</link></li>
+<li><link topic="setup_setuparchitecture">SetupArchitecture</link></li>
+</ul>
+
+<heading><a name="uninstallation">Uninstallation</a></heading>
+
+<p>These directives control uninstallation and the application's <i>Add/Remove Programs</i> entry.</p>
+
+<ul appearance="compact">
+<li><link topic="setup_appcomments">AppComments</link></li>
+<li><link topic="setup_appcontact">AppContact</link></li>
+<li><link topic="setup_appid">AppId</link></li>
+<li><link topic="setup_appmodifypath">AppModifyPath</link></li>
+<li><link topic="setup_apppublisher">AppPublisher</link></li>
+<li><link topic="setup_apppublisherurl">AppPublisherURL</link></li>
+<li><link topic="setup_appreadmefile">AppReadmeFile</link></li>
+<li><link topic="setup_appsupportphone">AppSupportPhone</link></li>
+<li><link topic="setup_appsupporturl">AppSupportURL</link></li>
+<li><link topic="setup_appupdatesurl">AppUpdatesURL</link></li>
+<li><link topic="setup_createuninstallregkey">CreateUninstallRegKey</link></li>
+<li><link topic="setup_uninstallable">Uninstallable</link></li>
+<li><link topic="setup_uninstalldisplayicon">UninstallDisplayIcon</link></li>
+<li><link topic="setup_uninstalldisplayname">UninstallDisplayName</link></li>
+<li><link topic="setup_uninstalldisplaysize">UninstallDisplaySize</link></li>
+<li><link topic="setup_uninstallfilesdir">UninstallFilesDir</link></li>
+<li><link topic="setup_uninstalllogging">UninstallLogging</link></li>
+<li><link topic="setup_uninstalllogmode">UninstallLogMode</link></li>
+<li><link topic="setup_uninstallrestartcomputer">UninstallRestartComputer</link></li>
+<li><link topic="setup_updateuninstalllogappname">UpdateUninstallLogAppName</link></li>
+</ul>
+
+<heading><a name="userinformation">User Information</a></heading>
+
+<p>These directives control the <i>User Information</i> wizard page.</p>
+
+<ul appearance="compact">
+<li><link topic="setup_defaultuserinfoname">DefaultUserInfoName</link></li>
+<li><link topic="setup_defaultuserinfoorg">DefaultUserInfoOrg</link></li>
+<li><link topic="setup_defaultuserinfoserial">DefaultUserInfoSerial</link></li>
+<li><link topic="setup_useprevioususerinfo">UsePreviousUserInfo</link></li>
+<li><link topic="setup_userinfopage">UserInfoPage</link></li>
+</ul>
+
+<heading><a name="versioninformation">Version Information</a></heading>
+
+<p>These directives specify the version resource of the files the compiler outputs.</p>
+
+<ul appearance="compact">
+<li><link topic="setup_appcopyright">AppCopyright</link></li>
+<li><link topic="setup_versioninfocompany">VersionInfoCompany</link></li>
+<li><link topic="setup_versioninfocopyright">VersionInfoCopyright</link></li>
+<li><link topic="setup_versioninfodescription">VersionInfoDescription</link></li>
+<li><link topic="setup_versioninfooriginalfilename">VersionInfoOriginalFileName</link></li>
+<li><link topic="setup_versioninfoproductname">VersionInfoProductName</link></li>
+<li><link topic="setup_versioninfoproducttextversion">VersionInfoProductTextVersion</link></li>
+<li><link topic="setup_versioninfoproductversion">VersionInfoProductVersion</link></li>
+<li><link topic="setup_versioninfotextversion">VersionInfoTextVersion</link></li>
+<li><link topic="setup_versioninfoversion">VersionInfoVersion</link></li>
+</ul>
+
+<heading><a name="obsolete">Obsolete</a></heading>
 
 <p>These directives are obsolete and should not be used in any new scripts.</p>
 
@@ -3789,7 +3903,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Close current tab</td><td>Ctrl+F4 or Ctrl+W</td>
 </tr>
 <tr>
-  <td>Switch between the active memo, the active bottom pane, and the active banner</td><td>F6 or Shift+F6</td>
+  <td>Switch between the active memo, the active bottom pane, and the active banner (Shift reverses direction)</td><td>F6</td>
 </tr>
 </table>
 

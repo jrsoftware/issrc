@@ -1632,7 +1632,7 @@ begin
             { This is the file entry for the uninstaller program }
             SourceWildcard := NewParamStr(0);
           end else begin
-            SourceWildcard := ExpandConst(CurFile^.SourceFilename);
+            SourceWildcard := ExpandExternalSourceFilename(CurFile);
             if not(foDownload in CurFile^.Options) then
               SourceWildcard := ApplyPathRedirRules(Is64Bit, SourceWildcard, tpCurrent);
           end;
