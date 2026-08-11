@@ -377,7 +377,7 @@ type
     procedure SetSingleSelection(const CaretPos, AnchorPos: Integer);
     procedure SettingChange(const Message: TMessage);
     procedure SetWordChars(const S: AnsiString);
-    procedure ShowAutoComplete(const CharsEntered: Integer; const WordList: AnsiString);
+    procedure ShowAutoComplete(const CharsEntered: Integer; const WordList: TScintRawString);
     procedure ShowCallTip(const Pos: Integer; const Definition: AnsiString);
     procedure StyleNeeded(const EndPos: Integer);
     procedure SysColorChange(const Message: TMessage);
@@ -2249,7 +2249,7 @@ begin
 end;
 
 procedure TScintEdit.ShowAutoComplete(const CharsEntered: Integer;
-  const WordList: AnsiString);
+  const WordList: TScintRawString);
 begin
   Call(SCI_AUTOCSHOW, CharsEntered, WordList);
 end;

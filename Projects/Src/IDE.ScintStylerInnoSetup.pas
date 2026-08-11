@@ -74,20 +74,20 @@ type
   TInnoSetupStyler = class(TScintCustomStyler)
   private
     FSectionParameters: array[TInnoSetupSection] of TArray<TScintRawString>;
-    FEventFunctionsWordList: array[Boolean] of AnsiString;
-    FKeywordsWordList, FFlagsWordList: array[TInnoSetupSection] of AnsiString;
+    FEventFunctionsWordList: array[Boolean] of TScintRawString;
+    FKeywordsWordList, FFlagsWordList: array[TInnoSetupSection] of TScintRawString;
     FNoHighlightAtCursorWords: TWordsBySection;
     FFlagsWords: TWordsBySection;
-    FISPPDirectivesWordList, FISPPPragmaWordList, FConstantsWordList: AnsiString;
+    FISPPDirectivesWordList, FISPPPragmaWordList, FConstantsWordList: TScintRawString;
     FISPPFunctionsByName: TFunctionDefinitionsByName;
-    FISPPExpressionWordList: AnsiString;
+    FISPPExpressionWordList: TScintRawString;
     FScriptFunctionsByName: array[Boolean] of TFunctionDefinitionsByName;
-    FScriptWordList: array[Boolean] of AnsiString;
-    FSectionsWordList: AnsiString;
-    FSetupSectionDirectiveValueWordList: array[TSetupSectionDirective] of AnsiString;
+    FScriptWordList: array[Boolean] of TScintRawString;
+    FSectionsWordList: TScintRawString;
+    FSetupSectionDirectiveValueWordList: array[TSetupSectionDirective] of TScintRawString;
     FISPPInstalled: Boolean;
     FTheme: TTheme;
-    procedure AddWordToList(const SL: TStringList; const Word: AnsiString;
+    procedure AddWordToList(const SL: TStringList; const Word: TScintRawString;
       const Typ: Integer);
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
@@ -109,11 +109,11 @@ type
     procedure CommitStyleSq(const Style: TInnoSetupStylerStyle;
       const Squigglify: Boolean);
     procedure CommitStyleSqPending(const Style: TInnoSetupStylerStyle);
-    function GetEventFunctionsWordList(Procedures: Boolean): AnsiString;
-    function GetFlagsWordList(Section: TInnoSetupSection): AnsiString;
+    function GetEventFunctionsWordList(Procedures: Boolean): TScintRawString;
+    function GetFlagsWordList(Section: TInnoSetupSection): TScintRawString;
     class function GetFunctionDefinition(const FunctionsByName: TFunctionDefinitionsByName;
       const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; static;
-    function GetKeywordsWordList(Section: TInnoSetupSection): AnsiString;
+    function GetKeywordsWordList(Section: TInnoSetupSection): TScintRawString;
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState; var CodeBlockHeader: Boolean);
     procedure HandleKeyValueSection(const Section: TInnoSetupSection);
     procedure HandleParameterSection(const ValidParameters: array of TScintRawString);
@@ -126,9 +126,9 @@ type
     procedure StyleConstsUntilChars(const Chars: TScintRawCharSet;
       const NonConstStyle: TInnoSetupStylerStyle; var BraceLevel: Integer);
     procedure SetISPPInstalled(const Value: Boolean);
-    function GetScriptWordList(ClassOrRecordMembers: Boolean): AnsiString;
+    function GetScriptWordList(ClassOrRecordMembers: Boolean): TScintRawString;
     function GetSetupSectionDirectiveValueIsMultiValue(SetupSectionDirective: TSetupSectionDirective): Boolean;
-    function GetSetupSectionDirectiveValueWordList(SetupSectionDirective: TSetupSectionDirective): AnsiString;
+    function GetSetupSectionDirectiveValueWordList(SetupSectionDirective: TSetupSectionDirective): TScintRawString;
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
     procedure GetFoldLevel(const LineState, PreviousLineState: TScintLineState;
@@ -148,8 +148,8 @@ type
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean; static;
     class function LineSectionHeader(const LineState: TScintLineState; out Section: TInnoSetupSection): Boolean; static;
     class function LineSpans(const S: TScintRawString): Boolean; static;
-    function BuildWordList(const Values: array of TScintRawString): AnsiString; overload;
-    function BuildWordList(const WordStringList: TStringList): AnsiString; overload;
+    function BuildWordList(const Values: array of TScintRawString): TScintRawString; overload;
+    function BuildWordList(const WordStringList: TStringList): TScintRawString; overload;
     function GetISPPFunctionDefinition(const Name: String;
       const Index: Integer; out Count: Integer): TFunctionDefinition;
     function GetScriptFunctionDefinition(const ClassMember: Boolean;
@@ -158,18 +158,18 @@ type
       const Name: String; const Index: Integer): TFunctionDefinition; overload;
     function SectionHasFlag(const Section: TInnoSetupSection; const Flag: String): Boolean;
     function HighlightAtCursorAllowed(const Section: TInnoSetupSection; const Word: String): Boolean;
-    property ConstantsWordList: AnsiString read FConstantsWordList;
-    property EventFunctionsWordList[Procedures: Boolean]: AnsiString read GetEventFunctionsWordList;
-    property FlagsWordList[Section: TInnoSetupSection]: AnsiString read GetFlagsWordList;
-    property ISPPDirectivesWordList: AnsiString read FISPPDirectivesWordList;
-    property ISPPPragmaWordList: AnsiString read FISPPPragmaWordList;
-    property ISPPExpressionWordList: AnsiString read FISPPExpressionWordList;
+    property ConstantsWordList: TScintRawString read FConstantsWordList;
+    property EventFunctionsWordList[Procedures: Boolean]: TScintRawString read GetEventFunctionsWordList;
+    property FlagsWordList[Section: TInnoSetupSection]: TScintRawString read GetFlagsWordList;
+    property ISPPDirectivesWordList: TScintRawString read FISPPDirectivesWordList;
+    property ISPPPragmaWordList: TScintRawString read FISPPPragmaWordList;
+    property ISPPExpressionWordList: TScintRawString read FISPPExpressionWordList;
     property ISPPInstalled: Boolean read FISPPInstalled write SetISPPInstalled;
-    property KeywordsWordList[Section: TInnoSetupSection]: AnsiString read GetKeywordsWordList;
-    property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
-    property SectionsWordList: AnsiString read FSectionsWordList;
+    property KeywordsWordList[Section: TInnoSetupSection]: TScintRawString read GetKeywordsWordList;
+    property ScriptWordList[ClassOrRecordMembers: Boolean]: TScintRawString read GetScriptWordList;
+    property SectionsWordList: TScintRawString read FSectionsWordList;
     property SetupSectionDirectiveValueIsMultiValue[SetupSectionDirective: TSetupSectionDirective]: Boolean read GetSetupSectionDirectiveValueIsMultiValue;
-    property SetupSectionDirectiveValueWordList[SetupSectionDirective: TSetupSectionDirective]: AnsiString read GetSetupSectionDirectiveValueWordList;
+    property SetupSectionDirectiveValueWordList[SetupSectionDirective: TSetupSectionDirective]: TScintRawString read GetSetupSectionDirectiveValueWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
 
@@ -333,7 +333,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       for var TypeInfo in PascalRealEnumValues do begin
         var TypeData := GetTypeData(TypeInfo);
         for var I := TypeData.MinValue to TypeData.MaxValue do
-          AddWordToList(SL2, AnsiString(GetEnumName(TypeInfo, I)), awtScriptEnumValue);
+          AddWordToList(SL2, TScintRawString(GetEnumName(TypeInfo, I)), awtScriptEnumValue);
       end;
       for var S in PascalVariables do
         AddWordToList(SL2, S, awtScriptVariable);
@@ -416,7 +416,7 @@ begin
 end;
 
 procedure TInnoSetupStyler.AddWordToList(const SL: TStringList;
-  const Word: AnsiString; const Typ: Integer);
+  const Word: TScintRawString; const Typ: Integer);
 begin
   if Typ >= 0 then
     SL.Add(Format('%s%s%d', [Word, InnoSetupStylerWordListTypeSeparator, Typ]))
@@ -442,7 +442,7 @@ begin
   ApplyStyleByteIndicators([inSquiggly], StartIndex, CurIndex - 1);
 end;
 
-function TInnoSetupStyler.BuildWordList(const Values: array of TScintRawString): AnsiString;
+function TInnoSetupStyler.BuildWordList(const Values: array of TScintRawString): TScintRawString;
 begin
   const SL = TStringList.Create;
   try
@@ -454,7 +454,7 @@ begin
   end;
 end;
 
-function TInnoSetupStyler.BuildWordList(const WordStringList: TStringList): AnsiString;
+function TInnoSetupStyler.BuildWordList(const WordStringList: TStringList): TScintRawString;
 begin
   { Scintilla uses an ASCII binary search so the list must be in ASCII sort
     order (case-insensitive). }
@@ -464,7 +464,7 @@ begin
 
   Result := '';
   for var S in WordStringList do begin
-    var A := AnsiString(S);
+    var A := TScintRawString(S);
     if Result = '' then
       Result := A
     else
@@ -511,7 +511,7 @@ begin
     for var I := 0 to GetTypeData(EnumTypeInfo).MaxValue do begin
       const Parameter = Copy(GetEnumName(EnumTypeInfo, I), PrefixLength+1, MaxInt);
       SL1.Add(Parameter);
-      AddWordToList(SL2, AnsiString(Parameter), awtDirective);
+      AddWordToList(SL2, TScintRawString(Parameter), awtDirective);
     end;
     FKeywordsWordList[Section] := BuildWordList(SL2);
   finally
@@ -620,7 +620,7 @@ begin
         AddWordToList(SL, '{#' + ISPPPredefinedVariable + '}', awtConstant);
     end;
     for var ConstantWithParam in ConstantsWithParam do
-      AddWordToList(SL, AnsiString('{' + ConstantWithParam), awtConstant);
+      AddWordToList(SL, TScintRawString('{' + ConstantWithParam), awtConstant);
     FConstantsWordList := BuildWordList(SL);
   finally
     SL.Free;
@@ -671,12 +671,12 @@ begin
   CommitStyle(Style);
 end;
 
-function TInnoSetupStyler.GetEventFunctionsWordList(Procedures: Boolean): AnsiString;
+function TInnoSetupStyler.GetEventFunctionsWordList(Procedures: Boolean): TScintRawString;
 begin
   Result := FEventFunctionsWordList[Procedures];
 end;
 
-function TInnoSetupStyler.GetFlagsWordList(Section: TInnoSetupSection): AnsiString;
+function TInnoSetupStyler.GetFlagsWordList(Section: TInnoSetupSection): TScintRawString;
 begin
   Result := FFlagsWordList[Section];
 end;
@@ -706,7 +706,7 @@ begin
   end;
 end;
 
-function TInnoSetupStyler.GetKeywordsWordList(Section: TInnoSetupSection): AnsiString;
+function TInnoSetupStyler.GetKeywordsWordList(Section: TInnoSetupSection): TScintRawString;
 begin
   Result := FKeywordsWordList[Section];
 end;
@@ -748,7 +748,7 @@ begin
 end;
 
 function TInnoSetupStyler.GetScriptWordList(
-  ClassOrRecordMembers: Boolean): AnsiString;
+  ClassOrRecordMembers: Boolean): TScintRawString;
 begin
   Result := FScriptWordList[ClassOrRecordMembers];
 end;
@@ -771,7 +771,7 @@ begin
 end;
 
 function TInnoSetupStyler.GetSetupSectionDirectiveValueWordList(
-  SetupSectionDirective: TSetupSectionDirective): AnsiString;
+  SetupSectionDirective: TSetupSectionDirective): TScintRawString;
 begin
   Result := FSetupSectionDirectiveValueWordList[SetupSectionDirective];
 end;
