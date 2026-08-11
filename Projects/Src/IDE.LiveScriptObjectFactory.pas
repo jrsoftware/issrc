@@ -195,6 +195,10 @@ type
     property Styler: TInnoSetupStyler read FStyler;
   end;
 
+function CollectParameterValuesFromFactories(
+  const AFactories: array of TLiveScriptObjectFactory;
+  const AParameterName: String): TArray<String>;
+
 implementation
 
 uses
@@ -993,6 +997,46 @@ begin
         Entry.Free;
       end;
     end;
+  end;
+end;
+
+function CollectParameterValuesFromFactories(
+  const AFactories: array of TLiveScriptObjectFactory;
+  const AParameterName: String): TArray<String>;
+{ Collects the distinct values which are valid for the AParameterName parameter
+  from the given factories' script. nil and duplicate factories are skipped. }
+
+  function FactoryAlreadyProcessed(const AIndex: NativeInt): Boolean;
+  begin
+    Result := False;
+    for var I := 0 to AIndex-1 do
+      if AFactories[I] = AFactories[AIndex] then
+        Exit(True);
+  end;
+
+begin
+  const NamesSection = GetScriptSectionDefiningParameterValues(AParameterName);
+  const Values = TStringList.Create;
+  try
+    Values.CaseSensitive := False;
+    Values.Duplicates := dupIgnore;
+    Values.Sorted := True;
+    for var I := 0 to High(AFactories) do begin
+      const Factory = AFactories[I];
+      if (Factory = nil) or FactoryAlreadyProcessed(I) then
+        Continue;
+      if NamesSection <> scNone then begin
+        { Lookup defined names }
+        Factory.CollectParameterValues(NamesSection, 'Name', Values);
+        if NamesSection = scISSigKeys then
+          Factory.CollectParameterValues(scISSigKeys, 'Group', Values, True); { Group names are valid values too }
+      end;
+      { Lookup uses: finds extra expression forms }
+      Factory.CollectParameterValues(scNone, AParameterName, Values);
+    end;
+    Result := Values.ToStringArray;
+  finally
+    Values.Free;
   end;
 end;
 
