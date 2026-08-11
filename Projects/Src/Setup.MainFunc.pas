@@ -1237,6 +1237,7 @@ begin
       InternalError('Cannot expand "' + OriginalCnst + '" constant on this version of Windows');
   end
   else if (Cnst <> '') and (Cnst[1] = '%') then Result := ExpandEnvConst(Cnst)
+  { Same list of prefixes as in ConstantsWithParam }
   else if StrLComp(PChar(Cnst), 'reg:', 4) = 0 then Result := ExpandRegConst(Cnst)
   else if StrLComp(PChar(Cnst), 'ini:', 4) = 0 then Result := ExpandIniConst(Cnst)
   else if StrLComp(PChar(Cnst), 'param:', 6) = 0 then Result := ExpandParamConst(Cnst)

@@ -256,6 +256,10 @@ type
 const
   SetupFileEntryStrings = 15;
   SetupFileEntryAnsiStrings = 1;
+  { Not really part of the structs, but data stored in the entries }
+  ConstantsWithParam: array of String = [
+    'cm', 'code', 'drive', 'ini', 'param', 'reg'
+  ];
 type
   PSetupFileEntry = ^TSetupFileEntry;
   TSetupFileVerificationType = (fvNone, fvHash, fvISSig);

@@ -85,10 +85,6 @@ const
 
   { The following and some others below are not used by StyleNeeded and therefore
     simply of type AnsiString instead of TScintRawString }
-  ConstantsWithParam: array of AnsiString = [
-    'cm', 'code', 'drive', 'ini', 'param', 'reg'
-  ];
-
   Constants: array of AnsiString = [
     { Doesn't include constants with non-word chars.
       Also doesn't include the *32 and *64 variants like commonpf32 or dotnet2064 }

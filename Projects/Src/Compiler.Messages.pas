@@ -66,6 +66,7 @@ const
 
   { Fatal errors }
   SCompilerUnknownFilenamePrefix = 'Unknown filename prefix "%s"';
+  SCompilerUnknownFilenamePrefixSuggestExternal = 'Parameter "%s" may only include a "%s" constant when the "%s" flag is used';
   SCompilerSourceFileDoesntExist = 'Source file "%s" does not exist';
   SCompilerSourceFileNotSigned = 'Source file "%s" is not signed';
   SCompilerSourceFileVerificationFailed = 'Verification of source file "%s" failed: %s';

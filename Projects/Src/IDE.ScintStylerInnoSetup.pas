@@ -14,7 +14,7 @@ interface
 uses
   SysUtils, Classes, Graphics, Generics.Collections, TypInfo,
   ScintEdit, ModernColors, Shared.ScriptFunc, Shared.SetupSectionDirectives,
-  IDE.ScriptModel.Metadata.Extra;
+  Shared.Struct, IDE.ScriptModel.Metadata.Extra;
 
 const
   InnoSetupStylerWordListSeparator = #9;
@@ -620,7 +620,7 @@ begin
         AddWordToList(SL, '{#' + ISPPPredefinedVariable + '}', awtConstant);
     end;
     for var ConstantWithParam in ConstantsWithParam do
-      AddWordToList(SL, '{' + ConstantWithParam, awtConstant);
+      AddWordToList(SL, AnsiString('{' + ConstantWithParam), awtConstant);
     FConstantsWordList := BuildWordList(SL);
   finally
     SL.Free;

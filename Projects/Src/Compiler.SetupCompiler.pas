@@ -201,8 +201,10 @@ type
     class procedure AbortCompileParamError(const Msg, ParamName: String); static;
     class procedure ApplyNewEntryBitness(var Bitness: TSetupEntryBitness;
       const NewBitness: TSetupEntryBitness); static;
-    function PrependDirName(const Filename, Dir: String): String;
-    function PrependSourceDirName(const Filename: String): String;
+    function PrependDirName(const Filename, Dir: String;
+      const IsFilesEntrySourceParameter: Boolean = False): String;
+    function PrependSourceDirName(const Filename: String;
+      const IsFilesEntrySourceParameter: Boolean = False): String;
     procedure DoCallback(const Code: Integer; var Data: TCompilerCallbackData;
       const IgnoreCallbackResult: Boolean = False);
     procedure EnumIniSection(const EnumProc: TEnumIniSectionProc;
@@ -1485,7 +1487,8 @@ begin
   end;
 end;
 
-function TSetupCompiler.PrependDirName(const Filename, Dir: String): String;
+function TSetupCompiler.PrependDirName(const Filename, Dir: String;
+  const IsFilesEntrySourceParameter: Boolean): String;
 { Filename and/or Dir are allowed to be empty:
   - If Filename is empty, an empty string is returned.
   - If Dir is empty, any prefix on Filename (like "compiler:") is expanded,
@@ -1505,6 +1508,14 @@ function TSetupCompiler.PrependDirName(const Filename, Dir: String): String;
       CachedDir := S;
     end;
     Result := CachedDir;
+  end;
+
+  procedure AbortIfConstantWithParam(const S: String);
+  begin
+    for var ConstantWithParam in ConstantsWithParam do
+      if ConstantWithParam = S then
+        AbortCompileFmt(SCompilerUnknownFilenamePrefixSuggestExternal,
+          ['Source', S, 'external']);
   end;
 
 const
@@ -1528,15 +1539,22 @@ begin
       Result := GetShellFolderPathCached(CSIDL_PERSONAL, CachedUserDocsDir) +
         Copy(Filename, P+1, Maxint)
     else begin
-      AbortCompileFmt(SCompilerUnknownFilenamePrefix, [Copy(Filename, 1, P)]);
+      { If called for a [Files] entry's Source Parameter that means flag external
+        is off. Before showing the regular message, check if the user tried using
+        a prefix which is known (like '{code:') but requires using external, and
+        if so, show a much clearer message. }
+      if IsFilesEntrySourceParameter and (Prefix <> '') and (Prefix[1] = '{') then
+        AbortIfConstantWithParam(Copy(Prefix, 2, MaxInt));
+      AbortCompileFmt(SCompilerUnknownFilenamePrefix, [Prefix]);
       Result := Filename;  { avoid warning }
     end;
   end;
 end;
 
-function TSetupCompiler.PrependSourceDirName(const Filename: String): String;
+function TSetupCompiler.PrependSourceDirName(const Filename: String;
+  const IsFilesEntrySourceParameter: Boolean): String;
 begin
-  Result := PrependDirName(Filename, SourceDir);
+  Result := PrependDirName(Filename, SourceDir, IsFilesEntrySourceParameter);
 end;
 
 procedure TSetupCompiler.RenamedConstantCallback(const Cnst, CnstRenamed: String);
@@ -1841,6 +1859,7 @@ begin
               AbortCompileFmt(SCompilerBadEnvConst, [Cnst]);
             goto 1;
           end;
+          { Same list of prefixes as in ConstantsWithParam }
           if Copy(Cnst, 1, 4) = 'reg:' then begin
             if not CheckRegConst(Cnst) then
               AbortCompileFmt(SCompilerBadRegConst, [Cnst]);
@@ -5970,7 +5989,7 @@ begin
           { Convert to super form because "recursesubdirs" could potentially
             produce paths longer than MAX_PATH. This also calls PathExpand on
             the path, which helps MergeDuplicateFiles. }
-          SourceWildcard := PathConvertNormalToSuper(PrependSourceDirName(SourceWildcard));
+          SourceWildcard := PathConvertNormalToSuper(PrependSourceDirName(SourceWildcard, True));
           SourceIsWildcard := IsWildcard(SourceWildcard);
         end;
         if (ADestName <> '') and (SourceIsWildcard or (not (foDownload in Options) and (foExtractArchive in Options))) then
