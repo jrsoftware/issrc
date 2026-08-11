@@ -1343,8 +1343,8 @@ function ExpandExternalSourceFilename(const FileEntry: PSetupFileEntry): String;
 begin
   Result := ExpandConst(FileEntry^.SourceFilename);
   if Result = '' then { when allowed ApplyPathRedirRules would throw its exception }
-    InternalErrorFmt('The "Source" parameter of the "[Files]" entry for "%s" ' +
-      'expanded to an empty string', [FileEntry^.DestName]);
+    InternalErrorFmt('The "Source" parameter value "%s" expanded to an empty string',
+      [FileEntry^.SourceFilename]);
 end;
 
 procedure InitMainNonGetShellFolderPathConstsAndPathRedir;
