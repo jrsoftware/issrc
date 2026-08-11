@@ -20,6 +20,9 @@ const
   InnoSetupStylerWordListSeparator = #9;
   InnoSetupStylerWordListTypeSeparator = '!'; { Must sort before numbers - so the default '?' is not ok }
 
+  InnoSetupStylerAutoCompleteWordChars = ['0'..'9', 'A'..'Z', 'a'..'z', '_'];
+  InnoSetupStylerAutoCompleteStartOrContinueChars = InnoSetupStylerAutoCompleteWordChars + ['#', '{', '[', '<'];
+
   { AutoComplete word types }
   awtSection = 0;
   awtParameter = 1;
@@ -103,8 +106,6 @@ type
     procedure BuildScriptFunctionsLists(const ScriptFuncTable: TScriptTable;
       const ClassMembers: Boolean; const SL: TStringList);
     procedure BuildSectionsWordList;
-    function BuildWordList(const Values: array of TScintRawString): AnsiString; overload;
-    function BuildWordList(const WordStringList: TStringList): AnsiString; overload;
     procedure CommitStyleSq(const Style: TInnoSetupStylerStyle;
       const Squigglify: Boolean);
     procedure CommitStyleSqPending(const Style: TInnoSetupStylerStyle);
@@ -147,6 +148,8 @@ type
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean; static;
     class function LineSectionHeader(const LineState: TScintLineState; out Section: TInnoSetupSection): Boolean; static;
     class function LineSpans(const S: TScintRawString): Boolean; static;
+    function BuildWordList(const Values: array of TScintRawString): AnsiString; overload;
+    function BuildWordList(const WordStringList: TStringList): AnsiString; overload;
     function GetISPPFunctionDefinition(const Name: String;
       const Index: Integer; out Count: Integer): TFunctionDefinition;
     function GetScriptFunctionDefinition(const ClassMember: Boolean;

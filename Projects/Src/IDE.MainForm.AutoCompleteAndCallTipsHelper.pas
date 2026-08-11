@@ -195,6 +195,24 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := True;
   end;
 
+  function CanAutoCompleteSignToolName(const Name: String): Boolean;
+  begin
+    for var C in Name do
+      if not CharInSet(C, InnoSetupStylerAutoCompleteWordChars) then
+        Exit(False);
+    Result := True;
+  end;
+
+  function GetAutoCompleteSignToolValues: TArray<TScintRawString>;
+  begin
+    Result := [];
+    for var I := 0 to FSignTools.Count-1 do begin
+      const Name = FSignTools.Names[I];
+      if CanAutoCompleteSignToolName(Name) then
+        Result := Result + [TScintRawString(Name)];
+    end;
+  end;
+
 begin
   if AMemo.AutoCompleteActive or AMemo.ReadOnly then
     Exit;
@@ -425,8 +443,12 @@ begin
               if V <> -1 then begin
                 const Directive = TSetupSectionDirective(V);
                 if not FoundMultipleSetupDirectiveValues or
-                  FMemosStyler.SetupSectionDirectiveValueIsMultiValue[Directive] then
-                  WordList := FMemosStyler.SetupSectionDirectiveValueWordList[Directive];
+                  FMemosStyler.SetupSectionDirectiveValueIsMultiValue[Directive] then begin
+                  if Directive = ssSignTool then
+                    WordList := FMemosStyler.BuildWordList(GetAutoCompleteSignToolValues)
+                  else
+                    WordList := FMemosStyler.SetupSectionDirectiveValueWordList[Directive];
+                end;
               end;
               if WordList = '' then
                 Exit;
@@ -681,11 +703,10 @@ begin
     DoAutoComplete := True;
 
   if DoAutoComplete then begin
-    case Ch of
-      'A'..'Z', 'a'..'z', '_', '#', '{', '[', '<', '0'..'9':
-        if not AMemo.AutoCompleteActive and FOptions.AutoAutoComplete and not (Ch in ['0'..'9']) then
-          InitiateAutoComplete(AMemo, Ch);
-    else
+    if Ch in InnoSetupStylerAutoCompleteStartOrContinueChars then begin
+      if not AMemo.AutoCompleteActive and FOptions.AutoAutoComplete and not (Ch in ['0'..'9']) then
+        InitiateAutoComplete(AMemo, Ch);
+    end else begin
       const RestartAutoComplete = (Ch in [' ', '.', '!', '=']) and
         (FOptions.AutoAutoComplete or AMemo.AutoCompleteActive);
       AMemo.CancelAutoComplete;
