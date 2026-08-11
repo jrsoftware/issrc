@@ -123,6 +123,7 @@
         <DCCReference Include="Src\Shared.CommonFunc.Vcl.pas"/>
         <DCCReference Include="Src\Shared.CommonFunc.pas"/>
         <DCCReference Include="Src\IDE.HelperFunc.pas"/>
+        <DCCReference Include="Src\IDE.HelperFunc.Test.pas"/>
         <DCCReference Include="Src\IDE.Messages.pas"/>
         <DCCReference Include="Src\IDE.LocalizeFunc.pas"/>
         <DCCReference Include="Src\IDE.LocalizeFunc.Czech.pas"/>

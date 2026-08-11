@@ -84,6 +84,7 @@ procedure LoadWindowState(const Form: TForm;
   const Section: String; const Ini: TConfigIniFile = nil);
 procedure SaveWindowState(const Form: TForm;
   const Section: String; const Ini: TConfigIniFile = nil);
+function GetSetupDirectiveDefaultValue(const DirectiveName: String): String;
 function FindSetupDirectiveValue(const DirectiveName: String): String;
 function FindSetupDirectiveValueAsBoolean(const DirectiveName: String): Boolean;
 

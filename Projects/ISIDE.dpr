@@ -20,6 +20,7 @@ uses
   Shared.CommonFunc.Vcl in 'Src\Shared.CommonFunc.Vcl.pas',
   Shared.CommonFunc in 'Src\Shared.CommonFunc.pas',
   IDE.HelperFunc in 'Src\IDE.HelperFunc.pas',
+  IDE.HelperFunc.Test in 'Src\IDE.HelperFunc.Test.pas',
   IDE.Messages in 'Src\IDE.Messages.pas',
   IDE.LocalizeFunc in 'Src\IDE.LocalizeFunc.pas',
   IDE.LocalizeFunc.Czech in 'Src\IDE.LocalizeFunc.Czech.pas',
