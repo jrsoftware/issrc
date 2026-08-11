@@ -42,7 +42,7 @@ ConfirmTitle=Potvrda
 ErrorTitle=Greška
 
 ; *** SetupLdr messages
-SetupLdrStartupMessage=Instaliraćete %1. Želite li da nastavite?
+SetupLdrStartupMessage=Program %1 će biti instaliran. Želite li da nastavite?
 LdrCannotCreateTemp=Nije moguće napraviti privremenu datoteku. Instalacija je prekinuta
 LdrCannotExecTemp=Nije moguće pokrenuti datoteku u privremenoj fascikli. Instalacija je prekinuta
 HelpTextNote=
@@ -63,8 +63,8 @@ WinVersionTooLowError=Program zahteva %1 verziju %2 ili noviju.
 WinVersionTooHighError=Program nije moguće instalirati na %1 verziju %2 ili noviju.
 AdminPrivilegesRequired=Morate biti prijavljeni kao administrator da biste instalirali program.
 PowerUserPrivilegesRequired=Morate biti prijavljeni kao administrator ili kao član grupe „Power Users“ da biste instalirali ovaj program.
-SetupAppRunningError=Program %1 je trenutno pokrenut.%n%nZatvorite ga i kliknite na dugme „U redu“ da nastavite ili „Otkaži“ da napustite instalaciju.
-UninstallAppRunningError=Program %1 je trenutno pokrenut.%n%nZatvorite ga i kliknite na dugme „U redu“ da nastavite ili „Otkaži“ da napustite deinstalaciju.
+SetupAppRunningError=Instalacioni program je utvrdio da je %1 trenutno pokrenut.%n%nZatvorite ga i kliknite na dugme „U redu“ da nastavite ili „Otkaži“ da napustite instalaciju.
+UninstallAppRunningError=Deinstalacioni program je utvrdio da je %1 trenutno pokrenut.%n%nZatvorite ga i kliknite na dugme „U redu“ da nastavite ili „Otkaži“ da napustite deinstalaciju.
 
 ; *** Startup questions
 PrivilegesRequiredOverrideTitle=Odaberite način instalacije programa
@@ -83,8 +83,8 @@ ErrorTooManyFilesInDir=Nije moguće napraviti datoteku u fascikli „%1“ jer s
 ; *** Setup common messages
 ExitSetupTitle=Napuštanje instalacije
 ExitSetupMessage=Instalacija nije završena. Ako sada izađete, program neće biti instaliran.%n%nInstalaciju možete ponovo pokrenuti i dovršiti nekom drugom prilikom.%n%nŽelite li da izađete iz instalacije?
-AboutSetupMenuItem=&O programu...
-AboutSetupTitle=Podaci o programu
+AboutSetupMenuItem=&O instalacionom programu...
+AboutSetupTitle=Podaci o instalacionom programu
 AboutSetupMessage=%1 verzija %2%n%3%n%n%1 internet stranica:%n%4
 AboutSetupNote=
 TranslatorNote=
@@ -100,8 +100,8 @@ ButtonYesToAll=D&a za sve
 ButtonNo=&Ne
 ButtonNoToAll=N&e za sve
 ButtonFinish=&Završi
-ButtonBrowse=&Pretraži...
-ButtonWizardBrowse=P&retraži...
+ButtonBrowse=&Izaberi...
+ButtonWizardBrowse=I&zaberi...
 ButtonNewFolder=&Napravi novu fasciklu
 
 ; *** "Select Language" dialog messages
@@ -117,12 +117,12 @@ NewFolderName=Nova fascikla
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Dobro došli na instalaciju programa [name]
-WelcomeLabel2=Instaliraćete [name/ver] na računar.%n%nPre nego što nastavite, preporučujemo vam da zatvorite sve druge programe.
+WelcomeLabel2=[name/ver] će biti instaliran na računar.%n%nPre nego što nastavite, preporučujemo vam da zatvorite sve druge programe.
 
 ; *** "Password" wizard page
 WizardPassword=Lozinka
 PasswordLabel1=Instalacija je zaštićena lozinkom.
-PasswordLabel3=Unesite lozinku i kliknite na „Dalje“ da nastavite. Imajte na umu da je lozinka osetljiva na mala i velika slova.
+PasswordLabel3=Unesite lozinku i kliknite na „Dalje“ da nastavite. Lozinka je osetljiva na mala i velika slova.
 PasswordEditLabel=&Lozinka:
 IncorrectPassword=Navedena lozinka nije ispravna. Pokušajte ponovo.
 
@@ -152,8 +152,8 @@ UserInfoNameRequired=Morate navesti ime.
 ; *** "Select Destination Location" wizard page
 WizardSelectDir=Odabir odredišne fascikle
 SelectDirDesc=Gde treba instalirati [name]?
-SelectDirLabel3=Instalacioni program će instalirati [name] u sledeću fasciklu.
-SelectDirBrowseLabel=Kliknite na „Dalje“ da nastavite. Ako želite da izaberete drugu fasciklu, kliknite na „Pretraži...“.
+SelectDirLabel3=Program [name] će biti instaliran u sledeću fasciklu.
+SelectDirBrowseLabel=Kliknite na „Dalje“ da nastavite. Ako želite da izaberete drugu fasciklu, kliknite na „Izaberi...“.
 DiskSpaceGBLabel=Potrebno je najmanje [gb] GB slobodnog prostora na disku.
 DiskSpaceMBLabel=Potrebno je najmanje [mb] MB slobodnog prostora na disku.
 CannotInstallToNetworkDrive=Nije moguće instalirati program na mrežni disk.
@@ -164,7 +164,7 @@ DiskSpaceWarningTitle=Nedovoljno prostora na disku
 DiskSpaceWarning=Za instalaciju je potrebno najmanje %1 KB slobodnog prostora, a izabrani disk na raspolaganju ima samo %2 KB.%n%nŽelite li ipak da nastavite?
 DirNameTooLong=Naziv fascikle ili putanja je predugačka.
 InvalidDirName=Naziv fascikle nije ispravan.
-BadDirName32=Naziv fascikle ne sme sadržati nijedan od sledećih karaktera:%n%n%1
+BadDirName32=Naziv fascikle ne sme sadržati nijedan od sledećih znakova:%n%n%1
 DirExistsTitle=Fascikla već postoji
 DirExists=Fascikla:%n%n%1%n%nveć postoji. Želite li ipak da instalirate program u nju?
 DirDoesntExistTitle=Fascikla ne postoji
@@ -179,7 +179,7 @@ FullInstallation=Puna instalacija
 CompactInstallation=Kompaktna instalacija
 CustomInstallation=Prilagođena instalacija
 NoUninstallWarningTitle=Komponente već postoje
-NoUninstallWarning=Sledeće komponente već postoje na računaru:%n%n%1%n%nPoništavanje izbora ovih komponenti ih neće ukloniti.%n%nŽelite li ipak da nastavite?
+NoUninstallWarning=Sledeće komponente su već instalirane na računaru:%n%n%1%n%nPoništavanje izbora ovih komponenti ih neće ukloniti.%n%nŽelite li ipak da nastavite?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
 ComponentsDiskSpaceGBLabel=Izabrane stavke zahtevaju najmanje [gb] GB slobodnog prostora na disku.
@@ -192,18 +192,18 @@ SelectTasksLabel2=Izaberite dodatne zadatke koje želite da se izvrše pri insta
 
 ; *** "Select Start Menu Folder" wizard page
 WizardSelectProgramGroup=Odabir fascikle u meniju „Start“
-SelectStartMenuFolderDesc=Gde instalacioni program treba da postavi prečice programa?
-SelectStartMenuFolderLabel3=Instalacija će postaviti prečice programa u sledećoj fascikli u meniju „Start“.
-SelectStartMenuFolderBrowseLabel=Kliknite na „Dalje“ da nastavite. Ako želite da izaberete drugu fasciklu, kliknite na „Pretraži...“.
+SelectStartMenuFolderDesc=Gde treba postaviti prečice programa?
+SelectStartMenuFolderLabel3=Prečice programa će biti postavljene u sledeću fasciklu u meniju „Start“.
+SelectStartMenuFolderBrowseLabel=Kliknite na „Dalje“ da nastavite. Ako želite da izaberete drugu fasciklu, kliknite na „Izaberi...“.
 MustEnterGroupName=Morate navesti naziv fascikle.
 GroupNameTooLong=Naziv fascikle ili putanja je predugačka.
 InvalidGroupName=Naziv fascikle nije ispravan.
-BadGroupName=Naziv fascikle ne sme sadržati nijedan od sledećih karaktera:%n%n%1
+BadGroupName=Naziv fascikle ne sme sadržati nijedan od sledećih znakova:%n%n%1
 NoProgramGroupCheck2=N&e pravi fasciklu u meniju „Start“
 
 ; *** "Ready to Install" wizard page
 WizardReady=Instalacija je spremna
-ReadyLabel1=Instalacioni program je spreman da instalira [name] na računar.
+ReadyLabel1=Program [name] je sada spreman za instalaciju na računar.
 ReadyLabel2a=Kliknite na „Instaliraj“ da započnete instalaciju ili „Nazad“ da ponovo pregledate ili promenite pojedine postavke.
 ReadyLabel2b=Kliknite na „Instaliraj“ da započnete instalaciju.
 ReadyMemoUserInfo=Korisnički podaci:
@@ -268,7 +268,7 @@ RunEntryShellExec=Pogledaj %1
 
 ; *** "Setup Needs the Next Disk" stuff
 ChangeDiskTitle=Potreban je sledeći disk
-SelectDiskLabel2=Ubacite disk %1 i kliknite na „U redu“.%n%nAko se datoteke na ovom disku mogu pronaći u fascikli koja nije prikazana ispod, unesite ispravnu putanju ili kliknite na „Pretraži...“.
+SelectDiskLabel2=Ubacite disk %1 i kliknite na „U redu“.%n%nAko se datoteke na ovom disku mogu pronaći u fascikli koja nije prikazana ispod, unesite ispravnu putanju ili kliknite na „Izaberi...“.
 PathLabel=Pu&tanja:
 FileNotInDir2=Datoteka „%1“ se ne nalazi u „%2“. Ubacite odgovarajući disk ili izaberite drugu fasciklu.
 SelectDirectoryLabel=Izaberite putanju do sledećeg diska.
@@ -306,11 +306,11 @@ ErrorExecutingProgram=Nije moguće pokrenuti datoteku:%n%1
 
 ; *** Registry errors
 ErrorRegOpenKey=Greška pri otvaranju ključa u registru:%n%1\%2
-ErrorRegCreateKey=Greška pri kreiranju ključa u registru:%n%1\%2
+ErrorRegCreateKey=Greška pri pravljenju ključa u registru:%n%1\%2
 ErrorRegWriteKey=Greška pri upisivanju u ključ registra:%n%1\%2
 
 ; *** INI errors
-ErrorIniEntry=Greška pri kreiranju INI unosa u datoteci „%1“.
+ErrorIniEntry=Greška pri pravljenju INI unosa u datoteci „%1“.
 
 ; *** File copying errors
 FileAbortRetryIgnoreSkipNotRecommended=Pre&skočite ovu datoteku (ne preporučuje se)
@@ -340,7 +340,7 @@ ExistingFileNewerOverwriteExisting=&Zameni postojeću datoteku
 ExistingFileNewerKeepExisting=Zadr&žite postojeću datoteku (preporučeno)
 ExistingFileNewerOverwriteOrKeepAll=&Uradi ovo i za naredne konflikte
 ErrorChangingAttr=Došlo je do greške pri izmeni atributa postojeće datoteke:
-ErrorCreatingTemp=Došlo je do greške pri kreiranju datoteke u odredišnoj fascikli:
+ErrorCreatingTemp=Došlo je do greške pri pravljenju datoteke u odredišnoj fascikli:
 ErrorReadingSource=Došlo je do greške pri čitanju izvorne datoteke:
 ErrorCopying=Došlo je do greške pri kopiranju datoteke:
 ErrorDownloading=Došlo je do greške pri preuzimanju datoteke:
@@ -357,8 +357,8 @@ ErrorRegisterTypeLib=Nije moguće registrovati biblioteku tipova: %1
 UninstallDisplayNameMark=%1 (%2)
 ; used for example as 'My Program (32-bit, All users)'
 UninstallDisplayNameMarks=%1 (%2, %3)
-UninstallDisplayNameMark32Bit=32-bit
-UninstallDisplayNameMark64Bit=64-bit
+UninstallDisplayNameMark32Bit=32-bitni
+UninstallDisplayNameMark64Bit=64-bitni
 UninstallDisplayNameMarkAllUsers=Svi korisnici
 UninstallDisplayNameMarkCurrentUser=Trenutni korisnik
 
@@ -384,7 +384,7 @@ UninstallDataCorrupted=Datoteka „%1“ je oštećena. Ne mogu da deinstaliram 
 ConfirmDeleteSharedFileTitle=Ukloniti deljenu datoteku?
 ConfirmDeleteSharedFile2=Sistem prijavljuje da sledeću deljenu datoteku više ne koristi nijedan program. Želite li da je uklonite?%n%nAko neki programi i dalje koriste ovu datoteku, a ona bude uklonjena, ti programi možda neće ispravno raditi. Ako niste sigurni šta da radite, kliknite na „Ne“. Ostavljanje datoteke na sistemu neće prouzrokovati nikakvu štetu.
 SharedFileNameLabel=Naziv datoteke:
-SharedFileLocationLabel=Putanja:
+SharedFileLocationLabel=Lokacija:
 WizardUninstalling=Stanje deinstalacije
 StatusUninstalling=Deinstaliram %1...
 
@@ -399,7 +399,7 @@ ShutdownBlockReasonUninstallingApp=Deinstaliram %1.
 
 NameAndVersion=%1 verzija %2
 AdditionalIcons=Dodatne prečice:
-CreateDesktopIcon=&Postavi prečicu na radnu površinu
+CreateDesktopIcon=Postavi prečicu na &radnu površinu
 CreateQuickLaunchIcon=P&ostavi prečicu na traku za brzo pokretanje
 ProgramOnTheWeb=%1 na internetu
 UninstallProgram=Deinstaliraj %1

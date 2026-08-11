@@ -109,7 +109,7 @@
 <body>
 
 <p>
-<b>Inno Setup version 7.1.0-dev</b><br/>
+<b>Inno Setup version 7.1.0</b><br/>
 <b>Copyright &copy; 1997-2026 Jordan Russell. All rights reserved.</b><br/>
 <b>Portions Copyright &copy; 2000-2026 Martijn Laan. All rights reserved.</b><br/>
 <extlink href="https://jrsoftware.org/">Inno Setup home page</extlink>
@@ -992,8 +992,8 @@ Besides space separated lists, you may also use boolean expressions containing c
 <li><anchorlink name="compression">Compression</anchorlink></li>
 <li><anchorlink name="diskspanning">Disk Spanning</anchorlink></li>
 <li><anchorlink name="installationpages">Installation Pages</anchorlink></li>
-<li><anchorlink name="programgroup">Program Group</anchorlink></li>
 <li><anchorlink name="security">Security</anchorlink></li>
+<li><anchorlink name="startmenufolder">Start Menu Folder</anchorlink></li>
 <li><anchorlink name="systemrequirements">System Requirements</anchorlink></li>
 <li><anchorlink name="uninstallation">Uninstallation</anchorlink></li>
 <li><anchorlink name="userinformation">User Information</anchorlink></li>
@@ -1175,20 +1175,7 @@ Besides space separated lists, you may also use boolean expressions containing c
 <li><link topic="setup_useprevioustasks">UsePreviousTasks</link></li>
 </ul>
 
-<p>See also <anchorlink name="applicationdirectory">Application Directory</anchorlink>, <anchorlink name="programgroup">Program Group</anchorlink>, and <anchorlink name="userinformation">User Information</anchorlink>, which have their own wizard pages.</p>
-
-<heading><a name="programgroup">Program Group</a></heading>
-
-<p>These directives control the application's Start Menu folder and the <i>Select Start Menu Folder</i> wizard page which asks for it.</p>
-
-<ul appearance="compact">
-<li><link topic="setup_allownoicons">AllowNoIcons</link></li>
-<li><link topic="setup_alwaysusepersonalgroup">AlwaysUsePersonalGroup</link></li>
-<li><link topic="setup_appenddefaultgroupname">AppendDefaultGroupName</link></li>
-<li><link topic="setup_defaultgroupname">DefaultGroupName</link></li>
-<li><link topic="setup_disableprogramgrouppage">DisableProgramGroupPage</link></li>
-<li><link topic="setup_usepreviousgroup">UsePreviousGroup</link></li>
-</ul>
+<p>See also <anchorlink name="applicationdirectory">Application Directory</anchorlink>, <anchorlink name="startmenufolder">Start Menu Folder</anchorlink>, and <anchorlink name="userinformation">User Information</anchorlink>, which have their own wizard pages.</p>
 
 <heading><a name="security">Security</a></heading>
 
@@ -1209,6 +1196,19 @@ Besides space separated lists, you may also use boolean expressions containing c
 <li><link topic="setup_signtoolretrycount">SignToolRetryCount</link></li>
 <li><link topic="setup_signtoolretrydelay">SignToolRetryDelay</link></li>
 <li><link topic="setup_signtoolrunminimized">SignToolRunMinimized</link></li>
+</ul>
+
+<heading><a name="startmenufolder">Start Menu Folder</a></heading>
+
+<p>These directives control the application's Start Menu folder and the <i>Select Start Menu Folder</i> wizard page which asks for it.</p>
+
+<ul appearance="compact">
+<li><link topic="setup_allownoicons">AllowNoIcons</link></li>
+<li><link topic="setup_alwaysusepersonalgroup">AlwaysUsePersonalGroup</link></li>
+<li><link topic="setup_appenddefaultgroupname">AppendDefaultGroupName</link></li>
+<li><link topic="setup_defaultgroupname">DefaultGroupName</link></li>
+<li><link topic="setup_disableprogramgrouppage">DisableProgramGroupPage</link></li>
+<li><link topic="setup_usepreviousgroup">UsePreviousGroup</link></li>
 </ul>
 
 <heading><a name="systemrequirements">System Requirements</a></heading>
@@ -5653,7 +5653,7 @@ CreateMutex <num>0</num><key>&amp;</key>, <num>0</num><key>&amp;</key>, <str>"My
 <body>
 <p>If this is set to <tt>yes</tt>, Setup will not show the <i>Ready to Install</i> wizard page.</p>
 <p>When Setup is not running silently, this directive is ignored if no other wizard page before the <i>Ready to Install</i> wizard page has been shown yet.</p>
-<p>Setting this to <tt>yes</tt> does not automatically change the caption of the <i>Next</i> button on the new last pre-installation wizard page to <i>Install</i>. You must do so manually instead. For example, if the new last pre-installation wizard page is the <i>Select Program Group</i> page:</p>
+<p>Setting this to <tt>yes</tt> does not automatically change the caption of the <i>Next</i> button on the new last pre-installation wizard page to <i>Install</i>. You must do so manually instead. For example, if the new last pre-installation wizard page is the <i>Select Start Menu Folder</i> page:</p>
 <example><pre><sec>[Setup]</sec>
 <key>DisableReadyPage</key>=yes
 
