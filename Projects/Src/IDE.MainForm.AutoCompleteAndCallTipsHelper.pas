@@ -43,7 +43,7 @@ implementation
 uses
   SysUtils, Math, TypInfo,
   Shared.SetupSectionDirectives,
-  IDE.ScintStylerInnoSetup, IDE.ScriptModel.Metadata.Extra;
+  IDE.LiveScriptObjectFactory, IDE.ScintStylerInnoSetup, IDE.ScriptModel.Metadata.Extra;
 
 class function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
   const WordStartLinePos, PositionBeforeWordStartPos: Integer;
@@ -195,9 +195,9 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := True;
   end;
 
-  function CanAutoCompleteSignToolName(const Name: String): Boolean;
+  function CanAutoCompleteValue(const Value: String): Boolean;
   begin
-    for var C in Name do
+    for var C in Value do
       if not CharInSet(C, InnoSetupStylerAutoCompleteWordChars) then
         Exit(False);
     Result := True;
@@ -208,9 +208,22 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := [];
     for var I := 0 to FSignTools.Count-1 do begin
       const Name = FSignTools.Names[I];
-      if CanAutoCompleteSignToolName(Name) then
+      if CanAutoCompleteValue(Name) then
         Result := Result + [TScintRawString(Name)];
     end;
+  end;
+
+  function GetAutoCompleteScriptValues(const ParameterName: String): TArray<TScintRawString>;
+  begin
+    Result := [];
+    const Values = CollectParameterValuesFromFactories(
+      [LiveScriptObjectFactoryForMemo(AMemo), LiveScriptObjectFactoryForMainMemo],
+      ParameterName);
+    for var Value in Values do
+      if CanAutoCompleteValue(Value) then
+        Result := Result + [TScintRawString(Value)];
+    if IsScriptBooleanExpressionParameter(ParameterName) then
+      Result := Result + BooleanExpressionOperatorValues;
   end;
 
 begin
@@ -367,6 +380,8 @@ begin
 
             var FoundSemicolon := False;
             var FoundFlagsOrType := False;
+            var FoundNonFlagWord := False;
+            var FoundScriptValuesParameterName := '';
             var FoundSetupDirectiveName := '';
             var FoundMultipleSetupDirectiveValues := False;
             var I := WordStartPos;
@@ -388,9 +403,12 @@ begin
                   const ParameterWord = AMemo.GetTextRange(ParameterWordStartPos, ParameterWordEndPos);
                   FoundFlagsOrType := SameText(ParameterWord, 'Flags') or
                                       ((Section in [scInstallDelete, scUninstallDelete]) and SameText(ParameterWord, 'Type'));
+                  if not FoundFlagsOrType and
+                     (GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone) then
+                    FoundScriptValuesParameterName := ParameterWord;
                 end else
                   FoundFlagsOrType := False;
-                if FoundSemicolon or FoundFlagsOrType then
+                if FoundSemicolon or FoundFlagsOrType or (FoundScriptValuesParameterName <> '') then
                   Break;
               end;
 
@@ -407,17 +425,21 @@ begin
                 end;
                 Break;
               end else if C > ' ' then begin
-                if IsParamSection and not (Section in [scInstallDelete, scUninstallDelete]) and
-                  (FMemosStyler.FlagsWordList[Section] <> '') then begin
+                if IsParamSection then begin
                   { Verify word before the current word (or before that when we get here again) is
-                    a valid flag and if so, continue looking before it instead of stopping }
-                  const FlagEndPos = AMemo.GetWordEndPosition(I, True);
-                  const FlagStartPos = AMemo.GetWordStartPosition(I, True);
-                  const FlagWord = AMemo.GetTextRange(FlagStartPos, FlagEndPos);
-                  if FMemosStyler.SectionHasFlag(Section, FlagWord) or FlagWord.StartsWith('{#') then
-                    I := FlagStartPos
-                  else
-                    Exit;
+                    a valid flag and if not, remember this, but either way continue looking before
+                    it instead of stopping }
+                  const PrecedingEndPos = AMemo.GetWordEndPosition(I, True);
+                  const PrecedingStartPos = AMemo.GetWordStartPosition(I, True);
+                  const PrecedingWord = AMemo.GetTextRange(PrecedingStartPos, PrecedingEndPos);
+                  { Note: FlagsWordList of [InstallDelete] and [UninstallDelete] holds the
+                    values of the Type parameter instead of flags }
+                  const CanBeFlag = not (Section in [scInstallDelete, scUninstallDelete]) and
+                    (FMemosStyler.FlagsWordList[Section] <> '');
+                  if not (CanBeFlag and (FMemosStyler.SectionHasFlag(Section, PrecedingWord) or
+                     PrecedingWord.StartsWith('{#'))) then
+                    FoundNonFlagWord := True;
+                  I := PrecedingStartPos;
                 end else if Section = scSetup then begin
                   { Continue looking for '='. We don't do a verification like it does for
                     flags above because we don't know the directive name yet. In fact, we
@@ -433,8 +455,14 @@ begin
                   Exit; { Non-whitespace which should not be there }
               end;
             end;
-            { Space can only initiate autocompletion after ';' or 'Flags:' or 'Type:' or a [Setup] directive }
-            if (Key = ' ') and not (FoundSemicolon or FoundFlagsOrType or (FoundSetupDirectiveName <> '')) then
+            { A word before the current word which is not a flag is only allowed for
+              script values parameters, which accept multiple values }
+            if FoundNonFlagWord and (FoundScriptValuesParameterName = '') then
+              Exit;
+            { Space can only initiate autocompletion after ';' or 'Flags:' or 'Type:' or a
+              script values parameter or a [Setup] directive }
+            if (Key = ' ') and not (FoundSemicolon or FoundFlagsOrType or
+               (FoundScriptValuesParameterName <> '') or (FoundSetupDirectiveName <> '')) then
               Exit;
 
             if FoundSetupDirectiveName <> '' then begin
@@ -456,6 +484,12 @@ begin
             end else if FoundFlagsOrType then begin
               WordList := FMemosStyler.FlagsWordList[Section];
               if WordList = '' then { Should never be True, since we already checked above }
+                Exit;
+              AMemo.SetAutoCompleteFillupChars(' ');
+            end else if FoundScriptValuesParameterName <> '' then begin
+              WordList := FMemosStyler.BuildWordList(
+                GetAutoCompleteScriptValues(FoundScriptValuesParameterName));
+              if WordList = '' then
                 Exit;
               AMemo.SetAutoCompleteFillupChars(' ');
             end else begin

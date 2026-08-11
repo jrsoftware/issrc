@@ -967,8 +967,9 @@ end;
   splitting values into words when asked. CollectParameterValuesFromFactories:
   the defined names combined with the already-used values, for ISSigAllowedKeys
   the key names plus the group words, without a defining section the
-  already-used values alone, deduplicated ignoring case, with nil and
-  duplicate factories skipped }
+  already-used values alone, the compiler's default type names only when the
+  script defines none, deduplicated ignoring case, with nil and duplicate
+  factories skipped }
 procedure TestCollectParameterValues(const AMemo: TScintEdit;
   const AStyler: TInnoSetupStyler);
 
@@ -1002,7 +1003,9 @@ begin
     'Name: portable; Description: "Portable mode"',                  { 17 }
     '[ISSigKeys]',                                                   { 18 }
     'Name: mykey1; Group: "all extra"',                              { 19 }
-    'Name: mykey2; Group: ALL']);                                    { 20, duplicate word ignoring case }
+    'Name: mykey2; Group: ALL',                                      { 20, duplicate word ignoring case }
+    '[Languages]',                                                   { 21 }
+    'Name: nl; MessagesFile: "compiler:Languages\Dutch.isl"']);      { 22 }
   try
     const Factory = Context.Factory;
     const Values = TStringList.Create;
@@ -1056,6 +1059,13 @@ begin
     { A parameter without a defining section yields the already-used values }
     AssertValues(CollectParameterValuesFromFactories([Factory], 'Source'),
       ['a.txt', 'b.txt', 'c.txt', 'd.txt']);
+
+    { Without [Types] entries the compiler's default type names are valid; the
+      compiler's 'default' language is never added }
+    AssertValues(CollectParameterValuesFromFactories([Factory], 'Types'),
+      ['compact', 'custom', 'full']);
+    AssertValues(CollectParameterValuesFromFactories([Factory], 'Languages'),
+      ['nl']);
   finally
     Context.Free;
   end;

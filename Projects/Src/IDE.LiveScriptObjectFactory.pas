@@ -1016,26 +1016,40 @@ function CollectParameterValuesFromFactories(
 
 begin
   const NamesSection = GetScriptSectionDefiningParameterValues(AParameterName);
-  const Values = TStringList.Create;
+  var Values: TStringList := nil;
+  var DefinedNames: TStringList := nil;
   try
+    Values := TStringList.Create;
     Values.CaseSensitive := False;
     Values.Duplicates := dupIgnore;
     Values.Sorted := True;
+    DefinedNames := TStringList.Create;
+    DefinedNames.CaseSensitive := False;
+    DefinedNames.Duplicates := dupIgnore;
+    DefinedNames.Sorted := True;
     for var I := 0 to High(AFactories) do begin
       const Factory = AFactories[I];
       if (Factory = nil) or FactoryAlreadyProcessed(I) then
         Continue;
       if NamesSection <> scNone then begin
         { Lookup defined names }
-        Factory.CollectParameterValues(NamesSection, 'Name', Values);
+        Factory.CollectParameterValues(NamesSection, 'Name', DefinedNames);
         if NamesSection = scISSigKeys then
-          Factory.CollectParameterValues(scISSigKeys, 'Group', Values, True); { Group names are valid values too }
+          Factory.CollectParameterValues(scISSigKeys, 'Group', DefinedNames, True); { Group names are valid values too }
       end;
       { Lookup uses: finds extra expression forms }
       Factory.CollectParameterValues(scNone, AParameterName, Values);
     end;
+    if (DefinedNames.Count = 0) and (NamesSection = scTypes) then begin
+      { Add automatically created default types: see Compiler.SetupCompiler's DefaultTypeEntryNames.
+        The automatically created 'default' language is not added: it's always the sole language,
+        so specifying it does nothing. }
+      DefinedNames.AddStrings(['full', 'compact', 'custom']);
+    end;
+    Values.AddStrings(DefinedNames);
     Result := Values.ToStringArray;
   finally
+    DefinedNames.Free;
     Values.Free;
   end;
 end;

@@ -445,6 +445,9 @@ const
     scINI, scInstallDelete, scLanguages, scRegistry, scRun, scTasks, scTypes,
     scUninstallDelete, scUninstallRun];
 
+  BooleanExpressionOperatorValues: TArray<TScintRawString> = [
+    'not', 'and', 'or'];
+
 type
   TSetupSectionDirectiveValue = record
     Directive: TSetupSectionDirective;
@@ -460,6 +463,9 @@ function SectionNameToSection(const ASectionName: String): TInnoSetupSection;
 
 function GetScriptSectionDefiningParameterValues(
   const AParameterName: String): TInnoSetupSection;
+
+function IsScriptBooleanExpressionParameter(
+  const AParameterName: String): Boolean;
 
 type
   TScriptBrowseFileType = (bftDocs, bftIco, bftImages, bftVclStyle, bftIsl,
@@ -527,6 +533,13 @@ begin
     Result := SectionNameToSection(AParameterName)
   else
     Result := scNone;
+end;
+
+function IsScriptBooleanExpressionParameter(
+  const AParameterName: String): Boolean;
+begin
+  Result := SameText(AParameterName, 'Components') or
+    SameText(AParameterName, 'Languages') or SameText(AParameterName, 'Tasks');
 end;
 
 resourcestring
@@ -878,14 +891,13 @@ initialization
   { TPathRedirTargetProcess: see PascalEnumValues }
 
   const ArchitecturesExpressionValues: TArray<TScintRawString> = [
-    'not', 'and', 'or',
     'arm32compatible', 'arm64', 'win64',
     'x64', 'x64os', 'x64compatible',
     'x86', 'x86os', 'x86compatible'];
 
   SetupSectionExpressionDirectivesValues := [
-    SSDV(ssArchitecturesAllowed, ArchitecturesExpressionValues),
-    SSDV(ssArchitecturesInstallIn64BitMode, ArchitecturesExpressionValues)];
+    SSDV(ssArchitecturesAllowed, ArchitecturesExpressionValues + BooleanExpressionOperatorValues),
+    SSDV(ssArchitecturesInstallIn64BitMode, ArchitecturesExpressionValues + BooleanExpressionOperatorValues)];
 
   ScriptCategoryDictionary := TDictionary<String, String>.Create(TIStringComparer.Ordinal);
   ScriptDefaultCategoryDictionary := TDictionary<String, String>.Create(TIStringComparer.Ordinal);

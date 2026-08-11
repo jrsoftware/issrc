@@ -884,7 +884,9 @@ end;
 { SectionToSectionName and SectionNameToSection: a round trip over every
   section plus lookups of unknown, empty, and differently cased names.
   GetScriptSectionDefiningParameterValues: every parameter name with a
-  defining section, and names without one }
+  defining section, and names without one.
+  IsScriptBooleanExpressionParameter: the expression parameters and
+  other names }
 procedure TestSectionNames;
 begin
   for var Section := Low(TInnoSetupSection) to High(TInnoSetupSection) do
@@ -901,6 +903,14 @@ begin
   Assert(GetScriptSectionDefiningParameterValues('issigallowedkeys') = scISSigKeys);
   Assert(GetScriptSectionDefiningParameterValues('Name') = scNone);
   Assert(GetScriptSectionDefiningParameterValues('') = scNone);
+
+  Assert(IsScriptBooleanExpressionParameter('Components'));
+  Assert(IsScriptBooleanExpressionParameter('Languages'));
+  Assert(IsScriptBooleanExpressionParameter('TASKS'));
+  Assert(not IsScriptBooleanExpressionParameter('Types'));
+  Assert(not IsScriptBooleanExpressionParameter('ISSigAllowedKeys'));
+  Assert(not IsScriptBooleanExpressionParameter('Name'));
+  Assert(not IsScriptBooleanExpressionParameter(''));
 end;
 
 procedure TestScriptCategories;
