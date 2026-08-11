@@ -585,6 +585,7 @@ type
     function GetBorderStyle: TFormBorderStyle;
     function GetMainFilename: String;
     function GetMainBaseDir: String;
+    function GetSignTools: TStringList;
     procedure Go(const AStepMode: TStepMode);
     procedure HideError;
     function InitializeFileMemo(const Memo: TIDEScintFileEdit; const PopupMenu: TPopupMenu): TIDEScintFileEdit;
@@ -951,7 +952,7 @@ constructor TMainForm.Create(AOwner: TComponent);
     end;
     FInspector := TInspector.Create(JvInspector, InspectorNoteText, LiveScriptObjectFactoryForMemo(FActiveMemo),
       FOptions.InspectorShowAllKnownDirectives, FOptions.InspectorFollowCaret,
-      GetMainBaseDir); { No main-memo check needed: FActiveMemo is FMainMemo at startup }
+      GetMainBaseDir, GetSignTools); { No main-memo check needed: FActiveMemo is FMainMemo at startup }
   end;
 
   procedure ReadAndApplyConfig;
@@ -1406,6 +1407,11 @@ function TMainForm.GetMainBaseDir: String;
 { Returns '' for an unsaved script }
 begin
   Result := PathExtractDir(GetMainFilename);
+end;
+
+function TMainForm.GetSignTools: TStringList;
+begin
+  Result := FSignTools;
 end;
 
 procedure TMainForm.SetBorderStyle(Value: TFormBorderStyle);
