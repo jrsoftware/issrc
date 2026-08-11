@@ -1878,7 +1878,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 </flag>
 <flag name="download">
 <p>This flag instructs Setup not to copy an existing file, but instead to download it. Optionally use the <tt>DownloadUserName</tt> and <tt>DownloadPassword</tt> parameters to specify a basic authentication username and password.</p>
-<p>This flag must be combined with the <tt>DestName</tt> and <tt>ExternalSize</tt> parameters. When <tt>download</tt> is combined with <tt>extractarchive</tt>, the value of <tt>DestName</tt> is used to determine the archive format and for display and logging purposes.</p>
+<p>This flag must be combined with the <tt>DestName</tt> and <tt>ExternalSize</tt> parameters. When <tt>download</tt> is combined with <tt>extractarchive</tt>, Setup first downloads the archive to a temporary directory, and the value of <tt>DestName</tt> is used to determine the archive format and for display and logging purposes.</p>
 <p>This flag also must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
 <p>This flag cannot be combined with the <tt>comparetimestamp</tt> and <tt>skipifsourcedoesntexist</tt> flags.</p>
 <p>Supports HTTPS (but not expired or self-signed certificates) and HTTP. Redirects are automatically followed and proxy settings are automatically used. Safe to use from services.</p>
@@ -1888,7 +1888,7 @@ Instructs Setup to proceed to comparing time stamps (last write/modified time) i
 <p>When combined with the <tt>download</tt> or <tt>extractarchive</tt> flags, Setup does not copy the file, but instead downloads or extracts it.</p>
 </flag>
 <flag name="extractarchive">
-<p>This flag instructs Setup not to copy an existing archive file, but instead to extract it. Optionally use the <tt>ExtractArchivePassword</tt> parameter to specify a password.</p>
+<p>This flag instructs Setup not to copy an existing archive file, but instead to extract it to the directory specified by the <tt>DestDir</tt> parameter. Optionally use the <tt>ExtractArchivePassword</tt> parameter to specify a password.</p>
 <p>The supported archive formats, beyond <tt>.7z</tt>, and the support for password-protected and multi-volume archives, depend on the <sd>ArchiveExtraction</sd> <sn>[Setup]</sn> section directive, that must not be set to <tt>basic</tt>.</p>
 <p>To allow the extraction of archives with custom extensions, such as self-extracting archives, call <isxfunc>MapArchiveExtensions</isxfunc>.</p>
 <p>This flag must be combined with the <tt>external</tt> and <tt>ignoreversion</tt> flags, meaning it should only be used on files private to your application, <i>never</i> on shared system files.</p>
