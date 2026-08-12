@@ -1739,9 +1739,12 @@ begin
   if (not DroppedDown) and (ListBox <> nil) then begin
     ListBox.Width := Abs(Rects[iprValueArea].Width);
     ListBox.Font := EditCtrl.Font;
-    ListBox.Items.Clear;
-    GetValueList(ListBox.Items);
-    FListBoxFilled := True;
+    // Fill the value list unless an earlier fill is still valid
+    if not FListBoxFilled then begin
+      ListBox.Items.Clear;
+      GetValueList(ListBox.Items);
+      FListBoxFilled := True;
+    end;
     if ListBox.Items.Count < DropDownCount then
       ListCount := ListBox.Items.Count
     else
