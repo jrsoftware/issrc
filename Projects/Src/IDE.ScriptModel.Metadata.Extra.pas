@@ -63,6 +63,8 @@ type
     scUninstallDelete,
     scUninstallRun);
 
+  TInnoSetupSections = set of TInnoSetupSection;
+
 {$IFDEF ISTESTTOOLPROJ}
   TScintRawCharSet = set of AnsiChar;
   TScintRawString = type RawByteString;

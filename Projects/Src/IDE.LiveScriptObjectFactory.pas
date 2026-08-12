@@ -973,19 +973,26 @@ procedure TLiveScriptObjectFactory.CollectParameterValues(
   to their metadata. When ASplitValueWords is True the values' space-separated
   words are collected instead. }
 begin
+  var Sections: TInnoSetupSections := ParameterSections;
+  if AOnlySection <> scNone then
+    Sections := Sections * [AOnlySection];
+  for var Section in ParameterSections do begin
+    var Metadata: TScriptModelSectionMetadata;
+    var Definition: TMemberDefinition;
+    if (Section in Sections) and
+       TryGetScriptModelSectionMetadata(SectionToSectionName(Section), Metadata) and
+       not Metadata.TryGetMember(AParameterName, Definition) then
+      Exclude(Sections, Section);
+  end;
+  if Sections = [] then
+    Exit;
+
   EnsureIndex;
   EnsureStyled; { For GetSectionLines }
   const Entry = TScriptModelParameterSectionEntry.Create(nil); { Just reading, metadata not needed }
   try
     for var I := 0 to Integer(FSectionHeaders.Count)-1 do begin
-      const Section = FSectionHeaders[I].Section;
-      if not (Section in ParameterSections) or
-         ((AOnlySection <> scNone) and (Section <> AOnlySection)) then
-        Continue;
-      var Metadata: TScriptModelSectionMetadata;
-      var Definition: TMemberDefinition;
-      if TryGetScriptModelSectionMetadata(SectionToSectionName(Section), Metadata) and
-         not Metadata.TryGetMember(AParameterName, Definition) then
+      if not (FSectionHeaders[I].Section in Sections) then
         Continue;
       var FirstLine, LastLine: Integer;
       GetSectionLines(I, FirstLine, LastLine);
