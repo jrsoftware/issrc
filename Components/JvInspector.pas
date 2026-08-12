@@ -222,6 +222,7 @@ type
     FInspector: TJvInspector;
     FItems: TObjectList<TJvCustomInspectorItem>;
     FListBox: TJvInspectorListBox;
+    FListBoxFilled: Boolean;
     FOnGetValueList: TInspectorItemGetValueListEvent;
     FParent: TJvCustomInspectorItem;
     FLastPaintGen: Integer;
@@ -1622,6 +1623,9 @@ begin
           Dec(FUpdateEditCtrl);
         end;
         InvalidateItem;
+        // Applying a new value may change the underlying data a dynamic value
+        // list is built from, so refill the list box next time
+        FListBoxFilled := False;
         if EditCtrl <> nil then begin
           TmpOnChange := EditCtrl.OnChange;
           EditCtrl.OnChange := nil;
@@ -1737,6 +1741,7 @@ begin
     ListBox.Font := EditCtrl.Font;
     ListBox.Items.Clear;
     GetValueList(ListBox.Items);
+    FListBoxFilled := True;
     if ListBox.Items.Count < DropDownCount then
       ListCount := ListBox.Items.Count
     else
@@ -1900,9 +1905,11 @@ begin
         Key := #0;
       end;
   else
-    // Refill the value list before matching against it
-    ListBox.Items.Clear;
-    GetValueList(ListBox.Items);
+    if not FListBoxFilled then begin
+      ListBox.Items.Clear;
+      GetValueList(ListBox.Items);
+      FListBoxFilled := True;
+    end;
 
     if HasSelectedText(StartPos, EndPos) then
       SaveText := Copy(Filter, 1, StartPos) + Key
@@ -2526,6 +2533,7 @@ begin
     EditCtrl.AutoSelect := not (csLButtonDown in Inspector.ControlState);
     if iifValueList in Flags then begin
       FListBox := TJvInspectorListBox.Create(Inspector);
+      FListBoxFilled := False;
       ListBox.Visible := False;
       ListBox.Parent := EditCtrl;
       ListBox.IntegralHeight := True;
