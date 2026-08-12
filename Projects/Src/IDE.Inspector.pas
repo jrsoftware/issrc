@@ -174,7 +174,7 @@ type
 implementation
 
 uses
-  SysUtils, StrUtils, UITypes, Themes, Forms, Generics.Defaults,
+  SysUtils, UITypes, Themes, Forms, Generics.Defaults,
   BrowseFunc, NewUxTheme, PathFunc,
   Shared.CommonFunc, Shared.CommonFunc.Vcl,
   IDE.HelperFunc, IDE.Messages, IDE.LocalizeFunc;
@@ -918,7 +918,8 @@ procedure TInspector.UpdateFromCaret;
 
   function NameMatchesFilter(const AName: String): Boolean;
   begin
-    Result := (FFilterText = '') or ContainsText(AName, FFilterText);
+    Result := (FFilterText = '') or (PathStrFind(PChar(AName), Length(AName),
+      PChar(FFilterText), Length(FFilterText)) >= 0);
   end;
 
   function AnyFlagMatchesFilter(const AFlagNames: TArray<String>): Boolean;
