@@ -957,7 +957,8 @@ procedure TLiveScriptObjectFactory.CollectParameterValues(
   const AValues: TStringList; const ASplitValueWords: Boolean);
 { Collects the non-empty values of the AParameterName parameter of every
   parameter section entry into AValues, restricted to AOnlySection when
-  not scNone. When ASplitValueWords is True the values' space-separated
+  not scNone and skipping sections which do not have the parameter according
+  to their metadata. When ASplitValueWords is True the values' space-separated
   words are collected instead. }
 begin
   EnsureIndex;
@@ -966,6 +967,11 @@ begin
     const Section = FSectionHeaders[I].Section;
     if not (Section in ParameterSections) or
        ((AOnlySection <> scNone) and (Section <> AOnlySection)) then
+      Continue;
+    var Metadata: TScriptModelSectionMetadata;
+    var Definition: TMemberDefinition;
+    if TryGetScriptModelSectionMetadata(SectionToSectionName(Section), Metadata) and
+       not Metadata.TryGetMember(AParameterName, Definition) then
       Continue;
     var FirstLine, LastLine: Integer;
     GetSectionLines(I, FirstLine, LastLine);
