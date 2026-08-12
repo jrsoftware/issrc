@@ -374,7 +374,8 @@ implementation
 
 uses
   System.UITypes,
-  Character, StrUtils, Types, Forms, Themes,
+  Character, Types, Forms, Themes,
+  PathFunc,
   JvInspector.MSAA, OleAccFunc;
 
 const
@@ -1860,7 +1861,7 @@ var
   function FindItemPrefix(const Prefix: string): Integer;
   begin
     for Result := 0 to ListBox.Items.Count - 1 do
-      if AnsiStartsText(Prefix, ListBox.Items[Result]) then
+      if PathStartsWith(ListBox.Items[Result], Prefix) then
         Exit;
     Result := -1;
   end;
