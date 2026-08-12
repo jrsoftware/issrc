@@ -108,7 +108,6 @@ type
     // objects, or hook event handlers, which were
     // otherwise invisible. This could be used to ill effect, so beware.
     FBeforeEdit: TInspectorBeforeEditEvent;
-    FMouseWheelRecursion: Boolean;
     FMouseWheelAccum: Integer;
     FAccessibleName: string;
     function ApplicationHook(var Msg: TMessage): Boolean;
@@ -357,6 +356,8 @@ type
     FItem: TJvCustomInspectorItem;
     FSearchText: string;
     FSearchTickCount: UInt64;
+    FMouseWheelAccum: Integer;
+    procedure UpdateSelectedItem(const ClientPos: TPoint);
   protected
     procedure CreateParams(var Params: TCreateParams); override;
     procedure CreateWnd; override;
@@ -364,6 +365,7 @@ type
     procedure MouseDown(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
     procedure MouseMove(Shift: TShiftState; X, Y: Integer); override;
     procedure MouseUp(Button: TMouseButton; Shift: TShiftState; X, Y: Integer); override;
+    procedure WMMouseWheel(var Msg: TWMMouseWheel); message WM_MOUSEWHEEL;
   public
     property OnValueSelect: TNotifyEvent read FOnValueSelect write FOnValueSelect;
     property OnDeactivate: TNotifyEvent read FOnDeactivate write FOnDeactivate;
@@ -479,6 +481,32 @@ begin
 
   if not Result then
     Result := DrawFrameControl(DC, Rect, uType, uState);
+end;
+
+function WheelScrollTopIndex(var Accumulator: Integer; const WheelDelta,
+  CurrentTopIndex: Integer; PageScrollLines: Integer): Integer;
+{ Returns the top index a wheel scroll should move to, keeping any leftover
+  delta in Accumulator as required by
+  https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-mousewheel }
+begin
+  { Sanity check }
+  if PageScrollLines < 1 then
+    PageScrollLines := 1;
+  { Mouse.WheelScrollLines stays 0 if no wheel was present at VCL startup, so
+    prefer SPI_GETWHEELSCROLLLINES }
+  var Lines: Integer;  // 0 = don't scroll, -1 = WHEEL_PAGESCROLL
+  if not SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, Lines, 0) then
+    Lines := Mouse.WheelScrollLines;
+  { Lines > PageScrollLines: see SPI_SETWHEELSCROLLLINES in
+    https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-systemparametersinfow }
+  if (Lines < 0) or (Lines > PageScrollLines) then
+    Lines := PageScrollLines;
+  Inc(Accumulator, WheelDelta * Lines);
+  const Count = Accumulator div WHEEL_DELTA;
+  Dec(Accumulator, Count * WHEEL_DELTA);
+  Result := CurrentTopIndex - Count;
+  if Result < 0 then
+    Result := 0;
 end;
 
 //=== { TJvInspector } =================================================
@@ -1258,37 +1286,18 @@ begin
 end;
 
 function TJvInspector.DoMouseWheel(Shift: TShiftState; WheelDelta: Integer; MousePos: TPoint): Boolean;
-var
-  Index: Integer;
-  LbPos: TPoint;
-  MinPos, MaxPos: Integer;
 begin
   if (Selected <> nil) and Selected.DroppedDown then begin
-    // If Selected.ListBox gets the WM_MOUSEWHEEL we would run into an infinite recursion
-    if not FMouseWheelRecursion then begin
-      FMouseWheelRecursion := True;
-      try
-        LbPos := Selected.ListBox.ScreenToClient(ClientToScreen(MousePos));
-        Selected.ListBox.Perform(WM_MOUSEWHEEL, WPARAM(WheelDelta shl 16), MakeLong(Word(LbPos.X), Word(LbPos.Y)));
-      finally
-        FMouseWheelRecursion := False;
-      end;
-    end;
+    { Let the dropped down list box scroll instead of us. MousePos is already in
+      screen coordinates, just like WM_MOUSEWHEEL's lParam }
+    Selected.ListBox.Perform(WM_MOUSEWHEEL, WPARAM(WheelDelta shl 16),
+      MakeLong(Word(MousePos.X), Word(MousePos.Y)));
   end else begin
+    var MinPos, MaxPos: Integer;
     GetScrollRange(Handle, SB_VERT, MinPos, MaxPos);
-    if MinPos <> MaxPos then begin // no scroll bar enabled
-      var Lines := Mouse.WheelScrollLines; // 0 = don't scroll, -1 = WHEEL_PAGESCROLL
-      if Lines < 0 then
-        Lines := ClientHeight div GetItemHeight;
-      // accumulate as required by https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-mousewheel
-      Inc(FMouseWheelAccum, WheelDelta * Lines);
-      const Count = FMouseWheelAccum div WHEEL_DELTA;
-      Dec(FMouseWheelAccum, Count * WHEEL_DELTA);
-      Index := TopIndex - Count;
-      if Index < 0 then
-        Index := 0;
-      TopIndex := Index;
-    end;
+    if MinPos <> MaxPos then // no scroll bar enabled
+      TopIndex := WheelScrollTopIndex(FMouseWheelAccum, WheelDelta, TopIndex,
+        ClientHeight div GetItemHeight);
   end;
   Result := True;
 end;
@@ -2035,12 +2044,6 @@ begin
     ExecInherited := False;
     EditCtrl.SelectAll;
   end;
-  if Msg.Msg = WM_MOUSEWHEEL then begin
-    if not DroppedDown then
-      PostMessage(Inspector.Handle, Msg.Msg, Msg.WParam, Msg.LParam);
-    Msg.Result := 1;
-    ExecInherited := False;
-  end;
   if DroppedDown then
     // be like standard combobox (this doesn't break click+drag)
     case Msg.Msg of
@@ -2475,9 +2478,14 @@ end;
 procedure TJvInspectorListBox.MouseMove(Shift: TShiftState; X, Y: Integer);
 begin
   inherited;
+  UpdateSelectedItem(Point(X, Y));
+end;
+
+procedure TJvInspectorListBox.UpdateSelectedItem(const ClientPos: TPoint);
+begin
   { Auto-update selection, like a standard combobox. Doesn't actually commit
     selection item. }
-  const Index = ItemAtPos(Point(X, Y), True);
+  const Index = ItemAtPos(ClientPos, True);
   if Index >= 0 then
     ItemIndex := Index;
 end;
@@ -2507,6 +2515,18 @@ begin
 
   FClicking := False;
   FNCClick := False;
+end;
+
+procedure TJvInspectorListBox.WMMouseWheel(var Msg: TWMMouseWheel);
+begin
+  { Scroll ourselves, exactly like TJvInspector.DoMouseWheel does }
+  const NewTopIndex = WheelScrollTopIndex(FMouseWheelAccum, Msg.WheelDelta,
+    TopIndex, ClientHeight div ItemHeight);
+  if NewTopIndex <> TopIndex then begin
+    TopIndex := NewTopIndex;
+    { Scrolling puts another item under the mouse but sends no WM_MOUSEMOVE }
+    UpdateSelectedItem(ScreenToClient(SmallPointToPoint(Msg.Pos)));
+  end;
 end;
 
 procedure TJvCustomInspectorItem.InitEdit;
