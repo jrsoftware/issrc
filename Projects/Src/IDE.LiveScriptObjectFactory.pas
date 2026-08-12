@@ -154,7 +154,9 @@ type
     procedure EnsureStyled;
     function GetLinesText(const AFirstLine, ALastLine: Integer): TArray<String>;
     function GetLinesTextAndClassify(const AFirstLine, ALastLine: Integer;
-      out ALineKind: TScriptLineKind): TArray<String>;
+      out ALineKind: TScriptLineKind; out AJoinedText: String): TArray<String>; overload;
+    function GetLinesTextAndClassify(const AFirstLine, ALastLine: Integer;
+      out ALineKind: TScriptLineKind): TArray<String>; overload;
     function GetLogicalLineFirstLine(const ALine: Integer): Integer;
     function GetLogicalLineLastLine(const ALine: Integer): Integer;
     function GetSectionHeader(Index: Integer): TLiveScriptSectionHeader;
@@ -203,6 +205,7 @@ implementation
 
 uses
   SysUtils,
+  PathFunc,
   Shared.CommonFunc;
 
 { TLiveScriptObject }
@@ -899,10 +902,19 @@ begin
 end;
 
 function TLiveScriptObjectFactory.GetLinesTextAndClassify(const AFirstLine,
-  ALastLine: Integer; out ALineKind: TScriptLineKind): TArray<String>;
+  ALastLine: Integer; out ALineKind: TScriptLineKind;
+  out AJoinedText: String): TArray<String>;
 begin
   Result := GetLinesText(AFirstLine, ALastLine);
-  ALineKind := ClassifyScriptLine(JoinSpannedScriptLines(Result));
+  AJoinedText := JoinSpannedScriptLines(Result);
+  ALineKind := ClassifyScriptLine(AJoinedText);
+end;
+
+function TLiveScriptObjectFactory.GetLinesTextAndClassify(const AFirstLine,
+  ALastLine: Integer; out ALineKind: TScriptLineKind): TArray<String>;
+begin
+  var JoinedText: String;
+  Result := GetLinesTextAndClassify(AFirstLine, ALastLine, ALineKind, JoinedText);
 end;
 
 function TLiveScriptObjectFactory.GetLogicalLineFirstLine(const ALine: Integer): Integer;
@@ -963,29 +975,33 @@ procedure TLiveScriptObjectFactory.CollectParameterValues(
 begin
   EnsureIndex;
   EnsureStyled; { For GetSectionLines }
-  for var I := 0 to Integer(FSectionHeaders.Count)-1 do begin
-    const Section = FSectionHeaders[I].Section;
-    if not (Section in ParameterSections) or
-       ((AOnlySection <> scNone) and (Section <> AOnlySection)) then
-      Continue;
-    var Metadata: TScriptModelSectionMetadata;
-    var Definition: TMemberDefinition;
-    if TryGetScriptModelSectionMetadata(SectionToSectionName(Section), Metadata) and
-       not Metadata.TryGetMember(AParameterName, Definition) then
-      Continue;
-    var FirstLine, LastLine: Integer;
-    GetSectionLines(I, FirstLine, LastLine);
-    var Line := FirstLine;
-    while Line <= LastLine do begin
-      const EntryFirstLine = Line;
-      const EntryLastLine = GetLogicalLineLastLine(Line);
-      Line := EntryLastLine+1;
-      var LineKind: TScriptLineKind;
-      const EntryLines = GetLinesTextAndClassify(EntryFirstLine, EntryLastLine, LineKind);
-      if LineKind <> slkActual then
+  const Entry = TScriptModelParameterSectionEntry.Create(nil); { Just reading, metadata not needed }
+  try
+    for var I := 0 to Integer(FSectionHeaders.Count)-1 do begin
+      const Section = FSectionHeaders[I].Section;
+      if not (Section in ParameterSections) or
+         ((AOnlySection <> scNone) and (Section <> AOnlySection)) then
         Continue;
-      const Entry = TScriptModelParameterSectionEntry.Create(nil); { Just reading, metadata not needed }
-      try
+      var Metadata: TScriptModelSectionMetadata;
+      var Definition: TMemberDefinition;
+      if TryGetScriptModelSectionMetadata(SectionToSectionName(Section), Metadata) and
+         not Metadata.TryGetMember(AParameterName, Definition) then
+        Continue;
+      var FirstLine, LastLine: Integer;
+      GetSectionLines(I, FirstLine, LastLine);
+      var Line := FirstLine;
+      while Line <= LastLine do begin
+        const EntryFirstLine = Line;
+        const EntryLastLine = GetLogicalLineLastLine(Line);
+        Line := EntryLastLine+1;
+        var LineKind: TScriptLineKind;
+        var JoinedText: String;
+        const EntryLines = GetLinesTextAndClassify(EntryFirstLine, EntryLastLine,
+          LineKind, JoinedText);
+        if (LineKind <> slkActual) or
+           (PathStrFind(PChar(JoinedText), Length(JoinedText),
+            PChar(AParameterName), Length(AParameterName)) < 0) then
+          Continue; { Parameter name not present at all, skip Parse }
         Entry.Parse(EntryLines);
         var Value: String;
         if Entry.TryGetValue(AParameterName, Value) then begin
@@ -999,10 +1015,10 @@ begin
           end else if Value <> '' then
             AValues.Add(Value);
         end;
-      finally
-        Entry.Free;
       end;
     end;
+  finally
+    Entry.Free;
   end;
 end;
 

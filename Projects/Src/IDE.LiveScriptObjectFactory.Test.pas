@@ -963,9 +963,10 @@ end;
 { CollectParameterValues: values collected across every occurrence of the
   given section or of every parameter section, skipping sections which do not
   have the parameter according to their metadata, skipping comment and blank
-  lines, reading spanned entries whole, unquoting, skipping empty values,
-  leaving ordering and duplicate handling to the passed list, and
-  splitting values into words when asked. CollectParameterValuesFromFactories:
+  lines, reading spanned entries whole, matching parameter names ignoring
+  case, unquoting, skipping empty values, leaving ordering and duplicate
+  handling to the passed list, and splitting values into words when asked.
+  CollectParameterValuesFromFactories:
   the defined names combined with the already-used values, for ISSigAllowedKeys
   the key names plus the group words, without a defining section the
   already-used values alone, the compiler's default type names only when the
@@ -996,7 +997,7 @@ begin
     'Source: "a.txt"; Tasks: "not portable"',                        { 9 }
     'Source: "b.txt"; Tasks: NOT PORTABLE',                          { 10, duplicate value ignoring case }
     'Source: "c.txt"; \',                                            { 11, spanned entry }
-    '  Tasks: desktopicon\common',                                   { 12, continuation of line 11 }
+    '  tasks: desktopicon\common',                                   { 12, continuation of line 11, lowercase parameter name }
     'Source: "d.txt"',                                               { 13, no Tasks parameter }
     '[Icons]',                                                       { 14 }
     'Name: "{group}\My"; Filename: "x"; Tasks: portable',            { 15 }
