@@ -444,20 +444,34 @@ begin
     Assert(Definition.ValueKind = mvkInteger);
     Assert(Entry.TryGetDefinition('MinVersion', Definition));
     Assert(Definition.ValueKind = mvkVersion);
+    Assert(Entry.TryGetDefinition('Permissions', Definition));
+    Assert(Definition.ValueKind = mvkPermissions);
+    Assert(Length(Definition.KnownValues) = 30); { 10 identifiers with 3 access types each }
+    Assert(Definition.KnownValues[0] = 'admins-full');
+    Assert(Definition.KnownValues[1] = 'admins-modify');
+    Assert(Definition.KnownValues[29] = 'users-readexec');
+    { [Registry] grants 'read' where [Files] and [Dirs] grant 'readexec' }
+    var RegistryMetadata: TScriptModelSectionMetadata;
+    Assert(TryGetScriptModelSectionMetadata('Registry', RegistryMetadata));
+    Assert(RegistryMetadata.TryGetMember('Permissions', Definition));
+    Assert(Definition.ValueKind = mvkPermissions);
+    Assert(Length(Definition.KnownValues) = 30);
+    Assert(Definition.KnownValues[29] = 'users-read');
 
     { Unknown parameters remain accessible as raw text }
     Assert(not Entry.TryGetDefinition('Unknown', Definition));
     var Value: String;
     Assert(Entry.TryGetValue('Unknown', Value) and (Value = 'u'));
 
-    { Only text parameters are quoted by default when added: a mvkVersion
-      value is written bare, a mvkString value is quoted }
+    { Only text parameters are quoted by default when added: mvkVersion and
+      mvkPermissions values are written bare, a mvkString value is quoted }
     Entry.Parse(['Source: a']);
     Assert(Entry.QuoteNewValues);
     Entry.Add('MinVersion', '6.2');
     Entry.Add('DestName', 'x');
+    Entry.Add('Permissions', 'users-modify admins-full');
     const AddedLines = Entry.GetLines;
-    Assert(AddedLines[0] = 'Source: a; MinVersion: 6.2; DestName: "x"');
+    Assert(AddedLines[0] = 'Source: a; MinVersion: 6.2; DestName: "x"; Permissions: users-modify admins-full');
   finally
     Entry.Free;
   end;
@@ -794,28 +808,30 @@ begin
     var Metadata: TScriptModelSectionMetadata;
     Assert(TryGetScriptModelSectionMetadata(SectionName, Metadata));
 
-    { Every parameter has a unique name, and only flags and choices carry
-      tokens, which are themselves non-empty and unique (and lowercase and
-      sorted for flags) }
+    { Every parameter has a unique name, and only flags, choices, and
+      permissions carry tokens, which are themselves non-empty and unique
+      (and lowercase for flags and permissions, and sorted for flags) }
     for var I := 0 to High(Metadata.Members) do begin
       const Parameter = Metadata.Members[I];
       Assert(Parameter.Name <> '');
       for var J := 0 to I-1 do
         Assert(not SameText(Metadata.Members[J].Name, Parameter.Name));
-      if Parameter.ValueKind in [mvkFlags, mvkChoice] then begin
+      if Parameter.ValueKind in [mvkFlags, mvkChoice, mvkPermissions] then begin
         Assert(Length(Parameter.KnownValues) > 0);
         for var K := 0 to High(Parameter.KnownValues) do begin
           const Token = Parameter.KnownValues[K];
           Assert(Token <> '');
           for var L := 0 to K-1 do
             Assert(not SameText(Parameter.KnownValues[L], Token));
-          if Parameter.ValueKind = mvkFlags then begin
+          if Parameter.ValueKind in [mvkFlags, mvkPermissions] then
             Assert(Token = LowerCase(Token));
+          if Parameter.ValueKind = mvkFlags then begin
             { The inspector gives a flag parameter one child row per flag, in
               table order, so the table decides the order the flags are shown in.
-              Choices are not checked: they fill a dropdown which sorts the
-              values itself, and a choice table's order can still be meaningful
-              elsewhere, see DestDir in IDE.Wizard.WizardFileForm.pas }
+              Choices and permissions are not checked: they fill a dropdown
+              which sorts the values itself, and a choice table's order can
+              still be meaningful elsewhere, see DestDir in
+              IDE.Wizard.WizardFileForm.pas }
             if K > 0 then
               Assert(CompareText(Parameter.KnownValues[K-1], Token) < 0);
           end;

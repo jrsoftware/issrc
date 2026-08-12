@@ -77,7 +77,13 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Groups the rows under headers, such as <i>Compression</i> for the <tt>[Setup]</tt> directives which control compression.</li>
     <li>Selects and marks the row of the directive or parameter under the main cursor, scrolling it into view if needed, and follows it as you move through the script.</li>
     <li>Edits values in place: checkboxes for <tt>yes</tt>/<tt>no</tt> values, drop-down lists for multiple-choice values, browse buttons for paths, and expandable checkbox lists for flags, with validation of integer values.</li>
-    <li>For the <tt>Tasks</tt>, <tt>Components</tt>, <tt>Languages</tt>, <tt>Types</tt>, and <tt>ISSigAllowedKeys</tt> parameters, offers the names the script itself defines, plus values it already uses, in their drop-down lists. Also offers the Sign Tool names configured in the IDE in the drop-down list of the <tt>[Setup]</tt> section directive <tt>SignTool</tt>.</li>
+    <li>Also provides drop-down lists for:
+    <ul>
+      <li>The <tt>Tasks</tt>, <tt>Components</tt>, <tt>Languages</tt>, <tt>Types</tt>, and <tt>ISSigAllowedKeys</tt> parameters, offering the names the script itself defines (for <tt>ISSigAllowedKeys</tt> also the group names), plus values it already uses.</li>
+      <li>The <tt>Permissions</tt> parameters, offering all supported values, plus values the script already uses.</li>
+      <li>The <tt>[Setup]</tt> section directive <tt>SignTool</tt>, offering the Sign Tool names configured in the IDE.</li>
+    </ul>
+    </li>
     <li>Knows the relationships between flags and parameters and applies them automatically. For example, checking the <tt>download</tt> flag of a <tt>[Files]</tt> entry also checks the flags it needs.</li>
     <li>Writes all changes to the script as regular edits, so <i>Undo</i>, <i>Redo</i>, and change history work normally.</li>
     <li>Changes only the parameter or directive you edit: everything else stays exactly as it was, including comments, quoting, ISPP line spanning, and anything the Inspector doesn't recognize.</li>
@@ -100,10 +106,18 @@ For conditions of distribution and use, see <tt><a href="files/is/license.txt">L
     <li>Thanks to the creators of <a href="https://github.com/project-jedi/jvcl">TJvInspector</a>: The (heavily modified) inspector control used in the Compiler IDE.</li>
   </ul>
   </li>
-  <li>Compiler IDE:
+  <li>Compiler IDE autocompletion improved:
   <ul>
-    <li>Added autocompletion support for the values of the <tt>Tasks</tt>, <tt>Components</tt>, <tt>Languages</tt>, <tt>Types</tt>, and <tt>ISSigAllowedKeys</tt> parameters. Offered are the names the script itself defines (for <tt>ISSigAllowedKeys</tt> also the group names) and the distinct values which the same parameter of any entry already uses, plus the operators <tt>not</tt>, <tt>and</tt>, and <tt>or</tt> for <tt>Tasks</tt>, <tt>Components</tt>, and <tt>Languages</tt>. Autocompletion works for every value, not just the first. When editing an included file, the definitions of the main script are offered as well. Only names which consist of letters, digits, and underscores are listed.</li>
-    <li>Added autocompletion support for the value of <tt>[Setup]</tt> section directive <tt>SignTool</tt>. Only Sign Tool names which consist of letters, digits, and underscores are listed.</li>
+    <li>Added support for:
+    <ul>
+      <li>The <tt>Tasks</tt>, <tt>Components</tt>, <tt>Languages</tt>, <tt>Types</tt>, and <tt>ISSigAllowedKeys</tt> parameters, offering the names the script itself defines (for <tt>ISSigAllowedKeys</tt> also the group names), plus values it already uses, and for <tt>Tasks</tt>, <tt>Components</tt>, and <tt>Languages</tt> the operators <tt>not</tt>, <tt>and</tt>, and <tt>or</tt>.</li>
+      <li>The <tt>Permissions</tt> parameters, offering all combinations of a <a href="https://jrsoftware.org/ishelp/index.php?topic=usergroupids">user or group identifier</a> and an access type supported by the section, like <tt>users-modify</tt>.</li>
+      <li>The <tt>[Setup]</tt> section directive <tt>SignTool</tt>, offering the Sign Tool names configured in the IDE.</li>
+    </ul>
+    </li>
+    <li>For the parameters, works for every value, not just the first, so an expression like <tt>not (a and b) or c</tt> is completed name by name. (The Inspector's drop-down lists instead offer used expressions as a whole.)</li>
+    <li>When editing an included file, the definitions of the main script are offered as well. (Also applies to the Inspector.)</li>
+    <li>Only names which consist of letters, digits, and underscores are listed. (Does not apply to <tt>Permissions</tt> or to the Inspector.)</li>
   </ul>
   </li>
 </ul>

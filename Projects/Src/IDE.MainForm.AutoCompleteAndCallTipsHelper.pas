@@ -195,6 +195,24 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := True;
   end;
 
+  function ExtendCharsBefore(const AMemo: TScintEdit;
+    const LinePos, CaretPos, CharsBefore: Integer): Integer;
+  begin
+    { CharsBefore counts to the word start before the caret, without accounting
+      for FAutoCompleteExtraContinueChars. Extended it now, towards the start
+      of the line. This for example extends from 'modify' to 'users-modify'. }
+    var ValueStartPos := CaretPos - CharsBefore;
+    while ValueStartPos > LinePos do begin
+      const PosBefore = AMemo.GetPositionBefore(ValueStartPos);
+      const C = AMemo.GetByteAtPosition(PosBefore);
+      if not (C in FAutoCompleteExtraContinueChars) and
+         not (C in InnoSetupStylerAutoCompleteWordChars) then
+        Break;
+      ValueStartPos := PosBefore;
+    end;
+    Result := CaretPos - ValueStartPos;
+  end;
+
   function CanAutoCompleteValue(const Value: String): Boolean;
   begin
     for var C in Value do
@@ -238,6 +256,9 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
 begin
   if AMemo.AutoCompleteActive or AMemo.ReadOnly then
     Exit;
+
+  { Used by ExtendCharsBefore (above) and AutoCompleteAndCallTipsHandleCharAdded (below) }
+  FAutoCompleteExtraContinueChars := [];
 
   if Key = #0 then begin
     { If a character is typed then Scintilla will handle selections but
@@ -390,6 +411,7 @@ begin
             var FoundSemicolon := False;
             var FoundFlagsOrType := False;
             var FoundNonFlagWord := False;
+            var FoundPermissionsParameter := False;
             var FoundScriptValuesParameterName := '';
             var FoundSetupDirectiveName := '';
             var FoundMultipleSetupDirectiveValues := False;
@@ -412,12 +434,17 @@ begin
                   const ParameterWord = AMemo.GetTextRange(ParameterWordStartPos, ParameterWordEndPos);
                   FoundFlagsOrType := SameText(ParameterWord, 'Flags') or
                                       ((Section in [scInstallDelete, scUninstallDelete]) and SameText(ParameterWord, 'Type'));
-                  if not FoundFlagsOrType and
-                     (GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone) then
-                    FoundScriptValuesParameterName := ParameterWord;
+                  if not FoundFlagsOrType then begin
+                    if GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone then
+                      FoundScriptValuesParameterName := ParameterWord
+                    else
+                      FoundPermissionsParameter := SameText(ParameterWord, 'Permissions') and
+                        (FMemosStyler.PermissionsWordList[Section] <> '');
+                  end;
                 end else
                   FoundFlagsOrType := False;
-                if FoundSemicolon or FoundFlagsOrType or (FoundScriptValuesParameterName <> '') then
+                if FoundSemicolon or FoundFlagsOrType or (FoundScriptValuesParameterName <> '') or
+                   FoundPermissionsParameter then
                   Break;
               end;
 
@@ -465,13 +492,16 @@ begin
               end;
             end;
             { A word before the current word which is not a flag is only allowed for
-              script values parameters, which accept multiple values }
-            if FoundNonFlagWord and (FoundScriptValuesParameterName = '') then
+              script values parameters and permissions parameters, which accept
+              multiple values }
+            if FoundNonFlagWord and (FoundScriptValuesParameterName = '') and
+               not FoundPermissionsParameter then
               Exit;
             { Space can only initiate autocompletion after ';' or 'Flags:' or 'Type:' or a
-              script values parameter or a [Setup] directive }
+              script values parameter or 'Permissions:' or a [Setup] directive }
             if (Key = ' ') and not (FoundSemicolon or FoundFlagsOrType or
-               (FoundScriptValuesParameterName <> '') or (FoundSetupDirectiveName <> '')) then
+               (FoundScriptValuesParameterName <> '') or FoundPermissionsParameter or
+               (FoundSetupDirectiveName <> '')) then
               Exit;
 
             if FoundSetupDirectiveName <> '' then begin
@@ -495,6 +525,10 @@ begin
               if WordList = '' then { Should never be True, since we already checked above }
                 Exit;
               AMemo.SetAutoCompleteFillupChars(' ');
+            end else if FoundPermissionsParameter then begin
+              WordList := FMemosStyler.PermissionsWordList[Section];
+              FAutoCompleteExtraContinueChars := ['-'];
+              AMemo.SetAutoCompleteFillupChars(' ');
             end else if FoundScriptValuesParameterName <> '' then begin
               WordList := FMemosStyler.BuildWordList(
                 GetAutoCompleteScriptValues(FoundScriptValuesParameterName));
@@ -514,6 +548,8 @@ begin
         end;
     end;
   end;
+  if FAutoCompleteExtraContinueChars <> [] then
+    CharsBefore := ExtendCharsBefore(AMemo, LinePos, CaretPos, CharsBefore);
   AMemo.ShowAutoComplete(CharsBefore, WordList);
 end;
 
@@ -750,11 +786,14 @@ begin
       if not AMemo.AutoCompleteActive and FOptions.AutoAutoComplete and not (Ch in ['0'..'9']) then
         InitiateAutoComplete(AMemo, Ch);
     end else begin
-      const RestartAutoComplete = (Ch in [' ', '.', '!', '=']) and
-        (FOptions.AutoAutoComplete or AMemo.AutoCompleteActive);
-      AMemo.CancelAutoComplete;
-      if RestartAutoComplete then
-        InitiateAutoComplete(AMemo, Ch);
+      const ContinueAutoComplete = AMemo.AutoCompleteActive and (Ch in FAutoCompleteExtraContinueChars);
+      if not ContinueAutoComplete then begin
+        const RestartAutoComplete = (Ch in [' ', '.', '!', '=']) and
+          (FOptions.AutoAutoComplete or AMemo.AutoCompleteActive);
+        AMemo.CancelAutoComplete;
+        if RestartAutoComplete then
+          InitiateAutoComplete(AMemo, Ch);
+      end;
     end;
   end;
 end;

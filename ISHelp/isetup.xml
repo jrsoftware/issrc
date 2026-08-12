@@ -3884,7 +3884,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Select autocompletion</td><td>Tab or Enter</td>
 </tr>
 <tr>
-  <td>Fillup autocompletion</td><td>Space for ISPP directives, for <sn>[Setup]</sn> section values, and for <tt>Flags</tt>, <tt>Type</tt>, <tt>Tasks</tt>, <tt>Components</tt>, <tt>Languages</tt>, <tt>Types</tt>, and <tt>ISSigAllowedKeys</tt> parameters<br />\ for constants<br />: for constants and section parameters<br />] for sections<br />= for section directives</td>
+  <td>Fillup autocompletion</td><td>Space for ISPP directives, for <sn>[Setup]</sn> section values, and for section parameter values<br />\ for constants<br />: for constants and section parameters<br />] for sections<br />= for section directives</td>
 </tr>
 <tr>
   <td>Invoke parameter hint or show next definition</td><td>Ctrl+Shift+Space</td>

@@ -75,7 +75,7 @@ type
   private
     FSectionParameters: array[TInnoSetupSection] of TArray<TScintRawString>;
     FEventFunctionsWordList: array[Boolean] of TScintRawString;
-    FKeywordsWordList, FFlagsWordList: array[TInnoSetupSection] of TScintRawString;
+    FKeywordsWordList, FFlagsWordList, FPermissionsWordList: array[TInnoSetupSection] of TScintRawString;
     FNoHighlightAtCursorWords: TWordsBySection;
     FFlagsWords: TWordsBySection;
     FISPPDirectivesWordList, FISPPPragmaWordList, FConstantsWordList: TScintRawString;
@@ -114,6 +114,7 @@ type
     class function GetFunctionDefinition(const FunctionsByName: TFunctionDefinitionsByName;
       const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; static;
     function GetKeywordsWordList(Section: TInnoSetupSection): TScintRawString;
+    function GetPermissionsWordList(Section: TInnoSetupSection): TScintRawString;
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState; var CodeBlockHeader: Boolean);
     procedure HandleKeyValueSection(const Section: TInnoSetupSection);
     procedure HandleParameterSection(const ValidParameters: array of TScintRawString);
@@ -166,6 +167,7 @@ type
     property ISPPExpressionWordList: TScintRawString read FISPPExpressionWordList;
     property ISPPInstalled: Boolean read FISPPInstalled write SetISPPInstalled;
     property KeywordsWordList[Section: TInnoSetupSection]: TScintRawString read GetKeywordsWordList;
+    property PermissionsWordList[Section: TInnoSetupSection]: TScintRawString read GetPermissionsWordList;
     property ScriptWordList[ClassOrRecordMembers: Boolean]: TScintRawString read GetScriptWordList;
     property SectionsWordList: TScintRawString read FSectionsWordList;
     property SetupSectionDirectiveValueIsMultiValue[SetupSectionDirective: TSetupSectionDirective]: Boolean read GetSetupSectionDirectiveValueIsMultiValue;
@@ -288,6 +290,24 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     end;
   end;
 
+  procedure BuildPermissionsWordLists;
+  begin
+    for var Item in SectionMap do begin
+      var Metadata: TScriptModelSectionMetadata;
+      if not TryGetScriptModelSectionMetadata(String(Item.Name), Metadata) then
+        Continue;
+      var Member: TMemberDefinition;
+      if not Metadata.TryGetMember('Permissions', Member) or
+         (Member.ValueKind <> mvkPermissions) then
+        Continue;
+      var Values: TArray<TScintRawString>;
+      SetLength(Values, Length(Member.KnownValues));
+      for var I := 0 to High(Member.KnownValues) do
+        Values[I] := TScintRawString(Member.KnownValues[I]);
+      FPermissionsWordList[Item.Section] := BuildWordList(Values);
+    end;
+  end;
+
   procedure BuildKeywordsWordLists;
   begin
     { Builds FKeywordsWordList (for autocomplete) and FNoHighlightAtCursorWords }
@@ -398,6 +418,7 @@ begin
   FISPPFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   BuildISPPExpressionWordList;
   BuildKeywordsWordLists;
+  BuildPermissionsWordLists;
   BuildSectionsWordList;
   BuildSetupDirectiveValueWordLists;
   FScriptFunctionsByName[False] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
@@ -709,6 +730,11 @@ end;
 function TInnoSetupStyler.GetKeywordsWordList(Section: TInnoSetupSection): TScintRawString;
 begin
   Result := FKeywordsWordList[Section];
+end;
+
+function TInnoSetupStyler.GetPermissionsWordList(Section: TInnoSetupSection): TScintRawString;
+begin
+  Result := FPermissionsWordList[Section];
 end;
 
 { Result is undefined if out Count = 0 }

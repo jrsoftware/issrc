@@ -697,6 +697,7 @@ type
     FErrorMemo, FStepMemo: TIDEScintFileEdit; { These change depending on user input }
     FMemosStyler: TInnoSetupStyler;           { Single styler for all memos }
     { Used by class helpers }
+    FAutoCompleteExtraContinueChars: TSysCharSet;
     FCallTipState: TCallTipState;
     FCompiledExe: String;
     FCompiling: Boolean;

@@ -22,7 +22,7 @@ uses
   Shared.SetupSectionDirectives;
 
 type
-  TMemberValueKind = (mvkString, mvkInteger, mvkVersion, mvkColor,
+  TMemberValueKind = (mvkString, mvkInteger, mvkVersion, mvkColor, mvkPermissions,
     mvkChoice, mvkFlags, mvkYesNo, mvkCompilerSourceFile, mvkCompilerSourceFiles,
     mvkCompilerPath, mvkCompilerDestFile);
 
@@ -31,7 +31,8 @@ type
     ValueKind: TMemberValueKind;
     KnownValues: TArray<String>; { For mvkFlags: the known flags
                                    For mvkChoice: the known choices (other choices might still be valid, like a scripted expression)
-                                   For mvkYesNo: 'yes' and 'no' (other values might still be valid, like an ISPP inline directive) }
+                                   For mvkYesNo: 'yes' and 'no' (other values might still be valid, like an ISPP inline directive)
+                                   For mvkPermissions: the known permissions (the value is a space separated list of them) }
     DefaultValue: String; { The default of a directive-key, empty for parameters and non-directive keys }
     Obsolete: Boolean;    { To be hidden unless explicitly present in the script }
   end;
@@ -198,6 +199,21 @@ procedure InitializeSectionMetadata;
     Result.ParameterName := AParameterName;
     Result.FlagParameterName := AFlagParameterName;
     Result.FlagName := AFlagName;
+  end;
+
+  function PermissionsKnownValues(
+    const AAccessTypes: array of String): TArray<String>;
+  { The access types differ per section, see EnumDirsProc, EnumFilesProc, and
+    EnumRegistryProc }
+  const
+    Identifiers: TArray<String> = ['admins', 'authusers', 'creatorowner',
+      'everyone', 'guests', 'iisiusrs', 'networkservice', 'service', 'system',
+      'users'];
+  begin
+    Result := [];
+    for var Identifier in Identifiers do
+      for var AccessType in AAccessTypes do
+        Result := Result + [Identifier + '-' + AccessType];
   end;
 
   function SetupSectionDirectiveDefaultValue(
@@ -516,7 +532,7 @@ begin
     MD('Languages', mvkString),
     MD('MinVersion', mvkVersion),
     MD('OnlyBelowVersion', mvkVersion),
-    MD('Permissions', mvkString),
+    MD('Permissions', mvkPermissions, PermissionsKnownValues(['full', 'modify', 'readexec'])),
     MD('Source', mvkCompilerSourceFile),
     MD('StrongAssemblyName', mvkString),
     MD('Tasks', mvkString)],
@@ -571,7 +587,7 @@ begin
     MD('MinVersion', mvkVersion),
     MD('Name', mvkString),
     MD('OnlyBelowVersion', mvkVersion),
-    MD('Permissions', mvkString),
+    MD('Permissions', mvkPermissions, PermissionsKnownValues(['full', 'modify', 'readexec'])),
     MD('Tasks', mvkString)],
     nil,
     [FR('Flags', 'setntfscompression', ['unsetntfscompression']),
@@ -663,7 +679,7 @@ begin
     MD('Languages', mvkString),
     MD('MinVersion', mvkVersion),
     MD('OnlyBelowVersion', mvkVersion),
-    MD('Permissions', mvkString),
+    MD('Permissions', mvkPermissions, PermissionsKnownValues(['full', 'modify', 'read'])),
     MD('Root', mvkChoice, ['HKA', 'HKA32', 'HKA64', 'HKCC', 'HKCC32',
        'HKCC64', 'HKCR', 'HKCR32', 'HKCR64', 'HKCU', 'HKCU32', 'HKCU64',
        'HKLM', 'HKLM32', 'HKLM64', 'HKU', 'HKU32', 'HKU64']),
