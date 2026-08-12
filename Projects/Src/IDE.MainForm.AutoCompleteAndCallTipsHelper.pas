@@ -205,23 +205,32 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
 
   function GetAutoCompleteSignToolValues: TArray<TScintRawString>;
   begin
-    Result := [];
+    SetLength(Result, FSignTools.Count);
+    var Count := 0;
     for var I := 0 to FSignTools.Count-1 do begin
       const Name = FSignTools.Names[I];
-      if CanAutoCompleteValue(Name) then
-        Result := Result + [TScintRawString(Name)];
+      if CanAutoCompleteValue(Name) then begin
+        Result[Count] := TScintRawString(Name);
+        Inc(Count);
+      end;
     end;
+    SetLength(Result, Count);
   end;
 
   function GetAutoCompleteScriptValues(const ParameterName: String): TArray<TScintRawString>;
   begin
-    Result := [];
     const Values = CollectParameterValuesFromFactories(
       [LiveScriptObjectFactoryForMemo(AMemo), LiveScriptObjectFactoryForMainMemo],
       ParameterName);
-    for var Value in Values do
-      if CanAutoCompleteValue(Value) then
-        Result := Result + [TScintRawString(Value)];
+    SetLength(Result, Length(Values));
+    var Count := 0;
+    for var Value in Values do begin
+      if CanAutoCompleteValue(Value) then begin
+        Result[Count] := TScintRawString(Value);
+        Inc(Count);
+      end;
+    end;
+    SetLength(Result, Count);
     if IsScriptBooleanExpressionParameter(ParameterName) then
       Result := Result + BooleanExpressionOperatorValues;
   end;

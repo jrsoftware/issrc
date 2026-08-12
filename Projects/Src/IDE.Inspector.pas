@@ -1960,8 +1960,7 @@ begin
     Exit;
   var KnownValues := Copy(Definition.KnownValues);
   SortValueList(KnownValues);
-  for var KnownValue in KnownValues do
-    Values.Add(KnownValue);
+  Values.AddStrings(KnownValues);
 end;
 
 procedure TInspector.SignToolRowGetValueList(Item: TJvCustomInspectorItem;
@@ -1970,12 +1969,12 @@ begin
   if not Assigned(FOnGetSignTools) then
     Exit;
   const SignTools = FOnGetSignTools;
-  var SignToolNames: TArray<String> := [];
+  var SignToolNames: TArray<String>;
+  SetLength(SignToolNames, SignTools.Count);
   for var I := 0 to SignTools.Count-1 do
-    SignToolNames := SignToolNames + [SignTools.Names[I]];
+    SignToolNames[I] := SignTools.Names[I];
   SortValueList(SignToolNames);
-  for var SignToolName in SignToolNames do
-    Values.Add(SignToolName);
+  Values.AddStrings(SignToolNames);
 end;
 
 procedure TInspector.ScriptValuesRowGetValueList(Item: TJvCustomInspectorItem;
@@ -1990,8 +1989,7 @@ begin
     MainFactory := FOnGetMainFactory;
   const SortedValues = CollectParameterValuesFromFactories([FFactory, MainFactory],
     Row.Name);
-  for var Value in SortedValues do
-    Values.Add(Value);
+  Values.AddStrings(SortedValues);
 end;
 
 function TInspector.GetDividerWidth: Integer;
