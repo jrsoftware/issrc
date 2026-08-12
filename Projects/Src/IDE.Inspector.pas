@@ -1932,7 +1932,7 @@ begin
 end;
 
 class procedure TInspector.SortValueList(var AValues: TArray<String>);
-{ Sort using same sort as autocompletion and Scintilla, so using CompareText.
+{ Sorts using same sort as autocompletion and Scintilla, so using CompareText.
   Also see TInnoSetupStyler.BuildWordList. }
 begin
   TArray.Sort<String>(AValues, TComparer<String>.Construct(
@@ -1987,11 +1987,10 @@ begin
   var MainFactory: TLiveScriptObjectFactory := nil;
   if Assigned(FOnGetMainFactory) then
     MainFactory := FOnGetMainFactory;
-  var ScriptValues := CollectParameterValuesFromFactories([FFactory, MainFactory],
+  const SortedValues = CollectParameterValuesFromFactories([FFactory, MainFactory],
     Row.Name);
-  SortValueList(ScriptValues);
-  for var ScriptValue in ScriptValues do
-    Values.Add(ScriptValue);
+  for var Value in SortedValues do
+    Values.Add(Value);
 end;
 
 function TInspector.GetDividerWidth: Integer;

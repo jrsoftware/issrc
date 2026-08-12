@@ -1010,7 +1010,9 @@ function CollectParameterValuesFromFactories(
   const AFactories: array of TLiveScriptObjectFactory;
   const AParameterName: String): TArray<String>;
 { Collects the distinct values which are valid for the AParameterName parameter
-  from the given factories' script. nil and duplicate factories are skipped. }
+  from the given factories' script. nil and duplicate factories are skipped.
+  Sorts using same sort as autocompletion and Scintilla, so using CompareText.
+  Also see TInnoSetupStyler.BuildWordList. }
 
   function FactoryAlreadyProcessed(const AIndex: NativeInt): Boolean;
   begin
@@ -1027,10 +1029,12 @@ begin
   try
     Values := TStringList.Create;
     Values.CaseSensitive := False;
+    Values.UseLocale := False; { Make sure it uses CompareText and not AnsiCompareText }
     Values.Duplicates := dupIgnore;
     Values.Sorted := True;
     DefinedNames := TStringList.Create;
     DefinedNames.CaseSensitive := False;
+    DefinedNames.UseLocale := False; { See above }
     DefinedNames.Duplicates := dupIgnore;
     DefinedNames.Sorted := True;
     for var I := 0 to High(AFactories) do begin
