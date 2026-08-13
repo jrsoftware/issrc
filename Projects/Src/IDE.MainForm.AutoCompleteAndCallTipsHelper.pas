@@ -350,6 +350,103 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := True;
   end;
 
+  function ChooseCodeWordList(const AMemo: TScintEdit; const Key: AnsiChar;
+    const LinePos, WordStartPos: Integer; out WordList: AnsiString): Boolean;
+  begin
+    Result := False;
+
+    { Space can only initiate autocompletion after non whitespace }
+    if (Key = ' ') and OnlyWhiteSpaceBeforeWord(AMemo, LinePos, WordStartPos) then
+      Exit;
+
+    { Also see below (ISPP 2*) }
+    const PositionBeforeWordStartPos = AMemo.GetPositionBefore(WordStartPos);
+    if Key <> #0 then begin
+      AMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
+      if not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo, LinePos, PositionBeforeWordStartPos, False) then
+        Exit;
+    end;
+
+    WordList := '';
+
+    { Autocomplete event functions if the current word on the line has
+      exactly 1 space before it which has the word 'function' or
+      'procedure' before it which has only whitespace before it }
+    if (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) <= ' ') then begin
+      const FunctionWordEndPos = PositionBeforeWordStartPos;
+      const FunctionWordStartPos = AMemo.GetWordStartPosition(FunctionWordEndPos, True);
+      if OnlyWhiteSpaceBeforeWord(AMemo, LinePos, FunctionWordStartPos) then begin
+        const FunctionWord = AMemo.GetTextRange(FunctionWordStartPos, FunctionWordEndPos);
+        if SameText(FunctionWord, 'procedure') then
+          WordList := FMemosStyler.EventFunctionsWordList[True]
+        else if SameText(FunctionWord, 'function') then
+          WordList := FMemosStyler.EventFunctionsWordList[False];
+        if WordList <> '' then
+          AMemo.SetAutoCompleteFillupChars('');
+      end;
+    end;
+
+    { If no event function was found then autocomplete script functions,
+      types, etc if the current word has no dot before it }
+    if WordList = '' then begin
+      const ClassOrRecordMember = (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
+      WordList := FMemosStyler.ScriptWordList[ClassOrRecordMember];
+      AMemo.SetAutoCompleteFillupChars('');
+    end;
+
+    if WordList = '' then
+      Exit;
+    Result := True;
+  end;
+
+  function ChooseWordList(const AMemo: TScintEdit; const Res: TLineScanResult;
+    const Section: TInnoSetupSection; const IsParamSection: Boolean;
+    out WordList: AnsiString): Boolean;
+  begin
+    Result := False;
+    if Res.FoundSetupDirectiveName <> '' then begin
+      WordList := '';
+      const V = GetEnumValue(TypeInfo(TSetupSectionDirective), SetupSectionDirectivePrefix + Res.FoundSetupDirectiveName);
+      if V <> -1 then begin
+        const Directive = TSetupSectionDirective(V);
+        if not Res.FoundMultipleSetupDirectiveValues or
+          FMemosStyler.SetupSectionDirectiveValueIsMultiValue[Directive] then begin
+          if Directive = ssSignTool then
+            WordList := FMemosStyler.BuildWordList(GetAutoCompleteSignToolValues)
+          else
+            WordList := FMemosStyler.SetupSectionDirectiveValueWordList[Directive];
+        end;
+      end;
+      if WordList = '' then
+        Exit;
+      AMemo.SetAutoCompleteFillupChars(' ');
+    end else if Res.FoundFlagsOrType then begin
+      WordList := FMemosStyler.FlagsWordList[Section];
+      if WordList = '' then { Should never be True, since LineScan already checked }
+        Exit;
+      AMemo.SetAutoCompleteFillupChars(' ');
+    end else if Res.FoundPermissionsParameter then begin
+      WordList := FMemosStyler.PermissionsWordList[Section];
+      FAutoCompleteExtraContinueChars := ['-'];
+      AMemo.SetAutoCompleteFillupChars(' ');
+    end else if Res.FoundScriptValuesParameterName <> '' then begin
+      WordList := FMemosStyler.BuildWordList(
+        GetAutoCompleteScriptValues(Res.FoundScriptValuesParameterName));
+      if WordList = '' then
+        Exit;
+      AMemo.SetAutoCompleteFillupChars(' ');
+    end else begin
+      WordList := FMemosStyler.KeywordsWordList[Section];
+      if WordList = '' then { CustomMessages }
+        Exit;
+      if IsParamSection then
+        AMemo.SetAutoCompleteFillupChars(':')
+      else
+        AMemo.SetAutoCompleteFillupChars('=');
+    end;
+    Result := True;
+  end;
+
 begin
   if AMemo.AutoCompleteActive or AMemo.ReadOnly then
     Exit;
@@ -394,7 +491,7 @@ begin
       if TInnoSetupStyler.IsISPPIdentChar(AMemo.GetByteAtPosition(CaretPos)) then
         Exit;
 
-      { Also see below (scCode) }
+      { Also see above (ChooseCodeWordList) }
       const PositionBeforeWordStartPos = AMemo.GetPositionBefore(WordStartPos);
       AMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
       if not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo, LinePos, PositionBeforeWordStartPos, True) then
@@ -414,7 +511,7 @@ begin
       if WordEndPos > CaretPos then
         Exit;
 
-      { Also see below (scCode) }
+      { Also see above (ChooseCodeWordList) }
       const PositionBeforeWordStartPos = AMemo.GetPositionBefore(WordStartPos);
       AMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
       if not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo, LinePos, PositionBeforeWordStartPos, True) then
@@ -461,46 +558,7 @@ begin
           if Section in [scUnknown, scThirdParty] then
             Exit
           else if Section = scCode then begin
-            { Space can only initiate autocompletion after non whitespace }
-            if (Key = ' ') and OnlyWhiteSpaceBeforeWord(AMemo, LinePos, WordStartPos) then
-              Exit;
-
-            { Also see above (ISPP 2*) }
-            const PositionBeforeWordStartPos = AMemo.GetPositionBefore(WordStartPos);
-            if Key <> #0 then begin
-              AMemo.StyleNeeded(PositionBeforeWordStartPos); { Make sure the typed character has been styled }
-              if not _InitiateAutoCompleteOrCallTipAllowedAtPos(AMemo, LinePos, PositionBeforeWordStartPos, False) then
-                Exit;
-            end;
-
-            WordList := '';
-
-            { Autocomplete event functions if the current word on the line has
-              exactly 1 space before it which has the word 'function' or
-              'procedure' before it which has only whitespace before it }
-            if (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) <= ' ') then begin
-              const FunctionWordEndPos = PositionBeforeWordStartPos;
-              const FunctionWordStartPos = AMemo.GetWordStartPosition(FunctionWordEndPos, True);
-              if OnlyWhiteSpaceBeforeWord(AMemo, LinePos, FunctionWordStartPos) then begin
-                const FunctionWord = AMemo.GetTextRange(FunctionWordStartPos, FunctionWordEndPos);
-                if SameText(FunctionWord, 'procedure') then
-                  WordList := FMemosStyler.EventFunctionsWordList[True]
-                else if SameText(FunctionWord, 'function') then
-                  WordList := FMemosStyler.EventFunctionsWordList[False];
-                if WordList <> '' then
-                  AMemo.SetAutoCompleteFillupChars('');
-              end;
-            end;
-
-            { If no event function was found then autocomplete script functions,
-              types, etc if the current word has no dot before it }
-            if WordList = '' then begin
-              const ClassOrRecordMember = (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
-              WordList := FMemosStyler.ScriptWordList[ClassOrRecordMember];
-              AMemo.SetAutoCompleteFillupChars('');
-            end;
-
-            if WordList = '' then
+            if not ChooseCodeWordList(AMemo, Key, LinePos, WordStartPos, WordList) then
               Exit;
           end else begin
             const IsParamSection = Section in ParameterSections;
@@ -522,46 +580,8 @@ begin
                (Res.FoundSetupDirectiveName <> '')) then
               Exit;
 
-            if Res.FoundSetupDirectiveName <> '' then begin
-              WordList := '';
-              const V = GetEnumValue(TypeInfo(TSetupSectionDirective), SetupSectionDirectivePrefix + Res.FoundSetupDirectiveName);
-              if V <> -1 then begin
-                const Directive = TSetupSectionDirective(V);
-                if not Res.FoundMultipleSetupDirectiveValues or
-                  FMemosStyler.SetupSectionDirectiveValueIsMultiValue[Directive] then begin
-                  if Directive = ssSignTool then
-                    WordList := FMemosStyler.BuildWordList(GetAutoCompleteSignToolValues)
-                  else
-                    WordList := FMemosStyler.SetupSectionDirectiveValueWordList[Directive];
-                end;
-              end;
-              if WordList = '' then
-                Exit;
-              AMemo.SetAutoCompleteFillupChars(' ');
-            end else if Res.FoundFlagsOrType then begin
-              WordList := FMemosStyler.FlagsWordList[Section];
-              if WordList = '' then { Should never be True, since we already checked above }
-                Exit;
-              AMemo.SetAutoCompleteFillupChars(' ');
-            end else if Res.FoundPermissionsParameter then begin
-              WordList := FMemosStyler.PermissionsWordList[Section];
-              FAutoCompleteExtraContinueChars := ['-'];
-              AMemo.SetAutoCompleteFillupChars(' ');
-            end else if Res.FoundScriptValuesParameterName <> '' then begin
-              WordList := FMemosStyler.BuildWordList(
-                GetAutoCompleteScriptValues(Res.FoundScriptValuesParameterName));
-              if WordList = '' then
-                Exit;
-              AMemo.SetAutoCompleteFillupChars(' ');
-            end else begin
-              WordList := FMemosStyler.KeywordsWordList[Section];
-              if WordList = '' then { CustomMessages }
-                Exit;
-              if IsParamSection then
-                AMemo.SetAutoCompleteFillupChars(':')
-              else
-                AMemo.SetAutoCompleteFillupChars('=');
-            end;
+            if not ChooseWordList(AMemo, Res, Section, IsParamSection, WordList) then
+              Exit;
           end;
         end;
     end;
