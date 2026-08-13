@@ -95,7 +95,7 @@ type
     procedure BuildConstantsWordList;
     procedure BuildEventFunctionsWordList;
     procedure BuildFlagsWordList(const Section: TInnoSetupSection;
-     const Flags: array of TScintRawString);
+     const Flags: array of AnsiString);
     procedure BuildISPPDirectivesWordList;
     procedure BuildISPPPragmaWordList;
     procedure BuildISPPExpressionWordList;
@@ -149,7 +149,7 @@ type
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean; static;
     class function LineSectionHeader(const LineState: TScintLineState; out Section: TInnoSetupSection): Boolean; static;
     class function LineSpans(const S: TScintRawString): Boolean; static;
-    function BuildWordList(const Values: array of TScintRawString): AnsiString; overload;
+    function BuildWordList(const Values: array of AnsiString): AnsiString; overload;
     function BuildWordList(const WordStringList: TStringList): AnsiString; overload;
     function GetISPPFunctionDefinition(const Name: String;
       const Index: Integer; out Count: Integer): TFunctionDefinition;
@@ -282,10 +282,10 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
           not Metadata.TryGetMember('Type', Member)) or
          not (Member.ValueKind in [mvkFlags, mvkChoice]) then
         Continue;
-      var Flags: TArray<TScintRawString>;
+      var Flags: TArray<AnsiString>;
       SetLength(Flags, Length(Member.KnownValues));
       for var I := 0 to High(Member.KnownValues) do
-        Flags[I] := TScintRawString(Member.KnownValues[I]);
+        Flags[I] := AnsiString(Member.KnownValues[I]);
       BuildFlagsWordList(Item.Section, Flags);
     end;
   end;
@@ -300,10 +300,10 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       if not Metadata.TryGetMember('Permissions', Member) or
          (Member.ValueKind <> mvkPermissions) then
         Continue;
-      var Values: TArray<TScintRawString>;
+      var Values: TArray<AnsiString>;
       SetLength(Values, Length(Member.KnownValues));
       for var I := 0 to High(Member.KnownValues) do
-        Values[I] := TScintRawString(Member.KnownValues[I]);
+        Values[I] := AnsiString(Member.KnownValues[I]);
       FPermissionsWordList[Item.Section] := BuildWordList(Values);
     end;
   end;
@@ -381,10 +381,10 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     for var Directive := Low(TSetupSectionDirective) to High(TSetupSectionDirective) do begin
       const KnownValues = Metadata.Members[Ord(Directive)].KnownValues;
       if KnownValues <> nil then begin
-        var Values: TArray<TScintRawString>;
+        var Values: TArray<AnsiString>;
         SetLength(Values, Length(KnownValues));
         for var I := 0 to High(KnownValues) do
-          Values[I] := TScintRawString(KnownValues[I]);
+          Values[I] := AnsiString(KnownValues[I]);
         FSetupSectionDirectiveValueWordList[Directive] := BuildWordList(Values);
       end;
     end;
@@ -463,7 +463,7 @@ begin
   ApplyStyleByteIndicators([inSquiggly], StartIndex, CurIndex - 1);
 end;
 
-function TInnoSetupStyler.BuildWordList(const Values: array of TScintRawString): AnsiString;
+function TInnoSetupStyler.BuildWordList(const Values: array of AnsiString): AnsiString;
 begin
   const SL = TStringList.Create;
   try
@@ -541,7 +541,7 @@ begin
 end;
 
 procedure TInnoSetupStyler.BuildFlagsWordList(const Section: TInnoSetupSection;
-  const Flags: array of TScintRawString);
+  const Flags: array of AnsiString);
 begin
   const SL1 = FFlagsWords[Section];
   const SL2 = TStringList.Create;

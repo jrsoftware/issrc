@@ -80,7 +80,7 @@ var
   ISPPDirectives: array of TISPPDirective; { Initialized below. Note this list is *not* only used to build a word list, but also in HandleCompilerDirective. }
 
 const
-  ISPPPragmaSubDirectives: array of TScintRawString = [
+  ISPPPragmaSubDirectives: array of AnsiString = [
     'error', 'include', 'inlineend', 'inlinestart', 'message',
     'option', 'parseroption', 'spansymbol', 'verboselevel', 'warning'
   ];
@@ -447,13 +447,13 @@ const
     scINI, scInstallDelete, scLanguages, scRegistry, scRun, scTasks, scTypes,
     scUninstallDelete, scUninstallRun];
 
-  BooleanExpressionOperatorValues: TArray<TScintRawString> = [
+  BooleanExpressionOperatorValues: TArray<AnsiString> = [
     'not', 'and', 'or'];
 
 type
   TSetupSectionDirectiveValue = record
     Directive: TSetupSectionDirective;
-    Values: TArray<TScintRawString>;
+    Values: TArray<AnsiString>;
   end;
 
 var
@@ -504,7 +504,7 @@ begin
   Result.OpenCountChange := OpenCountChange;
 end;
 
-function SSDV(const Directive: TSetupSectionDirective; const Values: TArray<TScintRawString>): TSetupSectionDirectiveValue;
+function SSDV(const Directive: TSetupSectionDirective; const Values: TArray<AnsiString>): TSetupSectionDirectiveValue;
 begin
   Result.Directive := Directive;
   Result.Values := Values;
@@ -892,7 +892,7 @@ initialization
   PascalRealEnumValues[5] := TypeInfo(TDotNetVersion);
   { TPathRedirTargetProcess: see PascalEnumValues }
 
-  const ArchitecturesExpressionValues: TArray<TScintRawString> = [
+  const ArchitecturesExpressionValues: TArray<AnsiString> = [
     'arm32compatible', 'arm64', 'win64',
     'x64', 'x64os', 'x64compatible',
     'x86', 'x86os', 'x86compatible'];

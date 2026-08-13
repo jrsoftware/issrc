@@ -221,21 +221,21 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := True;
   end;
 
-  function GetAutoCompleteSignToolValues: TArray<TScintRawString>;
+  function GetAutoCompleteSignToolValues: TArray<AnsiString>;
   begin
     SetLength(Result, FSignTools.Count);
     var Count := 0;
     for var I := 0 to FSignTools.Count-1 do begin
       const Name = FSignTools.Names[I];
       if CanAutoCompleteValue(Name) then begin
-        Result[Count] := TScintRawString(Name);
+        Result[Count] := AnsiString(Name);
         Inc(Count);
       end;
     end;
     SetLength(Result, Count);
   end;
 
-  function GetAutoCompleteScriptValues(const ParameterName: String): TArray<TScintRawString>;
+  function GetAutoCompleteScriptValues(const ParameterName: String): TArray<AnsiString>;
   begin
     const Values = CollectParameterValuesFromFactories(
       [LiveScriptObjectFactoryForMemo(AMemo), LiveScriptObjectFactoryForMainMemo],
@@ -244,7 +244,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     var Count := 0;
     for var Value in Values do begin
       if CanAutoCompleteValue(Value) then begin
-        Result[Count] := TScintRawString(Value);
+        Result[Count] := AnsiString(Value);
         Inc(Count);
       end;
     end;
