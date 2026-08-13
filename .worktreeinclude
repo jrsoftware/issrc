@@ -1,0 +1,12 @@
+compilesettings.bat
+buildsettings.bat
+ISHelp/compilesettings.bat
+Projects/Src/Compression.LZMA1SmallDecompressor/LzmaDecode/compilesettings.bat
+Projects/Src/Compression.LZMACompressor/islzma/compilesettings.bat
+Projects/Src/Compression.LZMADecompressor/Lzma2Decode/compilesettings.bat
+Projects/Src/Compression.SevenZipDecoder/7zDecode/compilesettings.bat
+Files/ISSigTool.exe
+Projects/Bin/isscint*.dll
+Projects/Bin/isscint*.dll.issig
+Projects/Bin/islzma*.dll
+Projects/Bin/islzma*.dll.issig
