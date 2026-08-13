@@ -755,6 +755,8 @@ var
   CommandLineFilename, CommandLineWizardName: String;
   CommandLineCompile: Boolean;
   CommandLineWizard: Boolean;
+  CommandLineLanguage: TIDELanguage;
+  CommandLineLanguageSet: Boolean;
 
 implementation
 
@@ -1030,7 +1032,7 @@ constructor TMainForm.Create(AOwner: TComponent);
         LFmtMessage(SUpdatePanelVSCodeShortcutsAdded, ['toptions-vscode']), BannerBlue, True);
       CheckUpdatePanelMessage(Ini, 'RichEditor', 0, 1,
         LFmtMessage(SUpdatePanelRichEditorAdded, ['tricheditor']), BannerBlue, True);
-      if FOptions.Language = ilEnglish then begin
+      if (FOptions.Language = ilEnglish) and not CommandLineLanguageSet then begin
         var MessageLanguage := ilEnglish;
         case PRIMARYLANGID(GetUILanguage) of
           LANG_CZECH: MessageLanguage := ilCzech;
@@ -1110,7 +1112,10 @@ constructor TMainForm.Create(AOwner: TComponent);
     finally
       Ini.Free
     end;
-    InitLocalization(FOptions.Language);
+    if CommandLineLanguageSet then
+      InitLocalization(CommandLineLanguage)
+    else
+      InitLocalization(FOptions.Language);
   end;
 
   procedure ReadAndApplyTheme;
@@ -4497,9 +4502,12 @@ begin
          when retranslating the translation back into to English.
         -It does not update the UpdatePanel message text.
         -It does not update the exit code shown in the status bar (spExtraStatus).
-        -It does not resort the Inspector's [Setup] category headers. }
-      if SaveLanguage <> ilEnglish then begin
-        InitLocalization(SaveLanguage, True);
+        -It does not resort the Inspector's [Setup] category headers.
+        Note: ActiveLanguage differs from SaveLanguage if the --language
+        command-line parameter was used. }
+      const ActiveLanguage = GetActiveLanguage;
+      if ActiveLanguage <> ilEnglish then begin
+        InitLocalization(ActiveLanguage, True);
         LocalizeComponent(Self);
       end;
       InitLocalization(FOptions.Language);

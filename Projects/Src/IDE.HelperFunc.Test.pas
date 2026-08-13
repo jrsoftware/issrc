@@ -143,6 +143,25 @@ begin
   Assert(GetSetupDirectiveDefaultValue('NoSuchDirective') = '');
 end;
 
+procedure TestTryStrToLanguage;
+begin
+  var Language: TIDELanguage;
+
+  { Every name maps back to its own language }
+  for var ExpectedLanguage := Low(TIDELanguage) to High(TIDELanguage) do begin
+    Assert(TryStrToLanguage(IDELanguageNames[ExpectedLanguage], Language));
+    Assert(Language = ExpectedLanguage);
+  end;
+
+  { Case-insensitive }
+  Assert(TryStrToLanguage('DuTcH', Language));
+  Assert(Language = ilDutch);
+
+  { Unknown names and an empty name are rejected }
+  Assert(not TryStrToLanguage('klingon', Language));
+  Assert(not TryStrToLanguage('', Language));
+end;
+
 procedure IDEHelperFuncRunTests;
 begin
   TestStringHelpers;
@@ -152,6 +171,7 @@ begin
   TestShortCutHelpers;
   TestSetLowPriority;
   TestGetSetupDirectiveDefaultValue;
+  TestTryStrToLanguage;
 end;
 
 {$IFDEF DEBUG}

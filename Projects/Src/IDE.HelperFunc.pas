@@ -22,6 +22,11 @@ type
   TAddLinesPrefix = (alpNone, alpTimestamp, alpCountdown);
   TKeyMappingType = (kmtDelphi, kmtVisualStudio);
 
+const
+  { Names of the languages as accepted by the command line, not localized }
+  IDELanguageNames: array [TIDELanguage] of String =
+    ('english', 'czech', 'dutch', 'german', 'japanese');
+
 procedure InitFormFont(Form: TForm);
 procedure SetControlWindowTheme(const WinControl: TWinControl; const Dark: Boolean);
 procedure InitFormThemeInit(const Theme: TTheme);
@@ -42,6 +47,7 @@ function IsWindows10: Boolean;
 function IsWindows11: Boolean;
 function GetDefaultThemeType: TThemeType;
 function GetDefaultLanguage: TIDELanguage;
+function TryStrToLanguage(const S: String; out Language: TIDELanguage): Boolean;
 function GetDefaultKeyMappingType: TKeyMappingType;
 function GetDefaultMemoKeyMappingType: TIDEScintKeyMappingType;
 procedure LaunchFileOrURL(const AFilename: String; const AParameters: String = '');
@@ -290,6 +296,17 @@ end;
 function GetDefaultLanguage: TIDELanguage;
 begin
   Result := ilEnglish;
+end;
+
+function TryStrToLanguage(const S: String; out Language: TIDELanguage): Boolean;
+begin
+  for var CandidateLanguage := Low(TIDELanguage) to High(TIDELanguage) do begin
+    if SameText(S, IDELanguageNames[CandidateLanguage]) then begin
+      Language := CandidateLanguage;
+      Exit(True);
+    end;
+  end;
+  Result := False;
 end;
 
 function GetDefaultKeyMappingType: TKeyMappingType;

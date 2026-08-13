@@ -4119,6 +4119,22 @@ iside --new-script-wizard <i>&lt;wizard name&gt; &lt;script name&gt;</i></precod
 <p>Running the wizard from the command line does not suppress any error messages. The Setup Script Wizard will return an exit code of 0 if there was no error and additionally it will save the generated script file to the specified filename, 1 if the command-line parameters were invalid, or 2 if the generated script file could not be saved. If the user cancelled the Setup Script Wizard, an exit code of 0 is returned and no script file is saved.</p>
 </li>
 
+<li>
+<p>The language the Compiler IDE displays can also be selected from the command line. Command-line usage is as follows:</p>
+
+<precode>iside -lang <i>&lt;language&gt;</i>
+iside --language <i>&lt;language&gt;</i></precode>
+<indent>
+<example><pre>iside -lang english "c:\isetup\samples\my script.iss"</pre></example>
+</indent>
+
+<p>The supported languages are <tt>english</tt>, <tt>czech</tt>, <tt>dutch</tt>, <tt>german</tt>, and <tt>japanese</tt>. The language name is case-insensitive.</p>
+
+<p>This option can be combined with the options above. It overrides the <i>Language</i> option. Not remembered for next session.</p>
+
+<p>Short options accept both <tt>-</tt> and <tt>/</tt> as a prefix and are case-insensitive. Long <tt>--</tt> options are case-sensitive and do not accept <tt>//</tt> as a prefix.</p>
+</li>
+
 </ul>
 
 </body>

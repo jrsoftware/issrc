@@ -23,6 +23,8 @@ type
 
 procedure InitLocalization(const Lang: TIDELanguage; const Reverse: Boolean = False);
 
+function GetActiveLanguage: TIDELanguage;
+
 function LFmtMessage(const Str: String; const AllowEmpty: Boolean = False): String; overload;
 function LFmtMessage(const Str: String; const Args: array of const;
   const AllowEmpty: Boolean = False): String; overload;
@@ -94,6 +96,11 @@ begin
   else
     TranslationLanguage := Lang;
   InstallResourceStringHook;
+end;
+
+function GetActiveLanguage: TIDELanguage;
+begin
+  Result := TranslationLanguage;
 end;
 
 function FmtIDEMessage(S: PChar; const Args: array of const): String;

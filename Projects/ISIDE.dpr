@@ -169,6 +169,9 @@ begin
         CommandLine := '-cc ' + CommandLine;
     end;
 
+    if CommandLineLanguageSet then
+      CommandLine := TrimRight('-lang ' + IDELanguageNames[CommandLineLanguage] + ' ' + CommandLine);
+
     if Length(CommandLine) > RESTART_MAX_CMD_LINE then
       CommandLine := '';
 
@@ -196,13 +199,25 @@ var
 
 procedure CheckParams;
 
+  function LanguageNames: String;
+  begin
+    Result := '';
+    for var Language := Low(TIDELanguage) to High(TIDELanguage) do begin
+      if Result <> '' then
+        Result := Result + '|';
+      Result := Result + IDELanguageNames[Language];
+    end;
+  end;
+
   procedure Error;
   begin
     const CommandLineHelp = '%s' + SNewLine2 +
       'iside -cc <%s>' + SNewLine +
       'iside --compile <%1:s>' + SNewLine +
       'iside -wizard <%s> <%1:s>' + SNewLine +
-      'iside --new-script-wizard <%2:s> <%1:s>' + SNewLine2 +
+      'iside --new-script-wizard <%2:s> <%1:s>' + SNewLine +
+      'iside -lang <' + LanguageNames + '>' + SNewLine +
+      'iside --language <' + LanguageNames + '>' + SNewLine2 +
       '%3:s' + SNewLine +
       'iside -cc "C:\Inno Setup\Sample32\%s.iss"' + SNewLine +
       'iside -wizard "%s" c:\temp.iss';
@@ -238,6 +253,14 @@ begin
         Error;
       CommandLineWizard := True;
       CommandLineWizardName := NewParamStr(I+1);
+      Inc(I);
+    end
+    else if IsParam(S, 'lang', 'language') then begin
+      if I = P then
+        Error;
+      if not TryStrToLanguage(NewParamStr(I+1), CommandLineLanguage) then
+        Error;
+      CommandLineLanguageSet := True;
       Inc(I);
     end
     else if IsParam(S, 'assoc', 'associate') then begin
