@@ -253,6 +253,103 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       Result := Result + BooleanExpressionOperatorValues;
   end;
 
+  type
+    TLineScanResult = record
+      FoundSemicolon: Boolean;
+      FoundFlagsOrType: Boolean;
+      FoundNonFlagWord: Boolean;
+      FoundPermissionsParameter: Boolean;
+      FoundScriptValuesParameterName: String;
+      FoundSetupDirectiveName: String;
+      FoundMultipleSetupDirectiveValues: Boolean;
+    end;
+
+  function LineScan(const AMemo: TScintEdit; const LinePos, WordStartPos: Integer;
+    const Section: TInnoSetupSection; const IsParamSection: Boolean;
+    out Res: TLineScanResult): Boolean;
+  begin
+    Result := False;
+    Res := Default(TLineScanResult);
+    var I := WordStartPos;
+    while I > LinePos do begin
+      I := AMemo.GetPositionBefore(I);
+      if I < LinePos then
+        Exit;  { shouldn't get here }
+      const C = AMemo.GetByteAtPosition(I);
+
+      { Note: The first time we get here C equals the character before the current word,
+        like a space before the current flag }
+
+      if IsParamSection and (C in [';', ':']) and
+        TInnoSetupStyler.IsSymbolStyle(AMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string or comment }
+        Res.FoundSemicolon := C = ';';
+        if not Res.FoundSemicolon then begin
+          const ParameterWordEndPos = I;
+          const ParameterWordStartPos = AMemo.GetWordStartPosition(ParameterWordEndPos, True);
+          const ParameterWord = AMemo.GetTextRange(ParameterWordStartPos, ParameterWordEndPos);
+          Res.FoundFlagsOrType := SameText(ParameterWord, 'Flags') or
+                                  ((Section in [scInstallDelete, scUninstallDelete]) and SameText(ParameterWord, 'Type'));
+          if not Res.FoundFlagsOrType then begin
+            if GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone then
+              Res.FoundScriptValuesParameterName := ParameterWord
+            else
+              Res.FoundPermissionsParameter := SameText(ParameterWord, 'Permissions') and
+                (FMemosStyler.PermissionsWordList[Section] <> '');
+          end;
+        end else
+          Res.FoundFlagsOrType := False;
+        if Res.FoundSemicolon or Res.FoundFlagsOrType or
+           (Res.FoundScriptValuesParameterName <> '') or
+           Res.FoundPermissionsParameter then
+          Break;
+      end;
+
+      if ((Section = scLangOptions) and (C = '.')) or ((Section = scSetup) and (C = '=')) then begin
+        { Verify that a word (language or directive name) precedes the '.' or '=', then check for
+          any non-whitespace characters before the word. Among other things, this ensures
+          we're not inside a comment. }
+        const NameStartPos = AMemo.GetWordStartPosition(I, True);
+        if (NameStartPos >= I) or not OnlyWhiteSpaceBeforeWord(AMemo, LinePos, NameStartPos) then
+          Exit;
+        if Section = scSetup then begin
+          const NameEndPos = AMemo.GetWordEndPosition(NameStartPos, True);
+          Res.FoundSetupDirectiveName := AMemo.GetTextRange(NameStartPos, NameEndPos);
+        end;
+        Break;
+      end else if C > ' ' then begin
+        if IsParamSection then begin
+          { Verify word before the current word (or before that when we get here again) is
+            a valid flag and if not, remember this, but either way continue looking before
+            it instead of stopping }
+          const PrecedingEndPos = AMemo.GetWordEndPosition(I, True);
+          const PrecedingStartPos = AMemo.GetWordStartPosition(I, True);
+          const PrecedingWord = AMemo.GetTextRange(PrecedingStartPos, PrecedingEndPos);
+          { Note: FlagsWordList of [InstallDelete] and [UninstallDelete] holds the
+            values of the Type parameter instead of flags }
+          const CanBeFlag = not (Section in [scInstallDelete, scUninstallDelete]) and
+            (FMemosStyler.FlagsWordList[Section] <> '');
+          if not (CanBeFlag and (FMemosStyler.SectionHasFlag(Section, PrecedingWord) or
+             PrecedingWord.StartsWith('{#'))) then
+            Res.FoundNonFlagWord := True;
+          I := PrecedingStartPos;
+        end else if Section = scSetup then begin
+          { Continue looking for '='. We don't do a verification like it does for
+            flags above because we don't know the directive name yet. In fact, we
+            don't even know whether we are before or after the '='. As a workaround
+            we check for the expected style before '=', which is stKeyword or stComment,
+            and only continue if we don't find that. }
+          if not TInnoSetupStyler.IsCommentOrKeywordStyle(AMemo.GetStyleAtPosition(I)) then begin
+            Res.FoundMultipleSetupDirectiveValues := True;
+            I := AMemo.GetWordStartPosition(I, True);
+          end else
+            Exit;
+        end else
+          Exit; { Non-whitespace which should not be there }
+      end;
+    end;
+    Result := True;
+  end;
+
 begin
   if AMemo.AutoCompleteActive or AMemo.ReadOnly then
     Exit;
@@ -408,108 +505,29 @@ begin
           end else begin
             const IsParamSection = Section in ParameterSections;
 
-            var FoundSemicolon := False;
-            var FoundFlagsOrType := False;
-            var FoundNonFlagWord := False;
-            var FoundPermissionsParameter := False;
-            var FoundScriptValuesParameterName := '';
-            var FoundSetupDirectiveName := '';
-            var FoundMultipleSetupDirectiveValues := False;
-            var I := WordStartPos;
-            while I > LinePos do begin
-              I := AMemo.GetPositionBefore(I);
-              if I < LinePos then
-                Exit;  { shouldn't get here }
-              const C = AMemo.GetByteAtPosition(I);
+            var Res: TLineScanResult;
+            if not LineScan(AMemo, LinePos, WordStartPos, Section, IsParamSection, Res) then
+              Exit;
 
-              { Note: The first time we get here C equals the character before the current word,
-                like a space before the current flag }
-
-              if IsParamSection and (C in [';', ':']) and
-                TInnoSetupStyler.IsSymbolStyle(AMemo.GetStyleAtPosition(I)) then begin { Make sure it's an stSymbol ';' or ':' and not one inside a quoted string or comment }
-                FoundSemicolon := C = ';';
-                if not FoundSemicolon then begin
-                  const ParameterWordEndPos = I;
-                  const ParameterWordStartPos = AMemo.GetWordStartPosition(ParameterWordEndPos, True);
-                  const ParameterWord = AMemo.GetTextRange(ParameterWordStartPos, ParameterWordEndPos);
-                  FoundFlagsOrType := SameText(ParameterWord, 'Flags') or
-                                      ((Section in [scInstallDelete, scUninstallDelete]) and SameText(ParameterWord, 'Type'));
-                  if not FoundFlagsOrType then begin
-                    if GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone then
-                      FoundScriptValuesParameterName := ParameterWord
-                    else
-                      FoundPermissionsParameter := SameText(ParameterWord, 'Permissions') and
-                        (FMemosStyler.PermissionsWordList[Section] <> '');
-                  end;
-                end else
-                  FoundFlagsOrType := False;
-                if FoundSemicolon or FoundFlagsOrType or (FoundScriptValuesParameterName <> '') or
-                   FoundPermissionsParameter then
-                  Break;
-              end;
-
-              if ((Section = scLangOptions) and (C = '.')) or ((Section = scSetup) and (C = '=')) then begin
-                { Verify that a word (language or directive name) precedes the '.' or '=', then check for
-                  any non-whitespace characters before the word. Among other things, this ensures
-                  we're not inside a comment. }
-                const NameStartPos = AMemo.GetWordStartPosition(I, True);
-                if (NameStartPos >= I) or not OnlyWhiteSpaceBeforeWord(AMemo, LinePos, NameStartPos) then
-                  Exit;
-                if Section = scSetup then begin
-                  const NameEndPos = AMemo.GetWordEndPosition(NameStartPos, True);
-                  FoundSetupDirectiveName := AMemo.GetTextRange(NameStartPos, NameEndPos);
-                end;
-                Break;
-              end else if C > ' ' then begin
-                if IsParamSection then begin
-                  { Verify word before the current word (or before that when we get here again) is
-                    a valid flag and if not, remember this, but either way continue looking before
-                    it instead of stopping }
-                  const PrecedingEndPos = AMemo.GetWordEndPosition(I, True);
-                  const PrecedingStartPos = AMemo.GetWordStartPosition(I, True);
-                  const PrecedingWord = AMemo.GetTextRange(PrecedingStartPos, PrecedingEndPos);
-                  { Note: FlagsWordList of [InstallDelete] and [UninstallDelete] holds the
-                    values of the Type parameter instead of flags }
-                  const CanBeFlag = not (Section in [scInstallDelete, scUninstallDelete]) and
-                    (FMemosStyler.FlagsWordList[Section] <> '');
-                  if not (CanBeFlag and (FMemosStyler.SectionHasFlag(Section, PrecedingWord) or
-                     PrecedingWord.StartsWith('{#'))) then
-                    FoundNonFlagWord := True;
-                  I := PrecedingStartPos;
-                end else if Section = scSetup then begin
-                  { Continue looking for '='. We don't do a verification like it does for
-                    flags above because we don't know the directive name yet. In fact, we
-                    don't even know whether we are before or after the '='. As a workaround
-                    we check for the expected style before '=', which is stKeyword or stComment,
-                    and only continue if we don't find that. }
-                  if not TInnoSetupStyler.IsCommentOrKeywordStyle(AMemo.GetStyleAtPosition(I)) then begin
-                    FoundMultipleSetupDirectiveValues := True;
-                    I := AMemo.GetWordStartPosition(I, True);
-                  end else
-                    Exit;
-                end else
-                  Exit; { Non-whitespace which should not be there }
-              end;
-            end;
             { A word before the current word which is not a flag is only allowed for
               script values parameters and permissions parameters, which accept
               multiple values }
-            if FoundNonFlagWord and (FoundScriptValuesParameterName = '') and
-               not FoundPermissionsParameter then
+            if Res.FoundNonFlagWord and (Res.FoundScriptValuesParameterName = '') and
+               not Res.FoundPermissionsParameter then
               Exit;
             { Space can only initiate autocompletion after ';' or 'Flags:' or 'Type:' or a
               script values parameter or 'Permissions:' or a [Setup] directive }
-            if (Key = ' ') and not (FoundSemicolon or FoundFlagsOrType or
-               (FoundScriptValuesParameterName <> '') or FoundPermissionsParameter or
-               (FoundSetupDirectiveName <> '')) then
+            if (Key = ' ') and not (Res.FoundSemicolon or Res.FoundFlagsOrType or
+               (Res.FoundScriptValuesParameterName <> '') or Res.FoundPermissionsParameter or
+               (Res.FoundSetupDirectiveName <> '')) then
               Exit;
 
-            if FoundSetupDirectiveName <> '' then begin
+            if Res.FoundSetupDirectiveName <> '' then begin
               WordList := '';
-              const V = GetEnumValue(TypeInfo(TSetupSectionDirective), SetupSectionDirectivePrefix + FoundSetupDirectiveName);
+              const V = GetEnumValue(TypeInfo(TSetupSectionDirective), SetupSectionDirectivePrefix + Res.FoundSetupDirectiveName);
               if V <> -1 then begin
                 const Directive = TSetupSectionDirective(V);
-                if not FoundMultipleSetupDirectiveValues or
+                if not Res.FoundMultipleSetupDirectiveValues or
                   FMemosStyler.SetupSectionDirectiveValueIsMultiValue[Directive] then begin
                   if Directive = ssSignTool then
                     WordList := FMemosStyler.BuildWordList(GetAutoCompleteSignToolValues)
@@ -520,18 +538,18 @@ begin
               if WordList = '' then
                 Exit;
               AMemo.SetAutoCompleteFillupChars(' ');
-            end else if FoundFlagsOrType then begin
+            end else if Res.FoundFlagsOrType then begin
               WordList := FMemosStyler.FlagsWordList[Section];
               if WordList = '' then { Should never be True, since we already checked above }
                 Exit;
               AMemo.SetAutoCompleteFillupChars(' ');
-            end else if FoundPermissionsParameter then begin
+            end else if Res.FoundPermissionsParameter then begin
               WordList := FMemosStyler.PermissionsWordList[Section];
               FAutoCompleteExtraContinueChars := ['-'];
               AMemo.SetAutoCompleteFillupChars(' ');
-            end else if FoundScriptValuesParameterName <> '' then begin
+            end else if Res.FoundScriptValuesParameterName <> '' then begin
               WordList := FMemosStyler.BuildWordList(
-                GetAutoCompleteScriptValues(FoundScriptValuesParameterName));
+                GetAutoCompleteScriptValues(Res.FoundScriptValuesParameterName));
               if WordList = '' then
                 Exit;
               AMemo.SetAutoCompleteFillupChars(' ');
