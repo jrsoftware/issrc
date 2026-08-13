@@ -61,6 +61,21 @@ end;
 class function TMainFormAutoCompleteAndCallTipsHelper.IsInISPPLineContext(
   const AMemo: TScintEdit; const LinePos, ScanEndPos: Integer;
   out IsPragmaContext: Boolean): Boolean;
+
+  function SkipWhitespace(const Pos: Integer): Integer;
+  begin
+    Result := Pos;
+    while (Result < ScanEndPos) and (AMemo.GetByteAtPosition(Result) <= ' ') do
+      Result := AMemo.GetPositionAfter(Result);
+  end;
+
+  function SkipISPPIdentifier(const Pos: Integer): Integer;
+  begin
+    Result := Pos;
+    while (Result < ScanEndPos) and TInnoSetupStyler.IsISPPIdentChar(AMemo.GetByteAtPosition(Result)) do
+      Result := AMemo.GetPositionAfter(Result);
+  end;
+
 begin
   { Allow autocompletion if the text before ScanEndPos on the line is an
     ISPP directive context because it starts with for example "#define X ",
@@ -75,8 +90,7 @@ begin
   var Pos := LinePos;
 
   { Skip leading whitespace }
-  while (Pos < ScanEndPos) and (AMemo.GetByteAtPosition(Pos) <= ' ') do
-    Pos := AMemo.GetPositionAfter(Pos);
+  Pos := SkipWhitespace(Pos);
 
   { Require '#' as first non-whitespace character }
   if (Pos >= ScanEndPos) or (AMemo.GetByteAtPosition(Pos) <> '#') then
@@ -113,11 +127,9 @@ begin
         { #pragma does not support expressions, but only sub-directives like
           "message", so should check we aren't beyond that already }
         { Skip whitespace after "pragma" }
-        while (Pos < ScanEndPos) and (AMemo.GetByteAtPosition(Pos) <= ' ') do
-          Pos := AMemo.GetPositionAfter(Pos);
+        Pos := SkipWhitespace(Pos);
         { Skip the sub-directive word if any }
-        while (Pos < ScanEndPos) and TInnoSetupStyler.IsISPPIdentChar(AMemo.GetByteAtPosition(Pos)) do
-          Pos := AMemo.GetPositionAfter(Pos);
+        Pos := SkipISPPIdentifier(Pos);
         IsPragmaContext := Pos = ScanEndPos;
         Exit(IsPragmaContext);
       end;
@@ -138,14 +150,12 @@ begin
     Exit(True); { Return True }
 
   { Skip whitespace }
-  while (Pos < ScanEndPos) and (AMemo.GetByteAtPosition(Pos) <= ' ') do
-    Pos := AMemo.GetPositionAfter(Pos);
+  Pos := SkipWhitespace(Pos);
   if Pos >= ScanEndPos then
     Exit;
 
   { Skip the identifier (not using GetWordEndPosition because '[' is a word char) }
-  while (Pos < ScanEndPos) and TInnoSetupStyler.IsISPPIdentChar(AMemo.GetByteAtPosition(Pos)) do
-    Pos := AMemo.GetPositionAfter(Pos);
+  Pos := SkipISPPIdentifier(Pos);
   if Pos >= ScanEndPos then
     Exit;
 
