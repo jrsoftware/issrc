@@ -44,7 +44,8 @@ Under `ISHelp/ISHelpGen/`:
 - Append a project name, such as `compile.bat x64 ISCC`, to compile only that project.
 - Compiler path is configured in `compilesettings.bat`.
 - `build.bat` orchestrates full release builds.
-- If a release build binary under `Files\` reports "Signature file is not valid", run `issig.bat embed`, then rerun the relevant compile command, usually `compile.bat x64`, and retry the failed command. This recovery step is required even though it updates `Components\TrustFunc.AllowedPublicKeys.inc`.
+- In a fresh worktree, run `issig.bat embed` before the first compile. This updates the tracked files `Components\TrustFunc.AllowedPublicKeys.inc` and `def02.ispublickey`. Leave them in place.
+- If a release build binary under `Files\` reports "Signature file is not valid", run `issig.bat embed`, then rerun the relevant compile command, usually `compile.bat x64`, and retry the failed command.
 
 ## Code Conventions
 - `**/*.iss`: see `.claude/rules/iss.md`.
