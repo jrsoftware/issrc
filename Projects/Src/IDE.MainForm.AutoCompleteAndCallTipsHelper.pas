@@ -273,7 +273,7 @@ begin
   const LinePos = AMemo.GetPositionFromLine(Line);
 
   var CharsBefore: Integer;
-  var WordList: TScintRawString;
+  var WordList: AnsiString;
 
   var IsPragmaContext: Boolean;
   if FMemosStyler.ISPPInstalled and IsInISPPLineContext(AMemo, LinePos, CaretPos, IsPragmaContext) and not IsPragmaContext then begin
