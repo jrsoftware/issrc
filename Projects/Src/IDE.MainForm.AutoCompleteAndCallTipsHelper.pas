@@ -282,7 +282,8 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
   type
     TLineScanResult = record
       FoundSemicolon: Boolean;
-      FoundFlagsOrType: Boolean;
+      FoundWord: Boolean;
+      FoundNonInlineISPPDirectiveWord: Boolean;
       FoundNonFlagWord: Boolean;
       FoundMemberName: String;
       FoundMultipleSetupDirectiveValues: Boolean;
@@ -311,18 +312,13 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           const ParameterWordEndPos = I;
           const ParameterWordStartPos = AMemo.GetWordStartPosition(ParameterWordEndPos, True);
           const ParameterWord = AMemo.GetTextRange(ParameterWordStartPos, ParameterWordEndPos);
-          Res.FoundFlagsOrType := SameText(ParameterWord, 'Flags') or
-                                  ((Section in [scInstallDelete, scUninstallDelete]) and SameText(ParameterWord, 'Type'));
-          if not Res.FoundFlagsOrType then begin
-            if (GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone) or
-               (SameText(ParameterWord, 'Permissions') and
-                (FMemosStyler.PermissionsWordList[Section] <> '')) then
-              Res.FoundMemberName := ParameterWord;
-          end;
-        end else
-          Res.FoundFlagsOrType := False;
-        if Res.FoundSemicolon or Res.FoundFlagsOrType or
-           (Res.FoundMemberName <> '') then
+          if (SameText(ParameterWord, 'Flags') and (FMemosStyler.FlagsWordList[Section] <> '')) or
+             (SameText(ParameterWord, 'Type') and (FMemosStyler.TypeWordList[Section] <> '')) or
+             (GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone) or
+             (SameText(ParameterWord, 'Permissions') and (FMemosStyler.PermissionsWordList[Section] <> '')) then
+            Res.FoundMemberName := ParameterWord;
+        end;
+        if Res.FoundSemicolon or (Res.FoundMemberName <> '') then
           Break;
       end;
 
@@ -340,18 +336,19 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
         Break;
       end else if C > ' ' then begin
         if IsParamSection then begin
-          { Verify word before the current word (or before that when we get here again) is
-            a valid flag and if not, remember this, but either way continue looking before
-            it instead of stopping }
+          { Remember there's a word before the current word (or before that when we get
+            here again), and whether it's an inline ISPP directive or a valid flag,
+            but either way continue looking before it instead of stopping }
+          Res.FoundWord := True;
           const PrecedingEndPos = AMemo.GetWordEndPosition(I, True);
           const PrecedingStartPos = AMemo.GetWordStartPosition(I, True);
           const PrecedingWord = AMemo.GetTextRange(PrecedingStartPos, PrecedingEndPos);
-          { Note: FlagsWordList of [InstallDelete] and [UninstallDelete] holds the
-            values of the Type parameter instead of flags }
-          const CanBeFlag = not (Section in [scInstallDelete, scUninstallDelete]) and
-            (FMemosStyler.FlagsWordList[Section] <> '');
+          const PrecedingWordIsInlineISPPDirective = PrecedingWord.StartsWith('{#');
+          if not PrecedingWordIsInlineISPPDirective then
+            Res.FoundNonInlineISPPDirectiveWord := True;
+          const CanBeFlag = FMemosStyler.FlagsWordList[Section] <> '';
           if not (CanBeFlag and (FMemosStyler.SectionHasFlag(Section, PrecedingWord) or
-             PrecedingWord.StartsWith('{#'))) then
+             PrecedingWordIsInlineISPPDirective)) then
             Res.FoundNonFlagWord := True;
           I := PrecedingStartPos;
         end else if Section = scSetup then begin
@@ -434,7 +431,11 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
         end;
         if WordList = '' then
           Exit;
-      end else if SameText(Res.FoundMemberName, 'Permissions') then begin
+      end else if SameText(Res.FoundMemberName, 'Flags') then
+        WordList := FMemosStyler.FlagsWordList[Section]
+      else if SameText(Res.FoundMemberName, 'Type') then
+        WordList := FMemosStyler.TypeWordList[Section]
+      else if SameText(Res.FoundMemberName, 'Permissions') then begin
         WordList := FMemosStyler.PermissionsWordList[Section];
         ExtraContinueChars := ['-'];
       end else begin
@@ -443,11 +444,6 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
         if WordList = '' then
           Exit;
       end;
-      FillupChars := ' ';
-    end else if Res.FoundFlagsOrType then begin
-      WordList := FMemosStyler.FlagsWordList[Section];
-      if WordList = '' then { Should never be True, since LineScan already checked }
-        Exit;
       FillupChars := ' ';
     end else begin
       WordList := FMemosStyler.KeywordsWordList[Section];
@@ -558,15 +554,24 @@ begin
             if not LineScan(AMemo, LinePos, WordStartPos, Section, IsParamSection, Res) then
               Exit;
 
-            { A word before the current word which is not a flag is only allowed for
-              script values parameters and permissions parameters, which accept
-              multiple values }
-            if Res.FoundNonFlagWord and (Res.FoundMemberName = '') then
+            { No member found before the current word means a parameter name is being
+              typed: don't autocomplete it if anything other than inline ISPP
+              directives (which might expand to full parameters) stands between the
+              last ';' (or start of the line) and the current word }
+            if (Res.FoundMemberName = '') and Res.FoundNonInlineISPPDirectiveWord then
               Exit;
-            { Space can only initiate autocompletion after ';' or 'Flags:' or 'Type:' or a
-              script values parameter or 'Permissions:' or a [Setup] directive }
-            if (Key = ' ') and
-               not (Res.FoundSemicolon or Res.FoundFlagsOrType or (Res.FoundMemberName <> '')) then
+            { Don't autocomplete a flag if anything other than other flags or inline
+              ISPP directives stands between 'Flags:' and the current word }
+            if SameText(Res.FoundMemberName, 'Flags') and Res.FoundNonFlagWord then
+              Exit;
+            { Don't autocomplete a Type value if anything stands between 'Type:' and
+              the current word: Type accepts a single value only. Script values
+              parameters and permissions parameters accept multiple values which can
+              be anything, so for those autocompletion isn't stopped }
+            if SameText(Res.FoundMemberName, 'Type') and Res.FoundWord then
+              Exit;
+            { A space can only initiate autocompletion after ';' or a member name }
+            if (Key = ' ') and not (Res.FoundSemicolon or (Res.FoundMemberName <> '')) then
               Exit;
 
             if not ChooseWordList(AMemo, Res, Section, IsParamSection, WordList, FillupChars,
