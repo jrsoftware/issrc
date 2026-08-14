@@ -117,7 +117,7 @@ NewFolderName=Nova fascikla
 
 ; *** "Welcome" wizard page
 WelcomeLabel1=Dobro došli na instalaciju programa [name]
-WelcomeLabel2=[name/ver] će biti instaliran na računar.%n%nPre nego što nastavite, preporučujemo vam da zatvorite sve druge programe.
+WelcomeLabel2=Program [name/ver] će biti instaliran na računar.%n%nPre nego što nastavite, preporučujemo vam da zatvorite sve druge programe.
 
 ; *** "Password" wizard page
 WizardPassword=Lozinka
@@ -168,7 +168,7 @@ BadDirName32=Naziv fascikle ne sme sadržati nijedan od sledećih znakova:%n%n%1
 DirExistsTitle=Fascikla već postoji
 DirExists=Fascikla:%n%n%1%n%nveć postoji. Želite li ipak da instalirate program u nju?
 DirDoesntExistTitle=Fascikla ne postoji
-DirDoesntExist=Fascikla:%n%n%1%n%nne postoji. Želite li da je napravite?
+DirDoesntExist=Fascikla:%n%n%1%n%nne postoji. Želite li da se napravi?
 
 ; *** "Select Components" wizard page
 WizardSelectComponents=Odabir komponenata
@@ -179,7 +179,7 @@ FullInstallation=Puna instalacija
 CompactInstallation=Kompaktna instalacija
 CustomInstallation=Prilagođena instalacija
 NoUninstallWarningTitle=Komponente već postoje
-NoUninstallWarning=Sledeće komponente su već instalirane na računaru:%n%n%1%n%nPoništavanje izbora ovih komponenti ih neće ukloniti.%n%nŽelite li ipak da nastavite?
+NoUninstallWarning=Instalacioni program je otkrio da su sledeće komponente već instalirane na računaru:%n%n%1%n%nPoništavanje izbora ovih komponenti ih neće ukloniti.%n%nŽelite li ipak da nastavite?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
 ComponentsDiskSpaceGBLabel=Izabrane stavke zahtevaju najmanje [gb] GB slobodnog prostora na disku.
@@ -204,7 +204,7 @@ NoProgramGroupCheck2=N&e pravi fasciklu u meniju „Start“
 ; *** "Ready to Install" wizard page
 WizardReady=Instalacija je spremna
 ReadyLabel1=Program [name] je sada spreman za instalaciju na računar.
-ReadyLabel2a=Kliknite na „Instaliraj“ da započnete instalaciju ili „Nazad“ da ponovo pregledate ili promenite pojedine postavke.
+ReadyLabel2a=Kliknite na „Instaliraj“ da započnete instalaciju ili na „Nazad“ ako želite da pregledate ili promenite pojedine postavke.
 ReadyLabel2b=Kliknite na „Instaliraj“ da započnete instalaciju.
 ReadyMemoUserInfo=Korisnički podaci:
 ReadyMemoDir=Odredišna fascikla:
@@ -223,7 +223,7 @@ ErrorDownloadSizeFailed=Nije moguće utvrditi veličinu: %1 %2
 ErrorProgress=Neispravna vrednost napretka: %1 od %2
 ErrorFileSize=Neispravna veličina datoteke: očekivano %1, pronađeno %2
 
-; *** TExtractionWizardPage wizard page and Extract7ZipArchive
+; *** TExtractionWizardPage wizard page and ExtractArchive
 ExtractingLabel=Raspakivanje datoteka...
 ButtonStopExtraction=&Zaustavi raspakivanje
 StopExtraction=Da li ste sigurni da želite da zaustavite raspakivanje?
@@ -267,7 +267,7 @@ RunEntryExec=Pokreni %1
 RunEntryShellExec=Pogledaj %1
 
 ; *** "Setup Needs the Next Disk" stuff
-ChangeDiskTitle=Potreban je sledeći disk
+ChangeDiskTitle=Instalacionom programu je potreban sledeći disk
 SelectDiskLabel2=Ubacite disk %1 i kliknite na „U redu“.%n%nAko se datoteke na ovom disku mogu pronaći u fascikli koja nije prikazana ispod, unesite ispravnu putanju ili kliknite na „Izaberi...“.
 PathLabel=Pu&tanja:
 FileNotInDir2=Datoteka „%1“ se ne nalazi u „%2“. Ubacite odgovarajući disk ili izaberite drugu fasciklu.
@@ -364,25 +364,25 @@ UninstallDisplayNameMarkCurrentUser=Trenutni korisnik
 
 ; *** Post-installation errors
 ErrorOpeningReadme=Došlo je do greške pri otvaranju README datoteke.
-ErrorRestartingComputer=Ne mogu ponovo da pokrenem računar. Uradite to ručno.
+ErrorRestartingComputer=Instalacioni program nije mogao ponovo da pokrene računar. Uradite to ručno.
 
 ; *** Uninstaller messages
 UninstallNotFound=Datoteka „%1“ ne postoji. Ne mogu da deinstaliram program.
-UninstallOpenError=Datoteka „%1“ ne može da se otvori. Ne mogu da deinstaliram program
-UninstallUnsupportedVer=Log datoteka deinstalacije „%1“ je u formatu koji ova verzija deinstalacionog programa ne prepoznaje. Ne mogu da deinstaliram program
+UninstallOpenError=Datoteka „%1“ ne može da se otvori. Deinstalacija nije moguća
+UninstallUnsupportedVer=Log datoteka deinstalacije „%1“ je u formatu koji ova verzija deinstalacionog programa ne prepoznaje. Deinstalacija nije moguća
 UninstallUnknownEntry=Nepoznat unos (%1) se pojavio u log datoteci deinstalacije
 ConfirmUninstall=Da li ste sigurni da želite u potpunosti da deinstalirate %1 i sve njegove komponente?
-UninstallOnlyOnWin64=Program se može deinstalirati samo na 64-bitnom Windows-u.
-OnlyAdminCanUninstall=Program može deinstalirati samo korisnik sa administratorskim privilegijama.
+UninstallOnlyOnWin64=Ova instalacija može da se deinstalira samo na 64-bitnom Windows-u.
+OnlyAdminCanUninstall=Ovu instalaciju može da deinstalira samo korisnik sa administratorskim privilegijama.
 UninstallStatusLabel=Sačekajte da se %1 deinstalira sa računara.
-UninstalledAll=%1 je uspešno deinstaliran sa računara.
-UninstalledMost=%1 je deinstaliran.%n%nNeki elementi nisu mogli biti uklonjeni. Možete ih ukloniti ručno.
+UninstalledAll=Program %1 je uspešno deinstaliran sa računara.
+UninstalledMost=Program %1 je deinstaliran.%n%nNeki elementi nisu mogli biti uklonjeni. Možete ih ukloniti ručno.
 UninstalledAndNeedsRestart=Da bi se završila deinstalacija programa %1, potrebno je ponovo pokrenuti računar.%n%nŽelite li da ponovo pokrenete računar?
-UninstallDataCorrupted=Datoteka „%1“ je oštećena. Ne mogu da deinstaliram program
+UninstallDataCorrupted=Datoteka „%1“ je oštećena. Deinstalacija nije moguća
 
 ; *** Uninstallation phase messages
 ConfirmDeleteSharedFileTitle=Ukloniti deljenu datoteku?
-ConfirmDeleteSharedFile2=Sistem prijavljuje da sledeću deljenu datoteku više ne koristi nijedan program. Želite li da je uklonite?%n%nAko neki programi i dalje koriste ovu datoteku, a ona bude uklonjena, ti programi možda neće ispravno raditi. Ako niste sigurni šta da radite, kliknite na „Ne“. Ostavljanje datoteke na sistemu neće prouzrokovati nikakvu štetu.
+ConfirmDeleteSharedFile2=Sistem prijavljuje da sledeću deljenu datoteku više ne koristi nijedan program. Želite li da je deinstalacioni program ukloni?%n%nAko neki programi i dalje koriste ovu datoteku, a ona bude uklonjena, ti programi možda neće ispravno raditi. Ako niste sigurni šta da radite, kliknite na „Ne“. Ostavljanje datoteke na sistemu neće prouzrokovati nikakvu štetu.
 SharedFileNameLabel=Naziv datoteke:
 SharedFileLocationLabel=Lokacija:
 WizardUninstalling=Stanje deinstalacije
