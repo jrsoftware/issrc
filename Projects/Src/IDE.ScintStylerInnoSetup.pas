@@ -272,58 +272,49 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     end;
   end;
 
+  function TryGetMemberValues(const SectionName: TScintRawString;
+    const MemberName: String; const ValueKind: TMemberValueKind;
+    out Values: TArray<AnsiString>): Boolean;
+  begin
+    Result := False;
+    var Metadata: TScriptModelSectionMetadata;
+    if not TryGetScriptModelSectionMetadata(String(SectionName), Metadata) then
+      Exit;
+    var Member: TMemberDefinition;
+    if not Metadata.TryGetMember(MemberName, Member) or
+       (Member.ValueKind <> ValueKind) then
+      Exit;
+    SetLength(Values, Length(Member.KnownValues));
+    for var I := 0 to High(Member.KnownValues) do
+      Values[I] := AnsiString(Member.KnownValues[I]);
+    Result := True;
+  end;
+
   procedure BuildFlagsWordLists;
   begin
     { Builds FFlagsWordList (for autocomplete) and FFlagsWords }
     for var Item in SectionMap do begin
-      var Metadata: TScriptModelSectionMetadata;
-      if not TryGetScriptModelSectionMetadata(String(Item.Name), Metadata) then
-        Continue;
-      var Member: TMemberDefinition;
-      if not Metadata.TryGetMember('Flags', Member) or
-         (Member.ValueKind <> mvkFlags) then
-        Continue;
       var Flags: TArray<AnsiString>;
-      SetLength(Flags, Length(Member.KnownValues));
-      for var I := 0 to High(Member.KnownValues) do
-        Flags[I] := AnsiString(Member.KnownValues[I]);
-      BuildFlagsWordList(Item.Section, Flags);
+      if TryGetMemberValues(Item.Name, 'Flags', mvkFlags, Flags) then
+        BuildFlagsWordList(Item.Section, Flags);
     end;
   end;
 
   procedure BuildPermissionsWordLists;
   begin
     for var Item in SectionMap do begin
-      var Metadata: TScriptModelSectionMetadata;
-      if not TryGetScriptModelSectionMetadata(String(Item.Name), Metadata) then
-        Continue;
-      var Member: TMemberDefinition;
-      if not Metadata.TryGetMember('Permissions', Member) or
-         (Member.ValueKind <> mvkPermissions) then
-        Continue;
       var Values: TArray<AnsiString>;
-      SetLength(Values, Length(Member.KnownValues));
-      for var I := 0 to High(Member.KnownValues) do
-        Values[I] := AnsiString(Member.KnownValues[I]);
-      FPermissionsWordList[Item.Section] := BuildWordList(Values);
+      if TryGetMemberValues(Item.Name, 'Permissions', mvkPermissions, Values) then
+        FPermissionsWordList[Item.Section] := BuildWordList(Values);
     end;
   end;
 
   procedure BuildTypeWordLists;
   begin
     for var Item in SectionMap do begin
-      var Metadata: TScriptModelSectionMetadata;
-      if not TryGetScriptModelSectionMetadata(String(Item.Name), Metadata) then
-        Continue;
-      var Member: TMemberDefinition;
-      if not Metadata.TryGetMember('Type', Member) or
-         (Member.ValueKind <> mvkChoice) then
-        Continue;
       var Values: TArray<AnsiString>;
-      SetLength(Values, Length(Member.KnownValues));
-      for var I := 0 to High(Member.KnownValues) do
-        Values[I] := AnsiString(Member.KnownValues[I]);
-      FTypeWordList[Item.Section] := BuildWordList(Values);
+      if TryGetMemberValues(Item.Name, 'Type', mvkChoice, Values) then
+        FTypeWordList[Item.Section] := BuildWordList(Values);
     end;
   end;
 
