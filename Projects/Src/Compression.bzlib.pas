@@ -289,12 +289,6 @@ begin
   FHeapBase := VirtualAlloc(nil, DecompressorHeapSize, MEM_RESERVE, PAGE_NOACCESS);
   if FHeapBase = nil then
     OutOfMemoryError;
-  FStrm.AppData := Self;
-  FStrm.zalloc := DecompressorAllocMem;
-  FStrm.zfree := DecompressorFreeMem;
-  FStrm.next_in := @FBuffer;
-  FStrm.avail_in := 0;
-  InitDecompress;
 end;
 
 destructor TBZDecompressor.Destroy;
@@ -302,12 +296,19 @@ begin
   EndDecompress;
   if Assigned(FHeapBase) then
     VirtualFree(FHeapBase, 0, MEM_RELEASE);
-  inherited Destroy;
+  inherited;
 end;
 
 procedure TBZDecompressor.InitDecompress;
 begin
   if not FInitialized then begin
+    { Discard previous allocations }
+    FHeapNextFree := 0;
+    { Clear FStrm (avail_in needs to be reset to 0) }
+    FStrm := Default(TBZStreamRec);
+    FStrm.AppData := Self;
+    FStrm.zalloc := DecompressorAllocMem;
+    FStrm.zfree := DecompressorFreeMem;
     Check(BZ2_bzDecompressInit(FStrm, 0, 0), [BZ_OK]);
     FInitialized := True;
   end;
@@ -318,8 +319,6 @@ begin
   if FInitialized then begin
     FInitialized := False;
     BZ2_bzDecompressEnd(FStrm);
-    { Discard previous allocations }
-    FHeapNextFree := 0;
   end;
 end;
 
@@ -354,6 +353,7 @@ end;
 
 procedure TBZDecompressor.DoDecompressInto(var Buffer; Count: Cardinal);
 begin
+  InitDecompress;
   FStrm.next_out := @Buffer;
   FStrm.avail_out := Count;
   while FStrm.avail_out > 0 do begin
@@ -377,11 +377,8 @@ end;
 
 procedure TBZDecompressor.DoReset;
 begin
-  FStrm.next_in := @FBuffer;
-  FStrm.avail_in := 0;
   { bzlib doesn't offer an optimized 'Reset' function like zlib }
   EndDecompress;
-  InitDecompress;
   FReachedEnd := False;
 end;
 
