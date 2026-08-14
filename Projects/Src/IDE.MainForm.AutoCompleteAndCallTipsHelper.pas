@@ -284,9 +284,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       FoundSemicolon: Boolean;
       FoundFlagsOrType: Boolean;
       FoundNonFlagWord: Boolean;
-      FoundPermissionsParameter: Boolean;
-      FoundScriptValuesParameterName: String;
-      FoundSetupDirectiveName: String;
+      FoundMemberName: String;
       FoundMultipleSetupDirectiveValues: Boolean;
     end;
 
@@ -316,17 +314,15 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           Res.FoundFlagsOrType := SameText(ParameterWord, 'Flags') or
                                   ((Section in [scInstallDelete, scUninstallDelete]) and SameText(ParameterWord, 'Type'));
           if not Res.FoundFlagsOrType then begin
-            if GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone then
-              Res.FoundScriptValuesParameterName := ParameterWord
-            else
-              Res.FoundPermissionsParameter := SameText(ParameterWord, 'Permissions') and
-                (FMemosStyler.PermissionsWordList[Section] <> '');
+            if (GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone) or
+               (SameText(ParameterWord, 'Permissions') and
+                (FMemosStyler.PermissionsWordList[Section] <> '')) then
+              Res.FoundMemberName := ParameterWord;
           end;
         end else
           Res.FoundFlagsOrType := False;
         if Res.FoundSemicolon or Res.FoundFlagsOrType or
-           (Res.FoundScriptValuesParameterName <> '') or
-           Res.FoundPermissionsParameter then
+           (Res.FoundMemberName <> '') then
           Break;
       end;
 
@@ -339,7 +335,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           Exit;
         if Section = scSetup then begin
           const NameEndPos = AMemo.GetWordEndPosition(NameStartPos, True);
-          Res.FoundSetupDirectiveName := AMemo.GetTextRange(NameStartPos, NameEndPos);
+          Res.FoundMemberName := AMemo.GetTextRange(NameStartPos, NameEndPos);
         end;
         Break;
       end else if C > ' ' then begin
@@ -423,34 +419,34 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     var ExtraContinueChars: TSysCharSet): Boolean;
   begin
     Result := False;
-    if Res.FoundSetupDirectiveName <> '' then begin
-      const V = GetEnumValue(TypeInfo(TSetupSectionDirective), SetupSectionDirectivePrefix + Res.FoundSetupDirectiveName);
-      if V <> -1 then begin
-        const Directive = TSetupSectionDirective(V);
-        if not Res.FoundMultipleSetupDirectiveValues or
-          FMemosStyler.SetupSectionDirectiveValueIsMultiValue[Directive] then begin
-          if Directive = ssSignTool then
-            WordList := FMemosStyler.BuildWordList(GetAutoCompleteSignToolValues)
-          else
-            WordList := FMemosStyler.SetupSectionDirectiveValueWordList[Directive];
+    if Res.FoundMemberName <> '' then begin
+      if Section = scSetup then begin
+        const V = GetEnumValue(TypeInfo(TSetupSectionDirective), SetupSectionDirectivePrefix + Res.FoundMemberName);
+        if V <> -1 then begin
+          const Directive = TSetupSectionDirective(V);
+          if not Res.FoundMultipleSetupDirectiveValues or
+            FMemosStyler.SetupSectionDirectiveValueIsMultiValue[Directive] then begin
+            if Directive = ssSignTool then
+              WordList := FMemosStyler.BuildWordList(GetAutoCompleteSignToolValues)
+            else
+              WordList := FMemosStyler.SetupSectionDirectiveValueWordList[Directive];
+          end;
         end;
+        if WordList = '' then
+          Exit;
+      end else if SameText(Res.FoundMemberName, 'Permissions') then begin
+        WordList := FMemosStyler.PermissionsWordList[Section];
+        ExtraContinueChars := ['-'];
+      end else begin
+        WordList := FMemosStyler.BuildWordList(
+          GetAutoCompleteScriptValues(Res.FoundMemberName));
+        if WordList = '' then
+          Exit;
       end;
-      if WordList = '' then
-        Exit;
       FillupChars := ' ';
     end else if Res.FoundFlagsOrType then begin
       WordList := FMemosStyler.FlagsWordList[Section];
       if WordList = '' then { Should never be True, since LineScan already checked }
-        Exit;
-      FillupChars := ' ';
-    end else if Res.FoundPermissionsParameter then begin
-      WordList := FMemosStyler.PermissionsWordList[Section];
-      ExtraContinueChars := ['-'];
-      FillupChars := ' ';
-    end else if Res.FoundScriptValuesParameterName <> '' then begin
-      WordList := FMemosStyler.BuildWordList(
-        GetAutoCompleteScriptValues(Res.FoundScriptValuesParameterName));
-      if WordList = '' then
         Exit;
       FillupChars := ' ';
     end else begin
@@ -565,14 +561,12 @@ begin
             { A word before the current word which is not a flag is only allowed for
               script values parameters and permissions parameters, which accept
               multiple values }
-            if Res.FoundNonFlagWord and (Res.FoundScriptValuesParameterName = '') and
-               not Res.FoundPermissionsParameter then
+            if Res.FoundNonFlagWord and (Res.FoundMemberName = '') then
               Exit;
             { Space can only initiate autocompletion after ';' or 'Flags:' or 'Type:' or a
               script values parameter or 'Permissions:' or a [Setup] directive }
-            if (Key = ' ') and not (Res.FoundSemicolon or Res.FoundFlagsOrType or
-               (Res.FoundScriptValuesParameterName <> '') or Res.FoundPermissionsParameter or
-               (Res.FoundSetupDirectiveName <> '')) then
+            if (Key = ' ') and
+               not (Res.FoundSemicolon or Res.FoundFlagsOrType or (Res.FoundMemberName <> '')) then
               Exit;
 
             if not ChooseWordList(AMemo, Res, Section, IsParamSection, WordList, FillupChars,
