@@ -85,7 +85,6 @@ type
     FScriptFunctionsByName: array[Boolean] of TFunctionDefinitionsByName;
     FScriptWordList: array[Boolean] of AnsiString;
     FSectionsWordList: AnsiString;
-    FSetupSectionDirectiveValueWordList: array[TSetupSectionDirective] of AnsiString;
     FISPPInstalled: Boolean;
     FTheme: TTheme;
     procedure AddWordToList(const SL: TStringList; const Word: AnsiString;
@@ -128,7 +127,6 @@ type
       const NonConstStyle: TInnoSetupStylerStyle; var BraceLevel: Integer);
     procedure SetISPPInstalled(const Value: Boolean);
     function GetScriptWordList(ClassOrRecordMembers: Boolean): AnsiString;
-    function GetSetupSectionDirectiveValueWordList(SetupSectionDirective: TSetupSectionDirective): AnsiString;
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
     procedure GetFoldLevel(const LineState, PreviousLineState: TScintLineState;
@@ -168,7 +166,6 @@ type
     property MemberValuesWordList[Section: TInnoSetupSection; const MemberName: String]: AnsiString read GetMemberValuesWordList;
     property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
     property SectionsWordList: AnsiString read FSectionsWordList;
-    property SetupSectionDirectiveValueWordList[SetupSectionDirective: TSetupSectionDirective]: AnsiString read GetSetupSectionDirectiveValueWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
 
@@ -267,62 +264,48 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     end;
   end;
 
-  function TryGetMemberValues(const SectionName: TScintRawString;
-    const MemberName: String; const ValueKind: TMemberValueKind;
-    out Values: TArray<AnsiString>): Boolean;
-  begin
-    Result := False;
-    var Metadata: TScriptModelSectionMetadata;
-    if not TryGetScriptModelSectionMetadata(String(SectionName), Metadata) then
-      Exit;
-    var Member: TMemberDefinition;
-    if not Metadata.TryGetMember(MemberName, Member) or
-       (Member.ValueKind <> ValueKind) then
-      Exit;
-    SetLength(Values, Length(Member.KnownValues));
-    for var I := 0 to High(Member.KnownValues) do
-      Values[I] := AnsiString(Member.KnownValues[I]);
-    Result := True;
-  end;
-
   procedure BuildMemberValuesWordLists;
-  type
-    TMemberValuesMapItem = record
-      Name: String;
-      ValueKind: TMemberValueKind;
-    end;
-  const
-    { The list of members having known choices in the metadata. A member
-      added here just works, except for two cases needing an extra change
-      in InitiateAutoComplete: a member accepting a single value only
-      (like Type) must also be added to ParameterValueIsSingleValue, and
+  begin
+    { Builds FMemberValuesWordLists (for autocomplete) and FFlagsWords (for
+      SectionHasFlag) from all members having known values in the metadata.
+      Such a member just works, except for three cases needing an extra change
+      in InitiateAutoComplete: a parameter accepting a single value only
+      (like Type) must also be added to ParameterValueIsSingleValue, a [Setup]
+      directive accepting a space separated list of values (like WizardStyle)
+      must also be added to SetupSectionDirectiveValueIsMultiValue, and
       values containing non-word characters (like Permissions' '-') need
       extra continue chars set in ChooseWordList.
       Note: Flags has additional special treatment, validating the words
       before the caret, see FFlagsWords and FoundNonFlagWord. }
-    MemberValuesMap: array [0..7] of TMemberValuesMapItem = (
-      (Name: 'Flags'; ValueKind: mvkFlags),
-      (Name: 'Type'; ValueKind: mvkChoice),
-      (Name: 'Permissions'; ValueKind: mvkPermissions),
-      (Name: 'Attribs'; ValueKind: mvkFlags),
-      (Name: 'Root'; ValueKind: mvkChoice),
-      (Name: 'ValueType'; ValueKind: mvkChoice),
-      (Name: 'DestDir'; ValueKind: mvkChoice),
-      (Name: 'RightToLeft'; ValueKind: mvkYesNo));
-  begin
-    { Builds FMemberValuesWordLists (for autocomplete) and FFlagsWords (for SectionHasFlag) }
     for var Item in SectionMap do begin
-      for var MapItem in MemberValuesMap do begin
+      if not (Item.Section in DirectiveSections + ParameterSections) then
+        Continue; { [Messages], [CustomMessages], and [Code] have no metadata }
+      var Metadata: TScriptModelSectionMetadata;
+      if not TryGetScriptModelSectionMetadata(String(Item.Name), Metadata) then
+        raise Exception.CreateFmt('Internal error: no script model metadata for section [%s]',
+          [String(Item.Name)]);
+      for var Member in Metadata.Members do begin
+        if Length(Member.KnownValues) = 0 then
+          Continue;
         var Values: TArray<AnsiString>;
-        if TryGetMemberValues(Item.Name, MapItem.Name, MapItem.ValueKind, Values) then begin
-          FMemberValuesWordLists.Add(MemberValuesKey(Item.Section, MapItem.Name),
-            BuildWordList(Values));
-          if MapItem.Name = 'Flags' then begin
-            const SL = FFlagsWords[Item.Section];
-            for var Value in Values do
-              SL.Add(String(Value));
-          end;
+        SetLength(Values, Length(Member.KnownValues));
+        for var I := 0 to High(Member.KnownValues) do
+          Values[I] := AnsiString(Member.KnownValues[I]);
+        FMemberValuesWordLists.Add(MemberValuesKey(Item.Section, Member.Name),
+          BuildWordList(Values));
+        if Member.Name = 'Flags' then begin
+          const SL = FFlagsWords[Item.Section];
+          for var Value in Values do
+            SL.Add(String(Value));
         end;
+      end;
+      if Item.Section = scSetup then begin
+        { The expression directives (like ArchitecturesAllowed) have no known
+          values in the metadata, their values come from the extra metadata }
+        for var DirectiveValue in SetupSectionExpressionDirectivesValues do
+          FMemberValuesWordLists.Add(
+            MemberValuesKey(scSetup, Metadata.Members[Ord(DirectiveValue.Directive)].Name),
+            BuildWordList(DirectiveValue.Values));
       end;
     end;
   end;
@@ -392,26 +375,6 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     end;
   end;
 
-  procedure BuildSetupDirectiveValueWordLists;
-  begin
-    var Metadata: TScriptModelSectionMetadata;
-    if not TryGetScriptModelSectionMetadata('Setup', Metadata) then
-      raise Exception.Create('Internal error: BuildSetupDirectiveValueWordLists: no metadata');
-    for var Directive := Low(TSetupSectionDirective) to High(TSetupSectionDirective) do begin
-      const KnownValues = Metadata.Members[Ord(Directive)].KnownValues;
-      if KnownValues <> nil then begin
-        var Values: TArray<AnsiString>;
-        SetLength(Values, Length(KnownValues));
-        for var I := 0 to High(KnownValues) do
-          Values[I] := AnsiString(KnownValues[I]);
-        FSetupSectionDirectiveValueWordList[Directive] := BuildWordList(Values);
-      end;
-    end;
-
-    for var Item in SetupSectionExpressionDirectivesValues do
-      FSetupSectionDirectiveValueWordList[Item.Directive] := BuildWordList(Item.Values);
-  end;
-
   function CreateWordsBySectionList: TStringList;
   begin
     Result := TStringList.Create;
@@ -439,7 +402,6 @@ begin
   FMemberValuesWordLists := TDictionary<String, AnsiString>.Create(TIStringComparer.Ordinal);
   BuildMemberValuesWordLists;
   BuildSectionsWordList;
-  BuildSetupDirectiveValueWordLists;
   FScriptFunctionsByName[False] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   FScriptFunctionsByName[True] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   BuildScriptLists;
@@ -792,12 +754,6 @@ begin
   Result := TInnoSetupStylerLineState(LineState).Section;
   if ReturnCodeBlockAsCode and (Result = scCodeBlock) then
     Result := scCode;
-end;
-
-function TInnoSetupStyler.GetSetupSectionDirectiveValueWordList(
-  SetupSectionDirective: TSetupSectionDirective): AnsiString;
-begin
-  Result := FSetupSectionDirectiveValueWordList[SetupSectionDirective];
 end;
 
 procedure TInnoSetupStyler.GetStyleAttributes(const Style: Integer;

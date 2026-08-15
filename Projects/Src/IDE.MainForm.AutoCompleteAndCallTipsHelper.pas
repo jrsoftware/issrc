@@ -495,7 +495,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
             if Directive = ssSignTool then
               WordList := FMemosStyler.BuildWordList(GetAutoCompleteSignToolValues)
             else
-              WordList := FMemosStyler.SetupSectionDirectiveValueWordList[Directive];
+              WordList := FMemosStyler.MemberValuesWordList[Section, Res.FoundMemberName];
           end;
         end;
         if WordList = '' then
