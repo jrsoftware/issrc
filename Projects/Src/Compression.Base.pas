@@ -306,7 +306,8 @@ begin
   if FEntered <> 0 then
     raise ECompressInternalError.Create(SDecompressorStateInvalid);
   Inc(FEntered);
-  { DoReset raising an exception is fatal for the instance }
+  { DoReset implementations should always succeed. Any exception is considered
+    to be non-recoverable. }
   DoReset;
   FReachedEndOfInput := False;
   FResetExpected := False;

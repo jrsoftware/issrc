@@ -305,6 +305,7 @@ end;
 procedure TZstdDecompressor.DoReset;
 begin
   FIn := Default(TZSTD_inBuffer);
+  { Per zstd 1.5.7 zstd_decompress.c, ZSTD_initDStream can't fail }
   Check(ZSTD_initDStream(FStrm));
   FReachedEndOfFrame := False;
 end;

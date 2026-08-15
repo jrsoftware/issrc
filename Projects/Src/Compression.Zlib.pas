@@ -293,6 +293,7 @@ procedure TZDecompressor.DoReset;
 begin
   FStrm.next_in := @FBuffer;
   FStrm.avail_in := 0;
+  { inflateReset can only fail if passed an invalid z_stream }
   Check(inflateReset(FStrm), [Z_OK]);
   FReachedEnd := False;
 end;
