@@ -282,11 +282,12 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
   function ParameterHasAutoCompleteValues(const ParameterWord: String;
     const Section: TInnoSetupSection): Boolean;
   begin
+    { A parameter has autocomplete values if there's either a known list
+      of possible values, or the possible values can be determined from
+      the script }
     Result :=
-      (SameText(ParameterWord, 'Flags') and (FMemosStyler.FlagsWordList[Section] <> '')) or
-      (SameText(ParameterWord, 'Type') and (FMemosStyler.TypeWordList[Section] <> '')) or
-      (GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone) or
-      (SameText(ParameterWord, 'Permissions') and (FMemosStyler.PermissionsWordList[Section] <> ''));
+      (FMemosStyler.MemberValuesWordList[Section, ParameterWord] <> '') or
+      (GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone);
   end;
 
   function ParameterIsSingleValue(const ParameterName: String): Boolean;
@@ -358,7 +359,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           const PrecedingWordIsInlineISPPDirective = PrecedingWord.StartsWith('{#');
           if not PrecedingWordIsInlineISPPDirective then
             Res.FoundNonInlineISPPDirectiveWord := True;
-          const CanBeFlag = FMemosStyler.FlagsWordList[Section] <> '';
+          const CanBeFlag = FMemosStyler.MemberValuesWordList[Section, 'Flags'] <> '';
           if not (CanBeFlag and (FMemosStyler.SectionHasFlag(Section, PrecedingWord) or
              PrecedingWordIsInlineISPPDirective)) then
             Res.FoundNonFlagWord := True;
@@ -468,18 +469,17 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
         end;
         if WordList = '' then
           Exit;
-      end else if SameText(Res.FoundMemberName, 'Flags') then
-        WordList := FMemosStyler.FlagsWordList[Section]
-      else if SameText(Res.FoundMemberName, 'Type') then
-        WordList := FMemosStyler.TypeWordList[Section]
-      else if SameText(Res.FoundMemberName, 'Permissions') then begin
-        WordList := FMemosStyler.PermissionsWordList[Section];
-        ExtraContinueChars := ['-'];
       end else begin
-        WordList := FMemosStyler.BuildWordList(
-          GetAutoCompleteScriptValues(Res.FoundMemberName));
-        if WordList = '' then
-          Exit;
+        WordList := FMemosStyler.MemberValuesWordList[Section, Res.FoundMemberName];
+        if WordList <> '' then begin
+          if SameText(Res.FoundMemberName, 'Permissions') then
+            ExtraContinueChars := ['-'];
+        end else begin
+          WordList := FMemosStyler.BuildWordList(
+            GetAutoCompleteScriptValues(Res.FoundMemberName));
+          if WordList = '' then
+            Exit;
+        end;
       end;
       FillupChars := ' ';
     end else begin

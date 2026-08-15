@@ -75,7 +75,8 @@ type
   private
     FSectionParameterNames: array[TInnoSetupSection] of TArray<TScintRawString>;
     FEventFunctionsWordList: array[Boolean] of AnsiString;
-    FMemberNamesWordList, FFlagsWordList, FTypeWordList, FPermissionsWordList: array[TInnoSetupSection] of AnsiString;
+    FMemberNamesWordList: array[TInnoSetupSection] of AnsiString;
+    FMemberValuesWordLists: TDictionary<String, AnsiString>;
     FNoHighlightAtCursorWords: TWordsBySection;
     FFlagsWords: TWordsBySection;
     FISPPDirectivesWordList, FISPPPragmaWordList, FConstantsWordList: AnsiString;
@@ -94,8 +95,6 @@ type
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
     procedure BuildConstantsWordList;
     procedure BuildEventFunctionsWordList;
-    procedure BuildFlagsWordList(const Section: TInnoSetupSection;
-     const Flags: array of AnsiString);
     procedure BuildISPPDirectivesWordList;
     procedure BuildISPPPragmaWordList;
     procedure BuildISPPExpressionWordList;
@@ -110,17 +109,17 @@ type
       const Squigglify: Boolean);
     procedure CommitStyleSqPending(const Style: TInnoSetupStylerStyle);
     function GetEventFunctionsWordList(Procedures: Boolean): AnsiString;
-    function GetFlagsWordList(Section: TInnoSetupSection): AnsiString;
     class function GetFunctionDefinition(const FunctionsByName: TFunctionDefinitionsByName;
       const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; static;
     function GetMemberNamesWordList(Section: TInnoSetupSection): AnsiString;
-    function GetPermissionsWordList(Section: TInnoSetupSection): AnsiString;
-    function GetTypeWordList(Section: TInnoSetupSection): AnsiString;
+    function GetMemberValuesWordList(Section: TInnoSetupSection; const MemberName: String): AnsiString;
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState; var CodeBlockHeader: Boolean);
     procedure HandleKeyValueSection(const Section: TInnoSetupSection);
     procedure HandleParameterSection(const ValidParameterNames: array of TScintRawString);
     procedure HandleCompilerDirective(const InlineDirective: Boolean;
       const InlineDirectiveEndIndex: Integer; var OpenCount: ShortInt);
+    class function MemberValuesKey(const Section: TInnoSetupSection;
+      const MemberName: String): String; static;
     procedure PreStyleInlineISPPDirectives;
     procedure SkipWhitespace;
     procedure SquigglifyUntilChars(const Chars: TScintRawCharSet;
@@ -162,19 +161,17 @@ type
     function HighlightAtCursorAllowed(const Section: TInnoSetupSection; const Word: String): Boolean;
     property ConstantsWordList: AnsiString read FConstantsWordList;
     property EventFunctionsWordList[Procedures: Boolean]: AnsiString read GetEventFunctionsWordList;
-    property FlagsWordList[Section: TInnoSetupSection]: AnsiString read GetFlagsWordList;
     property ISPPDirectivesWordList: AnsiString read FISPPDirectivesWordList;
     property ISPPPragmaWordList: AnsiString read FISPPPragmaWordList;
     property ISPPExpressionWordList: AnsiString read FISPPExpressionWordList;
     property ISPPInstalled: Boolean read FISPPInstalled write SetISPPInstalled;
     property MemberNamesWordList[Section: TInnoSetupSection]: AnsiString read GetMemberNamesWordList;
-    property PermissionsWordList[Section: TInnoSetupSection]: AnsiString read GetPermissionsWordList;
+    property MemberValuesWordList[Section: TInnoSetupSection; const MemberName: String]: AnsiString read GetMemberValuesWordList;
     property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
     property SectionsWordList: AnsiString read FSectionsWordList;
     property SetupSectionDirectiveValueIsMultiValue[SetupSectionDirective: TSetupSectionDirective]: Boolean read GetSetupSectionDirectiveValueIsMultiValue;
     property SetupSectionDirectiveValueWordList[SetupSectionDirective: TSetupSectionDirective]: AnsiString read GetSetupSectionDirectiveValueWordList;
     property Theme: TTheme read FTheme write FTheme;
-    property TypeWordList[Section: TInnoSetupSection]: AnsiString read GetTypeWordList;
   end;
 
 implementation
@@ -290,31 +287,40 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     Result := True;
   end;
 
-  procedure BuildFlagsWordLists;
-  begin
-    { Builds FFlagsWordList (for autocomplete) and FFlagsWords }
-    for var Item in SectionMap do begin
-      var Flags: TArray<AnsiString>;
-      if TryGetMemberValues(Item.Name, 'Flags', mvkFlags, Flags) then
-        BuildFlagsWordList(Item.Section, Flags);
+  procedure BuildMemberValuesWordLists;
+  type
+    TMemberValuesMapItem = record
+      Name: String;
+      ValueKind: TMemberValueKind;
     end;
-  end;
-
-  procedure BuildPermissionsWordLists;
+  const
+    { The list of members having a finite set of known values. A member
+      added here just works, except for two cases needing an extra change
+      in InitiateAutoComplete: a member accepting a single value only
+      (like Type) must also be added to ParameterIsSingleValue, and
+      values containing non-word characters (like Permissions' '-') need
+      extra continue chars set in ChooseWordList.
+      Note: Flags has additional special treatment, validating the words
+      before the caret, see FFlagsWords and FoundNonFlagWord. }
+    MemberValuesMap: array [0..2] of TMemberValuesMapItem = (
+      (Name: 'Flags'; ValueKind: mvkFlags),
+      (Name: 'Type'; ValueKind: mvkChoice),
+      (Name: 'Permissions'; ValueKind: mvkPermissions));
   begin
+    { Builds FMemberValuesWordLists (for autocomplete) and FFlagsWords (for SectionHasFlag) }
     for var Item in SectionMap do begin
-      var Values: TArray<AnsiString>;
-      if TryGetMemberValues(Item.Name, 'Permissions', mvkPermissions, Values) then
-        FPermissionsWordList[Item.Section] := BuildWordList(Values);
-    end;
-  end;
-
-  procedure BuildTypeWordLists;
-  begin
-    for var Item in SectionMap do begin
-      var Values: TArray<AnsiString>;
-      if TryGetMemberValues(Item.Name, 'Type', mvkChoice, Values) then
-        FTypeWordList[Item.Section] := BuildWordList(Values);
+      for var MapItem in MemberValuesMap do begin
+        var Values: TArray<AnsiString>;
+        if TryGetMemberValues(Item.Name, MapItem.Name, MapItem.ValueKind, Values) then begin
+          FMemberValuesWordLists.Add(MemberValuesKey(Item.Section, MapItem.Name),
+            BuildWordList(Values));
+          if MapItem.Name = 'Flags' then begin
+            const SL = FFlagsWords[Item.Section];
+            for var Value in Values do
+              SL.Add(String(Value));
+          end;
+        end;
+      end;
     end;
   end;
 
@@ -422,16 +428,15 @@ begin
   end;
   BuildConstantsWordList;
   BuildEventFunctionsWordList;
-  BuildFlagsWordLists;
   BuildISPPDirectivesWordList;
   BuildISPPPragmaWordList;
   FISPPFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   BuildISPPExpressionWordList;
   BuildMemberNamesWordLists;
-  BuildPermissionsWordLists;
+  FMemberValuesWordLists := TDictionary<String, AnsiString>.Create(TIStringComparer.Ordinal);
+  BuildMemberValuesWordLists;
   BuildSectionsWordList;
   BuildSetupDirectiveValueWordLists;
-  BuildTypeWordLists;
   FScriptFunctionsByName[False] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   FScriptFunctionsByName[True] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   BuildScriptLists;
@@ -441,6 +446,7 @@ destructor TInnoSetupStyler.Destroy;
 begin
   FScriptFunctionsByName[False].Free;
   FScriptFunctionsByName[True].Free;
+  FMemberValuesWordLists.Free;
   FISPPFunctionsByName.Free;
   FFlagsWords.Free;
   FNoHighlightAtCursorWords.Free;
@@ -546,22 +552,6 @@ begin
       AddWordToList(SL2, AnsiString(KeyName), awtDirective);
     end;
     FMemberNamesWordList[Section] := BuildWordList(SL2);
-  finally
-    SL2.Free;
-  end;
-end;
-
-procedure TInnoSetupStyler.BuildFlagsWordList(const Section: TInnoSetupSection;
-  const Flags: array of AnsiString);
-begin
-  const SL1 = FFlagsWords[Section];
-  const SL2 = TStringList.Create;
-  try
-    for var Flag in Flags do begin
-      SL1.Add(String(Flag));
-      AddWordToList(SL2, Flag, awtFlagOrSetupDirectiveValue);
-    end;
-    FFlagsWordList[Section] := BuildWordList(SL2);
   finally
     SL2.Free;
   end;
@@ -708,11 +698,6 @@ begin
   Result := FEventFunctionsWordList[Procedures];
 end;
 
-function TInnoSetupStyler.GetFlagsWordList(Section: TInnoSetupSection): AnsiString;
-begin
-  Result := FFlagsWordList[Section];
-end;
-
 procedure TInnoSetupStyler.GetFoldLevel(const LineState, PreviousLineState: TScintLineState;
       var Level: Integer; var Header, EnableHeaderOnPrevious: Boolean);
 begin
@@ -743,14 +728,17 @@ begin
   Result := FMemberNamesWordList[Section];
 end;
 
-function TInnoSetupStyler.GetPermissionsWordList(Section: TInnoSetupSection): AnsiString;
+class function TInnoSetupStyler.MemberValuesKey(const Section: TInnoSetupSection;
+  const MemberName: String): String;
 begin
-  Result := FPermissionsWordList[Section];
+  Result := IntToStr(Ord(Section)) + ':' + MemberName;
 end;
 
-function TInnoSetupStyler.GetTypeWordList(Section: TInnoSetupSection): AnsiString;
+function TInnoSetupStyler.GetMemberValuesWordList(Section: TInnoSetupSection;
+  const MemberName: String): AnsiString;
 begin
-  Result := FTypeWordList[Section];
+  if not FMemberValuesWordLists.TryGetValue(MemberValuesKey(Section, MemberName), Result) then
+    Result := '';
 end;
 
 { Result is undefined if out Count = 0 }
