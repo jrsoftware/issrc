@@ -279,7 +279,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       Result := Result + BooleanExpressionOperatorValues;
   end;
 
-  function ParameterHasAutoCompletedValues(const ParameterWord: String;
+  function ParameterHasAutoCompleteValues(const ParameterWord: String;
     const Section: TInnoSetupSection): Boolean;
   begin
     Result :=
@@ -304,7 +304,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       FoundMultipleSetupDirectiveValues: Boolean;
     end;
 
-  function LineScan(const AMemo: TScintEdit; const LinePos, WordStartPos: Integer;
+  function LineScanBackwards(const AMemo: TScintEdit; const LinePos, WordStartPos: Integer;
     const Section: TInnoSetupSection; const IsParamSection: Boolean;
     out Res: TLineScanResult): Boolean;
   begin
@@ -327,7 +327,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           const ParameterWordEndPos = I;
           const ParameterWordStartPos = AMemo.GetWordStartPosition(ParameterWordEndPos, True);
           const ParameterWord = AMemo.GetTextRange(ParameterWordStartPos, ParameterWordEndPos);
-          if ParameterHasAutoCompletedValues(ParameterWord, Section) then
+          if ParameterHasAutoCompleteValues(ParameterWord, Section) then
             Res.FoundMemberName := ParameterWord;
         end;
         if Res.FoundSemicolon or (Res.FoundMemberName <> '') then
@@ -483,7 +483,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       end;
       FillupChars := ' ';
     end else begin
-      WordList := FMemosStyler.KeywordsWordList[Section];
+      WordList := FMemosStyler.MemberNamesWordList[Section];
       if WordList = '' then { CustomMessages }
         Exit;
       if IsParamSection then
@@ -587,7 +587,7 @@ begin
           end else begin
             const IsParamSection = Section in ParameterSections;
             var Res: TLineScanResult;
-            if not LineScan(AMemo, LinePos, WordStartPos, Section, IsParamSection, Res) or
+            if not LineScanBackwards(AMemo, LinePos, WordStartPos, Section, IsParamSection, Res) or
                not CanAutoComplete(Key, Res) or
                not ChooseWordList(AMemo, Res, Section, IsParamSection, WordList, FillupChars, ExtraContinueChars) then
               Exit;
