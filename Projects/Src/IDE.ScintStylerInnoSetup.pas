@@ -73,7 +73,7 @@ type
 
   TInnoSetupStyler = class(TScintCustomStyler)
   private
-    FSectionParameterNames: array[TInnoSetupSection] of TArray<TScintRawString>;
+    FParameterNames: array[TInnoSetupSection] of TArray<TScintRawString>;
     FEventFunctionsWordList: array[Boolean] of AnsiString;
     FMemberNamesWordList: array[TInnoSetupSection] of AnsiString;
     FMemberValuesWordLists: TDictionary<String, AnsiString>;
@@ -265,7 +265,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
         Inc(N);
       end;
       SetLength(ParameterNames, N);
-      FSectionParameterNames[Item.Section] := ParameterNames;
+      FParameterNames[Item.Section] := ParameterNames;
     end;
   end;
 
@@ -328,7 +328,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
   begin
     { Builds FMemberNamesWordList (for autocomplete) and FNoHighlightAtCursorWords }
     for var Section in ParameterSections do
-      BuildMemberNamesWordListFromParameterNames(Section, FSectionParameterNames[Section]);
+      BuildMemberNamesWordListFromParameterNames(Section, FParameterNames[Section]);
     BuildMemberNamesWordListFromTypeInfo(scLangOptions, TypeInfo(TLangOptionsSectionDirective), LangOptionsSectionDirectivePrefixLength);
     BuildMemberNamesWordListFromTypeInfo(scSetup, TypeInfo(TSetupSectionDirective), Length(SetupSectionDirectivePrefix));
     BuildMemberNamesWordListFromTypeInfo(scMessages, TypeInfo(TSetupMessageID), SetupMessageIDPrefixLength);
@@ -1596,7 +1596,7 @@ begin
   end else if Section in KeyValueSections then
     HandleKeyValueSection(Section)
   else if Section in ParameterSections then
-    HandleParameterSection(FSectionParameterNames[Section]);
+    HandleParameterSection(FParameterNames[Section]);
 
   NewLineState.Section := Section;
   LineState := TScintLineState(NewLineState);
