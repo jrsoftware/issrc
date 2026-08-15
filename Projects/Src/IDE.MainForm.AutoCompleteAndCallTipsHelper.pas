@@ -205,6 +205,22 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := True;
   end;
 
+  function SkipLanguagePrefixBeforeWord(const AMemo: TScintEdit;
+    const LinePos, WordStartPos: Integer): Integer;
+  begin
+    { Also see TScriptModelSectionMetadata.TryGetMember }
+    Result := WordStartPos;
+    if WordStartPos <= LinePos then
+      Exit;
+    const DotPos = AMemo.GetPositionBefore(WordStartPos);
+    if AMemo.GetByteAtPosition(DotPos) <> '.' then
+      Exit;
+    { Like TryGetMember's P > 1: needs at least one character before the '.' }
+    const LanguageStartPos = AMemo.GetWordStartPosition(DotPos, True);
+    if LanguageStartPos < DotPos then
+      Result := LanguageStartPos;
+  end;
+
   function ExtendCharsBefore(const AMemo: TScintEdit;
     const LinePos, CaretPos, CharsBefore: Integer): Integer;
   begin
@@ -290,9 +306,19 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       (GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone);
   end;
 
-  function ParameterIsSingleValue(const ParameterName: String): Boolean;
+  function ParameterValueIsSingleValue(const ParameterName: String): Boolean;
   begin
-    Result := SameText(ParameterName, 'Type');
+    Result := SameText(ParameterName, 'Type') or SameText(ParameterName, 'Root') or
+      SameText(ParameterName, 'ValueType') or SameText(ParameterName, 'DestDir');
+  end;
+
+  function SetupSectionDirectiveValueIsMultiValue(
+    const SetupSectionDirective: TSetupSectionDirective): Boolean;
+  begin
+    { "MultiValue" means a directive like WizardStyle which accepts a space separated list of values }
+    Result := SetupSectionDirective in [ssArchitecturesAllowed,
+      ssArchitecturesInstallIn64BitMode, ssDisablePrecompiledFileVerifications,
+      ssPrivilegesRequiredOverridesAllowed, ssWizardStyle];
   end;
 
   type
@@ -335,14 +361,20 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           Break;
       end;
 
-      if ((Section = scLangOptions) and (C = '.')) or ((Section = scSetup) and (C = '=')) then begin
+      if ((Section in DirectiveSections) and (C = '=')) or
+         ((Section = scLangOptions) and (C = '.')) then begin
         { Verify that a word (language or directive name) precedes the '.' or '=', then check for
           any non-whitespace characters before the word. Among other things, this ensures
           we're not inside a comment. }
         const NameStartPos = AMemo.GetWordStartPosition(I, True);
-        if (NameStartPos >= I) or not OnlyWhiteSpaceBeforeWord(AMemo, LinePos, NameStartPos) then
+        if NameStartPos >= I then
           Exit;
-        if Section = scSetup then begin
+        var NameOrPrefixStartPos := NameStartPos;
+        if (Section = scLangOptions) and (C = '=') then
+          NameOrPrefixStartPos := SkipLanguagePrefixBeforeWord(AMemo, LinePos, NameStartPos);
+        if not OnlyWhiteSpaceBeforeWord(AMemo, LinePos, NameOrPrefixStartPos) then
+          Exit;
+        if C = '=' then begin
           const NameEndPos = AMemo.GetWordEndPosition(NameStartPos, True);
           Res.FoundMemberName := AMemo.GetTextRange(NameStartPos, NameEndPos);
         end;
@@ -436,11 +468,10 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       ISPP directives stands between 'Flags:' and the current word }
     if SameText(Res.FoundMemberName, 'Flags') and Res.FoundNonFlagWord then
       Exit;
-    { Don't autocomplete a Type value if anything stands between 'Type:' and
-      the current word: Type accepts a single value only. Script values
-      parameters and permissions parameters accept multiple values which can
-      be anything, so for those autocompletion isn't stopped }
-    if ParameterIsSingleValue(Res.FoundMemberName) and Res.FoundWord then
+    { Don't autocomplete a value of a parameter accepting a single value only
+      (like Type) if anything stands between the parameter name and the
+      current word }
+    if ParameterValueIsSingleValue(Res.FoundMemberName) and Res.FoundWord then
       Exit;
     { A space can only initiate autocompletion after ';' or a member name }
     if (Key = ' ') and not (Res.FoundSemicolon or (Res.FoundMemberName <> '')) then
@@ -460,7 +491,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
         if V <> -1 then begin
           const Directive = TSetupSectionDirective(V);
           if not Res.FoundMultipleSetupDirectiveValues or
-            FMemosStyler.SetupSectionDirectiveValueIsMultiValue[Directive] then begin
+            SetupSectionDirectiveValueIsMultiValue(Directive) then begin
             if Directive = ssSignTool then
               WordList := FMemosStyler.BuildWordList(GetAutoCompleteSignToolValues)
             else

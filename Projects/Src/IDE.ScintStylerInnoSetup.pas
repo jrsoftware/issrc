@@ -128,7 +128,6 @@ type
       const NonConstStyle: TInnoSetupStylerStyle; var BraceLevel: Integer);
     procedure SetISPPInstalled(const Value: Boolean);
     function GetScriptWordList(ClassOrRecordMembers: Boolean): AnsiString;
-    function GetSetupSectionDirectiveValueIsMultiValue(SetupSectionDirective: TSetupSectionDirective): Boolean;
     function GetSetupSectionDirectiveValueWordList(SetupSectionDirective: TSetupSectionDirective): AnsiString;
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
@@ -169,7 +168,6 @@ type
     property MemberValuesWordList[Section: TInnoSetupSection; const MemberName: String]: AnsiString read GetMemberValuesWordList;
     property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
     property SectionsWordList: AnsiString read FSectionsWordList;
-    property SetupSectionDirectiveValueIsMultiValue[SetupSectionDirective: TSetupSectionDirective]: Boolean read GetSetupSectionDirectiveValueIsMultiValue;
     property SetupSectionDirectiveValueWordList[SetupSectionDirective: TSetupSectionDirective]: AnsiString read GetSetupSectionDirectiveValueWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
@@ -294,18 +292,23 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       ValueKind: TMemberValueKind;
     end;
   const
-    { The list of members having a finite set of known values. A member
+    { The list of members having known choices in the metadata. A member
       added here just works, except for two cases needing an extra change
       in InitiateAutoComplete: a member accepting a single value only
-      (like Type) must also be added to ParameterIsSingleValue, and
+      (like Type) must also be added to ParameterValueIsSingleValue, and
       values containing non-word characters (like Permissions' '-') need
       extra continue chars set in ChooseWordList.
       Note: Flags has additional special treatment, validating the words
       before the caret, see FFlagsWords and FoundNonFlagWord. }
-    MemberValuesMap: array [0..2] of TMemberValuesMapItem = (
+    MemberValuesMap: array [0..7] of TMemberValuesMapItem = (
       (Name: 'Flags'; ValueKind: mvkFlags),
       (Name: 'Type'; ValueKind: mvkChoice),
-      (Name: 'Permissions'; ValueKind: mvkPermissions));
+      (Name: 'Permissions'; ValueKind: mvkPermissions),
+      (Name: 'Attribs'; ValueKind: mvkFlags),
+      (Name: 'Root'; ValueKind: mvkChoice),
+      (Name: 'ValueType'; ValueKind: mvkChoice),
+      (Name: 'DestDir'; ValueKind: mvkChoice),
+      (Name: 'RightToLeft'; ValueKind: mvkYesNo));
   begin
     { Builds FMemberValuesWordLists (for autocomplete) and FFlagsWords (for SectionHasFlag) }
     for var Item in SectionMap do begin
@@ -789,15 +792,6 @@ begin
   Result := TInnoSetupStylerLineState(LineState).Section;
   if ReturnCodeBlockAsCode and (Result = scCodeBlock) then
     Result := scCode;
-end;
-
-function TInnoSetupStyler.GetSetupSectionDirectiveValueIsMultiValue(
-  SetupSectionDirective: TSetupSectionDirective): Boolean;
-{ "MultiValue" means a directive like WizardStyle which accepts a space separated list of values }
-begin
-  Result := SetupSectionDirective in [ssArchitecturesAllowed,
-    ssArchitecturesInstallIn64BitMode, ssDisablePrecompiledFileVerifications,
-    ssPrivilegesRequiredOverridesAllowed, ssWizardStyle];
 end;
 
 function TInnoSetupStyler.GetSetupSectionDirectiveValueWordList(
