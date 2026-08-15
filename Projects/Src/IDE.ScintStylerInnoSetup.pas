@@ -142,7 +142,6 @@ type
     class function IsCommentOrKeywordStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsCommentOrISPPStringStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsCommentOrPascalStringStyle(const Style: TScintStyleNumber): Boolean; static;
-    class function IsISPPIdentChar(const C: AnsiChar): Boolean; static;
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean; static;
     class function LineSectionHeader(const LineState: TScintLineState; out Section: TInnoSetupSection): Boolean; static;
     class function LineSpans(const S: TScintRawString): Boolean; static;
@@ -187,12 +186,12 @@ type
 
 type
   TSectionMapItem = record
-    Name: TScintRawString;
+    Name: String;
     Section: TInnoSetupSection;
   end;
 
 var
-  SectionMap: array of TSectionMapItem; { Initialized below }
+  SectionMap: array of TSectionMapItem; { Initialized below - only contains known true sections }
 
 const
   inSquiggly = 0;
@@ -247,9 +246,9 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       if not (Item.Section in ParameterSections) then
         Continue;
       var Metadata: TScriptModelSectionMetadata;
-      if not TryGetScriptModelSectionMetadata(String(Item.Name), Metadata) then
+      if not TryGetScriptModelSectionMetadata(Item.Name, Metadata) then
         raise Exception.CreateFmt('Internal error: no script model metadata for section [%s]',
-          [String(Item.Name)]);
+          [Item.Name]);
       var ParameterNames: TArray<TScintRawString>;
       SetLength(ParameterNames, Length(Metadata.Members));
       var N := 0;
@@ -281,9 +280,9 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       if not (Item.Section in DirectiveSections + ParameterSections) then
         Continue; { [Messages], [CustomMessages], and [Code] have no metadata }
       var Metadata: TScriptModelSectionMetadata;
-      if not TryGetScriptModelSectionMetadata(String(Item.Name), Metadata) then
+      if not TryGetScriptModelSectionMetadata(Item.Name, Metadata) then
         raise Exception.CreateFmt('Internal error: no script model metadata for section [%s]',
-          [String(Item.Name)]);
+          [Item.Name]);
       for var Member in Metadata.Members do begin
         if Length(Member.KnownValues) = 0 then
           Continue;
@@ -480,7 +479,7 @@ begin
   var SL := TStringList.Create;
   try
     for var Section in SectionMap do
-      AddWordToList(SL, '[' + Section.Name + ']', awtSection);
+      AddWordToList(SL, '[' + AnsiString(Section.Name) + ']', awtSection);
     FSectionsWordList := BuildWordList(SL);
   finally
     SL.Free;
@@ -1305,11 +1304,6 @@ begin
   Result := Style in [Ord(stComment), Ord(stPascalString)];
 end;
 
-class function TInnoSetupStyler.IsISPPIdentChar(const C: AnsiChar): Boolean;
-begin
-  Result := C in ISPPIdentChars;
-end;
-
 class function TInnoSetupStyler.IsSymbolStyle(const Style: TScintStyleNumber): Boolean;
 begin
   Result := Style = Ord(stSymbol);
@@ -1487,7 +1481,7 @@ procedure TInnoSetupStyler.StyleNeeded;
     else begin
       Result := scUnknown;
       for var Section in SectionMap do
-        if SameRawText(S, Section.Name) then begin
+        if SameRawText(S, TScintRawString(Section.Name)) then begin
           Result := Section.Section;
           Break;
         end;
@@ -1554,7 +1548,7 @@ end;
 
 function SMI(const Section: TInnoSetupSection): TSectionMapItem;
 begin
-  Result.Name := TScintRawString(SectionToSectionName(Section));
+  Result.Name := SectionToSectionName(Section);
   Result.Section := Section;
 end;
 
