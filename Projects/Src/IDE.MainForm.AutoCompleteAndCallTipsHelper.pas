@@ -376,7 +376,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       end;
 
       if ((Section in DirectiveSections) and (C = '=')) or
-         ((Section in [scLangOptions, scMessages, scCustomMessages]) and (C = '.')) then begin
+         ((Section in [scLangOptions, scMessages]) and (C = '.')) then begin
         { Verify that a word (language or directive name) precedes the '.' or '=', then check for
           any non-whitespace characters before the word. Among other things, this ensures
           we're not inside a comment. }
