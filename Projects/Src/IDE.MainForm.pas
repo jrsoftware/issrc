@@ -865,7 +865,7 @@ begin
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.OnZoom := MemoZoom;
   Memo.Parent := BodyPanel;
-  Memo.SetAutoCompleteSeparators(InnoSetupStylerWordListSeparator, InnoSetupStylerWordListTypeSeparator);
+  Memo.SetAutoCompleteSeparators(AutoCompleteWordListSeparator, AutoCompleteWordListTypeSeparator);
   Memo.SetWordChars(Memo.GetDefaultWordChars+'#{}[]');
   Memo.Theme := FTheme;
   Memo.StyleName := 'Windows';

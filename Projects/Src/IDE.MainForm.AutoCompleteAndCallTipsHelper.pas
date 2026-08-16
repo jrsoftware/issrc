@@ -481,7 +481,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           if not Res.FoundMultipleSetupDirectiveValues or
             SetupSectionDirectiveValueIsMultiValue(Directive) then begin
             if Directive = ssSignTool then
-              WordList := BuildWordList(GetAutoCompleteSignToolValues)
+              WordList := BuildAutoCompleteWordList(GetAutoCompleteSignToolValues)
             else
               WordList := FMemosStyler.MemberValuesWordList[Section, Res.FoundMemberName];
             if Directive in [ssArchiveExtraction, ssCompression] then
@@ -496,7 +496,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           if SameText(Res.FoundMemberName, 'Permissions') then
             ExtraContinueChars := ['-'];
         end else begin
-          WordList := BuildWordList(
+          WordList := BuildAutoCompleteWordList(
             GetAutoCompleteScriptValues(Res.FoundMemberName));
           if WordList = '' then
             Exit;

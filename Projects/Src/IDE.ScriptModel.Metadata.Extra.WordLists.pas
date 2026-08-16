@@ -15,8 +15,10 @@ uses
   Classes;
 
 const
-  InnoSetupStylerWordListSeparator = #9;
-  InnoSetupStylerWordListTypeSeparator = '!'; { Must sort before numbers - so the default '?' is not ok }
+  { AutoComplete words lists are strings for Scintilla, using the following
+    separators }
+  AutoCompleteWordListSeparator = #9;
+  AutoCompleteWordListTypeSeparator = '!'; { Must sort before numbers - so the default '?' is not ok }
 
   { AutoComplete word types }
   awtSection = 0;
@@ -39,40 +41,41 @@ const
   awtISPPVariable = 31;
   awtISPPConstant = 32;
 
-procedure AddWordToList(const SL: TStringList; const Word: AnsiString;
+
+procedure AddAutoCompleteWordToList(const SL: TStringList; const Word: AnsiString;
   const Typ: Integer);
 
-function BuildWordList(const Values: array of AnsiString): AnsiString; overload;
+function BuildAutoCompleteWordList(const Values: array of AnsiString): AnsiString; overload;
 
-function BuildWordList(const WordStringList: TStringList): AnsiString; overload;
+function BuildAutoCompleteWordList(const WordStringList: TStringList): AnsiString; overload;
 
 implementation
 
 uses
   SysUtils;
 
-procedure AddWordToList(const SL: TStringList;
+procedure AddAutoCompleteWordToList(const SL: TStringList;
   const Word: AnsiString; const Typ: Integer);
 begin
   if Typ >= 0 then
-    SL.Add(Format('%s%s%d', [Word, InnoSetupStylerWordListTypeSeparator, Typ]))
+    SL.Add(Format('%s%s%d', [Word, AutoCompleteWordListTypeSeparator, Typ]))
   else
     SL.Add(String(Word));
 end;
 
-function BuildWordList(const Values: array of AnsiString): AnsiString;
+function BuildAutoCompleteWordList(const Values: array of AnsiString): AnsiString;
 begin
   const SL = TStringList.Create;
   try
     for var Value in Values do
-      AddWordToList(SL, Value, awtFlagOrSetupDirectiveValue);
-    Result := BuildWordList(SL);
+      AddAutoCompleteWordToList(SL, Value, awtFlagOrSetupDirectiveValue);
+    Result := BuildAutoCompleteWordList(SL);
   finally
     SL.Free;
   end;
 end;
 
-function BuildWordList(const WordStringList: TStringList): AnsiString;
+function BuildAutoCompleteWordList(const WordStringList: TStringList): AnsiString;
 begin
   { Scintilla uses an ASCII binary search so the list must be in ASCII sort
     order (case-insensitive). }
@@ -86,7 +89,7 @@ begin
     if Result = '' then
       Result := A
     else
-      Result := Result + InnoSetupStylerWordListSeparator + A;
+      Result := Result + AutoCompleteWordListSeparator + A;
   end;
 end;
 

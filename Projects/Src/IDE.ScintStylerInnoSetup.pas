@@ -251,7 +251,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
         for var I := 0 to High(Member.KnownValues) do
           Values[I] := AnsiString(Member.KnownValues[I]);
         FMemberValuesWordLists.Add(MemberValuesKey(Item.Section, Member.Name),
-          BuildWordList(Values));
+          BuildAutoCompleteWordList(Values));
         if Member.Name = 'Flags' then begin
           const SL = FFlagsWords[Item.Section];
           for var Value in Values do
@@ -264,7 +264,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
         for var DirectiveValue in SetupSectionExpressionDirectivesValues do
           FMemberValuesWordLists.Add(
             MemberValuesKey(scSetup, Metadata.Members[Ord(DirectiveValue.Directive)].Name),
-            BuildWordList(DirectiveValue.Values));
+            BuildAutoCompleteWordList(DirectiveValue.Values));
       end;
     end;
   end;
@@ -294,41 +294,41 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       BuildScriptFunctionsLists(ROPSScriptFuncTable, ClassMembers, SL2);
       { Add stuff from this unit }
       for var S in PascalConstants do
-        AddWordToList(SL2, S, awtScriptConstant);
+        AddAutoCompleteWordToList(SL2, S, awtScriptConstant);
       for var S in PascalConstants_Isxclasses do
-        AddWordToList(SL2, S, awtScriptConstant);
+        AddAutoCompleteWordToList(SL2, S, awtScriptConstant);
       for var S in PascalInterfaces do
-        AddWordToList(SL2, S, awtScriptInterface);
+        AddAutoCompleteWordToList(SL2, S, awtScriptInterface);
       for var S in PascalReservedWords do begin
         SL1.Add(String(S));
-        AddWordToList(SL2, S, awtScriptKeyword);
+        AddAutoCompleteWordToList(SL2, S, awtScriptKeyword);
       end;
       for var S in PascalTypes do
-        AddWordToList(SL2, S, awtScriptType);
+        AddAutoCompleteWordToList(SL2, S, awtScriptType);
       for var S in PascalTypes_Isxclasses do
-        AddWordToList(SL2, S, awtScriptType);
+        AddAutoCompleteWordToList(SL2, S, awtScriptType);
       for var S in PascalEnumValues do
-        AddWordToList(SL2, S, awtScriptEnumValue);
+        AddAutoCompleteWordToList(SL2, S, awtScriptEnumValue);
       for var S in PascalEnumValues_Isxclasses do
-        AddWordToList(SL2, S, awtScriptEnumValue);
+        AddAutoCompleteWordToList(SL2, S, awtScriptEnumValue);
       for var TypeInfo in PascalRealEnumValues do begin
         var TypeData := GetTypeData(TypeInfo);
         for var I := TypeData.MinValue to TypeData.MaxValue do
-          AddWordToList(SL2, AnsiString(GetEnumName(TypeInfo, I)), awtScriptEnumValue);
+          AddAutoCompleteWordToList(SL2, AnsiString(GetEnumName(TypeInfo, I)), awtScriptEnumValue);
       end;
       for var S in PascalVariables do
-        AddWordToList(SL2, S, awtScriptVariable);
+        AddAutoCompleteWordToList(SL2, S, awtScriptVariable);
       for var S in EventFunctionsParameters  do
-        AddWordToList(SL2, S, awtScriptVariable);
-      FScriptWordList[False] := BuildWordList(SL2);
+        AddAutoCompleteWordToList(SL2, S, awtScriptVariable);
+      FScriptWordList[False] := BuildAutoCompleteWordList(SL2);
 
       { Add stuff from Isxclasses }
       SL2.Clear;
       ClassMembers := True;
       BuildScriptFunctionsLists(PascalMembers_Isxclasses, ClassMembers, SL2);
       for var S in PascalProperties_Isxclasses do
-        AddWordToList(SL2, S, awtScriptProperty);
-      FScriptWordList[True] := BuildWordList(SL2);
+        AddAutoCompleteWordToList(SL2, S, awtScriptProperty);
+      FScriptWordList[True] := BuildAutoCompleteWordList(SL2);
     finally
       SL2.Free;
     end;
@@ -400,8 +400,8 @@ begin
   var SL := TStringList.Create;
   try
     for var Section in SectionMap do
-      AddWordToList(SL, '[' + AnsiString(Section.Name) + ']', awtSection);
-    FSectionsWordList := BuildWordList(SL);
+      AddAutoCompleteWordToList(SL, '[' + AnsiString(Section.Name) + ']', awtSection);
+    FSectionsWordList := BuildAutoCompleteWordList(SL);
   finally
     SL.Free;
   end;
@@ -416,9 +416,9 @@ begin
   try
     for var ParameterName in ParameterNames do begin
       SL1.Add(String(ParameterName));
-      AddWordToList(SL2, ParameterName, awtParameter);
+      AddAutoCompleteWordToList(SL2, ParameterName, awtParameter);
     end;
-    FMemberNamesWordList[Section] := BuildWordList(SL2);
+    FMemberNamesWordList[Section] := BuildAutoCompleteWordList(SL2);
   finally
     SL2.Free;
   end;
@@ -434,9 +434,9 @@ begin
     for var I := 0 to GetTypeData(EnumTypeInfo).MaxValue do begin
       const KeyName = Copy(GetEnumName(EnumTypeInfo, I), PrefixLength+1, MaxInt);
       SL1.Add(KeyName);
-      AddWordToList(SL2, AnsiString(KeyName), awtDirective);
+      AddAutoCompleteWordToList(SL2, AnsiString(KeyName), awtDirective);
     end;
-    FMemberNamesWordList[Section] := BuildWordList(SL2);
+    FMemberNamesWordList[Section] := BuildAutoCompleteWordList(SL2);
   finally
     SL2.Free;
   end;
@@ -449,7 +449,7 @@ begin
   for var ScriptFunc in ScriptFuncTable do begin
     const FunctionDefinition = TFunctionDefinition.Create(ScriptFunc);
     const ScriptFuncName = ExtractScriptFuncWithoutHeaderName(FunctionDefinition.ScriptFuncWithoutHeader);
-    var DoAddWordToList := True;
+    var DoAddAutoCompleteWordToList := True;
     const Key = String(ScriptFuncName);
     if not FScriptFunctionsByName[ClassMembers].TryAdd(Key, [FunctionDefinition]) then begin
       { Function has multiple prototypes }
@@ -458,10 +458,10 @@ begin
       SetLength(ScriptFunctions, N+1);
       ScriptFunctions[N] := FunctionDefinition;
       FScriptFunctionsByName[ClassMembers][Key] := ScriptFunctions;
-      DoAddWordToList := False; { Already added it when the first prototype was found }
+      DoAddAutoCompleteWordToList := False; { Already added it when the first prototype was found }
     end;
-    if DoAddWordToList then
-      AddWordToList(SL, ScriptFuncName, awtScriptFunction);
+    if DoAddAutoCompleteWordToList then
+      AddAutoCompleteWordToList(SL, ScriptFuncName, awtScriptFunction);
   end;
 end;
 
@@ -470,8 +470,8 @@ begin
   var SL := TStringList.Create;
   try
     for var ISPPDirective in ISPPDirectives do
-      AddWordToList(SL, '#' + ISPPDirective.Name, awtPreprocessorDirective);
-    FISPPDirectivesWordList := BuildWordList(SL);
+      AddAutoCompleteWordToList(SL, '#' + ISPPDirective.Name, awtPreprocessorDirective);
+    FISPPDirectivesWordList := BuildAutoCompleteWordList(SL);
   finally
     SL.Free;
   end;
@@ -482,8 +482,8 @@ begin
   var SL := TStringList.Create;
   try
     for var ISPPPragmaSubDirective in ISPPPragmaSubDirectives do
-      AddWordToList(SL, ISPPPragmaSubDirective, awtPreprocessorSubDirective);
-    FISPPPragmaWordList := BuildWordList(SL);
+      AddAutoCompleteWordToList(SL, ISPPPragmaSubDirective, awtPreprocessorSubDirective);
+    FISPPPragmaWordList := BuildAutoCompleteWordList(SL);
   finally
     SL.Free;
   end;
@@ -499,13 +499,13 @@ begin
       const Key = String(ISPPScriptFuncName);
       if not FISPPFunctionsByName.TryAdd(Key, [FunctionDefinition]) then
         raise Exception.CreateFmt('Internal error: duplicate ISPP function "%s"', [ISPPScriptFuncName]);
-      AddWordToList(SL, ISPPScriptFuncName, awtISPPFunction);
+      AddAutoCompleteWordToList(SL, ISPPScriptFuncName, awtISPPFunction);
     end;
     for var ISPPPredefinedVariable in ISPPPredefinedVariables do
-      AddWordToList(SL, ISPPPredefinedVariable, awtISPPVariable);
+      AddAutoCompleteWordToList(SL, ISPPPredefinedVariable, awtISPPVariable);
     for var ISPPConstant in ISPPConstants do
-      AddWordToList(SL, ISPPConstant, awtISPPConstant);
-    FISPPExpressionWordList := BuildWordList(SL);
+      AddAutoCompleteWordToList(SL, ISPPConstant, awtISPPConstant);
+    FISPPExpressionWordList := BuildAutoCompleteWordList(SL);
   finally
     SL.Free;
   end;
@@ -517,18 +517,18 @@ begin
   try
     for var Constant in Constants do
       if Constant = '{' then
-        AddWordToList(SL, '{{', awtConstant)
+        AddAutoCompleteWordToList(SL, '{{', awtConstant)
       else
-        AddWordToList(SL, '{' + Constant + '}', awtConstant);
+        AddAutoCompleteWordToList(SL, '{' + Constant + '}', awtConstant);
     if ISPPInstalled then begin
-      AddWordToList(SL, '{#', awtConstant);
-      AddWordToList(SL, '{#file ', awtConstant);
+      AddAutoCompleteWordToList(SL, '{#', awtConstant);
+      AddAutoCompleteWordToList(SL, '{#file ', awtConstant);
       for var ISPPPredefinedVariable in ISPPPredefinedVariables do
-        AddWordToList(SL, '{#' + ISPPPredefinedVariable + '}', awtConstant);
+        AddAutoCompleteWordToList(SL, '{#' + ISPPPredefinedVariable + '}', awtConstant);
     end;
     for var ConstantWithParam in ConstantsWithParam do
-      AddWordToList(SL, AnsiString('{' + ConstantWithParam), awtConstant);
-    FConstantsWordList := BuildWordList(SL);
+      AddAutoCompleteWordToList(SL, AnsiString('{' + ConstantWithParam), awtConstant);
+    FConstantsWordList := BuildAutoCompleteWordList(SL);
   finally
     SL.Free;
   end;
@@ -545,14 +545,14 @@ begin
       var HeaderKind: TScriptFuncHeaderKind;
       var S := RemoveScriptFuncHeader(FullEventFunction, HeaderKind);
       if HeaderKind = hkFunction then
-        AddWordToList(SLFunctions, S, awtScriptEvent)
+        AddAutoCompleteWordToList(SLFunctions, S, awtScriptEvent)
       else if HeaderKind = hkProcedure then
-        AddWordToList(SLProcedures, S, awtScriptEvent)
+        AddAutoCompleteWordToList(SLProcedures, S, awtScriptEvent)
       else
         raise Exception.Create('Internal error: got invalid HeaderKind for event function');
     end;
-    FEventFunctionsWordList[False] := BuildWordList(SLFunctions);
-    FEventFunctionsWordList[True] := BuildWordList(SLProcedures);
+    FEventFunctionsWordList[False] := BuildAutoCompleteWordList(SLFunctions);
+    FEventFunctionsWordList[True] := BuildAutoCompleteWordList(SLProcedures);
   finally
     SLProcedures.Free;
     SLFunctions.Free;
