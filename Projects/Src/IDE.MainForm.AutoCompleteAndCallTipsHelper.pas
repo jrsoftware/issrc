@@ -190,7 +190,7 @@ end;
 
 procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMemo: TScintEdit; const Key: AnsiChar);
 
-  function OnlyWhiteSpaceBeforeWord(const AMemo: TScintEdit; const LinePos, WordStartPos: Integer): Boolean;
+  function OnlyWhiteSpaceBeforeWord(const LinePos, WordStartPos: Integer): Boolean;
   begin
     { Only allow autocompletion if no non-whitespace characters exist before the current word on the line }
     var I := WordStartPos;
@@ -206,8 +206,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := True;
   end;
 
-  function SkipLanguagePrefixBeforeWord(const AMemo: TScintEdit;
-    const LinePos, WordStartPos: Integer): Integer;
+  function SkipLanguagePrefixBeforeWord(const LinePos, WordStartPos: Integer): Integer;
   begin
     { Also see TScriptModelSectionMetadata.TryGetMember }
     Result := WordStartPos;
@@ -222,8 +221,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       Result := LanguageStartPos;
   end;
 
-  function ExtendCharsBefore(const AMemo: TScintEdit;
-    const LinePos, CaretPos, CharsBefore: Integer): Integer;
+  function ExtendCharsBefore(const LinePos, CaretPos, CharsBefore: Integer): Integer;
   begin
     { CharsBefore counts to the word start before the caret, without accounting
       for FAutoCompleteExtraContinueChars. Extended it now, towards the start
@@ -347,7 +345,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       FoundMultipleSetupDirectiveValues: Boolean;
     end;
 
-  function LineScanBackwards(const AMemo: TScintEdit; const LinePos, WordStartPos: Integer;
+  function LineScanBackwards(const LinePos, WordStartPos: Integer;
     const Section: TInnoSetupSection; const IsParamSection: Boolean;
     out Res: TLineScanResult): Boolean;
   begin
@@ -387,8 +385,8 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           Exit;
         var NameOrPrefixStartPos := NameStartPos;
         if (Section = scLangOptions) and (C = '=') then
-          NameOrPrefixStartPos := SkipLanguagePrefixBeforeWord(AMemo, LinePos, NameStartPos);
-        if not OnlyWhiteSpaceBeforeWord(AMemo, LinePos, NameOrPrefixStartPos) then
+          NameOrPrefixStartPos := SkipLanguagePrefixBeforeWord(LinePos, NameStartPos);
+        if not OnlyWhiteSpaceBeforeWord(LinePos, NameOrPrefixStartPos) then
           Exit;
         if C = '=' then begin
           const NameEndPos = AMemo.GetWordEndPosition(NameStartPos, True);
@@ -430,13 +428,13 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := True;
   end;
 
-  function ChooseCodeWordList(const AMemo: TScintEdit; const Key: AnsiChar;
-    const LinePos, WordStartPos: Integer; out WordList: AnsiString): Boolean;
+  function ChooseCodeWordList(const LinePos, WordStartPos: Integer;
+    out WordList: AnsiString): Boolean;
   begin
     Result := False;
 
     { Space can only initiate autocompletion after non whitespace }
-    if (Key = ' ') and OnlyWhiteSpaceBeforeWord(AMemo, LinePos, WordStartPos) then
+    if (Key = ' ') and OnlyWhiteSpaceBeforeWord(LinePos, WordStartPos) then
       Exit;
 
     if (Key <> #0) and not StyleAllowsAutoStart(LinePos, WordStartPos, False) then
@@ -450,7 +448,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     if (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) <= ' ') then begin
       const FunctionWordEndPos = PositionBeforeWordStartPos;
       const FunctionWordStartPos = AMemo.GetWordStartPosition(FunctionWordEndPos, True);
-      if OnlyWhiteSpaceBeforeWord(AMemo, LinePos, FunctionWordStartPos) then begin
+      if OnlyWhiteSpaceBeforeWord(LinePos, FunctionWordStartPos) then begin
         const FunctionWord = AMemo.GetTextRange(FunctionWordStartPos, FunctionWordEndPos);
         if SameText(FunctionWord, 'procedure') then
           WordList := FMemosStyler.EventFunctionsWordList[True]
@@ -471,7 +469,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := True;
   end;
 
-  function CanAutoComplete(const Key: AnsiChar; const Res: TLineScanResult;
+  function CanAutoComplete(const Res: TLineScanResult;
     const Section: TInnoSetupSection): Boolean;
   begin
     Result := False;
@@ -607,7 +605,7 @@ begin
     case AMemo.GetByteAtPosition(WordStartPos) of
       '#':
         begin
-          if not OnlyWhiteSpaceBeforeWord(AMemo, LinePos, WordStartPos) then
+          if not OnlyWhiteSpaceBeforeWord(LinePos, WordStartPos) then
             Exit;
           WordList := FMemosStyler.ISPPDirectivesWordList;
           FillupChars := ' ';
@@ -619,7 +617,7 @@ begin
         end;
       '[':
         begin
-          if not OnlyWhiteSpaceBeforeWord(AMemo, LinePos, WordStartPos) then
+          if not OnlyWhiteSpaceBeforeWord(LinePos, WordStartPos) then
             Exit;
           WordList := FMemosStyler.SectionsWordList;
         end;
@@ -629,13 +627,13 @@ begin
           if Section in [scUnknown, scThirdParty] then
             Exit
           else if Section = scCode then begin
-            if not ChooseCodeWordList(AMemo, Key, LinePos, WordStartPos, WordList) then
+            if not ChooseCodeWordList(LinePos, WordStartPos, WordList) then
               Exit;
           end else begin
             const IsParamSection = Section in ParameterSections;
             var Res: TLineScanResult;
-            if not LineScanBackwards(AMemo, LinePos, WordStartPos, Section, IsParamSection, Res) or
-               not CanAutoComplete(Key, Res, Section) or
+            if not LineScanBackwards(LinePos, WordStartPos, Section, IsParamSection, Res) or
+               not CanAutoComplete(Res, Section) or
                not ChooseWordList(Res, Section, IsParamSection, WordList, FillupChars, ExtraContinueChars) then
               Exit;
           end;
@@ -645,7 +643,7 @@ begin
 
   FAutoCompleteExtraContinueChars := ExtraContinueChars; { Used by ExtendCharsBefore (above) and AutoCompleteAndCallTipsHandleCharAdded (below) }
   if FAutoCompleteExtraContinueChars <> [] then
-    CharsBefore := ExtendCharsBefore(AMemo, LinePos, CaretPos, CharsBefore);
+    CharsBefore := ExtendCharsBefore(LinePos, CaretPos, CharsBefore);
 
   AMemo.SetAutoCompleteFillupChars(FillupChars);
   AMemo.ShowAutoComplete(CharsBefore, WordList);
