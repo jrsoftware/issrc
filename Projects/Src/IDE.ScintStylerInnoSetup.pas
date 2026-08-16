@@ -14,7 +14,8 @@ interface
 uses
   SysUtils, Classes, Graphics, Generics.Collections, TypInfo,
   ScintEdit, ModernColors, Shared.ScriptFunc, Shared.SetupSectionDirectives,
-  Shared.Struct, IDE.ScriptModel.Metadata.Extra;
+  Shared.Struct, IDE.ScriptModel.Metadata.Extra,
+  IDE.ScriptModel.Metadata.Extra.WordLists;
 
 const
   InnoSetupStylerAutoCompleteWordChars = ['0'..'9', 'A'..'Z', 'a'..'z', '_'];
@@ -34,7 +35,6 @@ type
     stPascalReservedWord, stPascalString, stPascalNumber,
     stISPPReservedWord, stISPPString, stISPPNumber);
 
-  TWordsBySection = TObjectDictionary<TInnoSetupSection, TStringList>;
   TFunctionDefinition = record
     ScriptFuncWithoutHeader: AnsiString;
     HeaderKind: TScriptFuncHeaderKind;
@@ -51,9 +51,7 @@ type
   private
     FParameterNames: array[TInnoSetupSection] of TArray<TScintRawString>;
     FMemberNamesWordList: array[TInnoSetupSection] of AnsiString;
-    FMemberValuesWordLists: TDictionary<String, AnsiString>;
     FNoHighlightAtCursorWords: TWordsBySection;
-    FFlagsWords: TWordsBySection;
     FISPPFunctionsByName: TFunctionDefinitionsByName;
     FISPPExpressionWordList: AnsiString;
     FScriptFunctionsByName: array[Boolean] of TFunctionDefinitionsByName;
@@ -76,14 +74,11 @@ type
     class function GetFunctionDefinition(const FunctionsByName: TFunctionDefinitionsByName;
       const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; static;
     function GetMemberNamesWordList(Section: TInnoSetupSection): AnsiString;
-    function GetMemberValuesWordList(Section: TInnoSetupSection; const MemberName: String): AnsiString;
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState; var CodeBlockHeader: Boolean);
     procedure HandleKeyValueSection(const Section: TInnoSetupSection);
     procedure HandleParameterSection(const ValidParameterNames: array of TScintRawString);
     procedure HandleCompilerDirective(const InlineDirective: Boolean;
       const InlineDirectiveEndIndex: Integer; var OpenCount: ShortInt);
-    class function MemberValuesKey(const Section: TInnoSetupSection;
-      const MemberName: String): String; static;
     procedure PreStyleInlineISPPDirectives;
     procedure SkipWhitespace;
     procedure SquigglifyUntilChars(const Chars: TScintRawCharSet;
@@ -115,12 +110,10 @@ type
       const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; overload;
     function GetScriptFunctionDefinition(const ClassMember: Boolean;
       const Name: String; const Index: Integer): TFunctionDefinition; overload;
-    function SectionHasFlag(const Section: TInnoSetupSection; const Flag: String): Boolean;
     function HighlightAtCursorAllowed(const Section: TInnoSetupSection; const Word: String): Boolean;
     property ISPPExpressionWordList: AnsiString read FISPPExpressionWordList;
     property ISPPInstalled: Boolean read FISPPInstalled write FISPPInstalled;
     property MemberNamesWordList[Section: TInnoSetupSection]: AnsiString read GetMemberNamesWordList;
-    property MemberValuesWordList[Section: TInnoSetupSection; const MemberName: String]: AnsiString read GetMemberValuesWordList;
     property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
@@ -130,7 +123,7 @@ implementation
 uses
   Generics.Defaults,
   Shared.SetupMessageIDs, ScintInt, Shared.LangOptionsSectionDirectives,
-  IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra.WordLists,
+  IDE.ScriptModel.Metadata,
   isxclasses_wordlists_generated;
 
 type
@@ -211,49 +204,6 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     end;
   end;
 
-  procedure BuildMemberValuesWordLists;
-  begin
-    { Builds FMemberValuesWordLists (for autocomplete) and FFlagsWords (for
-      SectionHasFlag) from all members having known values in the metadata.
-      Such a member just works, except for one case needing an extra change
-      in InitiateAutoComplete: values containing characters outside of
-      InnoSetupStylerAutoCompleteStartOrContinueChars (like Permissions' '-')
-      need extra continue chars set in ChooseWordList.
-      Note: Flags has additional special treatment, validating the words
-      before the caret, see FFlagsWords and FoundNonFlagWord. }
-    for var Item in SectionMap do begin
-      if not (Item.Section in DirectiveSections + ParameterSections) then
-        Continue; { [Messages], [CustomMessages], and [Code] have no metadata }
-      var Metadata: TScriptModelSectionMetadata;
-      if not TryGetScriptModelSectionMetadata(Item.Name, Metadata) then
-        raise Exception.CreateFmt('Internal error: no script model metadata for section [%s]',
-          [Item.Name]);
-      for var Member in Metadata.Members do begin
-        if Length(Member.KnownValues) = 0 then
-          Continue;
-        var Values: TArray<AnsiString>;
-        SetLength(Values, Length(Member.KnownValues));
-        for var I := 0 to High(Member.KnownValues) do
-          Values[I] := AnsiString(Member.KnownValues[I]);
-        FMemberValuesWordLists.Add(MemberValuesKey(Item.Section, Member.Name),
-          BuildAutoCompleteWordList(Values));
-        if Member.Name = 'Flags' then begin
-          const SL = FFlagsWords[Item.Section];
-          for var Value in Values do
-            SL.Add(String(Value));
-        end;
-      end;
-      if Item.Section = scSetup then begin
-        { The expression directives (like ArchitecturesAllowed) have no known
-          values in the metadata, their values come from the extra metadata }
-        for var DirectiveValue in SetupSectionExpressionDirectivesValues do
-          FMemberValuesWordLists.Add(
-            MemberValuesKey(scSetup, Metadata.Members[Ord(DirectiveValue.Directive)].Name),
-            BuildAutoCompleteWordList(DirectiveValue.Values));
-      end;
-    end;
-  end;
-
   procedure BuildMemberNamesWordLists;
   begin
     { Builds FMemberNamesWordList (for autocomplete) and FNoHighlightAtCursorWords }
@@ -319,28 +269,15 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
     end;
   end;
 
-  function CreateWordsBySectionList: TStringList;
-  begin
-    Result := TStringList.Create;
-    Result.CaseSensitive := False;
-    Result.UseLocale := False; { Make sure it uses CompareText and not AnsiCompareText }
-    Result.Sorted := True;
-  end;
-
 begin
   inherited;
   BuildSectionParameterNameLists;
   FNoHighlightAtCursorWords := TWordsBySection.Create([doOwnsValues]);
-  FFlagsWords := TWordsBySection.Create([doOwnsValues]);
-  for var Section := Low(TInnoSetupSection) to High(TInnoSetupSection) do begin
+  for var Section := Low(TInnoSetupSection) to High(TInnoSetupSection) do
     FNoHighlightAtCursorWords.Add(Section, CreateWordsBySectionList);
-    FFlagsWords.Add(Section, CreateWordsBySectionList);
-  end;
   FISPPFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   BuildISPPExpressionWordList;
   BuildMemberNamesWordLists;
-  FMemberValuesWordLists := TDictionary<String, AnsiString>.Create(TIStringComparer.Ordinal);
-  BuildMemberValuesWordLists;
   FScriptFunctionsByName[False] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   FScriptFunctionsByName[True] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   BuildScriptLists;
@@ -350,9 +287,7 @@ destructor TInnoSetupStyler.Destroy;
 begin
   FScriptFunctionsByName[False].Free;
   FScriptFunctionsByName[True].Free;
-  FMemberValuesWordLists.Free;
   FISPPFunctionsByName.Free;
-  FFlagsWords.Free;
   FNoHighlightAtCursorWords.Free;
   inherited;
 end;
@@ -502,19 +437,6 @@ end;
 function TInnoSetupStyler.GetMemberNamesWordList(Section: TInnoSetupSection): AnsiString;
 begin
   Result := FMemberNamesWordList[Section];
-end;
-
-class function TInnoSetupStyler.MemberValuesKey(const Section: TInnoSetupSection;
-  const MemberName: String): String;
-begin
-  Result := IntToStr(Ord(Section)) + ':' + MemberName;
-end;
-
-function TInnoSetupStyler.GetMemberValuesWordList(Section: TInnoSetupSection;
-  const MemberName: String): AnsiString;
-begin
-  if not FMemberValuesWordLists.TryGetValue(MemberValuesKey(Section, MemberName), Result) then
-    Result := '';
 end;
 
 { Result is undefined if out Count = 0 }
@@ -1216,12 +1138,6 @@ begin
         Inc(I);
     end;
   end;
-end;
-
-function TInnoSetupStyler.SectionHasFlag(const Section: TInnoSetupSection;
-  const Flag: String): Boolean;
-begin
-  Result := FFlagsWords[Section].IndexOf(Flag) <> -1;
 end;
 
 function TInnoSetupStyler.HighlightAtCursorAllowed(const Section: TInnoSetupSection;

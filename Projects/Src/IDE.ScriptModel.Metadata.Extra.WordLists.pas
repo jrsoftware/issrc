@@ -12,7 +12,10 @@ unit IDE.ScriptModel.Metadata.Extra.WordLists;
 interface
 
 uses
-  Classes;
+  Classes, Generics.Collections,
+  IDE.ScriptModel.Metadata.Extra;
+
+{ Word lists for auto completion }
 
 const
   { AutoComplete words lists are strings for Scintilla, using the following
@@ -47,25 +50,40 @@ var
   ISPPPragmaAutoCompleteWordList: AnsiString;
   SectionsAutoCompleteWordList: AnsiString;
 
-procedure InitializeWordLists(const ISPPInstalled: Boolean);
-
 function GetEventFunctionsAutoCompleteWordList(Procedures: Boolean): AnsiString;
+function GetMemberValuesAutoCompleteWordList(const Section: TInnoSetupSection;
+  const MemberName: String): AnsiString;
 
 procedure AddAutoCompleteWordToList(const SL: TStringList; const Word: AnsiString;
   const Typ: Integer);
 function BuildAutoCompleteWordList(const Values: array of AnsiString): AnsiString; overload;
 function BuildAutoCompleteWordList(const WordStringList: TStringList): AnsiString; overload;
 
+{ Word lists for other purposes }
+
+type
+  TWordsBySection = TObjectDictionary<TInnoSetupSection, TStringList>;
+
+var
+  FlagsWords: TWordsBySection;
+
+function CreateWordsBySectionList: TStringList;
+
+{ Initialization }
+
+procedure InitializeWordLists(const ISPPInstalled: Boolean);
+
 implementation
 
 uses
-  SysUtils,
+  SysUtils, Generics.Defaults,
   Shared.ScriptFunc, Shared.Struct,
-  IDE.ScriptModel.Metadata.Extra;
+  IDE.ScriptModel.Metadata;
 
 var
   FISPPInstalled: Boolean;
   FEventFunctionsAutoCompleteWordList: array[Boolean] of AnsiString;
+  MemberValuesAutoCompleteWordLists: TDictionary<String, AnsiString>;
 
 procedure AddAutoCompleteWordToList(const SL: TStringList;
   const Word: AnsiString; const Typ: Integer);
@@ -195,6 +213,74 @@ begin
   end;
 end;
 
+function MemberValuesKey(const Section: TInnoSetupSection;
+  const MemberName: String): String;
+begin
+  Result := IntToStr(Ord(Section)) + ':' + MemberName;
+end;
+
+procedure BuildMemberValuesAutoCompleteWordListsAndFlagsWords;
+begin
+  { Builds MemberValuesAutoCompleteWordLists (for autocomplete) and FlagsWords (for
+    flag validation) from all members having known values in the metadata.
+    Such a member just works, except for one case needing an extra change
+    in InitiateAutoComplete: values containing characters outside of
+    InnoSetupStylerAutoCompleteStartOrContinueChars (like Permissions' '-')
+    need extra continue chars set in ChooseWordList.
+    Note: Flags has additional special treatment, validating the words
+    before the caret, see FlagsWords and FoundNonFlagWord. }
+  MemberValuesAutoCompleteWordLists := TDictionary<String, AnsiString>.Create(TIStringComparer.Ordinal);
+  FlagsWords := TWordsBySection.Create([doOwnsValues]);
+  for var Section := Low(TInnoSetupSection) to High(TInnoSetupSection) do
+    FlagsWords.Add(Section, CreateWordsBySectionList);
+  for var Item in SectionMap do begin
+    if not (Item.Section in DirectiveSections + ParameterSections) then
+      Continue; { [Messages], [CustomMessages], and [Code] have no metadata }
+    var Metadata: TScriptModelSectionMetadata;
+    if not TryGetScriptModelSectionMetadata(Item.Name, Metadata) then
+      raise Exception.CreateFmt('Internal error: no script model metadata for section [%s]',
+        [Item.Name]);
+    for var Member in Metadata.Members do begin
+      if Length(Member.KnownValues) = 0 then
+        Continue;
+      var Values: TArray<AnsiString>;
+      SetLength(Values, Length(Member.KnownValues));
+      for var I := 0 to High(Member.KnownValues) do
+        Values[I] := AnsiString(Member.KnownValues[I]);
+      MemberValuesAutoCompleteWordLists.Add(MemberValuesKey(Item.Section, Member.Name),
+        BuildAutoCompleteWordList(Values));
+      if Member.Name = 'Flags' then begin
+        const SL = FlagsWords[Item.Section];
+        for var Value in Values do
+          SL.Add(String(Value));
+      end;
+    end;
+    if Item.Section = scSetup then begin
+      { The expression directives (like ArchitecturesAllowed) have no known
+        values in the metadata, their values come from the extra metadata }
+      for var DirectiveValue in SetupSectionExpressionDirectivesValues do
+        MemberValuesAutoCompleteWordLists.Add(
+          MemberValuesKey(scSetup, Metadata.Members[Ord(DirectiveValue.Directive)].Name),
+          BuildAutoCompleteWordList(DirectiveValue.Values));
+    end;
+  end;
+end;
+
+function GetMemberValuesAutoCompleteWordList(const Section: TInnoSetupSection;
+  const MemberName: String): AnsiString;
+begin
+  if not MemberValuesAutoCompleteWordLists.TryGetValue(MemberValuesKey(Section, MemberName), Result) then
+    Result := '';
+end;
+
+function CreateWordsBySectionList: TStringList;
+begin
+  Result := TStringList.Create;
+  Result.CaseSensitive := False;
+  Result.UseLocale := False; { Make sure it uses CompareText and not AnsiCompareText }
+  Result.Sorted := True;
+end;
+
 procedure InitializeWordLists(const ISPPInstalled: Boolean);
 begin
   FISPPInstalled := ISPPInstalled;
@@ -202,7 +288,12 @@ begin
   BuildEventFunctionsAutoCompleteWordList;
   BuildISPPDirectivesAutoCompleteWordList;
   BuildISPPPragmaAutoCompleteWordList;
+  BuildMemberValuesAutoCompleteWordListsAndFlagsWords;
   BuildSectionsAutoCompleteWordList;
 end;
 
+initialization
+finalization
+  FlagsWords.Free;
+  MemberValuesAutoCompleteWordLists.Free;
 end.

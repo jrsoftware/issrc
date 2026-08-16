@@ -301,7 +301,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       of possible values, or the possible values can be determined from
       the script }
     Result :=
-      (FMemosStyler.MemberValuesWordList[Section, ParameterWord] <> '') or
+      (GetMemberValuesAutoCompleteWordList(Section, ParameterWord) <> '') or
       (GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone);
   end;
 
@@ -377,8 +377,8 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           const PrecedingWordIsInlineISPPDirective = PrecedingWord.StartsWith('{#');
           if not PrecedingWordIsInlineISPPDirective then
             Res.FoundNonInlineISPPDirectiveWord := True;
-          const CanBeFlag = FMemosStyler.MemberValuesWordList[Section, 'Flags'] <> '';
-          if not (CanBeFlag and (FMemosStyler.SectionHasFlag(Section, PrecedingWord) or
+          const CanBeFlag = GetMemberValuesAutoCompleteWordList(Section, 'Flags') <> '';
+          if not (CanBeFlag and ((FlagsWords[Section].IndexOf(PrecedingWord) <> -1) or
              PrecedingWordIsInlineISPPDirective)) then
             Res.FoundNonFlagWord := True;
           I := PrecedingStartPos;
@@ -483,7 +483,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
             if Directive = ssSignTool then
               WordList := BuildAutoCompleteWordList(GetAutoCompleteSignToolValues)
             else
-              WordList := FMemosStyler.MemberValuesWordList[Section, Res.FoundMemberName];
+              WordList := GetMemberValuesAutoCompleteWordList(Section, Res.FoundMemberName);
             if Directive in [ssArchiveExtraction, ssCompression] then
               ExtraContinueChars := ['/'];
           end;
@@ -491,7 +491,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
         if WordList = '' then
           Exit;
       end else begin
-        WordList := FMemosStyler.MemberValuesWordList[Section, Res.FoundMemberName];
+        WordList := GetMemberValuesAutoCompleteWordList(Section, Res.FoundMemberName);
         if WordList <> '' then begin
           if SameText(Res.FoundMemberName, 'Permissions') then
             ExtraContinueChars := ['-'];
