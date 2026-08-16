@@ -300,12 +300,12 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
 
   procedure BuildMemberValuesAutoCompleteWordListsAndFlagsWords;
   begin
-    { Builds MemberValuesAutoCompleteWordLists (for autocomplete) and FlagsWords (for
-      flag validation) from all members having known values in the metadata.
+    { Builds MemberValuesAutoCompleteWordLists (for autocomplete) and FlagsWords
+      (for flag validation) from all members having known values in the metadata.
       Such a member just works, except for one case needing an extra change
       in InitiateAutoComplete: values containing characters outside of
-      InnoSetupStylerAutoCompleteStartOrContinueChars (like Permissions' '-')
-      need extra continue chars set in ChooseWordList.
+      AutoCompleteStartOrContinueChars (like Permissions' '-' need extra continue
+      chars set in ChooseWordList.
       Note: Flags has additional special treatment, validating the words
       before the caret, see FlagsWords and FoundNonFlagWord. }
     MemberValuesAutoCompleteWordLists := TDictionary<String, AnsiString>.Create(TIStringComparer.Ordinal);

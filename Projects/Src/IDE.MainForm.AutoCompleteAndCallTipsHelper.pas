@@ -46,6 +46,10 @@ uses
   IDE.LiveScriptObjectFactory, IDE.ScintStylerInnoSetup, IDE.ScriptModel.Metadata,
   IDE.ScriptModel.Metadata.Extra, IDE.ScriptModel.Metadata.Extra.WordLists;
 
+const
+  AutoCompleteWordChars = ['0'..'9', 'A'..'Z', 'a'..'z', '_'];
+  AutoCompleteStartOrContinueChars = AutoCompleteWordChars + ['#', '{', '[', '<'];
+
 class function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
   const WordStartLinePos, PositionBeforeWordStartPos: Integer;
   const ISPPExpressionContext: Boolean): Boolean;
@@ -231,7 +235,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       const PosBefore = AMemo.GetPositionBefore(ValueStartPos);
       const C = AMemo.GetByteAtPosition(PosBefore);
       if not (C in FAutoCompleteExtraContinueChars) and
-         not (C in InnoSetupStylerAutoCompleteWordChars) then
+         not (C in AutoCompleteWordChars) then
         Break;
       ValueStartPos := PosBefore;
     end;
@@ -257,7 +261,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
   function CanAutoCompleteValue(const Value: String): Boolean;
   begin
     for var C in Value do
-      if not CharInSet(C, InnoSetupStylerAutoCompleteWordChars) then
+      if not CharInSet(C, AutoCompleteWordChars) then
         Exit(False);
     Result := True;
   end;
@@ -852,7 +856,7 @@ begin
     DoAutoComplete := True;
 
   if DoAutoComplete then begin
-    if Ch in InnoSetupStylerAutoCompleteStartOrContinueChars then begin
+    if Ch in AutoCompleteStartOrContinueChars then begin
       if not AMemo.AutoCompleteActive and FOptions.AutoAutoComplete and not (Ch in ['0'..'9']) then
         InitiateAutoComplete(AMemo, Ch);
     end else begin

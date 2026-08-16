@@ -17,10 +17,6 @@ uses
   Shared.Struct, IDE.ScriptModel.Metadata.Extra,
   IDE.ScriptModel.Metadata.Extra.WordLists;
 
-const
-  InnoSetupStylerAutoCompleteWordChars = ['0'..'9', 'A'..'Z', 'a'..'z', '_'];
-  InnoSetupStylerAutoCompleteStartOrContinueChars = InnoSetupStylerAutoCompleteWordChars + ['#', '{', '[', '<'];
-
 type
   { Internally-used types }
   TInnoSetupStylerSpanState = (spNone, spBraceComment, spStarComment);
