@@ -149,6 +149,7 @@ function TScriptModelSectionMetadata.TryGetMember(const AName: String;
 begin
   var Name := AName;
   if SameText(FSectionName, 'LangOptions') then begin
+    { Also see SkipLanguagePrefixBeforeWord in IDE.MainForm.AutoCompleteAndCallTipsHelper }
     const P = Pos('.', Name);
     if P > 1 then
       Name := Copy(Name, P+1, MaxInt);
