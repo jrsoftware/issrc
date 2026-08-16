@@ -512,6 +512,8 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
               WordList := FMemosStyler.BuildWordList(GetAutoCompleteSignToolValues)
             else
               WordList := FMemosStyler.MemberValuesWordList[Section, Res.FoundMemberName];
+            if Directive in [ssArchiveExtraction, ssCompression] then
+              ExtraContinueChars := ['/'];
           end;
         end;
         if WordList = '' then
