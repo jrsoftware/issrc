@@ -43,7 +43,8 @@ implementation
 uses
   SysUtils, Math, TypInfo,
   Shared.SetupSectionDirectives,
-  IDE.LiveScriptObjectFactory, IDE.ScintStylerInnoSetup, IDE.ScriptModel.Metadata.Extra;
+  IDE.LiveScriptObjectFactory, IDE.ScintStylerInnoSetup, IDE.ScriptModel.Metadata,
+  IDE.ScriptModel.Metadata.Extra;
 
 class function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
   const WordStartLinePos, PositionBeforeWordStartPos: Integer;
@@ -306,19 +307,32 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       (GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone);
   end;
 
-  function ParameterValueIsSingleValue(const ParameterName: String): Boolean;
+  function ParameterValueIsSingleValue(const ParameterName: String;
+    const Section: TInnoSetupSection): Boolean;
   begin
-    Result := SameText(ParameterName, 'Type') or SameText(ParameterName, 'Root') or
-      SameText(ParameterName, 'ValueType') or SameText(ParameterName, 'DestDir');
+    { A parameter accepts a single value only if the metadata says its value
+      is a choice, like Type }
+    var Metadata: TScriptModelSectionMetadata;
+    var Definition: TMemberDefinition;
+    Result := TryGetScriptModelSectionMetadata(SectionToSectionName(Section), Metadata) and
+      Metadata.TryGetMember(ParameterName, Definition) and
+      (Definition.ValueKind = mvkChoice);
   end;
 
   function SetupSectionDirectiveValueIsMultiValue(
     const SetupSectionDirective: TSetupSectionDirective): Boolean;
   begin
-    { "MultiValue" means a directive like WizardStyle which accepts a space separated list of values }
-    Result := SetupSectionDirective in [ssArchitecturesAllowed,
-      ssArchitecturesInstallIn64BitMode, ssDisablePrecompiledFileVerifications,
-      ssPrivilegesRequiredOverridesAllowed, ssWizardStyle];
+    { "MultiValue" means a directive which accepts a space separated list of
+      values: a flag directive like WizardStyle, or an expression directive
+      like ArchitecturesAllowed }
+    var Metadata: TScriptModelSectionMetadata;
+    if TryGetScriptModelSectionMetadata('Setup', Metadata) and
+       (Metadata.Members[Ord(SetupSectionDirective)].ValueKind = mvkFlags) then
+      Exit(True);
+    for var DirectiveValue in SetupSectionExpressionDirectivesValues do
+      if DirectiveValue.Directive = SetupSectionDirective then
+        Exit(True);
+    Result := False;
   end;
 
   type
@@ -457,7 +471,8 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     Result := True;
   end;
 
-  function CanAutoComplete(const Key: AnsiChar; const Res: TLineScanResult): Boolean;
+  function CanAutoComplete(const Key: AnsiChar; const Res: TLineScanResult;
+    const Section: TInnoSetupSection): Boolean;
   begin
     Result := False;
     { No member found before the current word means a parameter name is being
@@ -473,7 +488,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
     { Don't autocomplete a value of a parameter accepting a single value only
       (like Type) if anything stands between the parameter name and the
       current word }
-    if ParameterValueIsSingleValue(Res.FoundMemberName) and Res.FoundWord then
+    if ParameterValueIsSingleValue(Res.FoundMemberName, Section) and Res.FoundWord then
       Exit;
     { A space can only initiate autocompletion after ';' or a member name }
     if (Key = ' ') and not (Res.FoundSemicolon or (Res.FoundMemberName <> '')) then
@@ -620,7 +635,7 @@ begin
             const IsParamSection = Section in ParameterSections;
             var Res: TLineScanResult;
             if not LineScanBackwards(AMemo, LinePos, WordStartPos, Section, IsParamSection, Res) or
-               not CanAutoComplete(Key, Res) or
+               not CanAutoComplete(Key, Res, Section) or
                not ChooseWordList(Res, Section, IsParamSection, WordList, FillupChars, ExtraContinueChars) then
               Exit;
           end;

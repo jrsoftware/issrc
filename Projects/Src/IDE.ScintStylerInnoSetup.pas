@@ -267,13 +267,10 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
   begin
     { Builds FMemberValuesWordLists (for autocomplete) and FFlagsWords (for
       SectionHasFlag) from all members having known values in the metadata.
-      Such a member just works, except for three cases needing an extra change
-      in InitiateAutoComplete: a parameter accepting a single value only
-      (like Type) must also be added to ParameterValueIsSingleValue, a [Setup]
-      directive accepting a space separated list of values (like WizardStyle)
-      must also be added to SetupSectionDirectiveValueIsMultiValue, and
-      values containing non-word characters (like Permissions' '-') need
-      extra continue chars set in ChooseWordList.
+      Such a member just works, except for one case needing an extra change
+      in InitiateAutoComplete: values containing characters outside of
+      InnoSetupStylerAutoCompleteStartOrContinueChars (like Permissions' '-')
+      need extra continue chars set in ChooseWordList.
       Note: Flags has additional special treatment, validating the words
       before the caret, see FFlagsWords and FoundNonFlagWord. }
     for var Item in SectionMap do begin
