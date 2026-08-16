@@ -770,7 +770,8 @@ uses
   IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule, IDE.IDEForm,
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.GotoFileForm,
   IDE.InputQueryForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper, IDE.RichEditForm,
-  {$IFDEF DEBUG} IDE.LiveScriptObjectFactory.Test, {$ENDIF} IDE.ScriptModel.Metadata.Extra;
+  {$IFDEF DEBUG} IDE.LiveScriptObjectFactory.Test, {$ENDIF} IDE.ScriptModel.Metadata.Extra,
+  IDE.ScriptModel.Metadata.Extra.WordLists;
 
 {$R *.DFM}
 

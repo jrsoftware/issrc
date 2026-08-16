@@ -17,32 +17,8 @@ uses
   Shared.Struct, IDE.ScriptModel.Metadata.Extra;
 
 const
-  InnoSetupStylerWordListSeparator = #9;
-  InnoSetupStylerWordListTypeSeparator = '!'; { Must sort before numbers - so the default '?' is not ok }
-
   InnoSetupStylerAutoCompleteWordChars = ['0'..'9', 'A'..'Z', 'a'..'z', '_'];
   InnoSetupStylerAutoCompleteStartOrContinueChars = InnoSetupStylerAutoCompleteWordChars + ['#', '{', '[', '<'];
-
-  { AutoComplete word types }
-  awtSection = 0;
-  awtParameter = 1;
-  awtDirective = 2;
-  awtFlagOrSetupDirectiveValue = 3;
-  awtPreprocessorDirective = 4;
-  awtPreprocessorSubDirective = 5;
-  awtConstant = 6;
-  awtScriptFunction = 10;
-  awtScriptType = 11;
-  awtScriptVariable = 12;
-  awtScriptConstant = 13;
-  awtScriptInterface = 14;
-  awtScriptProperty = 15;
-  awtScriptEvent = 16;
-  awtScriptKeyword = 17;
-  awtScriptEnumValue = 18;
-  awtISPPFunction = 30;
-  awtISPPVariable = 31;
-  awtISPPConstant = 32;
 
 type
   { Internally-used types }
@@ -87,8 +63,6 @@ type
     FSectionsWordList: AnsiString;
     FISPPInstalled: Boolean;
     FTheme: TTheme;
-    procedure AddWordToList(const SL: TStringList; const Word: AnsiString;
-      const Typ: Integer);
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
@@ -145,8 +119,6 @@ type
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean; static;
     class function LineSectionHeader(const LineState: TScintLineState; out Section: TInnoSetupSection): Boolean; static;
     class function LineSpans(const S: TScintRawString): Boolean; static;
-    function BuildWordList(const Values: array of AnsiString): AnsiString; overload;
-    function BuildWordList(const WordStringList: TStringList): AnsiString; overload;
     function GetISPPFunctionDefinition(const Name: String;
       const Index: Integer; out Count: Integer): TFunctionDefinition;
     function GetScriptFunctionDefinition(const ClassMember: Boolean;
@@ -173,7 +145,7 @@ implementation
 uses
   Generics.Defaults,
   Shared.SetupMessageIDs, ScintInt, Shared.LangOptionsSectionDirectives,
-  IDE.ScriptModel.Metadata,
+  IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra.WordLists,
   isxclasses_wordlists_generated;
 
 type
@@ -183,15 +155,6 @@ type
     SpanState: TInnoSetupStylerSpanState;
     OpenCompilerDirectivesCount: ShortInt;
   end;
-
-type
-  TSectionMapItem = record
-    Name: String;
-    Section: TInnoSetupSection;
-  end;
-
-var
-  SectionMap: array of TSectionMapItem; { Initialized below - only contains known true sections }
 
 const
   inSquiggly = 0;
@@ -414,15 +377,6 @@ begin
   inherited;
 end;
 
-procedure TInnoSetupStyler.AddWordToList(const SL: TStringList;
-  const Word: AnsiString; const Typ: Integer);
-begin
-  if Typ >= 0 then
-    SL.Add(Format('%s%s%d', [Word, InnoSetupStylerWordListTypeSeparator, Typ]))
-  else
-    SL.Add(String(Word));
-end;
-
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
 begin
   if (CaretIndex >= StartIndex) and (CaretIndex <= EndIndex + 1) then
@@ -439,36 +393,6 @@ end;
 procedure TInnoSetupStyler.ApplySquigglyFromIndex(const StartIndex: Integer);
 begin
   ApplyStyleByteIndicators([inSquiggly], StartIndex, CurIndex - 1);
-end;
-
-function TInnoSetupStyler.BuildWordList(const Values: array of AnsiString): AnsiString;
-begin
-  const SL = TStringList.Create;
-  try
-    for var Value in Values do
-      AddWordToList(SL, Value, awtFlagOrSetupDirectiveValue);
-    Result := BuildWordList(SL);
-  finally
-    SL.Free;
-  end;
-end;
-
-function TInnoSetupStyler.BuildWordList(const WordStringList: TStringList): AnsiString;
-begin
-  { Scintilla uses an ASCII binary search so the list must be in ASCII sort
-    order (case-insensitive). }
-  WordStringList.CaseSensitive := False;
-  WordStringList.UseLocale := False; { Make sure it uses CompareText and not AnsiCompareText }
-  WordStringList.Sort;
-
-  Result := '';
-  for var S in WordStringList do begin
-    var A := AnsiString(S);
-    if Result = '' then
-      Result := A
-    else
-      Result := Result + InnoSetupStylerWordListSeparator + A;
-  end;
 end;
 
 procedure TInnoSetupStyler.BuildSectionsWordList;
@@ -1542,16 +1466,5 @@ begin
   NewLineState.Section := Section;
   LineState := TScintLineState(NewLineState);
 end;
-
-function SMI(const Section: TInnoSetupSection): TSectionMapItem;
-begin
-  Result.Name := SectionToSectionName(Section);
-  Result.Section := Section;
-end;
-
-initialization
-  for var Section := Low(TInnoSetupSection) to High(TInnoSetupSection) do
-    if not (Section in [scNone, scUnknown, scThirdParty, scCodeBlock]) then
-      SectionMap := SectionMap + [SMI(Section)];
 
 end.

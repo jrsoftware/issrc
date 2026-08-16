@@ -44,7 +44,7 @@ uses
   SysUtils, Math, TypInfo,
   Shared.SetupSectionDirectives,
   IDE.LiveScriptObjectFactory, IDE.ScintStylerInnoSetup, IDE.ScriptModel.Metadata,
-  IDE.ScriptModel.Metadata.Extra;
+  IDE.ScriptModel.Metadata.Extra, IDE.ScriptModel.Metadata.Extra.WordLists;
 
 class function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
   const WordStartLinePos, PositionBeforeWordStartPos: Integer;
@@ -305,34 +305,6 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       (GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone);
   end;
 
-  function ParameterValueIsSingleValue(const ParameterName: String;
-    const Section: TInnoSetupSection): Boolean;
-  begin
-    { A parameter accepts a single value only if the metadata says its value
-      is a choice, like Type }
-    var Metadata: TScriptModelSectionMetadata;
-    var Definition: TMemberDefinition;
-    Result := TryGetScriptModelSectionMetadata(SectionToSectionName(Section), Metadata) and
-      Metadata.TryGetMember(ParameterName, Definition) and
-      (Definition.ValueKind = mvkChoice);
-  end;
-
-  function SetupSectionDirectiveValueIsMultiValue(
-    const SetupSectionDirective: TSetupSectionDirective): Boolean;
-  begin
-    { "MultiValue" means a directive which accepts a space separated list of
-      values: a flag directive like WizardStyle, or an expression directive
-      like ArchitecturesAllowed }
-    var Metadata: TScriptModelSectionMetadata;
-    if TryGetScriptModelSectionMetadata('Setup', Metadata) and
-       (Metadata.Members[Ord(SetupSectionDirective)].ValueKind = mvkFlags) then
-      Exit(True);
-    for var DirectiveValue in SetupSectionExpressionDirectivesValues do
-      if DirectiveValue.Directive = SetupSectionDirective then
-        Exit(True);
-    Result := False;
-  end;
-
   type
     TLineScanResult = record
       { These are all 'preceding'. So for example if FoundWord is True then there's a
@@ -509,7 +481,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           if not Res.FoundMultipleSetupDirectiveValues or
             SetupSectionDirectiveValueIsMultiValue(Directive) then begin
             if Directive = ssSignTool then
-              WordList := FMemosStyler.BuildWordList(GetAutoCompleteSignToolValues)
+              WordList := BuildWordList(GetAutoCompleteSignToolValues)
             else
               WordList := FMemosStyler.MemberValuesWordList[Section, Res.FoundMemberName];
             if Directive in [ssArchiveExtraction, ssCompression] then
@@ -524,7 +496,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           if SameText(Res.FoundMemberName, 'Permissions') then
             ExtraContinueChars := ['-'];
         end else begin
-          WordList := FMemosStyler.BuildWordList(
+          WordList := BuildWordList(
             GetAutoCompleteScriptValues(Res.FoundMemberName));
           if WordList = '' then
             Exit;
