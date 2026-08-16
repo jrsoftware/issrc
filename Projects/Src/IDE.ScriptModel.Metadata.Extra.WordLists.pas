@@ -18,10 +18,8 @@ uses
 { Word lists for auto completion }
 
 const
-  { AutoComplete words lists are strings for Scintilla, using the following
-    separators }
   AutoCompleteWordListSeparator = #9;
-  AutoCompleteWordListTypeSeparator = '!'; { Must sort before numbers - so the default '?' is not ok }
+  AutoCompleteWordListTypeSeparator = '!'; { Must sort before numbers }
 
   { AutoComplete word types }
   awtSection = 0;
