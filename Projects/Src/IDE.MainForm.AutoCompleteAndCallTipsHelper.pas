@@ -586,7 +586,7 @@ begin
         end;
       '{':
         begin
-          WordList := FMemosStyler.ConstantsWordList;
+          WordList := ConstantsAutoCompleteWordList;
           FillupChars := '\:';
         end;
       '[':

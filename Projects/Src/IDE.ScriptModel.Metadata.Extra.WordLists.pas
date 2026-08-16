@@ -42,27 +42,29 @@ const
   awtISPPConstant = 32;
 
 var
+  ConstantsAutoCompleteWordList: AnsiString;
   ISPPDirectivesAutoCompleteWordList: AnsiString;
   ISPPPragmaAutoCompleteWordList: AnsiString;
   SectionsAutoCompleteWordList: AnsiString;
 
-procedure AddAutoCompleteWordToList(const SL: TStringList; const Word: AnsiString;
-  const Typ: Integer);
-
-function BuildAutoCompleteWordList(const Values: array of AnsiString): AnsiString; overload;
-
-function BuildAutoCompleteWordList(const WordStringList: TStringList): AnsiString; overload;
+procedure InitializeWordLists(const ISPPInstalled: Boolean);
 
 function GetEventFunctionsAutoCompleteWordList(Procedures: Boolean): AnsiString;
+
+procedure AddAutoCompleteWordToList(const SL: TStringList; const Word: AnsiString;
+  const Typ: Integer);
+function BuildAutoCompleteWordList(const Values: array of AnsiString): AnsiString; overload;
+function BuildAutoCompleteWordList(const WordStringList: TStringList): AnsiString; overload;
 
 implementation
 
 uses
   SysUtils,
-  Shared.ScriptFunc,
+  Shared.ScriptFunc, Shared.Struct,
   IDE.ScriptModel.Metadata.Extra;
 
 var
+  FISPPInstalled: Boolean;
   FEventFunctionsAutoCompleteWordList: array[Boolean] of AnsiString;
 
 procedure AddAutoCompleteWordToList(const SL: TStringList;
@@ -170,9 +172,37 @@ begin
   Result := FEventFunctionsAutoCompleteWordList[Procedures];
 end;
 
-initialization
+procedure BuildConstantsAutoCompleteWordList;
+begin
+  var SL := TStringList.Create;
+  try
+    for var Constant in Constants do
+      if Constant = '{' then
+        AddAutoCompleteWordToList(SL, '{{', awtConstant)
+      else
+        AddAutoCompleteWordToList(SL, '{' + Constant + '}', awtConstant);
+    if FISPPInstalled then begin
+      AddAutoCompleteWordToList(SL, '{#', awtConstant);
+      AddAutoCompleteWordToList(SL, '{#file ', awtConstant);
+      for var ISPPPredefinedVariable in ISPPPredefinedVariables do
+        AddAutoCompleteWordToList(SL, '{#' + ISPPPredefinedVariable + '}', awtConstant);
+    end;
+    for var ConstantWithParam in ConstantsWithParam do
+      AddAutoCompleteWordToList(SL, AnsiString('{' + ConstantWithParam), awtConstant);
+    ConstantsAutoCompleteWordList := BuildAutoCompleteWordList(SL);
+  finally
+    SL.Free;
+  end;
+end;
+
+procedure InitializeWordLists(const ISPPInstalled: Boolean);
+begin
+  FISPPInstalled := ISPPInstalled;
+  BuildConstantsAutoCompleteWordList;
   BuildEventFunctionsAutoCompleteWordList;
   BuildISPPDirectivesAutoCompleteWordList;
   BuildISPPPragmaAutoCompleteWordList;
   BuildSectionsAutoCompleteWordList;
+end;
+
 end.

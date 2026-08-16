@@ -54,7 +54,6 @@ type
     FMemberValuesWordLists: TDictionary<String, AnsiString>;
     FNoHighlightAtCursorWords: TWordsBySection;
     FFlagsWords: TWordsBySection;
-    FConstantsWordList: AnsiString;
     FISPPFunctionsByName: TFunctionDefinitionsByName;
     FISPPExpressionWordList: AnsiString;
     FScriptFunctionsByName: array[Boolean] of TFunctionDefinitionsByName;
@@ -64,7 +63,6 @@ type
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
-    procedure BuildConstantsWordList;
     procedure BuildISPPExpressionWordList;
     procedure BuildMemberNamesWordListFromParameterNames(const Section: TInnoSetupSection;
       const ParameterNames: array of TScintRawString);
@@ -92,7 +90,6 @@ type
       const Style: TInnoSetupStylerStyle);
     procedure StyleConstsUntilChars(const Chars: TScintRawCharSet;
       const NonConstStyle: TInnoSetupStylerStyle; var BraceLevel: Integer);
-    procedure SetISPPInstalled(const Value: Boolean);
     function GetScriptWordList(ClassOrRecordMembers: Boolean): AnsiString;
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
@@ -120,9 +117,8 @@ type
       const Name: String; const Index: Integer): TFunctionDefinition; overload;
     function SectionHasFlag(const Section: TInnoSetupSection; const Flag: String): Boolean;
     function HighlightAtCursorAllowed(const Section: TInnoSetupSection; const Word: String): Boolean;
-    property ConstantsWordList: AnsiString read FConstantsWordList;
     property ISPPExpressionWordList: AnsiString read FISPPExpressionWordList;
-    property ISPPInstalled: Boolean read FISPPInstalled write SetISPPInstalled;
+    property ISPPInstalled: Boolean read FISPPInstalled write FISPPInstalled;
     property MemberNamesWordList[Section: TInnoSetupSection]: AnsiString read GetMemberNamesWordList;
     property MemberValuesWordList[Section: TInnoSetupSection; const MemberName: String]: AnsiString read GetMemberValuesWordList;
     property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
@@ -340,7 +336,6 @@ begin
     FNoHighlightAtCursorWords.Add(Section, CreateWordsBySectionList);
     FFlagsWords.Add(Section, CreateWordsBySectionList);
   end;
-  BuildConstantsWordList;
   FISPPFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   BuildISPPExpressionWordList;
   BuildMemberNamesWordLists;
@@ -455,29 +450,6 @@ begin
     for var ISPPConstant in ISPPConstants do
       AddAutoCompleteWordToList(SL, ISPPConstant, awtISPPConstant);
     FISPPExpressionWordList := BuildAutoCompleteWordList(SL);
-  finally
-    SL.Free;
-  end;
-end;
-
-procedure TInnoSetupStyler.BuildConstantsWordList;
-begin
-  var SL := TStringList.Create;
-  try
-    for var Constant in Constants do
-      if Constant = '{' then
-        AddAutoCompleteWordToList(SL, '{{', awtConstant)
-      else
-        AddAutoCompleteWordToList(SL, '{' + Constant + '}', awtConstant);
-    if ISPPInstalled then begin
-      AddAutoCompleteWordToList(SL, '{#', awtConstant);
-      AddAutoCompleteWordToList(SL, '{#file ', awtConstant);
-      for var ISPPPredefinedVariable in ISPPPredefinedVariables do
-        AddAutoCompleteWordToList(SL, '{#' + ISPPPredefinedVariable + '}', awtConstant);
-    end;
-    for var ConstantWithParam in ConstantsWithParam do
-      AddAutoCompleteWordToList(SL, AnsiString('{' + ConstantWithParam), awtConstant);
-    FConstantsWordList := BuildAutoCompleteWordList(SL);
   finally
     SL.Free;
   end;
@@ -1256,14 +1228,6 @@ function TInnoSetupStyler.HighlightAtCursorAllowed(const Section: TInnoSetupSect
   const Word: string): Boolean;
 begin
   Result := FNoHighlightAtCursorWords[Section].IndexOf(Word) = -1;
-end;
-
-procedure TInnoSetupStyler.SetISPPInstalled(const Value: Boolean);
-begin
-  if Value <> FISPPInstalled then begin
-    FISPPInstalled := Value;
-    BuildConstantsWordList;
-  end;
 end;
 
 procedure TInnoSetupStyler.SkipWhitespace;
