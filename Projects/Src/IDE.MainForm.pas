@@ -4030,7 +4030,8 @@ procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
   function HighlightAtCursorAllowed(const Word: TScintRawString): Boolean;
   begin
     const Section = TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
-    Result := FMemosStyler.HighlightAtCursorAllowed(Section, AMemo.ConvertRawStringToString(Word));
+    Result := NoHighlightAtCursorWords[Section].IndexOf(
+      AMemo.ConvertRawStringToString(Word)) = -1;
   end;
 
 begin

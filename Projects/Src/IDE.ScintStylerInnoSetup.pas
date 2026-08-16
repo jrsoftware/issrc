@@ -49,9 +49,6 @@ type
 
   TInnoSetupStyler = class(TScintCustomStyler)
   private
-    FParameterNames: array[TInnoSetupSection] of TArray<TScintRawString>;
-    FMemberNamesWordList: array[TInnoSetupSection] of AnsiString;
-    FNoHighlightAtCursorWords: TWordsBySection;
     FISPPFunctionsByName: TFunctionDefinitionsByName;
     FISPPExpressionWordList: AnsiString;
     FScriptFunctionsByName: array[Boolean] of TFunctionDefinitionsByName;
@@ -62,10 +59,6 @@ type
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
     procedure BuildISPPExpressionWordList;
-    procedure BuildMemberNamesWordListFromParameterNames(const Section: TInnoSetupSection;
-      const ParameterNames: array of TScintRawString);
-    procedure BuildMemberNamesWordListFromTypeInfo(const Section: TInnoSetupSection;
-      const EnumTypeInfo: Pointer; const PrefixLength: Integer);
     procedure BuildScriptFunctionsLists(const ScriptFuncTable: TScriptTable;
       const ClassMembers: Boolean; const SL: TStringList);
     procedure CommitStyleSq(const Style: TInnoSetupStylerStyle;
@@ -73,10 +66,9 @@ type
     procedure CommitStyleSqPending(const Style: TInnoSetupStylerStyle);
     class function GetFunctionDefinition(const FunctionsByName: TFunctionDefinitionsByName;
       const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; static;
-    function GetMemberNamesWordList(Section: TInnoSetupSection): AnsiString;
     procedure HandleCodeSection(var SpanState: TInnoSetupStylerSpanState; var CodeBlockHeader: Boolean);
     procedure HandleKeyValueSection(const Section: TInnoSetupSection);
-    procedure HandleParameterSection(const ValidParameterNames: array of TScintRawString);
+    procedure HandleParameterSection(const ValidParameterNames: array of AnsiString);
     procedure HandleCompilerDirective(const InlineDirective: Boolean;
       const InlineDirectiveEndIndex: Integer; var OpenCount: ShortInt);
     procedure PreStyleInlineISPPDirectives;
@@ -110,10 +102,8 @@ type
       const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; overload;
     function GetScriptFunctionDefinition(const ClassMember: Boolean;
       const Name: String; const Index: Integer): TFunctionDefinition; overload;
-    function HighlightAtCursorAllowed(const Section: TInnoSetupSection; const Word: String): Boolean;
     property ISPPExpressionWordList: AnsiString read FISPPExpressionWordList;
     property ISPPInstalled: Boolean read FISPPInstalled write FISPPInstalled;
-    property MemberNamesWordList[Section: TInnoSetupSection]: AnsiString read GetMemberNamesWordList;
     property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
@@ -181,44 +171,11 @@ end;
 
 constructor TInnoSetupStyler.Create(AOwner: TComponent);
 
-  procedure BuildSectionParameterNameLists;
-  begin
-    for var Item in SectionMap do begin
-      if not (Item.Section in ParameterSections) then
-        Continue;
-      var Metadata: TScriptModelSectionMetadata;
-      if not TryGetScriptModelSectionMetadata(Item.Name, Metadata) then
-        raise Exception.CreateFmt('Internal error: no script model metadata for section [%s]',
-          [Item.Name]);
-      var ParameterNames: TArray<TScintRawString>;
-      SetLength(ParameterNames, Length(Metadata.Members));
-      var N := 0;
-      for var Member in Metadata.Members do begin
-        if (Item.Section = scUninstallRun) and (Member.Name = 'StatusMsg') then
-          Continue;
-        ParameterNames[N] := TScintRawString(Member.Name);
-        Inc(N);
-      end;
-      SetLength(ParameterNames, N);
-      FParameterNames[Item.Section] := ParameterNames;
-    end;
-  end;
-
-  procedure BuildMemberNamesWordLists;
-  begin
-    { Builds FMemberNamesWordList (for autocomplete) and FNoHighlightAtCursorWords }
-    for var Section in ParameterSections do
-      BuildMemberNamesWordListFromParameterNames(Section, FParameterNames[Section]);
-    BuildMemberNamesWordListFromTypeInfo(scLangOptions, TypeInfo(TLangOptionsSectionDirective), LangOptionsSectionDirectivePrefixLength);
-    BuildMemberNamesWordListFromTypeInfo(scSetup, TypeInfo(TSetupSectionDirective), Length(SetupSectionDirectivePrefix));
-    BuildMemberNamesWordListFromTypeInfo(scMessages, TypeInfo(TSetupMessageID), SetupMessageIDPrefixLength);
-  end;
-
   procedure BuildScriptLists;
   begin
     { Builds FScriptFunctionsByName (for calltips) and FScriptWordList (for autocomplete)
-       and FNoHighlightAtCursorWords }
-    const SL1 = FNoHighlightAtCursorWords[scCode];
+       and NoHighlightAtCursorWords for [Code] }
+    const SL1 = NoHighlightAtCursorWords[scCode];
     const SL2 = TStringList.Create;
     try
       { Add stuff from ScriptFunc }
@@ -271,13 +228,8 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
 
 begin
   inherited;
-  BuildSectionParameterNameLists;
-  FNoHighlightAtCursorWords := TWordsBySection.Create([doOwnsValues]);
-  for var Section := Low(TInnoSetupSection) to High(TInnoSetupSection) do
-    FNoHighlightAtCursorWords.Add(Section, CreateWordsBySectionList);
   FISPPFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   BuildISPPExpressionWordList;
-  BuildMemberNamesWordLists;
   FScriptFunctionsByName[False] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   FScriptFunctionsByName[True] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   BuildScriptLists;
@@ -288,7 +240,6 @@ begin
   FScriptFunctionsByName[False].Free;
   FScriptFunctionsByName[True].Free;
   FISPPFunctionsByName.Free;
-  FNoHighlightAtCursorWords.Free;
   inherited;
 end;
 
@@ -308,41 +259,6 @@ end;
 procedure TInnoSetupStyler.ApplySquigglyFromIndex(const StartIndex: Integer);
 begin
   ApplyStyleByteIndicators([inSquiggly], StartIndex, CurIndex - 1);
-end;
-
-procedure TInnoSetupStyler.BuildMemberNamesWordListFromParameterNames(
-  const Section: TInnoSetupSection;
-  const ParameterNames: array of TScintRawString);
-begin
-  const SL1 = FNoHighlightAtCursorWords[Section];
-  const SL2 = TStringList.Create;
-  try
-    for var ParameterName in ParameterNames do begin
-      SL1.Add(String(ParameterName));
-      AddAutoCompleteWordToList(SL2, ParameterName, awtParameter);
-    end;
-    FMemberNamesWordList[Section] := BuildAutoCompleteWordList(SL2);
-  finally
-    SL2.Free;
-  end;
-end;
-
-procedure TInnoSetupStyler.BuildMemberNamesWordListFromTypeInfo(
-  const Section: TInnoSetupSection; const EnumTypeInfo: Pointer;
-  const PrefixLength: Integer);
-begin
-  const SL1 = FNoHighlightAtCursorWords[Section];
-  const SL2 = TStringList.Create;
-  try
-    for var I := 0 to GetTypeData(EnumTypeInfo).MaxValue do begin
-      const KeyName = Copy(GetEnumName(EnumTypeInfo, I), PrefixLength+1, MaxInt);
-      SL1.Add(KeyName);
-      AddAutoCompleteWordToList(SL2, AnsiString(KeyName), awtDirective);
-    end;
-    FMemberNamesWordList[Section] := BuildAutoCompleteWordList(SL2);
-  finally
-    SL2.Free;
-  end;
 end;
 
 procedure TInnoSetupStyler.BuildScriptFunctionsLists(
@@ -432,11 +348,6 @@ begin
     end else
       EnableHeaderOnPrevious := PreviousSection = scNone;
   end;
-end;
-
-function TInnoSetupStyler.GetMemberNamesWordList(Section: TInnoSetupSection): AnsiString;
-begin
-  Result := FMemberNamesWordList[Section];
 end;
 
 { Result is undefined if out Count = 0 }
@@ -863,7 +774,7 @@ begin
 end;
 
 procedure TInnoSetupStyler.HandleParameterSection(
-  const ValidParameterNames: array of TScintRawString);
+  const ValidParameterNames: array of AnsiString);
 const
   MaxParameters = 32;
 var
@@ -886,7 +797,7 @@ begin
     ValidName := False;
     DuplicateName := False;
     for var I := Low(ValidParameterNames) to High(ValidParameterNames) do
-      if SameRawText(S, ValidParameterNames[I]) then begin
+      if SameRawText(S, TScintRawString(ValidParameterNames[I])) then begin
         ValidName := True;
         DuplicateName := (I in ParamsSpecified);
         Include(ParamsSpecified, I);
@@ -1140,12 +1051,6 @@ begin
   end;
 end;
 
-function TInnoSetupStyler.HighlightAtCursorAllowed(const Section: TInnoSetupSection;
-  const Word: string): Boolean;
-begin
-  Result := FNoHighlightAtCursorWords[Section].IndexOf(Word) = -1;
-end;
-
 procedure TInnoSetupStyler.SkipWhitespace;
 begin
   ConsumeChars(WhitespaceChars);
@@ -1260,7 +1165,7 @@ begin
   end else if Section in KeyValueSections then
     HandleKeyValueSection(Section)
   else if Section in ParameterSections then
-    HandleParameterSection(FParameterNames[Section]);
+    HandleParameterSection(ParameterNames[Section]);
 
   NewLineState.Section := Section;
   LineState := TScintLineState(NewLineState);

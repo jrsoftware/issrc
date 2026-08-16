@@ -505,7 +505,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       FillupChars := ' ';
     end else begin
       { Autocompleting a name }
-      WordList := FMemosStyler.MemberNamesWordList[Section];
+      WordList := GetMemberNamesAutoCompleteWordList(Section);
       if WordList = '' then { [CustomMessages] }
         Exit;
       if IsParamSection then
