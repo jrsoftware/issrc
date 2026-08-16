@@ -50,26 +50,21 @@ type
   TInnoSetupStyler = class(TScintCustomStyler)
   private
     FParameterNames: array[TInnoSetupSection] of TArray<TScintRawString>;
-    FEventFunctionsWordList: array[Boolean] of AnsiString;
     FMemberNamesWordList: array[TInnoSetupSection] of AnsiString;
     FMemberValuesWordLists: TDictionary<String, AnsiString>;
     FNoHighlightAtCursorWords: TWordsBySection;
     FFlagsWords: TWordsBySection;
-    FISPPDirectivesWordList, FISPPPragmaWordList, FConstantsWordList: AnsiString;
+    FConstantsWordList: AnsiString;
     FISPPFunctionsByName: TFunctionDefinitionsByName;
     FISPPExpressionWordList: AnsiString;
     FScriptFunctionsByName: array[Boolean] of TFunctionDefinitionsByName;
     FScriptWordList: array[Boolean] of AnsiString;
-    FSectionsWordList: AnsiString;
     FISPPInstalled: Boolean;
     FTheme: TTheme;
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
     procedure BuildConstantsWordList;
-    procedure BuildEventFunctionsWordList;
-    procedure BuildISPPDirectivesWordList;
-    procedure BuildISPPPragmaWordList;
     procedure BuildISPPExpressionWordList;
     procedure BuildMemberNamesWordListFromParameterNames(const Section: TInnoSetupSection;
       const ParameterNames: array of TScintRawString);
@@ -77,11 +72,9 @@ type
       const EnumTypeInfo: Pointer; const PrefixLength: Integer);
     procedure BuildScriptFunctionsLists(const ScriptFuncTable: TScriptTable;
       const ClassMembers: Boolean; const SL: TStringList);
-    procedure BuildSectionsWordList;
     procedure CommitStyleSq(const Style: TInnoSetupStylerStyle;
       const Squigglify: Boolean);
     procedure CommitStyleSqPending(const Style: TInnoSetupStylerStyle);
-    function GetEventFunctionsWordList(Procedures: Boolean): AnsiString;
     class function GetFunctionDefinition(const FunctionsByName: TFunctionDefinitionsByName;
       const Name: String; const Index: Integer; out Count: Integer): TFunctionDefinition; static;
     function GetMemberNamesWordList(Section: TInnoSetupSection): AnsiString;
@@ -128,15 +121,11 @@ type
     function SectionHasFlag(const Section: TInnoSetupSection; const Flag: String): Boolean;
     function HighlightAtCursorAllowed(const Section: TInnoSetupSection; const Word: String): Boolean;
     property ConstantsWordList: AnsiString read FConstantsWordList;
-    property EventFunctionsWordList[Procedures: Boolean]: AnsiString read GetEventFunctionsWordList;
-    property ISPPDirectivesWordList: AnsiString read FISPPDirectivesWordList;
-    property ISPPPragmaWordList: AnsiString read FISPPPragmaWordList;
     property ISPPExpressionWordList: AnsiString read FISPPExpressionWordList;
     property ISPPInstalled: Boolean read FISPPInstalled write SetISPPInstalled;
     property MemberNamesWordList[Section: TInnoSetupSection]: AnsiString read GetMemberNamesWordList;
     property MemberValuesWordList[Section: TInnoSetupSection; const MemberName: String]: AnsiString read GetMemberValuesWordList;
     property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
-    property SectionsWordList: AnsiString read FSectionsWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
 
@@ -352,15 +341,11 @@ begin
     FFlagsWords.Add(Section, CreateWordsBySectionList);
   end;
   BuildConstantsWordList;
-  BuildEventFunctionsWordList;
-  BuildISPPDirectivesWordList;
-  BuildISPPPragmaWordList;
   FISPPFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   BuildISPPExpressionWordList;
   BuildMemberNamesWordLists;
   FMemberValuesWordLists := TDictionary<String, AnsiString>.Create(TIStringComparer.Ordinal);
   BuildMemberValuesWordLists;
-  BuildSectionsWordList;
   FScriptFunctionsByName[False] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   FScriptFunctionsByName[True] := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   BuildScriptLists;
@@ -393,18 +378,6 @@ end;
 procedure TInnoSetupStyler.ApplySquigglyFromIndex(const StartIndex: Integer);
 begin
   ApplyStyleByteIndicators([inSquiggly], StartIndex, CurIndex - 1);
-end;
-
-procedure TInnoSetupStyler.BuildSectionsWordList;
-begin
-  var SL := TStringList.Create;
-  try
-    for var Section in SectionMap do
-      AddAutoCompleteWordToList(SL, '[' + AnsiString(Section.Name) + ']', awtSection);
-    FSectionsWordList := BuildAutoCompleteWordList(SL);
-  finally
-    SL.Free;
-  end;
 end;
 
 procedure TInnoSetupStyler.BuildMemberNamesWordListFromParameterNames(
@@ -465,30 +438,6 @@ begin
   end;
 end;
 
-procedure TInnoSetupStyler.BuildISPPDirectivesWordList;
-begin
-  var SL := TStringList.Create;
-  try
-    for var ISPPDirective in ISPPDirectives do
-      AddAutoCompleteWordToList(SL, '#' + ISPPDirective.Name, awtPreprocessorDirective);
-    FISPPDirectivesWordList := BuildAutoCompleteWordList(SL);
-  finally
-    SL.Free;
-  end;
-end;
-
-procedure TInnoSetupStyler.BuildISPPPragmaWordList;
-begin
-  var SL := TStringList.Create;
-  try
-    for var ISPPPragmaSubDirective in ISPPPragmaSubDirectives do
-      AddAutoCompleteWordToList(SL, ISPPPragmaSubDirective, awtPreprocessorSubDirective);
-    FISPPPragmaWordList := BuildAutoCompleteWordList(SL);
-  finally
-    SL.Free;
-  end;
-end;
-
 procedure TInnoSetupStyler.BuildISPPExpressionWordList;
 begin
   const SL = TStringList.Create;
@@ -534,31 +483,6 @@ begin
   end;
 end;
 
-procedure TInnoSetupStyler.BuildEventFunctionsWordList;
-begin
-  var SLFunctions: TStringList := nil;
-  var SLProcedures: TStringList := nil;
-  try
-    SLFunctions := TStringList.Create;
-    SLProcedures := TStringList.Create;
-    for var FullEventFunction in FullEventFunctions do begin
-      var HeaderKind: TScriptFuncHeaderKind;
-      var S := RemoveScriptFuncHeader(FullEventFunction, HeaderKind);
-      if HeaderKind = hkFunction then
-        AddAutoCompleteWordToList(SLFunctions, S, awtScriptEvent)
-      else if HeaderKind = hkProcedure then
-        AddAutoCompleteWordToList(SLProcedures, S, awtScriptEvent)
-      else
-        raise Exception.Create('Internal error: got invalid HeaderKind for event function');
-    end;
-    FEventFunctionsWordList[False] := BuildAutoCompleteWordList(SLFunctions);
-    FEventFunctionsWordList[True] := BuildAutoCompleteWordList(SLProcedures);
-  finally
-    SLProcedures.Free;
-    SLFunctions.Free;
-  end;
-end;
-
 procedure TInnoSetupStyler.CommitStyle(const Style: TInnoSetupStylerStyle);
 begin
   inherited CommitStyle(TScintStyleNumber(Ord(Style)));
@@ -576,11 +500,6 @@ procedure TInnoSetupStyler.CommitStyleSqPending(const Style: TInnoSetupStylerSty
 begin
   ApplyPendingSquigglyFromIndex(StyleStartIndex);
   CommitStyle(Style);
-end;
-
-function TInnoSetupStyler.GetEventFunctionsWordList(Procedures: Boolean): AnsiString;
-begin
-  Result := FEventFunctionsWordList[Procedures];
 end;
 
 procedure TInnoSetupStyler.GetFoldLevel(const LineState, PreviousLineState: TScintLineState;

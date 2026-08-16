@@ -423,9 +423,9 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       if OnlyWhiteSpaceBeforeWord(LinePos, FunctionWordStartPos) then begin
         const FunctionWord = AMemo.GetTextRange(FunctionWordStartPos, FunctionWordEndPos);
         if SameText(FunctionWord, 'procedure') then
-          WordList := FMemosStyler.EventFunctionsWordList[True]
+          WordList := GetEventFunctionsAutoCompleteWordList(True)
         else if SameText(FunctionWord, 'function') then
-          WordList := FMemosStyler.EventFunctionsWordList[False];
+          WordList := GetEventFunctionsAutoCompleteWordList(False);
       end;
     end;
 
@@ -567,7 +567,7 @@ begin
        (not CanAutoStartAtWord(CharsBefore, WordEndPos > CaretPos) or
         not StyleAllowsAutoStart(LinePos, WordStartPos, True)) then
       Exit;
-    WordList := FMemosStyler.ISPPPragmaWordList;
+    WordList := ISPPPragmaAutoCompleteWordList;
     FillupChars := ' ';
   end else begin
     const WordStartPos = AMemo.GetWordStartPosition(CaretPos, True);
@@ -581,7 +581,7 @@ begin
         begin
           if not OnlyWhiteSpaceBeforeWord(LinePos, WordStartPos) then
             Exit;
-          WordList := FMemosStyler.ISPPDirectivesWordList;
+          WordList := ISPPDirectivesAutoCompleteWordList;
           FillupChars := ' ';
         end;
       '{':
@@ -593,7 +593,7 @@ begin
         begin
           if not OnlyWhiteSpaceBeforeWord(LinePos, WordStartPos) then
             Exit;
-          WordList := FMemosStyler.SectionsWordList;
+          WordList := SectionsAutoCompleteWordList;
         end;
       else
         begin

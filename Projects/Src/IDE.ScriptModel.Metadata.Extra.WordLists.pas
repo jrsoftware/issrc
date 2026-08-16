@@ -41,6 +41,10 @@ const
   awtISPPVariable = 31;
   awtISPPConstant = 32;
 
+var
+  ISPPDirectivesAutoCompleteWordList: AnsiString;
+  ISPPPragmaAutoCompleteWordList: AnsiString;
+  SectionsAutoCompleteWordList: AnsiString;
 
 procedure AddAutoCompleteWordToList(const SL: TStringList; const Word: AnsiString;
   const Typ: Integer);
@@ -49,10 +53,17 @@ function BuildAutoCompleteWordList(const Values: array of AnsiString): AnsiStrin
 
 function BuildAutoCompleteWordList(const WordStringList: TStringList): AnsiString; overload;
 
+function GetEventFunctionsAutoCompleteWordList(Procedures: Boolean): AnsiString;
+
 implementation
 
 uses
-  SysUtils;
+  SysUtils,
+  Shared.ScriptFunc,
+  IDE.ScriptModel.Metadata.Extra;
+
+var
+  FEventFunctionsAutoCompleteWordList: array[Boolean] of AnsiString;
 
 procedure AddAutoCompleteWordToList(const SL: TStringList;
   const Word: AnsiString; const Typ: Integer);
@@ -93,4 +104,75 @@ begin
   end;
 end;
 
+procedure BuildSectionsAutoCompleteWordList;
+begin
+  var SL := TStringList.Create;
+  try
+    for var Section in SectionMap do
+      AddAutoCompleteWordToList(SL, '[' + AnsiString(Section.Name) + ']', awtSection);
+    SectionsAutoCompleteWordList := BuildAutoCompleteWordList(SL);
+  finally
+    SL.Free;
+  end;
+end;
+
+procedure BuildISPPDirectivesAutoCompleteWordList;
+begin
+  var SL := TStringList.Create;
+  try
+    for var ISPPDirective in ISPPDirectives do
+      AddAutoCompleteWordToList(SL, '#' + ISPPDirective.Name, awtPreprocessorDirective);
+    ISPPDirectivesAutoCompleteWordList := BuildAutoCompleteWordList(SL);
+  finally
+    SL.Free;
+  end;
+end;
+
+procedure BuildISPPPragmaAutoCompleteWordList;
+begin
+  var SL := TStringList.Create;
+  try
+    for var ISPPPragmaSubDirective in ISPPPragmaSubDirectives do
+      AddAutoCompleteWordToList(SL, ISPPPragmaSubDirective, awtPreprocessorSubDirective);
+    ISPPPragmaAutoCompleteWordList := BuildAutoCompleteWordList(SL);
+  finally
+    SL.Free;
+  end;
+end;
+
+procedure BuildEventFunctionsAutoCompleteWordList;
+begin
+  var SLFunctions: TStringList := nil;
+  var SLProcedures: TStringList := nil;
+  try
+    SLFunctions := TStringList.Create;
+    SLProcedures := TStringList.Create;
+    for var FullEventFunction in FullEventFunctions do begin
+      var HeaderKind: TScriptFuncHeaderKind;
+      var S := RemoveScriptFuncHeader(FullEventFunction, HeaderKind);
+      if HeaderKind = hkFunction then
+        AddAutoCompleteWordToList(SLFunctions, S, awtScriptEvent)
+      else if HeaderKind = hkProcedure then
+        AddAutoCompleteWordToList(SLProcedures, S, awtScriptEvent)
+      else
+        raise Exception.Create('Internal error: got invalid HeaderKind for event function');
+    end;
+    FEventFunctionsAutoCompleteWordList[False] := BuildAutoCompleteWordList(SLFunctions);
+    FEventFunctionsAutoCompleteWordList[True] := BuildAutoCompleteWordList(SLProcedures);
+  finally
+    SLProcedures.Free;
+    SLFunctions.Free;
+  end;
+end;
+
+function GetEventFunctionsAutoCompleteWordList(Procedures: Boolean): AnsiString;
+begin
+  Result := FEventFunctionsAutoCompleteWordList[Procedures];
+end;
+
+initialization
+  BuildEventFunctionsAutoCompleteWordList;
+  BuildISPPDirectivesAutoCompleteWordList;
+  BuildISPPPragmaAutoCompleteWordList;
+  BuildSectionsAutoCompleteWordList;
 end.
