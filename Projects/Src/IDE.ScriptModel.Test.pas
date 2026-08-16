@@ -781,6 +781,13 @@ begin
   Assert(TryGetScriptModelSectionMetadata('InstallDelete', Metadata));
   Assert(Metadata.TryGetMember('Type', Definition));
   Assert(Definition.ValueKind = mvkChoice);
+
+  { [Files] DestDir's commonly used values are a UI suggestion list in
+    Metadata.Extra, not metadata known values }
+  Assert(TryGetScriptModelSectionMetadata('Files', Metadata));
+  Assert(Metadata.TryGetMember('DestDir', Definition));
+  Assert(Definition.ValueKind = mvkString);
+  Assert(Length(Definition.KnownValues) = 0);
 end;
 
 procedure TestMetadataConsistency;
@@ -829,9 +836,7 @@ begin
             { The inspector gives a flag parameter one child row per flag, in
               table order, so the table decides the order the flags are shown in.
               Choices and permissions are not checked: they fill a dropdown
-              which sorts the values itself, and a choice table's order can
-              still be meaningful elsewhere, see DestDir in
-              IDE.Wizard.WizardFileForm.pas }
+              which sorts the values itself }
             if K > 0 then
               Assert(CompareText(Parameter.KnownValues[K-1], Token) < 0);
           end;

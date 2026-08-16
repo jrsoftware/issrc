@@ -104,6 +104,13 @@ const
     'userinfoserial', 'username', 'log'
   ];
 
+  { Commonly used [Files] DestDir values, used by the Inspector's DestDir
+    dropdown and the New Script Wizard. Order must match DestRootDirs in
+    IDE.Wizard.WizardFileForm! }
+  FilesDestDirCommonValues: TArray<String> = [
+    '{app}', '{autopf}', '{autocf}', '{win}', '{sys}', '{src}', '{sd}'
+  ];
+
   ISPPPredefinedVariables: array of AnsiString = [
     { Doesn't include predefined variables without a value, like __WIN32__ }
     { From TPreprocessor.LookupPredefined - excludes __FILE__, 'PREPROCVER',

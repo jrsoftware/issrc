@@ -70,7 +70,7 @@ implementation
 
 uses
   Shared.CommonFunc.Vcl, Shared.CommonFunc,
-  IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.ScriptModel.Metadata;
+  IDE.Messages, IDE.LocalizeFunc, IDE.HelperFunc, IDE.ScriptModel.Metadata.Extra;
 
 {$R *.DFM}
 
@@ -80,8 +80,8 @@ type
   end;
 
 var
-  { Order must match IDE.ScriptModel.Metadata! Constant values filled
-    at startup by InitializeDestRootDirs. }
+  { Order must match FilesDestDirCommonValues in IDE.ScriptModel.Metadata.Extra!
+    Constant values filled at startup by InitializeDestRootDirs. }
   DestRootDirs: array[0..6] of TConstant =
   (
     ( Constant: ''; Description: SWizardDirApplication),
@@ -95,14 +95,10 @@ var
 
 procedure InitializeDestRootDirs;
 begin
-  var Metadata: TScriptModelSectionMetadata;
-  var Definition: TMemberDefinition;
-  if not TryGetScriptModelSectionMetadata('Files', Metadata) or
-     not Metadata.TryGetMember('DestDir', Definition) or
-     (Length(Definition.KnownValues) <> Length(DestRootDirs)) then
-    raise Exception.Create('Internal error: DestDir known values mismatch');
+  if Length(FilesDestDirCommonValues) <> Length(DestRootDirs) then
+    raise Exception.Create('Internal error: DestDir common values mismatch');
   for var I := Low(DestRootDirs) to High(DestRootDirs) do
-    DestRootDirs[I].Constant := Definition.KnownValues[I];
+    DestRootDirs[I].Constant := FilesDestDirCommonValues[I];
 end;
 
 procedure MakeBold(const Ctl: TNewStaticText);

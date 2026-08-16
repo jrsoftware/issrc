@@ -517,9 +517,7 @@ begin
     MD('Check', mvkString),
     MD('Components', mvkString),
     MD('CopyMode', mvkString, nil, True),
-    { Order must match IDE.Wizard.WizardFileForm!
-      Also: has special handling in BuildMemberValuesWordLists! }
-    MD('DestDir', mvkChoice, ['{app}', '{autopf}', '{autocf}', '{win}', '{sys}', '{src}', '{sd}']),
+    MD('DestDir', mvkString),
     MD('DestName', mvkString),
     MD('DownloadISSigSource', mvkString),
     MD('DownloadPassword', mvkString),

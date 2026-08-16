@@ -108,6 +108,7 @@ type
     procedure RowSetAsString(Sender: TJvCustomInspectorItem; var Value: String);
     procedure RowRemove(const ARow: TInspectorRow);
     procedure ChoiceRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
+    procedure DestDirRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
     procedure PermissionsRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
     procedure SignToolRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
     procedure ScriptValuesRowGetValueList(Item: TJvCustomInspectorItem; Values: TStrings);
@@ -1052,6 +1053,10 @@ procedure TInspector.UpdateFromCaret;
     else if ADefinition.ValueKind = mvkPermissions then begin
       Item.Flags := Item.Flags + [iifValueList];
       Item.OnGetValueList := PermissionsRowGetValueList;
+    end else if (FLiveParameterSectionEntries.Section = scFiles) and
+       SameText(ADefinition.Name, 'DestDir') then begin
+      Item.Flags := Item.Flags + [iifValueList];
+      Item.OnGetValueList := DestDirRowGetValueList;
     end else if GetScriptSectionDefiningParameterValues(ADefinition.Name) <> scNone then begin
       Item.Flags := Item.Flags + [iifValueList];
       Item.OnGetValueList := ScriptValuesRowGetValueList;
@@ -1965,6 +1970,14 @@ begin
   var KnownValues := Copy(Definition.KnownValues);
   SortValueList(KnownValues);
   Values.AddStrings(KnownValues);
+end;
+
+procedure TInspector.DestDirRowGetValueList(Item: TJvCustomInspectorItem;
+  Values: TStrings);
+begin
+  var CommonValues := Copy(FilesDestDirCommonValues);
+  SortValueList(CommonValues);
+  Values.AddStrings(CommonValues);
 end;
 
 procedure TInspector.PermissionsRowGetValueList(Item: TJvCustomInspectorItem;
