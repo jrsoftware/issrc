@@ -253,7 +253,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       SetLength(ParameterNames, Length(Metadata.Members));
       var N := 0;
       for var Member in Metadata.Members do begin
-        if (Item.Section = scUninstallRun) and SameText(Member.Name, 'StatusMsg') then
+        if (Item.Section = scUninstallRun) and (Member.Name = 'StatusMsg') then
           Continue;
         ParameterNames[N] := TScintRawString(Member.Name);
         Inc(N);
@@ -283,6 +283,12 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       for var Member in Metadata.Members do begin
         if Length(Member.KnownValues) = 0 then
           Continue;
+        if (Item.Section = scFiles) and (Member.Name = 'DestDir') then begin
+          { DestDir has known values from the metadata, but those are excluded
+            to allow regular autocompletion for constants (with \ as a fillup)
+            to happen }
+          Continue;
+        end;
         var Values: TArray<AnsiString>;
         SetLength(Values, Length(Member.KnownValues));
         for var I := 0 to High(Member.KnownValues) do
