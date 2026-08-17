@@ -1943,7 +1943,7 @@ end;
 
 class procedure TInspector.SortValueList(var AValues: TArray<String>);
 { Sorts using same sort as autocompletion and Scintilla, so using CompareText.
-  Also see TInnoSetupStyler.BuildWordList. }
+  Also see InternalBuildAutoCompleteWordList. }
 begin
   TArray.Sort<String>(AValues, TComparer<String>.Construct(
     function(const A, B: String): Integer

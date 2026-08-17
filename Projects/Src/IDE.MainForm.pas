@@ -770,7 +770,9 @@ uses
   IDE.Messages, IDE.HtmlHelpFunc, IDE.ImagesModule, IDE.IDEForm,
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.GotoFileForm,
   IDE.InputQueryForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper, IDE.RichEditForm,
-  {$IFDEF DEBUG} IDE.LiveScriptObjectFactory.Test, {$ENDIF} IDE.ScriptModel.Metadata.Extra;
+  {$IFDEF DEBUG} IDE.LiveScriptObjectFactory.Test, {$ENDIF} IDE.ScriptModel.Metadata.Extra,
+  IDE.ScriptModel.Metadata.Extra.FunctionDefinitions,
+  IDE.ScriptModel.Metadata.Extra.WordLists;
 
 {$R *.DFM}
 
@@ -864,7 +866,7 @@ begin
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.OnZoom := MemoZoom;
   Memo.Parent := BodyPanel;
-  Memo.SetAutoCompleteSeparators(InnoSetupStylerWordListSeparator, InnoSetupStylerWordListTypeSeparator);
+  Memo.SetAutoCompleteSeparators(AutoCompleteWordListSeparator, AutoCompleteWordListTypeSeparator);
   Memo.SetWordChars(Memo.GetDefaultWordChars+'#{}[]');
   Memo.Theme := FTheme;
   Memo.StyleName := 'Windows';
@@ -1205,7 +1207,10 @@ begin
   PopupMenu := TMainFormPopupMenu.Create(Self, EMenu);
 
   FMemosStyler := TInnoSetupStyler.Create(Self);
-  FMemosStyler.ISPPInstalled := ISPPInstalled;
+  const ISPPIsInstalled = ISPPInstalled;
+  FMemosStyler.ISPPInstalled := ISPPIsInstalled;
+  InitializeFunctionDefinitions;
+  InitializeWordLists(ISPPIsInstalled);
 
   FTheme := TTheme.Create;
   InitFormThemeInit(FTheme);
@@ -4027,7 +4032,8 @@ procedure TMainForm.UpdateOccurrenceIndicators(const AMemo: TIDEScintEdit);
   function HighlightAtCursorAllowed(const Word: TScintRawString): Boolean;
   begin
     const Section = TInnoSetupStyler.GetSectionFromLineState(AMemo.Lines.State[AMemo.CaretLine]);
-    Result := FMemosStyler.HighlightAtCursorAllowed(Section, AMemo.ConvertRawStringToString(Word));
+    Result := NoHighlightAtCursorWords[Section].IndexOf(
+      AMemo.ConvertRawStringToString(Word)) = -1;
   end;
 
 begin
@@ -4210,10 +4216,10 @@ begin
         AutoCompleteBkBrush.Color := FTheme.Colors[tcIntelliBack];
 
         var NamedTypes := [
-          NNT(awtSection, 'ac\structure-filled'),
-          NNT(awtParameter, 'ac\xml-filled'),
-          NNT(awtDirective, 'ac\xml-filled'),
-          NNT(awtFlagOrSetupDirectiveValue, 'ac\values'),
+          NNT(awtSectionName, 'ac\structure-filled'),
+          NNT(awtParameterName, 'ac\xml-filled'),
+          NNT(awtKeyName, 'ac\xml-filled'),
+          NNT(awtMemberValue, 'ac\values'),
           NNT(awtPreprocessorDirective, 'ac\symbol-hashtag'),
           NNT(awtPreprocessorSubDirective, 'ac\symbol-hashtag-arrow-right-2'),
           NNT(awtConstant, 'ac\constant-filled_2'),
@@ -5419,7 +5425,7 @@ begin
       if IsInISPPLineContext(FActiveMemo, LinePos, VarOrFuncRange.StartPos, IsPragmaContext) and not IsPragmaContext then begin
         const Name = FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
         var Count: Integer;
-        const FunctionDefinition = FMemosStyler.GetISPPFunctionDefinition(Name, 0, Count);
+        const FunctionDefinition = GetISPPFunctionDefinition(Name, 0, Count);
         if Count > 0 then begin
           if Count <> 1 then
             raise Exception.CreateFmt('MemoHintShow: unexpected Count (%d)', [Count]);
@@ -5455,14 +5461,14 @@ begin
         const Name = FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
         var Index := 0;
         var Count: Integer;
-        var FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
+        var FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
         if Count = 0 then begin
           ClassMember := not ClassMember;
-          FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
+          FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
         end;
         while Index < Count do begin
           if Index <> 0 then
-            FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index);
+            FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index);
           if HintStr <> '' then
             HintStr := HintStr + #13;
           HintStr := HintStr + ScriptFuncHeaderKindToStr(FunctionDefinition.HeaderKind) +

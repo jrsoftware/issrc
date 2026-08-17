@@ -13,9 +13,6 @@ interface
 
 uses
   TypInfo,
-  {$IFNDEF ISTESTTOOLPROJ}
-  ScintEdit,
-  {$ENDIF}
   Shared.SetupSectionDirectives;
 
 const
@@ -65,13 +62,8 @@ type
 
   TInnoSetupSections = set of TInnoSetupSection;
 
-{$IFDEF ISTESTTOOLPROJ}
-  TScintRawCharSet = set of AnsiChar;
-  TScintRawString = type RawByteString;
-{$ENDIF}
-
   TISPPDirective = record
-    Name: TScintRawString;
+    Name: AnsiString;
     RequiresParameter: Boolean;
     OpenCountChange: ShortInt;
   end;
@@ -85,8 +77,6 @@ const
     'option', 'parseroption', 'spansymbol', 'verboselevel', 'warning'
   ];
 
-  { The following and some others below are not used by StyleNeeded and therefore
-    simply of type AnsiString instead of TScintRawString }
   Constants: array of AnsiString = [
     { Doesn't include constants with non-word chars.
       Also doesn't include the *32 and *64 variants like commonpf32 or dotnet2064 }
@@ -331,7 +321,7 @@ const
     'IUnknown', 'IInterface', 'IDispatch'
   ];
 
-  PascalReservedWords: array of TScintRawString = [
+  PascalReservedWords: array of AnsiString = [
     'and', 'array', 'as', 'begin', 'case', 'const', 'div', 'do', 'downto',
     'else', 'end', 'except', 'external', 'finally', 'for', 'forward', 'function',
     'goto', 'if', 'in', 'is', 'label', 'mod', 'nil', 'not', 'of', 'or', 'out',
@@ -385,7 +375,7 @@ const
     'WizardForm', 'MainForm', 'UninstallProgressForm'
   ];
 
-  BasicEventFunctions: array of TScintRawString = [
+  BasicEventFunctions: array of AnsiString = [
     'InitializeSetup', 'InitializeWizard', 'DeinitializeSetup', 'CurStepChanged',
     'CurInstallProgressChanged', 'NextButtonClick', 'BackButtonClick',
     'CancelButtonClick', 'ShouldSkipPage', 'CurPageChanged', 'CheckPassword',
@@ -430,13 +420,13 @@ const
     'CurUninstallStep'
   ];
 
-  ISPPReservedWords: array[0..17] of TScintRawString = (
+  ISPPReservedWords: array[0..17] of AnsiString = (
     'private', 'protected', 'public', 'any', 'int',
     'str', 'func', 'array', 'option', 'parseroption', 'inlinestart',
     'inlineend', 'message', 'warning', 'error',
     'verboselevel', 'include', 'spansymbol');
 
-  ISPPDirectiveShorthands: TScintRawCharSet =
+  ISPPDirectiveShorthands: set of AnsiChar =
     [':' {define},
      '+' {include},
      '=' {emit},
@@ -466,6 +456,15 @@ type
 var
   SetupSectionExpressionDirectivesValues: array of TSetupSectionDirectiveValue; { Initialized below }
 
+type
+  TSectionMapItem = record
+    Name: String;
+    Section: TInnoSetupSection;
+  end;
+
+var
+  SectionMap: array of TSectionMapItem; { Initialized below - only contains known true sections }
+
 function SectionToSectionName(const ASection: TInnoSetupSection): String;
 
 function SectionNameToSection(const ASectionName: String): TInnoSetupSection;
@@ -475,6 +474,12 @@ function GetScriptSectionDefiningParameterValues(
 
 function IsScriptBooleanExpressionParameter(
   const AParameterName: String): Boolean;
+
+function ParameterValueIsSingleValue(const ParameterName: String;
+  const Section: TInnoSetupSection): Boolean;
+
+function SetupSectionDirectiveValueIsMultiValue(
+  const SetupSectionDirective: TSetupSectionDirective): Boolean;
 
 type
   TScriptBrowseFileType = (bftDocs, bftIco, bftImages, bftVclStyle, bftIsl,
@@ -497,14 +502,14 @@ implementation
 uses
   SysUtils, Generics.Collections, Generics.Defaults,
   {$IFNDEF ISTESTTOOLPROJ} Shared.CommonFunc.Vcl, {$ENDIF} Shared.DotNetVersion, Shared.SetupMessageIDs,
-  Shared.SetupSteps, Shared.Struct;
+  Shared.SetupSteps, Shared.Struct, IDE.ScriptModel.Metadata;
 
 {$IFDEF ISTESTTOOLPROJ}
 type
   TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);
 {$ENDIF}
 
-function ISPPD(const Name: TScintRawString; const RequiresParameter: Boolean; const OpenCountChange: ShortInt): TISPPDirective;
+function ISPPD(const Name: AnsiString; const RequiresParameter: Boolean; const OpenCountChange: ShortInt): TISPPDirective;
 begin
   Result.Name := Name;
   Result.RequiresParameter := RequiresParameter;
@@ -515,6 +520,12 @@ function SSDV(const Directive: TSetupSectionDirective; const Values: TArray<Ansi
 begin
   Result.Directive := Directive;
   Result.Values := Values;
+end;
+
+function SMI(const Section: TInnoSetupSection): TSectionMapItem;
+begin
+  Result.Name := SectionToSectionName(Section);
+  Result.Section := Section;
 end;
 
 function SectionToSectionName(const ASection: TInnoSetupSection): String;
@@ -549,6 +560,34 @@ function IsScriptBooleanExpressionParameter(
 begin
   Result := SameText(AParameterName, 'Components') or
     SameText(AParameterName, 'Languages') or SameText(AParameterName, 'Tasks');
+end;
+
+function ParameterValueIsSingleValue(const ParameterName: String;
+  const Section: TInnoSetupSection): Boolean;
+begin
+  { A parameter accepts a single value only if the metadata says its value
+    is a choice, like Type }
+  var Metadata: TScriptModelSectionMetadata;
+  var Definition: TMemberDefinition;
+  Result := TryGetScriptModelSectionMetadata(SectionToSectionName(Section), Metadata) and
+    Metadata.TryGetMember(ParameterName, Definition) and
+    (Definition.ValueKind = mvkChoice);
+end;
+
+function SetupSectionDirectiveValueIsMultiValue(
+  const SetupSectionDirective: TSetupSectionDirective): Boolean;
+begin
+  { "MultiValue" means a directive which accepts a space separated list of
+    values: a flag directive like WizardStyle, or an expression directive
+    like ArchitecturesAllowed }
+  var Metadata: TScriptModelSectionMetadata;
+  if TryGetScriptModelSectionMetadata('Setup', Metadata) and
+     (Metadata.Members[Ord(SetupSectionDirective)].ValueKind = mvkFlags) then
+    Exit(True);
+  for var DirectiveValue in SetupSectionExpressionDirectivesValues do
+    if DirectiveValue.Directive = SetupSectionDirective then
+      Exit(True);
+  Result := False;
 end;
 
 resourcestring
@@ -907,6 +946,10 @@ initialization
   SetupSectionExpressionDirectivesValues := [
     SSDV(ssArchitecturesAllowed, ArchitecturesExpressionValues + BooleanExpressionOperatorValues),
     SSDV(ssArchitecturesInstallIn64BitMode, ArchitecturesExpressionValues + BooleanExpressionOperatorValues)];
+
+  for var Section := Low(TInnoSetupSection) to High(TInnoSetupSection) do
+    if not (Section in [scNone, scUnknown, scThirdParty, scCodeBlock]) then
+      SectionMap := SectionMap + [SMI(Section)];
 
   ScriptCategoryDictionary := TDictionary<String, String>.Create(TIStringComparer.Ordinal);
   ScriptDefaultCategoryDictionary := TDictionary<String, String>.Create(TIStringComparer.Ordinal);

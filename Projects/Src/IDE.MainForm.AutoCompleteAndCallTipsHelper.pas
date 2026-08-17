@@ -44,7 +44,12 @@ uses
   SysUtils, Math, TypInfo,
   Shared.SetupSectionDirectives,
   IDE.LiveScriptObjectFactory, IDE.ScintStylerInnoSetup, IDE.ScriptModel.Metadata,
-  IDE.ScriptModel.Metadata.Extra;
+  IDE.ScriptModel.Metadata.Extra, IDE.ScriptModel.Metadata.Extra.FunctionDefinitions,
+  IDE.ScriptModel.Metadata.Extra.WordLists;
+
+const
+  AutoCompleteWordChars = AlphaDigitUnderscoreChars;
+  AutoCompleteStartOrContinueChars = AutoCompleteWordChars + ['#', '{', '[', '<'];
 
 class function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
   const WordStartLinePos, PositionBeforeWordStartPos: Integer;
@@ -63,17 +68,10 @@ class function TMainFormAutoCompleteAndCallTipsHelper.IsInISPPLineContext(
   const AMemo: TScintEdit; const LinePos, ScanEndPos: Integer;
   out IsPragmaContext: Boolean): Boolean;
 
-  function SkipWhitespace(const Pos: Integer): Integer;
+  function SkipChars(const Pos: Integer; const Chars: TSysCharSet): Integer;
   begin
     Result := Pos;
-    while (Result < ScanEndPos) and (AMemo.GetByteAtPosition(Result) <= ' ') do
-      Result := AMemo.GetPositionAfter(Result);
-  end;
-
-  function SkipISPPIdentifier(const Pos: Integer): Integer;
-  begin
-    Result := Pos;
-    while (Result < ScanEndPos) and (AMemo.GetByteAtPosition(Result) in ISPPIdentChars) do
+    while (Result < ScanEndPos) and (AMemo.GetByteAtPosition(Result) in Chars) do
       Result := AMemo.GetPositionAfter(Result);
   end;
 
@@ -91,7 +89,7 @@ begin
   var Pos := LinePos;
 
   { Skip leading whitespace }
-  Pos := SkipWhitespace(Pos);
+  Pos := SkipChars(Pos, WhitespaceChars);
 
   { Require '#' as first non-whitespace character }
   if (Pos >= ScanEndPos) or (AMemo.GetByteAtPosition(Pos) <> '#') then
@@ -128,9 +126,9 @@ begin
         { #pragma does not support expressions, but only sub-directives like
           "message", so should check we aren't beyond that already }
         { Skip whitespace after "pragma" }
-        Pos := SkipWhitespace(Pos);
+        Pos := SkipChars(Pos, WhitespaceChars);
         { Skip the sub-directive word if any }
-        Pos := SkipISPPIdentifier(Pos);
+        Pos := SkipChars(Pos, ISPPIdentChars);
         IsPragmaContext := Pos = ScanEndPos;
         Exit(IsPragmaContext);
       end;
@@ -151,12 +149,12 @@ begin
     Exit(True); { Return True }
 
   { Skip whitespace }
-  Pos := SkipWhitespace(Pos);
+  Pos := SkipChars(Pos, WhitespaceChars);
   if Pos >= ScanEndPos then
     Exit;
 
   { Skip the identifier (not using GetWordEndPosition because '[' is a word char) }
-  Pos := SkipISPPIdentifier(Pos);
+  Pos := SkipChars(Pos, ISPPIdentChars);
   if Pos >= ScanEndPos then
     Exit;
 
@@ -231,7 +229,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       const PosBefore = AMemo.GetPositionBefore(ValueStartPos);
       const C = AMemo.GetByteAtPosition(PosBefore);
       if not (C in FAutoCompleteExtraContinueChars) and
-         not (C in InnoSetupStylerAutoCompleteWordChars) then
+         not (C in AutoCompleteWordChars) then
         Break;
       ValueStartPos := PosBefore;
     end;
@@ -257,7 +255,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
   function CanAutoCompleteValue(const Value: String): Boolean;
   begin
     for var C in Value do
-      if not CharInSet(C, InnoSetupStylerAutoCompleteWordChars) then
+      if not CharInSet(C, AutoCompleteWordChars) then
         Exit(False);
     Result := True;
   end;
@@ -301,36 +299,8 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       of possible values, or the possible values can be determined from
       the script }
     Result :=
-      (FMemosStyler.MemberValuesWordList[Section, ParameterWord] <> '') or
+      (GetMemberValuesAutoCompleteWordList(Section, ParameterWord) <> '') or
       (GetScriptSectionDefiningParameterValues(ParameterWord) <> scNone);
-  end;
-
-  function ParameterValueIsSingleValue(const ParameterName: String;
-    const Section: TInnoSetupSection): Boolean;
-  begin
-    { A parameter accepts a single value only if the metadata says its value
-      is a choice, like Type }
-    var Metadata: TScriptModelSectionMetadata;
-    var Definition: TMemberDefinition;
-    Result := TryGetScriptModelSectionMetadata(SectionToSectionName(Section), Metadata) and
-      Metadata.TryGetMember(ParameterName, Definition) and
-      (Definition.ValueKind = mvkChoice);
-  end;
-
-  function SetupSectionDirectiveValueIsMultiValue(
-    const SetupSectionDirective: TSetupSectionDirective): Boolean;
-  begin
-    { "MultiValue" means a directive which accepts a space separated list of
-      values: a flag directive like WizardStyle, or an expression directive
-      like ArchitecturesAllowed }
-    var Metadata: TScriptModelSectionMetadata;
-    if TryGetScriptModelSectionMetadata('Setup', Metadata) and
-       (Metadata.Members[Ord(SetupSectionDirective)].ValueKind = mvkFlags) then
-      Exit(True);
-    for var DirectiveValue in SetupSectionExpressionDirectivesValues do
-      if DirectiveValue.Directive = SetupSectionDirective then
-        Exit(True);
-    Result := False;
   end;
 
   type
@@ -405,8 +375,8 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           const PrecedingWordIsInlineISPPDirective = PrecedingWord.StartsWith('{#');
           if not PrecedingWordIsInlineISPPDirective then
             Res.FoundNonInlineISPPDirectiveWord := True;
-          const CanBeFlag = FMemosStyler.MemberValuesWordList[Section, 'Flags'] <> '';
-          if not (CanBeFlag and (FMemosStyler.SectionHasFlag(Section, PrecedingWord) or
+          const CanBeFlag = GetMemberValuesAutoCompleteWordList(Section, 'Flags') <> '';
+          if not (CanBeFlag and ((FlagsWords[Section].IndexOf(PrecedingWord) <> -1) or
              PrecedingWordIsInlineISPPDirective)) then
             Res.FoundNonFlagWord := True;
           I := PrecedingStartPos;
@@ -451,9 +421,9 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       if OnlyWhiteSpaceBeforeWord(LinePos, FunctionWordStartPos) then begin
         const FunctionWord = AMemo.GetTextRange(FunctionWordStartPos, FunctionWordEndPos);
         if SameText(FunctionWord, 'procedure') then
-          WordList := FMemosStyler.EventFunctionsWordList[True]
+          WordList := GetEventFunctionsAutoCompleteWordList(True)
         else if SameText(FunctionWord, 'function') then
-          WordList := FMemosStyler.EventFunctionsWordList[False];
+          WordList := GetEventFunctionsAutoCompleteWordList(False);
       end;
     end;
 
@@ -461,7 +431,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       types, etc if the current word has no dot before it }
     if WordList = '' then begin
       const ClassOrRecordMember = (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
-      WordList := FMemosStyler.ScriptWordList[ClassOrRecordMember];
+      WordList := GetScriptAutoCompleteWordList(ClassOrRecordMember);
     end;
 
     if WordList = '' then
@@ -509,9 +479,9 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           if not Res.FoundMultipleSetupDirectiveValues or
             SetupSectionDirectiveValueIsMultiValue(Directive) then begin
             if Directive = ssSignTool then
-              WordList := FMemosStyler.BuildWordList(GetAutoCompleteSignToolValues)
+              WordList := BuildAutoCompleteWordList(GetAutoCompleteSignToolValues, awtMemberValue)
             else
-              WordList := FMemosStyler.MemberValuesWordList[Section, Res.FoundMemberName];
+              WordList := GetMemberValuesAutoCompleteWordList(Section, Res.FoundMemberName);
             if Directive in [ssArchiveExtraction, ssCompression] then
               ExtraContinueChars := ['/'];
           end;
@@ -519,13 +489,13 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
         if WordList = '' then
           Exit;
       end else begin
-        WordList := FMemosStyler.MemberValuesWordList[Section, Res.FoundMemberName];
+        WordList := GetMemberValuesAutoCompleteWordList(Section, Res.FoundMemberName);
         if WordList <> '' then begin
           if SameText(Res.FoundMemberName, 'Permissions') then
             ExtraContinueChars := ['-'];
         end else begin
-          WordList := FMemosStyler.BuildWordList(
-            GetAutoCompleteScriptValues(Res.FoundMemberName));
+          WordList := BuildAutoCompleteWordList(
+            GetAutoCompleteScriptValues(Res.FoundMemberName), awtMemberValue);
           if WordList = '' then
             Exit;
         end;
@@ -533,7 +503,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       FillupChars := ' ';
     end else begin
       { Autocompleting a name }
-      WordList := FMemosStyler.MemberNamesWordList[Section];
+      WordList := MemberNamesAutoCompleteWordList[Section];
       if WordList = '' then { [CustomMessages] }
         Exit;
       if IsParamSection then
@@ -585,7 +555,7 @@ begin
        (not CanAutoStartAtWord(CharsBefore, AMemo.GetByteAtPosition(CaretPos) in ISPPIdentChars) or
         not StyleAllowsAutoStart(LinePos, WordStartPos, True)) then
       Exit;
-    WordList := FMemosStyler.ISPPExpressionWordList;
+    WordList := ISPPExpressionAutoCompleteWordList;
   end else if FMemosStyler.ISPPInstalled and IsPragmaContext then begin
     const WordStartPos = AMemo.GetWordStartPosition(CaretPos, True);
     const WordEndPos = AMemo.GetWordEndPosition(CaretPos, True);
@@ -595,7 +565,7 @@ begin
        (not CanAutoStartAtWord(CharsBefore, WordEndPos > CaretPos) or
         not StyleAllowsAutoStart(LinePos, WordStartPos, True)) then
       Exit;
-    WordList := FMemosStyler.ISPPPragmaWordList;
+    WordList := ISPPPragmaAutoCompleteWordList;
     FillupChars := ' ';
   end else begin
     const WordStartPos = AMemo.GetWordStartPosition(CaretPos, True);
@@ -609,19 +579,19 @@ begin
         begin
           if not OnlyWhiteSpaceBeforeWord(LinePos, WordStartPos) then
             Exit;
-          WordList := FMemosStyler.ISPPDirectivesWordList;
+          WordList := ISPPDirectivesAutoCompleteWordList;
           FillupChars := ' ';
         end;
       '{':
         begin
-          WordList := FMemosStyler.ConstantsWordList;
+          WordList := ConstantsAutoCompleteWordList;
           FillupChars := '\:';
         end;
       '[':
         begin
           if not OnlyWhiteSpaceBeforeWord(LinePos, WordStartPos) then
             Exit;
-          WordList := FMemosStyler.SectionsWordList;
+          WordList := SectionsAutoCompleteWordList;
         end;
       else
         begin
@@ -663,9 +633,9 @@ begin
   const CurrentCallTipWord = AMemo.ConvertRawStringToString(FCallTipState.CurrentCallTipWord);
   var FunctionDefinition: TFunctionDefinition;
   if FCallTipState.ISPPExpressionContext then
-    FunctionDefinition := FMemosStyler.GetISPPFunctionDefinition(CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips)
+    FunctionDefinition := GetISPPFunctionDefinition(CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips)
   else
-    FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(FCallTipState.ClassOrRecordMember, CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips);
+    FunctionDefinition := GetScriptFunctionDefinition(FCallTipState.ClassOrRecordMember, CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips);
   if ((FCallTipState.MaxCallTips = 1) and FunctionDefinition.HasParams) or //if there's a single definition then only show if it has a parameter
      (FCallTipState.MaxCallTips > 1) then begin                            //if there's multiple then show always just like MemoHintShow, so even the one without parameters if it exists
     FCallTipState.FunctionDefinition := FunctionDefinition.ScriptFuncWithoutHeader;
@@ -880,7 +850,7 @@ begin
     DoAutoComplete := True;
 
   if DoAutoComplete then begin
-    if Ch in InnoSetupStylerAutoCompleteStartOrContinueChars then begin
+    if Ch in AutoCompleteStartOrContinueChars then begin
       if not AMemo.AutoCompleteActive and FOptions.AutoAutoComplete and not (Ch in ['0'..'9']) then
         InitiateAutoComplete(AMemo, Ch);
     end else begin
