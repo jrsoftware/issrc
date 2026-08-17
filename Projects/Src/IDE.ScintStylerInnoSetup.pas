@@ -33,14 +33,11 @@ type
 
   TInnoSetupStyler = class(TScintCustomStyler)
   private
-    FISPPExpressionWordList: AnsiString;
-    FScriptWordList: array[Boolean] of AnsiString;
     FISPPInstalled: Boolean;
     FTheme: TTheme;
     procedure ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
     procedure ApplyPendingSquigglyFromIndex(const StartIndex: Integer);
     procedure ApplySquigglyFromIndex(const StartIndex: Integer);
-    procedure BuildISPPExpressionWordList;
     procedure CommitStyleSq(const Style: TInnoSetupStylerStyle;
       const Squigglify: Boolean);
     procedure CommitStyleSqPending(const Style: TInnoSetupStylerStyle);
@@ -55,7 +52,6 @@ type
       const Style: TInnoSetupStylerStyle);
     procedure StyleConstsUntilChars(const Chars: TScintRawCharSet;
       const NonConstStyle: TInnoSetupStylerStyle; var BraceLevel: Integer);
-    function GetScriptWordList(ClassOrRecordMembers: Boolean): AnsiString;
   protected
     procedure CommitStyle(const Style: TInnoSetupStylerStyle);
     procedure GetFoldLevel(const LineState, PreviousLineState: TScintLineState;
@@ -74,9 +70,7 @@ type
     class function IsSymbolStyle(const Style: TScintStyleNumber): Boolean; static;
     class function LineSectionHeader(const LineState: TScintLineState; out Section: TInnoSetupSection): Boolean; static;
     class function LineSpans(const S: TScintRawString): Boolean; static;
-    property ISPPExpressionWordList: AnsiString read FISPPExpressionWordList;
     property ISPPInstalled: Boolean read FISPPInstalled write FISPPInstalled;
-    property ScriptWordList[ClassOrRecordMembers: Boolean]: AnsiString read GetScriptWordList;
     property Theme: TTheme read FTheme write FTheme;
   end;
 
@@ -128,62 +122,8 @@ end;
 { TInnoSetupStyler }
 
 constructor TInnoSetupStyler.Create(AOwner: TComponent);
-
-  procedure BuildScriptLists;
-  begin
-    { Builds FScriptWordList (for autocomplete) and NoHighlightAtCursorWords for [Code] }
-    const SL1 = NoHighlightAtCursorWords[scCode];
-    const SL2 = TStringList.Create;
-    try
-      { Add stuff from ScriptFunc }
-      for var ScriptFuncName in ScriptFunctionsByName[False].Keys do
-        AddAutoCompleteWordToList(SL2, AnsiString(ScriptFuncName), awtScriptFunction);
-      { Add stuff from this unit }
-      for var S in PascalConstants do
-        AddAutoCompleteWordToList(SL2, S, awtScriptConstant);
-      for var S in PascalConstants_Isxclasses do
-        AddAutoCompleteWordToList(SL2, S, awtScriptConstant);
-      for var S in PascalInterfaces do
-        AddAutoCompleteWordToList(SL2, S, awtScriptInterface);
-      for var S in PascalReservedWords do begin
-        SL1.Add(String(S));
-        AddAutoCompleteWordToList(SL2, S, awtScriptKeyword);
-      end;
-      for var S in PascalTypes do
-        AddAutoCompleteWordToList(SL2, S, awtScriptType);
-      for var S in PascalTypes_Isxclasses do
-        AddAutoCompleteWordToList(SL2, S, awtScriptType);
-      for var S in PascalEnumValues do
-        AddAutoCompleteWordToList(SL2, S, awtScriptEnumValue);
-      for var S in PascalEnumValues_Isxclasses do
-        AddAutoCompleteWordToList(SL2, S, awtScriptEnumValue);
-      for var TypeInfo in PascalRealEnumValues do begin
-        var TypeData := GetTypeData(TypeInfo);
-        for var I := TypeData.MinValue to TypeData.MaxValue do
-          AddAutoCompleteWordToList(SL2, AnsiString(GetEnumName(TypeInfo, I)), awtScriptEnumValue);
-      end;
-      for var S in PascalVariables do
-        AddAutoCompleteWordToList(SL2, S, awtScriptVariable);
-      for var S in EventFunctionsParameters  do
-        AddAutoCompleteWordToList(SL2, S, awtScriptVariable);
-      FScriptWordList[False] := InternalBuildAutoCompleteWordList(SL2);
-
-      { Add stuff from Isxclasses }
-      SL2.Clear;
-      for var ScriptFuncName in ScriptFunctionsByName[True].Keys do
-        AddAutoCompleteWordToList(SL2, AnsiString(ScriptFuncName), awtScriptFunction);
-      for var S in PascalProperties_Isxclasses do
-        AddAutoCompleteWordToList(SL2, S, awtScriptProperty);
-      FScriptWordList[True] := InternalBuildAutoCompleteWordList(SL2);
-    finally
-      SL2.Free;
-    end;
-  end;
-
 begin
   inherited;
-  BuildISPPExpressionWordList;
-  BuildScriptLists;
 end;
 
 destructor TInnoSetupStyler.Destroy;
@@ -207,22 +147,6 @@ end;
 procedure TInnoSetupStyler.ApplySquigglyFromIndex(const StartIndex: Integer);
 begin
   ApplyStyleByteIndicators([inSquiggly], StartIndex, CurIndex - 1);
-end;
-
-procedure TInnoSetupStyler.BuildISPPExpressionWordList;
-begin
-  const SL = TStringList.Create;
-  try
-    for var ISPPFunctionName in ISPPFunctionsByName.Keys do
-      AddAutoCompleteWordToList(SL, AnsiString(ISPPFunctionName), awtISPPFunction);
-    for var ISPPPredefinedVariable in ISPPPredefinedVariables do
-      AddAutoCompleteWordToList(SL, ISPPPredefinedVariable, awtISPPVariable);
-    for var ISPPConstant in ISPPConstants do
-      AddAutoCompleteWordToList(SL, ISPPConstant, awtISPPConstant);
-    FISPPExpressionWordList := InternalBuildAutoCompleteWordList(SL);
-  finally
-    SL.Free;
-  end;
 end;
 
 procedure TInnoSetupStyler.CommitStyle(const Style: TInnoSetupStylerStyle);
@@ -267,12 +191,6 @@ begin
     end else
       EnableHeaderOnPrevious := PreviousSection = scNone;
   end;
-end;
-
-function TInnoSetupStyler.GetScriptWordList(
-  ClassOrRecordMembers: Boolean): AnsiString;
-begin
-  Result := FScriptWordList[ClassOrRecordMembers];
 end;
 
 class function TInnoSetupStyler.GetSectionFromLineState(

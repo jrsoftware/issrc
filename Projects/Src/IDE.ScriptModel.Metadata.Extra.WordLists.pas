@@ -45,6 +45,7 @@ const
 var
   ConstantsAutoCompleteWordList: AnsiString;
   ISPPDirectivesAutoCompleteWordList: AnsiString;
+  ISPPExpressionAutoCompleteWordList: AnsiString;
   ISPPPragmaAutoCompleteWordList: AnsiString;
   MemberNamesAutoCompleteWordList: array[TInnoSetupSection] of AnsiString;
   SectionsAutoCompleteWordList: AnsiString;
@@ -52,12 +53,12 @@ var
 function GetEventFunctionsAutoCompleteWordList(const Procedures: Boolean): AnsiString;
 function GetMemberValuesAutoCompleteWordList(const Section: TInnoSetupSection;
   const MemberName: String): AnsiString;
+function GetScriptAutoCompleteWordList(const ClassOrRecordMembers: Boolean): AnsiString;
 
 procedure AddAutoCompleteWordToList(const SL: TStringList; const Word: AnsiString;
   const Typ: Integer);
 function BuildAutoCompleteWordList(const Values: array of AnsiString;
   const Typ: Integer): AnsiString;
-function InternalBuildAutoCompleteWordList(const WordStringList: TStringList): AnsiString;
 
 { Word lists for other purposes }
 
@@ -79,11 +80,13 @@ uses
   SysUtils, TypInfo, Generics.Defaults,
   Shared.LangOptionsSectionDirectives, Shared.ScriptFunc,
   Shared.SetupMessageIDs, Shared.SetupSectionDirectives, Shared.Struct,
-  IDE.ScriptModel.Metadata;
+  IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra.FunctionDefinitions,
+  isxclasses_wordlists_generated;
 
 var
   EventFunctionsAutoCompleteWordList: array[Boolean] of AnsiString;
   MemberValuesAutoCompleteWordLists: TDictionary<String, AnsiString>;
+  ScriptAutoCompleteWordList: array[Boolean] of AnsiString;
 
 procedure AddAutoCompleteWordToList(const SL: TStringList;
   const Word: AnsiString; const Typ: Integer);
@@ -141,6 +144,11 @@ function GetMemberValuesAutoCompleteWordList(const Section: TInnoSetupSection;
 begin
   if not MemberValuesAutoCompleteWordLists.TryGetValue(MemberValuesKey(Section, MemberName), Result) then
     Result := '';
+end;
+
+function GetScriptAutoCompleteWordList(const ClassOrRecordMembers: Boolean): AnsiString;
+begin
+  Result := ScriptAutoCompleteWordList[ClassOrRecordMembers];
 end;
 
 function CreateWordsBySectionList: TStringList;
@@ -248,6 +256,22 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
     end;
   end;
 
+  procedure BuildISPPExpressionAutoCompleteWordList;
+  begin
+    const SL = TStringList.Create;
+    try
+      for var ISPPFunctionName in ISPPFunctionsByName.Keys do
+        AddAutoCompleteWordToList(SL, AnsiString(ISPPFunctionName), awtISPPFunction);
+      for var ISPPPredefinedVariable in ISPPPredefinedVariables do
+        AddAutoCompleteWordToList(SL, ISPPPredefinedVariable, awtISPPVariable);
+      for var ISPPConstant in ISPPConstants do
+        AddAutoCompleteWordToList(SL, ISPPConstant, awtISPPConstant);
+      ISPPExpressionAutoCompleteWordList := InternalBuildAutoCompleteWordList(SL);
+    finally
+      SL.Free;
+    end;
+  end;
+
   procedure BuildMemberNamesAutoCompleteWordListFromParameterNames(
     const Section: TInnoSetupSection);
   begin
@@ -285,6 +309,9 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
   procedure BuildMemberNamesAutoCompleteWordLists;
   begin
     { Builds MemberNamesAutoCompleteWordList (for autocomplete) and NoHighlightAtCursorWords }
+    NoHighlightAtCursorWords := TWordsBySection.Create([doOwnsValues]);
+    for var Section := Low(TInnoSetupSection) to High(TInnoSetupSection) do
+      NoHighlightAtCursorWords.Add(Section, CreateWordsBySectionList);
     for var Section in ParameterSections do
       BuildMemberNamesAutoCompleteWordListFromParameterNames(Section);
     BuildMemberNamesAutoCompleteWordListFromTypeInfo(scLangOptions, TypeInfo(TLangOptionsSectionDirective), LangOptionsSectionDirectivePrefixLength);
@@ -339,6 +366,57 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
     end;
   end;
 
+  procedure BuildScriptAutoCompleteWordListsAndNoHighlightAtCursorWords;
+  begin
+    { Builds ScriptAutoCompleteWordList (for autocomplete) and NoHighlightAtCursorWords for [Code] }
+    const SL1 = NoHighlightAtCursorWords[scCode];
+    const SL2 = TStringList.Create;
+    try
+      { Add stuff from ScriptFunc }
+      for var ScriptFuncName in ScriptFunctionsByName[False].Keys do
+        AddAutoCompleteWordToList(SL2, AnsiString(ScriptFuncName), awtScriptFunction);
+      { Add stuff from this unit }
+      for var S in PascalConstants do
+        AddAutoCompleteWordToList(SL2, S, awtScriptConstant);
+      for var S in PascalConstants_Isxclasses do
+        AddAutoCompleteWordToList(SL2, S, awtScriptConstant);
+      for var S in PascalInterfaces do
+        AddAutoCompleteWordToList(SL2, S, awtScriptInterface);
+      for var S in PascalReservedWords do begin
+        SL1.Add(String(S));
+        AddAutoCompleteWordToList(SL2, S, awtScriptKeyword);
+      end;
+      for var S in PascalTypes do
+        AddAutoCompleteWordToList(SL2, S, awtScriptType);
+      for var S in PascalTypes_Isxclasses do
+        AddAutoCompleteWordToList(SL2, S, awtScriptType);
+      for var S in PascalEnumValues do
+        AddAutoCompleteWordToList(SL2, S, awtScriptEnumValue);
+      for var S in PascalEnumValues_Isxclasses do
+        AddAutoCompleteWordToList(SL2, S, awtScriptEnumValue);
+      for var TypeInfo in PascalRealEnumValues do begin
+        var TypeData := GetTypeData(TypeInfo);
+        for var I := TypeData.MinValue to TypeData.MaxValue do
+          AddAutoCompleteWordToList(SL2, AnsiString(GetEnumName(TypeInfo, I)), awtScriptEnumValue);
+      end;
+      for var S in PascalVariables do
+        AddAutoCompleteWordToList(SL2, S, awtScriptVariable);
+      for var S in EventFunctionsParameters  do
+        AddAutoCompleteWordToList(SL2, S, awtScriptVariable);
+      ScriptAutoCompleteWordList[False] := InternalBuildAutoCompleteWordList(SL2);
+
+      { Add stuff from Isxclasses }
+      SL2.Clear;
+      for var ScriptFuncName in ScriptFunctionsByName[True].Keys do
+        AddAutoCompleteWordToList(SL2, AnsiString(ScriptFuncName), awtScriptFunction);
+      for var S in PascalProperties_Isxclasses do
+        AddAutoCompleteWordToList(SL2, S, awtScriptProperty);
+      ScriptAutoCompleteWordList[True] := InternalBuildAutoCompleteWordList(SL2);
+    finally
+      SL2.Free;
+    end;
+  end;
+
   procedure BuildSectionsAutoCompleteWordList;
   begin
     var SL := TStringList.Create;
@@ -357,15 +435,14 @@ begin
   BuildEventFunctionsAutoCompleteWordList;
   BuildISPPDirectivesAutoCompleteWordList;
   BuildISPPPragmaAutoCompleteWordList;
+  BuildISPPExpressionAutoCompleteWordList;
   BuildMemberNamesAutoCompleteWordLists; { Requires BuildSectionParameterNameLists }
   BuildMemberValuesAutoCompleteWordListsAndFlagsWords;
+  BuildScriptAutoCompleteWordListsAndNoHighlightAtCursorWords;
   BuildSectionsAutoCompleteWordList;
 end;
 
 initialization
-  NoHighlightAtCursorWords := TWordsBySection.Create([doOwnsValues]);
-  for var Section := Low(TInnoSetupSection) to High(TInnoSetupSection) do
-    NoHighlightAtCursorWords.Add(Section, CreateWordsBySectionList);
 finalization
   FlagsWords.Free;
   MemberValuesAutoCompleteWordLists.Free;

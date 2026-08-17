@@ -431,7 +431,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       types, etc if the current word has no dot before it }
     if WordList = '' then begin
       const ClassOrRecordMember = (PositionBeforeWordStartPos >= LinePos) and (AMemo.GetByteAtPosition(PositionBeforeWordStartPos) = '.');
-      WordList := FMemosStyler.ScriptWordList[ClassOrRecordMember];
+      WordList := GetScriptAutoCompleteWordList(ClassOrRecordMember);
     end;
 
     if WordList = '' then
@@ -555,7 +555,7 @@ begin
        (not CanAutoStartAtWord(CharsBefore, AMemo.GetByteAtPosition(CaretPos) in ISPPIdentChars) or
         not StyleAllowsAutoStart(LinePos, WordStartPos, True)) then
       Exit;
-    WordList := FMemosStyler.ISPPExpressionWordList;
+    WordList := ISPPExpressionAutoCompleteWordList;
   end else if FMemosStyler.ISPPInstalled and IsPragmaContext then begin
     const WordStartPos = AMemo.GetWordStartPosition(CaretPos, True);
     const WordEndPos = AMemo.GetWordEndPosition(CaretPos, True);

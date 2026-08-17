@@ -1206,10 +1206,10 @@ begin
 
   PopupMenu := TMainFormPopupMenu.Create(Self, EMenu);
 
-  InitializeFunctionDefinitions;
   FMemosStyler := TInnoSetupStyler.Create(Self);
   const ISPPIsInstalled = ISPPInstalled;
   FMemosStyler.ISPPInstalled := ISPPIsInstalled;
+  InitializeFunctionDefinitions;
   InitializeWordLists(ISPPIsInstalled);
 
   FTheme := TTheme.Create;
