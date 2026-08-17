@@ -3884,7 +3884,7 @@ Shown by default, but can be disabled in some cases via <sd>DisableFinishedPage<
   <td>Select autocompletion</td><td>Tab or Enter</td>
 </tr>
 <tr>
-  <td>Fillup autocompletion</td><td>Space for ISPP directives, for section directive and parameter values<br />\ for constants<br />: for constants and section parameter names<br />] for sections<br />= for section directive and message names</td>
+  <td>Fillup autocompletion</td><td>Space for ISPP directives, for section directive and parameter values<br />\ for constants<br />: for constants and section parameter names<br />= for section directive and message names</td>
 </tr>
 <tr>
   <td>Invoke parameter hint or show next definition</td><td>Ctrl+Shift+Space</td>

@@ -228,7 +228,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
   function ExtendCharsBefore(const LinePos, CaretPos, CharsBefore: Integer): Integer;
   begin
     { CharsBefore counts to the word start before the caret, without accounting
-      for FAutoCompleteExtraContinueChars. Extended it now, towards the start
+      for FAutoCompleteExtraContinueChars. Extend it now, towards the start
       of the line. This for example extends from 'modify' to 'users-modify'. }
     var ValueStartPos := CaretPos - CharsBefore;
     while ValueStartPos > LinePos do begin
