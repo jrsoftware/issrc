@@ -116,7 +116,7 @@ var
     'function TestInnerfuse_ReturnSet6StdCall(A, B: Integer): TTestHandlerSet6;'
   ];
 
-{$IFDEF ISIDEPROJ}
+{$IF DEFINED(ISIDEPROJ) OR DEFINED(ISTESTTOOLPROJ)}
 
   { These are just for ISIDE and should not be used by ISCmplr or Setup because
     they're already registered by TPSPascalCompiler.DefineStandardProcedures and

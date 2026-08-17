@@ -19,8 +19,11 @@ implementation
 
 uses
   {$IFDEF DEBUG} Winapi.Windows, {$ENDIF} System.SysUtils,
+  {$IFDEF ISTESTTOOLPROJ} Shared.ScriptFunc, {$ENDIF}
   Shared.SetupSectionDirectives, Shared.LangOptionsSectionDirectives,
-  IDE.ScriptModel, IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra;
+  IDE.ScriptModel, IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra
+  {$IFDEF ISTESTTOOLPROJ}, IDE.ScriptModel.Metadata.Extra.FunctionDefinitions,
+  IDE.ScriptModel.Metadata.Extra.WordLists{$ENDIF};
 
 {$C+}
 
@@ -2158,6 +2161,187 @@ begin
   end;
 end;
 
+{$IFDEF ISTESTTOOLPROJ}
+procedure TestFunctionDefinitions;
+begin
+  { TFunctionDefinition.Create and CreateISPP parse the header kind and the
+    parameter presence out of a prototype }
+  var Definition := TFunctionDefinition.Create(
+    'function MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;');
+  Assert(Definition.HeaderKind = hkFunction);
+  Assert(Definition.HasParams);
+  Assert(Definition.ScriptFuncWithoutHeader =
+    'MsgBox(const Text: String; const Typ: TMsgBoxType; const Buttons: Integer): Integer;');
+  Definition := TFunctionDefinition.Create('procedure InitializeWizard;');
+  Assert(Definition.HeaderKind = hkProcedure);
+  Assert(not Definition.HasParams);
+  Definition := TFunctionDefinition.Create('constructor Create(AOwner: TComponent);');
+  Assert(Definition.HeaderKind = hkConstructor);
+  Assert(Definition.HasParams);
+  Definition := TFunctionDefinition.CreateISPP('str GetEnv(str Name)');
+  Assert(Definition.HeaderKind = hkISPPStr);
+  Assert(Definition.HasParams);
+  Assert(Definition.ScriptFuncWithoutHeader = 'GetEnv(str Name)');
+  Definition := TFunctionDefinition.CreateISPP('int FindCode');
+  Assert(Definition.HeaderKind = hkISPPInt);
+  Assert(not Definition.HasParams);
+  Definition := TFunctionDefinition.CreateISPP('void EmitLanguagesSection');
+  Assert(Definition.HeaderKind = hkISPPVoid);
+  Assert(not Definition.HasParams);
+
+  { GetISPPFunctionDefinition: a known function, case-insensitively, and an
+    unknown name }
+  var Count: Integer;
+  Definition := GetISPPFunctionDefinition('getenv', 0, Count);
+  Assert(Count = 1);
+  Assert(Definition.HeaderKind = hkISPPStr);
+  Assert(Pos(AnsiString('GetEnv('), Definition.ScriptFuncWithoutHeader) = 1);
+  GetISPPFunctionDefinition('NoSuchFunction', 0, Count);
+  Assert(Count = 0);
+
+  { GetScriptFunctionDefinition: a single-prototype function, with both
+    overloads, and an unknown name }
+  Definition := GetScriptFunctionDefinition(False, 'MsgBox', 0, Count);
+  Assert(Count = 1);
+  Assert(Definition.HeaderKind = hkFunction);
+  Assert(Pos(AnsiString('MsgBox('), Definition.ScriptFuncWithoutHeader) = 1);
+  const DefinitionFromOverload = GetScriptFunctionDefinition(False, 'MsgBox', 0);
+  Assert(DefinitionFromOverload.ScriptFuncWithoutHeader = Definition.ScriptFuncWithoutHeader);
+  GetScriptFunctionDefinition(False, 'NoSuchFunction', 0, Count);
+  Assert(Count = 0);
+
+  { A class-member lookup with multiple prototypes: an out-of-range index
+    clamps to the last prototype }
+  const FirstDefinition = GetScriptFunctionDefinition(True, 'Add', 0, Count);
+  Assert(Count > 1);
+  const LastDefinition = GetScriptFunctionDefinition(True, 'Add', Count-1, Count);
+  Assert(LastDefinition.ScriptFuncWithoutHeader <> FirstDefinition.ScriptFuncWithoutHeader);
+  const ClampedDefinition = GetScriptFunctionDefinition(True, 'Add', MaxInt, Count);
+  Assert(ClampedDefinition.ScriptFuncWithoutHeader = LastDefinition.ScriptFuncWithoutHeader);
+  Definition := GetScriptFunctionDefinition(True, 'Create', 0, Count);
+  Assert(Count > 1);
+  Assert(Definition.HeaderKind = hkConstructor);
+end;
+
+procedure TestWordLists;
+
+  function ListHasEntry(const List, Word: AnsiString; const Typ: Integer): Boolean;
+  begin
+    const Entry = AutoCompleteWordListSeparator + Word +
+      AutoCompleteWordListTypeSeparator + AnsiString(IntToStr(Typ)) +
+      AutoCompleteWordListSeparator;
+    Result := Pos(Entry, AutoCompleteWordListSeparator + List +
+      AutoCompleteWordListSeparator) <> 0;
+  end;
+
+  function HasName(const Names: TArray<AnsiString>; const Name: String): Boolean;
+  begin
+    Result := False;
+    for var KnownName in Names do
+      if SameText(String(KnownName), Name) then
+        Exit(True);
+  end;
+
+begin
+  { BuildAutoCompleteWordList appends the type separator and the type to each
+    word and joins the words with the list separator, in case-insensitive
+    ASCII sort order: 'abc' after 'ab' because the type separator sorts
+    before any word character, 'Def' after 'abc' because the sort upcases
+    'a'..'z', and '_x' last because '_' sorts after the uppercased letters }
+  const TypeSeparator: AnsiString = AutoCompleteWordListTypeSeparator;
+  const ListSeparator: AnsiString = AutoCompleteWordListSeparator;
+  const MemberValueType = AnsiString(IntToStr(awtMemberValue));
+  Assert(BuildAutoCompleteWordList(['abc', '_x', 'ab', 'Def'], awtMemberValue) =
+    'ab' + TypeSeparator + MemberValueType + ListSeparator +
+    'abc' + TypeSeparator + MemberValueType + ListSeparator +
+    'Def' + TypeSeparator + MemberValueType + ListSeparator +
+    '_x' + TypeSeparator + MemberValueType);
+  Assert(BuildAutoCompleteWordList([], awtMemberValue) = '');
+
+  { The sections word list, without the sections SectionMap excludes }
+  Assert(ListHasEntry(SectionsAutoCompleteWordList, '[Files]', awtSectionName));
+  Assert(ListHasEntry(SectionsAutoCompleteWordList, '[Code]', awtSectionName));
+  Assert(not ListHasEntry(SectionsAutoCompleteWordList, '[CodeBlock]', awtSectionName));
+
+  { The ISPP directives and pragma sub-directives word lists }
+  Assert(ListHasEntry(ISPPDirectivesAutoCompleteWordList, '#define', awtPreprocessorDirective));
+  Assert(ListHasEntry(ISPPDirectivesAutoCompleteWordList, '#pragma', awtPreprocessorDirective));
+  Assert(ListHasEntry(ISPPPragmaAutoCompleteWordList, 'verboselevel', awtPreprocessorSubDirective));
+
+  { The constants word list, including the '{#' entries built because
+    ISPPInstalled was True }
+  Assert(ListHasEntry(ConstantsAutoCompleteWordList, '{app}', awtConstant));
+  Assert(ListHasEntry(ConstantsAutoCompleteWordList, '{{', awtConstant));
+  Assert(ListHasEntry(ConstantsAutoCompleteWordList, '{cm', awtConstant));
+  Assert(ListHasEntry(ConstantsAutoCompleteWordList, '{#', awtConstant));
+  Assert(ListHasEntry(ConstantsAutoCompleteWordList, '{#SourcePath}', awtConstant));
+
+  { The event functions word lists, split per header kind }
+  Assert(ListHasEntry(GetEventFunctionsAutoCompleteWordList(False), 'InitializeSetup: Boolean;', awtScriptEvent));
+  Assert(not ListHasEntry(GetEventFunctionsAutoCompleteWordList(False), 'InitializeWizard;', awtScriptEvent));
+  Assert(ListHasEntry(GetEventFunctionsAutoCompleteWordList(True), 'InitializeWizard;', awtScriptEvent));
+  Assert(not ListHasEntry(GetEventFunctionsAutoCompleteWordList(True), 'InitializeSetup: Boolean;', awtScriptEvent));
+
+  { The member names word lists, with the [UninstallRun] StatusMsg exclusion }
+  Assert(ListHasEntry(MemberNamesAutoCompleteWordList[scFiles], 'Source', awtParameterName));
+  Assert(ListHasEntry(MemberNamesAutoCompleteWordList[scSetup], 'AppName', awtKeyName));
+  Assert(ListHasEntry(MemberNamesAutoCompleteWordList[scLangOptions], 'RightToLeft', awtKeyName));
+  Assert(ListHasEntry(MemberNamesAutoCompleteWordList[scMessages], 'WelcomeLabel1', awtKeyName));
+  Assert(ListHasEntry(MemberNamesAutoCompleteWordList[scRun], 'StatusMsg', awtParameterName));
+  Assert(not ListHasEntry(MemberNamesAutoCompleteWordList[scUninstallRun], 'StatusMsg', awtParameterName));
+
+  { The member values word lists, keyed case-insensitively on section and
+    member, with the [Setup] expression directive values from the extra
+    metadata }
+  Assert(ListHasEntry(GetMemberValuesAutoCompleteWordList(scFiles, 'Flags'), 'ignoreversion', awtMemberValue));
+  Assert(ListHasEntry(GetMemberValuesAutoCompleteWordList(scSetup, 'wizardstyle'), 'modern', awtMemberValue));
+  Assert(ListHasEntry(GetMemberValuesAutoCompleteWordList(scSetup, 'ArchitecturesAllowed'), 'x64compatible', awtMemberValue));
+  Assert(GetMemberValuesAutoCompleteWordList(scFiles, 'Source') = '');
+
+  { The ISPP expression word list, with the function names from the
+    dictionaries }
+  Assert(ListHasEntry(ISPPExpressionAutoCompleteWordList, 'GetEnv', awtISPPFunction));
+  Assert(ListHasEntry(ISPPExpressionAutoCompleteWordList, '__LINE__', awtISPPVariable));
+  Assert(ListHasEntry(ISPPExpressionAutoCompleteWordList, 'PREPROCVER', awtISPPConstant));
+
+  { The script word lists, split between plain words and class or record
+    members, with the function names from the dictionaries }
+  Assert(ListHasEntry(GetScriptAutoCompleteWordList(False), 'MsgBox', awtScriptFunction));
+  Assert(ListHasEntry(GetScriptAutoCompleteWordList(False), 'begin', awtScriptKeyword));
+  Assert(ListHasEntry(GetScriptAutoCompleteWordList(False), 'WizardForm', awtScriptVariable));
+  Assert(ListHasEntry(GetScriptAutoCompleteWordList(False), 'MaxInt', awtScriptConstant));
+  Assert(ListHasEntry(GetScriptAutoCompleteWordList(False), 'clBlack', awtScriptConstant));
+  Assert(ListHasEntry(GetScriptAutoCompleteWordList(False), 'TStringList', awtScriptType));
+  Assert(ListHasEntry(GetScriptAutoCompleteWordList(False), 'IUnknown', awtScriptInterface));
+  Assert(ListHasEntry(GetScriptAutoCompleteWordList(False), 'stAll', awtScriptEnumValue));
+  Assert(ListHasEntry(GetScriptAutoCompleteWordList(False), 'mbInformation', awtScriptEnumValue));
+  Assert(ListHasEntry(GetScriptAutoCompleteWordList(True), 'Add', awtScriptFunction));
+  Assert(ListHasEntry(GetScriptAutoCompleteWordList(True), 'Caption', awtScriptProperty));
+  Assert(not ListHasEntry(GetScriptAutoCompleteWordList(True), 'MsgBox', awtScriptFunction));
+
+  { FlagsWords: the known values of each section's Flags parameter, looked up
+    case-insensitively }
+  Assert(FlagsWords[scFiles].IndexOf('ignoreversion') >= 0);
+  Assert(FlagsWords[scFiles].IndexOf('IgnoreVersion') >= 0);
+  Assert(FlagsWords[scFiles].IndexOf('nosuchflag') < 0);
+  Assert(FlagsWords[scCode].Count = 0);
+
+  { NoHighlightAtCursorWords: the member names of each section plus the
+    [Code] reserved words }
+  Assert(NoHighlightAtCursorWords[scFiles].IndexOf('Source') >= 0);
+  Assert(NoHighlightAtCursorWords[scSetup].IndexOf('AppName') >= 0);
+  Assert(NoHighlightAtCursorWords[scCode].IndexOf('begin') >= 0);
+  Assert(NoHighlightAtCursorWords[scCode].IndexOf('Source') < 0);
+
+  { ParameterNames, with the [UninstallRun] StatusMsg exclusion }
+  Assert(HasName(ParameterNames[scFiles], 'Source'));
+  Assert(HasName(ParameterNames[scRun], 'StatusMsg'));
+  Assert(not HasName(ParameterNames[scUninstallRun], 'StatusMsg'));
+  Assert(HasName(ParameterNames[scUninstallRun], 'RunOnceId'));
+  Assert(Length(ParameterNames[scSetup]) = 0); { Not a parameter section }
+end;
+{$ENDIF}
+
 procedure IDEScriptModelRunTests;
 begin
   TestLineHelpers;
@@ -2178,6 +2362,16 @@ begin
   TestEntryParameterIndex;
   TestEntryValuePosition;
   TestKeyValueSectionValuePosition;
+  {$IFDEF ISTESTTOOLPROJ}
+  { ISTestTool only: under the ISIDE DEBUG self-test the initializers would
+    run at unit initialization, so MainForm's own calls would find the lists
+    already built, with the ISPPInstalled value passed here instead of the
+    real one }
+  InitializeFunctionDefinitions;
+  InitializeWordLists(True);
+  TestFunctionDefinitions;
+  TestWordLists;
+  {$ENDIF}
 end;
 
 {$IFDEF DEBUG}
