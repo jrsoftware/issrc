@@ -6690,18 +6690,29 @@ procedure TMainForm.EGotoFileClick(Sender: TObject);
 begin
   const GotoFileForm = TGotoFileForm.Create(Application);
   try
-    const Files = TStringList.Create;
+    var Files: TStringList := nil;
+    var ImageNames: TStringList := nil;
     try
+      Files := TStringList.Create;
+      ImageNames := TStringList.Create;
+
       { Build file list }
       Files.Add(FMainMemo.Filename);
-      for var IncludedFile in FIncludedFiles do
-        if IncludedFile.Memo <> nil then
+      ImageNames.Add('document');
+      for var IncludedFile in FIncludedFiles do begin
+        if IncludedFile.Memo <> nil then begin
           Files.Add(IncludedFile.Filename);
-      if FPreprocessorOutputMemo.Used then
+          ImageNames.Add('document-script');
+        end;
+      end;
+      if FPreprocessorOutputMemo.Used then begin
         Files.Add(MemosTabSet.Tabs[MemoToTabIndex(FPreprocessorOutputMemo)]);
+        ImageNames.Add('document-script-filled');
+      end;
 
       { Show form }
       GotoFileForm.Files := Files;
+      GotoFileForm.ImageNames := ImageNames;
       if GotoFileForm.ShowModal = mrOK then begin
         { Go to file }
         const FileIndex = GotoFileForm.FileIndex;
@@ -6727,6 +6738,7 @@ begin
           MemosTabSet.TabIndex := MemoToTabIndex(GotoMemo);
       end;
     finally
+      ImageNames.Free;
       Files.Free;
     end;
   finally

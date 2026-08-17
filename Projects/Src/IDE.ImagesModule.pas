@@ -10,19 +10,23 @@ type
   TImagesModule = class(TDataModule)
     private
       function GetBuildImageList(Dark: Boolean): TImageList;
+      function GetListImageCollection(Dark: Boolean): TImageCollection;
       function GetMarkersAndACImageCollection(Dark: Boolean): TImageCollection;
       function GetToolbarImageCollection(Dark: Boolean): TImageCollection;
     public
       property BuildImageList[Dark: Boolean]: TImageList read GetBuildImageList;
-      property ToolBarImageCollection[Dark: Boolean]: TImageCollection read GetToolbarImageCollection;
+      property ListImageCollection[Dark: Boolean]: TImageCollection read GetListImageCollection;
       property MarkersAndACImageCollection[Dark: Boolean]: TImageCollection read GetMarkersAndACImageCollection;
+      property ToolBarImageCollection[Dark: Boolean]: TImageCollection read GetToolbarImageCollection;
     published
       LightBuildImageList: TImageList;
       DarkBuildImageList: TImageList;
-      LightToolBarImageCollection: TImageCollection;
-      DarkToolBarImageCollection: TImageCollection;
+      LightListImageCollection: TImageCollection;
+      DarkListImageCollection: TImageCollection;
       LightMarkersAndACImageCollection: TImageCollection;
       DarkMarkersAndACImageCollection: TImageCollection;
+      LightToolBarImageCollection: TImageCollection;
+      DarkToolBarImageCollection: TImageCollection;
   end;
 
 var
@@ -42,6 +46,14 @@ begin
     Result := DarkBuildImageList
   else
     Result := LightBuildImageList;
+end;
+
+function TImagesModule.GetListImageCollection(Dark: Boolean): TImageCollection;
+begin
+  if Dark then
+    Result := DarkListImageCollection
+  else
+    Result := LightListImageCollection;
 end;
 
 function TImagesModule.GetMarkersAndACImageCollection(Dark: Boolean): TImageCollection;

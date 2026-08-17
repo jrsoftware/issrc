@@ -24,11 +24,11 @@ type
     FFormThemeActive: Boolean;
     FUncloakPending: Boolean;
     FStartupCloakingUsed, FStartupClientAreaFilled: Boolean;
-    function ScalePixelsX(const N: Integer): Integer;
     procedure WMPaint(var Message: TWMPaint); message WM_PAINT;
     procedure WMWindowPosChanged(var Message: TWMWindowPosChanged); message WM_WINDOWPOSCHANGED;
   protected
     procedure CreateWnd; override;
+    function ToCurrentPPI(const N: Integer): Integer;
   public
     constructor Create(AOwner: TComponent); override;
     function CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
@@ -157,7 +157,7 @@ begin
   end;
 end;
 
-function TIDEForm.ScalePixelsX(const N: Integer): Integer;
+function TIDEForm.ToCurrentPPI(const N: Integer): Integer;
 begin
   { Unlike Setup, the IDE's forms have Scaled set to True, so scale using
     CurrentPPI instead of font base units }
@@ -167,13 +167,13 @@ end;
 function TIDEForm.CalculateButtonWidth(const ButtonCaptions: array of String): Integer;
 begin
   { Same code as TSetupForm.CalculateButtonWidth }
-  Result := ScalePixelsX(75);
+  Result := ToCurrentPPI(75);
   { Increase the button size if there are unusually long button captions }
   const DC = GetDC(0);
   try
     SelectObject(DC, Font.Handle);
     for var I := Low(ButtonCaptions) to High(ButtonCaptions) do begin
-      const W = GetTextWidth(DC, ButtonCaptions[I], True) + ScalePixelsX(20);
+      const W = GetTextWidth(DC, ButtonCaptions[I], True) + ToCurrentPPI(20);
       if Result < W then
         Result := W;
     end;
