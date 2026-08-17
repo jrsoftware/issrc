@@ -771,6 +771,7 @@ uses
   IDE.OptionsForm, IDE.StartupForm, IDE.Wizard.WizardForm, IDE.GotoFileForm,
   IDE.InputQueryForm, IDE.LicenseKeyForm, IDE.MainForm.FinalHelper, IDE.RichEditForm,
   {$IFDEF DEBUG} IDE.LiveScriptObjectFactory.Test, {$ENDIF} IDE.ScriptModel.Metadata.Extra,
+  IDE.ScriptModel.Metadata.Extra.FunctionDefinitions,
   IDE.ScriptModel.Metadata.Extra.WordLists;
 
 {$R *.DFM}
@@ -1205,6 +1206,7 @@ begin
 
   PopupMenu := TMainFormPopupMenu.Create(Self, EMenu);
 
+  InitializeFunctionDefinitions;
   FMemosStyler := TInnoSetupStyler.Create(Self);
   const ISPPIsInstalled = ISPPInstalled;
   FMemosStyler.ISPPInstalled := ISPPIsInstalled;
@@ -5423,7 +5425,7 @@ begin
       if IsInISPPLineContext(FActiveMemo, LinePos, VarOrFuncRange.StartPos, IsPragmaContext) and not IsPragmaContext then begin
         const Name = FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
         var Count: Integer;
-        const FunctionDefinition = FMemosStyler.GetISPPFunctionDefinition(Name, 0, Count);
+        const FunctionDefinition = GetISPPFunctionDefinition(Name, 0, Count);
         if Count > 0 then begin
           if Count <> 1 then
             raise Exception.CreateFmt('MemoHintShow: unexpected Count (%d)', [Count]);
@@ -5459,14 +5461,14 @@ begin
         const Name = FActiveMemo.GetTextRange(VarOrFuncRange.StartPos, VarOrFuncRange.EndPos);
         var Index := 0;
         var Count: Integer;
-        var FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
+        var FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
         if Count = 0 then begin
           ClassMember := not ClassMember;
-          FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
+          FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index, Count);
         end;
         while Index < Count do begin
           if Index <> 0 then
-            FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(ClassMember, Name, Index);
+            FunctionDefinition := GetScriptFunctionDefinition(ClassMember, Name, Index);
           if HintStr <> '' then
             HintStr := HintStr + #13;
           HintStr := HintStr + ScriptFuncHeaderKindToStr(FunctionDefinition.HeaderKind) +

@@ -44,7 +44,8 @@ uses
   SysUtils, Math, TypInfo,
   Shared.SetupSectionDirectives,
   IDE.LiveScriptObjectFactory, IDE.ScintStylerInnoSetup, IDE.ScriptModel.Metadata,
-  IDE.ScriptModel.Metadata.Extra, IDE.ScriptModel.Metadata.Extra.WordLists;
+  IDE.ScriptModel.Metadata.Extra, IDE.ScriptModel.Metadata.Extra.FunctionDefinitions,
+  IDE.ScriptModel.Metadata.Extra.WordLists;
 
 const
   AutoCompleteWordChars = AlphaDigitUnderscoreChars;
@@ -632,9 +633,9 @@ begin
   const CurrentCallTipWord = AMemo.ConvertRawStringToString(FCallTipState.CurrentCallTipWord);
   var FunctionDefinition: TFunctionDefinition;
   if FCallTipState.ISPPExpressionContext then
-    FunctionDefinition := FMemosStyler.GetISPPFunctionDefinition(CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips)
+    FunctionDefinition := GetISPPFunctionDefinition(CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips)
   else
-    FunctionDefinition := FMemosStyler.GetScriptFunctionDefinition(FCallTipState.ClassOrRecordMember, CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips);
+    FunctionDefinition := GetScriptFunctionDefinition(FCallTipState.ClassOrRecordMember, CurrentCallTipWord, FCallTipState.CurrentCallTip, FCallTipState.MaxCallTips);
   if ((FCallTipState.MaxCallTips = 1) and FunctionDefinition.HasParams) or //if there's a single definition then only show if it has a parameter
      (FCallTipState.MaxCallTips > 1) then begin                            //if there's multiple then show always just like MemoHintShow, so even the one without parameters if it exists
     FCallTipState.FunctionDefinition := FunctionDefinition.ScriptFuncWithoutHeader;
