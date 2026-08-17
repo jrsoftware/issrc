@@ -12,10 +12,8 @@ unit IDE.ScintStylerInnoSetup;
 interface
 
 uses
-  SysUtils, Classes, Graphics, Generics.Collections, TypInfo,
-  ScintEdit, ModernColors, Shared.ScriptFunc, Shared.SetupSectionDirectives,
-  Shared.Struct, IDE.ScriptModel.Metadata.Extra,
-  IDE.ScriptModel.Metadata.Extra.WordLists;
+  ScintEdit, ModernColors,
+  IDE.ScriptModel.Metadata.Extra;
 
 type
   { Internally-used types }
@@ -61,8 +59,6 @@ type
     function LineTextSpans(const S: TScintRawString): Boolean; override;
     procedure StyleNeeded; override;
   public
-    constructor Create(AOwner: TComponent); override;
-    destructor Destroy; override;
     class function GetSectionFromLineState(const LineState: TScintLineState; const ReturnCodeBlockAsCode: Boolean = True): TInnoSetupSection; static;
     class function IsCommentOrKeywordStyle(const Style: TScintStyleNumber): Boolean; static;
     class function IsCommentOrISPPStringStyle(const Style: TScintStyleNumber): Boolean; static;
@@ -77,10 +73,10 @@ type
 implementation
 
 uses
-  Generics.Defaults,
-  Shared.SetupMessageIDs, ScintInt, Shared.LangOptionsSectionDirectives,
-  IDE.ScriptModel.Metadata, IDE.ScriptModel.Metadata.Extra.FunctionDefinitions,
-  isxclasses_wordlists_generated;
+  SysUtils, Graphics, TypInfo,
+  ScintInt,
+  Shared.LangOptionsSectionDirectives, Shared.SetupMessageIDs, Shared.SetupSectionDirectives,
+  IDE.ScriptModel.Metadata.Extra.WordLists;
 
 type
   { Size must be <= SizeOf(TScintLineState) }
@@ -120,16 +116,6 @@ begin
 end;
 
 { TInnoSetupStyler }
-
-constructor TInnoSetupStyler.Create(AOwner: TComponent);
-begin
-  inherited;
-end;
-
-destructor TInnoSetupStyler.Destroy;
-begin
-  inherited;
-end;
 
 procedure TInnoSetupStyler.ApplyPendingSquigglyFromToIndex(const StartIndex, EndIndex: Integer);
 begin

@@ -48,6 +48,9 @@ uses
   IDE.ScriptModel.Metadata.Extra,
   isxclasses_wordlists_generated;
 
+var
+  FunctionDefinitionsInitialized: Boolean;
+
 { TFunctionDefinition }
 
 constructor TFunctionDefinition.Create(const ScriptFunc: AnsiString);
@@ -119,6 +122,10 @@ procedure InitializeFunctionDefinitions;
   end;
 
 begin
+  if FunctionDefinitionsInitialized then
+    Exit;
+  FunctionDefinitionsInitialized := True;
+
   ISPPFunctionsByName := TFunctionDefinitionsByName.Create(TIStringComparer.Ordinal);
   for var ISPPFunction in ISPPFunctions do begin
     const FunctionDefinition = TFunctionDefinition.CreateISPP(ISPPFunction);

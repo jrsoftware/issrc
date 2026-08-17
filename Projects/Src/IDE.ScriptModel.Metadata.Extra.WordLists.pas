@@ -55,8 +55,6 @@ function GetMemberValuesAutoCompleteWordList(const Section: TInnoSetupSection;
   const MemberName: String): AnsiString;
 function GetScriptAutoCompleteWordList(const ClassOrRecordMembers: Boolean): AnsiString;
 
-procedure AddAutoCompleteWordToList(const SL: TStringList; const Word: AnsiString;
-  const Typ: Integer);
 function BuildAutoCompleteWordList(const Values: array of AnsiString;
   const Typ: Integer): AnsiString;
 
@@ -84,6 +82,7 @@ uses
   isxclasses_wordlists_generated;
 
 var
+  WordListsInitialized: Boolean;
   EventFunctionsAutoCompleteWordList: array[Boolean] of AnsiString;
   MemberValuesAutoCompleteWordLists: TDictionary<String, AnsiString>;
   ScriptAutoCompleteWordList: array[Boolean] of AnsiString;
@@ -375,7 +374,7 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
       { Add stuff from ScriptFunc }
       for var ScriptFuncName in ScriptFunctionsByName[False].Keys do
         AddAutoCompleteWordToList(SL2, AnsiString(ScriptFuncName), awtScriptFunction);
-      { Add stuff from this unit }
+      { Add stuff from Metadata.Extra and Isxclasses }
       for var S in PascalConstants do
         AddAutoCompleteWordToList(SL2, S, awtScriptConstant);
       for var S in PascalConstants_Isxclasses do
@@ -430,6 +429,14 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
   end;
 
 begin
+  if WordListsInitialized then
+    Exit;
+  WordListsInitialized := True;
+
+  { Needed by BuildISPPExpressionAutoCompleteWordList and
+    BuildScriptAutoCompleteWordListsAndNoHighlightAtCursorWords }
+  InitializeFunctionDefinitions;
+
   BuildSectionParameterNameLists;
   BuildConstantsAutoCompleteWordList;
   BuildEventFunctionsAutoCompleteWordList;
