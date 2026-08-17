@@ -13,9 +13,6 @@ interface
 
 uses
   TypInfo,
-  {$IFNDEF ISTESTTOOLPROJ}
-  ScintEdit,
-  {$ENDIF}
   Shared.SetupSectionDirectives;
 
 const
@@ -65,13 +62,8 @@ type
 
   TInnoSetupSections = set of TInnoSetupSection;
 
-{$IFDEF ISTESTTOOLPROJ}
-  TScintRawCharSet = set of AnsiChar;
-  TScintRawString = type RawByteString;
-{$ENDIF}
-
   TISPPDirective = record
-    Name: TScintRawString;
+    Name: AnsiString;
     RequiresParameter: Boolean;
     OpenCountChange: ShortInt;
   end;
@@ -85,8 +77,6 @@ const
     'option', 'parseroption', 'spansymbol', 'verboselevel', 'warning'
   ];
 
-  { The following and some others below are not used by StyleNeeded and therefore
-    simply of type AnsiString instead of TScintRawString }
   Constants: array of AnsiString = [
     { Doesn't include constants with non-word chars.
       Also doesn't include the *32 and *64 variants like commonpf32 or dotnet2064 }
@@ -331,7 +321,7 @@ const
     'IUnknown', 'IInterface', 'IDispatch'
   ];
 
-  PascalReservedWords: array of TScintRawString = [
+  PascalReservedWords: array of AnsiString = [
     'and', 'array', 'as', 'begin', 'case', 'const', 'div', 'do', 'downto',
     'else', 'end', 'except', 'external', 'finally', 'for', 'forward', 'function',
     'goto', 'if', 'in', 'is', 'label', 'mod', 'nil', 'not', 'of', 'or', 'out',
@@ -385,7 +375,7 @@ const
     'WizardForm', 'MainForm', 'UninstallProgressForm'
   ];
 
-  BasicEventFunctions: array of TScintRawString = [
+  BasicEventFunctions: array of AnsiString = [
     'InitializeSetup', 'InitializeWizard', 'DeinitializeSetup', 'CurStepChanged',
     'CurInstallProgressChanged', 'NextButtonClick', 'BackButtonClick',
     'CancelButtonClick', 'ShouldSkipPage', 'CurPageChanged', 'CheckPassword',
@@ -430,13 +420,13 @@ const
     'CurUninstallStep'
   ];
 
-  ISPPReservedWords: array[0..17] of TScintRawString = (
+  ISPPReservedWords: array[0..17] of AnsiString = (
     'private', 'protected', 'public', 'any', 'int',
     'str', 'func', 'array', 'option', 'parseroption', 'inlinestart',
     'inlineend', 'message', 'warning', 'error',
     'verboselevel', 'include', 'spansymbol');
 
-  ISPPDirectiveShorthands: TScintRawCharSet =
+  ISPPDirectiveShorthands: set of AnsiChar =
     [':' {define},
      '+' {include},
      '=' {emit},
@@ -519,7 +509,7 @@ type
   TMsgBoxType = (mbInformation, mbConfirmation, mbError, mbCriticalError);
 {$ENDIF}
 
-function ISPPD(const Name: TScintRawString; const RequiresParameter: Boolean; const OpenCountChange: ShortInt): TISPPDirective;
+function ISPPD(const Name: AnsiString; const RequiresParameter: Boolean; const OpenCountChange: ShortInt): TISPPDirective;
 begin
   Result.Name := Name;
   Result.RequiresParameter := RequiresParameter;
