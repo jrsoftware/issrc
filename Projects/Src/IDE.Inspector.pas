@@ -1982,22 +1982,14 @@ end;
 
 procedure TInspector.PermissionsRowGetValueList(Item: TJvCustomInspectorItem;
   Values: TStrings);
+const
+  ReadAccessType = '-read';
+  ReadExecAccessType = '-readexec';
 
   function SwapAccessTypesIfNeeded(const AValue: String;
-    const AKnownValues: TArray<String>): String;
+    const AUseReadExec: Boolean): String;
   { Switches '-read' to '-readexec', or vice versa, as needed }
-  const
-    ReadAccessType = '-read';
-    ReadExecAccessType = '-readexec';
   begin
-    { Figure out which type to use }
-    var UseReadExec := False;
-    for var KnownValue in AKnownValues do begin
-      if PathEndsWith(KnownValue, ReadExecAccessType) then begin
-        UseReadExec := True;
-        Break;
-      end;
-    end;
     { Replace as needed }
     Result := '';
     var S := AValue;
@@ -2005,9 +1997,9 @@ procedure TInspector.PermissionsRowGetValueList(Item: TJvCustomInspectorItem;
       var P := ExtractStr(S, ' ');
       if P = '' then
         Break;
-      if UseReadExec and PathEndsWith(P, ReadAccessType) then
+      if AUseReadExec and PathEndsWith(P, ReadAccessType) then
         P := Copy(P, 1, Length(P)-Length(ReadAccessType)) + ReadExecAccessType
-      else if not UseReadExec and PathEndsWith(P, ReadExecAccessType) then
+      else if not AUseReadExec and PathEndsWith(P, ReadExecAccessType) then
         P := Copy(P, 1, Length(P)-Length(ReadExecAccessType)) + ReadAccessType;
       if Result = '' then
         Result := P
@@ -2029,6 +2021,17 @@ begin
   var MainFactory: TLiveScriptObjectFactory := nil;
   if Assigned(FOnGetMainFactory) then
     MainFactory := FOnGetMainFactory;
+
+  { Figure out which 'read' type to use }
+  var UseReadExec := False;
+  for var KnownValue in Definition.KnownValues do begin
+    if PathEndsWith(KnownValue, ReadExecAccessType) then begin
+      UseReadExec := True;
+      Break;
+    end;
+  end;
+
+  { Collect the values }
   const SL = TStringList.Create;
   try
     SL.CaseSensitive := False;
@@ -2038,7 +2041,7 @@ begin
     SL.AddStrings(Definition.KnownValues);
     for var Value in CollectParameterValuesFromFactories([FFactory, MainFactory],
        Row.Name) do
-      SL.Add(SwapAccessTypesIfNeeded(Value, Definition.KnownValues));
+      SL.Add(SwapAccessTypesIfNeeded(Value, UseReadExec));
     Values.AddStrings(SL);
   finally
     SL.Free;
