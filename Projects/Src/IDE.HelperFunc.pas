@@ -680,7 +680,7 @@ var
     finally
       ReleaseDC(0, DC);
     end;
-    Inc(Size.cx, 5);
+    Inc(Size.cx, MulDiv(5, ListBox.CurrentPPI, 96));
     if TimestampPrefixTab then
       Inc(Size.cx, PrefixParam);
     if Size.cx > SendMessage(ListBox.Handle, LB_GETHORIZONTALEXTENT, 0, 0) then

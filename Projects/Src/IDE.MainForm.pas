@@ -7038,18 +7038,14 @@ procedure TMainForm.CompilerOutputListDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
 const
   ThemeColors: array [TStatusMessageKind] of TThemeColor = (tcGreen, tcFore, tcOrange, tcRed);
-var
-  Canvas: TCanvas;
-  S: String;
-  StatusMessageKind: TStatusMessageKind;
 begin
-  Canvas := CompilerOutputList.Canvas;
-  S := CompilerOutputList.Items[Index];
+  const Canvas = CompilerOutputList.Canvas;
+  const S = CompilerOutputList.Items[Index];
 
   Canvas.FillRect(Rect);
-  Inc(Rect.Left, 2);
+  Inc(Rect.Left, ToCurrentPPI(2));
   if FOptions.ColorizeCompilerOutput and not (odSelected in State) then begin
-    StatusMessageKind := TStatusMessageKind(CompilerOutputList.Items.Objects[Index]);
+    const StatusMessageKind = TStatusMessageKind(CompilerOutputList.Items.Objects[Index]);
     Canvas.Font.Color := FTheme.Colors[ThemeColors[StatusMessageKind]];
   end;
   Canvas.TextOut(Rect.Left, Rect.Top, S);
@@ -7057,15 +7053,12 @@ end;
 
 procedure TMainForm.DebugOutputListDrawItem(Control: TWinControl;
   Index: Integer; Rect: TRect; State: TOwnerDrawState);
-var
-  Canvas: TCanvas;
-  S: String;
 begin
-  Canvas := DebugOutputList.Canvas;
-  S := DebugOutputList.Items[Index];
+  const Canvas = DebugOutputList.Canvas;
+  const S = DebugOutputList.Items[Index];
 
   Canvas.FillRect(Rect);
-  Inc(Rect.Left, 2);
+  Inc(Rect.Left, ToCurrentPPI(2));
   if (S <> '') and (S[1] = #9) then
     Canvas.TextOut(Rect.Left + FDebugLogListTimestampsWidth, Rect.Top, Copy(S, 2, Maxint))
   else begin
@@ -7081,15 +7074,12 @@ end;
 
 procedure TMainForm.DebugCallStackListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
   State: TOwnerDrawState);
-var
-  Canvas: TCanvas;
-  S: String;
 begin
-  Canvas := DebugCallStackList.Canvas;
-  S := DebugCallStackList.Items[Index];
+  const Canvas = DebugCallStackList.Canvas;
+  const S = DebugCallStackList.Items[Index];
 
   Canvas.FillRect(Rect);
-  Inc(Rect.Left, 2);
+  Inc(Rect.Left, ToCurrentPPI(2));
   Canvas.TextOut(Rect.Left, Rect.Top, S);
 end;
 
@@ -7118,40 +7108,36 @@ end;
 
 procedure TMainForm.FindResultsListDrawItem(Control: TWinControl; Index: Integer; Rect: TRect;
   State: TOwnerDrawState);
-var
-  Canvas: TCanvas;
-  S, S2: String;
-  FindResult: TFindResult;
-  SaveColor: TColor;
 begin
-  Canvas := FindResultsList.Canvas;
-  S := FindResultsList.Items[Index];
-  FindResult := FindResultsList.Items.Objects[Index] as TFindResult;
+  const Canvas = FindResultsList.Canvas;
+  const S = FindResultsList.Items[Index];
+  const FindResult = FindResultsList.Items.Objects[Index] as TFindResult;
 
   Canvas.FillRect(Rect);
-  Inc(Rect.Left, 2);
+  Inc(Rect.Left, ToCurrentPPI(2));
   if FindResult = nil then begin
     Canvas.Font.Style := [fsBold];
     Canvas.TextOut(Rect.Left, Rect.Top, S);
   end else if not (odSelected in State) then begin
     if FindResult.StartIndex > 1 then begin
-      Canvas.TextOut(Rect.Left, Rect.Top, Copy(S, 1, FindResult.StartIndex-1));
+      const Prefix = Copy(S, 1, FindResult.StartIndex-1);
+      Canvas.TextOut(Rect.Left, Rect.Top, Prefix);
       Rect.Left := Canvas.PenPos.X;
     end;
-    SaveColor := Canvas.Brush.Color;
+    const SaveColor = Canvas.Brush.Color;
     if FTheme.Dark then
       Canvas.Brush.Color := FTheme.Colors[tcRed]
     else
       Canvas.Brush.Color := FTheme.Colors[tcSelBack];
-    S2 := Copy(S, FindResult.StartIndex, FindResult.EndIndex-FindResult.StartIndex);
-    Rect.Right := Rect.Left + Canvas.TextWidth(S2);
-    Canvas.TextRect(Rect, Rect.Left, Rect.Top, S2); { TextRect instead of TextOut to avoid a margin around the text }
+    const Match = Copy(S, FindResult.StartIndex, FindResult.EndIndex-FindResult.StartIndex);
+    Rect.Right := Rect.Left + Canvas.TextWidth(Match);
+    Canvas.TextRect(Rect, Rect.Left, Rect.Top, Match); { TextRect instead of TextOut to avoid a margin around the text }
     if FindResult.EndIndex <= Length(S) then begin
       Canvas.Brush.Color := SaveColor;
-      S2 := Copy(S, FindResult.EndIndex, MaxInt);
+      const Postfix = Copy(S, FindResult.EndIndex, MaxInt);
       Rect.Left := Rect.Right;
-      Rect.Right := Rect.Left + Canvas.TextWidth(S2);
-      Canvas.TextRect(Rect, Rect.Left, Rect.Top, S2);
+      Rect.Right := Rect.Left + Canvas.TextWidth(Postfix);
+      Canvas.TextRect(Rect, Rect.Left, Rect.Top, Postfix);
     end;
   end else
     Canvas.TextOut(Rect.Left, Rect.Top, S)
