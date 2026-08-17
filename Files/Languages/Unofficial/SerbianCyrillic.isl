@@ -182,8 +182,8 @@ NoUninstallWarningTitle=Компоненте већ постоје
 NoUninstallWarning=Инсталациони програм је открио да су следеће компоненте већ инсталиране на рачунару:%n%n%1%n%nПоништавање избора ових компоненти их неће уклонити.%n%nЖелите ли ипак да наставите?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceGBLabel=Изабране ставке захтевају најмање [gb] GB слободног простора на диску.
-ComponentsDiskSpaceMBLabel=Изабране ставке захтевају најмање [mb] MB слободног простора на диску.
+ComponentsDiskSpaceGBLabel=Изабране ставке захтевају најмање [gb] GB простора на диску.
+ComponentsDiskSpaceMBLabel=Изабране ставке захтевају најмање [mb] MB простора на диску.
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Одабир додатних задатака

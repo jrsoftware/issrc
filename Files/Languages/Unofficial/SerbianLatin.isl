@@ -182,8 +182,8 @@ NoUninstallWarningTitle=Komponente već postoje
 NoUninstallWarning=Instalacioni program je otkrio da su sledeće komponente već instalirane na računaru:%n%n%1%n%nPoništavanje izbora ovih komponenti ih neće ukloniti.%n%nŽelite li ipak da nastavite?
 ComponentSize1=%1 KB
 ComponentSize2=%1 MB
-ComponentsDiskSpaceGBLabel=Izabrane stavke zahtevaju najmanje [gb] GB slobodnog prostora na disku.
-ComponentsDiskSpaceMBLabel=Izabrane stavke zahtevaju najmanje [mb] MB slobodnog prostora na disku.
+ComponentsDiskSpaceGBLabel=Izabrane stavke zahtevaju najmanje [gb] GB prostora na disku.
+ComponentsDiskSpaceMBLabel=Izabrane stavke zahtevaju najmanje [mb] MB prostora na disku.
 
 ; *** "Select Additional Tasks" wizard page
 WizardSelectTasks=Odabir dodatnih zadataka
@@ -367,7 +367,7 @@ ErrorOpeningReadme=Došlo je do greške pri otvaranju README datoteke.
 ErrorRestartingComputer=Instalacioni program nije mogao ponovo da pokrene računar. Uradite to ručno.
 
 ; *** Uninstaller messages
-UninstallNotFound=Datoteka „%1“ ne postoji. Ne mogu da deinstaliram program.
+UninstallNotFound=Datoteka „%1“ ne postoji. Deinstalacija nije moguća.
 UninstallOpenError=Datoteka „%1“ ne može da se otvori. Deinstalacija nije moguća
 UninstallUnsupportedVer=Log datoteka deinstalacije „%1“ je u formatu koji ova verzija deinstalacionog programa ne prepoznaje. Deinstalacija nije moguća
 UninstallUnknownEntry=Nepoznat unos (%1) se pojavio u log datoteci deinstalacije
