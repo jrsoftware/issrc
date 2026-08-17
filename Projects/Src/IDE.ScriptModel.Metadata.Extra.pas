@@ -23,7 +23,7 @@ const
   DigitChars = ['0'..'9'];
   HexDigitChars = DigitChars + ['A'..'F', 'a'..'f'];
   AlphaDigitChars = AlphaChars + DigitChars;
-  AlphaDigitUnderscoreChars = AlphaChars + DigitChars + ['_'];
+  AlphaDigitUnderscoreChars = AlphaUnderscoreChars + DigitChars;
 
   PascalIdentFirstChars = AlphaUnderscoreChars;
   PascalIdentChars = AlphaDigitUnderscoreChars;
