@@ -324,7 +324,7 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
       (for flag validation) from all members having known values in the metadata.
       Such a member just works, except for one case needing an extra change
       in InitiateAutoComplete: values containing characters outside of
-      AutoCompleteStartOrContinueChars (like Permissions' '-' need extra continue
+      AutoCompleteStartOrContinueChars (like Permissions' '-') need extra continue
       chars set in ChooseWordList.
       Note: Flags has additional special treatment, validating the words
       before the caret, see FlagsWords and FoundNonFlagWord. }
