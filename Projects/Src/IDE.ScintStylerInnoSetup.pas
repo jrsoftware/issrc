@@ -208,7 +208,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
         AddAutoCompleteWordToList(SL2, S, awtScriptVariable);
       for var S in EventFunctionsParameters  do
         AddAutoCompleteWordToList(SL2, S, awtScriptVariable);
-      FScriptWordList[False] := BuildAutoCompleteWordList(SL2);
+      FScriptWordList[False] := InternalBuildAutoCompleteWordList(SL2);
 
       { Add stuff from Isxclasses }
       SL2.Clear;
@@ -216,7 +216,7 @@ constructor TInnoSetupStyler.Create(AOwner: TComponent);
       BuildScriptFunctionsLists(PascalMembers_Isxclasses, ClassMembers, SL2);
       for var S in PascalProperties_Isxclasses do
         AddAutoCompleteWordToList(SL2, S, awtScriptProperty);
-      FScriptWordList[True] := BuildAutoCompleteWordList(SL2);
+      FScriptWordList[True] := InternalBuildAutoCompleteWordList(SL2);
     finally
       SL2.Free;
     end;
@@ -296,7 +296,7 @@ begin
       AddAutoCompleteWordToList(SL, ISPPPredefinedVariable, awtISPPVariable);
     for var ISPPConstant in ISPPConstants do
       AddAutoCompleteWordToList(SL, ISPPConstant, awtISPPConstant);
-    FISPPExpressionWordList := BuildAutoCompleteWordList(SL);
+    FISPPExpressionWordList := InternalBuildAutoCompleteWordList(SL);
   finally
     SL.Free;
   end;

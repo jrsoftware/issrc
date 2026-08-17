@@ -4214,10 +4214,10 @@ begin
         AutoCompleteBkBrush.Color := FTheme.Colors[tcIntelliBack];
 
         var NamedTypes := [
-          NNT(awtSection, 'ac\structure-filled'),
-          NNT(awtParameter, 'ac\xml-filled'),
-          NNT(awtDirective, 'ac\xml-filled'),
-          NNT(awtFlagOrSetupDirectiveValue, 'ac\values'),
+          NNT(awtSectionName, 'ac\structure-filled'),
+          NNT(awtParameterName, 'ac\xml-filled'),
+          NNT(awtKeyName, 'ac\xml-filled'),
+          NNT(awtMemberValue, 'ac\values'),
           NNT(awtPreprocessorDirective, 'ac\symbol-hashtag'),
           NNT(awtPreprocessorSubDirective, 'ac\symbol-hashtag-arrow-right-2'),
           NNT(awtConstant, 'ac\constant-filled_2'),

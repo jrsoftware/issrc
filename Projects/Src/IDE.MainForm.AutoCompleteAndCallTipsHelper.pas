@@ -47,7 +47,7 @@ uses
   IDE.ScriptModel.Metadata.Extra, IDE.ScriptModel.Metadata.Extra.WordLists;
 
 const
-  AutoCompleteWordChars = ['0'..'9', 'A'..'Z', 'a'..'z', '_'];
+  AutoCompleteWordChars = AlphaDigitUnderscoreChars;
   AutoCompleteStartOrContinueChars = AutoCompleteWordChars + ['#', '{', '[', '<'];
 
 class function TMainFormAutoCompleteAndCallTipsHelper._InitiateAutoCompleteOrCallTipAllowedAtPos(const AMemo: TScintEdit;
@@ -67,17 +67,10 @@ class function TMainFormAutoCompleteAndCallTipsHelper.IsInISPPLineContext(
   const AMemo: TScintEdit; const LinePos, ScanEndPos: Integer;
   out IsPragmaContext: Boolean): Boolean;
 
-  function SkipWhitespace(const Pos: Integer): Integer;
+  function SkipChars(const Pos: Integer; const Chars: TSysCharSet): Integer;
   begin
     Result := Pos;
-    while (Result < ScanEndPos) and (AMemo.GetByteAtPosition(Result) <= ' ') do
-      Result := AMemo.GetPositionAfter(Result);
-  end;
-
-  function SkipISPPIdentifier(const Pos: Integer): Integer;
-  begin
-    Result := Pos;
-    while (Result < ScanEndPos) and (AMemo.GetByteAtPosition(Result) in ISPPIdentChars) do
+    while (Result < ScanEndPos) and (AMemo.GetByteAtPosition(Result) in Chars) do
       Result := AMemo.GetPositionAfter(Result);
   end;
 
@@ -95,7 +88,7 @@ begin
   var Pos := LinePos;
 
   { Skip leading whitespace }
-  Pos := SkipWhitespace(Pos);
+  Pos := SkipChars(Pos, WhitespaceChars);
 
   { Require '#' as first non-whitespace character }
   if (Pos >= ScanEndPos) or (AMemo.GetByteAtPosition(Pos) <> '#') then
@@ -132,9 +125,9 @@ begin
         { #pragma does not support expressions, but only sub-directives like
           "message", so should check we aren't beyond that already }
         { Skip whitespace after "pragma" }
-        Pos := SkipWhitespace(Pos);
+        Pos := SkipChars(Pos, WhitespaceChars);
         { Skip the sub-directive word if any }
-        Pos := SkipISPPIdentifier(Pos);
+        Pos := SkipChars(Pos, ISPPIdentChars);
         IsPragmaContext := Pos = ScanEndPos;
         Exit(IsPragmaContext);
       end;
@@ -155,12 +148,12 @@ begin
     Exit(True); { Return True }
 
   { Skip whitespace }
-  Pos := SkipWhitespace(Pos);
+  Pos := SkipChars(Pos, WhitespaceChars);
   if Pos >= ScanEndPos then
     Exit;
 
   { Skip the identifier (not using GetWordEndPosition because '[' is a word char) }
-  Pos := SkipISPPIdentifier(Pos);
+  Pos := SkipChars(Pos, ISPPIdentChars);
   if Pos >= ScanEndPos then
     Exit;
 
@@ -485,7 +478,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
           if not Res.FoundMultipleSetupDirectiveValues or
             SetupSectionDirectiveValueIsMultiValue(Directive) then begin
             if Directive = ssSignTool then
-              WordList := BuildAutoCompleteWordList(GetAutoCompleteSignToolValues)
+              WordList := BuildAutoCompleteWordList(GetAutoCompleteSignToolValues, awtMemberValue)
             else
               WordList := GetMemberValuesAutoCompleteWordList(Section, Res.FoundMemberName);
             if Directive in [ssArchiveExtraction, ssCompression] then
@@ -501,7 +494,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
             ExtraContinueChars := ['-'];
         end else begin
           WordList := BuildAutoCompleteWordList(
-            GetAutoCompleteScriptValues(Res.FoundMemberName));
+            GetAutoCompleteScriptValues(Res.FoundMemberName), awtMemberValue);
           if WordList = '' then
             Exit;
         end;
@@ -509,7 +502,7 @@ procedure TMainFormAutoCompleteAndCallTipsHelper.InitiateAutoComplete(const AMem
       FillupChars := ' ';
     end else begin
       { Autocompleting a name }
-      WordList := GetMemberNamesAutoCompleteWordList(Section);
+      WordList := MemberNamesAutoCompleteWordList[Section];
       if WordList = '' then { [CustomMessages] }
         Exit;
       if IsParamSection then

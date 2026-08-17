@@ -6,7 +6,7 @@ unit IDE.ScriptModel.Metadata.Extra.WordLists;
   Portions by Martijn Laan
   For conditions of distribution and use, see LICENSE.TXT.
 
-  Word lists for auto completion and other purposes
+  Word lists for auto completion and other purposes, not used by IDE.ScriptModel.pas
 }
 
 interface
@@ -22,10 +22,10 @@ const
   AutoCompleteWordListTypeSeparator = '!'; { Must sort before numbers }
 
   { AutoComplete word types }
-  awtSection = 0;
-  awtParameter = 1;
-  awtDirective = 2;
-  awtFlagOrSetupDirectiveValue = 3;
+  awtSectionName = 0;
+  awtParameterName = 1;
+  awtKeyName = 2;
+  awtMemberValue = 3;
   awtPreprocessorDirective = 4;
   awtPreprocessorSubDirective = 5;
   awtConstant = 6;
@@ -46,17 +46,18 @@ var
   ConstantsAutoCompleteWordList: AnsiString;
   ISPPDirectivesAutoCompleteWordList: AnsiString;
   ISPPPragmaAutoCompleteWordList: AnsiString;
+  MemberNamesAutoCompleteWordList: array[TInnoSetupSection] of AnsiString;
   SectionsAutoCompleteWordList: AnsiString;
 
 function GetEventFunctionsAutoCompleteWordList(const Procedures: Boolean): AnsiString;
-function GetMemberNamesAutoCompleteWordList(const Section: TInnoSetupSection): AnsiString;
 function GetMemberValuesAutoCompleteWordList(const Section: TInnoSetupSection;
   const MemberName: String): AnsiString;
 
 procedure AddAutoCompleteWordToList(const SL: TStringList; const Word: AnsiString;
   const Typ: Integer);
-function BuildAutoCompleteWordList(const Values: array of AnsiString): AnsiString; overload;
-function BuildAutoCompleteWordList(const WordStringList: TStringList): AnsiString; overload;
+function BuildAutoCompleteWordList(const Values: array of AnsiString;
+  const Typ: Integer): AnsiString;
+function InternalBuildAutoCompleteWordList(const WordStringList: TStringList): AnsiString;
 
 { Word lists for other purposes }
 
@@ -82,7 +83,6 @@ uses
 
 var
   EventFunctionsAutoCompleteWordList: array[Boolean] of AnsiString;
-  MemberNamesAutoCompleteWordList: array[TInnoSetupSection] of AnsiString;
   MemberValuesAutoCompleteWordLists: TDictionary<String, AnsiString>;
 
 procedure AddAutoCompleteWordToList(const SL: TStringList;
@@ -94,19 +94,7 @@ begin
     SL.Add(String(Word));
 end;
 
-function BuildAutoCompleteWordList(const Values: array of AnsiString): AnsiString;
-begin
-  const SL = TStringList.Create;
-  try
-    for var Value in Values do
-      AddAutoCompleteWordToList(SL, Value, awtFlagOrSetupDirectiveValue);
-    Result := BuildAutoCompleteWordList(SL);
-  finally
-    SL.Free;
-  end;
-end;
-
-function BuildAutoCompleteWordList(const WordStringList: TStringList): AnsiString;
+function InternalBuildAutoCompleteWordList(const WordStringList: TStringList): AnsiString;
 begin
   { Scintilla uses an ASCII binary search so the list must be in ASCII sort
     order (case-insensitive). }
@@ -124,14 +112,22 @@ begin
   end;
 end;
 
+function BuildAutoCompleteWordList(const Values: array of AnsiString;
+  const Typ: Integer): AnsiString;
+begin
+  const SL = TStringList.Create;
+  try
+    for var Value in Values do
+      AddAutoCompleteWordToList(SL, Value, Typ);
+    Result := InternalBuildAutoCompleteWordList(SL);
+  finally
+    SL.Free;
+  end;
+end;
+
 function GetEventFunctionsAutoCompleteWordList(const Procedures: Boolean): AnsiString;
 begin
   Result := EventFunctionsAutoCompleteWordList[Procedures];
-end;
-
-function GetMemberNamesAutoCompleteWordList(const Section: TInnoSetupSection): AnsiString;
-begin
-  Result := MemberNamesAutoCompleteWordList[Section];
 end;
 
 function MemberValuesKey(const Section: TInnoSetupSection;
@@ -197,7 +193,7 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
       end;
       for var ConstantWithParam in ConstantsWithParam do
         AddAutoCompleteWordToList(SL, AnsiString('{' + ConstantWithParam), awtConstant);
-      ConstantsAutoCompleteWordList := BuildAutoCompleteWordList(SL);
+      ConstantsAutoCompleteWordList := InternalBuildAutoCompleteWordList(SL);
     finally
       SL.Free;
     end;
@@ -220,8 +216,8 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
         else
           raise Exception.Create('Internal error: got invalid HeaderKind for event function');
       end;
-      EventFunctionsAutoCompleteWordList[False] := BuildAutoCompleteWordList(SLFunctions);
-      EventFunctionsAutoCompleteWordList[True] := BuildAutoCompleteWordList(SLProcedures);
+      EventFunctionsAutoCompleteWordList[False] := InternalBuildAutoCompleteWordList(SLFunctions);
+      EventFunctionsAutoCompleteWordList[True] := InternalBuildAutoCompleteWordList(SLProcedures);
     finally
       SLProcedures.Free;
       SLFunctions.Free;
@@ -234,7 +230,7 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
     try
       for var ISPPDirective in ISPPDirectives do
         AddAutoCompleteWordToList(SL, '#' + ISPPDirective.Name, awtPreprocessorDirective);
-      ISPPDirectivesAutoCompleteWordList := BuildAutoCompleteWordList(SL);
+      ISPPDirectivesAutoCompleteWordList := InternalBuildAutoCompleteWordList(SL);
     finally
       SL.Free;
     end;
@@ -246,7 +242,7 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
     try
       for var ISPPPragmaSubDirective in ISPPPragmaSubDirectives do
         AddAutoCompleteWordToList(SL, ISPPPragmaSubDirective, awtPreprocessorSubDirective);
-      ISPPPragmaAutoCompleteWordList := BuildAutoCompleteWordList(SL);
+      ISPPPragmaAutoCompleteWordList := InternalBuildAutoCompleteWordList(SL);
     finally
       SL.Free;
     end;
@@ -260,9 +256,9 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
     try
       for var ParameterName in ParameterNames[Section] do begin
         SL1.Add(String(ParameterName));
-        AddAutoCompleteWordToList(SL2, ParameterName, awtParameter);
+        AddAutoCompleteWordToList(SL2, ParameterName, awtParameterName);
       end;
-      MemberNamesAutoCompleteWordList[Section] := BuildAutoCompleteWordList(SL2);
+      MemberNamesAutoCompleteWordList[Section] := InternalBuildAutoCompleteWordList(SL2);
     finally
       SL2.Free;
     end;
@@ -278,9 +274,9 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
       for var I := 0 to GetTypeData(EnumTypeInfo).MaxValue do begin
         const KeyName = Copy(GetEnumName(EnumTypeInfo, I), PrefixLength+1, MaxInt);
         SL1.Add(KeyName);
-        AddAutoCompleteWordToList(SL2, AnsiString(KeyName), awtDirective);
+        AddAutoCompleteWordToList(SL2, AnsiString(KeyName), awtKeyName);
       end;
-      MemberNamesAutoCompleteWordList[Section] := BuildAutoCompleteWordList(SL2);
+      MemberNamesAutoCompleteWordList[Section] := InternalBuildAutoCompleteWordList(SL2);
     finally
       SL2.Free;
     end;
@@ -325,7 +321,7 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
         for var I := 0 to High(Member.KnownValues) do
           Values[I] := AnsiString(Member.KnownValues[I]);
         MemberValuesAutoCompleteWordLists.Add(MemberValuesKey(Item.Section, Member.Name),
-          BuildAutoCompleteWordList(Values));
+          BuildAutoCompleteWordList(Values, awtMemberValue));
         if Member.Name = 'Flags' then begin
           const SL = FlagsWords[Item.Section];
           for var Value in Values do
@@ -338,7 +334,7 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
         for var DirectiveValue in SetupSectionExpressionDirectivesValues do
           MemberValuesAutoCompleteWordLists.Add(
             MemberValuesKey(scSetup, Metadata.Members[Ord(DirectiveValue.Directive)].Name),
-            BuildAutoCompleteWordList(DirectiveValue.Values));
+            BuildAutoCompleteWordList(DirectiveValue.Values, awtMemberValue));
       end;
     end;
   end;
@@ -348,8 +344,8 @@ procedure InitializeWordLists(const ISPPInstalled: Boolean);
     var SL := TStringList.Create;
     try
       for var Section in SectionMap do
-        AddAutoCompleteWordToList(SL, '[' + AnsiString(Section.Name) + ']', awtSection);
-      SectionsAutoCompleteWordList := BuildAutoCompleteWordList(SL);
+        AddAutoCompleteWordToList(SL, '[' + AnsiString(Section.Name) + ']', awtSectionName);
+      SectionsAutoCompleteWordList := InternalBuildAutoCompleteWordList(SL);
     finally
       SL.Free;
     end;
