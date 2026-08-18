@@ -1829,7 +1829,11 @@ begin
   for var Line := StartLine to EndLine do
     EnsureLineVisible(Line);
 
-  { Select }
+  { Make sure it's in view }
+  EnsurePositionVisible(Range.StartPos);
+
+  { Select. A range taller than the window scrolls the start back out of
+    view again, but we don't handle that here. }
   Selection := Range;
 end;
 

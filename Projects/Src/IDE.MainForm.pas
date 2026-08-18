@@ -6736,8 +6736,11 @@ begin
     var S := IntToStr(FActiveMemo.CaretLine + 1);
     if InputQueryEdit(LFmtMessage(SGotoLineTitle), LFmtMessage(SGotoLinePrompt), S) then begin
       const L = StrToIntDef(S, Low(Integer));
-      if L <> Low(Integer) then
-        FActiveMemo.CaretLine := L - 1;
+      if L <> Low(Integer) then begin
+        const Line = Min(Max(L - 1, 0), FActiveMemo.Lines.Count-1);
+        FActiveMemo.EnsurePositionVisible(FActiveMemo.GetPositionFromLine(Line));
+        FActiveMemo.CaretLine := Line;
+      end;
     end;
   end;
 end;

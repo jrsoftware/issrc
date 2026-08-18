@@ -712,14 +712,12 @@ begin
         Memo.GetPositionRelativeCodeUnits(Memo.GetPositionFromLine(Positions[I].StartLineIndex), Positions[I].StartCharIndex),
         Memo.GetPositionRelativeCodeUnits(Memo.GetPositionFromLine(Positions[I].EndLineIndex), Positions[I].EndCharIndex));
       if I = 0 then
-        Memo.Selection := Range
+        Memo.SelectAndEnsureVisible(Range)
       else
         Memo.AddSelection(Range.EndPos, Range.StartPos);
     end;
-    if Length(Positions) > 1 then begin
+    if Length(Positions) > 1 then
       Memo.MainSelection := 0;
-      Memo.ScrollCaretIntoView;
-    end;
   end;
 end;
 
