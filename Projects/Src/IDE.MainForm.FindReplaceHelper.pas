@@ -153,7 +153,7 @@ begin
   end;
   if FActiveMemo.FindText(StartPos, EndPos, FLastFindText,
      FindOptionsToSearchOptions(FLastFindOptions, FLastFindRegEx), Range) then
-    FActiveMemo.SelectAndEnsureVisible(Range)
+    FActiveMemo.SelectAndEnsureInView(Range)
   else
     MsgBox(LFmtMessage(SFindNotFound, [FLastFindText]), LFmtMessage(SCompilerFormCaption),
       mbInformation, MB_OK);

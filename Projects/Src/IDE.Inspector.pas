@@ -712,7 +712,7 @@ begin
         Memo.GetPositionRelativeCodeUnits(Memo.GetPositionFromLine(Positions[I].StartLineIndex), Positions[I].StartCharIndex),
         Memo.GetPositionRelativeCodeUnits(Memo.GetPositionFromLine(Positions[I].EndLineIndex), Positions[I].EndCharIndex));
       if I = 0 then
-        Memo.SelectAndEnsureVisible(Range)
+        Memo.SelectAndEnsureInView(Range)
       else
         Memo.AddSelection(Range.EndPos, Range.StartPos);
     end;

@@ -4614,7 +4614,7 @@ begin
   else
     Pos := AMemo.CaretPosition; { Not actually moving caret - it's already were we want it}
 
-  AMemo.EnsurePositionVisible(Pos);
+  AMemo.EnsurePositionInViewVertically(Pos);
   AMemo.CaretPosition := Pos;
   if IsPosition then
     AMemo.CaretVirtualSpace := PositionVirtualSpace;
@@ -6738,7 +6738,7 @@ begin
       const L = StrToIntDef(S, Low(Integer));
       if L <> Low(Integer) then begin
         const Line = Min(Max(L - 1, 0), FActiveMemo.Lines.Count-1);
-        FActiveMemo.EnsurePositionVisible(FActiveMemo.GetPositionFromLine(Line));
+        FActiveMemo.EnsurePositionInViewVertically(FActiveMemo.GetPositionFromLine(Line));
         FActiveMemo.CaretLine := Line;
       end;
     end;
@@ -7092,7 +7092,7 @@ begin
       for Memo in FFileMemos do begin
         if Memo.Used and PathSame(Memo.Filename, FindResult.Filename) then begin
           MoveCaretAndActivateMemo(Memo, FindResult.Line, True);
-          Memo.SelectAndEnsureVisible(FindResult.Range);
+          Memo.SelectAndEnsureInView(FindResult.Range);
           ActiveControl := Memo;
           Exit;
         end;

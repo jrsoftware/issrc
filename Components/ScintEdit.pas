@@ -286,7 +286,7 @@ type
     procedure DPIChanged(const Message: TMessage);
     procedure EndUndoAction;
     procedure EnsureLineVisible(const Line: Integer);
-    procedure EnsurePositionVisible(const Pos: Integer);
+    procedure EnsurePositionInViewVertically(const Pos: Integer);
     function FindRawText(const StartPos, EndPos: Integer; const S: TScintRawString;
       const Options: TScintFindOptions; out MatchRange: TScintRange): Boolean;
     function FindText(const StartPos, EndPos: Integer; const S: String;
@@ -356,7 +356,7 @@ type
     procedure ScrollCaretIntoView;
     procedure SelectAll;
     procedure SelectAllOccurrences(const Options: TScintFindOptions);
-    procedure SelectAndEnsureVisible(const Range: TScintRange);
+    procedure SelectAndEnsureInView(const Range: TScintRange);
     procedure SelectNextOccurrence(const Options: TScintFindOptions);
     function SelEmpty: Boolean;
     function SelNotEmpty(out Sel: TScintRange): Boolean;
@@ -1000,7 +1000,7 @@ begin
   Call(SCI_ENSUREVISIBLE, Line, 0);
 end;
 
-procedure TScintEdit.EnsurePositionVisible(const Pos: Integer);
+procedure TScintEdit.EnsurePositionInViewVertically(const Pos: Integer);
 { If the line is in a contracted section expand it, and if it isn't in
   view, scroll so that it's in the center. Doesn't move the caret. }
 begin
@@ -1819,7 +1819,7 @@ begin
   Call(SCI_MULTIPLESELECTADDEACH, 0, 0);
 end;
 
-procedure TScintEdit.SelectAndEnsureVisible(const Range: TScintRange);
+procedure TScintEdit.SelectAndEnsureInView(const Range: TScintRange);
 begin
   CheckPosRange(Range.StartPos, Range.EndPos);
 
@@ -1829,11 +1829,12 @@ begin
   for var Line := StartLine to EndLine do
     EnsureLineVisible(Line);
 
-  { Make sure it's in view }
-  EnsurePositionVisible(Range.StartPos);
+  { Make sure it's in view vertically. }
+  EnsurePositionInViewVertically(Range.StartPos);
 
   { Select. A range taller than the window scrolls the start back out of
-    view again, but we don't handle that here. }
+    view again, but we don't handle that here. This also makes sure
+    it's in view horizontally. }
   Selection := Range;
 end;
 
