@@ -286,6 +286,7 @@ type
     procedure DPIChanged(const Message: TMessage);
     procedure EndUndoAction;
     procedure EnsureLineVisible(const Line: Integer);
+    procedure EnsurePositionVisible(const Pos: Integer);
     function FindRawText(const StartPos, EndPos: Integer; const S: TScintRawString;
       const Options: TScintFindOptions; out MatchRange: TScintRange): Boolean;
     function FindText(const StartPos, EndPos: Integer; const S: String;
@@ -997,6 +998,16 @@ procedure TScintEdit.EnsureLineVisible(const Line: Integer);
 begin
   FLines.CheckIndexRange(Line);
   Call(SCI_ENSUREVISIBLE, Line, 0);
+end;
+
+procedure TScintEdit.EnsurePositionVisible(const Pos: Integer);
+{ If the line is in a contracted section expand it, and if it isn't in
+  view, scroll so that it's in the center. Doesn't move the caret. }
+begin
+  const Line = GetLineFromPosition(Pos);
+  EnsureLineVisible(Line);
+  if not IsPositionInViewVertically(Pos) then
+    TopLine := GetVisibleLineFromDocLine(Line) - (LinesInWindow div 2);
 end;
 
 class function TScintEdit.GetErrorException(const S: String): EScintEditError;

@@ -4614,14 +4614,7 @@ begin
   else
     Pos := AMemo.CaretPosition; { Not actually moving caret - it's already were we want it}
 
-  { If the line is in a contracted section, expand it }
-  AMemo.EnsureLineVisible(AMemo.GetLineFromPosition(Pos));
-
-  { If the line isn't in view, scroll so that it's in the center }
-  if not AMemo.IsPositionInViewVertically(Pos) then
-    AMemo.TopLine := AMemo.GetVisibleLineFromDocLine(AMemo.GetLineFromPosition(Pos)) -
-      (AMemo.LinesInWindow div 2);
-
+  AMemo.EnsurePositionVisible(Pos);
   AMemo.CaretPosition := Pos;
   if IsPosition then
     AMemo.CaretVirtualSpace := PositionVirtualSpace;
