@@ -349,7 +349,7 @@ ErrorReplacingExistingFile=Дошло је до грешке при замени
 ErrorRestartReplace=Није могуће заменити:
 ErrorRenamingTemp=Дошло је до грешке при преименовању датотеке у одредишној фасцикли:
 ErrorRegisterServer=Није могуће регистровати DLL/OCX: %1
-ErrorRegSvr32Failed=RegSvr32 није успео. Излазни кôд: %1
+ErrorRegSvr32Failed=RegSvr32 није успео. Излазни код: %1
 ErrorRegisterTypeLib=Није могуће регистровати библиотеку типова: %1
 
 ; *** Uninstall display name markings
