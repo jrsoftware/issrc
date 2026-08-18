@@ -21,7 +21,7 @@ type
     FHeaderProcessed: Boolean;
     FNextIn: PByte;
     FAvailIn: Cardinal;
-    FBuffer: array[0..65535] of Byte;
+    FInBuffer: array[0..65535] of Byte;
   protected
     function DecodeToBuf(var Dest; var DestLen: Cardinal; const Src;
       var SrcLen: Cardinal; var Status: Integer): Integer; virtual; abstract;
@@ -180,7 +180,7 @@ var
 begin
   if not FHeaderProcessed then begin
     { Reset these following a reset }
-    FNextIn := PByte(@FBuffer);
+    FNextIn := PByte(@FInBuffer);
     FAvailIn := 0;
     ProcessHeader;
     FHeaderProcessed := True;
@@ -189,8 +189,8 @@ begin
   var AvailOut := Count;
   while AvailOut > 0 do begin
     if FAvailIn = 0 then begin
-      FNextIn := PByte(@FBuffer);
-      FAvailIn := ReadInput(FBuffer, SizeOf(FBuffer));
+      FNextIn := PByte(@FInBuffer);
+      FAvailIn := ReadInput(FInBuffer, SizeOf(FInBuffer));
     end;
     OutBytes := AvailOut;
     InBytes := FAvailIn;

@@ -50,7 +50,7 @@ type
     FDecoderState: TLZMAInternalDecoderState;
     FHeapBase: Pointer;
     FHeapSize: Cardinal;
-    FBuffer: array[0..65535] of Byte;
+    FInBuffer: array[0..65535] of Byte;
     procedure DestroyHeap;
     procedure DoRead(var Buffer: Pointer; var BufferSize: Cardinal);
     procedure ProcessHeader;
@@ -139,8 +139,8 @@ end;
 
 procedure TLZMA1SmallDecompressor.DoRead(var Buffer: Pointer; var BufferSize: Cardinal);
 begin
-  Buffer := @FBuffer;
-  BufferSize := ReadInput(FBuffer, SizeOf(FBuffer));
+  Buffer := @FInBuffer;
+  BufferSize := ReadInput(FInBuffer, SizeOf(FInBuffer));
 end;
 
 procedure TLZMA1SmallDecompressor.ProcessHeader;
