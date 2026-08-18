@@ -560,7 +560,6 @@ type
     FDonateImageMenuItem: TMenuItem;
     FAllowUpdateInspectorPanelWidth: Boolean;
     FLiveScriptObjectFactories: TObjectDictionary<TScintEdit, TLiveScriptObjectFactory>;
-    FSavedInspectorFilterEditWindowProc: TWndMethod;
     procedure AppOnActivate(Sender: TObject);
     class procedure AppOnGetActiveFormHandle(var AHandle: HWND);
     procedure AppOnIdle(Sender: TObject; var Done: Boolean);
@@ -592,7 +591,6 @@ type
     function InitializeMainMemo(const Memo: TIDEScintFileEdit; const PopupMenu: TPopupMenu): TIDEScintFileEdit;
     function InitializeMemoBase(const Memo: TIDEScintEdit; const PopupMenu: TPopupMenu): TIDEScintEdit;
     function InitializeNonFileMemo(const Memo: TIDEScintEdit; const PopupMenu: TPopupMenu): TIDEScintEdit;
-    procedure InspectorFilterEditWindowProc(var Message: TMessage);
     procedure InvalidateStatusPanel(const Index: Integer);
     procedure LoadBreakPointLinesAndUpdateLineMarkers(const AMemo: TIDEScintFileEdit);
     procedure LoadKnownIncludedAndHiddenFilesAndUpdateMemos(const AFilename: String);
@@ -1248,8 +1246,7 @@ begin
 
   CreateInspector;
   UpdateInspectorHeaderPanelLayout;
-  FSavedInspectorFilterEditWindowProc := InspectorFilterEdit.WindowProc;
-  InspectorFilterEdit.WindowProc := InspectorFilterEditWindowProc;
+  TWinControlMSAANameHook.Create(InspectorFilterEdit, InspectorFilterEdit.TextHint);
   InspectorPopupMenuBitBtn.Hint := InspectorPopupMenuBitBtn.Caption;
 
   FMemosStyler.Theme := FTheme;
@@ -3911,15 +3908,6 @@ procedure TMainForm.InspectorPanelResize(Sender: TObject);
 begin
   if InspectorNoteText.Visible then
     InspectorNoteText.AdjustHeight;
-end;
-
-procedure TMainForm.InspectorFilterEditWindowProc(var Message: TMessage);
-begin
-  if Message.Msg = WM_DESTROY then
-    SetOrClearNameForMSAA(InspectorFilterEdit.Handle, '');
-  FSavedInspectorFilterEditWindowProc(Message);
-  if Message.Msg = WM_CREATE then
-    SetOrClearNameForMSAA(InspectorFilterEdit.Handle, InspectorFilterEdit.TextHint);
 end;
 
 procedure TMainForm.InspectorFilterEditChange(Sender: TObject);

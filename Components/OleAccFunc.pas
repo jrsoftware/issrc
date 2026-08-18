@@ -12,11 +12,24 @@ unit OleAccFunc;
 interface
 
 uses
-  Winapi.Windows;
+  Winapi.Windows, Winapi.Messages, System.Classes, Vcl.Controls;
 
 const
   CLSID_AccPropServices: TGUID = '{B5F8350B-0548-48B1-A6EE-88BD00B4A5E7}';
   PROPID_ACC_NAME: TGUID = '{608D3DF8-8128-4AA7-A428-F55E49267291}';
+
+type
+  { Sets an MSAA accessible name on a control. Frees automatically. }
+  TWinControlMSAANameHook = class(TComponent)
+  private
+    FControl: TWinControl;
+    FMSAAName: String;
+    FSavedWindowProc: TWndMethod;
+    procedure WindowProc(var Message: TMessage);
+  public
+    constructor Create(const AControl: TWinControl; const AMSAAName: String); reintroduce;
+    destructor Destroy; override;
+  end;
 
 var
   NotifyWinEventFunc: procedure(event: DWORD; hwnd: HWND; idObject: DWORD;
@@ -80,6 +93,35 @@ begin
         CHILDID_SELF, PropId, 1);
     end;
   end;
+end;
+
+{ TWinControlMSAANameHook }
+
+constructor TWinControlMSAANameHook.Create(const AControl: TWinControl;
+  const AMSAAName: String);
+begin
+  inherited Create(AControl);
+  FControl := AControl;
+  FMSAAName := AMSAAName;
+  FSavedWindowProc := FControl.WindowProc;
+  FControl.WindowProc := WindowProc;
+  if FControl.HandleAllocated then
+    SetOrClearNameForMSAA(FControl.Handle, FMSAAName);
+end;
+
+destructor TWinControlMSAANameHook.Destroy;
+begin
+  FControl.WindowProc := FSavedWindowProc;
+  inherited;
+end;
+
+procedure TWinControlMSAANameHook.WindowProc(var Message: TMessage);
+begin
+  if Message.Msg = WM_DESTROY then
+    SetOrClearNameForMSAA(FControl.Handle, '');
+  FSavedWindowProc(Message);
+  if Message.Msg = WM_CREATE then
+    SetOrClearNameForMSAA(FControl.Handle, FMSAAName);
 end;
 
 { Note: This COM initialization code based on code from DBTables }
