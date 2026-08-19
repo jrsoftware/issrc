@@ -104,6 +104,7 @@ uses
   IDE.LiveScriptObjectFactory in 'Src\IDE.LiveScriptObjectFactory.pas',
   IDE.LiveScriptObjectFactory.Test in 'Src\IDE.LiveScriptObjectFactory.Test.pas',
   IDE.Inspector in 'Src\IDE.Inspector.pas',
+  IDE.Navigator in 'Src\IDE.Navigator.pas',
   VCL.Styles,
   VCL.Themes,
   IDE.MainForm.MRUHelper in 'Src\IDE.MainForm.MRUHelper.pas',

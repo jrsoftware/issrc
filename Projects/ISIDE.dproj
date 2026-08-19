@@ -237,6 +237,7 @@
         <DCCReference Include="Src\IDE.LiveScriptObjectFactory.pas"/>
         <DCCReference Include="Src\IDE.LiveScriptObjectFactory.Test.pas"/>
         <DCCReference Include="Src\IDE.Inspector.pas"/>
+        <DCCReference Include="Src\IDE.Navigator.pas"/>
         <DCCReference Include="Src\IDE.MainForm.MRUHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.UAHHelper.pas"/>
         <DCCReference Include="Src\IDE.MainForm.NavigationHelper.pas"/>

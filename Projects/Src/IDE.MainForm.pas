@@ -26,7 +26,7 @@ uses
   Generics.Collections, UIStateForm, StdCtrls, ExtCtrls, Menus, Buttons, ComCtrls, CommCtrl,
   ScintInt, ScintEdit, IDE.ScintStylerInnoSetup, NewTabSet, ModernColors, IDE.IDEScintEdit,
   Shared.DebugStruct, Shared.CompilerInt.Struct, Shared.ConfigIniFile, NewUxTheme, ImageList, ImgList, ToolWin,
-  IDE.HelperFunc, IDE.LocalizeFunc, IDE.Inspector, IDE.LiveScriptObjectFactory,
+  IDE.HelperFunc, IDE.LocalizeFunc, IDE.Inspector, IDE.Navigator, IDE.LiveScriptObjectFactory,
   VirtualImageList, BaseImageCollection, BitmapButton, NewStaticText;
 
 const
@@ -629,6 +629,7 @@ type
     procedure SetErrorLine(const AMemo: TIDEScintFileEdit; const ALine: Integer);
     procedure SetInspectorActiveFactory;
     procedure SetInspectorVisible(const AVisible: Boolean);
+    procedure SetNavigatorActiveFactory;
     procedure SetNavigatorVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TIDEScintFileEdit; ALine: Integer);
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
@@ -713,6 +714,7 @@ type
     FDebugTarget: TDebugTarget;
     FFindResults: TFindResults;
     FInspector: TInspector;
+    FNavigator: TNavigator;
     FLastFindOptions: TFindOptions;
     FLastFindRegEx: Boolean;
     FLastFindText: String;
@@ -964,6 +966,12 @@ constructor TMainForm.Create(AOwner: TComponent);
     FInspector := TInspector.Create(JvInspector, InspectorNoteText, LiveScriptObjectFactoryForMemo(FActiveMemo),
       FOptions.InspectorShowAllKnownDirectives, FOptions.InspectorFollowCaret,
       GetMainBaseDir, GetSignTools, LiveScriptObjectFactoryForMainMemo); { No main-memo check needed: FActiveMemo is FMainMemo at startup }
+  end;
+
+  procedure CreateNavigator;
+  begin
+    FNavigator := TNavigator.Create(NavigatorComboBox,
+      LiveScriptObjectFactoryForMemo(FActiveMemo));
   end;
 
   procedure ReadAndApplyConfig;
@@ -1262,6 +1270,7 @@ begin
 
   TWinControlMSAANameHook.Create(InspectorFilterEdit, InspectorFilterEdit.TextHint);
   TWinControlMSAANameHook.Create(NavigatorComboBox, RemoveAccelChar(VNavigator.Caption));
+  CreateNavigator;
 
   FMemosStyler.Theme := FTheme;
 
@@ -1396,6 +1405,7 @@ begin
 
   FUpdatePanelMessages.Free;
   FInspector.Free;
+  FNavigator.Free;
   FNavStacks.Free;
   FKeyMappedMenus.Free;
   FMenuBitmaps.Free;
@@ -3462,12 +3472,19 @@ begin
   SetInspectorVisible(not InspectorPanel.Visible);
 end;
 
+procedure TMainForm.SetNavigatorActiveFactory;
+begin
+  FNavigator.SetActiveFactory(LiveScriptObjectFactoryForMemo(FActiveMemo));
+end;
+
 procedure TMainForm.SetNavigatorVisible(const AVisible: Boolean);
 begin
   if NavigatorPanel.Visible <> AVisible then begin
     const CaretWasInView =
       FActiveMemo.IsPositionInViewVertically(FActiveMemo.CaretPosition);
-    if NavigatorPanel.ContainsControl(ActiveControl) then
+    if AVisible then
+      SetNavigatorActiveFactory { Update contents }
+    else if NavigatorPanel.ContainsControl(ActiveControl) then
       ActiveControl := FActiveMemo;
     NavigatorPanel.Visible := AVisible;
     if StatusPanel.Visible then begin { Note: Still False when called by ReadAndApplyConfig }
@@ -3840,6 +3857,8 @@ begin
 
     if InspectorPanel.Visible then
       SetInspectorActiveFactory;
+    if NavigatorPanel.Visible then
+      SetNavigatorActiveFactory;
   end;
 end;
 
@@ -5113,6 +5132,8 @@ begin
 
   if InspectorPanel.Visible and (Memo = FActiveMemo) then
     FInspector.UpdateFromCaret;
+  if NavigatorPanel.Visible and (Memo = FActiveMemo) then
+    FNavigator.UpdateFromCaret;
 end;
 
 procedure TMainForm.MemoModifiedChange(Sender: TObject);
