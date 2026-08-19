@@ -732,7 +732,7 @@ type
       const IsPosition: Boolean = False; const PositionVirtualSpace: Integer = 0);
     procedure ReopenTabClick(Sender: TObject);
     function LiveScriptObjectFactoryForMemo(const AMemo: TScintEdit): TLiveScriptObjectFactory;
-    procedure InvalidateIndexForMemo(const AMemo: TScintEdit);
+    procedure NotifyLiveScriptObjectFactoryForNewFile(const AMemo: TScintEdit);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     { Other }
     procedure CreateWnd; override;
@@ -911,11 +911,11 @@ begin
   Result := LiveScriptObjectFactoryForMemo(FMainMemo);
 end;
 
-procedure TMainForm.InvalidateIndexForMemo(const AMemo: TScintEdit);
+procedure TMainForm.NotifyLiveScriptObjectFactoryForNewFile(const AMemo: TScintEdit);
 begin
   const Factory = LiveScriptObjectFactoryForMemo(AMemo);
   if Factory <> nil then
-    Factory.InvalidateIndex;
+    Factory.Change;
 end;
 
 constructor TMainForm.Create(AOwner: TComponent);
@@ -1848,7 +1848,7 @@ begin
   FModifiedAnySinceLastCompile := True;
   FPreprocessorOutput := '';
   FIncludedFiles.Clear;
-  InvalidateIndexForMemo(FMainMemo);
+  NotifyLiveScriptObjectFactoryForNewFile(FMainMemo);
   UpdatePreprocMemos(IsReload);
   if not IsReload then
     FMainMemo.ClearUndo;
@@ -2097,7 +2097,7 @@ begin
       if AMemo = FMainMemo then
         NewMainFile(IsReload)
       else begin
-        InvalidateIndexForMemo(AMemo);
+        NotifyLiveScriptObjectFactoryForNewFile(AMemo);
         AMemo.BreakPoints.Clear;
         if DestroyLineState(AMemo) then
           UpdateAllMemoLineMarkers(AMemo);
@@ -4796,7 +4796,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
       NewTabs.Add(LFmtMessage(SCompilerPreprocessorOutput));
       NewHints.Add('');
       NewCloseButtons.Add(False);
-      InvalidateIndexForMemo(FPreprocessorOutputMemo);
+      NotifyLiveScriptObjectFactoryForNewFile(FPreprocessorOutputMemo);
       FPreprocessorOutputMemo.ReadOnly := False;
       try
         FPreprocessorOutputMemo.Lines.Text := FPreprocessorOutput;

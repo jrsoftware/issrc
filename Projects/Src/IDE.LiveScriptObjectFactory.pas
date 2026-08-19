@@ -168,8 +168,8 @@ type
   public
     constructor Create(const AMemo: TScintEdit; const AStyler: TInnoSetupStyler);
     destructor Destroy; override;
-    procedure Change(const Info: TScintEditChangeInfo);
-    procedure InvalidateIndex;
+    procedure Change; overload;
+    procedure Change(const Info: TScintEditChangeInfo); overload;
     function SectionCount: Integer;
     function TryGetSectionAtLine(const ALine: Integer;
       out ASectionIndex: Integer): Boolean;
@@ -717,8 +717,9 @@ begin
   FMemo.StyleNeeded(FMemo.RawTextLength);
 end;
 
-procedure TLiveScriptObjectFactory.InvalidateIndex;
+procedure TLiveScriptObjectFactory.Change;
 begin
+  Inc(FChangeCount);
   FIndexValid := False; { Index will be rebuilt next time it is needed }
   FDirtyFirstLine := -1;
   FDirtyLastLine := -1;

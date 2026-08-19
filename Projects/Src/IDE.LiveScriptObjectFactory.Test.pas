@@ -72,7 +72,7 @@ begin
   FMemo.Lines.Text := JoinScriptLines(AScriptLines);
   Assert(FMemo.Lines.Count = Length(AScriptLines));
   FFactory := TLiveScriptObjectFactory.Create(AMemo, AStyler);
-  FFactory.InvalidateIndex;
+  FFactory.Change;
   FMemo.OnChange := MemoChange;
 end;
 
@@ -1566,8 +1566,8 @@ begin
     end;
   end;
 
-  { InvalidateIndex (a simulated file reload) invalidates outstanding range
-    objects }
+  { Change without Info (a simulated file reload) invalidates outstanding
+    range objects and bumps ChangeCount }
   begin
     const Context = TFactoryTestContext.Create(AMemo, AStyler, [
       '[Files]',
@@ -1580,8 +1580,10 @@ begin
       Assert(Factory.TryCreateParameterSectionEntries([], [], 1, Entries, Reason));
       try
         Assert(Entries.Valid);
-        Factory.InvalidateIndex;
+        const ChangeCountBefore = Factory.ChangeCount;
+        Factory.Change;
         Assert(not Entries.Valid);
+        Assert(Factory.ChangeCount > ChangeCountBefore);
       finally
         Entries.Free;
       end;
