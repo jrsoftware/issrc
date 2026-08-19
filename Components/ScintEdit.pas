@@ -1006,8 +1006,10 @@ procedure TScintEdit.EnsurePositionInViewVertically(const Pos: Integer);
 begin
   const Line = GetLineFromPosition(Pos);
   EnsureLineVisible(Line);
-  if not IsPositionInViewVertically(Pos) then
-    TopLine := GetVisibleLineFromDocLine(Line) - (LinesInWindow div 2);
+  if not IsPositionInViewVertically(Pos) then begin
+    const DisplayLine = TopLine + GetPointFromPosition(Pos).Y div LineHeight;
+    TopLine := DisplayLine - (LinesInWindow div 2);
+  end;
 end;
 
 class function TScintEdit.GetErrorException(const S: String): EScintEditError;

@@ -168,8 +168,8 @@ type
   public
     constructor Create(const AMemo: TScintEdit; const AStyler: TInnoSetupStyler);
     destructor Destroy; override;
-    procedure Change; overload;
-    procedure Change(const Info: TScintEditChangeInfo); overload;
+    procedure Change(const Info: TScintEditChangeInfo);
+    procedure Reset;
     function SectionCount: Integer;
     function TryGetSectionAtLine(const ALine: Integer;
       out ASectionIndex: Integer): Boolean;
@@ -190,8 +190,8 @@ type
     function TryCreateKeyValueSection(const ASectionIndex: Integer;
       out ASection: TLiveScriptKeyValueSection;
       out ARefusalReason: TRefusalReason): Boolean;
-    { Bumped on every Change call, so a consumer can tell whether the memo
-      changed since it last read something }
+    { Bumped on every Change and Reset call, so a consumer can tell whether
+      the memo changed since it last read something }
     property ChangeCount: Int64 read FChangeCount;
     property Memo: TScintEdit read FMemo;
     property SectionHeaders[Index: Integer]: TLiveScriptSectionHeader read GetSectionHeader;
@@ -718,7 +718,7 @@ begin
   FMemo.StyleNeeded(FMemo.RawTextLength);
 end;
 
-procedure TLiveScriptObjectFactory.Change;
+procedure TLiveScriptObjectFactory.Reset;
 begin
   Inc(FChangeCount);
   FIndexValid := False; { Index will be rebuilt next time it is needed }

@@ -732,7 +732,7 @@ type
       const IsPosition: Boolean = False; const PositionVirtualSpace: Integer = 0);
     procedure ReopenTabClick(Sender: TObject);
     function LiveScriptObjectFactoryForMemo(const AMemo: TScintEdit): TLiveScriptObjectFactory;
-    procedure NotifyLiveScriptObjectFactoryForNewFile(const AMemo: TScintEdit);
+    procedure ResetLiveScriptObjectFactoryForMemo(const AMemo: TScintEdit);
     procedure SetStatusPanelVisible(const AVisible: Boolean);
     { Other }
     procedure CreateWnd; override;
@@ -911,11 +911,11 @@ begin
   Result := LiveScriptObjectFactoryForMemo(FMainMemo);
 end;
 
-procedure TMainForm.NotifyLiveScriptObjectFactoryForNewFile(const AMemo: TScintEdit);
+procedure TMainForm.ResetLiveScriptObjectFactoryForMemo(const AMemo: TScintEdit);
 begin
   const Factory = LiveScriptObjectFactoryForMemo(AMemo);
   if Factory <> nil then
-    Factory.Change;
+    Factory.Reset;
 end;
 
 constructor TMainForm.Create(AOwner: TComponent);
@@ -1848,7 +1848,7 @@ begin
   FModifiedAnySinceLastCompile := True;
   FPreprocessorOutput := '';
   FIncludedFiles.Clear;
-  NotifyLiveScriptObjectFactoryForNewFile(FMainMemo);
+  ResetLiveScriptObjectFactoryForMemo(FMainMemo);
   UpdatePreprocMemos(IsReload);
   if not IsReload then
     FMainMemo.ClearUndo;
@@ -2097,7 +2097,7 @@ begin
       if AMemo = FMainMemo then
         NewMainFile(IsReload)
       else begin
-        NotifyLiveScriptObjectFactoryForNewFile(AMemo);
+        ResetLiveScriptObjectFactoryForMemo(AMemo);
         AMemo.BreakPoints.Clear;
         if DestroyLineState(AMemo) then
           UpdateAllMemoLineMarkers(AMemo);
@@ -4796,7 +4796,7 @@ procedure TMainForm.UpdatePreprocMemos(const DontUpdateRelatedVisibilty: Boolean
       NewTabs.Add(LFmtMessage(SCompilerPreprocessorOutput));
       NewHints.Add('');
       NewCloseButtons.Add(False);
-      NotifyLiveScriptObjectFactoryForNewFile(FPreprocessorOutputMemo);
+      ResetLiveScriptObjectFactoryForMemo(FPreprocessorOutputMemo);
       FPreprocessorOutputMemo.ReadOnly := False;
       try
         FPreprocessorOutputMemo.Lines.Text := FPreprocessorOutput;
