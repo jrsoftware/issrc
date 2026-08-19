@@ -954,8 +954,8 @@ constructor TMainForm.Create(AOwner: TComponent);
       Ini.Free;
     end;
     FInspector := TInspector.Create(JvInspector, InspectorNoteText, LiveScriptObjectFactoryForMemo(FActiveMemo),
-      FOptions.InspectorShowAllKnownDirectives, FOptions.InspectorFollowCaret,
-      GetMainBaseDir, GetSignTools, LiveScriptObjectFactoryForMainMemo); { No main-memo check needed: FActiveMemo is FMainMemo at startup }
+      FOptions.InspectorShowAllKnownDirectives, { No main-memo check needed: FActiveMemo is FMainMemo at startup }
+      FOptions.InspectorFollowCaret, GetMainBaseDir, GetSignTools, LiveScriptObjectFactoryForMainMemo);
   end;
 
   procedure ReadAndApplyConfig;
