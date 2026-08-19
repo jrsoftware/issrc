@@ -250,6 +250,7 @@ type
     BOpenOutputFolder: TMenuItem;
     N8: TMenuItem;
     VInspector: TMenuItem;
+    VNavigator: TMenuItem;
     VZoom: TMenuItem;
     VZoomIn: TMenuItem;
     VZoomOut: TMenuItem;
@@ -512,6 +513,7 @@ type
     procedure PInspectorFollowCaretClick(Sender: TObject);
     procedure PInspectorQuoteNewDirectiveValuesClick(Sender: TObject);
     procedure PInspectorQuoteNewParameterValuesClick(Sender: TObject);
+    procedure VNavigatorClick(Sender: TObject);
     procedure NavigatorPanelResize(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
@@ -627,6 +629,7 @@ type
     procedure SetErrorLine(const AMemo: TIDEScintFileEdit; const ALine: Integer);
     procedure SetInspectorActiveFactory;
     procedure SetInspectorVisible(const AVisible: Boolean);
+    procedure SetNavigatorVisible(const AVisible: Boolean);
     procedure SetStepLine(const AMemo: TIDEScintFileEdit; ALine: Integer);
     procedure ShowOpenMainFileDialog(const Examples: Boolean);
     procedure StatusBarCanvasDrawPanel(Canvas: TCanvas;
@@ -974,7 +977,7 @@ constructor TMainForm.Create(AOwner: TComponent);
       { Menu check boxes state }
       ToolbarPanel.Visible := Ini.ReadBool('Options', 'ShowToolbar', True);
       StatusBar.Visible := Ini.ReadBool('Options', 'ShowStatusBar', True);
-      { ShowInspector done below }
+      { ShowNavigator and ShowInspector done below }
       FOptions.LowPriorityDuringCompile := Ini.ReadBool('Options', 'LowPriorityDuringCompile', False);
 
       { Configuration options - does not read ThemeType, see ReadAndUpdateTheme instead }
@@ -1092,9 +1095,10 @@ constructor TMainForm.Create(AOwner: TComponent);
       { Note: Don't call UpdateStatusPanelHeight here since it clips to the
         current form height, which hasn't been finalized yet }
 
-      { StatusPanel height }
+      { StatusPanel height and navigator visibility }
       StatusPanel.Height := ToCurrentPPI(Ini.ReadInteger('State', 'StatusPanelHeight',
         (10 * FromCurrentPPI(DebugOutputList.ItemHeight) + 4) + FromCurrentPPI(OutputTabSet.Height)));
+      SetNavigatorVisible(Ini.ReadBool('Options', 'ShowNavigator', True));
 
       { Inspector widths and visibility }
       SyncInspectorOptions;
@@ -1251,8 +1255,10 @@ begin
 
   CreateInspector;
   UpdateInspectorHeaderPanelLayout;
-  TWinControlMSAANameHook.Create(InspectorFilterEdit, InspectorFilterEdit.TextHint);
   InspectorPopupMenuBitBtn.Hint := InspectorPopupMenuBitBtn.Caption;
+
+  TWinControlMSAANameHook.Create(InspectorFilterEdit, InspectorFilterEdit.TextHint);
+  TWinControlMSAANameHook.Create(NavigatorComboBox, RemoveAccelChar(VNavigator.Caption));
 
   FMemosStyler.Theme := FTheme;
 
@@ -1352,6 +1358,7 @@ destructor TMainForm.Destroy;
       { Menu check boxes state }
       Ini.WriteBool('Options', 'ShowToolbar', ToolbarPanel.Visible);
       Ini.WriteBool('Options', 'ShowStatusBar', StatusBar.Visible);
+      Ini.WriteBool('Options', 'ShowNavigator', NavigatorPanel.Visible);
       Ini.WriteBool('Options', 'ShowInspector', InspectorPanel.Visible);
       Ini.WriteBool('Options', 'LowPriorityDuringCompile', FOptions.LowPriorityDuringCompile);
 
@@ -3452,6 +3459,33 @@ begin
   SetInspectorVisible(not InspectorPanel.Visible);
 end;
 
+procedure TMainForm.SetNavigatorVisible(const AVisible: Boolean);
+begin
+  if NavigatorPanel.Visible <> AVisible then begin
+    const CaretWasInView =
+      FActiveMemo.IsPositionInViewVertically(FActiveMemo.CaretPosition);
+    if NavigatorPanel.ContainsControl(ActiveControl) then
+      ActiveControl := FActiveMemo;
+    NavigatorPanel.Visible := AVisible;
+    if StatusPanel.Visible then begin { Note: Still False when called by ReadAndApplyConfig }
+      { The navigator changed the room left for the memo, so reclamp an
+        output pane at maximum height. When the pane is shown later,
+        SetStatusPanelVisible reclamps. }
+      UpdateStatusPanelHeight(StatusPanel.Height);
+    end;
+    if AVisible and CaretWasInView then begin
+      { If the caret was in view, make sure it still is }
+      FActiveMemo.ScrollCaretIntoView;
+    end;
+  end;
+  VNavigator.Checked := AVisible;
+end;
+
+procedure TMainForm.VNavigatorClick(Sender: TObject);
+begin
+  SetNavigatorVisible(not NavigatorPanel.Visible);
+end;
+
 procedure TMainForm.VHideClick(Sender: TObject);
 begin
   SetStatusPanelVisible(False);
@@ -3868,7 +3902,9 @@ end;
 procedure TMainForm.UpdateStatusPanelHeight(H: Integer);
 begin
   const MinHeight = (3 * DebugOutputList.ItemHeight + ToCurrentPPI(4)) + OutputTabSet.Height;
-  const MaxHeight = BodyPanel.ClientHeight - ToCurrentPPI(48) - StatusSplitPanel.Height;
+  var MaxHeight := BodyPanel.ClientHeight - ToCurrentPPI(48) - StatusSplitPanel.Height;
+  if NavigatorPanel.Visible then
+    Dec(MaxHeight, NavigatorPanel.Height);
   if H > MaxHeight then H := MaxHeight;
   if H < MinHeight then H := MinHeight;
   StatusPanel.Height := H;

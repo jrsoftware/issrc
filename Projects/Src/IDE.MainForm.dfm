@@ -752,6 +752,10 @@ object MainForm: TMainForm
         Caption = '&Toolbar'
         OnClick = VToolbarClick
       end
+      object VNavigator: TMenuItem
+        Caption = 'Na&vigator'
+        OnClick = VNavigatorClick
+      end
       object VInspector: TMenuItem
         Caption = '&Inspector'
         OnClick = VInspectorClick

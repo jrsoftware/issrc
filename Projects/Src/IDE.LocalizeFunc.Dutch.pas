@@ -15,7 +15,7 @@ uses
   IDE.LocalizeFunc;
 
 const
-  DutchIDETranslations: array [0..1005] of TTranslationPair = (
+  DutchIDETranslations: array [0..1006] of TTranslationPair = (
     (English: 'Command-line usage:'; Localized: 'Opdrachtregelgebruik:'),
     (English: 'Examples:'; Localized: 'Voorbeelden:'),
     (English: 'script file'; Localized: 'scriptbestand'),
@@ -359,6 +359,7 @@ const
     (English: 'Zoom &Out'; Localized: '&Uitzoomen'),
     (English: '&Reset'; Localized: '&Herstellen'),
     (English: '&Toolbar'; Localized: '&Werkbalk'),
+    (English: 'Na&vigator'; Localized: '&Navigator'),
     (English: '&Inspector'; Localized: '&Inspector'),
     (English: 'St&atus Bar'; Localized: '&Statusbalk'),
     (English: '&Next Tab'; Localized: '&Volgend tabblad'),
