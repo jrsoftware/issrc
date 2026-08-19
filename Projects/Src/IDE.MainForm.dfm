@@ -191,6 +191,7 @@ object MainForm: TMainForm
           Height = 21
           TabOrder = 1
           TextHint = 'Filter'
+          StyleElements = [seClient, seBorder]
           OnChange = InspectorFilterEditChange
           OnKeyDown = InspectorFilterEditKeyDown
         end

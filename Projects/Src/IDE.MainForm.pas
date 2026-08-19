@@ -6261,6 +6261,7 @@ begin
     InspectorHeaderPanel.ParentColor := True;
     InspectorCaptionText.Font.Color := FTheme.Colors[tcFore];
     InspectorNoteText.Font.Color := FTheme.Colors[tcFore];
+    InspectorFilterEdit.Font.Color := FTheme.Colors[tcFore];
   end;
 
   FInspector.UpdateTheme(FTheme, FHighContrastActive);
