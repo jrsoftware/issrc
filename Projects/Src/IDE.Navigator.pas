@@ -12,9 +12,7 @@ unit IDE.Navigator;
 interface
 
 uses
-  Messages,
-  Classes, Controls, StdCtrls,
-  ScintEdit,
+  StdCtrls,
   IDE.LiveScriptObjectFactory;
 
 type
@@ -23,18 +21,18 @@ type
     FComboBox: TComboBox;
     FFactory: TLiveScriptObjectFactory;
     FChangeCountAtSet: Int64; { Factory ChangeCount at the last section list compose, -1 to force one }
+    procedure ComboBoxSelect(Sender: TObject);
+    procedure GoToComboBoxItem(const AComboBox: TComboBox;
+      const AFocusMemo: Boolean);
   public
     constructor Create(const AComboBox: TComboBox;
       const AFactory: TLiveScriptObjectFactory);
+    destructor Destroy; override;
     procedure SetActiveFactory(const AFactory: TLiveScriptObjectFactory);
     procedure UpdateFromCaret;
   end;
 
 implementation
-
-uses
-  Windows,
-  IDE.Messages, IDE.LocalizeFunc;
 
 { TNavigator }
 
@@ -47,12 +45,52 @@ begin
   FComboBox := AComboBox;
   FFactory := AFactory;
   FChangeCountAtSet := -1;
+  FComboBox.OnSelect := ComboBoxSelect;
   UpdateFromCaret;
+end;
+
+destructor TNavigator.Destroy;
+begin
+  FComboBox.OnSelect := nil;
+  inherited Destroy;
+end;
+
+procedure TNavigator.ComboBoxSelect(Sender: TObject);
+{ This is called on:
+  -Arrow down/up etc, with the list open (=browsing)
+  -Same but with the list closed (=picking)
+  -Mouse click, in which case the call could arrive both before and after the list closes (=picking) }
+begin
+  const ComboBox = Sender as TComboBox;
+  if ComboBox.DroppedDown then
+    Exit; { Only browsing, not picking }
+  GoToComboBoxItem(ComboBox, False); { Jump, but keep focus }
+end;
+
+procedure TNavigator.GoToComboBoxItem(const AComboBox: TComboBox;
+  const AFocusMemo: Boolean);
+begin
+  const Index = AComboBox.ItemIndex;
+  if Index < 0 then
+    Exit;
+
+  const Memo = FFactory.Memo;
+  if AFocusMemo then begin
+    Memo.SetFocus;
+    if not Memo.Focused then
+      Exit; { Validation rejected the focus change }
+  end;
+
+  if Index >= FFactory.SectionCount then
+    Exit;
+
+  const Line = FFactory.GetSectionFirstSignificantLine(Index);
+  Memo.EnsurePositionInViewVertically(Memo.GetPositionFromLine(Line));
+  Memo.CaretLine := Line;
 end;
 
 procedure TNavigator.SetActiveFactory(const AFactory: TLiveScriptObjectFactory);
 begin
-  { Attach to a different factory = different memo = different tab }
   FFactory := AFactory;
   FChangeCountAtSet := -1; { Force rebuild }
   UpdateFromCaret;
@@ -73,7 +111,7 @@ procedure TNavigator.UpdateFromCaret;
   end;
 
   procedure SetComboBoxItems(const AComboBox: TComboBox;
-    const AItems: TArray<String>);
+    const AItems: TArray<String>; const AItemIndex: Integer);
   begin
     if ItemsDiffer(AComboBox, AItems) then begin
       AComboBox.Items.BeginUpdate;
@@ -81,6 +119,8 @@ procedure TNavigator.UpdateFromCaret;
         AComboBox.Items.Clear;
         for var Item in AItems do
           AComboBox.Items.Add(Item);
+        { EndUpdate's repaint must not show the empty selection Clear left }
+        AComboBox.ItemIndex := AItemIndex;
       finally
         AComboBox.Items.EndUpdate;
       end;
@@ -88,20 +128,21 @@ procedure TNavigator.UpdateFromCaret;
   end;
 
 begin
+  const CaretLine = FFactory.Memo.CaretLine;
+  var NewItemIndex: Integer;
+  if not FFactory.TryGetSectionAtLine(CaretLine, NewItemIndex) then
+    NewItemIndex := -1;
+
   const ChangeCount = FFactory.ChangeCount;
   if FChangeCountAtSet <> ChangeCount then begin
     var Headers: TArray<String>;
     SetLength(Headers, FFactory.SectionCount);
     for var I := 0 to FFactory.SectionCount-1 do
       Headers[I] := FFactory.SectionHeaders[I].Name;
-    SetComboBoxItems(FComboBox, Headers);
+    SetComboBoxItems(FComboBox, Headers, NewItemIndex);
     FChangeCountAtSet := ChangeCount;
   end;
 
-  const CaretLine = FFactory.Memo.CaretLine;
-  var NewItemIndex: Integer;
-  if not FFactory.TryGetSectionAtLine(CaretLine, NewItemIndex) then
-    NewItemIndex := -1;
   if FComboBox.ItemIndex <> NewItemIndex then
     FComboBox.ItemIndex := NewItemIndex;
 end;
