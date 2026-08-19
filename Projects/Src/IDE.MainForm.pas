@@ -1561,9 +1561,10 @@ begin
     if VCloseCurrentTab.Enabled then
       VCloseCurrentTabClick(Self);
   end else if (Key = VK_F6) and not (ssAlt in Shift) then begin
-    { Move focus between the active memo, the inspector, the inspector filter,
-      the inspector popup menu button, the active bottom pane, and the active
-      banner, backward if Shift is held }
+    { Move focus between the active memo, the inspector, the inspector
+      filter, the inspector popup menu button, the active bottom pane, the
+      active banner, and the navigator's comboboxes, backward if Shift is
+      held }
     Key := 0;
 
     { First get the list of controls to toggle between }
@@ -1592,6 +1593,8 @@ begin
       AddControlToArray(UpdatePanelDonateBitBtn, Controls, NControls);
       AddControlToArray(UpdatePanelCloseBitBtn, Controls, NControls);
     end;
+    if NavigatorPanel.Visible then
+      AddControlToArray(NavigatorComboBox, Controls, NControls);
 
     { Now move focus to next or previous }
     if NControls > 1 then begin
@@ -6187,6 +6190,7 @@ begin
     - Scrollbars and StatusBar
     - The inspector's filter edit
     - The inspector's checkboxes, in-place editors, drop-down buttons, and drop-down lists
+    - The navigator's comboboxes
     The following components (and any children) ignore the active style because
     their StyleName is set to 'Windows' always, either by the .dfm or by code:
     - FMemos
@@ -6202,6 +6206,7 @@ begin
     - MainForm itself, for styling of scrollbars and StatusBar
     - InspectorHeaderPanel, for styling of the inspector filter edit
     - InspectorPanel, for styling of the inspector elements named above (and InspectorHeaderPanel's children)
+    - NavigatorPanel, for styling of the navigator's comboboxes
     Menus ignore the active style because shMenus is removed from TStyleManager.SystemHooks
     at startup. }
   if FTheme.Dark then
@@ -6242,6 +6247,14 @@ begin
   SetListBoxWindowTheme(DebugCallStackList);
   SetListBoxWindowTheme(FindResultsList);
 
+  { TComboBoxStyleHook subclasses the drop-down window to paint its border,
+    but only does so while the combobox's window is being created. A style
+    change normally handles this by recreating all windows (see
+    CM_CUSTOMSTYLECHANGED in TCustomForm.WndProc) but skips forms whose
+    StyleElements is empty, like MainForm. So recreate here, using Perform
+    because RecreateWnd is protected in Delphi 10.4 }
+  NavigatorComboBox.Perform(CM_RECREATEWND, 0, 0);
+
   ThemedToolbarVirtualImageList.ImageCollection := ImagesModule.ToolBarImageCollection[FTheme.Dark];
   ThemedMarkersAndACVirtualImageList.ImageCollection := ImagesModule.MarkersAndACImageCollection[FTheme.Dark];
 
@@ -6262,6 +6275,9 @@ begin
     InspectorCaptionText.Font.Color := FTheme.Colors[tcFore];
     InspectorNoteText.Font.Color := FTheme.Colors[tcFore];
     InspectorFilterEdit.Font.Color := FTheme.Colors[tcFore];
+    NavigatorPanel.ParentBackground := False;
+    NavigatorPanel.Color := FTheme.Colors[tcToolBack];
+    NavigatorComboBox.Font.Color := FTheme.Colors[tcFore];
   end;
 
   FInspector.UpdateTheme(FTheme, FHighContrastActive);
