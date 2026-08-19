@@ -173,6 +173,7 @@ type
     function SectionCount: Integer;
     function TryGetSectionAtLine(const ALine: Integer;
       out ASectionIndex: Integer): Boolean;
+    function GetSectionFirstSignificantLine(const ASectionIndex: Integer): Integer;
     procedure GetSectionOccurrence(const ASectionIndex: Integer;
       out AOccurrenceIndex, AOccurrenceCount: Integer);
     function TryGetSetupDirectiveValue(const ADirectiveName: String;
@@ -892,6 +893,23 @@ begin
         (TInnoSetupStyler.GetSectionFromLineState(FMemo.Lines.State[L]) = Header.Section) do
     Inc(L);
   ALastLine := L-1;
+end;
+
+function TLiveScriptObjectFactory.GetSectionFirstSignificantLine(
+  const ASectionIndex: Integer): Integer;
+{ The first non blank line of the section's body, or the body's first line
+  when the whole body is blank, or the header's line when the body is empty }
+begin
+  EnsureIndex;
+  EnsureStyled; { For GetSectionLines }
+  var FirstLine, LastLine: Integer;
+  GetSectionLines(ASectionIndex, FirstLine, LastLine);
+  if LastLine < FirstLine then
+    Exit(FSectionHeaders[ASectionIndex].Line);
+  Result := FirstLine;
+  for var L := FirstLine to LastLine do
+    if Trim(FMemo.Lines[L]) <> '' then
+      Exit(L);
 end;
 
 function TLiveScriptObjectFactory.GetLinesText(const AFirstLine,
