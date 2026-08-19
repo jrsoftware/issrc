@@ -354,6 +354,7 @@ type
     PInspectorQuoteNewDirectiveValues: TMenuItem;
     PInspectorQuoteNewParameterValues: TMenuItem;
     N27: TMenuItem;
+    MemoPanel: TPanel;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -863,7 +864,7 @@ begin
   Memo.OnModifiedChange := MemoModifiedChange;
   Memo.OnUpdateUI := MemoUpdateUI;
   Memo.OnZoom := MemoZoom;
-  Memo.Parent := BodyPanel;
+  Memo.Parent := MemoPanel;
   Memo.SetAutoCompleteSeparators(AutoCompleteWordListSeparator, AutoCompleteWordListTypeSeparator);
   Memo.SetWordChars(Memo.GetDefaultWordChars+'#{}[]');
   Memo.Theme := FTheme;

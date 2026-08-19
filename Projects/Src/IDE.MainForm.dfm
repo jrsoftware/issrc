@@ -224,6 +224,16 @@ object MainForm: TMainForm
         WordWrap = True
       end
     end
+    object MemoPanel: TPanel
+      Left = 0
+      Top = 0
+      Width = 236
+      Height = 86
+      Align = alClient
+      BevelOuter = bvNone
+      FullRepaint = False
+      TabOrder = 4
+    end
   end
   object StatusBar: TStatusBar
     Left = 0
