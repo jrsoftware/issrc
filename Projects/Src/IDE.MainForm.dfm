@@ -233,6 +233,29 @@ object MainForm: TMainForm
       BevelOuter = bvNone
       FullRepaint = False
       TabOrder = 4
+      object NavigatorPanel: TPanel
+        Left = 0
+        Top = 0
+        Width = 236
+        Height = 25
+        Align = alTop
+        BevelOuter = bvNone
+        FullRepaint = False
+        TabOrder = 0
+        Visible = False
+        StyleElements = []
+        OnResize = NavigatorPanelResize
+        object NavigatorComboBox: TComboBox
+          Left = 4
+          Top = 2
+          Width = 130
+          Height = 21
+          Style = csDropDownList
+          DropDownCount = 24
+          TabOrder = 0
+          StyleElements = [seClient, seBorder]
+        end
+      end
     end
   end
   object StatusBar: TStatusBar

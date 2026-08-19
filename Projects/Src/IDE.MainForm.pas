@@ -355,6 +355,8 @@ type
     PInspectorQuoteNewParameterValues: TMenuItem;
     N27: TMenuItem;
     MemoPanel: TPanel;
+    NavigatorPanel: TPanel;
+    NavigatorComboBox: TComboBox;
     procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
     procedure FExitClick(Sender: TObject);
     procedure FOpenMainFileClick(Sender: TObject);
@@ -510,6 +512,7 @@ type
     procedure PInspectorFollowCaretClick(Sender: TObject);
     procedure PInspectorQuoteNewDirectiveValuesClick(Sender: TObject);
     procedure PInspectorQuoteNewParameterValuesClick(Sender: TObject);
+    procedure NavigatorPanelResize(Sender: TObject);
   private
     FCompilerVersion: PCompilerVersionInfo;
     FOptionsLoaded: Boolean;
@@ -659,6 +662,7 @@ type
     procedure UpdateStatusPanelHeight(H: Integer);
     procedure UpdateInspectorPanelWidth(W: Integer);
     procedure UpdateInspectorHeaderPanelLayout;
+    procedure UpdateNavigatorPanelLayout;
     procedure WMAppCommand(var Message: TMessage); message WM_APPCOMMAND;
     procedure WMCopyData(var Message: TWMCopyData); message WM_COPYDATA;
     procedure WMDebuggerHello(var Message: TMessage); message WM_Debugger_Hello;
@@ -1493,7 +1497,7 @@ begin
   UpdateOutputTabSetListsItemHeightAndDebugTimeWidth;
   UpdateStatusPanelHeight(StatusPanel.Height);
   UpdateInspectorPanelWidth(InspectorPanel.Width);
-  UpdateInspectorHeaderPanelLayout;
+  UpdateInspectorHeaderPanelLayout; { Also calls UpdateNavigatorPanelLayout }
   if InspectorNoteText.Visible then
     InspectorNoteText.AdjustHeight;
 end;
@@ -3867,6 +3871,24 @@ begin
   StatusPanel.Height := H;
 end;
 
+procedure TMainForm.UpdateNavigatorPanelLayout;
+begin
+  const Padding = ToCurrentPPI(4); { See UpdateInspectorHeaderPanelLayout }
+
+  { Update height by copying the inspector header's height, for a consistent layout.
+    Works even if the inspector is hidden. }
+  NavigatorPanel.ClientHeight := InspectorHeaderPanel.ClientHeight;
+
+  { Update combobox position }
+  NavigatorComboBox.Left := Padding;
+  NavigatorComboBox.Top := (NavigatorPanel.ClientHeight - NavigatorComboBox.Height) div 2;
+end;
+
+procedure TMainForm.NavigatorPanelResize(Sender: TObject);
+begin
+  UpdateNavigatorPanelLayout;
+end;
+
 procedure TMainForm.UpdateInspectorPanelWidth(W: Integer);
 begin
   const MinWidth = ToCurrentPPI(120);
@@ -3879,7 +3901,9 @@ end;
 
 procedure TMainForm.UpdateInspectorHeaderPanelLayout;
 begin
-  const Padding = ToCurrentPPI(4); { 4 = same as InspectorNoteText's horizontal margins in the .dfm }
+  { 4 = same as InspectorNoteText's horizontal margins in the .dfm.
+    Also see UpdateNavigatorPanelLayout. }
+  const Padding = ToCurrentPPI(4);
 
   { Update height }
   InspectorHeaderPanel.ClientHeight := InspectorFilterEdit.Height + 2*Padding;
@@ -3898,6 +3922,9 @@ begin
   InspectorFilterEdit.Visible := W > 0;
   if InspectorFilterEdit.Visible then
     InspectorFilterEdit.SetBounds(X, Padding, W, InspectorFilterEdit.Height);
+
+  { Keep the navigator panel at the same height }
+  UpdateNavigatorPanelLayout;
 end;
 
 procedure TMainForm.InspectorHeaderPanelResize(Sender: TObject);
