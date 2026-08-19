@@ -1175,6 +1175,7 @@ begin
     UpdatePanel.Color := clWindow;
     { UpdateTheme does not set Font.Color in this case, so re-add seFont }
     InspectorFilterEdit.StyleElements := InspectorFilterEdit.StyleElements + [seFont];
+    NavigatorComboBox.StyleElements := NavigatorComboBox.StyleElements + [seFont];
   end;
 
   { For some reason, if AutoScroll=False is set on the form Delphi ignores the
