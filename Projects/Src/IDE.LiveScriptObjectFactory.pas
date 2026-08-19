@@ -879,7 +879,9 @@ end;
 
 procedure TLiveScriptObjectFactory.GetSectionLines(const ASectionIndex: Integer;
   out AFirstLine, ALastLine: Integer);
-{ Requires the lines to be styled already. The returned range can be empty (ALastLine < AFirstLine) }
+{ Requires the lines to be styled already. The returned range can be empty (ALastLine < AFirstLine).
+  Note: Section tags themselves are not associated with any section, so this doesn't
+  read into the next section if there's two adjacent sections of the same type. }
 begin
   const Header = FSectionHeaders[ASectionIndex];
   const LineCount = FMemo.Lines.Count;
