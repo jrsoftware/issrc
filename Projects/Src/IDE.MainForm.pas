@@ -1266,11 +1266,11 @@ begin
 
   CreateInspector;
   UpdateInspectorHeaderPanelLayout;
+  TWinControlMSAANameHook.Create(InspectorFilterEdit, InspectorFilterEdit.TextHint);
   InspectorPopupMenuBitBtn.Hint := InspectorPopupMenuBitBtn.Caption;
 
-  TWinControlMSAANameHook.Create(InspectorFilterEdit, InspectorFilterEdit.TextHint);
   TWinControlMSAANameHook.Create(NavigatorComboBox, RemoveAccelChar(VNavigator.Caption));
-  CreateNavigator;
+  CreateNavigator; { Also hooks and must be after previous call }
 
   FMemosStyler.Theme := FTheme;
 
