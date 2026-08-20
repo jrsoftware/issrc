@@ -1765,7 +1765,13 @@ begin
   { The inspector handles F4 itself, except Alt+F4 }
   if (Message.CharCode = VK_F4) and
      not (ssAlt in KeyDataToShiftState(Message.KeyData)) and
-     InspectorPanel.Visible and FInspector.JvInspector.ContainsControl(ActiveControl) then
+     FInspector.JvInspector.ContainsControl(ActiveControl) then
+    Exit(False);
+
+  { The navigator's combobox handles F4 itself, except Alt+F4 }
+  if (Message.CharCode = VK_F4) and
+     not (ssAlt in KeyDataToShiftState(Message.KeyData)) and
+     (ActiveControl = NavigatorComboBox) then
     Exit(False);
 
   Result := inherited;

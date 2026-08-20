@@ -73,11 +73,11 @@ begin
   inherited Destroy;
 end;
 
-{ Drop down handling: Ending a drop down accepts it (Enter or a click)
-  or cancels it (for example Escape). An accept is a pick and must jump,
-  even when the current item did not change. A cancel must not jump.
-  CBN_SELENDOK and CBN_SELENDCANCEL are the notifications that tell an
-  accept from a cancel, but the VCL has no events for them, so
+{ Drop down handling: Ending a drop down accepts it (Enter, a click, or
+  F4) or cancels it (for example Escape). An accept is a pick and must
+  jump, even when the current item did not change. A cancel must not
+  jump. CBN_SELENDOK and CBN_SELENDCANCEL are the notifications that
+  tell an accept from a cancel, but the VCL has no events for them, so
   ComboBoxWindowProc watches them and updates FDropDownAccepted.
   Both notifications are sent before CBN_CLOSEUP: see the CComboBox docs
   (https://learn.microsoft.com/en-us/cpp/mfc/reference/ccombobox-class).
