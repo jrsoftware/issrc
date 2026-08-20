@@ -43,6 +43,11 @@ type
     nbActiveWorkers: Cardinal;  { MT only : nb of workers actively compressing at probe time }
   end;
 
+  TZstdCompressorProps = class(TCompressorProps)
+  public
+    NumWorkers: Integer;
+  end;
+
   TZstdCompressor = class(TCustomCompressor)
   private
     FStrm: Pointer;
@@ -181,10 +186,10 @@ begin
     OutOfMemoryError;
   Check(ZSTD_initCStream(FStrm, CompressionLevel));
 
-  if ACompressorProps is TThreadedCompressorProps then begin
-    const Props = (ACompressorProps as TThreadedCompressorProps);
-    if Props.NumBlockThreads > 1 then begin
-      Check(ZSTD_CCtx_setParameter(FStrm, ZSTD_c_nbWorkers, Props.NumBlockThreads));
+  if ACompressorProps is TZstdCompressorProps then begin
+    const Props = (ACompressorProps as TZstdCompressorProps);
+    if Props.NumWorkers <> 0 then begin
+      Check(ZSTD_CCtx_setParameter(FStrm, ZSTD_c_nbWorkers, Props.NumWorkers));
       if CompressionLevel > 19 then
         Check(ZSTD_CCtx_setParameter(FStrm, ZSTD_c_jobSize, 32 * 1024 * 1024)); { Ensures aborting is quick }
     end;
