@@ -1671,7 +1671,7 @@ begin
                   Break;
               end;
             end;
-            { Set LastLine }
+            { Search for the body and parse it }
             if Routine.FBodiless then
               Routine.FLastLine := DecorationLastLine
             else begin
