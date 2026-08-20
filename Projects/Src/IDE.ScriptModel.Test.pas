@@ -2799,6 +2799,94 @@ begin
   end;
 end;
 
+procedure TestCodeSectionRoutineAtLine;
+begin
+  const Section = TScriptModelCodeSection.Create;
+  try
+    Section.Parse([
+      'var',                                                      { 0 }
+      '  Global: Integer;',                                       { 1 }
+      '',                                                         { 2 }
+      'procedure Later(A: Integer); forward;',                    { 3 }
+      '',                                                         { 4 }
+      'function GetSysDir: String;',                              { 5 }
+      '  external ''GetSystemDirectoryW@kernel32.dll stdcall'';', { 6 }
+      '',                                                         { 7 }
+      'function MyFunc(const A: String;',                         { 8 }
+      '  const B: Integer): Boolean;',                            { 9 }
+      'var',                                                      { 10 }
+      '  L: Integer;',                                            { 11 }
+      'begin',                                                    { 12 }
+      '  L := 0;',                                                { 13 }
+      '  Result := True;',                                        { 14 }
+      'end;',                                                     { 15 }
+      '',                                                         { 16 }
+      'procedure Later(A: Integer);',                             { 17 }
+      'begin',                                                    { 18 }
+      'end;',                                                     { 19 }
+      '']);                                                       { 20 }
+    Assert(Section.RoutineCount = 4);
+
+    var Routine: TCodeSectionRoutine;
+
+    { Lines outside every span: the global var block, the gaps between
+      routines, the trailing empty line, and lines outside the section }
+    Assert(not Section.TryGetRoutine(0, Routine));
+    Assert(Routine = nil);
+    Assert(not Section.TryGetRoutine(1, Routine));
+    Assert(not Section.TryGetRoutine(2, Routine));
+    Assert(not Section.TryGetRoutine(4, Routine));
+    Assert(not Section.TryGetRoutine(7, Routine));
+    Assert(not Section.TryGetRoutine(16, Routine));
+    Assert(not Section.TryGetRoutine(20, Routine));
+    Assert(not Section.TryGetRoutine(-1, Routine));
+    Assert(not Section.TryGetRoutine(21, Routine));
+
+    { Bodiless routines: the span is the header plus a trailing directive }
+    Assert(Section.TryGetRoutine(3, Routine));
+    Assert(Routine = Section.Routines[0]);
+    Assert(Section.TryGetRoutine(5, Routine));
+    Assert(Routine = Section.Routines[1]);
+    Assert(Section.TryGetRoutine(6, Routine)); { The directive's own line }
+    Assert(Routine = Section.Routines[1]);
+
+    { Inside the header, the local declarations, and the body }
+    Assert(Section.TryGetRoutine(8, Routine));
+    Assert(Routine = Section.Routines[2]);
+    Assert(Section.TryGetRoutine(9, Routine));
+    Assert(Routine = Section.Routines[2]);
+    Assert(Section.TryGetRoutine(10, Routine));
+    Assert(Routine = Section.Routines[2]);
+    Assert(Section.TryGetRoutine(11, Routine));
+    Assert(Routine = Section.Routines[2]);
+    Assert(Section.TryGetRoutine(13, Routine));
+    Assert(Routine = Section.Routines[2]);
+    Assert(Section.TryGetRoutine(15, Routine));
+    Assert(Routine = Section.Routines[2]);
+    Assert(Section.TryGetRoutine(18, Routine));
+    Assert(Routine = Section.Routines[3]);
+
+    { Multiple routines on one physical line: the first one wins }
+    Section.Parse([
+      'procedure A;',
+      'begin',
+      'end; procedure B;',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].LastLine = 2);
+    Assert(Section.Routines[1].FirstLine = 2);
+    Assert(Section.TryGetRoutine(2, Routine));
+    Assert(Routine = Section.Routines[0]);
+    Section.Parse(['procedure A; procedure B; begin end;']);
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.TryGetRoutine(0, Routine));
+    Assert(Routine = Section.Routines[0]);
+  finally
+    Section.Free;
+  end;
+end;
+
 procedure IDEScriptModelRunTests;
 begin
   TestLineHelpers;
@@ -2821,6 +2909,7 @@ begin
   TestKeyValueSectionValuePosition;
   TestPrepareCodeSectionText;
   TestCodeSection;
+  TestCodeSectionRoutineAtLine;
   {$IFDEF ISTESTTOOLPROJ}
   { ISTestTool only: under the ISIDE DEBUG self-test the initializers would
     run at unit initialization, so MainForm's own calls would find the lists

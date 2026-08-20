@@ -238,6 +238,8 @@ type
     destructor Destroy; override;
     procedure Parse(const ALines: array of String);
     function RoutineCount: Integer;
+    function TryGetRoutine(const ALine: Integer;
+      out ARoutine: TCodeSectionRoutine): Boolean;
     property Routines[Index: Integer]: TCodeSectionRoutine read GetRoutine;
   end;
 
@@ -1741,6 +1743,20 @@ function TScriptModelCodeSection.GetRoutine(
   Index: Integer): TCodeSectionRoutine;
 begin
   Result := FRoutines[Index];
+end;
+
+function TScriptModelCodeSection.TryGetRoutine(const ALine: Integer;
+  out ARoutine: TCodeSectionRoutine): Boolean;
+begin
+  { Multiple routines on one physical line: the first one wins }
+  for var Routine in FRoutines do begin
+    if (ALine >= Routine.FirstLine) and (ALine <= Routine.LastLine) then begin
+      ARoutine := Routine;
+      Exit(True);
+    end;
+  end;
+  ARoutine := nil;
+  Result := False;
 end;
 
 end.
