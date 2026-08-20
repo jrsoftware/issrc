@@ -2342,6 +2342,178 @@ begin
 end;
 {$ENDIF}
 
+procedure TestPrepareCodeSectionText;
+begin
+  { Joins with CRLF and UTF-8 encodes, keeping the line count }
+  Assert(PrepareCodeSectionText([]) = '');
+  Assert(UTF8ToString(PrepareCodeSectionText(['a'])) = 'a');
+  Assert(UTF8ToString(PrepareCodeSectionText(['a', 'b', ''])) = 'a'#13#10'b'#13#10);
+
+  { ISPP directive lines are blanked: an unblanked '#' would make the
+    tokenizer abort the whole scan }
+  Assert(UTF8ToString(PrepareCodeSectionText(['#define X 1', 'var A: Integer;'])) =
+    #13#10'var A: Integer;');
+  Assert(UTF8ToString(PrepareCodeSectionText([' #include "x.iss"'])) = '');
+
+  { A spanned directive's continuation lines are blanked too, and the chain
+    ends at the first continuation line which does not span itself }
+  Assert(UTF8ToString(PrepareCodeSectionText(['#define X \', '  1 + \', '  2',
+    'const C = 1;'])) = #13#10#13#10#13#10'const C = 1;');
+
+  { A spanning line which is not a directive is kept }
+  Assert(UTF8ToString(PrepareCodeSectionText(['X := 1 \', '+ 2;'])) =
+    'X := 1 \'#13#10'+ 2;');
+
+  { Inline ISPP directives are kept: the tokenizer skips them as comments }
+  Assert(UTF8ToString(PrepareCodeSectionText(['C := {#X} 1;'])) = 'C := {#X} 1;');
+
+  { Non-ASCII text in strings and comments round-trips through the UTF-8
+    encoding (identifiers cannot carry non-ASCII: the tokenizer rejects it) }
+  const NonASCII = 'S := ''h'#$00E9'llo''; { '#$20AC' }';
+  const Encoded = PrepareCodeSectionText([NonASCII]);
+  Assert(UTF8ToString(Encoded) = NonASCII);
+  Assert(Length(Encoded) = Length(NonASCII)+3); { #$00E9 is two UTF-8 bytes, #$20AC three }
+end;
+
+procedure TestCodeSection;
+begin
+  const Section = TScriptModelCodeSection.Create;
+  try
+    { Functions and procedures, in source order, with 0-based first lines }
+    Section.Parse([
+      'var',
+      '  Global: Integer;',
+      '',
+      'function InitializeSetup: Boolean;',
+      'begin',
+      '  Result := True;',
+      'end;',
+      '',
+      'procedure DoSomething(const A: Integer);',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].Name = 'InitializeSetup');
+    Assert(Section.Routines[0].Kind = rkFunction);
+    Assert(Section.Routines[0].FirstLine = 3);
+    Assert(Section.Routines[1].Name = 'DoSomething');
+    Assert(Section.Routines[1].Kind = rkProcedure);
+    Assert(Section.Routines[1].FirstLine = 8);
+
+    { The next Parse replaces the previous items }
+    Section.Parse(['procedure P;', 'begin', 'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'P');
+    Section.Parse([]);
+    Assert(Section.RoutineCount = 0);
+
+    { A multi-line header: FirstLine is the keyword's line. The keyword and
+      the name can even sit on different lines. }
+    Section.Parse([
+      '',
+      'function MyFunc(const A: String;',
+      '  const B: Integer): Boolean;',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'MyFunc');
+    Assert(Section.Routines[0].FirstLine = 1);
+    Section.Parse(['procedure', '  Below;', 'begin', 'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'Below');
+    Assert(Section.Routines[0].FirstLine = 0);
+
+    { Procedural types are not routines: a routine keyword after '=', ':',
+      'of', '(' or ',' does not start a header }
+    Section.Parse([
+      'type',
+      '  TProc = procedure(Sender: TObject);',
+      '  TFunc = function: Integer;',
+      '  TProcArray = array of procedure;',
+      'var',
+      '  P: procedure;',
+      '  F: function(A: Integer): Boolean;',
+      'procedure TakesCallback(Callback: TProc);',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'TakesCallback');
+    Assert(Section.Routines[0].FirstLine = 7);
+
+    { Also not after ':' inside a parameter list or as a procedural return
+      type }
+    Section.Parse([
+      'function Weird(P: procedure; F: function: Integer): Boolean;',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'Weird');
+    Section.Parse([
+      'function GetHandler: function(A, B: Integer): Boolean;',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'GetHandler');
+
+    { <event('...')> attributes before a header are tolerated; FirstLine stays
+      the keyword's line }
+    Section.Parse([
+      '<event(''InitializeWizard'')>',
+      'procedure MyInitializeWizard2;',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'MyInitializeWizard2');
+    Assert(Section.Routines[0].FirstLine = 1);
+
+    { Keyword text inside comments and strings is not a routine }
+    Section.Parse([
+      '{ procedure InComment1; }',
+      '// procedure InComment2;',
+      '(* function InComment3: Integer; *)',
+      'const S = ''procedure InString;'';',
+      'procedure RealOne;',
+      'begin',
+      '  Log(''function InString2'');',
+      'end;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'RealOne');
+    Assert(Section.Routines[0].FirstLine = 4);
+
+    { ISPP directive lines are blanked without shifting later line numbers }
+    Section.Parse([
+      '#define MyVersion "1.0"',
+      'procedure AfterDirective;',
+      'begin',
+      'end;',
+      '#define Multi \',
+      '  1',
+      'procedure AfterSpanned;',
+      'begin',
+      'end;']);
+    Assert(Section.RoutineCount = 2);
+    Assert(Section.Routines[0].Name = 'AfterDirective');
+    Assert(Section.Routines[0].FirstLine = 1);
+    Assert(Section.Routines[1].Name = 'AfterSpanned');
+    Assert(Section.Routines[1].FirstLine = 6);
+
+    { Malformed input never raises: declarations before a tokenize error are
+      kept, the rest of the scan is lost (resync is Phase 5) }
+    Section.Parse([
+      'procedure BeforeError;',
+      'begin',
+      'end;',
+      'S := ''unterminated',
+      'procedure AfterError;']);
+    Assert(Section.RoutineCount = 1);
+    Assert(Section.Routines[0].Name = 'BeforeError');
+    Section.Parse(['%!?']);
+    Assert(Section.RoutineCount = 0);
+  finally
+    Section.Free;
+  end;
+end;
+
 procedure IDEScriptModelRunTests;
 begin
   TestLineHelpers;
@@ -2362,6 +2534,8 @@ begin
   TestEntryParameterIndex;
   TestEntryValuePosition;
   TestKeyValueSectionValuePosition;
+  TestPrepareCodeSectionText;
+  TestCodeSection;
   {$IFDEF ISTESTTOOLPROJ}
   { ISTestTool only: under the ISIDE DEBUG self-test the initializers would
     run at unit initialization, so MainForm's own calls would find the lists

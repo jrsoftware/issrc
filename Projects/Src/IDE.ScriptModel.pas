@@ -8,7 +8,7 @@ unit IDE.ScriptModel;
 
   Script model which can parse and store a single entry of a parameter
   section, or single occurrence of a key/value section.
-  
+
   Uses the InnoIDE storage technique:
   - Parameter sections: a section entry is an ordered list of
     named parameters where everything parsed (known or unknown) is
@@ -21,6 +21,10 @@ unit IDE.ScriptModel;
     and quotes.
 
   Supports an OnChange event to get notified of changes.
+
+  Also contains a read-only model for a single occurrence of a [Code]
+  section, which uses the ROPS tokenizer to parse it into lists of
+  user-defined declarations.
 }
 
 interface
@@ -197,6 +201,35 @@ type
     property OnChange: TNotifyEvent read FOnChange write FOnChange;
   end;
 
+  TCodeSectionRoutineKind = (rkProcedure, rkFunction);
+
+  { A user-defined procedure or function }
+  TCodeSectionRoutine = class
+  private
+    FName: String;
+    FKind: TCodeSectionRoutineKind;
+    FFirstLine: Integer;
+  public
+    property Name: String read FName;
+    property Kind: TCodeSectionRoutineKind read FKind;
+    property FirstLine: Integer read FFirstLine;
+  end;
+
+  { A single occurrence of a [Code] section. Read-only. Parse never raises on
+    malformed input: invalid code is simply skipped as long as it tokenizes, and
+    a tokenize error ends the scan, keeping the declarations found before it. }
+  TScriptModelCodeSection = class
+  private
+    FRoutines: TObjectList<TCodeSectionRoutine>;
+    function GetRoutine(Index: Integer): TCodeSectionRoutine;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure Parse(const ALines: array of String);
+    function RoutineCount: Integer;
+    property Routines[Index: Integer]: TCodeSectionRoutine read GetRoutine;
+  end;
+
 function ClassifyScriptLine(const S: String): TScriptLineKind;
 function JoinSpannedScriptLines(const ALines: array of String): String; overload;
 function JoinSpannedScriptLines(const ALines: array of String;
@@ -212,8 +245,12 @@ function QuoteParameterValueIfNeeded(const S: String;
 function UnquoteKeyValueValue(const S: String): String;
 function TryParseKeyValueLine(const S: String;
   out ANameText, ARawValue: String): Boolean;
+function PrepareCodeSectionText(const ALines: array of String): AnsiString;
 
 implementation
+
+uses
+  uPSUtils;
 
 { Line helpers }
 
@@ -290,13 +327,18 @@ begin
     Exit(ALines[0]);
   end;
   { Matches ISPP's TPreprocessor.InternalQueueLine }
-  Result := '';
-  for var I := 0 to High(ALines) do begin
-    var S := ALines[I];
-    if (I < High(ALines)) and ScriptLineSpans(S) then
-      SetLength(S, Length(S)-1);
-    ALineStartOffsets[I] := Length(Result)+1;
-    Result := Result + TrimLeft(S);
+  const Builder = TStringBuilder.Create;
+  try
+    for var I := 0 to High(ALines) do begin
+      var S := ALines[I];
+      if (I < High(ALines)) and ScriptLineSpans(S) then
+        SetLength(S, Length(S)-1);
+      ALineStartOffsets[I] := Builder.Length+1;
+      Builder.Append(TrimLeft(S));
+    end;
+    Result := Builder.ToString;
+  finally
+    Builder.Free;
   end;
 end;
 
@@ -1399,6 +1441,98 @@ begin
   var Definition: TMemberDefinition;
   if TryGetDefinition(AName, Definition) then
     Result := Definition.DefaultValue;
+end;
+
+{ TScriptModelCodeSection }
+
+function PrepareCodeSectionText(const ALines: array of String): AnsiString;
+{ Prepares a [Code] section's lines for the ROPS tokenizer, matching
+  TScriptCompiler.Compile: joins the lines with CRLF and UTF-8 encodes the
+  result. ISPP directive lines are blanked first, keeping the line count.
+  Inline ISPP directives need no treatment because the tokenizer does not
+  error on those (it sees them as comments). }
+begin
+  const Builder = TStringBuilder.Create;
+  try
+    var InSpannedDirective := False;
+    for var I := 0 to High(ALines) do begin
+      if I > 0 then
+        Builder.Append(#13#10);
+      if InSpannedDirective or (ClassifyScriptLine(ALines[I]) = slkISPPDirective) then
+        InSpannedDirective := ScriptLineSpans(ALines[I])
+      else
+        Builder.Append(ALines[I]);
+    end;
+    Result := Utf8Encode(Builder.ToString);
+  finally
+    Builder.Free;
+  end;
+end;
+
+constructor TScriptModelCodeSection.Create;
+begin
+  inherited Create;
+  FRoutines := TObjectList<TCodeSectionRoutine>.Create;
+end;
+
+destructor TScriptModelCodeSection.Destroy;
+begin
+  FRoutines.Free;
+  inherited;
+end;
+
+const
+  { A function or procedure keyword after one of these tokens is part of a
+    procedural type }
+  NoRoutineHeaderAfterTokens = [CSTI_Equal, CSTI_Colon, CSTII_of,
+    CSTI_OpenRound, CSTI_Comma];
+
+procedure TScriptModelCodeSection.Parse(const ALines: array of String);
+begin
+  FRoutines.Clear;
+
+  const Parser = TPSPascalParser.Create;
+  try
+    Parser.SetText(PrepareCodeSectionText(ALines));
+    var LastTokenID := CSTI_EOF;
+    while Parser.CurrTokenID <> CSTI_EOF do begin { CSTI_EOF means error or EOF }
+      const TokenID = Parser.CurrTokenID;
+      if ((TokenID = CSTII_function) or (TokenID = CSTII_procedure)) and { Local routines don't exist, so simple check }
+         not (LastTokenID in NoRoutineHeaderAfterTokens) then begin
+        const FirstLine = Integer(Parser.Row)-1;
+        Parser.Next;
+        if Parser.CurrTokenID = CSTI_Identifier then begin
+          const Routine = TCodeSectionRoutine.Create;
+          FRoutines.Add(Routine);
+          Routine.FName := UTF8ToString(Parser.OriginalToken);
+          if TokenID = CSTII_function then
+            Routine.FKind := rkFunction
+          else
+            Routine.FKind := rkProcedure;
+          Routine.FFirstLine := FirstLine;
+          LastTokenID := CSTI_Identifier;
+          Parser.Next;
+        end else
+          LastTokenID := TokenID; { The token after the keyword is re-examined by the loop }
+      end else begin
+        LastTokenID := TokenID;
+        Parser.Next;
+      end;
+    end;
+  finally
+    Parser.Free;
+  end;
+end;
+
+function TScriptModelCodeSection.RoutineCount: Integer;
+begin
+  Result := Integer(FRoutines.Count);
+end;
+
+function TScriptModelCodeSection.GetRoutine(
+  Index: Integer): TCodeSectionRoutine;
+begin
+  Result := FRoutines[Index];
 end;
 
 end.
