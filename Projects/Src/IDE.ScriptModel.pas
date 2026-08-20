@@ -210,13 +210,20 @@ type
     FKind: TCodeSectionRoutineKind;
     FResultTypeText: String;
     FPrototype: String;
-    FFirstLine: Integer;
+    FFirstLine, FLastLine: Integer;         { Always set }
+    FBodyFirstLine, FBodyLastLine: Integer; { -1/-1 for a bodiless routine and while no
+    matching 'end' is found }
+    FBodiless: Boolean;                     { True after a 'forward' or 'external' directive }
   public
     property Name: String read FName;
     property Kind: TCodeSectionRoutineKind read FKind;
     property ResultTypeText: String read FResultTypeText;
     property Prototype: String read FPrototype;
     property FirstLine: Integer read FFirstLine;
+    property BodyFirstLine: Integer read FBodyFirstLine;
+    property BodyLastLine: Integer read FBodyLastLine;
+    property LastLine: Integer read FLastLine;
+    property Bodiless: Boolean read FBodiless;
   end;
 
   { A single occurrence of a [Code] section. Read-only. Parse never raises on
@@ -1560,6 +1567,13 @@ procedure TScriptModelCodeSection.Parse(const ALines: array of String);
     end;
   end;
 
+  function IsRoutineHeaderStart(const ATokenID,
+    ALastTokenID: TPSPasToken): Boolean;
+  begin
+    Result := ((ATokenID = CSTII_function) or (ATokenID = CSTII_procedure)) and { Local routines don't exist, so simple check }
+      not (ALastTokenID in NoRoutineHeaderAfterTokens);
+  end;
+
 begin
   FRoutines.Clear;
 
@@ -1570,8 +1584,7 @@ begin
     var LastTokenID := CSTI_EOF;
     while Parser.CurrTokenID <> CSTI_EOF do begin { CSTI_EOF means error or EOF }
       const TokenID = Parser.CurrTokenID;
-      if ((TokenID = CSTII_function) or (TokenID = CSTII_procedure)) and { Local routines don't exist, so simple check }
-         not (LastTokenID in NoRoutineHeaderAfterTokens) then begin
+      if IsRoutineHeaderStart(TokenID, LastTokenID) then begin
         const FirstLine = Integer(Parser.Row)-1;
         const StartPos = Integer(Parser.CurrTokenPos);
         Parser.Next;
@@ -1579,6 +1592,9 @@ begin
           { Add routine with its name, kind and first line }
           const Routine = TCodeSectionRoutine.Create;
           FRoutines.Add(Routine);
+          Routine.FBodyFirstLine := -1;
+          Routine.FBodyLastLine := -1;
+          Routine.FLastLine := -1;
           Routine.FName := UTF8ToString(Parser.OriginalToken);
           if TokenID = CSTII_function then
             Routine.FKind := rkFunction
@@ -1598,9 +1614,9 @@ begin
             const PrototypeTokenID = Parser.CurrTokenID;
             if ResultTypeColonSeen and (ResultTypeStartPos < 0) then
               ResultTypeStartPos := Integer(Parser.CurrTokenPos);
-            if ((PrototypeTokenID = CSTII_function) or (PrototypeTokenID = CSTII_procedure)) and
-               (BraceDepth = 0) and not (LastTokenID in NoRoutineHeaderAfterTokens) then { ROPS allows inline type declarations in parameter lists }
-              Break;  { Prototyp is unterminated, allow outer loop to parse new declaration }
+            if IsRoutineHeaderStart(PrototypeTokenID, LastTokenID) and
+               (BraceDepth = 0) then
+              Break;  { Prototype is unterminated, allow outer loop to parse new declaration }
             if PrototypeTokenID = CSTI_OpenRound then
               Inc(BraceDepth)
             else if (PrototypeTokenID = CSTI_CloseRound) and (BraceDepth > 0) then
@@ -1609,7 +1625,8 @@ begin
               ResultTypeColonSeen := True;
             { Known limitation: for a function using an inline structured result type
               such as 'function F: record A: Integer; end;' it takes the first ';'
-              as the end of the type, truncating Prototype and ResultTypeText. }
+              as the end of the type, truncating Prototype and ResultTypeText.
+              The body is still found: the 'begin' search skips 'end;'. }
             const Terminated = (PrototypeTokenID = CSTI_Semicolon) and (BraceDepth = 0);
             if Terminated then
               EndPos := Integer(Parser.CurrTokenPos)+1; { Skip ';' }
@@ -1620,7 +1637,8 @@ begin
           end;
 
           var ResultTypeEndPos: Integer;
-          if EndPos >= 0 then
+          const HeaderTerminated = EndPos >= 0;
+          if HeaderTerminated then
             ResultTypeEndPos := EndPos-1 { Move back before ';' }
           else begin
             { Malformed or unterminated header; keep what is there }
@@ -1630,6 +1648,78 @@ begin
           Routine.FPrototype := SliceText(Text, StartPos, EndPos);
           if (Routine.FKind = rkFunction) and (ResultTypeStartPos >= 0) then
             Routine.FResultTypeText := SliceText(Text, ResultTypeStartPos, ResultTypeEndPos);
+
+          if HeaderTerminated then begin
+            { Handle trailing decoration }
+            var DecorationLastLine := -1;
+            while Parser.CurrTokenID in [CSTII_Forward, CSTII_External, CSTII_Export] do begin
+              if Parser.CurrTokenID <> CSTII_Export then
+                Routine.FBodiless := True;
+              LastTokenID := Parser.CurrTokenID;
+              DecorationLastLine := Integer(Parser.Row)-1;
+              Parser.Next;
+              { Consume the rest of the decoration until its ';' }
+              while (Parser.CurrTokenID <> CSTI_EOF) and
+                    not IsRoutineHeaderStart(Parser.CurrTokenID, LastTokenID) do begin
+                const DecorationTokenID = Parser.CurrTokenID;
+                LastTokenID := DecorationTokenID;
+                DecorationLastLine := Integer(Parser.Row)-1;
+                Parser.Next;
+                if DecorationTokenID = CSTI_Semicolon then
+                  Break;
+              end;
+            end;
+            { Set LastLine }
+            if Routine.FBodiless then
+              Routine.FLastLine := DecorationLastLine
+            else begin
+              { Search for 'begin' }
+              while (Parser.CurrTokenID <> CSTI_EOF) and
+                    (Parser.CurrTokenID <> CSTII_begin) and
+                    not IsRoutineHeaderStart(Parser.CurrTokenID, LastTokenID) do begin
+                LastTokenID := Parser.CurrTokenID;
+                Parser.Next;
+              end;
+              if Parser.CurrTokenID = CSTII_begin then begin
+                { Search for matching 'end' }
+                Routine.FBodyFirstLine := Integer(Parser.Row)-1;
+                LastTokenID := CSTII_begin;
+                Parser.Next;
+                var BlockDepth := 1;
+                while (Parser.CurrTokenID <> CSTI_EOF) and
+                      not IsRoutineHeaderStart(Parser.CurrTokenID, LastTokenID) do begin
+                  const BodyTokenID = Parser.CurrTokenID;
+                  if BodyTokenID in [CSTII_begin, CSTII_case, CSTII_Try] then
+                    Inc(BlockDepth)
+                  else if BodyTokenID = CSTII_end then begin
+                    Dec(BlockDepth);
+                    if BlockDepth = 0 then begin
+                      Routine.FBodyLastLine := Integer(Parser.Row)-1;
+                      Routine.FLastLine := Routine.FBodyLastLine;
+                    end;
+                  end;
+                  LastTokenID := BodyTokenID;
+                  Parser.Next;
+                  if BlockDepth = 0 then
+                    Break;
+                end;
+                if Routine.FBodyLastLine < 0 then
+                  Routine.FBodyFirstLine := -1; { No matching 'end' found }
+              end;
+            end;
+          end;
+          if Routine.FLastLine < 0 then begin
+            { No body 'end' found: take the line before the next declaration,
+              or to the section's last line. This way a body still being
+              typed still reports the routine. }
+            if Parser.CurrTokenID = CSTI_EOF then
+              Routine.FLastLine := Integer(High(ALines))
+            else begin
+              Routine.FLastLine := Integer(Parser.Row)-2;
+              if Routine.FLastLine < Routine.FFirstLine then
+                Routine.FLastLine := Routine.FFirstLine;
+            end;
+          end;
         end else
           LastTokenID := TokenID;
       end else begin
